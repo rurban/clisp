@@ -86,8 +86,8 @@ package.</para>
  <para>The &domain; is a string identifier denoting the program that
 is requesting the translation.  The pathname of the message catalog
 depends on the &domain;: usually it is located at
-<filename>TEXTDOMAINDIR/ll/LC_MESSAGES/domain.mo</filename>, where
-<replaceable>ll</replaceable> is the ISO 639 code of the language.
+<filename>TEXTDOMAINDIR/l/LC_MESSAGES/domain.mo</filename>, where
+&l-r; is the ISO 639 code of the language.
 The notion of &domain; allows several Lisp programs running in the same
 image to request translations independently of each other.</para>
 
@@ -293,16 +293,14 @@ localized.</para>
  language-dependent values through the macro <emphasis
  role="strong"><function>i18n:deflocalized</function></emphasis>:
  <literal role="sexp">(<function>i18n:deflocalized</function>
- &symbol-r; <replaceable>language</replaceable>
- <replaceable>value-form</replaceable>)</literal></para>
+ &symbol-r; &lang-r; <replaceable>value-form</replaceable>)</literal></para>
 
 <para>(One such form for each language.  Languages without an assigned
  value will be treated like the default-language.)  You can then access
  the localized value by calling <emphasis
  role="strong"><function>i18n:localized</function></emphasis>: <literal
  role="sexp">(<function>i18n:localized</function>
- &symbol-r; &optional-amp;
- <replaceable>language</replaceable>)</literal></para>
+ &symbol-r; &optional-amp; &lang-r;)</literal></para>
 
 </section>
 
@@ -824,21 +822,17 @@ localized.</para>
 <thead><row><entry>keyword</entry>
             <entry>newline representation</entry></row></thead>
 <tbody>
-<row><entry><constant>:unix</constant></entry>
-     <entry>Newline is represented by the ASCII &lf-c;
-     character (<keycode>U000A</keycode>).</entry></row>
-<row><entry><constant>:mac</constant></entry>
-     <entry>Newline is represented by the ASCII &cr-c;
-     character (<keycode>U000D</keycode>).</entry></row>
-<row><entry><constant>:dos</constant></entry>
-     <entry>Newline is represented by the ASCII &cr-c; followed
-     by the ASCII &lf-c;.</entry></row>
+<row><entry>&unix-k;</entry><entry>Newline is represented by the ASCII
+     &lf-c; character (<keycode>U000A</keycode>).</entry></row>
+<row><entry>&mac-k;</entry><entry>Newline is represented by the ASCII
+     &cr-c; character (<keycode>U000D</keycode>).</entry></row>
+<row><entry>&dos-k;</entry><entry>Newline is represented by the ASCII
+     &cr-c; followed by the ASCII &lf-c;.</entry></row>
 </tbody></tgroup></table>
 
-<para>Windows programs typically use the <constant>:dos</constant> line
- terminator, sometimes they also accept <constant>:unix</constant> line
- terminators or produce <constant>:mac</constant> line
- terminators.</para>
+<para>Windows programs typically use the &dos-k; line terminator,
+ sometimes they also accept &unix-k; line terminators or produce
+ &mac-k; line terminators.</para>
 
 <para>The line terminator mode is relevant only for output (writing to a
  &file-pipe-socket;).  During input, all three kinds of line
@@ -857,10 +851,9 @@ localized.</para>
   <literal role="sexp">(&make-encoding; &key-amp; :charset
      :line-terminator :input-error-action :output-error-action)</literal>
  returns an &encoding;. The <constant>:charset</constant> argument may be
- an encoding, a string, or &default-k;.  The possible
- values for the <constant>:line-terminator</constant> argument are the
- keywords <constant>:unix</constant>, <constant>:mac</constant>,
- <constant>:dos</constant>.</para>
+ an encoding, a string, or &default-k;.
+ The possible values for the &line-term; argument are the
+ keywords &unix-k;, &mac-k;, &dos-k;.</para>
 
 <para>The <constant>:input-error-action</constant> specifies what
  happens when an invalid byte sequence is encountered while converting
@@ -979,7 +972,7 @@ user-defined behavior:
 <para>The <function>fundamental-stream</function> API is based on the
  &gray-streams; proposal by David N. Gray and is supported by most &cl;
  implementations currently in use.
- The <classname>generic-stream-controller</classname>
+ The <classname>gstream:generic-stream-controller</classname>
  API is &clisp; specific and is now obsolete.</para>
 
 <section id="gray"><title>Gray streams</title>
@@ -2133,9 +2126,8 @@ within Lisp (using &setq; or similar).</simpara>
 
 </listitem></varlistentry>
 
-<varlistentry id="def-call-out">
-  <term><literal role="sexp">(<function>def-call-out</function>
-        &name-r; {&option-r;}*)</literal></term>
+<varlistentry id="def-call-out"><term><literal role="sexp">(&def-call-out;
+              &name-r; {&option-r;}*)</literal></term>
 <listitem><table frame="all" role="bnf"><title/>
  <tgroup cols="3" colsep="1" rowsep="1" align="left">
  <thead><row><entry>&option-r; ::==</entry>
@@ -2147,25 +2139,18 @@ within Lisp (using &setq; or similar).</simpara>
     [&param-mode; [&allocation;]])}*)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:return-type
    &ctype-r; [&allocation;])</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(:language
-   <replaceable>language</replaceable>)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(&lang-k;
+   &lang-r;)</literal></entry></row>
 </tbody></tgroup></table>
 
 <simpara>This form defines a named call-out function (a foreign function
  called from Lisp: control flow temporarily leaves Lisp).  Any Lisp
  function call to <function>#'&name-r;</function>
  is redirected to call the &c-lang; function &cname-r;.
- The <replaceable>language</replaceable> is either <constant>:C</constant>
- (denotes K&amp;R &c-lang;) or <constant>:STDC</constant> (denotes ANSI
- &c-lang;) or <constant>:stdc-stdcall</constant> (denotes ANSI &c-lang;
- with <emphasis>stdcall</emphasis> calling convention).  It specifies
- whether the &c-lang; function has been compiled by a K&amp;R &c-lang;
- compiler or by an ANSI &c-lang; compiler, and possibly the calling
- convention.</simpara></listitem></varlistentry>
+</simpara></listitem></varlistentry>
 
-<varlistentry id="def-call-in">
-  <term><literal role="sexp">(<function>def-call-in</function>
-        &name-r; {&option-r;}*)</literal></term>
+<varlistentry id="def-call-in"><term><literal role="sexp">(&def-call-in;
+              &name-r; {&option-r;}*)</literal></term>
 <listitem><table frame="all" role="bnf"><title/>
  <tgroup cols="3" colsep="1" rowsep="1" align="left">
  <thead><row><entry>&option-r; ::==</entry>
@@ -2177,58 +2162,42 @@ within Lisp (using &setq; or similar).</simpara>
     [&param-mode; [&allocation;]])}*)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:return-type
    &ctype-r; [&allocation;])</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(:language
-   <replaceable>language</replaceable>)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(&lang-k;
+   &lang-r;)</literal></entry></row>
 </tbody></tgroup></table>
 
 <simpara>This form defines a named call-in function (i.e., a Lisp
  function called from the foreign language: control flow temporary
  enters Lisp).  Any &c-lang; function call to the &c-lang; function
  &cname-r; is redirected to call the &cl; function
- <function>#'&name-r;</function>.  The
- <replaceable>language</replaceable> is either <constant>:c</constant>
- (denotes K&amp;R &c-lang;) or <constant>:stdc</constant> (denotes ANSI
- &c-lang;) or <constant>:stdc-stdcall</constant> (denotes ANSI &c-lang;
- with <emphasis>stdcall</emphasis> calling convention).  It specifies
- whether the calling code has been compiled by a K&amp;R &c-lang;
- compiler or by an ANSI &c-lang; compiler, and possibly the calling
- convention.
-</simpara></listitem></varlistentry>
+ <function>#'&name-r;</function>.</simpara></listitem></varlistentry>
 
-<varlistentry id="def-c-call-out">
-  <term><literal role="sexp">(<function>def-c-call-out</function>
+<varlistentry id="def-c-call-out"><term><literal role="sexp">(&def-c-call-out;
         &name-r; {&option-r;}*)</literal></term>
 <listitem><simpara>This is equivalent to &def-call-out; with
-   <constant>:language</constant> <constant>:stdc</constant>.
- </simpara></listitem></varlistentry>
+   &lang-k; &stdc-k;.</simpara></listitem></varlistentry>
 
-<varlistentry id="def-c-call-in">
-  <term><literal role="sexp">(<function>def-c-call-in</function>
+<varlistentry id="def-c-call-in"><term><literal role="sexp">(&def-c-call-in;
         &name-r; {&option-r;}*)</literal></term>
 <listitem><simpara>This is equivalent to &def-call-in; with
-   <constant>:language</constant> <constant>:stdc</constant>.
- </simpara></listitem></varlistentry>
+   &lang-k; &stdc-k;.</simpara></listitem></varlistentry>
 
-<varlistentry id="def-c-struct">
-  <term><literal role="sexp">(<function>def-c-struct</function> &name-r;
-        (<replaceable>ident</replaceable> &ctype-r;)*)</literal></term>
+<varlistentry id="def-c-struct"><term><literal role="sexp">(&def-c-struct;
+   &name-r; (<replaceable>ident</replaceable> &ctype-r;)*)</literal></term>
  <listitem><simpara>This form defines &name-r; to be both a
   &structure-class; and a foreign &c-lang; type with the given slots.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="def-c-enum">
-  <term><literal role="sexp">(<function>def-c-enum</function>
+<varlistentry id="def-c-enum"><term><literal role="sexp">(&def-c-enum;
         &name-r; {<replaceable>ident</replaceable> |
                   (<replaceable>ident</replaceable>
                   [&value-r;])}*)</literal></term>
  <listitem><simpara>This form defines <replaceable>ident</replaceable>s
   as constants, similarly to the &c-lang; declaration <type>enum {
   <replaceable>ident</replaceable> [= &value-r;],
-  ... };</type>
- </simpara></listitem></varlistentry>
+  ... };</type></simpara></listitem></varlistentry>
 
-<varlistentry id="c-lines">
-  <term><literal role="sexp">(<function>c-lines</function>
+<varlistentry id="c-lines"><term><literal role="sexp">(&c-lines;
                 <replaceable>format-string</replaceable>
                 {<replaceable>argument</replaceable>}*)</literal></term>
  <listitem><simpara>This form outputs the string <literal
@@ -2237,8 +2206,7 @@ within Lisp (using &setq; or similar).</simpara>
   output file.  This is a rarely needed low-level facility.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="element">
-   <term><literal role="sexp">(<function>element</function>
+<varlistentry id="element"><term><literal role="sexp">(&element;
      &cplace-r; <replaceable>index&sub-1;</replaceable> ...
      <replaceable>index&sub-n;</replaceable>)</literal></term>
 <listitem><simpara>Array element: If &cplace-r; is of foreign type
@@ -2254,7 +2222,7 @@ within Lisp (using &setq; or similar).</simpara>
   ... <replaceable>index&sub-n;</replaceable>)</literal> or
   <varname>&cplace-r;[<replaceable>index&sub-1;</replaceable>]...[<replaceable>index&sub-n;</replaceable>]</varname>.
   It is a place of type &ctype-r;.
-  If &cplace-r; is of foreign type <literal role="sexp">(c-array-max
+  If &cplace-r; is of foreign type <literal role="sexp">(&c-array-max;
   &ctype-r; <replaceable>dim</replaceable>)</literal> and 0 &le;
   <replaceable>index</replaceable> &lt; <replaceable>dim</replaceable>,
   this will be the place corresponding to <literal role="sexp">(&aref;
@@ -2263,7 +2231,7 @@ within Lisp (using &setq; or similar).</simpara>
   It is a place of type &ctype-r;.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="deref"><term><literal role="sexp">(<function>deref</function>
+<varlistentry id="deref"><term><literal role="sexp">(&deref;
                 &cplace-r;)</literal></term>
 <listitem><simpara>Dereference pointer: If
   &cplace-r; is of foreign type
@@ -2275,7 +2243,7 @@ within Lisp (using &setq; or similar).</simpara>
   the &cplace-r; may not be &c-NULL;.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="slot"><term><literal role="sexp">(<function>slot</function>
+<varlistentry id="slot"><term><literal role="sexp">(&slot;
        &cplace-r; <replaceable>slot-name</replaceable>)</literal></term>
 <listitem><simpara>Struct or union component: If &cplace-r; is of
   foreign type <literal role="sexp">(&c-struct; &class-r;
@@ -2285,21 +2253,20 @@ within Lisp (using &setq; or similar).</simpara>
   this will be of type &ctype-r;.
   </simpara></listitem></varlistentry>
 
-<varlistentry id="cast"><term><literal role="sexp">(<function>cast</function>
+<varlistentry id="cast"><term><literal role="sexp">(&cast;
            &cplace-r; &ctype-r;)</literal></term>
 <listitem><simpara>Type change: A place denoting the same memory
   locations as the original &cplace-r;, but of type &ctype-r;.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="typeof">
-  <term><literal role="sexp">(<function>typeof</function>
+<varlistentry id="typeof"><term><literal role="sexp">(&typeof;
     &cplace-r;)</literal></term>
 <listitem><simpara>returns the &ctype-r; corresponding to the &cplace-r;.
   </simpara></listitem></varlistentry>
 
 <varlistentry id="sizeof">
-  <term><literal role="sexp">(<function>sizeof</function> &ctype-r;)</literal>,
- <literal role="sexp">(<function>sizeof</function> &cplace-r;)</literal></term>
+  <term><literal role="sexp">(&sizeof; &ctype-r;)</literal>,
+        <literal role="sexp">(&sizeof; &cplace-r;)</literal></term>
 <listitem><simpara>The first form returns the size and alignment of a
   &c-lang; type &ctype-r;, measured in bytes.</simpara>
   <simpara>The second form returns the size and alignment of the
@@ -2307,18 +2274,15 @@ within Lisp (using &setq; or similar).</simpara>
   </simpara></listitem></varlistentry>
 
 <varlistentry id="bitsizeof">
-  <term><literal
-   role="sexp">(<function>bitsizeof</function> &ctype-r;)</literal>,
-                <literal role="sexp">(<function>bitsizeof</function>
-                &cplace-r;)</literal></term>
+  <term><literal role="sexp">(&bitsizeof; &ctype-r;)</literal>,
+        <literal role="sexp">(&bitsizeof; &cplace-r;)</literal></term>
 <listitem><simpara>The first form returns the size and alignment of the
   &c-lang; type &ctype-r;, measured in bits.</simpara>
   <simpara>The second form returns the size and alignment of the
   &c-lang; type of &cplace-r;, measured in bits.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="validp">
-  <term><literal role="sexp">(<function>validp</function>
+<varlistentry id="validp"><term><literal role="sexp">(&validp;
                 <replaceable>foreign-entity</replaceable>)</literal></term>
 <listitem><simpara>This predicate returns &nil; if the
   <replaceable>foreign-entity</replaceable> (e.g. the Lisp equivalent of
@@ -2333,8 +2297,8 @@ within Lisp (using &setq; or similar).</simpara>
 <section id="dffi-types"><title>(Foreign) &c-lang; types</title>
 
 <para>Foreign &c-lang; types are used in the &ffi-pac;.
- They are <emphasis>not</emphasis> regular &cl; types or &clos;
- classes.</para>
+They are <emphasis>not</emphasis> regular &cl; types or &clos;
+classes.</para>
 
 <para>A &ctype-r; is either a predefined &c-lang; type or the name of a
  type defined by &def-c-type;.</para>
@@ -2398,19 +2362,18 @@ within Lisp (using &setq; or similar).</simpara>
    <entry><type>double</type></entry></row>
 </tbody></tgroup></table></listitem></varlistentry>
 
-<varlistentry id="c-pointer"><term><type>c-pointer</type></term>
+<varlistentry id="c-pointer"><term>&c-pointer;</term>
  <listitem><simpara>This type corresponds to what &c-lang; calls
   <type>void*</type>, an opaque pointer.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-string"><term><type>c-string</type></term>
+<varlistentry id="c-string"><term>&c-string;</term>
  <listitem><simpara>This type corresponds to what &c-lang; calls
   <type>char*</type>, a zero-terminated string.  Its Lisp equivalent is
   a string, without the trailing zero character.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-struct"><term><literal
-     role="sexp">(<type>c-struct</type> &class-r;
+<varlistentry id="c-struct"><term><literal role="sexp">(&c-struct; &class-r;
   (<replaceable>ident&sub-1;</replaceable>
    <replaceable>c-type&sub-1;</replaceable>) ...
   (<replaceable>ident&sub-n;</replaceable>
@@ -2427,7 +2390,7 @@ within Lisp (using &setq; or similar).</simpara>
  ... ,<replaceable>ident&sub-n;</replaceable>.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-union"><term><literal role="sexp">(<type>c-union</type>
+<varlistentry id="c-union"><term><literal role="sexp">(&c-union;
   (<replaceable>ident&sub-1;</replaceable>
    <replaceable>c-type&sub-1;</replaceable>) ...
   (<replaceable>ident&sub-n;</replaceable>
@@ -2442,7 +2405,7 @@ within Lisp (using &setq; or similar).</simpara>
   being of <replaceable>c-type&sub-1;</replaceable>.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-array"><term><literal role="sexp">(<type>c-array</type>
+<varlistentry id="c-array"><term><literal role="sexp">(&c-array;
    &ctype-r; <replaceable>dim&sub-1;</replaceable> ...
    <replaceable>dim&sub-n;</replaceable>)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
@@ -2451,69 +2414,62 @@ within Lisp (using &setq; or similar).</simpara>
   Note that when an array is passed as an argument to a function in
   &c-lang;, it is actually passed as a pointer; you therefore have to
   write <literal role="sexp">(&c-ptr; (&c-array; ...))</literal> for this
-  argument's type.
- </simpara></listitem></varlistentry>
+  argument's type.</simpara></listitem></varlistentry>
 
-<varlistentry id="c-array-max"><term><literal
-   role="sexp">(<type>c-array-max</type> &ctype-r;
-               <replaceable>maxdimension</replaceable>)</literal></term>
+<varlistentry id="c-array-max"><term><literal role="sexp">(&c-array-max;
+  &ctype-r; &maxdim-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type>&ctype-r; [<replaceable>maxdimension</replaceable>]</type>, an
-  array containing up to <replaceable>maxdimension</replaceable> elements.
-  The array is zero-terminated if it contains less than
-  <replaceable>maxdimension</replaceable> elements.
-  Conversion from Lisp of an array with more than
-  <replaceable>maxdimension</replaceable> elements silently ignores the
-  superfluous elements.
- </simpara></listitem></varlistentry>
+  <type>&ctype-r; [&maxdim-r;]</type>, an array containing up to
+  &maxdim-r; elements.
+  The array is zero-terminated if it contains less than &maxdim-r; elements.
+  Conversion from Lisp of an array with more than &maxdim-r; elements
+  silently ignores the superfluous elements.
+  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-function"><term><literal
-   role="sexp">(<type>c-function</type>
-    (<constant>:arguments</constant>
+   role="sexp">(&c-function; (<constant>:arguments</constant>
       {(<replaceable>arg-name</replaceable> <replaceable>a-c-type</replaceable>
         [&param-mode; [&allocation;]])}*)
     (<constant>:return-type</constant> <replaceable>r-c-type</replaceable>
        [&allocation;])
-    (<constant>:language</constant>
-     <replaceable>language</replaceable>))</literal></term>
+    (&lang-k; &lang-r;))</literal></term>
  <listitem><simpara>This type designates a &c-lang; function that can be
   called according to the given prototype <literal
   role="sexp">(<replaceable>r-c-type</replaceable> (*)
   (<replaceable>a-c-type&sub-1;</replaceable>, ...))</literal>.
-  The <replaceable>language</replaceable> is either
-  <constant>:c</constant> (denotes K&amp;R &c-lang;) or
-  <constant>:stdc</constant> (denotes ANSI &c-lang;) or
-  <constant>:stdc-stdcall</constant> (denotes ANSI &c-lang; with
-  <emphasis>stdcall</emphasis> calling convention).  It specifies
-  whether the &c-lang; function has been compiled by a K&amp;R &c-lang;
-  compiler or by an ANSI &c-lang; compiler, and possibly the calling
-  convention.  Conversion between &c-lang; functions and Lisp functions
-  is transparent.
- </simpara></listitem></varlistentry>
+  Conversion between &c-lang; functions and Lisp functions
+  is transparent.</simpara></listitem></varlistentry>
 
-<varlistentry id="c-ptr"><term><literal role="sexp">(<type>c-ptr</type>
-                &ctype-r;)</literal></term>
+<varlistentry id="c-ptr"><term><literal role="sexp">(&c-ptr;
+              &ctype-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type>&ctype-r; *</type>: a pointer to a single
-  item of the given &ctype-r;.
- </simpara></listitem></varlistentry>
+  <type>&ctype-r; *</type>: a pointer to a single item of the given
+  &ctype-r;.</simpara></listitem></varlistentry>
 
 <varlistentry id="c-ptr-null"><term><literal
-   role="sexp">(<type>c-ptr-null</type> &ctype-r;)</literal></term>
+   role="sexp">(&c-ptr-null; &ctype-r;)</literal></term>
  <listitem><simpara>This type is also equivalent to what &c-lang; calls
-  <type>&ctype-r; *</type>: a pointer to a single
-  item of the given &ctype-r;, with the exception
-  that &c-lang; &c-NULL; corresponds to Lisp &nil;.
- </simpara></listitem></varlistentry>
+  <type>&ctype-r; *</type>: a pointer to a single item of the given
+  &ctype-r;, with the exception that &c-lang; &c-NULL; corresponds to
+  Lisp &nil;.</simpara></listitem></varlistentry>
 
 <varlistentry id="c-array-ptr"><term><literal
-   role="sexp">(<type>c-array-ptr</type> &ctype-r;)</literal></term>
+   role="sexp">(&c-array-ptr; &ctype-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
   <type>&ctype-r; (*)[]</type>: a pointer to a zero-terminated array of
-  items of the given &ctype-r;.
- </simpara></listitem></varlistentry>
+  items of the given &ctype-r;.</simpara></listitem></varlistentry>
 </variablelist>
 </section>
+
+<section id="c-flavor"><title>The choice of the &c-lang; flavor.</title>
+
+<para>&c-function;, &def-call-in;, &def-call-out; take &lang-k; argument.
+The &lang-r; is either &c-k; (denotes K&amp;R &c-lang;) or &stdc-k;
+(denotes ANSI &c-lang;) or &stdc-sc-k; (denotes ANSI &c-lang;
+with <emphasis>stdcall</emphasis> calling convention).
+It specifies whether the &c-lang; function (caller or callee) has been
+compiled by a K&amp;R &c-lang; compiler or by an ANSI &c-lang; compiler,
+and possibly the calling convention.</para></section>
 
 <section id="dffi-variables"><title>Foreign variables</title>
 
@@ -3043,8 +2999,7 @@ can define a lambda yourself), name spaces are separate.</para>
 
 <para>Except for <function>with-open-library</function>,
 <function>declare-library-function</function> and
-<function>mlibcall</function>, all of
-the above are functions.</para>
+<function>mlibcall</function>, all of the above are functions.</para>
 
 <para>A library contains a collection of functions.  The library is
 referred to by a symbol referred as library-base at the &affi-pac;

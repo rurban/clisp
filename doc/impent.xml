@@ -20,6 +20,7 @@
 <!ENTITY alloca-k "<constant>:ALLOCA</constant>">
 <!ENTITY append-k "<constant>:APPEND</constant>">
 <!ENTITY arguments-k "<constant>:ARGUMENTS</constant>">
+<!ENTITY c-k "<constant>:C</constant>">
 <!ENTITY c-NULL "<constant>NULL</constant>">
 <!ENTITY case-sensitive-k "<constant>:CASE-SENSITIVE</constant>">
 <!ENTITY control-k "<constant>:CONTROL</constant>">
@@ -44,6 +45,7 @@
 <!ENTITY input-k "<constant>:INPUT</constant>">
 <!ENTITY io-k "<constant>:IO</constant>">
 <!ENTITY key-k "<constant>:KEY</constant>">
+<!ENTITY lang-k "<link linkend='c-flavor'><constant>:LANGUAGE</constant></link>">
 <!ENTITY library-k "<constant>:LIBRARY</constant>">
 <!ENTITY malloc-free-k "<constant>:MALLOC-FREE</constant>">
 <!ENTITY merge-k "<constant>:MERGE</constant>">
@@ -61,6 +63,8 @@
 <!ENTITY relative-k "<constant>:RELATIVE</constant>">
 <!ENTITY root-k "<constant>:ROOT</constant>">
 <!ENTITY start-k "<constant>:START</constant>">
+<!ENTITY stdc-k "<constant>:STDC</constant>">
+<!ENTITY stdc-sc-k "<constant>:STDC-STDCALL</constant>">
 <!ENTITY stream-k "<constant>:STREAM</constant>">
 <!ENTITY super-k "<constant>:SUPER</constant>">
 <!ENTITY use-k "<constant>:USE</constant>">
@@ -68,6 +72,10 @@
 <!ENTITY warnings-k "<constant>:WARNINGS</constant>">
 <!ENTITY wild-inferiors-k "<constant>:WILD-INFERIORS</constant>">
 <!ENTITY wild-k "<constant>:WILD</constant>">
+
+<!ENTITY dos-k "<constant>:DOS</constant>">
+<!ENTITY mac-k "<constant>:MAC</constant>">
+<!ENTITY unix-k "<constant>:UNIX</constant>">
 
 <!-- *** characters *** -->
 <!ENTITY nl-c "<keysym>#\Newline</keysym>">
@@ -101,6 +109,10 @@
 <!ENTITY browser "<link linkend='browser'><constant>:BROWSER</constant></link>">
 <!ENTITY byte-t "<link linkend='byte-type'><type>BYTE</type></link>">
 <!ENTITY cd "<link linkend='cd'><function>EXT:CD</function></link>">
+<!ENTITY ch-ctrl "<link linkend='char-bits'><constant>EXT:CHAR-CONTROL-BIT</constant></link>">
+<!ENTITY ch-meta "<link linkend='char-bits'><constant>EXT:CHAR-META-BIT</constant></link>">
+<!ENTITY ch-super "<link linkend='char-bits'><constant>EXT:CHAR-SUPER-BIT</constant></link>">
+<!ENTITY ch-hyper "<link linkend='char-bits'><constant>EXT:CHAR-HYPER-BIT</constant></link>">
 <!ENTITY char-width "<link linkend='char-width'><function>EXT:CHAR-WIDTH</function></link>">
 <!ENTITY string-width "<link linkend='string-width'><function>EXT:STRING-WIDTH</function></link>">
 <!ENTITY input-char "<link linkend='input-char'><classname>SYS::INPUT-CHARACTER</classname></link>">
@@ -218,6 +230,7 @@
 <!ENTITY typeof "<link linkend='typeof'><function>FFI:TYPEOF</function></link>">
 <!ENTITY sizeof "<link linkend='sizeof'><function>FFI:SIZEOF</function></link>">
 <!ENTITY bitsizeof "<link linkend='bitsizeof'><function>FFI:BITSIZEOF</function></link>">
+<!ENTITY validp "<link linkend='validp'><function>FFI:VALIDP</function></link>">
 <!ENTITY simple-c-type "<link linkend='simple-c-type'><replaceable>SIMPLE-C-TYPE</replaceable></link>">
 <!ENTITY allocation "<link linkend='allocation'><replaceable>ALLOCATION</replaceable></link>">
 <!ENTITY param-mode "<link linkend='param-mode'><replaceable>PARAM-MODE</replaceable></link>">
@@ -255,6 +268,7 @@
 <!ENTITY class-r "<replaceable>class</replaceable>">
 <!ENTITY cname-r "<replaceable>c-name</replaceable>">
 <!ENTITY command-r "<replaceable>command</replaceable>">
+<!ENTITY cont-r "<replaceable>contents</replaceable>">
 <!ENTITY cplace-r "<replaceable>c-place</replaceable>">
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
 <!ENTITY ch-r "<replaceable>char</replaceable>">
@@ -280,10 +294,12 @@
 <!ENTITY k2-r "<replaceable>k&sub-2;</replaceable>">
 <!ENTITY kn-r "<replaceable>k&sub-n;</replaceable>">
 <!ENTITY l-r "<replaceable>l</replaceable>">
+<!ENTITY lang-r "<replaceable>language</replaceable>">
 <!ENTITY lc-r "<replaceable>lc</replaceable>">
 <!ENTITY lab-r "<replaceable>label</replaceable>">
 <!ENTITY len-r "<replaceable>length</replaceable>">
 <!ENTITY m-r "<replaceable>m</replaceable>">
+<!ENTITY maxdim-r "<replaceable>maxdimension</replaceable>">
 <!ENTITY match-r "<replaceable>match</replaceable>">
 <!ENTITY n-r "<replaceable>n</replaceable>">
 <!ENTITY number-r "<replaceable>number</replaceable>">
