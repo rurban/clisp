@@ -316,6 +316,11 @@ T
 (TYPEP (QUOTE A) (QUOTE BELIEBIGER-TYP))
 NIL
 
+#+(and CLISP FFI)
+(TYPEP #\A 'FFI:FOREIGN-ADDRESS)
+#+(and CLISP FFI)
+NIL
+
 (SUBTYPEP (QUOTE (MEMBER U I)) (QUOTE BELIEBIGER-TYP))
 T
 
@@ -371,3 +376,7 @@ NIL
 (multiple-value-list (subtypep 'atom 'list)) (nil t)
 (multiple-value-list (subtypep nil nil))     (t t)
 (multiple-value-list (subtypep 'extended-char 'character))     (t t)
+#+(and CLISP FFI)
+(multiple-value-list (subtypep 'ffi:foreign-function 'function))
+#+(and CLISP FFI)
+(T T)
