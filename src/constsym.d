@@ -1399,6 +1399,7 @@ LISPSYM(Kwild_inferiors,"WILD-INFERIORS",keyword) /* pathname component in PATHN
 LISPSYM(Krelative,"RELATIVE",keyword) /* pathname component in PATHNAME */
 LISPSYM(Kabsolute,"ABSOLUTE",keyword) /* pathname component in PATHNAME */
 LISPSYM(Knewest,"NEWEST",keyword) /* pathname component in PATHNAME */
+LISPSYM(Kunspecific,"UNSPECIFIC",keyword) /* argument in PATHNAME */
 LISPSYM(Kcommon,"COMMON",keyword) /* argument in PATHNAME */
 /* LISPSYM(Klocal,"LOCAL",keyword) / * argument in PATHNAME */
 LISPSYM(Kinput,"INPUT",keyword) /* argument in PATHNAME */
