@@ -1,5 +1,13 @@
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
+	Portability to FreeBSD 4.0.
+	* foreign.d (open_library): Handle FreeBSD as well. Improved error
+	messages.
+	(libc_handle) [UNIX_FREEBSD]: New variable.
+	(find_name): On UNIX_FREEBSD, emulate RTLD_DEFAULT.
+
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
 	* init.lisp (load): Don't "return-from load" because defun doesn't
 	establish a block when init.lisp is loaded interpreted.
 
