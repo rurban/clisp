@@ -2147,7 +2147,8 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # When changed: do nothing
 
 # Whether we try to initialize subr_tab statically.
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT))
+# (g++ 3.3 doesn't accept compound expressions as initializers.)
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3) && defined(DEBUG_GCSAFETY))
   #define INIT_SUBR_TAB
 #endif
 # NB: This has to be defined so external modules can work.
@@ -2156,14 +2157,16 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # Whether we try to initialize symbol_tab statically.
 # (Make initialization easier, but there is not enough space for the
 # compilation of SPVWTABS under ANSI-C on the Amiga.
-# EMX 0.9c (gcc-2.7.2.1) says "Virtual memory exhausted".)
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(AMIGA) || defined(EMUNIX))
+# EMX 0.9c (gcc-2.7.2.1) says "Virtual memory exhausted".
+# g++ 3.3 doesn't accept compound expressions as initializers.)
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(AMIGA) || defined(EMUNIX) || (defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3) && defined(DEBUG_GCSAFETY)))
   #define INIT_SYMBOL_TAB
 #endif
 # When changed: nothing to do
 
-# Whether we try to initialize object_tab statically
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT))
+# Whether we try to initialize object_tab statically.
+# (g++ 3.3 doesn't accept compound expressions as initializers.)
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3) && defined(DEBUG_GCSAFETY))
   #define INIT_OBJECT_TAB
 #endif
 # When changed: do nothing
