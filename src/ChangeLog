@@ -1,5 +1,9 @@
 2002-03-12  Sam Steingold  <sds@gnu.org>
 
+	* configure (maybe_link): new function
+
+2002-03-12  Sam Steingold  <sds@gnu.org>
+
 	* unix.d (HAVE_DLOPEN) [UNIX_HPUX]: undef since dlopen() is
 	broken on HP-UX without a patch
 
