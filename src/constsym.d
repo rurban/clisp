@@ -1449,7 +1449,7 @@ LISPSYM(Kpreserve,"PRESERVE",keyword) /* Argument to COPY-FILE in PATHNAME */
 LISPSYM(Kmethod,"METHOD",keyword) /* Argument to COPY-FILE in PATHNAME */
 #endif
 LISPSYM(warn,"WARN",lisp) /* function in STREAM, PATHNAME */
-LISPSYM(Kignore,"IGNORE",keyword) /* argument in ENCODING */
+LISPSYM(Kignore,"IGNORE",keyword) /* argument in ENCODING, PATHNAME */
 LISPSYM(with_output_to_string,"WITH-OUTPUT-TO-STRING",lisp) /* error reporter in STREAM */
 LISPSYM(integer,"INTEGER",lisp) /* type in STREAM */
 LISPSYM(hash_table,"HASH-TABLE",lisp) /* type in IO, PREDTYPE */
