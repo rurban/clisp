@@ -1,3 +1,19 @@
+2004-05-16  Bruno Haible  <bruno@clisp.org>
+
+	Move slots, direct-slots up to CLASS.
+	* lispbibl.d (Class): Move the slots and direct_slots fields.
+	* clos-class2.lisp (class): Add slots, direct-slots.
+	(slotted-class): Remove slots.
+	(standard-class): Remove direct-slots.
+	(initialize-instance-built-in-class): Initialize direct-slots and
+	slots to empty.
+	(make-instance-structure-class, initialize-instance-structure-class):
+	Accept a direct-slots-as-metaobjects argument.
+	(define-structure-class): Pass the already computed direct-slots to
+	make-instance-structure-class.
+	* clos-class5.lisp (initialize-instance@structure-class): Accept
+	precomputed direct-slots argument.
+
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	* clos-specializer1.lisp: New file.

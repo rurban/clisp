@@ -641,11 +641,13 @@
   new-class-object)
 (defmethod initialize-instance ((new-class-object structure-class) &rest args
                                 &key name (metaclass <structure-class>)
-                                documentation direct-superclasses direct-slots
-                                direct-default-initargs
-                                names slots size)
-  (declare (ignore documentation direct-superclasses direct-slots
-                   direct-default-initargs names slots size))
+                                documentation direct-superclasses
+                                ((:direct-slots direct-slots-as-lists) '())
+                                ((direct-slots direct-slots-as-metaobjects) '())
+                                direct-default-initargs names slots size)
+  (declare (ignore documentation direct-superclasses direct-slots-as-lists
+                   direct-slots-as-metaobjects direct-default-initargs names
+                   slots size))
   (setf (class-classname new-class-object) name)
   (setf (class-metaclass new-class-object) metaclass) ; = (class-of new-class-object)
   (apply #'initialize-instance-structure-class new-class-object args)
