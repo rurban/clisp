@@ -8,6 +8,7 @@
 	(array_displace_check): replaces iarray_displace_check()
 	* dirkey.c (SET-DKEY-VALUE): use array_displace_check() instead
 	of iarray_displace_check(); many cosmetic tweaks
+	* spvw_debug.d (nobject_out1): handle structures and fpointers
 
 2003-07-23  Sam Steingold  <sds@gnu.org>
 
