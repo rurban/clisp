@@ -6,17 +6,67 @@
 (in-package "CLOS")
 
 
-;; auxiliary function: test for lambda-list-marker.
-(defun lambda-list-keyword-p (x)
-  (memq x lambda-list-keywords))
+;; ANSI CL 3.4.3. Specialized Lambda Lists
+;; Decompose a specialized lambda list into
+;; 1. an ordinary lambda list,
+;; 2. a list of specializers for the required arguments,
+;; 3. a list of ignorable required parameters.
+(defun decompose-specialized-lambda-list (specialized-lambda-list errfunc)
+  (let ((remaining-lambda-list specialized-lambda-list)
+        (req-vars '())
+        (ignorable-req-vars '())
+        (spec-list '()))
+    (do ()
+        ((or (atom remaining-lambda-list)
+             (memq (car remaining-lambda-list) lambda-list-keywords)))
+      (let ((item (pop remaining-lambda-list)))
+        ;; item can be a variable or of the form (variable specializer-name).
+        ;; ANSI CL 3.4.3. also allows the syntax (variable), but the DEFMETHOD
+        ;; description forbids it, and the DEFGENERIC description refers to it.
+        (if (atom item)
+          (progn
+            (push item req-vars)
+            (push 't spec-list))
+          (if (and (consp (cdr item)) (null (cddr item)))
+            (progn
+              (push (first item) req-vars)
+              (push (first item) ignorable-req-vars) ; CLtL2 p. 840 top
+              (push (second item) spec-list))
+            (funcall errfunc
+              (TEXT "Invalid specialized parameter in method lambda list ~S: ~S")
+              specialized-lambda-list item)))))
+    (let ((lambda-list (nreconc req-vars remaining-lambda-list)))
+      (analyze-lambdalist lambda-list errfunc)
+      (values lambda-list (nreverse spec-list) (nreverse ignorable-req-vars)))))
+
+;; MOP p. 52
+(defun extract-lambda-list (specialized-lambda-list)
+  (nth-value 0
+    (decompose-specialized-lambda-list specialized-lambda-list
+      #'(lambda (errorstring &rest arguments)
+          (error-of-type 'program-error
+            (TEXT "~S: ~A")
+            'extract-lambda-list
+            (apply #'format nil errorstring arguments))))))
+
+;; MOP p. 53
+(defun extract-specializer-names (specialized-lambda-list)
+  (nth-value 1
+    (decompose-specialized-lambda-list specialized-lambda-list
+      #'(lambda (errorstring &rest arguments)
+          (error-of-type 'program-error
+            (TEXT "~S: ~A")
+            'extract-specializer-names
+            (apply #'format nil errorstring arguments))))))
 
 ;;; For DEFMETHOD, DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET,
 ;;;     GENERIC-LABELS, WITH-ADDED-METHODS
 ;; caller: symbol
 ;; funname: function name, symbol or (SETF symbol)
 ;; description: (qualifier* spec-lambda-list {declaration|docstring}* form*)
-;; ==> method-building-form
+;; ==> method-initargs-forms, signature
 (defun analyze-method-description (caller funname description)
+  ;; Collect the qualifiers:
   (let ((qualifiers nil))
     (loop
       (when (atom description)
@@ -26,58 +76,52 @@
       (when (listp (car description)) (return))
       (push (pop description) qualifiers))
     (setq qualifiers (nreverse qualifiers))
-    ;; build lambdalist, extract parameter-specializer and signature:
+    ;; Build lambdalist, extract parameter-specializers and signature:
     (let ((specialized-lambda-list (car description))
           (body (cdr description)))
-      (let ((req-vars '())
-            (ignorable-req-vars '())
-            (spec-list '())
-            (req-specializer-forms '()))
-        (do ()
-            ((or (atom specialized-lambda-list)
-                 (lambda-list-keyword-p (car specialized-lambda-list))))
-          (let* ((item (pop specialized-lambda-list))
-                 (specializer-name
-                   (if (atom item)
-                     (progn (push item req-vars) 't)
-                     (progn
-                       (unless (and (consp (cdr item)) (null (cddr item)))
-                         (error-of-type 'source-program-error
-                           (TEXT "~S ~S: invalid specialized lambda list entry ~S")
-                           caller funname item))
-                       (push (first item) req-vars)
-                       (push (first item) ignorable-req-vars) ; CLtL2 p. 840 top
-                       (second item)))))
-            (push specializer-name spec-list)
-            (push (if (class-p specializer-name)
-                    `',specializer-name
-                    (if (and (consp specializer-name)
-                             (eq (car specializer-name) 'EQL))
-                      `(INTERN-EQL-SPECIALIZER ,(second specializer-name))
-                      `(FIND-CLASS ',specializer-name)))
-                  req-specializer-forms )))
-        (setq spec-list (nreverse spec-list))
-        (sys::check-redefinition
-          (list* funname qualifiers spec-list) caller
-          ;; do not warn about redefinition when no method was defined
-          (and (fboundp 'find-method) (fboundp funname)
-               (typep-class (fdefinition funname) <generic-function>)
-               (eql (sig-req-num (std-gf-signature (fdefinition funname))) (length spec-list))
-               (find-method (fdefinition funname) qualifiers spec-list nil)
-               "method"))
-        (let ((reqanz (length req-vars))
-              (lambda-list (nreconc req-vars specialized-lambda-list)))
-          (multiple-value-bind (reqs optvars optinits optsvars rest
+      (multiple-value-bind (lambda-list spec-list ignorable-req-vars)
+          (decompose-specialized-lambda-list specialized-lambda-list
+            #'(lambda (errorstring &rest arguments)
+                (error-of-type 'sys::source-program-error
+                  (TEXT "~S ~S: ~A")
+                  caller funname
+                  (apply #'format nil errorstring arguments))))
+        (let ((req-specializer-forms
+                (mapcar #'(lambda (specializer-name)
+                            (cond ((class-p specializer-name)
+                                   `',specializer-name)
+                                  ((symbolp specializer-name)
+                                   `(FIND-CLASS ',specializer-name))
+                                  ((and (consp specializer-name)
+                                        (eq (car specializer-name) 'EQL)
+                                        (consp (cdr specializer-name))
+                                        (null (cddr specializer-name)))
+                                   `(INTERN-EQL-SPECIALIZER ,(second specializer-name)))
+                                  (t (error-of-type 'sys::source-program-error
+                                       (TEXT "~S ~S: Invalid specializer ~S in lambda list ~S")
+                                       caller funname specializer-name specialized-lambda-list))))
+                        spec-list)))
+          (sys::check-redefinition
+            (list* funname qualifiers spec-list) caller
+            ;; do not warn about redefinition when no method was defined
+            (and (fboundp 'find-method) (fboundp funname)
+                 (typep-class (fdefinition funname) <generic-function>)
+                 (eql (sig-req-num (std-gf-signature (fdefinition funname))) (length spec-list))
+                 (find-method (fdefinition funname) qualifiers spec-list nil)
+                 "method"))
+          (multiple-value-bind (reqvars optvars optinits optsvars rest
                                 keyp keywords keyvars keyinits keysvars
                                 allowp auxvars auxinits)
               (analyze-lambdalist lambda-list
                 #'(lambda (errorstring &rest arguments)
-                    (error (TEXT "~S ~S: ~A")
-                           caller funname
-                           (apply #'format nil errorstring arguments))))
-            (declare (ignore reqs optinits optsvars keyvars keyinits keysvars
+                    (error-of-type 'sys::source-program-error
+                      (TEXT "~S ~S: ~A")
+                      caller funname
+                      (apply #'format nil errorstring arguments))))
+            (declare (ignore optinits optsvars keyvars keyinits keysvars
                              auxvars auxinits))
-            (let ((optanz (length optvars))
+            (let ((reqnum (length reqvars))
+                  (optnum (length optvars))
                   (restp (or keyp (not (eql rest 0))))
                   (weakened-lambda-list lambda-list))
               ;; Methods have an implicit &allow-other-keys (CLtL2 28.1.6.4., ANSI CL 7.6.4.):
@@ -88,14 +132,14 @@
                       ,@(subseq lambda-list index)))))
               (let* ((self (gensym))
                      (compile nil)
+                     (documentation nil)
                      (lambdabody
                        (multiple-value-bind (body-rest declarations docstring)
                            (sys::parse-body body t)
-                         (declare (ignore docstring))
                          (setq compile (member '(COMPILE) declarations :test #'equal))
+                         (setq documentation docstring)
                          (when ignorable-req-vars
-                           (push `(IGNORABLE ,@(nreverse ignorable-req-vars))
-                                 declarations))
+                           (push `(IGNORABLE ,@ignorable-req-vars) declarations))
                          (let ((lambdabody-part1
                                 `(,weakened-lambda-list
                                   ,@(if declarations `((DECLARE ,@declarations)))))
@@ -106,8 +150,8 @@
                                    `((BLOCK ,(function-block-name funname)
                                        ,@body-rest)))))
                            (let ((cont (gensym)) ; variable for the continuation
-                                 (req-dummies (gensym-list reqanz))
-                                 (rest-dummy (if (or restp (> optanz 0)) (gensym)))
+                                 (req-dummies (gensym-list reqnum))
+                                 (rest-dummy (if (or restp (> optnum 0)) (gensym)))
                                  (lambda-expr `(LAMBDA ,@lambdabody-part1 ,@lambdabody-part2)))
                              `(; new lambda-list:
                                (,cont
@@ -121,19 +165,19 @@
                                       `(APPLY (FUNCTION ,lambda-expr)
                                               ,@req-dummies ,rest-dummy)
                                       `(,lambda-expr ,@req-dummies)))))))))
-                     (sig (make-signature :req-num reqanz :opt-num optanz
+                     (sig (make-signature :req-num reqnum :opt-num optnum
                                           :rest-p restp :keys-p keyp
                                           :keywords keywords :allow-p allowp)))
                 (values
-                  `(MAKE-INSTANCE-<STANDARD-METHOD> (LOAD-TIME-VALUE <STANDARD-METHOD>)
-                     'INITFUNCTION
-                       #'(LAMBDA (,self)
-                           ,@(if compile '((DECLARE (COMPILE))))
-                           (%OPTIMIZE-FUNCTION-LAMBDA (T) ,@lambdabody))
-                     'WANTS-NEXT-METHOD-P T
-                     :QUALIFIERS ',qualifiers
-                     :LAMBDA-LIST ',lambda-list
-                     'SIGNATURE ,sig
-                     :SPECIALIZERS (LIST ,@(nreverse req-specializer-forms))
-                     ,@(if (eq caller 'DEFGENERIC) `('FROM-DEFGENERIC T)))
+                  `('INITFUNCTION
+                      #'(LAMBDA (,self)
+                          ,@(if compile '((DECLARE (COMPILE))))
+                          (%OPTIMIZE-FUNCTION-LAMBDA (T) ,@lambdabody))
+                    'WANTS-NEXT-METHOD-P T
+                    :QUALIFIERS ',qualifiers
+                    :LAMBDA-LIST ',lambda-list
+                    'SIGNATURE ,sig
+                    :SPECIALIZERS (LIST ,@req-specializer-forms)
+                    ,@(if documentation `(:DOCUMENTATION ',documentation))
+                    ,@(if (eq caller 'DEFGENERIC) `('FROM-DEFGENERIC T)))
                   sig)))))))))

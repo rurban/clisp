@@ -469,6 +469,7 @@
           method standard-method
           method-function method-generic-function method-lambda-list
           method-specializers method-qualifiers accessor-method-slot-definition
+          extract-lambda-list extract-specializer-names
           ;; MOP for method combinations
           find-method-combination
           ;; MOP for generic functions

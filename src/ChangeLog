@@ -1,3 +1,23 @@
+2004-06-20  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export extract-lambda-list, extract-specializer-names.
+	* clos-package.lisp: Likewise.
+	* clos-method2.lisp (lambda-list-keyword-p): Remove function.
+	(decompose-specialized-lambda-list): New function.
+	(extract-lambda-list, extract-specializer-names): New functions.
+	(analyze-method-description): Return a list of initargs forms instead
+	of a method-producing form. Use decompose-specialized-lambda-list.
+	Pass on the documentation string instead of dropping it.
+	* clos-genfun3.lisp (defmethod): Update.
+	(do-defmethod): Accept either a method or a list of initargs. In the
+	latter case, create the method here.
+	(declaim-method): Update.
+	(analyze-defgeneric): Update.
+
+2004-08-11  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (*.fas): Grant more memory: 800KW instead of 750KW.
+
 2004-08-10  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (MAKE-STREAM): use an intelligent DIRECTION default
