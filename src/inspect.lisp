@@ -8,7 +8,7 @@
 ;;; Please see http://clocc.sourceforge.net/ and
 ;;; ftp://clocc.sourceforge.net/pub/clocc/snapshots/cllib.html
 ;;; for details.
-;;;  
+;;;
 ;;; Please do not fork a separate CLISP version of this file!
 ;;; All changes should first go into CLOCC/CLLIB/inspect.lisp first,
 ;;; and only then merged into this file.
@@ -16,7 +16,7 @@
 ;;; to 5 and report all output with a detailed description of what you did
 ;;; to <clisp-list> (see http://clisp.cons.org about CLISP mailing lists),
 ;;; as you do with any other CLISP bugs.
-;;; If you would like to fix a bug in this file, please get CLOCC from 
+;;; If you would like to fix a bug in this file, please get CLOCC from
 ;;; the link above, build PORT and CLLIB as described there, and work
 ;;; on CLOCC/CLLIB/inspect.lisp.
 ;;; ___no patches to this file will be accepted by the CLISP maintainers___
@@ -119,6 +119,45 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                            (princ ,mail ,var)))
                        (with-tagl (:strong) (current-time ,var)))))))
           (when ,raw (close ,raw)))))))
+
+(defun crlf (sock)
+  "Write CR/LF into the socket SOCK."
+  (write-char (code-char 13) sock)
+  (write-char (code-char 10) sock))
+
+(defmacro with-http-output ((var raw &rest opts &key keep-alive (debug 0)
+                             &allow-other-keys)
+                            &body body)
+  "Write some HTML to an http client on socket stream RAW.
+Supplies some HTTP/1.0 headers and calls `with-html-output'."
+  (with-gensyms ("HTTP-" string stream sock header line)
+    (remf opts :keep-alive) (remf opts :debug)
+    `(let* ((,sock ,raw)
+            (,string (with-output-to-string (,stream)
+                       (with-html-output (,var ,stream ,@opts) ,@body)))
+            (,header (list "HTTP/1.0 200 OK" "Content-type: text/html"
+                           (format nil "Content-length: ~d" (length ,string))
+                           (format nil "Connection: ~:[Close~;Keep-Alive~]"
+                                   ,keep-alive))))
+      (dolist (,line ,header)
+        (write-string ,line ,sock)
+        (when (and ,debug (> ,debug 0))
+          (format t "<- ~a~%" ,line))
+        (crlf ,sock))
+      (crlf ,sock)
+      (write-string ,string ,sock)
+      (when (and ,debug (> ,debug 3))
+        (format t "<- ~s~%" ,string))
+      (unless ,keep-alive
+        (when (and ,debug (> ,debug 0))
+          (format t "~s: closing ~s~%" 'with-http-output ,sock))
+        (close ,sock)))))
+
+(defun flush-http (sock)
+  "Read everything from the HTTP socket SOCK, until a blank line."
+  (loop :for line = (read-line sock nil nil)
+        :while (and line (plusp (length line)))
+        :collect line))
 
 ;;;
 ;;; options
@@ -341,12 +380,15 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 ;;; frontends - common
 ;;;
 
-(clos:defgeneric print-inspection (insp out frontend)
-  (:method ((insp inspection) (out stream) (frontend t))
-    (error "~s: unknown inspect front end: ~s" 'print-inspection frontend)))
+(clos:defgeneric print-inspection (insp out frontend &rest opts)
+  (:method ((insp inspection) (out stream) (frontend t) &rest opts)
+    (error "~s: unknown inspect front end: ~s [~s ~s]"
+           'print-inspection frontend out opts)))
+
 (clos:defgeneric inspect-frontend (insp frontend)
   (:method ((insp inspection) (frontend t))
     (error "~s: unknown inspect front end: ~s" 'inspect-frontend frontend)))
+
 (clos:defgeneric inspect-finalize (frontend)
   (:method ((frontend t))
     (dotimes (ii (length *inspect-all*))
@@ -375,7 +417,8 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 ;;;
 
 (clos:defmethod print-inspection ((insp inspection) (out stream)
-                             (backend (eql :tty)))
+                                  (backend (eql :tty)) &rest opts)
+  (declare (ignore opts))
   (format out "~&~s:  ~a~%~{ ~a~%~}" (insp-self insp) (insp-title insp)
           (insp-blurb insp))
   (when (insp-nth-slot insp)
@@ -430,9 +473,10 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 ;;;
 
 (clos:defmethod print-inspection ((insp inspection) (raw stream)
-                             (backend (eql :http)))
+                                  (backend (eql :http)) &key keep-alive)
   (flet ((href (com) (format nil "/~d/~s" (insp-id insp) com)))
-    (with-html-output (out raw :title (insp-title insp) :footer nil)
+    (with-http-output (out raw :keep-alive keep-alive :debug *inspect-debug*
+                           :title (insp-title insp) :footer nil)
       (with-tag (:h1) (princ (insp-title insp) out))
       (with-tag (:ul)
         (dolist (item (insp-blurb insp))
@@ -468,52 +512,68 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
           (with-tag (:td :align "right")
             (with-tag (:a :href (href :s)) (princ "self" out))))))))
 
-(defun http-command (server &key (debug *inspect-debug*))
+(defun http-command (server &key (debug *inspect-debug*) socket)
   "Accept a connection from the server, return the GET command and the socket."
-  (when (> debug 1) (format t "%s: server: ~s~%" 'http-command server))
-  (let ((socket (socket-accept server)))
-    (when (> debug 1) (format t "%s: socket: ~s~%" 'http-command socket))
-    (loop (let ((line (read-line socket nil nil)))
-            (when (> debug 1) (format t "-> ~a~%" line))
-            (when (string-beg-with "GET /" line)
-              (let* ((pos (position #\/ line :test #'char= :start 5))
-                     (id (parse-integer line :start 5 :end pos))
-                     (com (read-from-string line nil nil :start (1+ pos))))
-                (when (> debug 0)
-                  (format t "~s: ~d ~s~%" 'http-command id com))
-                (when (> debug 1)
-                  (loop (format t "-> ~a~%" (read-line socket nil nil))
-                        (unless (listen socket) (return))))
-                (return (values socket id com))))))))
+  (when (> debug 1)
+    (format t "~s: server: ~s; socket: ~s ~%" 'http-command server socket))
+  (unless (and socket (open-stream-p socket))
+    (setq socket (socket-accept server))
+    (when (> debug 1)
+      (format t "~s: new socket: ~s~%" 'http-command socket)))
+  (let ((response (flush-http socket)) id com keep-alive)
+    (unless response (error "~s: no response" 'http-command))
+    (when (> debug 1)
+      (dolist (line response)
+        (format t "-> ~a~%" line)))
+    (dolist (line response)
+      (when (string-beg-with "Connection: " line)
+        (setq keep-alive (string= line "Keep-Alive" :start1 12))
+        (when (> debug 0)
+          (format t "~s: connection: ~s (keep-alive: ~s)~%"
+                  'http-command (subseq line 12) keep-alive)))
+      (when (string-beg-with "GET /" line)
+        (let ((pos (position #\/ line :test #'char= :start 5)))
+          (setq id (parse-integer line :start 5 :end pos)
+                com (read-from-string line nil nil :start (1+ pos)))
+          (when (> debug 0)
+            (format t "~s: command: id=~d com=~s~%" 'http-command id com)))))
+    (values socket id com keep-alive)))
 
 (clos:defmethod inspect-frontend ((insp inspection) (frontend (eql :http)))
   (do ((server
         (let* ((server (socket-server)) (port (socket-server-port server))
                (host (machine-instance)))
           (when (> *inspect-debug* 0)
-            (format t "~&%s: server: ~s~%" 'inspect-frontend server))
-          (if *inspect-browser*
-              (browse-url (format nil "http://127.0.0.1:~d/0/:s" port)
-                          :browser *inspect-browser*)
-              (format
-               t "~& * please point your browser at <http://~a:~d/0/:s>~%"
-               (subseq host 0 (position #\Space host)) port))
+            (format t "~&~s [~s]: server: ~s~%"
+                    'inspect-frontend frontend server))
+          (browse-url (format nil "http://~a:~d/0/:s"
+                              (if *inspect-browser* "127.0.0.1"
+                                  (subseq host 0 (position #\Space host)))
+                              port)
+                      :browser *inspect-browser*)
           server))
        sock id com)
-      ((eq com :q) (socket-server-close server))
-    (setf (values sock id com) (http-command server))
+      ((eq com :q) (socket-server-close server)
+       (when (open-stream-p sock)
+         (do () ((null (read-char-no-hang sock))))
+         (close sock)))
+    (setf (values sock id com keep-alive) (http-command server :socket sock))
     (if (eq com :q)
-        (with-html-output (out sock :title "inspect" :footer nil)
+        (with-http-output (out sock :keep-alive keep-alive
+                               :debug *inspect-debug*
+                               :title "inspect" :footer nil)
           (with-tag (:h1) (princ "thanks for using inspect" out))
           (with-tag (:p) (princ "you may close this window now" out)))
-        (if (setq insp (get-insp id com)) (print-inspection insp sock frontend)
-            (with-html-output (out sock :title "inspect" :footer nil)
+        (if (setq insp (get-insp id com))
+            (print-inspection insp sock frontend :keep-alive keep-alive)
+            (with-http-output (out sock :keep-alive keep-alive
+                                   :debug *inspect-debug*
+                                   :title "inspect" :footer nil)
               (with-tag (:h1)
                 (format out "error: wrong command: ~:d/~s" id com))
               (with-tag (:p)
                 (princ "either this is an old inspect session, or a " out))
               (with-tag (:a :href "https://sourceforge.net/bugs/?func=addbug&group_id=1802") (print "bug" out)))))
-    (close sock)
     (when (> *inspect-debug* 0)
       (format t "~s [~s]: cmd:~d/~s id:~d~%" 'inspect-frontend frontend
               id com (insp-id insp)))))

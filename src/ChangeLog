@@ -1,87 +1,99 @@
+2000-11-10  Sam Steingold  <sds@gnu.org>
+
+	* inspect.lisp: workaround for the Linux bug.
+	(crlf, flush-http): new functions.
+	(with-http-output): new macro.
+	(print-inspection): added &rest opts.
+	(http-command): handle `keep-alive'.
+	(inspect-frontend :http): ditto.
+
+	* clhs.lisp (*browser*): the default browser.
+	(browse-url): `browser' defaults to `*browser*' and can be NIL.
+
 2000-11-10  Bruno Haible  <haible@clisp.cons.org>
 
-        * makemake.in: Increase optimization for SUNPRO compilers to O3.
+	* makemake.in: Increase optimization for SUNPRO compilers to O3.
 
 2000-11-08  Bruno Haible  <haible@clisp.cons.org>
 
-        * pathname.d (delete_file_if_exists) [WIN32_NATIVE]: Treat
-          ERROR_BAD_NETPATH like ERROR_PATH_NOT_FOUND.
-          (rename_file_to_nonexisting) [WIN32_NATIVE]: Likewise.
-          (assure_dir_exists) [WIN32_NATIVE]: Likewise.
-          (directory_exists) [WIN32_NATIVE]: Likewise.
-          (open_input_file) [WIN32_NATIVE]: Likewise.
-          (READDIR_findfirst) [WIN32_NATIVE]: Likewise.
-          (check_stat_directory) [WIN32_NATIVE]: Likewise.
-          (FILE-WRITE-DATE) [WIN32_NATIVE]: Likewise.
+	* pathname.d (delete_file_if_exists) [WIN32_NATIVE]: Treat
+	ERROR_BAD_NETPATH like ERROR_PATH_NOT_FOUND.
+	(rename_file_to_nonexisting) [WIN32_NATIVE]: Likewise.
+	(assure_dir_exists) [WIN32_NATIVE]: Likewise.
+	(directory_exists) [WIN32_NATIVE]: Likewise.
+	(open_input_file) [WIN32_NATIVE]: Likewise.
+	(READDIR_findfirst) [WIN32_NATIVE]: Likewise.
+	(check_stat_directory) [WIN32_NATIVE]: Likewise.
+	(FILE-WRITE-DATE) [WIN32_NATIVE]: Likewise.
 
 2000-11-08  Bruno Haible  <haible@clisp.cons.org>
 
-        * aclocal.m4 (CL_SIGNAL_UNBLOCK): Enable 'volatile' for gotsig,
-          wasblocked.
-          (CL_SIGNAL_BLOCK_OTHERS): Enable 'volatile' for gotsig,
-          somewereblocked.
-          (CL_SIGACTION_UNBLOCK): Enable 'volatile' for gotsig, wasblocked.
+	* aclocal.m4 (CL_SIGNAL_UNBLOCK): Enable 'volatile' for gotsig,
+	wasblocked.
+	(CL_SIGNAL_BLOCK_OTHERS): Enable 'volatile' for gotsig,
+	somewereblocked.
+	(CL_SIGACTION_UNBLOCK): Enable 'volatile' for gotsig, wasblocked.
 
 2000-10-23  Bruno Haible  <haible@clisp.cons.org>
 
-        * constsym.d (CHARSET:GB18030, CHARSET:BIG5HKSCS): New symbols.
+	* constsym.d (CHARSET:GB18030, CHARSET:BIG5HKSCS): New symbols.
 
 2000-10-22  Bruno Haible  <haible@clisp.cons.org>
 
-        * encoding.d (init_encodings): Set O(internal_encoding) to UTF-8.
-        * makemake.in: Default file encoding for all CLISP sources is now
-          UTF-8.
+	* encoding.d (init_encodings): Set O(internal_encoding) to UTF-8.
+	* makemake.in: Default file encoding for all CLISP sources is now
+	UTF-8.
 
 2000-10-22  Bruno Haible  <haible@clisp.cons.org>
 
-        * spvw_language.d (init_language_from): Accept french and spanish
-          names in both ISO-8859-1 and UTF-8.
-        * spvw_ctype.d (init_ctype): Likewise.
+	* spvw_language.d (init_language_from): Accept french and spanish
+	names in both ISO-8859-1 and UTF-8.
+	* spvw_ctype.d (init_ctype): Likewise.
 
 2000-10-22  Bruno Haible  <haible@clisp.cons.org>
 
-        * spvw.d (print_banner): Don't use non-ASCII argument of gettext.
-        * spvw_global.d (check_gc_consistency): Don't use non-ASCII error
-          message.
+	* spvw.d (print_banner): Don't use non-ASCII argument of gettext.
+	* spvw_global.d (check_gc_consistency): Don't use non-ASCII error
+	message.
 
 2000-10-09  Bruno Haible  <haible@clisp.cons.org>
 
-        CPU recognition on OpenBSD.
-        * lispbibl.d (VAX): Define if __vax__ is defined.
-          (MC680X0): Define if __m68k__ is defined.
-          (MC680Y0): Define if __mc68020__ is defined.
-          (MIPS): Define if __mips__ is defined.
-          (M88000): Define if __m88k__ is defined.
-        * autoconf/aclocal.m4 (CL_WORDS_LITTLEENDIAN): Recognize __m68k__,
-          __mc68020__, __MIPSEB__, __MIPSEL__, __m88k__ as CPU indicators.
+	CPU recognition on OpenBSD.
+	* lispbibl.d (VAX): Define if __vax__ is defined.
+	(MC680X0): Define if __m68k__ is defined.
+	(MC680Y0): Define if __mc68020__ is defined.
+	(MIPS): Define if __mips__ is defined.
+	(M88000): Define if __m88k__ is defined.
+	* autoconf/aclocal.m4 (CL_WORDS_LITTLEENDIAN): Recognize __m68k__,
+	__mc68020__, __MIPSEB__, __MIPSEL__, __m88k__ as CPU indicators.
 
 2000-09-29  Bruno Haible  <haible@clisp.cons.org>
 
-        * autoconf/aclocal.m4 (CL_CANONICAL_HOST): Fix bug in 2000-05-23
-          change.
+	* autoconf/aclocal.m4 (CL_CANONICAL_HOST): Fix bug in 2000-05-23
+	change.
 
 2000-09-28  Bruno Haible  <haible@clisp.cons.org>
 
-        * makemake.in: On AIX without gcc, use gcc-cccp.
-          (XCPP_POSTPROCESS): New variable.
+	* makemake.in: On AIX without gcc, use gcc-cccp.
+	(XCPP_POSTPROCESS): New variable.
 
-        * autoconf/aclocal.m4 (CL_SOCKLEN_T): New macro.
-        * configure.in: Call it.
-        * unixconf.h.in (SOCKLEN_T): New macro.
-        * win32.d (SOCKLEN_T): Define as int.
-        * socket.d (socket_getlocalname_aux, socket_getpeername,
-           create_server_socket, accept_connection): Use the SOCKLEN_T type.
+	* autoconf/aclocal.m4 (CL_SOCKLEN_T): New macro.
+	* configure.in: Call it.
+	* unixconf.h.in (SOCKLEN_T): New macro.
+	* win32.d (SOCKLEN_T): Define as int.
+	* socket.d (socket_getlocalname_aux, socket_getpeername,
+	create_server_socket, accept_connection): Use the SOCKLEN_T type.
 
-        * stream.d (iconv_mblen): Cast to avoid warning.
-          (iconv_wcstombs): Likewise.
-          (rd_ch_terminal3): Likewise.
+	* stream.d (iconv_mblen): Cast to avoid warning.
+	(iconv_wcstombs): Likewise.
+	(rd_ch_terminal3): Likewise.
 
 2000-09-25  Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (I80386): Define if __i386__ is defined. On OpenBSD,
-          i386 and __i386 are not defined, only __i386__.
-        * autoconf/aclocal.m4 (CL_WORDS_LITTLEENDIAN): Recognize __i386__
-          as equivalent to __i386. For OpenBSD.
+	* lispbibl.d (I80386): Define if __i386__ is defined. On OpenBSD,
+	i386 and __i386 are not defined, only __i386__.
+	* autoconf/aclocal.m4 (CL_WORDS_LITTLEENDIAN): Recognize __i386__
+	as equivalent to __i386. For OpenBSD.
 
 2000-09-21  Martin Atzmueller  <martin@atzmueller.net>
 
@@ -89,47 +101,47 @@
 
 2000-09-12  Bruno Haible  <haible@clisp.cons.org>
 
-        Followup to Sam's 1999-04-07 patch.
-        * compiler.lisp (c-form): Accept arrays as self-evaluating forms,
-          consistently with eval.d:eva11().
+	Followup to Sam's 1999-04-07 patch.
+	* compiler.lisp (c-form): Accept arrays as self-evaluating forms,
+	consistently with eval.d:eva11().
 
 2000-09-12  Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (listen_char): Renamed from stream_listen.
-          (listen_byte): New declaration.
-        * debug.d (read_form): Update.
-        * io.d (LISTEN, READ-CHAR-WILL-HANG-P, READ-CHAR-NO-HANG): Update.
-        * stream.d (listen_char_synonym): Renamed from listen_synonym.
-          (listen_byte_synonym): New function.
-          (listen_char_concat): Renamed from listen_concat.
-          (listen_byte_concat): New function.
-          (listen_char_twoway): Renamed from listen_twoway.
-          (listen_byte_twoway): New function.
-          (listen_char_str_in): Renamed from listen_str_in.
-          (listen_char_buff_in): Renamed from listen_buff_in.
-          (listen_char_generic): Renamed from listen_generic.
-          (listen_byte_ia8_unbuffered): New function.
-          (listen_char_unbuffered): Renamed from listen_unbuffered.
-          (listen_char_buffered): Renamed from listen_buffered.
-          (listen_byte_ia8_buffered): New function.
-          (listen_char_keyboard): Renamed from listen_keyboard.
-          (listen_char_terminal): Renamed from listen_terminal.
-          (listen_char_terminal1): Renamed from listen_terminal1.
-          (listen_char_terminal2): Renamed from listen_terminal2.
-          (listen_char_terminal3): Renamed from listen_terminal3.
-          (SYSTEM::LISTEN-BYTE): Remove function.
-          (listen_char): Renamed from stream_listen.
-          (listen_byte): New function.
-          (READ-BYTE-LOOKAHEAD, READ-BYTE-WILL-HANG-P, READ-BYTE-NO-HANG): New
-          functions.
-        * gstream.lisp: Export STREAM-READ-BYTE-LOOKAHEAD,
-          STREAM-READ-BYTE-WILL-HANG-P, STREAM-READ-BYTE-NO-HANG.
-          (STREAM-READ-BYTE-LOOKAHEAD, STREAM-READ-BYTE-WILL-HANG-P,
-           STREAM-READ-BYTE-NO-HANG): New generic functions.
-        * modules/clx/mit-clx/depdefs.lisp: Remove feature test for
-          sys::listen-byte. Add feature test for read-byte-lookahead.
-        * modules/clx/mit-clx/dependent.lisp (buffer-read-default) [CLISP]:
-          Use read-byte-lookahead instead of sys::listen-byte.
+	* lispbibl.d (listen_char): Renamed from stream_listen.
+	(listen_byte): New declaration.
+	* debug.d (read_form): Update.
+	* io.d (LISTEN, READ-CHAR-WILL-HANG-P, READ-CHAR-NO-HANG): Update.
+	* stream.d (listen_char_synonym): Renamed from listen_synonym.
+	(listen_byte_synonym): New function.
+	(listen_char_concat): Renamed from listen_concat.
+	(listen_byte_concat): New function.
+	(listen_char_twoway): Renamed from listen_twoway.
+	(listen_byte_twoway): New function.
+	(listen_char_str_in): Renamed from listen_str_in.
+	(listen_char_buff_in): Renamed from listen_buff_in.
+	(listen_char_generic): Renamed from listen_generic.
+	(listen_byte_ia8_unbuffered): New function.
+	(listen_char_unbuffered): Renamed from listen_unbuffered.
+	(listen_char_buffered): Renamed from listen_buffered.
+	(listen_byte_ia8_buffered): New function.
+	(listen_char_keyboard): Renamed from listen_keyboard.
+	(listen_char_terminal): Renamed from listen_terminal.
+	(listen_char_terminal1): Renamed from listen_terminal1.
+	(listen_char_terminal2): Renamed from listen_terminal2.
+	(listen_char_terminal3): Renamed from listen_terminal3.
+	(SYSTEM::LISTEN-BYTE): Remove function.
+	(listen_char): Renamed from stream_listen.
+	(listen_byte): New function.
+	(READ-BYTE-LOOKAHEAD, READ-BYTE-WILL-HANG-P, READ-BYTE-NO-HANG): New
+	functions.
+	* gstream.lisp: Export STREAM-READ-BYTE-LOOKAHEAD,
+	STREAM-READ-BYTE-WILL-HANG-P, STREAM-READ-BYTE-NO-HANG.
+	(STREAM-READ-BYTE-LOOKAHEAD, STREAM-READ-BYTE-WILL-HANG-P,
+	 STREAM-READ-BYTE-NO-HANG): New generic functions.
+	* modules/clx/mit-clx/depdefs.lisp: Remove feature test for
+	sys::listen-byte. Add feature test for read-byte-lookahead.
+	* modules/clx/mit-clx/dependent.lisp (buffer-read-default) [CLISP]:
+	Use read-byte-lookahead instead of sys::listen-byte.
 
 2000-09-06  Sam Steingold  <sds@gnu.org>
 
@@ -154,23 +166,23 @@
 
 	Fix line numbers in generated C code.
 	* utils/varbrace.d (out_line): New function.
-	  (ifdef_line_repeat): New variable.
-	  (line_emit, line_repeat_else, line_repeat_endif): New functions.
-	  (next_token): Call them.
-	  (convert): Initialize ifdef_line_repeat. Call line_emit to emit a
-	  #line directive.
+	(ifdef_line_repeat): New variable.
+	(line_emit, line_repeat_else, line_repeat_endif): New functions.
+	(next_token): Call them.
+	(convert): Initialize ifdef_line_repeat. Call line_emit to emit a
+	#line directive.
 
 2000-09-01  Bruno Haible  <haible@clisp.cons.org>
 
 	* stream.d (lisp_completion): Put end_callback() at the right place,
-	  and protect malloc() and free() with begin/end_system_call().
-	  Fixes a crash in cstombs on i386 platforms.
-	  Reported by Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
+	and protect malloc() and free() with begin/end_system_call().
+	Fixes a crash in cstombs on i386 platforms.
+	Reported by Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
 
 2000-09-01  Bruno Haible  <haible@clisp.cons.org>
 
 	* eval.d (interpret_bytecode_): Don't produce "testb %edx,%edx" or
-	  "testb %eax,%eax" any more.
+	"testb %eax,%eax" any more.
 
 2000-08-19  Bruno Haible  <haible@clisp.cons.org>
 
@@ -189,15 +201,15 @@
 2000-08-18  Bruno Haible  <haible@clisp.cons.org>
 
 	* pathname.d (parse_logical_host_prefix): Renamed from logical_host.
-	  (string_logical_path_p): Remove function.
-	  (parse_namestring): Integrate it here. When recognizing a logical
-	  host, don't overwrite the :host argument.
+	(string_logical_path_p): Remove function.
+	(parse_namestring): Integrate it here. When recognizing a logical
+	host, don't overwrite the :host argument.
 
 	ANSI CL wants (PATHNAME (OPEN filename ...)) to return filename if
 	filename is a logical pathname.
 	* pathname.d (open_file): Expect the original filename on the stack.
-	  (OPEN): When the filename argument is a logical pathname, pass it
-	  to open_file.
+	(OPEN): When the filename argument is a logical pathname, pass it
+	to open_file.
 
 2000-08-17  Sam Steingold  <sds@gnu.org>
 
