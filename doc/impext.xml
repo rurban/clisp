@@ -9,15 +9,16 @@
 
 <para>The function
   <literal role="sexp">(<function>ext:saveinitmem</function>
-    &optional-amp; (<replaceable>filename</replaceable> "lispinit.mem")
+    &optional-amp; (&filename-r; "lispinit.mem")
     &key-amp; :quiet :init-function)</literal>
- saves the running &clisp;'s memory to a file.  If the
- <constant>:quiet</constant> argument is not &nil;, the startup banner
- and the good-bye message will be suppressed.  The
- <constant>:init-function</constant> argument specifies a function that
- will be executed at startup of the saved image.  The starting package
- of the new image is the one in which you were when you invoked
- <function>ext:saveinitmem</function>.</para>
+ saves the running &clisp;'s memory to the file &filename-r;;
+ extension &mem-file; is recommended.
+ If the <constant>:quiet</constant> argument is not &nil;, the startup
+ banner and the good-bye message will be suppressed.
+ The <constant>:init-function</constant> argument specifies a function
+ that will be executed at startup of the saved image.
+ The starting package of the new image is the one in which you were when
+ you invoked <function>ext:saveinitmem</function>.</para>
 
 </section>
 
@@ -3611,30 +3612,30 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term>Linux kernel with
                <option>CONFIG_BINFMT_MISC=y</option></term>
-  <listitem><simpara>Associate the extensions <filename>fas</filename>
-   and <filename>lisp</filename> with &clisp;; then you can make the
+  <listitem><simpara>Associate the extensions &fasl-file;
+   and &lisp-file; with &clisp;; then you can make the
    files executable and run them from the command line.
   </simpara></listitem></varlistentry>
  <varlistentry><term>Amiga</term>
   <listitem><simpara>Files created with &clisp; can be associated with a
    Workbench project icon so that clicking on them would make &clisp;
    execute the appropriate code.  Note that several
-   <filename>fas</filename> files can be concatenated (using
+   &fasl-file; files can be concatenated (using
    <function>Join</function>) into one file.
   </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>These four techniques apply to a single <filename>lisp</filename>
- or <filename>fas</filename> file.  If your application is made up of
- several <filename>lisp</filename> or <filename>fas</filename> files, you
+<para>These four techniques apply to a single &lisp-file;
+ or &fasl-file; file.  If your application is made up of
+ several &lisp-file; or &fasl-file; files, you
  can simply concatenate them (using <function>cat</function>(1)) into
  one file; the techniques then apply to that concatenated file.</para>
 
 <variablelist>
 <!-- #ifdef UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
-<listitem><para>On Unix, a text file (<filename>fas</filename> or
- <filename>lisp</filename>) can be made executable by adding a first line
+<listitem><para>On Unix, a text file (&fasl-file; or
+ &lisp-file;) can be made executable by adding a first line
  of the form
  <programlisting>#!<replaceable>interpreter</replaceable> [<replaceable>interpreter-args</replaceable>]</programlisting>
  and using <command>chmod</command>(1) to make the script executable.
@@ -3720,31 +3721,31 @@ input will be available.</para>
  "executables" for Windows platforms.</simpara>
 
 <itemizedlist>
- <listitem><simpara>Associate the <filename>mem</filename> extension with
+ <listitem><simpara>Associate the &mem-file; extension with
    <command>c:\clisp\lisp.exe -m 10M -M %s -N c:\clisp\locale</command>.
   </simpara></listitem>
- <listitem><simpara>Associate the <filename>fas</filename> extension with
+ <listitem><simpara>Associate the &fasl-file; extension with
    <command>c:\clisp\lisp.exe -m 10M -M c:\clisp\lispinit.mem -N
     c:\clisp\locale -i %s</command>.
     Alternatively, you may want to have a function
     <function>main</function> in your files and associate the
-    <filename>fas</filename> extension with <command>c:\clisp\lisp.exe
+    &fasl-file; extension with <command>c:\clisp\lisp.exe
     -m 10M -M c:\clisp\lispinit.mem -N c:\clisp\locale -i %s -x
     (main)</command>.
   </simpara></listitem>
 </itemizedlist>
 
 <para>Then clicking on the compiled lisp file (with
- <filename>fas</filename> extension) will load the file (thus executing
+ &fasl-file; extension) will load the file (thus executing
  all the code in the file), while the clicking on a &clisp; memory image
- (with <filename>mem</filename> extension) will start clisp with the
+ (with &mem-file; extension) will start clisp with the
  given <link linkend="image">memory image</link>.</para>
 
 <para>Note that &clisp; is distributed with a file
  <filename>install.bat</filename>, which creates a file
  <filename>clisp.bat</filename> on your desktop and also associates
- <filename>fas</filename>, <filename>list</filename>, and
- <filename>mem</filename> files with &clisp;.</para>
+ &fasl-file;, &lisp-file;, and
+ &mem-file; files with &clisp;.</para>
 
 </listitem></varlistentry>
 <!-- #endif -->
@@ -3812,11 +3813,10 @@ bash$
   <replaceable>ARGS</replaceable> tooltype.</simpara></listitem>
 </itemizedlist>
 
- Clicking on the compiled lisp file (with <filename>fas</filename>
- suffix) will load the image and the file (thus executing all the code
- in the file), while clicking on the &clisp;'s memory image (with
- <filename>mem</filename> suffix) with start clisp with the given
- <link linkend="image">memory image</link>.</para>
+ Clicking on the compiled lisp file (with &fasl-file; suffix) will load
+ the image and the file (thus executing all the code in the file), while
+ clicking on the &clisp;'s memory image (with &mem-file; suffix) with
+ start clisp with the given <link linkend="image">memory image</link>.</para>
 
 <para>You might want to add a tooltype named
  <replaceable>WINDOW</replaceable> which names the console window that

@@ -174,7 +174,9 @@
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
 <!ENTITY eltype-r "<replaceable>element-type</replaceable>">
 <!ENTITY end-r "<replaceable>end</replaceable>">
+<!ENTITY env-r "<replaceable>env</replaceable>">
 <!ENTITY f-r "<replaceable>f</replaceable>">
+<!ENTITY filename-r "<replaceable>filename</replaceable>">
 <!ENTITY func-r "<replaceable>function</replaceable>">
 <!ENTITY form-r "<replaceable>form</replaceable>">
 <!ENTITY i-r "<replaceable>i</replaceable>">
@@ -227,3 +229,6 @@
          <entry>meaning</entry></row></thead>">
 <!ENTITY malloc "<function>malloc()</function>">
 <!ENTITY free "<function>free()</function>">
+<!ENTITY fasl-file "<filename>fas</filename>">
+<!ENTITY lisp-file "<filename>fas</filename>">
+<!ENTITY mem-file "<filename>fas</filename>">
