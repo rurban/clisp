@@ -365,6 +365,9 @@
 #||
  (defun %allocate-instance (class &rest initargs)
   (check-initialization-argument-list initargs 'allocate-instance)
+  ;; No need to check the validity of the initargs, because ANSI CL says
+  ;; "The caller of allocate-instance is expected to have already checked
+  ;;  the initialization arguments."
   ;; Quick and dirty dispatch among <standard-class> and <structure-class>.
   ;; (class-current-version class) is a simple-vector, (class-names class) a cons.
   (if (atom (class-current-version class))
