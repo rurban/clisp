@@ -2167,8 +2167,7 @@ LISPFUNN(constantp,1)
       switch (Record_type(arg))
         { case_Rectype_Symbol_above;
           case_Rectype_number_above;
-          case_Rectype_string_above;
-          case_Rectype_bvector_above;
+          case_Rectype_array_above;
           default:
             goto nein;
         }
@@ -2183,8 +2182,7 @@ LISPFUNN(constantp,1)
           if (constantp(TheSymbol(arg))) goto ja; else goto nein;
         case_number: # Zahl
         case_char: # Character
-        case_string: # String
-        case_bvector: # Bit-Vektor
+        case_array: # Array
           goto ja;
         default:
           goto nein;
