@@ -1,3 +1,8 @@
+2005-01-25  Bruno Haible  <bruno@clisp.org>
+
+	* i18n/configure.in: Don't test for locale.h and setlocale.
+	* i18n/gettext.c: Assume <string.h>, <locale.h>, setlocale() exist.
+
 2005-01-24  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (read_byte, wr_ch_unbuffered_unix,
