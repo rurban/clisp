@@ -1104,7 +1104,7 @@ if [ "$DEBUGGING" = debug ] ; then
   else
     XCFLAGS=$XCFLAGS' -g'
   fi
-  XCFLAGS=$XCFLAGS' -DDEBUG_OS_ERROR';
+  XCFLAGS=$XCFLAGS' -DDEBUG_OS_ERROR -DDEBUG_SPVW -DSAFETY=3';
 fi
 
 if [ $HSYS = acorn ] ; then
