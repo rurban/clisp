@@ -36,14 +36,14 @@
 #if defined(__sun)
 # include <sys/int_types.h>
 #endif
-#if defined(__hpux)
+#if (defined(__hpux) || defined(_AIX)) && HAVE_INTTYPES_H
 # include <inttypes.h>
 #endif
 #if !(defined(UNIX_CYGWIN32) && defined(__BIT_TYPES_DEFINED__))
 # define NEED_SIGNED_INT_TYPES
 #endif
 
-#if !defined(__sun) && !defined(__hpux)
+#if !(defined(__sun) || ((defined(__hpux) || defined(_AIX)) && HAVE_INTTYPES_H))
 
 /* 7.18.1.1. Exact-width integer types */
 
@@ -253,6 +253,6 @@ typedef uint32_t uintmax_t;
 
 #endif
 
-#endif  /* !__sun && !__hpux */
+#endif  /* !(__sun || ((__hpux || _AIX) && HAVE_INTTYPES_H)) */
 
 #endif /* _STDINT_H */
