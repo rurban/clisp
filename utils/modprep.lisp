@@ -83,7 +83,6 @@ The input file is normal C code, modified like this:
  enum means no #ifdef
  prefix, suffix default to ""
  reverse defaults to "" and means NOTREACHED
- default defaults to C_CONST1
 
 Restrictions and caveats:
 - A module should consist of a single file.
