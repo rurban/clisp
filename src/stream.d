@@ -2698,8 +2698,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
               cap = tgetstr("kl",&tp);
               if (!(cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'D') && (cap[3] == '\0')))
                 goto not_xterm;
-              if (!tgetflag("km"))
-                goto not_xterm;
               end_system_call();
               { # Insert, Delete:
                 keybinding(ESCstring"[2~",16 | char_hyper_c); # #\Insert
@@ -2710,13 +2708,12 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                 # (ohne Hyper-Bit, da das zu Terminal-abhängig würde)
                 var char cap[4];
                 cap[0] = ESC; cap[1] = 'O'; cap[3] = '\0';
-               {var uintB c;
-                for (c='E'; c<='z'; c++) { cap[2] = c; keybinding(&!cap,c-64); }
-              }}
-              begin_system_call();
-              if (!(tgetnum("kn")==4))
-                goto not_xterm;
-              end_system_call();
+                cap[2] = 'M'; keybinding(&!cap,'M'-64);
+                cap[2] = '+'+64; keybinding(&!cap,'+');
+                cap[2] = '-'+64; keybinding(&!cap,'-');
+                cap[2] = '*'+64; keybinding(&!cap,'*');
+                cap[2] = '/'+64; keybinding(&!cap,'/');
+              }
               xterm:
               { # Pfeiltasten s.o.
                 # sonstige Cursorblock-Tasten:
@@ -2724,6 +2721,10 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                 keybinding(ESCstring"[6~",19 | char_hyper_c); # #\PgDn
                 keybinding(ESCstring"[7~",23 | char_hyper_c); # #\Home
                 keybinding(ESCstring"[8~",17 | char_hyper_c); # #\End
+                keybinding(ESCstring"OH",23 | char_hyper_c); # #\Home
+                keybinding(ESCstring"[H",23 | char_hyper_c); # #\Home
+                keybinding(ESCstring"OF",17 | char_hyper_c); # #\End
+                keybinding(ESCstring"[F",17 | char_hyper_c); # #\End
                 # Funktionstasten:
                 keybinding(ESCstring"[11~",'A' | char_hyper_c); # #\F1
                 keybinding(ESCstring"[12~",'B' | char_hyper_c); # #\F2
