@@ -88,12 +88,14 @@ dnl
 dnl set variable LIBSIGSEGV
 CL_SIGSEGV
 dnl
-AC_MSG_NOTICE([* checks for compiler characteristics])
+AC_MSG_NOTICE([* checks for fundamental compiler characteristics])
 dnl
 dnl DEFS inline
 AC_C_INLINE
 dnl DEFS void
 CL_VOID
+dnl DEFS HAVE_BUILTIN_STRLEN
+CL_BUILTIN_STRLEN
 dnl DEFS HAVE_LONGLONG
 CL_LONGLONG
 dnl
@@ -272,10 +274,8 @@ dnl
 dnl DEFS VALID_FILENAME_CHAR
 CL_FILECHARSET
 dnl
-AC_MSG_NOTICE([* checks for compiler characteristics])
+AC_MSG_NOTICE([* checks for compiler characteristics (arithmetic data types)])
 dnl
-dnl DEFS HAVE_BUILTIN_STRLEN
-CL_BUILTIN_STRLEN
 dnl DEFS __CHAR_UNSIGNED__ if char is unsigned
 AC_C_CHAR_UNSIGNED
 dnl DEFS FLOAT_DIV0_EXCEPTION, FLOAT_OVERFLOW_EXCEPTION,
@@ -296,6 +296,8 @@ ${srcdir}/intparam.c,intparam.h,cl_cv_file_intparam_h)
 dnl builds floatparam.h
 CL_MACHINE([floating-point types and behaviour],
 ${srcdir}/floatparam.c,floatparam.h,cl_cv_file_floatparam_h)
+dnl
+AC_MSG_NOTICE([* output file generation])
 dnl
 dnl gettext po files
 dnl
