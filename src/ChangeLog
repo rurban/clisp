@@ -1,5 +1,11 @@
 1999-03-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * genclisph.d (main): Modify immediate_number_p, charp, integerp,
+          fixnump, posfixnump, floatp, short_float_p according to 1999-02-02
+          lispbibl.d patch.
+
+1999-03-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * Renamed newnewreadline to readline, newreadline to oldreadline,
           readline to oldoldreadline.
         * Makefile.devel, configure, makemake.in: Update.
