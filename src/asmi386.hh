@@ -107,6 +107,10 @@
 //           Align to 2^log bytes.
 //   GLOBL(name)
 //           Declare `name' to be a global symbol.
+//   DECLARE_FUNCTION(name)
+//           Declare `name' to be a global function. When assembly language
+//           code is compiled into a shared library, ELF linkers need to know
+//           which symbols are functions.
 //   FUNBEGIN(name)
 //           Start the assembly language code for the C function `name'.
 //   FUNEND()
@@ -161,7 +165,7 @@
 #define INSNCONC(mnemonic,size_suffix)mnemonic##size_suffix
 #define INSN1(mnemonic,size_suffix,dst)INSNCONC(mnemonic,size_suffix) dst
 #define INSN2(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,size_suffix) src,dst
-#define INSN2MOVX(mnemonic,size_suffix,src,dst)INSNCONC(INSNCONC(mnemonic,size_suffix),l) src,dst
+#define INSN2MOVX(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,size_suffix##l) src,dst
 #if defined(BSD_SYNTAX) || defined(COHERENT)
 #define INSN2SHCL(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,size_suffix) R(cl),src,dst
 #define REPZ repe ;
@@ -222,6 +226,15 @@
 #define GLOBL(name)
 #else
 #define GLOBL(name) .globl name
+#endif
+
+// Define the DECLARE_FUNCTION(name) macro.
+#ifdef _MSC_VER
+#define DECLARE_FUNCTION(name)
+#elif defined(__svr4__) || defined(__ELF__) || defined(__NetBSD__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__ROSE__) || defined(_SEQUENT_) || defined(DGUX) || defined(_SCO_COFF) || defined(_SCO_ELF)
+#define DECLARE_FUNCTION(name) .type C(name),@function
+#else
+#define DECLARE_FUNCTION(name)
 #endif
 
 // Define the FUNBEGIN(name) and FUNEND() macros.

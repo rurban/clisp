@@ -1,5 +1,12 @@
 1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * asmi386.hh (DECLARE_FUNCTION): New macro.
+          (INSN2MOVX): Fix bug with ANSI C preprocessors.
+        * asmi386.sh: Introduce C(...) macro calls. Recognize more jumps.
+          Introduce DECLARE_FUNCTION(...) macro calls.
+
+1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (sigsegv.h, libsigsegv.a): Do "make install-lib" instead
           of "make install".
           (clean1): On Win32, remove sigsegv.lib, not libsigsegv.*.
