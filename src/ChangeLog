@@ -1,3 +1,8 @@
+2002-09-13  Sam Steingold  <sds@gnu.org>
+
+	* intparam.d: removed
+	* Makefile.devel: do not regenerate comment5.c and intparam.c
+
 2002-09-12  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (form-name): removed
