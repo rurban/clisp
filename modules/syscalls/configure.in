@@ -10,7 +10,6 @@ AC_CONFIG_HEADERS(config.h)
 AC_MSG_NOTICE([ * System Calls (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
-AC_PROG_GCC_TRADITIONAL
 
 AC_MSG_NOTICE([ * System Calls (Headers)])
 AC_HEADER_STDC
