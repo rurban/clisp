@@ -4073,7 +4073,14 @@ der Docstring (oder NIL).
       (push
         `(,fun
           ,@(mapcar
-              #'(lambda (x) (list 'QUOTE (c-constant-value x))) ; Argumente quotieren
+              ; Quote the arguments, but only when necessary, because
+              ; a variant of IN-PACKAGE wants unquoted arguments.
+              #'(lambda (x)
+                  (let ((v (c-constant-value x)))
+                    (if (or (numberp v) (characterp v) (arrayp v) (keywordp v))
+                      v
+                      (list 'QUOTE v)
+                ) ) )
               (rest *form*)
          )  )
         *package-tasks*
