@@ -676,7 +676,7 @@
 ; sonst rechts vom String.
 (defun format-padded-string
        (mincol colinc minpad padchar padleftflag str stream)
-  (let* ((need (+ (length str) minpad)) ; so viele Zeichen mindestens
+  (let* ((need (+ (string-width str) minpad)) ; so viele Spalten mindestens
          (auxpad (if (< need mincol)
                    (* (ceiling (- mincol need) colinc) colinc)
                    0
@@ -1212,7 +1212,7 @@
     (dolist (piece piecelist)
       (declare (simple-string piece))
       (incf piecesnumber)
-      (incf pieceswidth (length piece))
+      (incf pieceswidth (string-width piece))
     )
     (let* ((new-justify-left
              (or justify-left (and (= piecesnumber 1) (not justify-right))))

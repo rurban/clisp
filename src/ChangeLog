@@ -1,3 +1,21 @@
+1999-11-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (char_width): New declaration.
+        * charstrg.d (non_spacing_table_data, nonspacing_table_ind): New
+          arrays.
+          (char_width, CHAR-WIDTH, STRING-WIDTH): New functions.
+        * stream.d (wr_ss_lpos): Call char_width instead of graphic_char_p.
+          Don't assume every character increases the line position by 1.
+          (write_char): Likewise.
+        * io.d (pphelp_string_width): New function.
+          (justify_end_eng, justify_end_weit): Use pphelp_string_width instead
+          of the string's length.
+        * compiler.lsp (subr-info): Add char-width and string-width.
+        * describe.lsp (write-to-short-string): Use string-width instead of
+          the string's length.
+        * format.lsp (format-padded-string, format-justified-segments):
+          Likewise.
+
 1999-11-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (Array_type_simple_bit_vector): New macro.
