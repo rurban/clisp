@@ -1,3 +1,7 @@
+1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * io.d (right_margin): Update translations.
+
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * foreign1.lsp (DEF-C-CALL-OUT, DEF-C-CALL-IN): Use language :STDC,
