@@ -1,8 +1,6 @@
 # Copyright (C) 1998, 1999, 2002 by Sam Steingold
-# GNU General Public License v.2 (GPL2) is applicable:
-# No warranty; you may copy/modify/redistribute under the same
-# conditions with the source code. See <URL:http://www.gnu.org>
-# for the details and the precise copyright document.
+# Distributed under the terms of the GNU General Public License.
+# See <http://www.gnu.org/copyleft/gpl.html>.
 
 # The purpose of this file is creation of source/binary RPMs,
 # **NOT** building/installing CLISP.
@@ -37,14 +35,11 @@ Copyright:    GPL
 Group:        development/languages
 Source:       ftp://cvs2.cons.org/pub/lisp/clisp/source/latest/
 URL:          http://clisp.cons.org/
-Packager:     Red Hat Contrib|Net <rhcn-bugs@redhat.com>
+Packager:     Sam Steingold <sds@gnu.org>
 Provides:     clisp, ansi-cl
-Distribution: Red Hat Contrib|Net
+Distribution: Red Hat GNU/Linux
 %description
 %(cat SUMMARY)
-
-The package was created by Sam Steingold <sds@gnu.org>.
-(RHCN requires that I put their e-mail into the "Packager:" header).
 
 # RPM doesn't provide for comfortable operation: when I want to create a
 # package, I have to untar, build and install (--short-circuit works for
