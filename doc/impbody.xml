@@ -3445,6 +3445,36 @@ non-&nil;.</para>
  <emphasis>merge</emphasis> and not <emphasis>or</emphasis>.</para>
 
 </section>
+
+<section id="load-lpt">
+   <title>Function &load-logical-pathname-translations;</title>
+
+<para>When the &host-r; argument to &load-logical-pathname-translations;
+is not a defined logical host yet, we proceed as follows:
+<orderedlist numeration="arabic">
+ <listitem><simpara>If both environment variables
+  <envar>LOGICAL_HOST_&host-r;_FROM</envar> and
+  <envar>LOGICAL_HOST_&host-r;_TO</envar> exist, then they define the
+  map of the &host-r;.</simpara></listitem>
+ <listitem><simpara>If the environment variable
+  <envar>LOGICAL_HOST_&host-r;</envar> exists, its value is read from,
+  and the result is passed to <literal role="sexp">(&setf;
+  &logical-pathname-translations;)</literal>.</simpara></listitem>
+ <listitem><simpara>Variable &load-lpt-db; is consulted.
+  Its value should be a list of files and/or directories,
+  which are searched for in the &load-paths;, just like for &load;.
+  When the element is a file, it is &read; from,
+  <ulink url="http://www.franz.com/support/documentation/6.0/doc/pathnames.htm#load-logical-pathname-translations-2">Allegro CL-style</ulink>,
+  odd objects being host names and even object being their
+  &logical-pathname-translations;.
+  When the element is a directory, a file, named <filename>&host-r;</filename>
+  or <filename>&host-r;.host</filename>, in that directory, is &read;
+  from once, <ulink url="http://cvs2.cons.org/ftp-area/cmucl/doc/cmu-user/extensions.html#logical-pathnames">CMUCL-style</ulink>,
+  the object read being the
+  &logical-pathname-translations; of the &host-r;.</simpara></listitem>
+</orderedlist></para>
+</section>
+
 </section>
 </chapter>
 
@@ -4436,8 +4466,7 @@ compiles a file to platform-independent bytecode.</para>
 
 <section id="loadfile"><title>Function &load;</title>
 
-<para>&load; has two additional keywords &echo-k; and
- &compiling-k;.</para>
+<para>&load; has two additional keywords &echo-k; and &compiling-k;.</para>
 
 <para><literal role="sexp">(&load; &filename-r; &key-amp; &verbose-k;
  &print-k; &echo-k; &if-does-not-exist; &compiling-k;)</literal></para>
@@ -4467,11 +4496,11 @@ compiles a file to platform-independent bytecode.</para>
   which is initially &nil;.
 </simpara></listitem></varlistentry></variablelist>
 
-<para>The variable <emphasis
- role="strong"><varname>custom:*load-paths*</varname></emphasis> contains
- a list of directories where program files are searched - additionally
- to the specified or current directory - by &load;, &require;,
- &compile-file;.</para>
+<formalpara id="load-paths"><title>&load-paths;</title>
+<para>The variable &load-paths; contains a list of directories where the
+ files are looked for - in addition to the specified or current
+ directory - by &load;, &require;, &compile-file; and
+ &load-logical-pathname-translations;.</para></formalpara>
 
 </section>
 
