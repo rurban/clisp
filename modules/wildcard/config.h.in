@@ -31,10 +31,6 @@
 
 /* compiler characteristics */
 
-/* AC_C_CONST */
-/* Define this as empty if your compiler doesn't support the `const' keyword. */
-#undef const
-
 
 /* header files */
 
