@@ -254,6 +254,156 @@
 ;; void mxFree(void *ptr);
 (def-call-out mxFree (:arguments (ptr c-pointer)) (:return-type nil))
 
+;; typedef enum mxComplexity {mxREAL=0, mxCOMPLEX};
+(def-c-enum mxComplexity (mxREAL 0) mxCOMPLEX})
+
+;; mxArray *mxCreateDoubleMatrix(int m, int n, mxComplexity ComplexFlag);
+(def-call-out mxCreateDoubleMatrix (:return-type (c-pointer mxArray))
+  (:arguments (m int) (n int) (complexflag mxComplexity)))
+;; void mxDestroyArray(mxArray *array_ptr);
+(def-call-out mxDestroyArray (:return-type nil)
+  (:arguments (array_ptr (c-pointer mxArray))))
+
+;; mxArray *mxCreateDoubleScalar(double value);
+(def-call-out mxCreateDoubleScalar (:return-type (c-pointer mxArray))
+  (:arguments (value double-float)))
+
+;; double mxGetEps(void);
+(def-call-out mxGetEps (:return-type double-float) (:arguments))
+
+;; double *mxGetPr(const mxArray *array_ptr);
+(c-lines "double mx_aref (const mxArray *array_ptr, int i, int j, int n) { return mxGetPr(array_ptr)[i*n+j]; }~%")
+(def-call-out mx_aref (:return-type double-float)
+  (:arguments (array_ptr (c-pointer mxArray))
+              (i int) (j int) (n int)))
+(c-lines "void set_mx_aref (double val, const mxArray *array_ptr, int i, int j, int n) { mxGetPr(array_ptr)[i*n+j] = val; }~%")
+(ffi:def-call-out set_mx_aref (:return-type nil)
+  (:arguments (val double-float) (array_ptr (c-pointer mxArray))
+              (i int) (j int) (n int)))
+(defsetf mx_aref set_mx_aref)
+;; void *mxGetData(const mxArray *array_ptr);
+(def-call-out mxGetData (:return-type c-pointer)
+  (:arguments (array_ptr (c-pointer mxArray))))
+
+;; int mxGetNumberOfDimensions(const mxArray *array_ptr);
+(def-call-out mxGetNumberOfDimensions (:return-type int)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; const int *mxGetDimensions(const mxArray *array_ptr);
+(def-call-out mxGetDimensions (:return-type (c-pointer int))
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; int mxGetNumberOfElements(const mxArray *array_ptr);
+(def-call-out mxGetNumberOfElements (:return-type int)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; int mxGetElementSize(const mxArray *array_ptr);
+(def-call-out mxGetElementSize (:return-type int)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; int mxGetNumberOfFields(const mxArray *array_ptr);
+(def-call-out mxGetNumberOfFields (:return-type int)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; int mxGetNzmax(const mxArray *array_ptr);
+(def-call-out mxGetNzmax (:return-type int)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; int mxGetM(const mxArray *array_ptr);
+(def-call-out mxGetM (:return-type int)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; int mxGetN(const mxArray *array_ptr);
+(def-call-out mxGetN (:return-type int)
+  (:arguments (array_ptr (c-pointer mxArray))))
+
+;; double mxGetScalar(const mxArray *array_ptr);
+(def-call-out mxGetScalar (:return-type double-float)
+  (:arguments (array_ptr (c-pointer mxArray))))
+
+;; bool mxIsCell(const mxArray *array_ptr);
+(def-call-out mxIsCell (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsChar(const mxArray *array_ptr);
+(def-call-out mxIsChar (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsComplex(const mxArray *array_ptr);
+(def-call-out mxIsComplex (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsDouble(const mxArray *array_ptr);
+(def-call-out mxIsDouble (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsEmpty(const mxArray *array_ptr);
+(def-call-out mxIsEmpty (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsInt8(const mxArray *array_ptr);
+(def-call-out mxIsInt8 (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsInt16(const mxArray *array_ptr);
+(def-call-out mxIsInt16 (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsInt32(const mxArray *array_ptr);
+(def-call-out mxIsInt32 (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsInt64(const mxArray *array_ptr);
+(def-call-out mxIsInt64 (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsLogical(const mxArray *array_ptr);
+(def-call-out mxIsLogical (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsLogicalScalar(const mxArray *array_ptr);
+(def-call-out mxIsLogicalScalar (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsLogicalScalarTrue(const mxArray *array_ptr);
+(def-call-out mxIsLogicalScalarTrue (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsNumeric(const mxArray *array_ptr);
+(def-call-out mxIsNumeric (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsSparse(const mxArray *array_ptr);
+(def-call-out mxIsSparse (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsSingle(const mxArray *array_ptr);
+(def-call-out mxIsSingle (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsStruct(const mxArray *array_ptr);
+(def-call-out mxIsStruct (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsUint8(const mxArray *array_ptr);
+(def-call-out mxIsUint8 (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsUint16(const mxArray *array_ptr);
+(def-call-out mxIsUint16 (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsUint32(const mxArray *array_ptr);
+(def-call-out mxIsUint32 (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsUint64(const mxArray *array_ptr);
+(def-call-out mxIsUint64 (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; bool mxIsClass(const mxArray *array_ptr, const char *name);
+(def-call-out mxIsClass (:return-type boolean)
+  (:arguments (array_ptr (c-pointer mxArray)) (name c-string)))
+
+(def-c-enum mxClassID
+  (mxUNKNOWN_CLASS 0)
+  mxCELL_CLASS
+  mxSTRUCT_CLASS
+  mxLOGICAL_CLASS
+  mxCHAR_CLASS
+  mxSPARSE_CLASS                ; OBSOLETE! DO NOT USE
+  mxDOUBLE_CLASS
+  mxSINGLE_CLASS
+  mxINT8_CLASS
+  mxUINT8_CLASS
+  mxINT16_CLASS
+  mxUINT16_CLASS
+  mxINT32_CLASS
+  mxUINT32_CLASS
+  mxINT64_CLASS                 ; place holder - future enhancements
+  mxUINT64_CLASS                ; place holder - future enhancements
+  mxFUNCTION_CLASS
+  mxOPAQUE_CLASS
+  mxOBJECT_CLASS)
+;; mxClassID mxGetClassID(const mxArray *array_ptr);
+(def-call-out mxGetClassID (:return-type mxClassID)
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; const char *mxGetClassName(const mxArray *array_ptr);
+(def-call-out mxGetClassName (:return-type c-string)
+  (:arguments (array_ptr (c-pointer mxArray))))
 
 
 (provide "matlab")
