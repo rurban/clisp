@@ -1,5 +1,9 @@
 2004-12-12  Bruno Haible  <bruno@clisp.org>
 
+	* win32.d: Move include of <sys/types.h>.
+
+2004-12-12  Bruno Haible  <bruno@clisp.org>
+
 	Fix the error checking of stdout. When writing to a full disk over an
 	NFS or CODA file system, write() writes into a operating system's
 	buffer, fflush() succeeds, and only fclose() fails.
