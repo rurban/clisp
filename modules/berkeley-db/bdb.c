@@ -834,7 +834,8 @@ static object check_dbt_object (object obj) {
 
 /* fill a DBT with contents of obj (a byte vector, string, or positive integer)
  dbt_type, when non-NULL, will contain the argument type
- when re_len is > 0, it the database has fixed-record-length
+ when re_len is > 0, the database has fixed-record-length,
+  so the integer will be padded on the left
  can trigger GC */
 static void fill_dbt (object obj, DBT* key, dbt_o_t *dbt_type, int re_len)
 {
@@ -905,14 +906,21 @@ static object dbt_to_object (DBT *p_dbt, dbt_o_t type) {
       if (p_dbt->size > sizeof(uintL)) {
         uintL bn_size = ceiling(p_dbt->size,sizeof(uintD));
         uintD total = bn_size * sizeof(uintD);
-        void *data = alloca(total);
-        begin_system_call();
-        memset(data,0,total);
-        memcpy((char*)data + total - p_dbt->size,p_dbt->data,p_dbt->size);
-        free(p_dbt->data); p_dbt->data = NULL;
-        end_system_call();
-        VECOUT(data,total);
-        return UDS_to_I(data,bn_size);
+        void *data = p_dbt->size == total ? p_dbt->data : alloca(total);
+        if (data != p_dbt->data) {
+          begin_system_call();
+          memset(data,0,total);
+          memcpy((char*)data + total - p_dbt->size,p_dbt->data,p_dbt->size);
+          free(p_dbt->data); p_dbt->data = NULL;
+          end_system_call();
+          VECOUT(data,total);
+          return UDS_to_I(data,bn_size);
+        } else {
+          object ret = UDS_to_I(data,bn_size);
+          VECOUT(data,total);
+          free_dbt(p_dbt);
+          return ret;
+        }
       } else if (p_dbt->size == sizeof(uintL)) {
         object ret = UL_to_I(*(uintL*)p_dbt->data);
         free_dbt(p_dbt);
@@ -1290,10 +1298,10 @@ DEFUN(BDB:DB-VERIFY, db file &key :DATABASE :SALVAGE :AGGRESSIVE :PRINTABLE \
 
 /* ===== Database Configuration ===== */
 /* not exported:
- DB->set_alloc	Set local space allocation functions
+ DB->set_alloc		Set local space allocation functions
  DB->set_dup_compare	Set a duplicate comparison function
  DB->set_errcall	Set error message callback
- DB->set_errpfx	Set error message prefix
+ DB->set_errpfx		Set error message prefix
  DB->set_feedback	Set feedback callback
  DB->set_paniccall	Set panic callback
 Btree/Recno Configuration
