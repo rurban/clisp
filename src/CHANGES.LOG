@@ -62,6 +62,9 @@ User visible changes
   implemented: SYMBOL-MACROLET of special variables or constants now signals
   an error.
 
+* Conforming with X3J13 writeup <DOTTED-LIST-ARGUMENTS:CLARIFY>, the first
+  argument of LDIFF may now be a dotted list.
+
 * The functions MAKE-BROADCAST-STREAM, MAKE-CONCATENATED-STREAM,
   MAKE-TWO-WAY-STREAM, MAKE-ECHO-STREAM now verify that their arguments are
   input streams or output streams, respectively.
