@@ -1,5 +1,10 @@
 2001-10-01  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (make-pathname): support string and
+	:wild/:wild-inferiors :directory arg
+
+2001-10-01  Sam Steingold  <sds@gnu.org>
+
 	added EXPAND-DEFTYPE primitive, removed TYPE-EXPAND-1
 	* lispbibl.d (expand_deftype): added a prototype
 	* predtype.d (expand_deftype, EXPAND-DEFTYPE): implemented
