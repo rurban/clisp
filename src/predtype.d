@@ -1528,11 +1528,20 @@ LISPFUNNR(type_of,1)
     case_system: /* -> SYSTEM-INTERNAL */
       value1 = S(system_internal); break;
    #endif
-    case_fixnum: /* Fixnum -> FIXNUM */
-      value1 = (eq(arg,Fixnum_0) || eq(arg,Fixnum_1) ? S(bit) : S(fixnum));
+      /* due to the rule 1 in
+         <http://www.lisp.org/HyperSpec/Body/fun_type-of.html>,
+         we must have (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)
+         for all "built-in types" Y as listed in table 4-2 in
+         <http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html>
+         if X is a FIXNUM or a BIGNUM and Y is UNSIGNED-BYTE,
+         this means that TYPE-OF must distinguish between positive
+         and negative integers: */
+    case_fixnum: /* Fixnum -> BIT or FIXNUM+ or FIXNUM- */
+      value1 = (eq(arg,Fixnum_0) || eq(arg,Fixnum_1) ? S(bit) :
+                positivep(arg) ? O(type_posfixnum) : O(type_negfixnum));
       break;
-    case_bignum: /* Bignum -> BIGNUM */
-      value1 = S(bignum); break;
+    case_bignum: /* Bignum -> BIGNUM+ or BIGNUM- */
+      value1 = positivep(arg) ? O(type_posbignum) : O(type_negbignum); break;
     case_ratio: /* Ratio -> RATIO */
       value1 = S(ratio); break;
     case_sfloat: /* Short-Float -> SHORT-FLOAT */

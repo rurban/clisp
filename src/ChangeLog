@@ -1,5 +1,17 @@
 2004-02-13  Sam Steingold  <sds@gnu.org>
 
+	due to the rule 1 in
+	<http://www.lisp.org/HyperSpec/Body/fun_type-of.html>,
+	we must have (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)
+	for all "built-in types" Y as listed in table 4-2 in
+	<http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html>
+	if X is a FIXNUM or a BIGNUM and Y is UNSIGNED-BYTE, this means
+	that TYPE-OF must distinguish between positive and negative integers
+	* constobj.d (type_negfixnum, type_posbignum, type_negbignum): added
+	* predtype.d (TYPE-OF): return them for FIXNUMs and BIGNUMs
+
+2004-02-13  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (check_open_file_stream): handle BROADCAST-STREAMs
 	(FILE-POSITION, FILE-LENGTH, FILE-STRING-LENGTH): ditto
 
