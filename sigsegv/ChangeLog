@@ -1,3 +1,11 @@
+2002-04-28  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel (ACLOCAL): Remove variable.
+	(ACSELECT): Remove variable.
+	(OTHERMACROS): Remove variable.
+	(m4/*.m4): New rules.
+	(autoconf/aclocal.m4): Construct using aclocal instead of acselect.
+
 2001-08-25  Bruno Haible  <haible@clisp.cons.org>
 
 	Upgrade to autoconf-2.52.
