@@ -18,8 +18,7 @@
    <i class="replaceable"><tt>temp-dir</tt></i></a></tt>]
 #endif
  [<tt class="option"><a href="#opt-lang">-L <i class="replaceable"><tt>language</tt></i></a></tt>] [<tt class="option"><a href="#opt-locale">-N <i class="replaceable"><tt>locale-dir</tt></i></a></tt>] [<tt class="option"><a href="#opt-enc">-E<i class="replaceable"><tt>domain</tt></i> <i class="replaceable"><tt>encoding</tt></i></a></tt>] [[<tt class="option"><a href="#opt-verbose">-q</a></tt><tt class="option"><a href="#opt-verbose">--quiet</a></tt><tt class="option"><a href="#opt-verbose">--silent</a></tt><tt class="option"><a href="#opt-verbose">-v</a></tt><tt class="option"><a href="#opt-verbose">--verbose</a></tt>]] [<tt class="option"><a href="#opt-interactive-debug">-interactive-debug</a></tt>] [<tt class="option"><a href="#opt-repl">-repl</a></tt>] [<tt class="option"><a href="#opt-wait">-w</a></tt>] [<tt class="option"><a href="#opt-ilisp">-I</a></tt>] [<tt class="option"><a href="#opt-ansi">-ansi</a></tt> |
-  <tt class="option"><a href="#opt-traditional">-traditional</a></tt>] [<tt class="option"><a href="#opt-pack">-p
-   <i class="replaceable"><tt>package-name</tt></i></a></tt>] [<tt class="option"><a href="#opt-load-comp">-C</a></tt>] [<tt class="option"><a href="#opt-norc">-norc</a></tt>] [<tt class="option"><a href="#opt-init">-i
+  <tt class="option"><a href="#opt-traditional">-traditional</a></tt>] [<tt class="option"><a href="#opt-pack">-p <i class="replaceable"><tt>package</tt></i></a></tt>] [<tt class="option"><a href="#opt-load-comp">-C</a></tt>] [<tt class="option"><a href="#opt-norc">-norc</a></tt>] [<tt class="option"><a href="#opt-init">-i
    <i class="replaceable"><tt>init-file</tt></i></a></tt>...] [<tt class="option"><a href="#opt-compile">-c</a></tt>
   [<tt class="option"><a href="#opt-list">-l</a></tt>] <i class="replaceable"><tt>lisp-file</tt></i>
   [<tt class="option"><a href="#opt-out">-o</a>
@@ -58,7 +57,7 @@ that can be executed more efficiently.</p>
 </dd>
 #ifdef UNIX
 <dt><a id="opt-link-set"></a><tt class="option">-K</tt>
-  <i class="replaceable"><tt>linking-set</tt></i></dt><dd>Specifies the linking set to be run.
+  <i class="replaceable"><tt>linking-set</tt></i></dt><dd>Specifies the <a href="impnotes.html#linkset">linking set</a> to be run.
    This is a directory (relative to the
    <a href="#opt-libdir"><i class="replaceable"><tt>lisp-lib-dir</tt></i></a>)
    containing at least a main executable (<a href="#runtime">runtime</a>) and an initial <a href="impnotes.html#image">memory image</a>.
@@ -72,8 +71,7 @@ that can be executed more efficiently.</p>
    this <span><b class="command">clisp</b></span> <a href="#runtime">runtime</a>.
 
 #ifdef UNIX
-   It may have been compressed using <a href="http://www.gnu.org" target="_top">GNU</a>
-   <a href="http://www.gzip.org/" target="_top">gzip</a>.
+   It may have been compressed using <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://www.gzip.org/" target="_top"><span><b class="command">gzip</b></span></a>.
 
 #endif
 
@@ -129,7 +127,7 @@ that can be executed more efficiently.</p>
   <i class="replaceable"><tt>stack-size</tt></i></dt><dd>Sets the size of the program stack
    (<a href="impnotes.html#vm"><tt class="literal">SP</tt></a>)
    <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> allocates for itself.  The syntax is the same as for
-   <a href="#opt-memsize"><tt class="option">-m</tt></a>.
+   <tt class="option"><a href="#opt-memsize">-m</a></tt>.
    Default is one eighth of <i class="replaceable"><tt>mem-size</tt></i>.
    The argument is constrained between 40 KB and 8 MB.
 </dd>
@@ -149,7 +147,7 @@ that can be executed more efficiently.</p>
    only <span><b class="command">english</b></span>.
 
 #else
-   </p><table class="simplelist" border="0" summary="Simple list"><tr><td><span><b class="command">english</b></span></td><td><span><b class="command">german</b></span></td><td><span><b class="command">french</b></span></td></tr><tr><td><span><b class="command">spanish</b></span></td><td><span><b class="command">dutch</b></span></td><td><span><b class="command">russian</b></span></td></tr></table><p>
+   one of <span class="simplelist"><span><b class="command">english</b></span>, <span><b class="command">german</b></span>, <span><b class="command">french</b></span>, <span><b class="command">spanish</b></span>, <span><b class="command">dutch</b></span>, <span><b class="command">russian</b></span></span>.
    Other languages may be specified through the environment variable
    <tt class="envar">LANG</tt>,
    provided the corresponding message catalog is installed.
@@ -214,12 +212,11 @@ that can be executed more efficiently.</p>
 </dd><dt><a id="opt-ansi"></a><tt class="option">-ansi</tt></dt><dd>Comply with the [<span class="citation"><a href="#ansi-cl">ANSI CL standard</a></span>] specification
    even where <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> has been traditionally different.
    It sets the symbol macro <tt class="varname">*ansi*</tt> to <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html" target="_top"><tt class="constant">T</tt></a>.
-   See <a href="impnotes.html#ansi">"Maximum ANSI CL
-   compliance"</a> for details.</dd><dt><a id="opt-traditional"></a><tt class="option">-traditional</tt></dt><dd>Traditional: reverses the residual effects of
+   See <a href="impnotes.html#ansi">Section 29.9, “Extensions-1.9. Maximum ANSI CL compliance”</a> for details.
+</dd><dt><a id="opt-traditional"></a><tt class="option">-traditional</tt></dt><dd>Traditional: reverses the residual effects of
    <tt class="option"><a href="#opt-ansi">-ansi</a></tt>
-   in the saved <a href="impnotes.html#image">memory image</a>.</dd><dt><a id="opt-pack"></a><tt class="option">-p</tt>
-  <i class="replaceable"><tt>package-name</tt></i></dt><dd>At startup the value of the variable <a href="http://www.lisp.org/HyperSpec/Body/var_stpackagest.html" target="_top"><tt class="varname">*PACKAGE*</tt></a>
-   will be set to the package named <i class="replaceable"><tt>package-name</tt></i>.
+   in the saved <a href="impnotes.html#image">memory image</a>.</dd><dt><a id="opt-pack"></a><tt class="option">-p</tt> <i class="replaceable"><tt>package</tt></i></dt><dd>At startup the value of the variable <a href="http://www.lisp.org/HyperSpec/Body/var_stpackagest.html" target="_top"><tt class="varname">*PACKAGE*</tt></a>
+   will be set to the package named <i class="replaceable"><tt>package</tt></i>.
    The default is the package which was active when the image was
    <a href="impnotes.html#image">saved</a>,
    normally <a href="http://www.lisp.org/HyperSpec/Body/sec_11-1-2-2.html" target="_top"><strong class="package">“<span class="quote">COMMON-LISP-USER</span>”</strong></a>.</dd><dt><a id="opt-load-comp"></a><tt class="option">-C</tt></dt><dd>Compile when loading: at startup the value of the
@@ -227,8 +224,9 @@ that can be executed more efficiently.</p>
    will be set to <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html" target="_top"><tt class="constant">T</tt></a>.
    Code being <a href="http://www.lisp.org/HyperSpec/Body/fun_load.html" target="_top"><tt class="function">LOAD</tt></a>ed will then be <a href="http://www.lisp.org/HyperSpec/Body/fun_compile.html" target="_top"><tt class="function">COMPILE</tt></a>d on the fly.
    This results in slower loading, but faster execution.
-</dd><dt><a id="opt-norc"></a><tt class="option">-norc</tt></dt><dd>Normally <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> loads a user “<span class="quote">run control</span>”
-   (RC) file on startup (this happens after the
+</dd><dt><a id="opt-norc"></a><tt class="option">-norc</tt></dt><dd>Normally <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> loads the user
+   <a href="http://www.faqs.org/docs/artu/ch10s03.html" target="_top">“<span class="quote">run
+     control</span>” (RC)</a> file on startup (this happens after the
    <tt class="option"><a href="#opt-load-comp">-C</a></tt> option is
    processed).
    The file loaded is
@@ -301,9 +299,11 @@ that can be executed more efficiently.</p>
 
 </div><div class="refsection" lang="en" xml:lang="en"><a id="usage"></a><h2>Usage</h2>
 
-<div class="variablelist"><dl><dt>help</dt><dd>get context-sensitive on-line help.
-</dd><dt>(<a href="http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos-list.html" target="_top"><tt class="function">APROPOS</tt></a> <i class="replaceable"><tt>name</tt></i>)</dt><dd><a href="impnotes.html#apropos">list the
-    symbols</a> related to <i class="replaceable"><tt>name</tt></i>.
+<div class="variablelist"><dl><dt>help</dt><dd>get context-sensitive on-line help, see
+   <a href="impnotes.html#environment">Chapter 25, Environment
+   [CLHS-25]</a>.
+</dd><dt>(<a href="http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos-list.html" target="_top"><tt class="function">APROPOS</tt></a> <i class="replaceable"><tt>name</tt></i>)</dt><dd><a href="impnotes.html#apropos">list
+    the symbols</a> related to <i class="replaceable"><tt>name</tt></i>.
 </dd><dt>(exit)<br />(quit)<br />(bye)</dt><dd><a href="impnotes.html#quit">quit</a>
  <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a>.</dd><dt>EOF
 
@@ -348,8 +348,8 @@ that can be executed more efficiently.</p>
 <dl><dt><span><b class="command">clisp</b></span> on <a href="http://www.UNIX-systems.org/online.html" target="_top"><strong>UNIX</strong></a></dt><dd>startup driver (a script or an executable)
 </dd>
 #endif
-<dt><a id="runtime"></a><tt class="filename">lisp.run</tt><br /><tt class="filename">lisp.exe</tt></dt><dd>main executable
-   (runtime)</dd><dt><tt class="filename">lispinit.mem</tt></dt><dd>initial <a href="impnotes.html#image">memory image</a></dd><dt><a id="config-file"></a><tt class="filename">config.lisp</tt></dt><dd>site-dependent configuration (should have been
+<dt><a id="runtime"></a><tt class="filename">lisp.run</tt><br /><tt class="filename">lisp.exe</tt></dt><dd>main executable (runtime)
+</dd><dt><tt class="filename">lispinit.mem</tt></dt><dd>initial <a href="impnotes.html#image">memory image</a></dd><dt><a id="config-file"></a><tt class="filename">config.lisp</tt></dt><dd>site-dependent configuration (should have been
   customized before <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> was built); see
   <a href="impnotes.html#customize">Section 29.11, “Extensions-1.11. Customizing CLISP behavior.”</a>
 </dd><dt><tt class="filename">*.lisp</tt></dt><dd>lisp source</dd><dt><tt class="filename">*.fas</tt></dt><dd>lisp code, compiled by <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a>
@@ -404,11 +404,9 @@ that can be executed more efficiently.</p>
 <dt><tt class="envar">HOME</tt><br /><tt class="envar">USER</tt></dt><dd>are used for determining the value of the function
    <a href="http://www.lisp.org/HyperSpec/Body/fun_user-homedir-pathname.html" target="_top"><tt class="function">USER-HOMEDIR-PATHNAME</tt></a>.</dd>
 #endif
-#ifdef UNIX
-<dt><tt class="envar">SHELL</tt></dt><dd>is used to find the interactive command interpreter
-   called by <a href="impnotes.html#shell"><tt class="function">SHELL</tt></a>.
+<dt><tt class="envar">SHELL</tt><br /><tt class="envar">COMSPEC</tt></dt><dd>is used to find the interactive command interpreter
+  called by <a href="impnotes.html#shell"><tt class="function">SHELL</tt></a>.
 </dd>
-#endif
 #ifdef UNIX
 <dt><tt class="envar">TERM</tt></dt><dd>determines the screen size recognized by the pretty
    printer.</dd>
@@ -441,9 +439,9 @@ that can be executed more efficiently.</p>
 <p>When submitting a bug report, please specify the
 following information:</p>
 
-<div class="orderedlist"><ol type="1"><li>What is your platform (<span><b class="command">"uname -a"</b></span>
-   on a Unix system)?  Compiler version?
-   LIBC version (on Linux)?</li><li>Where did you get the sources?  When?
+<div class="orderedlist"><ol type="1"><li>What is your platform (<span><b class="command"><a href="http://www.opengroup.org/onlinepubs/007904975/utilities/uname.html" target="_top"><span><b class="command">uname</b></span></a> -a</b></span>
+   on a <a href="http://www.UNIX-systems.org/online.html" target="_top"><strong>UNIX</strong></a> system)?  Compiler version?
+   <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://www.gnu.org/software/libc/" target="_top">libc</a> version (on <a href="http://www.gnu.org" target="_top">GNU</a>/<a href="http://www.linux.org/" target="_top"><strong>Linux</strong></a>)?</li><li>Where did you get the sources?  When?
    (Absolute dates are preferred over the relative ones).</li><li>How did you build <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a>? (What command, options &amp;c.)
    Please do a clean build (remove your build directory and build
    <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> with <span><b class="command">"./configure --build build"</b></span> or at
@@ -454,8 +452,8 @@ following information:</p>
    <span><b class="command">"./configure --with-debug --build build-g"</b></span>
    and report the backtrace.</li><li>If you are using pre-built binaries, the problem is
    likely to be in the incompatibilities between the platform on which
-   the binary was built and yours;
-   please try compiling the sources.</li><li>What is the output of
+   the binary was built and yours; please try compiling the sources.
+ </li><li>What is the output of
    <span><b class="command"><a href="#opt-version">"clisp
      --version"</a></b></span>?</li><li>Please supply the full output (copy and paste) of
    all the error messages, as well as detailed instructions on how to
@@ -468,12 +466,11 @@ following information:</p>
 <ul type="disc"><li>The memory management scheme is not very
   flexible.</li>
 #endif
-<li><a href="impnotes.html#cl-symb">Some</a> <a href="#ansi-cl">ANSI
-  CL</a> features are not supported yet.</li><li>No on-line documentation beyond <a href="http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos-list.html" target="_top"><tt class="function">APROPOS</tt></a>
+<li>No on-line documentation beyond <a href="http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos-list.html" target="_top"><tt class="function">APROPOS</tt></a>
   and <a href="http://www.lisp.org/HyperSpec/Body/fun_describe.html" target="_top"><tt class="function">DESCRIBE</tt></a> is available.</li>
 #ifdef UNIX_COHERENT
-<li><tt class="varname">*keyboard-input*</tt> does not
-  recognize <span><b class="keycap">Control</b></span>-<span class="keysym">S</span>
+<li><a href="impnotes.html#terminal"><tt class="varname">*KEYBOARD-INPUT*</tt></a>
+  does not recognize <span><b class="keycap">Control</b></span>-<span class="keysym">S</span>
   and <span><b class="keycap">Control</b></span>-<span class="keysym">Q</span>.</li>
 #endif
 </ul></div>

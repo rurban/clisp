@@ -14,6 +14,8 @@
 MFLAGS=
 !endif
 
+VERSION=2.32
+CLISP_VERSION=clisp-$(VERSION)
 # Directories used by "make install":
 prefix = 
 exec_prefix = $(prefix)
@@ -31,7 +33,8 @@ lisplibdir = $(libdir)\clisp
 # installation. This is useful when preparing a binary distribution.
 DESTDIR =
 
-# (partial) list of available add-on modules:
+# (partial) list of available add-on modules
+# (see directory modules/ for the full list):
 # queens               the queens function as a separate module
 # dirkey               the directory access (LDAP, win32 registry)
 # berkeley-db          the Berkeley DB access
@@ -48,6 +51,7 @@ MODULES =
 
 # Programs used by "make":
 CC = cl $(MFLAGS) -G5 -Os -Oy -Ob1 -Gs -Gf -Gy
+CPPFLAGS = 
 CFLAGS =  -DUNICODE -DDYNAMIC_FFI -DNO_GETTEXT -DNO_SIGSEGV -I.
 CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -D_MSC_VER=1100 -D_INTEGRAL_MAX_BITS=64
 CLFLAGS = 
@@ -113,6 +117,7 @@ ROFF_PS  = groff -Tps -mandoc # try "groff -Tps -mandoc"
 #           This target builds the file mentioned by the link.sh file.
 #           The following makefile variables can be used:
 #             CC                 the C compiler used to compile the CLISP source
+#             CPPFLAGS           the C compiler flags when compiling some source
 #             CFLAGS             the C compiler flags
 #             INCLUDES           a directory containing CLISP header files
 #             LISPBIBL_INCLUDES  if you #include "lispbibl.c", put this onto
@@ -124,7 +129,7 @@ ROFF_PS  = groff -Tps -mandoc # try "groff -Tps -mandoc"
 #                                "base" clisp.
 #           Typically, you will have rules like this in your Makefile:
 #               foo.o : foo.c
-#                       $(CC) $(CFLAGS) -I$(INCLUDES) -c foo.c
+#                       $(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c foo.c
 #               foo.fas : foo.lisp
 #                       $(CLISP) -c foo.lisp
 #
@@ -638,18 +643,18 @@ floatparam.h : floatparam.c unixconf.h
 ../utils/gcc-cccp/cccp.exe :
 
 comment5.exe : ..\utils\comment5.c
-	$(CC) $(CFLAGS) $(CLFLAGS) ..\utils\comment5.c /Fecomment5.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\comment5.c /Fecomment5.exe
 
 varbrace.exe : ..\utils\varbrace.d comment5.exe
 	$(COMMENT5) ..\utils\varbrace.d > varbrace.c
-	$(CC) $(CFLAGS) $(CLFLAGS) varbrace.c /Fevarbrace.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) varbrace.c /Fevarbrace.exe
 	$(RM) varbrace.c
 
 txt2c.exe : ..\utils\txt2c.c
-	$(CC) $(CFLAGS) $(CLFLAGS)  ..\utils\txt2c.c /Fetxt2c.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  ..\utils\txt2c.c /Fetxt2c.exe
 
 ccmp2c.exe : ..\utils\ccmp2c.c
-	$(CC) $(CFLAGS) $(CLFLAGS)  -I. ..\utils\ccmp2c.c /Feccmp2c.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  -I. ..\utils\ccmp2c.c /Feccmp2c.exe
 
 
 stdbool.h : stdbool.h.in
@@ -992,528 +997,528 @@ alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s 
 alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i i18n.i foreign.i win32aux.i
 
 spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
-	$(CPP) $(CFLAGS) spvw.c > spvw.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvw.c > spvw.i
 
 spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
-	$(CPP) $(CFLAGS) spvw.c > spvw.i.c
-	$(CC) $(CFLAGS) -c spvw.i.c /FAs /Faspvw.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvw.c > spvw.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvw.i.c /FAs /Faspvw.s
 	$(RM) spvw.i.obj
 	$(RM) spvw.i.c
 
 spvw.obj : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
-	$(CPP) $(CFLAGS) spvw.c > spvw.i.c
-	$(CC) $(CFLAGS) -c spvw.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvw.c > spvw.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvw.i.c
 	$(RM) spvw.obj
 	$(MV) spvw.i.obj spvw.obj
 	$(RM) spvw.i.c
 
 spvwtabf.i : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) spvwtabf.c > spvwtabf.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvwtabf.c > spvwtabf.i
 
 spvwtabf.s : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) spvwtabf.c > spvwtabf.i.c
-	$(CC) $(CFLAGS) -c spvwtabf.i.c /FAs /Faspvwtabf.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvwtabf.c > spvwtabf.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvwtabf.i.c /FAs /Faspvwtabf.s
 	$(RM) spvwtabf.i.obj
 	$(RM) spvwtabf.i.c
 
 spvwtabf.obj : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) spvwtabf.c > spvwtabf.i.c
-	$(CC) $(CFLAGS) -c spvwtabf.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvwtabf.c > spvwtabf.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvwtabf.i.c
 	$(RM) spvwtabf.obj
 	$(MV) spvwtabf.i.obj spvwtabf.obj
 	$(RM) spvwtabf.i.c
 
 spvwtabs.i : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) spvwtabs.c > spvwtabs.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvwtabs.c > spvwtabs.i
 
 spvwtabs.s : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) spvwtabs.c > spvwtabs.i.c
-	$(CC) $(CFLAGS) -c spvwtabs.i.c /FAs /Faspvwtabs.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvwtabs.c > spvwtabs.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvwtabs.i.c /FAs /Faspvwtabs.s
 	$(RM) spvwtabs.i.obj
 	$(RM) spvwtabs.i.c
 
 spvwtabs.obj : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) spvwtabs.c > spvwtabs.i.c
-	$(CC) $(CFLAGS) -c spvwtabs.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvwtabs.c > spvwtabs.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvwtabs.i.c
 	$(RM) spvwtabs.obj
 	$(MV) spvwtabs.i.obj spvwtabs.obj
 	$(RM) spvwtabs.i.c
 
 spvwtabo.i : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) spvwtabo.c > spvwtabo.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvwtabo.c > spvwtabo.i
 
 spvwtabo.s : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) spvwtabo.c > spvwtabo.i.c
-	$(CC) $(CFLAGS) -c spvwtabo.i.c /FAs /Faspvwtabo.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvwtabo.c > spvwtabo.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvwtabo.i.c /FAs /Faspvwtabo.s
 	$(RM) spvwtabo.i.obj
 	$(RM) spvwtabo.i.c
 
 spvwtabo.obj : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) spvwtabo.c > spvwtabo.i.c
-	$(CC) $(CFLAGS) -c spvwtabo.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) spvwtabo.c > spvwtabo.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvwtabo.i.c
 	$(RM) spvwtabo.obj
 	$(MV) spvwtabo.i.obj spvwtabo.obj
 	$(RM) spvwtabo.i.c
 
 eval.i : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) eval.c > eval.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) eval.c > eval.i
 
 eval.s : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) eval.c > eval.i.c
-	$(CC) $(CFLAGS) -c eval.i.c /FAs /Faeval.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) eval.c > eval.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c eval.i.c /FAs /Faeval.s
 	$(RM) eval.i.obj
 	$(RM) eval.i.c
 
 eval.obj : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) eval.c > eval.i.c
-	$(CC) $(CFLAGS) -c eval.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) eval.c > eval.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c eval.i.c
 	$(RM) eval.obj
 	$(MV) eval.i.obj eval.obj
 	$(RM) eval.i.c
 
 control.i : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) control.c > control.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) control.c > control.i
 
 control.s : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) control.c > control.i.c
-	$(CC) $(CFLAGS) -c control.i.c /FAs /Facontrol.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) control.c > control.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c control.i.c /FAs /Facontrol.s
 	$(RM) control.i.obj
 	$(RM) control.i.c
 
 control.obj : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) control.c > control.i.c
-	$(CC) $(CFLAGS) -c control.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) control.c > control.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c control.i.c
 	$(RM) control.obj
 	$(MV) control.i.obj control.obj
 	$(RM) control.i.c
 
 encoding.i : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1256.c nls_cp1257.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c stdbool.h stdint.h libcharset.h libcharset.h
-	$(CPP) $(CFLAGS) encoding.c > encoding.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) encoding.c > encoding.i
 
 encoding.s : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1256.c nls_cp1257.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c stdbool.h stdint.h libcharset.h libcharset.h
-	$(CPP) $(CFLAGS) encoding.c > encoding.i.c
-	$(CC) $(CFLAGS) -c encoding.i.c /FAs /Faencoding.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) encoding.c > encoding.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c encoding.i.c /FAs /Faencoding.s
 	$(RM) encoding.i.obj
 	$(RM) encoding.i.c
 
 encoding.obj : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1256.c nls_cp1257.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c stdbool.h stdint.h libcharset.h libcharset.h
-	$(CPP) $(CFLAGS) encoding.c > encoding.i.c
-	$(CC) $(CFLAGS) -c encoding.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) encoding.c > encoding.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c encoding.i.c
 	$(RM) encoding.obj
 	$(MV) encoding.i.obj encoding.obj
 	$(RM) encoding.i.c
 
 pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h w32shell.c
-	$(CPP) $(CFLAGS) pathname.c > pathname.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) pathname.c > pathname.i
 
 pathname.s : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h w32shell.c
-	$(CPP) $(CFLAGS) pathname.c > pathname.i.c
-	$(CC) $(CFLAGS) -c pathname.i.c /FAs /Fapathname.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) pathname.c > pathname.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c pathname.i.c /FAs /Fapathname.s
 	$(RM) pathname.i.obj
 	$(RM) pathname.i.c
 
 pathname.obj : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h w32shell.c
-	$(CPP) $(CFLAGS) pathname.c > pathname.i.c
-	$(CC) $(CFLAGS) -c pathname.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) pathname.c > pathname.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c pathname.i.c
 	$(RM) pathname.obj
 	$(MV) pathname.i.obj pathname.obj
 	$(RM) pathname.i.c
 
 stream.i : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) stream.c > stream.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) stream.c > stream.i
 
 stream.s : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) stream.c > stream.i.c
-	$(CC) $(CFLAGS) -c stream.i.c /FAs /Fastream.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) stream.c > stream.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c stream.i.c /FAs /Fastream.s
 	$(RM) stream.i.obj
 	$(RM) stream.i.c
 
 stream.obj : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) stream.c > stream.i.c
-	$(CC) $(CFLAGS) -c stream.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) stream.c > stream.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c stream.i.c
 	$(RM) stream.obj
 	$(MV) stream.i.obj stream.obj
 	$(RM) stream.i.c
 
 socket.i : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) socket.c > socket.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) socket.c > socket.i
 
 socket.s : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) socket.c > socket.i.c
-	$(CC) $(CFLAGS) -c socket.i.c /FAs /Fasocket.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) socket.c > socket.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c socket.i.c /FAs /Fasocket.s
 	$(RM) socket.i.obj
 	$(RM) socket.i.c
 
 socket.obj : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) socket.c > socket.i.c
-	$(CC) $(CFLAGS) -c socket.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) socket.c > socket.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c socket.i.c
 	$(RM) socket.obj
 	$(MV) socket.i.obj socket.obj
 	$(RM) socket.i.c
 
 io.i : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) io.c > io.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) io.c > io.i
 
 io.s : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) io.c > io.i.c
-	$(CC) $(CFLAGS) -c io.i.c /FAs /Faio.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) io.c > io.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c io.i.c /FAs /Faio.s
 	$(RM) io.i.obj
 	$(RM) io.i.c
 
 io.obj : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) io.c > io.i.c
-	$(CC) $(CFLAGS) -c io.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) io.c > io.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c io.i.c
 	$(RM) io.obj
 	$(MV) io.i.obj io.obj
 	$(RM) io.i.c
 
 array.i : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) array.c > array.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) array.c > array.i
 
 array.s : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) array.c > array.i.c
-	$(CC) $(CFLAGS) -c array.i.c /FAs /Faarray.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) array.c > array.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c array.i.c /FAs /Faarray.s
 	$(RM) array.i.obj
 	$(RM) array.i.c
 
 array.obj : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) array.c > array.i.c
-	$(CC) $(CFLAGS) -c array.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) array.c > array.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c array.i.c
 	$(RM) array.obj
 	$(MV) array.i.obj array.obj
 	$(RM) array.i.c
 
 hashtabl.i : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) hashtabl.c > hashtabl.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) hashtabl.c > hashtabl.i
 
 hashtabl.s : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) hashtabl.c > hashtabl.i.c
-	$(CC) $(CFLAGS) -c hashtabl.i.c /FAs /Fahashtabl.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) hashtabl.c > hashtabl.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c hashtabl.i.c /FAs /Fahashtabl.s
 	$(RM) hashtabl.i.obj
 	$(RM) hashtabl.i.c
 
 hashtabl.obj : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) hashtabl.c > hashtabl.i.c
-	$(CC) $(CFLAGS) -c hashtabl.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) hashtabl.c > hashtabl.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c hashtabl.i.c
 	$(RM) hashtabl.obj
 	$(MV) hashtabl.i.obj hashtabl.obj
 	$(RM) hashtabl.i.c
 
 list.i : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) list.c > list.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) list.c > list.i
 
 list.s : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) list.c > list.i.c
-	$(CC) $(CFLAGS) -c list.i.c /FAs /Falist.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) list.c > list.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c list.i.c /FAs /Falist.s
 	$(RM) list.i.obj
 	$(RM) list.i.c
 
 list.obj : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) list.c > list.i.c
-	$(CC) $(CFLAGS) -c list.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) list.c > list.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c list.i.c
 	$(RM) list.obj
 	$(MV) list.i.obj list.obj
 	$(RM) list.i.c
 
 package.i : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) package.c > package.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) package.c > package.i
 
 package.s : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) package.c > package.i.c
-	$(CC) $(CFLAGS) -c package.i.c /FAs /Fapackage.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) package.c > package.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c package.i.c /FAs /Fapackage.s
 	$(RM) package.i.obj
 	$(RM) package.i.c
 
 package.obj : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) package.c > package.i.c
-	$(CC) $(CFLAGS) -c package.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) package.c > package.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c package.i.c
 	$(RM) package.obj
 	$(MV) package.i.obj package.obj
 	$(RM) package.i.c
 
 record.i : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) record.c > record.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) record.c > record.i
 
 record.s : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) record.c > record.i.c
-	$(CC) $(CFLAGS) -c record.i.c /FAs /Farecord.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) record.c > record.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c record.i.c /FAs /Farecord.s
 	$(RM) record.i.obj
 	$(RM) record.i.c
 
 record.obj : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) record.c > record.i.c
-	$(CC) $(CFLAGS) -c record.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) record.c > record.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c record.i.c
 	$(RM) record.obj
 	$(MV) record.i.obj record.obj
 	$(RM) record.i.c
 
 sequence.i : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) sequence.c > sequence.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) sequence.c > sequence.i
 
 sequence.s : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) sequence.c > sequence.i.c
-	$(CC) $(CFLAGS) -c sequence.i.c /FAs /Fasequence.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) sequence.c > sequence.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c sequence.i.c /FAs /Fasequence.s
 	$(RM) sequence.i.obj
 	$(RM) sequence.i.c
 
 sequence.obj : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) sequence.c > sequence.i.c
-	$(CC) $(CFLAGS) -c sequence.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) sequence.c > sequence.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c sequence.i.c
 	$(RM) sequence.obj
 	$(MV) sequence.i.obj sequence.obj
 	$(RM) sequence.i.c
 
 charstrg.i : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) charstrg.c > charstrg.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) charstrg.c > charstrg.i
 
 charstrg.s : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) charstrg.c > charstrg.i.c
-	$(CC) $(CFLAGS) -c charstrg.i.c /FAs /Facharstrg.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) charstrg.c > charstrg.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c charstrg.i.c /FAs /Facharstrg.s
 	$(RM) charstrg.i.obj
 	$(RM) charstrg.i.c
 
 charstrg.obj : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) charstrg.c > charstrg.i.c
-	$(CC) $(CFLAGS) -c charstrg.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) charstrg.c > charstrg.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c charstrg.i.c
 	$(RM) charstrg.obj
 	$(MV) charstrg.i.obj charstrg.obj
 	$(RM) charstrg.i.c
 
 debug.i : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) debug.c > debug.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) debug.c > debug.i
 
 debug.s : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) debug.c > debug.i.c
-	$(CC) $(CFLAGS) -c debug.i.c /FAs /Fadebug.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) debug.c > debug.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c debug.i.c /FAs /Fadebug.s
 	$(RM) debug.i.obj
 	$(RM) debug.i.c
 
 debug.obj : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) debug.c > debug.i.c
-	$(CC) $(CFLAGS) -c debug.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) debug.c > debug.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c debug.i.c
 	$(RM) debug.obj
 	$(MV) debug.i.obj debug.obj
 	$(RM) debug.i.c
 
 error.i : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) error.c > error.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) error.c > error.i
 
 error.s : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) error.c > error.i.c
-	$(CC) $(CFLAGS) -c error.i.c /FAs /Faerror.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) error.c > error.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c error.i.c /FAs /Faerror.s
 	$(RM) error.i.obj
 	$(RM) error.i.c
 
 error.obj : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) error.c > error.i.c
-	$(CC) $(CFLAGS) -c error.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) error.c > error.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c error.i.c
 	$(RM) error.obj
 	$(MV) error.i.obj error.obj
 	$(RM) error.i.c
 
 misc.i : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) misc.c > misc.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) misc.c > misc.i
 
 misc.s : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) misc.c > misc.i.c
-	$(CC) $(CFLAGS) -c misc.i.c /FAs /Famisc.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) misc.c > misc.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c misc.i.c /FAs /Famisc.s
 	$(RM) misc.i.obj
 	$(RM) misc.i.c
 
 misc.obj : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) misc.c > misc.i.c
-	$(CC) $(CFLAGS) -c misc.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) misc.c > misc.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c misc.i.c
 	$(RM) misc.obj
 	$(MV) misc.i.obj misc.obj
 	$(RM) misc.i.c
 
 time.i : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) time.c > time.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) time.c > time.i
 
 time.s : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) time.c > time.i.c
-	$(CC) $(CFLAGS) -c time.i.c /FAs /Fatime.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) time.c > time.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c time.i.c /FAs /Fatime.s
 	$(RM) time.i.obj
 	$(RM) time.i.c
 
 time.obj : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) time.c > time.i.c
-	$(CC) $(CFLAGS) -c time.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) time.c > time.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c time.i.c
 	$(RM) time.obj
 	$(MV) time.i.obj time.obj
 	$(RM) time.i.c
 
 predtype.i : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) predtype.c > predtype.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) predtype.c > predtype.i
 
 predtype.s : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) predtype.c > predtype.i.c
-	$(CC) $(CFLAGS) -c predtype.i.c /FAs /Fapredtype.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) predtype.c > predtype.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c predtype.i.c /FAs /Fapredtype.s
 	$(RM) predtype.i.obj
 	$(RM) predtype.i.c
 
 predtype.obj : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) predtype.c > predtype.i.c
-	$(CC) $(CFLAGS) -c predtype.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) predtype.c > predtype.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c predtype.i.c
 	$(RM) predtype.obj
 	$(MV) predtype.i.obj predtype.obj
 	$(RM) predtype.i.c
 
 symbol.i : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) symbol.c > symbol.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) symbol.c > symbol.i
 
 symbol.s : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) symbol.c > symbol.i.c
-	$(CC) $(CFLAGS) -c symbol.i.c /FAs /Fasymbol.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) symbol.c > symbol.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c symbol.i.c /FAs /Fasymbol.s
 	$(RM) symbol.i.obj
 	$(RM) symbol.i.c
 
 symbol.obj : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) symbol.c > symbol.i.c
-	$(CC) $(CFLAGS) -c symbol.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) symbol.c > symbol.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c symbol.i.c
 	$(RM) symbol.obj
 	$(MV) symbol.i.obj symbol.obj
 	$(RM) symbol.i.c
 
 lisparit.i : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) lisparit.c > lisparit.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) lisparit.c > lisparit.i
 
 lisparit.s : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) lisparit.c > lisparit.i.c
-	$(CC) $(CFLAGS) -c lisparit.i.c /FAs /Falisparit.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) lisparit.c > lisparit.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c lisparit.i.c /FAs /Falisparit.s
 	$(RM) lisparit.i.obj
 	$(RM) lisparit.i.c
 
 lisparit.obj : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) lisparit.c > lisparit.i.c
-	$(CC) $(CFLAGS) -c lisparit.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) lisparit.c > lisparit.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c lisparit.i.c
 	$(RM) lisparit.obj
 	$(MV) lisparit.i.obj lisparit.obj
 	$(RM) lisparit.i.c
 
 i18n.i : i18n.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) i18n.c > i18n.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) i18n.c > i18n.i
 
 i18n.s : i18n.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) i18n.c > i18n.i.c
-	$(CC) $(CFLAGS) -c i18n.i.c /FAs /Fai18n.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) i18n.c > i18n.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c i18n.i.c /FAs /Fai18n.s
 	$(RM) i18n.i.obj
 	$(RM) i18n.i.c
 
 i18n.obj : i18n.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) i18n.c > i18n.i.c
-	$(CC) $(CFLAGS) -c i18n.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) i18n.c > i18n.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c i18n.i.c
 	$(RM) i18n.obj
 	$(MV) i18n.i.obj i18n.obj
 	$(RM) i18n.i.c
 
 foreign.i : foreign.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h avcall.h callback.h
-	$(CPP) $(CFLAGS) -I../ffcall foreign.c > foreign.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -I../ffcall foreign.c > foreign.i
 
 foreign.s : foreign.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h avcall.h callback.h
-	$(CPP) $(CFLAGS) -I../ffcall foreign.c > foreign.i.c
-	$(CC) $(CFLAGS) -I../ffcall -c foreign.i.c /FAs /Faforeign.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -I../ffcall foreign.c > foreign.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I../ffcall -c foreign.i.c /FAs /Faforeign.s
 	$(RM) foreign.i.obj
 	$(RM) foreign.i.c
 
 foreign.obj : foreign.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h stdint.h libcharset.h avcall.h callback.h
-	$(CPP) $(CFLAGS) -I../ffcall foreign.c > foreign.i.c
-	$(CC) $(CFLAGS) -I../ffcall -c foreign.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -I../ffcall foreign.c > foreign.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I../ffcall -c foreign.i.c
 	$(RM) foreign.obj
 	$(MV) foreign.i.obj foreign.obj
 	$(RM) foreign.i.c
 
 win32aux.i : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) win32aux.c > win32aux.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) win32aux.c > win32aux.i
 
 win32aux.s : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) win32aux.c > win32aux.i.c
-	$(CC) $(CFLAGS) -c win32aux.i.c /FAs /Fawin32aux.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) win32aux.c > win32aux.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c win32aux.i.c /FAs /Fawin32aux.s
 	$(RM) win32aux.i.obj
 	$(RM) win32aux.i.c
 
 win32aux.obj : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) win32aux.c > win32aux.i.c
-	$(CC) $(CFLAGS) -c win32aux.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) win32aux.c > win32aux.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c win32aux.i.c
 	$(RM) win32aux.obj
 	$(MV) win32aux.i.obj win32aux.obj
 	$(RM) win32aux.i.c
 
 genclisph.i : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) genclisph.c > genclisph.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) genclisph.c > genclisph.i
 
 genclisph.s : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) genclisph.c > genclisph.i.c
-	$(CC) $(CFLAGS) -c genclisph.i.c /FAs /Fagenclisph.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) genclisph.c > genclisph.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c genclisph.i.c /FAs /Fagenclisph.s
 	$(RM) genclisph.i.obj
 	$(RM) genclisph.i.c
 
 genclisph.obj : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) genclisph.c > genclisph.i.c
-	$(CC) $(CFLAGS) -c genclisph.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) genclisph.c > genclisph.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c genclisph.i.c
 	$(RM) genclisph.obj
 	$(MV) genclisph.i.obj genclisph.obj
 	$(RM) genclisph.i.c
 
 modules.i : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h modules.h
-	$(CPP) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i
 
 modules.s : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h modules.h
-	$(CPP) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i.c
-	$(CC) $(CFLAGS) -DNO_CLISP_H -c modules.i.c /FAs /Famodules.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DNO_CLISP_H -c modules.i.c /FAs /Famodules.s
 	$(RM) modules.i.obj
 	$(RM) modules.i.c
 
 modules.obj : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h modules.h
-	$(CPP) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i.c
-	$(CC) $(CFLAGS) -DNO_CLISP_H -c modules.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DNO_CLISP_H -c modules.i.c
 	$(RM) modules.obj
 	$(MV) modules.i.obj modules.obj
 	$(RM) modules.i.c
 
 noreadline.i : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) noreadline.c > noreadline.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) noreadline.c > noreadline.i
 
 noreadline.s : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) noreadline.c > noreadline.i.c
-	$(CC) $(CFLAGS) -c noreadline.i.c /FAs /Fanoreadline.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) noreadline.c > noreadline.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c noreadline.i.c /FAs /Fanoreadline.s
 	$(RM) noreadline.i.obj
 	$(RM) noreadline.i.c
 
 noreadline.obj : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CFLAGS) noreadline.c > noreadline.i.c
-	$(CC) $(CFLAGS) -c noreadline.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) noreadline.c > noreadline.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c noreadline.i.c
 	$(RM) noreadline.obj
 	$(MV) noreadline.i.obj noreadline.obj
 	$(RM) noreadline.i.c
 
 ari80386.i : ari80386.msvc.c
-	$(CPP) $(CFLAGS) ari80386.msvc.c > ari80386.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) ari80386.msvc.c > ari80386.i
 
 ari80386.s : ari80386.msvc.c
-	$(CPP) $(CFLAGS) ari80386.msvc.c > ari80386.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) ari80386.msvc.c > ari80386.i.c
 	$(CC) $(CFLAGS) -c ari80386.i.c /FAs /Faari80386.s
 	$(RM) ari80386.i.obj
 	$(RM) ari80386.i.c
 
 ari80386.obj : ari80386.msvc.c
-	$(CPP) $(CFLAGS) ari80386.msvc.c > ari80386.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) ari80386.msvc.c > ari80386.i.c
 	$(CC) $(CFLAGS) -c ari80386.i.c
 	$(RM) ari80386.obj
 	$(MV) ari80386.i.obj ari80386.obj
 	$(RM) ari80386.i.c
 
 sp80386.i : sp80386.msvc.c
-	$(CPP) $(CFLAGS) sp80386.msvc.c > sp80386.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) sp80386.msvc.c > sp80386.i
 
 sp80386.s : sp80386.msvc.c
-	$(CPP) $(CFLAGS) sp80386.msvc.c > sp80386.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) sp80386.msvc.c > sp80386.i.c
 	$(CC) $(CFLAGS) -c sp80386.i.c /FAs /Fasp80386.s
 	$(RM) sp80386.i.obj
 	$(RM) sp80386.i.c
 
 sp80386.obj : sp80386.msvc.c
-	$(CPP) $(CFLAGS) sp80386.msvc.c > sp80386.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) sp80386.msvc.c > sp80386.i.c
 	$(CC) $(CFLAGS) -c sp80386.i.c
 	$(RM) sp80386.obj
 	$(MV) sp80386.i.obj sp80386.obj
@@ -2062,13 +2067,21 @@ testsuite : suite lisp.exe lispinit.mem
 	cd suite && $(MAKE) LEXE=.exe
 
 testsuite-all : suite lisp.exe lispinit.mem
-	cd suite && $(MAKE) LEXE=.exe complete
+	cd suite && $(MAKE) LEXE=.exe clean complete compare
 
 suite :
 	-mkdir suite
 	cd suite && $(LN_S) ..\..\tests\Makefile .
 	cd suite && $(LN_S) ..\..\tests\*.lisp .
 	cd suite && $(LN_S) ..\..\tests\*.tst .
+
+bench : benchmarks
+	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc"; export CLISP; cd benchmarks; $(MAKE) CLISP="$$CLISP" clisp
+
+benchmarks :
+	-mkdir benchmarks
+	cd benchmarks && $(LN_S) ..\..\benchmarks\Makefile .
+	cd benchmarks && $(LN_S) ..\..\benchmarks\*.lisp .
 
 
 clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
@@ -2077,8 +2090,8 @@ clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
 	(echo; echo '/* 'intparam.h' */' ; grep '^#' intparam.h ) >> clisp.h
 	(echo; echo '/* 'floatparam.h' */' ; grep '^#' floatparam.h ) >> clisp.h
 	(echo; echo '/* genclisph */' ; genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h
-	$(CC) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=1 clisp-test.c /Feclisp-test-clisp.exe
-	$(CC) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=0 clisp-test.c /Feclisp-test-lispbibl.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=1 clisp-test.c /Feclisp-test-clisp.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=0 clisp-test.c /Feclisp-test-lispbibl.exe
 	clisp-test-clisp > clisp-test-clisp.out
 	clisp-test-lispbibl > clisp-test-lispbibl.out
 	comp clisp-test-clisp.out clisp-test-lispbibl.out
@@ -2104,7 +2117,7 @@ exporting.lisp : ..\modules\exporting.lisp
 modular : lisp.a avcall.lib callback.lib  clisp-link linkkit modules.h modules.o makevars
 
 makevars :
-	(echo 'CC='"'"'$(CC)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a avcall.lib callback.lib '"'") > makevars
+	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a avcall.lib callback.lib '"'") > makevars
 
 clisp-link : clisp-link.in
 	sed -e 's%%@with_dynamic_modules@%%%%' -e 's%%@createsharedlib@%%%%' -e 's%%@LEXE@%%.exe%%' < clisp-link.in > clisp-link
@@ -2116,11 +2129,15 @@ base : modular lispinit.mem
 anymodule $(MODULES) : lisp.exe lispinit.mem force modprep.fas exporting.fas clisp.h
 	test -d $@ || lndir ..\modules/$@ $@
 	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ./configure --cache-file=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache ; fi
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'` ; $(MAKE) clisp-module CC="$(CC)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}lispbibl.c $${dots}fsubr.c $${dots}subr.c $${dots}pseudofun.c $${dots}constsym.c $${dots}constobj.c $${dots}win32.c $${dots}xthread.c $${dots}stdbool.h $${dots}stdint.h $${dots}libcharset.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
+	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}lispbibl.c $${dots}fsubr.c $${dots}subr.c $${dots}pseudofun.c $${dots}constsym.c $${dots}constobj.c $${dots}win32.c $${dots}xthread.c $${dots}stdbool.h $${dots}stdint.h $${dots}libcharset.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 full : modular base $(MODULES)
 	$(RMRF) full
 	CLISP_LINKKIT=. clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
+
+full-check : full clisp
+	for m in $(MODULES); do $(RM) 1152m/*.erg; done
+	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -norc -K full -C -i suite/tests -x "(run-some-tests '($$z))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 IMPNOTES = impnotes.html impnotes.css clisp.png clisp.ico
@@ -2156,8 +2173,8 @@ SUMMARY : ..\SUMMARY
 
 README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h _README.de _README.en txt2c.exe
 	$(TXT2C) < _README > txt.c
-	$(CPP) $(CFLAGS) txt.c > txt.i.c
-	$(CC) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
+	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
 	txt > README
@@ -2166,8 +2183,8 @@ README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win
 
 README.de : _README.de lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h txt2c.exe
 	$(TXT2C) < _README.de > txt.c
-	$(CPP) $(CFLAGS) txt.c > txt.i.c
-	$(CC) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
+	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
 	txt > README.de
@@ -2176,38 +2193,48 @@ README.de : _README.de lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj
 
 README.es : _README.es lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h txt2c.exe
 	$(TXT2C) < _README.es > txt.c
-	$(CPP) $(CFLAGS) txt.c > txt.i.c
-	$(CC) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
+	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
 	txt > README.es
 	$(RM) txt.c
 	$(RM) txt.exe
 
-clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h txt2c.exe
-	$(TXT2C) < _clisp.1 > txt.c
-	$(CPP) $(CFLAGS) txt.c > txt.i.c
-	$(CC) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
+clisp.1 : ../doc/_clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h VERSION txt2c.exe
+	$(TXT2C) < ../doc/_clisp.1 > txt.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
-	txt > clisp.1
+	txt | $(GREP) -v '^ *$$' > clisp.1
 	$(RM) txt.c
 	$(RM) txt.exe
 
-clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h VERSION txt2c.exe
-	$(TXT2C) < _clisp.html > txt.c
-	$(CPP) $(CFLAGS) txt.c > txt.i.c
-	$(CC) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
+clisp.html : ../doc/_clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h VERSION txt2c.exe
+	$(TXT2C) < ../doc/_clisp.html > txt.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
-	txt | sed -e 's,="CLHSROOT/,="http://www.lisp.org/HyperSpec/,' -e "s,VERSION,`cat VERSION`," > clisp.html
+	txt | sed -e 's,="http://www.lisp.org/HyperSpec//,="http://www.lisp.org/HyperSpec/,' > clisp.html
+	$(RM) txt.c
+	$(RM) txt.exe
+
+clisp-1.html : ../doc/_clisp-1.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h VERSION txt2c.exe
+	$(TXT2C) < ../doc/_clisp-1.html > txt.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
+	$(RM) txt.i.c
+	$(RM) txt.i.obj
+	txt > clisp-1.html
 	$(RM) txt.c
 	$(RM) txt.exe
 
 clisp.c : _clisp.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h txt2c.exe
 	$(TXT2C) < _clisp.c > txt.c
-	$(CPP) $(CFLAGS) txt.c > txt.i.c
-	$(CC) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
+	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
 	txt > clisp.c
@@ -2240,7 +2267,7 @@ clisp.rc :
 	echo "MAINICON ICON \"clisp.ico\"" > clisp.rc
 
 clisp : clisp.c clispres.o w32shell.c
-	builddir="`pwd`"; $(CC) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR='"'$$builddir'"' -DLOCALEDIR='"'$$builddir/locale'"' clisp.c clispres.o $(LIBS) -o clisp
+	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR='"'$$builddir'"' -DLOCALEDIR='"'$$builddir/locale'"' clisp.c clispres.o $(LIBS) -o clisp
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : install.lisp install.bat clisp.man clisp.html force
