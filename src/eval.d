@@ -1648,8 +1648,8 @@ local object lambdabody_source (object lambdabody) {
           #endif
           # stack structure: name, lambdabody, venv, fenv, benv, genv, denv.
         }
-        # execute (SYS::COMPILE-LAMBDA name lambdabody venv fenv benv genv denv) :
-        funcall(S(compile_lambda),7);
+        # execute (SYS::COMPILE-LAMBDA name lambdabody venv fenv benv genv denv t) :
+        pushSTACK(T); funcall(S(compile_lambda),8);
         return value1; # compiled Closure as value
       }
       # build Interpreted Closure:
