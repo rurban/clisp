@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host HAMPY as the output of the command:
+# This file was created on host loiso.podval.org as the output of the command:
 # ./makemake --with-dir-key --with-dynamic-ffi win32msvc msvc4
 
 # -------------- Start of configurable section --------------------
@@ -42,7 +42,7 @@ MODULES =
 # Programs used by "make":
 CC = cl $(MFLAGS) -G5 -O1
 CFLAGS =  -DUNICODE -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT -DNO_SIGSEGV -I.
-CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_MSC_VER=1000 -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include
+CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -D_MSC_VER=1000
 CLFLAGS = 
 LIBS = charset.lib avcall.lib callback.lib  user32.lib ws2_32.lib advapi32.lib ole32.lib wldap32.lib
 X_LIBS = 
@@ -1607,7 +1607,7 @@ RUN= lisp.exe -B . -Efile UTF-8 -Eterminal UTF-8 -norc
 
 interpreted.mem : lisp.exe $(LISPFILES)
 	-$(RM) interpreted.mem
-	$(RUN) -m 750KW -x "(load \"init.lisp\") (sys::%%saveinitmem) (exit)"
+	$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%%saveinitmem) (ext::exit))"
 	$(MV) lispimag.mem interpreted.mem
 
 init.fas : init.lisp lisp.exe halfcompiled.mem
@@ -1765,12 +1765,12 @@ config.fas : config.lisp lisp.exe halfcompiled.mem
 
 halfcompiled.mem : lisp.exe $(LISPFILES) compiler.fas
 	-$(RM) halfcompiled.mem
-	$(RUN) -m 750KW -x "(load \"init.lisp\") (sys::%%saveinitmem) (exit)"
+	$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%%saveinitmem) (ext::exit))"
 	$(MV) lispimag.mem halfcompiled.mem
 
 lispinit.mem : lisp.exe $(FASFILES)
 	-$(RM) lispinit.mem
-	$(RUN) -x "(load \"init.fas\") (saveinitmem) (exit)"
+	$(RUN) -x "(and (load \"init.fas\") (ext::saveinitmem) (ext::exit))"
 
 
 # Perform self-tests.
@@ -2101,7 +2101,7 @@ stage\config.fas : stage\config.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage\config.lisp
 
 lispinit2.mem : lisp.exe $(TESTFASFILES)
-	$(RUN) -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%%saveinitmem) (exit)"
+	$(RUN) -x "(and (cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%%saveinitmem) (ext::exit))"
 	-$(RM) lispinit2.mem
 	$(MV) lispimag.mem lispinit2.mem
 
@@ -2260,7 +2260,7 @@ editors.txt : ..\doc\editors.txt
 
 
 clisp : clisp.c
-	$(CC) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR='"/cygdrive/d/clisp-cvs/clisp"' -DLOCALEDIR='"/cygdrive/d/clisp-cvs/clisp/locale"' clisp.c -o clisp
+	$(CC) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR='"/usr/local/src/clisp/current"' -DLOCALEDIR='"/usr/local/src/clisp/current/locale"' clisp.c -o clisp
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : force
