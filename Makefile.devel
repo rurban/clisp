@@ -65,7 +65,7 @@ SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.sp
 SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
 # exclude $T/src/gettext/*o/*p = $T/src/gettext/po/tmp
 SOURCES3 = $T/src/gettext/*[^o] $T/src/gettext/po/*[^p]
-SOURCES4 = $T/ffcall $T/sigsegv $T/libiconv $T/utils
+SOURCES4 = $T/ffcall $T/sigsegv $T/libcharset $T/utils
 SOURCES5 = $T/unix $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
 SOURCES6 = $T/modules
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
@@ -116,7 +116,7 @@ makemake : src/makemake.in
 	chmod a+x makemake
 
 
-CONFIGURES = src/configure src/gettext/configure modules/wildcard/configure modules/regexp/configure modules/clx/new-clx/configure ffcall/configure ffcall/avcall/configure ffcall/vacall/configure ffcall/trampoline/configure ffcall/callback/configure ffcall/callback/vacall_r/configure ffcall/callback/trampoline_r/configure libiconv/configure sigsegv/configure utils/hln/configure
+CONFIGURES = src/configure src/gettext/configure modules/wildcard/configure modules/regexp/configure modules/clx/new-clx/configure ffcall/configure ffcall/avcall/configure ffcall/vacall/configure ffcall/trampoline/configure ffcall/callback/configure ffcall/callback/vacall_r/configure ffcall/callback/trampoline_r/configure sigsegv/configure utils/hln/configure
 
 configures : ffcall/autoconf/aclocal.m4 sigsegv/autoconf/aclocal.m4 $(CONFIGURES) src/gettext/config.h.in
 
@@ -166,12 +166,6 @@ ffcall/callback/vacall_r/configure : ffcall/callback/vacall_r/configure.in ffcal
 
 ffcall/callback/trampoline_r/configure : ffcall/callback/trampoline_r/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/configure
-
-libiconv/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
-	cd libiconv ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
-
-libiconv/configure : libiconv/configure.in libiconv/autoconf/aclocal.m4 $(AUTOCONF_FILES)
-	cd libiconv ; $(MAKE) -f Makefile.devel configure
 
 sigsegv/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd sigsegv ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
