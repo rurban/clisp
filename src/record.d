@@ -753,17 +753,22 @@ LISPFUNN(allocate_std_instance,2) {
   value1 = instance; mv_count=1; # instance as value
 }
 
+# report un-paired keywords error
+nonreturning_function(local, fehler_key_odd, (uintC argcount, object caller)) {
+  var object arglist = listof(argcount);
+  pushSTACK(arglist); pushSTACK(caller);
+  fehler(program_error,
+         GETTEXT("~: keyword arguments in ~ should occur pairwise"));
+}
+#define check_keywords(argcount,caller) \
+  if (argcount%2 != 0) fehler_key_odd(argcount,caller);
+
 local Values do_allocate_instance (object clas);
 # (CLOS::%ALLOCATE-INSTANCE class &rest initargs)
 #   returns an instance of the class.
 #   class must be an instance of <standard-class> or <structure-class>.
 LISPFUN(pallocate_instance,1,0,rest,nokey,0,NIL) {
-  if (!((argcount%2) == 0)) {
-    var object arglist = listof(argcount);
-    pushSTACK(arglist);
-    fehler(program_error,
-           GETTEXT("ALLOCATE-INSTANCE: keyword argument list ~ has an odd length"));
-  }
+  check_keywords(argcount,S(allocate_instance));
   set_args_end_pointer(rest_args_pointer); # clean up STACK
   return_Values do_allocate_instance(popSTACK());
 }
@@ -990,13 +995,8 @@ local inline object* slot_in_arglist (const object slot, uintC argcount,
 #   ) ) ) ) ) ) ) ) )
 #   instance
 # )
-LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL) {
-  if (!((argcount%2) == 0)) {
-    var object arglist = listof(argcount);
-    pushSTACK(arglist);
-    fehler(program_error,
-           GETTEXT("SHARED-INITIALIZE: keyword argument list ~ has an odd length"));
-  }
+LISPFUN(pshared_initialize,2,0,rest,nokey,0,NIL) {
+  check_keywords(argcount,S(shared_initialize));
   argcount = argcount/2; # number of Initarg/Value-pairs
   { # stack layout: instance, slot-names, argcount Initarg/Value-Pairs.
     var object instance = Before(rest_args_pointer STACKop 1);
@@ -1088,7 +1088,7 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL) {
 #       ) ) )
 #       (apply #'initial-reinitialize-instance instance initargs)
 # ) ) )
-LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL) {
+LISPFUN(preinitialize_instance,1,0,rest,nokey,0,NIL) {
   var object instance = Before(rest_args_pointer);
   # instance of <standard-class> or <structure-class>:
   var object clas = class_of(instance);
@@ -1099,18 +1099,12 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL) {
       # calculate hash-table-entry freshly. See clos.lisp.
       funcall(S(initial_reinitialize_instance),argcount+1); return;
     }
-    # check keywords:
-    if (!((argcount%2) == 0)) {
-      var object arglist = listof(argcount);
-      pushSTACK(arglist);
-      fehler(program_error,
-             GETTEXT("REINITIALIZE-INSTANCE: keyword argument list ~ has an odd length"));
-    }
+    check_keywords(argcount,S(reinitialize_instance));
     argcount = argcount/2; # number of Initarg/Value-pairs
     keyword_test(S(reinitialize_instance),rest_args_pointer,argcount,Car(info));
     # stack layout: instance, slot-names, argcount Initarg/Value-pairs.
     var object fun = Cdr(info);
-    if (!eq(fun,L(shared_initialize))) {
+    if (!eq(fun,L(pshared_initialize))) {
       # shift initargs in the stack down by 1, then call fun:
       var object last = NIL;
       if (argcount > 0) {
@@ -1181,7 +1175,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL) {
 # ) ) )
 local Values do_initialize_instance (object info, object* rest_args_pointer,
                                      uintC argcount);
-LISPFUN(initialize_instance,1,0,rest,nokey,0,NIL) {
+LISPFUN(pinitialize_instance,1,0,rest,nokey,0,NIL) {
   var object instance = Before(rest_args_pointer);
   # instance of <standard-class> or <structure-class>:
   var object clas = class_of(instance);
@@ -1191,12 +1185,7 @@ LISPFUN(initialize_instance,1,0,rest,nokey,0,NIL) {
       # calculate hash-table-entry freshly. See clos.lisp.
       funcall(S(initial_initialize_instance),argcount+1); return;
     }
-    if (!((argcount%2) == 0)) {
-      var object arglist = listof(argcount);
-      pushSTACK(arglist);
-      fehler(program_error,
-             GETTEXT("INITIALIZE-INSTANCE: keyword argument list ~ has an odd length"));
-    }
+    check_keywords(argcount,S(initialize_instance));
     argcount = argcount/2; # number of Initarg/Value-pairs
     return_Values do_initialize_instance(info,rest_args_pointer,argcount);
   }
@@ -1206,7 +1195,7 @@ local Values do_initialize_instance (object info, object* rest_args_pointer,
   # stack layout: instance, argcount Initarg/Value-pairs.
   {
     var object fun = TheSvector(info)->data[3];
-    if (!eq(fun,L(shared_initialize))) {
+    if (!eq(fun,L(pshared_initialize))) {
       # shift initargs in the stack down by 1, then call fun:
       var object last = T;
       if (argcount > 0) {
@@ -1305,13 +1294,8 @@ local Values do_initialize_instance (object info, object* rest_args_pointer,
 #       ) ) )
 #       (apply #'initial-make-instance class initargs)
 # ) ) )
-LISPFUN(make_instance,1,0,rest,nokey,0,NIL) {
-  if (!((argcount%2) == 0)) {
-    var object arglist = listof(argcount);
-    pushSTACK(arglist);
-    fehler(program_error,
-           GETTEXT("MAKE-INSTANCE: keyword argument list ~ has an odd length"));
-  }
+LISPFUN(pmake_instance,1,0,rest,nokey,0,NIL) {
+  check_keywords(argcount,S(make_instance));
   argcount = argcount/2; # number of Initarg/Value-pairs
   # stack layout: class, argcount Initarg/Value-pairs.
   { # add default-initargs:
@@ -1396,7 +1380,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL) {
         *ptr = value1;
       }
       rest_args_pointer skipSTACKop -1;
-      if (eq(fun,L(initialize_instance)))
+      if (eq(fun,L(pinitialize_instance)))
         # CLOS::%INITIALIZE-INSTANCE can be simplified
         # (do not have to look into *make-instance-table* again):
         do_initialize_instance(info,rest_args_pointer,argcount);
