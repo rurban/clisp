@@ -1,3 +1,22 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	Avoid poll(), select() and non-blocking I/O on regular files.
+	* stream.d (struct strm_channel_extrafields_t): Add 'regular' field.
+	(ChannelStream_regular): New macro.
+	(low_read_array_unbuffered_handle): For regular file handles, use
+	persev_partial instead of persev_immediate or persev_bonus.
+	(low_write_array_unbuffered_handle): Likewise.
+	(make_unbuffered_stream): Add handle_regular argument.
+	(struct strm_buffered_extrafields_t): Remove 'regular' field.
+	(BufferedStream_regular): Remove macro.
+	(low_fill_buffered_handle): For regular file handles, use
+	persev_partial instead of persev_immediate or persev_bonus.
+	(make_buffered_stream, make_file_stream, finish_output_buffered,
+	make_keyboard_stream, make_terminal_stream_, SCREEN:MAKE-WINDOW,
+	MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, mkops_from_handles,
+	mkips_from_handles, MAKE-PIPE-IO-STREAM, SYS::MAKE-SOCKET-STREAM,
+	make_socket_stream): Update.
+
 2004-10-24  Bruno Haible  <bruno@clisp.org>
 
 	Merge method allocation and initialization into a single step again.

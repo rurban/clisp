@@ -3479,8 +3479,9 @@ local bool regular_handle_p (Handle handle) {
 
 # Additional binary (not GCed) fields:
 typedef struct strm_channel_extrafields_t {
-  bool buffered;                       # false for unbuffered streams,
+  /*bool*/int buffered : 8;            # false for unbuffered streams,
                                        # true for buffered streams
+  /*bool*/int regular : 8;             # whether the handle refers to a regular file
   uintL bitsize;                       # If the element-type is ([UN]SIGNED-BYTE n):
                                        #   n = number of bits per unit,
                                        #   >0, <intDsize*uintWC_max.
@@ -3500,6 +3501,7 @@ typedef struct strm_channel_extrafields_t {
 #define ChannelStream_ichannel(stream)  TheStream(stream)->strm_ichannel
 #define ChannelStream_ochannel(stream)  TheStream(stream)->strm_ochannel
 #define ChannelStream_buffered(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->buffered
+#define ChannelStream_regular(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->regular
 #define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->bitsize
 #define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_close
 #define ChannelStream_lineno(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->lineno
@@ -4847,6 +4849,13 @@ local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
   byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
   if (len == 0) return byteptr;
   var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
+  # On regular file handles, persev_immediate and persev_bonus are effectively
+  # equivalent to persev_partial. Transforming persev_immediate, persev_bonus
+  # here 1) avoids useless system calls for poll(), select() or non-blocking
+  # I/O and 2) improves EOF detection.
+  if ((persev == persev_immediate || persev == persev_bonus)
+      && ChannelStream_regular(stream))
+    persev = persev_partial;
   run_time_stop(); /* hold run time clock */
   begin_system_call();
   var sintL result = fd_read(handle,byteptr,len,persev);
@@ -5253,6 +5262,13 @@ local const uintB* low_write_array_unbuffered_handle (object stream,
                                                       uintL len,
                                                       perseverance_t persev) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
+  # On regular file handles, persev_immediate and persev_bonus are effectively
+  # equivalent to persev_partial. Transforming persev_immediate, persev_bonus
+  # here 1) avoids useless system calls for poll(), select() or non-blocking
+  # I/O and 2) improves EOWF detection.
+  if ((persev == persev_immediate || persev == persev_bonus)
+      && ChannelStream_regular(stream))
+    persev = persev_partial;
   begin_system_call();
   var sintL result = fd_write(handle,byteptr,len,persev);
   if (result<0) { OS_error(); }
@@ -5682,20 +5698,21 @@ local void fill_pseudofuns_unbuffered (object stream,
  | (RO_P(dir) ? strmflags_immut_B : 0) /* immutable object */
 
 # UP: creates an Unbuffered-Channel-Stream
-# make_unbuffered_stream(type,direction,&eltype,handle_tty)
+# make_unbuffered_stream(type,direction,&eltype,handle_regular,handle_tty)
 # > STACK_2: Encoding
 # > STACK_1: Element-Type
 # > STACK_0: Handle of the opened File
 # > type: stream type
 # > direction: direction_t (see lispbibl.d)
 # > eltype: Element-Type in decoded form
+# > handle_regular: whether the handle refers to a regular file
 # > handle_tty: if the Handle is a tty (only necessary if direction & bit(0))
 # < result: File-Handle-Stream, Handle_{input,output}_init still needs to be called
 # < STACK: cleaned up
 # can trigger GC
 local object make_unbuffered_stream (uintB type, direction_t direction,
                                      const decoded_el_t* eltype,
-                                     bool handle_tty) {
+                                     bool handle_regular, bool handle_tty) {
   # Flags:
   var uintB flags = DIRECTION_FLAGS(direction);
   if (eltype->kind == eltype_ch)
@@ -5723,6 +5740,7 @@ local object make_unbuffered_stream (uintB type, direction_t direction,
   TheStream(stream)->strm_isatty = (handle_tty ? T : NIL);
   TheStream(stream)->strm_eltype = popSTACK();
   ChannelStream_buffered(stream) = false;
+  ChannelStream_regular(stream) = handle_regular;
   ChannelStream_init(stream);
   # element-type dependent initializations:
   ChannelStream_bitsize(stream) = eltype->size;
@@ -5767,7 +5785,6 @@ typedef struct strm_buffered_extrafields_t {
   /*bool*/int have_eof_p : 8; # indicates that eof is right after endvalid
   /*bool*/int modified : 8;   # true if the buffer contains modified data,
                               # else false
-  /*bool*/int regular : 8;    # whether the handle refers to a regular file
   /*bool*/int blockpositioning : 8; # whether the handle refers to a regular
                           # file and permits to position the buffer at
                           # buffstart = (sector number) * strm_buffered_bufflen
@@ -5822,8 +5839,6 @@ typedef struct strm_i_buffered_extrafields_t {
   ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->have_eof_p
 #define BufferedStream_modified(stream)  \
   ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->modified
-#define BufferedStream_regular(stream)  \
-  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->regular
 #define BufferedStream_blockpositioning(stream)  \
   ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->blockpositioning
 #define BufferedStream_position(stream)  \
@@ -5897,6 +5912,13 @@ global object file_stream_truename (object s)
 local uintL low_fill_buffered_handle (object stream, perseverance_t persev) {
   var Handle handle = TheHandle(BufferedStream_channel(stream));
   var uintB* buff = BufferedStream_buffer_address(stream,0);
+  # On regular file handles, persev_immediate and persev_bonus are effectively
+  # equivalent to persev_partial. Transforming persev_immediate, persev_bonus
+  # here 1) avoids useless system calls for poll(), select() or non-blocking
+  # I/O and 2) improves EOF detection.
+  if ((persev == persev_immediate || persev == persev_bonus)
+      && ChannelStream_regular(stream))
+    persev = persev_partial;
   begin_system_call();
   var sintL result = fd_read(handle,buff,strm_buffered_bufflen,persev);
   end_system_call();
@@ -7470,10 +7492,10 @@ local object make_buffered_stream (uintB type, direction_t direction,
     var object handle = popSTACK(); # restore Handle
     TheStream(stream)->strm_eltype = popSTACK(); # enter Element-Type
     ChannelStream_buffered(stream) = true;
+    ChannelStream_regular(stream) = handle_regular;
     ChannelStream_init(stream);
     if (!nullp(handle)) { # Handle=NIL -> Rest already initialized with NIL, finished
       BufferedStream_channel(stream) = handle; # enter Handle
-      BufferedStream_regular(stream) = handle_regular;
       BufferedStream_blockpositioning(stream) = handle_blockpositioning;
       BufferedStream_buffstart(stream) = 0; # buffstart := 0
       # allocate Buffer:
@@ -7595,7 +7617,8 @@ global object make_file_stream (direction_t direction, bool append_flag,
         handle_tty = isatty(TheHandle(handle));
         end_system_call();
       }
-    stream = make_unbuffered_stream(strmtype_file,direction,&eltype,handle_tty);
+    stream = make_unbuffered_stream(strmtype_file,direction,&eltype,
+                                    handle_regular,handle_tty);
     # file-handle-streams are treated for pathname purposes as file-streams
     # thus (wrt file_write_date) strm_buffered_channel == strm_ochannel,
     # and we have pathnames now:
@@ -7743,7 +7766,7 @@ local void finish_output_buffered (object stream) {
   # poss. flush Buffer and eofposition:
   buffered_flush_everything(stream);
   # Now the modified_flag is deleted.
-  if (BufferedStream_regular(stream)) {
+  if (ChannelStream_regular(stream)) {
    #ifdef UNIX
     #ifdef HAVE_FSYNC
     begin_system_call();
@@ -8687,6 +8710,7 @@ local object make_keyboard_stream (void) {
   s->strm_keyboard_buffer = NIL;
   s->strm_keyboard_keytab = popSTACK();
   ChannelStream_buffered(stream) = false;
+  ChannelStream_regular(stream) = false;
   ChannelStream_init(stream);
   UnbufferedHandleStream_input_init(stream);
  #endif
@@ -8694,6 +8718,7 @@ local object make_keyboard_stream (void) {
   s->strm_keyboard_isatty = T;
   s->strm_keyboard_handle = popSTACK();
   ChannelStream_buffered(stream) = false;
+  ChannelStream_regular(stream) = false;
   ChannelStream_init(stream);
   UnbufferedHandleStream_input_init(stream);
  #endif
@@ -9562,6 +9587,7 @@ local object make_terminal_stream_ (void) {
     s->strm_terminal_outbuff = popSTACK(); # register line buffer
    #endif
     ChannelStream_buffered(stream) = false;
+    ChannelStream_regular(stream) = false;
     ChannelStream_init(stream);
     UnbufferedHandleStream_input_init(stream);
     UnbufferedHandleStream_output_init(stream);
@@ -9593,6 +9619,7 @@ local object make_terminal_stream_ (void) {
     s->strm_terminal_index = Fixnum_0; # index := 0
    #endif
     ChannelStream_buffered(stream) = false;
+    ChannelStream_regular(stream) = false;
     ChannelStream_init(stream);
     UnbufferedHandleStream_input_init(stream);
     UnbufferedHandleStream_output_init(stream);
@@ -9619,6 +9646,7 @@ local object make_terminal_stream_ (void) {
     s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
     s->strm_terminal_ohandle = popSTACK(); # Handle for Output
     ChannelStream_buffered(stream) = false;
+    ChannelStream_regular(stream) = false;
     ChannelStream_init(stream);
     UnbufferedHandleStream_input_init(stream);
     UnbufferedHandleStream_output_init(stream);
@@ -10277,6 +10305,7 @@ LISPFUNN(make_window,0) {
   ChannelStream_init(stream);  # iconv extrafields init
   ChannelStream_lineno(stream) = 1;
   ChannelStream_buffered(stream) = false;
+  ChannelStream_regular(stream) = false;
   ChannelStream_bitsize(stream) = 0;
   ChannelStreamLow_close(stream) = &low_close_console;
   v_move(handle,0,0);
@@ -12561,7 +12590,7 @@ LISPFUN(make_pipe_input_stream,seclass_default,1,0,norest,key,3,
   var object stream;
   if (!eq(STACK_(0+4),T)) { # (buffered <= 0) ?
     stream = make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
-                                    &eltype,false);
+                                    &eltype,false,false);
     UnbufferedPipeStream_input_init(stream);
   } else {
     stream = make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
@@ -12769,7 +12798,7 @@ LISPFUN(make_pipe_output_stream,seclass_default,1,0,norest,key,3,
   var object stream;
   if (!eq(STACK_(0+4),T)) { # (buffered <= 0) ?
     stream = make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
-                                    &eltype,false);
+                                    &eltype,false,false);
     UnbufferedPipeStream_output_init(stream);
   } else {
     stream = make_buffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
@@ -12808,7 +12837,7 @@ void mkops_from_handles (Handle opipe, int process_id) {
     BufferedPipeStream_init(STACK_0);
   } else {
     pushSTACK(make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
-                                    &eltype,false));
+                                    &eltype,false,false));
     UnbufferedPipeStream_output_init(STACK_0);
   }
   ChannelStreamLow_close(STACK_0) = &low_close_pipe;
@@ -12842,7 +12871,7 @@ void mkips_from_handles (Handle ipipe, int process_id) {
     BufferedPipeStream_init(STACK_0);
   } else {
     pushSTACK(make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
-                                    &eltype,false));
+                                    &eltype,false,false));
     UnbufferedPipeStream_input_init(STACK_0);
   }
   ChannelStreamLow_close(STACK_0) = &low_close_pipe;
@@ -13019,10 +13048,12 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
     pushSTACK(STACK_(1+2));
     var object stream;
     if (!eq(STACK_(0+6),T)) { # (buffered <= 0) ?
-      stream = make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,&eltype,false);
+      stream = make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
+                                      &eltype,false,false);
       UnbufferedPipeStream_input_init(stream);
     } else {
-      stream = make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,&eltype,false,false);
+      stream = make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
+                                    &eltype,false,false);
       BufferedPipeStream_init(stream);
     }
     ChannelStreamLow_close(stream) = &low_close_pipe;
@@ -13037,7 +13068,7 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
     var object stream;
     if (!eq(STACK_(0+6),T)) { # (buffered <= 0) ?
       stream = make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
-                                      &eltype,false);
+                                      &eltype,false,false);
       UnbufferedPipeStream_output_init(stream);
     } else {
       stream = make_buffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
@@ -13334,7 +13365,8 @@ LISPFUNN(make_x11socket_stream,2) {
   pushSTACK(allocate_socket(handle));
   # allocate Stream:
   var decoded_el_t eltype = { eltype_iu, 8 };
-  var object stream = make_unbuffered_stream(strmtype_x11socket,DIRECTION_IO,&eltype,false);
+  var object stream = make_unbuffered_stream(strmtype_x11socket,DIRECTION_IO,
+                                             &eltype,false,false);
   UnbufferedSocketStream_input_init(stream);
   UnbufferedSocketStream_output_init(stream);
   ChannelStreamLow_close(stream) = &low_close_socket;
@@ -13540,7 +13572,8 @@ local object make_socket_stream (SOCKET handle, decoded_el_t* eltype,
   # allocate stream:
   var object stream;
   if (buffered <= 0) {
-    stream = make_unbuffered_stream(strmtype_socket,DIRECTION_IO,eltype,false);
+    stream = make_unbuffered_stream(strmtype_socket,DIRECTION_IO,
+                                    eltype,false,false);
     UnbufferedSocketStream_input_init(stream);
     UnbufferedSocketStream_output_init(stream);
     ChannelStreamLow_close(stream) = &low_close_socket;
