@@ -503,25 +503,6 @@ has already transpired."
 
 ;;; ------------------------ DEFINE-METHOD-COMBINATION ------------------------
 
-;;; utility functions
-(defun qualifiers-match-p (qualifiers pattern)
-  "Returns t if the argument qualifiers for a method match the
-specification pattern for a method group. '*' matches anything,
-the element * matches any single element, and others match on
-equal. A null element is tested here, even though the generated
-partition function includes a clause for it."
-  (typecase pattern
-    (cons (when (or (eq (first pattern) '*)
-                    (equal (first pattern) (first qualifiers)))
-            (qualifiers-match-p (rest qualifiers) (rest pattern))))
-    (null (null qualifiers))
-    (symbol
-     (or (eq pattern '*)
-         (method-combination-error (TEXT "invalid method group pattern: ~s.")
-                                   pattern)))
-    (t (method-combination-error (TEXT "invalid method group pattern: ~s.")
-                                 pattern))))
-
 (defun parse-method-groups (name method-groups)
   (labels ((group-error (group message &rest message-args)
              (error-of-type 'sys::source-program-error
@@ -620,7 +601,12 @@ method function's body. The group variables are bound in the body.
                                 (memq (cdr (last pattern)) '(nil *)))))
                (cond ((null pattern) `(NULL QUALIFIERS))
                      ((eq pattern '*) `T)
-                     (t `(QUALIFIERS-MATCH-P QUALIFIERS ',pattern))))
+                     ((null (cdr (last pattern))) `(EQUAL QUALIFIERS ',pattern))
+                     (t (let* ((required-part (ldiff pattern '*))
+                               (n (length required-part)))
+                          `(AND (SYS::CONSES-P ,n QUALIFIERS)
+                                (EQUAL (LDIFF QUALIFIERS (NTHCDR ,n QUALIFIERS))
+                                       ',required-part))))))
              ;; Returns a form that tests whether a list of qualifiers, assumed
              ;; to be present in the variable QUALIFIERS, satisfies the test
              ;; for the given normalized method group description.
