@@ -1567,7 +1567,7 @@ msgstr "~: Index ~ für ~ ist zu groß."
 
 #: array.d:494
 msgid "~: cannot retrieve values from an array of element type NIL"
-msgstr "~S: Kann aus einem Array mit Elementtyp NIL keine Elemente holen."
+msgstr "~: Kann aus einem Array mit Elementtyp NIL keine Elemente holen."
 
 #: array.d:537
 msgid "~: ~ does not fit into ~, bad type"
