@@ -1,3 +1,8 @@
+2004-04-20  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: added tests for non-wild pathnames returned by
+	DIRECTORY, correct :VERSION after MERGE-PATHNAMES &c
+
 2004-04-19  Sam Steingold  <sds@gnu.org>
 
 	* path.tst, excepsit.tst: added tests for

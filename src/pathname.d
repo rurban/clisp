@@ -512,11 +512,6 @@ local inline void rename_existing_file (char* old_pathstring,
 #else
 #define pathname_device_maybe(obj) (unused(obj), NIL)
 #endif
-#if HAS_VERSION
-#define pathname_version_maybe(obj) (object)ThePathname(obj)->pathname_version
-#else
-#define pathname_version_maybe(obj) (unused(obj), NIL)
-#endif
 
 #ifdef LOGICAL_PATHNAMES
 #define xpathname_host(logical,pathname)                       \
@@ -535,7 +530,7 @@ local inline void rename_existing_file (char* old_pathstring,
                 (object)ThePathname(pathname)->pathname_type)
 #define xpathname_version(logical,pathname)                       \
   (logical ? (object)TheLogpathname(pathname)->pathname_version : \
-             pathname_version_maybe(pathname))
+                (object)ThePathname(pathname)->pathname_version)
 #else /* no logical pathnames */
 #define xpathname_host(logical,pathname) \
   pathname_host_maybe(pathname)
@@ -548,7 +543,7 @@ local inline void rename_existing_file (char* old_pathstring,
 #define xpathname_type(logical,pathname) \
   ThePathname(pathname)->pathname_type
 #define xpathname_version(logical,pathname) \
-  pathname_version_maybe(pathname)
+  ThePathname(pathname)->pathname_version
 #endif
 
 #define SUBST_RECURSE(atom_form,self_call)                      \
@@ -2081,13 +2076,7 @@ LISPFUN(pathnametype,seclass_read,1,0,norest,key,1, (kw(case))) {
 /* (PATHNAME-VERSION pathname), CLTL p. 417, CLtL2 p. 644 */
 LISPFUNNR(pathnameversion,1) {
   var object pathname = coerce_xpathname(popSTACK());
- #ifdef LOGICAL_PATHNAMES
-  if (logpathnamep(pathname)) {
-    value1 = TheLogpathname(pathname)->pathname_version;
-  } else
- #endif
-    value1 = pathname_version_maybe(pathname); /* version as value */
-  mv_count=1;
+  VALUES1(xpathname_version(logpathnamep(pathname),pathname));
 }
 
 #ifdef LOGICAL_PATHNAMES
@@ -2365,13 +2354,7 @@ local uintC directory_namestring_parts (object pathname) {
  < result: number of the strings pushed on the stack
  can trigger GC
  changes STACK */
-#if HAS_VERSION || defined(LOGICAL_PATHNAMES)
-local uintC nametype_namestring_parts (object name, object type,
-                                       object version)
-#else
-local uintC nametype_namestring_parts_ (object name, object type)
-#define nametype_namestring_parts(n,t,v)  nametype_namestring_parts_(n,t)
-#endif
+local uintC nametype_namestring_parts (object name, object type, object version)
 {
   var uintC stringcount = 0;
   /* Name: */
@@ -2388,12 +2371,12 @@ local uintC nametype_namestring_parts_ (object name, object type)
     pushSTACK(string);
     stringcount++; /* and count */
   }
- #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
   if (!nullp(version)) { /* version=NIL -> do not print */
     pushSTACK(O(dot_string)); /* "." */
     stringcount++; /* and count */
     if (eq(version,S(Knewest)))
-      pushSTACK(O(zero_string)); /* :NEWEST -> String "0" */
+      /* http://www.lisp.org/HyperSpec/Body/sec_19-3-1.html */
+      pushSTACK(Symbol_name(S(Knewest))); /* :NEWEST -> "NEWEST" */
     else if (eq(version,S(Kwild)))
       pushSTACK(O(wild_string));
     else
@@ -2401,7 +2384,6 @@ local uintC nametype_namestring_parts_ (object name, object type)
       pushSTACK(decimal_string(version));
     stringcount++; /* and count */
   }
- #endif
   return stringcount;
 }
 
@@ -2423,7 +2405,7 @@ local uintC file_namestring_parts (object pathname) {
  #endif
     return nametype_namestring_parts(ThePathname(pathname)->pathname_name,
                                      ThePathname(pathname)->pathname_type,
-                                     pathname_version_maybe(pathname));
+                                     NIL); /* do not print version */
 }
 
 /* UP: Converts pathname into string.
@@ -2484,7 +2466,6 @@ LISPFUNNR(host_namestring,1)
   VALUES1(xpathname_host(logpathnamep(pathname),pathname));
 }
 
-#if HAS_VERSION || defined(LOGICAL_PATHNAMES)
 /* UP: check an optional VERSION argument.
  test_optional_version(def);
  > STACK_0: VERSION-Argument
@@ -2499,7 +2480,7 @@ local object test_optional_version (object def) {
   } else if (eq(version,S(Knewest))) { /* :NEWEST is OK */
   } else if (posfixnump(version) && !eq(version,Fixnum_0)) {/*Fixnum>0 is OK*/
   } else if (pathnamep(version)) { /* Pathname -> its Version */
-    STACK_0 = xpathname_version(false,version);
+    STACK_0 = ThePathname(version)->pathname_version;
   }
 #ifdef LOGICAL_PATHNAMES
   else if (logpathnamep(version)) { /* Logical Pathname -> its Version */
@@ -2515,26 +2496,6 @@ local object test_optional_version (object def) {
   }
   return STACK_0;
 }
-#else
-/* UP: check an optional VERSION argument.
- test_optional_version();
- > STACK_0: VERSION-Argument */
-#define test_optional_version(def)  test_optional_version_()
-local void test_optional_version_ (void) {
-  var object version = STACK_0;
-  if (missingp(version)
-      || eq(version,S(Kwild))   /* or :WILD ? */
-      || eq(version,S(Knewest))) /* or :NEWEST ? */
-    return; /* yes -> OK */
-  else {
-    pushSTACK(version);         /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_version)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(version);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~S"));
-  }
-}
-#endif
 
 #ifdef PATHNAME_WIN32
 
@@ -2758,26 +2719,20 @@ LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
   var bool d_log = logpathnamep(STACK_1);
   var bool p_log = logpathnamep(STACK_2);
 
- #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
   { /* check default-version (STACK_0): */
     var object v = test_optional_version(unbound);
     var object p_version = xpathname_version(p_log,STACK_2);
-    if (!boundp(v)) {
-      var object p_name    = xpathname_name   (p_log,STACK_2);
-      var object d_version = xpathname_version(d_log,STACK_1);
-      v = (SPECIFIED(p_version) ? p_version :
-           (SPECIFIED(d_version) && !SPECIFIED(p_name) ? d_version :
-            S(Knewest)));
-    } else if (nullp(v)) v = p_version;
+    var object d_version = xpathname_version(d_log,STACK_1);
+    var object p_name = xpathname_name(p_log,STACK_2);
+    if (SPECIFIED(p_version))
+      v = p_version;
+    if (missingp(v) && !SPECIFIED(p_name) && SPECIFIED(d_version))
+      v = d_version;
     if (!boundp(v)) v = S(Knewest);
     STACK_0 = STACK_1; STACK_1 = STACK_2; STACK_2 = v;
     DOUT("merge-pathnames:",v);
   }
   /* stack layout: default-version, pathname, defaults. */
- #else
-  test_optional_version(S(Knewest)); skipSTACK(1);
-  /* stack layout: pathname, defaults. */
- #endif
 
   /* do the merge */
  #ifdef LOGICAL_PATHNAMES
@@ -2897,11 +2852,7 @@ LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
   /* the directories are OK now */
   NAMETYPE_MATCH(ThePathname,pathname_name);
   NAMETYPE_MATCH(ThePathname,pathname_type);
- #if HAS_VERSION
   ThePathname(newp)->pathname_version = popSTACK();
- #elif defined(LOGICAL_PATHNAMES)
-  skipSTACK(1);
- #endif
   DOUT("merge-pathnames:[ret]",newp);
   VALUES1(newp);
 }
@@ -3197,11 +3148,8 @@ global bool namestring_correctly_parseable_p (gcv_object_t *path_)
     goto parse_namestring_dot_file_type;
   }
   /* name cannot be "": it is replaced with NIL by MAKE-PATHNAME */
-  return true
-   #if HAS_VERSION
-    && !integerp(ThePathname(*path_)->pathname_version)
-   #endif
-    ;
+  /* physical pathname version is not printed, so cannot be read back! */
+  return nullp(ThePathname(*path_)->pathname_version);
 }
 #endif
 
@@ -3477,13 +3425,9 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     }
   }
   /* 6. check version: */
- #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
   STACK_0 = test_optional_version(!boundp(STACK_7) ? NIL : unbound);
   DOUT("make-pathname:[ver]",STACK_0);
   DOUT("make-pathname:[ver]",STACK_7);
- #else
-  test_optional_version(NIL);
- #endif
   { /* 7. build Pathname: */
     var object pathname;
    #ifdef LOGICAL_PATHNAMES
@@ -3499,11 +3443,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
    #endif
     {
       pathname = allocate_pathname(); /* new Pathname */
-     #if HAS_VERSION
       ThePathname(pathname)->pathname_version   = popSTACK();
-     #else
-      skipSTACK(1);
-     #endif
       ThePathname(pathname)->pathname_type      = popSTACK();
       ThePathname(pathname)->pathname_name      = popSTACK();
       ThePathname(pathname)->pathname_directory = popSTACK();
@@ -3582,9 +3522,7 @@ LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL) {
       ThePathname(pathname)->pathname_directory = O(directory_absolute);
       ThePathname(pathname)->pathname_name      = NIL;
       ThePathname(pathname)->pathname_type      = NIL;
-     #if HAS_VERSION
       ThePathname(pathname)->pathname_version   = NIL;
-     #endif
       VALUES1(pathname);
     }
    #else
@@ -3625,10 +3563,8 @@ local object copy_pathname (object pathname) {
     = ThePathname(pathname)->pathname_name;
   ThePathname(newp)->pathname_type
     = ThePathname(pathname)->pathname_type;
- #if HAS_VERSION
   ThePathname(newp)->pathname_version
     = ThePathname(pathname)->pathname_version;
- #endif
   return newp;
 }
 
@@ -3769,14 +3705,7 @@ local bool has_type_wildcards (object pathname) {
  < result: true if (PATHNAME-VERSION pathname) contains wildcards. */
 local bool has_version_wildcards (object pathname) {
   /* check version: */
- #ifdef LOGICAL_PATHNAMES
-  if (logpathnamep(pathname)) {
-    if (eq(TheLogpathname(pathname)->pathname_version,S(Kwild)))
-      return true;
-    return false;
-  }
- #endif
-  return false;
+  return eq(S(Kwild),xpathname_version(logpathnamep(pathname),pathname));
 }
 
 /* UP: checks, if any component of a pathname contains wildcards.
@@ -4035,13 +3964,9 @@ local bool version_match (object pattern, object sample, bool logical)
   SDOUT("version_match:",pattern);
   SDOUT("version_match:",sample);
   if (!boundp(sample)) return true;
- #if defined(LOGICAL_PATHNAMES) || HAS_VERSION
   if (nullp(pattern) || eq(pattern,S(Kwild))) return true;
   if (eq(sample,S(Kwild))) return false;
   return eql(pattern,sample);
- #else
-  return true;
- #endif
 }
 
 LISPFUNNR(pathname_match_p,2)
@@ -4438,7 +4363,6 @@ local void version_diff (object pattern, object sample, bool logical,
 { /* logical is ignored */
   DEBUG_DIFF(version_diff);
   SAMPLE_UNBOUND_CHECK;
- #if defined(LOGICAL_PATHNAMES) || HAS_VERSION
   if (nullp(pattern) || eq(pattern,S(Kwild))) {
     push_solution_with(sample);
     return;
@@ -4446,9 +4370,6 @@ local void version_diff (object pattern, object sample, bool logical,
   if (eq(sample,S(Kwild))) return;
   if (!eql(pattern,sample)) return;
   push_solution();
- #else
-  push_solution_with(NIL);
- #endif
 }
 
 #undef push_solution_with
@@ -4718,7 +4639,6 @@ local object translate_version (gcv_object_t* subst, object pattern,
                                 bool logical)
 { /* logical is ignored */
   DEBUG_TRAN(translate_version);
- #if defined(LOGICAL_PATHNAMES) || HAS_VERSION
   if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst)) {
     var object erg = Car(*subst);
     if (nullp(erg) || integerp(erg)
@@ -4729,17 +4649,6 @@ local object translate_version (gcv_object_t* subst, object pattern,
       return nullobj;
   }
   return pattern;
- #else
-  if (mconsp(*subst)) {
-    var object erg = Car(*subst);
-    if (nullp(erg) || integerp(erg)
-        || eq(erg,S(Kwild)) || eq(erg,S(Knewest))) {
-      *subst = Cdr(*subst); return NIL;
-    } else
-      return nullobj;
-  }
-  return NIL;
- #endif
 }
 #undef SIMPLE_P
 #undef TRIVIAL_P
@@ -6540,7 +6449,7 @@ local inline int stat_for_search (char* pathstring, struct stat * statbuf) {
 /* UP: Extends the directory of a pathname by one component.
  > STACK_1: a pathname
  > STACK_0: new Subdir-component, a Simple-String
- < result: new pathname with by subdir lengthened directory
+ < result: new pathname with directory lengthened by subdir
  increases STACK by 2
  can trigger GC */
 local object pathname_add_subdir (void) {
@@ -6747,6 +6656,10 @@ local bool directory_search_direntry_ok (object namestring,
 }
 #endif
 
+/* the version of files returned by DIRECTORY
+ if it is :NEWEST, they will not be printable readably! */
+#define DEFAULT_VERSION  NIL
+
 /* Scans an entire directory.
  directory_search_scandir(recursively,next_task);
  stack layout: result-list, pathname, name&type, subdir-list, pathname-list,
@@ -6913,6 +6826,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                       var object pathname = copy_pathname(STACK_(2+2));
                       ThePathname(pathname)->pathname_type = popSTACK(); /* insert type */
                       ThePathname(pathname)->pathname_name = popSTACK(); /* insert name */
+                      ThePathname(pathname)->pathname_version = DEFAULT_VERSION;
                       pushSTACK(pathname);
                       pushSTACK(pathname);
                     }
@@ -7003,6 +6917,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
               STACK_(3) = copy_pathname(STACK_(6));
               ThePathname(STACK_(3))->pathname_type = STACK_0;
               ThePathname(STACK_(3))->pathname_name = STACK_1;
+              ThePathname(STACK_(3))->pathname_version = DEFAULT_VERSION;
             }
 
             /* try to resolve .lnk files */
@@ -7026,6 +6941,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                   split_name_type(1);
                   ThePathname(STACK_(3+2))->pathname_name = STACK_1;
                   ThePathname(STACK_(3+2))->pathname_type = STACK_0;
+                  ThePathname(STACK_(3+2))->pathname_version = DEFAULT_VERSION;
                   skipSTACK(2);
                   /* what to use as a result */
                   if (rresolved == shell_shortcut_notexists)
@@ -7176,6 +7092,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
   pathname = copy_pathname(pathname);
   ThePathname(pathname)->pathname_name = NIL;
   ThePathname(pathname)->pathname_type = NIL;
+  ThePathname(pathname)->pathname_version = NIL;
   ThePathname(pathname)->pathname_directory = O(directory_absolute);
   pushSTACK(pathname);
   { /* pack into one-element list: */
@@ -7269,19 +7186,20 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
                 ThePathname(STACK_(3+4+1))->pathname_name;
               ThePathname(pathname)->pathname_type = /* insert type */
                 ThePathname(STACK_(3+4+1))->pathname_type;
+              ThePathname(pathname)->pathname_version =
+                DEFAULT_VERSION; /* original may be :WILD! */
               pushSTACK(pathname);
               assure_dir_exists(true,false); /* resolve links, search file */
-              if (file_exists(_EMA_)) /* if file exists */
-                {
-                  /* extend result-list: */
-                  if (dsp->full_p) /* :FULL wanted? */
-                    with_stat_info(); /* yes -> extend STACK_0 */
-                  /* and push STACK_0 in front of result-list: */
-                  var object new_cons = allocate_cons();
-                  Car(new_cons) = STACK_0;
-                  Cdr(new_cons) = STACK_(4+4+2);
-                  STACK_(4+4+2) = new_cons;
-                }
+              if (file_exists(_EMA_)) { /* if file exists */
+                /* extend result-list: */
+                if (dsp->full_p) /* :FULL wanted? */
+                  with_stat_info(); /* yes -> extend STACK_0 */
+                /* and push STACK_0 in front of result-list: */
+                var object new_cons = allocate_cons();
+                Car(new_cons) = STACK_0;
+                Cdr(new_cons) = STACK_(4+4+2);
+                STACK_(4+4+2) = new_cons;
+              }
               skipSTACK(2);
               goto next_pathname;
            #endif
