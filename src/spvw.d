@@ -437,7 +437,7 @@ local uintL make_symvalue_perthread (object value) {
     })
 
   #define for_all_back_traces(statement)   \
-    for_all_back_traces({ var p_backtrace_t bt = thread->_back_trace; \
+    for_all_threads({ var p_backtrace_t bt = thread->_back_trace; \
       { statement; }                                                  \
     })
 
