@@ -461,10 +461,6 @@ local SOCKET with_hostname (const char* host, unsigned short port,
   #endif
 #endif
 
-#if defined(UNIXCONN) || defined(TCPCONN)
-  extern_C unsigned int sleep (unsigned int seconds);
-#endif
-
 #ifdef UNIXCONN
   #include <sys/un.h>  /* defines struct sockaddr_un */
   /* set X_UNIX_PATH and - on hpux only - OLD_UNIX_PATH */
@@ -842,7 +838,7 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
     return INVALID_SOCKET;
  #if defined(FIONBIO) && (defined(HAVE_SELECT) || defined(WIN32_NATIVE))
   if (timeout) {
-    var int non_blocking_io = 1;
+    var unsigned long non_blocking_io = 1;
     if (ioctl(fd,FIONBIO,&non_blocking_io) != 0) { return INVALID_SOCKET; }
   }
  #endif
@@ -872,7 +868,7 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
       }
     }
     { /* connected - restore blocking IO */
-      var int non_blocking_io = 0;
+      var unsigned long non_blocking_io = 0;
       if (ioctl(fd,FIONBIO,&non_blocking_io) == 0)
         return fd;
     }
