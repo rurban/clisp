@@ -1,3 +1,9 @@
+2001-05-01  Sam Steingold  <sds@gnu.org>
+
+	* format.tst (format "~5d" 'a): ANSI CL is not clear here whether
+	the width is ignored or not, but it makes more sense to print
+	non-numeric arguments properly alighned
+
 2001-04-23  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst (check-xgcd): new function, used throughout the file
