@@ -7,7 +7,7 @@
  &clisp;, i.e., whether &clisp; supports code that makes use of the
  functionality specified by the vote.</para>
 
-<variablelist id="issues-list">
+<variablelist id="issues-list"><title>X3J13 Issues</title>
  <varlistentry id="iss001"><term><ulink url="&clhs;/Issues/iss001.html">&amp;ENVIRONMENT-BINDING-ORDER:FIRST</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss002"><term><ulink url="&clhs;/Issues/iss002.html">ACCESS-ERROR-NAME</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss003"><term><ulink url="&clhs;/Issues/iss003.html">ADJUST-ARRAY-DISPLACEMENT</ulink></term>&yes;</varlistentry>
