@@ -1,3 +1,9 @@
+2002-01-10  Sam Steingold  <sds@gnu.org>
+
+	fixed (format nil "~2f" 1234567.1234) => "1234567."
+	* format.lisp (format-float-for-f): pass 0 as DMIN to
+	FORMAT-FLOAT-TO-STRING
+
 2002-01-09  Sam Steingold  <sds@gnu.org>
 
 	notice function redefinitions again
