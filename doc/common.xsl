@@ -32,7 +32,7 @@
 </xsl:template>
 
 <xsl:param name="generate.toc"> <!-- toc in refentry -->
- refentry  toc
+refentry  toc
 appendix  toc,title
 article/appendix  nop
 article   toc,title
@@ -79,6 +79,11 @@ set       toc,title
     <th><td align="left"><xsl:value-of select="refentryinfo/title"/></td>
      <td align="center"><xsl:value-of select="refentryinfo/subtitle"/></td>
      <td align="right"><xsl:value-of select="refentryinfo/date"/></td></th>
+ </table></div></xsl:if>
+ <xsl:if test="bookinfo"><div class="bookinfo">
+   <hr width="100%"/><table width="100%">
+    <th><td align="left"><xsl:value-of select="bookinfo/subtitle"/></td>
+     <td align="right"><xsl:value-of select="bookinfo/date"/></td></th>
  </table></div></xsl:if>
  <div class="custom-footer"><hr width="100%"/><table width="100%">
    <tr><td align="left"><a href="http://clisp.cons.org">
