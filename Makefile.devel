@@ -261,7 +261,7 @@ distrib : linux-distrib src-distrib
 
 # Before doing a "make src-distrib", don't forget
 # * update src/version.h,
-# * update src/CHANGES.LOG and src/NEWS,
+# * update src/NEWS,
 # * "make",
 # * "make check-configures",
 # * check that src/genclisph.d is up to date.
