@@ -12,6 +12,7 @@
 	(N_cis_N): (sin a) may be 0
 	(N_exp_N): handle contagion properly
 	* lisparit.d (EXP): pass a real as the 3rd arg of N_exp_N
+	(LOG): pass a real as the 3rd arg of N_log_N
 
 2002-10-04  Sam Steingold  <sds@gnu.org>
 
