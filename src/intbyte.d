@@ -143,7 +143,8 @@
         if (bitcount>=intDsize)
           { bitcount -= intDsize; newMSDptr += 1; len -= 1; } # intDsize Bits ausblenden
         # Noch 0 <= bitcount < intDsize Bits auszublenden:
-        newMSDptr[0] &= (uintD)(bitm(intDsize-bitcount)-1);
+        if (bitcount > 0)
+          { newMSDptr[0] &= (uintD)(bit(intDsize-bitcount)-1); }
       }
       # Jetzt enthält die UDS newMSDptr/len/.. die extrahierten Bits.
       end_arith_call();
