@@ -9678,6 +9678,14 @@ local char* xrealloc (void* ptr, int count);
 # MAKE-PIPE-INPUT-STREAM might need to be modified to temporarily turn off
 # readline.
 
+local HIST_ENTRY * history_last (void)
+{ /* get the last history entry and its offset */
+  HIST_ENTRY ** all = history_list();
+  if (all == NULL) return NULL;
+  while (*all) all++;
+  return *(all-1);
+}
+
 # read a character from a terminal-stream.
 # cp. rd_ch_unbuffered() :
 local object rd_ch_terminal3 (const gcv_object_t* stream_) {
@@ -9752,34 +9760,21 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       # put into the history if non-empty
       begin_system_call();
       if (line[0] != '\0') {
-        var HIST_ENTRY *prev = previous_history();
-        if ((prev==NULL)
-            || !boundp(Symbol_value(S(terminal_read_open_object)))) {
-          var int pos = history_search_prefix(line,-1);
-          if (pos == -1) pos = history_search_prefix(line,1);
-          var HIST_ENTRY *curr = current_history();
-          if (pos == -1 || (curr && !asciz_equal(line,curr->line))) {
-            /* brand new line - save it! */
-            add_history(line);
-          } else { /* set the history position */
-            var int offset = where_history();
-            history_set_pos(offset);
-          }
-        } else { # append this line to the previous history entry
-          var int offset = where_history();
-          var HIST_ENTRY *old;
+        var HIST_ENTRY *last = history_last();
+        if (boundp(Symbol_value(S(terminal_read_open_object)))) {
+          /* append this line to the previous history entry */
+          ASSERT(last); /* in the middle of something => history non-empty */
           var char *new_line =
-            (char*)xmalloc(2+strlen(line)+strlen(prev->line));
-          # strcpy(new_line,prev->line[0]=='\n' ? "" : "\n");
-          strcpy(new_line,prev->line);
+            (char*)xmalloc(2 + strlen(line) + strlen(last->line));
+          /* strcpy(new_line,last->line[0]=='\n' ? "" : "\n"); */
+          strcpy(new_line,last->line);
           strcat(new_line,"\n");
           strcat(new_line,line);
-          old = replace_history_entry(offset,new_line,prev->data);
-          if (old) {
-            free(old->line);
-            free(old);
-          }
-        }
+          free(last->line);
+          last->line = new_line;
+        } else if (last==NULL || !asciz_equal(line,last->line))
+          /* this is different from the last one, save it */
+          add_history(line);
       }
       free(line); /* must release the original line */
       end_system_call();
