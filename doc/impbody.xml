@@ -532,7 +532,7 @@ executes a compiled version of form.</para>
 <para>are implemented as special operators and, as
  such, are rather efficient.</para></formalpara>
 
-<section><title>Macro <function>ext:fcase</function></title>
+<section id="fcase"><title>Macro <function>EXT:FCASE</function></title>
 
 <para>This macro allows specifying the test for &case;, e.g.,
 <programlisting>
