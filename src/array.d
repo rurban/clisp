@@ -3217,7 +3217,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL index2;
     var uintL count;
     {
-      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+      if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
         var const object* ptr1 = &TheSvector(dv1)->data[index1+count];
         var object* ptr2 = &TheSvector(dv2)->data[index2+count];
         dotimespL(count,count, {
@@ -3239,7 +3239,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL count;
     {
       check_sstring_mutable(dv2);
-      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+      if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
         var const chart* ptr1 = &TheSstring(dv1)->data[index1+count];
         var chart* ptr2 = &TheSstring(dv2)->data[index2+count];
         dotimespL(count,count, {
@@ -3273,7 +3273,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL index2;
     var uintL count;
     {
-      if (dv1 == dv2 && index1 < index2+64 && index2 < index1+count+64) {
+      if (eq(dv1,dv2) && index1 < index2+64 && index2 < index1+count+64) {
         if (index1 < index2 && index2 < index1+count) {
           index1 += count;
           index2 += count;
@@ -3309,7 +3309,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL index2;
     var uintL count;
     {
-      if (dv1 == dv2 && index1 < index2+32 && index2 < index1+count+32) {
+      if (eq(dv1,dv2) && index1 < index2+32 && index2 < index1+count+32) {
         if (index1 < index2 && index2 < index1+count) {
           index1 += count;
           index2 += count;
@@ -3345,7 +3345,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL index2;
     var uintL count;
     {
-      if (dv1 == dv2 && index1 < index2+16 && index2 < index1+count+16) {
+      if (eq(dv1,dv2) && index1 < index2+16 && index2 < index1+count+16) {
         if (index1 < index2 && index2 < index1+count) {
           index1 += count;
           index2 += count;
@@ -3381,7 +3381,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL index2;
     var uintL count;
     {
-      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+      if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
         var const uint8* ptr1 = &TheSbvector(dv1)->data[index1+count];
         var uint8* ptr2 = &TheSbvector(dv2)->data[index2+count];
         dotimespL(count,count, {
@@ -3402,7 +3402,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL index2;
     var uintL count;
     {
-      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+      if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
         var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1+count];
         var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2+count];
         dotimespL(count,count, {
@@ -3423,7 +3423,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL index2;
     var uintL count;
     {
-      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+      if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
         var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1+count];
         var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2+count];
         dotimespL(count,count, {
