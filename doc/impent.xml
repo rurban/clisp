@@ -461,6 +461,8 @@
 <!ENTITY link-sh "<olink targetdoc='impnotes' targetptr='modset'><command>link.sh</command></olink>">
 <!ENTITY modset "<olink targetdoc='impnotes' targetptr='modset'>module set</olink>">
 <!ENTITY mod-dynload "<link linkend='mod-dynload'><function>SYS::DYNLOAD-MODULES</function></link>">
+<!ENTITY mod-load "<link linkend='mod-load'><envar>TO_LOAD</envar></link>">
+<!ENTITY mod-preload "<link linkend='mod-preload'><envar>TO_PRELOAD</envar></link>">
 <!ENTITY modinfo "<link linkend='modinfo'><function>EXT:MODULE-INFO</function></link>">
 <!ENTITY module "<link linkend='modules'>module</link>">
 <!ENTITY object-t "<link linkend='typecodes'><type>object</type></link>">
