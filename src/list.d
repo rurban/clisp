@@ -1110,6 +1110,7 @@ local object check_cons_replacement (object obj) {
     check_value(type_error,GETTEXT("~S: ~S is not a pair"));
     obj = value1;
   } while (atomp(obj));
+  return obj;
 }
 #define check_cons(o)  if (matomp(o)) o = check_cons_replacement(o)
 
