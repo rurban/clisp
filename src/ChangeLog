@@ -1,5 +1,13 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * conditio.lsp: Export simple-condition-format-control.
+          (coerce-to-condition): Use :format-control.
+          (simple-condition): Use $format-control.
+        * defs3.lsp: Export simple-condition-format-control, not
+          simple-condition-format-string.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (make_pipe_output_stream, make_pipe_input_stream,
            make_pipe_stream): Revert 1999-03-26 patch.
 
