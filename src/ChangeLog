@@ -1,11 +1,5 @@
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-        * po/clisp-xgettext (main): Read and write files in ISO-8859-1
-          encoding.
-        * po/clisp-msguniq (main): Likewise.
-
-1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
-
         * lispbibl.d (SPARC64): New macro.
           Treat SPARC64 mostly like DECALPHA and MIPS64.
         * arisparc64.d: New file.
