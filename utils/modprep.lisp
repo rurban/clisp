@@ -55,6 +55,7 @@ The input file is normal C code, modified like this:
   is converted to
   static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
   static enum_type c_name (object arg) {
+    unsigned int index;
    restart_c_name:
     if (posfixnump(arg)) return posfixnum_to_L(arg);
     else if (missingp(arg)) return 0;
@@ -72,7 +73,7 @@ The input file is normal C code, modified like this:
     }
   }
   static object c_name_reverse (enum_type a) {
-    int index;
+    unsigned int index;
     for (index = 0; index < c_name_table_size; index++)
       if (a == c_name_table[index].c_const)
         return *c_name_table[index].l_const;
@@ -934,7 +935,7 @@ commas and parentheses."
             (format out "};") (newline out)
             (format out "const uintL ~A_table_size = (sizeof(~A_table)/sizeof(struct c_lisp_pair))-1;" c-name c-name) (newline out)
             (format out "static ~A ~A (object a) {" (or c-type "int") c-name)
-            (newline out) (format out "  int index;") (newline out)
+            (newline out) (format out "  unsigned int index;") (newline out)
             (format out " restart_~A:" c-name) (newline out)
             (format out "  if (missingp(a)) return 0;") (newline out)
             (format out "  else if (integerp(a)) return I_to_L(a);")
@@ -955,7 +956,7 @@ commas and parentheses."
             (format out "}") (newline out)
             (format out "static object ~A_reverse (~A a) {"
                     c-name (or c-type "int"))
-            (newline out) (format out "  int index;") (newline out)
+            (newline out) (format out "  unsigned int index;") (newline out)
             (format out "  for (index = 0; index < ~A_table_size; index++)"
                     c-name) (newline out)
             (format out "    if (a == ~A_table[index].c_const)" c-name)

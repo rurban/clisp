@@ -520,8 +520,8 @@ DEFUN(POSIX::LIMITS, &optional what)
     RLIM(cmd);
     funcall(L(values),2);
   } else {
-    int pos = 0;
-    for (; pos < getrlimit_arg_table_size; pos++) {
+    unsigned int pos;
+    for (pos = 0; pos < getrlimit_arg_table_size; pos++) {
       pushSTACK(*getrlimit_arg_table[pos].l_const);
       RLIM(getrlimit_arg_table[pos].c_const);
       funcall(`POSIX::MAKE-RLIMIT`,2); pushSTACK(value1);
