@@ -1,5 +1,11 @@
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (distmakefile): Escape commas in $libs for use on the
+	right-hand side of a sed expression.
+	(distrib): Likewise for $full_libs.
+
+2004-03-14  Bruno Haible  <bruno@clisp.org>
+
 	* m4/ioctl.m4 (CL_IOCTL): Set the bytes_ready variable to 0 before
 	calling ioctl FIONREAD.
 	* stream.d (listen_handle): Likewise.
