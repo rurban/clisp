@@ -66,10 +66,6 @@
 
 ;;; ---------------------------------------------------------------------------
 
-(defun structure-effective-slot-definition-initff (slotdef)
-  (slot-value slotdef '$initff))
-(defun (setf structure-effective-slot-definition-initff) (new-value slotdef)
-  (setf (slot-value slotdef '$initff) new-value))
 (defun structure-effective-slot-definition-readonly (slotdef)
   (slot-value slotdef '$readonly))
 (defun (setf structure-effective-slot-definition-readonly) (new-value slotdef)
