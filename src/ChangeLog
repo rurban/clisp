@@ -1,3 +1,8 @@
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
+	* defstruct.lisp (ds-accessor-name): New function.
+	(ds-make-accessors, ds-make-defsetfs): Use it.
+
 2005-04-15  Bruno Haible  <bruno@clisp.org>
 
 	* clos-slotdef1.lisp (*<slot-definition>-...-location*): New constants.
