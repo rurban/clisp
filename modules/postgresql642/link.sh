@@ -9,7 +9,8 @@ make clisp-module CC="${CC}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"
 # Test whether libcrypt exists.
 have_libcrypt=''
 echo 'int main() { return 0; }' > linkdummy.c
-if "${CC}" "${CFLAGS}" linkdummy.c -lcrypt -o linkdummy > /dev/null 2>/dev/null; then
+if ${CC} ${CFLAGS} linkdummy.c -lcrypt -o linkdummy > /dev/null 2>/dev/null;
+then
   have_libcrypt=yes
 fi
 rm -f linkdummy*
