@@ -1,3 +1,7 @@
+2004-06-04  Bruno Haible  <bruno@clisp.org>
+
+	* macro8.tst: Add 3 LOAD-TIME-VALUE tests.
+
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	* hashtable.tst: New file.
