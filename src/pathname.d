@@ -5449,8 +5449,8 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
       fehler_dir_not_exists(popSTACK());
     }
     if (substitute) {
-      var object resolved_string
-        = asciz_to_string(resolved,O(pathname_encoding));
+      var object resolved_string =
+        asciz_to_string(resolved,O(pathname_encoding));
       STACK_0 = coerce_pathname(resolved_string);
       nnullp = namenullp(STACK_0);
     }
