@@ -1,5 +1,9 @@
 2005-03-18  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (DEEMA): permit spaces in empty macro arguments
+
+2005-03-18  Sam Steingold  <sds@gnu.org>
+
 	* execname.c (find_executable): avoid declaring variables in the
 	middle of a block (OSX portability)
 
