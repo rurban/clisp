@@ -189,6 +189,7 @@
 <!ENTITY defloc "<link linkend='defloc'><function>I18N:DEFLOCALIZED</function></link>">
 <!ENTITY localized "<link linkend='localized'><function>I18N:LOCALIZED</function></link>">
 <!ENTITY set-locale "<link linkend='set-locale'><function>I18N:SET-LOCALE</function></link>">
+<!ENTITY lang-info "<link linkend='lang-info'><function>I18N:LANGUAGE-INFORMATION</function></link>">
 <!ENTITY def-file-enc "<olink targetdoc='impnotes' targetptr='def-file-enc'><varname>CUSTOM:*DEFAULT-FILE-ENCODING*</varname></olink>">
 <!ENTITY default-float-format "<link linkend='default-float-format'><varname>CUSTOM:*DEFAULT-FLOAT-FORMAT*</varname></link>">
 <!ENTITY default-tz "<link linkend='default-tz'><varname>CUSTOM:*DEFAULT-TIME-ZONE*</varname></link>">

@@ -20,7 +20,7 @@
 
 (export
  '(i18n::gettext i18n::ngettext i18n::textdomain i18n::textdomaindir
-   i18n::set-locale)
+   i18n::set-locale i18n::language-information)
  "I18N")
 (ext:re-export "I18N" "EXT")
 
