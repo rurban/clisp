@@ -3,8 +3,8 @@
 (setf string "test-pathname.abc" symbol 'test-pathname.abc)
 test-pathname.abc
 
-;;pathname -mögl. Argumenttypen: pathname,string,symbol,stream
-;;         -resultat: pathname
+;; PATHNAME: argument type: pathname,string,symbol,stream
+;;           result: pathname
 
 (SETF PATHSTRING (PATHNAME STRING))
 #+XCL
@@ -47,8 +47,7 @@ nil
 )
 
 
-;; funktion truename liefert filename fuer pathname oder stream
-;;                   einen Pfadnamen
+;; function truename returns filename for pathname or stream
 ;
 ;(MAPCAR (FUNCTION TRUENAME) (LIST PATHSTRING PATHSYMBOL PATHPATH STREAM
 ;                                                               ;PATHSTREAM
