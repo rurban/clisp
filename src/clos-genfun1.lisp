@@ -17,6 +17,10 @@
 
 (defconstant *<funcallable-standard-class>-instance-size* 27)
 
+;; For DEFCLASS macro expansions.
+(defconstant *<funcallable-standard-class>-valid-initialization-keywords*
+             *<standard-class>-valid-initialization-keywords*)
+
 (defun make-instance-<funcallable-standard-class> (metaclass &rest args
                                                    &key name
                                                         (direct-superclasses '())
@@ -73,36 +77,26 @@
 ;; - then come additional slots, as described by the class.
 
 (defparameter <funcallable-standard-object>
-  (let ((*allow-mixing-metaclasses* t))
-    #|
-    (defclass funcallable-standard-object (function standard-object)
-      ;; The MOP p. 7 specifies a superclass list (standard-object function),
-      ;; but then generic-function and standard-generic-function would have a
-      ;; class-precedence-list that contains standard-object before function,
-      ;; which contradicts the last sentence of ANSI CL 4.2.2. Possible
-      ;; workarounds are: 1. reversed order (function standard-object),
-      ;; 2. use a twin superclass or subclass of standard-object instead of
-      ;; standard-object itself, 3. override compute-class-precedence-list for
-      ;; this class. We choose solution 1 because it is the one a user will
-      ;; most easily understand.
-      (($name ; The function name is present as first CLOS slot. The macro
-              ; Closure_name in lispbibl.d refers to it. Therefore this slot
-              ; must not be changed after initialization, since this could
-              ; interfere with the forwarded-instance mechanism.
-         :accessor funcallable-name))
-      (:metaclass funcallable-standard-class)
-      (:fixed-slot-locations t)
-      (:generic-accessors nil))
-    |#
-    (ensure-class 'funcallable-standard-object
-      :metaclass <funcallable-standard-class>
-      :direct-superclasses `(,<function> ,<standard-object>)
-      :direct-slots '((:name $name
-                       :readers (funcallable-name)
-                       :writers ((setf funcallable-name))))
-      :direct-default-initargs '()
-      :fixed-slot-locations t
-      :generic-accessors nil)))
+  (ext:compiler-let ((*allow-mixing-metaclasses* t))
+    (let ((*allow-mixing-metaclasses* t))
+      (defclass funcallable-standard-object (function standard-object)
+        ;; The MOP p. 7 specifies a superclass list (standard-object function),
+        ;; but then generic-function and standard-generic-function would have a
+        ;; class-precedence-list that contains standard-object before function,
+        ;; which contradicts the last sentence of ANSI CL 4.2.2. Possible
+        ;; workarounds are: 1. reversed order (function standard-object),
+        ;; 2. use a twin superclass or subclass of standard-object instead of
+        ;; standard-object itself, 3. override compute-class-precedence-list
+        ;; for this class. We choose solution 1 because it is the one a user
+        ;; will most easily understand.
+        (($name ; The function name is present as first CLOS slot. The macro
+                ; Closure_name in lispbibl.d refers to it. Therefore this slot
+                ; must not be changed after initialization, since this could
+                ; interfere with the forwarded-instance mechanism.
+           :accessor funcallable-name))
+        (:metaclass funcallable-standard-class)
+        (:fixed-slot-locations t)
+        (:generic-accessors nil)))))
 
 (defun print-object-<funcallable-standard-object> (object stream)
   (print-unreadable-object (object stream :type t)
@@ -137,25 +131,13 @@
 ;; ----------------------------------------------------------------------------
 
 (defparameter <generic-function>
-  #|
   (defclass generic-function (metaobject funcallable-standard-object)
     (($listeners          ; list of objects to be notified upon a change
        :type list
        :accessor gf-listeners))
     (:metaclass funcallable-standard-class)
     (:fixed-slot-locations t)
-    (:generic-accessors nil))
-  |#
-  (ensure-class 'generic-function
-    :metaclass <funcallable-standard-class>
-    :direct-superclasses `(,<metaobject> ,<funcallable-standard-object>)
-    :direct-slots '((:name $listeners
-                     :readers (gf-listeners)
-                     :writers ((setf gf-listeners))
-                     :type list))
-    :direct-default-initargs '()
-    :fixed-slot-locations t
-    :generic-accessors nil))
+    (:generic-accessors nil)))
 
 ;; Initialization of a <generic-function> instance.
 (defun shared-initialize-<generic-function> (gf situation &rest args
@@ -172,7 +154,6 @@
 ;; ----------------------------------------------------------------------------
 
 (defparameter <standard-generic-function>
-  #|
   (defclass standard-generic-function (generic-function)
     (($signature           ; a signature struct
        :type (simple-vector 6)
@@ -209,53 +190,6 @@
        :accessor std-gf-initialized))
     (:metaclass funcallable-standard-class)
     (:fixed-slot-locations t)
-    (:generic-accessors nil))
-  |#
-  (ensure-class 'standard-generic-function
-    :metaclass <funcallable-standard-class>
-    :direct-superclasses `(,<generic-function>)
-    :direct-slots '((:name $signature
-                     :readers (std-gf-signature)
-                     :writers ((setf std-gf-signature))
-                     :type (simple-vector 6))
-                    (:name $argorder
-                     :readers (std-gf-argorder)
-                     :writers ((setf std-gf-argorder))
-                     :type list)
-                    (:name $methods
-                     :readers (std-gf-methods)
-                     :writers ((setf std-gf-methods))
-                     :type list)
-                    (:name $method-combination
-                     :readers (std-gf-method-combination)
-                     :writers ((setf std-gf-method-combination))
-                     :type method-combination)
-                    (:name $default-method-class
-                     :readers (std-gf-default-method-class)
-                     :writers ((setf std-gf-default-method-class))
-                     :type class)
-                    (:name $lambda-list
-                     :readers (std-gf-lambda-list)
-                     :writers ((setf std-gf-lambda-list))
-                     :type list)
-                    (:name $documentation
-                     :readers (std-gf-documentation)
-                     :writers ((setf std-gf-documentation))
-                     :type (or null string))
-                    (:name $declspecs
-                     :readers (std-gf-declspecs)
-                     :writers ((setf std-gf-declspecs))
-                     :type list)
-                    (:name $effective-method-cache
-                     :readers (std-gf-effective-method-cache)
-                     :writers ((setf std-gf-effective-method-cache))
-                     :type list)
-                    (:name $initialized
-                     :readers (std-gf-initialized)
-                     :writers ((setf std-gf-initialized))
-                     :type boolean))
-    :direct-default-initargs '()
-    :fixed-slot-locations t
-    :generic-accessors nil))
+    (:generic-accessors nil)))
 
 ;; ============================================================================

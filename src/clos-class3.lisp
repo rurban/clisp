@@ -253,7 +253,7 @@
                                                          (cadr option))))
                                           user-defined-args)))))
                      slot-specs)))
-         (metaclass nil)
+         (metaclass nil) (metaclass-arg nil)
          (direct-default-initargs nil)
          (documentation nil)
          (user-defined-args nil))
@@ -280,6 +280,7 @@
                        :detail argument
                        (TEXT "~S ~S, option ~S: ~S is not a symbol")
                        'defclass name option argument))
+                   (setq metaclass-arg argument)
                    (setq metaclass `(FIND-CLASS ',argument)))
                  (return)))
               (:DEFAULT-INITARGS
@@ -366,9 +367,11 @@
            (LET* ((,metaclass-var ,(or metaclass '<STANDARD-CLASS>))
                   ,@(if user-defined-args
                       `((,metaclass-keywords-var
-                          ,(if metaclass
-                             `(CLASS-VALID-INITIALIZATION-KEYWORDS ,metaclass-var)
-                             '*<STANDARD-CLASS>-VALID-INITIALIZATION-KEYWORDS*)))))
+                          ,(cond ((or (null metaclass) (eq metaclass-arg 'STANDARD-CLASS))
+                                  '*<STANDARD-CLASS>-VALID-INITIALIZATION-KEYWORDS*)
+                                 ((eq metaclass-arg 'FUNCALLABLE-STANDARD-CLASS)
+                                  '*<FUNCALLABLE-STANDARD-CLASS>-VALID-INITIALIZATION-KEYWORDS*)
+                                 (t `(CLASS-VALID-INITIALIZATION-KEYWORDS ,metaclass-var)))))))
              ;; Provide good error messages. The error message from
              ;; ENSURE-CLASS (actually MAKE-INSTANCE) later is unintelligible.
              ,@(if user-defined-args
@@ -451,8 +454,8 @@
     (return-from ensure-class-using-class-<t>
       (apply #'ensure-class-using-class nil name all-keys)))
   ;; Decide whether to modify the given class or ignore it.
-  (let ((a-standard-class-p (or (eq metaclass <standard-class>)
-                                (subclassp metaclass <standard-class>))))
+  (let ((a-semi-standard-class-p (or (eq metaclass <standard-class>)
+                                     (subclassp metaclass <semi-standard-class>))))
     (when class
       (cond ((not (eq metaclass (class-of class)))
              ;; This can occur when mixing DEFSTRUCT and DEFCLASS.
@@ -464,11 +467,11 @@
              (warn (TEXT "Cannot redefine ~S with a different metaclass ~S")
                    class metaclass)
              (setq class nil))
-            ((not a-standard-class-p)
+            ((not a-semi-standard-class-p)
              ;; This can occur when redefining a class defined through
              ;; (DEFCLASS ... (:METACLASS STRUCTURE-CLASS)), which is
              ;; equivalent to re-executed DEFSTRUCT.
-             ;; Only <standard-class> subclasses support making instances
+             ;; Only <semi-standard-class> subclasses support making instances
              ;; obsolete. Ignore the old class and proceed. The old instances
              ;; will thus keep pointing to the old class.
              (setq class nil)))
@@ -483,7 +486,7 @@
           (mapcar #'(lambda (c)
                       (if (class-p c)
                         c
-                        (or (find-class c (not a-standard-class-p)) c)))
+                        (or (find-class c (not a-semi-standard-class-p)) c)))
                   direct-superclasses))
     (if class
       ;; Modify the class and return the modified class.

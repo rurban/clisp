@@ -1,5 +1,19 @@
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
+	Improved bootstrapping.
+	* clos-class3.lisp (defclass): Hardwire the
+	CLASS-VALID-INITIALIZATION-KEYWORDS result if the metaclass is
+	STANDARD-CLASS or FUNCALLABLE-STANDARD-CLASS.
+	(ensure-class-using-class-<t>): Test for subclass of
+	<semi-standard-class>, not of <standard-class>.
+	* clos-genfun1.lisp (*<funcallable-standard-class>-valid-initialization-keywords*):
+	New constant.
+	(funcallable-standard-object, generic-function,
+	standard-generic-function): Define through defclass instead of
+	ensure-class.
+
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class3.lisp (reinitialize-instance-<class>): After restoring
 	the backup copy, also restore the direct-subclasses pointers and the
 	finalized-direct-subclasses pointers of any possible direct superclass.
