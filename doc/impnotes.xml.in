@@ -39,8 +39,8 @@
 <bookinfo id="book-info-title-page">
  <title>Implementation Notes for &gnu; &clisp;.</title>
  <subtitle>These notes document &clisp; version @VERSION@.</subtitle>
- <graphic srccredit="[CLISP icon]" align="center"
-          fileref="clisp.png" width="48" depth="48"/>
+ <corpauthor><inlinemediaobject><imageobject><imagedata fileref="clisp.png"/>
+ </imageobject></inlinemediaobject></corpauthor>
  <date>Last modified: @TODAY@</date>
  &bruno; &sds;
  <abstract><para>These notes describe the &gnu; &clisp; - an &ansi-cl;
