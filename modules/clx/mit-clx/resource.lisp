@@ -1,4 +1,4 @@
-;;; -*- Mode:Common-Lisp; Package:XLIB; Syntax:COMMON-LISP; Base:10; Lowercase:T -*-
+;;; -*- Mode: LISP; Package:XLIB; Syntax:COMMON-LISP; Base:10; Lowercase:T -*-
 
 ;; RESOURCE - Lisp version of XLIB's Xrm resource manager
 
@@ -26,7 +26,6 @@
 (defstruct (resource-database (:copier nil) (:predicate nil)
 			      (:print-function print-resource-database)
 			      (:constructor make-resource-database-internal)
-			      #+explorer (:callable-constructors nil)
 			      )
   (name nil :type stringable :read-only t)
   (value nil)
@@ -108,7 +107,7 @@
 	  (kintern (symbol-name (the symbol stringable)))))
     (string
       (if *uppercase-resource-symbols*
-	  (setq stringable (#-allegro string-upcase #+allegro correct-case
+	  (setq stringable (string-upcase
 			    (the string stringable))))
       (kintern (the string stringable)))))
 
@@ -116,7 +115,7 @@
   ;; Compare two stringables.
   ;; Ignore case when comparing to a symbol.
   (declare (type stringable a b))
-  (declare (values boolean))
+  (declare (clx-values generalized-boolean))
   (etypecase a
     (string
       (etypecase b
@@ -150,7 +149,7 @@
   ;; case-sensitive comparisons will be used.  The symbol '* or
   ;; string "*" are used as wildcards, matching anything or nothing.
   (declare (type resource-database database)
-	   (type list name-list) ;; (list stringable)
+	   (type (clx-list stringable) name-list)
 	   (type t value))
   (unless value (error "Null resource values are ignored"))
   (incf-resource-database-timestamp database)
@@ -190,7 +189,7 @@
 
 (defun delete-resource-internal (database name-list)
   (declare (type resource-database database)
-	   (type list name-list)) ;; (list stringable)
+	   (type (clx-list stringable) name-list))
   (do* ((list name-list (cdr list))
 	(string (car list) (car list))
 	(node database)
@@ -232,8 +231,8 @@
   ;;                      (append full-class (list value-class)).
   (declare (type resource-database database)
 	   (type stringable value-name value-class)
-	   (type list full-name full-class)) ;; (list stringable)
-  (declare (values value))
+	   (type (clx-list stringable) full-name full-class))
+  (declare (clx-values value))
   (let ((names (append full-name (list value-name)))
 	(classes (append full-class (list value-class))))
     (let* ((result (get-entry (resource-database-tight database)
@@ -244,7 +243,7 @@
 
 (defun get-entry-lookup (table name names classes)
   (declare (type list table names classes)
-	   (symbol name))
+	   (type stringable name))
   (dolist (entry table)
     (declare (type resource-database entry))
     (when (stringable-equal name (resource-database-name entry))
@@ -262,7 +261,7 @@
   (declare (type list tight loose names classes))
   (let ((name (car names))
 	(class (car classes)))
-    (declare (type symbol name class))
+    (declare (type stringable name class))
     (cond ((and tight
 		(get-entry-lookup tight name names classes)))
 	  ((and loose
@@ -321,8 +320,8 @@
 (defun get-search-table (database full-name full-class)
   ;; Return a search table for use with get-search-resource.
   (declare (type resource-database database)
-	   (type list full-name full-class)) ;; (list stringable)
-  (declare (values value))
+	   (type (clx-list stringable) full-name full-class))
+  (declare (clx-values value))
   (let* ((tight (resource-database-tight database))
 	 (loose (resource-database-loose database))
 	 (result (cons nil nil))
@@ -351,7 +350,8 @@
 
 (defun get-tables-lookup (dbase name names classes)
   (declare (type list dbase names classes)
-	   (type symbol name))
+	   (type stringable name))
+  #-clx-debugging
   (declare (optimize speed))
   (dolist (entry dbase)
     (declare (type resource-database entry))
@@ -377,7 +377,7 @@
   (declare (type list tight loose names classes))
   (let ((name (car names))
 	(class (car classes)))
-    (declare (type symbol name class))
+    (declare (type stringable name class))
     (when tight
       (get-tables-lookup tight name names classes))
     (when loose
@@ -406,20 +406,14 @@
   ;; FUNCTION is called with arguments (name-list value . args)
   (declare (type resource-database database)
 	   (type (function (list t &rest t) t) function)
-	   #+clx-ansi-common-lisp
 	   (dynamic-extent function)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg function)
 	   (dynamic-extent args))
-  (declare (values nil))
+  (declare (clx-values nil))
   (labels ((map-resource-internal (database function args name)
 	     (declare (type resource-database database)
 		      (type (function (list t &rest t) t) function)
 		      (type list name)
-		      #+clx-ansi-common-lisp
-		      (dynamic-extent function)
-		      #+(and lispm (not clx-ansi-common-lisp))
-		      (sys:downward-funarg function))
+		      (dynamic-extent function))
 	     (let ((tight (resource-database-tight database))
 		   (loose (resource-database-loose database)))
 	       (declare (type list tight loose))
@@ -445,7 +439,7 @@
 
 (defun merge-resources (database with-database)
   (declare (type resource-database database with-database))
-  (declare (values resource-database))
+  (declare (clx-values resource-database))
   (map-resource
     database
     #'(lambda (name value database)
@@ -482,9 +476,9 @@
   (declare (type resource-database database)
 	   (type (or pathname string stream) pathname)
 	   (type (or null (function (string) t)) key)
-	   (type (or null (function (list t) boolean))
+	   (type (or null (function (list t) generalized-boolean))
                  test test-not))
-  (declare (values resource-database))
+  (declare (clx-values resource-database))
   (resource-with-open-file (stream pathname)
     (loop
       (let ((string (read-line stream nil :eof)))
@@ -499,13 +493,15 @@
 	  (when i ;; else blank line
 	    (case (char string i)
 	      (#\! nil)  ;; Comment - skip
-	      (#.(card8->char 0) nil) ;; terminator for C strings - skip
+	      ;;(#.(card8->char 0) nil) ;; terminator for C strings - skip
 	      (#\#       ;; Include
 	       (setq term (position '(#\tab #\space) string :test #'char-memq
 				    :start i :end end))
 	       (when (string-equal string "#INCLUDE" :start1 i :end1 term)
 		 (let ((path (merge-pathnames
-			       (subseq string (1+ term)) (truename stream))))
+			      (string-trim '(#\tab #\space #\")
+					   (subseq string (1+ term)))
+			      (truename stream))))
 		   (read-resources database path
 				   :key key :test test :test-not test-not))))
 	      (otherwise
@@ -525,7 +521,7 @@
   (declare (type string string)
 	   (type array-index start)
 	   (type (or null array-index) end))
-  (declare (values name-list value))
+  (declare (clx-values name-list value))
   (do ((i start)
        (end (or end (length string)))
        (term)
@@ -565,7 +561,7 @@
   (declare (type resource-database database)
 	   (type (or pathname string stream) pathname)
 	   (type (or null (function (string stream) t)) write)
-	   (type (or null (function (list t) boolean))
+	   (type (or null (function (list t) generalized-boolean))
                  test test-not))
   (resource-with-open-file (stream pathname :direction :output)
     (map-resource
@@ -599,9 +595,9 @@
   (declare (type resource-database database)
 	   (type window window)
 	   (type (or null (function (string) t)) key)
-	   (type (or null (function (list t) boolean))
+	   (type (or null (function (list t) generalized-boolean))
                  test test-not))
-  (declare (values resource-database))
+  (declare (clx-values resource-database))
   (let ((string (get-property window :RESOURCE_MANAGER :type :STRING
 			      :result-type 'string
 			      :transform #'xlib::card8->char)))
@@ -619,7 +615,7 @@
   (declare (type resource-database database)
 	   (type window window)
 	   (type (or null (function (string stream) t)) write)
-	   (type (or null (function (list t) boolean))
+	   (type (or null (function (list t) generalized-boolean))
                  test test-not))
   (xlib::set-string-property
     window :RESOURCE_MANAGER
@@ -642,8 +638,8 @@
   (declare (type (or screen display) screen)
 	   (type (or null resource-database) database)
 	   (type (or null (function (string) t)) key)
-	   (type (or null (function (list t) boolean)) test test-not)
-	   (values resource-database))
+	   (type (or null (function (list t) generalized-boolean)) test test-not)
+	   (clx-values resource-database))
   (let* ((screen (if (type? screen 'display)
 		     (display-default-screen screen)
 		   screen))
@@ -663,9 +659,9 @@
 
   (declare (type (or screen display) screen)
 	(type (or null resource-database) database)
-	(type (or null (function (list t) boolean)) test test-not)
+	(type (or null (function (list t) generalized-boolean)) test test-not)
 	(type (or null (function (string stream) t)) write)
-	(values resource-database))
+	(clx-values resource-database))
   (let* ((screen (if (type? screen 'display)
 		     (display-default-screen screen)
 		   screen))
@@ -674,7 +670,9 @@
 		      :write write :test test :test-not test-not)
     database))
 
-(defsetf root-resources set-root-resources)
+(defsetf root-resources (screen &key test test-not (write #'princ))(database)
+  `(set-root-resources
+    ,screen :test ,test :test-not ,test-not :write ,write :database ,database))
 
 (defun initialize-resource-database (display)
   ;; This function is (supposed to be) equivalent to the Xlib initialization
@@ -685,7 +683,7 @@
     ;; First read the server defaults if present, otherwise from the default
     ;; resource file
     (if (get-property rootwin :RESOURCE_MANAGER)
-	(wm-resources rdb rootwin)
+	(xlib:wm-resources rdb rootwin)
       (let ((path (default-resources-pathname)))
 	(when (and path (probe-file path))
 	  (read-resources rdb path))))

@@ -82,19 +82,28 @@
 
 (pushnew :clx *features*)
 (pushnew :xlib *features*)
-(provide :clx)                  ; clue expects this
+(setf *features* (remove :no-clx *features*))
 
-(defparameter *version* "MIT R5.0")
+(defparameter *version* "MIT R5.02")
 (pushnew :clx-mit-r4 *features*)
 (pushnew :clx-mit-r5 *features*)
 
 (defparameter *protocol-major-version* 11.)
 (defparameter *protocol-minor-version* 0)
 
-(defparameter *x-tcp-port* 6000) ;; add display number
+(defparameter *x-tcp-port*+ 6000) ;; add display number
 
-; Note: various perversions of the CL type system are used below.
-; Examples: (list elt-type) (sequence elt-type)
+(defparameter *protocol-families*
+  '(;; X11/X.h, Family*
+    (:internet . 0)
+    (:decnet . 1)
+    (:chaos . 2)
+    ;; X11/Xauth.h "not part of X standard"
+    (:Local . 256)
+    (:Wild . 65535)
+    (:Netname . 254)
+    (:Krb5Principal . 253)
+    (:LocalHost . 252)))
 
 ;; Note: if you have read the Version 11 protocol document or C Xlib manual, most of
 ;; the relationships should be fairly obvious.  We have no intention of writing yet
@@ -125,25 +134,25 @@
 ;  ;; cache-p true.
 ;  (declare (type display display)
 ;	   (type integer resource-id)
-;	   (values <mumble>)))
+;	   (clx-values <mumble>)))
 
 ;(defun <mumble>-display (<mumble>)
 ;  (declare (type <mumble> <mumble>)
-;	   (values display)))
+;	   (clx-values display)))
 
 ;(defun <mumble>-id (<mumble>)
 ;  (declare (type <mumble> <mumble>)
-;	   (values integer)))
+;	   (clx-values integer)))
 
 ;(defun <mumble>-equal (<mumble>-1 <mumble>-2)
 ;  (declare (type <mumble> <mumble>-1 <mumble>-2)))
 
 ;(defun <mumble>-p (<mumble>-1 <mumble>-2)
 ;  (declare (type <mumble> <mumble>-1 <mumble>-2)
-;	   (values boolean)))
+;	   (clx-values boolean)))
 
-#-CLISP
-(deftype boolean () '(or null (not null)))
+
+(deftype generalized-boolean () 't)	; (or null (not null))
 
 (deftype card32 () '(unsigned-byte 32))
 
@@ -163,20 +172,6 @@
 
 (deftype card4 () '(unsigned-byte 4))
 
-#-(or clx-ansi-common-lisp cmu16 CLISP)
-(deftype real (&optional (min '*) (max '*))
-  (labels ((convert (limit floatp)
-	     (typecase limit
-	       (number (if floatp (float limit 0s0) (rational limit)))
-	       (list (map 'list #'convert limit))
-	       (otherwise limit))))
-    `(or (float ,(convert min t) ,(convert max t))
-	 (rational ,(convert min nil) ,(convert max nil)))))
-
-#-(or clx-ansi-common-lisp cmu CLISP)
-(deftype base-char ()
-  'string-char)
-
 ; Note that we are explicitly using a different rgb representation than what
 ; is actually transmitted in the protocol.
 
@@ -185,7 +180,23 @@
 ; Note that we are explicitly using a different angle representation than what
 ; is actually transmitted in the protocol.
 
-(deftype angle () '(real #.(* -2 pi) #.(* 2 pi)))
+;;; From cmucl clx:
+;;;
+;;; This overrides the (probably incorrect) definition in clx.lisp.  Since PI
+;;; is irrational, there can't be a precise rational representation.  In
+;;; particular, the different float approximations will always be /=.  This
+;;; causes problems with type checking, because people might compute an
+;;; argument in any precision.  What we do is discard all the excess precision
+;;; in the value, and see if the protocal encoding falls in the desired range
+;;; (64'ths of a degree.)
+;;;
+(deftype angle () '(satisfies anglep))
+
+(defun anglep (x)
+  (and (typep x 'real)
+       (<= (* -360 64)
+           (radians->int16 x)
+           (* 360 64))))
 
 (deftype mask32 () 'card32)
 
@@ -222,23 +233,41 @@
 
 (defun make-color (&key (red 1.0) (green 1.0) (blue 1.0) &allow-other-keys)
   (declare (type rgb-val red green blue))
-  (declare (values color))
+  (declare (clx-values color))
   (make-color-internal red green blue))
 
 (defun color-rgb (color)
   (declare (type color color))
-  (declare (values red green blue))
+  (declare (clx-values red green blue))
   (values (color-red color) (color-green color) (color-blue color)))
 
-(def-clx-class (bitmap-format (:copier nil))
+(def-clx-class (bitmap-format (:copier nil) (:print-function print-bitmap-format))
   (unit 8 :type (member 8 16 32))
   (pad 8 :type (member 8 16 32))
-  (lsb-first-p nil :type boolean))
+  (lsb-first-p nil :type generalized-boolean))
 
-(def-clx-class (pixmap-format (:copier nil))
+(defun print-bitmap-format (bitmap-format stream depth)
+  (declare (type bitmap-format bitmap-format)
+	   (ignore depth))
+  (print-unreadable-object (bitmap-format stream :type t)
+    (format stream "unit ~D pad ~D ~:[M~;L~]SB first"
+	    (bitmap-format-unit bitmap-format)
+	    (bitmap-format-pad bitmap-format)
+	    (bitmap-format-lsb-first-p bitmap-format))))
+
+(def-clx-class (pixmap-format (:copier nil) (:print-function print-pixmap-format))
   (depth 0 :type image-depth)
   (bits-per-pixel 8 :type (member 1 4 8 16 24 32))
   (scanline-pad 8 :type (member 8 16 32)))
+
+(defun print-pixmap-format (pixmap-format stream depth)
+  (declare (type pixmap-format pixmap-format)
+	   (ignore depth))
+  (print-unreadable-object (pixmap-format stream :type t)
+    (format stream "depth ~D bits-per-pixel ~D scanline-pad ~D"
+	    (pixmap-format-depth pixmap-format)
+	    (pixmap-format-bits-per-pixel pixmap-format)
+	    (pixmap-format-scanline-pad pixmap-format))))
 
 (defparameter *atom-cache-size* 200)
 (defparameter *resource-id-map-size* 500)
@@ -283,7 +312,7 @@
   (roots nil :type list)			; List of screens
   (motion-buffer-size 0 :type card32)		; size of motion buffer
   (xdefaults)					; contents of defaults from server
-  (image-lsb-first-p nil :type boolean)
+  (image-lsb-first-p nil :type generalized-boolean)
   (bitmap-format (make-bitmap-format)		; Screen image info
 		 :type bitmap-format)
   (pixmap-formats nil :type sequence)		; list of pixmap formats
@@ -292,7 +321,7 @@
   (error-handler 'default-error-handler)	; Error handler function
   (close-down-mode :destroy)  			; Close down mode saved by Set-Close-Down-Mode
   (authorization-name "" :type string)
-  (authorization-data "" :type string)
+  (authorization-data "" :type (or (array (unsigned-byte 8)) string))
   (last-width nil :type (or null card29))	; Accumulated width of last string
   (keysym-mapping nil				; Keysym mapping cached from server
 		  :type (or null (array * (* *))))
@@ -304,7 +333,7 @@
   (event-extensions '#() :type vector)		; Vector mapping X event-codes to event keys
   (performance-info)				; Hook for gathering performance info
   (trace-history)				; Hook for debug trace
-  (plist)					; hook for extension to hang data
+  (plist nil :type list)			; hook for extension to hang data
   ;; These slots are used to manage multi-process input.
   (input-in-progress nil)			; Some process reading from the stream.
 						; Updated with CONDITIONAL-STORE.
@@ -334,8 +363,7 @@
 (defun print-display-name (display stream)
   (declare (type (or null display) display))
   (cond (display
-	 #-allegro (princ (display-host display) stream)
-	 #+allegro (write-string (string (display-host display)) stream)
+	 (princ (display-host display) stream)
 	 (write-string ":" stream)
 	 (princ (display-display display) stream))
 	(t
@@ -437,7 +465,7 @@
 
 (deftype xatom () '(or string symbol))
 
-(defconstant *predefined-atoms*
+(defparameter *predefined-atoms*
 	     '#(nil :PRIMARY :SECONDARY :ARC :ATOM :BITMAP
 		    :CARDINAL :COLORMAP :CURSOR
 		    :CUT_BUFFER0 :CUT_BUFFER1 :CUT_BUFFER2 :CUT_BUFFER3
@@ -467,7 +495,7 @@
 
 (deftype timestamp () '(or null card32))
 
-(defconstant *bit-gravity-vector*
+(defparameter *bit-gravity-vector*
 	     '#(:forget :north-west :north :north-east :west
 		:center :east :south-west :south
 		:south-east :static))
@@ -476,7 +504,7 @@
   '(member :forget :north-west :north :north-east :west
 	   :center :east :south-west :south :south-east :static))
 
-(defconstant *win-gravity-vector*
+(defparameter *win-gravity-vector*
 	     '#(:unmap :north-west :north :north-east :west
 		:center :east :south-west :south :south-east
 		:static))
@@ -493,6 +521,9 @@
 (deftype alist (key-type-and-name datum-type-and-name)
   (declare (ignore key-type-and-name datum-type-and-name))
   'list)
+
+(deftype clx-list (&optional element-type) (declare (ignore element-type)) 'list)
+(deftype clx-sequence (&optional element-type) (declare (ignore element-type)) 'sequence)
 
 ; A sequence, containing zero or more repetitions of the given elements,
 ; with the elements expressed as (type name).
@@ -516,11 +547,11 @@
   (id 0 :type resource-id)
   (display nil :type (or null display))
   (drawable nil :type (or null drawable))
-  (cache-p t :type boolean)
+  (cache-p t :type generalized-boolean)
   (server-state (allocate-gcontext-state) :type gcontext-state)
   (local-state (allocate-gcontext-state) :type gcontext-state)
   (plist nil :type list)			; Extension hook
-  (next nil #-explorer :type #-explorer (or null gcontext))
+  (next nil :type (or null gcontext))
   )
 
 (defun print-gcontext (gcontext stream depth)
@@ -531,7 +562,7 @@
     (write-string " " stream)
     (prin1 (gcontext-id gcontext) stream)))
 
-(defconstant *event-mask-vector*
+(defparameter *event-mask-vector*
 	     '#(:key-press :key-release :button-press :button-release
 		:enter-window :leave-window :pointer-motion :pointer-motion-hint
 		:button-1-motion :button-2-motion :button-3-motion :button-4-motion
@@ -548,9 +579,9 @@
 	   :focus-change :property-change :colormap-change :keymap-state))
 
 (deftype event-mask ()
-  '(or mask32 list)) ;; (OR integer (LIST event-mask-class))
+  '(or mask32 (clx-list event-mask-class)))
 
-(defconstant *pointer-event-mask-vector*
+(defparameter *pointer-event-mask-vector*
 	     '#(%error %error :button-press :button-release
 		:enter-window :leave-window :pointer-motion :pointer-motion-hint
 		:button-1-motion :button-2-motion :button-3-motion :button-4-motion
@@ -563,9 +594,9 @@
 	   :button-5-motion :button-motion :keymap-state))
 
 (deftype pointer-event-mask ()
-  '(or mask32 list)) ;;  '(or integer (list pointer-event-mask-class)))
+  '(or mask32 (clx-list pointer-event-mask-class)))
 
-(defconstant *device-event-mask-vector*
+(defparameter *device-event-mask-vector*
 	     '#(:key-press :key-release :button-press :button-release :pointer-motion
 		:button-1-motion :button-2-motion :button-3-motion :button-4-motion
 		:button-5-motion :button-motion))
@@ -576,9 +607,9 @@
 	   :button-5-motion :button-motion))
 
 (deftype device-event-mask ()
-  '(or mask32 list)) ;;  '(or integer (list device-event-mask-class)))
+  '(or mask32 (clx-list device-event-mask-class)))
 
-(defconstant *state-mask-vector*
+(defparameter *state-mask-vector*
 	     '#(:shift :lock :control :mod-1 :mod-2 :mod-3 :mod-4 :mod-5
 		:button-1 :button-2 :button-3 :button-4 :button-5))
 
@@ -586,12 +617,12 @@
   '(member :shift :lock :control :mod-1 :mod-2 :mod-3 :mod-4 :mod-5))
 
 (deftype modifier-mask ()
-  '(or (member :any) mask16 list)) ;;  '(or (member :any) integer (list modifier-key)))
+  '(or (member :any) mask16 (clx-list modifier-key)))
 
 (deftype state-mask-key ()
   '(or modifier-key (member :button-1 :button-2 :button-3 :button-4 :button-5)))
 
-(defconstant *gcontext-components*
+(defparameter *gcontext-components*
 	     '(:function :plane-mask :foreground :background
 	       :line-width :line-style :cap-style :join-style :fill-style
 	       :fill-rule :tile :stipple :ts-x :ts-y :font :subwindow-mode
@@ -622,7 +653,7 @@
 (deftype draw-direction ()
   '(member :left-to-right :right-to-left))
 
-(defconstant *boole-vector*
+(defparameter *boole-vector*
 	     '#(#.boole-clr #.boole-and #.boole-andc2 #.boole-1
 		#.boole-andc1 #.boole-2 #.boole-xor #.boole-ior
 		#.boole-nor #.boole-eqv #.boole-c2 #.boole-orc2
@@ -640,7 +671,7 @@
   (height 0 :type card16)
   (width-in-millimeters 0 :type card16)
   (height-in-millimeters 0 :type card16)
-  (depths nil :type (alist (image-depth depth) ((list visual-info) visuals)))
+  (depths nil :type (alist (image-depth depth) ((clx-list visual-info) visuals)))
   (root-depth 1 :type image-depth)
   (root-visual-info nil :type (or null visual-info))
   (default-colormap nil :type (or null colormap))
@@ -649,7 +680,7 @@
   (min-installed-maps 1 :type card16)
   (max-installed-maps 1 :type card16)
   (backing-stores :never :type (member :never :when-mapped :always))
-  (save-unders-p nil :type boolean)
+  (save-unders-p nil :type generalized-boolean)
   (event-mask-at-open 0 :type mask32)
   (plist nil :type list)			; Extension hook
   )
@@ -674,7 +705,7 @@
 
 (defun screen-root-visual (screen)
   (declare (type screen screen)
-	   (values resource-id))
+	   (clx-values resource-id))
   (visual-info-id (screen-root-visual-info screen)))
 
 ;; The list contains alternating keywords and integers.
@@ -688,7 +719,7 @@
   (max-byte1 0 :type card8)   ;; and specify min&max values for
   (min-byte2 0 :type card8)   ;; the two character bytes
   (max-byte2 0 :type card8)
-  (all-chars-exist-p nil :type boolean)
+  (all-chars-exist-p nil :type generalized-boolean)
   (default-char 0 :type card16)
   (min-bounds nil :type (or null vector))
   (max-bounds nil :type (or null vector))
@@ -704,7 +735,7 @@
   (name "" :type (or null string)) ;; NIL when ID is for a GContext
   (font-info-internal nil :type (or null font-info))
   (char-infos-internal nil :type (or null (simple-array int16 (*))))
-  (local-only-p t :type boolean) ;; When T, always calculate text extents locally
+  (local-only-p t :type generalized-boolean) ;; When T, always calculate text extents locally
   (plist nil :type list)			; Extension hook
   )
 
@@ -753,7 +784,7 @@
 
 ;(defun font-<name> (font)
 ;  (declare (type font font)
-;	   (values <type>)))
+;	   (clx-values <type>)))
 
 (macrolet ((make-font-info-accessors (useless-name &body fields)
 	     `(within-definition (,useless-name make-font-info-accessors)
@@ -765,7 +796,7 @@
 			       (accessor (xintern 'font-info- n)))
 			  `(defun ,name (font)
 			     (declare (type font font))
-			     (declare (values ,type))
+			     (declare (clx-values ,type))
 			     (,accessor (font-font-info font)))))
 		    fields))))
   (make-font-info-accessors ignore
@@ -776,7 +807,7 @@
     (max-byte1 card8)
     (min-byte2 card8)
     (max-byte2 card8)
-    (all-chars-exist-p boolean)
+    (all-chars-exist-p generalized-boolean)
     (default-char card16)
     (min-bounds vector)
     (max-bounds vector)
@@ -787,7 +818,7 @@
 (defun font-property (font name)
   (declare (type font font)
 	   (type keyword name))
-  (declare (values (or null int32)))
+  (declare (clx-values (or null int32)))
   (getf (font-properties font) name))
 
 (macrolet ((make-mumble-equal (type)
@@ -823,7 +854,7 @@
   ;; Returns NIL when KEY-LIST is not a list or mask.
   (declare (type (simple-array keyword (*)) key-vector)
 	   (type (or mask32 list) key-list))
-  (declare (values (or mask32 null)))
+  (declare (clx-values (or mask32 null)))
   (typecase key-list
     (mask32 key-list)
     (list (let ((mask 0))
@@ -836,7 +867,7 @@
 (defun decode-mask (key-vector mask)
   (declare (type (simple-array keyword (*)) key-vector)
 	   (type mask32 mask))
-  (declare (values list))
+  (declare (clx-values list))
   (do ((m mask (ash m -1))
        (bit 0 (1+ bit))
        (len (length key-vector))
@@ -850,57 +881,57 @@
 
 (defun encode-event-mask (event-mask)
   (declare (type event-mask event-mask))
-  (declare (values mask32))
+  (declare (clx-values mask32))
   (or (encode-mask *event-mask-vector* event-mask 'event-mask-class)
       (x-type-error event-mask 'event-mask)))
 
 (defun make-event-mask (&rest keys)
   ;; This is only defined for core events.
   ;; Useful for constructing event-mask, pointer-event-mask, device-event-mask.
-  (declare (type list keys)) ;; (list event-mask-class)
-  (declare (values mask32))
+  (declare (type (clx-list event-mask-class) keys))
+  (declare (clx-values mask32))
   (encode-mask *event-mask-vector* keys 'event-mask-class))
 
 (defun make-event-keys (event-mask)
   ;; This is only defined for core events.
   (declare (type mask32 event-mask))
-  (declare (values (list event-mask-class)))
+  (declare (clx-values (clx-list event-mask-class)))
   (decode-mask *event-mask-vector* event-mask))
 
 (defun encode-device-event-mask (device-event-mask)
   (declare (type device-event-mask device-event-mask))
-  (declare (values mask32))
+  (declare (clx-values mask32))
   (or (encode-mask *device-event-mask-vector* device-event-mask
 		   'device-event-mask-class)
       (x-type-error device-event-mask 'device-event-mask)))
 
 (defun encode-modifier-mask (modifier-mask)
-  (declare (type modifier-mask modifier-mask)) ;; (list state-mask-key)
-  (declare (values mask16))
-  (or (encode-mask *state-mask-vector* modifier-mask 'modifier-key)
-      (and (eq modifier-mask :any) #x8000)
+  (declare (type modifier-mask modifier-mask))
+  (declare (clx-values mask16))
+  (or (and (eq modifier-mask :any) #x8000)
+      (encode-mask *state-mask-vector* modifier-mask 'modifier-key)
       (x-type-error modifier-mask 'modifier-mask)))
 
 (defun encode-state-mask (state-mask)
-  (declare (type (or mask16 list) state-mask)) ;; (list state-mask-key)
-  (declare (values mask16))
+  (declare (type (or mask16 (clx-list state-mask-key)) state-mask))
+  (declare (clx-values mask16))
   (or (encode-mask *state-mask-vector* state-mask 'state-mask-key)
-      (x-type-error state-mask '(or mask16 (list state-mask-key)))))
+      (x-type-error state-mask '(or mask16 (clx-list state-mask-key)))))
 
 (defun make-state-mask (&rest keys)
   ;; Useful for constructing modifier-mask, state-mask.
-  (declare (type list keys)) ;; (list state-mask-key)
-  (declare (values mask16))
+  (declare (type (clx-list state-mask-key) keys))
+  (declare (clx-values mask16))
   (encode-mask *state-mask-vector* keys 'state-mask-key))
 
 (defun make-state-keys (state-mask)
   (declare (type mask16 state-mask))
-  (declare (values (list state-mask-key)))
+  (declare (clx-values (clx-list state-mask-key)))
   (decode-mask *state-mask-vector* state-mask))
 
 (defun encode-pointer-event-mask (pointer-event-mask)
   (declare (type pointer-event-mask pointer-event-mask))
-  (declare (values mask32))
+  (declare (clx-values mask32))
   (or (encode-mask *pointer-event-mask-vector* pointer-event-mask
 		   'pointer-event-mask-class)
       (x-type-error pointer-event-mask 'pointer-event-mask)))

@@ -1,5 +1,26 @@
 2004-04-13  Sam Steingold  <sds@gnu.org>
 
+	sync modules/clx/mit-clx/ with CLOCC/GUI/CLX
+	* link.sh (TO_LOAD): added shape and split-sequence
+	* Makefile (ALLLISP, ALLFAS): ditto
+	* Makefile.clisp, Makefile.gcl, README.GCL, akcl_dep.lisp:
+	* build-clx.lisp, exclcmac.lisp, excldefsys.lisp, excldep.c:
+	* excldep.lisp, exclMakefile, exclREADME, fix-socket.c:
+	* generalock.lisp, sysdef.lisp, kcl-compiler-patches.lisp:
+	* kcl-patches.lisp, kcl-system-patches.lisp, makefile.akcl:
+	* ms-patch.uu, provide.lisp, sockcl.lisp, socket.c:
+	* sys-package.lisp, sys-proclaim.lisp: removed
+	* doc.lisp-doc: renamed to doc.lisp
+	* shape.lisp, split-sequence.lisp: added
+	* attributes.lisp, buffer.lisp, bufmac.lisp, clx.lisp:
+	* defsystem.lisp, depdefs.lisp, dependent.lisp, describe.lisp:
+	* display.lisp, fonts.lisp, gcontext.lisp, graphics.lisp:
+	* image.lisp, input.lisp, keysyms.lisp, macros.lisp, manager.lisp:
+	* package.lisp, requests.lisp, resource.lisp, text.lisp, trace.lisp:
+	* translate.lisp: sync with CLOCC
+
+2004-04-13  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (view-man, view-html): man pages are in doc
 
 2004-04-04  Bruno Haible  <bruno@clisp.org>
