@@ -1563,7 +1563,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
               objptr++;
             });
         }
-        TheSstring(O(null_string))->data[0] = 0; # Nullbyte in den Null-String einfügen
         Car(O(top_decl_env)) = O(declaration_types); # Toplevel-Deklarations-Environment bauen
       }
   # Zu-Fuß-Initialisierung aller LISP-Daten:
