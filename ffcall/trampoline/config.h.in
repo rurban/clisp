@@ -89,12 +89,6 @@
 /* CL_MMAP */
 /* Define if you have <sys/mman.h> and the mmap() function. */
 #undef HAVE_MMAP
-/* Define as the return type of mmap(). */
-#undef RETMMAPTYPE
-/* Define as the type of `addr' in mmap() declaration. */
-#undef MMAP_ADDR_T
-/* Define as the type of `len' in mmap() declaration. */
-#undef MMAP_SIZE_T
 /* Define if <sys/mman.h> defines MAP_ANON and mmaping with MAP_ANON works. */
 #undef HAVE_MMAP_ANON
 /* Define if <sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_ANONYMOUS
