@@ -1211,6 +1211,8 @@ int main(int argc, char* argv[])
   printf("extern uintL vector_length (object vector);\n");
   printf("#define simple_nilarray_p(obj)  nullp(obj)\n");
   printf("nonreturning_function(extern, fehler_nilarray_retrieve, (void));\n");
+  printf("extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);\n");
+  printf("extern void array_rank (object array);\n");
 #ifdef TYPECODES
   printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
 #else
