@@ -433,9 +433,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
                 # vgl. list.d:deleteq()
                 var object alist1 = alist;
                 var object alist2 = alist;
-                loop {
-                  if (atomp(alist2))
-                    break;
+                while (consp(alist2)) {
                   if (eq(Cdr(Cdr(Cdr(Car(alist2)))),fixnum(index))) {
                     if (eq(alist2,alist)) {
                       alist2 = alist1 = Cdr(alist2);
