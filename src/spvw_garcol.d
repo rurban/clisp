@@ -1692,7 +1692,7 @@ local void gc_unmarkcheck (void) {
           #define update_unrealloc  true
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
-          #define update_ht_invalid  mark_ht_invalid
+          #define update_ht_invalid  set_ht_invalid
           #define update_ss_unrealloc  mark_sstring_clean
           #define update_in_unrealloc  mark_inst_clean
           #define update_fp_invalid  mark_fp_invalid
@@ -2247,7 +2247,7 @@ local void gc_unmarkcheck (void) {
           #define update_unrealloc  false
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
-          #define update_ht_invalid  mark_ht_invalid
+          #define update_ht_invalid  set_ht_invalid
           #define update_ss_unrealloc(ptr)
           #define update_in_unrealloc(ptr)
           #define update_fp_invalid  mark_fp_invalid
@@ -2452,7 +2452,7 @@ local void gc_unmarkcheck (void) {
           #define update_unrealloc  false
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
-          #define update_ht_invalid  mark_ht_invalid
+          #define update_ht_invalid  set_ht_invalid
           #define update_ss_unrealloc(ptr)
           #define update_in_unrealloc(ptr)
           #define update_fp_invalid  mark_fp_invalid
