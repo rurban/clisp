@@ -1,3 +1,9 @@
+1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (strm_keyboard_len): Define as strm_len, not 0.
+          (make_keyboard_stream): Don't add strm_len to strm_keyboard_len, it
+          is already included.
+
 1999-06-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (malloc, free): Remove declarations.

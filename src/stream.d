@@ -8169,7 +8169,7 @@ LISPFUNN(file_stream_p,1)
   #define strm_keyboard_xlen  sizeof(strm_unbuffered_extrafields_struct)
 #else
   # Keine zusätzlichen Komponenten.
-  #define strm_keyboard_len  0
+  #define strm_keyboard_len  strm_len
   #define strm_keyboard_xlen  0
 #endif
 
@@ -9292,7 +9292,7 @@ local object make_key_event(event)
      #endif
      {# neuen Stream allozieren:
       var object stream =
-        allocate_stream(strmflags_rd_ch_B,strmtype_keyboard,strm_len+strm_keyboard_len,strm_keyboard_xlen);
+        allocate_stream(strmflags_rd_ch_B,strmtype_keyboard,strm_keyboard_len,strm_keyboard_xlen);
         # Flags: nur READ-CHAR erlaubt
       # und füllen:
       var Stream s = TheStream(stream);
