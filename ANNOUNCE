@@ -1,15 +1,18 @@
 This is CLISP, a Common Lisp implementation.
 
-CLISP is mostly CLtL2 / ANSI CL compliant, including a CLOS implementation.
+CLISP is mostly ANSI CL compliant, including a CLOS implementation.
 
 
 FTP resources
 =============
 
-CLISP is available via anonymous ftp from ftp2.cons.org, directory
+CLISP is available via anonymous ftp from clisp.cons.org, directory
 /pub/lisp/clisp/.
 
-This directory is mirrored by the following FTP site:
+This directory is mirrored by the following FTP sites:
+  USA:
+     ftp.freesoftware.com [209.155.82.20]
+       /pub/lisp/clisp
   Europe:
      ftp.hrz.tu-darmstadt.de [130.83.47.112]
        /pub/programming/languages/lisp/clisp
@@ -32,21 +35,27 @@ WWW resources
 * About CLISP:
 
   Homepage
+  http://clisp.cons.org/
+  [Sam Steingold]
+
+  Old homepage
   http://clisp.cons.org/~haible/clisp.html
   [Bruno Haible]
 
   Source
-  ftp://ftp2.cons.org/pub/lisp/clisp/source/
-  http://clisp.cons.org/~haible/clisp/source/
+  ftp://clisp.cons.org/pub/lisp/clisp/source/
   [Bruno Haible]
+
+  Source and current development stuff
+  ftp://clisp.sourceforge.net/pub/clisp/
+  [Sam Steingold, Bruno Haible]
 
   Current development snapshot (may or may not work!)
   ftp://cellar.goems.com/pub/clisp/
   [Sam Steingold]
 
   Binaries for different Unix, DOS, OS/2, Win32, Amiga, Acorn platforms
-  ftp://ftp2.cons.org/pub/lisp/clisp/binaries/
-  http://clisp.cons.org/~haible/clisp/binaries/
+  ftp://clisp.cons.org/pub/lisp/clisp/binaries/
   [Bruno Haible]
 
   Binaries for i386-linux also at
@@ -93,10 +102,8 @@ WWW resources
 * About packages running in CLISP:
 
   Various packages in
-  ftp://ftp2.cons.org/pub/lisp/clisp/packages/
-  ftp://ftp2.cons.org/pub/lisp/clisp/contrib/
-  http://clisp.cons.org/~haible/clisp/packages/
-  http://clisp.cons.org/~haible/clisp/contrib/
+  ftp://clisp.cons.org/pub/lisp/clisp/packages/
+  ftp://clisp.cons.org/pub/lisp/clisp/contrib/
   [Bruno Haible]
 
   Garnet 3.0
@@ -121,32 +128,12 @@ WWW resources
   http://store.yahoo.com
   [Paul Graham <pg@yahoo-inc.com>]
 
-* To access URLs...
-
-  Netscape Navigator is recommended. It is free of charge. Alternative WWW
-  browsers are:
-
-  Lynx (terminal):              ftp2.cc.ukans.edu:/pub/lynx
-  Mosaic (X Window/Motif):      ftp.ncsa.uiuc.edu:/Web/Mosaic/Unix
-  Amaya (X Window):             ftp.w3.org:/pub/amaya
-  Arena (X Window):             ftp-eu.w3.org:/pub/Arena and
-                                ftp.yggdrasil.com:/pub/dist/web/arena
-  Chimera (X Window/non-Motif): ftp.cs.unlv.edu:/pub/chimera
-  W3 (Emacs):                   ftp.cs.indiana.edu:/pub/elisp/w3
-  OmniWeb (NEXTSTEP):     next-ftp.peak.org:/pub/next/apps/internet/www/OmniWeb
-
 
 Mailing list
 ============
 
-There is a mailing list for users of CLISP. It is the proper forum for
-questions about CLISP, installation problems, bug reports, application
-packages etc.
-For information about the list and how to subscribe it, send mail to
-listproc@clisp.cons.org, with the two lines
-          help
-          information clisp-list
-in the message body.
+There are three mailing list for users of CLISP. You find subscription
+information and archives on the homepage http://clisp.cons.org/.
 
 
 -------------------------------------------------------------------------------
