@@ -1,3 +1,9 @@
+2004-05-23  Bruno Haible  <bruno@clisp.org>
+
+	Make SPVW_MIXED_BLOCKS_STAGGERED work with LINUX_NOEXEC_HEAPCODES.
+	* lispbibl.d (nonimmediate_heapnr) [HEAPCODES]: New macro.
+	* spvw_genera1.d (rebuild_old_generation_cache): Use it.
+
 2004-05-22  Bruno Haible  <bruno@clisp.org>
 
 	Make DEBUG_GCSAFETY work with LINUX_NOEXEC_HEAPCODES.

@@ -908,7 +908,7 @@ local uintC generation;
             #else
                #define cache_at(obj)  \
                 { if (!gcinvariant_object_p(obj))                               \
-                    if (!in_old_generation(obj,,(as_oint(obj)>>1)&1)) {         \
+                    if (!in_old_generation(obj,,nonimmediate_heapnr(obj))) {    \
                       # obj is a pointer into the new generation -> memorize    \
                       cache_ptr->p = &(obj); cache_ptr->o = (obj); cache_ptr++; \
                     }                                                           \

@@ -3077,6 +3077,10 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       #define gcinvariant_bias_p(bias)  \
         ((((bias) & 1) == 0) || ((7 & ~(bias)) == 0))
 
+    # The heap of a heap allocated object. 0 for varobjects, 1 for conses.
+      #define nonimmediate_heapnr(obj)  \
+        ((as_oint(obj) >> 1) & 1)
+
   #endif # STANDARD_HEAPCODES
 
   #ifdef LINUX_NOEXEC_HEAPCODES
@@ -3166,6 +3170,10 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     # Test for gc-invariant object, given only the bias.
       #define gcinvariant_bias_p(bias)  \
         (((bias) & 2) == 0)
+
+    # The heap of a heap allocated object. 0 for varobjects, 1 for conses.
+      #define nonimmediate_heapnr(obj)  \
+        (1 & ~(as_oint(obj) >> 2))
 
   #endif # LINUX_NOEXEC_HEAPCODES
 
