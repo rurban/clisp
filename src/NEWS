@@ -55,6 +55,7 @@ User visible changes
     - checking for duplicate variables in iteration clauses;
   + sequence functions (MAP, LENGTH and such) no longer accept dotted lists
     and treat NULL as LIST of length 0 and CONS as LIST of positive length;
+  + COERCE accepts CLOS class object as a type-spec (second argument);
   + a character is now accepted as a package designator.
 
 * FUNCTION-LAMBDA-EXPRESSION now always returns the correct function name.

@@ -1719,11 +1719,11 @@ global object expand_deftype (object type_spec, bool once_p) {
     posfixnum_to_L(Symbol_value(S(deftype_depth_limit))) :
     posfixnum_to_L(Symbol_value(S(most_positive_fixnum)));
   pushSTACK(type_spec);
-  pushSTACK(TheSubr(subr_self)->name);
  start:
   if (max_depth > 0) max_depth--;
   else { /* too many nested DEFTYPEs */
-    /* type_spec & TheSubr(subr_self)->name are already on the stack */
+    /* type_spec is already on the stack */
+    pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: type definition for ~ exceeds depth limit, maybe recursive"));
   }
   if (symbolp(type_spec)) { /* (GET type-spec 'DEFTYPE-EXPANDER) */
@@ -1747,7 +1747,7 @@ global object expand_deftype (object type_spec, bool once_p) {
       if (!once_p) goto start;
     }
   }
-  skipSTACK(2);
+  skipSTACK(1);
   return type_spec;
 }
 
@@ -1821,6 +1821,7 @@ LISPFUNN(coerce,2)
     VALUES1(STACK_1); skipSTACK(2); return;
   }
   STACK_0 = expand_deftype(STACK_0,false);
+  if_classp(STACK_0, { STACK_0 = TheClass(STACK_0)->classname; },);
   /* stack layout: object, result-type. */
   if (matomp(STACK_0)) {
     if (!symbolp(STACK_0)) goto fehler_type;
@@ -2025,9 +2026,8 @@ LISPFUNN(coerce,2)
     /* type is some other symbol */
   }
  fehler_type:
-  /* due to the TYPEP call, which checks result-type, */
-  /* this should never happen */
-  /* result-type in STACK_0 */
+  /* due to the TYPEP call which checks result-type this should never happen
+     result-type in STACK_0 */
   pushSTACK(S(coerce));
   fehler(error,GETTEXT("~: invalid type specification ~"));
  fehler_object:

@@ -413,3 +413,7 @@ nil
               (equal (multiple-value-list (subtypep 'foo type)) '(nil t)))
   collect type)
 nil
+
+(loop :with class = (find-class 'vector) :for x :in '((1 0) #(1 0) #*10)
+  :for y = (coerce x class) :always (and (equalp y #(1 0)) (vectorp y)))
+t
