@@ -1045,7 +1045,7 @@ LISPFUN(pshared_initialize,2,0,rest,nokey,0,NIL) {
 }
 
 /* UP: call the non-%SHARED-INITIALIZE init function */
-local inline bool call_init_fun (object fun, object last,
+local inline void call_init_fun (object fun, object last,
                                  object* rest_args_pointer, uintC argcount) {
   /* shift initargs in the stack down by 1, then call fun: */
   if (argcount > 0) {
