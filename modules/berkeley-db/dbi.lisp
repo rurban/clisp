@@ -90,9 +90,8 @@
 
 
 ;;; macros (see macros1.lisp for `with-open-file')
-(defmacro with-open-db ((var &rest options) &body forms &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (SYSTEM::PARSE-BODY forms nil env)
+(defmacro with-open-db ((var &rest options) &body forms)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY forms)
     `(LET ((,var (BDB:DB-OPEN ,@options)))
        (DECLARE (READ-ONLY ,var) ,@declarations)
        (UNWIND-PROTECT
