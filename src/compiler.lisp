@@ -12394,7 +12394,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ;; 2. the input file pathname.
 (defun compile-file-pathname-helper (file output-file)
   (let ((input-file
-         (or (and (not (logical-pathname-p file))
+         (or (and (not (logical-pathname-p (pathname file)))
                   (first (search-file file *source-file-types*)))
              (merge-pathnames file (merge-pathnames '#".lisp")))))
     (values
