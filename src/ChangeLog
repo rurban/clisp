@@ -1,13 +1,17 @@
+2003-01-03  Stefan Kain  <stefan.kain@freenet.de>
+
+	* lisparit.d, intelem.d: translated all comments
+
 2003-01-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	* src/makemake.in (init): don't include floatparam.h and
-	intparam.h to init rule for win32.
+	* src/makemake.in (init): do not include floatparam.h and
+	intparam.h in the init rule for win32.
 
 2003-01-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Fix MSVC compilation without libsigsegv
-	* spvw.d (main) [WIN32_NATIVE]: don't init SP_bound when
-	NO_SP_CHECK - SP_bount isn't declared.
+	* spvw.d (main) [WIN32_NATIVE]: do not init SP_bound when
+	NO_SP_CHECK - SP_bount is not declared.
 
 2003-01-02  Sam Steingold  <sds@gnu.org>
 
