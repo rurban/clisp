@@ -179,6 +179,21 @@ and
 
 &imp-ext;
 
+<chapter id="ext-modules"><title>Extensions Implemented as Modules</title>
+&matlab;
+&netica;
+&dirkey;
+&berkeley-db;
+&regexp;
+&pcre;
+&i18n;
+&syscalls;
+&oracle;
+&fastcgi;
+&rawsock;
+&zlib;
+</chapter>
+
 </part>
 
 &imp-byte;
