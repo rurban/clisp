@@ -1571,7 +1571,7 @@ if [ -n "$with_dir_key" ]; then
 fi
 LPARTS=$LPARTS' german'
 if [ "$with_unicode" != "0" ] ; then
-  LPARTS=$LPARTS' french spanish'
+  LPARTS=$LPARTS' french spanish russian'
 fi
 LPARTS=$LPARTS' dutch deprecated config'
 

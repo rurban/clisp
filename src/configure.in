@@ -77,7 +77,7 @@ dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
 AM_ICONV
 dnl USE_NLS CPPFLAGS LIBINTL
 dnl Set of all available languages [this is also a /bin/sh/ command!]
-ALL_LINGUAS="en de fr es nl"
+ALL_LINGUAS="en de fr es nl ru"
 AM_GNU_GETTEXT([external], [need-ngettext])
 dnl
 dnl           checks for compiler characteristics

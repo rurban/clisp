@@ -42,6 +42,9 @@ User visible changes
   non-negative integer to EXT:EXIT.
   See <http://clisp.cons.org/impnotes.html#quit> for details.
 
+* Russian translations of the user interface messages have been added
+  Thanks to Arseny Slobodjuck <ampy@ich.dvo.ru>.
+
 * Fixed a bug: Conversion from bytes to string did not work for the encoding
   (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
                  :INPUT-ERROR-ACTION :IGNORE).
