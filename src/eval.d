@@ -2229,9 +2229,10 @@ LISPFUNN(subr_info,1)
   local void fehler_specialform(caller,funname)
     var object caller;
     var object funname;
-    { pushSTACK(funname);
+    { pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(funname);
       pushSTACK(caller);
-      fehler(error,
+      fehler(undefined_function,
              DEUTSCH ? "~: ~ ist eine Spezialform, keine Funktion." :
              ENGLISH ? "~: ~ is a special form, not a function" :
              FRANCAIS ? "~ : ~ est une forme spéciale et non une fonction." :
@@ -2247,9 +2248,10 @@ LISPFUNN(subr_info,1)
   local void fehler_macro(caller,funname)
     var object caller;
     var object funname;
-    { pushSTACK(funname);
+    { pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(funname);
       pushSTACK(caller);
-      fehler(error, # dpANS sagt: undefined_function ??
+      fehler(undefined_function,
              DEUTSCH ? "~: ~ ist ein Macro und keine Funktion." :
              ENGLISH ? "~: ~ is a macro, not a function" :
              FRANCAIS ? "~ : ~ est une macro et non une fonction." :
