@@ -1460,6 +1460,7 @@ LISPSYM(defstruct_description,"DEFSTRUCT-DESCRIPTION",system) # als Property in 
 LISPSYM(print_object,"PRINT-OBJECT",clos) # als Funktion für IO
 LISPSYM(trace_values,"*TRACE-VALUES*",ext) # als Variable in EVAL
 LISPSYM(setf_function,"SETF-FUNCTION",system) # als Property in EVAL
+LISPSYM(setf_expander,"SETF-EXPANDER",system) # a property in EVAL, CONTROL
 LISPSYM(lambda,"LAMBDA",lisp) # als Marker in EVAL
 LISPSYM(LLoptional,"&OPTIONAL",lisp) # als Lambdalisten-Marker in EVAL
 LISPSYM(LLkey,"&KEY",lisp) # als Lambdalisten-Marker in EVAL
