@@ -1,3 +1,7 @@
+2000-04-04  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        * unix.d (O_BINARY): Undefine on BeOS.
+
 2000-04-03  Martin Atzmueller  <marty@cs.utexas.edu>
 
 	* _impnotes.html: documented the (abbreviated) keyword-commands
