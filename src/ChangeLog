@@ -1,5 +1,9 @@
 1999-01-26  Sam Steingold  <sds@goems.com>
 
+	* Makefile.devel: do not use `utils/move-if-change'.
+
+1999-01-26  Sam Steingold  <sds@goems.com>
+
 	MT-safe get_real_time:
 	* time.d (get_real_time): take pointer argument; no internal
 	statics.
