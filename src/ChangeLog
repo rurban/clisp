@@ -2,6 +2,7 @@
 
 	* po/Makefile.devel (LISPSOURCES): removed `threads' (mentioned
 	twice), added `russian'
+	* Makefile.devel (all): `check-configures', not `configures'
 
 2004-03-10  Sam Steingold  <sds@gnu.org>
 
