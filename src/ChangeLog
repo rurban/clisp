@@ -1,5 +1,14 @@
 1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Prepare for making socket streams either binary or character, not both.
+        * stream.d (SYS::LISTEN-BYTE): New function.
+        * modules/clx/mit-clx/depdefs.lsp (:have-listen-byte): Define
+          conditionally.
+        * modules/clx/mit-clx/dependent.lsp (buffer-read-default): Use
+          sys::listen-byte if available.
+
+1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Handle-streams and socket-streams now use a byte-oriented low-level
         layer.
         * stream.d (clear_tty_input) [AMIGAOS]: Define.

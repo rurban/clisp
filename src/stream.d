@@ -12861,11 +12861,33 @@ LISPFUNN(make_x11socket_stream,2)
      value1 = stream; mv_count=1; # stream als Wert
   }}}
 
+# A general LISTEN-BYTE function would be hairy (at least the case where you
+# want to know whether a multibyte integer is pending, and the stream is
+# unbuffered). For CLX, it is sufficient to deal with a socket stream with
+# element type (UNSIGNED-BYTE 8).
+
+LISPFUNN(listen_byte,1)
+# (SYS::LISTEN-BYTE stream)
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!eq(TheStream(stream)->strm_rd_by,P(rd_by_handle)))
+      { pushSTACK(stream);
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,
+               DEUTSCH ? "~: Stream muss ein Socket-Stream sein, nicht ~" :
+               ENGLISH ? "~: stream must be a socket-stream, not ~" :
+               FRANCAIS ? "~ : Le stream doit être un «socket-stream» et non ~" :
+               ""
+              );
+      }
+    value1 = (ls_avail_p(FileStreamLow_listen(stream)(stream)) ? T : NIL);
+    mv_count=1;
+  }
+
 # Die beiden folgenden Funktionen sollten
 # 1. nicht nur auf Handle- und Socket-Streams, sondern auch auf Synonym-
 #    und Concatenated-Streams funktionieren, idealerweise auch auf File-Streams.
-# 2. das rd_ch_lastchar ebenso verändern wie READ-BYTE.
-# 3. auch nicht-simple Byte-Vektoren akzeptieren.
+# 2. auch nicht-simple Byte-Vektoren akzeptieren.
 # Für CLX reicht aber die vorliegende Implementation.
 
 # (SYS::READ-N-BYTES stream vector start count)
