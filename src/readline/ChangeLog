@@ -1,3 +1,17 @@
+1999-04-03  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
+        * doc/rluserman.texinfo: New file, derived from doc/rlman.texinfo.
+        * doc/Makefile.in (MAKEINFO): Prefix with LANGUAGE=, to force English.
+          (DVIPS): Change -D300 to -D600, to match current printers'
+          resolution.
+          (DVIOBJ): Add rluserman.dvi.
+          (INFOOBJ): Add rluserman.info.
+          (PSOBJ): Add rluserman.ps.
+          (HTMLOBJ): Add rluserman.html.
+          (HTMLTOC): Add rluserman_toc.html.
+          (rluserman.dvi, rluserman.info, rluserman.ps, rluserman.html): New
+          rules.
+
 1999-03-06  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
         Upgrade to readline-4.0.
