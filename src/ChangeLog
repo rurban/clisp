@@ -1,3 +1,7 @@
+2002-03-02  Sam Steingold  <sds@gnu.org>
+
+	* regexp.lisp (with-loop-split): fixed :START/:END
+
 2002-02-27  Sam Steingold  <sds@gnu.org>
 
 	* linux.lisp (wait, waitpid): new C call-outs
