@@ -12,7 +12,7 @@
 # Restores a memory image from diskette.
 # loadmem(filename);
 # This overwrites all Lisp data.
-  local void loadmem (char* filename);
+  local void loadmem (const char* filename);
 
 # ------------------------------ Implementation ------------------------------
 
@@ -731,7 +731,7 @@
       }
     }
   local void loadmem(filename)
-    var char* filename;
+    var const char* filename;
     {
       # File zum Lesen öffnen:
       begin_system_call();
@@ -757,12 +757,12 @@
       if (!strncmp(filename,CYGDRIVE,CYGDRIVE_LEN)) # MS lacks strncasecmp
       #endif
         {
-          uintL len = strlen(filename);
-          filename[0] = filename[CYGDRIVE_LEN];
-          filename[1] = ':';
-          len -= CYGDRIVE_LEN-1;
-          memmove(filename+2,filename+CYGDRIVE_LEN+1,len);
-          filename[len] = 0;
+          var uintL len = asciz_length(filename);
+          var char* newfilename = alloca(len);
+          newfilename[0] = filename[CYGDRIVE_LEN];
+          newfilename[1] = ':';
+          memcpy(newfilename+2,filename+CYGDRIVE_LEN+1,len-CYGDRIVE_LEN);
+          filename = newfilename;
         }
       #undef CYGDRIVE
       #undef CYGDRIVE_LEN
