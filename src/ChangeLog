@@ -1,3 +1,11 @@
+2002-03-09  Peter Wood <peter.wood@worldonline.dk>
+	    Sam Steingold  <sds@gnu.org>
+
+	added signal handling
+	* linux.lisp: interface to <bits/sigset.h>, <bits/sigaction.h>
+	and <signal.h>
+	* wrap.lisp: many wrappers and examples
+
 2002-03-08  Sam Steingold  <sds@gnu.org>
 
 	* bindings/linuxlibc6/wrap.lisp (real-path): linux:realpath does
