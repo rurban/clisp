@@ -35,11 +35,11 @@ an hour of debugging time at least. I will not make this mistake again...
                               Tabs
                               ----
 
-In CLISP source, except for Makefiles, we don't use tabs. This is because
-they have no functional advantage, and make "diff" output harder to read
-and understand. And also, because some editors on Windows have a default
-tab width of 4, whereas on Unix, the common consensus is a tab width of 8.
-If you are using Emacs and want to contribute to CLISP, the best way to
+In CLISP source, except for Makefiles and ChangeLog files, we don't use tabs.
+This is because they have no functional advantage, and make "diff" output
+harder to read and understand. And also, because some editors on Windows have
+a default tab width of 4, whereas on Unix, the common consensus is a tab width
+of 8. If you are using Emacs and want to contribute to CLISP, the best way to
 ensure that you don't send us tabs by mistake is to add the following lines
 to your $HOME/.emacs file:
 
