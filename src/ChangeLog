@@ -1,5 +1,11 @@
 2002-07-29  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 552171 ]: failure with clx.e
+	* modules/clx/new-clx/e2d.c (do_defun): terminate with '\0' after
+	inserting '}'
+
+2002-07-29  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (main): warp all signal handler installations in
 	begin/end_system_call()
 	* spvw_debug.d [DEBUG_SPVW]: added some debugging functions
