@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2002-2004 Sam Steingold, Bruno Haible
+dnl Copyright (C) 2002-2005 Sam Steingold, Bruno Haible
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -9,6 +9,12 @@ dnl the same distribution terms as the rest of that program.
 AC_PREREQ(2.57)
 
 AC_DEFUN([CL_READLINE],[dnl
+AC_ARG_WITH([readline],
+AC_HELP_STRING([--with-readline],[use readline (default is YES, if present)]),
+[ac_cv_use_readline=$withval], [ac_cv_use_readline=yes])
+if test "$ac_cv_use_readline" = "no" ; then
+AC_MSG_NOTICE([not checking for readline])
+else
 AC_REQUIRE([CL_TERMCAP])dnl
 if test $ac_cv_search_tgetent != no ; then
   AC_LIB_LINKFLAGS_BODY(readline)
@@ -47,5 +53,6 @@ if test $ac_cv_search_tgetent != no ; then
       LIBS="$am_save_LIBS"
     fi
   fi
+fi
 fi
 ])
