@@ -7682,19 +7682,21 @@ global Values funcall (object fun, uintC args_on_stack)
         }
         goto next_byte;
       {var object symbol;
+       var object fdef;
 #define CHECK_FDEF()                                                    \
         if (!symbolp(symbol))                                         \
           with_saved_back_trace(L(symbol_function),-1,                \
                                 symbol = check_symbol(symbol));       \
-        if (!boundp(Symbol_function(symbol)))                         \
+        fdef = Symbol_function(symbol);                               \
+        if (!boundp(fdef))                                            \
           /* (symbol may be not the actual function-name, for e.g.    \
              (FUNCTION (SETF FOO)) shows as (SYMBOL-FUNCTION '#:|(SETF FOO)|),\
              but that should be enough for the error message.) */     \
-          Symbol_function(symbol) = check_fdefinition(symbol,S(symbol_function))
+          fdef = check_fdefinition(symbol,S(symbol_function))
       CASE cod_symbol_function:        # (SYMBOL-FUNCTION)
         symbol = value1;
         CHECK_FDEF();
-        VALUES1(Symbol_function(symbol));
+        VALUES1(fdef);
         goto next_byte;
       CASE cod_const_symbol_function:  # (CONST&SYMBOL-FUNCTION n)
         {
@@ -7703,7 +7705,7 @@ global Values funcall (object fun, uintC args_on_stack)
           symbol = TheCclosure(closure)->clos_consts[n];
         }
         CHECK_FDEF();
-        VALUES1(Symbol_function(symbol));
+        VALUES1(fdef);
         goto next_byte;
       CASE cod_const_symbol_function_push: # (CONST&SYMBOL-FUNCTION&PUSH n)
         {
@@ -7712,7 +7714,7 @@ global Values funcall (object fun, uintC args_on_stack)
           symbol = TheCclosure(closure)->clos_consts[n];
         }
         CHECK_FDEF();
-        pushSTACK(Symbol_function(symbol));
+        pushSTACK(fdef);
         goto next_byte;
       CASE cod_const_symbol_function_store: # (CONST&SYMBOL-FUNCTION&STORE n k)
         {
@@ -7724,7 +7726,7 @@ global Values funcall (object fun, uintC args_on_stack)
         {
           var uintL k;
           U_operand(k);
-          STACK_(k) = value1 = Symbol_function(symbol); mv_count=1;
+          STACK_(k) = value1 = fdef; mv_count=1;
         }
         goto next_byte;
       }
