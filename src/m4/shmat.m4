@@ -42,7 +42,7 @@ CL_PROTO_CONST([
 ], [$cl_cv_proto_shmat_ret shmat (int shmid, $cl_cv_proto_shmat_ret shmaddr, int shmflg);],
 [$cl_cv_proto_shmat_ret shmat();], cl_cv_proto_shmat_arg2)
 ], [extern $cl_cv_proto_shmat_ret shmat (int, $cl_cv_proto_shmat_arg2 $cl_cv_proto_shmat_ret, int);])
-AC_DEFINE(RETSHMATTYPE,$cl_cv_proto_shmat_ret,[return type of shmat()])
-AC_DEFINE(SHMAT_CONST,$cl_cv_proto_shmat_arg2,[declaration of shmat() needs const])
+AC_DEFINE_UNQUOTED(RETSHMATTYPE,$cl_cv_proto_shmat_ret,[return type of shmat()])
+AC_DEFINE_UNQUOTED(SHMAT_CONST,$cl_cv_proto_shmat_arg2,[declaration of shmat() needs const])
 fi
 ])

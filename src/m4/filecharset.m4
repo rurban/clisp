@@ -22,28 +22,16 @@ cat > conftest.c <<EOF
 #include "confdefs.h"
 #include <sys/types.h>
 #include <stdlib.h>
+/* Declare chdir(). */
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <string.h>
 #include <stdio.h>
-/* Declare chdir(). */
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int chdir (CHDIR_CONST char* path);
-#else
-int chdir();
-#endif
 /* Declare open(). */
 #include <fcntl.h>
 #ifdef OPEN_NEEDS_SYS_FILE_H
 #include <sys/file.h>
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int open ($cl_cv_proto_open_args);
-#else
-int open();
 #endif
 /* Declare opendir(), readdir(), closedir(). */
 #include <$ac_header_dirent>
@@ -51,24 +39,6 @@ int open();
 #define SDIRENT struct dirent
 #else
 #define SDIRENT struct direct
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-DIR* opendir (OPENDIR_CONST char* dirname);
-#else
-DIR* opendir();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-SDIRENT* readdir (DIR* dirp);
-#else
-SDIRENT* readdir();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETCLOSEDIRTYPE closedir (DIR* dirp);
-#else
-RETCLOSEDIRTYPE closedir();
 #endif
 changequote(,)dnl
 /* A small program which checks for each character whether or not it is
@@ -179,6 +149,6 @@ else
 fi
 AC_MSG_RESULT($cl_cv_os_valid_filename_charset)
 if test -n "$cl_cv_os_valid_filename_char"; then
-  AC_DEFINE(VALID_FILENAME_CHAR,$cl_cv_os_valid_filename_char,[expression in ch which is true if ch is a valid character in filenames])
+  AC_DEFINE_UNQUOTED(VALID_FILENAME_CHAR,$cl_cv_os_valid_filename_char,[expression in ch which is true if ch is a valid character in filenames])
 fi
 ])

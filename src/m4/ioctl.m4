@@ -120,22 +120,10 @@ AC_TRY_RUN([
 #ifdef NEED_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int ioctl ($cl_cv_proto_ioctl_args);
-#else
-int ioctl();
-#endif
 /* Declare open(). */
 #include <fcntl.h>
 #ifdef OPEN_NEEDS_SYS_FILE_H
 #include <sys/file.h>
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int open ($cl_cv_proto_open_args);
-#else
-int open();
 #endif
 int main ()
 { int fd = open("conftest.c",O_RDONLY,0644);

@@ -25,20 +25,6 @@ AC_TRY_RUN([
 #ifdef HAVE_SYS_SYSMACROS_H
 #include <sys/sysmacros.h>
 #endif
-#if defined(__STDC__) || defined(__cplusplus)
-]AC_LANG_EXTERN[int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
-]AC_LANG_EXTERN[RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg);
-]AC_LANG_EXTERN[
-#ifdef SHMCTL_DOTS
-int shmctl (int shmid, int cmd, ...);
-#else
-int shmctl (int shmid, int cmd, struct shmid_ds * buf);
-#endif
-#else
-extern int shmget();
-extern RETSHMATTYPE shmat();
-extern int shmctl();
-#endif
 int main ()
 { unsigned int pagesize = 8192; /* should be a multiple of SHMLBA */
   unsigned long addr = (unsigned long) malloc(2*pagesize);
