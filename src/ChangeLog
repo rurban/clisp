@@ -1,4 +1,23 @@
+2002-09-11  Sam Steingold  <sds@gnu.org>
+
+	improved accuracy of some transcendental functions
+	* realtran.d (pi): return long float of the same format as the arg
+	(R_cos_sin_R_R, R_ln_R, R_exp_R, R_cosh_sinh_R_R): accept two
+	additional arguments: start_p (whether to increase the precision
+	in the beginning) and end_p (whether to lower the precision back
+	at the end of computation)
+	(R_R_log_R): handle these changes
+	* realelem.d (N_N_contagion_R, F_R_float_F, RA_R_float_F)
+	(R_R_float_F, C_R_float_C, N_N_float_N): new functions
+	* lisparit.d (EXP, EXPT, log_digits): accomodate the changes in
+	signatures of the basic transcendental functions
+	* comptran.d (N_exp_N, N_log_N): accept start_p and end_p
+	(N_N_log_N, N_N_expt_N, N_sin_N, N_cos_N, N_tan_N, N_cis_N)
+	(N_sinh_N, N_cosh_N, N_tanh_N, R_R_atanh_R_R, N_atanh_N, N_atan_N)
+	(R_R_asinh_R_R, N_acosh_N, N_acos_N): handle these changes
+
 2002-09-11  John  Hinsdale <hin@alma.com>
+
 	* modules/oracle/*: new add-in module for Oracle interface
 	* src/Makefile.devel: build autoconf script for modules/oracle
 

@@ -151,6 +151,23 @@
       #undef X
     }
 
+local object N_N_contagion_R (object x, object y)
+{
+  if (complexp(x))
+    if (complexp(y))
+      return R_R_contagion_R(R_R_contagion_R(TheComplex(x)->c_real,
+                                             TheComplex(x)->c_imag),
+                             R_R_contagion_R(TheComplex(y)->c_real,
+                                             TheComplex(y)->c_imag));
+    else return R_R_contagion_R(R_R_contagion_R(TheComplex(x)->c_real,
+                                                TheComplex(x)->c_imag),y);
+  else if (complexp(y))
+    return R_R_contagion_R(x,R_R_contagion_R(TheComplex(y)->c_real,
+                                             TheComplex(y)->c_imag));
+  else
+    return R_R_contagion_R(x,y);
+}
+
 # Macro: verteilt je nach Default-Float-Typ auf 4 Statements.
 # defaultfloatcase(symbol, SF_statement,FF_statement,DF_statement,LF_statement, save_statement,restore_statement);
 # symbol sollte ein S(..)-Symbol sein. Dessen Wert sollte SHORT-FLOAT oder
@@ -218,6 +235,52 @@ local object RA_float_F (object x) {
   local object R_float_F(x)
     var object x;
     { return (R_rationalp(x) ? RA_float_F(x) : x); }
+
+/* convert a float(rational) X to the appropriate format for Y
+   same as F_F_float_F(x,R_float_F(y)) but without consing
+   an intermediate float
+   can trigger GC */
+local object F_R_float_F (object x, object y)
+{
+ #if SAFETY>=1
+  if (!floatp(x)) abort();
+  if_realp(y,,abort(););
+ #endif
+  defaultfloatcase(S(default_float_format),y,
+                   return F_to_SF(x),
+                   return F_to_FF(x),
+                   return F_to_DF(x),
+                   return F_to_LF(x,I_to_UL(O(LF_digits))),
+                   pushSTACK(x), x = popSTACK());
+}
+local object RA_R_float_F (object x, object y)
+{
+  defaultfloatcase(S(default_float_format),y,
+                   return RA_to_SF(x),
+                   return RA_to_FF(x),
+                   return RA_to_DF(x),
+                   return RA_to_LF(x,I_to_UL(O(LF_digits))),
+                   pushSTACK(x), x = popSTACK());
+}
+local object R_R_float_F (object x, object y)
+{
+  if (floatp(x)) return F_R_float_F(x,y);
+  return RA_R_float_F(x,y);
+}
+local object C_R_float_C (object *c, object y)
+{
+  TheComplex(*c)->c_real = R_R_float_F(TheComplex(*c)->c_real,y);
+  TheComplex(*c)->c_imag = R_R_float_F(TheComplex(*c)->c_imag,y);
+  return *c;
+}
+local object N_N_float_N (object *n, object y)
+{
+  var object contagion = !complexp(y) ? y
+    : R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag);
+  if (complexp(*n))
+    return C_R_float_C(n,contagion);
+  return R_R_float_F(*n,contagion);
+}
 
 # Generiert eine Funktion wie R_floor_I_R
   #define GEN_R_round(rounding)  \
