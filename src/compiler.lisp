@@ -1911,6 +1911,7 @@ for-value   NIL or T
        (UNLESS . c-UNLESS)
        (COND . c-COND)
        (CASE . c-CASE)
+       (FCASE . c-CASE)
        (PSETQ . c-PSETQ)
        (MULTIPLE-VALUE-CALL . c-MULTIPLE-VALUE-CALL)
        (PROG1 . c-PROG1)
@@ -5780,14 +5781,16 @@ for-value   NIL or T
                 `(IF ,test (PROGN ,@(cdr clause)) (COND ,@(cdr clauses)))
                 `(OR ,test (COND ,@(cdr clauses)))))))))))
 
-;; compile (CASE keyform {clause}*)
+;; compile (CASE keyform {clause}*) and (FCASE test keyform {clause}*)
 (defun c-CASE ()
   (test-list *form* 1)
-  (let ((keyform (second *form*))
-        (clauses (cddr *form*))
-        ;; simplify clauses:
-        (newclauses '())
-        (allkeys '()))
+  (let* ((head (first *form*))
+         (clauses (rest *form*))
+         (test (if (eq head 'case) 'eql (pop clauses)))
+         (keyform (pop clauses))
+         ;; simplify clauses:
+         (newclauses '())
+         (allkeys '()))
     (let ((default-passed nil))
       (do ((clauses clauses))
           ((endp clauses))
@@ -5808,7 +5811,7 @@ for-value   NIL or T
                     (setq default-passed t))
                   (let ((newkeys '()))
                     (dolist (key (if (listp keys) keys (list keys)))
-                      (if (not (member key allkeys :test #'eql)) ; remove-duplicates
+                      (if (not (member key allkeys :test test)) ; remove-duplicates
                         (progn (push key allkeys) (push key newkeys))
                         (c-style-warn (TEXT "Duplicate ~S label ~S : ~S")
                                       'case key *form*)))
@@ -5819,7 +5822,8 @@ for-value   NIL or T
       (setq allkeys (nreverse allkeys)))
     ;; newclauses now contains no double keys, T as keys exactly once,
     ;; and allkeys is the set of all Keys.
-    (if (<= (length allkeys) 2) ; few Keys -> use EQL directly
+    (if (or (<= (length allkeys) 2) ; few Keys -> use TEST directly
+            (not (memq test '(eq eql equal equalp)))) ; valid hash tests
       (let ((keyvar (gensym)))
         (labels ((ifify (clauses)
                    (if (null clauses)
@@ -5827,8 +5831,8 @@ for-value   NIL or T
                      `(IF ,(let ((keys (caar clauses)))
                              (if (listp keys)
                                `(OR ,@(mapcar
-                                        #'(lambda (key) `(EQL ,keyvar ',key))
-                                        keys))
+                                       #'(lambda (key) `(,test ,keyvar ',key))
+                                       keys))
                                'T)) ; keys = T, the Default-Case
                         (PROGN ,@(cdar clauses))
                         ,(ifify (cdr clauses))))))
@@ -5848,11 +5852,10 @@ for-value   NIL or T
         (if (anode-constantp keyform-anode)
           (let ((value (anode-constant-value keyform-anode)))
             (dolist (case cases default-anode)
-              (when (member value (first case) :test #'eql)
+              (when (member value (first case) :test test)
                 (return (third case)))))
           (let ((default-label (make-label 'NIL))
-                (end-label (make-label *for-value*))
-                (test (if (every #'EQL=EQ allkeys) 'EQ 'EQL)))
+                (end-label (make-label *for-value*)))
             (make-anode
               :type 'CASE
               :sub-anodes `(,keyform-anode ,@(mapcar #'third cases)
@@ -5863,8 +5866,9 @@ for-value   NIL or T
               :code
                 `(,keyform-anode
                   (JMPHASH
-                    ,test
-                    ,(mapcap ; Aliste (obji -> labeli)
+                    ,(if (and (eq test 'eql) (every #'EQL=EQ allkeys))
+                         'EQ test)
+                    ,(mapcap ; alist (obji -> labeli)
                        #'(lambda (case)
                            (let ((label (second case)))
                              (mapcar #'(lambda (obj) (cons obj label))

@@ -257,7 +257,7 @@
   `(LET () ,@body))
 
 (defun case-expand (form-name test keyform clauses)
-  (let ((var (gensym (format nil "~a-KEY-" form-name))))
+  (let ((var (gensym (concat-strings (symbol-name form-name) "-KEY-"))))
     `(let ((,var ,keyform))
       (cond
         ,@(maplist
@@ -283,7 +283,7 @@
                      ,@(rest clause)))))
            clauses)))))
 
-(defmacro fcase (test keyform &body clauses)
+(defmacro-special fcase (test keyform &body clauses)
   (case-expand 'fcase test keyform clauses))
 (defmacro-special case (keyform &body clauses)
   (case-expand 'case 'eql keyform clauses))
