@@ -1807,9 +1807,21 @@ returns two values:
 </section>
 <!-- #endif -->
 
-<!-- #ifdef UNIX -->
+<!-- #if defined(UNIX) || defined(WIN32_NATIVE) -->
 <section id="modules"><title>Extensions-2.2. External Modules</title>
-<subtitle>Platform dependent: &unix; platforms only.</subtitle>
+<subtitle>Platform dependent: &unix; and &win32; platforms only.</subtitle>
+
+<note id="mod-win32"><title>Modules on &win32;.</title>
+ <para>Everything described in the section will work verbatim on &win32;
+  when using &cygwin; or &mingw;, <emphasis>except</emphasis> for one
+  thing - you will need to replace the <filename>run</filename>
+  extension in <filename>lisp.run</filename> with the &win32; executable
+  extension <filename>exe</filename>.</para>
+ <para>For historical reasons, all examples appear to assume &unix; and
+  use the <filename>run</filename> file type (<quote>extension</quote>)
+  for the &clisp; run-time.
+  This does &not-e; mean that they will not work on &win32;.</para>
+</note>
 
 <section id="mod-overview"><title>Overview</title>
 
