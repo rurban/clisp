@@ -2585,6 +2585,16 @@ global int main (argc_t argc, char* argv[]) {
       Symbol_value(S(prin_linelength)) = fixnum(columns-1);
     }
   }
+ #elif defined(WIN32_NATIVE)
+ # cannot do it in init_win32 - too early
+ if (isatty(stdout_handle)) {
+   var HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+   if (handle!=INVALID_HANDLE_VALUE) {
+     var CONSOLE_SCREEN_BUFFER_INFO info;
+     if (GetConsoleScreenBufferInfo(handle,&info))
+       Symbol_value(S(prin_linelength)) = fixnum(info.dwSize.X - 1);
+   }
+ }
  #endif
  #if defined(AMIGAOS) && 0
   # ask the console.driver ??

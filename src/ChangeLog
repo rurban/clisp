@@ -1,5 +1,10 @@
 2003-03-07  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
+	* spvw.d (main) [WIN32_NATIVE]: init SYS::*PRIN-LINELENGTH* to
+	console width - 1.
+
+2003-03-07  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
 	* pathname.d (assure_dir_exists) [WIN32_NATIVE]: bug fixed: 
 	should raise an error when part of directory is an existing
 	file.
