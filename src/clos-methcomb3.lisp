@@ -31,7 +31,7 @@
     (setq methods
           (remove-if-not #'(lambda (method)
                              (method-applicable-p method req-args))
-                         methods))
+                         (the list methods)))
     (when (null methods)
       (return-from standard-method-combination-expander
         (no-method-caller 'no-applicable-method gf)))
