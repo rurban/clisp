@@ -1,6 +1,7 @@
-# Error-Handling für CLISP
-# Bruno Haible 1990-2001
+# Error-Handling for CLISP
+# Bruno Haible 1990-2002
 # Marcus Daniels 8.4.1994
+# Sam Steingold 1998-2002
 
 #include "lispbibl.c"
 
@@ -926,6 +927,42 @@ nonreturning_function(global, fehler_funname_source,
            GETTEXT("~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION).")
           );
   }
+
+# too many arguments in a function call
+# > caller : the function that is reporting the error
+# > func   : the function being incorrectly called
+# > ngiven : the number of arguments given
+# < nmax   : the maximum number of arguments accepted
+nonreturning_function(global, fehler_too_many_args,
+                      (object caller, object func, uintL ngiven, uintL nmax)) {
+  pushSTACK(func);
+  pushSTACK(fixnum(nmax));
+  pushSTACK(fixnum(ngiven));
+  if (eq(caller,unbound))
+    fehler(program_error,GETTEXT("EVAL/APPLY: Too many arguments (~ instead of at most ~) given to ~"));
+  else {
+    pushSTACK(caller);
+    fehler(program_error,GETTEXT("~: Too many arguments (~ instead of at most ~) given to ~"));
+  }
+}
+
+# too few arguments in a function call
+# > caller : the function that is reporting the error (unbound == EVAL/APPLY)
+# > func   : the function being incorrectly called
+# > ngiven : the number of arguments given
+# < nmin   : the minimum number of arguments required
+nonreturning_function(global, fehler_too_few_args,
+                      (object caller, object func, uintL ngiven, uintL nmin)) {
+  pushSTACK(func);
+  pushSTACK(fixnum(nmin));
+  pushSTACK(fixnum(ngiven));
+  if (eq(caller,unbound))
+    fehler(program_error,GETTEXT("EVAL/APPLY: Too few arguments (~ instead of at least ~) given to ~"));
+  else {
+    pushSTACK(caller);
+    fehler(program_error,GETTEXT("~: Too few arguments (~ instead of at least ~) given to ~"));
+  }
+}
 
 # Fehler, wenn Argument kein Integer vom Typ `uint8' ist.
 # fehler_uint8(obj);

@@ -2741,238 +2741,222 @@ LISPFUNN(lookup_foreign_function,2)
 # (FFI::FOREIGN-CALL-OUT foreign-function . args)
 # calls a foreign function with Lisp data structures as arguments,
 # and returns the return value as a Lisp data structure.
-LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
-  {
-    var object ffun = Before(rest_args_pointer);
-    if (!ffunctionp(ffun))
-      fehler_foreign_function(ffun);
-    var object argfvds = TheFfunction(ffun)->ff_argtypes;
-    if (!simple_vector_p(argfvds))
+LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
+  var object ffun = Before(rest_args_pointer);
+  if (!ffunctionp(ffun))
+    fehler_foreign_function(ffun);
+  var object argfvds = TheFfunction(ffun)->ff_argtypes;
+  if (!simple_vector_p(argfvds))
+    fehler_function_no_fvd(ffun,S(foreign_call_out));
+  var uintWL flags = posfixnum_to_L(TheFfunction(ffun)->ff_flags);
+  switch (flags & 0x7F00) {
+    # For the moment, the only supported languages are "C" and "ANSI C".
+    case ff_lang_c:
+    case ff_lang_ansi_c:
+      break;
+    default:
       fehler_function_no_fvd(ffun,S(foreign_call_out));
-    var uintWL flags = posfixnum_to_L(TheFfunction(ffun)->ff_flags);
-    switch (flags & 0x7F00) {
-      # For the moment, the only supported languages are "C" and "ANSI C".
-      case ff_lang_c:
-      case ff_lang_ansi_c:
-        break;
-      default:
-        fehler_function_no_fvd(ffun,S(foreign_call_out));
-    }
-    {
-      var av_alist alist;
-      var void* address = Faddress_value(TheFfunction(ffun)->ff_address);
-      var object result_fvd = TheFfunction(ffun)->ff_resulttype;
-      # Allocate space for the result and maybe the args:
-      foreign_layout(result_fvd);
-      var uintL result_size = data_size;
-      var uintL result_alignment = data_alignment;
-      var bool result_splittable = data_splittable;
-      var uintL result_totalsize = result_size+result_alignment; # >= result_size+result_alignment-1, > 0
-      var uintL cumul_alignment = result_alignment;
-      var uintL cumul_size = result_totalsize;
-      var uintL allargcount = Svector_length(argfvds)/2;
-      var uintL outargcount = 0;
-      {
-        var sintL inargcount = 0;
-        var uintL i;
-        for (i = 0; i < allargcount; i++) {
-          var object argfvds = TheFfunction(Before(rest_args_pointer))->ff_argtypes;
-          var object arg_fvd = TheSvector(argfvds)->data[2*i];
-          var uintWL arg_flags = posfixnum_to_L(TheSvector(argfvds)->data[2*i+1]);
-          if (!(arg_flags & ff_out)) {
-            inargcount++;
-            if (!(inargcount <= argcount)) {
-              pushSTACK(ffun);
-              pushSTACK(fixnum(inargcount));
-              pushSTACK(fixnum(argcount));
-              pushSTACK(S(foreign_call_out));
-              fehler(program_error,
-                     GETTEXT("~: Too few arguments (~ instead of at least ~) to ~")
-                    );
-            }
-          }
-          if (arg_flags & (ff_out | ff_inout)) {
-            if (!(simple_vector_p(arg_fvd) && (Svector_length(arg_fvd) == 2)
-                  && eq(TheSvector(arg_fvd)->data[0],S(c_ptr))
-               ) ) {
-              dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
-              pushSTACK(arg_fvd);
-              pushSTACK(S(foreign_call_out));
-              fehler(error,GETTEXT("~: :OUT argument is not a pointer: ~"));
-            }
-            outargcount++;
-          }
-          if (arg_flags & ff_alloca) {
-            # Room for arg itself:
-            {
-              foreign_layout(arg_fvd);
-              # We assume all alignments are of the form 2^k.
-              cumul_size += (-cumul_size) & (data_alignment-1);
-              cumul_size += data_size;
-              # cumul_alignment = lcm(cumul_alignment,data_alignment);
-              if (data_alignment > cumul_alignment)
-                cumul_alignment = data_alignment;
-            }
-            if (arg_flags & ff_out) {
-              # Room for top-level pointer in arg:
-              var object argo_fvd = TheSvector(arg_fvd)->data[1];
-              foreign_layout(argo_fvd);
-              # We assume all alignments are of the form 2^k.
-              cumul_size += (-cumul_size) & (data_alignment-1);
-              cumul_size += data_size;
-              # cumul_alignment = lcm(cumul_alignment,data_alignment);
-              if (data_alignment > cumul_alignment)
-                cumul_alignment = data_alignment;
-            } else {
-              # Room for pointers in arg:
-              var object arg = Before(rest_args_pointer STACKop -inargcount);
-              convert_to_foreign_needs(arg_fvd,arg);
-              # We assume all alignments are of the form 2^k.
-              cumul_size += (-cumul_size) & (data_alignment-1);
-              cumul_size += data_size;
-              # cumul_alignment = lcm(cumul_alignment,data_alignment);
-              if (data_alignment > cumul_alignment)
-                cumul_alignment = data_alignment;
-            }
-          }
-        }
-        if (!(argcount == inargcount)) {
-          pushSTACK(ffun);
-          pushSTACK(fixnum(inargcount));
-          pushSTACK(fixnum(argcount));
-          pushSTACK(S(foreign_call_out));
-          fehler(program_error,
-                 GETTEXT("~: Too many arguments (~ instead of ~) to ~")
-                );
-        }
-      }
-      #ifdef AMIGAOS
-        # Set register a6 as for a library call, even if not used.
-        # Library pointer has already been validated through Fpointer_value() above.
-        alist.regargs[8+7-1] = (uintP)TheFpointer(TheFaddress(TheFfunction(ffun)->ff_address)->fa_base)->fp_pointer;
-      #endif
-      var uintL result_count = 0;
-      typedef struct { void* address; } result_descr; # fvd is pushed onto the STACK
-      var DYNAMIC_ARRAY(results,result_descr,1+outargcount);
-      cumul_size += (-cumul_size) & (cumul_alignment-1);
-      var DYNAMIC_ARRAY(total_room,char,cumul_size+cumul_alignment/*-1*/);
-      var void* result_address = (void*)((uintP)(total_room+result_alignment-1) & -(long)result_alignment);
-      allocaing_room_pointer = (void*)((uintP)result_address + result_size);
-      if (!eq(result_fvd,S(nil))) {
-        pushSTACK(result_fvd);
-        results[0].address = result_address;
-        result_count++;
-      }
-      # Call av_start_xxx:
-      begin_system_call();
-      do_av_start(flags,result_fvd,&alist,address,result_address,result_size,result_splittable);
-      end_system_call();
-      # Now pass the arguments.
-      {
-        var uintL i;
-        var sintL j;
-        for (i = 0, j = 0; i < allargcount; i++) {
-          var object argfvds = TheFfunction(Before(rest_args_pointer))->ff_argtypes;
-          var object arg_fvd = TheSvector(argfvds)->data[2*i];
-          var uintWL arg_flags = posfixnum_to_L(TheSvector(argfvds)->data[2*i+1]);
-          var object arg;
-          if (arg_flags & ff_out) {
-            arg = unbound; # only to avoid uninitialized variable
-          } else {
-            arg = Next(rest_args_pointer STACKop -j); j++;
-          }
-          # Allocate temporary space for the argument:
-          foreign_layout(arg_fvd);
-          var uintL arg_size = data_size;
-          var uintL arg_alignment = data_alignment;
-          if (arg_flags & ff_alloca) {
-            allocaing_room_pointer = (void*)(((uintP)allocaing_room_pointer + arg_alignment-1) & -(long)arg_alignment);
-            var void* arg_address = allocaing_room_pointer;
-            allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + arg_size);
-            if (arg_flags & ff_out) {
-              # Pass top-level pointer only:
-              var object argo_fvd = TheSvector(arg_fvd)->data[1];
-              foreign_layout(argo_fvd);
-              allocaing_room_pointer = (void*)(((uintP)allocaing_room_pointer + data_alignment-1) & -(long)data_alignment);
-              *(void**)arg_address = allocaing_room_pointer;
-              pushSTACK(argo_fvd);
-              results[result_count].address = allocaing_room_pointer;
-              result_count++;
-              # Durchnullen, um uninitialisiertes Ergebnis zu vermeiden:
-              blockzero(allocaing_room_pointer,data_size);
-              allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + data_size);
-            } else {
-              # Convert argument:
-              convert_to_foreign_allocaing(arg_fvd,arg,arg_address);
-              if (arg_flags & ff_inout) {
-                pushSTACK(TheSvector(arg_fvd)->data[1]); results[result_count].address = *(void**)arg_address;
-                result_count++;
-              }
-            }
-            # Call av_xxx:
-            begin_system_call();
-            #ifdef AMIGAOS
-              AV_ARG_REGNUM = (int)(arg_flags >> 8) - 1;
-            #endif
-            do_av_arg(flags,arg_fvd,&alist,arg_address,arg_size,arg_alignment);
-            end_system_call();
-          } else {
-            var uintL arg_totalsize = arg_size+arg_alignment; # >= arg_size+arg_alignment-1, > 0
-            var DYNAMIC_ARRAY(arg_room,char,arg_totalsize);
-            var void* arg_address = (void*)((uintP)(arg_room+arg_alignment-1) & -(long)arg_alignment);
-            if (!(arg_flags & ff_out)) {
-              # Convert argument:
-              if (arg_flags & ff_malloc)
-                convert_to_foreign_mallocing(arg_fvd,arg,arg_address);
-              else
-                convert_to_foreign_nomalloc(arg_fvd,arg,arg_address);
-              if (arg_flags & ff_inout) {
-                pushSTACK(TheSvector(arg_fvd)->data[1]);
-                results[result_count].address = *(void**)arg_address;
-                result_count++;
-              }
-            }
-            # Call av_xxx:
-            begin_system_call();
-            #ifdef AMIGAOS
-              AV_ARG_REGNUM = (int)(arg_flags >> 8) - 1;
-            #endif
-            do_av_arg(flags,arg_fvd,&alist,arg_address,arg_size,arg_alignment);
-            end_system_call();
-            FREE_DYNAMIC_ARRAY(arg_room);
-          }
-        }
-      }
-      # Finally call the function.
-      begin_call();
-      av_call(alist);
-      end_call();
-      # Convert the result(s) back to Lisp.
-      {
-        var object* resptr = (&STACK_0 STACKop result_count) STACKop -1;
-        var uintL i;
-        for (i = 0; i < result_count; i++) {
-          *resptr = convert_from_foreign(*resptr,results[i].address);
-          resptr skipSTACKop -1;
-        }
-      }
-      # Return them as multiple values.
-      if (result_count >= mv_limit)
-        fehler_mv_zuviel(S(foreign_call_out));
-      STACK_to_mv(result_count);
-      if (flags & ff_alloca) {
-        # The C functions we passed also have dynamic extent. Free them.
-        # Not done now. ??
-      }
-      if (flags & ff_malloc) {
-        result_fvd = TheFfunction(Before(rest_args_pointer))->ff_resulttype;
-        free_foreign(result_fvd,result_address);
-      }
-      FREE_DYNAMIC_ARRAY(total_room);
-      FREE_DYNAMIC_ARRAY(results);
-    }
-    set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufräumen
   }
+  {
+    var av_alist alist;
+    var void* address = Faddress_value(TheFfunction(ffun)->ff_address);
+    var object result_fvd = TheFfunction(ffun)->ff_resulttype;
+    # Allocate space for the result and maybe the args:
+    foreign_layout(result_fvd);
+    var uintL result_size = data_size;
+    var uintL result_alignment = data_alignment;
+    var bool result_splittable = data_splittable;
+    var uintL result_totalsize = result_size+result_alignment; # >= result_size+result_alignment-1, > 0
+    var uintL cumul_alignment = result_alignment;
+    var uintL cumul_size = result_totalsize;
+    var uintL allargcount = Svector_length(argfvds)/2;
+    var uintL outargcount = 0;
+    {
+      var sintL inargcount = 0;
+      var uintL i;
+      for (i = 0; i < allargcount; i++) {
+        var object argfvds = TheFfunction(Before(rest_args_pointer))->ff_argtypes;
+        var object arg_fvd = TheSvector(argfvds)->data[2*i];
+        var uintWL arg_flags = posfixnum_to_L(TheSvector(argfvds)->data[2*i+1]);
+        if (!(arg_flags & ff_out)) {
+          inargcount++;
+          if (inargcount > argcount)
+            fehler_too_few_args(S(foreign_call_out),ffun,inargcount,argcount);
+        }
+        if (arg_flags & (ff_out | ff_inout)) {
+          if (!(simple_vector_p(arg_fvd) && (Svector_length(arg_fvd) == 2)
+                && eq(TheSvector(arg_fvd)->data[0],S(c_ptr))) ) {
+            dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
+            pushSTACK(arg_fvd);
+            pushSTACK(S(foreign_call_out));
+            fehler(error,GETTEXT("~: :OUT argument is not a pointer: ~"));
+          }
+          outargcount++;
+        }
+        if (arg_flags & ff_alloca) {
+          # Room for arg itself:
+          {
+            foreign_layout(arg_fvd);
+            # We assume all alignments are of the form 2^k.
+            cumul_size += (-cumul_size) & (data_alignment-1);
+            cumul_size += data_size;
+            # cumul_alignment = lcm(cumul_alignment,data_alignment);
+            if (data_alignment > cumul_alignment)
+              cumul_alignment = data_alignment;
+          }
+          if (arg_flags & ff_out) {
+            # Room for top-level pointer in arg:
+            var object argo_fvd = TheSvector(arg_fvd)->data[1];
+            foreign_layout(argo_fvd);
+            # We assume all alignments are of the form 2^k.
+            cumul_size += (-cumul_size) & (data_alignment-1);
+            cumul_size += data_size;
+            # cumul_alignment = lcm(cumul_alignment,data_alignment);
+            if (data_alignment > cumul_alignment)
+              cumul_alignment = data_alignment;
+          } else {
+            # Room for pointers in arg:
+            var object arg = Before(rest_args_pointer STACKop -inargcount);
+            convert_to_foreign_needs(arg_fvd,arg);
+            # We assume all alignments are of the form 2^k.
+            cumul_size += (-cumul_size) & (data_alignment-1);
+            cumul_size += data_size;
+            # cumul_alignment = lcm(cumul_alignment,data_alignment);
+            if (data_alignment > cumul_alignment)
+              cumul_alignment = data_alignment;
+          }
+        }
+      }
+      if (argcount != inargcount)
+        fehler_too_many_args(S(foreign_call_out),ffun,argcount,inargcount);
+    }
+#ifdef AMIGAOS
+    # Set register a6 as for a library call, even if not used.
+    # Library pointer has already been validated through Fpointer_value() above.
+    alist.regargs[8+7-1] = (uintP)TheFpointer(TheFaddress(TheFfunction(ffun)->ff_address)->fa_base)->fp_pointer;
+#endif
+    var uintL result_count = 0;
+    typedef struct { void* address; } result_descr; # fvd is pushed onto the STACK
+    var DYNAMIC_ARRAY(results,result_descr,1+outargcount);
+    cumul_size += (-cumul_size) & (cumul_alignment-1);
+    var DYNAMIC_ARRAY(total_room,char,cumul_size+cumul_alignment/*-1*/);
+    var void* result_address = (void*)((uintP)(total_room+result_alignment-1) & -(long)result_alignment);
+    allocaing_room_pointer = (void*)((uintP)result_address + result_size);
+    if (!eq(result_fvd,S(nil))) {
+      pushSTACK(result_fvd);
+      results[0].address = result_address;
+      result_count++;
+    }
+    # Call av_start_xxx:
+    begin_system_call();
+    do_av_start(flags,result_fvd,&alist,address,result_address,result_size,result_splittable);
+    end_system_call();
+    # Now pass the arguments.
+    {
+      var uintL i;
+      var sintL j;
+      for (i = 0, j = 0; i < allargcount; i++) {
+        var object argfvds = TheFfunction(Before(rest_args_pointer))->ff_argtypes;
+        var object arg_fvd = TheSvector(argfvds)->data[2*i];
+        var uintWL arg_flags = posfixnum_to_L(TheSvector(argfvds)->data[2*i+1]);
+        var object arg;
+        if (arg_flags & ff_out) {
+          arg = unbound; # only to avoid uninitialized variable
+        } else {
+          arg = Next(rest_args_pointer STACKop -j); j++;
+        }
+        # Allocate temporary space for the argument:
+        foreign_layout(arg_fvd);
+        var uintL arg_size = data_size;
+        var uintL arg_alignment = data_alignment;
+        if (arg_flags & ff_alloca) {
+          allocaing_room_pointer = (void*)(((uintP)allocaing_room_pointer + arg_alignment-1) & -(long)arg_alignment);
+          var void* arg_address = allocaing_room_pointer;
+          allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + arg_size);
+          if (arg_flags & ff_out) {
+            # Pass top-level pointer only:
+            var object argo_fvd = TheSvector(arg_fvd)->data[1];
+            foreign_layout(argo_fvd);
+            allocaing_room_pointer = (void*)(((uintP)allocaing_room_pointer + data_alignment-1) & -(long)data_alignment);
+            *(void**)arg_address = allocaing_room_pointer;
+            pushSTACK(argo_fvd);
+            results[result_count].address = allocaing_room_pointer;
+            result_count++;
+            # Durchnullen, um uninitialisiertes Ergebnis zu vermeiden:
+            blockzero(allocaing_room_pointer,data_size);
+            allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + data_size);
+          } else {
+            # Convert argument:
+            convert_to_foreign_allocaing(arg_fvd,arg,arg_address);
+            if (arg_flags & ff_inout) {
+              pushSTACK(TheSvector(arg_fvd)->data[1]); results[result_count].address = *(void**)arg_address;
+              result_count++;
+            }
+          }
+          # Call av_xxx:
+          begin_system_call();
+#ifdef AMIGAOS
+          AV_ARG_REGNUM = (int)(arg_flags >> 8) - 1;
+#endif
+          do_av_arg(flags,arg_fvd,&alist,arg_address,arg_size,arg_alignment);
+          end_system_call();
+        } else {
+          var uintL arg_totalsize = arg_size+arg_alignment; # >= arg_size+arg_alignment-1, > 0
+          var DYNAMIC_ARRAY(arg_room,char,arg_totalsize);
+          var void* arg_address = (void*)((uintP)(arg_room+arg_alignment-1) & -(long)arg_alignment);
+          if (!(arg_flags & ff_out)) {
+            # Convert argument:
+            if (arg_flags & ff_malloc)
+              convert_to_foreign_mallocing(arg_fvd,arg,arg_address);
+            else
+              convert_to_foreign_nomalloc(arg_fvd,arg,arg_address);
+            if (arg_flags & ff_inout) {
+              pushSTACK(TheSvector(arg_fvd)->data[1]);
+              results[result_count].address = *(void**)arg_address;
+              result_count++;
+            }
+          }
+          # Call av_xxx:
+          begin_system_call();
+#ifdef AMIGAOS
+          AV_ARG_REGNUM = (int)(arg_flags >> 8) - 1;
+#endif
+          do_av_arg(flags,arg_fvd,&alist,arg_address,arg_size,arg_alignment);
+          end_system_call();
+          FREE_DYNAMIC_ARRAY(arg_room);
+        }
+      }
+    }
+    # Finally call the function.
+    begin_call();
+    av_call(alist);
+    end_call();
+    # Convert the result(s) back to Lisp.
+    {
+      var object* resptr = (&STACK_0 STACKop result_count) STACKop -1;
+      var uintL i;
+      for (i = 0; i < result_count; i++) {
+        *resptr = convert_from_foreign(*resptr,results[i].address);
+        resptr skipSTACKop -1;
+      }
+    }
+    # Return them as multiple values.
+    if (result_count >= mv_limit)
+      fehler_mv_zuviel(S(foreign_call_out));
+    STACK_to_mv(result_count);
+    if (flags & ff_alloca) {
+      # The C functions we passed also have dynamic extent. Free them.
+      # Not done now. ??
+    }
+    if (flags & ff_malloc) {
+      result_fvd = TheFfunction(Before(rest_args_pointer))->ff_resulttype;
+      free_foreign(result_fvd,result_address);
+    }
+    FREE_DYNAMIC_ARRAY(total_room);
+    FREE_DYNAMIC_ARRAY(results);
+  }
+  set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufräumen
+}
 
 # Here is the point where we use the VACALL package.
 
