@@ -3,8 +3,9 @@
 ;; Sam Steingold 2001-2004
 
 (defpackage "WILDCARD"
-  (:use "FFI" "COMMON-LISP")
-  (:export "MATCH" "WILDCARD-MATCHER"))
+  (:case-sensitive t) (:case-inverted t)
+  (:use "CS-COMMON-LISP" "FFI")
+  (:export #:match #:wildcard-matcher))
 (in-package "WILDCARD")
 
 (default-foreign-language :stdc)
