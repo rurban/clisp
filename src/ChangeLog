@@ -1,3 +1,9 @@
+2004-05-16  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (NO_ARI_ASM): Define if SAFETY==3.
+	(begin_arith_call, end_arith_call): Don't test SAFETY any more.
+	* arilev1.d (LOOP_INLINE_ASM, LOOP_EXTERN_ASM): Likewise.
+
 2004-05-16  Sam Steingold  <sds@gnu.org>
 
 	* unix/malloc.c (printf_address): align output

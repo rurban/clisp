@@ -471,6 +471,7 @@
 #endif
 #if SAFETY >= 3
   #define NO_ASM
+  #define NO_ARI_ASM
   #define NO_FAST_DISPATCH
 #endif
 
@@ -7741,7 +7742,7 @@ typedef const struct backtrace_t* p_backtrace_t;
 #endif
 # The same holds for arithmetics-functions that use the STACK_registers.
 # On I80386 (%ebx) these are SHIFT_LOOPS, MUL_LOOPS, DIV_LOOPS.
-#if defined(I80386) && !defined(NO_ARI_ASM) && (SAFETY < 3) && defined(HAVE_SAVED_STACK)
+#if defined(I80386) && !defined(NO_ARI_ASM) && defined(HAVE_SAVED_STACK)
   #define begin_arith_call()  begin_system_call()
   #define end_arith_call()  end_system_call()
 #else
