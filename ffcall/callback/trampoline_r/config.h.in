@@ -110,12 +110,6 @@
 /* Define as the type of `size' in shmget() declaration. */
 #undef SHMGET_SIZE_T
 
-/* CL_SHMAT */
-/* Define as the return type of shmat(). */
-#undef RETSHMATTYPE
-/* Define as const if the declaration of shmat() needs const. */
-#undef SHMAT_CONST
-
 /* CL_SHMCTL */
 /* Define if the declaration of shmctl() needs dots. */
 #undef SHMCTL_DOTS
