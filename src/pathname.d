@@ -8804,7 +8804,7 @@ global int find_executable (const char * program_name) {
     char execname[MAX_PATH];
     if (!GetModuleFileName(NULL,execname,MAX_PATH))
       goto notfound;
-    executable_name = malloc(strlen(execname));
+    executable_name = malloc(strlen(execname)+1);
     strcpy(executable_name,execname);
     return 0;
   }
