@@ -1,7 +1,12 @@
 2005-02-17  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (anymodule): do not assume bash, just sh, when
+	exporting a variable (fixed 2005-02-11 patch)
+
+2005-02-17  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (__EXTENSIONS__) [__sun]: define to
-	anable confstr() prototype and avoid a gcc warning
+	enable confstr() prototype and avoid a gcc warning
 
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
