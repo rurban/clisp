@@ -774,38 +774,48 @@ local object test_optional_host (object host) {
     #define equal_pathchar(ch1,ch2)  chareq(up_case(ch1),up_case(ch2))
   #endif
 
+/* UP: check whether a given byte is a valid element of NAME or TYPE
+ component in a Namestring
+ legal_namebyte(ch)
+ > uintB: byte
+ < return: true if valid, else false */
+local inline bool legal_namebyte (uintB ch) {
+  #ifdef VALID_FILENAME_CHAR # defined in unixconf.h
+    return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
+  #else
+    #ifdef PATHNAME_UNIX
+      return ((ch>=' ') && (ch<='~') && !(ch=='/'));
+    #endif
+    #ifdef PATHNAME_WIN32
+      return ((ch >= 1) && (ch <= 127)
+              && (ch != '"') /*&& (ch != '*')*/
+              && (ch != '/') && (ch != ':')
+              && (ch != '<') && (ch != '>') /*&& (ch != '?')*/
+              && (ch != '\\'))
+             || (ch == 131)
+             || (ch >= 160);
+    #endif
+  #endif
+}
+
 /* UP: check whether the character is a valid element of NAME or TYPE
  component in a Namestring
  legal_namechar(ch)
  > chart ch: character-code
- < return: true if legal, else false */
+ < return: true if valid, else false */
 local bool legal_namechar (chart ch) {
-  var uintB c;
- #ifdef UNICODE
-  /* Check whether ch fits into a single byte in O(pathname_encoding). */
-  if (!(cslen(O(pathname_encoding),&ch,1) == 1)) return false;
-  cstombs(O(pathname_encoding),&ch,1,&c,1); /* causes error message if it does not fit */
- #else
-  c = as_cint(ch);
- #endif
- #ifdef VALID_FILENAME_CHAR /* defined in unixconf.h */
-  #define ch c
-  return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
-  #undef ch
- #else
-  #ifdef PATHNAME_UNIX
-  return ((c>=' ') && (c<='~') && !(c=='/'));
+  #ifdef UNICODE
+    var uintB buf[4]; # are there characters longer than 4 bytes?!
+    var uintL char_len = cslen(O(pathname_encoding),&ch,1);
+    cstombs(O(pathname_encoding),&ch,1,buf,char_len);
+    while (char_len > 0) {
+      char_len--;
+      if (!legal_namebyte(buf[char_len])) return false;
+    }
+    return true;
+  #else
+    return legal_namebyte(as_cint(ch));
   #endif
-  #ifdef PATHNAME_WIN32
-  return ((c >= 1) && (c <= 127)
-          && (c != '"') /*&& (c != '*')*/
-          && (c != '/') && (c != ':')
-          && (c != '<') && (c != '>') /*&& (c != '?')*/
-          && (c != '\\'))
-         || (c == 131)
-         || (c >= 160);
-  #endif
- #endif
 }
 
 /* Determines, if a character is a wildcard for a single
