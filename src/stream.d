@@ -14391,15 +14391,18 @@ LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
 {
   var Handle fd;
  restart_make_stream:
-  if (posfixnump(STACK_4))
+  if (posfixnump(STACK_4)) {
     fd = (Handle)posfixnum_to_L(STACK_4);
-  else if (eq(STACK_4,S(Kinput)))
+  } else if (eq(STACK_4,S(Kinput))) {
     fd = stdin_handle;
-  else if (eq(STACK_4,S(Koutput)))
+    if (missingp(STACK_3)) STACK_3 = S(Kinput);
+  } else if (eq(STACK_4,S(Koutput))) {
     fd = stdout_handle;
-  else if (eq(STACK_4,S(Kerror)))
+    if (missingp(STACK_3)) STACK_3 = S(Koutput);
+  } else if (eq(STACK_4,S(Kerror))) {
     fd = stderr_handle;
-  else if (streamp(STACK_4)) {
+    if (missingp(STACK_3)) STACK_3 = S(Koutput);
+  } else if (streamp(STACK_4)) {
     var direction_t dir = check_direction(STACK_3);
     fd = stream_lend_handle(STACK_4,READ_P(dir),NULL);
   } else {
