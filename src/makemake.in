@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script -*-
 # Creation of the Makefile used for compiling CLISP
-# Bruno Haible 1991-2004
-# Sam Steingold 1999-2004
+# Bruno Haible 1991-2005
+# Sam Steingold 1999-2005
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
@@ -64,7 +64,7 @@ options:
     See modules/ directory for available modules and add them to the full
     linking set using --with-module option, e.g.,
        --with-module=bindings/glibc
-       --with-module=syscalls
+       --with-module=pari
 debug: Specify this if you will need to debug the C sources.
 Example:
        ./makemake --with-dynamic-ffi > Makefile
@@ -1847,6 +1847,7 @@ if [ "${with_dynamic_ffi}" != no ]; then
   echol   "# fastcgi              FastCGI (http://www.fastcgi.com/) interface"
   echol   "# oracle               Oracle (http://www.oracle.com/) interface"
   echol   "# netica               Netica (http://norsys.com/netica_c_api.htm)"
+  echol   "# pari                 PARI/gp (http://pari.math.u-bordeaux.fr/)"
   echol   "# zlib                 ZLIB (http://www.zlib.org)"
   if [ "$cpu" = i386 -a "$TSYSOS" = linux ] ; then
     echol "# bindings/glibc       Linux glibc bindings (GNU libc version 2)"
@@ -1864,7 +1865,7 @@ fi
 echol "MODULES = ${MODULES} "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
 echol
 echol "# List of add-on modules that are already hardwired in the base linking set"
-echol "BASE_MODULES = i18n"
+echol "BASE_MODULES = i18n syscalls regexp"
 echol
 echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then
