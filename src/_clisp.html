@@ -129,9 +129,11 @@ symbol-macro <code>*lib-directory*</code>.
 <dt id="opt-link-set"><strong><code>-K</code>
     <var>linking-set</var></strong></dt>
 <dd>Specifies the linking set to be run.
- This is a directory containing at least a main executable and an
- initial memory image.  Possible values are <code>base</code>,
- <code>full</code>.  The default is <code>base</code>.
+ This is a directory (relative to
+ <a href="#opt-libdir"><var>lisplibdir</var></a>) containing at least a
+ main executable (runtime) and an initial memory image.
+ Possible values are <code>base</code>, <code>full</code>.
+ The default is <code>base</code>.
 <p/></dd>
 #endif
 
@@ -139,7 +141,8 @@ symbol-macro <code>*lib-directory*</code>.
     <var>memfile</var></strong></dt>
 <dd>Specifies the initial memory image.
  This must be a memory dump produced by the
- <code><a href="impnotes.html#image">saveinitmem</a></code> function.
+ <code><a href="impnotes.html#image">saveinitmem</a></code> function by
+ this <code>clisp</code> <a href="#runtime">runtime</a>.
 #ifdef UNIX
  It may have been compressed using GNU
  <a href="http://www.gzip.org/">gzip</a>.

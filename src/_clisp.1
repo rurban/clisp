@@ -160,13 +160,18 @@ is already built-in in the
 executable.
 #endif
 Directory lisplibdir can be changed at run-time using the symbol-macro
-.B *lib-directory*.
+.B *lib-directory*
+.
 
 #ifdef UNIX
 .TP
 .BI "\-K " linking-set
-Specifies the linking set to be run. This is a directory containing at least
-a main executable and an initial memory image. Possible values are
+Specifies the linking set to be run.
+This is a directory (relative to
+.BI lisplibdir
+) containing at least a main executable (runtime)
+and an initial memory image.
+Possible values are
 .BR base ", " full .
 The default is
 .BR base .
@@ -177,9 +182,11 @@ The default is
 Specifies the initial memory image.
 This must be a memory dump produced by the
 .I saveinitmem
-function.
+function by this
+.B clisp
+runtime.
 #ifdef UNIX
-It may have been compressed using GNU gzip.
+It may have been compressed using GNU gzip(1).
 #endif
 
 .TP
@@ -618,7 +625,7 @@ startup script
 #if defined(RISCOS)
 .I lisp
 #endif
-main executable
+main executable (runtime)
 
 .TP
 .I lispinit.mem

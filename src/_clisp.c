@@ -180,7 +180,7 @@ int main (int argc, char* argv[])
           /* Options to which we have to pay attention. */
           case 'B':
             OPTION_ARG;
-            argv_lisplibdir = arg;
+            lisplibdir = argv_lisplibdir = arg;
             break;
           case 'K':
             OPTION_ARG;
