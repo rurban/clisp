@@ -105,9 +105,8 @@
          (FORCE-OUTPUT ,stream-var)))))
 
 ;;; for format, see `format-s-expression'
-(eval-when (compile load eval)
-  (fmakunbound 'stream-start-s-expression)
-  (fmakunbound 'stream-end-s-expression))
+(fmakunbound 'stream-start-s-expression)
+(fmakunbound 'stream-end-s-expression)
 (defgeneric stream-start-s-expression (stream)
   (:method ((stream t)) (declare (ignore stream)))
   (:method ((stream fill-stream))
