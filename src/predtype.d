@@ -1353,12 +1353,14 @@ LISPFUNNR(type_of,1)
         value1 = new_cons;
       }
       break;
+    case_snilvector: /* (SIMPLE-ARRAY NIL (DIMS)) */
     case_sb2vector: /* simple Byte-Vector -> (SIMPLE-ARRAY (UNSIGNED-BYTE n) (dim0)) */
     case_sb4vector:
     case_sb8vector:
     case_sb16vector:
     case_sb32vector:
       pushSTACK(S(simple_array)); goto arrays;
+    case_nilvector: /* (ARRAY NIL (DIMS)) */
     case_ob2vector: /* other Byte-Vector -> ([SIMPLE-]ARRAY (UNSIGNED-BYTE n) (dim0)) */
     case_ob4vector:
     case_ob8vector:
@@ -1413,6 +1415,8 @@ LISPFUNNR(type_of,1)
         case_Rectype_Sb32vector_above;
         case_Rectype_Sstring_above;
         case_Rectype_Svector_above;
+        case_Rectype_Snilvector_above;
+        case_Rectype_nilvector_above;
         case_Rectype_WeakKVT_above;
         case_Rectype_ostring_above;
         case_Rectype_ovector_above;
