@@ -1,5 +1,8 @@
 2000-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * compiler.lsp (compile-file): Don't pass a third argument to the
+          "~%~D error~:P, ~D warning~:P" format string.
+
         * lisparit.d: Don't use invalid syntax "## ".
         * posixmath.d: Don't use invalid syntax "## ".
           (POSIX:BOGOMIPS): Set mv_count after computing value1, not before.
