@@ -23,10 +23,15 @@ GROFF = nroff -man
 #PACKOPT = cvfhz
 #PACKEXT = .tar.Z
 
-# GNU tar together with GNU gzip. Excellent performance.
+# GNU tar together with GNU gzip. Good performance.
+#PACK = tar
+#PACKOPT = cvfhz
+#PACKEXT = .tar.gz
+
+# GNU tar together with bzip2. Slow, but excellent compression rates.
 PACK = tar
-PACKOPT = cvfhz
-PACKEXT = .tar.gz
+PACKOPT = cvfhj
+PACKEXT = .tar.bz2
 
 # Popular Amiga packer. Good performance.
 #PACK = lha
