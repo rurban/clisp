@@ -1,5 +1,14 @@
 2002-12-13  Sam Steingold  <sds@gnu.org>
 
+	CLUE and CLIO now compile with MIT-CLX
+	* modules/clx/mit-clx/dependent.lisp (radians->int16)
+	(int16->radians): avoid floating contagion warnings
+	* modules/clx/mit-clx/depdefs.lisp
+	(*def-clx-class-use-defclass*): set to '(window drawable pixmap)
+	* modules/clx/mit-clx/clx.lisp: (provide :clx)
+
+2002-12-13  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (kbd_last_buf): new function
 	(rd_ch_keyboard): use it to flush UnbufferedStream_bytebuf before
 	checking strm_keyboard_buffer: this fixes a bug in

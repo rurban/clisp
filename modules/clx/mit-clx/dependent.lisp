@@ -778,14 +778,14 @@
   (declare (type angle value))
   (declare (values int16))
   #.(declare-buffun)
-  (the int16 (values (round (the angle value) #.(float (/ pi 180.0s0 64.0s0) 0.0s0)))))
+  (the int16 (values (round (the angle value) #.(/ (float pi 0s0) 180s0 64s0)))))
 
 (defun int16->radians (value)
   ;; Short floats are good enough
   (declare (type int16 value))
   (declare (values short-float))
   #.(declare-buffun)
-  (the short-float (* (the int16 value) #.(coerce (/ pi 180.0 64.0) 'short-float))))
+  (the short-float (* (the int16 value) #.(/ (float pi 1s0) 180s0 64s0))))
 
 
 ;;-----------------------------------------------------------------------------
