@@ -1,5 +1,9 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* comptran.d (N_N_expt_N): Fix GC-safety bug introduced on 2002-09-11.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): Fix possible
 	GC-safety bug.
 
