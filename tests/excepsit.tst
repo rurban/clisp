@@ -1,3 +1,4 @@
+;;; -*- Lisp -*-
 ;;; Test "Exceptional situations" as specified by CLHS
 
 ;; NB: CLHS section 1.4.2 implies that we have to verify only those
@@ -1114,6 +1115,9 @@ type-error
 
 (values-list '(a b . c))
 type-error
+
+(values-list (make-list multiple-values-limit))
+error
 
 (vector-pop "foo67")
 type-error
