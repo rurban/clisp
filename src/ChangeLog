@@ -20,9 +20,9 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	Avoid conditional expressions of the form
-	(bool ? object : gcv_object_t) or (bool ? gcv_object_t : object).
-	* aridecl.d (FF_0, FF_1, FF_minus1, DF_0, DF_1, DF_minus1): Cast to
-	object.
+	 (bool ? object : gcv_object_t) or (bool ? gcv_object_t : object).
+	* aridecl.d (FF_0, FF_1, FF_minus1, DF_0, DF_1, DF_minus1): Cast
+	to object.
 	* array.d (bit_up): Cast conditional expression branch to object.
 	* compelem.d (N_realpart_R, N_imagpart_R): Likewise.
 	* debug.d (read_form): Likewise.
