@@ -130,17 +130,20 @@
         #       )
         #       istream
         # ) ) )
-        pushSTACK(*inputstream_); pushSTACK(NIL); pushSTACK(NIL);
-        funcall(L(read_line),3); # (READ-LINE istream nil nil)
-        var object line = value1;
-        if (nullp(line)) { # EOF am Zeilenanfang?
-          dynamic_unbind(); # S(key_bindings)
-          goto eof;
-        }
+        do {
+          # this loop is for win32 and its C-z RET abomination: after
+          # C-z (EOF) is processed, there is an empty line in the stream
+          pushSTACK(*inputstream_); pushSTACK(NIL); pushSTACK(NIL);
+          funcall(L(read_line),3); # (READ-LINE istream nil nil)
+          if (nullp(value1)) { # EOF am Zeilenanfang?
+            dynamic_unbind(); # S(key_bindings)
+            goto eof;
+          }
+        } while (Sstring_length(value1) == 0);
+        var object line = value1; # non-trivial line
         # NB: line is a simple-string, due to our particular READ-LINE
         # implementation.
-        # search for line in *KEY-BINDINGS*:
-        {
+        { # search for line in *KEY-BINDINGS*:
           var object alist = Symbol_value(S(key_bindings));
           var uintL input_len = Sstring_length(line);
           for (;consp(alist);alist = Cdr(alist))
