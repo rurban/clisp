@@ -17,7 +17,7 @@
 .el .ne 3
 .IP "\\$1" \\$2
 ..
-.TH "CLISP" 1 "Last modified: 2004-11-08" "" "CLISP version 2.33"
+.TH "CLISP" 1 "Last modified: 2004-11-16" "" "CLISP version 2.33"
 .SH NAME
 clisp \- ANSI Common Lisp compiler, interpreter and debugger.
 .SH "SYNOPSIS"
@@ -236,14 +236,7 @@ Compile when loading: at startup the value of the variable \fICUSTOM:*LOAD\-COMP
 
 .TP
 \fB\-norc\fR
-Normally \fBCLISP\fR loads the user ``run control'' (RC) file on startup (this happens \fIafter\fR the \fB\-C\fR option is processed)\&. The file loaded is
-#if defined(PATHNAME_WIN32)
-\fI_clisprc\&.lisp\fR or \fI_clisprc\&.fas\fR in the home directory \fBUSER\-HOMEDIR\-PATHNAME\fR,
-#endif
-#if defined(PATHNAME_UNIX)
-\fI${HOME}/\&.clisprc\&.lisp\fR or \fI${HOME}/\&.clisprc\&.fas\fR,
-#endif
-whichever is newest\&. This option, \fB\-norc\fR, prevents loading of the RC file\&.
+Normally \fBCLISP\fR loads the user ``run control'' (RC) file on startup (this happens \fIafter\fR the \fB\-C\fR option is processed)\&. The file loaded is \fI\&.clisprc\&.lisp\fR or \fI\&.clisprc\&.fas\fR in the home directory \fBUSER\-HOMEDIR\-PATHNAME\fR, whichever is newer\&. This option, \fB\-norc\fR, prevents loading of the RC file\&.
 
 .TP
 \fB\-i\fR \fIinit\-file\fR
@@ -465,7 +458,7 @@ CLISP impnotes, \fBCMU CL\fR \- \fBcmucl\fR(1), Emacs \- \fBemacs\fR(1), XEmacs 
 
 
 .PP
-When you encounter a bug in \fBCLISP\fR, please report it to the CLISP mailing list or the SourceForge bug tracker\&.
+When you encounter a bug in \fBCLISP\fR, please report it to the CLISP user mailing list <clisp\-list/at/sf\&.net> or the SourceForge bug tracker\&.
 
 
 
@@ -555,7 +548,7 @@ Add Multi\-Threading capabilities, via OS threads\&.
 
 
 .PP
-\fBCLISP\fR project was started in late 1980\-ies by Bruno Haible and Michael Stoll, both in Germany\&.
+\fBCLISP\fR project was started in late 1980\-ies by Dr. Bruno Haible and Dr. Michael Stoll, both in Germany\&.
 
 
 
