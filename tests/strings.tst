@@ -926,7 +926,7 @@ error
 error
 
 (STRING-TRIM   (QUOTE (A)) "ababa")
-#+XCL error #+(or CLISP GCL ALLEGRO CMU) "ababa" #-(or XCL CLISP GCL ALLEGRO CMU) UNKNOWN
+#+XCL error #+(or CLISP GCL ECL ALLEGRO CMU) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU) UNKNOWN
 
 (STRING-TRIM   "a" "ababa")
 "bab"
@@ -955,7 +955,7 @@ error
 error
 
 (STRING-LEFT-TRIM   (QUOTE (A)) "ababa")
-#+XCL error #+(or CLISP GCL ALLEGRO CMU) "ababa" #-(or XCL CLISP GCL ALLEGRO CMU) UNKNOWN
+#+XCL error #+(or CLISP GCL ECL ALLEGRO CMU) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU) UNKNOWN
 
 (STRING-LEFT-TRIM   "a" "ababa")
 "baba"
@@ -983,7 +983,7 @@ error
 error
 
 (STRING-RIGHT-TRIM   (QUOTE (A)) "ababa")
-#+XCL error #+(or CLISP GCL ALLEGRO CMU) "ababa" #-(or XCL CLISP GCL ALLEGRO CMU) UNKNOWN
+#+XCL error #+(or CLISP GCL ECL ALLEGRO CMU) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU) UNKNOWN
 
 (STRING-RIGHT-TRIM   "a" "ababa")
 "abab"
@@ -1066,8 +1066,8 @@ error
 (STRING-CAPITALIZE  "34a 5BC")
 "34a 5bc"
 
-(STRING  1)
-error
+(STRING 65)
+#+ECL "A" #-ECL error
 
 (STRING  (QUOTE A))
 "A"
@@ -1103,7 +1103,7 @@ error
 (NSTRING-DOWNCASE  "abCD efGh-ij" :START 6 :END 1)   ERROR
 
 (NSTRING-DOWNCASE  "abCD efGh-ij" :START NIL :END NIL)
-#+(or XCL AKCL) "abcd efgh-ij" #-(or XCL AKCL) ERROR
+#+(or XCL AKCL ECL) "abcd efgh-ij" #-(or XCL AKCL ECL) ERROR
 
 (NSTRING-UPCASE  "abDC efGh-oj")   "ABDC EFGH-OJ"
 
@@ -1120,7 +1120,7 @@ error
 (NSTRING-UPCASE  "abCD efGh-ef" :START 3 :END 1)   ERROR
 
 (NSTRING-UPCASE  "abCD efGh-ef" :START NIL :END NIL)
-#+(or XCL AKCL) "ABCD EFGH-EF" #-(or XCL AKCL) ERROR
+#+(or XCL AKCL ECL) "ABCD EFGH-EF" #-(or XCL AKCL ECL) ERROR
 
 (NSTRING-DOWNCASE  "saBG efGh-ef")   "sabg efgh-ef"
 
@@ -1129,7 +1129,7 @@ error
 (NSTRING-DOWNCASE  "fgCD efGf-ef" :START 1 :END 3)   "fgcD efGf-ef"
 
 (NSTRING-DOWNCASE  "dfCF edFg-fg" :START NIL :END NIL)
-#+(or XCL AKCL) "dfcf edfg-fg" #-(or XCL AKCL) ERROR
+#+(or XCL AKCL ECL) "dfcf edfg-fg" #-(or XCL AKCL ECL) ERROR
 
 (NSTRING-DOWNCASE  "fgHG edgf-fg" :START 5 :END 1)   ERROR
 

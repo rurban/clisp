@@ -1,3 +1,13 @@
+2000-03-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Add support for ECL.
+        * array.tst, characters.tst, eval20.tst, format.tst, hashlong.tst,
+          iofkts.tst, lists152.tst, lists154.tst, lists155.tst, lists156.tst,
+          map.tst, pack11.tst, streams.tst, strings.tst, symbol10.tst,
+          symbols.tst, tests.lsp, type.tst: Add ECL conditionals. Based on
+          patches by Juan Jose Garcia Ripoll <jjgarcia@ind-cr.uclm.es>.
+        * pack11.tst: Change  :use 'xxx  to  :use '(xxx).
+
 1999-11-29  Sam Steingold  <sds@goems.com>
 
 	* path.tst: test `translate-logical-pathname' and

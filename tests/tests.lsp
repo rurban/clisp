@@ -11,7 +11,7 @@
      ) )
 ) )
 
-#+AKCL
+#+(or AKCL ECL)
 (defmacro with-ignored-errors (&rest forms)
   (let ((b (gensym))
         (h (gensym)))
@@ -35,7 +35,7 @@
      )
 ) )
 
-#-(or CLISP AKCL ALLEGRO)
+#-(or CLISP AKCL ECL ALLEGRO)
 (defmacro with-ignored-errors (&rest forms)
   (let ((b (gensym)))
     `(BLOCK ,b
@@ -83,7 +83,7 @@
                  (format t "~%ERROR!! ~S should be ~S !" my-result result)
                  (format log "~%Form: ~S~%CORRECT: ~S~%~A: ~S~%"
                              form result
-                             #+CLISP "CLISP" #+AKCL "AKCL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
+                             #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
                              my-result
                 ))
 ) ) ) ) ) )
@@ -105,7 +105,7 @@
                    (format t "~%ERROR!! ~S instead of ~S !" my-result errtype)
                    (format log "~%Form: ~S~%CORRECT: ~S~%~A: ~S~%"
                                form errtype
-                               #+CLISP "CLISP" #+AKCL "AKCL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
+                               #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
                                my-result
                   ))
 ) ) ) ) ) ) )
@@ -130,7 +130,7 @@
 
 (defun run-all-tests ()
   (mapc #'run-test
-        '( #-AKCL                   "alltest"
+        '( #-(or AKCL ECL)          "alltest"
                                     "array"
                                     "backquot"
            #-AKCL                   "characters"
@@ -162,7 +162,7 @@
            #-ALLEGRO                "streams"
                                     "streamslong"
                                     "strings"
-           #-AKCL                   "symbol10"
+           #-(or AKCL ECL)          "symbol10"
                                     "symbols"
            #+XCL                    "tprint"
            #+XCL                    "tread"
