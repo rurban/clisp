@@ -22,20 +22,21 @@ ac_cv_header_sys_shm_h=${ac_cv_header_sys_shm_h='yes'}
 ac_cv_header_unistd_h=${ac_cv_header_unistd_h='yes'}
 ac_cv_path_LD=${ac_cv_path_LD='/usr/ccs/bin/ld'}
 ac_cv_path_NM=${ac_cv_path_NM='/usr/ccs/bin/nm -p'}
-ac_cv_prog_CC=${ac_cv_prog_CC='cc'}
-ac_cv_prog_CPP=${ac_cv_prog_CPP='cc -E'}
+ac_cv_prog_CC=${ac_cv_prog_CC='gcc -fpcc-struct-return -O'}
+ac_cv_prog_CPP=${ac_cv_prog_CPP='gcc -fpcc-struct-return -O -E -w'}
 ac_cv_prog_LN_S=${ac_cv_prog_LN_S='ln -s'}
 ac_cv_prog_RANLIB=${ac_cv_prog_RANLIB='true'}
 ac_cv_prog_cc_cross=${ac_cv_prog_cc_cross='no'}
 ac_cv_prog_cc_works=${ac_cv_prog_cc_works='yes'}
-ac_cv_prog_gcc=${ac_cv_prog_gcc='no'}
+ac_cv_prog_gcc=${ac_cv_prog_gcc='yes'}
+ac_cv_prog_gcc_traditional=${ac_cv_prog_gcc_traditional='no'}
 ac_cv_prog_gnu_ld=${ac_cv_prog_gnu_ld='no'}
 ac_cv_prog_make_make_set=${ac_cv_prog_make_make_set='yes'}
 cl_cv_c_float_return_ireg=${cl_cv_c_float_return_ireg='no'}
 cl_cv_c_longlong=${cl_cv_c_longlong='yes'}
-cl_cv_c_return_void=${cl_cv_c_return_void='no'}
+cl_cv_c_return_void=${cl_cv_c_return_void='yes'}
 cl_cv_c_struct_return_small=${cl_cv_c_struct_return_small='no'}
-cl_cv_c_struct_return_static=${cl_cv_c_struct_return_static='yes'}
+cl_cv_c_struct_return_static=${cl_cv_c_struct_return_static='no'}
 cl_cv_c_void=${cl_cv_c_void='yes'}
 cl_cv_codeexec=${cl_cv_codeexec='yes'}
 cl_cv_decl_O_RDWR_fcntl_h=${cl_cv_decl_O_RDWR_fcntl_h='yes'}
@@ -49,7 +50,7 @@ cl_cv_host=${cl_cv_host='sparc-sun-solaris2.4'}
 cl_cv_host_sparc64=${cl_cv_host_sparc64='no'}
 cl_cv_path_install=${cl_cv_path_install='cp'}
 cl_cv_prog_as_underscore=${cl_cv_prog_as_underscore='no'}
-cl_cv_prog_cc_gcc=${cl_cv_prog_cc_gcc='no'}
+cl_cv_prog_cc_gcc=${cl_cv_prog_cc_gcc='yes'}
 cl_cv_proto_abort=${cl_cv_proto_abort='extern void abort (void);'}
 cl_cv_proto_abort_ret=${cl_cv_proto_abort_ret='void'}
 cl_cv_proto_abort_vol=${cl_cv_proto_abort_vol=''}
