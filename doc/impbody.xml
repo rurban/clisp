@@ -4042,8 +4042,7 @@ functions are provided:
 
 <section id="print-formatted"><title>Formatted Output
   <ulink url="&clhs;/Body/sec_22-3.html">[CLHS-22.3]</ulink></title>
-
-<section id="format"><title>Function &format;</title>
+ <subtitle>Function &format;</subtitle>
 
 <para>The additional &format; instruction
  <firstterm>~!<indexterm id="format-bang" significance="preferred">
@@ -4087,14 +4086,12 @@ functions are provided:
 
 </section>
 
-</section>
-
 <section id="print-dict"><title>The Printer Dictionary
    <ulink url="&clhs;/Body/sec_the_printer_dictionary.html">[CLHS-22.4]</ulink></title>
 
 <formalpara><title>Functions &write; &amp; &write-to-string;</title>
 <para>The functions &write; and &write-to-string; have an additional
- keyword argument <constant>:closure</constant> which is used to bind
+ keyword argument <constant>:CLOSURE</constant> which is used to bind
  &pr-closure;.</para></formalpara>
 
 <!-- //Commented out from the source code.
@@ -4157,8 +4154,8 @@ warning, you need to fix the source code of the incriminated method.</para>
 <section id="print-misc"><title>Miscellaneous Issues</title>
 
 <para>&print-case-var; controls the output not only of symbols, but also
- of characters and some <computeroutput>#&lt;...&gt;</computeroutput>
- objects.</para>
+ of characters and some unreadable
+ <computeroutput>#&lt;...&gt;</computeroutput> objects.</para>
 
 <para>In the absence of
  <firstterm><ulink url="&clhs;/Body/sec_22-1-3-1-3.html"
@@ -4167,7 +4164,7 @@ warning, you need to fix the source code of the incriminated method.</para>
    <primary id="write-float-decimal-i"><function>WRITE-FLOAT-DECIMAL</function>
  </primary></indexterm></firstterm>,
  floating point numbers are output in radix 2.  This function is defined
- in <filename>"floatpri.lisp"</filename> and is not available if you run
+ in &floatprint-lisp; and is not available if you run
  &clisp; without a &mem-image; (which you should never do anyway!)</para>
 
 <para>If &print-readably-var; is true, &read-default-float-format-var;
