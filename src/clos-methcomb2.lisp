@@ -391,11 +391,24 @@ the next-method support."
                       ,wrapped-ef-form)))))
       ef-fun)))
 
-(defun compute-effective-method-as-function-form (gf combination methods)
+(defun compute-effective-method-<standard-generic-function> (gf combination methods)
   ;; Apply method combination:
+  (funcall (method-combination-expander combination)
+           gf combination (method-combination-options combination) methods))
+
+;; Preliminary.
+(defun compute-effective-method (gf combination methods)
+  (compute-effective-method-<standard-generic-function> gf combination methods))
+
+(defun compute-effective-method-as-function-form (gf combination methods)
+  ;; Call the customizable compute-effective-method from the MOP. (No need to
+  ;; verify that it produces exactly two values: Many user-defined methods
+  ;; probably return just the first value, letting the second value default
+  ;; to empty.)
   (multiple-value-bind (effective-method-form effective-method-options)
-      (funcall (method-combination-expander combination)
-               gf combination (method-combination-options combination) methods)
+      (if (eq gf #'compute-effective-method) ; for bootstrapping
+        (compute-effective-method-<standard-generic-function> gf combination methods)
+        (compute-effective-method gf combination methods))
     ;; Build a function form around the inner form:
     (build-effective-method-function-form gf combination methods
       effective-method-form
