@@ -1576,7 +1576,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         loop {
           if (z.count==0)
             goto no_hostspec; /* string already through -> no Host */
-          ch = TheSstring(STACK_1)->data[z.index]; /* next character */
+          ch = TheSnstring(STACK_1)->data[z.index]; /* next character */
           if (!alphanumericp(ch))
             break;
           /* skip alphanumeric character: */
@@ -1723,7 +1723,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
          If a '$' follows immediately, an Environment-Variable is read up
          to the next '/' or string-end and its value is inserted: */
         if ((z.count != 0)
-            && chareq(TheSstring(STACK_2)->data[z.index],ascii('$'))) {
+            && chareq(TheSnstring(STACK_2)->data[z.index],ascii('$'))) {
           /* A '$' follows immediately.
            skip character: */
           Z_SHIFT(z,1);
@@ -1731,7 +1731,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           /* search next '/' : */
           var uintL charcount = 0;
           {
-            var const chart* charptr = &TheSstring(STACK_2)->data[z.index];
+            var const chart* charptr = &TheSnstring(STACK_2)->data[z.index];
             var uintL count;
             dotimesL(count,z.count, {
               if (chareq(*charptr++,ascii('/')))
@@ -1784,7 +1784,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           var chart ch = down_case(schar(STACK_2,z.index));
           if ((as_cint(ch) >= 'a') && (as_cint(ch) <= 'z')) {
             Car(STACK_0) = allocate_string(1);
-            TheSstring(Car(STACK_0))->data[0] = ch;
+            TheSnstring(Car(STACK_0))->data[0] = ch;
             Z_SHIFT(z,2);
             if (Z_AT_SLASH(z,pslashp,STACK_2)) Z_SHIFT(z,1);
           } else goto continue_parsing_despite_semicolon;
@@ -5540,11 +5540,11 @@ global object assume_dir_exists (void) {
 local object OSdirnamestring (object namestring) {
   var uintL len = Sstring_length(namestring);
   if (len==0) goto ok; /* empty string -> do not discard anything */
-  var chart ch = TheSstring(namestring)->data[len-1];
+  var chart ch = TheSnstring(namestring)->data[len-1];
   if (!chareq(ch,ascii('\\'))) /* no '\' at the end -> do not discard */
     goto ok;
   if (len==1) goto ok; /* "\" means Root -> do not discard */
-  ch = TheSstring(namestring)->data[len-2];
+  ch = TheSnstring(namestring)->data[len-2];
   if (chareq(ch,ascii('\\')) || colonp(ch)) /* '\' or ':' before it */
     goto ok; /* -> means parent -> do not discard */
   /* discard '\' at the end: */
