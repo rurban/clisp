@@ -2581,6 +2581,57 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   # values, mv_count are set by funcall
 }
 
+/* (FFI::CALL-WITH-FOREIGN-STRING thunk encoding string start end extra-zeroes)
+ Allocate string on stack, converted according to encoding and
+ invoke (funcall thunk foreign-address charsize bytesize).
+ Allows to allocate many zero bytes (like a partially filled buffer) */
+LISPFUNN(call_with_foreign_string,6)
+{
+  if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
+  var uintL zeroes = posfixnum_to_L(popSTACK());
+  if (!functionp(STACK_4)) fehler_function(STACK_4);
+  if (!encodingp(STACK_3)) fehler_encoding(STACK_3);
+  /* Stack layout: ... string start end. - as needed for test_limits
+     the following code inspired by with_string() and substring(): */
+  var stringarg arg;
+  var object data_array = test_string_limits_ro(&arg);
+  /* Stack: ... thunk encoding. - string start and end were popped off */
+  var const chart* srcptr;
+  unpack_sstring_alloca(data_array,arg.len, arg.offset+arg.index, srcptr=);
+  var object encoding = STACK_0;
+  var uintL charsize = arg.len;
+  var uintL bytesize = cslen(encoding,srcptr,charsize);
+  var DYNAMIC_ARRAY(stack_data,uintB,bytesize+zeroes);
+  cstombs(encoding,srcptr,charsize,&stack_data[0],bytesize);
+  if (zeroes != 0) { /* add terminating zero bytes */
+    do {stack_data[bytesize++] = 0;} while (--zeroes);
+    charsize++;
+  }
+  { var object pointer_base = allocate_fpointer((void*)&stack_data[0]);
+    pushSTACK(pointer_base);
+    var object* top_of_frame = STACK;
+    var sp_jmp_buf returner;
+    finish_entry_frame(UNWIND_PROTECT,&!returner,, {
+      /* UNWIND-PROTECT case: (MARK-INVALID-FOREIGN pointer_base) */
+      var restartf_t fun = unwind_protect_to_save.fun;
+      var object* arg = unwind_protect_to_save.upto_frame;
+      skipSTACK(2); /* unwind Unwind-Protect-Frame */
+      pointer_base = popSTACK();
+      mark_fp_invalid(TheFpointer(pointer_base));
+      fun(arg); /* and jump ahead */
+      NOTREACHED;
+    });
+    pushSTACK(make_faddress(pointer_base,0));
+    pushSTACK(fixnum(charsize));
+    pushSTACK(fixnum(bytesize));
+    funcall(STACK_(1+1+2+3),3);
+    skipSTACK(2); /* unwind UNWIND-PROTECT frame */
+    pointer_base = popSTACK();
+    mark_fp_invalid(TheFpointer(pointer_base));
+  }
+  FREE_DYNAMIC_ARRAY(stack_data);
+  skipSTACK(2);
+}
 
 /* (FFI:FOREIGN-ALLOCATE c-type &key initial-contents count read-only)
  Allocates memory. If initial-contents is set (even NIL), invokes

@@ -1,3 +1,16 @@
+2003-01-31  Jörg Höhle  <Joerg-Cyril.Hoehle@...>
+
+	patch #[ 678216 ]: FFI:WITH-FOREIGN-STRING
+	* foreign.lisp (with-foreign-string): store string on C stack
+        using any encoding
+	* foreign.d (call_with_foreign_string): ditto
+	* subr.d, constsym.d (call_with_foreign_string): added
+	* type.lisp (encoding-zeroes): how many terminating \0 bytes does
+	one expect when working with character of encoding X?
+	4 for UTF-32, 2 for UTF-16, 1 for UTF-8 or ISO-8859-1 etc.
+	* encoding.d (fehler_encoding): moved to error.d
+	* lispbibl.d (fehler_encoding): prototype
+
 2003-03-11  Sam Steingold  <sds@gnu.org>
 
 	added EXT:MODULE-INFO for module information extraction

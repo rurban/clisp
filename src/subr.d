@@ -1233,6 +1233,7 @@ LISPFUNN(slot,2)
 LISPFUNN(cast,2)
 LISPFUNN(offset,3)
 LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL)
+LISPFUNN(call_with_foreign_string,6)
 LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
         (kw(initial_contents),kw(count),kw(read_only)))
 LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))

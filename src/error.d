@@ -845,6 +845,15 @@ nonreturning_function(global, fehler_streamtype, (object obj, object type)) {
   fehler(type_error,GETTEXT("~: argument ~ should be a stream of type ~"));
 }
 
+/* Report an error when the argument is not an encoding:
+ > obj: the bad argument */
+nonreturning_function(global, fehler_encoding, (object obj)) {
+  pushSTACK(obj); /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(encoding)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ is not a character set"));
+}
+
 /* error-message, if an argument is not a Function:
  fehler_function(obj);
  > obj: the erroneous argument */
