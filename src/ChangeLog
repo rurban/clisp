@@ -1,5 +1,10 @@
 2004-09-13  Sam Steingold  <sds@gnu.org>
 
+	* runprog.lisp (run-shell-command) [win32]: :INDIRECTP defaults to T
+	Reported by Jörg Höhle
+
+2004-09-13  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (cross/LPARS, full-check):
 	make sure that ${someflags} is expanded
 	Reported by Jörg Höhle
