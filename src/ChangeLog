@@ -1,5 +1,10 @@
 2004-09-30  Bruno Haible  <bruno@clisp.org>
 
+	* type.lisp (subtype-integer): Signal an error if the argument is a
+	circular or dotted list.
+
+2004-09-30  Bruno Haible  <bruno@clisp.org>
+
 	* sequence.d (valid_type1): Call SYS::SUBTYPE-SEQUENCE as a last
 	chance to determine the sequence type.
 	* type.lisp (subtype-sequence, type-of-sequence, sequence-type-union,
