@@ -61,10 +61,8 @@ T = $(TOPDIR)
 
 SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure #$T/HTML-index.html
 #SOURCES2 = $T/src/*
-# exclude $T/src/g*t = $T/src/gettext
 SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
-# exclude $T/src/gettext/*o/*p = $T/src/gettext/po/tmp
-SOURCES3 = $T/src/gettext/*[^o] $T/src/gettext/po/*[^p]
+SOURCES3 = $T/src/po/*[^p]
 SOURCES4 = $T/ffcall $T/sigsegv $T/libcharset $T/utils
 SOURCES5 = $T/unix $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
 SOURCES6 = $T/modules
@@ -116,9 +114,9 @@ makemake : src/makemake.in
 	chmod a+x makemake
 
 
-CONFIGURES = src/configure src/gettext/configure modules/wildcard/configure modules/regexp/configure modules/clx/new-clx/configure ffcall/configure ffcall/avcall/configure ffcall/vacall/configure ffcall/trampoline/configure ffcall/callback/configure ffcall/callback/vacall_r/configure ffcall/callback/trampoline_r/configure sigsegv/configure utils/hln/configure
+CONFIGURES = src/configure modules/wildcard/configure modules/regexp/configure modules/clx/new-clx/configure ffcall/configure ffcall/avcall/configure ffcall/vacall/configure ffcall/trampoline/configure ffcall/callback/configure ffcall/callback/vacall_r/configure ffcall/callback/trampoline_r/configure sigsegv/configure utils/hln/configure
 
-configures : ffcall/autoconf/aclocal.m4 sigsegv/autoconf/aclocal.m4 $(CONFIGURES) src/gettext/config.h.in
+configures : ffcall/autoconf/aclocal.m4 sigsegv/autoconf/aclocal.m4 $(CONFIGURES)
 
 src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4)
 	cd src ; aclocal --acdir=m4 --output=autoconf/aclocal.m4
@@ -127,12 +125,6 @@ AUTOCONF_FILES = src/autoconf/aclocal.m4 src/autoconf/autoconf.m4f
 
 src/configure : src/configure.in $(AUTOCONF_FILES)
 	cd src ; autoconf/autoconf -A autoconf -l autoconf
-
-src/gettext/configure : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/autoconf/autoconf.m4f
-	cd src/gettext ; $(MAKE) -f Makefile.devel configure
-
-src/gettext/config.h.in : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/autoconf/autoconf.m4f src/gettext/acconfig.h
-	cd src/gettext ; $(MAKE) -f Makefile.devel config.h.in
 
 modules/wildcard/configure : modules/wildcard/configure.in $(AUTOCONF_FILES)
 	cd modules/wildcard ; ../../src/autoconf/autoconf -A ../../src/autoconf -l ../../src/autoconf
@@ -183,7 +175,7 @@ check-configures : $(CONFIGURES)
 
 
 potfiles :
-	cd src/gettext/po ; $(MAKE) -f Makefile.devel
+	cd src/po ; $(MAKE) -f Makefile.devel
 
 
 view-man :
@@ -293,9 +285,7 @@ src--distrib : force
 	ln -s . $(TOPDIR)
 	$(PACK) $(PACKOPT) $(SRC_DIST) $(EXCLUDE) $(SOURCES)
 	rm -f $(TOPDIR)
-# No need for this. François Pinard doesn't like CLISP's submissions any more.
-# Doesn't matter; the KDE project's translations work independently too.
-#	cd src/gettext/po && $(PACK) $(PACKOPT) /tmp/$(TOPDIR)-potfiles$(PACKEXT) *.po*
+	cd src/po && $(PACK) $(PACKOPT) /tmp/$(TOPDIR)-potfiles$(PACKEXT) *.po*
 
 linux-distrib : force
 	$(MAKE) linux--distrib
