@@ -2,8 +2,8 @@
 # (c) 2000-2004 Sam Steingold
 
 DTDVER=4.2
-IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml			\
-	impext.xml impissue.xml impbyte.xml unix-ent.xml		\
+IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml		\
+	impext.xml impissue.xml impbyte.xml unix-ent.xml mop-ent.xml	\
 	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
 	../modules/regexp/regexp.xml ../modules/netica/netica.xml       \
 	../modules/berkeley-db/berkeley-db.xml ../modules/pcre/pcre.xml \
