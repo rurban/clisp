@@ -1,5 +1,14 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_memfile.d: New file.
+        * spvw.d (memflags, memdump_header, memdump_page,
+           memdump_physpage_state, memdump_reloc_header, page_alignment,
+           WRITE_page_alignment, READ_page_alignment, savemem, loadmem_update,
+           loadmem_update_fsubr, loadmem, loadmem_from_handle): Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_language.d: New file.
         * spvw.d (mysetenv, language, init_language_from, init_language,
            cvgettext, clgettext, localized_string, localized_object): Move out.
