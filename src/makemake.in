@@ -2676,11 +2676,13 @@ if [ $TOS = win32 ] ; then
 fi
 
 DATA_FILES="UnicodeData.txt clhs.txt"
-echol "data :"
-echotab "if test -d data; then rm -rf data; fi"
-echotab "mkdir data"
-echotab "cd data && \$(LN_S) ${PARENT_SRCTOPDIR}utils${NEXT}unicode${NEXT}ftp.unicode.org${NEXT}UnicodeData.txt UnicodeData.txt"
-echotab "cd data && \$(LN_S) ${PARENT_SRCTOPDIR}src${NEXT}clhs.txt clhs.txt"
+DATA_FILES_FULL_PATH="${SRCTOPDIR_}utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeData.txt ${SRCTOPDIR_}src${NEXT_}clhs.txt"
+echol "data : ${DATA_FILES_FULL_PATH}"
+echotab "-\$(RM) data${NEXT_}*"
+echotab "-mkdir data"
+for f in ${DATA_FILES_FULL_PATH}; do
+  echotab "cd data && \$(LN_S) ${PARENT_}${f} ."
+done
 echol
 
 echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_ICONVLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} data"
@@ -2927,7 +2929,7 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS ; do
     echol "${TESTDIR}${NEXT_M}${f}.fas : ${TESTDIR}${NEXT_M}${f}.lisp lisp${LEXE} ${TESTIMAGE}"
-    echotab "\$(RUN) -M ${TESTIMAGE} -q -c ${TESTDIR}${NEXT}${f}.lisp"
+    echotab "\$(RUN) -M ${TESTIMAGE} -q -c ${TESTDIR}${NEXT_}${f}.lisp"
     echol
   done
 
@@ -2954,9 +2956,7 @@ if [ $CROSS = false ] ; then
   echol
   echol "${TESTSDIR} :"
   echotab "-mkdir ${TESTSDIR}"
-  echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/Makefile ."
-  echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/*.lisp ."
-  echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/*.tst ."
+  echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_}${SRCTOPDIR_}tests${NEXT_}Makefile ${PARENT_}${SRCTOPDIR_}tests${NEXT_}*.lisp ${PARENT_}${SRCTOPDIR_}tests${NEXT_}*.tst ."
   echol
   echol
 
@@ -3625,7 +3625,7 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT}* ${TESTSDIR}${NEXT}*
+	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT_}* ${TESTSDIR}${NEXT_}*
 !!
 if [ ${LIB_TYPE} = "win32" ] ; then
 cat <<!!
