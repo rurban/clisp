@@ -126,6 +126,7 @@
     ((BIT) 'BIT)
     ((CHARACTER) 'CHARACTER)
     ((T) 'T)
+    ((NIL) 'NIL)
     (t (multiple-value-bind (low high) (sys::subtype-integer type)
          ; Es gilt (or (null low) (subtypep type `(INTEGER ,low ,high)))
          (if (and (integerp low) (not (minusp low)) (integerp high))

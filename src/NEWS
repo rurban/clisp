@@ -83,6 +83,7 @@ User visible changes
   + removed macro definition from GENERIC-FUNCTION;
   + APPEND, COPY-ALIST, REVAPPEND, NRECONC, PAIRLIS, GET, GETF,
     REMPROP, GET-PROPERTIES no longer accept dotted lists;
+  + implemented arrays with ARRAY-ELEMENT-TYPE NIL;
   + a character is now accepted as a package designator.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance suite.
 

@@ -206,6 +206,8 @@ local object valid_type1 (object name) {
               name = S(string); goto expanded;
             } else if (atype==Atype_Bit) { # (VECTOR BIT)
               name = S(bit_vector); goto expanded;
+            } else if (atype == Atype_NIL) { /* (VECTOR NIL) */
+              name = Fixnum_0; goto expanded;
             } else { # (VECTOR (UNSIGNED-BYTE n))
               name = fixnum(bit(atype)); goto expanded; }
           }
@@ -259,6 +261,8 @@ local object get_seq_type (object seq) {
       case Array_type_b16vector:
       case Array_type_b32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
         name = fixnum(bit(bNvector_atype(seq))); break;
+      case Array_type_snilvector: case Array_type_nilvector: /* (VECTOR NIL) */
+        name = Fixnum_0; break;
       default:
         name = S(vector); break; # Typ [GENERAL-]VECTOR
     }

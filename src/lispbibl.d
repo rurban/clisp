@@ -3379,7 +3379,8 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define stream_type     (               BTB3     |BTB1|BTB0) # 0x0B  # %00001011  ; stream
   #define orecord_type    (               BTB3|BTB2          ) # 0x0C  # %00001100  ; OtherRecord (Package, Byte, ...)
   #define instance_type   (               BTB3|BTB2     |BTB0) # 0x0D  # %00001101  ; CLOS instance
-  #define mdarray_type    (               BTB3|BTB2|BTB1|BTB0) # 0x0F  # %00001111  ; other array (rank/=1 or other eltype)
+  #define mdarray_type    (               BTB3|BTB2|BTB1     ) # 0x0E  # %00001110  ; other array (rank/=1 or other eltype)
+  #define weakkvt_type    (               BTB3|BTB2|BTB1|BTB0) # 0x0F  # %00001111  ; weak-key-value-table
   #define sbvector_type   (          BTB4                    ) # 0x10  # %00010000  ; simple-bit-vector
   #define sb2vector_type  (          BTB4               |BTB0) # 0x11  # %00010001  ; simple (VECTOR (UNSIGNED-BYTE 2))
   #define sb4vector_type  (          BTB4          |BTB1     ) # 0x12  # %00010010  ; simple (VECTOR (UNSIGNED-BYTE 4))
@@ -3404,7 +3405,6 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define dfloat_type     (     BTB5     |BTB3     |BTB1     ) # 0x2A  # %00101010  ; double-float
   #define complex_type    (     BTB5     |BTB3|BTB2          ) # 0x2C  # %00101100  ; complex
   #define lfloat_type     (     BTB5     |BTB3|BTB2|BTB1     ) # 0x2E  # %00101110  ; long-float
-  #define weakkvt_type    (     BTB5|BTB4                    ) # 0x30  # %00110000  ; weak-key-value-table
   #if (TB6 >= 0)
   #define cons_type       (BTB6                              ) # 0x40  # %01000000  ; cons
   #endif
@@ -3978,7 +3978,7 @@ typedef xrecord_ *  Xrecord;
            rectype_limit, # Here is the limit between Srecord and Xrecord.
          Rectype_Hashtable = rectype_limit,
          #ifndef TYPECODES
-                          # Here the arrays start.
+           /* Rectype_vector is the bottom ARRAY & VECTOR */
          Rectype_vector,            /* 1 */ # Iarray, not Srecord/Xrecord
          Rectype_bvector,           /* 2 */ # Iarray, not Srecord/Xrecord
          Rectype_b2vector,          /* 3 */ # Iarray, not Srecord/Xrecord
@@ -3986,7 +3986,8 @@ typedef xrecord_ *  Xrecord;
          Rectype_b8vector,          /* 5 */ # Iarray, not Srecord/Xrecord
          Rectype_b16vector,         /* 6 */ # Iarray, not Srecord/Xrecord
          Rectype_b32vector,         /* 7 */ # Iarray, not Srecord/Xrecord
-           rectype_unused1,         /* 8 */
+         Rectype_nilvector,         /* 8 */ # Iarray, not Srecord/Xrecord
+           /* Rectype_Svector is the bottom SIMPLE-VECTOR */
          Rectype_Svector,           /* 9 */ # Svector, not Srecord/Xrecord
          Rectype_Sbvector,         /* 10 */ # Sbvector, not Srecord/Xrecord
          Rectype_Sb2vector,        /* 11 */ # Sbvector, not Srecord/Xrecord
@@ -3994,17 +3995,21 @@ typedef xrecord_ *  Xrecord;
          Rectype_Sb8vector,        /* 13 */ # Sbvector, not Srecord/Xrecord
          Rectype_Sb16vector,       /* 14 */ # Sbvector, not Srecord/Xrecord
          Rectype_Sb32vector,       /* 15 */ # Sbvector, not Srecord/Xrecord
-         Rectype_S8string,         /* 16 */ # S8string, not Srecord/Xrecord
-         Rectype_Imm_S8string,     /* 17 */ # immutable S8string, not Srecord/Xrecord
-         Rectype_S16string,        /* 18 */ # S16string, not Srecord/Xrecord
-         Rectype_Imm_S16string,    /* 19 */ # immutable S16string, not Srecord/Xrecord
-         Rectype_S32string,        /* 20 */ # S32string, not Srecord/Xrecord
-         Rectype_Imm_S32string,    /* 21 */ # immutable S32string, not Srecord/Xrecord
-         Rectype_reallocstring,    /* 22 */ # reallocated simple string, Siarray, an Xrecord, only used #ifdef HAVE_SMALL_SSTRING
-         Rectype_string,           /* 23 */ # Iarray, not Srecord/Xrecord
-         Rectype_mdarray,          /* 24 */ # Iarray, not Srecord/Xrecord
-                          # Here the arrays end.
-                          # Here the numbers start.
+         Rectype_Snilvector,       /* 16 */ # Lrecord, not Srecord/Xrecord
+           /* Rectype_S8string is the bottom STRING */
+         Rectype_S8string,         /* 17 */ # S8string, not Srecord/Xrecord
+         Rectype_Imm_S8string,     /* 18 */ # immutable S8string, not Srecord/Xrecord
+         Rectype_S16string,        /* 19 */ # S16string, not Srecord/Xrecord
+         Rectype_Imm_S16string,    /* 20 */ # immutable S16string, not Srecord/Xrecord
+         Rectype_S32string,        /* 21 */ # S32string, not Srecord/Xrecord
+         Rectype_Imm_S32string,    /* 22 */ # immutable S32string, not Srecord/Xrecord
+         Rectype_reallocstring,    /* 23 */ # reallocated simple string, Siarray, an Xrecord, only used #ifdef HAVE_SMALL_SSTRING
+           /* Rectype_reallocstring is the top SIMPLE-STRING & SIMPLE-VECTOR */
+         Rectype_string,           /* 24 */ # Iarray, not Srecord/Xrecord
+           /* Rectype_string is the top STRING */
+         Rectype_mdarray,          /* 25 */ # Iarray, not Srecord/Xrecord
+           /* Rectype_mdarray is the top ARRAY */
+           /* Rectype_Bignum is the bottom NUMBER */
          Rectype_Bignum,                # Bignum, not Srecord/Xrecord
          Rectype_Lfloat,                # Lfloat, not Srecord/Xrecord
          Rectype_Dfloat,
@@ -4583,8 +4588,8 @@ typedef iarray_ *  Iarray;
 #define arrayflags_dispoffset_bit  4 # set, if there is space for the
                                      # displaced-offset
                                      # (<==> array adjustable or displaced)
-#define arrayflags_atype_mask  0x07  # mask for the element-type
-# Element-types of arrays in Bits 2..0 of its flags:
+#define arrayflags_atype_mask  0x0F  # mask for the element-type
+# Element-types of arrays in Bits 3..0 of its flags:
 # The first ones are chosen, so that 2^Atype_nBit = n.
 #define Atype_Bit    0
 #define Atype_2Bit   1
@@ -4594,6 +4599,10 @@ typedef iarray_ *  Iarray;
 #define Atype_32Bit  5
 #define Atype_T      6
 #define Atype_Char   7
+#ifndef TYPECODES
+/* (ARRAY NIL) has a Array_type_snilvector sata vector */
+#define Atype_NIL    8
+#endif
 
 # array-types
 #ifdef TYPECODES
@@ -4644,6 +4653,8 @@ typedef iarray_ *  Iarray;
   #define Array_type_sb32vector  Rectype_Sb32vector  # Sbvector
   #define Array_type_sstring     Rectype_S8string: case Rectype_Imm_S8string: case Rectype_S16string: case Rectype_Imm_S16string: case Rectype_S32string: case Rectype_Imm_S32string: case Rectype_reallocstring   # S[8|16|32]string, reallocated string
   #define Array_type_svector     Rectype_Svector     # Svector
+  #define Array_type_nilvector   Rectype_nilvector   # Iarray
+  #define Array_type_snilvector  Rectype_Snilvector  # Lrecord
 #endif
 # Determining the atype of a [simple-]bit-array:
 #define sbNvector_atype(obj)  \
@@ -5950,8 +5961,10 @@ typedef enum {
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
   #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_reallocstring, Rectype_string
+  #        Rectype_S?nilvector
   #define vectorp(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 23-1))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_vector) \
+                         <= Rectype_string - Rectype_vector))
 #endif
 
 # Test for simple-vector or simple-bit-vector or simple-string
@@ -5960,9 +5973,10 @@ typedef enum {
     ((tint)(typecode(obj) - sbvector_type) <= (tint)(svector_type - sbvector_type))
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
-  #        Rectype_reallocstring
+  #        Rectype_reallocstring, Rectype_Snilvector
   #define simplep(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 9) <= 22-9))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_Svector) \
+                         <= Rectype_reallocstring - Rectype_Svector))
 #endif
 
 # Tests an Array for simple-vector or simple-bit-vector or simple-string
@@ -5971,9 +5985,10 @@ typedef enum {
     ((typecode(obj) & bit(notsimple_bit_t)) == 0)
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
-  #        Rectype_reallocstring
+  #        Rectype_reallocstring, Rectype_Snilvector
   #define array_simplep(obj)  \
-    ((uintB)(Record_type(obj) - 9) <= 22-9)
+    ((uintB)(Record_type(obj) - Rectype_Svector) \
+     <= Rectype_reallocstring - Rectype_Svector)
 #endif
 
 # Test for simple-vector
@@ -6005,7 +6020,8 @@ typedef enum {
 #else
   # cases: Rectype_[Imm_]S[8|16|32]string, Rectype_reallocstring
   #define simple_string_p(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 22-16))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_S8string) \
+                         <= Rectype_reallocstring - Rectype_S8string))
 #endif
 
 # Test for string
@@ -6015,7 +6031,8 @@ typedef enum {
 #else
   # cases: Rectype_[Imm_]S[8|16|32]string, Rectype_reallocstring, Rectype_string
   #define stringp(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 23-16))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_S8string) \
+                         <= Rectype_string - Rectype_S8string))
 #endif
 
 # Test for simple-bit[n]-vector
@@ -6047,9 +6064,10 @@ typedef enum {
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
   #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_reallocstring, Rectype_string,
-  #        Rectype_mdarray
+  #        Rectype_S?nilvector, Rectype_mdarray
   #define arrayp(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 24-1))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_vector) \
+                         <= Rectype_mdarray - Rectype_vector))
 #endif
 
 # Test for Array, that isn't a Vector (type byte %100)
@@ -6083,7 +6101,7 @@ typedef enum {
           case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
           case Rectype_reallocstring:                                        \
           case Rectype_Bignum: case Rectype_Lfloat:                          \
-          case rectype_unused1:                                              \
+          case Rectype_nilvector: case Rectype_Snilvector:                   \
             goto not_record;                                                 \
           default: { statement1 } break;                                     \
         }                                                                    \
@@ -6582,6 +6600,10 @@ typedef enum {
     case Rectype_S8string: case Rectype_Imm_S8string: case Rectype_S16string: case Rectype_Imm_S16string: case Rectype_S32string: case Rectype_Imm_S32string: case Rectype_reallocstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
     case Rectype_Svector: goto case_svector;
+  #define case_Rectype_Snilvector_above  \
+    case Rectype_Snilvector: goto case_snilvector;
+  #define case_Rectype_nilvector_above  \
+    case Rectype_nilvector: goto case_nilvector;
   #define case_Rectype_WeakKVT_above  \
     case Rectype_WeakKVT: goto case_weakkvt;
   #define case_Rectype_mdarray_above  \
@@ -6646,6 +6668,7 @@ typedef enum {
     case Rectype_Sb32vector: case Rectype_b32vector:          \
     case Rectype_Svector: case Rectype_vector:                \
     case Rectype_WeakKVT: case Rectype_mdarray:               \
+    case Rectype_Snilvector: case Rectype_nilvector:          \
       goto case_array;
   #define case_Rectype_number_above  /* don't forget immediate_number_p */ \
     case Rectype_Complex: case Rectype_Ratio:                      \
@@ -7923,6 +7946,14 @@ extern object make_symbol (object string);
 # can trigger GC
 extern object allocate_vector (uintL len);
 # is used by ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL
+
+# UP: allocates a (VECTOR NIL)
+# allocate_nilvector(len)
+# > len: length of the vector
+# < result: new vector
+# can trigger GC
+extern object allocate_nilvector (uintL len);
+# is used by ARRAY
 
 # Function: Allocates a bit/byte vector.
 # allocate_bit_vector(atype,len)
