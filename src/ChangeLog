@@ -15,7 +15,7 @@
 2002-07-16  Sam Steingold  <sds@gnu.org>
 
 	* misc.d (GETENV): return all the environment as an alist when
-	the argument is NIL
+	the argument is NIL or omitted
 
 2002-07-15  Bruno Haible  <bruno@clisp.org>
 
