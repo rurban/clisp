@@ -360,17 +360,10 @@ compiles the specified lisp files to a platform-independent
    <ulink url="http://www.faqs.org/docs/artu/ch10s03.html"><quote>run
      control</quote> (RC)</ulink> file on startup (this happens
    <emphasis>after</emphasis> the &opt-C; option is processed).
-   The file loaded is
-<!-- #if defined(PATHNAME_WIN32) -->
-   <filename>_clisprc.lisp</filename> or <filename>_clisprc.fas</filename>
-   in the home directory &user-homedir-pathname;,
-<!-- #endif -->
-<!-- #if defined(PATHNAME_UNIX) -->
-   <filename>${HOME}/.clisprc.lisp</filename>
-   or <filename>${HOME}/.clisprc.fas</filename>,
-<!-- #endif -->
-   whichever is newest.  This option, <option>-norc</option>, prevents
-   loading of the &RC-file;.
+   The file loaded is <filename>.clisprc.lisp</filename>
+   or <filename>.clisprc.fas</filename>
+   in the home directory &user-homedir-pathname;, whichever is newer.
+   This option, <option>-norc</option>, prevents loading of the &RC-file;.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-init"><term><option>-i</option>
