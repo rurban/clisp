@@ -1,3 +1,8 @@
+2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign.d (fehler_foreign_variable, fehler_foreign_function):
+	raise error of type type-error
+
 2004-10-04  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/sock.lisp (open-unix-socket): use ABSOLUTE-PATHNAME
