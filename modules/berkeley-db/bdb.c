@@ -1934,9 +1934,9 @@ DEFUN(BDB:LOG-FILE, dbe lsn)
 { /* return the name of the file containing the record named by lsn. */
   DB_LSN lsn;
   DB_ENV *dbe = object_handle(STACK_1,`BDB::DBE`,OH_VALID);
-  char path[MAX_PATH];
+  char path[BUFSIZ];
   check_lsn(&STACK_0,&lsn);
-  SYSCALL(dbe->log_file,(dbe,&lsn,path,MAX_PATH));
+  SYSCALL(dbe->log_file,(dbe,&lsn,path,BUFSIZ));
   VALUES1(asciz_to_string(path,GLO(pathname_encoding)));
   skipSTACK(2);
 }
