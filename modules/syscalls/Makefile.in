@@ -1,7 +1,9 @@
-# Makefile for CLISP module set wildcard
+# Makefile for CLISP module syscalls
 
 CC = @CC@
-CPPFLAGS = @CPPFLAGS@
+# __EXTENSIONS__ is necessary so that the Solaris headers declare confstr().
+# _REENTRANT is necessary so that the Solaris headers declare lgamma_r().
+CPPFLAGS = @CPPFLAGS@ -D__EXTENSIONS__ -D_REENTRANT
 CFLAGS = @CFLAGS@
 INCLUDES= ../
 MODPREP = ../modprep.fas
