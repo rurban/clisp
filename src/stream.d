@@ -6272,7 +6272,10 @@ local uintB* read_byte_array_buffered (object stream, uintB* byteptr,
         # There's no need to continue the loop, with persev_immediate or
         # persev_bonus, because if read() has returned a partial result, it
         # means that nothing more is immediately available. (The OS doesn't
-        # gratuitously return less bytes to read() than available.)
+        # gratuitously return less bytes to read() than available. Except when
+        # the system call was interrupted by a signal; but this can't happen
+        # because install_signal_handler() is careful to ensure restartable
+        # system calls.)
         break;
       #endif
     }
@@ -6327,7 +6330,10 @@ local const uintB* write_byte_array_buffered (object stream,
         # There's no need to continue the loop, with persev_immediate or
         # persev_bonus, because if write() has returned a partial result, it
         # means that nothing more is immediately accepted. (The OS doesn't
-        # gratuitously return less bytes to write() than it can.)
+        # gratuitously return less bytes to write() than it can. Except when
+        # the system call was interrupted by a signal; but this can't happen
+        # because install_signal_handler() is careful to ensure restartable
+        # system calls.)
         break;
       #endif
     }
