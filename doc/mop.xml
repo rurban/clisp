@@ -2486,7 +2486,7 @@ initialization argument that was associated with the generic function
 metaobject during initialization or reinitialization.  (See also
 &setf-gf-name;.)</para></simplesect>
 
-<simplesect><title>Methods</title>
+<simplesect id="gf-name-methods"><title>Methods</title>
 
 <variablelist><title>The specified methods for the generic function
   metaobject reader generic functions.</title>
@@ -3045,7 +3045,7 @@ restrictions.</para>
     (&standard-generic-function-t; &t-t;)</literal>.
 </simpara></listitem></varlistentry></variablelist>
 
-<simplesect><title>Remarks</title> <!-- sds -->
+<simplesect id="mop-cam-remarks"><title>Remarks</title> <!-- sds -->
 <para>See also the &ansi-cl; function &compute-applicable-methods;.
 </para></simplesect>
 </section><!-- compute-applicable-methods -->
@@ -3120,7 +3120,7 @@ restrictions.</para>
     (&standard-generic-function-t; &t-t;) </literal>.
 </simpara></listitem></varlistentry></variablelist>
 
-<simplesect><title>Remarks</title>
+<simplesect id="mop-cam-UC-remarks"><title>Remarks</title>
 <para>This generic function exists to allow user extensions which alter
 method lookup rules, but which base the new rules only on the classes of
 the required arguments, to take advantage of the class-based method
@@ -4301,8 +4301,9 @@ passed on to the generic function include one additional value, the
 class of the &object-r; argument, which always immediately precedes the
 &object-r; argument.</para>
 
-<table><title>The correspondence between slot access function and
-underlying slot access generic function</title>
+<table id="mop-sa-instance-stuct-table">
+ <title>The correspondence between slot access function and
+  underlying slot access generic function</title>
 <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>Slot Access Function</entry><entry>Corresponding
     Slot Access Generic Function</entry></row></thead>
