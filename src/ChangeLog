@@ -1,5 +1,12 @@
 2004-10-16  Bruno Haible  <bruno@clisp.org>
 
+	Stop creating a defstruct-description property for structure classes.
+	* defstruct.lisp (defstruct): When creating a structure class, remove
+	the DEFSTRUCT-DESCRIPTION property.
+	* clos-class3.lisp: Likewise for structure-object itself.
+
+2004-10-16  Bruno Haible  <bruno@clisp.org>
+
 	* defstruct.lisp (find-structure-class-slot-initfunction): New
 	function.
 	(defstruct): Change the initfunctionform to refer to the class instead
