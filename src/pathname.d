@@ -1,5 +1,5 @@
 # Pathnames für CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 # Logical Pathnames: Marcus Daniels 16.9.1994
 # ANSI compliance: Sam Steingold 1999-2000
 
@@ -1103,13 +1103,23 @@ local boolean legal_logical_word_char(ch)
   local boolean legal_hostchar(ch)
     var chart ch;
     {
-      #ifdef PATHNAME_RISCOS
+      #if defined(PATHNAME_RISCOS)
       return (graphic_char_p(ch)
               && !chareq(ch,ascii(':'))
               && !chareq(ch,ascii('"'))
               && !chareq(ch,ascii('|')));
+      #elif defined(PATHNAME_WIN32)
+      # This is just a guess. I don't know which characters are allowed in
+      # Windows host names.
+      var cint c = as_cint(ch);
+      if ((c >= ' ') && (c <= '~')
+          && (c != '"') && (c != '/') && (c != ':') && (c != '<') && (c != '>')
+          && (c != '\\'))
+        return TRUE;
+      else
+        return FALSE;
       #else
-      return alphanumericp(ch) || chareq(c,ascii('-'));
+      return alphanumericp(ch) || chareq(ch,ascii('-'));
       #endif
     }
 
@@ -1989,6 +1999,30 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               }
               # Character '-' bzw. ':' übergehen:
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
+              goto hostspec_ok;
+            #elif defined(PATHNAME_WIN32)
+              # Look for \\, then a sequence of characters.
+              if (z.count==0) goto no_hostspec;
+              ch = TheSstring(STACK_1)->data[z.index];
+              if (!chareq(ch,ascii('\\'))) goto no_hostspec;
+              z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
+              if (z.count==0) goto no_hostspec;
+              ch = TheSstring(STACK_1)->data[z.index];
+              if (!chareq(ch,ascii('\\'))) goto no_hostspec;
+              z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
+              loop {
+                if (z.count==0)
+                  break;
+                ch = TheSstring(STACK_1)->data[z.index];
+                if (!legal_hostchar(ch))
+                  break;
+                # Skip past valid host char.
+                z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
+              }
+              # Create host string.
+              if (z.index - startz.index - 2 == 0)
+                goto no_hostspec;
+              host = subsstring(STACK_1,startz.index+2,z.index);
               goto hostspec_ok;
             #else
               # Kommt eine Folge von alphanumerischen Zeichen und dann ein ':' bzw. '::' ?
@@ -2943,9 +2977,16 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
       if (nullp(host)) {
         return 0; # kein String
       } else {
+        #ifdef PATHNAME_WIN32
+        pushSTACK(O(backslash_string));
+        pushSTACK(O(backslash_string));
+        pushSTACK(host);
+        return 3;
+        #else
         pushSTACK(host);
         pushSTACK(O(doppelpunkt_string)); # ":"
         return 2;
+        #endif
       }
     }
 #else
@@ -4327,7 +4368,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
   {
     #if HAS_HOST
     STACK_0 = test_optional_host(STACK_0,FALSE); # Host überprüfen
-    #ifdef PATHNAME_RISCOS
+    #if defined(PATHNAME_RISCOS)
     {
       var object pathname = allocate_pathname(); # neuer Pathname
       ThePathname(pathname)->pathname_host      = popSTACK();
@@ -4335,6 +4376,23 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
       ThePathname(pathname)->pathname_device    = NIL;
       #endif
       ThePathname(pathname)->pathname_directory = O(directory_homedir);
+      ThePathname(pathname)->pathname_name      = NIL;
+      ThePathname(pathname)->pathname_type      = NIL;
+      #if HAS_VERSION
+      ThePathname(pathname)->pathname_version   = NIL;
+      #endif
+      value1 = pathname;
+    }
+    #elif defined(PATHNAME_WIN32)
+    # This is very primitive. Does Windows have the notion of homedirs on
+    # remote hosts??
+    {
+      var object pathname = allocate_pathname(); # neuer Pathname
+      ThePathname(pathname)->pathname_host      = popSTACK();
+      #if HAS_DEVICE
+      ThePathname(pathname)->pathname_device    = NIL;
+      #endif
+      ThePathname(pathname)->pathname_directory = O(directory_absolute);
       ThePathname(pathname)->pathname_name      = NIL;
       ThePathname(pathname)->pathname_type      = NIL;
       #if HAS_VERSION

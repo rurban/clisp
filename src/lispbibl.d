@@ -2042,8 +2042,13 @@
     #define PATHNAME_WIN32
   #endif
 # Die Komponenten von Pathnames:
-  #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2)
     #define HAS_HOST      0
+    #define HAS_DEVICE    1
+    #define HAS_VERSION   0
+  #endif
+  #ifdef PATHNAME_WIN32
+    #define HAS_HOST      1
     #define HAS_DEVICE    1
     #define HAS_VERSION   0
   #endif
