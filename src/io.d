@@ -1563,7 +1563,7 @@ LISPFUNN(set_readtable_case,2)
 # > token_escape_flag: Escape-Zeichen-Flag
 # > base: Ziffernsystembasis (Wert von *READ-BASE* oder *PRINT-BASE*)
 # < base: Ziffernsystembasis
-# < string: Simple-String mit den Characters
+# < string: Normal-Simple-String mit den Characters
 # < info.sign: Vorzeichen (/=0 falls negativ)
 # < ergebnis: Zahl-Typ
 #     0 : keine Zahl (dann sind auch base,string,info bedeutungslos)
@@ -1648,7 +1648,7 @@ LISPFUNN(set_readtable_case,2)
          attrptr0 = info.attrptr;
          len = info.len;
        }}
-       *string_ = TheIarray(O(token_buff_1))->data; # Simple-String
+       *string_ = TheIarray(O(token_buff_1))->data; # Normal-Simple-String
      { var uintL index0 = 0;
        # 2. Vorzeichen lesen und merken:
        { info->sign = 0; # Vorzeichen:=positiv
@@ -3016,7 +3016,7 @@ LISPFUNN(char_reader,3) # liest #\
       var uintL len = TheIarray(token)->dims[1]; # Länge = Fill-Pointer
       var object hstring = O(displaced_string); # Hilfsstring
       TheIarray(hstring)->data = token; # Datenvektor := O(token_buff_1)
-      token = TheIarray(token)->data; # Simple-String mit Token
+      token = TheIarray(token)->data; # Normal-Simple-String mit Token
      {var uintL pos = 0; # momentane Position im Token
       loop # Suche nächstes Hyphen
         { if (len-pos == 1) break; # einbuchstabiger Charactername?
@@ -5048,46 +5048,47 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }  }   }
     # base = Wert des :radix-Arguments.
     { # string, :start und :end überprüfen:
-      var object string; # String
-      var uintL start; # Wert des :start-Arguments
-      var uintL len; # Anzahl der angesprochenen Characters
-      var const chart* charptr = test_string_limits_ro(&string,&start,&len);
+      var stringarg arg;
+      var object string = test_string_limits_ro(&arg);
       # STACK jetzt aufgeräumt.
-      # Datenvektor holen:
-      var uintL start_offset = 0;
-      var object sstring = array_displace_check(string,len,&start_offset);
-      var uintL end_offset = start_offset; # Offset vom String zum Datenvektor
+      var uintL start = arg.index; # Wert des :start-Arguments
+      var uintL len = arg.len; # Anzahl der angesprochenen Characters
+      var const chart* charptr;
+      unpack_sstring_alloca(arg.string,arg.len,arg.offset+arg.index, charptr=);
       # Schleifenvariablen:
-      var uintL index = start;
+     {var uintL index = start;
       var uintL count = len;
+      var uintL start_offset;
+      var uintL end_offset;
       # Ab jetzt:
       #   string : der String,
-      #   sstring : sein Datenvektor (ein Simple-String),
+      #   arg.string : sein Datenvektor (ein Simple-String),
       #   start : Index des ersten Characters im String,
       #   charptr : Pointer in den Datenvektor auf das nächste Character,
       #   index : Index in den String,
       #   count : verbleibende Anzahl Characters.
       var signean sign; # Vorzeichen
-     {var chart c; # letztes gelesenes Character
-      # 1. Schritt: Whitespace übergehen
-      loop
-        { if (count==0) goto badsyntax; # Stringstück schon zu Ende ?
-          c = *charptr; # nächstes Character
-          if (!(orig_syntax_table_get(c) == syntax_whitespace)) # kein Whitespace?
-            break;
-          charptr++; index++; count--; # Whitespacezeichen übergehen
-        }
-      # 2. Schritt: Vorzeichen lesen
-      sign = 0; # Vorzeichen := positiv
-      switch (as_cint(c))
-        { case '-': sign = -1; # Vorzeichen := negativ
-          case '+': # Vorzeichen angetroffen
-            charptr++; index++; count--; # übergehen
-            if (count==0) goto badsyntax; # Stringstück schon zu Ende ?
-          default: break;
-        }
-     }# Vorzeichen fertig, es kommt noch was (count>0).
-      start_offset = start_offset + index;
+      { var chart c; # letztes gelesenes Character
+        # 1. Schritt: Whitespace übergehen
+        loop
+          { if (count==0) goto badsyntax; # Stringstück schon zu Ende ?
+            c = *charptr; # nächstes Character
+            if (!(orig_syntax_table_get(c) == syntax_whitespace)) # kein Whitespace?
+              break;
+            charptr++; index++; count--; # Whitespacezeichen übergehen
+          }
+        # 2. Schritt: Vorzeichen lesen
+        sign = 0; # Vorzeichen := positiv
+        switch (as_cint(c))
+          { case '-': sign = -1; # Vorzeichen := negativ
+            case '+': # Vorzeichen angetroffen
+              charptr++; index++; count--; # übergehen
+              if (count==0) goto badsyntax; # Stringstück schon zu Ende ?
+            default: break;
+          }
+      }
+      # Vorzeichen fertig, es kommt noch was (count>0).
+      start_offset = arg.offset + index;
       # Ab jetzt:  start_offset = Offset der ersten Ziffer im Datenvektor.
       # 3. Schritt: Ziffern lesen
       loop
@@ -5109,7 +5110,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           if (count==0) break;
         }
       # Ziffern fertig.
-      end_offset = end_offset + index;
+      end_offset = arg.offset + index;
       # Ab jetzt:  end_offset = Offset nach der letzten Ziffer im Datenvektor.
       if (start_offset == end_offset) # gab es keine Ziffern?
         goto badsyntax;
@@ -5123,7 +5124,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             }
         }
       # 5. Schritt: Ziffernfolge in Zahl umwandeln
-      value1 = read_integer(base,sign,sstring,start_offset,end_offset);
+      value1 = read_integer(base,sign,arg.string,start_offset,end_offset);
       value2 = fixnum(index); # Index als 2. Wert
       mv_count=2; return;
       badsyntax: # Illegales Zeichen
@@ -5142,7 +5143,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       value1 = NIL; # NIL als 1. Wert
       value2 = fixnum(index); # Index als 2. Wert
       mv_count=2; return;
-  }}}
+  }}}}
 
 
 # =============================================================================
@@ -5426,10 +5427,18 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 if (count > 0)
                   { var uintL index = 0;
                     pushSTACK(string); # Simple-String retten
-                    dotimespL(count,count,
-                      { write_code_char(stream_,down_case(TheSstring(STACK_0)->data[index]));
-                        index++;
-                      });
+                    SstringDispatch(string,
+                      { dotimespL(count,count,
+                          { write_code_char(stream_,down_case(TheSstring(STACK_0)->data[index]));
+                            index++;
+                          });
+                      },
+                      { dotimespL(count,count,
+                          { write_code_char(stream_,down_case(as_chart(TheSmallSstring(STACK_0)->data[index])));
+                            index++;
+                          });
+                      }
+                      );
                     skipSTACK(1);
               }   },
               # :CAPITALIZE -> jeweils den ersten Großbuchstaben eines Wortes
@@ -5485,16 +5494,30 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   { var boolean flag = FALSE;
                     var uintL index = 0;
                     pushSTACK(string); # Simple-String retten
-                    dotimespL(count,count,
-                      { # flag zeigt an, ob gerade innerhalb eines Wortes
-                        var boolean oldflag = flag;
-                        var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
-                        if ((flag = alphanumericp(c)) && oldflag)
-                          # alphanumerisches Zeichen im Wort:
-                          { c = down_case(c); } # Groß- in Kleinbuchstaben umwandeln
-                        write_code_char(stream_,c); # und ausgeben
-                        index++;
-                      });
+                    SstringDispatch(string,
+                      { dotimespL(count,count,
+                          { # flag zeigt an, ob gerade innerhalb eines Wortes
+                            var boolean oldflag = flag;
+                            var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+                            if ((flag = alphanumericp(c)) && oldflag)
+                              # alphanumerisches Zeichen im Wort:
+                              { c = down_case(c); } # Groß- in Kleinbuchstaben umwandeln
+                            write_code_char(stream_,c); # und ausgeben
+                            index++;
+                          });
+                      },
+                      { dotimespL(count,count,
+                          { # flag zeigt an, ob gerade innerhalb eines Wortes
+                            var boolean oldflag = flag;
+                            var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Zeichen
+                            if ((flag = alphanumericp(c)) && oldflag)
+                              # alphanumerisches Zeichen im Wort:
+                              { c = down_case(c); } # Groß- in Kleinbuchstaben umwandeln
+                            write_code_char(stream_,c); # und ausgeben
+                            index++;
+                          });
+                      }
+                      );
                     skipSTACK(1);
               }   }
               );
@@ -5509,10 +5532,18 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 if (count > 0)
                   { var uintL index = 0;
                     pushSTACK(string); # Simple-String retten
-                    dotimespL(count,count,
-                      { write_code_char(stream_,up_case(TheSstring(STACK_0)->data[index]));
-                        index++;
-                      });
+                    SstringDispatch(string,
+                      { dotimespL(count,count,
+                          { write_code_char(stream_,up_case(TheSstring(STACK_0)->data[index]));
+                            index++;
+                          });
+                      },
+                      { dotimespL(count,count,
+                          { write_code_char(stream_,up_case(as_chart(TheSmallSstring(STACK_0)->data[index])));
+                            index++;
+                          });
+                      }
+                      );
                     skipSTACK(1);
               }   },
               # :DOWNCASE -> Kleinbuchstaben in Downcase ausgeben:
@@ -5555,16 +5586,30 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   { var boolean flag = FALSE;
                     var uintL index = 0;
                     pushSTACK(string); # Simple-String retten
-                    dotimespL(count,count,
-                      { # flag zeigt an, ob gerade innerhalb eines Wortes
-                        var boolean oldflag = flag;
-                        var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
-                        if ((flag = alphanumericp(c)) && !oldflag)
-                          # alphanumerisches Zeichen am Wortanfang:
-                          { c = up_case(c); } # Klein- in Großbuchstaben umwandeln
-                        write_code_char(stream_,c); # und ausgeben
-                        index++;
-                      });
+                    SstringDispatch(string,
+                      { dotimespL(count,count,
+                          { # flag zeigt an, ob gerade innerhalb eines Wortes
+                            var boolean oldflag = flag;
+                            var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+                            if ((flag = alphanumericp(c)) && !oldflag)
+                              # alphanumerisches Zeichen am Wortanfang:
+                              { c = up_case(c); } # Klein- in Großbuchstaben umwandeln
+                            write_code_char(stream_,c); # und ausgeben
+                            index++;
+                          });
+                      },
+                      { dotimespL(count,count,
+                          { # flag zeigt an, ob gerade innerhalb eines Wortes
+                            var boolean oldflag = flag;
+                            var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Zeichen
+                            if ((flag = alphanumericp(c)) && !oldflag)
+                              # alphanumerisches Zeichen am Wortanfang:
+                              { c = up_case(c); } # Klein- in Großbuchstaben umwandeln
+                            write_code_char(stream_,c); # und ausgeben
+                            index++;
+                          });
+                      }
+                      );
                     skipSTACK(1);
               }   }
               );
@@ -5579,12 +5624,22 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               var boolean seen_lowercase = FALSE;
               var uintL count = Sstring_length(string);
               if (count > 0)
-                { var const chart* cptr = &TheSstring(string)->data[0];
-                  dotimespL(count,count,
-                    { var chart c = *cptr++;
-                      if (!chareq(c,up_case(c))) { seen_lowercase = TRUE; }
-                      if (!chareq(c,down_case(c))) { seen_uppercase = TRUE; }
-                    });
+                { SstringDispatch(string,
+                    { var const chart* cptr = &TheSstring(string)->data[0];
+                      dotimespL(count,count,
+                        { var chart c = *cptr++;
+                          if (!chareq(c,up_case(c))) { seen_lowercase = TRUE; }
+                          if (!chareq(c,down_case(c))) { seen_uppercase = TRUE; }
+                        });
+                    },
+                    { var const scint* cptr = &TheSmallSstring(string)->data[0];
+                      dotimespL(count,count,
+                        { var chart c = as_chart(*cptr++);
+                          if (!chareq(c,up_case(c))) { seen_lowercase = TRUE; }
+                          if (!chareq(c,down_case(c))) { seen_uppercase = TRUE; }
+                        });
+                    }
+                    );
                 }
               if (seen_uppercase)
                 { if (!seen_lowercase) goto do_downcase; }
@@ -5773,7 +5828,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                var uintL need = posfixnum_to_L(pos) + 1; # nötige Anzahl Spaces
                if (len < need) # Zeile zu kurz ?
                  goto new_line; # ja -> neue Zeile anfangen
-               lastline = TheIarray(lastline)->data; # letzte Zeile, Simple-String
+               lastline = TheIarray(lastline)->data; # letzte Zeile, Normal-Simple-String
              { var chart* charptr = &TheSstring(lastline)->data[0];
                # Teste, ob need Spaces kommen:
                {var uintL count;
@@ -6881,53 +6936,99 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           rtcase = posfixnum_to_L(TheReadtable(readtable)->readtable_case);
         }
         # String durchlaufen:
-        { var const chart* charptr = &TheSstring(string)->data[0];
-          var uintL count = len;
-          var chart c = *charptr++; # erstes Character
-          # sein Syntaxcode soll Constituent sein:
-          if (!(syntax_table_get(syntax_table,c) == syntax_constituent))
-            goto surround; # nein -> muss |...| verwenden
-          loop
-            { if (attribute_of(c) == a_pack_m) # Attributcode Package-Marker ?
-                goto surround; # ja -> muss |...| verwenden
-              if (!case_sensitive)
-                switch (rtcase)
-                  { case case_upcase:
-                      if (!chareq(c,up_case(c))) # war c ein Kleinbuchstabe?
-                        goto surround; # ja -> muss |...| verwenden
+        SstringDispatch(string,
+          { var const chart* charptr = &TheSstring(string)->data[0];
+            var uintL count = len;
+            var chart c = *charptr++; # erstes Character
+            # sein Syntaxcode soll Constituent sein:
+            if (!(syntax_table_get(syntax_table,c) == syntax_constituent))
+              goto surround; # nein -> muss |...| verwenden
+            loop
+              { if (attribute_of(c) == a_pack_m) # Attributcode Package-Marker ?
+                  goto surround; # ja -> muss |...| verwenden
+                if (!case_sensitive)
+                  switch (rtcase)
+                    { case case_upcase:
+                        if (!chareq(c,up_case(c))) # war c ein Kleinbuchstabe?
+                          goto surround; # ja -> muss |...| verwenden
+                        break;
+                      case case_downcase:
+                        if (!chareq(c,down_case(c))) # war c ein Großbuchstabe?
+                          goto surround; # ja -> muss |...| verwenden
+                        break;
+                      case case_preserve:
+                        break;
+                      case case_invert:
+                        break;
+                      default: NOTREACHED
+                    }
+                count--; if (count == 0) break; # String zu Ende -> Schleifenende
+                c = *charptr++; # nächstes Character
+                switch (syntax_table_get(syntax_table,c)) # sein Syntaxcode
+                  { case syntax_constituent:
+                    case syntax_nt_macro:
                       break;
-                    case case_downcase:
-                      if (!chareq(c,down_case(c))) # war c ein Großbuchstabe?
-                        goto surround; # ja -> muss |...| verwenden
-                      break;
-                    case case_preserve:
-                      break;
-                    case case_invert:
-                      break;
-                    default: NOTREACHED
+                    default: # Syntaxcode /= Constituent, Nonterminating Macro
+                      goto surround; # -> muss |...| verwenden
                   }
-              count--; if (count == 0) break; # String zu Ende -> Schleifenende
-              c = *charptr++; # nächstes Character
-              switch (syntax_table_get(syntax_table,c)) # sein Syntaxcode
-                { case syntax_constituent:
-                  case syntax_nt_macro:
-                    break;
-                  default: # Syntaxcode /= Constituent, Nonterminating Macro
-                    goto surround; # -> muss |...| verwenden
-                }
-            }
-      } }
+          }   },
+          { var const scint* charptr = &TheSmallSstring(string)->data[0];
+            var uintL count = len;
+            var chart c = as_chart(*charptr++); # erstes Character
+            # sein Syntaxcode soll Constituent sein:
+            if (!(syntax_table_get(syntax_table,c) == syntax_constituent))
+              goto surround; # nein -> muss |...| verwenden
+            loop
+              { if (attribute_of(c) == a_pack_m) # Attributcode Package-Marker ?
+                  goto surround; # ja -> muss |...| verwenden
+                if (!case_sensitive)
+                  switch (rtcase)
+                    { case case_upcase:
+                        if (!chareq(c,up_case(c))) # war c ein Kleinbuchstabe?
+                          goto surround; # ja -> muss |...| verwenden
+                        break;
+                      case case_downcase:
+                        if (!chareq(c,down_case(c))) # war c ein Großbuchstabe?
+                          goto surround; # ja -> muss |...| verwenden
+                        break;
+                      case case_preserve:
+                        break;
+                      case case_invert:
+                        break;
+                      default: NOTREACHED
+                    }
+                count--; if (count == 0) break; # String zu Ende -> Schleifenende
+                c = as_chart(*charptr++); # nächstes Character
+                switch (syntax_table_get(syntax_table,c)) # sein Syntaxcode
+                  { case syntax_constituent:
+                    case syntax_nt_macro:
+                      break;
+                    default: # Syntaxcode /= Constituent, Nonterminating Macro
+                      goto surround; # -> muss |...| verwenden
+                  }
+          }   }
+          );
+      }
       # Bedingung 5 überprüfen:
       { pushSTACK(string); # String retten
         get_buffers(); # zwei Buffer allozieren, in den STACK
         # und füllen:
-        { var uintL index = 0;
-          until (index == len)
-            { var chart c = TheSstring(STACK_2)->data[index]; # nächstes Character
-              ssstring_push_extend(STACK_1,c); # in den Character-Buffer
-              ssbvector_push_extend(STACK_0,attribute_of(c)); # und in den Attributcode-Buffer
-              index++;
-        }   }
+        SstringDispatch(STACK_2,
+          { var uintL index = 0;
+            until (index == len)
+              { var chart c = TheSstring(STACK_2)->data[index]; # nächstes Character
+                ssstring_push_extend(STACK_1,c); # in den Character-Buffer
+                ssbvector_push_extend(STACK_0,attribute_of(c)); # und in den Attributcode-Buffer
+                index++;
+          }   },
+          { var uintL index = 0;
+            until (index == len)
+              { var chart c = as_chart(TheSmallSstring(STACK_2)->data[index]); # nächstes Character
+                ssstring_push_extend(STACK_1,c); # in den Character-Buffer
+                ssbvector_push_extend(STACK_0,attribute_of(c)); # und in den Attributcode-Buffer
+                index++;
+          }   }
+          );
         O(token_buff_2) = popSTACK(); # Attributcode-Buffer
         O(token_buff_1) = popSTACK(); # Character-Buffer
         string = popSTACK(); # String zurück
@@ -6954,19 +7055,34 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         pushSTACK(string);
         # Stackaufbau: syntax_table, string.
         write_ascii_char(stream_,'|');
-        { var uintL index = 0;
-          until (index == len)
-            { var chart c = TheSstring(STACK_0)->data[index]; # nächstes Character
-              switch (syntax_table_get(STACK_1,c)) # dessen Syntaxcode
-                { case syntax_single_esc:
-                  case syntax_multi_esc:
-                    # Dem Escape-Character c wird ein '\' vorangestellt:
-                    write_ascii_char(stream_,'\\');
-                  default: ;
-                }
-              write_code_char(stream_,c); # Character ausgeben
-              index++;
-        }   }
+        SstringDispatch(STACK_0,
+          { var uintL index = 0;
+            until (index == len)
+              { var chart c = TheSstring(STACK_0)->data[index]; # nächstes Character
+                switch (syntax_table_get(STACK_1,c)) # dessen Syntaxcode
+                  { case syntax_single_esc:
+                    case syntax_multi_esc:
+                      # Dem Escape-Character c wird ein '\' vorangestellt:
+                      write_ascii_char(stream_,'\\');
+                    default: ;
+                  }
+                write_code_char(stream_,c); # Character ausgeben
+                index++;
+          }   },
+          { var uintL index = 0;
+            until (index == len)
+              { var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Character
+                switch (syntax_table_get(STACK_1,c)) # dessen Syntaxcode
+                  { case syntax_single_esc:
+                    case syntax_multi_esc:
+                      # Dem Escape-Character c wird ein '\' vorangestellt:
+                      write_ascii_char(stream_,'\\');
+                    default: ;
+                  }
+                write_code_char(stream_,c); # Character ausgeben
+                index++;
+          }   }
+          );
         write_ascii_char(stream_,'|');
         skipSTACK(2);
       }
@@ -7043,31 +7159,61 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           pushSTACK(string); # Simple-String retten
           write_ascii_char(stream_,'"'); # vorher ein Anführungszeichen
           #if 0
-          dotimesL(len,len,
-            { var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
-              # bei c = #\" oder c = #\\ erst noch ein '\' ausgeben:
-              if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
-                { write_ascii_char(stream_,'\\'); }
-              write_code_char(stream_,c);
-              index++;
-            });
+          SstringDispatch(string,
+            { dotimesL(len,len,
+                { var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+                  # bei c = #\" oder c = #\\ erst noch ein '\' ausgeben:
+                  if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+                    { write_ascii_char(stream_,'\\'); }
+                  write_code_char(stream_,c);
+                  index++;
+                });
+            },
+            { dotimesL(len,len,
+                { var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Zeichen
+                  # bei c = #\" oder c = #\\ erst noch ein '\' ausgeben:
+                  if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+                    { write_ascii_char(stream_,'\\'); }
+                  write_code_char(stream_,c);
+                  index++;
+                });
+            }
+            );
           #else # dasselbe, etwas optimiert
-          { var uintL index0 = index;
-            loop
-              { # Suche den nächsten #\" oder #\\ :
-                string = STACK_0;
-                while (len > 0)
-                  { var chart c = TheSstring(string)->data[index];
-                    if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
-                      break;
-                    index++; len--;
-                  }
-                if (!(index==index0))
-                  { write_sstring_ab(stream_,string,index0,index-index0); }
-                if (len==0) break;
-                write_ascii_char(stream_,'\\');
-                index0 = index; index++; len--;
-          }   }
+          SstringDispatch(string,
+            { var uintL index0 = index;
+              loop
+                { # Suche den nächsten #\" oder #\\ :
+                  string = STACK_0;
+                  while (len > 0)
+                    { var chart c = TheSstring(string)->data[index];
+                      if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+                        break;
+                      index++; len--;
+                    }
+                  if (!(index==index0))
+                    { write_sstring_ab(stream_,string,index0,index-index0); }
+                  if (len==0) break;
+                  write_ascii_char(stream_,'\\');
+                  index0 = index; index++; len--;
+            }   },
+            { var uintL index0 = index;
+              loop
+                { # Suche den nächsten #\" oder #\\ :
+                  string = STACK_0;
+                  while (len > 0)
+                    { var chart c = as_chart(TheSmallSstring(string)->data[index]);
+                      if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+                        break;
+                      index++; len--;
+                    }
+                  if (!(index==index0))
+                    { write_sstring_ab(stream_,string,index0,index-index0); }
+                  if (len==0) break;
+                  write_ascii_char(stream_,'\\');
+                  index0 = index; index++; len--;
+            }   }
+            );
           #endif
           write_ascii_char(stream_,'"'); # nachher ein Anführungszeichen
           skipSTACK(1);
@@ -8426,7 +8572,7 @@ LISPFUNN(print_structure,2)
               { pr_vector(stream_,obj); break; } # Byte-Vektor
           case Rectype_Sbvector: # Bit-Vektor
             pr_bvector(stream_,obj); break;
-          case Rectype_string: case Rectype_Sstring: case Rectype_Imm_Sstring: # String
+          case Rectype_string: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: # String
             pr_string(stream_,obj); break;
           case Rectype_vector: case Rectype_Svector: # (vector t)
             pr_vector(stream_,obj); break;
@@ -9659,16 +9805,12 @@ LISPFUN(write_char,1,1,norest,nokey,0,NIL)
        skipSTACK(1);
      }# Stackaufbau: stream, string, :START-Argument, :END-Argument.
       # Grenzen überprüfen:
-      { var object string;
-        var uintL start;
-        var uintL len;
-        test_string_limits_ro(&string,&start,&len);
+      { var stringarg arg;
+        var object string = test_string_limits_ro(&arg);
         pushSTACK(string);
         # Stackaufbau: stream, string.
-       {var object sstring = array_displace_check(string,len,&start); # Datenvektor
-        # start = Startindex im Datenvektor sstring
-        write_sstring_ab(&STACK_1,sstring,start,len); # angesprochene Characters ausgeben
-      }}
+        write_sstring_ab(&STACK_1,arg.string,arg.offset+arg.index,arg.len);
+      }
     }
 
 LISPFUN(write_string,1,1,norest,key,2, (kw(start),kw(end)) )

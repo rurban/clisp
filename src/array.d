@@ -574,7 +574,10 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
           case Array_type_sbvector: # Simple-Bit-Vector
             return ( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 );
           case Array_type_sstring: # Simple-String
-            return code_char(TheSstring(datenvektor)->data[index]);
+            SstringDispatch(datenvektor,
+              { return code_char(TheSstring(datenvektor)->data[index]); },
+              { return code_char(as_chart(TheSmallSstring(datenvektor)->data[index])); }
+              );
           case Array_type_bvector: # Byte-Vector
             { var uintB* ptr = &TheSbvector(TheIarray(datenvektor)->data)->data[0];
               switch (Iarray_flags(datenvektor) /* & arrayflags_atype_mask */ )
@@ -616,7 +619,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
               else break;
             }
           #ifndef TYPECODES
-          case Rectype_Imm_Sstring: # immutable Simple-String
+          case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: # immutable Simple-String
             fehler_sstring_immutable(datenvektor);
           case Rectype_Sstring: # mutable Simple-String
           #else
@@ -1886,13 +1889,14 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                       if (len>0)
                         { var uintL index = 0;
                           var object datenvektor = iarray_displace_check(array,len,&index);
-                          var const chart* ptr1 = &TheSstring(datenvektor)->data[index];
-                          var uintL count;
-                          dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+                          SstringDispatch(datenvektor,
+                            { chartcopy(&TheSstring(datenvektor)->data[index],ptr2,len); },
+                            { scintcopy(&TheSmallSstring(datenvektor)->data[index],ptr2,len); }
+                            );
                         }
                       # dann new_element anfügen:
                       if (!charp(STACK_1)) goto fehler_type;
-                      *ptr2 = char_code(STACK_1);
+                      ptr2[len] = char_code(STACK_1);
                     }
                     break;
                   case Atype_Bit: # array ist ein Bit-Vektor
@@ -2013,7 +2017,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 
 # Folgende beide Funktionen arbeiten auf "Semi-Simple String"s.
 # Das sind CHARACTER-Arrays mit FILL-POINTER, die aber nicht adjustierbar
-# und nicht displaced sind und deren Datenvektor ein Simple-String ist.
+# und nicht displaced sind und deren Datenvektor ein Normal-Simple-String ist.
 # Beim Überschreiten der Länge wird ihre Länge verdoppelt
 # (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
 
@@ -2026,7 +2030,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
   global object make_ssstring(len)
     var uintL len;
     { {var object new_string = allocate_string(len);
-       # neuer Simple-String dieser Länge
+       # neuer Normal-Simple-String dieser Länge
        pushSTACK(new_string); # retten
       }
       {var object new_array =
@@ -2050,21 +2054,17 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
   global object ssstring_push_extend(ssstring,ch)
     var object ssstring;
     var chart ch;
-    { var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Simple-String)
+    { var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Normal-Simple-String)
       if (TheIarray(ssstring)->dims[1] # Fill-Pointer
           >= Sstring_length(sstring) ) # >= Länge ?
         { # ja -> String wird um den Faktor 2 länger gemacht
           pushSTACK(ssstring); # ssstring retten
           pushSTACK(sstring); # Datenvektor ebenfalls retten
          {var object neuer_sstring = allocate_string(2 * Sstring_length(sstring));
-          # neuer Simple-String der doppelten Länge
+          # neuer Normal-Simple-String der doppelten Länge
           sstring = popSTACK(); # sstring zurück
           # Stringinhalt von String sstring nach String neuer_sstring kopieren:
-          { var const chart* ptr1 = &TheSstring(sstring)->data[0];
-            var chart* ptr2 = &TheSstring(neuer_sstring)->data[0];
-            var uintL count;
-            dotimespL(count,Sstring_length(sstring), { *ptr2++ = *ptr1++; } );
-          }
+          chartcopy(&TheSstring(sstring)->data[0],&TheSstring(neuer_sstring)->data[0],Sstring_length(sstring));
           ssstring = popSTACK(); # ssstring zurück
           set_break_sem_1(); # Unterbrechungen verbieten
           TheIarray(ssstring)->data = neuer_sstring; # neuen String als Datenvektor abspeichern
@@ -2091,7 +2091,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
   global object ssstring_extend(ssstring,needed_len)
     var object ssstring;
     var uintL needed_len;
-    { var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Simple-String)
+    { var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Normal-Simple-String)
       var uintL now_len = Sstring_length(sstring); # jetzige Maximal-Länge
       if (needed_len > now_len)
         { # ja -> String wird länger gemacht, mindestens um den Faktor 2:
@@ -2100,14 +2100,10 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           now_len = now_len * 2;
           if (needed_len > now_len) { now_len = needed_len; } # now_len vergrößern
          {var object neuer_sstring = allocate_string(now_len);
-          # neuer Simple-String mindestens der gewünschten und der doppelten Länge
+          # neuer Normal-Simple-String mindestens der gewünschten und der doppelten Länge
           sstring = popSTACK(); # sstring zurück
           # Stringinhalt von String sstring nach String neuer_sstring kopieren:
-          { var const chart* ptr1 = &TheSstring(sstring)->data[0];
-            var chart* ptr2 = &TheSstring(neuer_sstring)->data[0];
-            var uintL count;
-            dotimespL(count,Sstring_length(sstring), { *ptr2++ = *ptr1++; } );
-          }
+          chartcopy(&TheSstring(sstring)->data[0],&TheSstring(neuer_sstring)->data[0],Sstring_length(sstring));
           ssstring = popSTACK(); # ssstring zurück
           set_break_sem_1(); # Unterbrechungen verbieten
           TheIarray(ssstring)->data = neuer_sstring; # neuen String als Datenvektor abspeichern
@@ -2346,7 +2342,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                 }   }
               return vektor;
             }
-          case Atype_Char: # Simple-String erzeugen
+          case Atype_Char: # Normal-Simple-String erzeugen
             { var object vektor = allocate_string(len);
               if (!(eq(STACK_4,unbound))) # initial-element angegeben?
                 { # ja -> überprüfen, muss Character sein:

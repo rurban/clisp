@@ -424,8 +424,33 @@ static const cint nop_page[256] = {
       #endif
     }
 
+# Copies an array of chart to an array of chart.
+# chartcopy(src,dest,len);
+# > chart* src: characters
+# > chart* dest: room for characters
+# > uintL len: number of characters to be copied, > 0
+  global void chartcopy (const chart* src, chart* dest, uintL len);
+  global void chartcopy(src,dest,len)
+    var const chart* src;
+    var chart* dest;
+    var uintL len;
+    { dotimespL(len,len, { *dest++ = *src++; } ); }
+
+#ifdef HAVE_SMALL_SSTRING
+# Copies an array of scint to an array of chart.
+# scintcopy(src,dest,len);
+# > scint* src: small characters
+# > chart* dest: room for normal characters
+# > uintL len: number of characters to be copied, > 0
+  global void scintcopy (const scint* src, chart* dest, uintL len);
+  global void scintcopy(src,dest,len)
+    var const scint* src;
+    var chart* dest;
+    var uintL len;
+    { dotimespL(len,len, { *dest++ = as_chart(*src++); } ); }
+#endif
+
 # UP: verfolgt einen String.
-# unpack_string_ro(string,&len)  [for read-only access]
 # unpack_string_rw(string,&len)  [for read-write access]
 # > object string: ein String.
 # < uintL len: Anzahl der Zeichen des Strings.
@@ -460,14 +485,22 @@ static const cint nop_page[256] = {
             return &TheSstring(datenvektor)->data[index];
         } }
     }
-  #ifndef TYPECODES
-  global const chart* unpack_string_ro (object string, uintL* len);
-  global const chart* unpack_string_ro(string,len)
+
+# UP: verfolgt einen String.
+# unpack_string_ro(string,&len,&offset)  [for read-only access]
+# > object string: ein String.
+# < uintL len: Anzahl der Zeichen des Strings.
+# < uintL offset: Offset in den Datenvektor.
+# < object ergebnis: Datenvektor
+  global object unpack_string_ro (object string, uintL* len, uintL* offset);
+  global object unpack_string_ro(string,len,index)
     var object string;
     var uintL* len;
+    var uintL* index;
     { if (simple_string_p(string))
         { *len = Sstring_length(string);
-          return &TheSstring(string)->data[0];
+          *index = 0;
+          return string;
         }
         else
         # String, aber kein Simple-String => Displacement verfolgen
@@ -484,12 +517,10 @@ static const cint nop_page[256] = {
           }
           *len = size;
           # Displacement verfolgen:
-          { var uintL index = 0;
-            var object datenvektor = iarray_displace_check(string,size,&index);
-            return &TheSstring(datenvektor)->data[index];
-        } }
+          *index = 0;
+          return iarray_displace_check(string,size,index);
+        }
     }
-  #endif
 
 # UP: vergleicht zwei Strings auf Gleichheit
 # string_gleich(string1,string2)
@@ -501,16 +532,38 @@ static const cint nop_page[256] = {
     var object string1;
     var object string2;
     { var uintL len1;
-      var const chart* ptr1 = unpack_string_ro(string1,&len1);
-      # Ab ptr1 kommen genau len1 Zeichen.
+      var uintL offset1;
+      string1 = unpack_string_ro(string1,&len1,&offset1);
       # Längenvergleich:
       if (!(len1 == Sstring_length(string2))) goto no;
+      # Now both strings have exactly len1 characters. Compare them.
       if (len1 > 0)
-        { var const chart* ptr2 = &TheSstring(string2)->data[0];
-          # Ab ptr2 kommen genau (ebenfalls) len1 Zeichen.
-          # Die len1 Zeichen vergleichen:
-          var uintL count;
-          dotimespL(count,len1, { if (!chareq(*ptr1++,*ptr2++)) goto no; } );
+        { SstringDispatch(string1,
+            { var const chart* ptr1 = &TheSstring(string1)->data[offset1];
+              SstringDispatch(string2,
+                { var const chart* ptr2 = &TheSstring(string2)->data[0];
+                  var uintL count;
+                  dotimespL(count,len1, { if (!chareq(*ptr1++,*ptr2++)) goto no; } );
+                },
+                { var const scint* ptr2 = &TheSmallSstring(string2)->data[0];
+                  var uintL count;
+                  dotimespL(count,len1, { if (!chareq(*ptr1++,as_chart(*ptr2++))) goto no; } );
+                }
+                );
+            },
+            { var const scint* ptr1 = &TheSmallSstring(string1)->data[offset1];
+              SstringDispatch(string2,
+                { var const chart* ptr2 = &TheSstring(string2)->data[0];
+                  var uintL count;
+                  dotimespL(count,len1, { if (!chareq(as_chart(*ptr1++),*ptr2++)) goto no; } );
+                },
+                { var const scint* ptr2 = &TheSmallSstring(string2)->data[0];
+                  var uintL count;
+                  dotimespL(count,len1, { if (!chareq(as_chart(*ptr1++),as_chart(*ptr2++))) goto no; } );
+                }
+                );
+            }
+            );
         }
       return TRUE;
       no: return FALSE;
@@ -526,16 +579,38 @@ static const cint nop_page[256] = {
     var object string1;
     var object string2;
     { var uintL len1;
-      var const chart* ptr1 = unpack_string_ro(string1,&len1);
-      # Ab ptr1 kommen genau len1 Zeichen.
+      var uintL offset1;
+      string1 = unpack_string_ro(string1,&len1,&offset1);
       # Längenvergleich:
       if (!(len1 == Sstring_length(string2))) goto no;
+      # Now both strings have exactly len1 characters. Compare them.
       if (len1 > 0)
-        { var const chart* ptr2 = &TheSstring(string2)->data[0];
-          # Ab ptr2 kommen genau (ebenfalls) len1 Zeichen.
-          # Die len1 Zeichen vergleichen:
-          var uintL count;
-          dotimespL(count,len1, { if (!chareq(up_case(*ptr1++),up_case(*ptr2++))) goto no; } );
+        { SstringDispatch(string1,
+            { var const chart* ptr1 = &TheSstring(string1)->data[offset1];
+              SstringDispatch(string2,
+                { var const chart* ptr2 = &TheSstring(string2)->data[0];
+                  var uintL count;
+                  dotimespL(count,len1, { if (!chareq(up_case(*ptr1++),up_case(*ptr2++))) goto no; } );
+                },
+                { var const scint* ptr2 = &TheSmallSstring(string2)->data[0];
+                  var uintL count;
+                  dotimespL(count,len1, { if (!chareq(up_case(*ptr1++),up_case(as_chart(*ptr2++)))) goto no; } );
+                }
+                );
+            },
+            { var const scint* ptr1 = &TheSmallSstring(string1)->data[offset1];
+              SstringDispatch(string2,
+                { var const chart* ptr2 = &TheSstring(string2)->data[0];
+                  var uintL count;
+                  dotimespL(count,len1, { if (!chareq(up_case(as_chart(*ptr1++)),up_case(*ptr2++))) goto no; } );
+                },
+                { var const scint* ptr2 = &TheSmallSstring(string2)->data[0];
+                  var uintL count;
+                  dotimespL(count,len1, { if (!chareq(up_case(as_chart(*ptr1++)),up_case(as_chart(*ptr2++)))) goto no; } );
+                }
+                );
+            }
+            );
         }
       return TRUE;
       no: return FALSE;
@@ -544,22 +619,23 @@ static const cint nop_page[256] = {
 # UP: kopiert einen String und macht dabei einen Simple-String draus.
 # copy_string(string)
 # > string: String
-# < ergebnis: Simple-String mit denselben Zeichen
+# < ergebnis: mutable Normal-Simple-String mit denselben Zeichen
 # kann GC auslösen
   global object copy_string (object string);
   global object copy_string(string)
     var object string;
-    { pushSTACK(string); # String retten
-     {var uintL len = vector_length(string); # Länge berechnen
-      var object new_string = allocate_string(len);
-      # new_string = neuer Simple-String mit vorgegebener Länge len
+    { var uintL len;
+      var uintL offset;
+      string = unpack_string_ro(string,&len,&offset);
+      pushSTACK(string); # String retten
+     {var object new_string = allocate_string(len);
+      # new_string = neuer Normal-Simple-String mit vorgegebener Länge len
       string = popSTACK(); # String zurück
-      if (!(len==0))
-        { var uintL len_; # nochmals die Länge, unbenutzt
-          var const chart* ptr1 = unpack_string_ro(string,&len_);
-          var chart* ptr2 = &TheSstring(new_string)->data[0];
-          # Kopierschleife: Kopiere len Bytes von ptr1[] nach ptr2[]:
-          dotimespL(len,len, { *ptr2++ = *ptr1++; } );
+      if (len > 0)
+        { SstringDispatch(string,
+            { chartcopy(&TheSstring(string)->data[offset],&TheSstring(new_string)->data[0],len); },
+            { scintcopy(&TheSmallSstring(string)->data[offset],&TheSstring(new_string)->data[0],len); }
+            );
         }
       return new_string;
     }}
@@ -613,23 +689,141 @@ static const cint nop_page[256] = {
     var object obj;
     { if (orecordp(obj))
         switch (Record_type(obj))
-          { case Rectype_Imm_Sstring:
+          {
+            #ifdef HAVE_SMALL_SSTRING
+            case Rectype_Imm_SmallSstring:
+            #endif
+            case Rectype_Imm_Sstring:
               # immutabler Simple-String, unverändert zurück
               return obj;
             case Rectype_Sstring:
             case Rectype_string:
               # sonstiger String, kopieren
-              { pushSTACK(obj); # String retten
-               {var uintL len = vector_length(obj); # Länge berechnen
-                var object new_string = allocate_imm_string(len);
-                # new_string = neuer immutabler Simple-String mit vorgegebener Länge len
-                var object string = popSTACK(); # String zurück
-                if (!(len==0))
-                  { var uintL len_; # nochmals die Länge, unbenutzt
-                    var const chart* ptr1 = unpack_string_ro(string,&len_);
-                    var chart* ptr2 = &TheSstring(new_string)->data[0];
-                    # Kopierschleife: Kopiere len Bytes von ptr1[] nach ptr2[]:
-                    dotimespL(len,len, { *ptr2++ = *ptr1++; } );
+              { var uintL len;
+                var uintL offset;
+                var object string = unpack_string_ro(obj,&len,&offset);
+                #ifdef HAVE_SMALL_SSTRING
+                if (Record_type(string) == Rectype_Imm_SmallSstring)
+                  { pushSTACK(string);
+                   {var object new_string = allocate_imm_small_string(len);
+                    string = popSTACK();
+                    if (len > 0)
+                      { var const scint* ptr1 = &TheSmallSstring(string)->data[offset];
+                        var scint* ptr2 = &TheSmallSstring(new_string)->data[0];
+                        var uintL count;
+                        dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+                      }
+                    return new_string;
+                  }}
+                # We use alloca for small-simple-strings, therefore their length
+                # should not be too large, or we risk an SP overflow and
+                # core dump.
+                if (len < 0x10000)
+                  { # Check if all characters fit into a small-simple-string:
+                    if (len > 0)
+                      { var const chart* ptr = &TheSstring(string)->data[offset];
+                        var uintL count;
+                        dotimespL(count,len,
+                          { if (as_cint(*ptr++) >= small_char_int_limit) goto make_nonsmall; }
+                          );
+                      }
+                    pushSTACK(string);
+                   {var object new_string = allocate_imm_small_string(len);
+                    string = popSTACK();
+                    if (len > 0)
+                      { var const chart* ptr1 = &TheSstring(string)->data[offset];
+                        var scint* ptr2 = &TheSmallSstring(new_string)->data[0];
+                        var uintL count;
+                        dotimespL(count,len, { *ptr2++ = as_cint(*ptr1++); } );
+                      }
+                    return new_string;
+                  }}
+                make_nonsmall:
+                #endif
+                pushSTACK(string);
+               {var object new_string = allocate_imm_string(len);
+                string = popSTACK();
+                if (len > 0)
+                  chartcopy(&TheSstring(string)->data[offset],&TheSstring(new_string)->data[0],len);
+                return new_string;
+              }}
+            default: break;
+          }
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      fehler(type_error,
+             DEUTSCH ? "Das ist kein String: ~" :
+             ENGLISH ? "This is not a string: ~" :
+             FRANCAIS ? "Ceci n'est pas une chaîne : ~" :
+             ""
+            );
+    }
+#endif
+
+#ifdef HAVE_SMALL_SSTRING
+# UP: wandelt einen String in einen Normal-Simple-String um.
+# coerce_normal_ss(obj)
+# > obj: Lisp-Objekt, sollte ein String sein.
+# < ergebnis: Normal-Simple-String mit denselben Zeichen
+# kann GC auslösen
+  global object coerce_normal_ss (object obj);
+  global object coerce_normal_ss(obj)
+    var object obj;
+    { if (orecordp(obj))
+        switch (Record_type(obj))
+          { case Rectype_Imm_Sstring:
+            case Rectype_Sstring:
+              # Normal-Simple-String, unverändert zurück
+              return obj;
+            case Rectype_Imm_SmallSstring:
+            case Rectype_string:
+              # sonstiger String, kopieren
+              return copy_string(obj);
+            default: break;
+          }
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      fehler(type_error,
+             DEUTSCH ? "Das ist kein String: ~" :
+             ENGLISH ? "This is not a string: ~" :
+             FRANCAIS ? "Ceci n'est pas une chaîne : ~" :
+             ""
+            );
+    }
+#endif
+
+#if 0 # unused
+#ifdef HAVE_SMALL_SSTRING
+# UP: wandelt einen String in einen immutablen Normal-Simple-String um.
+# coerce_imm_normal_ss(obj)
+# > obj: Lisp-Objekt, sollte ein String sein.
+# < ergebnis: immutabler Normal-Simple-String mit denselben Zeichen
+# kann GC auslösen
+  global object coerce_imm_normal_ss (object obj);
+  global object coerce_imm_normal_ss(obj)
+    var object obj;
+    { if (orecordp(obj))
+        switch (Record_type(obj))
+          { case Rectype_Imm_Sstring:
+              # immutabler Normal-Simple-String, unverändert zurück
+              return obj;
+            case Rectype_Imm_SmallSstring:
+            case Rectype_Sstring:
+            case Rectype_string:
+              # sonstiger String, kopieren
+              { var uintL len;
+                var uintL offset;
+                var object string = unpack_string_ro(obj,&len,&offset);
+                pushSTACK(string);
+               {var object new_string = allocate_imm_string(len);
+                string = popSTACK();
+                if (len > 0)
+                  { SstringDispatch(string,
+                      { chartcopy(&TheSstring(string)->data[offset],&TheSstring(new_string)->data[0],len); },
+                      { scintcopy(&TheSmallSstring(string)->data[offset],&TheSstring(new_string)->data[0],len); }
+                      );
                   }
                 return new_string;
               }}
@@ -645,6 +839,7 @@ static const cint nop_page[256] = {
              ""
             );
     }
+#endif
 #endif
 
 # UP: Konversion eines Objekts zu einem Character
@@ -665,9 +860,15 @@ static const cint nop_page[256] = {
           if (stringp(obj))
             { string: # obj ist ein String
               { var uintL len;
-                var const chart* ptr = unpack_string_ro(obj,&len);
+                var uintL offset;
+                var object string = unpack_string_ro(obj,&len,&offset);
                 # ab ptr kommen len Characters
-                if (len==1) return code_char(ptr[0]);
+                if (len==1)
+                  { SstringDispatch(string,
+                      { return code_char(TheSstring(string)->data[offset]); },
+                      { return code_char(as_chart(TheSmallSstring(string)->data[offset])); }
+                      );
+                  }
             } }
             else
             if (nullp(Symbol_value(S(ansi))) && posfixnump(obj))
@@ -1530,20 +1731,30 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
 
 LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
   { var object string = STACK_1; # string-Argument
-    if (!(stringp(string))) fehler_string(string); # muss ein String sein
+    if (!stringp(string)) fehler_string(string); # muss ein String sein
    {var uintL len;
-    var const chart* charptr = unpack_string_ro(string,&len); # zu den Characters vorrücken
-    charptr += test_index_arg(len); # zum vom Index angesprochenen Element gehen
-    value1 = code_char(*charptr); mv_count=1; # Character herausgreifen
-    skipSTACK(2);
-  }}
+    var uintL offset;
+    string = unpack_string_ro(string,&len,&offset); # zu den Characters vorrücken
+    {var uintL index = test_index_arg(len);
+     var chart ch;
+     SstringDispatch(string,
+       { ch = TheSstring(string)->data[offset+index]; },
+       { ch = as_chart(TheSmallSstring(string)->data[offset+index]); }
+       );
+     value1 = code_char(ch); mv_count=1; # Character herausgreifen
+     skipSTACK(2);
+  }}}
 
 LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
   { var object string = STACK_1; # string-Argument
-    if (!(simple_string_p(string))) fehler_sstring(string); # muss ein Simple-String sein
-    # zum vom Index angesprochenen Element gehen
-   {var const chart* charptr = &TheSstring(string)->data[0] + test_index_arg(Sstring_length(string));
-    value1 = code_char(*charptr); mv_count=1; # Character herausgreifen
+    if (!simple_string_p(string)) fehler_sstring(string); # muss ein Simple-String sein
+   {var uintL index = test_index_arg(Sstring_length(string));
+    var chart ch;
+    SstringDispatch(string,
+      { ch = TheSstring(string)->data[index]; },
+      { ch = as_chart(TheSmallSstring(string)->data[index]); }
+      );
+    value1 = code_char(ch); mv_count=1; # Character herausgreifen
     skipSTACK(2);
   }}
 
@@ -1575,7 +1786,7 @@ LISPFUNN(store_char,3) # (SYSTEM::STORE-CHAR string index newchar)
                        # = (SETF (CHAR string index) newchar), CLTL S. 300
   { var object newchar = test_newchar_arg(); # newchar-Argument
     var object string = STACK_1; # string-Argument
-    if (!(stringp(string))) fehler_string(string); # muss ein String sein
+    if (!stringp(string)) fehler_string(string); # muss ein String sein
    {var uintL len;
     var chart* charptr = unpack_string_rw(string,&len); # zu den Characters vorrücken
     charptr += test_index_arg(len); # zum vom Index angesprochenen Element gehen
@@ -1588,7 +1799,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
                         # = (SETF (SCHAR simple-string index) newchar), CLTL S. 300
   { var object newchar = test_newchar_arg(); # newchar-Argument
     var object string = STACK_1; # string-Argument
-    if (!(simple_string_p(string))) fehler_sstring(string); # muss ein Simple-String sein
+    if (!simple_string_p(string)) fehler_sstring(string); # muss ein Simple-String sein
     check_sstring_mutable(string);
     # zum vom Index angesprochenen Element gehen
    {var chart* charptr = &TheSstring(string)->data[0] + test_index_arg(Sstring_length(string));
@@ -1598,33 +1809,25 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
   }}
 
 # UP: Überprüft die Grenzen für ein String-Argument
-# test_string_limits_ro(&string,&start,&len)  [for read-only access]
-# test_string_limits_rw(&string,&start,&len)  [for read-write access]
+# test_string_limits_ro(&arg)  [for read-only access]
 # > STACK_2: String-Argument
 # > STACK_1: optionales :start-Argument
 # > STACK_0: optionales :end-Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < object string: String
-# < uintL start: Wert des :start-Arguments
-# < uintL len: Anzahl der angesprochenen Characters
-# < chart* ergebnis: Ab hier kommen die angesprochenen Characters
+# < stringarg arg: description of the argument
+# < result: String-Argument
 # erhöht STACK um 3
-  global const chart* test_string_limits_ro (object* string_, uintL* start_, uintL* len_);
-  global const chart* test_string_limits_ro(string_,start_,len_)
-    var object* string_;
-    var uintL* start_;
-    var uintL* len_;
-    { var chart* charptr;
-      var uintL len;
+  global object test_string_limits_ro (stringarg* arg);
+  global object test_string_limits_ro(arg)
+    var stringarg* arg;
+    { var uintL len;
       var uintL start;
       var uintL end;
       # String-Argument überprüfen:
-      { var object string = STACK_2;
-        if (!(stringp(string))) fehler_string(string);
-        charptr = (chart*)unpack_string_ro(string,&len);
-        *string_ = string; # String herausgeben
-      }
-      # Nun ist len die Länge (<2^oint_data_len), und ab charptr kommen die Zeichen.
+      var object string = STACK_2;
+      if (!stringp(string)) fehler_string(string);
+      arg->string = unpack_string_ro(string,&len,&arg->offset);
+      # Nun ist len die Länge (<2^oint_data_len).
       # :START-Argument überprüfen:
         # start := Index STACK_1, Defaultwert 0, muss <=len sein:
         test_index(STACK_1,start=,1,0,<=,len,S(Kstart));
@@ -1647,23 +1850,32 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
         }
       skipSTACK(3);
       # Ergebnisse herausgeben:
-      *start_ = start; *len_ = end-start; return &charptr[start];
+      arg->index = start; arg->len = end-start;
+      return string;
     }
-  #ifndef TYPECODES
-  global chart* test_string_limits_rw (object* string_, uintL* start_, uintL* len_);
-  global chart* test_string_limits_rw(string_,start_,len_)
-    var object* string_;
-    var uintL* start_;
-    var uintL* len_;
-    { var const chart* charptr = test_string_limits_ro(string_,start_,len_);
-      if (*len_ > 0)
-        { var uintL dummy;
-          var object datenvektor = array_displace_check(*string_,*len_,&dummy);
-          check_sstring_mutable(datenvektor);
-        }
-      return (chart*)charptr;
+
+# UP: Überprüft die Grenzen für ein String-Argument
+# test_string_limits_rw(&arg)  [for read-write access]
+# > STACK_2: String-Argument
+# > STACK_1: optionales :start-Argument
+# > STACK_0: optionales :end-Argument
+# > subr_self: Aufrufer (ein SUBR)
+# < stringarg arg: description of the argument
+# < result: String-Argument
+# erhöht STACK um 3
+#ifdef TYPECODES
+  #define test_string_limits_rw(arg)  test_string_limits_ro(arg)
+#else
+  local object test_string_limits_rw (stringarg* arg);
+  local object test_string_limits_rw(arg)
+    var stringarg* arg;
+    { var object string = test_string_limits_ro(arg);
+      if (arg->len > 0)
+        if (!(Record_type(arg->string) == Rectype_Sstring))
+          fehler_sstring_immutable(string);
+      return string;
     }
-  #endif
+#endif
 
 # UP: Überprüft ein String/Symbol/Character-Argument
 # > obj: Argument
@@ -1741,7 +1953,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
     }
 
 # UP: Überprüft die Grenzen für 2 String/Symbol-Argumente
-# test_2_stringsym_limits(&charptr1,&len1,&charptr2,&len2)
+# test_2_stringsym_limits(&arg1,&arg2)
 # > STACK_5: String/Symbol-Argument1
 # > STACK_4: String/Symbol-Argument2
 # > STACK_3: optionales :start1-Argument
@@ -1749,19 +1961,13 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # > STACK_1: optionales :start2-Argument
 # > STACK_0: optionales :end2-Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < chart* charptr1: Ab hier kommen die angesprochenen Characters im String1
-# < chart* charptr1+1: Ab hier kommen die Characters im String1
-# < uintL len1: Anzahl der angesprochenen Characters im String1
-# < chart* charptr2: Ab hier kommen die angesprochenen Characters im String2
-# < uintL len2: Anzahl der angesprochenen Characters im String2
-# < ergebnis: Wert des :start2-Arguments
+# < stringarg arg1: description of argument1
+# < stringarg arg2: description of argument2
 # erhöht STACK um 6
-  local uintL test_2_stringsym_limits (const chart** charptr1_, uintL* len1_, const chart** charptr2_, uintL* len2_);
-  local uintL test_2_stringsym_limits(charptr1_,len1_,charptr2_,len2_)
-    var const chart** charptr1_;
-    var uintL* len1_;
-    var const chart** charptr2_;
-    var uintL* len2_;
+  local void test_2_stringsym_limits (stringarg* arg1, stringarg* arg2);
+  local void test_2_stringsym_limits(arg1,arg2)
+    var stringarg* arg1;
+    var stringarg* arg2;
     { var uintL len1;
       var uintL len2;
       { # String/Symbol-Argument1 überprüfen:
@@ -1769,11 +1975,11 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
         pushSTACK(string1); # string1 retten
         # String/Symbol-Argument2 überprüfen:
        {var object string2 = test_stringsymchar_arg(STACK_(4+1));
-        *charptr2_ = unpack_string_ro(string2,&len2);
-        # Nun ist len2 die Länge (<2^oint_data_len) von string2, und ab charptr2 kommen die Zeichen.
+        arg2->string = unpack_string_ro(string2,&len2,&arg2->offset);
+        # Nun ist len2 die Länge (<2^oint_data_len) von string2.
         string1 = popSTACK(); # string1 zurück
-        charptr1_[1] = *charptr1_ = unpack_string_ro(string1,&len1);
-        # Nun ist len1 die Länge (<2^oint_data_len) von string1, und ab charptr1 kommen die Zeichen.
+        arg1->string = unpack_string_ro(string1,&len1,&arg1->offset);
+        # Nun ist len1 die Länge (<2^oint_data_len) von string1.
       }}
       # :START1 und :END1 überprüfen:
       { var uintL start1;
@@ -1799,7 +2005,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
                   );
           }
         # Ergebnisse zu string1 herausgeben:
-        *charptr1_ += start1; *len1_ = end1-start1;
+        arg1->index = start1; arg1->len = end1-start1;
       }
       # :START2 und :END2 überprüfen:
       { var uintL start2;
@@ -1825,345 +2031,507 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
                   );
           }
         # Ergebnisse zu string2 herausgeben:
-        *charptr2_ += start2; *len2_ = end2-start2;
+        arg2->index = start2; arg2->len = end2-start2;
         # Fertig.
         skipSTACK(6);
-        return start2;
     } }
 
 # UP: vergleicht zwei gleichlange Strings auf Gleichheit
-# > charptr1: Ab hier kommen die angesprochenen Characters im String1
-# > charptr2: Ab hier kommen die angesprochenen Characters im String2
-# > len: Anzahl der angesprochenen Characters in String1 und in String2
+# > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
+# > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
+# > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
 # < ergebnis: TRUE falls gleich, FALSE sonst.
-  local boolean string_eqcomp (const chart* charptr1, const chart* charptr2, uintL len);
-  local boolean string_eqcomp(charptr1,charptr2,len)
-    var const chart* charptr1;
-    var const chart* charptr2;
+  global boolean string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+  global boolean string_eqcomp(string1,offset1,string2,offset2,len)
+    var object string1;
+    var uintL offset1;
+    var object string2;
+    var uintL offset2;
     var uintL len;
-    { dotimesL(len,len, { if (!chareq(*charptr1++,*charptr2++)) goto no; } );
+    { SstringDispatch(string1,
+        { var const chart* charptr1 = &TheSstring(string1)->data[offset1];
+          SstringDispatch(string2,
+            { var const chart* charptr2 = &TheSstring(string2)->data[offset2];
+              dotimespL(len,len, { if (!chareq(*charptr1++,*charptr2++)) goto no; } );
+            },
+            { var const scint* charptr2 = &TheSmallSstring(string2)->data[offset2];
+              dotimespL(len,len, { if (!chareq(*charptr1++,as_chart(*charptr2++))) goto no; } );
+            }
+            );
+        },
+        { var const scint* charptr1 = &TheSmallSstring(string1)->data[offset1];
+          SstringDispatch(string2,
+            { var const chart* charptr2 = &TheSstring(string2)->data[offset2];
+              dotimespL(len,len, { if (!chareq(as_chart(*charptr1++),*charptr2++)) goto no; } );
+            },
+            { var const scint* charptr2 = &TheSmallSstring(string2)->data[offset2];
+              dotimespL(len,len, { if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) goto no; } );
+            }
+            );
+        }
+        );
       return TRUE;
       no: return FALSE;
     }
 
 # UP: vergleicht zwei Strings
-# > charptr1: Ab hier kommen die angesprochenen Characters im String1
-# > len1: Anzahl der angesprochenen Characters im String1
-# > charptr2: Ab hier kommen die angesprochenen Characters im String2
-# > len2: Anzahl der angesprochenen Characters im String2
-# < charptr1: Stelle des ersten Unterschieds im String1
+# > arg1: Ab hier kommen die angesprochenen Characters im String1
+# > arg2: Ab hier kommen die angesprochenen Characters im String2
+# < arg1.index: Stelle des ersten Unterschieds im String1
 # < ergebnis: 0 falls gleich,
 #             -1 falls String1 echt vor String2 kommt,
 #             +1 falls String1 echt nach String2 kommt.
-  local signean string_comp (const chart** charptr1_, uintL len1, const chart* charptr2, uintL len2);
-  local signean string_comp(charptr1_,len1,charptr2,len2)
-    var const chart** charptr1_;
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
-    { var const chart* charptr1 = *charptr1_;
-      loop
-        { # einer der Strings zu Ende ?
-          if (len1==0) goto string1_end;
-          if (len2==0) goto string2_end;
-          # nächste Characters vergleichen:
-          if (!chareq(*charptr1++,*charptr2++)) break;
-          # beide Zähler erniedrigen:
-          len1--; len2--;
+  local signean string_comp (stringarg* arg1, const stringarg* arg2);
+  local signean string_comp(arg1,arg2)
+    var stringarg* arg1;
+    var const stringarg* arg2;
+    { var uintL len1 = arg1->len;
+      var uintL len2 = arg2->len;
+      SstringDispatch(arg1->string,
+        { var const chart* charptr1_0 = &TheSstring(arg1->string)->data[arg1->offset];
+          var const chart* charptr1 = &charptr1_0[arg1->index];
+          SstringDispatch(arg2->string,
+            { var const chart* charptr2 = &TheSstring(arg2->string)->data[arg2->offset+arg2->index];
+              loop
+                { # einer der Strings zu Ende ?
+                  if (len1==0) goto A_string1_end;
+                  if (len2==0) goto A_string2_end;
+                  # nächste Characters vergleichen:
+                  if (!chareq(*charptr1++,*charptr2++)) break;
+                  # beide Zähler erniedrigen:
+                  len1--; len2--;
+                }
+              # zwei verschiedene Characters gefunden
+              arg1->index = --charptr1 - charptr1_0;
+              if (charlt(*charptr1,*--charptr2))
+                return signean_minus; # String1 < String2
+                else
+                return signean_plus; # String1 > String2
+            },
+            { var const scint* charptr2 = &TheSmallSstring(arg2->string)->data[arg2->offset+arg2->index];
+              loop
+                { # einer der Strings zu Ende ?
+                  if (len1==0) goto A_string1_end;
+                  if (len2==0) goto A_string2_end;
+                  # nächste Characters vergleichen:
+                  if (!chareq(*charptr1++,as_chart(*charptr2++))) break;
+                  # beide Zähler erniedrigen:
+                  len1--; len2--;
+                }
+              # zwei verschiedene Characters gefunden
+              arg1->index = --charptr1 - charptr1_0;
+              if (charlt(*charptr1,as_chart(*--charptr2)))
+                return signean_minus; # String1 < String2
+                else
+                return signean_plus; # String1 > String2
+            }
+            );
+          A_string1_end: # String1 zu Ende
+            arg1->index = charptr1 - charptr1_0;
+            if (len2==0)
+              return signean_null; # String1 = String2
+              else
+              return signean_minus; # String1 ist echtes Anfangsstück von String2
+          A_string2_end: # String2 zu Ende, String1 noch nicht
+            arg1->index = charptr1 - charptr1_0;
+            return signean_plus; # String2 ist echtes Anfangsstück von String1
+        },
+        { var const scint* charptr1_0 = &TheSmallSstring(arg1->string)->data[arg1->offset];
+          var const scint* charptr1 = &charptr1_0[arg1->index];
+          SstringDispatch(arg2->string,
+            { var const chart* charptr2 = &TheSstring(arg2->string)->data[arg2->offset+arg2->index];
+              loop
+                { # einer der Strings zu Ende ?
+                  if (len1==0) goto B_string1_end;
+                  if (len2==0) goto B_string2_end;
+                  # nächste Characters vergleichen:
+                  if (!chareq(as_chart(*charptr1++),*charptr2++)) break;
+                  # beide Zähler erniedrigen:
+                  len1--; len2--;
+                }
+              # zwei verschiedene Characters gefunden
+              arg1->index = --charptr1 - charptr1_0;
+              if (charlt(as_chart(*charptr1),*--charptr2))
+                return signean_minus; # String1 < String2
+                else
+                return signean_plus; # String1 > String2
+            },
+            { var const scint* charptr2 = &TheSmallSstring(arg2->string)->data[arg2->offset+arg2->index];
+              loop
+                { # einer der Strings zu Ende ?
+                  if (len1==0) goto B_string1_end;
+                  if (len2==0) goto B_string2_end;
+                  # nächste Characters vergleichen:
+                  if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
+                  # beide Zähler erniedrigen:
+                  len1--; len2--;
+                }
+              # zwei verschiedene Characters gefunden
+              arg1->index = --charptr1 - charptr1_0;
+              if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
+                return signean_minus; # String1 < String2
+                else
+                return signean_plus; # String1 > String2
+            }
+            );
+          B_string1_end: # String1 zu Ende
+            arg1->index = charptr1 - charptr1_0;
+            if (len2==0)
+              return signean_null; # String1 = String2
+              else
+              return signean_minus; # String1 ist echtes Anfangsstück von String2
+          B_string2_end: # String2 zu Ende, String1 noch nicht
+            arg1->index = charptr1 - charptr1_0;
+            return signean_plus; # String2 ist echtes Anfangsstück von String1
         }
-      # zwei verschiedene Characters gefunden
-      *charptr1_ = --charptr1;
-      if (charlt(*charptr1,*--charptr2))
-        return signean_minus; # String1 < String2
-        else
-        return signean_plus; # String1 > String2
-      string1_end: # String1 zu Ende
-        *charptr1_ = charptr1;
-        if (len2==0)
-          return signean_null; # String1 = String2
-          else
-          return signean_minus; # String1 ist echtes Anfangsstück von String2
-      string2_end: # String2 zu Ende, String1 noch nicht
-        *charptr1_ = charptr1;
-        return signean_plus; # String2 ist echtes Anfangsstück von String1
+        );
     }
 
 LISPFUN(string_gleich,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING= string1 string2 :start1 :end1 :start2 :end2), CLTL S. 300
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (((len1==len2) && string_eqcomp(charptr1[0],charptr2,len1)) ? T : NIL);
+    value1 = (((arg1.len==arg2.len)
+               && ((arg1.len==0)
+                   || string_eqcomp(arg1.string,arg1.offset+arg1.index,
+                                    arg2.string,arg2.offset+arg2.index,
+                                    arg1.len
+                                   )
+              )   )
+              ? T : NIL);
     mv_count=1;
   }
 
 LISPFUN(string_ungleich,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING/= string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(charptr1,len1,charptr2,len2)==0 ? NIL : fixnum(charptr1[0]-charptr1[1]));
+    value1 = (string_comp(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
     mv_count=1;
   }
 
 LISPFUN(string_kleiner,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING< string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(charptr1,len1,charptr2,len2)<0 ? fixnum(charptr1[0]-charptr1[1]) : NIL);
+    value1 = (string_comp(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
     mv_count=1;
   }
 
 LISPFUN(string_groesser,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING> string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(charptr1,len1,charptr2,len2)>0 ? fixnum(charptr1[0]-charptr1[1]) : NIL);
+    value1 = (string_comp(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
     mv_count=1;
   }
 
 LISPFUN(string_klgleich,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING<= string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(charptr1,len1,charptr2,len2)<=0 ? fixnum(charptr1[0]-charptr1[1]) : NIL);
+    value1 = (string_comp(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
     mv_count=1;
   }
 
 LISPFUN(string_grgleich,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING>= string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(charptr1,len1,charptr2,len2)>=0 ? fixnum(charptr1[0]-charptr1[1]) : NIL);
+    value1 = (string_comp(&arg1,&arg2)>=0 ? fixnum(arg1.index) : NIL);
     mv_count=1;
   }
 
 # UP: vergleicht zwei gleichlange Strings auf Gleichheit, case-insensitive
-# > charptr1: Ab hier kommen die angesprochenen Characters im String1
-# > charptr2: Ab hier kommen die angesprochenen Characters im String2
-# > len: Anzahl der angesprochenen Characters in String1 und in String2
+# > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
+# > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
+# > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
 # < ergebnis: TRUE falls gleich, FALSE sonst.
-  local boolean string_eqcomp_ci (const chart* charptr1, const chart* charptr2, uintL len);
-  local boolean string_eqcomp_ci(charptr1,charptr2,len)
-    var const chart* charptr1;
-    var const chart* charptr2;
+  global boolean string_eqcomp_ci (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+  global boolean string_eqcomp_ci(string1,offset1,string2,offset2,len)
+    var object string1;
+    var uintL offset1;
+    var object string2;
+    var uintL offset2;
     var uintL len;
-    { dotimesL(len,len,
-        { if (!chareq(up_case(*charptr1++),up_case(*charptr2++))) goto no; }
+    { SstringDispatch(string1,
+        { var const chart* charptr1 = &TheSstring(string1)->data[offset1];
+          SstringDispatch(string2,
+            { var const chart* charptr2 = &TheSstring(string2)->data[offset2];
+              dotimespL(len,len, { if (!chareq(up_case(*charptr1++),up_case(*charptr2++))) goto no; } );
+            },
+            { var const scint* charptr2 = &TheSmallSstring(string2)->data[offset2];
+              dotimespL(len,len, { if (!chareq(up_case(*charptr1++),up_case(as_chart(*charptr2++)))) goto no; } );
+            }
+            );
+        },
+        { var const scint* charptr1 = &TheSmallSstring(string1)->data[offset1];
+          SstringDispatch(string2,
+            { var const chart* charptr2 = &TheSstring(string2)->data[offset2];
+              dotimespL(len,len, { if (!chareq(up_case(as_chart(*charptr1++)),up_case(*charptr2++))) goto no; } );
+            },
+            { var const scint* charptr2 = &TheSmallSstring(string2)->data[offset2];
+              dotimespL(len,len, { if (!chareq(up_case(as_chart(*charptr1++)),up_case(as_chart(*charptr2++)))) goto no; } );
+            }
+            );
+        }
         );
       return TRUE;
       no: return FALSE;
     }
 
 # UP: vergleicht zwei Strings, case-insensitive
-# > charptr1: Ab hier kommen die angesprochenen Characters im String1
-# > len1: Anzahl der angesprochenen Characters im String1
-# > charptr2: Ab hier kommen die angesprochenen Characters im String2
-# > len2: Anzahl der angesprochenen Characters im String2
-# < charptr1: Stelle des ersten Unterschieds im String1
+# > arg1: Ab hier kommen die angesprochenen Characters im String1
+# > arg2: Ab hier kommen die angesprochenen Characters im String2
+# < arg1.index: Stelle des ersten Unterschieds im String1
 # < ergebnis: 0 falls gleich,
 #             -1 falls String1 echt vor String2 kommt,
 #             +1 falls String1 echt nach String2 kommt.
-  local signean string_comp_ci (const chart** charptr1_, uintL len1, const chart* charptr2, uintL len2);
-  local signean string_comp_ci(charptr1_,len1,charptr2,len2)
-    var const chart** charptr1_;
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
-    { var const chart* charptr1 = *charptr1_;
-      var chart ch1;
-      var chart ch2;
-      loop
-        { # einer der Strings zu Ende ?
-          if (len1==0) goto string1_end;
-          if (len2==0) goto string2_end;
-          # nächste Characters vergleichen:
-          if (!chareq(ch1 = up_case(*charptr1++), ch2 = up_case(*charptr2++))) break;
-          # beide Zähler erniedrigen:
-          len1--; len2--;
+  local signean string_comp_ci (stringarg* arg1, const stringarg* arg2);
+  local signean string_comp_ci(arg1,arg2)
+    var stringarg* arg1;
+    var const stringarg* arg2;
+    { var uintL len1 = arg1->len;
+      var uintL len2 = arg2->len;
+      SstringDispatch(arg1->string,
+        { var const chart* charptr1_0 = &TheSstring(arg1->string)->data[arg1->offset];
+          var const chart* charptr1 = &charptr1_0[arg1->index];
+          var chart ch1;
+          var chart ch2;
+          SstringDispatch(arg2->string,
+            { var const chart* charptr2 = &TheSstring(arg2->string)->data[arg2->offset+arg2->index];
+              loop
+                { # einer der Strings zu Ende ?
+                  if (len1==0) goto A_string1_end;
+                  if (len2==0) goto A_string2_end;
+                  # nächste Characters vergleichen:
+                  if (!chareq(ch1 = up_case(*charptr1++), ch2 = up_case(*charptr2++))) break;
+                  # beide Zähler erniedrigen:
+                  len1--; len2--;
+                }
+            },
+            { var const scint* charptr2 = &TheSmallSstring(arg2->string)->data[arg2->offset+arg2->index];
+              loop
+                { # einer der Strings zu Ende ?
+                  if (len1==0) goto A_string1_end;
+                  if (len2==0) goto A_string2_end;
+                  # nächste Characters vergleichen:
+                  if (!chareq(ch1 = up_case(*charptr1++), ch2 = up_case(as_chart(*charptr2++)))) break;
+                  # beide Zähler erniedrigen:
+                  len1--; len2--;
+                }
+            }
+            );
+          # zwei verschiedene Characters gefunden
+          arg1->index = --charptr1 - charptr1_0;
+          if (charlt(ch1,ch2))
+            return signean_minus; # String1 < String2
+            else
+            return signean_plus; # String1 > String2
+          A_string1_end: # String1 zu Ende
+            arg1->index = charptr1 - charptr1_0;
+            if (len2==0)
+              return signean_null; # String1 = String2
+              else
+              return signean_minus; # String1 ist echtes Anfangsstück von String2
+          A_string2_end: # String2 zu Ende, String1 noch nicht
+            arg1->index = charptr1 - charptr1_0;
+            return signean_plus; # String2 ist echtes Anfangsstück von String1
+        },
+        { var const scint* charptr1_0 = &TheSmallSstring(arg1->string)->data[arg1->offset];
+          var const scint* charptr1 = &charptr1_0[arg1->index];
+          var chart ch1;
+          var chart ch2;
+          SstringDispatch(arg2->string,
+            { var const chart* charptr2 = &TheSstring(arg2->string)->data[arg2->offset+arg2->index];
+              loop
+                { # einer der Strings zu Ende ?
+                  if (len1==0) goto B_string1_end;
+                  if (len2==0) goto B_string2_end;
+                  # nächste Characters vergleichen:
+                  if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(*charptr2++))) break;
+                  # beide Zähler erniedrigen:
+                  len1--; len2--;
+                }
+            },
+            { var const scint* charptr2 = &TheSmallSstring(arg2->string)->data[arg2->offset+arg2->index];
+              loop
+                { # einer der Strings zu Ende ?
+                  if (len1==0) goto B_string1_end;
+                  if (len2==0) goto B_string2_end;
+                  # nächste Characters vergleichen:
+                  if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(as_chart(*charptr2++)))) break;
+                  # beide Zähler erniedrigen:
+                  len1--; len2--;
+                }
+            }
+            );
+          # zwei verschiedene Characters gefunden
+          arg1->index = --charptr1 - charptr1_0;
+          if (charlt(ch1,ch2))
+            return signean_minus; # String1 < String2
+            else
+            return signean_plus; # String1 > String2
+          B_string1_end: # String1 zu Ende
+            arg1->index = charptr1 - charptr1_0;
+            if (len2==0)
+              return signean_null; # String1 = String2
+              else
+              return signean_minus; # String1 ist echtes Anfangsstück von String2
+          B_string2_end: # String2 zu Ende, String1 noch nicht
+            arg1->index = charptr1 - charptr1_0;
+            return signean_plus; # String2 ist echtes Anfangsstück von String1
         }
-      # zwei verschiedene Characters gefunden
-      *charptr1_ = --charptr1;
-      if (charlt(ch1,ch2))
-        return signean_minus; # String1 < String2
-        else
-        return signean_plus; # String1 > String2
-      string1_end: # String1 zu Ende
-        *charptr1_ = charptr1;
-        if (len2==0)
-          return signean_null; # String1 = String2
-          else
-          return signean_minus; # String1 ist echtes Anfangsstück von String2
-      string2_end: # String2 zu Ende, String1 noch nicht
-        *charptr1_ = charptr1;
-        return signean_plus; # String2 ist echtes Anfangsstück von String1
+        );
     }
 
 LISPFUN(string_equal,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-EQUAL string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (((len1==len2) && string_eqcomp_ci(charptr1[0],charptr2,len1)) ? T : NIL);
+    value1 = (((arg1.len==arg2.len)
+               && ((arg1.len==0)
+                   || string_eqcomp_ci(arg1.string,arg1.offset+arg1.index,
+                                       arg2.string,arg2.offset+arg2.index,
+                                       arg1.len
+                                      )
+              )   )
+              ? T : NIL);
     mv_count=1;
   }
 
 LISPFUN(string_not_equal,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-NOT-EQUAL string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(charptr1,len1,charptr2,len2)==0 ? NIL : fixnum(charptr1[0]-charptr1[1]));
+    value1 = (string_comp_ci(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
     mv_count=1;
   }
 
 LISPFUN(string_lessp,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-LESSP string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(charptr1,len1,charptr2,len2)<0 ? fixnum(charptr1[0]-charptr1[1]) : NIL);
+    value1 = (string_comp_ci(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
     mv_count=1;
   }
 
 LISPFUN(string_greaterp,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-GREATERP string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(charptr1,len1,charptr2,len2)>0 ? fixnum(charptr1[0]-charptr1[1]) : NIL);
+    value1 = (string_comp_ci(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
     mv_count=1;
   }
 
 LISPFUN(string_not_greaterp,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-NOT-GREATERP string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(charptr1,len1,charptr2,len2)<=0 ? fixnum(charptr1[0]-charptr1[1]) : NIL);
+    value1 = (string_comp_ci(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
     mv_count=1;
   }
 
 LISPFUN(string_not_lessp,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-NOT-LESSP string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(charptr1,len1,charptr2,len2)>=0 ? fixnum(charptr1[0]-charptr1[1]) : NIL);
+    value1 = (string_comp_ci(&arg1,&arg2)>=0 ? fixnum(arg1.index) : NIL);
     mv_count=1;
   }
 
 # UP: sucht einen String String1 in einem anderen String String2
-# > charptr1: Ab hier kommen die angesprochenen Characters im String1
-# > len1: Anzahl der angesprochenen Characters im String1
-# > charptr2: Ab hier kommen die angesprochenen Characters im String2
-# > len2: Anzahl der angesprochenen Characters im String2
-# > start2: Startposition im String2
+# > arg1: Ab hier kommen die angesprochenen Characters im String1
+# > arg2: Ab hier kommen die angesprochenen Characters im String2
 # > eqcomp: Vergleichsfunktion, &string_eqcomp oder &string_eqcomp_ci
 # < ergebnis: NIL falls nicht gefunden,
 #             Position im String2 (als Fixnum) falls gefunden.
   # eqcomp_fun sei der Typ einer solchen Vergleichsfunktion:
-  typedef boolean (*eqcomp_fun) (const chart* charptr1, const chart* charptr2, uintL len);
-  local object string_search (const chart* charptr1, uintL len1, const chart* charptr2, uintL len2, uintL start2, eqcomp_fun eqcomp);
-  local object string_search(charptr1,len1,charptr2,len2,start2,eqcomp)
-    var const chart* charptr1;
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
-    var uintL start2;
+  typedef boolean (*eqcomp_fun) (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+  local object string_search (const stringarg* arg1, const stringarg* arg2, eqcomp_fun eqcomp);
+  local object string_search(arg1,arg2,eqcomp)
+    var const stringarg* arg1;
+    var const stringarg* arg2;
     var eqcomp_fun eqcomp;
-    { var uintL count;
-      if (len1>len2) goto notfound; # Nur bei len1<=len2 kann String1 in String2 vorkommen.
+    { var uintL len1 = arg1->len;
+      var uintL len2 = arg2->len;
+      if (len1 > len2) goto notfound; # Nur bei len1<=len2 kann String1 in String2 vorkommen.
       # Schleife:
       # for i=0..len2-len1:
       #   vergleiche String1 mit den len1 Characters ab charptr2[i].
       # Dazu Schleife len2-len1+1 mal durchlaufen, charptr2 und start2 wachsen.
+     {var object string1 = arg1->string;
+      var uintL offset1 = arg1->offset + arg1->index;
+      var object string2 = arg2->string;
+      var uintL offset2 = arg2->offset + arg2->index;
+      var uintL count;
+      if (len1==0) goto found;
       dotimespL(count,len2-len1+1,
-        { if ((*eqcomp)(charptr1,charptr2,len1)) goto found; # vergleichen
-          charptr2++; # weiterrücken
-          start2++; # und Position von charptr2 mitzählen
+        { if ((*eqcomp)(string1,offset1,string2,offset2,len1)) goto found; # vergleichen
+          offset2++;
         });
       notfound: return NIL;
-      found: return fixnum(start2);
-    }
+      found: return fixnum(offset2 - arg2->offset);
+    }}
 
 LISPFUN(search_string_gleich,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (SYS::SEARCH-STRING= string1 string2 [:start1] [:end1] [:start2] [:end2])
 # = (search string1 string2 :test #'char= [:start1] [:end1] [:start2] [:end2])
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    var uintL start2 =
-      test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # String1 in String2 suchen:
-    value1 = string_search(charptr1[0],len1,charptr2,len2,start2,&string_eqcomp);
+    value1 = string_search(&arg1,&arg2,&string_eqcomp);
     mv_count=1;
   }
 
@@ -2171,15 +2539,12 @@ LISPFUN(search_string_equal,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (SYS::SEARCH-STRING-EQUAL string1 string2 [:start1] [:end1] [:start2] [:end2])
 # = (search string1 string2 :test #'char-equal [:start1] [:end1] [:start2] [:end2])
-  { var const chart* charptr1[2];
-    var uintL len1;
-    var const chart* charptr2;
-    var uintL len2;
+  { var stringarg arg1;
+    var stringarg arg2;
     # Argumente überprüfen:
-    var uintL start2 =
-      test_2_stringsym_limits(&!charptr1,&len1,&charptr2,&len2);
+    test_2_stringsym_limits(&arg1,&arg2);
     # String1 in String2 suchen:
-    value1 = string_search(charptr1[0],len1,charptr2,len2,start2,&string_eqcomp_ci);
+    value1 = string_search(&arg1,&arg2,&string_eqcomp_ci);
     mv_count=1;
   }
 
@@ -2317,23 +2682,21 @@ LISPFUNN(string_both_trim,3)
 # UP: wandelt einen String in Großbuchstaben
 # string_upcase(string)
 # > string: String
-# < ergebnis: neuer Simple-String, in Großbuchstaben
+# < ergebnis: neuer Normal-Simple-String, in Großbuchstaben
 # kann GC auslösen
   global object string_upcase (object string);
   global object string_upcase(string)
     var object string;
-    { string = copy_string(string); # kopieren und dabei zum Simple-String machen
+    { string = copy_string(string); # kopieren und dabei zum Normal-Simple-String machen
       nstring_upcase(&TheSstring(string)->data[0],Sstring_length(string)); # umwandeln
       return string;
     }
 
 LISPFUN(nstring_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
 # (NSTRING-UPCASE string :start :end), CLTL S. 304
-  { var object string;
-    var uintL start; # unbenutzt
-    var uintL len;
-    var chart* charptr = test_string_limits_rw(&string,&start,&len);
-    nstring_upcase(charptr,len);
+  { var stringarg arg;
+    var object string = test_string_limits_rw(&arg);
+    nstring_upcase(&TheSstring(arg.string)->data[arg.offset+arg.index],arg.len);
     value1 = string; mv_count=1;
   }
 
@@ -2359,23 +2722,21 @@ LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
 # UP: wandelt einen String in Kleinbuchstaben
 # string_downcase(string)
 # > string: String
-# < ergebnis: neuer Simple-String, in Kleinbuchstaben
+# < ergebnis: neuer Normal-Simple-String, in Kleinbuchstaben
 # kann GC auslösen
   global object string_downcase (object string);
   global object string_downcase(string)
     var object string;
-    { string = copy_string(string); # kopieren und dabei zum Simple-String machen
+    { string = copy_string(string); # kopieren und dabei zum Normal-Simple-String machen
       nstring_downcase(&TheSstring(string)->data[0],Sstring_length(string)); # umwandeln
       return string;
     }
 
 LISPFUN(nstring_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
 # (NSTRING-DOWNCASE string :start :end), CLTL S. 304
-  { var object string;
-    var uintL start; # unbenutzt
-    var uintL len;
-    var chart* charptr = test_string_limits_rw(&string,&start,&len);
-    nstring_downcase(charptr,len);
+  { var stringarg arg;
+    var object string = test_string_limits_rw(&arg);
+    nstring_downcase(&TheSstring(arg.string)->data[arg.offset+arg.index],arg.len);
     value1 = string; mv_count=1;
   }
 
@@ -2423,11 +2784,9 @@ LISPFUN(string_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
 
 LISPFUN(nstring_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
 # (NSTRING-CAPITALIZE string :start :end), CLTL S. 304
-  { var object string;
-    var uintL start; # unbenutzt
-    var uintL len;
-    var chart* charptr = test_string_limits_rw(&string,&start,&len);
-    nstring_capitalize(charptr,len);
+  { var stringarg arg;
+    var object string = test_string_limits_rw(&arg);
+    nstring_capitalize(&TheSstring(arg.string)->data[arg.offset+arg.index],arg.len);
     value1 = string; mv_count=1;
   }
 
@@ -2455,7 +2814,7 @@ LISPFUNN(name_char,1) # (NAME-CHAR name), CLTL S. 243
 # > uintL start: start index
 # > uintL end: end index
 # with 0 <= start <= end <= Sstring_length(string)
-# < object result: (subseq string start end), a freshly created simple-string
+# < object result: (subseq string start end), a freshly created normal-simple-string
   global object subsstring (object string, uintL start, uintL end);
   global object subsstring(string,start,end)
     var object string;
@@ -2465,10 +2824,11 @@ LISPFUNN(name_char,1) # (NAME-CHAR name), CLTL S. 243
       pushSTACK(string);
      {var object new_string = allocate_string(count);
       string = popSTACK();
-      if (!(count==0))
-        { var const chart* charptr1 = &TheSstring(string)->data[start];
-          var chart* charptr2 = &TheSstring(new_string)->data[0];
-          dotimespL(count,count, { *charptr2++ = *charptr1++; } );
+      if (count > 0)
+        { SstringDispatch(string,
+            { chartcopy(&TheSstring(string)->data[start],&TheSstring(new_string)->data[0],count); },
+            { scintcopy(&TheSmallSstring(string)->data[start],&TheSstring(new_string)->data[0],count); }
+            );
         }
       return new_string;
     }}
@@ -2511,9 +2871,12 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
     string = popSTACK(); # alter String
     if (count > 0)
       { var uintL len; # nochmals die Länge des alten Strings
-        var const chart* charptr1 = unpack_string_ro(string,&len) + start;
-        var chart* charptr2 = &TheSstring(new_string)->data[0];
-        dotimespL(count,count, { *charptr2++ = *charptr1++; } );
+        var uintL offset;
+        string = unpack_string_ro(string,&len,&offset);
+        SstringDispatch(string,
+          { chartcopy(&TheSstring(string)->data[offset+start],&TheSstring(new_string)->data[0],count); },
+          { scintcopy(&TheSmallSstring(string)->data[offset+start],&TheSstring(new_string)->data[0],count); }
+          );
       }
     value1 = new_string; mv_count=1;
   }}
@@ -2550,10 +2913,16 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
             dotimespC(argcount,argcount,
               { var object arg = NEXT(argptr); # nächster Argument-String
                 var uintL len; # dessen Länge
-                var const chart* charptr1 = unpack_string_ro(arg,&len);
-                var uintL count;
-                # Kopiere len Characters von charptr1 nach charptr2:
-                dotimesL(count,len, { *charptr2++ = *charptr1++; } );
+                var uintL offset;
+                var object string = unpack_string_ro(arg,&len,&offset);
+                if (len > 0)
+                  { # Kopiere len Characters von string nach charptr2:
+                    SstringDispatch(string,
+                      { chartcopy(&TheSstring(string)->data[offset],charptr2,len); },
+                      { scintcopy(&TheSmallSstring(string)->data[offset],charptr2,len); }
+                      );
+                    charptr2 += len;
+                  }
               });
           }
         set_args_end_pointer(args_pointer); # STACK aufräumen
