@@ -26,10 +26,9 @@
 
 (def-c-type Oid uint)
 
-(eval-when (load compile eval)
-  (defconstant NAMEDATALEN 64)
-  (defconstant MAX-PARAM 64)
-  (defconstant BUFSIZ 1024))
+(defconstant NAMEDATALEN 64)
+(defconstant MAX-PARAM 64)
+(defconstant BUFSIZ 1024)
 
 (c-lines "#include <libpq-fe.h>~%")
 

@@ -29,9 +29,8 @@
 (define-symbol-macro UNDEF_DBL (undef_dbl_func_ns))
 (define-symbol-macro INFINITY_ns (inf_dbl_func_ns))
 
-(eval-when (compile eval load)
-  (defconstant MESG_LEN_ns 256)
-  (defconstant NAME_MAX_ns 30))
+(defconstant MESG_LEN_ns 256)
+(defconstant NAME_MAX_ns 30)
 
 (def-c-enum checking_ns
   (NO_CHECK 1)
