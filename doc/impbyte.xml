@@ -11,7 +11,7 @@
 <section id="internals-intro"><title>Introduction</title>
 
 <para>Knowing that most &malloc; implementations are buggy and/or slow,
-and because &clisp; needs to perform garbage collection, &clisp; has its
+and because &clisp; needs to perform &gc;ion, &clisp; has its
 own memory management subsystem in
 files <filename>#P"spvw*.d"</filename>.</para>
 
@@ -47,7 +47,7 @@ given by the function <function>objsize()</function>.</para>
 (i.e. &cons-t;es, &complex-t; numbers, &ratio-t;s) are
 stored in a separate area and occupy 2 words each.
 All other &clisp; objects have "varying length" (more precisely,
-not a fixed length) and include a word for garbage collection purposes
+not a fixed length) and include a word for &gc;ion purposes
 at their beginning.</para>
 
 <para>The garbage collector is invoked by
@@ -206,9 +206,8 @@ operating system and is determined at build time.</para>
   Each page has its hole (free space) at its end.
   For every heap, the pages are kept sorted according to the size of
   their hole, using AVL trees.
-  Garbage collection is invoked when the used space has grown by 25%
-  since the last GC; until that point new pages are allocated from the
-  operating system.
+  The &gc;ion is invoked when the used space has grown by 25% since the
+  last GC; until that point new pages are allocated from the OS.
   The GC compacts the data in each page separately:
   data is moved to the left. Emptied pages are given back to the OS.
   If the holes then make up more than 25% of the occupied storage, a
@@ -250,10 +249,10 @@ operating system and is determined at build time.</para>
   Each of these blocks has its data to the left and the hole to the
   right, but these blocks are extensible to the right (because there is
   enough room between them).
-  A garbage collection is triggered when the allocation amount since the
+  A &gc;ion is triggered when the allocation amount since the
   last GC reaches 50% of the amount of used space at the last GC, but at
   least 512 KB.
-  The garbage collection cleans up each block separately: data is moved left.
+  The &gc;ion cleans up each block separately: data is moved left.
   <variablelist><title>overview</title>
    <varlistentry><term>(+)</term>
     <listitem><simpara>Total heap size grows depending on the
@@ -546,7 +545,7 @@ adapted to &cl; &mul-val;:
 </variablelist></para>
 
 <para>The contents of <varname>values</varname> is short-lived.
-It does not survive a function call, not even a garbage collection.</para>
+It does not survive a function call, not even a &gc;ion.</para>
 
 <para>The interpretation of some bytecode instructions depends on a
 constant, &jbs;.  This is a CPU-dependent number, the value of
