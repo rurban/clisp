@@ -1,5 +1,11 @@
 2002-08-14  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (form-name): use WRITE-TO-STRING instead of
+	SYS::WRITE-TO-SHORT-STRING (reversed a major compilation
+	performance hit introduced on 2002-03-11)
+
+2002-08-14  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (makemake): no need for a separate second
 	config.status invocation to get the additional commands
 	* configure.in (po/Makefile.in): use AC_CONFIG_FILES, not AC_OUTPUT
