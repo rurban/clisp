@@ -71,7 +71,7 @@ The point should be on the prototype and the definition should follow."
   (save-excursion (back-to-indentation) (if (looking-at "# ") 0 [0])))
 
 (defvar d-font-lock-extra-types
-  '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "scint"
+  '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "scint" "Handle"
            "[su]?int[BCLPW0-9]*" "Values" "fsubr_function" "lisp_function")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
