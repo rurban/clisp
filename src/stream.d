@@ -768,19 +768,19 @@ global object var_stream (object sym, uintB strmflags) {
 # liefert den Stream, der der Wert des Symbols ist, und überprüft, ob es ein
 # offener Stream der Richtung direction (:PROBE, :INPUT, :OUTPUT oder :IO) ist.
 LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
-  {
-    var object direction = popSTACK();
-    var object symbol = popSTACK();
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
-    value1 = var_stream(symbol,
-                        eq(direction,S(Kinput)) ? strmflags_rd_ch_B : # :INPUT
-                        eq(direction,S(Koutput)) ? strmflags_wr_ch_B : # :OUTPUT
-                        eq(direction,S(Kio)) ? strmflags_rd_ch_B | strmflags_wr_ch_B : # :IO
-                        0 # :PROBE oder nicht angegeben
-                       );
-    mv_count=1;
-  }
+{
+  var object direction = popSTACK();
+  var object symbol = popSTACK();
+  if (!symbolp(symbol))
+    fehler_symbol(symbol);
+  value1 = var_stream(symbol,(uintB)(
+                      eq(direction,S(Kinput)) ? strmflags_rd_ch_B : # :INPUT
+                      eq(direction,S(Koutput)) ? strmflags_wr_ch_B : # :OUTPUT
+                      eq(direction,S(Kio)) ?
+                      strmflags_rd_ch_B | strmflags_wr_ch_B : # :IO
+                      0)); # :PROBE or not given
+  mv_count=1;
+}
 
 # Fehler, wenn aus einem obskuren Grunde ein WRITE nicht gehen sollte:
 nonreturning_function(local, fehler_unwritable, (object caller, object stream)) {
