@@ -902,10 +902,46 @@ echo "$ac_t""$ac_cv_prog_gcc_traditional" 1>&6
   fi
 fi
 
+
+echo $ac_n "checking whether using GNU C""... $ac_c" 1>&6
+echo "configure:908: checking whether using GNU C" >&5
+if eval "test \"`echo '$''{'cl_cv_prog_cc_gcc'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  
+cat > conftest.$ac_ext <<EOF
+#line 914 "configure"
+#include "confdefs.h"
+#ifdef __GNUC__
+  yes
+#endif
+
+EOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  egrep "yes" >/dev/null 2>&1; then
+  rm -rf conftest*
+  cl_cv_prog_cc_gcc=yes
+else
+  rm -rf conftest*
+  cl_cv_prog_cc_gcc=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$ac_t""$cl_cv_prog_cc_gcc" 1>&6
+if test $cl_cv_prog_cc_gcc = yes; then
+  CC_GCC=true
+  GCC_X_NONE='-x none'
+else
+  CC_GCC=false
+  GCC_X_NONE=''
+fi
+
 # Extract the first word of "ranlib", so it can be a program name with args.
 set dummy ranlib; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:909: checking for $ac_word" >&5
+echo "configure:945: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_prog_RANLIB'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -933,7 +969,7 @@ else
 fi
 
 echo $ac_n "checking whether ${MAKE-make} sets \$(MAKE)""... $ac_c" 1>&6
-echo "configure:937: checking whether ${MAKE-make} sets \$(MAKE)" >&5
+echo "configure:973: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 set dummy ${MAKE-make}; ac_make=`echo "$2" | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_prog_make_${ac_make}_set'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -970,7 +1006,7 @@ fi
 # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
 # ./install, which can be erroneously created by make from ./install.sh.
 echo $ac_n "checking for a BSD compatible install""... $ac_c" 1>&6
-echo "configure:974: checking for a BSD compatible install" >&5
+echo "configure:1010: checking for a BSD compatible install" >&5
 if test -z "$INSTALL"; then
 if eval "test \"`echo '$''{'cl_cv_path_install'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -1023,7 +1059,7 @@ if test -z "$INSTALL_DATA"; then
 fi
 
 echo $ac_n "checking whether ln -s works""... $ac_c" 1>&6
-echo "configure:1027: checking whether ln -s works" >&5
+echo "configure:1063: checking whether ln -s works" >&5
 if eval "test \"`echo '$''{'ac_cv_prog_LN_S'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1045,7 +1081,7 @@ fi
 
  ac_aux_dir=${srcdir}/../autoconf
 echo $ac_n "checking host system type""... $ac_c" 1>&6
-echo "configure:1049: checking host system type" >&5
+echo "configure:1085: checking host system type" >&5
 if eval "test \"`echo '$''{'cl_cv_host'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1094,13 +1130,13 @@ if test "$host_cpu" = c1 -o "$host_cpu" = c2 -o "$host_cpu" = c32 -o "$host_cpu"
 fi
 if test "$host_cpu" = mips; then
   echo $ac_n "checking for 64-bit MIPS""... $ac_c" 1>&6
-echo "configure:1098: checking for 64-bit MIPS" >&5
+echo "configure:1134: checking for 64-bit MIPS" >&5
 if eval "test \"`echo '$''{'cl_cv_host_mips64'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 1104 "configure"
+#line 1140 "configure"
 #include "confdefs.h"
 #if defined(_MIPS_SZLONG)
 #if (_MIPS_SZLONG == 64)
@@ -1127,13 +1163,13 @@ if test $cl_cv_host_mips64 = yes; then
   host_cpu=mips64
 else
   echo $ac_n "checking for MIPS with n32 ABI""... $ac_c" 1>&6
-echo "configure:1131: checking for MIPS with n32 ABI" >&5
+echo "configure:1167: checking for MIPS with n32 ABI" >&5
 if eval "test \"`echo '$''{'cl_cv_host_mipsn32'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 1137 "configure"
+#line 1173 "configure"
 #include "confdefs.h"
 #if __mips >= 3
   yes
@@ -1322,6 +1358,8 @@ s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@CC@%$CC%g
 s%@CPP@%$CPP%g
+s%@CC_GCC@%$CC_GCC%g
+s%@GCC_X_NONE@%$GCC_X_NONE%g
 s%@RANLIB@%$RANLIB%g
 s%@SET_MAKE@%$SET_MAKE%g
 s%@INSTALL@%$INSTALL%g
