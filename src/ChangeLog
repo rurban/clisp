@@ -1,5 +1,11 @@
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
+	* floatprint.lisp (decode-float-decimal): Add argument
+	fixed-point-adjust.
+	(write-float): Pass fixed-point-adjust = t.
+
+2004-03-27  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (pr_symbol_part): Add |...| markers also when *print-readably*
 	is true.
 

@@ -1,10 +1,11 @@
 ;; Printing of Floating-Point-Numbers with PRINT and FORMAT
 ;; Michael Stoll 10.2.1990 - 26.3.1990
 ;; Bruno Haible 8.9.1990 - 10.9.1990
-;; translation: Stefan Kain 2003-04-26
-;; the German variable names 'unten' and 'oben' where translated with
-;; 'below' resp. 'above' in English!
-;; wlog == without loss of generality
+;; Translation: Stefan Kain 2003-04-26
+;;   The German variable names 'unten' and 'oben' where translated with
+;;   'below' resp. 'above' in English!
+;;   wlog == without loss of generality
+;; Bruno Haible 2004-03-27: Fixed printing of short floats like 1782592s0.
 
 ;; basic idea:
 ;; Each real-number /= 0 represents an (open) interval. We print the
@@ -31,12 +32,15 @@
 ;;   Let x1 and x2 be the next smaller resp. the next bigger number for x
 ;;   of the same floating-point-format. Consequently, the number x represents
 ;;   the open interval from (x+x1)/2 to (x+x2)/2.
-;;   A is an integer >0, with exactly K decimal places (K>=1), and
+;;   A is an integer >0, with exactly K decimal places (K >= 1), and
 ;;   (x+x1)/2 < a*10^(-k+e) < (x+x2)/2 .
 ;;   K is minimal, so A is not divisible by 10.
+;;   If fixed-point-adjust is true and 1 <= |x| < 10^7, more precision
+;;   is provided by assuming that K needs only to be >= E+1, and no effort
+;;   is made to minimize K below E+1 if it would discard nonzero digits.
 ;; if x=0, then a=0, k=1, e=0.
 ;; AS is the sequence of digits of A, of length K.
-(defun decode-float-decimal (x)
+(defun decode-float-decimal (x fixed-point-adjust)
   (declare (type float x))
   (multiple-value-bind (binmant binexpo sign) (integer-decode-float x)
     (if (eql binmant 0) ; x=0 ?
@@ -213,13 +217,27 @@
                 (when (< (ash 1 e) ten-d) ; if 2^e < 10^d,
                   (setq d (- d 1) ten-d (floor ten-d 10))) ; correct estimate
                 ;; Now 10^d <= 2^e < 10^(d+1) and ten-d = 10^d.
-                ;; let a1 be the smallest integer
-                ;;      a > 2^(e-belowshift) * below / 10^d,
-                ;; let a2 be the largest integer a < 2^e * above / 10^d.
-                ;; a1 = 1+floor(below*2^e/(2^belowshift*10^d)),
-                ;; a2 = floor((above*2^e-1)/10^d).
-                (setq a1 (1+ (floor (ash below e) (ash ten-d belowshift))))
-                (setq a2 (floor (1- (ash above e)) ten-d)))
+                (if (and fixed-point-adjust
+                         (<= binmant (ash 9999999 (- binexpo))))
+                  ;; |x| < 10^7 and we want fixed-point notation. Force d
+                  ;; to stay <= -1, i.e. return more digits than we would do
+                  ;; in scientific notation.
+                  (progn
+                    ;; Set d = -1 and a1 = a2 = 2^e * 2*binmant / 10^d.
+                    ;; Or, since we know that e>=0 implies that these a1 and a2
+                    ;; end in a trailing zero and the caller can add zeroes
+                    ;; at the end on his own:
+                    ;; Set d = 0 and a1 = a2 = 2^e * 2*binmant / 10^d.
+                    (setq d 0)
+                    (setq a1 (setq a2 (ash binmant (1+ e)))))
+                  (progn
+                    ;; let a1 be the smallest integer
+                    ;;      a > 2^(e-belowshift) * below / 10^d,
+                    ;; let a2 be the largest integer a < 2^e * above / 10^d.
+                    ;; a1 = 1+floor(below*2^e/(2^belowshift*10^d)),
+                    ;; a2 = floor((above*2^e-1)/10^d).
+                    (setq a1 (1+ (floor (ash below e) (ash ten-d belowshift))))
+                    (setq a2 (floor (1- (ash above e)) ten-d)))))
               ;; e < 0. Estimate d = floor(e*lg(2)) like above.
               ;; |e|<=2*l<2^21.
               (progn
@@ -314,7 +332,7 @@
       (TEXT "argument is not a float: ~S")
       arg))
   (multiple-value-bind (mantstring mantlen expo sign)
-      (decode-float-decimal arg)
+      (decode-float-decimal arg t)
     ;; arg in decimal representation: +/- 0.mant * 10^expo, whereby
     ;;  mant is the mantissa: as Simple-String mantstring of length mantlen,
     ;;  expo is the decimal-exponent,
