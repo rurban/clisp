@@ -1,3 +1,8 @@
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
+	* tests.lisp (do-test): Fix another out-of-bounds array access
+	introduced on 2004-10-20.
+
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
 	* lambda.tst: On BeOS, disable tests that fail on BeOS.
