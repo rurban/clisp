@@ -364,6 +364,7 @@
 <!ENTITY wr-float "<link linkend='bin-output'><function>EXT:WRITE-FLOAT</function></link>">
 <!ENTITY wr-integer "<link linkend='bin-output'><function>EXT:WRITE-INTEGER</function></link>">
 <!ENTITY pr-empty-arr-ansi "<link linkend='pr-empty-arr-ansi'><varname>CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*</varname></link>">
+<!ENTITY pr-unreadable-ansi "<link linkend='pr-unreadable-ansi'><varname>CUSTOM:*PRINT-UNREADABLE-ANSI*</varname></link>">
 <!ENTITY init-function "<olink targetdoc='impnotes' targetptr='image'>init function</olink>">
 <!ENTITY RC-file "<olink targetdoc='man' targetptr='opt-norc'>RC file</olink>">
 <!ENTITY my-compile-file "<olink targetdoc='impnotes' targetptr='compilefile'><function>COMPILE-FILE</function></olink>">
