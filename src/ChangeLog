@@ -1,3 +1,8 @@
+2002-06-27  Sam Steingold  <sds@gnu.org>
+
+	* configure: check stack limit and suggest ulimit when printing
+	further recommendations and call ulimit before make
+
 2002-06-26  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d: separate `chart' and `object'
