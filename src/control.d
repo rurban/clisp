@@ -655,7 +655,7 @@ LISPSPECFORM(let, 1,0,body)
             var object symbol = *(markptr STACKop varframe_binding_sym); /* variable */
             var object newval = *(markptr STACKop varframe_binding_value); /* new value */
             *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; /* save old value in frame */
-            *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* active binding */
+            *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
             TheSymbolflagged(symbol)->symvalue = newval; /* new value */
           } else {
             *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
