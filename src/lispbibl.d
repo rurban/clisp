@@ -12035,15 +12035,13 @@ extern object L_to_I (sint32 wert);
 extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);
 # is used by TIME, FOREIGN
 
-#ifdef HAVE_FFI
-  # Converts an unsigned double-longword into an Integer.
-  # UL2_to_I(wert_hi,wert_lo)
-  # > wert_hi|wert_lo: value of the Integer, an unsigned 64-bit-Integer.
-  # < result: Integer with that value.
-  # can trigger GC
-  extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
-  # is used by FOREIGN, and by the FFI
-#endif
+# Converts an unsigned double-longword into an Integer.
+# UL2_to_I(wert_hi,wert_lo)
+# > wert_hi|wert_lo: value of the Integer, an unsigned 64-bit-Integer.
+# < result: Integer with that value.
+# can trigger GC
+extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
+# is used by TIME, FOREIGN, and by the FFI
 
 #ifdef intQsize
   # Converts a quadword into an Integer.

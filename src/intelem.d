@@ -951,7 +951,6 @@
       #undef FILL_1_DIGIT
     }
 
-#ifdef HAVE_FFI
 # Wandelt Unsigned Doppel-Longword in Integer um.
 # UL2_to_I(wert_hi,wert_lo)
 # > wert_hi|wert_lo: Wert des Integers, ein unsigned 64-Bit-Integer.
@@ -1063,7 +1062,6 @@
       #undef FILL_2_DIGITS
       #undef FILL_1_DIGIT
     }
-#endif
 
 #ifdef intQsize
 # Wandelt Quadword in Integer um.
