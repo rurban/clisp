@@ -1,3 +1,7 @@
+2003-02-25  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (*.mem): do not dump images if LOAD "init" failed
+
 2003-02-27  Sam Steingold  <sds@gnu.org>
 
 	detect side-effect class of some compiled closures
