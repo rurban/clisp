@@ -8575,10 +8575,10 @@ local object pathname_add_subdir (void) {
 local void with_stat_info (void) {
   var object newlist;
  #if defined(UNIX) || defined(RISCOS)
-  var uintL size = filestatus->st_size;
+  var off_t size = filestatus->st_size;
  #endif
  #ifdef AMIGAOS
-  var uintL size = filestatus->fib_Size;
+  var off_t size = filestatus->fib_Size;
  #endif
   { /* Pathname already in STACK_1, as 1. list element
    Truename already in STACK_0, as 2. list element */
@@ -8598,7 +8598,11 @@ local void with_stat_info (void) {
     newlist = listof(6); /* build 6-element list */
   }
   pushSTACK(newlist); /* as 3. list element */
+ #if SIZEOF_OFF_T > 4
+  pushSTACK(UQ_to_I(size)); /* length as 4. list element */
+ #else
   pushSTACK(UL_to_I(size)); /* length as 4. list element */
+ #endif
  #if defined(UNIX) || defined(RISCOS)
   newlist = listof(4); /* build 4-element list */
  #endif
@@ -8751,7 +8755,11 @@ local object directory_search_hashcode (void) {
   });
   /* entry exists (oh miracle...) */
   pushSTACK(UL_to_I(status.st_dev)); /* Device-Number and */
-  pushSTACK(UL_to_I(status.st_ino)); /* Inode-Number */
+  #if SIZEOF_INO_T > 4
+    pushSTACK(UQ_to_I(status.st_ino)); /* Inode-Number */
+  #else
+    pushSTACK(UL_to_I(status.st_ino)); /* Inode-Number */
+  #endif
   var object new_cons = allocate_cons(); /* cons them together */
   Cdr(new_cons) = popSTACK(); Car(new_cons) = popSTACK();
   return new_cons;

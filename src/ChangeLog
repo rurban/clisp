@@ -1,3 +1,16 @@
+2003-10-01  Bruno Haible  <bruno@clisp.org>
+
+	Improve support for large off_t and large ino_t.
+	* configure.in: Check size of 'ino_t'.
+	* lispbibl.d (UQ_to_I): Declare also if sizeof(ino_t) > 4.
+	* intelem.d (UQ_to_I): Define also if sizeof(ino_t) > 4.
+	* pathname.d (with_stat_info): Use UQ_to_I to convert st_size to a
+	Lisp object if sizeof(off_t) > 4.
+	(directory_search_hashcode): Use UQ_to_I to convert st_ino to a Lisp
+	object if sizeof(ino_t) > 4.
+	* spvw_memfile.d (loadmem_from_handle): Don't cast down st_size to
+	32 bits.
+
 2003-09-30  John Hinsdale  <hin@alma.com>
 
 	* modules/oracle/oracle.lisp: Fix bug that leaks connections
