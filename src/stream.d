@@ -8635,6 +8635,12 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
 #endif
 
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
+local inline object* kbd_last_buf (const object stream) {
+  var object* last_ = &TheStream(stream)->strm_keyboard_buffer;
+  while (mconsp(*last_)) { last_ = &Cdr(*last_); }
+  return last_;
+}
+
 # cf. rd_ch_unbuffered() :
 local object rd_ch_keyboard (const gcv_object_t* stream_) {
  restart_it:
@@ -8642,12 +8648,21 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # EOF already?
     return eof_value;
   # Still something in the Buffer?
+  if (UnbufferedStream_status(stream) > 0) {
+    var uintL num_bytes = UnbufferedStream_status(stream);
+    var uintB *bytes = UnbufferedStream_bytebuf(stream);
+    var uintL count;
+    UnbufferedStream_status(stream) = 0;
+    dotimespL(count,num_bytes,{ pushSTACK(code_char(as_chart(*bytes++))); }); # FIXME: This should take into account the encoding.
+    var object new_list = listof(num_bytes);
+    *kbd_last_buf(stream = *stream_) = new_list;
+  }
   if (mconsp(TheStream(stream)->strm_keyboard_buffer))
     goto empty_buffer;
   # read a character:
   {
     var uintB c;
-  read_next_char:
+   read_next_char:
     {
       run_time_stop(); # hold run time clock
       begin_system_call();
@@ -8668,15 +8683,10 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
         TheStream(stream)->strm_rd_ch_last = eof_value; return eof_value;
       }
     }
-  next_char_is_read:
-    # It increases the Buffer:
-    {
+  next_char_is_read: { /* increase the buffer: */
       var object new_cons = allocate_cons();
       Car(new_cons) = code_char(as_chart(c)); # FIXME: This should take into account the encoding.
-      stream = *stream_;
-      var gcv_object_t* last_ = &TheStream(stream)->strm_keyboard_buffer;
-      while (mconsp(*last_)) { last_ = &Cdr(*last_); }
-      *last_ = new_cons;
+      *kbd_last_buf(stream = *stream_) = new_cons;
     }
     # Is the buffer a complete sequence of characters for a key,
     # so we will return this key. Is the buffer a genuine starting piece
