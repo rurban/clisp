@@ -62,6 +62,7 @@ local void string_out (FILE* out, object str) {
 
 /* non-consing, STACK non-modifying */
 global object nobject_out (FILE* out, object obj) {
+  begin_system_call();
   if (out == NULL) out = stdout;
   if (stringp(obj)) {
     fputc('"',out);
@@ -207,6 +208,7 @@ global object nobject_out (FILE* out, object obj) {
             varobject_type(TheVarobject(obj)),ThePointer(obj));
   else fprintf(out,"#<huh?! address=0x%X>",ThePointer(obj));
   fflush(out);
+  end_system_call();
   return obj;
 }
 
@@ -221,6 +223,7 @@ local int back_trace_depth (const struct backtrace_t *bt) {
 
 local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
   var uintL index = 0;
+  begin_system_call();
   if (out == NULL) out = stdout;
   if (!bt) bt = back_trace;
   for (; bt; bt=bt->bt_next, index++) {
@@ -239,6 +242,7 @@ local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
       break;
     }
   }
+  end_system_call();
   return index;
 }
 
