@@ -1561,7 +1561,7 @@ for-value   NIL or T
 ;; (Here, variables are VAR-Structures for lexical variables and symbols for
 ;; dynamic variables.)
 ;; Consequently:
-;;   If the the value is uninteresting, an ANODE with SECLASS-modifies=NIL
+;;   If the value is uninteresting, an ANODE with SECLASS-modifies=NIL
 ;;   can be omitted.
 ;;   For ANODEs with SECLASS, whose uses- and modifies-part are disjoint,
 ;;   the order of evaluation may be permuted.
@@ -1569,15 +1569,39 @@ for-value   NIL or T
 ;; FIXME1: foldability of compiled closures is not detected
 ;; FIXME2: RETURN-FROM, GO, HANDLER-BIND ==> seclass (T . T)
 
+(proclaim '(inline seclass-foldable-p))
+(defun seclass-foldable-p (seclass)
+  (null seclass))
+
+(proclaim '(inline seclass-uses))
+(defun seclass-uses (seclass)
+  (car seclass))
+
+(proclaim '(inline seclass-modifies))
+(defun seclass-modifies (seclass)
+  (cdr seclass))
+
+(defconstant *foldable-seclass* NIL)
+
+(defconstant *pure-seclass* '(NIL . NIL))
+
+(proclaim '(inline make-seclass))
+(defun make-seclass (&key uses modifies)
+  (cons uses modifies))
+
 ;; (seclass-or class1 class2) determines the total class of execution
 (defun seclass-or (seclass1 seclass2)
-  (if (and (null seclass1) (null seclass2)) NIL  ; foldable
-    (cons (if (or (eq (car seclass1) 'T) (eq (car seclass2) 'T))
-            'T
-            (union (car seclass1) (car seclass2)))
-          (if (or (eq (cdr seclass1) 'T) (eq (cdr seclass2) 'T))
-            'T
-            (union (cdr seclass1) (cdr seclass2))))))
+  (if (and (seclass-foldable-p seclass1) (seclass-foldable-p seclass2))
+    *foldable-seclass*
+    (make-seclass
+      :uses
+        (if (or (eq (seclass-uses seclass1) 'T) (eq (seclass-uses seclass2) 'T))
+          'T
+          (union (seclass-uses seclass1) (seclass-uses seclass2)))
+      :modifies
+        (if (or (eq (seclass-modifies seclass1) 'T) (eq (seclass-modifies seclass2) 'T))
+          'T
+          (union (seclass-modifies seclass1) (seclass-modifies seclass2))))))
 
 ;; So that the list of sub-anodes does not have to be calculated, however
 ;; the anode's side-effect-class belonging to this list can be calculated:
@@ -1585,13 +1609,14 @@ for-value   NIL or T
   (defmacro anodes-seclass-or (&rest anodeforms)
     (reduce #'(lambda (form1 form2) `(SECLASS-OR ,form1 ,form2)) anodeforms
             :key #'(lambda (anodeform) `(ANODE-SECLASS ,anodeform))
-            :initial-value NIL))
+            :initial-value *foldable-seclass*))
   (define-modify-macro seclass-or-f (anode) seclass-or-anode)
   (defmacro seclass-or-anode (seclass anode)
     `(SECLASS-OR ,seclass (ANODE-SECLASS ,anode)))
 )
 (defun anodelist-seclass-or (anodelist)
-  (reduce #'seclass-or anodelist :key #'anode-seclass :initial-value NIL))
+  (reduce #'seclass-or anodelist :key #'anode-seclass
+                                 :initial-value *foldable-seclass*))
 
 ;; side-effects to lexical variables bound further inwards don't count
 ;; and are therefore eliminated:
@@ -1599,9 +1624,13 @@ for-value   NIL or T
   (flet ((bound (var) (memq var varlist))) ; tests, if var is bound
     ;; (dynamic variables are not eliminated; they are contained in varlist
     ;; as VAR-structures and in seclass as symbols.)
-    (when seclass
-      (cons (if (eq (car seclass) 'T) 'T (remove-if #'bound (car seclass)))
-            (if (eq (cdr seclass) 'T) 'T (remove-if #'bound (cdr seclass)))))))
+    (if (seclass-foldable-p seclass)
+      *foldable-seclass*
+      (make-seclass
+        :uses
+           (if (eq (seclass-uses seclass) 'T) 'T (remove-if #'bound (seclass-uses seclass)))
+        :modifies
+           (if (eq (seclass-modifies seclass) 'T) 'T (remove-if #'bound (seclass-modifies seclass)))))))
 
 ;; determines, if the order of evaluation of two anodes can be permuted -
 ;; so long as the stack-states permit this.
@@ -1612,8 +1641,8 @@ for-value   NIL or T
            (or (null uses) (null modifies)
                (and (not (eq uses 'T)) (not (eq modifies 'T))
                     (null (intersection uses modifies))))))
-    (and (disjoint-p (car seclass1) (cdr seclass2))
-         (disjoint-p (car seclass2) (cdr seclass1)))))
+    (and (disjoint-p (seclass-uses seclass1) (seclass-modifies seclass2))
+         (disjoint-p (seclass-uses seclass2) (seclass-modifies seclass1)))))
 
 
 ;;;;****            AUXILIARY   FUNCTIONS
@@ -1733,7 +1762,7 @@ for-value   NIL or T
     (make-anode :source NIL
                 :type 'ERROR
                 :sub-anodes '()
-                :seclass '(NIL . NIL)
+                :seclass *pure-seclass*
                 :code '((NIL)))))
 
 ;; the 2nd return value of `compile' and `compile-file'
@@ -2101,9 +2130,9 @@ for-value   NIL or T
   #+CLISP-DEBUG (setf (anode-source anode) *form*)
   ;; If no values are needed and no side effects are produced,
   ;; the appendant code can be discarded completely:
-  (when (and (null *for-value*) (null (cdr (anode-seclass anode))))
+  (when (and (null *for-value*) (null (seclass-modifies (anode-seclass anode))))
     (setf (anode-code anode) '())
-    (setf (anode-seclass anode) '(NIL . NIL)))
+    (setf (anode-seclass anode) *pure-seclass*))
   anode))
 
 ;;; Macroexpand a form.
@@ -2146,14 +2175,14 @@ for-value   NIL or T
 (defun c-NIL ()
   (make-anode :type 'NIL
               :sub-anodes '()
-              :seclass '(NIL . NIL)
+              :seclass *pure-seclass*
               :code '((NIL))))
 
 ;; constant as form:
 (defun c-CONST ()
   (make-anode :type 'const
               :sub-anodes '()
-              :seclass '(NIL . NIL)
+              :seclass *pure-seclass*
               :code `((CONST ,(new-const *form*)))))
 
 ;; variable as Form:
@@ -2173,9 +2202,10 @@ for-value   NIL or T
           (make-anode
             :type 'VAR
             :sub-anodes '()
-            :seclass (cons (if (and *for-value* (not (var-constantp var)))
+            :seclass (make-seclass
+                       :uses (if (and *for-value* (not (var-constantp var)))
                                (list symbol) 'NIL)
-                           'NIL)
+                       :modifies 'NIL)
             :code (if *for-value*
                     (if (var-constantp var)
                       `((CONST ,(make-const
@@ -2189,7 +2219,7 @@ for-value   NIL or T
         (make-anode
           :type 'VAR
           :sub-anodes '()
-          :seclass (cons (if *for-value* 'T 'NIL) 'NIL)
+          :seclass (make-seclass :uses (if *for-value* 'T 'NIL) :modifies 'NIL)
           :code (if *for-value*
                   `((CONST ,(new-const b)) ; Vector
                     (PUSH)
@@ -2202,7 +2232,9 @@ for-value   NIL or T
                  (make-anode
                    :type 'VAR
                    :sub-anodes '()
-                   :seclass (cons (if *for-value* (list var) 'NIL) 'NIL)
+                   :seclass (make-seclass
+                              :uses (if *for-value* (list var) 'NIL)
+                              :modifies 'NIL)
                    :code (if *for-value*
                            `((GET ,var ,*venvc* ,*stackz*))
                            '()))))
@@ -2232,9 +2264,10 @@ for-value   NIL or T
         (let ((var (make-special-var symbol)))
           (make-anode :type 'VARSET
                       :sub-anodes '()
-                      :seclass (cons 'NIL
-                                     (if (var-constantp var)
-                                         'NIL (list symbol)))
+                      :seclass (make-seclass
+                                 :uses 'NIL ; FIXME: this is buggy, bug 866282
+                                 :modifies (if (var-constantp var)
+                                             'NIL (list symbol)))
                       :code (if (var-constantp var)
                               (progn
                                 (c-warn
@@ -2246,7 +2279,7 @@ for-value   NIL or T
       (LOCAL ; interpreted, lexical
         (make-anode :type 'VARSET
                     :sub-anodes '()
-                    :seclass (cons 'NIL 'T)
+                    :seclass (make-seclass :uses 'NIL :modifies 'T)
                     :code `((PUSH)
                             (CONST ,(new-const b)) ; Vector
                             (PUSH)
@@ -2257,7 +2290,9 @@ for-value   NIL or T
                (set-anode
                  (make-anode :type 'VARSET
                              :sub-anodes '()
-                             :seclass (cons 'NIL (list var))
+                             :seclass (make-seclass
+                                        :uses 'NIL
+                                        :modifies (list var))
                              :code `((SET ,var ,*venvc* ,*stackz*)))))
           ;; assignment "uses" the Variable
           (unless (var-usedp var) (setf (var-usedp var) t))
@@ -2511,7 +2546,7 @@ for-value   NIL or T
 (defun c-DIRECT-FUNCTION-CALL (args applyargs fun req opt rest-p key-p keylist
                                subr-flag call-code-producer)
   (let ((seclass (f-side-effect fun)))
-    (if (and (null *for-value*) (null (cdr seclass)))
+    (if (and (null *for-value*) (null (seclass-modifies seclass)))
       ;; Do not need to call the function, just evaluate the arguments.
       (progn
         (let ((*no-code* t) (*for-value* 'NIL))
@@ -2739,7 +2774,7 @@ for-value   NIL or T
         ;; Constant-Folding: if fun is foldable (i.e.: subr-flag = T and
         ;; key-flag = NIL) and if codelist consists besides the (PUSH)s and the
         ;; Call-Code at the end only of Anodes with code = ((CONST ...)) ?
-        (when (and (null seclass)  ; == foldable-p
+        (when (and (seclass-foldable-p seclass)
                    (every #'(lambda (code)
                               (or (not (anode-p code)) (anode-constantp code)))
                           codelist))
@@ -2773,7 +2808,7 @@ for-value   NIL or T
     (if (eql n 0)
       (make-anode :type 'UNLIST*
                   :sub-anodes '()
-                  :seclass '(NIL . NIL)
+                  :seclass *pure-seclass*
                   :code '((PUSH)))
       (make-anode :type 'UNLIST*
                   :sub-anodes '()
@@ -3524,7 +3559,7 @@ for-value   NIL or T
       ;; value of the assignment is not needed
       (progn
         (let ((value-anode (first modified))) ; Anode for assigned value
-          (when (null (cdr (anode-seclass value-anode)))
+          (when (null (seclass-modifies (anode-seclass value-anode)))
             (setf (anode-code value-anode) '()))) ; poss. remove value-form
         (let ((set-anode (second modified))) ; Anode of the assignment itself
           (setf (anode-code set-anode) '())))))) ; remove assignment
@@ -3626,7 +3661,7 @@ for-value   NIL or T
   (let ((binding-anode
           (make-anode :type 'BIND-MOVABLE
                       :sub-anodes '()
-                      :seclass '(NIL . NIL)
+                      :seclass *pure-seclass*
                       :code (c-bind-movable-var var))))
     (let ((outervar (bound-to-var-p var anode)))
       (when outervar ; if var is bound to a Variable outervar, later
@@ -3681,7 +3716,7 @@ for-value   NIL or T
             (progn ; eliminate variable
               (setf (var-closurep var) nil)
               (setf (first (var-stackz var)) 0) ; remove from Stack
-              (when (null (cdr (anode-seclass (car anodelistr))))
+              (when (null (seclass-modifies (anode-seclass (car anodelistr))))
                 ;; maybe remove initform
                 (setf (anode-code (car anodelistr)) '())))
             (if (not (var-really-usedp var))
@@ -3689,7 +3724,7 @@ for-value   NIL or T
               (progn ; eliminate variable
                 (setf (var-closurep var) nil)
                 (setf (first (var-stackz var)) 0) ; remove from Stack
-                (when (null (cdr (anode-seclass (car anodelistr))))
+                (when (null (seclass-modifies (anode-seclass (car anodelistr))))
                   ;; maybe remove initform
                   (setf (anode-code (car anodelistr)) '()))
                 (unmodify-unused-var var)) ; eliminate assignments to var
@@ -3784,7 +3819,7 @@ for-value   NIL or T
                 (SET ,var ,*venvc* ,stackz))
               (if (not (var-really-usedp var))
                 ;; Variable was optimized away in checking-fixed-var-list
-                (if (cdr (anode-seclass anode))
+                (if (seclass-modifies (anode-seclass anode))
                   `((JMPIFBOUNDP ,stackdummyvar ,*venvc* ,stackz ,label)
                     ,anode
                     ,label)
@@ -3913,7 +3948,7 @@ for-value   NIL or T
                      :type 'LAMBDABODY
                      :source lambdabody
                      :sub-anodes anode-list
-                     :seclass nil
+                     :seclass *foldable-seclass*
                      :stackz oldstackz
                      :code codelist)))
             (closuredummy-add-stack-slot
@@ -3989,7 +4024,9 @@ for-value   NIL or T
                  (make-anode
                    :type 'OPTIONAL-SVAR
                    :sub-anodes '()
-                   :seclass (cons (list (car opt-dummysr)) 'NIL)
+                   :seclass (make-seclass
+                              :uses (list (car opt-dummysr))
+                              :modifies 'NIL)
                    :code `((BOUNDP ,(car opt-dummysr) ,*venvc* ,*stackz*))))
                (var (bind-movable-var (car optsvarr) anode)))
           (push anode opts-anodes)
@@ -4027,7 +4064,7 @@ for-value   NIL or T
   (make-anode
     :type 'FUNCTION
     :sub-anodes '()
-    :seclass '(NIL . NIL)
+    :seclass *pure-seclass*
     :code (if (zerop (fnode-keyword-offset fnode))
             `((FCONST ,fnode))
             `(,@(if (fnode-Venvconst fnode)
@@ -4075,7 +4112,7 @@ for-value   NIL or T
     (cond ((null L) (c-NIL)) ; no form -> NIL
           ((null (cdr L)) (c-form (car L))) ; exactly one form
           (t (do (#+CLISP-DEBUG (anodelist '())
-                  (seclass '(NIL . NIL))
+                  (seclass *pure-seclass*)
                   (codelist '())
                   (Lr L)) ; remaining list of forms
                  ((null Lr)
@@ -4165,11 +4202,11 @@ for-value   NIL or T
          (make-anode
            :type 'AND
            :sub-anodes '()
-           :seclass '(NIL . NIL)
+           :seclass *pure-seclass*
            :code '((T))))
         ((null (cddr *form*)) (c-form (second *form*))) ; exactly one form
         (t (do (#+CLISP-DEBUG (anodelist '())
-                (seclass '(NIL . NIL))
+                (seclass *pure-seclass*)
                 (codelist '())
                 (Lr (cdr *form*))
                 (label (make-label *for-value*))) ; Label at the end
@@ -4207,11 +4244,11 @@ for-value   NIL or T
          (make-anode
            :type 'OR
            :sub-anodes '()
-           :seclass '(NIL . NIL)
+           :seclass *pure-seclass*
            :code '((NIL))))
         ((null (cddr *form*)) (c-form (second *form*))) ; exactly one form
         (t (do (#+CLISP-DEBUG (anodelist '())
-                (seclass '(NIL . NIL))
+                (seclass *pure-seclass*)
                 (codelist '())
                 (Lr (cdr *form*))
                 (label (make-label *for-value*))) ; Label at the end
@@ -4248,7 +4285,7 @@ for-value   NIL or T
   (let ((value (second *form*)))
     (make-anode :type 'QUOTE
                 :sub-anodes '()
-                :seclass '(NIL . NIL)
+                :seclass *pure-seclass*
                 :code (if *for-value* `((CONST ,(new-const value))) '()))))
 
 ;; compile (THE type form)
@@ -4268,7 +4305,7 @@ for-value   NIL or T
     (make-anode
      :type 'LOAD-TIME-VALUE
      :sub-anodes '()
-     :seclass '(NIL . NIL)
+     :seclass *pure-seclass*
      :code (if *for-value*
                `((CONST ,(if *fasoutput-stream* ; not called right away
                            (if (and (symbolp form) (c-constantp form))
@@ -4303,7 +4340,9 @@ for-value   NIL or T
                    (c-form (third *form*) 'ALL))))
     (make-anode :type 'THROW
                 :sub-anodes (list anode1 anode2)
-                :seclass (cons (car (anodes-seclass-or anode1 anode2)) 'T)
+                :seclass (make-seclass
+                           :uses (seclass-uses (anodes-seclass-or anode1 anode2))
+                           :modifies 'T)
                 :code `(,anode1 (PUSH) ,anode2 (THROW)))))
 
 ;; compile (UNWIND-PROTECT form1 {form}*)
@@ -4311,7 +4350,7 @@ for-value   NIL or T
   (test-list *form* 2)
   (let ((anode2 (let ((*stackz* (cons 'CLEANUP *stackz*)) (*for-value* nil))
                   (c-form `(PROGN ,@(cddr *form*)) 'NIL))))
-    (if (cdr (anode-seclass anode2)) ; cleanup forms have side effects
+    (if (seclass-modifies (anode-seclass anode2)) ; cleanup forms have side effects
       (let ((anode1 (let ((*stackz* (cons 'UNWIND-PROTECT *stackz*)))
                       (c-form (second *form*))))
             (label (make-label 'NIL)))
@@ -4347,7 +4386,7 @@ for-value   NIL or T
              (flag t))
         ;; if anode3 does not depend on any side-effects, one can spare
         ;; the binding:
-        (when (null (car (anode-seclass anode3)))
+        (when (null (seclass-uses (anode-seclass anode3)))
           (setf (first stackz2) 0)
           (setf (first stackz3) 0)
           (setq flag nil))
@@ -4381,7 +4420,7 @@ for-value   NIL or T
                    :sub-anodes (list anode1 anode2)
                    :seclass (anodes-seclass-or anode1 anode2)
                    :code
-                   (if (cdr (anode-seclass anode2))
+                   (if (seclass-modifies (anode-seclass anode2))
                      `((CONST ,(make-const :horizon ':all
                                            :value #'values
                                            :form '(function values)))
@@ -4462,7 +4501,7 @@ for-value   NIL or T
         (funcall (macro-function 'SETF) (cons 'SETF (cdr *form*)) (env)))
       (do ((L (cdr *form*) (cddr L))
            #+CLISP-DEBUG (anodelist '())
-           (seclass '(NIL . NIL))
+           (seclass *pure-seclass*)
            (codelist '()))
           ((null L)
            (make-anode
@@ -4520,7 +4559,7 @@ for-value   NIL or T
         (let ((codelist1 '())
               (codelist2 '())
               ;; build codelist = (nconc codelist1 (nreverse codelist2))
-              (seclass '(NIL . NIL))) ; total side-effect-class of codelist
+              (seclass *pure-seclass*)) ; total side-effect-class of codelist
           (do ((anodelistr anodelist (cdr anodelistr))
                (setterlistr setterlist (cdr setterlistr)))
               ((null anodelistr))
@@ -4591,7 +4630,7 @@ for-value   NIL or T
               (let ((setter (c-VARSET symbol
                               (make-anode :type 'NOP
                                           :sub-anodes '()
-                                          :seclass '(NIL . NIL)
+                                          :seclass *pure-seclass*
                                           :code '())
                               (and *for-value* (null codelist)))))
                 (set-check-lock 'multiple-value-setq symbol)
@@ -4620,7 +4659,7 @@ for-value   NIL or T
                            #'(lambda (other-anode)
                                ;; does the value of other-anode possibly depend
                                ;; on the value of var?
-                               (let ((uses (car (anode-seclass other-anode))))
+                               (let ((uses (seclass-uses (anode-seclass other-anode))))
                                  (or (eq uses 'T) (memq symbol uses))))
                            (cdr anodelistr))))
                 (let* ((stackz (car stackzlistr))
@@ -4920,7 +4959,7 @@ for-value   NIL or T
            ;; activate Tagbody
            (codelist '())
            #+CLISP-DEBUG (anodelist '())
-           (seclass '(NIL . NIL)))
+           (seclass *pure-seclass*))
       ;; compile interior of Tagbody:
       (do ((formlistr (cdr *form*) (cdr formlistr))
            (taglistr taglist)
@@ -5052,7 +5091,7 @@ for-value   NIL or T
                (make-anode
                  :type 'FUNCTION
                  :sub-anodes '()
-                 :seclass '(NIL . NIL)
+                 :seclass *pure-seclass*
                  :code `((FCONST ,(const-value-safe f2))))
                (c-VAR (var-name f2))))
             (t (if (and (null f1) m)
