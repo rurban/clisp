@@ -3456,7 +3456,7 @@ printed readably.</para>
    <ulink url="&clhs;/Body/sec_the_filen_s_dictionary.html"
           >[CLHS-19.4]</ulink></title>
 
-<formalpara><title>Pathname Designators</title>
+<formalpara id="path-des"><title>Pathname Designators</title>
  <para>When &parsename; is &nil;, &symbol-t; is also treated as a
   <ulink url="&clhs;/Body/glo_p.html#pathname_designator">pathname
    designator</ulink>, namely its &symbol-name; is converted to the
@@ -5303,32 +5303,32 @@ exhaust the available line length.</para></formalpara>
 
 <para>Dribbling is implemented via a special (<emphasis>not</emphasis>
  <ulink url="&clhs;/Body/glo_r.html#recognizable_subtype">recognizable</ulink>)
- subtype of the &two-way-stream-t;, named &ds-t;.
- If you have a &source-r; &bidi-s; &stream-t; &x-r; and you want all
- transactions (input and output) on that stream to be copied to the
- &target-r; &out-s; &stream-t; &y-r;, you can do
- <programlisting>
-  (defvar *loggable* &x-r;)
-  (setq &x-r; (&make-synonym-stream; '*loggable*))
-  (defun toggle-logging (&optional-amp; s)
-    (multiple-value-bind (so ta) (dribble-toggle *loggable* s)
-      (when (streamp so) (setq *loggable* so))
+ subtype of &two-way-stream-t;, named &ds-t;.
+ If you have a &source-r; &bidi-s; &x-r; and you want all transactions
+ (input and output) on &x-r; to be copied to the &target-r; &out-s; &y-r;,
+ you can do
+ <programlisting id="dribble-example">
+  (&defvar; *loggable* &x-r;)
+  (&setq; &x-r; (&make-synonym-stream; '*loggable*))
+  (&defun; toggle-logging (&optional-amp; s)
+    (&multiple-value-bind; (so ta) (dribble-toggle *loggable* s)
+      (&when; (&streamp; so) (&setq; *loggable* so))
       ta))
-  (toggle-logging &y-r;) ; start logging
+  (toggle-logging &y-r;)     ; start logging
   ...
   (toggle-logging)       ; finish logging
   ...
-  (toggle-logging &y-r;) ; restart logging
+  (toggle-logging &y-r;)     ; restart logging
   ...
   (toggle-logging)       ; finish logging
-  (close &y-r;)
+  (&close; &y-r;)
  </programlisting></para>
 
 <variablelist>
  <varlistentry id="drist"><term><literal role="sexp"
    >(<function>EXT:DRIBBLE-STREAM</function> &stream-r;)</literal></term>
   <listitem><simpara>When &stream-r; is a &ds-t;, returns two values:
-    the source and the target streams.  Otherwise returns &nil;.
+    the &source-r; and the &target-r; streams.  Otherwise returns &nil;.
  </simpara></listitem></varlistentry>
  <varlistentry id="drist-p"><term><literal role="sexp"
    >(<function>EXT:DRIBBLE-STREAM-P</function> &stream-r;)</literal></term>
@@ -5354,16 +5354,20 @@ exhaust the available line length.</para></formalpara>
  <varlistentry id="dri-toggle"><term><literal role="sexp"
    >(<function>EXT:DRIBBLE-TOGGLE</function> &stream-r;
      &optional-amp; &path-r;)</literal></term>
-  <listitem><simpara>When &stream-r; is a &ds-t;, and &path-r; is &nil;,
-    returns &stream-r;'s &source-r; and &target-r; &stream-t;s;
+  <listitem><simpara>When &stream-r; is a &ds-t; and &path-r; is &nil;,
+    writes a dribble termination note to the &stream-r;'s &target-r;
+    &stream-t; and returns &stream-r;'s &source-r; and &target-r;
+    &stream-t;s;
     when &stream-r; is not a &ds-t; and &path-r; is non-&nil;,
-    create a new &ds-r;, dribbling from &stream-r; to &path-r;,
-    and return it (the second value is the &target-r; &stream-t;);
+    creates a new &ds-t;, dribbling from &stream-r; to &path-r;,
+    writes a dribble initialization note to &path-r;,
+    and return the &ds-t; (the second value is the &target-r; &stream-t;);
     otherwise &warn; that no appropriate action may be taken.
-    &path-r; may be an open output stream or a
-    <ulink url="&clhs;/Body/glo_p.html#pathname_designator">pathname
-    designator</ulink>.
-    See above for the sample usage.
+    &path-r; may be an open &out-s; or a
+    <link linkend="path-des">pathname designator</link>.
+    See <link linkend="dribble-example">above</link> for the sample usage.
+    See also <filename>#P"src/dribble.lisp"</filename> in the &clisp;
+    source tree.
 </simpara></listitem></varlistentry></variablelist></section>
 
 <section id="version"><title>Function &lisp-implementation-version;</title>
