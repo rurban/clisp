@@ -1,3 +1,7 @@
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
+	* array.tst: Test error behaviour of (SETF ROW-MAJOR-AREF).
+
 2004-12-07  Sam Steingold  <sds@gnu.org>
 
 	* macro8.tst: test that COMPILE always returns 3 values

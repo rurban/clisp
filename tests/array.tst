@@ -757,3 +757,8 @@ T
 
 (equal (make-string 0) (make-array 0 :element-type nil)) T
 (equalp (make-array '(1 2 0)) (make-array '(1 2 0) :element-type nil)) T
+
+(row-major-aref "abcd" 3)
+#\d
+(setf (row-major-aref "abcd" 3) 17)
+ERROR
