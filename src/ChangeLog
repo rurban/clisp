@@ -1,3 +1,23 @@
+2004-02-20  Bruno Haible  <bruno@clisp.org>
+
+	Clean up simple-string forward pointers during garbage collection.
+	* lispbibl.d (sstring_flags_clr, sstring_flags_set): New macros.
+	(mark_sstring_clean): New macro.
+	* spvw_update.d: Use update_unrealloc instead of
+	update_instance_unrealloc.
+	(update_varobject, update_sstring): Obey also update_unrealloc.
+	* spvw_garcol.d (gc_sweep1_sstring_forward, gc_sweep1_sstring_target):
+	New functions.
+	(gc_sweep1_varobject_page): Use them for simple-strings.
+	(gar_col_normal): Set update_unrealloc to true while updating.
+	(gar_col_compact, move_conses): Set update_unrealloc to false while
+	updating.
+	* spvw_memfile.d (savemem, loadmem_from_handle): Use update_unrealloc
+	instead of update_instance_unrealloc.
+	* predtype.d (enum_hs_realloc_simple_string): New enum value.
+	(heap_statistics_mapper): Map forwarded instances to
+	EXT::FORWARD-POINTER-SIMPLE-STRING.
+
 2004-02-19  Bruno Haible  <bruno@clisp.org>
 
 	Make the small-sstrings more robust.

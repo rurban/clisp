@@ -2339,6 +2339,9 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_foreign_variable,
   enum_hs_foreign_function,
  #endif
+ #ifdef HAVE_SMALL_SSTRING
+  enum_hs_realloc_simple_string,
+ #endif
   enum_hs_realloc_instance,
   enum_hs_weakpointer,
   enum_hs_weakkvt,
@@ -2515,6 +2518,12 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
       pighole = &locals->builtins[(int)enum_hs_simple_32bit_vector];
       break;
     case_sstring: /* Simple-String */
+      #ifdef HAVE_SMALL_SSTRING
+      if (sstring_reallocatedp(TheSstring(obj))) {
+        pighole = &locals->builtins[(int)enum_hs_realloc_simple_string];
+        break;
+      }
+      #endif
       pighole = &locals->builtins[(int)enum_hs_simple_string];
       break;
     case_svector: /* Simple-Vector */

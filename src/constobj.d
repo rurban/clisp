@@ -255,6 +255,9 @@
   LISPOBJ(hs_foreign_variable,"FFI::FOREIGN-VARIABLE")
   LISPOBJ(hs_foreign_function,"FFI::FOREIGN-FUNCTION")
   #endif
+  #ifdef HAVE_SMALL_SSTRING
+  LISPOBJ(hs_realloc_simple_string,"EXT::FORWARD-POINTER-SIMPLE-STRING")
+  #endif
   LISPOBJ(hs_realloc_instance,"EXT::FORWARD-POINTER-INSTANCE")
   LISPOBJ(hs_weakpointer,"EXT::WEAK-POINTER")
   LISPOBJ(hs_weakkvt,"EXT::WEAK-KEY-VALUE-TABLE")
