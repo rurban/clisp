@@ -581,6 +581,14 @@ use-value-string->symbol
   (let (("foo" 32)) zz))
 48
 
+;; This test reflects only the current CLISP behaviour:
+;; - It can be argued that zz should be bound statically (since zz
+;;   is not declared special) or should be bound dynamically (since :const-var
+;;   would be bound dynamically and zz replaces just the symbol).
+;; - It can be argued that later zz should be evaluated statically (because
+;;   that's what normal EVAL in the interpreter would do) or should be
+;;   evaluated to lookup (symbol-value 'zz) - since that's what the compiler
+;;   would make from the code.
 (handler-bind ((program-error
                 (lambda (c) (princ c) (terpri) (use-value 'zz))))
   (let ((:const-var 64)) zz))
