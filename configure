@@ -342,7 +342,7 @@ if test -n "$do_config"; then
       fi
     done
     for f in readline readline/doc readline/examples readline/support \
-             readline/shlib gettext gettext/autoconf gettext/intl gettext/po
+             readline/shlib gettext gettext/autoconf gettext/po
     do
       if [ -d src/$f ] ; then
         maybe_mkdir "${ABS_DIRNAME}/${f}";
