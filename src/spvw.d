@@ -20,7 +20,7 @@
 
 #include "lispbibl.c"
 
-#include "version.h" # für O(lisp_implementation_version_{month,year}_string)
+#include "version.h"
 
 #if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && defined(HAVE_SETFPUCW)
   #include <fpu_control.h>
@@ -2115,7 +2115,9 @@ local void print_banner ()
                       { if (!(argv_expr == NULL)) usage (1);
                         argv_quiet = true;
                         argv_norc = true;
-                        argv_expr = "(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))";
+                        argv_expr = "(PROGN (PRINC \"CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (SYS::%EXIT))";
+                        # suppress installation directory warning
+                        argv_lisplibdir = (char *)-1;
                         break;
                       }
                     elif (asciz_equal(&arg[2],"quiet")
@@ -3276,8 +3278,7 @@ local void print_banner ()
     #else
       "-low"
     #endif
-    " "STRINGIFY(VERSION_YYYY)"."STRINGIFY(VERSION_MM) # Datum als Versionsnummer
-    " (" VERSION ")\r\n"; # Datum in Klammern
+    " " VERSION_NUMBER " (" VERSION_DATE ")\r\n";
 #endif
 
 # -----------------------------------------------------------------------------
