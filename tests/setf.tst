@@ -331,6 +331,30 @@ z
 x
 (a (c) . q)
 
+(progn
+ (defun ad (x) (values (car x) (cdr x)))
+ (defsetf ad (x) (a b) `(setf (values (car ,x) (cdr ,x)) (values ,a ,b)))
+ (setq x (cons 1 2) y 3 z 4 w 5 v 6 u 7))
+7
+
+(rotatef (ad x) (values y z) (values w v u))
+nil
+
+x
+(3 . 4)
+
+(list y z w v u)
+(5 6 1 2 nil)
+
+(multiple-value-list (shiftf (ad x) (values y z w) (values v u) (floor 89 10)))
+(3 4)
+
+x
+(5 . 6)
+
+(list y z w v u)
+(2 nil nil 8 9)
+
 (progn (defsetf subseq (sequence start &optional end) (new-sequence)
                        `(progn (replace ,sequence ,new-sequence
                                         :start1 ,start :end1 ,end)
