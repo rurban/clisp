@@ -1,3 +1,7 @@
+2004-11-02  Bruno Haible  <bruno@clisp.org>
+
+	* gray.lisp: Use class-name instead of clos::class-classname.
+
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (low_fill_buffered_handle): Don't call listen_handle;
