@@ -1722,6 +1722,8 @@
 
 (LOAD "floatprint")             ; output of floating-points
 
+(LOAD "defpackage")             ; DEFPACKAGE
+
 (LOAD "type")                   ; TYPEP
 
 (LOAD "defstruct")              ; DEFSTRUCT-macro
