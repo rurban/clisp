@@ -819,3 +819,27 @@ T
   (delete-package p1) (delete-package p2)
   (delete-package p3) (delete-package p4))
 T
+
+(block nil
+  (handler-bind ((unbound-variable (lambda (c) (princ-error c) (return :good))))
+    (let ((foo (gensym "UNBOUND-")))
+      (declare (compile) (optimize safety))
+      (progn (symbol-value foo) :bad))))
+:GOOD
+
+(block nil
+  (declaim (optimize safety))
+  (unwind-protect
+       (handler-bind ((unbound-variable
+                       (lambda (c) (princ-error c) (return :good))))
+         (let ((foo (gensym "UNBOUND-")))
+           (declare (compile))
+           (progn (symbol-value foo) :bad)))
+    (declaim (optimize (safety 1)))))
+:GOOD
+
+(block nil
+  (handler-bind ((unbound-variable (lambda (c) (princ-error c) (return :good))))
+    (let ((foo (gensym "UNBOUND-")))
+      (progn (symbol-value foo) :bad))))
+:GOOD

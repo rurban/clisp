@@ -1,3 +1,17 @@
+2005-02-10  Sam Steingold  <sds@gnu.org>
+
+	handle OPTIMIZE PROCLAIMations
+	* control.d (PROCLAIM): handle OPTIMIZE declarations
+	* constsym.d (note_optimize): added for PROCLAIM
+	* compiler.lisp (*optimize*): new: keep OPTIMIZE PROCLAIMations here
+	(parse-optimize-quality): new: check OPTIMIZE declaration
+	(declared-optimize): use *OPTIMIZE* for global settings;
+	use ASSOC because PROCESS-DECLARATIONS calls PARSE-OPTIMIZE-QUALITY
+	(process-declarations): use CASE instead of COND
+	use PARSE-OPTIMIZE-QUALITY to canonicalize OPTIMIZE declarations
+	(note-optimize): new: record global OPTIMIZE declarations in *OPTIMIZE*
+	(c-PROCLAIM): handle OPTIMIZE PROCLAIMations using NOTE-OPTIMIZE
+
 2005-02-10  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (declared-declaration): New function.
