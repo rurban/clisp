@@ -58,6 +58,7 @@ The point should be on the prototype and the definition should follow."
   (let ((beg (point)))
     (end-of-line 1)
     (delete-region (1- (point)) (- (search-forward "{" nil nil) 2))
+    (forward-char -1) (insert "\n")
     (c-indent-region beg (progn (backward-char 2) (forward-sexp) (point)))))
 
 (defun d-mode-convert-lispfun ()
@@ -99,8 +100,8 @@ The point should be on the prototype and the definition should follow."
   "Convert the next comment appropriately"
   (interactive)
   (search-forward "# ")
-  (if (or (looking-at "UP") (looking-at "Function:")
-          (looking-at "error-message"))
+  (if (or (looking-at "UP") (looking-at "Function:") (looking-at "method.*:")
+          (looking-at "error-message") (looking-at "Return"))
       (d-mode-convert-block-comment)
       (d-mode-convert-comment)))
 
@@ -247,5 +248,8 @@ Beware - this will modify the original C-mode too!"
 ;; treat D files like C files for add-log
 (eval-after-load "add-log"
   '(add-to-list 'add-log-c-like-modes 'd-mode))
+
+;; some keybindings
+(define-key d-mode-map (kbd "<f5>") 'd-mode-convert-next-comment)
 
 (provide 'd-mode)
