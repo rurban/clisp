@@ -3695,7 +3695,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>posix:sysinfo</function>)</literal></term>
+   role="sexp">(<function>POSIX:SYSINFO</function>)</literal></term>
  <listitem><simpara>Return a struct describing the OS, derived from
    &uname; and &sysconf;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -3748,6 +3748,13 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    non-<replaceable>shared</replaceable>) lock.
   </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
+ <varlistentry><term>
+   <literal role="sexp">(<function>POSIX:DUPLICATE-HANDLE</function>
+    <replaceable>fd1</replaceable>
+    &optional-amp; <replaceable>fd2</replaceable>)</literal></term>
+  <listitem><simpara>This is an interface to the &dup; system calls on
+   &unix; systems and to <function>DuplicateHandle</function> system
+   call on &win32;.</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
