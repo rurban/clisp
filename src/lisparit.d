@@ -2074,7 +2074,10 @@ LISPFUNN(log10,1)
         define_variable(S(floating_point_contagion_ansi),NIL);
     }
 
-## ===============================================================
+# =========================================================================== #
+#                           C library math functions
+
 #ifdef EXPORT_SYSCALLS
 #include "posixmath.c"
 #endif
+
