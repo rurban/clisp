@@ -10256,16 +10256,17 @@ re-enters the corresponding top-level loop.
 # Gives the list of the multiple values on -(STACK).
 # mv_to_list()
 # can trigger GC
-#define mv_to_list()                                                    \
-  do { mv_to_STACK(); # at first all values onto the stack              \
-    pushSTACK(NIL); # head of the list                                  \
-    { var uintC count;                                                  \
-      dotimesC(count,mv_count, { # until all values have been used:     \
-          var object l = allocate_cons(); # new cell                    \
-          Cdr(l) = popSTACK(); # list so far                            \
-          Car(l) = STACK_0; # next value                                \
-          STACK_0 = l; # save new cons                                  \
-        });                                                             \
+#define mv_to_list()                                                  \
+  do {                                                                \
+    mv_to_STACK(); # at first all values onto the stack               \
+    pushSTACK(NIL); # head of the list                                \
+    { var uintC count;                                                \
+      dotimesC(count,mv_count, { # until all values have been used:   \
+        var object l = allocate_cons(); # new cell                    \
+        Cdr(l) = popSTACK(); # list so far                            \
+        Car(l) = STACK_0; # next value                                \
+        STACK_0 = l; # save new cons                                  \
+      });                                                             \
   } } while(0)
 # is used by EVAL, CONTROL, DEBUG
 
@@ -11171,12 +11172,14 @@ extern object coerce_function (object obj);
 # Executes body as implicit PROGN.
 #  If the body is empty, the value is the default one.
 # can trigger GC
-#define implicit_progn(body,default)                                      \
-  do { var object rest = (body);                                          \
-    if atomp(rest) { VALUES1(default); } # default as value \
-    else                                                                  \
-      do { pushSTACK(Cdr(rest)); eval(Car(rest)); rest=popSTACK(); }      \
-      while (consp(rest));                                                \
+#define implicit_progn(body,default)                                   \
+  do {                                                                 \
+    var object rest = (body);                                          \
+    if (atomp(rest)) {                                                 \
+      VALUES1(default); # default as value                             \
+    } else                                                             \
+      do { pushSTACK(Cdr(rest)); eval(Car(rest)); rest = popSTACK(); } \
+      while (consp(rest));                                             \
   } while(0)
 # is used by EVAL, CONTROL
 
@@ -14349,7 +14352,7 @@ extern object coerce_float (object obj, object type);
 # < object result: a normal-simple-string containing the digits
 # can trigger GC
 extern object decimal_string (object x);
-# is used b PATHNAME
+# is used by PATHNAME
 
 # ###################### FOREIGNBIBL for FOREIGN.D ########################## #
 

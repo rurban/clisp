@@ -2158,7 +2158,8 @@ nonreturning_function(local, fehler_macro, (object caller, object funname)) {
  < result: object as function (SUBR or Closure)
  can trigger GC */
 global object coerce_function (object obj)
-{ /* obj should be a symbol, a SUBR or a Closure. */
+{
+  /* obj should be a symbol, a SUBR or a Closure. */
   if (functionp(obj)) {
     return obj; /* function is OK */
   } else if (symbolp(obj)) {

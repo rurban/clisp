@@ -3215,7 +3215,8 @@ local bool legal_type (object obj) {
  used by pr_orecord() in io.d
  can trigger GC */
 global bool namestring_correctly_parseable_p (gcv_object_t *path_)
-{ /* #p".foo" can be either :name ".foo" or :type "foo" */
+{
+  /* #p".foo" can be either :name ".foo" or :type "foo" */
   var object name = ThePathname(*path_)->pathname_name;
   var object type = ThePathname(*path_)->pathname_type;
   var uintL dot_position;
