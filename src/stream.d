@@ -3219,7 +3219,6 @@ local object canon_eltype (const decoded_el_t* decoded) {
       #endif
     #endif
     #ifdef UNIX_TERM_SGTTY
-      #ifdef FREAD # !UNIX_MINT
       {
         var int arg = FREAD;
         if (!( ioctl(handle,TIOCFLUSH,&arg) ==0)) {
@@ -3230,7 +3229,6 @@ local object canon_eltype (const decoded_el_t* decoded) {
           }
         }
       }
-      #endif
     #endif
     end_system_call();
   }
@@ -3346,14 +3344,12 @@ local object canon_eltype (const decoded_el_t* decoded) {
       #endif
     #endif
     #ifdef UNIX_TERM_SGTTY
-      #ifdef FWRITE # !UNIX_MINT
       {
         var int arg = FWRITE;
         if (!( ioctl(handle,TIOCFLUSH,&arg) ==0)) {
           if (!(errno==ENOTTY)) { OS_error(); } # no TTY: OK, report other Error
         }
       }
-      #endif
     #endif
     end_system_call();
   }
