@@ -237,7 +237,7 @@ TEST-COMPILER
 ;; the bug was fixed by bruno in compiler.lisp 1.80
 (progn
   (defun stem (&key (obj (error "missing OBJ")))
-    (with-open-file (stream obj :direction :output)
+    (with-open-file (stream obj :direction :output #+SBCL :if-exists #+SBCL :supersede)
       (truename stream)))
   (compile 'stem)
   (delete-file (stem :obj "foo-bar-zot"))
@@ -546,7 +546,7 @@ dm2b
 (12 22)
 
 (let ((file "tmp.lisp"))
-  (with-open-file (o file :direction :output)
+  (with-open-file (o file :direction :output #+SBCL :if-exists #+SBCL :supersede)
     (write-line "(defun caller (a b) (foo a b))" o)
     (write-line "(defun foo (a b c) (list a b c))" o))
   (unwind-protect (progn (load file #+CLISP :compiling #+CLISP t)
@@ -555,10 +555,10 @@ dm2b
 (1 2 3)
 
 (let ((file1 "tmp1.lisp") (file2 "tmp2.lisp"))
-  (with-open-file (o file1 :direction :output)
+  (with-open-file (o file1 :direction :output #+SBCL :if-exists #+SBCL :supersede)
     (write-line "(defun foo (a b c) (cons b c a))" o)
     (format o "(load ~S)~%" file2))
-  (with-open-file (o file2 :direction :output)
+  (with-open-file (o file2 :direction :output #+SBCL :if-exists #+SBCL :supersede)
     (write-line "(defun bar (a b) (sin (1+ a) (1- b a)))" o))
   (unwind-protect (progn (load file1 #+CLISP :compiling #+CLISP t)
                          (list (fboundp 'foo) (fboundp 'bar)))
@@ -591,7 +591,7 @@ dm2b
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
 (let ((file "tmp.lisp"))
-  (with-open-file (out file :direction :output)
+  (with-open-file (out file :direction :output #+SBCL :if-exists #+SBCL :supersede)
     (write '(eval-when (load compile eval)
              (+ (funcall (compile nil (lambda () (load-time-value (+ 2 3)))))
               120))

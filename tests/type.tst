@@ -40,7 +40,7 @@ T
 NIL
 
 (TYPEP 3.2 (QUOTE (SHORT-FLOAT 0.0S0 3.2S0)))
-#+(or ALLEGRO CMU ECL) T #-(or ALLEGRO CMU ECL) NIL
+#+(or ALLEGRO CMU SBCL ECL) T #-(or ALLEGRO CMU SBCL ECL) NIL
 
 (TYPEP 3.2 (QUOTE (SINGLE-FLOAT 0.0F0 3.2F0)))
 T
@@ -70,7 +70,7 @@ T
 T
 
 (TYPEP 2.0S0 (QUOTE (SINGLE-FLOAT 0.0F0 3.0F0)))
-#+(or ALLEGRO CMU ECL) T #-(or ALLEGRO CMU ECL) NIL
+#+(or ALLEGRO CMU SBCL ECL) T #-(or ALLEGRO CMU SBCL ECL) NIL
 
 (TYPEP 2.0 (QUOTE (SINGLE-FLOAT 0.0F0 3.0F0)))
 T
@@ -144,7 +144,7 @@ T
 
 ;; depends on (UPGRADED-COMPLEX-PART-TYPE '(EQL 0)) ?
 (TYPEP #C(0 1) '(COMPLEX (EQL 0)))
-T
+#+CLISP T #+SBCL T #-(or CLISP SBCL) UNKNOWN
 
 #| ; depends on (upgraded-array-element-type 'SYMBOL) !
  (TYPEP '#(A B C D) (QUOTE (VECTOR SYMBOL 4)))
@@ -247,8 +247,8 @@ T
 (SUBTYPEP (QUOTE (OR (INTEGER 1 (5) FLOAT)))
           (QUOTE (OR FLOAT (MOD 5))))
 #+(or XCL ECL) T
-#+(or CLISP ALLEGRO CMU) ERROR
-#-(or XCL CLISP ALLEGRO CMU ECL) UNKNOWN
+#+(or CLISP ALLEGRO CMU SBCL) ERROR
+#-(or XCL CLISP ALLEGRO CMU SBCL ECL) UNKNOWN
 
 (SUBTYPEP (QUOTE (OR (INTEGER 1 (5)) FLOAT)) (QUOTE (OR FLOAT (MOD 5))))
 T
@@ -339,9 +339,9 @@ NIL
 (subtypep 'null 'list) t
 (subtypep 'cons 'list) t
 
-(subtypep 'standard-char 'string-char) t
+(subtypep 'standard-char #-SBCL 'string-char #+SBCL 'character) t
 
-(subtypep 'string-char 'character) t
+(subtypep #-SBCL 'string-char #+SBCL 'character 'character) t
 
 (subtypep 'string 'vector) t
 
@@ -368,10 +368,10 @@ NIL
 (subtypep 'integer '*) ERROR
 
 (type-of (coerce '(1 2 3 4) '(simple-array (unsigned-byte 8))))
-(SIMPLE-ARRAY (UNSIGNED-BYTE 8) (4))
+#-SBCL (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (4)) #+SBCL ERROR
 
 (type-of (coerce '(1 2 3 4) '(simple-array *)))
-(SIMPLE-VECTOR 4)
+#-SBCL (SIMPLE-VECTOR 4) #+SBCL ERROR
 
 (type-of (coerce '(1 2 3 4) '(simple-array * (4))))
 (SIMPLE-VECTOR 4)
@@ -432,25 +432,32 @@ TYPEOF-TYPEP-SUBTYPE
 (SPECIAL-OPERATOR NIL NIL)
 
 (typeof-typep-subtype #'car 'compiled-function)
-(COMPILED-FUNCTION T T)
+#-SBCL (COMPILED-FUNCTION T T)
+#+SBCL (FUNCTION T T)
 
 (typeof-typep-subtype #'car 'function)
-(COMPILED-FUNCTION T T)
+#-SBCL (COMPILED-FUNCTION T T)
+#+SBCL (FUNCTION T T)
 
 (typeof-typep-subtype #'car 'generic-function)
-(COMPILED-FUNCTION NIL NIL)
+#-SBCL (COMPILED-FUNCTION NIL NIL)
+#+SBCL (FUNCTION NIL NIL)
 
 (typeof-typep-subtype #'compile 'compiled-function)
-(COMPILED-FUNCTION T T)
+#-SBCL (COMPILED-FUNCTION T T)
+#+SBCL (FUNCTION T T)
 
 (typeof-typep-subtype #'compile 'function)
-(COMPILED-FUNCTION T T)
+#-SBCL (COMPILED-FUNCTION T T)
+#+SBCL (FUNCTION T T)
 
 (typeof-typep-subtype #'compile 'generic-function)
-(COMPILED-FUNCTION NIL NIL)
+#-SBCL (COMPILED-FUNCTION NIL NIL)
+#+SBCL (FUNCTION NIL NIL)
 
 (typeof-typep-subtype #'print-object 'compiled-function)
-(STANDARD-GENERIC-FUNCTION NIL NIL)
+#-SBCL (STANDARD-GENERIC-FUNCTION NIL NIL)
+#+SBCL (STANDARD-GENERIC-FUNCTION T T)
 
 (typeof-typep-subtype #'print-object 'function)
 (STANDARD-GENERIC-FUNCTION T T)
@@ -535,9 +542,18 @@ TYPEOF-TYPEP-SUBTYPE
                              '(t t))))
             (push (list a b) failures))))))
   failures)
-NIL
+#-SBCL NIL
+#+SBCL ((STREAM STANDARD-GENERIC-FUNCTION)
+        (STREAM GENERIC-FUNCTION)
+        (STREAM FUNCTION)
+        (STANDARD-GENERIC-FUNCTION STREAM)
+        (GENERIC-FUNCTION STREAM)
+        (FUNCTION STREAM))
 
 ;; from GCL ansi-test
+(unintern 'foo) t
+#+SBCL (unintern 'copy-foo) #+SBCL t
+#+SBCL (unintern 'make-foo) #+SBCL t
 (progn
   (setq *DISJOINT-TYPES-LIST*
         '(CONS SYMBOL ARRAY NUMBER CHARACTER HASH-TABLE FUNCTION READTABLE

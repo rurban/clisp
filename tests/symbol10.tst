@@ -12,6 +12,7 @@ NIL
          #+CLISP (and (sys::special-variable-p var) (not (constantp var))) ; specvar
          #+ALLEGRO (and (not (constantp var)) (eval `(let ((,var (list nil))) (and (boundp ',var) (eq (symbol-value ',var) ,var)))))
          #+CMU (eq (ext:info variable kind var) ':special)
+         #+SBCL (eq (sb-int:info :variable :kind var) ':special)
          #+ECL (and (sys::specialp var) (not (constantp var))) ; specvar
          (and (fboundp var) t)                       ; funktion. Eigenschaft
          (and (fboundp var) (macro-function var) t)  ; Macro?
@@ -32,13 +33,14 @@ testvar
          )
    #+ALLEGRO (setf (excl::symbol-bit var 'excl::.globally-special.) nil)
    #+CMU (setf (ext:info variable kind var) ':global)
+   #+SBCL (setf (sb-int:info :variable :kind var) ':global)
    var)
 clrvar
 
-#+(or XCL CLISP ALLEGRO CMU)
+#+(or XCL CLISP ALLEGRO CMU SBCL)
 (progn (setf (symbol-function 'setf-get)
-             (symbol-function #+XCL 'sys::setf-get #+CLISP 'sys::%put #+ALLEGRO 'excl::.inv-get #+CMU 'cl::%put)) t)
-#+(or XCL CLISP ALLEGRO CMU)
+             (symbol-function #+XCL 'sys::setf-get #+CLISP 'sys::%put #+ALLEGRO 'excl::.inv-get #+CMU 'cl::%put #+SBCL 'sb-kernel:%put)) t)
+#+(or XCL CLISP ALLEGRO CMU SBCL)
 T
 
 ;;; Begin Breitentest
@@ -263,7 +265,7 @@ v3
 ;;; rebind
 
 (makunbound 'v3)
-#+(or XCL ALLEGRO CMU) v3 #+(or CLISP ECL) ERROR #-(or XCL ALLEGRO CMU CLISP ECL) UNKNOWN
+#+(or XCL ALLEGRO CMU SBCL) v3 #+(or CLISP ECL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL) UNKNOWN
 (fmakunbound 'v3)
 v3
 
@@ -445,7 +447,7 @@ v5
 ;;; rebind
 
 (makunbound 'v5)
-#+(or XCL ALLEGRO CMU) v5 #+(or CLISP ECL) ERROR #-(or XCL ALLEGRO CMU CLISP ECL) UNKNOWN
+#+(or XCL ALLEGRO CMU SBCL) v5 #+(or CLISP ECL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL) UNKNOWN
 (not (null (remprop 'v5 'i2)))
 t
 (not (null (remprop 'v5 'i1)))

@@ -19,11 +19,15 @@
 (defun my-cpl (class)
   (pcl:class-precedence-list (find-class class))
 )
+#+SBCL
+(defun my-cpl (class)
+  (sb-pcl:class-precedence-list (find-class class))
+)
 MY-CPL
 
 (defun check-superclasses (class expected)
-  (let ((expected (list* class 't #+(or CLISP ALLEGRO) 'standard-object #+CMU 'instance 'condition expected))
-        (super (mapcar #' #+(or CLISP ALLEGRO) class-name #+CMU pcl:class-name (my-cpl class))))
+  (let ((expected (list* class 't #+(or CLISP ALLEGRO SBCL) 'standard-object #+CMU 'instance 'condition expected))
+        (super (mapcar #' #+(or CLISP ALLEGRO SBCL) class-name #+CMU pcl:class-name (my-cpl class))))
     (list (set-difference super expected)
           (set-difference expected super))))
 CHECK-SUPERCLASSES

@@ -166,20 +166,20 @@ V1
 "doc 2"
 
 (DOCUMENTATION (QUOTE BEISPIEL) (QUOTE TYP2))
-#+XCL (TYP2 . "doc 2") #-XCL "doc 2"
+#+XCL (TYP2 . "doc 2") #+SBCL NIL #-(or XCL SBCL) "doc 2"
 
 (SETF (DOCUMENTATION (QUOTE BEISPIEL) (QUOTE TYP2)) "doc 3")
 "doc 3"
 
 (DOCUMENTATION (QUOTE BEISPIEL) (QUOTE TYP2))
-#+XCL (TYP2 . "doc 3") #-XCL "doc 3"
+#+XCL (TYP2 . "doc 3") #+SBCL NIL #-(or XCL SBCL) "doc 3"
 
 (symbol-plist 'beispiel)
 #+XCL (DOCUMENTATION ((TYP2 . "doc 3") (TYP1 . "doc 1")))
 #+CLISP NIL
 #+ALLEGRO (EXCL::%DOCUMENTATION ((TYP2 . "doc 3") (TYP1 . "doc 1")))
-#+CMU NIL
-#-(or XCL CLISP ALLEGRO CMU) UNKNOWN
+#+(or CMU SBCL) NIL
+#-(or XCL CLISP ALLEGRO CMU SBCL) UNKNOWN
 
 (SETF (SYMBOL-VALUE (QUOTE XX)) (QUOTE VOELLIGNEU))
 VOELLIGNEU
@@ -268,7 +268,7 @@ hihi
 nil
 
 (aref a 2 2)
-#+(or XCL CMU) 0 #+(or CLISP AKCL ALLEGRO) NIL #-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
+#+(or XCL CMU SBCL) 0 #+(or CLISP AKCL ALLEGRO) NIL #-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
 
 (setf (apply #'aref a '(2 2)) 'xxxx)
 xxxx
@@ -435,6 +435,11 @@ pl
 (a 10 b 11 a 14 b 15)
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.general:7646>
+(unintern 'foo) t
+#+SBCL (unintern 'copy-foo) #+SBCL t
+#+SBCL (unintern 'make-foo) #+SBCL t
+#+SBCL (unintern 'foo-a) #+SBCL t
+(unintern 'bar) t
 (unwind-protect
      (let ((forms
             '((defstruct foo a b)

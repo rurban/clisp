@@ -1,3 +1,14 @@
+2004-04-17  Bruno Haible  <bruno@clisp.org>
+
+	Add support for SBCL.
+	* tests.lisp, alltest.tst, array.tst, bin-io.tst, characters.tst,
+	conditions.tst, encoding.tst, eval20.tst, excepsit.tst, format.tst,
+	hashlong.tst, iofkts.tst, lambda.tst, lists152.tst, lists154.tst,
+	lists155.tst, lists156.tst, loop.tst, macro8.tst, map.tst, mop.tst,
+	path.tst, setf.tst, streams.tst, streamslong.tst, strings.tst,
+	symbol10.tst, symbols.tst, type.tst: Add results for SBCL 0.8.9 when
+	they are allowed by ANSI CL.
+
 2004-04-26  Sam Steingold  <sds@gnu.org>
 
 	* backquot.tst [enable-risky-tests]: added a test based on

@@ -4,7 +4,7 @@
 
 (PRIN1-TO-STRING 123) "123"
 
-(SETQ *A* (MAKE-ARRAY 10. :ELEMENT-TYPE #-CMU 'STRING-CHAR #+CMU 'CHARACTER :FILL-POINTER 0)) ""
+(SETQ *A* (MAKE-ARRAY 10. :ELEMENT-TYPE #-(or CMU SBCL) 'STRING-CHAR #+(or CMU SBCL) 'CHARACTER :FILL-POINTER 0)) ""
 
 (FORMAT *A* "XXX") NIL
 
@@ -21,7 +21,7 @@
                                             (ash 1 (1- size))))
                                    (loop :repeat num-bytes :collect
                                          (random (ash 1 size))))))
-  (with-open-file (foo file-name :direction :output
+  (with-open-file (foo file-name :direction :output #+SBCL :if-exists #+SBCL :supersede
                        :element-type (list type size))
     (dolist (byte bytes)
       (write-byte byte foo)))
@@ -51,7 +51,7 @@ nil
     (unwind-protect (progn
          (with-open-file (s "test.bin"
                             :element-type '(unsigned-byte 8)
-                            :direction :output
+                            :direction :output #+SBCL :if-exists #+SBCL :supersede
                             :if-exists :error)
            (notice (file-position s)) ;1
            (write-byte 5 s)
@@ -73,7 +73,9 @@ nil
                  (notice (read-byte s)))))) ;7,...
          (nreverse noticed))
       (delete-file file-written))))
-(0 2 1 2 0 2 5 7)
+(0 2
+ #+CLISP 1 #+SBCL T #-(or CLISP SBCL) UNKNOWN
+ 2 0 2 5 7)
 
 (let ((s (make-string-input-stream
           (make-array 10 :element-type 'character
@@ -97,7 +99,9 @@ nil
             (file-position s :end) (write-char #\w s)
             (get-output-stream-string s))
     (close s)))
-(#\a #\b 2 "ab" "foo" 1 #\z "fz" 0 #\u 1 #\w "uw")
+#+CLISP (#\a #\b 2 "ab" "foo" 1 #\z "fz" 0 #\u 1 #\w "uw")
+#+SBCL (#\a #\b 2 "ab" "foo" 1 #\z "fzo" 0 #\u 1 #\w "uw")
+#-(or CLISP SBCL) UNKNOWN
 
 (let ((v (make-array 3 :adjustable t :fill-pointer 0
                      :element-type 'character)))
