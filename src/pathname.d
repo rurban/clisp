@@ -538,30 +538,6 @@ local inline void rename_file_to_nonexisting (char* old_pathstring,
  #endif
 }
 
-/* Hard/Soft Link a file
-   > old_pathstring: old file name, ASCIZ-String
-   > new_pathstring: new file name, ASCIZ-String
-   > STACK_3: old pathname
-   > STACK_1: new pathname */
-#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
-local inline void hardlink_file (char* old_pathstring, char* new_pathstring) {
-  begin_system_call();
-  if (link(old_pathstring,new_pathstring) < 0) { /* hardlink file */
-    if (errno==ENOENT) OS_file_error(STACK_3);
-    else OS_file_error(STACK_1);
-  }
-  end_system_call();
-}
-local inline void symlink_file (char* old_pathstring, char* new_pathstring) {
-  begin_system_call();
-  if (symlink(old_pathstring,new_pathstring) < 0) { /* symlink file */
-    if (errno==ENOENT) OS_file_error(STACK_3);
-    else OS_file_error(STACK_1);
-  }
-  end_system_call();
-}
-#endif
-
 # =============================================================================
 #                         P A T H N A M E S
 
