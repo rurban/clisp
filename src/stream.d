@@ -4975,15 +4975,17 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
   }
   #elif defined(WIN32_NATIVE)
   begin_system_call();
-  int wont_hang = fd_read_wont_hang_p(handle);
-  if (wont_hang == 0) {
-    end_system_call(); return ls_wait;
-  }
-  if (wont_hang == 2) {
-    end_system_call(); return ls_eof;
-  }
-  if (wont_hang == 3) {
-    end_system_call(); return ls_avail;
+  {
+    int wont_hang = fd_read_wont_hang_p(handle);
+    if (wont_hang == 0) {
+      end_system_call(); return ls_wait;
+    }
+    if (wont_hang == 2) {
+      end_system_call(); return ls_eof;
+    }
+    if (wont_hang == 3) {
+      end_system_call(); return ls_avail;
+    }
   }
   # try to read a byte
   var uintB b;
