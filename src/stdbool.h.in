@@ -18,7 +18,10 @@
 #ifndef _STDBOOL_H
 #define _STDBOOL_H
 
-/* ISO C 99 <stdbool.h> for platforms that lack it.  */
+/*
+ * ISO C 99 <stdbool.h> for platforms that lack it.
+ * <http://www.opengroup.org/onlinepubs/007904975/basedefs/stdbool.h.html>
+ */
 
 /* 7.16. Boolean type and values */
 
