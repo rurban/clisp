@@ -5,8 +5,8 @@
 	*seclass-pure*.
 	(c-CONST): Use *seclass-foldable* instead of *seclass-pure*, if
 	appropriate.
-	(c-PROGN, c-AND, c-OR, c-QUOTE, c-SETQ, c-PSETQ, c-MULTIPLE-VALUE-SETQ,
-	c-TAGBODY): Use *seclass-foldable* instead of *seclass-pure*.
+	(c-PROGN, c-AND, c-OR, c-QUOTE, c-SETQ, c-PSETQ, c-MULTIPLE-VALUE-SETQ)
+	(c-TAGBODY): Use *seclass-foldable* instead of *seclass-pure*.
 
 2004-05-11  Bruno Haible  <bruno@clisp.org>
 
@@ -60,10 +60,10 @@
 
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
-	* defstruct.lisp (ds-slot-name, ds-slot-initargs, ds-slot-offset,
-	ds-slot-initer, ds-slot-initfunctionform, ds-slot-type,
-	ds-slot-readonly): Remove macros. Use clos::slot-definition-* accessors
-	everywhere.
+	* defstruct.lisp (ds-slot-name, ds-slot-initargs, ds-slot-offset)
+	(ds-slot-initer, ds-slot-initfunctionform, ds-slot-type)
+	(ds-slot-readonly): Remove macros. Use clos::slot-definition-*
+	accessors everywhere.
 	(copy-<structure-effective-slot-definition>): Renamed from copy-ds-slot.
 	* clos-class2.lisp: Update callers here as well.
 
@@ -141,8 +141,8 @@
 	* clos-class5.lisp (change-class, update-instance-for-different-class):
 	Use new slot-definition-* accessors.
 	(slot-names): Likewise.
-	* loadform.lisp (make-load-form-saving-slots): Use new slot-definition-*
-	accessors.
+	* loadform.lisp (make-load-form-saving-slots): Use new
+	slot-definition-* accessors.
 	* documentation.lisp (documentation, (setf documentation)): Add a
 	method for slot-definition.
 	* makemake.in (LPARTS): Add clos-slotdef1, clos-slotdef2,
