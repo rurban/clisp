@@ -1,3 +1,11 @@
+2001-04-06  Sam Steingold  <sds@gnu.org>
+
+	fixed the --without-unicode build
+	* makemake.in (NLS_INCLUDES): always has `nls_ascii'
+	* encoding.d: include "nls_ascii.c" and define `nls_tables'
+	even without unicode
+	* pseudofun.d: define `nls_ascii_table' even without unicode
+
 2001-04-05  Sam Steingold  <sds@gnu.org>
 
 	* clos.lisp (initialize-instance): [ANSI] added &key and
