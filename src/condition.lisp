@@ -1650,8 +1650,10 @@ its CONTINUE restart is invoked."
   (elastic-newline *error-output*)
   (exit t))                     ; exit Lisp with error
 (defun exitonerror (condition) ; ABI
-  (unless (find-restart 'CONTINUE condition)
-    (exitunconditionally condition)))
+  (let ((restart (find-restart 'CONTINUE condition)))
+    (unless (and restart (restart-meaningfulp restart)
+                 (eq (restart-interactive restart) #'default-restart-interactive))
+      (exitunconditionally condition))))
 (defmacro exit-on-error (&body body)
   "(EXIT-ON-ERROR {form}*) executes the forms, but exits Lisp if a
 non-continuable error or a Ctrl-C interrupt occurs."
