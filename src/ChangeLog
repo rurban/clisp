@@ -1,3 +1,12 @@
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
+	Now that methods are never copied, move the initfunction invocation
+	to the initializer.
+	* clos-method1.lisp (initialize-instance-<standard-method>): Invoke
+	the initfunction here.
+	* clos-genfun2.lisp (std-add-method): ... not here.
+	(std-remove-method): Use normal identity for comparing methods.
+
 2004-10-15  Sam Steingold  <sds@gnu.org>
 
 	LOAD can now restart when it encounters errors
