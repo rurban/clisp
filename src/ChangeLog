@@ -12,6 +12,8 @@
 	(c-MAP-on-CARs, c-MAP-on-LISTs, c-MAPC, c-MAPL): use it
 	(c-FLET, c-LABELS, c-FUNCTION-MACRO-LET, c-GENERIC-FLET)
 	(c-GENERIC-LABELS): new macro GET-ANODE in their common macrolet
+	(inlinable-function-operation-form-p): new function
+	(c-FUNCTION-CALL, c-APPLY, c-seqop): use it
 
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
