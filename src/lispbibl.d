@@ -6961,7 +6961,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # UP: Liefert die Real-Time
 # get_real_time()
 # < internal_time* ergebnis: absolute Zeit
-  extern internal_time* get_real_time (void);
+  extern void get_real_time (internal_time*);
 # wird verwendet von LISPARIT
 
 #endif
