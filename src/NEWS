@@ -107,16 +107,18 @@ User visible changes
   + LAST, BUTLAST and NBUTLAST check their list argument for circularity.
   + NAMESTRING no longer accepts an optional second argument.
 
-* TRACE has a new option :MAX-DEPTH, that is useful to avoid infinite
-  recursions in the tracer.
-
 * TRANSLATE-PATHNAME and TRANSLATE-LOGICAL-PATHNAME accept a new keyword
   argument :ABSOLUTE which makes them convert their return values to
   absolute pathnames.
   See <http://clisp.cons.org/impnotes.html#translate-pathname> and
   <http://clisp.cons.org/impnotes.html#translate-logpath> for details.
 
-* The behaviour of the function UPGRADED-COMPLEX-PART-TYPE has changed.
+* TRACE has a new option :MAX-DEPTH, that is useful to avoid infinite
+  recursions in the tracer.
+  See <http://clisp.cons.org/impnotes.html#trace> for details.
+
+* Function UPGRADED-COMPLEX-PART-TYPE is now as precise as possible.
+  See <http://clisp.cons.org/impnotes.html#ucpt> for details.
 
 * In non-interactive batch mode, *ERROR-OUTPUT* now uses the system's standard
   error stream, instead of the standard output stream.
