@@ -11,7 +11,9 @@
 ;; CAR = the immediate replacement
 #+(or UNIX OS/2)
 (defun completion (string start end)
-  (let* ((start1 start) (quotedp nil) ; quoted completion?
+  (let* ((quotedp (and (>= start 1) ; quoted completion?
+                       (member (char string (- start 1)) '(#\" #\|))))
+         (start1 (if quotedp (1- start) start))
          ;; vars for collecting the symbols
          known-part known-len (return-list '())
          (functionalp1 (and (>= start1 1)
@@ -36,8 +38,6 @@
          (package *package*)
          (mapfun #'sys::map-symbols)
          (prefix nil))
-    (when (and (>= start 1) (member (char string (- start 1)) '(#\" #\|)))
-      (decf start1) (setq quotedp t))
     ;; get the package name:
     (unless quotedp
       (let ((colon (position #\: string :start start :end end)))
