@@ -1,5 +1,9 @@
 2004-06-03  Sam Steingold  <sds@gnu.org>
 
+	* comptran.d (R_R_atanh_R_R): fixed ATANH on complex numbers
+
+2004-06-03  Sam Steingold  <sds@gnu.org>
+
 	* list.d (replace_circular_list): new function
 	(LAST): check the list argument for circularity, do not accept ATOMs
 	(check_list_length): use replace_circular_list()
