@@ -1617,6 +1617,26 @@ here <function>WITH-FOO</function> does not receive the
 
 </section>
 
+<section id="code-walk"><title>Extensions-1.12. Code Walker</title>
+
+<para>You can use <function>EXT:EXPAND-FORM</function> to expand all
+ the macros, &symbol-macro;s, etc, in a single form:
+<programlisting>
+ (expand-form '(macrolet ((bar (x) `(print ,x)))
+                 (macrolet ((baz (x) `(bar ,x)))
+                   (symbol-macrolet ((z 3))
+                     (baz z)))))
+</programlisting>
+returns two values:
+<literal role="sexp">(locally (print 3))</literal> (the expansion) and
+&t; (an indicator that some expansion has actually been done).</para>
+
+<para>This is sometimes called a <emphasis>code walker</emphasis>,
+ except that the code walker would probably leave the &macrolet; and
+ &symbol-macrolet; forms intact and just do the expansion.</para>
+</section>
+
+
 </chapter>
 
 <!-- #if defined(SCREEN) || defined(AMIGAOS) || defined(GRAPHICS) || defined(UNIX) || defined(DYNAMIC_FFI) || defined(SOCKET_STREAMS) -->
