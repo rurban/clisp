@@ -2342,7 +2342,7 @@ LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
       }
       STACK_2 = form; /* new doc-string */
       body = body_rest;
-    } else if (consp(form) && eq(Car(form),S(declare))) { /* declaration (DECLARE ...) ? */
+    } else if (consp(form) && eq(Car(form),S(declare))) { /* (DECLARE ...) ? */
       /* cons new decl-specs to STACK_0 one at a time: */
       pushSTACK(body_rest); /* save body_rest */
       pushSTACK(Cdr(form)); /* list of new decl-specs */
@@ -2359,9 +2359,9 @@ LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
       body = popSTACK(); /* body := old body_rest */
     } else {
      fertig: /* done with looping through the form list */
-    #if 0 /* good idea in the interpreter, but the compiler
-         is hampered, because then it cannot compile
-         CASE and HANDLER-BIND so well. */
+    #if 0
+      /* good idea in the interpreter, but the compiler is hampered,
+         because then it cannot compile CASE and HANDLER-BIND so well. */
       if (!eq(form,Car(body))) { /* if the form was expanded, */
         /* replace body with (cons form (cdr body)) : */
         pushSTACK(body_rest); pushSTACK(form);
