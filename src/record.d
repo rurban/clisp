@@ -724,6 +724,7 @@ LISPFUNNF(std_instance_p,1)
 local inline object class_of (object obj) {
   if (instancep(obj)) {
     instance_un_realloc(obj);
+    check_instance(obj);
     return (object)TheInstance(obj)->inst_class;
   } else {
     pushSTACK(obj); C_class_of(); return value1;
@@ -753,8 +754,10 @@ LISPFUNN(allocate_std_instance,2) {
   var object clas = popSTACK();
   if_classp(clas, ; , fehler_keine_klasse(clas); );
   TheInstance(instance)->inst_class = clas;
+  TheInstance(instance)->inst_cl_id = TheClass(clas)->class_id;
   /* fill the slots of the instance with #<UNBOUND> : */
-  if (--length > 0) {
+  length-=2;
+  if (length > 0) {
     var gcv_object_t* ptr = &TheInstance(instance)->other[0];
     dotimespL(length,length, { *ptr++ = unbound; } );
   }
@@ -813,7 +816,7 @@ local Values do_allocate_instance (object clas) {
 /* Derives the address of an existing slot in an instance of a standard-
  or structure-class from a slot-location-info. */
 local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo) {
-  instance_un_realloc(instance);
+  instance_un_realloc(instance); /* by this time update_instance() is done */
   return (atomp(slotinfo)
           /* local slot, slotinfo is index */
           ? &TheSrecord(instance)->recdata[posfixnum_to_L(slotinfo)]
@@ -915,25 +918,30 @@ LISPFUNNR(slot_exists_p,2) {
   #pragma -z1
 #endif
 
-/* (CLOS::%CHANGE-CLASS instance new-class)
+/* (CLOS::%CHANGE-CLASS instance new-class do-copy-p)
    copy instance (and return the copy)
    make instance point to a new instance of new-class */
-LISPFUNN(pchange_class,2) {
+LISPFUNN(pchange_class,3) {
+  var bool do_copy_p = !nullp(popSTACK());
   /* STACK: instance, new-class */
   do_allocate_instance(STACK_0);
   pushSTACK(value1); /* the new object, to be filled in Lisp */
-  /* a copy of the old instance - the return value of CHANGE-CLASS */
-  pushSTACK(class_of(STACK_2));
-  do_allocate_instance(STACK_0); /* these values are returned */
-  if (structurep(value1))
-    copy_mem_o(&TheStructure(value1)->structure_types,
-               &TheStructure(STACK_3)->structure_types,
-               Structure_length(STACK_3));
-  else /* CLOS class instance */
-    copy_mem_o(&TheInstance(value1)->inst_class,
-               &TheInstance(STACK_3)->inst_class,
-               posfixnum_to_L(TheClass(STACK_0)->instance_size));
-  skipSTACK(1);
+  if (do_copy_p) {
+    /* a copy of the old instance - the return value of CHANGE-CLASS */
+    var object clas = class_of(STACK_2);
+    pushSTACK(clas);
+    do_allocate_instance(STACK_0); /* these values are returned */
+    if (structurep(value1))
+      copy_mem_o(&TheStructure(value1)->structure_types,
+                 &TheStructure(STACK_3)->structure_types,
+                 Structure_length(STACK_3));
+    else /* CLOS class instance */
+      copy_mem_o(&TheInstance(value1)->inst_class,
+                 &TheInstance(STACK_3)->inst_class,
+                 posfixnum_to_L(TheClass(STACK_0)->instance_size));
+    skipSTACK(1);
+  } else
+    VALUES1(NIL);
   /* STACK: instance, new-class, new-instance */
   { /* turn instance into a realloc (see reallocate_small_string
        in spvw_typealloc.d for inspiration) */
@@ -958,6 +966,59 @@ LISPFUNN(pchange_class,2) {
   }
   ASSERT(Record_type(STACK_2) == Rectype_realloc_Instance);
   skipSTACK(3);
+}
+
+/* update-instance-for-redefined-class
+ can trigger GC */
+global object update_instance (object obj) {
+ #if defined(STACKCHECKS) || defined(STACKCHECKC)
+  var gcv_object_t *saved_stack = STACK;
+ #endif
+  var object new_class = (object)TheInstance(obj)->inst_class;
+  var object old_id = (object)TheInstance(obj)->inst_cl_id;
+  var object old_class = new_class;
+  while (!nullp(old_class) && !eq(old_id,TheClass(old_class)->class_id))
+    old_class = TheClass(old_class)->previous_definition;
+  if (nullp(old_class)) NOTREACHED;
+  /* update instance class id to avoid infinite loop/stack overflow */
+  TheInstance(obj)->inst_cl_id = TheClass(new_class)->class_id;
+  pushSTACK(obj); /* save */
+  { /* compute property-list */
+    var object slots_tab = TheClass(old_class)->slot_location_table;
+    var uintL index = 2*posfixnum_to_L(TheHashtable(slots_tab)->ht_maxcount);
+    var uintL num_slots = 0;
+    var gcv_object_t* kvt = kvtable_data(TheHashtable(slots_tab)->ht_kvtable);
+    while (index) {
+      index -= 2;
+      if (boundp(kvt[index])) { /* non-void entry */
+        /* value is slotinfo */
+        var gcv_object_t *slot_ = ptr_to_slot(obj,kvt[index+1]);
+        if (boundp(*slot_)) {
+          pushSTACK(kvt[index]); /* key=slot-name */
+          pushSTACK(*slot_); /* value=slot-value */
+          num_slots++;
+        }
+      }
+    }
+    var object property_list = listof(2*num_slots);
+    pushSTACK(property_list); /* save */
+  }
+  /* change class */
+  pushSTACK(obj); pushSTACK(new_class); pushSTACK(NIL);
+  funcall(L(pchange_class),3);
+  { /* update-instance-for-redefined-class */
+    var object property_list = popSTACK(); /* restore */
+    var object added_discarded = TheClass(old_class)->prototype;
+    pushSTACK(STACK_0); /*obj*/ pushSTACK(Car(added_discarded));
+    pushSTACK(Cdr(added_discarded)); pushSTACK(property_list);
+    funcall(S(update_instance_frc),4);
+  }
+  obj = popSTACK();
+ #if defined(STACKCHECKS) || defined(STACKCHECKC)
+  if (saved_stack != STACK) abort();
+ #endif
+  /* obj is a reallocated instance, so we need to unrealloc it */
+  return TheInstance(obj)->inst_class; /* return the argument */
 }
 
 /* UP: check keywords, cf. SYSTEM::KEYWORD-TEST
@@ -1053,7 +1114,7 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
   { /* stack layout: instance, slot-names, argcount Initarg/Value-Pairs. */
     var object instance = Before(rest_args_pointer STACKop 1);
     /* Instance of <standard-class> or <structure-class>: */
-    var object clas = class_of(instance);
+    var object clas = class_of(instance); /* instance var is now invalid */
     /* list of all slots (as slot-definitions): */
     var object slots = TheClass(clas)->slots;
     while (consp(slots)) {
@@ -1156,7 +1217,7 @@ local inline void call_init_fun (object fun, object last,
 LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   var object instance = Before(rest_args_pointer);
   /* instance of <standard-class> or <structure-class>: */
-  var object clas = class_of(instance);
+  var object clas = class_of(instance); /* instance var is now invalid */
   { /* search (GETHASH class *REINITIALIZE-INSTANCE-TABLE*): */
     var object info =
       gethash(clas,Symbol_value(S(reinitialize_instance_table)));
@@ -1231,7 +1292,7 @@ local Values do_initialize_instance (object info,
 LISPFUN(pinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   var object instance = Before(rest_args_pointer);
   /* instance of <standard-class> or <structure-class>: */
-  var object clas = class_of(instance);
+  var object clas = class_of(instance); /* instance var is not invalid */
   { /* search (GETHASH class *MAKE-INSTANCE-TABLE*): */
     var object info = gethash(clas,Symbol_value(S(make_instance_table)));
     if (eq(info,nullobj)) {

@@ -77,6 +77,7 @@
    shared-initialize
    make-load-form make-load-form-saving-slots
    change-class update-instance-for-different-class
+   update-instance-for-redefined-class make-instances-obsolete
    ;; names of classes:
    standard-class structure-class built-in-class
    standard-object structure-object
@@ -415,6 +416,7 @@
 (defconstant empty-ht (make-hash-table :test #'eq :size 0))
 
 (defstruct (class (:predicate nil))
+  (id 0) ; the class ID to keep instances in sync with redefined classes
   metaclass ; (class-of class) = (class-metaclass class), a class
   classname ; (class-name class) = (class-classname class), a symbol
   direct-superclasses ; list of all direct superclasses
@@ -431,7 +433,7 @@
   slots                    ; list of all slots (as slot-definitions)
   default-initargs         ; default-initargs (as alist initarg -> initer)
   valid-initargs           ; list of valid initargs
-  instance-size)           ; number of slots of the direct instances + 1
+  instance-size)           ; number of slots of the direct instances + 2
 
 (defstruct (structure-class (:inherit slotted-class) (:conc-name "CLASS-"))
   names)                       ; encoding of the include-nesting, a list
@@ -440,7 +442,9 @@
   shared-slots             ; simple-vector with the values of all shared slots, or nil
   direct-slots             ; list of all freshly added slots (as plists)
   direct-default-initargs  ; freshly added default-initargs (as plist)
+  previous-definition      ; the previous class definition or nil
   proto)                   ; class prototype - an instance
+                           ; or (added . discarded) slots for old definitions
 
 ;; access to slots of instances of the class <class> by means of the
 ;; defstruct-accessors, hence no bootstrapping-problems here.
@@ -720,16 +724,12 @@
   (readonly nil))                       ; ds-slot-readonly
 ||#
 
-(defun obsolete-class (class)
-  (let ((name (class-name class)))
-    (when (symbol-package name)
-      (warn (TEXT "~S: Class ~S (or its ancestor) is being redefined, instances are obsolete")
-            'defclass name)
-      (mapc #'obsolete-class (class-direct-subclasses class))
-      (remprop name 'CLOSCLASS)
-      (sys::%set-documentation name 'TYPE '())
-      (setf (class-name class) (gensym "OBSOLETE-CLASS-")))))
-
+;; compute the difference between the set of slot of two classes
+(defun slot-difference (new-class old-class)
+  (mapcar #'slotdef-name
+          (set-difference (class-slots new-class)
+                          (class-slots old-class)
+                          :test #'eq :key #'slotdef-name)))
 (defun ensure-class (name &rest all-keys
                           &key (metaclass <standard-class>)
                                (direct-superclasses '())
@@ -737,10 +737,12 @@
                                (direct-default-initargs '())
                                (documentation nil)
                           &allow-other-keys)
+  ;; store new documentation:
+  (when documentation (sys::%set-documentation name 'TYPE documentation))
   (let ((class (find-class name nil)))
-    (when class
-      ;; The only modifications that we permit for classes are those,
-      ;; that can occur when doubly loading the same code:
+    (if class
+      ;; trivial changes (that can occur when doubly loading the same code)
+      ;; do not require updating the instances:
       ;; changed slot-options :initform, :documentation,
       ;; changed class-options :default-initargs, :documentation.
       (if (and (eq metaclass <standard-class>)
@@ -771,23 +773,37 @@
               (setf (cdr old) (cdr new))))
           ;; NB: These modifications are automatically inherited by the
           ;; subclasses of class!
-          ;; store new documentation:
-          (when documentation (setf (documentation name 'TYPE) documentation))
           ;; modified class as value:
-          (return-from ensure-class class))
-        (obsolete-class class)))
-    (when documentation (sys::%set-documentation name 'TYPE documentation))
-    (setf (find-class name)
+          class)
+        ;; instances have to be updated
+        (let ((copy (copy-standard-class class)))
+          (setf (class-previous-definition class) copy)
           (apply (cond ((eq metaclass <standard-class>)
-                        #'make-instance-standard-class)
+                        #'initialize-instance-standard-class)
                        ((eq metaclass <built-in-class>)
-                        #'make-instance-built-in-class)
+                        #'initialize-instance-built-in-class)
                        ((eq metaclass <structure-class>)
-                        #'make-instance-structure-class)
-                       (t #'make-instance))
-                 metaclass
-                 :name name
-                 all-keys))))
+                        #'initialize-instance-structure-class)
+                       (t #'initialize-instance))
+                 class :name name all-keys)
+          ;; precompute added/discarded slot lists for all previous definitions
+          (do ((oc copy (class-previous-definition oc)))
+              ((null oc))
+            (setf (class-proto oc)
+                  (cons (slot-difference class oc)
+                        (slot-difference oc class))))
+          (make-instances-obsolete class)))
+      (setf (find-class name)
+            (apply (cond ((eq metaclass <standard-class>)
+                          #'make-instance-standard-class)
+                         ((eq metaclass <built-in-class>)
+                          #'make-instance-built-in-class)
+                         ((eq metaclass <structure-class>)
+                          #'make-instance-structure-class)
+                         (t #'make-instance))
+                   metaclass
+                   :name name
+                   all-keys)))))
 (defun equal-slots (slots1 slots2)
   (or (and (null slots1) (null slots2))
       (and (consp slots1) (consp slots2)
@@ -855,7 +871,7 @@
   (setf (class-slot-location-table class) (make-hash-table :test #'eq))
   (dolist (cl direct-superclasses)
     (pushnew class (class-direct-subclasses cl)))
-  (setf (class-instance-size class) 1) ; Index 0 is occupied by the class
+  (setf (class-instance-size class) 2) ; 0=class, 1=class_id
   (let ((shared-index (std-layout-slots class (class-slots class))))
     (when (plusp shared-index)
       (setf (class-shared-slots class)
@@ -1150,22 +1166,24 @@
     shared-index))
 
 ;; creation of an instance of <built-in-class>:
-
 (defun make-instance-built-in-class
     (metaclass &key name (direct-superclasses '()) &allow-other-keys)
   ;; metaclass = <built-in-class>
   (check-metaclass-mix name direct-superclasses
                        #'built-in-class-p 'BUILT-IN-CLASS)
   (let ((class (make-built-in-class :classname name :metaclass metaclass)))
-    (setf (class-direct-superclasses class) (copy-list direct-superclasses))
-    (setf (class-precedence-list class)
-          (std-compute-cpl class direct-superclasses))
-    (setf (class-all-superclasses class)
-          (std-compute-superclasses (class-precedence-list class)))
-    (dolist (cl direct-superclasses)
-      (pushnew class (class-direct-subclasses cl)))
-    class))
-
+    (initialize-instance-built-in-class
+     class :direct-superclasses direct-superclasses :name name)))
+(defun initialize-instance-built-in-class (class &key direct-superclasses
+                                           &allow-other-keys)
+  (setf (class-direct-superclasses class) (copy-list direct-superclasses))
+  (setf (class-precedence-list class)
+        (std-compute-cpl class direct-superclasses))
+  (setf (class-all-superclasses class)
+        (std-compute-superclasses (class-precedence-list class)))
+  (dolist (cl direct-superclasses)
+    (pushnew class (class-direct-subclasses cl)))
+  class)
 
 ;; creation of an instance of <structure-class>:
 
@@ -1311,7 +1329,7 @@
           :direct-slots '()
           :slots '()
           :slot-location-table empty-ht
-          :instance-size 1
+          :instance-size 2
           :direct-default-initargs nil
           :default-initargs nil))
   (setf (class-all-superclasses <standard-object>)
@@ -1972,6 +1990,7 @@
       no-applicable-method no-next-method no-primary-method print-object
       reinitialize-instance remove-method shared-initialize slot-missing
       change-class update-instance-for-different-class
+      update-instance-for-redefined-class
       slot-unbound make-load-form))
   (defvar *warn-if-gf-already-called* t)
   (defun warn-if-gf-already-called (gf)
@@ -3568,7 +3587,7 @@
             &rest initargs)
     (let* ((old-slots (class-slots (class-of instance)))
            (new-slots (class-slots new-class))
-           (previous (%change-class instance new-class)))
+           (previous (%change-class instance new-class t)))
       ;; previous = a copy of instance
       ;; instance: class is changed, slots unbound
       ;; copy identically named slots
@@ -3590,11 +3609,26 @@
   (:method ((previous standard-object) (current standard-object)
             &rest initargs)
     (apply #'shared-initialize current
-           (mapcar #'slotdef-name
-                   (set-difference (class-slots (class-of current))
-                                   (class-slots (class-of previous))
-                                   :test #'eq :key #'slotdef-name))
+           (slot-difference (class-of current) (class-of previous))
            initargs)))
+
+(defgeneric make-instances-obsolete (class)
+  (:method ((class standard-class))
+    (let ((name (class-name class)))
+      (warn (TEXT "~S: Class ~S (or its ancestor) is being redefined, instances are obsolete")
+            'defclass name)
+      (incf (class-id class))
+      (mapc #'make-instances-obsolete (class-direct-subclasses class)))
+    class)
+  (:method ((class symbol)) (make-instances-obsolete (find-class class))))
+
+(defgeneric update-instance-for-redefined-class
+    (instance added-slots discarded-slots property-list &rest initargs
+     &key &allow-other-keys)
+  (:method ((instance standard-object) added-slots discarded-slots
+            property-list &rest initargs)
+    (declare (ignore discarded-slots property-list))
+    (apply #'shared-initialize instance added-slots initargs)))
 
 ;;; classs prototype (MOP)
 (defgeneric class-prototype (class)

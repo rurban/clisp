@@ -45,7 +45,7 @@
 <section id="cl-symb"><title>Symbols in the Package &cl-pac;
   <ulink url="&clhs;/Body/sec_1-9.html">[CLHS-1.9]</ulink></title>
 
-<para>The 9 symbols missing from the &cl-pac; package
+<para>The 7 symbols missing from the &cl-pac; package
  (out of 978 specified by the &ansi-cl;):</para>
 
 <simplelist type="horiz" columns="3">
@@ -53,11 +53,9 @@
  <member>&define-method-combination;</member>
  <member>&ensure-generic-function;</member>
  <member>&invalid-method-error;</member>
- <member>&make-instances-obsolete;</member>
  <member>&make-method;</member>
  <member>&method-combination-error;</member>
  <member>&method-combination-t;</member>
- <member>&update-instance-for-redefined-class;</member>
 </simplelist>
 
 </section>
@@ -517,9 +515,19 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 <section id="redef-class"><title>Redefining Classes
   <ulink url="&clhs;/Body/sec_4-3-6.html">[CLHS-4.3.6]</ulink></title>
 
-<para>Redefining classes is not supported.
- The functions &make-instances-obsolete; and
- &update-instance-for-redefined-class; is not implemented.</para>
+<para>Trivial changes, e.g., those that can occur when doubly loading
+ the same code, do not require updating the instances.
+ These are the changes that do not modify the set of local slots
+ accessible in instances, e.g., changes to slot options
+ <constant>:INITFORM</constant>, <constant>:DOCUMENTATION</constant>,
+ and changes to class options <constant>:DEFAULT-INITARGS</constant>,
+ <constant>:DOCUMENTATION</constant>.</para>
+
+<para>The instances are updated when they are first accessed, &not-e; at
+ the time when the class is redefined or &make-instances-obsolete; is
+ called.  When the class has been redefined several times since the
+ instance was last accessed, &update-instance-for-redefined-class; is
+ still called just once.</para>
 
 </section>
 

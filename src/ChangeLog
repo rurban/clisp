@@ -1,3 +1,40 @@
+2003-04-04  Sam Steingold  <sds@gnu.org>
+
+	implemented MAKE-INSTANCES-OBSOLETE and
+	UPDATE-INSTANCE-FOR-REDEFINED-CLASS
+	* clos.lisp (class): added slot ID - the number of class redefinitions
+	(standard-class): added slot PREVIOUS-DEFINITION
+	(obsolete-class): removed function
+	(slot-difference): new function
+	(ensure-class): call MAKE-INSTANCES-OBSOLETE instead of
+	OBSOLETE-CLASS and allow non-trivial class redefinitions
+	(initialize-instance-standard-class, <standard-object>):
+	INSTANCE-SIZE now starts with 2 because of ID
+	(initialize-instance-built-in-class): new function
+	(make-instance-built-in-class): use it
+	(*dynamically-modifiable-generic-function-names*): added
+	UPDATE-INSTANCE-FOR-REDEFINED-CLASS
+	(update-instance-for-different-class): use SLOT-DIFFERENCE
+	(make-instances-obsolete, update-instance-for-redefined-class):
+	new generic functions
+	(change-class): pass T as the third argument of %CHANGE-CLASS
+	* lispbibl.d (Class): added slots class_id and previous_definition
+	(Instance): added slot inst_cl_id
+	(instance_valid_p, check_instance): new macros
+	(instanceof): call check_instance()
+	* constsym.d (UPDATE-INSTANCE-FOR-REDEFINED-CLASS): added
+	* hashtabl.d (sxhash_atom): call check_instance()
+	(SXHASH): seclass_default bacause of that
+	* init.lisp (update-instance-for-redefined-class)
+	(make-instances-obsolete): export
+	* predtype.d (TYPE-OF, CLASS-OF): call check_instance()
+	* record.d (class_of): ditto
+	(ALLOCATE-STD-INSTANCE): INSTANCE-SIZE now starts with 2 because of ID
+	(%CHANGE-CLASS): accept 3rd argument do-copy-t
+	(update_instance): new function
+	* subr.d (SXHASH): seclass_default
+	(%CHANGE-CLASS): 3 arguments
+
 2003-04-02  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d, dfloat.d, ffloat.d: check DOUBLE_DIV0_EXCEPTION &c
