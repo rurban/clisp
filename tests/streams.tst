@@ -743,8 +743,6 @@ T
 #+clisp
 (CHARACTER CHARACTER CHARACTER)
 
-(stream-element-type (make-broadcast-stream))  t
-
 (let ((f "foo.bar") fwd1)
   (unwind-protect
        (progn ; FILE-WRITE-DATE should work on :PROBE streams
@@ -797,6 +795,21 @@ T
 (file-length (make-broadcast-stream))              0
 (file-position (make-broadcast-stream))            0
 (file-string-length (make-broadcast-stream) "foo") 1
+(stream-element-type (make-broadcast-stream))      T
+
+(let ((o (open "foo.bin" :direction :output :element-type '(unsigned-byte 8)))
+      (i (make-string-input-stream "foo")))
+  (unwind-protect (stream-element-type (make-two-way-stream i o))
+    (close o) (delete-file o)
+    (close i)))
+(OR CHARACTER (UNSIGNED-BYTE 8))
+
+(stream-element-type (make-concatenated-stream
+                      (make-string-input-stream "foo")
+                      (make-string-input-stream "bar")
+                      (make-string-input-stream "baz")
+                      (make-string-input-stream "zot")))
+CHARACTER
 
 (progn
 (makunbound 's)
