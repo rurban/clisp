@@ -7905,11 +7905,9 @@ for-value   NIL or T
                     (let ((pred-arg (macroexpand-form
                                       ,(case n (2 `(second *form*))
                                                (3 `(third *form*))))))
-                      (if (and (inlinable-function-operation-form-p
-                                pred-arg 'COMPLEMENT)
-                               ;; (op-if (complement fn) ...) -->
-                               ;; (op-if-not fn ...)
-                               (not (fenv-search 'NOT)))
+                      (if (inlinable-function-operation-form-p
+                           pred-arg 'COMPLEMENT)
+                        ;; (op-if (complement fn) ...) --> (op-if-not fn ...)
                         (c-form ,(case n (2 `(list* ',op-if-not
                                               (second pred-arg) (cddr *form*)))
                                          (3 `(list* ',op-if-not (second *form*)
@@ -7921,11 +7919,9 @@ for-value   NIL or T
                     (let ((pred-arg (macroexpand-form
                                       ,(case n (2 `(second *form*))
                                                (3 `(third *form*))))))
-                      (if (and (inlinable-function-operation-form-p
-                                pred-arg 'COMPLEMENT)
-                               ;; (op-if-not (complement fn) ...) -->
-                               ;; (op-if fn ...)
-                               (not (fenv-search 'NOT)))
+                      (if (inlinable-function-operation-form-p
+                           pred-arg 'COMPLEMENT)
+                        ;; (op-if-not (complement fn) ...) --> (op-if fn ...)
                         (c-form ,(case n (2 `(list* ',op-if (second pred-arg)
                                               (cddr *form*)))
                                          (3 `(list* ',op-if (second *form*)
