@@ -1,5 +1,11 @@
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
+	* clos-class3.lisp (reinitialize-instance-<class>): After restoring
+	the backup copy, also restore the direct-subclasses pointers and the
+	finalized-direct-subclasses pointers of any possible direct superclass.
+
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
 	Warn about invalid print-object methods.
 	* clos-print.lisp (*print-object-method-warning*): New variable.
 	(print-object-method-warning): New function.
