@@ -5,8 +5,8 @@
 
 # ==============================================================================
 # a wrapper for Read
-global long read_helper (Handle handle, void* bufarea, long nbyte,
-                         bool partial_p) {
+global long read_helper (Handle handle, void* bufarea, long nbyte, bool no_hang)
+{
   var char* buf = (char*) bufarea;
   var long done = 0;
   while (nbyte!=0) {
@@ -17,7 +17,7 @@ global long read_helper (Handle handle, void* bufarea, long nbyte,
       return retval;
     } else {
       buf += retval; done += retval; nbyte -= retval;
-      if (partial_p)
+      if (no_hang)
         break;
     }
   }
