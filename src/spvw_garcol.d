@@ -44,11 +44,29 @@ local void move_conses (sintL delta);
   - a two-pointer-object: bit garcol_bit,(X) is set
   - a SUBR/FSUBR: bit garcol_bit,(X+const_offset) is set
   - Character, Short-Float, Fixnum etc.: always.
-Use GC_MARK when the argument might be a reallocated string */
-#define GC_MARK(o) do {                         \
-  if (instancep(o)) instance_un_realloc(o);     \
-  if (arrayp(o)) simple_array_to_storage(o); gc_mark(o); } while(0)
-#if DEBUG_GC_MARK || 1
+Use GC_MARK when the argument might be a reallocated object */
+#ifdef DEBUG_SPVW
+ #define UNREALLOC(o)                                      \
+  if (instancep(o)) {                                        \
+    if (Record_type(o) == Rectype_realloc_Instance) {        \
+      fprintf(stderr,"realloc instance: %d",as_oint(o));     \
+      instance_un_realloc(o);                                \
+      fprintf(stderr," --> %d\n",as_oint(o));                \
+    }                                                        \
+  } else if (arrayp(o)) {                                    \
+    if (Record_type(o) == Rectype_reallocstring) {           \
+      fprintf(stderr,"realloc string: %d",as_oint(o));       \
+      simple_array_to_storage(o);                            \
+      fprintf(stderr," --> %d\n",as_oint(o));                \
+    }                                                        \
+  }
+#else
+ #define UNREALLOC(o)                            \
+  if (instancep(o)) instance_un_realloc(o);             \
+  else if (arrayp(o)) simple_array_to_storage(o);
+#endif
+#define GC_MARK(o) do { UNREALLOC(o) gc_mark(o); } while(0)
+#if DEBUG_GC_MARK
   #define IF_DEBUG_GC_MARK(statement)  statement
 #else
   #define IF_DEBUG_GC_MARK(statement)  /*nop*/
@@ -417,9 +435,9 @@ local void gc_mark (object obj)
 #undef down_pair
 }
 
-# pack a pointer into an object, without  typeinfo.
-# pointer_as_object(ptr): void* --> object
-# pointer_was_object(obj): object --> void*
+/* pack a pointer into an object, without  typeinfo.
+ pointer_as_object(ptr): void* --> object
+ pointer_was_object(obj): object --> void* */
   #ifdef TYPECODES
     #define pointer_as_object(ptr)  type_pointer_object(0,ptr)
     #define pointer_was_object(obj)  type_pointable(0,obj)
@@ -433,37 +451,38 @@ local void gc_mark (object obj)
     #endif
   #endif
 
-# marking phase:
-  # All "active" struktures are marked.
-  # everything is active, that is reachable
-  # - from the LISP-stack or
-  # - at Generational-GC: from the old generation or
-  # - as program-constant (the list of all packages belongs to this).
-    local void gc_mark_stack (gcv_object_t* objptr);
-    local void gc_mark_stack(objptr)
-      var gcv_object_t* objptr;
-      { until (eq(*objptr,nullobj)) # until STACK is finished:
-          { if ( as_oint(*objptr) & wbit(frame_bit_o) ) # does a frame start here?
-             { if (( as_oint(*objptr) & wbit(skip2_bit_o) ) == 0) # without skip2-Bit?
-                objptr skipSTACKop 2; # yes -> advance by 2
-                else
-                objptr skipSTACKop 1; # no -> advance by 1
-             }
-             else
-             { # normal object, mark:
-               var object obj = *objptr;
-               #ifndef NO_symbolflags
-               switch (typecode(obj)) # poss. remove Symbol-flags
-                 { case_symbolflagged:
-                     obj = symbol_without_flags(obj);
-                   default: break;
-                 }
-               #endif
-               GC_MARK(*objptr);
-               objptr skipSTACKop 1; # advance
-      }   }  }
+/*  marking phase:
+ All "active" structures are marked.
+ everything is active, that is reachable
+ - from the LISP-stack or
+ - at Generational-GC: from the old generation or
+ - as program-constant (the list of all packages belongs to this). */
+local void gc_mark_stack (gcv_object_t* objptr)
+{
+  while (!eq(*objptr,nullobj)) { /* until STACK is finished: */
+    IF_DEBUG_GC_MARK(fprintf(stderr,"gc_mark_stack: 0x%x/%u (%u)\n",
+                             objptr,objptr,as_oint(*objptr)));
+    if (as_oint(*objptr) & wbit(frame_bit_o)) { /* does a frame start here? */
+      if ((as_oint(*objptr) & wbit(skip2_bit_o)) == 0) /* without skip2-Bit? */
+        objptr skipSTACKop 2; /* yes -> advance by 2 */
+      else
+        objptr skipSTACKop 1; /* no -> advance by 1 */
+    } else { /* normal object, mark: */
+      var object obj = *objptr;
+     #ifndef NO_symbolflags
+      switch (typecode(obj)) { /* poss. remove Symbol-flags */
+        case_symbolflagged:
+          obj = symbol_without_flags(obj);
+        default: break;
+      }
+     #endif
+      GC_MARK(*objptr);
+      objptr skipSTACKop 1; /* advance */
+    }
+  }
+}
 
-  #include "spvw_genera2.c"
+#include "spvw_genera2.c"
 
 local void gc_markphase (void)
 {
@@ -694,7 +713,7 @@ local void gc_markphase (void)
       # from a root or from a Varobject.
       #
       # traverse the undeleted conses from left to right:
-      # (in between, each cell contains a liste of all addresses
+      # (in between, each cell contains a list of all addresses
       # of pointers to this cell, that point to this cell from a root,
       # from a varobject or a cons lying further to the left.)
       var aint p1 = page->page_start; # lower bound
@@ -1738,7 +1757,7 @@ local void gc_unmarkcheck (void) {
                   var object key = data[idx];
                   if (boundp(key)) {
                     if (alive(key)) /* mark value */
-                      gc_mark(data[idx+1]);
+                      GC_MARK(data[idx+1]);
                     else /* drop both key and value from the table */
                       data[idx] = data[idx+1] = unbound;
                   }
@@ -1748,7 +1767,7 @@ local void gc_unmarkcheck (void) {
                   var object value = data[idx+1];
                   if (boundp(value)) {
                     if (alive(value)) /* mark key */
-                      gc_mark(data[idx]);
+                      GC_MARK(data[idx]);
                     else /* drop both key and value from the table */
                       data[idx] = data[idx+1] = unbound;
                   }
@@ -1771,8 +1790,8 @@ local void gc_unmarkcheck (void) {
                     /* drop both key and value from the table */
                     data[idx] = data[idx+1] = unbound;
                   else {
-                    gc_mark(key);
-                    gc_mark(val);
+                    GC_MARK(key);
+                    GC_MARK(val);
                   }
                 }
               } else /*NOTREACHED*/ abort();
