@@ -1,3 +1,8 @@
+2003-04-20  Sam Steingold  <sds@gnu.org>
+
+	* package.d (make_present): if symbol is homeless, set its home
+	this takes care of the Issue 194
+
 2003-04-19  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main): when loading clisprc, use MAKE-PATHNAME
