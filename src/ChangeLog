@@ -1,3 +1,11 @@
+2003-05-02  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 729524 ]: ffi:c-struct corrupt
+	* foreign1.lisp (with-name/options): new macro
+	(parse-components, c-struct-constructor, parse-c-type)
+	(deparse-c-type, def-c-struct): C-STRUCT typespec is
+	short again: (C-STRUCT name+opt slots ....)
+
 2003-05-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* pathname.d (LAUNCH): deobfuscated according to General Line.
