@@ -38,7 +38,9 @@
 </A>
 
 <CODE>clisp</CODE>
-[ <A HREF="#Option -h"><CODE>-h</CODE></A> ]
+[ <A HREF="#Option -h"><CODE>-h</CODE></A> | <A HREF="#Option -h"><CODE>--help</CODE></A> ]
+[ <A HREF="#Option --version"><CODE>--version</CODE></A> ]
+[ <A HREF="#Option --license"><CODE>--license</CODE></A> ]
 [ <A HREF="#Option -m"><CODE>-m</CODE> <EM>memsize</EM></A> ]
 #ifndef NO_SP_MALLOC
 [ <A HREF="#Option -s"><CODE>-s</CODE> <EM>stacksize</EM></A> ]
@@ -55,7 +57,7 @@
 [ <A HREF="#Option -L"><CODE>-L</CODE> <EM>language</EM></A> ]
 [ <A HREF="#Option -N"><CODE>-N</CODE> <EM>localedir</EM></A> ]
 [ <A HREF="#Option -E"><CODE>-E</CODE><EM>domain</EM> <EM>encoding</EM></A> ]
-[ <A HREF="#Option -q"><CODE>-q</CODE></A> ]
+[ <A HREF="#Option -q"><CODE>-q</CODE></A> | <A HREF="#Option -q"><CODE>--quiet</CODE></A> | <A HREF="#Option -q"><CODE>--silent</CODE></A> ]
 [ <A HREF="#Option -w"><CODE>-w</CODE></A> ]
 [ <A HREF="#Option -I"><CODE>-I</CODE></A> ]
 [ <A HREF="#Option -C"><CODE>-C</CODE></A> ]
@@ -84,8 +86,17 @@ more efficiently.
 
 <DL>
 
-<DT> <A NAME="Option -h"> <B><CODE>-h</CODE></B> </A>
+<DT> <A NAME="Option -h"> <B><CODE>-h</CODE></B>, <B><CODE>--help</CODE></B> </A>
 <DD> Displays a help message on how to use <CODE>clisp</CODE>.
+<P>
+
+<DT> <A NAME="Option --version"> <B><CODE>--version</CODE></B> </A>
+<DD> Displays the <CODE>clisp</CODE> version number, as given by the function
+call <CODE>(<A HREF="CLHSROOT/Body/fun_lisp-impl_tion-version.html">lisp-implementation-version</A>)</CODE>.
+<P>
+
+<DT> <A NAME="Option --license"> <B><CODE>--license</CODE></B> </A>
+<DD> Displays a summary of the licensing information, the GNU GPL.
 <P>
 
 <DT> <A NAME="Option -m"> <B><CODE>-m</CODE> <EM>memsize</EM></B> </A>
@@ -158,7 +169,8 @@ at least a main executable and an initial memory image. Possible values are
 
 <DT> <A NAME="Option -M"> <B><CODE>-M</CODE> <EM>memfile</EM></B> </A>
 <DD> Specifies the initial memory image.
-This must be a memory dump produced by the <EM>saveinitmem</EM> function.
+This must be a memory dump produced by the
+<CODE><A HREF="impnotes.html#image">saveinitmem</A></CODE> function.
 #ifdef UNIX
 It may have been compressed using GNU gzip.
 #endif
@@ -166,8 +178,8 @@ It may have been compressed using GNU gzip.
 
 <DT> <A NAME="Option -norc"> <B><CODE>-norc</CODE></B> </A>
 <DD> Normally <CODE>clisp</CODE> loads a user run control (RC) file on
-startup (this happens after the <CODE>-C</CODE> option is processed).
-The file loaded is
+startup (this happens after the <A HREF="#Option -C"><CODE>-C</CODE></A>
+option is processed). The file loaded is
 #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
 <CODE>_clisprc.lsp</CODE> or <CODE>_clisprc.fas</CODE> in the home directory
 <CODE>(user-homedir-pathname)</CODE>,
@@ -187,7 +199,7 @@ the RC file.
 <DD> Specifies the language <CODE>clisp</CODE>
 uses to communicate with the user. This may be
 #ifndef GNU_GETTEXT
-<CODE>english</CODE>, <CODE>deutsch</CODE>, <CODE>francais</CODE>.
+<CODE>english</CODE>.
 #endif
 #ifdef GNU_GETTEXT
 <CODE>english</CODE>, <CODE>deutsch</CODE>, <CODE>francais</CODE>,
@@ -201,7 +213,7 @@ provided the corresponding message catalog is installed.
 <DT> <A NAME="Option -N"> <B><CODE>-N</CODE> <EM>localedir</EM></B> </A>
 <DD> Specifies the base directory of locale files. <CODE>clisp</CODE>
 will search its message catalogs in
-<EM>localedir</EM><CODE>/</CODE><EM>language</EM><CODE>/LC_MESSAGES/clisp.</CODE><EM>ext</EM>.
+<EM>localedir</EM><CODE>/</CODE><EM>language</EM><CODE>/LC_MESSAGES/clisp.mo</CODE>.
 <P>
 
 <DT> <A NAME="Option -E"> <B><CODE>-E</CODE><EM>domain</EM> <EM>encoding</EM></B> </A>
@@ -213,8 +225,9 @@ which depends on the environment variables <CODE>LC_ALL</CODE>,
 <CODE>terminal</CODE>, affecting <CODE>*terminal-encoding*</CODE>, or
 <CODE>foreign</CODE>, affecting <CODE>*foreign-encoding*</CODE>, or
 <CODE>misc</CODE>, affecting <CODE>*misc-encoding*</CODE>.
+<P>
 
-<DT> <A NAME="Option -q"> <B><CODE>-q</CODE></B> </A>
+<DT> <A NAME="Option -q"> <B><CODE>-q</CODE></B>, <B><CODE>--quiet</CODE></B>, <B><CODE>--silent</CODE></B> </A>
 <DD> Quiet: <CODE>clisp</CODE>
 displays no banner at startup and no good-bye message when quitting.
 <P>
@@ -224,8 +237,10 @@ displays no banner at startup and no good-bye message when quitting.
 <P>
 
 <DT> <A NAME="Option -I"> <B><CODE>-I</CODE></B> </A>
-<DD> ILISP friendly: <CODE>clisp</CODE>
-interacts in a way that ILISP (a popular Emacs LISP interface) can deal with.
+<DD> Be ILISP friendly. ILISP is an alternative Emacs interface to Common Lisp
+systems. With this option,
+<CODE>clisp</CODE>
+interacts in a way that ILISP can deal with.
 Currently the only effect of this is that unnecessary prompts are not
 suppressed.
 #ifdef GNU_READLINE
@@ -236,19 +251,23 @@ character.
 
 <DT> <A NAME="Option -C"> <B><CODE>-C</CODE></B> </A>
 <DD> Compile when load: At startup the value of the variable
-<CODE>*load-compiling*</CODE> will be set to <CODE>t</CODE>.
+<CODE><A HREF="impnotes.html#loadfile">*load-compiling*</A></CODE>
+will be set to <A HREF="CLHSROOT/Body/convar_t.html"><CODE>t</CODE></A>.
 Code being <CODE>load</CODE>ed will then be compiled on the fly. This results
 in slower loading, but faster execution.
 <P>
 
 <DT> <A NAME="Option -i"> <B><CODE>-i</CODE> <EM>initfile</EM> ...</B> </A>
 <DD> Specifies initialization files to be <CODE>load</CODE>ed
-at startup. These should be lisp files (source or compiled).
+at startup. These should be lisp files (source or compiled). Several
+<CODE>-i</CODE> options can be given; all the specified files will be loaded
+in order.
 <P>
 
 <DT> <A NAME="Option -c"> <B><CODE>-c</CODE> <EM>lispfile</EM> ...</B> </A>
-<DD> Compiles the specified <EM>lispfile</EM>s to bytecode. The compiled files
-can then be <CODE>load</CODE>ed instead of the sources to gain efficiency.
+<DD> Compiles the specified <EM>lispfile</EM>s to bytecode (*.fas). The
+compiled files can then be <CODE>load</CODE>ed instead of the sources to
+gain efficiency.
 <P>
 
 <DT> <A NAME="Option -o"> <B><CODE>-o</CODE> <EM>outputfile</EM></B> </A>
@@ -257,19 +276,29 @@ specified <EM>lispfile</EM>.
 <P>
 
 <DT> <A NAME="Option -l"> <B><CODE>-l</CODE></B> </A>
-<DD> A bytecode listing of the files being compiled will be produced.
-Useful only for debugging purposes.
+<DD> A bytecode listing (*.lis) of the files being compiled will be produced.
+Useful only for debugging purposes. See the documentation of
+<A HREF="impnotes.html#compilefile"><CODE>compile-file</CODE></A> for details.
 <P>
 
 <DT> <A NAME="Option -p"> <B><CODE>-p</CODE> <EM>packagename</EM></B> </A>
 <DD> At startup the value of the variable <CODE>*package*</CODE> will
-be set to the package named <EM>packagename</EM>.
+be set to the package named <EM>packagename</EM>. The default is the package
+which was active when the image was <A HREF="impnotes.html#image">saved</A>,
+normally <A HREF="impnotes.html#imppack"><CODE>USER</CODE></A>, or
+<A HREF="impnotes.html#imppack"><CODE>COMMON-LISP-USER</CODE></A> if the option
+<A HREF="#Option -a"><CODE>-a</CODE></A> was specified.
 <P>
 
 <DT> <A NAME="Option -a"> <B><CODE>-a</CODE></B> </A>
 <DD> ANSI CL compliant: Comply with the ANSI CL specification even on
 those issues where ANSI CL is broken. This option is provided for maximum
-portability of Lisp programs. It is not useful for actual everyday work.
+portability of Lisp programs, and is not useful for actual everyday work.
+It sets the variable <CODE>*package*</CODE> to
+<A HREF="impnotes.html#imppack"><CODE>COMMON-LISP-USER</CODE></A>
+and the symbol macro <CODE>*ansi*</CODE> to <CODE>t</CODE>.
+See <A HREF="impnotes.html#ansi">impnotes.html,
+section "Maximum ANSI CL compliance"</A>, for details.
 <P>
 
 <DT> <A NAME="Option -x"> <B><CODE>-x</CODE> <EM>expressions</EM></B> </A>
