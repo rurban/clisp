@@ -648,7 +648,7 @@ global maygc object L_to_I (sint32 wert)
  > wert: value of the integer, an unsigned 32-bit-integer.
  < result: integer with this value.
  can trigger GC */
-#ifndef UL_to_I /* if not already defined as macro */
+#if !(intLsize<=oint_data_len) /* if not already defined in lispbibl.d */
 global maygc object UL_to_I (uint32 wert)
 {
   if ((wert & ~ (FN_value_mask >> oint_data_shift)) == 0)
