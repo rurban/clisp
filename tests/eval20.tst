@@ -109,3 +109,15 @@ T
 
 (constantp '(quote foo))
 T
+
+;; <http://www.lisp.org/HyperSpec/Issues/iss146-writeup.html>
+(let ((src "foo.lisp") (zz (cons 1 2)))
+  (defun setf-foo (u v) (setf (car u) v))
+  (with-open-file (s src :direction :output)
+    (format s "(progn~%  (defsetf foo setf-foo)
+  (defun bar (u v) (setf (foo u) v)))~%"))
+  (load src :compiling t)
+  (delete-file src)
+  (bar zz 12)
+  zz)
+(12 . 2)
