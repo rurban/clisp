@@ -1,5 +1,9 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (FILE-POSITION): Fix GC-safety bug introduced on 2004-02-15.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* charstrg.d (test_string_limits_rw): Mark as "can trigger GC". Fixes
 	leftover from 2003-05-01.
 
