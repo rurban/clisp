@@ -903,34 +903,41 @@
 
 (defun make-instances-obsolete-standard-class (class)
   (when (class-precedence-list class) ; nothing to do if not yet finalized
-    (when (class-instantiated class) ; don't warn if there are no instances
-      (let ((name (class-name class)))
-        (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
-              'defclass name)))
-    ;; Create a new class-version. (Even if there are no instances: the
-    ;; shared-slots may need change.)
-    (let* ((copy (copy-standard-class class))
-           (old-version (class-current-version copy))
-           (new-version
-             (make-class-version :newest-class class
-                                 :class class
-                                 :serial (1+ (cv-serial old-version)))))
-      (setf (cv-class old-version) copy)
-      (setf (cv-next old-version) new-version)
-      (setf (class-current-version class) new-version))
-    ;; Recurse to the subclasses. (Even if there are no instances: the
-    ;; subclasses may have instances.)
-    (mapc #'make-instances-obsolete (class-direct-subclasses class))))
+    ;; Recurse to the subclasses. (Even if there are no direct instances of
+    ;; this class: the subclasses may have instances.)
+    (mapc #'make-instances-obsolete-standard-class-nonrecursive
+          (list-all-subclasses class))))
+
+(defun make-instances-obsolete-standard-class-nonrecursive (class)
+  (when (class-instantiated class) ; don't warn if there are no instances
+    (let ((name (class-name class)))
+      (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
+            'defclass name)))
+  ;; Create a new class-version. (Even if there are no instances: the
+  ;; shared-slots may need change.)
+  (let* ((copy (copy-standard-class class))
+         (old-version (class-current-version copy))
+         (new-version
+           (make-class-version :newest-class class
+                               :class class
+                               :serial (1+ (cv-serial old-version)))))
+    (setf (cv-class old-version) copy)
+    (setf (cv-next old-version) new-version)
+    (setf (class-current-version class) new-version)))
 
 ;; After a class redefinition, finalize the subclasses so that the instances
 ;; can be updated.
 ;; FIXME: What should we do if this finalization fails?
 (defun update-subclasses-for-redefined-class (class)
+  (when (class-precedence-list class) ; nothing to do if not yet finalized
+    (mapc #'update-subclasses-for-redefined-class-nonrecursive
+          (list-all-subclasses class))))
+
+(defun update-subclasses-for-redefined-class-nonrecursive (class)
   (setf (class-precedence-list class) nil) ; mark as not yet finalized
   (setf (class-all-superclasses class) nil) ; mark as not yet finalized
   (when (class-instantiated class)
-    (finalize-class class t))
-  (mapc #'update-subclasses-for-redefined-class (class-direct-subclasses class)))
+    (finalize-class class t)))
 
 ;; Store the information needed by the update of obsolete instances in a
 ;; class-version object. Invoked when an instance needs to be updated.
@@ -968,6 +975,47 @@
     (setf (cv-discarded-slots old-version) discarded)
     (setf (cv-discarded-slot-locations old-version) discarded2)
     (setf (cv-slotlists-valid-p old-version) t)))
+
+;; --------------- Auxiliary functions for <standard-class> ---------------
+
+;; Returns the currently existing direct subclasses, as a freshly consed list.
+(defun list-direct-subclasses (class)
+  (copy-list (class-direct-subclasses class)))
+
+;; Returns the currently existing subclasses, in top-down order, including the
+;; class itself as first element.
+(defun list-all-subclasses (class)
+  ; Use a breadth-first search which removes duplicates.
+  (let ((as-list '())
+        (as-set (make-hash-table :test #'eq :rehash-size 2s0))
+        (pending (list class)))
+    (loop
+      (unless pending (return))
+      (let ((new-pending '()))
+        (dolist (class pending)
+          (unless (gethash class as-set)
+            (push class as-list)
+            (setf (gethash class as-set) t)
+            (setq new-pending
+              (nreconc (list-direct-subclasses class) new-pending))))
+        (setq pending (nreverse new-pending))))
+    ;; Now reorder the list so that superclasses come before, not after, a
+    ;; class. This is needed by update-subclasses-for-redefined-class. (It's
+    ;; a "topological sorting" algorithm w.r.t. to the superclass relation.)
+    (let ((tsorted-list '()))
+      (labels ((add-with-superclasses-first (cls)
+                 (when (gethash cls as-set)
+                   (let ((augmented-direct-superclasses
+                           (add-default-superclass (class-direct-superclasses cls)
+                                                   <standard-object>)))
+                     (remhash cls as-set)
+                     (dolist (supercls augmented-direct-superclasses)
+                       (add-with-superclasses-first supercls))
+                     (push cls tsorted-list)))))
+        (mapc #'add-with-superclasses-first as-list))
+      (setq tsorted-list (nreverse tsorted-list))
+      (assert (eq (first tsorted-list) class))
+      tsorted-list)))
 
 ;; --------------- Creation of an instance of <built-in-class> ---------------
 

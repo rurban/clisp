@@ -1,3 +1,15 @@
+2004-04-13  Bruno Haible  <bruno@clisp.org>
+
+	Let make-instances-obsolete recurse into each subclass only once, even
+	in case of multiple inheritance.
+	* clos-class2.lisp (make-instances-obsolete-standard-class): Apply
+	make-instances-obsolete-standard-class-nonrecursive to all subclasses.
+	(make-instances-obsolete-standard-class-nonrecursive): New function.
+	(update-subclasses-for-redefined-class): Apply
+	update-subclasses-for-redefined-class-nonrecursive to all subclasses.
+	(update-subclasses-for-redefined-class-nonrecursive): New function.
+	(list-direct-subclasses, list-all-subclasses): New functions.
+
 2004-04-25  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (describe-object): since 2004-02-19,
