@@ -677,7 +677,7 @@ LISPFUNNR(length,1)
     var object last;
     var uintL len = llength1(arg,&last);
     if (!nullp(last)) fehler_proper_list(S(length),last);
-    VALUES1(fixnum(len));
+    VALUES1(UL_to_I(len));
     return;
   } else if (symbolp(arg)) { /* arg is a symbol */
     if (nullp(arg)) { /* other symbols are not sequences */

@@ -11902,6 +11902,11 @@ nonreturning_function(extern, fehler_posfixnum, (object obj));
 global object check_posfixnum (object obj);
 /* used by STREAM, LISPARIT */
 
+/* make sure the argument is an integer */
+global object check_integer (object obj);
+global object check_pos_integer (object obj);
+/* used by LISPARIT, LIST */
+
 # Error message, if an argument isn't a Character:
 # fehler_char(obj);
 # > obj: the faulty argument

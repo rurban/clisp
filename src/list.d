@@ -568,7 +568,7 @@ local inline object list_length (object list, object *dottedp) {
     slow = Cdr(slow);
   }
   *dottedp = fast;
-  return fixnum(n);
+  return UL_to_I(n);
 }
 
 LISPFUNNR(list_length,1)
@@ -590,9 +590,21 @@ LISPFUNNR(list_length_dotted,1)
   else VALUES2(len,tail);
 }
 
+/* we cannot have lists longer than 1<<32 for RAM reasons
+ but we must accept arbitrary positive integers in NTH, LAST &c.
+ Here we truncate large integers to ~0.
+ can trigger GC */
+local uintL get_integer_truncate (object number) {
+  /* for speed, handle the most common case first */
+  if (posfixnump(number)) return posfixnum_to_L(number);
+  number = check_pos_integer(number);
+  if (uint32_p(number)) return I_to_UL(number);
+  else return (uintL)~0; /* most-positive-uint32 */
+}
+
 LISPFUNNR(nth,2)
 { /* (NTH integer list), CLTL p. 265 */
-  var uintL count = posfixnum_to_L(check_posfixnum(STACK_1));
+  var uintL count = get_integer_truncate(STACK_1);
   var object list = STACK_0;
   while (count--) { list = cdr(list); } /* count CDRs */
   VALUES1(car(list));                   /* one CAR */
@@ -656,7 +668,7 @@ LISPFUNNR(rest,1)
 
 LISPFUNNR(nthcdr,2)
 { /* (NTHCDR integer list), CLTL p. 267 */
-  var uintL count = posfixnum_to_L(check_posfixnum(STACK_1));
+  var uintL count = get_integer_truncate(STACK_1);
   var object list = STACK_0;
   while (count--) { list = cdr(list); } /* count CDRs */
   VALUES1(list);
@@ -674,8 +686,7 @@ LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
      (when (>= i n) (pop r)))) */
   var object intarg = popSTACK();
   /* check optional integer argument: */
-  var uintL count = (!boundp(intarg) ? 1 :
-                     posfixnum_to_L(check_posfixnum(intarg)));
+  var uintL count = boundp(intarg) ? get_integer_truncate(intarg) : 1;
   var object list = popSTACK();
   # Optimierung der beiden häufigsten Fälle count=1 und count=0:
   switch (count) {
@@ -751,7 +762,7 @@ LISPFUN(make_list,seclass_no_se,1,0,norest,key,1, (kw(initial_element)) )
 { /* (MAKE-LIST size :initial-element), CLTL p. 268 */
   if (!boundp(STACK_0)) /* check :initial-element */
     STACK_0 = NIL; /* default :initial-element is NIL */
-  VALUES1(make_list(posfixnum_to_L(check_posfixnum(STACK_1))));
+  VALUES1(make_list(I_to_UL(check_uint32(STACK_1))));
   skipSTACK(2);
 }
 
@@ -942,8 +953,7 @@ LISPFUN(butlast,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (BUTLAST list [integer]), CLTL S. 271 */
   var object intarg = popSTACK();
   /* check optional integer argument: */
-  var uintL count = (!boundp(intarg) ? 1 :
-                     posfixnum_to_L(check_posfixnum(intarg)));
+  var uintL count = boundp(intarg) ? get_integer_truncate(intarg) : 1;
   var uintL len = llength(STACK_0); /* list length */
   /* Give an error if the argument is not a list. (It's stupid to allow
      dotted lists of length > 0 but to forbid dotted lists of length 0,
@@ -971,8 +981,7 @@ LISPFUN(nbutlast,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (NBUTLAST list [integer]), CLTL p. 271 */
   var object intarg = popSTACK();
   /* check optional integer argument: */
-  var uintL count = (!boundp(intarg) ? 1 :
-                     posfixnum_to_L(check_posfixnum(intarg)));
+  var uintL count = boundp(intarg) ? get_integer_truncate(intarg) : 1;
   var uintL len = llength(STACK_0); /* list length */
   /* Give an error if the argument is not a list. (It's stupid to allow
      dotted lists of length > 0 but to forbid dotted lists of length 0,

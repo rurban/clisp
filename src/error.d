@@ -879,6 +879,33 @@ global object check_posfixnum (object obj) {
   return obj;
 }
 
+/* check_integer(obj) checks, if obj is a integer number.
+ < integer number
+ can trigger GC */
+global object check_integer (object obj) {
+  while (!integerp(obj)) {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(integer));      /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(integer)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
+}
+global object check_pos_integer (object obj) {
+  while (!integerp(obj) || R_minusp(obj)) {
+    pushSTACK(NIL);                /* no PLACE */
+    pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(integer)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a non-negatve ~"));
+    obj = value1;
+  }
+  return obj;
+}
 
 /* error-message, if an argument is not a Character:
  fehler_char(obj);

@@ -1,5 +1,19 @@
 2004-02-17  Sam Steingold  <sds@gnu.org>
 
+	permit lists of uint32 length, the old limit was FIXNUM
+	* sequence.d (LENGTH): llength1() can return a BIGNUM
+	* list.d (list_length): use UL_to_I() instead of fixnum()
+	(MAKE-LIST): use I_to_UL(check_uint32())
+	instead of posfixnum_to_L(check_posfixnum())
+	(get_integer_truncate): new function
+	(NTH, NTHCDR, LAST, MAKE-LIST, BUTLAST, NBUTLAST): use it
+	instead of posfixnum_to_L(check_posfixnum())
+	* error.d, lisparit.d (check_integer, check_pos_integer):
+	moved from LISPARIT to ERROR
+	* lispbibl.d (check_integer, check_pos_integer): prototype
+
+2004-02-17  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (version_diff): use version object (OR NULL
 	INTEGER (MEMBER :WILD :NEWEST)) without converting it to string
 	(translate_version): expect version to be a version object
