@@ -102,6 +102,13 @@
     <varlistentry><term><constant>:DB_XIDDATASIZE</constant></term>
      <listitem><simpara>the &length; of the globally unique
        &unsigned-byte-vector; which must be passed to &TXN_prepare;.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:HOME</constant></term>
+     <listitem><simpara>the home directory (when open) or &t;.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:OPEN</constant></term>
+     <listitem><simpara>the &list-t; of open flags (when open) or &t;.
+    </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 </variablelist>
 </section>
@@ -333,13 +340,16 @@
 
 
 <section id="bdb-log-seq"><title>Log Sequence Numbers</title>
-<!-- log_compare	Compare two Log Sequence Numbers -->
+
+<para>Use &equalp; to compare <type>BDB::LSN</type> objects.</para>
+
+<!-- log_compare	Compare two Log Sequence Numbers
 <variablelist>
 <varlistentry><term><literal role="sexp">()</literal></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist>
-</section>
+</variablelist> -->
 
+</section>
 
 <section id="bdb-mem-pool"><title>Memory Pool Subsystem</title>
 <!--
@@ -420,6 +430,10 @@ Memory Pool Files
    timeout which)</literal></term>
  <listitem><simpara>set timeout values for locks or transactions for the
    specified transaction (&TXN_set_timeout;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:TXN-STAT dbe &key-amp;
+   STAT_CLEAR)</literal></term>
+ <listitem><simpara>transaction subsystem statistics (&DBE_txn_stat;).
 </simpara></listitem></varlistentry>
 </variablelist></section>
 

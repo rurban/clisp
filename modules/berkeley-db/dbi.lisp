@@ -13,7 +13,9 @@
            "DB-RENAME" "DB-PUT"
            "MAKE-CURSOR" "CURSOR-CLOSE" "CURSOR-COUNT" "CURSOR-DEL"
            "CURSOR-DUP" "CURSOR-GET" "CURSOR-PUT"
-           "TXN-BEGIN" "TXN-ABORT" "TXN-COMMIT" "TXN-DISCARD"
+           "TXN-BEGIN" "TXN-ABORT" "TXN-COMMIT" "TXN-DISCARD" "TXN-ID"
+           "TXN-CHECKPOINT" "TXN-PREPARE" "TXN-RECOVER" "TXN-SET-TIMEOUT"
+           "TXN-STAT"
            "WITH-OPEN-DB"))
 
 (setf (package-lock "EXT") nil)
@@ -31,6 +33,9 @@
   (handle nil :read-only t))
 (defstruct (txn (:constructor mktxn (handle)))
   (handle nil :read-only t))
+(defstruct (lsn (:constructor mklsn (file offset)))
+  (file 0 :type (unsigned-byte 32) :read-only t)
+  (offset 0 :type (unsigned-byte 32) :read-only t))
 
 (defstruct (db-stat (:constructor nil))
   (byte-swapped nil :read-only t)
@@ -92,6 +97,58 @@
   (first-recno nil :read-only t)
   (curr-recno nil :read-only t))
 
+(defstruct (db-txn-active (:constructor mktxnactive
+                                        (txnid parentid lsn xa_status xid)))
+  ;; The transaction ID of the transaction.
+  (txnid 0 :type (unsigned-byte 32) :read-only t)
+  ;; The transaction ID of the parent transaction (or 0, if no parent).
+  (parentid 0 :type (unsigned-byte 32) :read-only t)
+  ;; The current log sequence number when the transaction was begun.
+  (lsn nil :type lsn :read-only t)
+  ;; If the transaction is an XA transaction, the status of the
+  ;; transaction, otherwise 0.
+  (xa_status 0 :type (unsigned-byte 32) :read-only t)
+  ;; If the transaction is an XA transaction, the transaction's XA ID.
+  (xid nil :type (vector (unsigned-byte 8)
+                         #,(env-get-options nil :DB_XIDDATASIZE))
+       :read-only t))
+
+(defstruct (db-txn-stat (:constructor mktxnstat
+                                      (last_ckp time_ckp last_txnid maxtxns
+                                       nactive maxnactive nbegins naborts
+                                       ncommits nrestores regsize region_wait
+                                       region_nowait txnarray)))
+  ;; The LSN of the last checkpoint.
+  (last_ckp nil :type lsn :read-only t)
+  ;; The time the last completed checkpoint finished
+  (time_ckp 0 :type integer :read-only t)
+  ;; The last transaction ID allocated.
+  (last_txnid 0 :type (unsigned-byte 32) :read-only t)
+  ;; The maximum number of active transactions configured.
+  (maxtxns 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of transactions that are currently active.
+  (nactive 0 :type (unsigned-byte 32) :read-only t)
+  ;; The maximum number of active transactions at any one time.
+  (maxnactive 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of transactions that have begun.
+  (nbegins 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of transactions that have aborted.
+  (naborts 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of transactions that have committed.
+  (ncommits 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of transactions that have been restored.
+  (nrestores 0 :type (unsigned-byte 32) :read-only t)
+  ;; The size of the region.
+  (regsize 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of times that a thread of control was forced to wait
+  ;; before obtaining the region lock.
+  (region_wait 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of times that a thread of control was able to obtain the
+  ;; region lock without waiting.
+  (region_nowait 0 :type (unsigned-byte 32) :read-only t)
+  ;; an array of NACTIVE DB-TXN-ACTIVE structures, describing the
+  ;; currently active transactions.
+  (txnarray nil :type vector :read-only t))
 
 ;;; macros (see macros2.lisp for `with-open-file')
 (defmacro with-open-db ((var &rest options) &body forms)
@@ -119,8 +176,9 @@
  (bdb:db-version)
  (setq dbe (bdb:env-create))
  (bdb:env-get-options dbe)
- (bdb:env-set-options dbe :data_dir "d:/sds/work/eeld/Test BDBs/")
- (bdb:env-open dbe) ; does not work!
+ (bdb:env-set-options dbe :data_dir "/cygdrive/d/sds/work/eeld/Test BDBs/"
+                      :verbose t)
+ (bdb:env-open dbe :home "/cygdrive/d/sds/work/eeld/Test BDBs/")
  (bdb:env-close dbe)
 
  (setq db (bdb:db-create nil))
@@ -130,8 +188,12 @@
  (bdb:db-fd db)
 
  (setq cu (bdb:make-cursor db))
- (bdb:cursor-get cu nil nil :DB_NEXT)
- (bdb:db-get db (ext:convert-string-to-bytes "foo" *misc-encoding*))
+ (loop (multiple-value-bind (key val)
+           (bdb:cursor-get cu nil nil :DB_NEXT :error nil)
+         (when (eq key :notfound) (return))
+         (format t "=> ~S~%-> ~S~%" key
+                 (ext:convert-string-from-bytes val charset:utf-8))))
+ (bdb:db-get db (ext:convert-string-to-bytes "foo" *misc-encoding*) :error nil)
 
  (bdb:db-close db)
  (bdb:cursor-close cu)
