@@ -1,3 +1,7 @@
+2003-05-15  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* modules/bindings/linuxlibc6/linux.lisp (linux:errno): working
+
 2003-05-14  Sam Steingold  <sds@gnu.org>
 
 	stdio handles are now duped before being inserted into LISP
