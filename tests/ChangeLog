@@ -1,5 +1,10 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* alltest.tst: Add tests for sequence constructing functions with types
+	like (or (vector t 5) (vector t 10)).
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* number2.tst: Add a comparison which used to trigger overflow or a
 	GC-safety bug.
 

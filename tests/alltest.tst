@@ -1592,6 +1592,106 @@ t
 (MAP (QUOTE LIST) (QUOTE LIST) (QUOTE (A B C)) (QUOTE (1 2 3)))
 ((A 1) (B 2) (C 3))
 
+;; Check that at construction of a sequence, a length constraint implicitly
+;; contained in the desired sequence type is respected, i.e. an error is
+;; signalled if it cannot be fulfilled.
+;
+; MAKE-SEQUENCE
+(make-sequence '(vector t 5) 5 :initial-element 'a)
+#(A A A A A)
+(make-sequence '(vector t 5) 6 :initial-element 'a)
+ERROR
+(make-sequence '(or (vector t 5) (vector t 10)) 5 :initial-element 'a)
+#(A A A A A)
+(make-sequence '(or (vector t 5) (vector t 10)) 6 :initial-element 'a)
+ERROR
+#+CLISP
+(make-sequence '(vector t 5) 5
+  :initial-element #\A :update #'(lambda (c) (code-char (1+ (char-code c)))))
+#+CLISP
+#(#\A #\B #\C #\D #\E)
+#+CLISP
+(make-sequence '(vector t 5) 6
+  :initial-element #\A :update #'(lambda (c) (code-char (1+ (char-code c)))))
+#+CLISP
+ERROR
+#+CLISP
+(make-sequence '(or (vector t 5) (vector t 10)) 5
+  :initial-element #\A :update #'(lambda (c) (code-char (1+ (char-code c)))))
+#+CLISP
+#(#\A #\B #\C #\D #\E)
+#+CLISP
+(make-sequence '(or (vector t 5) (vector t 10)) 6
+  :initial-element #\A :update #'(lambda (c) (code-char (1+ (char-code c)))))
+#+CLISP
+ERROR
+;
+; COERCE
+(coerce #(a b c d e) '(vector t 5))
+#(A B C D E)
+(coerce #(a b c d e f) '(vector t 5))
+ERROR
+(coerce #(a b c d e) '(or (vector t 5) (vector t 10)))
+#(A B C D E)
+(coerce #(a b c d e f) '(or (vector t 5) (vector t 10)))
+ERROR
+(coerce '(a b c d e) '(vector t 5))
+#(A B C D E)
+(coerce '(a b c d e f) '(vector t 5))
+ERROR
+(coerce '(a b c d e) '(or (vector t 5) (vector t 10)))
+#(A B C D E)
+(coerce '(a b c d e f) '(or (vector t 5) (vector t 10)))
+ERROR
+;
+; SYS::COERCED-SUBSEQ
+(sys::coerced-subseq #(a b c d e) '(vector t 5))
+#(A B C D E)
+(sys::coerced-subseq #(a b c d e f) '(vector t 5))
+ERROR
+(sys::coerced-subseq #(a b c d e) '(or (vector t 5) (vector t 10)))
+#(A B C D E)
+(sys::coerced-subseq #(a b c d e f) '(or (vector t 5) (vector t 10)))
+ERROR
+(sys::coerced-subseq '(a b c d e) '(vector t 5))
+#(A B C D E)
+(sys::coerced-subseq '(a b c d e f) '(vector t 5))
+ERROR
+(sys::coerced-subseq '(a b c d e) '(or (vector t 5) (vector t 10)))
+#(A B C D E)
+(sys::coerced-subseq '(a b c d e f) '(or (vector t 5) (vector t 10)))
+ERROR
+;
+; CONCATENATE
+(concatenate '(vector t 5) '(a b c) '(d e))
+#(A B C D E)
+(concatenate '(vector t 5) '(a b c) '(d e f))
+ERROR
+(concatenate '(or (vector t 5) (vector t 10)) '(a b c) '(d e))
+#(A B C D E)
+(concatenate '(or (vector t 5) (vector t 10)) '(a b c) '(d e f))
+ERROR
+;
+; MAP
+(map '(vector t 5) #'identity '(a b c d e))
+#(A B C D E)
+(map '(vector t 5) #'identity '(a b c d e f))
+ERROR
+(map '(or (vector t 5) (vector t 10)) #'identity '(a b c d e))
+#(A B C D E)
+(map '(or (vector t 5) (vector t 10)) #'identity '(a b c d e f))
+ERROR
+;
+; MERGE
+(merge '(vector t 5) '(a b c d e) '() #'<)
+#(A B C D E)
+(merge '(vector t 5) '(a b c d e f) '() #'<)
+ERROR
+(merge '(or (vector t 5) (vector t 10)) '(a b c d e) '() #'<)
+#(A B C D E)
+(merge '(or (vector t 5) (vector t 10)) '(a b c d e f) '() #'<)
+ERROR
+
 (SOME (QUOTE NULL) (QUOTE (A B NIL T E)))
 T
 

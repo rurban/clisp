@@ -118,14 +118,18 @@ local object find_seq_type (object name) {
   return NIL;
 }
 
-# UP: überprüft, ob name ein gültiger Sequence-Typ-Bezeichner ist
-# (sonst Error) und liefert den dazugehörigen Typdescriptor.
-# valid_type(name)
-# > name: Sequence-Typ-Bezeichner
-# < ergebnis: dazugehöriger Typdescriptor
-# < -(STACK): durch den Typ erzwungene Länge, oder unbound.
+# UP: checks whether the given type is a valid sequence type name (otherwise
+# error) and returns the corresponding type descriptor.
+# valid_type(&type)
+# > type: sequence type name
+# < type: expanded type
+# < result: corresponding type descriptor
+# < pushed on STACK: length constraint (an integer, -1 means at least 1) or
+#                    type (if the length constraint is more complicated) or
+#                    unbound (means the length is unconstrained)
 # can trigger GC
-local object valid_type1 (object name) {
+local object valid_type1 (gcv_object_t* type_) {
+  var object name = *type_;
   # Unsere elementaren Sequence-Typen sind LIST, VECTOR, STRING, BIT-VECTOR.
   # Wir erkennen aber auch gewisse Alias-Namen:
   # - DEFTYPE-defininierte Typen werden expandiert.
@@ -232,29 +236,36 @@ local object valid_type1 (object name) {
     name = TheClass(name)->classname;
     goto expanded_unconstrained; # other classes could be DEFSTRUCT defined types
   }, {});
+  pushSTACK(name); /* possibly complicated length constraint */
   /* Call (SYS::SUBTYPE-SEQUENCE name): */
   pushSTACK(name); funcall(S(subtype_sequence),1);
   if (eq(value1,S(sequence)) || eq(value1,NIL))
     return NIL;
+  /* Return the expanded but unsimplified type. */
+  *type_ = STACK_0;
   name = value1;
-  /* TODO: Extract possible length constraints from the type specifier. */
+  # SEQ-TYPES-Liste durchgehen:
+  return find_seq_type(name);
+
  expanded_unconstrained:
   pushSTACK(unbound); # no length constraint
  expanded:
+  /* Return the expanded elementary type, without the length constraint. */
+  *type_ = name;
   # SEQ-TYPES-Liste durchgehen:
   return find_seq_type(name);
 }
 
 # same as valid_type1, but signal an error instead of returning NIL
 # when name does not name a sequence
-local object valid_type (object name) {
-  var object typedescr = valid_type1(name);
+local object valid_type (gcv_object_t* type_) {
+  var object typedescr = valid_type1(type_);
   if (!nullp(typedescr))
     return typedescr;
   # otherwise -- signal an error
-  pushSTACK(name); # TYPE-ERROR slot DATUM
-  pushSTACK(O(type_recognizable_sequence_type));# TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(name);
+  pushSTACK(*type_);                             # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_recognizable_sequence_type)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(*type_);
   fehler(type_error,GETTEXT("There are no sequences of type ~S"));
 }
 
@@ -955,7 +966,7 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
   {
     # Stackaufbau: type, size, initial-element, updatefun.
     # type überprüfen:
-    var object typdescr = valid_type(STACK_3);
+    var object typdescr = valid_type(&STACK_3);
     # Stackaufbau: type, size, initial-element, updatefun, type-len.
     STACK_4 = typdescr;
     # size überprüfen, muss Integer >=0 sein:
@@ -978,44 +989,56 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
           STACK_2 = Fixnum_0; # initial-element := 0
         }
       }
-      if (boundp(STACK_0) && !SEQTYPE_LENGTH_MATCH(STACK_0,size))
+      if (integerp(STACK_0) && !SEQTYPE_LENGTH_MATCH(STACK_0,size))
         fehler_seqtype_length(STACK_0,size);
-      STACK_0 = size; funcall(seq_make(typdescr),1); # (SEQ-MAKE size)
-      # Stackaufbau: typdescr, size, initial-element, updatefun.
+      pushSTACK(size); funcall(seq_make(typdescr),1); # (SEQ-MAKE size)
+      # Stackaufbau: typdescr, size, initial-element, updatefun, type-len.
     }
-    if (boundp(STACK_1)) /* :initial-element supplied? */
-      if (!(eq(STACK_2,Fixnum_0))) { # size (ein Integer) = 0 -> nichts zu tun
-        if (!boundp(STACK_0)
-            && vectorp(value1) && array_simplep(value1) && posfixnump(STACK_2)) {
-          if (elt_fill(value1,0,posfixnum_to_L(STACK_2),STACK_1))
-            fehler_store(value1,STACK_1);
+    if (boundp(STACK_2)) /* :initial-element supplied? */
+      if (!(eq(STACK_3,Fixnum_0))) { # size (ein Integer) = 0 -> nichts zu tun
+        if (!boundp(STACK_1)
+            && vectorp(value1) && array_simplep(value1) && posfixnump(STACK_3)) {
+          if (elt_fill(value1,0,posfixnum_to_L(STACK_3),STACK_2))
+            fehler_store(value1,STACK_2);
         } else {
           pushSTACK(value1);
-          # Stackaufbau: typdescr, count, element, updatefun, seq.
-          pushSTACK(STACK_0); funcall(seq_init(STACK_(4+1)),1); # (SEQ-INIT seq)
+          # Stackaufbau: typdescr, count, element, updatefun, type-len, seq.
+          pushSTACK(STACK_0); funcall(seq_init(STACK_(5+1)),1); # (SEQ-INIT seq)
           pushSTACK(value1);
-          # Stackaufbau: typdescr, count, element, updatefun, seq, pointer.
+          # Stackaufbau: typdescr, count, element, updatefun, type-len, seq, pointer.
           loop {
-            pushSTACK(STACK_(1+0)); pushSTACK(STACK_(0+1)); pushSTACK(STACK_(3+2));
-            funcall(seq_access_set(STACK_(5+3)),3); # (SEQ-ACCESS-SET seq pointer element)
+            pushSTACK(STACK_(1+0)); pushSTACK(STACK_(0+1)); pushSTACK(STACK_(4+2));
+            funcall(seq_access_set(STACK_(6+3)),3); # (SEQ-ACCESS-SET seq pointer element)
             # pointer := (SEQ-UPD seq pointer) :
-            pointer_update(STACK_0,STACK_1,STACK_5);
+            pointer_update(STACK_0,STACK_1,STACK_6);
             # count := (1- count) :
-            decrement(STACK_4);
-            if (eq(STACK_4,Fixnum_0)) # count (ein Integer) = 0 -> Schleifenende
+            decrement(STACK_5);
+            if (eq(STACK_5,Fixnum_0)) # count (ein Integer) = 0 -> Schleifenende
               break;
-            var object updatefun = STACK_2;
+            var object updatefun = STACK_3;
             if (boundp(updatefun)) { /* if supplied, */
-              pushSTACK(STACK_3); funcall(updatefun,1); # (FUNCALL updatefun element)
-              STACK_3 = value1; # =: element
+              pushSTACK(STACK_4); funcall(updatefun,1); # (FUNCALL updatefun element)
+              STACK_4 = value1; # =: element
             }
           }
           skipSTACK(1); # pointer vergessen
           value1 = popSTACK(); # seq
         }
       }
+    if (boundp(STACK_0) && !integerp(STACK_0)) {
+      # Verify complicated length constraint, by calling TYPEP:
+      pushSTACK(value1); /* save seq */
+      pushSTACK(value1); pushSTACK(STACK_(0+2)); funcall(S(typep),2);
+      if (nullp(value1)) {
+        # STACK_0 = result = TYPE-ERROR slot DATUM
+        pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(STACK_(0+2)); pushSTACK(STACK_2); pushSTACK(S(make_sequence));
+        fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+      }
+      value1 = popSTACK();
+    }
     mv_count=1; # seq als Wert
-    skipSTACK(4);
+    skipSTACK(5);
   }
 
 # UP: Wandelt ein Objekt in eine Sequence gegebenen Typs um.
@@ -1031,8 +1054,8 @@ global Values coerce_sequence (object sequence, object result_type,
   pushSTACK(sequence);
   pushSTACK(result_type);
   { # check result-type:
-    var object typdescr2 = (error_p ? valid_type(result_type)
-                            : valid_type1(result_type));
+    var object typdescr2 =
+      (error_p ? valid_type(&STACK_0) : valid_type1(&STACK_0));
     if (!error_p && nullp(typdescr2)) { /* result_type is not a sequence */
       VALUES1(nullobj); skipSTACK(1); return;
     }
@@ -1042,25 +1065,45 @@ global Values coerce_sequence (object sequence, object result_type,
       var object typdescr1 = get_valid_seq_type(STACK_3); # Typ von seq1
       if (eq(seq_type(typdescr1),seq_type(typdescr2))) {
         # beide Typen dieselben -> nichts zu tun
-        if (boundp(STACK_1)) {
-          pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
-          if (!SEQTYPE_LENGTH_MATCH(STACK_1,value1))
-            fehler_seqtype_length(STACK_1,value1);
+        skipSTACK(1);
+        if (integerp(STACK_0)) {
+          pushSTACK(STACK_2); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
+          if (!SEQTYPE_LENGTH_MATCH(STACK_0,value1))
+            fehler_seqtype_length(STACK_0,value1);
         }
-        skipSTACK(3); VALUES1(popSTACK()); /* return seq1 */
       } else {
-        STACK_2 = typdescr1;
-        # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2.
+        pushSTACK(typdescr1);
+        pushSTACK(NIL);
+        pushSTACK(STACK_2);
+        STACK_3 = STACK_6;
+        # Stackaufbau: seq1, result-type, typdescr2-len,
+        #              seq1, typdescr1, nil, typdescr2.
         pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
-        if (boundp(STACK_1) && !SEQTYPE_LENGTH_MATCH(STACK_1,value1))
-          fehler_seqtype_length(STACK_1,value1);
+        if (integerp(STACK_4) && !SEQTYPE_LENGTH_MATCH(STACK_4,value1))
+          fehler_seqtype_length(STACK_4,value1);
         pushSTACK(value1);
-        # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2, len.
+        # Stackaufbau: seq1, result-type, typdescr2-len,
+        #              seq1, typdescr1, nil, typdescr2, len.
         pushSTACK(STACK_0); funcall(seq_make(STACK_(1+1)),1); # (SEQ2-MAKE len)
         STACK_2 = value1;
-        # Stackaufbau: seq1, typdescr1, seq2, typdescr2, len.
-        return_Values copy_seq_onto();
+        # Stackaufbau: seq1, result-type, typdescr2-len,
+        #              seq1, typdescr1, seq2, typdescr2, len.
+        copy_seq_onto();
+        # Stackaufbau: seq1, result-type, typdescr2-len.
+        STACK_2 = value1;
+        # Stackaufbau: result, result-type, typdescr2-len.
       }
+      if (boundp(STACK_0) && !integerp(STACK_0)) {
+        # Verify complicated length constraint, by calling TYPEP:
+        pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); funcall(S(typep),2);
+        if (nullp(value1)) {
+          pushSTACK(STACK_2);     # TYPE-ERROR slot DATUM
+          pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(STACK_(0+2)); pushSTACK(STACK_2); pushSTACK(S(coerce));
+          fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+        }
+      }
+      skipSTACK(2); VALUES1(popSTACK()); /* return seq1 */
     }
   }
 }
@@ -1080,7 +1123,7 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
     # Stack layout: sequence, result-type, start, end, typdescr.
     {
       # Check result-type:
-      var object typdescr2 = valid_type(STACK_3);
+      var object typdescr2 = valid_type(&STACK_3);
       pushSTACK(typdescr2);
     }
     # Stack layout: sequence, result-type, start, end, typdescr, typdescr2-len, typdescr2.
@@ -1093,7 +1136,7 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
     # Determine result sequence length.
     STACK_3 = I_I_minus_I(STACK_3,STACK_4); # count := (- end start)
     # Stack layout: sequence, result-type, start, count, typdescr, typdescr2-len, typdescr2.
-    if (boundp(STACK_1) && !SEQTYPE_LENGTH_MATCH(STACK_1,STACK_3))
+    if (integerp(STACK_1) && !SEQTYPE_LENGTH_MATCH(STACK_1,STACK_3))
       fehler_seqtype_length(STACK_1,STACK_3);
     if (eq(seq_type(STACK_2),seq_type(STACK_0))) {
       # Same types of sequences.
@@ -1106,20 +1149,47 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
         if (!nullp(value1)) {
           # With end = (length sequence).
           # Nothing to do.
+          if (boundp(STACK_1) && !integerp(STACK_1)) {
+            # Verify complicated length constraint, by calling TYPEP:
+            pushSTACK(STACK_6); pushSTACK(STACK_(1+1)); funcall(S(typep),2);
+            if (nullp(value1)) {
+              pushSTACK(STACK_6);     # TYPE-ERROR slot DATUM
+              pushSTACK(STACK_(1+1)); # TYPE-ERROR slot EXPECTED-TYPE
+              pushSTACK(STACK_(1+2)); pushSTACK(STACK_2); pushSTACK(S(coerced_subseq));
+              fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+            }
+          }
           skipSTACK(6); VALUES1(popSTACK()); /* return sequence */
           return;
         }
       }
     }
+    STACK_5 = STACK_1; pushSTACK(STACK_3); STACK_4 = STACK_7;
+    # Stack layout: sequence, typdescr2-len, start,
+    #               sequence, typdescr, typdescr2-len, typdescr2, count.
     # Allocate new sequence.
-    pushSTACK(STACK_3); funcall(seq_make(STACK_(0+1)),1); # (SEQ2-MAKE count)
-    STACK_5 = STACK_2; STACK_2 = STACK_3; STACK_3 = STACK_0;
-    STACK_1 = STACK_6; STACK_0 = STACK_4;
-    STACK_4 = value1;
-    # Stack layout: sequence, typdescr, seq2, typdescr2, count, sequence, start.
-    funcall(seq_init_start(STACK_5),2); pushSTACK(value1);
-    # Stack layout: sequence, typdescr, seq2, typdescr2, count, pointer1.
-    return_Values copy_seqpart_onto(); # copy, return seq2
+    pushSTACK(STACK_0); funcall(seq_make(STACK_(1+1)),1); # (SEQ2-MAKE count)
+    STACK_2 = value1;
+    # Stack layout: sequence, typdescr2-len, start,
+    #               sequence, typdescr, seq2, typdescr2, count.
+    pushSTACK(STACK_4); pushSTACK(STACK_(5+1));
+    funcall(seq_init_start(STACK_(3+2)),2); pushSTACK(value1);
+    # Stack layout: sequence, typdescr2-len, start,
+    #               sequence, typdescr, seq2, typdescr2, count, pointer1.
+    copy_seqpart_onto(); # copy, return seq2
+    STACK_2 = value1;
+    # Stack layout: result, typdescr2-len, start.
+    if (boundp(STACK_1) && !integerp(STACK_1)) {
+      # Verify complicated length constraint, by calling TYPEP:
+      pushSTACK(STACK_2); pushSTACK(STACK_(1+1)); funcall(S(typep),2);
+      if (nullp(value1)) {
+        pushSTACK(STACK_2);     # TYPE-ERROR slot DATUM
+        pushSTACK(STACK_(1+1)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(STACK_(1+2)); pushSTACK(STACK_2); pushSTACK(S(coerced_subseq));
+        fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+      }
+    }
+    skipSTACK(2); VALUES1(popSTACK()); /* return result */
   }
 
 LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
@@ -1128,8 +1198,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
     var gcv_object_t* args_pointer = rest_args_pointer;
     # result-type in Typdescriptor umwandeln:
     {
-      var object type = Before(args_pointer);
-      type = valid_type(type);
+      var object type = valid_type(&Before(args_pointer));
       BEFORE(args_pointer) = type;
     }
     # args_pointer = Pointer über die Argumente,
@@ -1174,7 +1243,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
       }
       {
         var object result_type_len = Before(behind_args_pointer);
-        if (boundp(result_type_len)
+        if (integerp(result_type_len)
             && !SEQTYPE_LENGTH_MATCH(result_type_len,total_length))
           fehler_seqtype_length(result_type_len,total_length);
       }
@@ -1204,10 +1273,11 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
     #              [behind_args_pointer] {typdescr, len},
     #              NIL, NIL, seq2, typdescr2, NIL, NIL, pointer2, [STACK].
     # Schleife über die argcount Sequences: in seq2 hineinkopieren
+    var gcv_object_t* current_arg_pointer = behind_args_pointer;
     dotimesC(argcount,argcount, {
       STACK_6 = NEXT(rest_args_pointer); # seq1 = nächste Sequence
-      STACK_5 = NEXT(behind_args_pointer); # deren typdescr1
-      STACK_2 = NEXT(behind_args_pointer); # deren Länge
+      STACK_5 = NEXT(current_arg_pointer); # deren typdescr1
+      STACK_2 = NEXT(current_arg_pointer); # deren Länge
       pushSTACK(STACK_6); funcall(seq_init(STACK_(5+1)),1); # (SEQ1-INIT seq1)
       STACK_1 = value1; # =: pointer1
       # Stackaufbau: [args_pointer] typdescr2,
@@ -1217,6 +1287,19 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
       #              pointer1, pointer2, [STACK].
       copy_seqpart_into(); # ganze seq1 in die seq2 hineinkopieren
     });
+    {
+      var object result_type_len = Before(behind_args_pointer);
+      if (boundp(result_type_len) && !integerp(result_type_len)) {
+        # Verify complicated length constraint, by calling TYPEP:
+        pushSTACK(STACK_4); pushSTACK(result_type_len); funcall(S(typep),2);
+        if (nullp(value1)) {
+          pushSTACK(STACK_4);                     # TYPE-ERROR slot DATUM
+          pushSTACK(Before(behind_args_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(Before(behind_args_pointer)); pushSTACK(STACK_2); pushSTACK(S(concatenate));
+          fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+        }
+      }
+    }
     VALUES1(STACK_4); /* return seq2 */
     set_args_end_pointer(args_pointer); # STACK aufräumen
   }
@@ -1366,7 +1449,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
       # (3mal für Typdescriptoren und Pointer, 1mal für Funktionsaufruf)
       get_space_on_STACK(sizeof(gcv_object_t)*4*(uintL)(argcount+1));
       # result-type überprüfen:
-      *result_type_ = valid_type(*result_type_);
+      *result_type_ = valid_type(result_type_);
       var gcv_object_t* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
       # Typdescriptoren und je zwei Pointer zu jeder der argcount+1
       # Sequences bestimmen und im STACK ablegen:
@@ -1423,7 +1506,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
       #         size [STACK].
       {
         var object result_type_len = Before(typdescr_pointer);
-        if (boundp(result_type_len)
+        if (integerp(result_type_len)
             && !SEQTYPE_LENGTH_MATCH(result_type_len,STACK_0))
           fehler_seqtype_length(result_type_len,STACK_0);
       }
@@ -1467,6 +1550,16 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
         pointer_update(STACK_0,STACK_1,*result_type_);
         # size := (1- size) :
         STACK_2 = fixnum_inc(STACK_2,-1);
+      }
+      if (boundp(Before(typdescr_pointer)) && !integerp(Before(typdescr_pointer))) {
+        # Verify complicated length constraint, by calling TYPEP:
+        pushSTACK(STACK_1); pushSTACK(Before(typdescr_pointer)); funcall(S(typep),2);
+        if (nullp(value1)) {
+          pushSTACK(STACK_1);                  # TYPE-ERROR slot DATUM
+          pushSTACK(Before(typdescr_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(Before(typdescr_pointer)); pushSTACK(STACK_2); pushSTACK(S(map));
+          fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+        }
       }
       VALUES1(STACK_1); /* return seq2 */
       set_args_end_pointer(args_pointer); # STACK aufräumen
@@ -4834,27 +4927,29 @@ LISPFUN(stable_sort,seclass_default,2,0,norest,key,3,
 LISPFUN(merge,seclass_default,4,0,norest,key,1, (kw(key)) )
 # (MERGE result-type sequence1 sequence2 predicate [:key]), CLTL S. 260
   {
-    # Stackaufbau: result-type, sequence1, sequence2, predicate, key.
+    pushSTACK(NIL);
+    # Stackaufbau: result-type, sequence1, sequence2, predicate, key, nil.
     # key-Argument überprüfen:
-    test_key_arg(&STACK_4);
+    test_key_arg(&STACK_5);
     # sequence1 überprüfen:
     {
-      var object seq1 = STACK_3;
+      var object seq1 = STACK_4;
       pushSTACK(seq1);
       pushSTACK(get_valid_seq_type(seq1));
     }
     # sequence2 überprüfen:
     {
-      var object seq2 = STACK_(2+2);
+      var object seq2 = STACK_(3+2);
       pushSTACK(seq2);
       pushSTACK(get_valid_seq_type(seq2));
     }
     # result-type überprüfen:
     {
-      var object typdescr3 = valid_type(STACK_(4+4));
+      var object typdescr3 = valid_type(&STACK_(5+4));
       pushSTACK(typdescr3);
+      STACK_6 = STACK_1;
     }
-    # Stackaufbau: result-type, sequence1, sequence2, predicate, key,
+    # Stackaufbau: result-type, sequence1, sequence2, predicate, key, result-type-len,
     #              sequence1, typdescr1, sequence2, typdescr2, result-type-len, typdescr3.
     # Längen von sequence1 und sequence2 bestimmen:
     {
@@ -4868,12 +4963,12 @@ LISPFUN(merge,seclass_default,4,0,norest,key,1, (kw(key)) )
     # beide Längen addieren und neue Sequence der Gesamtlänge bilden:
     {
       pushSTACK(I_I_plus_I(STACK_1,STACK_0)); # (+ len1 len2)
-      if (boundp(STACK_(1+3)) && !SEQTYPE_LENGTH_MATCH(STACK_(1+3),STACK_0))
+      if (integerp(STACK_(1+3)) && !SEQTYPE_LENGTH_MATCH(STACK_(1+3),STACK_0))
         fehler_seqtype_length(STACK_(1+3),STACK_0);
       funcall(seq_make(STACK_(0+2+1)),1); # (SEQ-MAKE (+ len1 len2))
       STACK_(1+2) = value1; # ersetzt result-type-len im Stack
     }
-    # Stackaufbau: result-type, sequence1, sequence2, predicate, key,
+    # Stackaufbau: result-type, sequence1, sequence2, predicate, key, result-type-len,
     #              sequence1, typdescr1, sequence2, typdescr2, sequence3, typdescr3,
     #              len1, len2.
     # Pointer an den Anfang der Sequences bestimmen:
@@ -4889,13 +4984,23 @@ LISPFUN(merge,seclass_default,4,0,norest,key,1, (kw(key)) )
       pushSTACK(STACK_(1+2+2)); funcall(seq_init(STACK_(0+2+2+1)),1); # (SEQ-INIT sequence3)
       pushSTACK(value1); # =: pointer3
     }
-    # Stackaufbau: result-type, sequence1, sequence2, predicate, key,
+    # Stackaufbau: result-type, sequence1, sequence2, predicate, key, result-type-len,
     #              sequence1, typdescr1, sequence2, typdescr2, sequence3, typdescr3,
     #              len1, len2, pointer1, pointer2, pointer3.
     # Merge-Operation durchführen:
-    merge(&STACK_(1+6+5));
+    merge(&STACK_(2+6+5));
+    if (boundp(STACK_(0+6+5)) && !integerp(STACK_(0+6+5))) {
+      # Verify complicated length constraint, by calling TYPEP:
+      pushSTACK(STACK_(1+5)); pushSTACK(STACK_(0+6+5+1)); funcall(S(typep),2);
+      if (nullp(value1)) {
+        pushSTACK(STACK_(1+5));     # TYPE-ERROR slot DATUM
+        pushSTACK(STACK_(0+6+5+1)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(STACK_(0+6+5+2)); pushSTACK(STACK_2); pushSTACK(S(merge));
+        fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+      }
+    }
     VALUES1(STACK_(1+5)); /* return sequence3 */
-    skipSTACK(5+6+5);
+    skipSTACK(6+6+5);
   }
 
 LISPFUN(read_char_sequence,seclass_default,2,0,norest,key,2,
