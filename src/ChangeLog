@@ -1,3 +1,8 @@
+2004-12-09  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (rd_ch_array_str_in): Fix GC-safety bug introduced on
+	2002-05-22.
+
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
 	* lisparit.d (LOG): Fix GC-safety bug introduced on 2002-10-06.
