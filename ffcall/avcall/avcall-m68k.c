@@ -47,6 +47,7 @@ __builtin_avcall(av_alist* l)
   __avword* argframe = (sp -= __AV_ALIST_WORDS); /* make room for argument list */
   int arglen = l->aptr - l->args;
   __avword i;
+  __avword i2;
 
   for (i = 0; i < arglen; i++)		/* push function args onto stack */
     argframe[i] = l->args[i];
@@ -55,6 +56,7 @@ __builtin_avcall(av_alist* l)
     __asm__("move%.l %0,%/a1" : : "g" (l->raddr));
 
   i = (*l->func)();			/* call function */
+  i2 = iret2;
 
   /* save return value */
   if (l->rtype == __AVvoid) {
@@ -91,7 +93,7 @@ __builtin_avcall(av_alist* l)
   } else
   if (l->rtype == __AVlonglong || l->rtype == __AVulonglong) {
     ((__avword*)l->raddr)[0] = i;
-    ((__avword*)l->raddr)[1] = iret2;
+    ((__avword*)l->raddr)[1] = i2;
   } else
   if (l->rtype == __AVfloat) {
     if (l->flags & __AV_FREG_FLOAT_RETURN) {
@@ -131,7 +133,7 @@ __builtin_avcall(av_alist* l)
       } else
       if (l->rsize == 2*sizeof(__avword)) {
         ((__avword*)l->raddr)[0] = i;
-        ((__avword*)l->raddr)[1] = iret2;
+        ((__avword*)l->raddr)[1] = i2;
         goto done;
       }
     }
