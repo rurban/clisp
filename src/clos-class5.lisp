@@ -515,7 +515,7 @@
 #||
  (defgeneric allocate-instance (class)
   (:method ((class semi-standard-class))
-    (unless (%class-precedence-list class) (finalize-class class t))
+    (unless (= (class-initialized class) 6) (finalize-class class t))
     (allocate-std-instance class (class-instance-size class)))
   (:method ((class structure-class))
     (sys::%make-structure (class-names class) (class-instance-size class)
@@ -531,7 +531,7 @@
   ;; (class-current-version class) is an atom, (class-names class) a cons.
   (if (atom (class-current-version class))
     (progn
-      (unless (%class-precedence-list class) (finalize-class class t))
+      (unless (= (class-initialized class) 6) (finalize-class class t))
       ;; Dispatch among <standard-class> and <funcallable-standard-class>.
       (if (not (class-funcallablep class))
         (allocate-std-instance class (class-instance-size class))

@@ -900,14 +900,14 @@ local Values do_allocate_instance (object clas) {
      is (class-names class) a cons? */
   if (matomp(TheClass(clas)->current_version)) {
     /* <semi-standard-class>. */
-    if (nullp(TheClass(clas)->precedence_list)) {
+    if (!eq(TheClass(clas)->initialized,fixnum(6))) {
       /* Call (CLOS:FINALIZE-INHERITANCE class). */
       pushSTACK(clas); /* save clas */
       pushSTACK(clas); funcall(S(finalize_inheritance),1);
       clas = popSTACK(); /* restore clas */
       /* The class must be finalized now, otherwise FINALIZE-INHERITANCE has
          not done its job. */
-      ASSERT(!nullp(TheClass(clas)->precedence_list));
+      ASSERT(eq(TheClass(clas)->initialized,fixnum(6)));
     }
     /* Make a distinction between <standard-class> and
        <funcallable-standard-class>. */
@@ -1143,7 +1143,7 @@ global object update_instance (object user_obj, object obj) {
     # TheInstance(obj)->inst_class_version is filled.
     {
       var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
-      if (nullp(TheClass(newclass)->precedence_list))
+      if (!eq(TheClass(newclass)->initialized,fixnum(6)))
         NOTREACHED;
     }
     # Compute the information needed for the update, if not already done.
@@ -1637,13 +1637,13 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   /* stack layout: class, argcount Initarg/Value-pairs. */
   { /* add default-initargs: */
     var object clas = Before(rest_args_pointer);
-    if (nullp(TheClass(clas)->precedence_list)) {
+    if (!eq(TheClass(clas)->initialized,fixnum(6))) {
       /* Call (CLOS:FINALIZE-INHERITANCE class). */
       pushSTACK(clas); funcall(S(finalize_inheritance),1);
       clas = Before(rest_args_pointer);
       /* The class must be finalized now, otherwise FINALIZE-INHERITANCE has
          not done its job. */
-      ASSERT(!nullp(TheClass(clas)->precedence_list));
+      ASSERT(eq(TheClass(clas)->initialized,fixnum(6)));
     }
     var object l = TheClass(clas)->default_initargs;
     while (consp(l)) {

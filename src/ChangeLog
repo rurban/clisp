@@ -1,3 +1,46 @@
+2004-08-01  Bruno Haible  <bruno@clisp.org>
+
+	Make it possible to call class-precedence-list during compute-slots
+	and compute-default-initargs.
+	* record.d (do_allocate_instance, update_instance,
+	CLOS::%MAKE-INSTANCE): Test for finalized class by using the
+	'initialized' field, not the 'precedence_list' field.
+	* clos-class1.lisp (class): Change type of initialized slot to integer.
+	(%class-precedence-list): Remove function.
+	(shared-initialize-<class>): Set the initialized flag to 0 or 2,
+	instead of nil and t.
+	* clos-class3.lisp (subclassp): Test for finalized class by using the
+	'initialized' slot, not the 'precedence-list' slot.
+	(reinitialize-instance-<class>): Likewise.
+	(std-compute-subclass-of-stablehash-p, compute-slots-<class>-primary,
+	compute-slots-<slotted-class>-around, compute-default-initargs-<class>):
+	Use class-precedence-list instead of %class-precedence-list.
+	(shared-initialize-<built-in-class>,
+	shared-initialize-<structure-class>): Likewise. Set the initialized
+	flag to 6.
+	(shared-initialize-<semi-standard-class>): Set initialized flag to 2.
+	(finalize-class): Test for finalized class by using the 'initialized'
+	slot, not the 'precedence-list' slot.
+	(finalize-instance-semi-standard-class): Use class-precedence-list
+	instead of %class-precedence-list. Set the initialized flag to 6.
+	(make-instances-obsolete-<semi-standard-class>,
+	make-instances-obsolete-<semi-standard-class>-nonrecursive):
+	Test for finalized class by using the 'initialized' slot, not the
+	'precedence-list' slot.
+	(update-subclasses-for-redefined-class): Set initialized flag to 2.
+	(update-subclasses-for-redefined-class-nonrecursive): Likewise. Test
+	for finalized class by using the 'initialized' slot, not the
+	'precedence-list' slot.
+	* clos-class6.lisp (check-class-initialized): Add a level argument.
+	(check-class-finalized): Add a level argument. Test for finalized class
+	by using the 'initialized' slot, not the 'precedence-list' slot.
+	(%class-precedence-list): Remove function.
+	(class-precedence-list, class-slots, class-default-initargs,
+	class-prototype): Update.
+	(class-finalized-p@class): Test for finalized class by using the
+	'initialized' slot, not the 'precedence-list' slot.
+	* clos-print.lisp (print-object@class): Likewise.
+
 2004-09-13  Sam Steingold  <sds@gnu.org>
 
 	comply with <http://www.lisp.org/HyperSpec/Body/fun_compile-file.html>:
