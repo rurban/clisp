@@ -1,6 +1,7 @@
 2002-04-02  Sam Steingold  <sds@gnu.org>
 
-	* clhs.lisp (*browsers*): added mozilla and links
+	* clhs.lisp (*browsers*): added mozilla and links and various
+	`-remote' and `-xterm' variations
 
 2002-04-01  Sam Steingold  <sds@gnu.org>
 

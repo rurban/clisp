@@ -11,12 +11,17 @@
 (defvar *clhs-table* nil)       ; the hash table
 
 (defvar *browsers*              ; alist of browsers & commands
-  '((:netscape "netscape" "-remote" "openURL(~a,new-window)")
-    (:mozilla "mozilla" "-remote" "openURL(~a,new-window)")
+  '((:netscape "netscape" "~a")
+    (:netscape-remote "netscape" "-remote" "openURL(~a,new-window)")
+    (:mozilla "mozilla" "~a")
+    (:mozilla-remote "mozilla" "-remote" "openURL(~a,new-window)")
     (:konqueror "kfmclient" "openURL" "~a")
-    (:lynx "xterm" "-e" "lynx" "~a")
-    (:links "xterm" "-e" "links" "~a")
-    (:w3m "xterm" "-e" "w3m" "~a")
+    (:lynx "lynx" "~a")
+    (:lynx-xterm "xterm" "-e" "lynx" "~a")
+    (:links "links" "~a")
+    (:links-xterm "xterm" "-e" "links" "~a")
+    (:w3m "w3m" "~a")
+    (:w3m-xterm "xterm" "-e" "w3m" "~a")
     (:mmm "mmm" "-external" "~a")
     (:mosaic "xmosaic" "~a")
     (:emacs-w3 "gnudoit" "-q" "(w3-fetch \"~a\")")))
