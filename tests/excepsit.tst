@@ -233,7 +233,7 @@ error
 (coerce 'and 'function)
 error
 
-(compile-file "/tmp/12836123.lsp")
+(compile-file "./12836123.lisp")
 file-error
 
 (concatenate 'symbol)
@@ -387,8 +387,8 @@ type-error
 type-error
 
 (progn
-  (with-open-file (s "/tmp/foo35.tmp" :direction :output))
-  (delete-file "/tmp/foo35.tmp/bar"))
+  (with-open-file (s "./foo35.tmp" :direction :output))
+  (delete-file "./foo35.tmp/bar"))
 file-error
 
 (destructuring-bind (a) '(1 2) a)
@@ -454,19 +454,19 @@ file-error
 (file-length *terminal-io*)
 type-error
 
-(with-open-file (s "/tmp/foo35.tmp" :direction :output)
+(with-open-file (s "./foo35.tmp" :direction :output)
   (file-position s 0.0))
 error
 
-(with-open-file (s "/tmp/foo35.tmp" :direction :output)
+(with-open-file (s "./foo35.tmp" :direction :output)
   (file-position s -1))
 error
 
-(with-open-file (s "/tmp/foo35.tmp" :direction :input)
+(with-open-file (s "./foo35.tmp" :direction :input)
   (file-position s (+ (file-length s) 1000)))
 error
 
-(delete-file "/tmp/foo35.tmp")
+(delete-file "./foo35.tmp")
 null
 
 (file-write-date "*")
@@ -611,7 +611,7 @@ type-error
 (list-length '(x . y))
 type-error
 
-(load "/tmp/128347234.lsp")
+(load "./128347234.lsp")
 file-error
 
 (load "*.lsp")
@@ -751,10 +751,10 @@ division-by-zero
 #+UNIX
 file-error
 
-(open "/tmp/foo44nonexistent" :direction :input :if-does-not-exist :error)
+(open "./foo44nonexistent" :direction :input :if-does-not-exist :error)
 file-error
 
-(open "/tmp/*" :direction :input)
+(open "./*" :direction :input)
 file-error
 
 #+UNIX
@@ -872,7 +872,7 @@ type-error
 (read-byte (make-string-input-stream "abc"))
 error
 
-(let ((filename "/tmp/foo51.bin"))
+(let ((filename "./foo51.bin"))
   (with-open-file (s filename :direction :output
                               :if-exists :overwrite
                               :if-does-not-exist :create))
@@ -880,27 +880,27 @@ error
                               :element-type '(unsigned-byte 8))
     (read-byte s t)))
 end-of-file
-(delete-file "/tmp/foo51.bin")
+(delete-file "./foo51.bin")
 null
 
-(let ((filename "/tmp/foo52.txt"))
+(let ((filename "./foo52.txt"))
   (with-open-file (s filename :direction :output
                               :if-exists :overwrite
                               :if-does-not-exist :create))
   (with-open-file (s filename :direction :input)
     (read-char s t)))
 end-of-file
-(delete-file "/tmp/foo52.txt")
+(delete-file "./foo52.txt")
 null
 
-(let ((filename "/tmp/foo53.txt"))
+(let ((filename "./foo53.txt"))
   (with-open-file (s filename :direction :output
                               :if-exists :overwrite
                               :if-does-not-exist :create))
   (with-open-file (s filename :direction :input)
     (read-char-no-hang s t)))
 end-of-file
-(delete-file "/tmp/foo53.txt")
+(delete-file "./foo53.txt")
 null
 
 (read-from-string "((a b))" nil nil :end 6)
@@ -1071,10 +1071,10 @@ type-error
 (translate-pathname "x" "y" "z")
 error
 
-(truename "/tmp/foo62nonexistent")
+(truename "./foo62nonexistent")
 file-error
 
-(truename "/tmp/*/x")
+(truename "./*/x")
 file-error
 
 (typep nil 'values)

@@ -13,7 +13,7 @@
 #+XCL (SYS::CHECK-STREAM-SYSTEM) #+XCL T
 
 (defun bin-stream-test (&key (size (integer-length most-positive-fixnum))
-                        (type 'unsigned-byte) (file-name "/tmp/foocl")
+                        (type 'unsigned-byte) (file-name "./foocl")
                         (num-bytes 10)
                         (bytes (if (eq type 'signed-byte)
                                    (loop :repeat num-bytes :collect
@@ -46,7 +46,7 @@ nil
 nil
 
 #+clisp
-(defun clisp-test-bin-i/o (&key (num 10) (file-name "/tmp/foocl")
+(defun clisp-test-bin-i/o (&key (num 10) (file-name "./foocl")
                            (size 16) (endianness :little)
                            (int-list (loop :repeat num :collect
                                            (random (ash 1 size))))
