@@ -1,3 +1,7 @@
+2004-02-03  James Anderson  <james.anderson@setf.de>
+
+	* clos.lisp: some fixes for DEFINE-METHOD-COMBINATION
+
 2004-02-02  Bruno Haible  <bruno@clisp.org>
 
 	* io.d (pr_array_recursion): Add an rdepth argument. Use dense output
