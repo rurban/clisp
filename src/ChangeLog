@@ -1,5 +1,9 @@
 1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (impnotes.html): Only replace <HS> followed by a slash.
+
+1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in: Accept option --with-export-syscalls, instead of
           --export-syscalls.
 
