@@ -1801,11 +1801,10 @@ use of this facility.</para></formalpara>
    <literal role="method">&compute-applicable-methods-UC;
     (&standard-generic-function-t; &t-t;)</literal>.
 </simpara></listitem></varlistentry></variablelist>
-</section>
 
 <simplesect><title>Remarks</title> <!-- sds -->
 <para>See also the &ansi-cl; functions &compute-applicable-methods;.
-</para></simplesect>
+</para></simplesect></section>
 
 <section id="compute-applicable-methods-UC">
  <title>Generic Function &compute-applicable-methods-UC;</title>
