@@ -952,6 +952,10 @@
     (append direct-superclasses (list default-superclass))
 ) )
 
+; When this is true, all safety checks about the metaclasses of superclasses
+; are omitted.
+(defparameter *allow-mixing-metaclasses* nil)
+
 ; Erzeugung einer Instanz von <standard-class>:
 
 (let (unbound) (declare (compile)) ; unbound = #<unbound>
@@ -973,11 +977,12 @@
                   &allow-other-keys
            )
   ; metaclass <= <standard-class>
-  (unless (every #'standard-class-p direct-superclasses)
-    (error-of-type 'error
-      (ENGLISH "~S ~S: superclass ~S should belong to class STANDARD-CLASS")
-      'defclass name (find-if-not #'standard-class-p direct-superclasses)
-  ) )
+  (unless *allow-mixing-metaclasses*
+    (unless (every #'standard-class-p direct-superclasses)
+      (error-of-type 'error
+        (ENGLISH "~S ~S: superclass ~S should belong to class STANDARD-CLASS")
+        'defclass name (find-if-not #'standard-class-p direct-superclasses)
+  ) ) )
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-precedence-list class)
         (std-compute-cpl class
@@ -1338,11 +1343,12 @@
                   &allow-other-keys
        )
   ; metaclass = <built-in-class>
-  (unless (every #'built-in-class-p direct-superclasses)
-    (error-of-type 'error
-      (ENGLISH "~S: superclass ~S should belong to class BUILT-IN-CLASS")
-      name (find-if-not #'built-in-class-p direct-superclasses)
-  ) )
+  (unless *allow-mixing-metaclasses*
+    (unless (every #'built-in-class-p direct-superclasses)
+      (error-of-type 'error
+        (ENGLISH "~S: superclass ~S should belong to class BUILT-IN-CLASS")
+        name (find-if-not #'built-in-class-p direct-superclasses)
+  ) ) )
   (let ((class (make-built-in-class :classname name :metaclass metaclass)))
     (setf (class-direct-superclasses class) (copy-list direct-superclasses))
     (setf (class-precedence-list class)
@@ -1385,11 +1391,12 @@
       (ENGLISH "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass")
       name
   ) )
-  (unless (every #'structure-class-p direct-superclasses)
-    (error-of-type 'error
-      (ENGLISH "~S: superclass ~S should belong to class STRUCTURE-CLASS")
-      name (first direct-superclasses)
-  ) )
+  (unless *allow-mixing-metaclasses*
+    (unless (every #'structure-class-p direct-superclasses)
+      (error-of-type 'error
+        (ENGLISH "~S: superclass ~S should belong to class STRUCTURE-CLASS")
+        name (first direct-superclasses)
+  ) ) )
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-precedence-list class)
         (std-compute-cpl class
