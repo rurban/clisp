@@ -1,5 +1,11 @@
 2005-02-20  Bruno Haible  <bruno@clisp.org>
 
+	* describe.lisp (describe-object@package): Print information about
+	case-sensitive or case-inverted packages.
+	Suggested by Duane Rettig <duane@franz.com>.
+
+2005-02-20  Bruno Haible  <bruno@clisp.org>
+
 	* package.d (init_packages): Add nickname "CS-USER" to package
 	CS-COMMON-LISP-USER. Add nickname "CS-LISP" to package CS-COMMON-LISP.
 	Suggested by Duane Rettig <duane@franz.com>.
