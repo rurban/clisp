@@ -952,16 +952,14 @@
                       (note-initialization
                        (make-endtest `(UNLESS (PLUSP ,var) (LOOP-FINISH))))))))
                 (t (error-of-type 'source-program-error
-                     :form *whole*
-                     :detail *whole*
+                     :form *whole* :detail *whole*
                      (TEXT "~S: illegal syntax near ~S in ~S")
                      'loop (first body-rest) *whole*)))))))
       ; Noch einige semantische Tests:
       (setq results (delete-duplicates results :test #'equal))
       (when (> (length results) 1)
         (error-of-type 'source-program-error
-          :form *whole*
-          :detail *whole*
+          :form *whole* :detail *whole*
           (TEXT "~S: ambiguous result of loop ~S") 'loop *whole*))
       (unless (null results)
         (push `(RETURN-FROM ,block-name ,@results) finally-code))
