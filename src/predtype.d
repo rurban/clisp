@@ -1782,7 +1782,7 @@ LISPFUNNR(type_of,1)
 
 LISPFUNN(defclos,6)
 { /* (CLOS::%DEFCLOS <standard-class>-version <structure-class>-version
-                     <built-in-class>-version <defined-class> <class>
+                     <built-in-class>-version <defined-class> <potential-class>
                      built-in-classes)
    sets the data needed for CLOS::CLASS-P and CLOS:CLASS-OF. */
   /* for CLOS::CLASS-P : */
@@ -1790,7 +1790,7 @@ LISPFUNN(defclos,6)
   O(class_version_structure_class) = STACK_4;
   O(class_version_built_in_class) = STACK_3;
   O(class_defined_class) = STACK_2;
-  O(class_class) = STACK_1;
+  O(class_potential_class) = STACK_1;
   /* for CLOS:CLASS-OF : */
   {
     var gcv_object_t* ptr1 = &TheSvector(STACK_0)->data[0];
@@ -1803,11 +1803,11 @@ LISPFUNN(defclos,6)
   value1 = NIL; mv_count=0; skipSTACK(6);
 }
 
-LISPFUNNR(class_p,1)
-{ /* (CLOS::CLASS-P object) tests, if an object is a class,
-     including forward-referenced classes. */
+LISPFUNNR(potential_class_p,1)
+{ /* (CLOS::POTENTIAL-CLASS-P object) tests, if an object is a class or
+     a forward-referenced class. */
   var object obj = popSTACK();
-  if_class_p(obj, { value1 = T; }, { value1 = NIL; }); mv_count=1;
+  if_potential_class_p(obj, { value1 = T; }, { value1 = NIL; }); mv_count=1;
 }
 
 LISPFUNNR(defined_class_p,1)

@@ -333,8 +333,8 @@
                          `(:DOCUMENTATION ',argument)))
                  (return)))
               ((:NAME :DIRECT-SUPERCLASSES :DIRECT-SLOTS :DIRECT-DEFAULT-INITARGS)
-               ;; These are valid initialization keywords for <class>, but
-               ;; nevertheless not valid DEFCLASS options.
+               ;; These are valid initialization keywords for <defined-class>,
+               ;; but nevertheless not valid DEFCLASS options.
                (error-of-type 'ext:source-program-error
                  :form whole-form
                  :detail option
@@ -445,13 +445,13 @@
       (error (TEXT "~S for class ~S: metaclass ~S is neither a class or a symbol")
              'ensure-class-using-class name metaclass)))
   (unless (or (eq metaclass <standard-class>) ; for bootstrapping
-              (subclassp metaclass <class>))
+              (subclassp metaclass <defined-class>))
     (error (TEXT "~S for class ~S: metaclass ~S is not a subclass of CLASS")
            'ensure-class-using-class name metaclass))
   (unless (proper-list-p direct-superclasses)
     (error (TEXT "~S for class ~S: The ~S argument should be a proper list, not ~S")
            'ensure-class-using-class name ':direct-superclasses direct-superclasses))
-  (unless (every #'(lambda (x) (or (class-p x) (symbolp x))) direct-superclasses)
+  (unless (every #'(lambda (x) (or (potential-class-p x) (symbolp x))) direct-superclasses)
     (error (TEXT "~S for class ~S: The direct-superclasses list should consist of classes and symbols, not ~S")
            'ensure-class-using-class name direct-superclasses))
   ;; Ignore the old class if the given name is not its "proper name".
@@ -493,7 +493,7 @@
           (mapcar #'(lambda (c)
                       (if (defined-class-p c)
                         c
-                        (let ((cn (if (class-p c) (class-name c) c)))
+                        (let ((cn (if (potential-class-p c) (class-name c) c)))
                           (assert (symbolp cn))
                           (if a-semi-standard-class-p
                             ;; Need a class. Allocate a forward-referenced-class
@@ -600,7 +600,7 @@
             (let ((c (car l)))
               (unless (defined-class-p c)
                 (let ((new-c
-                        (let ((cn (if (class-p c) (class-name c) c)))
+                        (let ((cn (if (potential-class-p c) (class-name c) c)))
                           (assert (symbolp cn))
                           ;; Need a class. Allocate a forward-referenced-class
                           ;; if none is yet allocated.
@@ -613,7 +613,7 @@
                       ; changed from forward-referenced-class to defined-class
                       (check-allowed-superclass class new-c))
                     (setf (car l) new-c)
-                    (when (class-p c)
+                    (when (potential-class-p c)
                       (remove-direct-subclass c class))
                     (add-direct-subclass new-c class))))))))
       (when direct-slots-p
@@ -761,7 +761,7 @@
   (dolist (dependent (class-listeners class))
     (funcall function dependent)))
 
-;; ----------------------- General routines for <class> -----------------------
+;; ------------------- General routines for <defined-class> -------------------
 
 ;; Preliminary.
 (defun class-name (class)
@@ -1054,7 +1054,7 @@
 
 ;; Stuff all superclasses (from the precedence-list) into a hash-table.
 (defun std-compute-superclasses (precedence-list)
-  (let ((ht (make-hash-table :key-type 'class :value-type '(eql t)
+  (let ((ht (make-hash-table :key-type 'defined-class :value-type '(eql t)
                              :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t)))
     (mapc #'(lambda (superclass) (setf (gethash superclass ht) t))
           precedence-list)
@@ -1661,7 +1661,7 @@
                          direct-superclasses
                          #'built-in-class-p 'built-in-class))
   (apply #'shared-initialize-<defined-class> class situation args)
-  ; Initialize the remaining <class> slots:
+  ; Initialize the remaining <defined-class> slots:
   (when (or (eq situation 't) direct-superclasses-p)
     (setf (class-precedence-list class)
           (checked-compute-class-precedence-list class))
@@ -1735,7 +1735,7 @@
                          #'structure-class-p 'STRUCTURE-CLASS))
   (apply #'shared-initialize-<slotted-class> class situation args)
   (setq direct-superclasses (class-direct-superclasses class)) ; augmented
-  ; Initialize the remaining <class> slots:
+  ; Initialize the remaining <defined-class> slots:
   (when (or (eq situation 't) direct-superclasses-p)
     (setf (class-precedence-list class)
           (checked-compute-class-precedence-list class))
@@ -1846,7 +1846,7 @@
       (setf (class-instantiated class) nil)
       (setf (class-direct-instance-specializers-table class) '())
       (setf (class-finalized-direct-subclasses-table class) '())))
-  ; Initialize the remaining <class> slots:
+  ; Initialize the remaining <defined-class> slots:
   (setf (class-initialized class) 2) ; mark as not yet finalized
   (setf (class-precedence-list class) nil) ; mark as not yet finalized
   (setf (class-all-superclasses class) nil) ; mark as not yet finalized
@@ -1882,7 +1882,7 @@
                                  (finalizing-now nil))
   (when (or (defined-class-p class)
             (setq class
-                  (find-class (if (class-p class) (class-name class) class)
+                  (find-class (if (potential-class-p class) (class-name class) class)
                               force-p)))
     (if (>= (class-initialized class) 6) ; already finalized?
       class
@@ -2284,7 +2284,7 @@
 (defun list-all-finalized-subclasses (class)
   ; Use a breadth-first search which removes duplicates.
   (let ((as-list '())
-        (as-set (make-hash-table :key-type 'class :value-type '(eql t)
+        (as-set (make-hash-table :key-type 'defined-class :value-type '(eql t)
                                  :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t
                                  :rehash-size 2s0))
         (pending (list class)))
@@ -2299,7 +2299,7 @@
               (nreconc (if (semi-standard-class-p class)
                          ; <semi-standard-class> stores the finalized direct-subclasses.
                          (list-finalized-direct-subclasses class)
-                         ; <class> stores only the complete direct-subclasses list.
+                         ; <defined-class> stores only the complete direct-subclasses list.
                          (remove-if-not #'(lambda (c) (= (class-initialized c) 6))
                                         (checked-class-direct-subclasses class)))
                        new-pending))))
@@ -2403,9 +2403,9 @@
   (macrolet ((form () *<specializer>-defclass*))
     (form))
 
-  ;; 6. Define the class <class>.
-  (setq <class>
-        (macrolet ((form () *<class>-defclass*))
+  ;; 6. Define the class <potential-class>.
+  (setq <potential-class>
+        (macrolet ((form () *<potential-class>-defclass*))
           (form)))
 
   ;; 7. Define the class <defined-class>.
@@ -2564,7 +2564,7 @@
   *<structure-class>-class-version*
   *<built-in-class>-class-version*
   <defined-class>
-  <class>
+  <potential-class>
   ;; built-in-classes for CLASS-OF
   (vector <array> <bit-vector> <character> <complex> <cons> <float> <function>
           <hash-table> <integer> <list> <null> <package> <pathname>

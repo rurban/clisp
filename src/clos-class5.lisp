@@ -21,7 +21,7 @@
 ;;   UPDATE-INSTANCE-FOR-DIFFERENT-CLASS and SHARED-INITIALIZE.
 
 (defparameter *make-instance-table*
-  (make-hash-table :key-type 'class :value-type '(simple-vector 4)
+  (make-hash-table :key-type 'defined-class :value-type '(simple-vector 4)
                    :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t))
   ;; Hash table, mapping a class to a simple-vector containing
   ;; - a list of valid keyword arguments,
@@ -30,14 +30,14 @@
   ;; - the effective method of shared-initialize.
 
 (defparameter *reinitialize-instance-table*
-  (make-hash-table :key-type 'class :value-type 'cons
+  (make-hash-table :key-type 'defined-class :value-type 'cons
                    :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t))
   ;; Hash table, mapping a class to a cons containing
   ;; - a list of valid keyword arguments,
   ;; - the effective method of shared-initialize.
 
 (defparameter *update-instance-for-redefined-class-table*
-  (make-hash-table :key-type 'class :value-type 'list
+  (make-hash-table :key-type 'defined-class :value-type 'list
                    :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t))
   ;; Hash table, mapping a class to
   ;; - a list of valid keyword arguments.
@@ -69,7 +69,7 @@
       ;; EQL-method for ALLOCATE-INSTANCE:
       ;; object must be a class, else worthless.
       (let ((specialized-object (eql-specializer-object specializer)))
-        (when (class-p specialized-object)
+        (when (defined-class-p specialized-object)
           ;; Remove the entries from *make-instance-table* for which the
           ;; implied method might be applicable:
           (note-i-change specialized-object *make-instance-table*)))
@@ -746,7 +746,7 @@
           (sys::keyword-test initargs valid-keywords)))
       (apply #'shared-initialize current added-slots initargs)))
   ;; MOP p. 57.
-  (:method ((previous class) (current standard-object) &rest initargs)
+  (:method ((previous potential-class) (current standard-object) &rest initargs)
     (declare (ignore initargs))
     (update-metaobject-instance-for-different-class previous))
   ;; MOP p. 61.

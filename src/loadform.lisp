@@ -55,7 +55,7 @@
   (:method ((object condition) &optional environment)
     (declare (ignore environment))
     (signal-missing-load-form object))
-  (:method ((object class) &optional environment)
+  (:method ((object defined-class) &optional environment)
     (declare (ignore environment))
     ;; TODO: Implement as described in CLHS
     `(find-class ',(class-name object))))

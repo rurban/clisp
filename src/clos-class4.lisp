@@ -9,10 +9,10 @@
 
 ;;; Lift the initialization protocol.
 
-(defmethod shared-initialize ((class class) situation &rest args
+(defmethod shared-initialize ((class potential-class) situation &rest args
                               &key name)
   (declare (ignore name))
-  (apply #'shared-initialize-<class> class situation args))
+  (apply #'shared-initialize-<potential-class> class situation args))
 
 ;;; ===========================================================================
 
@@ -75,7 +75,7 @@
 
 ;;; ===========================================================================
 
-;; Now that all the predefined subclasses of <class> have been defined,
-;; CLASS-OF can work on all existing <class> instances. Therefore now, not
-;; earlier, it's possible to pass these <class> instances to generic
-;; functions.
+;; Now that all the predefined subclasses of <defined-class> have been defined,
+;; CLASS-OF can work on all existing <defined-class> instances. Therefore now,
+;; not earlier, it's possible to pass these <defined-class> instances to
+;; generic functions.

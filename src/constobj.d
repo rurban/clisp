@@ -165,7 +165,7 @@
   LISPOBJ(class_version_structure_class,"#()")
   LISPOBJ(class_version_built_in_class,"#()")
   LISPOBJ(class_defined_class,"CLOS::DEFINED-CLASS")
-  LISPOBJ(class_class,"CLOS::CLASS")
+  LISPOBJ(class_potential_class,"CLOS::POTENTIAL-CLASS")
   # some built-in-classes, are filled by CLOS::%DEFCLOS
   LISPOBJ(class_array,"ARRAY")             # ---+
   LISPOBJ(class_bit_vector,"BIT-VECTOR")   #    |   order

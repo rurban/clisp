@@ -47,7 +47,7 @@
 (defun invalidate-slot-value-info (class-specializer instance-specializer slot-specializer)
   ;; Step 1: Determine all affected classes that satisfy the instance-specializer.
   (let ((affected-classes
-          (if (class-p instance-specializer)
+          (if (defined-class-p instance-specializer)
             (if (= (class-initialized instance-specializer) 6) ; finalized?
               (list-all-finalized-subclasses instance-specializer)
               '())

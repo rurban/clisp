@@ -105,7 +105,7 @@
 ;; Preliminary.
 ;; Now we can at least print classes and generic-functions.
 (defun print-object (object stream)
-  (cond ((class-p object) (format stream "#<CLASS ~S>" (class-classname object)))
+  (cond ((potential-class-p object) (format stream "#<CLASS ~S>" (class-classname object)))
         ((funcallable-instance-p object) (print-object-<funcallable-standard-object> object stream))
         (t (write-string "#<UNKNOWN>" stream))))
 
