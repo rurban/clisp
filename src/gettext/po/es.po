@@ -92,7 +92,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 1998-08-12 17:26:06 EDT\n"
+"POT-Creation-Date: 1998-08-29 12:19:42 EDT\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -1967,7 +1967,7 @@ msgstr "el directorio raíz no está permitido aquí: ~"
 #
 # Asi que, muchas gracias Santiago por la indicación, ... - cll
 #
-#: pathname.d:10235 pathname.d:10269 pathname.d:10332
+#: pathname.d:10244 pathname.d:10290 pathname.d:10353
 msgid "~: the command should be a string, not ~"
 msgstr "~: la orden debe ser una cadena y no ~"
 
@@ -4519,27 +4519,28 @@ msgstr "La comunicación con ARexx no es posible."
 # Siguiendo con las recomendaciones de Santiago y de "spanglish",
 # `command' será `orden' - cll
 #
-#: rexx.d:113
+#: rexx.d:114
 msgid "~ must be a string for commands or a vector of strings for a function"
 msgstr "~ debe ser una cadena para órdenes o un vector de cadenas para una función"
 
-#: rexx.d:125
+#: rexx.d:126
 msgid "~: an ARexx function must have 0 to ~ arguments: ~"
 msgstr "~: Una función ARexx debe tener entre 0 y ~ argumentos: ~"
 
-#: rexx.d:142
+#: rexx.d:143
 msgid "~: must be a string for ARexx: ~"
 msgstr "~: debe ser una cadena para ARexx: ~"
 
-#: rexx.d:166
-msgid "Only NIL, T and strings are accepted for ~S : ~"
+#: rexx.d:167
+#, fuzzy
+msgid "Only NIL, T and strings are accepted for ~ : ~"
 msgstr "~S sólo acepta NIL, T y cadenas de caracteres: ~"
 
-#: rexx.d:458
+#: rexx.d:459
 msgid "~: Not a Fixnum: ~"
 msgstr "~: No es del tipo Fixnum: ~"
 
-#: rexx.d:473
+#: rexx.d:474
 msgid "~: Not an incoming Rexx message: ~"
 msgstr "~: No es un nuevo mensaje Rexx: ~"
 
@@ -4704,15 +4705,15 @@ msgstr "~: No se puede abrir la biblioteca ~"
 msgid "~: ~ is not a library"
 msgstr "~: ~ no es una biblioteca"
 
-#: init.lsp:335
+#: init.lsp:336
 msgid "~S is a special form and may not be redefined."
 msgstr "~S es una forma especial y por ello, no puede ser redefinida"
 
-#: clos.lsp:215 init.lsp:343
+#: clos.lsp:215 init.lsp:344
 msgid "The old definition will be lost"
 msgstr "Se perderá la definición anterior."
 
-#: init.lsp:346
+#: init.lsp:347
 msgid "Redefining the COMMON LISP ~A ~S"
 msgstr "La ~A de COMMON LISP ~S será redefinida"
 
@@ -4722,91 +4723,91 @@ msgstr "La ~A de COMMON LISP ~S será redefinida"
 # Sí, tu sugerencia me gusta. Como se nota que tienes experiencia, ...,
 # ¿eh? cll
 #
-#: init.lsp:364
+#: init.lsp:365
 msgid "DEFUN/DEFMACRO: redefining ~S; it was traced!"
 msgstr "DEFUN/DEFMACRO: redefiniendo ~S; ¡se estaba rastreando!"
 
-#: init.lsp:386
+#: init.lsp:387
 msgid "~S is impossible in compiled code"
 msgstr "~S es imposible en código compilado"
 
-#: init.lsp:470
+#: init.lsp:471
 msgid "~S is an invalid function environment"
 msgstr "~S es un entorno de función inválido"
 
-#: init.lsp:519
+#: init.lsp:520
 msgid "~S is an invalid variable environment"
 msgstr "~S es un entorno de variable inválido"
 
-#: init.lsp:586
+#: init.lsp:587
 msgid "~S: ~S is illegal since ~S is a local macro"
 msgstr "~S: ~S es inválido, puesto que ~S es una macro local"
 
-#: init.lsp:592
+#: init.lsp:593
 msgid "~S: invalid function environment ~S"
 msgstr "~S: ~S es un entorno de función inválido"
 
-#: init.lsp:600
+#: init.lsp:601
 msgid "~S: ~S is invalid since ~S is not a symbol"
 msgstr "~S: ~S es incorrecto, puesto que ~S no es un símbolo"
 
-#: init.lsp:776
+#: init.lsp:777
 msgid "code after MACROLET contains a dotted list, ending with ~S"
 msgstr "el código después de MACROLET contiene una lista punteada que termina con ~S"
 
-#: init.lsp:794
+#: init.lsp:795
 msgid "illegal syntax in MACROLET: ~S"
 msgstr "sintaxis inválida en MACROLET: ~S"
 
-#: init.lsp:805
+#: init.lsp:806
 msgid "code after SYMBOL-MACROLET contains a dotted list, ending with ~S"
 msgstr "el código después de SYMBOL-MACROLET contiene una lista punteada que termina con ~S"
 
-#: init.lsp:823
+#: init.lsp:824
 msgid "illegal syntax in SYMBOL-MACROLET: ~S"
 msgstr "sintaxis inválida en SYMBOL-MACROLET: ~S"
 
-#: init.lsp:863
+#: init.lsp:864
 msgid "bad function environment occurred in ~S: ~S"
 msgstr "se encontró un entorno de función incorrecto en ~S: ~S"
 
-#: init.lsp:874
+#: init.lsp:875
 msgid "~S: invalid form ~S"
 msgstr "~S: forma inválida ~S"
 
-#: init.lsp:887
+#: init.lsp:888
 msgid "code contains a dotted list, ending with ~S"
 msgstr "el código contiene una lista punteada que termina con ~S"
 
-#: init.lsp:930
+#: init.lsp:931
 msgid "~S: ~S should be a lambda expression"
 msgstr "~S: ~S debe ser una expresión lambda"
 
-#: init.lsp:973
+#: init.lsp:974
 msgid "lambda list must not end with the atom ~S"
 msgstr "la lista lambda no debe terminar con el átomo ~S"
 
-#: init.lsp:1007 init.lsp:1026
+#: init.lsp:1008 init.lsp:1027
 msgid "~S: variable list ends with the atom ~S"
 msgstr "~S: la lista de variables termina con el átomo ~S"
 
-#: init.lsp:1141
+#: init.lsp:1142
 msgid "FLET/LABELS: code contains a dotted list, ending with ~S"
 msgstr "FLET/LABELS: el código contiene una lista punteada que termina con ~S"
 
-#: init.lsp:1152
+#: init.lsp:1153
 msgid "illegal syntax in FLET/LABELS: ~S"
 msgstr "sintaxis inválida en FLET/LABELS: ~S"
 
-#: init.lsp:1282
+#: init.lsp:1283
 msgid ";; Loading file "
 msgstr ";; Cargando el fichero \""
 
-#: init.lsp:1287
+#: init.lsp:1288
 msgid " ..."
 msgstr " ..."
 
-#: init.lsp:1313
+#: init.lsp:1314
 msgid ";; Loading of file "
 msgstr ";; La carga del fichero "
 
@@ -4816,39 +4817,39 @@ msgstr ";; La carga del fichero "
 #       además, nos evitamos la utilización de una forma eminentemente
 #       masculina o fememina.
 #
-#: init.lsp:1318
+#: init.lsp:1319
 msgid " is finished."
 msgstr " ha finalizado."
 
-#: init.lsp:1327
+#: init.lsp:1328
 msgid "A file with name ~A does not exist"
 msgstr "No existe ningún fichero con el nombre ~A"
 
-#: init.lsp:1343
+#: init.lsp:1344
 msgid "~S: missing function name and/or parameter list"
 msgstr "~S: no se ha indicado el nombre de la función y/o la lista de parámetros"
 
-#: init.lsp:1353
+#: init.lsp:1354
 msgid "~S: ~S is not a symbol."
 msgstr "~S: ~S no es un símbolo."
 
-#: init.lsp:1360
+#: init.lsp:1361
 msgid "~S: special form ~S cannot be redefined."
 msgstr "~S: la forma especial ~S no puede ser redefinida."
 
-#: init.lsp:1407 macros1.lsp:160
+#: init.lsp:1408 macros1.lsp:160
 msgid "exit clause in ~S must be a list"
 msgstr "la cláusula exit en ~S debe ser una lista"
 
-#: init.lsp:1560
+#: init.lsp:1561
 msgid "~S: cannot define a function from that: ~S"
 msgstr "~: no es posible definir una función a partir de ~S"
 
-#: clos.lsp:3073 clos.lsp:3134 init.lsp:1567
+#: clos.lsp:3073 clos.lsp:3134 init.lsp:1568
 msgid "~S: the name of a function must be a symbol, not ~S"
 msgstr "~S: el nombre de una función debe ser un símbolo, no ~S"
 
-#: init.lsp:1574
+#: init.lsp:1575
 msgid "~S: function ~S is missing a lambda list"
 msgstr "~S: la función ~S debe tener una lista lambda"
 
