@@ -21,7 +21,7 @@
           c-pointer c-string c-struct c-union c-array c-array-max
           c-function c-ptr c-ptr-null c-array-ptr
           def-c-enum def-c-struct element deref slot cast typeof
-          sizeof bitsizeof
+          sizeof bitsizeof c-var-address offset
           validp foreign-address-null
           foreign-address foreign-variable foreign-function))
 
@@ -921,6 +921,8 @@
 ;; (element (foreign-value x) ...) --> (foreign-value (%element x ...))
 ;; (deref (foreign-value x))       --> (foreign-value (%deref x))
 ;; (slot (foreign-value x) ...)    --> (foreign-value (%slot x ...))
+;; (cast (foreign-value x) ...)    --> (foreign-value (%cast x ...))
+;; (offset (foreign-value x) ...)  --> (foreign-value (%offset x ...))
 (flet ((err (whole)
          (sys::error-of-type 'sys::source-program-error
            (TEXT "~S is only allowed after ~S: ~S")
@@ -947,6 +949,18 @@
     (if (foreign-place-p place 'FOREIGN-VALUE)
       `(FOREIGN-VALUE (%CAST ,(second place) (PARSE-C-TYPE ,type)))
       (err `(cast ,place ,type))))
+  (defmacro offset (place offset type &environment env)
+    (setq place (macroexpand place env))
+    (if (foreign-place-p place 'FOREIGN-VALUE)
+      `(FOREIGN-VALUE (%OFFSET ,(second place) ,offset (PARSE-C-TYPE ,type)))
+      (err `(offset ,place ,offset ,type))))
+  ;; The equivalent of (FOREIGN-ADDRESS fvar) for c-places:
+  ;; (c-var-address (foreign-value x)) --> (foreign-address x)
+  (defmacro c-var-address (place &environment env)
+    (setq place (macroexpand place env))
+    (if (foreign-place-p place 'FOREIGN-VALUE)
+      `(FOREIGN-ADDRESS ,(second place))
+      (err `(c-var-address ,place))))
   ;; Similarly for TYPEOF.
   ;; (typeof (foreign-value x)) --> (deparse-c-type (foreign-type x))
   (defmacro typeof (place &environment env)
