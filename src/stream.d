@@ -9,9 +9,8 @@
 #include "arilev0.c" # for R_sign
 
 #ifdef GNU_READLINE
-  #ifdef UNIX_CYGWIN32
-    #include <stdio.h>
-  #endif
+  /* older readline versions appear to need <stdio.h> for FILE* */
+  #include <stdio.h>
   #include <readline/readline.h>
   #include <readline/history.h>
 #endif
