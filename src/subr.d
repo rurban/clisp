@@ -724,7 +724,7 @@ LISPFUNN(shell_name,0)
 LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL)
 #endif
 #if defined(UNIX) || defined(WIN32_NATIVE) || defined(RISCOS)
-LISPFUN(launch,seclass_default,1,0,norest,key,6,(kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
+LISPFUN(launch,seclass_default,1,0,norest,key,9,(kw(element_type),kw(external_format),kw(buffered),kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
 #endif
 #ifdef WIN32_NATIVE
 LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL)
