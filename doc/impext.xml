@@ -45,73 +45,96 @@ providing the data - mostly textual translations - necessary for an
 internationalized program to work in a particular language and with
 particular cultural conventions.</para>
 
-<para>CLISP is internationalized, and is localized for the languages
-English, German, French, Spanish and Dutch. But CLISP also supports
-internationalized Lisp programs, through GNU gettext.</para>
+<para>&clisp; is internationalized, and is localized for the languages
+English, German, French, Spanish and Dutch.
+&clisp; also supports internationalized Lisp programs, through
+&ggettext;.</para>
 
-<section><title>GNU gettext</title>
+<section><title>The &ggettext;</title>
 
-<para>GNU gettext is a set of functions, included in CLISP or the C
-library, which permit to look up translations of strings through
-message catalogs. It is also a set of tools which makes the
+<para>&ggettext; is a set of functions, included in &clisp; or the
+&c-lang; library, which permit looking up translations of strings
+through message catalogs. It is also a set of tools which makes the
 translation maintenance easy for the translator and the program
 maintainer.</para>
 
-<para>The GNU gettext functions are available in CLISP in the I18N
-package, which is re-exported from the EXT package.</para>
+<para>The &ggettext; functions are available in &clisp; in the
+&i18n-pac; package, which is &re-export;ed from the &ext-pac;
+package.</para>
 
-<para>(i18n:gettext msgid &optional domain category)
-returns the translation of the message msgid, in the given domain,
-depending on the given category. msgid should be an ASCII string,
-and is normally the English message.</para>
+<variablelist>
+ <varlistentry id="gettext"><term><literal role="sexp">(&gettext;
+  &msgid; &optional-amp; &domain; &category;)</literal></term>
+  <listitem><simpara>returns the translation of the message &msgid;,
+  in the given &domain;, depending on the given &category;.
+  &msgid; should be an ASCII string, and is normally the English message.
+  </simpara></listitem></varlistentry>
+ <varlistentry id="ngettext"><term><literal role="sexp">(&ngettext;
+  &msgid; <replaceable>msgid_plural</replaceable>
+  &n-r; &optional-amp; &domain; &category;)</literal></term>
+  <listitem><simpara>returns the plural form of the translation for of
+   &msgid; and &n-r; in the given &domain;, depending on the given
+   &category;.  &msgid; and <replaceable>msgid_plural</replaceable>
+   should be ASCII strings, and are normally the English singular and
+   English plural variant of the message, respectively.
+   </simpara></listitem></varlistentry>
+</variablelist>
 
-<para>(i18n:ngettext msgid msgid_plural n [domain [category]])
-returns the plural form of the translation for of msgid and n in
-the given domain, depending on the given category. msgid and
-msgid_plural should be ASCII strings, and are normally the English
-singular and English plural variant of the message,
-respectively.</para>
+<section id="domain"><title>domain</title>
+ <para>The &domain; is a string identifier denoting the program that
+is requesting the translation.  The pathname of the message catalog
+depends on the &domain;: usually it is located at
+<filename>TEXTDOMAINDIR/ll/LC_MESSAGES/domain.mo</filename>, where
+<replaceable>ll</replaceable> is the ISO 639 code of the language.
+The notion of &domain; allows several Lisp programs running in the same
+image to request translations independently of each other.</para>
 
-<para>The domain is a string identifier denoting the program that
-is requesting the translation. The pathname of the message
-catalog depends on the domain: usually it is located at
-TEXTDOMAINDIR/ll/LC_MESSAGES/domain.mo, where ll is the ISO 639 code
-of the language. The notion of domain allows several Lisp programs
-running in the same image to request translations independently of
-each other.</para>
-
-<para>(i18n:textdomain) is a place that returns the default domain,
-used when no domain argument is passed to the gettext and ngettext
-functions. It is setfable. (setf textdomain) is usually used
-during the startup phase of a program. Note that the default domain
-is not saved in a memory image. The use of (setf textdomain) is
+<para id="textdomain"><literal role="sexp">(&textdomain;)</literal> is a
+place that returns the default &domain;, used when no &domain;
+argument is passed to the &gettext; and &ngettext; functions.
+It is &setf;able.
+<literal role="sexp">(&setf; &textdomain;)</literal> is usually used
+during the startup phase of a program.
+Note that the default &domain; is not saved in a memory image.
+The use of <literal role="sexp">(&setf; &textdomain;)</literal> is
 recommended only for programs that are so simple that they will never
-need more than one domain.</para>
+need more than one &domain;.</para>
 
-<para>(i18n:textdomaindir domain) is a place that returns the base
-directory, called TEXTDOMAINDIR above, where the message catalogs
-for the given domain are assumed to be installed. It is setfable.
-(setf textdomaindir) is usually used during the startup phase of a
-program, and should be used because only the program knows where
-its message catalogs are installed. Note that the TEXTDOMAINDIRs
+<para id="textdomaindir"><literal role="sexp">(&textdomaindir;
+&domain;)</literal> is a place that returns the base
+directory, called <filename>TEXTDOMAINDIR</filename> above, where the
+message catalogs for the given &domain; are assumed to be installed.
+It is &setf;able.
+<literal role="sexp">(&setf; &textdomaindir;)</literal> is usually used
+during the startup phase of a program, and should be used because only
+the program knows where its message catalogs are installed.
+Note that the <filename>TEXTDOMAINDIR</filename>s
 are not saved in a memory image.</para>
 
-<para>The category argument of the gettext and ngettext functions
-denotes which locale facet the result should depend on. The default
-value is :LC_MESSAGES. Other possible values are :LC_CTYPE, :LC_TIME,
-:LC_COLLATE, :LC_MONETARY. The use of these values is useful for
-users who have a character/time/collation/money handling set
-differently from the usual message handling. Note that when a
-category argument is used, the message catalog location depends on
-the category: it will be expected at
-TEXTDOMAINDIR/ll/category/domain.mo.</para>
+</section>
+
+<section id="category"><title>category</title>
+<para>The &category; argument of the &gettext; and &ngettext;
+functions denotes which locale facet the result should depend on.
+The default value is <constant>:LC_MESSAGES</constant>.
+Other possible values are <constant>:LC_CTYPE</constant>,
+<constant>:LC_TIME</constant>, <constant>:LC_COLLATE</constant>,
+<constant>:LC_MONETARY</constant>.
+The use of these values is useful for users who have a
+character/time/collation/money handling set differently from the usual
+message handling.
+Note that when a &category; argument is used, the message catalog
+location depends on the &category;: it will be expected at
+<filename>TEXTDOMAINDIR/ll/category/domain.mo</filename>.</para>
+</section>
 
 <section><title>Example</title>
 
-A non-internationalized program simulating a restaurant dialogue
-might look as follows.
+<para>A non-internationalized program simulating a restaurant dialogue
+might look as follows.</para>
 
-=============== prog.lisp ===============
+<example><title>prog.lisp</title>
+<programlisting>
 (setq n (parse-integer (first *args*)))
 
 (format t "~A~%" "'Your command, please?', asked the waiter.")
@@ -119,14 +142,15 @@ might look as follows.
 (format t "~@?~%"
           (if (= n 1) "a piece of cake" "~D pieces of cake")
           n)
-=========================================
+</programlisting></example>
 
-After being internationalized, all strings are wrapped in
-gettext calls, and ngettext is used for plurals. Also,
-(textdomaindir) is assigned a value; in our case, for simplicity,
-the current directory.
+<para>After being internationalized, all strings are wrapped in
+&gettext; calls, and &ngettext; is used for plurals.
+Also, &textdomaindir; is assigned a value; in our case, for simplicity,
+the current directory.</para>
 
-=============== prog.lisp ===============
+<example><title>prog.lisp</title>
+<programlisting>
 (setf (textdomain) "prog")
 (setf (textdomaindir "prog") "./")
 
@@ -138,12 +162,13 @@ the current directory.
 (format t "~@?~%"
           (ngettext "a piece of cake" "~D pieces of cake" n)
           n)
-=========================================
+</programlisting></example>
 
-For ease of reading, it is customary to define an abbreviation
-for the gettext function. An underscore is customary.
+<para>For ease of reading, it is customary to define an abbreviation
+for the &gettext; function.  An underscore is customary.</para>
 
-=============== prog.lisp ===============
+<example><title>prog.lisp</title>
+<programlisting>
 (setf (textdomaindir "prog") "./")
 (defun _ (msgid) (gettext msgid "prog"))
 
@@ -155,18 +180,21 @@ for the gettext function. An underscore is customary.
 (format t "~@?~%"
           (ngettext "a piece of cake" "~D pieces of cake" n "prog")
           n)
-=========================================
+</programlisting></example>
 
-Now the program's maintainer creates a message catalog template
+<para>Now the program's maintainer creates a message catalog template
 through the command
 
-   xgettext -o prog.pot prog.lisp
+<screen>
+bash$ xgettext -o prog.pot prog.lisp
+</screen>
 
-Note: xgettext version 0.11 or higher is required here.
+Note: xgettext version 0.11 or higher is required here.</para>
 
-The message catalog template looks roughly like this.
+<para>The message catalog template looks roughly like this.</para>
 
-============== prog,pot ================
+<example><title>prog.pot</title>
+<programlisting>
 msgid "'Your command, please?', asked the waiter."
 msgstr ""
 
@@ -174,11 +202,12 @@ msgid "a piece of cake"
 msgid_plural "%d pieces of cake"
 msgstr[0] ""
 msgstr[1] ""
-========================================
+</programlisting></example>
 
-Then a french translator creates a french message catalog
+<para>Then a French translator creates a French message catalog</para>
 
-============== prog.fr.po =================
+<example><title>prog.fr.po</title>
+<programlisting>
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
@@ -192,23 +221,30 @@ msgid "a piece of cake"
 msgid_plural "%d pieces of cake"
 msgstr[0] "un morceau de gateau"
 msgstr[1] "%d morceaux de gateau"
-===========================================
+</programlisting></example>
 
-and sends it to the program's maintainer.
+<para>and sends it to the program's maintainer.</para>
 
-The program's maintainer compiles the catalog as follows:
+<para>The program's maintainer compiles the catalog as follows:
 
-    mkdir -p ./fr/LC_MESSAGES
-    msgfmt -o ./fr/LC_MESSAGES/prog.mo prog.fr.po
+<screen>
+bash$ mkdir -p ./fr/LC_MESSAGES
+bash$ msgfmt -o ./fr/LC_MESSAGES/prog.mo prog.fr.po
+</screen></para>
 
-When a user in a french locale then runs the program
+<para>When a user in a french locale then runs the program
 
-    clisp prog.lisp 2
+<screen>
+bash$ clisp prog.lisp 2
+</screen>
 
 she will get the output
 
+<screen>
     &laquo;Votre commande, s'il vous plait&raquo;, dit le gar&ccedil;on.
     2 morceaux de gateau
+</screen>
+</para>
 
 </section>
 
@@ -217,7 +253,7 @@ she will get the output
 <section><title>The Language</title>
 
 <para>Warning: The facilities described in this section will work
-only for the languages for which CLISP itself is already
+only for the languages for which &clisp; itself is already
 localized.</para>
 
 <para>The language &clisp; uses to communicate with the user can be
@@ -230,8 +266,8 @@ localized.</para>
  <literal role="sexp">(<function>i18n:deflanguage</function>
  <replaceable>lang</replaceable>)</literal>.  For such an additional
  language to take effect, you must install the corresponding message
- catalog, or translate the messages yourself, using &gnu; gettext and
- Emacs po-mode.</para>
+ catalog, or translate the messages yourself, using &ggettext; and
+ &emacs; (or &xemacs;) po-mode.</para>
 
 <para>The macros <function>ENGLISH</function>,
  <function>DEUTSCH</function>, <function>FRANCAIS</function> produce
