@@ -7519,6 +7519,19 @@ local object make_buffered_stream (uintB type, direction_t direction,
   return stream;
 }
 
+# UP: add a stream to the list of open streams O(open_files)
+# add_to_open_streams()
+# <> stream
+# can trigger GC
+local object add_to_open_streams (object stream) {
+  pushSTACK(stream);
+  var object new_cons = allocate_cons();
+  Car(new_cons) = stream = popSTACK();
+  Cdr(new_cons) = O(open_files);
+  O(open_files) = new_cons;
+  return stream;
+}
+
 # UP: creates a File-Stream
 # make_file_stream(direction,append_flag,handle_fresh)
 # > STACK_5: Filename, a Pathname or NIL
@@ -7667,13 +7680,7 @@ global object make_file_stream (direction_t direction, bool append_flag,
   }
   skipSTACK(3);
   # extend List of open File-Streams by stream:
-  pushSTACK(stream);
-  {
-    var object new_cons = allocate_cons();
-    Car(new_cons) = stream = popSTACK();
-    Cdr(new_cons) = O(open_files);
-    O(open_files) = new_cons;
-  }
+  stream = add_to_open_streams(stream);
   # treat Mode :APPEND:
   # CLHS says that :APPEND implies that "the file pointer is _initially_
   # positioned at the end of the file". Note that this is different from
@@ -10467,16 +10474,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
 # Returns an interactive Terminal-Stream.
 # can trigger GC
 local object make_terminal_stream (void) {
-  var object stream = make_terminal_stream_();
-  # extend List of open Streams by stream:
-  pushSTACK(stream);
-  {
-    var object new_cons = allocate_cons();
-    Car(new_cons) = stream = popSTACK();
-    Cdr(new_cons) = O(open_files);
-    O(open_files) = new_cons;
-  }
-  return stream;
+  return add_to_open_streams(make_terminal_stream_());
 }
 
 
@@ -13381,7 +13379,6 @@ local void close_printer (object stream) {
 # UP: Returns a Printer-Stream.
 # can trigger GC
 local object make_printer_stream (void) {
-  pushSTACK(allocate_cons()); # Cons for List
   pushSTACK(allocate_handle(Handle_NULL)); # Handle-Wrapping
   var object stream = # new Stream, only WRITE-CHAR allowed
     allocate_stream(strmflags_wr_ch_B,strmtype_printer,strm_len+1,0);
@@ -13398,12 +13395,7 @@ local object make_printer_stream (void) {
   TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
   TheStream(stream)->strm_printer_handle = popSTACK();
   # extend List of open Streams by stream:
-  {
-    var object new_cons = popSTACK();
-    Car(new_cons) = stream;
-    Cdr(new_cons) = O(open_files);
-    O(open_files) = new_cons;
-  }
+  stream = add_to_open_streams(stream);
   clr_break_sem_4();
   return stream;
 }
