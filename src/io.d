@@ -8449,10 +8449,10 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           }
           obj = *obj_;
           {
-            var uintL count = posfixnum_to_L(TheHashtable(*obj_)->ht_count);
             var uintL index = # move Index into the Key-Value-Vector
               3*posfixnum_to_L(TheHashtable(obj)->ht_maxcount);
             pushSTACK(TheHashtable(obj)->ht_kvtable); # Key-Value-Vector
+            var uintL count = posfixnum_to_L(TheHashedAlist(STACK_0)->hal_count);
             JUSTIFY_SPACE; # print Space
             # test for attaining of *PRINT-LINES* :
             CHECK_LINES_LIMIT(goto kvtable_end);
@@ -8474,7 +8474,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         }
         LEVEL_END;
       } else {
-        var uintL count = posfixnum_to_L(TheHashtable(obj)->ht_count);
+        var uintL count = posfixnum_to_L(TheHashedAlist(TheHashtable(obj)->ht_kvtable)->hal_count);
         pushSTACK(obj);
         var gcv_object_t* obj_ = &STACK_0;
         UNREADABLE_START; JUSTIFY_LAST(false);

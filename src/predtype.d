@@ -913,7 +913,8 @@ local bool hash_table_equalp (object ht1, object ht2)
       || !eq(TheHashtable(ht1)->ht_test,TheHashtable(ht2)->ht_test)
       || !eq(TheHashtable(ht1)->ht_hash,TheHashtable(ht2)->ht_hash))
     return false;
-  if (!eq(TheHashtable(ht1)->ht_count,TheHashtable(ht2)->ht_count))
+  if (!eq(TheHashedAlist(TheHashtable(ht1)->ht_kvtable)->hal_count,
+          TheHashedAlist(TheHashtable(ht2)->ht_kvtable)->hal_count))
     return false;
   if (!eq(hash_table_weak_type(ht1),hash_table_weak_type(ht2)))
     return false;
@@ -2059,7 +2060,7 @@ global bool typep_class (object obj, object clas) {
     if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
       NOTREACHED; /* shouldn't happen because obj is already an instance */
     var object superclasses_table = TheClass(objclass)->all_superclasses;
-    if (posfixnum_to_L(TheHashtable(superclasses_table)->ht_count) > 5)
+    if (TheHashtable(superclasses_table)->ht_size > 7)
       return !eq(gethash(clas,superclasses_table),nullobj);
     /* Few superclasses -> not worth a hash table access. */
   } else {
@@ -2105,7 +2106,7 @@ global bool typep_classname (object obj, object classname) {
     if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
       NOTREACHED; /* shouldn't happen because obj is already an instance */
     var object superclasses_table = TheClass(objclass)->all_superclasses;
-    if (posfixnum_to_L(TheHashtable(superclasses_table)->ht_count) > 5) {
+    if (TheHashtable(superclasses_table)->ht_size > 7) {
       var object clas = get(classname,S(closclass));
       return !eq(gethash(clas,superclasses_table),nullobj);
     }
