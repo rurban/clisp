@@ -3616,27 +3616,26 @@ local inline void *libopen (char *libname, uintL version)
 
 /* Open a library.
  can trigger GC */
-local void * open_library (object name, uintL version)
+local void * open_library (object *name, uintL version)
 {
   var void * handle;
  open_library_restart:
  #if defined(RTLD_DEFAULT)
-  if (eq(name,S(Kdefault))) return RTLD_DEFAULT;
+  if (eq(*name,S(Kdefault))) return RTLD_DEFAULT;
  #elif defined(WIN32_NATIVE)
-  if (eq(name,S(Kdefault))) return NULL;
+  if (eq(*name,S(Kdefault))) return NULL;
  #endif
  #if defined(RTLD_NEXT)
-  if (eq(name,S(Knext))) return RTLD_NEXT;
+  if (eq(*name,S(Knext))) return RTLD_NEXT;
  #endif
-  name = check_string(name);
-  with_string_0(name,O(misc_encoding),libname, {
+  with_string_0(*name = check_string(*name),O(misc_encoding),libname, {
     begin_system_call();
     handle = libopen(libname,version);
     end_system_call();
   });
   if (handle == NULL) {
     pushSTACK(NIL); /* no PLACE */
-    pushSTACK(name);
+    pushSTACK(*name);
    #if defined(HAVE_DLERROR)
     pushSTACK(STACK_0);
     STACK_1 = dlerror_string();
@@ -3647,7 +3646,7 @@ local void * open_library (object name, uintL version)
    #else
     check_value(error,GETTEXT("~S: Cannot open library ~S"));
    #endif
-    name = value1;
+    *name = value1;
     goto open_library_restart;
   }
   return handle;
@@ -3725,7 +3724,7 @@ local void* object_handle (object library, gcv_object_t *name, bool retry_p)
 local void update_library (object acons, uintL version) {
   var object lib_name = Car(acons);
   var object lib_addr = Car(Cdr(acons)); /* presumably invalid */
-  var void *lib_handle = open_library(lib_name,version);
+  var void *lib_handle = open_library(&lib_name,version);/*cannot trigger GT!*/
   TheFpointer(lib_addr)->fp_pointer = lib_handle;
   mark_fp_valid(TheFpointer(lib_addr));
   var object lib_list = Cdr(Cdr(acons));
@@ -3772,7 +3771,7 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
   pushSTACK(allocate_cons()); pushSTACK(allocate_cons());
   pushSTACK(allocate_cons()); pushSTACK(allocate_fpointer((void*)0));
   { /* Open the library: */
-    var void * libaddr = open_library(STACK_(1+4),v);
+    var void * libaddr = open_library(&(STACK_(1+4)),v);
     var object lib = popSTACK();
     var object acons = popSTACK();
     var object new_cons = popSTACK();
