@@ -12,6 +12,15 @@
 	(ADJUST-ARRAY): when the argument is not adjustable,
 	return a fresh array
 
+2003-04-22  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* stream.d (lisp_completion): fixed misplaced end_callback()
+
+	* encoding.d (init_encodings_2), constsym.d: complete patch
+	for CHARSET:WINDOWS-1255 and -1258
+
+	* ChangeLog: use users.sourceforge e-mail (hide other)
+
 2003-04-21  Sam Steingold  <sds@gnu.org>
 
 	* io.d (ANSI-PATHNAME-READER): understand Allegro CL #P(...)
@@ -119,7 +128,7 @@
 
 	* encoding.d (init_encodings_2): unintern CHARSET:WINDOWS-1255 and
 	CHARSET:WINDOWS-1258 when CHARSET:CP1255 and CHARSET:CP1258 are void
-	Reported by Jörg Höhle <Joerg-Cyril.Hoehle@t-systems.com>
+	Reported by Jörg Höhle <hoehle@users.sourceforge.net>
 
 2003-04-18  Sam Steingold  <sds@gnu.org>
 
@@ -443,7 +452,7 @@
 	* win32.d: undef `unused' around `#include <windows.h>' for MSVC
 	Suggested by Jay Kint <jkint@icosahedron.org>
 
-2003-01-31  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2003-01-31  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	patch #[ 678216 ]: FFI:WITH-FOREIGN-STRING
 	* foreign.lisp (with-foreign-string): store string on C stack
@@ -467,7 +476,7 @@
 	* modules.d (MODULE): cannot use STRING() because module_name may
 	be a CPP macro, e.g., for the "linux" module, module name was "1"
 
-2003-03-12  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2003-03-12  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* time.d (get_real_time) [TIME_WIN32]: use
 	GetSystemTimeAsFileTime(), not ftime()
@@ -498,7 +507,7 @@
 	seclass_read
 	* describe.lisp (describe-object): DEPARSE-C-TYPE is in FFI
 
-2003-03-10  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2003-03-10  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
 	FFI heap allocation interface
@@ -838,7 +847,7 @@
 	never triggered before because, as the 2003-01-31 indicates, this
 	code has never been used since it was written!]
 
-2003-02-04  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2003-02-04  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 679661 ]: FFI segfault passing struct arrays
@@ -4769,7 +4778,7 @@
 	(init_streamvars): do not use readline internals
 	* noreadline.d: upgraded to the readline-4.2a API
 
-2002-04-24  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-24  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
 	patch #[ 548089 ]: FOREIGN-FUNCTION+VARIABLE for everybody
@@ -4779,7 +4788,7 @@
 	(init_ffi): register them
 	* foreign.lisp (ffi_identity, ffi_user_pointer) [commented]: define
 
-2002-04-23  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-23  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
 	patch #[ 547541 ]: WITH-FOREIGN-OBJECT FFI stack allocation
@@ -4787,7 +4796,7 @@
 	* constsym.d, subr.d: ditto
 	* foreign1.lisp (with-foreign-object): new public macro
 
-2002-04-23  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-23  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
 	patch #[ 547491 ]: C-VAR-ADDRESS and OFFSET foreign-places
@@ -4800,7 +4809,7 @@
 	overrides batch-mode for -c, -x and exec-file
 	* constsym.d (APPEASE-CERRORS): define here for the above
 
-2002-04-22  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (UNSIGNED-FOREIGN-ADDRESS): new function
@@ -4853,11 +4862,11 @@
 	actually works, not just that it is present (it is present in
 	cygwin, but works only on NT, not win98)
 
-2002-04-16  Jörg-Cyril Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-16  Jörg-Cyril Höhle  <hoehle@users.sourceforge.net>
 
 	* regexp.lisp (regexp-exec): correct positions for ()-group submatches
 
-2002-04-16  Jörg-Cyril Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-16  Jörg-Cyril Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign.d (convert_from_foreign): fix c-array uint8/16/32 return
 	broken since CVS 1999-09-13
@@ -4867,7 +4876,7 @@
 	* foreign1.lisp (parse-c-function): check :OUT & :IN-OUT args for
 	being pointers, just like in FOREIGN-CALL-OUT in foreign.d
 
-2002-04-16  Jörg-Cyril Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-16  Jörg-Cyril Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
 	* io.d (pr_orecord): print invalid FOREIGN-VARIABLEs and
@@ -4923,7 +4932,7 @@
 	* configure: handle --with-no-dynamic-modules
 	* makemake.in: uniform handling of --with* arguments
 
-2002-04-05  Jörg-Cyril Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-05  Jörg-Cyril Höhle  <hoehle@users.sourceforge.net>
 
 	* modules.d (MODULE): silence the compiler warning about
 	module__*__init_function_*() prototype
@@ -5176,7 +5185,7 @@
 	this fixes a bug in images saved after DRIBBLE
 	Reported by Peter Wood <peter.wood@worldonline.dk>
 
-2002-03-16  Jörg-Cyril Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-03-16  Jörg-Cyril Höhle  <hoehle@users.sourceforge.net>
 
 	* describe.lisp (describe-object): FOREIGN-POINTER is present
 	when UNIX or DIR-KEY are present too;
@@ -5353,7 +5362,7 @@
 	fixed for MICROSOFT
 	* makemake.in: create modules-related rules on non-UNIX systems
 	($with_export_syscalls): do not add -lm to LIBS on win32
-	Reported by <Joerg-Cyril.Hoehle@t-systems.com>
+	Reported by <hoehle@users.sourceforge.net>
 
 2002-03-06  Sam Steingold  <sds@gnu.org>
 
