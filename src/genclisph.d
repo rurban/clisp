@@ -40,15 +40,15 @@ typedef struct { char base; # 'd' für dezimal, 'x' für hexadezimal
     else abort();
 #endif
 
-local char* Lsuffix = "L";
-local char* ULsuffix = "UL";
+local const char* Lsuffix = "L";
+local const char* ULsuffix = "UL";
 #ifdef HAVE_LONGLONG
-local char* ULLsuffix = "ULL";
+local const char* ULLsuffix = "ULL";
 #endif
 
-global void print_printf_arg (printf_arg* arg);
+global void print_printf_arg (const printf_arg* arg);
 global void print_printf_arg(arg)
-  var printf_arg* arg;
+  var const printf_arg* arg;
   { switch (arg->size)
       { case sizeof(uint8):
           printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val8));
@@ -78,9 +78,9 @@ global void print_printf_arg(arg)
           abort();
   }   }
 
-global void printf_with_args (char* string, int argcount, printf_arg* args);
+global void printf_with_args (const char* string, int argcount, printf_arg* args);
 global void printf_with_args(string,argcount,args)
-  var char* string;
+  var const char* string;
   var int argcount;
   var printf_arg* args;
   { while (*string)
@@ -1309,9 +1309,9 @@ global int main()
   printf("#define T    S(t)\n");
   printf("extern struct object_tab_ object_tab;\n");
   printf("extern uintC module_count;\n");
-  printf("typedef struct { char* packname; char* symname; } subr_initdata;\n");
-  printf("typedef struct { char* initstring; } object_initdata;\n");
-  printf("typedef struct module_ { char* name; subr_* stab; uintC* stab_size; object* otab; uintC* otab_size; boolean initialized; subr_initdata* stab_initdata; object_initdata* otab_initdata; void (*initfunction1) (struct module_ *); void (*initfunction2) (struct module_ *);");
+  printf("typedef struct { const char* packname; const char* symname; } subr_initdata;\n");
+  printf("typedef struct { const char* initstring; } object_initdata;\n");
+  printf("typedef struct module_ { const char* name; subr_* stab; const uintC* stab_size; object* otab; const uintC* otab_size; boolean initialized; const subr_initdata* stab_initdata; const object_initdata* otab_initdata; void (*initfunction1) (struct module_ *); void (*initfunction2) (struct module_ *);");
   #ifdef DYNAMIC_MODULES
     printf(" struct module_ * next;");
   #endif
@@ -1544,14 +1544,14 @@ global int main()
 # printf("extern object I_minus1_plus_I (object x);\n");
 # printf("extern object I_I_plus_I (object x, object y);\n");
 # printf("extern object I_I_minus_I (object x, object y);\n");
-  printf("extern object c_float_to_FF (ffloatjanus* val_);\n");
+  printf("extern object c_float_to_FF (const ffloatjanus* val_);\n");
   printf("extern void FF_to_c_float (object obj, ffloatjanus* val_);\n");
-  printf("extern object c_double_to_DF (dfloatjanus* val_);\n");
+  printf("extern object c_double_to_DF (const dfloatjanus* val_);\n");
   printf("extern void DF_to_c_double (object obj, dfloatjanus* val_);\n");
   #ifdef DYNAMIC_FFI
     printf("extern void register_foreign_variable (void* address, const char * name, uintBWL flags, uintL size);\n");
     printf("extern void register_foreign_function (void* address, const char * name, uintWL flags);\n");
-    printf("extern object convert_from_foreign (object fvd, void* data);\n");
+    printf("extern object convert_from_foreign (object fvd, const void* data);\n");
     printf("extern void convert_to_foreign_mallocing (object fvd, object obj, void* data);\n");
     printf("extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);\n");
   #endif

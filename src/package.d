@@ -468,10 +468,10 @@
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
 # kann GC auslösen
-  local void shadowing_insert (object* sym_, object* pack_);
+  local void shadowing_insert (const object* sym_, const object* pack_);
   local void shadowing_insert(sym_,pack_)
-    var object* sym_;
-    var object* pack_;
+    var const object* sym_;
+    var const object* pack_;
     { # neues Cons mit Symbol als CAR vor die Shadowing-Symbols einhängen:
       var object new_cons = allocate_cons();
       var object pack = *pack_;
@@ -819,10 +819,10 @@
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
 # kann GC auslösen
-  local void shadowing_import (object* sym_, object* pack_);
+  local void shadowing_import (const object* sym_, const object* pack_);
   local void shadowing_import(sym_,pack_)
-    var object* sym_;
-    var object* pack_;
+    var const object* sym_;
+    var const object* pack_;
     { set_break_sem_2(); # Vor Unterbrechungen schützen
      {var object sym = *sym_;
       var object pack = *pack_;
@@ -871,10 +871,10 @@
 # > pack: Package (im STACK)
 # < pack: Package, EQ zur alten
 # kann GC auslösen
-  local void shadow (object* sym_, object* pack_);
+  local void shadow (const object* sym_, const object* pack_);
   local void shadow(sym_,pack_)
-    var object* sym_;
-    var object* pack_;
+    var const object* sym_;
+    var const object* pack_;
     { set_break_sem_2(); # Vor Unterbrechungen schützen
      {# Suche ein internes oder ein externes Symbol gleichen Namens:
       var object string = # Nur der Name des Symbols interessiert.
@@ -913,10 +913,10 @@
 # < pack: Package, EQ zur alten
 # < ergebnis: T wenn gefunden und gelöscht, NIL falls nichts getan.
 # kann GC auslösen
-  local object unintern (object* sym_, object* pack_);
+  local object unintern (const object* sym_, const object* pack_);
   local object unintern(sym_,pack_)
-    var object* sym_;
-    var object* pack_;
+    var const object* sym_;
+    var const object* pack_;
     { var object sym = *sym_;
       var object pack = *pack_;
       var object symtab;
@@ -1029,10 +1029,10 @@
 # > pack: Package (im STACK)
 # < pack: Package, EQ zur alten
 # kann GC auslösen
-  global void import (object* sym_, object* pack_);
+  global void import (const object* sym_, const object* pack_);
   global void import(sym_,pack_)
-    var object* sym_;
-    var object* pack_;
+    var const object* sym_;
+    var const object* pack_;
     { var object sym = *sym_;
       var object pack = *pack_;
       var object string = Symbol_name(sym);
@@ -1164,10 +1164,10 @@
 # > pack: Package (im STACK)
 # < pack: Package, EQ zur alten
 # kann GC auslösen
-  local void unexport (object* sym_, object* pack_);
+  local void unexport (const object* sym_, const object* pack_);
   local void unexport(sym_,pack_)
-    var object* sym_;
-    var object* pack_;
+    var const object* sym_;
+    var const object* pack_;
     { var object sym = *sym_;
       var object pack = *pack_;
       var object symtab;
@@ -1238,10 +1238,10 @@
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
 # kann GC auslösen
-  global void export (object* sym_, object* pack_);
+  global void export (const object* sym_, const object* pack_);
   global void export(sym_,pack_)
-    var object* sym_;
-    var object* pack_;
+    var const object* sym_;
+    var const object* pack_;
     { var object sym = *sym_;
       var object pack = *pack_;
       # sym unter den externen Symbolen von pack suchen:
@@ -2144,7 +2144,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL)
 #   kann GC auslösen
 # < STACK: aufgeräumt
 # kann GC auslösen
-  typedef void sym_pack_function (object* sym_, object* pack_);
+  typedef void sym_pack_function (const object* sym_, const object* pack_);
   local Values apply_symbols (sym_pack_function* fun);
   local Values apply_symbols(fun)
     var sym_pack_function* fun;

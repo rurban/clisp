@@ -1584,7 +1584,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         init_object_tab();
       }
   # Laden vom MEM-File:
-    local void loadmem (char* filename); # siehe unten
+    local void loadmem (const char* filename); # siehe unten
   # Initialiserung der anderen, noch nicht initialisierten Module:
     local void init_other_modules_2 (void);
     local void init_module_2 (module_* module);
@@ -1603,10 +1603,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         module->initialized = TRUE;
         # Subr-Symbole eintragen:
         { var subr_* subr_ptr = module->stab;
-          var subr_initdata* init_ptr = module->stab_initdata;
+          var const subr_initdata* init_ptr = module->stab_initdata;
           var uintC count;
           dotimesC(count,*module->stab_size,
-            { var char* packname = init_ptr->packname;
+            { var const char* packname = init_ptr->packname;
               var object symname = asciz_to_string(init_ptr->symname);
               var object symbol;
               if (packname==NULL)
@@ -1631,7 +1631,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         }
         # Objekte eintragen:
         { var object* object_ptr = module->otab;
-          var object_initdata* init_ptr = module->otab_initdata;
+          var const object_initdata* init_ptr = module->otab_initdata;
           var uintC count;
           dotimesC(count,*module->otab_size,
             { pushSTACK(asciz_to_string(init_ptr->initstring)); # String
@@ -3029,7 +3029,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                   if (err) fehler_dlerror("dlsym",symbolbuf,err);
                 }
                 { sprintf(symbolbuf,"module__%s__subr_tab_size",modname);
-                  module->stab_size = (uintC*) dlsym(libhandle,symbolbuf);
+                  module->stab_size = (const uintC*) dlsym(libhandle,symbolbuf);
                   err = dlerror();
                   if (err) fehler_dlerror("dlsym",symbolbuf,err);
                 }
@@ -3039,18 +3039,18 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                   if (err) fehler_dlerror("dlsym",symbolbuf,err);
                 }
                 { sprintf(symbolbuf,"module__%s__object_tab_size",modname);
-                  module->otab_size = (uintC*) dlsym(libhandle,symbolbuf);
+                  module->otab_size = (const uintC*) dlsym(libhandle,symbolbuf);
                   err = dlerror();
                   if (err) fehler_dlerror("dlsym",symbolbuf,err);
                 }
                 module->initialized = FALSE;
                 { sprintf(symbolbuf,"module__%s__subr_tab_initdata",modname);
-                  module->stab_initdata = (subr_initdata*) dlsym(libhandle,symbolbuf);
+                  module->stab_initdata = (const subr_initdata*) dlsym(libhandle,symbolbuf);
                   err = dlerror();
                   if (err) fehler_dlerror("dlsym",symbolbuf,err);
                 }
                 { sprintf(symbolbuf,"module__%s__object_tab_initdata",modname);
-                  module->otab_initdata = (object_initdata*) dlsym(libhandle,symbolbuf);
+                  module->otab_initdata = (const object_initdata*) dlsym(libhandle,symbolbuf);
                   err = dlerror();
                   if (err) fehler_dlerror("dlsym",symbolbuf,err);
                 }

@@ -1,5 +1,14 @@
 1998-08-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d: Add a lot of `const' qualifiers.
+        * spvw.d, spvw_memfile.d, spvw_sigwinch.d, spvw_multimap.d,
+          spvw_genera1.d, eval.d, io.d, stream.d, socket.d, array.d,
+          charstrg.d, hashtabl.d, list.d, sequence.d, package.d, debug.d,
+          time.d, lisparit.d, intelem.d, intgcd.d, int2adic.d, flo_konv.d,
+          foreign.d, graph.d, affi.d, unix.d, unixaux.d, genclisph.d: Likewise.
+
+1998-08-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * aclocal.m4 (CL_NOWARN): Remove.
         * configure.in (CL_NOWARN): Remove.
         * unixconf.h.in (__nowarn__): Remove definition.

@@ -93,10 +93,10 @@
 
 #ifdef NEED_OWN_RENAME
 # Ein Ersatz für die rename-Funktion.
-  global int rename (char* oldpath, char* newpath);
+  global int rename (const char* oldpath, const char* newpath);
   global int rename(oldpath,newpath)
-    var char* oldpath;
-    var char* newpath;
+    var const char* oldpath;
+    var const char* newpath;
     { var int result;
       if ((result = access(oldpath,0)) < 0) # oldpath überhaupt da?
         { return result; }

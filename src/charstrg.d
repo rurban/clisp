@@ -798,10 +798,10 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
 # > argcount: Argumentezahl-1
 # > args_pointer: Pointer über die Argumente
 # > subr_self: Aufrufer (ein SUBR)
-  local void test_char_args (uintC argcount, object* args_pointer);
+  local void test_char_args (uintC argcount, const object* args_pointer);
   local void test_char_args(argcount,args_pointer)
     var uintC argcount;
-    var object* args_pointer;
+    var const object* args_pointer;
     { dotimespC(argcount,argcount+1,
         { var object arg = NEXT(args_pointer); # nächstes Argument
           if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
@@ -1815,10 +1815,10 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # > charptr2: Ab hier kommen die angesprochenen Characters im String2
 # > len: Anzahl der angesprochenen Characters in String1 und in String2
 # < ergebnis: TRUE falls gleich, FALSE sonst.
-  local boolean string_eqcomp (uintB* charptr1, uintB* charptr2, uintL len);
+  local boolean string_eqcomp (const uintB* charptr1, const uintB* charptr2, uintL len);
   local boolean string_eqcomp(charptr1,charptr2,len)
-    var uintB* charptr1;
-    var uintB* charptr2;
+    var const uintB* charptr1;
+    var const uintB* charptr2;
     var uintL len;
     { dotimesL(len,len, { if (!(*charptr1++ == *charptr2++)) goto no; } );
       return TRUE;
@@ -1956,10 +1956,10 @@ LISPFUN(string_grgleich,2,0,norest,key,4,\
 # > charptr2: Ab hier kommen die angesprochenen Characters im String2
 # > len: Anzahl der angesprochenen Characters in String1 und in String2
 # < ergebnis: TRUE falls gleich, FALSE sonst.
-  local boolean string_eqcomp_ci (uintB* charptr1, uintB* charptr2, uintL len);
+  local boolean string_eqcomp_ci (const uintB* charptr1, const uintB* charptr2, uintL len);
   local boolean string_eqcomp_ci(charptr1,charptr2,len)
-    var uintB* charptr1;
-    var uintB* charptr2;
+    var const uintB* charptr1;
+    var const uintB* charptr2;
     var uintL len;
     { dotimesL(len,len,
         { if (!(up_case(*charptr1++) == up_case(*charptr2++))) goto no; }
@@ -2106,12 +2106,12 @@ LISPFUN(string_not_lessp,2,0,norest,key,4,\
 # < ergebnis: NIL falls nicht gefunden,
 #             Position im String2 (als Fixnum) falls gefunden.
   # eqcomp_fun sei der Typ einer solchen Vergleichsfunktion:
-  typedef boolean (*eqcomp_fun) (uintB* charptr1, uintB* charptr2, uintL len);
-  local object string_search(uintB* charptr1, uintL len1, uintB* charptr2, uintL len2, uintL start2, eqcomp_fun eqcomp);
+  typedef boolean (*eqcomp_fun) (const uintB* charptr1, const uintB* charptr2, uintL len);
+  local object string_search (const uintB* charptr1, uintL len1, const uintB* charptr2, uintL len2, uintL start2, eqcomp_fun eqcomp);
   local object string_search(charptr1,len1,charptr2,len2,start2,eqcomp)
-    var uintB* charptr1;
+    var const uintB* charptr1;
     var uintL len1;
-    var uintB* charptr2;
+    var const uintB* charptr2;
     var uintL len2;
     var uintL start2;
     var eqcomp_fun eqcomp;

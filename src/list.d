@@ -335,9 +335,9 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 # > arg1,arg2: Argumente
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up2_test (object* stackptr, object arg1, object arg2);
+  local boolean up2_test (const object* stackptr, object arg1, object arg2);
   local boolean up2_test(stackptr,arg1,arg2)
-    var object* stackptr;
+    var const object* stackptr;
     var object arg1;
     var object arg2;
     { pushSTACK(arg1); pushSTACK(arg2); funcall(*(stackptr STACKop 1),2);
@@ -350,9 +350,9 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 # > arg1,arg2: Argumente
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up2_test_not (object* stackptr, object arg1, object arg2);
+  local boolean up2_test_not (const object* stackptr, object arg1, object arg2);
   local boolean up2_test_not(stackptr,arg1,arg2)
-    var object* stackptr;
+    var const object* stackptr;
     var object arg1;
     var object arg2;
     { pushSTACK(arg1); pushSTACK(arg2); funcall(*(stackptr STACKop 0),2);
@@ -371,7 +371,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 #       > stackptr: derselbe Pointer in den Stack, arg1, arg2: Argumente
 #       < TRUE, falls der Test erfüllt ist, FALSE sonst.
   # up2_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef boolean (*up2_function) (object* stackptr, object arg1, object arg2);
+  typedef boolean (*up2_function) (const object* stackptr, object arg1, object arg2);
   local up2_function test_test2_args (object* stackptr);
   local up2_function test_test2_args(stackptr)
     var object* stackptr;
@@ -403,9 +403,9 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 #       *(stackprt+0).L zugreifen kann.
 # < ergebnis: TRUE, falls gleich, FALSE sonst
 # kann GC auslösen
-  local boolean tree_equal (object* stackptr, up2_function up2_fun, object arg1, object arg2);
+  local boolean tree_equal (const object* stackptr, up2_function up2_fun, object arg1, object arg2);
   local boolean tree_equal(stackptr,up2_fun,arg1,arg2)
-    var object* stackptr;
+    var const object* stackptr;
     var up2_function up2_fun;
     var object arg1;
     var object arg2;
@@ -1017,9 +1017,9 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up_test (object* stackptr, object x);
+  local boolean up_test (const object* stackptr, object x);
   local boolean up_test(stackptr,x)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
       pushSTACK(*(stackptr STACKop 3)); # item
@@ -1035,9 +1035,9 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up_test_not (object* stackptr, object x);
+  local boolean up_test_not (const object* stackptr, object x);
   local boolean up_test_not(stackptr,x)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
       pushSTACK(*(stackptr STACKop 3)); # item
@@ -1052,9 +1052,9 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up_if (object* stackptr, object x);
+  local boolean up_if (const object* stackptr, object x);
   local boolean up_if(stackptr,x)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (funcall predicate x) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
@@ -1067,9 +1067,9 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up_if_not (object* stackptr, object x);
+  local boolean up_if_not (const object* stackptr, object x);
   local boolean up_if_not(stackptr,x)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
@@ -1101,7 +1101,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 #       > x: Argument
 #       < TRUE, falls der Test erfüllt ist, FALSE sonst.
   # up_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef boolean (*up_function) (object* stackptr, object x);
+  typedef boolean (*up_function) (const object* stackptr, object x);
   local up_function test_test_args (void);
   local up_function test_test_args()
     { var object test_arg = STACK_2;

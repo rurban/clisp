@@ -944,9 +944,9 @@ LISPFUNN(return_from_eval_frame,2)
 # und liefert den nächsthöheren stackptr.
 # print_stackitem(&stream,FRAME)
 # kann GC auslösen
-  local object* print_stackitem (object* stream_, object* FRAME);
+  local object* print_stackitem (const object* stream_, object* FRAME);
   local object* print_stackitem(stream_,FRAME)
-    var object* stream_;
+    var const object* stream_;
     var object* FRAME;
     { if (!frame_p())
         # kein Frame, normales LISP-Objekt

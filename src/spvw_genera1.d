@@ -31,7 +31,7 @@ local uintC generation;
 # walk_physpage_(heapnr,physpage,pageend,heapend,walkstep);
 # walk_area_(heapnr,physpage_start,physpage_end,walkstep);
   typedef void (*walkstep_fun)(object* ptr);
-  local void walk_physpage_ (uintL heapnr, physpage_state* physpage, aint pageend, aint heapend, walkstep_fun walkstep);
+  local void walk_physpage_ (uintL heapnr, const physpage_state* physpage, aint pageend, aint heapend, walkstep_fun walkstep);
   local void walk_area_ (uintL heapnr, aint physpage_start, aint physpage_end, walkstep_fun walkstep);
 
 # Builds a cache of all pointers inside the old generation.
@@ -278,10 +278,10 @@ local uintC generation;
       #undef walkstep1
     }
 
-  local void walk_physpage_ (uintL heapnr, physpage_state* physpage, aint pageend, aint heapend, walkstep_fun walkstep);
+  local void walk_physpage_ (uintL heapnr, const physpage_state* physpage, aint pageend, aint heapend, walkstep_fun walkstep);
   local void walk_physpage_(heapnr,physpage,pageend,heapend,walkstep)
     var uintL heapnr;
-    var physpage_state* physpage;
+    var const physpage_state* physpage;
     var aint pageend;
     var aint heapend;
     var walkstep_fun walkstep;

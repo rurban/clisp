@@ -436,7 +436,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         fehler_subscript_anz(array,argcount);
       # Subscripts selbst überprüfen:
      {var uintL row_major_index = 0;
-      var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
+      var const uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
       if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
         dimptr++; # evtl. Displaced-Offset überspringen
       { var uintC count;
@@ -907,7 +907,7 @@ LISPFUNN(array_dimensions,1) # (ARRAY-DIMENSIONS array), CLTL S. 292
     var object array;
     var array_dim_size* dims_sizes;
     { var uintC r = Iarray_rank(array); # Rang
-      var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
+      var const uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
       if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
         dimptr++; # evtl. Displaced-Offset überspringen
       dimptr = &dimptr[(uintL)r]; # Zeiger hinter die Dimensionen
@@ -2716,7 +2716,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
 #            in dem oldvec Datenvektor ist (mit Offset offset).
 # > rank: Dimensionszahl von newdims = Dimensionenzahl von olddims.
 # > eltype: Elementtyp von newvec = Elementtyp von oldvec.
-  local void reshape (object newvec, object newdims, object oldvec, uintL* olddims, uintL offset, uintL rank, uintB eltype);
+  local void reshape (object newvec, object newdims, object oldvec, const uintL* olddims, uintL offset, uintL rank, uintB eltype);
   # Methode: pseudo-rekursiv, mit Pseudo-Stack, der unterhalb von STACK liegt.
   typedef struct { uintL olddim; # Dimension aus olddims
                    uintL newdim; # Dimension aus newdims
@@ -2732,7 +2732,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
     var object newvec;
     var object newdims;
     var object oldvec;
-    var uintL* olddims;
+    var const uintL* olddims;
     var uintL offset;
     var uintL rank;
     var uintB eltype;

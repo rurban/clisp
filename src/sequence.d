@@ -339,10 +339,10 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 #          kwptr[1] = END-Keyword
 # > argptr: *(argptr STACKop 1) = START-Argument,
 #           *(argptr STACKop 0) = END-Argument
-  local void test_start_end (const object* kwptr, object* argptr);
+  local void test_start_end (const object* kwptr, const object* argptr);
   local void test_start_end(kwptr,argptr)
     var const object* kwptr;
-    var object* argptr;
+    var const object* argptr;
     { # START-Argument muß ein Integer >= 0 sein:
       var object start = *(argptr STACKop 1);
       if (!(integerp(start) && positivep(start)))
@@ -372,10 +372,10 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 #          kwptr[1] = END-Keyword
 # > argptr: *(argptr STACKop 1) = START-Argument,
 #           *(argptr STACKop 0) = END-Argument
-  local void test_start_end_1 (const object* kwptr, object* argptr);
+  local void test_start_end_1 (const object* kwptr, const object* argptr);
   local void test_start_end_1(kwptr,argptr)
     var const object* kwptr;
-    var object* argptr;
+    var const object* argptr;
     { # START-Argument muß ein Integer >= 0 sein:
       var object start = *(argptr STACKop 1);
       if (!(integerp(start) && positivep(start)))
@@ -1773,9 +1773,9 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up_test (object* stackptr, object x);
+  local boolean up_test (const object* stackptr, object x);
   local boolean up_test(stackptr,x)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
       pushSTACK(*(stackptr STACKop 1)); # item
@@ -1791,9 +1791,9 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up_test_not (object* stackptr, object x);
+  local boolean up_test_not (const object* stackptr, object x);
   local boolean up_test_not(stackptr,x)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
       pushSTACK(*(stackptr STACKop 1)); # item
@@ -1808,9 +1808,9 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up_if (object* stackptr, object x);
+  local boolean up_if (const object* stackptr, object x);
   local boolean up_if(stackptr,x)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (funcall predicate x) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
@@ -1823,9 +1823,9 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up_if_not (object* stackptr, object x);
+  local boolean up_if_not (const object* stackptr, object x);
   local boolean up_if_not(stackptr,x)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
@@ -1875,7 +1875,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 #       > x: Argument
 #       < TRUE, falls der Test erfüllt ist, FALSE sonst.
   # up_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef boolean (*up_function) (object* stackptr, object x);
+  typedef boolean (*up_function) (const object* stackptr, object x);
   local up_function test_test_args (object* stackptr);
   local up_function test_test_args(stackptr)
     var object* stackptr;
@@ -2313,9 +2313,9 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 # > x,y: Argumente
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up2_test (object* stackptr, object x, object y);
+  local boolean up2_test (const object* stackptr, object x, object y);
   local boolean up2_test(stackptr,x,y)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     var object y;
     { # ein (funcall testfun x y) ausführen:
@@ -2331,9 +2331,9 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 # > x,y: Argumente
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
 # kann GC auslösen
-  local boolean up2_test_not (object* stackptr, object x, object y);
+  local boolean up2_test_not (const object* stackptr, object x, object y);
   local boolean up2_test_not(stackptr,x,y)
-    var object* stackptr;
+    var const object* stackptr;
     var object x;
     var object y;
     { # ein (not (funcall testfun x y)) ausführen:
@@ -2357,7 +2357,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 #       > x,y: Argumente
 #       < TRUE, falls der Test erfüllt ist, FALSE sonst.
   # up2_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef boolean (*up2_function) (object* stackptr, object x, object y);
+  typedef boolean (*up2_function) (const object* stackptr, object x, object y);
   local up2_function test_test2_args (object* stackptr);
   local up2_function test_test2_args(stackptr)
     var object* stackptr;
@@ -4118,12 +4118,12 @@ LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),S(string))) # Typname = STRING ?
       { var uintL len;
-        var uintB* charptr = unpack_string(STACK_4,&len);
+        var const uintB* charptr = unpack_string(STACK_4,&len);
         # Ab charptr kommen len Zeichen.
         var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         # Versuche, eine optimierte Schreib-Routine aufzurufen:
-        var uintB* endptr = write_schar_array(STACK_3,&charptr[start],end-start);
+        var const uintB* endptr = write_schar_array(STACK_3,&charptr[start],end-start);
         if (!(endptr==NULL)) goto done;
       }
     # start- und end-Argumente subtrahieren:
@@ -4214,10 +4214,10 @@ LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
         var uintL end = posfixnum_to_L(STACK_1);
         var uintL index = 0;
         var object dv = iarray_displace_check(STACK_4,end,&index);
-        var uintB* byteptr = &TheSbvector(TheIarray(dv)->data)->data[index];
+        var const uintB* byteptr = &TheSbvector(TheIarray(dv)->data)->data[index];
         # Ab byteptr kommen end Bytes.
         # Versuche, eine optimierte Schreib-Routine aufzurufen:
-        var uintB* endptr = write_byte_array(STACK_3,&byteptr[start],end-start);
+        var const uintB* endptr = write_byte_array(STACK_3,&byteptr[start],end-start);
         if (!(endptr==NULL)) goto done;
       }
     # start- und end-Argumente subtrahieren:

@@ -119,7 +119,7 @@
   # < stream: Stream
   # < ergebnis: gelesenes Character (eof_value bei EOF)
   # kann GC auslösen
-    typedef object (* rd_ch_Pseudofun) (object* stream_);
+    typedef object (* rd_ch_Pseudofun) (const object* stream_);
   #
   # Spezifikation für PEEK-CHAR - Pseudofunktion:
   # fun(&stream)
@@ -129,7 +129,7 @@
   # < stream: Stream
   # < ergebnis: gelesenes Character (eof_value bei EOF)
   # kann GC auslösen
-    typedef object (* pk_ch_Pseudofun) (object* stream_);
+    typedef object (* pk_ch_Pseudofun) (const object* stream_);
   #
   # Spezifikation für WRITE-CHAR - Pseudofunktion:
   # fun(&stream,obj)
@@ -137,7 +137,7 @@
   # < stream: Stream
   # > obj: auszugebendes Character
   # kann GC auslösen
-    typedef void (* wr_ch_Pseudofun) (object* stream_, object obj);
+    typedef void (* wr_ch_Pseudofun) (const object* stream_, object obj);
   #
   #ifdef STRM_WR_SS
   # Spezifikation für WRITE-SIMPLE-STRING - Pseudofunktion:
@@ -148,7 +148,7 @@
   # > stream: Stream
   # < stream: Stream
   # kann GC auslösen
-    typedef void (* wr_ss_Pseudofun) (object* stream_, object string, uintL start, uintL len);
+    typedef void (* wr_ss_Pseudofun) (const object* stream_, object string, uintL start, uintL len);
   #endif
 
 # Pseudofunktionen aus einem Stream herausgreifen:
@@ -237,27 +237,27 @@
     var object stream;
     var object obj;
     { fehler_illegal_streamop(S(write_byte),stream); }
-  local object rd_ch_dummy (object* stream_);
+  local object rd_ch_dummy (const object* stream_);
   local object rd_ch_dummy(stream_)
-    var object* stream_;
+    var const object* stream_;
     { fehler_illegal_streamop(S(read_char),*stream_); }
-  local object pk_ch_dummy (object* stream_);
+  local object pk_ch_dummy (const object* stream_);
   local object pk_ch_dummy(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object newch = rd_ch(*stream_)(stream_);
       TheStream(*stream_)->strm_rd_ch_last =
         (eq(newch,eof_value) ? newch : char_to_fixnum(newch));
       return newch;
     }
-  local void wr_ch_dummy (object* stream_, object obj);
+  local void wr_ch_dummy (const object* stream_, object obj);
   local void wr_ch_dummy(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { fehler_illegal_streamop(S(write_char),*stream_); }
   #ifdef STRM_WR_SS
-  local void wr_ss_dummy (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_dummy (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_dummy(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -271,9 +271,9 @@
       skipSTACK(1);
     }}
   # Dasselbe, wenn write_char auf diesem Stream keine GC auslösen kann:
-  local void wr_ss_dummy_nogc (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_dummy_nogc (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_dummy_nogc(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -288,10 +288,10 @@
   # > ptr: Pointer ans Ende(!) der bereits auf den Stream ausgegebenen Zeichen
   # > len: Anzahl der Zeichen, >0
   # < ergebnis: TRUE, falls ein NL unter den Zeichen ist, FALSE sonst
-  local boolean wr_ss_lpos (object stream, uintB* ptr, uintL len);
+  local boolean wr_ss_lpos (object stream, const uintB* ptr, uintL len);
   local boolean wr_ss_lpos(stream,ptr,len)
     var object stream;
-    var uintB* ptr;
+    var const uintB* ptr;
     var uintL len;
     {
       #ifdef TERMINAL_USES_KEYBOARD
@@ -356,9 +356,9 @@
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
 # kann GC auslösen
-  global object read_char (object* stream_);
+  global object read_char (const object* stream_);
   global object read_char(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       if (!posfixnump(TheStream(stream)->strm_rd_ch_last)) # Char nach UNREAD ?
         # nein -> neues Zeichen holen:
@@ -377,9 +377,9 @@
 # > ch: letztes gelesenes Character
 # > stream: Stream
 # < stream: Stream
-  global void unread_char (object* stream_, object ch);
+  global void unread_char (const object* stream_, object ch);
   global void unread_char(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { var object stream = *stream_;
       if (eq(TheStream(stream)->strm_rd_ch_last,ch))
@@ -419,9 +419,9 @@
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
 # kann GC auslösen
-  global object peek_char (object* stream_);
+  global object peek_char (const object* stream_);
   global object peek_char(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       if (!posfixnump(TheStream(stream)->strm_rd_ch_last)) # Char nach UNREAD ?
         # nein -> neues Zeichen holen:
@@ -437,9 +437,9 @@
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  global void write_char (object* stream_, object ch);
+  global void write_char (const object* stream_, object ch);
   global void write_char(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { var cint c = char_int(ch);
       # Char schreiben:
@@ -995,9 +995,9 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # TheStream(stream)->strm_rd_ch_last = eof_value.
 
 # READ-CHAR - Pseudofunktion für Handle-Streams:
-  local object rd_ch_handle (object* stream_);
+  local object rd_ch_handle (const object* stream_);
   local object rd_ch_handle(stream_)
-    var object* stream_;
+    var const object* stream_;
     {   restart_it:
      {  var object stream = *stream_;
         if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
@@ -1428,9 +1428,9 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }
 
 # WRITE-CHAR - Pseudofunktion für Handle-Streams:
-  local void wr_ch_handle (object* stream_, object ch);
+  local void wr_ch_handle (const object* stream_, object ch);
   local void wr_ch_handle(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { var Handle handle = TheHandle(TheStream(*stream_)->strm_ohandle);
       # ch sollte String-Char sein:
@@ -1468,10 +1468,10 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }}
 
 # WRITE-CHAR-SEQUENCE für Handle-Streams:
-  local uintB* write_schar_array_handle (object stream, uintB* ptr, uintL len);
-  local uintB* write_schar_array_handle(stream,ptr,len)
+  local const uintB* write_schar_array_handle (object stream, const uintB* ptr, uintL len);
+  local const uintB* write_schar_array_handle(stream,ptr,len)
     var object stream;
-    var uintB* ptr;
+    var const uintB* ptr;
     var uintL len;
     { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
       begin_system_call();
@@ -1490,9 +1490,9 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
 #ifdef STRM_WR_SS
 # WRITE-SIMPLE-STRING - Pseudofunktion für Handle-Streams:
-  local void wr_ss_handle (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_handle (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_handle(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -1503,9 +1503,9 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
 #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
 # WRITE-CHAR - Pseudofunktion für Handle-Streams, mit NL -> CR/LF - Umwandlung:
-  local void wr_ch_handle_x (object* stream_, object ch);
+  local void wr_ch_handle_x (const object* stream_, object ch);
   local void wr_ch_handle_x(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { if (eq(ch,code_char(NL)))
         # Newline als CR/LF ausgeben
@@ -2160,11 +2160,11 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }
 
 # Lesen eines Zeichens vom Keyboard:
-  local object rd_ch_keyboard (object* stream_);
+  local object rd_ch_keyboard (const object* stream_);
 
   #ifdef MSDOS
   local object rd_ch_keyboard(stream_)
-    var object* stream_;
+    var const object* stream_;
     {
       #ifdef EMUNIX_PORTABEL
       if (!(_osmode == DOS_MODE))
@@ -2239,7 +2239,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
   #ifdef WIN32_NATIVE
   local object rd_ch_keyboard(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var INPUT_RECORD event;
       var DWORD nevents_read;
       var Handle handle;
@@ -2395,7 +2395,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
   # vgl. rd_ch_handle() :
   local object rd_ch_keyboard(stream_)
-    var object* stream_;
+    var const object* stream_;
     { restart_it:
      {var object stream = *stream_;
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
@@ -2569,11 +2569,11 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
   # UP: Erweitert die Liste STACK_0 um eine Tastenzuordnung.
   # kann GC auslösen
-    local void keybinding (char* cap, cint key);
+    local void keybinding (const char* cap, cint key);
     local void keybinding(cap,key)
-      var char* cap;
+      var const char* cap;
       var cint key;
-      { var uintB* ptr = (uintB*)cap;
+      { var const uintB* ptr = (const uintB*)cap;
         if (*ptr=='\0') return; # leere Tastenfolge vermeiden
         pushSTACK(allocate_cons());
         # Liste (char1 ... charn . key) bilden:
@@ -2604,7 +2604,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(NIL);
       # Terminal-Typ abfragen:
       begin_system_call();
-     {var char* s = getenv("TERM");
+     {var const char* s = getenv("TERM");
       if (s==NULL)
         { end_system_call(); }
         else
@@ -2614,7 +2614,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
             else
             { var char tentry[4096]; # Buffer für von mir benötigte Capabilities und Pointer da hinein
               var char* tp = &tentry[0];
-              var char* cap;
+              var const char* cap;
               end_system_call();
               # Backspace:
               begin_system_call(); cap = tgetstr("kb",&tp); end_system_call();
@@ -2661,7 +2661,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
               begin_system_call(); cap = tgetstr("K2",&tp); end_system_call();
               if (cap) { keybinding(cap,21 | char_hyper_c); } # #\Center
               # Funktionstasten:
-              { typedef struct { char* capname; cint key; } funkey;
+              { typedef struct { const char* capname; cint key; } funkey;
                 local var funkey funkey_tab[] = {
                   { "k1", 'A' | char_hyper_c }, # #\F1
                   { "k2", 'B' | char_hyper_c }, # #\F2
@@ -2842,9 +2842,9 @@ LISPFUNN(make_keyboard_stream,0)
 # rd_ch_terminal(&stream)
 # > stream: Terminal-Stream
 # < object ch: eingegebenes Zeichen
-  local object rd_ch_terminal (object* stream_);
+  local object rd_ch_terminal (const object* stream_);
   local object rd_ch_terminal(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var int linepos;
       var uintB ch;
       begin_call();
@@ -2885,9 +2885,9 @@ LISPFUNN(make_keyboard_stream,0)
 # wr_ch_terminal(&stream,ch);
 # > stream: Terminal-Stream
 # > ch: auszugebendes Zeichen
-  local void wr_ch_terminal (object* stream_, object ch);
+  local void wr_ch_terminal (const object* stream_, object ch);
   local void wr_ch_terminal(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { var object stream = *stream_;
       if (!string_char_p(ch)) { fehler_wr_string_char(stream,ch); } # ch sollte String-Char sein
@@ -3074,9 +3074,9 @@ LISPFUNN(make_keyboard_stream,0)
 #ifdef HAVE_TERMINAL1
 
 # Lesen eines Zeichens von einem Terminal-Stream.
-  local object rd_ch_terminal1 (object* stream_);
+  local object rd_ch_terminal1 (const object* stream_);
   local object rd_ch_terminal1(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object ch = rd_ch_handle(stream_);
       #ifdef WIN32
       # CR/LF zu NL zusammenfassen.
@@ -3118,9 +3118,9 @@ LISPFUNN(make_keyboard_stream,0)
  #if !defined(AMIGAOS)
   #define wr_ch_terminal1  wr_ch_handle
  #else # defined(AMIGAOS)
-  local void wr_ch_terminal1 (object* stream_, object ch);
+  local void wr_ch_terminal1 (const object* stream_, object ch);
   local void wr_ch_terminal1(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { # ch sollte ein Character mit höchstens Font, aber ohne Bits sein:
       if (!((as_oint(ch) & ~(((oint)char_code_mask_c|(oint)char_font_mask_c)<<oint_data_shift)) == as_oint(type_data_object(char_type,0))))
@@ -3187,10 +3187,10 @@ LISPFUNN(make_keyboard_stream,0)
 #define TERMINAL_LINEBUFFERED  TRUE
 
 # Lesen eines Zeichens von einem Terminal-Stream.
-  local object rd_ch_terminal2 (object* stream_);
+  local object rd_ch_terminal2 (const object* stream_);
   # vgl. rd_ch_handle() :
   local object rd_ch_terminal2(stream_)
-    var object* stream_;
+    var const object* stream_;
     { restart_it:
      {var object stream = *stream_;
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
@@ -3364,10 +3364,10 @@ LISPFUNN(make_keyboard_stream,0)
     }
 
 # Lesen eines Zeichens von einem Terminal-Stream.
-  local object rd_ch_terminal3 (object* stream_);
+  local object rd_ch_terminal3 (const object* stream_);
   # vgl. rd_ch_handle() :
   local object rd_ch_terminal3(stream_)
-    var object* stream_;
+    var const object* stream_;
     { restart_it:
      {var object stream = *stream_;
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
@@ -3496,9 +3496,9 @@ LISPFUNN(make_keyboard_stream,0)
 # wr_ch_terminal3(&stream,ch);
 # > stream: Terminal-Stream
 # > ch: auszugebendes Zeichen
-  local void wr_ch_terminal3 (object* stream_, object ch);
+  local void wr_ch_terminal3 (const object* stream_, object ch);
   local void wr_ch_terminal3(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
      {var uintB c = char_code(ch); # Code des Zeichens
@@ -3535,9 +3535,9 @@ LISPFUNN(make_keyboard_stream,0)
 # > string: Simple-String
 # > start: Startindex
 # > len: Anzahl der auszugebenden Zeichen
-  local void wr_ss_terminal3 (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_terminal3 (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_terminal3(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -3657,7 +3657,7 @@ LISPFUNN(make_keyboard_stream,0)
           {
            #if defined(UNIX) || defined(RISCOS)
             #if 0
-            var char* ergebnis;
+            var const char* ergebnis;
             var object filename;
             ergebnis = ttyname(stdin_handle); # Filename von stdin holen
             if (!(ergebnis==NULL))
@@ -4354,9 +4354,9 @@ local uintB attr; # = attr_table[screentype][screenattr];
   #define intvideo(in_ptr,out_ptr)  int86(0x10,in_ptr,out_ptr)
 #endif
 #ifdef EMUNIX
-  local void intvideo (union REGS * in_regs, union REGS * out_regs);
+  local void intvideo (const union REGS * in_regs, union REGS * out_regs);
   local void intvideo(in_regs,out_regs)
-    var register union REGS * in_regs;
+    var const register union REGS * in_regs;
     var register union REGS * out_regs;
     { __asm__ __volatile__ ( "pushl %%ebx ; "
                              "movl 0(%%esi),%%eax ; "
@@ -4592,9 +4592,9 @@ uintW v_put(ch)
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: auszugebendes Zeichen
-  local void wr_ch_window (object* stream_, object ch);
+  local void wr_ch_window (const object* stream_, object ch);
   local void wr_ch_window(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
      {var uintB c = char_code(ch); # Code des Zeichens
@@ -4751,9 +4751,9 @@ local int COLS;  # Anzahl Spalten, Anzahl Zeichen pro Zeile
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: auszugebendes Zeichen
-  local void wr_ch_window (object* stream_, object ch);
+  local void wr_ch_window (const object* stream_, object ch);
   local void wr_ch_window(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
      {var uintB c = char_code(ch); # Code des Zeichens
@@ -4912,17 +4912,17 @@ LISPFUNN(window_cursor_off,1)
 # Benutzt die TERMCAP-Library:
   # Besorgt die Capability-Informationen zu Terminal-Type name.
   # Ergebnis: 1 falls OK, 0 falls name unbekannt, -1 bei sonstigem Fehler.
-    extern_C int tgetent (char* bp, char* name);
+    extern_C int tgetent (const char* bp, const char* name);
   # Besorgt den Wert einer numerischen Capability (-1 falls nicht vorhanden).
-    extern_C int tgetnum (char* id);
+    extern_C int tgetnum (const char* id);
   # Besorgt den Wert einer booleschen Capability (1 falls vorhanden, 0 sonst).
-    extern_C int tgetflag (char* id);
+    extern_C int tgetflag (const char* id);
   # Besorgt den Wert einer String-wertigen Capability und (falls area/=NULL)
   # kopiert es nach *area und rückt dabei *area weiter.
-    extern_C char* tgetstr (char* id, char** area);
+    extern_C const char* tgetstr (const char* id, char** area);
   # Besorgt den String, der eine Cursor-Positionierung an Stelle (destcol,destline)
   # bewirkt. (Nötig, da tgetstr("cm") ein spezielles Format hat!)
-    extern_C char* tgoto (char* cm, int destcol, int destline);
+    extern_C const char* tgoto (const char* cm, int destcol, int destline);
   # Führt eine String-Capability aus. Dazu wird für jedes Character die
   # Ausgabefunktion *outcharfun aufgerufen. (Nötig, da String-Capabilities
   # Padding-Befehle enthalten können!)
@@ -4931,7 +4931,7 @@ LISPFUNN(window_cursor_off,1)
     #else
       typedef void (*outcharfun_t) ();
     #endif
-    extern_C char* tputs (char* cp, int affcnt, outcharfun_t outcharfun);
+    extern_C const char* tputs (const char* cp, int affcnt, outcharfun_t outcharfun);
 
 # Einstellbare Wünsche:
   #define WANT_INSERT  FALSE  # Insert-Modus
@@ -4988,17 +4988,17 @@ LISPFUNN(window_cursor_off,1)
     }}
 
 # Ausgabe eines Capability-Strings.
-  local void out_capstring (char* s);
+  local void out_capstring (const char* s);
   local void out_capstring(s)
-    var char* s;
+    var const char* s;
     { if (!(s==NULL)) # Absichern gegen nicht vorhandene Capability
         { tputs(s,1,(outcharfun_t) &out_char); }
     }
 
 # Ausgabe eines Capability-Strings mit einem Argument.
-  local void out_cap1string (char* s, int arg);
+  local void out_cap1string (const char* s, int arg);
   local void out_cap1string(s,arg)
-    var char* s;
+    var const char* s;
     var int arg;
     { if (!(s==NULL)) # Absichern gegen nicht vorhandene Capability
         { tputs(tgoto(s,0,arg),1,(outcharfun_t) &out_char); }
@@ -5013,9 +5013,9 @@ LISPFUNN(window_cursor_off,1)
     var char c;
     { cost_counter++; }
   # Berechnet die Kosten der Ausgabe einer Capability:
-  local uintC cap_cost (char* s);
+  local uintC cap_cost (const char* s);
   local uintC cap_cost(s)
-    var char* s;
+    var const char* s;
     { if (s==NULL)
         { return EXPENSIVE; } # Capability nicht vorhanden
         else
@@ -5030,83 +5030,83 @@ LISPFUNN(window_cursor_off,1)
   local char* tp = &tentry[0];
 # Einige ausgewählte Capabilities (NULL oder Pointer in tentry hinein):
   # Insert-Modus:
-  local char* IMcap; # Enter Insert Mode
+  local const char* IMcap; # Enter Insert Mode
   local uintC IMcost;
-  local char* EIcap; # End Insert Mode
+  local const char* EIcap; # End Insert Mode
   local uintC EIcost;
   #if WANT_ATTR
   # Attribute:
-  local char* SOcap; # Enter standout mode
-  local char* SEcap; # End standout mode
-  local char* UScap; # Enter underline mode
-  local char* UEcap; # End underline mode
-  local char* MBcap; # Turn on blinking
-  local char* MDcap; # Turn on bold (extra-bright) mode
-  local char* MHcap; # Turn on half-bright mode
-  local char* MRcap; # Turn on reverse mode
-  local char* MEcap; # Turn off all attributes
+  local const char* SOcap; # Enter standout mode
+  local const char* SEcap; # End standout mode
+  local const char* UScap; # Enter underline mode
+  local const char* UEcap; # End underline mode
+  local const char* MBcap; # Turn on blinking
+  local const char* MDcap; # Turn on bold (extra-bright) mode
+  local const char* MHcap; # Turn on half-bright mode
+  local const char* MRcap; # Turn on reverse mode
+  local const char* MEcap; # Turn off all attributes
   #endif
   #if WANT_CHARSET
   # Zeichensätze:
   local boolean ISO2022; # ob Zeichensatzwechsel nach ISO2022 unterstützt wird
   #endif
   # Cursor-Bewegung:
-  local char* CMcap; # Cursor motion, allgemeine Cursor-Positionierung
-  local char* TIcap; # Initialize mode where CM is usable
-  local char* TEcap; # Exit mode where CM is usable
-  local char* BCcap; # Backspace Cursor
+  local const char* CMcap; # Cursor motion, allgemeine Cursor-Positionierung
+  local const char* TIcap; # Initialize mode where CM is usable
+  local const char* TEcap; # Exit mode where CM is usable
+  local const char* BCcap; # Backspace Cursor
   local uintC BCcost;
-  local char* NDcap; # cursor right
+  local const char* NDcap; # cursor right
   local uintC NDcost;
-  local char* DOcap; # cursor down
+  local const char* DOcap; # cursor down
   local uintC DOcost;
-  local char* UPcap; # cursor up
+  local const char* UPcap; # cursor up
   local uintC UPcost;
-  local char* NLcap; # Newline
-  local char* CRcap; # Carriage Return
+  local const char* NLcap; # Newline
+  local const char* CRcap; # Carriage Return
   local uintC CRcost;
   # Scrolling:
-  local char* CScap; # change scroll region
+  local const char* CScap; # change scroll region
   #if WANT_DELETE_LINE
-  local char* SFcap; # Scroll (text up)
+  local const char* SFcap; # Scroll (text up)
   #endif
   #if WANT_CURSOR_REVLINEFEED || WANT_INSERT_LINE
-  local char* SRcap; # Scroll reverse (text down)
+  local const char* SRcap; # Scroll reverse (text down)
   #endif
   # Sonstige:
-  local char* IScap; # Terminal Initialization 2
-#  local char* BLcap; # Bell
-#  local char* VBcap; # Visible Bell (Flash)
-  local char* CLcap; # clear screen, cursor home
+  local const char* IScap; # Terminal Initialization 2
+#  local const char* BLcap; # Bell
+#  local const char* VBcap; # Visible Bell (Flash)
+  local const char* CLcap; # clear screen, cursor home
   #if WANT_CLEAR_FROM_BOS || WANT_CLEAR_TO_EOS || WANT_CLEAR_LINE || WANT_CLEAR_FROM_BOL || WANT_CLEAR_TO_EOL
-  local char* CEcap; # clear to end of line
+  local const char* CEcap; # clear to end of line
   #endif
   #if WANT_CLEAR_TO_EOS
-  local char* CDcap; # clear to end of screen
+  local const char* CDcap; # clear to end of screen
   #endif
   #if WANT_CURSOR_REVLINEFEED || WANT_INSERT_LINE
-  local char* ALcap; # add new blank line
+  local const char* ALcap; # add new blank line
   #endif
   #if WANT_DELETE_LINE
-  local char* DLcap; # delete line
+  local const char* DLcap; # delete line
   #endif
   #if WANT_DELETE_CHAR
-  local char* DCcap; # delete character
+  local const char* DCcap; # delete character
   #endif
   #if WANT_INSERT_1CHAR || WANT_INSERT_CHAR
-  local char* ICcap; # insert character
+  local const char* ICcap; # insert character
   #endif
   #if WANT_INSERT_CHAR
-  local char* CICcap; # insert count characters
+  local const char* CICcap; # insert count characters
   #endif
   #if WANT_INSERT_LINE
-  local char* CALcap; # add count blank lines
+  local const char* CALcap; # add count blank lines
   #endif
   #if WANT_DELETE_CHAR
-  local char* CDCcap; # delete count chars
+  local const char* CDCcap; # delete count chars
   #endif
   #if WANT_DELETE_LINE
-  local char* CDLcap; # delete count lines
+  local const char* CDLcap; # delete count lines
   #endif
   local boolean AM; # automatic margins, ob an rechterer unterer Ecke scrollt
   local int rows; # Anzahl der Zeilen des Bildschirms, >0
@@ -5342,7 +5342,7 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
           { out_capstring(tgoto(CMcap,x2,y2)); return; }
         if (!(mx==MX_NONE))
           { if ((mx==MX_LE) || (mx==MX_RI))
-              { var char* s;
+              { var const char* s;
                 if (mx==MX_LE) { dx = -dx; s = BCcap; } else { s = NDcap; }
                 do { out_capstring(s); } until (--dx == 0);
               }
@@ -5364,7 +5364,7 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
               }   }
           }
         if (!(my==MY_NONE))
-          { var char* s;
+          { var const char* s;
             if (my==MY_UP) { dy = -dy; s = UPcap; } else { s = DOcap; }
             do { out_capstring(s); } until (--dy == 0);
           }
@@ -6226,7 +6226,7 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
       if (term_initialized) { return NULL; } # schon initialisiert -> OK
       # Terminal-Typ abfragen:
       begin_system_call();
-      { var char* s = getenv("TERM");
+      { var const char* s = getenv("TERM");
         if (s==NULL)
           { end_system_call();
             return (DEUTSCH ? "Environment enthält keine TERM-Variable." :
@@ -6589,9 +6589,9 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: auszugebendes Zeichen
-  local void wr_ch_window (object* stream_, object ch);
+  local void wr_ch_window (const object* stream_, object ch);
   local void wr_ch_window(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
      {var uintB c = char_code(ch); # Code des Zeichens
@@ -6820,9 +6820,9 @@ LISPFUNN(window_cursor_off,1)
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: auszugebendes Zeichen
-  local void wr_ch_window (object* stream_, object ch);
+  local void wr_ch_window (const object* stream_, object ch);
   local void wr_ch_window(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
      {var uintB c = char_code(ch); # Code des Zeichens
@@ -6985,9 +6985,9 @@ LISPFUNN(window_cursor_off,1)
 # Terminal-Emulation: ANSI-Steuerzeichen, siehe console.doc
 
 # UP: Ausgabe mehrerer Zeichen auf den Bildschirm
-  local void wr_window (uintB* outbuffer, uintL count);
+  local void wr_window (const uintB* outbuffer, uintL count);
   local void wr_window(outbuffer,count)
-    var uintB* outbuffer;
+    var const uintB* outbuffer;
     var uintL count;
     { set_break_sem_1();
       begin_system_call();
@@ -7008,9 +7008,9 @@ LISPFUNN(window_cursor_off,1)
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: auszugebendes Zeichen
-  local void wr_ch_window (object* stream_, object ch);
+  local void wr_ch_window (const object* stream_, object ch);
   local void wr_ch_window(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
      {var uintB c = char_code(ch); # Code des Zeichens
@@ -7581,9 +7581,9 @@ LISPFUNN(window_cursor_off,1)
 # Beim Lesen: CR/LF wird in NL umgewandelt.
 
 # READ-CHAR - Pseudofunktion für File-Streams für String-Chars
-  local object rd_ch_sch_file (object* stream_);
+  local object rd_ch_sch_file (const object* stream_);
   local object rd_ch_sch_file(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       var uintB* charptr = b_file_nextbyte(stream);
       if (charptr == (uintB*)NULL) { return eof_value; } # EOF ?
@@ -7642,9 +7642,9 @@ LISPFUNN(window_cursor_off,1)
     }
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für String-Chars
-  local void wr_ch_sch_file (object* stream_, object obj);
+  local void wr_ch_sch_file (const object* stream_, object obj);
   local void wr_ch_sch_file(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { var object stream = *stream_;
       # obj muß ein String-Char sein:
@@ -7663,12 +7663,12 @@ LISPFUNN(window_cursor_off,1)
     }}
 
 # WRITE-CHAR-SEQUENCE für File-Streams für String-Chars:
-  local uintB* write_schar_array_sch_file (object stream, uintB* strptr, uintL len);
+  local const uintB* write_schar_array_sch_file (object stream, const uintB* strptr, uintL len);
   #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
   # Wegen NL->CR/LF-Umwandlung keine Optimierung möglich.
-  local inline uintB* write_schar_array_sch_file(stream,strptr,len)
+  local inline const uintB* write_schar_array_sch_file(stream,strptr,len)
     var object stream;
-    var uintB* strptr;
+    var const uintB* strptr;
     var uintL len;
     { var uintL remaining = len;
       do { var uintB ch = *strptr++;
@@ -7685,9 +7685,9 @@ LISPFUNN(window_cursor_off,1)
       return strptr;
     }
   #else
-  local uintB* write_schar_array_sch_file(stream,strptr,len)
+  local const uintB* write_schar_array_sch_file(stream,strptr,len)
     var object stream;
-    var uintB* strptr;
+    var const uintB* strptr;
     var uintL len;
     { var uintL remaining = len;
       var uintB* ptr;
@@ -7754,9 +7754,9 @@ LISPFUNN(window_cursor_off,1)
 
 #ifdef STRM_WR_SS
 # WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für String-Chars
-  local void wr_ss_sch_file (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_sch_file (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_sch_file(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -7776,9 +7776,9 @@ LISPFUNN(window_cursor_off,1)
   #define char_size  (char_int_len / 8)  # Größe eines Characters in Bytes
 
 # READ-CHAR - Pseudofunktion für File-Streams für Characters
-  local object rd_ch_ch_file (object* stream_);
+  local object rd_ch_ch_file (const object* stream_);
   local object rd_ch_ch_file(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       var cint c;
       var uintB* ptr = b_file_nextbyte(stream);
@@ -7832,9 +7832,9 @@ LISPFUNN(window_cursor_off,1)
     }
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
-  local void wr_ch_ch_file (object* stream_, object obj);
+  local void wr_ch_ch_file (const object* stream_, object obj);
   local void wr_ch_ch_file(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { var object stream = *stream_;
       # obj muß ein Character sein:
@@ -8550,10 +8550,10 @@ LISPFUNN(window_cursor_off,1)
     { wr_by_ixs_file(stream,obj,&wr_by_ic); }
 
 # WRITE-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
-  local uintB* write_byte_array_iau8_file (object stream, uintB* byteptr, uintL len);
-  local uintB* write_byte_array_iau8_file(stream,byteptr,len)
+  local const uintB* write_byte_array_iau8_file (object stream, const uintB* byteptr, uintL len);
+  local const uintB* write_byte_array_iau8_file(stream,byteptr,len)
     var object stream;
-    var uintB* byteptr;
+    var const uintB* byteptr;
     var uintL len;
     { var uintL remaining = len;
       var uintB* ptr;
@@ -9232,9 +9232,9 @@ LISPFUNN(file_stream_p,1)
     }}
 
 # READ-CHAR - Pseudofunktion für Synonym-Streams:
-  local object rd_ch_synonym (object* stream_);
+  local object rd_ch_synonym (const object* stream_);
   local object rd_ch_synonym(stream_)
-    var object* stream_;
+    var const object* stream_;
     {  check_SP(); check_STACK();
      { var object stream = *stream_;
        var object symbol = TheStream(stream)->strm_synonym_symbol;
@@ -9245,9 +9245,9 @@ LISPFUNN(file_stream_p,1)
     }}}
 
 # PEEK-CHAR - Pseudofunktion für Synonym-Streams:
-  local object pk_ch_synonym (object* stream_);
+  local object pk_ch_synonym (const object* stream_);
   local object pk_ch_synonym(stream_)
-    var object* stream_;
+    var const object* stream_;
     {  check_SP(); check_STACK();
      { var object stream = *stream_;
        var object symbol = TheStream(stream)->strm_synonym_symbol;
@@ -9258,9 +9258,9 @@ LISPFUNN(file_stream_p,1)
     }}}
 
 # WRITE-CHAR - Pseudofunktion für Synonym-Streams:
-  local void wr_ch_synonym (object* stream_, object obj);
+  local void wr_ch_synonym (const object* stream_, object obj);
   local void wr_ch_synonym(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { check_SP(); check_STACK();
      {var object stream = *stream_;
@@ -9272,9 +9272,9 @@ LISPFUNN(file_stream_p,1)
 
 #ifdef STRM_WR_SS
 # WRITE-SIMPLE-STRING - Pseudofunktion für Synonym-Streams:
-  local void wr_ss_synonym (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_synonym (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_synonym(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -9454,9 +9454,9 @@ LISPFUNN(synonym_stream_symbol,1)
     }
 
 # WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
-  local void wr_ch_broad (object* stream_, object obj);
+  local void wr_ch_broad (const object* stream_, object obj);
   local void wr_ch_broad(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { check_SP(); check_STACK();
       pushSTACK(obj);
@@ -9474,9 +9474,9 @@ LISPFUNN(synonym_stream_symbol,1)
 
 #ifdef STRM_WR_SS
 # WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
-  local void wr_ss_broad (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_broad (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_broad(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -9658,9 +9658,9 @@ LISPFUNN(broadcast_stream_streams,1)
     }}
 
 # READ-CHAR - Pseudofunktion für Concatenated-Streams:
-  local object rd_ch_concat (object* stream_);
+  local object rd_ch_concat (const object* stream_);
   local object rd_ch_concat(stream_)
-    var object* stream_;
+    var const object* stream_;
     { check_SP(); check_STACK();
      {var object streamlist = TheStream(*stream_)->strm_concat_list; # Liste von Streams
       while (consp(streamlist))
@@ -9682,9 +9682,9 @@ LISPFUNN(broadcast_stream_streams,1)
     }}
 
 # PEEK-CHAR - Pseudofunktion für Concatenated-Streams:
-  local object pk_ch_concat (object* stream_);
+  local object pk_ch_concat (const object* stream_);
   local object pk_ch_concat(stream_)
-    var object* stream_;
+    var const object* stream_;
     { check_SP(); check_STACK();
      {var object streamlist = TheStream(*stream_)->strm_concat_list; # Liste von Streams
       while (consp(streamlist))
@@ -9835,9 +9835,9 @@ LISPFUNN(concatenated_stream_streams,1)
     }
 
 # WRITE-CHAR - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_ch_twoway (object* stream_, object obj);
+  local void wr_ch_twoway (const object* stream_, object obj);
   local void wr_ch_twoway(stream_,obj)
-    var object* stream_;
+    var const object* stream_;
     var object obj;
     { check_SP(); check_STACK();
       pushSTACK(TheStream(*stream_)->strm_twoway_output);
@@ -9847,9 +9847,9 @@ LISPFUNN(concatenated_stream_streams,1)
 
 #ifdef STRM_WR_SS
 # WRITE-SIMPLE-STRING - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_ss_twoway (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_twoway (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_twoway(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -9934,9 +9934,9 @@ LISPFUNN(concatenated_stream_streams,1)
     }
 
 # READ-CHAR - Pseudofunktion für Two-Way-Streams:
-  local object rd_ch_twoway (object* stream_);
+  local object rd_ch_twoway (const object* stream_);
   local object rd_ch_twoway(stream_)
-    var object* stream_;
+    var const object* stream_;
     { check_SP(); check_STACK();
       pushSTACK(TheStream(*stream_)->strm_twoway_input);
      {var object ergebnis = read_char(&STACK_0);
@@ -9945,9 +9945,9 @@ LISPFUNN(concatenated_stream_streams,1)
     }}
 
 # PEEK-CHAR - Pseudofunktion für Two-Way-Streams:
-  local object pk_ch_twoway (object* stream_);
+  local object pk_ch_twoway (const object* stream_);
   local object pk_ch_twoway(stream_)
-    var object* stream_;
+    var const object* stream_;
     { check_SP(); check_STACK();
       pushSTACK(TheStream(*stream_)->strm_twoway_input);
      {var object ergebnis = peek_char(&STACK_0);
@@ -10045,9 +10045,9 @@ LISPFUNN(two_way_stream_output_stream,1)
     }}
 
 # READ-CHAR - Pseudofunktion für Echo-Streams:
-  local object rd_ch_echo (object* stream_);
+  local object rd_ch_echo (const object* stream_);
   local object rd_ch_echo(stream_)
-    var object* stream_;
+    var const object* stream_;
     { check_SP(); check_STACK();
       pushSTACK(TheStream(*stream_)->strm_twoway_input);
      {var object obj = read_char(&STACK_0);
@@ -10158,9 +10158,9 @@ LISPFUNN(echo_stream_output_stream,1)
     }
 
 # READ-CHAR - Pseudofunktion für String-Input-Streams:
-  local object rd_ch_str_in (object* stream_);
+  local object rd_ch_str_in (const object* stream_);
   local object rd_ch_str_in(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
       var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
@@ -10264,9 +10264,9 @@ LISPFUNN(string_input_stream_index,1)
   #define strm_str_out_string  strm_other[0]  # Semi-Simple-String für Output
 
 # WRITE-CHAR - Pseudofunktion für String-Output-Streams:
-  local void wr_ch_str_out (object* stream_, object ch);
+  local void wr_ch_str_out (const object* stream_, object ch);
   local void wr_ch_str_out(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { var object stream = *stream_;
       # obj sollte String-Char sein:
@@ -10277,9 +10277,9 @@ LISPFUNN(string_input_stream_index,1)
 
 #ifdef STRM_WR_SS
 # WRITE-SIMPLE-STRING - Pseudofunktion für String-Output-Streams:
-  local void wr_ss_str_out (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_str_out (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_str_out(stream_,srcstring,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object srcstring;
     var uintL start;
     var uintL len;
@@ -10345,9 +10345,9 @@ LISPFUN(make_string_output_stream,0,1,norest,nokey,0,NIL)
 # < stream: geleerter Stream
 # < ergebnis: Angesammeltes, ein Simple-String
 # kann GC auslösen
-  global object get_output_stream_string (object* stream_);
+  global object get_output_stream_string (const object* stream_);
   global object get_output_stream_string(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object string = TheStream(*stream_)->strm_str_out_string; # alter String
       string = coerce_ss(string); # in Simple-String umwandeln (erzwingt ein Kopieren)
       # alten String durch Fill-Pointer:=0 leeren:
@@ -10381,9 +10381,9 @@ LISPFUNN(get_output_stream_string,1)
   #define strm_str_push_string  strm_other[0]  # String mit Fill-Pointer für Output
 
 # WRITE-CHAR - Pseudofunktion für String-Push-Streams:
-  local void wr_ch_str_push (object* stream_, object ch);
+  local void wr_ch_str_push (const object* stream_, object ch);
   local void wr_ch_str_push(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { var object stream = *stream_;
       # ch sollte String-Char sein:
@@ -10456,9 +10456,9 @@ LISPFUNN(string_stream_p,1)
   # define strm_pphelp_modus    strm_other[1]   # Modus (NIL=Einzeiler, T=Mehrzeiler)
 
 # WRITE-CHAR - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
-  local void wr_ch_pphelp (object* stream_, object ch);
+  local void wr_ch_pphelp (const object* stream_, object ch);
   local void wr_ch_pphelp(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { var object stream = *stream_;
       # ch sollte String-Char sein:
@@ -10472,9 +10472,9 @@ LISPFUNN(string_stream_p,1)
 
 #ifdef STRM_WR_SS
 # WRITE-SIMPLE-STRING - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
-  local void wr_ss_pphelp (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_pphelp (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_pphelp(stream_,srcstring,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object srcstring;
     var uintL start;
     var uintL len;
@@ -10564,9 +10564,9 @@ LISPFUNN(string_stream_p,1)
   #define strm_buff_in_endindex  strm_other[4]  # Endindex (Fixnum >= index >=0)
 
 # READ-CHAR - Pseudofunktion für Buffered-Input-Streams:
-  local object rd_ch_buff_in (object* stream_);
+  local object rd_ch_buff_in (const object* stream_);
   local object rd_ch_buff_in(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index); # Index
       var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
@@ -10773,9 +10773,9 @@ LISPFUNN(buffered_input_stream_index,1)
     }
 
 # WRITE-CHAR - Pseudofunktion für Buffered-Output-Streams:
-  local void wr_ch_buff_out (object* stream_, object ch);
+  local void wr_ch_buff_out (const object* stream_, object ch);
   local void wr_ch_buff_out(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { var object stream = *stream_;
       # obj sollte String-Char sein:
@@ -10837,9 +10837,9 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
   #define strm_printer_handle  strm_other[0]  # Handle von "PRT:"
 
 # WRITE-CHAR - Pseudofunktion für Printer-Streams:
-  local void wr_ch_printer (object* stream_, object ch);
+  local void wr_ch_printer (const object* stream_, object ch);
   local void wr_ch_printer(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { var object stream = *stream_;
       # ch sollte String-Char sein:
@@ -10992,7 +10992,7 @@ LISPFUNN(make_pipe_input_stream,1)
       # command in den Stack kopieren:
       var uintL command_length = Sstring_length(command);
       var DYNAMIC_ARRAY(command_data,char,command_length);
-      { var char* ptr1 = TheAsciz(command);
+      { var const char* ptr1 = TheAsciz(command);
         var char* ptr2 = &command_data[0];
         dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
       }
@@ -11174,7 +11174,7 @@ LISPFUNN(make_pipe_output_stream,1)
       # command in den Stack kopieren:
       var uintL command_length = Sstring_length(command);
       var DYNAMIC_ARRAY(command_data,char,command_length);
-      { var char* ptr1 = TheAsciz(command);
+      { var const char* ptr1 = TheAsciz(command);
         var char* ptr2 = &command_data[0];
         dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
       }
@@ -11311,7 +11311,7 @@ LISPFUNN(make_pipe_io_stream,1)
       # command in den Stack kopieren:
       var uintL command_length = Sstring_length(command);
       var DYNAMIC_ARRAY(command_data,char,command_length);
-      { var char* ptr1 = TheAsciz(command);
+      { var const char* ptr1 = TheAsciz(command);
         var char* ptr2 = &command_data[0];
         dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
       }
@@ -11488,9 +11488,9 @@ LISPFUNN(make_pipe_io_stream,1)
 
 # READ-CHAR - Pseudofunktion für Socket-Streams:
   #ifdef WIN32_NATIVE
-    local object rd_ch_socket (object* stream_);
+    local object rd_ch_socket (const object* stream_);
     local object rd_ch_socket(stream_)
-      var object* stream_;
+      var const object* stream_;
       {   restart_it:
        {  var object stream = *stream_;
           if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
@@ -11591,9 +11591,9 @@ LISPFUNN(make_pipe_io_stream,1)
 
 # WRITE-CHAR - Pseudofunktion für Socket-Streams:
   #ifdef WIN32_NATIVE
-    local void wr_ch_socket (object* stream_, object ch);
+    local void wr_ch_socket (const object* stream_, object ch);
     local void wr_ch_socket(stream_,ch)
-      var object* stream_;
+      var const object* stream_;
       var object ch;
       { restart_it:
        {  var SOCKET handle = TheSocket(TheStream(*stream_)->strm_ohandle);
@@ -11620,10 +11620,10 @@ LISPFUNN(make_pipe_io_stream,1)
 
 # WRITE-CHAR-SEQUENCE für X11-Socket-Streams:
   #ifdef WIN32_NATIVE
-    local uintB* write_schar_array_socket (object stream, uintB* ptr, uintL len);
-    local uintB* write_schar_array_socket(stream,ptr,len)
+    local const uintB* write_schar_array_socket (object stream, const uintB* ptr, uintL len);
+    local const uintB* write_schar_array_socket(stream,ptr,len)
       var object stream;
-      var uintB* ptr;
+      var const uintB* ptr;
       var uintL len;
       { var SOCKET handle = TheSocket(TheStream(stream)->strm_ohandle);
         var uintL remaining = len;
@@ -11647,9 +11647,9 @@ LISPFUNN(make_pipe_io_stream,1)
 #ifdef STRM_WR_SS
 # WRITE-SIMPLE-STRING - Pseudofunktion für Socket-Streams:
   #ifdef WIN32_NATIVE
-    local void wr_ss_socket (object* stream_, object string, uintL start, uintL len);
+    local void wr_ss_socket (const object* stream_, object string, uintL start, uintL len);
     local void wr_ss_socket(stream_,string,start,len)
-      var object* stream_;
+      var const object* stream_;
       var object string;
       var uintL start;
       var uintL len;
@@ -11735,7 +11735,7 @@ LISPFUNN(make_pipe_io_stream,1)
 #define wr_by_x11socket  wr_by_socket
 #define close_x11socket  close_socket
 
-extern SOCKET connect_to_x_server (char* host, int display); # ein Stück X-Source...
+extern SOCKET connect_to_x_server (const char* host, int display); # ein Stück X-Source...
 
 LISPFUNN(make_x11socket_stream,2)
 # (SYS::MAKE-SOCKET-STREAM host display)
@@ -11762,7 +11762,7 @@ LISPFUNN(make_x11socket_stream,2)
                ""
               );
      }
-   {var char* host = TheAsciz(string_to_asciz(STACK_1));
+   {var const char* host = TheAsciz(string_to_asciz(STACK_1));
     var SOCKET handle;
     begin_system_call();
     handle = connect_to_x_server(host,posfixnum_to_L(STACK_0));
@@ -12074,7 +12074,7 @@ LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
     skipSTACK(3);
   }
 
-extern SOCKET create_client_socket(char *host,int port);
+extern SOCKET create_client_socket (const char* host, int port);
 
 LISPFUN(socket_connect,1,1,norest,nokey,0,NIL)
 # (SOCKET-CONNECT port [host])
@@ -12100,12 +12100,12 @@ LISPFUN(socket_connect,1,1,norest,nokey,0,NIL)
     mv_count = 1;
   }
 
-extern int resolve_service (const char * name_or_number, char* *name);
+extern int resolve_service (const char* name_or_number, const char* *name);
 
 LISPFUNN(socket_service_port,1)
 # (SOCKET-SERVICE-PORT service-name)
   {
-    var char *service_name;
+    var const char* service_name;
     var int port;
 
     if (stringp(STACK_0))
@@ -12217,9 +12217,9 @@ LISPFUNN(socket_stream_handle,1)
 
   # (READ-CHAR s) ==
   # (GENERIC-STREAM-READ-CHAR c)
-  local object rd_ch_generic (object* stream_);
+  local object rd_ch_generic (const object* stream_);
   local object rd_ch_generic(stream_)
-    var object* stream_;
+    var const object* stream_;
     { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
       pushSTACK(value1); funcall(S(generic_stream_rdch),1);
       return nullp(value1) ? eof_value : value1;
@@ -12227,9 +12227,9 @@ LISPFUNN(socket_stream_handle,1)
 
   # (PEEK-CHAR s) ==
   # (GENERIC-STREAM-PEEK-CHAR c)
-  local object pk_ch_generic (object* stream_);
+  local object pk_ch_generic (const object* stream_);
   local object pk_ch_generic(stream_)
-    var object* stream_;
+    var const object* stream_;
     { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
       pushSTACK(value1); funcall(S(generic_stream_pkch),1);
       if ((mv_count >= 2) && !nullp(value2))
@@ -12285,9 +12285,9 @@ LISPFUNN(socket_stream_handle,1)
 
   # (WRITE-CHAR ch s) ==
   # (GENERIC-STREAM-WRITE-CHAR c ch)
-  local void wr_ch_generic (object* stream_, object ch);
+  local void wr_ch_generic (const object* stream_, object ch);
   local void wr_ch_generic(stream_,ch)
-    var object* stream_;
+    var const object* stream_;
     var object ch;
     { # ch is a character, need not save it
       pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
@@ -12297,9 +12297,9 @@ LISPFUNN(socket_stream_handle,1)
 #ifdef STRM_WR_SS
   # (WRITE-SIMPLE-STRING s string start len) ==
   # (GENERIC-STREAM-WRITE-STRING c string start len)
-  local void wr_ss_generic (object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_generic (const object* stream_, object string, uintL start, uintL len);
   local void wr_ss_generic(stream_,string,start,len)
-    var object* stream_;
+    var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
@@ -12858,9 +12858,9 @@ LISPFUNN(interactive_stream_p,1)
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  global void stream_close (object* stream_);
+  global void stream_close (const object* stream_);
   global void stream_close(stream_)
-    var object* stream_;
+    var const object* stream_;
     { var object stream = *stream_;
       if ((TheStream(stream)->strmflags & strmflags_open_B) == 0) # Stream schon geschlossen?
         return;
@@ -13458,10 +13458,10 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # > uintB* byteptr: Adresse der zu schreibenden Bytefolge
 # > uintL len: Länge der zu schreibenden Bytefolge
 # < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  global uintB* write_byte_array (object stream, uintB* byteptr, uintL len);
-  global uintB* write_byte_array(stream,byteptr,len)
+  global const uintB* write_byte_array (object stream, const uintB* byteptr, uintL len);
+  global const uintB* write_byte_array(stream,byteptr,len)
     var object stream;
-    var uintB* byteptr;
+    var const uintB* byteptr;
     var uintL len;
     { if (len==0) { return byteptr; }
       start:
@@ -13702,10 +13702,10 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # > uintB* charptr: Adresse der zu schreibenden Zeichenfolge
 # > uintL len: Länge der zu schreibenden Zeichenfolge
 # < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  global uintB* write_schar_array (object stream, uintB* charptr, uintL len);
-  global uintB* write_schar_array(stream,charptr,len)
+  global const uintB* write_schar_array (object stream, const uintB* charptr, uintL len);
+  global const uintB* write_schar_array(stream,charptr,len)
     var object stream;
-    var uintB* charptr;
+    var const uintB* charptr;
     var uintL len;
     { if (len==0) { return charptr; }
       start:
