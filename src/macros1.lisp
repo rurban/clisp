@@ -283,7 +283,7 @@
                      ,@(rest clause)))))
            clauses)))))
 
-(defmacro-special fcase (test keyform &body clauses)
+(defmacro fcase (test keyform &body clauses)
   (case-expand 'fcase test keyform clauses))
 (defmacro-special case (keyform &body clauses)
   (case-expand 'case 'eql keyform clauses))
