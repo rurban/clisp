@@ -536,10 +536,12 @@ MAKE-FOREIGN-STRING
 (list
  (def-call-out c-malloc (:arguments (l long))
    (:name "malloc") (:language :stdc) (:return-type c-pointer)
-   (:library #+(and unix (not cygwin)) "c" #+(or win32 cygwin) "MSVCRT"))
+   (:library #+(and unix (not cygwin)) "/lib/libc.so"
+             #+(or win32 cygwin) "MSVCRT"))
  (def-call-out c-free (:arguments (p c-pointer))
    (:name "free") (:language :stdc) (:return-type nil)
-   (:library #+(and unix (not cygwin)) "c" #+(or win32 cygwin) "MSVCRT")))
+   (:library #+(and unix (not cygwin)) "/lib/libc.so"
+             #+(or win32 cygwin) "MSVCRT")))
 (c-malloc c-free)
 
 ;; this is ugly and inefficient; if you find yourself doing this,
