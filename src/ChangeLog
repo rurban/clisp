@@ -1,3 +1,8 @@
+2004-11-05  Bruno Haible  <bruno@clisp.org>
+
+	* query.lisp (y-or-n-p, yes-or-no-p): Remove extra blank line between
+	wrong answer and complaint.
+
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
 	* debug.d (read_form): Use fresh-line instead of terpri before the
