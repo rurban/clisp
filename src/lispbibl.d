@@ -11705,10 +11705,10 @@ nonreturning_function(global, fehler_funname_source,
                       (object caller, object obj));
 
 # Error message, if an argument is a lambda-expression instead of a function:
-# fehler_lambda_expression(obj);
+# fehler_lambda_expression(caller,obj);
+# caller: caller (a symbol)
 # obj: the faulty argument
-# > subr_self: caller(a SUBR)
-nonreturning_function(extern, fehler_lambda_expression, (object obj));
+nonreturning_function(extern, fehler_lambda_expression, (object caller, object obj));
 # is used by EVAL, SYMBOL
 
 # too many/few arguments in a function call

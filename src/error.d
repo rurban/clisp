@@ -885,13 +885,13 @@ nonreturning_function(global, fehler_funname_source,
 }
 
 /* error-message, if an argument is a lambda-expression instead of a function:
- fehler_lambda_expression(obj);
- obj: the erroneous argument
- > subr_self: caller (a SUBR) */
-nonreturning_function(global, fehler_lambda_expression, (object obj)) {
+ fehler_lambda_expression(caller,obj);
+ caller: caller (a symbol)
+ obj: the erroneous argument */
+nonreturning_function(global, fehler_lambda_expression, (object caller, object obj)) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(obj); pushSTACK(caller);
   fehler(type_error,
          GETTEXT("~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION)."));
 }
