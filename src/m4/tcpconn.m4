@@ -33,8 +33,9 @@ CL_COMPILE_CHECK([IPv6 sockets in linux/in6.h], cl_cv_socket_ipv6_linux,
 AC_DEFINE(IPV6_NEED_LINUX_IN6_H,,[need <linux/in6.h> for the in6_addr and sockaddr_in6 types])
 AC_DEFINE(HAVE_IPV6))
 fi
-AC_CHECK_FUNCS(inet_pton inet_ntop)
+AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr setsockopt)
 AC_CHECK_HEADERS(netinet/in.h arpa/inet.h)dnl
+if test $ac_cv_func_inet_addr = yes; then
 CL_PROTO([inet_addr], [
 for x in '' 'const'; do
 for y in 'struct in_addr' 'unsigned long' 'unsigned int'; do
@@ -73,12 +74,14 @@ AC_DEFINE(INET_ADDR_SUFFIX,[.s_addr],[Define as .s_addr if the return type of in
 else
 AC_DEFINE(INET_ADDR_SUFFIX,[])
 fi
+fi
 AC_CHECK_HEADERS(netinet/tcp.h,,,
 dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
 [#if HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
 ])
+if test $ac_cv_func_setsockopt = yes; then
 CL_PROTO([setsockopt], [
 for z in 'int' 'unsigned int' 'size_t'; do
 for y in 'char*' 'void*'; do
@@ -106,4 +109,5 @@ fi
 AC_DEFINE_UNQUOTED(SETSOCKOPT_CONST,$cl_cv_proto_setsockopt_const,[declaration of setsockopt() needs const])
 AC_DEFINE_UNQUOTED(SETSOCKOPT_ARG_T,$cl_cv_proto_setsockopt_arg_t,[type of `optval' in setsockopt() declaration])
 AC_DEFINE_UNQUOTED(SETSOCKOPT_OPTLEN_T,$cl_cv_proto_setsockopt_optlen_t,[type of `optlen' in setsockopt() declaration])
+fi
 ])
