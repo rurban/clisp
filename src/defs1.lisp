@@ -18,7 +18,14 @@
     (when flag
       (when (boundp symbol) (sys::set-symbol-value sym (symbol-value symbol)))
       (when (fboundp symbol) (sys::%putd sym (symbol-function symbol)))
-      (sys::%putplist sym (copy-list (symbol-plist symbol))))
+      (sys::%putplist sym (copy-list (symbol-plist symbol)))
+      #| ;; No, ANSI CL does not say that the status of the symbol in the
+         ;; global environment is copied as well.
+      (cond ((constantp symbol) (sys::%proclaim-constant sym (symbol-value symbol)))
+            ((sys::special-variable-p symbol) (proclaim `(SPECIAL ,sym)))
+            ((sys::global-symbol-macro-p symbol) (sys::%proclaim-symbol-macro sym)))
+      |#
+      )
     sym))
 
 (let ((gentemp-count 0)) ;; Common LISP, p. 170
