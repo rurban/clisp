@@ -1,3 +1,11 @@
+2004-09-28  Sam Steingold  <sds@gnu.org>
+
+	* loop.lisp (loop): as per 6.1.1.1.1 and 6.1.1.1.2, LOOP is
+	extended when it contains ATOMs, not just loop keywords
+	Reported by Kalle Olavi Niemitalo <kon@iki.fi>
+	* compiler.lisp (simplify): use TAGBODY instead of simple LOOP
+	* subtypep.lisp (intervals-union): ditto
+
 2004-09-28  Bruno Haible  <bruno@clisp.org>
 
 	Make (MAKE-SEQUENCE (FIND-CLASS 'LIST) n) work.
