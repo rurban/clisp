@@ -54,29 +54,22 @@
       (setf (fill-pointer buffer) 0)
       (when newline-p (newline)))))
 (progn
-  (defmethod stream-write-char ((stream fill-stream) ch)
-    (with-slots #1=(buffer pending-space) stream
-      #2=
-      (case ch
-        (#\Newline (fill-stream-flush-buffer stream t))
-        ((#\Space #\Tab)
-         (when (plusp (length buffer))
-           (fill-stream-flush-buffer stream nil))
-         (setq pending-space t))
-        (t (vector-push-extend ch buffer)))))
-  (defmethod stream-write-char-sequence ((stream fill-stream) sequence &optional (start 0) (end nil))
-    (if (listp sequence)
-      ; Convert list to a vector, to avoid quadratic runtime.
-      (setq sequence (if end (subseq sequence start end) (subseq sequence start))
-            start 0 end (length sequence))
-      (unless end (setq end (length sequence))))
-    (when (< start end)
-      (with-slots #1# stream
-        (do ((pos start (1+ pos)))
-            ((>= pos end))
-          (let ((ch (elt sequence pos)))
-            ; Same body as in stream-write-char.
-            #2#))))))
+(defmethod stream-write-char ((stream fill-stream) ch)
+  (with-slots #1=(buffer pending-space) stream
+    #2=
+    (case ch
+      (#\Newline (fill-stream-flush-buffer stream t))
+      ((#\Space #\Tab)
+       (when (plusp (length buffer))
+         (fill-stream-flush-buffer stream nil))
+       (setq pending-space t))
+      (t (vector-push-extend ch buffer)))))
+(defmethod stream-write-char-sequence ((stream fill-stream) sequence
+                                       &optional (start 0) (end nil))
+  (with-slots #1# stream
+    ;; Same body as in stream-write-char.
+    (count-if (lambda (ch) #2#) sequence :start start :end end))
+  sequence))
 (defmethod stream-line-column ((stream fill-stream))
   (let ((pos (line-pos stream)))
     (if pos (max (- pos (slot-value stream 'current-indent)) 0) nil)))
