@@ -5,9 +5,11 @@
 
 #include "config.h"
 
-#define DEBUG
+/* #define DEBUG */
 #ifdef DEBUG
 # include <stdio.h>
+#else
+# define OBJECT_OUT(o,l)
 #endif
 
 #ifdef WIN32
@@ -58,9 +60,9 @@
 #endif
 
 /* :SCOPE */
-#define SCOPE_SELF  0
-#define SCOPE_KIDS  1
-#define SCOPE_TREE  2
+typedef enum {
+  SCOPE_SELF, SCOPE_KIDS, SCOPE_TREE
+} scope_t;
 
 #ifdef WIN32_REGISTRY
 # define SYSCALL_WIN32(call)     do {                                  \
@@ -87,6 +89,15 @@
 #endif
 
 #include "clisp.h"
+
+#ifdef DEBUG
+extern object nobject_out (FILE* stream, object obj);
+# define XOUT(obj,label)                                                 \
+  (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
+   obj=nobject_out(stdout,obj), printf("\n"))
+#else
+# define XOUT(o,l)
+#endif
 
 DEFMODULE(dirkey,"LDAP");
 
@@ -139,13 +150,13 @@ static object test_dir_key (object obj, bool check_open) {
       check_value(error,GETTEXT("~ on ~ is illegal"));
       obj = value1; goto start;
     }
-#  ifdef DEBUG
-    OBJECT_OUT(obj,"directory key");
-    OBJECT_OUT(slots[DK_TYPE],"type");
-    OBJECT_OUT(slots[DK_DIR],"dir");
-    OBJECT_OUT(slots[DK_PATH],"path");
-    OBJECT_OUT(slots[DK_OPEN],"open");
-    OBJECT_OUT(slots[DK_HANDLE],"handle");
+    XOUT(obj,"directory key");
+#  if SAFETY>=1
+    ASSERT(symbolp(slots[DK_TYPE]));
+    ASSERT(symbolp(slots[DK_DIR]));
+    ASSERT(stringp(slots[DK_PATH])) ;
+    ASSERT(eq(slots[DK_OPEN],NIL) || eq(slots[DK_OPEN],T));
+    ASSERT(fpointerp(slots[DK_HANDLE]));
 #  endif
   }
   return obj;
@@ -591,7 +602,7 @@ static object itst_current (object state) {
   return string_concat(depth);
 }
 
-static int parse_scope (object scope) {
+static scope_t parse_scope (object scope) {
   if (eq(scope,`:SELF`))  return SCOPE_SELF;
   if (eq(scope,`:LEVEL`)) return SCOPE_KIDS;
   if (eq(scope,`:TREE`))  return SCOPE_TREE;
@@ -601,7 +612,6 @@ static int parse_scope (object scope) {
   pushSTACK(scope);
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: ~ is not a ~"));
-  return -1; /* just to pacify the MSVC compiler */
 }
 
 /* return a simple vector with the iteration state
@@ -625,50 +635,43 @@ DEFUN(LDAP::DKEY-SEARCH-ITERATOR, key path scope) {
  and T/NIL indicating whether OPEN was successful
  can trigger GC */
 static void init_iteration_node (object state, object subkey,
-                                object *new_path, object *failed_p) {
+                                 object *new_path, object *failed_p) {
+  XOUT(state,"init_iteration_node");
   pushSTACK(state);
   pushSTACK(subkey);
   ITST_PATH(STACK_1/*state*/) = check_string(ITST_PATH(STACK_1));
   pushSTACK(allocate_cons());         /* stack */
   pushSTACK(allocate_vector(7));      /* node */
   pushSTACK(allocate_fpointer(NULL)); /* handle */
- {object handle = STACK_0;
-  object node   = STACK_1;
-  object stack  = STACK_2;
-  subkey = STACK_3;
-  state  = STACK_4;
- {object path = ITST_PATH(state);
   /* (push node stack) */
-  if (eq(T,ITST_STACK(state)))
-    ITST_STACK(state) = NIL;
-  Car(stack) = node;
-  Cdr(stack) = ITST_STACK(state);
-  ITST_STACK(state) = stack;
+  if (eq(T,ITST_STACK(STACK_4/*state*/)))
+    ITST_STACK(STACK_4/*state*/) = NIL;
+  Car(STACK_2/*stack*/) = STACK_1/*node*/;
+  Cdr(STACK_2/*stack*/) = ITST_STACK(STACK_4/*state*/);
+  ITST_STACK(STACK_4/*state*/) = STACK_2/*stack*/;
   /* init node */
-  NODE_KEY(node) = fixnum(0);
-  NODE_ATT(node) = fixnum(0);
-  NODE_NAME(node) = (nullp(subkey) ? path : subkey);
+  NODE_KEY(STACK_1/*node*/) = fixnum(0);
+  NODE_ATT(STACK_1/*node*/) = fixnum(0);
+  NODE_NAME(STACK_1/*node*/) =
+    (nullp(STACK_3/*subkey*/)
+     ? ITST_PATH(STACK_4/*state*/) : STACK_3/*subkey*/);
   /* init handle */
-  NODE_HANDLE(node) = handle;
-  pushSTACK(handle);
-  pushSTACK(`LDAP::DIR-KEY-CLOSE`);
+  NODE_HANDLE(STACK_1/*node*/) = STACK_0/*handle*/;
+  pushSTACK(STACK_0/*handle*/); pushSTACK(`LDAP::DIR-KEY-CLOSE`);
   funcall(L(finalize),2); /* (FINALIZE handle #'dir-key-close) */
-  *new_path = itst_current(STACK_4); /* state */
+  *new_path = itst_current(STACK_4/*state*/);
   test_dir_key(ITST_DKEY(STACK_4),true);
- {object dk = test_dir_key(ITST_DKEY(STACK_4),true); /* state */
+ {object dk = test_dir_key(ITST_DKEY(STACK_4/*state*/),true);
   gcv_object_t *slots = dir_key_slots(dk);
-  Fpointer fp = TheFpointer(STACK_0); /* handle */
+  FOREIGN *fp = &(TheFpointer(STACK_0/*handle*/)->fp_pointer);
   with_string_0(*new_path,O(misc_encoding),pathz,{
     open_reg_key((HKEY)SLOT_HANDLE(slots),pathz,check_direction(slots[DK_DIR]),
-                 IF_DOES_NOT_EXIST_UNBOUND/*ignore*/,(HKEY*)&(fp->fp_pointer));
+                 IF_DOES_NOT_EXIST_UNBOUND/*ignore*/,(HKEY*)fp);
   });
-  if (fp->fp_pointer) {
-    DWORD k_size;
-    DWORD a_size;
-    DWORD d_size;
-    SYSCALL_WIN32(RegQueryInfoKey((HKEY)(fp->fp_pointer),NULL,NULL,NULL,NULL,
-                                  &k_size,NULL,NULL,&a_size,&d_size,
-                                  NULL,NULL));
+  if (*fp) {
+    DWORD k_size, a_size, d_size;
+    SYSCALL_WIN32(RegQueryInfoKey((HKEY)*fp,NULL,NULL,NULL,NULL,&k_size,
+                                  NULL,NULL,&a_size,&d_size,NULL,NULL));
     NODE_KEY_S(STACK_1) = fixnum(k_size+1); /* node */
     NODE_ATT_S(STACK_1) = fixnum(a_size+1); /* node */
     NODE_DAT_S(STACK_1) = fixnum(d_size+1); /* node */
@@ -679,8 +682,9 @@ static void init_iteration_node (object state, object subkey,
     NODE_DAT_S(STACK_1) = Fixnum_0; /* node */
     *failed_p = T;
   }
+  XOUT(STACK_4,"init_iteration_node -- state");
   skipSTACK(5);
-}}}}
+}}
 
 /* return the next key of the current state or NIL
  if the key is NIL, the HKEY is closed and the stack is popped
@@ -693,9 +697,7 @@ static object state_next_key (object state) {
     uintL keylen = posfixnum_to_L(NODE_KEY_S(node));
     char* buffer = (char*)alloca(keylen);
     Fpointer fp  = TheFpointer(NODE_HANDLE(node));
-   #ifdef DEBUG
-    OBJECT_OUT(state,"state_next_key - state");
-#endif
+    XOUT(state,"state_next_key");
     if (fp->fp_pointer) {
       DWORD status = RegEnumKey((HKEY)(fp->fp_pointer),
                                 keynum,buffer,keylen);
@@ -720,8 +722,9 @@ DEFUN(LDAP::DKEY-SEARCH-NEXT-KEY,state)
 { /* return the next key of this iteration and T if open failed */
   object state = STACK_0;
   object dkey  = test_dir_key(ITST_DKEY(state),true);
-  int scope = parse_scope(ITST_SCOPE(state));
+  scope_t scope = parse_scope(ITST_SCOPE(state));
   object stack = ITST_STACK(state);
+  XOUT(state,"LDAP::DKEY-SEARCH-NEXT-KEY");
   switch (scope) {
     case SCOPE_SELF:            /* just the top */
       if (eq(stack,T))
@@ -779,6 +782,7 @@ DEFUN(LDAP::DKEY-SEARCH-NEXT-ATT,state)
   DWORD status = RegEnumValue((HKEY)(fp->fp_pointer),
                               attnum,att,&attlen,NULL,
                               &type,(BYTE*)dat,&size);
+  XOUT(state,"LDAP::DKEY-SEARCH-NEXT-ATT");
   if (status == ERROR_SUCCESS) {
     NODE_ATT(node) = fixnum_inc(NODE_ATT(node),1);
     pushSTACK(asciz_to_string(att,O(misc_encoding)));
@@ -864,7 +868,7 @@ DEFUN(LDAP::SET-DKEY-VALUE, key name value)
       uintL idx = 0;
       uintL len = vector_length(value);
       object arr = (simple_vector_p(value) ? value :
-                    iarray_displace_check(value,len,&idx));
+                    array_displace_check(value,len,&idx));
       SYSCALL_WIN32(RegSetValueEx(hk,namez,0,REG_BINARY,
                                   TheSbvector(arr)->data+idx,len-idx));
     } else {
