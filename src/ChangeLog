@@ -1,5 +1,9 @@
 1999-07-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (XCFLAGS): Add "-fno-gcse" when using gcc-2.95 on Sparc.
+
+1999-07-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw.d (usage): Reorder command line options. Split into groups.
 
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
