@@ -1,5 +1,21 @@
 1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make DESCRIBE more robust against interruptions.
+        * describe.lsp (describe-stream): New stream class.
+          (stream-*): New methods on describe-stream.
+          (describe-slotted-object): Omit all *describe-nesting* indentations.
+          Add *print-indent-lists* to tabpos. Call describe with stream, not
+          *standard-output*.
+          (describe-object): Omit all *describe-nesting* indentations.
+          Call describe with stream, not *standard-output*.
+          (describe-object) [PACKAGE]: Tweak spacing.
+          (describe1): New function.
+          (describe): Bind *describe-nesting* and *describe-done* instead of
+          setting them. In top-level calls, create a describe-stream.
+          (describe-signature): Omit all *describe-nesting* indentations.
+
+1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * room.lsp (room, space-tabulate): Use *print-right-margin* instead of
           sys::*prin-linelength* when it is non-NIL.
         * describe.lsp (describe): Likewise.
