@@ -425,14 +425,14 @@
         #endif
         #define update_fsubr_function  TRUE
         #define update(objptr)  \
-          { switch (mtypecode(*(object*)objptr))                          \
-              { case_system:                                              \
-                  if (wbit_test(*(oint*)objptr,0+oint_addr_shift)) break; \
-                case_subr:                                                \
-                case_machine:                                             \
-                  rheader.reloccount++;                                   \
-                default:                                                  \
-                  break;                                                  \
+          { switch (mtypecode(*(object*)objptr))                                     \
+              { case_system:                                                         \
+                  if (wbit_test(as_oint(*(object*)objptr),0+oint_addr_shift)) break; \
+                case_subr:                                                           \
+                case_machine:                                                        \
+                  rheader.reloccount++;                                              \
+                default:                                                             \
+                  break;                                                             \
           }   }
         #define update_ht_invalid(obj)  rheader.htcount++;
         #define update_fp_invalid(obj)  rheader.fpcount++;
@@ -453,14 +453,14 @@
         var Record* fpbufptr = &fpbuf[0];
         var Fsubr* fsbufptr = &fsbuf[0];
         #define update(objptr)  \
-          { switch (mtypecode(*(object*)objptr))                          \
-              { case_system:                                              \
-                  if (wbit_test(*(oint*)objptr,0+oint_addr_shift)) break; \
-                case_subr:                                                \
-                case_machine:                                             \
-                  *relocbufptr++ = (object*)objptr;                       \
-                default:                                                  \
-                  break;                                                  \
+          { switch (mtypecode(*(object*)objptr))                                     \
+              { case_system:                                                         \
+                  if (wbit_test(as_oint(*(object*)objptr),0+oint_addr_shift)) break; \
+                case_subr:                                                           \
+                case_machine:                                                        \
+                  *relocbufptr++ = (object*)objptr;                                  \
+                default:                                                             \
+                  break;                                                             \
           }   }
         #define update_ht_invalid(obj)  *htbufptr++ = (obj);
         #define update_fp_invalid(obj)  *fpbufptr++ = (obj);
@@ -555,7 +555,7 @@
                 < ((oint)sizeof(symbol_tab)<<(oint_addr_shift-addr_shift))
                )
               # Symbol aus symbol_tab
-              { *(oint*)objptr += offset_symbols_o; break; }
+              { *objptr = as_object(as_oint(*objptr) + offset_symbols_o); break; }
             #else
             if (as_oint(*objptr) - (oint)(&symbol_tab)
                 < (sizeof(symbol_tab)<<(oint_addr_shift-addr_shift))
@@ -572,7 +572,7 @@
                 < ((oint)sizeof(symbol_tab)<<(oint_addr_shift-addr_shift))
                )
               # Symbol aus symbol_tab
-              { *(oint*)objptr += offset_symbols_o; break; }
+              { *objptr = as_object(as_oint(*objptr) + offset_symbols_o); break; }
             #endif
           #ifdef TYPECODES
           case_array:
@@ -585,12 +585,12 @@
           #endif
             # Objekt variabler Länge
             #ifdef SPVW_MIXED_BLOCKS
-            *(oint*)objptr += offset_varobjects_o; break;
+            *objptr = as_object(as_oint(*objptr) + offset_varobjects_o); break;
             #endif
           case_pair:
             # Zwei-Pointer-Objekt
             #ifdef SPVW_MIXED_BLOCKS
-            *(oint*)objptr += offset_conses_o; break;
+            *objptr = as_object(as_oint(*objptr) + offset_conses_o); break;
             #endif
             #ifdef SPVW_PAGES
             {var aint addr = # Adresse
@@ -605,24 +605,24 @@
              # Page zurückzuschließen:
              var uintL pagenr = pagenr_of(addr & addr_mask);
              if (addr < offset_pages[pagenr].old_page_start) { pagenr--; }
-             *(oint*)objptr += offset_pages[pagenr].offset_page_o;
+             *objptr = as_object(as_oint(*objptr) + offset_pages[pagenr].offset_page_o);
             }
             break;
             #endif
             #ifdef SPVW_PURE_BLOCKS # SINGLEMAP_MEMORY
             #ifdef SINGLEMAP_MEMORY_RELOCATE
-            *(oint*)objptr += offset_heaps_o[mtypecode(*objptr)]; break;
+            *objptr = as_object(as_oint(*objptr) + offset_heaps_o[mtypecode(*objptr)]); break;
             #else
             break; # Alles Bisherige erfährt keine Verschiebung
             #endif
             #endif
           case_subr: # SUBR
-            {var oint addr = *(oint*)objptr;
+            {var oint addr = as_oint(*objptr);
              var offset_subrs_t* ptr = offset_subrs;
              var uintC count;
              dotimespC(count,offset_subrs_anz,
                { if ((ptr->low_o <= addr) && (addr < ptr->high_o))
-                   { *(oint*)objptr += ptr->offset_o; goto found_subr; }
+                   { *objptr = as_object(as_oint(*objptr) + ptr->offset_o); goto found_subr; }
                  ptr++;
                });
             }
@@ -632,7 +632,7 @@
             break;
           #ifdef TYPECODES
           case_system: # Frame-Pointer oder Read-Label oder System-Konstante
-            if ((*(oint*)objptr & wbit(0+oint_addr_shift)) ==0)
+            if ((as_oint(*objptr) & wbit(0+oint_addr_shift)) ==0)
               # Frame-Pointer -> #<DISABLED>
               { *objptr = disabled; }
             break;

@@ -28,18 +28,22 @@
 
 # ------------------------------ Implementation --------------------------------
 
-  #define mark(addr)  (*(oint*)(addr) |= wbit(garcol_bit_o))
+  #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
+    #define mark(addr)  (((object*)(addr))->one |= wbit(garcol_bit_o))
+  #else
+    #define mark(addr)  (*(object*)(addr) = as_object(as_oint(*(object*)(addr)) | wbit(garcol_bit_o)))
+  #endif
 
-  #define unmark(addr)  (*(oint*)(addr) &= ~wbit(garcol_bit_o))
+  #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
+    #define unmark(addr)  (((object*)(addr))->one &= ~wbit(garcol_bit_o))
+  #else
+    #define unmark(addr)  (*(object*)(addr) = as_object(as_oint(*(object*)(addr)) & ~wbit(garcol_bit_o)))
+  #endif
 
   #ifdef fast_mtypecode
     #define marked(addr)  (mtypecode(*(object*)(addr)) & bit(garcol_bit_t))
   #else
-    #if !(garcol_bit_o == 32-1) || defined(WIDE)
-      #define marked(addr)  (*(oint*)(addr) & wbit(garcol_bit_o))
-    #else # garcol_bit_o = 32-1 = Vorzeichenbit
-      #define marked(addr)  (*(sintL*)(addr) < 0)
-    #endif
+    #define marked(addr)  (as_oint(*(object*)(addr)) & wbit(garcol_bit_o))
   #endif
 
   #define with_mark_bit(obj)  as_object(as_oint(obj) | wbit(garcol_bit_o))
