@@ -1401,7 +1401,7 @@ LPARTS=$LPARTS' dutch deprecated config'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
-TXT_FILES='README README.de README.es clisp.1 clisp.html clisp.c'
+TXT_FILES='README README.de README.es clisp.1 clisp.html clisp-1.html clisp.c'
 if [ $CROSS = false -a $HOS = unix ] ; then
   TXT_FILES=$TXT_FILES' distmakefile'
 fi
@@ -2869,9 +2869,14 @@ for f in $TXT_FILES ; do
   if [ $f = README ] ; then
     depends=$depends" ${SRCDIR}_${f}.de ${SRCDIR}_${f}.en"
   fi
-  if [ $f = clisp.html ] ; then depends=$depends" VERSION"; fi
-  echol "${f} : ${SRCDIR}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
-  echotab "\$(TXT2C) < ${SRCDIR}_${f} > txt.c"
+  case $f in
+    clisp.html | clisp.1 | clisp-1.html)
+      depends=$depends" VERSION";
+      sourcedir=${DOCDIR}; ;;
+    *) sourcedir=${SRCDIR}; ;;
+  esac
+  echol "${f} : ${sourcedir}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
+  echotab "\$(TXT2C) < ${sourcedir}_${f} > txt.c"
   if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
     echotab "${XCPP} ${XCFLAGS}${flags} txt.c${XCPP_POSTPROCESS} > txt.i.c"
     echotab_to_HEXE "${XCC} ${XCFLAGS} ${XCLFLAGS}${XCC_NOOPTFLAGS}" "txt.i.c" "txt"
@@ -2891,7 +2896,7 @@ for f in $TXT_FILES ; do
     fi
   fi
   if [ $f = clisp.html ] ; then
-    line=$line" | sed -e 's,=\"CLHSROOT/,=\"${hyperspec}/,' -e \"s,VERSION,\`cat VERSION\`,\""
+    line=$line" | sed -e 's,=\"${HSDEFAULT}/,=\"${hyperspec}/,' -e \"s,VERSION,\`cat VERSION\`,\""
   fi
   if [ $f = distmakefile ] ; then
     line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"

@@ -25,8 +25,8 @@ extension, &mem-file; extension is automatically added).
    &repl;; thus, if you want to avoid the &repl;, you have to call
    <link linkend="quit"><function>EXT:EXIT</function></link> at the end
    of the init function yourself.</simpara>
-   <simpara>See <ulink url="clisp.html#opt-exec-file">the
-   manual</ulink> for passing command line arguments to this function.
+   <simpara>See <olink targetdoc="man" targetptr="opt-exec-file">the
+     manual</olink> for passing command line arguments to this function.
  </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:LOCKED-PACKAGES</constant></term>
   <listitem><simpara>This argument specifies the packages to lock before
@@ -40,7 +40,7 @@ extension, &mem-file; extension is automatically added).
    value of &package-var;.</simpara></listitem></varlistentry>
 </variablelist>
 You can use this memory image with the
-<ulink url="clisp.html#opt-memfile"><option>-M</option></ulink>
+<olink targetdoc="man" targetptr="opt-memfile"><option>-M</option></olink>
 option.  On &unix; systems, you may compress it with &gnu;
 <ulink url="http://www.gzip.org/"><command>gzip</command></ulink>
 to save disk space.</para>
@@ -302,11 +302,11 @@ she will get the output
  </primary></indexterm></firstterm>,
  which can be set at run time as well as using <ulink
  url="clisp.html#opt-lang"><option>-L</option></ulink> start-up option.
- If you wish to change the <ulink url="clisp.html#opt-locale">locale
- directory</ulink> at run time too, you can do that by
- setting &curr-lang; to a &cons-t; cell, whose &car; is the language
- (a &symbol-t;, one of the above), and whose
- &cdr; is the new locale directory.</para>
+ If you wish to change the
+ <olink targetdoc="man" targetptr="opt-locale">locale directory</olink>
+ at run time too, you can do that by setting &curr-lang; to a &cons-t;
+ cell, whose &car; is the language (a &symbol-t;, one of the above),
+ and whose &cdr; is the new locale directory.</para>
 
 <para>More languages can be defined through the macro
  <firstterm>&deflang;<indexterm id="deflang" significance="preferred">
@@ -388,345 +388,346 @@ she will get the output
 <listitem><para>The following character sets are supported, as values
  of the corresponding (constant) symbol in the &charset-pac; package:
 <itemizedlist id="charset-symbol-list">
-  <listitem id="charset-UCS-2"><simpara><literal>UCS-2</literal>
+ <title>Symbols in package &charset-pac;</title>
+ <listitem id="charset-UCS-2"><simpara><literal>UCS-2</literal>
    = <literal>UNICODE-16</literal> = <literal>UNICODE-16-BIG-ENDIAN</literal>,
    the 16-bit basic multilingual plane of the &unicode; character set.
    Every character is represented as two bytes.</simpara></listitem>
-  <listitem id="charset-UNICODE-16-LITTLE-ENDIAN"><simpara><literal>UNICODE-16-LITTLE-ENDIAN</literal>
+ <listitem id="charset-UNICODE-16-LITTLE-ENDIAN"><simpara><literal>UNICODE-16-LITTLE-ENDIAN</literal>
     </simpara></listitem>
-  <listitem id="charset-UCS-4"><simpara><literal>UCS-4</literal>
+ <listitem id="charset-UCS-4"><simpara><literal>UCS-4</literal>
    = <literal>UNICODE-32</literal> = <literal>UNICODE-32-BIG-ENDIAN</literal>,
    the 21-bit &unicode; character set. Every character is represented as
    four bytes.</simpara></listitem>
-  <listitem id="charset-UNICODE-32-LITTLE-ENDIAN"><simpara><literal>UNICODE-32-LITTLE-ENDIAN</literal>
-    </simpara></listitem>
-  <listitem id="charset-UTF-8"><simpara><literal>UTF-8</literal>,
-      the 21-bit &unicode; character set.
-      Every character is represented as one to four bytes.
-      &ascii; characters represent themselves and need one byte per character.
-      Most Latin/Greek/Cyrillic/Hebrew characters need two bytes per
-      character. Most other characters need three bytes per character,
-      and the rarely used remaining characters need four bytes per
-      character. This is therefore, in general, the most space-efficient
-      encoding of all of Unicode.</simpara></listitem>
+ <listitem id="charset-UNICODE-32-LITTLE-ENDIAN"><simpara><literal>UNICODE-32-LITTLE-ENDIAN</literal>
+ </simpara></listitem>
+ <listitem id="charset-UTF-8"><simpara><literal>UTF-8</literal>,
+   the 21-bit &unicode; character set.
+   Every character is represented as one to four bytes.
+   &ascii; characters represent themselves and need one byte per character.
+   Most Latin/Greek/Cyrillic/Hebrew characters need two bytes per
+   character. Most other characters need three bytes per character,
+   and the rarely used remaining characters need four bytes per
+   character. This is therefore, in general, the most space-efficient
+   encoding of all of Unicode.</simpara></listitem>
 <!-- #ifdef GNU_LIBICONV -->
-  <listitem id="charset-UTF-16"><simpara><literal>UTF-16</literal>,
-      the 21-bit &unicode; character set. Every character in the 16-bit
-      basic multilingual plane is represented as two bytes, and the
-      rarely used remaining characters need four bytes per character.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-UTF-7"><simpara><literal>UTF-7</literal>,
-      the 21-bit &unicode; character set. This is a stateful 7-bit encoding.
-      Not all &ascii; characters represent themselves.
-      &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-UTF-16"><simpara><literal>UTF-16</literal>,
+   the 21-bit &unicode; character set. Every character in the 16-bit
+   basic multilingual plane is represented as two bytes, and the
+   rarely used remaining characters need four bytes per character.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-UTF-7"><simpara><literal>UTF-7</literal>,
+   the 21-bit &unicode; character set. This is a stateful 7-bit encoding.
+   Not all &ascii; characters represent themselves.
+   &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
-  <listitem id="charset-JAVA"><simpara><literal>JAVA</literal>,
-      the 21-bit &unicode; character set.
-      &ascii; characters represent themselves and need one byte per character.
-      All other characters of the basic multilingual plane are represented
-      by <literal>\u<replaceable>nnnn</replaceable></literal> sequences
-      (<replaceable>nnnn</replaceable> a hexadecimal number)
-      and need 6 bytes per character. The remaining characters are represented
-      by <literal>\u<replaceable>xxxx</replaceable>\u<replaceable>yyyy</replaceable></literal>
-      and need 12 bytes per character. While this encoding is very comfortable
-      for editing Unicode files using only &ascii;-aware tools and editors, it
-      cannot faithfully represent all &unicode; text. Only text which
-      does not contain <literal>\u</literal> (backslash followed by
-      lowercase Latin u) can be faithfully represented by this encoding.
-    </simpara></listitem>
-  <listitem id="charset-ASCII"><simpara><literal>ASCII</literal>,
-      the well-known US-centric 7-bit character set (American Standard
-      Code for Information Interchange - &ascii;).</simpara></listitem>
-  <listitem id="charset-ISO-8859-1"><simpara><literal>ISO-8859-1</literal>,
-      &ascii-iso-ext; Afrikaans, Albanian, Basque, Breton, Catalan,
-      Cornish, Danish, Dutch, English, Faeroese, Finnish, French,
-      Frisian, Galician, German, Greenlandic, Icelandic, Irish, Italian,
-      Latin, Luxemburgish, Norwegian, Portuguese, Raeto-Romanic,
-      Scottish, Spanish, and Swedish languages.</simpara></listitem>
-  <listitem id="charset-ISO-8859-2"><simpara><literal>ISO-8859-2</literal>,
-      &ascii-iso-ext; Croatian, Czech, German, Hungarian, Polish,
-      Slovak, Slovenian, and Sorbian languages. </simpara></listitem>
-  <listitem id="charset-ISO-8859-3"><simpara><literal>ISO-8859-3</literal>,
-      &ascii-iso-ext; Esperanto and Maltese languages.</simpara></listitem>
-  <listitem id="charset-ISO-8859-4"><simpara><literal>ISO-8859-4</literal>,
-      &ascii-iso-ext; Estonian, Latvian, Lithuanian and Sami (Lappish)
-      languages.</simpara></listitem>
-  <listitem id="charset-ISO-8859-5"><simpara><literal>ISO-8859-5</literal>,
-      &ascii-iso-ext; Bulgarian, Byelorussian, Macedonian, Russian,
-      Serbian, and Ukrainian languages.</simpara></listitem>
-  <listitem id="charset-ISO-8859-6"><simpara><literal>ISO-8859-6</literal>,
-      suitable for the Arabic language.</simpara></listitem>
-  <listitem id="charset-ISO-8859-7"><simpara><literal>ISO-8859-7</literal>,
-      &ascii-iso-ext; Greek language.</simpara></listitem>
-  <listitem id="charset-ISO-8859-8"><simpara><literal>ISO-8859-8</literal>,
+ <listitem id="charset-JAVA"><simpara><literal>JAVA</literal>,
+   the 21-bit &unicode; character set.
+   &ascii; characters represent themselves and need one byte per character.
+   All other characters of the basic multilingual plane are represented
+   by <literal>\u<replaceable>nnnn</replaceable></literal> sequences
+   (<replaceable>nnnn</replaceable> a hexadecimal number)
+   and need 6 bytes per character. The remaining characters are represented
+   by <literal>\u<replaceable>xxxx</replaceable>\u<replaceable>yyyy</replaceable></literal>
+   and need 12 bytes per character. While this encoding is very comfortable
+   for editing Unicode files using only &ascii;-aware tools and editors, it
+   cannot faithfully represent all &unicode; text. Only text which
+   does not contain <literal>\u</literal> (backslash followed by
+   lowercase Latin u) can be faithfully represented by this encoding.
+ </simpara></listitem>
+ <listitem id="charset-ASCII"><simpara><literal>ASCII</literal>,
+   the well-known US-centric 7-bit character set (American Standard
+   Code for Information Interchange - &ascii;).</simpara></listitem>
+ <listitem id="charset-ISO-8859-1"><simpara><literal>ISO-8859-1</literal>,
+   &ascii-iso-ext; Afrikaans, Albanian, Basque, Breton, Catalan,
+   Cornish, Danish, Dutch, English, Faeroese, Finnish, French,
+   Frisian, Galician, German, Greenlandic, Icelandic, Irish, Italian,
+   Latin, Luxemburgish, Norwegian, Portuguese, Raeto-Romanic,
+   Scottish, Spanish, and Swedish languages.</simpara></listitem>
+ <listitem id="charset-ISO-8859-2"><simpara><literal>ISO-8859-2</literal>,
+   &ascii-iso-ext; Croatian, Czech, German, Hungarian, Polish,
+   Slovak, Slovenian, and Sorbian languages. </simpara></listitem>
+ <listitem id="charset-ISO-8859-3"><simpara><literal>ISO-8859-3</literal>,
+   &ascii-iso-ext; Esperanto and Maltese languages.</simpara></listitem>
+ <listitem id="charset-ISO-8859-4"><simpara><literal>ISO-8859-4</literal>,
+   &ascii-iso-ext; Estonian, Latvian, Lithuanian and Sami (Lappish)
+   languages.</simpara></listitem>
+ <listitem id="charset-ISO-8859-5"><simpara><literal>ISO-8859-5</literal>,
+   &ascii-iso-ext; Bulgarian, Byelorussian, Macedonian, Russian,
+   Serbian, and Ukrainian languages.</simpara></listitem>
+ <listitem id="charset-ISO-8859-6"><simpara><literal>ISO-8859-6</literal>,
+   suitable for the Arabic language.</simpara></listitem>
+ <listitem id="charset-ISO-8859-7"><simpara><literal>ISO-8859-7</literal>,
+   &ascii-iso-ext; Greek language.</simpara></listitem>
+ <listitem id="charset-ISO-8859-8"><simpara><literal>ISO-8859-8</literal>,
       &ascii-iso-ext; Hebrew language (without punctuation).
-  </simpara></listitem>
-  <listitem id="charset-ISO-8859-9"><simpara><literal>ISO-8859-9</literal>,
-      &ascii-iso-ext; Turkish language.</simpara></listitem>
-  <listitem id="charset-ISO-8859-10"><simpara><literal>ISO-8859-10</literal>,
-      &ascii-iso-ext; Estonian, Icelandic, Inuit (Greenlandic), Latvian,
-      Lithuanian, and Sami (Lappish) languages.</simpara></listitem>
-  <listitem id="charset-ISO-8859-13"><simpara><literal>ISO-8859-13</literal>,
-      &ascii-iso-ext; Estonian, Latvian, Lithuanian, Polish and Sami
-      (Lappish) languages.</simpara></listitem>
-  <listitem id="charset-ISO-8859-14"><simpara><literal>ISO-8859-14</literal>,
-      &ascii-iso-ext; Irish Gaelic, Manx Gaelic, Scottish Gaelic, and
-      Welsh languages.</simpara></listitem>
-  <listitem id="charset-ISO-8859-15"><simpara><literal>ISO-8859-15</literal>,
-      &ascii-iso-ext; ISO-8859-1 languages, with improvements for
-      French, Finnish and the Euro.</simpara></listitem>
-  <listitem id="charset-ISO-8859-16"><simpara><literal>ISO-8859-16</literal>
-      &ascii-iso-ext; Rumanian language.</simpara></listitem>
-  <listitem id="charset-KOI8-R"><simpara><literal>KOI8-R</literal>,
-      &ascii-iso-ext; Russian language (very popular, especially on the
-      internet).</simpara></listitem>
-  <listitem id="charset-KOI8-U"><simpara><literal>KOI8-U</literal>,
-      &ascii-iso-ext; Ukrainian language (very popular, especially on the
-      internet).</simpara></listitem>
+ </simpara></listitem>
+ <listitem id="charset-ISO-8859-9"><simpara><literal>ISO-8859-9</literal>,
+   &ascii-iso-ext; Turkish language.</simpara></listitem>
+ <listitem id="charset-ISO-8859-10"><simpara><literal>ISO-8859-10</literal>,
+   &ascii-iso-ext; Estonian, Icelandic, Inuit (Greenlandic), Latvian,
+   Lithuanian, and Sami (Lappish) languages.</simpara></listitem>
+ <listitem id="charset-ISO-8859-13"><simpara><literal>ISO-8859-13</literal>,
+   &ascii-iso-ext; Estonian, Latvian, Lithuanian, Polish and Sami
+   (Lappish) languages.</simpara></listitem>
+ <listitem id="charset-ISO-8859-14"><simpara><literal>ISO-8859-14</literal>,
+   &ascii-iso-ext; Irish Gaelic, Manx Gaelic, Scottish Gaelic, and
+   Welsh languages.</simpara></listitem>
+ <listitem id="charset-ISO-8859-15"><simpara><literal>ISO-8859-15</literal>,
+   &ascii-iso-ext; ISO-8859-1 languages, with improvements for
+   French, Finnish and the Euro.</simpara></listitem>
+ <listitem id="charset-ISO-8859-16"><simpara><literal>ISO-8859-16</literal>
+   &ascii-iso-ext; Rumanian language.</simpara></listitem>
+ <listitem id="charset-KOI8-R"><simpara><literal>KOI8-R</literal>,
+   &ascii-iso-ext; Russian language (very popular, especially on the
+   internet).</simpara></listitem>
+ <listitem id="charset-KOI8-U"><simpara><literal>KOI8-U</literal>,
+   &ascii-iso-ext; Ukrainian language (very popular, especially on the
+   internet).</simpara></listitem>
 <!-- #ifdef GNU_LIBICONV -->
-  <listitem id="charset-KOI8-RU"><simpara><literal>KOI8-RU</literal>,
-      &ascii-iso-ext; Russian language. &charset-libiconv;</simpara></listitem>
+ <listitem id="charset-KOI8-RU"><simpara><literal>KOI8-RU</literal>,
+   &ascii-iso-ext; Russian language. &charset-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
-  <listitem><simpara><literal>JIS_X0201</literal>,
-      a character set for the Japanese language.</simpara></listitem>
-  <listitem id="charset-MAC-ARABIC"><simpara><literal>MAC-ARABIC</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-CENTRAL-EUROPE"><simpara><literal>MAC-CENTRAL-EUROPE</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-CROATIAN"><simpara><literal>MAC-CROATIAN</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-CYRILLIC"><simpara><literal>MAC-CYRILLIC</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-DINGBAT"><simpara><literal>MAC-DINGBAT</literal>,
-      a platform specific character set.
-    </simpara></listitem>
-  <listitem id="charset-MAC-GREEK"><simpara><literal>MAC-GREEK</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-HEBREW"><simpara><literal>MAC-HEBREW</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-ICELAND"><simpara><literal>MAC-ICELAND</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-ROMAN"><simpara><literal>MAC-ROMAN</literal>
+ <listitem><simpara><literal>JIS_X0201</literal>,
+   a character set for the Japanese language.</simpara></listitem>
+ <listitem id="charset-MAC-ARABIC"><simpara><literal>MAC-ARABIC</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-CENTRAL-EUROPE"><simpara><literal>MAC-CENTRAL-EUROPE</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-CROATIAN"><simpara><literal>MAC-CROATIAN</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-CYRILLIC"><simpara><literal>MAC-CYRILLIC</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-DINGBAT"><simpara><literal>MAC-DINGBAT</literal>,
+   a platform specific character set.
+ </simpara></listitem>
+ <listitem id="charset-MAC-GREEK"><simpara><literal>MAC-GREEK</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-HEBREW"><simpara><literal>MAC-HEBREW</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-ICELAND"><simpara><literal>MAC-ICELAND</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-ROMAN"><simpara><literal>MAC-ROMAN</literal>
    = <literal>MACINTOSH</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-ROMANIA"><simpara><literal>MAC-ROMANIA</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-SYMBOL"><simpara><literal>MAC-SYMBOL</literal>,
-      a platform specific character set.</simpara></listitem>
-  <listitem id="charset-MAC-THAI"><simpara><literal>MAC-THAI</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-TURKISH"><simpara><literal>MAC-TURKISH</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-MAC-UKRAINE"><simpara><literal>MAC-UKRAINE</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-CP437"><simpara><literal>CP437</literal>, a DOS oldie,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-CP437-IBM"><simpara><literal>CP437-IBM</literal>,
-     an IBM variant of <literal>CP437</literal>.
-    </simpara></listitem>
-  <listitem id="charset-CP737"><simpara><literal>CP737</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for the Greek language.
-    </simpara></listitem>
-  <listitem id="charset-CP775"><simpara><literal>CP775</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for some Baltic languages.
-    </simpara></listitem>
-  <listitem id="charset-CP850"><simpara><literal>CP850</literal>, a DOS oldie,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-CP852"><simpara><literal>CP852</literal>, a DOS oldie,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-CP852-IBM"><simpara><literal>CP852-IBM</literal>,
-    an IBM variant of <literal>CP852</literal>.</simpara></listitem>
-  <listitem id="charset-CP855"><simpara><literal>CP855</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for the Russian language.
-    </simpara></listitem>
-  <listitem id="charset-CP857"><simpara><literal>CP857</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for the Turkish language.
-    </simpara></listitem>
-  <listitem id="charset-CP860"><simpara><literal>CP860</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for the Portuguese language.
-    </simpara></listitem>
-  <listitem id="charset-CP860-IBM"><simpara><literal>CP860-IBM</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-ROMANIA"><simpara><literal>MAC-ROMANIA</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-SYMBOL"><simpara><literal>MAC-SYMBOL</literal>,
+   a platform specific character set.</simpara></listitem>
+ <listitem id="charset-MAC-THAI"><simpara><literal>MAC-THAI</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-TURKISH"><simpara><literal>MAC-TURKISH</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-MAC-UKRAINE"><simpara><literal>MAC-UKRAINE</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-CP437"><simpara><literal>CP437</literal>, a DOS oldie,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-CP437-IBM"><simpara><literal>CP437-IBM</literal>,
+   an IBM variant of <literal>CP437</literal>.
+ </simpara></listitem>
+ <listitem id="charset-CP737"><simpara><literal>CP737</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for the Greek language.
+ </simpara></listitem>
+ <listitem id="charset-CP775"><simpara><literal>CP775</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for some Baltic languages.
+ </simpara></listitem>
+ <listitem id="charset-CP850"><simpara><literal>CP850</literal>, a DOS oldie,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-CP852"><simpara><literal>CP852</literal>, a DOS oldie,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-CP852-IBM"><simpara><literal>CP852-IBM</literal>,
+   an IBM variant of <literal>CP852</literal>.</simpara></listitem>
+ <listitem id="charset-CP855"><simpara><literal>CP855</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for the Russian language.
+ </simpara></listitem>
+ <listitem id="charset-CP857"><simpara><literal>CP857</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for the Turkish language.
+ </simpara></listitem>
+ <listitem id="charset-CP860"><simpara><literal>CP860</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for the Portuguese language.
+ </simpara></listitem>
+ <listitem id="charset-CP860-IBM"><simpara><literal>CP860-IBM</literal>,
    an IBM variant of <literal>CP860</literal>.
-    </simpara></listitem>
-  <listitem id="charset-CP861"><simpara><literal>CP861</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for the Icelandic language.
-    </simpara></listitem>
-  <listitem id="charset-CP861-IBM"><simpara><literal>CP861-IBM</literal>,
+ </simpara></listitem>
+ <listitem id="charset-CP861"><simpara><literal>CP861</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for the Icelandic language.
+ </simpara></listitem>
+ <listitem id="charset-CP861-IBM"><simpara><literal>CP861-IBM</literal>,
    an IBM variant of <literal>CP861</literal>.
-    </simpara></listitem>
-  <listitem id="charset-CP862"><simpara><literal>CP862</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for the Hebrew language.
-    </simpara></listitem>
-  <listitem id="charset-CP862-IBM"><simpara><literal>CP862-IBM</literal>,
+ </simpara></listitem>
+ <listitem id="charset-CP862"><simpara><literal>CP862</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for the Hebrew language.
+ </simpara></listitem>
+ <listitem id="charset-CP862-IBM"><simpara><literal>CP862-IBM</literal>,
    an IBM variant of <literal>CP862</literal>.
-    </simpara></listitem>
-  <listitem id="charset-CP863"><simpara><literal>CP863</literal>, a DOS oldie,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-CP863-IBM"><simpara><literal>CP863-IBM</literal>,
+ </simpara></listitem>
+ <listitem id="charset-CP863"><simpara><literal>CP863</literal>, a DOS oldie,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-CP863-IBM"><simpara><literal>CP863-IBM</literal>,
    an IBM variant of <literal>CP863</literal>.
-    </simpara></listitem>
-  <listitem id="charset-CP864"><simpara><literal>CP864</literal>, a DOS oldie,
-      meant to be suitable for the Arabic language.
-    </simpara></listitem>
-  <listitem id="charset-CP864-IBM"><simpara><literal>CP864-IBM</literal>,
+ </simpara></listitem>
+ <listitem id="charset-CP864"><simpara><literal>CP864</literal>, a DOS oldie,
+   meant to be suitable for the Arabic language.
+ </simpara></listitem>
+ <listitem id="charset-CP864-IBM"><simpara><literal>CP864-IBM</literal>,
    an IBM variant of <literal>CP864</literal>.
-    </simpara></listitem>
-  <listitem id="charset-CP865"><simpara><literal>CP865</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for some Nordic languages.
-    </simpara></listitem>
-  <listitem id="charset-CP865-IBM"><simpara><literal>CP865-IBM</literal>,
+ </simpara></listitem>
+ <listitem id="charset-CP865"><simpara><literal>CP865</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for some Nordic languages.
+ </simpara></listitem>
+ <listitem id="charset-CP865-IBM"><simpara><literal>CP865-IBM</literal>,
    an IBM variant of <literal>CP865</literal>.
-    </simpara></listitem>
-  <listitem id="charset-CP866"><simpara><literal>CP866</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for the Russian language.
-    </simpara></listitem>
-  <listitem id="charset-CP869"><simpara><literal>CP869</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for the Greek language.
-    </simpara></listitem>
-  <listitem id="charset-CP869-IBM"><simpara><literal>CP869-IBM</literal>,
+ </simpara></listitem>
+ <listitem id="charset-CP866"><simpara><literal>CP866</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for the Russian language.
+ </simpara></listitem>
+ <listitem id="charset-CP869"><simpara><literal>CP869</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for the Greek language.
+ </simpara></listitem>
+ <listitem id="charset-CP869-IBM"><simpara><literal>CP869-IBM</literal>,
    an IBM variant of <literal>CP869</literal>.
-    </simpara></listitem>
-  <listitem id="charset-CP874"><simpara><literal>CP874</literal>, a DOS oldie,
-      &ascii-pl-ext;, meant to be suitable for the Thai language.
-    </simpara></listitem>
-  <listitem id="charset-CP874-IBM"><simpara><literal>CP874-IBM</literal>,
+ </simpara></listitem>
+ <listitem id="charset-CP874"><simpara><literal>CP874</literal>, a DOS oldie,
+   &ascii-pl-ext;, meant to be suitable for the Thai language.
+ </simpara></listitem>
+ <listitem id="charset-CP874-IBM"><simpara><literal>CP874-IBM</literal>,
    an IBM variant of <literal>CP874</literal>.
-    </simpara></listitem>
-  <listitem id="charset-WINDOWS-1250"><simpara><literal>WINDOWS-1250</literal>
+ </simpara></listitem>
+ <listitem id="charset-WINDOWS-1250"><simpara><literal>WINDOWS-1250</literal>
    = <literal>CP1250</literal>,
-      &ascii-pl-ext;, heavily incompatible with ISO-8859-2.
-    </simpara></listitem>
-  <listitem id="charset-WINDOWS-1251"><simpara><literal>WINDOWS-1251</literal>
+   &ascii-pl-ext;, heavily incompatible with ISO-8859-2.
+ </simpara></listitem>
+ <listitem id="charset-WINDOWS-1251"><simpara><literal>WINDOWS-1251</literal>
    = <literal>CP1251</literal>,
-      &ascii-pl-ext;, heavily incompatible with ISO-8859-5,
-      meant to be suitable for the Russian language.
-    </simpara></listitem>
-  <listitem id="charset-WINDOWS-1252"><simpara><literal>WINDOWS-1252</literal>
+   &ascii-pl-ext;, heavily incompatible with ISO-8859-5,
+   meant to be suitable for the Russian language.
+ </simpara></listitem>
+ <listitem id="charset-WINDOWS-1252"><simpara><literal>WINDOWS-1252</literal>
    = <literal>CP1252</literal>,
-      a platform specific extension of the ISO-8859-1 character set.
-    </simpara></listitem>
-  <listitem id="charset-WINDOWS-1253"><simpara><literal>WINDOWS-1253</literal>
+   a platform specific extension of the ISO-8859-1 character set.
+ </simpara></listitem>
+ <listitem id="charset-WINDOWS-1253"><simpara><literal>WINDOWS-1253</literal>
    = <literal>CP1253</literal>,
-      &ascii-pl-ext;, gratuitously incompatible with ISO-8859-7,
-      meant to be suitable for the Greek language.
-    </simpara></listitem>
-  <listitem id="charset-WINDOWS-1254"><simpara><literal>WINDOWS-1254</literal>
+   &ascii-pl-ext;, gratuitously incompatible with ISO-8859-7,
+   meant to be suitable for the Greek language.
+ </simpara></listitem>
+ <listitem id="charset-WINDOWS-1254"><simpara><literal>WINDOWS-1254</literal>
    = <literal>CP1254</literal>,
-      a platform specific extension of the ISO-8859-9 character set.
-    </simpara></listitem>
+   a platform specific extension of the ISO-8859-9 character set.
+ </simpara></listitem>
 <!-- #ifdef GNU_LIBICONV -->
-  <listitem id="charset-WINDOWS-1255"><simpara><literal>WINDOWS-1255</literal>
+ <listitem id="charset-WINDOWS-1255"><simpara><literal>WINDOWS-1255</literal>
    = <literal>CP1255</literal>,
-      &ascii-pl-ext;, gratuitously incompatible with ISO-8859-8,
-      suitable for the Hebrew language.
-      &charset-glibc-libiconv;</simpara></listitem>
+   &ascii-pl-ext;, gratuitously incompatible with ISO-8859-8,
+   suitable for the Hebrew language.
+   &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
-  <listitem id="charset-WINDOWS-1256"><simpara><literal>WINDOWS-1256</literal>
+ <listitem id="charset-WINDOWS-1256"><simpara><literal>WINDOWS-1256</literal>
    = <literal>CP1256</literal>,
-      &ascii-pl-ext;, meant to be suitable for the Arabic language.
-    </simpara></listitem>
-  <listitem id="charset-WINDOWS-1257"><simpara><literal>WINDOWS-1257</literal>
+   &ascii-pl-ext;, meant to be suitable for the Arabic language.
+ </simpara></listitem>
+ <listitem id="charset-WINDOWS-1257"><simpara><literal>WINDOWS-1257</literal>
    = <literal>CP1257</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
+   &ascii-pl-ext;.</simpara></listitem>
 <!-- #ifdef GNU_LIBICONV -->
-  <listitem id="charset-WINDOWS-1258"><simpara><literal>WINDOWS-1258</literal>
+ <listitem id="charset-WINDOWS-1258"><simpara><literal>WINDOWS-1258</literal>
    = <literal>CP1258</literal>,
-      &ascii-pl-ext;, meant to be suitable for the Vietnamese language.
-      &charset-glibc-libiconv;</simpara></listitem>
+   &ascii-pl-ext;, meant to be suitable for the Vietnamese language.
+   &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
-  <listitem id="charset-HP-ROMAN8"><simpara><literal>HP-ROMAN8</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
-  <listitem id="charset-NEXTSTEP"><simpara><literal>NEXTSTEP</literal>,
-      &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-HP-ROMAN8"><simpara><literal>HP-ROMAN8</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
+ <listitem id="charset-NEXTSTEP"><simpara><literal>NEXTSTEP</literal>,
+   &ascii-pl-ext;.</simpara></listitem>
 <!-- #ifdef GNU_LIBICONV -->
-  <listitem id="charset-EUC-JP"><simpara><literal>EUC-JP</literal>,
-      a multibyte character set for the Japanese language.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-SHIFT-JIS"><simpara><literal>SHIFT-JIS</literal>,
-      a multibyte character set for the Japanese language.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-CP932"><simpara><literal>CP932</literal>,
-      a Microsoft variant of <literal>SHIFT-JIS</literal>.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-ISO-2022-JP"><simpara><literal>ISO-2022-JP</literal>,
-      a stateful 7-bit multibyte character set for the Japanese language.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-ISO-2022-JP-2"><simpara><literal>ISO-2022-JP-2</literal>,
-      a stateful 7-bit multibyte character set for the Japanese language.
-      This character set is only available on platforms with &glibc; 2.3
-      or newer or &libiconv;.</simpara></listitem>
-  <listitem id="charset-ISO-2022-JP-1"><simpara><literal>ISO-2022-JP-1</literal>,
-      a stateful 7-bit multibyte character set for the Japanese language.
-      &charset-libiconv;</simpara></listitem>
-  <listitem id="charset-EUC-CN"><simpara><literal>EUC-CN</literal>,
-      a multibyte character set for simplified Chinese.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-HZ"><simpara><literal>HZ</literal>,
-      a stateful 7-bit multibyte character set for simplified Chinese.
-      &charset-libiconv;</simpara></listitem>
-  <listitem id="charset-GBK"><simpara><literal>GBK</literal>,
-      a multibyte character set for Chinese,
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-CP936"><simpara><literal>CP936</literal>,
-      a Microsoft variant of <literal>GBK</literal>.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-GB18030"><simpara><literal>GB18030</literal>,
-      a multibyte character set for Chinese,
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-EUC-TW"><simpara><literal>EUC-TW</literal>,
-      a multibyte character set for traditional Chinese.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-BIG5"><simpara><literal>BIG5</literal>,
-      a multibyte character set for traditional Chinese.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-CP950"><simpara><literal>CP950</literal>,
-      a Microsoft variant of <literal>BIG5</literal>.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-BIG5-HKSCS"><simpara><literal>BIG5-HKSCS</literal>,
-      a multibyte character set for traditional Chinese.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-ISO-2022-CN"><simpara><literal>ISO-2022-CN</literal>,
-      a stateful 7-bit multibyte character set for Chinese.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-ISO-2022-CN-EXT"><simpara><literal>ISO-2022-CN-EXT</literal>,
-      a stateful 7-bit multibyte character set for Chinese.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-EUC-KR"><simpara><literal>EUC-KR</literal>,
-      a multibyte character set for Korean.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-CP949"><simpara><literal>CP949</literal>,
-      a Microsoft variant of <literal>EUC-KR</literal>.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-ISO-2022-KR"><simpara><literal>ISO-2022-KR</literal>,
-      a stateful 7-bit multibyte character set for Korean.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-JOHAB"><simpara><literal>JOHAB</literal>,
-      a multibyte character set for Korean used mostly on &dos;.
-      &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-ARMSCII-8"><simpara><literal>ARMSCII-8</literal>,
-      &ascii-iso-ext; Armenian. &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-GEORGIAN-ACADEMY"><simpara><literal>GEORGIAN-ACADEMY</literal>,
-      &ascii-iso-ext; Georgian. &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-GEORGIAN-PS"><simpara><literal>GEORGIAN-PS</literal>,
-      &ascii-iso-ext; Georgian. &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-TIS-620"><simpara><literal>TIS-620</literal>,
-      &ascii-iso-ext; Thai. &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-MULELAO-1"><simpara><literal>MULELAO-1</literal>,
-      &ascii-iso-ext; Laotian. &charset-libiconv;</simpara></listitem>
-  <listitem id="charset-CP1133"><simpara><literal>CP1133</literal>,
-      &ascii-iso-ext; Laotian. &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-VISCII"><simpara><literal>VISCII</literal>,
-      &ascii-iso-ext; Vietnamese. &charset-glibc-libiconv;</simpara></listitem>
-  <listitem id="charset-TCVN"><simpara><literal>TCVN</literal>,
-      &ascii-iso-ext; Vietnamese. &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-EUC-JP"><simpara><literal>EUC-JP</literal>,
+   a multibyte character set for the Japanese language.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-SHIFT-JIS"><simpara><literal>SHIFT-JIS</literal>,
+   a multibyte character set for the Japanese language.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-CP932"><simpara><literal>CP932</literal>,
+   a Microsoft variant of <literal>SHIFT-JIS</literal>.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-ISO-2022-JP"><simpara><literal>ISO-2022-JP</literal>,
+   a stateful 7-bit multibyte character set for the Japanese language.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-ISO-2022-JP-2"><simpara><literal>ISO-2022-JP-2</literal>,
+   a stateful 7-bit multibyte character set for the Japanese language.
+   This character set is only available on platforms with &glibc; 2.3
+   or newer or &libiconv;.</simpara></listitem>
+ <listitem id="charset-ISO-2022-JP-1"><simpara><literal>ISO-2022-JP-1</literal>,
+   a stateful 7-bit multibyte character set for the Japanese language.
+   &charset-libiconv;</simpara></listitem>
+ <listitem id="charset-EUC-CN"><simpara><literal>EUC-CN</literal>,
+   a multibyte character set for simplified Chinese.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-HZ"><simpara><literal>HZ</literal>,
+   a stateful 7-bit multibyte character set for simplified Chinese.
+   &charset-libiconv;</simpara></listitem>
+ <listitem id="charset-GBK"><simpara><literal>GBK</literal>,
+   a multibyte character set for Chinese,
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-CP936"><simpara><literal>CP936</literal>,
+   a Microsoft variant of <literal>GBK</literal>.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-GB18030"><simpara><literal>GB18030</literal>,
+   a multibyte character set for Chinese,
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-EUC-TW"><simpara><literal>EUC-TW</literal>,
+   a multibyte character set for traditional Chinese.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-BIG5"><simpara><literal>BIG5</literal>,
+   a multibyte character set for traditional Chinese.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-CP950"><simpara><literal>CP950</literal>,
+   a Microsoft variant of <literal>BIG5</literal>.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-BIG5-HKSCS"><simpara><literal>BIG5-HKSCS</literal>,
+   a multibyte character set for traditional Chinese.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-ISO-2022-CN"><simpara><literal>ISO-2022-CN</literal>,
+   a stateful 7-bit multibyte character set for Chinese.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-ISO-2022-CN-EXT"><simpara><literal>ISO-2022-CN-EXT</literal>,
+   a stateful 7-bit multibyte character set for Chinese.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-EUC-KR"><simpara><literal>EUC-KR</literal>,
+   a multibyte character set for Korean.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-CP949"><simpara><literal>CP949</literal>,
+   a Microsoft variant of <literal>EUC-KR</literal>.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-ISO-2022-KR"><simpara><literal>ISO-2022-KR</literal>,
+   a stateful 7-bit multibyte character set for Korean.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-JOHAB"><simpara><literal>JOHAB</literal>,
+   a multibyte character set for Korean used mostly on &dos;.
+   &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-ARMSCII-8"><simpara><literal>ARMSCII-8</literal>,
+   &ascii-iso-ext; Armenian. &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-GEORGIAN-ACADEMY"><simpara><literal>GEORGIAN-ACADEMY</literal>,
+   &ascii-iso-ext; Georgian. &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-GEORGIAN-PS"><simpara><literal>GEORGIAN-PS</literal>,
+   &ascii-iso-ext; Georgian. &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-TIS-620"><simpara><literal>TIS-620</literal>,
+   &ascii-iso-ext; Thai. &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-MULELAO-1"><simpara><literal>MULELAO-1</literal>,
+   &ascii-iso-ext; Laotian. &charset-libiconv;</simpara></listitem>
+ <listitem id="charset-CP1133"><simpara><literal>CP1133</literal>,
+   &ascii-iso-ext; Laotian. &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-VISCII"><simpara><literal>VISCII</literal>,
+   &ascii-iso-ext; Vietnamese. &charset-glibc-libiconv;</simpara></listitem>
+ <listitem id="charset-TCVN"><simpara><literal>TCVN</literal>,
+   &ascii-iso-ext; Vietnamese. &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
 </itemizedlist>
 
 <!-- #ifdef /* HAVE_ICONV */ -->
 <variablelist>
 <varlistentry id="iconv"><term>Platform dependent: Only on &gnu; systems
-     with &glibc; 2.2 or better and other systems (&unix; and &win32;)
-     on which the &libiconv; &c-lang; library has been installed</term>
+  with &glibc; 2.2 or better and other systems (&unix; and &win32;)
+  on which the &libiconv; &c-lang; library has been installed</term>
 <listitem><simpara>The character sets provided by the library function
  &iconv; can also be used as encodings.  To create such an encoding,
  call &make-encoding; with the character set name (a string) as the
@@ -870,8 +871,8 @@ she will get the output
 </variablelist>
 <!-- #endif -->
 
-<para>The default encoding objects are initialized as described in the
- &clisp; <ulink url="clisp.html#opt-enc">manual page</ulink></para>
+<para>The default encoding objects are initialized as described in
+ <olink targetdoc="man" targetptr="opt-enc"/></para>
 
 </section>
 
@@ -1733,9 +1734,8 @@ here <function>WITH-FOO</function> does not receive the
  it, and then save the &mem-image;.
  Finally, you can create an <quote>RC</quote> (run control) file which
  is loaded whenever &clisp; is started (see the documentation for option
- <ulink url="clisp.html#opt-norc"><option>-norc</option></ulink> in your
- platform-specific copy of the manual page).
-</para>
+ <olink targetdoc="man" targetptr="opt-norc"><option>-norc</option></olink>
+ in your platform-specific copy of the manual page).</para>
 
 </section>
 
@@ -2387,6 +2387,7 @@ only.</subtitle>
   element is the structure name and the &rest; is options.
   Two options are supported at this time:
   <variablelist id="def-c-struct-opts">
+   <title>Options for &def-c-struct;</title>
    <varlistentry id="def-c-struct-typedef">
     <term><constant>:TYPEDEF</constant></term>
     <listitem><simpara>means that the name of this structure is a
@@ -4224,9 +4225,9 @@ Compiled, it will have inlined the library function calls.
    (using &exit-on-error;).</simpara></listitem>
  <listitem><simpara>If you wish the script's contents to be compiled
   during loading, add
-  <ulink url="clisp.html#opt-load-comp"><option>-C</option></ulink>
+  <olink targetdoc="man" targetptr="opt-load-comp"><option>-C</option></olink>
   to the &interp-args;.</simpara></listitem></itemizedlist>
- See also <ulink url="clisp.html#opt-exec-file">the manual</ulink>.
+ See also <olink targetdoc="man" targetptr="opt-exec-file">the manual</olink>.
 </para></formalpara>
 
 <formalpara id="script-bad"><title>If nothing works</title>
