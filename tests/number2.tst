@@ -228,11 +228,12 @@ NIL
              :collect (list x bad r func type))))
 TEST-FUNCTION
 
-(loop :for f :in '(exp sin asin cos acos atan cosh acosh sinh asinh tanh atanh)
+(loop :for f :in '(exp sin asin cos atan cosh sinh asinh tanh atanh)
   :nconc (test-function f 10 -10))
 NIL
-(test-function 'log 10 -10 :except '(0))
-NIL
+(test-function 'acos 1 -1)                NIL
+(test-function 'acosh 20 1)               NIL
+(test-function 'log 10 -10 :except '(0))  NIL
 (test-function
  'tan 10 -10
  :except (nconc (loop :for x :from (/ pi 2) :by pi :to 10 :collect x)
