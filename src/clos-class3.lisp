@@ -1150,7 +1150,11 @@
                                (cons (class-current-version class) shared-index)
                                (incf shared-index))
                              ;; Inherited shared slot.
-                             (gethash name (class-slot-location-table origin)))))
+                             (let ((inh-descriptor
+                                     (gethash name (class-slot-location-table origin))))
+                               (if (effective-slot-definition-p inh-descriptor)
+                                 (slot-definition-location inh-descriptor 0)
+                                 inh-descriptor)))))
                         (t ;; Don't signal an error for user-defined allocation
                            ;; types. They can be handled by user-defined around
                            ;; methods.
@@ -1223,8 +1227,12 @@
                    (eq (cv-newest-class (car location)) class))
           (let ((shared-index (cdr location)))
             (setf (svref v shared-index)
-                  (let ((old-slot-location
-                          (gethash (slot-definition-name slot) old-slot-location-table)))
+                  (let* ((old-slot-descriptor
+                           (gethash (slot-definition-name slot) old-slot-location-table))
+                         (old-slot-location
+                           (if (effective-slot-definition-p old-slot-descriptor)
+                             (slot-definition-location old-slot-descriptor 0)
+                             old-slot-descriptor)))
                     (if (and (consp old-slot-location)
                              (eq (cv-newest-class (car old-slot-location)) class))
                       ;; The slot was already shared. Retain its value.
@@ -1245,9 +1253,53 @@
         :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t
         :initial-contents
           (mapcar #'(lambda (slot)
-                      (cons (slot-definition-name slot) (slot-definition-location slot)))
+                      (cons (slot-definition-name slot)
+                            (compute-slot-location-table-entry class slot)))
                   slots))
       empty-ht)))
+
+(defun compute-slot-location-table-entry (class slot)
+  (let ((location (slot-definition-location slot))
+        ;; Compute the effective methods of SLOT-VALUE-USING-CLASS etc.
+        ;; Note that we cannot use (class-prototype class) yet.
+        (efm-svuc
+          (if *classes-finished*
+            (compute-applicable-methods-effective-method-for-set
+              |#'slot-value-using-class|
+              (list `(EQL ,class) `(INSTANCE-OF-P ,class) `(EQL ,slot))
+              (list class '`(CLASS-PROTOTYPE ,class) slot))
+            #'%slot-value-using-class))
+        (efm-ssvuc
+          (if *classes-finished*
+            (compute-applicable-methods-effective-method-for-set
+              |#'(setf slot-value-using-class)|
+              (list `(TYPEP ,<t>) `(EQL ,class) `(INSTANCE-OF-P ,class) `(EQL ,slot))
+              (list 'ANY-VALUE class '`(CLASS-PROTOTYPE ,class) slot))
+            #'%set-slot-value-using-class))
+        (efm-sbuc
+          (if *classes-finished*
+            (compute-applicable-methods-effective-method-for-set
+              |#'slot-boundp-using-class|
+              (list `(EQL ,class) `(INSTANCE-OF-P ,class) `(EQL ,slot))
+              (list class '`(CLASS-PROTOTYPE ,class) slot))
+            #'%slot-boundp-using-class))
+        (efm-smuc
+          (if *classes-finished*
+            (compute-applicable-methods-effective-method-for-set
+              |#'slot-makunbound-using-class|
+              (list `(EQL ,class) `(INSTANCE-OF-P ,class) `(EQL ,slot))
+              (list class '`(CLASS-PROTOTYPE ,class) slot))
+            #'%slot-makunbound-using-class)))
+    (setf (slot-definition-efm-svuc slot) efm-svuc)
+    (setf (slot-definition-efm-ssvuc slot) efm-ssvuc)
+    (setf (slot-definition-efm-sbuc slot) efm-sbuc)
+    (setf (slot-definition-efm-smuc slot) efm-smuc)
+    (if (and (eq efm-svuc #'%slot-value-using-class)
+             (eq efm-ssvuc #'%set-slot-value-using-class)
+             (eq efm-sbuc #'%slot-boundp-using-class)
+             (eq efm-smuc #'%slot-makunbound-using-class))
+      location
+      slot)))
 
 ;; ----------------------------------------------------------------------------
 ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Default-Initargs
@@ -1896,7 +1948,13 @@
             (push class as-list)
             (setf (gethash class as-set) t)
             (setq new-pending
-              (nreconc (list-finalized-direct-subclasses class) new-pending))))
+              (nreconc (if (semi-standard-class-p class)
+                         ; <semi-standard-class> stores the finalized direct-subclasses.
+                         (list-finalized-direct-subclasses class)
+                         ; <class> stores only the complete direct-subclasses list.
+                         (remove-if-not #'(lambda (c) (= (class-initialized c) 6))
+                                        (list-direct-subclasses class)))
+                       new-pending))))
         (setq pending (nreverse new-pending))))
     ;; Now reorder the list so that superclasses come before, not after, a
     ;; class. This is needed by update-subclasses-for-redefined-class. (It's

@@ -87,7 +87,15 @@
 (defvar *<effective-slot-definition>-defclass*
   '(defclass effective-slot-definition (slot-definition)
      (($location     :type (or null integer cons)
-                                              :initarg location))
+                                              :initarg location)
+      ; effective method for slot-value-using-class
+      ($efm-svuc     :type function)
+      ; effective method for (setf slot-value-using-class)
+      ($efm-ssvuc    :type function)
+      ; effective method for slot-boundp-using-class
+      ($efm-sbuc     :type function)
+      ; effective method for slot-makunbound-using-class
+      ($efm-smuc     :type function))
      (:fixed-slot-locations)))
 
 ;; Fixed slot locations.
@@ -100,6 +108,10 @@
 (defconstant *<direct-slot-definition>-readers-location* 7)
 (defconstant *<direct-slot-definition>-writers-location* 8)
 (defconstant *<effective-slot-definition>-location-location* 7)
+(defconstant *<effective-slot-definition>-efm-svuc-location* 8)
+(defconstant *<effective-slot-definition>-efm-ssvuc-location* 9)
+(defconstant *<effective-slot-definition>-efm-sbuc-location* 10)
+(defconstant *<effective-slot-definition>-efm-smuc-location* 11)
 
 ;; Preliminary accessors.
 (defun slot-definition-name (object)
@@ -150,6 +162,22 @@
   (sys::%record-ref object *<effective-slot-definition>-location-location*))
 (defun (setf slot-definition-location) (new-value object)
   (setf (sys::%record-ref object *<effective-slot-definition>-location-location*) new-value))
+(defun slot-definition-efm-svuc (object)
+  (sys::%record-ref object *<effective-slot-definition>-efm-svuc-location*))
+(defun (setf slot-definition-efm-svuc) (new-value object)
+  (setf (sys::%record-ref object *<effective-slot-definition>-efm-svuc-location*) new-value))
+(defun slot-definition-efm-ssvuc (object)
+  (sys::%record-ref object *<effective-slot-definition>-efm-ssvuc-location*))
+(defun (setf slot-definition-efm-ssvuc) (new-value object)
+  (setf (sys::%record-ref object *<effective-slot-definition>-efm-ssvuc-location*) new-value))
+(defun slot-definition-efm-sbuc (object)
+  (sys::%record-ref object *<effective-slot-definition>-efm-sbuc-location*))
+(defun (setf slot-definition-efm-sbuc) (new-value object)
+  (setf (sys::%record-ref object *<effective-slot-definition>-efm-sbuc-location*) new-value))
+(defun slot-definition-efm-smuc (object)
+  (sys::%record-ref object *<effective-slot-definition>-efm-smuc-location*))
+(defun (setf slot-definition-efm-smuc) (new-value object)
+  (setf (sys::%record-ref object *<effective-slot-definition>-efm-smuc-location*) new-value))
 
 ;; Initialization of a <slot-definition> instance.
 (defun initialize-instance-<slot-definition> (slotdef
@@ -289,7 +317,7 @@
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
   (declare (ignore class))
-  (let ((slotdef (allocate-metaobject-instance *<standard-effective-slot-definition>-class-version* 8)))
+  (let ((slotdef (allocate-metaobject-instance *<standard-effective-slot-definition>-class-version* 12)))
     (apply #'initialize-instance-<standard-effective-slot-definition> slotdef args)))
 
 
@@ -338,13 +366,13 @@
 (defvar *<structure-effective-slot-definition>-class-version* (make-class-version))
 
 (defun structure-effective-slot-definition-initff (object)
-  (sys::%record-ref object 8))
+  (sys::%record-ref object 12))
 (defun (setf structure-effective-slot-definition-initff) (new-value object)
-  (setf (sys::%record-ref object 8) new-value))
+  (setf (sys::%record-ref object 12) new-value))
 (defun structure-effective-slot-definition-readonly (object)
-  (sys::%record-ref object 9))
+  (sys::%record-ref object 13))
 (defun (setf structure-effective-slot-definition-readonly) (new-value object)
-  (setf (sys::%record-ref object 9) new-value))
+  (setf (sys::%record-ref object 13) new-value))
 
 ;; Initialization of a <structure-effective-slot-definition> instance.
 (defun initialize-instance-<structure-effective-slot-definition> (slotdef &rest args
@@ -362,7 +390,7 @@
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
   (declare (ignore class))
-  (let ((slotdef (allocate-metaobject-instance *<structure-effective-slot-definition>-class-version* 10)))
+  (let ((slotdef (allocate-metaobject-instance *<structure-effective-slot-definition>-class-version* 14)))
     (apply #'initialize-instance-<structure-effective-slot-definition> slotdef args)))
 
 

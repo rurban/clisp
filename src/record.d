@@ -938,11 +938,16 @@ local Values do_allocate_instance (object clas) {
 }
 
 /* (CLOS:SLOT-VALUE instance slot-name)
- (CLOS::SET-SLOT-VALUE instance slot-name new-value)
- (CLOS:SLOT-BOUNDP instance slot-name)
- (CLOS:SLOT-MAKUNBOUND instance slot-name)
- (CLOS:SLOT-EXISTS-P instance slot-name)
- CLtL2 p. 855,857 */
+   (CLOS::SET-SLOT-VALUE instance slot-name new-value)
+   (CLOS:SLOT-BOUNDP instance slot-name)
+   (CLOS:SLOT-MAKUNBOUND instance slot-name)
+   (CLOS:SLOT-EXISTS-P instance slot-name)
+   CLtL2 p. 855,857
+ The functions CLOS::%SLOT-...-USING-CLASS are the default methods; they
+ access the cell indicated by the slot's location. The functions CLOS:SLOT-...
+ are the general wrapper; they dispatch to the SLOT-...-USING-CLASS generic
+ function if necessary and - as an optimization - access the cell indicated
+ by the slot's location if possible. */
 
 /* Derives the address of an existing slot in an instance of a standard-
  or structure-class from a slot-location-info. */
@@ -957,72 +962,196 @@ local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo) {
 }
 
 /* UP: visits a slot.
- slot_up()
+ slot_using_class_up()
+ > STACK_2: class
  > STACK_1: instance
- > STACK_0: slot-name
- < result: pointer to the slot (value1 = (class-of instance)),
-             or NULL (then SLOT-MISSING was called). */
-local gcv_object_t* slot_up (void) {
+ > STACK_0: slot-definition
+ < result: pointer to the slot */
+local gcv_object_t* slot_using_class_up (void) {
+  /* The method applicability already guarantees that
+     - the class is a <semi-standard-class>,
+     - the slot is a <standard-effective-slot-definition>. */
+  var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
+  if (!eq(clas,STACK_2)) {
+    pushSTACK(STACK_1); pushSTACK(STACK_(2+1));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: invalid arguments: class argument ~S is not the class of ~S"));
+  }
+  var object slotinfo = TheSlotDefinition(STACK_0)->slotdef_location;
+  return ptr_to_slot(STACK_1,slotinfo);
+}
+
+/* (CLOS::%SLOT-VALUE-USING-CLASS class instance slot) */
+LISPFUNN(pslot_value_using_class,3) {
+  var gcv_object_t* slot = slot_using_class_up();
+  var object value = *slot;
+  if (boundp(value)) {
+    value1 = value;
+    skipSTACK(3);
+  } else {
+    /* (SLOT-UNBOUND class instance slot-name) */
+    STACK_0 = TheSlotDefinition(STACK_0)->slotdef_name;
+    funcall(S(slot_unbound),3);
+  }
+  mv_count=1;
+}
+
+/* (CLOS::%SET-SLOT-VALUE-USING-CLASS new-value class instance slot) */
+LISPFUNN(pset_slot_value_using_class,4) {
+  var gcv_object_t* slot = slot_using_class_up();
+  value1 = *slot = STACK_3;
+  mv_count=1;
+  skipSTACK(4);
+}
+
+/* (CLOS::%SLOT-BOUNDP-USING-CLASS class instance slot) */
+LISPFUNN(pslot_boundp_using_class,3) {
+  var gcv_object_t* slot = slot_using_class_up();
+  VALUES_IF(boundp(*slot));
+  skipSTACK(3);
+}
+
+/* (CLOS::%SLOT-MAKUNBOUND-USING-CLASS class instance slot) */
+LISPFUNN(pslot_makunbound_using_class,3) {
+  var gcv_object_t* slot = slot_using_class_up();
+  *slot = unbound;
+  VALUES1(STACK_1); /* instance as value */
+  skipSTACK(3);
+}
+
+/* (CLOS:SLOT-VALUE instance slot-name) */
+LISPFUNN(slot_value,2) {
+  /* stack layout: instance, slot-name. */
   var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
     gethash(STACK_0,TheClass(clas)->slot_location_table);
   if (!eq(slotinfo,nullobj)) { /* found? */
-    value1 = clas;
-    return ptr_to_slot(STACK_1,slotinfo);
-  } else { /* missing slot -> (SLOT-MISSING class instance slot-name caller) */
-    pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
-    pushSTACK(TheSubr(subr_self)->name);
-    funcall(S(slot_missing),4);
-    return NULL;
-  }
-}
-
-LISPFUNN(slot_value,2) {
-  var gcv_object_t* slot = slot_up();
-  if (slot) {
+    if (regular_instance_p(slotinfo)) {
+      if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_svuc,L(pslot_value_using_class))) {
+        # Call the effective method of CLOS:SLOT-VALUE-USING-CLASS.
+        var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_svuc;
+        pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(slotinfo);
+        funcall(efm,3);
+        goto done;
+      }
+      slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
+    }
+    var gcv_object_t* slot = ptr_to_slot(STACK_1,slotinfo);
     var object value = *slot;
     if (boundp(value)) {
       value1 = value;
-    } else { /* (SLOT-UNBOUND class instance slot-name) */
-      pushSTACK(value1); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+    } else {
+      /* (SLOT-UNBOUND class instance slot-name) */
+      pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
       funcall(S(slot_unbound),3);
     }
+  } else {
+    /* missing slot -> (SLOT-MISSING class instance slot-name 'slot-value) */
+    pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+    pushSTACK(S(slot_value));
+    funcall(S(slot_missing),4);
   }
+ done:
   mv_count=1;
   skipSTACK(2);
 }
 
+/* (CLOS::SET-SLOT-VALUE instance slot-name new-value) */
 LISPFUNN(set_slot_value,3) {
   /* stack layout: instance, slot-name, new-value. */
   var object clas = class_of(STACK_2); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
     gethash(STACK_1,TheClass(clas)->slot_location_table);
   if (!eq(slotinfo,nullobj)) { /* found? */
+    if (regular_instance_p(slotinfo)) {
+      if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc,L(pset_slot_value_using_class))) {
+        # Call the effective method of (SETF CLOS:SLOT-VALUE-USING-CLASS).
+        var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc;
+        pushSTACK(STACK_0); pushSTACK(clas); pushSTACK(STACK_(2+2));
+        pushSTACK(slotinfo);
+        funcall(efm,4);
+        # It must return the new-value. But anyway, just for safety
+        # (don't trust user-defined methods):
+        value1 = STACK_0;
+        goto done;
+      }
+      slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
+    }
     value1 = *ptr_to_slot(STACK_2,slotinfo) = STACK_0;
-  } else { /* missing slot
-              -> (SLOT-MISSING class instance slot-name 'setf new-value) */
+  } else {
+    /* missing slot
+       -> (SLOT-MISSING class instance slot-name 'setf new-value) */
     pushSTACK(clas); pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2));
     pushSTACK(S(setf)); pushSTACK(STACK_(0+4));
     funcall(S(slot_missing),5);
     value1 = STACK_0;
   }
+ done:
   mv_count=1;
   skipSTACK(3);
 }
 
+/* (CLOS:SLOT-BOUNDP instance slot-name) */
 LISPFUNN(slot_boundp,2) {
-  var gcv_object_t* slot = slot_up();
-  VALUES_IF(slot ? boundp(*slot) : !nullp(value1));
+  /* stack layout: instance, slot-name. */
+  var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
+  var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
+    gethash(STACK_0,TheClass(clas)->slot_location_table);
+  if (!eq(slotinfo,nullobj)) { /* found? */
+    if (regular_instance_p(slotinfo)) {
+      if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_sbuc,L(pslot_boundp_using_class))) {
+        # Call the effective method of CLOS:SLOT-BOUNDP-USING-CLASS.
+        var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_sbuc;
+        pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(slotinfo);
+        funcall(efm,3);
+        goto done;
+      }
+      slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
+    }
+    var gcv_object_t* slot = ptr_to_slot(STACK_1,slotinfo);
+    VALUES_IF(boundp(*slot));
+  } else {
+    /* missing slot -> (SLOT-MISSING class instance slot-name 'slot-boundp) */
+    pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+    pushSTACK(S(slot_boundp));
+    funcall(S(slot_missing),4);
+    VALUES_IF(!nullp(value1));
+  }
+ done:
   skipSTACK(2);
 }
 
+/* (CLOS:SLOT-MAKUNBOUND instance slot-name) */
 LISPFUNN(slot_makunbound,2) {
-  var gcv_object_t* slot = slot_up();
-  if (slot) { *slot = unbound; }
+  /* stack layout: instance, slot-name. */
+  var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
+  var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
+    gethash(STACK_0,TheClass(clas)->slot_location_table);
+  if (!eq(slotinfo,nullobj)) { /* found? */
+    if (regular_instance_p(slotinfo)) {
+      if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_smuc,L(pslot_makunbound_using_class))) {
+        # Call the effective method of CLOS:SLOT-MAKUNBOUND-USING-CLASS.
+        var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_smuc;
+        pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(slotinfo);
+        funcall(efm,3);
+        goto done;
+      }
+      slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
+    }
+    var gcv_object_t* slot = ptr_to_slot(STACK_1,slotinfo);
+    *slot = unbound;
+  } else {
+    /* missing slot -> (SLOT-MISSING class instance slot-name 'slot-makunbound) */
+    pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+    pushSTACK(S(slot_makunbound));
+    funcall(S(slot_missing),4);
+  }
+ done:
   VALUES1(STACK_1); /* instance as value */
   skipSTACK(2);
 }
 
+/* (CLOS:SLOT-EXISTS-P instance slot-name) */
 LISPFUNNR(slot_exists_p,2) {
   var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
@@ -1364,11 +1493,26 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
       }
      initarg_not_found:
       { /* not found -> test for (slot-boundp instance slotname) first: */
-        var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
+        var object slotinfo = slot;
+        if (regular_instance_p(slotinfo)) {
+          if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_sbuc,L(pslot_boundp_using_class))) {
+            # Call (eff-SLOT-BOUNDP-USING-CLASS clas instance slot):
+            var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_sbuc;
+            pushSTACK(clas); pushSTACK(slots); pushSTACK(slot);
+            pushSTACK(clas); pushSTACK(Before(rest_args_pointer STACKop 1)); pushSTACK(slot);
+            funcall(efm,3);
+            slot = popSTACK(); slots = popSTACK(); clas = popSTACK();
+            if (!nullp(value1))
+              goto slot_done;
+            goto slot_is_unbound;
+          }
+          slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
+        }
         if (!eq(*ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo),
                 unbound))
           goto slot_done;
       }
+     slot_is_unbound:
       { /* slot does not have a value yet. Poss. evaluate the initform: */
         var object init = Cdr(TheSlotDefinition(slot)->slotdef_inheritable_initer); /* (slot-definition-initfunction slot) */
         if (nullp(init))
@@ -1389,14 +1533,26 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
             && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
           value1 = TheClosure(init)->other[0];
         } else {
-          pushSTACK(slots); pushSTACK(slot);
+          pushSTACK(clas); pushSTACK(slots); pushSTACK(slot);
           funcall(init,0);
-          slot = popSTACK(); slots = popSTACK();
+          slot = popSTACK(); slots = popSTACK(); clas = popSTACK();
         }
       }
      fill_slot: {
         /* initialize slot with value1: */
-        var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
+        var object slotinfo = slot;
+        if (regular_instance_p(slotinfo)) {
+          if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc,L(pset_slot_value_using_class))) {
+            # Call (eff-SET-SLOT-VALUE-USING-CLASS value1 clas instance slot):
+            var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc;
+            pushSTACK(clas); pushSTACK(slots);
+            pushSTACK(value1); pushSTACK(clas); pushSTACK(Before(rest_args_pointer STACKop 1)); pushSTACK(slot);
+            funcall(efm,4);
+            slots = popSTACK(); clas = popSTACK();
+            goto slot_done;
+          }
+          slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
+        }
         *ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo) = value1;
       }
      slot_done: ;
@@ -1484,10 +1640,22 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
         var gcv_object_t* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
         if (ptr != NULL) {
           var object value = NEXT(ptr);
-          /* initialize slot with value:
-             (slot-definition-location slot): */
-          var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
+          /* initialize slot with value: */
+          var object slotinfo = slot;
+          if (regular_instance_p(slotinfo)) {
+            if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc,L(pset_slot_value_using_class))) {
+              # Call (eff-SET-SLOT-VALUE-USING-CLASS value clas instance slot):
+              var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc;
+              pushSTACK(clas); pushSTACK(slots);
+              pushSTACK(value); pushSTACK(clas); pushSTACK(Before(rest_args_pointer)); pushSTACK(slot);
+              funcall(efm,4);
+              slots = popSTACK(); clas = popSTACK();
+              goto slot_done;
+            }
+            slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
+          }
           *ptr_to_slot(Before(rest_args_pointer),slotinfo) = value;
+         slot_done: ;
         }
       }
     }
@@ -1570,10 +1738,25 @@ local Values do_initialize_instance (object info,
       }
      initarg_not_found:
       { /* not found -> first test for (slot-boundp instance slotname): */
-        var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
-        if (boundp(*ptr_to_slot(Before(rest_args_pointer),slotinfo)))
+        var object slotinfo = slot;
+        if (regular_instance_p(slotinfo)) {
+          if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_sbuc,L(pslot_boundp_using_class))) {
+            # Call (eff-SLOT-BOUNDP-USING-CLASS clas instance slot):
+            var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_sbuc;
+            pushSTACK(clas); pushSTACK(slots); pushSTACK(slot);
+            pushSTACK(clas); pushSTACK(Before(rest_args_pointer)); pushSTACK(slot);
+            funcall(efm,3);
+            slot = popSTACK(); slots = popSTACK(); clas = popSTACK();
+            if (!nullp(value1))
+              goto slot_done;
+            goto slot_is_unbound;
+          }
+          slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
+        }
+        if (!eq(*ptr_to_slot(Before(rest_args_pointer),slotinfo),unbound))
           goto slot_done;
       }
+     slot_is_unbound:
       { /* Slot has no value yet. Evaluate the initform: */
         var object init = Cdr(TheSlotDefinition(slot)->slotdef_inheritable_initer); /* (slot-definition-initfunction slot) */
         if (nullp(init))
@@ -1583,14 +1766,26 @@ local Values do_initialize_instance (object info,
             && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
           value1 = TheClosure(init)->other[0];
         } else {
-          pushSTACK(slots); pushSTACK(slot);
+          pushSTACK(clas); pushSTACK(slots); pushSTACK(slot);
           funcall(init,0);
-          slot = popSTACK(); slots = popSTACK();
+          slot = popSTACK(); slots = popSTACK(); clas = popSTACK();
         }
       }
      fill_slot: {
         /* initialize slot with value1: */
-        var object slotinfo = TheSlotDefinition(slot)->slotdef_location;
+        var object slotinfo = slot;
+        if (regular_instance_p(slotinfo)) {
+          if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc,L(pset_slot_value_using_class))) {
+            # Call (eff-SET-SLOT-VALUE-USING-CLASS value1 clas instance slot):
+            var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc;
+            pushSTACK(clas); pushSTACK(slots);
+            pushSTACK(value1); pushSTACK(clas); pushSTACK(Before(rest_args_pointer)); pushSTACK(slot);
+            funcall(efm,4);
+            slots = popSTACK(); clas = popSTACK();
+            goto slot_done;
+          }
+          slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
+        }
         *ptr_to_slot(Before(rest_args_pointer),slotinfo) = value1;
       }
      slot_done: ;

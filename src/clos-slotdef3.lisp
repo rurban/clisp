@@ -102,6 +102,34 @@
   (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-location))
   (setf (slot-value slotdef '$location) new-value))
 
+(defun slot-definition-efm-svuc (slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition 'slot-definition-efm-svuc)
+  (slot-value slotdef '$efm-svuc))
+(defun (setf slot-definition-efm-svuc) (new-value slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-efm-svuc))
+  (setf (slot-value slotdef '$efm-svuc) new-value))
+
+(defun slot-definition-efm-ssvuc (slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition 'slot-definition-efm-ssvuc)
+  (slot-value slotdef '$efm-ssvuc))
+(defun (setf slot-definition-efm-ssvuc) (new-value slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-efm-ssvuc))
+  (setf (slot-value slotdef '$efm-ssvuc) new-value))
+
+(defun slot-definition-efm-sbuc (slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition 'slot-definition-efm-sbuc)
+  (slot-value slotdef '$efm-sbuc))
+(defun (setf slot-definition-efm-sbuc) (new-value slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-efm-sbuc))
+  (setf (slot-value slotdef '$efm-sbuc) new-value))
+
+(defun slot-definition-efm-smuc (slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition 'slot-definition-efm-smuc)
+  (slot-value slotdef '$efm-smuc))
+(defun (setf slot-definition-efm-smuc) (new-value slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-efm-smuc))
+  (setf (slot-value slotdef '$efm-smuc) new-value))
+
 |#
 
 ;;; Optimized slot-definition-xxx accessors.
@@ -211,6 +239,38 @@
 (defun (setf slot-definition-location) (new-value slotdef)
   (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-location))
   (setf (sys::%record-ref slotdef *<effective-slot-definition>-location-location*) new-value))
+
+;; Not in MOP.
+(defun slot-definition-efm-svuc (slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition 'slot-definition-efm-svuc)
+  (sys::%record-ref slotdef *<effective-slot-definition>-efm-svuc-location*))
+(defun (setf slot-definition-efm-svuc) (new-value slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-efm-svuc))
+  (setf (sys::%record-ref slotdef *<effective-slot-definition>-efm-svuc-location*) new-value))
+
+;; Not in MOP.
+(defun slot-definition-efm-ssvuc (slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition 'slot-definition-efm-ssvuc)
+  (sys::%record-ref slotdef *<effective-slot-definition>-efm-ssvuc-location*))
+(defun (setf slot-definition-efm-ssvuc) (new-value slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-efm-ssvuc))
+  (setf (sys::%record-ref slotdef *<effective-slot-definition>-efm-ssvuc-location*) new-value))
+
+;; Not in MOP.
+(defun slot-definition-efm-sbuc (slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition 'slot-definition-efm-sbuc)
+  (sys::%record-ref slotdef *<effective-slot-definition>-efm-sbuc-location*))
+(defun (setf slot-definition-efm-sbuc) (new-value slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-efm-sbuc))
+  (setf (sys::%record-ref slotdef *<effective-slot-definition>-efm-sbuc-location*) new-value))
+
+;; Not in MOP.
+(defun slot-definition-efm-smuc (slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition 'slot-definition-efm-smuc)
+  (sys::%record-ref slotdef *<effective-slot-definition>-efm-smuc-location*))
+(defun (setf slot-definition-efm-smuc) (new-value slotdef)
+  (accessor-typecheck slotdef 'effective-slot-definition '(setf slot-definition-efm-smuc))
+  (setf (sys::%record-ref slotdef *<effective-slot-definition>-efm-smuc-location*) new-value))
 
 
 ;; MOP p. 45

@@ -1,5 +1,55 @@
 2004-09-12  Bruno Haible  <bruno@clisp.org>
 
+	Implement SLOT-VALUE-USING-CLASS and friends.
+	* lispbibl.d (SlotDefinition): Add fields slotdef_efm_svuc,
+	slotdef_efm_ssvuc, slotdef_efm_sbuc, slotdef_efm_smuc.
+	* record.d (slot_using_class_up): New function.
+	(CLOS::%SLOT-VALUE-USING-CLASS, CLOS::%SET-SLOT-VALUE-USING-CLASS,
+	CLOS::%SLOT-BOUNDP-USING-CLASS, CLOS::%SLOT-MAKUNBOUND-USING-CLASS):
+	New functions.
+	(slot_up): Remove function.
+	(CLOS:SLOT-VALUE): Inline slot_up. Handle the general case slotinfo:
+	call CLOS:SLOT-VALUE-USING-CLASS effective method if necessary.
+	((SETF CLOS:SLOT-VALUE)): Handle the general case slotinfo:
+	call (SETF CLOS:SLOT-VALUE-USING-CLASS) effective method if necessary.
+	(CLOS:SLOT-BOUNDP): Inline slot_up. Handle the general case slotinfo.
+	(CLOS:SLOT-MAKUNBOUND): Likewise.
+	(CLOS::%SHARED-INITIALIZE): Handle the general case slotinfo.
+	(CLOS::%REINITIALIZE-INSTANCE, do_initialize_instance): Likewise.
+	* init.lisp: Export slot-value-using-class,
+	slot-boundp-using-class, slot-makunbound-using-class.
+	* clos-package.lisp: Likewise.
+	* clos-slotdef1.lisp (effective-slot-definition): Add slots efm-svuc,
+	efm-ssvuc, efm-sbuc, efm-smuc.
+	(*<effective-slot-definition>-efm-...-location*): New constants.
+	(slot-definition-efm-svuc, slot-definition-efm-ssvuc,
+	slot-definition-efm-sbuc, slot-definition-efm-smuc): New accessors.
+	(make-instance-<standard-effective-slot-definition>,
+	structure-effective-slot-definition-initff,
+	structure-effective-slot-definition-readonly,
+	make-instance-<structure-effective-slot-definition>): Update.
+	* clos-slotdef3.lisp (slot-definition-efm-svuc,
+	slot-definition-efm-ssvuc, slot-definition-efm-sbuc,
+	slot-definition-efm-smuc): New accessors.
+	* clos-class3.lisp (compute-slots-<slotted-class>-around): Properly
+	extract the location from the slot-location-table entry.
+	(create-shared-slots-vector): Likewise.
+	(compute-slot-location-table-entry): New function.
+	(compute-slot-location-table): Use it.
+	(list-all-finalized-subclasses): Make it work also for class <t>.
+	* clos-genfun2.lisp (|#'slot-value-using-class|,
+	|#'(setf slot-value-using-class)|, |#'slot-boundp-using-class|,
+	|#'slot-makunbound-using-class|): New variables.
+	(std-add-method, std-remove-method): Notify when one of these generic
+	functions changes.
+	* clos-slots2.lisp (invalidate-slot-value-info, note-svuc-change,
+	note-ssvuc-change, note-sbuc-change, note-smuc-change): New functions.
+	(slot-value-using-class, (setf slot-value-using-class),
+	slot-boundp-using-class, slot-makunbound-using-class): New generic
+	functions.
+
+2004-09-12  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun2.lisp (compute-applicable-methods-effective-method-for-set,
 	compute-applicable-methods-for-set): New functions.
 
