@@ -109,7 +109,7 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
       (((mc).ss_flags & SS_WIDEREGS) && ((mc).ss_flags & SS_NARROWISINVALID))
     #define GET_R10(mc) \
       (USE_64BIT_REGS(mc) ? (mc).ss_wide.ss_64.ss_gr10 : (mc).ss_narrow.ss_gr10)
-    if (scp) { setSTACK(STACK = (gcv_object_t*)GET_R10(scp->sc_ctxt.sl.sl_ss); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)GET_R10(scp->sc_ctxt.sl.sl_ss)); }
    #endif
   #endif
   #ifdef UNIX_FREEBSD
