@@ -1,5 +1,13 @@
 1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * loop.lsp (expand-loop) (collect/append/nconc): Generate forward-
+          consing code only for named accumulation variables. Revert to the
+          old backward-consing code for unnamed accumulation variables.
+          (expand-loop) (accu-vars-nil, accu-vars-0): Kill use of `pushnew',
+          `push' and `delete-duplicates' is more efficient.
+
+1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * constsym.d (*merge-pathnames-ansi*): New variable.
         * spvw.d (init_symbol_values): Initialize it to NIL.
           (main): Set it to T, if option -a given.
