@@ -738,12 +738,12 @@ local uintC generation;
         var Heap* heap = &mem.heaps[heapnr];
         var aint gen0_start = heap->heap_gen0_start;
         var aint gen0_end = heap->heap_gen0_end;
+        var DYNAMIC_ARRAY(cache_buffer,old_new_pointer,physpagesize/sizeof(object));
         if ((gen0_start < gen0_end) && !(heap->physpages==NULL)) {
           var physpage_state* physpage = heap->physpages;
           gen0_start &= -physpagesize;
           do {
             if (physpage->protection == PROT_READ_WRITE) {
-              var DYNAMIC_ARRAY(cache_buffer,old_new_pointer,physpagesize/sizeof(object));
               var old_new_pointer* cache_ptr = &cache_buffer[0];
               #ifdef TYPECODES
                 #define cache_at(obj)  \
@@ -785,11 +785,11 @@ local uintC generation;
                 xfree(physpage->cache); physpage->cache = NULL;
                no_cache: ;
               }
-              FREE_DYNAMIC_ARRAY(cache_buffer);
             }
             gen0_start += physpagesize;
             physpage++;
           } while (gen0_start < gen0_end);
+          FREE_DYNAMIC_ARRAY(cache_buffer);
         }
       }
     }
