@@ -1,3 +1,8 @@
+1998-06-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * user2.lsp (describe): Don't mention STRUCTURE-OBJECT as type of
+          all structure objects.
+
 1998-06-06  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * control.d (make_variable_frame): For LET, LET*, MULTIPLE-VALUE-BIND,
