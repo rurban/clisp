@@ -1193,10 +1193,12 @@ global object check_fdefinition (object funname, object caller)
     pushSTACK(STACK_0); /* funname */
     pushSTACK(STACK_4); /* caller */
     check_value(undefined_function,GETTEXT("~S: undefined function ~S"));
+    /* value2 selects the restart: 0: CONTINUE, T: STORE-VALUE, else: USE-VALUE
+       see also condition.lisp:check-value */
     store_p = eq(value2,T);
     /* this is the only place where check_value()'s second value is checked
        for something other than non-NIL */
-    if (eq(value2,Fixnum_0)) { /* :CONTINUE restart */
+    if (eq(value2,Fixnum_0)) { /* CONTINUE restart */
       funname = STACK_0;
       name = (symbolp(funname) ? funname
               : get(Car(Cdr(funname)),S(setf_function)));
@@ -1205,7 +1207,7 @@ global object check_fdefinition (object funname, object caller)
     funname = popSTACK(); caller = popSTACK(); /* restore */
     def = value1;
   }
-  if (store_p) {
+  if (store_p) {                /* STORE-VALUE restart */
     name = (symbolp(funname) ? funname
             : get(Car(Cdr(funname)),S(setf_function)));
     if (!symbolp(name)) {
