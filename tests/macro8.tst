@@ -713,3 +713,27 @@ nil
          (return-from b7 (progv '(*s6*) (list 31) d))))))
  65)
 (T 65 65)
+
+;; <https://sourceforge.net/tracker/?func=detail&atid=101355&aid=889037&group_id=1355>
+(test-compiler
+ (lambda (b)
+   (labels ((%f2 ()
+              (let ((v10 (progn (dotimes (iv2 0 0) iv2) b)))
+                (unwind-protect b (labels ((%f6 ())) (%f6))))))
+     (%f2)))
+ :good)
+(T :GOOD :GOOD)
+
+(test-compiler
+ (lambda (b)
+   (let ((v10 (progn (dotimes (iv2 0 0) iv2) b)))
+     (unwind-protect b (labels ((%f6 ())) (%f6)))))
+ :good)
+(T :GOOD :GOOD)
+
+(test-compiler
+ (lambda (b)
+   (let ((v10 (progn (print 321) b)))
+     (unwind-protect b (print 123))))
+ :good)
+(T :GOOD :GOOD)

@@ -1,3 +1,9 @@
+2004-02-02  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 889037 ]: Incorrect value returned by compiled function
+	* compiler.lisp (traverse-anode): UNWIND-PROTECT-OPEN discards
+	*CURRENT-VALUE* and *CURRENT-VARS*, just like UNWIND-PROTECT-CLOSE
+
 2004-02-01  James Anderson  <james.anderson@setf.de>
 	    Sam Steingold  <sds@gnu.org>
 
