@@ -87,7 +87,7 @@ LISPFUNN(putd,2)
     var object fun = STACK_0;
     # fun muss SUBR, FSUBR, Closure oder #<MACRO expander> sein,
     # Lambda-Ausdruck ist nicht mehr gültig.
-    if (subrp(fun) || closurep(fun) || ffunctionp(fun) || fsubrp(fun))
+    if (functionp(fun) || fsubrp(fun))
       goto ok;
     elif (macrop(fun)) # #<MACRO expander> ist ok
       goto ok;
