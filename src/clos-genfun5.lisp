@@ -203,11 +203,17 @@
   (:method ((gf standard-generic-function) (method standard-method))
     (std-remove-method gf method)))
 
-;; MOP p. 40
+;; MOP p. 35
 (fmakunbound 'compute-applicable-methods)
 (defgeneric compute-applicable-methods (gf args)
   (:method ((gf standard-generic-function) args)
     (compute-applicable-methods-<standard-generic-function> gf args)))
+
+;; MOP p. 36
+(fmakunbound 'compute-applicable-methods-using-classes)
+(defgeneric compute-applicable-methods-using-classes (gf req-arg-classes)
+  (:method ((gf standard-generic-function) req-arg-classes)
+    (compute-applicable-methods-using-classes-<standard-generic-function> gf req-arg-classes)))
 
 ;; MOP p. 41
 (fmakunbound 'compute-effective-method)

@@ -148,7 +148,7 @@
           generic-function-method-combination
           generic-function-argument-precedence-order
           generic-function-declarations
-          compute-applicable-methods
+          compute-applicable-methods compute-applicable-methods-using-classes
           ;; CLISP specific symbols
           generic-flet generic-labels no-primary-method
           method-call-error method-call-type-error

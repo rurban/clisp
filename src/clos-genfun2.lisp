@@ -754,17 +754,32 @@
 ;;; for the same EQL and class restrictions as the given arguments,
 ;;; therefore compute dispatch is already taken care of.
 (defun compute-applicable-methods-effective-method (gf &rest args)
-  (let ((methods
-          (funcall (cond ((or (eq gf #'compute-applicable-methods) (eq gf #'compute-effective-method))
-                          #'compute-applicable-methods-<standard-generic-function>)
-                         (t #'compute-applicable-methods))
-                   gf args)))
-    (when (null methods)
-      (return-from compute-applicable-methods-effective-method
-        (no-method-caller 'no-applicable-method gf)))
-    ;; Combine the methods to an effective method:
-    (let ((*method-combination-arguments* args))
-      (compute-effective-method-as-function gf (std-gf-method-combination gf) methods))))
+  (let ((req-num (sig-req-num (std-gf-signature gf))))
+    (if (>= (length args) req-num)
+      (let ((req-args (subseq args 0 req-num)))
+        (let ((methods
+                ;; compute-applicable-methods would be sufficient, but the MOP
+                ;; specifies a two-step process.
+                (multiple-value-bind (methods certain)
+                    (funcall (cond ((eq gf #'compute-applicable-methods-using-classes)
+                                    #'compute-applicable-methods-using-classes-<standard-generic-function>)
+                                   (t #'compute-applicable-methods-using-classes))
+                             gf (mapcar #'class-of req-args))
+                  (if certain
+                    methods
+                    (funcall (cond ((or (eq gf #'compute-applicable-methods) (eq gf #'compute-effective-method))
+                                    #'compute-applicable-methods-<standard-generic-function>)
+                                   (t #'compute-applicable-methods))
+                             gf args)))))
+          (when (null methods)
+            (return-from compute-applicable-methods-effective-method
+              (no-method-caller 'no-applicable-method gf)))
+          ;; Combine the methods to an effective method:
+          (let ((*method-combination-arguments* args))
+            (compute-effective-method-as-function gf (std-gf-method-combination gf) methods))))
+      (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S")
+             'compute-applicable-methods-effective-method gf req-num (length args)
+             'compute-applicable-methods-effective-method args))))
 
 ;; Preliminary.
 (defun compute-applicable-methods (gf args)
@@ -776,7 +791,8 @@
       ;; 0. Check the method specializers:
       (let ((methods (std-gf-methods gf)))
         (dolist (method methods)
-          (check-method-only-standard-specializers gf method))
+          (check-method-only-standard-specializers gf method
+            'compute-applicable-methods))
         ;; 1. Select the applicable methods:
         (let ((req-args (subseq args 0 req-num)))
           (setq methods
@@ -784,18 +800,71 @@
                                    (method-applicable-p method req-args))
                                (the list methods)))
           ;; 2. Sort the applicable methods by precedence order:
-          (sort-applicable-methods methods req-args (std-gf-argorder gf))))
-      (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S argument~:P were passed to ~S: ~S")
-             'compute-applicable-methods gf req-num (length args) 'compute-applicable-methods args))))
+          (sort-applicable-methods methods (mapcar #'class-of req-args) (std-gf-argorder gf))))
+      (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S")
+             'compute-applicable-methods gf req-num (length args)
+             'compute-applicable-methods args))))
+
+;; compute-applicable-methods-using-classes is just plain redundant, and must
+;; be a historical relic of the time before CLOS had EQL specializers (or a
+;; brain fart of the PCL authors). But the MOP wants it, so we implement it.
+
+;; Preliminary.
+(defun compute-applicable-methods-using-classes (gf req-arg-classes)
+  (compute-applicable-methods-using-classes-<standard-generic-function> gf req-arg-classes))
+
+(defun compute-applicable-methods-using-classes-<standard-generic-function> (gf req-arg-classes)
+  (unless (and (proper-list-p req-arg-classes) (every #'class-p req-arg-classes))
+    (error (TEXT "~S: argument should be a proper list of classes, not ~S")
+           'compute-applicable-methods-using-classes req-arg-classes))
+  (let ((req-num (sig-req-num (std-gf-signature gf))))
+    (if (= (length req-arg-classes) req-num)
+      ;; 0. Check the method specializers:
+      (let ((methods (std-gf-methods gf)))
+        (dolist (method methods)
+          (check-method-only-standard-specializers gf method
+            'compute-applicable-methods-using-classes))
+        ;; 1. Select the applicable methods. Note that the arguments are
+        ;; assumed to be _direct_ instances of the given classes, i.e.
+        ;; classes = (mapcar #'class-of required-arguments).
+        (setq methods
+              (remove-if-not #'(lambda (method)
+                                 (let ((specializers (std-method-specializers method))
+                                       (applicable t) (unknown nil))
+                                   (mapc #'(lambda (arg-class specializer)
+                                             (if (class-p specializer)
+                                               ;; For class specializers,
+                                               ;; (typep arg specializer) is equivalent to
+                                               ;; (subtypep (class-of arg) specializer).
+                                               (unless (subclassp arg-class specializer)
+                                                 (setq applicable nil))
+                                               ;; For EQL specializers,
+                                               ;; (typep arg specializer) is certainly false
+                                               ;; if (class-of arg) and (class-of (eql-specializer-object specializer))
+                                               ;; differ. Otherwise unknown.
+                                               (if (eq arg-class (class-of (eql-specializer-object specializer)))
+                                                 (setq unknown t)
+                                                 (setq applicable nil))))
+                                         req-arg-classes specializers)
+                                   (when (and applicable unknown)
+                                     (return-from compute-applicable-methods-using-classes-<standard-generic-function>
+                                       (values nil nil)))
+                                   applicable))
+                             (the list methods)))
+        ;; 2. Sort the applicable methods by precedence order:
+        (values (sort-applicable-methods methods req-arg-classes (std-gf-argorder gf)) t))
+      (error (TEXT "~S: ~S has ~S required argument~:P, but ~S classes were passed to ~S: ~S")
+             'compute-applicable-methods-using-classes gf req-num (length req-arg-classes)
+             'compute-applicable-methods-using-classes req-arg-classes))))
 
 ;; There's no real reason for checking the method specializers in
-;; compute-applicable-methods, rather than in compute-effective-method-as-function,
-;; but that's how the MOP specifies it.
-(defun check-method-only-standard-specializers (gf method)
+;; compute-applicable-methods, rather than in
+;; compute-effective-method-as-function, but that's how the MOP specifies it.
+(defun check-method-only-standard-specializers (gf method caller)
   (dolist (spec (std-method-specializers method))
     (unless (or (class-p spec) (typep-class spec <eql-specializer>))
       (error (TEXT "~S: Invalid method specializer ~S on ~S in ~S")
-        'compute-applicable-methods spec method gf))))
+        caller spec method gf))))
 
 (defun compute-effective-method-as-function (gf combination methods)
   ;; Apply method combination:
