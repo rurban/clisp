@@ -1045,16 +1045,17 @@ local void init_symbol_tab_2 (void) {
                                         Symbol_value(S(utf_8)))
                       : ascii_to_string(*pname_ptr));
       pname_ptr++;
-      var uintB index = *index_ptr++;
-      var gcv_object_t* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
-      pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
-      import(&STACK_0,package_); # first, import normally
-      if (index == (uintB)enum_lisp_index # in #<PACKAGE LISP>?
-          || index == (uintB)enum_charset_index # in #<PACKAGE CHARSET>?
-          || index == (uintB)enum_socket_index
-          || index == (uintB)enum_custom_index)
-        { export(&STACK_0,package_); } # yes -> also export
-      Symbol_package(popSTACK()) = *package_; # and set the home-package
+      var uintB this_index = *index_ptr++;
+      var gcv_object_t* package_ = /* pointer to the package */
+        &STACK_(package_anz-1) STACKop -(uintP)this_index;
+      pushSTACK(symbol_tab_ptr_as_object(ptr)); /* Symbol */
+      import(&STACK_0,package_);                /* import normally */
+      switch (this_index) {
+        case enum_lisp_index:   case enum_charset_index:
+        case enum_socket_index: case enum_custom_index:
+          export(&STACK_0,package_); /* also export */
+      }
+      Symbol_package(popSTACK()) = *package_; /* set the home-package */
       ptr++;
     } while (--count != 0);
     skipSTACK(package_anz);
