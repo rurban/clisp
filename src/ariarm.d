@@ -84,10 +84,10 @@ sp      .req    r13
 lr      .req    r14
 pc      .req    r15
 
-#define C(x) ##x
+#define C(x) x
 #define EXPORT(x) .global x
-#define GLABEL(x)  x##:
-#define LABEL(x)  x##:
+#define GLABEL(x)  x:
+#define LABEL(x)  x:
 #define RRX rrx
 #define END
 	.text
