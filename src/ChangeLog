@@ -1,5 +1,10 @@
 2004-12-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (check_chmod_mode): new function
+	(POSIX::CONVERT-MODE): use it, permit symbol arguments
+
+2004-12-06  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (progv): do not modify the source code:
 	when symlist contains bad symbols, copy it
 
