@@ -341,6 +341,11 @@
     #define pointer_bitsize 64
   #endif
   #ifdef MC680X0
+    #define alignment_long 2
+  #else
+    #define alignment_long 4
+  #endif
+  #ifdef MC680X0
     #define short_big_endian
     #define long_big_endian
   #endif
@@ -1579,7 +1584,8 @@
   # bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
   # today), except if support for immutable objects is requested, or if the
   # CPU cannot address more than 16 MB anyway.
-  #if defined(WIDE) || defined(IMMUTABLE) || defined(MC68000)
+  # NO_TYPECODES will normally not work if alignof(subr_) = alignof(long) < 4.
+  #if defined(WIDE) || defined(IMMUTABLE) || defined(MC68000) || (alignment_long < 4)
     #define TYPECODES
   #else
     #define NO_TYPECODES
