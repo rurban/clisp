@@ -8461,7 +8461,7 @@ extern object allocate_bit_vector (uintB atype, uintL len);
 #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
   # No way to allocate a Lisp object on the stack.
   #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
-    uintL objvar##_len = (len);                   \
+    var uintL objvar##_len = (len);               \
     var object objvar = O(dynamic_8bit_vector);   \
     O(dynamic_8bit_vector) = NIL;                 \
     if (!(simple_bit_vector_p(Atype_8Bit,objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
@@ -8576,7 +8576,7 @@ extern object allocate_imm_s32string (uintL len);
 #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
   # No way to allocate a Lisp object on the stack.
   #define DYNAMIC_STRING(objvar,len)  \
-    uintL objvar##_len = (len);               \
+    var uintL objvar##_len = (len);           \
     var object objvar = O(dynamic_string);    \
     O(dynamic_string) = NIL;                  \
     if (!(simple_string_p(objvar) && (Sstring_length(objvar) >= objvar##_len))) { \
