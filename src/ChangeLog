@@ -1,3 +1,7 @@
+2003-06-23  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (alloca) [UNIX_CYGWIN32]: use __builtin_alloca()
+
 2003-06-19  Sam Steingold  <sds@gnu.org>
 
 	* type.lisp (canonicalize-type): canonicalize (VECTOR NIL) correctly
