@@ -66,6 +66,7 @@
 	* init.lisp (*CURRENT-LANGUAGE*): export
 	* clos.lisp, affi1.lisp, foreign1.lisp: import SYS::TEXT
 	* french.lisp: spell FRANCAIS with a cedilla
+	* makemake.in (LPARTS): include french.lisp only with_unicode
 	* international.lisp: export ENGLISH here
 	* affi1.lisp, amigasock.lisp, backquote.lisp, beossock.lisp
 	* cfgacorn.lisp, cfgamiga.lisp, cfgdos.lisp, cfgsunux.lisp
