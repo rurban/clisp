@@ -338,6 +338,7 @@ case $# in
      CPPFLAGS='@CPPFLAGS@'               # additional options for $CC and $CPP
      CLFLAGS='@LDFLAGS@'                 # additional options for linking
      CC_GCC='@CC_GCC@'                   # either true or false
+     CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
      CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
      CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
      AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
@@ -390,6 +391,7 @@ case $# in
        HSYS="$TSYS"
        HSYSOS="$TSYSOS"
      fi
+     CC_CPLUSPLUS=false
      CPPFLAGS=''
      CLFLAGS=''
      if [ $TSYS = win32msvc ] ; then
@@ -786,6 +788,15 @@ if [ $XCC_GCC = true ] ; then
       # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
       2.[8-9]* | 3.* | egcs-2.*)
         XCFLAGS=$XCFLAGS' -Wno-sign-compare'
+        ;;
+      * ) ;;
+    esac
+  fi
+  if [ $CROSS = false -a $CC_CPLUSPLUS = true ] ; then
+    case "$XCC_GCC_VERSION" in
+      # g++ 3.4 introduced an annoying warning, but has a workaround:
+      3.[4-9]*)
+        XCFLAGS=$XCFLAGS' -Wno-invalid-offsetof'
         ;;
       * ) ;;
     esac
