@@ -1,3 +1,7 @@
+2003-05-24  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* spvw_sigsegv.d (stackoverflow_handler): fixed MSVC compilation.
+
 2003-05-22  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_sigsegv.d (stackoverflow_handler): Add support for restoring
