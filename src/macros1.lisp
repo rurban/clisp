@@ -5,6 +5,15 @@
 (export '(mapcap maplap))
 (in-package "SYSTEM")
 
+;; (DEFMACRO-SPECIAL . macrodef) is like (DEFMACRO . macrodef) except
+;; that it works on a special form without replacing the special form
+;; handler. ANSI CL requires that all standard macros, even when implemented
+;; as special forms, have a macro expander available.
+(defmacro defmacro-special (&body macrodef)
+  (multiple-value-bind (expansion name) (make-macro-expansion macrodef)
+    `(SYSTEM::%PUT ',name 'SYSTEM::MACRO ,expansion)
+) )
+
 (defmacro defvar (symbol &optional (initial-value nil svar) docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
@@ -87,50 +96,38 @@
         form symbol (symbol-value symbol)
 ) )
 
-(sys::%put 'and 'sys::macro
-  (sys::macro-expander and (&body args)
-    (cond ((null args) T)
-          ((null (cdr args)) (car args))
-          (t (let ((L (mapcar #'(lambda (x) `((NOT ,x) NIL) ) args)))
-               (rplaca (last L) `(T ,(car (last args))))
-               (cons 'COND L)
-  ) )     )  )
+(defmacro-special and (&body args)
+  (cond ((null args) T)
+        ((null (cdr args)) (car args))
+        (t (let ((L (mapcar #'(lambda (x) `((NOT ,x) NIL) ) args)))
+             (rplaca (last L) `(T ,(car (last args))))
+             (cons 'COND L)
+) )     )  )
+
+(defmacro-special or (&body args)
+  (cond ((null args) NIL)
+        ((null (cdr args)) (car args))
+        (t (let ((L (mapcar #'list args)))
+             (rplaca (last L) `(T ,(car (last args))))
+             (cons 'COND L)
+) )     )  )
+
+(defmacro-special prog1 (form1 &rest moreforms)
+  (let ((g (gensym)))
+    `(LET ((,g ,form1)) ,@moreforms ,g)
+) )
+
+(defmacro-special prog2 (form1 form2 &rest moreforms)
+  (let ((g (gensym)))
+    `(LET () (PROGN ,form1 (LET ((,g ,form2)) ,@moreforms ,g)))
+) )
+
+(defmacro-special when (test &body forms)
+  `(IF ,test (PROGN ,@forms))
 )
 
-(sys::%put 'or 'sys::macro
-  (sys::macro-expander or (&body args)
-    (cond ((null args) NIL)
-          ((null (cdr args)) (car args))
-          (t (let ((L (mapcar #'list args)))
-               (rplaca (last L) `(T ,(car (last args))))
-               (cons 'COND L)
-  ) )     )  )
-)
-
-(sys::%put 'prog1 'sys::macro
-  (sys::macro-expander prog1 (form1 &rest moreforms)
-    (let ((g (gensym)))
-      `(LET ((,g ,form1)) ,@moreforms ,g)
-  ) )
-)
-
-(sys::%put 'prog2 'sys::macro
-  (sys::macro-expander prog2 (form1 form2 &rest moreforms)
-    (let ((g (gensym)))
-      `(LET () (PROGN ,form1 (LET ((,g ,form2)) ,@moreforms ,g)))
-  ) )
-)
-
-(sys::%put 'when 'sys::macro
-  (sys::macro-expander when (test &body forms)
-    `(IF ,test (PROGN ,@forms))
-  )
-)
-
-(sys::%put 'unless 'sys::macro
-  (sys::macro-expander unless (test &body forms)
-    `(IF (NOT ,test) (PROGN ,@forms))
-  )
+(defmacro-special unless (test &body forms)
+  `(IF (NOT ,test) (PROGN ,@forms))
 )
 
 (defmacro return (&optional return-value)
@@ -255,88 +252,77 @@
            ,@body-rest
 ) ) ) )  )
 
-(sys::%put 'psetq 'sys::macro
-  (sys::macro-expander psetq (&whole form &rest args)
-    (do* ((setlist nil)
-          (bindlist nil)
-          (arglist args (cddr arglist)))
-         ((null arglist)
-          (setq setlist (cons 'NIL setlist))
-          (cons 'LET (cons (nreverse bindlist) (nreverse setlist)))
-         )
-      (if (null (cdr arglist))
-        (error-of-type 'source-program-error
-          (ENGLISH "~S called with an odd number of arguments: ~S")
-          'psetq form
-      ) )
-      (let ((g (gensym)))
-        (setq setlist (cons `(SETQ ,(first arglist) ,g) setlist))
-        (setq bindlist (cons `(,g ,(second arglist)) bindlist))
-  ) ) )
+(defmacro-special psetq (&whole form &rest args)
+  (do* ((setlist nil)
+        (bindlist nil)
+        (arglist args (cddr arglist)))
+       ((null arglist)
+        (setq setlist (cons 'NIL setlist))
+        (cons 'LET (cons (nreverse bindlist) (nreverse setlist)))
+       )
+    (if (null (cdr arglist))
+      (error-of-type 'source-program-error
+        (ENGLISH "~S called with an odd number of arguments: ~S")
+        'psetq form
+    ) )
+    (let ((g (gensym)))
+      (setq setlist (cons `(SETQ ,(first arglist) ,g) setlist))
+      (setq bindlist (cons `(,g ,(second arglist)) bindlist))
+) ) )
+
+(defmacro-special multiple-value-list (form)
+  `(MULTIPLE-VALUE-CALL #'LIST ,form)
 )
 
-(sys::%put 'multiple-value-list 'sys::macro
-  (sys::macro-expander multiple-value-list (form)
-    `(MULTIPLE-VALUE-CALL #'LIST ,form)
-  )
+(defmacro-special multiple-value-bind (varlist form &body body)
+  (let ((g (gensym))
+        (poplist nil))
+    (dolist (var varlist) (setq poplist (cons `(,var (POP ,g)) poplist)))
+    `(LET* ((,g (MULTIPLE-VALUE-LIST ,form)) ,@(nreverse poplist))
+       ,@body
+) )  )
+
+(defmacro-special multiple-value-setq (varlist form)
+  (let ((g (gensym))
+        (poplist nil))
+    (dolist (var varlist) (setq poplist (cons `(SETQ ,var (POP ,g)) poplist)))
+    `(LET* ((,g (MULTIPLE-VALUE-LIST ,form)))
+       ,(if poplist `(PROG1 ,@(nreverse poplist)) NIL)
+) )  )
+
+(defmacro-special locally (&body body)
+  `(LET () ,@body)
 )
 
-(sys::%put 'multiple-value-bind 'sys::macro
-  (sys::macro-expander multiple-value-bind (varlist form &body body)
-    (let ((g (gensym))
-          (poplist nil))
-      (dolist (var varlist) (setq poplist (cons `(,var (POP ,g)) poplist)))
-      `(LET* ((,g (MULTIPLE-VALUE-LIST ,form)) ,@(nreverse poplist))
-         ,@body
-  ) )  )
-)
-
-(sys::%put 'multiple-value-setq 'sys::macro
-  (sys::macro-expander multiple-value-setq (varlist form)
-    (let ((g (gensym))
-          (poplist nil))
-      (dolist (var varlist) (setq poplist (cons `(SETQ ,var (POP ,g)) poplist)))
-      `(LET* ((,g (MULTIPLE-VALUE-LIST ,form)))
-         ,(if poplist `(PROG1 ,@(nreverse poplist)) NIL)
-  ) )  )
-)
-
-(sys::%put 'locally 'sys::macro
-  (sys::macro-expander locally (&body body)
-    `(LET () ,@body)
-  )
-)
-
-(sys::%put 'case 'sys::macro
-  (sys::macro-expander case (keyform &body body)
-    (let ((var (gensym)))
-      `(LET ((,var ,keyform))
-         (COND
-           ,@(maplist
-               #'(lambda (remaining-clauses)
-                   (let ((clause (first remaining-clauses))
-                         (remaining-clauses (rest remaining-clauses)))
-                     (unless (consp clause)
-                       (error-of-type 'source-program-error
-                         (ENGLISH "~S: missing key list")
-                         'case
-                     ) )
-                     (let ((keys (first clause)))
-                       `(,(cond ((or (eq keys 'T) (eq keys 'OTHERWISE))
-                                 (if remaining-clauses
-                                   (error-of-type 'source-program-error
-                                     (ENGLISH "~S: the ~S clause must be the last one")
-                                     'case keys
-                                   )
-                                   'T
-                                ))
-                                ((listp keys) `(MEMBER ,var ',keys))
-                                (t `(EQL ,var ',keys))
-                          )
-                         ,@(rest clause)
-                 ) ) )  )
-               body
-) ) )  ) )   )
+(defmacro-special case (keyform &body body)
+  (let ((var (gensym)))
+    `(LET ((,var ,keyform))
+       (COND
+         ,@(maplist
+             #'(lambda (remaining-clauses)
+                 (let ((clause (first remaining-clauses))
+                       (remaining-clauses (rest remaining-clauses)))
+                   (unless (consp clause)
+                     (error-of-type 'source-program-error
+                       (ENGLISH "~S: missing key list")
+                       'case
+                   ) )
+                   (let ((keys (first clause)))
+                     `(,(cond ((or (eq keys 'T) (eq keys 'OTHERWISE))
+                               (if remaining-clauses
+                                 (error-of-type 'source-program-error
+                                   (ENGLISH "~S: the ~S clause must be the last one")
+                                   'case keys
+                                 )
+                                 'T
+                              ))
+                              ((listp keys) `(MEMBER ,var ',keys))
+                              (t `(EQL ,var ',keys))
+                        )
+                       ,@(rest clause)
+               ) ) )  )
+             body
+) )  ) )   )
 
 (defmacro prog (varlist &body body &environment env)
   (multiple-value-bind (body-rest declarations)
@@ -368,10 +354,8 @@
 #|
 ;; Dieser hier ist zwar kürzer, aber er reduziert COND auf OR,
 ;; das seinerseits wieder auf COND reduziert, ...
-(sys::%put 'cond 'sys::macro
-  (sys::macro-expander cond (&body clauses)
-    (ifify clauses)
-  )
+(defmacro-special cond (&body clauses)
+  (ifify clauses)
 )
 ; macht eine clauselist von COND zu verschachtelten IFs und ORs.
 (defun ifify (clauselist)
@@ -414,37 +398,34 @@
 
 ;; Noch einfacher ginge es auch so:
 #|
-(sys::%put 'cond 'sys::macro
-  (sys::macro-expander cond (&body clauses)
-    (cond ((null clauses) 'NIL)
-          ((atom clauses)
-           (error-of-type 'source-program-error
-             (ENGLISH "COND code contains a dotted list, ending with ~S")
-             clauses
-          ))
-          (t (let ((clause (car clauses)))
-               (if (atom clause)
-                 (error-of-type 'source-program-error
-                   (ENGLISH "COND clause without test: ~S")
-                   clause
-                 )
-                 (let ((test (car clause)))
-                   (if (cdr clause)
-                     `(IF ,test (PROGN ,@(cdr clause)) (COND ,@(cdr clauses)))
-                     `(OR ,test (COND ,@(cdr clauses)))
-) ) )     )  ) ) ) )
+(defmacro-special cond (&body clauses)
+  (cond ((null clauses) 'NIL)
+        ((atom clauses)
+         (error-of-type 'source-program-error
+           (ENGLISH "COND code contains a dotted list, ending with ~S")
+           clauses
+        ))
+        (t (let ((clause (car clauses)))
+             (if (atom clause)
+               (error-of-type 'source-program-error
+                 (ENGLISH "COND clause without test: ~S")
+                 clause
+               )
+               (let ((test (car clause)))
+                 (if (cdr clause)
+                   `(IF ,test (PROGN ,@(cdr clause)) (COND ,@(cdr clauses)))
+                   `(OR ,test (COND ,@(cdr clauses)))
+) )     )  ) ) ) )
 |#
 
 ;; Dieser hier reduziert COND etwas umständlicher auf IF-Folgen:
-(sys::%put 'cond 'sys::macro
-  (sys::macro-expander cond (&body clauses)
-    (let ((g (gensym)))
-      (multiple-value-bind (ifif needed-g) (ifify clauses g)
-        (if needed-g
-          `(LET (,g) ,ifif)
-          ifif
-  ) ) ) )
-)
+(defmacro-special cond (&body clauses)
+  (let ((g (gensym)))
+    (multiple-value-bind (ifif needed-g) (ifify clauses g)
+      (if needed-g
+        `(LET (,g) ,ifif)
+        ifif
+) ) ) )
 ; macht eine clauselist von COND zu verschachtelten IFs.
 ; Zwei Werte: die neue Form, und ob die Dummyvariable g benutzt wurde.
 (defun ifify (clauselist g)

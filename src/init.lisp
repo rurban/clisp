@@ -1640,12 +1640,6 @@ interpreter compiler
 
 ;; ab hier sind DEFMACRO und DEFUN funktionsfähig.
 
-; (MACRO-EXPANDER . macrodef)                                         [Macro]
-; expandiert zum Macro-Expander als Programmtext (FUNCTION ... (LAMBDA ...)).
-(defmacro MACRO-EXPANDER (&body macrodef)
-  (make-macro-expansion macrodef)
-)
-
 (LOAD "macros1")  ;; Kontrollstrukturen - Macros
 (LOAD "macros2")  ;; weitere Macros
 
