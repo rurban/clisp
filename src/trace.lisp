@@ -75,7 +75,7 @@
                  :datum closure :expected-type 'closure
                  (TEXT "~S: ~S must name a closure") 'local name))
              (if (compiled-function-p closure) closure
-                 (compile name closure))))
+                 (fdefinition (compile name closure)))))
          (local-helper (spec)
            (do* ((spe (cdr spec) (cdr spe))
                  (clo (force-cclosure (car spec))
@@ -89,7 +89,9 @@
       (sys::%record-ref clo pos)))
   (defun %local-set (new-def spec)
     (multiple-value-bind (clo pos) (local-helper spec)
-      (sys::%record-store clo pos new-def))))
+      (sys::%record-store clo pos
+         (fdefinition (compile (closure-name (sys::%record-ref clo pos))
+                               new-def))))))
 
 (defmacro local (&rest spec)
   "Return the closure defined locally with LABELS or FLET.
