@@ -4,16 +4,16 @@
 
 /* Execute a simple garbage collection.
  can trigger GC */
-local void gar_col_simple (void);
+local maygc void gar_col_simple (void);
 
 /* Execute a full garbage collection.
  can trigger GC */
-global void gar_col (void);
+global maygc void gar_col (void);
 
 #ifdef SPVW_PAGES
 /* Supplement a simple garbage collection with a compactification.
  can trigger GC */
-local void gar_col_compact (void);
+local maygc void gar_col_compact (void);
 #endif
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
@@ -1962,7 +1962,7 @@ local void gc_unmarkcheck (void) {
 
 # end of one Garbage Collection.
 # can trigger GC!
-  local void gar_col_done (void)
+  local maygc void gar_col_done (void)
   {
     # perform finalizer-functions:
     until (eq(O(pending_finalizers),Fixnum_0)) {
@@ -2211,7 +2211,7 @@ local void gc_unmarkcheck (void) {
 # Note: This function does not garbage collect anything; it only reorganizes
 # the existing objects in fewer pages. Therefore it does not need to be
 # wrapped in with_gc_statistics() calls like do_gar_col_simple and do_gar_col.
-  local void gar_col_compact (void)
+  local maygc void gar_col_compact (void)
   {
     # Lisp-objects from almost empty pages are filled into other pages,
     # in order to return those now empty pages.
@@ -2323,7 +2323,7 @@ local void gc_unmarkcheck (void) {
 #endif
 
 # perform Garbage Collection:
-  local void gar_col_simple (void);
+  local maygc void gar_col_simple (void);
   local void do_gar_col_simple (void)
   {
     #ifdef NOCOST_SP_CHECK
@@ -2358,7 +2358,7 @@ local void gc_unmarkcheck (void) {
     #endif
     gar_col_done();
   }
-  local void gar_col_simple()
+  local maygc void gar_col_simple()
   {
     var uintC saved_mv_count = mv_count; # save mv_count
     with_gc_statistics(&do_gar_col_simple); # GC and statistics
@@ -2366,7 +2366,7 @@ local void gc_unmarkcheck (void) {
   }
 
 # perform full Garbage Collection:
-  global void gar_col (void);
+  global maygc void gar_col (void);
   local void do_gar_col (void)
   {
     #ifdef NOCOST_SP_CHECK
@@ -2384,7 +2384,7 @@ local void gc_unmarkcheck (void) {
     #endif
     gar_col_done();
   }
-  global void gar_col()
+  global maygc void gar_col()
   {
     var uintC saved_mv_count = mv_count; # save mv_count
     with_gc_statistics(&do_gar_col); # GC and statistics

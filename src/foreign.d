@@ -25,7 +25,7 @@ nonreturning_function(local, fehler_foreign_object, (object arg)) {
  > offset: offset relative to the base address
  < result: Lisp object
  can trigger GC */
-local object make_faddress (object base, uintP offset)
+local maygc object make_faddress (object base, uintP offset)
 {
   pushSTACK(base);
   var object result = allocate_faddress();
@@ -36,7 +36,7 @@ local object make_faddress (object base, uintP offset)
 
 /* return the foreign address of the foreign object
  can trigger GC */
-local object foreign_address (object obj, bool allocate_p)
+local maygc object foreign_address (object obj, bool allocate_p)
 {
   if (orecordp(obj)) {
     switch (Record_type(obj)) {
@@ -171,8 +171,8 @@ LISPFUNNR(foreign_address,1)
  > flags: fv_readonly for read-only variables
  > size: its size in bytes
  can trigger GC */
-global void register_foreign_variable (void* address, const char * name_asciz,
-                                       uintBWL flags, uintL size)
+global maygc void register_foreign_variable (void* address, const char * name_asciz,
+                                             uintBWL flags, uintL size)
 {
   var object name = asciz_to_string(name_asciz,O(internal_encoding));
   var object obj = gethash(name,O(foreign_variable_table),false);
@@ -206,8 +206,8 @@ global void register_foreign_variable (void* address, const char * name_asciz,
  > name: its name
  > flags: its language and parameter passing convention
  can trigger GC */
-global void register_foreign_function (void* address, const char * name_asciz,
-                                       uintWL flags)
+global maygc void register_foreign_function (void* address, const char * name_asciz,
+                                             uintWL flags)
 {
   var object name = asciz_to_string(name_asciz,O(internal_encoding));
   var object obj = gethash(name,O(foreign_function_table),false);
@@ -413,8 +413,8 @@ local void check_cc_match (object fun, object resulttype,
  The real C function address is
    Faddress_value(TheFfunction(result)->ff_address).
  can trigger GC */
-local object convert_function_to_foreign (object fun, object resulttype,
-                                          object argtypes, object flags) {
+local maygc object convert_function_to_foreign (object fun, object resulttype,
+                                                object argtypes, object flags) {
   /* Convert to a function: */
   if (!functionp(fun)) {
     pushSTACK(resulttype); pushSTACK(argtypes); pushSTACK(flags);
@@ -858,10 +858,10 @@ local bool blockzerop (const void* ptr, unsigned long size)
 
 /* Convert foreign data to Lisp data.
  can trigger GC */
-global object convert_from_foreign (object fvd, const void* data);
+global maygc object convert_from_foreign (object fvd, const void* data);
 /* Allocate an array corresponding to a foreign array.
  can trigger GC */
-local object convert_from_foreign_array_alloc (object dims, object eltype)
+local maygc object convert_from_foreign_array_alloc (object dims, object eltype)
 {
   var uintL argcount = 1;
   pushSTACK(dims);
@@ -987,7 +987,7 @@ nonreturning_function (local, fehler_eltype_zero_size, (object fvd)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(error,GETTEXT("~S: element type has size 0: ~S"));
 }
-global object convert_from_foreign (object fvd, const void* data)
+global maygc object convert_from_foreign (object fvd, const void* data)
 {
   check_SP();
   check_STACK();
@@ -1477,7 +1477,7 @@ local void (*walk_lisp_pre_hook) (object fvd, object obj);
 local void (*walk_lisp_post_hook) (object fvd, object obj);
 local void (*walk_lisp_function_hook) (object fvd, object obj);
 
-local void walk_lisp_pointers (object fvd, object obj)
+local maygc void walk_lisp_pointers (object fvd, object obj)
 {
   if (!foreign_with_pointers_p(fvd))
     return;
@@ -1653,7 +1653,7 @@ local void walk_lisp_pointers (object fvd, object obj)
 /* Determine amount of additional storage needed
  to convert Lisp data to foreign data.
  can trigger GC */
-local void convert_to_foreign_needs (object fvd, object obj);
+local maygc void convert_to_foreign_needs (object fvd, object obj);
 local var uintL walk_counter;
 local var uintL walk_alignment;
 local void count_walk_pre (object fvd, object obj)
@@ -1678,7 +1678,7 @@ local void count_walk_pre (object fvd, object obj)
 local void count_walk_post (object fvd, object obj)
 {
 }
-local void convert_to_foreign_needs (object fvd, object obj)
+local maygc void convert_to_foreign_needs (object fvd, object obj)
 {
   walk_lisp_nil_terminates = true;
   walk_counter = 0; walk_alignment = 1;
@@ -1694,7 +1694,7 @@ local void convert_to_foreign_needs (object fvd, object obj)
  Only the toplevel storage must already exist; its address is given.
  can trigger GC */
 local void* (*converter_malloc) (void* old_data, uintL size, uintL alignment);
-local void convert_to_foreign (object fvd, object obj, void* data)
+local maygc void convert_to_foreign (object fvd, object obj, void* data)
 {
   check_SP();
   check_STACK();
@@ -2121,7 +2121,7 @@ local void* allocaing (void* old_data, uintL size, uintL alignment)
   allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + size);
   return result;
 }
-global void convert_to_foreign_allocaing (object fvd, object obj, void* data)
+global maygc void convert_to_foreign_allocaing (object fvd, object obj, void* data)
 {
   converter_malloc = &allocaing;
   convert_to_foreign(fvd,obj,data);
@@ -2136,7 +2136,7 @@ local void* mallocing (void* old_data, uintL size, uintL alignment)
 {
   return my_malloc(size);
 }
-global void convert_to_foreign_mallocing (object fvd, object obj, void* data)
+global maygc void convert_to_foreign_mallocing (object fvd, object obj, void* data)
 {
   converter_malloc = &mallocing;
   convert_to_foreign(fvd,obj,data);
@@ -2151,7 +2151,7 @@ local void* nomalloc (void* old_data, uintL size, uintL alignment)
 {
   return old_data;
 }
-global void convert_to_foreign_nomalloc (object fvd, object obj, void* data)
+global maygc void convert_to_foreign_nomalloc (object fvd, object obj, void* data)
 {
   converter_malloc = &nomalloc;
   convert_to_foreign(fvd,obj,data);
@@ -3774,7 +3774,7 @@ local inline void * libopen (char* libname, uintL version)
 
 /* Open a library.
  can trigger GC */
-local void * open_library (gcv_object_t* name, uintL version)
+local maygc void * open_library (gcv_object_t* name, uintL version)
 {
   var void * handle;
  open_library_restart:
@@ -3888,8 +3888,8 @@ local inline void* find_name (void *handle, char *name)
 }
 
 /* return the handle of the object (string) in the library (name fpointer ...)
- can trigger GC (when retry_p is true) */
-local void* object_handle (object library, gcv_object_t *name, bool retry_p)
+ can trigger GC */
+local maygc void* object_handle (object library, gcv_object_t *name, bool retry_p)
 {
   void * address;
  object_handle_restart:
@@ -4000,7 +4000,7 @@ global void validate_fpointer (object obj)
 }
 
 /* can trigger GC */
-local object check_library (object obj)
+local maygc object check_library (object obj)
 { /* Check for a library argument - return (lib addr obj ...) */
  restart:
   if (fpointerp(obj)) {
@@ -4019,7 +4019,7 @@ local object check_library (object obj)
 }
 
 /* can trigger GC */
-local object object_address (object library, gcv_object_t *name, object offset)
+local maygc object object_address (object library, gcv_object_t *name, object offset)
 { /* return the foreign address of the foreign object named `name' */
   var object lib_addr = Car(Cdr(library));
   var sintP result_offset;
@@ -4037,7 +4037,7 @@ local object object_address (object library, gcv_object_t *name, object offset)
 
 /* add foreign object obj to the acons (name addr obj1 ...)
  can trigger GC */
-local void push_foreign_object (object obj, object acons) {
+local maygc void push_foreign_object (object obj, object acons) {
   pushSTACK(obj); pushSTACK(acons);
   var object new_cons = allocate_cons();
   acons = popSTACK();

@@ -56,7 +56,7 @@
 # Integer x mit 0 <= x < n.
 # > randomstate: ein Random-State, wird verändert
 # can trigger GC
-  local object I_random_I (object randomstate, object n)
+  local maygc object I_random_I (object randomstate, object n)
   {
     var uintD* n_MSDptr;
     var uintC n_len;
@@ -88,7 +88,7 @@
 # Float x mit 0 <= x < n.
 # > randomstate: ein Random-State, wird verändert
 # can trigger GC
-  local object F_random_F (object randomstate, object n)
+  local maygc object F_random_F (object randomstate, object n)
   {
     pushSTACK(n);
     var uintL d = F_float_digits(n); # d = (float-digits n) > 0

@@ -887,7 +887,7 @@ global SOCKET create_client_socket (const char*hostname, unsigned intport,
    s_port
    s_proto
  can trigger GC */
-local void servent_to_stack (struct servent * se) {
+local maygc void servent_to_stack (struct servent * se) {
   var object tmp;
   pushSTACK(asciz_to_string(se->s_name,O(misc_encoding)));
   ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),

@@ -389,7 +389,7 @@ global void convert_time (const FILETIME* time, decoded_time_t* timepoint)
  > decoded_time_t timepoint: decoded time
  < result: universal time
  can trigger GC */
-local object encode_universal_time (const decoded_time_t* timepoint)
+local maygc object encode_universal_time (const decoded_time_t* timepoint)
 { /* (ENCODE-UNIVERSAL-TIME Sekunden Minuten Stunden Tag Monat Jahr): */
   pushSTACK(timepoint->Sekunden);
   pushSTACK(timepoint->Minuten);
@@ -408,7 +408,7 @@ local object encode_universal_time (const decoded_time_t* timepoint)
  > time_t time: in system time format
  < result: integer denoting the seconds since 1900-01-01 00:00 GMT
  can trigger GC */
-global object convert_time_to_universal (const time_t* time)
+global maygc object convert_time_to_universal (const time_t* time)
 {
   /* Since we get the timezone from the OS (sys::default-time-zone),
      we can assume that the OS's timezone and CLISP's timezone agree. */
@@ -426,7 +426,7 @@ global void convert_time_from_universal (object universal, time_t* time)
  > FILETIME time: in system time format
  < result: integer denoting the seconds since 1900-01-01 00:00 GMT
  can trigger GC */
-global object convert_time_to_universal (const FILETIME* time) {
+global maygc object convert_time_to_universal (const FILETIME* time) {
   /* Since we get the timezone from the OS (sys::defaul-time-zone),
      we can assume that the OS's timezone and CLISP's timezone agree. */
   var internal_time_t offset = /* difference between 1.1.1601 and 1.1.1900 */
@@ -514,7 +514,7 @@ local decoded_time_t realstart_datetime;
  >   timepoint.Jahr in {1980,...,2999},
  >   jeweils als Fixnums.
  can trigger GC */
-local void set_start_time (const decoded_time_t* timepoint)
+local maygc void set_start_time (const decoded_time_t* timepoint)
 { /* Start-Zeit merken: */
   realstart_datetime = *timepoint;
   /* und, wenn möglich, gleich in Universal Time umwandeln: */
@@ -527,7 +527,7 @@ local void set_start_time (const decoded_time_t* timepoint)
 /* Returns the time of the start of the session.
  get_start_time()
  can trigger GC */
-local uintL get_start_time (void)
+local maygc uintL get_start_time (void)
 {
   var object start_time = O(start_UT);
   if (nullp(start_time)) {  /* Start-Universal-Time noch NIL ? */
@@ -542,9 +542,9 @@ local uintL get_start_time (void)
 
 /* Returns the wall clock time in seconds (since 1900-01-01).
  can trigger GC */
-local uintL universal_time_sec (void);
+local maygc uintL universal_time_sec (void);
 #ifdef TIME_RELATIVE
-local uintL universal_time_sec()
+local maygc uintL universal_time_sec()
 { return get_start_time() + real_time_sec(); }
 #endif
 #ifdef TIME_ABSOLUTE

@@ -2,7 +2,7 @@
 
 # Konstruktor: (I_I_Byte size position), wo size und position Integers sind.
 # can trigger GC
-  local object I_I_Byte (object size, object position)
+  local maygc object I_I_Byte (object size, object position)
   {
     if (!(I_fixnump(size) && !R_minusp(size))) {
       pushSTACK(size); # TYPE-ERROR slot DATUM
@@ -70,7 +70,7 @@
 # wobei p und q uintL sind. Bei p<=q ist das Ergebnis also
 # ein Integer >=0, bei dem genau die Bits p,...,q-1 gesetzt sind.
 # can trigger GC
-  local object fullbyte_I (uintL p, uintL q)
+  local maygc object fullbyte_I (uintL p, uintL q)
   {
     if (p==q)
       return Fixnum_0; # p=q -> 0 als Ergebnis
@@ -89,7 +89,7 @@
 # wobei 0 <= p <= q <= l = (integer-length x).
 # Ergebnis (wie bei LDB) ein Integer >=0.
 # can trigger GC
-  local object ldb_extract (object x, uintL p, uintL q)
+  local maygc object ldb_extract (object x, uintL p, uintL q)
   {
     var uintD* MSDptr;
     var uintC len;
@@ -147,7 +147,7 @@
 
 # (LDB byte n), wo n ein Integer ist.
 # can trigger GC
-  local object I_Byte_ldb_I (object n, object b)
+  local maygc object I_Byte_ldb_I (object n, object b)
   {
     # Methode:
     # (ldb (byte s p) n) extrahiere die Bits p,...,p+s-1 von n.
@@ -290,7 +290,7 @@
 # wobei 0 <= p <= q <= l = (integer-length x).
 # Ergebnis (wie bei MASK-FIELD) ein Integer >=0.
 # can trigger GC
-  local object mkf_extract (object x, uintL p, uintL q)
+  local maygc object mkf_extract (object x, uintL p, uintL q)
   {
     var uintD* MSDptr;
     var uintC len;
@@ -339,7 +339,7 @@
 
 # (MASK-FIELD byte n), wo n ein Integer ist.
 # can trigger GC
-  local object I_Byte_mask_field_I (object n, object b)
+  local maygc object I_Byte_mask_field_I (object n, object b)
   {
     # Methode:
     # (mask-field (byte s p) n) extrahiere die Bits p,...,p+s-1 von n.
@@ -385,7 +385,7 @@
 
 # (DEPOSIT-FIELD new byte n), wo n und new Integers sind.
 # can trigger GC
-  local object I_I_Byte_deposit_field_I (object newbyte, object n, object b)
+  local maygc object I_I_Byte_deposit_field_I (object newbyte, object n, object b)
   {
     # Methode:
     # (DEPOSIT-FIELD newbyte (byte s p) integer)
@@ -405,7 +405,7 @@
 
 # (DPB new byte n), wo n und new Integers sind.
 # can trigger GC
-  local object I_I_Byte_dpb_I (object newbyte, object n, object b)
+  local maygc object I_I_Byte_dpb_I (object newbyte, object n, object b)
   {
     # Methode:
     # (DPB newbyte (byte s p) integer)

@@ -5,7 +5,7 @@
 # > a,b: zwei Integers
 # < ergebnis: (gcd a b), ein Integer >=0
 # can trigger GC
-  local object I_I_gcd_I (object a, object b);
+  local maygc object I_I_gcd_I (object a, object b);
   #define GCD_ALGO 3  # 1: binär, 2: Schulmethode, 3: Lehmer
 
 # Liefert den ggT zweier Integers samt Beifaktoren.
@@ -14,7 +14,7 @@
 # < STACK_2=u, STACK_1=v, STACK_0=g: Integers mit u*a+v*b = g >= 0
 # erniedrigt STACK um 3
 # can trigger GC
-  local void I_I_xgcd_I_I_I (object a, object b);
+  local maygc void I_I_xgcd_I_I_I (object a, object b);
   #define XGCD_ALGO 3  # 2: Schulmethode, 3: Lehmer
 # Im Fall A/=0, B/=0 genügt das Ergebnis (g,u,v) den Ungleichungen:
 #   Falls |A| = |B| : g = |A|, u = (signum A), v = 0.
@@ -156,7 +156,7 @@
 # weil es oft auftritt (insbesondere bei GCD's mehrerer Zahlen):
 # a=1 oder b=1 --> 1
 #if GCD_ALGO==1
-  local object I_I_gcd_I (object a, object b)
+  local maygc object I_I_gcd_I (object a, object b)
   {
     if (eq(a,Fixnum_1)) # a=1 -> 1
       return a;
@@ -318,7 +318,7 @@
 # Sonst dividieren (divide a b), a:=b, b:=Rest.
 #       Falls b=0, return a, sonst goto (*).
 #if GCD_ALGO==2
-  local object I_I_gcd_I (object a, object b)
+  local maygc object I_I_gcd_I (object a, object b)
   {
     if (eq(a,Fixnum_1)) # a=1 -> 1
       return a;
@@ -380,7 +380,7 @@
 #       a:=b, b := Rest r = a-q*b, (ua,va,ub,vb) := (ub,vb,ua-q*ub,va-q*vb).
 #       goto (*).
 #if XGCD_ALGO==2
-  local void I_I_xgcd_I_I_I (object a, object b)
+  local maygc void I_I_xgcd_I_I_I (object a, object b)
   {
     if (eq(a,Fixnum_1)) { # a=1 -> g=1, (u,v)=(1,0)
       pushSTACK(Fixnum_1); pushSTACK(Fixnum_0);
@@ -582,7 +582,7 @@
 #endif
 #if GCD_ALGO==3
   # Los geht's:
-  local object I_I_gcd_I (object a, object b)
+  local maygc object I_I_gcd_I (object a, object b)
   {
     if (eq(a,Fixnum_1)) # a=1 -> 1
       return a;
@@ -943,7 +943,7 @@
     v->len = d_len;
   }
   # Los geht's:
-  local void I_I_xgcd_I_I_I (object a, object b)
+  local maygc void I_I_xgcd_I_I_I (object a, object b)
   {
     if (eq(a,Fixnum_1)) { # a=1 -> g=1, (u,v)=(1,0)
       pushSTACK(Fixnum_1); pushSTACK(Fixnum_0);
@@ -1277,7 +1277,7 @@
 # > a,b: zwei Integers
 # < ergebnis: (lcm a b), ein Integer >=0
 # can trigger GC
-  local object I_I_lcm_I (object a, object b)
+  local maygc object I_I_lcm_I (object a, object b)
   {
     # Methode:
     # a=0 oder b=0 -> Ergebnis 0.

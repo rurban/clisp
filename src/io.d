@@ -154,10 +154,6 @@ local object allocate_syntax_table (void) {
   Cdr(new_cons) = popSTACK();
   return new_cons;
 }
-#define syntax_table_get(table,c)  \
-      (as_cint(c) < small_char_code_limit           \
-       ? TheSbvector(Car(table))->data[as_cint(c)] \
-       : syntax_table_get_notinline(table,c))
 local uintB syntax_table_get_notinline (object table, chart c) {
   var object val = gethash(code_char(c),Cdr(table),false);
   if (!eq(val,nullobj))
@@ -165,12 +161,19 @@ local uintB syntax_table_get_notinline (object table, chart c) {
   else
     return (graphic_char_p(c) ? syntax_constituent : syntax_illegal);
 }
-#define syntax_table_put(table,c,value)  \
-      (as_cint(c) < small_char_code_limit                            \
-       ? (void)(TheSbvector(Car(table))->data[as_cint(c)] = (value)) \
-       : syntax_table_put_notinline(table,c,value))
-local void syntax_table_put_notinline (object table, chart c, uintB value) {
+local inline uintB syntax_table_get (object table, chart c) {
+  return (as_cint(c) < small_char_code_limit
+          ? TheSbvector(Car(table))->data[as_cint(c)]
+          : syntax_table_get_notinline(table,c));
+}
+local maygc void syntax_table_put_notinline (object table, chart c, uintB value) {
   shifthash(Cdr(table),code_char(c),fixnum(value));
+}
+local inline maygc void syntax_table_put (object table, chart c, uintB value) {
+  if (as_cint(c) < small_char_code_limit)
+    TheSbvector(Car(table))->data[as_cint(c)] = value;
+  else
+    syntax_table_put_notinline(table,c,value);
 }
 #else
  # A simple-bit-vector with char_code_limit bytes.
@@ -284,7 +287,7 @@ local const uintB orig_syntax_table [small_char_code_limit] = {
 # orig_readtable()
 # < result: standard(original) readtable
 # can trigger GC
-local object orig_readtable (void) {
+local maygc object orig_readtable (void) {
   { # initialize the syntax-table:
     var object s_table = allocate_syntax_table(); # new bitvector
     pushSTACK(s_table); # save
@@ -363,8 +366,8 @@ local object orig_readtable (void) {
 # > to-readtable
 # < result : to-Readtable with same content
 # can trigger GC
-local object copy_readtable_contents (object from_readtable,
-                                      object to_readtable) {
+local maygc object copy_readtable_contents (object from_readtable,
+                                            object to_readtable) {
   # copy the case-slot:
   TheReadtable(to_readtable)->readtable_case =
     TheReadtable(from_readtable)->readtable_case;
@@ -450,7 +453,7 @@ local object copy_readtable_contents (object from_readtable,
 # > readtable: Readtable
 # < result: copy of readtable, semantically equivalent
 # can trigger GC
-local object copy_readtable (object from_readtable) {
+local maygc object copy_readtable (object from_readtable) {
   pushSTACK(from_readtable); # save
   pushSTACK(allocate_syntax_table()); # new empty syntaxtable
   pushSTACK(allocate_perchar_table()); # new empty macro-table
@@ -501,7 +504,7 @@ nonreturning_function(local, fehler_bad_readtable, (void)) {
 # UP: Initializes the reader.
 # init_reader();
 # can trigger GC
-global void init_reader (void) {
+global maygc void init_reader (void) {
  # initialize *READ-BASE*:
   define_variable(S(read_base),fixnum(10)); # *READ-BASE* := 10
  # initialize *READ-SUPPRESS*:
@@ -550,7 +553,7 @@ LISPFUNN(defio,2) {
  check_readtable(obj);
  > obj: possibly erroneous Argument
  can trigger GC */
-local object check_readtable (object obj) {
+local maygc object check_readtable (object obj) {
   while (!readtablep(obj)) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
@@ -628,7 +631,7 @@ LISPFUN(set_syntax_from_char,seclass_default,2,2,norest,nokey,0,NIL)
  > readtable: Argument
  < result: readtable
  can trigger GC */
-local object test_readtable_arg (object readtable) {
+local maygc object test_readtable_arg (object readtable) {
   if (!boundp(readtable)) {
     get_readtable(readtable=); /* the current readtable is default */
   } else
@@ -641,7 +644,7 @@ local object test_readtable_arg (object readtable) {
  > readtable: Argument
  < result: readtable
  can trigger GC */
-local object test_readtable_null_arg (object readtable) {
+local maygc object test_readtable_null_arg (object readtable) {
   if (!boundp(readtable)) {
     get_readtable(readtable=); /* the current readtable is default */
   } else if (nullp(readtable)) {
@@ -751,7 +754,7 @@ LISPFUN(make_dispatch_macro_character,seclass_default,1,2,norest,nokey,0,NIL)
  < result: the dispatch-macro-table for disp-char,
              nullobj if sub-char is a digit.
  can trigger GC */
-local object test_disp_sub_char (gcv_object_t* argsp) {
+local maygc object test_disp_sub_char (gcv_object_t* argsp) {
   var object sub_ch = check_char(*(argsp STACKop 0));  /* sub-char */
  retry_disp_ch:
   var object disp_ch = check_char(*(argsp STACKop 1)); /* disp-char */
@@ -1003,7 +1006,7 @@ nonreturning_function(local, fehler_eof, (const gcv_object_t* stream_)) {
 # < stream: Stream
 # < result: next character or eof_value
 # can trigger GC
-local object wpeek_char_eof (const gcv_object_t* stream_) {
+local maygc object wpeek_char_eof (const gcv_object_t* stream_) {
   loop {
     var object ch = peek_char(stream_); /* peek character */
     if (eq(ch,eof_value)) # EOF ?
@@ -1151,7 +1154,7 @@ local bool token_escape_flag;
 # < STACK_0: a Semi-Simple Byte-Vector with Fill-Pointer 0
 # < STACK: decreased by 2
 # can trigger GC
-local void get_buffers (void) {
+local maygc void get_buffers (void) {
   # Mechanism:
   # O(token_buff_1) and O(token_buff_2) hold a Semi-Simple-String
   # and a Semi-Simple-Byte-Vector, which are extracted if necessary (and marked
@@ -1183,7 +1186,7 @@ local void get_buffers (void) {
 # < O(token_buff_2): their Attributcodes
 # < token_escape_flag: Escape-Character-Flag
 # can trigger GC
-local void read_token (const gcv_object_t* stream_);
+local maygc void read_token (const gcv_object_t* stream_);
 
 # UP: reads an extended token, first character has already been read.
 # read_token_1(&stream,ch,scode);
@@ -1194,9 +1197,9 @@ local void read_token (const gcv_object_t* stream_);
 # < O(token_buff_2): their attributcodes
 # < token_escape_flag: Escape-character-Flag
 # can trigger GC
-local void read_token_1 (const gcv_object_t* stream_, object ch, uintWL scode);
+local maygc void read_token_1 (const gcv_object_t* stream_, object ch, uintWL scode);
 
-local void read_token (const gcv_object_t* stream_) {
+local maygc void read_token (const gcv_object_t* stream_) {
   # read first character:
   var object ch;
   var uintWL scode;
@@ -1205,7 +1208,7 @@ local void read_token (const gcv_object_t* stream_) {
   read_token_1(stream_,ch,scode);
 }
 
-local void read_token_1 (const gcv_object_t* stream_, object ch, uintWL scode) {
+local maygc void read_token_1 (const gcv_object_t* stream_, object ch, uintWL scode) {
   if (terminal_stream_p(*stream_))
     dynamic_bind(S(terminal_read_open_object),S(symbol));
   # fetch empty Token-Buffers, upon STACK:
@@ -1803,7 +1806,7 @@ local void case_convert_token_1 (void) {
 # < stream: Stream
 # < mv_count/mv_space: one value at most
 # can trigger GC
-local Values read_macro (object ch, const gcv_object_t* stream_) {
+local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
   var object readtable;
   get_readtable(readtable = ); # current readtable (don't need to save ch)
   var object macrodef = # fetch macro-definition from table
@@ -1914,7 +1917,7 @@ local Values read_macro (object ch, const gcv_object_t* stream_) {
 # < stream: Stream
 # < result: read object (eof_value at EOF, dot_value for single dot)
 # can trigger GC
-local object read_internal (const gcv_object_t* stream_) {
+local maygc object read_internal (const gcv_object_t* stream_) {
  wloop: # loop for skipping of leading whitespace/comment:
   {
     var object ch;
@@ -2153,7 +2156,7 @@ local object read_internal (const gcv_object_t* stream_) {
 # < stream: Stream
 # < result: read Objekt (dot_value at single dot)
 # can trigger GC
-local object read_recursive (const gcv_object_t* stream_) {
+local maygc object read_recursive (const gcv_object_t* stream_) {
   check_SP(); check_STACK(); # check Stacks for Overflow
   if (!nullpSv(read_recursive_p)) { /* recursive */
     return read_internal(stream_);
@@ -2189,7 +2192,7 @@ nonreturning_function(local, fehler_dot, (object stream)) {
 # < stream: Stream
 # < result: read Objekt
 # can trigger GC
-local object read_recursive_no_dot (const gcv_object_t* stream_) {
+local maygc object read_recursive_no_dot (const gcv_object_t* stream_) {
   # call READ recursively:
   var object ergebnis = read_recursive(stream_);
   # and report Error at ".":
@@ -2250,7 +2253,7 @@ local object make_references (object obj) {
 # < stream: Stream
 # < result: read Object (eof_value at EOF, dot_value at single dot)
 # can trigger GC
-local object read_top (const gcv_object_t* stream_, object whitespace_p) {
+local maygc object read_top (const gcv_object_t* stream_, object whitespace_p) {
 #if STACKCHECKR
   var gcv_object_t* STACKbefore = STACK; # retain STACK for later
 #endif
@@ -2292,8 +2295,8 @@ local object read_top (const gcv_object_t* stream_, object whitespace_p) {
 # < stream: Stream
 # < result: read Object (eof_value at EOF, dot_value at single dot)
 # can trigger GC
-global object stream_read (const gcv_object_t* stream_, object recursive_p,
-                           object whitespace_p) {
+global maygc object stream_read (const gcv_object_t* stream_, object recursive_p,
+                                 object whitespace_p) {
   if (nullp(recursive_p)) # inquire recursive-p
     # no -> Top-Level-Call
     return read_top(stream_,whitespace_p);
@@ -2312,14 +2315,14 @@ global object stream_read (const gcv_object_t* stream_, object recursive_p,
 # < stream: Stream
 # < result: read Object
 # can trigger GC
-local object read_delimited_list (const gcv_object_t* stream_, object endch,
-                                  object ifdotted);
+local maygc object read_delimited_list (const gcv_object_t* stream_, object endch,
+                                        object ifdotted);
 # Dito with set SYS::*READ-RECURSIVE-P* :
-local object read_delimited_list_recursive (const gcv_object_t* stream_, object endch,
-                                            object ifdotted);
+local maygc object read_delimited_list_recursive (const gcv_object_t* stream_, object endch,
+                                                  object ifdotted);
 # first the general function:
-local object read_delimited_list(const gcv_object_t* stream_, object endch,
-                                 object ifdotted) {
+local maygc object read_delimited_list(const gcv_object_t* stream_, object endch,
+                                       object ifdotted) {
  #if STACKCHECKR
   var gcv_object_t* STACKbefore = STACK; /* retain STACK for later */
  #endif
@@ -2353,8 +2356,8 @@ local object read_delimited_list(const gcv_object_t* stream_, object endch,
   return ergebnis;
 }
 # then the more special Function:
-local object read_delimited_list_recursive (const gcv_object_t* stream_,
-                                            object endch, object ifdotted) {
+local maygc object read_delimited_list_recursive (const gcv_object_t* stream_,
+                                                  object endch, object ifdotted) {
   # don't need to save endch and ifdotted.
   {
     var object object1; # first List element
@@ -2490,7 +2493,7 @@ local object read_delimited_list_recursive (const gcv_object_t* stream_,
  > stream_: Stream-Argument in STACK
  < stream_: &stream
  can trigger GC */
-static inline gcv_object_t* check_stream_arg (gcv_object_t *stream_) {
+static inline maygc gcv_object_t* check_stream_arg (gcv_object_t *stream_) {
   *stream_ = check_stream(*stream_); return stream_;
 }
 
@@ -2628,7 +2631,7 @@ LISPFUNN(string_reader,2) { # reads "
 # increases STACK by 2
 # modifies STACK, can trigger GC
 # can trigger GC
-local Values list2_reader (const gcv_object_t* stream_) {
+local maygc Values list2_reader (const gcv_object_t* stream_) {
   var object obj = read_recursive_no_dot(stream_); # read Object
   pushSTACK(obj);
   pushSTACK(allocate_cons()); # second List-cons
@@ -2688,7 +2691,7 @@ nonreturning_function(local, fehler_dispatch_zahl, (void)) {
  increases STACK by 1
  modifies STACK
  can trigger GC */
-local gcv_object_t* test_no_infix (void) {
+local maygc gcv_object_t* test_no_infix (void) {
   var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   var object n = popSTACK();
   if ((!nullp(n)) && nullpSv(read_suppress))
@@ -2942,7 +2945,7 @@ LISPFUNN(char_reader,3) { # reads #\\
   # < STACK: cleaned up
   # < mv_space/mv_count: values
   # can trigger GC
-local Values radix_2 (uintWL base) {
+local maygc Values radix_2 (uintWL base) {
   # check, if the  Token is a rational number:
   upcase_token(); # convert to upper case
   var object string;
@@ -2986,7 +2989,7 @@ local Values radix_2 (uintWL base) {
   # < STACK: cleaned
   # < mv_space/mv_count: values
   # can trigger GC
-local Values radix_1 (uintWL base) {
+local maygc Values radix_1 (uintWL base) {
   var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   read_token(stream_); # read Token
   # finished at once when *READ-SUPPRESS* /= NIL:
@@ -3805,7 +3808,7 @@ local uintWL interpret_feature (object expr) {
 # < STACK: increased by 3
 # < mv_space/mv_count: values
 # can trigger GC
-local Values feature (uintWL sollwert) {
+local maygc Values feature (uintWL sollwert) {
   var gcv_object_t* stream_ = test_no_infix(); # n must be NIL
   dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
   dynamic_bind(S(packagestern),O(keyword_package)); # bind *PACKAGE* to #<PACKAGE KEYWORD>
@@ -4393,7 +4396,7 @@ LISPFUNN(unix_executable_reader,3) { # reads #!
  > stream: Input-Stream-Argument
  < stream: Input-Stream (a Stream)
  can trigger GC */
-local void check_istream (gcv_object_t* stream_) {
+local maygc void check_istream (gcv_object_t* stream_) {
   var object stream = *stream_;
   if (missingp(stream)) {
     /* instead of #<UNBOUND> or NIL: value of *STANDARD-INPUT* */
@@ -4434,7 +4437,7 @@ local Values eof_handling (int mvc) {
  < STACK: cleaned up
  < mv_space/mv_count: values
  can trigger GC */
-local Values read_w (object whitespace_p) {
+local maygc Values read_w (object whitespace_p) {
   check_istream(&STACK_3);      /* check input-stream */
   # check for recursive-p-Argument:
   var object recursive_p = STACK_0;
@@ -4866,7 +4869,7 @@ LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
 #   non-empty list of the output lines (in reversed order).
 
 # a pr_xxx-Routine receives &stream und obj as argument:
-typedef void pr_routine_t (const gcv_object_t* stream_, object obj);
+typedef maygc void pr_routine_t (const gcv_object_t* stream_, object obj);
 
 # ---------------------- common sub-routines ----------------------------
 
@@ -4876,7 +4879,7 @@ typedef void pr_routine_t (const gcv_object_t* stream_, object obj);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_uint (const gcv_object_t* stream_, uintL x) {
+local maygc void pr_uint (const gcv_object_t* stream_, uintL x) {
   var uintB ziffern[10]; # max. 10 digits, as 0 <= x < 2^32 <= 10^10
   var uintB* ziffptr = &ziffern[0];
   var uintC ziffcount = 0; # number of digits
@@ -4898,7 +4901,7 @@ local void pr_uint (const gcv_object_t* stream_, uintL x) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_hex1 (const gcv_object_t* stream_, uint4 x) {
+local maygc void pr_hex1 (const gcv_object_t* stream_, uint4 x) {
   write_ascii_char(stream_, ( x<10 ? '0'+(uintB)x : 'A'+(uintB)x-10 ) );
 }
 
@@ -4908,7 +4911,7 @@ local void pr_hex1 (const gcv_object_t* stream_, uint4 x) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_hex2 (const gcv_object_t* stream_, uint8 x) {
+local maygc void pr_hex2 (const gcv_object_t* stream_, uint8 x) {
   pr_hex1(stream_,(uint4)(x>>4)); # output Bits 7..4
   pr_hex1(stream_,(uint4)(x & (bit(4)-1))); # output Bits 3..0
 }
@@ -4920,7 +4923,7 @@ local void pr_hex2 (const gcv_object_t* stream_, uint8 x) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_hex6 (const gcv_object_t* stream_, object obj) {
+local maygc void pr_hex6 (const gcv_object_t* stream_, object obj) {
   var oint x = (as_oint(obj) >> oint_addr_shift) << addr_shift;
   write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); # Prefix for "Hexadecimal"
 #define pr_hexpart(k)  # output bits k+7..k:  \
@@ -4947,7 +4950,7 @@ local void pr_hex6 (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_hex8 (const gcv_object_t* stream_, uintP x) {
+local maygc void pr_hex8 (const gcv_object_t* stream_, uintP x) {
   # Prefix for "Hexadecimal"
   write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x');
   var sintC k = (sizeof(uintP)-1)*8;
@@ -5026,8 +5029,8 @@ nonreturning_function(local, fehler_print_case, (void)) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void write_sstring_ab (const gcv_object_t* stream_, object string,
-                             uintL start, uintL len) {
+local maygc void write_sstring_ab (const gcv_object_t* stream_, object string,
+                                   uintL start, uintL len) {
   if (len==0) return;
   pushSTACK(string);
   write_char_array(stream_,&STACK_0,start,len);
@@ -5040,7 +5043,7 @@ local void write_sstring_ab (const gcv_object_t* stream_, object string,
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-global void write_sstring (const gcv_object_t* stream_, object string) {
+global maygc void write_sstring (const gcv_object_t* stream_, object string) {
   sstring_un_realloc(string);
   write_sstring_ab(stream_,string,0,Sstring_length(string));
 }
@@ -5051,7 +5054,7 @@ global void write_sstring (const gcv_object_t* stream_, object string) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-global void write_string (const gcv_object_t* stream_, object string) {
+global maygc void write_string (const gcv_object_t* stream_, object string) {
   if (simple_string_p(string)) { # Simple-String
     sstring_un_realloc(string);
     write_sstring(stream_,string);
@@ -5071,7 +5074,7 @@ global void write_string (const gcv_object_t* stream_, object string) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void write_sstring_case (const gcv_object_t* stream_, object string) {
+local maygc void write_sstring_case (const gcv_object_t* stream_, object string) {
   # retrieve (READTABLE-CASE *READTABLE*):
   sstring_un_realloc(string);
   var object readtable;
@@ -5301,7 +5304,7 @@ local void write_sstring_case (const gcv_object_t* stream_, object string) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void spaces (const gcv_object_t* stream_, object anzahl) {
+local maygc void spaces (const gcv_object_t* stream_, object anzahl) {
   var uintL count;
  #ifdef IO_DEBUG
   ASSERT(posfixnump(anzahl));
@@ -5375,7 +5378,7 @@ local void spaces (const gcv_object_t* stream_, object anzahl) {
 #          (cons nl_type *PRIN-INDENTATION*)
 #          (strm-pphelp-strings *stream_))
 # can trigger GC
-global object cons_ssstring (const gcv_object_t* stream_, object nl_type) {
+global maygc object cons_ssstring (const gcv_object_t* stream_, object nl_type) {
   var object indent = Symbol_value(S(prin_indentation));
   if (!boundp(indent)) indent = Fixnum_0;
   pushSTACK(indent);
@@ -5480,7 +5483,8 @@ local uintL format_tab (object stream, object colon_p, object atsig_p,
 # print the pretty prefix (prefix string and indentation)
 # and compute its length
 # can trigger GC when stream_ is non-NULL
-local uintL pprint_prefix (const gcv_object_t* stream_, object indent) {
+local /*maygc*/ uintL pprint_prefix (const gcv_object_t* stream_, object indent) {
+  GCTRIGGER_IF(stream_ != NULL, GCTRIGGER1(indent));
   var uintL len = 0;
   var object prefix = Symbol_value(S(prin_line_prefix));
   if (stringp(prefix)) {
@@ -5548,7 +5552,7 @@ local uintL pphelp_string_width (object string) {
     if (!nullpSv(print_lines))                        \
       Symbol_value(S(prin_lines)) = fixnum_inc(pl,1); \
   } while(0)
-local void pphelp_newline (const gcv_object_t* stream_) {
+local maygc void pphelp_newline (const gcv_object_t* stream_) {
   # (push (make-ssstring 50) (strm-pphelp-strings stream)) :
   cons_ssstring(stream_,NIL);
   var object stream = *stream_;
@@ -5574,7 +5578,7 @@ local void pphelp_newline (const gcv_object_t* stream_) {
 # < stream: Stream
 # changes STACK
 # can trigger GC
-local void klammer_auf (const gcv_object_t* stream_) {
+local maygc void klammer_auf (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (!PPHELP_STREAM_P(stream)) { # normal Stream
     write_ascii_char(stream_,'(');
@@ -5595,7 +5599,7 @@ local void klammer_auf (const gcv_object_t* stream_) {
 # < stream: Stream
 # changes STACK
 # can trigger GC
-local void klammer_zu (const gcv_object_t* stream_) {
+local maygc void klammer_zu (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (!PPHELP_STREAM_P(stream)) { # normal Stream
     write_ascii_char(stream_,')');
@@ -5699,7 +5703,7 @@ local void double_dots (const gcv_object_t* stream_);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void justify_empty_1 (const gcv_object_t* stream_) {
+local maygc void justify_empty_1 (const gcv_object_t* stream_) {
   var object new_cons = cons_ssstring(NULL,NIL);
   var object stream = *stream_;
   TheStream(stream)->strm_pphelp_strings = new_cons; # new, empty line
@@ -5740,7 +5744,7 @@ local void justify_start (const gcv_object_t* stream_, uintL traillength) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void justify_empty_2 (const gcv_object_t* stream_) {
+local maygc void justify_empty_2 (const gcv_object_t* stream_) {
   var object stream = *stream_;
   var object new_cons;
   # extend SYS::*PRIN-JBLOCKS* by the content of the Stream:
@@ -5762,7 +5766,7 @@ local void justify_empty_2 (const gcv_object_t* stream_) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void justify_space (const gcv_object_t* stream_) {
+local maygc void justify_space (const gcv_object_t* stream_) {
   if (!PPHELP_STREAM_P(*stream_)) { # normal Stream -> only one Space
     write_ascii_char(stream_,' ');
   } else { # Pretty-Print-Help-Stream
@@ -5773,7 +5777,7 @@ local void justify_space (const gcv_object_t* stream_) {
   }
 }
 
-local void multi_line_sub_block_out (object block, const gcv_object_t* stream_)
+local maygc void multi_line_sub_block_out (object block, const gcv_object_t* stream_)
 {
   block = nreverse(block); # bring lines into the right order
   while (!stringp(Car(block))) # drop the initial indentations
@@ -5794,7 +5798,7 @@ local void multi_line_sub_block_out (object block, const gcv_object_t* stream_)
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void justify_end_fill (const gcv_object_t* stream_) {
+local maygc void justify_end_fill (const gcv_object_t* stream_) {
   if (!PPHELP_STREAM_P(*stream_)) { # normal Stream -> nothing to do
   } else { # Pretty-Print-Help-Stream
     justify_empty_2(stream_); # save stream-content
@@ -5880,7 +5884,7 @@ local void justify_end_fill (const gcv_object_t* stream_) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void justify_end_linear (const gcv_object_t* stream_) {
+local maygc void justify_end_linear (const gcv_object_t* stream_) {
   if (!PPHELP_STREAM_P(*stream_)) { # normal stream -> nothing to do
   } else { # Pretty-Print-Help-Stream
     justify_empty_2(stream_); # save stream content
@@ -6095,7 +6099,7 @@ local uintL indentprep_end (const gcv_object_t* stream_) {
 # < stream: Stream
 # if yes: can trigger GC
 # if no: changes STACK
-local bool level_check (const gcv_object_t* stream_) {
+local /*maygc*/ bool level_check (const gcv_object_t* stream_) {
   var object level = Symbol_value(S(prin_level)); # SYS::*PRIN-LEVEL*, a Fixnum >=0
   var object limit = Symbol_value(S(print_level)); # *PRINT-LEVEL*
   if (nullpSv(print_readably)
@@ -6141,7 +6145,7 @@ local uintL get_print_length (void) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void triple_dots (const gcv_object_t* stream_) {
+local maygc void triple_dots (const gcv_object_t* stream_) {
   JUSTIFY_LAST(true);
   write_ascii_char(stream_,'.');
   write_ascii_char(stream_,'.');
@@ -6172,7 +6176,7 @@ local bool check_lines_limit (void) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void double_dots (const gcv_object_t* stream_) {
+local maygc void double_dots (const gcv_object_t* stream_) {
   JUSTIFY_LAST(true);
   # if (!eq(Symbol_value(S(prin_lines)),S(Kend))) {
     write_ascii_char(stream_,'.');
@@ -6263,7 +6267,7 @@ local bool circle_p (object obj,circle_info_t* ci) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_circle (const gcv_object_t* stream_, object obj, pr_routine_t* pr_xxx) {
+local maygc void pr_circle (const gcv_object_t* stream_, object obj, pr_routine_t* pr_xxx) {
   # determine, if circular:
   var circle_info_t info;
   if (!circle_p(obj,&info)) { # not circular, print obj normally:
@@ -6389,8 +6393,8 @@ local inline bool string_fit_line_p (object list, object stream,
 # < stream: stream
 # can trigger GC
   # first of all only treatment of *PRINT-PRETTY*:
-local void pr_enter_1 (const gcv_object_t* stream_, object obj,
-                       pr_routine_t* pr_xxx) {
+local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
+                             pr_routine_t* pr_xxx) {
   # Streamtype (PPHELP-stream or not) must fit to *PRINT-PRETTY* .
   if (!nullpSv(print_pretty)) {
     # *PRINT-PRETTY* /= NIL.
@@ -6711,7 +6715,7 @@ local pr_routine_t pr_stream;
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void prin_object (const gcv_object_t* stream_, object obj) {
+local maygc void prin_object (const gcv_object_t* stream_, object obj) {
  restart_it:
   # test for keyboard-interrupt:
   interruptp({
@@ -6816,7 +6820,7 @@ local void prin_object_dispatch (const gcv_object_t* stream_, object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_symbol (const gcv_object_t* stream_, object sym) {
+local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
   # query *PRINT-ESCAPE*:
   if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
     # with escape-character and maybe package-name:
@@ -6882,8 +6886,8 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
 # > case_sensitive: Flag, if re-reading would be case-sensitive
 # < stream: stream
 # can trigger GC
-local void pr_symbol_part (const gcv_object_t* stream_, object string,
-                           bool case_sensitive) {
+local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
+                                 bool case_sensitive) {
   # find out, if the name can be printed without |...| surrounding it:
   # This can be done if it:
   # 1. is not empty and
@@ -7023,7 +7027,7 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_like_symbol (const gcv_object_t* stream_, object string) {
+local maygc void pr_like_symbol (const gcv_object_t* stream_, object string) {
   # query *PRINT-ESCAPE*:
   if (!nullpSv(print_escape) || !nullpSv(print_readably))
     # print with escape-character
@@ -7040,7 +7044,7 @@ local void pr_like_symbol (const gcv_object_t* stream_, object string) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_character (const gcv_object_t* stream_, object ch) {
+local maygc void pr_character (const gcv_object_t* stream_, object ch) {
   # query *PRINT-ESCAPE*:
   if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
     # print character with escape-character.
@@ -7078,8 +7082,8 @@ local void pr_character (const gcv_object_t* stream_, object ch) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_sstring_ab (const gcv_object_t* stream_, object string,
-                          uintL start, uintL len) {
+local maygc void pr_sstring_ab (const gcv_object_t* stream_, object string,
+                                uintL start, uintL len) {
   # query *PRINT-ESCAPE*:
   if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
     # with escape-character:
@@ -7132,7 +7136,7 @@ local void pr_sstring_ab (const gcv_object_t* stream_, object string,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_string (const gcv_object_t* stream_, object string) {
+local maygc void pr_string (const gcv_object_t* stream_, object string) {
   var uintL len = vector_length(string); # length
   var uintL offset = 0; # Offset of string in the data-vector
   var object sstring = array_displace_check(string,len,&offset); # data-vector
@@ -7213,7 +7217,7 @@ local uintL get_indent_lists (void) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_list (const gcv_object_t* stream_, object list) {
+local maygc void pr_list (const gcv_object_t* stream_, object list) {
   if (nullp(list)) { # print NIL as ():
     write_ascii_char(stream_,'('); write_ascii_char(stream_,')');
   } else # a Cons
@@ -7226,7 +7230,7 @@ local void pr_list (const gcv_object_t* stream_, object list) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_cons (const gcv_object_t* stream_, object list) {
+local maygc void pr_cons (const gcv_object_t* stream_, object list) {
   { # treat special case:
     var pr_routine_t* special = special_list_p(list,false);
     if (!(special == (pr_routine_t*)NULL)) {
@@ -7294,7 +7298,7 @@ local void pr_cons (const gcv_object_t* stream_, object list) {
 # (nsplice form)                               ,.form
 # (unquote form)                               ,form
 
-local void pr_list_quote (const gcv_object_t* stream_, object list) {
+local maygc void pr_list_quote (const gcv_object_t* stream_, object list) {
   # list = (QUOTE object)
   pushSTACK(Car(Cdr(list))); # save (second list)
   write_ascii_char(stream_,'\''); # print "'"
@@ -7304,7 +7308,7 @@ local void pr_list_quote (const gcv_object_t* stream_, object list) {
   INDENT_END;
 }
 
-local void pr_list_function (const gcv_object_t* stream_, object list) {
+local maygc void pr_list_function (const gcv_object_t* stream_, object list) {
   # list = (FUNCTION object)
   pushSTACK(Car(Cdr(list))); # save (second list)
   write_ascii_char(stream_,'#'); # print "#"
@@ -7315,7 +7319,7 @@ local void pr_list_function (const gcv_object_t* stream_, object list) {
   INDENT_END;
 }
 
-local void pr_list_backquote (const gcv_object_t* stream_, object list) {
+local maygc void pr_list_backquote (const gcv_object_t* stream_, object list) {
   # list = (BACKQUOTE original-form [expanded-form])
   pushSTACK(Car(Cdr(list))); # save (second list)
   write_ascii_char(stream_,'`'); # print '`'
@@ -7332,7 +7336,7 @@ local void pr_list_backquote (const gcv_object_t* stream_, object list) {
   dynamic_unbind(S(prin_bqlevel));
 }
 
-local void pr_list_bothsplice (const gcv_object_t* stream_, object list, object ch) {
+local maygc void pr_list_bothsplice (const gcv_object_t* stream_, object list, object ch) {
   # list = (SPLICE object), ch = '@' or
   # list = (NSPLICE object), ch = '.'
   pushSTACK(Car(Cdr(list))); # save (second list)
@@ -7347,17 +7351,17 @@ local void pr_list_bothsplice (const gcv_object_t* stream_, object list, object 
   dynamic_unbind(S(prin_bqlevel));
 }
 
-local void pr_list_splice (const gcv_object_t* stream_, object list) {
+local maygc void pr_list_splice (const gcv_object_t* stream_, object list) {
   # list = (SPLICE object)
   pr_list_bothsplice(stream_,list,ascii_char('@'));
 }
 
-local void pr_list_nsplice (const gcv_object_t* stream_, object list) {
+local maygc void pr_list_nsplice (const gcv_object_t* stream_, object list) {
   # list = (NSPLICE object)
   pr_list_bothsplice(stream_,list,ascii_char('.'));
 }
 
-local void pr_list_unquote (const gcv_object_t* stream_, object list) {
+local maygc void pr_list_unquote (const gcv_object_t* stream_, object list) {
   # list = (UNQUOTE object)
   pushSTACK(Car(Cdr(list))); # save (second list)
   write_ascii_char(stream_,','); # print ','
@@ -7377,7 +7381,7 @@ local void pr_list_unquote (const gcv_object_t* stream_, object list) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_pair (const gcv_object_t* stream_, object car, object cdr) {
+local maygc void pr_pair (const gcv_object_t* stream_, object car, object cdr) {
   LEVEL_CHECK;
   {
     var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
@@ -7416,7 +7420,7 @@ local void pr_pair (const gcv_object_t* stream_, object car, object cdr) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_real_number (const gcv_object_t* stream_, object number) {
+local maygc void pr_real_number (const gcv_object_t* stream_, object number) {
   if (R_rationalp(number)) { # rational number
     var uintWL base = get_print_base(); # value of *PRINT-BASE*
     # query *PRINT-RADIX*:
@@ -7464,7 +7468,7 @@ local void pr_real_number (const gcv_object_t* stream_, object number) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_number (const gcv_object_t* stream_, object number) {
+local maygc void pr_number (const gcv_object_t* stream_, object number) {
   if (N_realp(number)) { # real number
     pr_real_number(stream_,number);
   } else { # complex number
@@ -7507,7 +7511,7 @@ local void pr_number (const gcv_object_t* stream_, object number) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_array_nil (const gcv_object_t* stream_, object obj) {
+local maygc void pr_array_nil (const gcv_object_t* stream_, object obj) {
   pushSTACK(obj); # save array
   var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
   UNREADABLE_START;
@@ -7540,8 +7544,8 @@ local void pr_array_nil (const gcv_object_t* stream_, object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_sbvector_ab (const gcv_object_t* stream_, object bv,
-                           uintL start, uintL len) {
+local maygc void pr_sbvector_ab (const gcv_object_t* stream_, object bv,
+                                 uintL start, uintL len) {
   var uintL index = start;
   pushSTACK(bv); # save simple-bit-vector
   write_ascii_char(stream_,'#'); write_ascii_char(stream_,'*');
@@ -7560,7 +7564,7 @@ local void pr_sbvector_ab (const gcv_object_t* stream_, object bv,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_bvector (const gcv_object_t* stream_, object bv) {
+local maygc void pr_bvector (const gcv_object_t* stream_, object bv) {
   # query *PRINT-ARRAY*:
   if (!nullpSv(print_array) || !nullpSv(print_readably)) {
     # print bv elementwise:
@@ -7580,7 +7584,7 @@ local void pr_bvector (const gcv_object_t* stream_, object bv) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_vector (const gcv_object_t* stream_, object v) {
+local maygc void pr_vector (const gcv_object_t* stream_, object v) {
   # query *PRINT-ARRAY*:
   if (!nullpSv(print_array) || !nullpSv(print_readably)) {
     # print v elementwise:
@@ -7649,8 +7653,8 @@ local void pr_vector (const gcv_object_t* stream_, object v) {
 # print a key-value table (for a hash table) kvt (on the stack)
 # the table is printed as an alist: a sequence of (key . value)
 # can trigger GC
-local void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt_,
-                       uintL index, uintL count) {
+local maygc void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt_,
+                             uintL index, uintL count) {
   var uintL length = 0;
   var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
   loop {
@@ -7686,7 +7690,7 @@ local void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt_,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_nilvector (const gcv_object_t* stream_, object v) {
+local maygc void pr_nilvector (const gcv_object_t* stream_, object v) {
   var uintL len = vector_length(v); # vector-length
   write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
   KLAMMER_AUF; # print '('
@@ -7780,8 +7784,8 @@ typedef struct {
   uintL index;
   uintL count;
 } pr_array_info_t;
-typedef void pr_array_elt_routine_t (const gcv_object_t* stream_, object obj,
-                                     pr_array_info_t* info);
+typedef maygc void pr_array_elt_routine_t (const gcv_object_t* stream_, object obj,
+                                           pr_array_info_t* info);
 # subroutine for printing an element:
 # info.count = 1 for this routine.
 local pr_array_elt_routine_t pr_array_elt_simple;
@@ -7789,22 +7793,22 @@ local pr_array_elt_routine_t pr_array_elt_simple;
 local pr_array_elt_routine_t pr_array_elt_bvector; # sub-array is bit-vector
 local pr_array_elt_routine_t pr_array_elt_string; # sub-array is string
 
-local void pr_array_elt_simple (const gcv_object_t* stream_, object obj,
-                                pr_array_info_t* info) { # simple-vector
+local maygc void pr_array_elt_simple (const gcv_object_t* stream_, object obj,
+                                      pr_array_info_t* info) { # simple-vector
   # fetch element of generic type and print:
   prin_object(stream_,storagevector_aref(obj,info->index));
   info->index++;
 }
 
-local void pr_array_elt_bvector (const gcv_object_t* stream_, object obj,
-                                 pr_array_info_t* info) { # simple-bit-vector
+local maygc void pr_array_elt_bvector (const gcv_object_t* stream_, object obj,
+                                       pr_array_info_t* info) { # simple-bit-vector
   # print sub-bit-vector:
   pr_sbvector_ab(stream_,obj,info->index,info->count);
   info->index += info->count;
 }
 
-local void pr_array_elt_string (const gcv_object_t* stream_, object obj,
-                                pr_array_info_t* info) { # simple-string
+local maygc void pr_array_elt_string (const gcv_object_t* stream_, object obj,
+                                      pr_array_info_t* info) { # simple-string
   # print sub-string:
   pr_sstring_ab(stream_,obj,info->index,info->count);
   info->index += info->count;
@@ -7833,7 +7837,7 @@ typedef struct {
   pr_array_info_t info;
   uintL length_limit;
 } pr_array_locals_t;
-local void pr_array_recursion (pr_array_locals_t* locals, uintL depth, uintL rdepth) {
+local maygc void pr_array_recursion (pr_array_locals_t* locals, uintL depth, uintL rdepth) {
   check_SP(); check_STACK();
   if (depth==0) { # recursion-depth 0 -> start(base) of recursion
     (*(locals->pr_one_elt)) # call function pr_one_elt, with
@@ -7898,7 +7902,7 @@ local void pr_array_recursion (pr_array_locals_t* locals, uintL depth, uintL rde
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_array (const gcv_object_t* stream_, object obj) {
+local maygc void pr_array (const gcv_object_t* stream_, object obj) {
   # query *PRINT-ARRAY* :
   if (!nullpSv(print_array) || !nullpSv(print_readably)) {
     # print obj elementwise:
@@ -7995,7 +7999,7 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
 
 #                    -------- CLOS-instances --------
 
-local void pr_sharp_dot (const gcv_object_t* stream_,object obj) {
+local maygc void pr_sharp_dot (const gcv_object_t* stream_,object obj) {
   pushSTACK(obj); # save form
   write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
   obj = popSTACK(); # recall form
@@ -8010,7 +8014,7 @@ local void pr_sharp_dot (const gcv_object_t* stream_,object obj) {
  > stream: stream
  < stream: stream
  can trigger GC */
-local void pr_instance (const gcv_object_t* stream_, object obj) {
+local maygc void pr_instance (const gcv_object_t* stream_, object obj) {
   if (!nullpSv(compiling) && !nullpSv(print_readably)
       && !nullpSv(load_forms)) { /* compiling - use MAKE-LOAD-FORM */
     pushSTACK(obj);              /* save obj */
@@ -8073,8 +8077,8 @@ local void pr_instance (const gcv_object_t* stream_, object obj) {
 # > structure: structure
 # > function: print-function for structures of this type
 # can trigger GC
-local void pr_structure_external (const gcv_object_t* stream_, object structure,
-                                  object function) {
+local maygc void pr_structure_external (const gcv_object_t* stream_, object structure,
+                                        object function) {
   LEVEL_CHECK;
   var object stream = *stream_;
   var uintC count = pr_external_1(stream); # create bindings
@@ -8093,7 +8097,7 @@ local void pr_structure_external (const gcv_object_t* stream_, object structure,
 # > stream: stream
 # < stream: stream   :-) (great documentation, right? )
 # can trigger GC
-local void pr_structure (const gcv_object_t* stream_, object structure) {
+local maygc void pr_structure (const gcv_object_t* stream_, object structure) {
   # determine type of the structure (ref. TYPE-OF):
   var object name = Car(TheStructure(structure)->structure_types);
   # name = (car '(name_1 ... name_i-1 name_i)) = name_1.
@@ -8113,7 +8117,7 @@ local void pr_structure (const gcv_object_t* stream_, object structure) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_structure_default (const gcv_object_t* stream_, object structure)
+local maygc void pr_structure_default (const gcv_object_t* stream_, object structure)
 {
   var object name = Car(TheStructure(structure)->structure_types);
   # name = (car '(name_1 ... name_i-1 name_i)) = name_1.
@@ -8245,7 +8249,7 @@ LISPFUNN(print_structure,2) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_hex6_obj (const gcv_object_t* stream_, object obj, object string) {
+local maygc void pr_hex6_obj (const gcv_object_t* stream_, object obj, object string) {
   pushSTACK(obj); # save object
   var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
   pushSTACK(string); # save string
@@ -8267,7 +8271,7 @@ local void pr_hex6_obj (const gcv_object_t* stream_, object obj, object string) 
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_machine (const gcv_object_t* stream_, object obj) {
+local maygc void pr_machine (const gcv_object_t* stream_, object obj) {
   # #<ADDRESS #x...>
   CHECK_PRINT_READABLY(obj);
   pr_hex6_obj(stream_,obj,O(printstring_address));
@@ -8281,7 +8285,7 @@ local void pr_machine (const gcv_object_t* stream_, object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_system (const gcv_object_t* stream_, object obj) {
+local maygc void pr_system (const gcv_object_t* stream_, object obj) {
   if (nullpSv(print_readably)) {
     if (!boundp(obj))
       write_sstring_case(stream_,O(printstring_unbound));
@@ -8309,7 +8313,7 @@ local void pr_system (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_readlabel (const gcv_object_t* stream_, object obj) {
+local maygc void pr_readlabel (const gcv_object_t* stream_, object obj) {
   CHECK_PRINT_READABLY(obj);
   # #<READ-LABEL ...>
   UNREADABLE_START;
@@ -8332,7 +8336,7 @@ local void pr_readlabel (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_framepointer (const gcv_object_t* stream_, object obj) {
+local maygc void pr_framepointer (const gcv_object_t* stream_, object obj) {
   CHECK_PRINT_READABLY(obj);
   # #<FRAME-POINTER #x...>
   pr_hex6_obj(stream_,obj,O(printstring_frame_pointer));
@@ -8349,8 +8353,8 @@ local void pr_framepointer (const gcv_object_t* stream_, object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_record_ab (const gcv_object_t* stream_, const gcv_object_t* obj_,
-                         uintL index, uintL length) {
+local maygc void pr_record_ab (const gcv_object_t* stream_, const gcv_object_t* obj_,
+                               uintL index, uintL length) {
   var uintL len = Record_length(*obj_); # length of record
   var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
   while (index < len) { /* index >= Recordlength -> finished */
@@ -8376,7 +8380,7 @@ local void pr_record_ab (const gcv_object_t* stream_, const gcv_object_t* obj_,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_record_rest (const gcv_object_t* stream_, object obj, uintL length) {
+local maygc void pr_record_rest (const gcv_object_t* stream_, object obj, uintL length) {
   var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
   pushSTACK(obj);
   while (mconsp(STACK_0)) {
@@ -8405,8 +8409,8 @@ local void pr_record_rest (const gcv_object_t* stream_, object obj, uintL length
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_record_descr (const gcv_object_t* stream_, object obj,
-                            object name, bool readable, object slotlist) {
+local maygc void pr_record_descr (const gcv_object_t* stream_, object obj,
+                                  object name, bool readable, object slotlist) {
   LEVEL_CHECK;
   {
     pushSTACK(obj);
@@ -8481,7 +8485,7 @@ local void pr_record_descr (const gcv_object_t* stream_, object obj,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_orecord (const gcv_object_t* stream_, object obj) {
+local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
   switch (Record_type(obj)) {
 #ifndef TYPECODES
     case Rectype_string: case Rectype_reallocstring:
@@ -9419,7 +9423,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_other_obj (const gcv_object_t* stream_, object other, object string) {
+local maygc void pr_other_obj (const gcv_object_t* stream_, object other, object string) {
   pushSTACK(other); # save other
   pushSTACK(string); # save String
   var gcv_object_t* string_ = &STACK_0; # and memorize, where both are
@@ -9440,7 +9444,7 @@ local void pr_other_obj (const gcv_object_t* stream_, object other, object strin
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_subr (const gcv_object_t* stream_, object obj) {
+local maygc void pr_subr (const gcv_object_t* stream_, object obj) {
   # #<SYSTEM-FUNCTION name> bzw. #<ADD-ON-SYSTEM-FUNCTION name>
   # bzw. #.(SYSTEM::%FIND-SUBR 'name)
   if (!nullpSv(print_readably)) {
@@ -9478,7 +9482,7 @@ local void pr_subr (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_fsubr (const gcv_object_t* stream_, object obj) {
+local maygc void pr_fsubr (const gcv_object_t* stream_, object obj) {
   # #<SPECIAL-OPERATOR name>
   CHECK_PRINT_READABLY(obj);
   pr_other_obj(stream_,TheFsubr(obj)->name,O(printstring_fsubr));
@@ -9492,7 +9496,7 @@ local void pr_fsubr (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_closure (const gcv_object_t* stream_, object obj) {
+local maygc void pr_closure (const gcv_object_t* stream_, object obj) {
   if (Closure_instancep(obj)) {
     # funcallable instance
     pr_instance(stream_,obj);
@@ -9535,7 +9539,7 @@ local void pr_closure (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_cclosure (const gcv_object_t* stream_, object obj) {
+local maygc void pr_cclosure (const gcv_object_t* stream_, object obj) {
   # query *PRINT-CLOSURE* :
   if (!nullpSv(print_closure) || !nullpSv(print_readably)) {
     # *PRINT-CLOSURE /= NIL -> print in re-readable form #Y(...)
@@ -9579,7 +9583,7 @@ local void pr_cclosure (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
+local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
   LEVEL_CHECK;
   {
     pushSTACK(obj); # save Closure
@@ -9611,7 +9615,7 @@ local void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_cclosure_codevector (const gcv_object_t* stream_, object codevec) {
+local maygc void pr_cclosure_codevector (const gcv_object_t* stream_, object codevec) {
   LEVEL_CHECK;
   {
     pushSTACK(codevec); # save Codevector
@@ -9688,7 +9692,7 @@ local void pr_cclosure_codevector (const gcv_object_t* stream_, object codevec) 
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_stream (const gcv_object_t* stream_, object obj) {
+local maygc void pr_stream (const gcv_object_t* stream_, object obj) {
   CHECK_PRINT_READABLY(obj);
   pushSTACK(obj); # save Stream
   var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
@@ -9844,7 +9848,7 @@ local void pr_stream (const gcv_object_t* stream_, object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-global void prin1 (const gcv_object_t* stream_, object obj) {
+global maygc void prin1 (const gcv_object_t* stream_, object obj) {
   pr_enter(stream_,obj,&prin_object);
 }
 
@@ -9854,7 +9858,7 @@ global void prin1 (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-global void print (const gcv_object_t* stream_, object obj) {
+global maygc void print (const gcv_object_t* stream_, object obj) {
   pushSTACK(obj); # save Object
   write_ascii_char(stream_,NL); # print #\Newline
   obj = popSTACK();
@@ -9869,7 +9873,7 @@ global void print (const gcv_object_t* stream_, object obj) {
  > stream_: output-stream argument
  < stream_: output-stream (a Stream)
  can trigger GC */
-local void check_ostream (gcv_object_t* stream_) {
+local maygc void check_ostream (gcv_object_t* stream_) {
   var object stream = *stream_;  /* output-stream argument */
   if (missingp(stream)) { /* #<UNBOUND> or NIL -> value of *STANDARD-OUTPUT* */
     *stream_ = var_stream(S(standard_output),strmflags_wr_ch_B);
@@ -10328,7 +10332,7 @@ LISPFUN(write_char,seclass_default,1,1,norest,nokey,0,NIL) {
 # > stack layout: String-Argument, Stream-Argument, :START-Argument, :END-Argument.
 # < stack layout: Stream, String.
 # can trigger GC
-local void write_string_up (void) {
+local maygc void write_string_up (void) {
   check_ostream(&STACK_2);       /* check Output-Stream */
   swap(object,STACK_2,STACK_3); /* swap string and stream */
   # stack layout: stream, string, :START-Argument, :END-Argument.

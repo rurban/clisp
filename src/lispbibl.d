@@ -931,7 +931,8 @@
 #   local            function that is only visible in the file (local)
 #   extern           pointer to a function that's defined externally
 #   extern_C         pointer to a c-function that's defined externally
-#   nonreturning     funtion that will never return
+#   nonreturning     function that will never return
+#   maygc            function that can trigger GC
 #define global
 #define local  static
 # #define extern extern
@@ -966,6 +967,17 @@
   #define nonreturning_function(storclass,funname,arguments)  \
     storclass void funname arguments
 #endif
+
+/* A function that can trigger GC is declared either as
+   - maygc, if (1) all callers must assume the worst case: that it triggers GC,
+            and (2) the function uses only the 'object's passed as arguments and
+            on the STACK, but no objects stored in other non-GCsafe locations.
+   - ／＊maygc＊／ otherwise. If (1) is not fulfilled, the functions begins
+                   with an appropriate GCTRIGGER_IF statement. If (2) is not
+                   fulfilled, the GCTRIGGER call needs to mention all other
+                   non-GCsafe locations whose values are used by the function,
+                   such as 'value1' or 'mv_space'. */
+#define maygc
 
 # Storage-Class-Specifier in declarations at the beginning of a block:
 # var                       will lead a variable declaration
@@ -3676,6 +3688,48 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       abort();
   }
 
+#endif
+
+
+/* Force a memory allocation for all functions which can trigger GC but
+   sometimes do and sometimes don't. This makes DEBUG_GCSAFETY more efficient.
+   GCTRIGGER()             does a no-op memory allocation
+   GCTRIGGER1(obj1)        likewise, but saves obj1 temporarily
+   GCTRIGGER2(obj1,obj2)   likewise, but saves obj1, obj2 temporarily
+   ...
+   GCTRIGGER_IF(condition, statement)
+                           likewise, but only if the condition is fulfilled */
+#ifdef DEBUG_GCSAFETY
+  # When these macros are used in C macros, obj1, obj2 etc. can sometimes be
+  # expressions of type 'object' and sometimes of type 'gcv_object_t'. Need
+  # two implementations of inc_allocstamp.
+  inline void inc_allocstamp (object& obj) { obj.allocstamp++; }
+  inline void inc_allocstamp (gcv_object_t& obj) { }
+  #define GCTRIGGER()  \
+    (void)(alloccount++)
+  #define GCTRIGGER1(obj1)  \
+    (void)(inc_allocstamp(obj1), alloccount++)
+  #define GCTRIGGER2(obj1,obj2)  \
+    (void)(inc_allocstamp(obj1), inc_allocstamp(obj2), alloccount++)
+  #define GCTRIGGER3(obj1,obj2,obj3)  \
+    (void)(inc_allocstamp(obj1), inc_allocstamp(obj2), inc_allocstamp(obj3), alloccount++)
+  #define GCTRIGGER4(obj1,obj2,obj3,obj4)  \
+    (void)(inc_allocstamp(obj1), inc_allocstamp(obj2), inc_allocstamp(obj3), inc_allocstamp(obj4), alloccount++)
+  #define GCTRIGGER5(obj1,obj2,obj3,obj4,obj5)  \
+    (void)(inc_allocstamp(obj1), inc_allocstamp(obj2), inc_allocstamp(obj3), inc_allocstamp(obj4), inc_allocstamp(obj5), alloccount++)
+  #define GCTRIGGER6(obj1,obj2,obj3,obj4,obj5,obj6)  \
+    (void)(inc_allocstamp(obj1), inc_allocstamp(obj2), inc_allocstamp(obj3), inc_allocstamp(obj4), inc_allocstamp(obj5), inc_allocstamp(obj6), alloccount++)
+  #define GCTRIGGER_IF(condition,statement)  \
+    if (condition) statement
+#else
+  #define GCTRIGGER()  (void)0
+  #define GCTRIGGER1(obj1)  (void)0
+  #define GCTRIGGER2(obj1,obj2)  (void)0
+  #define GCTRIGGER3(obj1,obj2,obj3)  (void)0
+  #define GCTRIGGER4(obj1,obj2,obj3,obj4)  (void)0
+  #define GCTRIGGER5(obj1,obj2,obj3,obj4,obj5)  (void)0
+  #define GCTRIGGER6(obj1,obj2,obj3,obj4,obj5,obj6)  (void)0
+  #define GCTRIGGER_IF(condition,statement)  (void)0
 #endif
 
 
@@ -7734,7 +7788,7 @@ typedef enum {
 # > time_t time: time in the system time-format
 # < result: integer denoting the seconds since 1900-01-01 00:00 GMT
 # can trigger GC
-  extern object convert_time_to_universal (const time_t* time);
+  extern maygc object convert_time_to_universal (const time_t* time);
 # is used by PATHNAME
 #endif
 #ifdef WIN32_NATIVE
@@ -7743,7 +7797,7 @@ typedef enum {
 # > FILETIME time: Time in the system-time-format
 # < result: integer denoting the seconds since 1900-01-01 00:00 GMT
 # can trigger GC
-  extern object convert_time_to_universal (const FILETIME* time);
+  extern maygc object convert_time_to_universal (const FILETIME* time);
 # is used by PATHNAME
 #endif
 
@@ -8374,19 +8428,19 @@ nonreturning_function(extern, fehler_notreached, (const char * file, uintL line)
 # > obj: C string
 # < result: String
 # can trigger GC
-extern object CLSTEXT (const char*);
+extern maygc object CLSTEXT (const char*);
 
 # Fetch the "translation" of a Lisp object: "CL Object getTEXT"
 # CLOTEXT(string)
 # > obj: String
 # can trigger GC
-extern object CLOTEXT (const char*);
+extern maygc object CLOTEXT (const char*);
 
 # Print a Lisp object in Lisp notation relatively directly
 # through the operating system:
 # object_out(obj);
 # can trigger GC
-extern object object_out (object obj);
+extern maygc object object_out (object obj);
 # can trigger GC
 # print the object with label, file name and line number
 # this can trigger GC, but will save and restore OBJ
@@ -8395,7 +8449,7 @@ extern object object_out (object obj);
    obj=object_out(obj))
 /* print the object to a C stream - not all objects can be handled yet!
  non-consing, STACK non-modifying */
-extern object nobject_out (FILE* out, object obj);
+extern maygc object nobject_out (FILE* out, object obj);
 # used for debugging purposes
 
 # After allocating memory for an object, add the type infos.
@@ -8413,7 +8467,7 @@ extern object nobject_out (FILE* out, object obj);
 # UP: executes a Garbage Collection
 # gar_col();
 # can trigger GC
-extern void gar_col(void);
+extern maygc void gar_col(void);
 # is used by DEBUG
 
 # GC-statistics
@@ -8426,7 +8480,7 @@ extern internal_time_t gc_time;
 # allocate_cons()
 # < result: pointer to a new CONS, with CAR and CDR =NIL
 # can trigger GC
-extern object allocate_cons (void);
+extern maygc object allocate_cons (void);
 # is used by LIST, SEQUENCE, PACKAGE, EVAL, CONTROL, RECORD,
 #            PREDTYPE, IO, STREAM, PATHNAME, SYMBOL, ARRAY, LISPARIT
 
@@ -8435,7 +8489,7 @@ extern object allocate_cons (void);
 # > string: immutable Simple-String
 # < result: new symbol with this name, with Home-Package=NIL.
 # can trigger GC
-extern object make_symbol (object string);
+extern maygc object make_symbol (object string);
 # is used by PACKAGE, IO, SYMBOL
 
 # UP: allocates a general vector
@@ -8443,7 +8497,7 @@ extern object make_symbol (object string);
 # > len: length of the vector
 # < result: fresh simple general vector (elements are initialized with NIL)
 # can trigger GC
-extern object allocate_vector (uintL len);
+extern maygc object allocate_vector (uintL len);
 # is used by ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL
 
 # Function: Allocates a bit/byte vector.
@@ -8452,7 +8506,7 @@ extern object allocate_vector (uintL len);
 # > uintL len: length (number of n-bit blocks)
 # < result: fresh simple bit/byte-vector of the given length
 # can trigger GC
-extern object allocate_bit_vector (uintB atype, uintL len);
+extern maygc object allocate_bit_vector (uintB atype, uintL len);
 # is used by ARRAY, IO, RECORD, LISPARIT, STREAM, CLX
 
 # Macro: Allocates a 8bit-vector on the stack, with dynamic extent.
@@ -8471,7 +8525,8 @@ extern object allocate_bit_vector (uintB atype, uintL len);
     var object objvar = O(dynamic_8bit_vector);   \
     O(dynamic_8bit_vector) = NIL;                 \
     if (!(simple_bit_vector_p(Atype_8Bit,objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
-      objvar = allocate_bit_vector(Atype_8Bit,objvar##_len)
+      objvar = allocate_bit_vector(Atype_8Bit,objvar##_len); \
+    GCTRIGGER1(objvar)
   #define FREE_DYNAMIC_8BIT_VECTOR(objvar)  \
     O(dynamic_8bit_vector) = objvar
 #else
@@ -8481,13 +8536,15 @@ extern object allocate_bit_vector (uintB atype, uintL len);
     #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
       DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+offsetofa(sbvector_,data),sizeof(gcv_object_t))); \
       var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sb8vector_type,(Sbvector)objvar##_storage); \
-      ((Sbvector)objvar##_storage)->length = (len)
+      ((Sbvector)objvar##_storage)->length = (len); \
+      GCTRIGGER1(objvar)
   #else
     #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
       DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+offsetofa(sbvector_,data)+varobjects_misaligned,sizeof(gcv_object_t))); \
       var object* objvar##_address = (object*)((uintP)objvar##_storage | varobjects_misaligned); \
       var object objvar = ((Sbvector)objvar##_address)->GCself = bias_type_pointer_object(varobject_bias,sb8vector_type,(Sbvector)objvar##_address); \
-      ((Sbvector)objvar##_address)->tfl = vrecord_tfl(Rectype_Sb8vector,len)
+      ((Sbvector)objvar##_address)->tfl = vrecord_tfl(Rectype_Sb8vector,len); \
+      GCTRIGGER1(objvar)
   #endif
   #define FREE_DYNAMIC_8BIT_VECTOR(objvar)  \
     FREE_DYNAMIC_ARRAY(objvar##_storage)
@@ -8500,7 +8557,7 @@ extern object allocate_bit_vector (uintB atype, uintL len);
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 8-bit character simple-string (LISP-object)
 # can trigger GC
-extern object allocate_s8string (uintL len);
+extern maygc object allocate_s8string (uintL len);
 # used by
 #endif
 #if defined(UNICODE) && !defined(HAVE_SMALL_SSTRING)
@@ -8513,7 +8570,7 @@ extern object allocate_s8string (uintL len);
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 8-bit character simple-string (LISP-object)
 # can trigger GC
-extern object allocate_imm_s8string (uintL len);
+extern maygc object allocate_imm_s8string (uintL len);
 # used by
 #endif
 
@@ -8523,7 +8580,7 @@ extern object allocate_imm_s8string (uintL len);
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 16-bit character simple-string (LISP-object)
 # can trigger GC
-extern object allocate_s16string (uintL len);
+extern maygc object allocate_s16string (uintL len);
 # used by
 #endif
 #if defined(UNICODE) && !defined(HAVE_SMALL_SSTRING)
@@ -8536,7 +8593,7 @@ extern object allocate_s16string (uintL len);
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 16-bit character simple-string (LISP-object)
 # can trigger GC
-extern object allocate_imm_s16string (uintL len);
+extern maygc object allocate_imm_s16string (uintL len);
 # used by
 #endif
 
@@ -8546,7 +8603,7 @@ extern object allocate_imm_s16string (uintL len);
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new 32-bit character simple-string (LISP-object)
 # can trigger GC
-extern object allocate_s32string (uintL len);
+extern maygc object allocate_s32string (uintL len);
 #endif
 
 #ifdef UNICODE
@@ -8555,7 +8612,7 @@ extern object allocate_s32string (uintL len);
 # > len: length of the string (in characters), must be <= stringsize_limit_1
 # < result: new immutable 32-bit character simple-string (LISP-object)
 # can trigger GC
-extern object allocate_imm_s32string (uintL len);
+extern maygc object allocate_imm_s32string (uintL len);
 #endif
 
 # UP: allocates String
@@ -8589,7 +8646,8 @@ extern object allocate_imm_s32string (uintL len);
       if (objvar##_len > stringsize_limit_1)  \
         fehler_stringsize(objvar##_len);      \
       objvar = allocate_string(objvar##_len); \
-    }
+    }                                         \
+    GCTRIGGER1(objvar)
   #define FREE_DYNAMIC_STRING(objvar)  \
     O(dynamic_string) = objvar;
 #else
@@ -8600,13 +8658,15 @@ extern object allocate_imm_s32string (uintL len);
       DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(s32string_,data)+varobjects_misaligned,sizeof(gcv_object_t))); \
       var object* objvar##_address = (object*)((uintP)objvar##_storage | varobjects_misaligned); \
       var object objvar = ((Sstring)objvar##_address)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_address); \
-      ((Sstring)objvar##_address)->tfl = sstring_tfl(Sstringtype_32Bit,0,0,len);
+      ((Sstring)objvar##_address)->tfl = sstring_tfl(Sstringtype_32Bit,0,0,len); \
+      GCTRIGGER1(objvar)
   #else
     #define DYNAMIC_STRING(objvar,len)  \
       DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(s8string_,data)+varobjects_misaligned,sizeof(gcv_object_t))); \
       var object* objvar##_address = (object*)((uintP)objvar##_storage | varobjects_misaligned); \
       var object objvar = ((Sstring)objvar##_address)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_address); \
-      ((Sstring)objvar##_address)->tfl = sstring_tfl(Sstringtype_8Bit,0,0,len);
+      ((Sstring)objvar##_address)->tfl = sstring_tfl(Sstringtype_8Bit,0,0,len); \
+      GCTRIGGER1(objvar)
   #endif
   #define FREE_DYNAMIC_STRING(objvar)  \
     FREE_DYNAMIC_ARRAY(objvar##_storage)
@@ -8633,7 +8693,7 @@ extern object allocate_imm_s32string (uintL len);
 # > newtype: new wider string type, Sstringtype_16Bit or Sstringtype_32Bit
 # < result: an Sistring pointing to a wider String
 # can trigger GC
-  extern object reallocate_small_string (object string, uintB newtype);
+  extern maygc object reallocate_small_string (object string, uintB newtype);
 # is used by ARRAY
 #endif
 
@@ -8657,7 +8717,7 @@ extern object allocate_imm_s32string (uintL len);
 # > tint type: Typinfo
 # < result: LISP-object Array
 # can trigger GC
-extern object allocate_iarray (uintB flags, uintC rank, tint type);
+extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
 # is used by ARRAY, IO
 
 # UP: allocates Long-Record
@@ -8668,7 +8728,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # < result: LISP-object Record (elements are initialized with NIL)
 # can trigger GC
 #ifdef TYPECODES
-  extern object allocate_lrecord (uintB rectype, uintL reclen, tint type);
+  extern maygc object allocate_lrecord (uintB rectype, uintL reclen, tint type);
 #else
   #define allocate_lrecord(rectype,reclen,type)  /* ignore type */ \
     allocate_lrecord_(rectype,reclen)
@@ -8691,11 +8751,11 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
                      : ((uintW)(flags)<<intBsize)+(uintW)(uintB)(rectype)),\
        reclen,                                                             \
        type)
-  extern object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type);
+  extern maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type);
 #else
   #define allocate_srecord(flags,rectype,reclen,type)  /* ignore type */ \
     allocate_srecord_(((uintW)(flags)<<8)+(uintW)(uintB)(rectype),reclen)
-  extern object allocate_srecord_ (uintW flags_rectype, uintC reclen);
+  extern maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen);
 #endif
 # is used by RECORD, EVAL
 
@@ -8716,11 +8776,11 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
        reclen,                                                             \
        recxlen,                                                            \
        type)
-  extern object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen, tint type);
+  extern maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen, tint type);
 #else
   #define allocate_xrecord(flags,rectype,reclen,recxlen,type)  \
     allocate_xrecord_((((uintW)(flags)<<8)+(uintW)(uintB)(rectype)),reclen,recxlen)
-  extern object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
+  extern maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
 #endif
 # is used by
 
@@ -8794,7 +8854,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
   #define allocate_stream(strmflags,strmtype,reclen,recxlen)  \
     allocate_xrecord(strmflags | strmflags_open_B,strmtype,reclen,recxlen,stream_type)
 #else
-  extern object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
+  extern maygc object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
 #endif
 # is used by STREAM
 
@@ -8911,7 +8971,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # > foreign: of Type FOREIGN
 # < result: LISP-object, contains the foreign pointer
 # can trigger GC
-  extern object allocate_fpointer (FOREIGN foreign);
+  extern maygc object allocate_fpointer (FOREIGN foreign);
 /* used by FFI & modules */
 #endif
 
@@ -8971,7 +9031,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # can trigger GC
 #ifdef FOREIGN_HANDLE
   # can trigger GC
-  extern object allocate_handle (Handle handle);
+  extern maygc object allocate_handle (Handle handle);
 #else
   #define allocate_handle(handle)  fixnum((uintL)(handle))
 #endif
@@ -8982,7 +9042,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # > sintB sign: flag for sign (0 = +, -1 = -)
 # < result: new Bignum (LISP-object)
 # can trigger GC
-extern object allocate_bignum (uintC len, sintB sign);
+extern maygc object allocate_bignum (uintC len, sintB sign);
 # is used by LISPARIT, STREAM
 
 # UP: allocates Single-Float
@@ -8990,7 +9050,7 @@ extern object allocate_bignum (uintC len, sintB sign);
 # > ffloat value: value (Bit 31 = sign)
 # < result: new Single-Float (LISP-object)
 # can trigger GC
-extern object allocate_ffloat (ffloat value);
+extern maygc object allocate_ffloat (ffloat value);
 # is used by LISPARIT
 
 # UP: allocates Double-Float
@@ -8999,13 +9059,13 @@ extern object allocate_ffloat (ffloat value);
 # > dfloat value: value (Bit 63 = sign)
 # < result: new Double-Float (LISP-object)
 # can trigger GC
-  extern object allocate_dfloat (dfloat value);
+  extern maygc object allocate_dfloat (dfloat value);
 #else
 # allocate_dfloat(semhi,mlo)
 # > semhi,mlo: value (Bit 31 of semhi = sign )
 # < result: new Double-Float (LISP-object)
 # can trigger GC
-  extern object allocate_dfloat (uint32 semhi, uint32 mlo);
+  extern maygc object allocate_dfloat (uint32 semhi, uint32 mlo);
 #endif
 # is used by LISPARIT
 
@@ -9017,7 +9077,7 @@ extern object allocate_ffloat (ffloat value);
 # < result: new Long-Float, without mantissa
 # It will only be a LISP-object when the mantissa has been entered!
 # can trigger GC
-extern object allocate_lfloat (uintC len, uintL expo, signean sign);
+extern maygc object allocate_lfloat (uintC len, uintL expo, signean sign);
 # is used by LISPARIT
 
 # UP: makes a rational number
@@ -9026,7 +9086,7 @@ extern object allocate_lfloat (uintC len, uintL expo, signean sign);
 # > object den: denominator (has to be an Integer > 1)
 # < result: rational number
 # can trigger GC
-extern object make_ratio (object num, object den);
+extern maygc object make_ratio (object num, object den);
 # is used by LISPARIT
 
 # UP: makes a complex number
@@ -9035,7 +9095,7 @@ extern object make_ratio (object num, object den);
 # > imag: imaginary part (has to be a real number /= Fixnum 0)
 # < result: complex number
 # can trigger GC
-extern object make_complex (object real, object imag);
+extern maygc object make_complex (object real, object imag);
 # is used by LISPARIT
 
 /* Adds a freshly allocated object to the list of weak pointers.
@@ -9094,7 +9154,7 @@ extern void* my_malloc (size_t size);
 #             #(0 ...) an (n+1)-element Vector, that contains the number 0 and the n
 #                      circularities as Elements, n>0.
 # can trigger GC
-extern object get_circularities (object obj, bool pr_array, bool pr_closure);
+extern maygc object get_circularities (object obj, bool pr_array, bool pr_closure);
 # is used by IO
 
 # UP: unentangles #n# - References in Object *ptr with help from Aliste alist.
@@ -9233,7 +9293,7 @@ extern uintM free_space (void);
 # savemem(stream);
 # > object stream: open File-Output-Stream, will be closed
 # can trigger GC
-extern void savemem (object stream);
+extern maygc void savemem (object stream);
 # is used by PATHNAME
 
 #ifdef HAVE_SIGNALS
@@ -9503,7 +9563,7 @@ typedef struct module_t {
 extern module_t* find_module (const char *name);
 /* push all module names to STACK and return the number of modules pushed
  can trigger GC */
-extern uintC modules_names_to_stack (void);
+extern maygc uintC modules_names_to_stack (void);
 
 # ####################### EVALBIBL for EVAL.D ############################## #
 
@@ -10148,6 +10208,18 @@ re-enters the corresponding top-level loop.
 # is used by EVAL, CONTROL,
 #                    Macros LIST_TO_MV, MV_TO_LIST, STACK_TO_MV, MV_TO_STACK
 
+#ifdef DEBUG_GCSAFETY
+  # Add support for the 'mv_space' expression to the GCTRIGGER1/2/... macros.
+  inline void inc_allocstamp (object (&mvsp)[mv_limit-1]) {
+    inc_allocstamp(value1);
+    var uintC count = mv_count;
+    if (count > 1) {
+      var object* mvp = &mv_space[1];
+      dotimespC(count,count-1, { inc_allocstamp(*mvp++); });
+    }
+  }
+#endif
+
 # Returns the bottom objects from the STACK as multiple values.
 # STACK_to_mv(count)
 # count: number of objects, < mv_limit.
@@ -10252,6 +10324,7 @@ re-enters the corresponding top-level loop.
 #define mv_to_list()                                                  \
   do {                                                                \
     mv_to_STACK(); # at first all values onto the stack               \
+    GCTRIGGER();                                                      \
     pushSTACK(NIL); # head of the list                                \
     { var uintC count;                                                \
       dotimesC(count,mv_count, { # until all values have been used:   \
@@ -10828,7 +10901,7 @@ typedef struct {
 # < STACK: cleaned (ie. STACK is increased by args_on_stack)
 # < mv_count/mv_space: values
 # modifies STACK, can trigger GC
-extern Values apply (object fun, uintC args_on_stack, object other_args);
+extern maygc Values apply (object fun, uintC args_on_stack, object other_args);
 # is used by EVAL, CONTROL, IO, PATHNAME, ERROR
 
 # UP: Applies a function to its arguments.
@@ -10838,7 +10911,7 @@ extern Values apply (object fun, uintC args_on_stack, object other_args);
 # < STACK: cleaned (ie. STACK is increased by argcount)
 # < mv_count/mv_space: values
 # modifies STACK, can trigger GC
-extern Values funcall (object fun, uintC argcount);
+extern maygc Values funcall (object fun, uintC argcount);
 # is used by all Modules
 
 # UP: Evaluates a Form in the current Environment.
@@ -10846,7 +10919,7 @@ extern Values funcall (object fun, uintC argcount);
 # > form: Form
 # < mv_count/mv_space: values
 # can trigger GC
-extern Values eval (object form);
+extern maygc Values eval (object form);
 # is used by CONTROL, DEBUG
 
 # UP: Evaluates a Form in a given Environment.
@@ -10859,7 +10932,7 @@ extern Values eval (object form);
 # > form: Form
 # < mv_count/mv_space: Values
 # can trigger GC
-extern Values eval_5env (object form, object var_env, object fun_env, object block_env, object go_env, object decl_env);
+extern maygc Values eval_5env (object form, object var_env, object fun_env, object block_env, object go_env, object decl_env);
 # is used by
 
 # UP: Evaluates a Form in an empty Environment.
@@ -10867,7 +10940,7 @@ extern Values eval_5env (object form, object var_env, object fun_env, object blo
 # > form: Form
 # < mv_count/mv_space: Values
 # can trigger GC
-extern Values eval_noenv (object form);
+extern maygc Values eval_noenv (object form);
 # is used by CONTROL, IO, DEBUG, SPVW
 
 # UP: Evaluates a Form in the current Environment. Doesn't care about
@@ -10876,7 +10949,7 @@ extern Values eval_noenv (object form);
 # > form: Form
 # < mv_count/mv_space: Values
 # can trigger GC
-extern Values eval_no_hooks (object form);
+extern maygc Values eval_no_hooks (object form);
 # is used by CONTROL
 
 # UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to the given values.
@@ -10898,9 +10971,9 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
 # can trigger GC
 #ifdef __cplusplus
   /* g++-3.4 doesn't like nonreturning in a typedef */
-  typedef /* nonreturning */ void (*restartf_t)(gcv_object_t* upto_frame);
+  typedef /* nonreturning */ /*maygc*/ void (*restartf_t)(gcv_object_t* upto_frame);
 #else
-  nonreturning_function(typedef, (*restartf_t), (gcv_object_t* upto_frame));
+  nonreturning_function(typedef /*maygc*/, (*restartf_t), (gcv_object_t* upto_frame));
 #endif
 typedef struct {
   restartf_t fun;
@@ -10911,7 +10984,7 @@ typedef struct {
 #else
   #define unwind_protect_to_save  (current_thread()->_unwind_protect_to_save)
 #endif
-extern void unwind (void);
+extern /*maygc*/ void unwind (void);
 # is used by CONTROL, DEBUG, SPVW
 
 /* UP: "unwinds" the STACK to the next DRIVER_FRAME and
@@ -10927,7 +11000,7 @@ nonreturning_function(extern, reset, (uintL count));
  Exactly one variable-bindings-frame is created.
  modifies STACK
  can trigger GC */
-extern void progv (object symlist, object vallist);
+extern maygc void progv (object symlist, object vallist);
 /* used by CONTROL, EVAL */
 
 # UP: Unwinds the dynamic nesting on the STACK until the frame
@@ -10938,7 +11011,7 @@ extern void progv (object symlist, object vallist);
 # modifies STACK,SP
 # can trigger GC
 # Jumps to the found Frame.
-nonreturning_function(extern, unwind_upto, (gcv_object_t* upto_frame));
+nonreturning_function(extern /*maygc*/, unwind_upto, (gcv_object_t* upto_frame));
 # is used by CONTROL, DEBUG
 
 # UP: throws to the Tag tag and passes the values mv_count/mv_space.
@@ -10951,7 +11024,7 @@ extern void throw_to (object tag);
 # of the handlers feels responsible (ie. if every handler returns).
 # invoke_handlers(cond);
 # can trigger GC
-extern void invoke_handlers (object cond);
+extern maygc void invoke_handlers (object cond);
 typedef struct {
   object condition;
   gcv_object_t* stack;
@@ -11003,7 +11076,7 @@ extern bool sym_macrop (object sym);
  > value: desired value of the Symbol in the current Environment
  < result: value
  can trigger GC */
-extern object setq (object sym, object value);
+extern maygc object setq (object sym, object value);
 /* used by CONTROL */
 
 # UP: Gives the definition of the function for a Symbol in an Environment
@@ -11021,7 +11094,7 @@ extern object sym_function (object sym, object fenv);
 # > env: FUN-Env
 # < result: same Environment, no pointer into the Stack
 # can trigger GC
-extern object nest_fun (object env);
+extern maygc object nest_fun (object env);
 # is used by CONTROL
 
 # UP: Nests the Environments in *env (ie. write all information
@@ -11030,7 +11103,7 @@ extern object nest_fun (object env);
 # > gcv_environment* env: Pointer to five single Environments
 # < gcv_environment* result: Pointer to the Environments on the STACK
 # modifies STACK, can trigger GC
-extern gcv_environment_t* nest_env (gcv_environment_t* env);
+extern maygc gcv_environment_t* nest_env (gcv_environment_t* env);
 # is used by Macro nest_aktenv
 
 # UP: Nests the current environments (ie. writes all information
@@ -11051,7 +11124,7 @@ extern gcv_environment_t* nest_env (gcv_environment_t* env);
 # > env: Declarations-Environment
 # < result: new (possibly augmented) Declarations-Environment
 # can trigger GC
-extern object augment_decl_env (object new_declspec, object env);
+extern maygc object augment_decl_env (object new_declspec, object env);
 # is used by CONTROL
 
 # UP: expands a Form, if possible, (but not, if FSUBR-call
@@ -11064,7 +11137,7 @@ extern object augment_decl_env (object new_declspec, object env);
 # < value2: NIL, if not expanded,
 #           T, if expanded
 # can trigger GC
-extern void macroexp (object form, object venv, object fenv);
+extern maygc void macroexp (object form, object venv, object fenv);
 # is used by CONTROL
 
 # UP: expands a Form if possible, (also, if FSUBR-call or
@@ -11076,7 +11149,7 @@ extern void macroexp (object form, object venv, object fenv);
 # < value2: NIL, if not expanded,
 #           T, if expanded
 # can trigger GC
-extern void macroexp0 (object form, object env);
+extern maygc void macroexp0 (object form, object env);
 # is used by CONTROL
 
 # UP: Parse-Declarations-Docstring. Detaches from a Form-list those,
@@ -11088,7 +11161,7 @@ extern void macroexp0 (object form, object env);
 # < value3: Doc-String or NIL
 # < result: true if an (COMPILE)-Declaration occurred, else false
 # can trigger GC
-extern bool parse_dd (object formlist);
+extern maygc bool parse_dd (object formlist);
 # is used by CONTROL
 
 # UP: Creates a corresponding Closure for a Lambda-body by disassembling
@@ -11103,7 +11176,7 @@ extern bool parse_dd (object formlist);
 #        env->decl_env = DENV.
 # < result: Closure
 # can trigger GC
-extern object get_closure (object lambdabody, object name, bool blockp, gcv_environment_t* env);
+extern maygc object get_closure (object lambdabody, object name, bool blockp, gcv_environment_t* env);
 # is used by CONTROL, SYMBOL, PREDTYPE
 
 # UP: Converts an argument to a function.
@@ -11111,7 +11184,7 @@ extern object get_closure (object lambdabody, object name, bool blockp, gcv_envi
 # > obj: Object
 # < result: Object as function (SUBR or Closure)
 # can trigger GC
-extern object coerce_function (object obj);
+extern maygc object coerce_function (object obj);
 # is used by IO, FOREIGN
 
 # Binds a Symbol dynamically to a value.
@@ -11222,7 +11295,7 @@ extern object coerce_function (object obj);
 /* UP: initialize hand-made compiled closures
  init_cclosures();
  can trigger GC */
-extern void init_cclosures (void);
+extern maygc void init_cclosures (void);
 
 
 # ##################### CTRLBIBL for CONTROL.D ############################# #
@@ -11279,10 +11352,10 @@ extern void init_dependent_encodings (void);
 # < result: Normal-Simple-String with len characters starting from charptr as contents
 # can trigger GC
 #ifdef UNICODE
-  extern object n_char_to_string (const char* charptr, uintL len, object encoding);
+  extern maygc object n_char_to_string (const char* charptr, uintL len, object encoding);
 #else
   #define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)
-  extern object n_char_to_string_ (const char* charptr, uintL len);
+  extern maygc object n_char_to_string_ (const char* charptr, uintL len);
 #endif
 # is used by PATHNAME
 
@@ -11295,12 +11368,12 @@ extern void init_dependent_encodings (void);
 # < result: Normal-Simple-String with the character sequence (without null-byte) as contents.
 # can trigger GC
 #ifdef UNICODE
-  extern object asciz_to_string (const char * asciz, object encoding);
+  extern maygc object asciz_to_string (const char * asciz, object encoding);
 #else
   #define asciz_to_string(asciz,encoding)  asciz_to_string_(asciz)
-  extern object asciz_to_string_ (const char * asciz);
+  extern maygc object asciz_to_string_ (const char * asciz);
 #endif
-extern object ascii_to_string (const char * asciz);
+extern maygc object ascii_to_string (const char * asciz);
 # is used by SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH
 
 # UP: Converts a String to an ASCIZ-String.
@@ -11312,10 +11385,10 @@ extern object ascii_to_string (const char * asciz);
 # < TheAsciz(result): address of the byte-sequence contained in there
 # can trigger GC
 #ifdef UNICODE
-  extern object string_to_asciz (object obj, object encoding);
+  extern maygc object string_to_asciz (object obj, object encoding);
 #else
   #define string_to_asciz(obj,encoding)  string_to_asciz_(obj)
-  extern object string_to_asciz_ (object obj);
+  extern maygc object string_to_asciz_ (object obj);
 #endif
 #define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
 # is used by STREAM, PATHNAME
@@ -11456,7 +11529,7 @@ extern object ascii_to_string (const char * asciz);
 # > vector: simple-vector
 # < result: fresh simple-vector with the same contents
 # can trigger GC
-extern object copy_svector (object vector);
+extern maygc object copy_svector (object vector);
 # used by IO
 
 # Function: Copies a simple-bit/byte-vector.
@@ -11464,7 +11537,7 @@ extern object copy_svector (object vector);
 # > vector: simple-bit/byte-vector
 # < result: fresh simple-bit/byte-vector with the same contents
 # can trigger GC
-extern object copy_sbvector (object vector);
+extern maygc object copy_sbvector (object vector);
 # used by RECORD
 
 # Function: Returns the active length of a vector (same as LENGTH).
@@ -11483,7 +11556,7 @@ extern uintL vector_length (object vector);
 # (symbols T, BIT, CHARACTER and lists (UNSIGNED-BYTE n)).
 # The result type is a supertype of element_type.
 # can trigger GC
-extern uintB eltype_code (object element_type);
+extern maygc uintB eltype_code (object element_type);
 # is used by SEQUENCE
 
 # Function: Creates a simple-vector with given elements.
@@ -11493,7 +11566,7 @@ extern uintB eltype_code (object element_type);
 # < result: simple-vector containing these objects
 # Pops n objects off STACK.
 # can trigger GC
-extern object vectorof (uintC len);
+extern maygc object vectorof (uintC len);
 # used by PREDTYPE
 
 # Function: For an indirect array, returns the storage vector and the offset.
@@ -11541,8 +11614,8 @@ nonreturning_function(extern, fehler_nilarray_access, (void));
 # > storagevector: a storage vector (simple vector or semi-simple byte vector)
 # > index: (already checked) index into the storage vector
 # < result: (AREF storagevector index)
-# can trigger GC (only for element type (UNSIGNED-BYTE 32))
-extern object storagevector_aref (object storagevector, uintL index);
+# can trigger GC - if the element type is (UNSIGNED-BYTE 32)
+extern /*maygc*/ object storagevector_aref (object storagevector, uintL index);
 # used by IO
 
 # Error when attempting to store an invalid value in an array.
@@ -11588,7 +11661,7 @@ nonreturning_function(extern, fehler_store, (object array, object value));
 # > array: an array
 # < result: element-type, one of the symbols T, BIT, CHARACTER, or a list
 # can trigger GC
-extern object array_element_type (object array);
+extern maygc object array_element_type (object array);
 # used by PREDTYPE, IO
 
 /* Returns the rank of an array.
@@ -11612,7 +11685,7 @@ extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);
 # > array: an array
 # < result: list of its dimensions
 # can trigger GC
-extern object array_dimensions (object array);
+extern maygc object array_dimensions (object array);
 # used by PREDTYPE, IO
 
 # Function: Returns the dimensions of an array and their partial products.
@@ -11662,8 +11735,9 @@ extern bool bit_compare (object array1, uintL index1,
 # > dv2: destination storage-vector
 # > index2: start index in dv2
 # > count: number of elements to be copied, > 0
-# can trigger GC
-extern void elt_copy (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+# can trigger GC - if dv1 and dv2 have different element types or
+#                  if both are strings and dv1 is wider than dv2
+extern /*maygc*/ void elt_copy (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 # used by SEQUENCE, STREAM
 
 # Function: Copies a slice of an array array1 into another array array2 of
@@ -11674,8 +11748,8 @@ extern void elt_copy (object dv1, uintL index1, object dv2, uintL index2, uintL 
 # > dv2: destination storage-vector
 # > index2: start index in dv2
 # > count: number of elements to be copied, > 0
-# can trigger GC
-extern void elt_move (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+# can trigger GC - if both are strings and dv1 is wider than dv2
+extern /*maygc*/ void elt_move (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 # used by SEQUENCE
 
 # Function: Fills a slice of an array with an element.
@@ -11685,7 +11759,7 @@ extern void elt_move (object dv1, uintL index1, object dv2, uintL index2, uintL 
 # > count: number of elements to be filled
 # < result: true if element does not fit, false when done
 # can trigger GC
-extern bool elt_fill (object dv, uintL index, uintL count, object element);
+extern maygc bool elt_fill (object dv, uintL index, uintL count, object element);
 # used by SEQUENCE
 
 # Function: Reverses a slice of an array, copying it into another array
@@ -11697,7 +11771,7 @@ extern bool elt_fill (object dv, uintL index, uintL count, object element);
 # > index2: start index in dv2
 # > count: number of elements to be copied, > 0
 # can trigger GC
-extern void elt_reverse (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+extern maygc void elt_reverse (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 # used by SEQUENCE
 
 # Function: Reverses a slice of an array destructively.
@@ -11720,7 +11794,7 @@ extern bool array_has_fill_pointer_p (object array);
 # > uintL len: length of the desired bit-vector (number of bits)
 # < result: fresh simple-bit-vector, filled with zeroes
 # can trigger GC
-extern object allocate_bit_vector_0 (uintL len);
+extern maygc object allocate_bit_vector_0 (uintL len);
 # used by SEQUENCE
 
 # The following functions work on "semi-simple string"s.
@@ -11735,7 +11809,7 @@ extern object allocate_bit_vector_0 (uintL len);
 # > uintL len: desired length, must be >0
 # < fresh: fresh semi-simple-string of the given length
 # can trigger GC
-extern object make_ssstring (uintL len);
+extern maygc object make_ssstring (uintL len);
 #define SEMI_SIMPLE_DEFAULT_SIZE 50
 # used by STREAM, IO
 
@@ -11746,7 +11820,7 @@ extern object make_ssstring (uintL len);
 # > ch: a character
 # < result: the same semi-simple-string
 # can trigger GC
-extern object ssstring_push_extend (object ssstring, chart ch);
+extern maygc object ssstring_push_extend (object ssstring, chart ch);
 # used by STREAM, IO
 
 # Function: Ensures that a semi-simple-string has at least a given length,
@@ -11756,7 +11830,7 @@ extern object ssstring_push_extend (object ssstring, chart ch);
 # > size: desired minimum length
 # < result: the same semi-simple-string
 # can trigger GC
-extern object ssstring_extend (object ssstring, uintL needed_len);
+extern maygc object ssstring_extend (object ssstring, uintL needed_len);
 # used by STREAM
 
 # Function: Adds a substring to a semi-simple-string, thereby possibly
@@ -11768,7 +11842,7 @@ extern object ssstring_extend (object ssstring, uintL needed_len);
 # > len: the number of characters to be pushed, starting from start
 # < result: the same semi-simple-string
 # can trigger GC
-extern object ssstring_append_extend (object ssstring, object srcstring, uintL start, uintL len);
+extern maygc object ssstring_append_extend (object ssstring, object srcstring, uintL start, uintL len);
 # used by STREAM
 
 # The following functions work on "semi-simple byte-vector"s.
@@ -11783,7 +11857,7 @@ extern object ssstring_append_extend (object ssstring, object srcstring, uintL s
 # > uintL len: length (number of bytes!), must be >0
 # < result: fresh semi-simple byte-vector of the given length
 # can trigger GC
-extern object make_ssbvector (uintL len);
+extern maygc object make_ssbvector (uintL len);
 # used by IO
 
 # Function: Adds a byte to a semi-simple byte vector, thereby possibly
@@ -11793,7 +11867,7 @@ extern object make_ssbvector (uintL len);
 # > b: byte
 # < result: the same semi-simple byte-vector
 # can trigger GC
-extern object ssbvector_push_extend (object ssbvector, uintB b);
+extern maygc object ssbvector_push_extend (object ssbvector, uintB b);
 # used by IO
 
 # ##################### CHARBIBL for CHARSTRG.D ############################ #
@@ -12113,7 +12187,7 @@ extern bool string_equal (object string1, object string2);
 # > element: a character
 # < result: the possibly reallocated string
 # can trigger GC
-  extern object sstring_store (object string, uintL index, chart element);
+  extern maygc object sstring_store (object string, uintL index, chart element);
 # is used by STREAM
 
 # UP: Stores an array of characters in a string.
@@ -12122,8 +12196,8 @@ extern bool string_equal (object string1, object string2);
 # > charptr[0..len-1]: a character array, not GC affected
 # < result: the possibly reallocated string
 # can trigger GC
-  extern object sstring_store_array (object string, uintL offset,
-                                     const chart *charptr, uintL len);
+  extern maygc object sstring_store_array (object string, uintL offset,
+                                           const chart *charptr, uintL len);
 # is used by AFFI
 
 #ifdef UNICODE
@@ -12134,7 +12208,7 @@ extern bool string_equal (object string1, object string2);
 # < result: Simple-String with these objects
 # increases STACK
 # modifies STACK, can trigger GC
-  extern object stringof (uintL len);
+  extern maygc object stringof (uintL len);
 # is used by ENCODING, STREAM
 #endif
 
@@ -12143,7 +12217,7 @@ extern bool string_equal (object string1, object string2);
 # > string: String
 # < result: mutable Normal-Simple-String with the same characters
 # can trigger GC
-  extern object copy_string_normal (object string);
+  extern maygc object copy_string_normal (object string);
 # is used by IO, PATHNAME
 
 # UP: copies a String and turns it into a Simple-String.
@@ -12152,7 +12226,7 @@ extern bool string_equal (object string1, object string2);
 # < result: mutable Simple-String with the same characters
 # can trigger GC
 #ifdef HAVE_SMALL_SSTRING
-  extern object copy_string (object string);
+  extern maygc object copy_string (object string);
 #else
   #define copy_string(string)  copy_string_normal(string)
 #endif
@@ -12163,7 +12237,7 @@ extern bool string_equal (object string1, object string2);
 # > obj: Lisp-Object, should be a String.
 # < result: Simple-String with the same characters.
 # can trigger GC
-extern object coerce_ss (object obj);
+extern maygc object coerce_ss (object obj);
 # is used by STREAM, PATHNAME
 
 # UP: Converts a String to a immutable Simple-String.
@@ -12171,7 +12245,7 @@ extern object coerce_ss (object obj);
 # > obj: Lisp-Object, should be a String.
 # < result: immutable Simple-String with the same characters.
 # can trigger GC
-extern object coerce_imm_ss (object obj);
+extern maygc object coerce_imm_ss (object obj);
 # is used by PACKAGE
 
 # UP: Converts a String to a Normal-Simple-String.
@@ -12182,7 +12256,7 @@ extern object coerce_imm_ss (object obj);
 #ifndef HAVE_SMALL_SSTRING
   #define coerce_normal_ss coerce_ss
 #else
-  extern object coerce_normal_ss (object obj);
+  extern maygc object coerce_normal_ss (object obj);
 #endif
 # is used by PATHNAME
 
@@ -12195,7 +12269,7 @@ extern object coerce_imm_ss (object obj);
   #ifndef HAVE_SMALL_SSTRING
     #define coerce_imm_normal_ss coerce_imm_ss
   #else
-    extern object coerce_imm_normal_ss (object obj);
+    extern maygc object coerce_imm_normal_ss (object obj);
   #endif
 # is used by
 #endif
@@ -12212,7 +12286,7 @@ extern object coerce_char (object obj);
 # > chart code: Code of a character
 # < result: Simple-String (this char's name) or NIL
 # can trigger GC
-extern object char_name (chart code);
+extern maygc object char_name (chart code);
 # is used by IO
 
 # UP: Determines the Character with a given Name
@@ -12237,7 +12311,7 @@ typedef struct stringarg {
   uintL index;   # :start index
   uintL len;     # :end - :start
 } stringarg;
-extern object test_string_limits_ro (stringarg* arg);
+extern maygc object test_string_limits_ro (stringarg* arg);
 /* used by STREAM, PATHNAME, IO, ENCODING */
 
 /* UP: checks :START and :END limits for a vector argument
@@ -12260,7 +12334,7 @@ extern object test_vector_limits (stringarg* arg);
  > obj: argument
  < result: argument as string
  can trigger GC */
-extern object test_stringsymchar_arg (object obj);
+extern maygc object test_stringsymchar_arg (object obj);
 /* used by PACKAGE */
 
 # UP: tests two equally long strings for equality
@@ -12285,7 +12359,7 @@ extern bool string_eqcomp_ci (object string1, uintL offset1, object string2, uin
 # > uintL offset: index of first affected character
 # > uintL len: number of affected characters
 # can trigger GC
-extern void nstring_upcase (object dv, uintL offset, uintL len);
+extern maygc void nstring_upcase (object dv, uintL offset, uintL len);
 # is not used at this time (except in CHARSTRG, of course)
 
 # UP: converts the Characters of a partial string to downcase
@@ -12294,7 +12368,7 @@ extern void nstring_upcase (object dv, uintL offset, uintL len);
 # > uintL offset: index of first affected character
 # > uintL len: number of affected characters
 # can trigger GC
-extern void nstring_downcase (object dv, uintL offset, uintL len);
+extern maygc void nstring_downcase (object dv, uintL offset, uintL len);
 # is used by PATHNAME
 
 # UP: changes the words of a part of a string so they start
@@ -12304,7 +12378,7 @@ extern void nstring_downcase (object dv, uintL offset, uintL len);
 # > uintL offset: index of first affected character
 # > uintL len: number of affected characters
 # can trigger GC
-extern void nstring_capitalize (object dv, uintL offset, uintL len);
+extern maygc void nstring_capitalize (object dv, uintL offset, uintL len);
 # is used by PATHNAME
 
 # UP: converts a String to upcase
@@ -12312,7 +12386,7 @@ extern void nstring_capitalize (object dv, uintL offset, uintL len);
 # > string: String
 # < result: new Normal-Simple-String, in upcase
 # can trigger GC
-extern object string_upcase (object string);
+extern maygc object string_upcase (object string);
 # is used by MISC, PATHNAME
 
 # UP: converts a String to downcase
@@ -12320,7 +12394,7 @@ extern object string_upcase (object string);
 # > string: String
 # < result: new Normal-Simple-String, in downcase
 # can trigger GC
-extern object string_downcase (object string);
+extern maygc object string_downcase (object string);
 # is used by PATHNAME
 
 # Returns a substring of a simple-string.
@@ -12331,7 +12405,8 @@ extern object string_downcase (object string);
 # with 0 <= start <= end <= Sstring_length(string)
 # < object result: (subseq string start end),
 #                  a freshly created normal-simple-string
-extern object subsstring (object string, uintL start, uintL end);
+# can trigger GC
+extern maygc object subsstring (object string, uintL start, uintL end);
 # is used by CHARSTRG, PATHNAME
 
 # UP: Concatenates several Strings to one String.
@@ -12341,7 +12416,7 @@ extern object subsstring (object string, uintL start, uintL end);
 # < result: newly created string
 # < STACK: cleaned
 # can trigger GC
-extern object string_concat (uintC argcount);
+extern maygc object string_concat (uintC argcount);
 # is used by PACKAGE, PATHNAME, DEBUG, SYMBOL
 
 # ###################### DEBUGBIB for DEBUG.D ############################ #
@@ -12355,7 +12430,7 @@ extern void driver (void);
 # break_driver(continuable_p);
 # > continuable_p == can be continued after the driver finishes
 # can trigger GC
-extern void break_driver (bool continuable_p);
+extern maygc void break_driver (bool continuable_p);
 # is used by ERROR, EVAL
 
 # ##################### HASHBIBL for HASHTABL.D ########################## #
@@ -12368,7 +12443,7 @@ extern void break_driver (bool continuable_p);
 #            (should be true if the hash-table has a user-defined test)
 # < result: corresponding value, if found, else nullobj
 # can trigger GC - if allowgc is true
-extern object gethash (object obj, object ht, bool allowgc);
+extern /*maygc*/ object gethash (object obj, object ht, bool allowgc);
 # is used by EVAL, RECORD, PATHNAME, FOREIGN
 
 # UP: Locates a key in a hash-table and gives the older value.
@@ -12378,7 +12453,7 @@ extern object gethash (object obj, object ht, bool allowgc);
 # > value: new value
 # < result: old value
 # can trigger GC
-extern object shifthash (object ht, object obj, object value);
+extern maygc object shifthash (object ht, object obj, object value);
 # is used by SEQUENCE, PATHNAME, FOREIGN
 
 /* hash_table_weak_type(ht)
@@ -12391,7 +12466,7 @@ extern object hash_table_weak_type (object ht);
  > ht: hash-table
  < result: symbol EQ/EQL/EQUAL/EQUALP or cons (TEST . HASH)
  can trigger GC - for user-defined ht_test */
-extern object hash_table_test (object ht);
+extern maygc object hash_table_test (object ht);
 /* used by HASHTABL, IO */
 
 # Macro: Runs through a Hash-Tabelle.
@@ -12453,7 +12528,7 @@ extern object hash_table_test (object ht);
 # UP: Initializes the reader.
 # init_reader();
 # can trigger GC
-extern void init_reader (void);
+extern maygc void init_reader (void);
 # is used by SPVW
 
 # UP:
@@ -12473,7 +12548,7 @@ extern object cons_ssstring (const gcv_object_t* stream_, object nl_type);
 # < stream: Stream
 # < result: read object (eof_value at EOF, dot_value for single dot)
 # can trigger GC
-extern object stream_read (const gcv_object_t* stream_, object recursive_p, object whitespace_p);
+extern maygc object stream_read (const gcv_object_t* stream_, object recursive_p, object whitespace_p);
 # is used by SPVW, DEBUG
 
 # UP: Write a Simple-String to a Stream element by element.
@@ -12482,7 +12557,7 @@ extern object stream_read (const gcv_object_t* stream_, object recursive_p, obje
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void write_sstring (const gcv_object_t* stream_, object string);
+extern maygc void write_sstring (const gcv_object_t* stream_, object string);
 # is used by EVAL, DEBUG, ERROR, PACKAGE, SPVW
 
 # UP: Writes a String to a Stream element by element.
@@ -12491,7 +12566,7 @@ extern void write_sstring (const gcv_object_t* stream_, object string);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void write_string (const gcv_object_t* stream_, object string);
+extern maygc void write_string (const gcv_object_t* stream_, object string);
 # is used by PACKAGE, DEBUG
 
 # UP: Writes an object to a Stream.
@@ -12500,7 +12575,7 @@ extern void write_string (const gcv_object_t* stream_, object string);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void prin1 (const gcv_object_t* stream_, object obj);
+extern maygc void prin1 (const gcv_object_t* stream_, object obj);
 # is used by EVAL, DEBUG, PACKAGE, ERROR, SPVW
 
 # UP: Writes a Newline to a Stream.
@@ -12508,7 +12583,7 @@ extern void prin1 (const gcv_object_t* stream_, object obj);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-# extern void terpri (const gcv_object_t* stream_);
+# extern maygc void terpri (const gcv_object_t* stream_);
 #define terpri(stream_)  write_ascii_char(stream_,NL)
 # is used by IO, DEBUG, PACKAGE, ERROR, SPVW
 
@@ -12519,7 +12594,7 @@ extern void prin1 (const gcv_object_t* stream_, object obj);
 # > list: list
 # < result: copy of the list
 # can trigger GC
-extern object copy_list (object list);
+extern maygc object copy_list (object list);
 # is used by PACKAGE
 
 # UP: Reverses a list constructively.
@@ -12527,7 +12602,7 @@ extern object copy_list (object list);
 # > list: list (x1 ... xm)
 # < result: reversed list (xm ... x1)
 # can trigger GC
-extern object reverse (object list);
+extern maygc object reverse (object list);
 # is used by SEQUENCE, PACKAGE, PATHNAME
 
 /* UP: get the length of a list and the last atom
@@ -12547,7 +12622,7 @@ extern uintL llength1 (object obj, object* last);
 # > uintL len: desired list length
 # < result: list with len elements
 # can trigger GC
-extern object make_list (uintL len);
+extern maygc object make_list (uintL len);
 # is used by
 
 # UP: reverses a list destructively.
@@ -12606,7 +12681,7 @@ extern bool proper_list_p (object obj);
 # < result: list of those objects
 # Increases STACK
 # modifies STACK, can trigger GC
-extern object listof (uintC len);
+extern maygc object listof (uintC len);
 /* used by STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, ERROR, SPVW */
 
 # UP: find OBJ in LIS: (MEMBER OBJ LIS :TEST #'EQ)
@@ -12686,7 +12761,7 @@ nonreturning_function(extern, fehler, (condition_t errortype, const char * error
    value2 = indicates whether PLACE should be filled
  < STACK: cleaned up
  can trigger GC */
-extern void check_value (condition_t errortype, const char * errorstring);
+extern maygc void check_value (condition_t errortype, const char * errorstring);
 /* used by all modules */
 
 /* Report an error and try to recover by asking the user to choose among some
@@ -12703,7 +12778,7 @@ extern void check_value (condition_t errortype, const char * errorstring);
    alternatives
  < STACK: cleaned up
  can trigger GC */
-extern void correctable_error (condition_t errortype, const char* errorstring);
+extern maygc void correctable_error (condition_t errortype, const char* errorstring);
 /* use by PACKAGE */
 
 # Just like OS_error, but signal a FILE-ERROR.
@@ -12745,7 +12820,7 @@ nonreturning_function(extern, OS_filestream_error, (object stream));
 # UP: Executes break-loop because of a keyboard-interrupt.
 # > -(STACK) : calling funtion
 # modifies STACK, can trigger GC
-extern void tast_break (void);
+extern maygc void tast_break (void);
 # is used by EVAL, IO, SPVW, STREAM
 
 #ifdef FOREIGN
@@ -12754,9 +12829,9 @@ extern void tast_break (void);
  > restart_p: flag whether to allow entering a replacement
  < result: a valid foreign pointer, either the same as obj or a replacement
  can trigger GC */
-extern object check_fpointer_replacement (object obj, bool restart_p);
+extern maygc object check_fpointer_replacement (object obj, bool restart_p);
 #ifndef COMPILE_STANDALONE
-static inline object check_fpointer (object obj, bool restart_p) {
+static inline maygc object check_fpointer (object obj, bool restart_p) {
   if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))
     obj = check_fpointer_replacement(obj,restart_p);
   return obj;
@@ -12775,9 +12850,9 @@ nonreturning_function(extern, fehler_list, (object obj));
  > obj: an object
  < result: a list, either the same as obj or a replacement
  can trigger GC */
-extern object check_list_replacement (object obj);
+extern maygc object check_list_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_list (object obj) {
+static inline maygc object check_list (object obj) {
   if (!listp(obj))
     obj = check_list_replacement(obj);
   return obj;
@@ -12803,9 +12878,9 @@ nonreturning_function(extern, fehler_proper_list_circular, (object caller, objec
  > obj: an object
  < result: a symbol, either the same as obj or a replacement
  can trigger GC */
-extern object check_symbol_replacement (object obj);
+extern maygc object check_symbol_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_symbol (object obj) {
+static inline maygc object check_symbol (object obj) {
   if (!symbolp(obj))
     obj = check_symbol_replacement(obj);
   return obj;
@@ -12818,9 +12893,9 @@ static inline object check_symbol (object obj) {
  > caller: a symbol
  < result: a non-constant symbol, either the same as obj or a replacement
  can trigger GC */
-extern object check_symbol_non_constant_replacement (object obj, object caller);
+extern maygc object check_symbol_non_constant_replacement (object obj, object caller);
 #ifndef COMPILE_STANDALONE
-static inline object check_symbol_non_constant (object obj, object caller) {
+static inline maygc object check_symbol_non_constant (object obj, object caller) {
   if (!(symbolp(obj) && !constantp(TheSymbol(obj))))
     obj = check_symbol_non_constant_replacement(obj,caller);
   return obj;
@@ -12831,7 +12906,7 @@ static inline object check_symbol_non_constant (object obj, object caller) {
 /* UP: signal an error if a non-symbol was declared special
  returns the symbol
  can trigger GC */
-extern object check_symbol_special (object obj, object caller);
+extern maygc object check_symbol_special (object obj, object caller);
 /* used by EVAL, CONTROL */
 
 /* Error message, if an object isn't a Simple-Vector.
@@ -12851,9 +12926,9 @@ nonreturning_function(extern, fehler_vector, (object obj));
  > obj: an object
  < result: an array, either the same as obj or a replacement
  can trigger GC */
-extern object check_array_replacement (object obj);
+extern maygc object check_array_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_array (object obj) {
+static inline maygc object check_array (object obj) {
   if (!arrayp(obj)) obj = check_array_replacement(obj);
   return obj;
 }
@@ -12875,9 +12950,9 @@ nonreturning_function(extern, fehler_posfixnum, (object obj));
  > obj: an object
  < result: a fixnum >= 0, either the same as obj or a replacement
  can trigger GC */
-extern object check_posfixnum_replacement (object obj);
+extern maygc object check_posfixnum_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_posfixnum (object obj) {
+static inline maygc object check_posfixnum (object obj) {
   if (!posfixnump(obj))
     obj = check_posfixnum_replacement(obj);
   return obj;
@@ -12889,9 +12964,9 @@ static inline object check_posfixnum (object obj) {
  > obj: an object
  < result: an integer, either the same as obj or a replacement
  can trigger GC */
-extern object check_integer_replacement (object obj);
+extern maygc object check_integer_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_integer (object obj) {
+static inline maygc object check_integer (object obj) {
   if (!integerp(obj))
     obj = check_integer_replacement(obj);
   return obj;
@@ -12903,9 +12978,9 @@ static inline object check_integer (object obj) {
  > obj: an object
  < result: an integer >= 0, either the same as obj or a replacement
  can trigger GC */
-extern object check_pos_integer_replacement (object obj);
+extern maygc object check_pos_integer_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_pos_integer (object obj) {
+static inline maygc object check_pos_integer (object obj) {
   if (!(integerp(obj) && !R_minusp(obj)))
     obj = check_pos_integer_replacement(obj);
   return obj;
@@ -12923,9 +12998,9 @@ nonreturning_function(extern, fehler_char, (object obj));
  > obj: an object
  < result: a character, either the same as obj or a replacement
  can trigger GC */
-extern object check_char_replacement (object obj);
+extern maygc object check_char_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_char (object obj) {
+static inline maygc object check_char (object obj) {
   if (!charp(obj))
     obj = check_char_replacement(obj);
   return obj;
@@ -12937,9 +13012,9 @@ static inline object check_char (object obj) {
  > obj: an object
  < result: a string, either the same as obj or a replacement
  can trigger GC */
-extern object check_string_replacement (object obj);
+extern maygc object check_string_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_string (object obj) {
+static inline maygc object check_string (object obj) {
   if (!stringp(obj))
     obj = check_string_replacement(obj);
   return obj;
@@ -12990,8 +13065,8 @@ nonreturning_function(extern, fehler_class, (object obj));
  > keyword_p: true if the object comes from the :EXTERNAL-FORMAT argument
  < result: an encoding
  can trigger GC */
-extern object check_encoding (object obj, const gcv_object_t* e_default,
-                              bool keyword_p);
+extern maygc object check_encoding (object obj, const gcv_object_t* e_default,
+                                    bool keyword_p);
 /* used by ENCODING, FOREIGN */
 
 /* error-message for non-paired keyword-arguments
@@ -13019,9 +13094,9 @@ nonreturning_function(extern, fehler_key_badkw,
  > obj: an object
  < result: a function, either the same as obj or a replacement
  can trigger GC */
-extern object check_function_replacement (object obj);
+extern maygc object check_function_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_function (object obj) {
+static inline maygc object check_function (object obj) {
   if (!functionp(obj))
     obj = check_function_replacement(obj);
   return obj;
@@ -13035,7 +13110,7 @@ static inline object check_function (object obj) {
  > caller: symbol
  < a function object, possibly also installed as (FDEFINITION funname)
  can trigger GC */
-extern object check_fdefinition (object funname, object caller);
+extern maygc object check_fdefinition (object funname, object caller);
 /* used by EVAL, CONTROL */
 
 /* check_funname(obj)
@@ -13045,9 +13120,9 @@ extern object check_fdefinition (object funname, object caller);
  > obj: an object
  < result: a function name, either the same as obj or a replacement
  can trigger GC */
-extern object check_funname_replacement (condition_t errtype, object caller, object obj);
+extern maygc object check_funname_replacement (condition_t errtype, object caller, object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_funname (condition_t errtype, object caller, object obj) {
+static inline maygc object check_funname (condition_t errtype, object caller, object obj) {
   if (!funnamep(obj))
     obj = check_funname_replacement(errtype,caller,obj);
   return obj;
@@ -13081,113 +13156,113 @@ nonreturning_function(extern, fehler_too_few_args,
  < result: an object that can be converted to the C type, either the same
            as obj or a replacement
  can trigger GC */
-extern object check_uint8_replacement (object obj);
+extern maygc object check_uint8_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_uint8 (object obj) {
+static inline maygc object check_uint8 (object obj) {
   if (!uint8_p(obj))
     obj = check_uint8_replacement(obj);
   return obj;
 }
 #endif
-extern object check_sint8_replacement (object obj);
+extern maygc object check_sint8_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_sint8 (object obj) {
+static inline maygc object check_sint8 (object obj) {
   if (!sint8_p(obj))
     obj = check_sint8_replacement(obj);
   return obj;
 }
 #endif
-extern object check_uint16_replacement (object obj);
+extern maygc object check_uint16_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_uint16 (object obj) {
+static inline maygc object check_uint16 (object obj) {
   if (!uint16_p(obj))
     obj = check_uint16_replacement(obj);
   return obj;
 }
 #endif
-extern object check_sint16_replacement (object obj);
+extern maygc object check_sint16_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_sint16 (object obj) {
+static inline maygc object check_sint16 (object obj) {
   if (!sint16_p(obj))
     obj = check_sint16_replacement(obj);
   return obj;
 }
 #endif
-extern object check_uint32_replacement (object obj);
+extern maygc object check_uint32_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_uint32 (object obj) {
+static inline maygc object check_uint32 (object obj) {
   if (!uint32_p(obj))
     obj = check_uint32_replacement(obj);
   return obj;
 }
 #endif
-extern object check_sint32_replacement (object obj);
+extern maygc object check_sint32_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_sint32 (object obj) {
+static inline maygc object check_sint32 (object obj) {
   if (!sint32_p(obj))
     obj = check_sint32_replacement(obj);
   return obj;
 }
 #endif
-extern object check_uint64_replacement (object obj);
+extern maygc object check_uint64_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_uint64 (object obj) {
+static inline maygc object check_uint64 (object obj) {
   if (!uint64_p(obj))
     obj = check_uint64_replacement(obj);
   return obj;
 }
 #endif
-extern object check_sint64_replacement (object obj);
+extern maygc object check_sint64_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_sint64 (object obj) {
+static inline maygc object check_sint64 (object obj) {
   if (!sint64_p(obj))
     obj = check_sint64_replacement(obj);
   return obj;
 }
 #endif
-extern object check_uint_replacement (object obj);
+extern maygc object check_uint_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_uint (object obj) {
+static inline maygc object check_uint (object obj) {
   if (!uint_p(obj))
     obj = check_uint_replacement(obj);
   return obj;
 }
 #endif
-extern object check_sint_replacement (object obj);
+extern maygc object check_sint_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_sint (object obj) {
+static inline maygc object check_sint (object obj) {
   if (!sint_p(obj))
     obj = check_sint_replacement(obj);
   return obj;
 }
 #endif
-extern object check_ulong_replacement (object obj);
+extern maygc object check_ulong_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_ulong (object obj) {
+static inline maygc object check_ulong (object obj) {
   if (!ulong_p(obj))
     obj = check_ulong_replacement(obj);
   return obj;
 }
 #endif
-extern object check_slong_replacement (object obj);
+extern maygc object check_slong_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_slong (object obj) {
+static inline maygc object check_slong (object obj) {
   if (!slong_p(obj))
     obj = check_slong_replacement(obj);
   return obj;
 }
 #endif
-extern object check_ffloat_replacement (object obj);
+extern maygc object check_ffloat_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_ffloat (object obj) {
+static inline maygc object check_ffloat (object obj) {
   if (!single_float_p(obj))
     obj = check_ffloat_replacement(obj);
   return obj;
 }
 #endif
-extern object check_dfloat_replacement (object obj);
+extern maygc object check_dfloat_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_dfloat (object obj) {
+static inline maygc object check_dfloat (object obj) {
   if (!double_float_p(obj))
     obj = check_dfloat_replacement(obj);
   return obj;
@@ -13242,7 +13317,7 @@ extern object find_package (object string);
 #             2, if inherited through use-list
 #             3, if exists as internal symbol
 # can trigger GC
-extern uintBWL intern (object string, object pack, object* sym_);
+extern maygc uintBWL intern (object string, object pack, object* sym_);
 # is used by IO, SPVW
 
 # UP: Interns a symbol with a given printname in the Keyword-Package.
@@ -13250,7 +13325,7 @@ extern uintBWL intern (object string, object pack, object* sym_);
 # > string: String
 # < result: Symbol, a keyword
 # can trigger GC
-extern object intern_keyword (object string);
+extern maygc object intern_keyword (object string);
 # is used by IO, EVAL, GRAPH
 
 # UP: Imports a symbol into a package
@@ -13260,7 +13335,7 @@ extern object intern_keyword (object string);
 # < sym: Symbol, EQ with the old
 # < pack: Package, EQ with the old
 # can trigger GC
-extern void import (const gcv_object_t* sym_, const gcv_object_t* pack_);
+extern maygc void import (const gcv_object_t* sym_, const gcv_object_t* pack_);
 # is used by SPVW
 
 # UP: Exports a symbol from a package
@@ -13270,7 +13345,7 @@ extern void import (const gcv_object_t* sym_, const gcv_object_t* pack_);
 # < sym: Symbol, EQ with the old
 # < pack: Package, EQ with the old
 # can trigger GC
-extern void export (const gcv_object_t* sym_, const gcv_object_t* pack_);
+extern maygc void export (const gcv_object_t* sym_, const gcv_object_t* pack_);
 # is used by SPVW
 
 # UP: gets the current package
@@ -13281,7 +13356,7 @@ extern object get_current_package (void);
 
 /* check whether package lock prevents assignment to symbol
  can trigger GC */
-extern void symbol_value_check_lock (object caller, object symbol);
+extern maygc void symbol_value_check_lock (object caller, object symbol);
 /* used by EVAL */
 
 # UP: Initializes the package-management
@@ -13317,7 +13392,7 @@ extern BOOL real_path (LPCSTR namein, LPSTR nameout);
 /* Check that the namestring for path will be parsed into a similar object
  used by pr_orecord() in io.d
  can trigger GC */
-extern bool namestring_correctly_parseable_p (gcv_object_t *path_);
+extern maygc bool namestring_correctly_parseable_p (gcv_object_t *path_);
 
 # UP: Gives the directory-namestring in OS-format of a halfway checked
 #     pathname assuming that the directory of the pathname exists.
@@ -13328,7 +13403,7 @@ extern bool namestring_correctly_parseable_p (gcv_object_t *path_);
 #     if Name=NIL: Directory-Namestring (for the OS)
 #     if Name/=NIL: Namestring (for the OS, with nullbyte at the end)
 # can trigger GC
-extern object assume_dir_exists (void);
+extern maygc object assume_dir_exists (void);
 # is used by STREAM
 
 /* Converts a directory pathname to an OS directory specification.
@@ -13336,20 +13411,20 @@ extern object assume_dir_exists (void);
  > use_default: whether to use the current default directory
  < result: a simple-bit-vector containing an ASCIZ string in OS format
  can trigger GC */
-extern object pathname_to_OSdir (object pathname, bool use_default);
+extern maygc object pathname_to_OSdir (object pathname, bool use_default);
 /* used by modules (I18N) */
 
 /* Converts an OS directory specification to a directory pathname.
  > path: a pathname referring to a directory
  < result: a pathname without name and type
  can trigger GC */
-extern object OSdir_to_pathname (const char* path);
+extern maygc object OSdir_to_pathname (const char* path);
 /* used by modules (I18N) */
 
 # UP: Initializes the pathname-system.
 # init_pathnames();
 # can trigger GC
-extern void init_pathnames (void);
+extern maygc void init_pathnames (void);
 # is used by SPVW
 
 /* duplicate the handle (maybe into new_handle)
@@ -13448,7 +13523,7 @@ extern bool typep_classname (object obj, object classname);
 # > type_spec: Lisp object
 # < result: the expansion (when not a deftyped type, returns the argument)
 # can trigger GC
-extern object expand_deftype (object type_spec, bool once_p);
+extern maygc object expand_deftype (object type_spec, bool once_p);
 # used by predtype.d, sequence.d
 
 # UP: Makes a statistic about the action of a GC.
@@ -13464,9 +13539,9 @@ extern void with_gc_statistics (gc_function_t* fun);
  > obj: an object
  < result: a structure object, either the same as obj or a replacement
  can trigger GC */
-extern object check_structure_replacement (object obj);
+extern maygc object check_structure_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_structure (object obj) {
+static inline maygc object check_structure (object obj) {
   if (!structurep(obj))
     obj = check_structure_replacement(obj);
   return obj;
@@ -13495,7 +13570,7 @@ static inline object check_structure (object obj) {
 # > obj: the same CLOS instance, not a forward pointer
 # < result: the same CLOS instance, not a forward pointer
 # can trigger GC
-extern object update_instance (object user_obj, object obj);
+extern maygc object update_instance (object user_obj, object obj);
 
 # instance_valid_p(obj)
 # Tests whether a CLOS instance can be used without first updating it.
@@ -13512,7 +13587,8 @@ extern object update_instance (object user_obj, object obj);
 # can trigger GC
 #define instance_update(user_obj,obj) \
   if (!instance_valid_p(obj)) \
-    (obj) = update_instance(user_obj,obj)/*;*/
+    (obj) = update_instance(user_obj,obj); \
+  GCTRIGGER1(obj)/*;*/
 
 /* Test for CLOS instance of a given class
  > obj: a Lisp object
@@ -13539,19 +13615,18 @@ static inline bool instanceof (object obj, object clas) {
 #              when true, signal an error; when false, return nullobj
 # < value: Sequence of type result_type
 # can trigger GC
-extern Values coerce_sequence (object sequence, object result_type,
-                               bool error_p);
+extern maygc Values coerce_sequence (object sequence, object result_type,
+                                     bool error_p);
 # is used by PREDTYPE, EVAL
 
 # UP:  Traverses a sequence and calls a function for every element.
-#
 # map_sequence(obj,fun,arg);
 # > obj: Object, should be a sequence
 # > fun: Function, fun(arg,element) may trigger GC
 # > arg: arbitrary given argument
 # can trigger GC
-typedef void map_sequence_function_t (void* arg, object element);
-extern void map_sequence (object obj, map_sequence_function_t* fun, void* arg);
+typedef maygc void map_sequence_function_t (void* arg, object element);
+extern maygc void map_sequence (object obj, map_sequence_function_t* fun, void* arg);
 # is used by ARRAY
 
 # Error, if both :TEST, :TEST-NOT - argumente have been given.
@@ -13566,9 +13641,9 @@ nonreturning_function(extern, fehler_both_tests, (void));
  > obj: not a stream
  < obj: a stream
  can trigger GC */
-extern object check_stream_replacement (object obj);
+extern maygc object check_stream_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_stream (object obj) {
+static inline maygc object check_stream (object obj) {
   if (!streamp(obj))
     obj = check_stream_replacement(obj);
   return obj;
@@ -13580,7 +13655,7 @@ static inline object check_stream (object obj) {
  sec = posfixnum or (SEC . USEC) or (SEC USEC) or float or ratio or nil/unbound
  usec = posfixnum or nil/unbound
  can trigger GC */
-extern struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
+extern maygc struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
 
 /* UP: Initializes the stream variables.
  init_streamvars(batch_p);
@@ -13588,7 +13663,7 @@ extern struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
             should be initialized to the C stdio handle-streams
             (deviates from the standard)
  can trigger GC */
-extern void init_streamvars (bool batch_p);
+extern maygc void init_streamvars (bool batch_p);
 /* used by SPVW */
 
 # Error-message, if a stream-operation is not permitted on a stream.
@@ -13603,7 +13678,7 @@ nonreturning_function(extern, fehler_illegal_streamop, (object caller, object st
 # > stream: Stream
 # < result: read Integer (eof_value at EOF)
 # can trigger GC
-extern object read_byte (object stream);
+extern maygc object read_byte (object stream);
 # is used by SEQUENCE
 
 # Writes a byte onto a stream.
@@ -13611,7 +13686,7 @@ extern object read_byte (object stream);
 # > stream: Stream
 # > byte: Integer to be written
 # can trigger GC
-extern void write_byte(object stream, object byte);
+extern maygc void write_byte(object stream, object byte);
 # is used by SEQUENCE
 
 # Reads a character from a stream.
@@ -13620,7 +13695,7 @@ extern void write_byte(object stream, object byte);
 # < stream: Stream
 # < result: read character (eof_value at EOF)
 # can trigger GC
-extern object read_char (const gcv_object_t* stream_);
+extern maygc object read_char (const gcv_object_t* stream_);
 # is used by IO, DEBUG, SEQUENCE
 
 # Pushes the last read character back onto a stream.
@@ -13629,7 +13704,7 @@ extern object read_char (const gcv_object_t* stream_);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void unread_char (const gcv_object_t* stream_, object ch);
+extern maygc void unread_char (const gcv_object_t* stream_, object ch);
 # is used by IO, DEBUG
 
 # Reads a character from a stream without using it.
@@ -13638,7 +13713,7 @@ extern void unread_char (const gcv_object_t* stream_, object ch);
 # < stream: Stream
 # < result: read character (eof_value at EOF)
 # can trigger GC
-extern object peek_char (const gcv_object_t* stream_);
+extern maygc object peek_char (const gcv_object_t* stream_);
 # is used by IO
 
 # Reads a line of characters from a stream.
@@ -13649,7 +13724,7 @@ extern object peek_char (const gcv_object_t* stream_);
 # < buffer: contains the read characters, excluding the terminating #\Newline
 # < result: true is EOF was seen before newline, else false
 # can trigger GC
-extern bool read_line (const gcv_object_t* stream_, const gcv_object_t* buffer_);
+extern maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* buffer_);
 # used by IO
 
 # Write a character onto a stream.
@@ -13658,7 +13733,7 @@ extern bool read_line (const gcv_object_t* stream_, const gcv_object_t* buffer_)
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void write_char (const gcv_object_t* stream_, object ch);
+extern maygc void write_char (const gcv_object_t* stream_, object ch);
 # is used by LISPARIT, IO, ERROR, SEQUENCE
 
 # Writes a character onto a stream.
@@ -13667,7 +13742,7 @@ extern void write_char (const gcv_object_t* stream_, object ch);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-# extern void write_code_char (const gcv_object_t* stream_, chart ch);
+# extern maygc void write_code_char (const gcv_object_t* stream_, chart ch);
 #define write_code_char(stream_,ch)  write_char(stream_,code_char(ch))
 # is used by LISPARIT, IO
 
@@ -13677,7 +13752,7 @@ extern void write_char (const gcv_object_t* stream_, object ch);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-# extern void write_ascii_char (const gcv_object_t* stream_, uintB ch);
+# extern maygc void write_ascii_char (const gcv_object_t* stream_, uintB ch);
 #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(as_chart(ch)))
 # is used by LISPARIT, IO, DEBUG, Macro TERPRI
 
@@ -13686,7 +13761,7 @@ extern void write_char (const gcv_object_t* stream_, object ch);
 # > stream: a stream
 # > encoding: an encoding
 # can trigger GC
-extern void set_terminalstream_external_format (object stream, object encoding);
+extern maygc void set_terminalstream_external_format (object stream, object encoding);
 # used by ENCODING
 #endif
 
@@ -13703,20 +13778,20 @@ extern bool interactive_stream_p (object stream);
 # > stream: Builtin-Stream
 # < stream: Builtin-Stream
 # can trigger GC
-extern void builtin_stream_close (const gcv_object_t* stream_);
+extern maygc void builtin_stream_close (const gcv_object_t* stream_);
 # is used by PATHNAME, SPVW, DEBUG, MISC
 
 # UP: Closes a list of open files.
 # close_some_files(list);
 # > list: List of open builtin-streams
 # can trigger GC
-extern void close_some_files (object list);
+extern maygc void close_some_files (object list);
 # is used by SPVW
 
 # UP: Closes all open files.
 # close_all_files();
 # can trigger GC
-extern void close_all_files (void);
+extern maygc void close_all_files (void);
 # is used by SPVW
 
 # UP: declares all open file-streams closed.
@@ -13731,7 +13806,7 @@ extern void closed_all_files (void);
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-extern signean listen_char (object stream);
+extern maygc signean listen_char (object stream);
 #define ls_avail  0
 #define ls_eof   -1
 #define ls_wait   1
@@ -13745,7 +13820,7 @@ extern signean listen_char (object stream);
 # > stream: Stream
 # < result: true if input has been deleted
 # can trigger GC
-extern bool clear_input (object stream);
+extern maygc bool clear_input (object stream);
 # is used by IO, DEBUG
 
 # UP: Determines whether a stream has a byte immediately available.
@@ -13755,28 +13830,28 @@ extern bool clear_input (object stream);
 #           ls_eof   if EOF is reached,
 #           ls_wait  if no byte is available, but not because of EOF
 # can trigger GC
-extern signean listen_byte (object stream);
+extern maygc signean listen_byte (object stream);
 # is used by
 
 # UP: Finishes waiting output of a Stream stream
 # finish_output(stream);
 # > stream: Stream
 # can trigger GC
-extern void finish_output (object stream);
+extern maygc void finish_output (object stream);
 # is used by IO
 
 # UP: Forces waiting output of a Stream stream
 # force_output(stream);
 # > stream: Stream
 # can trigger GC
-extern void force_output (object stream);
+extern maygc void force_output (object stream);
 # is used by IO, DEBUG
 
 # UP: clear the waiting output of a stream.
 # clear_output(stream);
 # > stream: Stream
 # can trigger GC
-extern void clear_output (object stream);
+extern maygc void clear_output (object stream);
 # is used by IO
 
 # UP: Gives the line position of a stream:
@@ -13784,7 +13859,7 @@ extern void clear_output (object stream);
 # > stream: Stream
 # < result: Line-Position (Fixnum >=0 or NIL)
 # can trigger GC
-extern object get_line_position (object stream);
+extern maygc object get_line_position (object stream);
 # is used by IO, DEBUG
 
 /* UP: give away corresponding underlying handle
@@ -13797,7 +13872,7 @@ extern object get_line_position (object stream);
  < int * handletype 0:reserved, 1:file, 2:socket
  < Handle result - extracted handle
  can trigger GC */
-extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);
+extern maygc Handle stream_lend_handle (object stream, bool inputp, int * handletype);
 /* used by STREAM */
 
 /* Function: Reads several bytes from a stream.
@@ -13809,7 +13884,7 @@ extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);
  > perseverance_t persev: how to react on incomplete I/O
  < uintL result: number of bytes that have been filled
  can trigger GC */
-extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
+extern maygc uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 /* used by SEQUENCE, PATHNAME */
 
 # Function: Writes several bytes to a stream.
@@ -13821,7 +13896,7 @@ extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* b
 # > perseverance_t persev: how to react on incomplete I/O
 # < uintL result: number of bytes that have been written
 # can trigger GC
-extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
+extern maygc uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 # is used by SEQUENCE
 
 # Function: Reads several characters from a stream.
@@ -13832,7 +13907,7 @@ extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* 
 # > uintL len: length of character sequence to be filled
 # < uintL result: number of characters that have been filled
 # can trigger GC
-extern uintL read_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
+extern maygc uintL read_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
 # is used by SEQUENCE
 
 # Function: Writes several characters to a stream.
@@ -13842,7 +13917,7 @@ extern uintL read_char_array (const gcv_object_t* stream_, const gcv_object_t* c
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
 # can trigger GC
-extern void write_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
+extern maygc void write_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
 # is used by SEQUENCE
 
 # UP: Gives the stream that is the value of a variable
@@ -13876,13 +13951,13 @@ extern object var_stream (object sym, uintB strmflags);
 # < result: File-Stream (or evtl. File-Handle-Stream)
 # < STACK: cleaned
 # can trigger GC
-extern object make_file_stream (direction_t direction, bool append_flag, bool handle_at_pos_0);
+extern maygc object make_file_stream (direction_t direction, bool append_flag, bool handle_at_pos_0);
 # is used by PATHNAME
 
 # Makes a Broadcast-Stream using a Stream stream.
 # make_broadcast1_stream(stream)
 # can trigger GC
-extern object make_broadcast1_stream (object stream);
+extern maygc object make_broadcast1_stream (object stream);
 # is used by IO
 
 # Makes a Two-Way-stream using an Input-Stream and an Output-Stream.
@@ -13891,13 +13966,13 @@ extern object make_broadcast1_stream (object stream);
 # > output_stream : Output-Stream
 # < result : Two-Way-Stream
 # can trigger GC
-extern object make_twoway_stream (object input_stream, object output_stream);
+extern maygc object make_twoway_stream (object input_stream, object output_stream);
 # is used by SPVW
 
 # Makes a string-output-stream.
 # make_string_output_stream()
 # can trigger GC
-extern object make_string_output_stream (void);
+extern maygc object make_string_output_stream (void);
 # is used by IO, EVAL, DEBUG, ERROR
 
 # UP: Returns the collected contents of a String-Output-Stream.
@@ -13906,13 +13981,13 @@ extern object make_string_output_stream (void);
 # < stream: emptied Stream
 # < result: the aggregation, a Simple-String
 # can trigger GC
-extern object get_output_stream_string (const gcv_object_t* stream_);
+extern maygc object get_output_stream_string (const gcv_object_t* stream_);
 # is used by IO, EVAL, DEBUG, ERROR
 
 # UP: Makes a pretty-printer help stream
 # make_pphelp_stream()
 # can trigger GC
-extern object make_pphelp_stream (void);
+extern maygc object make_pphelp_stream (void);
 # is used by IO
 
 # UP: Tells whether a stream is buffered.
@@ -13928,7 +14003,7 @@ extern uintB stream_isbuffered (object stream);
 # > stream: a stream
 # < result: an integer or NIL
 # can trigger GC
-extern object stream_line_number (object stream);
+extern maygc object stream_line_number (object stream);
 # is used by IO
 
 # Function: Returns true if a stream allows read-eval.
@@ -13985,9 +14060,9 @@ extern object get (object symbol, object key);
  > obj: an object
  < result: a real number, either the same as obj or a replacement
  can trigger GC */
-extern object check_real_replacement (object obj);
+extern maygc object check_real_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline object check_real (object obj) {
+static inline maygc object check_real (object obj) {
   if_realp(obj, ; , { obj = check_real_replacement(obj); });
   return obj;
 }
@@ -13997,7 +14072,7 @@ static inline object check_real (object obj) {
 # UP: Initializes the arithmetics.
 # init_arith();
 # can trigger GC
-extern void init_arith (void);
+extern maygc void init_arith (void);
 # is used by SPVW
 
 # Converts a longword into an Integer.
@@ -14005,7 +14080,7 @@ extern void init_arith (void);
 # > wert: value of the Integer, a signed 32-Bit-Integer.
 # < result: Integer with that value.
 # can trigger GC
-extern object L_to_I (sint32 wert);
+extern maygc object L_to_I (sint32 wert);
 /* used by TIME */
 
 # Converts an unsigned longword into an Integer >=0.
@@ -14014,9 +14089,9 @@ extern object L_to_I (sint32 wert);
 # < result: Integer with that value.
 # can trigger GC
 #if (intLsize<=oint_data_len)
-  #define UL_to_I(wert)  fixnum((uintL)(wert))
+  #define UL_to_I(wert)  (GCTRIGGER(), fixnum((uintL)(wert)))
 #else
-  extern object UL_to_I (uintL wert);
+  extern maygc object UL_to_I (uintL wert);
 #endif
 # is used by MISC, TIME, STREAM, PATHNAME, HASHTABL, SPVW, ARRAY
 
@@ -14025,7 +14100,7 @@ extern object L_to_I (sint32 wert);
 # > wert_hi|wert_lo: value of the Integer, an signed 64-bit-Integer.
 # < result: Integer with that value.
 # can trigger GC
-extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);
+extern maygc object L2_to_I (sint32 wert_hi, uint32 wert_lo);
 # is used by TIME, FOREIGN
 
 # Converts an unsigned double-longword into an Integer.
@@ -14033,7 +14108,7 @@ extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);
 # > wert_hi|wert_lo: value of the Integer, an unsigned 64-bit-Integer.
 # < result: Integer with that value.
 # can trigger GC
-extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
+extern maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
 # is used by TIME, FOREIGN, and by the FFI
 
 #ifdef intQsize
@@ -14042,7 +14117,7 @@ extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
   # > wert: value of the Integer, a signed 64-bit-Integer.
   # < result: Integer with that value
   # can trigger GC
-  extern object Q_to_I (sint64 wert);
+  extern maygc object Q_to_I (sint64 wert);
   # is used by the FFI
 #endif
 
@@ -14052,7 +14127,7 @@ extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
   # > wert: value of the Integer, an unsigned 64-bit-Integer.
   # < result: Integer with that value
   # can trigger GC
-  extern object UQ_to_I (uint64 wert);
+  extern maygc object UQ_to_I (uint64 wert);
   # is used by MISC, TIME, FFI
 #endif
 
@@ -14177,7 +14252,7 @@ extern sintL I_to_L (object obj);
  MSDptr[0] is the most significant digit, MSDptr[len-1] the least significant.
  there must be room for 1 digit below of MSDptr.
  can trigger GC */
-extern object UDS_to_I (uintD* MSDptr, uintC len);
+extern maygc object UDS_to_I (uintD* MSDptr, uintC len);
 # is used by modules
 
 /* Digit Sequence to Integer
@@ -14185,7 +14260,7 @@ extern object UDS_to_I (uintD* MSDptr, uintC len);
  convert DS MSDptr/len/.. into Integer.
  MSDptr[0] is the most significant digit, MSDptr[len-1] the least significant.
  can trigger GC */
-extern object DS_to_I (const uintD* MSDptr, uintC len);
+extern maygc object DS_to_I (const uintD* MSDptr, uintC len);
 # is used by modules
 
 # I_I_comp(x,y) compares two Integers x and y.
@@ -14196,31 +14271,31 @@ extern signean I_I_comp (object x, object y);
 # (1+ x), where x is an Integer. Result Integer.
 # I_1_plus_I(x)
 # can trigger GC
-extern object I_1_plus_I (object x);
+extern maygc object I_1_plus_I (object x);
 # is used by SEQUENCE, SPVW, SYMBOL
 
 # (1- x), where x is an Integer. Result Integer.
 # I_minus1_plus_I(x)
 # can trigger GC
-extern object I_minus1_plus_I (object x);
+extern maygc object I_minus1_plus_I (object x);
 # is used by SEQUENCE
 
 # (+ x y), where x and y are Integers. Result Integer.
 # I_I_plus_I(x,y)
 # can trigger GC
-extern object I_I_plus_I (object x, object y);
+extern maygc object I_I_plus_I (object x, object y);
 # is used by SEQUENCE
 
 # (- x y), where x and y are Integers. Result Integer.
 # I_I_minus_I(x,y)
 # can trigger GC
-extern object I_I_minus_I (object x, object y);
+extern maygc object I_I_minus_I (object x, object y);
 # is used by SEQUENCE
 
 # (ASH x y), where x and y are Integers. Result Integer.
 # I_I_ash_I(x,y)
 # can trigger GC
-extern object I_I_ash_I (object x, object y);
+extern maygc object I_I_ash_I (object x, object y);
 # is used by SEQUENCE
 
 # (INTEGER-LENGTH x), where x is an Integer. Result uintL.
@@ -14230,7 +14305,7 @@ extern uintL I_integer_length (object x);
 
 # c_float_to_FF(&val) converts an IEEE-single-float val into an single-float.
 # can trigger GC
-extern object c_float_to_FF (const ffloatjanus* val_);
+extern maygc object c_float_to_FF (const ffloatjanus* val_);
 
 # FF_to_c_float(obj,&val);
 # converts single-float obj into an IEEE-single-float val.
@@ -14238,7 +14313,7 @@ extern void FF_to_c_float (object obj, ffloatjanus* val_);
 
 # c_double_to_DF(&val) converts an IEEE-double-float val into a double-float.
 # can trigger GC
-extern object c_double_to_DF (const dfloatjanus* val_);
+extern maygc object c_double_to_DF (const dfloatjanus* val_);
 
 # DF_to_c_double(obj,&val);
 # converts a double-float obj into an IEEE-double-float val.
@@ -14259,7 +14334,7 @@ extern object F_complex_C (object x);
 #   (thus index2-index1 digits, incl. a decimal point that can be at the end)
 # < result: Integer
 # can trigger GC
-extern object read_integer (uintWL base, signean sign, object string, uintL index1, uintL index2);
+extern maygc object read_integer (uintWL base, signean sign, object string, uintL index1, uintL index2);
 # is used by IO
 
 # UP: turns a string with rational syntax into a rational number
@@ -14275,7 +14350,7 @@ extern object read_integer (uintWL base, signean sign, object string, uintL inde
 #    index2-index3-1 digits of the denominator)
 # < result: rational number
 # can trigger GC
-extern object read_rational (uintWL base, signean sign, object string, uintL index1, uintL index3, uintL index2);
+extern maygc object read_rational (uintWL base, signean sign, object string, uintL index1, uintL index3, uintL index2);
 # is used by IO
 
 # UP: turns a string with float-syntax into a float
@@ -14295,7 +14370,7 @@ extern object read_rational (uintWL base, signean sign, object string, uintL ind
 #    of the exponent)
 # < result: Float
 # can trigger GC
-extern object read_float (uintWL base, signean sign, object string, uintL index1, uintL index4, uintL index2, uintL index3);
+extern maygc object read_float (uintWL base, signean sign, object string, uintL index1, uintL index4, uintL index2, uintL index3);
 # is used by IO
 
 # UP: prints an Integer
@@ -14305,7 +14380,7 @@ extern object read_float (uintWL base, signean sign, object string, uintL index1
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void print_integer (object z, uintWL base, const gcv_object_t* stream_);
+extern maygc void print_integer (object z, uintWL base, const gcv_object_t* stream_);
 # is used by IO
 
 # UP: prints a float
@@ -14314,7 +14389,7 @@ extern void print_integer (object z, uintWL base, const gcv_object_t* stream_);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void print_float (object z, const gcv_object_t* stream_);
+extern maygc void print_float (object z, const gcv_object_t* stream_);
 # is used by IO
 
 # UP: Multiply an Integer by 10 and add another digit
@@ -14323,7 +14398,7 @@ extern void print_float (object z, const gcv_object_t* stream_);
 # > x: digit value X (>=0,<10)
 # < result: Integer Y*10+X (>=0)
 # can trigger GC
-extern object mal_10_plus_x (object y, uintB x);
+extern maygc object mal_10_plus_x (object y, uintB x);
 # is used by IO
 
 # UP: decides whether two numbers are equal
@@ -14340,7 +14415,7 @@ extern bool number_gleich (object x, object y);
 #         FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT
 # < result: (coerce obj type)
 # can trigger GC
-extern object coerce_float (object obj, object type);
+extern maygc object coerce_float (object obj, object type);
 # is used by PREDTYPE
 
 # UP: Returns the decimal string representation of an integer >= 0.
@@ -14348,7 +14423,7 @@ extern object coerce_float (object obj, object type);
 # > object x: an integer >= 0
 # < object result: a normal-simple-string containing the digits
 # can trigger GC
-extern object decimal_string (object x);
+extern maygc object decimal_string (object x);
 # is used by PATHNAME
 
 # ###################### FOREIGNBIBL for FOREIGN.D ########################## #
@@ -14373,7 +14448,7 @@ extern object decimal_string (object x);
 # > flags: fv_readonly for read-only variables
 # > size: its size in bytes
 # can trigger GC
-  extern void register_foreign_variable (void* address, const char * name, uintBWL flags, uintL size);
+  extern maygc void register_foreign_variable (void* address, const char * name, uintBWL flags, uintL size);
 # Specifies that the variable will not be written to.
 #define fv_readonly  bit(0)
 # Specifies that when the value is replaced and the variable contains pointers,
@@ -14386,7 +14461,7 @@ extern object decimal_string (object x);
 # > name: its name
 # > flags: its language and parameter passing convention
 # can trigger GC
-  extern void register_foreign_function (void* address, const char * name, uintWL flags);
+  extern maygc void register_foreign_function (void* address, const char * name, uintWL flags);
 # Flags for language:
 #define ff_lang_asm       bit(8)  # no argument passing conventions
 #define ff_lang_c         bit(9)  # K&R C, with argument type promotions
@@ -14409,7 +14484,7 @@ extern object decimal_string (object x);
 
 # Convert foreign data to Lisp data.
 # can trigger GC
-  extern object convert_from_foreign (object fvd, const void* data);
+  extern maygc object convert_from_foreign (object fvd, const void* data);
 
 # Convert Lisp data to foreign data.
 # The foreign data is allocated through malloc() and has more than dynamic

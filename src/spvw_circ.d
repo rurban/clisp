@@ -16,7 +16,7 @@
 #           #(0 ...) a vector of length (n+1), containing the integer 0 and
 #                    the n circularities, n>0.
 # can trigger GC
-global object get_circularities (object obj, bool pr_array, bool pr_closure);
+global maygc object get_circularities (object obj, bool pr_array, bool pr_closure);
 
 # subst_circ(ptr,alist)
 # Resolves #n# references in the object *ptr, using the alist as a replacement
@@ -645,7 +645,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
     }
   }
 
-  global object get_circularities (object obj, bool pr_array, bool pr_closure)
+  global maygc object get_circularities (object obj, bool pr_array, bool pr_closure)
   {
     var get_circ_global my_global; # counter and context (incl. STACK-value)
                                    # for the case of an abort
@@ -703,7 +703,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
   # It has to be accessed from within the two local routines.
   local void get_circ_mark (object obj, get_circ_global* env);
   local void get_circ_unmark (object obj, get_circ_global* env);
-  global object get_circularities (object obj, bool pr_array, bool pr_closure)
+  global maygc object get_circularities (object obj, bool pr_array, bool pr_closure)
   {
     var get_circ_global my_global; # counter and context (incl. STACK-value)
                                    # in case of an abort

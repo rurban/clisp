@@ -114,13 +114,13 @@
 # FF_ftruncate_FF(x)
 # x wird zur 0 hin zur nächsten ganzen Zahl gerundet.
 # can trigger GC
-  local object FF_ftruncate_FF (object x);
+  local maygc object FF_ftruncate_FF (object x);
 # Methode:
 # x = 0.0 oder e<=0 -> Ergebnis 0.0
 # 1<=e<=23 -> letzte (24-e) Bits der Mantisse auf 0 setzen,
 #             Exponent und Vorzeichen beibehalten
 # e>=24 -> Ergebnis x
-  local object FF_ftruncate_FF (object x)
+  local maygc object FF_ftruncate_FF (object x)
   {
     var ffloat x_ = ffloat_value(x);
     var uintBWL uexp = FF_uexp(x_); # e + FF_exp_mid
@@ -141,7 +141,7 @@
 # FF_futruncate_FF(x)
 # x wird von der 0 weg zur nächsten ganzen Zahl gerundet.
 # can trigger GC
-  local object FF_futruncate_FF (object x);
+  local maygc object FF_futruncate_FF (object x);
 # Methode:
 # x = 0.0 -> Ergebnis 0.0
 # e<=0 -> Ergebnis 1.0 oder -1.0, je nach Vorzeichen von x.
@@ -152,7 +152,7 @@
 #             Sonst (Ergebnis eine Zweierpotenz): Mantisse := .1000...000,
 #               e:=e+1. (Test auf Überlauf wegen e<=24 überflüssig)
 # e>=24 -> Ergebnis x.
-  local object FF_futruncate_FF (object x)
+  local maygc object FF_futruncate_FF (object x)
   {
     var ffloat x_ = ffloat_value(x);
     var uintBWL uexp = FF_uexp(x_); # e + FF_exp_mid
@@ -181,13 +181,13 @@
 # FF_fround_FF(x)
 # x wird zur nächsten ganzen Zahl gerundet.
 # can trigger GC
-  local object FF_fround_FF (object x);
+  local maygc object FF_fround_FF (object x);
 # Methode:
 # x = 0.0 oder e<0 -> Ergebnis 0.0
 # 0<=e<=23 -> letzte (24-e) Bits der Mantisse wegrunden,
 #             Exponent und Vorzeichen beibehalten.
 # e>23 -> Ergebnis x
-  local object FF_fround_FF (object x)
+  local maygc object FF_fround_FF (object x)
   {
     var ffloat x_ = ffloat_value(x);
     var uintBWL uexp = FF_uexp(x_); # e + FF_exp_mid
@@ -246,10 +246,10 @@
 # Liefert zu einem Single-Float x : (- x), ein FF.
 # FF_minus_FF(x)
 # can trigger GC
-  local object FF_minus_FF (object x);
+  local maygc object FF_minus_FF (object x);
 # Methode:
 # Falls x=0.0, fertig. Sonst Vorzeichenbit umdrehen.
-  local object FF_minus_FF (object x)
+  local maygc object FF_minus_FF (object x)
   {
     var ffloat x_ = ffloat_value(x);
     return (FF_uexp(x_) == 0
@@ -303,7 +303,7 @@
 # Liefert zu zwei Single-Float x und y : (+ x y), ein FF.
 # FF_FF_plus_FF(x,y)
 # can trigger GC
-  local object FF_FF_plus_FF (object x, object y);
+  local maygc object FF_FF_plus_FF (object x, object y);
 # Methode (nach [Knuth, II, Seminumerical Algorithms, Abschnitt 4.2.1., S.200]):
 # x1=0.0 -> Ergebnis x2.
 # x2=0.0 -> Ergebnis x1.
@@ -323,7 +323,7 @@
 # Exponent ist e1.
 # Normalisiere, fertig.
  #ifdef FAST_FLOAT
-  local object FF_FF_plus_FF (object x1, object x2)
+  local maygc object FF_FF_plus_FF (object x1, object x2)
   {
     float_to_FF(FF_to_float(x1) + FF_to_float(x2), return ,
                 true, true, # Overflow und subnormale Zahl abfangen
@@ -333,7 +333,7 @@
                );
   }
  #else
-  local object FF_FF_plus_FF (object x1, object x2)
+  local maygc object FF_FF_plus_FF (object x1, object x2)
   {
     # x1,x2 entpacken:
     var signean sign1;
@@ -438,11 +438,11 @@
 # Liefert zu zwei Single-Float x und y : (- x y), ein FF.
 # FF_FF_minus_FF(x,y)
 # can trigger GC
-  local object FF_FF_minus_FF (object x, object y);
+  local maygc object FF_FF_minus_FF (object x, object y);
 # Methode:
 # (- x1 x2) = (+ x1 (- x2))
  #ifdef FAST_FLOAT
-  local object FF_FF_minus_FF (object x1, object x2)
+  local maygc object FF_FF_minus_FF (object x1, object x2)
   {
     float_to_FF(FF_to_float(x1) - FF_to_float(x2), return ,
                 true, true, # Overflow und subnormale Zahl abfangen
@@ -452,7 +452,7 @@
                );
   }
  #else
-  local object FF_FF_minus_FF (object x1, object x2)
+  local maygc object FF_FF_minus_FF (object x1, object x2)
   {
     var ffloat x2_ = ffloat_value(x2);
     if (FF_uexp(x2_) == 0) {
@@ -468,7 +468,7 @@
 # Liefert zu zwei Single-Float x und y : (* x y), ein FF.
 # FF_FF_mal_FF(x,y)
 # can trigger GC
-  local object FF_FF_mal_FF (object x, object y);
+  local maygc object FF_FF_mal_FF (object x, object y);
 # Methode:
 # Falls x1=0.0 oder x2=0.0 -> Ergebnis 0.0
 # Sonst: Ergebnis-Vorzeichen = VZ von x1 xor VZ von x2.
@@ -485,7 +485,7 @@
 #            Aufrunden: Falls =2^24, um 1 Bit nach rechts schieben. Sonst
 #            Exponenten um 1 erniedrigen.
  #ifdef FAST_FLOAT
-  local object FF_FF_mal_FF (object x1, object x2)
+  local maygc object FF_FF_mal_FF (object x1, object x2)
   {
     float_to_FF(FF_to_float(x1) * FF_to_float(x2), return ,
                 true, true, # Overflow und subnormale Zahl abfangen
@@ -495,7 +495,7 @@
                );
   }
  #else
-  local object FF_FF_mal_FF (object x1, object x2)
+  local maygc object FF_FF_mal_FF (object x1, object x2)
   {
     # x1,x2 entpacken:
     var signean sign1;
@@ -557,7 +557,7 @@
 # Liefert zu zwei Single-Float x und y : (/ x y), ein FF.
 # FF_FF_durch_FF(x,y)
 # can trigger GC
-  local object FF_FF_durch_FF (object x, object y);
+  local maygc object FF_FF_durch_FF (object x, object y);
 # Methode:
 # x2 = 0.0 -> Error
 # x1 = 0.0 -> Ergebnis 0.0
@@ -577,7 +577,7 @@
 #   Falls der Quotient <2^25 ist, runde das letzte Bit weg. Bei rounding
 #     overflow schiebe um ein weiteres Bit nach rechts, incr. Exponenten.
 #if defined(FAST_FLOAT) && !defined(FLOAT_DIV0_EXCEPTION) && !defined(I80386)
-  local object FF_FF_durch_FF (object x1, object x2)
+  local maygc object FF_FF_durch_FF (object x1, object x2)
   {
     float_to_FF(FF_to_float(x1) / FF_to_float(x2), return ,
                 true, true, # Overflow und subnormale Zahl abfangen
@@ -588,7 +588,7 @@
                );
   }
  #else
-  local object FF_FF_durch_FF (object x1, object x2)
+  local maygc object FF_FF_durch_FF (object x1, object x2)
   {
     # x1,x2 entpacken:
     var signean sign1;
@@ -646,7 +646,7 @@
 # Liefert zu einem Single-Float x>=0 : (sqrt x), ein FF.
 # FF_sqrt_FF(x)
 # can trigger GC
-  local object FF_sqrt_FF (object x);
+  local maygc object FF_sqrt_FF (object x);
 # Methode:
 # x = 0.0 -> Ergebnis 0.0
 # Ergebnis-Vorzeichen := positiv,
@@ -662,7 +662,7 @@
 #   Dabei um ein Bit nach rechts schieben.
 #   Bei Aufrundung auf 2^24 (rounding overflow) Mantisse um 1 Bit nach rechts
 #     schieben und Exponent incrementieren.
-  local object FF_sqrt_FF (object x)
+  local maygc object FF_sqrt_FF (object x)
   {
     # x entpacken:
     var sintWL exp;
@@ -703,11 +703,11 @@
 # FF_to_I(x) wandelt ein Single-Float x, das eine ganze Zahl darstellt,
 # in ein Integer um.
 # can trigger GC
-  local object FF_to_I (object x);
+  local maygc object FF_to_I (object x);
 # Methode:
 # Falls x=0.0, Ergebnis 0.
 # Sonst (ASH Vorzeichen*Mantisse (e-24)).
-  local object FF_to_I (object x)
+  local maygc object FF_to_I (object x)
   {
     # x entpacken:
     var signean sign;
@@ -742,7 +742,7 @@
    Bei Aufrundung auf 2^24 (rounding overflow) Mantisse um 1 Bit nach rechts
      schieben und Exponent incrementieren.
  can trigger GC */
-local object I_to_FF (object x, bool signal_overflow)
+local maygc object I_to_FF (object x, bool signal_overflow)
 {
   if (eq(x,Fixnum_0))
     return FF_0;
@@ -802,7 +802,7 @@ local object I_to_FF (object x, bool signal_overflow)
 # RA_to_FF(x,signal_overflow) converts a rational number x to a single-float,
 # and rounds thereby.
 # can trigger GC
-  local object RA_to_FF (object x, bool signal_overflow);
+  local maygc object RA_to_FF (object x, bool signal_overflow);
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
@@ -816,7 +816,7 @@ local object I_to_FF (object x, bool signal_overflow)
 #   Der erste Wert ist >=2^24, <2^26.
 #   Falls er >=2^25 ist, runde 2 Bits weg,
 #   falls er <2^25 ist, runde 1 Bit weg.
-  local object RA_to_FF (object x, bool signal_overflow)
+  local maygc object RA_to_FF (object x, bool signal_overflow)
   {
     if (RA_integerp(x))
       return I_to_FF(x,signal_overflow);

@@ -9,10 +9,10 @@
 # (Ratio oder Integer).
 # I_I_to_RA(a,b)
 # can trigger GC
-  local object I_I_to_RA (object a, object b);
+  local maygc object I_I_to_RA (object a, object b);
 # Methode:
 # falls b=1, a als Ergebnis, sonst der echte Bruch a/b.
-  local object I_I_to_RA (object a, object b)
+  local maygc object I_I_to_RA (object a, object b)
   {
     if (eq(b,Fixnum_1))
       return a;
@@ -23,12 +23,12 @@
 
 # Liefert zu den Integers a und b mit b>0 den Bruch a/b (Ratio oder Integer).
 # can trigger GC
-  local object I_posI_durch_RA (object a, object b);
+  local maygc object I_posI_durch_RA (object a, object b);
 # Methode:
 # d:=ggT(a,b).
 # Falls d=1: I_I_to_RA anwenden,
 # sonst: I_I_to_RA auf a/d und b/d anwenden.
-  local object I_posI_durch_RA (object a, object b)
+  local maygc object I_posI_durch_RA (object a, object b)
   {
     pushSTACK(a); pushSTACK(b); # a,b retten
     var object d = I_I_gcd_I(a,b); # ggT(a,b) >0
@@ -49,12 +49,12 @@
 # Liefert zu den Integers a und b den Bruch a/b (Ratio oder Integer).
 # I_I_durch_RA(a,b)
 # can trigger GC
-  local object I_I_durch_RA (object a, object b);
+  local maygc object I_I_durch_RA (object a, object b);
 # Methode:
 # Falls b=0: Error.
 # Falls b>0: I_posI_durch_RA anwenden.
 # Falls b<0: I_posI_durch_RA auf (- a) und (- b) anwenden.
-  local object I_I_durch_RA (object a, object b)
+  local maygc object I_I_durch_RA (object a, object b)
   {
     if (eq(b,Fixnum_0))
       divide_0();
@@ -82,11 +82,11 @@
 # Liefert (- r), wo r eine rationale Zahl ist.
 # RA_minus_RA(r)
 # can trigger GC
-  local object RA_minus_RA (object r);
+  local maygc object RA_minus_RA (object r);
 # Methode:
 # r Integer -> klar.
 # r = a/b -> Ergebnis (- a)/b
-  local object RA_minus_RA (object r)
+  local maygc object RA_minus_RA (object r)
   {
     if (RA_integerp(r))
       return I_minus_I(r);
@@ -102,7 +102,7 @@
 # (+ r s), wo r und s rationale Zahlen sind.
 # RA_RA_plus_RA(r,s)
 # can trigger GC
-  local object RA_RA_plus_RA (object r, object s);
+  local maygc object RA_RA_plus_RA (object r, object s);
 # Methode (vgl. [Buchberger, Collins, Loos: Computer Algebra, S.200-201])
 # r,s beide Integers -> klar.
 # r=a/b, s=c -> Ergebnis (a+b*c)/b
@@ -132,7 +132,7 @@
 #   Errechne daher h=ggT(e,g).
 #   Bei h=1 ist e/f das Ergebnis (mit f>1, da d>1, und ggT(e,f)=1),
 #   sonst ist (e/h)/(f/h) das Ergebnis.
-  local object RA_RA_plus_RA (object r, object s)
+  local maygc object RA_RA_plus_RA (object r, object s)
   {
     if (RA_integerp(s)) {
       # s ist Integer
@@ -224,11 +224,11 @@
 # (- r s), wo r und s rationale Zahlen sind.
 # RA_RA_minus_RA(r,s)
 # can trigger GC
-  local object RA_RA_minus_RA (object r, object s);
+  local maygc object RA_RA_minus_RA (object r, object s);
 #if 0
 # Methode:
 # (+ r (- s))
-  local object RA_RA_minus_RA (object r, object s)
+  local maygc object RA_RA_minus_RA (object r, object s)
   {
     pushSTACK(r); s = RA_minus_RA(s);
     return RA_RA_plus_RA(popSTACK(),s);
@@ -263,7 +263,7 @@
 #   Errechne daher h=ggT(e,g).
 #   Bei h=1 ist e/f das Ergebnis (mit f>1, da d>1, und ggT(e,f)=1),
 #   sonst ist (e/h)/(f/h) das Ergebnis.
-  local object RA_RA_minus_RA (object r, object s)
+  local maygc object RA_RA_minus_RA (object r, object s)
   {
     if (RA_integerp(s)) {
       # s ist Integer
@@ -360,11 +360,11 @@
 # (1+ r), wo r eine rationale Zahl ist.
 # RA_1_plus_RA(r)
 # can trigger GC
-  local object RA_1_plus_RA (object r);
+  local maygc object RA_1_plus_RA (object r);
 # Methode:
 # Falls r ein Integer ist: I_1_plus_I anwenden
 # Falls r = a/b: (a+b)/b, wobei b>1 und ggT(a+b,b)=ggT(a,b)=1 ist.
-  local object RA_1_plus_RA (object r)
+  local maygc object RA_1_plus_RA (object r)
   {
     if (RA_integerp(r))
       return I_1_plus_I(r);
@@ -379,11 +379,11 @@
 # (1- r), wo r eine rationale Zahl ist.
 # RA_minus1_plus_RA(r)
 # can trigger GC
-  local object RA_minus1_plus_RA (object r);
+  local maygc object RA_minus1_plus_RA (object r);
 # Methode:
 # Falls r ein Integer ist: I_minus1_plus_I anwenden
 # Falls r = a/b: (a-b)/b, wobei b>1 und ggT(a-b,b)=ggT(a,b)=1 ist.
-  local object RA_minus1_plus_RA (object r)
+  local maygc object RA_minus1_plus_RA (object r)
   {
     if (RA_integerp(r)) {
       return I_minus1_plus_I(r);
@@ -398,7 +398,7 @@
 # RA_RA_comp(r,s) vergleicht zwei rationale Zahlen r und s.
 # Ergebnis: 0 falls r=s, +1 falls r>s, -1 falls r<s.
 # can trigger GC
-  local signean RA_RA_comp (object r, object s);
+  local maygc signean RA_RA_comp (object r, object s);
 # Methode:
 # r,s Integer -> klar
 # r<0, s>=0 -> r<s.
@@ -406,7 +406,7 @@
 # r Integer, s Ratio: r=a, s=b/c. Vergleiche a*c und b.
 # r Ratio, s Integer: r=a/b, s=c. Vergleiche a und b*c.
 # r,s Ratios: r=a/b, s=c/d. Vergleiche a*d und b*c.
-  local signean RA_RA_comp (object r, object s)
+  local maygc signean RA_RA_comp (object r, object s)
   {
     # 1. Schritt: Test, ob beides Integers:
     if (RA_integerp(r) && RA_integerp(s))
@@ -449,13 +449,13 @@
 # Kehrwert (/ r), wo r eine rationale Zahl ist.
 # RA_durch_RA(r)
 # can trigger GC
-  local object RA_durch_RA (object r);
+  local maygc object RA_durch_RA (object r);
 # Methode:
 # r=0 -> Error.
 # a:=(numerator r), b:=(denominator r).
 # a>0 -> Ergebnis b/a (mit ggT(b,a)=1).
 # a<0 -> Ergebnis (- b)/(- a) (mit ggT(-b,-a)=1).
-  local object RA_durch_RA (object r)
+  local maygc object RA_durch_RA (object r)
   {
     if (eq(r,Fixnum_0)) # Test auf 0
       divide_0();
@@ -473,11 +473,11 @@
 # Liefert (* r r), wo r eine rationale Zahl ist.
 # RA_square_RA(r)
 # can trigger GC
-  local object RA_square_RA (object r);
+  local maygc object RA_square_RA (object r);
 # Methode:
 # r Integer -> klar.
 # r = a/b -> Ergebnis a^2/b^2
-  local object RA_square_RA (object r)
+  local maygc object RA_square_RA (object r)
   {
     if (RA_integerp(r))
       # r Integer
@@ -500,7 +500,7 @@
 # Liefert (* r s), wo r und s rationale Zahlen sind.
 # RA_RA_mal_RA(r,s)
 # can trigger GC
-  local object RA_RA_mal_RA (object r, object s);
+  local maygc object RA_RA_mal_RA (object r, object s);
 # Methode (vgl. [Buchberger, Collins, Loos: Computer Algebra, S.201])
 # r,s beide Integers -> klar.
 # r=a/b, s=c ->
@@ -514,7 +514,7 @@
 #   a':=a/g, d':=d/g (nur bei g>1 bedeutet das Rechnung).
 #   b':=b/h, c':=c/h (nur bei h>1 bedeutet das Rechnung).
 #   Ergebnis ist = (a'*c')/(b'*d').
-  local object RA_RA_mal_RA (object r, object s)
+  local maygc object RA_RA_mal_RA (object r, object s)
   {
     var object a;
     var object b;
@@ -598,10 +598,10 @@
 # Liefert (/ r s), wo r und s rationale Zahlen sind.
 # RA_RA_durch_RA(r,s)
 # can trigger GC
-  local object RA_RA_durch_RA (object r, object s);
+  local maygc object RA_RA_durch_RA (object r, object s);
 # Methode:
 # (* r (/ s))
-  local object RA_RA_durch_RA (object r, object s)
+  local maygc object RA_RA_durch_RA (object r, object s)
   {
     if (RA_integerp(r) && RA_integerp(s)) # r und s Integers?
       return I_I_durch_RA(r,s); # ja -> schnell abhandeln
@@ -618,13 +618,13 @@
 # < STACK_0: Rest r, eine rationale Zahl
 # Erniedrigt STACK um 2
 # can trigger GC
-  local void RA_truncate_I_RA (object x);
+  local maygc void RA_truncate_I_RA (object x);
 # Methode:
 # x Integer -> (q,r) := (x,0)
 # x Ratio a/b ->
 #   (truncate a b) liefert q und r.
 #   Liefere q und r/b (mit b>1 und ggT(r,b)=ggT(r+q*b,b)=ggT(a,b)=1).
-  local void RA_truncate_I_RA (object x)
+  local maygc void RA_truncate_I_RA (object x)
   {
     if (RA_integerp(x)) {
       pushSTACK(x); pushSTACK(Fixnum_0); # (q,r) := (x,0)
@@ -648,13 +648,13 @@
 # < STACK_0: Rest r, eine rationale Zahl
 # Erniedrigt STACK um 2
 # can trigger GC
-  local void RA_floor_I_RA (object x);
+  local maygc void RA_floor_I_RA (object x);
 # Methode:
 # x Integer -> (q,r) := (x,0)
 # x Ratio a/b ->
 #   (floor a b) liefert q und r.
 #   Liefere q und r/b (mit b>1 und ggT(r,b)=ggT(r+q*b,b)=ggT(a,b)=1).
-  local void RA_floor_I_RA (object x)
+  local maygc void RA_floor_I_RA (object x)
   {
     if (RA_integerp(x)) {
       pushSTACK(x); pushSTACK(Fixnum_0); # (q,r) := (x,0)
@@ -678,13 +678,13 @@
 # < STACK_0: Rest r, eine rationale Zahl
 # Erniedrigt STACK um 2
 # can trigger GC
-  local void RA_ceiling_I_RA (object x);
+  local maygc void RA_ceiling_I_RA (object x);
 # Methode:
 # x Integer -> (q,r) := (x,0)
 # x Ratio a/b ->
 #   (ceiling a b) liefert q und r.
 #   Liefere q und r/b (mit b>1 und ggT(r,b)=ggT(r+q*b,b)=ggT(a,b)=1).
-  local void RA_ceiling_I_RA (object x)
+  local maygc void RA_ceiling_I_RA (object x)
   {
     if (RA_integerp(x)) {
       pushSTACK(x); pushSTACK(Fixnum_0); # (q,r) := (x,0)
@@ -708,13 +708,13 @@
 # < STACK_0: Rest r, eine rationale Zahl
 # Erniedrigt STACK um 2
 # can trigger GC
-  local void RA_round_I_RA (object x);
+  local maygc void RA_round_I_RA (object x);
 # Methode:
 # x Integer -> (q,r) := (x,0)
 # x Ratio a/b ->
 #   (round a b) liefert q und r.
 #   Liefere q und r/b (mit b>1 und ggT(r,b)=ggT(r+q*b,b)=ggT(a,b)=1).
-  local void RA_round_I_RA (object x)
+  local maygc void RA_round_I_RA (object x)
   {
     if (RA_integerp(x)) {
       pushSTACK(x); pushSTACK(Fixnum_0); # (q,r) := (x,0)
@@ -736,7 +736,7 @@
   # Methode:
   # x Integer -> klar
   # x Ratio a/b -> x^y = (a^y)/(b^y), gekürzt, mit b^y>=b>1.
-  local object RA_I_expt_RA (object x, object y)
+  local maygc object RA_I_expt_RA (object x, object y)
   {
     if (RA_integerp(x))
       return I_I_expt_I(x,y);
@@ -756,12 +756,12 @@
 # > x: eine rationale Zahl >=0
 # < ergebnis: exakte Wurzel (sqrt x) falls x Quadrat, nullobj sonst
 # can trigger GC
-  local object RA_sqrtp (object x);
+  local maygc object RA_sqrtp (object x);
 # Methode:
 # Bei Integers: klar.
 # Bei Brüchen a/b : muss a=c^2 und b=d^2 sein. Dann ist die Wurzel = c/d
 # (mit ggT(c,d)=1 und d>1).
-  local object RA_sqrtp (object x)
+  local maygc object RA_sqrtp (object x)
   {
     if (RA_integerp(x))
       return I_sqrtp(x);
@@ -790,12 +790,12 @@
 # > n: ein Integer >0
 # < ergebnis: exakte n-te Wurzel (expt x (/ n)) falls eine n-te Potenz, nullobj sonst
 # can trigger GC
-  local object RA_rootp (object x, object n);
+  local maygc object RA_rootp (object x, object n);
 # Methode:
 # Bei Integers: klar.
 # Bei Brüchen a/b : muss a=c^n und b=d^n sein. Dann ist die Wurzel = c/d
 # (mit ggT(c,d)=1 und d>1).
-  local object RA_rootp (object x, object n)
+  local maygc object RA_rootp (object x, object n)
   {
     if (RA_integerp(x))
       return I_rootp(x,n);

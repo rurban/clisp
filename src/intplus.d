@@ -58,7 +58,7 @@
 
 # (1+ x), wo x ein Integer ist. Ergebnis Integer.
 # can trigger GC
-  global object I_1_plus_I (object x)
+  global maygc object I_1_plus_I (object x)
   {
     if (I_fixnump(x)) {
       # x ist Fixnum
@@ -83,7 +83,7 @@
 
 # (1- x), wo x ein Integer ist. Ergebnis Integer.
 # can trigger GC
-  global object I_minus1_plus_I (object x)
+  global maygc object I_minus1_plus_I (object x)
   {
     if (I_fixnump(x)) {
       # x ist Fixnum
@@ -108,7 +108,7 @@
 
 # (+ x y), wo x und y Integers sind. Ergebnis Integer.
 # can trigger GC
-  global object I_I_plus_I (object x, object y)
+  global maygc object I_I_plus_I (object x, object y)
   {
     # Methode:
     # x Fixnum ->
@@ -238,7 +238,7 @@
 
 # (- x), wenn x ein Integer ist. Ergebnis Integer.
 # can trigger GC
-  local object I_minus_I (object x)
+  local maygc object I_minus_I (object x)
   {
     if (I_fixnump(x)) {
       # Fixnum -> Long, negieren, -> Integer
@@ -283,7 +283,7 @@
 
 # (- x y), wo x und y Integers sind. Ergebnis Integer.
 # can trigger GC
-  global object I_I_minus_I (object x, object y)
+  global maygc object I_I_minus_I (object x, object y)
   {
     # Methode:
     # x Fixnum ->
@@ -490,7 +490,7 @@
 
 # (abs x), wenn x ein Integer ist. Ergebnis Integer.
 # can trigger GC
-  local object I_abs_I (object x)
+  local maygc object I_abs_I (object x)
   {
     # Methode:
     # Bei x<0: (- x), sonst x.
