@@ -29,7 +29,7 @@
   compiler::%optimize-function-lambda                ; in compiler.lisp definiert
   compiler::make-signature compiler::sig-req-num compiler::sig-opt-num
   compiler::sig-rest-p compiler::sig-keys-p compiler::sig-keywords
-  compiler::sig-allow-p         ; defined in compiled.lisp
+  compiler::sig-allow-p compiler::signature ; defined in compiled.lisp
 ; clos:generic-flet clos:generic-labels              ; in compiler.lisp behandelt
   ;; Export:
 ; clos::closclass   ; als Property in predtype.d, type.lisp, compiler.lisp benutzt
