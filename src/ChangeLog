@@ -1,3 +1,12 @@
+2003-07-24  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (SAFETY): export
+	(type_data_object): fixed (now fixnum() works)
+	(svector_): fixed (now TheSvector()->data works)
+	(symbolp): uncommented
+	(stringp): fixed
+	(array_displace_check): replaces iarray_displace_check()
+
 2003-07-23  Sam Steingold  <sds@gnu.org>
 
 	Converted dirkey to a module
