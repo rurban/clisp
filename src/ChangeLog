@@ -1,3 +1,11 @@
+2001-06-17  Sam Steingold  <sds@gnu.org>
+
+	* disassem.lisp (orig-fundef): new aux function
+	(disassemble): moved here and made into a generic function
+	* compiler.lisp (disassemble): removed
+	* init.lisp: load "disassem" after CLOS
+	* makemake.in (LPARTS): reorder
+
 2001-06-15  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (makemake, Makefile): new development targets
