@@ -10527,6 +10527,16 @@ typedef struct {
   #endif
 # wird verwendet von CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
 
+# Tests whether a simple-string is a normal-simple-string.
+# sstring_normal_p(string)
+# > string: a simple-string
+  #ifdef HAVE_SMALL_SSTRING
+    #define sstring_normal_p(string)  \
+      (!(Record_type(string) == Rectype_Imm_SmallSstring))
+  #else
+    #define sstring_normal_p(string)  0
+  #endif
+
 # Makes a string contents available.
 # unpack_sstring_alloca(string,len,offset, charptr = );
 # > object string: a simple-string
@@ -11022,6 +11032,8 @@ typedef struct {
           os_error,
         # "Virtual memory exhausted"
         storage_condition,
+        # "User break"
+        interrupt_condition,
       # conditions for which user notification is appropriate
       warning,
     # junk

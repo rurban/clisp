@@ -1524,26 +1524,25 @@ local bool legal_logical_word_char(ch)
 
 #ifdef LOGICAL_PATHNAMES
 
-# Parst einen Logical-Pathname.
-# parse_logical_pathnamestring(z)
-# > STACK_1: Datenvektor, ein Normal-Simple-String
-# > STACK_0: neuer Logical Pathname
-# > zustand z: Start-Zustand
-# < STACK_0: selber Logical Pathname, ausgefüllt
-# < ergebnis: Anzahl der übriggebliebenen Zeichen
-# can trigger GC
-local uintL parse_logical_pathnamestring (zustand z);
+# Parsing of logical pathnames.
 
 # Trennzeichen zwischen subdirs
 #define slashp(c)  chareq(c,ascii(';'))
 
-# Parst Name/Type/Version-Teil (subdirp=false) bzw. subdir-Teil (subdirp=true).
-# Liefert Normal-Simple-String oder :WILD oder :WILD-INFERIORS oder NIL.
+# Parses the name/type/version part (if subdirp=false) or a subdir part
+# (if subdirp=true) of a logical pathname.
+# parse_logical_word(&z,subdirp)
+# > STACK_2: storage vector, a normal-simple-string
+# > zustand z: start state
+# < zustand z: updated
+# < result: a normal-simple-string or :WILD or :WILD-INFERIORS or NIL
+# can trigger GC
 local object parse_logical_word (zustand* z, bool subdirp);
 local object parse_logical_word(z,subdirp)
   var zustand* z;
   var bool subdirp;
   {
+    ASSERT(sstring_normal_p(STACK_2));
     var zustand startz = *z; # Start-Zustand
     var chart ch;
     # Kommt eine Folge von alphanumerischen Zeichen oder '*',
@@ -1551,7 +1550,6 @@ local object parse_logical_word(z,subdirp)
     # und, falls subdirp, ein ';' ?
     var bool last_was_star = false;
     var bool seen_starstar = false;
-    STACK_2 = coerce_normal_ss(STACK_2);
     loop {
       if (z->count == 0)
         break;
@@ -1597,7 +1595,10 @@ local object parse_logical_word(z,subdirp)
     }
   }
 
-# Test auf Ziffernfolge:
+# Test whether a string is a digit sequence.
+# all_digits(string)
+# > string: a normal-simple-string
+# < true if the string consists entirely of digits, false otherwise
 local bool all_digits (object string);
 local bool all_digits(string)
   var object string;
@@ -1616,43 +1617,58 @@ local bool all_digits(string)
   }
 
 # Attempt to parse a logical host name string, starting at a given state.
+# parse_logical_host_prefix(&z,string)
+# > string: storage vector, a normal-simple-string
+# > zustand z: start state
+# < zustand z: updated to point past the colon after the logical host
+# < result: logical host, or NIL
+# can trigger GC
 local object parse_logical_host_prefix (zustand* zp, object string);
 local object parse_logical_host_prefix(zp,string)
   var zustand* zp;
   var object string;
-{
-  var object host;
-  var uintL startindex = zp->index;
-  var chart ch;
-  string = coerce_normal_ss(string);
-  # a sequence of alphanumeric characters and then ':'
-  loop {
-    if (zp->count==0)
-      return NIL; # string already ended -> no host
-    ch = TheSstring(string)->data[zp->index]; # next character
-    if (!legal_logical_word_char(ch))
-      break;
-    # go past alphanumeric character:
-    zp->index++; zp->FNindex = fixnum_inc(zp->FNindex,1); zp->count--;
-  }
-  if (!chareq(ch,ascii(':')))
-    return NIL; # no ':' -> no host
-  # make host-string:
   {
-    var uintL len = zp->index - startindex;
-    host = allocate_string(len);
-    # and fill it:
-    if (len > 0) {
-      var const chart* ptr1 = &TheSstring(string)->data[startindex];
-      var chart* ptr2 = &TheSstring(host)->data[0];
-      dotimespL(len,len, { *ptr2++ = up_case(*ptr1++); });
+    ASSERT(sstring_normal_p(string));
+    var object host;
+    var uintL startindex = zp->index;
+    var chart ch;
+    # a sequence of alphanumeric characters and then ':'
+    loop {
+      if (zp->count==0)
+        return NIL; # string already ended -> no host
+      ch = TheSstring(string)->data[zp->index]; # next character
+      if (!legal_logical_word_char(ch))
+        break;
+      # go past alphanumeric character:
+      zp->index++; zp->FNindex = fixnum_inc(zp->FNindex,1); zp->count--;
     }
+    if (!chareq(ch,ascii(':')))
+      return NIL; # no ':' -> no host
+    # make host-string:
+    {
+      var uintL len = zp->index - startindex;
+      host = allocate_string(len);
+      # and fill it:
+      if (len > 0) {
+        var const chart* ptr1 = &TheSstring(string)->data[startindex];
+        var chart* ptr2 = &TheSstring(host)->data[0];
+        dotimespL(len,len, { *ptr2++ = up_case(*ptr1++); });
+      }
+    }
+    # skip ':'
+    zp->index++; zp->FNindex = fixnum_inc(zp->FNindex,1); zp->count--;
+    return host;
   }
-  # skip ':'
-  zp->index++; zp->FNindex = fixnum_inc(zp->FNindex,1); zp->count--;
-  return host;
-}
 
+# Parses a logical pathname.
+# parse_logical_pathnamestring(z)
+# > STACK_1: storage vector, a normal-simple-string
+# > STACK_0: freshly allocated logical pathname
+# > zustand z: start state
+# < STACK_0: same logical pathname, filled
+# < result: number of remaining characters
+# can trigger GC
+local uintL parse_logical_pathnamestring (zustand z);
 local uintL parse_logical_pathnamestring(z)
   var zustand z;
   {
@@ -1925,6 +1941,11 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         # (NB: ANSI CL specifies that we should look at the entire string, using
         # parse_logical_pathnamestring, not only parse_logical_host_prefix.)
         if (!nullp(Symbol_value(S(parse_namestring_ansi)))) {
+          # Coerce string to be a normal-simple-string.
+          SstringDispatch(string,
+            {},
+            { string = subsstring(string,z.index,z.index+z.count); z.index = 0; }
+            );
           var zustand tmp = z;
           var object host = parse_logical_host_prefix(&tmp,string);
           DOUT("parse-namestring: ",string);
@@ -4060,6 +4081,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 # UP: Überprüft, ob object ein zulässiger Name ist:
 # :WILD oder ein Simple-String aus gültigen Zeichen, keine adjazenten '*'.
 # legal_logical_word(object)
+# > object: if a simple-string, a normal-simple-string
   local bool legal_logical_word (object obj);
   local bool legal_logical_word(obj)
     var object obj;
@@ -4068,7 +4090,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
         return true;
       if (!simple_string_p(obj))
         return false;
-      obj = coerce_normal_ss(obj);
+      ASSERT(sstring_normal_p(obj));
       var uintL len = Sstring_length(obj);
       if (len==0)
         return false; # leeres Word ist verboten
@@ -4096,13 +4118,14 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 # UP: Überprüft, ob object ein zulässiger Name ist:
 # ein Simple-String aus gültigen Zeichen
 # legal_name(object)
+# > object: if a simple-string, a normal-simple-string
   local bool legal_name (object obj);
   local bool legal_name(obj)
     var object obj;
     {
       if (!simple_string_p(obj))
         return false;
-      obj = coerce_normal_ss(obj);
+      ASSERT(sstring_normal_p(obj));
       var uintL len = Sstring_length(obj);
       if (len > 0) {
         var const chart* charptr = &TheSstring(obj)->data[0];
@@ -4114,6 +4137,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 # UP: Überprüft, ob object ein zulässiger Name ist:
 # ein Simple-String aus gültigen Zeichen, ohne '.'
 # legal_type(object)
+# > object: if a simple-string, a normal-simple-string
   local bool legal_type (object obj);
 #ifdef PATHNAME_NOEXT
   local bool legal_type(obj)
@@ -4121,7 +4145,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
     {
       if (!simple_string_p(obj))
         return false;
-      obj = coerce_normal_ss(obj);
+      ASSERT(sstring_normal_p(obj));
       var uintL len = Sstring_length(obj);
       if (len > 0) {
         var const chart* charptr = &TheSstring(obj)->data[0];
@@ -4903,8 +4927,8 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
     var object muster;
     var object beispiel;
     {
-      muster = coerce_normal_ss(muster);
-      beispiel = coerce_normal_ss(beispiel);
+      ASSERT(sstring_normal_p(muster));
+      ASSERT(sstring_normal_p(beispiel));
       return wildcard_match_ab(
                                /* m_count = */ Sstring_length(muster),
                                /* m_ptr   = */ &TheSstring(muster)->data[0],
@@ -5248,8 +5272,8 @@ LISPFUNN(pathname_match_p,2)
     var const object* previous;
     var object* solutions;
     {
-      muster = coerce_normal_ss(muster);
-      beispiel = coerce_normal_ss(beispiel);
+      ASSERT(sstring_normal_p(muster));
+      ASSERT(sstring_normal_p(beispiel));
       wildcard_diff_ab(muster,beispiel,0,0,previous,solutions);
     }
 
