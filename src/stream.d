@@ -5662,7 +5662,7 @@ global object iconv_range(encoding,start,end)
         var object encoding = TheStream(stream)->strm_encoding;
         var const chart* cp;
         var uintL n;
-        if (chareq(c,ascii(NL))) { cp = &c; n = 1; } else { cp = crlf; n = 2; }
+        if (chareq(c,ascii(NL))) { cp = crlf; n = 2; } else { cp = &c; n = 1; }
        {var const chart* cptr = cp;
         var uintB* bptr = &buf[0];
         Encoding_wcstombs(encoding)(encoding,stream,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
@@ -6931,7 +6931,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       var object encoding = TheStream(stream)->strm_encoding;
       var const chart* cp;
       var uintL n;
-      if (chareq(c,ascii(NL))) { cp = &c; n = 1; } else { cp = crlf; n = 2; }
+      if (chareq(c,ascii(NL))) { cp = crlf; n = 2; } else { cp = &c; n = 1; }
       { var const chart* cptr = cp;
         var uintB* bptr = &buf[0];
         Encoding_wcstombs(encoding)(encoding,stream,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
