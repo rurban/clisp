@@ -115,6 +115,9 @@ User visible changes
 
 * The function VALUES-LIST now verifies that its argument is a proper list.
 
+* The function XGCD now always returns coefficients of smallest possible
+  absolute value. Suggested by the LiDIA group.
+
 Portability
 -----------
 
