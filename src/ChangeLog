@@ -1,3 +1,8 @@
+2001-12-17  Sam Steingold  <sds@gnu.org>
+
+	* predtype.d (expand_deftype): check that (CAR TYPE-SPEC) is a
+	symbol before calling GET
+
 2001-12-12  Sam Steingold  <sds@gnu.org>
 
 	simplify pathname directory lists
