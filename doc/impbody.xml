@@ -3963,6 +3963,18 @@ functions are provided:</para>
 
 <para>&close; ignores its &abort-k; argument.</para>
 
+<para>&close; accepts an additional keyword argument
+ <constant>:DIRECTION</constant> (like &open;), which defaults to
+ &io-k; (i.e., full close).
+This is mostly for the benefit of Internet protocol implementors who
+need to <function>shutdown(2)</function> a socket to signal the end of
+a request:
+<informalexample><programlisting>
+   (&close; &sost-r; :DIRECTION &input-k;)
+ = shutdown(fd,SHUT_RD)
+</programlisting></informalexample>
+</para>
+
 </section>
 
 <section id="broadcast-stream"><title>Class &broadcast-stream-class;</title>

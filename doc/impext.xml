@@ -3487,9 +3487,9 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   </simpara></listitem></varlistentry>
  <varlistentry id="sost-peer"><term><literal role="sexp">(&sost-peer;
     &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</literal></term>
-  <listitem><simpara>Given a stream, this function returns the name of
-   the host on the opposite side of the connection and its port number;
-   the server-side can use this to see who connected.</simpara>
+  <listitem><simpara>Given a socket stream, this function returns the
+   name of the host on the opposite side of the connection and its port
+   number; the server-side can use this to see who connected.</simpara>
    <simpara>When the optional second argument is non-&nil;, the hostname
    resolution is disabled and just the IP address is returned, without
    the <acronym>FQDN</acronym> (Fully Qualified Domain Name).
@@ -3504,6 +3504,9 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    basically return the arguments given to the function which created
    the &socket-stream;.</simpara></listitem></varlistentry>
 </variablelist>
+<para>If you need to <function>shutdown(2)</function> the socket stream
+in just one direction, you can use the <constant>:DIRECTION</constant>
+argument to <link linkend="close"><function>CLOSE</function></link>.</para>
 <!-- #endif -->
 </section>
 

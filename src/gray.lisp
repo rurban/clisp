@@ -99,9 +99,10 @@
 
 ;; General generic functions
 
-(clos:defgeneric close (stream &key abort)
-  (:method ((stream stream) &rest args)
-    (apply #'sys::built-in-stream-close stream args)
+(clos:defgeneric close (stream &key abort direction)
+  (:method ((stream stream) &key abort direction)
+    (declare (ignore abort))
+    (sys::built-in-stream-close stream :direction direction)
   )
   (:method ((stream fundamental-stream) &rest more-args)
     (declare (ignore more-args))

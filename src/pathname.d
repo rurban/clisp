@@ -8083,7 +8083,8 @@ global direction_t check_direction (object dir) {
   else {
     pushSTACK(dir);               # TYPE-ERROR slot DATUM
     pushSTACK(O(type_direction)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(dir); pushSTACK(S(Kdirection)); pushSTACK(S(open));
+    pushSTACK(dir); pushSTACK(S(Kdirection)); 
+    pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
   }
 }
