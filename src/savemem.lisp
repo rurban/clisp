@@ -31,8 +31,9 @@
   (let ((- nil) (+ nil) (++ nil) (+++ nil)
         (* nil) (** nil) (*** nil)
         (/ nil) (// nil) (/// nil)
-        (*command-index* 0))
-    (declare (special *command-index*))
+        (*command-index* 0)
+        (*home-package* nil))
+    (declare (special *command-index* *home-package*))
     (if init-function
       (let* ((old-driver *driver*)
              (*driver* #'(lambda ()
