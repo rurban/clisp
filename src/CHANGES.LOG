@@ -11,6 +11,9 @@ Important notes
 User visible changes
 --------------------
 
+* If an error is signalled by a form supplied with the command-line
+  option "-x", CLISP now exits with a non-zero status.
+
 * The pretty-printer does not print hanging parenthesis by default now.
   *PRINT-RPARS* now defaults to NIL and *PRINT-INDENT-LISTS* to 1, so
   that the lists are printed like in CLHS and CLtL.
