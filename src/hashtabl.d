@@ -1367,19 +1367,24 @@ local uint32 hashcode_raw_user (object fun, object obj) {
 /* =========================== Hash table record =========================== */
 
 # Specification of the flags in a hash-table:
-  #define htflags_test_eq_B      bit(0) # test is EQ
-  #define htflags_test_eql_B     bit(1) # test is EQL
-  #define htflags_test_equal_B   bit(2) # test is EQUAL
-  #define htflags_test_equalp_B  bit(3) # test is EQUALP
-  #define htflags_stablehash_B   bit(4) # hash code of instances of
-                                        # STANDARD-STABLEHASH, STRUCTURE-STABLEHASH
-                                        # is GC-invariant
+  #define htflags_test_builtin_B  (bit(1)|bit(0)) # for distinguishing builtin tests
+  #define htflags_test_eq_B       (    0 |    0 ) # test is EQ
+  #define htflags_test_eql_B      (    0 |bit(0)) # test is EQL
+  #define htflags_test_equal_B    (bit(1)|    0 ) # test is EQUAL
+  #define htflags_test_equalp_B   (bit(1)|bit(0)) # test is EQUALP
+  #define htflags_test_user_B     bit(2) # set for user-defined test
+  #define htflags_stablehash_B    bit(3) # hash code of instances of
+                                         # STANDARD-STABLEHASH, STRUCTURE-STABLEHASH
+                                         # is GC-invariant
+  #define htflags_pending_warn_forced_gc_rehash bit(4) # Must call
+                                         # warn_forced_gc_rehash at the next
+                                         # opportunity
   # define htflags_warn_gc_rehash_B bit(5) # Warn when a key is being added
-                                        # whose hash code is not GC-invariant.
-  # define htflags_gc_rehash_B   bit(6) # Set after a key has been added
-                                        # whose hash code is not GC-invariant.
-  # define htflags_invalid_B     bit(7) # Set when the list structure is
-                                        # invalid and the table needs a rehash.
+                                         # whose hash code is not GC-invariant.
+  # define htflags_gc_rehash_B    bit(6) # Set after a key has been added
+                                         # whose hash code is not GC-invariant.
+  # define htflags_invalid_B      bit(7) # Set when the list structure is
+                                         # invalid and the table needs a rehash.
 
 # Specification of the two types of Pseudo-Functions:
 
@@ -1435,10 +1440,9 @@ local uint32 hashcode_raw_user (object fun, object obj) {
  can trigger GC - for user-defined ht_test */
 local inline uintL hashcode_raw (object ht, object obj) {
   var uintB flags = record_flags(TheHashtable(ht));
-  return (flags & (htflags_test_eql_B | htflags_test_equal_B | htflags_test_equalp_B
-                   | htflags_stablehash_B)
+  return (flags & (htflags_test_builtin_B | htflags_stablehash_B)
           ? hashcodefn(ht)(obj) /* General built-in hash code */
-          : flags & htflags_test_eq_B
+          : !(flags & htflags_test_user_B)
             ? hashcode1(obj) /* FASTHASH-EQ hashcode */
             : hashcode_raw_user(TheHashtable(ht)->ht_hash,obj));
 }
@@ -1462,8 +1466,7 @@ local inline uintL hashcode_builtin (object ht, object obj) {
   var uintL size = TheHashtable(ht)->ht_size;
   var uintB flags = record_flags(TheHashtable(ht));
   var uint32 coderaw =
-    (flags & (htflags_test_eql_B | htflags_test_equal_B | htflags_test_equalp_B
-              | htflags_stablehash_B)
+    (flags & (htflags_test_builtin_B | htflags_stablehash_B)
      ? hashcodefn(ht)(obj) /* General built-in hash code */
      : hashcode1(obj)); /* FASTHASH-EQ hashcode */
   return hashcode_cook(coderaw,size);
@@ -1501,7 +1504,8 @@ local object rehash (object ht) {
   var gcv_object_t* KVptr = &TheHashedAlist(kvtable)->hal_data[3*maxcount]; /* end of kvtable */
   var object freelist = nix;
   var object count = Fixnum_0;
-  var bool user_defined_p = (ht_test_code(record_flags(TheHashtable(ht)))==0);
+  var bool user_defined_p =
+    ht_test_code_user_p(ht_test_code(record_flags(TheHashtable(ht))));
   while (!eq(index,Fixnum_0)) { /* index=0 -> loop finished */
     /* traverse the key-value-vector and the next-vector.
        index = MAXCOUNT,...,0 (Fixnum),
@@ -1567,19 +1571,36 @@ local void warn_forced_gc_rehash (object ht) {
 global bool hash_lookup_builtin (object ht, object obj, bool allowgc,
                                  gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
   #ifdef GENERATIONAL_GC
-  if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized */
+  if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized? */
     # Rehash it before the warning, otherwise we risk an endless recursion.
     ht = rehash(ht);
     # Warn if *WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* is true:
     if (!nullpSv(warn_on_hashtable_needing_rehash_after_gc)) {
-      pushSTACK(ht); pushSTACK(obj);
-      warn_forced_gc_rehash(ht);
-      obj = popSTACK(); ht = popSTACK();
+      if (allowgc) {
+        record_flags_clr(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
+        pushSTACK(ht); pushSTACK(obj);
+        warn_forced_gc_rehash(ht);
+        obj = popSTACK(); ht = popSTACK();
+        if (!ht_validp(TheHashtable(ht))) /* must be reorganized again? */
+          ht = rehash(ht);
+      } else {
+        # We cannot warn now, because in this call we are not allowed to
+        # trigger GC, therefore we delay the call until the next opportunity.
+        record_flags_set(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
+      }
     }
+  }
+  #endif
+  if (allowgc
+      && (record_flags(TheHashtable(ht)) & htflags_pending_warn_forced_gc_rehash)) {
+    # Now is an opportunity to get rid of the pending warn_forced_gc_rehash task.
+    record_flags_clr(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
+    pushSTACK(ht); pushSTACK(obj);
+    warn_forced_gc_rehash(ht);
+    obj = popSTACK(); ht = popSTACK();
     if (!ht_validp(TheHashtable(ht))) /* must be reorganized again? */
       ht = rehash(ht);
   }
-  #endif
   ASSERT(ht_validp(TheHashtable(ht)));
   var uintB flags = record_flags(TheHashtable(ht));
   var uintL hashindex = hashcode_builtin(ht,obj); /* calculate hashcode */
@@ -1594,8 +1615,9 @@ global bool hash_lookup_builtin (object ht, object obj, bool allowgc,
       kvt_data + 3*index;
     var object key = KVptr[0];
     /* compare key with obj: */
-    if (flags & htflags_test_eq_B ? eq(key,obj) :  /* compare with EQ */
-        testfn(ht)(key,obj)) {
+    if ((flags & htflags_test_builtin_B) == htflags_test_eq_B
+        ? eq(key,obj) /* compare with EQ */
+        : testfn(ht)(key,obj)) {
       /* object obj found */
       *KVptr_ = KVptr; *Iptr_ = Iptr; return true;
     }
@@ -1607,17 +1629,24 @@ global bool hash_lookup_builtin (object ht, object obj, bool allowgc,
 #ifndef GENERATIONAL_GC
 global bool hash_lookup_builtin_with_rehash (object ht, object obj, bool allowgc,
                                              gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
-  if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized */
+  if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized? */
     # Rehash it before the warning, otherwise we risk an endless recursion.
     ht = rehash(ht);
     # Warn if *WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* is true:
     if (!nullpSv(warn_on_hashtable_needing_rehash_after_gc)) {
-      pushSTACK(ht); pushSTACK(obj);
-      warn_forced_gc_rehash(ht);
-      obj = popSTACK(); ht = popSTACK();
+      if (allowgc) {
+        record_flags_clr(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
+        pushSTACK(ht); pushSTACK(obj);
+        warn_forced_gc_rehash(ht);
+        obj = popSTACK(); ht = popSTACK();
+        if (!ht_validp(TheHashtable(ht))) /* must be reorganized again? */
+          ht = rehash(ht);
+      } else {
+        # We cannot warn now, because in this call we are not allowed to
+        # trigger GC, therefore we delay the call until the next opportunity.
+        record_flags_set(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
+      }
     }
-    if (!ht_validp(TheHashtable(ht))) /* must be reorganized again? */
-      ht = rehash(ht);
   }
   return hash_lookup_builtin(ht,obj,allowgc,KVptr_,Iptr_);
 }
@@ -1941,7 +1970,7 @@ local object resize (object ht, object maxcount) {
     if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
       var uintB flags = record_flags(TheHashtable(ht));                 \
       var uintL hc_raw = 0;                                             \
-      var bool cacheable = (ht_test_code(flags)==0); /* not EQ|EQL|EQUAL|EQUALP */ \
+      var bool cacheable = ht_test_code_user_p(ht_test_code(flags)); /* not EQ|EQL|EQUAL|EQUALP */ \
       if (cacheable) hc_raw = hashcode_raw(ht,STACK_(key_pos));         \
       do { /* hash-table must still be enlarged: */                     \
         /* calculate new maxcount: */                                   \
@@ -2164,9 +2193,9 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
             var object ht_test = get(test,S(hash_table_test));
             if (!consp(ht_test)) goto test_error;
             STACK_3 = ht_test;
-            flags = 0; /* user-defined ht_test */
+            flags = htflags_test_user_B; /* user-defined ht_test */
           } else if (consp(test)) {
-            flags = 0; /* ad hoc (user-defined ht_test) */
+            flags = htflags_test_user_B; /* ad hoc (user-defined ht_test) */
           } else {
            test_error:
             pushSTACK(NIL); /* no PLACE */
@@ -2316,7 +2345,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
   /* STACK layout:
      initial-contents, key-type, value-type,
      warn-if-needs-rehash-after-gc, weak, test, -. */
-  if (flags==0) { /* user-defined ht_test */
+  if (ht_test_code_user_p(ht_test_code(flags))) { /* user-defined ht_test */
     STACK_0 = ht;
     var object test = coerce_function(Car(STACK_1)); pushSTACK(test);
     var object hash = coerce_function(Cdr(STACK_2));
@@ -2601,7 +2630,7 @@ global object hash_table_test (object ht) {
       return S(stablehash_equal);
     case htflags_test_equalp_B:
       return S(equalp);
-    case 0: { /* user-defined ==> (test . hash) */
+    case bit(2): { /* user-defined ==> (test . hash) */
       pushSTACK(ht);
       var object ret = allocate_cons();
       ht = popSTACK();
