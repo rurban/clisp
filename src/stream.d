@@ -19,7 +19,6 @@
 # Nochmals zum Aufbau von Streams:
 # strmflags = Flags
   # Bits in den Flags:
-  #                             0,1 # gesetzt, falls Integer-Stream
   # define strmflags_reval_bit_B 2  # gesetzt, falls Read-Eval erlaubt ist
   #define strmflags_unread_bit_B 3  # gesetzt, während strm_rd_ch_last zurück ist
   #define strmflags_rd_by_bit_B  4  # gesetzt, falls READ-BYTE möglich ist
@@ -27,10 +26,6 @@
   # define strmflags_rd_ch_bit_B 6  # gesetzt, falls READ-CHAR möglich ist
   # define strmflags_wr_ch_bit_B 7  # gesetzt, falls WRITE-CHAR möglich ist
   # Bitmasken in den Flags:
-  #define strmflags_i_B      (bit(1)|bit(0))  # benutzt bei Integer-Streams
-  #define strmflags_ia_B     (       bit(0))  # Integer-Stream der Art a
-  #define strmflags_ib_B     (bit(1)       )  # Integer-Stream der Art b
-  #define strmflags_ic_B     (bit(1)|bit(0))  # Integer-Stream der Art c
   #define strmflags_unread_B bit(strmflags_unread_bit_B)
   #define strmflags_reval_B  bit(strmflags_reval_bit_B)
   #define strmflags_rd_by_B  bit(strmflags_rd_by_bit_B)
@@ -2984,7 +2979,8 @@ LISPFUNN(generic_stream_p,1)
 # An analyzed :ELEMENT-TYPE argument.
   typedef struct { eltype_kind kind;
                    uintL       size; # the n in ([UN]SIGNED-BYTE n),
-                                     # >0, <intDsize*uintWC_max
+                                     # >0, <intDsize*uintWC_max,
+                                     # but 0 for eltype_ch
                  }
           decoded_eltype;
 
@@ -3001,7 +2997,7 @@ LISPFUNN(generic_stream_p,1)
     var decoded_eltype* decoded;
     { var object arg = *eltype_;
       if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char)) || eq(arg,S(Kdefault))) # CHARACTER, STRING-CHAR, :DEFAULT
-        { decoded->kind = eltype_ch; return; }
+        { decoded->kind = eltype_ch; decoded->size = 0; return; }
       if (eq(arg,S(bit))) # BIT
         { decoded->kind = eltype_iu; decoded->size = 1; return; }
       if (eq(arg,S(unsigned_byte))) # UNSIGNED-BYTE
@@ -3045,7 +3041,7 @@ LISPFUNN(generic_stream_p,1)
       if (!nullp(value1))
         { skipSTACK(1);
           subr_self = popSTACK();
-          decoded->kind = eltype_ch;
+          decoded->kind = eltype_ch; decoded->size = 0;
           return;
         }
       funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER canon-arg)
@@ -3471,12 +3467,13 @@ LISPFUNN(generic_stream_p,1)
 typedef struct strm_channel_extrafields_struct {
   boolean buffered;                    # FALSE for unbuffered streams,
                                        # TRUE for buffered streams
+  uintL bitsize;                       # If the element-type is ([UN]SIGNED-BYTE n):
+                                       #   n = number of bits per unit,
+                                       #   >0, <intDsize*uintWC_max.
+                                       # If the element-type is CHARACTER: 0.
   void (* low_close) (object stream, object handle);
   # Fields used if the element-type is CHARACTER:
   uintL lineno;                        # line number during read, >0
-  # Fields used if the element-type is ([UN]SIGNED-BYTE n):
-  uintL bitsize;                       # n = number of bits per unit,
-                                       # >0, <intDsize*uintWC_max
 } strm_channel_extrafields_struct;
 
 # Accessors.
@@ -3485,9 +3482,9 @@ typedef struct strm_channel_extrafields_struct {
 #define ChannelStream_ichannel(stream)  TheStream(stream)->strm_ichannel
 #define ChannelStream_ochannel(stream)  TheStream(stream)->strm_ochannel
 #define ChannelStream_buffered(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->buffered
+#define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bitsize
 #define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_close
 #define ChannelStream_lineno(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->lineno
-#define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bitsize
 
 # Additional binary (not GCed) fields, used by unbuffered streams only:
 typedef struct strm_unbuffered_extrafields_struct {
@@ -4732,8 +4729,8 @@ typedef struct strm_unbuffered_extrafields_struct {
   local void close_ichannel(stream)
     var object stream;
     { ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ichannel);
-      if (TheStream(stream)->strmflags & strmflags_i_B)
-        { ChannelStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
+      if (ChannelStream_bitsize(stream) > 0)
+        { ChannelStream_bitsize(stream) = 0; # bitsize löschen
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
         }
     }
@@ -5131,8 +5128,8 @@ typedef struct strm_unbuffered_extrafields_struct {
   local void close_ochannel(stream)
     var object stream;
     { ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel);
-      if (TheStream(stream)->strmflags & strmflags_i_B)
-        { ChannelStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
+      if (ChannelStream_bitsize(stream) > 0)
+        { ChannelStream_bitsize(stream) = 0; # bitsize löschen
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
         }
     }
@@ -5275,7 +5272,7 @@ typedef struct strm_unbuffered_extrafields_struct {
       if (eltype->kind == eltype_ch)
         { flags &= strmflags_ch_B; }
         else
-        { flags &= strmflags_by_B; flags |= strmflags_ia_B; }
+        { flags &= strmflags_by_B; }
      {# Stream allozieren:
       var object stream = allocate_stream(flags,type,strm_channel_len,sizeof(strm_unbuffered_extrafields_struct));
       # und füllen:
@@ -5296,11 +5293,11 @@ typedef struct strm_unbuffered_extrafields_struct {
       TheStream(stream)->strm_eltype = popSTACK();
       ChannelStream_buffered(stream) = FALSE;
       # element-type dependent initializations:
+      ChannelStream_bitsize(stream) = eltype->size;
       ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
       if (!(eltype->kind == eltype_ch))
         # File-Stream für Integers
-        { ChannelStream_bitsize(stream) = eltype->size;
-          # Bitbuffer allozieren:
+        { # Bitbuffer allozieren:
           pushSTACK(stream);
          {var object bitbuffer = allocate_bit_vector(eltype->size);
           stream = popSTACK();
@@ -6421,21 +6418,20 @@ typedef struct strm_i_buffered_extrafields_struct {
   local void position_file_i_buffered(stream,position)
     var object stream;
     var uintL position;
-    { var uintB flags = TheStream(stream)->strmflags;
-      var uintL bitsize = ChannelStream_bitsize(stream);
+    { var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL position_bits = position * bitsize;
-      if ((flags & strmflags_i_B) == strmflags_ib_B)
+      if (bitsize < 8)
         { position_bits += sizeof(uintL)*8; } # Header berücksichtigen
       # An Bit Nummer position_bits positionieren.
       position_file_buffered(stream,floor(position_bits,8)); # Aufs Byte positionieren
-      if ((flags & strmflags_i_B) == strmflags_ia_B) return; # Bei Art a war's das.
+      if ((bitsize % 8) == 0) return; # Bei Art a war's das.
       if (# Liegt die angesprochene Position im ersten Byte nach EOF ?
           ((!((position_bits%8)==0))
            && (buffered_nextbyte(stream) == (uintB*)NULL)
           )
           ||
           # Liegt die angesprochene Position im letzten Byte, aber zu weit?
-          (((flags & strmflags_i_B) == strmflags_ib_B)
+          ((bitsize < 8)
            && (position > BufferedStream_eofposition(stream))
          ))
         # Fehler. Aber erst an die alte Position zurückpositionieren:
@@ -6847,16 +6843,14 @@ typedef struct strm_i_buffered_extrafields_struct {
   local void logical_position_file_start (object stream);
   local void logical_position_file_start(stream)
     var object stream;
-    { position_file_buffered(stream,
-                      (TheStream(stream)->strmflags & strmflags_i_B) == strmflags_ib_B # Integer-Stream vom Typ b ?
-                      ? sizeof(uintL) : 0 # ja -> Position 4, sonst Position 0
-                     );
-      switch (TheStream(stream)->strmflags & strmflags_i_B)
-        { case strmflags_ib_B: case strmflags_ic_B:
-            # Integer-Stream der Art b,c
-            BufferedStream_bitindex(stream) = 0; # bitindex := 0
-          default: break;
-        }
+    { var uintL bitsize = ChannelStream_bitsize(stream);
+      position_file_buffered(stream,
+                             bitsize > 0 && bitsize < 8 # Integer-Stream vom Typ b ?
+                             ? sizeof(uintL) : 0 # ja -> Position 4, sonst Position 0
+                            );
+      if (!((bitsize % 8) == 0))
+        # Integer-Stream der Art b,c
+        { BufferedStream_bitindex(stream) = 0; } # bitindex := 0
       BufferedStream_position(stream) = 0; # position := 0
       TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
       TheStream(stream)->strmflags &= ~strmflags_unread_B;
@@ -6871,13 +6865,11 @@ typedef struct strm_i_buffered_extrafields_struct {
   local void logical_position_file(stream,position)
     var object stream;
     var uintL position;
-    { var uintB flags = TheStream(stream)->strmflags;
-      if (flags & strmflags_i_B) # Integer-Stream ?
-        { if ((flags & strmflags_i_B) == strmflags_ia_B)
+    { var uintL bitsize = ChannelStream_bitsize(stream);
+      if (bitsize > 0) # Integer-Stream ?
+        { if ((bitsize % 8) == 0)
             # Art a
-            { var uintL bitsize = ChannelStream_bitsize(stream);
-              position_file_buffered(stream,position*(bitsize/8));
-            }
+            { position_file_buffered(stream,position*(bitsize/8)); }
             else
             # Art b,c
             { position_file_i_buffered(stream,position); }
@@ -6909,16 +6901,15 @@ typedef struct strm_i_buffered_extrafields_struct {
       # logische Position berechnen und eofbytes korrigieren:
       { var uintL position; # logische Position
         var uintL eofbits = 0; # Bit-Ergänzung zu eofbytes
-        var uintB flags = TheStream(stream)->strmflags;
-        if (flags & strmflags_i_B) # Integer-Stream ?
-          { var uintL bitsize = ChannelStream_bitsize(stream);
-            if ((flags & strmflags_i_B) == strmflags_ia_B)
+        var uintL bitsize = ChannelStream_bitsize(stream);
+        if (bitsize > 0) # Integer-Stream ?
+          { if ((bitsize % 8) == 0)
               # Art a
               { var uintL bytesize = bitsize/8;
                 position = floor(eofbytes,bytesize);
                 eofbytes = position*bytesize;
               }
-            elif ((flags & strmflags_i_B) == strmflags_ib_B)
+            elif (bitsize < 8)
               # Art b
               { eofbytes -= sizeof(uintL); # Header berücksichtigen
                 # Ist die gemerkte EOF-Position plausibel?
@@ -6970,12 +6961,9 @@ typedef struct strm_i_buffered_extrafields_struct {
                   BufferedStream_eofindex(stream) = eofindex;
             }   }
           }
-        switch (flags & strmflags_i_B)
-          { case strmflags_ib_B: case strmflags_ic_B:
-              # Integer-Stream der Art b,c
-              BufferedStream_bitindex(stream) = eofbits;
-            default: break;
-          }
+        if (!((bitsize % 8) == 0))
+          # Integer-Stream der Art b,c
+          { BufferedStream_bitindex(stream) = eofbits; }
         # position setzen:
         BufferedStream_position(stream) = position;
         TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
@@ -6991,7 +6979,6 @@ typedef struct strm_i_buffered_extrafields_struct {
     var object stream;
     var const decoded_eltype* eltype;
     { var uintB flags = TheStream(stream)->strmflags;
-      var uintB art = flags & strmflags_i_B;
       switch (eltype->kind)
         { case eltype_ch:
             TheStream(stream)->strm_rd_ch = P(rd_ch_buffered);
@@ -7019,37 +7006,37 @@ typedef struct strm_i_buffered_extrafields_struct {
             break;
           case eltype_iu:
             TheStream(stream)->strm_rd_by =
-              (art==strmflags_ia_B
+              ((eltype->size % 8) == 0
                ? (eltype->size == 8 ? P(rd_by_iau8_buffered) : P(rd_by_iau_buffered))
-               : art==strmflags_ib_B ? P(rd_by_ibu_buffered) : P(rd_by_icu_buffered)
+               : eltype->size < 8 ? P(rd_by_ibu_buffered) : P(rd_by_icu_buffered)
               );
             TheStream(stream)->strm_rd_by_array =
-              (art==strmflags_ia_B && (eltype->size == 8)
+              (eltype->size == 8
                ? P(rd_by_array_iau8_buffered)
                : P(rd_by_array_dummy)
               );
             TheStream(stream)->strm_wr_by =
-              (art==strmflags_ia_B
+              ((eltype->size % 8) == 0
                ? (eltype->size == 8 ? P(wr_by_iau8_buffered) : P(wr_by_iau_buffered))
-               : art==strmflags_ib_B ? P(wr_by_ibu_buffered) : P(wr_by_icu_buffered)
+               : eltype->size < 8 ? P(wr_by_ibu_buffered) : P(wr_by_icu_buffered)
               );
             TheStream(stream)->strm_wr_by_array =
-              (art==strmflags_ia_B && (eltype->size == 8)
+              (eltype->size == 8
                ? P(wr_by_array_iau8_buffered)
                : P(wr_by_array_dummy)
               );
             break;
           case eltype_is:
             TheStream(stream)->strm_rd_by =
-              (art==strmflags_ia_B ? P(rd_by_ias_buffered) :
-               art==strmflags_ib_B ? P(rd_by_ibs_buffered) :
-                                     P(rd_by_ics_buffered)
+              ((eltype->size % 8) == 0 ? P(rd_by_ias_buffered) :
+               eltype->size < 8 ? P(rd_by_ibs_buffered) :
+                                  P(rd_by_ics_buffered)
               );
             TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
             TheStream(stream)->strm_wr_by =
-              (art==strmflags_ia_B ? P(wr_by_ias_buffered) :
-               art==strmflags_ib_B ? P(wr_by_ibs_buffered) :
-                                     P(wr_by_ics_buffered)
+              ((eltype->size % 8) == 0 ? P(wr_by_ias_buffered) :
+               eltype->size < 8 ? P(wr_by_ibs_buffered) :
+                                  P(wr_by_ics_buffered)
               );
             TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
             break;
@@ -7112,14 +7099,10 @@ typedef struct strm_i_buffered_extrafields_struct {
         else
         { flags &= strmflags_by_B;
           if ((eltype->size % 8) == 0)
-            { flags |= strmflags_ia_B; } # Art a
+            {} # Art a
             else
-            { xlen = sizeof(strm_i_buffered_extrafields_struct); # Das haben die File-Streams für Integers maximal
-              if (eltype->size<8)
-                { flags |= strmflags_ib_B; } # Art b
-                else
-                { flags |= strmflags_ic_B; } # Art c
-        }   }
+            { xlen = sizeof(strm_i_buffered_extrafields_struct); } # Das haben die File-Streams für Integers maximal
+        }
      {# Stream allozieren:
       var object stream = allocate_stream(flags,type,strm_channel_len,xlen);
       # und füllen:
@@ -7146,11 +7129,11 @@ typedef struct strm_i_buffered_extrafields_struct {
             BufferedStream_index(stream) = 0; # index := 0
             BufferedStream_modified(stream) = FALSE; # Buffer unmodifiziert
             BufferedStream_position(stream) = 0; # position := 0
+            ChannelStream_bitsize(stream) = eltype->size;
             ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
             if (!(eltype->kind == eltype_ch))
               # File-Stream für Integers
-              { ChannelStream_bitsize(stream) = eltype->size;
-                # Bitbuffer allozieren:
+              { # Bitbuffer allozieren:
                 pushSTACK(stream);
                {var object bitbuffer = allocate_bit_vector(ceiling(eltype->size,8)*8);
                 stream = popSTACK();
@@ -7363,7 +7346,7 @@ typedef struct strm_i_buffered_extrafields_struct {
   local void buffered_flush_everything(stream)
     var object stream;
     { # Bei Integer-Streams (Art b) eofposition abspeichern:
-      if ((TheStream(stream)->strmflags & strmflags_i_B) == strmflags_ib_B)
+      if (ChannelStream_bitsize(stream) > 0 && ChannelStream_bitsize(stream) < 8)
         if (TheStream(stream)->strmflags & strmflags_wr_by_B) # nur falls nicht Read-Only
           { position_file_buffered(stream,0); # an Position 0 positionieren
            {var uintL eofposition = BufferedStream_eofposition(stream);
@@ -7518,8 +7501,8 @@ typedef struct strm_i_buffered_extrafields_struct {
       BufferedStream_index(stream) = 0; # index löschen (unnötig)
       BufferedStream_modified(stream) = FALSE; # modified_flag löschen (unnötig)
       BufferedStream_position(stream) = 0; # position löschen (unnötig)
-      if (TheStream(stream)->strmflags & strmflags_i_B)
-        { ChannelStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
+      if (ChannelStream_bitsize(stream) > 0)
+        { ChannelStream_bitsize(stream) = 0; # bitsize löschen
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
         }
     }
@@ -15090,13 +15073,9 @@ LISPFUNN(set_stream_element_type,2)
           if (!equal(STACK_0,TheStream(stream)->strm_eltype)) # nothing to change?
             { # Check eltype.
               if (ChannelStream_buffered(stream))
-                { if (!((((TheStream(stream)->strmflags & strmflags_i_B) == 0)
-                         || ((TheStream(stream)->strmflags & strmflags_i_B) == strmflags_ia_B)
-                        )
+                { if (!(((ChannelStream_bitsize(stream) % 8) == 0)
                         &&
-                        ((eltype.kind == eltype_ch)
-                         || ((eltype.size % 8) == 0)
-                        )
+                        ((eltype.size % 8) == 0)
                      ) )
                     { # canon-element-type in STACK_0.
                       pushSTACK(TheStream(stream)->strm_eltype);
@@ -15114,9 +15093,9 @@ LISPFUNN(set_stream_element_type,2)
                 { check_unbuffered_eltype(&eltype); }
               # Transform the lastchar back, if possible.
               if (TheStream(stream)->strmflags & strmflags_open_B) # stream open?
-                if (!(eltype.kind == eltype_ch))
+                if (eltype.size > 0)
                   # New element type is an integer type.
-                  if ((TheStream(stream)->strmflags & strmflags_i_B) == 0)
+                  if (ChannelStream_bitsize(stream) == 0)
                     { # Old element type was CHARACTER.
                       # Transform the lastchar back to bytes.
                       if (charp(TheStream(stream)->strm_rd_ch_last)
@@ -15144,23 +15123,22 @@ LISPFUNN(set_stream_element_type,2)
                     }   }
               # Actually change the stream's element type.
               { var uintB flags = TheStream(stream)->strmflags;
-                flags = (flags & ~strmflags_open_B & ~strmflags_i_B)
+                flags = (flags & ~strmflags_open_B)
                         | (flags & strmflags_rd_B ? strmflags_rd_B : 0)
                         | (flags & strmflags_wr_B ? strmflags_wr_B : 0);
+                ChannelStream_bitsize(stream) = eltype.size;
                 if (eltype.kind == eltype_ch)
                   { # New element type is CHARACTER.
                     flags &= ~(strmflags_open_B & ~strmflags_ch_B);
                   }
                   else
                   { # New element type is an integer type.
-                    ChannelStream_bitsize(stream) = eltype.size;
                     # Bitbuffer allozieren:
                     pushSTACK(stream);
                    {var object bitbuffer = allocate_bit_vector(eltype.size);
                     stream = popSTACK();
                     TheStream(stream)->strm_bitbuffer = bitbuffer;
                     flags &= ~(strmflags_open_B & ~strmflags_by_B);
-                    flags |= strmflags_ia_B;
                   }}
                 TheStream(stream)->strmflags = flags;
               }
