@@ -6,8 +6,7 @@
 
 ; Replace the connect info with your user and server
 
-; (oracle:connect "myuser" "mypasswd" "myserver")
-(oracle:connect "alma" "alma" "")
+(oracle:connect "myuser" "mypasswd" "myserver")
 
 ; Create a table and insert some data
 (oracle:run-sql "CREATE TABLE foo (i number(7), j number(7))")
