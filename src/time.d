@@ -1133,3 +1133,34 @@ LISPFUNN(time,0)
     pushSTACK(fixnum(tm.gccount));
     funcall(L(values),9); # return 9 values
   }
+
+# (SYS::DELTA4 n1 n2 o1 o2 shift)
+# compute the difference between [n1 n2] and [o1 o2]
+# as positional numbers with SHIFT digits, i.e.,
+# (- (+ (ash n1 shift) n2) (+ (ash o1 shift) o2))
+# the difference must be positive
+# all numbers must be fixnums; the result is (UNSIGNED-BYTE 32)
+LISPFUNN(delta4,5) {
+  if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
+  var uintL shift = posfixnum_to_L(STACK_0);
+  if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
+  var uintL o2 = posfixnum_to_L(STACK_1);
+  if (!posfixnump(STACK_2)) fehler_posfixnum(STACK_2);
+  var uintL o1 = posfixnum_to_L(STACK_2);
+  if (!posfixnump(STACK_3)) fehler_posfixnum(STACK_3);
+  var uintL n2 = posfixnum_to_L(STACK_3);
+  if (!posfixnump(STACK_4)) fehler_posfixnum(STACK_4);
+  var uintL n1 = posfixnum_to_L(STACK_4);
+  if (shift + I_integer_length(STACK_4) > intLsize) {
+    pushSTACK(STACK_0); pushSTACK(S(ash));
+    fehler(arithmetic_error,GETTEXT("~: too large shift amount ~"));
+  }
+  if ((o1 > n1) # use the arguments on the stack for error reporting
+      || ((o1 == n1) && (o2 > n2))) {
+    skipSTACK(1); pushSTACK(S(delta4));
+    fehler(arithmetic_error,"~: negative difference: [~ ~] > [~ ~]");
+  }
+  var uintL res = ((n1 << shift) + n2) - ((o1 << shift) + o2);
+  value1 = UL_to_I(res); mv_count = 1;
+  skipSTACK(5);
+}
