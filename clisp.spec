@@ -24,7 +24,7 @@
 #%define release %(test -f .release || echo 0 >> .release; echo "1 + " `cat .release` | bc > .,release; mv -fv .,release .release; cat .release)
 #%define release %(cat .release)
 %define release 1
-%define modules rawsock syscalls berkeley-db pcre regexp bindings/glibc clx/new-clx
+%define modules rawsock syscalls berkeley-db pcre regexp bindings/glibc clx/new-clx zlib i18n
 
 Summary:      Common Lisp (ANSI CL) implementation
 Name:         %{name}
