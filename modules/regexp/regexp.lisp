@@ -139,6 +139,6 @@ The line is split with REGEXP-SPLIT using PATTERN."
       ,@forms)))
 
 (defun regexp-matcher (pattern)
-  "A valid value for *APROPOS-MATCHER*."
+  "A valid value for *APROPOS-MATCHER* in the UTF-8 locale."
   (let ((compiled (regexp-compile pattern :extended t :ignore-case t)))
     (lambda (name) (regexp-exec compiled name :boolean t))))
