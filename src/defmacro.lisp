@@ -434,8 +434,8 @@ the actual object #<MACRO expander> for the FENV.
           (TEXT "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S")
           name lambdalist)))))
 
-(defun make-length-test (var &optional (header 1))
-  (let ((len `(LIST-LENGTH-DOTTED ,var)))
+(defun make-length-test (var &optional (header 1) (accept-dotted t))
+  (let ((len `(,(if accept-dotted 'LIST-LENGTH-DOTTED 'LIST-LENGTH) ,var)))
     (cond ((and (zerop %min-args) %restp) NIL)
           ((zerop %min-args) `(> ,len ,(+ header %arg-count)))
           (%restp `(< ,len ,(+ header %min-args)))
