@@ -1,5 +1,144 @@
 2002-05-22  Bruno Haible  <bruno@clisp.org>
 
+	Introduce mutable small strings. Storing characters in strings can
+	now trigger GC.
+	* lispbibl.d: Verify that SPVW_PURE implies TYPECODES.
+	(Rectype_SmallSstring, Rectype_reallocstring): New enumeration items.
+	(siarray_): New struct type.
+	(Siarray): New type.
+	(Array_type_sstring): Add Rectype_SmallSstring, Rectype_reallocstring.
+	(TheSiarray): New macro.
+	(vectorp, simplep, array_simplep, simple_string_p, stringp, arrayp):
+	Update.
+	(if_recordp): Handle Rectype_SmallSstring, Rectype_reallocstring.
+	(case_Rectype_Sstring_above): Add Rectype_SmallSstring,
+	Rectype_reallocstring.
+	(case_Rectype_string_above): Likewise.
+	(case_Rectype_array_above): Likewise.
+	(allocate_small_string): New declaration.
+	(reallocate_small_string): New declaration.
+	(with_sstring_0): Follow Siarray chain before calling Sstring_length.
+	(with_sstring): Likewise.
+	(simple_array_to_storage, simple_array_to_storage1): New macros.
+	(array_total_size): Turn into an inline function. Follow Siarray chain
+	before calling Sarray_length.
+	(elt_fill, elt_reverse): Can now trigger GC.
+	(SstringDispatch): Handle mutable small-strings.
+	(sstring_normal_p): Likewise.
+	(unpack_string_rw): Return the storage vector and offset, instead of
+	a chart* pointer.
+	(sstring_store): New declaration.
+	(sstring_store_array): New declaration.
+	(nstring_upcase): Take a storage vector and an offset as arguments,
+	instead of a chart* pointer. Can now trigger GC.
+	(nstring_downcase): Likewise.
+	(nstring_capitalize): Likewise.
+	(check_sstring_mutable): Handle mutable small-strings.
+	* affi.d (SYS::MEM-READ): Update for unpack_string_rw change.
+	* array.d (vector_length): Follow Siarray chain before calling
+	Sarray_length.
+	(iarray_displace): Likewise.
+	(iarray_displace_check): Likewise.
+	(array_displace_check): Likewise.
+	(subscripts_to_index): Follow Siarray chain before calling test_index.
+	Return the real storage vector.
+	(storagevector_store): Add a maygc argument. Return the storage vector.
+	When storing a character in a small string, reallocate the string
+	if needed.
+	(SYS::STORE): Call storagevector_store with maygc=true.
+	(ROW-MAJOR-AREF): Follow Siarray chain before calling
+	storagevector_aref.
+	(SYS::ROW-MAJOR-STORE): Follow Siarray chain before calling
+	storagevector_store. Call storagevector_store with maygc=true.
+	(ARRAY-DIMENSION): Follow Siarray chain before calling Sarray_length.
+	(array_dimensions): Likewise.
+	(ARRAY-IN-BOUNDS-P): Likewise.
+	(ARRAY-ROW-MAJOR-INDEX): Follow Siarray chain before calling
+	test_index.
+	(elt_copy_T_Char): Handle the case of a mutable small-string.
+	(elt_copy_Char_Char): Likewise.
+	(elt_move_Char): Likewise.
+	(elt_fill): Handle the case of a mutable small-string. Can now trigger
+	GC.
+	(elt_reverse): Likewise.
+	(elt_nreverse): Handle the case of a mutable small-string.
+	(VECTOR-PUSH): Call storagevector_store with maygc=true.
+	(VECTOR-PUSH-EXTEND): Likewise.
+	(initial_contents_aux): Follow Siarray chain if reallocated.
+	(reshape): Call storagevector_store with maygc=false.
+	(ADJUST-ARRAY): Create storage vector in the right type (small or not),
+	to avoid GC later.
+	* charstrg.d (unpack_string_ro): Follow Siarray chain before calling
+	Sstring_length.
+	(unpack_string_rw): Return the storage vector and offset, instead of
+	a chart* pointer.
+	(sstring_store): New function.
+	(sstring_store_array): New function.
+	(coerce_imm_ss): Handle mutable small-strings and reallocated strings.
+	(coerce_normal_ss): Likewise.
+	(coerce_imm_normal_ss): Likewise.
+	(char_name): Return a small-string if possible.
+	(CHAR): Follow Siarray chain before calling Sstring_length.
+	(SCHAR): Likewise.
+	(SYS::STORE-CHAR): Follow Siarray chain before calling
+	check_sstring_mutable. Call sstring_store.
+	(SYS::STORE-SCHAR): Likewise.
+	(test_string_limits_rw): Handle mutable small-strings.
+	(test_1_stringsym_limits): Return the storage vector and offset,
+	instead of a chart* pointer.
+	(nstring_upcase): Take a storage vector and an offset as arguments,
+	instead of a chart* pointer. Handle small-strings. Can now trigger GC.
+	(string_upcase): Follow Siarray chain before return.
+	(NSTRING-UPCASE): Update.
+	(STRING-UPCASE): Update. Follow Siarray chain before return.
+	(nstring_downcase): Take a storage vector and an offset as arguments,
+	instead of a chart* pointer. Handle small-strings. Can now trigger GC.
+	(string_downcase): Follow Siarray chain before return.
+	(NSTRING-DOWNCASE): Update.
+	(STRING-DOWNCASE): Update. Follow Siarray chain before return.
+	(nstring_capitalize): Take a storage vector and an offset as arguments,
+	instead of a chart* pointer. Handle small-strings. Can now trigger GC.
+	(NSTRING-CAPITALIZE): Update.
+	(STRING-CAPITALIZE): Update. Follow Siarray chain before return.
+	* debug.d (read_form): Follow Siarray chain before calling
+	Sstring_length.
+	* encoding.d (ascii_to_string): Allocate a mutable small-string.
+	* foreign.d (convert_from_foreign_array_fill): Return the array.
+	For strings, convert into a temporary array on the stack, then call
+	sstring_store_array. Follow Siarray chain before return.
+	(convert_from_foreign): Follow Siarray chain before storing array.
+	* hashtabl.d (hashcode3_atom): Handle mutable small-strings and
+	reallocated strings.
+	* io.d (sstring_printf): Follow Siarray chain before accessing
+	elements.
+	(write_string): Follow Siarray chain before calling write_sstring.
+	(pr_orecord): Handle mutable small-strings and reallocated strings.
+	* misc.d (MACHINE-VERSION): Use a small-string.
+	* pathname.d (PARSE-NAMESTRING): Update for nstring_downcase,
+	nstring_capitalize changes.
+	(customary_case): Likewise. Follow Siarray chain before return.
+	(SHELL): Call sstring_store.
+	* spvw_garcol.d (gc_mark): Handle Rectype_SmallSstring,
+	Rectype_reallocstring.
+	* spvw_genera1.d (walk_area): Likewise.
+	(build_old_generation_cache): Likewise.
+	* spvw_objsize.d (size_siarray): New macro.
+	(objsize): Handle Rectype_SmallSstring. Handling of
+	Rectype_reallocstring is automatic.
+	* spvw_typealloc.d (allocate_small_string): New function.
+	(reallocate_small_string): New function.
+	* spvw_update.d (update_varobject): Handle Rectype_SmallSstring,
+	Rectype_reallocstring.
+	* stream.d (rd_ch_array_dummy): Call sstring_store.
+	(read_char_array): Likewise. Handle mutable small-strings.
+	(rd_ch_array_str_in): Follow Siarray chain before calling elt_copy.
+	(rd_ch_array_unbuffered): Call sstring_store.
+	(rd_ch_array_buffered): Call sstring_store_array.
+	(lisp_completion): Fix wrong error message code. Follow Siarray chain
+	before calling Sstring_length.
+
+2002-05-22  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (OS_error_saving_errno): Renamed from error_saving_errno.
 	All callers changed.
 

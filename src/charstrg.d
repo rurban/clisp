@@ -657,6 +657,7 @@ static const cint nop_page[256] = {
 # < object result: datastorage vector
   global object unpack_string_ro (object string, uintL* len, uintL* offset) {
     if (simple_string_p(string)) {
+      simple_array_to_storage(string);
       *len = Sstring_length(string);
       *offset = 0;
       return string;
@@ -684,12 +685,12 @@ static const cint nop_page[256] = {
 # unpack_string_rw(string,&len)  [for read-write access]
 # > object string: a string
 # < uintL len: the fill-pointer length of the string
-# < chart* result: the beginning of the characters
-global chart* unpack_string_rw (object string, uintL* len) {
-  var uintL index = 0;
-  var object unpacked = unpack_string_ro(string,len,&index);
+# < uintL offset: Offset in the Data-Vector.
+# < object result: Data-Vector
+global object unpack_string_rw (object string, uintL* len, uintL* offset) {
+  var object unpacked = unpack_string_ro(string,len,offset);
   check_sstring_mutable(unpacked);
-  return &TheSstring(unpacked)->data[index];
+  return unpacked;
 }
 
 # UP: vergleicht zwei Strings auf Gleichheit
@@ -814,6 +815,106 @@ global chart* unpack_string_rw (object string, uintL* len) {
      no: return false;
     }
 
+# UP: Stores a character in a string.
+# > string: a mutable string that is or was simple
+# > index: (already checked) index into the string
+# > element: a character
+# < result: the possibly reallocated string
+# can trigger GC
+  global object sstring_store (object string, uintL index, chart element);
+  global object sstring_store(string,index,element)
+    var object string;
+    var uintL index;
+    var chart element;
+    {
+      var object inner_string = string;
+      simple_array_to_storage(inner_string);
+      switch (Array_type(inner_string)) {
+        #ifndef TYPECODES
+        #ifdef HAVE_SMALL_SSTRING
+        case Rectype_SmallSstring: # mutable Simple-String
+          if (as_cint(element) < small_char_int_limit) {
+            TheSmallSstring(inner_string)->data[index] = (scint)as_cint(element);
+            break;
+          }
+          ASSERT(string == inner_string);
+          string = reallocate_small_string(inner_string);
+          inner_string = TheSiarray(string)->data;
+          /*FALLTHROUGH*/
+        #endif
+        case Rectype_Sstring: # mutable Simple-String
+        #else
+        case Array_type_sstring: # Simple-String
+        #endif
+          TheSstring(inner_string)->data[index] = element;
+          break;
+        default: NOTREACHED;
+      }
+      return string;
+    }
+
+# UP: Stores an array of characters in a string.
+# > string: a mutable string that is or was simple
+# > offset: (already checked) offset into the string
+# > charptr[0..len-1]: a character array, not GC affected
+# < result: the possibly reallocated string
+# can trigger GC
+  global object sstring_store_array (object string, uintL offset,
+                                     const chart *charptr, uintL len);
+  global object sstring_store_array(string,offset,charptr,len)
+    var object string;
+    var uintL offset;
+    var const chart *charptr;
+    var uintL len;
+    {
+      if (len > 0) {
+        var object inner_string = string;
+        simple_array_to_storage(inner_string);
+        switch (Array_type(inner_string)) {
+          #ifndef TYPECODES
+          #ifdef HAVE_SMALL_SSTRING
+          case Rectype_SmallSstring: # mutable Simple-String
+            {
+              var bool small = true;
+              {
+                var uintL n;
+                var const chart* p = charptr;
+                dotimespL(n,len, {
+                  if (!(as_cint(*p) < small_char_int_limit)) {
+                    small = false;
+                    break;
+                  }
+                  p++;
+                });
+              }
+              if (small) {
+                var const chart* p = charptr;
+                var scint* q = &TheSmallSstring(inner_string)->data[offset];
+                dotimespL(len,len, {
+                  *q = (scint)as_cint(*p);
+                  p++;
+                  q++;
+                });
+                break;
+              }
+            }
+            ASSERT(string == inner_string);
+            string = reallocate_small_string(inner_string);
+            inner_string = TheSiarray(string)->data;
+            /*FALLTHROUGH*/
+          #endif
+          case Rectype_Sstring: # mutable Simple-String
+          #else
+          case Array_type_sstring: # Simple-String
+          #endif
+            chartcopy(charptr,&TheSstring(inner_string)->data[offset],len);
+            break;
+          default: NOTREACHED;
+        }
+      }
+      return string;
+    }
+
 #ifdef UNICODE
 # UP: Bildet einen Simple-String mit gegebenen Elementen.
 # stringof(len)
@@ -919,6 +1020,10 @@ global chart* unpack_string_rw (object string, uintL* len) {
           case Rectype_Imm_Sstring:
             # immutabler Simple-String, unverändert zurück
             return obj;
+          #ifdef HAVE_SMALL_SSTRING
+          case Rectype_reallocstring:
+          case Rectype_SmallSstring:
+          #endif
           case Rectype_Sstring:
           case Rectype_string:
             # sonstiger String, kopieren
@@ -927,7 +1032,8 @@ global chart* unpack_string_rw (object string, uintL* len) {
               var uintL offset;
               var object string = unpack_string_ro(obj,&len,&offset);
               #ifdef HAVE_SMALL_SSTRING
-              if (Record_type(string) == Rectype_Imm_SmallSstring) {
+              if (Record_type(string) == Rectype_SmallSstring
+                  || Record_type(string) == Rectype_Imm_SmallSstring) {
                 pushSTACK(string);
                 var object new_string = allocate_imm_small_string(len);
                 string = popSTACK();
@@ -995,15 +1101,21 @@ global chart* unpack_string_rw (object string, uintL* len) {
     var object obj;
     {
       if (orecordp(obj))
+       restart:
         switch (Record_type(obj)) {
           case Rectype_Imm_Sstring:
           case Rectype_Sstring:
             # Normal-Simple-String, unverändert zurück
             return obj;
           case Rectype_Imm_SmallSstring:
+          case Rectype_SmallSstring:
           case Rectype_string:
             # sonstiger String, kopieren
             return copy_string(obj);
+          case Rectype_reallocstring:
+            # reallocated simple string
+            obj = TheSiarray(obj)->data;
+            goto restart;
           default:
             break;
         }
@@ -1033,7 +1145,9 @@ global chart* unpack_string_rw (object string, uintL* len) {
             # immutabler Normal-Simple-String, unverändert zurück
             return obj;
           case Rectype_Imm_SmallSstring:
+          case Rectype_SmallSstring:
           case Rectype_Sstring:
+          case Rectype_reallocstring:
           case Rectype_string:
             # sonstiger String, kopieren
             {
@@ -1361,13 +1475,22 @@ global object char_name (chart code) {
   # printer errors).
   /* if (!graphic_char_p(code)) */
   {
-    var object name = allocate_string(5);
     local char hex_table[] = "0123456789ABCDEF";
+    #ifdef HAVE_SMALL_SSTRING
+    var object name = allocate_small_string(5);
+    TheSmallSstring(name)->data[0] = ascii('U');
+    TheSmallSstring(name)->data[1] = ascii(hex_table[(c>>12)&0x0F]);
+    TheSmallSstring(name)->data[2] = ascii(hex_table[(c>>8)&0x0F]);
+    TheSmallSstring(name)->data[3] = ascii(hex_table[(c>>4)&0x0F]);
+    TheSmallSstring(name)->data[4] = ascii(hex_table[c&0x0F]);
+    #else
+    var object name = allocate_string(5);
     TheSstring(name)->data[0] = ascii('U');
     TheSstring(name)->data[1] = ascii(hex_table[(c>>12)&0x0F]);
     TheSstring(name)->data[2] = ascii(hex_table[(c>>8)&0x0F]);
     TheSstring(name)->data[3] = ascii(hex_table[(c>>4)&0x0F]);
     TheSstring(name)->data[4] = ascii(hex_table[c&0x0F]);
+    #endif
     return name;
   }
  #else # no UNICODE
@@ -2371,9 +2494,10 @@ LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
     var uintL offset = 0;
     # Don't use unpack_string_ro() -- we need (array-dimension string 0),
     # not (length string).
-    if (simple_string_p(string))
+    if (simple_string_p(string)) {
+      simple_array_to_storage(string);
       len = Sstring_length(string);
-    else {
+    } else {
       len = TheIarray(string)->totalsize;
       string = iarray_displace_check(string,len,&offset);
     }
@@ -2392,6 +2516,7 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
     var object string = STACK_1;
     if (!simple_string_p(string))
       fehler_sstring(string);
+    simple_array_to_storage(string);
     var uintL index = test_index_arg(Sstring_length(string));
     var chart ch;
     SstringDispatch(string,
@@ -2435,16 +2560,16 @@ LISPFUNN(store_char,3) # (SYSTEM::STORE-CHAR string index newchar)
     var uintL offset = 0;
     # Don't use unpack_string_rw() -- we need (array-dimension string 0),
     # not (length string).
-    if (simple_string_p(string))
+    if (simple_string_p(string)) {
+      simple_array_to_storage(string);
       len = Sstring_length(string);
-    else {
+    } else {
       len = TheIarray(string)->totalsize;
       string = iarray_displace_check(string,len,&offset);
     }
     check_sstring_mutable(string);
-    var chart* charptr = &TheSstring(string)->data[offset];
-    charptr += test_index_arg(len); # go to the element addressed by index
-    *charptr = char_code(newchar); # put in the character
+    offset += test_index_arg(len); # go to the element addressed by index
+    sstring_store(string,offset,char_code(newchar)); # put in the character
     value1 = newchar; mv_count=1;
     skipSTACK(2);
   }
@@ -2456,10 +2581,10 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
     var object string = STACK_1; # string-Argument
     if (!simple_string_p(string)) # muss ein Simple-String sein
       fehler_sstring(string);
+    simple_array_to_storage(string);
     check_sstring_mutable(string);
-    # zum vom Index angesprochenen Element gehen
-    var chart* charptr = &TheSstring(string)->data[0] + test_index_arg(Sstring_length(string));
-    *charptr = char_code(newchar); # Character eintragen
+    var uintL offset = test_index_arg(Sstring_length(string)); # go to the element addressed by index
+    sstring_store(string,offset,char_code(newchar)); # put in the character
     value1 = newchar; mv_count=1;
     skipSTACK(2);
   }
@@ -2527,7 +2652,8 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
     {
       var object string = test_string_limits_ro(arg);
       if (arg->len > 0)
-        if (!(Record_type(arg->string) == Rectype_Sstring))
+        if (!(Record_type(arg->string) == Rectype_Sstring
+              || Record_type(arg->string) == Rectype_SmallSstring))
           fehler_sstring_immutable(string);
       return string;
     }
@@ -2566,13 +2692,14 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # > STACK_0: optionales :end-Argument
 # > subr_self: Aufrufer (ein SUBR)
 # < object string: Kopie des Strings
-# < uintL len: Anzahl der angesprochenen Characters
-# < chart* ergebnis: Ab hier kommen die angesprochenen Characters
+# < uintL offset: index of first affected character
+# < uintL len: number of affected characters
 # erhöht STACK um 3
 # can trigger GC
-  local chart* test_1_stringsym_limits (object* string_, uintL* len_);
-  local chart* test_1_stringsym_limits(string_,len_)
+  local void test_1_stringsym_limits (object* string_, uintL* offset_, uintL* len_);
+  local void test_1_stringsym_limits(string_,offset_,len_)
     var object* string_;
+    var uintL* offset_;
     var uintL* len_;
     {
       var object string;
@@ -2602,8 +2729,8 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       }
       skipSTACK(3);
       # String kopieren und Ergebnisse herausgeben:
-      *string_ = string = copy_string(string); # String kopieren
-      *len_ = end-start; return &TheSstring(string)->data[start];
+      *string_ = copy_string(string); # String kopieren
+      *offset_ = start; *len_ = end-start;
     }
 
 # UP: Überprüft die Grenzen für 2 String/Symbol-Argumente
@@ -3391,17 +3518,38 @@ LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
   }
 
 # UP: wandelt die Characters eines Stringstücks in Großbuchstaben
-# nstring_upcase(charptr,len);
-# > chart* charptr: Ab hier kommen die angesprochenen Characters
-# > uintL len: Anzahl der angesprochenen Characters
-  global void nstring_upcase (chart* charptr, uintL len);
-  global void nstring_upcase(charptr,len)
-    var chart* charptr;
+# nstring_upcase(dv,offset,len);
+# > object dv: the character storage vector
+# > uintL offset: index of first affected character
+# > uintL len: number of affected characters
+# can trigger GC
+  global void nstring_upcase (object dv, uintL offset, uintL len);
+  global void nstring_upcase(dv,offset,len)
+    var object dv;
+    var uintL offset;
     var uintL len;
     {
-      dotimesL(len,len, {
-        *charptr = up_case(*charptr); charptr++;
-      });
+    restart:
+      if (len > 0)
+        SstringDispatch(dv,
+          {
+            var chart* charptr = &TheSstring(dv)->data[offset];
+            dotimespL(len,len, {
+              *charptr = up_case(*charptr); charptr++;
+            });
+          },
+          {
+            do {
+              dv = sstring_store(dv,offset,up_case(as_chart(TheSmallSstring(dv)->data[offset])));
+              offset++;
+              len--;
+              if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+                dv = TheSiarray(dv)->data;
+                goto restart;
+              }
+            } while (len > 0);
+          }
+          );
     }
 
 # UP: wandelt einen String in Großbuchstaben
@@ -3414,7 +3562,10 @@ LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
     var object string;
     {
       string = copy_string(string); # kopieren und dabei zum Normal-Simple-String machen
-      nstring_upcase(&TheSstring(string)->data[0],Sstring_length(string)); # umwandeln
+      pushSTACK(string);
+      nstring_upcase(string,0,Sstring_length(string)); # umwandeln
+      string = popSTACK();
+      simple_array_to_storage(string);
       return string;
     }
 
@@ -3423,32 +3574,58 @@ LISPFUN(nstring_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
   {
     var stringarg arg;
     var object string = test_string_limits_rw(&arg);
-    nstring_upcase(&TheSstring(arg.string)->data[arg.offset+arg.index],arg.len);
-    value1 = string; mv_count=1;
+    pushSTACK(string);
+    nstring_upcase(arg.string,arg.offset+arg.index,arg.len);
+    value1 = popSTACK(); mv_count=1;
   }
 
 LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
 # (STRING-UPCASE string :start :end), CLTL S. 303
   {
     var object string;
+    var uintL offset;
     var uintL len;
-    var chart* charptr = test_1_stringsym_limits(&string,&len);
-    nstring_upcase(charptr,len);
+    test_1_stringsym_limits(&string,&offset,&len);
+    pushSTACK(string);
+    nstring_upcase(string,offset,len);
+    string = popSTACK();
+    simple_array_to_storage(string);
     value1 = string; mv_count=1;
   }
 
 # UP: wandelt die Characters eines Stringstücks in Kleinbuchstaben
-# nstring_downcase(charptr,len);
-# > chart* charptr: Ab hier kommen die angesprochenen Characters
-# > uintL len: Anzahl der angesprochenen Characters
-  global void nstring_downcase (chart* charptr, uintL len);
-  global void nstring_downcase(charptr,len)
-    var chart* charptr;
+# nstring_downcase(dv,offset,len);
+# > object dv: the character storage vector
+# > uintL offset: index of first affected character
+# > uintL len: number of affected characters
+# can trigger GC
+  global void nstring_downcase (object dv, uintL offset, uintL len);
+  global void nstring_downcase(dv,offset,len)
+    var object dv;
+    var uintL offset;
     var uintL len;
     {
-      dotimesL(len,len, {
-        *charptr = down_case(*charptr); charptr++;
-      });
+    restart:
+      if (len > 0)
+        SstringDispatch(dv,
+          {
+            var chart* charptr = &TheSstring(dv)->data[offset];
+            dotimespL(len,len, {
+              *charptr = down_case(*charptr); charptr++;
+            });
+          },
+          {
+            do {
+              dv = sstring_store(dv,offset,down_case(as_chart(TheSmallSstring(dv)->data[offset])));
+              offset++;
+              len--;
+              if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+                dv = TheSiarray(dv)->data;
+                goto restart;
+              }
+            } while (len > 0);
+          }
+          );
     }
 
 # UP: wandelt einen String in Kleinbuchstaben
@@ -3461,7 +3638,10 @@ LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
     var object string;
     {
       string = copy_string(string); # kopieren und dabei zum Normal-Simple-String machen
-      nstring_downcase(&TheSstring(string)->data[0],Sstring_length(string)); # umwandeln
+      pushSTACK(string);
+      nstring_downcase(string,0,Sstring_length(string)); # umwandeln
+      string = popSTACK();
+      simple_array_to_storage(string);
       return string;
     }
 
@@ -3470,54 +3650,101 @@ LISPFUN(nstring_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
   {
     var stringarg arg;
     var object string = test_string_limits_rw(&arg);
-    nstring_downcase(&TheSstring(arg.string)->data[arg.offset+arg.index],arg.len);
-    value1 = string; mv_count=1;
+    pushSTACK(string);
+    nstring_downcase(arg.string,arg.offset+arg.index,arg.len);
+    value1 = popSTACK(); mv_count=1;
   }
 
 LISPFUN(string_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
 # (STRING-DOWNCASE string :start :end), CLTL S. 303
   {
     var object string;
+    var uintL offset;
     var uintL len;
-    var chart* charptr = test_1_stringsym_limits(&string,&len);
-    nstring_downcase(charptr,len);
+    test_1_stringsym_limits(&string,&offset,&len);
+    pushSTACK(string);
+    nstring_downcase(string,offset,len);
+    string = popSTACK();
+    simple_array_to_storage(string);
     value1 = string; mv_count=1;
   }
 
 # UP: wandelt die Worte eines Stringstücks in solche, die
 # mit Großbuchstaben anfangen und mit Kleinbuchstaben weitergehen.
-# nstring_capitalize(charptr,len);
-# > chart* charptr: Ab hier kommen die angesprochenen Characters
-# > uintL len: Anzahl der angesprochenen Characters
-  global void nstring_capitalize (chart* charptr, uintL len);
+# nstring_capitalize(dv,offset,len);
+# > object dv: the character storage vector
+# > uintL offset: index of first affected character
+# > uintL len: number of affected characters
+# can trigger GC
+  global void nstring_capitalize (object dv, uintL offset, uintL len);
   # Methode:
   # Jeweils abwechselnd nach Wortanfang suchen (und nichts umwandeln)
   # bzw. nach Wortende suchen (und dabei umwandeln).
-  global void nstring_capitalize(charptr,len)
-    var chart* charptr;
+  global void nstring_capitalize(dv,offset,len)
+    var object dv;
+    var uintL offset;
     var uintL len;
     {
-      # Suche den nächsten Wortanfang:
-     suche_wortanfang:
-      until (len==0) {
-        if (alphanumericp(*charptr))
-          goto wortanfang;
-        charptr++; len--;
-      }
-      return; # len=0 -> String zu Ende
-      # Wortanfang gefunden
-     wortanfang:
-      *charptr = up_case(*charptr); # Zeichen in Großbuchstaben umwandeln
-      charptr++;
-      # Suche das Wortende:
-      until (--len==0) {
-        # mitten im Wort
-        if (!(alphanumericp(*charptr)))
-          goto suche_wortanfang;
-        *charptr = down_case(*charptr); # Zeichen in Kleinbuchstaben umwandeln
-        charptr++;
-      }
-      return; # len=0 -> String zu Ende
+      var chart ch;
+      SstringDispatch(dv,
+        {
+          # Search the start of a word.
+         search_wordstart_16:
+          until (len==0) {
+            ch = TheSstring(dv)->data[offset];
+            if (alphanumericp(ch))
+              goto wordstart_16;
+            offset++; len--;
+          }
+          return; # len = 0 -> string terminated
+          # Found the start of a word.
+         wordstart_16:
+          dv = sstring_store(dv,offset,up_case(ch));
+          loop {
+            offset++;
+            if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+              abort();
+            }
+           in_word_16:
+            if (--len==0)
+              break;
+            ch = TheSstring(dv)->data[offset];
+            if (!alphanumericp(ch))
+              goto search_wordstart_16;
+            dv = sstring_store(dv,offset,down_case(ch));
+          }
+          return; # len = 0 -> string terminated
+        },
+        {
+          # Search the start of a word.
+         search_wordstart_8:
+          until (len==0) {
+            ch = as_chart(TheSmallSstring(dv)->data[offset]);
+            if (alphanumericp(ch))
+              goto wordstart_8;
+            offset++; len--;
+          }
+          return; # len = 0 -> string terminated
+          # Found the start of a word.
+         wordstart_8:
+          dv = sstring_store(dv,offset,up_case(ch));
+          loop {
+            offset++;
+            if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+              dv = TheSiarray(dv)->data;
+              SstringDispatch(dv, goto in_word_16;, abort(); )
+            }
+           in_word_8:
+            if (--len==0)
+              break;
+            ch = as_chart(TheSmallSstring(dv)->data[offset]);
+            if (!alphanumericp(ch))
+              goto search_wordstart_8;
+            dv = sstring_store(dv,offset,down_case(ch));
+          }
+          return; # len = 0 -> string terminated
+        }
+        )
     }
 
 LISPFUN(nstring_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
@@ -3525,17 +3752,22 @@ LISPFUN(nstring_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
   {
     var stringarg arg;
     var object string = test_string_limits_rw(&arg);
-    nstring_capitalize(&TheSstring(arg.string)->data[arg.offset+arg.index],arg.len);
-    value1 = string; mv_count=1;
+    pushSTACK(string);
+    nstring_capitalize(arg.string,arg.offset+arg.index,arg.len);
+    value1 = popSTACK(); mv_count=1;
   }
 
 LISPFUN(string_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
 # (STRING-CAPITALIZE string :start :end), CLTL S. 303
   {
     var object string;
+    var uintL offset;
     var uintL len;
-    var chart* charptr = test_1_stringsym_limits(&string,&len);
-    nstring_capitalize(charptr,len);
+    test_1_stringsym_limits(&string,&offset,&len);
+    pushSTACK(string);
+    nstring_capitalize(string,offset,len);
+    string = popSTACK();
+    simple_array_to_storage(string);
     value1 = string; mv_count=1;
   }
 

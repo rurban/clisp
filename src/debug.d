@@ -149,6 +149,7 @@
           for (;consp(alist);alist = Cdr(alist))
             if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))) {
               var object key = Car(Car(alist));
+              simple_array_to_storage(key);
               var uintL len = Sstring_length(key);
               # check whether the line starts with the key and a whitespace
               if ((len <= input_len) && string_eqcomp_ci(line,0,key,0,len)) {

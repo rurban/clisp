@@ -403,7 +403,7 @@ local uint32 hashcode3_atom (object obj) {
       case Rectype_Sb16vector: case Rectype_b16vector:
       case Rectype_Sb32vector: case Rectype_b32vector:
         return hashcode_bvector(obj);
-      case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string:
+      case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: case Rectype_reallocstring: case Rectype_string:
         return hashcode_string(obj);
      #ifdef LOGICAL_PATHNAMES
       case Rectype_Logpathname:
