@@ -1,5 +1,11 @@
 2004-05-21  Bruno Haible  <bruno@clisp.org>
 
+	Make it possible to simulate microcomputer memory management on Unix.
+	* lispbibl.d (VIRTUAL_MEMORY): Don't define if NO_VIRTUAL_MEMORY is
+	defined.
+
+2004-05-21  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (BT_CHECK, unwind_back_trace): Depend on DEBUG_BACKTRACE,
 	not DEBUG_SPVW.
 

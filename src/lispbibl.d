@@ -31,6 +31,7 @@
      TYPECODES, HEAPCODES, STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES, WIDE
    Advanced memory management:
      NO_SINGLEMAP, NO_TRIVIALMAP, NO_MULTIMAP_FILE, NO_MULTIMAP_SHM,
+     NO_VIRTUAL_MEMORY,
      NO_MORRIS_GC, NO_GENERATIONAL_GC
    String representation:
      NO_SMALL_SSTRING
@@ -1944,7 +1945,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # When changed: extend time.d
 
 # Whether the operating system provides virtual memory.
-#if defined(UNIX) || defined(WIN32)
+#if (defined(UNIX) || defined(WIN32)) && !defined(NO_VIRTUAL_MEMORY)
   #define VIRTUAL_MEMORY
 #endif
 # When changed: do nothing
