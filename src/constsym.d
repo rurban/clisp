@@ -82,6 +82,8 @@ LISPSYM(or,"OR",lisp)
 /* ---------- EVAL ---------- */
 LISPSYM(funtabref,"%FUNTABREF",system)
 LISPSYM(subr_info,"SUBR-INFO",system)
+LISPSYM(add_implicit_block,"ADD-IMPLICIT-BLOCK",system)
+LISPSYM(function_block_name,"FUNCTION-BLOCK-NAME",system)
 /* ---------- ARRAY ---------- */
 LISPSYM(copy_simple_vector,"%COPY-SIMPLE-VECTOR",system)
 LISPSYM(vector,"VECTOR",lisp)

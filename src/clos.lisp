@@ -18,7 +18,7 @@
     sys::error-of-type          ; defined in error.d
     sys::check-function-name    ; defined in trace.lisp
     sys::function-name-p        ; defined in control.d
-    sys::function-block-name    ; defined in init.lisp
+    sys::function-block-name    ; defined in eval.d
     sys::gensym-list            ; defined in macros2.lisp
     ;; clos::generic-function-p ; defined in predtype.d
     ;; clos::class-p clos:class-of clos:find-class ; defined in predtype.d
