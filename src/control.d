@@ -55,7 +55,6 @@ LISPSPECFORM(function, 1,1,nobody)
      or (FUNCTION (LAMBDA . lambdabody))
      or (FUNCTION name (LAMBDA . lambdabody)) */
   var object funname; /* function name (symbol or Lambdabody) */
-  var object name; /* name (symbol) */
   if (!boundp(STACK_0)) {
     /* 1 argument */
     funname = STACK_1;
@@ -76,19 +75,16 @@ LISPSPECFORM(function, 1,1,nobody)
       }
       VALUES1(fun); skipSTACK(2); return;
     }
-    name = S(Klambda); /* :LAMBDA as default name */
-  } else {
-    /* 2 arguments */
-    name = STACK_1; /* first argument */
-    if (!funnamep(name))
-      fehler_funname_source(S(function),name);
+    STACK_1 = S(Klambda); /* :LAMBDA as default name */
+  } else { /* 2 arguments */
+    STACK_1 = check_funname(source_program_error,S(function),STACK_1); /*1st*/
     funname = STACK_0; /* second argument, hopefully lambda expression */
   }
   if (!(consp(funname) && eq(Car(funname),S(lambda)))) /* (LAMBDA . ...) */
-    fehler_funname_source(S(function),funname);
+    funname = check_funname(source_program_error,S(function),funname);
   /* lambda expression
      in the current environment, convert into a closure: */
-  VALUES1(get_closure(Cdr(funname),name,false,&aktenv));
+  VALUES1(get_closure(Cdr(funname),STACK_1,false,&aktenv));
   skipSTACK(2); return;
 }
 
@@ -153,10 +149,11 @@ LISPFUNNR(symbol_function,1)
 
 /* UP: just like GET-FUNNAME-SYMBOL (see init.lisp),
  except that it does not create the new symbol when there is none yet
- and does not issue a warning when the SETF symbol is shadowed */
+ and does not issue a warning when the SETF symbol is shadowed
+ can trigger GC */
 local object funname_to_symbol (object symbol) {
   if (!funnamep(symbol))
-    fehler_funname_type(TheSubr(subr_self)->name,symbol);
+    symbol = check_funname(type_error,TheSubr(subr_self)->name,symbol);
   if (!symbolp(symbol)) /* (get ... 'SYS::SETF-FUNCTION) */
     symbol = get(Car(Cdr(symbol)),S(setf_function));
   return symbol;
@@ -164,8 +161,8 @@ local object funname_to_symbol (object symbol) {
 
 LISPFUNNR(fdefinition,1)
 { /* (FDEFINITION funname), CLTL2 p. 120 */
+  var object symbol = funname_to_symbol(STACK_0);
   var object funname = popSTACK();
-  var object symbol = funname_to_symbol(funname);
   if (!symbolp(symbol)) /* should be a symbol */
     fehler_undef_function(S(fdefinition),funname); /* otherwise undefined */
   var object val = Symbol_function(symbol);
@@ -310,8 +307,8 @@ LISPFUNN(makunbound,1)
 
 LISPFUNN(fmakunbound,1)
 { /* (FMAKUNBOUND symbol), CLTL p. 92, CLTL2 p. 123 */
+  var object symbol = funname_to_symbol(STACK_0);
   var object funname = popSTACK();
-  var object symbol = funname_to_symbol(funname);
   if (!symbolp(symbol)) /* should be a symbol */
       goto undef; /* otherwise undefined */
   {
@@ -876,9 +873,12 @@ LISPSPECFORM(flet, 1,0,body)
       fehler_funspec(S(flet),funspecs);
     }
     var object name = Car(funspecs);
+    if (!funnamep(name)) {
+      pushSTACK(funspecs);
+      name = check_funname(source_program_error,S(flet),name);
+      funspecs = popSTACK();
+    }
     var object lambdabody = Cdr(funspecs);
-    if (!funnamep(name))
-      fehler_funname_source(S(flet),name);
     if (!consp(lambdabody))
       goto fehler_spec;
     pushSTACK(name); /* save name */
@@ -904,23 +904,27 @@ LISPSPECFORM(labels, 1,0,body)
   /* determine the number of funspecs and test the syntax: */
   var uintL veclength = 1; /* = 2 * (number of funspecs) + 1 */
   {
-    var object funspecs = STACK_(1+1);
-    while (consp(funspecs)) {
-      var object funspec = Car(funspecs);
+    pushSTACK(STACK_(1+1)); /* funspecs */
+    while (consp(STACK_0)) {
+      var object funspec = Car(STACK_0);
       /* should be a cons, whose CAR is a symbol and whose CDR is a cons: */
       if (!consp(funspec)) {
        fehler_spec:
         fehler_funspec(S(labels),funspec);
       }
       var object name = Car(funspec);
+      if (!funnamep(name)) {
+        pushSTACK(funspec);
+        name = check_funname(source_program_error,S(labels),name);
+        funspec = popSTACK();
+      }
       var object lambdabody = Cdr(funspec);
-      if (!funnamep(name))
-        fehler_funname_source(S(labels),name);
       if (!consp(lambdabody))
         goto fehler_spec;
-      funspecs = Cdr(funspecs);
+      STACK_0 = Cdr(STACK_0);
       veclength += 2;
     }
+    skipSTACK(1); /* funspecs */
   }
   /* allocate vector of suitable length and store the names: */
   var object vec = allocate_vector(veclength);
@@ -2196,6 +2200,7 @@ local bool form_constant_p (object form) {
     var object head = Car(form);
     if (eq(head,S(quote))) return true;
     if (!funnamep(head)) return false;  /* what's this form? */
+    /* head is funname ==> funname_to_symbol() will _NOT_ cons! */
     var object fdef = Symbol_function(funname_to_symbol(head));
     if ((cclosurep(fdef) && (Cclosure_seclass(fdef) == seclass_foldable))
         || (subrp(fdef) && (TheSubr(fdef)->seclass == seclass_foldable))) {
@@ -2226,7 +2231,7 @@ LISPFUNNR(function_side_effect,1)
   var object fdef = popSTACK();
   if (consp(fdef) && (eq(S(quote),Car(fdef)) || eq(S(function),Car(fdef))))
     fdef = Car(Cdr(fdef));
-  if (funnamep(fdef)) fdef = funname_to_symbol(fdef);
+  if (funnamep(fdef)) fdef = funname_to_symbol(fdef);  /* won't cons! */
   if (symbolp(fdef)) fdef = Symbol_function(fdef);
   /* if the argument was a constant function, then we have it now */
   var seclass_t seclass = seclass_default;

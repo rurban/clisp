@@ -2899,123 +2899,128 @@ global Values eval_no_hooks (object form) {
   pushSTACK(NIL); eval1(form);
 }
 
-# UP: evaluates a form in the current environment.
-# Does not take the value of *EVALHOOK* into consideration and expects the value of
-# *APPLYHOOK*.
-# the EVAL-frame must already have been built; it will then be unwound.
-# eval1(form);
-# > form: form
-# > STACK_3..STACK_1: EVAL-Frame, with form in STACK_3
-# > STACK_0: value of *APPLYHOOK*
-# < mv_count/mv_space: values
-# changes STACK
-# can trigger GC
-  local Values eval1(form)
-    var object form;
-    {
-      if (atomp(form)) {
-        if (symbolp(form)) { /* Form is a Symbol */
-          /* value1 = value in the current Environment - not unbound! */
-          check_local_symbol_value(form,aktenv.var_env);
-          if (symbolmacrop(value1)) { /* Symbol-Macro? */
-            # yes -> expand and evaluate again:
-            skipSTACK(1); # forget value of *APPLYHOOK*
-            check_SP(); check_STACK();
-            eval(TheSymbolmacro(value1)->symbolmacro_expansion); # evaluate Expansion
-            unwind(); # unwind EVAL-Frame
-          } else {
-            mv_count=1; # value1 as value
-            skipSTACK(1);
-            unwind(); # unwind EVAL-Frame
-          }
-        } else {
-          # self-evaluating form
-          VALUES1(form);
-          skipSTACK(1);
-          unwind(); # unwind EVAL-Frame
-        }
+/* UP: evaluates a form in the current environment.
+ Does not take the value of *EVALHOOK* into consideration and expects the value of
+ *APPLYHOOK*.
+ the EVAL-frame must already have been built; it will then be unwound.
+ eval1(form);
+ > form: form
+ > STACK_3..STACK_1: EVAL-Frame, with form in STACK_3
+ > STACK_0: value of *APPLYHOOK*
+ < mv_count/mv_space: values
+ changes STACK
+ can trigger GC */
+local Values eval1 (object form)
+{
+  if (atomp(form)) {
+    if (symbolp(form)) { /* Form is a Symbol */
+      /* value1 = value in the current Environment - not unbound! */
+      check_local_symbol_value(form,aktenv.var_env);
+      if (symbolmacrop(value1)) { /* Symbol-Macro? */
+        /* yes -> expand and evaluate again: */
+        skipSTACK(1); /* forget value of *APPLYHOOK* */
+        check_SP(); check_STACK();
+        eval(TheSymbolmacro(value1)->symbolmacro_expansion); /* evaluate Expansion */
+        unwind(); /* unwind EVAL-Frame */
       } else {
-        # Form is a Cons
-        # determine, if Macro-call, poss. expand:
-        macroexp(form,aktenv.var_env,aktenv.fun_env); form = value1;
-        if (!nullp(value2)) { # expanded ?
-          # now really evaluate:
-          skipSTACK(1); # forget value of *APPLYHOOK*
-          check_SP(); check_STACK();
-          eval(form); # evaluate expanded form
-          unwind(); # unwind EVAL-Frame
-        } else {
-          var object fun = Car(form); # function designation
-          if (funnamep(fun)) {
-            # fetch function-definition in the environment:
-            fun = sym_function(fun,aktenv.fun_env);
-           fun_dispatch:
-            # branch according to type of function:
-            # unbound / SUBR/FSUBR/Closure / FunctionMacro / Macro
-            #ifdef TYPECODES
-            switch (typecode(fun))
-            #else
-            if (subrp(fun))
-              goto case_subr;
-            elif (orecordp(fun))
-              goto case_orecord;
-            else
-              switch (0)
-            #endif
-            {
-              case_subr: # SUBR
-                pushSTACK(Cdr(form)); # argumentlist
-                if (!nullp(STACK_1))
-                  goto applyhook;
-                eval_subr(fun);
-                break;
-              case_closure: # closure
-                pushSTACK(Cdr(form)); # argumentlist
-               closure: # fun is a closure
-                if (!nullp(STACK_1))
-                  goto applyhook;
-                eval_closure(fun);
-                break;
-              applyhook: # value of *APPLYHOOK* is /= NIL.
-                eval_applyhook(fun);
-                break;
-              case_orecord:
-                switch (Record_type(fun)) {
-                  case_Rectype_Closure_above;
-                  case Rectype_Fsubr:
-                    # Fsubr
-                    eval_fsubr(fun,Cdr(form));
-                    break;
-                  #ifdef DYNAMIC_FFI
-                  case Rectype_Ffunction:
-                    # Foreign-Function
-                    pushSTACK(Cdr(form)); # argumentlist
-                    if (!nullp(STACK_1))
-                      goto applyhook;
-                    eval_ffunction(fun);
-                    break;
-                  #endif
-                  case Rectype_FunctionMacro:
-                    # FunctionMacro -> treat like a function
-                    fun = TheFunctionMacro(fun)->functionmacro_function;
-                    goto fun_dispatch;
-                  default:
-                    goto undef;
-                }
-                break;
-              default:
-              undef:
-                fehler_undefined(S(eval),Car(form));
-            }
-          } elif (consp(fun) && eq(Car(fun),S(lambda))) { # lambda-expression?
-            pushSTACK(Cdr(form)); # Argumentlist
-            fun = get_closure(Cdr(fun),S(Klambda),false,&aktenv); # create closure in current environment
-            goto closure; # und apply it to the arguments, as above
-          } else
-            fehler_funname_source(S(eval),fun);
+        mv_count=1; /* value1 as value */
+        skipSTACK(1);
+        unwind(); /* unwind EVAL-Frame */
+      }
+    } else {
+      /* self-evaluating form */
+      VALUES1(form);
+      skipSTACK(1);
+      unwind(); /* unwind EVAL-Frame */
+    }
+  } else { /* Form is a Cons */
+   eval_cons:
+    /* determine, if Macro-call, poss. expand: */
+    macroexp(form,aktenv.var_env,aktenv.fun_env); form = value1;
+    if (!nullp(value2)) { /* expanded ? */
+      /* now really evaluate: */
+      skipSTACK(1); /* forget value of *APPLYHOOK* */
+      check_SP(); check_STACK();
+      eval(form); /* evaluate expanded form */
+      unwind(); /* unwind EVAL-Frame */
+    } else {
+      var object fun = Car(form); /* function designation */
+      if (funnamep(fun)) {
+        /* fetch function-definition in the environment: */
+        fun = sym_function(fun,aktenv.fun_env);
+       fun_dispatch:
+        /* branch according to type of function:
+           unbound / SUBR/FSUBR/Closure / FunctionMacro / Macro */
+       #ifdef TYPECODES
+        switch (typecode(fun))
+       #else
+        if (subrp(fun))
+          goto case_subr;
+        else if (orecordp(fun))
+          goto case_orecord;
+        else
+          switch (0)
+       #endif
+        {
+         case_subr: /* SUBR */
+          pushSTACK(Cdr(form)); /* argument list */
+          if (!nullp(STACK_1))
+            goto applyhook;
+          eval_subr(fun);
+          break;
+         case_closure: /* closure */
+          pushSTACK(Cdr(form)); /* argument list */
+         closure: /* fun is a closure */
+          if (!nullp(STACK_1))
+            goto applyhook;
+          eval_closure(fun);
+          break;
+         applyhook: /* value of *APPLYHOOK* is /= NIL. */
+          eval_applyhook(fun);
+          break;
+         case_orecord:
+          switch (Record_type(fun)) {
+            case_Rectype_Closure_above;
+            case Rectype_Fsubr: /* Fsubr */
+              eval_fsubr(fun,Cdr(form));
+              break;
+           #ifdef DYNAMIC_FFI
+            case Rectype_Ffunction: /* Foreign-Function */
+              pushSTACK(Cdr(form)); /* argument list */
+              if (!nullp(STACK_1))
+                goto applyhook;
+              eval_ffunction(fun);
+              break;
+           #endif
+            case Rectype_FunctionMacro:
+              /* FunctionMacro -> treat like a function */
+              fun = TheFunctionMacro(fun)->functionmacro_function;
+              goto fun_dispatch;
+            default:
+              goto undef;
+          }
+          break;
+          default:
+          undef:
+            fehler_undefined(S(eval),Car(form));
         }
+      } else if (consp(fun) && eq(Car(fun),S(lambda))) {
+        /* lambda-expression? */
+        pushSTACK(Cdr(form)); /* Argument list */
+        fun = get_closure(Cdr(fun),S(Klambda),false,&aktenv); /* create closure in current environment */
+        goto closure; /* und apply it to the arguments, as above */
+      } else {
+        pushSTACK(Cdr(form));
+        fun = check_funname(source_program_error,S(eval),fun);
+        pushSTACK(fun);
+        form = allocate_cons();
+        Car(form) = popSTACK(); /* fun */
+        Cdr(form) = popSTACK(); /* Cdr(form) */
+        goto eval_cons;
       }
     }
+  }
+}
 
 # In EVAL: Applies a FSUBR to an argument-list, cleans up STACK
 # and returns the values.
@@ -3938,6 +3943,7 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
  changes STACK, can trigger GC */
 global Values apply (object fun, uintC args_on_stack, object other_args)
 {
+ apply_restart:
   /* fun must be a SUBR or a Closure or a Cons (LAMBDA ...) : */
   if (subrp(fun)) { /* SUBR ? */
     return_Values apply_subr(fun,args_on_stack,other_args);
@@ -4004,8 +4010,12 @@ global Values apply (object fun, uintC args_on_stack, object other_args)
  #endif
   else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
     fehler_lambda_expression(S(apply),fun);
-  else
-    fehler_funname_type(S(apply),fun);
+  else {
+    pushSTACK(other_args);
+    fun = check_funname(type_error,S(apply),fun);
+    other_args = popSTACK();
+    goto apply_restart;
+  }
   return;
  undef:
   fehler_undefined(S(apply),fun);
@@ -4843,6 +4853,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
  changes STACK, can trigger GC */
 global Values funcall (object fun, uintC args_on_stack)
 {
+ funcall_restart:
   /* fun must be a SUBR or a Closure or a Cons (LAMBDA ...) : */
   if (subrp(fun)) { /* SUBR ? */
     return_Values funcall_subr(fun,args_on_stack);
@@ -4909,8 +4920,10 @@ global Values funcall (object fun, uintC args_on_stack)
  #endif
   else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
     fehler_lambda_expression(S(funcall),fun);
-  else
-    fehler_funname_type(S(funcall),fun);
+  else {
+    fun = check_funname(type_error,S(funcall),fun);
+    goto funcall_restart;
+  }
   return;
  undef:
   fehler_undefined(S(funcall),fun);

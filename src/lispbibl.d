@@ -12211,12 +12211,10 @@ global object check_encoding (object obj, const gcv_object_t* e_default,
                               bool keyword_p);
 /* used by ENCODING, FOREIGN */
 
-# report errors if the argument is not a function name
-# obj - bad object; caller - the calling function (a symbol)
-nonreturning_function(global, fehler_funname_type,
-                      (object caller, object obj));
-nonreturning_function(global, fehler_funname_source,
-                      (object caller, object obj));
+/* report errors if the argument is not a function name
+ obj - bad object; caller - the calling function (a symbol)
+ errtype - type_error or source_program_error */
+global object check_funname (condition_t errtype, object caller, object obj);
 
 # Error message, if an argument is a lambda-expression instead of a function:
 # fehler_lambda_expression(caller,obj);
