@@ -4608,7 +4608,7 @@ typedef iarray_ *  Iarray;
 #define Atype_T      6
 #define Atype_Char   7
 #ifndef TYPECODES
-/* (ARRAY NIL) has a Array_type_snilvector sata vector */
+/* (ARRAY NIL) has an Array_type_snilvector data vector */
 #define Atype_NIL    8
 #endif
 
