@@ -9,6 +9,7 @@
 
 	* pathname.d (TrueName) [WIN32_NATIVE]: return bool; made global;
 	fixed a bug with overwriting "nameout" string with "resolved"
+	(cpslashp): new macro, used throughout the file
 	* spvw_memfile.d (loadmem) [WIN32_NATIVE]: use TrueName() to
 	resolve possible symbolic links
 	* lispbibl.d (TrueName): added a prototype
@@ -17,8 +18,7 @@
 
 	* pathname.d (open_file): when :DIRECTION is :PROBE, open the file
 	for input and then immediately close the handle, as suggested by
-	the ANSI CL spec; this allows FILE-LENGTH and FILE-WRITE-DATE to
-	work on :PROBE streams
+	the ANSI CL spec; this allows FILE-LENGTH work on :PROBE streams
 	Reported by Pascal Bourguignon <pjb@informatimago.com>
 
 2003-06-12  Sam Steingold  <sds@gnu.org>
@@ -32,6 +32,7 @@
 
 	* pathname.d (simplify_directory): fold "*" into :WILD
 	and "**" into :WILD-INFERIORS
+	(subdir_diff): ignore logical
 	(directory_list_valid_p): accept :WILD
 
 2003-06-08  Sam Steingold  <sds@gnu.org>
