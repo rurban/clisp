@@ -631,20 +631,21 @@ static const cint nop_page[256] = {
     }
 
 # Copies an array of chart to an array of chart.
+# defined as a macro to expand to memcpy in lispbibl.d
 # chartcopy(src,dest,len);
 # > chart* src: characters
 # > chart* dest: room for characters
 # > uintL len: number of characters to be copied, > 0
-  global void chartcopy (const chart* src, chart* dest, uintL len);
-  global void chartcopy(src,dest,len)
-    var const chart* src;
-    var chart* dest;
-    var uintL len;
-    {
-      dotimespL(len,len, {
-        *dest++ = *src++;
-      });
-    }
+#  global void chartcopy (const chart* src, chart* dest, uintL len);
+#  global void chartcopy(src,dest,len)
+#    var const chart* src;
+#    var chart* dest;
+#    var uintL len;
+#    {
+#      dotimespL(len,len, {
+#        *dest++ = *src++;
+#      });
+#    }
 
 #ifdef HAVE_SMALL_SSTRING
 # Copies an array of scint to an array of chart.
