@@ -65,51 +65,63 @@ to print the corresponding values, or T for all of them.")
 ;;-----------------------------------------------------------------------------
 ;; DESCRIBE
 
-; Number of recursive calls since the top-level call.
+;; Number of recursive calls since the top-level call.
 (defvar *describe-nesting*)
 
-; A stream whose purpose is
-; 1. to provide automatic indentation,
-; 2. to distinguish top-level calls from recursive calls.
+;; A stream whose purpose is
+;; 1. to provide automatic indentation,
+;; 2. to distinguish top-level calls from recursive calls.
 (clos:defclass describe-stream (fundamental-character-output-stream)
   ((target-stream :initarg :stream :type stream)
+   (buffer :type string :initform
+           (make-array (or *print-right-margin* sys::*prin-linelength*)
+                       :element-type 'character :fill-pointer 0
+                       :adjustable t))
    (indent :initform 0 :type integer) ; current line's indentation
    (pending-indent :initform nil :type (or null integer))))
+;; flush the buffer and print a newline (when NEWLINE-P is non-NIL)
+(defun describe-stream-flush-buffer (stream newline-p)
+  (clos:with-slots (target-stream buffer pending-indent indent) stream
+    (flet ((newline ()          ; terpri
+             (setq indent (* *describe-nesting* *print-indent-lists*)
+                   pending-indent indent)
+             (terpri target-stream)))
+      ;; fill: if the buffer does not fit on the line, TERPRI
+      (when (<= (or *print-right-margin* sys::*prin-linelength*)
+                (+ (length buffer) (sys::line-position target-stream)))
+        (newline))
+      (when pending-indent      ; do the indent
+        (sys::write-spaces pending-indent target-stream)
+        (setq pending-indent nil))
+      (write-sequence buffer target-stream)
+      (setf (fill-pointer buffer) 0)
+      (when newline-p (newline)))))
 (clos:defmethod stream-write-char ((stream describe-stream) ch)
-  (clos:with-slots (target-stream indent pending-indent) stream
+  (clos:with-slots (target-stream buffer indent pending-indent) stream
     (case ch
-      (#\Newline
-       (write-char ch target-stream)
-       (setq indent (* *describe-nesting* *print-indent-lists*))
-       (setq pending-indent indent))
-      (t
-       (when pending-indent
-         (sys::write-spaces pending-indent target-stream)
-         (setq pending-indent nil))
-       (write-char ch target-stream)))))
+      (#\Newline (describe-stream-flush-buffer stream t))
+      ((#\Space #\Tab)
+       (describe-stream-flush-buffer stream nil)
+       (write-char #\Space target-stream))
+      (t (vector-push-extend ch buffer)))))
 (clos:defmethod stream-line-column ((stream describe-stream))
-  (clos:with-slots (target-stream indent) stream
-    (let ((pos (sys::line-position target-stream)))
+  (clos:with-slots (target-stream buffer indent) stream
+    (let ((pos (+ (length buffer) (sys::line-position target-stream))))
       (if pos (max (- pos indent) 0) nil))))
 (clos:defmethod stream-start-line-p ((stream describe-stream))
-  (clos:with-slots (target-stream indent) stream
-    (let ((pos (sys::line-position target-stream)))
+  (clos:with-slots (target-stream buffer indent) stream
+    (let ((pos (+ (length buffer) (sys::line-position target-stream))))
       (if pos (<= pos indent) nil))))
 (clos:defmethod stream-finish-output ((stream describe-stream))
-  (clos:with-slots (target-stream pending-indent) stream
-    (when pending-indent
-      (sys::write-spaces pending-indent target-stream)
-      (setq pending-indent nil))
-    (finish-output target-stream)))
+  (describe-stream-flush-buffer stream nil)
+  (finish-output (clos:slot-value stream 'target-stream)))
 (clos:defmethod stream-force-output ((stream describe-stream))
-  (clos:with-slots (target-stream pending-indent) stream
-    (when pending-indent
-      (sys::write-spaces pending-indent target-stream)
-      (setq pending-indent nil))
-    (force-output target-stream)))
+  (describe-stream-flush-buffer stream nil)
+  (force-output (clos:slot-value stream 'target-stream)))
 (clos:defmethod stream-clear-output ((stream describe-stream))
-  (clos:with-slots (target-stream pending-indent) stream
+  (clos:with-slots (target-stream buffer pending-indent) stream
     (setq pending-indent nil)
+    (setf (fill-pointer buffer) 0)
     (clear-output target-stream)))
 
 ;; Returns the length of the list, or nil if circular.
@@ -363,7 +375,7 @@ to print the corresponding values, or T for all of them.")
           (let ((L nil)) ; maybe list all exported symbols
             (do-external-symbols (s obj) (push s L))
             (if (zerop *describe-nesting*)
-              (format stream (ENGLISH "exports ~:[no symbols~;the symbols~:*~{~<~%~:; ~S~>~^~}~%~]")
+              (format stream (ENGLISH "exports ~:[no symbols~;the symbols~:*~{ ~S~}~]")
                       (sort L #'string< :key #'symbol-name))
               (format stream (ENGLISH "exports ~[no symbols~:;~:*~:d symbols~]")
                       (length L))))
@@ -457,37 +469,34 @@ to print the corresponding values, or T for all of them.")
              (format stream (ENGLISH "~%documentation: ~A") doc))))))))
 
 (defun describe1 (obj stream)
-  (let ((objstring (sys::write-to-short-string obj (or *print-right-margin* sys::*prin-linelength*))))
+  (let ((objstring (sys::write-to-short-string
+                    obj (or *print-right-margin* sys::*prin-linelength*))))
     (if (member obj *describe-done* :test #'eq)
       (format stream (ENGLISH "~&~%~A [see above]") objstring)
       (progn
         (push obj *describe-done*)
         (format stream (ENGLISH "~&~%~A is ") objstring)
-        (describe-object obj stream)
-) ) ) )
+        (describe-object obj stream))))
+  (finish-output stream))
 
 (defun describe (obj &optional stream)
   (if (typep stream 'describe-stream)
-    ; Recursive call
+    ;; Recursive call
     (let ((*describe-nesting* (1+ *describe-nesting*))
           (*print-right-margin*
              (max (- (or *print-right-margin* sys::*prin-linelength*)
                      *print-indent-lists*)
                   1)))
-      (describe1 obj stream)
-    )
-    ; Top-level call
+      (describe1 obj stream))
+    ;; Top-level call
     (progn
       (cond ((eq stream 'nil) (setq stream *standard-output*))
             ((eq stream 't) (setq stream *terminal-io*)))
       (let ((*print-circle* t)
             (*describe-nesting* 0)
             (*describe-done* nil))
-        (describe1 obj (clos:make-instance 'describe-stream :stream stream))
-    ) )
-  )
-  (values)
-)
+        (describe1 obj (clos:make-instance 'describe-stream :stream stream)))))
+  (values))
 
 ;;-----------------------------------------------------------------------------
 ;; auxiliary functions for DESCRIBE of FUNCTION
@@ -498,9 +507,11 @@ to print the corresponding values, or T for all of them.")
                            allow-other-keys)
   (when s
     (format s (ENGLISH "~%Argument list: ")))
-  (format s "(~{~A~^ ~})"
-          (signature-to-list req-anz opt-anz rest-p keyword-p keywords
-                             allow-other-keys)))
+  (prog1
+      (format s "(~{~A~^ ~})"
+              (signature-to-list req-anz opt-anz rest-p keyword-p keywords
+                                 allow-other-keys))
+    (when s (format s "."))))
 
 ;;-----------------------------------------------------------------------------
 ;; auxiliary functions for DESCRIBE of CHARACTER

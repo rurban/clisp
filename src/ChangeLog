@@ -1,5 +1,19 @@
 2001-12-25  Sam Steingold  <sds@gnu.org>
 
+	make DESCRIBE break long lines
+	* describe.lisp (describe-stream): new slot BUFFER (word-buffered)
+	(describe-stream-flush-buffer): new function to flush the BUFFER
+	(stream-write-char, stream-finish-output, stream-force-output):
+	use it
+	(stream-line-column, stream-start-line-p, stream-clear-output):
+	account for BUFFER
+	(describe-object): when printing the external symbols of a
+	package, do not fill: DESCRIBE-STREAM does it for us
+	(describe1): FINISH-OUTPUT when done to flush the buffer
+	(describe-signature): terminate with a period
+
+2001-12-25  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (MAKE): set from the environment variable, if any
 
 2001-12-25  Sam Steingold  <sds@gnu.org>
