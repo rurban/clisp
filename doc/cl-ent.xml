@@ -155,6 +155,9 @@
 <!ENTITY perl "<ulink url='http://www.perl.com'><command>Perl</command></ulink>">
 <!ENTITY python "<ulink url='http://python.org/'><command>Python</command></ulink>">
 <!ENTITY ieee-bfp "<ulink url='http://grouper.ieee.org/groups/754/'>IEEE 754</ulink>">
+<!ENTITY docbook "<ulink url='http://www.docbook.org/'>DocBook</ulink>">
+<!ENTITY html "<ulink url='http://www.w3.org/MarkUp/'>HTML</ulink>">
+<!ENTITY xml "<ulink url='http://www.w3.org/XML/'>XML</ulink>">
 
 <!-- *** CLHS - Common Lisp HyperSpec *** -->
 
