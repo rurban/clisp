@@ -90,6 +90,10 @@
 <!ENTITY chmod "<ulink url='&unix-f;/chmod.html'><function>chmod</function></ulink>">
 <!ENTITY chown "<ulink url='&unix-f;/chown.html'><function>chown</function></ulink>">
 <!ENTITY utime "<ulink url='&unix-f;/utime.html'><function>utime</function></ulink>">
+<!ENTITY htonl "<ulink url='&unix-f;/htonl.html'><function>htonl</function></ulink>">
+<!ENTITY htons "<ulink url='&unix-f;/htons.html'><function>htons</function></ulink>">
+<!ENTITY ntohl "<ulink url='&unix-f;/ntohl.html'><function>ntohl</function></ulink>">
+<!ENTITY ntohs "<ulink url='&unix-f;/ntohs.html'><function>ntohs</function></ulink>">
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">
