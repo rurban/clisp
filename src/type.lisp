@@ -743,7 +743,7 @@
                   (unless (and (listp item) (eql (length item) 2)
                                (symbolp (first item)))
                     (typespec-error 'the type))
-                  (let ((kw (symbol-keyword (first item))))
+                  (let ((kw (symbol-to-keyword (first item))))
                     (unless (near-typep (getf vals kw) (second item))
                       (return-from %the nil))
                     (push kw keywords))))

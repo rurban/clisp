@@ -991,7 +991,7 @@
                 (setq initfunction nil ; FIXME
                       initfunctionform variable)))
             (let ((initer (cons initform initfunction))
-                  (initargs (list (symbol-keyword slotname)))
+                  (initargs (list (symbol-to-keyword slotname)))
                   (accessorname (ds-accessor-name slotname conc-name-option)))
               (when (eq predicate-option accessorname)
                 (warn
