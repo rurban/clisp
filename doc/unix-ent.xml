@@ -66,6 +66,7 @@
 <!ENTITY sendmsg "<ulink url='&unix-f;/sendmsg.html'><function>sendmsg</function></ulink>">
 <!ENTITY sendto "<ulink url='&unix-f;/sendto.html'><function>sendto</function></ulink>">
 <!ENTITY setkey "<ulink url='&unix-f;/setkey.html'><function>setkey</function></ulink>">
+<!ENTITY setlocale "<ulink url='&unix-f;/setlocale.html'><function>setlocale</function></ulink>">
 <!ENTITY setsockopt "<ulink url='&unix-f;/setsockopt.html'><function>setsockopt</function></ulink>">
 <!ENTITY shutdown "<ulink url='&unix-f;/shutdown.html'><function>shutdown</function></ulink>">
 <!ENTITY socket "<ulink url='&unix-f;/socket.html'><function>socket</function></ulink>">
