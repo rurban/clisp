@@ -82,13 +82,13 @@
    <author><firstname>Paul</firstname><surname>Graham</surname></author>
    <title>ANSI Common Lisp</title>
    <publishername>Prentice Hall</publishername><pubdate>1995</pubdate>
-   <pagenums>432 pages</pagenums><isbn>0133708756</isbn></biblioentry>">
+   <pagenums>432 pages</pagenums><isbn>0-133-70875-6</isbn></biblioentry>">
 <!ENTITY pg-on-lisp-bib
  "<biblioentry id='pg-on-lisp'><abbrev>PG-On-Lisp</abbrev>
    <author><firstname>Paul</firstname><surname>Graham</surname></author>
    <title>On Lisp</title>
    <publishername>Prentice Hall</publishername><pubdate>1993</pubdate>
-   <pagenums>413 pages</pagenums><isbn>0130305529</isbn></biblioentry>">
+   <pagenums>413 pages</pagenums><isbn>0-130-30552-9</isbn></biblioentry>">
 
 
 <!ENTITY gray-streams "<ulink url='ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail'>STREAM-DEFINITION-BY-USER:GENERIC-FUNCTIONS</ulink>">
