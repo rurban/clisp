@@ -1591,6 +1591,7 @@ echol     "# queens               the queens function as a separate module"
 echol     "# dirkey               the directory access (LDAP, win32 registry)"
 echol     "# berkeley-db          the Berkeley DB access"
 echol     "# syscalls             export some POSIX (and other) system calls"
+echol     "# rawsock              raw socket access"
 echol     "# regexp               POSIX regular expressions"
 echol     "# pcre                 Perl-compatible regular expressions"
 if test -n "$with_dynamic_ffi"; then
