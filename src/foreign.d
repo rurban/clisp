@@ -1046,10 +1046,10 @@ global object convert_from_foreign(fvd,data)
                   var object el = convert_from_foreign(STACK_2,(const void*)pdata);
                   TheSvector(STACK_0)->data[i] = el;
                 }
-                skipSTACK(1);
               }
-              array = popSTACK();
+              skipSTACK(1);
             }
+            array = popSTACK();
           }
           skipSTACK(1);
           return array;
