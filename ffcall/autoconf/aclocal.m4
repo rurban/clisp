@@ -130,7 +130,8 @@ AC_SUBST(GCC_X_NONE)dnl
 ])dnl
 dnl
 AC_DEFUN(CL_AS_UNDERSCORE,
-[AC_CACHE_CHECK(for underscore in external names, cl_cv_prog_as_underscore, [
+[AC_BEFORE([$0], [CL_GLOBAL_CONSTRUCTORS])
+AC_CACHE_CHECK(for underscore in external names, cl_cv_prog_as_underscore, [
 cat > conftest.c <<EOF
 int foo() { return 0; }
 EOF
