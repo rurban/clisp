@@ -1,5 +1,11 @@
 1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * socket.d (inet_addr): Don't declare on WIN32.
+          (setsockopt): Remove second declaration.
+          (SOCKET-SERVICE-PORT): On WIN32, use a replacement for getservent().
+
+1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (callback.h): Copy also vacall_r.h and trampoline_r.h.
 
 1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
