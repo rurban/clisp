@@ -30,9 +30,9 @@
 #define PROT_EXEC  VM_PROT_EXECUTE
 #define PROT_READ_WRITE  (PROT_READ|PROT_WRITE)
 
-static int mmap_zeromap (void* map_addr, vm_size_t map_len)
+static int mmap_zeromap (void* *map_addr, vm_size_t map_len)
 {
-  if (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, 0) == KERN_SUCCESS)
+  if (vm_allocate(task_self(), (vm_address_t*) map_addr, map_len, 0) == KERN_SUCCESS)
     return 0;
   else
     return -1;
@@ -65,9 +65,9 @@ int mprotect (vm_address_t addr, vm_size_t len, int prot)
 #define PROT_READ  PAGE_READONLY
 #define PROT_READ_WRITE PAGE_READWRITE
 
-static int mmap_zeromap (void* map_addr, unsigned long map_len)
+static int mmap_zeromap (void* *map_addr, unsigned long map_len)
 {
-  if (VirtualAlloc(map_addr,map_len,MEM_COMMIT,PAGE_READWRITE))
+  if (VirtualAlloc(*map_addr,map_len,MEM_COMMIT,PAGE_READWRITE))
     return 0;
   else
     return -1;
@@ -123,12 +123,21 @@ static int zero_fd;
 #endif
 #endif
 
-static int mmap_zeromap (void* map_addr, unsigned long map_len)
+static int mmap_zeromap (void* *map_addr, unsigned long map_len)
 {
-  if ((void*) mmap(map_addr,map_len, PROT_READ_WRITE, map_flags | MAP_FIXED, zero_fd, 0) == (void*)(-1))
+#if defined(__hpux) || defined (hpux)
+  /* HP-UX needs freedom on the address.  */
+  void* result = (void*) mmap(0,map_len, PROT_READ_WRITE, map_flags, zero_fd, 0);
+  if (result == (void*)(-1))
+    return -1;
+  *map_addr = result;
+  return 0;
+#else
+  if ((void*) mmap(*map_addr,map_len, PROT_READ_WRITE, map_flags | MAP_FIXED, zero_fd, 0) == (void*)(-1))
     return -1;
   else
     return 0;
+#endif
 }
 
 #endif
@@ -175,21 +184,21 @@ int main ()
 #ifdef HAVE_WIN32_VM
   VirtualAlloc((void*)(area1 & -0x10000),0x10000,MEM_RESERVE,PAGE_NOACCESS);
 #endif
-  mmap_zeromap((void*)area1,0x4000);
+  mmap_zeromap((void**)&area1,0x4000);
   sigsegv_register(&dispatcher,(void*)area1,0x4000,&area_handler,&area1);
   mprotect((void*)area1,0x4000,PROT_NONE);
 
 #ifdef HAVE_WIN32_VM
   VirtualAlloc((void*)(area2 & -0x10000),0x10000,MEM_RESERVE,PAGE_NOACCESS);
 #endif
-  mmap_zeromap((void*)area2,0x4000);
+  mmap_zeromap((void**)&area2,0x4000);
   sigsegv_register(&dispatcher,(void*)area2,0x4000,&area_handler,&area2);
   mprotect((void*)area2,0x4000,PROT_READ);
 
 #ifdef HAVE_WIN32_VM
   VirtualAlloc((void*)(area3 & -0x10000),0x10000,MEM_RESERVE,PAGE_NOACCESS);
 #endif
-  mmap_zeromap((void*)area3,0x4000);
+  mmap_zeromap((void**)&area3,0x4000);
   sigsegv_register(&dispatcher,(void*)area3,0x4000,&area_handler,&area3);
   mprotect((void*)area3,0x4000,PROT_READ);
 

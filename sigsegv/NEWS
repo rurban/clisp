@@ -1,3 +1,7 @@
+New in 1.2:
+
+* Support for HP-UX contributed by Paolo Bonzini.
+
 New in 1.1:
 
 * Catching stack overflow now works on some Unix systems:

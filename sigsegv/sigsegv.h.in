@@ -2,7 +2,7 @@
 #define _SIGSEGV_H
 
 /*
- * Copyright 1998-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1998-1999, 2002  Bruno Haible <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -31,6 +31,9 @@
 #define HAVE_SIGSEGV_RECOVERY
 #endif
 #if (defined(sgi) || defined(__sgi)) && (defined(SYSTYPE_SVR4) || defined(__SYSTYPE_SVR4)) /* Irix 5 */
+#define HAVE_SIGSEGV_RECOVERY
+#endif
+#if defined(__hpux) || defined (hpux) /* HP-UX */
 #define HAVE_SIGSEGV_RECOVERY
 #endif
 #if defined(__osf__) /* OSF/1 */
