@@ -44,7 +44,7 @@
                            ; (only for the purpose of CALL-NEXT-METHOD and
                            ; NO-NEXT-METHOD)
        :type (or null generic-function)
-       :accessor std-method-gf)
+       :accessor std-method-generic-function)
      (initfunction         ; returns - if called - the function
                            ; (only for the purpose of ADD-METHOD)
        :type function
@@ -84,7 +84,7 @@
                                                    initfunction
                                                    wants-next-method-p
                                                    ((signature signature) nil signature-p)
-                                                   gf
+                                                   ((gf gf) nil)
                                                    origin
                                               &allow-other-keys)
   (when *classes-finished*
@@ -149,7 +149,7 @@
   (setf (std-method-lambda-list method) lambda-list)
   (setf (std-method-signature method) signature)
   (setf (std-method-documentation method) documentation)
-  (setf (std-method-gf method) gf)
+  (setf (std-method-generic-function method) gf)
   (setf (std-method-initfunction method) initfunction)
   (setf (std-method-origin method) origin)
   method)
