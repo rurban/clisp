@@ -127,7 +127,8 @@ The point should be on the prototype and the definition should follow."
   "Convert the next comment appropriately"
   (interactive)
   (search-forward "# ")
-  (if (or (looking-at "UP") (looking-at "Function:") (looking-at "method.*:")
+  (if (or (looking-at "UP\\>") (looking-at "Function:")
+          (looking-at "method.*:")
           (looking-at "error-message") (looking-at "Return"))
       (d-mode-convert-block-comment)
       (d-mode-convert-comment)))
