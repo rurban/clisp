@@ -1,3 +1,7 @@
+2003-09-05  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (distrib) [cygwin]: create cygwin package
+
 2003-09-05  Wolfgang Jenkner  <wjenkner@inode.at>
 	    Sam Steingold  <sds@gnu.org>
 
