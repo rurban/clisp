@@ -6,6 +6,7 @@
 	* stream.d (vktable, attr_table): const
 	* encoding.d, utils/unicode/nls_table.c:
 	renamed nls_table to nls_table_t
+	* spvw_alloca.d: renamed malloca_header to malloca_header_t
 
 2003-02-17  Sam Steingold  <sds@gnu.org>
 
