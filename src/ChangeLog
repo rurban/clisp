@@ -1,5 +1,9 @@
 2005-03-08  Sam Steingold  <sds@gnu.org>
 
+	* lisparit.d (RANDOM): do not accept RATIOs
+
+2005-03-08  Sam Steingold  <sds@gnu.org>
+
 	* modules/postgresql/configure.in: restore the second argument
 	to AC_SEARCH_LIBS
 
