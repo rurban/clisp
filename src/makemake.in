@@ -1938,6 +1938,9 @@ needs="init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem lispinit.mem 
 if [ \( $HOS = unix -o ${HSYS} = win32gcc \) -a $CROSS = false ] ; then
   needs=".gdbinit "$needs' modular $(MODULES) base clisp full'
 fi
+if [ $TSYS = win32msvc -a "$DEBUGGING" = debug ] ; then
+  needs=$needs" lisp.bsc"
+fi
 echol "all : $needs"
 echodummyrule all
 echol
@@ -1971,10 +1974,17 @@ if [ ! $TSYS = win32msvc ] ; then
   fi
 fi
 
+if [ $TSYS = win32msvc ] ; then
+  ARGQ=""
+else
+  ARGQ="'"
+fi
+# DOS echo just echoes all of its argument buffer.
+# Things to beware are only "echo on" and "echo off".
 echol "cflags.h : Makefile"
-echotab "echo '/* generated from Makefile */' > cflags.h"
+echotab "echo $ARGQ/* generated from Makefile */$ARGQ > cflags.h"
 for x in CC CFLAGS CPP CPPLAGS CLFLAGS LIBS X_LIBS; do
-  echotab "echo '#define $x \"\$($x)\"' >> cflags.h"
+  echotab "echo $ARGQ#define $x \"\$($x)\"$ARGQ >> cflags.h"
 done
 echol
 
@@ -2088,11 +2098,7 @@ echol "stdbool.h : ${SRCDIR}stdbool.h.in"
 if [ $TOS = unix ] ; then
   echotab "sed -e 's/@''HAVE__BOOL''@/@HAVE__BOOL@/g' < ${SRCDIR}stdbool.h.in > stdbool.h"
 else
-  if [ $TSYS = win32msvc ] ; then
-    echotab "sed -e \"s/@HAVE__BOOL@/0/g\" < ${SRCDIR}stdbool.h.in > stdbool.h"
-  else
-    echotab "sed -e 's/@''HAVE__BOOL''@/0/g' < ${SRCDIR}stdbool.h.in > stdbool.h"
-  fi
+  echotab "sed -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE__BOOL${ARGQ}${ARGQ}@/0/g${ARGQ} < ${SRCDIR}stdbool.h.in > stdbool.h"
 fi
 echol
 
@@ -2100,11 +2106,7 @@ echol "stdint.h : ${SRCDIR}stdint.h.in"
 if [ $TOS = unix ] ; then
   echotab "sed -e 's/@''HAVE_LONG_64BIT''@/@HAVE_LONG_64BIT@/g' -e 's/@''HAVE_LONGLONG_64BIT''@/@HAVE_LONGLONG_64BIT@/g' < ${SRCDIR}stdint.h.in > stdint.h"
 else
-  if [ $TSYS = win32msvc ] ; then
-    echotab "sed -e \"s/@HAVE_LONG_64BIT@/0/g\" -e \"s/@HAVE_LONGLONG_64BIT@/0/g\" < ${SRCDIR}stdint.h.in > stdint.h"
-  else
-    echotab "sed -e 's/@''HAVE_LONG_64BIT''@/0/g' -e 's/@''HAVE_LONGLONG_64BIT''@/0/g' < ${SRCDIR}stdint.h.in > stdint.h"
-  fi
+  echotab "sed -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE_LONG_64BIT${ARGQ}${ARGQ}@/0/g${ARGQ} -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE_LONGLONG_64BIT${ARGQ}${ARGQ}@/0/g${ARGQ} < ${SRCDIR}stdint.h.in > stdint.h"
 fi
 echol
 
@@ -2551,6 +2553,12 @@ else
 fi
 
 echol
+
+if [ $TSYS = win32msvc -a "$DEBUGGING" = debug ] ; then
+  echol "${SRCDIR}lisp.bsc : lisp${LEXE}"
+  echotab "bscmake /n /o lisp *.sbr"
+  echol
+fi
 
 echol "alllisp : \$(LISPFILES)"
 echodummyrule alllisp
@@ -2999,7 +3007,11 @@ for f in $TXT_FILES ; do
     line=$line" | \$(GREP) -v '^ *\$\$'"
   fi
   if [ $f = clisp.html -a "${HSDEFAULT}" != "${hyperspec}" ] ; then
-    line=$line" | sed -e 's,=\"${HSDEFAULT}/,=\"${hyperspec}/,'"
+    if [ $HSYS = win32msvc ] ; then
+      line=$line" | sed -e s,=\\\"${HSDEFAULT}/,=\\\"${hyperspec}/,"
+    else
+      line=$line" | sed -e 's,=\"${HSDEFAULT}/,=\"${hyperspec}/,'"
+    fi
   fi
   if [ $f = distmakefile ] ; then
     line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed_escape_commas='s/,/\\\\,/g' ; libs=\`echo \"\$\$libs\" | sed -e \"\$\$sed_escape_commas\"\` ; sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
