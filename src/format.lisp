@@ -49,9 +49,12 @@
 ;;         from there to the list at the next ~;-directive and so on.
 ;;         until eventually to the list at the ~]-directive.
 
-;; check whether the character is a whitespace character.
-(defun whitespacep (char)
-  (member char '(#\Space #\Newline #\Linefeed #\Tab #\Return #\Page)))
+;; check whether the character is a whitespace character. -- see io.d
+;; (defun whitespacep (char)
+;;   (member char '(#\Space #\Newline #\Linefeed #\Tab #\Return #\Page))
+;;   (case char
+;;     ((#\Space #\Newline #\Linefeed #\Tab #\Return #\Page) t)
+;;     (t nil)))
 
 ;; (FORMAT-PARSE-CS control-string startindex csdl stop-at)
 ;; parses a control-string (exactly: (subseq control-string startindex))

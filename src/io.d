@@ -9710,6 +9710,29 @@ local void test_ostream (void) {
   }
 }
 
+LISPFUNN(whitespacep,1) # (SYS::WHITESPACEP CHAR)
+{
+  var object ch = popSTACK();
+  value1 = NIL;
+  if (charp(ch)) {
+    var cint ci = as_cint(char_code(ch));
+    if (cint_white_p(ci))
+      value1 = T;
+  }
+  mv_count=1;
+}
+
+LISPFUN(write_spaces,1,1,norest,nokey,0,NIL)
+# (SYS::WRITE-SPACES num &optional stream)
+{
+  test_ostream();
+  if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
+  spaces(&STACK_0,STACK_1);
+  skipSTACK(2);
+  mv_count = 1;
+  value1 = NIL;
+}
+
 # ---------------------- Pretty Printer ----------------------
 
 LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL)

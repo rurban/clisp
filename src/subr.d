@@ -427,6 +427,8 @@ LISPFUN(force_output,0,1,norest,nokey,0,NIL)
 LISPFUN(clear_output,0,1,norest,nokey,0,NIL)
 LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
 LISPFUN(line_position,0,1,norest,nokey,0,NIL)
+LISPFUNN(whitespacep,1)
+LISPFUN(write_spaces,1,1,norest,nokey,0,NIL)
 # ---------- LIST ----------
 LISPFUNN(car,1)
 LISPFUNN(cdr,1)
