@@ -1548,8 +1548,19 @@ LISPFUNNR(type_of,1)
       STACK_1 = array_element_type(STACK_1); /* eltype */
       value1 = listof(3);
       break;
-    case_closure: /* Closure -> FUNCTION */
-      value1 = S(function); break;
+    case_closure: /* Closure */
+      /* -> COMPILED-FUNCTION or STANDARD-GENERIC-FUNCTION or FUNCTION */
+      if (simple_bit_vector_p(Atype_8Bit,TheClosure(arg)->clos_codevec)) {
+        # compiled Closure
+        if (TheCodevec(TheClosure(arg)->clos_codevec)->ccv_flags & bit(4))
+          value1 = S(standard_generic_function);
+        else
+          value1 = S(compiled_function);
+      } else {
+        # interpreted Closure
+        value1 = S(function);
+      }
+      break;
     case_structure: { /* Structure -> type of the Structure */
         var object type = TheStructure(arg)->structure_types;
         /* (name_1 ... name_i-1 name_i). type is name_1. */

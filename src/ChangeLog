@@ -1,5 +1,19 @@
 2004-02-28  Bruno Haible  <bruno@clisp.org>
 
+	Due to the rule 1 in
+	<http://www.lisp.org/HyperSpec/Body/fun_type-of.html>,
+	we must have (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)
+	for all "built-in types" Y as listed in table 4-2 in
+	<http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html>
+	Apply this to X = #'compile and Y = COMPILED-FUNCTION
+	or to X = #'print-object and Y = STANDARD-GENERIC-FUNCTION.
+	* predtype.d (TYPE-OF): For compiled closures, return COMPILED-FUNCTION.
+	For generic functions, return STANDARD-GENERIC-FUNCTION.
+	* describe.lisp (describe-object): Add a case for GENERIC-FUNCTION.
+	Update to match the changed behaviour of TYPE-OF.
+
+2004-02-28  Bruno Haible  <bruno@clisp.org>
+
 	Exclude generic functions from the type COMPILED-FUNCTION.
 	So that (defgeneric foo (x) (:method ((x t)) x))
 	        (typep #'foo 'COMPILED-FUNCTION) ==> NIL.
