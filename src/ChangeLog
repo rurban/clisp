@@ -1,5 +1,9 @@
 2003-07-27  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d, encoding.d (cstombs_f, cslen_f) [!UNICODE]: macros
+
+2003-07-27  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/configure.in: check for signgam
 	* modules/syscalls/calls.c (LGAMMA): use the check
 

@@ -168,6 +168,11 @@ global void print_file (const char* fname) {
 global int main()
 {
   printf("#define SAFETY %d\n",SAFETY);
+ #if defined(UNICODE)
+  printf("#define CLISP_UNICODE 1\n");
+ #else
+  printf("#define CLISP_UNICODE 0\n");
+ #endif
  #ifdef WIN32_NATIVE
   printf("#define WIN32_NATIVE\n");
  #endif
@@ -1545,8 +1550,15 @@ global int main()
 #   printf("extern object string_to_asciz_ (object obj);\n");
 # #endif
   printf("extern object unpack_string_ro (object string, uintL* len, uintL* offset);\n");
+ #if defined(UNICODE)
   printf("extern uintL cslen_f (object encoding, const chart*src, uintL srclen);\n");
   printf("extern void cstombs_f (object encoding, const chart *src, uintL srclen, uintB* dest, uintL destlen);\n");
+ #else
+  printf("#define cslen_f(e,s,l)  cslen_ff(s,l)\n");
+  printf("uintL cslen_ff (const chart*src, uintL srclen)\n");
+  printf("#define cstombs_f(e,s,l,d,n) cstombs_ff(s,l,d,n)\n");
+  printf("void cstombs_ff (const chart *src, uintL srclen, uintB* dest, uintL destlen)\n");
+ #endif
   printf("#define with_string_0(string,encoding,ascizvar,statement) ");
   printf("    do { var uintL ascizvar##_len;");
   printf("    var uintL ascizvar##_offset;");
