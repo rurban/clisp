@@ -290,8 +290,9 @@
               '(CONS (EQL SYS::BACKQUOTE)
                 (CONS
                  (CONS (MEMBER C-ARRAY C-ARRAY-MAX)
-                  (CONS * (CONS (CONS (EQL SYS::UNQUOTE)
-                                      (CONS * NULL)) NULL))) NULL)))
+                  (CONS ATOM ; do not match (SYSTEM::UNQUOTE #) here
+                        (CONS (CONS (EQL SYS::UNQUOTE)
+                                    (CONS * NULL)) NULL))) NULL)))
        (return-from parse-c-type
          (let ((typespec (second typespec)))
            `(VECTOR
