@@ -76,6 +76,7 @@
 
 (defmacro define-compiler-macro (&whole form name args &body body)
   (declare (ignore name args body))
+  (sys::check-redefinition name 'define-compiler-macro "compiler macro")
   (multiple-value-bind (expansion name lambdalist docstring)
       (sys::make-macro-expansion (cdr form) 'strip-funcall-form)
     (declare (ignore lambdalist))
