@@ -220,8 +220,6 @@ local char* realpath (const char* path, char* resolved_path) {
                 } else {
                   #if defined(UNIX_IRIX)
                   if ((errno == EINVAL) || (errno == ENXIO))
-                  #elif defined(UNIX_MINT)
-                  if ((errno == EINVAL) || (errno == EACCESS))
                   #elif defined(UNIX_CYGWIN32)
                   if ((errno == EINVAL) || (errno == EACCES))
                   #else
