@@ -8586,8 +8586,10 @@ der Docstring (oder NIL).
 ;; c-FORMAT vgl. FORMAT in format.lsp
 (defun c-FORMAT ()
   (test-list *form* 3)
-  (when (stringp (second *form*))
-    (c-error (ENGLISH "Format: cannot print to a constant string: ~s") *form*))
+  (let ((target (second *form*)))
+    (when (and (constantp target) (not (eq target t)) (not (eq target nil)))
+      (c-error (ENGLISH "~s: cannot print to a constant ~s: ~s")
+               (car *form*) target *form*)))
   (if (stringp (third *form*))
     ; Format-String zur Compile-Zeit vorkompilieren.
     (c-GLOBAL-FUNCTION-CALL-form
