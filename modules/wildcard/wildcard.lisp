@@ -2,7 +2,7 @@
 ;; Bruno Haible 18.4.1995
 
 (defpackage "WILDCARD"
-  (:use "FFI")
+  (:use "FFI" "COMMON-LISP")
   (:export "MATCH"))
 (in-package "WILDCARD")
 
