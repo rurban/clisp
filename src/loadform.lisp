@@ -33,12 +33,13 @@
 ;; doesn't work when make-load-form is traced.
 (define-condition missing-load-form (simple-error)
   (($object :initarg :object :reader missing-load-form-object)))
+(define-condition simple-missing-load-form (simple-error missing-load-form) ())
 
 (defun signal-missing-load-form (object)
   (let ((class (class-name (class-of object))))
-    (error-of-type 'missing-load-form :object object
-      (TEXT "A method on ~S for class ~S is necessary for externalizing an object of class ~S, according to ANSI CL 3.2.4.4, but no such method is defined.")
-      'make-load-form class class)))
+    (error-of-type 'simple-missing-load-form :object object
+      (TEXT "A method on ~S for class ~S is necessary for externalizing the object ~S, according to ANSI CL 3.2.4.4, but no such method is defined.")
+      'make-load-form class object)))
 
 (defgeneric make-load-form (object &optional environment)
   ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_make-load-form.html>
