@@ -1,6 +1,6 @@
 ;;; Condition System for CLISP
 ;;; David Gadbois <gadbois@cs.utexas.edu> 30.11.1993
-;;; Bruno Haible 24.11.1993, 2.12.1993 -- 2003
+;;; Bruno Haible 24.11.1993, 2.12.1993 -- 2005
 ;;; Sam Steingold 1998-2004
 
 (in-package "COMMON-LISP")
@@ -1454,7 +1454,8 @@
     (if (not *use-clcs*)
       (progn
         (terpri *error-output*)
-        (write-string "** - Continuable Error" *error-output*)
+        (write-string "** - " *error-output*)
+        (write-string (TEXT "Continuable Error") *error-output*)
         (terpri *error-output*)
         (apply #'format *error-output* error-format-string args)
         (terpri *debug-io*)
@@ -1553,7 +1554,8 @@ Todo:
           ((assert-restart-prompt) ; prompt for new values
            (if (interactive-stream-p *debug-io*)
              (progn
-               (write-string "** - Continuable Error" *error-output*)
+               (write-string "** - " *error-output*)
+               (write-string (TEXT "Continuable Error") *error-output*)
                (terpri *error-output*)
                (pretty-print-condition condition *error-output* :text-indent 5)
                (invoke-restart-interactively restart))
