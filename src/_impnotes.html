@@ -72,27 +72,27 @@
 <body>
 <h1 align=center>Implementation Notes for CLISP</h1>
 
-<h4 align=center>Last modified: April 3, 1999.</h4>
+<h4 align=center>Last modified: July 18, 1999.</h4>
 <center>
 <img src="clisp.gif" width=48 height=48 alt="[CLISP icon]">
 </center>
 
-<p>This implementation is mostly conforming to the <a
-href="http://www.x3.org/tc_home/j13sd4.htm">ANSI CL standard X3.226-1994
-"Programming Language Common Lisp"</a>, available as <a
-href="http://www.harlequin.com/education/books/HyperSpec/FrontMatter/index.html">
-Common Lisp HyperSpec (CLHS)</a> on line (but the printed ANSI document
-remains the authoritative source of information).  This document is
-indexed in parallel to CLHS.
-
-<p>Other sources are
-
+<p>This implementation is mostly conforming to the
 <blockquote>
-<cite> Guy L. Steele Jr.: Common Lisp - The Language (1st ed.).<br>
-       Digital Press 1984, 465 pages.<br>
-       ("CLtL1" for short)
+<cite> ANSI Common Lisp standard X3.226-1994<br>
+       "Programming Language Common Lisp"<br>
+       <a href="http://www.x3.org/tc_home/j13sd4.htm">http://www.x3.org/tc_home/j13sd4.htm</a>
 </cite></blockquote>
-and
+available on-line as the
+<blockquote>
+<cite> Common Lisp HyperSpec<br>
+       <a href="http://www.harlequin.com/education/books/HyperSpec/FrontMatter/index.html">http://www.harlequin.com/education/books/HyperSpec/</a><br>
+       ("CLHS" for short)
+</cite></blockquote>
+(but the printed ANSI document remains the authoritative source of
+information).
+
+<p>ANSI CL supersedes the earlier specifications
 <blockquote>
 <cite> Guy L. Steele Jr.: Common Lisp - The Language (2nd ed.).<br>
        Digital Press 1990, 1032 pages.<br>
@@ -100,10 +100,16 @@ and
 </cite>
        <a href="http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/html/cltl/cltl2.html">available on-line</a>
 </blockquote>
+and
+<blockquote>
+<cite> Guy L. Steele Jr.: Common Lisp - The Language (1st ed.).<br>
+       Digital Press 1984, 465 pages.<br>
+       ("CLtL1" for short)
+</cite></blockquote>
 
 <p>These notes document the differences between the CLISP implementation
 of Common Lisp and the ANSI CL standard, and some implementation
-details.
+details. This document is indexed in parallel to CLHS.
 
 
 <h2>Chapter Index</h2>
@@ -195,6 +201,7 @@ details.
    <li><a href="#rexx">ARexx</a>
    <li><a href="#socket">Socket Streams</a>
    <li><a href="#syscalls">System Calls</a>
+   <li><a href="#quickstart">Quickstarting CLISP programs</a>
    <li><a href="#app-dev">Application delivery with CLISP</a>
    <li><a href="#shell">Shell Access</a>
    <li><a href="#other">Other</a>
@@ -6247,7 +6254,7 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       an extension of the ASCII character set, suitable for ??.
   <li><code>ISO-8859-15</code>,
       an extension of the ASCII character set, suitable for the ISO-8859-1
-      languages, with improvements for French and the Euro.
+      languages, with improvements for French, Finnish and the Euro.
   <li><code>KOI8-R</code>,
       an extension of the ASCII character set,
       a popular character set for the Russian language.
@@ -6385,8 +6392,8 @@ supports in particular, among others:
 <ul>
   <li><code>EUC-JP</code> and <code>SHIFT-JIS</code>, for the Japanese
       language,
-  <li><code>EUC-TW</code>, <code>BIG5</code> and <code>GB</code>, for the
-      Chinese language,
+  <li><code>EUC-CN</code>, <code>EUC-TW</code>, <code>BIG5</code> and
+      <code>GB</code>, for the Chinese language,
   <li><code>EUC-KR</code> and <code>ISO-2022-KR</code>, for the Korean
       language.
 </ul>
@@ -7067,7 +7074,7 @@ command line options:
  <dt><strong>-C</strong>
   <dd>Set <a href="#loadfile"><code>lisp:*load-compiling*</code></a> to
   <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
-  Useful in <a href="#app-dev">scripts</a>.
+  Useful in <a href="#quickstart">scripts</a>.
  <dt><a name="clisprc"><strong>-norc</strong></a>
   <dd>Do not load the user run control file on startup.  Normally, CLISP
   executes <pre><code>(load (merge-pathnames
@@ -8993,29 +9000,36 @@ lisp.
 </dl>
 
 
-<a name="app-dev"></a><h3>Extensions-2.8. Application delivery with CLISP</h3>
+<a name="quickstart"></a><h3>Extensions-2.8. Quickstarting delivery with CLISP</h3>
 
-<p>CLISP supports "application delivery" in several forms:
+<p>This section describes four ways to turn CLISP programs into executable
+programs, which can be started as quickly as executables written in other
+languages.
 <dl>
  <dt><strong>UNIX</strong>
   <dd>CLISP can act as a script interpreter.
- <dt><strong>Win32</strong> and compatible desktop environments (<a
-     href="http://www.gnome.org">GNOME</a> and <a
-     href="http://www.kde.org">KDE</a>)
-  <dd>files created with CLISP can be associated with the CLISP
+ <dt><strong>Desktop environments</strong> such as
+     <a href="http://www.kde.org">KDE</a>,
+     <a href="http://www.gnome.org">GNOME</a>, or
+     Windows.
+  <dd>Files created with CLISP can be associated with the CLISP
       executables so that clicking on them would make CLISP execute the
       appropriate code.
  <dt><strong>Linux</strong> with <code>CONFIG_BINFMT_MISC=y</code>
-  <dd>associate the extensions <code>fas</code> and <code>lsp</code>
+  <dd>Associate the extensions <code>fas</code> and <code>lsp</code>
       with CLISP; then you can make the files executable and run them
-      from the command line.  Note that several <code>fas</code> files
-      can be concatenated (using <code>cat</code>(1)) into one file.
+      from the command line.
  <dt><strong>Amiga</strong>
-  <dd>files created with CLISP can be associated with a Workbench project
+  <dd>Files created with CLISP can be associated with a Workbench project
       icon so that clicking on them would make CLISP execute the
       appropriate code.  Note that several <code>fas</code> files
       can be concatenated (using <code>Join</code>) into one file.
 </dl>
+These three techniques apply to a single <code>lsp</code> or <code>fas</code>
+file. If your application is made up of several <code>lsp</code> or
+<code>fas</code> files, you can simply concatenate them (using
+<code>cat</code>(1)) into one file; the techniques then apply to that
+concatenated file.
 
 <dl>
 <!-- #ifdef UNIX -->
@@ -9101,25 +9115,25 @@ input will be available.
 <!-- #endif -->
 
 <!-- #ifdef WIN32 -->
-<dt><em>Platform dependent: <strong>Win32</strong> platforms only.</em>
+<dt><em>Platform dependent: <strong>Windows</strong> platforms only.</em>
 
 <dd>There are two different ways to make CLISP "executables" for
 Windows platforms.
 
 <ul>
  <li>Associate the <code>mem</code> extension with
-     <code>"c:\clisp\lisp.exe -m 10M -M %s"</code>.
+     <code>"c:\clisp\lisp.exe -m 10M -M %s -N c:\clisp\locale"</code>.
  <li>Associate the <code>fas</code> extension with
-     <code>"c:\clisp\lisp.exe -m 10M -M c:\clisp\lispinit.mem -i %s"</code>.
+     <code>"c:\clisp\lisp.exe -m 10M -M c:\clisp\lispinit.mem -N c:\clisp\locale -i %s"</code>.
      Alternatively, you may want to have a function <code>main</code> in
      your files and associate the <code>fas</code> extension with
-     <code>"c:\clisp\lisp.exe -m 10M -M c:\clisp\lispinit.mem -i %s
+     <code>"c:\clisp\lisp.exe -m 10M -M c:\clisp\lispinit.mem -N c:\clisp\locale -i %s
             -x (main)"</code>.
 </ul>
 
-<p>The clicking on the compiled lisp file (with <code>fas</code>
+<p>Then clicking on the compiled lisp file (with <code>fas</code>
 extension) will load the file (thus executing all the code in the file),
-while the clicking on CLISP's memory image (with <code>mem</code>
+while the clicking on a CLISP memory image (with <code>mem</code>
 extension) will start clisp with the given <a href="#image">memory
 image</a>.
 <p><br>
@@ -9195,7 +9209,44 @@ names the console window that
 <!-- #endif -->
 </dl>
 
-<a name="shell"></a><h3>Extensions-2.9. Shell Access</h3>
+<a name="app-dev"></a><h3>Extensions-2.9. Application delivery with CLISP</h3>
+
+<p>Some ways of packaging CLISP programs are discussed in the section
+<a href="#quickstart">Quickstarting delivery with CLISP</a>.
+
+<p>CLISP is Free Software, covered by the GNU GPL, with special terms governing
+the distribution of applications that run in CLISP. The precise terms can be
+found in the COPYRIGHT file contained in the source and binary distributions
+of CLISP. Here is an informal clarification what these terms mean in practice.
+Please refer to the said COPYRIGHT file when in doubt.
+
+<p>In many cases, CLISP does not force an application to be covered by the
+GNU GPL. Nevertheless, we encourage you to release your software under an
+open source copyright. The benefits of such a copyright for your users are
+numerous, in particular they are free to modify the application when their
+needs/requirements change, and they are free to recompile the application
+when they upgrade their machine or operating system.
+
+<p>CLISP extensions, i.e. programs which need to access non-portable CLISP
+internal symbols (in the packages SYSTEM, COMPILER, CLOS, FFI, ...), must
+be covered by GNU GPL as well.
+
+<p>Other programs running in CLISP have to or need not to be placed under
+GNU GPL, depending on their distribution form:
+<ul>
+  <li>Programs distributed as Lisp source of .fas files can be distributed
+      without restrictions coming from CLISP.
+  <li>Programs distributed as CLISP memory images can be distributed
+      only if accompanied with the non-CLISP .fas files which make up the
+      memory image, and a Makefile for rebuilding the memory image.
+  <li>If you need to distribute a modified CLISP executable (for example,
+      incorporating additional modules written in C), you must distribute
+      its full source under GNU GPL. If you are not satisfied with this,
+      you can instead put the additional modules into a separate (non-CLISP)
+      program, with which your Lisp program will communicate via sockets.
+</ul>
+
+<a name="shell"></a><h3>Extensions-2.10. Shell Access</h3>
 
 <dl>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
@@ -9289,7 +9340,7 @@ href="#pipe"><code>lisp:make-pipe-io-stream</code></a>.
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
-<a name="other"></a><h3>Extensions-2.10. Other</h3>
+<a name="other"></a><h3>Extensions-2.11. Other</h3>
 
 <dl>
 <dt><em>Platform dependent: <strong>Amiga</strong> platforms only.
