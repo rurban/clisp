@@ -280,9 +280,9 @@ she will get the output
 
 <section id="language"><title>The Language</title>
 
-<para>Warning: The facilities described in this section will work
-only for the languages for which &clisp; itself is already
-localized.</para>
+ <warning><para>Note that the facilities described in this section will
+  work only for the languages for which &clisp; itself is already
+  localized.</para></warning>
 
 <para>The language &clisp; uses to communicate with the user can be one of
 <simplelist columns="1">
@@ -1730,7 +1730,7 @@ returns two values:
     <firstterm>&scr-win;<indexterm id="scr-win" significance="preferred">
       <primary id="scr-win-i"><varname>*WINDOW*</varname>
     </primary></indexterm></firstterm>
-    to a window stream and executes &body-r;.
+    to a <type>WINDOW-STREAM</type> and executes &body-r;.
     The stream is guaranteed to be closed when the body is left.
     During its execution, &terminal-io-var; should not be used, as above.
   </simpara></listitem></varlistentry>
@@ -4432,7 +4432,7 @@ bash$
     </listitem></varlistentry>
    <varlistentry><term>&program-r;</term>
     <listitem><simpara>the program.  The directories listed in the
-     <envar>PATH</envar> &env-var; will be searched for it.
+     &env-var; <envar>PATH</envar> will be searched for it.
     </simpara></listitem></varlistentry>
    <varlistentry><term>&arguments-k;</term>
     <listitem><simpara>a list of arguments (strings) that are given to the
@@ -4474,10 +4474,11 @@ bash$
   </variablelist>
 
 <para>If &stream-k; was specified for &input-k; or &output-k;, a Lisp
- stream is returned.  If &stream-k; was specified for &input-k; and
- &output-k;, three Lisp streams are returned, as for the function
- &mk-pipe-io;.  This use of &run-prog; can cause deadlocks, see
- &mk-pipe-io;.</para>
+ &stream-t; is returned.
+ If &stream-k; was specified for both &input-k; and &output-k;, three
+ Lisp &stream-t;s are returned, as for the function &mk-pipe-io;.
+ This use of &run-prog; can cause
+ <link linkend="deadlock">deadlocks</link>, see &mk-pipe-io;.</para>
 </listitem></varlistentry>
 <!-- #endif -->
  </variablelist>
@@ -4510,20 +4511,22 @@ bash$
   as input to the execution of the given operating system command and
   supply the output from this command as input.
   The second and third value will be the &in-s; and the &out-s; that
-  make up the &bidi-s;, respectively.
-  Note that they must be closed individually.</simpara>
-
- <simpara>Warning: Improper use of this function can lead to
-  deadlocks.  Use it at your own risk!</simpara>
-
- <simpara>A deadlock occurs if the command and your program either both
-  try to read from each other at the same time or both try to write to
-  each other at the same time. To avoid deadlocks, it is recommended
-  that you fix a protocol between the command and your program and avoid
-  any hidden buffering: use &read-char;, &read-char-no-hang;, &listen;
-  instead of &read-line; and &read; on the input side, and complete
-  every output operation by a &finish-output;. The same cautions must
-  apply to the called command as well.</simpara></listitem></varlistentry>
+  make up the &bidi-s;, respectively.</simpara>
+ <warning><simpara>Note that these three streams must be closed
+   individually.</simpara></warning>
+ <warning id="deadlock"><simpara>Note that improper use of this function
+   can lead to <emphasis>deadlocks</emphasis>.
+   Use it at your own risk!</simpara>
+  <simpara>A deadlock occurs if the command and your Lisp program either
+   both try to read from each other at the same time or both try to
+   write to each other at the same time.</simpara>
+  <simpara>To avoid deadlocks, it is recommended that you fix a
+   protocol between the command and your program and avoid any hidden
+   buffering: use &read-char;, &read-char-no-hang;, &listen;,
+   &so-status; instead of &read-line; and &read; on the input side, and
+   complete every output operation by a &finish-output;.
+   The same precautions must apply to the called command as well.
+</simpara></warning></listitem></varlistentry>
 <!-- #endif -->
 </variablelist></listitem></varlistentry>
 </variablelist>
@@ -4551,7 +4554,7 @@ bash$
 
 <para>When &clisp; is configured with an option
  <option>--with-dir-key</option>, some directory access is available
- from lisp, in package &ldap-pac;.  3 types of directory keys
+g from lisp, in package &ldap-pac;.  3 types of directory keys
  may exist, depending on the compilation environment.</para>
 
 <variablelist id="dir-key-type"><title>valid directory key types</title>
