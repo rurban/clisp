@@ -71,7 +71,7 @@ SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
 		-e 's/ *--> *<!-- */\n/g' \
 		-e 's/ *<!-- */\n/g' -e 's/ *--> */\n/g'
 
-all: check impnotes.html regexp.html wildcard.html _clisp.html _clisp.1
+all: check impnotes.html regexp.html wildcard.html man
 
 MAKE_TDB=xsltproc --timing --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
@@ -124,9 +124,12 @@ impnotes.html: impnotes.xml $(IMPNOTES) common.xsl pile.xsl $(OLINK)
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
 	egrep -Hn 'id="id[0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p impnotes.html impnotes.css $(DIST)/ && \
-	 test -d "../build/" && cd ../build && make clisp.html && \
-	 make clisp.1 && scp -p clisp.1 clisp.html $(DIST)) || true
+	(test -n "$(DIST)" && scp -p impnotes.html impnotes.css $(DIST)/) \
+		|| true
+
+man: _clisp.html _clisp.1
+	(cd ../build && make clisp.html clisp.1 && \
+	 test -n "$(DIST)" && scp -p clisp.1 clisp.html $(DIST)/) || true
 
 impnotes.pdf: impnotes.xml $(IMPNOTES)
 	time docbook2pdf $<
