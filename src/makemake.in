@@ -2258,6 +2258,12 @@ if [ -n "${SRCDIR}" ] ; then
     done
     echol
   fi
+  if [ ${HSYS} = win32gcc ] ; then
+    for f in install.lisp install.bat ; do
+      link_dep "${f}" "${SRCDIR}${f}"
+    done
+    echol
+  fi
 fi
 
 echol "allc : init \$(CFILES)"
@@ -3512,7 +3518,7 @@ elif [ $HSYS = acorn ] ; then
   echol
 elif [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
-  echol "distrib : force"
+  echol "distrib : install.lisp install.bat force"
   echotab "nroff -man clisp.1 > clisp.man"
   if [ $HOS = win32 ] ; then
     for f in clisp.html ; do
