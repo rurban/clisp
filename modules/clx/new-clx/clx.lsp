@@ -10,7 +10,7 @@
 
 (defvar *displays* nil)
 (push :clx *features*)
-(push 'clx-ansi-common-lisp *features*)
+(push :clx-ansi-common-lisp *features*)
 (declaim (declaration values))
 
 (defconstant *version* "CLISP-CLX 1997-06-12")
