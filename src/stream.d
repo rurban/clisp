@@ -4923,8 +4923,7 @@ global object iconv_range(encoding,start,end)
         if (_count > 0)                                                     \
           { do { _ptr[0] = _ptr[-1]; _ptr--; } while (--_count > 0); }      \
         _ptr[0] = b;                                                        \
-      }                                                                     \
-      UnbufferedStream_status(stream)++;
+      }
   #else
     #define UnbufferedStreamLow_pushfront_byte(stream,b)  \
       UnbufferedStream_bytebuf(stream)[0] = b; \
@@ -10603,6 +10602,24 @@ LISPFUNN(make_keyboard_stream,0)
         return NULL;
     }
 
+# In the implementation of rd_ch_terminal3 and listen_terminal3, we should
+# not use the corresponding rd_ch_unbuffered and listen_unbuffered functions,
+# because they store intermediately read bytes in
+# UnbufferedStream_bytebuf(stream), where readline() will not see them.
+# As a workaround, we use rl_stuff_char before calling readline().
+#
+# However, there is a deeper problem with the rd_ch_terminal3/listen_terminal3
+# implementation: readline() terminates when `rl_done' gets set to 1, whereas
+# listen_unbuffered normally returns ls_avail when the user has entered a line
+# of characters followed by #\Newline. Normally this is the same condition,
+# but if the user modifies his readline key bindings so that newline does not
+# always cause `rl_done' to become 1, then rd_ch_terminal3() might block
+# although listen_terminal3() returned ls_avail.
+# One possible fix would be to use the READLINE_CALLBACK functions, see
+# readline.dvi p. 29, but in order to get this right, RUN-PROGRAM and
+# MAKE-PIPE-INPUT-STREAM might need to be modified to temporarily turn off
+# readline.
+
 # Lesen eines Zeichens von einem Terminal-Stream.
   local object rd_ch_terminal3 (const object* stream_);
   # vgl. rd_ch_unbuffered() :
@@ -10618,6 +10635,11 @@ LISPFUNN(make_keyboard_stream,0)
         # index=count -> muss eine ganze Zeile von Tastatur lesen:
         TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
         TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
+        # Pass bytes that we have already read down into readline's buffer.
+        while (UnbufferedStream_status(stream) > 0) {
+          UnbufferedStreamLow_pop_byte(stream,b);
+          begin_system_call(); rl_stuff_char(b); end_system_call();
+        }
         {
           var char* prompt; # Prompt: letzte bisher ausgegebene Zeile
           {
