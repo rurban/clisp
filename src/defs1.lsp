@@ -91,6 +91,21 @@
      ) )
 ) )
 
+;;; <HS>/Body/mac_with-package-iterator.html
+(defmacro with-package-iterator ((name pack-list &rest types) &body body)
+  (let ((packs (gensym "WPI")) (iters (gensym "WPI")) (itf (gensym "WPI")))
+    `(let* ((,packs ,pack-list)
+            (,iters (mapcar (lambda (pa) (sys::package-iterator pa ',types))
+                            (if (listp ,packs) ,packs (list ,packs)))))
+      (labels ((,itf ()
+                 (when ,iters
+                   (multiple-value-bind (more symb acc)
+                       (sys::package-iterate (car ,iters))
+                     (if more (values more symb acc (svref (car ,iters) 4))
+                         (progn (pop ,iters) (,itf)))))))
+        (macrolet ((,name () '(,itf)))
+          ,@body)))))
+
 ;;; Modulverwaltung (Kapitel 11.8), CLTL S. 188
 
 (defvar *modules* nil)

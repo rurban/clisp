@@ -1,5 +1,11 @@
 1999-03-16  Sam Steingold  <sds@gnu.org>
 
+	implement `with-package-iterator'.
+	* def1.lsp (with-package-iterator): new ANSI CL macro.
+	* defs3.lsp, init.lsp: export it.
+
+1999-03-16  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (is_number): removed.
 	(resolve_host_ipaddr): return all hosts on NIL arg.
 	* stream.d (user_data): return the current user with no args.
