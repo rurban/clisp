@@ -468,17 +468,39 @@ global int main()
 # #ifdef WIDE_SOFT
 #   printf("#define WIDE_SOFT\n");
 # #endif
+# #ifdef WIDE_AUXI
+#   printf("#define WIDE_AUXI\n");
+# #endif
 # #ifdef WIDE
 #   printf("#define WIDE\n");
 # #endif
-  #if !defined(WIDE)
-    #ifdef OBJECT_STRUCT
+  #if !defined(WIDE_SOFT)
+    #if defined(WIDE_AUXI)
+      printf("typedef struct { union { struct { ");
+      #if BIG_ENDIAN_P
+        printf("uintP auxi_ob; uintP one_ob;");
+      #else
+        printf("uintP one_ob; uintP auxi_ob;");
+      #endif
+      printf(" } both; oint align_o");
+      #ifdef GENERATIONAL_GC
+        printf(" __attribute__ ((aligned(8)))");
+      #endif
+      printf("; } u; } object;\n");
+      printf("#define one_o  u.both.one_ob\n");
+      printf("#define auxi_o  u.both.auxi_ob\n");
+    #elif defined(OBJECT_STRUCT)
       printf("typedef struct { uintL one; } object;\n");
     #else
       printf("typedef  void *  object;\n");
     #endif
-    printf("typedef  uintL  oint;\n");
-#   printf("typedef  sintL  soint;\n");
+    #ifdef WIDE_AUXI
+      printf("typedef  uint64  oint;\n");
+#     printf("typedef  sint64  soint;\n");
+    #else
+      printf("typedef  uintL  oint;\n");
+#     printf("typedef  sintL  soint;\n");
+    #endif
   #else
     printf("typedef  uint64  oint;\n");
 #   printf("typedef  sint64  soint;\n");
@@ -506,6 +528,10 @@ global int main()
     #elif defined(OBJECT_STRUCT)
       printf("#define as_object(o)  ((object){one_o:(o)})\n");
     #endif
+  #elif defined(WIDE_AUXI)
+    printf("#define as_oint(expr)  ((expr).u.align_o)\n");
+    printf("#define as_object_with_auxi(o)  ((object){u:{both:{ one_ob: (o), auxi_ob: 0 }}})\n");
+    printf("#define as_object(o)  ((object){u:{align_o:(o)}})\n");
   #else
     printf("#define as_oint(expr)  (oint)(expr)\n");
     printf("#define as_object(o)  (object)(o)\n");
@@ -526,12 +552,14 @@ global int main()
 # printf("typedef sint%d saint;\n",oint_addr_len);
   printf("typedef object gcv_object_t;\n");
 # printf1("#define tint_type_mask  %x\n",(tint)tint_type_mask);
-  #if !(defined(WIDE_SOFT) || defined(OBJECT_STRUCT))
+  #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT))
     printf("#define objectplus(obj,offset)  ((object)pointerplus(obj,offset))\n");
+  #elif defined(WIDE_AUXI)
+    printf("static inline object objectplus (object obj, saint offset) { return (object){u:{both:{ one_ob: obj.one_o+offset, auxi_ob: obj.auxi_o }}}; }\n");
   #else
     printf("#define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))\n");
   #endif
-  #if !defined(WIDE_SOFT)
+  #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI))
 #   printf("#define wbit  bit\n");
 #   printf("#define wbitm  bitm\n");
     printf("#define wbit_test  bit_test\n");
@@ -591,6 +619,8 @@ global int main()
     #else
       #if defined(WIDE_SOFT)
         printf("#define type_untype_object(type,address)  objectplus((oint)(aint)(address),(oint)(tint)(type)<<%d)\n",oint_type_shift);
+      #elif defined(WIDE_AUXI)
+        printf("#define type_untype_object(type,address)  as_object_with_auxi((aint)pointerplus((address),(aint)(tint)(type)<<%d))\n",oint_type_shift);
       #elif defined(OBJECT_STRUCT)
         printf("#define type_untype_object(type,address)  as_object((oint)pointerplus((address),(oint)(tint)(type)<<%d))\n",oint_type_shift);
       #else
@@ -805,7 +835,11 @@ global int main()
   #ifdef TYPECODES
     printf1("#define make_machine(ptr)  type_pointer_object(%d,ptr)\n",(tint)machine_type);
   #else
-    printf1("#define make_machine(ptr)  as_object((oint)(ptr)+%d)\n",machine_bias)
+    #if defined(WIDE_AUXI)
+      printf1("#define make_machine(ptr)  as_object_with_auxi((aint)(ptr)+%d)\n",machine_bias)
+    #else
+      printf1("#define make_machine(ptr)  as_object((oint)(ptr)+%d)\n",machine_bias)
+    #endif
   #endif
 # printf3("#define make_system(data)  type_data_object(%d,%x | (%x & (data)))\n",(tint)system_type,(oint)(bit(oint_data_len-1) | bit(0)),(oint)(bit(oint_data_len)-1));
 # printf1("#define unbound  make_system(%x)\n",0xFFFFFFUL);
@@ -857,23 +891,32 @@ global int main()
 #   printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(subr_type); printf("))\n");
 #   printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(machine_type); printf("))\n");
   #else
-#   printf1("#define TheCons(obj)  ((Cons)(as_oint(obj)-%d))\n",cons_bias);
-#   printf1("#define TheRatio(obj)  ((Ratio)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheComplex(obj)  ((Complex)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSymbol(obj)  ((Symbol)(as_oint(obj)-%d))\n",varobject_bias);
-    printf1("#define TheBignum(obj)  ((Bignum)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSarray(obj)  ((Sarray)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSbvector(obj)  ((Sbvector)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSstring(obj)  ((Sstring)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSvector(obj)  ((Svector)(as_oint(obj)-%d))\n",varobject_bias);
-    printf1("#define TheRecord(obj)  ((Record)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSrecord(obj)  ((Srecord)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheXrecord(obj)  ((Xrecord)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define ThePackage(obj)  ((Package)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheStructure(obj)  ((Structure)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheInstance(obj)  ((Instance)(as_oint(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSubr(obj)  ((Subr)(as_oint(obj)-%d))\n",subr_bias);
-#   printf1("#define TheMachine(obj)  ((void*)(as_oint(obj)-%d))\n",machine_bias);
+    #if defined(WIDE_AUXI)
+      printf("#define cgci_pointable(obj)  (obj).one_o\n");
+      printf("#define pgci_pointable(obj)  (obj).one_o\n");
+      printf("#define ngci_pointable(obj)  (obj).one_o\n");
+    #else
+      printf("#define cgci_pointable(obj)  as_oint(obj)\n");
+      printf("#define pgci_pointable(obj)  as_oint(obj)\n");
+      printf("#define ngci_pointable(obj)  as_oint(obj)\n");
+    #endif
+#   printf1("#define TheCons(obj)  ((Cons)(ngci_pointable(obj)-%d))\n",cons_bias);
+#   printf1("#define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheComplex(obj)  ((Complex)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheSymbol(obj)  ((Symbol)(ngci_pointable(obj)-%d))\n",varobject_bias);
+    printf1("#define TheBignum(obj)  ((Bignum)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheSarray(obj)  ((Sarray)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheSbvector(obj)  ((Sbvector)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-%d))\n",varobject_bias);
+    printf1("#define TheRecord(obj)  ((Record)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define ThePackage(obj)  ((Package)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#   printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
+#   printf1("#define TheMachine(obj)  ((void*)(cgci_pointable(obj)-%d))\n",machine_bias);
   #endif
 # printf("#define Car(obj)  (TheCons(obj)->car)\n");
 # printf("#define Cdr(obj)  (TheCons(obj)->cdr)\n");
@@ -884,6 +927,8 @@ global int main()
 # printf("#define Symbol_package(obj)  (TheSymbol(obj)->homepackage)\n");
   #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
     printf("#define eq(obj1,obj2)  (as_oint(obj1) == as_oint(obj2))\n");
+  #elif defined(WIDE_AUXI)
+    printf("#define eq(obj1,obj2)  ((obj1).one_o == (obj2).one_o)\n");
   #else
     printf("#define eq(obj1,obj2)  ((obj1) == (obj2))\n");
   #endif
@@ -1281,7 +1326,11 @@ global int main()
 #   #ifdef TYPECODES
 #     printf1("#define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(%d,subr_addr))\n",(tint)subr_type);
 #   #else
-#     printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+%d)\n",subr_bias);
+#     #ifdef WIDE_AUXI
+#       printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object_with_auxi((aint)(subr_addr)+%d)\n",subr_bias);
+#     #else
+#       printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+%d)\n",subr_bias);
+#     #endif
 #   #endif
 #   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)\n");
 # #else
@@ -1302,7 +1351,9 @@ global int main()
     #ifdef TYPECODES
       printf1("#define S_help_(name)  (type_constpointer_object(%d,&symbol_tab.name))\n",(tint)symbol_type);
     #else
-      #if defined(OBJECT_STRUCT)
+      #if defined(WIDE_AUXI)
+        printf1("#define S_help_(name)  as_object_with_auxi((aint)&symbol_tab.name+%d)\n",varobject_bias);
+      #elif defined(OBJECT_STRUCT)
         printf1("#define S_help_(name)  as_object((oint)&symbol_tab.name+%d)\n",varobject_bias);
       #else
         printf1("#define S_help_(name)  objectplus(&symbol_tab.name,%d)\n",varobject_bias);
@@ -1319,7 +1370,7 @@ global int main()
   printf("extern uintC module_count;\n");
   printf("typedef struct { const char* packname; const char* symname; } subr_initdata_t;\n");
   printf("typedef struct { const char* initstring; } object_initdata_t;\n");
-  printf("typedef struct module_t { const char* name; subr_t* stab; const uintC* stab_size; object* otab; const uintC* otab_size; bool initialized; const subr_initdata_t* stab_initdata; const object_initdata_t* otab_initdata; void (*initfunction1) (struct module_t *); void (*initfunction2) (struct module_t *);");
+  printf("typedef struct module_t { const char* name; subr_t* stab; const uintC* stab_size; gcv_object_t* otab; const uintC* otab_size; bool initialized; const subr_initdata_t* stab_initdata; const object_initdata_t* otab_initdata; void (*initfunction1) (struct module_t *); void (*initfunction2) (struct module_t *);");
   #ifdef DYNAMIC_MODULES
     printf(" struct module_t * next;");
   #endif

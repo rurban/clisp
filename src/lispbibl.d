@@ -619,18 +619,20 @@
 # WIDE means than an object (pointer) occupies 64 bits (instead of 32 bits).
 # WIDE_HARD means on a 64-bit platform.
 # WIDE_SOFT means on a 32-bit platform, each object pointer occupies 2 words.
+# WIDE_AUXI means on a 32-bit platform, each object occupies 2 words, the
+#           pointer and some auxiliary word.
 
 #if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)
   #define WIDE_HARD
 #endif
 
-#if defined(WIDE) && !(defined(WIDE_HARD) || defined(WIDE_SOFT))
+#if defined(WIDE) && !(defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(WIDE_AUXI))
   #define WIDE_SOFT
 #endif
-#if (defined(WIDE_HARD) || defined(WIDE_SOFT)) && !defined(WIDE)
+#if (defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(WIDE_AUXI)) && !defined(WIDE)
   #define WIDE
 #endif
-# Now: defined(WIDE) == defined(WIDE_HARD) || defined(WIDE_SOFT)
+# Now: defined(WIDE) == defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(WIDE_AUXI)
 
 
 /* Global register declarations.
@@ -727,7 +729,7 @@
     #define mv_count_register  "s5"
   #endif
   # Register for value1.
-  #if !defined(WIDE_SOFT)
+  #if !(defined(WIDE) && !defined(WIDE_HARD))
     #if defined(SPARC)
       #define value1_register  "%g7"
       #if defined(UNIX_NETBSD)
@@ -751,7 +753,7 @@
     #endif
   #endif
   # Register for back_trace.
-  #if !defined(WIDE_SOFT)
+  #if !(defined(WIDE) && !defined(WIDE_HARD))
     #if defined(SPARC)
       #define back_trace_register  "%g4"  # a global register
       # %g4 seems to be a scratch-register as of lately with gcc 2.3
@@ -1678,7 +1680,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
    systems whose memory map looks like Swiss Cheese. */
 
 #if defined(WIDE_SOFT) && defined(NO_TYPECODES)
-  #error "WIDE_SOFT and NO_TYPECODES make no sense together, no need for WIDE"
+  #error "WIDE_SOFT and NO_TYPECODES make no sense together, no need for WIDE_SOFT"
 #endif
 
 #if !(defined(TYPECODES) || defined(NO_TYPECODES))
@@ -1687,7 +1689,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
   # today), except if the CPU cannot address more than 16 MB anyway.
   # NO_TYPECODES will normally not work if alignof(subr_t) = alignof(long) < 4,
   # but with egcs-1.1 or newer we can force alignof(subr_t) = 4.
-  #if defined(WIDE) || defined(MC68000) || ((alignment_long < 4) && !defined(GNU))
+  #if defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(MC68000) || ((alignment_long < 4) && !defined(GNU))
     #define TYPECODES
   #else
     #define NO_TYPECODES
@@ -2054,8 +2056,9 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
   #define HAVE_SIGNALS
 #endif
 # Whether we can even react to asynchronous signals:
-# (At WIDE_SOFT writing a pointer is usually no elementary operation anymore!)
-#if defined(WIDE_SOFT) && !(defined(GNU) && defined(SPARC))
+# (If WIDE && !WIDE_HARD, writing a pointer is usually no elementary
+# operation anymore!)
+#if (defined(WIDE) && !defined(WIDE_HARD)) && !(defined(GNU) && defined(SPARC))
   #define NO_ASYNC_INTERRUPTS
 #endif
 #if defined(NO_ASYNC_INTERRUPTS) && defined(MULTITHREAD)
@@ -2217,7 +2220,7 @@ simple-bit-vectors.
 
 2.1.2. Other immediate objects
 
-Character, Fixnum, Short-Float, and, if WIDE, Single-Float.
+Character, Fixnum, Short-Float, and, if IMMEDIATE_FFLOAT, Single-Float.
 Furthermore: Frame-Pointer, Read-Label, System. (System means some
 finite number of special values, such as #<UNBOUND>.)
 
@@ -2276,8 +2279,8 @@ some information about the rank, the representation and the element type:
 Symbol has some special flags (keyword, constant, special) in the header,
 if possible.
 
-FSUBR, Bignum, Single-Float (unless WIDE), Double-Float, Long-Float,
-Ratio and Complex (only if SPVW_MIXED).
+FSUBR, Bignum, Single-Float (unless IMMEDIATE_FFLOAT), Double-Float,
+Long-Float, Ratio and Complex (only if SPVW_MIXED).
 
 */
 
@@ -2287,7 +2290,29 @@ Ratio and Complex (only if SPVW_MIXED).
 
   # An object pointer is an empty pointer to begin with (so you cannot do
   # anything unwanted with it in C):
-  #ifdef OBJECT_STRUCT
+  #if defined(WIDE_AUXI)
+    # Make room for an auxiliary word in every object.
+    # The struct around the union is needed to work around a gcc-2.95 bug.
+    #if BIG_ENDIAN_P
+      #define TYPEDEF_OBJECT \
+        typedef  struct {                                 \
+          union {                                         \
+            struct { uintP auxi_ob; uintP one_ob; } both; \
+            oint align_o _attribute_aligned_object_;      \
+          } u;                                            \
+        } object;
+    #else
+      #define TYPEDEF_OBJECT \
+        typedef  struct {                                 \
+          union {                                         \
+            struct { uintP one_ob; uintP auxi_ob; } both; \
+            oint align_o _attribute_aligned_object_;      \
+          } u;                                            \
+        } object;
+    #endif
+    #define one_o  u.both.one_ob
+    #define auxi_o  u.both.auxi_ob
+  #elif defined(OBJECT_STRUCT)
     typedef struct { uintP one_o; } object;
   #else
     typedef  void *  object;
@@ -2295,8 +2320,13 @@ Ratio and Complex (only if SPVW_MIXED).
   # But there is an address and type bits in the representation.
 
   # An (unsigned) Integer of the object's size:
+  #ifdef WIDE_AUXI
+    typedef  uint64  oint;
+    typedef  sint64  soint;
+  #else
     typedef  uintP  oint;
     typedef  sintP  soint;
+  #endif
 
 #else # defined(WIDE_SOFT)
 
@@ -2344,6 +2374,11 @@ Ratio and Complex (only if SPVW_MIXED).
     extern __inline__ object as_object (register oint o)
       { register object obj; obj.one_o = o; return obj; }
   #endif
+#elif defined(WIDE_AUXI)
+  #define as_oint(expr)  ((expr).u.align_o)
+  # These could store arbitrary information in auxi_o.
+  #define as_object_with_auxi(o)  ((object){u:{both:{ one_ob: (o), auxi_ob: 0 }}})
+  #define as_object(o)  ((object){u:{align_o:(o)}})
 #else
   #define as_oint(expr)  (oint)(expr)
   #define as_object(o)  (object)(o)
@@ -2712,11 +2747,11 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 
 
-# The type `object' is now fully defined.
-#ifdef WIDE_STRUCT
+# Complete the definition of the type 'object'.
+#if defined(WIDE_AUXI) || defined(WIDE_STRUCT)
   #ifdef GENERATIONAL_GC
     # The generational GC can't deal with an object-pointer that points
-    # towards two sides.
+    # towards two memory pages.
     # Thus we enforce alignof(gcv_object_t) = sizeof(gcv_object_t).
     #define _attribute_aligned_object_  __attribute__ ((aligned(8)))
   #else
@@ -2749,15 +2784,19 @@ typedef object gcv_object_t;
 
 # To add something to an object/oint:
 # objectplus(obj,offset)
-#if !(defined(WIDE_SOFT) || defined(OBJECT_STRUCT))
+#if !(defined(WIDE_SOFT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT))
   #define objectplus(obj,offset)  ((object)pointerplus(obj,offset))
+#elif defined(WIDE_AUXI)
+  static inline object objectplus (object obj, saint offset) {
+    return (object){u:{both:{ one_ob: obj.one_o+offset, auxi_ob: obj.auxi_o }}};
+  }
 #else # defined(WIDE_SOFT) || defined(OBJECT_STRUCT)
   #define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))
 #endif
 
 # Bit operations on sizes of type oint:
 # ...wbit... instead of ...bit..., "w" = "wide".
-#if !defined(WIDE_SOFT)
+#if !(defined(WIDE_SOFT) || defined(WIDE_AUXI))
   #define wbit  bit
   #define wbitm  bitm
   #define wbit_test  bit_test
@@ -2861,6 +2900,9 @@ typedef object gcv_object_t;
       # Beware: Conversion of  address to oint by Zero-Extend!
       #define type_untype_object(type,address)              \
         objectplus((oint)(aint)(address),(oint)(tint)(type)<<oint_type_shift)
+    #elif defined(WIDE_AUXI)
+      #define type_untype_object(type,address)              \
+        as_object_with_auxi((aint)pointerplus((address),(aint)(tint)(type)<<oint_type_shift))
     #elif defined(OBJECT_STRUCT)
       #define type_untype_object(type,address)              \
         as_object((oint)pointerplus((address),(oint)(tint)(type)<<oint_type_shift))
@@ -3053,6 +3095,12 @@ typedef object gcv_object_t;
 #ifdef TYPECODES
 
 # Now we'll define the various type bits and type codes.
+
+# Single-floats can be immediate objects, like short-floats, if there are
+# enough bits in a 'gcv_object_t'.
+#if defined(WIDE_HARD) || defined(WIDE_SOFT)
+  #define IMMEDIATE_FFLOAT
+#endif
 
 # Determine whether a type isn't changed by the GC
 # (ie. if it's not a pointer):
@@ -3288,7 +3336,7 @@ typedef object gcv_object_t;
   #define NO_symbolflags # there's no space in the symbol for active_bit, dynam_bit, svar_bit
 #endif
 
-#ifndef WIDE
+#ifndef IMMEDIATE_FFLOAT
   # type is GC-invariant, if
   # type-info-byte >=0, <= system_type or >= fixnum_type, < bignum_type.
     #define gcinvariant_type_p(type)  \
@@ -3296,14 +3344,31 @@ typedef object gcv_object_t;
 #else
   # type is GC-invariant, if
   # type-info-byte is one of 0x00..0x03,0x20..0x23,0x26..0x27 ist.
+  #if (TB1==TB0+1) && (TB2==TB0+2) && (TB3==TB0+3) && (TB4==TB0+4) && (TB5==TB0+5)
     #define gcinvariant_type_p(type)  \
       ((((type)>>(TB0+1))<0x14) && ((bit((type)>>(TB0+1)) & 0xFFF4FFFCUL) == 0))
+  #else
+    # Test whether ((type)>>TB1) is one of
+    #   0, 1, bit(TB5-TB1), bit(TB5-TB1) | 1, bit(TB5-TB1) | bit(TB2-TB1) | 1.
+    #define gcinvariant_type_p(type)  gcinvariant_type_aux((type)>>TB1)
+    #define gcinvariant_type_sum(type)  \
+      (((type) | ((type)>>(TB5-(TB2+1)))) & (((BTB2<<1)+BTB2+BTB1)>>TB1))
+    #define gcinvariant_type_aux(type)                         \
+      (((type) < ((BTB5+(BTB2<<1))>>TB1))                      \
+       && ((type) & ~((BTB5|BTB2|BTB1)>>TB1)) == 0             \
+       && (bit(gcinvariant_type_sum(type))                     \
+           & (  bit(0)                                         \
+              | bit(1)                                         \
+              | bit(bit(TB2+1-TB1))                            \
+              | bit(bit(TB2+1-TB1) | 1)                        \
+              | bit(bit(TB2+1-TB1) | bit(TB2-TB1) | 1))) != 0)
+  #endif
 #endif
 
 #endif # STANDARD_8BIT_TYPECODES
 
-#if !(gcinvariant_type_p(ffloat_type) == defined(WIDE))
-  #error "gcinvariant_type_p() fehlerhaft implementiert!"
+#if !(gcinvariant_type_p(ffloat_type) == defined(IMMEDIATE_FFLOAT))
+  #error "gcinvariant_type_p() incorrectly implemented!"
 #endif
 
 # Test for gc-invariant object. (This includes immediate, machine, subr.)
@@ -4208,7 +4273,7 @@ typedef union {
   float machine_float; # Value, as C-'float'
   #endif
 } ffloatjanus;
-#ifndef WIDE
+#if !defined(IMMEDIATE_FFLOAT)
 typedef struct {
   VAROBJECT_HEADER            # self-pointer for GC
   ffloatjanus representation; # Value
@@ -4849,10 +4914,16 @@ typedef struct {
       #error "No room for stream flags -- re-accomodate Stream-Flags!!"
     #endif
     XRECORD_HEADER
+    #if defined(WIDE) && BIG_ENDIAN_P
+      uintL strmfiller0;
+    #endif
     uintB strmfiller1;
     uintB strmflags; # Flags
     uintB strmtype;  # Subtype
     uintB strmfiller2;
+    #if defined(WIDE) && !BIG_ENDIAN_P
+      uintL strmfiller0;
+    #endif
   #endif
   gcv_object_t strm_rd_by;
   gcv_object_t strm_rd_by_array;
@@ -5243,7 +5314,11 @@ typedef struct {
 #ifdef TYPECODES
   #define make_machine(ptr)  type_pointer_object(machine_type,ptr)
 #else
-  #define make_machine(ptr)  as_object((oint)(ptr)+machine_bias)
+  #if defined(WIDE_AUXI)
+    #define make_machine(ptr)  as_object_with_auxi((aint)(ptr)+machine_bias)
+  #else
+    #define make_machine(ptr)  as_object((oint)(ptr)+machine_bias)
+  #endif
 #endif
 
 # Pointer to machine code
@@ -5334,7 +5409,7 @@ typedef struct {
   #define TheSymbolflagged(obj)  TheSymbol(symbol_without_flags(obj))
   #endif
   #define TheBignum(obj)  ((Bignum)(types_pointable(bignum_type|bit(sign_bit_t),obj)))
-  #ifndef WIDE
+  #ifndef IMMEDIATE_FFLOAT
   #define TheFfloat(obj)  ((Ffloat)(types_pointable(ffloat_type|bit(sign_bit_t),obj)))
   #endif
   #define TheDfloat(obj)  ((Dfloat)(types_pointable(dfloat_type|bit(sign_bit_t),obj)))
@@ -5437,73 +5512,85 @@ typedef struct {
       obj                                                               \
     ))
 #else # no TYPECODES
-  #define TheCons(obj)  ((Cons)(as_oint(obj)-cons_bias))
-  #define TheRatio(obj)  ((Ratio)(as_oint(obj)-varobject_bias))
-  #define TheComplex(obj)  ((Complex)(as_oint(obj)-varobject_bias))
-  #define TheSymbol(obj)  ((Symbol)(as_oint(obj)-varobject_bias))
-  #define TheSymbolflagged(obj)  TheSymbol(symbol_without_flags(obj))
-  #define TheBignum(obj)  ((Bignum)(as_oint(obj)-varobject_bias))
-  #define TheFfloat(obj)  ((Ffloat)(as_oint(obj)-varobject_bias))
-  #define TheDfloat(obj)  ((Dfloat)(as_oint(obj)-varobject_bias))
-  #define TheLfloat(obj)  ((Lfloat)(as_oint(obj)-varobject_bias))
-  #define TheSarray(obj)  ((Sarray)(as_oint(obj)-varobject_bias))
-  #define TheSbvector(obj)  ((Sbvector)(as_oint(obj)-varobject_bias))
-  #define TheCodevec(obj)  ((Codevec)TheSbvector(obj))
-  #define TheS8string(obj)  ((S8string)(as_oint(obj)-varobject_bias))
-  #define TheS16string(obj)  ((S16string)(as_oint(obj)-varobject_bias))
-  #define TheS32string(obj)  ((S32string)(as_oint(obj)-varobject_bias))
-  #define TheSstring(obj)  ((Sstring)(as_oint(obj)-varobject_bias))
-  #define TheSvector(obj)  ((Svector)(as_oint(obj)-varobject_bias))
-  #define TheWeakKVT(obj)  ((WeakKVT)(as_oint(obj)-varobject_bias))
-  #define TheSiarray(obj)  ((Siarray)(as_oint(obj)-varobject_bias))
-  #define TheIarray(obj)  ((Iarray)(as_oint(obj)-varobject_bias))
-  #define TheRecord(obj)  ((Record)(as_oint(obj)-varobject_bias))
-  #define TheSrecord(obj)  ((Srecord)(as_oint(obj)-varobject_bias))
-  #define TheXrecord(obj)  ((Xrecord)(as_oint(obj)-varobject_bias))
-  #define ThePackage(obj)  ((Package)(as_oint(obj)-varobject_bias))
-  #define TheHashtable(obj)  ((Hashtable)(as_oint(obj)-varobject_bias))
-  #define TheReadtable(obj)  ((Readtable)(as_oint(obj)-varobject_bias))
-  #define ThePathname(obj)  ((Pathname)(as_oint(obj)-varobject_bias))
-  #ifdef LOGICAL_PATHNAMES
-  #define TheLogpathname(obj)  ((Logpathname)(as_oint(obj)-varobject_bias))
+  # cgci_pointable(obj)  converts a certainly GC-invariant object to an aint.
+  # pgci_pointable(obj)  converts a possibly GC-invariant object to an aint.
+  # ngci_pointable(obj)  converts a not GC-invariant object to an aint.
+  #if defined(WIDE_AUXI)
+    #define cgci_pointable(obj)  (obj).one_o
+    #define pgci_pointable(obj)  (obj).one_o
+    #define ngci_pointable(obj)  (obj).one_o
+  #else
+    #define cgci_pointable(obj)  as_oint(obj)
+    #define pgci_pointable(obj)  as_oint(obj)
+    #define ngci_pointable(obj)  as_oint(obj)
   #endif
-  #define The_Random_state(obj)  ((Random_state)(as_oint(obj)-varobject_bias))
-  #define TheByte(obj)  ((Byte)(as_oint(obj)-varobject_bias))
-  #define TheFsubr(obj)  ((Fsubr)(as_oint(obj)-varobject_bias))
-  #define TheLoadtimeeval(obj)  ((Loadtimeeval)(as_oint(obj)-varobject_bias))
-  #define TheSymbolmacro(obj)  ((Symbolmacro)(as_oint(obj)-varobject_bias))
-  #define TheMacro(obj)  ((Macro)(as_oint(obj)-varobject_bias))
-  #define TheFunctionMacro(obj)  ((FunctionMacro)(as_oint(obj)-varobject_bias))
-  #define TheEncoding(obj)  ((Encoding)(as_oint(obj)-varobject_bias))
+  #define TheCons(obj)  ((Cons)(ngci_pointable(obj)-cons_bias))
+  #define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-varobject_bias))
+  #define TheComplex(obj)  ((Complex)(ngci_pointable(obj)-varobject_bias))
+  #define TheSymbol(obj)  ((Symbol)(ngci_pointable(obj)-varobject_bias))
+  #define TheSymbolflagged(obj)  TheSymbol(symbol_without_flags(obj))
+  #define TheBignum(obj)  ((Bignum)(ngci_pointable(obj)-varobject_bias))
+  #define TheFfloat(obj)  ((Ffloat)(ngci_pointable(obj)-varobject_bias))
+  #define TheDfloat(obj)  ((Dfloat)(ngci_pointable(obj)-varobject_bias))
+  #define TheLfloat(obj)  ((Lfloat)(ngci_pointable(obj)-varobject_bias))
+  #define TheSarray(obj)  ((Sarray)(ngci_pointable(obj)-varobject_bias))
+  #define TheSbvector(obj)  ((Sbvector)(ngci_pointable(obj)-varobject_bias))
+  #define TheCodevec(obj)  ((Codevec)TheSbvector(obj))
+  #define TheS8string(obj)  ((S8string)(ngci_pointable(obj)-varobject_bias))
+  #define TheS16string(obj)  ((S16string)(ngci_pointable(obj)-varobject_bias))
+  #define TheS32string(obj)  ((S32string)(ngci_pointable(obj)-varobject_bias))
+  #define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-varobject_bias))
+  #define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-varobject_bias))
+  #define TheWeakKVT(obj)  ((WeakKVT)(ngci_pointable(obj)-varobject_bias))
+  #define TheSiarray(obj)  ((Siarray)(ngci_pointable(obj)-varobject_bias))
+  #define TheIarray(obj)  ((Iarray)(ngci_pointable(obj)-varobject_bias))
+  #define TheRecord(obj)  ((Record)(ngci_pointable(obj)-varobject_bias))
+  #define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-varobject_bias))
+  #define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-varobject_bias))
+  #define ThePackage(obj)  ((Package)(ngci_pointable(obj)-varobject_bias))
+  #define TheHashtable(obj)  ((Hashtable)(ngci_pointable(obj)-varobject_bias))
+  #define TheReadtable(obj)  ((Readtable)(ngci_pointable(obj)-varobject_bias))
+  #define ThePathname(obj)  ((Pathname)(ngci_pointable(obj)-varobject_bias))
+  #ifdef LOGICAL_PATHNAMES
+  #define TheLogpathname(obj)  ((Logpathname)(ngci_pointable(obj)-varobject_bias))
+  #endif
+  #define The_Random_state(obj)  ((Random_state)(ngci_pointable(obj)-varobject_bias))
+  #define TheByte(obj)  ((Byte)(ngci_pointable(obj)-varobject_bias))
+  #define TheFsubr(obj)  ((Fsubr)(ngci_pointable(obj)-varobject_bias))
+  #define TheLoadtimeeval(obj)  ((Loadtimeeval)(ngci_pointable(obj)-varobject_bias))
+  #define TheSymbolmacro(obj)  ((Symbolmacro)(ngci_pointable(obj)-varobject_bias))
+  #define TheMacro(obj)  ((Macro)(ngci_pointable(obj)-varobject_bias))
+  #define TheFunctionMacro(obj)  ((FunctionMacro)(ngci_pointable(obj)-varobject_bias))
+  #define TheEncoding(obj)  ((Encoding)(ngci_pointable(obj)-varobject_bias))
   #ifdef FOREIGN
-  #define TheFpointer(obj)  ((Fpointer)(as_oint(obj)-varobject_bias))
+  #define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-varobject_bias))
   #endif
   #ifdef DYNAMIC_FFI
-  #define TheFaddress(obj)  ((Faddress)(as_oint(obj)-varobject_bias))
-  #define TheFvariable(obj)  ((Fvariable)(as_oint(obj)-varobject_bias))
-  #define TheFfunction(obj)  ((Ffunction)(as_oint(obj)-varobject_bias))
+  #define TheFaddress(obj)  ((Faddress)(ngci_pointable(obj)-varobject_bias))
+  #define TheFvariable(obj)  ((Fvariable)(ngci_pointable(obj)-varobject_bias))
+  #define TheFfunction(obj)  ((Ffunction)(ngci_pointable(obj)-varobject_bias))
   #endif
-  #define TheWeakpointer(obj)  ((Weakpointer)(as_oint(obj)-varobject_bias))
-  #define TheFinalizer(obj)  ((Finalizer)(as_oint(obj)-varobject_bias))
+  #define TheWeakpointer(obj)  ((Weakpointer)(ngci_pointable(obj)-varobject_bias))
+  #define TheFinalizer(obj)  ((Finalizer)(ngci_pointable(obj)-varobject_bias))
   #ifdef SOCKET_STREAMS
-  #define TheSocketServer(obj) ((Socket_server)(as_oint(obj)-varobject_bias))
+  #define TheSocketServer(obj) ((Socket_server)(ngci_pointable(obj)-varobject_bias))
   #endif
   #ifdef DIR_KEY
-  #define TheDirKey(obj) ((Dir_Key)(as_oint(obj)-varobject_bias))
+  #define TheDirKey(obj) ((Dir_Key)(ngci_pointable(obj)-varobject_bias))
   #endif
   #ifdef YET_ANOTHER_RECORD
-  #define TheYetanother(obj)  ((Yetanother)(as_oint(obj)-varobject_bias))
+  #define TheYetanother(obj)  ((Yetanother)(ngci_pointable(obj)-varobject_bias))
   #endif
-  #define TheStream(obj)  ((Stream)(as_oint(obj)-varobject_bias))
-  #define TheStructure(obj)  ((Structure)(as_oint(obj)-varobject_bias))
-  #define TheClass(obj)  ((Class)(as_oint(obj)-varobject_bias))
-  #define TheClosure(obj)  ((Closure)(as_oint(obj)-varobject_bias))
-  #define TheIclosure(obj)  ((Iclosure)(as_oint(obj)-varobject_bias))
-  #define TheCclosure(obj)  ((Cclosure)(as_oint(obj)-varobject_bias))
-  #define TheInstance(obj)  ((Instance)(as_oint(obj)-varobject_bias))
-  #define TheSubr(obj)  ((Subr)(as_oint(obj)-subr_bias))
-  #define TheFramepointer(obj)  ((gcv_object_t*)(as_oint(obj)-machine_bias))
-  #define TheMachine(obj)  ((void*)(as_oint(obj)-machine_bias))
+  #define TheStream(obj)  ((Stream)(ngci_pointable(obj)-varobject_bias))
+  #define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-varobject_bias))
+  #define TheClass(obj)  ((Class)(ngci_pointable(obj)-varobject_bias))
+  #define TheClosure(obj)  ((Closure)(ngci_pointable(obj)-varobject_bias))
+  #define TheIclosure(obj)  ((Iclosure)(ngci_pointable(obj)-varobject_bias))
+  #define TheCclosure(obj)  ((Cclosure)(ngci_pointable(obj)-varobject_bias))
+  #define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-varobject_bias))
+  #define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-subr_bias))
+  #define TheFramepointer(obj)  ((gcv_object_t*)(cgci_pointable(obj)-machine_bias))
+  #define TheMachine(obj)  ((void*)(cgci_pointable(obj)-machine_bias))
   #if (log2_C_CODE_ALIGNMENT >= 2)
     #define TheMachineCode(obj)  TheMachine(obj)
   #elif defined(HPPA)
@@ -5520,9 +5607,9 @@ typedef struct {
   #define TheHandle(obj)  ((Handle)posfixnum_to_L(obj))
   #endif
   # Object of variable length:
-  #define TheVarobject(obj)  ((Varobject)(as_oint(obj)-varobject_bias))
+  #define TheVarobject(obj)  ((Varobject)(ngci_pointable(obj)-varobject_bias))
   # Object, represents a pointer into the memory:
-  #define ThePointer(obj)  ((void*)(as_oint(obj) & ~(oint)nonimmediate_bias_mask))
+  #define ThePointer(obj)  ((void*)(pgci_pointable(obj) & ~(aint)nonimmediate_bias_mask))
 #endif
 
 # Some acronyms
@@ -5554,6 +5641,8 @@ typedef struct {
 # < result: true, if objects are equal
 #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
   #define eq(obj1,obj2)  (as_oint(obj1) == as_oint(obj2))
+#elif defined(WIDE_AUXI)
+  #define eq(obj1,obj2)  ((obj1).one_o == (obj2).one_o)
 #else
   #define eq(obj1,obj2)  ((obj1) == (obj2))
 #endif
@@ -7591,10 +7680,14 @@ extern void nobject_out (FILE* out, object obj);
 # used for debugging purposes
 
 # After allocating memory for an object, add the type infos.
-  #ifdef TYPECODES
+#ifdef TYPECODES
   #define bias_type_pointer_object(bias,type,ptr) type_pointer_object(type,ptr)
+#else
+  #ifdef WIDE_AUXI
+    #define bias_type_pointer_object(bias,type,ptr) as_object_with_auxi((aint)(ptr)+(bias))
   #else
-  #define bias_type_pointer_object(bias,type,ptr) as_object((oint)(ptr)+(bias))
+    #define bias_type_pointer_object(bias,type,ptr) as_object((oint)(ptr)+(bias))
+  #endif
 #endif
 # used by SPVW, macros SP_allocate_bit_vector, SP_allocate_string
 
@@ -8485,8 +8578,12 @@ extern struct subr_tab_ {
   #ifdef TYPECODES
     #define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(subr_type,subr_addr))
   #else
+    #ifdef WIDE_AUXI
+      #define subr_tab_ptr_as_object(subr_addr)  as_object_with_auxi((aint)(subr_addr)+subr_bias)
+    #else
       #define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+subr_bias)
     #endif
+  #endif
   #define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)
 #else
   # define subr_tab_addr  ((struct subr_tab_ *)type_constpointer_object(subr_type,0))
@@ -8543,7 +8640,9 @@ extern struct symbol_tab_ {
   #ifdef TYPECODES
     #define S_help_(name)  (type_constpointer_object(symbol_type,&symbol_tab.name))
   #else
-    #if defined(OBJECT_STRUCT)
+    #if defined(WIDE_AUXI)
+      #define S_help_(name)  as_object_with_auxi((aint)&symbol_tab.name+varobject_bias)
+    #elif defined(OBJECT_STRUCT)
       #define S_help_(name)  as_object((oint)&symbol_tab.name+varobject_bias)
     #else
       #define S_help_(name)  objectplus(&symbol_tab.name,varobject_bias)
@@ -9817,11 +9916,11 @@ typedef struct {
   #define make_framepointer(stack_ptr)  make_machine(stack_ptr)
   #ifdef STACK_UP
     #define topofframe(bottomword)  \
-      (gcv_object_t*)((uintP)(&(bottomword))-(as_oint(bottomword)&(wbit(FB1)-1))+sizeof(gcv_object_t))
+      (gcv_object_t*)((uintP)(&(bottomword))-(uintP)(as_oint(bottomword)&(wbit(FB1)-1))+sizeof(gcv_object_t))
   #endif
   #ifdef STACK_DOWN
     #define topofframe(bottomword)  \
-      (gcv_object_t*)((uintP)(&(bottomword))+(as_oint(bottomword)&(wbit(FB1)-1)))
+      (gcv_object_t*)((uintP)(&(bottomword))+(uintP)(as_oint(bottomword)&(wbit(FB1)-1)))
   #endif
   #define uTheFramepointer(obj)  TheFramepointer(obj) # = (gcv_object_t*)(obj)
   #define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(FB1))

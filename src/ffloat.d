@@ -51,7 +51,7 @@
 
 #ifdef FAST_FLOAT
 # Auspacken eines Floats:
-  #ifndef WIDE
+  #if !defined(IMMEDIATE_FFLOAT)
     #define FF_to_float(obj)  (TheFfloat(obj)->representation.machine_float)
   #else # defined(WIDE) -> eines der beiden 32-Bit-Wörter
     #ifdef GNU

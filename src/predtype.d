@@ -69,7 +69,7 @@ global bool eql (object obj1, object obj2)
       obj1 = TheComplex(obj1)->c_imag; obj2 = TheComplex(obj2)->c_imag;
       goto start;
     case_ffloat: /* Single-Floats */
-     #ifndef WIDE
+     #ifndef IMMEDIATE_FFLOAT
       if (TheFfloat(obj1)->float_value == TheFfloat(obj2)->float_value)
         return true;
       else
@@ -2165,7 +2165,7 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_system_function,
   enum_hs_bignum,
   enum_hs_ratio,
- #ifndef WIDE
+ #ifndef IMMEDIATE_FFLOAT
   enum_hs_single_float,
  #endif
   enum_hs_double_float,
@@ -2495,7 +2495,7 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
     case_ratio: /* Ratio */
       pighole = &locals->builtins[(int)enum_hs_ratio];
       break;
-   #ifndef WIDE
+   #ifndef IMMEDIATE_FFLOAT
     case_ffloat: /* Single-Float */
       pighole = &locals->builtins[(int)enum_hs_single_float];
       break;

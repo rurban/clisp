@@ -81,7 +81,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
 #endif
 
 # determines, if an address lies in the interval [0..2^oint_addr_len-1] :
-  #if !defined(TYPECODES) || ((oint_addr_len==32) && !defined(WIDE_HARD)) # i.e. !defined(TYPECODES) || defined(WIDE_SOFT)
+  #if !defined(TYPECODES) || defined(WIDE_SOFT)
     #define pointable_usable_test(a)  true
   #else
     #define pointable_usable_test(a)  \
