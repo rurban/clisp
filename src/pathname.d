@@ -16,6 +16,30 @@
   #include <stdio.h> # declares sprintf()
 #endif
 
+# enable the following #define to debug pathname translations
+# setting DEBUG_TRANSLATE_PATHNAME to a larger value results in more output
+# WARNING: Lisp object output can trigger GC! BEWARE!
+/* #define DEBUG_TRANSLATE_PATHNAME 1 */
+#ifdef DEBUG_TRANSLATE_PATHNAME
+#define DOUT(o) printf(#o ": ");pushSTACK(o);funcall(L(prin1),1);printf("\n")
+#else
+#define DOUT(o)
+#endif
+#if DEBUG_TRANSLATE_PATHNAME > 1
+local void show_stack (const char* title,int nn) {
+  int ii;
+  printf("\n * %s:\n",title);
+  for (ii=0; ii<=nn; ii++) {
+    printf("   stack[%d]: ",ii);
+    pushSTACK(STACK_(ii));
+    funcall(L(prin1),1);
+    printf("\n");
+  }
+}
+#define SHOW_STACK(t,n) show_stack(t,n)
+#else
+#define SHOW_STACK(t,n)
+#endif
 
 # =============================================================================
 #                       Low level functions
@@ -1832,6 +1856,15 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         }
         #endif
       }
+      # if (nullp(host) && parse_logical) {
+      #   pushSTACK(STACK_2);
+      #   pushSTACK(STACK_4);
+      #   pushSTACK(STACK_6);
+      #   pushSTACK(S(parse_namestring));
+      #   fehler(parse_error,
+      #          GETTEXT("~(~ ~ ~): a logical pathname must contain host")
+      #          );
+      # }
       STACK_3 = host;
     }
     #else
@@ -5152,27 +5185,27 @@ LISPFUNN(pathname_match_p,2)
     value1 = NIL; mv_count=1; return;
   }
 
-# (TRANSLATE-PATHNAME beispiel muster1 muster2) machen wir folgendermaßen:
-# 1. (PATHNAME-MATCH-P beispiel muster1) nachrechnen, dabei aber die
-#    Substitution aufheben, in Form von Textstücken (:WILD -> "*").
-# 2. In muster2 die Textstücke einsetzen, bis muster2 voll ist oder die
-#    Textstücke aufgebraucht sind.
-# 3. Zum Schluss (MERGE-PATHNAMES modifiziertes_muster2 beispiel).
+# (TRANSLATE-PATHNAME beispiel muster1 muster2) implemented as follows:
+# 1. (PATHNAME-MATCH-P beispiel muster1) while checking, extract
+#    text items from the substitution pattern (:WILD -> "*").
+# 2. Put the text items into muster2 until muster2 is full or all the
+#    text items are used up
+# 3. finally, (MERGE-PATHNAMES modifiziertes_muster2 beispiel).
 
-  # UP: Vergleicht einen Wildcard-String ("Muster") mit einem "Beispiel".
+  # UP: Compare a wildcard string ("Muster") with "Beispiel".
   # wildcard_diff(muster,beispiel,previous,solutions);
-  # > muster: Normal-Simple-String, mit Platzhaltern
-  #           '?' für genau 1 Zeichen
-  #           '*' für beliebig viele Zeichen
-  # > beispiel: Normal-Simple-String, der damit zu vergleichen ist
-  # > previous: bisher bekanntes Vergleichsergebnis
-  #             (umgedrehte Liste von Normal-Simple-Strings, NILs und Listen)
-  # > solutions: Pointer auf eine Liste im STACK, auf die die
-  #              Vergleichsergebnisse (umgedrehte Liste von
-  #              Normal-Simple-Strings und Listen) zu consen sind
-  # kann GC auslösen
+  # > muster: normal simple string, with substitution characters
+  #           '?' for exactly 1 character
+  #           '*' for as many characters as desired
+  # > beispiel: normal simple string, to compare with
+  # > previous: the already known result of comparison
+  #             (returned list of normal simple stringer, NILs and lists)
+  # > solutions: Pointers on a list in the STACK, on the results of
+  #              comparison (returned list of normal simple stringers
+  #              and lists) that have been consed
+  # can trigger GC
 
-  # Hier wünscht man sich nicht Lisp oder C, sondern PROLOG als Sprache!
+  # Here you need not Lisp or C, but PROLOG!
 
   # (PUSH previous solutions)
   #define push_solution()  \
@@ -5229,7 +5262,7 @@ LISPFUNN(pathname_match_p,2)
         if (b_index == Sstring_length(beispiel))
           return;
         if (chareq(c,ascii('?'))) {
-          # wildcard_diff_ab() rekursiv aufrufen, mit erweitertem previous:
+          # recursive call to wildcard_diff_ab(), with extended previous:
           c = TheSstring(beispiel)->data[b_index++];
           pushSTACK(muster); pushSTACK(beispiel);
           {
@@ -5279,14 +5312,27 @@ LISPFUNN(pathname_match_p,2)
 
 #endif
 
+#ifdef DEBUG_TRANSLATE_PATHNAME
+# all arguments to *_diff are on stack - this should be safe
+#define DEBUG_DIFF(f)                                         \
+  printf("\n* " #f " [logical: %d]\n",logical);               \
+  DOUT(muster); DOUT(beispiel); DOUT(*previous); DOUT(*solutions)
+#else
+#define DEBUG_DIFF(f)
+#endif
 # UPs: Vergleicht jeweils eine Pathname-Komponente ("Beispiel") und
 # eine Pathname-Komponente ("Muster").
 # can trigger GC
-  local void host_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
-  local void device_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
-  local void directory_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
-  local void nametype_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
-  local void version_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
+  local void host_diff      (object muster, object beispiel, bool logical,
+                             const object* previous, object* solutions);
+  local void device_diff    (object muster, object beispiel, bool logical,
+                             const object* previous, object* solutions);
+  local void directory_diff (object muster, object beispiel, bool logical,
+                             const object* previous, object* solutions);
+  local void nametype_diff  (object muster, object beispiel, bool logical,
+                             const object* previous, object* solutions);
+  local void version_diff   (object muster, object beispiel, bool logical,
+                             const object* previous, object* solutions);
   local void host_diff(muster,beispiel,logical,previous,solutions)
     var object muster;
     var object beispiel;
@@ -5294,6 +5340,7 @@ LISPFUNN(pathname_match_p,2)
     var const object* previous;
     var object* solutions;
     {
+      DEBUG_DIFF(host_diff);
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
         if (nullp(muster)) {
@@ -5323,6 +5370,7 @@ LISPFUNN(pathname_match_p,2)
     var const object* previous;
     var object* solutions;
     {
+      DEBUG_DIFF(device_diff);
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
         push_solution(); return;
@@ -5405,6 +5453,7 @@ LISPFUNN(pathname_match_p,2)
     var const object* previous;
     var object* solutions;
     {
+      DEBUG_DIFF(subdir_diff);
       if (eq(muster,beispiel)) {
         if (eq(beispiel,S(Kwild))) {
           push_solution_with(O(wild_string));
@@ -5503,6 +5552,7 @@ LISPFUNN(pathname_match_p,2)
     var const object* previous;
     var object* solutions;
     {
+      DEBUG_DIFF(directory_diff);
       # muster mit O(directory_default) vergleichen:
       if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster))) {
         # Augment the solution with the beispiel list - starting
@@ -5524,6 +5574,7 @@ LISPFUNN(pathname_match_p,2)
     var const object* previous;
     var object* solutions;
     {
+      DEBUG_DIFF(nametype_diff);
       if (nullp(muster)) {
         var object string =
           (eq(beispiel,S(Kwild)) ? O(wild_string) : beispiel);
@@ -5539,6 +5590,7 @@ LISPFUNN(pathname_match_p,2)
     var const object* previous;
     var object* solutions;
     {
+      DEBUG_DIFF(version_diff);
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
         if (nullp(muster) || eq(muster,S(Kwild))) {
@@ -5576,6 +5628,7 @@ LISPFUNN(pathname_match_p,2)
 
   #undef push_solution_with
   #undef push_solution
+#undef DEBUG_DIFF
 
 # Jede Substitution ist eine Liste von Normal-Simple-Strings oder Listen.
 # (Die Listen entstehen bei :WILD-INFERIORS in directory_diff().)
@@ -5936,27 +5989,32 @@ LISPFUNN(pathname_match_p,2)
       if (logpathnamep(muster))
         logical = true;
       #endif
+#ifdef DEBUG_TRANSLATE_PATHNAME
+#define GET_ITEM(what,xwhat,where,skip)                                 \
+ { object xobj = xpathname_##xwhat(logical,where);                      \
+   pushSTACK(xobj); /* DOUT can trigger GC! */                          \
+   printf("\n *** " #xwhat " [logical: %d]\n",logical);                 \
+   DOUT(*subst); DOUT(where); DOUT(xobj);                               \
+   item = translate_##what(subst,xobj,logical);                         \
+   if (eq(item,nullobj)) { skipSTACK(skip+1); goto subst_error; }       \
+   DOUT(item); popSTACK();                                              \
+   pushSTACK(S(K##xwhat)); pushSTACK(item); }
+#else
+#define GET_ITEM(what,xwhat,where,skip)                                     \
+   item = translate_##what(subst,xpathname_##xwhat(logical,where),logical); \
+   if (eq(item,nullobj)) { skipSTACK(skip); goto subst_error; }             \
+   pushSTACK(S(K##xwhat)); pushSTACK(item)
+#endif /* DEBUG_TRANSLATE_PATHNAME */
+#define GET_ITEM_S(y,x,w) GET_ITEM(y,x,STACK_##w,w)
       # Argumente für MAKE-PATHNAME zusammenbauen:
-      item = translate_host(subst,xpathname_host(logical,muster),logical);
-      if (eq(item,nullobj)) { goto subst_error; }
-      pushSTACK(S(Khost)); pushSTACK(item);
+      GET_ITEM(host,host,muster,0);
       #if HAS_DEVICE
-      item = translate_device(subst,xpathname_device(logical,STACK_2),logical);
-      if (eq(item,nullobj)) { skipSTACK(2); goto subst_error; }
-      pushSTACK(S(Kdevice)); pushSTACK(item);
+      GET_ITEM_S(device,device,2);
       #endif
-      item = translate_directory(subst,xpathname_directory(logical,STACK_(2+2*HAS_DEVICE)),logical);
-      if (eq(item,nullobj)) { skipSTACK(2+2*HAS_DEVICE); goto subst_error; }
-      pushSTACK(S(Kdirectory)); pushSTACK(item);
-      item = translate_nametype(subst,xpathname_name(logical,STACK_(2+2*HAS_DEVICE+2)),logical);
-      if (eq(item,nullobj)) { skipSTACK(2+2*HAS_DEVICE+2); goto subst_error; }
-      pushSTACK(S(Kname)); pushSTACK(item);
-      item = translate_nametype(subst,xpathname_type(logical,STACK_(2+2*HAS_DEVICE+4)),logical);
-      if (eq(item,nullobj)) { skipSTACK(2+2*HAS_DEVICE+4); goto subst_error; }
-      pushSTACK(S(Ktype)); pushSTACK(item);
-      item = translate_version(subst,xpathname_version(logical,STACK_(2+2*HAS_DEVICE+6)),logical);
-      if (eq(item,nullobj)) { skipSTACK(2+2*HAS_DEVICE+6); goto subst_error; }
-      pushSTACK(S(Kversion)); pushSTACK(item);
+      GET_ITEM_S(directory,directory,(2+2*HAS_DEVICE));
+      GET_ITEM_S(nametype,name,(2+2*HAS_DEVICE+2));
+      GET_ITEM_S(nametype,type,(2+2*HAS_DEVICE+4));
+      GET_ITEM_S(version,version,(2+2*HAS_DEVICE+6));
       # Alle Ersetzungsstücke müssen verbraucht werden!
       if (mconsp(*subst)) { skipSTACK(2+2*HAS_DEVICE+8); goto subst_error; }
       # (MAKE-PATHNAME ...) bzw. (SYS::MAKE-LOGICAL-PATHNAME ...) aufrufen:
@@ -5976,6 +6034,8 @@ LISPFUNN(pathname_match_p,2)
              GETTEXT("~: replacement pieces ~ do not fit into ~")
             );
     }
+#undef GET_ITEM
+#undef GET_ITEM_S
 
 LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # (TRANSLATE-PATHNAME beispiel muster1 muster2 [:all] [:merge]), CLtL2 S. 624
@@ -6002,37 +6062,61 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     #endif
     # 1. Schritt: Liste aller passenden Substitutionen bilden.
     pushSTACK(NIL); pushSTACK(NIL);
-    host_diff(xpathname_host(logical,STACK_(3+2)),xpathname_host(logical,STACK_(4+2)),logical,&STACK_1,&STACK_0);
+    SHOW_STACK("before host_diff",6);
+    host_diff(xpathname_host(logical,STACK_(3+2)),
+              xpathname_host(logical,STACK_(4+2)),
+              logical,&STACK_1,&STACK_0);
     while (mconsp(STACK_0)) {
       pushSTACK(Car(STACK_0)); pushSTACK(NIL);
-      device_diff(xpathname_device(logical,STACK_(3+4)),xpathname_device(logical,STACK_(4+4)),logical,&STACK_1,&STACK_0);
+      SHOW_STACK("before device_diff",8);
+      device_diff(xpathname_device(logical,STACK_(3+4)),
+                  xpathname_device(logical,STACK_(4+4)),
+                  logical,&STACK_1,&STACK_0);
       while (mconsp(STACK_0)) {
         pushSTACK(Car(STACK_0)); pushSTACK(NIL);
-        directory_diff(xpathname_directory(logical,STACK_(3+6)),xpathname_directory(logical,STACK_(4+6)),logical,&STACK_1,&STACK_0);
+        SHOW_STACK("before directory_diff",10);
+        directory_diff(xpathname_directory(logical,STACK_(3+6)),
+                       xpathname_directory(logical,STACK_(4+6)),
+                       logical,&STACK_1,&STACK_0);
         while (mconsp(STACK_0)) {
           pushSTACK(Car(STACK_0)); pushSTACK(NIL);
-          nametype_diff(xpathname_name(logical,STACK_(3+8)),xpathname_name(logical,STACK_(4+8)),logical,&STACK_1,&STACK_0);
+          SHOW_STACK("before nametype_diff1",12);
+          nametype_diff(xpathname_name(logical,STACK_(3+8)),
+                        xpathname_name(logical,STACK_(4+8)),
+                        logical,&STACK_1,&STACK_0);
           while (mconsp(STACK_0)) {
             pushSTACK(Car(STACK_0)); pushSTACK(NIL);
-            nametype_diff(xpathname_type(logical,STACK_(3+10)),xpathname_type(logical,STACK_(4+10)),logical,&STACK_1,&STACK_0);
+            SHOW_STACK("before nametype_diff2",14);
+            nametype_diff(xpathname_type(logical,STACK_(3+10)),
+                          xpathname_type(logical,STACK_(4+10)),
+                          logical,&STACK_1,&STACK_0);
             while (mconsp(STACK_0)) {
               pushSTACK(Car(STACK_0));
-              version_diff(xpathname_version(logical,STACK_(3+11)),xpathname_version(logical,STACK_(4+11)),logical,&STACK_0,&STACK_10);
+              SHOW_STACK("before version_diff",15);
+              version_diff(xpathname_version(logical,STACK_(3+11)),
+                           xpathname_version(logical,STACK_(4+11)),
+                           logical,&STACK_0,&STACK_10);
+              SHOW_STACK("after version_diff",15);
               skipSTACK(1);
               STACK_0 = Cdr(STACK_0);
             }
+            SHOW_STACK("after nametype_diff2",14);
             skipSTACK(2);
             STACK_0 = Cdr(STACK_0);
           }
+          SHOW_STACK("after nametype_diff1",12);
           skipSTACK(2);
           STACK_0 = Cdr(STACK_0);
         }
+        SHOW_STACK("after directory_diff",10);
         skipSTACK(2);
         STACK_0 = Cdr(STACK_0);
       }
+      SHOW_STACK("after device_diff",8);
       skipSTACK(2);
       STACK_0 = Cdr(STACK_0);
     }
+    SHOW_STACK("after host_diff",6);
     skipSTACK(1);
     # Stackaufbau: ..., solutions.
     if (matomp(STACK_0)) {
@@ -11306,3 +11390,8 @@ global int my_spawnv(pmode,path,argv)
 #endif
 
 # ============================================================================
+
+#ifdef DEBUG_TRANSLATE_PATHNAME
+#undef DEBUG_TRANSLATE_PATHNAME
+#undef OUT
+#endif
