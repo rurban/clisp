@@ -3005,6 +3005,9 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 # Distinction between fixnums and bignums.
   #define bignum_bit_o  1
   #define NUMBER_BITS_INVERTED
+# Distinction between fixnums, short-floats and other kinds of numbers.
+# (NB: IMMEDIATE_FFLOAT is not defined for HEAPCODES.)
+  #define number_immediatep(obj)  ((as_oint(obj) & wbit(1)) != 0)
 
 # For masking out the nonimmediate biases.
 # This must be 3, not 7, otherwise gc_mark won't work.
@@ -6680,7 +6683,7 @@ typedef enum {
   #endif
 #else
   #define positivep(obj)  \
-    ((as_oint(obj) & wbit(1))                                      \
+    (number_immediatep(obj)                                        \
      ? /* fixnum, sfloat */ (as_oint(obj) & wbit(sign_bit_o)) == 0 \
      : /* bignum, [fdl]float */ (Record_flags(obj) & bit(7)) == 0)
 #endif
@@ -6948,7 +6951,7 @@ typedef enum {
 #else
   #define R_sign(obj)  ((signean)sign_of_sint32(_R_sign(obj)))
   #define _R_sign(obj)  \
-    ((as_oint(obj) & wbit(1))                                       \
+    (number_immediatep(obj)                                         \
      ? /* fixnum, sfloat */ (sint32)as_oint(obj) << (31-sign_bit_o) \
      : /* [fdl]float */ (sint32)(sintB)Record_flags(obj))
 #endif

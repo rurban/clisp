@@ -17,7 +17,7 @@
 #else
   #define floatcase(obj,SF_statement,FF_statement,DF_statement,LF_statement) \
     do {                                                                     \
-      if (as_oint(obj) & wbit(1)) { SF_statement; }                          \
+      if (number_immediatep(obj)) { SF_statement; }                          \
       else {                                                                 \
         if (Record_type(obj) > Rectype_Dfloat) { FF_statement; }             \
         else if (Record_type(obj) == Rectype_Dfloat) { DF_statement; }       \
