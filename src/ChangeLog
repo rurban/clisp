@@ -1,5 +1,9 @@
 1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw.d (print_banner): Make the menorah more kosher.
+
+1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw.d (usage): Tweak message.
 
 1999-01-26  Sam Steingold  <sds@goems.com>
@@ -18,7 +22,7 @@
 
 	* spvw.d (main): expanded --help, added --license, removed trailing
 	  whitespace.
-          (banner): New function.
+          (print_banner): New function.
           (argv_license): New variable.
           (copyright_notice): Remove.
 

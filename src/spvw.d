@@ -1707,13 +1707,13 @@ local void print_banner ()
  # "012345678901234567890123456789012345678901234567890123456789012345678901"
    "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo " NLstring,
    "  I I I I I I I      8     8   8           8     8     o  8    8" NLstring,
-   "  I I I I I I I      8         8           8     8        8    8" NLstring,
-   "  I I I I I I I      8         8           8      ooooo   8oooo" NLstring,
-   "  I \\  `+' /  I      8         8           8           8  8" NLstring,
-   "   \\  `-+-'  /       8     o   8           8     o     8  8" NLstring,
-   "    `-__|__-'         ooooo    8oooooo  ooo8ooo   ooooo   8" NLstring,
-   "        |" NLstring,
-   "  ------+------     Copyright (c) Bruno Haible, Michael Stoll 1992, 1993"
+  "  I  \\ `+' /  I      8         8           8     8        8    8" NLstring,
+  "   \\  `-+-'  /       8         8           8      ooooo   8oooo" NLstring,
+   "    `-__|__-'        8         8           8           8  8" NLstring,
+   "        |            8     o   8           8     o     8  8" NLstring,
+   "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8" NLstring,
+   NLstring,
+   "                    Copyright (c) Bruno Haible, Michael Stoll 1992, 1993"
    NLstring,
    "                    Copyright (c) Bruno Haible, Marcus Daniels 1994-1997"
    NLstring,
