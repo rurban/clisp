@@ -384,5 +384,9 @@ FUN(object,sintB,Array_type)
 FUN(object,uintL,Srecord_length)
 FUN(object,uintL,Xrecord_length)
 FUN(object,uintL,Xrecord_xlength)
+FUN(object,Record,TheRecord)
+FUN(object,Srecord,TheSrecord)
+FUN(object,Xrecord,TheXrecord)
+FUN(object,void*,TheMachine)
 #undef FUN
 #endif
