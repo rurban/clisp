@@ -1,5 +1,12 @@
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun1.lisp (methods-agree-p, specializers-agree-p,
+	same-specializers-p): Move to clos-genfun3.lisp.
+	* clos-genfun3.lisp (methods-agree-p, specializers-agree-p,
+	same-specializers-p): New functions, from clos-genfun1.lisp.
+
+2004-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* clos.lisp: Reorder method and method combination includes.
 
 2004-06-10  Bruno Haible  <bruno@clisp.org>
