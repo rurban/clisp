@@ -15,13 +15,13 @@
 ac_cv_c_char_unsigned=${ac_cv_c_char_unsigned=yes}
 ac_cv_func_mmap=${ac_cv_func_mmap=yes}
 ac_cv_func_mprotect=${ac_cv_func_mprotect=yes}
-ac_cv_header_stdc=${ac_cv_header_stdc=yes}
-ac_cv_header_stdlib_h=${ac_cv_header_stdlib_h=yes}
 ac_cv_header_sys_file_h=${ac_cv_header_sys_file_h=yes}
 ac_cv_header_sys_ipc_h=${ac_cv_header_sys_ipc_h=yes}
 ac_cv_header_sys_mman_h=${ac_cv_header_sys_mman_h=yes}
 ac_cv_header_sys_shm_h=${ac_cv_header_sys_shm_h=yes}
 ac_cv_header_unistd_h=${ac_cv_header_unistd_h=yes}
+ac_cv_path_LD=${ac_cv_path_LD=/bin/ld}
+ac_cv_path_NM=${ac_cv_path_NM='/usr/ccs/bin/nm -B'}
 ac_cv_prog_CC=${ac_cv_prog_CC=xlc}
 ac_cv_prog_CPP=${ac_cv_prog_CPP='xlc -E'}
 ac_cv_prog_LN_S=${ac_cv_prog_LN_S='ln -s'}
@@ -29,9 +29,8 @@ ac_cv_prog_RANLIB=${ac_cv_prog_RANLIB=ranlib}
 ac_cv_prog_cc_cross=${ac_cv_prog_cc_cross=no}
 ac_cv_prog_cc_works=${ac_cv_prog_cc_works=yes}
 ac_cv_prog_gcc=${ac_cv_prog_gcc=no}
+ac_cv_prog_gnu_ld=${ac_cv_prog_gnu_ld=no}
 ac_cv_prog_make_make_set=${ac_cv_prog_make_make_set=yes}
-ac_cv_type_off_t=${ac_cv_type_off_t=yes}
-ac_cv_type_size_t=${ac_cv_type_size_t=yes}
 cl_cv_c_float_return_ireg=${cl_cv_c_float_return_ireg=no}
 cl_cv_c_longlong=${cl_cv_c_longlong=yes}
 cl_cv_c_return_void=${cl_cv_c_return_void=no}
@@ -82,4 +81,3 @@ cl_cv_proto_shmdt_arg1=${cl_cv_proto_shmdt_arg1='const void *'}
 cl_cv_proto_shmget=${cl_cv_proto_shmget='extern int shmget (key_t, int, int);'}
 cl_cv_proto_shmget_arg2=${cl_cv_proto_shmget_arg2=int}
 cl_cv_sys_shm_works=${cl_cv_sys_shm_works=no}
-cl_cv_type_mode_t=${cl_cv_type_mode_t=mode_t}
