@@ -57,7 +57,7 @@
  </keywordset>
 </bookinfo>
 
-<preface><title><inlinemediaobject>
+<preface id="preface"><title><inlinemediaobject>
  <imageobject>
   <imagedata fileref="clisp.gif" width="48" depth="48"/>
  </imageobject>
@@ -215,7 +215,7 @@
 
 &imp-ext;
 
-<bibliography>
+<bibliography id="references">
  <title>References</title>
  <bibliodiv><title>Books</title>
   &cltl1-bib;
