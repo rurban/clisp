@@ -235,12 +235,10 @@ executes a compiled version of form.</para>
  returns two functions.  The first is compiled and increments &x-r;, the
  second is interpreted (slower) and decrements the same &x-r;.</para>
 
-<para>The type assertion <literal role="sexp">(&the;
- <replaceable>value-type</replaceable> &form-r;)</literal>
- enforces a type check in interpreted code.
+<para>The type assertion <literal role="sexp">(&the; &val-type-r;
+ &form-r;)</literal> enforces a type check in interpreted code.
  No type check is done in compiled code.
- See also the <link linkend="ethe"><function>ext:ethe</function></link>
- macro.</para>
+ See also the &ethe; macro.</para>
 
 </section>
 </section>
@@ -1338,15 +1336,13 @@ is the same as
 <section id="float-notes"><title>Floating Point</title>
 
 <formalpara><title>&expt;</title>
-<para><literal role="sexp">(&expt; <replaceable>base</replaceable>
+<para><literal role="sexp">(&expt; &base-r;
  <replaceable>exponent</replaceable>)</literal> is not very precise if
  exponent has large absolute value.</para></formalpara>
 
 <formalpara><title>&log;</title>
-<para><literal role="sexp">(&log; &number-r;
- <replaceable>base</replaceable>)</literal> signals an error if
- <function><replaceable>base</replaceable> = 1</function>.
-</para></formalpara>
+<para><literal role="sexp">(&log; &number-r; &base-r;)</literal> signals
+ an error if <literal>&base-r; = 1</literal>.</para></formalpara>
 
 <formalpara><title>&pi;</title>
 <para>The value of &pi; is a &long-float-type; with the precision given
@@ -2338,30 +2334,31 @@ and the international alphabetic characters from the character set:
 <section id="map-func">
    <title>Functions &mapcar;, &mapcan;, &maplist;, &mapcon;, ...</title>
 
-<para>The function <emphasis
- role="strong"><function>ext:mapcap</function></emphasis> is like
- &mapcan;, except that it concatenates the resulting lists with &append;
- instead of &nconc;:</para>
+<section id="mapcap"><title>Function &mapcap;</title>
 
-<para><literal role="sexp">(<function>ext:mapcap</function> &func-r;
- &x1-r; ... &xn-r;)</literal> ==
+<para>The function &mapcap; is like &mapcan;, except that it
+ concatenates the resulting lists with &append; instead of &nconc;:</para>
+
+<para><literal role="sexp">(&mapcap; &func-r; &x1-r; ... &xn-r;)</literal> ==
  <literal role="sexp">(&apply; #'&append; (&mapcar; &func-r; &x1-r;
  ... &xn-r;))</literal></para>
 
-<para>(Actually a bit more efficient that this would be.)</para>
+<para>(Actually a bit more efficient that this would have been.)</para>
 
-<para>The function <emphasis
- role="strong"><function>ext:maplap</function></emphasis> is like
- &mapcon;, except that it concatenates the resulting lists with &append;
- instead of &nconc;:</para>
+</section>
 
-<para><literal role="sexp">(<function>ext:maplap</function> &func-r;
- &x1-r; ... &xn-r;)</literal> ==
+<section id="maplap"><title>Function &maplap;</title>
+
+<para>The function &maplap; is like &mapcon;, except that it
+ concatenates the resulting lists with &append; instead of &nconc;:</para>
+
+<para><literal role="sexp">(&maplap; &func-r; &x1-r; ... &xn-r;)</literal> ==
  <literal role="sexp">(&apply; #'&append; (&maplist; &func-r; &x1-r;
  ... &xn-r;))</literal></para>
 
-<para>(Actually a bit more efficient that this would be.)</para>
+<para>(Actually a bit more efficient that this would have been.)</para>
 
+</section>
 </section>
 </section>
 </chapter>
@@ -2510,14 +2507,14 @@ and the international alphabetic characters from the character set:
 and &end-k;:</para>
 
 <programlisting>
-(&sort; &sequence-r; <replaceable>predicate</replaceable> &key-amp; &key-k; &start-k; &end-k;)
-(&stable-sort; &sequence-r; <replaceable>predicate</replaceable> &key-amp; &key-k; &start-k; &end-k;)
+(&sort; &sequence-r; &pred-r; &key-amp; &key-k; &start-k; &end-k;)
+(&stable-sort; &sequence-r; &pred-r; &key-amp; &key-k; &start-k; &end-k;)
 </programlisting>
 
-<para>&sort; and &stable-sort; are identical.  They implement the
- mergesort algorithm.  Worst case complexity:
- <varname>O(n*log(n))</varname> comparisons, where
- &n-r; is the &length; of the subsequence bounded
+<para>&sort; and &stable-sort; are identical.
+ They implement the mergesort algorithm.
+ Worst case complexity: <varname>O(n*log(n))</varname> comparisons,
+ where &n-r; is the &length; of the subsequence bounded
  by the &start-k; and &end-k; arguments.</para>
 
 </section>
