@@ -1,5 +1,20 @@
 2001-06-27  Sam Steingold  <sds@gnu.org>
 
+	command-oriented-history
+	* constobj.d (*TERMINAL-READ-OPEN-OBJECT*): added
+	* spvw.d (*TERMINAL-READ-OPEN-OBJECT*): define
+	* lispbibl.d (terminal_stream_p): declare
+	* stream.d (terminal_stream_p): define
+	(rd_ch_terminal3): when *TERMINAL-READ-OPEN-OBJECT* is bound,
+	add the new lines to the old history item
+	(next_line_virtual, previous_line_virtual): readline helper
+	functions
+	(init_streamvars): bind them to M-p and M-n
+	* io.d (read_token_1, read_delimited_list, string_reader): bind
+	*TERMINAL-READ-OPEN-OBJECT*
+
+2001-06-27  Sam Steingold  <sds@gnu.org>
+
 	Fixed the win32/emacs bug when commands were ignored because of ^M
 	* debug.d (read_form): use string_eqcomp_ci() instead of
 	string_equal() and skip the extra chars in the line

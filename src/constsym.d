@@ -1404,6 +1404,7 @@ LISPSYM(prin_jblocks,"*PRIN-JBLOCKS*",system) # als Variable in IO
 LISPSYM(prin_jbstrings,"*PRIN-JBSTRINGS*",system) # als Variable in IO
 LISPSYM(prin_jbmodus,"*PRIN-JBMODUS*",system) # als Variable in IO
 LISPSYM(prin_jblpos,"*PRIN-JBLPOS*",system) # als Variable in IO
+LISPSYM(terminal_read_open_object,"*TERMINAL-READ-OPEN-OBJECT*",system) # IO
 LISPSYM(backquote,"BACKQUOTE",system) # als Marker in IO
 LISPSYM(splice,"SPLICE",system) # als Marker in IO
 LISPSYM(nsplice,"NSPLICE",system) # als Marker in IO
