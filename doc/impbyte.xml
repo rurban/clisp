@@ -425,11 +425,12 @@ first time said function is called.</para>
 <para>The virtual machine is a stack machine with two stacks:
 <variablelist>
  <varlistentry><term>&STACK;</term>
-  <listitem><simpara>a stack for &clisp; objects and frames.
-  </simpara></listitem></varlistentry>
+  <listitem><simpara>a stack for &clisp; objects and frames
+   (<quote>Lisp stack</quote>).</simpara></listitem></varlistentry>
  <varlistentry><term>&SP;</term>
-  <listitem><simpara>a stack for other data and pointers.
-</simpara></listitem></varlistentry></variablelist></para>
+  <listitem><simpara>a stack for other data and pointers
+   (<quote>Program stack</quote>).</simpara></listitem></varlistentry>
+</variablelist></para>
 
 <para>This two-stack architecture permits to save an unlimited number of
 &clisp; objects on the &STACK; (needed for handling of &cl; multiple
@@ -471,7 +472,7 @@ It does not survive a function call, not even a garbage collection.</para>
 
 <para>The interpretation of some bytecode instructions depends on a
 constant, &jbs;.  This is a CPU-dependent number, the value of
-<varname>system::*jmpbuf-size*</varname>.  In &c-lang;, it is defined as
+<varname>SYSTEM::*JMPBUF-SIZE*</varname>.  In &c-lang;, it is defined as
 <literal>ceiling(sizeof(jmp_buf),sizeof(void*))</literal>.</para>
 
 </section>
