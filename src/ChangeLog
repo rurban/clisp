@@ -1,5 +1,12 @@
 1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Fix interpretation of LC_* and LANG environment variables.
+        * spvw_ctype.d (init_ctype): Treat empty environment values like
+          unset environment variables. LANG is not supposed to contain colons.
+          The encoding can be followed by other suffixes.
+
+1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (GENERATIONAL_GC): Don't define on IRIX.
 
 1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
