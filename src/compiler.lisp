@@ -1040,8 +1040,7 @@ for-value   NIL or T
   consvar           ; Variable, that lies in the Stack in the Tagbody-Frame and
                     ; which contains the Tagbody-Cons (whose CDR is set to
                     ; #<DISABLED> on leaving the Tagbody)
-  used-far          ; Vector with Fill-Pointer, contains all the Tags,
-                    ; that are jumped at with GO from
+  used-far          ; list of all the Tags that are jumped at with a GO from
                     ; within another function.
 )
 #-CLISP-DEBUG (remprop 'tagbody 'sys::defstruct-description)
@@ -4939,7 +4938,7 @@ for-value   NIL or T
               (seclass-or-f seclass anodei)
               (push anodei codelist)))))
       (if (> (length (tagbody-used-far tagbody)) 0)
-        (let ((used-tags (make-array (length taglist) :fill-pointer 0)))
+         (let ((used-tags (make-array (length taglist) :fill-pointer 0)))
           ;; Collect the used tags and assign indices.
           (dolist (tagbody+tag (tagbody-used-far tagbody))
             (let* ((tag (cdr tagbody+tag))
