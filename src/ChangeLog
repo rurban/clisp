@@ -1,5 +1,8 @@
 1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * pathname.d (check_stat_directory): New macro.
+          (directory_search): Use it.
+
         * pathname.d (READDIR_*): New macros.
           (subdirs, directory_search): Use them.
 
