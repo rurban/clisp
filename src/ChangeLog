@@ -1,3 +1,9 @@
+2004-10-16  Bruno Haible  <bruno@clisp.org>
+
+	* defstruct.lisp (defstruct): Use gensym'ed variable to hold the
+	initfunctions of all non-constant inherited slots, not just of those
+	for which a new initform is declared.
+
 2004-10-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/i18n/gettext.c (LANGUAGE-INFORMATION): new function
