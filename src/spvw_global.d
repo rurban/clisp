@@ -110,6 +110,13 @@
 # is_cons_heap(heapnr)
 # is_unused_heap(heapnr)
 
+# Test for valid heap address, used only by consistency checks.
+# is_valid_varobject_address(address)
+# is_valid_cons_address(address)
+# is_valid_heap_object_address(address)
+# Likewise for stack-allocated objects, such as DYNAMIC_STRING.
+# is_valid_stack_address(address)
+
 # Consistency checks.
 # CHECK_AVL_CONSISTENCY();
 # CHECK_GC_CONSISTENCY();
@@ -268,6 +275,54 @@
 
 # Set during the core of GC.
 bool inside_gc = false;
+
+#if defined(SPVW_BLOCKS) && defined(DEBUG_SPVW)
+  #ifdef SPVW_PURE
+    #define is_valid_varobject_address(address)  \
+      is_varobject_heap(((aint)(address) >> oint_type_shift) & (oint_type_mask >> oint_type_shift))
+    #define is_valid_cons_address(address)  \
+      is_cons_heap(((aint)(address) >> oint_type_shift) & (oint_type_mask >> oint_type_shift))
+    #define is_valid_heap_object_address(address)  \
+      is_heap_containing_objects(((aint)(address) >> oint_type_shift) & (oint_type_mask >> oint_type_shift))
+  #else # SPVW_MIXED
+    #ifdef GENERATIONAL_GC
+      #define is_valid_varobject_address(address)  \
+        ((aint)(address) >= mem.varobjects.heap_gen0_start \
+         && (aint)(address) < mem.varobjects.heap_end)
+      #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
+        #define is_valid_cons_address(address)  \
+          ((aint)(address) >= mem.conses.heap_start \
+           && (aint)(address) < mem.conses.heap_gen0_end)
+      #else
+        #define is_valid_cons_address(address)  \
+          ((aint)(address) >= mem.conses.heap_gen0_start \
+           && (aint)(address) < mem.conses.heap_end)
+      #endif
+    #else
+      #define is_valid_varobject_address(address)  \
+        ((aint)(address) >= mem.varobjects.heap_start \
+         && (aint)(address) < mem.varobjects.heap_end)
+      #define is_valid_cons_address(address)  \
+        ((aint)(address) >= mem.conses.heap_start \
+         && (aint)(address) < mem.conses.heap_end)
+    #endif
+    #define is_valid_heap_object_address(address)  \
+      (is_valid_varobject_address(address) || is_valid_cons_address(address))
+  #endif
+  #ifdef SP_DOWN
+    #define is_valid_stack_address(address)  \
+      ((aint)(address) >= (aint)SP() && (aint)(address) <= (aint)SP_anchor)
+  #endif
+  #ifdef SP_UP
+    #define is_valid_stack_address(address)  \
+      ((aint)(address) <= (aint)SP() && (aint)(address) >= (aint)SP_anchor)
+  #endif
+#else
+  #define is_valid_varobject_address(address)  true
+  #define is_valid_cons_address(address)  true
+  #define is_valid_heap_object_address(address)  true
+  #define is_valid_stack_address(address)  true
+#endif
 
 # check of the memory content to be GC-proof:
   #if defined(SPVW_PAGES) && defined(DEBUG_SPVW)

@@ -889,7 +889,11 @@ local uintC generation;
                   if (!gcinvariant_type_p(type)) # un-movable?                     \
                     if (!in_old_generation(obj,type,mem.heapnr_from_type[type])) { \
                       # obj is a pointer into the new generation -> memorize       \
-                      cache_ptr->p = &(obj); cache_ptr->o = (obj); cache_ptr++;    \
+                      cache_ptr->p = &(obj); cache_ptr->o = (obj);                 \
+                      DEBUG_SPVW_ASSERT(mem.heapnr_from_type[type]                 \
+                                        ? is_valid_cons_address(as_oint(obj))      \
+                                        : is_valid_varobject_address(as_oint(obj))); \
+                      cache_ptr++;                                                 \
                     }                                                              \
                 }
             #else
@@ -897,7 +901,11 @@ local uintC generation;
                 { if (!gcinvariant_object_p(obj))                               \
                     if (!in_old_generation(obj,,nonimmediate_heapnr(obj))) {    \
                       # obj is a pointer into the new generation -> memorize    \
-                      cache_ptr->p = &(obj); cache_ptr->o = (obj); cache_ptr++; \
+                      cache_ptr->p = &(obj); cache_ptr->o = (obj);              \
+                      DEBUG_SPVW_ASSERT(nonimmediate_heapnr(obj)                \
+                                        ? is_valid_cons_address(as_oint(obj))   \
+                                        : is_valid_varobject_address(as_oint(obj))); \
+                      cache_ptr++;                                              \
                     }                                                           \
                 }
             #endif

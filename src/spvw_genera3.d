@@ -39,9 +39,18 @@ local void update_old_generation (void) {
               var uintL count = physpage->cache_size;
               if (count > 0) {
                 var old_new_pointer_t* ptr = physpage->cache;
-                dotimespL(count,count, {
-                  update(&ptr->o); ptr++;
-                });
+                do {
+                  #if defined(DEBUG_SPVW) && !defined(MORRIS_GC)
+                  bool was_cons = consp(ptr->o);
+                  #endif
+                  update(&ptr->o);
+                  #if !defined(MORRIS_GC)
+                  DEBUG_SPVW_ASSERT(was_cons
+                                    ? consp(ptr->o) && is_valid_cons_address(as_oint(ptr->o))
+                                    : !consp(ptr->o) && is_valid_varobject_address(as_oint(ptr->o)));
+                  #endif
+                  ptr++;
+                } while (--count > 0);
                 if (!(physpage->protection == PROT_NONE)) {
                   xmmprotect(heap, gen0_start,physpagesize,PROT_NONE);
                   physpage->protection = PROT_NONE;

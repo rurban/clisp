@@ -79,6 +79,9 @@ local int handle_read_fault (aint address, physpage_state_t* physpage)
         return -1;
       #endif
       dotimespL(count,count, {
+        DEBUG_SPVW_ASSERT(consp(*(ptr->p))
+                          ? consp(ptr->o) && is_valid_cons_address(as_oint(ptr->o))
+                          : !consp(ptr->o) && is_valid_varobject_address(as_oint(ptr->o)));
         *(ptr->p) = ptr->o;
         ptr++;
       });
