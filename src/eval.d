@@ -820,7 +820,7 @@ local object sym_value (object sym, object env)
  < result: true if sym is a Symbol-Macro */
 global bool sym_macrop (object sym) {
   var object val = sym_value(sym,aktenv.var_env);
-  return (symbolmacrop(val) ? true : false);
+  return (symbolmacrop(val));
 }
 
 /* UP: Sets the value of a Symbol in the current Environment.

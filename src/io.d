@@ -1,11 +1,13 @@
-# Input/Output for CLISP
-# Bruno Haible 1990-2002
-# Marcus Daniels 11.3.1997
-# Sam Steingold 1998-2002
-# German comments translated into English: Stefan Kain 2001-06-12
+/*
+ * Input/Output for CLISP
+ * Bruno Haible 1990-2003
+ * Marcus Daniels 11.3.1997
+ * Sam Steingold 1998-2003
+ * German comments translated into English: Stefan Kain 2001-06-12
+ */
 
 #include "lispbibl.c"
-#include "arilev0.c" # for Division in pr_uint
+#include "arilev0.c" /* for Division in pr_uint */
 
 # IO_DEBUG must be undefined in the code comitted to CVS
 # define IO_DEBUG 0
@@ -7580,7 +7582,7 @@ local void pr_vector (const gcv_object_t* stream_, object v) {
     LEVEL_CHECK;
     {
       var bool readable = # Flag, if length and type are also printed
-        (!nullpSv(print_readably) && !general_vector_p(v) ? true : false);
+        (!nullpSv(print_readably) && !general_vector_p(v));
       var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
       var uintL length = 0; # previous length := 0
       # process vector elementwise:
