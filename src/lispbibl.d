@@ -9256,20 +9256,20 @@ re-enters the corresponding top-level loop.
     do { var uintC count = mv_count;                            \
          if (count!=0) { # no values-> nothing onto the STACK   \
            var object* mvp = &mv_space[0];                      \
+           get_space_on_STACK(count);                           \
            dotimespC(count,count, { pushSTACK(*mvp++); } );     \
-           check_STACK();                                       \
     }  } while(0)
 #else
   #define mv_to_STACK()                                         \
     do { var uintC count = mv_count;                            \
          if (count!=0) { # no values -> nothing onto the STACK  \
+           get_space_on_STACK(count);                           \
            pushSTACK(value1);                                   \
            count--;                                             \
            if (count > 0) {                                     \
              var object* mvp = &mv_space[1];                    \
              dotimespC(count,count, { pushSTACK(*mvp++); } );   \
            }                                                    \
-          check_STACK();                                        \
     }  } while(0)
 #endif
 # is used by EVAL, CONTROL
@@ -9277,41 +9277,40 @@ re-enters the corresponding top-level loop.
 # Returns the elements of a list as multiple values.
 # list_to_mv(list,fehler_statement)
 # fehler_statement: if there's an error (too many values).
+#define NEXT_MV  *mvp++ = Car(l); l = Cdr(l); count++
 #if !defined(VALUE1_EXTRA)
-  #define list_to_mv(lst,fehler_statement)                                 \
-    do { var object l = (lst);                                             \
-     var uintC count = 0;                                                  \
-     if (atomp(l)) value1 = NIL;                                           \
-     else {                                                                \
-       var object* mvp = &mv_space[0];                                     \
-       *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-       *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-       *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-       do { *mvp++ = Car(l); l = Cdr(l);                                   \
-            count++; if (count==mv_limit) { fehler_statement; }            \
-       } while (consp(l));                                                 \
-     }                                                                     \
-     mv_fertig:                                                            \
+  #define list_to_mv(lst,fehler_statement)                              \
+    do { var object l = (lst);                                          \
+     var uintC count = 0;                                               \
+     if (atomp(l)) value1 = NIL;                                        \
+     else {                                                             \
+       var object* mvp = &mv_space[0];                                  \
+       NEXT_MV; if (atomp(l)) goto mv_fertig;                           \
+       NEXT_MV; if (atomp(l)) goto mv_fertig;                           \
+       NEXT_MV; if (atomp(l)) goto mv_fertig;                           \
+       do { if (count==mv_limit-1) { fehler_statement; } NEXT_MV;       \
+       } while (consp(l));                                              \
+     }                                                                  \
+     mv_fertig:                                                         \
      if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); } \
-     mv_count = count;                                                     \
+     mv_count = count;                                                  \
     } while(0)
 #else
-  #define list_to_mv(lst,fehler_statement)                                  \
-    do { var object l = (lst);                                              \
-     var uintC count = 0;                                                   \
-     if (atomp(l)) value1 = NIL;                                            \
-     else {                                                                 \
-       value1 = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig;  \
-       {var object* mvp = &mv_space[1];                                     \
-        *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-        *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-        do { *mvp++ = Car(l); l = Cdr(l);                                   \
-             count++; if (count==mv_limit) { fehler_statement; }            \
-        } while (consp(l));                                                 \
-     }}                                                                     \
-     mv_fertig:                                                             \
-     if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }  \
-     mv_count = count;                                                      \
+  #define list_to_mv(lst,fehler_statement)                              \
+    do { var object l = (lst);                                          \
+     var uintC count = 0;                                               \
+     if (atomp(l)) value1 = NIL;                                        \
+     else {                                                             \
+       value1 = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+       {var object* mvp = &mv_space[1];                                 \
+        NEXT_MV; if (atomp(l)) goto mv_fertig;                          \
+        NEXT_MV; if (atomp(l)) goto mv_fertig;                          \
+        do { if (count==mv_limit-1) { fehler_statement; } NEXT_MV;      \
+        } while (consp(l));                                             \
+     }}                                                                 \
+     mv_fertig:                                                         \
+     if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); } \
+     mv_count = count;                                                  \
     } while(0)
 #endif
 # is used by EVAL, CONTROL

@@ -1,3 +1,9 @@
+2002-10-14  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 598128 ]: values / multiple-value-list crash
+	* lispbibl.d (list_to_mv): fixed the check for mv_space overrun
+	(mv_to_STACK): check space on STACK beforehand, not post-factum
+
 2002-10-13  Sam Steingold  <sds@gnu.org>
 
 	* places.lisp (psetf): handle the empty form (PSETF) properly
