@@ -200,6 +200,10 @@
     #-WIN32
     (unless wait
       (setq command (string-concat command " &")))
+    #+WIN32
+    (unless wait
+      (setq indirectp t)
+      (setf command (string-concat "start " command)))
     #+UNIX
     (when may-exec
       ; Wenn die ausführende Shell die "/bin/sh" ist und command eine
