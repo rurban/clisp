@@ -5905,6 +5905,10 @@ typedef struct strm_i_buffered_extrafields_t {
 # File-Stream in general
 # ======================
 
+/* for syscall module */
+global object file_stream_truename (object s)
+{ return FileStream_truename(s); }
+
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
 # Assumption: All File-Descriptors delivered by OPEN(2)  (called Handles
 # here) fit in an uintW.
@@ -17052,11 +17056,11 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
         }
       case strmtype_twoway:
       case strmtype_echo:
-        return stream_lend_handle(TheStream(stream)->strm_twoway_input,
-                                  inputp,handletype);
+        stream = TheStream(stream)->strm_twoway_input;
+        goto restart_stream_lend_handle;
       case strmtype_synonym:
-        return stream_lend_handle(resolve_synonym_stream(stream),
-                                  inputp,handletype);
+        stream = resolve_synonym_stream(stream);
+        goto restart_stream_lend_handle;
       #ifdef KEYBOARD
       case strmtype_keyboard:
        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS) || defined(WIN32_NATIVE)
@@ -17424,6 +17428,13 @@ local object check_open_file_stream (object obj) {
   fehler(type_error,GETTEXT("~: argument ~ is not an open ~"));
 }
 
+/* for syscall module */
+global object open_file_stream_handle (object stream, Handle *fd) {
+  stream = check_open_file_stream(stream);
+  *fd = TheHandle(TheStream(stream)->strm_ochannel);
+  return stream;
+}
+
 # (FILE-POSITION file-stream [position]), CLTL p. 425
 LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL) {
   var object position = popSTACK();
@@ -17712,46 +17723,6 @@ LISPFUNN(defgray,1) {
              Svector_length(STACK_0));
   VALUES0; skipSTACK(1);
 }
-
-# =============================================================================
-
-#ifdef EXPORT_SYSCALLS
-
-#ifdef HAVE_FLOCK
-
-#ifdef HAVE_SYS_FILE_H
-#include <sys/file.h>
-#endif
-
-# the interface to flock(2)
-# (STREAM-LOCK stream lock-p &key (block T) (shared NIL))
-LISPFUN(stream_lock,seclass_default,2,0,norest,key,2, (kw(shared),kw(block)) )
-{
-  var int fd = -1;
-  var object stream = nullobj;
-  if (posfixnump(STACK_3)) fd = posfixnum_to_L(STACK_3) ;
-  else {
-    stream = check_open_file_stream(STACK_3);
-    fd = TheHandle(TheStream(stream)->strm_ochannel);
-  }
-  var bool lock_p = !nullp(STACK_2);
-  var int operation = !lock_p ? LOCK_UN
-    : (nullp(STACK_1) || eq(unbound,STACK_1) ? LOCK_EX : LOCK_SH);
-  if (nullp(STACK_0)) operation |= LOCK_NB;
-  begin_system_call();
-  var bool failed_p = flock(fd,operation);
-  end_system_call();
-  if (failed_p) {
-    if (eq(stream,nullobj)) OS_error();
-    else OS_filestream_error(stream);
-  }
-  skipSTACK(4);
-  VALUES_IF(lock_p);
-}
-
-#endif
-
-#endif # EXPORT_SYSCALLS
 
 # =============================================================================
 

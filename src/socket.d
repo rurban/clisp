@@ -178,6 +178,21 @@
   #endif
 #endif
 
+/* for system call module */
+global object addr_to_string (short type, char *addr) {
+  char buffer[MAXHOSTNAMELEN];
+ #ifdef HAVE_IPV6
+  if (type == AF_INET6)
+    return asciz_to_string(ipv6_ntop(buffer,*(const struct in6_addr*)addr),
+                           O(misc_encoding));
+  else
+ #endif
+  if (type ==  AF_INET)
+    return asciz_to_string(ipv4_ntop(buffer,*(const struct in_addr*)addr),
+                           O(misc_encoding));
+  else return NIL ;
+}
+
 #ifdef MACHINE_KNOWN
 
 /* (MACHINE-INSTANCE), CLTL p. 447 */
@@ -300,6 +315,49 @@ local bool all_digits_dots (const char* host) {
   return true;
 }
 #endif
+
+/* for system call module */
+local struct hostent* resolve_host1 (char* name) {
+  struct hostent* he;
+  begin_system_call();
+ #ifdef HAVE_INET_PTON
+  if (inet_pton(AF_INET,namez,(void*)buffer) > 0)
+    he = gethostbyaddr(buffer,sizeof(struct in_addr),AF_INET);
+  #ifdef HAVE_IPV6
+  else if (inet_pton(AF_INET6,name,buffer) > 0)
+    he = gethostbyaddr(buffer,sizeof(struct in6_addr),AF_INET);
+  #endif /* HAVE_IPV6 */
+ #else /* HAVE_INET_PTON */
+  if (all_digits_dots(name)) {
+    uint32 ip = inet_addr(name) INET_ADDR_SUFFIX;
+    he = gethostbyaddr((char*)&ip,sizeof(uint32),AF_INET);
+  }
+ #endif /* HAVE_INET_PTON */
+  else
+    he = gethostbyname(name);
+  end_system_call();
+  return he;
+}
+global struct hostent* resolve_host (object arg) {
+  struct hostent* he;
+  if (eq(arg,S(Kdefault))) {
+    char * host;
+    get_hostname(host =);
+    begin_system_call();
+    he = gethostbyname(host);
+    end_system_call();
+  } else if (stringp(arg) || symbolp(arg)) {
+    with_string_0(stringp(arg)?arg:(object)Symbol_name(arg),O(misc_encoding),
+                  namez, { he = resolve_host1(namez); });
+  } else if (uint32_p(arg)) {
+    uint32 ip = htonl(I_to_UL(arg));
+    begin_system_call();
+    he = gethostbyaddr((char*)&ip,sizeof(uint32),AF_INET);
+    end_system_call();
+  } else
+      fehler_string_integer(arg);
+  return he;
+}
 
 /* Look up a host's IP address, then call a user-defined function taking
    a `struct sockaddr' and its size, and returning a SOCKET. */
@@ -934,147 +992,6 @@ LISPFUN(socket_service_port,seclass_read,0,2,norest,nokey,0,NIL)
 #endif /* !UNIX_BEOS */
 
 #endif /* SOCKET_STREAMS */
-
-#ifdef EXPORT_SYSCALLS
-
-/* This piece of code is under the responsibility of Sam Steingold. */
-
-#define H_ERRMSG                                                           \
-        (h_errno == HOST_NOT_FOUND ? "host not found" :                    \
-         (h_errno == TRY_AGAIN ? "try again later" :                       \
-          (h_errno == NO_RECOVERY ? "a non-recoverable error occurred" :   \
-           (h_errno == NO_DATA ? "valid name, but no data for this host" : \
-            (h_errno == NO_ADDRESS ? "no IP address for this host" :       \
-             "unknown error")))))
-
-#ifdef HAVE_IPV6
-#define ADDR_TO_STRING(type,addr,buf)                              \
-  (type == AF_INET6 ?                                              \
-   asciz_to_string(ipv6_ntop(buf,*(const struct in6_addr*)(addr)), \
-                   O(misc_encoding)) :                             \
-   (type ==  AF_INET ?                                             \
-    asciz_to_string(ipv4_ntop(buf,*(const struct in_addr*)(addr)), \
-                    O(misc_encoding)) : NIL ))
-#else
-#define ADDR_TO_STRING(type,addr,buf)                            \
-  (type ==  AF_INET ?                                            \
-   asciz_to_string(ipv4_ntop(buf,*(const struct in_addr*)(addr)),\
-                   O(misc_encoding)) : NIL )
-#endif /* HAVE_IPV6 */
-
-#if 0
-void print_he (struct hostent he) {
- int ii;
- char **pp;
- struct in_addr in;
- printf("h_name: %s; h_length: %d; h_addrtype: %d\n [size in.s_addr: %d]\n",
-        he.h_name,he.h_length,he.h_addrtype,sizeof(in.s_addr));
- for (pp = he.h_aliases; *pp != 0; pp++) printf("\t%s", *pp);
- printf("\n IP:");
- for (pp = he.h_addr_list; *pp != 0; pp++) {
-   (void) memcpy(&in.s_addr, *pp, sizeof (in.s_addr));
-   (void) printf("\t%s", inet_ntoa(in));
- }
- printf("\n");
-}
-#endif
-
-/* push the contents of HE onto the stack
- BUF is temporary storage for ipv4_ntop()
- 4 values are pushed:
-   h_name
-   list of h_aliases
-   list of h_addr_list
-   addrtype
- can trigger GC */
-local void hostent_to_stack (struct hostent *he, char *buf) {
-  var object tmp;
-  pushSTACK(ascii_to_string(he->h_name));
-  ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),
-              asciz_to_string(he->h_aliases[ii],O(misc_encoding)));
-  pushSTACK(tmp);
-  ARR_TO_LIST(tmp,(he->h_addr_list[ii] != NULL),
-              ADDR_TO_STRING(he->h_addrtype,he->h_addr_list[ii],buf));
-  pushSTACK(tmp);
-  pushSTACK(fixnum(he->h_addrtype));
-}
-
-/* Lisp interface to gethostbyname(3) and gethostbyaddr(3) */
-LISPFUNN(resolve_host_ipaddr_,1)
-/* (POSIX::RESOLVE-HOST-IPADDR-INTERNAL host)
- if you modify this function wrt its return values,
- you should modify POSIX:RESOLVE-HOST-IPADDR in posix.lisp accordingly
- can trigger GC */
-{
-  var object arg = popSTACK();
-  var struct hostent *he = NULL;
-  var char buffer[MAXHOSTNAMELEN];
-
-  if (nullp(arg)) {
-   #if defined(WIN32_NATIVE) || !defined(HAVE_GETHOSTENT)
-    VALUES1(NIL);
-   #else
-    int count = 0;
-    begin_system_call();
-    for (; (he = gethostent()); count++) {
-      hostent_to_stack(he,buffer);
-      funcall(L(vector),4);
-      pushSTACK(value1);
-    }
-    endhostent();
-    end_system_call();
-    VALUES1(listof(count));
-   #endif
-    return;
-  }
-
-  if (eq(arg,S(Kdefault))) {
-    var char * host;
-    get_hostname(host =);
-    begin_system_call();
-    he = gethostbyname(host);
-    end_system_call();
-  } else if (stringp(arg) || symbolp(arg)) {
-    char* name =
-      TheAsciz(string_to_asciz(stringp(arg)?arg:(object)Symbol_name(arg),
-                               O(misc_encoding)));
-    begin_system_call();
-    #ifdef HAVE_INET_PTON
-    if (inet_pton(AF_INET,name,(void*)buffer) > 0)
-      he = gethostbyaddr(buffer,sizeof(struct in_addr),AF_INET);
-    #ifdef HAVE_IPV6
-    else if (inet_pton(AF_INET6,name,buffer) > 0)
-      he = gethostbyaddr(buffer,sizeof(struct in6_addr),AF_INET);
-    #endif /* HAVE_IPV6 */
-    #else /* HAVE_INET_PTON */
-    if (all_digits_dots(name)) {
-      var uint32 ip = inet_addr(name) INET_ADDR_SUFFIX;
-      he = gethostbyaddr((char*)&ip,sizeof(uint32),AF_INET);
-    }
-    #endif /* HAVE_INET_PTON */
-    else
-      he = gethostbyname(name);
-    end_system_call();
-  } else if (uint32_p(arg)) {
-    var uint32 ip = htonl(I_to_UL(arg));
-    begin_system_call();
-    he = gethostbyaddr((char*)&ip,sizeof(uint32),AF_INET);
-    end_system_call();
-  } else
-    fehler_string_integer(arg);
-
-  if (he == NULL) {
-    pushSTACK(arg); pushSTACK(arg);
-    STACK_1 = ascii_to_string(H_ERRMSG);
-    pushSTACK(S(resolve_host_ipaddr_));
-    fehler(os_error,"~ (~): ~");
-  }
-
-  hostent_to_stack(he,buffer);
-  funcall(L(values),4);
-}
-
-#endif /* EXPORT_SYSCALLS */
 
 #endif /* HAVE_GETHOSTBYNAME */
 

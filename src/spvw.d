@@ -1353,9 +1353,6 @@ local void init_object_tab (void) {
      #if (base_char_code_limit == char_code_limit)
       " :BASE-CHAR=CHARACTER"
      #endif
-     #ifdef EXPORT_SYSCALLS
-      " :SYSCALLS"
-     #endif
      #ifdef AMIGA
       " :AMIGA"
      #endif

@@ -536,9 +536,6 @@ LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #ifndef UNIX_BEOS
 LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",socket)
 #endif
-#ifdef EXPORT_SYSCALLS
-LISPSYM(resolve_host_ipaddr_,"RESOLVE-HOST-IPADDR-INTERNAL",posix)
-#endif
 #endif
 /* ---------- TIME ---------- */
 LISPSYM(get_internal_real_time,"GET-INTERNAL-REAL-TIME",lisp)
@@ -655,19 +652,6 @@ LISPSYM(program_name,"PROGRAM-NAME",system)
 #endif
 LISPSYM(lib_directory,"LIB-DIRECTORY",system)
 LISPSYM(set_lib_directory,"SET-LIB-DIRECTORY",system)
-#if defined(EXPORT_SYSCALLS)
-#if defined(UNIX)
-LISPSYM(user_data_,"USER-DATA-INTERNAL",posix)
-LISPSYM(file_stat_,"FILE-STAT-INTERNAL",posix)
-#endif
-LISPSYM(duplicate_handle,"DUPLICATE-HANDLE",posix)
-LISPSYM(copy_file,"COPY-FILE",posix)
-#endif
-/* ---------- POSIXMISC ---------- */
-#if defined(EXPORT_SYSCALLS) && defined(UNIX)
-LISPSYM(sysinfo_,"SYSINFO-INTERNAL",posix)
-LISPSYM(resource_usage_limits_,"RESOURCE-USAGE-LIMITS-INTERNAL",posix)
-#endif
 /* ---------- PREDTYPE ---------- */
 LISPSYM(eq,"EQ",lisp)
 LISPSYM(eql,"EQL",lisp)
@@ -1075,23 +1059,6 @@ LISPSYM(long_float_digits,"LONG-FLOAT-DIGITS",ext)
 LISPSYM(set_long_float_digits,"%SET-LONG-FLOAT-DIGITS",system)
 LISPSYM(log2,"LOG2",system)
 LISPSYM(log10,"LOG10",system)
-#ifdef EXPORT_SYSCALLS
-#ifndef WIN32_NATIVE
-LISPSYM(erf,"ERF",posix)
-LISPSYM(erfc,"ERFC",posix)
-#endif
-LISPSYM(j0,"J0",posix)
-LISPSYM(j1,"J1",posix)
-LISPSYM(jn,"JN",posix)
-LISPSYM(y0,"Y0",posix)
-LISPSYM(y1,"Y1",posix)
-LISPSYM(yn,"YN",posix)
-#ifndef WIN32_NATIVE
-LISPSYM(gamma,"GAMMA",posix)
-LISPSYM(lgamma,"LGAMMA",posix)
-#endif
-LISPSYM(bogomips,"BOGOMIPS",posix)
-#endif /* EXPORT_SYSCALLS */
 /* ---------- REXX ---------- */
 #ifdef REXX
 LISPSYM(rexx_put,"%REXX-PUT",system)
@@ -1475,14 +1442,8 @@ LISPSYM(Koverwrite,"OVERWRITE",keyword) /* argument in PATHNAME */
 LISPSYM(Kappend,"APPEND",keyword) /* argument in PATHNAME */
 LISPSYM(Ksupersede,"SUPERSEDE",keyword) /* argument in PATHNAME */
 LISPSYM(Kcreate,"CREATE",keyword) /* argument in PATHNAME */
-#ifdef EXPORT_SYSCALLS
-LISPSYM(Ksymlink,"SYMLINK",keyword) /* Argument to COPY-FILE in PATHNAME */
-LISPSYM(Khardlink,"HARDLINK",keyword) /* Argument to COPY-FILE in PATHNAME */
-LISPSYM(Kpreserve,"PRESERVE",keyword) /* Argument to COPY-FILE in PATHNAME */
-LISPSYM(Kmethod,"METHOD",keyword) /* Argument to COPY-FILE in PATHNAME */
-#endif
-#if defined(EXPORT_SYSCALLS) || defined(DYNAMIC_FFI)
-LISPSYM(Kcopy,"COPY",keyword) /* COPY-FILE (PATHNAME) & SET-FOREIGN-POINTER */
+#if defined(DYNAMIC_FFI)
+LISPSYM(Kcopy,"COPY",keyword) /* SET-FOREIGN-POINTER */
 #endif
 LISPSYM(warn,"WARN",lisp) /* function in STREAM, PATHNAME */
 LISPSYM(Kignore,"IGNORE",keyword) /* argument in ENCODING, PATHNAME */

@@ -1,0 +1,32 @@
+/* Sam Steingod 2003 */
+
+/* header files */
+
+/* AC_HEADER_STDC */
+/* Define if you have the ANSI C header files
+   <stdlib.h>, <stdarg.h>, <string.h>, <float.h>, and the <ctype.h> macros
+   work correctly. */
+#undef STDC_HEADERS
+
+/* AC_CHECK_HEADERS(sys/file.h) */
+#undef HAVE_SYS_FILE_H
+
+/* AC_CHECK_HEADERS(sys/utsname.h) */
+#undef HAVE_SYS_UTSNAME_H
+
+/* AC_CHECK_HEADERS(sys/resource.h) */
+#undef HAVE_SYS_RESOURCE_H
+
+/* AC_CHECK_FUNCS(flock getrusage getrlimit gethostent sysconf uname) */
+#undef HAVE_FLOCK
+#undef HAVE_GETRLIMIT
+#undef HAVE_GETRUSAGE
+#undef HAVE_GETHOSTENT
+#undef HAVE_SYSCONF
+#undef HAVE_UNAME
+
+/* CL_GETHOSTBYNAME */
+/* Define if you have gethostbyname() and either <netdb.h> or <sun/netdb.h>. */
+#undef HAVE_GETHOSTBYNAME
+/* Define as const if the declaration of gethostbyname() needs const. */
+#undef GETHOSTBYNAME_CONST

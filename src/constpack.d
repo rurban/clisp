@@ -29,9 +29,6 @@ LISPPACK(screen,"SCREEN")
 #ifdef DYNAMIC_FFI
 LISPPACK(ffi,"FFI")
 #endif
-#ifdef EXPORT_SYSCALLS
-LISPPACK(posix,"POSIX")
-#endif
 #ifdef SOCKET_STREAMS
 LISPPACK(socket,"SOCKET")
 #endif
