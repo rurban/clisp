@@ -428,7 +428,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
     pushSTACK(y);
     pushSTACK(x);
     pushSTACK(N_N_contagion_R(x,y));
-    STACK_1 = N_log_N(x,true,NULL); /* (log x) */
+    STACK_1 = N_log_N(STACK_1,true,NULL); /* (log x) */
     STACK_2 = N_N_float_N(STACK_2,STACK_1);
     x = N_N_mal_N(STACK_2,STACK_1); /* (* (log x) y) */
     x = N_exp_N(x,false,&STACK_0); /* exp */
