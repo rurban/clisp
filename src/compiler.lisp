@@ -2893,10 +2893,8 @@ for-value   NIL or T
   (const-value (anode-constant anode)))
 
 ;; (new-const value) returns a constant in *func* with the Value value
-;; in the 1st Pass
 (defun new-const (value)
-  (make-const :horizon ':value :value value)
-)
+  (make-const :horizon ':value :value value))
 
 ;; (make-label for-value) returns a fresh label. for-value (NIL/ONE/ALL)
 ;; indicates, which of the values are needed after the label.
@@ -6378,9 +6376,7 @@ for-value   NIL or T
               (let ((fnode (car fnodelistr)))
                 (if (zerop (fnode-keyword-offset fnode))
                   ;; function-definition is autonomous
-                  (push (cons (list fnode)
-                              (make-const :horizon ':value :value fnode))
-                        fenv)
+                  (push (cons (list fnode) (new-const fnode)) fenv)
                   (progn
                     (push fnode vfnodelist)
                     (push (c-fnode-function fnode) anodelist)
@@ -6569,9 +6565,7 @@ for-value   NIL or T
                     (macro (car macrolistr)))
                 (if (zerop (fnode-keyword-offset fnode))
                   ;; function-definition is autonomous
-                  (push (cons macro (cons (list fnode)
-                                          (make-const :horizon ':value
-                                                      :value fnode))) fenv)
+                  (push (list* macro (list fnode) (new-const fnode)) fenv)
                   (progn
                     (push fnode vfnodelist)
                     (push (c-fnode-function fnode) anodelist)
@@ -8619,8 +8613,7 @@ New Operations:
               *code-part*)
              (if (equal (car *code-part*) '(NIL))
                (setq *current-value* 'FALSE
-                     *current-vars*
-                     (list (make-const :horizon ':value :value 'NIL)))
+                     *current-vars* (list (new-const 'NIL)))
                (setq *current-value* nil *current-vars* '()))))
           (COPY-CLOSURE
            (push `(COPY-CLOSURE ,(fconst-index (second item)) ,(third item))
@@ -8688,8 +8681,7 @@ New Operations:
           ((NIL TAGBODY-CLOSE-NIL)
            (push item *code-part*)
            (setq *current-value* 'FALSE
-                 *current-vars* (list (make-const :horizon ':value
-                                                  :value 'NIL))))
+                 *current-vars* (list (new-const 'NIL))))
           (HANDLER-OPEN
            (setq item
                  (let ((v (const-value (second item)))
@@ -8714,8 +8706,7 @@ New Operations:
           ((T)
            (push item *code-part*)
            (setq *current-value* 'TRUE
-                 *current-vars* (list (make-const :horizon ':value
-                                                  :value 'T))))
+                 *current-vars* (list (new-const 'T))))
           ((RET RETGF BARRIER THROW)
            (push item *code-part*)
            (finish-code-part)

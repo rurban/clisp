@@ -1,3 +1,8 @@
+2001-12-24  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-FLET, c-FUNCTION-MACRO-LET, traverse-anode):
+	use NEW-CONST
+
 2001-12-21  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-DIRECT-FUNCTION-CALL): added a flet
