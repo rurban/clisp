@@ -2006,6 +2006,7 @@ local void usage (int exit_code)
                     elif (asciz_equal(&arg[2],"version"))
                       { if (!(argv_expr == NULL)) usage (1);
                         argv_quiet = TRUE;
+                        argv_norc = TRUE;
                         argv_expr = "(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))";
                         break;
                       }
