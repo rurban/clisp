@@ -3250,7 +3250,17 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       # Neuen Bitvektor allozieren:
       pushSTACK(allocate_bit_vector_0(bvl));
       # mit (MAKE-HASH-TABLE :test test) eine leere Hash-Tabelle bauen:
-      pushSTACK(S(Ktest)); pushSTACK(STACK_(1+3+1)); funcall(L(make_hash_table),2);
+      {
+        var object test = STACK_(1+3);
+        if (eq(test,S(eq)) || eq(test,L(eq)))
+          test = S(fasthash_eq);
+        else if (eq(test,S(eql)) || eq(test,L(eql))) 
+          test = S(fasthash_eql);
+        else if (eq(test,S(equal)) || eq(test,L(equal))) 
+          test = S(fasthash_equal);
+        pushSTACK(S(Ktest)); pushSTACK(test);
+      }
+      funcall(L(make_hash_table),2);
       pushSTACK(value1); # ht retten
       {
         pushSTACK(STACK_(6+3+1)); # sequence
