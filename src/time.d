@@ -15,19 +15,19 @@
 #   seconds since 1900-01-01
 #ifdef TIME_AMIGAOS
   # A small bug:
-  # - Wrap-around of internal_time after 2.7 years.
+  # - Wrap-around of internal_time_t after 2.7 years.
   # Internal time =
   #   1/50 sec since session start
 #endif
 #ifdef TIME_MSDOS
   # A small bug:
-  # - Wrap-around of internal_time after 1.36 years.
+  # - Wrap-around of internal_time_t after 1.36 years.
   # Internal time =
   #   1/100 sec since session start
 #endif
 #if defined(TIME_UNIX_TIMES) || defined(TIME_RISCOS)
   # Two small bugs:
-  # - Wrap-around of internal_time after many days.
+  # - Wrap-around of internal_time_t after many days.
   # - LISP clock may be up to 1 sec behind the true clock.
   # Internal time =
   #   1/CLK_TCK sec since session start
@@ -48,7 +48,7 @@
 # -----------------------------------------------------------------------------
 #                     Measuring time consumption
 
-# Time consumption is measured with sub-second resolution, using internal_time.
+# Time consumption is measured with sub-second resolution, using internal_time_t.
 
 # Variables:
 #ifdef TIME_AMIGAOS
@@ -71,7 +71,7 @@
   # The unit is 0.1 µsec.
 #endif
   # Running time:
-    local internal_time realstart_time;  # real time at start of LISP session
+    local internal_time_t realstart_time;  # real time at start of LISP session
 #ifndef HAVE_RUN_TIME
   # Time that the LISP session consumes:
     local uintL run_time = 0;       # total runtime up to now
@@ -180,11 +180,11 @@
 
 # Returns the run time counter.
 # get_run_time(&runtime);
-# < internal_time runtime: consumed run time since session start (in ticks)
+# < internal_time_t runtime: consumed run time since session start (in ticks)
 # < uintL result: same as for get_time()
-  global uintL get_run_time (internal_time* runtime);
+  global uintL get_run_time (internal_time_t* runtime);
   global uintL get_run_time(runtime)
-    var internal_time* runtime;
+    var internal_time_t* runtime;
     {
       var struct tms tms;
       var uintL now_time;
@@ -201,9 +201,9 @@
 
 # Returns the real time counter.
 # get_real_time()
-# < internal_time* result: absolute time
-  global void get_real_time (internal_time*);
-  global void get_real_time(internal_time* it)
+# < internal_time_t* result: absolute time
+  global void get_real_time (internal_time_t*);
+  global void get_real_time(internal_time_t* it)
     {
      #ifdef HAVE_GETTIMEOFDAY
       begin_system_call();
@@ -221,10 +221,10 @@
 
 # Returns the run time counter.
 # get_run_time(&runtime);
-# < internal_time runtime: consumed run time since session start (in ticks)
-  global void get_run_time (internal_time* runtime);
+# < internal_time_t runtime: consumed run time since session start (in ticks)
+  global void get_run_time (internal_time_t* runtime);
   global void get_run_time(runtime)
-    var internal_time* runtime;
+    var internal_time_t* runtime;
     {
       #if defined(HAVE_GETRUSAGE)
       var struct rusage rusage;
@@ -254,9 +254,9 @@
 
 # Returns the real time counter.
 # get_real_time()
-# < internal_time* ergebnis: absolute time
-  global void get_real_time (internal_time*);
-  global void get_real_time(internal_time* it)
+# < internal_time_t* ergebnis: absolute time
+  global void get_real_time (internal_time_t*);
+  global void get_real_time(internal_time_t* it)
     {
       var struct timeb timebuf;
       begin_system_call();
@@ -270,9 +270,9 @@
       it->dwLowDateTime = (uint32)ticks;
       it->dwHighDateTime = (uint32)(ticks>>32);
       #else
-      var internal_time t1 = { 0xD53E8000, 0x19DB1DE };
-      var internal_time t2;
-      var internal_time t3;
+      var internal_time_t t1 = { 0xD53E8000, 0x19DB1DE };
+      var internal_time_t t2;
+      var internal_time_t t3;
       mulu32(timebuf.time,ticks_per_second,
              t1.dwHighDateTime=,t1.dwLowDateTime=);
       mulu32(timebuf.millitm,ticks_per_second/1000,
@@ -284,10 +284,10 @@
 
 # Returns the run time counter.
 # get_run_time(&runtime);
-# < internal_time runtime: consumed run time since session start (in ticks)
-  global void get_run_time (internal_time* runtime);
+# < internal_time_t runtime: consumed run time since session start (in ticks)
+  global void get_run_time (internal_time_t* runtime);
   global void get_run_time(runtime)
-    var internal_time* runtime;
+    var internal_time_t* runtime;
     {
       var FILETIME creation_time;
       var FILETIME exit_time;
@@ -305,7 +305,7 @@
         # that "Run time" and "Real time" are always the same and draw their
         # conclusions from it.)
         end_system_call();
-        var internal_time real_time;
+        var internal_time_t real_time;
         get_real_time(&real_time);
         sub_internal_time(real_time,realstart_time, *runtime);
       }
@@ -320,9 +320,9 @@
 # < timescore.gctime:   GC time since start of session (in ticks)
 # < timescore.gccount:  number of GCs since start of session
 # < timescore.gcfreed:  number of reclaimed bytes since start of session
-  global void get_running_times (timescore*);
+  global void get_running_times (timescore_t*);
   global void get_running_times (tm)
-    var timescore* tm;
+    var timescore_t* tm;
     {
      #ifndef HAVE_RUN_TIME
       var uintL time = get_time();
@@ -334,7 +334,7 @@
      #endif
      #ifdef TIME_UNIX
       # Get real time:
-      var internal_time real_time;
+      var internal_time_t real_time;
       get_real_time(&real_time);
       tm->realtime.tv_sec = real_time.tv_sec - realstart_time.tv_sec;
       tm->realtime.tv_usec = real_time.tv_usec;
@@ -347,7 +347,7 @@
      #endif
      #ifdef TIME_WIN32
       # Get real time:
-      var internal_time real_time;
+      var internal_time_t real_time;
       get_real_time(&real_time);
       sub_internal_time(real_time,realstart_time, tm->realtime);
       # Get run time:
@@ -359,11 +359,11 @@
     }
 
 #ifdef TIME_2
-# Converts an internal_time to a Lisp integer.
+# Converts an internal_time_t to a Lisp integer.
 # internal_time_to_I(&it)
-  local object internal_time_to_I (const internal_time* it);
+  local object internal_time_to_I (const internal_time_t* it);
   local object internal_time_to_I(tp)
-    var const internal_time* tp;
+    var const internal_time_t* tp;
     {
       #ifdef TIME_UNIX
         # Convert to microseconds: tp->tv_sec * ticks_per_second + tp->tv_usec
@@ -393,7 +393,7 @@ LISPFUNN(get_internal_real_time,0)
 #endif
 #ifdef TIME_2
   {
-    var internal_time tp; # absolute real time
+    var internal_time_t tp; # absolute real time
     get_real_time(&tp);
     value1 = internal_time_to_I(&tp); mv_count=1; # convert to integer
   }
@@ -402,7 +402,7 @@ LISPFUNN(get_internal_real_time,0)
 LISPFUNN(get_internal_run_time,0)
 # (GET-INTERNAL-RUN-TIME), CLTL S. 446
   {
-    var timescore tm;
+    var timescore_t tm;
     get_running_times(&tm); # get run time since start of session
    #ifdef TIME_1
     value1 = UL_to_I(tm.runtime); mv_count=1; # convert to integer
@@ -428,11 +428,11 @@ LISPFUNN(get_internal_run_time,0)
 #                   Bits 4..0:  Tag in {1,...,31}.
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
-  global void convert_timedate (uintW time, uintW date, decoded_time* timepoint);
+  global void convert_timedate (uintW time, uintW date, decoded_time_t* timepoint);
   global void convert_timedate(time,date, timepoint)
     var uintW time;
     var uintW date;
-    var decoded_time* timepoint;
+    var decoded_time_t* timepoint;
     {
       timepoint->Sekunden = fixnum( (time & (bit(5) - 1)) << 1 );
       time = time>>5;
@@ -457,10 +457,10 @@ LISPFUNN(get_internal_run_time,0)
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
   # include "arilev0.c"  # für Division
-  global void convert_time (const struct DateStamp * datestamp, decoded_time* timepoint);
+  global void convert_time (const struct DateStamp * datestamp, decoded_time_t* timepoint);
   global void convert_time(datestamp,timepoint)
     var const struct DateStamp * datestamp;
-    var decoded_time* timepoint;
+    var decoded_time_t* timepoint;
     {
       # Methode:
       # ds_Tick durch ticks_per_second dividieren, liefert Sekunden.
@@ -510,10 +510,10 @@ LISPFUNN(get_internal_run_time,0)
 # > time_t time: Zeit im System-Zeitformat
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
-  global void convert_time (const time_t* time, decoded_time* timepoint);
+  global void convert_time (const time_t* time, decoded_time_t* timepoint);
   global void convert_time(time,timepoint)
     var const time_t* time;
-    var decoded_time* timepoint;
+    var decoded_time_t* timepoint;
     {
       begin_system_call();
       var struct tm * tm = localtime(time); # decodieren
@@ -544,10 +544,10 @@ LISPFUNN(get_internal_run_time,0)
 # > FILETIME time: Zeit im System-Zeitformat
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
-  global void convert_time (const FILETIME* time, decoded_time* timepoint);
+  global void convert_time (const FILETIME* time, decoded_time_t* timepoint);
   global void convert_time(time,timepoint)
     var const FILETIME* time;
-    var decoded_time* timepoint;
+    var decoded_time_t* timepoint;
     {
       var FILETIME ltime;
       var SYSTEMTIME ltm;
@@ -564,12 +564,12 @@ LISPFUNN(get_internal_run_time,0)
 
 # Converts a decoded time to universal time.
 # encode_universal_time(&timepoint)
-# > decoded_time timepoint: decoded time
+# > decoded_time_t timepoint: decoded time
 # < result: universal time
 # can trigger GC
-  local object encode_universal_time (const decoded_time* timepoint);
+  local object encode_universal_time (const decoded_time_t* timepoint);
   local object encode_universal_time(timepoint)
-    var const decoded_time* timepoint;
+    var const decoded_time_t* timepoint;
     {
       # (ENCODE-UNIVERSAL-TIME Sekunden Minuten Stunden Tag Monat Jahr):
       pushSTACK(timepoint->Sekunden);
@@ -595,7 +595,7 @@ LISPFUNN(get_internal_run_time,0)
   global object convert_time_to_universal(datestamp)
     var const struct DateStamp * datestamp;
     {
-      var decoded_time timepoint;
+      var decoded_time_t timepoint;
       convert_time(datestamp,&timepoint);
       # Have to go through ENCODE-UNIVERSAL-TIME because a DateStamp is an
       # encoded time format, and because we must take the timezone into account.
@@ -613,7 +613,7 @@ LISPFUNN(get_internal_run_time,0)
     var const time_t* time;
     {
       #if defined(MSDOS) || defined(RISCOS)
-        var decoded_time timepoint;
+        var decoded_time_t timepoint;
         convert_time(time,&timepoint);
         # Have to go through ENCODE-UNIVERSAL-TIME because we must take the
         # timezone into account.
@@ -638,7 +638,7 @@ LISPFUNN(get_internal_run_time,0)
     {
       # Since we get the timezone from the OS (sys::defaul-time-zone),
       # we can assume that the OS's timezone and CLISP's timezone agree.
-      var internal_time offset = # difference between 1.1.1601 and 1.1.1900
+      var internal_time_t offset = # difference between 1.1.1601 and 1.1.1900
       #ifdef HAVE_LONGLONG
         { (ULONG)((ULONGLONG)109207 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second),
           (ULONG)(((ULONGLONG)109207 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second) >> 32)
@@ -646,7 +646,7 @@ LISPFUNN(get_internal_run_time,0)
       #else
         { 0xFDE04000, 0x14F373B };
       #endif
-      var internal_time internal_real_time;
+      var internal_time_t internal_real_time;
       var uintL real_time;
       sub_internal_time(*time,offset,internal_real_time);
       divu_6432_3232(internal_real_time.dwHighDateTime,
@@ -680,12 +680,12 @@ LISPFUNN(get_internal_run_time,0)
      #ifdef TIME_2
       #ifdef TIME_UNIX
        var uintL real_time; # seconds
-       var internal_time it;
+       var internal_time_t it;
        get_real_time(&it);
        real_time = UNIX_LISP_TIME_DIFF + it.tv_sec;
       #endif
       #ifdef TIME_WIN32
-       var internal_time offset = # difference between 1.1.1601 and 1.1.1900
+       var internal_time_t offset = # difference between 1.1.1601 and 1.1.1900
        #ifdef HAVE_LONGLONG
          { (ULONG)((ULONGLONG)109207 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second),
            (ULONG)(((ULONGLONG)109207 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second) >> 32)
@@ -693,7 +693,7 @@ LISPFUNN(get_internal_run_time,0)
        #else
          { 0xFDE04000, 0x14F373B };
        #endif
-       var internal_time internal_real_time;
+       var internal_time_t internal_real_time;
        var uintL real_time;
        get_real_time(&internal_real_time);
        sub_internal_time(internal_real_time,offset,internal_real_time);
@@ -709,7 +709,7 @@ LISPFUNN(get_internal_run_time,0)
 #ifdef TIME_RELATIVE
 
 # Uhrzeit und Datum beim LISP-Start:
-  local decoded_time realstart_datetime;
+  local decoded_time_t realstart_datetime;
 
 # Sets the time of the start of the session.
 # set_start_time(&timepoint);
@@ -722,9 +722,9 @@ LISPFUNN(get_internal_run_time,0)
 # >   timepoint.Jahr in {1980,...,2999},
 # >   jeweils als Fixnums.
 # can trigger GC
-  local void set_start_time (const decoded_time* timepoint);
+  local void set_start_time (const decoded_time_t* timepoint);
   local void set_start_time(timepoint)
-    var const decoded_time* timepoint;
+    var const decoded_time_t* timepoint;
     {
       # Start-Zeit merken:
       realstart_datetime = *timepoint;
@@ -794,7 +794,7 @@ LISPFUNN(get_universal_time,0)
       #ifdef TIME_RELATIVE
       # Start-Zeit holen und merken:
       {
-        var decoded_time timepoint;
+        var decoded_time_t timepoint;
         #ifdef AMIGAOS
         {
           var struct DateStamp datestamp; # aktuelle Uhrzeit
@@ -1080,7 +1080,7 @@ LISPFUNN(time,0)
 #     in 2 Werten: (ldb (byte 24 24) Space), (ldb (byte 24 0) Space).
 #   GC-Count (Anzahl der durchgeführten Garbage Collections).
   {
-    var timescore tm;
+    var timescore_t tm;
     get_running_times(&tm); # Run-Time abfragen
     #ifdef TIME_1
       #define as_2_values(time)  \

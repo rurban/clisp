@@ -790,8 +790,8 @@ global int main()
 # printf("#define structure_types   recdata[0]\n");
 # printf("typedef struct { SRECORD_HEADER object class; object other[unspecified]; } *  Instance;\n");
   printf("typedef void Values;\n");
-  printf("typedef Values (*lisp_function)();\n");
-  printf("typedef struct { lisp_function function; object name; object keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_");
+  printf("typedef Values (*lisp_function_t)();\n");
+  printf("typedef struct { lisp_function_t function; object name; object keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_");
   #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
     printf(" __attribute__ ((aligned (4)))");
   #endif
@@ -1270,8 +1270,8 @@ global int main()
 # #else
 #   printf("extern bool asciz_equal (const char * asciz1, const char * asciz2);\n");
 # #endif
-# printf("typedef Values subr_norest_function (void);\n");
-# printf("typedef Values subr_rest_function (uintC argcount, object* rest_args_pointer);\n");
+# printf("typedef Values subr_norest_function_t (void);\n");
+# printf("typedef Values subr_rest_function_t (uintC argcount, object* rest_args_pointer);\n");
   printf("extern struct subr_tab_ {\n");
   #undef LISPFUN
   #define LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
@@ -1320,9 +1320,9 @@ global int main()
   printf("#define T    S(t)\n");
   printf("extern struct object_tab_ object_tab;\n");
   printf("extern uintC module_count;\n");
-  printf("typedef struct { const char* packname; const char* symname; } subr_initdata;\n");
-  printf("typedef struct { const char* initstring; } object_initdata;\n");
-  printf("typedef struct module_ { const char* name; subr_* stab; const uintC* stab_size; object* otab; const uintC* otab_size; bool initialized; const subr_initdata* stab_initdata; const object_initdata* otab_initdata; void (*initfunction1) (struct module_ *); void (*initfunction2) (struct module_ *);");
+  printf("typedef struct { const char* packname; const char* symname; } subr_initdata_t;\n");
+  printf("typedef struct { const char* initstring; } object_initdata_t;\n");
+  printf("typedef struct module_ { const char* name; subr_* stab; const uintC* stab_size; object* otab; const uintC* otab_size; bool initialized; const subr_initdata_t* stab_initdata; const object_initdata_t* otab_initdata; void (*initfunction1) (struct module_ *); void (*initfunction2) (struct module_ *);");
   #ifdef DYNAMIC_MODULES
     printf(" struct module_ * next;");
   #endif
@@ -1428,7 +1428,7 @@ global int main()
   printf("#define LISPFUN_B(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  global Values C_##name subr_##rest_flag##_function_args\n");
   printf("#define subr_norest_function_args  (void)\n");
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
-  printf("#define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, },\n");
+  printf("#define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function_t)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, },\n");
   printf("#define LISPFUN  LISPFUN_B\n");
 # #ifdef UNICODE
 #   printf("extern object n_char_to_string (const char* charptr, uintL len, object encoding);\n");

@@ -4581,7 +4581,7 @@ typedef struct {
   XRECORD_HEADER
   object name;
   object argtype;
-  void* function; # actually a fsubr_function*
+  void* function; # actually a fsubr_function_t*
 } *  Fsubr;
 #define fsubr_length  2
 #define fsubr_xlength  (sizeof(*(Fsubr)0)-offsetofa(record_,recdata)-fsubr_length*sizeof(object))
@@ -5092,16 +5092,16 @@ typedef struct {
   # To pass a type of the value Values: return_Values(...);
   #define return_Values  return_void
   # A Lisp-function is a pointer to a C-function without returned value.
-  typedef Values (*lisp_function)();
+  typedef Values (*lisp_function_t)();
 # If this is changed, every call of a C-function with the result type
 # 'Values' (especially 'funcall', 'apply', 'eval') is to be checked.
 
 # FSUBRs
-# As C-functions: of type fsubr_function (no arguments, no value):
-  typedef Values fsubr_function (void);
+# As C-functions: of type fsubr_function_t (no arguments, no value):
+  typedef Values fsubr_function_t (void);
 # The addesses of these C-functions are jumped to directly
 # For SAVEMEM/LOADMEM there is a table containing all FSUBRs.
-  typedef fsubr_function * fsubr_;
+  typedef fsubr_function_t * fsubr_;
 # Signature of FSUBRs in the Lisp-way:
 #         argtype          short for the argument type     fsubr_argtype_t
 #         req_anz          number of required parameters   uintW
@@ -5128,7 +5128,7 @@ typedef struct {
 # SUBRs
 # SUBR table entry:
   typedef struct {
-    lisp_function function; # function
+    lisp_function_t function; # function
     object name;            # name
     object keywords;        # NIL or vector with the keywords
     uintW argtype;          # short for the argument-type
@@ -6691,7 +6691,7 @@ typedef struct {
 
 # Type which is used for 'Internal Time':
 #ifdef TIME_1
-  typedef uintL internal_time;      # measured value of the ticking counter
+  typedef uintL internal_time_t;      # measured value of the ticking counter
   #ifdef TIME_AMIGAOS
     #define ticks_per_second  50UL    # 1 Tick = 1/50 sec, 50Hz-counter
   #endif
@@ -6710,7 +6710,7 @@ typedef struct {
       uintL tv_sec;    # number of seconds since 1.1.1970 00:00 GMT,
                        # 'uintL' for tv_sec is good for 136 years.
       uintL tv_usec;   # additional microseconds
-    } internal_time;
+    } internal_time_t;
     #define ticks_per_second  1000000UL  # 1 Tick = 1 mu-sec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
       do { (z).tv_sec = (x).tv_sec - (y).tv_sec;                \
@@ -6728,7 +6728,7 @@ typedef struct {
   #ifdef TIME_WIN32
     typedef # struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; }
             FILETIME  # number of 0.1 mu-sec since 1.1.1601 00:00 GMT.
-            internal_time;
+            internal_time_t;
     #define ticks_per_second  10000000UL  # 1 Tick = 0.1 mu-sec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
       do { (z).dwHighDateTime = (x).dwHighDateTime - (y).dwHighDateTime;      \
@@ -6773,8 +6773,8 @@ typedef struct {
 
 # UP: yields the real-time
 # get_real_time()
-# < internal_time* result: absolute time
-  extern void get_real_time (internal_time*);
+# < internal_time_t* result: absolute time
+  extern void get_real_time (internal_time_t*);
 # is used by LISPARIT
 
 #endif
@@ -6787,13 +6787,13 @@ typedef struct {
 # < timescore.gccount:  Number of GC's since LISP-system-start
 # < timescore.gcfreed:  Size of the space reclaimed by the GC's so far
   typedef struct {
-    internal_time runtime;
-    internal_time realtime;
-    internal_time gctime;
+    internal_time_t runtime;
+    internal_time_t realtime;
+    internal_time_t gctime;
     uintL gccount;
     uintL2 gcfreed;
-  } timescore;
-  extern void get_running_times (timescore*);
+  } timescore_t;
+  extern void get_running_times (timescore_t*);
 # is used by
 
 # UP: yields the run-time
@@ -6806,10 +6806,10 @@ typedef struct {
   #if defined(TIME_UNIX) || defined(TIME_WIN32) || defined(TIME_UNIX_TIMES)
     #define get_running_time(runtime)  get_run_time(&runtime)
     #if defined(TIME_UNIX) || defined(TIME_WIN32)
-      extern void get_run_time (internal_time* runtime);
+      extern void get_run_time (internal_time_t* runtime);
     #endif
     #ifdef TIME_UNIX_TIMES
-      extern uintL get_run_time (internal_time* runtime);
+      extern uintL get_run_time (internal_time_t* runtime);
     #endif
   #endif
 # is used by SPVW
@@ -6822,7 +6822,7 @@ typedef struct {
     object Tag;
     object Monat;
     object Jahr;
-  } decoded_time;
+  } decoded_time_t;
 
 #if defined(MSDOS)
 # UP: converts the DOS time-format to decoded-time.
@@ -6837,7 +6837,7 @@ typedef struct {
 #                   Bits 4..0:  day in {1,...,31}.
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each as Fixnums
-  extern void convert_timedate (uintW time, uintW date, decoded_time* timepoint);
+  extern void convert_timedate (uintW time, uintW date, decoded_time_t* timepoint);
 # is used by PATHNAME
 #endif
 
@@ -6850,7 +6850,7 @@ typedef struct {
 #          datestamp.ds_Tick   : Number of ticks since the minute started
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each as a Fixnum
-  extern void convert_time (const struct DateStamp * datestamp, decoded_time* timepoint);
+  extern void convert_time (const struct DateStamp * datestamp, decoded_time_t* timepoint);
 # is used by PATHNAME
 #endif
 #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
@@ -6859,7 +6859,7 @@ typedef struct {
 # > time_t time: time in the system-time-format
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each a Fixnum
-  extern void convert_time (const time_t* time, decoded_time* timepoint);
+  extern void convert_time (const time_t* time, decoded_time_t* timepoint);
 # is used by PATHNAME
 #endif
 #ifdef WIN32_NATIVE
@@ -6868,7 +6868,7 @@ typedef struct {
 # > FILETIME time: time in the system-time-format
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each a Fixnum
-  extern void convert_time (const FILETIME* time, decoded_time* timepoint);
+  extern void convert_time (const FILETIME* time, decoded_time_t* timepoint);
 # is used by PATHNAME
 #endif
 
@@ -7530,7 +7530,7 @@ extern void gar_col(void);
 # GC-statistics
 extern uintL gc_count;
 extern uintL2 gc_space;
-extern internal_time gc_time;
+extern internal_time_t gc_time;
 # is used by TIME
 
 # UP:  allocates a Cons
@@ -8190,8 +8190,8 @@ extern object subst_circ (object* ptr, object alist);
 # map_heap_objects(fun,arg);
 # > fun: C-Function
 # > arg: arbitrary given Argument
-typedef void map_heap_function (void* arg, object obj, uintL bytelen);
-extern void map_heap_objects (map_heap_function* fun, void* arg);
+typedef void map_heap_function_t (void* arg, object obj, uintL bytelen);
+extern void map_heap_objects (map_heap_function_t* fun, void* arg);
 # is used by PREDTYPE
 
 # UP: returns the size (in Bytes) of an object.
@@ -8343,7 +8343,7 @@ extern sintL execute (uintL memneed);
 
 
 # Declaration of the FSUBRs.
-# As C-functions: C_name, of the type fsubr_function (no arguments, no value)
+# As C-functions: C_name, of the type fsubr_function_t (no arguments, no value)
 
 # make C-functions visible:
 #define LISPSPECFORM  LISPSPECFORM_A
@@ -8363,10 +8363,10 @@ extern const struct fsubr_tab_ fsubr_tab;
 
 # Declaration of the SUBR-table:
 # As C-functions: C_name
-# of the type subr_norest_function (no arguments, no value)
-# resp. subr_rest_function (two arguments, no value):
-typedef Values subr_norest_function (void);
-typedef Values subr_rest_function (uintC argcount, object* rest_args_pointer);
+# of the type subr_norest_function_t (no arguments, no value)
+# resp. subr_rest_function_t (two arguments, no value):
+typedef Values subr_norest_function_t (void);
+typedef Values subr_rest_function_t (uintC argcount, object* rest_args_pointer);
 
 # As LISP-Subr:    L(name)
 
@@ -8512,12 +8512,12 @@ extern uintC module_count;
 typedef struct {
   const char* packname; # Name of the Home-Package of the Symbol or NULL
   const char* symname; # Name of the Symbol
-} subr_initdata;
+} subr_initdata_t;
 
 # Data for initialization of a module's object_tab:
 typedef struct {
   const char* initstring; # Initialization-String
-} object_initdata;
+} object_initdata_t;
 
 # Table resp. List of Modules:
 typedef struct module_ {
@@ -8526,8 +8526,8 @@ typedef struct module_ {
   object* otab; const uintC* otab_size; # a separate object_tab
   bool initialized;
   # Data for Initialization:
-  const subr_initdata* stab_initdata;
-  const object_initdata* otab_initdata;
+  const subr_initdata_t* stab_initdata;
+  const object_initdata_t* otab_initdata;
   # Functions for Initialization
   void (*initfunction1) (struct module_ *); # only once
   void (*initfunction2) (struct module_ *); # always at start up

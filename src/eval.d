@@ -3243,7 +3243,7 @@ global Values eval_no_hooks (object form) {
       }
       # call FSUBR:
       subr_self = fun;
-      (*(fsubr_function*)(TheFsubr(fun)->function))();
+      (*(fsubr_function_t*)(TheFsubr(fun)->function))();
       #if STACKCHECKS
        if (!(STACK == STACKbefore)) # STACK as before?
          abort(); # no -> go to Debugger
@@ -3607,12 +3607,12 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
         # SUBR without &REST-Flag:
        apply_subr_norest:
         subr_self = fun;
-        (*(subr_norest_function*)(TheSubr(fun)->function))();
+        (*(subr_norest_function_t*)(TheSubr(fun)->function))();
       } else {
         # SUBR with &REST-Flag:
        apply_subr_rest:
         subr_self = fun;
-        (*(subr_rest_function*)(TheSubr(fun)->function)) (argcount,rest_args_pointer);
+        (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer);
       }
       #if STACKCHECKS
       if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
@@ -4508,13 +4508,13 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
       if (!nullp(args))
         goto fehler_dotted;
       subr_self = fun;
-      (*(subr_rest_function*)(TheSubr(fun)->function)) (argcount,rest_args_pointer);
+      (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer);
       goto done;
      apply_subr_norest:
       if (!nullp(args))
         goto fehler_dotted;
       subr_self = fun;
-      (*(subr_norest_function*)(TheSubr(fun)->function))();
+      (*(subr_norest_function_t*)(TheSubr(fun)->function))();
      done:
       #if STACKCHECKS
       if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
@@ -5385,11 +5385,11 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       rest_args_pointer = args_end_pointer STACKop argcount;
      apply_subr_rest:
       subr_self = fun;
-      (*(subr_rest_function*)(TheSubr(fun)->function)) (argcount,rest_args_pointer);
+      (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer);
       goto done;
      apply_subr_norest:
       subr_self = fun;
-      (*(subr_norest_function*)(TheSubr(fun)->function))();
+      (*(subr_norest_function_t*)(TheSubr(fun)->function))();
      done:
       #if STACKCHECKS
       if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
@@ -7011,10 +7011,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # The compiler has already done the argument-check. \
            {var Subr fun = FUNTAB1[n];                                \
             subr_self = subr_tab_ptr_as_object(fun);                  \
-            with_saved_context(                                       \
-              (*(subr_norest_function*)(fun->function))();            \
-            );                                                        \
-          }}
+            with_saved_context((*(subr_norest_function_t*)(fun->function))(););}}
         # executes (CALLS2 n)-command.
         #define CALLS2()  \
           { var uintL n;                                              \
@@ -7022,10 +7019,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # The compiler has already done the argument-check. \
            {var Subr fun = FUNTAB2[n];                                \
             subr_self = subr_tab_ptr_as_object(fun);                  \
-            with_saved_context(                                       \
-              (*(subr_norest_function*)(fun->function))();            \
-            );                                                        \
-          }}
+            with_saved_context((*(subr_norest_function_t*)(fun->function))(););}}
         # executes (CALLSR m n)-command.
         #define CALLSR()  \
           { var uintL m;                                              \
@@ -7035,9 +7029,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # The compiler has already done the argument-check. \
            {var Subr fun = FUNTABR[n];                                \
             subr_self = subr_tab_ptr_as_object(fun);                  \
-            with_saved_context(                                       \
-              (*(subr_rest_function*)(fun->function))(m,args_end_pointer STACKop m); \
-            );                                                        \
+            with_saved_context((*(subr_rest_function_t*)(fun->function))(m,args_end_pointer STACKop m);); \
           }}
         CASE cod_call:                   # (CALL k n)
           CALL();

@@ -1,3 +1,18 @@
+2002-06-13  Sam Steingold  <sds@gnu.org>
+
+	grand type renaming: * --> *_t:
+	decoded_time --> decoded_time_t
+	internal_time --> internal_time_t
+	lisp_function --> lisp_function_t
+	map_heap_function --> map_heap_function_t
+	object_initdata --> object_initdata_t
+	subr_initdata --> subr_initdata_t
+	timescore --> timescore_t
+	* modules/clx/new-clx/e2d.c, affi.d, eval.d, foreign1.lisp,
+	* fsubr.d, genclisph.d, lisparit.d, lispbibl.d, modules.d,
+	* pathname.d, spvw.d, spvw_gcstat.d, spvw_walk.d, subr.d, time.d,
+	* utils/modprep.d, utils/modpreptest.out: replaced
+
 2002-06-12  Sam Steingold  <sds@gnu.org>
 
 	Russian messages are now working

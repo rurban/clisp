@@ -13,7 +13,7 @@
 
 # Expander für die Konstruktion der extern-Deklarationen:
   #define LISPSPECFORM_A(name,req_anz,opt_anz,body_flag)  \
-    extern fsubr_function C_##name;
+    extern fsubr_function_t C_##name;
 
 # Expander für die Konstruktion der Deklaration der C-Funktion:
   #define LISPSPECFORM_B(name,req_anz,opt_anz,body_flag)  \
