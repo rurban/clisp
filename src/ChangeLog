@@ -1,3 +1,7 @@
+2001-09-11  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (docdir): use `share' for all $fsstnd
+
 2001-09-10  Sam Steingold  <sds@gnu.org>
 
 	* debug.d (read_form): check the input_len before string_eqcomp_ci()

@@ -1644,29 +1644,19 @@ fi
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
-echol "bindir = \$(exec_prefix)${NEXT_}bin"
-echol "mandir = \$(exec_prefix)${NEXT_}man"
+echol "bindir  = \$(exec_prefix)${NEXT_}bin"
+echol "mandir  = \$(exec_prefix)${NEXT_}share${NEXT_}man"
 echol "htmldir = \$(exec_prefix)${NEXT_}share${NEXT_}html"
-echol "dvidir = \$(exec_prefix)${NEXT_}share${NEXT_}dvi"
+echol "dvidir  = \$(exec_prefix)${NEXT_}share${NEXT_}dvi"
+echol "docdir  = \$(exec_prefix)${NEXT_}share${NEXT_}doc"
 case "$fsstnd" in
-  gnu_ext)
-    echol "docdir = \$(exec_prefix)${NEXT_}doc"
-    echol "lispdocdir = \$(docdir)${NEXT_}clisp"
-    ;;
   suse)
-    echol "docdir = \$(exec_prefix)${NEXT_}doc"
     echol "lispdocdir = \$(docdir)${NEXT_}packages${NEXT_}clisp"
     ;;
   redhat)
-    echol "docdir = \$(exec_prefix)${NEXT_}doc"
     echol "lispdocdir = \$(docdir)${NEXT_}clisp-`cat ../src/VERSION`"
     ;;
-  debian)
-    echol "docdir = \$(exec_prefix)${NEXT_}doc"
-    echol "lispdocdir = \$(docdir)${NEXT_}clisp"
-    ;;
-  netbsd)
-    echol "docdir = \$(exec_prefix)${NEXT_}share${NEXT_}doc"
+  debian | gnu_ext | netbsd)
     echol "lispdocdir = \$(docdir)${NEXT_}clisp"
     ;;
 esac
