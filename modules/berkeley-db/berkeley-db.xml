@@ -416,6 +416,11 @@ Memory Pool Files
    FIRST NEXT)</literal></term>
  <listitem><simpara>return a list of prepared but not yet resolved
    transactions (&DBE_txn_recover;)</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:TXN-SET-TIMEOUT txn
+   timeout which)</literal></term>
+ <listitem><simpara>set timeout values for locks or transactions for the
+   specified transaction (&TXN_set_timeout;).
+</simpara></listitem></varlistentry>
 </variablelist></section>
 
 

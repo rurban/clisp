@@ -931,7 +931,7 @@ DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DIRTY_READ :NOSYNC :NOWAIT :SYNC)
 
 DEFUN(BDB:TXN-ABORT, txn)
 { /* Abort a transaction */
-  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,false);
   SYSCALL(txn->abort,(txn));
   VALUES0;
 }
@@ -940,21 +940,21 @@ DEFFLAGSET(txn_commit_flags, DB_TXN_NOSYNC DB_TXN_SYNC)
 DEFUN(BDB:TXN-COMMIT, txn &key :NOSYNC :SYNC)
 { /* Commit a transaction */
   u_int32_t flags = txn_commit_flags();
-  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,false);
   SYSCALL(txn->commit,(txn,flags));
   VALUES0;
 }
 
 DEFUN(BDB:TXN-DISCARD, txn)
 { /* Discard a transaction */
-  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,false);
   SYSCALL(txn->discard,(txn,0));
   VALUES0;
 }
 
 DEFUN(BDB:TXN-ID, txn)
 { /* Return the transaction's ID */
-  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,false);
   u_int32_t id;
   begin_system_call(); id = txn->id(txn); end_system_call();
   VALUES1(UL_to_I(id));
@@ -967,7 +967,7 @@ DEFUN(BDB:TXN-CHECKPOINT, dbe &key :KBYTE :MIN :FORCE)
   u_int32_t flags = txn_checkpoint_flags();
   u_int32_t min = posfixnum_default(popSTACK());
   u_int32_t kbyte = posfixnum_default(popSTACK());
-  DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,true);
+  DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,false);
   SYSCALL(dbe->txn_checkpoint,(dbe,kbyte,min,flags));
   VALUES0;
 }
@@ -977,7 +977,7 @@ DEFUN(BDB:TXN-PREPARE, txn gid)
   DB_TXN *txn;
   unsigned long idx;
   STACK_0 = check_byte_vector(STACK_0,DB_XIDDATASIZE);
-  txn = object_handle(STACK_1,`BDB::TXN`,true);
+  txn = object_handle(STACK_1,`BDB::TXN`,false);
   STACK_0 = array_displace_check(STACK_0,DB_XIDDATASIZE,&idx);
   SYSCALL(txn->prepare,(txn,TheSbvector(STACK_0)->data+idx));
   VALUES0; skipSTACK(2);
@@ -987,7 +987,7 @@ DEFFLAGSET(txn_recover_flags, DB_FIRST DB_NEXT)
 DEFUN(BDB:TXN-RECOVER, dbe &key :FIRST :NEXT)
 { /* return a list of prepared but not yet resolved transactions */
   u_int32_t flags = txn_recover_flags();
-  DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,true);
+  DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,false);
   u_int32_t tx_max;
   DB_PREPLIST *preplist;
   int status, ii;
@@ -1014,4 +1014,15 @@ DEFUN(BDB:TXN-RECOVER, dbe &key :FIRST :NEXT)
     pushSTACK(value1);          /* (TXN . GID) */
   }
   VALUES1(listof(retnum));
+}
+
+DEFCHECKER(txn_timeout_check, DB_SET_LOCK_TIMEOUT DB_SET_TXN_TIMEOUT)
+DEFUN(BDB:TXN-SET-TIMEOUT, txn timeout which)
+{ /* set timeout values for locks or transactions for the specified
+     transaction */
+  u_int32_t which = txn_timeout_check(popSTACK());
+  db_timeout_t timeout = I_to_UL(check_uint32(popSTACK));
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,false);
+  SYSCALL(txn->set_timeout,(txn,timeout,which));
+  VALUES0;
 }
