@@ -1,6 +1,15 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
 	Respect user-defined methods on method-lambda-list.
+	* clos-genfun2.lisp (check-signature-congruence, std-add-method,
+	gf-keyword-arguments): Call method-signature instead of
+	std-gf-signature.
+	* clos-genfun3.lisp (defmethod): Likewise.
+	* clos-method3.lisp (method-signature): Redefine without fmakunbound.
+	(function-keywords): Call method-signature instead of std-gf-signature.
+	* clos-class5.lisp (valid-initarg-keywords): Likewise.
+
+	Respect user-defined methods on method-lambda-list.
 	* clos-genfun2.lisp (std-add-method): Call method-lambda-list instead
 	of std-method-lambda-list.
 	* clos-genfun3.lisp (do-defmethod): Likewise.
