@@ -534,7 +534,7 @@ global void savemem (object stream)
 /* UP, loads memory image from disk
  loadmem(filename);
  destroys all LISP-data. */
-local void loadmem_from_handle (Handle handle);
+local void loadmem_from_handle (Handle handle, const char* filename);
 /* update of an object in memory: */
 #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
 local var oint offset_varobjects_o;
@@ -765,13 +765,12 @@ local void loadmem (const char* filename)
   if (handle==INVALID_HANDLE_VALUE) goto abort1;
  #endif
   end_system_call();
-  loadmem_from_handle(handle);
+  loadmem_from_handle(handle,filename);
   return;
  abort1: {
     var int abort_errno = OS_errno;
     asciz_out(program_name); asciz_out(": ");
-    asciz_out_s(GETTEXTL("operating system error during load of initialization file `%s'" NLstring),
-                filename);
+    asciz_out_s(GETTEXTL("operating system error during load of initialization file `%s'" NLstring),filename);
     errno_out(abort_errno);
   }
   goto abort_quit;
@@ -795,7 +794,7 @@ local void loadmem (const char* filename)
  #endif
   quit_sofort(1);
 }
-local void loadmem_from_handle (Handle handle)
+local void loadmem_from_handle (Handle handle, const char* filename)
 {
   var memdump_header header;
   {
@@ -870,7 +869,7 @@ local void loadmem_from_handle (Handle handle)
        #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
         use_mmap = false; /* mmap can not be done with a pipe! */
        #endif
-        loadmem_from_handle(handles[0]); /* now, we read from the pipe */
+        loadmem_from_handle(handles[0],filename); /* now, we read from the pipe */
         begin_system_call();
         wait2(child); /* remove zombie-child */
         end_system_call();
@@ -1238,7 +1237,7 @@ local void loadmem_from_handle (Handle handle)
                 inc_file_offset(map_len);
                 goto block_done;
               } else {
-                asciz_out(GETTEXTL("Cannot map the initialization file into memory."));
+                asciz_out_s(GETTEXTL("Cannot map the initialization file `%s' into memory."),filename);
                #ifdef HAVE_MMAP
                 errno_out(errno);
                #else
@@ -1508,13 +1507,13 @@ local void loadmem_from_handle (Handle handle)
  abort1: {
     var int abort_errno = OS_errno;
     asciz_out(program_name); asciz_out(": ");
-    asciz_out(GETTEXTL("operating system error during load of initialization file" NLstring));
+    asciz_out_s(GETTEXTL("operating system error during load of initialization file `%s'"),filename);
     errno_out(abort_errno);
   }
   goto abort_quit;
  abort2:
   asciz_out(program_name); asciz_out(": ");
-  asciz_out(GETTEXTL("initialization file was not created by this version of LISP" NLstring));
+  asciz_out_s(GETTEXTL("initialization file `%s' was not created by this version of CLISP" NLstring),filename);
   goto abort_quit;
  abort3:
   asciz_out(program_name); asciz_out(": ");
