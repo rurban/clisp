@@ -717,10 +717,11 @@
       (near-typep (if (consp values) (car values) nil) type) ; 1. Wert abtesten
 ) ) )
 
-;===============================================================================
+;;; ===========================================================================
 
-;;; SUBTYPEP, vorläufige Version
-(defun canonicalize-type (type) ; type ein wenig vereinfachen, nicht rekursiv
+;;; SUBTYPEP, the provisional version
+(defun canonicalize-type (type)
+  ;; small, non-recursive simplifications
   (cond ((symbolp type)
          (let ((f (get type 'DEFTYPE-EXPANDER)))
            (if f
@@ -806,7 +807,7 @@
                      'INTEGER
                      (progn
                        (unless (and (integerp s) (plusp s)) (typespec-error 'subtypep type))
-                       (let ((n (expt 2 (1- s))))
+                       (let ((n (ash 1 (1- s)))) ; (ash 1 *) == (expt 2 *)
                          `(INTEGER ,(- n) (,n))
                ) ) ) ) )
                (UNSIGNED-BYTE ; (UNSIGNED-BYTE &optional s)
@@ -815,7 +816,7 @@
                      '(INTEGER 0 *)
                      (progn
                        (unless (and (integerp s) (>= s 0)) (typespec-error 'subtypep type))
-                       (let ((n (expt 2 s)))
+                       (let ((n (ash 1 s))) ; (ash 1 *) == (expt 2 *)
                          `(INTEGER 0 (,n))
                ) ) ) ) )
                (SIMPLE-BIT-VECTOR ; (SIMPLE-BIT-VECTOR &optional size)
@@ -1406,7 +1407,7 @@
                        (let ((low '*) (high '*)) (yes))
                        (progn
                          (unless (and (integerp s) (plusp s)) (typespec-error 'subtypep type))
-                         (let ((n (expt 2 (1- s))))
+                         (let ((n (ash 1 (1- s)))) ; (ash 1 *) == (expt 2 *)
                            (let ((low (- n)) (high (1- n)))
                              (yes)
                  ) ) ) ) ) )
@@ -1416,7 +1417,7 @@
                        (let ((low 0) (high '*)) (yes))
                        (progn
                          (unless (and (integerp s) (>= s 0)) (typespec-error 'subtypep type))
-                         (let ((n (expt 2 s)))
+                         (let ((n (ash 1 s))) ; (ash 1 *) == (expt 2 *)
                            (let ((low 0) (high (1- n)))
                              (yes)
                  ) ) ) ) ) )
