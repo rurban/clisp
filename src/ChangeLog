@@ -1,5 +1,11 @@
 2001-05-09  Sam Steingold  <sds@gnu.org>
 
+	Implemented the ANSI CL issue CONSTANTP-ENVIRONMENT:ADD-ARG
+	* control.d (constantp): accept the optional environment arg
+	* subr.d (constantp): ditto
+
+2001-05-09  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (ARM): Recognize __arm__ as CPU indicator on Linux
 
 2001-05-09  Sam Steingold  <sds@gnu.org>

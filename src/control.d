@@ -2435,9 +2435,10 @@ LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
     unwind(); # Bindungsframe für *EVALHOOK* / *APPLYHOOK* auflösen
   }
 
-LISPFUNN(constantp,1)
-# (CONSTANTP expr), CLTL S. 324
+LISPFUN(constantp,1,1,norest,nokey,0,NIL)
+# (CONSTANTP expr [env]), CLTL S. 324
   {
+    popSTACK(); # environment is not used
     var object arg = popSTACK();
     #ifdef TYPECODES
     switch (typecode(arg))
