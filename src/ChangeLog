@@ -1,5 +1,10 @@
 2003-12-21  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (--version): print SOFTWARE-TYPE, SOFTWARE-VERSION,
+	MACHINE-TYPE, MACHINE-VERSION, MACHINE-INSTANCE
+
+2003-12-21  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (test): include <stdio.h> before <clisp.h> because
 	the latter declares a global register variable and the former may
 	define a function (e.g., on FreeBSD)
