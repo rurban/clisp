@@ -1,3 +1,7 @@
+2005-01-27  Bruno Haible  <bruno@clisp.org>
+
+	* path.tst: Add test for (logical-pathname ":").
+
 2005-01-26  Bruno Haible  <bruno@clisp.org>
 
 	* setf.tst: Add a test for SETF VALUES-LIST.
