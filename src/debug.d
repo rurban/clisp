@@ -699,11 +699,11 @@ LISPFUNN(load,1)
     }
 
 # Typ eines Pointers auf eine Hochsteige- bzw. Absteige-Routine:
-  typedef object* (*kletterfun) (object* stackptr);
+typedef object* (*climb_fun_t) (object* stackptr);
 
-local const kletterfun frame_up_table[] =
+local const climb_fun_t frame_up_table[] =
   { &frame_up_1, &frame_up_2, &frame_up_3, &frame_up_4, &frame_up_5, };
-local const kletterfun frame_down_table[] =
+local const climb_fun_t frame_down_table[] =
   { &frame_down_1, &frame_down_2, &frame_down_3, &frame_down_4, &frame_down_5, };
 
 # UP: Überprüft und decodiert das mode-Argument.
@@ -713,26 +713,20 @@ local const kletterfun frame_down_table[] =
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Routine zum Hochsteigen bzw. zum Absteigen
 # erhöht STACK um 1
-  local kletterfun test_mode_arg (const kletterfun* table);
-  local kletterfun test_mode_arg(table)
-    var const kletterfun* table;
-    {
-      var object arg = popSTACK();
-      var uintL mode;
-      if (!(posfixnump(arg)
-            && ((mode = posfixnum_to_L(arg)) > 0)
-            && (mode<=5)
-         ) ) {
-        pushSTACK(arg); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_climb_mode)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(arg);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: bad frame climbing mode ~")
-              );
-      }
-      return table[mode-1];
-    }
+local climb_fun_t test_mode_arg (const climb_fun_t* table) {
+  var object arg = popSTACK();
+  var uintL mode;
+  if (!(posfixnump(arg)
+        && ((mode = posfixnum_to_L(arg)) > 0)
+        && (mode<=5))) {
+    pushSTACK(arg); # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_climb_mode)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(arg);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~: bad frame climbing mode ~"));
+  }
+  return table[mode-1];
+}
 
 # UP: Überprüft ein Frame-Pointer-Argument.
 # test_framepointer_arg()
@@ -757,7 +751,7 @@ local const kletterfun frame_down_table[] =
 LISPFUNN(frame_up_1,2)
 # (SYS::FRAME-UP-1 framepointer mode) liefert den Frame-Pointer 1 höher.
   {
-    var kletterfun frame_up_x = test_mode_arg(&frame_up_table[0]);
+    var climb_fun_t frame_up_x = test_mode_arg(&frame_up_table[0]);
     var object* stackptr = test_framepointer_arg();
     stackptr = (*frame_up_x)(stackptr); # einmal hochsteigen
     VALUES1(make_framepointer(stackptr));
@@ -766,7 +760,7 @@ LISPFUNN(frame_up_1,2)
 LISPFUNN(frame_up,2)
 # (SYS::FRAME-UP framepointer mode) liefert den Frame-Pointer ganz oben.
   {
-    var kletterfun frame_up_x = test_mode_arg(&frame_up_table[0]);
+    var climb_fun_t frame_up_x = test_mode_arg(&frame_up_table[0]);
     var object* stackptr = test_framepointer_arg();
     # hochsteigen, bis es nicht mehr weiter geht:
     loop {
@@ -781,7 +775,7 @@ LISPFUNN(frame_up,2)
 LISPFUNN(frame_down_1,2)
 # (SYS::FRAME-DOWN-1 framepointer mode) liefert den Frame-Pointer 1 drunter.
   {
-    var kletterfun frame_down_x = test_mode_arg(&frame_down_table[0]);
+    var climb_fun_t frame_down_x = test_mode_arg(&frame_down_table[0]);
     var object* stackptr = test_framepointer_arg();
     stackptr = (*frame_down_x)(stackptr); # einmal hinabsteigen
     VALUES1(make_framepointer(stackptr));
@@ -790,7 +784,7 @@ LISPFUNN(frame_down_1,2)
 LISPFUNN(frame_down,2)
 # (SYS::FRAME-DOWN framepointer mode) liefert den Frame-Pointer ganz unten.
   {
-    var kletterfun frame_down_x = test_mode_arg(&frame_down_table[0]);
+    var climb_fun_t frame_down_x = test_mode_arg(&frame_down_table[0]);
     var object* stackptr = test_framepointer_arg();
     # hinabsteigen, bis es nicht mehr weiter geht:
     loop {
