@@ -760,13 +760,30 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
         });
     }
 
+# Macro: Tests whether an object is an input-stream.
+# input_stream_p(stream)
+# > stream: object
+  #define input_stream_p(stream)  \
+    (builtin_stream_p(stream)                                  \
+     ? !((TheStream(stream)->strmflags & strmflags_rd_B) == 0) \
+     : instanceof(stream,O(class_fundamental_input_stream))    \
+    )
+
+# Macro: Tests whether an object is an output-stream.
+# output_stream_p(stream)
+# > stream: object
+  #define output_stream_p(stream)  \
+    (builtin_stream_p(stream)                                  \
+     ? !((TheStream(stream)->strmflags & strmflags_wr_B) == 0) \
+     : instanceof(stream,O(class_fundamental_output_stream))   \
+    )
+
 # UP: Überprüft einen Input-Stream.
 # test_input_stream(stream);
 # > stream: Stream
 # > subr_self: Aufrufer (ein SUBR)
   #define test_input_stream(stream)  \
-    if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0) \
-      fehler_input_stream(stream);
+    if (!input_stream_p(stream)) fehler_input_stream(stream);
   nonreturning_function(local, fehler_input_stream, (object stream));
   local void fehler_input_stream(stream)
     var object stream;
@@ -783,8 +800,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # > stream: Stream
 # > subr_self: Aufrufer (ein SUBR)
   #define test_output_stream(stream)  \
-    if ((TheStream(stream)->strmflags & strmflags_wr_B) == 0) \
-      fehler_output_stream(stream);
+    if (!output_stream_p(stream)) fehler_output_stream(stream);
   nonreturning_function(local, fehler_output_stream, (object stream));
   local void fehler_output_stream(stream)
     var object stream;
@@ -15292,7 +15308,7 @@ LISPFUNN(input_stream_p,1)
 # (INPUT-STREAM-P stream), CLTL S. 332, CLtL2 S. 505
   { var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); }
-    if (TheStream(stream)->strmflags & strmflags_rd_B) # READ-BYTE oder READ-CHAR erlaubt ?
+    if (input_stream_p(stream))
       { value1 = T; mv_count=1; } # Wert T
       else
       { value1 = NIL; mv_count=1; } # Wert NIL
@@ -15302,7 +15318,7 @@ LISPFUNN(output_stream_p,1)
 # (OUTPUT-STREAM-P stream), CLTL S. 332, CLtL2 S. 505
   { var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); }
-    if (TheStream(stream)->strmflags & strmflags_wr_B) # WRITE-BYTE oder WRITE-CHAR erlaubt ?
+    if (output_stream_p(stream))
       { value1 = T; mv_count=1; } # Wert T
       else
       { value1 = NIL; mv_count=1; } # Wert NIL
@@ -17113,6 +17129,16 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
           { TheStream(stream)->strmflags |= strmflags_reval_B; value1 = T; }
       }
     mv_count=1;
+  }
+
+LISPFUNN(defgray,1)
+# (SYS::%DEFGRAY fundamental-stream-classes)
+# Initializes O(class_fundamental*_stream).
+  { var const object* ptr1 = &TheSvector(STACK_0)->data[0];
+    var object* ptr2 = &O(class_fundamental_stream);
+    var uintC count;
+    dotimesC(count,Svector_length(STACK_0), { *ptr2++ = *ptr1++; });
+    value1 = NIL; mv_count=0; skipSTACK(1);
   }
 
 # =============================================================================

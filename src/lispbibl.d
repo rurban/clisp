@@ -6244,6 +6244,12 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     else                                                           \
       { obj##_classp_no: statement2; }
 
+# Test for CLOS instance of a given class
+  #define instanceof(obj,class)  \
+    (instancep(obj)                                                                          \
+     && !eq(gethash(class,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj) \
+    )
+
 # Test auf Other-Record
 # This is not really a type test (because there is no well-defined type
 # Other-Record). It's just a precondition for calling Record_type(obj).
@@ -6270,7 +6276,8 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #endif
 
 # Test auf Stream
-  #define streamp(obj)  builtin_stream_p(obj)
+  #define streamp(obj)  \
+    (builtin_stream_p(obj) || instanceof(obj,O(class_fundamental_stream)))
 
 # Test auf Package
   #define packagep(obj)  \

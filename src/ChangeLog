@@ -1,3 +1,16 @@
+1999-04-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * gstream.lsp (fundamental-stream, fundamental-input-stream,
+           fundamental-output-stream): New classes.
+          (close, open-stream-p, stream-element-type,
+           (setf stream-element-type)): Add methods on fundamental-stream.
+        * lispbibl.d (instanceof): New macro.
+          (streamp): Use it.
+        * stream.d (input_stream_p, output_stream_p): New macros.
+          (test_input_stream, test_output_stream): Use them.
+          (INPUT-STREAM-P, OUTPUT-STREAM-P): Likewise.
+          (SYS::%DEFGRAY): New function.
+
 1999-04-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (builtin_stream_close): Renamed from stream_close.

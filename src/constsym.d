@@ -857,6 +857,7 @@ LISPSYM(file_length,"FILE-LENGTH",lisp)
 LISPSYM(file_string_length,"FILE-STRING-LENGTH",lisp)
 LISPSYM(line_number,"LINE-NUMBER",system)
 LISPSYM(allow_read_eval,"ALLOW-READ-EVAL",system)
+LISPSYM(defgray,"%DEFGRAY",system)
 # ---------- SYMBOL ----------
 LISPSYM(putd,"%PUTD",system)
 LISPSYM(find_subr,"%FIND-SUBR",system)
