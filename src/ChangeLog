@@ -1,3 +1,9 @@
+2004-03-15  Bruno Haible  <bruno@clisp.org>
+
+	* po/Makefile.devel (MSGATTRIB): New variable.
+	(clisplow_%.po): Use it instead of a sed command to remove the obsolete
+	entries.
+
 2004-03-15  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (anymodule): pass CC to configure
