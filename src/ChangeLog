@@ -8,6 +8,8 @@
 
 	* clx.f (get_event_mask): fixed error handling
 	removed saving/restoring subr_self throughout
+	(display_hash_table): replace STACK_0 instead of returning a value
+	(make_xid_obj_2): reflect this change
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
