@@ -12906,13 +12906,6 @@ extern void stream_set_read_eval (object stream, bool value);
 # Function: test whether a stream is a terminal stream.
 extern bool terminal_stream_p(object stream);
 
-#ifdef EXPORT_SYSCALLS
-#ifdef UNIX
-  # Returns the file descriptor of a stream.
-  extern object stream_fd (object stream);
-#endif # UNIX
-#endif # EXPORT_SYSCALLS
-
 # check whether the charset is valid
 # signal an error when code is invalid and charset is not nullobj
 # return false otherwise

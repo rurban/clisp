@@ -1,5 +1,13 @@
 2003-05-15  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (stream_lend_handle): handletype may be NULL
+	(stream_fd): removed
+	* lispbibl.d (stream_fd): removed
+	* pathname.d (FILE-STAT-INTERNAL, copy_attributes_and_close):
+	use stream_lend_handle() instead of stream_fd()
+
+2003-05-15  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (MAKE-STREAM): implemented
 	* constsym.d, subr.d, subrkw.d (make_stream): added
 	* init.lisp (MAKE-STREAM): export

@@ -11293,7 +11293,7 @@ LISPFUN(file_stat_,seclass_default,1,1,norest,nokey,0,NIL) {
     pushSTACK(file);
     funcall(L(built_in_stream_open_p),1);
     if (!nullp(value1)) /* open stream ==> use FD */
-      file = stream_fd(file);
+      file = stream_lend_handle(file,true,NULL);
   }
   if (integerp(file)) {
     begin_system_call();
@@ -11335,8 +11335,8 @@ LISPFUN(file_stat_,seclass_default,1,1,norest,nokey,0,NIL) {
    can trigger GC */
 local void copy_attributes_and_close () {
  #if defined(UNIX)
-  var int source_fd = posfixnum_to_L(stream_fd(STACK_2));
-  var int dest_fd = posfixnum_to_L(stream_fd(STACK_1));
+  var int source_fd = posfixnum_to_L(stream_lend_handle(STACK_2,true,NULL));
+  var int dest_fd = posfixnum_to_L(stream_lend_handle(STACK_1,true,NULL));
   var struct stat source_sb;
   var struct stat dest_sb;
 
