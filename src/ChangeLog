@@ -1,3 +1,8 @@
+2004-07-14  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (X3J13_161): Undefine.
+	* package.d (shadow, apply_symbols): Assume X3J13_161 to be true.
+
 2004-12-14  Bruno Haible  <bruno@clisp.org>
 
 	* configure: Unset CDPATH.

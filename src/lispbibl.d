@@ -2097,7 +2097,6 @@ typedef enum {
 #define X3J13_005  # 18.5.1993
 #define X3J13_014  # 22.1.1995
 #define X3J13_149  # 22.7.1993
-#define X3J13_161  # 20.5.1993
 #define X3J13_175  # 25.7.1993
 
 
