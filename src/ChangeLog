@@ -1,3 +1,7 @@
+2000-12-04  Bruno Haible  <haible@clisp.cons.org>
+
+        * lispbibl.d (dir_key_length): Set to 3.
+
 2000-12-03  Sam Steingold  <sds@gnu.org>
 
 	--with-export-syscalls works on win32 under MSVC5 now
