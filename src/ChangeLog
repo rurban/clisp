@@ -1,5 +1,10 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	* describe.lisp (apropos): Terminate the output with an elastic-newline,
+	not a fresh-line.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	* foreign1.lisp (do-c-lines): Fully check the first argument already
 	in the first etypecase. Allow format-control functions instead of a
 	format string.
