@@ -196,7 +196,7 @@ check-type assert etypecase ctypecase ecase ccase trace untrace
 step time
 loop-finish
 formatter
-defclass defgeneric defmethod generic-flet generic-function generic-labels
+defclass defgeneric defmethod generic-function
 with-accessors with-slots
 check-type assert etypecase ctypecase ecase ccase handler-case ignore-errors
 handler-bind define-condition with-simple-restart restart-case restart-bind
