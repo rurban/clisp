@@ -697,7 +697,7 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
   if [ $TSYS = win32gcc ] ; then
     # I don't know why advapi32 is not needed here.
-    LIBS=$LIBS' -luser32 -lwsock32 -lole32 -lwldap32'
+    LIBS=$LIBS' -luser32 -lwsock32 -lole32'
   else
     if [ $TSYS = win32msvc ] ; then
       LIBS=$LIBS' user32.lib wsock32.lib advapi32.lib'
@@ -870,7 +870,8 @@ if [ $XCC_GCC = true ] ; then
   fi
   if [ $TSYS = win32gcc ] ; then
     # Avoid a declaration of sleep() in stdlib.h which clashes with ours.
-    XCFLAGS=$XCFLAGS' -D_NO_OLDNAMES'
+    XCFLAGS=$XCFLAGS' -D_NO_OLDNAMES -D_WIN32 -D__MINGW32__';
+
   fi
   if [ $TSYS = sun4 -o $TSYS = acorn ] ; then
     XCLFLAGS='-static'

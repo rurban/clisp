@@ -1127,7 +1127,7 @@
 # Den Offset einer Komponente 'ident' in einem Struct vom Typ 'type' bestimmen:
 # 0 als Pointer auf 'type' auffassen, dorthin ein Struct 'type' legen und
 # von dessen Komponente 'ident' die Adresse bestimmen und als Zahl liefern:
-  #if !(defined(HAVE_OFFSETOF) || (defined(BORLAND) && defined(WIN32)))
+  #if !(defined(HAVE_OFFSETOF) || defined(__MINGW32__) || (defined(BORLAND) && defined(WIN32)))
     #undef offsetof
     #define offsetof(type,ident)  ((ULONG)&(((type*)0)->ident))
   #else

@@ -1,5 +1,14 @@
 2001-07-20  Sam Steingold  <sds@gnu.org>
 
+	mingw32 compilation
+	* dirkey.d: mingw32 does not have winldap.h
+	* lispbibl.d: mingw32 defined offsetof()
+	* win32.d: mingw32 does not need a separate uAsciiChar
+	* makemake.in (LIBS): mingw32 does not have wldap32
+	(XCFLAGS): added -D_WIN32 -D__MINGW32__
+
+2001-07-20  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (SUBST_RECURSE): new macro
 	(subst_coerce_normal_ss, subst_common_case, subst_logical_case,
 	subst_customary_case): use it
