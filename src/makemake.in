@@ -316,8 +316,8 @@ case $# in
          HSYS='sun4'
        fi
        case "$HSYSOS" in
-         # Canonicalize cygwin32/nt and cygwin32/95 to plain cygwin32.
-         cygwin*) HSYSOS=cygwin32 ;;
+         # Canonicalize cygwin32/nt and cygwin32/95 to plain cygwin.
+         cygwin*) HSYSOS=cygwin ;;
        esac
        HOS='unix'
        COMPILER=??
@@ -780,7 +780,7 @@ fi
 
 # TEXE = extension for executable files on target
 # LEXE = extension for executable file LISP on target
-if [ ${TOS} = os2 -o ${TOS} = win32 -o ${HSYSOS} = cygwin32 ] ; then
+if [ ${TOS} = os2 -o ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
   TEXE='.exe'
   LEXE='.exe'
 elif [ $TOS = acorn ] ; then
@@ -1174,7 +1174,7 @@ if [ "$DEBUGGING" = debug ] ; then
   esac
 fi
 
-if [ ${HSYSOS} = win32gcc -o ${HSYSOS} = cygwin32 ]; then
+if [ ${HSYSOS} = win32gcc -o ${HSYSOS} = cygwin ]; then
   # this is necessary for g++ to handle w32shell
   # <http://article.gmane.org/gmane.comp.gnu.mingw.user/8213>
   case "$CC" in *"g++"* ) XCFLAGS=$XCFLAGS' -DCINTERFACE'; ;; esac
@@ -1851,8 +1851,8 @@ if [ $HOS = unix -a $XCC_GCC = true ] ; then
   # We need the full libgcc.a in general. But we don't know its location.
   LIBGCC='`'"${XCC} -print-libgcc-file-name"'` # something like /usr/somewhere/libgcc.a'
   if [ $CROSS = false ] ; then
-    if [ "$HSYSOS" = linux -o "$HSYSOS" = beos -o "$HSYSOS" = cygwin32 ] ; then
-      # gcc2 is cc on Linux, BeOS and Cygwin32. Don't need libgcc.a
+    if [ "$HSYSOS" = linux -o "$HSYSOS" = beos -o "$HSYSOS" = cygwin ] ; then
+      # gcc2 is cc on Linux, BeOS and Cygwin. Don't need libgcc.a
       LIBGCC=''
     fi
   fi
@@ -2528,7 +2528,7 @@ done
 
 if [ $HOS = unix -o $HSYS = win32gcc ] ; then
   # on w32 -g, using lisp.o leads to a crash on the first statement in main()
-  test $HSYSOS = win32gcc -o $HSYSOS = cygwin32; no_lisp_o=$?;
+  test $HSYSOS = win32gcc -o $HSYSOS = cygwin; no_lisp_o=$?;
   echol "lisp.a : \$(OBJECTS)"
   if [ $no_lisp_o = 1 ]; then
     echotab "ld -r -o lisp.o \$(OBJECTS)"
@@ -2715,7 +2715,7 @@ for f in $LPARTS ; do
     if [ $TOS = unix ] ; then
       echotab "chmod +w ${f}.lisp"
       echotab "echo '(setq *clhs-root-default* \"${hyperspec}/\")' >> ${f}.lisp"
-      if [ ${TSYSOS} = cygwin32 ]; then
+      if [ ${TSYSOS} = cygwin ]; then
         echotab "echo '(setq *device-prefix* \"${DEVPREFIX}\")' >> ${f}.lisp"
       fi
     fi
@@ -3336,7 +3336,14 @@ if [ $CROSS = false ] ; then
   fi
 fi
 
-if [ $HOS = unix ] ; then
+if [ ${HSYSOS} = cygwin ]; then
+  echol "DEST_TMP='`pwd`/.install'";
+  echol "distrib : force"
+  echotab "\$(RMRF) \$(DEST_TMP); mkdir -p \$(DEST_TMP)"
+  echotab "\$(MAKE) install prefix=/usr DESTDIR=\$(DEST_TMP)"
+  echotab "cd \$(DEST_TMP); tar cvfj ../clisp-`cat VERSION`-cygwin-`uname -r|sed 's/(.*)//g'`.tar.bz2 *"
+  echotab "\$(RMRF) \$(DEST_TMP)"
+elif [ ${HOS} = unix ] ; then   # but not cygwin!
 cat <<!!
 # Choose one of the packers:
 
@@ -3462,8 +3469,7 @@ echotab "${HLN} \$(DISTFILE) clisp\$(PACKEXT)"
 echotab "\$(RMRF) \$(TOPDIR)"
 echol
 echol
-fi
-if [ $HSYS = acorn ] ; then
+elif [ $HSYS = acorn ] ; then
   echol "distrib : force all manualx"
   echotab "-cdir ^.!Clisp"
   echotab "\$(CP) lisp ^.!Clisp.lisp"
@@ -3502,8 +3508,7 @@ if [ $HSYS = acorn ] ; then
   echotab "\$(CP) ^.acorn.!Sprites ^.!Clisp.!Sprites"
   echotab "settype ^.!Clisp.!Sprites Sprite"
   echol
-fi
-if [ $HOS = win32 ] ; then
+elif [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
   echol "distrib : force"
   echotab "nroff -man clisp.1 > clisp.man"
