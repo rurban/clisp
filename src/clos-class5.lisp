@@ -311,11 +311,13 @@
   (do ((l initargs (cddr l)))
       ((endp l))
     (unless (symbolp (car l))
-      (error "~S: invalid initialization argument ~S"
-             caller (car l)))
+      (error-of-type 'program-error ; ANSI CL 3.5.1.5. wants a PROGRAM-ERROR here.
+        "~S: invalid initialization argument ~S"
+        caller (car l)))
     (when (endp (cdr l))
-      (error "~S: keyword arguments in ~S should occur pairwise"
-             caller initargs))))
+      (error-of-type 'program-error ; ANSI CL 3.5.1.6. wants a PROGRAM-ERROR here.
+        "~S: keyword arguments in ~S should occur pairwise"
+        caller initargs))))
 
 ;; CLtL2 28.1.9.5., 28.1.9.4., ANSI CL 7.1.5., 7.1.4.
 (defgeneric shared-initialize
