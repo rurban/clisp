@@ -235,6 +235,9 @@ User visible changes
   allow more initialization control.
   See <http://clisp.cons.org/impnotes.html#c-init> for details.
 
+* New FFI macro C-FINALIZE allow finalization control.
+  See <http://clisp.cons.org/impnotes.html#c-exit> for details.
+
 * Function READ-BYTE-SEQUENCE takes a new keyword argument :INTERACTIVE.
   See <http://clisp.cons.org/impnotes.html#rd-by-seq> for details.
 
@@ -295,6 +298,9 @@ Modules
   POSIX:SETKEY, POSIX:SET-FILE-STAT, POSIX:CONVERT-MODE, POSIX:UMASK,
   POSIX:MKNOD.
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
+
+* Modules now have an exit function.
+  See <http://clisp.cons.org/impnotes.html#modexit> for details.
 
 Portability
 -----------
