@@ -119,12 +119,12 @@ MSGUNIQ = msguniq -w 1000
 MSGEN = msgen -w 1000
 
 # We build the .pot file by simple concatenation. No sorting!!
-clisp.pot : $(SOURCES_POT) ../VERSION po_header
+clisp.pot : $(SOURCES_POT) ../../version.sh po_header
 	(./po_header t ; cat $(SOURCES_POT)) > clisp.pox
 	$(MSGUNIQ) clisp.pox -o $@
 	$(RM) clisp.pox
 
-en.po : $(SOURCES_POT) ../VERSION po_header
+en.po : $(SOURCES_POT) ../../version.sh po_header
 	(./po_header en ; cat $(SOURCES_POT)) | $(MSGUNIQ) | $(MSGEN) - > $@
 
 

@@ -22,7 +22,7 @@ case "$lang" in
      ;;
 esac
 
-version=`cat ../VERSION`
+version=`. ../../version.sh ; echo $VERSION_NUMBER`
 date_now=`date +'%Y-%m-%d %T%z'`
 year=`date +'%Y'`;
 if test $lang = xx; then
