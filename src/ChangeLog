@@ -1,5 +1,11 @@
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (get_synonym_stream): Argument must be a variable.
+          (rd_by_array_synonym, wr_by_array_synonym, rd_ch_array_synonym,
+           wr_ch_array_synonym, close_synonym, read_line_synonym): Update.
+
+1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (stream_get_read_eval, stream_set_read_eval): New
           declarations.
         * stream.d (read_byte, read_byte_array, write_byte, write_byte_array,
