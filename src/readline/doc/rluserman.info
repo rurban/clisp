@@ -1,4 +1,4 @@
-Dies ist rluserman.info, hergestellt von Makeinfo Version 4.0 aus
+This is rluserman.info, produced by makeinfo version 4.0 from
 ./rluserman.texinfo.
 
 INFO-DIR-SECTION Libraries
@@ -1161,28 +1161,28 @@ the standard `vi' movement keys, move to previous history lines with
 
 
 Tag Table:
-Node: Top1159
-Node: Command Line Editing1555
-Node: Introduction and Notation2169
-Node: Readline Interaction3786
-Node: Readline Bare Essentials4980
-Node: Readline Movement Commands6762
-Node: Readline Killing Commands7720
-Node: Readline Arguments9627
-Node: Searching10603
-Node: Readline Init File12447
-Node: Readline Init File Syntax13509
-Node: Conditional Init Constructs22773
-Node: Sample Init File25213
-Node: Bindable Readline Commands28384
-Node: Commands For Moving29429
-Node: Commands For History30279
-Node: Commands For Text32997
-Node: Commands For Killing35001
-Node: Numeric Arguments36969
-Node: Commands For Completion38097
-Node: Keyboard Macros39846
-Node: Miscellaneous Commands40406
-Node: Readline vi Mode43211
+Node: Top1155
+Node: Command Line Editing1551
+Node: Introduction and Notation2165
+Node: Readline Interaction3782
+Node: Readline Bare Essentials4976
+Node: Readline Movement Commands6758
+Node: Readline Killing Commands7716
+Node: Readline Arguments9623
+Node: Searching10599
+Node: Readline Init File12443
+Node: Readline Init File Syntax13505
+Node: Conditional Init Constructs22769
+Node: Sample Init File25209
+Node: Bindable Readline Commands28380
+Node: Commands For Moving29425
+Node: Commands For History30275
+Node: Commands For Text32993
+Node: Commands For Killing34997
+Node: Numeric Arguments36965
+Node: Commands For Completion38093
+Node: Keyboard Macros39842
+Node: Miscellaneous Commands40402
+Node: Readline vi Mode43207
 
 End Tag Table
