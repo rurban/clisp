@@ -1975,6 +1975,32 @@ containing:</para>
  the full list of internal lisp objects available in &c-lang; code
  are additionally returned for the total of 5 values.</para></section>
 
+<section id="mod-dynload"><title>Function &mod-dynload;</title>
+<subtitle>Platform dependent: some &unix; platforms only, compiled &with;
+ compile-time flag <option>--with-dynamic-modules</option>.</subtitle>
+
+<para>Note that dynamic loading does not work on all operating systems
+ (&dlopen; is required), and that <option>--with-dynamic-modules</option>
+ precludes some efficiency optimizations which are on by default.</para>
+
+<para>Function <literal role="sexp">(&mod-dynload; &filename-r;
+ ({&name-r;}+))</literal> loads a shared object file or library
+ containing a number of named external &clisp; modules.
+ This facility cannot be used to &dlopen; and access arbitrary shared
+ libraries.</para>
+
+<para>External modules for &clisp; are those which contain a
+ <literal>module__&name-r;__subr_tab</literal>, among others.
+ This serves to register external functions which operate on
+ Lisp-level structures with &clisp;.</para>
+
+<para>To use &dlopen; with modules, you should add
+ <option>-fPIC</option> to the module's compilation options.
+ Something like <command>cc -shared -o &name-r;.so &name-r;.o</command>
+ may be needed to produce the shared object file.</para>
+
+</section>
+
 <section id="mod-set-example"><title>Example</title>
 
 <para>To link in the &ffi-pac; bindings for the &gnu;/&linux; operating
@@ -2071,31 +2097,6 @@ containing:</para>
 
 </section>
 
-<section id="mod-dynload"><title>Function &mod-dynload;</title>
-<subtitle>Platform dependent: some &unix; platforms only, compiled &with;
- compile-time flag <option>--with-dynamic-modules</option>.</subtitle>
-
-<para>Note that dynamic loading does not work on all operating systems
- (&dlopen; is required), and that <option>--with-dynamic-modules</option>
- precludes some efficiency optimizations which are on by default.</para>
-
-<para>Function <literal role="sexp">(&mod-dynload; &filename-r;
- ({&name-r;}+))</literal> loads a shared object file or library
- containing a number of named external CLISP modules.
- This facility cannot be used to &dlopen; and access arbitrary shared
- libraries.</para>
-
-<para>External modules for CLISP are those which contain a
- <literal>module__&name-r;__subr_tab</literal>, among others.
- This serves to register external functions which operate on
- Lisp-level structures with CLISP.</para>
-
-<para>To use &dlopen; with modules, you should add
- <option>-fPIC</option> to the module's compilation options.
- Something like <command>cc -shared -o &name-r;.so &name-r;.o</command>
- may be needed to produce the shared object file.</para>
-
-</section>
 </section>
 
 <!-- #ifdef DYNAMIC_FFI -->
