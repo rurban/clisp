@@ -1498,6 +1498,9 @@ LPARTS=$LPARTS' describe room edit macros3 foreign1 clhs inspect gray'
 if [ -n "$with_export_syscalls" ]; then
   LPARTS=$LPARTS' posix';
 fi
+if [ -n "$with_dir_key" ]; then
+  LPARTS=$LPARTS' dirkey';
+fi
 LPARTS=$LPARTS' german french'
 if [ -z "$with_nounicode" ] ; then
   LPARTS=$LPARTS' spanish'
