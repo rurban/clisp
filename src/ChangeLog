@@ -1,3 +1,14 @@
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (Hashtable): Change type of ht_size to uintL.
+	(hashtable_length): Update.
+	(hashtable_xlength): New macro.
+	(allocate_hash_table): Use hashtable_xlength.
+	* hashtabl.d (HT_GOOD_P, hashcode_cook, hashcode, rehash, hash_lookup,
+	CLASS-TUPLE-GETHASH): Use an unboxed ht_size.
+	(resize, MAKE-HASH-TABLE): Update.
+	* spvw_debug.d (nobject_out1): Update.
+
 2004-05-26  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (main): Change effect of varobjects_misaligned on heap_limit.
