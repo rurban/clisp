@@ -1,7 +1,7 @@
-# Listenfunktionen von CLISP
-# Bruno Haible 1990-2001
+# List functions for CLISP
+# Bruno Haible 1990-2002
 # Marcus Daniels 8.4.1994
-# Sam Steingold 1999-2001
+# Sam Steingold 1999-2002
 
 #include "lispbibl.c"
 
@@ -455,9 +455,10 @@ local bool up2_test_not (const object* stackptr, object arg1, object arg2) {
 # < up2_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #       > stackptr: derselbe Pointer in den Stack, arg1, arg2: Argumente
 #       < true, falls der Test erfüllt ist, false sonst.
-# up2_function sei der Typ der Adresse einer solchen Testfunktion:
-typedef bool (*up2_function) (const object* stackptr, object arg1, object arg2);
-local up2_function test_test2_args (object* stackptr) {
+# up2_function_t sei der Typ der Adresse einer solchen Testfunktion:
+typedef bool (*up2_function_t) (const object* stackptr,
+                                object arg1, object arg2);
+local up2_function_t test_test2_args (object* stackptr) {
   var object test_arg = *(stackptr STACKop 1);
   if (eq(test_arg,unbound))
     test_arg=NIL;
@@ -489,7 +490,7 @@ local up2_function test_test2_args (object* stackptr) {
 #       *(stackprt+0).L zugreifen kann.
 # < ergebnis: true, falls gleich, false sonst
 # can trigger GC
-local bool tree_equal (const object* stackptr, up2_function up2_fun,
+local bool tree_equal (const object* stackptr, up2_function_t up2_fun,
                        object arg1, object arg2) {
  start:
   if (atomp(arg1))
@@ -518,7 +519,7 @@ LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
   # (TREE-EQUAL x y :test :test-not), CLTL S. 264
   {
     var object* stackptr = &STACK_0;
-    var up2_function up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente überprüfen
+    var up2_function_t up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente überprüfen
     value1 = tree_equal(stackptr,up2_fun,STACK_3,STACK_2) ? T : NIL;
     mv_count=1;
     skipSTACK(4);
@@ -1272,9 +1273,9 @@ local void test_key_arg (void) {
 #         *(stackptr+1) = :test-Argument, *(stackptr+0) = :test-not-Argument,
 #       > x: Argument
 #       < true, falls der Test erfüllt ist, false sonst.
-  # up_function sei der Typ der Adresse einer solchen Testfunktion:
-typedef bool (*up_function) (const object* stackptr, object x);
-local up_function test_test_args (void) {
+  # up_function_t sei der Typ der Adresse einer solchen Testfunktion:
+typedef bool (*up_function_t) (const object* stackptr, object x);
+local up_function_t test_test_args (void) {
   var object test_arg = STACK_2;
   if (eq(test_arg,unbound))
     test_arg=NIL;
@@ -1307,7 +1308,7 @@ local up_function test_test_args (void) {
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: (evtl. neuer) Baum
 # can trigger GC
-local object subst (object tree, object* stackptr, up_function up_fun) {
+local object subst (object tree, object* stackptr, up_function_t up_fun) {
   # erst (KEY tree) berechnen und TESTFUN aufrufen:
   pushSTACK(tree); # tree retten
   funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
@@ -1344,7 +1345,7 @@ LISPFUN(subst,3,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   # (SUBST new old tree :test :test-not :key), CLTL S. 273
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     { var object newobj = STACK_5; pushSTACK(newobj); }
     # Stackaufbau: new, old, tree, test, test_not, key, new.
     value1 = subst(STACK_4,&STACK_2,up_fun); # Ersetzung durchführen
@@ -1384,7 +1385,7 @@ LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Baum
 # can trigger GC
-local object nsubst (object tree, object* stackptr, up_function up_fun) {
+local object nsubst (object tree, object* stackptr, up_function_t up_fun) {
   # erst (KEY tree) berechnen und TESTFUN aufrufen:
   pushSTACK(tree); # tree retten
   funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
@@ -1415,7 +1416,7 @@ LISPFUN(nsubst,3,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   # (NSUBST new old tree :test :test-not :key), CLTL S. 274
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     { var object newobj = STACK_5; pushSTACK(newobj); }
     # Stackaufbau: new, old, tree, test, test_not, key, new.
     value1 = nsubst(STACK_4,&STACK_2,up_fun); # Ersetzung durchführen
@@ -1477,7 +1478,7 @@ local object sublis_assoc (object* stackptr) {
       # *(stackptr-3) (eine Adresse!), angewandt auf u und das
       # vorher in *(stackptr-2) abgelegte Argument, erfüllt ist:
       var bool erg =
-        (*(up2_function)TheMachineCode(*(stackptr STACKop -3))) # zweiargumentige Testfunktion, wurde abgelegt
+        (*(up2_function_t)TheMachineCode(*(stackptr STACKop -3))) # zweiargumentige Testfunktion, wurde abgelegt
         ( stackptr, *(stackptr STACKop -2), Car(Car(alist)) ); # auf (KEY x) und u anwenden
       alist = popSTACK();
       if (erg)
@@ -1540,7 +1541,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     var object* stackptr = &STACK_1;
-    var up2_function up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+    var up2_function_t up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
     # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
@@ -1599,7 +1600,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     var object* stackptr = &STACK_1;
-    var up2_function up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+    var up2_function_t up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
     # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
@@ -1649,7 +1650,7 @@ LISPFUNN(memq,2) {
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenrest
 # can trigger GC
-local object member (object list, object* stackptr, up_function up_fun) {
+local object member (object list, object* stackptr, up_function_t up_fun) {
   until ((
           subr_self = STACK_0, # Aufrufer (für Fehlermeldung bei ENDP)
           endp(list) # Listenende erreicht?
@@ -1672,7 +1673,7 @@ LISPFUN(member,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   # (MEMBER item list :test :test-not :key), CLTL S. 275
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     pushSTACK(L(member)); # Aufrufer
     value1 = member(STACK_4,&STACK_2,up_fun); # Suche durchführen
     mv_count=1;
@@ -1746,7 +1747,7 @@ LISPFUN(adjoin,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   {
     # erst Test auf (MEMBER (key item) list :test :test-not :key):
     test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     {
       var object item = STACK_4;
       pushSTACK(item); # item retten
@@ -1841,7 +1842,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
-local object assoc (object alist, object* stackptr, up_function up_fun) {
+local object assoc (object alist, object* stackptr, up_function_t up_fun) {
  start:
   if (atomp(alist))
     # Listenende erreicht -> ergibt Ergebnis NIL
@@ -1866,7 +1867,7 @@ LISPFUN(assoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   # (ASSOC item alist :test :test-not :key), CLTL S. 280
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     value1 = assoc(STACK_3,&STACK_1,up_fun); # Suche durchführen
     mv_count=1;
     skipSTACK(5);
@@ -1899,7 +1900,7 @@ LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
-local object rassoc (object alist, object* stackptr, up_function up_fun) {
+local object rassoc (object alist, object* stackptr, up_function_t up_fun) {
  start:
   if (atomp(alist))
     # Listenende erreicht -> ergibt Ergebnis NIL
@@ -1924,7 +1925,7 @@ LISPFUN(rassoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   # (RASSOC item alist :test :test-not :key), CLTL S. 281
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     value1 = rassoc(STACK_3,&STACK_1,up_fun); # Suche durchführen
     mv_count=1;
     skipSTACK(5);
