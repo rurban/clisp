@@ -967,7 +967,7 @@
   (let ((descr (get name 'sys::defstruct-description)))
     (when descr
       (let* ((names (svref descr 0))
-             (all-slots (svref descr 3))
+             (all-slots (svref descr 4))
              (slots (remove-if-not #'sys::ds-slot-initargs ; means #'sys::ds-real-slot-p
                                    all-slots)))
         (setf (find-class name)
