@@ -150,7 +150,7 @@ NIL - no such key; T - sysconf(3c) returned -1."
  '(resource-usage-limits rlimit rlimit-soft rlimit-hard
    limits limits-core limits-cpu limits-heap limits-file-size limits-num-files
    limits-stack limits-virt-mem limits-rss limits-memlock
-   usage usage-user-fime usage-system-time usage-max-rss usage-int-rss
+   usage usage-user-time usage-system-time usage-max-rss usage-int-rss
    usage-minor-page-faults usage-major-page-faults usage-num-swaps
    usage-blocks-input usage-blocks-output usage-messages-sent
    usage-messages-received usage-signals usage-context-switches-voluntary
