@@ -39,6 +39,9 @@ some platforms can be found in file unix/PLATFORMS.
       + Recommended: needed if you want terminal command line editing.
       <ftp://ftp.gnu.org/pub/gnu/readline/>
       <http://cnswww.cns.cwru.edu/~chet/readline/rltop.html>
+      Note that readline-5.0 is broken; if you want to use it, you need
+      the patches named bash30-002, bash30-005, bash30-006, bash30-009,
+      bash30-011, available from <ftp://ftp.gnu.org/pub/gnu/bash/>.
    * GNU gettext
       + Not needed on systems with glibc 2.2 or newer, but recommended on all
         other systems: needed if you want clisp with native language support.
