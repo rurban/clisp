@@ -1858,7 +1858,7 @@
 #+GETTEXT (LOAD "dutch")        ; Dutch messages
 
 #+dir-key
-(load "dirkey")                 ; win32 registry, LDAP, Gnome-config
+(load "dirkey1")                ; win32 registry, LDAP, Gnome-config
 
 (load "deprecated")             ; the deprecated functionality -- optional
 

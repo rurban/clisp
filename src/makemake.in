@@ -1540,7 +1540,7 @@ if [ -n "$with_export_syscalls" ]; then
   LPARTS=$LPARTS' posix';
 fi
 if [ -n "$with_dir_key" ]; then
-  LPARTS=$LPARTS' dirkey';
+  LPARTS=$LPARTS' dirkey1';
 fi
 LPARTS=$LPARTS' german'
 if [ -z "$with_nounicode" ] ; then
