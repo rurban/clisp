@@ -8586,10 +8586,16 @@ der Docstring (oder NIL).
 ;; c-FORMAT vgl. FORMAT in format.lsp
 (defun c-FORMAT ()
   (test-list *form* 3)
-  (let ((target (second *form*)))
-    (when (and (constantp target) (not (eq target t)) (not (eq target nil)))
-      (c-error (ENGLISH "~s: cannot print to a constant ~s: ~s")
-               (car *form*) target *form*)))
+  ; Give a warning for the common error of forgotten destination.
+  (let ((destination (second *form*)))
+    (when (c-constantp destination)
+      (let ((destination (c-constant-value destination)))
+        (unless (or (null destination) (eq destination 'T)
+                    (streamp destination)
+                    (and (stringp destination)
+                         (array-has-fill-pointer-p destination)))
+          (c-error (ENGLISH "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S")
+                   (car *form*) destination)))))
   (if (stringp (third *form*))
     ; Format-String zur Compile-Zeit vorkompilieren.
     (c-GLOBAL-FUNCTION-CALL-form
