@@ -170,8 +170,8 @@
 #  --------------------------              -----------------
 #
 #  Synonym-Stream                          Symbol
-#  Broadcast-(Output-)Stream               Liste von Streams
-#  Concatenated-(Input-)Stream             Liste von Streams
+#  Broadcast-(Output-)Stream               list of streams
+#  Concatenated-(Input-)Stream             list of streams
 #  Two-Way-Stream                          Stream für Input, Stream für Output
 #  Echo-Stream                             Stream für Input, Stream für Output
 #  String-Input-Stream                     Gesamtstring, Zeichenzähler
@@ -212,184 +212,119 @@
 # > caller: Aufrufer (ein Symbol)
 # > stream: Stream
   nonreturning_function(global, fehler_illegal_streamop, (object caller, object stream));
-  global void fehler_illegal_streamop(caller,stream)
-    var object caller;
-    var object stream;
-    {
-      pushSTACK(stream); # STREAM-ERROR slot STREAM
-      pushSTACK(stream);
-      pushSTACK(caller);
-      fehler(stream_error,
-             GETTEXT("~ on ~ is illegal")
-            );
-    }
+global void fehler_illegal_streamop(object caller,object stream) {
+  pushSTACK(stream); # STREAM-ERROR slot STREAM
+  pushSTACK(stream);
+  pushSTACK(caller);
+  fehler(stream_error,GETTEXT("~ on ~ is illegal"));
+}
 
 # Dummy-Pseudo-Funktionen, die Errors liefern:
+local object rd_by_error (object stream) {
+  fehler_illegal_streamop(S(read_byte),stream);
+}
 
-  local object rd_by_error (object stream);
-  local object rd_by_error(stream)
-    var object stream;
-    {
-      fehler_illegal_streamop(S(read_byte),stream);
-    }
+local uintL rd_by_array_error (const object* stream_,const object* bytearray_,
+                               uintL start, uintL len) {
+  fehler_illegal_streamop(S(read_byte),*stream_);
+}
 
-  local uintL rd_by_array_error (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local uintL rd_by_array_error(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      fehler_illegal_streamop(S(read_byte),*stream_);
-    }
+local uintL rd_by_array_dummy (const object* stream_,const object* bytearray_,
+                               uintL start, uintL len) {
+  var uintL end = start + len;
+  var uintL index = start;
+  do {
+    var object stream = *stream_;
+    var object obj = rd_by(stream)(stream);
+    if (eq(obj,eof_value))
+      break;
+    if (!uint8_p(obj))
+      fehler_uint8(obj);
+    TheSbvector(*bytearray_)->data[index] =
+      (uintB)(as_oint(obj) >> oint_data_shift);
+    index++;
+  } while (index < end);
+  return index - start;
+}
 
-  local uintL rd_by_array_dummy (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local uintL rd_by_array_dummy(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      var uintL end = start + len;
-      var uintL index = start;
-      do {
-        var object stream = *stream_;
-        var object obj = rd_by(stream)(stream);
-        if (eq(obj,eof_value))
-          break;
-        if (!uint8_p(obj))
-          fehler_uint8(obj);
-        TheSbvector(*bytearray_)->data[index] = (uintB)(as_oint(obj) >> oint_data_shift);
-        index++;
-      } while (index < end);
-      return index - start;
-    }
+local void wr_by_error (object stream, object obj) {
+  fehler_illegal_streamop(S(write_byte),stream);
+}
 
-  local void wr_by_error (object stream, object obj);
-  local void wr_by_error(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      fehler_illegal_streamop(S(write_byte),stream);
-    }
+local void wr_by_array_error (const object* stream_,const object* bytearray_,
+                              uintL start, uintL len) {
+  fehler_illegal_streamop(S(write_byte),*stream_);
+}
 
-  local void wr_by_array_error (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local void wr_by_array_error(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      fehler_illegal_streamop(S(write_byte),*stream_);
-    }
+local void wr_by_array_dummy (const object* stream_,const object* bytearray_,
+                              uintL start, uintL len) {
+  var uintL end = start + len;
+  var uintL index = start;
+  do {
+    var object stream = *stream_;
+    wr_by(stream)(stream,fixnum(TheSbvector(*bytearray_)->data[index]));
+    index++;
+  } while (index < end);
+}
 
-  local void wr_by_array_dummy (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local void wr_by_array_dummy(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      var uintL end = start + len;
-      var uintL index = start;
-      do {
-        var object stream = *stream_;
-        wr_by(stream)(stream,fixnum(TheSbvector(*bytearray_)->data[index]));
-        index++;
-      } while (index < end);
-    }
+local object rd_ch_error (const object* stream_) {
+  fehler_illegal_streamop(S(read_char),*stream_);
+}
 
-  local object rd_ch_error (const object* stream_);
-  local object rd_ch_error(stream_)
-    var const object* stream_;
-    {
-      fehler_illegal_streamop(S(read_char),*stream_);
-    }
+local object pk_ch_dummy (const object* stream_) {
+  var object newch = rd_ch(*stream_)(stream_);
+  TheStream(*stream_)->strm_rd_ch_last = newch;
+  if (!eq(newch,eof_value))
+    TheStream(*stream_)->strmflags |= strmflags_unread_B;
+  return newch;
+}
 
-  local object pk_ch_dummy (const object* stream_);
-  local object pk_ch_dummy(stream_)
-    var const object* stream_;
-    {
-      var object newch = rd_ch(*stream_)(stream_);
-      TheStream(*stream_)->strm_rd_ch_last = newch;
-      if (!eq(newch,eof_value))
-        TheStream(*stream_)->strmflags |= strmflags_unread_B;
-      return newch;
-    }
+local uintL rd_ch_array_error (const object* stream_,const object* chararray_,
+                               uintL start, uintL len) {
+  fehler_illegal_streamop(S(read_char),*stream_);
+}
 
-  local uintL rd_ch_array_error (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local uintL rd_ch_array_error(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      fehler_illegal_streamop(S(read_char),*stream_);
-    }
+local uintL rd_ch_array_dummy (const object* stream_,const object* chararray_,
+                               uintL start, uintL len) {
+  var uintL end = start + len;
+  var uintL index = start;
+  do {
+    var object obj = rd_ch(*stream_)(stream_);
+    if (eq(obj,eof_value))
+      break;
+    if (!charp(obj))
+      fehler_char(obj);
+    TheSstring(*chararray_)->data[index] = char_code(obj);
+    index++;
+  } while (index < end);
+  return index - start;
+}
 
-  local uintL rd_ch_array_dummy (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local uintL rd_ch_array_dummy(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      var uintL end = start + len;
-      var uintL index = start;
-      do {
-        var object obj = rd_ch(*stream_)(stream_);
-        if (eq(obj,eof_value))
-          break;
-        if (!charp(obj))
-          fehler_char(obj);
-        TheSstring(*chararray_)->data[index] = char_code(obj);
-        index++;
-      } while (index < end);
-      return index - start;
-    }
+local void wr_ch_error (const object* stream_, object obj) {
+  fehler_illegal_streamop(S(write_char),*stream_);
+}
 
-  local void wr_ch_error (const object* stream_, object obj);
-  local void wr_ch_error(stream_,obj)
-    var const object* stream_;
-    var object obj;
-    {
-      fehler_illegal_streamop(S(write_char),*stream_);
-    }
+local void wr_ch_array_error (const object* stream_,const object* chararray_,
+                              uintL start, uintL len) {
+  fehler_illegal_streamop(S(write_char),*stream_);
+}
 
-  local void wr_ch_array_error (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_error(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      fehler_illegal_streamop(S(write_char),*stream_);
-    }
-
-  local void wr_ch_array_dummy (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_dummy(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      var uintL end = start + len;
-      var uintL index = start;
-      SstringDispatch(*chararray_,
-        {
-          do {
-            write_char(stream_,code_char(TheSstring(*chararray_)->data[index]));
-            index++;
-          } while (index < end);
-        },
-        {
-          do {
-            write_char(stream_,code_char(as_chart(TheSmallSstring(*chararray_)->data[index])));
-            index++;
-          } while (index < end);
-        }
-        );
-    }
+local void wr_ch_array_dummy (const object* stream_,const object* chararray_,
+                              uintL start, uintL len) {
+  var uintL end = start + len;
+  var uintL index = start;
+  SstringDispatch(*chararray_,{
+    do {
+      write_char(stream_,code_char(TheSstring(*chararray_)->data[index]));
+      index++;
+    } while (index < end);
+  },{
+    do {
+      write_char(stream_,code_char(as_chart(TheSmallSstring(*chararray_)->data[index])));
+      index++;
+    } while (index < end);
+  });
+}
 
 # check whether the stream is a terminal stream
 global bool terminal_stream_p (const object stream) {
@@ -413,86 +348,78 @@ global bool terminal_stream_p (const object stream) {
   return false;
 }
 
-  # Am Ende eines wr_ch_array die Line-Position aktualisieren:
-  # wr_ss_lpos(stream,ptr,len);
-  # > stream: Builtin-Stream, nicht der Terminal-Stream
-  # > ptr: Pointer ans Ende(!) der bereits auf den Stream ausgegebenen Zeichen
-  # > len: Anzahl der Zeichen, >0
-  # < ergebnis: true, falls ein NL unter den Zeichen ist, false sonst
-  local bool wr_ss_lpos (object stream, const chart* ptr, uintL len);
-  local bool wr_ss_lpos(stream,ptr,len)
-    var object stream;
-    var const chart* ptr;
-    var uintL len;
-    {
-      #ifdef TERMINAL_USES_KEYBOARD
-      if (TheStream(stream)->strmtype == strmtype_terminal)
-        return false; # Auf dem Atari machte dies wr_ch_terminal() selbst.
-      #endif
-      # Zähle die Breiten der Zeichen seit dem letzten NL zusammen:
-      var bool result;
-      var uintL pos = 0;
-      var uintL count;
+# Am Ende eines wr_ch_array die Line-Position aktualisieren:
+# wr_ss_lpos(stream,ptr,len);
+# > stream: Builtin-Stream, nicht der Terminal-Stream
+# > ptr: Pointer ans Ende(!) der bereits auf den Stream ausgegebenen Zeichen
+# > len: Anzahl der Zeichen, >0
+# < ergebnis: true, falls ein NL unter den Zeichen ist, false sonst
+local bool wr_ss_lpos (object stream, const chart* ptr, uintL len) {
+  #ifdef TERMINAL_USES_KEYBOARD
+  if (TheStream(stream)->strmtype == strmtype_terminal)
+    return false; # Auf dem Atari machte dies wr_ch_terminal() selbst.
+  #endif
+  # Zähle die Breiten der Zeichen seit dem letzten NL zusammen:
+  var bool result;
+  var uintL pos = 0;
+  var uintL count;
+  dotimespL(count,len, {
+    if (chareq(*--ptr,ascii(NL)))
+      goto found_NL;
+    pos++;
+  });
+  if (false) {
+  found_NL: # pos Zeichen seit dem letzten NL
+    ptr++; len = pos; pos = 0; result = true;
+  } else { # pos==len
+    pos = posfixnum_to_L(TheStream(stream)->strm_wr_ch_lpos); result = false;
+  }
+  # Es gab len Zeichen ab ptr, pos ist die Position dort.
+  #ifdef TERMINAL_USES_KEYBOARD
+  pos += len;
+  #else
+  if (len > 0) {
+    if (TheStream(stream)->strmtype == strmtype_terminal) {
       dotimespL(count,len, {
-        if (chareq(*--ptr,ascii(NL)))
-          goto found_NL;
-        pos++;
+        var chart c = *ptr++;
+        # Wie wirken sich die Steuerzeichen in der Position aus?
+        if (chareq(c,ascii(BS))) {
+        # Backspace -> Line Position, wenn möglich, decrementieren:
+          if (pos > 0)
+            pos--;
+        } else
+          pos += char_width(c);
       });
-      if (false) {
-       found_NL: # pos Zeichen seit dem letzten NL
-        ptr++; len = pos; pos = 0; result = true;
-      } else { # pos==len
-        pos = posfixnum_to_L(TheStream(stream)->strm_wr_ch_lpos); result = false;
-      }
-      # Es gab len Zeichen ab ptr, pos ist die Position dort.
-      #ifdef TERMINAL_USES_KEYBOARD
-      pos += len;
-      #else
-      if (len > 0) {
-        if (TheStream(stream)->strmtype == strmtype_terminal) {
-          dotimespL(count,len, {
-            var chart c = *ptr++;
-            # Wie wirken sich die Steuerzeichen in der Position aus?
-            if (chareq(c,ascii(BS))) {
-              # Backspace -> Line Position, wenn möglich, decrementieren:
-              if (pos > 0)
-                pos--;
-            } else
-              pos += char_width(c);
-          });
-        } else {
-          dotimespL(count,len, {
-            var chart c = *ptr++;
-            pos += char_width(c);
-          });
-        }
-      }
-      #endif
-      TheStream(stream)->strm_wr_ch_lpos = fixnum(pos);
-      return result;
+    } else {
+      dotimespL(count,len, {
+        var chart c = *ptr++;
+        pos += char_width(c);
+      });
     }
+  }
+  #endif
+  TheStream(stream)->strm_wr_ch_lpos = fixnum(pos);
+  return result;
+}
 
 # Liest ein Byte von einem Stream.
 # read_byte(stream)
 # > stream: Stream
 # < ergebnis: gelesener Integer (eof_value bei EOF)
 # can trigger GC
-  global object read_byte (object stream);
-  global object read_byte(stream)
-    var object stream;
-    {
-      if (builtin_stream_p(stream)) {
-        return rd_by(stream)(stream);
-      } else {
-        # Call the generic function (STREAM-READ-BYTE stream):
-        pushSTACK(stream); funcall(S(stream_read_byte),1);
-        var object result = value1;
-        if (eq(result,S(Keof)))
-          return eof_value;
-        else
-          return result;
-      }
-    }
+global object read_byte (object stream) {
+  if (builtin_stream_p(stream)) {
+    return rd_by(stream)(stream);
+  } else {
+    # Call the generic function (STREAM-READ-BYTE stream):
+    pushSTACK(stream); funcall(S(stream_read_byte),1);
+    var object result = value1;
+    if (eq(result,S(Keof)))
+      return eof_value;
+    else
+      return result;
+  }
+}
 
 # Function: Reads several bytes from a stream.
 # read_byte_array(&stream,&bytearray,start,len)
@@ -502,55 +429,46 @@ global bool terminal_stream_p (const object stream) {
 # > uintL len: length of byte sequence to be filled
 # < uintL result: number of bytes that have been filled
 # can trigger GC
-  global uintL read_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  global uintL read_byte_array(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      if (len==0)
-        return 0;
-      var object stream = *stream_;
-      if (builtin_stream_p(stream)) {
-        return rd_by_array(stream)(stream_,bytearray_,start,len);
-      } else {
-        # Call the generic function (STREAM-READ-BYTE-SEQUENCE stream bytearray start start+len):
-        pushSTACK(stream); pushSTACK(*bytearray_); pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
-        funcall(S(stream_read_byte_sequence),4);
-        var uintL result;
-        if (!(posfixnump(value1)
-              && (result = posfixnum_to_L(value1),
-                  result >= start && result <= start+len))) {
-          pushSTACK(fixnum(start+len));
-          pushSTACK(fixnum(start));
-          pushSTACK(S(stream_read_byte_sequence));
-          pushSTACK(value1);
-          fehler(error,
-                 GETTEXT("Return value ~ of call to ~ should be an integer between ~ and ~.")
-                );
-        }
-        return result-start;
-      }
+global uintL read_byte_array (const object* stream_,const object* bytearray_,
+                              uintL start, uintL len) {
+  if (len==0)
+    return 0;
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    return rd_by_array(stream)(stream_,bytearray_,start,len);
+  } else {
+    # Call the generic function
+    # (STREAM-READ-BYTE-SEQUENCE stream bytearray start start+len):
+    pushSTACK(stream); pushSTACK(*bytearray_);
+    pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
+    funcall(S(stream_read_byte_sequence),4);
+    var uintL result;
+    if (!(posfixnump(value1)
+          && (result = posfixnum_to_L(value1),
+              result >= start && result <= start+len))) {
+      pushSTACK(fixnum(start+len));
+      pushSTACK(fixnum(start));
+      pushSTACK(S(stream_read_byte_sequence));
+      pushSTACK(value1);
+      fehler(error,GETTEXT("Return value ~ of call to ~ should be an integer between ~ and ~."));
     }
+    return result-start;
+  }
+}
 
 # Schreibt ein Byte auf einen Stream.
 # write_byte(stream,byte);
 # > stream: Stream
 # > byte: auszugebender Integer
 # can trigger GC
-  global void write_byte (object stream, object byte);
-  global void write_byte(stream,byte)
-    var object stream;
-    var object byte;
-    {
-      if (builtin_stream_p(stream)) {
-        wr_by(stream)(stream,byte);
-      } else {
-        # Call the generic function (STREAM-WRITE-BYTE stream byte):
-        pushSTACK(stream); pushSTACK(byte); funcall(S(stream_write_byte),2);
-      }
-    }
+global void write_byte (object stream, object byte) {
+  if (builtin_stream_p(stream)) {
+    wr_by(stream)(stream,byte);
+  } else {
+    # Call the generic function (STREAM-WRITE-BYTE stream byte):
+    pushSTACK(stream); pushSTACK(byte); funcall(S(stream_write_byte),2);
+  }
+}
 
 # Function: Writes several bytes to a stream.
 # write_byte_array(&stream,&bytearray,start,len)
@@ -558,24 +476,21 @@ global bool terminal_stream_p (const object stream) {
 # > object bytearray: simple-bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-  global void write_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  global void write_byte_array(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      if (len==0)
-        return;
-      var object stream = *stream_;
-      if (builtin_stream_p(stream)) {
-        wr_by_array(stream)(stream_,bytearray_,start,len);
-      } else {
-        # Call the generic function (STREAM-WRITE-BYTE-SEQUENCE stream bytearray start start+len):
-        pushSTACK(stream); pushSTACK(*bytearray_); pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
-        funcall(S(stream_write_byte_sequence),4);
-      }
-    }
+global void write_byte_array (const object* stream_,const object* bytearray_,
+                              uintL start, uintL len) {
+  if (len==0)
+    return;
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    wr_by_array(stream)(stream_,bytearray_,start,len);
+  } else {
+    # Call the generic function
+    # (STREAM-WRITE-BYTE-SEQUENCE stream bytearray start start+len):
+    pushSTACK(stream); pushSTACK(*bytearray_);
+    pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
+    funcall(S(stream_write_byte_sequence),4);
+  }
+}
 
 # Liest ein Character von einem Stream.
 # read_char(&stream)
@@ -583,75 +498,64 @@ global bool terminal_stream_p (const object stream) {
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
 # can trigger GC
-  global object read_char (const object* stream_);
-  global object read_char(stream_)
-    var const object* stream_;
-    {
-      var object stream = *stream_;
-      if (builtin_stream_p(stream)) {
-        if (!(TheStream(stream)->strmflags & strmflags_unread_B)) { # Char nach UNREAD ?
-          # nein -> neues Zeichen holen:
-          var object newch = rd_ch(stream)(stream_);
-          stream = *stream_;
-          TheStream(stream)->strm_rd_ch_last = newch; # und abspeichern
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-          return newch;
-        } else {
-          # ja -> Flagbit löschen und letztes Zeichen holen:
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-          return TheStream(stream)->strm_rd_ch_last;
-        }
-      } else {
-        # Call the generic function (STREAM-READ-CHAR stream):
-        pushSTACK(stream); funcall(S(stream_read_char),1);
-        var object result = value1;
-        if (eq(result,S(Keof)))
-          return eof_value;
-        else
-          return result;
-      }
+global object read_char (const object* stream_) {
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    if (!(TheStream(stream)->strmflags & strmflags_unread_B)) { # Char nach UNREAD ?
+      # nein -> neues Zeichen holen:
+      var object newch = rd_ch(stream)(stream_);
+      stream = *stream_;
+      TheStream(stream)->strm_rd_ch_last = newch; # und abspeichern
+      TheStream(stream)->strmflags &= ~strmflags_unread_B;
+      return newch;
+    } else {
+      # ja -> Flagbit löschen und letztes Zeichen holen:
+      TheStream(stream)->strmflags &= ~strmflags_unread_B;
+      return TheStream(stream)->strm_rd_ch_last;
     }
+  } else {
+    # Call the generic function (STREAM-READ-CHAR stream):
+    pushSTACK(stream); funcall(S(stream_read_char),1);
+    var object result = value1;
+    if (eq(result,S(Keof)))
+      return eof_value;
+    else
+      return result;
+  }
+}
 
 # Schiebt das letzte gelesene Character auf einen Stream zurück.
 # unread_char(&stream,ch);
 # > ch: letztes gelesenes Character
 # > stream: Stream
 # < stream: Stream
-  global void unread_char (const object* stream_, object ch);
-  global void unread_char(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      if (builtin_stream_p(stream)) {
-        if (eq(TheStream(stream)->strm_rd_ch_last,ch)
-            && !(TheStream(stream)->strmflags & strmflags_unread_B)) {
-          TheStream(stream)->strmflags |= strmflags_unread_B; # Flagbit setzen
-        } else {
-          if (!nullp(TheStream(stream)->strm_rd_ch_last)
-              && !(TheStream(stream)->strmflags & strmflags_unread_B)) {
-            pushSTACK(stream); # STREAM-ERROR slot STREAM
-            pushSTACK(ch);
-            pushSTACK(stream);
-            pushSTACK(S(unread_char));
-            fehler(stream_error,
-                   GETTEXT("~: the last character read from ~ was not ~")
-                  );
-          } else {
-            pushSTACK(stream); # STREAM-ERROR slot STREAM
-            pushSTACK(S(read_char));
-            pushSTACK(stream);
-            pushSTACK(S(unread_char));
-            fehler(stream_error,
-                   GETTEXT("~ from ~ without ~ before it")
-                  );
-          }
-        }
+global void unread_char (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    if (eq(TheStream(stream)->strm_rd_ch_last,ch)
+        && !(TheStream(stream)->strmflags & strmflags_unread_B)) {
+      TheStream(stream)->strmflags |= strmflags_unread_B; # Flagbit setzen
+    } else {
+      if (!nullp(TheStream(stream)->strm_rd_ch_last)
+          && !(TheStream(stream)->strmflags & strmflags_unread_B)) {
+        pushSTACK(stream); # STREAM-ERROR slot STREAM
+        pushSTACK(ch);
+        pushSTACK(stream);
+        pushSTACK(S(unread_char));
+        fehler(stream_error,GETTEXT("~: the last character read from ~ was not ~"));
       } else {
-        # Call the generic function (STREAM-UNREAD-CHAR stream ch):
-        pushSTACK(stream); pushSTACK(ch); funcall(S(stream_unread_char),2);
+        pushSTACK(stream); # STREAM-ERROR slot STREAM
+        pushSTACK(S(read_char));
+        pushSTACK(stream);
+        pushSTACK(S(unread_char));
+        fehler(stream_error,GETTEXT("~ from ~ without ~ before it"));
       }
     }
+  } else {
+    # Call the generic function (STREAM-UNREAD-CHAR stream ch):
+    pushSTACK(stream); pushSTACK(ch); funcall(S(stream_unread_char),2);
+  }
+}
 
 # Liest ein Character von einem Stream, ohne es zu verbrauchen.
 # peek_char(&stream)
@@ -659,28 +563,25 @@ global bool terminal_stream_p (const object stream) {
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
 # can trigger GC
-  global object peek_char (const object* stream_);
-  global object peek_char(stream_)
-    var const object* stream_;
-    {
-      var object stream = *stream_;
-      if (builtin_stream_p(stream)) {
-        if (!(TheStream(stream)->strmflags & strmflags_unread_B)) # Char nach UNREAD ?
-          # nein -> neues Zeichen holen:
-          return pk_ch(stream)(stream_);
-        else
-          # ja -> letztes Zeichen holen:
-          return TheStream(stream)->strm_rd_ch_last;
-      } else {
-        # Call the generic function (STREAM-PEEK-CHAR stream):
-        pushSTACK(stream); funcall(S(stream_peek_char),1);
-        var object result = value1;
-        if (eq(result,S(Keof)))
-          return eof_value;
-        else
-          return result;
-      }
-    }
+global object peek_char (const object* stream_) {
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    if (!(TheStream(stream)->strmflags & strmflags_unread_B)) # Char nach UNREAD ?
+      # nein -> neues Zeichen holen:
+      return pk_ch(stream)(stream_);
+    else
+      # ja -> letztes Zeichen holen:
+      return TheStream(stream)->strm_rd_ch_last;
+  } else {
+    # Call the generic function (STREAM-PEEK-CHAR stream):
+    pushSTACK(stream); funcall(S(stream_peek_char),1);
+    var object result = value1;
+    if (eq(result,S(Keof)))
+      return eof_value;
+    else
+      return result;
+  }
+}
 
 # Function: Reads several characters from a stream.
 # read_char_array(&stream,&chararray,start,len)
@@ -690,57 +591,52 @@ global bool terminal_stream_p (const object stream) {
 # > uintL len: length of character sequence to be filled
 # < uintL result: number of characters that have been filled
 # can trigger GC
-  global uintL read_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
-  global uintL read_char_array(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      if (len==0)
-        return 0;
-      var object stream = *stream_;
-      if (builtin_stream_p(stream)) {
-        var object lastchar = TheStream(stream)->strm_rd_ch_last;
-        if (eq(lastchar,eof_value)) # EOF ?
-          return 0;
-        var uintL index = start;
-        if (TheStream(stream)->strmflags & strmflags_unread_B) {
-          if (!charp(lastchar))
-            fehler_char(lastchar);
-          TheSstring(*chararray_)->data[index++] = char_code(lastchar);
-          len--;
-          if (len==0) {
-            TheStream(stream)->strmflags &= ~strmflags_unread_B;
-            return 1;
-          }
-        }
-        var uintL count = rd_ch_array(stream)(stream_,chararray_,index,len);
-        index += count;
-        stream = *stream_;
-        TheStream(stream)->strm_rd_ch_last =
-          (count == len ? code_char(TheSstring(*chararray_)->data[index-1]) : eof_value);
+global uintL read_char_array (const object* stream_,const object* chararray_,
+                              uintL start, uintL len) {
+  if (len==0)
+    return 0;
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    var object lastchar = TheStream(stream)->strm_rd_ch_last;
+    if (eq(lastchar,eof_value)) # EOF ?
+      return 0;
+    var uintL index = start;
+    if (TheStream(stream)->strmflags & strmflags_unread_B) {
+      if (!charp(lastchar))
+        fehler_char(lastchar);
+      TheSstring(*chararray_)->data[index++] = char_code(lastchar);
+      len--;
+      if (len==0) {
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
-        return index - start;
-      } else {
-        # Call the generic function (STREAM-READ-CHAR-SEQUENCE stream chararray start start+len):
-        pushSTACK(stream); pushSTACK(*chararray_); pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
-        funcall(S(stream_read_char_sequence),4);
-        var uintL result;
-        if (!(posfixnump(value1)
-              && (result = posfixnum_to_L(value1),
-                  result >= start && result <= start+len))) {
-          pushSTACK(fixnum(start+len));
-          pushSTACK(fixnum(start));
-          pushSTACK(S(stream_read_char_sequence));
-          pushSTACK(value1);
-          fehler(error,
-                 GETTEXT("Return value ~ of call to ~ should be an integer between ~ and ~.")
-                );
-        }
-        return result-start;
+        return 1;
       }
     }
+    var uintL count = rd_ch_array(stream)(stream_,chararray_,index,len);
+    index += count;
+    stream = *stream_;
+    TheStream(stream)->strm_rd_ch_last =
+      (count == len ? code_char(TheSstring(*chararray_)->data[index-1]) : eof_value);
+    TheStream(stream)->strmflags &= ~strmflags_unread_B;
+    return index - start;
+  } else {
+    # Call the generic function
+    # (STREAM-READ-CHAR-SEQUENCE stream chararray start start+len):
+    pushSTACK(stream); pushSTACK(*chararray_);
+    pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
+    funcall(S(stream_read_char_sequence),4);
+    var uintL result;
+    if (!(posfixnump(value1)
+          && (result = posfixnum_to_L(value1),
+              result >= start && result <= start+len))) {
+      pushSTACK(fixnum(start+len));
+      pushSTACK(fixnum(start));
+      pushSTACK(S(stream_read_char_sequence));
+      pushSTACK(value1);
+      fehler(error,GETTEXT("Return value ~ of call to ~ should be an integer between ~ and ~."));
+    }
+    return result-start;
+  }
+}
 
 # Schreibt ein Character auf einen Stream.
 # write_char(&stream,ch);
@@ -748,52 +644,43 @@ global bool terminal_stream_p (const object stream) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  global void write_char (const object* stream_, object ch);
-  global void write_char(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      if (builtin_stream_p(stream)) {
-        var chart c = char_code(ch);
-        # Char schreiben:
-        wr_ch(stream)(stream_,ch);
-        # Line Position aktualisieren:
-        var object stream = *stream_;
-        if (!(TheStream(stream)->strmtype == strmtype_terminal)) {
-          # nicht der Terminal-Stream
-          if (chareq(c,ascii(NL)))
-            # Nach Newline: Line Position := 0
-            TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-          else
-            # Line Position incrementieren:
-            TheStream(stream)->strm_wr_ch_lpos =
-              fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,char_width(c));
-        } else {
-          # es ist der Terminal-Stream
-          #ifdef TERMINAL_USES_KEYBOARD
-          ; # Auf dem Atari machte dies wr_ch_terminal() selbst.
-          #else
-          # Wie wirken sich die Steuerzeichen in der Position aus?
-          if (chareq(c,ascii(NL))) {
-            # Newline -> Line Position := 0
-            TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-          } elif (chareq(c,ascii(BS))) {
-            # Backspace -> Line Position, wenn möglich, decrementieren:
-            if (!eq(TheStream(stream)->strm_wr_ch_lpos,Fixnum_0))
-              TheStream(stream)->strm_wr_ch_lpos =
-                fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,-1);
-          } else
-            # Line Position incrementieren:
-            TheStream(stream)->strm_wr_ch_lpos =
-              fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,char_width(c));
-          #endif
-        }
-      } else {
-        # Call the generic function (STREAM-WRITE-CHAR stream ch):
-        pushSTACK(stream); pushSTACK(ch); funcall(S(stream_write_char),2);
-      }
+global void write_char (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    var chart c = char_code(ch);
+    # Char schreiben:
+    wr_ch(stream)(stream_,ch);
+    # Line Position aktualisieren:
+    var object stream = *stream_;
+    if (!(TheStream(stream)->strmtype == strmtype_terminal)) {
+      # nicht der Terminal-Stream
+      if (chareq(c,ascii(NL))) # Nach Newline: Line Position := 0
+        TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+      else # increment line position
+        TheStream(stream)->strm_wr_ch_lpos =
+          fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,char_width(c));
+    } else { # es ist der Terminal-Stream
+      #ifdef TERMINAL_USES_KEYBOARD
+      ; # Auf dem Atari machte dies wr_ch_terminal() selbst.
+      #else
+      # Wie wirken sich die Steuerzeichen in der Position aus?
+      if (chareq(c,ascii(NL))) { # Newline -> Line Position := 0
+        TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+      } elif (chareq(c,ascii(BS))) {
+        # Backspace -> Line Position, wenn möglich, decrementieren:
+        if (!eq(TheStream(stream)->strm_wr_ch_lpos,Fixnum_0))
+          TheStream(stream)->strm_wr_ch_lpos =
+            fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,-1);
+      } else # increment line position
+        TheStream(stream)->strm_wr_ch_lpos =
+          fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,char_width(c));
+      #endif
     }
+  } else {
+    # Call the generic function (STREAM-WRITE-CHAR stream ch):
+    pushSTACK(stream); pushSTACK(ch); funcall(S(stream_write_char),2);
+  }
+}
 
 # Function: Writes several characters to a stream.
 # write_char_array(&stream,&chararray,start,len)
@@ -801,44 +688,38 @@ global bool terminal_stream_p (const object stream) {
 # > object chararray: simple-string (on the STACK)
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
-  global void write_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
-  global void write_char_array(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      if (len==0)
-        return;
-      var object stream = *stream_;
-      if (builtin_stream_p(stream)) {
-        wr_ch_array(stream)(stream_,chararray_,start,len);
-      } else {
-        # Call the generic function (STREAM-WRITE-CHAR-SEQUENCE stream chararray start start+len):
-        pushSTACK(stream); pushSTACK(*chararray_); pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
-        funcall(S(stream_write_char_sequence),4);
-      }
-    }
+global void write_char_array (const object* stream_, const object* chararray_,
+                              uintL start, uintL len) {
+  if (len==0)
+    return;
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    wr_ch_array(stream)(stream_,chararray_,start,len);
+  } else {
+    # Call the generic function
+    # (STREAM-WRITE-CHAR-SEQUENCE stream chararray start start+len):
+    pushSTACK(stream); pushSTACK(*chararray_);
+    pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
+    funcall(S(stream_write_char_sequence),4);
+  }
+}
 
 # UP: Füllt beim Schließen eines Streams die Dummy-Pseudofunktionen ein.
 # close_dummys(stream);
 # > stream: Stream
-  local void close_dummys (object stream);
-  local void close_dummys(stream)
-    var object stream;
-    {
-      TheStream(stream)->strm_rd_by = P(rd_by_error);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-      TheStream(stream)->strm_wr_by = P(wr_by_error);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-      TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
-      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-      TheStream(stream)->strmflags &= ~(strmflags_open_B|strmflags_unread_B); # Fähigkeiten-Flags löschen
-    }
+local void close_dummys (object stream) {
+  TheStream(stream)->strm_rd_by = P(rd_by_error);
+  TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+  TheStream(stream)->strm_wr_by = P(wr_by_error);
+  TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+  TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+  TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+  TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
+  TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+  TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
+  TheStream(stream)->strmflags &= ~(strmflags_open_B|strmflags_unread_B); # Fähigkeiten-Flags löschen
+}
 
 # Liefert Fehlermeldung, wenn der Wert des Symbols sym kein Stream ist.
   nonreturning_function(local, fehler_value_stream, (object sym));
@@ -849,36 +730,32 @@ global bool terminal_stream_p (const object stream) {
 # > sym: Variable (Symbol)
 # > strmflags: Menge von Operationen, die auf dem Stream möglich sein sollen
 # < ergebnis: Stream
-  global object var_stream (object sym, uintB strmflags);
-  global object var_stream(sym,strmflags)
-    var object sym;
-    var uintB strmflags;
-    {
-      var object result = Symbol_value(sym);
-      var object stream;
-     recurse:
-      stream = Symbol_value(sym);
-      if (builtin_stream_p(stream)) {
-        if (strmflags & ~ TheStream(stream)->strmflags)
-          fehler_value_stream(sym);
-        if (TheStream(stream)->strmtype == strmtype_synonym) {
-          sym = TheStream(stream)->strm_synonym_symbol;
-          goto recurse;
-        }
-      } elif (instanceof(stream,O(class_fundamental_stream))) {
-        # Among instances of FUNDAMENTAL-STREAM:
-        # Only instances of FUNDAMENTAL-INPUT-STREAM can do input.
-        # Only instances of FUNDAMENTAL-OUTPUT-STREAM can do output.
-        if (((strmflags & strmflags_rd_B)
-             && !instanceof(stream,O(class_fundamental_input_stream))) ||
-            ((strmflags & strmflags_wr_B)
-             && !instanceof(stream,O(class_fundamental_output_stream))))
-          fehler_value_stream(sym);
-      } else {
-        fehler_value_stream(sym);
-      }
-      return result;
+global object var_stream (object sym, uintB strmflags) {
+  var object result = Symbol_value(sym);
+  var object stream;
+ recurse:
+  stream = Symbol_value(sym);
+  if (builtin_stream_p(stream)) {
+    if (strmflags & ~ TheStream(stream)->strmflags)
+      fehler_value_stream(sym);
+    if (TheStream(stream)->strmtype == strmtype_synonym) {
+      sym = TheStream(stream)->strm_synonym_symbol;
+      goto recurse;
     }
+  } else if (instanceof(stream,O(class_fundamental_stream))) {
+    # Among instances of FUNDAMENTAL-STREAM:
+    # Only instances of FUNDAMENTAL-INPUT-STREAM can do input.
+    # Only instances of FUNDAMENTAL-OUTPUT-STREAM can do output.
+    if (((strmflags & strmflags_rd_B)
+         && !instanceof(stream,O(class_fundamental_input_stream))) ||
+        ((strmflags & strmflags_wr_B)
+         && !instanceof(stream,O(class_fundamental_output_stream))))
+      fehler_value_stream(sym);
+  } else {
+    fehler_value_stream(sym);
+  }
+  return result;
+}
 
 # (SYSTEM::SYMBOL-STREAM symbol [direction])
 # liefert den Stream, der der Wert des Symbols ist, und überprüft, ob es ein
@@ -899,82 +776,58 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   }
 
 # Fehler, wenn aus einem obskuren Grunde ein WRITE nicht gehen sollte:
-  nonreturning_function(local, fehler_unwritable, (object caller, object stream));
-  local void fehler_unwritable(caller,stream)
-    var object caller;
-    var object stream;
-    {
-      pushSTACK(stream); # FILE-ERROR slot PATHNAME
-      pushSTACK(stream);
-      pushSTACK(caller);
-      fehler(file_error,
-             GETTEXT("~: cannot output to ~")
-            );
-    }
+nonreturning_function(local,fehler_unwritable,(object caller, object stream));
+local void fehler_unwritable (object caller,object stream) {
+  pushSTACK(stream); # FILE-ERROR slot PATHNAME
+  pushSTACK(stream);
+  pushSTACK(caller);
+  fehler(file_error,GETTEXT("~: cannot output to ~"));
+}
 
 # Fehler, wenn ein Objekt kein Character ist:
 # fehler_wr_char(stream,obj);
-  nonreturning_function(local, fehler_wr_char, (object stream, object obj));
-  local void fehler_wr_char(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      pushSTACK(obj);          # TYPE-ERROR slot DATUM
-      pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(stream);
-      pushSTACK(obj);
-      fehler(type_error,
-             GETTEXT("~ is not a character, cannot be output onto ~")
-            );
-    }
+nonreturning_function(local, fehler_wr_char, (object stream, object obj));
+local void fehler_wr_char (object stream,object obj) {
+  pushSTACK(obj);          # TYPE-ERROR slot DATUM
+  pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(stream);
+  pushSTACK(obj);
+  fehler(type_error,GETTEXT("~ is not a character, cannot be output onto ~"));
+}
 
 # Fehler, wenn ein Objekt kein Integer ist:
 # fehler_wr_integer(stream,obj);
-  nonreturning_function(local, fehler_wr_integer, (object stream, object obj));
-  local void fehler_wr_integer(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      pushSTACK(obj);        # TYPE-ERROR slot DATUM
-      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(stream);
-      pushSTACK(obj);
-      fehler(type_error,
-             GETTEXT("~ is not an integer, cannot be output onto ~")
-            );
-    }
+nonreturning_function(local, fehler_wr_integer, (object stream, object obj));
+local void fehler_wr_integer (object stream,object obj) {
+  pushSTACK(obj);        # TYPE-ERROR slot DATUM
+  pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(stream);
+  pushSTACK(obj);
+  fehler(type_error,GETTEXT("~ is not an integer, cannot be output onto ~"));
+}
 
 # Fehler, wenn ein Integer nicht im passenden Bereich ist:
 # fehler_bad_integer(stream,obj);
-  nonreturning_function(local, fehler_bad_integer, (object stream, object obj));
-  local void fehler_bad_integer(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      pushSTACK(stream); # STREAM-ERROR slot STREAM
-      pushSTACK(stream);
-      pushSTACK(obj);
-      fehler(stream_error,
-             GETTEXT("integer ~ is out of range, cannot be output onto ~")
-            );
-    }
+nonreturning_function(local, fehler_bad_integer, (object stream, object obj));
+local void fehler_bad_integer (object stream,object obj) {
+  pushSTACK(stream); # STREAM-ERROR slot STREAM
+  pushSTACK(stream);
+  pushSTACK(obj);
+  fehler(stream_error,GETTEXT("integer ~ is out of range, cannot be output onto ~"));
+}
 
 # UP: Überprüft Argumente, ob sie Streams sind.
 # test_stream_args(args_pointer,argcount);
 # > args_pointer: Pointer über die Argumente
 # > argcount: Anzahl der Argumente
 # > subr_self: Aufrufer (ein SUBR)
-  local void test_stream_args (object* args_pointer, uintC argcount);
-  local void test_stream_args(args_pointer, argcount)
-    var object* args_pointer;
-    var uintC argcount;
-    {
-      dotimesC(argcount,argcount, {
-        var object next_arg = NEXT(args_pointer);
-        if (!streamp(next_arg))
-          fehler_stream(next_arg);
-      });
-    }
+local void test_stream_args (object* args_pointer, uintC argcount) {
+  dotimesC(argcount,argcount, {
+    var object next_arg = NEXT(args_pointer);
+    if (!streamp(next_arg))
+      fehler_stream(next_arg);
+  });
+}
 
 # Function: Tests whether an object is an input-stream.
 # input_stream_p(stream)
@@ -998,44 +851,36 @@ global inline bool output_stream_p (const object stream) {
 # test_input_stream(stream);
 # > stream: Stream
 # > subr_self: Aufrufer (ein SUBR)
-  #define test_input_stream(stream)  \
+#define test_input_stream(stream)  \
     if (!input_stream_p(stream)) fehler_input_stream(stream);
-  nonreturning_function(local, fehler_input_stream, (object stream));
-  local void fehler_input_stream(stream)
-    var object stream;
-    {
-      pushSTACK(stream);               # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_input_stream)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ should be an input stream")
-            );
-    }
+nonreturning_function(local, fehler_input_stream, (object stream));
+local void fehler_input_stream (object stream) {
+  pushSTACK(stream);               # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_input_stream)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ should be an input stream"));
+}
 
 # UP: Überprüft einen Output-Stream.
 # test_output_stream(stream);
 # > stream: Stream
 # > subr_self: Aufrufer (ein SUBR)
-  #define test_output_stream(stream)  \
+#define test_output_stream(stream)  \
     if (!output_stream_p(stream)) fehler_output_stream(stream);
-  nonreturning_function(local, fehler_output_stream, (object stream));
-  local void fehler_output_stream(stream)
-    var object stream;
-    {
-      pushSTACK(stream);                # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_output_stream)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ should be an output stream")
-            );
-    }
+nonreturning_function(local, fehler_output_stream, (object stream));
+local void fehler_output_stream (object stream) {
+  pushSTACK(stream);                # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_output_stream)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ should be an output stream"));
+}
 
 # UP: Überprüft Argumente, ob sie Input-Streams sind.
 # test_input_stream_args(args_pointer,argcount);
 # > args_pointer: Pointer über die Argumente
 # > argcount: Anzahl der Argumente
 # > subr_self: Aufrufer (ein SUBR)
-  #define test_input_stream_args(args_pointer,argcount)  \
+#define test_input_stream_args(args_pointer,argcount)  \
     if (argcount > 0) {                     \
       var object* pointer = (args_pointer); \
       var uintC count;                      \
@@ -1052,7 +897,7 @@ global inline bool output_stream_p (const object stream) {
 # > args_pointer: Pointer über die Argumente
 # > argcount: Anzahl der Argumente
 # > subr_self: Aufrufer (ein SUBR)
-  #define test_output_stream_args(args_pointer,argcount)  \
+#define test_output_stream_args(args_pointer,argcount)  \
     if (argcount > 0) {                     \
       var object* pointer = (args_pointer); \
       var uintC count;                      \
@@ -1075,136 +920,103 @@ global inline bool output_stream_p (const object stream) {
 # get_synonym_stream(sym)
 # > sym: Symbol, a variable
 # < ergebnis: sein Wert, ein Stream
-  #define get_synonym_stream(sym)  \
+#define get_synonym_stream(sym)  \
     (!streamp(Symbol_value(sym))           \
      ? (fehler_value_stream(sym), unbound) \
      : Symbol_value(sym))
 
 # READ-BYTE - Pseudofunktion für Synonym-Streams:
-  local object rd_by_synonym (object stream);
-  local object rd_by_synonym(stream)
-    var object stream;
-    {
-      check_SP();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return read_byte(get_synonym_stream(symbol));
-    }
+local object rd_by_synonym (object stream) {
+  check_SP();
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  return read_byte(get_synonym_stream(symbol));
+}
 
 # READ-BYTE-ARRAY - Pseudofunktion für Synonym-Streams:
-  local uintL rd_by_array_synonym (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local uintL rd_by_array_synonym(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      var object symbol = TheStream(*stream_)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
-      skipSTACK(1);
-      return result;
-    }
+local uintL rd_by_array_synonym (const object* stream_,
+                                 const object* bytearray_,
+                                 uintL start, uintL len) {
+  check_SP(); check_STACK();
+  var object symbol = TheStream(*stream_)->strm_synonym_symbol;
+  pushSTACK(get_synonym_stream(symbol));
+  var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
+  skipSTACK(1);
+  return result;
+}
 
 # WRITE-BYTE - Pseudofunktion für Synonym-Streams:
-  local void wr_by_synonym (object stream, object obj);
-  local void wr_by_synonym(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      check_SP();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      write_byte(get_synonym_stream(symbol),obj);
-    }
+local void wr_by_synonym (object stream, object obj) {
+  check_SP();
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  write_byte(get_synonym_stream(symbol),obj);
+}
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Synonym-Streams:
-  local void wr_by_array_synonym (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local void wr_by_array_synonym(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      var object symbol = TheStream(*stream_)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      write_byte_array(&STACK_0,bytearray_,start,len);
-      skipSTACK(1);
-    }
+local void wr_by_array_synonym (const object* stream_,
+                                const object* bytearray_,
+                                uintL start, uintL len) {
+  check_SP(); check_STACK();
+  var object symbol = TheStream(*stream_)->strm_synonym_symbol;
+  pushSTACK(get_synonym_stream(symbol));
+  write_byte_array(&STACK_0,bytearray_,start,len);
+  skipSTACK(1);
+}
 
 # READ-CHAR - Pseudofunktion für Synonym-Streams:
-  local object rd_ch_synonym (const object* stream_);
-  local object rd_ch_synonym(stream_)
-    var const object* stream_;
-    {
-      check_SP(); check_STACK();
-      var object stream = *stream_;
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      var object ergebnis = read_char(&STACK_0);
-      skipSTACK(1);
-      return ergebnis;
-    }
+local object rd_ch_synonym (const object* stream_) {
+  check_SP(); check_STACK();
+  var object stream = *stream_;
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  pushSTACK(get_synonym_stream(symbol));
+  var object ergebnis = read_char(&STACK_0);
+  skipSTACK(1);
+  return ergebnis;
+}
 
 # PEEK-CHAR - Pseudofunktion für Synonym-Streams:
-  local object pk_ch_synonym (const object* stream_);
-  local object pk_ch_synonym(stream_)
-    var const object* stream_;
-    {
-      check_SP(); check_STACK();
-      var object stream = *stream_;
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      var object ergebnis = peek_char(&STACK_0);
-      skipSTACK(1);
-      return ergebnis;
-    }
+local object pk_ch_synonym (const object* stream_) {
+  check_SP(); check_STACK();
+  var object stream = *stream_;
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  pushSTACK(get_synonym_stream(symbol));
+  var object ergebnis = peek_char(&STACK_0);
+  skipSTACK(1);
+  return ergebnis;
+}
 
 # READ-CHAR-ARRAY - Pseudofunktion für Synonym-Streams:
-  local uintL rd_ch_array_synonym (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local uintL rd_ch_array_synonym(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      var object symbol = TheStream(*stream_)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      var uintL result = read_char_array(&STACK_0,chararray_,start,len);
-      skipSTACK(1);
-      return result;
-    }
+local uintL rd_ch_array_synonym (const object* stream_,
+                                 const object* chararray_,
+                                 uintL start, uintL len) {
+  check_SP(); check_STACK();
+  var object symbol = TheStream(*stream_)->strm_synonym_symbol;
+  pushSTACK(get_synonym_stream(symbol));
+  var uintL result = read_char_array(&STACK_0,chararray_,start,len);
+  skipSTACK(1);
+  return result;
+}
 
 # WRITE-CHAR - Pseudofunktion für Synonym-Streams:
-  local void wr_ch_synonym (const object* stream_, object obj);
-  local void wr_ch_synonym(stream_,obj)
-    var const object* stream_;
-    var object obj;
-    {
-      check_SP(); check_STACK();
-      var object stream = *stream_;
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      write_char(&STACK_0,obj);
-      skipSTACK(1);
-    }
+local void wr_ch_synonym (const object* stream_, object obj) {
+  check_SP(); check_STACK();
+  var object stream = *stream_;
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  pushSTACK(get_synonym_stream(symbol));
+  write_char(&STACK_0,obj);
+  skipSTACK(1);
+}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Synonym-Streams:
-  local void wr_ch_array_synonym (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_synonym(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      var object symbol = TheStream(*stream_)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      write_char_array(&STACK_0,chararray_,start,len);
-      skipSTACK(1);
-      # No need to update wr_ch_lpos here. (See get_line_position.)
-    }
+local void wr_ch_array_synonym (const object* stream_,
+                                const object* chararray_,
+                                uintL start, uintL len) {
+  check_SP(); check_STACK();
+  var object symbol = TheStream(*stream_)->strm_synonym_symbol;
+  pushSTACK(get_synonym_stream(symbol));
+  write_char_array(&STACK_0,chararray_,start,len);
+  skipSTACK(1);
+  # No need to update wr_ch_lpos here. (See get_line_position.)
+}
 
 # Schließt einen Synonym-Stream.
 # close_synonym(stream);
@@ -1212,15 +1024,12 @@ global inline bool output_stream_p (const object stream) {
 #ifdef X3J13_014
   #define close_synonym(stream)
 #else
-  local void close_synonym (object stream);
-  local void close_synonym(stream)
-    var object stream;
-    {
-      check_SP(); check_STACK();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      funcall(S(close),1);
-    }
+  local void close_synonym (object stream) {
+    check_SP(); check_STACK();
+    var object symbol = TheStream(stream)->strm_synonym_symbol;
+    pushSTACK(get_synonym_stream(symbol));
+    funcall(S(close),1);
+  }
 #endif
 
 # Reads a line of characters from a synonym-stream.
@@ -1230,18 +1039,14 @@ global inline bool output_stream_p (const object stream) {
 # < buffer: contains the read characters, excluding the terminating #\Newline
 # < result: true is EOF was seen before newline, else false
 # can trigger GC
-  local bool read_line_synonym (object stream, const object* buffer_);
-  local bool read_line_synonym(stream,buffer_)
-    var object stream;
-    var const object* buffer_;
-    {
-      check_SP(); check_STACK();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      var bool eofp = read_line(&STACK_0,buffer_);
-      skipSTACK(1);
-      return eofp;
-    }
+local bool read_line_synonym (object stream, const object* buffer_) {
+  check_SP(); check_STACK();
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  pushSTACK(get_synonym_stream(symbol));
+  var bool eofp = read_line(&STACK_0,buffer_);
+  skipSTACK(1);
+  return eofp;
+}
 
 # Stellt fest, ob ein Synonym-Stream ein Zeichen verfügbar hat.
 # listen_char_synonym(stream)
@@ -1250,28 +1055,22 @@ global inline bool output_stream_p (const object stream) {
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_char_synonym (object stream);
-  local signean listen_char_synonym(stream)
-    var object stream;
-    {
-      check_SP();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return listen_char(get_synonym_stream(symbol));
-    }
+local signean listen_char_synonym (object stream) {
+  check_SP();
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  return listen_char(get_synonym_stream(symbol));
+}
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Synonym-Stream.
 # clear_input_synonym(stream)
 # > stream: Synonym-Stream
 # < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  local bool clear_input_synonym (object stream);
-  local bool clear_input_synonym(stream)
-    var object stream;
-    {
-      check_SP();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return clear_input(get_synonym_stream(symbol));
-    }
+local bool clear_input_synonym (object stream) {
+  check_SP();
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  return clear_input(get_synonym_stream(symbol));
+}
 
 # Stellt fest, ob ein Synonym-Stream ein Byte verfügbar hat.
 # listen_byte_synonym(stream)
@@ -1280,80 +1079,65 @@ global inline bool output_stream_p (const object stream) {
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no byte is available, but not because of EOF
 # can trigger GC
-  local signean listen_byte_synonym (object stream);
-  local signean listen_byte_synonym(stream)
-    var object stream;
-    {
-      check_SP();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return listen_byte(get_synonym_stream(symbol));
-    }
+local signean listen_byte_synonym (object stream) {
+  check_SP();
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  return listen_byte(get_synonym_stream(symbol));
+}
 
 # UP: Wartenden Output eines Synonym-Stream ans Ziel bringen.
 # finish_output_synonym(stream);
 # > stream: Synonym-Stream
 # can trigger GC
-  local void finish_output_synonym (object stream);
-  local void finish_output_synonym(stream)
-    var object stream;
-    {
-      check_SP();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      finish_output(get_synonym_stream(symbol));
-    }
+local void finish_output_synonym (object stream) {
+  check_SP();
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  finish_output(get_synonym_stream(symbol));
+}
 
 # UP: Wartenden Output eines Synonym-Stream ans Ziel bringen.
 # force_output_synonym(stream);
 # > stream: Synonym-Stream
 # can trigger GC
-  local void force_output_synonym (object stream);
-  local void force_output_synonym(stream)
-    var object stream;
-    {
-      check_SP();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      force_output(get_synonym_stream(symbol));
-    }
+local void force_output_synonym (object stream) {
+  check_SP();
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  force_output(get_synonym_stream(symbol));
+}
 
 # UP: Löscht den wartenden Output eines Synonym-Stream.
 # clear_output_synonym(stream);
 # > stream: Synonym-Stream
 # can trigger GC
-  local void clear_output_synonym (object stream);
-  local void clear_output_synonym(stream)
-    var object stream;
-    {
-      check_SP();
-      var object symbol = TheStream(stream)->strm_synonym_symbol;
-      clear_output(get_synonym_stream(symbol));
-    }
+local void clear_output_synonym (object stream) {
+  check_SP();
+  var object symbol = TheStream(stream)->strm_synonym_symbol;
+  clear_output(get_synonym_stream(symbol));
+}
 
 # Liefert einen Synonym-Stream zu einem Symbol.
 # make_synonym_stream(symbol)
 # > symbol : Symbol
 # < ergebnis : neuer Synonym-Stream
 # can trigger GC
-  local object make_synonym_stream (object symbol);
-  local object make_synonym_stream(symbol)
-    var object symbol;
-    {
-      pushSTACK(symbol); # Symbol retten
-      var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(strmflags_open_B,strmtype_synonym,strm_len+1,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_synonym);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_synonym);
-      TheStream(stream)->strm_wr_by = P(wr_by_synonym);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_synonym);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_synonym);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_synonym);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_synonym);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_synonym);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_synonym);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_synonym_symbol = popSTACK();
-      return stream;
-    }
+local object make_synonym_stream (object symbol) {
+  pushSTACK(symbol); # Symbol retten
+  var object stream = # neuer Stream, alle Operationen erlaubt
+    allocate_stream(strmflags_open_B,strmtype_synonym,strm_len+1,0);
+  TheStream(stream)->strm_rd_by = P(rd_by_synonym);
+  TheStream(stream)->strm_rd_by_array = P(rd_by_array_synonym);
+  TheStream(stream)->strm_wr_by = P(wr_by_synonym);
+  TheStream(stream)->strm_wr_by_array = P(wr_by_array_synonym);
+  TheStream(stream)->strm_rd_ch = P(rd_ch_synonym);
+  TheStream(stream)->strm_pk_ch = P(pk_ch_synonym);
+  TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_synonym);
+  TheStream(stream)->strm_rd_ch_last = NIL;
+  TheStream(stream)->strm_wr_ch = P(wr_ch_synonym);
+  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_synonym);
+  TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+  TheStream(stream)->strm_synonym_symbol = popSTACK();
+  return stream;
+}
 
 LISPFUNN(make_synonym_stream,1)
 # (MAKE-SYNONYM-STREAM symbol), CLTL S. 329
@@ -1363,9 +1147,7 @@ LISPFUNN(make_synonym_stream,1)
       pushSTACK(arg);       # TYPE-ERROR slot DATUM
       pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument should be a symbol, not ~")
-            );
+      fehler(type_error,GETTEXT("~: argument should be a symbol, not ~"));
     }
     value1 = make_synonym_stream(arg); mv_count=1;
   }
@@ -1376,9 +1158,7 @@ LISPFUNN(synonym_stream_p,1)
     var object arg = popSTACK();
     value1 = (builtin_stream_p(arg)
               && (TheStream(arg)->strmtype == strmtype_synonym)
-              ? T
-              : NIL
-             );
+              ? T : NIL);
     mv_count=1;
   }
 
@@ -1401,191 +1181,158 @@ LISPFUNN(synonym_stream_symbol,1)
 # ================
 
 # Zusätzliche Komponenten:
-  # define strm_broad_list  strm_other[0] # Liste von Streams
+  # define strm_broad_list  strm_other[0] # list of streams
 
 # WRITE-BYTE - Pseudofunktion für Broadcast-Streams:
-  local void wr_by_broad (object stream, object obj);
-  local void wr_by_broad(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(obj);
-      {
-        var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
-        # obj auf jeden Stream aus der Liste ausgeben:
-        while (consp(streamlist)) {
-          pushSTACK(Cdr(streamlist)); # restliche Streams
-          write_byte(Car(streamlist),STACK_1); # obj ausgeben
-          streamlist = popSTACK();
-        }
-      }
-      skipSTACK(1);
+local void wr_by_broad (object stream, object obj) {
+  check_SP(); check_STACK();
+  pushSTACK(obj);
+  {
+    var object streamlist = TheStream(stream)->strm_broad_list; # list of streams
+    # obj auf jeden Stream aus der Liste ausgeben:
+    while (consp(streamlist)) {
+      pushSTACK(Cdr(streamlist)); # restliche Streams
+      write_byte(Car(streamlist),STACK_1); # obj ausgeben
+      streamlist = popSTACK();
     }
+  }
+  skipSTACK(1);
+}
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Broadcast-Streams:
-  local void wr_by_array_broad (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local void wr_by_array_broad(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
-      var object streamlist;
-      while (streamlist = STACK_0, consp(streamlist)) {
-        STACK_0 = Cdr(streamlist);
-        pushSTACK(Car(streamlist));
-        write_byte_array(&STACK_0,bytearray_,start,len);
-        skipSTACK(1);
-      }
-      skipSTACK(1);
-    }
+local void wr_by_array_broad (const object* stream_, const object* bytearray_,
+                              uintL start, uintL len) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
+  var object streamlist;
+  while (streamlist = STACK_0, consp(streamlist)) {
+    STACK_0 = Cdr(streamlist);
+    pushSTACK(Car(streamlist));
+    write_byte_array(&STACK_0,bytearray_,start,len);
+    skipSTACK(1);
+  }
+  skipSTACK(1);
+}
 
 # WRITE-CHAR - Pseudofunktion für Broadcast-Streams:
-  local void wr_ch_broad (const object* stream_, object obj);
-  local void wr_ch_broad(stream_,obj)
-    var const object* stream_;
-    var object obj;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(obj);
-      pushSTACK(NIL); # dummy
-      pushSTACK(TheStream(*stream_)->strm_broad_list); # Liste von Streams
-      # obj auf jeden Stream aus der Liste ausgeben:
-      while (mconsp(STACK_0)) {
-        # Stackaufbau: obj, dummy, streamlistr.
-        STACK_1 = Car(STACK_0); # ein Stream aus der Liste
-        write_char(&STACK_1,STACK_2); # obj ausgeben
-        STACK_0 = Cdr(STACK_0);
-      }
-      skipSTACK(3);
-    }
+local void wr_ch_broad (const object* stream_, object obj) {
+  check_SP(); check_STACK();
+  pushSTACK(obj);
+  pushSTACK(NIL); # dummy
+  pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
+  # obj auf jeden Stream aus der Liste ausgeben:
+  while (mconsp(STACK_0)) {
+    # Stackaufbau: obj, dummy, streamlistr.
+    STACK_1 = Car(STACK_0); # ein Stream aus der Liste
+    write_char(&STACK_1,STACK_2); # obj ausgeben
+    STACK_0 = Cdr(STACK_0);
+  }
+  skipSTACK(3);
+}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Broadcast-Streams:
-  local void wr_ch_array_broad (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_broad(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
-      pushSTACK(NIL); # dummy
-      var object streamlist;
-      while (streamlist = STACK_1, consp(streamlist)) {
-        STACK_1 = Cdr(streamlist);
-        STACK_0 = Car(streamlist);
-        write_char_array(&STACK_0,chararray_,start,len);
-      }
-      skipSTACK(2);
-      # No need to update wr_ch_lpos here. (See get_line_position.)
-    }
+local void wr_ch_array_broad (const object* stream_, const object* chararray_,
+                              uintL start, uintL len) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
+  pushSTACK(NIL); # dummy
+  var object streamlist;
+  while (streamlist = STACK_1, consp(streamlist)) {
+    STACK_1 = Cdr(streamlist);
+    STACK_0 = Car(streamlist);
+    write_char_array(&STACK_0,chararray_,start,len);
+  }
+  skipSTACK(2);
+  # No need to update wr_ch_lpos here. (See get_line_position.)
+}
 
 # UP: Bringt den wartenden Output eines Broadcast-Stream ans Ziel.
 # finish_output_broad(stream);
 # > stream: Broadcast-Stream
 # can trigger GC
-  local void finish_output_broad (object stream);
-  local void finish_output_broad(stream)
-    var object stream;
-    {
-      check_SP(); check_STACK();
-      var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
-      # Jeden Stream aus der Liste einzeln behandeln:
-      while (consp(streamlist)) {
-        pushSTACK(Cdr(streamlist)); # restliche Streams
-        finish_output(Car(streamlist));
-        streamlist = popSTACK();
-      }
-    }
+local void finish_output_broad (object stream) {
+  check_SP(); check_STACK();
+  var object streamlist = TheStream(stream)->strm_broad_list; # list of streams
+  # Jeden Stream aus der Liste einzeln behandeln:
+  while (consp(streamlist)) {
+    pushSTACK(Cdr(streamlist)); # restliche Streams
+    finish_output(Car(streamlist));
+    streamlist = popSTACK();
+  }
+}
 
 # UP: Bringt den wartenden Output eines Broadcast-Stream ans Ziel.
 # force_output_broad(stream);
 # > stream: Broadcast-Stream
 # can trigger GC
-  local void force_output_broad (object stream);
-  local void force_output_broad(stream)
-    var object stream;
-    {
-      check_SP(); check_STACK();
-      var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
-      # Jeden Stream aus der Liste einzeln behandeln:
-      while (consp(streamlist)) {
-        pushSTACK(Cdr(streamlist)); # restliche Streams
-        force_output(Car(streamlist));
-        streamlist = popSTACK();
-      }
-    }
+local void force_output_broad (object stream) {
+  check_SP(); check_STACK();
+  var object streamlist = TheStream(stream)->strm_broad_list; # list of streams
+  # Jeden Stream aus der Liste einzeln behandeln:
+  while (consp(streamlist)) {
+    pushSTACK(Cdr(streamlist)); # restliche Streams
+    force_output(Car(streamlist));
+    streamlist = popSTACK();
+  }
+}
 
 # UP: Löscht den wartenden Output eines Broadcast-Stream.
 # clear_output_broad(stream);
 # > stream: Broadcast-Stream
 # can trigger GC
-  local void clear_output_broad (object stream);
-  local void clear_output_broad(stream)
-    var object stream;
-    {
-      check_SP(); check_STACK();
-      var object streamlist = TheStream(stream)->strm_broad_list; # Liste von Streams
-      # Jeden Stream aus der Liste einzeln behandeln:
-      while (consp(streamlist)) {
-        pushSTACK(Cdr(streamlist)); # restliche Streams
-        clear_output(Car(streamlist));
-        streamlist = popSTACK();
-      }
-    }
+local void clear_output_broad (object stream) {
+  check_SP(); check_STACK();
+  var object streamlist = TheStream(stream)->strm_broad_list; # list of streams
+  # Jeden Stream aus der Liste einzeln behandeln:
+  while (consp(streamlist)) {
+    pushSTACK(Cdr(streamlist)); # restliche Streams
+    clear_output(Car(streamlist));
+    streamlist = popSTACK();
+  }
+}
 
 # Liefert einen Broadcast-Stream zu einer Streamliste.
 # make_broadcast_stream(list)
-# > list : Liste von Streams
+# > list : list of streams
 # < ergebnis : Broadcast-Stream
 # Die Liste list wird dabei zerstört.
 # can trigger GC
-  local object make_broadcast_stream (object list);
-  local object make_broadcast_stream(list)
-    var object list;
-    {
-      pushSTACK(list); # list retten
-      var object stream = # neuer Stream, nur WRITEs erlaubt
-        allocate_stream(strmflags_wr_B,strmtype_broad,strm_len+1,0);
-      list = popSTACK();
-      TheStream(stream)->strm_rd_by = P(rd_by_error);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-      TheStream(stream)->strm_wr_by = P(wr_by_broad);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_broad);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_broad);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_broad);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_broad_list = list;
-      return stream;
-    }
+local object make_broadcast_stream (object list) {
+  pushSTACK(list); # list retten
+  var object stream = # neuer Stream, nur WRITEs erlaubt
+    allocate_stream(strmflags_wr_B,strmtype_broad,strm_len+1,0);
+  list = popSTACK();
+  TheStream(stream)->strm_rd_by = P(rd_by_error);
+  TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+  TheStream(stream)->strm_wr_by = P(wr_by_broad);
+  TheStream(stream)->strm_wr_by_array = P(wr_by_array_broad);
+  TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+  TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+  TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
+  TheStream(stream)->strm_rd_ch_last = NIL;
+  TheStream(stream)->strm_wr_ch = P(wr_ch_broad);
+  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_broad);
+  TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+  TheStream(stream)->strm_broad_list = list;
+  return stream;
+}
 
 # Liefert einen Broadcast-Stream zum Stream stream.
 # make_broadcast1_stream(stream)
 # > stream : Stream
 # < ergebnis : Broadcast-Stream
 # can trigger GC
-  global object make_broadcast1_stream (object stream);
-  global object make_broadcast1_stream(oldstream)
-    var object oldstream;
-    {
-      pushSTACK(oldstream);
-      # oldstream in eine einelementige Liste packen:
-      var object new_cons = allocate_cons();
-      Car(new_cons) = STACK_0;
-      var object stream = make_broadcast_stream(new_cons); # neuer Stream
-      oldstream = popSTACK();
-      # Line-Position übernehmen:
-      TheStream(stream)->strm_wr_ch_lpos = TheStream(oldstream)->strm_wr_ch_lpos;
-      return stream;
-    }
+global object make_broadcast1_stream (object oldstream) {
+  pushSTACK(oldstream);
+  # oldstream in eine einelementige Liste packen:
+  var object new_cons = allocate_cons();
+  Car(new_cons) = STACK_0;
+  var object stream = make_broadcast_stream(new_cons); # neuer Stream
+  oldstream = popSTACK();
+  # Line-Position übernehmen:
+  TheStream(stream)->strm_wr_ch_lpos = TheStream(oldstream)->strm_wr_ch_lpos;
+  return stream;
+}
 
 LISPFUN(make_broadcast_stream,0,0,rest,nokey,0,NIL)
 # (MAKE-BROADCAST-STREAM {stream}), CLTL S. 329
@@ -1633,133 +1380,116 @@ LISPFUNN(broadcast_stream_streams,1)
   #define strm_concat_totallist  strm_other[1]  # list of all streams
 
 # READ-BYTE - Pseudofunktion für Concatenated-Streams:
-  local object rd_by_concat (object stream);
-  local object rd_by_concat(stream)
-    var object stream;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(stream);
-      var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-      var object ergebnis;
-      while (consp(streamlist)) {
-        ergebnis = read_byte(Car(streamlist)); # Integer lesen
-        if (!eq(ergebnis,eof_value)) # nicht EOF ?
-          goto OK;
-        # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
-        stream = STACK_0;
-        streamlist =
-        TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
-      }
-      # alle Streams verbraucht -> liefere EOF:
-      ergebnis = eof_value;
-     OK: # ergebnis fertig
-      skipSTACK(1);
-      return ergebnis;
-    }
+local object rd_by_concat (object stream) {
+  check_SP(); check_STACK();
+  pushSTACK(stream);
+  var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
+  var object ergebnis;
+  while (consp(streamlist)) {
+    ergebnis = read_byte(Car(streamlist)); # Integer lesen
+    if (!eq(ergebnis,eof_value)) # nicht EOF ?
+      goto OK;
+    # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
+    stream = STACK_0;
+    streamlist =
+      TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+  }
+  # alle Streams verbraucht -> liefere EOF:
+  ergebnis = eof_value;
+ OK: # ergebnis fertig
+  skipSTACK(1);
+  return ergebnis;
+}
 
 # READ-BYTE-ARRAY - Pseudofunktion für Concatenated-Streams:
-  local uintL rd_by_array_concat (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local uintL rd_by_array_concat(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      var uintL result = 0;
-      var object stream = *stream_;
-      var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
-      loop {
-        if (atomp(streamlist))
-          break;
-        pushSTACK(Car(streamlist));
-        var uintL count = read_byte_array(&STACK_0,bytearray_,start,len);
-        skipSTACK(1);
-        result += count;
-        start += count; len -= count;
-        if (len == 0)
-          break;
-        # EOF reached -> remove emptied stream from the list:
-        stream = *stream_;
-        streamlist =
-        TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
-      }
-      return result;
-    }
+local uintL rd_by_array_concat (const object* stream_,
+                                const object* bytearray_,
+                                uintL start, uintL len) {
+  check_SP(); check_STACK();
+  var uintL result = 0;
+  var object stream = *stream_;
+  var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
+  loop {
+    if (atomp(streamlist))
+      break;
+    pushSTACK(Car(streamlist));
+    var uintL count = read_byte_array(&STACK_0,bytearray_,start,len);
+    skipSTACK(1);
+    result += count;
+    start += count; len -= count;
+    if (len == 0)
+      break;
+    # EOF reached -> remove emptied stream from the list:
+    stream = *stream_;
+    streamlist =
+      TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+  }
+  return result;
+}
 
 # READ-CHAR - Pseudofunktion für Concatenated-Streams:
-  local object rd_ch_concat (const object* stream_);
-  local object rd_ch_concat(stream_)
-    var const object* stream_;
-    {
-      check_SP(); check_STACK();
-      var object streamlist = TheStream(*stream_)->strm_concat_list; # Liste von Streams
-      while (consp(streamlist)) {
-        pushSTACK(Car(streamlist));
-        var object ergebnis = read_char(&STACK_0); # Character lesen
-        skipSTACK(1);
-        if (!eq(ergebnis,eof_value))
-          return ergebnis;
-        # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
-        var object stream = *stream_;
-        streamlist =
-        TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
-      }
-      # alle Streams verbraucht -> liefere EOF:
-      return eof_value;
-    }
+local object rd_ch_concat (const object* stream_) {
+  check_SP(); check_STACK();
+  var object streamlist = TheStream(*stream_)->strm_concat_list; # list of streams
+  while (consp(streamlist)) {
+    pushSTACK(Car(streamlist));
+    var object ergebnis = read_char(&STACK_0); # Character lesen
+    skipSTACK(1);
+    if (!eq(ergebnis,eof_value))
+      return ergebnis;
+    # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
+    var object stream = *stream_;
+    streamlist =
+      TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+  }
+  # alle Streams verbraucht -> liefere EOF:
+  return eof_value;
+}
 
 # PEEK-CHAR - Pseudofunktion für Concatenated-Streams:
-  local object pk_ch_concat (const object* stream_);
-  local object pk_ch_concat(stream_)
-    var const object* stream_;
-    {
-      check_SP(); check_STACK();
-      var object streamlist = TheStream(*stream_)->strm_concat_list; # Liste von Streams
-      while (consp(streamlist)) {
-        pushSTACK(Car(streamlist));
-        var object ergebnis = peek_char(&STACK_0); # Character lesen
-        skipSTACK(1);
-        if (!eq(ergebnis,eof_value))
-          return ergebnis;
-        # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
-        var object stream = *stream_;
-        streamlist =
-        TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
-      }
-      # alle Streams verbraucht -> liefere EOF:
-      return eof_value;
-    }
+local object pk_ch_concat (const object* stream_) {
+  check_SP(); check_STACK();
+  var object streamlist = TheStream(*stream_)->strm_concat_list; # list of streams
+  while (consp(streamlist)) {
+    pushSTACK(Car(streamlist));
+    var object ergebnis = peek_char(&STACK_0); # Character lesen
+    skipSTACK(1);
+    if (!eq(ergebnis,eof_value))
+      return ergebnis;
+    # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
+    var object stream = *stream_;
+    streamlist =
+      TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+  }
+  # alle Streams verbraucht -> liefere EOF:
+  return eof_value;
+}
 
 # READ-CHAR-ARRAY - Pseudofunktion für Concatenated-Streams:
-  local uintL rd_ch_array_concat (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local uintL rd_ch_array_concat(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      var uintL result = 0;
-      var object stream = *stream_;
-      var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
-      loop {
-        if (atomp(streamlist))
-          break;
-        pushSTACK(Car(streamlist));
-        var uintL count = read_char_array(&STACK_0,chararray_,start,len);
-        skipSTACK(1);
-        result += count;
-        start += count; len -= count;
-        if (len == 0)
-          break;
-        # EOF reached -> remove emptied stream from the list:
-        stream = *stream_;
-        streamlist =
-        TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
-      }
-      return result;
-    }
+local uintL rd_ch_array_concat (const object* stream_,
+                                const object* chararray_,
+                                uintL start, uintL len) {
+  check_SP(); check_STACK();
+  var uintL result = 0;
+  var object stream = *stream_;
+  var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
+  loop {
+    if (atomp(streamlist))
+      break;
+    pushSTACK(Car(streamlist));
+    var uintL count = read_char_array(&STACK_0,chararray_,start,len);
+    skipSTACK(1);
+    result += count;
+    start += count; len -= count;
+    if (len == 0)
+      break;
+    # EOF reached -> remove emptied stream from the list:
+    stream = *stream_;
+    streamlist =
+      TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+  }
+  return result;
+}
 
 # Stellt fest, ob ein Concatenated-Stream ein Zeichen verfügbar hat.
 # listen_char_concat(stream)
@@ -1768,28 +1498,25 @@ LISPFUNN(broadcast_stream_streams,1)
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_char_concat (object stream);
-  local signean listen_char_concat(stream)
-    var object stream;
-    {
-      pushSTACK(stream);
-      var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-      var signean ergebnis;
-      while (consp(streamlist)) {
-        ergebnis = listen_char(Car(streamlist));
-        if (!ls_eof_p(ergebnis)) # nicht EOF ?
-          goto OK;
-        # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
-        stream = STACK_0;
-        streamlist =
-        TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
-      }
-      # alle Streams verbraucht -> liefere EOF:
-      ergebnis = ls_eof;
-     OK: # ergebnis fertig
-      skipSTACK(1);
-      return ergebnis;
-    }
+local signean listen_char_concat (object stream) {
+  pushSTACK(stream);
+  var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
+  var signean ergebnis;
+  while (consp(streamlist)) {
+    ergebnis = listen_char(Car(streamlist));
+    if (!ls_eof_p(ergebnis)) # nicht EOF ?
+      goto OK;
+    # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
+    stream = STACK_0;
+    streamlist =
+      TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+  }
+  # alle Streams verbraucht -> liefere EOF:
+  ergebnis = ls_eof;
+ OK: # ergebnis fertig
+  skipSTACK(1);
+  return ergebnis;
+}
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem
 # Concatenated-Stream.
@@ -1797,20 +1524,17 @@ LISPFUNN(broadcast_stream_streams,1)
 # > stream: Concatenated-Stream
 # < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  local bool clear_input_concat (object stream);
-  local bool clear_input_concat(stream)
-    var object stream;
-    {
-      var bool ergebnis = false; # noch kein Input gelöscht
-      # alle Streams einzeln behandeln:
-      var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-      while (consp(streamlist)) {
-        pushSTACK(Cdr(streamlist)); # restliche Streamliste
-        ergebnis |= clear_input(Car(streamlist)); # allen Input des Teilstreams löschen
-        streamlist = popSTACK();
-      }
-      return ergebnis;
-    }
+local bool clear_input_concat (object stream) {
+  var bool ergebnis = false; # noch kein Input gelöscht
+  # alle Streams einzeln behandeln:
+  var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
+  while (consp(streamlist)) {
+    pushSTACK(Cdr(streamlist)); # restliche Streamliste
+    ergebnis |= clear_input(Car(streamlist)); # allen Input des Teilstreams löschen
+    streamlist = popSTACK();
+  }
+  return ergebnis;
+}
 
 # Stellt fest, ob ein Concatenated-Stream ein Byte verfügbar hat.
 # listen_byte_concat(stream)
@@ -1819,57 +1543,51 @@ LISPFUNN(broadcast_stream_streams,1)
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no byte is available, but not because of EOF
 # can trigger GC
-  local signean listen_byte_concat (object stream);
-  local signean listen_byte_concat(stream)
-    var object stream;
-    {
-      pushSTACK(stream);
-      var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-      var signean ergebnis;
-      while (consp(streamlist)) {
-        ergebnis = listen_byte(Car(streamlist));
-        if (!ls_eof_p(ergebnis)) # nicht EOF ?
-          goto OK;
-        # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
-        stream = STACK_0;
-        streamlist =
-        TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
-      }
-      # alle Streams verbraucht -> liefere EOF:
-      ergebnis = ls_eof;
-     OK: # ergebnis fertig
-      skipSTACK(1);
-      return ergebnis;
-    }
+local signean listen_byte_concat (object stream) {
+  pushSTACK(stream);
+  var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
+  var signean ergebnis;
+  while (consp(streamlist)) {
+    ergebnis = listen_byte(Car(streamlist));
+    if (!ls_eof_p(ergebnis)) # nicht EOF ?
+      goto OK;
+    # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
+    stream = STACK_0;
+    streamlist =
+      TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+  }
+  # alle Streams verbraucht -> liefere EOF:
+  ergebnis = ls_eof;
+ OK: # ergebnis fertig
+  skipSTACK(1);
+  return ergebnis;
+}
 
 # Liefert einen Concatenated-Stream zu einer Streamliste.
 # make_concatenated_stream(list)
-# > list : Liste von Streams
+# > list : list of streams
 # < ergebnis : Concatenated-Stream
 # Die Liste list wird dabei zerstört.
 # can trigger GC
-  local object make_concatenated_stream (object list);
-  local object make_concatenated_stream(list)
-    var object list;
-    {
-      pushSTACK(list); # list retten
-      var object stream = # neuer Stream, nur READs erlaubt
-        allocate_stream(strmflags_rd_B,strmtype_concat,strm_len+2,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_concat);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_concat);
-      TheStream(stream)->strm_wr_by = P(wr_by_error);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_concat);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_concat);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_concat);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_concat_list =
-      TheStream(stream)->strm_concat_totallist = popSTACK();
-      return stream;
-    }
+local object make_concatenated_stream (object list) {
+  pushSTACK(list); # list retten
+  var object stream = # neuer Stream, nur READs erlaubt
+    allocate_stream(strmflags_rd_B,strmtype_concat,strm_len+2,0);
+  TheStream(stream)->strm_rd_by = P(rd_by_concat);
+  TheStream(stream)->strm_rd_by_array = P(rd_by_array_concat);
+  TheStream(stream)->strm_wr_by = P(wr_by_error);
+  TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+  TheStream(stream)->strm_rd_ch = P(rd_ch_concat);
+  TheStream(stream)->strm_pk_ch = P(pk_ch_concat);
+  TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_concat);
+  TheStream(stream)->strm_rd_ch_last = NIL;
+  TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
+  TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+  TheStream(stream)->strm_concat_list =
+    TheStream(stream)->strm_concat_totallist = popSTACK();
+  return stream;
+}
 
 LISPFUN(make_concatenated_stream,0,0,rest,nokey,0,NIL)
 # (MAKE-CONCATENATED-STREAM {stream}), CLTL S. 329
@@ -1918,55 +1636,37 @@ LISPFUNN(concatenated_stream_streams,1)
   #define strm_twoway_output  strm_other[1]  # Stream für Output
 
 # WRITE-BYTE - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_by_twoway (object stream, object obj);
-  local void wr_by_twoway(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      check_SP();
-      write_byte(TheStream(stream)->strm_twoway_output,obj);
-    }
+local void wr_by_twoway (object stream, object obj) {
+  check_SP();
+  write_byte(TheStream(stream)->strm_twoway_output,obj);
+}
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_by_array_twoway (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local void wr_by_array_twoway(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_output);
-      write_byte_array(&STACK_0,bytearray_,start,len);
-      skipSTACK(1);
-    }
+local void wr_by_array_twoway (const object* stream_, const object* bytearray_,
+                               uintL start, uintL len) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_output);
+  write_byte_array(&STACK_0,bytearray_,start,len);
+  skipSTACK(1);
+}
 
 # WRITE-CHAR - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_ch_twoway (const object* stream_, object obj);
-  local void wr_ch_twoway(stream_,obj)
-    var const object* stream_;
-    var object obj;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_output);
-      write_char(&STACK_0,obj);
-      skipSTACK(1);
-    }
+local void wr_ch_twoway (const object* stream_, object obj) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_output);
+  write_char(&STACK_0,obj);
+  skipSTACK(1);
+}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_ch_array_twoway (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_twoway(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_output);
-      write_char_array(&STACK_0,chararray_,start,len);
-      skipSTACK(1);
-      # No need to update wr_ch_lpos here. (See get_line_position.)
-    }
+local void wr_ch_array_twoway (const object* stream_, const object* chararray_,
+                               uintL start, uintL len) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_output);
+  write_char_array(&STACK_0,chararray_,start,len);
+  skipSTACK(1);
+  # No need to update wr_ch_lpos here. (See get_line_position.)
+}
 
 # Stellt fest, ob ein Two-Way- oder Echo-Stream ein Zeichen verfügbar hat.
 # listen_char_twoway(stream)
@@ -1975,13 +1675,10 @@ LISPFUNN(concatenated_stream_streams,1)
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_char_twoway (object stream);
-  local signean listen_char_twoway(stream)
-    var object stream;
-    {
-      check_SP();
-      return listen_char(TheStream(stream)->strm_twoway_input);
-    }
+local signean listen_char_twoway (object stream) {
+  check_SP();
+  return listen_char(TheStream(stream)->strm_twoway_input);
+}
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Two-Way-
 # oder Echo-Stream.
@@ -1989,13 +1686,10 @@ LISPFUNN(concatenated_stream_streams,1)
 # > stream: Two-Way- oder Echo-Stream
 # < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  local bool clear_input_twoway (object stream);
-  local bool clear_input_twoway(stream)
-    var object stream;
-    {
-      check_SP();
-      return clear_input(TheStream(stream)->strm_twoway_input);
-    }
+local bool clear_input_twoway (object stream) {
+  check_SP();
+  return clear_input(TheStream(stream)->strm_twoway_input);
+}
 
 # Stellt fest, ob ein Two-Way- oder Echo-Stream ein Byte verfügbar hat.
 # listen_byte_twoway(stream)
@@ -2004,116 +1698,86 @@ LISPFUNN(concatenated_stream_streams,1)
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no byte is available, but not because of EOF
 # can trigger GC
-  local signean listen_byte_twoway (object stream);
-  local signean listen_byte_twoway(stream)
-    var object stream;
-    {
-      check_SP();
-      return listen_byte(TheStream(stream)->strm_twoway_input);
-    }
+local signean listen_byte_twoway (object stream) {
+  check_SP();
+  return listen_byte(TheStream(stream)->strm_twoway_input);
+}
 
 # UP: Bringt den wartenden Output eines Two-Way- oder Echo-Stream ans Ziel.
 # finish_output_twoway(stream);
 # > stream: Two-Way- oder Echo-Stream
 # can trigger GC
-  local void finish_output_twoway (object stream);
-  local void finish_output_twoway(stream)
-    var object stream;
-    {
-      check_SP();
-      finish_output(TheStream(stream)->strm_twoway_output);
-    }
+local void finish_output_twoway (object stream) {
+  check_SP();
+  finish_output(TheStream(stream)->strm_twoway_output);
+}
 
 # UP: Bringt den wartenden Output eines Two-Way- oder Echo-Stream ans Ziel.
 # force_output_twoway(stream);
 # > stream: Two-Way- oder Echo-Stream
 # can trigger GC
-  local void force_output_twoway (object stream);
-  local void force_output_twoway(stream)
-    var object stream;
-    {
-      check_SP();
-      force_output(TheStream(stream)->strm_twoway_output);
-    }
+local void force_output_twoway (object stream) {
+  check_SP();
+  force_output(TheStream(stream)->strm_twoway_output);
+}
 
 # UP: Löscht den wartenden Output eines Two-Way- oder Echo-Stream.
 # clear_output_twoway(stream);
 # > stream: Two-Way- oder Echo-Stream
 # can trigger GC
-  local void clear_output_twoway (object stream);
-  local void clear_output_twoway(stream)
-    var object stream;
-    {
-      check_SP();
-      clear_output(TheStream(stream)->strm_twoway_output);
-    }
-
+local void clear_output_twoway (object stream) {
+  check_SP();
+  clear_output(TheStream(stream)->strm_twoway_output);
+}
 
 # Two-Way-Stream
 # ==============
 
 # READ-BYTE - Pseudofunktion für Two-Way-Streams:
-  local object rd_by_twoway (object stream);
-  local object rd_by_twoway(stream)
-    var object stream;
-    {
-      check_SP();
-      return read_byte(TheStream(stream)->strm_twoway_input);
-    }
+local object rd_by_twoway (object stream) {
+  check_SP();
+  return read_byte(TheStream(stream)->strm_twoway_input);
+}
 
 # READ-BYTE-ARRAY - Pseudofunktion für Two-Way-Streams:
-  local uintL rd_by_array_twoway (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local uintL rd_by_array_twoway(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-      var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
-      skipSTACK(1);
-      return result;
-    }
+local uintL rd_by_array_twoway (const object* stream_,
+                                const object* bytearray_,
+                                uintL start, uintL len) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_input);
+  var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
+  skipSTACK(1);
+  return result;
+}
 
 # READ-CHAR - Pseudofunktion für Two-Way-Streams:
-  local object rd_ch_twoway (const object* stream_);
-  local object rd_ch_twoway(stream_)
-    var const object* stream_;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-      var object ergebnis = read_char(&STACK_0);
-      skipSTACK(1);
-      return ergebnis;
-    }
+local object rd_ch_twoway (const object* stream_) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_input);
+  var object ergebnis = read_char(&STACK_0);
+  skipSTACK(1);
+  return ergebnis;
+}
 
 # PEEK-CHAR - Pseudofunktion für Two-Way-Streams:
-  local object pk_ch_twoway (const object* stream_);
-  local object pk_ch_twoway(stream_)
-    var const object* stream_;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-      var object ergebnis = peek_char(&STACK_0);
-      skipSTACK(1);
-      return ergebnis;
-    }
+local object pk_ch_twoway (const object* stream_) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_input);
+  var object ergebnis = peek_char(&STACK_0);
+  skipSTACK(1);
+  return ergebnis;
+}
 
 # READ-CHAR-ARRAY - Pseudofunktion für Two-Way-Streams:
-  local uintL rd_ch_array_twoway (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local uintL rd_ch_array_twoway(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-      var uintL result = read_char_array(&STACK_0,chararray_,start,len);
-      skipSTACK(1);
-      return result;
-    }
+local uintL rd_ch_array_twoway (const object* stream_,
+                                const object* chararray_,
+                                uintL start, uintL len) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_input);
+  var uintL result = read_char_array(&STACK_0,chararray_,start,len);
+  skipSTACK(1);
+  return result;
+}
 
 # Reads a line of characters from a two-way-stream.
 # read_line_twoway(stream,&buffer)
@@ -2122,17 +1786,13 @@ LISPFUNN(concatenated_stream_streams,1)
 # < buffer: contains the read characters, excluding the terminating #\Newline
 # < result: true is EOF was seen before newline, else false
 # can trigger GC
-  local bool read_line_twoway (object stream, const object* buffer_);
-  local bool read_line_twoway(stream,buffer_)
-    var object stream;
-    var const object* buffer_;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(stream)->strm_twoway_input);
-      var bool eofp = read_line(&STACK_0,buffer_);
-      skipSTACK(1);
-      return eofp;
-    }
+local bool read_line_twoway (object stream, const object* buffer_) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(stream)->strm_twoway_input);
+  var bool eofp = read_line(&STACK_0,buffer_);
+  skipSTACK(1);
+  return eofp;
+}
 
 # Liefert einen Two-Way-Stream zu einem Input-Stream und einem Output-Stream.
 # make_twoway_stream(input_stream,output_stream)
@@ -2140,32 +1800,29 @@ LISPFUNN(concatenated_stream_streams,1)
 # > output_stream : Output-Stream
 # < ergebnis : Two-Way-Stream
 # can trigger GC
-  global object make_twoway_stream (object input_stream, object output_stream);
-  global object make_twoway_stream(input_stream,output_stream)
-    var object input_stream;
-    var object output_stream;
-    {
-      pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
-      var uintB flags =
-        strmflags_open_B | (TheStream(input_stream)->strmflags & strmflags_immut_B);
-      var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(flags,strmtype_twoway,strm_len+2,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_twoway);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_twoway);
-      TheStream(stream)->strm_wr_by = P(wr_by_twoway);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_twoway);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_twoway);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_twoway);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
-      output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
-      TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
-      TheStream(stream)->strm_twoway_input = input_stream;
-      TheStream(stream)->strm_twoway_output = output_stream;
-      return stream;
-    }
+global object make_twoway_stream (object input_stream, object output_stream) {
+  pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
+  var uintB flags = strmflags_open_B |
+    (TheStream(input_stream)->strmflags & strmflags_immut_B);
+  var object stream = # neuer Stream, alle Operationen erlaubt
+    allocate_stream(flags,strmtype_twoway,strm_len+2,0);
+  TheStream(stream)->strm_rd_by = P(rd_by_twoway);
+  TheStream(stream)->strm_rd_by_array = P(rd_by_array_twoway);
+  TheStream(stream)->strm_wr_by = P(wr_by_twoway);
+  TheStream(stream)->strm_wr_by_array = P(wr_by_array_twoway);
+  TheStream(stream)->strm_rd_ch = P(rd_ch_twoway);
+  TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
+  TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_twoway);
+  TheStream(stream)->strm_rd_ch_last = NIL;
+  TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
+  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
+  output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
+  TheStream(stream)->strm_wr_ch_lpos =
+    TheStream(output_stream)->strm_wr_ch_lpos;
+  TheStream(stream)->strm_twoway_input = input_stream;
+  TheStream(stream)->strm_twoway_output = output_stream;
+  return stream;
+}
 
 LISPFUNN(make_two_way_stream,2)
 # (MAKE-TWO-WAY-STREAM input-stream output-stream), CLTL S. 329
@@ -2225,73 +1882,57 @@ LISPFUNN(two_way_stream_output_stream,1)
 # ===========
 
 # READ-BYTE - Pseudofunktion für Echo-Streams:
-  local object rd_by_echo (object stream);
-  local object rd_by_echo(stream)
-    var object stream;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(stream);
-      var object obj = read_byte(TheStream(stream)->strm_twoway_input);
-      stream = popSTACK();
-      if (!eq(obj,eof_value)) {
-        pushSTACK(obj);
-        write_byte(TheStream(stream)->strm_twoway_output,obj);
-        obj = popSTACK();
-      }
-      return obj;
-    }
+local object rd_by_echo (object stream) {
+  check_SP(); check_STACK();
+  pushSTACK(stream);
+  var object obj = read_byte(TheStream(stream)->strm_twoway_input);
+  stream = popSTACK();
+  if (!eq(obj,eof_value)) {
+    pushSTACK(obj);
+    write_byte(TheStream(stream)->strm_twoway_output,obj);
+    obj = popSTACK();
+  }
+  return obj;
+}
 
 # READ-BYTE-ARRAY - Pseudofunktion für Echo-Streams:
-  local uintL rd_by_array_echo (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local uintL rd_by_array_echo(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-      var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
-      STACK_0 = TheStream(*stream_)->strm_twoway_output;
-      write_byte_array(&STACK_0,bytearray_,start,result);
-      skipSTACK(1);
-      return result;
-    }
+local uintL rd_by_array_echo (const object* stream_, const object* bytearray_,
+                              uintL start, uintL len) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_input);
+  var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
+  STACK_0 = TheStream(*stream_)->strm_twoway_output;
+  write_byte_array(&STACK_0,bytearray_,start,result);
+  skipSTACK(1);
+  return result;
+}
 
 # READ-CHAR - Pseudofunktion für Echo-Streams:
-  local object rd_ch_echo (const object* stream_);
-  local object rd_ch_echo(stream_)
-    var const object* stream_;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-      var object obj = read_char(&STACK_0);
-      if (!eq(obj,eof_value)) {
-        STACK_0 = TheStream(*stream_)->strm_twoway_output;
-        pushSTACK(obj);
-        write_char(&STACK_1,obj);
-        obj = popSTACK();
-      }
-      skipSTACK(1);
-      return obj;
-    }
+local object rd_ch_echo (const object* stream_) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_input);
+  var object obj = read_char(&STACK_0);
+  if (!eq(obj,eof_value)) {
+    STACK_0 = TheStream(*stream_)->strm_twoway_output;
+    pushSTACK(obj);
+    write_char(&STACK_1,obj);
+    obj = popSTACK();
+  }
+  skipSTACK(1);
+  return obj;
+}
 
 # READ-CHAR-ARRAY - Pseudofunktion für Echo-Streams:
-  local uintL rd_ch_array_echo (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local uintL rd_ch_array_echo(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_input);
-      var uintL result = read_char_array(&STACK_0,chararray_,start,len);
-      STACK_0 = TheStream(*stream_)->strm_twoway_output;
-      write_char_array(&STACK_0,chararray_,start,result);
-      skipSTACK(1);
-      return result;
-    }
+local uintL rd_ch_array_echo (const object* stream_, const object* chararray_,
+                              uintL start, uintL len) {
+  check_SP(); check_STACK();
+  pushSTACK(TheStream(*stream_)->strm_twoway_input);
+  var uintL result = read_char_array(&STACK_0,chararray_,start,len);
+  STACK_0 = TheStream(*stream_)->strm_twoway_output;
+  write_char_array(&STACK_0,chararray_,start,result);
+  skipSTACK(1);
+  return result;
+}
 
 # Liefert einen Echo-Stream zu einem Input-Stream und einem Output-Stream.
 # make_echo_stream(input_stream,output_stream)
@@ -2299,32 +1940,29 @@ LISPFUNN(two_way_stream_output_stream,1)
 # > output_stream : Output-Stream
 # < ergebnis : Echo-Stream
 # can trigger GC
-  local object make_echo_stream (object input_stream, object output_stream);
-  local object make_echo_stream(input_stream,output_stream)
-    var object input_stream;
-    var object output_stream;
-    {
-      pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
-      var uintB flags =
-        strmflags_open_B | (TheStream(input_stream)->strmflags & strmflags_immut_B);
-      var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(flags,strmtype_echo,strm_len+2,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_echo);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_echo);
-      TheStream(stream)->strm_wr_by = P(wr_by_twoway);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_twoway);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_echo);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_echo);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
-      output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
-      TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
-      TheStream(stream)->strm_twoway_input = input_stream;
-      TheStream(stream)->strm_twoway_output = output_stream;
-      return stream;
-    }
+local object make_echo_stream (object input_stream, object output_stream) {
+  pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
+  var uintB flags = strmflags_open_B |
+    (TheStream(input_stream)->strmflags & strmflags_immut_B);
+  var object stream = # neuer Stream, alle Operationen erlaubt
+    allocate_stream(flags,strmtype_echo,strm_len+2,0);
+  TheStream(stream)->strm_rd_by = P(rd_by_echo);
+  TheStream(stream)->strm_rd_by_array = P(rd_by_array_echo);
+  TheStream(stream)->strm_wr_by = P(wr_by_twoway);
+  TheStream(stream)->strm_wr_by_array = P(wr_by_array_twoway);
+  TheStream(stream)->strm_rd_ch = P(rd_ch_echo);
+  TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
+  TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_echo);
+  TheStream(stream)->strm_rd_ch_last = NIL;
+  TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
+  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
+  output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
+  TheStream(stream)->strm_wr_ch_lpos =
+    TheStream(output_stream)->strm_wr_ch_lpos;
+  TheStream(stream)->strm_twoway_input = input_stream;
+  TheStream(stream)->strm_twoway_output = output_stream;
+  return stream;
+}
 
 LISPFUNN(make_echo_stream,2)
 # (MAKE-ECHO-STREAM input-stream output-stream), CLTL S. 330
@@ -2391,88 +2029,72 @@ LISPFUNN(echo_stream_output_stream,1)
 # Fehlermeldung, wenn index >= length(string):
 # fehler_str_in_adjusted(stream);
 # > stream: problematischer String-Input-Stream
-  nonreturning_function(local, fehler_str_in_adjusted, (object stream));
-  local void fehler_str_in_adjusted(stream)
-    var object stream;
-    {
-      pushSTACK(stream); # STREAM-ERROR slot STREAM
-      pushSTACK(TheStream(stream)->strm_str_in_string);
-      pushSTACK(stream);
-      fehler(stream_error,
-             GETTEXT("~ is beyond the end because the string ~ has been adjusted")
-            );
-    }
+nonreturning_function(local, fehler_str_in_adjusted, (object stream));
+local void fehler_str_in_adjusted (object stream) {
+  pushSTACK(stream); # STREAM-ERROR slot STREAM
+  pushSTACK(TheStream(stream)->strm_str_in_string);
+  pushSTACK(stream);
+  fehler(stream_error,GETTEXT("~ is beyond the end because the string ~ has been adjusted"));
+}
 
 # READ-CHAR - Pseudofunktion für String-Input-Streams:
-  local object rd_ch_str_in (const object* stream_);
-  local object rd_ch_str_in(stream_)
-    var const object* stream_;
-    {
-      var object stream = *stream_;
-      var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
-      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
-      if (index >= endindex) {
-        return eof_value; # EOF erreicht
-      } else {
-        # index < eofindex
-        var uintL len;
-        var uintL offset;
-        var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&len,&offset);
-        if (index >= len) # Index zu groß ?
-          fehler_str_in_adjusted(stream);
-        var object ch; # Zeichen aus dem String holen
-        SstringDispatch(string,
-          { ch = code_char(TheSstring(string)->data[offset+index]); },
-          { ch = code_char(as_chart(TheSmallSstring(string)->data[offset+index])); }
-          );
-        # Index erhöhen:
-        TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,1);
-        return ch;
-      }
-    }
+local object rd_ch_str_in (const object* stream_) {
+  var object stream = *stream_;
+  var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index);
+  var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
+  if (index >= endindex) {
+    return eof_value; # EOF erreicht
+  } else { # index < eofindex
+    var uintL len;
+    var uintL offset;
+    var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&len,&offset);
+    if (index >= len) # Index zu groß ?
+      fehler_str_in_adjusted(stream);
+    var object ch; # Zeichen aus dem String holen
+    SstringDispatch(string,
+    { ch = code_char(TheSstring(string)->data[offset+index]); },
+    { ch = code_char(as_chart(TheSmallSstring(string)->data[offset+index]));});
+    # Index erhöhen:
+    TheStream(stream)->strm_str_in_index =
+      fixnum_inc(TheStream(stream)->strm_str_in_index,1);
+    return ch;
+  }
+}
 
 # READ-CHAR-ARRAY - Pseudofunktion für String-Input-Streams:
-  local uintL rd_ch_array_str_in (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local uintL rd_ch_array_str_in(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      var object stream = *stream_;
-      var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
-      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
-      if (index < endindex) {
-        var chart* charptr = &TheSstring(*chararray_)->data[start];
-        var uintL srclen;
-        var uintL srcoffset;
-        var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&srclen,&srcoffset);
-        if (srclen < endindex)
-          fehler_str_in_adjusted(stream);
-        var uintL count = endindex - index;
-        if (count > len)
-          count = len;
-        # count = min(len,endindex-index) > 0.
-        TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,count);
-        SstringDispatch(string,
-          { chartcopy(&TheSstring(string)->data[srcoffset+index],charptr,count); },
-          { scintcopy(&TheSmallSstring(string)->data[srcoffset+index],charptr,count); }
-          );
-        return count;
-      } else {
-        return 0;
-      }
-    }
+local uintL rd_ch_array_str_in (const object* stream_,
+                                const object* chararray_,
+                                uintL start, uintL len) {
+  var object stream = *stream_;
+  var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index);
+  var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
+  if (index < endindex) {
+    var chart* charptr = &TheSstring(*chararray_)->data[start];
+    var uintL srclen;
+    var uintL srcoffset;
+    var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&srclen,&srcoffset);
+    if (srclen < endindex)
+      fehler_str_in_adjusted(stream);
+    var uintL count = endindex - index;
+    if (count > len)
+      count = len;
+    # count = min(len,endindex-index) > 0.
+    TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,count);
+    SstringDispatch(string,
+    { chartcopy(&TheSstring(string)->data[srcoffset+index],charptr,count); },
+    { scintcopy(&TheSmallSstring(string)->data[srcoffset+index],charptr,count); });
+    return count;
+  } else {
+    return 0;
+  }
+}
 
 # Schließt einen String-Input-Stream.
 # close_str_in(stream);
 # > stream : String-Input-Stream
-  local void close_str_in (object stream);
-  local void close_str_in(stream)
-    var object stream;
-    {
-      TheStream(stream)->strm_str_in_string = NIL; # String := NIL
-    }
+local void close_str_in (object stream) {
+  TheStream(stream)->strm_str_in_string = NIL; # String := NIL
+}
 
 # Stellt fest, ob ein String-Input-Stream ein Zeichen verfügbar hat.
 # listen_char_str_in(stream)
@@ -2481,17 +2103,14 @@ LISPFUNN(echo_stream_output_stream,1)
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_char_str_in (object stream);
-  local signean listen_char_str_in(stream)
-    var object stream;
-    {
-      var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
-      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
-      if (index >= endindex)
-        return ls_eof; # EOF erreicht
-      else
-        return ls_avail;
-    }
+local signean listen_char_str_in (object stream) {
+  var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index);
+  var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
+  if (index >= endindex)
+    return ls_eof; # EOF erreicht
+  else
+    return ls_avail;
+}
 
 LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
 # (MAKE-STRING-INPUT-STREAM string [start [end]]), CLTL S. 330
@@ -2549,56 +2168,45 @@ LISPFUNN(string_input_stream_index,1)
   #define strm_str_out_string  strm_other[0]  # Semi-Simple-String für Output
 
 # WRITE-CHAR - Pseudofunktion für String-Output-Streams:
-  local void wr_ch_str_out (const object* stream_, object ch);
-  local void wr_ch_str_out(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      # obj sollte Character sein:
-      if (!charp(ch))
-        fehler_wr_char(stream,ch);
-      # Character in den String schieben:
-      ssstring_push_extend(TheStream(stream)->strm_str_out_string,char_code(ch));
-    }
+local void wr_ch_str_out (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (!charp(ch)) # obj must be a character
+    fehler_wr_char(stream,ch);
+  # Character in den String schieben:
+  ssstring_push_extend(TheStream(stream)->strm_str_out_string,char_code(ch));
+}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für String-Output-Streams:
-  local void wr_ch_array_str_out (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_str_out(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
-      ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
-      wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # Line-Position aktualisieren
-    }
+local void wr_ch_array_str_out (const object* stream_,
+                                const object* chararray_,
+                                uintL start, uintL len) {
+  var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
+  ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
+  wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # Line-Position aktualisieren
+}
 
 # Liefert einen String-Output-Stream.
 # make_string_output_stream()
 # can trigger GC
-  global object make_string_output_stream (void);
-  global object make_string_output_stream()
-    {
-      # kleinen Semi-Simple-String der Länge 50 allozieren:
-      pushSTACK(make_ssstring(50));
-      var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_error);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-      TheStream(stream)->strm_wr_by = P(wr_by_error);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_str_out);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_str_out);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_str_out_string = popSTACK(); # String eintragen
-      return stream;
-    }
+global object make_string_output_stream (void) {
+  # kleinen Semi-Simple-String der Länge 50 allozieren:
+  pushSTACK(make_ssstring(50));
+  var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
+    allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
+  TheStream(stream)->strm_rd_by = P(rd_by_error);
+  TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+  TheStream(stream)->strm_wr_by = P(wr_by_error);
+  TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+  TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+  TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+  TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
+  TheStream(stream)->strm_rd_ch_last = NIL;
+  TheStream(stream)->strm_wr_ch = P(wr_ch_str_out);
+  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_str_out);
+  TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+  TheStream(stream)->strm_str_out_string = popSTACK(); # String eintragen
+  return stream;
+}
 
 LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_position)))
 # (MAKE-STRING-OUTPUT-STREAM [:element-type] [:line-position])
@@ -2640,16 +2248,13 @@ LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_po
 # < stream: geleerter Stream
 # < ergebnis: Angesammeltes, ein Simple-String
 # can trigger GC
-  global object get_output_stream_string (const object* stream_);
-  global object get_output_stream_string(stream_)
-    var const object* stream_;
-    {
-      var object string = TheStream(*stream_)->strm_str_out_string; # alter String
-      string = coerce_ss(string); # in Simple-String umwandeln (erzwingt ein Kopieren)
-      # alten String durch Fill-Pointer:=0 leeren:
-      TheIarray(TheStream(*stream_)->strm_str_out_string)->dims[1] = 0;
-      return string;
-    }
+global object get_output_stream_string (const object* stream_) {
+  var object string = TheStream(*stream_)->strm_str_out_string; # alter String
+  string = coerce_ss(string); # in Simple-String umwandeln (erzwingt ein Kopieren)
+  # alten String durch Fill-Pointer:=0 leeren:
+  TheIarray(TheStream(*stream_)->strm_str_out_string)->dims[1] = 0;
+  return string;
+}
 
 LISPFUNN(get_output_stream_string,1)
 # (GET-OUTPUT-STREAM-STRING string-output-stream), CLTL S. 330
@@ -2675,19 +2280,14 @@ LISPFUNN(get_output_stream_string,1)
   #define strm_str_push_string  strm_other[0]  # String mit Fill-Pointer für Output
 
 # WRITE-CHAR - Pseudofunktion für String-Push-Streams:
-  local void wr_ch_str_push (const object* stream_, object ch);
-  local void wr_ch_str_push(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      # ch sollte Character sein:
-      if (!charp(ch))
-        fehler_wr_char(stream,ch);
-      # Character in den String schieben:
-      pushSTACK(ch); pushSTACK(TheStream(stream)->strm_str_push_string);
-      funcall(L(vector_push_extend),2); # (VECTOR-PUSH-EXTEND ch string)
-    }
+local void wr_ch_str_push (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (!charp(ch)) # ch must be a character
+    fehler_wr_char(stream,ch);
+  # Character in den String schieben:
+  pushSTACK(ch); pushSTACK(TheStream(stream)->strm_str_push_string);
+  funcall(L(vector_push_extend),2); # (VECTOR-PUSH-EXTEND ch string)
+}
 
 # (SYSTEM::MAKE-STRING-PUSH-STREAM string) liefert einen Stream, dessen
 # WRITE-CHAR-Operation mit einem VECTOR-PUSH-EXTEND auf den gegebenen String
@@ -2755,68 +2355,56 @@ LISPFUNN(string_stream_p,1)
   # define strm_pphelp_modus    strm_other[1]   # Modus (NIL=Einzeiler, T=Mehrzeiler)
 
 # WRITE-CHAR - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
-  local void wr_ch_pphelp (const object* stream_, object ch);
-  local void wr_ch_pphelp(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      # ch sollte Character sein:
-      if (!charp(ch))
-        fehler_wr_char(stream,ch);
-      var chart c = char_code(ch); # Character
-      # Bei NL: Ab jetzt  Modus := Mehrzeiler
-      if (chareq(c,ascii(NL)))
-        TheStream(stream)->strm_pphelp_modus = T;
-      # Character in den ersten String schieben:
-      ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
-    }
+local void wr_ch_pphelp (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (!charp(ch)) # ch must be a character
+    fehler_wr_char(stream,ch);
+  var chart c = char_code(ch); # Character
+  # Bei NL: Ab jetzt  Modus := Mehrzeiler
+  if (chareq(c,ascii(NL)))
+    TheStream(stream)->strm_pphelp_modus = T;
+  # Character in den ersten String schieben:
+  ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
+}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
-  local void wr_ch_array_pphelp (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_pphelp(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
-      ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
-      if (wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len)) # Line-Position aktualisieren
-        TheStream(*stream_)->strm_pphelp_modus = T; # Nach NL: Modus := Mehrzeiler
-    }
+local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
+                               uintL start, uintL len) {
+  var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
+  ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
+  if (wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len)) # Line-Position aktualisieren
+    TheStream(*stream_)->strm_pphelp_modus = T; # Nach NL: Modus := Mehrzeiler
+}
 
 # UP: Liefert einen Pretty-Printer-Hilfs-Stream.
 # make_pphelp_stream()
 # can trigger GC
-  global object make_pphelp_stream (void);
-  global object make_pphelp_stream()
-    {
-      # kleinen Semi-Simple-String der Länge 50 allozieren:
-      pushSTACK(make_ssstring(50));
-      # einelementige Stringliste bauen:
-      {
-        var object new_cons = allocate_cons();
-        Car(new_cons) = popSTACK();
-        pushSTACK(new_cons);
-      }
-      var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2,0);
-      TheStream(stream)->strm_rd_by = P(rd_by_error);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-      TheStream(stream)->strm_wr_by = P(wr_by_error);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_pphelp);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pphelp);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_pphelp_strings = popSTACK(); # String-Liste eintragen
-      TheStream(stream)->strm_pphelp_modus = NIL; # Modus := Einzeiler
-      return stream;
-    }
+global object make_pphelp_stream (void) {
+  # kleinen Semi-Simple-String der Länge 50 allozieren:
+  pushSTACK(make_ssstring(50));
+  # einelementige Stringliste bauen:
+  {
+    var object new_cons = allocate_cons();
+    Car(new_cons) = popSTACK();
+    pushSTACK(new_cons);
+  }
+  var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
+    allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2,0);
+  TheStream(stream)->strm_rd_by = P(rd_by_error);
+  TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+  TheStream(stream)->strm_wr_by = P(wr_by_error);
+  TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+  TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+  TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+  TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
+  TheStream(stream)->strm_rd_ch_last = NIL;
+  TheStream(stream)->strm_wr_ch = P(wr_ch_pphelp);
+  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pphelp);
+  TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+  TheStream(stream)->strm_pphelp_strings = popSTACK(); # String-Liste eintragen
+  TheStream(stream)->strm_pphelp_modus = NIL; # Modus := Einzeiler
+  return stream;
+}
 
 
 # Buffered-Input-Stream
@@ -2854,68 +2442,60 @@ LISPFUNN(string_stream_p,1)
   #define strm_buff_in_endindex  strm_other[4]  # Endindex (Fixnum >= index >=0)
 
 # READ-CHAR - Pseudofunktion für Buffered-Input-Streams:
-  local object rd_ch_buff_in (const object* stream_);
-  local object rd_ch_buff_in(stream_)
-    var const object* stream_;
-    {
-      var object stream = *stream_;
-      var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index); # Index
-      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
-      loop {
-        if (index < endindex) # noch was im aktuellen String?
-          break;
-        # String-Ende erreicht
-        # fun aufrufen:
-        funcall(TheStream(stream)->strm_buff_in_fun,0);
-        if (!stringp(value1))
-          return eof_value; # EOF erreicht
-        # neuen String holen und Grenzen überprüfen:
-        pushSTACK(value1); # String
-        pushSTACK(mv_count >= 2 ? value2 : unbound); # start
-        pushSTACK(mv_count >= 3 ? value3 : unbound); # end
-        subr_self = L(read_char);
-        var stringarg val;
-        var object string = test_string_limits_ro(&val);
-        stream = *stream_;
-        index = val.index;
-        endindex = index+val.len;
-        TheStream(stream)->strm_buff_in_string = string;
-        TheStream(stream)->strm_buff_in_index = fixnum(index);
-        TheStream(stream)->strm_buff_in_endindex = fixnum(endindex);
-      }
-      # index < eofindex
-      var uintL len;
-      var uintL offset;
-      var object string = unpack_string_ro(TheStream(stream)->strm_buff_in_string,&len,&offset);
-      if (index >= len) { # Index zu groß ?
-        pushSTACK(stream); # STREAM-ERROR slot STREAM
-        pushSTACK(TheStream(stream)->strm_buff_in_string);
-        pushSTACK(stream);
-        fehler(stream_error,
-               GETTEXT("~ is beyond the end because the string ~ has been adjusted")
-              );
-      }
-      var object ch; # Zeichen aus dem String holen
-      SstringDispatch(string,
-        { ch = code_char(TheSstring(string)->data[offset+index]); },
-        { ch = code_char(as_chart(TheSmallSstring(string)->data[offset+index])); }
-        );
-      # Index erhöhen:
-      TheStream(stream)->strm_buff_in_index = fixnum_inc(TheStream(stream)->strm_buff_in_index,1);
-      return ch;
-    }
+local object rd_ch_buff_in (const object* stream_) {
+  var object stream = *stream_;
+  var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index);
+  var uintL endindex =
+    posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
+  loop {
+    if (index < endindex) # noch was im aktuellen String?
+      break;
+    # String-Ende erreicht
+    # fun aufrufen:
+    funcall(TheStream(stream)->strm_buff_in_fun,0);
+    if (!stringp(value1))
+      return eof_value; # EOF erreicht
+    # neuen String holen und Grenzen überprüfen:
+    pushSTACK(value1); # String
+    pushSTACK(mv_count >= 2 ? value2 : unbound); # start
+    pushSTACK(mv_count >= 3 ? value3 : unbound); # end
+    subr_self = L(read_char);
+    var stringarg val;
+    var object string = test_string_limits_ro(&val);
+    stream = *stream_;
+    index = val.index;
+    endindex = index+val.len;
+    TheStream(stream)->strm_buff_in_string = string;
+    TheStream(stream)->strm_buff_in_index = fixnum(index);
+    TheStream(stream)->strm_buff_in_endindex = fixnum(endindex);
+  }
+  # index < eofindex
+  var uintL len;
+  var uintL offset;
+  var object string = unpack_string_ro(TheStream(stream)->strm_buff_in_string,&len,&offset);
+  if (index >= len) { # Index zu groß ?
+    pushSTACK(stream); # STREAM-ERROR slot STREAM
+    pushSTACK(TheStream(stream)->strm_buff_in_string);
+    pushSTACK(stream);
+    fehler(stream_error,GETTEXT("~ is beyond the end because the string ~ has been adjusted"));
+  }
+  var object ch; # Zeichen aus dem String holen
+  SstringDispatch(string,
+  { ch = code_char(TheSstring(string)->data[offset+index]); },
+  { ch = code_char(as_chart(TheSmallSstring(string)->data[offset+index])); });
+  # Index erhöhen:
+  TheStream(stream)->strm_buff_in_index = fixnum_inc(TheStream(stream)->strm_buff_in_index,1);
+  return ch;
+}
 
 # Schließt einen Buffered-Input-Stream.
 # close_buff_in(stream);
 # > stream : Buffered-Input-Stream
-  local void close_buff_in (object stream);
-  local void close_buff_in(stream)
-    var object stream;
-    {
-      TheStream(stream)->strm_buff_in_fun = NIL; # Funktion := NIL
-      TheStream(stream)->strm_buff_in_mode = NIL; # Mode := NIL
-      TheStream(stream)->strm_buff_in_string = NIL; # String := NIL
-    }
+local void close_buff_in (object stream) {
+  TheStream(stream)->strm_buff_in_fun = NIL; # Funktion := NIL
+  TheStream(stream)->strm_buff_in_mode = NIL; # Mode := NIL
+  TheStream(stream)->strm_buff_in_string = NIL; # String := NIL
+}
 
 # Stellt fest, ob ein Buffered-Input-Stream ein Zeichen verfügbar hat.
 # listen_char_buff_in(stream)
@@ -2924,52 +2504,46 @@ LISPFUNN(string_stream_p,1)
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_char_buff_in (object stream);
-  local signean listen_char_buff_in(stream)
-    var object stream;
-    {
-      var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index); # Index
-      var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
-      if (index < endindex)
-        return ls_avail;
-      var object mode = TheStream(stream)->strm_buff_in_mode;
-      if (eq(mode,S(nil))) {
-        pushSTACK(stream);
-        mode = peek_char(&STACK_0); # peek_char macht read_char, ruft fun auf
-        skipSTACK(1);
-        if (eq(mode,eof_value))
-          return ls_eof; # EOF erreicht
-        else
-          return ls_avail;
-      } elif (eq(mode,S(t))) {
-        return ls_avail;
-      } else {
-        funcall(mode,0); # mode aufrufen
-        if (nullp(value1)) # keine Strings mehr zu erwarten?
-          return ls_eof; # ja -> EOF erreicht
-        else
-          return ls_avail;
-      }
-    }
+local signean listen_char_buff_in (object stream) {
+  var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index);
+  var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
+  if (index < endindex)
+    return ls_avail;
+  var object mode = TheStream(stream)->strm_buff_in_mode;
+  if (eq(mode,S(nil))) {
+    pushSTACK(stream);
+    mode = peek_char(&STACK_0); # peek_char macht read_char, ruft fun auf
+    skipSTACK(1);
+    if (eq(mode,eof_value))
+      return ls_eof; # EOF erreicht
+    else
+      return ls_avail;
+  } else if (eq(mode,S(t))) {
+    return ls_avail;
+  } else {
+    funcall(mode,0); # mode aufrufen
+    if (nullp(value1)) # keine Strings mehr zu erwarten?
+      return ls_eof; # ja -> EOF erreicht
+    else
+      return ls_avail;
+  }
+}
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Buffered-Input-Stream.
 # clear_input_buff_in(stream)
 # > stream: Buffered-Input-Stream
 # < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  local bool clear_input_buff_in (object stream);
-  local bool clear_input_buff_in(stream)
-    var object stream;
-    {
-      # Bearbeitung des aktuellen Strings beenden:
-      var object index = TheStream(stream)->strm_buff_in_index; # Index
-      var object endindex = TheStream(stream)->strm_buff_in_endindex;
-      TheStream(stream)->strm_buff_in_index = endindex; # index := endindex
-      if (eq(index,endindex))
-        return false;
-      else
-        return true;
-    }
+local bool clear_input_buff_in (object stream) {
+  # Bearbeitung des aktuellen Strings beenden:
+  var object index = TheStream(stream)->strm_buff_in_index;
+  var object endindex = TheStream(stream)->strm_buff_in_endindex;
+  TheStream(stream)->strm_buff_in_index = endindex; # index := endindex
+  if (eq(index,endindex))
+    return false;
+  else
+    return true;
+}
 
 LISPFUNN(make_buffered_input_stream,2)
 # (MAKE-BUFFERED-INPUT-STREAM fun mode)
@@ -3038,18 +2612,15 @@ LISPFUNN(buffered_input_stream_index,1)
 # finish_output_buff_out(stream);
 # > stream: Buffered-Output-Stream
 # can trigger GC
-  local void finish_output_buff_out (object stream);
-  local void finish_output_buff_out(stream)
-    var object stream;
-    {
-      pushSTACK(stream);
-      var object string = TheStream(stream)->strm_buff_out_string; # String
-      string = coerce_ss(string); # in Simple-String umwandeln (erzwingt ein Kopieren)
-      stream = STACK_0; STACK_0 = string;
-      # String durch Fill-Pointer:=0 leeren:
-      TheIarray(TheStream(stream)->strm_buff_out_string)->dims[1] = 0;
-      funcall(TheStream(stream)->strm_buff_out_fun,1); # Funktion aufrufen
-    }
+local void finish_output_buff_out (object stream) {
+  pushSTACK(stream);
+  var object string = TheStream(stream)->strm_buff_out_string; # String
+  string = coerce_ss(string); # in Simple-String umwandeln (erzwingt ein Kopieren)
+  stream = STACK_0; STACK_0 = string;
+# String durch Fill-Pointer:=0 leeren:
+  TheIarray(TheStream(stream)->strm_buff_out_string)->dims[1] = 0;
+  funcall(TheStream(stream)->strm_buff_out_fun,1); # Funktion aufrufen
+}
 
 # UP: Bringt den wartenden Output eines Buffered-Output-Stream ans Ziel.
 # force_output_buff_out(stream);
@@ -3061,46 +2632,35 @@ LISPFUNN(buffered_input_stream_index,1)
 # clear_output_buff_out(stream);
 # > stream: Buffered-Output-Stream
 # can trigger GC
-  local void clear_output_buff_out (object stream);
-  local void clear_output_buff_out(stream)
-    var object stream;
-    {
-      # String durch Fill-Pointer:=0 leeren:
-      TheIarray(TheStream(stream)->strm_buff_out_string)->dims[1] = 0;
-      # Line-Position unverändert lassen??
-    }
+local void clear_output_buff_out (object stream) {
+  # String durch Fill-Pointer:=0 leeren:
+  TheIarray(TheStream(stream)->strm_buff_out_string)->dims[1] = 0;
+  # Line-Position unverändert lassen??
+}
 
 # WRITE-CHAR - Pseudofunktion für Buffered-Output-Streams:
-  local void wr_ch_buff_out (const object* stream_, object ch);
-  local void wr_ch_buff_out(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      # obj sollte Character sein:
-      if (!charp(ch))
-        fehler_wr_char(stream,ch);
-      # Character in den String schieben:
-      ssstring_push_extend(TheStream(stream)->strm_buff_out_string,char_code(ch));
-      # Nach #\Newline den Buffer durchreichen:
-      if (chareq(char_code(ch),ascii(NL)))
-        force_output_buff_out(*stream_);
-    }
+local void wr_ch_buff_out (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (!charp(ch)) # obj must be a character
+    fehler_wr_char(stream,ch);
+  # Character in den String schieben:
+  ssstring_push_extend(TheStream(stream)->strm_buff_out_string,char_code(ch));
+  # Nach #\Newline den Buffer durchreichen:
+  if (chareq(char_code(ch),ascii(NL)))
+    force_output_buff_out(*stream_);
+}
 
 # Schließt einen Buffered-Output-Stream.
 # close_buff_out(stream);
 # > stream : Buffered-Output-Stream
 # can trigger GC
-  local void close_buff_out (object stream);
-  local void close_buff_out(stream)
-    var object stream;
-    {
-      pushSTACK(stream); # stream retten
-      finish_output_buff_out(stream);
-      stream = popSTACK(); # stream zurück
-      TheStream(stream)->strm_buff_out_fun = NIL; # Funktion := NIL
-      TheStream(stream)->strm_buff_out_string = NIL; # String := NIL
-    }
+local void close_buff_out (object stream) {
+  pushSTACK(stream); # stream retten
+  finish_output_buff_out(stream);
+  stream = popSTACK(); # stream zurück
+  TheStream(stream)->strm_buff_out_fun = NIL; # Funktion := NIL
+  TheStream(stream)->strm_buff_out_string = NIL; # String := NIL
+}
 
 LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
 # (MAKE-BUFFERED-OUTPUT-STREAM fun [line-position])
@@ -3158,166 +2718,128 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
   #   (GENERIC-STREAM-WRITE-BYTE c i)                   -->
   #   (GENERIC-STREAM-CLOSE c)                          -->
 
-  # (READ-CHAR s) ==
-  # (GENERIC-STREAM-READ-CHAR c)
-  local object rd_ch_generic (const object* stream_);
-  local object rd_ch_generic(stream_)
-    var const object* stream_;
-    {
-      pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_rdch),1);
-      return nullp(value1) ? eof_value : value1;
-    }
+# (READ-CHAR s) ==
+# (GENERIC-STREAM-READ-CHAR c)
+local object rd_ch_generic (const object* stream_) {
+  pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); funcall(S(generic_stream_rdch),1);
+  return nullp(value1) ? eof_value : value1;
+}
 
-  # (PEEK-CHAR s) ==
-  # (GENERIC-STREAM-PEEK-CHAR c)
-  local object pk_ch_generic (const object* stream_);
-  local object pk_ch_generic(stream_)
-    var const object* stream_;
-    {
-      pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_pkch),1);
-      if (nullp(value1))
-        value1 = eof_value;
-      if ((mv_count >= 2) && !nullp(value2)) {
-        # READ-CHAR schon ausgeführt -> muss ein implizites UNREAD-CHAR
-        # ausführen (d.h. das Ergebnis für das nächste READ-CHAR/PEEK-CHAR
-        # aufheben).
-        TheStream(*stream_)->strm_rd_ch_last = value1;
-        if (!eq(value1,eof_value))
-          TheStream(*stream_)->strmflags |= strmflags_unread_B;
-      }
-      return value1;
-    }
+# (PEEK-CHAR s) ==
+# (GENERIC-STREAM-PEEK-CHAR c)
+local object pk_ch_generic (const object* stream_) {
+  pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); funcall(S(generic_stream_pkch),1);
+  if (nullp(value1))
+    value1 = eof_value;
+  if ((mv_count >= 2) && !nullp(value2)) {
+    # READ-CHAR schon ausgeführt -> muss ein implizites UNREAD-CHAR
+    # ausführen (d.h. das Ergebnis für das nächste READ-CHAR/PEEK-CHAR
+    # aufheben).
+    TheStream(*stream_)->strm_rd_ch_last = value1;
+    if (!eq(value1,eof_value))
+      TheStream(*stream_)->strmflags |= strmflags_unread_B;
+  }
+  return value1;
+}
 
-  # (LISTEN s) ==
-  # (IF (GENERIC-STREAM-READ-CHAR-WILL-HANG-P c)
-  #   :WAIT
-  #   (IF (GENERIC-STREAM-PEEK-CHAR c)
-  #     :INPUT-AVAILABLE
-  #     :EOF
-  # ) )
-  local signean listen_char_generic (object stream);
-  local signean listen_char_generic(stream)
-    var object stream;
-    {
-      pushSTACK(stream);
-      pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_read_char_will_hang_p),1);
-      if (!nullp(value1)) {
-        skipSTACK(1); return ls_wait;
-      }
-      var object nextchar = pk_ch_generic(&STACK_0);
-      skipSTACK(1);
-      if (eq(nextchar,eof_value))
-        return ls_eof;
-      else
-        return ls_avail;
-    }
+# (LISTEN s) ==
+# (IF (GENERIC-STREAM-READ-CHAR-WILL-HANG-P c)
+#   :WAIT
+#   (IF (GENERIC-STREAM-PEEK-CHAR c)
+#     :INPUT-AVAILABLE
+#     :EOF
+# ) )
+local signean listen_char_generic (object stream) {
+  pushSTACK(stream);
+  pushSTACK(stream); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); funcall(S(generic_stream_read_char_will_hang_p),1);
+  if (!nullp(value1)) {
+    skipSTACK(1); return ls_wait;
+  }
+  var object nextchar = pk_ch_generic(&STACK_0);
+  skipSTACK(1);
+  if (eq(nextchar,eof_value))
+    return ls_eof;
+  else
+    return ls_avail;
+}
 
-  # (CLEAR-INPUT s) ==
-  # (GENERIC-STREAM-CLEAR-INPUT c)
-  local bool clear_input_generic (object stream);
-  local bool clear_input_generic(stream)
-    var object stream;
-    {
-      pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_clear_input),1);
-      return !nullp(value1);
-    }
+# (CLEAR-INPUT s) ==
+# (GENERIC-STREAM-CLEAR-INPUT c)
+local bool clear_input_generic (object stream) {
+  pushSTACK(stream); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); funcall(S(generic_stream_clear_input),1);
+  return !nullp(value1);
+}
 
-  # (WRITE-CHAR ch s) ==
-  # (GENERIC-STREAM-WRITE-CHAR c ch)
-  local void wr_ch_generic (const object* stream_, object ch);
-  local void wr_ch_generic(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      # ch is a character, need not save it
-      pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); pushSTACK(ch); funcall(S(generic_stream_wrch),2);
-    }
+# (WRITE-CHAR ch s) ==
+# (GENERIC-STREAM-WRITE-CHAR c ch)
+local void wr_ch_generic (const object* stream_, object ch) {
+  # ch is a character, need not save it
+  pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); pushSTACK(ch); funcall(S(generic_stream_wrch),2);
+}
 
-  # (WRITE-CHAR-ARRAY s string start len) ==
-  # (GENERIC-STREAM-WRITE-STRING c string start len)
-  local void wr_ch_array_generic (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_generic(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); pushSTACK(*chararray_);
-      pushSTACK(UL_to_I(start)); pushSTACK(UL_to_I(len));
-      funcall(S(generic_stream_wrss),4);
-      var const chart* charptr;
-      unpack_sstring_alloca(*chararray_,len,start, charptr=);
-      wr_ss_lpos(*stream_,&charptr[len],len);
-    }
+# (WRITE-CHAR-ARRAY s string start len) ==
+# (GENERIC-STREAM-WRITE-STRING c string start len)
+local void wr_ch_array_generic (const object* stream_,
+                                const object* chararray_,
+                                uintL start, uintL len) {
+  pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); pushSTACK(*chararray_);
+  pushSTACK(UL_to_I(start)); pushSTACK(UL_to_I(len));
+  funcall(S(generic_stream_wrss),4);
+  var const chart* charptr;
+  unpack_sstring_alloca(*chararray_,len,start, charptr=);
+  wr_ss_lpos(*stream_,&charptr[len],len);
+}
 
-  # (FINISH-OUTPUT s) ==
-  # (GENERIC-STREAM-FINISH-OUTPUT c)
-  local void finish_output_generic (object stream);
-  local void finish_output_generic(stream)
-    var object stream;
-    {
-      pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_finish_output),1);
-    }
+# (FINISH-OUTPUT s) ==
+# (GENERIC-STREAM-FINISH-OUTPUT c)
+local void finish_output_generic (object stream) {
+  pushSTACK(stream); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); funcall(S(generic_stream_finish_output),1);
+}
 
-  # (FORCE-OUTPUT s) ==
-  # (GENERIC-STREAM-FORCE-OUTPUT c)
-  local void force_output_generic (object stream);
-  local void force_output_generic(stream)
-    var object stream;
-    {
-      pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_force_output),1);
-    }
+# (FORCE-OUTPUT s) ==
+# (GENERIC-STREAM-FORCE-OUTPUT c)
+local void force_output_generic (object stream) {
+  pushSTACK(stream); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); funcall(S(generic_stream_force_output),1);
+}
 
-  # (CLEAR-OUTPUT s) ==
-  # (GENERIC-STREAM-CLEAR-OUTPUT c)
-  local void clear_output_generic (object stream);
-  local void clear_output_generic(stream)
-    var object stream;
-    {
-      pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_clear_output),1);
-    }
+# (CLEAR-OUTPUT s) ==
+# (GENERIC-STREAM-CLEAR-OUTPUT c)
+local void clear_output_generic (object stream) {
+  pushSTACK(stream); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); funcall(S(generic_stream_clear_output),1);
+}
 
-  # (READ-BYTE s) ==
-  # (GENERIC-STREAM-READ-BYTE c)
-  local object rd_by_generic (object stream);
-  local object rd_by_generic(stream)
-    var object stream;
-    {
-      pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_rdby),1);
-      return (nullp(value1) ? eof_value : value1);
-    }
+# (READ-BYTE s) ==
+# (GENERIC-STREAM-READ-BYTE c)
+local object rd_by_generic (object stream) {
+  pushSTACK(stream); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); funcall(S(generic_stream_rdby),1);
+  return (nullp(value1) ? eof_value : value1);
+}
 
-  # (WRITE-BYTE s i) ==
-  # (GENERIC-STREAM-WRITE-BYTE c i)
-  local void wr_by_generic (object stream, object obj);
-  local void wr_by_generic(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      pushSTACK(obj); # save obj
-      pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      obj = STACK_0;
-      STACK_0 = value1; pushSTACK(obj); funcall(S(generic_stream_wrby),2);
-    }
+# (WRITE-BYTE s i) ==
+# (GENERIC-STREAM-WRITE-BYTE c i)
+local void wr_by_generic (object stream, object obj) {
+  pushSTACK(obj); # save obj
+  pushSTACK(stream); funcall(L(generic_stream_controller),1);
+  obj = STACK_0;
+  STACK_0 = value1; pushSTACK(obj); funcall(S(generic_stream_wrby),2);
+}
 
-  # (CLOSE s) ==
-  # (GENERIC-STREAM-CLOSE c)
-  local void close_generic(stream)
-    var object stream;
-    {
-      pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_close),1);
-    }
+# (CLOSE s) ==
+# (GENERIC-STREAM-CLOSE c)
+local void close_generic (object stream) {
+  pushSTACK(stream); funcall(L(generic_stream_controller),1);
+  pushSTACK(value1); funcall(S(generic_stream_close),1);
+}
 
 LISPFUNN(generic_stream_controller,1)
   {
@@ -3330,9 +2852,7 @@ LISPFUNN(generic_stream_controller,1)
       } else {
         pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: stream must be a generic-stream, not ~")
-              );
+        fehler(error,GETTEXT("~: stream must be a generic-stream, not ~"));
       }
     }
     value1=TheStream(stream)->strm_controller_object;
@@ -3411,35 +2931,32 @@ LISPFUNN(generic_stream_p,1)
 # > object arg: argument
 # > subr_self: calling function
 # < signean buffered: +1 for T, -1 for NIL, 0 for :DEFAULT
-  local signean test_buffered_arg (object arg);
-  local signean test_buffered_arg(arg)
-    var object arg;
-    {
-      if (eq(arg,unbound) || eq(arg,S(Kdefault)))
-        return 0;
-      if (eq(arg,NIL))
-        return -1;
-      if (eq(arg,T))
-        return 1;
-      pushSTACK(arg); pushSTACK(S(Kbuffered));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: illegal ~ argument ~"));
-    }
+local signean test_buffered_arg (object arg) {
+  if (eq(arg,unbound) || eq(arg,S(Kdefault)))
+    return 0;
+  if (eq(arg,NIL))
+    return -1;
+  if (eq(arg,T))
+    return 1;
+  pushSTACK(arg); pushSTACK(S(Kbuffered));
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~: illegal ~ argument ~"));
+}
 
 # Classification of possible :ELEMENT-TYPEs.
-  typedef enum {
-    eltype_ch,    # CHARACTER
-    eltype_iu,    # (UNSIGNED-BYTE n)
-    eltype_is     # (SIGNED-BYTE n)
-  } eltype_kind;
+typedef enum {
+  eltype_ch,    # CHARACTER
+  eltype_iu,    # (UNSIGNED-BYTE n)
+  eltype_is     # (SIGNED-BYTE n)
+} eltype_kind;
 
 # An analyzed :ELEMENT-TYPE argument.
-  typedef struct {
-    eltype_kind kind;
-    uintL       size; # the n in ([UN]SIGNED-BYTE n),
-                      # >0, <intDsize*uintWC_max,
-                      # but 0 for eltype_ch
-  } decoded_eltype;
+typedef struct {
+  eltype_kind kind;
+  uintL       size; # the n in ([UN]SIGNED-BYTE n),
+                    # >0, <intDsize*uintWC_max,
+                    # but 0 for eltype_ch
+} decoded_eltype;
 
 # UP: Check a :ELEMENT-TYPE argument.
 # test_eltype_arg(&eltype,&decoded);
@@ -3448,99 +2965,96 @@ LISPFUNN(generic_stream_p,1)
 # < subr_self: unchanged
 # < decoded: decoded eltype
 # can trigger GC
-  local void test_eltype_arg (object* eltype_, decoded_eltype* decoded);
-  local void test_eltype_arg(eltype_,decoded)
-    var object* eltype_;
-    var decoded_eltype* decoded;
-    {
-      var object arg = *eltype_;
-      if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char)) || eq(arg,S(Kdefault))) { # CHARACTER, STRING-CHAR, :DEFAULT
-        decoded->kind = eltype_ch; decoded->size = 0; return;
-      }
-      if (eq(arg,S(bit))) { # BIT
-        decoded->kind = eltype_iu; decoded->size = 1; return;
-      }
-      if (eq(arg,S(unsigned_byte))) { # UNSIGNED-BYTE
-        decoded->kind = eltype_iu; decoded->size = 8; return;
-      }
-      if (eq(arg,S(signed_byte))) { # SIGNED-BYTE
-        decoded->kind = eltype_is; decoded->size = 8; return;
-      }
-      var object eltype_size;
-      if (consp(arg) && mconsp(Cdr(arg)) && nullp(Cdr(Cdr(arg)))) { # zweielementige Liste
-        var object h = Car(arg);
-        if (eq(h,S(mod))) { # (MOD n)
-          decoded->kind = eltype_iu;
-          h = Car(Cdr(arg)); # n
-          # muss ein Integer >0 sein:
-          if (!(integerp(h) && positivep(h) && !eq(h,Fixnum_0)))
-            goto bad_eltype;
-          # eltype_size := (integer-length (1- n)) bilden:
-          pushSTACK(subr_self); # subr_self retten
-          pushSTACK(h); funcall(L(einsminus),1); # (1- n)
-          pushSTACK(value1); funcall(L(integer_length),1); # (integer-length (1- n))
-          eltype_size = value1;
-          subr_self = popSTACK(); # subr_self zurück
-          goto eltype_integer;
-        }
-        if (eq(h,S(unsigned_byte))) { # (UNSIGNED-BYTE n)
-          decoded->kind = eltype_iu;
-          eltype_size = Car(Cdr(arg));
-          goto eltype_integer;
-        }
-        if (eq(h,S(signed_byte))) { # (SIGNED-BYTE n)
-          decoded->kind = eltype_is;
-          eltype_size = Car(Cdr(arg));
-          goto eltype_integer;
-        }
-      }
+local void test_eltype_arg (object* eltype_, decoded_eltype* decoded) {
+  var object arg = *eltype_;
+  if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char)) ||
+      eq(arg,S(Kdefault))) { # CHARACTER, STRING-CHAR, :DEFAULT
+    decoded->kind = eltype_ch; decoded->size = 0; return;
+  }
+  if (eq(arg,S(bit))) { # BIT
+    decoded->kind = eltype_iu; decoded->size = 1; return;
+  }
+  if (eq(arg,S(unsigned_byte))) { # UNSIGNED-BYTE
+    decoded->kind = eltype_iu; decoded->size = 8; return;
+  }
+  if (eq(arg,S(signed_byte))) { # SIGNED-BYTE
+    decoded->kind = eltype_is; decoded->size = 8; return;
+  }
+  var object eltype_size;
+  if (consp(arg) && mconsp(Cdr(arg)) && nullp(Cdr(Cdr(arg)))) { # zweielementige Liste
+    var object h = Car(arg);
+    if (eq(h,S(mod))) { # (MOD n)
+      decoded->kind = eltype_iu;
+      h = Car(Cdr(arg)); # n
+      # muss ein Integer >0 sein:
+      if (!(integerp(h) && positivep(h) && !eq(h,Fixnum_0)))
+        goto bad_eltype;
+      # eltype_size := (integer-length (1- n)) bilden:
       pushSTACK(subr_self); # subr_self retten
-      # Erstmal ein wenig kanonischer machen (damit die verschiedenen
-      # SUBTYPEP dann nicht dreimal dasselbe machen müssen):
-      pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
-      pushSTACK(value1); # canon-arg retten
-      pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'CHARACTER)
-      if (!nullp(value1)) {
-        skipSTACK(1);
-        subr_self = popSTACK();
-        decoded->kind = eltype_ch; decoded->size = 0;
-        return;
-      }
-      funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER canon-arg)
+      pushSTACK(h); funcall(L(einsminus),1); # (1- n)
+      pushSTACK(value1); funcall(L(integer_length),1); # (integer-length (1- n))
+      eltype_size = value1;
       subr_self = popSTACK(); # subr_self zurück
-      if (!((mv_count>1) && integerp(value1) && integerp(value2)))
-        goto bad_eltype;
-      {
-        # arg is a subtype of `(INTEGER ,low ,high) and
-        # value1 = low, value2 = high.
-        var uintL l;
-        if (positivep(value1)) {
-          l = I_integer_length(value2); # (INTEGER-LENGTH high)
-          decoded->kind = eltype_iu;
-        } else {
-          var uintL l1 = I_integer_length(value1); # (INTEGER-LENGTH low)
-          var uintL l2 = I_integer_length(value2); # (INTEGER-LENGTH high)
-          l = (l1>l2 ? l1 : l2) + 1;
-          decoded->kind = eltype_is;
-        }
-        eltype_size = fixnum(l);
-      }
-     eltype_integer:
-      # eltype_size überprüfen:
-      if (!(posfixnump(eltype_size) && !eq(eltype_size,Fixnum_0)
-            && ((oint_data_len < log2_intDsize+intWCsize)
-                # [when oint_data_len <= log2(intDsize)+intWCsize-1 always
-                #  eltype_size < 2^oint_data_len < intDsize*(2^intWCsize-1) ]
-                || (as_oint(eltype_size) <
-                    as_oint(fixnum(intDsize*(uintL)(bitm(intWCsize)-1)))))))
-        goto bad_eltype;
-      decoded->size = posfixnum_to_L(eltype_size);
-      return;
-     bad_eltype:
-      pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: illegal ~ argument ~"));
+      goto eltype_integer;
     }
+    if (eq(h,S(unsigned_byte))) { # (UNSIGNED-BYTE n)
+      decoded->kind = eltype_iu;
+      eltype_size = Car(Cdr(arg));
+      goto eltype_integer;
+    }
+    if (eq(h,S(signed_byte))) { # (SIGNED-BYTE n)
+      decoded->kind = eltype_is;
+      eltype_size = Car(Cdr(arg));
+      goto eltype_integer;
+    }
+  }
+  pushSTACK(subr_self); # subr_self retten
+  # Erstmal ein wenig kanonischer machen (damit die verschiedenen
+  # SUBTYPEP dann nicht dreimal dasselbe machen müssen):
+  pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
+  pushSTACK(value1); # canon-arg retten
+  pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'CHARACTER)
+  if (!nullp(value1)) {
+    skipSTACK(1);
+    subr_self = popSTACK();
+    decoded->kind = eltype_ch; decoded->size = 0;
+    return;
+  }
+  funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER canon-arg)
+  subr_self = popSTACK(); # subr_self zurück
+  if (!((mv_count>1) && integerp(value1) && integerp(value2)))
+    goto bad_eltype;
+  {
+    # arg is a subtype of `(INTEGER ,low ,high) and
+    # value1 = low, value2 = high.
+    var uintL l;
+    if (positivep(value1)) {
+      l = I_integer_length(value2); # (INTEGER-LENGTH high)
+      decoded->kind = eltype_iu;
+    } else {
+      var uintL l1 = I_integer_length(value1); # (INTEGER-LENGTH low)
+      var uintL l2 = I_integer_length(value2); # (INTEGER-LENGTH high)
+      l = (l1>l2 ? l1 : l2) + 1;
+      decoded->kind = eltype_is;
+    }
+    eltype_size = fixnum(l);
+  }
+ eltype_integer:
+  # eltype_size überprüfen:
+  if (!(posfixnump(eltype_size) && !eq(eltype_size,Fixnum_0)
+        && ((oint_data_len < log2_intDsize+intWCsize)
+           # [when oint_data_len <= log2(intDsize)+intWCsize-1 always
+           #  eltype_size < 2^oint_data_len < intDsize*(2^intWCsize-1) ]
+            || (as_oint(eltype_size) <
+                as_oint(fixnum(intDsize*(uintL)(bitm(intWCsize)-1)))))))
+    goto bad_eltype;
+  decoded->size = posfixnum_to_L(eltype_size);
+  return;
+ bad_eltype:
+  pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~: illegal ~ argument ~"));
+}
 
 # UP: Check whether the stream is binary or not
 # local inline bool stream_char_p (object stream) {
@@ -3557,27 +3071,21 @@ LISPFUNN(generic_stream_p,1)
 # > decoded: decoded eltype
 # < result: either CHARACTER or ([UN]SIGNED-BYTE n)
 # can trigger GC
-  local object canon_eltype (const decoded_eltype* decoded);
-  local object canon_eltype(decoded)
-    var const decoded_eltype* decoded;
-    {
-      switch (decoded->kind) {
-        case eltype_ch:
-          # CHARACTER
-          return S(character);
-        case eltype_iu:
-          # (UNSIGNED-BYTE bitsize)
-          pushSTACK(S(unsigned_byte));
-          pushSTACK(fixnum(decoded->size));
-          return listof(2);
-        case eltype_is:
-          # (SIGNED-BYTE bitsize)
-          pushSTACK(S(signed_byte));
-          pushSTACK(fixnum(decoded->size));
-          return listof(2);
-        default: NOTREACHED;
-      }
-    }
+local object canon_eltype (const decoded_eltype* decoded) {
+  switch (decoded->kind) {
+    case eltype_ch: # CHARACTER
+      return S(character);
+    case eltype_iu: # (UNSIGNED-BYTE bitsize)
+      pushSTACK(S(unsigned_byte));
+      pushSTACK(fixnum(decoded->size));
+      return listof(2);
+    case eltype_is: # (SIGNED-BYTE bitsize)
+      pushSTACK(S(signed_byte));
+      pushSTACK(fixnum(decoded->size));
+      return listof(2);
+    default: NOTREACHED;
+  }
+}
 
 # UP: Check a :EXTERNAL-FORMAT argument.
 # test_external_format_arg(arg)
@@ -3586,43 +3094,40 @@ LISPFUNN(generic_stream_p,1)
 # < subr_self: unchanged
 # < result: an encoding
 # can trigger GC
-  local object test_external_format_arg (object arg);
-  local object test_external_format_arg(arg)
-    var object arg;
-    {
-      if (eq(arg,unbound) || eq(arg,S(Kdefault)))
-        return O(default_file_encoding);
-      if (encodingp(arg))
-        return arg;
-      #ifdef UNICODE
-      if (symbolp(arg) && constantp(TheSymbol(arg))
-          && encodingp(Symbol_value(arg)))
-        return Symbol_value(arg);
-      #if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
-      if (stringp(arg)) {
-        # (make-encoding :charset arg)
-        pushSTACK(arg); pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound);
-        C_make_encoding();
-        return value1;
-      }
-      #endif
-      #else
-      # This is a hack to get away without an error.
-      if (symbolp(arg) && eq(Symbol_package(arg),O(charset_package)))
-        return O(default_file_encoding);
-      #endif
-      if (eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))) {
-        # (make-encoding :charset default-file-encoding :line-terminator arg)
-        pushSTACK(O(default_file_encoding)); pushSTACK(arg); pushSTACK(unbound); pushSTACK(unbound);
-        C_make_encoding();
-        return value1;
-      }
-      pushSTACK(arg);                     # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_external_format)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(arg); pushSTACK(S(Kexternal_format));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
-    }
+local object test_external_format_arg (object arg) {
+  if (eq(arg,unbound) || eq(arg,S(Kdefault)))
+    return O(default_file_encoding);
+  if (encodingp(arg))
+    return arg;
+ #ifdef UNICODE
+  if (symbolp(arg) && constantp(TheSymbol(arg))
+      && encodingp(Symbol_value(arg)))
+    return Symbol_value(arg);
+  #if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
+  if (stringp(arg)) { # (make-encoding :charset arg)
+    pushSTACK(arg); pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound);
+    C_make_encoding();
+    return value1;
+  }
+  #endif
+ #else
+  # This is a hack to get away without an error.
+  if (symbolp(arg) && eq(Symbol_package(arg),O(charset_package)))
+    return O(default_file_encoding);
+ #endif
+  if (eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))) {
+    # (make-encoding :charset default-file-encoding :line-terminator arg)
+    pushSTACK(O(default_file_encoding)); pushSTACK(arg);
+    pushSTACK(unbound); pushSTACK(unbound);
+    C_make_encoding();
+    return value1;
+  }
+  pushSTACK(arg);                     # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_external_format)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(arg); pushSTACK(S(Kexternal_format));
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
+}
 
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
 
@@ -3818,23 +3323,21 @@ LISPFUNN(generic_stream_p,1)
 #if defined(WIN32_NATIVE)
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Handle.
-  local void clear_tty_input (Handle handle);
-  local void clear_tty_input(handle)
-    var Handle handle;
-    {
-      begin_system_call();
-      # Maybe it's a serial communication.
-      if (!PurgeComm(handle,PURGE_RXABORT|PURGE_RXCLEAR)) {
-        if (!(GetLastError()==ERROR_INVALID_HANDLE || GetLastError()==ERROR_INVALID_FUNCTION))
-          { OS_error(); }
-      }
-      # Maybe it's a console.
-      if (!FlushConsoleInputBuffer(handle)) {
-        if (!(GetLastError()==ERROR_INVALID_HANDLE))
-          { OS_error(); }
-      }
-      end_system_call();
-    }
+local void clear_tty_input (Handle handle) {
+  begin_system_call();
+  # Maybe it's a serial communication.
+  if (!PurgeComm(handle,PURGE_RXABORT|PURGE_RXCLEAR)) {
+    if (!(GetLastError()==ERROR_INVALID_HANDLE ||
+          GetLastError()==ERROR_INVALID_FUNCTION))
+      { OS_error(); }
+  }
+  # Maybe it's a console.
+  if (!FlushConsoleInputBuffer(handle)) {
+    if (!(GetLastError()==ERROR_INVALID_HANDLE))
+      { OS_error(); }
+  }
+  end_system_call();
+}
 
 # UP: Bringt den wartenden Output eines Handles ans Ziel.
   local void finish_tty_output (Handle handle);
@@ -3846,17 +3349,16 @@ LISPFUNN(generic_stream_p,1)
   #define force_tty_output(handle)  finish_tty_output(handle)
 
 # UP: Löscht den wartenden Output eines Handles.
-  local void clear_tty_output (Handle handle);
-  local void clear_tty_output(handle)
-    var Handle handle;
-    { begin_system_call();
-      # Maybe it's a serial communication.
-      if (!PurgeComm(handle,PURGE_TXABORT|PURGE_TXCLEAR)) {
-        if (!(GetLastError()==ERROR_INVALID_HANDLE || GetLastError()==ERROR_INVALID_FUNCTION))
-          { OS_error(); }
-      }
-      end_system_call();
-    }
+local void clear_tty_output (Handle handle) {
+  begin_system_call();
+  # Maybe it's a serial communication.
+  if (!PurgeComm(handle,PURGE_TXABORT|PURGE_TXCLEAR)) {
+    if (!(GetLastError()==ERROR_INVALID_HANDLE ||
+          GetLastError()==ERROR_INVALID_FUNCTION))
+      { OS_error(); }
+  }
+  end_system_call();
+}
 
 #endif
 
@@ -3887,39 +3389,36 @@ LISPFUNN(generic_stream_p,1)
 # regular_handle_p(handle)
 # > handle: Handle des geöffneten Files
 # < ergebnis: true wenn ein (statisches) File
-  local bool regular_handle_p (Handle handle);
-  local bool regular_handle_p(handle)
-    var Handle handle;
-    {
-      #if defined(UNIX)
-        var struct stat statbuf;
-        begin_system_call();
-        if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
-        end_system_call();
-        return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode) ? true : false);
-      #endif
-      #if defined(MSDOS) || defined(RISCOS)
-        var struct stat statbuf;
-        begin_system_call();
-        if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
-        end_system_call();
-        return (S_ISREG(statbuf.st_mode) ? true : false);
-      #endif
-      #ifdef AMIGAOS
-        var LONG not_regular_p;
-        begin_system_call();
-        not_regular_p = IsInteractive(handle); # Behandlung nicht interaktiver, nicht regulärer Files??
-        end_system_call();
-        return !not_regular_p;
-      #endif
-      #ifdef WIN32_NATIVE
-        var DWORD filetype;
-        begin_system_call();
-        filetype = GetFileType(handle);
-        end_system_call();
-        return (filetype == FILE_TYPE_DISK);
-      #endif
-    }
+local bool regular_handle_p (Handle handle) {
+ #if defined(UNIX)
+  var struct stat statbuf;
+  begin_system_call();
+  if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
+  end_system_call();
+  return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode) ? true : false);
+ #endif
+ #if defined(MSDOS) || defined(RISCOS)
+  var struct stat statbuf;
+  begin_system_call();
+  if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
+  end_system_call();
+  return (S_ISREG(statbuf.st_mode) ? true : false);
+ #endif
+ #ifdef AMIGAOS
+  var LONG not_regular_p;
+  begin_system_call();
+  not_regular_p = IsInteractive(handle); # Behandlung nicht interaktiver, nicht regulärer Files??
+  end_system_call();
+  return !not_regular_p;
+ #endif
+ #ifdef WIN32_NATIVE
+  var DWORD filetype;
+  begin_system_call();
+  filetype = GetFileType(handle);
+  end_system_call();
+  return (filetype == FILE_TYPE_DISK);
+ #endif
+}
 
 
 # Channel-Streams
@@ -4053,14 +3552,11 @@ typedef struct strm_unbuffered_extrafields_struct {
 # Error message after user interrupt.
 # fehler_interrupt();
 # > subr_self: calling function
-  nonreturning_function(local, fehler_interrupt, (void));
-  local void fehler_interrupt()
-    {
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(interrupt_condition,
-             GETTEXT("~: Ctrl-C: User break")
-            );
-    }
+nonreturning_function(local, fehler_interrupt, (void));
+local void fehler_interrupt() {
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(interrupt_condition,GETTEXT("~: Ctrl-C: User break"));
+}
 
 # General Subroutines
 # ===================
@@ -4104,19 +3600,15 @@ global void iconv_wcstombs (object encoding, object stream, const chart* *srcp, 
 global object iconv_range (object encoding, uintL start, uintL end);
 
 # fehler_iconv_invalid_charset(encoding);
-  nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding));
-  local void fehler_iconv_invalid_charset(encoding)
-    var object encoding;
-    {
-      pushSTACK(TheEncoding(encoding)->enc_charset);
-      fehler(error,
-             GETTEXT("unknown character set ~")
-            );
-    }
+nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding));
+local void fehler_iconv_invalid_charset (object encoding) {
+  pushSTACK(TheEncoding(encoding)->enc_charset);
+  fehler(error,GETTEXT("unknown character set ~"));
+}
 
 # Error, when a character cannot be converted to an encoding.
 # fehler_unencodable(encoding);
-  nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
+nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
 
 # Avoid annoying warning caused by a wrongly standardized iconv() prototype.
   #ifdef GNU_LIBICONV
@@ -4574,42 +4066,42 @@ global object iconv_range(encoding,start,end)
 # ChannelStream_init(stream);
 # > stream: channel-stream with encoding
 #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
-  local void ChannelStream_init (object stream);
-  local void ChannelStream_init(stream)
-    var object stream;
-    {
-      var object encoding = TheStream(stream)->strm_encoding;
-      if (simple_string_p(TheEncoding(encoding)->enc_charset)) {
-        with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),charset_asciz, {
-          var uintB flags = TheStream(stream)->strmflags;
-          if (flags & strmflags_rd_B) {
-            begin_system_call();
-            var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
-            if (cd == (iconv_t)(-1)) {
-              if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-              OS_error();
-            }
-            ChannelStream_iconvdesc(stream) = cd;
-          } else {
-            ChannelStream_iconvdesc(stream) = (iconv_t)0;
-          }
-          if (flags & strmflags_wr_B) {
-            begin_system_call();
-            var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
-            if (cd == (iconv_t)(-1)) {
-              if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-              OS_error();
-            }
-            ChannelStream_oconvdesc(stream) = cd;
-          } else {
-            ChannelStream_oconvdesc(stream) = (iconv_t)0;
-          }
-        });
+local void ChannelStream_init (object stream) {
+  var object encoding = TheStream(stream)->strm_encoding;
+  if (simple_string_p(TheEncoding(encoding)->enc_charset)) {
+    with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),
+                   charset_asciz, {
+      var uintB flags = TheStream(stream)->strmflags;
+      if (flags & strmflags_rd_B) {
+        begin_system_call();
+        var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
+        if (cd == (iconv_t)(-1)) {
+          if (errno == EINVAL)
+            { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+          OS_error();
+        }
+        ChannelStream_iconvdesc(stream) = cd;
       } else {
         ChannelStream_iconvdesc(stream) = (iconv_t)0;
+      }
+      if (flags & strmflags_wr_B) {
+        begin_system_call();
+        var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
+        if (cd == (iconv_t)(-1)) {
+          if (errno == EINVAL)
+            { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+          OS_error();
+        }
+        ChannelStream_oconvdesc(stream) = cd;
+      } else {
         ChannelStream_oconvdesc(stream) = (iconv_t)0;
       }
-    }
+    });
+  } else {
+    ChannelStream_iconvdesc(stream) = (iconv_t)0;
+    ChannelStream_oconvdesc(stream) = (iconv_t)0;
+  }
+}
 #else
   #define ChannelStream_init(stream)
 #endif
@@ -4617,42 +4109,37 @@ global object iconv_range(encoding,start,end)
 # Cleans up some ChannelStream fields.
 # ChannelStream_fini(stream);
 #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
-  local void ChannelStream_fini (object stream);
-  local void ChannelStream_fini(stream)
-    var object stream;
-    {
-      if (ChannelStream_iconvdesc(stream) != (iconv_t)0) {
-        begin_system_call();
-        if (iconv_close(ChannelStream_iconvdesc(stream)) < 0) { OS_error(); }
-        end_system_call();
-        ChannelStream_iconvdesc(stream) = (iconv_t)0;
-      }
-      if (ChannelStream_oconvdesc(stream) != (iconv_t)0) {
-        begin_system_call();
-        if (iconv_close(ChannelStream_oconvdesc(stream)) < 0) { OS_error(); }
-        end_system_call();
-        ChannelStream_oconvdesc(stream) = (iconv_t)0;
-      }
-    }
+local void ChannelStream_fini (object stream) {
+  if (ChannelStream_iconvdesc(stream) != (iconv_t)0) {
+    begin_system_call();
+    if (iconv_close(ChannelStream_iconvdesc(stream)) < 0) { OS_error(); }
+    end_system_call();
+    ChannelStream_iconvdesc(stream) = (iconv_t)0;
+  }
+  if (ChannelStream_oconvdesc(stream) != (iconv_t)0) {
+    begin_system_call();
+    if (iconv_close(ChannelStream_oconvdesc(stream)) < 0) { OS_error(); }
+    end_system_call();
+    ChannelStream_oconvdesc(stream) = (iconv_t)0;
+  }
+}
 #else
   #define ChannelStream_fini(stream)
 #endif
 
 # Closes a handle.
-  local void low_close_handle (object stream, object handle);
-  local void low_close_handle(stream,handle)
-    var object stream;
-    var object handle;
-    {
-      begin_system_call();
-      #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
-      if (!( CLOSE(TheHandle(handle)) ==0)) { end_system_call(); OS_filestream_error(stream); }
-      #endif
-      #ifdef WIN32_NATIVE
-      if (!CloseHandle(TheHandle(handle))) { end_system_call(); OS_filestream_error(stream); }
-      #endif
-      end_system_call();
-    }
+local void low_close_handle (object stream, object handle) {
+  begin_system_call();
+ #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
+  if (!( CLOSE(TheHandle(handle)) ==0))
+    { end_system_call(); OS_filestream_error(stream); }
+ #endif
+ #ifdef WIN32_NATIVE
+  if (!CloseHandle(TheHandle(handle)))
+    { end_system_call(); OS_filestream_error(stream); }
+ #endif
+  end_system_call();
+}
 
 # Subroutines for Integer-Streams
 # ===============================
@@ -5075,473 +4562,449 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
       b = UnbufferedStream_bytebuf(stream)[0];
   #endif
 
-  local sintL low_read_unbuffered_handle (object stream);
-  local sintL low_read_unbuffered_handle(stream)
-    var object stream;
-    {
-      if (UnbufferedStream_status(stream) < 0) { # already EOF?
-        return -1;
-      }
-      if (UnbufferedStream_status(stream) > 0) { # bytebuf contains valid bytes?
-        UnbufferedStreamLow_pop_byte(stream,b); return b;
-      }
-      var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
-      var uintB b;
-     restart_it:
-      #if defined(AMIGAOS)
-      interruptp({ fehler_interrupt(); });
-      #endif
-      run_time_stop(); # hold run time clock
-      begin_system_call();
-      var int result = read(handle,&b,1); # try to read chars
+local sintL low_read_unbuffered_handle (object stream) {
+  if (UnbufferedStream_status(stream) < 0) { # already EOF?
+    return -1;
+  }
+  if (UnbufferedStream_status(stream) > 0) { # bytebuf contains valid bytes?
+    UnbufferedStreamLow_pop_byte(stream,b); return b;
+  }
+  var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
+  var uintB b;
+ restart_it:
+  #if defined(AMIGAOS)
+  interruptp({ fehler_interrupt(); });
+  #endif
+  run_time_stop(); # hold run time clock
+  begin_system_call();
+  var int result = read(handle,&b,1); # try to read chars
+  end_system_call();
+  run_time_restart(); # resume run time clock
+  if (result<0) {
+    #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+    begin_system_call();
+    if (errno==EINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
       end_system_call();
-      run_time_restart(); # resume run time clock
-      if (result<0) {
-        #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-        begin_system_call();
-        if (errno==EINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
-          end_system_call();
-          interruptp({ fehler_interrupt(); });
-          goto restart_it;
-        }
-        #endif
-        #ifdef WIN32_NATIVE
-        begin_system_call();
-        if (GetLastError()==ERROR_SIGINT) { # Unterbrechung durch Ctrl-C ?
-          end_system_call();
-          fehler_interrupt();
-        }
-        #endif
+      interruptp({ fehler_interrupt(); });
+      goto restart_it;
+    }
+    #endif
+    #ifdef WIN32_NATIVE
+    begin_system_call();
+    if (GetLastError()==ERROR_SIGINT) { # Unterbrechung durch Ctrl-C ?
+      end_system_call();
+      fehler_interrupt();
+    }
+    #endif
+    OS_error();
+  }
+  if (result==0) { # no byte available -> must be EOF
+    UnbufferedStream_status(stream) = -1; return -1;
+  } else {
+    #if defined(AMIGAOS)
+    # Ctrl-C wird meist während des Read()-Aufrufs festgestellt, und
+    # Read() liefert dann "unschuldig" ein Zeichen ab. Wir behandeln
+    # das Ctrl-C jetzt. Damit das Byte nicht verlorengeht, wird
+    # es in bytebuf zurückgelegt.
+    interruptp({
+      UnbufferedStreamLow_push_byte(stream,b);
+      fehler_interrupt();
+    });
+    #endif
+    return b;
+  }
+}
+
+local signean low_listen_unbuffered_handle (object stream) {
+  if (UnbufferedStream_status(stream) < 0) # already EOF?
+    return ls_eof;
+  if (UnbufferedStream_status(stream) > 0) # bytebuf contains valid bytes?
+    return ls_avail;
+  # Method 1: select, see SELECT(2)
+  # Method 2: ioctl FIONREAD, see FILIO(4)
+  # Method 3: switch temporarily to non-blocking I/O and try read(),
+  #           see READ(2V), FILIO(4), or
+  #           see READ(2V), FCNTL(2V), FCNTL(5)
+  var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
+  #if defined(EMUNIX)
+  {
+    var struct termio oldtermio;
+    var struct termio newtermio;
+    begin_system_call();
+    if (!( ioctl(handle,TCGETA,&oldtermio) ==0)) {
+      if (!((errno==ENOTTY)||(errno==EINVAL))) {
         OS_error();
       }
-      if (result==0) {
-        # no byte available -> must be EOF
-        UnbufferedStream_status(stream) = -1; return -1;
-      } else {
-        #if defined(AMIGAOS)
-        # Ctrl-C wird meist während des Read()-Aufrufs festgestellt, und
-        # Read() liefert dann "unschuldig" ein Zeichen ab. Wir behandeln
-        # das Ctrl-C jetzt. Damit das Byte nicht verlorengeht, wird
-        # es in bytebuf zurückgelegt.
-        interruptp({
-          UnbufferedStreamLow_push_byte(stream,b);
-          fehler_interrupt();
-        });
-        #endif
-        return b;
+    }
+    newtermio = oldtermio;
+    newtermio.c_lflag &= ~IDEFAULT & ~ICANON;
+    if (!( ioctl(handle,TCSETA,&newtermio) ==0)) {
+      if (!((errno==ENOTTY)||(errno==EINVAL))) {
+        OS_error();
       }
     }
-
-  local signean low_listen_unbuffered_handle (object stream);
-  local signean low_listen_unbuffered_handle(stream)
-    var object stream;
-    {
-      if (UnbufferedStream_status(stream) < 0) # already EOF?
-        return ls_eof;
-      if (UnbufferedStream_status(stream) > 0) # bytebuf contains valid bytes?
+    var unsigned long bytes_ready = 0;
+    var int result = ioctl(handle,FIONREAD,&bytes_ready); # abfragen
+    # (Starting with emx 0.8f this could also be done using select().)
+    if (!( ioctl(handle,TCSETA,&oldtermio) ==0)) {
+      if (!((errno==ENOTTY)||(errno==EINVAL))) {
+        OS_error();
+      }
+    }
+    end_system_call();
+    if (result == 0) { # Enquiry succeeded.
+      if (bytes_ready > 0)
         return ls_avail;
-      # Method 1: select, see SELECT(2)
-      # Method 2: ioctl FIONREAD, see FILIO(4)
-      # Method 3: switch temporarily to non-blocking I/O and try read(),
-      #           see READ(2V), FILIO(4), or
-      #           see READ(2V), FCNTL(2V), FCNTL(5)
-      var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
-      #if defined(EMUNIX)
-      {
-        var struct termio oldtermio;
-        var struct termio newtermio;
-        begin_system_call();
-        if (!( ioctl(handle,TCGETA,&oldtermio) ==0)) {
-          if (!((errno==ENOTTY)||(errno==EINVAL))) {
-            OS_error();
-          }
-        }
-        newtermio = oldtermio;
-        newtermio.c_lflag &= ~IDEFAULT & ~ICANON;
-        if (!( ioctl(handle,TCSETA,&newtermio) ==0)) {
-          if (!((errno==ENOTTY)||(errno==EINVAL))) {
-            OS_error();
-          }
-        }
-        var unsigned long bytes_ready = 0;
-        var int result = ioctl(handle,FIONREAD,&bytes_ready); # abfragen
-        # (Starting with emx 0.8f this could also be done using select().)
-        if (!( ioctl(handle,TCSETA,&oldtermio) ==0)) {
-          if (!((errno==ENOTTY)||(errno==EINVAL))) {
-            OS_error();
-          }
-        }
-        end_system_call();
-        if (result == 0) {
-          # Enquiry succeeded.
-          if (bytes_ready > 0)
-            return ls_avail;
-        }
-        begin_system_call();
-        if (!isatty(handle)) {
-          result = eof(handle);
-          if (result<0) {
-            if (!(errno==ESPIPE)) { OS_error(); } # "Illegal seek error" is OK
-          } else {
-            end_system_call();
-            if (result>0) # EOF reached?
-              return ls_eof;
-            else
-              return ls_avail;
-          }
-        }
-        end_system_call();
-        return ls_wait;
-      }
-      #elif !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-      #if defined(HAVE_SELECT) && !defined(UNIX_BEOS)
-      {
-        # Use select() with readfds = singleton set {handle}
-        # and timeout = zero interval.
-        var fd_set handle_menge; # set of handles := {handle}
-        var struct timeval zero_time; # time interval := 0
-        begin_system_call();
-        FD_ZERO(&handle_menge); FD_SET(handle,&handle_menge);
-       restart_select:
-        zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-        var int result = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
-        if (result<0) {
-          if (errno==EINTR)
-            goto restart_select;
-          if (!(errno==EBADF)) { OS_error(); } # UNIX_LINUX liefert bei Files EBADF !
-          end_system_call();
-        } else {
-          end_system_call();
-          # result = number of handles in handle_menge for which read() would
-          # return without blocking.
-          if (result==0)
-            return ls_wait;
-          # result=1
-          # When read() returns a result without blocking, this can also be
-          # EOF! (Example: Linux and pipes.) We therefore refrain from simply
-          # doing  { return ls_avail; }  and instead try methods 2 and 3.
-        }
-      }
-      #endif
-      begin_system_call();
-      #ifdef HAVE_FIONREAD
-      # Try to enquire the number of available bytes:
-      {
-        var unsigned long bytes_ready;
-        if ( ioctl(handle,FIONREAD,&bytes_ready) <0) {
-          # Enquiry failed, probably wasn't a file
-          if (!((errno == ENOTTY)
-                || (errno == EINVAL)
-                #ifdef ENOSYS # for UNIX_IRIX
-                || (errno == ENOSYS)
-                #endif
-             ) ) {
-            OS_error();
-          }
-        } else {
-          # Enquiry succeeded, so it was a file
-          end_system_call();
-          if (bytes_ready > 0)
-            return ls_avail;
-          #ifdef HAVE_RELIABLE_FIONREAD
-          # else we have reached the file's EOF:
-          UnbufferedStream_status(stream) = -1; return ls_eof;
-          #endif
-        }
-      }
-      #endif
-      #if !(defined(HAVE_SELECT) && !defined(UNIX_BEOS))
-      if (!nullp(TheStream(stream)->strm_isatty)) {
-        # Terminal
-        # switch to non-blocking mode, then try read():
-        var uintB b;
-        var int result;
-       restart_read_tty:
-        #ifdef FIONBIO # non-blocking I/O à la BSD 4.2
-        {
-          var int non_blocking_io;
-          non_blocking_io = 1;
-          if (!( ioctl(handle,FIONBIO,&non_blocking_io) ==0)) {
-            OS_error();
-          }
-          result = read(handle,&b,1);
-          non_blocking_io = 0;
-          if (!( ioctl(handle,FIONBIO,&non_blocking_io) ==0)) {
-            OS_error();
-          }
-        }
-        #else # non-blocking I/O à la SYSV
-        {
-          var int fcntl_flags;
-          if (( fcntl_flags = fcntl(handle,F_GETFL,0) )<0) {
-            OS_error();
-          }
-          #ifdef O_NONBLOCK
-          if ( fcntl(handle,F_SETFL,fcntl_flags|O_NONBLOCK) <0) {
-            OS_error();
-          }
-          #else # older Unices called it O_NDELAY
-          if ( fcntl(handle,F_SETFL,fcntl_flags|O_NDELAY) <0) {
-            OS_error();
-          }
-          #endif
-          result = read(handle,&b,1);
-          if ( fcntl(handle,F_SETFL,fcntl_flags) <0) {
-            OS_error();
-          }
-        }
-        #endif
-        if (result < 0) {
-          if (errno==EINTR)
-            goto restart_read_tty;
-          #ifdef FIONBIO
-          if (errno==EWOULDBLOCK) # BSD 4.2 Error-Code
-          #else
-          if ((errno==EAGAIN) # Posix Error-Code
-              #ifdef EWOULDBLOCK
-              || (errno==EWOULDBLOCK)
-              #endif
-             )
-          #endif
-            return ls_wait;
-          OS_error();
-        }
-        end_system_call();
-        if (result==0) {
-          return ls_wait;
-        } else {
-          # Stuff the read byte into the buffer, for next low_read call.
-          UnbufferedStreamLow_push_byte(stream,b);
-          return ls_avail;
-        }
-        # If this doesn't work, should be use a timer 0.1 sec ??
-      } else
-      #endif
-        # file (or pipe)
-        {
-          # try to read a byte:
-         restart_read_other:
-          var uintB b;
-          var int result = read(handle,&b,1);
-          if (result<0) {
-            if (errno==EINTR)
-              goto restart_read_other;
-            OS_error();
-          }
-          end_system_call();
-          if (result==0) {
-            UnbufferedStream_status(stream) = -1; return ls_eof;
-          } else {
-            # Stuff the read byte into the buffer, for next low_read call.
-            UnbufferedStreamLow_push_byte(stream,b);
-            return ls_avail;
-          }
-        }
-      #elif defined(AMIGAOS)
-      begin_system_call();
-      if (!nullp(TheStream(stream)->strm_isatty)) {
-        # interactive
-        if (WaitForChar(handle,0)) { # wait 0 usec for a byte
-          end_system_call(); return ls_avail;
-        } else {
-          end_system_call(); return ls_wait;
-        }
-      } else {
-        # not interactive
-        # try to read a byte:
-        var uintB b;
-        var long result = Read(handle,&b,1);
-        end_system_call();
-        if (result<0) {
-          OS_error();
-        }
-        if (result==0) {
-          UnbufferedStream_status(stream) = -1; return ls_eof;
-        } else {
-          # Stuff the read byte into the buffer, for next low_read call.
-          UnbufferedStreamLow_push_byte(stream,b);
-          return ls_avail;
-        }
-      }
-      #elif defined(WIN32_NATIVE)
-      # This is pretty complex. To test this, create a file "listen.lisp"
-      # containing the code
-      #   (tagbody 1 (prin1 (listen *terminal-io*)) (sys::%sleep 0 500) (go 1))
-      # and execute "lisp.exe -q -i listen.lisp" with redirected standard input.
-      begin_system_call();
-      switch (GetFileType(handle)) {
-        case FILE_TYPE_CHAR:
-          {
-            var DWORD nevents;
-            if (GetNumberOfConsoleInputEvents(handle,&nevents)) {
-              # It's a console.
-              if (nevents==0) {
-                end_system_call(); return ls_wait;
-              }
-              var INPUT_RECORD* events = (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
-              var DWORD nevents_read;
-              var DWORD mode;
-              if (!PeekConsoleInput(handle,events,nevents,&nevents_read)) {
-                OS_error();
-              }
-              if (nevents_read==0) {
-                end_system_call(); return ls_wait;
-              }
-              if (!GetConsoleMode(handle,&mode)) {
-                OS_error();
-              }
-              if (mode & ENABLE_LINE_INPUT) {
-                # Look out for a Key-Down event corresponding to CR/LF.
-                var DWORD i;
-                for (i = 0; i < nevents_read; i++) {
-                  if (events[i].EventType == KEY_EVENT
-                      && events[i].Event.KeyEvent.bKeyDown
-                      && events[i].Event.KeyEvent.uAsciiChar == CR)
-                    # probably a byte available (except if it is Ctrl-Z)
-                    goto peek_one;
-                }
-              } else {
-                # Look out for any Key-Down event.
-                var DWORD i;
-                for (i = 0; i < nevents_read; i++) {
-                  if (events[i].EventType == KEY_EVENT
-                      && events[i].Event.KeyEvent.bKeyDown
-                      && events[i].Event.KeyEvent.uAsciiChar != 0)
-                    # probably a byte available (except if it is Ctrl-Z)
-                    goto peek_one;
-                }
-              }
-              end_system_call(); return ls_wait;
-            } elif (!(GetLastError()==ERROR_INVALID_HANDLE)) {
-              OS_error();
-            }
-          }
-          # Not a console.
-          switch (WaitForSingleObject(handle,0)) {
-            case WAIT_OBJECT_0:
-              # a byte is available, or EOF
-              break;
-            case WAIT_TIMEOUT:
-              end_system_call(); return ls_wait;
-            default:
-              OS_error();
-          }
-          /*FALLTHROUGH*/
-        case FILE_TYPE_DISK:
-        default:
-          # It's a file (or something unknown).
-         peek_one:
-          # try to read a byte
-          {
-            var uintB b;
-            var int result = read(handle,&b,1);
-            if (result<0) {
-              OS_error();
-            }
-            end_system_call();
-            if (result==0) {
-              UnbufferedStream_status(stream) = -1; return ls_eof;
-            } else {
-              # Stuff the read byte into the buffer, for next low_read call.
-              UnbufferedStreamLow_push_byte(stream,b);
-              return ls_avail;
-            }
-          }
-        case FILE_TYPE_PIPE:
-          {
-            var DWORD nbytes;
-            if (PeekNamedPipe(handle,NULL,0,NULL,&nbytes,NULL)) {
-              # It's a pipe (input).
-              end_system_call();
-              if (nbytes > 0)
-                return ls_avail;
-              else
-                return ls_wait;
-            } elif (GetLastError()==ERROR_BROKEN_PIPE) {
-              # EOF reached
-              end_system_call();
-              UnbufferedStream_status(stream) = -1;
-              return ls_eof;
-            } elif (GetLastError()==ERROR_ACCESS_DENIED) {
-              # It's a pipe (output). Let's fake EOF.
-              end_system_call();
-              UnbufferedStream_status(stream) = -1;
-              return ls_eof;
-            } else {
-              # What about sockets??
-              OS_error();
-            }
-          }
-      }
-      #endif
     }
-
-  local bool low_clear_input_unbuffered_handle (object stream);
-  local bool low_clear_input_unbuffered_handle(stream)
-    var object stream;
-    {
-      if (nullp(TheStream(stream)->strm_isatty))
-        return false; # it's a file -> nothing to do
-      UnbufferedStream_status(stream) = 0; # forget about past EOF
-      # Terminal (interactive on AMIGAOS)
-      clear_tty_input(TheHandle(TheStream(stream)->strm_ichannel));
-      # In case this didn't work, and as a general method for platforms on
-      # which clear_tty_input() does nothing: read a byte, as long as listen
-      # says that a byte is available.
-      while (ls_avail_p(low_listen_unbuffered_handle(stream))) {
-        #ifdef WIN32_NATIVE
-        # Our low_listen_unbuffered_handle function, when applied to a WinNT
-        # console, cannot tell when there is an LF pending after the
-        # preceding CR has been eaten. Therefore be careful to set
-        # UnbufferedStream_ignore_next_LF to true when we read a LF.
-        var uintL c = low_read_unbuffered_handle(stream);
-        if (c >= 0)
-          UnbufferedStream_ignore_next_LF(stream) = (c == CR);
-        #else
-        low_read_unbuffered_handle(stream);
-        #endif
-      }
-      return true;
-    }
-
-  local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr, uintL len);
-  local uintB* low_read_array_unbuffered_handle(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
-    var uintL len;
-    {
-      if (UnbufferedStream_status(stream) < 0) # already EOF?
-        return byteptr;
-      while (UnbufferedStream_status(stream) > 0) { # bytebuf contains valid bytes?
-        UnbufferedStreamLow_pop_byte(stream,b);
-        *byteptr++ = b;
-        len--;
-        if (len == 0)
-          return byteptr;
-      }
-      var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
-      run_time_stop(); # hold run time clock
-      begin_system_call();
-      var sintL result = full_read(handle,byteptr,len);
-      end_system_call();
-      run_time_restart(); # resume run time clock
+    begin_system_call();
+    if (!isatty(handle)) {
+      result = eof(handle);
       if (result<0) {
-        #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-        begin_system_call();
-        if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-          interruptp({ end_system_call(); fehler_interrupt(); });
-        #endif
-        #ifdef WIN32_NATIVE
-        begin_system_call();
-        if (GetLastError()==ERROR_SIGINT) { # Unterbrechung durch Ctrl-C ?
-          end_system_call(); fehler_interrupt();
-        }
-        #endif
-        OS_error(); # Error melden
+        if (!(errno==ESPIPE)) { OS_error(); } # "Illegal seek error" is OK
+      } else {
+        end_system_call();
+        if (result>0) # EOF reached?
+          return ls_eof;
+        else
+          return ls_avail;
       }
-      byteptr += result;
-      return byteptr;
     }
+    end_system_call();
+    return ls_wait;
+  }
+  #elif !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+  #if defined(HAVE_SELECT) && !defined(UNIX_BEOS)
+  {
+    # Use select() with readfds = singleton set {handle}
+    # and timeout = zero interval.
+    var fd_set handle_menge; # set of handles := {handle}
+    var struct timeval zero_time; # time interval := 0
+    begin_system_call();
+    FD_ZERO(&handle_menge); FD_SET(handle,&handle_menge);
+  restart_select:
+    zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+    var int result = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
+    if (result<0) {
+      if (errno==EINTR)
+        goto restart_select;
+      if (!(errno==EBADF)) { OS_error(); } # UNIX_LINUX liefert bei Files EBADF !
+      end_system_call();
+    } else {
+      end_system_call();
+      # result = number of handles in handle_menge for which read() would
+      # return without blocking.
+      if (result==0)
+        return ls_wait;
+      # result=1
+      # When read() returns a result without blocking, this can also be
+      # EOF! (Example: Linux and pipes.) We therefore refrain from simply
+      # doing  { return ls_avail; }  and instead try methods 2 and 3.
+    }
+  }
+  #endif
+  begin_system_call();
+  #ifdef HAVE_FIONREAD
+  # Try to enquire the number of available bytes:
+  {
+    var unsigned long bytes_ready;
+    if ( ioctl(handle,FIONREAD,&bytes_ready) <0) {
+      # Enquiry failed, probably wasn't a file
+      if (!((errno == ENOTTY)
+            || (errno == EINVAL)
+#ifdef ENOSYS # for UNIX_IRIX
+            || (errno == ENOSYS)
+#endif
+            ) ) {
+        OS_error();
+      }
+    } else {
+      # Enquiry succeeded, so it was a file
+      end_system_call();
+      if (bytes_ready > 0)
+        return ls_avail;
+      #ifdef HAVE_RELIABLE_FIONREAD
+      # else we have reached the file's EOF:
+      UnbufferedStream_status(stream) = -1; return ls_eof;
+      #endif
+    }
+  }
+  #endif
+  #if !(defined(HAVE_SELECT) && !defined(UNIX_BEOS))
+  if (!nullp(TheStream(stream)->strm_isatty)) { # Terminal
+    # switch to non-blocking mode, then try read():
+    var uintB b;
+    var int result;
+  restart_read_tty:
+    #ifdef FIONBIO # non-blocking I/O à la BSD 4.2
+    {
+      var int non_blocking_io;
+      non_blocking_io = 1;
+      if (!( ioctl(handle,FIONBIO,&non_blocking_io) ==0)) {
+        OS_error();
+      }
+      result = read(handle,&b,1);
+      non_blocking_io = 0;
+      if (!( ioctl(handle,FIONBIO,&non_blocking_io) ==0)) {
+        OS_error();
+      }
+    }
+    #else # non-blocking I/O à la SYSV
+    {
+      var int fcntl_flags;
+      if (( fcntl_flags = fcntl(handle,F_GETFL,0) )<0) {
+        OS_error();
+      }
+      #ifdef O_NONBLOCK
+      if ( fcntl(handle,F_SETFL,fcntl_flags|O_NONBLOCK) <0) {
+        OS_error();
+      }
+      #else # older Unices called it O_NDELAY
+      if ( fcntl(handle,F_SETFL,fcntl_flags|O_NDELAY) <0) {
+        OS_error();
+      }
+      #endif
+      result = read(handle,&b,1);
+      if ( fcntl(handle,F_SETFL,fcntl_flags) <0) {
+        OS_error();
+      }
+    }
+    #endif
+    if (result < 0) {
+      if (errno==EINTR)
+        goto restart_read_tty;
+      if
+       #ifdef FIONBIO
+        (errno==EWOULDBLOCK) # BSD 4.2 Error-Code
+       #else
+        ((errno==EAGAIN) # Posix Error-Code
+        #ifdef EWOULDBLOCK
+         || (errno==EWOULDBLOCK)
+         #endif
+         )
+       #endif
+          return ls_wait;
+      OS_error();
+    }
+    end_system_call();
+    if (result==0) {
+      return ls_wait;
+    } else {
+      # Stuff the read byte into the buffer, for next low_read call.
+      UnbufferedStreamLow_push_byte(stream,b);
+      return ls_avail;
+    }
+    # If this doesn't work, should be use a timer 0.1 sec ??
+  } else
+    #endif
+    # file (or pipe)
+    {
+      # try to read a byte:
+    restart_read_other:
+      var uintB b;
+      var int result = read(handle,&b,1);
+      if (result<0) {
+        if (errno==EINTR)
+          goto restart_read_other;
+        OS_error();
+      }
+      end_system_call();
+      if (result==0) {
+        UnbufferedStream_status(stream) = -1; return ls_eof;
+      } else {
+        # Stuff the read byte into the buffer, for next low_read call.
+        UnbufferedStreamLow_push_byte(stream,b);
+        return ls_avail;
+      }
+    }
+  #elif defined(AMIGAOS)
+  begin_system_call();
+  if (!nullp(TheStream(stream)->strm_isatty)) { # interactive
+    if (WaitForChar(handle,0)) { # wait 0 usec for a byte
+      end_system_call(); return ls_avail;
+    } else {
+      end_system_call(); return ls_wait;
+    }
+  } else { # not interactive
+    # try to read a byte:
+    var uintB b;
+    var long result = Read(handle,&b,1);
+    end_system_call();
+    if (result<0) {
+      OS_error();
+    }
+    if (result==0) {
+      UnbufferedStream_status(stream) = -1; return ls_eof;
+    } else {
+      # Stuff the read byte into the buffer, for next low_read call.
+      UnbufferedStreamLow_push_byte(stream,b);
+      return ls_avail;
+    }
+  }
+  #elif defined(WIN32_NATIVE)
+  # This is pretty complex. To test this, create a file "listen.lisp"
+  # containing the code
+  #   (tagbody 1 (prin1 (listen *terminal-io*)) (sys::%sleep 0 500) (go 1))
+  # and execute "lisp.exe -q -i listen.lisp" with redirected standard input.
+  begin_system_call();
+  switch (GetFileType(handle)) {
+    case FILE_TYPE_CHAR:
+      {
+        var DWORD nevents;
+        if (GetNumberOfConsoleInputEvents(handle,&nevents)) { # It's a console.
+          if (nevents==0) {
+            end_system_call(); return ls_wait;
+          }
+          var INPUT_RECORD* events =
+            (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
+          var DWORD nevents_read;
+          var DWORD mode;
+          if (!PeekConsoleInput(handle,events,nevents,&nevents_read)) {
+            OS_error();
+          }
+          if (nevents_read==0) {
+            end_system_call(); return ls_wait;
+          }
+          if (!GetConsoleMode(handle,&mode)) {
+            OS_error();
+          }
+          if (mode & ENABLE_LINE_INPUT) {
+            # Look out for a Key-Down event corresponding to CR/LF.
+            var DWORD i;
+            for (i = 0; i < nevents_read; i++) {
+              if (events[i].EventType == KEY_EVENT
+                  && events[i].Event.KeyEvent.bKeyDown
+                  && events[i].Event.KeyEvent.uAsciiChar == CR)
+                # probably a byte available (except if it is Ctrl-Z)
+                goto peek_one;
+            }
+          } else { # Look out for any Key-Down event.
+            var DWORD i;
+            for (i = 0; i < nevents_read; i++) {
+              if (events[i].EventType == KEY_EVENT
+                  && events[i].Event.KeyEvent.bKeyDown
+                  && events[i].Event.KeyEvent.uAsciiChar != 0)
+                # probably a byte available (except if it is Ctrl-Z)
+                goto peek_one;
+            }
+          }
+          end_system_call(); return ls_wait;
+        } elif (!(GetLastError()==ERROR_INVALID_HANDLE)) {
+          OS_error();
+        }
+      }
+      # Not a console.
+      switch (WaitForSingleObject(handle,0)) {
+        case WAIT_OBJECT_0: # a byte is available, or EOF
+          break;
+        case WAIT_TIMEOUT:
+          end_system_call(); return ls_wait;
+        default:
+          OS_error();
+      }
+      /*FALLTHROUGH*/
+    case FILE_TYPE_DISK:
+    default: # It's a file (or something unknown).
+  peek_one:
+      # try to read a byte
+      {
+        var uintB b;
+        var int result = read(handle,&b,1);
+        if (result<0) {
+          OS_error();
+        }
+        end_system_call();
+        if (result==0) {
+          UnbufferedStream_status(stream) = -1; return ls_eof;
+        } else {
+          # Stuff the read byte into the buffer, for next low_read call.
+          UnbufferedStreamLow_push_byte(stream,b);
+          return ls_avail;
+        }
+      }
+    case FILE_TYPE_PIPE:
+      {
+        var DWORD nbytes;
+        if (PeekNamedPipe(handle,NULL,0,NULL,&nbytes,NULL)) { # input pipe
+          end_system_call();
+          if (nbytes > 0)
+            return ls_avail;
+          else
+            return ls_wait;
+        } else if (GetLastError()==ERROR_BROKEN_PIPE) { # EOF reached
+          end_system_call();
+          UnbufferedStream_status(stream) = -1;
+          return ls_eof;
+        } else if (GetLastError()==ERROR_ACCESS_DENIED) { # output pipe
+          # => fake EOF.
+          end_system_call();
+          UnbufferedStream_status(stream) = -1;
+          return ls_eof;
+        } else { # What about sockets??
+          OS_error();
+        }
+      }
+  }
+  #endif
+}
+
+local bool low_clear_input_unbuffered_handle (object stream) {
+  if (nullp(TheStream(stream)->strm_isatty))
+    return false; # it's a file -> nothing to do
+  UnbufferedStream_status(stream) = 0; # forget about past EOF
+  # Terminal (interactive on AMIGAOS)
+  clear_tty_input(TheHandle(TheStream(stream)->strm_ichannel));
+  # In case this didn't work, and as a general method for platforms on
+  # which clear_tty_input() does nothing: read a byte, as long as listen
+  # says that a byte is available.
+  while (ls_avail_p(low_listen_unbuffered_handle(stream))) {
+    #ifdef WIN32_NATIVE
+    # Our low_listen_unbuffered_handle function, when applied to a WinNT
+    # console, cannot tell when there is an LF pending after the
+    # preceding CR has been eaten. Therefore be careful to set
+    # UnbufferedStream_ignore_next_LF to true when we read a LF.
+    var uintL c = low_read_unbuffered_handle(stream);
+    if (c >= 0)
+      UnbufferedStream_ignore_next_LF(stream) = (c == CR);
+    #else
+    low_read_unbuffered_handle(stream);
+    #endif
+  }
+  return true;
+}
+
+local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr, uintL len) {
+  if (UnbufferedStream_status(stream) < 0) # already EOF?
+    return byteptr;
+  while (UnbufferedStream_status(stream) > 0) { # bytebuf contains valid bytes?
+    UnbufferedStreamLow_pop_byte(stream,b);
+    *byteptr++ = b;
+    len--;
+    if (len == 0)
+      return byteptr;
+  }
+  var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
+  run_time_stop(); # hold run time clock
+  begin_system_call();
+  var sintL result = full_read(handle,byteptr,len);
+  end_system_call();
+  run_time_restart(); # resume run time clock
+  if (result<0) {
+    #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+    begin_system_call();
+    if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+      interruptp({ end_system_call(); fehler_interrupt(); });
+    #endif
+    #ifdef WIN32_NATIVE
+    begin_system_call();
+    if (GetLastError()==ERROR_SIGINT) { # Unterbrechung durch Ctrl-C ?
+      end_system_call(); fehler_interrupt();
+    }
+    #endif
+    OS_error();
+  }
+  byteptr += result;
+  return byteptr;
+}
 
 # Integer streams
 # ---------------
@@ -5551,65 +5014,49 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
 # > stream : File-Stream für Integers, Art a
 # > finisher : Beendigungsroutine
 # < ergebnis : gelesener Integer oder eof_value
-  local object rd_by_aux_iax_unbuffered (object stream, rd_by_ix_I* finisher);
-  local object rd_by_aux_iax_unbuffered(stream,finisher)
-    var object stream;
-    var rd_by_ix_I* finisher;
-    {
-      var uintL bitsize = ChannelStream_bitsize(stream);
-      var uintL bytesize = bitsize/8;
-      # transfer sufficiently many bytes into the bitbuffer
-      var uintB* bitbufferptr =
-        &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      if (UnbufferedStreamLow_read_array(stream)(stream,bitbufferptr,bytesize)
-          != bitbufferptr+bytesize)
-        goto eof;
-      # in Zahl umwandeln:
-      return (*finisher)(stream,bitsize,bytesize);
-     eof: # EOF erreicht
-      return eof_value;
-    }
+local object rd_by_aux_iax_unbuffered (object stream, rd_by_ix_I* finisher) {
+  var uintL bitsize = ChannelStream_bitsize(stream);
+  var uintL bytesize = bitsize/8;
+  # transfer sufficiently many bytes into the bitbuffer
+  var uintB* bitbufferptr =
+    &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
+  if (UnbufferedStreamLow_read_array(stream)(stream,bitbufferptr,bytesize)
+      != bitbufferptr+bytesize)
+    goto eof;
+  # in Zahl umwandeln:
+  return (*finisher)(stream,bitsize,bytesize);
+ eof: # EOF erreicht
+  return eof_value;
+}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art au :
-  local object rd_by_iau_unbuffered (object stream);
-  local object rd_by_iau_unbuffered(stream)
-    var object stream;
-    {
-      return rd_by_aux_iax_unbuffered(stream,&rd_by_iu_I);
-    }
+local object rd_by_iau_unbuffered (object stream) {
+  return rd_by_aux_iax_unbuffered(stream,&rd_by_iu_I);
+}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art as :
-  local object rd_by_ias_unbuffered (object stream);
-  local object rd_by_ias_unbuffered(stream)
-    var object stream;
-    {
-      return rd_by_aux_iax_unbuffered(stream,&rd_by_is_I);
-    }
+local object rd_by_ias_unbuffered (object stream) {
+  return rd_by_aux_iax_unbuffered(stream,&rd_by_is_I);
+}
 
 # READ-BYTE - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local object rd_by_iau8_unbuffered (object stream);
-  local object rd_by_iau8_unbuffered(stream)
-    var object stream;
-    {
-      var sintL b = UnbufferedStreamLow_read(stream)(stream);
-      if (b < 0)
-        return eof_value;
-      return fixnum((uintB)b);
-    }
+local object rd_by_iau8_unbuffered (object stream) {
+  var sintL b = UnbufferedStreamLow_read(stream)(stream);
+  if (b < 0)
+    return eof_value;
+  return fixnum((uintB)b);
+}
 
 # READ-BYTE-ARRAY - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local uintL rd_by_array_iau8_unbuffered (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local uintL rd_by_array_iau8_unbuffered(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      var object stream = *stream_;
-      var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
-      var uintB* endptr = UnbufferedStreamLow_read_array(stream)(stream,startptr,len);
-      return endptr-startptr;
-    }
+local uintL rd_by_array_iau8_unbuffered (const object* stream_,
+                                         const object* bytearray_,
+                                         uintL start, uintL len) {
+  var object stream = *stream_;
+  var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
+  var uintB* endptr =
+    UnbufferedStreamLow_read_array(stream)(stream,startptr,len);
+  return endptr-startptr;
+}
 
 # Stellt fest, ob ein Unbuffered-Channel-Stream ein Byte verfügbar hat.
 # listen_byte_ia8_unbuffered(stream)
@@ -5617,80 +5064,75 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
 # < ergebnis: ls_avail if a byte is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no byte is available, but not because of EOF
-  local signean listen_byte_ia8_unbuffered (object stream);
-  local signean listen_byte_ia8_unbuffered(stream)
-    var object stream;
-    {
-      return UnbufferedStreamLow_listen(stream)(stream);
-    }
+local signean listen_byte_ia8_unbuffered (object stream) {
+  return UnbufferedStreamLow_listen(stream)(stream);
+}
 
 # Character streams
 # -----------------
 
 # READ-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
-  local object rd_ch_unbuffered (const object* stream_);
-  local object rd_ch_unbuffered(stream_)
-    var const object* stream_;
-    {
-      var object stream = *stream_;
-      if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
-        return eof_value;
-     retry:
-      var chart c;
-      #ifdef UNICODE
-      var object encoding = TheStream(stream)->strm_encoding;
-      var uintB buf[max_bytes_per_chart];
-      var uintL buflen = 0;
-      loop {
-        var sintL b = UnbufferedStreamLow_read(stream)(stream);
-        if (b < 0)
-          return eof_value;
-        ASSERT(buflen < max_bytes_per_chart);
-        buf[buflen++] = (uintB)b;
-        var const uintB* bptr = &buf[0];
-        var chart* cptr = &c;
-        Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
-        if (cptr == &c) {
-          # Not a complete character.
-          # Shift the buffer
-          if (!(bptr == &buf[0])) {
-            var const uintB* ptr1 = bptr;
-            var uintB* ptr2 = &buf[0];
-            until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
-            buflen = ptr2 - &buf[0];
-          }
-        } else {
-          # Read a complete character.
-          # Move the remainder of the buffer into bytebuf.
-          UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
-          break;
-        }
+local object rd_ch_unbuffered (const object* stream_) {
+  var object stream = *stream_;
+  if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
+    return eof_value;
+ retry:
+  var chart c;
+  #ifdef UNICODE
+  var object encoding = TheStream(stream)->strm_encoding;
+  var uintB buf[max_bytes_per_chart];
+  var uintL buflen = 0;
+  loop {
+    var sintL b = UnbufferedStreamLow_read(stream)(stream);
+    if (b < 0)
+      return eof_value;
+    ASSERT(buflen < max_bytes_per_chart);
+    buf[buflen++] = (uintB)b;
+    var const uintB* bptr = &buf[0];
+    var chart* cptr = &c;
+    Encoding_mbstowcs(encoding)
+      (encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
+    if (cptr == &c) {
+      # Not a complete character.
+      # Shift the buffer
+      if (!(bptr == &buf[0])) {
+        var const uintB* ptr1 = bptr;
+        var uintB* ptr2 = &buf[0];
+        until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+        buflen = ptr2 - &buf[0];
       }
-      #else
-      {
-        var sintL b = UnbufferedStreamLow_read(stream)(stream);
-        if (b < 0)
-          return eof_value;
-        c = as_chart((uintB)b);
-      }
-      #endif
-      if (chareq(c,ascii(NL))) {
-        if (UnbufferedStream_ignore_next_LF(stream)) {
-          UnbufferedStream_ignore_next_LF(stream) = false;
-          goto retry;
-        }
-        # lineno incrementieren:
-        ChannelStream_lineno(stream) += 1;
-      } elif (chareq(c,ascii(CR))) {
-        UnbufferedStream_ignore_next_LF(stream) = true;
-        c = ascii(NL);
-        # lineno incrementieren:
-        ChannelStream_lineno(stream) += 1;
-      } else {
-        UnbufferedStream_ignore_next_LF(stream) = false;
-      }
-      return code_char(c);
+    } else {
+      # Read a complete character.
+      # Move the remainder of the buffer into bytebuf.
+      UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
+      break;
     }
+  }
+  #else
+  {
+    var sintL b = UnbufferedStreamLow_read(stream)(stream);
+    if (b < 0)
+      return eof_value;
+    c = as_chart((uintB)b);
+  }
+  #endif
+  if (chareq(c,ascii(NL))) {
+    if (UnbufferedStream_ignore_next_LF(stream)) {
+      UnbufferedStream_ignore_next_LF(stream) = false;
+      goto retry;
+    }
+    # increment lineno:
+    ChannelStream_lineno(stream) += 1;
+  } else if (chareq(c,ascii(CR))) {
+    UnbufferedStream_ignore_next_LF(stream) = true;
+    c = ascii(NL);
+    # increment lineno:
+    ChannelStream_lineno(stream) += 1;
+  } else {
+    UnbufferedStream_ignore_next_LF(stream) = false;
+  }
+  return code_char(c);
+}
 
 # Stellt fest, ob ein Unbuffered-Channel-Stream ein Zeichen verfügbar hat.
 # listen_char_unbuffered(stream)
@@ -5698,188 +5140,180 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_char_unbuffered (object stream);
-  local signean listen_char_unbuffered(stream)
-    var object stream;
-    {
-      if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
-        return ls_eof;
-      var signean result;
-      #ifdef UNICODE
-      var chart c;
-      var object encoding = TheStream(stream)->strm_encoding;
-      var uintB buf[max_bytes_per_chart];
-      var uintL buflen = 0;
-      loop {
-        result = UnbufferedStreamLow_listen(stream)(stream);
-        if (ls_eof_p(result))
-          break;
-        if (!ls_avail_p(result)) {
-          # Stop reading.
-          # Move the buffer into bytebuf.
-          UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
-          break;
-        }
-        var sintL b = UnbufferedStreamLow_read(stream)(stream);
-        if (b < 0) {
-          result = ls_eof; break;
-        }
-        ASSERT(buflen < max_bytes_per_chart);
-        buf[buflen++] = (uintB)b;
-        var const uintB* bptr = &buf[0];
-        var chart* cptr = &c;
-        Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
-        if (cptr == &c) {
-          # Not a complete character.
-          # Shift the buffer
-          if (!(bptr == &buf[0])) {
-            var const uintB* ptr1 = bptr;
-            var uintB* ptr2 = &buf[0];
-            until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
-            buflen = ptr2 - &buf[0];
-          }
-        } else {
-          # Read a complete character.
-          if (UnbufferedStream_ignore_next_LF(stream) && chareq(c,ascii(NL))) {
-            # Move the remainder of the buffer into bytebuf.
-            UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
-            UnbufferedStream_ignore_next_LF(stream) = false;
-          } else {
-            # Move the buffer into bytebuf.
-            UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
-            UnbufferedStream_ignore_next_LF(stream) = false;
-            result = ls_avail;
-            break;
-          }
-        }
-      }
-      #else
-     retry:
-      result = UnbufferedStreamLow_listen(stream)(stream);
-      if (ls_avail_p(result) && UnbufferedStream_ignore_next_LF(stream)) {
-        var sintL b = UnbufferedStreamLow_read(stream)(stream);
-        if (b < 0)
-          return ls_eof;
-        UnbufferedStream_ignore_next_LF(stream) = false;
-        if (b == NL)
-          goto retry;
-        UnbufferedStreamLow_pushfront_byte(stream,b);
-      }
-      #endif
-      return result;
+local signean listen_char_unbuffered (object stream) {
+  if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
+    return ls_eof;
+  var signean result;
+  #ifdef UNICODE
+  var chart c;
+  var object encoding = TheStream(stream)->strm_encoding;
+  var uintB buf[max_bytes_per_chart];
+  var uintL buflen = 0;
+  loop {
+    result = UnbufferedStreamLow_listen(stream)(stream);
+    if (ls_eof_p(result))
+      break;
+    if (!ls_avail_p(result)) {
+      # Stop reading.
+      # Move the buffer into bytebuf.
+      UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
+      break;
     }
+    var sintL b = UnbufferedStreamLow_read(stream)(stream);
+    if (b < 0) {
+      result = ls_eof; break;
+    }
+    ASSERT(buflen < max_bytes_per_chart);
+    buf[buflen++] = (uintB)b;
+    var const uintB* bptr = &buf[0];
+    var chart* cptr = &c;
+    Encoding_mbstowcs(encoding)
+      (encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
+    if (cptr == &c) {
+      # Not a complete character.
+      # Shift the buffer
+      if (!(bptr == &buf[0])) {
+        var const uintB* ptr1 = bptr;
+        var uintB* ptr2 = &buf[0];
+        until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+        buflen = ptr2 - &buf[0];
+      }
+    } else {
+      # Read a complete character.
+      if (UnbufferedStream_ignore_next_LF(stream) && chareq(c,ascii(NL))) {
+        # Move the remainder of the buffer into bytebuf.
+        UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
+        UnbufferedStream_ignore_next_LF(stream) = false;
+      } else {
+        # Move the buffer into bytebuf.
+        UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
+        UnbufferedStream_ignore_next_LF(stream) = false;
+        result = ls_avail;
+        break;
+      }
+    }
+  }
+  #else
+ retry:
+  result = UnbufferedStreamLow_listen(stream)(stream);
+  if (ls_avail_p(result) && UnbufferedStream_ignore_next_LF(stream)) {
+    var sintL b = UnbufferedStreamLow_read(stream)(stream);
+    if (b < 0)
+      return ls_eof;
+    UnbufferedStream_ignore_next_LF(stream) = false;
+    if (b == NL)
+      goto retry;
+    UnbufferedStreamLow_pushfront_byte(stream,b);
+  }
+  #endif
+  return result;
+}
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem
 # Unbuffered-Channel-Stream.
 # clear_input_unbuffered(stream);
 # > stream: Unbuffered-Channel-Stream
 # < ergebnis: true falls Input gelöscht wurde, false sonst
-  local bool clear_input_unbuffered (object stream);
-  local bool clear_input_unbuffered(stream)
-    var object stream;
-    {
-      if (nullp(TheStream(stream)->strm_isatty))
-        return false; # it's a file -> nothing to do
-      TheStream(stream)->strm_rd_ch_last = NIL; # forget about past EOF
-      #ifdef WIN32_NATIVE
-      # Our low_listen_unbuffered_handle function, when applied to a WinNT
-      # console, cannot tell when there is an LF pending after the
-      # preceding CR has been eaten. Therefore be careful not to reset
-      # UnbufferedStream_ignore_next_LF.
-      #else
-      UnbufferedStream_ignore_next_LF(stream) = false;
-      #endif
-      UnbufferedStreamLow_clear_input(stream)(stream);
-      return true;
-    }
+local bool clear_input_unbuffered (object stream) {
+  if (nullp(TheStream(stream)->strm_isatty))
+    return false; # it's a file -> nothing to do
+  TheStream(stream)->strm_rd_ch_last = NIL; # forget about past EOF
+  #ifdef WIN32_NATIVE
+  # Our low_listen_unbuffered_handle function, when applied to a WinNT
+  # console, cannot tell when there is an LF pending after the
+  # preceding CR has been eaten. Therefore be careful not to reset
+  # UnbufferedStream_ignore_next_LF.
+  #else
+  UnbufferedStream_ignore_next_LF(stream) = false;
+  #endif
+  UnbufferedStreamLow_clear_input(stream)(stream);
+  return true;
+}
 
 # READ-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
-  local uintL rd_ch_array_unbuffered (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local uintL rd_ch_array_unbuffered(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
+local uintL rd_ch_array_unbuffered (const object* stream_,
+                                    const object* chararray_,
+                                    uintL start, uintL len) {
+  # Need a temporary buffer for CR/LF->NL translation.
+  #define tmpbufsize 4096
+  var chart tmpbuf[tmpbufsize];
+  var object stream = *stream_;
+  var chart* startptr = &TheSstring(*chararray_)->data[start];
+  var chart* endptr = startptr+len;
+  var chart* charptr = startptr;
+  loop {
+    var uintL remaining = endptr - charptr;
+    if (remaining == 0)
+      break;
+    if (remaining > tmpbufsize)
+      remaining = tmpbufsize;
+    var uintL count;
+    #ifdef UNICODE
+    # In order to read n characters, we read n bytes. (Fewer than n bytes
+    # will not suffice.) If these aren't enough bytes, the next round
+    # will provide them.
+    # FIXME: Could use TheEncoding(encoding)->min_bytes_per_char here.
     {
-      # Need a temporary buffer for CR/LF->NL translation.
-      #define tmpbufsize 4096
-      var chart tmpbuf[tmpbufsize];
-      var object stream = *stream_;
-      var chart* startptr = &TheSstring(*chararray_)->data[start];
-      var chart* endptr = startptr+len;
-      var chart* charptr = startptr;
-      loop {
-        var uintL remaining = endptr - charptr;
-        if (remaining == 0)
-          break;
-        if (remaining > tmpbufsize)
-          remaining = tmpbufsize;
-        var uintL count;
-        #ifdef UNICODE
-        # In order to read n characters, we read n bytes. (Fewer than n bytes
-        # will not suffice.) If these aren't enough bytes, the next round
-        # will provide them.
-        # FIXME: Could use TheEncoding(encoding)->min_bytes_per_char here.
-        {
-          var object encoding = TheStream(stream)->strm_encoding;
-          var uintB tmptmpbuf[tmpbufsize];
-          var uintB* tmptmpendptr =
-            UnbufferedStreamLow_read_array(stream)(stream,tmptmpbuf,remaining);
-          var const uintB* tmptmpptr = &tmptmpbuf[0];
-          var chart* tmpptr = &tmpbuf[0];
-          Encoding_mbstowcs(encoding)(encoding,stream,&tmptmpptr,tmptmpendptr,&tmpptr,&tmpbuf[tmpbufsize]);
-          count = tmpptr - &tmpbuf[0];
-          ASSERT(tmptmpendptr-tmptmpptr < max_bytes_per_chart);
-          # Move the remainder of tmptmpbuf into bytebuf.
-          UnbufferedStreamLow_pushfront_bytes(stream,tmptmpptr,tmptmpendptr-tmptmpptr);
-        }
-        if (count == 0) {
-          # Filling the last few characters must be done one by one, in
-          # order not to overrun the goal.
-          pushSTACK(stream);
-          do {
-            var object ch = rd_ch_unbuffered(&STACK_0);
-            if (eq(ch,eof_value))
-              break;
-            tmpbuf[count++] = char_code(ch);
-            remaining--;
-          } while (remaining > 0);
-          skipSTACK(1);
-        }
-        #else
-        count = UnbufferedStreamLow_read_array(stream)(stream,tmpbuf,remaining) - &tmpbuf[0];
-        #endif
-        if (count == 0)
-          break;
-        var const chart* tmpptr = &tmpbuf[0];
-        do {
-          var chart c = *tmpptr++;
-          count--;
-          if (chareq(c,ascii(NL))) {
-            if (UnbufferedStream_ignore_next_LF(stream)) {
-              UnbufferedStream_ignore_next_LF(stream) = false;
-            } else {
-              ChannelStream_lineno(stream) += 1; *charptr++ = ascii(NL);
-            }
-          } elif (chareq(c,ascii(CR))) {
-            if (count > 0) {
-              if (chareq(*tmpptr,ascii(NL))) {
-                tmpptr++; count--;
-              }
-              UnbufferedStream_ignore_next_LF(stream) = false;
-            } else {
-              UnbufferedStream_ignore_next_LF(stream) = true;
-            }
-            ChannelStream_lineno(stream) += 1; *charptr++ = ascii(NL);
-          } else {
-            UnbufferedStream_ignore_next_LF(stream) = false;
-            *charptr++ = c;
-          }
-        } while (count > 0);
-      }
-      return charptr - startptr;
-      #undef tmpbufsize
+      var object encoding = TheStream(stream)->strm_encoding;
+      var uintB tmptmpbuf[tmpbufsize];
+      var uintB* tmptmpendptr =
+        UnbufferedStreamLow_read_array(stream)(stream,tmptmpbuf,remaining);
+      var const uintB* tmptmpptr = &tmptmpbuf[0];
+      var chart* tmpptr = &tmpbuf[0];
+      Encoding_mbstowcs(encoding)
+        (encoding,stream,&tmptmpptr,tmptmpendptr,&tmpptr,&tmpbuf[tmpbufsize]);
+      count = tmpptr - &tmpbuf[0];
+      ASSERT(tmptmpendptr-tmptmpptr < max_bytes_per_chart);
+      # Move the remainder of tmptmpbuf into bytebuf.
+      UnbufferedStreamLow_pushfront_bytes(stream,tmptmpptr,tmptmpendptr-tmptmpptr);
     }
+    if (count == 0) {
+      # Filling the last few characters must be done one by one, in
+      # order not to overrun the goal.
+      pushSTACK(stream);
+      do {
+        var object ch = rd_ch_unbuffered(&STACK_0);
+        if (eq(ch,eof_value))
+          break;
+        tmpbuf[count++] = char_code(ch);
+        remaining--;
+      } while (remaining > 0);
+      skipSTACK(1);
+    }
+    #else
+    count = UnbufferedStreamLow_read_array(stream)(stream,tmpbuf,remaining) - &tmpbuf[0];
+    #endif
+    if (count == 0)
+      break;
+    var const chart* tmpptr = &tmpbuf[0];
+    do {
+      var chart c = *tmpptr++;
+      count--;
+      if (chareq(c,ascii(NL))) {
+        if (UnbufferedStream_ignore_next_LF(stream)) {
+          UnbufferedStream_ignore_next_LF(stream) = false;
+        } else {
+          ChannelStream_lineno(stream) += 1; *charptr++ = ascii(NL);
+        }
+      } else if (chareq(c,ascii(CR))) {
+        if (count > 0) {
+          if (chareq(*tmpptr,ascii(NL))) {
+            tmpptr++; count--;
+          }
+          UnbufferedStream_ignore_next_LF(stream) = false;
+        } else {
+          UnbufferedStream_ignore_next_LF(stream) = true;
+        }
+        ChannelStream_lineno(stream) += 1; *charptr++ = ascii(NL);
+      } else {
+        UnbufferedStream_ignore_next_LF(stream) = false;
+        *charptr++ = c;
+      }
+    } while (count > 0);
+  }
+  return charptr - startptr;
+  #undef tmpbufsize
+}
 
 # Initializes the input side fields of an unbuffered stream.
 # UnbufferedHandleStream_input_init(stream);
@@ -5902,17 +5336,14 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
 # Schließt einen Channel-Stream.
 # close_ichannel(stream);
 # > stream : Channel-Stream
-  local void close_ichannel (object stream);
-  local void close_ichannel(stream)
-    var object stream;
-    {
-      ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ichannel);
-      ChannelStream_fini(stream);
-      if (ChannelStream_bitsize(stream) > 0) {
-        ChannelStream_bitsize(stream) = 0; # bitsize löschen
-        TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
-      }
-    }
+local void close_ichannel (object stream) {
+  ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ichannel);
+  ChannelStream_fini(stream);
+  if (ChannelStream_bitsize(stream) > 0) {
+    ChannelStream_bitsize(stream) = 0; # bitsize löschen
+    TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
+  }
+}
 
 # Handle-Streams, Output side
 # ===========================
@@ -5920,137 +5351,98 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
 # Low-level
 # ---------
 
-  local void low_write_unbuffered_handle (object stream, uintB b);
-  local void low_write_unbuffered_handle(stream,b)
-    var object stream;
-    var uintB b;
-    {
-      var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
-     restart_it:
-      begin_system_call();
-      # Try to output the byte.
-      #if !defined(AMIGAOS)
-      var int result = write(handle,&b,1);
-      if (result<0) {
-        #if !defined(WIN32_NATIVE)
-        if (errno==EINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
-          end_system_call();
-          interruptp({ fehler_interrupt(); });
-          goto restart_it;
-        }
-        #endif
-        OS_error(); # Error melden
-      }
+local void low_write_unbuffered_handle (object stream, uintB b) {
+  var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
+ restart_it:
+  begin_system_call();
+  # Try to output the byte.
+  #if !defined(AMIGAOS)
+  var int result = write(handle,&b,1);
+  if (result<0) {
+    #if !defined(WIN32_NATIVE)
+    if (errno==EINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
       end_system_call();
-      #else # defined(AMIGAOS)
-      var long result = Write(handle,&b,1);
-      end_system_call();
-      if (result<0) {
-        OS_error(); # Error melden
-      }
-      interruptp({ fehler_interrupt(); }); # Ctrl-C -> Break-Schleife aufrufen
-      #endif
-      if (result==0) # not successful?
-        fehler_unwritable(TheSubr(subr_self)->name,stream);
+      interruptp({ fehler_interrupt(); });
+      goto restart_it;
     }
+    #endif
+    OS_error();
+  }
+  end_system_call();
+  #else # defined(AMIGAOS)
+  var long result = Write(handle,&b,1);
+  end_system_call();
+  if (result<0) { OS_error(); }
+  interruptp({ fehler_interrupt(); }); # Ctrl-C -> Break-Schleife aufrufen
+  #endif
+  if (result==0) # not successful?
+    fehler_unwritable(TheSubr(subr_self)->name,stream);
+}
 
-  local const uintB* low_write_array_unbuffered_handle (object stream, const uintB* byteptr, uintL len);
-  local const uintB* low_write_array_unbuffered_handle(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
-    var uintL len;
-    {
-      var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
-      begin_system_call();
-      var sintL result = full_write(handle,byteptr,len);
-      if (result<0) {
-        OS_error(); # Error melden
-      }
-      end_system_call();
-      if (!(result==(sintL)len)) # not successful?
-        fehler_unwritable(TheSubr(subr_self)->name,stream);
-      return byteptr+result;
-    }
+local const uintB* low_write_array_unbuffered_handle (object stream,
+                                                      const uintB* byteptr,
+                                                      uintL len) {
+  var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
+  begin_system_call();
+  var sintL result = full_write(handle,byteptr,len);
+  if (result<0) { OS_error(); }
+  end_system_call();
+  if (!(result==(sintL)len)) # not successful?
+    fehler_unwritable(TheSubr(subr_self)->name,stream);
+  return byteptr+result;
+}
 
-  local void low_finish_output_unbuffered_handle (object stream);
-  local void low_finish_output_unbuffered_handle(stream)
-    var object stream;
-    {
-      finish_tty_output(TheHandle(TheStream(stream)->strm_ochannel));
-    }
+local void low_finish_output_unbuffered_handle (object stream) {
+  finish_tty_output(TheHandle(TheStream(stream)->strm_ochannel));
+}
 
-  local void low_force_output_unbuffered_handle (object stream);
-  local void low_force_output_unbuffered_handle(stream)
-    var object stream;
-    {
-      force_tty_output(TheHandle(TheStream(stream)->strm_ochannel));
-    }
+local void low_force_output_unbuffered_handle (object stream) {
+  force_tty_output(TheHandle(TheStream(stream)->strm_ochannel));
+}
 
-  local void low_clear_output_unbuffered_handle (object stream);
-  local void low_clear_output_unbuffered_handle(stream)
-    var object stream;
-    {
-      clear_tty_output(TheHandle(TheStream(stream)->strm_ochannel));
-    }
+local void low_clear_output_unbuffered_handle (object stream) {
+  clear_tty_output(TheHandle(TheStream(stream)->strm_ochannel));
+}
 
 # Integer streams
 # ---------------
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art a :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-  local void wr_by_aux_ia_unbuffered (object stream, uintL bitsize, uintL bytesize);
-  local void wr_by_aux_ia_unbuffered(stream,bitsize,bytesize)
-    var object stream;
-    var uintL bitsize;
-    var uintL bytesize;
-    {
-      var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      UnbufferedStreamLow_write_array(stream)(stream,bitbufferptr,bytesize);
-    }
+local void wr_by_aux_ia_unbuffered (object stream, uintL bitsize,
+                                    uintL bytesize) {
+  uintB* bitbufferptr = TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
+  UnbufferedStreamLow_write_array(stream)(stream,bitbufferptr,bytesize);
+}
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art au :
-  local void wr_by_iau_unbuffered (object stream, object obj);
-  local void wr_by_iau_unbuffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      wr_by_ixu_sub(stream,obj,&wr_by_aux_ia_unbuffered);
-    }
+local void wr_by_iau_unbuffered (object stream, object obj) {
+  wr_by_ixu_sub(stream,obj,&wr_by_aux_ia_unbuffered);
+}
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art as :
-  local void wr_by_ias_unbuffered (object stream, object obj);
-  local void wr_by_ias_unbuffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      wr_by_ixs_sub(stream,obj,&wr_by_aux_ia_unbuffered);
-    }
+local void wr_by_ias_unbuffered (object stream, object obj) {
+  wr_by_ixs_sub(stream,obj,&wr_by_aux_ia_unbuffered);
+}
 
 # WRITE-BYTE - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local void wr_by_iau8_unbuffered (object stream, object obj);
-  local void wr_by_iau8_unbuffered(stream,obj)
-    var object stream;
-    var object obj;
-    {
-      # obj überprüfen:
-      if (!integerp(obj))
-        fehler_wr_integer(stream,obj);
-      if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
-        fehler_bad_integer(stream,obj);
-      UnbufferedStreamLow_write(stream)(stream,(uintB)posfixnum_to_L(obj));
-    }
+local void wr_by_iau8_unbuffered (object stream, object obj) {
+  # check obj:
+  if (!integerp(obj))
+    fehler_wr_integer(stream,obj);
+  if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
+    fehler_bad_integer(stream,obj);
+  UnbufferedStreamLow_write(stream)(stream,(uintB)posfixnum_to_L(obj));
+}
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local void wr_by_array_iau8_unbuffered (const object* stream_, const object* bytearray_, uintL start, uintL len);
-  local void wr_by_array_iau8_unbuffered(stream_,bytearray_,start,len)
-    var const object* stream_;
-    var const object* bytearray_;
-    var uintL start;
-    var uintL len;
-    {
-      var object stream = *stream_;
-      UnbufferedStreamLow_write_array(stream)(stream,&TheSbvector(*bytearray_)->data[start],len);
-    }
+local void wr_by_array_iau8_unbuffered (const object* stream_,
+                                        const object* bytearray_,
+                                        uintL start, uintL len) {
+  var object stream = *stream_;
+  UnbufferedStreamLow_write_array(stream)
+    (stream,&TheSbvector(*bytearray_)->data[start],len);
+}
 
 # Character streams
 # -----------------
@@ -6058,216 +5450,190 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
 # Three versions, one for each kind of line-terminator: :unix, :mac, :dos.
 
 # WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
-  local void wr_ch_unbuffered_unix (const object* stream_, object ch);
-  local void wr_ch_unbuffered_unix(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      # ch sollte Character sein:
-      if (!charp(ch))
-        fehler_wr_char(stream,ch);
-      var chart c = char_code(ch); # Code des Zeichens
-      #ifdef UNICODE
-      var uintB buf[max_bytes_per_chart];
-      var object encoding = TheStream(stream)->strm_encoding;
-      var const chart* cptr = &c;
-      var uintB* bptr = &buf[0];
-      Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
-      ASSERT(cptr == &c+1);
-      UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
-      #else
-      UnbufferedStreamLow_write(stream)(stream,as_cint(c));
-      #endif
-    }
+local void wr_ch_unbuffered_unix (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (!charp(ch)) # ch must be a character
+    fehler_wr_char(stream,ch);
+  var chart c = char_code(ch); # Code des Zeichens
+  #ifdef UNICODE
+  var uintB buf[max_bytes_per_chart];
+  var object encoding = TheStream(stream)->strm_encoding;
+  var const chart* cptr = &c;
+  var uintB* bptr = &buf[0];
+  Encoding_wcstombs(encoding)
+    (encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+  ASSERT(cptr == &c+1);
+  UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
+  #else
+  UnbufferedStreamLow_write(stream)(stream,as_cint(c));
+  #endif
+}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
-  local void wr_ch_array_unbuffered_unix (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_unbuffered_unix(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
-    {
-      var object stream = *stream_;
-      var const chart* charptr;
-      unpack_sstring_alloca(*chararray_,len,start, charptr=);
-      #ifdef UNICODE
-      #define tmpbufsize 4096
-      var const chart* endptr = charptr + len;
-      var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
-      var object encoding = TheStream(stream)->strm_encoding;
-      do {
-        var uintB* bptr = &tmptmpbuf[0];
-        Encoding_wcstombs(encoding)(encoding,stream,&charptr,endptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
-        UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
-      } until (charptr == endptr);
-      #undef tmpbufsize
-      #else
-      var const chart* endptr = UnbufferedStreamLow_write_array(stream)(stream,charptr,len);
-      #endif
-      wr_ss_lpos(stream,endptr,len); # Line-Position aktualisieren
-    }
+local void wr_ch_array_unbuffered_unix (const object* stream_,
+                                        const object* chararray_,
+                                        uintL start, uintL len) {
+  var object stream = *stream_;
+  var const chart* charptr;
+  unpack_sstring_alloca(*chararray_,len,start, charptr=);
+  #ifdef UNICODE
+  #define tmpbufsize 4096
+  var const chart* endptr = charptr + len;
+  var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
+  var object encoding = TheStream(stream)->strm_encoding;
+  do {
+    var uintB* bptr = &tmptmpbuf[0];
+    Encoding_wcstombs(encoding)(encoding,stream,&charptr,endptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+    UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
+  } until (charptr == endptr);
+  #undef tmpbufsize
+  #else
+  var const chart* endptr = UnbufferedStreamLow_write_array(stream)(stream,charptr,len);
+  #endif
+  wr_ss_lpos(stream,endptr,len); # Line-Position aktualisieren
+}
 
 # WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
-  local void wr_ch_unbuffered_mac (const object* stream_, object ch);
-  local void wr_ch_unbuffered_mac(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      # ch sollte Character sein:
-      if (!charp(ch))
-        fehler_wr_char(stream,ch);
-      var chart c = char_code(ch); # Code des Zeichens
-      if (chareq(c,ascii(NL)))
-        c = ascii(CR);
-      #ifdef UNICODE
-      var uintB buf[max_bytes_per_chart];
-      var object encoding = TheStream(stream)->strm_encoding;
-      var const chart* cptr = &c;
-      var uintB* bptr = &buf[0];
-      Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
-      ASSERT(cptr == &c+1);
-      UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
-      #else
-      UnbufferedStreamLow_write(stream)(stream,as_cint(c));
-      #endif
-    }
+local void wr_ch_unbuffered_mac (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (!charp(ch)) # ch must be a character
+    fehler_wr_char(stream,ch);
+  var chart c = char_code(ch); # Code des Zeichens
+  if (chareq(c,ascii(NL)))
+    c = ascii(CR);
+  #ifdef UNICODE
+  var uintB buf[max_bytes_per_chart];
+  var object encoding = TheStream(stream)->strm_encoding;
+  var const chart* cptr = &c;
+  var uintB* bptr = &buf[0];
+  Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+  ASSERT(cptr == &c+1);
+  UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
+  #else
+  UnbufferedStreamLow_write(stream)(stream,as_cint(c));
+  #endif
+}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
-  local void wr_ch_array_unbuffered_mac (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_unbuffered_mac(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
+local void wr_ch_array_unbuffered_mac (const object* stream_,
+                                       const object* chararray_,
+                                       uintL start, uintL len) {
+  var object stream = *stream_;
+  var const chart* charptr;
+  unpack_sstring_alloca(*chararray_,len,start, charptr=);
+  # Need a temporary buffer for NL->CR translation.
+  #define tmpbufsize 4096
+  var chart tmpbuf[tmpbufsize];
+  #ifdef UNICODE
+  var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
+  var object encoding = TheStream(stream)->strm_encoding;
+  #endif
+  var uintL remaining = len;
+  do {
+    var uintL n = remaining;
+    if (n > tmpbufsize)
+      n = tmpbufsize;
     {
-      var object stream = *stream_;
-      var const chart* charptr;
-      unpack_sstring_alloca(*chararray_,len,start, charptr=);
-      # Need a temporary buffer for NL->CR translation.
-      #define tmpbufsize 4096
-      var chart tmpbuf[tmpbufsize];
+      var chart* tmpptr = &tmpbuf[0];
+      var uintL count;
+      dotimespL(count,n, {
+        var chart c = *charptr++;
+        if (chareq(c,ascii(NL)))
+          c = ascii(CR);
+        *tmpptr++ = c;
+      });
       #ifdef UNICODE
-      var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
-      var object encoding = TheStream(stream)->strm_encoding;
+      var const chart* cptr = tmpbuf;
+      var uintB* bptr = &tmptmpbuf[0];
+      Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+      ASSERT(cptr == tmpptr);
+      UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
+      #else
+      UnbufferedStreamLow_write_array(stream)(stream,tmpbuf,n);
       #endif
-      var uintL remaining = len;
-      do {
-        var uintL n = remaining;
-        if (n > tmpbufsize)
-          n = tmpbufsize;
-        {
-          var chart* tmpptr = &tmpbuf[0];
-          var uintL count;
-          dotimespL(count,n, {
-            var chart c = *charptr++;
-            if (chareq(c,ascii(NL)))
-              c = ascii(CR);
-            *tmpptr++ = c;
-          });
-          #ifdef UNICODE
-          var const chart* cptr = tmpbuf;
-          var uintB* bptr = &tmptmpbuf[0];
-          Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
-          ASSERT(cptr == tmpptr);
-          UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
-          #else
-          UnbufferedStreamLow_write_array(stream)(stream,tmpbuf,n);
-          #endif
-        }
-        remaining -= n;
-      } while (remaining > 0);
-      #undef tmpbufsize
-      wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
     }
+    remaining -= n;
+  } while (remaining > 0);
+  #undef tmpbufsize
+  wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
+}
 
 # WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
-  local void wr_ch_unbuffered_dos (const object* stream_, object ch);
-  local void wr_ch_unbuffered_dos(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      # ch sollte Character sein:
-      if (!charp(ch))
-        fehler_wr_char(stream,ch);
-      var chart c = char_code(ch); # Code des Zeichens
-      static chart const crlf[2] = { ascii(CR), ascii(LF) };
-      #ifdef UNICODE
-      var uintB buf[2*max_bytes_per_chart];
-      var object encoding = TheStream(stream)->strm_encoding;
-      var const chart* cp;
-      var uintL n;
-      if (chareq(c,ascii(NL))) {
-        cp = crlf; n = 2;
-      } else {
-        cp = &c; n = 1;
-      }
-      var const chart* cptr = cp;
-      var uintB* bptr = &buf[0];
-      Encoding_wcstombs(encoding)(encoding,stream,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
-      ASSERT(cptr == cp+n);
-      UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
-      #else
-      if (chareq(c,ascii(NL))) {
-        UnbufferedStreamLow_write_array(stream)(stream,crlf,2);
-      } else {
-        UnbufferedStreamLow_write(stream)(stream,as_cint(c));
-      }
-      #endif
-    }
+local void wr_ch_unbuffered_dos (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (!charp(ch)) # ch must be a character
+    fehler_wr_char(stream,ch);
+  var chart c = char_code(ch); # Code des Zeichens
+  static chart const crlf[2] = { ascii(CR), ascii(LF) };
+  #ifdef UNICODE
+  var uintB buf[2*max_bytes_per_chart];
+  var object encoding = TheStream(stream)->strm_encoding;
+  var const chart* cp;
+  var uintL n;
+  if (chareq(c,ascii(NL))) {
+    cp = crlf; n = 2;
+  } else {
+    cp = &c; n = 1;
+  }
+  var const chart* cptr = cp;
+  var uintB* bptr = &buf[0];
+  Encoding_wcstombs(encoding)(encoding,stream,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
+  ASSERT(cptr == cp+n);
+  UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
+  #else
+  if (chareq(c,ascii(NL))) {
+    UnbufferedStreamLow_write_array(stream)(stream,crlf,2);
+  } else {
+    UnbufferedStreamLow_write(stream)(stream,as_cint(c));
+  }
+  #endif
+}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
-  local void wr_ch_array_unbuffered_dos (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local void wr_ch_array_unbuffered_dos(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
+local void wr_ch_array_unbuffered_dos (const object* stream_,
+                                       const object* chararray_,
+                                       uintL start, uintL len) {
+  var object stream = *stream_;
+  var const chart* charptr;
+  unpack_sstring_alloca(*chararray_,len,start, charptr=);
+  # Need a temporary buffer for NL->CR/LF translation.
+  #define tmpbufsize 4096
+  var chart tmpbuf[2*tmpbufsize];
+  #ifdef UNICODE
+  var uintB tmptmpbuf[2*tmpbufsize*max_bytes_per_chart];
+  var object encoding = TheStream(stream)->strm_encoding;
+  #endif
+  var uintL remaining = len;
+  do {
+    var uintL n = remaining;
+    if (n > tmpbufsize)
+      n = tmpbufsize;
     {
-      var object stream = *stream_;
-      var const chart* charptr;
-      unpack_sstring_alloca(*chararray_,len,start, charptr=);
-      # Need a temporary buffer for NL->CR/LF translation.
-      #define tmpbufsize 4096
-      var chart tmpbuf[2*tmpbufsize];
-      #ifdef UNICODE
-      var uintB tmptmpbuf[2*tmpbufsize*max_bytes_per_chart];
-      var object encoding = TheStream(stream)->strm_encoding;
-      #endif
-      var uintL remaining = len;
-      do {
-        var uintL n = remaining;
-        if (n > tmpbufsize)
-          n = tmpbufsize;
-        {
-          var chart* tmpptr = &tmpbuf[0];
-          var uintL count;
-          dotimespL(count,n, {
-            var chart c = *charptr++;
-            if (chareq(c,ascii(NL))) {
-              *tmpptr++ = ascii(CR); *tmpptr++ = ascii(LF);
-            } else {
-              *tmpptr++ = c;
-            }
-          });
-          #ifdef UNICODE
-          var const chart* cptr = tmpbuf;
-          var uintB* bptr = &tmptmpbuf[0];
-          Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
-          ASSERT(cptr == tmpptr);
-          UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
-          #else
-          UnbufferedStreamLow_write_array(stream)(stream,tmpbuf,tmpptr-&tmpbuf[0]);
-          #endif
+      var chart* tmpptr = &tmpbuf[0];
+      var uintL count;
+      dotimespL(count,n, {
+        var chart c = *charptr++;
+        if (chareq(c,ascii(NL))) {
+          *tmpptr++ = ascii(CR); *tmpptr++ = ascii(LF);
+        } else {
+          *tmpptr++ = c;
         }
-        remaining -= n;
-      } while (remaining > 0);
-      #undef tmpbufsize
-      wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
+      });
+      #ifdef UNICODE
+      var const chart* cptr = tmpbuf;
+      var uintB* bptr = &tmptmpbuf[0];
+      Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
+      ASSERT(cptr == tmpptr);
+      UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
+      #else
+      UnbufferedStreamLow_write_array(stream)(stream,tmpbuf,tmpptr-&tmpbuf[0]);
+      #endif
     }
+    remaining -= n;
+  } while (remaining > 0);
+  #undef tmpbufsize
+  wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
+}
 
 # Macro: Emits a shift sequence to let the output conversion descriptor of an
 # Unbuffered-Channel-Stream return to the initial state.
@@ -6278,30 +5644,28 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
       if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
         oconv_unshift_output_unbuffered_(stream);          \
       }
-    local void oconv_unshift_output_unbuffered_ (object stream);
-    local void oconv_unshift_output_unbuffered_(stream)
-      var object stream;
-      {
-        #define tmpbufsize 4096
-        var uintB tmpbuf[tmpbufsize];
-        var char* outptr = (char*)tmpbuf;
-        var size_t outsize = tmpbufsize;
-        begin_system_call();
-        var size_t res = iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
-        if (res == (size_t)(-1)) {
-          if (errno == E2BIG) { # output buffer too small?
-            NOTREACHED
-          } else {
-            OS_error();
-          }
+    local void oconv_unshift_output_unbuffered_ (object stream) {
+      #define tmpbufsize 4096
+      var uintB tmpbuf[tmpbufsize];
+      var char* outptr = (char*)tmpbuf;
+      var size_t outsize = tmpbufsize;
+      begin_system_call();
+      var size_t res =
+        iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
+      if (res == (size_t)(-1)) {
+        if (errno == E2BIG) { # output buffer too small?
+          NOTREACHED
+        } else {
+          OS_error();
         }
-        end_system_call();
-        var uintL outcount = outptr-(char*)tmpbuf;
-        if (outcount > 0) {
-          UnbufferedStreamLow_write_array(stream)(stream,&tmpbuf[0],outcount);
-        }
-        #undef tmpbufsize
       }
+      end_system_call();
+      var uintL outcount = outptr-(char*)tmpbuf;
+      if (outcount > 0) {
+        UnbufferedStreamLow_write_array(stream)(stream,&tmpbuf[0],outcount);
+      }
+      #undef tmpbufsize
+    }
   #else
     #define oconv_unshift_output_unbuffered(stream)
   #endif
@@ -6310,62 +5674,54 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
 # finish_output_unbuffered(stream);
 # > stream: Handle-Stream
 # can trigger GC
-  local void finish_output_unbuffered (object stream);
-  local void finish_output_unbuffered(stream)
-    var object stream;
-    {
-      oconv_unshift_output_unbuffered(stream);
-      UnbufferedStreamLow_finish_output(stream)(stream);
-    }
+local void finish_output_unbuffered (object stream) {
+  oconv_unshift_output_unbuffered(stream);
+  UnbufferedStreamLow_finish_output(stream)(stream);
+}
 
 # UP: Bringt den wartenden Output eines Unbuffered-Channel-Stream ans Ziel.
 # force_output_unbuffered(stream);
 # > stream: Handle-Stream
 # can trigger GC
-  local void force_output_unbuffered (object stream);
-  local void force_output_unbuffered(stream)
-    var object stream;
-    {
-      oconv_unshift_output_unbuffered(stream);
-      UnbufferedStreamLow_force_output(stream)(stream);
-    }
+local void force_output_unbuffered (object stream) {
+  oconv_unshift_output_unbuffered(stream);
+  UnbufferedStreamLow_force_output(stream)(stream);
+}
 
 # UP: Löscht den wartenden Output eines Unbuffered-Channel-Stream.
 # clear_output_unbuffered(stream);
 # > stream: Handle-Stream
 # can trigger GC
-  local void clear_output_unbuffered (object stream);
-  local void clear_output_unbuffered(stream)
-    var object stream;
-    {
-      UnbufferedStreamLow_clear_output(stream)(stream);
-    }
+local void clear_output_unbuffered (object stream) {
+  UnbufferedStreamLow_clear_output(stream)(stream);
+}
 
 # Initializes the output side fields of an unbuffered handle stream.
 # UnbufferedHandleStream_output_init(stream);
-  #define UnbufferedHandleStream_output_init(stream)  \
-    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_handle;                 \
-      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_handle;     \
-      UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_handle; \
-      UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_handle;   \
-      UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_handle;   \
+#define UnbufferedHandleStream_output_init(stream)                      \
+    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_handle; \
+      UnbufferedStreamLow_write_array(stream) =                         \
+        &low_write_array_unbuffered_handle;                             \
+      UnbufferedStreamLow_finish_output(stream) =                       \
+        &low_finish_output_unbuffered_handle;                           \
+      UnbufferedStreamLow_force_output(stream) =                        \
+        &low_force_output_unbuffered_handle;                            \
+      UnbufferedStreamLow_clear_output(stream) =                        \
+        &low_clear_output_unbuffered_handle;                            \
     }
 
 # Schließt einen Channel-Stream.
 # close_ochannel(stream);
 # > stream : Channel-Stream
-  local void close_ochannel (object stream);
-  local void close_ochannel(stream)
-    var object stream;
-    {
-      oconv_unshift_output_unbuffered(stream);
-      ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel);
-      ChannelStream_fini(stream);
-      if (ChannelStream_bitsize(stream) > 0) {
-        ChannelStream_bitsize(stream) = 0; # bitsize löschen
-        TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
-      }
-    }
+local void close_ochannel (object stream) {
+  oconv_unshift_output_unbuffered(stream);
+  ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel);
+  ChannelStream_fini(stream);
+  if (ChannelStream_bitsize(stream) > 0) {
+    ChannelStream_bitsize(stream) = 0; # bitsize löschen
+    TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
+  }
+}
 
 
 # Unbuffered File-Stream
@@ -6374,98 +5730,86 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
 # UP: Überprüft ein Element-Type für einen Unbuffered-Stream
 # check_unbuffered_eltype(&eltype);
 # > eltype: Element-Type in decoded form
-  local void check_unbuffered_eltype (const decoded_eltype* eltype);
-  local void check_unbuffered_eltype(eltype)
-    var const decoded_eltype* eltype;
-    {
-      if (!((eltype->kind == eltype_ch) || ((eltype->size % 8) == 0))) {
-        pushSTACK(canon_eltype(eltype));
-        pushSTACK(S(Kelement_type));
-        fehler(error,
-               GETTEXT("Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~")
-              );
-      }
-    }
+local void check_unbuffered_eltype (const decoded_eltype* eltype) {
+  if (!((eltype->kind == eltype_ch) || ((eltype->size % 8) == 0))) {
+    pushSTACK(canon_eltype(eltype));
+    pushSTACK(S(Kelement_type));
+    fehler(error,GETTEXT("Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~"));
+  }
+}
 
 # UP: Fills in the pseudofunctions for an unbuffered stream.
 # fill_pseudofuns_unbuffered(stream,&eltype);
 # > stream: stream being built up, with correct strmflags and encoding
 # > eltype: Element-Type in decoded form
-  local void fill_pseudofuns_unbuffered (object stream, const decoded_eltype* eltype);
-  local void fill_pseudofuns_unbuffered(stream,eltype)
-    var object stream;
-    var const decoded_eltype* eltype;
-    {
-      var uintB flags = TheStream(stream)->strmflags;
-      if (flags & strmflags_rd_B) {
-        if (eltype->kind==eltype_ch) {
-          TheStream(stream)->strm_rd_by = P(rd_by_error);
-          TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-          TheStream(stream)->strm_rd_ch = P(rd_ch_unbuffered);
-          TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_unbuffered);
-        } else {
-          TheStream(stream)->strm_rd_by =
-            (eltype->kind == eltype_iu
-             ? (eltype->size == 8
-                ? P(rd_by_iau8_unbuffered)
-                : P(rd_by_iau_unbuffered))
-             : P(rd_by_ias_unbuffered)
-            );
-          TheStream(stream)->strm_rd_by_array =
-            ((eltype->kind == eltype_iu) && (eltype->size == 8)
-             ? P(rd_by_array_iau8_unbuffered)
-             : P(rd_by_array_dummy)
-            );
-          TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-          TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-        }
-      } else {
-        TheStream(stream)->strm_rd_by = P(rd_by_error);
-        TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-        TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-        TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-      }
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      if (flags & strmflags_wr_B) {
-        if (eltype->kind == eltype_ch) {
-          TheStream(stream)->strm_wr_by = P(wr_by_error);
-          TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-          var object eol = TheEncoding(TheStream(stream)->strm_encoding)->enc_eol;
-          if (eq(eol,S(Kunix))) {
-            TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_unix);
-            TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_unix);
-          } elif (eq(eol,S(Kmac))) {
-            TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_mac);
-            TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_mac);
-          } elif (eq(eol,S(Kdos))) {
-            TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_dos);
-            TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_dos);
-          } else {
-            NOTREACHED;
-          }
-        } else {
-          TheStream(stream)->strm_wr_by =
-            (eltype->kind == eltype_iu
-             ? (eltype->size == 8
-                ? P(wr_by_iau8_unbuffered)
-                : P(wr_by_iau_unbuffered))
-             : P(wr_by_ias_unbuffered)
-            );
-          TheStream(stream)->strm_wr_by_array =
-            ((eltype->kind == eltype_iu) && (eltype->size == 8)
-             ? P(wr_by_array_iau8_unbuffered)
-             : P(wr_by_array_dummy)
-            );
-          TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-          TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-        }
-      } else {
-        TheStream(stream)->strm_wr_by = P(wr_by_error);
-        TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-        TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-      }
+local void fill_pseudofuns_unbuffered (object stream,
+                                       const decoded_eltype* eltype) {
+  var uintB flags = TheStream(stream)->strmflags;
+  if (flags & strmflags_rd_B) {
+    if (eltype->kind==eltype_ch) {
+      TheStream(stream)->strm_rd_by = P(rd_by_error);
+      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+      TheStream(stream)->strm_rd_ch = P(rd_ch_unbuffered);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_unbuffered);
+    } else {
+      TheStream(stream)->strm_rd_by =
+        (eltype->kind == eltype_iu
+         ? (eltype->size == 8
+            ? P(rd_by_iau8_unbuffered)
+            : P(rd_by_iau_unbuffered))
+         : P(rd_by_ias_unbuffered));
+      TheStream(stream)->strm_rd_by_array =
+        ((eltype->kind == eltype_iu) && (eltype->size == 8)
+         ? P(rd_by_array_iau8_unbuffered)
+         : P(rd_by_array_dummy));
+      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
     }
+  } else {
+    TheStream(stream)->strm_rd_by = P(rd_by_error);
+    TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+    TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+    TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
+  }
+  TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+  if (flags & strmflags_wr_B) {
+    if (eltype->kind == eltype_ch) {
+      TheStream(stream)->strm_wr_by = P(wr_by_error);
+      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+      var object eol = TheEncoding(TheStream(stream)->strm_encoding)->enc_eol;
+      if (eq(eol,S(Kunix))) {
+        TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_unix);
+        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_unix);
+      } else if (eq(eol,S(Kmac))) {
+        TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_mac);
+        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_mac);
+      } else if (eq(eol,S(Kdos))) {
+        TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_dos);
+        TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_dos);
+      } else {
+        NOTREACHED;
+      }
+    } else {
+      TheStream(stream)->strm_wr_by =
+        (eltype->kind == eltype_iu
+         ? (eltype->size == 8
+            ? P(wr_by_iau8_unbuffered)
+            : P(wr_by_iau_unbuffered))
+         : P(wr_by_ias_unbuffered));
+      TheStream(stream)->strm_wr_by_array =
+        ((eltype->kind == eltype_iu) && (eltype->size == 8)
+         ? P(wr_by_array_iau8_unbuffered)
+         : P(wr_by_array_dummy));
+      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
+    }
+  } else {
+    TheStream(stream)->strm_wr_by = P(wr_by_error);
+    TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+    TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
+  }
+}
 
 #define READ_P(dir)  ((dir) & bit(0)) /* readable */
 #define RO_P(dir)    ((dir) & bit(1)) /* immutable */
@@ -6703,21 +6047,17 @@ typedef struct strm_i_buffered_extrafields_struct {
 # low_fill_buffered_handle(stream)
 # > stream: (open) byte-based file stream
 # < result: number of bytes read
-  local uintL low_fill_buffered_handle (object stream);
-  local uintL low_fill_buffered_handle(stream)
-    var object stream;
-    {
-      begin_system_call();
-      var sintL result = # Buffer füllen
-        full_read(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
-                  &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
-                  strm_buffered_bufflen
-                 );
-      end_system_call();
-      if (result<0) # Fehler aufgetreten?
-        OS_filestream_error(stream);
-      return result;
-    }
+local uintL low_fill_buffered_handle (object stream) {
+  begin_system_call();
+  var sintL result = # Buffer füllen
+    full_read(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
+              &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
+              strm_buffered_bufflen);
+  end_system_call();
+  if (result<0) # Fehler aufgetreten?
+    OS_filestream_error(stream);
+  return result;
+}
 
 # Functions for writing the buffer.
 # low_flush_buffered_handle(stream,bufflen);
@@ -6734,52 +6074,44 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > bufflen : Anzahl der zu schreibenden Bytes
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
-  local void low_flush_buffered_handle (object stream, uintL bufflen);
-  local void low_flush_buffered_handle(stream,bufflen)
-    var object stream;
-    var uintL bufflen;
-    {
-      begin_system_call();
-      var sintL ergebnis = # Buffer hinausschreiben
-        full_write(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
-                   &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
-                   bufflen
-                  );
-      if (ergebnis==bufflen) {
-        # alles korrekt geschrieben
-        end_system_call(); BufferedStream_modified(stream) = false;
-      } else {
-        # Nicht alles geschrieben
-        #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
-        if (ergebnis<0) # Fehler aufgetreten?
-          #ifdef ENOSPC
-          if (!(errno == ENOSPC))
-          #endif
-          #ifdef EDQUOT
-          if (!(errno == EDQUOT))
-          #endif
-            { end_system_call(); OS_filestream_error(stream); }
+local void low_flush_buffered_handle (object stream, uintL bufflen) {
+  begin_system_call();
+  var sintL ergebnis = # Buffer hinausschreiben
+    full_write(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
+               &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
+               bufflen
+               );
+  if (ergebnis==bufflen) { # alles korrekt geschrieben
+    end_system_call(); BufferedStream_modified(stream) = false;
+  } else { # Nicht alles geschrieben
+    #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+    if (ergebnis<0) # Fehler aufgetreten?
+      #ifdef ENOSPC
+      if (!(errno == ENOSPC))
+      #endif
+        #ifdef EDQUOT
+        if (!(errno == EDQUOT))
         #endif
-        #if defined(AMIGAOS) || defined(WIN32_NATIVE)
-        if (ergebnis<0) { # Fehler aufgetreten?
-            end_system_call(); OS_filestream_error(stream);
-        }
-        #endif
-        end_system_call();
-        # not everything was written, probably because of full diskette.
-        # in order to avoid inconsistencies, must close the file
-        BufferedStream_modified(stream) = false; # data is lost!
-        pushSTACK(stream);
-        builtin_stream_close(&STACK_0); # file close
-        clr_break_sem_4(); # no more UNIX operations are active
-        # Report the error
-        pushSTACK(Truename_or_Self(STACK_0)); # FILE-ERROR slot PATHNAME
-        pushSTACK(STACK_(0+1)); # stream
-        fehler(file_error,
-               GETTEXT("Closed ~ because disk is full.")
-              );
-      }
+          { end_system_call(); OS_filestream_error(stream); }
+    #endif
+    #if defined(AMIGAOS) || defined(WIN32_NATIVE)
+    if (ergebnis<0) { # Fehler aufgetreten?
+      end_system_call(); OS_filestream_error(stream);
     }
+    #endif
+    end_system_call();
+    # not everything was written, probably because of full diskette.
+    # in order to avoid inconsistencies, must close the file
+    BufferedStream_modified(stream) = false; # data is lost!
+    pushSTACK(stream);
+    builtin_stream_close(&STACK_0); # file close
+    clr_break_sem_4(); # no more UNIX operations are active
+    # Report the error
+    pushSTACK(Truename_or_Self(STACK_0)); # FILE-ERROR slot PATHNAME
+    pushSTACK(STACK_(0+1)); # stream
+    fehler(file_error,GETTEXT("Closed ~ because disk is full."));
+  }
+}
 
 #define BufferedHandleStream_init(stream)  \
   { BufferedStreamLow_fill(stream) = &low_fill_buffered_handle;   \
@@ -6791,53 +6123,44 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > stream : (offener) Byte-basierter File-Stream.
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
-  local void buffered_full_flush (object stream);
-  local void buffered_full_flush(stream)
-    var object stream;
-    {
-      # erst zurückpositionieren, dann schreiben.
-      if (BufferedStream_blockpositioning(stream)) {
-        begin_system_call();
-        handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-                     -(long)strm_buffered_bufflen,SEEK_CUR,); # Zurückpositionieren
-        end_system_call();
-      }
-      BufferedStreamLow_flush(stream)(stream,strm_buffered_bufflen);
-    }
+local void buffered_full_flush (object stream) {
+  # erst zurückpositionieren, dann schreiben.
+  if (BufferedStream_blockpositioning(stream)) {
+    begin_system_call();
+    handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                 -(long)strm_buffered_bufflen,SEEK_CUR,); # Zurückpositionieren
+    end_system_call();
+  }
+  BufferedStreamLow_flush(stream)(stream,strm_buffered_bufflen);
+}
 
 # UP: Schreibt den halbvollen, modifizierten Buffer zurück.
 # buffered_half_flush(stream);
 # > stream : (offener) Byte-basierter File-Stream.
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
-  local void buffered_half_flush (object stream);
-  local void buffered_half_flush(stream)
-    var object stream;
-    {
-      if (BufferedStream_blockpositioning(stream)) {
-        begin_system_call();
-        handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-                     BufferedStream_buffstart(stream),SEEK_SET,); # Zurückpositionieren
-        end_system_call();
-      }
-      # eofindex Bytes schreiben:
-      BufferedStreamLow_flush(stream)(stream,BufferedStream_eofindex(stream));
-    }
+local void buffered_half_flush (object stream) {
+  if (BufferedStream_blockpositioning(stream)) {
+    begin_system_call();
+    handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                 BufferedStream_buffstart(stream),SEEK_SET,); # Zurückpositionieren
+    end_system_call();
+  }
+  # eofindex Bytes schreiben:
+  BufferedStreamLow_flush(stream)(stream,BufferedStream_eofindex(stream));
+}
 
 # UP: Schreibt den modifizierten Buffer zurück.
 # buffered_flush(stream);
 # > stream : (offener) Byte-basierter File-Stream.
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
-  local void buffered_flush (object stream);
-  local void buffered_flush(stream)
-    var object stream;
-    {
-      if (BufferedStream_eofindex(stream) == eofindex_all_valid) # Buffer ganz gültig ?
-        buffered_full_flush(stream);
-      else
-        buffered_half_flush(stream);
-    }
+local void buffered_flush (object stream) {
+  if (BufferedStream_eofindex(stream) == eofindex_all_valid) # Buffer ganz gültig ?
+    buffered_full_flush(stream);
+  else
+    buffered_half_flush(stream);
+}
 
 # UP: Positioniert einen Byte-basierten File-Stream so, dass das nächste Byte
 # gelesen oder überschrieben werden kann.
@@ -6846,59 +6169,52 @@ typedef struct strm_i_buffered_extrafields_struct {
 # < ergebnis : NULL falls EOF (und dann ist index=eofindex),
 #              sonst: Pointer auf nächstes Byte
 # verändert in stream: index, eofindex, buffstart
-  local uintB* buffered_nextbyte (object stream);
-  local uintB* buffered_nextbyte(stream)
-    var object stream;
-    {
-      var sintL eofindex = BufferedStream_eofindex(stream);
-      var uintL index = BufferedStream_index(stream);
-      if (!(eofindex == eofindex_all_valid)) {
-        # Bufferdaten nur halb gültig
-        if (eofindex == eofindex_all_invalid)
-          # Bufferdaten ganz ungültig
-          goto reread;
-        else
-          # EOF tritt in diesem Sector auf
-          goto eofsector;
-      }
-      # Bufferdaten ganz gültig
-      if (!(index == strm_buffered_bufflen)) { # index = bufflen ?
-        # nein, also 0 <= index < strm_buffered_bufflen -> OK
-        return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[index];
-      }
-      # Buffer muss neu gefüllt werden.
-      if (BufferedStream_modified(stream))
-        # Zuvor muss der Buffer hinausgeschrieben werden:
-        buffered_full_flush(stream);
-      BufferedStream_buffstart(stream) += strm_buffered_bufflen;
-     reread: # Ab hier den Buffer neu lesen:
-      {
-        var sintL ergebnis;
-        if (BufferedStream_blockpositioning(stream)
-            || !((TheStream(stream)->strmflags & strmflags_rd_B) == 0)) {
-          ergebnis = BufferedStreamLow_fill(stream)(stream);
-          if (ergebnis==strm_buffered_bufflen) {
-            # der ganze Buffer wurde gefüllt
-            BufferedStream_index(stream) = 0; # Index := 0
-            BufferedStream_modified(stream) = false; # Buffer unmodifiziert
-            BufferedStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
-            return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0];
-          }
-        } else {
-          ergebnis = 0;
-        }
-        # Es wurden ergebnis (< strm_buffered_bufflen) Bytes gelesen.
-        # Nicht der ganze Buffer wurde gefüllt -> EOF ist erreicht.
-        BufferedStream_index(stream) = index = 0; # Index := 0
+local uintB* buffered_nextbyte (object stream) {
+  var sintL eofindex = BufferedStream_eofindex(stream);
+  var uintL index = BufferedStream_index(stream);
+  if (!(eofindex == eofindex_all_valid)) { # Bufferdaten nur halb gültig
+    if (eofindex == eofindex_all_invalid) # Bufferdaten ganz ungültig
+      goto reread;
+    else # EOF tritt in diesem Sector auf
+      goto eofsector;
+  }
+  # Bufferdaten ganz gültig
+  if (!(index == strm_buffered_bufflen)) { # index = bufflen ?
+    # nein, also 0 <= index < strm_buffered_bufflen -> OK
+    return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[index];
+  }
+  # Buffer muss neu gefüllt werden.
+  if (BufferedStream_modified(stream))
+  # Zuvor muss der Buffer hinausgeschrieben werden:
+    buffered_full_flush(stream);
+  BufferedStream_buffstart(stream) += strm_buffered_bufflen;
+ reread: # Ab hier den Buffer neu lesen:
+  {
+    var sintL ergebnis;
+    if (BufferedStream_blockpositioning(stream)
+        || !((TheStream(stream)->strmflags & strmflags_rd_B) == 0)) {
+      ergebnis = BufferedStreamLow_fill(stream)(stream);
+      if (ergebnis==strm_buffered_bufflen) { # der ganze Buffer wurde gefüllt
+        BufferedStream_index(stream) = 0; # Index := 0
         BufferedStream_modified(stream) = false; # Buffer unmodifiziert
-        BufferedStream_eofindex(stream) = eofindex = ergebnis; # eofindex := ergebnis
+        BufferedStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
+        return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0];
       }
-     eofsector: # eofindex ist ein Fixnum, d.h. EOF tritt in diesem Sector auf.
-      if (index == eofindex)
-        return (uintB*)NULL; # EOF erreicht
-      else
-        return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[index];
+    } else {
+      ergebnis = 0;
     }
+    # Es wurden ergebnis (< strm_buffered_bufflen) Bytes gelesen.
+    # Nicht der ganze Buffer wurde gefüllt -> EOF ist erreicht.
+    BufferedStream_index(stream) = index = 0; # Index := 0
+    BufferedStream_modified(stream) = false; # Buffer unmodifiziert
+    BufferedStream_eofindex(stream) = eofindex = ergebnis; # eofindex := ergebnis
+  }
+ eofsector: # eofindex ist ein Fixnum, d.h. EOF tritt in diesem Sector auf.
+  if (index == eofindex)
+    return (uintB*)NULL; # EOF erreicht
+  else
+    return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[index];
+}
 
 # UP: Bereitet das Schreiben eines Bytes am EOF vor.
 # buffered_eofbyte(stream);
@@ -6906,66 +6222,55 @@ typedef struct strm_i_buffered_extrafields_struct {
 #            bei dem gerade buffered_nextbyte(stream)==NULL ist.
 # < ergebnis : Pointer auf nächstes (freies) Byte
 # verändert in stream: index, eofindex, buffstart
-  local uintB* buffered_eofbyte (object stream);
-  local uintB* buffered_eofbyte(stream)
-    var object stream;
-    {
-      # EOF. Es ist eofindex=index.
-      if (BufferedStream_eofindex(stream) == strm_buffered_bufflen) {
-        # eofindex = strm_buffered_bufflen
-        # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
-        # genügt es, ihn hinauszuschreiben:
-        if (BufferedStream_modified(stream))
-          buffered_half_flush(stream);
-        BufferedStream_buffstart(stream) += strm_buffered_bufflen;
-        BufferedStream_eofindex(stream) = 0; # eofindex := 0
-        BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = false; # unmodifiziert
-      }
-      # eofindex erhöhen:
-      BufferedStream_eofindex(stream) += 1;
-      return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)];
-    }
+local uintB* buffered_eofbyte (object stream) {
+  # EOF. Es ist eofindex=index.
+  if (BufferedStream_eofindex(stream) == strm_buffered_bufflen) {
+    # eofindex = strm_buffered_bufflen
+    # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
+    # genügt es, ihn hinauszuschreiben:
+    if (BufferedStream_modified(stream))
+      buffered_half_flush(stream);
+    BufferedStream_buffstart(stream) += strm_buffered_bufflen;
+    BufferedStream_eofindex(stream) = 0; # eofindex := 0
+    BufferedStream_index(stream) = 0; # index := 0
+    BufferedStream_modified(stream) = false; # unmodifiziert
+  }
+  # eofindex erhöhen:
+  BufferedStream_eofindex(stream) += 1;
+  return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)];
+}
 
 # UP: Schreibt ein Byte auf einen Byte-basierten File-Stream.
 # buffered_writebyte(stream,b);
 # > stream : (offener) Byteblock-basierter File-Stream.
 # > b : zu schreibendes Byte
 # verändert in stream: index, eofindex, buffstart
-  local void buffered_writebyte (object stream, uintB b);
-  local void buffered_writebyte(stream,b)
-    var object stream;
-    var uintB b;
-    {
-      var uintB* ptr = buffered_nextbyte(stream);
-      if (!(ptr == (uintB*)NULL)) {
-        if (*ptr == b) # keine wirkliche Modifikation?
-          goto no_modification;
-      } else {
-        ptr = buffered_eofbyte(stream); # EOF -> 1 Byte Platz machen
-      }
-      # nächstes Byte in den Buffer schreiben:
-      *ptr = b; BufferedStream_modified(stream) = true;
-     no_modification:
-      # index incrementieren:
-      BufferedStream_index(stream) += 1;
-    }
+local void buffered_writebyte (object stream, uintB b) {
+  var uintB* ptr = buffered_nextbyte(stream);
+  if (!(ptr == (uintB*)NULL)) {
+    if (*ptr == b) # keine wirkliche Modifikation?
+      goto no_modification;
+  } else {
+    ptr = buffered_eofbyte(stream); # EOF -> 1 Byte Platz machen
+  }
+  # nächstes Byte in den Buffer schreiben:
+  *ptr = b; BufferedStream_modified(stream) = true;
+ no_modification:
+  # increment index
+  BufferedStream_index(stream) += 1;
+}
 
 # File-Stream, Byte-basiert (b_file)
 # ===========  ============
 
 # Fehler wegen Positionierung hinter EOF.
 # fehler_position_beyond_EOF(stream);
-  nonreturning_function(local, fehler_position_beyond_EOF, (object stream));
-  local void fehler_position_beyond_EOF(stream)
-    var object stream;
-    {
-      pushSTACK(Truename_or_Self(stream)); # FILE-ERROR slot PATHNAME
-      pushSTACK(stream);
-      fehler(file_error,
-             GETTEXT("cannot position ~ beyond EOF")
-            );
-    }
+nonreturning_function(local, fehler_position_beyond_EOF, (object stream));
+local void fehler_position_beyond_EOF (object stream) {
+  pushSTACK(Truename_or_Self(stream)); # FILE-ERROR slot PATHNAME
+  pushSTACK(stream);
+  fehler(file_error,GETTEXT("cannot position ~ beyond EOF"));
+}
 
 # UP: Positioniert einen (offenen) Byte-basierten File-Stream an eine
 # gegebene Position.
@@ -6973,70 +6278,64 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > stream : (offener) Byte-basierter File-Stream.
 # > position : neue Position
 # verändert in stream: index, eofindex, buffstart
-  local void position_file_buffered (object stream, uintL position);
-  local void position_file_buffered(stream,position)
-    var object stream;
-    var uintL position;
-    {
-      # Liegt die neue Position im selben Sector?
-      {
-        var sintL eofindex = BufferedStream_eofindex(stream);
-        var uintL newindex = position - BufferedStream_buffstart(stream);
-        if (newindex
-            <= ((eofindex == eofindex_all_valid) ? strm_buffered_bufflen :
-                (!(eofindex == eofindex_all_invalid)) ? eofindex :
-                0)) {
-          # ja -> brauche nur index zu verändern:
-          BufferedStream_index(stream) = newindex;
-          return;
-        }
-      }
-      # evtl. Buffer hinausschreiben:
-      if (BufferedStream_modified(stream))
-        buffered_flush(stream);
-      # Nun ist modified_flag gelöscht.
-      if (!BufferedStream_blockpositioning(stream)) {
-        # Positionieren:
-        begin_system_call();
-        handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-                     position,SEEK_SET,);
-        end_system_call();
-        BufferedStream_buffstart(stream) = position;
-        BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-        BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = false; # unmodifiziert
-      } else {
-        var uintL oldposition = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
-        # Positionieren:
-        {
-          var uintL newposition;
-          begin_system_call();
-          handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-                       floor(position,strm_buffered_bufflen)*strm_buffered_bufflen,SEEK_SET,newposition=);
-          end_system_call();
-          BufferedStream_buffstart(stream) = newposition;
-        }
-        # Sector lesen:
-        BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-        BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = false; # unmodifiziert
-        var uintL newindex = position % strm_buffered_bufflen; # gewünschter Index im Sector
-        if (!(newindex==0)) { # Position zwischen Sectoren -> brauche nichts zu lesen
-          buffered_nextbyte(stream);
-          # Jetzt ist index=0.
-          # index auf (position mod bufflen) setzen, vorher überprüfen:
-          var sintL eofindex = BufferedStream_eofindex(stream);
-          # Es muss entweder eofindex=all_valid oder 0<=newindex<=eofindex sein:
-          if (!((eofindex == eofindex_all_valid) || (newindex <= eofindex))) {
-            # Fehler. Aber erst an die alte Position zurückpositionieren:
-            check_SP();
-            position_file_buffered(stream,oldposition); # zurückpositionieren
-            fehler_position_beyond_EOF(stream);
-          }
-          BufferedStream_index(stream) = newindex;
-        }
-      }
+local void position_file_buffered (object stream, uintL position) {
+  # Liegt die neue Position im selben Sector?
+  {
+    var sintL eofindex = BufferedStream_eofindex(stream);
+    var uintL newindex = position - BufferedStream_buffstart(stream);
+    if (newindex
+        <= ((eofindex == eofindex_all_valid) ? strm_buffered_bufflen :
+            (!(eofindex == eofindex_all_invalid)) ? eofindex :
+            0)) { # ja -> brauche nur index zu verändern:
+      BufferedStream_index(stream) = newindex;
+      return;
     }
+  }
+  # evtl. Buffer hinausschreiben:
+  if (BufferedStream_modified(stream))
+    buffered_flush(stream);
+  # Nun ist modified_flag gelöscht.
+  if (!BufferedStream_blockpositioning(stream)) { # Positionieren:
+    begin_system_call();
+    handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                 position,SEEK_SET,);
+    end_system_call();
+    BufferedStream_buffstart(stream) = position;
+    BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+    BufferedStream_index(stream) = 0; # index := 0
+    BufferedStream_modified(stream) = false; # unmodifiziert
+  } else {
+    var uintL oldposition = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
+    # Positionieren:
+    {
+      var uintL newposition;
+      begin_system_call();
+      handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                   floor(position,strm_buffered_bufflen)*strm_buffered_bufflen,SEEK_SET,newposition=);
+      end_system_call();
+      BufferedStream_buffstart(stream) = newposition;
+    }
+    # Sector lesen:
+    BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+    BufferedStream_index(stream) = 0; # index := 0
+    BufferedStream_modified(stream) = false; # unmodifiziert
+    var uintL newindex = position % strm_buffered_bufflen; # gewünschter Index im Sector
+    if (!(newindex==0)) { # Position zwischen Sectoren -> brauche nichts zu lesen
+      buffered_nextbyte(stream);
+      # Jetzt ist index=0.
+      # index auf (position mod bufflen) setzen, vorher überprüfen:
+      var sintL eofindex = BufferedStream_eofindex(stream);
+      # Es muss entweder eofindex=all_valid oder 0<=newindex<=eofindex sein:
+      if (!((eofindex == eofindex_all_valid) || (newindex <= eofindex))) {
+        # Fehler. Aber erst an die alte Position zurückpositionieren:
+        check_SP();
+        position_file_buffered(stream,oldposition); # zurückpositionieren
+        fehler_position_beyond_EOF(stream);
+      }
+      BufferedStream_index(stream) = newindex;
+    }
+  }
+}
 
 # UP: Liest einen Array von Bytes von einem (offenen) Byte-basierten
 # File-Stream.
@@ -7047,31 +6346,27 @@ typedef struct strm_i_buffered_extrafields_struct {
 # < byteptr[0..count-1] : eingelesene Bytes.
 # < result: &byteptr[count] (with count = len, or count < len if EOF reached)
 # verändert in stream: index, eofindex, buffstart
-  local uintB* read_byte_array_buffered (object stream, uintB* byteptr, uintL len);
-  local uintB* read_byte_array_buffered(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
-    var uintL len;
-    {
-      do {
-        var uintB* ptr = buffered_nextbyte(stream);
-        if (ptr == (uintB*)NULL)
-          break;
-        var sintL eofindex = BufferedStream_eofindex(stream);
-        var uintL available =
-          (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
-          - BufferedStream_index(stream);
-        if (available > len)
-          available = len;
-        # copy all available bytes:
-        memcpy(byteptr,ptr,available);
-        byteptr += available;
-        # increment index:
-        BufferedStream_index(stream) += available;
-        len -= available;
-      } while (len > 0);
-      return byteptr;
-    }
+local uintB* read_byte_array_buffered (object stream, uintB* byteptr,
+                                       uintL len) {
+  do {
+    var uintB* ptr = buffered_nextbyte(stream);
+    if (ptr == (uintB*)NULL)
+      break;
+    var sintL eofindex = BufferedStream_eofindex(stream);
+    var uintL available =
+      (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
+      - BufferedStream_index(stream);
+    if (available > len)
+      available = len;
+    # copy all available bytes:
+    memcpy(byteptr,ptr,available);
+    byteptr += available;
+    # increment index:
+    BufferedStream_index(stream) += available;
+    len -= available;
+  } while (len > 0);
+  return byteptr;
+}
 
 # UP: Schreibt einen Array von Bytes auf einen (offenen) Byte-basierten
 # File-Stream.
@@ -7081,71 +6376,68 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > len : > 0
 # < result: &byteptr[len]
 # verändert in stream: index, eofindex, buffstart
-  local const uintB* write_byte_array_buffered (object stream, const uintB* byteptr, uintL len);
-  local const uintB* write_byte_array_buffered(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
-    var uintL len;
+local const uintB* write_byte_array_buffered (object stream,
+                                              const uintB* byteptr,
+                                              uintL len) {
+  var uintL remaining = len;
+  var uintB* ptr;
+  do { # Noch remaining>0 Bytes abzulegen.
+    ptr = buffered_nextbyte(stream);
+    if (ptr == (uintB*)NULL)
+      goto eof_reached;
+    var sintL eofindex = BufferedStream_eofindex(stream);
+    var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
+      ((eofindex==eofindex_all_valid) ? strm_buffered_bufflen : eofindex)
+      - BufferedStream_index(stream); # > 0 !
+    if (next > remaining)
+      next = remaining;
+    # next Bytes in den Buffer kopieren:
     {
-      var uintL remaining = len;
-      var uintB* ptr;
-      do { # Noch remaining>0 Bytes abzulegen.
-        ptr = buffered_nextbyte(stream);
-        if (ptr == (uintB*)NULL)
-          goto eof_reached;
-        var sintL eofindex = BufferedStream_eofindex(stream);
-        var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
-          ((eofindex==eofindex_all_valid) ? strm_buffered_bufflen : eofindex)
-          - BufferedStream_index(stream); # > 0 !
-        if (next > remaining)
-          next = remaining;
-        # next Bytes in den Buffer kopieren:
-        {
-          var uintL count;
-          dotimespL(count,next, {
-            var uintB b = *byteptr++; # nächstes Byte
-            if (!(*ptr == b)) {
-              *ptr = b; BufferedStream_modified(stream) = true; # in den Buffer
-            }
-            ptr++;
-          });
+      var uintL count;
+      dotimespL(count,next, {
+        var uintB b = *byteptr++; # nächstes Byte
+        if (!(*ptr == b)) {
+          *ptr = b; BufferedStream_modified(stream) = true; # in den Buffer
         }
-        remaining = remaining - next;
-        # index incrementieren:
-        BufferedStream_index(stream) += next;
-      } until (remaining == 0);
-      if (false) {
-       eof_reached: # Schreiben am EOF, eofindex = index
-        do { # Noch remaining>0 Bytes abzulegen.
-          var uintL next = # so viel wie noch Platz im Buffer ist
-            strm_buffered_bufflen - BufferedStream_index(stream);
-          if (next==0) {
-            # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
-            # genügt es, ihn hinauszuschreiben:
-            if (BufferedStream_modified(stream))
-              buffered_half_flush(stream);
-            BufferedStream_buffstart(stream) += strm_buffered_bufflen;
-            BufferedStream_eofindex(stream) = 0; # eofindex := 0
-            BufferedStream_index(stream) = 0; # index := 0
-            BufferedStream_modified(stream) = false; # unmodifiziert
-            # Dann nochmals versuchen:
-            next = strm_buffered_bufflen;
-          }
-          if (next > remaining)
-            next = remaining;
-          # copy the next bytes in the buffer:
-          memcpy(&TheSbvector(TheStream(stream)->strm_buffered_buffer)
-                 ->data[BufferedStream_index(stream)],byteptr,next);
-          byteptr += next;
-          BufferedStream_modified(stream) = true;
-          remaining = remaining - next;
-          # increment index and eofindex:
-          BufferedStream_index(stream) += next;
-          BufferedStream_eofindex(stream) += next;
-        } until (remaining == 0);
-      }
-      return byteptr;
+        ptr++;
+      });
     }
+    remaining = remaining - next;
+    # increment index
+    BufferedStream_index(stream) += next;
+  } until (remaining == 0);
+  if (false) {
+  eof_reached: # Schreiben am EOF, eofindex = index
+    do { # Noch remaining>0 Bytes abzulegen.
+      var uintL next = # so viel wie noch Platz im Buffer ist
+        strm_buffered_bufflen - BufferedStream_index(stream);
+      if (next==0) {
+        # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
+        # genügt es, ihn hinauszuschreiben:
+        if (BufferedStream_modified(stream))
+          buffered_half_flush(stream);
+        BufferedStream_buffstart(stream) += strm_buffered_bufflen;
+        BufferedStream_eofindex(stream) = 0; # eofindex := 0
+        BufferedStream_index(stream) = 0; # index := 0
+        BufferedStream_modified(stream) = false; # unmodifiziert
+        # Dann nochmals versuchen:
+        next = strm_buffered_bufflen;
+      }
+      if (next > remaining)
+        next = remaining;
+      # copy the next bytes in the buffer:
+      memcpy(&TheSbvector(TheStream(stream)->strm_buffered_buffer)
+             ->data[BufferedStream_index(stream)],byteptr,next);
+      byteptr += next;
+      BufferedStream_modified(stream) = true;
+      remaining = remaining - next;
+      # increment index and eofindex
+      BufferedStream_index(stream) += next;
+      BufferedStream_eofindex(stream) += next;
+    } until (remaining == 0);
+  }
+  return byteptr;
+}
 
 # File-Stream für Characters
 # ==========================
@@ -7154,91 +6446,89 @@ typedef struct strm_i_buffered_extrafields_struct {
 # ----------
 
 # READ-CHAR - Pseudofunktion für File-Streams für Characters
-  local object rd_ch_buffered (const object* stream_);
-  local object rd_ch_buffered(stream_)
-    var const object* stream_;
-    {
-      var object stream = *stream_;
-      var uintB* bufferptr = buffered_nextbyte(stream);
-      if (bufferptr == (uintB*)NULL) # EOF ?
-        return eof_value;
-      # nächstes Zeichen holen:
-      var chart c;
-      #ifdef UNICODE
-      var object encoding = TheStream(stream)->strm_encoding;
-      # Does the buffer contain a complete character?
-      {
-        var sintL eofindex = BufferedStream_eofindex(stream);
-        var uintL available =
-          (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
-          - BufferedStream_index(stream);
-        var const uintB* bptr = bufferptr;
+local object rd_ch_buffered (const object* stream_) {
+  var object stream = *stream_;
+  var uintB* bufferptr = buffered_nextbyte(stream);
+  if (bufferptr == (uintB*)NULL) # EOF ?
+    return eof_value;
+  # nächstes Zeichen holen:
+  var chart c;
+  #ifdef UNICODE
+  var object encoding = TheStream(stream)->strm_encoding;
+  # Does the buffer contain a complete character?
+  {
+    var sintL eofindex = BufferedStream_eofindex(stream);
+    var uintL available =
+      (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
+      - BufferedStream_index(stream);
+    var const uintB* bptr = bufferptr;
+    var chart* cptr = &c;
+    Encoding_mbstowcs(encoding)
+      (encoding,stream,&bptr,bufferptr+available,&cptr,&c+1);
+    if (cptr == &c+1) {
+      var uintL n = bptr-bufferptr;
+      # increment index and position
+      BufferedStream_index(stream) += n;
+      BufferedStream_position(stream) += n;
+    } else {
+      var uintB buf[max_bytes_per_chart];
+      var uintL buflen = 0;
+      loop {
+        ASSERT(buflen < max_bytes_per_chart);
+        buf[buflen++] = *bufferptr;
+        # increment index and position
+        BufferedStream_index(stream) += 1;
+        BufferedStream_position(stream) += 1;
+        var const uintB* bptr = &buf[0];
         var chart* cptr = &c;
-        Encoding_mbstowcs(encoding)(encoding,stream,&bptr,bufferptr+available,&cptr,&c+1);
-        if (cptr == &c+1) {
-          var uintL n = bptr-bufferptr;
-          # index und position incrementieren:
-          BufferedStream_index(stream) += n;
-          BufferedStream_position(stream) += n;
-        } else {
-          var uintB buf[max_bytes_per_chart];
-          var uintL buflen = 0;
-          loop {
-            ASSERT(buflen < max_bytes_per_chart);
-            buf[buflen++] = *bufferptr;
-            # index und position incrementieren:
-            BufferedStream_index(stream) += 1;
-            BufferedStream_position(stream) += 1;
-            var const uintB* bptr = &buf[0];
-            var chart* cptr = &c;
-            Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
-            if (cptr == &c) {
-              # Not a complete character.
-              # Shift the buffer
-              if (!(bptr == &buf[0])) {
-                var const uintB* ptr1 = bptr;
-                var uintB* ptr2 = &buf[0];
-                until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
-                buflen = ptr2 - &buf[0];
-              }
-            } else {
-              # Read a complete character.
-              if (!(bptr == &buf[buflen])) {
-                # At most one lookahead byte. Make it unread.
-                ASSERT(bptr == &buf[buflen-1]);
-                # index und position wieder decrementieren:
-                BufferedStream_index(stream) -= 1;
-                BufferedStream_position(stream) -= 1;
-              }
-              break;
-            }
-            bufferptr = buffered_nextbyte(stream);
-            if (bufferptr == (uintB*)NULL)
-              return eof_value;
+        Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
+        if (cptr == &c) {
+          # Not a complete character.
+          # Shift the buffer
+          if (!(bptr == &buf[0])) {
+            var const uintB* ptr1 = bptr;
+            var uintB* ptr2 = &buf[0];
+            until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+            buflen = ptr2 - &buf[0];
           }
+        } else {
+          # Read a complete character.
+          if (!(bptr == &buf[buflen])) {
+            # At most one lookahead byte. Make it unread.
+            ASSERT(bptr == &buf[buflen-1]);
+            # index und position wieder decrementieren:
+            BufferedStream_index(stream) -= 1;
+            BufferedStream_position(stream) -= 1;
+          }
+          break;
         }
+        bufferptr = buffered_nextbyte(stream);
+        if (bufferptr == (uintB*)NULL)
+          return eof_value;
       }
-      #else
-      c = as_chart(*bufferptr); # Character aus dem Buffer
-      # index und position incrementieren:
+    }
+  }
+  #else
+  c = as_chart(*bufferptr); # Character aus dem Buffer
+  # increment index and position
+  BufferedStream_index(stream) += 1;
+  BufferedStream_position(stream) += 1;
+  #endif
+  if (chareq(c,ascii(NL))) {
+    ChannelStream_lineno(stream) += 1;
+  } else if (chareq(c,ascii(CR))) {
+    # nächstes Zeichen auf LF untersuchen
+    bufferptr = buffered_nextbyte(stream);
+    if ((bufferptr != NULL) && chareq(as_chart(*bufferptr),ascii(LF))) {
+      # increment index and position
       BufferedStream_index(stream) += 1;
       BufferedStream_position(stream) += 1;
-      #endif
-      if (chareq(c,ascii(NL))) {
-        ChannelStream_lineno(stream) += 1;
-      } elif (chareq(c,ascii(CR))) {
-        # nächstes Zeichen auf LF untersuchen
-        bufferptr = buffered_nextbyte(stream);
-        if (!(bufferptr == (uintB*)NULL) && chareq(as_chart(*bufferptr),ascii(LF))) {
-          # index und position incrementieren:
-          BufferedStream_index(stream) += 1;
-          BufferedStream_position(stream) += 1;
-        }
-        c = ascii(NL);
-        ChannelStream_lineno(stream) += 1;
-      }
-      return code_char(c);
     }
+    c = ascii(NL);
+    ChannelStream_lineno(stream) += 1;
+  }
+  return code_char(c);
+}
 
 # Stellt fest, ob ein File-Stream ein Zeichen verfügbar hat.
 # listen_char_buffered(stream)
@@ -7246,153 +6536,146 @@ typedef struct strm_i_buffered_extrafields_struct {
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_char_buffered (object stream);
-  local signean listen_char_buffered(stream)
-    var object stream;
-    {
-      if (buffered_nextbyte(stream) == (uintB*)NULL)
-        return ls_eof; # EOF
-      # In case of UNICODE, the presence of a byte does not guarantee the
-      # presence of a multi-byte character. Returning ls_avail here is
-      # therefore not correct. But this doesn't matter since programs seeing
-      # ls_avail will call read-char, and this will do the right thing anyway.
-      return ls_avail;
-    }
+local signean listen_char_buffered (object stream) {
+  if (buffered_nextbyte(stream) == (uintB*)NULL)
+    return ls_eof; # EOF
+  # In case of UNICODE, the presence of a byte does not guarantee the
+  # presence of a multi-byte character. Returning ls_avail here is
+  # therefore not correct. But this doesn't matter since programs seeing
+  # ls_avail will call read-char, and this will do the right thing anyway.
+  return ls_avail;
+}
 
 # READ-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local uintL rd_ch_array_buffered (const object* stream_, const object* chararray_, uintL start, uintL len);
-  local uintL rd_ch_array_buffered(stream_,chararray_,start,len)
-    var const object* stream_;
-    var const object* chararray_;
-    var uintL start;
-    var uintL len;
+local uintL rd_ch_array_buffered (const object* stream_,
+                                  const object* chararray_,
+                                  uintL start, uintL len) {
+  var object stream = *stream_;
+  var chart* startptr = &TheSstring(*chararray_)->data[start];
+  var chart* charptr = startptr;
+  #ifdef UNICODE
+  var object encoding = TheStream(stream)->strm_encoding;
+  var chart* endptr = startptr+len;
+  loop {
+    var chart* startptr = charptr;
+    var uintB* bufferptr = buffered_nextbyte(stream);
+    if (bufferptr == (uintB*)NULL) # EOF -> fertig
+      break;
+    # Read as many complete characters from the buffer as possible.
     {
-      var object stream = *stream_;
-      var chart* startptr = &TheSstring(*chararray_)->data[start];
-      var chart* charptr = startptr;
-      #ifdef UNICODE
-      var object encoding = TheStream(stream)->strm_encoding;
-      var chart* endptr = startptr+len;
-      loop {
-        var chart* startptr = charptr;
-        var uintB* bufferptr = buffered_nextbyte(stream);
-        if (bufferptr == (uintB*)NULL) # EOF -> fertig
-          break;
-          # Read as many complete characters from the buffer as possible.
-        {
-          var sintL eofindex = BufferedStream_eofindex(stream);
-          var uintL available =
-            (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
-            - BufferedStream_index(stream);
-          var const uintB* bptr = bufferptr;
+      var sintL eofindex = BufferedStream_eofindex(stream);
+      var uintL available =
+        (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
+        - BufferedStream_index(stream);
+      var const uintB* bptr = bufferptr;
+      var chart* cptr = charptr;
+      Encoding_mbstowcs(encoding)
+        (encoding,stream,&bptr,bufferptr+available,&cptr,endptr);
+      if (!(cptr == charptr)) {
+        var uintL n = bptr-bufferptr;
+        # increment index and position
+        BufferedStream_index(stream) += n;
+        BufferedStream_position(stream) += n;
+      } else {
+        var uintB buf[max_bytes_per_chart];
+        var uintL buflen = 0;
+        loop {
+          ASSERT(buflen < max_bytes_per_chart);
+          buf[buflen++] = *bufferptr;
+          # increment index and position
+          BufferedStream_index(stream) += 1;
+          BufferedStream_position(stream) += 1;
+          var const uintB* bptr = &buf[0];
           var chart* cptr = charptr;
-          Encoding_mbstowcs(encoding)(encoding,stream,&bptr,bufferptr+available,&cptr,endptr);
-          if (!(cptr == charptr)) {
-            var uintL n = bptr-bufferptr;
-            # index und position incrementieren:
-            BufferedStream_index(stream) += n;
-            BufferedStream_position(stream) += n;
-          } else {
-            var uintB buf[max_bytes_per_chart];
-            var uintL buflen = 0;
-            loop {
-              ASSERT(buflen < max_bytes_per_chart);
-              buf[buflen++] = *bufferptr;
-              # index und position incrementieren:
-              BufferedStream_index(stream) += 1;
-              BufferedStream_position(stream) += 1;
-              var const uintB* bptr = &buf[0];
-              var chart* cptr = charptr;
-              Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
-              if (cptr == charptr) {
-                # Not a complete character.
-                # Shift the buffer
-                if (!(bptr == &buf[0])) {
-                  var const uintB* ptr1 = bptr;
-                  var uintB* ptr2 = &buf[0];
-                  until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
-                  buflen = ptr2 - &buf[0];
-                }
-              } else {
-                # Read a complete character.
-                if (!(bptr == &buf[buflen])) {
-                  # At most one lookahead byte. Make it unread.
-                  ASSERT(bptr == &buf[buflen-1]);
-                  # index und position wieder decrementieren:
-                  BufferedStream_index(stream) -= 1;
-                  BufferedStream_position(stream) -= 1;
-                }
-                break;
-              }
-              bufferptr = buffered_nextbyte(stream);
-              if (bufferptr == (uintB*)NULL) # EOF -> fertig
-                break;
+          Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
+          if (cptr == charptr) { # Not a complete character.
+            # Shift the buffer
+            if (!(bptr == &buf[0])) {
+              var const uintB* ptr1 = bptr;
+              var uintB* ptr2 = &buf[0];
+              until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+              buflen = ptr2 - &buf[0];
             }
-            if (cptr == charptr) # EOF -> fertig
-              break;
+          } else { # Read a complete character.
+            if (!(bptr == &buf[buflen])) {
+              # At most one lookahead byte. Make it unread.
+              ASSERT(bptr == &buf[buflen-1]);
+              # index und position wieder decrementieren:
+              BufferedStream_index(stream) -= 1;
+              BufferedStream_position(stream) -= 1;
+            }
+            break;
           }
-          charptr = cptr;
+          bufferptr = buffered_nextbyte(stream);
+          if (bufferptr == (uintB*)NULL) # EOF -> fertig
+            break;
         }
-        # Now apply CR/LF->NL and CR->NL conversion to the characters
-        # [startptr..charptr).
-        {
-          var const chart* ptr1 = startptr;
-          var chart* ptr2 = startptr;
-          do {
-            var chart c = *ptr1++;
-            if (chareq(c,ascii(NL))) {
-              ChannelStream_lineno(stream) += 1;
-            } elif (chareq(c,ascii(CR))) {
-              # nächstes Zeichen auf LF untersuchen
-              if (ptr1 == charptr) {
-                var uintB* bufferptr = buffered_nextbyte(stream);
-                if (!(bufferptr == (uintB*)NULL) && chareq(as_chart(*bufferptr),ascii(LF))) {
-                  # index und position incrementieren:
-                  BufferedStream_index(stream) += 1;
-                  BufferedStream_position(stream) += 1;
-                }
-              } else {
-                if (chareq(*ptr1,ascii(LF)))
-                  ptr1++;
-              }
-              c = ascii(NL);
-              ChannelStream_lineno(stream) += 1;
-            }
-            *ptr2++ = c;
-          } until (ptr1 == charptr);
-          charptr = ptr2;
-        }
-        if (charptr == endptr)
+        if (cptr == charptr) # EOF -> fertig
           break;
       }
-      return charptr - startptr;
-      #else
+      charptr = cptr;
+    }
+    # Now apply CR/LF->NL and CR->NL conversion to the characters
+    # [startptr..charptr).
+    {
+      const chart* ptr1 = startptr;
+      chart* ptr2 = startptr;
       do {
-        var uintB* ptr = buffered_nextbyte(stream);
-        if (ptr == (uintB*)NULL) # EOF -> fertig
-          break;
-        var chart ch = as_chart(*ptr);
-        # index und position incrementieren:
-        BufferedStream_index(stream) += 1;
-        BufferedStream_position(stream) += 1;
-        if (chareq(ch,ascii(NL))) {
+        chart c = *ptr1++;
+        if (chareq(c,ascii(NL))) {
           ChannelStream_lineno(stream) += 1;
-        } elif (chareq(ch,ascii(CR))) {
+        } else if (chareq(c,ascii(CR))) {
           # nächstes Zeichen auf LF untersuchen
-          ptr = buffered_nextbyte(stream);
-          if (!(ptr == (uintB*)NULL) && chareq(as_chart(*ptr),ascii(LF))) {
-            # index und position incrementieren:
-            BufferedStream_index(stream) += 1;
-            BufferedStream_position(stream) += 1;
+          if (ptr1 == charptr) {
+            uintB* bufferptr = buffered_nextbyte(stream);
+            if ((bufferptr != NULL) &&
+                chareq(as_chart(*bufferptr),ascii(LF))) {
+              # increment index and position
+              BufferedStream_index(stream) += 1;
+              BufferedStream_position(stream) += 1;
+            }
+          } else {
+            if (chareq(*ptr1,ascii(LF)))
+              ptr1++;
           }
-          ch = ascii(NL);
+          c = ascii(NL);
           ChannelStream_lineno(stream) += 1;
         }
-        *charptr++ = ch; len--;
-      } while (len > 0);
-      return charptr - startptr;
-      #endif
+        *ptr2++ = c;
+      } until (ptr1 == charptr);
+      charptr = ptr2;
     }
+    if (charptr == endptr)
+      break;
+  }
+  return charptr - startptr;
+  #else
+  do {
+    var uintB* ptr = buffered_nextbyte(stream);
+    if (ptr == (uintB*)NULL) # EOF -> fertig
+      break;
+    var chart ch = as_chart(*ptr);
+    # increment index and position
+    BufferedStream_index(stream) += 1;
+    BufferedStream_position(stream) += 1;
+    if (chareq(ch,ascii(NL))) {
+      ChannelStream_lineno(stream) += 1;
+    } else if (chareq(ch,ascii(CR))) {
+      # nächstes Zeichen auf LF untersuchen
+      ptr = buffered_nextbyte(stream);
+      if (!(ptr == (uintB*)NULL) && chareq(as_chart(*ptr),ascii(LF))) {
+        # increment index and position
+        BufferedStream_index(stream) += 1;
+        BufferedStream_position(stream) += 1;
+      }
+      ch = ascii(NL);
+      ChannelStream_lineno(stream) += 1;
+    }
+    *charptr++ = ch; len--;
+  } while (len > 0);
+  return charptr - startptr;
+  #endif
+}
 
 # Output side
 # -----------
@@ -7402,42 +6685,33 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > stream : (offener) Byte-basierter File-Stream.
 # > b : zu schreibendes Byte
 # verändert in stream: index, eofindex, buffstart, position
-  local void write_byte_buffered (object stream, uintB b);
-  local void write_byte_buffered(stream,b)
-    var object stream;
-    var uintB b;
-    {
-      buffered_writebyte(stream,b);
-      # position incrementieren:
-      BufferedStream_position(stream) += 1;
-    }
+local void write_byte_buffered (object stream, uintB b) {
+  buffered_writebyte(stream,b);
+  # increment position
+  BufferedStream_position(stream) += 1;
+}
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
-  local void wr_ch_buffered_unix (const object* stream_, object obj);
-  local void wr_ch_buffered_unix(stream_,obj)
-    var const object* stream_;
-    var object obj;
-    {
-      var object stream = *stream_;
-      # obj muss ein Character sein:
-      if (!charp(obj))
-        fehler_wr_char(stream,obj);
-      var chart c = char_code(obj);
-      #ifdef UNICODE
-      var uintB buf[max_bytes_per_chart];
-      var object encoding = TheStream(stream)->strm_encoding;
-      var const chart* cptr = &c;
-      var uintB* bptr = &buf[0];
-      Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
-      ASSERT(cptr == &c+1);
-      var uintL buflen = bptr-&buf[0];
-      write_byte_array_buffered(stream,&buf[0],buflen);
-      # position incrementieren:
-      BufferedStream_position(stream) += buflen;
-      #else
-      write_byte_buffered(stream,as_cint(c)); # unverändert ausgeben
-      #endif
-    }
+local void wr_ch_buffered_unix (const object* stream_, object obj) {
+  var object stream = *stream_;
+  if (!charp(obj)) # obj must be a character
+    fehler_wr_char(stream,obj);
+  var chart c = char_code(obj);
+#ifdef UNICODE
+  var uintB buf[max_bytes_per_chart];
+  var object encoding = TheStream(stream)->strm_encoding;
+  var const chart* cptr = &c;
+  var uintB* bptr = &buf[0];
+  Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+  ASSERT(cptr == &c+1);
+  var uintL buflen = bptr-&buf[0];
+  write_byte_array_buffered(stream,&buf[0],buflen);
+# increment position
+  BufferedStream_position(stream) += buflen;
+#else
+  write_byte_buffered(stream,as_cint(c)); # unverändert ausgeben
+#endif
+}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
   local void wr_ch_array_buffered_unix (const object* stream_, const object* chararray_, uintL start, uintL len);
@@ -7460,13 +6734,13 @@ typedef struct strm_i_buffered_extrafields_struct {
         Encoding_wcstombs(encoding)(encoding,stream,&charptr,endptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
         var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
         write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen);
-        # position incrementieren:
+        # increment position
         BufferedStream_position(stream) += tmptmpbuflen;
       } until (charptr == endptr);
       #undef tmpbufsize
       #else
       write_byte_array_buffered(stream,charptr,len);
-      # position incrementieren:
+      # increment position
       BufferedStream_position(stream) += len;
       #endif
       wr_ss_lpos(stream,endptr,len); # Line-Position aktualisieren
@@ -7479,8 +6753,7 @@ typedef struct strm_i_buffered_extrafields_struct {
     var object obj;
     {
       var object stream = *stream_;
-      # obj muss ein Character sein:
-      if (!charp(obj))
+      if (!charp(obj)) # obj must be a character
         fehler_wr_char(stream,obj);
       var chart c = char_code(obj);
       if (chareq(c,ascii(NL)))
@@ -7494,7 +6767,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       ASSERT(cptr == &c+1);
       var uintL buflen = bptr-&buf[0];
       write_byte_array_buffered(stream,&buf[0],buflen);
-      # position incrementieren:
+      # increment position
       BufferedStream_position(stream) += buflen;
       #else
       write_byte_buffered(stream,as_cint(c));
@@ -7538,7 +6811,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           ASSERT(cptr == tmpptr);
           var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
           write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen);
-          # position incrementieren:
+          # increment position
           BufferedStream_position(stream) += tmptmpbuflen;
         }
         remaining -= n;
@@ -7564,8 +6837,7 @@ typedef struct strm_i_buffered_extrafields_struct {
     var object obj;
     {
       var object stream = *stream_;
-      # obj muss ein Character sein:
-      if (!charp(obj))
+      if (!charp(obj)) # obj must be a character
         fehler_wr_char(stream,obj);
       var chart c = char_code(obj);
       #ifdef UNICODE
@@ -7585,7 +6857,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       ASSERT(cptr == cp+n);
       var uintL buflen = bptr-&buf[0];
       write_byte_array_buffered(stream,&buf[0],buflen);
-      # position incrementieren:
+      # increment position
       BufferedStream_position(stream) += buflen;
       #else
       if (chareq(c,ascii(NL))) {
@@ -7635,7 +6907,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           ASSERT(cptr == tmpptr);
           var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
           write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen);
-          # position incrementieren:
+          # increment position
           BufferedStream_position(stream) += tmptmpbuflen;
         }
         remaining -= n;
@@ -7660,40 +6932,38 @@ typedef struct strm_i_buffered_extrafields_struct {
 # Buffered-Channel-Stream return to the initial state.
 # oconv_unshift_output_buffered(stream);
 # > stream: Buffered-Channel-Stream
-  #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
-    #define oconv_unshift_output_buffered(stream)  \
+#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+ #define oconv_unshift_output_buffered(stream)  \
       if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
         oconv_unshift_output_buffered_(stream);            \
       }
-    local void oconv_unshift_output_buffered_ (object stream);
-    local void oconv_unshift_output_buffered_(stream)
-      var object stream;
-      {
-        #define tmpbufsize 4096
-        var uintB tmpbuf[tmpbufsize];
-        var char* outptr = (char*)tmpbuf;
-        var size_t outsize = tmpbufsize;
-        begin_system_call();
-        var size_t res = iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
-        if (res == (size_t)(-1)) {
-          if (errno == E2BIG) { # output buffer too small?
-            NOTREACHED
-          } else {
-            OS_error();
-          }
-        }
-        end_system_call();
-        var uintL outcount = outptr-(char*)tmpbuf;
-        if (outcount > 0) {
-          write_byte_array_buffered(stream,&tmpbuf[0],outcount);
-          # position incrementieren:
-          BufferedStream_position(stream) += outcount;
-        }
-        #undef tmpbufsize
-      }
-  #else
-    #define oconv_unshift_output_buffered(stream)
-  #endif
+ local void oconv_unshift_output_buffered_ (object stream) {
+   #define tmpbufsize 4096
+   var uintB tmpbuf[tmpbufsize];
+   var char* outptr = (char*)tmpbuf;
+   var size_t outsize = tmpbufsize;
+   begin_system_call();
+   var size_t res =
+     iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
+   if (res == (size_t)(-1)) {
+     if (errno == E2BIG) { # output buffer too small?
+       NOTREACHED
+     } else {
+       OS_error();
+     }
+   }
+   end_system_call();
+   var uintL outcount = outptr-(char*)tmpbuf;
+   if (outcount > 0) {
+     write_byte_array_buffered(stream,&tmpbuf[0],outcount);
+     # increment position
+     BufferedStream_position(stream) += outcount;
+   }
+ #undef tmpbufsize
+ }
+#else
+ #define oconv_unshift_output_buffered(stream)
+#endif
 
 # File-Stream, Bit-basiert
 # ========================
@@ -7763,7 +7033,7 @@ local object rd_by_aux_iax_buffered (object stream, rd_by_ix_I* finisher) {
       goto eof;
     # nächstes Byte holen:
     *bitbufferptr++ = *ptr;
-    # index incrementieren:
+    # increment index
     BufferedStream_index(stream) += 1;
   });
   #else
@@ -7771,7 +7041,7 @@ local object rd_by_aux_iax_buffered (object stream, rd_by_ix_I* finisher) {
       != bitbufferptr+bytesize)
     goto eof;
   #endif
-  # position incrementieren:
+  # increment position
   BufferedStream_position(stream) += 1;
   # in Zahl umwandeln:
   return (*finisher)(stream,bitsize,bytesize);
@@ -7817,7 +7087,7 @@ local object rd_by_aux_ibx_buffered (object stream, rd_by_ix_I* finisher) {
     # 8 Bit abspeichern:
     TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0] = bit_akku;
     BufferedStream_bitindex(stream) = count;
-    # position incrementieren:
+    # increment position
     BufferedStream_position(stream) += 1;
     # in Zahl umwandeln:
     return (*finisher)(stream,bitsize,1);
@@ -7915,7 +7185,7 @@ local object rd_by_iau8_buffered (object stream) {
   var uintB* ptr = buffered_nextbyte(stream);
   if (!(ptr == (uintB*)NULL)) {
     var object obj = fixnum(*ptr);
-    # increment index and position:
+    # increment index and position
     BufferedStream_index(stream) += 1;
     BufferedStream_position(stream) += 1;
     return obj;
@@ -8556,26 +7826,22 @@ global object make_file_stream (direction_t direction,bool append_flag,
 # buffered_flush_everything(stream);
 # > stream : (offener) File-Stream.
 # verändert in stream: index, eofindex, buffstart, ...
-  local void buffered_flush_everything (object stream);
-  local void buffered_flush_everything(stream)
-    var object stream;
-    {
-      # Bei Integer-Streams (Art b) eofposition abspeichern:
-      if (ChannelStream_bitsize(stream) > 0 && ChannelStream_bitsize(stream) < 8)
-        if (TheStream(stream)->strmflags & strmflags_wr_by_B) { # nur falls nicht Read-Only
-          position_file_buffered(stream,0); # an Position 0 positionieren
-          var uintL eofposition = BufferedStream_eofposition(stream);
-          var uintC count;
-          dotimespC(count,sizeof(uintL), {
-            buffered_writebyte(stream,(uintB)eofposition);
-            eofposition = eofposition>>8;
-          });
-        }
-      # evtl. Buffer hinausschreiben:
-      if (BufferedStream_modified(stream))
-        buffered_flush(stream);
-      # Nun ist das modified_flag gelöscht.
+local void buffered_flush_everything (object stream) {
+  # Bei Integer-Streams (Art b) eofposition abspeichern:
+  if (ChannelStream_bitsize(stream) > 0 && ChannelStream_bitsize(stream) < 8)
+    if (TheStream(stream)->strmflags & strmflags_wr_by_B) { # only if not read-only
+      position_file_buffered(stream,0); # move to position 0
+      var uintL eofposition = BufferedStream_eofposition(stream);
+      var uintC count;
+      dotimespC(count,sizeof(uintL), {
+        buffered_writebyte(stream,(uintB)eofposition);
+        eofposition = eofposition>>8;
+      });
     }
+  if (BufferedStream_modified(stream))
+    buffered_flush(stream);
+  # Nun ist das modified_flag gelöscht.
+}
 
 # UP: Bringt den wartenden Output eines File-Stream ans Ziel.
 # Schreibt dazu den Buffer des File-Streams (auch physikalisch) aufs File.
@@ -8583,126 +7849,114 @@ global object make_file_stream (direction_t direction,bool append_flag,
 # > stream : File-Stream.
 # verändert in stream: handle, index, eofindex, buffstart, ..., rd_ch_last
 # can trigger GC
-  local void finish_output_buffered (object stream);
-  local void finish_output_buffered(stream)
-    var object stream;
-    {
-      # Handle=NIL (Stream bereits geschlossen) -> fertig:
-      if (nullp(TheStream(stream)->strm_buffered_channel))
-        return;
-      # kein File mit Schreibzugriff -> gar nichts zu tun:
-      if (!(TheStream(stream)->strmflags & strmflags_wr_B))
-        return;
-      # Wartenden Output im iconv-Deskriptor hinausschreiben:
-      oconv_unshift_output_buffered(stream);
-      # evtl. Buffer und evtl. eofposition hinausschreiben:
-      buffered_flush_everything(stream);
-      # Nun ist das modified_flag gelöscht.
-      if (BufferedStream_regular(stream)) {
-        #ifdef UNIX
-          #ifdef HAVE_FSYNC
-            begin_system_call();
-            if (!( fsync(TheHandle(TheStream(stream)->strm_buffered_channel)) ==0)) {
-              end_system_call();
-              OS_filestream_error(stream);
-            }
-            end_system_call();
-          #endif
-        #else
-          if (!nullp(TheStream(stream)->strm_file_truename)) { # avoid closing stdout_handle
-            #ifdef MSDOS
-              # File-Handle duplizieren und schließen:
-              var uintW handle = TheHandle(TheStream(stream)->strm_buffered_channel);
-              begin_system_call();
-              var sintW handle2 = dup(handle);
-              if (handle2 < 0) {
-                end_system_call(); OS_filestream_error(stream); # Error melden
-              }
-              if ( CLOSE(handle2) <0) {
-                end_system_call(); OS_filestream_error(stream);
-              }
-              end_system_call();
-            #endif
-            #ifdef RISCOS # || MSDOS, wenn wir da nicht schon was besseres hätten
-              # File schließen (DOS schreibt physikalisch):
-              begin_system_call();
-              if ( CLOSE(TheHandle(TheStream(stream)->strm_buffered_channel)) <0) {
-                end_system_call(); OS_filestream_error(stream);
-              }
-              end_system_call();
-              # File neu öffnen:
-              pushSTACK(stream); # stream retten
-              pushSTACK(TheStream(stream)->strm_file_truename); # Filename
-              # Directory existiert schon:
-              var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
-              var sintW handle;
-              with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-                begin_system_call();
-                handle = OPEN(namestring_asciz,O_RDWR); # Datei neu öffnen
-                if (handle < 0) { # Error melden
-                  end_system_call(); OS_filestream_error(STACK_1);
-                }
-                end_system_call();
-              });
-              #ifdef MSDOS
-              begin_system_call();
-              setmode(handle,O_BINARY);
-              end_system_call();
-              #endif
-              # Nun enthält handle das Handle des geöffneten Files.
-              var object handlobj = allocate_handle(handle);
-              skipSTACK(1);
-              stream = popSTACK(); # stream zurück
-              # neues Handle eintragen:
-              TheStream(stream)->strm_buffered_channel = handlobj;
-            #endif
-            #ifdef AMIGAOS
-              #if 0 # Manche Devices vertragen es nicht, wenn man geöffnete Dateien
-                    # zu- und wieder aufmacht. Z.B. bei Pipes hat das eine besondere
-                    # Bedeutung.
-              begin_system_call();
-              var Handle handle = TheHandle(TheStream(stream)->strm_buffered_channel);
-              if (!IsInteractive(handle)) {
-                # File schließen (OS schreibt physikalisch):
-                Close(handle);
-                end_system_call();
-                # File neu öffnen:
-                pushSTACK(stream); # stream retten
-                pushSTACK(TheStream(stream)->strm_file_truename); # Filename
-                # Directory existiert schon, Datei neu öffnen:
-                var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
-                with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-                  begin_system_call();
-                  handle = Open(namestring_asciz,MODE_OLDFILE);
-                  end_system_call();
-                });
-                if (handle==NULL) { # Error melden
-                  OS_filestream_error(STACK_1);
-                }
-                skipSTACK(1);
-                stream = popSTACK(); # stream zurück
-                # neues Handle eintragen:
-                TheHandle(TheStream(stream)->strm_buffered_channel) = handle;
-              } else {
-                end_system_call();
-              }
-              #endif
-            #endif
-          }
-        #endif
-      }
-      # und neu positionieren:
-      var uintL position = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
-      BufferedStream_index(stream) = 0; # index := 0
-      BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-      if (!BufferedStream_blockpositioning(stream)) {
-        BufferedStream_buffstart(stream) = position;
-      } else {
-        BufferedStream_buffstart(stream) = 0; # buffstart := 0
-        position_file_buffered(stream,position);
-      }
-      # Komponenten position, ..., lastchar bleiben unverändert
+local void finish_output_buffered (object stream) {
+  # Handle=NIL (Stream bereits geschlossen) -> fertig:
+  if (nullp(TheStream(stream)->strm_buffered_channel))
+    return;
+  # kein File mit Schreibzugriff -> gar nichts zu tun:
+  if (!(TheStream(stream)->strmflags & strmflags_wr_B))
+    return;
+  # Wartenden Output im iconv-Deskriptor hinausschreiben:
+  oconv_unshift_output_buffered(stream);
+  # evtl. Buffer und evtl. eofposition hinausschreiben:
+  buffered_flush_everything(stream);
+  # Nun ist das modified_flag gelöscht.
+  if (BufferedStream_regular(stream)) {
+   #ifdef UNIX
+    #ifdef HAVE_FSYNC
+    begin_system_call();
+    if (!( fsync(TheHandle(TheStream(stream)->strm_buffered_channel)) ==0)) {
+      end_system_call(); OS_filestream_error(stream);
     }
+    end_system_call();
+    #endif
+   #else
+    if (!nullp(TheStream(stream)->strm_file_truename)) { # avoid closing stdout_handle
+    #ifdef MSDOS
+     # File-Handle duplizieren und schließen:
+      var uintW handle = TheHandle(TheStream(stream)->strm_buffered_channel);
+      begin_system_call();
+      var sintW handle2 = dup(handle);
+      if (handle2 < 0) { end_system_call(); OS_filestream_error(stream); }
+      if (CLOSE(handle2)<0) { end_system_call(); OS_filestream_error(stream); }
+      end_system_call();
+    #endif
+    #ifdef RISCOS # || MSDOS, wenn wir da nicht schon was besseres hätten
+     # File schließen (DOS schreibt physikalisch):
+      begin_system_call();
+      if ( CLOSE(TheHandle(TheStream(stream)->strm_buffered_channel)) <0) {
+        end_system_call(); OS_filestream_error(stream);
+      }
+      end_system_call();
+      # File neu öffnen:
+      pushSTACK(stream); # stream retten
+      pushSTACK(TheStream(stream)->strm_file_truename); # Filename
+      # Directory existiert schon:
+      var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
+      var sintW handle;
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+        begin_system_call();
+        handle = OPEN(namestring_asciz,O_RDWR); # Datei neu öffnen
+        if (handle < 0) { end_system_call(); OS_filestream_error(STACK_1); }
+        end_system_call();
+      });
+     #ifdef MSDOS
+      begin_system_call();
+      setmode(handle,O_BINARY);
+      end_system_call();
+     #endif
+      # Nun enthält handle das Handle des geöffneten Files.
+      var object handlobj = allocate_handle(handle);
+      skipSTACK(1);
+      stream = popSTACK(); # stream zurück
+      # neues Handle eintragen:
+      TheStream(stream)->strm_buffered_channel = handlobj;
+    #endif
+    #ifdef AMIGAOS
+     #if 0 # Manche Devices vertragen es nicht, wenn man geöffnete Dateien
+           # zu- und wieder aufmacht. Z.B. bei Pipes hat das eine besondere
+           # Bedeutung.
+      begin_system_call();
+      var Handle handle = TheHandle(TheStream(stream)->strm_buffered_channel);
+      if (!IsInteractive(handle)) {
+        # File schließen (OS schreibt physikalisch):
+        Close(handle);
+        end_system_call();
+        # File neu öffnen:
+        pushSTACK(stream); # stream retten
+        pushSTACK(TheStream(stream)->strm_file_truename); # Filename
+        # Directory existiert schon, Datei neu öffnen:
+        var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
+        with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+          begin_system_call();
+          handle = Open(namestring_asciz,MODE_OLDFILE);
+          end_system_call();
+        });
+        if (handle==NULL) { OS_filestream_error(STACK_1); }
+        skipSTACK(1);
+        stream = popSTACK(); # stream zurück
+        # neues Handle eintragen:
+        TheHandle(TheStream(stream)->strm_buffered_channel) = handle;
+      } else {
+        end_system_call();
+      }
+     #endif
+    #endif
+    }
+   #endif
+  }
+  # und neu positionieren:
+  var uintL position = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
+  BufferedStream_index(stream) = 0; # index := 0
+  BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+  if (!BufferedStream_blockpositioning(stream)) {
+    BufferedStream_buffstart(stream) = position;
+  } else {
+    BufferedStream_buffstart(stream) = 0; # buffstart := 0
+    position_file_buffered(stream,position);
+  }
+  # Komponenten position, ..., lastchar bleiben unverändert
+}
 
 # UP: Bringt den wartenden Output eines File-Stream ans Ziel.
 # Schreibt dazu den Buffer des File-Streams (auch physikalisch) aufs File.
@@ -8716,51 +7970,45 @@ global object make_file_stream (direction_t direction,bool append_flag,
 # closed_buffered(stream);
 # > stream : (offener) File-Stream.
 # verändert in stream: alle Komponenten außer name und truename
-  local void closed_buffered (object stream);
-  local void closed_buffered(stream)
-    var object stream;
-    {
-      TheStream(stream)->strm_buffered_channel = NIL; # Handle wird ungültig
-      TheStream(stream)->strm_buffered_buffer = NIL; # Buffer freimachen
-      BufferedStream_buffstart(stream) = 0; # buffstart löschen (unnötig)
-      BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex löschen (unnötig)
-      BufferedStream_index(stream) = 0; # index löschen (unnötig)
-      BufferedStream_modified(stream) = false; # modified_flag löschen (unnötig)
-      BufferedStream_position(stream) = 0; # position löschen (unnötig)
-      if (ChannelStream_bitsize(stream) > 0) {
-        ChannelStream_bitsize(stream) = 0; # bitsize löschen
-        TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
-      }
-      #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
-      ChannelStream_iconvdesc(stream) = (iconv_t)0; # iconvdesc löschen
-      ChannelStream_oconvdesc(stream) = (iconv_t)0; # oconvdesc löschen
-      #endif
-    }
+local void closed_buffered (object stream) {
+  TheStream(stream)->strm_buffered_channel = NIL; # Handle wird ungültig
+  TheStream(stream)->strm_buffered_buffer = NIL; # Buffer freimachen
+  BufferedStream_buffstart(stream) = 0; # buffstart löschen (unnötig)
+  BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex löschen (unnötig)
+  BufferedStream_index(stream) = 0; # index löschen (unnötig)
+  BufferedStream_modified(stream) = false; # modified_flag löschen (unnötig)
+  BufferedStream_position(stream) = 0; # position löschen (unnötig)
+  if (ChannelStream_bitsize(stream) > 0) {
+    ChannelStream_bitsize(stream) = 0; # bitsize löschen
+    TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
+  }
+  #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+  ChannelStream_iconvdesc(stream) = (iconv_t)0; # iconvdesc löschen
+  ChannelStream_oconvdesc(stream) = (iconv_t)0; # oconvdesc löschen
+  #endif
+}
 
 # UP: Schließt einen File-Stream.
 # close_buffered(stream);
 # > stream : File-Stream.
 # verändert in stream: alle Komponenten außer name und truename
-  local void close_buffered (object stream);
-  local void close_buffered(stream)
-    var object stream;
-    {
-      # Handle=NIL (Stream bereits geschlossen) -> fertig:
-      if (nullp(TheStream(stream)->strm_buffered_channel))
-        return;
-      # Wartenden Output im iconv-Deskriptor hinausschreiben:
-      oconv_unshift_output_buffered(stream);
-      # evtl. Buffer und evtl. eofposition hinausschreiben:
-      buffered_flush_everything(stream);
-      # Nun ist das modified_flag gelöscht.
-      # File schließen:
-      ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_buffered_channel);
-      ChannelStream_fini(stream);
-      # Komponenten ungültig machen (close_dummys kommt später):
-      closed_buffered(stream);
-      # stream aus der Liste aller offenen File-Streams streichen:
-      O(open_files) = deleteq(O(open_files),stream);
-    }
+local void close_buffered (object stream) {
+  # Handle=NIL (Stream bereits geschlossen) -> fertig:
+  if (nullp(TheStream(stream)->strm_buffered_channel))
+    return;
+  # Wartenden Output im iconv-Deskriptor hinausschreiben:
+  oconv_unshift_output_buffered(stream);
+  # evtl. Buffer und evtl. eofposition hinausschreiben:
+  buffered_flush_everything(stream);
+  # Nun ist das modified_flag gelöscht.
+  # File schließen:
+  ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_buffered_channel);
+  ChannelStream_fini(stream);
+  # Komponenten ungültig machen (close_dummys kommt später):
+  closed_buffered(stream);
+  # stream aus der Liste aller offenen File-Streams streichen:
+  O(open_files) = deleteq(O(open_files),stream);
+}
 
 LISPFUNN(file_stream_p,1)
 # (SYS::FILE-STREAM-P stream) == (TYPEP stream 'FILE-STREAM)
@@ -8833,24 +8081,21 @@ typedef struct {
   #define key_special(name)  { name, ascii(0), char_hyper_c }
 
 # Creates a keyboard event.
-local object make_key_event (const key_event* event);
-local object make_key_event(event)
-  var const key_event* event;
-  {
-    if ((event->key == NULL) && (event->bits == 0)) {
-      pushSTACK(S(Kchar)); pushSTACK(code_char(event->code));
-      funcall(S(make_input_character),2);
-    } else {
-      pushSTACK(S(Kkey));
-      if (event->key == NULL)
-        pushSTACK(code_char(event->code));
-      else
-        pushSTACK(intern_keyword(ascii_to_string(event->key)));
-      pushSTACK(S(Kbits)); pushSTACK(fixnum(event->bits));
-      funcall(S(make_input_character),4);
-    }
-    return value1;
+local object make_key_event (const key_event* event) {
+  if ((event->key == NULL) && (event->bits == 0)) {
+    pushSTACK(S(Kchar)); pushSTACK(code_char(event->code));
+    funcall(S(make_input_character),2);
+  } else {
+    pushSTACK(S(Kkey));
+    if (event->key == NULL)
+      pushSTACK(code_char(event->code));
+    else
+      pushSTACK(intern_keyword(ascii_to_string(event->key)));
+    pushSTACK(S(Kbits)); pushSTACK(fixnum(event->bits));
+    funcall(S(make_input_character),4);
   }
+  return value1;
+}
 
 # Values for the bits, must agree with xcharin.lisp.
   #define char_control_c  1
@@ -10223,7 +9468,7 @@ LISPFUNN(make_keyboard_stream,0)
     var object ch;
     {
       var object stream = *stream_;
-      if (!charp(ch)) # ch sollte Character sein
+      if (!charp(ch)) # ch must be a character
         fehler_wr_char(stream,ch);
       begin_call();
       nxterminal_write_char(char_code(ch));
@@ -10419,11 +9664,7 @@ LISPFUNN(make_keyboard_stream,0)
  #if !defined(AMIGAOS)
   #define wr_ch_terminal1  wr_ch_unbuffered_unix
  #else # defined(AMIGAOS)
-  local void wr_ch_terminal1 (const object* stream_, object ch);
-  local void wr_ch_terminal1(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
+  local void wr_ch_terminal1 (const object* stream_, object ch) {
       # ch sollte ein Character mit höchstens Font, aber ohne Bits sein:
       #error "FIXME character fonts don't exist in this form any more"
       if (!((as_oint(ch) & ~(((oint)char_code_mask_c|(oint)char_font_mask_c)<<oint_data_shift)) == as_oint(type_data_object(char_type,0))))
@@ -10466,9 +9707,7 @@ LISPFUNN(make_keyboard_stream,0)
       begin_system_call();
       var long ergebnis = Write(stdout_handle,&outbuffer[0],count); # Zeichen auszugeben versuchen
       end_system_call();
-      if (ergebnis<0) {
-        OS_error(); # Error melden
-      }
+      if (ergebnis<0) { OS_error(); }
       if (ergebnis<count) # nicht erfolgreich?
         fehler_unwritable(S(write_char),*stream_);
     }
@@ -10855,7 +10094,7 @@ local char * strip_white (char *string) {
     var const object* stream_;
     var object ch;
     {
-      if (!charp(ch)) # ch sollte Character sein
+      if (!charp(ch)) # ch must be a character
         fehler_wr_char(*stream_,ch);
       #if TERMINAL_OUTBUFFERED
       {
@@ -11656,7 +10895,7 @@ local int COLS;  # Anzahl Spalten, Anzahl Zeichen pro Zeile
     var const object* stream_;
     var object ch;
     {
-      if (!charp(ch)) # ch sollte Character sein
+      if (!charp(ch)) # ch must be a character
         fehler_wr_char(*stream_,ch);
       var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       # Code c über die Video-Library auf den Bildschirm ausgeben:
@@ -12055,7 +11294,7 @@ local uintW v_put(ch)
     var const object* stream_;
     var object ch;
     {
-      if (!charp(ch)) # ch sollte Character sein
+      if (!charp(ch)) # ch must be a character
         fehler_wr_char(*stream_,ch);
       var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       # Code c auf den Bildschirm ausgeben:
@@ -12250,67 +11489,48 @@ LISPFUNN(window_cursor_off,1)
   #endif
 
 # Ausgabe eines Zeichens, direkt.
-  local void out_char (uintB c);
-  local void out_char(c)
-    var uintB c;
-    {
-     restart_it:
-      var int ergebnis = write(stdout_handle,&c,1); # Zeichen auszugeben versuchen
-      if (ergebnis<0) {
-        if (errno==EINTR)
-          goto restart_it;
-        OS_error(); # Error melden
-      }
-      if (ergebnis==0) { # nicht erfolgreich?
-        pushSTACK(var_stream(S(terminal_io),0)); # FILE-ERROR slot PATHNAME
-        fehler(file_error,
-               GETTEXT("cannot output to standard output")
-              );
-      }
-    }
+local void out_char (uintB c) {
+ restart_it:
+  var int ergebnis = write(stdout_handle,&c,1); # Zeichen auszugeben versuchen
+  if (ergebnis<0) {
+    if (errno==EINTR)
+      goto restart_it;
+    OS_error();
+  }
+  if (ergebnis==0) { # nicht erfolgreich?
+    pushSTACK(var_stream(S(terminal_io),0)); # FILE-ERROR slot PATHNAME
+    fehler(file_error,GETTEXT("cannot output to standard output"));
+  }
+}
 
 # Ausgabe eines Capability-Strings.
-  local void out_capstring (const char* s);
-  local void out_capstring(s)
-    var const char* s;
-    {
-      if (!(s==NULL)) # Absichern gegen nicht vorhandene Capability
-        tputs(s,1,(outcharfun_t) &out_char);
-    }
+local void out_capstring (const char* s) {
+  if (!(s==NULL)) # Absichern gegen nicht vorhandene Capability
+    tputs(s,1,(outcharfun_t) &out_char);
+}
 
 # Ausgabe eines Capability-Strings mit einem Argument.
-  local void out_cap1string (const char* s, int arg);
-  local void out_cap1string(s,arg)
-    var const char* s;
-    var int arg;
-    {
-      if (!(s==NULL)) # Absichern gegen nicht vorhandene Capability
-        tputs(tgoto(s,0,arg),1,(outcharfun_t) &out_char);
-    }
+local void out_cap1string (const char* s, int arg) {
+  if (!(s==NULL)) # Absichern gegen nicht vorhandene Capability
+    tputs(tgoto(s,0,arg),1,(outcharfun_t) &out_char);
+}
 
 # Kosten der Ausführung einer Capability:
   #define EXPENSIVE 1000
   local uintC cost_counter; # Zähler
-  # Funktion, die nicht ausgibt, sondern nur zählt:
-  local void count_char (char c);
-  local void count_char(c)
-    var char c;
-    {
-      cost_counter++;
-    }
-  # Berechnet die Kosten der Ausgabe einer Capability:
-  local uintC cap_cost (const char* s);
-  local uintC cap_cost(s)
-    var const char* s;
-    {
-      if (s==NULL) {
-        return EXPENSIVE; # Capability nicht vorhanden
-      } else {
-        cost_counter = 0;
-        tputs(s,1,(outcharfun_t) &count_char);
-        return cost_counter;
-      }
-    }
+# Funktion, die nicht ausgibt, sondern nur zählt:
+local void count_char (char c) { cost_counter++; }
+
+# Berechnet die Kosten der Ausgabe einer Capability:
+local uintC cap_cost (const char* s) {
+  if (s==NULL) {
+    return EXPENSIVE; # Capability nicht vorhanden
+  } else {
+    cost_counter = 0;
+    tputs(s,1,(outcharfun_t) &count_char);
+    return cost_counter;
+  }
+}
 
 # Buffer für von mir benötigte Capabilities und Pointer da hinein:
   local char tentry[4096];
@@ -12448,23 +11668,18 @@ typedef struct {
 #if WANT_INSERT
 
 # Insert-Modus ein- bzw. ausschalten:
-  # Flag, ob das Terminal im Insert-Modus ist (falls es einen solchen gibt):
-  local bool insert;
-  local void set_insert_mode (bool flag);
-  local void set_insert_mode(flag)
-    var bool flag;
-    {
-      if (flag) {
-        # Einschalten
-        if (!insert)
-          out_capstring(IMcap);
-      } else {
-        # Ausschalten
-        if (insert)
-          out_capstring(EIcap);
-      }
-      insert = flag;
-    }
+# Flag, ob das Terminal im Insert-Modus ist (falls es einen solchen gibt):
+local bool insert;
+local void set_insert_mode (bool flag) {
+  if (flag) { # Einschalten
+    if (!insert)
+      out_capstring(IMcap);
+  } else { # Ausschalten
+    if (insert)
+      out_capstring(EIcap);
+  }
+  insert = flag;
+}
 
 #endif
 
@@ -13968,7 +13183,7 @@ typedef struct {
     var const object* stream_;
     var object ch;
     {
-      if (!charp(ch)) # ch sollte Character sein
+      if (!charp(ch)) # ch must be a character
         fehler_wr_char(*stream_,ch);
       var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       begin_system_call();
@@ -14244,7 +13459,7 @@ LISPFUNN(window_cursor_off,1)
     var const object* stream_;
     var object ch;
     {
-      if (!charp(ch)) # ch sollte Character sein
+      if (!charp(ch)) # ch must be a character
         fehler_wr_char(*stream_,ch);
       var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       begin_system_call();
@@ -14422,20 +13637,16 @@ LISPFUNN(window_cursor_off,1)
 # Terminal-Emulation: ANSI-Steuerzeichen, siehe console.doc
 
 # UP: Ausgabe mehrerer Zeichen auf den Bildschirm
-  local void wr_window (const uintB* outbuffer, uintL count);
-  local void wr_window(outbuffer,count)
-    var const uintB* outbuffer;
-    var uintL count;
-    {
-      set_break_sem_1();
-      begin_system_call();
-      var long ergebnis = Write(stdout_handle,outbuffer,count);
-      end_system_call();
-      if (ergebnis<0) { OS_error(); } # Error melden
-      if (ergebnis<count) # nicht erfolgreich?
-        { ?? }
-      clr_break_sem_1();
-    }
+local void wr_window (const uintB* outbuffer, uintL count) {
+  set_break_sem_1();
+  begin_system_call();
+  var long ergebnis = Write(stdout_handle,outbuffer,count);
+  end_system_call();
+  if (ergebnis<0) { OS_error(); }
+  if (ergebnis<count) # nicht erfolgreich?
+    { ?? }
+  clr_break_sem_1();
+}
 
 #define WR_WINDOW(characters)  \
   { local var uintB outbuffer[] = characters; \
@@ -14451,7 +13662,7 @@ LISPFUNN(window_cursor_off,1)
     var const object* stream_;
     var object ch;
     {
-      if (!charp(ch)) # ch sollte Character sein
+      if (!charp(ch)) # ch must be a character
         fehler_wr_char(*stream_,ch);
       var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       ??
@@ -14610,35 +13821,27 @@ LISPFUNN(window_cursor_off,1)
 # FIXME: Should be based on an encoding.
 
 # WRITE-CHAR - Pseudofunktion für Printer-Streams:
-  local void wr_ch_printer (const object* stream_, object ch);
-  local void wr_ch_printer(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      var object stream = *stream_;
-      # ch sollte Character sein:
-      if (!charp(ch))
-        fehler_wr_char(stream,ch);
-      begin_system_call();
-      var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
-      var long ergebnis = # Zeichen auszugeben versuchen
-        Write(TheHandle(TheStream(stream)->strm_printer_handle),&c,1L);
-      end_system_call();
-      if (ergebnis<0) { OS_error(); } # Error melden
-      # ergebnis = Anzahl der ausgegebenen Zeichen (0 oder 1)
-      if (ergebnis==0) # nicht erfolgreich?
-        fehler_unwritable(S(write_char),stream);
-    }
+local void wr_ch_printer (const object* stream_, object ch) {
+  var object stream = *stream_;
+  if (!charp(ch)) # ch must be a character
+    fehler_wr_char(stream,ch);
+  begin_system_call();
+  var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
+  var long ergebnis = # Zeichen auszugeben versuchen
+    Write(TheHandle(TheStream(stream)->strm_printer_handle),&c,1L);
+  end_system_call();
+  if (ergebnis<0) { OS_error(); }
+  # ergebnis = Anzahl der ausgegebenen Zeichen (0 oder 1)
+  if (ergebnis==0) # nicht erfolgreich?
+    fehler_unwritable(S(write_char),stream);
+}
 
-# Schließt einen Printer-Stream.
-  local void close_printer (object stream);
-  local void close_printer(stream)
-    var object stream;
-    {
-      begin_system_call();
-      Close(TheHandle(TheStream(stream)->strm_printer_handle));
-      end_system_call();
-    }
+# close a printer-stream.
+local void close_printer (object stream) {
+  begin_system_call();
+  Close(TheHandle(TheStream(stream)->strm_printer_handle));
+  end_system_call();
+}
 
 # UP: Liefert einen Printer-Stream.
 # can trigger GC
@@ -14653,7 +13856,7 @@ LISPFUNN(window_cursor_off,1)
       begin_system_call();
       {
         var Handle handle = Open("PRT:",MODE_NEWFILE);
-        if (handle==Handle_NULL) { OS_error(); } # Error melden
+        if (handle==Handle_NULL) { OS_error(); }
         end_system_call();
         TheHandle(STACK_0) = handle; # Handle verpacken
       }
@@ -14958,7 +14161,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
           interruptp({ fehler_interrupt(); });
           goto restart_it;
         }
-        OS_error(); # Error melden
+        OS_error();
       }
       end_system_call();
       if (result==0) # not successful?
@@ -14976,7 +14179,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
       writing_to_subprocess = true;
       var sintL result = full_write(handle,byteptr,len);
       writing_to_subprocess = false;
-      if (result<0) { OS_error(); } # Error melden
+      if (result<0) { OS_error(); }
       end_system_call();
       if (!(result==(sintL)len)) # not successful?
         fehler_unwritable(TheSubr(subr_self)->name,stream);
@@ -15546,7 +14749,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
           end_system_call(); fehler_interrupt();
         }
         #endif
-        SOCK_error(); # Error melden
+        SOCK_error();
       }
       end_system_call();
       byteptr += result;
@@ -15589,7 +14792,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
           end_system_call(); fehler_interrupt();
         }
         #endif
-        SOCK_error(); # Error melden
+        SOCK_error();
       }
       end_system_call();
       if (result==0) # not successful?
@@ -15611,7 +14814,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
           end_system_call(); fehler_interrupt();
         }
         #endif
-        SOCK_error(); # Error melden
+        SOCK_error();
       }
       end_system_call();
       if (!(result==(sintL)len)) # not successful?
@@ -15835,7 +15038,7 @@ LISPFUNN(write_n_bytes,4)
           end_system_call(); fehler_interrupt();
         }
         #endif
-        SOCK_error(); # Error melden
+        SOCK_error();
       }
       end_system_call();
       return result;
@@ -15875,7 +15078,7 @@ LISPFUNN(write_n_bytes,4)
             end_system_call(); fehler_interrupt();
           }
           #endif
-          SOCK_error(); # Error melden
+          SOCK_error();
         }
         end_system_call();
         fehler_unwritable(TheSubr(subr_self)->name,stream);
@@ -16547,127 +15750,115 @@ local int previous_line_virtual (int count, int key) {
 # > unixyp: Flag, ob *error-output* nach Unix-Art (vom Standard abweichend)
 #           initialisiert werden soll
 # can trigger GC
-  global void init_streamvars (bool unixyp);
-  global void init_streamvars(unixyp)
-    var bool unixyp;
-    {
-      #ifdef GNU_READLINE
-      begin_call();
-      rl_readline_name = "CLisp";
-      if (ilisp_mode) {
-        # Simuliere folgende Anweisung im .inputrc:
-        #   Control-i: self-insert
-        rl_bind_key(CTRL('I'),rl_named_function("self-insert"));
-      }
-      rl_attempted_completion_function = &lisp_completion_matches;
-      rl_completion_entry_function = &lisp_completion_more;
-      _rl_comment_begin = ";";
-      _rl_enable_paren_matching(true); # readline-4.1-clisp or newer
-      rl_add_defun("next-line-virtual",&next_line_virtual,META('n'));
-      rl_add_defun("previous-line-virtual",&previous_line_virtual,META('p'));
-      end_call();
-      #endif
-      {
-        var object stream = make_terminal_io();
-        define_variable(S(terminal_io),stream);      # *TERMINAL-IO*
-      }
-      {
-        var object stream = make_synonym_stream(S(terminal_io)); # Synonym-Stream auf *TERMINAL-IO*
-        define_variable(S(query_io),stream);         # *QUERY-IO*
-        define_variable(S(debug_io),stream);         # *DEBUG-IO*
-        define_variable(S(standard_input),stream);   # *STANDARD-INPUT*
-        define_variable(S(standard_output),stream);  # *STANDARD-OUTPUT*
-        define_variable(S(trace_output),stream);     # *TRACE-OUTPUT*
-        #ifdef UNIX
-        if (unixyp) {
-          # Für *ERROR-OUTPUT* einen anderen Stream verwenden. Auf den
-          # Filenamen kommt es nicht an, /dev/fd/2 existiert auch nicht überall.
-          pushSTACK(ascii_to_string("/dev/fd/2")); funcall(L(pathname),1);
-          pushSTACK(value1);
-          pushSTACK(test_external_format_arg(S(Kunix)));
-          pushSTACK(S(character));
-          pushSTACK(allocate_handle(2));
-          var decoded_eltype eltype = { eltype_ch, 0 };
-          stream = make_unbuffered_stream(strmtype_file,4,&eltype,false);
-          UnbufferedHandleStream_output_init(stream);
-          ChannelStreamLow_close(stream) = &low_close_handle;
-          TheStream(stream)->strm_file_name =
-          TheStream(stream)->strm_file_truename = popSTACK();
-        }
-        #endif
-        define_variable(S(error_output),stream);     # *ERROR-OUTPUT*
-      }
-      #ifdef KEYBOARD
-        # Initialize the *KEYBOARD-INPUT* stream. This can fail in some cases,
-        # therefore we do it after the standard streams are in place, so that
-        # the user will get a reasonable error message.
-        #if defined(UNIX) || defined(RISCOS)
-          # Building the keyboard stream is a costly operation. Delay it
-          # until we really need it.
-          define_variable(S(keyboard_input),NIL);     # *KEYBOARD-INPUT*
-        #else
-        {
-          var object stream = make_keyboard_stream();
-          define_variable(S(keyboard_input),stream); # *KEYBOARD-INPUT*
-        }
-        #endif
-      #endif
+global void init_streamvars (bool unixyp) {
+  #ifdef GNU_READLINE
+  begin_call();
+  rl_readline_name = "CLisp";
+  if (ilisp_mode) {
+    # Simuliere folgende Anweisung im .inputrc:
+    #   Control-i: self-insert
+    rl_bind_key(CTRL('I'),rl_named_function("self-insert"));
+  }
+  rl_attempted_completion_function = &lisp_completion_matches;
+  rl_completion_entry_function = &lisp_completion_more;
+  _rl_comment_begin = ";";
+  _rl_enable_paren_matching(true); # readline-4.1-clisp or newer
+  rl_add_defun("next-line-virtual",&next_line_virtual,META('n'));
+  rl_add_defun("previous-line-virtual",&previous_line_virtual,META('p'));
+  end_call();
+  #endif
+  {
+    var object stream = make_terminal_io();
+    define_variable(S(terminal_io),stream);      # *TERMINAL-IO*
+  }
+  {
+    var object stream = make_synonym_stream(S(terminal_io)); # Synonym-Stream auf *TERMINAL-IO*
+    define_variable(S(query_io),stream);         # *QUERY-IO*
+    define_variable(S(debug_io),stream);         # *DEBUG-IO*
+    define_variable(S(standard_input),stream);   # *STANDARD-INPUT*
+    define_variable(S(standard_output),stream);  # *STANDARD-OUTPUT*
+    define_variable(S(trace_output),stream);     # *TRACE-OUTPUT*
+    #ifdef UNIX
+    if (unixyp) {
+      # Für *ERROR-OUTPUT* einen anderen Stream verwenden. Auf den
+      # Filenamen kommt es nicht an, /dev/fd/2 existiert auch nicht überall.
+      pushSTACK(ascii_to_string("/dev/fd/2")); funcall(L(pathname),1);
+      pushSTACK(value1);
+      pushSTACK(test_external_format_arg(S(Kunix)));
+      pushSTACK(S(character));
+      pushSTACK(allocate_handle(2));
+      var decoded_eltype eltype = { eltype_ch, 0 };
+      stream = make_unbuffered_stream(strmtype_file,4,&eltype,false);
+      UnbufferedHandleStream_output_init(stream);
+      ChannelStreamLow_close(stream) = &low_close_handle;
+      TheStream(stream)->strm_file_name =
+        TheStream(stream)->strm_file_truename = popSTACK();
     }
+    #endif
+    define_variable(S(error_output),stream);     # *ERROR-OUTPUT*
+  }
+  #ifdef KEYBOARD
+  # Initialize the *KEYBOARD-INPUT* stream. This can fail in some cases,
+  # therefore we do it after the standard streams are in place, so that
+  # the user will get a reasonable error message.
+  #if defined(UNIX) || defined(RISCOS)
+  # Building the keyboard stream is a costly operation. Delay it
+  # until we really need it.
+  define_variable(S(keyboard_input),NIL);     # *KEYBOARD-INPUT*
+  #else
+  {
+    var object stream = make_keyboard_stream();
+    define_variable(S(keyboard_input),stream); # *KEYBOARD-INPUT*
+  }
+  #endif
+  #endif
+}
 
 # Liefert Fehlermeldung, wenn der Wert des Symbols sym kein Stream ist.
-  local void fehler_value_stream(sym)
-    var object sym;
-    {
-      # Vor der Fehlermeldung eventuell noch reparieren
-      # (so wie bei init_streamvars bzw. init_pathnames initialisiert):
-      var object stream;
-      pushSTACK(sym); # sym retten
-      #ifdef KEYBOARD
-      if (eq(sym,S(keyboard_input))) {
-        # Keyboard-Stream als Default
-        stream = make_keyboard_stream();
-      } else
-      #endif
-      if (eq(sym,S(terminal_io))) {
-        # Terminal-Stream als Default
-        # (Use make_terminal_stream() here, not make_terminal_io(), because
-        # that might have been a file stream and got closed when the disk
-        # became full.)
-        stream = make_terminal_stream();
-      } elif (eq(sym,S(query_io)) || eq(sym,S(debug_io)) ||
-              eq(sym,S(standard_input)) || eq(sym,S(standard_output)) ||
-              eq(sym,S(error_output)) || eq(sym,S(trace_output))) {
-        # Synonym-Stream auf *TERMINAL-IO* als Default
-        stream = make_synonym_stream(S(terminal_io));
-      } else {
-        # sonstiges Symbol, nicht reparierbar -> sofort Fehlermeldung:
-        pushSTACK(Symbol_value(sym)); # TYPE-ERROR slot DATUM
-        pushSTACK(S(stream));         # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(Symbol_value(sym)); # Variablenwert
-        pushSTACK(sym); # Variable
-        if (!streamp(Symbol_value(sym))) {
-          fehler(type_error,
-                 GETTEXT("The value of ~ is not a stream: ~")
-                );
-        } else {
-          fehler(type_error,
-                 GETTEXT("The value of ~ is not an appropriate stream: ~")
-                );
-        }
-      }
-      sym = popSTACK();
-      # Reparatur beendet: stream ist der neue Wert von sym.
-      var object oldvalue = Symbol_value(sym);
-      Symbol_value(sym) = stream;
-      pushSTACK(oldvalue);  # TYPE-ERROR slot DATUM
-      pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(stream); # neuer Variablenwert
-      pushSTACK(oldvalue); # alter Variablenwert
-      pushSTACK(sym); # Variable
-      fehler(type_error,
-             GETTEXT("The value of ~ was not a stream: ~. It has been changed to ~.")
-            );
+local void fehler_value_stream (object sym) {
+  # Vor der Fehlermeldung eventuell noch reparieren
+  # (so wie bei init_streamvars bzw. init_pathnames initialisiert):
+  var object stream;
+  pushSTACK(sym); # sym retten
+  #ifdef KEYBOARD
+  if (eq(sym,S(keyboard_input))) { # Keyboard-Stream als Default
+    stream = make_keyboard_stream();
+  } else
+  #endif
+  if (eq(sym,S(terminal_io))) {
+    # Terminal-Stream als Default
+    # (Use make_terminal_stream() here, not make_terminal_io(), because
+    # that might have been a file stream and got closed when the disk
+    # became full.)
+    stream = make_terminal_stream();
+  } else if (eq(sym,S(query_io)) || eq(sym,S(debug_io)) ||
+             eq(sym,S(standard_input)) || eq(sym,S(standard_output)) ||
+             eq(sym,S(error_output)) || eq(sym,S(trace_output))) {
+    # Synonym-Stream auf *TERMINAL-IO* als Default
+    stream = make_synonym_stream(S(terminal_io));
+  } else {
+    # sonstiges Symbol, nicht reparierbar -> sofort Fehlermeldung:
+    pushSTACK(Symbol_value(sym)); # TYPE-ERROR slot DATUM
+    pushSTACK(S(stream));         # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(Symbol_value(sym)); # Variablenwert
+    pushSTACK(sym); # Variable
+    if (!streamp(Symbol_value(sym))) {
+      fehler(type_error,GETTEXT("The value of ~ is not a stream: ~"));
+    } else {
+      fehler(type_error,GETTEXT("The value of ~ is not an appropriate stream: ~"));
     }
+  }
+  sym = popSTACK();
+  # Reparatur beendet: stream ist der neue Wert von sym.
+  var object oldvalue = Symbol_value(sym);
+  Symbol_value(sym) = stream;
+  pushSTACK(oldvalue);  # TYPE-ERROR slot DATUM
+  pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(stream); # neuer Variablenwert
+  pushSTACK(oldvalue); # alter Variablenwert
+  pushSTACK(sym); # Variable
+  fehler(type_error,GETTEXT("The value of ~ was not a stream: ~. It has been changed to ~."));
+}
 
 #ifdef GNU_READLINE
 
@@ -17235,26 +16426,23 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
 # > stream: a stream
 # > encoding: an encoding
 # can trigger GC
-  global void set_terminalstream_external_format (object stream, object encoding);
-  global void set_terminalstream_external_format(stream,encoding)
-    var object stream;
-    var object encoding;
-    {
-      if (builtin_stream_p(stream)
-          && TheStream(stream)->strmtype == strmtype_terminal
-          && eq(TheStream(stream)->strm_encoding,O(terminal_encoding))) {
-        # This is the only place which is allowed to modify the terminal
-        # stream's encoding.
-        # The terminal stream's end-of-line coding is hardwired, therefore we
-        # don't neet to do the equivalent of fill_pseudofuns_unbuffered here.
-        ChannelStream_fini(stream);
-        TheStream(stream)->strm_encoding = encoding;
-        ChannelStream_init(stream);
-      } else {
-        pushSTACK(stream); pushSTACK(encoding);
-        funcall(L(set_stream_external_format),2);
-      }
-    }
+global void set_terminalstream_external_format (object stream,
+                                                object encoding) {
+  if (builtin_stream_p(stream)
+      && TheStream(stream)->strmtype == strmtype_terminal
+      && eq(TheStream(stream)->strm_encoding,O(terminal_encoding))) {
+    # This is the only place which is allowed to modify the terminal
+    # stream's encoding.
+    # The terminal stream's end-of-line coding is hardwired, therefore we
+    # don't neet to do the equivalent of fill_pseudofuns_unbuffered here.
+    ChannelStream_fini(stream);
+    TheStream(stream)->strm_encoding = encoding;
+    ChannelStream_init(stream);
+  } else {
+    pushSTACK(stream); pushSTACK(encoding);
+    funcall(L(set_stream_external_format),2);
+  }
+}
 
 #endif
 
@@ -17277,86 +16465,81 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
 #   strmtype_x11socket, strmtype_socket (die interactive_stream_p(stream)
 #   erfüllen) tut clear_input(stream) nichts, und listen_char(stream) kann
 #   ls_avail liefern.
-  global bool interactive_stream_p (object stream);
-  global bool interactive_stream_p(stream)
-    var object stream;
-    {
-     start:
-      if (!builtin_stream_p(stream))
-        # Assume the worst.
-        return true;
-      if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
-        # Stream für Input geschlossen
-        return false;
-      # Stream offen
-      switch (TheStream(stream)->strmtype) {
-        case strmtype_synonym:
-          # Synonym-Stream: weiterverfolgen
-          {
-            var object symbol = TheStream(stream)->strm_synonym_symbol;
-            stream = get_synonym_stream(symbol);
-            /* return interactive_stream_p(stream); */ # entrekursiviert:
-            goto start;
-          }
-        case strmtype_concat:
-          # Hier könnte man listen_char(stream) machen, um Streams, die
-          # am EOF angelangt sind, zu ignorieren. Aber es ist nicht gut,
-          # wenn interactive_stream_p Systemaufrufe und I/O macht.??
-          # Den ersten der Streams abfragen:
-          {
-            var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-            if (consp(streamlist)) {
-              stream = Car(streamlist);
-              /* return interactive_stream_p(stream); */ # entrekursiviert:
-              goto start;
-            } else
-              return false;
-          }
-        case strmtype_twoway:
-        case strmtype_echo:
-          # Two-Way-Stream oder Echo-Stream: Input-Stream anschauen
-          stream = TheStream(stream)->strm_twoway_input;
+global bool interactive_stream_p (object stream) {
+ start:
+  if (!builtin_stream_p(stream)) # Assume the worst.
+    return true;
+  if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
+    # Stream für Input geschlossen
+    return false;
+  # Stream offen
+  switch (TheStream(stream)->strmtype) {
+    case strmtype_synonym: # Synonym-Stream: weiterverfolgen
+      {
+        var object symbol = TheStream(stream)->strm_synonym_symbol;
+        stream = get_synonym_stream(symbol);
+        /* return interactive_stream_p(stream); */ # entrekursiviert:
+        goto start;
+      }
+    case strmtype_concat:
+      # Hier könnte man listen_char(stream) machen, um Streams, die
+      # am EOF angelangt sind, zu ignorieren. Aber es ist nicht gut,
+      # wenn interactive_stream_p Systemaufrufe und I/O macht.??
+      # Den ersten der Streams abfragen:
+      {
+        var object streamlist = TheStream(stream)->strm_concat_list;
+        if (consp(streamlist)) {
+          stream = Car(streamlist);
           /* return interactive_stream_p(stream); */ # entrekursiviert:
-           goto start;
-        case strmtype_str_in:
-          return false;
-        case strmtype_buff_in:
-        #ifdef GENERIC_STREAMS
-        case strmtype_generic:
-        #endif
-          return true;
-        #if !defined(NEXTAPP)
-        case strmtype_terminal:
-        #endif
-        case strmtype_file:
-          if (ChannelStream_buffered(stream))
-            # Buffered file streams are not considered to be interactive.
-            return false;
-          if (nullp(TheStream(stream)->strm_isatty))
-            # Reguläre Files sind sicher nicht interaktiv.
-            if (regular_handle_p(TheHandle(TheStream(stream)->strm_ichannel)))
-              return false;
-        #ifdef KEYBOARD
-        case strmtype_keyboard:
-        #endif
-        #if defined(NEXTAPP)
-        case strmtype_terminal:
-        #endif
-        #ifdef PIPES
-        case strmtype_pipe_in:
-        #endif
-        #ifdef X11SOCKETS
-        case strmtype_x11socket:
-        #endif
-        #ifdef SOCKET_STREAMS
-        case strmtype_socket:
-        case strmtype_twoway_socket:
-        #endif
-          return true;
-        default:
+          goto start;
+        } else
           return false;
       }
-    }
+    case strmtype_twoway:
+    case strmtype_echo:
+      # Two-Way-Stream oder Echo-Stream: Input-Stream anschauen
+      stream = TheStream(stream)->strm_twoway_input;
+      /* return interactive_stream_p(stream); */ # entrekursiviert:
+      goto start;
+    case strmtype_str_in:
+      return false;
+    case strmtype_buff_in:
+    #ifdef GENERIC_STREAMS
+    case strmtype_generic:
+    #endif
+      return true;
+    #if !defined(NEXTAPP)
+    case strmtype_terminal:
+    #endif
+    case strmtype_file:
+      if (ChannelStream_buffered(stream))
+        # Buffered file streams are not considered to be interactive.
+        return false;
+      if (nullp(TheStream(stream)->strm_isatty))
+        # Reguläre Files sind sicher nicht interaktiv.
+        if (regular_handle_p(TheHandle(TheStream(stream)->strm_ichannel)))
+          return false;
+    #ifdef KEYBOARD
+    case strmtype_keyboard:
+    #endif
+    #if defined(NEXTAPP)
+    case strmtype_terminal:
+    #endif
+    #ifdef PIPES
+    case strmtype_pipe_in:
+    #endif
+    #ifdef X11SOCKETS
+    case strmtype_x11socket:
+    #endif
+    #ifdef SOCKET_STREAMS
+    case strmtype_socket:
+    case strmtype_twoway_socket:
+    #endif
+      return true;
+    default:
+      return false;
+  }
+}
 
 LISPFUNN(interactive_stream_p,1)
 # (INTERACTIVE-STREAM-P stream), CLTL2 S. 507/508
@@ -17373,129 +16556,116 @@ LISPFUNN(interactive_stream_p,1)
 # > stream: Builtin-Stream
 # < stream: Builtin-Stream
 # can trigger GC
-  global void builtin_stream_close (const object* stream_);
-  global void builtin_stream_close(stream_)
-    var const object* stream_;
-    {
-      var object stream = *stream_;
-      if ((TheStream(stream)->strmflags & strmflags_open_B) == 0) # Stream schon geschlossen?
-        return;
-      # Typspezifische Routine aufrufen (darf GC auslösen):
-      switch (TheStream(stream)->strmtype) {
-        case strmtype_synonym:
-          close_synonym(stream); break; # X3J13_014 sagt: nichtrekursiv
-        case strmtype_broad: break; # nichtrekursiv
-        case strmtype_concat: break; # nichtrekursiv
-        case strmtype_twoway: break; # nichtrekursiv
-        case strmtype_echo: break; # nichtrekursiv
-        case strmtype_str_in:
-          close_str_in(stream); break;
-        case strmtype_str_out: break;
-        case strmtype_str_push: break;
-        case strmtype_pphelp: break;
-        case strmtype_buff_in:
-          close_buff_in(stream); break;
-        case strmtype_buff_out:
-          close_buff_out(stream); break;
-        #ifdef GENERIC_STREAMS
-        case strmtype_generic:
-          close_generic(stream); break;
-        #endif
-        case strmtype_file:
-        #ifdef PIPES
-        case strmtype_pipe_in:
-        case strmtype_pipe_out:
-        #endif
-        #ifdef X11SOCKETS
-        case strmtype_x11socket:
-        #endif
-        #ifdef SOCKET_STREAMS
-        case strmtype_socket:
-        #endif
-          if (ChannelStream_buffered(stream)) {
-            close_buffered(stream);
-          } else {
-            if (TheStream(stream)->strmflags & strmflags_wr_B)
-              close_ochannel(stream);
-            else
-              close_ichannel(stream);
-          }
-          break;
-        #ifdef SOCKET_STREAMS
-        case strmtype_twoway_socket:
-          # Close the two substreams, but close the handle once only.
-          ChannelStreamLow_close(TheStream(stream)->strm_twoway_socket_input) = &low_close_socket_nop;
-          pushSTACK(TheStream(stream)->strm_twoway_socket_input);
-          pushSTACK(TheStream(stream)->strm_twoway_socket_output);
-          builtin_stream_close(&STACK_1);
-          builtin_stream_close(&STACK_0);
-          skipSTACK(2);
-          break;
-        #endif
-        #ifdef KEYBOARD
-        case strmtype_keyboard: break;
-        #endif
-        case strmtype_terminal: break;
-        #ifdef SCREEN
-        case strmtype_window:
-          close_window(stream); break;
-        #endif
-        #ifdef PRINTER_AMIGAOS
-        case strmtype_printer:
-          close_printer(stream); break;
-        #endif
-        default: NOTREACHED
+global void builtin_stream_close (const object* stream_) {
+  var object stream = *stream_;
+  if ((TheStream(stream)->strmflags & strmflags_open_B) == 0) # Stream schon geschlossen?
+    return;
+  # Typspezifische Routine aufrufen (darf GC auslösen):
+  switch (TheStream(stream)->strmtype) {
+    case strmtype_synonym:
+      close_synonym(stream); break; # X3J13_014 sagt: nichtrekursiv
+    case strmtype_broad: break; # nichtrekursiv
+    case strmtype_concat: break; # nichtrekursiv
+    case strmtype_twoway: break; # nichtrekursiv
+    case strmtype_echo: break; # nichtrekursiv
+    case strmtype_str_in:
+      close_str_in(stream); break;
+    case strmtype_str_out: break;
+    case strmtype_str_push: break;
+    case strmtype_pphelp: break;
+    case strmtype_buff_in:
+      close_buff_in(stream); break;
+    case strmtype_buff_out: close_buff_out(stream); break;
+    #ifdef GENERIC_STREAMS
+    case strmtype_generic: close_generic(stream); break;
+    #endif
+    case strmtype_file:
+    #ifdef PIPES
+    case strmtype_pipe_in:
+    case strmtype_pipe_out:
+    #endif
+    #ifdef X11SOCKETS
+    case strmtype_x11socket:
+    #endif
+    #ifdef SOCKET_STREAMS
+    case strmtype_socket:
+    #endif
+      if (ChannelStream_buffered(stream)) {
+        close_buffered(stream);
+      } else {
+        if (TheStream(stream)->strmflags & strmflags_wr_B)
+          close_ochannel(stream);
+        else
+          close_ichannel(stream);
       }
-      # Dummys eintragen:
-      close_dummys(*stream_);
-    }
+      break;
+    #ifdef SOCKET_STREAMS
+    case strmtype_twoway_socket:
+      # Close the two substreams, but close the handle once only.
+      ChannelStreamLow_close(TheStream(stream)->strm_twoway_socket_input) =
+        &low_close_socket_nop;
+      pushSTACK(TheStream(stream)->strm_twoway_socket_input);
+      pushSTACK(TheStream(stream)->strm_twoway_socket_output);
+      builtin_stream_close(&STACK_1);
+      builtin_stream_close(&STACK_0);
+      skipSTACK(2);
+      break;
+    #endif
+    #ifdef KEYBOARD
+    case strmtype_keyboard: break;
+    #endif
+    case strmtype_terminal: break;
+    #ifdef SCREEN
+    case strmtype_window: close_window(stream); break;
+    #endif
+    #ifdef PRINTER_AMIGAOS
+    case strmtype_printer: close_printer(stream); break;
+    #endif
+    default: NOTREACHED
+               }
+# Dummys eintragen:
+  close_dummys(*stream_);
+}
 
 # UP: Schließt eine Liste offener Files.
 # close_some_files(list);
 # > list: Liste von offenen Builtin-Streams
 # can trigger GC
-  global void close_some_files (object list);
-  global void close_some_files(list)
-    var object list;
-    {
-      pushSTACK(NIL); # dummy
-      pushSTACK(list); # list
-      while (mconsp(STACK_0)) {
-        var object streamlist = STACK_0;
-        STACK_0 = Cdr(streamlist); # restliche Streams
-        STACK_1 = Car(streamlist); # ein Stream aus der Liste
-        builtin_stream_close(&STACK_1); # schließen
-      }
-      skipSTACK(2);
-    }
+global void close_some_files (object list) {
+  pushSTACK(NIL); # dummy
+  pushSTACK(list); # list
+  while (mconsp(STACK_0)) {
+    var object streamlist = STACK_0;
+    STACK_0 = Cdr(streamlist); # restliche Streams
+    STACK_1 = Car(streamlist); # ein Stream aus der Liste
+    builtin_stream_close(&STACK_1); # schließen
+  }
+  skipSTACK(2);
+}
 
 # UP: Schließt alle offenen Files.
 # close_all_files();
 # can trigger GC
-  global void close_all_files (void);
-  global void close_all_files()
-    {
-      close_some_files(O(open_files)); # Liste aller offenen File-Streams
-    }
+global void close_all_files (void) {
+  close_some_files(O(open_files)); # Liste aller offenen File-Streams
+}
 
 # UP: Erklärt alle offenen File-Streams für geschlossen.
 # closed_all_files();
-  global void closed_all_files (void);
-  global void closed_all_files()
-    {
-      var object streamlist = O(open_files); # Liste aller offenen File-Streams
-      while (consp(streamlist)) {
-        var object stream = Car(streamlist); # ein Stream aus der Liste
-        if (TheStream(stream)->strmtype == strmtype_file) { # File-Stream ?
-          if (!nullp(TheStream(stream)->strm_buffered_channel)) # mit Handle /= NIL ?
-            # ja: Stream noch offen
-            closed_buffered(stream);
-        }
-        close_dummys(stream);
-        streamlist = Cdr(streamlist); # restliche Streams
-      }
-      O(open_files) = NIL; # keine offenen Files mehr
+global void closed_all_files (void) {
+  var object streamlist = O(open_files); # Liste aller offenen File-Streams
+  while (consp(streamlist)) {
+    var object stream = Car(streamlist); # ein Stream aus der Liste
+    if (TheStream(stream)->strmtype == strmtype_file) { # File-Stream ?
+      if (!nullp(TheStream(stream)->strm_buffered_channel)) # mit Handle /= NIL ?
+        # ja: Stream noch offen
+        closed_buffered(stream);
     }
+    close_dummys(stream);
+    streamlist = Cdr(streamlist); # restliche Streams
+  }
+  O(open_files) = NIL; # keine offenen Files mehr
+}
 
 LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 # (SYS::BUILT-IN-STREAM-CLOSE stream :abort)
@@ -17517,83 +16687,77 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 # < buffer: contains the read characters, excluding the terminating #\Newline
 # < result: true is EOF was seen before newline, else false
 # can trigger GC
-  global bool read_line (const object* stream_, const object* buffer_);
-  global bool read_line(stream_,buffer_)
-    var const object* stream_;
-    var const object* buffer_;
-    {
-      var object stream = *stream_;
-      if (builtin_stream_p(stream)) {
-        if (TheStream(stream)->strmflags & strmflags_unread_B) { # Char nach UNREAD ?
-          # ja -> Flagbit löschen und letztes Zeichen holen:
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-          var object ch = TheStream(stream)->strm_rd_ch_last;
+global bool read_line (const object* stream_, const object* buffer_) {
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)) {
+    if (TheStream(stream)->strmflags & strmflags_unread_B) { # Char nach UNREAD ?
+      # ja -> Flagbit löschen und letztes Zeichen holen:
+      TheStream(stream)->strmflags &= ~strmflags_unread_B;
+      var object ch = TheStream(stream)->strm_rd_ch_last;
+      if (!charp(ch)) {
+        subr_self = L(read_line); fehler_char(ch);
+      }
+      if (eq(ch,ascii_char(NL)))
+        return false;
+      ssstring_push_extend(*buffer_,char_code(ch));
+      stream = *stream_;
+    }
+    var uintL oldfillptr = TheIarray(*buffer_)->dims[1];
+    var bool eofp;
+    switch (TheStream(stream)->strmtype) {
+      case strmtype_synonym:
+        eofp = read_line_synonym(stream,buffer_);
+        break;
+      case strmtype_twoway:
+       #ifdef SOCKET_STREAMS
+      case strmtype_twoway_socket:
+      #endif
+        eofp = read_line_twoway(stream,buffer_);
+        break;
+        # No special-casing of strmtype_echo, because the echo-stream may
+        # be interactive, and delaying the echo in this case is undesirable.
+      default:
+        loop {
+          var object ch = rd_ch(*stream_)(stream_); # nächstes Zeichen lesen
+          if (eq(ch,eof_value)) { # EOF ?
+            eofp = true; break;
+          }
+          # sonst auf Character überprüfen:
           if (!charp(ch)) {
             subr_self = L(read_line); fehler_char(ch);
           }
-          if (eq(ch,ascii_char(NL)))
-            return false;
+          if (eq(ch,ascii_char(NL))) { # NL -> End of Line
+            eofp = false; break;
+          }
+          # sonstiges Character in den Buffer schreiben:
           ssstring_push_extend(*buffer_,char_code(ch));
-          stream = *stream_;
         }
-        var uintL oldfillptr = TheIarray(*buffer_)->dims[1];
-        var bool eofp;
-        switch (TheStream(stream)->strmtype) {
-          case strmtype_synonym:
-            eofp = read_line_synonym(stream,buffer_);
-            break;
-          case strmtype_twoway:
-          #ifdef SOCKET_STREAMS
-          case strmtype_twoway_socket:
-          #endif
-            eofp = read_line_twoway(stream,buffer_);
-            break;
-          # No special-casing of strmtype_echo, because the echo-stream may
-          # be interactive, and delaying the echo in this case is undesirable.
-          default:
-            loop {
-              var object ch = rd_ch(*stream_)(stream_); # nächstes Zeichen lesen
-              if (eq(ch,eof_value)) { # EOF ?
-                eofp = true; break;
-              }
-              # sonst auf Character überprüfen:
-              if (!charp(ch)) {
-                subr_self = L(read_line); fehler_char(ch);
-              }
-              if (eq(ch,ascii_char(NL))) { # NL -> End of Line
-                eofp = false; break;
-              }
-              # sonstiges Character in den Buffer schreiben:
-              ssstring_push_extend(*buffer_,char_code(ch));
-            }
-            break;
-        }
-        stream = *stream_;
-        TheStream(stream)->strm_rd_ch_last = (eofp ? eof_value : ascii_char(NL));
-        TheStream(stream)->strmflags &= ~strmflags_unread_B;
-        return eofp;
-      } else {
-        # Call the generic function (STREAM-READ-LINE stream):
-        pushSTACK(stream); funcall(S(stream_read_line),1);
-        if (!stringp(value1)) {
-          pushSTACK(value1);    # TYPE-ERROR slot DATUM
-          pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
-          pushSTACK(S(string));
-          pushSTACK(S(stream_read_line));
-          pushSTACK(value1);
-          fehler(type_error,
-                 GETTEXT("Return value ~ of call to ~ is not a ~.")
-                );
-        }
-        var bool eofp = (mv_count >= 2 && !nullp(value2));
-        # Add the line to the buffer:
-        var uintL len;
-        var uintL offset;
-        var object srcstring = unpack_string_ro(value1,&len,&offset);
-        ssstring_append_extend(*buffer_,srcstring,offset,len);
-        return eofp;
-      }
+        break;
     }
+    stream = *stream_;
+    TheStream(stream)->strm_rd_ch_last = (eofp ? eof_value : ascii_char(NL));
+    TheStream(stream)->strmflags &= ~strmflags_unread_B;
+    return eofp;
+  } else {
+    # Call the generic function (STREAM-READ-LINE stream):
+    pushSTACK(stream); funcall(S(stream_read_line),1);
+    if (!stringp(value1)) {
+      pushSTACK(value1);    # TYPE-ERROR slot DATUM
+      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(S(string));
+      pushSTACK(S(stream_read_line));
+      pushSTACK(value1);
+      fehler(type_error,GETTEXT("Return value ~ of call to ~ is not a ~."));
+    }
+    var bool eofp = (mv_count >= 2 && !nullp(value2));
+    # Add the line to the buffer:
+    var uintL len;
+    var uintL offset;
+    var object srcstring = unpack_string_ro(value1,&len,&offset);
+    ssstring_append_extend(*buffer_,srcstring,offset,len);
+    return eofp;
+  }
+}
 
 # UP: Stellt fest, ob im Stream stream ein Zeichen sofort verfügbar ist.
 # listen_char(stream)
@@ -17602,190 +16766,182 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  global signean listen_char (object stream);
-  global signean listen_char(stream)
-    var object stream;
-    {
-      if (builtin_stream_p(stream)) {
-        check_SP(); check_STACK();
-        if (TheStream(stream)->strmflags & strmflags_unread_B) { # Char nach UNREAD ?
-          return ls_avail; # ja -> verfügbar
-        } else {
-          # sonst nach Streamtyp verzweigen.
-          # Jede Einzelroutine darf GC auslösen. Außer beim Keyboard-Stream
-          # oder Terminal-Stream handelt es sich um einen reinen EOF-Test.
-          switch (TheStream(stream)->strmtype) {
-            case strmtype_synonym:  return listen_char_synonym(stream);
-            case strmtype_broad:    return ls_eof; # kein READ-CHAR
-            case strmtype_concat:   return listen_char_concat(stream);
-            case strmtype_twoway:
-            case strmtype_echo:
-            #ifdef SOCKET_STREAMS
-            case strmtype_twoway_socket:
-            #endif
-              return listen_char_twoway(stream);
-            case strmtype_str_in:   return listen_char_str_in(stream);
-            case strmtype_str_out:  return ls_eof; # kein READ-CHAR
-            case strmtype_str_push: return ls_eof; # kein READ-CHAR
-            case strmtype_pphelp:   return ls_eof; # kein READ-CHAR
-            case strmtype_buff_in:  return listen_char_buff_in(stream);
-            case strmtype_buff_out: return ls_eof; # kein READ-CHAR
-            #ifdef GENERIC_STREAMS
-            case strmtype_generic:  return listen_char_generic(stream);
-            #endif
-            case strmtype_file:
-            #ifdef PIPES
-            case strmtype_pipe_in:
-            case strmtype_pipe_out:
-            #endif
-            #ifdef X11SOCKETS
-            case strmtype_x11socket:
-            #endif
-            #ifdef SOCKET_STREAMS
-            case strmtype_socket:
-            #endif
-              if (TheStream(stream)->strmflags & strmflags_rd_ch_B) {
-                if (ChannelStream_buffered(stream))
-                  return listen_char_buffered(stream);
-                else
-                  return listen_char_unbuffered(stream);
-              } else {
-                return ls_eof; # kein READ-CHAR
-              }
-            #ifdef KEYBOARD
-            case strmtype_keyboard: return listen_char_keyboard(stream);
-            #endif
-            case strmtype_terminal:
-              #if defined(NEXTAPP)
-              return listen_char_terminal(stream);
-              #endif
-              #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
-              terminalcase(stream,
-                           { return listen_char_terminal1(stream); },
-                           { return listen_char_terminal2(stream); },
-                           { return listen_char_terminal3(stream); }
-                          );
-              #endif
-              NOTREACHED
-            #ifdef SCREEN
-            case strmtype_window:   return ls_eof; # kein READ-CHAR
-            #endif
-            #ifdef PRINTER
-            case strmtype_printer:  return ls_eof; # kein READ-CHAR
-            #endif
-            default: # Allgemein: nur EOF abfragen
-              if (TheStream(stream)->strmflags & strmflags_rd_ch_B) {
-                pushSTACK(stream);
-                var object nextchar = peek_char(&STACK_0);
-                skipSTACK(1);
-                if (eq(nextchar,eof_value))
-                  return ls_eof; # EOF erreicht
-                else
-                  return ls_avail;
-              } else {
-                return ls_eof; # kein READ-CHAR
-              }
+global signean listen_char (object stream) {
+  if (builtin_stream_p(stream)) {
+    check_SP(); check_STACK();
+    if (TheStream(stream)->strmflags & strmflags_unread_B) { # Char nach UNREAD ?
+      return ls_avail; # ja -> verfügbar
+    } else {
+      # sonst nach Streamtyp verzweigen.
+      # Jede Einzelroutine darf GC auslösen. Außer beim Keyboard-Stream
+      # oder Terminal-Stream handelt es sich um einen reinen EOF-Test.
+      switch (TheStream(stream)->strmtype) {
+        case strmtype_synonym:  return listen_char_synonym(stream);
+        case strmtype_broad:    return ls_eof; # kein READ-CHAR
+        case strmtype_concat:   return listen_char_concat(stream);
+        case strmtype_twoway:
+        case strmtype_echo:
+        #ifdef SOCKET_STREAMS
+        case strmtype_twoway_socket:
+        #endif
+          return listen_char_twoway(stream);
+        case strmtype_str_in:   return listen_char_str_in(stream);
+        case strmtype_str_out:  return ls_eof; # kein READ-CHAR
+        case strmtype_str_push: return ls_eof; # kein READ-CHAR
+        case strmtype_pphelp:   return ls_eof; # kein READ-CHAR
+        case strmtype_buff_in:  return listen_char_buff_in(stream);
+        case strmtype_buff_out: return ls_eof; # kein READ-CHAR
+        #ifdef GENERIC_STREAMS
+        case strmtype_generic:  return listen_char_generic(stream);
+        #endif
+        case strmtype_file:
+        #ifdef PIPES
+        case strmtype_pipe_in:
+        case strmtype_pipe_out:
+        #endif
+        #ifdef X11SOCKETS
+        case strmtype_x11socket:
+        #endif
+        #ifdef SOCKET_STREAMS
+        case strmtype_socket:
+        #endif
+          if (TheStream(stream)->strmflags & strmflags_rd_ch_B) {
+            if (ChannelStream_buffered(stream))
+              return listen_char_buffered(stream);
+            else
+              return listen_char_unbuffered(stream);
+          } else {
+            return ls_eof; # kein READ-CHAR
           }
-        }
-      } else {
-        # Call the generic function (STREAM-READ-CHAR-WILL-HANG-P stream),
-        # then call (PEEK-CHAR NIL STREAM):
-        pushSTACK(stream);
-        pushSTACK(stream); funcall(S(stream_read_char_will_hang_p),1);
-        if (!nullp(value1)) {
-          skipSTACK(1); return ls_wait;
-        }
-        var object nextchar = peek_char(&STACK_0);
-        skipSTACK(1);
-        if (eq(nextchar,eof_value))
-          return ls_eof;
-        else
-          return ls_avail;
+        #ifdef KEYBOARD
+        case strmtype_keyboard: return listen_char_keyboard(stream);
+        #endif
+        case strmtype_terminal:
+        #if defined(NEXTAPP)
+          return listen_char_terminal(stream);
+        #endif
+        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+          terminalcase(stream,
+          { return listen_char_terminal1(stream); },
+          { return listen_char_terminal2(stream); },
+          { return listen_char_terminal3(stream); });
+        #endif
+          NOTREACHED
+        #ifdef SCREEN
+        case strmtype_window:   return ls_eof; # kein READ-CHAR
+        #endif
+        #ifdef PRINTER
+        case strmtype_printer:  return ls_eof; # kein READ-CHAR
+        #endif
+        default: # Allgemein: nur EOF abfragen
+          if (TheStream(stream)->strmflags & strmflags_rd_ch_B) {
+            pushSTACK(stream);
+            var object nextchar = peek_char(&STACK_0);
+            skipSTACK(1);
+            if (eq(nextchar,eof_value))
+              return ls_eof; # EOF erreicht
+            else
+              return ls_avail;
+          } else {
+            return ls_eof; # kein READ-CHAR
+          }
       }
     }
+  } else {
+    # Call the generic function (STREAM-READ-CHAR-WILL-HANG-P stream),
+    # then call (PEEK-CHAR NIL STREAM):
+    pushSTACK(stream);
+    pushSTACK(stream); funcall(S(stream_read_char_will_hang_p),1);
+    if (!nullp(value1)) {
+      skipSTACK(1); return ls_wait;
+    }
+    var object nextchar = peek_char(&STACK_0);
+    skipSTACK(1);
+    if (eq(nextchar,eof_value))
+      return ls_eof;
+    else
+      return ls_avail;
+  }
+}
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Stream stream.
 # clear_input(stream)
 # > stream: Stream
 # < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  global bool clear_input (object stream);
-  global bool clear_input(stream)
-    var object stream;
-    {
-      check_SP(); check_STACK();
-      pushSTACK(stream); # Stream retten
-      # Typspezifische Routine aufrufen (darf GC auslösen).
-      if (builtin_stream_p(stream)) {
-        # Nur beim Keyboard-Stream und Terminal-Stream wird etwas getan.
-        var bool ergebnis;
-        switch (TheStream(stream)->strmtype) {
-          case strmtype_synonym:
-            ergebnis = clear_input_synonym(stream); break;
-          case strmtype_concat:
-            ergebnis = clear_input_concat(stream); break;
-          case strmtype_twoway:
-          case strmtype_echo:
-          #ifdef SOCKET_STREAMS
-          case strmtype_twoway_socket:
-          #endif
-            ergebnis = clear_input_twoway(stream); break;
-          case strmtype_buff_in:
-            ergebnis = clear_input_buff_in(stream); break;
-          #ifdef GENERIC_STREAMS
-          case strmtype_generic:
-            ergebnis = clear_input_generic(stream); break;
-          #endif
-          case strmtype_file:
-          #ifdef PIPES
-          case strmtype_pipe_in:
-          case strmtype_pipe_out:
-          #endif
-          #ifdef X11SOCKETS
-          case strmtype_x11socket:
-          #endif
-          #ifdef SOCKET_STREAMS
-          case strmtype_socket:
-          #endif
-            if (TheStream(stream)->strmflags & strmflags_rd_ch_B
-                && !ChannelStream_buffered(stream))
-              ergebnis = clear_input_unbuffered(stream);
-            else
-              ergebnis = false;
-            break;
-          #ifdef KEYBOARD
-          case strmtype_keyboard:
-            ergebnis = clear_input_keyboard(stream); break;
-          #endif
-          case strmtype_terminal:
-            #if defined(NEXTAPP)
-            ergebnis = clear_input_terminal(stream);
-            #endif
-            #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
-            terminalcase(stream,
-                         { ergebnis = clear_input_terminal1(stream); },
-                         { ergebnis = clear_input_terminal2(stream); },
-                         { ergebnis = clear_input_terminal3(stream); }
-                        );
-            #endif
-            break;
-          default:
-            ergebnis = false; break;
-        }
-        stream = popSTACK();
-        if (ergebnis) {
-          # Input wurde gelöscht -> auch das Lastchar muss gelöscht werden.
-          # Dabei wird auch ein schon gesehenes EOF vergessen.
-          TheStream(stream)->strm_rd_ch_last = NIL;
-          TheStream(stream)->strmflags &= ~strmflags_unread_B;
-        }
-        return ergebnis;
-      } else {
-        # Call the generic function (STREAM-CLEAR-INPUT stream):
-        funcall(S(stream_clear_input),1);
-        return !nullp(value1);
-      }
+global bool clear_input (object stream) {
+  check_SP(); check_STACK();
+  pushSTACK(stream); # Stream retten
+  # Typspezifische Routine aufrufen (darf GC auslösen).
+  if (builtin_stream_p(stream)) {
+    # Nur beim Keyboard-Stream und Terminal-Stream wird etwas getan.
+    var bool ergebnis;
+    switch (TheStream(stream)->strmtype) {
+      case strmtype_synonym:
+        ergebnis = clear_input_synonym(stream); break;
+      case strmtype_concat:
+        ergebnis = clear_input_concat(stream); break;
+      case strmtype_twoway:
+      case strmtype_echo:
+      #ifdef SOCKET_STREAMS
+      case strmtype_twoway_socket:
+      #endif
+        ergebnis = clear_input_twoway(stream); break;
+      case strmtype_buff_in:
+        ergebnis = clear_input_buff_in(stream); break;
+      #ifdef GENERIC_STREAMS
+      case strmtype_generic:
+        ergebnis = clear_input_generic(stream); break;
+      #endif
+      case strmtype_file:
+      #ifdef PIPES
+      case strmtype_pipe_in:
+      case strmtype_pipe_out:
+      #endif
+      #ifdef X11SOCKETS
+      case strmtype_x11socket:
+      #endif
+      #ifdef SOCKET_STREAMS
+      case strmtype_socket:
+      #endif
+        if (TheStream(stream)->strmflags & strmflags_rd_ch_B
+            && !ChannelStream_buffered(stream))
+          ergebnis = clear_input_unbuffered(stream);
+        else
+          ergebnis = false;
+        break;
+      #ifdef KEYBOARD
+      case strmtype_keyboard:
+        ergebnis = clear_input_keyboard(stream); break;
+      #endif
+      case strmtype_terminal:
+      #if defined(NEXTAPP)
+        ergebnis = clear_input_terminal(stream);
+      #endif
+      #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+        terminalcase(stream,
+        { ergebnis = clear_input_terminal1(stream); },
+        { ergebnis = clear_input_terminal2(stream); },
+        { ergebnis = clear_input_terminal3(stream); });
+      #endif
+        break;
+      default:
+        ergebnis = false; break;
     }
+    stream = popSTACK();
+    if (ergebnis) {
+      # Input wurde gelöscht -> auch das Lastchar muss gelöscht werden.
+      # Dabei wird auch ein schon gesehenes EOF vergessen.
+      TheStream(stream)->strm_rd_ch_last = NIL;
+      TheStream(stream)->strmflags &= ~strmflags_unread_B;
+    }
+    return ergebnis;
+  } else {
+    # Call the generic function (STREAM-CLEAR-INPUT stream):
+    funcall(S(stream_clear_input),1);
+    return !nullp(value1);
+  }
+}
 
 # UP: Determines whether a stream has a byte immediately available.
 # listen_byte(stream)
@@ -17794,362 +16950,332 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 #           ls_eof   if EOF is reached,
 #           ls_wait  if no byte is available, but not because of EOF
 # can trigger GC
-  global signean listen_byte (object stream);
-  global signean listen_byte(stream)
-    var object stream;
-    {
-      if (builtin_stream_p(stream)) {
-        if (TheStream(stream)->strmflags & strmflags_rd_B) { # Input-Stream?
-          check_SP(); check_STACK();
-          # nach Streamtyp verzweigen.
-          # Jede Einzelroutine darf GC auslösen. Außer bei den Sockets
-          # handelt es sich um einen reinen EOF-Test.
-          switch (TheStream(stream)->strmtype) {
-            case strmtype_synonym:  return listen_byte_synonym(stream);
-            case strmtype_broad:    return ls_eof; # kein READ-BYTE
-            case strmtype_concat:   return listen_byte_concat(stream);
-            case strmtype_twoway:
-            case strmtype_echo:
-            #ifdef SOCKET_STREAMS
-            case strmtype_twoway_socket:
-            #endif
-              return listen_byte_twoway(stream);
-            case strmtype_str_in:   return ls_eof; # kein READ-BYTE
-            case strmtype_str_out:  return ls_eof; # kein READ-BYTE
-            case strmtype_str_push: return ls_eof; # kein READ-BYTE
-            case strmtype_pphelp:   return ls_eof; # kein READ-BYTE
-            case strmtype_buff_in:  return ls_eof; # kein READ-BYTE
-            case strmtype_buff_out: return ls_eof; # kein READ-BYTE
-            #ifdef GENERIC_STREAMS
-            case strmtype_generic:  return ls_eof; # unsupported functionality
-            #endif
-            case strmtype_file:
-            #ifdef PIPES
-            case strmtype_pipe_in:
-            case strmtype_pipe_out:
-            #endif
-            #ifdef X11SOCKETS
-            case strmtype_x11socket:
-            #endif
-            #ifdef SOCKET_STREAMS
-            case strmtype_socket:
-            #endif
-              if (TheStream(stream)->strmflags & strmflags_rd_by_B) {
-                # Only 8-bit element types. A general LISTEN-BYTE function
-                # would be hairy (at least the case where you want to know
-                # whether a multibyte integer is pending, and the stream is
-                # unbuffered). For CLX and most applications, it is sufficient
-                # to deal with a socket stream with 8-bit element types.
-                if (ChannelStream_buffered(stream))
-                  return listen_byte_ia8_buffered(stream);
-                else
-                  return listen_byte_ia8_unbuffered(stream);
-              } else {
-                return ls_eof; # kein READ-BYTE
-              }
-            #ifdef KEYBOARD
-            case strmtype_keyboard: return ls_eof; # kein READ-BYTE
-            #endif
-            case strmtype_terminal: return ls_eof; # kein READ-BYTE
-            #ifdef SCREEN
-            case strmtype_window:   return ls_eof; # kein READ-BYTE
-            #endif
-            #ifdef PRINTER
-            case strmtype_printer:  return ls_eof; # kein READ-BYTE
-            #endif
-            default: NOTREACHED
+global signean listen_byte (object stream) {
+  if (builtin_stream_p(stream)) {
+    if (TheStream(stream)->strmflags & strmflags_rd_B) { # Input-Stream?
+      check_SP(); check_STACK();
+      # nach Streamtyp verzweigen.
+      # Jede Einzelroutine darf GC auslösen. Außer bei den Sockets
+      # handelt es sich um einen reinen EOF-Test.
+      switch (TheStream(stream)->strmtype) {
+        case strmtype_synonym:  return listen_byte_synonym(stream);
+        case strmtype_broad:    return ls_eof; # kein READ-BYTE
+        case strmtype_concat:   return listen_byte_concat(stream);
+        case strmtype_twoway:
+        case strmtype_echo:
+        #ifdef SOCKET_STREAMS
+        case strmtype_twoway_socket:
+        #endif
+          return listen_byte_twoway(stream);
+        case strmtype_str_in:   return ls_eof; # kein READ-BYTE
+        case strmtype_str_out:  return ls_eof; # kein READ-BYTE
+        case strmtype_str_push: return ls_eof; # kein READ-BYTE
+        case strmtype_pphelp:   return ls_eof; # kein READ-BYTE
+        case strmtype_buff_in:  return ls_eof; # kein READ-BYTE
+        case strmtype_buff_out: return ls_eof; # kein READ-BYTE
+        #ifdef GENERIC_STREAMS
+        case strmtype_generic:  return ls_eof; # unsupported functionality
+        #endif
+        case strmtype_file:
+        #ifdef PIPES
+        case strmtype_pipe_in:
+        case strmtype_pipe_out:
+        #endif
+        #ifdef X11SOCKETS
+        case strmtype_x11socket:
+        #endif
+        #ifdef SOCKET_STREAMS
+        case strmtype_socket:
+        #endif
+          if (TheStream(stream)->strmflags & strmflags_rd_by_B) {
+            # Only 8-bit element types. A general LISTEN-BYTE function
+            # would be hairy (at least the case where you want to know
+            # whether a multibyte integer is pending, and the stream is
+            # unbuffered). For CLX and most applications, it is sufficient
+            # to deal with a socket stream with 8-bit element types.
+            if (ChannelStream_buffered(stream))
+              return listen_byte_ia8_buffered(stream);
+            else
+              return listen_byte_ia8_unbuffered(stream);
+          } else {
+            return ls_eof; # kein READ-BYTE
           }
-        } else {
-          return ls_eof; # kein READ-BYTE
-        }
-      } else {
-        # Call the generic function (STREAM-READ-BYTE-LOOKAHEAD stream):
-        pushSTACK(stream); funcall(S(stream_read_byte_lookahead),1);
-        if (nullp(value1))
-          return ls_wait;
-        elif (eq(value1,S(Keof)))
-          return ls_eof;
-        else
-          return ls_avail;
-      }
+        #ifdef KEYBOARD
+        case strmtype_keyboard: return ls_eof; # kein READ-BYTE
+        #endif
+        case strmtype_terminal: return ls_eof; # kein READ-BYTE
+        #ifdef SCREEN
+        case strmtype_window:   return ls_eof; # kein READ-BYTE
+        #endif
+        #ifdef PRINTER
+        case strmtype_printer:  return ls_eof; # kein READ-BYTE
+        #endif
+        default: NOTREACHED
+                   }
+    } else {
+      return ls_eof; # kein READ-BYTE
     }
+  } else { # Call the generic function (STREAM-READ-BYTE-LOOKAHEAD stream):
+    pushSTACK(stream); funcall(S(stream_read_byte_lookahead),1);
+    if (nullp(value1))
+      return ls_wait;
+    elif (eq(value1,S(Keof)))
+      return ls_eof;
+    else
+      return ls_avail;
+  }
+}
 
 # UP: Wartenden Output eines Stream stream ans Ziel bringen.
 # finish_output(stream);
 # > stream: Stream
 # can trigger GC
-  global void finish_output (object stream);
-  global void finish_output(stream)
-    var object stream;
-    {
-      if (builtin_stream_p(stream)) {
-        if (TheStream(stream)->strmflags & strmflags_wr_B) { # Output-Stream?
-          # nein -> fertig, ja -> nach Streamtyp verzweigen:
-          switch (TheStream(stream)->strmtype) {
-            case strmtype_synonym:
-              finish_output_synonym(stream); break;
-            case strmtype_broad:
-              finish_output_broad(stream); break;
-            case strmtype_twoway:
-            case strmtype_echo:
-            #ifdef SOCKET_STREAMS
-            case strmtype_twoway_socket:
-            #endif
-              finish_output_twoway(stream); break;
-            case strmtype_buff_out:
-              finish_output_buff_out(stream); break;
-            #ifdef GENERIC_STREAMS
-            case strmtype_generic:
-              finish_output_generic(stream); break;
-            #endif
-            case strmtype_file:
-            #ifdef PIPES
-            case strmtype_pipe_in:
-            case strmtype_pipe_out:
-            #endif
-            #ifdef X11SOCKETS
-            case strmtype_x11socket:
-            #endif
-            #ifdef SOCKET_STREAMS
-            case strmtype_socket:
-            #endif
-              if (ChannelStream_buffered(stream))
-                finish_output_buffered(stream);
-              else
-                finish_output_unbuffered(stream);
-              break;
-            case strmtype_terminal:
-              finish_output_terminal(stream); break;
-            #ifdef PRINTER_AMIGAOS
-            case strmtype_printer: # Printer:
-              # Schließen und neu aufmachen würde vermutlich einen
-              # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
-              break; # Daher nichts tun.
-            #endif
-            default: # nichts tun
-              break;
-          }
-        }
-      } else {
-        # Call the generic function (STREAM-FINISH-OUTPUT stream):
-        pushSTACK(stream); funcall(S(stream_finish_output),1);
+global void finish_output (object stream) {
+  if (builtin_stream_p(stream)) {
+    if (TheStream(stream)->strmflags & strmflags_wr_B) { # Output-Stream?
+      # nein -> fertig, ja -> nach Streamtyp verzweigen:
+      switch (TheStream(stream)->strmtype) {
+        case strmtype_synonym:
+          finish_output_synonym(stream); break;
+        case strmtype_broad:
+          finish_output_broad(stream); break;
+        case strmtype_twoway:
+        case strmtype_echo:
+        #ifdef SOCKET_STREAMS
+        case strmtype_twoway_socket:
+        #endif
+          finish_output_twoway(stream); break;
+        case strmtype_buff_out:
+          finish_output_buff_out(stream); break;
+        #ifdef GENERIC_STREAMS
+        case strmtype_generic:
+          finish_output_generic(stream); break;
+        #endif
+        case strmtype_file:
+        #ifdef PIPES
+        case strmtype_pipe_in:
+        case strmtype_pipe_out:
+        #endif
+        #ifdef X11SOCKETS
+        case strmtype_x11socket:
+        #endif
+        #ifdef SOCKET_STREAMS
+        case strmtype_socket:
+        #endif
+          if (ChannelStream_buffered(stream))
+            finish_output_buffered(stream);
+          else
+            finish_output_unbuffered(stream);
+          break;
+        case strmtype_terminal:
+          finish_output_terminal(stream); break;
+        #ifdef PRINTER_AMIGAOS
+        case strmtype_printer: # Printer:
+        # Schließen und neu aufmachen würde vermutlich einen
+        # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
+          break; # Daher nichts tun.
+        #endif
+        default: # nichts tun
+          break;
       }
     }
+  } else { # Call the generic function (STREAM-FINISH-OUTPUT stream):
+    pushSTACK(stream); funcall(S(stream_finish_output),1);
+  }
+}
 
 # UP: Wartenden Output eines Stream stream ans Ziel bringen.
 # force_output(stream);
 # > stream: Stream
 # can trigger GC
-  global void force_output (object stream);
-  global void force_output(stream)
-    var object stream;
-    {
-      if (builtin_stream_p(stream)) {
-        if (TheStream(stream)->strmflags & strmflags_wr_B) { # Output-Stream?
-          # nein -> fertig, ja -> nach Streamtyp verzweigen:
-          switch (TheStream(stream)->strmtype) {
-            case strmtype_synonym:
-              force_output_synonym(stream); break;
-            case strmtype_broad:
-              force_output_broad(stream); break;
-            case strmtype_twoway:
-            case strmtype_echo:
-            #ifdef SOCKET_STREAMS
-            case strmtype_twoway_socket:
-            #endif
-              force_output_twoway(stream); break;
-            case strmtype_buff_out:
-              force_output_buff_out(stream); break;
-            #ifdef GENERIC_STREAMS
-            case strmtype_generic:
-              force_output_generic(stream); break;
-            #endif
-            case strmtype_file:
-            #ifdef PIPES
-            case strmtype_pipe_in:
-            case strmtype_pipe_out:
-            #endif
-            #ifdef X11SOCKETS
-            case strmtype_x11socket:
-            #endif
-            #ifdef SOCKET_STREAMS
-            case strmtype_socket:
-            #endif
-              if (ChannelStream_buffered(stream))
-                force_output_buffered(stream);
-              else
-                force_output_unbuffered(stream);
-              break;
-            case strmtype_terminal:
-              force_output_terminal(stream); break;
-            #ifdef PRINTER_AMIGAOS
-            case strmtype_printer: # Printer:
-              # Schließen und neu aufmachen würde vermutlich einen
-              # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
-              break; # Daher nichts tun.
-            #endif
-            default: # nichts tun
-              break;
-          }
-        }
-      } else {
-        # Call the generic function (STREAM-FORCE-OUTPUT stream):
-        pushSTACK(stream); funcall(S(stream_force_output),1);
+global void force_output (object stream) {
+  if (builtin_stream_p(stream)) {
+    if (TheStream(stream)->strmflags & strmflags_wr_B) { # Output-Stream?
+      # nein -> fertig, ja -> nach Streamtyp verzweigen:
+      switch (TheStream(stream)->strmtype) {
+        case strmtype_synonym:
+          force_output_synonym(stream); break;
+        case strmtype_broad:
+          force_output_broad(stream); break;
+        case strmtype_twoway:
+        case strmtype_echo:
+        #ifdef SOCKET_STREAMS
+        case strmtype_twoway_socket:
+        #endif
+          force_output_twoway(stream); break;
+        case strmtype_buff_out:
+          force_output_buff_out(stream); break;
+        #ifdef GENERIC_STREAMS
+        case strmtype_generic:
+          force_output_generic(stream); break;
+        #endif
+        case strmtype_file:
+        #ifdef PIPES
+        case strmtype_pipe_in:
+        case strmtype_pipe_out:
+        #endif
+        #ifdef X11SOCKETS
+        case strmtype_x11socket:
+        #endif
+        #ifdef SOCKET_STREAMS
+        case strmtype_socket:
+        #endif
+          if (ChannelStream_buffered(stream))
+            force_output_buffered(stream);
+          else
+            force_output_unbuffered(stream);
+          break;
+        case strmtype_terminal:
+          force_output_terminal(stream); break;
+        #ifdef PRINTER_AMIGAOS
+        case strmtype_printer: # Printer:
+          # Schließen und neu aufmachen würde vermutlich einen
+          # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
+          break; # Daher nichts tun.
+        #endif
+        default: # nichts tun
+          break;
       }
     }
+  } else { # Call the generic function (STREAM-FORCE-OUTPUT stream):
+    pushSTACK(stream); funcall(S(stream_force_output),1);
+  }
+}
 
 # UP: Wartenden Output eines Stream stream löschen.
 # clear_output(stream);
 # > stream: Stream
 # can trigger GC
-  global void clear_output (object stream);
-  global void clear_output(stream)
-    var object stream;
-    {
-      # Unter DOS ist zwar bei keinem File- oder Terminal-Stream etwas zu tun,
-      # aber das kann man nicht ausnutzen, denn clear_output auf
-      # Buffered-Output-Streams geht immer.
-      if (builtin_stream_p(stream)) {
-        if (TheStream(stream)->strmflags & strmflags_wr_B) { # Output-Stream?
-          # nein -> fertig, ja -> nach Streamtyp verzweigen:
-          switch (TheStream(stream)->strmtype) {
-            case strmtype_synonym:
-              clear_output_synonym(stream); break;
-            case strmtype_broad:
-              clear_output_broad(stream); break;
-            case strmtype_twoway:
-            case strmtype_echo:
-            #ifdef SOCKET_STREAMS
-            case strmtype_twoway_socket:
-            #endif
-              clear_output_twoway(stream); break;
-            case strmtype_buff_out:
-              clear_output_buff_out(stream); break;
-            #ifdef GENERIC_STREAMS
-            case strmtype_generic:
-              clear_output_generic(stream); break;
-            #endif
-            case strmtype_file:
-            #ifdef PIPES
-            case strmtype_pipe_in:
-            case strmtype_pipe_out:
-            #endif
-            #ifdef X11SOCKETS
-            case strmtype_x11socket:
-            #endif
-            #ifdef SOCKET_STREAMS
-            case strmtype_socket:
-            #endif
-              if (ChannelStream_buffered(stream)) {
-                # File: nichts tun (würde die File-Verwaltung durcheinanderbringen)
-              } else {
-                clear_output_unbuffered(stream);
-              }
-              break;
-            case strmtype_terminal:
-              #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
-              terminalcase(stream,
-                           { clear_output_terminal1(stream); },
-                           { clear_output_terminal2(stream); },
-                           { clear_output_terminal3(stream); }
-                          );
-              #endif
-              break;
-            #ifdef PRINTER_AMIGAOS
-            case strmtype_printer: # Printer: ungebuffert, also nichts zu tun
-              break;
-            #endif
-            default: # nichts tun
-              break;
+global void clear_output (object stream) {
+  # Unter DOS ist zwar bei keinem File- oder Terminal-Stream etwas zu tun,
+  # aber das kann man nicht ausnutzen, denn clear_output auf
+  # Buffered-Output-Streams geht immer.
+  if (builtin_stream_p(stream)) {
+    if (TheStream(stream)->strmflags & strmflags_wr_B) { # Output-Stream?
+      # nein -> fertig, ja -> nach Streamtyp verzweigen:
+      switch (TheStream(stream)->strmtype) {
+        case strmtype_synonym:
+          clear_output_synonym(stream); break;
+        case strmtype_broad:
+          clear_output_broad(stream); break;
+        case strmtype_twoway:
+        case strmtype_echo:
+        #ifdef SOCKET_STREAMS
+        case strmtype_twoway_socket:
+        #endif
+          clear_output_twoway(stream); break;
+        case strmtype_buff_out:
+          clear_output_buff_out(stream); break;
+        #ifdef GENERIC_STREAMS
+        case strmtype_generic:
+          clear_output_generic(stream); break;
+        #endif
+        case strmtype_file:
+        #ifdef PIPES
+        case strmtype_pipe_in:
+        case strmtype_pipe_out:
+        #endif
+        #ifdef X11SOCKETS
+        case strmtype_x11socket:
+        #endif
+        #ifdef SOCKET_STREAMS
+        case strmtype_socket:
+        #endif
+          if (ChannelStream_buffered(stream)) {
+            # File: nichts tun (würde die File-Verwaltung durcheinanderbringen)
+          } else {
+            clear_output_unbuffered(stream);
           }
-        }
-      } else {
-        # Call the generic function (STREAM-CLEAR-OUTPUT stream):
-        pushSTACK(stream); funcall(S(stream_clear_output),1);
+          break;
+        case strmtype_terminal:
+          #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+          terminalcase(stream,
+          { clear_output_terminal1(stream); },
+          { clear_output_terminal2(stream); },
+          { clear_output_terminal3(stream); });
+          #endif
+          break;
+        #ifdef PRINTER_AMIGAOS
+        case strmtype_printer: # Printer: ungebuffert, also nichts zu tun
+          break;
+        #endif
+        default: # nichts tun
+          break;
       }
     }
+  } else { # Call the generic function (STREAM-CLEAR-OUTPUT stream):
+    pushSTACK(stream); funcall(S(stream_clear_output),1);
+  }
+}
 
 # UP: Liefert die Line-Position eines Streams.
 # get_line_position(stream)
 # > stream: Stream
 # < ergebnis: Line-Position (Fixnum >=0 or NIL)
 # can trigger GC
-  global object get_line_position (object stream);
-  global object get_line_position(stream)
-    var object stream;
-    {
-      check_SP();
-     start:
-      if (builtin_stream_p(stream))
-        switch (TheStream(stream)->strmtype) {
-          case strmtype_synonym:
-            # Synonym-Stream: weiterverfolgen
-            {
-              var object symbol = TheStream(stream)->strm_synonym_symbol;
-              stream = get_synonym_stream(symbol);
-              /* return get_line_position(stream); */ # entrekursiviert:
-              goto start;
-            }
-          case strmtype_broad:
-            # Broadcast-Stream:
-            # Maximum der Line-Positions der einzelnen Streams
-            {
-              pushSTACK(TheStream(stream)->strm_broad_list);
-              var uintL maximum = 0; # bisheriges Maximum := 0
-              while (consp(STACK_0)) {
-                var object next = # Line-Position des nächsten Teilstreams
-                  get_line_position(Car(STACK_0));
-                if (nullp(next)) {
-                  skipSTACK(1); return NIL;
-                }
-                if (posfixnum_to_L(next) > maximum)
-                  maximum = posfixnum_to_L(next); # Maximum nehmen
-                STACK_0 = Cdr(STACK_0);
-              }
-              skipSTACK(1); return fixnum(maximum); # Maximum als Ergebnis
-            }
-          case strmtype_twoway:
-          case strmtype_echo:
-          #ifdef SOCKET_STREAMS
-          case strmtype_twoway_socket:
-          #endif
-            # Two-Way-Stream oder Echo-Stream: Output-Stream anschauen
-            stream = TheStream(stream)->strm_twoway_output;
-            /* return get_line_position(stream); */ # entrekursiviert:
-            goto start;
-          default: # normaler Stream
-            return TheStream(stream)->strm_wr_ch_lpos;
+global object get_line_position (object stream) {
+  check_SP();
+ start:
+  if (builtin_stream_p(stream))
+    switch (TheStream(stream)->strmtype) {
+      case strmtype_synonym: # Synonym-Stream: weiterverfolgen
+        {
+          var object symbol = TheStream(stream)->strm_synonym_symbol;
+          stream = get_synonym_stream(symbol);
+          /* return get_line_position(stream); */ # entrekursiviert:
+          goto start;
         }
-      else {
-        # Call the generic function (STREAM-LINE-COLUMN stream):
-        pushSTACK(stream); funcall(S(stream_line_column),1);
-        if (!(posfixnump(value1) || nullp(value1))) {
-          pushSTACK(S(stream_line_column));
-          pushSTACK(value1);
-          fehler(error,
-                 GETTEXT("Return value ~ of call to ~ is not a fixnum >= 0 or NIL.")
-                );
+      case strmtype_broad: # Broadcast-Stream:
+        # Maximum der Line-Positions der einzelnen Streams
+        {
+          pushSTACK(TheStream(stream)->strm_broad_list);
+          var uintL maximum = 0; # bisheriges Maximum := 0
+          while (consp(STACK_0)) {
+            var object next = # Line-Position des nächsten Teilstreams
+              get_line_position(Car(STACK_0));
+            if (nullp(next)) {
+              skipSTACK(1); return NIL;
+            }
+            if (posfixnum_to_L(next) > maximum)
+              maximum = posfixnum_to_L(next); # Maximum nehmen
+            STACK_0 = Cdr(STACK_0);
+          }
+          skipSTACK(1); return fixnum(maximum); # Maximum als Ergebnis
         }
-        return value1;
-      }
+      case strmtype_twoway:
+      case strmtype_echo:
+      #ifdef SOCKET_STREAMS
+      case strmtype_twoway_socket:
+      #endif
+        # Two-Way-Stream oder Echo-Stream: Output-Stream anschauen
+        stream = TheStream(stream)->strm_twoway_output;
+        /* return get_line_position(stream); */ # entrekursiviert:
+        goto start;
+      default: # normaler Stream
+        return TheStream(stream)->strm_wr_ch_lpos;
     }
+  else { # Call the generic function (STREAM-LINE-COLUMN stream):
+    pushSTACK(stream); funcall(S(stream_line_column),1);
+    if (!(posfixnump(value1) || nullp(value1))) {
+      pushSTACK(S(stream_line_column));
+      pushSTACK(value1);
+      fehler(error,GETTEXT("Return value ~ of call to ~ is not a fixnum >= 0 or NIL."));
+    }
+    return value1;
+  }
+}
 
 # UP: Check an element-type for READ-INTEGER/WRITE-INTEGER.
 # check_multiple8_eltype(&eltype);
 # > eltype: Element-Type in decoded form
-  local void check_multiple8_eltype (const decoded_eltype* eltype);
-  local void check_multiple8_eltype(eltype)
-    var const decoded_eltype* eltype;
-    {
-      if (!((eltype->size > 0) && ((eltype->size % 8) == 0))) {
-        pushSTACK(canon_eltype(eltype));
-        pushSTACK(S(Kelement_type));
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~ needs an ~ with a bit size being a multiple of 8, not ~")
-              );
-      }
-    }
+local void check_multiple8_eltype (const decoded_eltype* eltype) {
+  if (!((eltype->size > 0) && ((eltype->size % 8) == 0))) {
+    pushSTACK(canon_eltype(eltype));
+    pushSTACK(S(Kelement_type));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~ needs an ~ with a bit size being a multiple of 8, not ~"));
+  }
+}
 
 # UP: Check an element-type for READ-FLOAT/WRITE-FLOAT.
 # check_float_eltype(&eltype)
@@ -18157,57 +17283,51 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 # > subr_self: calling function
 # < subr_self: unchanged
 # < result: sizeof(ffloatjanus) or sizeof(dfloatjanus)
-  local uintL check_float_eltype (object* eltype_);
-  local uintL check_float_eltype(eltype_)
-    var object* eltype_;
-    {
-      var object arg = *eltype_;
-      if (eq(arg,S(single_float)))
-        return sizeof(ffloatjanus);
-      if (eq(arg,S(double_float)))
-        return sizeof(dfloatjanus);
-      var bool is_ffloat_subtype;
-      var bool is_dfloat_subtype;
-      pushSTACK(subr_self); # subr_self retten
-      # Erstmal ein wenig kanonischer machen (damit die verschiedenen
-      # SUBTYPEP dann nicht zweimal dasselbe machen müssen):
-      pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
-      pushSTACK(value1); # canon-arg retten
-      pushSTACK(STACK_0); pushSTACK(S(single_float)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'SINGLE-FLOAT)
-      is_ffloat_subtype = !nullp(value1);
-      pushSTACK(S(double_float)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'DOUBLE-FLOAT)
-      is_dfloat_subtype = !nullp(value1);
-      subr_self = popSTACK(); # subr_self zurück
-      if (is_ffloat_subtype) {
-        if (!is_dfloat_subtype)
-          return sizeof(ffloatjanus);
-      } else {
-        if (is_dfloat_subtype)
-          return sizeof(dfloatjanus);
-      }
-      pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: illegal ~ argument ~"));
-    }
+local uintL check_float_eltype (object* eltype_) {
+  var object arg = *eltype_;
+  if (eq(arg,S(single_float)))
+    return sizeof(ffloatjanus);
+  if (eq(arg,S(double_float)))
+    return sizeof(dfloatjanus);
+  var bool is_ffloat_subtype;
+  var bool is_dfloat_subtype;
+  pushSTACK(subr_self); # subr_self retten
+  # Erstmal ein wenig kanonischer machen (damit die verschiedenen
+  # SUBTYPEP dann nicht zweimal dasselbe machen müssen):
+  pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
+  pushSTACK(value1); # canon-arg retten
+  pushSTACK(STACK_0); pushSTACK(S(single_float)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'SINGLE-FLOAT)
+  is_ffloat_subtype = !nullp(value1);
+  pushSTACK(S(double_float)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'DOUBLE-FLOAT)
+  is_dfloat_subtype = !nullp(value1);
+  subr_self = popSTACK(); # subr_self zurück
+  if (is_ffloat_subtype) {
+    if (!is_dfloat_subtype)
+      return sizeof(ffloatjanus);
+  } else {
+    if (is_dfloat_subtype)
+      return sizeof(dfloatjanus);
+  }
+  pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~: illegal ~ argument ~"));
+}
 
 # UP: Check an endianness argument.
 # test_endianness_arg(arg)
 # > arg: the argument
 # > subr_self: calling function
 # < bool result: endianness (BIG = true, LITTLE = false)
-  local bool test_endianness_arg (object arg);
-  local bool test_endianness_arg(arg)
-    var object arg;
-    {
-      if (eq(arg,unbound) || eq(arg,S(Klittle)) || eq(arg,S(Kdefault)))
-        return false;
-      if (eq(arg,S(Kbig)))
-        return true;
-      pushSTACK(arg);                # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_endianness)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: illegal endianness argument ~"));
-    }
+local bool test_endianness_arg (object arg) {
+  if (eq(arg,unbound) || eq(arg,S(Klittle)) || eq(arg,S(Kdefault)))
+    return false;
+  if (eq(arg,S(Kbig)))
+    return true;
+  pushSTACK(arg);                # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_endianness)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: illegal endianness argument ~"));
+}
 
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
 # (READ-BYTE stream [eof-error-p [eof-value]]), CLTL S. 382
@@ -18221,13 +17341,11 @@ LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
     if (eq(obj,eof_value)) {
       # EOF-Behandlung
       if (!nullp(STACK_1)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
-        # Error melden:
+        # report error:
         pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
         pushSTACK(STACK_(2+1)); # Stream
         pushSTACK(S(read_byte));
-        fehler(end_of_file,
-               GETTEXT("~: input stream ~ has reached its end")
-              );
+        fehler(end_of_file,GETTEXT("~: input stream ~ has reached its end"));
       } else {
         # EOF verarzten:
         var object eofval = STACK_0;
@@ -18295,13 +17413,11 @@ LISPFUN(read_byte_no_hang,1,2,norest,nokey,0,NIL)
     }
     # EOF handling.
     if (!nullp(STACK_1)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
-      # Error melden:
+      # report error:
       pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(2+1)); # Stream
       pushSTACK(S(read_byte_no_hang));
-      fehler(end_of_file,
-             GETTEXT("~: input stream ~ has reached its end")
-            );
+      fehler(end_of_file,GETTEXT("~: input stream ~ has reached its end"));
     } else {
       # EOF verarzten:
       var object eofval = STACK_0;
@@ -18510,13 +17626,11 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
     # EOF-Behandlung
    eof:
     if (!nullp(STACK_2)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
-      # Error melden:
+      # report error:
       pushSTACK(STACK_5); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(5+1)); # Stream
       pushSTACK(S(read_integer));
-      fehler(end_of_file,
-             GETTEXT("~: input stream ~ has reached its end")
-            );
+      fehler(end_of_file,GETTEXT("~: input stream ~ has reached its end"));
     } else {
       # EOF verarzten:
       var object eofval = STACK_1;
@@ -18590,13 +17704,11 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL)
     # EOF-Behandlung
    eof:
     if (!nullp(STACK_2)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
-      # Error melden:
+      # report error:
       pushSTACK(STACK_5); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(5+1)); # Stream
       pushSTACK(S(read_float));
-      fehler(end_of_file,
-             GETTEXT("~: input stream ~ has reached its end")
-            );
+      fehler(end_of_file,GETTEXT("~: input stream ~ has reached its end"));
     } else {
       # EOF verarzten:
       var object eofval = STACK_1;
@@ -18910,35 +18022,30 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL)
 # > obj: Argument
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: offener File-Stream
-  local object check_open_file_stream (object obj);
-  local object check_open_file_stream(obj)
-    var object obj;
-    {
-      loop {
-        if (!builtin_stream_p(obj)) # Stream ?
-          goto fehler_bad_obj;
-        if (TheStream(obj)->strmtype == strmtype_synonym) { # Synonym-Stream verfolgen
-          var object sym = TheStream(obj)->strm_synonym_symbol;
-          obj = Symbol_value(sym);
-        } else
-          break;
-      }
-      if (!(TheStream(obj)->strmtype == strmtype_file)) # Streamtyp File-Stream ?
-        goto fehler_bad_obj;
-      if ((TheStream(obj)->strmflags & strmflags_open_B) == 0) # Stream offen ?
-        goto fehler_bad_obj;
-      if (nullp(TheStream(obj)->strm_buffered_channel)) # und Handle /= NIL ?
-        goto fehler_bad_obj;
-      return obj; # ja -> OK
-     fehler_bad_obj:
-      pushSTACK(obj);                      # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_open_file_stream)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ is not an open file stream")
-            );
-    }
+local object check_open_file_stream (object obj) {
+  loop {
+    if (!builtin_stream_p(obj)) # Stream ?
+      goto fehler_bad_obj;
+    if (TheStream(obj)->strmtype == strmtype_synonym) { # Synonym-Stream verfolgen
+      var object sym = TheStream(obj)->strm_synonym_symbol;
+      obj = Symbol_value(sym);
+    } else
+      break;
+  }
+  if (!(TheStream(obj)->strmtype == strmtype_file)) # Streamtyp File-Stream ?
+    goto fehler_bad_obj;
+  if ((TheStream(obj)->strmflags & strmflags_open_B) == 0) # Stream offen ?
+    goto fehler_bad_obj;
+  if (nullp(TheStream(obj)->strm_buffered_channel)) # und Handle /= NIL ?
+    goto fehler_bad_obj;
+  return obj; # ja -> OK
+ fehler_bad_obj:
+  pushSTACK(obj);                      # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_open_file_stream)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ is not an open file stream"));
+}
 
 LISPFUN(file_position,1,1,norest,nokey,0,NIL)
 # (FILE-POSITION file-stream [position]), CLTL S. 425
@@ -19141,48 +18248,41 @@ LISPFUNN(file_string_length,2)
 # stream_isbuffered(stream)
 # > stream: a channel or socket stream
 # < result: true if stream is buffered, else false
-  global bool stream_isbuffered (object stream);
-  global bool stream_isbuffered(stream)
-    var object stream;
-    {
-      switch (TheStream(stream)->strmtype) {
-        case strmtype_file:
-        #ifdef PIPES
-        case strmtype_pipe_in:
-        case strmtype_pipe_out:
-        #endif
-        #ifdef X11SOCKETS
-        case strmtype_x11socket:
-        #endif
-        #ifdef SOCKET_STREAMS
-        case strmtype_socket:
-        #endif
-          return ChannelStream_buffered(stream);
-        #ifdef SOCKET_STREAMS
-        case strmtype_twoway_socket:
-          return true;
-        #endif
-        default:
-          return false;
-      }
-    }
+global bool stream_isbuffered (object stream) {
+  switch (TheStream(stream)->strmtype) {
+    case strmtype_file:
+    #ifdef PIPES
+    case strmtype_pipe_in:
+    case strmtype_pipe_out:
+    #endif
+    #ifdef X11SOCKETS
+    case strmtype_x11socket:
+    #endif
+    #ifdef SOCKET_STREAMS
+    case strmtype_socket:
+    #endif
+      return ChannelStream_buffered(stream);
+    #ifdef SOCKET_STREAMS
+    case strmtype_twoway_socket:
+      return true;
+    #endif
+    default:
+      return false;
+  }
+}
 
 # UP: Returns the current line number of a stream.
 # stream_line_number(stream)
 # > stream: a stream
 # < result: an integer or NIL
 # can trigger GC
-  global object stream_line_number (object stream);
-  global object stream_line_number(stream)
-    var object stream;
-    {
-      return (builtin_stream_p(stream)
-              && TheStream(stream)->strmtype == strmtype_file
-              && eq(TheStream(stream)->strm_eltype,S(character))
-              ? UL_to_I(ChannelStream_lineno(stream)) # aktuelle Zeilennummer
-              : NIL                                   # NIL falls unbekannt
-             );
-    }
+global object stream_line_number (object stream) {
+  return (builtin_stream_p(stream)
+          && TheStream(stream)->strmtype == strmtype_file
+          && eq(TheStream(stream)->strm_eltype,S(character))
+          ? UL_to_I(ChannelStream_lineno(stream)) # aktuelle Zeilennummer
+          : NIL);                                 # NIL falls unbekannt
+}
 
 LISPFUNN(line_number,1)
 # (SYS::LINE-NUMBER stream) liefert die aktuelle Zeilennummer (falls stream
@@ -19198,42 +18298,33 @@ LISPFUNN(line_number,1)
 # stream_get_read_eval(stream)
 # > stream: a stream
 # < result: true if read-eval is allowed from the stream, else false
-  global bool stream_get_read_eval (object stream);
-  global bool stream_get_read_eval(stream)
-    var object stream;
-    {
-      if (builtin_stream_p(stream)) {
-        return ((TheStream(stream)->strmflags & strmflags_reval_B) != 0);
-      } else {
-        # (SLOT-VALUE stream '$reval):
-        var object clas = TheInstance(stream)->inst_class;
-        var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
-        var object value = TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)];
-        return !nullp(value);
-      }
-    }
+global bool stream_get_read_eval (object stream) {
+  if (builtin_stream_p(stream)) {
+    return ((TheStream(stream)->strmflags & strmflags_reval_B) != 0);
+  } else { # (SLOT-VALUE stream '$reval):
+    object clas = TheInstance(stream)->inst_class;
+    object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
+    object value = TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)];
+    return !nullp(value);
+  }
+}
 
 # Function: Changes the read-eval state of a stream.
 # stream_set_read_eval(stream,value);
 # > stream: a stream
 # > value: true if read-eval shall be allowed from the stream, else false
-  global void stream_set_read_eval (object stream, bool value);
-  global void stream_set_read_eval(stream,value)
-    var object stream;
-    var bool value;
-    {
-      if (builtin_stream_p(stream)) {
-        if (value)
-          TheStream(stream)->strmflags |= strmflags_reval_B;
-        else
-          TheStream(stream)->strmflags &= ~strmflags_reval_B;
-      } else {
-        # (SETF (SLOT-VALUE stream '$reval) value):
-        var object clas = TheInstance(stream)->inst_class;
-        var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
-        TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)] = (value ? T : NIL);
-      }
-    }
+global void stream_set_read_eval (object stream, bool value) {
+  if (builtin_stream_p(stream)) {
+    if (value)
+      TheStream(stream)->strmflags |= strmflags_reval_B;
+    else
+      TheStream(stream)->strmflags &= ~strmflags_reval_B;
+  } else { # (SETF (SLOT-VALUE stream '$reval) value):
+    object clas = TheInstance(stream)->inst_class;
+    object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
+    TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)] = (value ? T : NIL);
+  }
+}
 
 LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
 # (SYS::ALLOW-READ-EVAL stream) returns the stream's READ-EVAL flag.
@@ -19271,10 +18362,7 @@ LISPFUNN(defgray,1)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
 
-global object stream_fd (object stream);
-global object stream_fd (stream)
-  var object stream;
-{
+global object stream_fd (object stream) {
   stream = check_open_file_stream(stream);
   return UL_to_I(TheHandle(TheStream(stream)->strm_ochannel));
 }
