@@ -12237,7 +12237,7 @@ static inline object check_char (object obj) {
 /* used by CHARSTRG, ENCODING, IO */
 
 # Error message, if an argument isn't a string:
-# checj_string(obj);
+# fehler_string(obj);
 # > obj: the possibly faulty argument
 # < a string
 nonreturning_function(extern, fehler_string, (object obj));
