@@ -175,7 +175,7 @@
 
 (let ((prototype-table
         (make-hash-table :key-type '(cons fixnum boolean) :value-type '(simple-array (unsigned-byte 8) (*))
-                         :test #'equal :warn-if-needs-rehash-after-gc t)))
+                         :test 'ext:stablehash-equal :warn-if-needs-rehash-after-gc t)))
   (defun finalize-fast-gf (gf)
     (let* ((signature (gf-signature gf))
            (reqanz (sig-req-num signature))

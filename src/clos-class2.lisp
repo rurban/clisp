@@ -606,7 +606,8 @@
         (std-compute-subclass-of-stablehash-p class))
   (setf (class-slots class) (std-compute-slots class))
   (setf (class-slot-location-table class)
-        (make-hash-table :key-type 'symbol :value-type 't :test #'eq))
+        (make-hash-table :key-type 'symbol :value-type 't
+                         :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t))
   (setf (class-instance-size class) 1) ; slot 0 is the class_version pointer
   (let ((shared-index (std-layout-slots class (class-slots class))))
     (when (plusp shared-index)
@@ -851,7 +852,7 @@
     ;; Partition by slot-names:
     (setq all-slots
           (let ((ht (make-hash-table :key-type 'symbol :value-type 't
-                                     :test #'eql)))
+                                     :test 'ext:stablehash-eql :warn-if-needs-rehash-after-gc t)))
             (dolist (slot+alloc all-slots)
               (let ((slot-name (slot-definition-name (car slot+alloc))))
                 (push slot+alloc (gethash slot-name ht nil))))
@@ -1305,7 +1306,7 @@
   (setf (class-slot-location-table class)
         (make-hash-table
           :key-type 'symbol :value-type 't
-          :test #'eq
+          :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t
           :initial-contents
             (mapcar #'(lambda (slot)
                         (cons (slot-definition-name slot) (slot-definition-location slot)))
