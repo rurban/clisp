@@ -825,6 +825,34 @@ local bool elt_compare (object dv1, uintL index1,
     default: NOTREACHED;
   }
 }
+/* test for hash table equality under EQUALP:
+   <http://www.lisp.org/HyperSpec/Body/fun_equalp.html>
+ equalp descends hash-tables by first comparing the count of entries and
+ the :test function; if those are the same, it compares the keys of the
+ tables using the :test function and then the values of the matching
+ keys using equalp recursively. */
+local bool hash_table_equalp (object ht1, object ht2)
+{
+  var uintB flags1 = record_flags(TheHashtable(ht1));
+  var uintB flags2 = record_flags(TheHashtable(ht2));
+  if (!eq(hashtable_test(flags1),hashtable_test(flags2)))
+    return false;
+  if (!eq(TheHashtable(ht1)->ht_count,TheHashtable(ht2)->ht_count))
+    return false;
+  if (!eq(ht_weak(ht1),ht_weak(ht2)))
+    return false;
+  /* have to traverse keys */
+  var uintL index = posfixnum_to_L(TheHashtable(ht1)->ht_maxcount);
+  var gcv_object_t* KVptr = ht_kvt_data(ht1);
+  for (; index ; KVptr += 2, index--)
+    if (!eq(KVptr[0],unbound) && !equalp(KVptr[1],gethash(KVptr[0],ht2)))
+      return false;
+  for (index = posfixnum_to_L(TheHashtable(ht2)->ht_maxcount),
+         KVptr = ht_kvt_data(ht2); index; KVptr += 2, index--)
+    if (!eq(KVptr[0],unbound) && !equalp(KVptr[1],gethash(KVptr[0],ht1)))
+      return false;
+  return true;
+}
 /* Now EQUALP itself. */
 global bool equalp (object obj1, object obj2)
 {
@@ -833,19 +861,19 @@ global bool equalp (object obj1, object obj2)
     return true; /* (EQ x y) ==> (EQUALP x y) */
   /* different cases according to the type of obj1: */
   if (consp(obj1)) {
-    if (!consp(obj2)) goto no;
+    if (!consp(obj2)) return false;
     /* compare conses recursively:
        CAR and CDR must match:
        (and (equalp (car obj1) (car obj2)) (equalp (cdr obj1) (cdr obj2))) */
     check_SP();
-    if (!equalp(Car(obj1),Car(obj2))) goto no;
+    if (!equalp(Car(obj1),Car(obj2))) return false;
     /* return equalp(Cdr(obj1),Cdr(obj2)); */
     obj1 = Cdr(obj1); obj2 = Cdr(obj2);
     goto start;
   } else if (symbolp(obj1)) { /* Symbol ? */
-    goto no; /* yes -> should already have beend EQ to obj2 */
+    return false; /* yes -> should already have beend EQ to obj2 */
   } else if (numberp(obj1)) {
-    if (!numberp(obj2)) goto no;
+    if (!numberp(obj2)) return false;
     /* compare numbers via = */
     return number_gleich(obj1,obj2);
   } else {
@@ -857,7 +885,7 @@ global bool equalp (object obj1, object obj2)
     } else if (charp(obj1)) {
       goto case_char;
     } else
-      goto no;
+      return false;
     switch (0)
    #endif
     {
@@ -870,11 +898,11 @@ global bool equalp (object obj1, object obj2)
       case_string: /* string */
       case_weakkvt: /* weak-key-value-table */
       case_vector: /* (VECTOR T) */
-        if (!vectorp(obj2)) goto no;
+        if (!vectorp(obj2)) return false;
         /* obj1, obj2 both vectors. */
         { /* compare lengths: */
           var uintL len1 = vector_length(obj1);
-          if (len1 != vector_length(obj2)) goto no;
+          if (len1 != vector_length(obj2)) return false;
           /* compare lengths: */
           if (len1 > 0) {
             var uintL index1 = 0; /* start-index into obj1 data vector */
@@ -888,13 +916,13 @@ global bool equalp (object obj1, object obj2)
             return true;
         }
       case_mdarray: /* array of rank /=1 */
-        if (!mdarrayp(obj2)) goto no;
+        if (!mdarrayp(obj2)) return false;
         /* obj1 and obj2 are arrays of rank /=1.
            Their rank and their dimensions have to match, and
            the elements are then compared like with vectors. */
         { /* compare ranks: */
           var uintC rank1 = Iarray_rank(obj1);
-          if (!(rank1 == Iarray_rank(obj2))) goto no;
+          if (!(rank1 == Iarray_rank(obj2))) return false;
           /* compare dimensions: */
           if (rank1 > 0) {
             var uintL* dimptr1 = &TheIarray(obj1)->dims[0];
@@ -904,7 +932,7 @@ global bool equalp (object obj1, object obj2)
             if (Iarray_flags(obj2) & bit(arrayflags_dispoffset_bit))
               dimptr2++;
             dotimespC(rank1,rank1, {
-              if (!(*dimptr1++ == *dimptr2++)) goto no;
+              if (!(*dimptr1++ == *dimptr2++)) return false;
             });
           }
         }
@@ -943,20 +971,23 @@ global bool equalp (object obj1, object obj2)
             case_Rectype_mdarray_above;
             case_Rectype_Closure_above;
             case_Rectype_Instance_above;
+            case Rectype_Hashtable:
+              if (!hash_table_p(obj2)) return false;
+              return hash_table_equalp(obj1,obj2);
             default: ;
           }
          #ifdef TYPECODES
-          if (typecode(obj1) != typecode(obj2)) goto no;
+          if (typecode(obj1) != typecode(obj2)) return false;
          #endif
           { /* obj1 and obj2 both records. */
             var uintC len;
-            if (Record_flags(obj1) != Record_flags(obj2)) goto no;
-            if (Record_type(obj1) != Record_type(obj2)) goto no;
+            if (Record_flags(obj1) != Record_flags(obj2)) return false;
+            if (Record_type(obj1) != Record_type(obj2)) return false;
             if (Record_type(obj1) < rectype_limit) {
-              if ((len=Srecord_length(obj1)) != Srecord_length(obj2)) goto no;
+              if ((len=Srecord_length(obj1)) != Srecord_length(obj2)) return false;
             } else {
-              if ((len=Xrecord_length(obj1)) != Xrecord_length(obj2)) goto no;
-              if (Xrecord_xlength(obj1) != Xrecord_xlength(obj2)) goto no;
+              if ((len=Xrecord_length(obj1)) != Xrecord_length(obj2)) return false;
+              if (Xrecord_xlength(obj1) != Xrecord_xlength(obj2)) return false;
             }
             /* compare the elements recursively (also for PATHNAMEs): */
             check_SP();
@@ -965,7 +996,7 @@ global bool equalp (object obj1, object obj2)
               var gcv_object_t* ptr2 = &TheRecord(obj2)->recdata[0];
               var uintC count;
               dotimespC(count,len, {
-                if (!equalp(*ptr1++,*ptr2++)) goto no;
+                if (!equalp(*ptr1++,*ptr2++)) return false;
               });
             }
             /* compare the recxlength extra-elements, too: */
@@ -974,36 +1005,35 @@ global bool equalp (object obj1, object obj2)
               if (xlen > 0) {
                 var uintB* ptr1 = (uintB*)&TheRecord(obj1)->recdata[len];
                 var uintB* ptr2 = (uintB*)&TheRecord(obj2)->recdata[len];
-                dotimespC(xlen,xlen, { if (!(*ptr1++ == *ptr2++)) goto no; } );
+                dotimespC(xlen,xlen, { if (!(*ptr1++ == *ptr2++)) return false; } );
               }
             }
           }
           return true;
         case_closure: /* closure */
-          goto no; /* should already have been EQ */
+          return false; /* should already have been EQ */
         case_instance: /* instance */
-          goto no; /* should already have been EQ */
+          return false; /* should already have been EQ */
         case_char: /* character */
-          if (!charp(obj2)) goto no;
+          if (!charp(obj2)) return false;
           /* obj1, obj2 both characters.
              comparison alike to CHAR-EQUAL: ignore bits and font,
              convert into upper case letters and then compare. */
           if (chareq(up_case(char_code(obj1)),up_case(char_code(obj2))))
             return true;
           else
-            goto no;
+            return false;
        #ifdef TYPECODES
         case_subr: /* SUBR */
-          goto no; /* should already have been EQ */
+          return false; /* should already have been EQ */
         case_system: /* SYSTEM, read-label, FRAME-pointer */
-          goto no; /* should already have been EQ */
+          return false; /* should already have been EQ */
         case_machine: /* machine pointer */
-          goto no; /* should already have been EQ */
+          return false; /* should already have been EQ */
        #endif
         default: NOTREACHED;
     }
   }
- no: return false;
 }
 
 LISPFUNNF(eq,2)

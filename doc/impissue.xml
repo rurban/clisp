@@ -154,9 +154,7 @@
  <varlistentry id="iss140"><term><ulink url="&clhs;/Issues/iss140.html">DRIBBLE-TECHNIQUE</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss141"><term><ulink url="&clhs;/Issues/iss141.html">DYNAMIC-EXTENT-FUNCTION:EXTEND</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss142"><term><ulink url="&clhs;/Issues/iss142.html">DYNAMIC-EXTENT:NEW-DECLARATION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss143"><term><ulink url="&clhs;/Issues/iss143.html">EQUAL-STRUCTURE:MAYBE-STATUS-QUO</ulink></term>
-     <listitem><simpara>no for &equalp; on <link linkend="hash">hash
-     tables</link>, yes for everything else</simpara></listitem></varlistentry>
+ <varlistentry id="iss143"><term><ulink url="&clhs;/Issues/iss143.html">EQUAL-STRUCTURE:MAYBE-STATUS-QUO</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss144"><term><ulink url="&clhs;/Issues/iss144.html">ERROR-TERMINOLOGY-WARNING:MIGHT</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss145"><term><ulink url="&clhs;/Issues/iss145.html">EVAL-OTHER:SELF-EVALUATE</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss146"><term><ulink url="&clhs;/Issues/iss146.html">EVAL-TOP-LEVEL:LOAD-LIKE-COMPILE-FILE</ulink></term>&yes;</varlistentry>
