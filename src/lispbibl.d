@@ -1666,7 +1666,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
    sizeof(long) = sizeof(void*) = 64 bit, because some 64-bit numbers
    appear as pre-processor constants.
  Model WIDE_SOFT stands for sizeof(oint) = 64 bit and sizeof(aint) = 32 bit.
-   This modell can be chosen on any 32-Bit-Machine, if the
+   This model can be chosen on any 32-Bit-Machine, if the
    compiler has 64-bit numbers (in software or hardware).
    You will also need to choose it, if there would not be enough space
    for the type-bits in a 32-bit pointer.
@@ -2194,8 +2194,8 @@ An object consists of - in the same word - some type information and, for
 immediate types, a couple of data bits, or, for heap allocated types,
 a pointer to memory. There are many models of mixing type and pointer.
 In the standard model, 6 to 8 bits (the word's high bits) are used for the
-type. In the WIDE model, type and pointer are each 32 bits. In the CLEAN
-model, there are only 2 to 6 bits.
+type. In the WIDE_HARD and WIDE_SOFT models, type and pointer are each 32
+bits. In the NO_TYPECODES model, there are only 2 to 6 bits.
 
 One bit (normally bit 31) is used as mark bit by the garbage collector.
 Outside of GC, it is always cleared. (Except for the get_circularities and
