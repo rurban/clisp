@@ -75,39 +75,50 @@ LISPFUNN(sysinfo_,0)
 
 # =============================================================================
 
+#ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
+#endif
 
-#define RU_S \
-  pushSTACK(L_to_I(ru.ru_utime.tv_sec));  count++; \
-  pushSTACK(L_to_I(ru.ru_utime.tv_usec)); count++; \
-  pushSTACK(L_to_I(ru.ru_stime.tv_sec));  count++; \
-  pushSTACK(L_to_I(ru.ru_stime.tv_usec)); count++; \
-  pushSTACK(L_to_I(ru.ru_maxrss));        count++; \
-  pushSTACK(L_to_I(ru.ru_idrss));         count++; \
-  pushSTACK(L_to_I(ru.ru_minflt));        count++; \
-  pushSTACK(L_to_I(ru.ru_majflt));        count++; \
-  pushSTACK(L_to_I(ru.ru_nswap));         count++; \
-  pushSTACK(L_to_I(ru.ru_inblock));       count++; \
-  pushSTACK(L_to_I(ru.ru_oublock));       count++; \
-  pushSTACK(L_to_I(ru.ru_msgsnd));        count++; \
-  pushSTACK(L_to_I(ru.ru_msgrcv));        count++; \
-  pushSTACK(L_to_I(ru.ru_nsignals));      count++; \
-  pushSTACK(L_to_I(ru.ru_nvcsw));         count++; \
-  pushSTACK(L_to_I(ru.ru_nivcsw));        count++;
+#ifdef HAVE_GETRUSAGE
+#define GETRU(who)                                              \
+  begin_system_call(); getrusage(who,&ru); end_system_call();   \
+  pushSTACK(L_to_I(ru.ru_utime.tv_sec));  count++;              \
+  pushSTACK(L_to_I(ru.ru_utime.tv_usec)); count++;              \
+  pushSTACK(L_to_I(ru.ru_stime.tv_sec));  count++;              \
+  pushSTACK(L_to_I(ru.ru_stime.tv_usec)); count++;              \
+  pushSTACK(L_to_I(ru.ru_maxrss));        count++;              \
+  pushSTACK(L_to_I(ru.ru_idrss));         count++;              \
+  pushSTACK(L_to_I(ru.ru_minflt));        count++;              \
+  pushSTACK(L_to_I(ru.ru_majflt));        count++;              \
+  pushSTACK(L_to_I(ru.ru_nswap));         count++;              \
+  pushSTACK(L_to_I(ru.ru_inblock));       count++;              \
+  pushSTACK(L_to_I(ru.ru_oublock));       count++;              \
+  pushSTACK(L_to_I(ru.ru_msgsnd));        count++;              \
+  pushSTACK(L_to_I(ru.ru_msgrcv));        count++;              \
+  pushSTACK(L_to_I(ru.ru_nsignals));      count++;              \
+  pushSTACK(L_to_I(ru.ru_nvcsw));         count++;              \
+  pushSTACK(L_to_I(ru.ru_nivcsw));        count++
+#else
+#define GETRU(who) count+=16;                                    \
+  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
+  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
+  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
+  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
+  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
+  pushSTACK(Fixnum_0)
+#endif
 
-#define GETRU(who) \
- begin_system_call(); getrusage(who,&ru); end_system_call(); RU_S
-
-#define RLIM(what) \
- begin_system_call(); getrlimit(what,&rl); end_system_call(); count += 2; \
- pushSTACK(rl.rlim_cur == RLIM_INFINITY ? T : L_to_I(rl.rlim_cur)); \
- pushSTACK(rl.rlim_max == RLIM_INFINITY ? T : L_to_I(rl.rlim_max));
+#ifdef HAVE_GETRLIMIT
+#define RLIM(what)                                                      \
+  begin_system_call(); getrlimit(what,&rl); end_system_call(); count += 2; \
+  pushSTACK(rl.rlim_cur == RLIM_INFINITY ? T : L_to_I(rl.rlim_cur));    \
+  pushSTACK(rl.rlim_max == RLIM_INFINITY ? T : L_to_I(rl.rlim_max))
+#endif
 
 LISPFUNN(resource_usage_limits_,0)
-# (POSIX::RESOURCE-USAGE-LIMITS-INTERNAL)
-# if you modify this function wrt its return values,
-# you should modify POSIX:RESOURCE-USAGE-LIMITS in posix.lisp accordingly
-{
+{ /* (POSIX::RESOURCE-USAGE-LIMITS-INTERNAL)
+ if you modify this function wrt its return values,
+ you should modify POSIX:RESOURCE-USAGE-LIMITS in posix.lisp accordingly */
   var long count = 0;
   var struct rlimit rl;
   var struct rusage ru;
@@ -115,56 +126,57 @@ LISPFUNN(resource_usage_limits_,0)
   GETRU(RUSAGE_SELF);
   GETRU(RUSAGE_CHILDREN);
 
-#undef GETRU
-#undef RU_S
+ #undef GETRU
 
-#ifdef RLIMIT_CORE
+ #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_CORE)
   RLIM(RLIMIT_CORE);
-#else
+ #else
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
-#endif
-#ifdef RLIMIT_CPU
+ #endif
+ #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_CPU)
   RLIM(RLIMIT_CPU);
-#else
+ #else
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
-#endif
-#ifdef RLIMIT_DATA
+ #endif
+ #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_DATA)
   RLIM(RLIMIT_DATA);
-#else
+ #else
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
-#endif
-#ifdef RLIMIT_FSIZE
+ #endif
+ #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_FSIZE)
   RLIM(RLIMIT_FSIZE);
-#else
+ #else
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
-#endif
-#ifdef RLIMIT_NOFILE
+ #endif
+ #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_NOFILE)
   RLIM(RLIMIT_NOFILE);
-#else
+ #else
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
-#endif
-#ifdef RLIMIT_STACK
+ #endif
+ #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_STACK)
   RLIM(RLIMIT_STACK);
-#else
+ #else
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
-#endif
-#ifdef RLIMIT_VMEM
+ #endif
+ #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_VMEM)
   RLIM(RLIMIT_VMEM);
-#else
+ #else
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
-#endif
-#ifdef RLIMIT_RSS
+ #endif
+ #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_RSS)
   RLIM(RLIMIT_RSS);
-#else
+ #else
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
-#endif
-#ifdef RLIMIT_MEMLOCK
+ #endif
+ #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_MEMLOCK)
   RLIM(RLIMIT_MEMLOCK);
-#else
+ #else
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
-#endif
+ #endif
 
-#undef RLIM
+ #ifdef RLIM
+  #undef RLIM
+ #endif
 
   funcall(L(values),count);
 }
