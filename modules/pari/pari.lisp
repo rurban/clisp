@@ -176,12 +176,12 @@
 (def-c-var pari-euler (:name "geuler") (:type pari-gen) (:read-only t))
 (def-c-var pari-bernzone (:name "bernzone") (:type pari-gen) (:read-only t))
 
-(def-c-var pari-1    (:name "gone") (:type pari-gen) (:read-only t))
-(def-c-var pari-2    (:name "gtwo") (:type pari-gen) (:read-only t))
+(def-c-var pari-1    (:name "gen_1") (:type pari-gen) (:read-only t))
+(def-c-var pari-2    (:name "gen_2") (:type pari-gen) (:read-only t))
 (def-c-var pari-1/2  (:name "ghalf") (:type pari-gen) (:read-only t))
 (def-c-var pari-i    (:name "gi")    (:type pari-gen) (:read-only t))
 (def-c-var pari-0    (:name "gzero") (:type pari-gen) (:read-only t))
-(def-c-var pari--1   (:name "gminusone") (:type pari-gen) (:read-only t))
+(def-c-var pari--1   (:name "gen_m1") (:type pari-gen) (:read-only t))
 
 ;; extern  GEN *polun,*polx;
 (def-c-var pari-poly-1 (:name "polun") (:type (c-ptr pari-gen)) (:read-only t))

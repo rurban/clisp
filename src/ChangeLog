@@ -1,5 +1,11 @@
 2005-02-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/pari.lisp (pari-1): gen_1 instead of gone
+	(pari-2): gen_2 instead of gtwo
+	(pari--1): gen_m1 instead of gminusone
+
+2005-02-22  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (config.status): remove config.cache
 	* configure: do not remove config.cache (this undoes the
 	2002-07-21 change)
