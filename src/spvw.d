@@ -1065,8 +1065,10 @@ local void init_symbol_tab_2 (void) {
       pushSTACK(symbol_tab_ptr_as_object(ptr)); /* Symbol */
       import(&STACK_0,package_);                /* import normally */
       switch (this_index) {
-        case enum_lisp_index:   case enum_charset_index:
-        case enum_socket_index: case enum_custom_index:
+        case enum_lisp_index:    /* in #<PACKAGE LISP>? */
+        case enum_charset_index: /* in #<PACKAGE CHARSET>? */
+        case enum_socket_index:
+        case enum_custom_index:
           export(&STACK_0,package_); /* also export */
       }
       Symbol_package(popSTACK()) = *package_; /* set the home-package */
