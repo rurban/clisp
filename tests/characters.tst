@@ -1,7 +1,7 @@
 ;; -*- Lisp -*-
 
 CHAR-CODE-LIMIT
-#+XCL 128 #+(or (and CLISP (not UNICODE)) AKCL ECL CMU SBCL) 256 #+ALLEGRO 65536 #+(and CLISP UNICODE) 1114112 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+XCL 128 #+(or (and CLISP (not UNICODE)) AKCL ECL CMU SBCL OpenMCL) 256 #+ALLEGRO 65536 #+(and CLISP UNICODE) 1114112 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (STANDARD-CHAR-P #\a)
 T
@@ -75,42 +75,42 @@ NIL
 (GRAPHIC-CHAR-P #\RETURN)
 NIL
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\a)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\a)
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\$)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\$)
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\.)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\.)
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\A)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\A)
 T
 
-#-(or CMU SBCL)
+#-(or CMU SBCL OpenMCL)
 (STRING-CHAR-P 1)
-#-(or CMU SBCL)
+#-(or CMU SBCL OpenMCL)
 ERROR
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\\)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\\)
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\5)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\5)
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\))
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\))
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\%)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\%)
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\BACKSPACE)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\BACKSPACE)
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\PAGE)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\PAGE)
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP #\RETURN)
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP #\RETURN)
 T
 
 (ALPHA-CHAR-P #\a)
@@ -639,16 +639,16 @@ NIL
 #\1
 
 CHAR-CONTROL-BIT
-#-(or CMU SBCL) 1 #+(or CMU SBCL) ERROR
+#-(or CMU SBCL OpenMCL) 1 #+(or CMU SBCL OpenMCL) ERROR
 
 CHAR-META-BIT
-#-(or CMU SBCL) 2 #+(or CMU SBCL) ERROR
+#-(or CMU SBCL OpenMCL) 2 #+(or CMU SBCL OpenMCL) ERROR
 
 CHAR-SUPER-BIT
-#-(or CMU SBCL) 4 #+(or CMU SBCL) ERROR
+#-(or CMU SBCL OpenMCL) 4 #+(or CMU SBCL OpenMCL) ERROR
 
 CHAR-HYPER-BIT
-#-(or CMU SBCL) 8 #+(or CMU SBCL) ERROR
+#-(or CMU SBCL OpenMCL) 8 #+(or CMU SBCL OpenMCL) ERROR
 
 (char-name #\Space) "Space"
 
@@ -657,7 +657,9 @@ CHAR-HYPER-BIT
 (let ((wrong-codes nil))
   (dotimes (code char-code-limit)
     (let ((c (code-char code)))
-      (unless (eql c (name-char (char-name c)))
+      (unless (and #-CLISP (or (graphic-char-p c) (char-name c))
+                   (or #-CLISP (null (char-name c))
+                       (eql c (name-char (char-name c)))))
         (push code wrong-codes))))
   wrong-codes)
 NIL

@@ -1,9 +1,9 @@
 ;; -*- Lisp -*-
 
 (setf a-vector (make-array 10))
-#+(or XCL CMU SBCL) #(0 0 0 0 0 0 0 0 0 0)
+#+(or XCL CMU SBCL OpenMCL) #(0 0 0 0 0 0 0 0 0 0)
 #+(or CLISP AKCL ECL ALLEGRO) #(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (do ((i 0 (1+ i))
      (n (length a-vector)))

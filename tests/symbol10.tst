@@ -14,6 +14,7 @@ NIL
          #+CMU (eq (ext:info variable kind var) ':special)
          #+SBCL (eq (sb-int:info :variable :kind var) ':special)
          #+ECL (and (sys::specialp var) (not (constantp var))) ; specvar
+         #+OpenMCL (ccl::proclaimed-special-p var)
          (and (fboundp var) t)                       ; funktion. Eigenschaft
          (and (fboundp var) (macro-function var) t)  ; Macro?
          (and (fboundp var) (special-operator-p var) t)  ; Spezialform?
@@ -34,14 +35,9 @@ testvar
    #+ALLEGRO (setf (excl::symbol-bit var 'excl::.globally-special.) nil)
    #+CMU (setf (ext:info variable kind var) ':global)
    #+SBCL (setf (sb-int:info :variable :kind var) ':global)
+   #+OpenMCL (proclaim `(ccl::notspecial ,var))
    var)
 clrvar
-
-#+(or XCL CLISP ALLEGRO CMU SBCL)
-(progn (setf (symbol-function 'setf-get)
-             (symbol-function #+XCL 'sys::setf-get #+CLISP 'sys::%put #+ALLEGRO 'excl::.inv-get #+CMU 'lisp::%put #+SBCL 'sb-kernel:%put)) t)
-#+(or XCL CLISP ALLEGRO CMU SBCL)
-T
 
 ;;; Begin Breitentest
 
@@ -123,13 +119,13 @@ val3
 
 ;;; props
 
-(setf-get 'v1 'i1 11)
+(setf (get 'v1 'i1) 11)
 11
 
-(setf-get 'v1 'i2 22)
+(setf (get 'v1 'i2) 22)
 22
 
-(setf-get 'v1 'i3 33)
+(setf (get 'v1 'i3) 33)
 33
 
 (testvar 'v1)
@@ -153,7 +149,7 @@ v1
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (nil nil  nil   nil  nil  nil nil  nil   nil nil nil)
 
-(setf-get 'v1 'i1 99)
+(setf (get 'v1 'i1) 99)
 99
 (defmacro v1 (x) (list 'quote (list x x x)))
 v1
@@ -180,11 +176,11 @@ v2
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   v2a  nil   t    nil  nil nil  nil   nil nil nil)
 
-(setf-get 'v2 'i3 33)
+(setf (get 'v2 'i3) 33)
 33
-(setf-get 'v2 'i2 22)
+(setf (get 'v2 'i2) 22)
 22
-(setf-get 'v2 'i1 11)
+(setf (get 'v2 'i1) 11)
 11
 
 (testvar 'v2)
@@ -211,11 +207,11 @@ t
 
 (defvar v2 'v2b)
 v2
-(setf-get 'v2 'i1 111)
+(setf (get 'v2 'i1) 111)
 111
-(setf-get 'v2 'i2 222)
+(setf (get 'v2 'i2) 222)
 222
-(setf-get 'v2 'i3 333)
+(setf (get 'v2 'i3) 333)
 333
 
 (testvar 'v2)
@@ -265,7 +261,7 @@ v3
 ;;; rebind
 
 (makunbound 'v3)
-#+(or XCL ALLEGRO CMU SBCL) v3 #+(or CLISP ECL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL) UNKNOWN
+#+(or XCL ALLEGRO CMU SBCL) v3 #+(or CLISP ECL OpenMCL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL OpenMCL) UNKNOWN
 (fmakunbound 'v3)
 v3
 
@@ -318,10 +314,10 @@ var3
 
 ;;; props
 
-(setf-get 'v3 'i2 222)
+(setf (get 'v3 'i2) 222)
 222
 
-(setf-get 'v3 'i1 111)
+(setf (get 'v3 'i1) 111)
 111
 
 (testvar 'v3)
@@ -360,9 +356,9 @@ v4
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (nil nil  nil   nil  t    nil nil  nil   nil nil nil)
 
-(setf-get 'v4 'i1 11)
+(setf (get 'v4 'i1) 11)
 11
-(setf-get 'v4 'i2 22)
+(setf (get 'v4 'i2) 22)
 22
 
 (testvar 'v4)
@@ -385,9 +381,9 @@ t
 v4
 (v4 44)
 (44 44 44)
-(setf-get 'v4 'i2 222)
+(setf (get 'v4 'i2) 222)
 222
-(setf-get 'v4 'i3 333)
+(setf (get 'v4 'i3) 333)
 333
 
 (testvar 'v4)
@@ -406,9 +402,9 @@ v5
 
 ;;;;; prop - rebind - con - rebind - fun
 
-(setf-get 'v5 'i1 1)
+(setf (get 'v5 'i1) 1)
 1
-(setf-get 'v5 'i2 2)
+(setf (get 'v5 'i2) 2)
 2
 
 (testvar 'v5)
@@ -426,9 +422,9 @@ t
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (nil nil  nil   nil  nil  nil nil  nil   nil nil nil)
 
-(setf-get 'v5 'i1 11)
+(setf (get 'v5 'i1) 11)
 11
-(setf-get 'v5 'i2 22)
+(setf (get 'v5 'i2) 22)
 22
 
 (testvar 'v5)
@@ -447,7 +443,7 @@ v5
 ;;; rebind
 
 (makunbound 'v5)
-#+(or XCL ALLEGRO CMU SBCL) v5 #+(or CLISP ECL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL) UNKNOWN
+#+(or XCL ALLEGRO CMU SBCL) v5 #+(or CLISP ECL OpenMCL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL OpenMCL) UNKNOWN
 (not (null (remprop 'v5 'i2)))
 t
 (not (null (remprop 'v5 'i1)))
@@ -463,9 +459,9 @@ t
 
 (defconstant v5 321)
 v5
-(setf-get 'v5 'i3 333)
+(setf (get 'v5 'i3) 333)
 333
-(setf-get 'v5 'i2 222)
+(setf (get 'v5 'i2) 222)
 222
 
 (testvar 'v5)
@@ -487,9 +483,9 @@ v6
 
 ;;;;; prop mac con
 
-(setf-get 'v6 'i1 1)
+(setf (get 'v6 'i1) 1)
 1
-(setf-get 'v6 'i3 3)
+(setf (get 'v6 'i3) 3)
 3
 
 (testvar 'v6)

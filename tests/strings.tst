@@ -927,7 +927,7 @@ error
 error
 
 (STRING-TRIM   (QUOTE (A)) "ababa")
-#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU OpenMCL) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (STRING-TRIM   "a" "ababa")
 "bab"
@@ -956,7 +956,7 @@ error
 error
 
 (STRING-LEFT-TRIM   (QUOTE (A)) "ababa")
-#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU OpenMCL) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (STRING-LEFT-TRIM   "a" "ababa")
 "baba"
@@ -984,7 +984,7 @@ error
 error
 
 (STRING-RIGHT-TRIM   (QUOTE (A)) "ababa")
-#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU OpenMCL) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (STRING-RIGHT-TRIM   "a" "ababa")
 "abab"

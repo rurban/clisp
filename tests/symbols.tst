@@ -10,8 +10,8 @@
 
 (PRIN1-TO-STRING (GENSYM "garbage-"))
 #+XCL "#:|garbage|-34"
-#+(or CLISP AKCL ECL ALLEGRO CMU SBCL) "#:|garbage-34|"
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) "#:|garbage-34|"
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 ;; check the symbols in the COMMON-LISP package
 (let* ((cl-symbols-required

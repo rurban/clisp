@@ -873,20 +873,28 @@ error
 (let ((*print-readably* t)) (print-unreadable-object (nil *standard-output*)))
 print-not-readable
 
+#+CLISP
 (let ((ext:*print-pathnames-ansi* t) (ext:*parse-namestring-dot-file* :name))
   (write-to-string (make-pathname :name "foo.bar") :readably t))
+#+CLISP
 print-not-readable
 
+#+CLISP
 (let ((ext:*print-pathnames-ansi* t) (ext:*parse-namestring-dot-file* :type))
   (write-to-string (make-pathname :name "foo.bar") :readably t))
+#+CLISP
 print-not-readable
 
+#+CLISP
 (let ((ext:*print-pathnames-ansi* t) (ext:*parse-namestring-dot-file* :name))
   (write-to-string (make-pathname :type "bar") :readably t))
+#+CLISP
 print-not-readable
 
+#+CLISP
 (let ((ext:*print-pathnames-ansi* t) (ext:*parse-namestring-dot-file* :type))
   (write-to-string (make-pathname :name "foo.bar") :readably t))
+#+CLISP
 print-not-readable
 
 (print 1 2)

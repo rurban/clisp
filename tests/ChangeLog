@@ -1,3 +1,12 @@
+2004-08-28  Bruno Haible  <bruno@clisp.org>
+
+	* tests.lisp, alltest.tst, array.tst, characters.tst, clos.tst,
+	excepsit.tst, ffi.tst, format.tst, iofkts.tst, lambda.tst,
+	lists152.tst, lists153.tst, lists154.tst, lists155.tst, lists156.tst,
+	macro8.tst, map.tst, mop.tst, setf.tst, streams.tst, streamslong.tst,
+	strings.tst, symbol10.tst, symbols.tst, type.tst: Update for OpenMCL
+	0.14.2.
+
 2004-08-29  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst (c-malloc, c-free) [cygwin]: use cygwin1.dll

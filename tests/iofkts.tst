@@ -3,7 +3,7 @@
 ;;*      Test the I/O functions                                              *
 ;;****************************************************************************
 
-(PROGN (IN-PACKAGE #-SBCL "USER" #+SBCL "COMMON-LISP-USER") T)
+(PROGN (IN-PACKAGE #-(or SBCL OpenMCL) "USER" #+(or SBCL OpenMCL) "COMMON-LISP-USER") T)
 T
 
 ;;--- let test ---------------------------------------------------------------
@@ -84,13 +84,13 @@ ERROR
 (123 3)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER "  123  " :JUNK-ALLOWED T))
-(123 #+XCL 7 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL) 5 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN)
+(123 #+XCL 7 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) 5 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER "123 t" :JUNK-ALLOWED T))
-(123 #+XCL 4 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL) 3 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN)
+(123 #+XCL 4 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) 3 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER "  123   t  " :JUNK-ALLOWED T))
-(123 #+XCL 8 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL) 5 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN)
+(123 #+XCL 8 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) 5 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER " ( 12 ) 43   t  " :JUNK-ALLOWED
 T))
@@ -160,7 +160,7 @@ ERROR
 (NIL 0)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER B :JUNK-ALLOWED T))
-(1 #+XCL 2 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL) 1 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN)
+(1 #+XCL 2 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) 1 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER C :JUNK-ALLOWED T))
 (1 1)
@@ -175,7 +175,7 @@ ERROR
 (567 5)
 
 (STREAM-ELEMENT-TYPE #+XCL STDIN #-XCL *TERMINAL-IO*)
-#+(or CLISP ALLEGRO CMU SBCL) CHARACTER #-(or CLISP ALLEGRO CMU SBCL) STRING-CHAR
+#+(or CLISP ALLEGRO CMU SBCL OpenMCL) CHARACTER #-(or CLISP ALLEGRO CMU SBCL OpenMCL) STRING-CHAR
 
 (PROGN (SETQ A (MAKE-STRING-INPUT-STREAM "aaa bbb")) T)
 T
@@ -466,28 +466,28 @@ T
 #-CMU
 ERROR
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP (QUOTE #\SPACE))
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\SPACE))
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP (QUOTE #\NEWLINE))
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\NEWLINE))
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP (QUOTE #\BACKSPACE))
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\BACKSPACE))
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP (QUOTE #\a))
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\a))
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP (QUOTE #\8))
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\8))
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP (QUOTE #\-))
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\-))
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP (QUOTE #\n))
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\n))
 T
 
-(#-(or CMU SBCL) STRING-CHAR-P #+(or CMU SBCL) CHARACTERP (QUOTE #\())
+(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\())
 T
 
 (STRINGP "das ist einer der Teststrings")
@@ -545,12 +545,12 @@ J
 
 (WITH-INPUT-FROM-STRING (S "animal crackers" :INDEX J :START 6 :END 20)
   (READ S))
-#+XCL CRACKERS #+(or CLISP AKCL ECL ALLEGRO CMU SBCL) ERROR
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
+#+XCL CRACKERS #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) ERROR
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 J
-#+XCL 20 #+(or CLISP AKCL ECL ALLEGRO SBCL) 7
-#-(or XCL CLISP AKCL ECL ALLEGRO SBCL) UNKNOWN
+#+XCL 20 #+(or CLISP AKCL ECL ALLEGRO SBCL OpenMCL) 7
+#-(or XCL CLISP AKCL ECL ALLEGRO SBCL OpenMCL) UNKNOWN
 
 (SETQ A "Das ist wieder einmal einer der SUUPERTESTstrings.")
 "Das ist wieder einmal einer der SUUPERTESTstrings."
@@ -596,9 +596,9 @@ ERROR
 (GET-OUTPUT-STREAM-STRING B)
 #+XCL
 "Das ist wieder einmal einer der SUUPERTESTstrings.eder einmal einer der SUUPERTESTstrings.Das iDas ist wieder einmal einer der SUUPERTESTstrings.st wieder einma"
-#+(or CLISP AKCL ECL SBCL)
+#+(or CLISP AKCL ECL SBCL OpenMCL)
 "Das ist wieder einmal einer der SUUPERTESTstrings.eder einmal einer der SUUPERTESTstrings.Das ist wieder einma"
-#-(or XCL CLISP AKCL ECL SBCL) UNKNOWN
+#-(or XCL CLISP AKCL ECL SBCL OpenMCL) UNKNOWN
 
 (WRITE-STRING A B)
 "Das ist wieder einmal einer der SUUPERTESTstrings."
@@ -616,7 +616,7 @@ ERROR
 "
 XXX "
 
-(SETQ A (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-(or CMU SBCL) STRING-CHAR #+(or CMU SBCL) CHARACTER)
+(SETQ A (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-(or CMU SBCL OpenMCL) STRING-CHAR #+(or CMU SBCL OpenMCL) CHARACTER)
                     :FILL-POINTER 0))
 ""
 
@@ -647,7 +647,7 @@ A
 "1234567890"
 
 (SETQ A
-      (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-(or CMU SBCL) STRING-CHAR #+(or CMU SBCL) CHARACTER)
+      (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-(or CMU SBCL OpenMCL) STRING-CHAR #+(or CMU SBCL OpenMCL) CHARACTER)
                   :FILL-POINTER 0 :ADJUSTABLE T))
 ""
 
@@ -712,6 +712,11 @@ t
           (DOLIST (CASE '(:UPCASE :DOWNCASE :CAPITALIZE))
             (FORMAT T "~VT" (* (INCF TAB) TABWIDTH))
             (WRITE SYMBOL :ESCAPE ESCAPE :CASE CASE)))))))
+#+OpenMCL
+" \\x         \\x          \\x          x           x           x
+ |FoObAr|   |FoObAr|    |FoObAr|    FoObAr      foobar      Foobar
+ |fOo|      |fOo|       |fOo|       fOo         foo         foo"
+#-OpenMCL
 " |x|        |x|         |x|         x           x           x
  |FoObAr|   |FoObAr|    |FoObAr|    FoObAr      foobar      Foobar
  |fOo|      |fOo|       |fOo|       fOo         foo         foo"
@@ -769,8 +774,8 @@ MY-PPRINT-LOGICAL
    (pprint-logical-block (out nil :prefix "#[" :suffix "]")
      (let ((cl (class-of obj)))
        (write (class-name cl) :stream out)
-       (loop :for slotdef :in (clos:class-slots cl)
-         :for slot = (clos:slot-definition-name slotdef)
+       (loop :for slotdef :in (#+OpenMCL class-slots #-OpenMCL clos:class-slots cl)
+         :for slot = (#+OpenMCL slot-definition-name #-OpenMCL clos:slot-definition-name slotdef)
          :when (and slot (slot-boundp obj slot))
          :do (write-char #\space out) (pprint-newline :fill out)
          (write slot :stream out)
