@@ -1,5 +1,8 @@
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
+	* clx/mit-clx/dependent.lisp (conditional-store): Rewrite to avoid
+	multiple evaluation of subforms.
+
 	* clx/mit-clx/depdefs.lisp: Ensure that :CLX-LITTLE-ENDIAN is
 	declared in *features* on little-endian platforms.
 
