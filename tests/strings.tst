@@ -1174,3 +1174,18 @@ x             "edcba"
   (adjust-array x '(5))
   (char y 5))
 error
+
+#+(and clisp unicode)
+(let ((s (make-array 10 :element-type 'character :initial-element #\a)))
+  (list
+   (multiple-value-list (sys::string-info s)) ; 8-bit string
+   (progn (setf (aref s 3) (code-char 12345)) ; 16-bit char --> realloc
+          (multiple-value-list (sys::string-info s)))
+   (progn (gc)                  ; GC --> un-realloc
+          (multiple-value-list (sys::string-info s)))
+   (progn (setf (aref s 3) (code-char 123456)) ; 32-bit char --> realloc
+          (multiple-value-list (sys::string-info s)))
+   (progn (gc)                  ; GC --> un-realloc
+          (multiple-value-list (sys::string-info s)))))
+#+(and clisp unicode)
+((8 NIL NIL) (16 NIL T) (16 NIL NIL) (32 NIL T) (32 NIL NIL))
