@@ -401,7 +401,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 <para>The &clos; symbols are &export;ed from the package &clos-pac;.
  &cl-pac; uses (as in &use-package;) &clos-pac; and &re-export;s the
  &ansi-cl; standard exported symbols (the &clisp; extensions, e.g.,
- &class-proto;, are &not-e; &re-export;ed).
+ those described in <xref linkend="mop-chap"/>, are &not-e; &re-export;ed).
  Since <link linkend="make-pack">the default &use-k; argument</link>
  to &make-package; is &cl-pac;, the standard &clos; symbols are normally
  visible in all user-defined packages.
@@ -497,16 +497,9 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 
 <para>It is &not-e; required that the superclasses of a class are
  defined before the &defclass; form for the class is evaluated.
- Use &amop; generic functions
- <firstterm>&class-fin-p;<indexterm id="class-fin-p" significance="preferred">
-   <primary id="class-fin-p-i"><function>CLASS-FINALIZED-P</function>
- </primary></indexterm></firstterm>
- to check whether the class has been finalized and thus its instances
- can be created, and
- <firstterm>&fin-inher;<indexterm id="fin-inher" significance="preferred">
-   <primary id="fin-inher-i"><function>FINALIZE-INHERITANCE</function>
- </primary></indexterm></firstterm>
- to force class finalization.</para>
+ Use &amop; generic functions &class-finalized-p; to check whether the
+ class has been finalized and thus its instances can be created,
+ and &finalize-inheritance; to force class finalization.</para>
 
 </section>
 
@@ -516,10 +509,9 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 <para>Trivial changes, e.g., those that can occur when doubly loading
  the same code, do not require updating the instances.
  These are the changes that do not modify the set of local slots
- accessible in instances, e.g., changes to slot options
- <constant>:INITFORM</constant>, <constant>:DOCUMENTATION</constant>,
- and changes to class options <constant>:DEFAULT-INITARGS</constant>,
- <constant>:DOCUMENTATION</constant>.</para>
+ accessible in instances, e.g., changes to slot options &initform-k;,
+ &documentation-k;, and changes to class options
+ <constant>:DEFAULT-INITARGS</constant>, &documentation-k;.</para>
 
 <para>The instances are updated when they are first accessed, &not-e; at
  the time when the class is redefined or &make-instances-obsolete; is
@@ -887,35 +879,9 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 
 </section>
 
-<section id="obj-dict"><title>The Objects Dictionary
+<!-- <section id="obj-dict"><title>The Objects Dictionary
   <ulink url="&clhs;/Body/sec_7-7.html">[CLHS-7.7]</ulink></title>
-
-<section id="class-proto"><title>Generic function &class-proto;.</title>
-<para>The &amop; generic function &class-proto; is implemented.
- This allows non-&consing; access to slots with
- allocation <constant>:CLASS</constant>:
- <programlisting>
-  (defclass counter ()
-    ((count :allocation :class :initform 0 :reader how-many)))
-  (defmethod initialize-instance :after ((obj counter) &amp;rest args)
-    (incf (slot-value obj 'count)))
-  (defclass counted-object (counter) ((name :initarg :name)))
- </programlisting>
- Now you can find out how many <classname>COUNTED-OBJECT</classname>s
- have been created by using
- <literal role="sexp">(HOW-MANY (&class-proto; 'COUNTER))</literal>:
- <programlisting>
-  (make-instance 'counted-object :name 'foo)
-    <returnvalue>#&lt;COUNTED-OBJECT #x203028C9&gt;</returnvalue>
-  (how-many (clos:class-prototype 'counter))
-    <returnvalue>1</returnvalue>
-  (make-instance 'counted-object :name 'bar)
-    <returnvalue>#&lt;COUNTED-OBJECT #x20306CB1&gt;</returnvalue>
-  (how-many (clos:class-prototype 'counter))
-    <returnvalue>2</returnvalue>
-</programlisting></para></section>
-
-</section>
+</section> -->
 
 </chapter>
 
@@ -4878,9 +4844,8 @@ exhaust the available line length.</para></formalpara>
 <formalpara><title>Variable &apropos-do-more;</title>
 <para>You can make &apropos; print more information about the symbols it
  found by setting &apropos-do-more; to a list containing some of
-<constant>:FUNCTION</constant>, <constant>:VARIABLE</constant>,
-&type-k;, and <constant>:CLASS</constant> or just set it to &t; to get
-all of the values.</para></formalpara>
+ &function-k;, <constant>:VARIABLE</constant>, &type-k;, and &class-k;
+ or just set it to &t; to get all of the values.</para></formalpara>
 
 <formalpara><title>Variable &apropos-matcher;</title>
 <para>You can make &apropos; and &apropos-list; be more flexible in

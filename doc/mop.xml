@@ -970,11 +970,34 @@ value is associated with the class metaobject and is returned by &cpl;.
 
 <para>Returns a prototype instance of &class-r;.  Whether the instance
 is initialized is not specified.  The results are undefined if a
-portable program modifies the binding of any slot of prototype instance.
+portable program modifies the binding of any slot of a prototype instance.
 </para>
 
 <para>This generic function &sig-err; if &class-r; has not been finalized.
-</para></simplesect>
+</para>
+
+<informalexample><para>This allows non-&consing; access to slots with
+  allocation &class-k;:<programlisting>
+  (defclass counter ()
+    ((count :allocation :class :initform 0 :reader how-many)))
+  (defmethod initialize-instance :after ((obj counter) &amp;rest args)
+    (incf (slot-value obj 'count)))
+  (defclass counted-object (counter) ((name :initarg :name)))
+ </programlisting>
+ Now one can find out how many <classname>COUNTED-OBJECT</classname>s
+ have been created by using
+ <literal role="sexp">(HOW-MANY (&class-prototype; 'COUNTER))</literal>:
+ <programlisting>
+  (make-instance 'counted-object :name 'foo)
+    <returnvalue>#&lt;COUNTED-OBJECT #x203028C9&gt;</returnvalue>
+  (how-many (clos:class-prototype 'counter))
+    <returnvalue>1</returnvalue>
+  (make-instance 'counted-object :name 'bar)
+    <returnvalue>#&lt;COUNTED-OBJECT #x20306CB1&gt;</returnvalue>
+  (how-many (clos:class-prototype 'counter))
+    <returnvalue>2</returnvalue>
+</programlisting></para>
+</informalexample></simplesect>
 
 <simplesect id="class-slots">
  <title>Generic Function &class-slots;</title>
@@ -3544,12 +3567,12 @@ expansion is shown in the following example:
 (let ((#:g001 (ensure-generic-function 'move)))
   (add-method #:g001
     (make-instance (generic-function-method-class #:g001)
-                   ':qualifiers '(:before)
-                   ':specializers (list (find-class 'position)
-                                        (intern-eql-specializer 0))
-                   ':lambda-list '(p l &optional-amp; (visiblyp t)
-                                       &key-amp; color)
-                   ':function (function method-lambda)
+                   :qualifiers '(:before)
+                   :specializers (list (find-class 'position)
+                                       (intern-eql-specializer 0))
+                   :lambda-list '(p l &optional-amp; (visiblyp t)
+                                      &key-amp; color)
+                   :function (function method-lambda)
                    'additional-initarg-1 't
                    'additional-initarg-2 '39)))
 </programlisting></informalexample></para>
@@ -3573,8 +3596,7 @@ not considered by any of the protocols specified in this document.
  <simpara>During macro-expansion of the &defmethod; macro shown in
   the <link linkend="defmethod-ex-1">previous example</link> code
   similar to this would be run to produce the method lambda and
-  additional initargs.  In this example,
-  <replaceable>environment</replaceable> is the macroexpansion
+  additional initargs.  In this example, &env-r; is the macroexpansion
   environment of the &defmethod; macro form.</simpara>
 <programlisting>
 (let ((gf (ensure-generic-function 'move)))
