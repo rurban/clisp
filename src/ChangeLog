@@ -1,5 +1,11 @@
 1998-08-01  Bruno Haible  <haible@ilog.fr>
 
+        * lispbibl.d (C_CODE_ALIGNMENT): Define to 2 for HPPA.
+          (make_machine_code, TheMachineCode): Special case for HPPA.
+        * lispbibl.d (varobject_type): Workaround gcc-2.8.1 bug.
+
+1998-08-01  Bruno Haible  <haible@ilog.fr>
+
         * aclocal.m4 (CL_RUSAGE): Prefer RUSAGE_WHO_T="int" to
           RUSAGE_WHO_T="enum __rusage_who".
 
