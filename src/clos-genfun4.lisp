@@ -131,7 +131,7 @@
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
     (let* ((methods (remove-if-not #'null (std-gf-methods gf)
-                                   :key #'std-method-qualifiers))
+                                   :key #'method-qualifiers))
            (dispatching-arg
              (if (eq (std-gf-signature gf) (sys::%unbound))
                nil
@@ -164,7 +164,7 @@
         :format-control (TEXT "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
         :format-arguments (list 'no-next-method gf args method
                                 '(call-next-method)))
-      (let ((qualifiers (std-method-qualifiers method)))
+      (let ((qualifiers (method-qualifiers method)))
         (if qualifiers
           (cerror cont-mesg 'program-error
             :format-control (TEXT "~S: ~S is invalid within ~{~S~^ ~} methods")

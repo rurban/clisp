@@ -645,13 +645,13 @@
       'defgeneric gf-name 'standard options)))
 
 ;; partition the methods according to qualifiers
-(defun partition-method-list (methods)
+(defun partition-method-list (methods gf)
   (let ((primary-methods '())
         (before-methods '())
         (after-methods '())
         (around-methods '()))
     (dolist (method methods)
-      (let ((quals (std-method-qualifiers method)))
+      (let ((quals (safe-method-qualifiers method gf)))
         (cond ((equal quals '())        (push method primary-methods))
               ((equal quals '(:before)) (push method before-methods))
               ((equal quals '(:after))  (push method after-methods))
@@ -667,7 +667,7 @@
   (declare (ignore options)) ; already checked in check-options
   ;; Split up into individual method types.
   (multiple-value-bind (primary-methods before-methods after-methods around-methods)
-      (partition-method-list methods)
+      (partition-method-list methods gf)
     (when (null primary-methods)
       (return-from standard-method-combination-expander
         (let ((rest-variable (gensym)))
@@ -711,7 +711,7 @@
 
 (defun standard-method-combination-check-method-qualifiers (gf method-combo method)
   ;; CLtL2 28.1.7.2., 28.1.7.4., ANSI CL 7.6.6.2., 7.6.6.4. Method qualifiers
-  (let ((qualifiers (std-method-qualifiers method)))
+  (let ((qualifiers (method-qualifiers method)))
     (when qualifiers
       (let ((allowed-qualifiers (method-combination-qualifiers method-combo)))
         (if allowed-qualifiers
@@ -730,7 +730,7 @@
 
 (defun standard-method-combination-call-next-method-allowed (gf method-combo method)
   (declare (ignore gf method-combo))
-  (let ((qualifiers (std-method-qualifiers method)))
+  (let ((qualifiers (method-qualifiers method)))
     (or (equal qualifiers '()) (equal qualifiers '(:around)))))
 
 (setf (get-method-combination 'standard)
@@ -759,7 +759,7 @@
            (let ((primary-methods '())
                  (around-methods '()))
              (dolist (method methods)
-               (let ((quals (std-method-qualifiers method)))
+               (let ((quals (method-qualifiers method)))
                  (if (equal quals '(:around))
                    (push method around-methods)
                    (push method primary-methods))))
@@ -786,7 +786,7 @@
 (defun short-form-method-combination-check-method-qualifiers
     (gf method-combo method)
   (standard-method-combination-check-method-qualifiers gf method-combo method)
-  (let ((qualifiers (std-method-qualifiers method)))
+  (let ((qualifiers (method-qualifiers method)))
     (when (null qualifiers)
       (error-of-type 'program-error
         (TEXT "~S method combination, used by ~S, does not allow less than one method qualifier on a method: ~S")
@@ -795,7 +795,7 @@
 (defun short-form-method-combination-call-next-method-allowed
     (gf method-combo method)
   (declare (ignore gf method-combo))
-  (let ((qualifiers (std-method-qualifiers method)))
+  (let ((qualifiers (method-qualifiers method)))
     (equal qualifiers '(:around))))
 
 ;;; Predefined method combinations.

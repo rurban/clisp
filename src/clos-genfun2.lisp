@@ -117,7 +117,7 @@
   (error-of-type 'program-error
     (TEXT "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S")
     (method-combination-name (std-gf-method-combination gf)) gf
-    (std-method-qualifiers method) method))
+    (method-qualifiers method) method))
 
 ;; Initialization of a <standard-generic-function> instance.
 (defun shared-initialize-<standard-generic-function> (gf situation &rest args
@@ -285,7 +285,7 @@
 ;; CLtL2 28.1.6.3., ANSI CL 7.6.3.
 ;; Agreement on Parameter Specializers and Qualifiers
 (defun methods-agree-p (method1 method2)
-  (and (equal (std-method-qualifiers method1) (std-method-qualifiers method2))
+  (and (equal (method-qualifiers method1) (method-qualifiers method2))
        (specializers-agree-p (method-specializers method1)
                              (method-specializers method2))))
 
@@ -447,7 +447,7 @@
       ;;   (find hypothetical-method (std-gf-methods gf) :test #'methods-agree-p)
       ;; cf. methods-agree-p
       (dolist (method (std-gf-methods gf))
-        (when (and (equal (std-method-qualifiers method) qualifiers)
+        (when (and (equal (method-qualifiers method) qualifiers)
                    (specializers-agree-p (method-specializers method)
                                          specializers))
           (return-from std-find-method method)))))
