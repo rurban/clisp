@@ -18,9 +18,9 @@
            "SOCKADDR-FAMILY-SIZE" "MSGHDR" "MAKE-MSGHDR"
            "CONFIGDEV" "IPCSUM" "ICMPCSUM" "TCPCSUM" "UDPCSUM"))
 
-(IN-PACKAGE "RAWSOCK")
-(PUSHNEW :RAWSOCK *FEATURES*)
-(PUSH "RAWSOCK" EXT:*SYSTEM-PACKAGE-LIST*)
+(in-package "RAWSOCK")
+(pushnew :rawsock *features*)
+(push "RAWSOCK" ext:*system-package-list*)
 
 (macrolet ((missing (type) `(error "~S: missing ~S slot" ',type 'data)))
 (defstruct (sockaddr (:constructor make-sa (%data)))
@@ -36,7 +36,13 @@
   (let* ((socket (socket :AF_UNIX type 0))
          (address (make-sockaddr :AF_UNIX
                                  (ext:convert-string-to-bytes
-                                  (namestring pathname)
+                                  (namestring pathname t)
                                   ext:*pathname-encoding*))))
     (connect socket address)
     (values socket address)))
+
+(ext:without-package-lock ("CL")
+(defmethod close ((sock integer) &key abort)
+  (declare (ignore abort))
+  (sock-close sock))
+)
