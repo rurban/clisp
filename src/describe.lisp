@@ -638,27 +638,21 @@ to print the corresponding values, or T for all of them.")
 ;; 14. Title case equivalent mapping.
 (defun unicode-attributes (ch)
   (let ((line (unicode-attributes-line (char-code ch))))
-    (if line
+    (when line
       (let ((pieces
-              (loop for pos = 0 then (1+ semicolon-pos)
-                    for semicolon-pos = (position #\; line :start pos)
-                    do collect (subseq line pos (or semicolon-pos (length line)))
-                    do (unless semicolon-pos (loop-finish))
-           )) )
+             (loop :for pos = 0 :then (1+ semicolon-pos)
+               :for semicolon-pos = (position #\; line :start pos)
+               :collect (subseq line pos (or semicolon-pos (length line)))
+               :do (unless semicolon-pos (loop-finish)))))
         (assert (= (parse-integer (nth 0 pieces) :radix 16) (char-code ch)))
         (values-list
-          (append
-            (mapcar #'(lambda (x) (if (equal x "") nil x))
-                    (subseq pieces 1 12)
-            )
-            (mapcar #'(lambda (x)
-                        (if (equal x "") nil (code-char (parse-integer x :radix 16)))
-                      )
-                    (subseq pieces 12 15)
-        ) ) )
-      )
-      nil
-) ) )
+         (append
+          (mapcar #'(lambda (x) (if (equal x "") nil x))
+                  (subseq pieces 1 12))
+          (mapcar #'(lambda (x)
+                      (if (equal x "") nil
+                          (code-char (parse-integer x :radix 16))))
+                  (subseq pieces 12 15))))))))
 
 ) ; #+UNICODE
 
