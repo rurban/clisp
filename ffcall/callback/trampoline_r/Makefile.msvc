@@ -24,7 +24,7 @@ INCLUDES = -I. -I$(srcdir)
 AR = lib
 AR_FLAGS = /out:
 RM = del
-LN = cp
+LN = copy
 
 # Programs used by "make install":
 INSTALL = @INSTALL@
@@ -40,10 +40,10 @@ OBJECTS = trampoline.obj
 all : $(OBJECTS) trampoline.lib trampoline_r.h $(srcdir)/trampoline_r.3 $(srcdir)/trampoline_r.html
 
 trampoline_r.h : $(srcdir)/trampoline_r.h.in
-	-$(LN) $(srcdir)/trampoline_r.h.in trampoline_r.h
+	-$(LN) $(srcdir)\trampoline_r.h.in trampoline_r.h
 
 config.h : $(srcdir)/config.h.msvc
-	-$(LN) $(srcdir)/config.h.msvc config.h
+	-$(LN) $(srcdir)\config.h.msvc config.h
 
 trampoline.obj : $(srcdir)/trampoline.c trampoline_r.h config.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/trampoline.c
