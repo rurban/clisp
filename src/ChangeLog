@@ -1,5 +1,10 @@
 2004-04-22  Sam Steingold  <sds@gnu.org>
 
+	* utils/clispload.lsp: _really_ set
+	custom:*warn-on-floating-point...contagion* to nil
+
+2004-04-22  Sam Steingold  <sds@gnu.org>
+
 	Rely on FILL-STREAM to format warnings and error messages.
 	* realelem.d (warn_floating_point_rational_contagion): removed
 	manual newlines from the message
