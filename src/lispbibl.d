@@ -3161,7 +3161,6 @@ Ratio and Complex (only if SPVW_MIXED).
   #define active_bit  0  # gesetzt: Bindung ist aktiv
   #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
   #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-  #define oint_symbolflags_shift  oint_type_shift
 #if (varobject_alignment >= bit(3))
   #define oint_symbolflags_shift  oint_addr_shift
 #else
