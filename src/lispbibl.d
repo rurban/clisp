@@ -2989,9 +2989,10 @@ Ratio and Complex (only if SPVW_MIXED).
 
 
 # Art der Garbage Collection: normal oder generational.
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && defined(UNIX_LINUX))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
+#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && defined(UNIX_LINUX))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
   # Für "generational garbage collection" sind einige Voraussetzungen nötig.
   # Unter Linux geht es erst ab Linux 1.1.52, das wird in makemake überprüft.
+  # On IRIX 6, it worked in the past, but leads to core dumps now. Reason unknown. FIXME!
   #define GENERATIONAL_GC
 #endif
 
