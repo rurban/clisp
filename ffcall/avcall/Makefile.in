@@ -89,14 +89,14 @@ avcall-mips.lo : avcall-mips.s
 avcall-mips.s : $(srcdir)/avcall-mips.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-mips.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' > avcall-mips.s
 
-avcall-mipsn32.lo : $(srcdir)/avcall-mipsn32.s
-	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-mipsn32.s
+avcall-mipsn32.lo : avcall-mipsn32.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c avcall-mipsn32.s
 
 avcall-mipsn32.s : $(srcdir)/avcall-mipsn32.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-mipsn32.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' > avcall-mipsn32.s
 
-avcall-mips64.lo : $(srcdir)/avcall-mips64.s
-	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-mips64.s
+avcall-mips64.lo : avcall-mips64.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c avcall-mips64.s
 
 avcall-mips64.s : $(srcdir)/avcall-mips64.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-mips64.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' > avcall-mips64.s
