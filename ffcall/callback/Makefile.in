@@ -12,10 +12,10 @@ srcdir = @srcdir@
 prefix = @prefix@
 local_prefix = /usr/local
 exec_prefix = @exec_prefix@
-libdir = $(exec_prefix)/lib
-includedir = $(prefix)/include
-mandir = $(exec_prefix)/man
-datadir = $(prefix)/share
+libdir = @libdir@
+includedir = @includedir@
+mandir = @mandir@
+datadir = @datadir@
 htmldir = $(datadir)/html
 
 # Programs used by "make":
