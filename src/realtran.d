@@ -69,14 +69,14 @@
            {var object temp;
             temp = STACK_(3+1); # altes a
             temp = LF_LF_minus_LF(STACK_(3+1) = STACK_0, temp); # neues a - altes a
-            temp = LF_LF_mal_LF(temp,temp); # quadieren
+            temp = LF_square_LF(temp); # quadieren
             temp = LF_I_scale_float_LF(temp,STACK_(1+1)); # mal 2^x
             skipSTACK(1);
             STACK_0 = LF_LF_minus_LF(STACK_0,temp); # von t subtrahieren
             STACK_1 = fixnum_inc(STACK_1,1); # x:=x+1
           }}
         {var object temp;
-         temp = STACK_3; temp = LF_LF_mal_LF(temp,temp); # a quadieren
+         temp = LF_square_LF(STACK_3); # a quadieren
          temp = LF_LF_durch_LF(temp,STACK_0); # durch t dividieren
          skipSTACK(4);
          # temp = Pi ist fertig.
@@ -158,7 +158,7 @@
              # Stackaufbau: originales x, neues x.                                   \
              loop                                                                    \
                { # nächstes x nach der Formel x := x+sqrt(x^2 +- 1) berechnen:       \
-                 x = F_sqrt_F(R_R_plus_R(F_F_mal_F(x,x),Fixnum_plusminus1));         \
+                 x = F_sqrt_F(R_R_plus_R(F_square_F(x),Fixnum_plusminus1));          \
                  STACK_0 = x = F_F_plus_F(STACK_0,x);                                \
                  k = fixnum_inc(k,1); # k:=k+1                                       \
                  if (F_exponent_L(x) > e_limit) break;                               \
@@ -173,7 +173,7 @@
          # Stackaufbau: neues x.                                                     \
          # Potenzreihe anwenden:                                                     \
          {var object i = Fixnum_1;                                                   \
-          pushSTACK(F_plusminus_F(F_F_mal_F(STACK_0,STACK_0))); # a := -x^2 bzw. x^2 \
+          pushSTACK(F_plusminus_F(F_square_F(STACK_0))); # a := -x^2 bzw. x^2        \
           pushSTACK(I_F_float_F(Fixnum_1,STACK_1)); # b := (float 1 x)               \
           pushSTACK(I_F_float_F(Fixnum_0,STACK_2)); # sum := (float 0 x)             \
           # Stackaufbau: x, a, b, sum.                                               \
@@ -346,7 +346,7 @@
            { x = I_I_minus_I(L_to_FN(e_limit),L_to_I(e));                           \
              STACK_0 = F_I_scale_float_F(STACK_0,x); # x := x*2^(e_limit-e)         \
            }                                                                        \
-         x = STACK_0; pushSTACK(F_F_mal_F(x,x));                                    \
+         x = STACK_0; pushSTACK(F_square_F(x));                                     \
          # Stackaufbau: x, x^2.                                                     \
          # Potenzreihe anwenden:                                                    \
          pushSTACK(STACK_0);                                                        \
@@ -366,7 +366,7 @@
               i = fixnum_inc(i,2); # i := i+2                                       \
               STACK_1 = R_R_durch_R(STACK_1,temp); # b := b/((i+1)*(i+2))           \
          }  }                                                                       \
-         {var object z = F_F_mal_F(STACK_0,STACK_0); # sum^2 als Ergebnis           \
+         {var object z = F_square_F(STACK_0); # sum^2 als Ergebnis                  \
           # Stackaufbau: x, x^2, -, -, -.                                           \
           # Wegen Rekursion noch max(e-e_limit,0) mal z verändern:                  \
           if (e > e_limit)                                                          \
@@ -538,7 +538,7 @@
          { x = I_F_float_F(Fixnum_1,STACK_3); } # (cos r) = 1.0
          else
          { var object r = STACK_1;
-           r = F_F_mal_F(r,r); # r^2
+           r = F_square_F(r); # r^2
            r = F_F_mal_F(r,STACK_0); # r^2*y
            r = R_R_minus_R(Fixnum_1,r); # 1-r^2*y
            r = F_sqrt_F(r); # sqrt(1-r^2*y)
@@ -959,7 +959,7 @@
        {var object z = STACK_0; # sum als Ergebnis
         skipSTACK(3);
         # Wegen Rekursion noch k mal quadrieren:
-        dotimesL(k,k, { z = F_F_mal_F(z,z); } );
+        dotimesL(k,k, { z = F_square_F(z); } );
         return z;
     }}}}
 
@@ -1139,7 +1139,7 @@
           {var object temp;
            pushSTACK(x);
            pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhöhen
-           pushSTACK(F_F_mal_F(temp,temp)); # x*x
+           pushSTACK(F_square_F(temp)); # x*x
            pushSTACK(temp = F_sinhx_F(STACK_1)); # y:=(sinh(x)/x)^2
            # Stackaufbau: originales x, x, x^2, y.
            temp = F_sqrt_F(temp); # sqrt(y) = sinh(x)/x

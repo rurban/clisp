@@ -464,6 +464,32 @@
       return I_I_to_RA(b,a);
     }}
 
+# Liefert (* r r), wo r eine rationale Zahl ist.
+# RA_square_RA(r)
+# kann GC auslösen
+  local object RA_square_RA (object r);
+# Methode:
+# r Integer -> klar.
+# r = a/b -> Ergebnis a^2/b^2
+  local object RA_square_RA(r)
+    var object r;
+    { if (RA_integerp(r))
+        # r Integer
+        { return I_square_I(r); }
+        else
+        # r=a/b
+        { var object a;
+          var object b;
+          pushSTACK(TheRatio(r)->rt_den); # b retten
+          a = TheRatio(r)->rt_num;
+          a = I_square_I(a); # a^2
+          b = STACK_0; STACK_0 = a;
+          b = I_square_I(b); # b^2
+          a = popSTACK();
+          # Immer noch b^2>1 und ggT(a^2,b^2) = ggT(a,b)^2 = 1
+          return I_I_to_RT(a,b);
+    }   }
+
 # Liefert (* r s), wo r und s rationale Zahlen sind.
 # RA_RA_mal_RA(r,s)
 # kann GC auslösen

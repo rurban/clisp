@@ -1,5 +1,38 @@
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Speed up exponentiation.
+        * intmal.d (UDS_square_UDS): New macro.
+          (square_2loop_down, square_2bigloop_down, I_square_I): New functions.
+          (I_I_expt_I): Use I_square_I.
+        * intsqrt.d (I_rootp): Use I_square_I.
+        * rational.d (RA_square_RA): New function.
+        * lfloat.d (LF_square_LF): New function.
+        * flo_rest.d (SF_square_SF, FF_square_FF, DF_square_DF): New macros.
+          (F_square_F): New functions.
+        * realelem.d (R_square_R): New function.
+          (R_I_expt_R): Use R_square_R.
+        * realtran.d (pi_F_float_F): Use LF_square_LF.
+          (GEN_F_atanx, GEN_F_sinx, R_cos_sin_R_R, F_expx_F, R_cosh_sinh_R_R):
+          Use F_square_F.
+        * compelem.d (N_square_N): New function.
+          (SFC_durch_SFC): Use SF_square_SF.
+          (FFC_durch_FFC): Use FF_square_FF.
+          (DFC_durch_DFC): Use DF_square_DF.
+          (LFC_durch_LFC): Use LF_square_LF.
+          (N_durch_N): Use RA_square_RA.
+          (SF_SF_hypot_SF): Use SF_square_SF.
+          (FF_FF_hypot_FF): Use FF_square_FF.
+          (DF_DF_hypot_DF): Use DF_square_DF.
+          (LF_LF_hypot_LF): Use LF_square_LF.
+          (R_R_hypot_R): Use RA_square_RA.
+        * comptran.d (N_I_expt_N): Use N_square_N.
+          (R_R_atanh_R_R): Use R_square_R.
+          (R_R_asinh_R_R): Use F_square_F, N_square_N.
+          (N_acos_N, N_acosh_N): Use F_square_F.
+        * lisparit.d (*): Call N_square_N for squaring.
+
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         DEFSTRUCT with option :INCLUDE should not define accessors which were
         already defined in a superclass DEFSTRUCT.
         * init.lsp (remove-old-definitions): Also remprop

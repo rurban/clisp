@@ -184,6 +184,32 @@
           return R_R_complex_C(re,popSTACK());
     }   }}
 
+# N_square_N(x) liefert (* x x), wo x eine Zahl ist.
+# kann GC auslösen
+  local object N_square_N (object x);
+# Methode:
+# x reell -> klar.
+# x=a+bi -> (a^2-b^2)+(2*a*b)i
+  local object N_square_N(x)
+    var object x;
+    { if (N_realp(x))
+        { return R_square_R(x); }
+        else
+        { var object a = TheComplex(x)->c_real;
+          var object b = TheComplex(x)->c_imag;
+          pushSTACK(a);
+          pushSTACK(b);
+         {var object temp = R_R_mal_R(a,b); # a*b
+          temp = R_R_plus_R(temp,temp); # 2*a*b
+          a = STACK_1; STACK_1 = temp;
+          temp = R_square_R(a); # a*a
+          b = STACK_0; STACK_0 = temp;
+          temp = R_square_R(b); # b*b
+          temp = R_R_minus_R(popSTACK(),temp); # a*a-b*b
+          return R_R_complex_N(temp,popSTACK());
+        }}
+    }
+
 # N_N_mal_N(x) liefert (* x y), wo x und y Zahlen sind.
 # kann GC auslösen
   local object N_N_mal_N (object x, object y);
@@ -308,7 +334,7 @@
        a = (b_exp-a_exp > floor(SF_exp_mid-SF_exp_low-1,2) ? SF_0 : SF_I_scale_float_SF(a,delta));
        b = (a_exp-b_exp > floor(SF_exp_mid-SF_exp_low-1,2) ? SF_0 : SF_I_scale_float_SF(b,delta));
        # c' := a'*a'+b'*b' berechnen:
-       {var object c = SF_SF_plus_SF(SF_SF_mal_SF(a,a),SF_SF_mal_SF(b,b));
+       {var object c = SF_SF_plus_SF(SF_square_SF(a),SF_square_SF(b));
         a = SF_I_scale_float_SF(SF_SF_durch_SF(a,c),delta); # 2^(-e)*a'/c'
         b = SF_I_scale_float_SF(SF_minus_SF(SF_SF_durch_SF(b,c)),delta); # -2^(-e)*b'/c'
         pushSTACK(a); pushSTACK(b); return;
@@ -341,8 +367,8 @@
        # Stackaufbau: a', b'.
        # c' := a'*a'+b'*b' berechnen:
        {var object temp;
-        temp = STACK_1; pushSTACK(FF_FF_mal_FF(temp,temp)); # a'*a'
-        temp = STACK_1; temp = FF_FF_mal_FF(temp,temp); # b'*b'
+        temp = STACK_1; pushSTACK(FF_square_FF(temp)); # a'*a'
+        temp = STACK_1; temp = FF_square_FF(temp); # b'*b'
         STACK_0 = temp = FF_FF_plus_FF(STACK_0,temp); # c' = a'*a'+b'*b'
         STACK_2 = FF_I_scale_float_FF(FF_FF_durch_FF(STACK_2,temp),delta); # 2^(-e)*a'/c'
         STACK_1 = FF_I_scale_float_FF(FF_minus_FF(FF_FF_durch_FF(STACK_1,STACK_0)),delta); # -2^(-e)*b'/c'
@@ -376,8 +402,8 @@
        # Stackaufbau: a', b'.
        # c' := a'*a'+b'*b' berechnen:
        {var object temp;
-        temp = STACK_1; pushSTACK(DF_DF_mal_DF(temp,temp)); # a'*a'
-        temp = STACK_1; temp = DF_DF_mal_DF(temp,temp); # b'*b'
+        temp = STACK_1; pushSTACK(DF_square_DF(temp)); # a'*a'
+        temp = STACK_1; temp = DF_square_DF(temp); # b'*b'
         STACK_0 = temp = DF_DF_plus_DF(STACK_0,temp); # c' = a'*a'+b'*b'
         STACK_2 = DF_I_scale_float_DF(DF_DF_durch_DF(STACK_2,temp),delta); # 2^(-e)*a'/c'
         STACK_1 = DF_I_scale_float_DF(DF_minus_DF(DF_DF_durch_DF(STACK_1,STACK_0)),delta); # -2^(-e)*b'/c'
@@ -416,8 +442,8 @@
       # Stackaufbau: a', b', -e.
       # c' := a'*a'+b'*b' berechnen:
       {var object temp;
-       temp = STACK_2; pushSTACK(LF_LF_mal_LF(temp,temp)); # a'*a'
-       temp = STACK_2; temp = LF_LF_mal_LF(temp,temp); # b'*b'
+       temp = LF_square_LF(STACK_2); pushSTACK(temp); # a'*a'
+       temp = LF_square_LF(STACK_2); # b'*b'
        STACK_0 = temp = LF_LF_plus_LF(STACK_0,temp); # c' = a'*a'+b'*b'
        temp = LF_LF_durch_LF(STACK_3,temp); STACK_3 = LF_I_scale_float_LF(temp,STACK_1); # 2^(-e)*a'/c'
        temp = LF_minus_LF(LF_LF_durch_LF(STACK_2,STACK_0)); STACK_2 = LF_I_scale_float_LF(temp,STACK_1); # -2^(-e)*b'/c'
@@ -438,8 +464,8 @@
                 # a,b beide rational
                 { var object temp;
                   pushSTACK(a); pushSTACK(b);
-                  temp = RA_RA_mal_RA(a,a); pushSTACK(temp); # a*a
-                  temp = STACK_1; temp = RA_RA_mal_RA(temp,temp); # b*b
+                  temp = RA_square_RA(a); pushSTACK(temp); # a*a
+                  temp = RA_square_RA(STACK_1); # b*b
                   temp = RA_RA_plus_RA(STACK_0,temp); # a*a+b*b = c
                   STACK_0 = temp = RA_durch_RA(temp); # c:=1/c
                   STACK_2 = RA_RA_mal_RA(STACK_2,temp); # a*c
@@ -567,7 +593,7 @@
        a = (b_exp-a_exp > floor(SF_exp_mid-SF_exp_low-1,2) ? SF_0 : SF_I_scale_float_SF(a,delta));
        b = (a_exp-b_exp > floor(SF_exp_mid-SF_exp_low-1,2) ? SF_0 : SF_I_scale_float_SF(b,delta));
        # c' := a'*a'+b'*b' berechnen:
-       {var object c = SF_SF_plus_SF(SF_SF_mal_SF(a,a),SF_SF_mal_SF(b,b));
+       {var object c = SF_SF_plus_SF(SF_square_SF(a),SF_square_SF(b));
         c = SF_sqrt_SF(c); # c':=2^e*c'
         return SF_I_scale_float_SF(c,L_to_FN((sintL)e)); # 2^e*c'
     } }}
@@ -599,8 +625,8 @@
        # Stackaufbau: a', b'.
        # c' := a'*a'+b'*b' berechnen:
        {var object temp;
-        temp = STACK_1; pushSTACK(FF_FF_mal_FF(temp,temp)); # a'*a'
-        temp = STACK_1; temp = FF_FF_mal_FF(temp,temp); # b'*b'
+        temp = STACK_1; pushSTACK(FF_square_FF(temp)); # a'*a'
+        temp = STACK_1; temp = FF_square_FF(temp); # b'*b'
         temp = FF_FF_plus_FF(STACK_0,temp); # c' = a'*a'+b'*b'
         skipSTACK(3);
         temp = FF_sqrt_FF(temp); # c':=2^e*c'
@@ -634,8 +660,8 @@
        # Stackaufbau: a', b'.
        # c' := a'*a'+b'*b' berechnen:
        {var object temp;
-        temp = STACK_1; pushSTACK(DF_DF_mal_DF(temp,temp)); # a'*a'
-        temp = STACK_1; temp = DF_DF_mal_DF(temp,temp); # b'*b'
+        temp = STACK_1; pushSTACK(DF_square_DF(temp)); # a'*a'
+        temp = STACK_1; temp = DF_square_DF(temp); # b'*b'
         temp = DF_DF_plus_DF(STACK_0,temp); # c' = a'*a'+b'*b'
         skipSTACK(3);
         temp = DF_sqrt_DF(temp); # c':=2^e*c'
@@ -676,8 +702,8 @@
       # Stackaufbau: a', b', e, -e.
       # c' := a'*a'+b'*b' berechnen:
       {var object temp;
-       temp = STACK_3; pushSTACK(LF_LF_mal_LF(temp,temp)); # a'*a'
-       temp = STACK_3; temp = LF_LF_mal_LF(temp,temp); # b'*b'
+       temp = LF_square_LF(STACK_3); pushSTACK(temp); # a'*a'
+       temp = LF_square_LF(STACK_3); # b'*b'
        temp = LF_LF_plus_LF(STACK_0,temp); # c' = a'*a'+b'*b'
        temp = LF_sqrt_LF(temp); # c':=2^e*c'
        temp = LF_I_scale_float_LF(temp,STACK_2); # 2^e*c'
@@ -693,8 +719,8 @@
             { var object temp;
               if (eq(b,Fixnum_0)) { return R_abs_R(a); } # b=0 -> (abs a)
               pushSTACK(a); pushSTACK(b);
-              temp = RA_RA_mal_RA(a,a); pushSTACK(temp); # a*a
-              temp = STACK_1; temp = RA_RA_mal_RA(temp,temp); # b*b
+              temp = RA_square_RA(a); pushSTACK(temp); # a*a
+              temp = RA_square_RA(STACK_1); # b*b
               temp = RA_RA_plus_RA(STACK_0,temp); # a*a+b*b = c
               skipSTACK(3);
               return RA_sqrt_R(temp); # (sqrt c)
