@@ -1,5 +1,14 @@
 2005-03-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/dbi.lisp, modules/bindings/glibc/wrap.lisp:
+	* modules/dirkey/dirkey1.lisp, modules/matlab/wrap.lisp:
+	* modules/netica/wrap.lisp, modules/rawsock/sock.lisp:
+	* modules/regexp/regexp.lisp, modules/syscalls/posix.lisp:
+	* modules/zlib/zlib.lisp: use PUSHNEW, not PUSH
+	when adding to CUSTOM:*SYSTEM-PACKAGE-LIST*
+
+2005-03-22  Sam Steingold  <sds@gnu.org>
+
 	* modules/wildcard/wildcard.lisp (*features*): add :WILDCARD
 	Requested by Yaroslav Kavenchuk <kavenchuk@jenty.by>
 

@@ -321,4 +321,4 @@ X & Y are coordinates; both or neither must be supplied."
       (netica:check-errors)
       net)))
 
-(push "NETICA" custom:*system-package-list*)
+(pushnew "NETICA" custom:*system-package-list* :test #'string=)

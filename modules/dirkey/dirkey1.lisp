@@ -1,4 +1,4 @@
-;;; Copyright (C) 2000-2003 by Sam Steingold
+;;; Copyright (C) 2000-2005 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See <http://www.gnu.org/copyleft/gpl.html>
 
@@ -131,5 +131,5 @@ If collect is non-nil, collect all the keys into an a-list."
         `,storeform)))
 
 ;;; restore locks
-(push "LDAP" *system-package-list*)
+(pushnew "LDAP" *system-package-list* :test #'string=)
 (setf (package-lock *system-package-list*) t)

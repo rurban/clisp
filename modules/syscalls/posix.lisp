@@ -284,5 +284,5 @@
                     (memstat-avail-physical mem-stat))))
 
 ;;; restore locks
-(push "POSIX" *system-package-list*)
+(pushnew "POSIX" *system-package-list* :test #'string=)
 (setf (package-lock *system-package-list*) t)

@@ -173,4 +173,4 @@
 ;; ** - Continuable Error/PRINT: User break
 ;; |#
 
-(push "LINUX" custom:*system-package-list*)
+(pushnew "LINUX" custom:*system-package-list* :test #'string=)

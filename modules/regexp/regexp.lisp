@@ -1,6 +1,6 @@
 ;; Module for regular expression searching/matching in CLISP
 ;; Bruno Haible 14.4.1995, 18.4.1995 -- 2003
-;; Sam Steingold 1999-10-28 -- 2004
+;; Sam Steingold 1999-10-28 -- 2005
 
 (defpackage "REGEXP"
   (:documentation
@@ -11,7 +11,7 @@
            #:regexp-compile #:regexp-exec #:regexp-split #:with-loop-split))
 
 (in-package "REGEXP")
-(push "REGEXP" custom:*system-package-list*)
+(pushnew "REGEXP" custom:*system-package-list* :test #'string=)
 (pushnew :regexp *features*)
 
 (defstruct (match (:constructor make-match-boa (start end))

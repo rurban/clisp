@@ -16,4 +16,4 @@
            names)
       (mxFree buf))))
 
-(push "MATLAB" custom:*system-package-list*)
+(pushnew "MATLAB" custom:*system-package-list* :test #'string=)
