@@ -1,3 +1,10 @@
+2004-09-20  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (describe-object): print pathname components as
+	is, not as pathnames with only this component, because :VERSION is
+	never printed for non-logical pathnames and :NEWEST is thus
+	printed as an empty string, which is confusing
+
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp (*expected-failures*): Revisit many failures.
