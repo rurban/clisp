@@ -5714,10 +5714,6 @@ global Values funcall (object fun, uintC args_on_stack)
         #define NO_ASM
       #endif
     #endif
-    #ifdef CONVEX
-      #define closure_register "a5"
-      #define byteptr_register "a4"
-    #endif
     #ifdef DECALPHA
       #define byteptr_register  "$14"
     #endif

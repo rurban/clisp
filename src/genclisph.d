@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
   printf("#define var\n");
   printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)\n");
   printf("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)\n");
-#if defined(GNU) && !defined(CONVEX)
+#ifdef GNU
   printf("#define alloca  __builtin_alloca\n");
 #elif defined(MICROSOFT)
   printf("#include <malloc.h>\n");
