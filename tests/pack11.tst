@@ -741,3 +741,8 @@ T
 
 (delete-package "TEST-PACKAGE-CASE")
 T
+
+
+; Clean up.
+(unintern 'x)
+T

@@ -883,3 +883,8 @@ NIL
 
 (append 'a)
 A
+
+
+; Clean up.
+(unintern 'x)
+T
