@@ -21,8 +21,8 @@
 # WARNING: PRIN1 can trigger GC! BEWARE!
 /* #define DEBUG_TRANSLATE_PATHNAME 1 */
 #if DEBUG_TRANSLATE_PATHNAME
-#define DOUT(label,object) \
- printf(#label #object ": ");pushSTACK(object);funcall(L(prin1),1);printf("\n")
+#define DOUT(label,object) printf("%s %s: ",#label,#object); \
+        pushSTACK(object);funcall(L(prin1),1);printf("\n")
 #else
 #define DOUT(l,o)
 #endif
@@ -5348,12 +5348,11 @@ LISPFUNN(pathname_match_p,2)
 
 #endif
 
-# DEBUG_TRANSLATE_PATHNAME
-#if 0
+#if DEBUG_TRANSLATE_PATHNAME
 # all arguments to *_diff are on stack - this should be safe
 #define DEBUG_DIFF(f)                                         \
   printf("\n* " #f " [logical: %d]\n",logical);               \
-  DOUT("",muster); DOUT("",beispiel); DOUT("",*previous); DOUT("",*solutions)
+  DOUT(,muster); DOUT(,beispiel); DOUT(,*previous); DOUT(,*solutions)
 #else
 #define DEBUG_DIFF(f)
 #endif
@@ -5410,7 +5409,7 @@ LISPFUNN(pathname_match_p,2)
       DEBUG_DIFF(device_diff);
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
-        push_solution(); return;
+        push_solution_with(S(Kdevice)); return;
       }
       #endif
       #if HAS_DEVICE
@@ -5824,8 +5823,11 @@ LISPFUNN(pathname_match_p,2)
     {
       #if HAS_DEVICE
       #ifdef LOGICAL_PATHNAMES
-      if (logical)
+      if (logical) {
+        if (eq(Car(*subst),S(Kdevice)))
+          { *subst = Cdr(*subst); }
         return muster;
+      }
       #endif
       #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
       if (nullp(muster) && mconsp(*subst))
@@ -6030,15 +6032,15 @@ LISPFUNN(pathname_match_p,2)
       #endif
 # DEBUG_TRANSLATE_PATHNAME
 # this is _not_ safe! you will get segfault if you enable this!
-#if 0
+#if DEBUG_TRANSLATE_PATHNAME
 #define GET_ITEM(what,xwhat,where,skip)                                 \
  { object xobj = xpathname_##xwhat(logical,where);                      \
    pushSTACK(xobj); /* DOUT can trigger GC! */                          \
    printf("\n *** " #xwhat " [logical: %d]\n",logical);                 \
-   DOUT("",*subst); DOUT("",where); DOUT("",xobj);                      \
+   DOUT(,*subst); DOUT(,where); DOUT(,xobj);                            \
    item = translate_##what(subst,xobj,logical);                         \
    if (eq(item,nullobj)) { skipSTACK(skip+1); goto subst_error; }       \
-   DOUT("",item); popSTACK();                                           \
+   DOUT(,item); popSTACK();                                             \
    pushSTACK(S(K##xwhat)); pushSTACK(item); }
 #else
 #define GET_ITEM(what,xwhat,where,skip)                                     \

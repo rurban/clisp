@@ -1,5 +1,11 @@
 2001-05-05  Sam Steingold  <sds@gnu.org>
 
+	handle devices in hostname translation correctly
+	* pathname.d (device_diff): push_solution_with(S(Kdevice))
+	(translate_device): pop (S(Kdevice))
+
+2001-05-05  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (subtypep): COMPILED-FUNCTION is a subtype of FUNCTION
 
 2001-05-05  Sam Steingold  <sds@gnu.org>
