@@ -357,3 +357,21 @@ FEXPAND-1
     (let ((a-sm x))
       (mexpand a-sm))))
 (A-SM NIL)
+
+;; <https://sourceforge.net/tracker/index.php?func=detail&aid=678194&group_id=1355&atid=101355>
+(defmacro my-typeof (place &environment env)
+  (let ((exp-place (macroexpand place env)))
+    (unless (and (consp exp-place) (eq (car exp-place) 'FOREIGN-VALUE))
+      (error "MY-TYPEOF not upon a place: ~S" exp-place))
+    (second exp-place)))
+my-typeof
+
+(defmacro with-var ((var fvar) &body body)
+  (let ((fv (gensym (symbol-name var))))
+    `(LET ((,fv ,fvar))
+       (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv)))
+         ,@body))))
+with-var
+
+(with-var (x "fake variable") (my-typeof x))
+"fake variable"
