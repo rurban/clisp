@@ -1,3 +1,9 @@
+2002-01-05  Sam Steingold  <sds@gnu.org>
+
+	some new macros for brevity
+	* pathname.d (WIN32_ERROR_NOT_FOUND) [WIN32_NATIVE]: new macro
+	(check_noname, check_notdir, check_delete_open): new macros
+
 2002-01-03  Stefan Kain  <stefan.kain@freenet.de>
 
 	* pathname.d: translated all comments
