@@ -1,5 +1,11 @@
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* clos-method1.lisp (lambda-list-keyword-p): Move to clos-method2.lisp.
+	* clos-method2.lisp (lambda-list-keyword-p): New function, from
+	clos-method1.lisp.
+
+2004-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun2.lisp (callinfo, gf-signature, gf-argorder, gf-methods,
 	gf-method-combination): Move to clos-genfun1.lisp.
 	* clos-genfun1.lisp (callinfo, gf-signature, gf-argorder, gf-methods,

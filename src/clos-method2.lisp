@@ -6,6 +6,10 @@
 (in-package "CLOS")
 
 
+;; auxiliary function: test for lambda-list-marker.
+(defun lambda-list-keyword-p (x)
+  (memq x lambda-list-keywords))
+
 ;;; For DEFMETHOD, DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET,
 ;;;     GENERIC-LABELS, WITH-ADDED-METHODS
 ;; caller: symbol

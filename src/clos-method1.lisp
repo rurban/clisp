@@ -39,7 +39,3 @@
       (write q :stream stream)
       (write-char #\Space stream))
     (write (std-method-parameter-specializers method) :stream stream)))
-
-;; auxiliary function: test for lambda-list-marker.
-(defun lambda-list-keyword-p (x)
-  (memq x lambda-list-keywords))
