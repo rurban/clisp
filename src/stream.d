@@ -1,10 +1,11 @@
-# Streams für CLISP
+# Streams for CLISP
 # Bruno Haible 1990-2001
 # Generic Streams: Marcus Daniels 8.4.1994
+# Sam Steingold 1998-2001
 # SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
 
 #include "lispbibl.c"
-#include "arilev0.c" # für R_sign
+#include "arilev0.c" # for R_sign
 
 #ifdef GNU_READLINE
   #define READLINE_LIBRARY # Hinweis, wo die Include-Files gesucht werden müssen
@@ -11011,6 +11012,7 @@ typedef struct win32_console_extrafields_struct {
  COORD cursor_position;
  COORD console_size;
  WORD  attribute;
+ bool  handle_reused;
 } win32_console_extrafields_struct;
 
 #define ConsoleData(stream) ((win32_console_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)
@@ -11178,8 +11180,8 @@ local void v_puts(HANDLE handle,char *s,COORD *pos,COORD sz,uintW attr) {
       }
       rto.Left = pos->X;
       rto.Top = pos->Y;
-      rto.Right = pos->X + (cp - start);
-      rto.Bottom = pos->Y + 1;
+      rto.Right = pos->X + (cp - start) - 1;
+      rto.Bottom = pos->Y;
       p.X = cp - start;
       p.Y = 1;
       WriteConsoleOutput(handle,ac,p,zp,&rto);
@@ -11278,40 +11280,61 @@ local void wr_ch_window (const object* stream_, object ch) {
   ConsoleData(*stream_)->cursor_position = pos;
 }
 
+local void low_close_console (object stream, object handle) {
+  if (!ConsoleData(stream)->handle_reused) {
+    begin_system_call();
+    if (!CloseHandle(TheHandle(handle)))
+      { end_system_call(); OS_filestream_error(stream); }
+    end_system_call();
+  }
+}
+
 LISPFUNN(make_window,0)
   {
     var object stream =
       allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_channel_len,
                       sizeof(win32_console_extrafields_struct));
-    var HANDLE handle =
-      CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE,
-                                0,
-                                NULL,
-                                CONSOLE_TEXTMODE_BUFFER,
-                                NULL);
+    # try to reuse handle on win 95/98
+    # make new handle on NT
+    var int nt_systemp = 0;
+    var bool handle_reused = 1;
+    var OSVERSIONINFO osvers;
+    osvers.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    if (GetVersionEx(&osvers) && osvers.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      nt_systemp = 1;
+
+    var HANDLE handle = nt_systemp ?
+      INVALID_HANDLE_VALUE:GetStdHandle(STD_OUTPUT_HANDLE);
+    if (handle==INVALID_HANDLE_VALUE) {
+      handle = CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE,
+                                         0,
+                                         NULL,
+                                         CONSOLE_TEXTMODE_BUFFER,
+                                         NULL);
+      if (handle == INVALID_HANDLE_VALUE)
+        fehler_unwritable(S(make_window),stream);
+      SetConsoleActiveScreenBuffer(handle);
+      handle_reused = 0;
+    }
     var COORD console_size;
     var COORD console_pos;
     var CONSOLE_SCREEN_BUFFER_INFO info;
-    if (handle == INVALID_HANDLE_VALUE)
-        fehler_unwritable(S(make_window),stream);
-    SetConsoleActiveScreenBuffer(handle);
     if (GetConsoleScreenBufferInfo(handle,&info))
       console_size = info.dwSize;
     else {
       console_size.X = 80; console_size.Y = 25;
     }
     console_pos.X = 0;console_pos.Y = 0;
-    ASSERT(sizeof(COORD)<=sizeof(uintL));
 
     stream_dummy_fill(stream);
     var Stream s = TheStream(stream);
-    s->strm_wr_ch       = P(wr_ch_window);       # WRITE-CHAR-Pseudofunktion
-    s->strm_wr_ch_array = P(wr_ch_array_window); # WRITE-CHAR-SEQUENCE-Pseudofunktion
-    #ifdef UNICODE
+    s->strm_wr_ch       = P(wr_ch_window);       # WRITE-CHAR Pseudofunction
+    s->strm_wr_ch_array = P(wr_ch_array_window); # WRITE-CHAR-SEQUENCE Pseudofunction
+   #ifdef UNICODE
     s->strm_encoding    = O(terminal_encoding);
-    #else
+   #else
     s->strm_encoding    = NIL;
-    #endif
+   #endif
     s->strm_isatty      = NIL;
     s->strm_ichannel    = NIL;
     TheStream(stream)->strm_ochannel = allocate_handle(handle);
@@ -11319,23 +11342,22 @@ LISPFUNN(make_window,0)
     ConsoleData(stream)->console_size = console_size;
     ConsoleData(stream)->cursor_position = console_pos;
     ConsoleData(stream)->attribute = 0;
+    ConsoleData(stream)->handle_reused = handle_reused;
     ChannelStream_init(stream);  # iconv extrafields init
     ChannelStream_lineno(stream) = 1;
     ChannelStream_buffered(stream) = false;
     ChannelStream_bitsize(stream) = 0;
-    ChannelStreamLow_close(stream) = &low_close_handle;
+    ChannelStreamLow_close(stream) = &low_close_console;
     v_move(handle,0,0);
+    v_cl(handle,&console_pos,console_size,attr_table[0]);
     v_cs(handle);
     value1 = stream; mv_count=1;
   }
 
-# Schließt einen Window-Stream.
-  local void close_window (object stream);
-  local void close_window(stream)
-    var object stream;
-    {
-      close_ochannel(stream);
-    }
+# close a window stream.
+local void close_window (object stream) {
+  close_ochannel(stream);
+}
 
 LISPFUNN(window_size,1)
   {
