@@ -277,7 +277,7 @@
                        ((eq type 'VECTOR)
                         `(SVREF OBJECT ,offset) )
                        (t `(AREF OBJECT ,offset) ))
-                ,(if (ds-real-slot-p slot)
+                ,(if (or (eq type 'T) (ds-real-slot-p slot))
                    `(THE ,(clos:slot-definition-type slot) ,var)
                    `(QUOTE ,(ds-pseudo-slot-default slot)))))
            slotlist varlist)
@@ -362,7 +362,7 @@
                            auxvars auxinits)
                  ,@(let ((slotinitlist nil))
                      (dolist (slot slotlist)
-                       (when (ds-real-slot-p slot)
+                       (when (or (eq type 'T) (ds-real-slot-p slot))
                          (unless (memq (clos:slot-definition-name slot) argnames)
                            (push (ds-arg-with-default
                                    (clos:slot-definition-name slot) slotlist)
@@ -377,7 +377,7 @@
 (defun ds-make-keyword-constructor (descriptor type name names size slotlist)
   (let ((varlist
           (mapcar #'(lambda (slot)
-                      (if (ds-real-slot-p slot)
+                      (if (or (eq type 'T) (ds-real-slot-p slot))
                         (make-symbol
                           (symbol-name (clos:slot-definition-name slot)))
                         nil))
@@ -386,7 +386,7 @@
        (&KEY
         ,@(mapcan
             #'(lambda (slot var)
-                (if (ds-real-slot-p slot)
+                (if (or (eq type 'T) (ds-real-slot-p slot))
                   (list (ds-arg-default var slot))
                   '()))
             slotlist varlist))
@@ -418,7 +418,7 @@
 (defun ds-make-readers (name names type concname slotlist)
   (mapcap
     #'(lambda (slot)
-        (if (ds-real-slot-p slot)
+        (if (or (eq type 'T) (ds-real-slot-p slot))
           (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
                 (offset (clos:slot-definition-location slot))
                 (slottype (clos:slot-definition-type slot)))
@@ -447,7 +447,8 @@
 (defun ds-make-writers (name names type concname slotlist)
   (mapcap
     #'(lambda (slot)
-        (if (and (ds-real-slot-p slot) (not (clos::structure-effective-slot-definition-readonly slot)))
+        (if (and (or (eq type 'T) (ds-real-slot-p slot))
+                 (not (clos::structure-effective-slot-definition-readonly slot)))
           (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
                 (offset (clos:slot-definition-location slot))
                 (slottype (clos:slot-definition-type slot)))
@@ -862,7 +863,7 @@
           ;; functions would have the same name FOO-X.
           (when (find (symbol-name slotname) slotlist
                       :test #'(lambda (name slot)
-                                (and (ds-real-slot-p slot)
+                                (and (or (eq type-option 'T) (ds-real-slot-p slot))
                                      (string= (clos:slot-definition-name slot) name))))
             (error-of-type 'source-program-error
               :form whole-form
