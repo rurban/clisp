@@ -1,5 +1,10 @@
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (iconv_wcslen, iconv_wcstombs): Call end_system_call()
+          before signalling an error.
+
+1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (fehler_uint8): Declare always, not only ifdef HAVE_FFI.
         * error.d (fehler_uint8): Define always, not only ifdef HAVE_FFI.
 
