@@ -1,5 +1,10 @@
 2005-01-29  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (fill_dbt): use I_to_LEbytes()
+	(dbt_to_object): use LEbytes_to_I()
+
+2005-01-29  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (I_integer_length): export
 
 2005-01-23  Bruno Haible  <bruno@clisp.org>

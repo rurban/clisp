@@ -987,6 +987,7 @@ static object check_dbt_object (object obj) {
  can trigger GC */
 static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
 {
+ restart_fill_dbt:
   obj = check_dbt_object(obj);
   init_dbt(key,DB_DBT_MALLOC);
   if (stringp(obj)) {
@@ -1007,21 +1008,21 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
     memcpy(key->data,TheSbvector(obj)->data + idx,key->size);
     end_system_call();
     return DBT_RAW;
-  } else if (fixnump(obj)) {
-    key->ulen = key->size = MAX(re_len,sizeof(uintL));
-    key->data = my_malloc(key->size);
-    begin_system_call(); memset(key->data,0,key->size); end_system_call();
-    *(uintL*)((char*)key->data + key->size - sizeof(uintL))
-      = posfixnum_to_L(obj);
-    return DBT_INTEGER;
-  } else if (bignump(obj)) {
-    int need = sizeof(uintD)*Bignum_length(obj);
-    key->ulen = key->size = MAX(re_len,need);
-    key->data = my_malloc(key->size);
-    begin_system_call();
-    memset(key->data,0,key->size);
-    memcpy((char*)key->data + key->size - need,TheBignum(obj)->data,need);
-    end_system_call();
+  } else if (integerp(obj)) {
+    unsigned long bitsize = I_integer_length(obj);
+    unsigned long bytesize = ceiling(bitsize,8);
+    if (re_len) {
+      if (bytesize > re_len) {
+        pushSTACK(fixnum(bytesize)); pushSTACK(fixnum(re_len));
+        pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+        check_value(error,GETTEXT("~S: ~S does not fit into ~S bytes (it requires at least ~S bytes)"));
+        obj = value1;
+        goto restart_fill_dbt;
+      } else bytesize = re_len;
+    }
+    key->ulen = key->size = bytesize;
+    key->data = my_malloc(bytesize);
+    I_to_LEbytes(obj,bitsize,key->data);
     return DBT_INTEGER;
   } else NOTREACHED;
 }
@@ -1048,22 +1049,11 @@ static object dbt_to_object (DBT *p_dbt, dbt_o_t type) {
       free_dbt(p_dbt);
       return s;
     }
-    case DBT_INTEGER:
-      if (p_dbt->size > sizeof(uintL)) {
-        object ret = udigits_to_I(p_dbt->data,p_dbt->size);
-        free_dbt(p_dbt);
-        return ret;
-      } else if (p_dbt->size == sizeof(uintL)) {
-        object ret = UL_to_I(*(uintL*)p_dbt->data);
-        free_dbt(p_dbt);
-        return ret;
-      } else {
-        uintL res = 0, i;
-        for (i=0; i < p_dbt->size; i++)
-          res += ((char*)p_dbt->data)[i] << i;
-        free_dbt(p_dbt);
-        return UL_to_I(res);
-      }
+    case DBT_INTEGER: {
+      object ret = LEbytes_to_I(p_dbt->size,p_dbt->data);
+      free_dbt(p_dbt);
+      return ret;
+    }
     default: NOTREACHED;
   }
 }
