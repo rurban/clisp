@@ -731,7 +731,7 @@ global BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput,
 
 /* I want to see a backtrace! */
 int abort_dummy;
-global void abort()
+nonreturning_function(global, abort, (void))
 {
 #ifdef MICROSOFT
   /* This hack is necessary because if you write  1/0  the MSVC compiler

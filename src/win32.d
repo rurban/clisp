@@ -70,8 +70,8 @@ nonreturning_function(extern, _exit, (int status));
 /* used by spvw.d */
 
 /* Abrupt program termination */
-#include <stdlib.h>
-extern void abort (void);
+/* win32aux.d overwrites abort() */
+nonreturning_function(extern, abort, (void));
 /* used by spvw.d, debug.d, eval.d, io.d */
 
 /* Type of a file handle */
