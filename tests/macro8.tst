@@ -375,3 +375,11 @@ with-var
 
 (with-var (my-var "fake variable") (my-typeof my-var))
 "fake variable"
+
+(defmacro my-mac (&optional (x (error "missing arg"))
+                  &key (y (error "missing arg")))
+  `'(,x ,y))
+my-mac
+
+(my-mac 1 :y 10)
+(1 10)

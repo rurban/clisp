@@ -1,3 +1,11 @@
+2003-03-25  Sam Steingold  <sds@gnu.org>
+
+	* defmacro.lisp (get-supplied-p): new function
+	(analyze-key, analyze1): use it
+	(analyze-key): do not evaluate the init form when the argument
+	has been supplied
+	Reported by Christophe Rhodes <csr21@cam.ac.uk>
+
 2003-03-24  Sam Steingold  <sds@gnu.org>
 
 	* package.d (SYMBOL-VALUE-LOCK): return T only when the package
