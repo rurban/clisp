@@ -1,6 +1,6 @@
 # Support for MULTIMAP_MEMORY model.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 # The operating system permits to use the same (virtual) memory areas under
 # different addresses. There are some restrictions, however:
@@ -48,7 +48,7 @@
 # Clean up and finish.
 # exitmap();
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
   #define mm_types_count  typecount
 
@@ -74,17 +74,18 @@
   #   2 = reuse file next time            "lisptemp.mem.1"
   #define TEMPFILE_DEBUG_LEVEL  0
 
-  local char tempfilename[MAXPATHLEN]; # Name eines temporären Files
-  local int zero_fd = -1; # Handle von /dev/zero
-  # Zugriff auf /dev/zero: /dev/zero hat manchmal Permissions 0644. Daher
-  # OPEN() mit nur O_RDONLY statt O_RDWR. Daher MAP_PRIVATE statt MAP_SHARED.
+  local char tempfilename[MAXPATHLEN]; # name of a temporary file
+  local int zero_fd = -1; # handle of /dev/zero
+  # access to /dev/zero: /dev/zero has sometimes permissions 0644. Hence,
+  # OPEN() only with O_RDONLY instead of O_RDWR.
+  # Hence MAP_PRIVATE instead of MAP_SHARED.
 
   local int initmap (const char* tmpdir);
   local int initmap(tmpdir)
     var const char* tmpdir;
-    # Virtual Memory Mapping aufbauen:
+    # build up virtual memory mapping:
     {
-      # Wir brauchen ein temporäres File.
+      # we need a temporary file.
       # tempfilename := (string-concat tmpdir "/" "lisptemp.mem")
       {
         var const char* ptr1 = tmpdir;
@@ -123,7 +124,7 @@
 
   #ifdef HAVE_MSYNC
     typedef struct { void* mm_addr; uintL mm_len; } mmap_interval;
-    local mmap_interval mmap_intervals[256]; # 256 ist reichlich.
+    local mmap_interval mmap_intervals[256]; # 256 is abundant.
     local mmap_interval* mmap_intervals_ptr = &mmap_intervals[0];
     local void remember_mmap_interval (void* map_addr, uintL map_len);
     local void remember_mmap_interval(map_addr,map_len)
@@ -163,11 +164,11 @@
     var int shared;
     var int remember;
     {
-      if ( (void*) mmap((MMAP_ADDR_T)map_addr, # gewünschte Adresse
-                        map_len, # Länge
-                        readonly ? PROT_READ : PROT_READ_WRITE, # Zugriffsrechte
-                        (shared ? MAP_SHARED : 0) | MAP_FIXED, # genau an diese Adresse!
-                        fd, 0 # File ab Position 0 legen
+      if ( (void*) mmap((MMAP_ADDR_T)map_addr, # wished address
+                        map_len, # length
+                        readonly ? PROT_READ : PROT_READ_WRITE, # access rights
+                        (shared ? MAP_SHARED : 0) | MAP_FIXED, # exactly to this address!
+                        fd, 0 # put file at position 0
                        )
            == (void*)(-1)
          ) {
@@ -178,7 +179,7 @@
         return -1; # error
       }
       #ifdef HAVE_MSYNC
-      if (remember) 
+      if (remember)
         remember_mmap_interval(map_addr,map_len);
       #endif
       return 0;
@@ -213,9 +214,9 @@
         return -1; # error
       }
       #if (TEMPFILE_DEBUG_LEVEL == 0)
-      # und öffentlich unzugänglich machen, indem wir es löschen:
-      # (Das Betriebssystem löscht das File erst dann, wenn am Ende dieses
-      # Prozesses in _exit() ein close(fd) durchgeführt wird.)
+      # and hopefully make it inaccessible by deleting it:
+      # (the operating system will delete the file only when at the end of
+      # this process in _exit() a close(fd) is performed.)
       if ( unlink(tempfilename) <0) {
         asciz_out_s(GETTEXTL("Cannot delete %s ."),
                     tempfilename
@@ -224,14 +225,14 @@
         return -1; # error
       }
       #endif
-      # überprüfen, ob genug Plattenplatz da ist:
+      # check, if there is enough disk space:
       {
         var struct statfs statbuf;
         if (!( fstatfs(fd,&statbuf) <0))
           if (!(statbuf.f_bsize == (long)(-1)) && !(statbuf.f_bavail == (long)(-1))) {
             var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
             if (available < map_len) {
-              # auf der Platte ist voraussichtlich zu wenig Platz
+              # there is likely too few disk space
               asciz_out_s(GETTEXTL("** WARNING: ** Too few free disk space for %s ." NLstring),
                           tempfilename
                          );
@@ -239,7 +240,7 @@
             }
           }
       }
-      # Auf Größe map_len aufblähen:
+      # inflate to the size map_len:
       {
         var uintB dummy = 0;
         if (( lseek(fd,map_len-1,SEEK_SET) <0) || (!( full_write(fd,&dummy,1) ==1))) {
@@ -254,7 +255,7 @@
     }
 
   #if !defined(MAP_MEMORY_TABLES)
-    # Kopiert den Inhalt des Intervalls [map_addr..map_addr+map_len-1] ins File.
+    # copies the content of the interval [map_addr..map_addr+map_len-1] to the file.
     local int fdsave (int fd, void* map_addr, uintL map_len);
     local int fdsave(fd,map_addr,map_len)
       var int fd;
@@ -288,14 +289,14 @@
       return 0;
     }
 
-  # Vorgehen bei multimap:
-  # 1. Temporäres File aufmachen
+  # procedure for multimap:
+  # 1. open temporary file
     #define open_mapid(map_len)  open_temp_fd(map_len) # -> fd
-  # 2. File mehrfach überlagert in den Speicher legen
+  # 2. put file multimapped into the memory
     #define map_mapid(fd,map_addr,map_len,readonly)  fdmap(fd,map_addr,map_len,readonly,true,true)
-  # 3. File schließen
-  # (Das Betriebssystem schließt und löscht das File erst dann, wenn am
-  # Ende dieses Prozesses in _exit() ein munmap() durchgeführt wird.)
+  # 3. close file
+  # (the operating system will close and delete the file only when at the end of
+  # this process in _exit() an munmap() is performed.)
     #define close_mapid(fd)  close_temp_fd(fd)
 
   #define multimap1(type,typecases,mapid,map_addr,map_len)  \
@@ -319,16 +320,16 @@
         }
 
   #define multimap(typecases,map_addr,map_len,save_flag)  \
-    { # Temporäres File aufmachen:                            \
+    { # open temporary file:                                  \
       var int mapid = open_mapid(map_len);                    \
       if (mapid<0) goto no_mem;                               \
       if (save_flag) { if ( fdsave(mapid,(void*)map_addr,map_len) <0) goto no_mem; } \
-      # und mehrfach überlagert in den Speicher legen:        \
+      # and put multimapped into the memory:                  \
       { var oint type;                                        \
         for (type=0; type < mm_types_count; type++)           \
           { multimap1(type,typecases,mapid,map_addr,map_len); } \
       }                                                       \
-      # und evtl. öffentlich unzugänglich machen:             \
+      # and poss. make publicly inaccessible:                 \
       done_mapid(mapid,map_addr,map_len);                     \
     }
 
@@ -337,7 +338,7 @@
 
 #ifdef MULTIMAP_MEMORY_VIA_SHM
 
-# Virtual Memory Mapping über Shared Memory aufbauen:
+# build up virtual memory mapping via shared memory:
 
   #define init_map_pagesize()  \
     { map_pagesize = SHMLBA; }
@@ -362,7 +363,7 @@
   local int open_shmid(map_len)
     var uintL map_len;
     {
-      var int shmid = shmget(IPC_PRIVATE,map_len,0700|IPC_CREAT); # 0700 = 'Read/Write/Execute nur für mich'
+      var int shmid = shmget(IPC_PRIVATE,map_len,0700|IPC_CREAT); # 0700 = 'Read/Write/Execute only for me'
       if (shmid<0) {
         asciz_out(GETTEXTL("Cannot allocate private shared memory segment."));
         errno_out(errno);
@@ -371,7 +372,7 @@
       return shmid;
     }
 
-  #ifndef SHM_REMAP  # Nur UNIX_LINUX benötigt SHM_REMAP in den shmflags
+  #ifndef SHM_REMAP  # Only UNIX_LINUX needs SHM_REMAP in the shmflags
     #define SHM_REMAP  0
   #endif
   local int idmap (int shmid, void* map_addr, int shmflags);
@@ -381,8 +382,8 @@
     var int shmflags;
     {
       if ( shmat(shmid,
-                 map_addr, # Adresse
-                 shmflags # Flags (Default: Read/Write)
+                 map_addr, # address
+                 shmflags # flags (default: read/write)
                 )
            == (void*)(-1)
          ) {
@@ -396,8 +397,8 @@
     }
 
   #if !defined(MAP_MEMORY_TABLES)
-    # Kopiert den Inhalt des Intervalls [map_addr..map_addr+map_len-1] ins
-    # Shared-Memory-Segment.
+    # copies the content of the interval [map_addr..map_addr+map_len-1] into
+    # the shared-memory-segment.
     local int shmsave (int shmid, void* map_addr, uintL map_len);
     local int shmsave(shmid,map_addr,map_len)
       var int shmid;
@@ -405,8 +406,8 @@
       var uintL map_len;
       {
         var void* temp_addr = shmat(shmid,
-                                         0, # Adresse: beliebig
-                                         0 # Flags: brauche keine
+                                         0, # address: arbitrary
+                                         0 # flags: need none
                                         );
         if (temp_addr == (void*)(-1)) {
           asciz_out(GETTEXTL("Cannot fill shared memory."));
@@ -450,14 +451,14 @@
       return close_shmid(shmid);
     }
 
-  # Vorgehen bei multimap:
-  # 1. Shared-Memory-Bereich zur Verfügung stellen
+  # procedure for multimap:
+  # 1. make shared-memory-region available
     #define open_mapid(map_len)  open_shmid(map_len) # -> shmid
-  # 2. Shared-Memory mehrfach überlagert in den Speicher legen
+  # 2. put shared-memory multimapped into the memory
     #define map_mapid(shmid,map_addr,map_len,flags)  idmap(shmid,map_addr,flags)
-  # 3. öffentlich unzugänglich machen, indem wir ihn löschen:
-  # (Das Betriebssystem löscht den Shared Memory erst dann, wenn am
-  # Ende dieses Prozesses in _exit() ein munmap() durchgeführt wird.)
+  # 3. make publicly inaccessible by deleting it:
+  # (the operating system will delete the shared memory only when at the end
+  # of this process in _exit() a munmap() is performed.)
     #define close_mapid(shmid)  close_shmid(shmid)
 
   #define multimap1(type,typecases,mapid,map_addr,map_len)  \
@@ -479,24 +480,24 @@
   #define exitmap()
 
   #define multimap(typecases,total_map_addr,total_map_len,save_flag)  \
-    { var uintL remaining_len = total_map_len;                                     \
-      var aint map_addr = total_map_addr;                                          \
+    { var uintL remaining_len = total_map_len;                                 \
+      var aint map_addr = total_map_addr;                                      \
       do { var uintL map_len = (remaining_len > SHMMAX ? SHMMAX : remaining_len);  \
-           # Shared-Memory-Bereich aufmachen:                                      \
-           var int mapid = open_mapid(map_len);                                    \
-           if (mapid<0) goto no_mem;                                               \
-           if (save_flag && (map_addr==total_map_addr))                            \
+           # open shared-memory-region:                                        \
+           var int mapid = open_mapid(map_len);                                \
+           if (mapid<0) goto no_mem;                                           \
+           if (save_flag && (map_addr==total_map_addr))                        \
              { if ( shmsave(mapid,(void*)total_map_addr,total_map_len) <0) goto no_mem; } \
-           # und mehrfach überlagert in den Speicher legen:                        \
-           { var oint type;                                                        \
-             for (type=0; type < mm_types_count; type++)                           \
-               { multimap1(type,typecases,mapid,map_addr,map_len); }               \
-           }                                                                       \
-           # und evtl. öffentlich unzugänglich machen:                             \
-           done_mapid(mapid,map_addr,map_len);                                     \
-           map_addr += map_len; remaining_len -= map_len;                          \
-         }                                                                         \
-         until (remaining_len==0);                                                 \
+           # and put multimapped into the memory:                              \
+           { var oint type;                                                    \
+             for (type=0; type < mm_types_count; type++)                       \
+               { multimap1(type,typecases,mapid,map_addr,map_len); }           \
+           }                                                                   \
+           # and poss. make publicly inaccessible:                             \
+           done_mapid(mapid,map_addr,map_len);                                 \
+           map_addr += map_len; remaining_len -= map_len;                      \
+         }                                                                     \
+         until (remaining_len==0);                                             \
     }
 
 #endif # MULTIMAP_MEMORY_VIA_SHM

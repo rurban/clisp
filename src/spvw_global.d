@@ -1,6 +1,6 @@
 # Memory management data structures, part 3: global data
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 #ifdef TYPECODES
 # Number of possible typecodes.
@@ -42,7 +42,7 @@
           #define conses      heaps[1] # conses and other two-pointer objects
         #endif
         #if defined(SPVW_MIXED_BLOCKS) && defined(TYPECODES) && defined(GENERATIONAL_GC)
-          sintB heapnr_from_type[typecount]; # Tabelle type -> heapnr
+          sintB heapnr_from_type[typecount]; # table type -> heapnr
         #endif
 
         #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY)
@@ -55,20 +55,20 @@
 
         # Statistical data, used for deciding when to start a GC.
         #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
-          uintL total_room; # wieviel Platz belegt werden darf, ohne dass GC nötig wird
+          uintL total_room; # the space that may be occupied without triggering GC
           #ifdef GENERATIONAL_GC
-            bool last_gc_full; # ob die letzte GC eine volle war
-            uintL last_gcend_space0; # wieviel Platz am Ende der letzten GC belegt war
-            uintL last_gcend_space1; # (von Generation 0 bzw. Generation 1)
+            bool last_gc_full; # if the last GC was a full one
+            uintL last_gcend_space0; # how much space was occupied after the last GC
+            uintL last_gcend_space1; # (from generation 0 resp. generation 1)
           #endif
         #endif
         #ifdef SPVW_PAGES
-          Pages free_pages; # eine Liste freier normalgroßer Pages
-          uintL total_space; # wieviel Platz die belegten Pages überhaupt enthalten
-          uintL used_space; # wieviel Platz gerade belegt ist
-          uintL last_gcend_space; # wieviel Platz am Ende der letzten GC belegt war
-          bool last_gc_compacted; # ob die letzte GC schon kompaktiert hat
-          uintL gctrigger_space; # wieviel Platz belegt werden darf, bis die nächste GC nötig wird
+          Pages free_pages; # a list of free, normal-sized pages
+          uintL total_space; # how much space do the occupied pages contain at all
+          uintL used_space; # how much space is occupied just now
+          uintL last_gcend_space; # how much space was occupied after the last GC
+          bool last_gc_compacted; # if the last GC has already compacted
+          uintL gctrigger_space; # how much space may be occupied, until the next GC becomes necessary
         #endif
 
         #ifdef SELFMADE_MMAP
@@ -80,13 +80,13 @@
       mem;
 
   #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY) && !defined(GENERATIONAL_GC)
-    #define RESERVE       0x00800L  # 2 KByte Speicherplatz als Reserve
+    #define RESERVE       0x00800L  # 2 KByte memory as reserve
   #else
-    #define RESERVE             0   # brauche keine präallozierte Reserve
+    #define RESERVE             0   # need no preallocated reserve
   #endif
-  #define MINIMUM_SPACE 0x10000L  # 64 KByte als minimaler Speicherplatz für LISP-Daten
+  #define MINIMUM_SPACE 0x10000L  # 64 KByte as minimal memory for LISP-data
   #ifdef TRIVIALMAP_MEMORY
-    #define RESERVE_FOR_MALLOC 0x100000L  # lasse 1 MByte Adressraum frei, für malloc
+    #define RESERVE_FOR_MALLOC 0x100000L  # leave 1 MByte address space free, for malloc
   #endif
 
 # Iteration through all heaps.
@@ -129,61 +129,63 @@
     local inline void init_mem_heapnr_from_type (void);
   #endif
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
-# Gesamtspeicheraufteilung (teilweise veraltet):
-# 1. C-Programm. Speicher wird vom Betriebssystem zugeteilt.
-#    Nach Programmstart unverschieblich.
-# 2. C-Stack. Speicher wird vom C-Programm geholt.
-#    Unverschieblich.
-# 3. C-Heap. Hier unbenutzt.
+# partitioning of the whole memory (partly out-of-date):
+# 1. C-program. Memory is allocated by the operating system.
+#    un-movable after program start.
+# 2. C-Stack.  Is fetched by the C-program.
+#    un-movable.
+# 3. C-Heap. Is unused here.
 #ifdef SPVW_MIXED_BLOCKS
-# 4. LISP-Stack und LISP-Daten.
-#    4a. LISP-Stack. Unverschieblich.
-#    4b. Objekte variabler Länge. (Unverschieblich).
-#    4c. Conses u.ä. Verschieblich mit move_conses.
-#    Speicher hierfür wird vom Betriebssystem angefordert (hat den Vorteil,
-#    dass bei EXECUTE dem auszuführenden Fremdprogramm der ganze Speicher
-#    zur Verfügung gestellt werden kann, den LISP gerade nicht braucht).
-#    Auf eine Unterteilung in einzelne Pages wird hier verzichtet.
-#          || LISP-      |Objekte         |->    leer  <-|Conses| Reserve |
-#          || Stack      |variabler Länge !              ! u.ä. |         |
-#          |STACK_BOUND  |         objects.end     conses.start |         |
-#        MEMBOT   objects.start                           conses.end    MEMTOP
+# 4. LISP-stack and LISP-data.
+#    4a. LISP-stack. un-movable.
+#    4b. Objects of variable length. (Un-movable).
+#    4c. Conses and similar. Movable with move_conses.
+#    Memory therefore is requested from the operating system (has the
+#    advantage: On EXECUTE, the whole memory that LISP currently does not
+#    need can be provided to the foreign program).
+#    We dispense here with a partitioning into single pages.
+#    || LISP-      |Objects of      |->  empty   <-|conses     | reserve |
+#    || stack      |variable length !              !and similar|         |
+#    |STACK_BOUND  |         objects.end     conses.start      |         |
+#  MEMBOT   objects.start                                conses.end    MEMTOP
 #endif
 #ifdef SPVW_PURE_BLOCKS
-# 4. LISP-Stack. Unverschieblich.
-# 5. LISP-Daten. Für jeden Typ ein großer Block von Objekten.
+# 4. LISP-stack. Un-movable.
+# 5. LISP-data. For each type a large block of objects.
 #endif
 #ifdef SPVW_MIXED_PAGES
-# 4. LISP-Stack. Unverschieblich.
-# 5. LISP-Daten.
-#    Unterteilt in Pages für Objekte variabler Länge und Pages für Conses u.ä.
+# 4. LISP-stack. Un-movable.
+# 5. LISP-data.
+#    subdivided into pages for objects of variable length and
+#    pages for conses and similar.
 #endif
 #ifdef SPVW_PURE_PAGES
-# 4. LISP-Stack. Unverschieblich.
-# 5. LISP-Daten. Unterteilt in Pages, die nur Objekte desselben Typs enthalten.
+# 4. LISP-stack. Un-movable.
+# 5. LISP-data. Subdivided into pages, that contain only objects
+#    of the same type.
 #endif
 
 #ifdef SPVW_MIXED
 
 # Iteration through heaps.
 #define for_each_heap(heapvar,statement)  \
-  { var uintL heapnr;                                        \
-    for (heapnr=0; heapnr<heapcount; heapnr++)               \
-      { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
-  }
+  do { var uintL heapnr;                                        \
+       for (heapnr=0; heapnr<heapcount; heapnr++)               \
+         { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
+  } while(0)
 #define for_each_varobject_heap(heapvar,statement)  \
-  { var Heap* heapvar = &mem.varobjects; statement; }
+  do { var Heap* heapvar = &mem.varobjects; statement; } while(0)
 #define for_each_cons_heap(heapvar,statement)  \
-  { var Heap* heapvar = &mem.conses; statement; }
+  do { var Heap* heapvar = &mem.conses; statement; } while(0)
 
 # Iteration through pages.
 #define for_each_page(pagevar,statement)  \
-  { var uintL heapnr;                                \
-    for (heapnr=0; heapnr<heapcount; heapnr++)       \
-      map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
+  do { var uintL heapnr;                                \
+       for (heapnr=0; heapnr<heapcount; heapnr++)       \
+         map_heap(mem.heaps[heapnr],pagevar,statement); \
+  } while(0)
 #define for_each_varobject_page(pagevar,statement)  \
   map_heap(mem.varobjects,pagevar,statement)
 #define for_each_cons_page(pagevar,statement)  \
@@ -204,49 +206,49 @@
 
 # Iteration through heaps.
 #define for_each_heap(heapvar,statement)  \
-  { var uintL heapnr;                                          \
-    for (heapnr=0; heapnr<heapcount; heapnr++)                 \
-      if (mem.heaptype[heapnr] >= 0)                           \
-        { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
-  }
+  do { var uintL heapnr;                                          \
+       for (heapnr=0; heapnr<heapcount; heapnr++)                 \
+         if (mem.heaptype[heapnr] >= 0)                           \
+           { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
+  } while(0)
 #define for_each_varobject_heap(heapvar,statement)  \
-  { var uintL heapnr;                                          \
-    for (heapnr=0; heapnr<heapcount; heapnr++)                 \
-      if (mem.heaptype[heapnr] > 0)                            \
-        { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
-  }
+  do { var uintL heapnr;                                          \
+       for (heapnr=0; heapnr<heapcount; heapnr++)                 \
+         if (mem.heaptype[heapnr] > 0)                            \
+           { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
+  } while(0)
 #define for_each_cons_heap(heapvar,statement)  \
-  { var uintL heapnr;                                          \
-    for (heapnr=0; heapnr<heapcount; heapnr++)                 \
-      if (mem.heaptype[heapnr] == 0)                           \
-        { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
-  }
+  do { var uintL heapnr;                                          \
+       for (heapnr=0; heapnr<heapcount; heapnr++)                 \
+         if (mem.heaptype[heapnr] == 0)                           \
+           { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
+  } while(0)
 
 # Iteration through pages.
 #define for_each_page(pagevar,statement)  \
-  { var uintL heapnr;                                  \
-    for (heapnr=0; heapnr<heapcount; heapnr++)         \
-      if (mem.heaptype[heapnr] >= 0)                   \
-        map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
+  do { var uintL heapnr;                                  \
+       for (heapnr=0; heapnr<heapcount; heapnr++)         \
+         if (mem.heaptype[heapnr] >= 0)                   \
+           map_heap(mem.heaps[heapnr],pagevar,statement); \
+  } while(0)
 #define for_each_varobject_page(pagevar,statement)  \
-  { var uintL heapnr;                                  \
-    for (heapnr=0; heapnr<heapcount; heapnr++)         \
-      if (mem.heaptype[heapnr] > 0)                    \
-        map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
+  do { var uintL heapnr;                                  \
+       for (heapnr=0; heapnr<heapcount; heapnr++)         \
+         if (mem.heaptype[heapnr] > 0)                    \
+           map_heap(mem.heaps[heapnr],pagevar,statement); \
+  } while(0)
 #define for_each_cons_page(pagevar,statement)  \
-  { var uintL heapnr;                                  \
-    for (heapnr=0; heapnr<heapcount; heapnr++)         \
-      if (mem.heaptype[heapnr] == 0)                   \
-        map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
+  do { var uintL heapnr;                                  \
+       for (heapnr=0; heapnr<heapcount; heapnr++)         \
+         if (mem.heaptype[heapnr] == 0)                   \
+           map_heap(mem.heaps[heapnr],pagevar,statement); \
+  } while(0)
 #define for_each_cons_page_reversed(pagevar,statement)  \
-  { var uintL heapnr;                                  \
-    for (heapnr=heapcount; heapnr-- > 0; )             \
-      if (mem.heaptype[heapnr] == 0)                   \
-        map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
+  do { var uintL heapnr;                                  \
+       for (heapnr=heapcount; heapnr-- > 0; )             \
+         if (mem.heaptype[heapnr] == 0)                   \
+           map_heap(mem.heaps[heapnr],pagevar,statement); \
+  } while(0)
 
 # Heap classification.
   #define is_heap_containing_objects(heapnr)  ((mem.heaptype[heapnr] >= 0) && (mem.heaptype[heapnr] < 2))
@@ -256,9 +258,9 @@
 
 #endif
 
-# Überprüfung des Speicherinhalts auf GC-Festigkeit:
+# check of the memory content to be GC-proof:
   #if defined(SPVW_PAGES) && defined(DEBUG_SPVW)
-    # Überprüfen, ob die Verwaltung der Pages in Ordnung ist:
+    # check, if the administration of the pages is okay:
       #define CHECK_AVL_CONSISTENCY()  check_avl_consistency()
       local void check_avl_consistency (void);
       local void check_avl_consistency()
@@ -270,7 +272,7 @@
           }
           #endif
         }
-    # Überprüfen, ob die Grenzen der Pages in Ordnung sind:
+    # check, if the boundaries of the pages are okay:
       #define CHECK_GC_CONSISTENCY()  check_gc_consistency()
       local void check_gc_consistency (void);
       local void check_gc_consistency()
@@ -289,8 +291,8 @@
             }
           );
         }
-    # Überprüfen, ob während der kompaktierenden GC
-    # die Grenzen der Pages in Ordnung sind:
+    # check, if the boundaries of the pages are okay
+    # during the compacting GC:
       #define CHECK_GC_CONSISTENCY_2()  check_gc_consistency_2()
       local void check_gc_consistency_2 (void);
       local void check_gc_consistency_2()
@@ -312,7 +314,7 @@
     #define CHECK_GC_CONSISTENCY_2()
   #endif
   #ifdef DEBUG_SPVW
-    # Überprüfen, ob die Tabellen der Packages halbwegs in Ordnung sind:
+    # check, if the tables of the packages are to some extent okay:
       #define CHECK_PACK_CONSISTENCY()  check_pack_consistency()
       global void check_pack_consistency (void);
       global void check_pack_consistency()
