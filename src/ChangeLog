@@ -1,5 +1,10 @@
 2001-08-29  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (assure_dir_exists): [WIN32_NATIVE] signal an error
+	when the path is invalid
+
+2001-08-29  Sam Steingold  <sds@gnu.org>
+
 	more ANSI compliance pathnames wrt HOSTS & VERSIONS
 	* constobj.d (semicolon_string, zero_string): added for the
 	benefit of VERSION pathname component
