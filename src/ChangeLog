@@ -1,5 +1,11 @@
 2002-06-11  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main): added an undocumented, unsupported `-d'
+	developer option: not in usage(), clisp.c, clisp.html, clisp.1 &c
+	for now just unlock all packages
+
+2002-06-11  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (XCFLAGS) [darwin]: add `--traditional-cpp'
 	(--verbose): new option
 
