@@ -14,7 +14,8 @@
            "SEND" "SENDMSG" "SENDTO"
            "SHUTDOWN" "SOCKET" "SOCKETPAIR"
            "SOCK-READ" "SOCK-WRITE" "SOCK-CLOSE" "POLL"
-           "SOCKADDR" "MAKE-SOCKADDR" "SOCKADDR-FAMILY" "MSGHDR" "MAKE-MSGHDR"
+           "SOCKADDR" "MAKE-SOCKADDR" "SOCKADDR-FAMILY" "SOCKADDR-DATA"
+           "SOCKADDR-FAMILY-SIZE" "MSGHDR" "MAKE-MSGHDR"
            "CONFIGDEV" "IPCSUM" "ICMPCSUM" "TCPCSUM" "UDPCSUM"))
 
 (IN-PACKAGE "RAWSOCK")
@@ -22,11 +23,14 @@
 (PUSH "RAWSOCK" EXT:*SYSTEM-PACKAGE-LIST*)
 
 (macrolet ((missing (type) `(error "~S: missing ~S slot" ',type 'data)))
-(defstruct (sockaddr (:constructor make-sa (data)))
-  (data (missing sockaddr) :read-only t :type (vector (unsigned-byte 8))))
-(defstruct (msghdr (:constructor make-msghdr (data)))
-  (data (missing msghdr) :read-only t :type (vector (unsigned-byte 8))))
+(defstruct (sockaddr (:constructor make-sa (%data)))
+  (%data (missing sockaddr) :read-only t :type (vector (unsigned-byte 8))))
+(defstruct (msghdr (:constructor make-msghdr (%data)))
+  (%data (missing msghdr) :read-only t :type (vector (unsigned-byte 8))))
 )
+
+(defconstant sockaddr-family-size (sockaddr-family-size))
+(defun sockaddr-data (sa) (subseq (sockaddr-%data sa) sockaddr-family-size))
 
 (defun open-unix-socket (pathname &optional (type :SOCK_STREAM))
   (let* ((socket (socket :AF_UNIX type 0))

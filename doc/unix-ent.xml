@@ -20,7 +20,7 @@
 <!ENTITY unix-f "&unix-top;/functions">
 <!ENTITY accept "<ulink url='&unix-f;/accept.html'><function>accept</function></ulink>">
 <!ENTITY bind "<ulink url='&unix-f;/bind.html'><function>bind</function></ulink>">
-<!ENTITY c-close "<ulink url='&unix-f;/close.html'><function>close</function></ulink>">
+<!ENTITY close-c "<ulink url='&unix-f;/close.html'><function>close</function></ulink>">
 <!ENTITY calloc "<ulink url='&unix-f;/calloc.html'><function>calloc</function></ulink>">
 <!ENTITY confstr "<ulink url='&unix-f;/confstr.html'><function>confstr</function></ulink>">
 <!ENTITY connect "<ulink url='&unix-f;/connect.html'><function>connect</function></ulink>">
@@ -43,7 +43,7 @@
 <!ENTITY getsockopt "<ulink url='&unix-f;/getsockopt.html'><function>getsockopt</function></ulink>">
 <!ENTITY iconv "<ulink url='&unix-f;/iconv.html'><function>iconv</function></ulink>">
 <!ENTITY link "<ulink url='&unix-f;/link.html'><function>link</function></ulink>">
-<!ENTITY listen "<ulink url='&unix-f;/listen.html'><function>listen</function></ulink>">
+<!ENTITY listen-c "<ulink url='&unix-f;/listen.html'><function>listen</function></ulink>">
 <!ENTITY lstat "<ulink url='&unix-f;/lstat.html'><function>lstat</function></ulink>">
 <!ENTITY malloc "<ulink url='&unix-f;/malloc.html'><function>malloc</function></ulink>">
 <!ENTITY mblen "<ulink url='&unix-f;/mblen.html'><function>mblen</function></ulink>">
