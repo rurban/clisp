@@ -1,3 +1,9 @@
+1999-03-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * Renamed newnewreadline to readline, newreadline to oldreadline,
+          readline to oldoldreadline.
+        * Makefile.devel, configure, makemake.in: Update.
+
 1999-03-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (SOCKET-SERVICE-PORT): When not found, return NIL instead
