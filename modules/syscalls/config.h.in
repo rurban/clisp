@@ -18,6 +18,10 @@
 /* Define to 1 if you have the <crypt.h> header file. */
 #undef HAVE_CRYPT_H
 
+/* Define to 1 if you have the declaration of `lgamma_r', and to 0 if you
+   don't. */
+#undef HAVE_DECL_LGAMMA_R
+
 /* Define to 1 if you have the declaration of `signgam', and to 0 if you
    don't. */
 #undef HAVE_DECL_SIGNGAM
@@ -85,9 +89,6 @@
 
 /* Define to 1 if you have the `lgamma' function. */
 #undef HAVE_LGAMMA
-
-/* Define to 1 if you have the `lgamma_r' function. */
-#undef HAVE_LGAMMA_R
 
 /* Define to 1 if you have the `link' function. */
 #undef HAVE_LINK
