@@ -1,5 +1,9 @@
 1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
+        * rlconf.h (RL_COMMENT_BEGIN_DEFAULT): Set to ';'.
+
+1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
         * rlconf.h (PAREN_MATCHING): Define.
         * parens.c (rl_insert_close): Define the timeout to 1 sec, not 0.5 sec.
 
