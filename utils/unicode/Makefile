@@ -69,6 +69,7 @@ ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c 
 
 JAVA = java
 JAVAC = javac -O
+ICONV = iconv_prog --loose
 
 all : $(ALL)
 
@@ -291,6 +292,7 @@ nls_table.class : nls_table.java
 # program.
 
 nls_ascii.in : nls_txt_to_in.class
+#	$(ICONV) --from-code=ASCII --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_ascii.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/ASCII.TXT > nls_ascii.in
 
 nls_iso8859_1.in : nls_txt_to_in.class
@@ -473,48 +475,57 @@ nls_cp869_ms.in : nls_txt_to_in.class
 nls_cp869_ibm.in : nls_txt_to_in.class
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP869.TXT > nls_cp869_ibm.in
 
-nls_cp874_ms.in :
+nls_cp874_ms.in : nls_txt_to_in.class
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP874.TXT > nls_cp874_ms.in
 #	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP874.TXT > nls_cp874_ms.in
 
-nls_cp874_ibm.in :
+nls_cp874_ibm.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp874            < nls_table_in > nls_cp874_ibm.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP874.TXT > nls_cp874_ibm.in
 
 nls_cp1250.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1250           < nls_table_in > nls_cp1250.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1250 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1250.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1250.TXT > nls_cp1250.in
 
 nls_cp1251.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1251           < nls_table_in > nls_cp1251.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1251 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1251.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1251.TXT > nls_cp1251.in
 
 nls_cp1252.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1252           < nls_table_in > nls_cp1252.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1252 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1252.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1252.TXT > nls_cp1252.in
 
 nls_cp1253.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1253           < nls_table_in > nls_cp1253.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1253 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1253.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1253.TXT > nls_cp1253.in
 
 nls_cp1254.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1254           < nls_table_in > nls_cp1254.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1254 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1254.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1254.TXT > nls_cp1254.in
 
 nls_cp1255.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1255           < nls_table_in > nls_cp1255.in # old, lacks Euro sign and other things
+#	$(ICONV) --from-code=CP1255 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1255.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1255.TXT > nls_cp1255.in
 
 nls_cp1256.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1256           < nls_table_in > nls_cp1256.in # old, lacks Euro sign and other things
+#	$(ICONV) --from-code=CP1256 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1256.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1256.TXT > nls_cp1256.in
 
 nls_cp1257.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1257           < nls_table_in > nls_cp1257.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1257 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1257.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1257.TXT > nls_cp1257.in
 
 nls_cp1258.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1258           < nls_table_in > nls_cp1258.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1258 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1258.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1258.TXT > nls_cp1258.in
 
 nls_nextstep.in : nls_txt_to_in.class
