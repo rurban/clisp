@@ -1347,7 +1347,7 @@ local void fix_parse_namestring_dot_file()
   pushSTACK(S(parse_namestring_dot_file));
   pushSTACK(S(parse_namestring_dot_file));
   pushSTACK(Symbol_value(S(parse_namestring_dot_file)));
-  STACK_3 = CLSTEXT("The variable ~S had an illegal value." NLstring
+  STACK_3 = CLSTEXT("The variable ~S had an illegal value.\n"
                     "~S has been reset to ~S.");
   funcall(S(warn),4);
 }

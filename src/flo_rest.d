@@ -36,7 +36,11 @@
  warn_floating_point_contagion();
  can trigger GC */
 local void warn_floating_point_contagion (void) {
-  pushSTACK(CLSTEXT("Floating point operation combines numbers of different precision." NLstring "See ANSI CL 12.1.4.4 and the CLISP impnotes for details." NLstring "The result's actual precision is controlled by" NLstring "~S." NLstring "To shut off this warning, set ~S to ~S."));
+  pushSTACK(CLSTEXT("Floating point operation combines numbers of different precision.\n"
+                    "See ANSI CL 12.1.4.4 and the CLISP impnotes for details.\n"
+                    "The result's actual precision is controlled by\n"
+                    "~S.\n"
+                    "To shut off this warning, set ~S to ~S."));
   pushSTACK(S(floating_point_contagion_ansi));
   pushSTACK(S(warn_on_floating_point_contagion));
   pushSTACK(NIL);

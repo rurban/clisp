@@ -1119,8 +1119,8 @@ nonreturning_function(global, fehler_key_badkw,
     STACK_4 = type;
   }
   fehler(keyword_error,
-         GETTEXT("~: illegal keyword/value pair ~, ~ in argument list."
-                 NLstring "The allowed keywords are ~"));
+         GETTEXT("~: illegal keyword/value pair ~, ~ in argument list.\n"
+                 "The allowed keywords are ~"));
 }
 
 /* error-message, if an argument is not a Function:
@@ -1232,7 +1232,9 @@ nonreturning_function(global, fehler_lambda_expression,
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
   fehler(type_error,
-         GETTEXT("~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION)."));
+         GETTEXT("~: argument ~ is not a function.\n"
+                 "To get a function in the current environment, write (FUNCTION ...).\n"
+                 "To get a function in the global environment, write (COERCE '... 'FUNCTION)."));
 }
 
 /* too many arguments in a function call
