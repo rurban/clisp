@@ -1,5 +1,10 @@
 2004-02-25  Bruno Haible  <bruno@clisp.org>
 
+	* stdint.h.in: Test __sun, not __sun__, so that it also works with cc
+	on Solaris.
+
+2004-02-25  Bruno Haible  <bruno@clisp.org>
+
 	* unix.d (msync, mmap, munmap): Comment out prototype. Needed to avoid
 	prototype clash on Solaris 7.
 	* spvw_mmap.d (munmap): Likewise.
