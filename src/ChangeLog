@@ -1,5 +1,11 @@
 1998-10-29  Sam Steingold  <sds@goems.com>
 
+	* spvw.d (main): replace `load_rc_file' with explicit load.
+	* user1.lsp: remove `load-rc-file'.
+	* constsym.d: ditto.
+
+1998-10-29  Sam Steingold  <sds@goems.com>
+
 	* spvw.d (usage): new function; replace 'goto usage' with a call
 	  to it, thus the exit code for "-h" and "--help" is 0 now.
 
