@@ -399,10 +399,13 @@ FEXPAND-1
 22
 
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=678194&group_id=1355&atid=101355>
+(defvar *my-typeof-counter* 0)
+*my-typeof-counter*
 (defmacro my-typeof (place &environment env)
   (let ((exp-place (macroexpand place env)))
     (unless (and (consp exp-place) (eq (car exp-place) 'FOREIGN-VALUE))
       (error "MY-TYPEOF not upon a place: ~S" exp-place))
+    (incf *my-typeof-counter*)
     (second exp-place)))
 my-typeof
 
@@ -415,6 +418,18 @@ with-var
 
 (with-var (my-var "fake variable") (my-typeof my-var))
 "fake variable"
+
+*my-typeof-counter*
+1
+
+(funcall (lambda ()
+           (declare (compile))
+           (with-var (my-var "fake variable")
+             (my-typeof my-var))))
+"fake variable"
+
+*my-typeof-counter*
+2
 
 ;; from Christophe Rhodes <csr21@cam.ac.uk>
 (defmacro my-mac (&optional (x (error "missing arg"))
