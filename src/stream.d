@@ -4213,10 +4213,12 @@ global uintL iconv_wcslen(encoding,src,srcend)
                   if (errno != EILSEQ) {
                     OS_error();
                   } else {
+                    end_system_call();
                     fehler_unencodable(encoding,*(const chart*)inptr);
                   }
                 }
               } else {
+                end_system_call();
                 fehler_unencodable(encoding,*(const chart*)inptr);
               }
             } elif (errno == EINVAL) { # incomplete input?
@@ -4283,10 +4285,12 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
                   if (errno != EILSEQ) {
                     OS_error();
                   } else {
+                    end_system_call();
                     fehler_unencodable(encoding,*(const chart*)inptr);
                   }
                 }
               } else {
+                end_system_call();
                 fehler_unencodable(encoding,*(const chart*)inptr);
               }
             } elif (errno == EINVAL) { # incomplete input?
@@ -4335,10 +4339,12 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
                 elif (errno != EILSEQ) {
                   OS_error();
                 } else {
+                  end_system_call();
                   fehler_unencodable(encoding,*(const chart*)inptr);
                 }
               }
             } else {
+              end_system_call();
               fehler_unencodable(encoding,*(const chart*)inptr);
             }
           } elif (errno == EINVAL) { # incomplete input?
