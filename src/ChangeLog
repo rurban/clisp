@@ -1,3 +1,8 @@
+2002-10-15  Sam Steingold  <sds@gnu.org>
+
+	* complete.lisp (completion): print help when nothing useful was
+	entered (just some whitespace)
+
 2002-10-14  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 598128 ]: values / multiple-value-list crash
