@@ -551,13 +551,13 @@ local void make_variable_frame (object caller, object varspecs,
               pushSTACK(symbol);
               pushSTACK(caller);
               fehler(program_error,
-                     GETTEXT("~S: symbol ~S is declared special and must not be declared a macro"));
+                     GETTEXT("~S: symbol ~S has been declared SPECIAL and may not be re-defined as a SYMBOL-MACRO"));
             }
             if (specdecled) {
               pushSTACK(symbol); /* SOURCE-PROGRAM-ERROR slot FORM */
               pushSTACK(symbol); pushSTACK(caller);
               fehler(source_program_error,
-                     GETTEXT("~S: symbol ~S must not be declared SPECIAL and a macro at the same time"));
+                     GETTEXT("~S: symbol ~S must not be declared SPECIAL and defined a SYMBOL-MACRO at the same time"));
             }
             /* static binding */
           } else {
