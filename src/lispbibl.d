@@ -8017,7 +8017,7 @@ typedef const struct backtrace_t* p_backtrace_t;
 #endif
 
 #define bt_beyond_stack_p(bt,st) \
-  (bt && !((aint)st cmpSTACKop (aint)(bt->bt_stack)))
+  ((bt) != NULL && !((aint)(st) cmpSTACKop (aint)((bt)->bt_stack)))
 /* unwind backtrace to the stack location */
 #ifdef DEBUG_BACKTRACE
 #define unwind_back_trace(bt,st)                                        \
@@ -8034,12 +8034,13 @@ typedef const struct backtrace_t* p_backtrace_t;
     p_backtrace_t bt_save = back_trace;                                 \
     struct backtrace_t bt_here;                                         \
     bt_here.bt_next = back_trace;                                       \
-    bt_here.bt_caller = fun;                                            \
+    bt_here.bt_caller = (fun);                                          \
     bt_here.bt_stack = STACK;                                           \
-    bt_here.bt_num_arg = num_arg;                                       \
+    bt_here.bt_num_arg = (num_arg);                                     \
     BT_CHECK1("w/s/b/t: before");                                       \
     back_trace = &bt_here;                                              \
     statement;                                                          \
+    if (back_trace != &bt_here) abort();                                \
     if (back_trace->bt_next != bt_save) abort();                        \
     BT_CHECK1("w/s/b/t: after");                                        \
     back_trace = back_trace->bt_next;                                   \
@@ -8048,9 +8049,9 @@ typedef const struct backtrace_t* p_backtrace_t;
 #define with_saved_back_trace(fun,num_arg,statement)           do {     \
     struct backtrace_t bt_here;                                         \
     bt_here.bt_next = back_trace;                                       \
-    bt_here.bt_caller = fun;                                            \
+    bt_here.bt_caller = (fun);                                          \
     bt_here.bt_stack = STACK;                                           \
-    bt_here.bt_num_arg = num_arg;                                       \
+    bt_here.bt_num_arg = (num_arg);                                     \
     back_trace = &bt_here;                                              \
     statement;                                                          \
     back_trace = back_trace->bt_next;                                   \
