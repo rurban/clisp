@@ -53,6 +53,7 @@ AC_EXEEXT
 
 dnl           check for build configuration
 
+AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL
 
 dnl           checks for header files and functions
