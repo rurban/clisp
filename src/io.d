@@ -1,5 +1,5 @@
 # Ein-/Ausgabe für CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 # Marcus Daniels 11.3.1997
 
 #include "lispbibl.c"
@@ -7472,6 +7472,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         var uintL index = start;
         pushSTACK(string); # Simple-String retten
         write_ascii_char(stream_,'"'); # vorher ein Anführungszeichen
+        string = STACK_0;
         #if 0
         SstringDispatch(string,
           {
