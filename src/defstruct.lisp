@@ -523,7 +523,7 @@
 (defun find-structure-slot-initfunction (name slotname) ; ABI
   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
     (unless desc
-      (if (get name 'CLOS::CLOSCLASS)
+      (if (clos::defined-class-p (get name 'CLOS::CLOSCLASS))
         (error (TEXT "The structure type ~S has been defined as a class.")
                name)
         (error (TEXT "The structure type ~S has not been defined.")
@@ -739,6 +739,8 @@
              (subname (first option))
              (incl-class (get subname 'CLOS::CLOSCLASS))
              (incl-desc (get subname 'DEFSTRUCT-DESCRIPTION)))
+        (unless (clos::defined-class-p incl-class)
+          (setq incl-class nil))
         (when (and (null incl-class) (null incl-desc))
           (error-of-type 'source-program-error
             :form whole-form

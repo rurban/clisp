@@ -1780,15 +1780,16 @@ LISPFUNNR(type_of,1)
   mv_count=1;
 }
 
-LISPFUNN(defclos,5)
+LISPFUNN(defclos,6)
 { /* (CLOS::%DEFCLOS <standard-class>-version <structure-class>-version
-                     <built-in-class>-version <class>
+                     <built-in-class>-version <defined-class> <class>
                      built-in-classes)
    sets the data needed for CLOS::CLASS-P and CLOS:CLASS-OF. */
   /* for CLOS::CLASS-P : */
-  O(class_version_standard_class) = STACK_4;
-  O(class_version_structure_class) = STACK_3;
-  O(class_version_built_in_class) = STACK_2;
+  O(class_version_standard_class) = STACK_5;
+  O(class_version_structure_class) = STACK_4;
+  O(class_version_built_in_class) = STACK_3;
+  O(class_defined_class) = STACK_2;
   O(class_class) = STACK_1;
   /* for CLOS:CLASS-OF : */
   {
@@ -1799,13 +1800,21 @@ LISPFUNN(defclos,5)
       *ptr2++ = *ptr1++;
     });
   }
-  value1 = NIL; mv_count=0; skipSTACK(5);
+  value1 = NIL; mv_count=0; skipSTACK(6);
 }
 
 LISPFUNNR(class_p,1)
-{ /* (CLOS::CLASS-P object) tests, if an object is a class. */
+{ /* (CLOS::CLASS-P object) tests, if an object is a class,
+     including forward-referenced classes. */
   var object obj = popSTACK();
-  if_classp(obj, { value1 = T; }, { value1 = NIL; }); mv_count=1;
+  if_class_p(obj, { value1 = T; }, { value1 = NIL; }); mv_count=1;
+}
+
+LISPFUNNR(defined_class_p,1)
+{ /* (CLOS::DEFINED-CLASS-P object) tests, if an object is a class,
+     excluding forward-referenced classes. */
+  var object obj = popSTACK();
+  if_defined_class_p(obj, { value1 = T; }, { value1 = NIL; }); mv_count=1;
 }
 
 /* (CLOS:CLASS-OF object), CLTL2 p. 822,783
@@ -1853,7 +1862,7 @@ LISPFUNNR(class_of,1)
       while (consp(type)) {
         var object name = Car(type);
         var object clas = get(name,S(closclass)); /* (GET name 'CLOS::CLOSCLASS) */
-        if_classp(clas, { value1 = clas; goto fertig; }, ; );
+        if_defined_class_p(clas, { value1 = clas; goto fertig; }, ; );
         type = Cdr(type);
       }
     }
@@ -2004,7 +2013,7 @@ LISPFUNNR(class_of,1)
       pushSTACK(S(class_of));
       fehler(serious_condition,GETTEXT("~S: unidentifiable type!!!"));
   }
-  if_classp(value1, ; , {
+  if_defined_class_p(value1, ; , {
     pushSTACK(value1);
     pushSTACK(S(class_of));
     fehler(error,GETTEXT("~S: type ~S does not correspond to a class"));
@@ -2022,7 +2031,7 @@ LISPFUN(find_class,seclass_default,1,2,norest,nokey,0,NIL)
        (ENGLISH "~S: argument ~S is not a symbol")
        'find-class symbol))
    (let ((class (get symbol 'CLOS::CLASS)))
-     (if (not (class-p class))
+     (if (not (defined-class-p class))
        (if errorp
          (error-of-type 'error
            (ENGLISH "~S: ~S does not name a class")
@@ -2031,7 +2040,7 @@ LISPFUN(find_class,seclass_default,1,2,norest,nokey,0,NIL)
        class))) */
   STACK_2 = check_symbol(STACK_2);
   var object clas = get(STACK_2,S(closclass)); /* (GET symbol 'CLOS::CLOSCLASS) */
-  if_classp(clas, { value1 = clas; } , {
+  if_defined_class_p(clas, { value1 = clas; } , {
     if (!nullp(STACK_1)) {
       pushSTACK(STACK_2);
       pushSTACK(S(find_class));
@@ -2086,7 +2095,7 @@ global bool typep_class (object obj, object clas) {
 LISPFUNN(typep_class,2)
 {
   var object clas = popSTACK();
-  if_classp(clas, ; , fehler_class(clas); );
+  if_defined_class_p(clas, ; , fehler_class(clas); );
   VALUES_IF(typep_class(popSTACK(),clas));
 }
 
@@ -2250,7 +2259,7 @@ LISPFUNNR(coerce,2)
     VALUES1(STACK_1); skipSTACK(2); return;
   }
   STACK_0 = expand_deftype(STACK_0,false);
-  if_classp(STACK_0, { STACK_0 = TheClass(STACK_0)->classname; },);
+  if_defined_class_p(STACK_0, { STACK_0 = TheClass(STACK_0)->classname; },);
   /* stack layout: object, result-type. */
   if (matomp(STACK_0)) {
     if (!symbolp(STACK_0)) goto fehler_type;

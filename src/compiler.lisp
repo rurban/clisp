@@ -6723,7 +6723,7 @@ for-value   NIL or T
                         (return-from c-TYPEP
                           (c-form (sys::ds-typep-expansion objform type h))))
                       ((and (setq h (get type 'CLOS::CLOSCLASS))
-                            (clos::class-p h)
+                            (clos::defined-class-p h)
                             (eq (clos:class-name h) type))
                         (return-from c-TYPEP
                           (c-form
@@ -6780,7 +6780,7 @@ for-value   NIL or T
                                   nil
                                   lambdabody
                                   nil))))))))
-              ((clos::class-p type)
+              ((clos::defined-class-p type)
                (return-from c-TYPEP
                  (c-form `(CLOS::TYPEP-CLASS ,objform
                             ,(if (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type)

@@ -412,7 +412,7 @@
 
 ;(defun class-designator-p (sym &aux f)
 ;  (and (setq f (get sym 'CLOS::CLOSCLASS))
-;       (clos::class-p f)
+;       (clos::defined-class-p f)
 ;       (eq (clos:class-name f) sym)
 ;) )
 

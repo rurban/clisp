@@ -100,7 +100,7 @@
                   (apply #'format nil errorstring arguments))))
         (let ((req-specializer-forms
                 (mapcar #'(lambda (specializer-name)
-                            (cond ((class-p specializer-name)
+                            (cond ((defined-class-p specializer-name)
                                    `',specializer-name)
                                   ((symbolp specializer-name)
                                    `(FIND-CLASS ',specializer-name))

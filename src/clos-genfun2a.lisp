@@ -164,7 +164,7 @@
   (compute-applicable-methods-using-classes-<generic-function> gf req-arg-classes))
 
 (defun compute-applicable-methods-using-classes-<generic-function> (gf req-arg-classes)
-  (unless (and (proper-list-p req-arg-classes) (every #'class-p req-arg-classes))
+  (unless (and (proper-list-p req-arg-classes) (every #'defined-class-p req-arg-classes))
     (error (TEXT "~S: argument should be a proper list of classes, not ~S")
            'compute-applicable-methods-using-classes req-arg-classes))
   (if (safe-gf-undeterminedp gf)
@@ -329,7 +329,7 @@
 ;; compute-effective-method-as-function, but that's how the MOP specifies it.
 (defun check-method-only-standard-specializers (gf method caller)
   (dolist (spec (safe-method-specializers method gf))
-    (unless (or (class-p spec) (typep-class spec <eql-specializer>))
+    (unless (or (defined-class-p spec) (typep-class spec <eql-specializer>))
       (error (TEXT "~S: Invalid method specializer ~S on ~S in ~S")
         caller spec method gf))))
 

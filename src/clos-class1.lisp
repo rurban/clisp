@@ -40,8 +40,8 @@
 
 ;;; ===========================================================================
 
-;;; The abstract class <class> allows built-in objects, user-defined objects
-;;; and proxies to external worlds to be treated in a homogenous way.
+;;; The abstract class <class> allows defined classes and forward-references
+;;; to classes to be treated in a homogenous way.
 
 (defvar *<class>-defclass*
   '(defclass class (specializer)
@@ -49,7 +49,96 @@
                            ; a symbol
         :type symbol
         :initarg :name)
-      ($direct-superclasses ; list of all direct superclasses (or their names,
+      ($direct-subclasses  ; set of all direct subclasses, as a weak-list or
+                           ; weak-hash-table or NIL
+        :type (or hash-table weak-list null)
+        :initform nil))
+     (:fixed-slot-locations t)))
+
+;; Fixed slot locations.
+(defconstant *<class>-classname-location* 3)
+(defconstant *<class>-direct-subclasses-location* 4)
+
+;; Preliminary accessors.
+(predefun class-classname (object)
+  (sys::%record-ref object *<class>-classname-location*))
+(predefun (setf class-classname) (new-value object)
+  (setf (sys::%record-ref object *<class>-classname-location*) new-value))
+(predefun class-direct-subclasses-table (object)
+  (sys::%record-ref object *<class>-direct-subclasses-location*))
+(predefun (setf class-direct-subclasses-table) (new-value object)
+  (setf (sys::%record-ref object *<class>-direct-subclasses-location*) new-value))
+
+;; Initialization of a <class> instance.
+(defun shared-initialize-<class> (class situation &rest args
+                                  &key (name nil name-p)
+                                  &allow-other-keys)
+  (apply #'shared-initialize-<specializer> class situation args)
+  (unless *classes-finished*
+    ; Bootstrapping: Simulate the effect of #'%shared-initialize.
+    (when (eq situation 't) ; called from initialize-instance?
+      (setf (class-direct-subclasses-table class) nil)))
+  (when (or (eq situation 't) name-p)
+    ; No need to check the name: any name is valid.
+    (setf (class-classname class) name))
+  class)
+
+;;; ===========================================================================
+
+;;; The class <forward-referenced-class> allows forward-references to classes
+;;; to collect their direct subclasses already before they are defined:
+;;;     (defclass b (a) ())
+;;;     (defclass a () ())
+;;;     (class-direct-subclasses (find-class 'a)) => (#<STANDARD-CLASS B>)
+
+;;; A forward-referenced-class's name is always a symbol that cannot be
+;;; changed, and the forward-referenced-class is available as
+;;; (get name 'CLOSCLASS), until it is replaced with the defined class.
+
+;;; The MOP specification regarding <forward-referenced-class> is severely
+;;; misdesigned. The actual meaning of a <forward-referenced-class> is a
+;;; forward-reference to (= placeholder for) a not yet defined class. The only
+;;; place where it is used is in the direct-superclasses list of some classes
+;;; that are not yet finalized.
+;;;
+;;; Putting it under <class> is a mistake because:
+;;;   1. Classes fundamentally describe the slots and operations available
+;;;      on its (direct and indirect) instances. But a forward-referenced
+;;;      class can never have (direct and indirect) instances, since the
+;;;      slots and operations are not yet known.
+;;;   2. All the generic functions on <class>, such as class-precedence-list
+;;;      or class-direct-default-initargs, make no sense on a
+;;;      <forward-referenced-class> - since the real information is not yet
+;;;      available.
+;;;   3. <class> inherits from <specializer>, but it makes no sense to use
+;;;      a <forward-referenced-class> as a specializer in a method or as a
+;;;      type in TYPEP or SUBTYPEP.
+;;;
+;;; This is also backed by the fact that this MOP implementation has three
+;;; times more tests for <defined-class> (i.e. for <class> without
+;;; <forward-referenced-class>) than for <class> itself.
+;;;
+;;; A better design would be to define an abstract class <superclass> and
+;;; let <forward-referenced-class> inherit from it:
+;;;   (defclass superclass () ...)
+;;;   (defclass class (superclass specializer) ...)
+;;;   (defclass forward-referenced-class (superclass) ...)
+;;; and (class-direct-superclasses class) would simply be a list of
+;;; <superclass> instances.
+
+(defvar *<forward-referenced-class>-defclass*
+  '(defclass forward-referenced-class (class)
+     ()
+     (:fixed-slot-locations t)))
+
+;;; ===========================================================================
+
+;;; The abstract class <defined-class> allows built-in objects, user-defined
+;;; objects and proxies to external worlds to be treated in a homogenous way.
+
+(defvar *<defined-class>-defclass*
+  '(defclass defined-class (class)
+     (($direct-superclasses ; list of all direct superclasses (or their names,
                            ; while the class is waiting to be finalized)
         :type list
         :initarg :direct-superclasses)
@@ -60,10 +149,6 @@
                            ; itself first), or NIL while the class is waiting
                            ; to be finalized
         :type list)
-      ($direct-subclasses  ; set of all direct subclasses, as a weak-list or
-                           ; weak-hash-table or NIL
-        :type (or hash-table weak-list null)
-        :initform nil)
       ($direct-slots       ; list of all freshly added slots (as
                            ; direct-slot-definition instances)
         :type list
@@ -102,73 +187,63 @@
      (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
-(defconstant *<class>-classname-location* 3)
-(defconstant *<class>-direct-superclasses-location* 4)
-(defconstant *<class>-all-superclasses-location* 5)
-(defconstant *<class>-precedence-list-location* 6)
-(defconstant *<class>-direct-subclasses-location* 7)
-(defconstant *<class>-direct-slots-location* 8)
-(defconstant *<class>-slots-location* 9)
-(defconstant *<class>-slot-location-table-location* 10)
-(defconstant *<class>-direct-default-initargs-location* 11)
-(defconstant *<class>-default-initargs-location* 12)
-(defconstant *<class>-documentation-location* 13)
-(defconstant *<class>-listeners-location* 14)
-(defconstant *<class>-initialized-location* 15)
+(defconstant *<defined-class>-direct-superclasses-location* 5)
+(defconstant *<defined-class>-all-superclasses-location* 6)
+(defconstant *<defined-class>-precedence-list-location* 7)
+(defconstant *<defined-class>-direct-slots-location* 8)
+(defconstant *<defined-class>-slots-location* 9)
+(defconstant *<defined-class>-slot-location-table-location* 10)
+(defconstant *<defined-class>-direct-default-initargs-location* 11)
+(defconstant *<defined-class>-default-initargs-location* 12)
+(defconstant *<defined-class>-documentation-location* 13)
+(defconstant *<defined-class>-listeners-location* 14)
+(defconstant *<defined-class>-initialized-location* 15)
 
 ;; Preliminary accessors.
-(predefun class-classname (object)
-  (sys::%record-ref object *<class>-classname-location*))
-(predefun (setf class-classname) (new-value object)
-  (setf (sys::%record-ref object *<class>-classname-location*) new-value))
 (predefun class-direct-superclasses (object)
-  (sys::%record-ref object *<class>-direct-superclasses-location*))
+  (sys::%record-ref object *<defined-class>-direct-superclasses-location*))
 (predefun (setf class-direct-superclasses) (new-value object)
-  (setf (sys::%record-ref object *<class>-direct-superclasses-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-direct-superclasses-location*) new-value))
 (predefun class-all-superclasses (object)
-  (sys::%record-ref object *<class>-all-superclasses-location*))
+  (sys::%record-ref object *<defined-class>-all-superclasses-location*))
 (predefun (setf class-all-superclasses) (new-value object)
-  (setf (sys::%record-ref object *<class>-all-superclasses-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-all-superclasses-location*) new-value))
 (predefun class-precedence-list (object)
-  (sys::%record-ref object *<class>-precedence-list-location*))
+  (sys::%record-ref object *<defined-class>-precedence-list-location*))
 (predefun (setf class-precedence-list) (new-value object)
-  (setf (sys::%record-ref object *<class>-precedence-list-location*) new-value))
-(predefun class-direct-subclasses-table (object)
-  (sys::%record-ref object *<class>-direct-subclasses-location*))
-(predefun (setf class-direct-subclasses-table) (new-value object)
-  (setf (sys::%record-ref object *<class>-direct-subclasses-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-precedence-list-location*) new-value))
 (predefun class-direct-slots (object)
-  (sys::%record-ref object *<class>-direct-slots-location*))
+  (sys::%record-ref object *<defined-class>-direct-slots-location*))
 (predefun (setf class-direct-slots) (new-value object)
-  (setf (sys::%record-ref object *<class>-direct-slots-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-direct-slots-location*) new-value))
 (predefun class-slots (object)
-  (sys::%record-ref object *<class>-slots-location*))
+  (sys::%record-ref object *<defined-class>-slots-location*))
 (predefun (setf class-slots) (new-value object)
-  (setf (sys::%record-ref object *<class>-slots-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-slots-location*) new-value))
 (predefun class-slot-location-table (object)
-  (sys::%record-ref object *<class>-slot-location-table-location*))
+  (sys::%record-ref object *<defined-class>-slot-location-table-location*))
 (predefun (setf class-slot-location-table) (new-value object)
-  (setf (sys::%record-ref object *<class>-slot-location-table-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-slot-location-table-location*) new-value))
 (predefun class-direct-default-initargs (object)
-  (sys::%record-ref object *<class>-direct-default-initargs-location*))
+  (sys::%record-ref object *<defined-class>-direct-default-initargs-location*))
 (predefun (setf class-direct-default-initargs) (new-value object)
-  (setf (sys::%record-ref object *<class>-direct-default-initargs-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-direct-default-initargs-location*) new-value))
 (predefun class-default-initargs (object)
-  (sys::%record-ref object *<class>-default-initargs-location*))
+  (sys::%record-ref object *<defined-class>-default-initargs-location*))
 (predefun (setf class-default-initargs) (new-value object)
-  (setf (sys::%record-ref object *<class>-default-initargs-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-default-initargs-location*) new-value))
 (predefun class-documentation (object)
-  (sys::%record-ref object *<class>-documentation-location*))
+  (sys::%record-ref object *<defined-class>-documentation-location*))
 (predefun (setf class-documentation) (new-value object)
-  (setf (sys::%record-ref object *<class>-documentation-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-documentation-location*) new-value))
 (predefun class-listeners (object)
-  (sys::%record-ref object *<class>-listeners-location*))
+  (sys::%record-ref object *<defined-class>-listeners-location*))
 (predefun (setf class-listeners) (new-value object)
-  (setf (sys::%record-ref object *<class>-listeners-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-listeners-location*) new-value))
 (predefun class-initialized (object)
-  (sys::%record-ref object *<class>-initialized-location*))
+  (sys::%record-ref object *<defined-class>-initialized-location*))
 (predefun (setf class-initialized) (new-value object)
-  (setf (sys::%record-ref object *<class>-initialized-location*) new-value))
+  (setf (sys::%record-ref object *<defined-class>-initialized-location*) new-value))
 
 (defun canonicalized-slot-p (x)
   ; A "canonicalized slot specification" is a special kind of property list.
@@ -186,36 +261,32 @@
        (consp (cdr x)) (consp (cddr x)) (functionp (third x))
        (null (cdddr x))))
 
-;; Initialization of a <class> instance.
-(defun shared-initialize-<class> (class situation &rest args
-                                  &key (name nil name-p)
-                                       (direct-superclasses nil direct-superclasses-p)
-                                       ((:direct-slots direct-slots-as-lists) '() direct-slots-as-lists-p)
-                                       ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
-                                       (direct-default-initargs nil direct-default-initargs-p)
-                                       (documentation nil documentation-p)
-                                  &allow-other-keys
-                                  &aux old-direct-superclasses)
+;; Initialization of a <defined-class> instance.
+(defun shared-initialize-<defined-class> (class situation &rest args
+                                          &key (name nil)
+                                               (direct-superclasses nil direct-superclasses-p)
+                                               ((:direct-slots direct-slots-as-lists) '() direct-slots-as-lists-p)
+                                               ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
+                                               (direct-default-initargs nil direct-default-initargs-p)
+                                               (documentation nil documentation-p)
+                                          &allow-other-keys
+                                          &aux old-direct-superclasses)
   (setq old-direct-superclasses
         (if (eq situation 't) ; called from initialize-instance?
           '()
-          (sys::%record-ref class *<class>-direct-superclasses-location*)))
-  (apply #'shared-initialize-<specializer> class situation args)
+          (sys::%record-ref class *<defined-class>-direct-superclasses-location*)))
+  (apply #'shared-initialize-<class> class situation args)
   (unless *classes-finished*
     ; Bootstrapping: Simulate the effect of #'%shared-initialize.
     (when (eq situation 't) ; called from initialize-instance?
-      (setf (class-direct-subclasses-table class) nil)
       (setf (class-slot-location-table class) empty-ht)
       (setf (class-listeners class) nil)
       (setf (class-initialized class) 0)))
-  (if (or (eq situation 't) name-p)
-    (progn
-      ; No need to check the name: any name is valid.
-      (setf (class-classname class) name)
-      (when (eq situation 't)
-        (setf (class-initialized class) 1)))
-    ; Get the name, for error message purposes.
-    (setq name (class-classname class)))
+  (when (eq situation 't)
+    ; shared-initialize-<class> has initialized the name.
+    (setf (class-initialized class) 1))
+  ; Get the name, for error message purposes.
+  (setq name (class-classname class))
   (when (or (eq situation 't) direct-superclasses-p)
     ; Check the direct-superclasses.
     (unless (proper-list-p direct-superclasses)
@@ -295,7 +366,7 @@
 
 (defvar <built-in-class> 'built-in-class)
 (defvar *<built-in-class>-defclass*
-  '(defclass built-in-class (class)
+  '(defclass built-in-class (defined-class)
      ()
      (:fixed-slot-locations t)))
 (defvar *<built-in-class>-class-version* (make-class-version))
@@ -309,7 +380,7 @@
 ;;; behaviour of <standard-class> and <structure-class>.
 
 (defvar *<slotted-class>-defclass*
-  '(defclass slotted-class (class)
+  '(defclass slotted-class (defined-class)
      (($subclass-of-stablehash-p ; true if <standard-stablehash> or
                            ; <structure-stablehash> is among the superclasses
         :type boolean)
@@ -359,7 +430,7 @@
 (defun shared-initialize-<slotted-class> (class situation &rest args
                                           &key (generic-accessors t generic-accessors-p)
                                           &allow-other-keys)
-  (apply #'shared-initialize-<class> class situation args)
+  (apply #'shared-initialize-<defined-class> class situation args)
   (unless *classes-finished*
     ; Bootstrapping: Simulate the effect of #'%shared-initialize.
     (when (eq situation 't) ; called from initialize-instance?
@@ -556,6 +627,7 @@
                           (class-all-superclasses (class-of object))))))))
 
 (sys::def-atomic-type class class-p)
+(sys::def-atomic-type defined-class defined-class-p)
 (sys::def-atomic-type built-in-class built-in-class-p)
 (sys::def-atomic-type structure-class structure-class-p)
 (sys::def-atomic-type standard-class standard-class-p)
@@ -570,7 +642,8 @@
     copy))
 
 (defun print-object-<class> (object stream)
-  (if *print-readably*
+  (if (and *print-readably* (defined-class-p object))
+    ; Only defined-class instances can be restored through FIND-CLASS.
     (write (sys::make-load-time-eval `(FIND-CLASS ',(class-classname object)))
            :stream stream)
     (print-unreadable-object (object stream :type t)

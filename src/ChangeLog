@@ -1,3 +1,164 @@
+2004-11-16  Bruno Haible  <bruno@clisp.org>
+
+	Implement forward-referenced-class.
+	* lispbibl.d (Class): Move direct_subclasses field to front.
+	(if_class_p): Renamed from if_classp.
+	(if_defined_class_p): New macro.
+	* io.d (structure_reader, pr_structure_default): Use if_defined_class_p
+	instead of if_classp.
+	* sequence.d (valid_type1): Use if_defined_class_p instead of
+	if_classp.
+	* predtype.d (%defclos): Accept one more argument, <defined-class>.
+	(CLOS::CLASS-P): Update.
+	(CLOS::DEFINED-CLASS-P): New function.
+	(CLASS-OF): Use if_defined_class_p instead of if_classp.
+	(CLOS:FIND-CLASS): Likewise.
+	(CLOS::TYPEP-CLASS, COERCE): Likewise.
+	* record.d (CLOS::ALLOCATE-STD-INSTANCE,
+	CLOS::ALLOCATE-FUNCALLABLE-INSTANCE): Use if_defined_class_p instead
+	of if_classp.
+	* init.lisp: Export forward-referenced-class.
+	* clos-package.lisp: Export forward-referenced-class.
+	* clos-macros.lisp (error-accessor-typecheck): Use defined-class-p
+	instead of class-p.
+	* clos-class0.lisp (*dummy-class*): Update.
+	* clos-class1.lisp (defined-class): New class.
+	(class): Move most slots down to defined-class.
+	(forward-referenced-class): New class.
+	(*<forward-referenced-class>-defclass*): New variable.
+	(*<defined-class>-defclass*): New variable.
+	(*<defined-class>-...-location*): Renamed from *<class>-...-location*.
+	(class-direct-superclasses, class-all-superclasses,
+	class-precedence-list, class-direct-slots, class-slots,
+	class-slot-location-table, class-direct-default-initargs,
+	class-default-initargs, class-documentation, class-listeners,
+	class-initialized): Update.
+	(shared-initialize-<class>): New function.
+	(shared-initialize-<defined-class>): Renamed from
+	shared-initialize-<class>.
+	(built-in-class, slotted-class): Inherit from defined-class instead of
+	class.
+	(shared-initialize-<slotted-class>): Call
+	shared-initialize-<defined-class> instead of shared-initialize-<class>.
+	(defined-class): New atomic type.
+	(print-object-<class>): Use defined-class-p.
+	* clos-class2.lisp (<defined-class>): New variable.
+	((setf find-class)): Use defined-class-p instead of class-p.
+	* clos-class3.lisp (%defclos): Pass defined-class as well.
+	(ensure-class-using-class-<t>): Use defined-class-p instead of class-p.
+	(ensure-class): Likewise.
+	(reinitialize-instance-<defined-class>): Renamed from
+	reinitialize-instance-<class>. Use defined-class-p instead of class-p.
+	(map-dependents-<defined-class>): Renamed from map-dependents-<class>.
+	(checked-class-direct-subclasses): Use defined-class-p instead of
+	class-p.
+	(compute-class-precedence-list-<defined-class>): Renamed from
+	compute-class-precedence-list-<class>.
+	(compute-class-precedence-list): Update.
+	(checked-compute-class-precedence-list): Use defined-class-p instead of
+	class-p.
+	(compute-effective-slot-definition-initargs-<defined-class>): Renamed
+	from compute-effective-slot-definition-initargs-<class>.
+	(compute-effective-slot-definition-initargs): Update.
+	(compute-effective-slot-definition-<defined-class>): Renamed from
+	compute-effective-slot-definition-<class>. Use defined-class-p instead
+	of class-p.
+	(compute-effective-slot-definition): Update.
+	(compute-slots-<defined-class>-primary): Renamed from
+	compute-slots-<class>-primary.
+	(compute-slots): Update.
+	(compute-default-initargs-<defined-class>): Renamed from
+	compute-default-initargs-<class>.
+	(compute-default-initargs): Update.
+	(install-class-direct-accessors): Use defined-class-p instead of
+	class-p.
+	(shared-initialize-<built-in-class>): Call
+	shared-initialize-<defined-class> instead of shared-initialize-<class>.
+	(shared-initialize-<structure-class>): Update.
+	(finalize-class): Use defined-class-p instead of class-p.
+	(<defined-class>, forward-referenced-class): Define classes.
+	* clos-slotdef1.lisp (convert-direct-slots): Use defined-class-p
+	instead of class-p.
+	* type.lisp (clos-class): Use defined-class-p instead of class-p.
+	(typep, subtype-integer, subtype-sequence): Likewise.
+	(type-expand): Likewise.
+	* subtypep.lisp (type-category, canonicalize-type): Use defined-class-p
+	instead of class-p.
+	* defstruct.lisp (find-structure-slot-initfunction, defstruct): Test
+	whether the closclass property is really a defined-class.
+	* clos-class4.lisp (shared-initialize@class): New method.
+	(shared-initialize@defined-class): Renamed from
+	shared-initialize@class.
+	(reinitialize-instance@defined-class): Renamed from
+	reinitialize-instance@class.
+	* clos-class6.lisp (initialize-instance@defined-class): Renamed from
+	initialize-instance@class.
+	(class-name@defined-class): Renamed from class-name@class.
+	(class-name@forward-referenced-class): New method.
+	(class-direct-subclasses@defined-class): Renamed from
+	class-direct-subclasses@class.
+	(class-direct-subclasses@forward-referenced-class): New method.
+	(class-direct-superclasses@defined-class): Renamed from
+	class-direct-superclasses@class.
+	(class-direct-superclasses@forward-referenced-class): New method.
+	(class-all-superclasses): Update.
+	(class-precedence-list@defined-class): Renamed from
+	class-precedence-list@class.
+	(class-direct-slots@defined-class): Renamed from
+	class-direct-slots@class.
+	(class-direct-slots@forward-referenced-class): New method.
+	(class-slots@defined-class): Renamed from class-slots@class.
+	(class-slot-location-table): Update.
+	(class-direct-default-initargs@defined-class): Renamed from
+	class-direct-default-initargs@class.
+	(class-direct-default-initargs@forward-referenced-class): New method.
+	(class-default-initargs@defined-class): Renamed from
+	class-default-initargs@class.
+	(class-documentation, class-listeners, class-initialized): Update.
+	(compute-direct-slot-definition-initargs@defined-class): Renamed from
+	compute-direct-slot-definition-initargs@class.
+	(class-finalized-p@defined-class): Renamed from
+	class-finalized-p@class.
+	(class-finalized-p@forward-referenced-class): New method.
+	(finalize-inheritance@defined-class): Renamed from
+	finalize-inheritance@class.
+	(compute-class-precedence-list@defined-class): Renamed from
+	compute-class-precedence-list@class.
+	(compute-effective-slot-definition-initargs@defined-class): Renamed
+	from compute-effective-slot-definition-initargs@class.
+	(compute-effective-slot-definition@defined-class): Renamed from
+	compute-effective-slot-definition@class.
+	(compute-slots): Update.
+	(compute-default-initargs@defined-class): Renamed from
+	compute-default-initargs@class.
+	(reader-method-class@defined-class): Renamed from
+	reader-method-class@class.
+	(writer-method-class@defined-class): Renamed from
+	writer-method-class@class.
+	* clos-method1.lisp (initialize-instance-<standard-method>): Reject
+	specializers which are not defined classes.
+	* clos-genfun2a.lisp
+	(compute-applicable-methods-using-classes-<generic-function>): Use
+	defined-class-p instead of class-p.
+	(check-method-only-standard-specializers): Likewise.
+	* clos-genfun2b.lisp (shared-initialize-<standard-generic-function>):
+	Use defined-class-p instead of class-p.
+	* clos-method2.lisp (analyze-method-description): Use defined-class-p
+	instead of class-p.
+	* clos-genfun3.lisp (ensure-generic-function-using-class-<t>): Use
+	defined-class-p instead of class-p.
+	* clos-genfun4.lisp (mop-standardized-p): Use defined-class-p instead
+	of class-p.
+	* clos-dependent.lisp (add-dependent@defined-class): Renamed from
+	add-dependent@class.
+	(remove-dependent@defined-class): Renamed from remove-dependent@class.
+	(map-dependents@defined-class): Renamed from map-dependents@class.
+	* compiler.lisp (c-TYPEP): Use defined-class-p instead of class-p.
+	* describe.lisp (describe-object@symbol): Test whether the closclass
+	property is really a defined-class.
+	(describe-object@generic-function): Use defined-class-p instead of
+	class-p.
+
 2004-11-21  Sam Steingold  <sds@gnu.org>
 
 	* places.lisp (get-setf-method): fixed the error message: the

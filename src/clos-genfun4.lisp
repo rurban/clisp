@@ -263,7 +263,7 @@
   ;; otherwise we get an infinite recursion.
   (and (typep method 'standard-method)
        (every #'(lambda (specializer)
-                  (and (class-p specializer)
+                  (and (defined-class-p specializer)
                        (let ((name (class-name specializer)))
                          (and (symbolp name)
                               (memq (symbol-package name)
