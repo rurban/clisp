@@ -580,7 +580,7 @@ global host_data * socket_getpeername (socket_handle, hd)
     fill_hostname (hd);
 
     return hd;
-      }
+  }
 
 # Auxiliary function:
 # socket_getlocalname(socket_handle, hd)
