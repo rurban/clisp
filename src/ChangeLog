@@ -1,3 +1,8 @@
+1999-03-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * format.lsp (format-character): Don't print the name of printable
+          characters.
+
 1999-03-12  Sam Steingold  <sds@gnu.org>
 
 	* subr.d: arlists for `socket_service_port' and `resolve_host_ipaddr'.
