@@ -2549,7 +2549,8 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
   }
   /* Determine size of result string: */
   var stringarg sa = {array, 0, 0, vector_length(array)};
-  STACK_2 = array = array_displace_check(array,sa.len,&(sa.offset));
+  sa.string = STACK_2 = array
+    = array_displace_check(array,sa.len,&(sa.offset));
   array = test_vector_limits(&sa);
   pushSTACK(array);
   /* stack layout: encoding, array */

@@ -68,7 +68,7 @@ ERROR
 #(65)
 
 ;; from Bruno:
-;; this is broken due to a bug in glibc2.2 (works with gnu libiconv)
+;; this is broken due to a bug in glibc2.2/3 (works with gnu libiconv)
 ;(or *no-iconv-p*
 ;    (let ((z #(27 36 40 68 43 35 43 83 43 100 27 40 66))
 ;          (e (make-encoding :charset "ISO-2022-JP-2")))
@@ -88,3 +88,18 @@ ERROR
         (ext:convert-string-to-bytes z charset:ascii :start 1 :end 3)
         (ext:convert-string-to-bytes z charset:ascii :start 1 :end 2)))
 (#(97 98) #(97 98 99) #(98 99) #(98))
+
+;;; this would require much more work to unclear end
+;;(ext:convert-string-to-bytes (string #\newline) :dos)  #(13 10)
+;;(ext:convert-string-to-bytes (string #\newline) :unix) #(10)
+;;(ext:convert-string-to-bytes (string #\newline) :mac)  #(13)
+;;(coerce (ext:convert-string-from-bytes #(13 10) :dos) 'list) (#\Newline)
+;;(coerce (ext:convert-string-from-bytes #(10) :unix) 'list) (#\Newline)
+;;(coerce (ext:convert-string-from-bytes #(13) :mac) 'list) (#\Newline)
+
+(let ((vec (make-array 1000 :adjustable t :fill-pointer 0
+                       :element-type '(unsigned-byte 8))))
+  (map-into vec 'identity (ext:convert-string-to-bytes "Hello" charset:utf-8))
+  ;; #(72 101 108 108 111)
+  (ext:convert-string-from-bytes vec charset:utf-8))
+"Hello"
