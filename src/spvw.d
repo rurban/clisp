@@ -78,7 +78,7 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 #ifdef MAP_MEMORY_TABLES
   local uintC total_subr_anz;
   #define for_all_subrs(statement)                                      \
-    do { var subr_* ptr = (subr_t*)&subr_tab; /* traverse subr_tab */   \
+    do { var subr_t* ptr = (subr_t*)&subr_tab; /* traverse subr_tab */  \
          var uintC count;                                               \
          dotimesC(count,total_subr_anz, { statement; ptr++; } );        \
     } while(0)
