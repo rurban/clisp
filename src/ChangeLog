@@ -1,5 +1,20 @@
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (SPARC64): New macro.
+          Treat SPARC64 mostly like DECALPHA and MIPS64.
+        * arisparc64.d: New file.
+        * spsparc64.d: New file.
+        * arilev0.d (mulu16, mulu32, mulu32_unchecked, divu_3216_1616,
+           divu_3216_3216, divu_3232_3232, divu_6432_3232): Provide
+          implementations for SPARC64, consistently with arisparc64.d.
+        * arilev1.d [SPARC64]: Include arisparc64 instead of arisparc.
+        * makemake.in (cpu): Possibly set to sparc64.
+          (ARI_ASMD, ARI_ASMS): Possibly add arisparc64.
+          (SP_ASMD, SP_ASMS): Possibly add spsparc64.
+        * FILES.1: Mention arisparc64, spsparc64, arimips64.
+
+1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Remove support for K&R Sparc cc.
         * makemake.in: If TSYS = sun4 and not compiling with GNU C, assume
           SunPRO C. Drop dependencies and rules for cc_sparc.il.
