@@ -7652,7 +7652,9 @@ nonreturning_function(extern, fehler_notreached, (const char * file, uintL line)
     #define GETTEXT(english)  english
     #define GETTEXTL(english)  english
   #else # GNU_GETTEXT
-    #include <libintl.h>
+    #ifndef COMPILE_STANDALONE
+      #include <libintl.h>
+    #endif
     # Fetch the message translations from a message catalog.
     #ifndef gettext  # Sometimes `gettext' is a macro...
       extern char* gettext (const char * msgid);
@@ -10489,6 +10491,7 @@ nonreturning_function(extern, fehler_block_left, (object name));
 
 /* convert the numeric side-effect class as stored in subr_t or cclosure_t
  to the object - CONS or NIL - as used in compiler.lisp and for #Y i/o */
+#ifndef COMPILE_STANDALONE
 static inline object seclass_object (seclass_t sec) {
   switch (sec) {
     case seclass_foldable: return NIL;
@@ -10499,6 +10502,7 @@ static inline object seclass_object (seclass_t sec) {
     default: NOTREACHED;
   }
 }
+#endif
 /* used by IO and CONTROL */
 
 # ########################## for ENCODING.D ################################ #
@@ -10844,6 +10848,7 @@ extern void iarray_dims_sizes (object array, array_dim_size_t* dims_sizes);
 # array_total_size(array)
 # > array: an array (a variable)
 # < uintL result: its total-size
+#ifndef COMPILE_STANDALONE
 static inline uintL array_total_size (object array) {
   if (array_simplep(array)) {
     simple_array_to_storage(array);
@@ -10851,6 +10856,7 @@ static inline uintL array_total_size (object array) {
   } else
     return TheIarray(array)->totalsize; # indirect array: contains totalsize
 }
+#endif
 # used by ARRAY, SEQUENCE, FOREIGN
 
 # Function: Compares two slices of simple-bit-vectors.
@@ -11226,12 +11232,14 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
 # > uintL index: >= 0, < length of string
 # < chart result: character at the given position
 #ifdef UNICODE
+#ifndef COMPILE_STANDALONE
 static inline chart schar (object string, uintL index) {
   SstringDispatch(string,X, {
     return as_chart(((SstringX)TheVarobject(string))->data[index]);
   });
   return as_chart(0); /* not reached - just pacify the compiler */
 }
+#endif
 #else
   #define schar(string,index)  as_chart(TheS32string(string)->data[index])
 #endif
@@ -12357,12 +12365,14 @@ extern object update_instance (object obj);
     (obj) = update_instance(obj)/*;*/
 
 /* Test for CLOS instance of a given class */
+#ifndef COMPILE_STANDALONE
 static inline bool instanceof (object obj, object clas) {
   if (!instancep(obj)) return false;
   instance_un_realloc(obj);
   instance_update(obj);
   return !eq(gethash(clas,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj);
 }
+#endif
 
 # ###################### SEQBIBL for SEQUENCE.D ############################ #
 
