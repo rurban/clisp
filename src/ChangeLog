@@ -1,3 +1,28 @@
+2004-05-30  Bruno Haible  <bruno@clisp.org>
+
+	Make the class-slots computation customizable.
+	* init.lisp: Export compute-slots.
+	* clos-package.lisp: Likewise.
+	* clos-slotdef1.lisp (slot-definition): Restrict type of allocation
+	slot.
+	(initialize-instance-<slot-definition>): Check the allocation argument
+	here.
+	(initialize-instance-<direct-slot-definition>,
+	initialize-instance-<effective-slot-definition>): ... not here.
+	(standard-effective-slot-definition-p): New function.
+	* clos-class3.lisp (compute-slots-<class>-primary): New function,
+	extracted from std-compute-slots.
+	(compute-slots-<slotted-class>-around): New function, based on
+	std-compute-slots and std-layout-slots.
+	(compute-slots, checked-compute-slots): New functions.
+	(std-compute-slots, std-layout-slots): Remove functions.
+	(compute-instance-size, compute-shared-size,
+	create-shared-slots-vector, compute-slot-location-table): New functions.
+	(initialize-instance-<structure-class>,
+	finalize-instance-standard-class): Use the compute-slots functions
+	instead of std-compute-slots, std-layout-slots.
+	* clos-class6.lisp (compute-slots): New generic function.
+
 2004-06-09  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb2.lisp (compute-effective-method-<standard-generic-function>):
