@@ -4255,7 +4255,7 @@ local object bitbuff_is_I (object bitbuffer, uintL bitsize, uintL bytesize) {
       # ja -> Fixnum <0 bilden:
       var uintL wert = (uintL)(-1);
       until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
-      return negfixnum((oint)wert);
+      return negfixnum(-wbitm(intLsize)+(oint)wert);
     }
   }
   # make bignum:
