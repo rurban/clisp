@@ -904,7 +904,7 @@ user-defined behavior:
   functions all have a name starting with the prefix "stream-".
   </simpara></listitem>
  <listitem><simpara>You can create a new subclass of
-  <classname>gstream:generic-stream-controller</classname> and define
+  <classname>GSTREAM:GENERIC-STREAM-CONTROLLER</classname> and define
   methods for the elementary stream operations on it.  These generic
   functions all have a name starting with the prefix
   "generic-stream-".  The stream itself is a different object, created
@@ -912,10 +912,10 @@ user-defined behavior:
   </simpara></listitem>
 </itemizedlist></para>
 
-<para>The <classname>fundamental-stream</classname> API is based on the
+<para>The <classname>FUNDAMENTAL-STREAM</classname> API is based on the
  &gray-streams; proposal by David N. Gray and is supported by most &cl;
  implementations currently in use.
- The <classname>gstream:generic-stream-controller</classname>
+ The <classname>GSTREAM:GENERIC-STREAM-CONTROLLER</classname>
  API is &clisp;-specific and is now obsolete.</para>
 
 <section id="gray"><title>Gray streams</title>
@@ -2283,11 +2283,11 @@ classes.</para>
 <row><entry><type>sint32</type></entry><entry>&signed-byte-32;</entry>
    <entry><type>sint32</type></entry><entry><type>INTEGER</type></entry></row>
 <row><entry><type>uint64</type></entry>
-   <entry><literal role="sexp">(&unsigned-byte-t; 64)</literal></entry>
+   <entry><literal role="type">(&unsigned-byte-t; 64)</literal></entry>
    <entry><type>uint64</type></entry><entry><type>LONG CARDINAL</type></entry>
    <entry>does not work on all platforms</entry></row>
 <row><entry><type>sint64</type></entry>
-   <entry><literal role="sexp">(&signed-byte-t; 64)</literal></entry>
+   <entry><literal role="type">(&signed-byte-t; 64)</literal></entry>
    <entry><type>sint64</type></entry><entry><type>LONG INTEGER</type></entry>
    <entry>does not work on all platforms</entry></row>
 <row><entry>&single-float-t;</entry><entry>&single-float-t;</entry>
