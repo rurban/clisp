@@ -1,5 +1,10 @@
 1999-06-10  Sam Steingold  <sds@goems.com>
 
+	* init.lsp (*load-level*): new variable.
+	(load): use it to indent the verbose printout nicely.
+
+1999-06-10  Sam Steingold  <sds@goems.com>
+
 	* list.d (nreconc): be as smart about `nreconc' as we are about
 	`nreverse'.
 
