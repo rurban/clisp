@@ -609,7 +609,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
   }
 
   /* "Prepare" the statement - this rarely returns an error */
-  status = OCIStmtPrepare(db->stmt, db->err, sql, strlen(sql), OCI_V8_SYNTAX, OCI_DEFAULT);
+  status = OCIStmtPrepare(db->stmt, db->err, sql, strlen(sql), OCI_NTV_SYNTAX, OCI_DEFAULT);
   if ( status != OCI_SUCCESS ) {
     sprintf(db->errmsg, "Error parsing SQL text:\n%s\n", sql);
     append_oci_error(db->errmsg, db->err);
