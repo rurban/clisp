@@ -81,33 +81,32 @@ local maygc object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
   }
 }
 
-/* N_log_N(x) liefert (log x), wo x eine Zahl ist.
+/* N_log_N(x,&end_precision) liefert (log x), wo x eine Zahl ist.
  can trigger GC
  Methode:
  (complex (log (abs x)) (phase x)) */
-local maygc object N_log_N (object x, bool start_p, gcv_object_t *end_p)
+local maygc object N_log_N (object x, gcv_object_t *end_p)
 {
   pushSTACK(x); /* save x */
   pushSTACK(N_abs_R(x)); /* (abs x) */
   if (R_zerop(STACK_0)) /* (abs x) = 0 -> Error */
     divide_0();
-  STACK_0 = R_ln_R(STACK_0,start_p,end_p); /* (log (abs x)) */
-  if (start_p) { /* increase precision */
-    if (floatp(STACK_1))
-      STACK_1 = F_extend_F(STACK_1);
-    else if (complexp(STACK_1)
-             && (floatp(TheComplex(STACK_1)->c_real)
-                 || floatp(TheComplex(STACK_1)->c_imag))) {
-      var object realpart = TheComplex(STACK_1)->c_real;
-      if (floatp(realpart))
-        realpart = F_extend_F(realpart);
-      pushSTACK(realpart);
-      var object imagpart = TheComplex(STACK_(1+1))->c_imag;
-      if (floatp(imagpart))
-        imagpart = F_extend_F(imagpart);
-      realpart = popSTACK();
-      STACK_1 = R_R_complex_C(realpart,imagpart);
-    }
+  STACK_0 = R_ln_R(STACK_0,true,end_p); /* (log (abs x)) */
+  /* Increase precision: */
+  if (floatp(STACK_1))
+    STACK_1 = F_extend_F(STACK_1);
+  else if (complexp(STACK_1)
+           && (floatp(TheComplex(STACK_1)->c_real)
+               || floatp(TheComplex(STACK_1)->c_imag))) {
+    var object realpart = TheComplex(STACK_1)->c_real;
+    if (floatp(realpart))
+      realpart = F_extend_F(realpart);
+    pushSTACK(realpart);
+    var object imagpart = TheComplex(STACK_(1+1))->c_imag;
+    if (floatp(imagpart))
+      imagpart = F_extend_F(imagpart);
+    realpart = popSTACK();
+    STACK_1 = R_R_complex_C(realpart,imagpart);
   }
   STACK_1 = N_phase_R(STACK_1,true); /* (phase x) */
   if (end_p != NULL && floatp(STACK_1))
@@ -206,8 +205,8 @@ local maygc object N_log_N (object x, bool start_p, gcv_object_t *end_p)
       }
     } else { /* normal complex case */
       pushSTACK(a); pushSTACK(b);
-      STACK_1 = N_log_N(STACK_1,true,&STACK_1); /* (log a) */
-      STACK_0 = N_log_N(STACK_0,true,&STACK_0); /* (log b) */
+      STACK_1 = N_log_N(STACK_1,&STACK_1); /* (log a) */
+      STACK_0 = N_log_N(STACK_0,&STACK_0); /* (log b) */
       a = N_N_durch_N(STACK_1,STACK_0); /* divide */
       skipSTACK(2); return a;
     }
@@ -463,7 +462,7 @@ local maygc object N_log_N (object x, bool start_p, gcv_object_t *end_p)
     var uintL x_prec = R_float_digits(x);
     if (x_prec < F_float_digits(STACK_0))
       STACK_2 = N_N_float_N(STACK_2,STACK_0); /* extend precision of x */
-    STACK_2 = N_log_N(STACK_2,true,NULL); /* (log x) */
+    STACK_2 = N_log_N(STACK_2,NULL); /* (log x) */
     STACK_2 = N_N_float_N(STACK_2,STACK_0); /* rounded (log x) */
     STACK_4 = N_N_float_N(STACK_4,STACK_0); /* rounded y */
     var object temp = N_N_mal_N(STACK_2,STACK_4); /* (* (log x) y) */
