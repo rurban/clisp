@@ -66,6 +66,74 @@ address decreases).</para>
 
 </section>
 
+<section id="typecodes"><title>Object Pointer Representations</title>
+
+<para>&clisp; implements two ways of representing object pointers.
+(An object pointer, &c-lang; type <type>object</type>, contains a
+pointer to the memory location of the object, or - for immediate objects
+ - all bits of the object itself.)
+Both of them have some things in common:
+<itemizedlist>
+ <listitem><simpara>There is a distinction betweem immediate objects
+   (&character-t;s, &fixnum-t;s, &short-float-t;s, etc) and
+   heap allocated objects.</simpara></listitem>
+ <listitem><simpara>All object pointers are typed, i.e. contain a few
+   bits of information about the type of the pointed-to object. At a
+   minimum, these bits must allow to distinguish immediate and
+   heap-allocated objects.</simpara></listitem>
+ <listitem><simpara>Not all of the type information is contained in the
+   object pointer.  For example, &clos; objects can change their type
+   when &change-class; is called. To avoid scanning all the heap for
+   references when this happens, the class information is stored in the
+   heap allocated object, not in the object pointer.</simpara></listitem>
+</itemizedlist></para>
+
+<para>The &no-typecodes; object representation has a minimum of type
+bits in the object pointer, namely, 2 bits. They allow to distinguish
+immediate objects (which have some more type bits), &cons-t;es (which
+have no type bits in the heap, since they occupy just two words in the
+heap, with no header), other heap objects (many, from &simple-vector-t;s
+to &foreign-pointer-t;s), and <type>Subr</type>s. Most object types are
+distinguished by looking a the <varname>rectype</varname> field in the
+header of the heap object.</para>
+
+<para>The &typecodes; object representation has about two dozen of types
+encoded in 6 or 7 bits in the object pointer.
+Typically these are the upper 8 bits of a word (on a 32-bit machine) or
+the upper 16 bits or 32 bits of a word (on a 64-bit machine).
+The particular values of the typecodes allow many common operations to
+be performed with a single bit test (e.g. &consp; and &minusp; for a
+&real-t; are bit tests) or range check.
+However, the <varname>rectype</varname> field still exists for many
+types, because there are many built-in types which do not need a
+particularly fast type test.</para>
+
+<para>Which object representation is chosen is decided at build time
+depending on the available preprocessor definitions. You can define
+&typecodes; or &no-typecodes; to force one or the other.</para>
+
+<para>One might expect that &typecodes; is faster than &no-typecodes;
+because it does not need to make as many memory accesses. This effect
+is, however, hardly measurable in practice (certainly not more than 5%
+faster).  Apparently because, first, the situations where the type of an
+object is requested but then the object is not looked into are rare.
+It is much more common to look into an object, regardless of its type.
+Second, due to the existence of data caches in the CPU, accessing a heap
+location twice, once for the type test and then immediately afterwards
+for the data, is not significantly slower than just accessing the
+data.</para>
+
+<para>&typecodes; is problematic on 32-bit machines, when you want to
+use more than 16 MB of memory, because the type bits (at bit 31..24)
+interfere with the bits of a heap address. For this reason,
+&no-typecodes; is the default on 32-bit platforms.</para>
+
+<para>&no-typecodes; is problematic on platforms whose object alignment
+is less than 4. This affects only the mc680x0 CPU; however, here the
+alignment can usually be guaranteed through some &gcc; options.</para>
+
+</section>
+
 <section id="memory-models"><title>Memory Models</title>
 
 <para>There are 6 memory models. Which one is used, depends on the
@@ -207,7 +275,7 @@ possible (the number indicates the order in which the respective models
 have been developed):</para>
 
 <table id="mem-models-comb-typecodes" frame="all">
- <title>Memory models with TYPECODES</title>
+ <title>Memory models with &typecodes;</title>
 <tgroup cols="6" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry>no MAP_MEMORY</entry>
  <entry>TRIVIALMAP_MEMORY</entry><entry>SINGLEMAP_MEMORY</entry>
@@ -225,7 +293,7 @@ have been developed):</para>
 </tbody></tgroup></table>
 
 <table id="mem-models-comb-no-typecodes" frame="all">
- <title>Memory models with no TYPECODES</title>
+ <title>Memory models with &no-typecodes;</title>
 <tgroup cols="4" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry>no MAP_MEMORY</entry>
  <entry>TRIVIALMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>
