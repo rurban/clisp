@@ -1,5 +1,10 @@
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
+	* defstruct.lisp (ds-initfunction-fetcher): New function.
+	(defstruct): Use it.
+
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
 	Remove redundant data from a defstruct-description.
 	* io.d (structure_reader): Expect a vector of size = 4.
 	* defstruct.lisp (find-structure-slot-initfunction): New function.
