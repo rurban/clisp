@@ -864,15 +864,13 @@ local void rehash (object ht) {
   var gcv_object_t* KVptr = ht_kvt_data(ht) + 2*maxcount; # end of kvtable
   var object freelist = nix;
   var object count = Fixnum_0;
-  loop {
-    # loop, traverses the key-value-vector and the next-vector.
+  while (!eq(index,Fixnum_0)) { /* index=0 -> loop finished */
+    # traverse the key-value-vector and the next-vector.
     # index = MAXCOUNT,...,0 (Fixnum),
     # Nptr = &TheSvector(Nptr)->data[index],
     # KVptr = &TheSvector(KVptr)->data[index],
     # freelist = freelist up to now,
     # count = pair-coutner as fixnum.
-    if (eq(index,Fixnum_0)) # index=0 -> loop finished
-      break;
     index = fixnum_inc(index,-1); # decrement index
     KVptr -= 2;
     var object key = KVptr[0]; # next key
@@ -916,10 +914,7 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
   var gcv_object_t* Nptr = # pointer to the current entry
     &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
   var gcv_object_t* kvt_data = ht_kvt_data(ht);
-  loop {
-    # track "list" :
-    if (eq(*Nptr,nix)) # "list" finished -> not found
-      break;
+  while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
     var uintL index = posfixnum_to_L(*Nptr); # next index
     var gcv_object_t* Iptr = Nptr;
     Nptr = # pointer to entry in next-vector
@@ -1746,10 +1741,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL) {
                    (void),hashindex = );
     var gcv_object_t* Nptr = # pointer to the current entry
       &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
-    loop {
-      # track "list" :
-      if (eq(*Nptr,nix)) # "list" finished -> not found
-        break;
+    while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
       var uintL index = posfixnum_to_L(*Nptr); # next index
       Nptr = # pointer to entry in next-vector
         &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];

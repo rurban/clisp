@@ -1667,10 +1667,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
     #                 has already arrived.
     # flags & bit(1)  indicates, if an a_ratio has already arrived
     #                 (and then info->index3 is its position)
-    loop {
-      # next character
-      if (index>=len)
-        break;
+    while (index<len) { /* next character */
       var uintB attr = *attrptr++; # its attributcode
       if (attr>=a_digit && attr<=a_expodigit) {
         var cint c = as_cint(*charptr++); # character (Digit, namely '0'-'9','A'-'Z','a'-'z')
@@ -1718,10 +1715,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
     #                 a_digit angetroffen wurde.
     # flags & bit(4)  indicates, if there was an a_dot with digits in front
     #                 of it
-    loop {
-      # next character
-      if (index>=len)
-        break;
+    while (index<len) { /* next character */
       var uintB attr = *attrptr++; # its attributecode
       if (attr==a_digit) {
         # Digit ('0'-'9')
@@ -1773,10 +1767,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
       default:
             break;
     }
-    loop {
-      # next character in exponent:
-      if (index>=len)
-        break;
+    while (index<len) { /* next character in exponent: */
       # from now on only digits are allowed:
       if (!(*attrptr++ == a_digit))
         return 0;
@@ -2987,9 +2978,7 @@ LISPFUNN(char_reader,3) { # reads #\\
     var uintL code = 0; # so far read xxxx (<char_code_limit)
     var uintL index = pos+4;
     var const chart* charptr = &TheSstring(token)->data[index];
-    loop {
-      if (index == len) # reached end of Token?
-        break;
+    while (index != len) { /* not reached end of Token? */
       var cint c = as_cint(*charptr++); # next Character
       # is to be digit:
       if (!((c>='0') && (c<='9')))
@@ -8357,8 +8346,7 @@ local void pr_record_ab (const gcv_object_t* stream_, const gcv_object_t* obj_,
                          uintL index, uintL length) {
   var uintL len = Record_length(*obj_); # length of record
   var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
-  loop {
-    if (index >= len) break; # index >= Recordlength -> finished
+  while (index < len) { /* index >= Recordlength -> finished */
     JUSTIFY_SPACE; # print Space
     # check for attaining of *PRINT-LENGTH* :
     CHECK_LENGTH_LIMIT(length >= length_limit,break);
