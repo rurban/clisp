@@ -35,7 +35,8 @@ AC_MSG_NOTICE([ * System Calls (Functions)])
 AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
 getrlimit setrlimit getlogin getpwent getpwnam getpwuid getuid dnl
 openlog setlogmask syslog closelog dnl
-fchmod fchown fstat link stat symlink utime mknod chmod chown umask)
+fchmod fchown fstat link stat symlink utime mknod chmod umask)
+AC_FUNC_CHOWN
 AC_SEARCH_LIBS(erf, m)
 AC_CHECK_FUNCS(erf erfc lgamma fstatvfs statvfs getpriority setpriority)
 AC_CHECK_DECLS(lgamma_r, , , [#include <math.h>] )
