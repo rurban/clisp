@@ -159,11 +159,11 @@
 #ifdef IMMEDIATE_FFLOAT
 # Baut ein Float aus Vorzeichen (0 oder -1), Exponent und Mantisse zusammen:
   #define make_FF(sign,exp,mant)  \
-    type_data_object(FF_type | (bit(vorz_bit_t) & (sign)), \
-      (sign) << (FF_exp_len+FF_mant_len)                   \
-      | (((exp) & (bit(FF_exp_len)-1)) << FF_mant_len)     \
-      | ((mant) & (bit(FF_mant_len)-1))                    \
-      )
+    type_data_object(FF_type | (bit(vorz_bit_t) & (sign)),      \
+      (ffloat)((sign) << (FF_exp_len+FF_mant_len)               \
+               | (((exp) & (bit(FF_exp_len)-1)) << FF_mant_len) \
+               | ((mant) & (bit(FF_mant_len)-1))                \
+      )       )
 # Single Float 0.0 :
   #define FF_0  make_FF(0,0,0)
 # Single Float 1.0 :
