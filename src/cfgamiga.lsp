@@ -8,16 +8,11 @@
 
 (defun machine-type () "Amiga")
 (defun machine-version () "Amiga, OS 2.04-3.1")
-(defun machine-instance () "localhost Heinrich Mustermanns Amiga")
-                          ;"localhost Smith's Amiga"
-                          ;"localhost Amiga de M. Henri Dupondt"
+(defun machine-instance () (or (sys::getenv "HOSTNAME") "edit config.lsp"))
 
-(defun short-site-name () "Pfefferhofen")
-                         ;"Farawaycity"
-                         ;"Village-le-Petit"
-(defun long-site-name () "Haus Nr. 71, 34567 Pfefferhofen, Deutschland")
-                        ;"4 Down Street #382, Farawaycity, TX 86754, USA"
-                        ;"5, Grande Rue, 34567 Village-le-Petit, France"
+(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
+
+(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
 
 ;; ENGLISH: The name of the editor:
 ;; DEUTSCH: Der Name des Editors:
