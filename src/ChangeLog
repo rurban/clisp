@@ -1,3 +1,8 @@
+2004-03-15  Bruno Haible  <bruno@clisp.org>
+
+	* list.d (NTHCDR): Drop out of the loop when the end of the list is
+	reached.
+
 2004-03-13  Bruno Haible  <bruno@clisp.org>
 
 	* dribble.lisp: Use variable names 'source' and 'target' instead of
