@@ -39,6 +39,8 @@
 	* comptran.d (N_tan_N, N_sinh_N, N_cosh_N, N_tanh_N)
 	(R_R_atanh_R_R): ditto
 	* pathname.d (parse_logical_host_prefix): ditto
+	* array.d (elt_nreverse): elements in Array_type_svector
+	are type `gcv_object_t', not `object'
 
 2002-12-20  Sam Steingold  <sds@gnu.org>
 

@@ -3391,7 +3391,7 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
   count = floor(count,2);
   switch (Array_type(dv)) {
     case Array_type_svector: /* Simple-Vector */
-      SIMPLE_NREVERSE(object,dv,index1,index2,count);
+      SIMPLE_NREVERSE(gcv_object_t,dv,index1,index2,count);
       break;
     case Array_type_sbvector: /* Simple-Bit-Vector */
       if (count > 0) {
