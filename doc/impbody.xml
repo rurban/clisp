@@ -430,7 +430,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section id="clos-diff"><title>Deviations from &ansi-cl;:</title>
+<section id="clos-diff"><title>Deviations from &ansi-cl;</title>
 
 <formalpara><title>&defclass;</title>
 <para>It <emphasis>is</emphasis> required that the superclasses of a
