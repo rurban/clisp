@@ -1,3 +1,20 @@
+2003-04-27  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Implemented extended program launcher in win32.
+	* constsym.d (LAUNCH, :terminal): added.
+	* win32.d (MyCreateProcess): added error-stream to declaration.
+	* win32aux.d (MyCreateProcess): implemented this addition.
+	* pathname.d (SHELL) [WIN32_NATIVE]: usage of MyCreateProcess
+	corrected.
+	(MyDupHandle) [WIN32_NATIVE]: new helper function.
+	(LAUNCH) [WIN32_NATIVE]: the launcher.
+	* stream.d (sync_file_buffered): new function.
+	(create_input_pipe, create_output_pipe, create_io_pipe):
+	usage of MyCreateProcess corrected.
+	(stream_lend_handle): new function to lend the handles.
+	* subr.d (LAUNCH) [WIN32_NATIVE]: added.
+	* subrkw.d (LAUNCH) [WIN32_NATIVE]: added.
+
 2003-04-26  Sam Steingold  <sds@gnu.org>
 
 	* clos.lisp (finalize-instance-standard-class): use DOLIST

@@ -10747,15 +10747,18 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
     # Start new process.
     var HANDLE stdinput;
     var HANDLE stdoutput;
+    var HANDLE stderror;
     var PROCESS_INFORMATION pinfo;
     begin_system_call();
     stdinput = GetStdHandle(STD_INPUT_HANDLE);
     if (stdinput == INVALID_HANDLE_VALUE) { OS_error(); }
     stdoutput = GetStdHandle(STD_OUTPUT_HANDLE);
     if (stdoutput == INVALID_HANDLE_VALUE) { OS_error(); }
-    if (!MyCreateProcess(command_asciz,stdinput,stdoutput,&pinfo))
+    stderror = GetStdHandle(STD_ERROR_HANDLE);
+    if (stderror == INVALID_HANDLE_VALUE) { OS_error(); }
+    if (!MyCreateProcess(command_asciz,stdinput,stdoutput,stderror,&pinfo))
       { OS_error(); }
-    if (!CloseHandle(pinfo.hThread)) { OS_error(); }
+    if (pinfo.hThread && !CloseHandle(pinfo.hThread)) { OS_error(); }
     prochandle = pinfo.hProcess;
   });
   # Wait until it terminates, get its exit status code.
@@ -10772,6 +10775,73 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   end_system_call();
   # utilize return value: =0 (OK) -> T, >0 (not OK) -> NIL :
   VALUES_IF(exitcode == 0);
+}
+
+inline Handle MyDupHandle (Handle h0) {
+  var Handle h1;
+  if (!DuplicateHandle(GetCurrentProcess(),h0,
+       GetCurrentProcess(),&h1,
+       0, true, DUPLICATE_SAME_ACCESS))
+  {
+    OS_error();
+  }
+  return h1;
+}
+
+Handle stream_lend_handle (object stream, bool inputp, int * handletype);
+
+LISPFUN(launch,seclass_default,1,0,norest,key,4,
+        (kw(wait),kw(input),kw(output),kw(error))) {
+  var object error_arg = STACK_0;
+  var object output_arg = STACK_1;
+  var object input_arg = STACK_(2);
+  var object wait_arg = STACK_(3);
+  var object command_arg = STACK_(4);
+  var int handletype;
+  if (!boundp(wait_arg)) wait_arg = S(t);
+  if (!stringp(command_arg)) fehler_string(command_arg);
+  var Handle hinput = MyDupHandle((boundp(input_arg) && !eq(input_arg,S(Kterminal)))?
+    stream_lend_handle(input_arg,true,&handletype):stdin_handle);
+  var Handle houtput = MyDupHandle((boundp(output_arg) && !eq(output_arg,S(Kterminal)))?
+    stream_lend_handle(output_arg,false,&handletype):stdout_handle);
+  var Handle herror = MyDupHandle((boundp(error_arg) && !eq(error_arg,S(Kterminal)))?
+    stream_lend_handle(error_arg,false,&handletype):stderr_handle);
+  var HANDLE prochandle;
+  with_string_0(command_arg,O(misc_encoding),command_asciz, {
+    /* Start new process. */
+    var PROCESS_INFORMATION pinfo;
+    begin_system_call();
+    if (!MyCreateProcess(command_asciz,hinput,houtput,herror,&pinfo))
+      { end_system_call(); OS_error(); }
+    if (pinfo.hThread /* zero for 16 bit programs in NT */
+         && !CloseHandle(pinfo.hThread)) { end_system_call(); OS_error(); }
+    prochandle = pinfo.hProcess;
+  });
+  var DWORD exitcode = 0;
+  if (!nullp(wait_arg)) {
+    /* Wait until it terminates, get its exit status code. */
+    switch (WaitForSingleObject(prochandle,INFINITE)) {
+      case WAIT_FAILED:
+        end_system_call(); OS_error();
+      case WAIT_OBJECT_0:
+        break;
+      default: NOTREACHED;
+    }
+    if (!GetExitCodeProcess(prochandle,&exitcode)) { end_system_call(); OS_error(); }
+  }
+
+  /* we can safely close handle of a running process - no problem */
+  if (!CloseHandle(prochandle)) { end_system_call(); OS_error(); }
+
+  /* so with our copy of the child's handles */
+  if (hinput!=stdin_handle && !CloseHandle(hinput)) { end_system_call(); OS_error(); }
+  if (houtput!=stdout_handle && !CloseHandle(houtput)) { end_system_call(); OS_error(); }
+  if (houtput!=stderr_handle && !CloseHandle(herror)) { end_system_call(); OS_error(); }
+
+  end_system_call();
+  /* utilize return value: =0 (OK) -> T, >0 (not OK) -> NIL : */
+  VALUES_IF(exitcode == 0);
+  skipSTACK(5);
 }
 
 #else # UNIX || MSDOS || ...

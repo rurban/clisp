@@ -633,6 +633,7 @@ LISPSYM(execute,"EXECUTE",ext)
 #ifdef HAVE_SHELL
 #ifdef WIN32_NATIVE
 LISPSYM(shell_name,"SHELL-NAME",system)
+LISPSYM(launch,"LAUNCH",ext)
 #endif
 LISPSYM(shell,"SHELL",ext)
 #endif
@@ -1248,6 +1249,7 @@ LISPSYM(Kload_toplevel,"LOAD-TOPLEVEL",keyword)
 LISPSYM(Keof,"EOF",keyword)
 LISPSYM(Kinput_available,"INPUT-AVAILABLE",keyword)
 LISPSYM(Kwait,"WAIT",keyword)
+LISPSYM(Kterminal,"TERMINAL",keyword)
 LISPSYM(Kline_position,"LINE-POSITION",keyword)
 LISPSYM(Klittle,"LITTLE",keyword)
 LISPSYM(Kbig,"BIG",keyword)
