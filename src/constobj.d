@@ -643,12 +643,6 @@
  #ifdef WIN32_NATIVE
   LISPOBJ(load_extra_file_types,"(\".BAT\")")
  #endif
-# for REXX.D:
- #ifdef REXX
-  LISPOBJ(rexx_inmsg_list,"NIL")
-  LISPOBJ(rexx_prefetch_inmsg,"NIL")
-  LISPOBJ(type_rexx_host,"(OR STRING BOOLEAN)")
- #endif
 /* for control & io, function seclass_object(): */
 LISPOBJ(seclass_no_se,"(NIL NIL NIL)")
 LISPOBJ(seclass_read,"(T NIL NIL)")
