@@ -372,7 +372,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  <listitem><simpara><literal role="type">(&bit-vector-t;
   &size-r;)</literal>, <literal role="type">(&simple-bit-vector-t;
   &size-r;)</literal></simpara></listitem>
- <listitem><simpara>&function-t;, &compiled-function-t;</simpara></listitem>
+ <listitem><simpara>&function-t;, &compiled-function-t;, &standard-generic-function-t;</simpara></listitem>
  <listitem><simpara>&stream-t;, &file-stream-t;, &synonym-stream-t;,
   &broadcast-stream-t;, &concatenated-stream-t;, &two-way-stream-t;,
   &echo-stream-t;, &string-stream-t;</simpara></listitem>

@@ -448,6 +448,22 @@ to print the corresponding values, or T for all of them.")
           (format stream (TEXT "~A string)")
                          (case bits (8 "ISO-8859-1") (16 "UCS-2") (32 "UCS-4")))))
       (format stream (TEXT "."))))
+  (:method ((obj generic-function) (stream stream))
+    (format stream (TEXT "a generic function."))
+    (format stream (TEXT "~%Argument list: ~A")
+            (compiler::sig-to-list (clos::gf-signature obj)))
+    (let ((mc (clos::method-combination-name (clos::gf-method-combination obj))))
+      (unless (eq mc 'STANDARD)
+        (format stream (TEXT "~%Method combination: ~S") mc)))
+    (let ((methods (clos::gf-methods obj)))
+      (if methods
+        (progn
+          (format stream (TEXT "~%Methods:"))
+          (dolist (meth (clos::gf-methods obj))
+            (format stream "~%  ~{~S ~}~S" (clos::std-method-qualifiers meth)
+                    (mapcar #'(lambda (ps) (if (consp ps) ps (class-name ps)))
+                            (clos::std-method-parameter-specializers meth)))))
+        (format stream (TEXT "~%No methods.")))))
   (:method ((obj function) (stream stream))
     (ecase (type-of obj)
       #+FFI
@@ -457,35 +473,35 @@ to print the corresponding values, or T for all of them.")
                                             (sys::%record-ref obj 2)
                                             (sys::%record-ref obj 3)
                                             (sys::%record-ref obj 4)))))
-      (COMPILED-FUNCTION ; SUBR
-       (format stream (TEXT "a built-in system function."))
+      (COMPILED-FUNCTION
        (multiple-value-bind (name req opt rest-p keywords other-keys)
            (sys::subr-info obj)
-         (when name
-           (sys::describe-signature stream req opt rest-p
-                                    keywords keywords other-keys))))
+         (if (and name req)
+           (progn
+             (format stream (TEXT "a built-in system function."))
+             (sys::describe-signature stream req opt rest-p
+                                      keywords keywords other-keys))
+           (progn
+             (format stream (TEXT "a compiled function."))
+             (multiple-value-bind (req opt rest-p key-p keywords other-keys-p)
+                 (sys::signature obj)
+               (sys::describe-signature stream req opt rest-p key-p keywords
+                                        other-keys-p)
+               (let* ((name (sys::closure-name obj))
+                      (funform (cond ((and (symbolp name) (macro-function name))
+                                      `(MACRO-FUNCTION ',name))
+                                     ((fboundp name) `(FUNCTION ,name)))))
+                 (when funform
+                   (format stream
+                           (TEXT "~%For more information, evaluate ~{~S~^ or ~}.")
+                           `((DISASSEMBLE ,funform))))))))))
       (FUNCTION
-       (format stream
-               (TEXT "a~:[n interpret~; compil~]ed function.")
-               (sys::%compiled-function-p obj))
-       (if (sys::%compiled-function-p obj)
-         (multiple-value-bind (req opt rest-p key-p keywords other-keys-p)
-             (sys::signature obj)
-           (sys::describe-signature stream req opt rest-p key-p keywords
-                                    other-keys-p)
-           (let* ((name (sys::closure-name obj))
-                  (funform (cond ((and (symbolp name) (macro-function name))
-                                  `(MACRO-FUNCTION ',name))
-                                 ((fboundp name) `(FUNCTION ,name)))))
-             (when funform
-               (format stream
-                       (TEXT "~%For more information, evaluate ~{~S~^ or ~}.")
-                       `((DISASSEMBLE ,funform))))))
-         (let ((doc (sys::%record-ref obj 2)))
-           (format stream (TEXT "~%argument list: ~:S")
-                   (car (sys::%record-ref obj 1)))
-           (when doc
-             (format stream (TEXT "~%documentation: ~A") doc))))))))
+       (format stream (TEXT "an interpreted function."))
+       (let ((doc (sys::%record-ref obj 2)))
+         (format stream (TEXT "~%argument list: ~:S")
+                 (car (sys::%record-ref obj 1)))
+         (when doc
+           (format stream (TEXT "~%documentation: ~A") doc)))))))
 
 (defun describe1 (obj stream)
   (let ((objstring (sys::write-to-short-string
