@@ -1666,7 +1666,7 @@ its CONTINUE restart is invoked."
 (defun exitunconditionally (condition) ; ABI
   (fresh-line *error-output*)
   (write-string "*** - " *error-output*)
-  (print-condition condition *error-output*)
+  (pretty-print-condition condition *error-output*)
   (elastic-newline *error-output*)
   (exit t))                     ; exit Lisp with error
 (defun exitonerror (condition) ; ABI
