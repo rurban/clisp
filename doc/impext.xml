@@ -1903,43 +1903,43 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <varlistentry><term><filename>makevars</filename></term>
  <listitem><para>some &sh; commands, setting the variables
 <variablelist><varlistentry><term><envar>CC</envar></term>
-       <listitem><simpara>the &c-lang; compiler
-   </simpara></listitem></varlistentry>
+  <listitem><simpara>the &c-lang; compiler
+ </simpara></listitem></varlistentry>
  <varlistentry><term><envar>CPPFLAGS</envar></term>
-       <listitem><simpara>flags for the &c-lang; compiler, when preprocessing
-         or compiling</simpara></listitem></varlistentry>
+  <listitem><simpara>flags for the &c-lang; compiler, when preprocessing
+    or compiling</simpara></listitem></varlistentry>
  <varlistentry><term><envar>CFLAGS</envar></term>
-       <listitem><simpara>flags for the &c-lang; compiler, when compiling or
-         linking</simpara></listitem></varlistentry>
+  <listitem><simpara>flags for the &c-lang; compiler, when compiling or
+    linking</simpara></listitem></varlistentry>
  <varlistentry><term><envar>CLFLAGS</envar></term>
-       <listitem><simpara>flags for the &c-lang; compiler, when linking
-   </simpara></listitem></varlistentry>
+  <listitem><simpara>flags for the &c-lang; compiler, when linking
+ </simpara></listitem></varlistentry>
  <varlistentry><term><envar>LIBS</envar></term>
-       <listitem><simpara>libraries to use when linking
-   </simpara></listitem></varlistentry>
+  <listitem><simpara>libraries to use when linking
+ </simpara></listitem></varlistentry>
  <varlistentry><term><envar>X_LIBS</envar></term>
-       <listitem><simpara>additional &X; libraries to use
-   </simpara></listitem></varlistentry>
+  <listitem><simpara>additional &X; libraries to use
+ </simpara></listitem></varlistentry>
  <varlistentry><term><envar>RANLIB</envar></term>
-       <listitem><simpara>the ranlib command
-   </simpara></listitem></varlistentry>
+  <listitem><simpara>the ranlib command
+ </simpara></listitem></varlistentry>
  <varlistentry><term><envar>FILES</envar></term>
-       <listitem><simpara>the list of files needed when linking
-   </simpara></listitem></varlistentry>
-  </variablelist></para></listitem></varlistentry>
- <varlistentry><term><filename>modules.h</filename></term>
-  <listitem><simpara>the list of modules contained in this &linkset;
-  </simpara></listitem></varlistentry>
- <varlistentry><term><filename>modules.o</filename></term>
-  <listitem><simpara>the compiled list of modules contained in this &linkset;
-  </simpara></listitem></varlistentry>
- <varlistentry><term>all the <filename>FILES</filename></term>
-  <listitem><simpara>listed in <filename>makevars</filename>
-  </simpara></listitem></varlistentry>
- <varlistentry><term><filename>lisp.run</filename></term>
-       <listitem><simpara>the executable</simpara></listitem></varlistentry>
- <varlistentry><term>&lispinit;</term>
-     <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
+  <listitem><simpara>the list of files needed when linking
+ </simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
+<varlistentry><term><filename>modules.h</filename></term>
+ <listitem><simpara>the list of modules contained in this &linkset;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>modules.o</filename></term>
+ <listitem><simpara>the compiled list of modules contained in this &linkset;
+</simpara></listitem></varlistentry>
+<varlistentry><term>all the <filename>FILES</filename></term>
+ <listitem><simpara>listed in <filename>makevars</filename>
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>lisp.run</filename></term>
+ <listitem><simpara>the executable</simpara></listitem></varlistentry>
+<varlistentry><term>&lispinit;</term>
+ <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 
 <para>To run a &clisp; contained in some &linkset;
