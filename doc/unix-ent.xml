@@ -132,6 +132,7 @@
 <!ENTITY DBE_get_tx_max "<ulink url='&bdb;env_set_tx_max.html'><function>DB_ENV-&gt;get_tx_max</function></ulink>">
 <!ENTITY DBE_set_tx_timestamp "<ulink url='&bdb;env_set_tx_timestamp.html'><function>DB_ENV-&gt;set_tx_timestamp</function></ulink>">
 <!ENTITY DBE_get_tx_timestamp "<ulink url='&bdb;env_set_tx_timestamp.html'><function>DB_ENV-&gt;get_tx_timestamp</function></ulink>">
+<!ENTITY DBE_txn_checkpoint "<ulink url='&bdb;txn_checkpoint.html'><function>DB_ENV-&gt;txn_checkpoint</function></ulink>">
 <!ENTITY db_create "<ulink url='&bdb;db_create.html'><function>db_create</function></ulink>">
 <!ENTITY DB_close "<ulink url='&bdb;db_close.html'><function>DB-&gt;close</function></ulink>">
 <!ENTITY DB_del "<ulink url='&bdb;db_del.html'><function>DB-&gt;del</function></ulink>">
