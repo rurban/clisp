@@ -1,3 +1,8 @@
+1999-05-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * trace.lsp (trace1): No need to use replace-in-fenv.
+          (replace-in-fenv): Remove function.
+
 1999-05-12  Sam Steingold  <sds@goems.com>
 
 	* format.lsp (format-integer): (format nil "~@d" 0) => "+0"
