@@ -61,7 +61,7 @@ global unsigned int ualarm (unsigned int value, unsigned int interval) {
       var int result = poll(pollfd_count,&pollfd_bag[0],poll_timeout);
       if (result>=0) {
         pollfd_ptr = &pollfd_bag[0];
-        until (pollfd_count == 0) {
+        while (pollfd_count != 0) {
           var int fd = pollfd_ptr->fd;
           var short revents = pollfd_ptr->revents;
           if (!(readfds==NULL) && (revents & POLLIN))
@@ -250,8 +250,8 @@ global int nonintr_open (const char* path, int flags, mode_t mode)
 #endif
 
 # a wrapper for read()
-global ssize_t read_helper (int fd, void* bufarea, size_t nbyte,
-                            bool partial_p) {
+global ssize_t read_helper (int fd, void* bufarea, size_t nbyte, bool no_hang)
+{
   var char* buf = (char*) bufarea;
   var ssize_t retval;
   var size_t done = 0;
@@ -267,53 +267,66 @@ global ssize_t read_helper (int fd, void* bufarea, size_t nbyte,
   # does not specify anything about possible side effects.
   handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
  #endif
+ {NO_BLOCK_DECL(fd);
+  if (no_hang) START_NO_BLOCK(fd);
   while (nbyte!=0) {
     retval = read(fd,buf,nbyte);
     if (retval == 0)
       break;
     else if (retval < 0) {
+        if (no_hang && (errno == EAGAIN)) {
+          /* FIXME: signal blocking state reached -- just use errno?
+             never executes - printf("read_helper - read blocked\n"); */
+          goto end;}
      #ifdef EINTR
       if (errno != EINTR)
      #endif
         return retval;
     } else {
       buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
-      if (partial_p)
+      if (no_hang)
         break;
     }
   }
+  end:
+    if (no_hang) END_NO_BLOCK(fd);
+  }
+  // never executes
+  // if (errno == EAGAIN) printf("returning with block from read_helper\n");
   return done;
 }
 
 # Ein Wrapper um die write-Funktion.
-  global ssize_t full_write (int fd, const void* bufarea, size_t nbyte);
-  global ssize_t full_write (fd,bufarea,nbyte)
-    var int fd;
-    var const void* bufarea;
-    var size_t nbyte;
-    {
-      var const char* buf = (const char*) bufarea;
-      var ssize_t retval;
-      var size_t done = 0;
-      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-      # Must adjust the memory permissions before calling write().
-      handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte,
+                             bool no_hang)
+{
+  var const char* buf = (const char*) bufarea;
+  var ssize_t retval;
+  var size_t done = 0;
+#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+  /* Must adjust the memory permissions before calling write(). */
+  handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+#endif
+  {NO_BLOCK_DECL(fd);
+   if (no_hang) START_NO_BLOCK(fd);
+   while (nbyte!=0) {
+     retval = write(fd,buf,nbyte);
+     if (retval < 0) {
+       if (no_hang && (errno == EAGAIN)) goto end;
+      #ifdef EINTR
+       /* FIXME: no way to interrupt a large write? *** */
+       if (errno != EINTR)
       #endif
-      until (nbyte==0) {
-        retval = write(fd,buf,nbyte);
-        if (retval == 0)
-          break;
-        elif (retval < 0) {
-          #ifdef EINTR
-          if (!(errno == EINTR))
-          #endif
-            return retval;
-        } else {
-          buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
-        }
-      }
-      return done;
-    }
+         {done = retval; /* -1 */ goto end;}
+     } else {
+       buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
+     }
+   }
+   end:
+   if (no_hang) END_NO_BLOCK(fd);
+  }
+  return done;
+}
 
 #ifdef UNIX_BEOS
 
@@ -333,11 +346,11 @@ global ssize_t read_helper (int fd, void* bufarea, size_t nbyte,
       # Must adjust the memory permissions before calling recv().
       handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
       #endif
-      until (nbyte==0) {
+      while (nbyte!=0) {
         retval = recv(fd,buf,nbyte,0);
         if (retval == 0)
           break;
-        elif (retval < 0) {
+        else if (retval < 0) {
           #ifdef EINTR
           if (!(errno == EINTR))
           #endif
@@ -350,35 +363,37 @@ global ssize_t read_helper (int fd, void* bufarea, size_t nbyte,
       return done;
     }
 
-# A wrapper around the send() function.
-  global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte);
-  global ssize_t sock_write (fd,bufarea,nbyte)
-    var int fd;
-    var const void* bufarea;
-    var size_t nbyte;
-    {
-      var const char* buf = (const char*) bufarea;
-      var ssize_t retval;
-      var size_t done = 0;
-      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-      # Must adjust the memory permissions before calling send().
-      handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+/* A wrapper around the send() function.
+ FIXME: no_hang case totally untested ! */
+global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte,
+                           bool no_hang)
+{
+  var const char* buf = (const char*) bufarea;
+  var ssize_t retval;
+  var size_t done = 0;
+#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+  /* Must adjust the memory permissions before calling send(). */
+  handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+#endif
+  {NO_BLOCK_DECL(fd);
+   if (no_hang) START_NO_BLOCK(fd);
+   while (nbyte!=0) {
+     retval = send(fd,buf,nbyte,0);
+     if (retval < 0) {
+       if (errno == EWOULDBLOCK) goto end;
+      #ifdef EINTR
+       if (errno != EINTR)
       #endif
-      until (nbyte==0) {
-        retval = send(fd,buf,nbyte,0);
-        if (retval == 0)
-          break;
-        elif (retval < 0) {
-          #ifdef EINTR
-          if (!(errno == EINTR))
-          #endif
-            return retval;
-        } else {
-          buf += retval; done += retval; nbyte -= retval;
-        }
-      }
-      return done;
-    }
+         {done = retval; goto end;}
+     } else {
+       buf += retval; done += retval; nbyte -= retval;
+     }
+   }
+   end:
+   if (no_hang) END_NO_BLOCK(fd);
+  }
+  return done;
+}
 
 #endif
 
@@ -501,7 +516,7 @@ global long to_time_t_ (FILETIME * ptr) {
   x -= FACTOR;               /* number of 100ns between 1601 and 1970 */
   rem = x % ((long long) NSPERSEC);
   rem += (NSPERSEC/2);
-  x /= (long long) NSPERSEC;	/* number of 100ns in a second */
+  x /= (long long) NSPERSEC;    /* number of 100ns in a second */
   x += (long long) (rem/NSPERSEC);
   return x;
 }

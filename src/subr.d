@@ -934,8 +934,8 @@ LISPFUN(write_char_sequence,seclass_default,2,0,norest,key,2,
         (kw(start),kw(end)) )
 LISPFUN(read_byte_sequence,seclass_default,2,0,norest,key,3,
         (kw(start),kw(end),kw(no_hang)) )
-LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,2,
-        (kw(start),kw(end)) )
+LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,3,
+        (kw(start),kw(end),kw(no_hang)) )
 /* ---------- STREAM ---------- */
 LISPFUN(symbol_stream,seclass_read,1,1,norest,nokey,0,NIL)
 LISPFUNNR(make_synonym_stream,1)
