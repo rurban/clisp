@@ -1,3 +1,16 @@
+2001-10-28  Arseny Slobodjuck <ampy@ich.dvo.ru>
+	    Sam Steingold  <sds@gnu.org>
+
+	* stream.d (SCREEN) [WIN32_NATIVE]: w95/98 bug fixes
+	(win32_console_extrafields_struct): add field handle_reused.
+	(v_puts): fixed a coord bug becoming apparent on w95.
+	(low_close_console): new function, closing console handle if it is
+	not reused.
+	(MAKE-WINDOW): on NT create new console handle, on w95/98 try to
+	get standard handle (w95 returns stdout anyway). Set new field in
+	stream data accordingly.  Removing obsolete ASSERT. Change stream
+	closing procedure to new low_close_console.
+
 2001-10-25  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (MAKE-PATHNAME): STACK_* = listof()
