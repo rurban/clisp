@@ -881,9 +881,9 @@ local void shadow (const object* sym_, const object* pack_) {
   check_pack_lock(S(shadow),*pack_,*sym_);
   set_break_sem_2(); /* protect against breaks */
   /* Search an internal or external symbol of the same name: */
-  var object string = /* only the name of the symbol is counts. */
+  var object string = /* only the name of the symbol counts. */
  #ifdef X3J13_161
-    (symbolp(*sym_) ? Symbol_name(*sym_) : coerce_imm_ss(*sym_));
+    test_stringsymchar_arg(*sym_);
  #else
     Symbol_name(*sym_);
  #endif
@@ -1862,34 +1862,11 @@ LISPFUNN(make_symbol,1) { /* (MAKE-SYMBOL printname), CLTL p. 168 */
   VALUES1(make_symbol(coerce_imm_ss(arg)));
 }
 
-/* UP: checks a string/symbol-argument
- > obj: argument
- > subr_self: caller (a SUBR)
- < result: argument as string
- can trigger GC */
-local object test_stringsym_arg (object obj) {
-  if (stringp(obj)) /* String: return unchanged */
-    return obj;
-  if (symbolp(obj)) /* symbol: use print name */
-    return TheSymbol(obj)->pname;
-  if (charp(obj)) { /* character: singleton string */
-    pushSTACK(obj);
-    { var object new_string = allocate_string(1);
-      TheSstring(new_string)->data[0] = char_code(STACK_0);
-      obj = new_string; }
-    skipSTACK(1); return obj;
-  }
-  pushSTACK(obj); /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_stringsym)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ should be a string or a symbol"));
-}
-
 LISPFUNN(find_package,1) { /* (FIND-PACKAGE name), CLTL p. 183 */
   var object pack = popSTACK();
   if (packagep(pack)) VALUES1(pack);
   else {
-    var object name = test_stringsym_arg(pack);
+    var object name = test_stringsymchar_arg(pack);
     VALUES1(find_package(name)); /* search package */
   }
 }
@@ -1928,7 +1905,7 @@ LISPFUNN(package_nicknames,1) { /* (PACKAGE-NICKNAMES package), CLTL p. 184 */
  can trigger GC */
 local void test_names_args (void) {
   /* check name for string and turn it into a simple-string: */
-  STACK_3 = coerce_imm_ss(test_stringsym_arg(STACK_3));
+  STACK_3 = coerce_imm_ss(test_stringsymchar_arg(STACK_3));
   { /* convert nickname-argument into a list: */
     var object nicknames = STACK_2;
     if (!boundp(nicknames)) {
@@ -1951,7 +1928,7 @@ local void test_names_args (void) {
         var object nickname = Car(STACK_3); /* next nickname */
         STACK_3 = Cdr(STACK_3);
         /* as simple-string */
-        nickname = coerce_imm_ss(test_stringsym_arg(nickname));
+        nickname = coerce_imm_ss(test_stringsymchar_arg(nickname));
         /* cons in front of the new nicknamelist: */
         pushSTACK(nickname);
       }
@@ -2182,9 +2159,9 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL) {
 /* UP: Dispatcher of a function like EXPORT, UNEXPORT, IMPORT, SHADOWING-IMPORT
  or SHADOW. tests, if the first argument is a symbol-list, if
  the second argument (default: *PACKAGE*) is a package, and applies the
- subroutine to each of the symbols. Return with 1 value T.
+ subroutine to each of the symbols. Return 1 value T.
  apply_symbols(&fun);
- spezification of the subroutine fun:
+ specification of the subroutine fun:
    fun(&sym,&pack);
    > sym: symbol (in STACK)
    > pack: package (in STACK)
@@ -2200,14 +2177,15 @@ local Values apply_symbols (sym_pack_function_t* fun) {
     if (symbolp(symarg))
       goto ok;
    #ifdef X3J13_161
-    if ((fun == &shadow) && stringp(symarg))
+    if ((fun == &shadow) && (stringp(symarg) || charp(symarg)))
       goto ok;
    #endif
     /* test for symbol-list: */
     while (consp(symarg)) { /* symarg loops over STACK_1 */
       if (!(symbolp(Car(symarg))
            #ifdef X3J13_161
-            || ((fun == &shadow) && stringp(Car(symarg)))
+            || ((fun == &shadow)
+                && (stringp(Car(symarg)) || charp(Car(symarg))))
            #endif
          ) )
         goto not_ok;
@@ -2412,7 +2390,7 @@ LISPFUN(make_package,1,0,norest,key,3,
 LISPFUN(pin_package,1,0,norest,key,3,
         (kw(nicknames),kw(use),kw(case_sensitive)) ) {
   /* check name and turn into string: */
-  var object name = test_stringsym_arg(STACK_3);
+  var object name = test_stringsymchar_arg(STACK_3);
   STACK_3 = name;
   /* search package with this name: */
   var object pack = find_package(name);
@@ -2564,7 +2542,7 @@ local void delete_package_aux (void* data, object sym) {
 
 /* (FIND-ALL-SYMBOLS name), CLTL p. 187 */
 LISPFUNN(find_all_symbols,1) {
-  STACK_0 = test_stringsym_arg(STACK_0); /* name as string */
+  STACK_0 = test_stringsymchar_arg(STACK_0); /* name as string */
   pushSTACK(NIL); /* (so far empty) symbol-list */
   pushSTACK(O(all_packages)); /* traverse list of all packages */
   while (mconsp(STACK_0)) {
