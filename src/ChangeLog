@@ -1,5 +1,14 @@
 2004-02-20  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_garcol.d (UNREALLOC, GC_UNREALLOC): Remove macros.
+	(GC_MARK): Remove macro; use gc_mark instead.
+	(update): Drop wrapper macro. Instead use the definition from update1.
+	(update1): Remove macro; renamed to update.
+	* spvw_genera2.d (gc_mark_at, gc_mark_old_generation): Use gc_mark
+	instead of GC_MARK.
+
+2004-02-20  Bruno Haible  <bruno@clisp.org>
+
 	Clean up simple-string forward pointers during garbage collection.
 	* lispbibl.d (sstring_flags_clr, sstring_flags_set): New macros.
 	(mark_sstring_clean): New macro.
