@@ -1,3 +1,7 @@
+2002-12-15  Sam Steingold  <sds@gnu.org>
+
+	* streamslong.tst (list->float, float->list): new functions
+
 2002-10-10  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (lisp-implementation-type): new variable
