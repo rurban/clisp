@@ -693,6 +693,14 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #endif # SELFMADE_MMAP || GENERATIONAL_GC
 
 # ------------------------------------------------------------------------------
+#                      Signal handlers
+
+#include "spvw_sigsegv.c"
+#include "spvw_sigcld.c"
+#include "spvw_sigint.c"
+#include "spvw_sigwinch.c"
+
+# ------------------------------------------------------------------------------
 #                       Garbage-Collector
 
 # Gesamtstrategie:
@@ -2206,18 +2214,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             { free_page(page); page = *pageptr = nextpage; }
     }   }
 #endif
-
-# GC-bedingt Signale disablen: gc_signalblock_on(); ... gc_signalblock_off();
-  #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
-    # Signal SIGWINCH blockieren, denn eine Veränderung des Wertes von
-    # SYS::*PRIN-LINELENGTH* können wir während der GC nicht brauchen.
-    # Dann Signal SIGWINCH wieder freigeben.
-    #define gc_signalblock_on()  signalblock_on(SIGWINCH)
-    #define gc_signalblock_off()  signalblock_off(SIGWINCH)
-  #else
-    #define gc_signalblock_on()
-    #define gc_signalblock_off()
-  #endif
 
 # Normale Garbage Collection durchführen:
   local void gar_col_normal(void);
@@ -5075,280 +5071,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #endif
 
-#ifdef PENDING_INTERRUPTS
-  # Flag, ob eine Unterbrechung anliegt.
-  global uintB interrupt_pending = FALSE;
-#endif
-
-#ifdef HAVE_SIGNALS
-
-# Paßt den Wert von SYS::*PRIN-LINELENGTH* an die aktuelle Breite des
-# Terminal-Fensters an.
-# update_linelength();
-  local void update_linelength (void);
-  local void update_linelength()
-    { # SYS::*PRIN-LINELENGTH* := Breite des Terminal-Fensters - 1
-      #if !defined(NEXTAPP)
-      # [vgl. 'term.c' in 'calc' von Hans-J. Böhm, Vernon Lee, Alan J. Demers]
-      if (isatty(stdout_handle)) # Standard-Output ein Terminal?
-        { /* var int lines = 0; */
-          var int columns = 0;
-          #ifdef TIOCGWINSZ
-          # Probiere erst ioctl:
-          { var struct winsize stdout_window_size;
-            if (!( ioctl(stdout_handle,TIOCGWINSZ,&stdout_window_size) <0))
-              { /* lines = stdout_window_size.ws_row; */
-                columns = stdout_window_size.ws_col;
-          }   }
-          # Das kann - entgegen der Dokumentation - scheitern!
-          if (/* (lines > 0) && */ (columns > 0)) goto OK;
-          #endif
-          #ifndef WATCOM
-          # Nun probieren wir's über termcap:
-          { var char* term_name = getenv("TERM");
-            if (term_name==NULL) { term_name = "unknown"; }
-           {var char termcap_entry_buf[10000];
-            if ( tgetent(&!termcap_entry_buf,term_name) ==1)
-              { /* lines = tgetnum("li"); if (lines<0) { lines = 0; } */
-                columns = tgetnum("co"); if (columns<0) { columns = 0; }
-              }
-          }}
-          #endif
-          # Hoffentlich enthält columns jetzt einen vernünftigen Wert.
-          if (/* (lines > 0) && */ (columns > 0)) goto OK;
-          if (FALSE)
-            { OK:
-              # Wert von SYS::*PRIN-LINELENGTH* verändern:
-              Symbol_value(S(prin_linelength)) =
-                fixnum(columns-1);
-            }
-        }
-      #else # defined(NEXTAPP)
-      if (nxterminal_line_length > 0)
-        # Wert von SYS::*PRIN-LINELENGTH* verändern:
-        { Symbol_value(S(prin_linelength)) = fixnum(nxterminal_line_length-1); }
-      #endif
-    }
-#if defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
-# Signal-Handler für Signal SIGWINCH:
-  local void sigwinch_handler (int sig);
-  local void sigwinch_handler(sig)
-    var int sig; # sig = SIGWINCH
-    { inc_break_sem_5();
-      signal_acknowledge(SIGWINCH,&sigwinch_handler);
-      update_linelength();
-      dec_break_sem_5();
-    }
-#endif
-
-# Our general policy with child processes - in particular child processes
-# to which we are connected through pipes - is not to wait for them, but
-# instead do what init(1) would do in case our process terminates before
-# the child: perform a non-blocking waitpid() and ignore the child's
-# termination status.
-#   void handle_child () { while (waitpid(-1,NULL,WNOHANG) > 0); }
-#   SIGNAL(SIGCLD,handle_child);
-# The following is equivalent (but better, since it doesn't interrupt system
-# calls):
-#   SIGNAL(SIGCLD,SIG_IGN);
-
-  local void install_sigcld_handler (void);
-  local void install_sigcld_handler ()
-    {
-      #if defined(SIGCLD)
-        SIGNAL(SIGCLD,SIG_IGN);
-      #endif
-    }
-
-  global void begin_want_sigcld ()
-    {
-      #if defined(SIGCLD)
-        SIGNAL(SIGCLD,SIG_DFL);
-      #endif
-    }
-  global void end_want_sigcld ()
-    {
-      #if defined(SIGCLD)
-        SIGNAL(SIGCLD,SIG_IGN);
-        # Try to remove zombies which may have been created since the last
-        # begin_want_sigcld() call.
-        #ifdef HAVE_WAITPID
-          while (waitpid(-1,NULL,WNOHANG) > 0);
-        #endif
-      #endif
-    }
-
-# Eine Tastatur-Unterbrechung (Signal SIGINT, erzeugt durch Ctrl-C)
-# wird eine Sekunde lang aufgehoben. In dieser Zeit kann sie mittels
-# 'interruptp' auf fortsetzbare Art behandelt werden. Nach Ablauf dieser
-# Zeit wird das Programm nichtfortsetzbar unterbrochen.
-# Signal-Handler für Signal SIGINT:
-  local void interrupt_handler (int sig);
-  local void interrupt_handler(sig)
-    var int sig; # sig = SIGINT
-    { inc_break_sem_5();
-      signal_acknowledge(SIGINT,&interrupt_handler);
-  #ifdef PENDING_INTERRUPTS
-      if (!interrupt_pending) # Liegt schon ein Interrupt an -> nichts zu tun
-        { interrupt_pending = TRUE; # Flag für 'interruptp' setzen
-          #ifdef HAVE_UALARM
-          # eine halbe Sekunde warten, dann jede 1/20 sec probieren
-          ualarm(ticks_per_second/2,ticks_per_second/20);
-          #else
-          alarm(1); # eine Sekunde warten, weiter geht's dann bei alarm_handler
-          #endif
-        }
-      dec_break_sem_5();
-    }
-  local void alarm_handler (int sig);
-  local void alarm_handler(sig)
-    var int sig; # sig = SIGALRM
-    { # Die Zeit ist nun abgelaufen.
-      inc_break_sem_5();
-      #ifdef EMUNIX # Verhindere Programm-Beendigung durch SIGALRM
-      #ifndef HAVE_UALARM
-      alarm(0); # SIGALRM-Timer abbrechen
-      #endif
-      #endif
-      signal_acknowledge(SIGALRM,&alarm_handler);
-  #endif # PENDING_INTERRUPTS (!)
-      dec_break_sem_5();
-    #ifndef NO_ASYNC_INTERRUPTS
-      # Warten, bis Unterbrechung erlaubt:
-      if (!break_sems_cleared())
-    #endif
-        {
-          #ifndef WATCOM
-          #ifndef HAVE_UALARM
-          alarm(1); # Probieren wir's in einer Sekunde nochmal
-          #endif
-          #endif
-          return; # Nach kurzer Zeit wird wieder ein SIGALRM ausgelöst.
-        }
-    #ifndef NO_ASYNC_INTERRUPTS
-      # Wir springen jetzt aus dem signal-Handler heraus, weder mit 'return'
-      # noch mit 'longjmp'.
-      #
-      # Hans-J. Boehm <boehm@parc.xerox.com> weist darauf hin, daß dies
-      # Probleme bringen kann, wenn das Signal ein laufendes malloc() oder
-      # free() unterbrochen hat und die malloc()-Library nicht reentrant ist.
-      # Abhilfe: statt malloc() stets xmalloc() verwenden, das eine Break-
-      # Semaphore setzt? Aber was ist mit malloc()-Aufrufen, die von Routinen
-      # wie opendir(), getpwnam(), tgetent(), ... abgesetzt werden? Soll man
-      # malloc() selber definieren und darauf hoffen, daß es von allen Library-
-      # funktionen aufgerufen wird (statisch gelinkt oder per DLL)??
-      #
-      #ifdef RISCOS
-      prepare_signal_handler_exit(sig);
-      #endif
-      #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) || (defined(GNU_READLINE) && (defined(SIGNALBLOCK_BSD) || defined(SIGNALBLOCK_POSIX)))
-      # Falls entweder [SIGNAL_NEED_UNBLOCK] mit signal() installierte Handler
-      # sowieso mit blockiertem Signal aufgerufen werden - das sind üblicherweise
-      # BSD-Systeme -, oder falls andere unsichere Komponenten [GNU_READLINE]
-      # per sigaction() o.ä. das Blockieren des Signals beim Aufruf veranlassen
-      # können, müssen wir das gerade blockierte Signal entblockieren:
-        #if defined(SIGNALBLOCK_POSIX)
-          { var sigset_t sigblock_mask;
-            sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig);
-            sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
-          }
-        #elif defined(SIGNALBLOCK_BSD)
-          sigsetmask(sigblock(0) & ~sigmask(sig));
-        #endif
-      #endif
-      #ifdef HAVE_SAVED_STACK
-      # STACK auf einen sinnvollen Wert setzen:
-      if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
-      #endif
-      # Über 'fehler' in eine Break-Schleife springen:
-      fehler(serious_condition,
-             DEUTSCH ? "Ctrl-C: Tastatur-Interrupt" :
-             ENGLISH ? "Ctrl-C: User break" :
-             FRANCAIS ? "Ctrl-C : Interruption clavier" :
-             ""
-            );
-    #endif
-    }
-
-#endif # HAVE_SIGNALS
-
-#if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
-
-  # Put a breakpoint here if you want to catch CLISP just before it dies.
-  global void sigsegv_handler_failed(address)
-    var void* address;
-    { asciz_out_1(DEUTSCH ? NLstring "SIGSEGV kann nicht behoben werden. Fehler-Adresse = 0x%x." NLstring :
-                  ENGLISH ? NLstring "SIGSEGV cannot be cured. Fault address = 0x%x." NLstring :
-                  FRANCAIS ? NLstring "SIGSEGV ne peut être relevé. Adresse fautive = 0x%x." NLstring :
-                  "",
-                  address
-                 );
-    }
-
-  # Signal-Handler für Signal SIGSEGV u.ä.:
-  local int sigsegv_handler (void* fault_address)
-    { set_break_sem_0();
-      switch (handle_fault((aint)fault_address))
-        { case handler_done:
-            # erfolgreich
-            clr_break_sem_0();
-            return 1;
-          case handler_failed:
-            # erfolglos
-            sigsegv_handler_failed(fault_address);
-            # Der Default-Handler wird uns in den Debugger führen.
-          default:
-            clr_break_sem_0();
-            return 0;
-        }
-    }
-
-  # Alle Signal-Handler installieren:
-  local void install_segv_handler (void);
-  local void install_segv_handler()
-    { sigsegv_install_handler(&sigsegv_handler); }
-
-#endif # SELFMADE_MMAP || GENERATIONAL_GC
-
-#ifdef NOCOST_SP_CHECK
-
-  local void stackoverflow_handler (int emergency);
-  local void stackoverflow_handler(emergency)
-    var int emergency;
-    { if (emergency)
-        { asciz_out(DEUTSCH ? "Szenario Apollo 13: Stack-Überlauf-Behandlung ging schief. Beim nächsten Stack-Überlauf kracht's!!!" NLstring :
-                    ENGLISH ? "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!" NLstring :
-                    FRANCAIS ? "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au prochain débordement de pile, ça cassera!!!" NLstring :
-                    ""
-                   );
-        }
-      SP_ueber();
-    }
-
-#endif
-
-#ifdef WIN32_NATIVE
-
-  # This is the Ctrl-C handler. It is executed in the main thread and must
-  # not return!
-  global void interrupt_handler (void);
-  global void interrupt_handler()
-    { # asciz_out("Entering interrupt handler.\n");
-      #ifdef HAVE_SAVED_STACK
-      # STACK auf einen sinnvollen Wert setzen:
-      if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
-      #endif
-      # Über 'fehler' in eine Break-Schleife springen:
-      fehler(serious_condition,
-             DEUTSCH ? "Ctrl-C: Tastatur-Interrupt" :
-             ENGLISH ? "Ctrl-C: User break" :
-             FRANCAIS ? "Ctrl-C : Interruption clavier" :
-             ""
-            );
-    }
-
-#endif
-
 # Umwandlung der Argumenttypen eines FSUBR in einen Code:
   local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz, fsubr_body_t body_flag);
   local fsubr_argtype_t fsubr_argtype(req_anz,opt_anz,body_flag)
@@ -6902,15 +6624,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                 { # 0x4000 might be enough, but 0x8000 will be better.
                   SP_bound = (void*)((aint)info.AllocationBase + 0x8000);
             }   }
-            #ifdef NOCOST_SP_CHECK
-            # Must allocate room for a substitute stack for the stack overflow
-            # handler itself. This cannot be somewhere in the regular stack,
-            # because we want to unwind the stack in case of stack overflow.
-            { var aint size = 0x4000; # 16 KB should be enough
-              var void* room = alloca(size);
-              stackoverflow_install_handler(&stackoverflow_handler,(void*)room,size);
-            }
-            #endif
           #endif
         #else
           # SP allozieren:
@@ -7017,6 +6730,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           #endif
           setSP(initial_SP); # SP setzen! Dabei gehen alle lokalen Variablen verloren!
         #endif
+        #ifdef NOCOST_SP_CHECK
+          install_stackoverflow_handler(0x4000); # 16 KB reserve should be enough
+        #endif
         pushSTACK(nullobj); pushSTACK(nullobj); # Zwei Nullpointer als STACKende-Kennung
      }}}
       init_subr_tab_1(); # subr_tab initialisieren
@@ -7037,13 +6753,11 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       subr_self = NIL; # irgendein gültiges Lisp-Objekt
       clear_break_sems(); set_break_sem_1();
       # Interrupt-Handler einrichten:
+      #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
+        install_sigwinch_handler();
+      #endif
+      # Die Größe des Terminal-Fensters auch jetzt beim Programmstart erfragen:
       #if defined(HAVE_SIGNALS)
-        #if defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
-        # Eine veränderte Größe des Terminal-Fensters soll sich auch sofort
-        # in SYS::*PRIN-LINELENGTH* bemerkbar machen:
-        SIGNAL(SIGWINCH,&sigwinch_handler);
-        #endif
-        # Die Größe des Terminal-Fensters auch jetzt beim Programmstart erfragen:
         begin_system_call();
         update_linelength();
         end_system_call();
@@ -7062,8 +6776,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #endif
             if (columns > 0)
               { # Wert von SYS::*PRIN-LINELENGTH* verändern:
-                Symbol_value(S(prin_linelength)) =
-                  fixnum(columns-1);
+                Symbol_value(S(prin_linelength)) = fixnum(columns-1);
           }   }
       #endif
       #if defined(AMIGAOS) && 0
@@ -7077,24 +6790,16 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             response[len] = `\0`; sscanf(&response[5],"%d;%d", &lines, &columns); # ??
           }
       #endif
-      #if defined(HAVE_SIGNALS)
-        #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
-          # Ctrl-C-Handler einsetzen:
-          SIGNAL(SIGINT,&interrupt_handler);
-          #ifdef PENDING_INTERRUPTS
-            SIGNAL(SIGALRM,&alarm_handler);
-          #endif
-          #if defined(GENERATIONAL_GC)
-            install_segv_handler();
-          #endif
-        #endif
-        install_sigcld_handler();
-      #endif
-      #ifdef WIN32_NATIVE
+      #if (defined(HAVE_SIGNALS) && (defined(UNIX) || defined(EMUNIX) || defined(RISCOS))) || defined(WIN32_NATIVE)
         # Ctrl-C-Handler einsetzen:
         install_sigint_handler();
-        # Stack-Overflow- und Page-Fault-Handler einsetzen:
+      #endif
+      #if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
+        # Page-Fault-Handler einsetzen:
         install_segv_handler();
+      #endif
+      #ifdef HAVE_SIGNALS
+        install_sigcld_handler();
       #endif
       # Zeitvariablen initialisieren:
       init_time();
