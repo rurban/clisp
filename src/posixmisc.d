@@ -9,7 +9,7 @@
 
 # Lisp interface to uname(2) & sysconf(3c)
 LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
-# (POSIX:SYSINFO)
+# (POSIX::SYSINFO-INTERNAL)
 # if you modify this function wrt it's return values,
 # you should modify POSIX:SYSINFO in posix.lsp accordingly
 {
