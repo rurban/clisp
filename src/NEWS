@@ -190,6 +190,8 @@ User visible changes
   + Fixed ATANH on complex numbers.
   + Fixed a crash of (COPY-READTABLE NIL some-readtable).
   + Fixed a crash when using a hash-table as hash-table key.
+  + Fixed a crash triggered by the READ-BYTE function on streams with
+    element type ([UN]SIGNED-BYTE n), 24 < n < 32, on big-endian platforms.
 
 
 Modules
