@@ -18,6 +18,11 @@ CC = @CC@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 INCLUDES = -I. -I$(srcdir)
+LIBTOOL = @LIBTOOL@
+LIBTOOL_COMPILE = $(LIBTOOL) --mode=compile
+LIBTOOL_LINK = $(LIBTOOL) --mode=link
+LIBTOOL_INSTALL = $(LIBTOOL) --mode=install
+LIBTOOL_UNINSTALL = $(LIBTOOL) --mode=uninstall
 AR = ar
 AR_FLAGS = rc
 RANLIB = @RANLIB@
@@ -34,9 +39,12 @@ INSTALL_DATA = @INSTALL_DATA@
 
 SHELL = /bin/sh
 
-OBJECTS = handler.o dispatcher.o
+# Needed by $(LIBTOOL).
+top_builddir = .
 
-all : sigsegv.h libsigsegv.a
+OBJECTS = handler.lo dispatcher.lo
+
+all : sigsegv.h libsigsegv.la
 
 SEDPREPARE0 = sharp=`echo x | tr x '\043'`
 SEDPREPARE1 = if grep "$${sharp}define HAVE_SIGALTSTACK" config.h > /dev/null 2>/dev/null; then sedcommand1='s,^/\* \(.*\) ifdef HAVE_SIGALTSTACK in config.h \*/$$,\1,' ; else sedcommand1='s/x/x/' ; fi
@@ -53,39 +61,37 @@ sigsegv.h : config.h
 	if ./test3 > /dev/null 2> /dev/null ; then : ; else $(SEDPREPARE0) ; sed $(SEDCOMMAND3) < sigsegv.h > sigsegv.tmp ; mv sigsegv.tmp sigsegv.h ; fi
 	$(RM) test3 *.o core
 
-handler.o : $(srcdir)/handler.c sigsegv.h
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/handler.c
+handler.lo : $(srcdir)/handler.c sigsegv.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/handler.c
 
-dispatcher.o : $(srcdir)/dispatcher.c sigsegv.h
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/dispatcher.c
+dispatcher.lo : $(srcdir)/dispatcher.c sigsegv.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/dispatcher.c
 
-libsigsegv.a : $(OBJECTS)
-	$(RM) libsigsegv.a
-	$(AR) $(AR_FLAGS) libsigsegv.a $(OBJECTS)
-	$(RANLIB) libsigsegv.a
+libsigsegv.la : $(OBJECTS)
+	$(LIBTOOL_LINK) $(CC) -o libsigsegv.la -rpath $(libdir) $(OBJECTS)
 
 install : all force
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	$(INSTALL_DATA) libsigsegv.a $(libdir)/libsigsegv.a
+	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libsigsegv.la $(libdir)/libsigsegv.la
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	$(INSTALL_DATA) $(srcdir)/sigsegv.h $(includedir)/sigsegv.h
+	$(INSTALL_DATA) sigsegv.h $(includedir)/sigsegv.h
 
 installdirs : force
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
 
 uninstall : force
-	$(RM) $(libdir)/libsigsegv.a
+	$(LIBTOOL_UNINSTALL) $(RM) $(libdir)/libsigsegv.la
 	$(RM) $(includedir)/sigsegv.h
 
-test1 : $(srcdir)/test1.c sigsegv.h libsigsegv.a
-	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test1.c @GCC_X_NONE@ libsigsegv.a -o test1
+test1 : $(srcdir)/test1.c sigsegv.h libsigsegv.la
+	$(LIBTOOL_LINK) $(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test1.c @GCC_X_NONE@ libsigsegv.la -o test1
 
-test2 : $(srcdir)/test2.c sigsegv.h libsigsegv.a
-	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test2.c @GCC_X_NONE@ libsigsegv.a -o test2
+test2 : $(srcdir)/test2.c sigsegv.h libsigsegv.la
+	$(LIBTOOL_LINK) $(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test2.c @GCC_X_NONE@ libsigsegv.la -o test2
 
-test3 : $(srcdir)/test3.c sigsegv.h libsigsegv.a
-	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test3.c @GCC_X_NONE@ libsigsegv.a -o test3
+test3 : $(srcdir)/test3.c sigsegv.h libsigsegv.la
+	$(LIBTOOL_LINK) $(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test3.c @GCC_X_NONE@ libsigsegv.la -o test3
 
 check : all test1 test2 test3
 	./test1
@@ -95,11 +101,12 @@ check : all test1 test2 test3
 mostlyclean : clean
 
 clean : force
-	$(RM) sigsegv.h sigsegv.tmp *.o *.a core
+	$(RM) sigsegv.h sigsegv.tmp *.o *.lo *.a *.la core
+	$(RM) -r .libs _libs
 	$(RM) test1 test2 test3
 
 distclean : clean
-	$(RM) config.status config.log config.cache Makefile config.h
+	$(RM) config.status config.log config.cache Makefile config.h libtool
 
 maintainer-clean : distclean
 

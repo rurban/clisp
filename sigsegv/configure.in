@@ -31,6 +31,20 @@ CL_PROG_RANLIB
 CL_PROG_INSTALL
                       dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
 dnl
+dnl           check for host type
+dnl
+CL_CANONICAL_HOST(autoconf)
+                      dnl sets variables host, host_cpu, host_vendor, host_os
+CL_CANONICAL_HOST_CPU
+                      dnl DEFS __${host_cpu}__
+dnl
+dnl           check for build configuration
+dnl
+PACKAGE=sigsegv
+AM_DISABLE_SHARED
+AM_PROG_LIBTOOL
+                      dnl sets variable LIBTOOL
+dnl
 dnl           checks for header files
 dnl
 CL_OPENFLAGS
