@@ -83,6 +83,12 @@ fi
 done
 done
 done
+if test -z "$have_select"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's select() declaration." 1>&2
+  exit 1
+fi
 ], [extern int select ($cl_cv_proto_select_arg1, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg5 struct timeval *);])
 AC_DEFINE_UNQUOTED(SELECT_WIDTH_T,$cl_cv_proto_select_arg1,[type of `width' in select() declaration])
 AC_DEFINE_UNQUOTED(SELECT_SET_T,$cl_cv_proto_select_arg2,[type of `* readfds', `* writefds', `* exceptfds' in select() declaration])
