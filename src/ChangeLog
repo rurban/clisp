@@ -1,5 +1,9 @@
 1998-07-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_mmap.d (mmap_zero_fd): Renamed from zero_fd.
+
+1998-07-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_circ.d: New file.
         * spvw.d (mlbitmap, mlb_alloc, mlb_add, mlb_free, get_circ_global,
            get_circ_mark, get_circ_unmark, get_circularities,
