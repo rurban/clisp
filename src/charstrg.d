@@ -646,7 +646,7 @@ global bool string_gleich (object string1, object string2) {
     return false;
   /* Now both strings have exactly len1 characters. Compare them. */
   if (len1 > 0)
-    return string_eqcomp(string1,offset1,string2,0,len);
+    return string_eqcomp(string1,offset1,string2,0,len1);
   return true;
 }
 
