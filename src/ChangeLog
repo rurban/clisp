@@ -38,8 +38,8 @@
 	(CLASS-OF): Use if_defined_class_p instead of if_classp.
 	(CLOS:FIND-CLASS): Likewise.
 	(CLOS::TYPEP-CLASS, COERCE): Likewise.
-	* record.d (CLOS::ALLOCATE-STD-INSTANCE,
-	CLOS::ALLOCATE-FUNCALLABLE-INSTANCE): Use if_defined_class_p instead
+	* record.d (CLOS::ALLOCATE-FUNCALLABLE-INSTANCE)
+	(CLOS::ALLOCATE-STD-INSTANCE): Use if_defined_class_p instead
 	of if_classp.
 	* init.lisp: Export forward-referenced-class.
 	* clos-package.lisp: Export forward-referenced-class.
@@ -52,11 +52,11 @@
 	(*<forward-referenced-class>-defclass*): New variable.
 	(*<defined-class>-defclass*): New variable.
 	(*<defined-class>-...-location*): Renamed from *<class>-...-location*.
-	(class-direct-superclasses, class-all-superclasses,
-	class-precedence-list, class-direct-slots, class-slots,
-	class-slot-location-table, class-direct-default-initargs,
-	class-default-initargs, class-documentation, class-listeners,
-	class-initialized): Update.
+	(class-direct-superclasses, class-all-superclasses)
+	(class-precedence-list, class-direct-slots, class-slots)
+	(class-slot-location-table, class-direct-default-initargs)
+	(class-default-initargs, class-documentation, class-listeners)
+	(class-initialized): Update.
 	(shared-initialize-<class>): New function.
 	(shared-initialize-<defined-class>): Renamed from
 	shared-initialize-<class>.
