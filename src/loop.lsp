@@ -51,27 +51,30 @@
 
 (defun destructure-vars (pattern)
   ;; return the list of variables occuring in the pattern
-  ;; i.e., `flatten' the list [FIXME:SDS: doubly recursive]
-  (cond ((null pattern) nil)
-        ((atom pattern) (list pattern))
-        (t (nconc (destructure-vars (car pattern))
-                  (destructure-vars (cdr pattern))))))
+  (labels ((flatten (ll acc)
+             (cond ((null ll) acc)
+                   ((atom ll) (cons ll acc))
+                   (t (flatten (car ll) (flatten (cdr ll) acc))))))
+    (flatten pattern nil)))
 
 (defun empty-tree-p (pattern)
   ;; determine whether the pattern has any variables at all
   (cond ((null pattern) t)
         ((atom pattern) nil)
-        (t (and (empty-tree-p (car pattern)) (empty-tree-p (cdr pattern))))))
+        (t (and (empty-tree-p (car pattern))
+                (empty-tree-p (cdr pattern))))))
 
 (defun destructure-type (pattern type)
   ;; return the list of declspecs for variables in PATTERN and types in TYPE
-  (cond ((null pattern) nil)
-        ((atom pattern) (list `(TYPE ,type ,pattern)))
-        ((consp type)
-         (nconc (destructure-type (car pattern) (car type))
-                (destructure-type (cdr pattern) (cdr type))))
-        (t (let ((vars (destructure-vars pattern)))
-             (if vars (list `(TYPE ,type ,@vars)) nil)))))
+  (labels ((dt (pat typ acc)
+             (cond ((null pat) nil)
+                   ((atom pat) (cons `(TYPE ,typ ,pat) acc))
+                   ((consp typ)
+                    (dt (car pat) (car typ)
+                        (dt (cdr pat) (cdr typ) acc)))
+                   (t (let ((vars (destructure-vars pat)))
+                        (if vars (list `(TYPE ,typ ,@vars)) nil))))))
+    (dt pattern type nil)))
 
 (defun simple-type-p (type)
   ;; check that all type in TYPE are simple (NIL, T, FIXNUM, FLOAT)
