@@ -816,6 +816,14 @@
 ;; of superclasses are omitted.
 (defparameter *allow-mixing-metaclasses* nil)
 
+(defun check-metaclass-mix (name direct-superclasses metaclass-test metaclass)
+  (unless *allow-mixing-metaclasses*
+    (unless (every metaclass-test direct-superclasses)
+      (error-of-type 'error
+        (TEXT "(~S ~S): superclass ~S should be of class ~S")
+        'DEFCLASS name (find-if-not metaclass-test direct-superclasses)
+        metaclass))))
+
 ;; creation of an instance of <standard-class>:
 
 (let (unbound) (declare (compile)) ; unbound = #<unbound>
@@ -832,11 +840,8 @@
     (class &key name (direct-superclasses '()) (direct-slots '())
      (direct-default-initargs '()) &allow-other-keys)
   ;; metaclass <= <standard-class>
-  (unless *allow-mixing-metaclasses*
-    (unless (every #'standard-class-p direct-superclasses)
-      (error-of-type 'error
-        (TEXT "~S ~S: superclass ~S should belong to class STANDARD-CLASS")
-        'defclass name (find-if-not #'standard-class-p direct-superclasses))))
+  (check-metaclass-mix name direct-superclasses
+                       #'standard-class-p 'STANDARD-CLASS)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-precedence-list class)
         (std-compute-cpl class
@@ -980,14 +985,12 @@
       (when (null R1)
         (return)) ; R1 = R2 = () -> finished
       (let ((M (remove-duplicates (mapcar #'first R1) :from-end t)))
-        (setq M
-              (remove-if
-               #'(lambda (E)
-                   (or (dolist (r R1 nil)
-                          (when (member E (cdr r)) (return t)))
-                       (dolist (r R2 nil)
-                         (when (member E (cdr r)) (return t)))))
-               M))
+        (setq M (remove-if #'(lambda (E)
+                               (or (dolist (r R1 nil)
+                                     (when (member E (cdr r)) (return t)))
+                                   (dolist (r R2 nil)
+                                     (when (member E (cdr r)) (return t)))))
+                           M))
         (when (null M)
           (error-of-type 'error
             (TEXT "~S ~S: inconsistent precedence graph, cycle ~S")
@@ -1147,11 +1150,8 @@
 (defun make-instance-built-in-class
     (metaclass &key name (direct-superclasses '()) &allow-other-keys)
   ;; metaclass = <built-in-class>
-  (unless *allow-mixing-metaclasses*
-    (unless (every #'built-in-class-p direct-superclasses)
-      (error-of-type 'error
-        (TEXT "~S: superclass ~S should belong to class BUILT-IN-CLASS")
-        name (find-if-not #'built-in-class-p direct-superclasses))))
+  (check-metaclass-mix name direct-superclasses
+                       #'built-in-class-p 'BUILT-IN-CLASS)
   (let ((class (make-built-in-class :classname name :metaclass metaclass)))
     (setf (class-direct-superclasses class) (copy-list direct-superclasses))
     (setf (class-precedence-list class)
@@ -1184,13 +1184,10 @@
   ;; metaclass <= <structure-class>
   (unless (null (cdr direct-superclasses))
     (error-of-type 'error
-      (TEXT "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass")
-      name))
-  (unless *allow-mixing-metaclasses*
-    (unless (every #'structure-class-p direct-superclasses)
-      (error-of-type 'error
-        (TEXT "~S: superclass ~S should belong to class STRUCTURE-CLASS")
-        name (first direct-superclasses))))
+      (TEXT "(~S ~S): metaclass ~S forbids more than one direct superclass")
+      'DEFCLASS name 'STRUCTURE-CLASS))
+  (check-metaclass-mix name direct-superclasses
+                       #'structure-class-p 'STRUCTURE-CLASS)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-precedence-list class)
         (std-compute-cpl class
@@ -1224,8 +1221,8 @@
            (shared-index (std-layout-slots class more-slots)))
       (when (plusp shared-index)
         (error-of-type 'error
-          (TEXT "~S: metaclass STRUCTURE-CLASS does not support shared slots")
-          name))
+          (TEXT "(~S ~S): metaclass ~S does not support shared slots")
+          'DEFCLASS name 'STRUCTURE-CLASS))
       (setf (class-slots class) (append (class-slots class) more-slots))))
   (setf (class-default-initargs class)
         (remove-duplicates
