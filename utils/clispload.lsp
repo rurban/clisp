@@ -84,11 +84,6 @@
   ;; In CLISP the classes CLASS and METHOD are implemented as structures.
   TYPES.3 BUILT-IN-CLASS-CPL STANDARD-CLASS-CPL STANDARD-METHOD-CPL
 
-  ;; Paul Dietz assumes that (MAKE-INSTANCES-OBSOLETE symbol) returns
-  ;; (FIND-CLASS symbol). In CLISP it returns symbol. This is mandated
-  ;; by the ANSI CL description "make-instances-obsolete class => class".
-  MAKE-INSTANCES-OBSOLETE.2
-
   ;; Paul Dietz assumes that the classes STREAM and CONDITION are disjoint.
   ;; In CLISP they are not, because the user can create subclasses inheriting
   ;; from FUNDAMENTAL-STREAM and any other class with metaclass STANDARD-CLASS.
@@ -109,11 +104,6 @@
   ;; We don't want SUBTYPEP to depend on the existence or absence of
   ;; subclasses.
   USER-CLASS-DISJOINTNESS-2 TAC-3.16
-
-  ;; Paul Dietz assumes that gensyms, when printed with *PRINT-READABLY* = T,
-  ;; look like #:ABC.
-  ;; In CLISP, they look like #:|ABC|.
-  PRINT.SYMBOL.PREFIX.3
 
   ; To be revisited:
   ; none
