@@ -358,6 +358,9 @@ PC 486/50, 16 MB RAM  Onsite SysV R 4.2   Sebastian Feldmann
 Amiga 3000            AMIX 2.1 SysVR4.0   Michel Loi
 22.12.1993 (gcc255)                       <Michel.Loi@lip.ens-lyon.fr>
 
+Amiga (68060/50)      Linux 2.0.36   Bruno Haible
+13.4.2000 (gcc2952)      613 s       <haible@ilog.fr>
+
 NeXT                  NeXTstep 3.1   Marcus Daniels
 30.10.1993 (cc)                      <marcus@ee.pdx.edu>
 
