@@ -1523,48 +1523,55 @@
   (memq x lambda-list-keywords))
 
 
-;;; method combinations
-(defun method-combination-object (name &key (if-does-not-exist :error))
-  (or (get name 'method-combination-object)
+;;; Method combinations
+
+;; Mapping from name, a symbol, to method-combination instance.
+(defun find-method-combination (name &key (if-does-not-exist :error))
+  (or (get name 'find-method-combination)
       (and if-does-not-exist
            (error "undefined method combination ~s" name))))
-(defun (setf method-combination-object) (def name)
-  (setf (get name 'method-combination-object) def))
+(defun (setf find-method-combination) (def name)
+  (setf (get name 'find-method-combination) def))
 
-;;; the method combination class definitions
-;; a structure definition is to be preferred, otherwise the compiled
+;;; The method-combination class definition.
+;; A method-combination is used 1) without options when defined and attached
+;; to a symbol, 2) with options when applied to a particular generic function.
+;; Strange design... but ANSI CL specifies it this way.
+;; A structure definition is to be preferred, otherwise the compiled
 ;; load fails on type tests as the class can't be defined early enough
-;; in the file
-(defstruct method-combination
-  "the method-combination class models all method combination.
-the variations are handled by binding the expander function to the instance
-and pairing the combination definition object with the option list
+;; in the file.
+(defstruct (method-combination) ; (:print-object print-method-combination)
+  "The method-combination class models all method combination.
+The variations are handled by binding the expander function to the instance
+and pairing the method-combination definition object with the option list
 in the generic function instance."
-  name                          ; a symbol naming the combination
+  name                          ; a symbol naming the method combination
   (operator nil)                ; a symbol operator for short forms
   (order :most-specific-first) ; the order for short form primary methods
-  (qualifiers nil)                      ; the cached list of qualifiers
+  (qualifiers nil)                 ; the allowed list of qualifiers
   (identity-with-one-argument nil) ; true if the short should be so generated
   (documentation nil)              ; an optional documentation string
   (declarations nil) ; list to be prepended to the effective method body
-  ;; bound function of 4 arguments (function combination options
-  ;; actual-arguments) which computes a combined method function:
-  (expander nil)
-  ;; bound to the :arguments option of the defined combination for
-  ;; inclusion in the effective method function
-  (arguments-lambda-list nil)
-  (options nil)) ; the function-specific options for the combination
+  (expander nil)              ; A function of 4 arguments
+                              ; (function method-combination options arguments)
+                              ; which computes a combined method function.
+  (check-method-qualifiers nil) ; A function of 3 arguments
+                                ; (function method-combination method)
+                                ; that checks whether the method's qualifiers
+                                ; are compatible with the method-combination.
+  (call-next-method-allowed nil) ; A function of 3 arguments
+                                 ; (function method-combination method)
+                                 ; telling whether call-next-method is allowed
+                                 ; in the particular method.
+  (arguments-lambda-list nil) ; The :arguments option of the defined method
+                              ; combination for inclusion in the effective
+                              ; method function.
+  ;; The following slots depend on the particular generic function.
+  (options nil))              ; arguments for the method combination
 
 (defun print-method-combination (object stream)
   (print-unreadable-object (object stream :identity t :type t)
     (write (method-combination-name object) :stream stream)))
-
-(setf (method-combination-object 'standard)
-      (make-method-combination
-       :name 'standard
-       :documentation "the STANDARD METHOD-COMBINATION object"
-       :qualifiers '(:before :after :around)
-       :expander nil)) ; not defined yet #'standard-method-combination-expander
 
 
 ;;; For DEFMETHOD, DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET,
@@ -1582,6 +1589,7 @@ in the generic function instance."
           caller funname ))
       (when (listp (car description)) (return))
       (push (pop description) qualifiers))
+    (setq qualifiers (nreverse qualifiers))
     ;; build lambdalist, extract parameter-specializer and signature:
     (let ((specialized-lambda-list (car description))
           (body (cdr description)))
@@ -1673,7 +1681,8 @@ in the generic function instance."
                                  ;; argument checking in the interpreter only
                                  (IF (EVAL-WHEN (EVAL) T)
                                    (%CALL-NEXT-METHOD
-                                    ,self ,cont
+                                    ,self
+                                    ,cont
                                     ,(if rest-dummy
                                        `(LIST* ,@req-dummies ,rest-dummy)
                                        `(LIST ,@req-dummies))
@@ -1695,7 +1704,8 @@ in the generic function instance."
                                  ;; argument checking in the interpreter only
                                  (LIST 'IF '(EVAL-WHEN (EVAL) T)
                                    (LIST '%CALL-NEXT-METHOD
-                                     ',self ',cont
+                                     ',self
+                                     ',cont
                                      (LIST ',(if rest-dummy 'LIST* 'LIST)
                                        ,@(mapcar #'(lambda (x) `',x) req-dummies)
                                        ,@(if rest-dummy `(',rest-dummy) '()))
@@ -1730,17 +1740,17 @@ in the generic function instance."
                                       :rest-p restp :keys-p keyp
                                       :keywords keywords :allow-p allowp)))
             (values
-            `(MAKE-STANDARD-METHOD
-               :INITFUNCTION
-                 #'(LAMBDA (,self)
-                     ,@(if compile '((DECLARE (COMPILE))))
-                     (%OPTIMIZE-FUNCTION-LAMBDA `(T) ,@lambdabody))
-               :WANTS-NEXT-METHOD-P T
-               :PARAMETER-SPECIALIZERS
-               (LIST ,@(nreverse req-specializer-forms))
-               :QUALIFIERS ',qualifiers
-               :SIGNATURE ,sig)
-            sig)))))))
+              `(MAKE-STANDARD-METHOD
+                 :INITFUNCTION
+                   #'(LAMBDA (,self)
+                       ,@(if compile '((DECLARE (COMPILE))))
+                       (%OPTIMIZE-FUNCTION-LAMBDA (T) ,@lambdabody))
+                 :WANTS-NEXT-METHOD-P T
+                 :PARAMETER-SPECIALIZERS
+                   (LIST ,@(nreverse req-specializer-forms))
+                 :QUALIFIERS ',qualifiers
+                 :SIGNATURE ,sig)
+              sig)))))))
 
 
 ;; 28.1.6.3. agreement on parameter specializers and qualifiers
@@ -1883,7 +1893,7 @@ in the generic function instance."
   (defun %make-gf (name signature argorder methods)
     (sys::%make-closure name prototype-code
                         (list nil signature argorder methods
-                              (method-combination-object 'standard))
+                              (find-method-combination 'standard))
                         sys::*seclass-dirty*)))
 
 #||
@@ -2445,12 +2455,15 @@ in the generic function instance."
                      (append (sig-keywords signature)
                              (mapcap #'sig-keywords signatures))
                      :from-end t))
-                   (key-vars (gensym-list keywords)))
-              (values (gensym-list (sig-opt-num signature)) ; opt-vars
-                      key-vars
-                      `(&KEY    ; lambdalist-keypart
-                        ,@(mapcar #'(lambda (kw var) `((,kw ,var)))
-                                  keywords key-vars))))))))))
+                   (opt-vars (gensym-list (sig-opt-num signature)))
+                   (key-vars (gensym-list keywords))
+                   (lambdalist-keypart
+                     `(&KEY    ; lambdalist-keypart
+                       ,@(mapcar #'(lambda (kw var) `((,kw ,var)))
+                                 keywords key-vars))))
+              (values opt-vars key-vars lambdalist-keypart))))))))
+
+;;; Standard method combination.
 
 (defun standard-method-combination-expander (gf combination options args)
   (declare (ignore combination))
@@ -2467,9 +2480,6 @@ in the generic function instance."
          (apply-fun (if restp 'APPLY 'FUNCALL))
          (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
          (lambdalist `(,@req-vars ,@(if restp `(&REST ,rest-var) '())))
-         (opt-vars '())
-         (key-vars '())
-         (lambdalist-keypart '())
          (arg-order (gf-argorder gf))
          (methods (gf-methods gf)))
     ;; Determine the effective method:
@@ -2481,92 +2491,126 @@ in the generic function instance."
     (when (null methods)
       (return-from standard-method-combination-expander
         (no-method-caller 'no-applicable-method gf)))
-    (setf (values opt-vars key-vars lambdalist-keypart)
-          (gf-keyword-arguments restp signature methods))
-    ;; 2. Sort the applicable methods by precedence order:
-    (setq methods (sort-applicable-methods methods req-args arg-order))
-    ;; 3. Apply method combination:
-    ;; split up into individual method types.
-    (multiple-value-bind
-          (primary-methods before-methods after-methods around-methods)
-        (partition-method-list methods)
-      (when (null primary-methods)
-        (return-from standard-method-combination-expander
-          (no-method-caller 'no-primary-method gf)))
-      ;; combine methods into an "effective method":
-      (labels ((ef-1 (primary-methods before-methods after-methods
-                                      around-methods)
-                 (if (null around-methods)
-                   (ef-2 primary-methods before-methods after-methods)
-                   (let* ((1method (first around-methods))
+    (multiple-value-bind (opt-vars key-vars lambdalist-keypart)
+        (gf-keyword-arguments restp signature methods)
+      ;; 2. Sort the applicable methods by precedence order:
+      (setq methods (sort-applicable-methods methods req-args arg-order))
+      ;; 3. Apply method combination:
+      ;; Split up into individual method types.
+      (multiple-value-bind
+            (primary-methods before-methods after-methods around-methods)
+          (partition-method-list methods)
+        (when (null primary-methods)
+          (return-from standard-method-combination-expander
+            (no-method-caller 'no-primary-method gf)))
+        ;; Combine methods into an "effective method":
+        (labels ((ef-1 (primary-methods before-methods after-methods
+                        around-methods)
+                   (if (null around-methods)
+                     (ef-2 primary-methods before-methods after-methods)
+                     (let* ((1method (first around-methods))
+                            (1function (std-method-function 1method)))
+                       (if (std-method-wants-next-method-p 1method)
+                         (let ((next-ef
+                                (ef-1 primary-methods before-methods
+                                      after-methods (rest around-methods))))
+                           `(,apply-fun ',1function
+                                        #'(LAMBDA ,lambdalist ,next-ef)
+                                        ,@apply-args))
+                         `(,apply-fun ',1function ,@apply-args)))))
+                 (forms-for-invoking-sequentially (methods)
+                   (mapcar #'(lambda (method)
+                               (if (std-method-wants-next-method-p method)
+                                 `(,apply-fun ',(std-method-function method)
+                                              nil ,@apply-args)
+                                 `(,apply-fun ',(std-method-function method)
+                                              ,@apply-args)))
+                           methods))
+                 (ef-2 (primary-methods before-methods after-methods)
+                   (let ((next-ef (ef-3 primary-methods after-methods)))
+                     (if (null before-methods)
+                       next-ef
+                       `(PROGN
+                          ; most-specific-first:
+                          ,@(forms-for-invoking-sequentially before-methods)
+                          ,next-ef))))
+                 (ef-3 (primary-methods after-methods)
+                   (let ((next-ef (ef-4 primary-methods)))
+                     (if (null after-methods)
+                         next-ef
+                         `(MULTIPLE-VALUE-PROG1
+                            ,next-ef
+                            ; most-specific-last:
+                            ,@(forms-for-invoking-sequentially (reverse after-methods))))))
+                 (ef-4 (primary-methods)
+                   (let* ((1method (first primary-methods))
                           (1function (std-method-function 1method)))
                      (if (std-method-wants-next-method-p 1method)
-                       (let ((next-ef
-                              (ef-1 primary-methods before-methods
-                                    after-methods (rest around-methods))))
-                         `(,apply-fun ',1function
-                                      #'(LAMBDA ,lambdalist ,next-ef)
-                                      ,@apply-args))
-                       `(,apply-fun ',1function ,@apply-args)))))
-               (apply-forms (methods)
-                 (mapcar #'(lambda (method)
-                             (if (std-method-wants-next-method-p method)
-                               `(,apply-fun ',(std-method-function method)
-                                            nil ,@apply-args)
-                               `(,apply-fun ',(std-method-function method)
-                                            ,@apply-args)))
-                         methods))
-               (ef-2 (primary-methods before-methods after-methods)
-                 (let ((next-ef (ef-3 primary-methods after-methods)))
-                   (if (null before-methods)
-                     next-ef
-                     `(PROGN ; most-specific-first:
-                        ,@(apply-forms before-methods)
-                        ,next-ef))))
-               (ef-3 (primary-methods after-methods)
-                 (let ((next-ef (ef-4 primary-methods)))
-                   (if (null after-methods)
-                       next-ef
-                       `(MULTIPLE-VALUE-PROG1 ,next-ef ; most-specific-last:
-                          ,@(apply-forms (reverse after-methods))))))
-               (ef-4 (primary-methods)
-                 (let* ((1method (first primary-methods))
-                        (1function (std-method-function 1method)))
-                   (if (std-method-wants-next-method-p 1method)
-                       (let ((next-ef-fun (ef-5 (rest primary-methods))))
-                         `(,apply-fun ',1function ,next-ef-fun ,@apply-args))
-                       `(,apply-fun ',1function ,@apply-args))))
-               (ef-5 (primary-methods)
-                 (if (null primary-methods)
-                     'NIL ; no function, NEXT-METHOD-P reacts on it
-                     `#'(LAMBDA ,lambdalist ,(ef-4 primary-methods)))))
-        (let* ((ef-form (ef-1 primary-methods before-methods after-methods
-                              around-methods))
-               (ef-fun (if (and (eq (car ef-form) apply-fun)
-                                (equal (cddr ef-form) apply-args)
-                                (null lambdalist-keypart))
-                         (cadr ef-form)
-                         `#'(LAMBDA
-                                ,@(if (null opt-vars)
-                                    `(,(append lambdalist lambdalist-keypart)
-                                      ,@(if key-vars
-                                          `((DECLARE (IGNORE ,@key-vars)))))
-                                    `(,lambdalist
-                                      (APPLY #'(LAMBDA (&OPTIONAL ,@opt-vars
-                                                        ,@lambdalist-keypart)
-                                                 (DECLARE (IGNORE ,@opt-vars
-                                                                  ,@key-vars)))
-                                             ,rest-var)))
-                              ,ef-form))))
-          ;; (eval ef-fun)                                 ; interpreted
-          ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
-          (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
-                      ,ef-fun)))))))
+                         (let ((next-ef-fun (ef-5 (rest primary-methods))))
+                           `(,apply-fun ',1function ,next-ef-fun ,@apply-args))
+                         `(,apply-fun ',1function ,@apply-args))))
+                 (ef-5 (primary-methods)
+                   (if (null primary-methods)
+                       'NIL ; no function, NEXT-METHOD-P reacts on it
+                       `#'(LAMBDA ,lambdalist ,(ef-4 primary-methods)))))
+          (let* ((ef-form (ef-1 primary-methods before-methods after-methods
+                                around-methods))
+                 (ef-fun (if (and (eq (car ef-form) apply-fun)
+                                  (equal (cddr ef-form) apply-args)
+                                  (null lambdalist-keypart))
+                           (cadr ef-form)
+                           `#'(LAMBDA
+                                  ,@(if (null opt-vars)
+                                      `(,(append lambdalist lambdalist-keypart)
+                                        ,@(if key-vars
+                                            `((DECLARE (IGNORE ,@key-vars)))))
+                                      `(,lambdalist
+                                        (APPLY #'(LAMBDA (&OPTIONAL ,@opt-vars
+                                                          ,@lambdalist-keypart)
+                                                   (DECLARE (IGNORE ,@opt-vars
+                                                                    ,@key-vars)))
+                                               ,rest-var)))
+                                ,ef-form))))
+            ;; (eval ef-fun)                                 ; interpreted
+            ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
+            (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
+                        ,ef-fun))))))))
 
-(setf (method-combination-expander (method-combination-object 'standard))
-      #'standard-method-combination-expander)
+(defun short-form-method-combination-check-method-qualifiers (gf method-combo method)
+  ;; 28.1.7.2, 28.1.7.4 method qualifiers
+  (let ((qualifiers (std-method-qualifiers method)))
+    (when qualifiers
+      (let ((allowed-qualifiers (method-combination-qualifiers method-combo)))
+        (if allowed-qualifiers
+          (dolist (q qualifiers)
+            (unless (member q allowed-qualifiers)
+              (error-of-type 'sys::source-program-error
+                (TEXT "~S method combination, used by ~S, allows no method qualifiers except ~S: ~S")
+                (method-combination-name method-combo) gf allowed-qualifiers method)))
+          (error-of-type 'sys::source-program-error
+            (TEXT "~S method combination, used by ~S, does not allow method qualifiers: ~S")
+            (method-combination-name method-combo) gf method))
+        (when (> (length qualifiers) 1)
+          (error-of-type 'sys::source-program-error
+            (TEXT "~S method combination, used by ~S, does not allow more than one method qualifier on a method: ~S")
+            (method-combination-name method-combo) gf method))))))
 
-;; runtime-support for CALL-NEXT-METHOD.
+(defun standard-method-combination-call-next-method-allowed (gf method-combo method)
+  (declare (ignore gf method-combo))
+  (let ((qualifiers (std-method-qualifiers method)))
+    (or (equal qualifiers '()) (equal qualifiers '(:around)))))
+
+(setf (find-method-combination 'standard)
+      (make-method-combination
+        :name 'standard
+        :documentation "the STANDARD METHOD-COMBINATION object"
+        :qualifiers '(:before :after :around)
+        :expander #'standard-method-combination-expander
+        :check-method-qualifiers #'short-form-method-combination-check-method-qualifiers
+        :call-next-method-allowed #'standard-method-combination-call-next-method-allowed))
+
+
+;; Runtime support for CALL-NEXT-METHOD.
 (defun %call-next-method (method next-methods original-args new-args)
   (let* ((gf (std-method-gf method))
          (emf (sys::generic-function-effective-method-function gf))
@@ -2624,6 +2668,17 @@ in the generic function instance."
         (TEXT "~S does not accept the keywords ~S of ~S")
         method (sig-keywords gf-sign) gf))))
 
+;; 28.1.7.2, 28.1.7.4 method qualifiers
+(defun check-method-qualifiers (gf method
+                                &optional (method-combo (gf-method-combination gf)))
+  (funcall (method-combination-check-method-qualifiers method-combo)
+           gf method-combo method))
+(defun invalid-method-qualifiers-error (gf method)
+  (error-of-type 'sys::source-program-error
+    (TEXT "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S")
+    (method-combination-name (gf-method-combination gf)) gf
+    (std-method-qualifiers method) method))
+
 ;; Add a method to a generic function
 (defun std-add-method (gf method)
   (check-signature-congruence gf method)
@@ -2631,6 +2686,7 @@ in the generic function instance."
     (error-of-type 'error
       "~S: ~S already belongs to ~S, cannot also add it to ~S"
       'std-add-method method (std-method-gf method) gf))
+  (check-method-qualifiers gf method)
   (setf (std-method-function method) nil
         (std-method-gf method) gf)
   ;; determine function from initfunction:
@@ -2750,7 +2806,7 @@ in the generic function instance."
 ;; funname: function name, symbol or (SETF symbol)
 ;; lambdalist: lambdalist of the generic function
 ;; options: (option*)
-;; --> signature, argorder, method-forms, docstring, method combination
+;; --> signature, argorder, method combination, method-forms, docstring
 (defun analyze-defgeneric (caller funname lambdalist options)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
@@ -2795,16 +2851,16 @@ in the generic function instance."
                caller funname ':documentation))
            (setq docstrings (rest option)))
           (:METHOD-COMBINATION
-           ;; the combination designator must be present and may not be null
-           ;; allowed are standard w/o options, a symbol w/options,
+           ;; The method combination designator must be present and may not be
+           ;; null. Allowed are STANDARD without options, a symbol with options,
            ;; or, in the case of invocation from ensure-generic-function,
-           ;; a combination object with options
+           ;; a method-combination object with options.
            (let ((designator (cadr option)))
              (if (or (method-combination-p designator)
                      (and designator (symbolp designator)))
                  (setf method-combination (rest option))
                  (error-of-type 'sys::source-program-error
-                   (TEXT "~S ~S: Invalid method combination ~S")
+                   (TEXT "~S ~S: Invalid method combination: ~S")
                    caller funname option))))
           (:GENERIC-FUNCTION-CLASS
            ;; the class of the generic function is being ignored.
@@ -2851,13 +2907,12 @@ in the generic function instance."
         (values (make-signature :req-num reqanz :opt-num optanz
                                 :rest-p restp :keys-p keyp
                                 :keywords keywords :allow-p allowp)
-                ;; argorder
                 argorder
+                method-combination
                 ;; list of the method-forms
                 (nreverse method-forms)
                 ;; docstring or nil
-                (car docstrings)
-                method-combination)))))
+                (car docstrings))))))
 
 ;; parse the lambdalist:
 ;; lambdalist --> reqanz, req-vars, optanz, restp, keyp, keywords, allowp
@@ -2936,7 +2991,7 @@ in the generic function instance."
 ;;; DEFGENERIC
 
 (defmacro defgeneric (funname lambda-list &rest options)
-  (multiple-value-bind (signature argorder method-forms docstring method-combo)
+  (multiple-value-bind (signature argorder method-combo method-forms docstring)
       (analyze-defgeneric 'defgeneric funname lambda-list options)
     `(LET ()
        (COMPILER::EVAL-WHEN-COMPILE
@@ -2958,7 +3013,7 @@ in the generic function instance."
                                 generic-function-class lambda-list
                                 method-class method-combination)
   (declare (ignore environment))
-  (multiple-value-bind (signature argorder method-forms doc method-combo)
+  (multiple-value-bind (signature argorder method-combo)
       (analyze-defgeneric
        'defgeneric function-name lambda-list
        `(,@(if declare `(:declare ,declare))
@@ -2972,36 +3027,36 @@ in the generic function instance."
                       generic-function-class)))
          ,@(if method-combination `(:method-combination ,method-combination))
          ,@(if method-class `(:method-class ,method-class))))
-    (declare (ignore method-forms doc))
     (do-defgeneric function-name signature argorder method-combo)))
 
+;; Converts a method-combination designator, e.g. a method combination name
+;; or a list consisting of a method combination name and options, to a
+;; method-combination instance.
 (defun coerce-to-method-combination (method-combo)
   (flet ((mc (designator)
            (typecase designator
-             (symbol (method-combination-object designator))
+             (symbol (find-method-combination designator))
              (method-combination designator)
              (t (error-of-type 'program-error
                   (TEXT "~S is not a valid a ~S designator")
                   designator 'method-combination)))))
     (if (consp method-combo)
-       (let ((clone (copy-method-combination (mc (first method-combo)))))
-         (setf (method-combination-options clone)
-               (copy-list (rest method-combo)))
-         clone)
-       (mc method-combo))))
+      (let ((clone (copy-method-combination (mc (first method-combo)))))
+        (setf (method-combination-options clone)
+              (copy-list (rest method-combo)))
+        clone)
+      (mc method-combo))))
 
 (defun make-generic-function (funname signature argorder method-combo
                               &rest methods)
   (let ((gf (make-fast-gf funname signature argorder)))
-    (dolist (method methods) (std-add-method gf method))
-    (finalize-fast-gf gf)
     (setf (gf-method-combination gf)
           (coerce-to-method-combination method-combo))
+    (dolist (method methods) (std-add-method gf method))
+    (finalize-fast-gf gf)
     gf))
 
 (defun do-defgeneric (funname signature argorder method-combo &rest methods)
-  ;; if the combination type is specified, resolve the name and cache the
-  ;; (name . option-list) pair.
   (if (fboundp funname)
     (let ((gf (fdefinition funname)))
       (if (clos::generic-function-p gf)
@@ -3013,9 +3068,12 @@ in the generic function instance."
               (check-signature-congruence gf method signature))
             (setf (gf-signature gf) signature))
           (setf (gf-argorder gf) argorder)
+          (let ((method-combo (coerce-to-method-combination method-combo)))
+            (unless (eq method-combo (gf-method-combination gf))
+              (dolist (method (gf-methods gf))
+                (check-method-qualifiers gf method method-combo))
+              (setf (gf-method-combination gf) method-combo)))
           (dolist (method methods) (std-add-method gf method))
-          (setf (gf-method-combination gf)
-                (coerce-to-method-combination method-combo))
           (finalize-fast-gf gf)
           gf)
         (error-of-type 'program-error
@@ -3029,8 +3087,11 @@ in the generic function instance."
 #||  ;; For GENERIC-FLET, GENERIC-LABELS
 ;; like make-generic-function, only that the dispatch-code is
 ;; installed immediately.
- (defun make-generic-function-now (funname signature argorder &rest methods)
+ (defun make-generic-function-now (funname signature argorder method-combo
+                                   &rest methods)
   (let ((gf (make-fast-gf funname signature argorder)))
+    (setf (gf-method-combination gf)
+          (coerce-to-method-combination method-combo))
     (dolist (method methods) (std-add-method gf method))
     (install-dispatch gf)
     gf))
@@ -3040,9 +3101,8 @@ in the generic function instance."
 ;; For GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS
 
 (defun make-generic-function-form (caller funname lambda-list options)
-  (multiple-value-bind (signature argorder method-forms docstring method-combo)
+  (multiple-value-bind (signature argorder method-combo method-forms)
       (analyze-defgeneric caller funname lambda-list options)
-    (declare (ignore docstring))
     `(MAKE-GENERIC-FUNCTION ',funname ',signature ',argorder ',method-combo
                             ,@method-forms)))
 
@@ -3179,10 +3239,21 @@ in the generic function instance."
   (apply #'no-next-method (std-method-gf method) method args))
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method standard-method) &rest args)
-    (error-of-type 'method-call-error
-      :generic-function gf :method method :argument-list args
-      (TEXT "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
-      'no-next-method gf args method '(call-next-method))))
+    (if (let ((method-combo (gf-method-combination gf)))
+          (funcall (method-combination-call-next-method-allowed method-combo)
+                   gf method-combo method))
+      (error-of-type 'method-call-error
+        :generic-function gf :method method :argument-list args
+        (TEXT "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
+        'no-next-method gf args method '(call-next-method))
+      (let ((qualifiers (std-method-qualifiers method)))
+        (if qualifiers
+          (error-of-type 'program-error
+            (TEXT "~S: ~S is invalid within ~{~S~^ ~} methods")
+            gf 'CALL-NEXT-METHOD qualifiers)
+          (error-of-type 'program-error
+            (TEXT "~S: ~S is invalid within primary methods")
+            gf 'CALL-NEXT-METHOD))))))
 
 (defgeneric find-method (gf qualifiers specializers &optional errorp)
   (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
@@ -3445,21 +3516,21 @@ in the generic function instance."
 ;; the main work is done by a SUBR:
 (do-defmethod 'shared-initialize
   (make-standard-method
-   :initfunction #'(lambda (gf) (declare (ignore gf))
-                           (cons #'clos::%shared-initialize '(T)))
-   :wants-next-method-p nil
-   :parameter-specializers (list (find-class 'standard-object) (find-class 't))
-   :qualifiers '()
-   :signature #s(compiler::signature :req-num 2 :rest-p t)))
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                            (cons #'clos::%shared-initialize '(T)))
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'standard-object) (find-class 't))
+    :qualifiers '()
+    :signature #s(compiler::signature :req-num 2 :rest-p t)))
 (do-defmethod 'shared-initialize
   (make-standard-method
-   :initfunction #'(lambda (gf) (declare (ignore gf))
-                           (cons #'clos::%shared-initialize '(T)))
-   :wants-next-method-p nil
-   :parameter-specializers
-   (list (find-class 'structure-object) (find-class 't))
-   :qualifiers '()
-   :signature #s(compiler::signature :req-num 2 :rest-p t)))
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                            (cons #'clos::%shared-initialize '(T)))
+    :wants-next-method-p nil
+    :parameter-specializers
+      (list (find-class 'structure-object) (find-class 't))
+    :qualifiers '()
+    :signature #s(compiler::signature :req-num 2 :rest-p t)))
 
 ;; 28.1.12.
 (defgeneric reinitialize-instance
@@ -3504,12 +3575,12 @@ in the generic function instance."
     :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'reinitialize-instance
   (make-standard-method
-   :initfunction #'(lambda (gf) (declare (ignore gf))
-                           (cons #'clos::%reinitialize-instance '(T)))
-   :wants-next-method-p nil
-   :parameter-specializers (list (find-class 'structure-object))
-   :qualifiers '()
-   :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                            (cons #'clos::%reinitialize-instance '(T)))
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'structure-object))
+    :qualifiers '()
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 ;; At the first call of REINITIALIZE-INSTANCE of each class
 ;; we memorize the needed information in *reinitialize-instance-table*.
 (defun initial-reinitialize-instance (instance &rest initargs)
@@ -3580,20 +3651,20 @@ in the generic function instance."
 ;; the main work is done by a SUBR:
 (do-defmethod 'initialize-instance
   (make-standard-method
-   :initfunction #'(lambda (gf) (declare (ignore gf))
-                           (cons #'clos::%initialize-instance '(T)))
-   :wants-next-method-p nil
-   :parameter-specializers (list (find-class 'standard-object))
-   :qualifiers '()
-   :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                            (cons #'clos::%initialize-instance '(T)))
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'standard-object))
+    :qualifiers '()
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'initialize-instance
   (make-standard-method
-   :initfunction #'(lambda (gf) (declare (ignore gf))
-                           (cons #'clos::%initialize-instance '(T)))
-   :wants-next-method-p nil
-   :parameter-specializers (list (find-class 'structure-object))
-   :qualifiers '()
-   :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                            (cons #'clos::%initialize-instance '(T)))
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'structure-object))
+    :qualifiers '()
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (defun initial-initialize-instance (instance &rest initargs)
   (let ((class (class-of instance)))
     (multiple-value-bind (valid-keywords ai-ef)
@@ -3631,20 +3702,20 @@ in the generic function instance."
 ; the main work is done by a SUBR:
 (do-defmethod 'allocate-instance
   (make-standard-method
-   :initfunction #'(lambda (gf) (declare (ignore gf))
-                           (cons #'clos::%allocate-instance '(T)))
-   :wants-next-method-p nil
-   :parameter-specializers (list (find-class 'standard-class))
-   :qualifiers '()
-   :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                            (cons #'clos::%allocate-instance '(T)))
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'standard-class))
+    :qualifiers '()
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'allocate-instance
   (make-standard-method
-   :initfunction #'(lambda (gf) (declare (ignore gf))
-                           (cons #'clos::%allocate-instance '(T)))
-   :wants-next-method-p nil
-   :parameter-specializers (list (find-class 'structure-class))
-   :qualifiers '()
-   :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                            (cons #'clos::%allocate-instance '(T)))
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'structure-class))
+    :qualifiers '()
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 
 ;; 28.1.9.7.
 (defgeneric make-instance (class &rest initargs &key &allow-other-keys)
@@ -3692,20 +3763,20 @@ in the generic function instance."
 ;; the main work is done by a SUBR:
 (do-defmethod 'make-instance
   (make-standard-method
-   :initfunction #'(lambda (gf) (declare (ignore gf))
-                           (cons #'clos::%make-instance '(T)))
-   :wants-next-method-p nil
-   :parameter-specializers (list (find-class 'standard-class))
-   :qualifiers '()
-   :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                            (cons #'clos::%make-instance '(T)))
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'standard-class))
+    :qualifiers '()
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'make-instance
   (make-standard-method
-   :initfunction #'(lambda (gf) (declare (ignore gf))
-                           (cons #'clos::%make-instance '(T)))
-   :wants-next-method-p nil
-   :parameter-specializers (list (find-class 'structure-class))
-   :qualifiers '()
-   :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                            (cons #'clos::%make-instance '(T)))
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'structure-class))
+    :qualifiers '()
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (defun initial-make-instance (class &rest initargs)
   (multiple-value-bind (valid-keywords ai-ef)
       (make-instance-table-entry1 class)
@@ -3958,14 +4029,15 @@ in the generic function instance."
     (declare (ignore doc-type))
     (sys::%set-documentation (class-of x) 'type new-value)))
 
-;;; method combinations
+
+;;; Method combination
 
 (defvar *method-combination-arguments* nil
-  "the actual generic function call arguments (in compute-effective-method)" )
+  "The actual generic function call arguments (in compute-effective-method)" )
 (defvar *method-combination-generic-function* nil
-  "the generic function applied (in compute-effective-method)")
+  "The generic function applied (in compute-effective-method)")
 (defvar *method-combination* nil
-  "the generic function's method combination (in compute-effective-method)")
+  "The generic function's method combination (in compute-effective-method)")
 
 ;;; error functions
 (defun invalid-method-error (method format-string &rest args)
@@ -3986,10 +4058,10 @@ in the generic function instance."
 
 ;;; utility functions
 (defun qualifiers-match-p (qualifiers pattern)
-  "return t is the arguemnt qualifiers for a method match the
-specification pattern for a method group; `*' matches anything,
+  "Returns t if the argument qualifiers for a method match the
+specification pattern for a method group. '*' matches anything,
 the element * matches any single element, and others match on
-equal.  a null element is tested here, even though the generated
+equal. A null element is tested here, even though the generated
 partition function includes a clause for it."
   (typecase pattern
     (cons (when (or (eq (first pattern) '*)
@@ -3998,18 +4070,19 @@ partition function includes a clause for it."
     (null (null qualifiers))
     (symbol
      (or (eq pattern '*)
-         (method-combination-error "invalid mathod group pattern: ~s."
+         (method-combination-error "invalid method group pattern: ~s."
                                    pattern)))
-    (t (method-combination-error "invalid mathod group pattern: ~s."
+    (t (method-combination-error "invalid method group pattern: ~s."
                                  pattern))))
 
-(defun compute-method-partition-lambda (method-groups)
-  "given the method group form from the combination definition,
-compute a function to be applied to alist of method to produce a
-partitioned plist. the group variables are used as the keys.
-where order specifications are present consolidate them bind them.
-perform static tests for conflicting patterns components and
-generate dynamic tests for unmatched methods and required groups."
+(defun compute-method-partition-lambdas (method-groups)
+  "Given the method group form from the combination definition,
+computes 1. a function to be applied to a list of methods to produce a
+partitioned plist. The group variables are used as the keys.
+Where order specifications are present consolidate them bind them.??
+2. a function to be applied to a single method to produce a qualifiers check.
+Performs static tests for conflicting patterns components and
+generates dynamic tests for unmatched methods and required groups."
   (let ((order-bindings nil) (*-group-variable nil) (order-forms nil))
     (labels ((group-error (group message)
                (error "invalid group: ~s: ~a." group message))
@@ -4055,39 +4128,32 @@ generate dynamic tests for unmatched methods and required groups."
                       (method-combination-error
                        "no methods match group: ~s ~s."
                        ',variable ',patterns)))))
-             (compute-match-form (group)
-               (flet ((compute-match-predicate (pattern)
-                        (typecase pattern
-                          (symbol (case pattern
-                                    (* `(qualifiers-match-p qualifiers '*))
-                                    ((nil) '(null qualifiers))
-                                    (t `(,pattern qualifiers))))
-                          (cons `(qualifiers-match-p qualifiers ',pattern))
-                          (t (error "illegal group pattern: ~s." pattern)))))
-                 (let ((variable (first group))
-                       (patterns (second group)))
-                   (cond ((equal patterns '(*))
-                          (if *-group-variable
-                              (error "duplicate * group: ~s." group)
-                              (setf *-group-variable variable))
-                          nil)
-                         ((symbolp patterns)
-                          `(when (,patterns qualifiers)
-                             (push method
-                                   (getf partitioned-method-plist
-                                         ',variable))))
-                         (t
-                          `(when ,(if (null patterns)
-                                      '(null qualifiers)
-                                      `(or ,@(mapcar #'compute-match-predicate
-                                                     patterns)))
-                             (push method
-                                   (getf partitioned-method-plist
-                                         ',variable))))))))
+             (compute-match-predicate-1 (pattern)
+               (typecase pattern
+                 (symbol (case pattern
+                           (* `(qualifiers-match-p qualifiers '*))
+                           ((nil) '(null qualifiers))
+                           (t `(,pattern qualifiers))))
+                 (cons `(qualifiers-match-p qualifiers ',pattern))
+                 (t (error "illegal group pattern: ~s." pattern))))
+             (compute-match-predicate (group)
+               (let ((variable (first group))
+                     (patterns (second group)))
+                 (cond ((equal patterns '(*))
+                        (if *-group-variable
+                            (error "duplicate * group: ~s." group)
+                            (setf *-group-variable variable))
+                        nil)
+                       ((symbolp patterns)
+                        `(,patterns qualifiers))
+                       (t
+                        (if (null patterns)
+                          '(null qualifiers)
+                          `(or ,@(mapcar #'compute-match-predicate-1 patterns)))))))
              (compute-sort-form (group)
-               ;; if an order spec is present, make a binding for the
+               ;; If an order spec is present, make a binding for the
                ;; shared value and use that to decide whether to reverse.
-               ;; if no spec if present, then always reverse.
+               ;; If no spec if present, then always reverse.
                (let ((variable (first group))
                      (order (third group))
                      (order-variable nil))
@@ -4108,23 +4174,41 @@ generate dynamic tests for unmatched methods and required groups."
                         `(setf (getf partitioned-method-plist ',variable)
                                (reverse (getf partitioned-method-plist
                                               ',variable))))))))
-      (setq method-groups (mapcar #'normalize-group method-groups)
-            order-forms
-            (delete nil (mapcar #'compute-sort-form method-groups)))
-      `(lambda (methods)
-         (let ((partitioned-method-plist nil) ,@order-bindings)
-           (dolist (method methods)
-             (let ((qualifiers (method-qualifiers method)))
-               (declare (ignorable qualifiers))
-               (or ,@(delete nil (mapcar #'compute-match-form method-groups))
-                   ,(if *-group-variable
-                      `(push method (getf partitioned-method-plist
-                                          ',*-group-variable))
-                      '(method-combination-error
-                        "method matched no group: ~s." method)))))
-           ,@order-forms
-           ,@(delete nil (mapcar #'compute-required-form method-groups))
-           partitioned-method-plist)))))
+      (setq method-groups (mapcar #'normalize-group method-groups))
+      (let ((match-forms '()) (check-forms '()))
+        (dolist (group method-groups)
+          (let ((variable (first group))
+                (predicate (compute-match-predicate group)))
+            (when predicate
+              (push `(when ,predicate
+                       (push methd (getf partitioned-method-plist ',variable)))
+                    match-forms)
+              (push predicate check-forms))))
+        (setq match-forms (nreverse match-forms))
+        (setq check-forms (nreverse check-forms))
+        (let ((order-forms
+                (delete nil (mapcar #'compute-sort-form method-groups))))
+          (values
+            `(lambda (methods)
+               (let ((partitioned-method-plist nil) ,@order-bindings)
+                 (dolist (methd methods)
+                   (let ((qualifiers (method-qualifiers methd)))
+                     (declare (ignorable qualifiers))
+                     (or ,@match-forms
+                         ,(if *-group-variable
+                            `(push methd (getf partitioned-method-plist
+                                               ',*-group-variable))
+                            '(invalid-method-error
+                              "method matched no group: ~s." methd)))))
+                 ,@order-forms
+                 ,@(delete nil (mapcar #'compute-required-form method-groups))
+                 partitioned-method-plist))
+            `(lambda (gf methd)
+               ,(if *-group-variable
+                  'nil
+                  `(let ((qualifiers (method-qualifiers methd)))
+                     (declare (ignorable qualifiers))
+                     (or ,@check-forms (invalid-method-qualifiers-error gf methd)))))))))))
 
 ;;; definition implementation
 (defun %define-method-combination (name &rest initargs)
@@ -4133,7 +4217,7 @@ which performs the instantiation and registration and returns NAME."
   (declare (dynamic-extent initargs))
   (let ((definition-object (apply #'make-method-combination
                                   :name name initargs)))
-    (setf (method-combination-object name) definition-object)
+    (setf (find-method-combination name) definition-object)
     name))
 
 (defmacro define-method-combination (name &rest options)
@@ -4147,7 +4231,7 @@ Long-form options are a list of method-group specifiers,
  the definition body."
   (sys::check-redefinition
    name 'define-method-combination
-   (and (method-combination-object name :if-does-not-exist nil)
+   (and (find-method-combination name :if-does-not-exist nil)
         "method combination"))
   (cond ((or (null options)             ; short form
              (typep (first options) '(and symbol (not null))))
@@ -4161,8 +4245,10 @@ Long-form options are a list of method-group specifiers,
              ,@(when identity-with-one-argument
                  `(:identity-with-one-argument ',identity-with-one-argument))
              :operator ',operator
-             :qualifiers ',(list operator)
-             :expander #'short-form-method-combination-expander)))
+             :qualifiers ',(list operator ':around)
+             :expander #'short-form-method-combination-expander
+             :check-method-qualifiers #'short-form-method-combination-check-method-qualifiers
+             :call-next-method-allowed #'short-form-method-combination-call-next-method-allowed)))
         ((listp (first options))        ; long form
          (destructuring-bind (lambda-list qualifier-groups . body) options
            (let ((arguments-lambda-list nil)
@@ -4172,24 +4258,26 @@ Long-form options are a list of method-group specifiers,
                  (options-variable (gensym "OPTIONS-"))
                  (args-variable (gensym "ARGUMENTS-"))
                  (methods-variable (gensym "METHODS-"))
+                 (method-variable (gensym "METHOD-"))
                  (ignore-gf nil)
                  (documentation nil))
-             (loop (typecase (first body)
-                     (string (when documentation (return))
-                             (setf documentation (pop body)))
-                     (cons (destructuring-bind (keyword . rest) (first body)
-                             (case keyword
-                               (:arguments
-                                (when arguments-lambda-list
-                                  (error "duplicate :arguments option."))
-                                (setf arguments-lambda-list rest))
-                               (:generic-function
-                                (when gf-variable
-                                  (error "duplicate :generic-function option."))
-                                (setf gf-variable (first rest)))
-                               (declare
-                                (push (first body) declarations))
-                               (t (return))))
+             (loop
+               (typecase (first body)
+                 (string (when documentation (return))
+                         (setf documentation (pop body)))
+                 (cons (destructuring-bind (keyword . rest) (first body)
+                         (case keyword
+                           (:arguments
+                             (when arguments-lambda-list
+                               (error "duplicate :arguments option."))
+                             (setf arguments-lambda-list rest))
+                           (:generic-function
+                             (when gf-variable
+                               (error "duplicate :generic-function option."))
+                             (setf gf-variable (first rest)))
+                           (declare
+                             (push (first body) declarations))
+                           (t (return))))
                        (pop body))
                  (t (return))))
              (unless gf-variable (setf gf-variable (gensym "GF-") ignore-gf t))
@@ -4208,53 +4296,58 @@ Long-form options are a list of method-group specifiers,
                                   `((,parameter ',parameter))))
                               arguments-lambda-list)
                          ,@body))))
-             `(%define-method-combination
-               ',name
-               ,@(when documentation `(:documentation ,documentation))
-               ,@(when declarations `(:declarations ',(reverse declarations)))
-               ,@(when arguments-lambda-list
-                   `(:arguments-lambda-list ',arguments-lambda-list))
-               :qualifiers ',qualifier-groups
-               :identity-with-one-argument t
-               :expander
-               (compile nil
-                        (lambda (,gf-variable ,combination-variable
-                                 ,options-variable ,args-variable)
-                          (long-form-method-combination-expander
-                           ,gf-variable ,combination-variable
-                ,options-variable ,args-variable
-                (lambda (,gf-variable ,methods-variable ,@lambda-list)
-                  ,@(when ignore-gf `((declare (ignore ,gf-variable))))
-                  ;; the partition lambda generates a plist keyed by
-                  ;; variable name which is then &key destructured and
-                  ;; bound for the body
-                  (destructuring-bind
-                        (&key ,@(mapcar (lambda (arg &aux (var (first arg)))
-                                          `((,var ,var)))
-                                        qualifier-groups))
-                      (,(compute-method-partition-lambda qualifier-groups)
-                        ,methods-variable)
-                    ,@body)))))))))
+             (multiple-value-bind (partition-lambda check-lambda)
+                 (compute-method-partition-lambdas qualifier-groups)
+               `(%define-method-combination
+                 ',name
+                 ,@(when documentation `(:documentation ,documentation))
+                 ,@(when declarations `(:declarations ',(reverse declarations)))
+                 ,@(when arguments-lambda-list
+                     `(:arguments-lambda-list ',arguments-lambda-list))
+                 :qualifiers ',qualifier-groups
+                 :identity-with-one-argument t
+                 :expander
+                   (lambda (,gf-variable ,combination-variable
+                            ,options-variable ,args-variable)
+                     (long-form-method-combination-expander
+                       ,gf-variable ,combination-variable
+                       ,options-variable ,args-variable
+                       (lambda (,gf-variable ,methods-variable ,@lambda-list)
+                         ,@(when ignore-gf `((declare (ignore ,gf-variable))))
+                         ;; The partition lambda generates a plist keyed by
+                         ;; variable name which is then &key destructured and
+                         ;; bound for the body.
+                         (destructuring-bind
+                           (&key ,@(mapcar (lambda (arg &aux (var (first arg)))
+                                             `((,var ,var)))
+                                           qualifier-groups))
+                           (,partition-lambda ,methods-variable)
+                           ,@body))))
+                 :check-method-qualifiers
+                   (lambda (,gf-variable ,combination-variable ,method-variable)
+                     (declare (ignore ,combination-variable))
+                     (,check-lambda ,gf-variable ,method-variable))
+                 :call-next-method-allowed
+                   #'long-form-method-combination-call-next-method-allowed)))))
         (t (error "invalid method combination options: ~s." options))))
 
-;;; method computation implementation
+;;; Method computation implementation:
 ;;; - compute-effective-method-function handles the function interface
-;;;   and the next-method support for both short and long forms
+;;;   and the next-method support for both short and long forms.
 ;;; - short forms: compute-short-form-effective-method-form
 ;;;   and short-form-method-combination-expander
 ;;; - long forms: long-form-method-combination-expander
 
-(defun compute-effective-method-function
-    (generic-function combination methods effective-method-form)
-  "given the generic function, its combination, and the effective method form,
-construct and compile the lamda form for the correct arguments
+(defun compute-effective-method-function (generic-function combination methods
+                                          effective-method-form)
+  "Given the generic function, its combination, and the effective method form,
+constructs and compiles the lambda form for the correct arguments
 and with the next-method support.
-
-this reproduces that aspect of the standard-method-combination-expander
+This reproduces that aspect of the standard-method-combination-expander
 which pertains to the parameter list and extends it for the next-method
-support.  in constrast to the original, this is used to post-process the
-effective method form, in which case the applicable-method
-computation has already transpired."
+support.  In constrast to the original, this is used to post-process the
+effective method form, in which case the applicable-method computation
+has already transpired."
   (let* ((signature (gf-signature generic-function))
          (req-anz (sig-req-num signature))
          (req-vars (gensym-list req-anz))
@@ -4263,124 +4356,119 @@ computation has already transpired."
          (apply-fun (if restp 'APPLY 'FUNCALL))
          (apply-args nil)
          (lambdalist nil)
-         (opt-vars '())
-         (key-vars '())
-         (lambdalist-keypart '())
          (declarations (method-combination-declarations combination))
          (combination-arguments
           (method-combination-arguments-lambda-list combination))
          (whole-var (when (eq (first combination-arguments) '&whole)
                       (second combination-arguments)))
          (destructuring-lambda-list nil))
-    (setf (values opt-vars key-vars lambdalist-keypart)
-          (gf-keyword-arguments restp signature methods))
-    ;; reconcile the required parameters between the effective method
-    ;; and an internal destructuring lambda list if the combination
-    ;; specified an argument list. the interface rest parameter comprises
-    ;; optional, rest, and key arguments, and is destructured for
-    ;; internal bindings, and/or coalesced with the required arguments
-    ;; to fabicate a whole binding
-    (when whole-var
-      ;; pick off the initial whole parameter
-      (setf combination-arguments (nthcdr 2 combination-arguments)))
-    (multiple-value-bind (positional opt opt-i opt-p rest num-req)
-        (analyze-lambdalist combination-arguments)
-      (declare (ignore opt opt-i opt-p rest))
-      (when (> (setq num-req (length positional)) (length req-vars))
-        (method-combination-error "invalid combination arguments: ~s."
-                                  combination-arguments))
-      (setf req-vars (append positional (nthcdr num-req req-vars)))
-      ;; construct analogous interface parameter and application
-      ;; argument lists
-      (setf lambdalist `(,@req-vars ,@(when restp `(&rest ,rest-var)))
-            apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
-      ;; if a method combination argument list is present, the required
-      ;; arguments have already been accommodated, but it remains to
-      ;; deconstruct the everything else from the rest arguments
-      (when combination-arguments
-        (setf destructuring-lambda-list
-              `(,@(nthcdr num-req combination-arguments)
-                ,@(when whole-var
-                    `(,@(unless (find '&aux combination-arguments) '(&aux))
-                        (,whole-var (list* ,@req-vars ,rest-var))))))))
-    ;; combine the generated lambda list with the effective method form
-    ;; to create the method function
-    (let ((ef-fun
-           (if (and (eq (first effective-method-form) 'call-method)
-                    (= (length effective-method-form) 2)
-                    (method-combination-identity-with-one-argument combination))
-             (let ((method (second effective-method-form)))
-               `(lambda ,lambdalist
-                  (DECLARE (INLINE FUNCALL APPLY))
-                  ,(if (or (consp method)
-                           (std-method-wants-next-method-p method))
-                     `(,apply-fun ,(std-method-function method) nil
-                                  ,@apply-args)
-                     `(,apply-fun ,(std-method-function method)
-                                  ,@apply-args))))
-             `(lambda ,lambdalist
-                (DECLARE (INLINE FUNCALL APPLY))
-                (macrolet ((call-method (method &optional next-methods
-                                                &aux (m-function (list 'std-method-function method)))
-                           ;; if the method expects a next-method
-                           ;; operator, construct a function from
-                           ;; successor methods or pass NIL as function
-                           ;; (NEXT-METHOD-P reacts on it) and preceed
-                           ;; the arguments proper with this function.
-                           ;; if no next methods are expected, then pass
-                           ;; the arguments only.  nb, even though this
-                           ;; file changes method generation to _always_
-                           ;; expect a next-method context, preexisting
-                           ;; methods are not that way
-                           (if (or (consp method)
-                                   (std-method-wants-next-method-p method))
-                             (if next-methods
-                               (list* ',apply-fun m-function
+    (multiple-value-bind (opt-vars key-vars lambdalist-keypart)
+        (gf-keyword-arguments restp signature methods)
+      ;; Reconcile the required parameters between the effective method
+      ;; and an internal destructuring lambda list if the combination
+      ;; specified an argument list. The interface rest parameter comprises
+      ;; optional, rest, and key arguments, and is destructured for
+      ;; internal bindings, and/or coalesced with the required arguments
+      ;; to fabricate a whole binding.
+      (when whole-var
+        ;; Pick off the initial whole parameter.
+        (setf combination-arguments (nthcdr 2 combination-arguments)))
+      (multiple-value-bind (positional opt opt-i opt-p rest num-req)
+          (analyze-lambdalist combination-arguments)
+        (declare (ignore opt opt-i opt-p rest))
+        (when (> (setq num-req (length positional)) (length req-vars))
+          (method-combination-error "invalid combination arguments: ~s."
+                                    combination-arguments))
+        (setf req-vars (append positional (nthcdr num-req req-vars)))
+        ;; Construct analogous interface parameter and application
+        ;; argument lists.
+        (setf lambdalist `(,@req-vars ,@(when restp `(&rest ,rest-var)))
+              apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
+        ;; If a method combination argument list is present, the required
+        ;; arguments have already been accommodated, but it remains to
+        ;; deconstruct the everything else from the rest arguments.
+        (when combination-arguments
+          (setf destructuring-lambda-list
+                `(,@(nthcdr num-req combination-arguments)
+                  ,@(when whole-var
+                      `(,@(unless (find '&aux combination-arguments) '(&aux))
+                          (,whole-var (list* ,@req-vars ,rest-var))))))))
+      ;; Combine the generated lambda list with the effective method form
+      ;; to create the method function.
+      (let ((ef-fun
+              (if (and (eq (first effective-method-form) 'call-method)
+                       (= (length effective-method-form) 2)
+                       (method-combination-identity-with-one-argument combination))
+                (let ((method (second effective-method-form)))
+                  `(lambda ,lambdalist
+                     (DECLARE (INLINE FUNCALL APPLY))
+                     ,(if (or (consp method)
+                              (std-method-wants-next-method-p method))
+                        `(,apply-fun ,(std-method-function method) nil
+                                     ,@apply-args)
+                        `(,apply-fun ,(std-method-function method)
+                                     ,@apply-args))))
+                `(lambda ,lambdalist
+                   (DECLARE (INLINE FUNCALL APPLY))
+                   (macrolet ((call-method (method &optional next-methods
+                                                   &aux (m-function (list 'std-method-function method)))
+                              ;; If the method expects a next-method
+                              ;; operator, construct a function from
+                              ;; successor methods or pass NIL as function
+                              ;; (NEXT-METHOD-P reacts on it) and precede
+                              ;; the arguments proper with this function.
+                              ;; If no next methods are expected, then pass
+                              ;; the arguments only.  NB, even though this
+                              ;; file changes method generation to _always_
+                              ;; expect a next-method context, preexisting
+                              ;; methods are not that way.??
+                              (if (or (consp method)
+                                      (std-method-wants-next-method-p method))
+                                (if next-methods
+                                  (list* ',apply-fun m-function
+                                         (list 'function
+                                               (list 'lambda ',lambdalist
+                                                     (list 'call-method
+                                                           (first next-methods)
+                                                           (rest next-methods))))
+                                         ',apply-args)
+                                  (list* ',apply-fun m-function nil ',apply-args))
+                                (list* ',apply-fun m-function ',apply-args)))
+                            (make-method (body)
+                              ;; make a temporary method
+                              (let* ((next-method-parm (gensym "NM-"))
+                                     (method-lambda
                                       (list 'function
-                                            (list 'lambda ',lambdalist
-                                                  (list 'call-method
-                                                        (first next-methods)
-                                                        (rest next-methods))))
-                                      ',apply-args)
-                               (list* ',apply-fun m-function nil ',apply-args))
-                             (list* ',apply-fun m-function ',apply-args)))
-                         (make-method (body)
-                           ;; make a temporary method
-                           (let* ((next-method-parm (gensym "NM-"))
-                                  (method-lambda
-                                   (list 'function
-                                         (list 'lambda
-                                               (cons next-method-parm
-                                                     ',lambdalist)
-                                               (list 'declare
-                                                     (list 'ignore
-                                                           next-method-parm))
-                                               body))))
-                             (list 'make-standard-method
-                                   :function method-lambda
-                                   :wants-next-method-p t
-                                   :parameter-specializers nil
-                                   :qualifiers nil
-                                   :signature ,signature
-                                   :gf ,*method-combination-generic-function*
-                                   ;; it's never going to be added to a
-                                   ;; generic function
-                                   :initfunction nil))))
-                  ,@declarations
-                  ;; if the combination specified an internal argument list,
-                  ;; extract the variable parameters from the rest binding.
-                  ,(if destructuring-lambda-list
-                     `(destructuring-bind ,destructuring-lambda-list ,rest-var
-                        ,effective-method-form)
-                     effective-method-form))))))
+                                            (list 'lambda
+                                                  (cons next-method-parm
+                                                        ',lambdalist)
+                                                  (list 'declare
+                                                        (list 'ignore
+                                                              next-method-parm))
+                                                  body))))
+                                (list 'make-standard-method
+                                      :function method-lambda
+                                      :wants-next-method-p t
+                                      :parameter-specializers nil
+                                      :qualifiers nil
+                                      :signature ,signature
+                                      :gf ,*method-combination-generic-function*
+                                      ;; It's never going to be added to a
+                                      ;; generic function.
+                                      :initfunction nil))))
+                     ,@declarations
+                     ;; If the combination specified an internal argument list,
+                     ;; extract the variable parameters from the rest binding.
+                     ,(if destructuring-lambda-list
+                        `(destructuring-bind ,destructuring-lambda-list ,rest-var
+                           ,effective-method-form)
+                        effective-method-form))))))
       ;; (pprint ef-fun)
       ;; (eval ef-fun)           ; interpreted
       (compile nil ; (gensym (string (method-combination-name combination)))
-               ef-fun))))
+               ef-fun)))))
 
-(defun compute-short-form-effective-method-form
-    (generic-function combination options methods)
-  (declare (ignore generic-function))
+(defun compute-short-form-effective-method-form (combination options methods)
   (flet ((partition-short-form-method-list (combination methods order)
            (let ((primary-methods '())
                  (around-methods '())
@@ -4420,8 +4508,8 @@ computation has already transpired."
                    (if (or (rest primary)
                            (not (method-combination-identity-with-one-argument
                                  combination)))
-                       `(,operator ,@(call-methods primary))
-                       `(call-method ,(first primary)))))
+                     `(,operator ,@(call-methods primary))
+                     `(call-method ,(first primary)))))
               (when around
                 (setq form
                       `(call-method ,(first around)
@@ -4438,13 +4526,20 @@ computation has already transpired."
               (no-method-caller 'no-applicable-method
                                 *method-combination-generic-function*)))
          (em-form (compute-short-form-effective-method-form
-                   *method-combination-generic-function*
                    *method-combination* options methods)))
     (typecase em-form
       (function em-form)
       (list (compute-effective-method-function
              *method-combination-generic-function*
              *method-combination* methods em-form)))))
+
+;(defun short-form-method-combination-check-method-qualifiers (gf method-combo method)
+; Already defined above.
+
+(defun short-form-method-combination-call-next-method-allowed (gf method-combo method)
+  (declare (ignore gf method-combo))
+  (let ((qualifiers (std-method-qualifiers method)))
+    (equal qualifiers '(:around))))
 
 (defun long-form-method-combination-expander
     (*method-combination-generic-function* *method-combination*
@@ -4463,14 +4558,20 @@ computation has already transpired."
              *method-combination-generic-function*
              *method-combination* methods em-form)))))
 
-;;; ANSI method combinations
+(defun long-form-method-combination-call-next-method-allowed (gf method-combo method)
+  (declare (ignore gf method-combo method))
+  t)
+
+;;; Predefined method combinations.
 (dolist (name '(+ and append list max min nconc or progn))
-  (setf (method-combination-object name)
+  (setf (find-method-combination name)
         (make-method-combination
-         :name name :operator name
-         :qualifiers (list name)
-         :identity-with-one-argument (not (eq name 'list))
-         :documentation (format nil "the ~A ~A object"
-                                name 'method-combination)
-         :expander #'short-form-method-combination-expander)))
+          :name name :operator name
+          :qualifiers (list name ':around)
+          :identity-with-one-argument (not (eq name 'list))
+          :documentation (format nil "the ~A ~A object"
+                                 name 'method-combination)
+          :expander #'short-form-method-combination-expander
+          :check-method-qualifiers #'short-form-method-combination-check-method-qualifiers
+          :call-next-method-allowed #'short-form-method-combination-call-next-method-allowed)))
 
