@@ -658,6 +658,25 @@ compiles the specified lisp files to a platform-independent
   mailing list</ulink> or the
  <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355">SourceForge bug tracker</ulink>.</para>
 
+<para><emphasis>Before</emphasis> submitting a bug report, please take
+ the following basic steps to make the report more useful:</para>
+<orderedlist>
+ <listitem><simpara>Please do a clean build (remove your build directory
+   and build &clisp; with <command>"./configure --build build"</command>
+   or at least do a <command>"make distclean"</command>
+   before <command>"make"</command>).</simpara></listitem>
+ <listitem><simpara>If you are reporting a <quote>hard crash</quote>
+   (segmentation fault, bus error, core dump etc), please do
+   <command>"./configure --with-debug --build build-g ; cd build-g; gdb"</command>,
+   then load the appropriate &linkset; by either <command>base</command>
+   or <command>full</command> &gdb; command,
+   and report the backtrace.</simpara></listitem>
+ <listitem><simpara>If you are using pre-built binaries and experience a
+   hard crash, the problem is likely to be in the incompatibilities
+   between the platform on which the binary was built and yours; please
+   try compiling the sources and report the problem if it
+   persists.</simpara></listitem></orderedlist>
+
 <para>When submitting a bug report, please specify the
 following information:</para>
 
@@ -665,23 +684,9 @@ following information:</para>
  <listitem><simpara>What is your platform (<command>&uname-u; -a</command>
    on a &unix; system)?  Compiler version?
    &glibc; version (on &gnu;/&linux;)?</simpara></listitem>
- <listitem><simpara>Where did you get the sources?  When?
+ <listitem><simpara>Where did you get the sources or binaries?  When?
    (Absolute dates are preferred over the relative ones).</simpara></listitem>
  <listitem><simpara>How did you build &clisp;? (What command, options &amp;c.)
-   Please do a clean build (remove your build directory and build
-   &clisp; with <command>"./configure --build build"</command> or at
-   least do a <command>"make distclean"</command>
-   before <command>"make"</command>).
-   If you are reporting a <quote>hard crash</quote>
-   (segmentation fault, bus error, core dump etc), please do
-   <command>"./configure --with-debug --build build-g ; cd build-g; gdb"</command>
-   and report the backtrace.  If the crash is in the <command>full</command>
-   image, issue the <command>full</command> command at the &gdb; prompt
-   before <command>run</command>ning &clisp;.</simpara></listitem>
- <listitem><simpara>If you are using pre-built binaries, the problem is
-   likely to be in the incompatibilities between the platform on which
-   the binary was built and yours; please try compiling the sources.
- </simpara></listitem>
  <listitem><simpara>What is the output of
    <command><link linkend="opt-version">"clisp
      --version"</link></command>?</simpara></listitem>
