@@ -1,5 +1,5 @@
 # Streams for CLISP
-# Bruno Haible 1990-2003
+# Bruno Haible 1990-2004
 # Sam Steingold 1998-2002
 # Generic Streams: Marcus Daniels 8.4.1994
 # SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
@@ -16741,10 +16741,12 @@ LISPFUNN(line_number,1) {
 global bool stream_get_read_eval (object stream) {
   if (builtin_stream_p(stream)) {
     return ((TheStream(stream)->strmflags & strmflags_reval_B) != 0);
-  } else { # (SLOT-VALUE stream '$reval):
-    object clas = TheInstance(stream)->inst_class;
-    object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
-    object value = TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)];
+  } else {
+    # (SLOT-VALUE stream '$reval):
+    instance_un_realloc(stream);
+    var object clas = TheInstance(stream)->inst_class;
+    var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
+    var object value = TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)];
     return !nullp(value);
   }
 }
@@ -16759,9 +16761,11 @@ global void stream_set_read_eval (object stream, bool value) {
       TheStream(stream)->strmflags |= strmflags_reval_B;
     else
       TheStream(stream)->strmflags &= ~strmflags_reval_B;
-  } else { # (SETF (SLOT-VALUE stream '$reval) value):
-    object clas = TheInstance(stream)->inst_class;
-    object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
+  } else {
+    # (SETF (SLOT-VALUE stream '$reval) value):
+    instance_un_realloc(stream);
+    var object clas = TheInstance(stream)->inst_class;
+    var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
     TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)] = (value ? T : NIL);
   }
 }
