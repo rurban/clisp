@@ -1,3 +1,11 @@
+2004-08-31  Bruno Haible <bruno@clisp.org>
+
+	* spvw.d (struct argv_actions): Remove argv_selection_array, add
+	argv_init_files and argv_exprs.
+	(parse_options, free_argv_actions): Update.
+	(main_actions): New function, extracted from main().
+	(main): Call main_actions.
+
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (init_memory): New function, extracted from main().
