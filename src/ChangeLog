@@ -1,5 +1,12 @@
 2005-03-02  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (check_priority_value): define
+	separately on WIN32_NATIVE and UNIX: the former has a strict
+	symbol-number map and pre-defined constants, while the latter has
+	a lax reverse map and symbolic values are defined in-place
+
+2005-03-02  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (split-option): split only if #\= is unique
 	(split-command): search for the final #\) :FROM-END
 	(to-C-name, new-checker): cpp-name can be (:KEYWORD EXPRESSION)

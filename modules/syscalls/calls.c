@@ -81,22 +81,6 @@ extern object nobject_out (FILE* stream, object obj);
 # define XOUT(o,l)
 #endif
 
-/* this is necessary for symbolic priorities on UNIX.
- this has to be here and not below because they have to be defined
- before DEFCHECKER is output by modprep.lisp */
-#if !defined(WIN32_NATIVE)
-#  if !defined(NZERO)
-#    define NZERO 20
-#  endif
-#  define REALTIME_PRIORITY_CLASS       -NZERO
-#  define HIGH_PRIORITY_CLASS           (-NZERO/2)
-#  define ABOVE_NORMAL_PRIORITY_CLASS   (-NZERO/4)
-#  define NORMAL_PRIORITY_CLASS         0
-#  define BELOW_NORMAL_PRIORITY_CLASS   (NZERO/4)
-#  define LOW_PRIORITY_CLASS            (NZERO/2)
-#  define IDLE_PRIORITY_CLASS           NZERO
-#endif
-
 DEFMODULE(syscalls,"POSIX")
 
 #if defined(HAVE_FCNTL) || defined(WIN32_NATIVE)
@@ -183,9 +167,17 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #endif  /* fcntl | WIN32_NATIVE */
 
 /* process priority */
+#if defined(WIN32_NATIVE)
 DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
-           reverse=sint_to_I,                                           \
            REALTIME HIGH ABOVE-NORMAL NORMAL BELOW-NORMAL LOW IDLE)
+#else
+#  if !defined(NZERO)
+#    define NZERO 20
+#  endif
+DEFCHECKER(check_priority_value,default=0,reverse=sint_to_I,                \
+           REALTIME=-NZERO HIGH=(-NZERO/2) ABOVE-NORMAL=(-NZERO/4) NORMAL=0 \
+           BELOW-NORMAL=(NZERO/4) LOW=(NZERO/2) IDLE=NZERO)
+#endif
 DEFCHECKER(check_priority_which,prefix=PRIO,default=0, PROCESS PGRP USER)
 DEFUN(OS:PRIORITY, pid &optional which) {
   int which = check_priority_which(popSTACK());
