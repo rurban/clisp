@@ -1,3 +1,8 @@
+2004-12-07  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (compile): always return 3 values as specified by ANSI
+	Reported by Michael Kappert <michael.kappert@gmx.net>
+
 2004-12-06  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX::SET-FILE-STAT): also set ATIME
