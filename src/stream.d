@@ -4679,7 +4679,7 @@ local sintL low_read_unbuffered_handle (object stream) {
  restart_it:
   run_time_stop(); # hold run time clock
   begin_system_call();
-  var int result = full_read(handle,&b,1); # try to read a byte
+  var ssize_t result = full_read(handle,&b,1); # try to read a byte
   end_system_call();
   run_time_restart(); # resume run time clock
   if (result<0) {
@@ -4864,7 +4864,7 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
   }
   # try to read a byte
   var uintB b;
-  var int result = full_read(handle,&b,1);
+  var ssize_t result = full_read(handle,&b,1);
   if (result<0) {
     OS_error();
   }
@@ -4919,7 +4919,8 @@ local bool low_clear_input_unbuffered_handle (object stream) {
 }
 
 local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
-                                               uintL len, perseverance_t persev) {
+                                               uintL len, perseverance_t persev)
+{
   if (UnbufferedStream_status(stream) < 0) /* already EOF? */
     return byteptr;
   byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
@@ -4934,7 +4935,7 @@ local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
     persev = persev_partial;
   run_time_stop(); /* hold run time clock */
   begin_system_call();
-  var sintL result = fd_read(handle,byteptr,len,persev);
+  var ssize_t result = fd_read(handle,byteptr,len,persev);
   end_system_call();
   run_time_restart(); /* resume run time clock */
   if (result<0) {
@@ -5317,7 +5318,7 @@ local void low_write_unbuffered_handle (object stream, uintB b) {
  restart_it:
   begin_system_call();
   # Try to output the byte.
-  var int result = full_write(handle,&b,1);
+  var ssize_t result = full_write(handle,&b,1);
   if (result<0) { OS_error(); }
   end_system_call();
   if (result==0) # not successful?
@@ -5337,7 +5338,7 @@ local const uintB* low_write_array_unbuffered_handle (object stream,
       && ChannelStream_regular(stream))
     persev = persev_partial;
   begin_system_call();
-  var sintL result = fd_write(handle,byteptr,len,persev);
+  var ssize_t result = fd_write(handle,byteptr,len,persev);
   if (result<0) { OS_error(); }
   end_system_call();
   /* Safety check whether persev argument was respected or EOWF was reached: */
@@ -5987,7 +5988,7 @@ local uintL low_fill_buffered_handle (object stream, perseverance_t persev) {
       && ChannelStream_regular(stream))
     persev = persev_partial;
   begin_system_call();
-  var sintL result = fd_read(handle,buff,strm_buffered_bufflen,persev);
+  var ssize_t result = fd_read(handle,buff,strm_buffered_bufflen,persev);
   end_system_call();
   if (result<0)               /* error occurred? */
     OS_filestream_error(stream);
@@ -6021,7 +6022,7 @@ local uintL low_fill_buffered_handle (object stream, perseverance_t persev) {
 # changed in stream: index
 local void low_flush_buffered_handle (object stream, uintL bufflen) {
   begin_system_call();
-  var sintL result = # write Buffer
+  var ssize_t result =          /* write Buffer */
     full_write(TheHandle(BufferedStream_channel(stream)),
                BufferedStream_buffer_address(stream,0),
                bufflen);
@@ -12497,7 +12498,7 @@ LISPFUNN(window_cursor_off,1) {
 local void low_flush_buffered_pipe (object stream, uintL bufflen) {
   begin_system_call();
   writing_to_subprocess = true;
-  var sintL result = # flush Buffer
+  var ssize_t result =          /* flush Buffer */
     full_write(TheHandle(BufferedStream_channel(stream)),
                BufferedStream_buffer_address(stream,0),
                bufflen);
@@ -12702,11 +12703,12 @@ local void low_write_unbuffered_pipe (object stream, uintB b) {
 
 local const uintB* low_write_array_unbuffered_pipe (object stream,
                                                     const uintB* byteptr,
-                                                    uintL len, perseverance_t persev) {
+                                                    uintL len,
+                                                    perseverance_t persev) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   begin_system_call();
   writing_to_subprocess = true;
-  var sintL result = fd_write(handle,byteptr,len,persev);
+  var ssize_t result = fd_write(handle,byteptr,len,persev);
   writing_to_subprocess = false;
   if (result<0) { OS_error(); }
   end_system_call();
@@ -13209,7 +13211,7 @@ local sintL low_read_unbuffered_socket (object stream) {
   }
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
   var uintB b;
-  var int result;
+  var ssize_t result;
   SYSCALL(result,sock_read(handle,&b,1,persev_full)); # try to read a byte
   if (result==0) {
     begin_system_call();
@@ -13260,7 +13262,7 @@ local signean low_listen_unbuffered_socket (object stream) {
     # When read() returns a result without blocking, this can also be EOF!
     # try to read a byte:
     var uintB b;
-    var int result = sock_read(handle,&b,1,persev_full);
+    var ssize_t result = sock_read(handle,&b,1,persev_full);
     if (result<0) {
       CHECK_INTERRUPT;
       SOCK_error();
@@ -13289,13 +13291,14 @@ local bool low_clear_input_unbuffered_socket (object stream) {
 }
 
 local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
-                                               uintL len, perseverance_t persev) {
+                                               uintL len, perseverance_t persev)
+{
   if (UnbufferedStream_status(stream) < 0) # already EOF?
     return byteptr;
   byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
   if (len == 0) return byteptr;
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
-  var int result;
+  var ssize_t result;
   SYSCALL(result,sock_read(handle,byteptr,len,persev));
   if (result==0) {
     begin_system_call();
@@ -13338,7 +13341,7 @@ local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
 
 local void low_write_unbuffered_socket (object stream, uintB b) {
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ochannel);
-  var int result;
+  var ssize_t result;
   SYSCALL(result,sock_write(handle,&b,1,persev_full)); # Try to output the byte.
   if (result==0) # not successful?
     fehler_unwritable(TheSubr(subr_self)->name,stream);
@@ -13346,7 +13349,7 @@ local void low_write_unbuffered_socket (object stream, uintB b) {
 
 local const uintB* low_write_array_unbuffered_socket (object stream, const uintB* byteptr, uintL len, perseverance_t persev) {
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ochannel);
-  var int result;
+  var ssize_t result;
   SYSCALL(result,sock_write(handle,byteptr,len,persev));
   /* Safety check whether persev argument was respected or EOWF was reached: */
   if ((persev == persev_full && !(result==(sintL)len))
@@ -13549,7 +13552,7 @@ LISPFUNN(write_n_bytes,4) {
  > persev: one of persev_partial, persev_immediate, persev_bonus
  < result: number of bytes read */
 local uintL low_fill_buffered_socket (object stream, perseverance_t persev) {
-  var sintL result;
+  var ssize_t result;
   SYSCALL(result,sock_read(TheSocket(BufferedStream_channel(stream)),
                            BufferedStream_buffer_address(stream,0),
                            strm_buffered_bufflen,
@@ -13580,7 +13583,7 @@ local void low_flush_buffered_socket (object stream, uintL bufflen) {
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   writing_to_subprocess = true;
  #endif
-  var sintL result = # flush Buffer
+  var ssize_t result =          /* flush Buffer */
     sock_write(TheSocket(BufferedStream_channel(stream)),
                BufferedStream_buffer_address(stream,0),
                bufflen,persev_full);
