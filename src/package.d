@@ -11,7 +11,7 @@
 /* data structure of the symbols: see LISPBIBL.D
  data structure of the symbol table:
  a vector with 3 Slots:
-   size    Fixnum >0, <2^16, = length of the table
+   size    Fixnum >0, <2^24, = length of the table
    table   vector of length size,
              contains single symbols (/= NIL) and symbol-lists
    count   number of symbols in the table, Fixnum >=0 */
@@ -23,7 +23,7 @@
 
 /* UP: Creates a new empty symbol-table.
  make_symtab(size)
- > size: the desired size of the table (odd number, >0, <2^16)
+ > size: the desired size of the table (odd number, >0, <2^24)
  < result: new symbol-table of this size
  can trigger GC */
 local object make_symtab (uintL size) {
@@ -36,29 +36,29 @@ local object make_symtab (uintL size) {
   return symtab;
 }
 
-/* UP: Calculates the hashcode of a string. This is a 16-bit-number.
+/* UP: Calculates the hashcode of a string. This is a 24-bit-number.
  string_hashcode(string)
  > string: a string.
  < result: the hashcode of the string */
-local uint16 string_hashcode (object string) {
+local uint32 string_hashcode (object string) {
   var uintL len;
   var uintL offset;
   string = unpack_string_ro(string,&len,&offset);
   SstringDispatch(string,X, {
     var const cintX* charptr = &((SstringX)TheVarobject(string))->data[offset];
     /* there are len characters, starting at charptr */
-    var uint32 hashcode = 0; /* hashcode, only the lower 16 Bit count */
+    var uint32 hashcode = 0; /* hashcode, only the lower 24 Bit count */
     /* Look at all len characters, not just at the first min(len,16)
        characters, as we did earlier, because a bad hash function quasi
        turns the hash table into a few long linear lists. */
     var uintC count;
     dotimesC(count, len, {
       /* rotate hashcode by 5 bits to the left: */
-      hashcode = hashcode << 5; hashcode = hashcode + high16(hashcode);
+      hashcode = hashcode << 5; hashcode = hashcode + (hashcode >> 24);
       /* 'add' next byte via XOR: */
       hashcode = hashcode ^ (uint32)(*charptr++);
     });
-    return (uint16)hashcode;
+    return hashcode & 0x00FFFFFF;
   });
 }
 
@@ -93,9 +93,9 @@ local object new_cons (void) {
  > sym: symbol
  stack layout: tab, oldtable, free-conses, newtable, listr.
  can trigger GC */
-local void newinsert (object sym, uintWL size) {
+local void newinsert (object sym, uintL size) {
   var uintL index = /* Index = Hashcode mod size */
-    (uintL)(string_hashcode(Symbol_name(sym)) % size);
+    string_hashcode(Symbol_name(sym)) % size;
   /* entry in the newtable */
   var object entry = TheSvector(STACK_1)->data[index];
   if ((!nullp(entry)) || nullp(sym)) {
@@ -125,11 +125,11 @@ local object rehash_symtab (object symtab) {
   var object size; /* new size (as Fixnum) */
   pushSTACK(Symtab_table(symtab)); /* oldtable = old table-vector */
   pushSTACK(NIL); /* free-conses := NIL */
-  /* new size = min(floor(oldsize*1.6),65535) */
-  { /* multiply oldsize (>0, <2^16) with 1.6*2^15, then divide by 2^15 : */
-    var uint32 prod = mulu16(oldsize,52429UL);
-    newsize = (prod < (1UL<<31) ? prod>>15 : (1UL<<16)-1 );
-  } /* newsize is now >= oldsize > 0 and < 2^16 */
+  /* new size = min(floor(oldsize*1.6),2^24-1) */
+  { /* multiply oldsize (>0, <2^24) with 1.6*2^7, then divide by 2^7 : */
+    var uint32 prod = oldsize * 205UL;
+    newsize = (prod < (1UL<<31) ? prod>>7 : (1UL<<24)-1 );
+  } /* newsize is now >= oldsize > 0 and < 2^24 */
   /* make newsize odd by rounding off: */
   newsize = (newsize - 1) | 1 ;
   /* calculate size: */
@@ -203,8 +203,7 @@ local object rehash_symtab (object symtab) {
    < sym: the symbol from the symbol-table, that has the given printname */
 local bool symtab_lookup (object string, object symtab, object* sym_) {
   var uintL index = /* Index = Hashcode mod size */
-    (uintL)(string_hashcode(string) %
-            (uintW)(posfixnum_to_L(Symtab_size(symtab))));
+    string_hashcode(string) % posfixnum_to_L(Symtab_size(symtab));
   /* entry in the table */
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!listp(entry)) { /* entry is a single symbol */
@@ -236,8 +235,7 @@ local bool symtab_lookup (object string, object symtab, object* sym_) {
  < result: true, if found */
 local bool symtab_find (object sym, object symtab) {
   var uintL index = /* Index = Hashcode mod size */
-    (uintL)(string_hashcode(Symbol_name(sym)) %
-            (uintW)(posfixnum_to_L(Symtab_size(symtab))));
+    string_hashcode(Symbol_name(sym)) % posfixnum_to_L(Symtab_size(symtab));
   /* entry in the table */
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!listp(entry)) { /* entry is a single symbol */
@@ -272,8 +270,7 @@ local object symtab_insert (object sym, object symtab) {
   }
   /* then insert the symbol: */
   var uintL index = /* Index = Hashcode mod size */
-    (uintL)(string_hashcode(Symbol_name(sym)) %
-            (uintW)(posfixnum_to_L(Symtab_size(symtab))));
+    string_hashcode(Symbol_name(sym)) % posfixnum_to_L(Symtab_size(symtab));
   /* entry in the table */
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!nullp(entry) || nullp(sym)) {
@@ -307,8 +304,7 @@ local object symtab_insert (object sym, object symtab) {
  > symtab: symboltable */
 local void symtab_delete (object sym, object symtab) {
   var uintL index = /* Index = Hashcode mod size */
-    (uintL)(string_hashcode(Symbol_name(sym)) %
-            (uintW)(posfixnum_to_L(Symtab_size(symtab))));
+    string_hashcode(Symbol_name(sym)) % posfixnum_to_L(Symtab_size(symtab));
   var gcv_object_t* entryptr = &TheSvector(Symtab_table(symtab))->data[index];
   var object entry = *entryptr; /* entry in the table */
   if (!listp(entry)) { /* entry is a single symbol */
