@@ -4999,24 +4999,6 @@ nonreturning_function(local, fehler_file_exists, (void)) {
  with further restrictions. */
 #endif
 
-/* UP for assure_dir_exists
-   (MERGE-PATHNAMES (PARSE-NAMESTRING namestring) pathname-without-name&type)
- > namestring: just resolved directory namestring
- > STACK_0: the pathname being resolved
- < STACK_0: merge of namestring and STACK_0
- can trigger GC */
-local maygc void substitute_resolved_path (object namestring) {
-  pushSTACK(namestring); funcall(L(parse_namestring),1);
-  pushSTACK(value1);            /* parsed namestring */
-  { var object pathname = copy_pathname(STACK_(0+1));
-    ThePathname(pathname)->pathname_name = NIL;
-    ThePathname(pathname)->pathname_type = NIL;
-    pushSTACK(pathname);        /* the original pathname */
-  }
-  funcall(L(merge_pathnames),2);
-  STACK_0 = value1;
-}
-
 #ifdef PATHNAME_WIN32
 
 /* An "absolute pathname" is a pathname, whose device is a checked
@@ -5467,9 +5449,12 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
       fehler_dir_not_exists(popSTACK());
     }
     if (substitute) {
-      substitute_resolved_path(asciz_to_string(resolved,O(pathname_encoding)));
+      var object resolved_string
+        = asciz_to_string(resolved,O(pathname_encoding));
+      STACK_0 = coerce_pathname(resolved_string);
       nnullp = namenullp(STACK_0);
     }
+    funcall(L(merge_pathnames),1); pushSTACK(value1);
     { var object dns = directory_namestring(STACK_0);
       return nnullp ? dns : OSnamestring(dns); }
   });
@@ -5672,11 +5657,19 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
               FREE_DYNAMIC_ARRAY(linkbuf); linklen = result; goto retry_readlink;
             }
           }
-          /* turn it into a pathname: */
-          substitute_resolved_path(n_char_to_string(linkbuf,linklen,
-                                                    O(pathname_encoding)));
+          /* turn it into a pathname:
+             (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type) */
+          pushSTACK(n_char_to_string(linkbuf,linklen,O(pathname_encoding)));
           FREE_DYNAMIC_ARRAY(linkbuf);
         }
+        funcall(L(parse_namestring),1);
+        pushSTACK(value1);
+        var object pathname = copy_pathname(STACK_(0+1));
+        ThePathname(pathname)->pathname_name = NIL;
+        ThePathname(pathname)->pathname_type = NIL;
+        pushSTACK(pathname);
+        funcall(L(merge_pathnames),2);
+        STACK_0 = value1;
       }
      ) /* HAVE_LSTAT */
       else { /* normal file */
