@@ -1,4 +1,4 @@
-/* Copyright (C) 2001 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2002 Free Software Foundation, Inc.
    This file is part of the GNU UniString Library.
 
    The GNU UniString Library is free software; you can redistribute it
@@ -29,12 +29,17 @@
 /* Get CHAR_BIT, LONG_MIN, LONG_MAX, ULONG_MAX.  */
 #include <limits.h>
 
-/* Some platforms define some of the ISO C 99 types. */
+/* Get those types that are already defined in other system include files.  */
+#if defined(__FreeBSD__)
+# include <sys/inttypes.h>
+#endif
 #if !(defined(UNIX_CYGWIN32) && defined(__BIT_TYPES_DEFINED__))
 #  define NEED_SIGNED_INT_TYPES
 #endif
 
 /* 7.18.1.1. Exact-width integer types */
+
+#if !defined(__FreeBSD__)
 
 #ifdef NEED_SIGNED_INT_TYPES
 typedef signed char    int8_t;
@@ -62,6 +67,8 @@ typedef long long          int64_t;
 #endif
 typedef unsigned long long uint64_t;
 #endif
+
+#endif /* !FreeBSD */
 
 /* 7.18.1.2. Minimum-width integer types */
 
@@ -91,10 +98,14 @@ typedef uint64_t uint_fast64_t;
 
 /* 7.18.1.4. Integer types capable of holding object pointers */
 
+#if !defined(__FreeBSD__)
+
 /* On some platforms (like IRIX6 MIPS with -n32) sizeof(void*) < sizeof(long),
    but this doesn't matter here.  */
 typedef long          intptr_t;
 typedef unsigned long uintptr_t;
+
+#endif /* !FreeBSD */
 
 /* 7.18.1.5. Greatest-width integer types */
 
