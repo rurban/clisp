@@ -3,7 +3,7 @@
 ;;; (setq auto-mode-alist (cons '("\\.d\\'" . d-mode) auto-mode-alist))
 ;;; (autoload 'd-mode "/usr/local/src/clisp/emacs/d-mode")
 
-(require 'c-mode)
+(require 'cc-mode)
 (require 'cc-langs)             ; `c-C-specifier-kwds'
 (require 'compile)              ; `compile-command'
 (require 'cl)                   ; `subst'
