@@ -2087,13 +2087,6 @@
   #endif
 # Bei Erweiterung: Nichts weiter zu tun.
 
-# Ob Simple-Strings am Stück an Streams durchgereicht werden:
-  #if defined(UNIX) || defined(AMIGAOS) || defined(OS2) || defined(RISCOS) || defined(WIN32)
-    # (Dient der Beschleunigung der String-Ausgabe, insbesondere auf ttys.)
-    #define STRM_WR_SS
-  #endif
-# Bei Veränderung: Nichts weiter zu tun.
-
 # Ob an diversen Schlüsselstellen der STACK überprüft wird:
   #define STACKCHECKS  (SAFETY >= 1) # beim Aufruf von SUBRs und FSUBRs
   #define STACKCHECKC  (SAFETY >= 1) # beim Abinterpretieren compilierter Closures
@@ -5157,9 +5150,7 @@ typedef struct {
                  object strm_rd_ch_last;
                  object strm_wr_ch;
                  object strm_wr_ch_lpos;
-                 #ifdef STRM_WR_SS
                  object strm_wr_ss;
-                 #endif
                  object strm_other[unspecified]; # typspezifische Komponenten
                }
         *  Stream;
@@ -8400,11 +8391,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   typedef pseudofun_ *  Pseudofun; # Pointer auf so eine Funktion
 
 # Deklaration der Pseudofunktionen-Tabelle:
-  #ifdef STRM_WR_SS
-    #define PSEUDOFUNSS(name)  PSEUDOFUN(name)
-  #else
-    #define PSEUDOFUNSS(name)
-  #endif
   #define PSEUDOFUN  PSEUDOFUN_A
   extern struct pseudofun_tab_ {
                                  #include "pseudofun.c"
@@ -10415,7 +10401,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern object ssstring_push_extend (object ssstring, uintB ch);
 # wird verwendet von STREAM, IO
 
-#ifdef STRM_WR_SS
 # UP: Stellt sicher, dass ein Semi-Simple String eine bestimmte Länge hat
 # und erweitert ihn dazu eventuell.
 # ssstring_extend(ssstring,size)
@@ -10425,7 +10410,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # kann GC auslösen
   extern object ssstring_extend (object ssstring, uintL needed_len);
 # wird verwendet von STREAM
-#endif
 
 # ##################### CHARBIBL zu CHARSTRG.D ############################ #
 

@@ -1,3 +1,10 @@
+1998-11-22  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (STRM_WR_SS): Assume to be 1.
+          (PSEUDOFUNSS): Remove definition.
+        * pseudofun.d: Use PSEUDOFUN instead of PSEUDOFUNSS.
+        * array.d, io.d, stream.d, spvw_memfile.d: Assume STRM_WR_SS is 1.
+
 1998-11-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         Avoid a Purify(TM) warning.

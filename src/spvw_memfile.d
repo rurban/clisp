@@ -51,7 +51,7 @@
       bit(9) |
     #endif
     # Codierung von Streams:
-    #ifdef STRM_WR_SS
+    #if 1 # defined(STRM_WR_SS)
       bit(10) |
     #endif
     # Codierung von strmtype:
