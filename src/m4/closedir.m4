@@ -39,18 +39,6 @@ AC_TRY_RUN([
 #endif
 /* Declare opendir(), closedir(). */
 #include <$ac_header_dirent>
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-DIR* opendir (OPENDIR_CONST char* dirname);
-#else
-DIR* opendir();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETCLOSEDIRTYPE closedir (DIR* dirp);
-#else
-RETCLOSEDIRTYPE closedir();
-#endif
 int main() { exit(closedir(opendir(".")) != 0); }],
 cl_cv_func_closedir_retval=yes, cl_cv_func_closedir_retval=no,
 # When cross-compiling, don't assume a return value.
