@@ -5199,10 +5199,10 @@ LISPFUNN(pathname_match_p,2)
   #           '*' for as many characters as desired
   # > beispiel: normal simple string, to compare with
   # > previous: the already known result of comparison
-  #             (returned list of normal simple stringer, NILs and lists)
-  # > solutions: Pointers on a list in the STACK, on the results of
-  #              comparison (returned list of normal simple stringers
-  #              and lists) that have been consed
+  #             (reversed list of normal simple strings, NILs and lists)
+  # > solutions: address of a list in the STACK, onto which the results of
+  #              the comparisons (reversed list of normal simple strings
+  #              and lists) have to be consed
   # can trigger GC
 
   # Here you need not Lisp or C, but PROLOG!
@@ -5734,10 +5734,12 @@ LISPFUNN(pathname_match_p,2)
 
 #endif
 
-#define RET_POP(var) { object ret=Car(*var); *var=Cdr(*var); return ret; }
-# apply substitution SUBST to the MUSTER.
+# Apply substitution SUBST to the MUSTER.
 # translate_pathname(&subst,muster)
   local object translate_pathname (object* subst, object muster);
+# Pop the CAR of *subst and return it.
+#define RET_POP(subst)  \
+  { var object ret = Car(*subst); *subst = Cdr(*subst); return ret; }
 # translate_host(&subst,muster,logical) etc. liefert den host etc. mit Ersetzungen
 # und verkürzen subst passend. Falls nicht passend, liefert es nullobj.
   local object translate_host (object* subst, object muster, bool logical);
