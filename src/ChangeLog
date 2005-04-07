@@ -1,6 +1,7 @@
 2005-04-07  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (print-tables-1): added casts for C++ compilation
+	* modules/berkeley-db/bdb.c: ditto
 
 2005-04-07  Bruno Haible  <bruno@clisp.org>
 
