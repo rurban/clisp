@@ -1,5 +1,11 @@
 2005-04-07  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (check_chmod_mode): fixed symbol names
+	(parse_mode): new function
+	(SET-FILE-STAT, UMASK, MKNOD): use it
+
+2005-04-07  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (allocate_handle, make_file_stream): export
 	* modules/syscalls/calls.c (MKSTEMP): implemented
 	* modules/syscalls/configure.in: check for <stdlib.h> and mkstemp()
