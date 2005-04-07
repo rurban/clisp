@@ -1,5 +1,12 @@
 2005-04-07  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c: ported MKSTEMP to win32
+	(temp_name) [!HAVE_MKSTEMP && (HAVE_TEMPNAM || WIN32_NATIVE)]: added
+	(MKSTEMP)[!HAVE_MKSTEMP && (HAVE_TEMPNAM || WIN32_NATIVE)]: use it
+	* modules/syscalls/configure.in: check for tempnam()
+
+2005-04-07  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (check_chmod_mode): fixed symbol names
 	(parse_mode): new function
 	(SET-FILE-STAT, UMASK, MKNOD): use it

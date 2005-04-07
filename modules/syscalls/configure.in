@@ -37,7 +37,7 @@ AC_CHECK_MEMBERS([struct stat.st_rdev, struct stat.st_blksize, struct stat.st_bl
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
 CL_RLIMIT
-AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname mkstemp dnl
+AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname mkstemp tempnam dnl
 getlogin getpwent getpwnam getpwuid getuid dnl
 openlog setlogmask syslog closelog dnl
 getpgid setpgrp getsid setpgid setsid kill dnl
