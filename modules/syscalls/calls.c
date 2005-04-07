@@ -1101,11 +1101,11 @@ DEFUN(POSIX::USER-DATA, user)
 }
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
 
-/* the the input handle from input stream and
-   output handle from output strea, */
+/* the the input handle from input stream and output handle from output stream
+ can trigger GC */
 static Handle stream_get_handle (object stream) {
-  pushSTACK(stream); funcall(L(input_stream_p),1);
-  return stream_lend_handle(stream,!nullp(value1),NULL);
+  pushSTACK(stream); pushSTACK(stream); funcall(L(input_stream_p),1);
+  return stream_lend_handle(popSTACK(),!nullp(value1),NULL);
 }
 
 #if defined(HAVE_FSTAT) && defined(HAVE_STAT)
@@ -1121,13 +1121,16 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   struct stat buf;
 
   if (builtin_stream_p(file)) {
-    pushSTACK(file);
-    funcall(L(built_in_stream_open_p),1);
+    pushSTACK(file);            /* save */
+    pushSTACK(file); funcall(L(built_in_stream_open_p),1);
+    file = popSTACK();          /* restore */
     if (!nullp(value1)) { /* open stream ==> use FD */
+      pushSTACK(file);          /* save */
       begin_system_call();
       /* win32 declares fstat() as accepting int, not HANDLE */
       if (fstat((int)stream_get_handle(file),&buf) < 0) OS_error();
       end_system_call();
+      file = popSTACK();        /* restore */
     } else goto stat_pathname;
   } else if (integerp(file)) {
     begin_system_call();
@@ -1351,12 +1354,15 @@ DEFUN(POSIX::STAT-VFS, file)
   struct statvfs buf;
 
   if (builtin_stream_p(file)) {
-    pushSTACK(file);
-    funcall(L(built_in_stream_open_p),1);
+    pushSTACK(file);            /* save */
+    pushSTACK(file); funcall(L(built_in_stream_open_p),1);
+    file = popSTACK();          /* restore */
     if (!nullp(value1)) { /* open stream ==> use FD */
+      pushSTACK(file);          /* save */
       begin_system_call();
       if (fstatvfs(stream_get_handle(file),&buf) < 0) OS_error();
       end_system_call();
+      file = popSTACK();        /* restore */
     } else goto stat_pathname;
   } else if (integerp(file)) {
     begin_system_call();
