@@ -70,6 +70,9 @@
 #if defined(HAVE_SYSLOG_H)
 # include <syslog.h>
 #endif
+#if defined(HAVE_STDLIB_H)
+# include <stdlib.h>
+#endif
 
 #include <stdio.h>             /* for BUFSIZ */
 
@@ -222,6 +225,42 @@ DEFUN(POSIX:CLOSELOG,) {
 }
 #endif
 #endif  /* HAVE_SYSLOG */
+
+/* ========================== temporary files ========================== */
+#if defined(HAVE_MKSTEMP)
+DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT ELEMENT-TYPE) {
+  /* http://www.opengroup.org/onlinepubs/009695399/functions/mkstemp.html */
+  object fname = physical_namestring(STACK_4);
+  direction_t dir = (boundp(STACK_3) ? check_direction(STACK_3)
+                     : DIRECTION_OUTPUT);
+  Handle fd;
+  with_string_0(fname,GLO(pathname_encoding),namez,{
+      char *c_template;
+      begin_system_call();
+      if (namez_bytelen > 6
+          && namez[namez_bytelen-1]=='X'
+          && namez[namez_bytelen-2]=='X'
+          && namez[namez_bytelen-3]=='X'
+          && namez[namez_bytelen-4]=='X'
+          && namez[namez_bytelen-5]=='X'
+          && namez[namez_bytelen-6]=='X') {
+        c_template = namez;
+      } else {
+        c_template = (char*)alloca(namez_bytelen+6);
+        strcpy(c_template,namez);
+        strcat(c_template,"XXXXXX");
+      }
+      fd = mkstemp(c_template);
+      fname = asciz_to_string(c_template,GLO(pathname_encoding));
+      end_system_call();
+    });
+  pushSTACK(fname);  funcall(L(pathname),1); STACK_4=value1; /* filename */
+  pushSTACK(value1); funcall(L(truename),1); STACK_3=value1; /* truename */
+  pushSTACK(allocate_handle(fd));
+  /* stack layout: FD, eltype, extfmt, buff, truename, filename */
+  VALUES1(make_file_stream(dir,false,true));
+}
+#endif  /* HAVE_MKSTEMP */
 
 /* ================= user accounting database functions ================= */
 #if defined(HAVE_UTMPX_H)
@@ -1020,6 +1059,13 @@ DEFUN(POSIX::USER-DATA, user)
 }
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
 
+/* the the input handle from input stream and
+   output handle from output strea, */
+static Handle stream_get_handle (object stream) {
+  pushSTACK(stream); funcall(L(input_stream_p),1);
+  return stream_lend_handle(stream,!nullp(value1),NULL);
+}
+
 #if defined(HAVE_FSTAT) && defined(HAVE_STAT)
 # if !defined(HAVE_LSTAT)
 #  define lstat stat
@@ -1038,7 +1084,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
     if (!nullp(value1)) { /* open stream ==> use FD */
       begin_system_call();
       /* win32 declares fstat() as accepting int, not HANDLE */
-      if (fstat((int)stream_lend_handle(file,true,NULL),&buf) < 0) OS_error();
+      if (fstat((int)stream_get_handle(file),&buf) < 0) OS_error();
       end_system_call();
     } else goto stat_pathname;
   } else if (integerp(file)) {
@@ -1260,7 +1306,7 @@ DEFUN(POSIX::STAT-VFS, file)
     funcall(L(built_in_stream_open_p),1);
     if (!nullp(value1)) { /* open stream ==> use FD */
       begin_system_call();
-      if (fstatvfs(stream_lend_handle(file,true,NULL),&buf) < 0) OS_error();
+      if (fstatvfs(stream_get_handle(file),&buf) < 0) OS_error();
       end_system_call();
     } else goto stat_pathname;
   } else if (integerp(file)) {
@@ -1707,7 +1753,7 @@ static void copy_attributes_and_close () {
 # if defined(UNIX)
 #  if defined(HAVE_FSTAT)       /* no go without fstat() */
   Handle source_fd = stream_lend_handle(STACK_1,true,NULL);
-  Handle dest_fd = stream_lend_handle(STACK_0,true,NULL);
+  Handle dest_fd = stream_lend_handle(STACK_0,false,NULL);
   struct stat source_sb;
   struct stat dest_sb;
 

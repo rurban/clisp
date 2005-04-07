@@ -474,6 +474,10 @@
     the argument is filled and returned</simpara></listitem></varlistentry>
  <varlistentry id="setutxent"><term><code>(POSIX:SETUTXENT)</code></term>
   <listitem><simpara>calls &setutxent;</simpara></listitem></varlistentry>
+ <varlistentry id="mkstemp"><term><code>(POSIX:MKSTEMP &filename-r;
+    &key-amp; &direction-k; &eltype; &extfmt; &buffered;)</code></term>
+  <listitem><simpara>calls &mkstemp;, returns a &file-stream-t;.
+    &direction-k; should allow output.</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
