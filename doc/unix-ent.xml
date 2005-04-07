@@ -119,6 +119,7 @@
 <!ENTITY getutxline "<ulink url='&unix-f;/getutxline.html'><function>getutxline</function></ulink>">
 <!ENTITY pututxline "<ulink url='&unix-f;/pututxline.html'><function>pututxline</function></ulink>">
 <!ENTITY setutxent "<ulink url='&unix-f;/setutxent.html'><function>setutxent</function></ulink>">
+<!ENTITY mkstemp "<ulink url='&unix-f;/mkstemp.html'><function>mkstemp</function></ulink>">
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">

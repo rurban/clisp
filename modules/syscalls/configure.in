@@ -18,7 +18,7 @@ CL_UTSNAME
 AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
 pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h dnl
 sys/statvfs.h sys/statfs.h sys/vfs.h sys/types.h crypt.h utmpx.h dnl
-shlobj.h)
+stdlib.h shlobj.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
 fi
@@ -37,7 +37,7 @@ AC_CHECK_MEMBERS([struct stat.st_rdev, struct stat.st_blksize, struct stat.st_bl
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
 CL_RLIMIT
-AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
+AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname mkstemp dnl
 getlogin getpwent getpwnam getpwuid getuid dnl
 openlog setlogmask syslog closelog dnl
 getpgid setpgrp getsid setpgid setsid kill dnl

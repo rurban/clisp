@@ -1,5 +1,14 @@
 2005-04-07  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d (allocate_handle, make_file_stream): export
+	* modules/syscalls/calls.c (MKSTEMP): implemented
+	* modules/syscalls/configure.in: check for <stdlib.h> and mkstemp()
+	* modules/syscalls/posix.lisp (mkstemp, hostent-p, user-data-p)
+	(file-stat-p, stat-vfs-p, uname-p, system-info-p, version-p)
+	(memory-status-p): export
+
+2005-04-07  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (print-tables-1): added casts for C++ compilation
 	* modules/berkeley-db/bdb.c: ditto
 	* modules/pcre/cpcre.c: ditto

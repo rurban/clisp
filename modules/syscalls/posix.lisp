@@ -6,9 +6,9 @@
   (:nicknames #:os)
   (:import-from "SYS" sys::process-id)
   (:export
-   #:resolve-host-ipaddr #:bogomips
+   #:resolve-host-ipaddr #:bogomips #:mkstemp
    #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
-   #:hostent #:hostent-name #:hostent-aliases #:hostent-addr-list
+   #:hostent #:hostent-p #:hostent-name #:hostent-aliases #:hostent-addr-list
    #:hostent-addrtype #:file-owner #:physical-memory
    #+(or :win32 :cygwin) #:file-properties
    #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
@@ -58,7 +58,7 @@
 #+unix (progn
 (export
  '(user-data user-data-login-id user-data-passwd user-data-uid user-data-gid
-   user-data-full-name user-data-shell
+   user-data-full-name user-data-shell user-data-p
    crypt encrypt setkey mknod))
 
 (defstruct (user-data (:constructor
@@ -79,7 +79,7 @@
  '(file-stat file-stat-file file-stat-dev file-stat-ino file-stat-mode
    file-stat-nlink file-stat-uid file-stat-gid file-stat-rdev
    file-stat-size file-stat-blksize file-stat-blocks file-stat-atime
-   file-stat-mtime file-stat-ctime set-file-stat
+   file-stat-mtime file-stat-ctime file-stat-p set-file-stat
    convert-mode umask))
 
 (defstruct (file-stat
@@ -104,7 +104,7 @@
 ;;; ============================================================
 #+unix (progn
 (export
- '(stat-vfs stat-vfs-file stat-vfs-bsize stat-vfs-stat-vfs-frsize
+ '(stat-vfs stat-vfs-p stat-vfs-file stat-vfs-bsize stat-vfs-stat-vfs-frsize
    stat-vfs-stat-vfs-blocks stat-vfs-stat-vfs-bfree stat-vfs-stat-vfs-bavail
    stat-vfs-stat-vfs-files stat-vfs-stat-vfs-ffree stat-vfs-stat-vfs-favail
    stat-vfs-stat-vfs-fsid stat-vfs-stat-vfs-flag stat-vfs-namemax))
@@ -132,7 +132,7 @@
 #+unix (progn
 (export
  '(uname uname-sysname uname-nodename uname-release uname-version uname-machine
-   sysconf confstr))
+   uname-p sysconf confstr))
 
 (defstruct (uname (:constructor make-uname (sysname nodename release
                                             version machine)))
@@ -189,7 +189,7 @@
 )
 ;;; ============================================================
 #+(or win32 cygwin) (progn
-(export '(file-info file-info-attributes
+(export '(file-info file-info-p file-info-attributes
           file-info-ctime file-info-atime file-info-wtime
           file-info-size-hi file-info-size-lo
           file-info-name file-info-name-short))
@@ -221,7 +221,8 @@
   (hot-key nil :read-only t)
   (stat nil :read-only t))
 
-(export '(system-info system-info-processor-architecture system-info-page-size
+(export '(system-info system-info-p
+          system-info-processor-architecture system-info-page-size
           system-info-minimum-application-address
           system-info-maximum-application-address
           system-info-active-processor-mask system-info-number-of-processors
@@ -246,8 +247,8 @@
   (processor-level nil :read-only t)
   (processor-revision nil :read-only t))
 
-(export '(version version-major version-minor version-build version-platform
-          version-service-pack version-service-pack-major
+(export '(version version-p version-major version-minor version-build
+          version-platform version-service-pack version-service-pack-major
           version-service-pack-minor version-suites version-product-type))
 
 (defstruct (version
@@ -265,7 +266,7 @@
   (suites nil :read-only t)
   (product-type nil :read-only t))
 
-(export '(memory-status
+(export '(memory-status memory-status-p
           memstat-total-physical memstat-avail-physical memstat-total-page
           memstat-avail-page memstat-total-virtual memstat-avail-virtual))
 
