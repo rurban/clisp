@@ -408,7 +408,7 @@ static void reset_errpfx (DB_ENV *dbe) {
     begin_system_call(); dbe->set_errpfx(dbe,NULL); end_system_call();
   } else
     with_string_0(check_string(STACK_0),GLO(misc_encoding), prefix, {
-        char *errpfx = malloc(prefix_bytelen+1);
+        char *errpfx = (char*)malloc(prefix_bytelen+1);
         strcpy(errpfx,prefix);
         begin_system_call(); dbe->set_errpfx(dbe,errpfx); end_system_call();
       });
@@ -1354,7 +1354,7 @@ DEFUN(BDB:DB-JOIN, db cursors &key :JOIN_NOSORT)
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
   DBC **curslist, *dbc;
   pushSTACK(STACK_0); funcall(L(length),1); length = posfixnum_to_L(value1);
-  curslist = alloca((1+length)*sizeof(DBC*));
+  curslist = (DBC**)alloca((1+length)*sizeof(DBC*));
   if (curslist == NULL) {
     pushSTACK(TheSubr(subr_self)->name);
     fehler(storage_condition,GETTEXT("~S: alloca() failed"));
@@ -1871,8 +1871,10 @@ DEFUN(BDB:LOCK-GET, dbe object locker mode &key :NOWAIT)
   DBT obj;
   DB_LOCK *dblock;
   int status;
+  /* fill_dbt() might not return,
+     so my_malloc() must be called after it to avoid a memory leak */
   fill_dbt(STACK_0,&obj,0);
-  dblock = my_malloc(sizeof(DB_LOCK));
+  dblock = (DB_LOCK*)my_malloc(sizeof(DB_LOCK));
   begin_system_call();
   status = dbe->lock_get(dbe,locker,flags,&obj,mode,dblock);
   free(obj.data);
@@ -2240,7 +2242,7 @@ DEFUN(BDB:TXN-RECOVER, dbe &key :FIRST :NEXT)
   int status, ii;
   long retnum;
   SYSCALL(dbe->get_tx_max,(dbe,&tx_max));
-  preplist = my_malloc(tx_max * sizeof(DB_PREPLIST));
+  preplist = (DB_PREPLIST*)my_malloc(tx_max * sizeof(DB_PREPLIST));
   begin_system_call();
   status = dbe->txn_recover(dbe,preplist,tx_max,&retnum,flags);
   if (status) {
