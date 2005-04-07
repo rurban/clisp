@@ -227,8 +227,27 @@ DEFUN(POSIX:CLOSELOG,) {
 #endif  /* HAVE_SYSLOG */
 
 /* ========================== temporary files ========================== */
-#if defined(HAVE_MKSTEMP)
+#if defined(HAVE_MKSTEMP) || defined(HAVE_TEMPNAM) || defined(WIN32_NATIVE)
+#if defined(HAVE_TEMPNAM)
+static object temp_name (char *dir, char *prefix) {
+  char *ret_s; object ret_o;
+  begin_system_call(); ret_s = tempnam(dir,prefix); end_system_call();
+  if (ret_s == NULL) OS_error();
+  ret_o = asciz_to_string(ret_s,GLO(pathname_encoding));
+  begin_system_call(); free(ret_s); end_system_call();
+  return ret_o;
+}
+#elif defined(WIN32_NATIVE)
+static object temp_name (char *dir, char *prefix) {
+  char path[MAX_PATH];
+  begin_system_call();
+  if (0 == GetTempFileName(dir,prefix,0,path)) OS_error();
+  end_system_call();
+  return asciz_to_string(path,GLO(pathname_encoding));
+}
+#endif
 DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT ELEMENT-TYPE) {
+#if defined(HAVE_MKSTEMP)
   /* http://www.opengroup.org/onlinepubs/009695399/functions/mkstemp.html */
   object fname = physical_namestring(STACK_4);
   direction_t dir = (boundp(STACK_3) ? check_direction(STACK_3)
@@ -251,16 +270,38 @@ DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT ELEMENT-TY
         strcat(c_template,"XXXXXX");
       }
       fd = mkstemp(c_template);
-      fname = asciz_to_string(c_template,GLO(pathname_encoding));
       end_system_call();
+      fname = asciz_to_string(c_template,GLO(pathname_encoding));
     });
   pushSTACK(fname);  funcall(L(pathname),1); STACK_4=value1; /* filename */
   pushSTACK(value1); funcall(L(truename),1); STACK_3=value1; /* truename */
   pushSTACK(allocate_handle(fd));
   /* stack layout: FD, eltype, extfmt, buff, truename, filename */
   VALUES1(make_file_stream(dir,false,true));
+#elif defined(HAVE_TEMPNAM) || defined(WIN32_NATIVE)
+  /* http://www.opengroup.org/onlinepubs/009695399/functions/tempnam.html */
+  object path;
+  pushSTACK(STACK_4); funcall(L(pathname),1); pushSTACK(value1);
+  pushSTACK(value1); funcall(L(directory_namestring),1); pushSTACK(value1);
+  pushSTACK(STACK_1); funcall(L(file_namestring),1); pushSTACK(value1);
+  with_string_0(STACK_0,GLO(pathname_encoding),prefix, {
+      with_string_0(STACK_1,GLO(pathname_encoding),dir, {
+          /* if no directory ==> use current "." */
+          STACK_7 = temp_name(dir[0] ? dir : ".",prefix);
+        });
+    });
+  pushSTACK(STACK_3);           /* ELEMENT-TYPE */
+  STACK_1 = `:ELEMENT-TYPE`;
+  STACK_2 = STACK_5;            /* EXTERNAL-FORMAT */
+  STACK_3 = `:EXTERNAL-FORMAT`;
+  STACK_4 = STACK_6;            /* BUFFERED */
+  STACK_5 = `:BUFFERED`;
+  STACK_6 = missingp(STACK_7) ? `:OUTPUT` : STACK_7; /* DIRECTION */
+  STACK_7 = `:DIRECTION`;
+  funcall(L(open),9);
+#endif
 }
-#endif  /* HAVE_MKSTEMP */
+#endif /* HAVE_MKSTEMP || HAVE_TEMPNAM || WIN32_NATIVE */
 
 /* ================= user accounting database functions ================= */
 #if defined(HAVE_UTMPX_H)
