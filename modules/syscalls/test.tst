@@ -30,17 +30,23 @@ T
 (os:priority (os:process-id))
 :NORMAL
 
+#+unix
 (listp (princ (if (fboundp 'os::sysconf) (os::sysconf) '(no os::sysconf)))) T
+#+unix
 (listp (princ (if (fboundp 'os::confstr) (os::confstr) '(no os::confstr)))) T
 
+#+unix
 (listp (princ (if (fboundp 'os:usage)
                   (multiple-value-list (os:usage)) '(no os:usage))))
 T
+#+unix
 (listp (princ (if (fboundp 'os:rlimit)
                   (multiple-value-list (os:rlimit)) '(no os:rlimit))))
 T
 
+#+unix
 (os:uname-p (princ (if (fboundp 'os:uname) (os:uname) '(no os:uname)))) T
+#+unix
 (os:user-data-p
  (princ (if (fboundp 'os:user-data)
             (os:user-data (ext:getenv "USER")) '(no os:user-data))))
@@ -51,16 +57,25 @@ T
 (os:set-file-stat *tmp2* :atime t :mtime t) NIL
 
 (os:convert-mode #o0666)
-(:IRUSR :IWUSR :IRGRP :IWGRP :IROTH :IWOTH)
+#+unix (:IRUSR :IWUSR :IRGRP :IWGRP :IROTH :IWOTH)
+#+win32 (:IRUSR :IWUSR 54)
+#-(or unix win32) ERROR
 
-(os:convert-mode '(:IRWXU :IRWXG :IRWXO))
-#o0777
+(os:convert-mode '(:IRWXU #+unix :IRWXG #+unix :IRWXO))
+#+unix #o0777
+#+win32 #o0700
+#-(or unix win32) ERROR
 
+#+unix
 (os:stat-vfs-p
  (princ (if (fboundp 'os:stat-vfs) (os:stat-vfs *tmp2*) '(no os:stat-vfs))))
-T
+#+unix T
 
-(string= (ext:getenv "USER") (os:file-owner *tmp1*))
+(string= #+win32 (ext:string-concat (ext:getenv "USERDOMAIN") "\\"
+                                    (ext:getenv "USERNAME"))
+         #+unix (ext:getenv "USER")
+         #-(or unix win32) ERROR
+         (os:file-owner *tmp1*))
 T
 
 (progn (close *tmp1*) (close *tmp2*) T) T
