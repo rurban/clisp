@@ -149,9 +149,11 @@ static void check_pattern (object pat, pcre** compiled_pattern,
 { /* extract compiled pattern and the study results from the PATTERN */
   pat = check_classname(pat,`PCRE::PATTERN`);
   /* FIXME for derived structs! */
-  *compiled_pattern = TheFpointer(TheStructure(pat)->recdata[1])->fp_pointer;
+  *compiled_pattern =
+    (pcre*)TheFpointer(TheStructure(pat)->recdata[1])->fp_pointer;
   if (nullp(TheStructure(pat)->recdata[2])) *study = NULL;
-  else *study = TheFpointer(TheStructure(pat)->recdata[2])->fp_pointer;
+  else *study =
+    (pcre_extra*)TheFpointer(TheStructure(pat)->recdata[2])->fp_pointer;
 }
 
 /* two object should be on STACK for the error message */
@@ -338,7 +340,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
   end_system_call();
   if (ret < 0) pcre_error(ret);
   ovector_size = 3 * (capture_count + 1);
-  ovector = alloca(sizeof(int)*ovector_size);
+  ovector = (int*)alloca(sizeof(int)*ovector_size);
   with_string_0(check_string(STACK_0),Symbol_value(S(utf_8)),subject, {
       begin_system_call();
       /* subject_bytelen is the length of subject in bytes,
