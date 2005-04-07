@@ -1194,6 +1194,7 @@ static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
   begin_system_call();
 #endif
 }
+static mode_t parse_mode (object mode_arg); /* see below */
 DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 { /* interface to chmod(2), chown(2), utime(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
@@ -1204,7 +1205,7 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
   uid_t uid = (missingp(STACK_0) ? skipSTACK(1), (uid_t)-1
                : posfixnum_to_L(check_posfixnum(popSTACK())));
   mode_t mode = (missingp(STACK_0) ? skipSTACK(1), (mode_t)-1
-                 : posfixnum_to_L(check_posfixnum(popSTACK())));
+                 : parse_mode(popSTACK()));
   struct utimbuf utb;
   bool utb_a = false, utb_m = false;
   if (!missingp(STACK_0)) {     /* mtime */
@@ -1248,9 +1249,15 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 #endif  /* chmod chown utime */
 
 /* <http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html> */
-DEFCHECKER(check_chmod_mode,prefix=S,default=, bitmasks=both, SUID SGID SVTX \
-           RWXU RUSR WUSR XUSR RWXG RGRP WGRP XGRP RWXO ROTH WOTH XOTH)
-
+DEFCHECKER(check_chmod_mode,prefix=S,default=, bitmasks=both,           \
+           ISUID ISGID ISVTX IRWXU IRUSR IWUSR IXUSR IRWXG IRGRP        \
+           IWGRP IXGRP IRWXO IROTH IWOTH IXOTH)
+/* convert whatever argument we received to mode_t */
+static mode_t parse_mode (object mode_arg) {
+  if (posfixnump(mode_arg)) return posfixnum_to_L(mode_arg);
+  else if (listp(mode_arg)) return check_chmod_mode_from_list(mode_arg);
+  else return check_chmod_mode(mode_arg);
+}
 DEFUN(POSIX::CONVERT-MODE, mode)
 { /* convert between symbolic and numeric permissions */
   if (posfixnump(STACK_0))
@@ -1264,7 +1271,7 @@ DEFUN(POSIX::CONVERT-MODE, mode)
 DEFUN(POSIX::UMASK, cmask)
 { /* lisp interface to umask(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/umask.html */
-  mode_t cmask = posfixnum_to_L(check_posfixnum(popSTACK()));
+  mode_t cmask = parse_mode(popSTACK());
   begin_system_call();
   cmask = umask(cmask);
   end_system_call();
@@ -1278,7 +1285,7 @@ DEFCHECKER(mknod_type_check,prefix=S,default=,          \
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
-  mode_t mode = posfixnum_to_L(check_posfixnum(popSTACK()));
+  mode_t mode = parse_mode(popSTACK());
   mode |= mknod_type_check(popSTACK());
   funcall(L(namestring),1);     /* drop path from STACK */
   with_string_0(value1,GLO(pathname_encoding),path, {
