@@ -8,32 +8,23 @@ T
 (defparameter *tmp1* (os:mkstemp "syscalls-tests-")) *tmp1*
 (defparameter *tmp2* (os:mkstemp "syscalls-tests-")) *tmp2*
 
-(progn (princ (write *tmp1* :stream *tmp1*)) (terpri)
-       (princ (write *tmp2* :stream *tmp2*))
-       T)
+(let ((*standard-output* (make-broadcast-stream
+                          *standard-output* *tmp1* *tmp2*)))
+  (princ (write *tmp1* :stream *tmp1*)) (terpri)
+  (princ (write *tmp2* :stream *tmp2*))
+  T)
 T
 
-(os:stream-lock *tmp1* t :shared nil :block t)
-T
-
-(progn (princ (write *tmp1* :stream *tmp1*)) T) T
-
-(open *tmp1* :direction :output) ERROR
-(close (open *tmp1* :direction :input)) T
-
-(os:stream-lock *tmp1* nil)
-NIL
-
-(progn (princ (write *tmp1* :stream *tmp1*)) T)
-T
+(os:stream-lock *tmp1* t) T
+(os:stream-lock *tmp1* nil) NIL
 
 (os:priority (os:process-id))
 :NORMAL
 
 #+unix
-(listp (princ (if (fboundp 'os::sysconf) (os::sysconf) '(no os::sysconf)))) T
+(listp (princ (if (fboundp 'os:sysconf) (os:sysconf) '(no os:sysconf)))) T
 #+unix
-(listp (princ (if (fboundp 'os::confstr) (os::confstr) '(no os::confstr)))) T
+(listp (princ (if (fboundp 'os:confstr) (os:confstr) '(no os:confstr)))) T
 
 #+unix
 (listp (princ (if (fboundp 'os:usage)
@@ -80,6 +71,10 @@ T
 
 (progn (close *tmp1*) (close *tmp2*) T) T
 
+(listp (princ (os:copy-file *tmp1* *tmp2* :if-exists :append))) T
+(listp (princ (os:copy-file *tmp2* *tmp1* :if-exists :append))) T
+(listp (princ (os:copy-file *tmp1* *tmp2* :if-exists :append))) T
+(listp (princ (os:copy-file *tmp2* *tmp1* :if-exists :append))) T
 (listp (princ (os:copy-file *tmp1* *tmp2* :if-exists :append))) T
 (listp (princ (os:copy-file *tmp2* *tmp1* :if-exists :append))) T
 (listp (princ (os:copy-file *tmp1* *tmp2* :if-exists :append))) T
