@@ -3,7 +3,7 @@ set language c
 
 define boot
   file lisp.run
-  set args -B . -M lispinit.mem -q -norc
+  set args -B . -N locale -M lispinit.mem -q -norc
 end
 document boot
          debug the boot linking set
@@ -11,7 +11,7 @@ end
 
 define base
   file base/lisp.run
-  set args -B . -M base/lispinit.mem -q -norc
+  set args -B . -N locale -M base/lispinit.mem -q -norc
 end
 document base
          debug the base linking set
@@ -19,7 +19,7 @@ end
 
 define full
   file full/lisp.run
-  set args -B . -M full/lispinit.mem -q -norc
+  set args -B . -N locale -M full/lispinit.mem -q -norc
   # -i ../tests/tests -x '(run-test "***/test")'
   # -i clx/new-clx/demos/clx-demos.lisp -x '(clx-demos:qix)' -x '(clx-demos:sokoban)'
   break my_type_error
@@ -31,7 +31,7 @@ end
 
 define interpreted
   file lisp.run
-  set args -B . -M interpreted.mem -q -norc
+  set args -B . -N locale -M interpreted.mem -q -norc
 end
 document interpreted
          debug the boot linking set with the interpreted memory image
@@ -54,21 +54,21 @@ document xout
 end
 
 define run_test
-  run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(run-test \"suite/$arg0.tst\")"
+  run -B . -N locale -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(run-test \"suite/$arg0.tst\")"
 end
 document run_test
          run the specified test in the test suite
 end
 
 define run_all_tests
-  run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(cd \"suite/\") (run-all-tests)"
+  run -B . -N locale -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(cd \"suite/\") (run-all-tests)"
 end
 document run_all_tests
          run the whole test suite
 end
 
 define ansi_tests
-  run -B . -M lispinit.mem -q -norc -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
+  run -B . -N locale -M lispinit.mem -q -norc -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
 end
 document ansi_tests
          run the gcl/ansi-test suite

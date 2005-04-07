@@ -1,3 +1,8 @@
+2005-04-07  Bruno Haible  <bruno@clisp.org>
+
+	* .gdbinit (boot, base, full, interpreted, run_test, run_all_tests,
+	ansi_tests): Add -N locale option.
+
 2005-04-06  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (SETPGRP) [!HAVE_SETPGRP_POSIX]:
