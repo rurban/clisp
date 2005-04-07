@@ -74,7 +74,8 @@
 # include <stdlib.h>
 #endif
 
-#include <stdio.h>             /* for BUFSIZ */
+#include <stdio.h>              /* for BUFSIZ */
+#include <string.h>             /* for strcpy(), strcat() */
 
 /* #define DEBUG */
 #if defined(DEBUG)
@@ -104,7 +105,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   Handle fd = (Handle)-1;
   bool lock_p = !nullp(STACK_4), failed_p;
   object stream;
-  uintL start = missingp(STACK_1) ? 0 : I_to_L(STACK_1);
+  uintL start = missingp(STACK_1) ? 0 : I_to_UL(STACK_1);
   uintL length;
 #if defined(WIN32_NATIVE)
   DWORD flags = !lock_p ? 0 :
