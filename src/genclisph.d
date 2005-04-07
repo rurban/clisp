@@ -2160,6 +2160,12 @@ int main(int argc, char* argv[])
   printf("extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);\n");
   printf("extern void builtin_stream_close (const gcv_object_t* stream_);\n");
   printf("extern object file_stream_truename (object s);\n");
+#if defined(FOREIGN_HANDLE)
+  printf("extern maygc object allocate_handle (Handle handle);\n");
+#else
+  printf("#define allocate_handle(handle)  fixnum((uintL)(handle))\n");
+#endif
+  printf("extern object make_file_stream (direction_t direction, bool append_flag,bool handle_fresh);/*+6 arguments on the STACK!*/\n");
   printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");
   printf("extern object addr_to_string (short type, char *addr);\n");
   printf("extern object string_to_addr (const char *name);\n");
