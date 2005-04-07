@@ -93,19 +93,18 @@ T
 (integerp (princ (with-open-file (s *tmp2* :direction :input) (file-length s))))
 T
 
-#-cygwin                      ; win32 functions barf on cygwin pathnames
-(os:file-info-p
- (princ (if (fboundp 'os:file-info) (os:file-info *tmp2*) '(no os:file-info))))
-#-cygwin T
+#+win32                      ; win32 functions barf on cygwin pathnames
+(os:file-info-p (princ (os:file-info *tmp2*)))
+#+win32 T
 
-(os:system-info-p
- (princ (if (fboundp 'os:system-info) (os:system-info) '(no os:system-info))))
+#+(or win32 cygwin)
+(os:system-info-p (princ (os:system-info)))
+#+(or win32 cygwin) T
+#+(or win32 cygwin)
+(os:version-p (princ (os:version)))
 T
-(os:version-p (princ (if (fboundp 'os:version) (os:version) '(no os:version))))
-T
-(os:memory-status-p
- (princ (if (fboundp 'os:memory-status)
-            (os:memory-status) '(no os:memory-status))))
+#+(or win32 cygwin)
+(os:memory-status-p (princ (os:memory-status)))
 T
 
 (listp (princ (multiple-value-list (os:physical-memory))))
