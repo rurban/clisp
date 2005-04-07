@@ -2161,7 +2161,7 @@ int main(int argc, char* argv[])
   printf("extern void builtin_stream_close (const gcv_object_t* stream_);\n");
   printf("extern object file_stream_truename (object s);\n");
 #if defined(FOREIGN_HANDLE)
-  printf("extern maygc object allocate_handle (Handle handle);\n");
+  printf("extern object allocate_handle (Handle handle);\n");
 #else
   printf("#define allocate_handle(handle)  fixnum((uintL)(handle))\n");
 #endif
