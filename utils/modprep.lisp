@@ -1031,7 +1031,7 @@ commas and parentheses."
             (formatln out "static ~A ~A (object a) {" c-type c-name)
             (formatln out "  unsigned int index;")
             (formatln out " restart_~A:" c-name)
-            (formatln out "  if (integerp(a)) return I_to_L(a);")
+            (formatln out "  if (integerp(a)) return (~A)I_to_L(a);" c-type)
             (when default
               (when (stringp default) (formatln out " #ifdef ~A" default))
               (formatln out "  else if (missingp(a)) return ~A;" default)
@@ -1040,7 +1040,8 @@ commas and parentheses."
             (formatln out "    for (index = 0; index < ~A_table_size; index++)"
                       c-name)
             (formatln out "      if (eq(a,*~A_table[index].l_const))" c-name)
-            (formatln out "        return ~A_table[index].c_const;" c-name)
+            (formatln out "        return (~A)~A_table[index].c_const;"
+                      c-type c-name)
             (formatln out "    pushSTACK(NIL); pushSTACK(a);")
             (formatln out "    pushSTACK(O(~A));" type-tag)
             (formatln out "    pushSTACK(O(~A));" type-tag)
