@@ -192,7 +192,7 @@
 (export '(file-info file-info-p file-info-attributes
           file-info-ctime file-info-atime file-info-wtime
           file-info-size-hi file-info-size-lo
-          file-info-name file-info-name-short))
+          file-info-name file-info-name-short convert-attributes))
 
 (defstruct (file-info (:constructor make-file-info
                                     (attributes ctime atime wtime

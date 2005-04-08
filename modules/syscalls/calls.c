@@ -1112,25 +1112,46 @@ static Handle stream_get_handle (object stream) {
 # if !defined(HAVE_LSTAT)
 #  define lstat stat
 # endif
+static object check_chmod_mode_to_list (mode_t mode);
 DEFUN(POSIX::FILE-STAT, file &optional linkp)
 { /* Lisp interface to stat(2), lstat(2) and fstat(2)
  the first arg can be a pathname designator or a file descriptor designator
  the return value is the FILE-STAT structure */
   bool link_p = missingp(STACK_0);
-  object file = (skipSTACK(1), popSTACK());
+  object file = STACK_1;
   struct stat buf;
 
   if (builtin_stream_p(file)) {
-    pushSTACK(file);            /* save */
     pushSTACK(file); funcall(L(built_in_stream_open_p),1);
-    file = popSTACK();          /* restore */
-    if (!nullp(value1)) { /* open stream ==> use FD */
-      pushSTACK(file);          /* save */
+    file = STACK_1;             /* restore */
+    if (!nullp(value1)) {       /* open stream ==> use FD */
+#    if defined(WIN32_NATIVE)
+      /* woe32 does have fstat(), but it does not accept a file handle,
+         only an integer of an unknown nature */
+      BY_HANDLE_FILE_INFORMATION fi;
+      static object check_file_attributes_to_list (DWORD attr);
       begin_system_call();
-      /* win32 declares fstat() as accepting int, not HANDLE */
-      if (fstat((int)stream_get_handle(file),&buf) < 0) OS_error();
+      if (!GetFileInformationByHandle(stream_get_handle(file),&fi))
+        OS_file_error(STACK_1);
       end_system_call();
-      file = popSTACK();        /* restore */
+      pushSTACK(STACK_1);       /* file */
+      pushSTACK(uint32_to_I(fi.dwVolumeSerialNumber)); /* device */
+      pushSTACK(UL2_to_I(fi.nFileIndexHigh,fi.nFileIndexLow)); /* "inode" */
+      pushSTACK(check_file_attributes_to_list(fi.dwFileAttributes));
+      pushSTACK(uint32_to_I(fi.nNumberOfLinks)); /* number of hard links */
+      pushSTACK(NIL); pushSTACK(NIL);            /* no GID or UID */
+      pushSTACK(NIL);                            /* no rdev */
+      pushSTACK(UL2_to_I(fi.nFileSizeHigh,fi.nFileSizeLow)); /* size */
+      pushSTACK(NIL); pushSTACK(NIL); /* no blocksize od blocks */
+      pushSTACK(convert_time_to_universal(&(fi.ftLastAccessTime)));
+      pushSTACK(convert_time_to_universal(&(fi.ftLastWriteTime)));
+      pushSTACK(convert_time_to_universal(&(fi.ftCreationTime)));
+      goto call_make_file_stat;
+#    else
+      if (fstat(stream_get_handle(file),&buf) < 0) OS_error();
+      end_system_call();
+      file = STACK_1;        /* restore */
+#    endif
     } else goto stat_pathname;
   } else if (integerp(file)) {
     begin_system_call();
@@ -1149,7 +1170,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   pushSTACK(file);                    /* the object stat'ed */
   pushSTACK(L_to_I(buf.st_dev));      /* device */
   pushSTACK(UL_to_I(buf.st_ino));     /* inode */
-  pushSTACK(UL_to_I(buf.st_mode));    /* protection */
+  pushSTACK(check_chmod_mode_to_list(buf.st_mode)); /* protection */
   pushSTACK(UL_to_I(buf.st_nlink));   /* number of hard links */
   pushSTACK(UL_to_I(buf.st_uid));     /* user ID of owner */
   pushSTACK(UL_to_I(buf.st_gid));     /* group ID of owner */
@@ -1172,7 +1193,9 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   pushSTACK(UL_to_I(buf.st_atime+UNIX_LISP_TIME_DIFF));/*time of last access*/
   pushSTACK(UL_to_I(buf.st_mtime+UNIX_LISP_TIME_DIFF));/*last modification*/
   pushSTACK(UL_to_I(buf.st_ctime+UNIX_LISP_TIME_DIFF));/*time of last change*/
+ call_make_file_stat:
   funcall(`POSIX::MAKE-FILE-STAT`,14);
+  skipSTACK(2);                 /* drop linkp & file */
 }
 #endif  /* fstat lstat fstat */
 
@@ -1294,7 +1317,8 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 #endif  /* chmod chown utime */
 
 /* <http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html> */
-DEFCHECKER(check_chmod_mode,prefix=S,default=, bitmasks=both,           \
+DEFCHECKER(check_chmod_mode, type=mode_t, reverse=UL_to_I,              \
+           prefix=S, default=, bitmasks=both,                           \
            ISUID ISGID ISVTX IRWXU IRUSR IWUSR IXUSR IRWXG IRGRP        \
            IWGRP IXGRP IRWXO IROTH IWOTH IXOTH)
 /* convert whatever argument we received to mode_t */
@@ -2184,6 +2208,19 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <shlobj.h>
+DEFCHECKER(check_file_attributes, type=DWORD, reverse=uint32_to_I,      \
+           default=, prefix=FILE_ATTRIBUTE, bitmasks=both,              \
+           ARCHIVE COMPRESSED DIRECTORY ENCRYPTED HIDDEN NORMAL OFFLINE \
+           READONLY REPARSE_POINT SPARSE_FILE SYSTEM TEMPORARY)
+DEFUN(POSIX::CONVERT-ATTRIBUTES, attributes)
+{ /* convert between symbolic and numeric file attributes */
+  if (posfixnump(STACK_0))
+    VALUES1(check_file_attributes_to_list
+            (posfixnum_to_L(check_posfixnum(popSTACK()))));
+  else if (listp(STACK_0))
+    VALUES1(fixnum(check_file_attributes_from_list(popSTACK())));
+  else VALUES1(fixnum(check_file_attributes(popSTACK())));
+}
 /* push the 8 members of WIN32_FIND_DATA onto the STACK */
 static void wfd_to_stack (WIN32_FIND_DATA *wfd) {
   pushSTACK(UL_to_I(wfd->dwFileAttributes));
