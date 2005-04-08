@@ -85,12 +85,23 @@
      <varlistentry><term><structfield>blocks</structfield></term>
       <listitem><simpara>Number of blocks allocated for this object.
      </simpara></listitem></varlistentry></variablelist>
-    All slots are read-only.
-   </para><simpara>If the system does not support a particular
-    field (e.g., &win32; prior to 2000 does not have hard links), &nil;
-    (or the default, like 1 for the number of hard links for old
-    &win32;) is returned.
- </simpara></listitem></varlistentry>
+    All slots are read-only.</para>
+   <simpara>If the system does not support a particular field (e.g.,
+    &win32; prior to 2000 does not have hard links), &nil; (or the
+    default, like 1 for the number of hard links for old &win32;) is
+    returned.</simpara>
+   <note><title>&win32-only;</title>
+    <para>Normally, one would expect <code>(POSIX:FILE-STAT
+      "foo")</code> and <code>(POSIX:FILE-STAT (&open; "foo"))</code> to
+     return <quote>similar</quote> objects (&open;ing a file changes its
+     access time though).  This is &not-e; the case on &win32;, where &stat;
+     works but &fstat; does &not-e;.  Specifically, &fstat; requires an
+     <type>int</type> argument of an unknown nature, and it is not
+     clear how do deduce it from the &win32; file handle.  Therefore,
+     instead of always failing on open &file-stream-t; arguments, this
+     function calls <function>GetFileInformationByHandle</function> and
+     fills the <type>FILE-STAT</type> return value based on that.
+ </para></note></listitem></varlistentry>
  <varlistentry id="set-file-stat">
   <term><code>(<function>POSIX:SET-FILE-STAT</function> &path-r;
     &key-amp; :ATIME :MTIME :MODE :UID :GID)</code></term>
