@@ -153,11 +153,16 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="file-info"><term><code>(<function>OS:FILE-INFO</function>
     &path-r;)</code></term>
- <listitem><simpara>Return the <type>FILE-INFO</type> structure.
-   &path-r; should be a &path-des;. The 8 slots are attributes, ctime,
-   atime, wtime, high and low sizes, name and short name.
-   </simpara><simpara>[&win32; systems only at this time, patches are welcome.]
-  </simpara></listitem></varlistentry>
+  <listitem><para>Return the <type>FILE-INFO</type> structure.
+    &path-r; should be a &path-des;. The 7 slots are<simplelist columns="1">
+     <member><structfield>attributes</structfield></member>
+     <member><structfield>ctime</structfield></member>
+     <member><structfield>atime</structfield></member>
+     <member><structfield>wtime</structfield></member>
+     <member><structfield>size</structfield></member>
+     <member><structfield>name</structfield></member>
+     <member><structfield>name-short</structfield></member>
+ </simplelist></para></listitem></varlistentry>
  <varlistentry><term><code>(<function>POSIX:USER-DATA</function>
     &optional-amp; <replaceable>user</replaceable>)</code></term>
  <listitem><simpara>Return the <type>PASSWD</type> structure (name,

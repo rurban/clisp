@@ -1,12 +1,19 @@
 2005-04-08  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/posix.lisp (file-info): 1 slot size instead of hi&lo
+	(file-info) [UNIX && !UNIX_CYGWIN32]: implemented
+	* modules/syscalls/calls.c (wfd_to_file_info): renamed from
+	wfd_to_stack; 1 slot size instead of hi&lo
+
+2005-04-08  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/posix.lisp (convert-attributes): export
 	* modules/syscalls/calls.c (FILE-STAT) [WIN32_NATIVE]: use
 	GetFileInformationByHandle() instead of fstat() because woe32 fstat()
 	does not accept a file handle, only an integer of an unknown nature;
 	return a list as :MODE, not a number
 	(check_file_attributes) [WIN32_NATIVE||UNIX_CYGWIN32]: new DEFCHECKER
-	(CONVERT-ATTRIBUTES) [WIN32_NATIVE||UNIX_CYGWIN32]: new defun
+	(CONVERT-ATTRIBUTES) [WIN32_NATIVE||UNIX_CYGWIN32]: new DEFUN
 
 2005-04-07  Sam Steingold  <sds@gnu.org>
 
