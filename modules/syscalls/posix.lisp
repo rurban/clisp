@@ -86,20 +86,20 @@
              (:constructor
               make-file-stat (file dev ino mode nlink uid gid rdev size
                               blksize blocks atime mtime ctime)))
-  (file  nil :read-only t)
-  (dev     0 :type (unsigned-byte 32) :read-only t)
-  (ino     0 :type (unsigned-byte 32) :read-only t)
-  (mode    0 :type (unsigned-byte 32) :read-only t)
-  (nlink   0 :type (unsigned-byte 32) :read-only t)
-  (uid     0 :type (unsigned-byte 32) :read-only t)
-  (gid     0 :type (unsigned-byte 32) :read-only t)
-  (rdev    0 :type (unsigned-byte 32) :read-only t)
-  (size    0 :type (unsigned-byte 32) :read-only t)
-  (blksize 0 :type (unsigned-byte 32) :read-only t)
-  (blocks  0 :type (unsigned-byte 32) :read-only t)
-  (atime   0 :type (integer 0) :read-only t)
-  (mtime   0 :type (integer 0) :read-only t)
-  (ctime   0 :type (integer 0) :read-only t))
+  (file    nil :read-only t)
+  (dev       0 :type (unsigned-byte 32) :read-only t)
+  (ino       0 :type (unsigned-byte 32) :read-only t)
+  (mode    nil :type list :read-only t)
+  (nlink     1 :type (unsigned-byte 32) :read-only t)
+  (uid     nil :type (or null (unsigned-byte 32)) :read-only t)
+  (gid     nil :type (or null (unsigned-byte 32)) :read-only t)
+  (rdev    nil :type (or null (unsigned-byte 32)) :read-only t)
+  (size      0 :type (unsigned-byte 32) :read-only t)
+  (blksize nil :type (or null (unsigned-byte 32)) :read-only t)
+  (blocks  nil :type (or null (unsigned-byte 32)) :read-only t)
+  (atime     0 :type (integer 0) :read-only t)
+  (mtime     0 :type (integer 0) :read-only t)
+  (ctime     0 :type (integer 0) :read-only t))
 
 ;;; ============================================================
 #+unix (progn
@@ -187,21 +187,33 @@
   (context-switches-voluntary 0 :type (signed-byte 32) :read-only t)
   (context-switches-involuntary 0 :type (signed-byte 32) :read-only t))
 )
+
 ;;; ============================================================
-#+(or win32 cygwin) (progn
 (export '(file-info file-info-p file-info-attributes
-          file-info-ctime file-info-atime file-info-wtime
-          file-info-size-hi file-info-size-lo
+          file-info-ctime file-info-atime file-info-wtime file-info-size
           file-info-name file-info-name-short convert-attributes))
 
 (defstruct (file-info (:constructor make-file-info
                                     (attributes ctime atime wtime
-                                     size-hi size-lo name name-short)))
+                                     size name name-short)))
   (attributes nil :read-only t)
   (ctime nil :read-only t) (atime nil :read-only t) (wtime nil :read-only t)
-  (size-hi nil :read-only t) (size-lo nil :read-only t)
-  (name nil :read-only t) (name-short nil :read-only t))
+  (size nil :read-only t) (name nil :read-only t) (name-short nil :read-only t))
 
+#-(or win32 cygwin)
+(setf (fdefinition 'convert-attributes) #'convert-mode)
+#-(or win32 cygwin)
+(defun file-info (path)
+  (let ((file-stat (file-stat path)))
+    (make-file-info (file-stat-mode file-stat) ; attributes
+                    (file-stat-ctime file-stat) ; ctime
+                    (file-stat-atime file-stat) ; atime
+                    (file-stat-mtime file-stat) ; wtime
+                    (file-stat-size file-stat)  ; size
+                    (file-stat-file file-stat)  ; name
+                    (file-stat-file file-stat)))) ; name-short
+;;; ============================================================
+#+(or win32 cygwin) (progn
 (export '(make-shortcut shortcut-info shortcut-info-working-directory
           shortcut-info-arguments shortcut-info-show-command
           shortcut-info-original shortcut-info-path

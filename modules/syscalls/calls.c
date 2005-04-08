@@ -2221,16 +2221,17 @@ DEFUN(POSIX::CONVERT-ATTRIBUTES, attributes)
     VALUES1(fixnum(check_file_attributes_from_list(popSTACK())));
   else VALUES1(fixnum(check_file_attributes(popSTACK())));
 }
-/* push the 8 members of WIN32_FIND_DATA onto the STACK */
-static void wfd_to_stack (WIN32_FIND_DATA *wfd) {
+/* convert the 8 members of WIN32_FIND_DATA to the FILE-INFO struct
+ can trigger GC */
+static Values wfd_to_file_info (WIN32_FIND_DATA *wfd) {
   pushSTACK(UL_to_I(wfd->dwFileAttributes));
   pushSTACK(convert_time_to_universal_w32(&(wfd->ftCreationTime)));
   pushSTACK(convert_time_to_universal_w32(&(wfd->ftLastAccessTime)));
   pushSTACK(convert_time_to_universal_w32(&(wfd->ftLastWriteTime)));
-  pushSTACK(UL_to_I(wfd->nFileSizeHigh));
-  pushSTACK(UL_to_I(wfd->nFileSizeLow));
+  pushSTACK(UL2_to_I(wfd->nFileSizeHigh,wfd->nFileSizeLow));
   pushSTACK(asciz_to_string(wfd->cFileName,GLO(pathname_encoding)));
   pushSTACK(asciz_to_string(wfd->cAlternateFileName,GLO(pathname_encoding)));
+  funcall(`POSIX::MAKE-FILE-INFO`,7);
 }
 
 DEFUN(POSIX::FILE-INFO, file)
@@ -2244,7 +2245,7 @@ DEFUN(POSIX::FILE-INFO, file)
     end_system_call();
     if (hf == INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
   });
-  wfd_to_stack(&wfd); funcall(`POSIX::MAKE-FILE-INFO`,8); skipSTACK(1);
+  wfd_to_file_info(&wfd); skipSTACK(1);
   begin_system_call(); FindClose(hf); end_system_call();
 }
 
@@ -2456,8 +2457,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file)
   psl->lpVtbl->Release(psl);
   end_system_call();
   pushSTACK(asciz_to_string(path,GLO(pathname_encoding))); /* 1 */
-  wfd_to_stack(&wfd); funcall(`POSIX::MAKE-FILE-INFO`,8);
-  pushSTACK(value1);                                    /* 2 */
+  wfd_to_file_info(&wfd); pushSTACK(value1);               /* 2 */
   pushSTACK(asciz_to_string(wd,GLO(pathname_encoding)));   /* 3 */
   pushSTACK(asciz_to_string(args,GLO(pathname_encoding))); /* 4 */
   switch (show_cmd) {                                   /* 5 */
