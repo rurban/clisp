@@ -3726,6 +3726,9 @@ Now you can sum doubles:
   <listitem><simpara><ulink url="http://article.gmane.org/gmane.lisp.clisp.general/6626">"variable length arrays"</ulink></simpara></listitem>
  </itemizedlist>
 </para>
+<para>Even more examples can be found in the
+ file <filename>clisp/tests/ffi.tst</filename> in the &clisp; source
+ distribution.</para>
 </section>
 </section>
 
