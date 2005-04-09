@@ -1732,7 +1732,7 @@ Returns the added or removed method(s)."
           ((null condition-name) ; remove all global handlers
            (let ((handlers '()))
              (dolist (method (clos::generic-function-methods #'global-handler))
-               (unless (equal '#.(list (find-class 't))
+               (unless (equal '#,(list (find-class 't))
                               (clos::method-specializers method))
                  (push method handlers)
                  (clos:remove-method #'global-handler method)))
