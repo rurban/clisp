@@ -32,7 +32,7 @@
   ; the method object as argument. But since the method function is called
   ; with the argument list and the remaining methods list as arguments, it
   ; cannot know about the method object to which it belongs. We solve this
-  ; paradoxon by constructing a backpointer cons that the method function
+  ; paradox by constructing a backpointer cons that the method function
   ; has access to and that points back to the method object after it has been
   ; initialized.
   (when backpointer-p
