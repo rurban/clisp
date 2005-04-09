@@ -1,3 +1,7 @@
+2005-04-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/regexi.c (REGEXP-COMPILE): fixed a GC-safety bug
+
 2005-04-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/posix.lisp (file-info): 1 slot size instead of hi&lo

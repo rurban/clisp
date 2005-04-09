@@ -40,8 +40,9 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
     free(re);
     end_system_call();
     pushSTACK(NIL); /* no PLACE */
-    pushSTACK(asciz_to_string(buf,GLO(misc_encoding)));
-    pushSTACK(pattern); pushSTACK(TheSubr(subr_self)->name);
+    pushSTACK(NIL); pushSTACK(pattern);
+    STACK_1 = asciz_to_string(buf,GLO(misc_encoding));
+    pushSTACK(TheSubr(subr_self)->name);
     check_value(error,"~S (~S): ~S");
     pattern = value1;
     goto restart_regcomp;
