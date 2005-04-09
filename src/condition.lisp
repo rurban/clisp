@@ -1712,7 +1712,7 @@ Returns the added or removed method(s)."
     (cond (handler              ; install handler
            (clos::do-defmethod 'global-handler
              (lambda (backpointer)
-               (declare (ignore backpointer)) ; ?!
+               (declare (ignore backpointer)) ; we do not need CALL-NEXT-METHOD
                (list
                 (lambda (condition)
                   ;; avoid infinite recursion by disabling the handler
