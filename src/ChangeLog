@@ -1,5 +1,13 @@
 2005-04-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/dbi.lisp (db-stat): added slot TYPE
+	(mkdbstat-hash, mkdbstat-btree, mkdbstat-queue): accept TYPE
+	* modules/berkeley-db/bdb.c (check_dbt_type, check_dbtype):
+	define with DEFCHECKER
+	(DB-STAT): use check_dbtype_reverse() for TYPE
+
+2005-04-10  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (print-tables-1): do not wrap DEFAULT
 	with #ifdef when the return type is an enum
 

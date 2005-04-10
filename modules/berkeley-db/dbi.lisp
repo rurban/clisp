@@ -72,6 +72,7 @@
   (offset 0 :type (unsigned-byte 32) :read-only t))
 
 (defstruct (db-stat (:constructor nil))
+  (type nil :read-only t)
   (byte-swapped nil :read-only t)
   (magic nil :read-only t)
   (version nil :read-only t)
@@ -80,8 +81,8 @@
   (page-size nil :read-only t))
 (defstruct (db-stat-hash (:include db-stat)
                          (:constructor mkdbstat-hash
-                                       (byte-swapped magic version num-keys
-                                        num-data page-size
+                                       (type byte-swapped magic version
+                                        num-keys num-data page-size
                                         fill-factor num-buckets free bfree
                                         big-pages big-bfree overflows
                                         overflows-free dup dup-free)))
@@ -98,8 +99,8 @@
 
 (defstruct (db-stat-btree (:include db-stat)
                           (:constructor mkdbstat-btree
-                                        (byte-swapped magic version num-keys
-                                         num-data page-size
+                                        (type byte-swapped magic version
+                                         num-keys num-data page-size
                                          min-key re-len re-pad levels
                                          internal-pages leaf-pages dup-pages
                                          overflow-pager
@@ -120,8 +121,8 @@
   (over-pgfree nil :read-only t))
 (defstruct (db-stat-queue (:include db-stat)
                           (:constructor mkdbstat-queue
-                                        (byte-swapped magic version num-keys
-                                         num-data page-size
+                                        (type byte-swapped magic version
+                                         num-keys num-data page-size
                                          extent-size pages re-len re-pad
                                          pg-free first-recno curr-recno)))
   (extent-size nil :read-only t)
