@@ -1,5 +1,9 @@
 2005-04-09  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d (srecord_): recdata is gcv_object_t, not object
+
+2005-04-09  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (set-global-handler): use load-time value (#,)
 	instead of read-time value (#.) to avoid an error on check-recompile
 
