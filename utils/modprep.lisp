@@ -1033,9 +1033,10 @@ commas and parentheses."
             (formatln out " restart_~A:" c-name)
             (formatln out "  if (integerp(a)) return (~A)I_to_L(a);" c-type)
             (when default
-              (when (stringp default) (formatln out " #ifdef ~A" default))
-              (formatln out "  else if (missingp(a)) return ~A;" default)
-              (when (stringp default) (formatln out " #endif")))
+              (let ((need-ifdef (and (not enum-p) (stringp default))))
+                (when need-ifdef (formatln out " #ifdef ~A" default))
+                (formatln out "  else if (missingp(a)) return ~A;" default)
+                (when need-ifdef (formatln out " #endif"))))
             (formatln out "  else {")
             (formatln out "    for (index = 0; index < ~A_table_size; index++)"
                       c-name)
@@ -1056,7 +1057,9 @@ commas and parentheses."
             (formatln out "    if (a == ~A_table[index].c_const)" c-name)
             (formatln out "      return *~A_table[index].l_const;" c-name)
             (when need-default
-              (formatln out "  if (a == ~A) return NIL;" default))
+              (unless enum-p (formatln out " #ifdef ~A" default))
+              (formatln out "  if (a == ~A) return NIL;" default)
+              (unless enum-p (formatln out " #endif")))
             (if (stringp reverse)
                 (formatln out "  return ~A(a);" reverse)
                 (formatln out "  NOTREACHED;"))
