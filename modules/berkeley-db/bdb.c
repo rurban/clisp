@@ -97,7 +97,11 @@ void error_callback (const char *errpfx, char *msg) {
   int offset = errpfx ? strlen(errpfx)+2 : 0;
   if (error_message) NOTREACHED;
   error_message = (char*)my_malloc(offset + strlen(msg));
-  if (errpfx) strcpy(error_message,errpfx);
+  if (errpfx) {
+    strcpy(error_message,errpfx);
+    error_message[offset-2] = ':';
+    error_message[offset-1] = ' ';
+  }
   strcpy(error_message+offset,msg);
 }
 #define FREE_RESET(x) if (x) { free(x); x = NULL; }
