@@ -76,6 +76,9 @@ static void vecout (unsigned char* v, int l) {
 # define MAX(a,b) ((a)>(b) ? a : b)
 #endif
 
+/* this has to be before DEFCHECKERs */
+typedef enum { DBT_RAW, DBT_STRING, DBT_INTEGER } dbt_o_t;
+
 DEFMODULE(bdb,"BDB")
 
 DEFUN(BDB:DB-VERSION,)
@@ -957,24 +960,8 @@ static object check_byte_vector (object obj, int length) {
   return obj;
 }
 
-typedef enum { DBT_RAW, DBT_STRING, DBT_INTEGER } dbt_o_t;
-/* check that the argument is a valis dbt_o_t specifier
- can trigger GC */
-static dbt_o_t check_dbt_type (object obj) {
- restart_check_dbt_type:
-  if (missingp(obj) || eq(obj,`:RAW`)) return DBT_RAW;
-  if (eq(obj,`:STRING`)) return DBT_STRING;
-  if (eq(obj,`:INTEGER`)) return DBT_INTEGER;
-  pushSTACK(NIL);               /* no PLACE */
-  pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
-  pushSTACK(`(MEMBER :RAW :STRING :INTEGER)`); /*EXPECTED-TYPE*/
-  pushSTACK(`:RAW`); pushSTACK(`:STRING`); pushSTACK(`:INTEGER`);
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,GETTEXT("~S: ~S is neither ~S, ~S nor ~S"));
-  obj = value1;
-  goto restart_check_dbt_type;
-}
-
+DEFCHECKER(check_dbt_type,enum=dbt_o_t,default=DBT_RAW,prefix=DBT,\
+           RAW STRING INTEGER)
 /* check that the argument can be converted to a DBT
  can trigger GC */
 static object check_dbt_object (object obj) {
@@ -1133,6 +1120,8 @@ DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
   VALUES1(dbt_to_object(&val,out_type));
 }
 
+DEFCHECKER(check_dbtype,enum=DBTYPE,default=DB_UNKNOWN,prefix=DB, \
+           UNKNOWN BTREE HASH QUEUE RECNO)
 DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
 { /* Return database statistics */
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_FAST_STAT;
@@ -1140,9 +1129,10 @@ DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
   int swapped_p;
   DBTYPE db_type;
   unsigned int count = 0;
+  SYSCALL(db->get_type,(db,&db_type));
+  pushSTACK(check_dbtype_reverse(db_type)); count++;
   SYSCALL(db->get_byteswapped,(db,&swapped_p));
   pushSTACK(swapped_p ? T : NIL); count++;
-  SYSCALL(db->get_type,(db,&db_type));
   switch (db_type) {
 #define STAT_SLOT(slot)        pushSTACK(UL_to_I(slot)); count++
 #define STAT_SLOT_FAST(slot)   pushSTACK(flags ? NIL : UL_to_I(slot)); count++
@@ -1216,26 +1206,6 @@ DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
   skipSTACK(2);
 }
 
-/* check that type is a valid DBTYPE
- can trigger GC */
-static DBTYPE check_dbtype (object type) {
- restart_check_dbtype:
-  if (eq(type,`:BTREE`)) return DB_BTREE;
-  if (eq(type,`:HASH`)) return DB_HASH;
-  if (eq(type,`:QUEUE`)) return DB_QUEUE;
-  if (eq(type,`:RECNO`)) return DB_RECNO;
-  if (missingp(type) || eq(type,`:UNKNOWN`)) return DB_UNKNOWN;
-  pushSTACK(NIL);               /* no PLACE */
-  pushSTACK(type);              /* TYPE-ERROR slot DATUM */
-  pushSTACK(`(MEMBER :BTREE :HASH :QUEUE :RECNO :UNKNOWN)`); /*EXPECTED-TYPE*/
-  pushSTACK(`:UNKNOWN`); pushSTACK(`:RECNO`); pushSTACK(`:QUEUE`);
-  pushSTACK(`:HASH`); pushSTACK(`:BTREE`); pushSTACK(type);
-  pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,GETTEXT("~S: ~S should be one of ~S, ~S, ~S, ~S or ~S"));
-  type = value1;
-  goto restart_check_dbtype;
-}
-
 DEFFLAGSET(db_open_flags, DB_CREATE DB_DIRTY_READ DB_EXCL DB_NOMMAP \
            DB_RDONLY DB_THREAD DB_TRUNCATE DB_AUTO_COMMIT)
 DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :CREATE :DIRTY_READ \
@@ -1252,11 +1222,10 @@ DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :CREATE :DIRTY_READ \
                 GLO(pathname_encoding),file, {
       if (missingp(STACK_0)) {  /* no :DATABASE */
         SYSCALL(db->open,(db,txn,file,NULL,db_type,flags,mode));
-      } else {                  /* multiple databases in one file */
+      } else                    /* multiple databases in one file */
         with_string_0(check_string(STACK_0),GLO(misc_encoding),databse, {
             SYSCALL(db->open,(db,txn,file,databse,db_type,flags,mode));
           });
-      }
     });
   VALUES0;
   skipSTACK(3);
