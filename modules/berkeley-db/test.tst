@@ -98,17 +98,19 @@ NIL
 (show-db *db*) NIL
 (close *db*)   T
 
-;;; recno with underlying text file
+;;; recno with an underlying text file
 (with-open-file (s "bdb-data/recno-source.txt" :direction :output
                    :external-format :unix)
   (write-line "foo" s)
   (write-line "bar" s)
-  (write-line "foobar" s))
-"foobar"
+  (write-line "foobar" s)
+  (file-length s))
+15
 
 (let ((db (bdb:db-create *dbe*)))
   (bdb:db-set-options db :RE_SOURCE "recno-source.txt")
   (bdb:db-open db "recno-source.db" :type :RECNO :create t)
+  (show-db db)
   (unwind-protect
        (list (bdb:db-get db 1 :type :string)
              (bdb:db-get db 2 :type :string)
@@ -120,6 +122,7 @@ NIL
 (let ((db (bdb:db-create *dbe*)))
   (bdb:db-set-options db :RE_SOURCE "recno-source.txt")
   (bdb:db-open db "recno-source.db")
+  (show-db db)
   (unwind-protect
        (bdb:db-put db 5 "bazonk")
     (close db)))
