@@ -831,7 +831,7 @@ int main(int argc, char* argv[])
 #else
   printf("#define SRECORD_HEADER  VAROBJECT_HEADER\n");
 #endif
-  sprintf(buf,"struct { SRECORD_HEADER object recdata[unspecified]%s; }",attribute_aligned_object);
+  sprintf(buf,"struct { SRECORD_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
   emit_typedef(buf,"srecord_");
   emit_typedef("srecord_ *","Srecord");
 #ifdef TYPECODES
