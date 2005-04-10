@@ -94,11 +94,13 @@ DEFUN(BDB:DB-VERSION,)
 
 static char *error_message = NULL;
 void error_callback (const char *errpfx, char *msg) {
-  int offset = errpfx ? strlen(errpfx)+3 : 0;
+  int offset = errpfx ? strlen(errpfx)+4 : 0;
   if (error_message) NOTREACHED;
-  error_message = (char*)my_malloc(offset + strlen(msg));
+  error_message = (char*)my_malloc(1 + offset + strlen(msg));
   if (errpfx) {
-    strcpy(error_message,errpfx);
+    error_message[0] = '[';
+    strcpy(error_message+1,errpfx);
+    error_message[offset-3] = ']';
     error_message[offset-2] = ':';
     error_message[offset-1] = ' ';
   }
