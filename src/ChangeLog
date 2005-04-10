@@ -1,5 +1,10 @@
 2005-04-10  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (print-tables-1): do not wrap DEFAULT
+	with #ifdef when the return type is an enum
+
+2005-04-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (dbe_set_encryption, db_get_action)
 	(db_put_action): restored 0 defaults, as per the spec
 	(my_fopen): check fopen() return value
