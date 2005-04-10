@@ -3,6 +3,7 @@
 	* modules/berkeley-db/bdb.c (check_lk_detect): added DB_LOCK_NORUN
 	(reset_errpfx): use my_malloc() instead of just malloc()
 	(error_callback): insert ": " between error prefix and message
+	allocate an extra byte for NULL
 
 2005-04-09  Sam Steingold  <sds@gnu.org>
 
