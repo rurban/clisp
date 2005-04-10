@@ -190,8 +190,7 @@ static void wrap_finalize (void* pointer, object parents,
  DB_ENV->errx	Error message
 */
 
-DEFCHECKER(dbe_encryption_check, prefix=DB_ENCRYPT, default=DB_ENCRYPT_AES, \
-           AES)
+DEFCHECKER(dbe_encryption_check, prefix=DB_ENCRYPT, default=0, AES)
 /* set the password to perform encryption and decryption.
  can trigger GC */
 static void dbe_set_encryption (DB_ENV *dbe, gcv_object_t *o_flags_,
@@ -1102,7 +1101,7 @@ DEFUN(BDB:DB-FD, db)
   VALUES1(fixnum(fd));
 }
 
-DEFCHECKER(db_get_action,prefix=DB, default=DB_CONSUME, \
+DEFCHECKER(db_get_action,prefix=DB, default=0, \
            CONSUME CONSUME-WAIT GET-BOTH SET-RECNO)
 DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_DIRTY_READ DB_MULTIPLE DB_RMW)
 DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
@@ -1313,8 +1312,7 @@ DEFUN(BDB:DB-REMOVE, db file database)
   VALUES0; skipSTACK(3);
 }
 
-DEFCHECKER(db_put_action,prefix=DB, default=DB_APPEND, \
-           APPEND NODUPDATA NOOVERWRITE)
+DEFCHECKER(db_put_action,prefix=DB, default=0, APPEND NODUPDATA NOOVERWRITE)
 DEFFLAGSET(db_put_flags, DB_AUTO_COMMIT)
 DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
 { /* Store items into a database */
@@ -1800,7 +1798,7 @@ static dbt_o_t fill_or_init (object datum, DBT *pdbt, u_int32_t re_len) {
     return check_dbt_type(datum);
   } else return fill_dbt(datum,pdbt,re_len); /* datum */
 }
-DEFCHECKER(dbc_get_action,prefix=DB,default=DB_CURRENT, \
+DEFCHECKER(dbc_get_action,prefix=DB,default=DB_CURRENT,                 \
            CURRENT FIRST GET-BOTH GET-BOTH-RANGE GET-RECNO JOIN-ITEM LAST \
            NEXT NEXT-DUP NEXT-NODUP PREV PREV-NODUP SET SET-RANGE SET-RECNO)
 DEFFLAGSET(dbc_get_options, DB_DIRTY_READ DB_MULTIPLE DB_MULTIPLE_KEY DB_RMW)
@@ -1835,7 +1833,7 @@ DEFUN(BDB:DBC-GET, cursor key data action &key :DIRTY_READ :MULTIPLE \
   mv_count = 2;
 }
 
-DEFCHECKER(dbc_put_flag,prefix=DB, default=DB_CURRENT, \
+DEFCHECKER(dbc_put_flag,prefix=DB, default=DB_CURRENT,          \
            CURRENT AFTER BEFORE KEYFIRST KEYLAST NODUPDATA)
 DEFUN(BDB:DBC-PUT, cursor key data flag)
 { /* retrieve key/data pairs from the database */
@@ -2093,7 +2091,7 @@ DEFUN(BDB:LOGC-CLOSE, logc)
   } else { skipSTACK(1); VALUES1(NIL); }
 }
 
-DEFCHECKER(logc_get_action,prefix=DB,default=DB_CURRENT, \
+DEFCHECKER(logc_get_action,prefix=DB,default=DB_CURRENT,        \
            CURRENT FIRST LAST NEXT PREV)
 DEFUN(BDB:LOGC-GET, logc action &key :TYPE :ERROR)
 { /* return records from the log. */
