@@ -1,6 +1,7 @@
 2005-04-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (check_lk_detect): added DB_LOCK_NORUN
+	(reset_errpfx): use my_malloc() instead of just malloc()
 
 2005-04-09  Sam Steingold  <sds@gnu.org>
 
