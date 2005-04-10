@@ -377,9 +377,10 @@ DEFUN(BDB:DBE-REMOVE, dbe &key :HOME :FORCE :USE_ENVIRON :USE_ENVIRON_ROOT)
  can trigger GC */
 static FILE* my_fopen (object path) {
   FILE *ret;
-  with_string_0(physical_namestring(path),GLO(pathname_encoding),pathz,{
+  with_string_0(path=physical_namestring(path),GLO(pathname_encoding),pathz,{
       begin_system_call();
       ret = fopen(pathz,"w");
+      if (ret == NULL) OS_file_error(path);
       time_stamp(ret,"opened");
       end_system_call();
     });

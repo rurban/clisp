@@ -2,6 +2,7 @@
 
 	* modules/berkeley-db/bdb.c (dbe_set_encryption, db_get_action)
 	(db_put_action): restored 0 defaults, as per the spec
+	(my_fopen): check fopen() return value
 
 2005-04-09  Sam Steingold  <sds@gnu.org>
 
