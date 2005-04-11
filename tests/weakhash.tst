@@ -246,6 +246,64 @@ T
 ((nil nil nil) (nil))
 
 
+;; Check that the GC can propagate through long chains of WEAK-MAPPINGs,
+;; emulating WEAK-MAPPING with weak hash-tables.
+
+(progn
+  (defun test-weak-mapping-chain (n)
+    (let (wm0)
+      (let ((sym (make-array n)))
+        (dotimes (i n) (setf (aref sym i) (make-symbol (prin1-to-string i))))
+        ;; Build a chain
+        ;;   (gethash sym0 wm0) = wm1
+        ;;   (gethash sym1 wm1) = wm2
+        ;;   ...
+        (let ((wm (make-array n)))
+          (dotimes (i n) (setf (aref wm i) (make-freak-mapping 'a 'b)))
+          (setq wm0 (aref wm 0))
+          (do ((i 1 (1+ i)))
+              ((>= i n))
+            (setf (gethash (aref sym (- i 1)) (aref wm (- i 1))) (aref wm i))))
+        (time (gc))
+        ;; Verify that the chain is still intact.
+        (do ((i 0 (1+ i))
+             (w wm0 (gethash (aref sym i) w)))
+            ((>= i n)))
+        (setq sym nil)
+        (time (gc))
+        (gethash 'a wm0))))
+  (test-weak-mapping-chain 10000))
+B
+
+; Likewise with reverse order of allocation of the weak hash tables.
+; This test exhibits O(n^2) behaviour in LispWorks 4.3.
+(progn
+  (defun test-weak-mapping-chain-reverse (n)
+    (let (wm0)
+      (let ((sym (make-array n)))
+        (dotimes (i n) (setf (aref sym i) (make-symbol (prin1-to-string i))))
+        ;; Build a chain
+        ;;   (gethash sym0 wm0) = wm1
+        ;;   (gethash sym1 wm1) = wm2
+        ;;   ...
+        (let ((wm (make-array n)))
+          (dotimes (i n) (setf (aref wm (- n 1 i)) (make-freak-mapping 'a 'b)))
+          (setq wm0 (aref wm 0))
+          (do ((i 1 (1+ i)))
+              ((>= i n))
+            (setf (gethash (aref sym (- i 1)) (aref wm (- i 1))) (aref wm i))))
+        (time (gc))
+        ;; Verify that the chain is still intact.
+        (do ((i 0 (1+ i))
+             (w wm0 (gethash (aref sym i) w)))
+            ((>= i n)))
+        (setq sym nil)
+        (time (gc))
+        (gethash 'a wm0))))
+  (test-weak-mapping-chain-reverse 10000))
+B
+
+
 ;; Test that weak hash-tables of kind :VALUE work.
 
 #+(or CLISP OpenMCL LISPWORKS)
