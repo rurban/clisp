@@ -478,12 +478,6 @@ already using CLN, NTL, or a similar library. CLISP is already the champion
 among the Common Lisp implementations regarding bignum performance.
 
 
-Declaration  extern maygc ...
-
-You can't put this declaration into a C macro definition. Therefore the
-right place for it is still the comment.
-
-
 Block the signals SIGHUP SIGPIPE SIGTERM SIGXCPU SIGXFSZ during GC, and
 when they occur outside of GC, do a quit(1); .
 
