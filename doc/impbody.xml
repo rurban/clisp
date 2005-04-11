@@ -4521,7 +4521,7 @@ when being loaded, this is important as well.</para></section>
     (which is initially <literal role="data">("lisp" "lsp" "cl")</literal>)
     and <firstterm>&compiled-types;</firstterm>
     (which is initially <literal role="data">("fas")</literal>).
-   </simpara><simpara>When &filename-r; does not spefify a unique file
+   </simpara><simpara>When &filename-r; does not specify a unique file
     (e.g., &filename-r; is &foo-f; and both &foolisp-f;
     and <filename>#P&quot;foo.fas&quot;</filename> are found in the
     &load-paths;), then the <emphasis>newest</emphasis> file is loaded.
