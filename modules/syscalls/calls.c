@@ -469,6 +469,26 @@ DEFUN(POSIX:KILL, pid sig) {
 }
 #endif
 
+/* ============================= file sync ============================= */
+#if defined(WIN32_NATIVE) || defined(HAVE_SYNC) || defined(HAVE_FSYNC)
+DEFUN(POSIX:SYNC, &optional file) {
+  if (missingp(STACK_0)) {      /* sync() */
+#  if defined(HAVE_SYNC)
+    begin_system_call(); sync(); end_system_call();
+#  endif
+  } else {                      /* fsync() */
+    Handle fd = stream_lend_handle(STACK_0,false,NULL);
+    begin_system_call();
+#  if defined(HAVE_FSYNC)
+    if (-1 == fsync(fd)) OS_file_error(STACK_0);
+#  elif defined(WIN32_NATIVE)
+    if (!FlushFileBuffers(fd)) OS_file_error(STACK_0);
+#  endif
+    end_system_call();
+  }
+  VALUES0; skipSTACK(1);
+}
+#endif
 /* ========================== process priority ========================== */
 #if defined(WIN32_NATIVE)
 DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \

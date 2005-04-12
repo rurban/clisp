@@ -1,3 +1,9 @@
+2005-04-12  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (POSIX:SYNC): implemented
+	* modules/syscalls/posix.lisp (SYNC): export
+	* modules/syscalls/configure.in (sync, fsync): check
+
 2005-04-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/dbi.lisp (db-stat): added slot TYPE
