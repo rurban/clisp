@@ -497,6 +497,11 @@
    <simpara>When &mkstemp; is missing, use &tempnam;.
     On &win32; use <function>GetTempFileName</function>.
  </simpara></listitem></varlistentry>
+ <varlistentry id="sync"><term><code>(POSIX:SYNC &optional-amp;
+    &stream-r;)</code></term>
+  <listitem><simpara>calls &fsync; (<function>FlushFileBuffers</function>
+    on &win32;) on the &file-des; associated with &stream-r;, or &sync;
+    when &stream-r; is not supplied</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
