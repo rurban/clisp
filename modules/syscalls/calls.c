@@ -476,6 +476,12 @@ DEFUN(POSIX:SYNC, &optional file) {
 #  if defined(HAVE_SYNC)
     begin_system_call(); sync(); end_system_call();
 #  endif
+#  if defined(HAVE_FSYNC)
+  } else if (integerp(STACK_0)) { /* fsync() */
+    begin_system_call();
+    if (-1 == fsync(I_to_UL(STACK_0))) OS_error();
+    end_system_call();
+#  endif
   } else {                      /* fsync() */
     Handle fd = stream_lend_handle(STACK_0,false,NULL);
     begin_system_call();
@@ -1175,7 +1181,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
     } else goto stat_pathname;
   } else if (integerp(file)) {
     begin_system_call();
-    if (fstat(I_to_L(file),&buf) < 0) OS_error();
+    if (fstat(I_to_UL(file),&buf) < 0) OS_error();
     end_system_call();
   } else { stat_pathname:
     file = physical_namestring(file);
