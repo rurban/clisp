@@ -62,6 +62,9 @@
 /* Define to 1 if you have the `fstatvfs' function. */
 #undef HAVE_FSTATVFS
 
+/* Define to 1 if you have the `fsync' function. */
+#undef HAVE_FSYNC
+
 /* Define to 1 if you have the `gethostent' function. */
 #undef HAVE_GETHOSTENT
 
@@ -213,6 +216,9 @@
 
 /* Define to 1 if you have the `symlink' function. */
 #undef HAVE_SYMLINK
+
+/* Define to 1 if you have the `sync' function. */
+#undef HAVE_SYNC
 
 /* Define to 1 if you have the `sysconf' function. */
 #undef HAVE_SYSCONF
