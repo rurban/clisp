@@ -1407,8 +1407,11 @@ struct statvfs {
   unsigned long f_fsid;         /* file system id */
   unsigned long f_flag;         /* mount flags */
   unsigned long f_namemax;      /* maximum length of filenames */
+  char f_volname[MAX_PATH];     /* volume name */
+  char f_fstype[MAX_PATH];      /* file system type */
 };
-
+#define HAVE_STATVFS_F_VOLNAME
+#define HAVE_STATVFS_F_FSTYPE
 int statvfs (const char *fname, struct statvfs *sfs)
 {
   /* GetDiskFreeSpaceEx must be called before GetDiskFreeSpace on
@@ -1441,7 +1444,8 @@ int statvfs (const char *fname, struct statvfs *sfs)
     freec = freeb.QuadPart / bpc;
   } else
     availc = freec;
-  if (!GetVolumeInformation(root,NULL,0,&vsn,&maxlen,&flags,NULL,0))
+  if (!GetVolumeInformation(root,sfs->f_volname,MAX_PATH,&vsn,&maxlen,&flags,
+                            sfs->f_fstype,MAX_PATH))
     return -1;
   sfs->f_bsize = bpc;
   sfs->f_frsize = bpc;
@@ -1522,7 +1526,17 @@ DEFUN(POSIX::STAT-VFS, file)
 #endif
   pushSTACK(vfs_flags_to_list(buf.f_flag)); /* Bit mask of f_flag values. */
   pushSLOT(buf.f_namemax);      /* maximum filename length */
-  funcall(`POSIX::MAKE-STAT-VFS`,12);
+#if defined(HAVE_STATVFS_F_VOLNAME)
+  pushSTACK(asciz_to_string(buf.f_volname,GLO(pathname_encoding)));
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(HAVE_STATVFS_F_FSTYPE)
+  pushSTACK(asciz_to_string(buf.f_fstype,GLO(pathname_encoding)));
+#else
+  pushSTACK(NIL);
+#endif
+  funcall(`POSIX::MAKE-STAT-VFS`,14);
 #undef pushSLOT
 }
 

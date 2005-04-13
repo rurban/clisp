@@ -111,7 +111,7 @@
 (defstruct (stat-vfs
              (:constructor
               make-stat-vfs (file bsize frsize blocks bfree bavail files
-                             ffree favail fsid flag namemax)))
+                             ffree favail fsid flag namemax vol-name fs-type)))
   (file    nil :read-only t)
   (bsize   nil :type (or null (unsigned-byte 32)) :read-only t)
   (frsize  nil :type (or null (unsigned-byte 32)) :read-only t)
@@ -123,7 +123,9 @@
   (favail  nil :type (or null (unsigned-byte 32)) :read-only t)
   (fsid    nil :type (or null (unsigned-byte 32)) :read-only t)
   (flag    nil :type list :read-only t)
-  (namemax nil :type (or null (unsigned-byte 32)) :read-only t))
+  (namemax nil :type (or null (unsigned-byte 32)) :read-only t)
+  (vol-name nil :type (or null string) :read-only t)
+  (fs-type nil :type (or null string) :read-only t))
 ;;; ============================================================
 #+unix (progn
 (export

@@ -36,12 +36,9 @@ T
 T
 
 #+unix
-(os:uname-p (princ (if (fboundp 'os:uname) (os:uname) '(no os:uname)))) T
+(os:uname-p (princ (os:uname))) T
 #+unix
-(os:user-data-p
- (princ (if (fboundp 'os:user-data)
-            (os:user-data (ext:getenv "USER")) '(no os:user-data))))
-T
+(os:user-data-p (princ (os:user-data (ext:getenv "USER")))) T
 
 (os:file-stat-p (princ (os:file-stat *tmp1*))) T
 (os:file-stat-p (princ (os:file-stat (pathname *tmp1*)))) T
@@ -57,10 +54,7 @@ T
 #+win32 #o0700
 #-(or unix win32) ERROR
 
-#+unix
-(os:stat-vfs-p
- (princ (if (fboundp 'os:stat-vfs) (os:stat-vfs *tmp2*) '(no os:stat-vfs))))
-#+unix T
+(os:stat-vfs-p (princ (os:stat-vfs *tmp2*))) T
 
 (string= #+win32 (ext:string-concat (ext:getenv "USERDOMAIN") "\\"
                                     (ext:getenv "USERNAME"))
