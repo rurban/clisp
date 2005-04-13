@@ -1,5 +1,19 @@
 2005-04-13  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/configure.in (sys/statfs.h, sys/vfs.h):
+	do not check unused headers
+	(HAVE_SCALAR_FSID): do not check without <sys/statvfs.h>
+	(fsblkcnt_t, fsfilcnt_t): check SIZEOF
+	(struct stat): do not check whithout <sys/stat.h>
+
+2005-04-13  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in [win32gcc]: distribute module sources
+	(echo_dist_modules): new function
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
+2005-04-13  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (STAT-VFS) [WIN32_NATIVE]: implemented
 	using GetDiskFreeSpace, GetDiskFreeSpaceEx, GetVolumeInformation
 	* modules/syscalls/posix.lisp (STAT-VFS): export always
