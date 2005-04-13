@@ -25,8 +25,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <simplelist columns="4">
   <member>&accept;</member><member>&bind;</member><member>&connect;</member>
   <member>&getpeername;</member><member>&getsockname;</member>
-  <member>&listen-c;</member><member>&htonl;</member><member>&htons;</member>
-  <member>&ntohl;</member><member>&ntohs;</member>
+  <member>&htonl;</member><member>&htons;</member>
+  <member>&ntohl;</member><member>&ntohs;</member><member>&listen-c;</member>
   <member>&recv;</member><member>&recvfrom;</member><member>&recvmsg;</member>
   <member>&send;</member><member>&sendmsg;</member><member>&sendto;</member>
   <member>&socket;</member><member>&sockatmark;</member>
@@ -46,6 +46,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 
 <para>We do not interface to &select; or &poll;,
  they are available through &so-status;.</para>
+
+<para>We do not interface to &gethostbyname; or &gethostbyaddr;,
+ they are available through &resolve-host;.</para>
 
 <variablelist id="rawsock-add-on"><title>Additional Functions</title>
  <varlistentry><term><code>(RAWSOCK:CONVERT-ADDRESS
