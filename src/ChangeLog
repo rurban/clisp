@@ -1,3 +1,9 @@
+2005-04-13  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (STAT-VFS) [WIN32_NATIVE]: implemented
+	using GetDiskFreeSpace, GetDiskFreeSpaceEx, GetVolumeInformation
+	* modules/syscalls/posix.lisp (STAT-VFS): export always
+
 2005-04-12  Bruno Haible  <bruno@clisp.org>
 
 	* weak.d (MAKE-WEAK-ALIST, WEAK-ALIST-TYPE): Use :key-and-value instead

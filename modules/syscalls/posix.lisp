@@ -102,7 +102,6 @@
   (ctime     0 :type (integer 0) :read-only t))
 
 ;;; ============================================================
-#+unix (progn
 (export
  '(stat-vfs stat-vfs-p stat-vfs-file stat-vfs-bsize stat-vfs-stat-vfs-frsize
    stat-vfs-stat-vfs-blocks stat-vfs-stat-vfs-bfree stat-vfs-stat-vfs-bavail
@@ -113,21 +112,18 @@
              (:constructor
               make-stat-vfs (file bsize frsize blocks bfree bavail files
                              ffree favail fsid flag namemax)))
-  (file  nil :read-only t)
-  (bsize   0 :type (unsigned-byte 32) :read-only t)
-  (frsize  0 :type (unsigned-byte 32) :read-only t)
-  (blocks  0 :type (unsigned-byte 32) :read-only t)
-  (bfree   0 :type (unsigned-byte 32) :read-only t)
-  (bavail  0 :type (unsigned-byte 32) :read-only t)
-  (files   0 :type (unsigned-byte 32) :read-only t)
-  (ffree   0 :type (unsigned-byte 32) :read-only t)
-  (favail  0 :type (unsigned-byte 32) :read-only t)
-  (fsid    0 :type (unsigned-byte 32) :read-only t)
-  (flag    0 :type (unsigned-byte 32) :read-only t)
-  (namemax 0 :type (unsigned-byte 32) :read-only t))
-
-)
-
+  (file    nil :read-only t)
+  (bsize   nil :type (or null (unsigned-byte 32)) :read-only t)
+  (frsize  nil :type (or null (unsigned-byte 32)) :read-only t)
+  (blocks  nil :type (or null (unsigned-byte 32)) :read-only t)
+  (bfree   nil :type (or null (unsigned-byte 32)) :read-only t)
+  (bavail  nil :type (or null (unsigned-byte 32)) :read-only t)
+  (files   nil :type (or null (unsigned-byte 32)) :read-only t)
+  (ffree   nil :type (or null (unsigned-byte 32)) :read-only t)
+  (favail  nil :type (or null (unsigned-byte 32)) :read-only t)
+  (fsid    nil :type (or null (unsigned-byte 32)) :read-only t)
+  (flag    nil :type list :read-only t)
+  (namemax nil :type (or null (unsigned-byte 32)) :read-only t))
 ;;; ============================================================
 #+unix (progn
 (export

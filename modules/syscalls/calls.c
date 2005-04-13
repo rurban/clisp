@@ -1392,10 +1392,81 @@ DEFUN(POSIX::MKNOD, path type mode)
 }
 #endif  /* mknod */
 
-#if defined(HAVE_FSTATVFS) && defined(HAVE_STATVFS)
+#if defined(WIN32_NATIVE) || defined(HAVE_STATVFS)
+#if defined(WIN32_NATIVE)
+/* winsup/src/winsup/cygwin/syscalls.cc */
+struct statvfs {
+  unsigned long f_bsize;        /* file system block size */
+  unsigned long f_frsize;       /* fragment size */
+  unsigned long f_blocks;       /* size of fs in f_frsize units */
+  unsigned long f_bfree;        /* free blocks in fs */
+  unsigned long f_bavail;       /* free blocks avail to non-superuser */
+  unsigned long f_files;        /* total file nodes in file system */
+  unsigned long f_ffree;        /* free file nodes in fs */
+  unsigned long f_favail;       /* avail file nodes in fs */
+  unsigned long f_fsid;         /* file system id */
+  unsigned long f_flag;         /* mount flags */
+  unsigned long f_namemax;      /* maximum length of filenames */
+};
+
+int statvfs (const char *fname, struct statvfs *sfs)
+{
+  /* GetDiskFreeSpaceEx must be called before GetDiskFreeSpace on
+     WinME, to avoid the MS KB 314417 bug */
+  ULARGE_INTEGER availb, freeb, totalb;
+  DWORD spc, bps, availc, freec, totalc, vsn, maxlen, flags, bpc;
+  char root[MAX_PATH], *rootp = root;
+  if (fname[1] == ':') {        /* c:\ */
+    *rootp++ = *fname++;
+    *rootp++ = *fname++;
+  } else if (fname[0] == '\\' && fname[1] == '\\') { /* \\host\dir\ */
+    const char *cp = strchr(fname + 2,'\\');
+    unsigned int len;
+    if (cp) cp = strchr(cp+1,'\\'); /* just host, no dir => error later */
+    memcpy(root,fname,(len = cp - fname));
+    rootp = root + len;
+  } else {
+    SetLastError(ERROR_DIRECTORY);
+    return -1;
+  }
+  *rootp++ = '\\';
+  *rootp = 0;
+
+  if (!GetDiskFreeSpace(root,&spc,&bps,&freec,&totalc))
+    return -1;                  /* bytes per sector */
+  bpc = spc*bps;
+  if (GetDiskFreeSpaceEx(root,&availb,&totalb,&freeb)) {
+    availc = availb.QuadPart / bpc;
+    totalc = totalb.QuadPart / bpc;
+    freec = freeb.QuadPart / bpc;
+  } else
+    availc = freec;
+  if (!GetVolumeInformation(root,NULL,0,&vsn,&maxlen,&flags,NULL,0))
+    return -1;
+  sfs->f_bsize = bpc;
+  sfs->f_frsize = bpc;
+  sfs->f_blocks = totalc;
+  sfs->f_bfree = freec;
+  sfs->f_bavail = availc;
+  sfs->f_files = (unsigned long)-1;
+  sfs->f_ffree = (unsigned long)-1;
+  sfs->f_favail = (unsigned long)-1;
+  sfs->f_fsid = vsn;
+  sfs->f_flag = flags;
+  sfs->f_namemax = maxlen;
+  return 0;
+}
+#endif
+DEFCHECKER(vfs_flags,default=,bitmasks=both, ST_RDONLY ST_NOSUID ST_NOTRUNC \
+           ST_NODEV ST_NOEXEC ST_SYNCHRONOUS ST_MANDLOCK ST_WRITE ST_APPEND \
+           ST_IMMUTABLE ST_NOATIME ST_NODIRATIME                        \
+           FILE_NAMED_STREAMS FILE_READ_ONLY_VOLUME FILE_SUPPORTS_OBJECT_IDS \
+           FILE_SUPPORTS_REPARSE_POINTS FILE_SUPPORTS_SPARSE_FILES      \
+           FILE_VOLUME_QUOTAS FS_CASE_IS_PRESERVED FS_CASE_SENSITIVE    \
+           FS_FILE_COMPRESSION FS_FILE_ENCRYPTION FS_PERSISTENT_ACLS    \
+           FS_UNICODE_STORED_ON_DISK FS_VOL_IS_COMPRESSED)
 /* there is also a legacy interface (f)statfs()
    which is not POSIX and is not supported */
-
 DEFUN(POSIX::STAT-VFS, file)
 { /* Lisp interface to statvfs(2), fstatvfs(2)
  the first arg can be a pathname designator or a file descriptor designator
@@ -1403,6 +1474,7 @@ DEFUN(POSIX::STAT-VFS, file)
   object file = popSTACK();
   struct statvfs buf;
 
+#if defined(HAVE_FSTATVFS)
   if (builtin_stream_p(file)) {
     pushSTACK(file);            /* save */
     pushSTACK(file); funcall(L(built_in_stream_open_p),1);
@@ -1418,54 +1490,40 @@ DEFUN(POSIX::STAT-VFS, file)
     begin_system_call();
     if (fstatvfs(I_to_L(file),&buf) < 0) OS_error();
     end_system_call();
-  } else { stat_pathname:
-    file = physical_namestring(file);
-    with_string_0(file,GLO(pathname_encoding),namez, {
+  } else stat_pathname:
+#endif
+    with_string_0(file = physical_namestring(file),GLO(pathname_encoding),
+                  namez, {
       begin_system_call();
       if (statvfs(namez,&buf) < 0) OS_error();
       end_system_call();
     });
-  }
 
   pushSTACK(file);                  /* the object statvfs'ed */
-  /* FIXME: Should use ulong_to_I for most of these, and map -1 to NIL. */
-  pushSTACK(UL_to_I(buf.f_bsize));  /* file system block size */
-  pushSTACK(UL_to_I(buf.f_frsize)); /* fundamental file system block size */
-  pushSTACK(UL_to_I(buf.f_blocks)); /* total # of blocks on file system */
-  pushSTACK(UL_to_I(buf.f_bfree));  /* total number of free blocks */
-  pushSTACK(UL_to_I(buf.f_bavail)); /* # of free blocks available to
-                                       non-privileged processes */
-  pushSTACK(UL_to_I(buf.f_files));  /* total # of file serial numbers */
-  pushSTACK(UL_to_I(buf.f_ffree));  /* total # of free file serial numbers */
-  pushSTACK(UL_to_I(buf.f_favail)); /* # of file serial numbers available to
-                                       non-privileged processes */
+#define pushSLOT(s) pushSTACK(s==(unsigned long)-1 ? NIL : ulong_to_I(s))
+  pushSLOT(buf.f_bsize);  /* file system block size */
+  pushSLOT(buf.f_frsize); /* fundamental file system block size */
+  pushSLOT(buf.f_blocks); /* total # of blocks on file system */
+  pushSLOT(buf.f_bfree);  /* total number of free blocks */
+  pushSLOT(buf.f_bavail); /* # of free blocks available to
+                             non-privileged processes */
+  pushSLOT(buf.f_files);  /* total # of file serial numbers */
+  pushSLOT(buf.f_ffree);  /* total # of free file serial numbers */
+  pushSLOT(buf.f_favail); /* # of file serial numbers available to
+                             non-privileged processes */
 #if HAVE_SCALAR_FSID
-  pushSTACK(UL_to_I(buf.f_fsid));   /* file system ID */
+  pushSLOT(buf.f_fsid);   /* file system ID */
 #else
   /* On Linux, f_fsid of 'struct statfs' is a struct consisting of two ints.
      With glibc <= 2.1, f_fsid of 'struct statvfs' is the same. We are
      prepared to return one number only, so we just return the first int.
      This matches the behaviour of glibc >= 2.2 on 32-bit platforms. */
-  pushSTACK(UL_to_I(*(uintL*)&buf.f_fsid));   /* file system ID */
+  pushSLOT((*(uintL*)&buf.f_fsid));   /* file system ID */
 #endif
-  { /* bit mask of f_flag values */
-    unsigned long count = 0;
-#  ifdef ST_RDONLY
-    if (buf.f_flag & ST_RDONLY) { pushSTACK(S(Kread_only)); count++; }
-#  endif
-#  ifdef ST_NOSUID
-    if (buf.f_flag & ST_NOSUID) { pushSTACK(`:NO-SUID`); count++; }
-#  endif
-#  ifdef ST_NOTRUNC
-    if (buf.f_flag & ST_NOTRUNC) { pushSTACK(`:NO-TRUNCATE`); count++; }
-#  endif
-    if (count) {
-      object res = listof(count);
-      pushSTACK(res);
-    } else pushSTACK(NIL);
-  }
-  pushSTACK(UL_to_I(buf.f_namemax));/* maximum filename length */
+  pushSTACK(vfs_flags_to_list(buf.f_flag)); /* Bit mask of f_flag values. */
+  pushSLOT(buf.f_namemax);      /* maximum filename length */
   funcall(`POSIX::MAKE-STAT-VFS`,12);
+#undef pushSLOT
 }
 
 #endif  /* fstatvfs statvfs */
@@ -2250,7 +2308,7 @@ DEFUN(POSIX::CONVERT-ATTRIBUTES, attributes)
 /* convert the 8 members of WIN32_FIND_DATA to the FILE-INFO struct
  can trigger GC */
 static Values wfd_to_file_info (WIN32_FIND_DATA *wfd) {
-  pushSTACK(UL_to_I(wfd->dwFileAttributes));
+  pushSTACK(check_file_attributes_to_list(wfd->dwFileAttributes));
   pushSTACK(convert_time_to_universal_w32(&(wfd->ftCreationTime)));
   pushSTACK(convert_time_to_universal_w32(&(wfd->ftLastAccessTime)));
   pushSTACK(convert_time_to_universal_w32(&(wfd->ftLastWriteTime)));

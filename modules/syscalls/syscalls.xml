@@ -109,7 +109,7 @@
     and &utime;.</simpara></listitem></varlistentry>
  <varlistentry id="stat-vfs"><term><code>(<function>POSIX:STAT-VFS</function>
     &path-r;)</code></term>
- <listitem><para>Return the <type>STAT-VFS</type> structure.
+ <listitem><para>Return a <type>STAT-VFS</type> structure.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
    &number-t; (on a &unix; system, meaning &file-des;).
    The first slot of the structure returned is the string
@@ -149,8 +149,7 @@
      <listitem><simpara>Maximum filename length.
    </simpara></listitem></varlistentry></variablelist>
    All slots are read-only.
-  </para><simpara>[&unix; systems only at this time, patches are welcome.]
- </simpara></listitem></varlistentry>
+ </para></listitem></varlistentry>
  <varlistentry id="file-info"><term><code>(<function>OS:FILE-INFO</function>
     &path-r;)</code></term>
   <listitem><para>Return the <type>FILE-INFO</type> structure.
