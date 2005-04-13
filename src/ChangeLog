@@ -1,3 +1,14 @@
+2005-04-12  Bruno Haible  <bruno@clisp.org>
+
+	* weak.d (MAKE-WEAK-ALIST, WEAK-ALIST-TYPE): Use :key-and-value instead
+	of :either, :key-or-value instead of :both.
+	* hashtabl.d (hash_table_weak_type): Return :key-and-value instead
+	of :either, :key-or-value instead of :both.
+	(allocate_kvt, prepare_resize, check_weak): Accept :key-and-value
+	instead of :either, :key-or-value instead of :both.
+	* describe.lisp (describe-object@t): Update for change :either ->
+	:key-and-value, :both -> :key-or-value.
+
 2005-04-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX:SYNC): implemented

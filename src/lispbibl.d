@@ -12682,7 +12682,7 @@ extern /*maygc*/ object shifthash (object ht, object obj, object value, bool all
 
 /* hash_table_weak_type(ht)
  > ht: hash-table
- < result: symbol NIL/:KEY/:VALUE/:EITHER/:BOTH */
+ < result: symbol NIL/:KEY/:VALUE/:KEY-AND-VALUE/:KEY-OR-VALUE */
 extern object hash_table_weak_type (object ht);
 /* used by PREDTYPE */
 

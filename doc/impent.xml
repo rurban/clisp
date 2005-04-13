@@ -28,7 +28,6 @@
 <!ENTITY append-k "<constant>:APPEND</constant>">
 <!ENTITY argument-precedence-order-k "<constant>:ARGUMENT-PRECEDENCE-ORDER</constant>">
 <!ENTITY arguments-k "<constant>:ARGUMENTS</constant>">
-<!ENTITY both-k "<constant>:BOTH</constant>">
 <!ENTITY c-k "<constant>:C</constant>">
 <!ENTITY c-NULL "<constant>NULL</constant>">
 <!ENTITY class-k "<constant>:CLASS</constant>">
@@ -46,7 +45,6 @@
 <!ENTITY direction-k "<constant>:DIRECTION</constant>">
 <!ENTITY documentation-k "<constant>:DOCUMENTATION</constant>">
 <!ENTITY echo-k "<constant>:ECHO</constant>">
-<!ENTITY either-k "<constant>:EITHER</constant>">
 <!ENTITY end-k "<constant>:END</constant>">
 <!ENTITY eof-k "<constant>:EOF</constant>">
 <!ENTITY error-k "<constant>:ERROR</constant>">
@@ -72,6 +70,8 @@
 <!ENTITY instance-k "<constant>:INSTANCE</constant>">
 <!ENTITY io-k "<constant>:IO</constant>">
 <!ENTITY key-k "<constant>:KEY</constant>">
+<!ENTITY key-and-value-k "<constant>:KEY-AND-VALUE</constant>">
+<!ENTITY key-or-value-k "<constant>:KEY-OR-VALUE</constant>">
 <!ENTITY lambda-list-k "<constant>:LAMBDA-LIST</constant>">
 <!ENTITY lang-k "<link linkend='c-flavor'><constant>:LANGUAGE</constant></link>">
 <!ENTITY library-k "<constant>:LIBRARY</constant>">

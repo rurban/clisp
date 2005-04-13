@@ -8689,7 +8689,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
             JUSTIFY_START(0); JUSTIFY_LAST(false);
             prin_object(stream_,S(Kweak)); # print :WEAK
             JUSTIFY_SPACE; JUSTIFY_LAST(true);
-            prin_object(stream_,hash_table_weak_type(*obj_)); /*:KEY/:VALUE/:BOTH/:EITHER*/
+            prin_object(stream_,hash_table_weak_type(*obj_)); /*:KEY/:VALUE/:KEY-AND-VALUE/:KEY-OR-VALUE*/
             JUSTIFY_END_FILL;
           }
         }

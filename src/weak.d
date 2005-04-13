@@ -1,6 +1,6 @@
 /*
  * Functions for weak references in CLISP
- * Bruno Haible 1999-2004
+ * Bruno Haible 1999-2005
  * Sam Steingold 2003
  */
 #include "lispbibl.c"
@@ -672,14 +672,14 @@ LISPFUN(make_weak_alist,seclass_read,0,0,norest,key,2,
     rectype = Rectype_WeakAlist_Key;
   else if (eq(type,S(Kvalue))) # :VALUE
     rectype = Rectype_WeakAlist_Value;
-  else if (eq(type,S(Keither))) # :EITHER
+  else if (eq(type,S(Kkey_and_value))) # :KEY-AND-VALUE
     rectype = Rectype_WeakAlist_Either;
-  else if (eq(type,S(Kboth))) # :BOTH
+  else if (eq(type,S(Kkey_or_value))) # :KEY-OR-VALUE
     rectype = Rectype_WeakAlist_Both;
   else {
     pushSTACK(type); /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_weak_alist)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(Kboth)); pushSTACK(S(Keither)); pushSTACK(S(Kvalue)); pushSTACK(S(Kkey));
+    pushSTACK(S(Kkey_or_value)); pushSTACK(S(Kkey_and_value)); pushSTACK(S(Kvalue)); pushSTACK(S(Kkey));
     pushSTACK(type); pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,GETTEXT("~S: argument ~S should be ~S, ~S, ~S or ~S."));
   }
@@ -744,9 +744,9 @@ LISPFUNNR(weak_alist_type,1) {
     case Rectype_WeakAlist_Value:
       type = S(Kvalue); break;
     case Rectype_WeakAlist_Either:
-      type = S(Keither); break;
+      type = S(Kkey_and_value); break;
     case Rectype_WeakAlist_Both:
-      type = S(Kboth); break;
+      type = S(Kkey_or_value); break;
     default: NOTREACHED;
   }
   VALUES1(type);

@@ -1200,15 +1200,14 @@ their corresponding byte vector representation according to that encoding.
   <listitem><simpara>The pair exists as long as the &value-r; is not &gc;ed.
    As long as the &value-r; is alive, it prevents the &key-r; from
    being &gc;ed.</simpara></listitem></varlistentry>
- <varlistentry><term>&either-k;</term>
-  <listitem><simpara>The pair exists as long as the &key-r;
-   <emphasis role="strong">and</emphasis> the &value-r; are alive.
+ <varlistentry><term>&key-and-value-k;</term>
+  <listitem><simpara>The pair exists as long as the &key-r; and the &value-r;
+   are alive.
  </simpara></listitem></varlistentry>
- <varlistentry><term>&both-k;</term>
-  <listitem><simpara>The pair exists as long as the &key-r;
-   <emphasis role="strong">or</emphasis> the &value-r; are alive.  As
-   long as the &key-r; is alive, it prevents the &value-r; from being
-   &gc;ed, and as long as the &value-r; is alive, it prevents the
+ <varlistentry><term>&key-or-value-k;</term>
+  <listitem><simpara>The pair exists as long as the &key-r; or the &value-r;
+   are alive.  As long as the &key-r; is alive, it prevents the &value-r;
+   from being &gc;ed, and as long as the &value-r; is alive, it prevents the
    &key-r; from being &gc;ed.</simpara></listitem></varlistentry>
 </variablelist>
 In other words, each pair is:
@@ -1219,10 +1218,10 @@ In other words, each pair is:
  <varlistentry><term>&value-k;</term>
   <listitem><simpara>a &weak-mapping; from the &value-r; to the &key-r;,
  </simpara></listitem></varlistentry>
- <varlistentry><term>&either-k;</term>
+ <varlistentry><term>&key-and-value-k;</term>
   <listitem><simpara>a &weak-and-relation; of the &key-r; and the &value-r;,
  </simpara></listitem></varlistentry>
- <varlistentry><term>&both-k;</term>
+ <varlistentry><term>&key-or-value-k;</term>
   <listitem><simpara>a &weak-or-relation; of the &key-r; and the &value-r;.
  </simpara></listitem></varlistentry>
 </variablelist></para>
@@ -1314,10 +1313,10 @@ In other words, each pair is:
    <listitem><simpara>The pair exists as long as the &value-r; is not &gc;ed.
      As long as the &value-r; is alive, it prevents the &key-r; from
      being &gc;ed.</simpara></listitem></varlistentry>
-  <varlistentry><term>&either-k;</term>
+  <varlistentry><term>&key-and-value-k;</term>
    <listitem><simpara>The pair exists as long as the &key-r; and the
      &value-r; are alive.</simpara></listitem></varlistentry>
-  <varlistentry><term>&both-k;</term>
+  <varlistentry><term>&key-or-value-k;</term>
    <listitem><simpara>The pair exists as long as the &key-r; or the
      &value-r; are alive.  As long as the &key-r; is alive, it prevents
      the &key-r; from being &gc;ed, and as long as the &value-r; is
@@ -1332,10 +1331,10 @@ In other words, each pair is:
  <varlistentry><term>&value-k;</term>
   <listitem><simpara>a &weak-mapping; from the &value-r; to the &key-r;,
  </simpara></listitem></varlistentry>
- <varlistentry><term>&either-k;</term>
+ <varlistentry><term>&key-and-value-k;</term>
   <listitem><simpara>a &weak-and-relation; of the &key-r; and the &value-r;,
  </simpara></listitem></varlistentry>
- <varlistentry><term>&both-k;</term>
+ <varlistentry><term>&key-or-value-k;</term>
   <listitem><simpara>a &weak-or-relation; of the &key-r; and the &value-r;.
 </simpara></listitem></varlistentry></variablelist></para>
 

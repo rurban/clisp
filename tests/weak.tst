@@ -956,13 +956,13 @@ nil
 (let ((ka (list 'kx)) (va (list 'vx))
       (kb (list 'ky)) (vb (list 'vy))
       (kc (list 'kz)) (vc (list 'vz)))
-  (let ((w (make-weak-alist :type :either
+  (let ((w (make-weak-alist :type :key-and-value
                             :initial-contents (list (cons ka va)
                                                     (cons kb vb)
                                                     (cons kc vc)))))
     (gc)
     (weak-alist-type w)))
-:either
+:key-and-value
 
 (let ((ka (list 'kx)) (va (list 'vx))
       (kb (list 'ky)) (vb (list 'vy))
@@ -970,10 +970,10 @@ nil
   (let ((w (make-weak-alist :initial-contents (list (cons ka va)
                                                     (cons kb vb)
                                                     (cons kc vc))
-                            :type :both)))
+                            :type :key-or-value)))
     (gc)
     (weak-alist-type w)))
-:both
+:key-or-value
 
 (let ((ka (list 'kx)) (va (list 'vx))
       (kb (list 'ky)) (vb (list 'vy))

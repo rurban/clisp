@@ -144,12 +144,12 @@
   LISPOBJ(type_eq_hashfunction,"(MEMBER EXT::FASTHASH-EQ EXT::STABLEHASH-EQ)")
   LISPOBJ(type_eql_hashfunction,"(MEMBER EXT::FASTHASH-EQL EXT::STABLEHASH-EQL)")
   LISPOBJ(type_equal_hashfunction,"(MEMBER EXT::FASTHASH-EQUAL EXT::STABLEHASH-EQUAL)")
-  LISPOBJ(type_weak_ht,"(MEMBER :BOTH :EITHER :VALUE :KEY NIL)")
+  LISPOBJ(type_weak_ht,"(MEMBER :KEY :VALUE :KEY-AND-VALUE :KEY-OR-VALUE NIL)")
 # for RECORD.D:
   LISPOBJ(constant_initfunction_code,".")
   LISPOBJ(endless_loop_code,".")
 # for WEAK.D:
-  LISPOBJ(type_weak_alist,"(MEMBER :BOTH :EITHER :VALUE :KEY)")
+  LISPOBJ(type_weak_alist,"(MEMBER :KEY :VALUE :KEY-AND-VALUE :KEY-OR-VALUE)")
 # for SEQUENCE.D:
   # internal list of all defined sequence-types:
   LISPOBJ(seq_types,"NIL")
