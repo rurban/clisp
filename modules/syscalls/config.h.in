@@ -232,9 +232,6 @@
 /* Define to 1 if you have the <sys/resource.h> header file. */
 #undef HAVE_SYS_RESOURCE_H
 
-/* Define to 1 if you have the <sys/statfs.h> header file. */
-#undef HAVE_SYS_STATFS_H
-
 /* Define to 1 if you have the <sys/statvfs.h> header file. */
 #undef HAVE_SYS_STATVFS_H
 
@@ -255,9 +252,6 @@
 
 /* have <sys/utsname.h> and it defines struct utsname */
 #undef HAVE_SYS_UTSNAME_H
-
-/* Define to 1 if you have the <sys/vfs.h> header file. */
-#undef HAVE_SYS_VFS_H
 
 /* Define to 1 if you have the `tempnam' function. */
 #undef HAVE_TEMPNAM
@@ -309,6 +303,12 @@
 
 /* declaration of setrlimit() needs const */
 #undef SETRLIMIT_CONST
+
+/* The size of a `fsblkcnt_t ', as computed by sizeof. */
+#undef SIZEOF_FSBLKCNT_T_
+
+/* The size of a `fsfilcnt_t ', as computed by sizeof. */
+#undef SIZEOF_FSFILCNT_T_
 
 /* The size of a `rlim_t', as computed by sizeof. */
 #undef SIZEOF_RLIM_T
