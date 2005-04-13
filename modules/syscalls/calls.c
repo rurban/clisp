@@ -1466,7 +1466,8 @@ DEFCHECKER(vfs_flags,default=,bitmasks=both, ST_RDONLY ST_NOSUID ST_NOTRUNC \
            ST_IMMUTABLE ST_NOATIME ST_NODIRATIME                        \
            FILE_NAMED_STREAMS FILE_READ_ONLY_VOLUME FILE_SUPPORTS_OBJECT_IDS \
            FILE_SUPPORTS_REPARSE_POINTS FILE_SUPPORTS_SPARSE_FILES      \
-           FILE_VOLUME_QUOTAS FS_CASE_IS_PRESERVED FS_CASE_SENSITIVE    \
+           FILE_VOLUME_QUOTAS FILE_SUPPORTS_ENCRYPTION                  \
+           FS_CASE_IS_PRESERVED FS_CASE_SENSITIVE                       \
            FS_FILE_COMPRESSION FS_FILE_ENCRYPTION FS_PERSISTENT_ACLS    \
            FS_UNICODE_STORED_ON_DISK FS_VOL_IS_COMPRESSED)
 /* there is also a legacy interface (f)statfs()
@@ -1507,14 +1508,26 @@ DEFUN(POSIX::STAT-VFS, file)
 #define pushSLOT(s) pushSTACK(s==(unsigned long)-1 ? NIL : ulong_to_I(s))
   pushSLOT(buf.f_bsize);  /* file system block size */
   pushSLOT(buf.f_frsize); /* fundamental file system block size */
-  pushSLOT(buf.f_blocks); /* total # of blocks on file system */
-  pushSLOT(buf.f_bfree);  /* total number of free blocks */
-  pushSLOT(buf.f_bavail); /* # of free blocks available to
-                             non-privileged processes */
-  pushSLOT(buf.f_files);  /* total # of file serial numbers */
-  pushSLOT(buf.f_ffree);  /* total # of free file serial numbers */
-  pushSLOT(buf.f_favail); /* # of file serial numbers available to
-                             non-privileged processes */
+#if defined(SIZEOF_FSBLKCNT_T) && SIZEOF_FSBLKCNT_T == 8
+# define pushBSLOT(s) pushSTACK(s==(fsblkcnt_t)-1 ? NIL : uint64_to_I(s))
+#else
+# define pushBSLOT(s) pushSTACK(s==(fsblkcnt_t)-1 ? NIL : uint32_to_I(s))
+#endif
+  pushBSLOT(buf.f_blocks); /* total # of blocks on file system */
+  pushBSLOT(buf.f_bfree);  /* total number of free blocks */
+  pushBSLOT(buf.f_bavail); /* # of free blocks available to
+                              non-privileged processes */
+#undef pushBSLOT
+#if defined(SIZEOF_FSBLKCNT_T) && SIZEOF_FSBLKCNT_T == 8
+# define pushFSLOT(s) pushSTACK(s==(fsfilcnt_t)-1 ? NIL : uint64_to_I(s))
+#else
+# define pushFSLOT(s) pushSTACK(s==(fsfilcnt_t)-1 ? NIL : uint32_to_I(s))
+#endif
+  pushFSLOT(buf.f_files);  /* total # of file serial numbers */
+  pushFSLOT(buf.f_ffree);  /* total # of free file serial numbers */
+  pushFSLOT(buf.f_favail); /* # of file serial numbers available to
+                              non-privileged processes */
+#undef pushFSLOT
 #if HAVE_SCALAR_FSID
   pushSLOT(buf.f_fsid);   /* file system ID */
 #else
