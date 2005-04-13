@@ -13,7 +13,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = win32.o link.sh Makefile win32.lisp
+DISTRIBFILES = link.sh Makefile win32.lisp
 distribdir =
 
 # add win32.o if a C file is generated
