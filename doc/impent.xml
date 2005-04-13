@@ -402,6 +402,9 @@
 <!-- *** pre-processors *** -->
 <!ENTITY modprep "<link linkend='modprep'><command>modprep.lisp</command></link>">
 
+<!-- *** syscalls *** -->
+<!ENTITY resolve-host "<link linkend='resolve-host'><function>POSIX:RESOLVE-HOST-IPADDR</function></link>">
+
 <!-- *** netica *** -->
 <!ENTITY netica-link "<ulink url='http://norsys.com/netica_c_api.htm'>Netica C API</ulink>">
 <!ENTITY netica-c-api "http://norsys.com/onLineAPIManual/functions/">
