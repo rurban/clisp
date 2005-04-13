@@ -1787,7 +1787,7 @@ local maygc void warn_key_forces_gc_rehash (object ht, object key) {
 
 /* hash_table_weak_type(ht)
  > ht: hash-table
- < result: symbol NIL/:KEY/:VALUE/:EITHER/:BOTH */
+ < result: symbol NIL/:KEY/:VALUE/:KEY-AND-VALUE/:KEY-OR-VALUE */
 global object hash_table_weak_type (object ht) {
   var object kvt = TheHashtable(ht)->ht_kvtable;
   if (simple_vector_p(kvt))
@@ -1799,9 +1799,9 @@ global object hash_table_weak_type (object ht) {
       case Rectype_WeakHashedAlist_Value:
         return S(Kvalue);
       case Rectype_WeakHashedAlist_Either:
-        return S(Keither);
+        return S(Kkey_and_value);
       case Rectype_WeakHashedAlist_Both:
-        return S(Kboth);
+        return S(Kkey_or_value);
       default: NOTREACHED;
     }
   }
@@ -1809,7 +1809,7 @@ global object hash_table_weak_type (object ht) {
 
 /* UP: Allocates the key-value-table for a new hash-table.
  allocate_kvt(weak,maxcount)
- > weak: NIL or :KEY or :VALUE or :EITHER or :BOTH
+ > weak: NIL or :KEY or :VALUE or :KEY-AND-VALUE or :KEY-OR-VALUE
  > maxcount: number of key/value pairs to make room for
  < result: a key-value-table
  can trigger GC */
@@ -1824,9 +1824,9 @@ local inline maygc object allocate_kvt (object weak, uintL maxcount) {
       rectype = Rectype_WeakHashedAlist_Key;
     else if (eq(weak,S(Kvalue))) # :VALUE
       rectype = Rectype_WeakHashedAlist_Value;
-    else if (eq(weak,S(Keither))) # :EITHER
+    else if (eq(weak,S(Kkey_and_value))) # :KEY-AND-VALUE
       rectype = Rectype_WeakHashedAlist_Either;
-    else if (eq(weak,S(Kboth))) # :BOTH
+    else if (eq(weak,S(Kkey_or_value))) # :KEY-OR-VALUE
       rectype = Rectype_WeakHashedAlist_Both;
     else
       NOTREACHED;
@@ -1850,7 +1850,7 @@ local inline maygc object allocate_kvt (object weak, uintL maxcount) {
  prepare_resize(maxcount,mincount_threshold,weak)
  > maxcount: wished new size MAXCOUNT
  > mincount_threshold: short-float MINCOUNT-THRESHOLD
- > weak: NIL or :KEY or :VALUE or :EITHER or :BOTH
+ > weak: NIL or :KEY or :VALUE or :KEY-AND-VALUE or :KEY-OR-VALUE
  < result: maxcount
  < stack-layout: MAXCOUNT, SIZE, MINCOUNT, index-vector, key-value-vector.
  decreases STACK by 5
@@ -2100,14 +2100,14 @@ local maygc object check_weak (object weak) {
  check_weak_restart:
   if (missingp(weak)) return NIL;
   if (eq(weak,S(Kkey)) || eq(weak,S(Kvalue))
-      || eq(weak,S(Keither)) || eq(weak,S(Kboth)))
+      || eq(weak,S(Kkey_and_value)) || eq(weak,S(Kkey_or_value)))
     return weak;
   /* invalid */
   pushSTACK(NIL); /* no PLACE */
   pushSTACK(weak);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_weak_ht)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(NIL); pushSTACK(S(Kkey)); pushSTACK(S(Kvalue));
-  pushSTACK(S(Keither)); pushSTACK(S(Kboth));
+  pushSTACK(S(Kkey_and_value)); pushSTACK(S(Kkey_or_value));
   pushSTACK(weak); pushSTACK(TheSubr(subr_self)->name);
   check_value(type_error,GETTEXT("~S: argument ~S should be ~S, ~S, ~S, ~S or ~S."));
   weak = value1;

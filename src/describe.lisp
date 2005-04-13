@@ -189,8 +189,8 @@ to print the corresponding values, or T for all of them.")
          (ecase type
            (:KEY    (format stream (TEXT "(i.e. a list of EXT:WEAK-MAPPING key/value pairs)")))
            (:VALUE  (format stream (TEXT "(i.e. a list of EXT:WEAK-MAPPING value/key pairs)")))
-           (:EITHER (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-AND-RELATION)")))
-           (:BOTH   (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-OR-RELATION)"))))
+           (:KEY-AND-VALUE (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-AND-RELATION)")))
+           (:KEY-OR-VALUE  (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-OR-RELATION)"))))
          (if remaining
            (format stream (TEXT ", containing ~S.") remaining)
            (format stream (TEXT ", no longer referring to any pairs.")))))
