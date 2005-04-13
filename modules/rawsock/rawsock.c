@@ -336,12 +336,6 @@ DEFUN(RAWSOCK:LISTEN,socket backlog) {
   VALUES0;
 }
 
-#if defined(HAVE_POLL)
-DEFUN(RAWSOCK:POLL,sockets) {
-  NOTREACHED;
-}
-#endif
-
 /* ================== RECEIVING ================== */
 
 /* remove 3 objects from the STACK and return the RECV flag
