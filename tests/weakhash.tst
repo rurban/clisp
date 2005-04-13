@@ -344,12 +344,12 @@ B
 (1 T ((X)))
 
 
-;; Test that weak hash-tables of kind :EITHER work.
+;; Test that weak hash-tables of kind :KEY-AND-VALUE work.
 
 #+(or CLISP LISPWORKS)
 (let ((tab (make-hash-table :test #+OpenMCL 'eq #-OpenMCL 'equal
                             #+LISPWORKS :weak-kind #+LISPWORKS :both
-                            #-LISPWORKS :weak #-LISPWORKS :either)))
+                            #-LISPWORKS :weak #-LISPWORKS :key-and-value)))
   (weak-ht-fill-initially tab)
   (gc)
   (list (gethash "foo" tab) (gethash 1 tab) (gethash "zoo" tab)))
@@ -357,12 +357,12 @@ B
 (NIL NIL NIL)
 
 
-;; Test that weak hash-tables of kind :BOTH work.
+;; Test that weak hash-tables of kind :KEY-OR-VALUE work.
 
 #+(or CLISP LISPWORKS)
 (let ((tab (make-hash-table :test #+OpenMCL 'eq #-OpenMCL 'equal
                             #+LISPWORKS :weak-kind #+LISPWORKS :either
-                            #-LISPWORKS :weak #-LISPWORKS :both)))
+                            #-LISPWORKS :weak #-LISPWORKS :key-or-value)))
   #+LISPWORKS (set-hash-table-weak tab :either)
   (weak-ht-fill-initially tab)
   (gc)

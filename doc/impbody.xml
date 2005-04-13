@@ -2710,8 +2710,8 @@ to check and &setf; this parameter after the table has been created.</para>
  <member>&nil; (default)</member>
  <member>&key-k;</member>
  <member>&value-k;</member>
- <member>&either-k;</member>
- <member>&both-k;</member>
+ <member>&key-and-value-k;</member>
+ <member>&key-or-value-k;</member>
 </simplelist>
 and specifies whether the &hash-table-t; is <emphasis>weak</emphasis>:
 if the key, value, either or both are not accessible for the &gc;ion

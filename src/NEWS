@@ -293,6 +293,9 @@ User visible changes
 * Methods on GRAY:STREAM-READ-BYTE-SEQUENCE and GRAY:STREAM-WRITE-BYTE-SEQUENCE
   now need to accept a second optional argument.
 
+* The possible values of the :WEAK argument of MAKE-HASH-TABLE are changed:
+  Use :KEY-AND-VALUE instead of :EITHER, :KEY-OR-VALUE instead of :BOTH now.
+
 * The :LIBRARY option argument to DEF-CALL-OUT and DEF-C-VAR is now
   evaluated (i.e., it can now be a variable) and may take a value of
   :DEFAULT and :NEXT in addition to being a string as before.

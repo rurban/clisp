@@ -89,7 +89,7 @@ nil
 (gethash "zoo" tab) nil
 
 #+LISPWORKS (set-hash-table-weak tab :both) #+LISPWORKS :both
-#-LISPWORKS (setf (hash-table-weak-p tab) :either) #-LISPWORKS :either
+#-LISPWORKS (setf (hash-table-weak-p tab) :key-and-value) #-LISPWORKS :key-and-value
 (setf (gethash "foo" tab) 1) 1
 (setf (gethash 1 tab) "bar") "bar"
 (setf (gethash "zoo" tab) "zot") "zot"
@@ -99,7 +99,7 @@ nil
 (gethash "zoo" tab) nil
 
 #+LISPWORKS (set-hash-table-weak tab :either) #+LISPWORKS :either
-#-LISPWORKS (setf (hash-table-weak-p tab) :both) #-LISPWORKS :both
+#-LISPWORKS (setf (hash-table-weak-p tab) :key-or-value) #-LISPWORKS :key-or-value
 (setf (gethash "foo" tab) 1) 1
 (setf (gethash 1 tab) "bar") "bar"
 (setf (gethash "zoo" tab) "zot") "zot"
