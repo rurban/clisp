@@ -3598,6 +3598,11 @@ if [ $CROSS = false ] ; then
   fi
 fi
 
+echo_dist_modules () {
+  echotab "for module in '' \$(BASE_MODULES) \$(MODULES); do if test -n \"\$\$module\"; then \\"
+  echotab "  (dir=$1/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}$1/\$\$module LN="`if test "$2" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
+  echotab "fi; done$3"
+}
 if [ ${HSYSOS} = cygwin ]; then
   echol "full/lisp.exe : full"
   echol
@@ -3748,9 +3753,7 @@ echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src"
 echotab "${HLN} clisp-link \$(TOPDIR)"
 echotab "mkdir \$(TOPDIR)/linkkit"
 echotab "${HLN} ${LINKKIT} \$(TOPDIR)/linkkit"
-echotab "for module in '' \$(BASE_MODULES) \$(MODULES); do if test -n \"\$\$module\"; then \\"
-echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$HLN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
-echotab "fi; done"
+echo_dist_modules "\$(TOPDIR)" ${HLN} ""
 # For building the `clisp' executable.
 if test -z "$BINARY_DISTRIB"; then
   echotab "${HLN} clisp.c \$(TOPDIR)/src"
@@ -3793,6 +3796,7 @@ elif [ $HOS = win32 ] ; then
     echotab "  cp -p linkkit/\$\$f \$\$distdir/linkkit/\$\$f; \\"
     echotab "done ; \\"
     echotab "cp clisp-link clisp.exe \$\$distdir/; \\"
+    echo_dist_modules "\$\$distdir" ln "; \\"
   fi
   if [ -n "${USE_GETTEXT}" ]; then
     echotab "cp -r locale/ \$\$distdir/; \\"
