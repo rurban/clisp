@@ -10,9 +10,8 @@
  contains the symbol <constant>:SYSCALLS</constant>.</simpara>
 
 <variablelist>
- <varlistentry><term><literal
-    role="sexp">(<function>POSIX:RESOLVE-HOST-IPADDR</function>
-    &optional-amp; &host-r;)</literal></term>
+ <varlistentry id="resolve-host"><term><code>(&resolve-host;
+    &optional-amp; &host-r;)</code></term>
  <listitem><para>Returns the <type>HOSTENT</type> structure:
    <variablelist><varlistentry><term><structfield>name</structfield></term>
      <listitem><simpara>host name</simpara></listitem></varlistentry>
