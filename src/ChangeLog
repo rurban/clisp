@@ -5,6 +5,10 @@
 	(HAVE_SCALAR_FSID): do not check without <sys/statvfs.h>
 	(fsblkcnt_t, fsfilcnt_t): check SIZEOF
 	(struct stat): do not check whithout <sys/stat.h>
+	* modules/syscalls/calls.c (STAT-VFS): convert
+	f_blocks/f_bfree/f_bavail according to SIZEOF_FSBLKCNT_T and
+	f_files/f_ffree/f_favail according to SIZEOF_FSBLKCNT_T
+	(vfs_flags): added FILE_SUPPORTS_ENCRYPTION
 
 2005-04-13  Sam Steingold  <sds@gnu.org>
 
