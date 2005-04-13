@@ -67,10 +67,10 @@
 <!ENTITY remove-direct-method "<link linkend='remove-direct-method'><function>CLOS:REMOVE-DIRECT-METHOD</function></link>">
 <!ENTITY remove-direct-subclass "<link linkend='remove-direct-subclass'><function>CLOS:REMOVE-DIRECT-SUBCLASS</function></link>">
 <!ENTITY set-funcallable-instance-function "<link linkend='set-fif'><function>CLOS:SET-FUNCALLABLE-INSTANCE-FUNCTION</function></link>">
-<!ENTITY setf-class-name "<link linkend='setf-class-name'><literal role='sexp'>(SETF <function>CLASS-NAME</function>)</literal></link>">
-<!ENTITY setf-gf-name "<link linkend='setf-gf-name'><literal role='sexp'>(SETF <function>CLOS:GENERIC-FUNCTION-NAME</function>)</literal></link>">
-<!ENTITY setf-slot-value "<literal role='sexp'>(&setf; &slot-value;)</literal>">
-<!ENTITY setf-slot-value-UC "<link linkend='setf-slot-value-UC'><literal role='sexp'>(SETF <function>CLOS:SLOT-VALUE-USING-CLASS</function>)</literal></link>">
+<!ENTITY setf-class-name "<link linkend='setf-class-name'><code>(SETF CLASS-NAME)</code></link>">
+<!ENTITY setf-gf-name "<link linkend='setf-gf-name'><code>(SETF CLOS:GENERIC-FUNCTION-NAME)</code></link>">
+<!ENTITY setf-slot-value "<code>(&setf; &slot-value;)</code>">
+<!ENTITY setf-slot-value-UC "<link linkend='setf-slot-value-UC'><code>(SETF CLOS:SLOT-VALUE-USING-CLASS)</code></link>">
 <!ENTITY slot-boundp-UC "<link linkend='slot-boundp-UC'><function>CLOS:SLOT-BOUNDP-USING-CLASS</function></link>">
 <!ENTITY slot-definition-t "<link linkend='mop-sd'><classname>CLOS:SLOT-DEFINITION</classname></link>">
 <!ENTITY slot-makunbound-UC "<link linkend='slot-makunbound-UC'><function>CLOS:SLOT-MAKUNBOUND-USING-CLASS</function></link>">
