@@ -147,6 +147,12 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><structfield>namemax</structfield></term>
      <listitem><simpara>Maximum filename length.
+   </simpara></listitem></varlistentry>
+    <varlistentry><term><structfield>vol-name</structfield></term>
+     <listitem><simpara>Volume name (&win32; only).
+   </simpara></listitem></varlistentry>
+    <varlistentry><term><structfield>fs-type</structfield></term>
+     <listitem><simpara>File system type (&win32; only).
    </simpara></listitem></varlistentry></variablelist>
    All slots are read-only.
  </para></listitem></varlistentry>

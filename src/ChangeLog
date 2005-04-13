@@ -3,6 +3,7 @@
 	* modules/syscalls/calls.c (STAT-VFS) [WIN32_NATIVE]: implemented
 	using GetDiskFreeSpace, GetDiskFreeSpaceEx, GetVolumeInformation
 	* modules/syscalls/posix.lisp (STAT-VFS): export always
+	added vol-name and fs-type slots
 
 2005-04-12  Bruno Haible  <bruno@clisp.org>
 
