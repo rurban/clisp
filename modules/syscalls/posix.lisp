@@ -24,8 +24,8 @@
 ;;; ============================================================
 #+unix (progn
 (export
- '(utmpx utmpx-type utmpx-user utmpx-id utmpx-line utmpx-pid utmpx-host utmpx-tv
-   endutxent getutxent getutxid getutxline pututxline setutxent))
+ '(utmpx utmpx-p utmpx-type utmpx-user utmpx-id utmpx-line utmpx-pid utmpx-host
+   utmpx-tv endutxent getutxent getutxid getutxline pututxline setutxent))
 (defstruct (utmpx (:constructor make-utmpx (type user id line pid host tv)))
   type user id line pid host tv)
 )
@@ -144,8 +144,8 @@
 ;;; ============================================================
 #+unix (progn
 (export
- '(rlimit rlimit-cur rlimit-max
-   usage usage-user-time usage-system-time usage-max-rss
+ '(rlimit rlimit-p rlimit-cur rlimit-max
+   usage usage-p usage-user-time usage-system-time usage-max-rss
    usage-shared-memory usage-data-memory usage-stack-memory
    usage-minor-page-faults usage-major-page-faults usage-num-swaps
    usage-blocks-input usage-blocks-output usage-messages-sent
@@ -214,8 +214,8 @@
 #+(or win32 cygwin) (progn
 (export '(make-shortcut shortcut-info shortcut-info-working-directory
           shortcut-info-arguments shortcut-info-show-command
-          shortcut-info-original shortcut-info-path
-          shortcut-info-icon shortcut-info-description shortcut-info-hot-key))
+          shortcut-info-original shortcut-info-path shortcut-info-icon
+          shortcut-info-description shortcut-info-hot-key shortcut-info-p))
 
 (defstruct (shortcut-info
              (:constructor make-shortcut-info
