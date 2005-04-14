@@ -379,7 +379,7 @@
             itself.  If &value-r; is &nil;, no assignment is done.
             <constant>:EMPTY</constant> and <constant>:NULL</constant>
             correspond to the <type>VT_EMPTY</type>
-            and <type>VT_NULL</type> datatypes.
+            and <type>VT_NULL</type> data types.
             &keyword-t; in the &list-t; specifies the desired type of
             the property being set.
             Supported types are<simplelist columns="4">
@@ -466,7 +466,7 @@
   <listitem><simpara>calls &getpgrp;</simpara></listitem></varlistentry>
  <varlistentry id="setpgrp"><term><code>(POSIX:SETPGRP)</code></term>
   <listitem><simpara>calls &setpgrp;; on non-POSIX systems where
-    it requires 2 argumets (legacy BSD-style), it is called
+    it requires 2 arguments (legacy BSD-style), it is called
     as <code>&setpgrp;(0,0)</code></simpara></listitem></varlistentry>
  <varlistentry id="getsid"><term><code>(POSIX:GETSID &pid-r;)</code></term>
   <listitem><simpara>calls &getsid;</simpara></listitem></varlistentry>
@@ -480,7 +480,7 @@
  <varlistentry id="getutxent"><term><code>(POSIX:GETUTXENT
     &optional-amp; utmpx)</code></term>
   <listitem><simpara>calls &getutxent;, returns a &structure-object-t; of
-    type <type>utmpx</type>, which can be passed to subsequent calls to
+    type <type>POSIX:UTMPX</type>, which can be passed to subsequent calls to
     this function and re-used.</simpara></listitem></varlistentry>
  <varlistentry id="getutxid"><term><code>(POSIX:GETUTXID id)</code></term>
   <listitem><simpara>calls &getutxid;,
