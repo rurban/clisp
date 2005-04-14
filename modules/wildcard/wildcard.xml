@@ -24,10 +24,10 @@ describe sets of file names.</para>
 <section id="wildcard-syntax"><title>Wildcard Syntax</title>
 
 <variablelist>
- <varlistentry><term><keysym>#\*</keysym></term>
+ <varlistentry><term><keysym>*</keysym></term>
   <listitem><simpara>Matches any zero or more characters.
  </simpara></listitem></varlistentry>
- <varlistentry><term><keysym>#\?</keysym></term>
+ <varlistentry><term><keysym>?</keysym></term>
   <listitem><simpara>Matches any one character.
  </simpara></listitem></varlistentry>
  <varlistentry><term><keysym>[&string-r;]</keysym></term>
@@ -43,7 +43,7 @@ describe sets of file names.</para>
     Thus, <replaceable>[^A-Z@]</replaceable> matches any character
     except an uppercase letter or an at sign.
 </simpara></listitem></varlistentry>
- <varlistentry><term><keysym>#\\</keysym></term>
+ <varlistentry><term><keysym>\</keysym></term>
   <listitem><simpara>Removes the special meaning of the character that
     follows it.  This works even in character classes.
  </simpara></listitem></varlistentry>
