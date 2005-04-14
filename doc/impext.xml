@@ -2244,7 +2244,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
     problem on a <replaceable>n*n</replaceable> checkboard (a toy
     example for the users to explore).</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="dir-key">dirkey</link></term>
-  <listitem><simpara>Directory Access</simpara></listitem></varlistentry>
+  <listitem><simpara>Directory Access (LDAP, &win32; registry etc).
+ </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="berkeley-db">berkeley-db</link></term>
   <listitem><simpara>&sleepycat-berkeley-db;
     interface</simpara></listitem></varlistentry>
@@ -2286,7 +2287,7 @@ bash$ ./build-dir/clisp &opt-K; full
 <para>See <xref linkend="ext-modules"/> for details.</para>
 
 <note id="base-modules"><title>Base Modules</title>
- <para>Note that the default distribution includes the following modules
+ <para>Note that the default binary distribution includes the following modules
   in <emphasis>both</emphasis> <command>base</command> <emphasis>and</emphasis>
   <command>full</command> &linkset;s:<simplelist columns="1">
    <member><link linkend="i18n-mod">i18n</link></member>
