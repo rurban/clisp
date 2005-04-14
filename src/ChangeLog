@@ -1,3 +1,8 @@
+2005-04-14  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/posix.lisp (utmpx-p, rlimit-p)
+	(shortcut-info-p): export
+
 2005-04-13  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/configure.in (sys/statfs.h, sys/vfs.h):
