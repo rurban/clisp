@@ -71,8 +71,6 @@
 ;; #define TYPBITS 0xff000000L
 ;; #define TYPSHIFT 24
 (defconstant pari-type-byte (byte 8 24))
-  ;; #define PEREBITS 0xff0000L
-  ;; #define PERESHIFT 16
 ;; #define LGBITS 0xffffL
 (defconstant pari-length-byte (byte 16 0))
 ;; #define LGEFBITS 0xffffL
