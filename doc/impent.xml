@@ -404,6 +404,7 @@
 
 <!-- *** syscalls *** -->
 <!ENTITY resolve-host "<link linkend='resolve-host'><function>POSIX:RESOLVE-HOST-IPADDR</function></link>">
+<!ENTITY rlimit "<link linkend='rlimit'><function>POSIX:RLIMIT</function></link>">
 
 <!-- *** netica *** -->
 <!ENTITY netica-link "<ulink url='http://norsys.com/netica_c_api.htm'>Netica C API</ulink>">
