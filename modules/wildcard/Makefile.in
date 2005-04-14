@@ -15,7 +15,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = wildcard.o $(FNMATCH_O) link.sh Makefile README wildcard.lisp wildcard.texinfo wildcard.dvi
+DISTRIBFILES = wildcard.o $(FNMATCH_O) link.sh Makefile README wildcard.lisp wildcard.xml wildcard.dvi
 distribdir =
 
 all : wildcard.o $(FNMATCH_O)

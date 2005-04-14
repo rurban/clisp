@@ -5193,7 +5193,7 @@ exhaust the available line length.</para></formalpara>
  When &apropos-matcher; is &nil;, &search; is used.
  Some &module;s come with functions which can be used for
  &apropos-matcher;, e.g., &re-matcher;,
- <function>WILDCARD:WILDCARD-MATCHER</function>,
+ <link linkend="wildcard-matcher"><function>WILDCARD:WILDCARD-MATCHER</function></link>,
  <link linkend="pcre-matcher"><function>PCRE:PCRE-MATCHER</function></link>.
 </para></formalpara>
 

@@ -79,7 +79,7 @@ SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
 		-e 's/ *--> *<!-- */\n/g' \
 		-e 's/ *<!-- */\n/g' -e 's/ *--> */\n/g'
 
-all: check impnotes.html regexp.html wildcard.html man
+all: check impnotes.html regexp.html man
 
 MAKE_TDB=xsltproc --timing --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
@@ -165,9 +165,6 @@ up: impnotes.html html
 	scp -r html/* sf:/home/groups/c/cl/clisp/www/impnotes-new/
 
 regexp.html: ../modules/regexp/regexp.texinfo
-	$(TEXI2HTML)
-
-wildcard.html: ../modules/wildcard/wildcard.texinfo
 	$(TEXI2HTML)
 
 clean: force
