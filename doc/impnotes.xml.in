@@ -30,6 +30,7 @@
   <!ENTITY postgresql SYSTEM "../modules/postgresql/postgresql.xml">
   <!ENTITY rawsock SYSTEM "../modules/rawsock/rawsock.xml">
   <!ENTITY syscalls SYSTEM "../modules/syscalls/syscalls.xml">
+  <!ENTITY wildcard SYSTEM "../modules/syscalls/wildcard.xml">
   <!ENTITY zlib SYSTEM "../modules/zlib/zlib.xml">
   <!ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.xml">
   <!ENTITY gpl-text SYSTEM "http://www.gnu.org/licenses/gpl.xml">
@@ -174,6 +175,7 @@
 &oracle;
 &fastcgi;
 &rawsock;
+&wildcard;
 &zlib;
 </chapter>
 

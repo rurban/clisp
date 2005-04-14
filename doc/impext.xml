@@ -2266,8 +2266,9 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  <varlistentry><term><link linkend="syscalls">syscalls</link></term>
   <listitem><simpara>Use some system calls in a platform-independent way.
     See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
- <varlistentry><term><ulink url="wildcard.html">wildcard</ulink></term>
-  <listitem><simpara>Shell (&sh;) globbing</simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="wildcard">wildcard</link></term>
+  <listitem><simpara>Shell (&sh;) globbing (&path-match;)
+ </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="rawsock">rawsock</link></term>
   <listitem><simpara>Raw socket access.
  </simpara></listitem></varlistentry>
