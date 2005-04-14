@@ -190,17 +190,17 @@
     list of all available parameters (when &what-r; is missing or
     &nil;), by calling &sysconf; and &confstr; respectively.
  </simpara></listitem></varlistentry>
- <varlistentry id="rlimit"><term><code>(<function>POSIX:RLIMIT</function>
+ <varlistentry id="rlimit"><term><code>(&rlimit;
     &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the current and the maximal limits as two
     values when &what-r; is specified or a &alist; of all available
     limits (as an <type>RLIMIT</type> structure)
     when &what-r; is missing or &nil;, by calling &getrlimit;.
  </simpara></listitem></varlistentry>
- <varlistentry id="set-rlimit"><term>(&setf; (<function>POSIX:RLIMIT</function>
-   &what-r;) (&values; cur max))</term>
-  <term>(&setf; (<function>POSIX:RLIMIT</function> &what-r;) rlimit)</term>
-  <term>(&setf; (<function>POSIX:RLIMIT</function>) rlimit-alist)</term>
+ <varlistentry id="set-rlimit"><term><code>(&setf; (&rlimit; &what-r;)
+    (&values; cur max))</code></term>
+  <term><code>(&setf; (&rlimit; &what-r;) rlimit)</code></term>
+  <term><code>(&setf; (&rlimit;) rlimit-alist)</code></term>
   <listitem><para>Set the limits using &setrlimit;.<orderedlist>
      <listitem><simpara>In the first form, <replaceable>cur</replaceable>
        and <replaceable>max</replaceable> are numbers
@@ -209,7 +209,7 @@
        is an <type>RLIMIT</type> structure.</simpara></listitem>
      <listitem><simpara>In the third form,
        <replaceable>rlimit-alist</replaceable> is an &alist;, as returned by
-       <code>(<function>POSIX:RLIMIT</function>)</code>.</simpara></listitem>
+       <code>(&rlimit;)</code>.</simpara></listitem>
  </orderedlist></para></listitem></varlistentry>
  <varlistentry id="usage">
   <term><code>(<function>POSIX:USAGE</function>)</code></term>
@@ -411,7 +411,7 @@
     <replaceable>salt</replaceable>)</code></term>
   <listitem><simpara>Call &crypt;, arguments are &string-t;s.
  </simpara></listitem></varlistentry>
- <varlistentry>
+ <varlistentry id="encrypt">
   <term><code>(POSIX:ENCRYPT <replaceable>block</replaceable>
     <replaceable>decrypt-p</replaceable>)</code></term>
   <term><code>(POSIX:SETKEY &key-r;)</code></term>
@@ -420,11 +420,11 @@
     <literal role="type">(&vector; (&unsigned-byte-t; 8) 8)</literal>.
     <replaceable>decrypt-p</replaceable> is &boolean-t;.
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(OS:PHYSICAL-MEMORY)</code></term>
+ <varlistentry id="phys-mem"><term><code>(OS:PHYSICAL-MEMORY)</code></term>
   <listitem><simpara>Return 2 values: total and available physical memory.
    </simpara><simpara>Works on both &unix; and &win32;.
  </simpara></listitem></varlistentry>
- <varlistentry id="file-owner"><term><code>(POSIX:FILE-OWNER
+ <varlistentry id="file-owner"><term><code>(OS:FILE-OWNER
     &filename-r;)</code></term>
   <listitem><simpara>Return the owner of the file.</simpara>
    <simpara>Works on both &unix; and &win32;.</simpara>
