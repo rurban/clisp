@@ -1395,15 +1395,17 @@ DEFUN(POSIX::MKNOD, path type mode)
 #if defined(WIN32_NATIVE) || defined(HAVE_STATVFS)
 #if defined(WIN32_NATIVE)
 /* winsup/src/winsup/cygwin/syscalls.cc */
+typedef unsigned long fsblkcnt_t;
+typedef unsigned long fsfilcnt_t;
 struct statvfs {
   unsigned long f_bsize;        /* file system block size */
   unsigned long f_frsize;       /* fragment size */
-  unsigned long f_blocks;       /* size of fs in f_frsize units */
-  unsigned long f_bfree;        /* free blocks in fs */
-  unsigned long f_bavail;       /* free blocks avail to non-superuser */
-  unsigned long f_files;        /* total file nodes in file system */
-  unsigned long f_ffree;        /* free file nodes in fs */
-  unsigned long f_favail;       /* avail file nodes in fs */
+  fsblkcnt_t f_blocks;          /* size of fs in f_frsize units */
+  fsblkcnt_t f_bfree;           /* free blocks in fs */
+  fsblkcnt_t f_bavail;          /* free blocks avail to non-superuser */
+  fsfilcnt_t f_files;           /* total file nodes in file system */
+  fsfilcnt_t f_ffree;           /* free file nodes in fs */
+  fsfilcnt_t f_favail;          /* avail file nodes in fs */
   unsigned long f_fsid;         /* file system id */
   unsigned long f_flag;         /* mount flags */
   unsigned long f_namemax;      /* maximum length of filenames */
@@ -1452,9 +1454,9 @@ int statvfs (const char *fname, struct statvfs *sfs)
   sfs->f_blocks = totalc;
   sfs->f_bfree = freec;
   sfs->f_bavail = availc;
-  sfs->f_files = (unsigned long)-1;
-  sfs->f_ffree = (unsigned long)-1;
-  sfs->f_favail = (unsigned long)-1;
+  sfs->f_files = (fsfilcnt_t)-1;
+  sfs->f_ffree = (fsfilcnt_t)-1;
+  sfs->f_favail = (fsfilcnt_t)-1;
   sfs->f_fsid = vsn;
   sfs->f_flag = flags;
   sfs->f_namemax = maxlen;
