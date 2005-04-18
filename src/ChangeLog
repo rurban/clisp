@@ -2,6 +2,8 @@
 
 	* modules/clx/new-clx/clx.f (SET-GCONTEXT-DISPLAY): use foreign
 	pointers instead of 32-bit integers to accommodate 64-bit platforms
+	(general_draw_text, TEXT-EXTENTS, TEXT-WIDTH):
+	fixed 2nd and 3rd arguments to unpack_string_ro()
 
 2005-04-18  Sam Steingold  <sds@gnu.org>
 
