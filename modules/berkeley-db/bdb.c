@@ -997,7 +997,7 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
       });
     return DBT_STRING;
   } else if (bit_vector_p(Atype_8Bit,obj)) {
-    unsigned long idx = 0;
+    uintL idx = 0;
     key->ulen = key->size = vector_length(obj);
     obj = array_displace_check(obj,key->size,&idx);
     key->data = my_malloc(key->size);
@@ -2182,7 +2182,7 @@ DEFUN(BDB:TXN-CHECKPOINT, dbe &key :KBYTE :MIN :FORCE)
    a (vector (unsigned-byte 8) DB_XIDDATASIZE))
  can trigger GC, the return value is invalidated by GC */
 static u_int8_t* check_gid (gcv_object_t *obj_) {
-  unsigned long idx;
+  uintL idx;
   object data_vector;
   *obj_ = check_byte_vector(*obj_,DB_XIDDATASIZE);
   data_vector = array_displace_check(*obj_,DB_XIDDATASIZE,&idx);
