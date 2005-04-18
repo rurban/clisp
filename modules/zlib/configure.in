@@ -19,9 +19,14 @@ fi
 
 AC_MSG_NOTICE([ * ZLIB (Functions):])
 AC_SEARCH_LIBS(compress2, z)
-if test "$ac_cv_search_compress2" = "no";
-then AC_MSG_ERROR([cannot find ZLIB library])
+if test "$ac_cv_search_compress2" = "no"; then
+  AC_MSG_ERROR([cannot find ZLIB library])
 fi
+AC_CHECK_FUNCS(compressBound)
+if test "$ac_cv_func_compressBound" = "no"; then
+  AC_MSG_ERROR([ZLIB version 1.2 or better is required])
+fi
+
 
 AC_MSG_NOTICE([ * ZLIB (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
