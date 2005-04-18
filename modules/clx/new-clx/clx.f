@@ -3763,7 +3763,7 @@ void general_draw_text (int image_p)
   {
     object font;
     XFontStruct* font_info = get_font_info_and_display(STACK_8,&font,0);
-    unsigned long len, offset;
+    uintL len, offset;
     object s_string = unpack_string_ro(STACK_5,&len,&offset);
     const chart* charptr;
     unpack_sstring_alloca(s_string,len,offset,charptr=);
@@ -4541,7 +4541,7 @@ DEFUN(XLIB:TEXT-EXTENTS, font obj &key START END TRANSLATE)
   int dir;
   int font_ascent, font_descent;
   XCharStruct overall;
-  unsigned long len, offset;
+  uintL len, offset;
   object s_string = unpack_string_ro(STACK_3=check_string(STACK_3),
                                      &len,&offset);
   const chart* charptr;
@@ -4593,7 +4593,7 @@ DEFUN(XLIB:TEXT-WIDTH, font sequence &key START END TRANSLATE)
   if (stringp(STACK_3)) {
     int start = get_uint16_0 (STACK_2);
     int w;
-    unsigned long len, offset;
+    uintL len, offset;
     object s_string = unpack_string_ro(STACK_3,&len,&offset);
     const chart* charptr;
     int end = missingp(STACK_1) ? len : get_uint16(STACK_1);
