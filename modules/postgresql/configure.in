@@ -30,8 +30,8 @@ if test "$ac_cv_search_PQconnectdb" = "no"; then
   AC_MSG_ERROR([cannot find PostgreSQL library])
 fi
 AC_CHECK_FUNCS(PQserverVersion)
-if test "$ac_cv_search_PQserverVersion" = "no"; then
-  AC_MSG_ERROR([PostgreSQL version 8 is required])
+if test "$ac_cv_func_PQserverVersion" = "no"; then
+  AC_MSG_ERROR([PostgreSQL version 8.0 or better is required])
 fi
 
 AC_MSG_NOTICE([* PostgreSQL (Output)])
