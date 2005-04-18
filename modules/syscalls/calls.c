@@ -309,18 +309,6 @@ DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT ELEMENT-TY
 # include <utmpx.h>
 DEFCHECKER(check_ut_type,default=,EMPTY BOOT-TIME OLD-TIME NEW-TIME \
            USER-PROCESS INIT-PROCESS LOGIN-PROCESS DEAD-PROCESS)
-/* convert C struct timeval to Lisp list
- can trigger GC */
-static object time_val (struct timeval *tv) {
-#if SIZEOF_STRUCT_TIMEVAL == 16
-  pushSTACK(uint64_to_I(tv->tv_sec));
-  pushSTACK(uint64_to_I(tv->tv_usec));
-#else
-  pushSTACK(uint32_to_I(tv->tv_sec));
-  pushSTACK(uint32_to_I(tv->tv_usec));
-#endif
-  return listof(2);
-}
 /* convert C struct utmpx to Lisp
  can trigger GC */
 static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
@@ -334,7 +322,13 @@ static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
 #else
   pushSTACK(NIL);
 #endif
-  pushSTACK(time_val(&(utmpx->ut_tv)));
+  /* GLIBC 2.3.2 uses 32-bit slots for the utmpx->ut_tv even on 64-bit
+     platforms, so SIZEOF_STRUCT_TIMEVAL is useless here */
+#define push32_64(x) pushSTACK(sizeof(x)==8 ? uint64_to_I(x) : uint32_to_I(x))
+  push32_64(utmpx->ut_tv.tv_sec);
+  push32_64(utmpx->ut_tv.tv_usec);
+#undef push32_64
+  { object tmp = listof(2); pushSTACK(tmp); }
   if (utmpx_o) {
     TheStructure(*utmpx_o)->recdata[7] = popSTACK(); /* tv */
     TheStructure(*utmpx_o)->recdata[6] = popSTACK(); /* host */
