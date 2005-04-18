@@ -1890,7 +1890,8 @@ DEFUN(XLIB::SET-GCONTEXT-DISPLAY, display gcontext) { /* used by CLUE */
   GC gcon = get_gcontext_and_display(STACK_0,&dpy_orig);
   pushSTACK(STACK_1); dpy_new = pop_display();
   if (dpy_orig != dpy_new) {
-    pushSTACK(uint32_to_I(dpy_orig)); pushSTACK(uint32_to_I(dpy_new));
+    pushSTACK(allocate_fpointer(dpy_orig));
+    pushSTACK(allocate_fpointer(dpy_new));
     pushSTACK(STACK_3)/*gc*/; pushSTACK(STACK_3)/* dpy */;
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,"~S: cannot change dpy of ~S to ~S (~S is not ~S)");
