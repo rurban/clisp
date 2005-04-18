@@ -1,5 +1,11 @@
 2005-04-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/pcre/cpcre.c (PCRE:PCRE-NAME-TO-INDEX): older PCRE
+	versions did dot have pcre_get_stringnumber()
+	* modules/pcre/configure.in: check for pcre_get_stringnumber()
+
+2005-04-18  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (SET-GCONTEXT-DISPLAY): use foreign
 	pointers instead of 32-bit integers to accommodate 64-bit platforms
 	(general_draw_text, TEXT-EXTENTS, TEXT-WIDTH):
