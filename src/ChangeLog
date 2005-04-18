@@ -2,6 +2,7 @@
 
 	* modules/berkeley-db/bdb.c (fill_dbt, check_gid):
 	fixed the 3rd argument to array_displace_check()
+	* modules/berkeley-db/configure.in: check for Berkeley-DB 4.2+
 
 2005-04-15  Sam Steingold  <sds@gnu.org>
 
