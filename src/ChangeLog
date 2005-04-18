@@ -2,6 +2,7 @@
 
 	* makemake.in (base-mod-check): new target
 	(mod-check): renamed from full-check; fixed RUN-SOME-TESTS call
+	targets fail when RUN-SOME-TESTS return non-0
 
 2005-04-18  Sam Steingold  <sds@gnu.org>
 
