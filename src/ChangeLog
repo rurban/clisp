@@ -1,5 +1,10 @@
 2005-04-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c: include <utmpx.h> and <signal.h> in
+	the preamble because they define CPP constants used by DEFCHECKERs
+
+2005-04-18  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (base-mod-check): new target
 	(mod-check): renamed from full-check; fixed RUN-SOME-TESTS call
 	targets fail when RUN-SOME-TESTS return non-0
