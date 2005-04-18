@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* Define to 1 if `get_home' is member of `DB_ENV'. */
+#undef HAVE_DB_ENV_GET_HOME
+
 /* Define to 1 if you have the <db.h> header file. */
 #undef HAVE_DB_H
 
