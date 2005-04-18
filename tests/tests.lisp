@@ -172,11 +172,12 @@
                           (list file err tot)))
                       files)))
     (format
-     t "~&~s: finished ~3d file~:p:~30T ~3:d error~:p out of~50T ~5:d test~:p~%"
+     t "~&~s: finished ~3d file~:p:~31T ~3:d error~:p out of~50T ~5:d test~:p~%"
      'run-files (length files) error-count total-count)
     (loop :for rec :in res :for count :upfrom 1 :do
-      (format t "~&[~d] ~25@a: ~3:d error~:p out of~50T ~5:d test~:p~%" count
-              (enough-namestring (first rec) here) (second rec) (third rec)))
+      (format t "~&[~d] ~25@a:~31T ~3:d error~:p out of~50T ~5:d test~:p~%"
+              count (enough-namestring (first rec) here)
+              (second rec) (third rec)))
     (values error-count total-count res)))
 
 (defun run-some-tests (&key (dirlist '("./"))
