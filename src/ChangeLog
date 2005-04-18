@@ -11,6 +11,7 @@
 	fixed the 3rd argument to array_displace_check()
 	* modules/berkeley-db/configure.in: check for Berkeley-DB 4.2+
 	* modules/postgresql/configure.in: fixed check for PostgreSQL 8.0+
+	* modules/zlib/configure.in: check for ZLIB 1.2+
 
 2005-04-15  Sam Steingold  <sds@gnu.org>
 
