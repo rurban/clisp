@@ -305,6 +305,7 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
   pcre_extra *study;
   int index;
   check_pattern(STACK_1,&c_pat,&study);
+#if defined(HAVE_PCRE_GET_STRINGNUMBER)
  restart_pcre_get_stringnumber:
   with_string_0(check_string(STACK_0),GLO(misc_encoding),name, {
       index = pcre_get_stringnumber(c_pat,name);
@@ -319,6 +320,10 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
     goto restart_pcre_get_stringnumber;
   }
   skipSTACK(2);
+#else /* PCRE versions before 4.0 did not have pcre_get_stringnumber() */
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~S (~S ~S): PCRE library lacks pcre_get_stringnumber()"));
+#endif
 }
 
 DEFFLAGSET(pcre_exec_flags, PCRE_ANCHORED PCRE_NOTBOL PCRE_NOTEOL PCRE_NOTEMPTY)
