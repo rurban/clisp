@@ -32,7 +32,7 @@ if test "$ac_cv_search_db_env_create" = "no"; then
 fi
 AC_CHECK_MEMBERS([DB_ENV.get_home],,,[#include <db.h>])
 if test "$ac_cv_member_DB_ENV_get_home" = "no"; then
-  AC_MSG_ERROR([Berkeley-DB version 4.2 or better is requiired])
+  AC_MSG_ERROR([Berkeley-DB version 4.2 or better is required])
 fi
 AC_CHECK_FUNCS(gettimeofday localtime strftime)
 
