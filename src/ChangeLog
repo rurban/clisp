@@ -1,5 +1,10 @@
 2005-04-18  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (base-mod-check): new target
+	(mod-check): renamed from full-check; fixed RUN-SOME-TESTS call
+
+2005-04-18  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (echo_dist_modules): end directory name with a slash
 	(distrib) [win32]: remove $distdir before populating it
 	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
