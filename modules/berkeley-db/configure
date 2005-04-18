@@ -4055,8 +4055,8 @@ _ACEOF
 fi
 
 if test "$ac_cv_member_DB_ENV_get_home" = "no"; then
-  { { echo "$as_me:$LINENO: error: Berkeley-DB version 4.2 or better is requiired" >&5
-echo "$as_me: error: Berkeley-DB version 4.2 or better is requiired" >&2;}
+  { { echo "$as_me:$LINENO: error: Berkeley-DB version 4.2 or better is required" >&5
+echo "$as_me: error: Berkeley-DB version 4.2 or better is required" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
