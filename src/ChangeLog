@@ -1,5 +1,11 @@
 2005-04-18  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (echo_dist_modules): end directory name with a slash
+	(distrib) [win32]: remove $distdir before populating it
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
+2005-04-18  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (utmpx_to_lisp): GLIBC 2.3.2 uses
 	32-bit slots for the utmpx->ut_tv even on 64-bit platforms, so
 	SIZEOF_STRUCT_TIMEVAL is useless here; resort to run-time sizeof()
