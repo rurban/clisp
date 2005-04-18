@@ -6,7 +6,9 @@
     (gc) (gc)))
 (#S(REGEXP:MATCH :START 0 :END 1) NIL)
 
-(let ((*apropos-matcher* #'regexp:regexp-matcher)) (apropos-list "regexp.*r$"))
+(ext:letf ((*apropos-matcher* #'regexp:regexp-matcher)
+           (*misc-encoding* charset:utf-8)) ; handle non-ASCII symbols
+  (apropos-list "regexp.*r$"))
 (REGEXP:REGEXP-MATCHER)
 
 (REGEXP:REGEXP-EXEC (ffi:foreign-pointer (ffi:unsigned-foreign-address 0)) "a")
