@@ -172,7 +172,7 @@
                           (list file err tot)))
                       files)))
     (format
-     t "~&~s: finished ~3d file~:p: ~3:d error~:p out of~50T ~5:d test~:p~%"
+     t "~&~s: finished ~3d file~:p:~30T ~3:d error~:p out of~50T ~5:d test~:p~%"
      'run-files (length files) error-count total-count)
     (loop :for rec :in res :for count :upfrom 1 :do
       (format t "~&[~d] ~25@a: ~3:d error~:p out of~50T ~5:d test~:p~%" count
