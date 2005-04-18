@@ -3600,7 +3600,7 @@ fi
 
 echo_dist_modules () {
   echotab "for module in '' \$(BASE_MODULES) \$(MODULES); do if test -n \"\$\$module\"; then \\"
-  echotab "  (dir=$1/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}$1/\$\$module LN="`if test "$2" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
+  echotab "  (dir=$1/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}$1/\$\$module/ LN="`if test "$2" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
   echotab "fi; done$3"
 }
 if [ ${HSYSOS} = cygwin ]; then
@@ -3774,6 +3774,7 @@ elif [ $HOS = win32 ] ; then
   echol "distrib : install.lisp install.bat clisp.man clisp.html force"
   echotab "version=\$(VERSION) ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
+  echotab "rm -rf \$\$distdir; \\"
   echotab "mkdir \$\$distdir ; \\"
   echotab "for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es install.bat ; do \\"
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/\$\$f ; fi ; \\"
