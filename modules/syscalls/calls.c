@@ -73,6 +73,12 @@
 #if defined(HAVE_STDLIB_H)
 # include <stdlib.h>
 #endif
+#if defined(HAVE_UTMPX_H)
+# include <utmpx.h>
+#endif
+#if defined(HAVE_SIGNAL_H)
+# include <signal.h>
+#endif
 
 #include <stdio.h>              /* for BUFSIZ */
 #include <string.h>             /* for strcpy(), strcat() */
@@ -306,7 +312,6 @@ DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT ELEMENT-TY
 
 /* ================= user accounting database functions ================= */
 #if defined(HAVE_UTMPX_H)
-# include <utmpx.h>
 DEFCHECKER(check_ut_type,default=,EMPTY BOOT-TIME OLD-TIME NEW-TIME \
            USER-PROCESS INIT-PROCESS LOGIN-PROCESS DEAD-PROCESS)
 /* convert C struct utmpx to Lisp
@@ -444,10 +449,7 @@ DEFUN(POSIX:SETPGID, pid pgid) {
   VALUES0;
 }
 #endif
-#if defined(HAVE_SIGNAL_H)
 /* http://www.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html */
-# include <signal.h>
-#endif
 DEFCHECKER(check_signal,SIGABRT SIGALRM SIGBUS SIGCHLD SIGCONT SIGFPE SIGHUP \
            SIGILL SIGINT SIGKILL SIGPIPE SIGQUIT SIGSEGV SIGSTOP SIGTERM \
            SIGTSTP SIGTTIN SIGTTOU SIGUSR1 SIGUSR2 SIGPOLL SIGPROF SIGSYS \
