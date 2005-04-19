@@ -463,7 +463,7 @@
   (mapcap
     #'(lambda (slot+initff)
         (let ((slot (car slot+initff)))
-          (if (or (eq type 'T) (ds-real-slot-p slot))
+          (when (or (eq type 'T) (ds-real-slot-p slot))
             (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
                   (offset (clos:slot-definition-location slot))
                   (slottype (clos:slot-definition-type slot)))
@@ -472,9 +472,8 @@
               ;; the included structure's definition must already be
               ;; present in the compilation environment anyway. We don't expect
               ;; people to re-DEFUN defstruct accessors.
-              (if (memq (get accessorname 'SYSTEM::DEFSTRUCT-READER name)
-                        (cdr names))
-                '()
+              (unless (memq (get accessorname 'SYSTEM::DEFSTRUCT-READER name)
+                            (cdr names))
                 `((PROCLAIM '(FUNCTION ,accessorname (,name) ,slottype))
                   (PROCLAIM '(INLINE ,accessorname))
                   (DEFUN ,accessorname (OBJECT)
@@ -485,16 +484,15 @@
                              ((consp type) `(AREF OBJECT ,offset))
                              (t `(SVREF OBJECT ,offset)))))
                   (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-READER
-                                ',name))))
-            '())))
+                                ',name)))))))
     slotlist))
 
 (defun ds-make-writers (name names type concname slotlist)
   (mapcap
     #'(lambda (slot+initff)
         (let ((slot (car slot+initff)))
-          (if (and (or (eq type 'T) (ds-real-slot-p slot))
-                   (not (clos::structure-effective-slot-definition-readonly slot)))
+          (when (and (or (eq type 'T) (ds-real-slot-p slot))
+                     (not (clos::structure-effective-slot-definition-readonly slot)))
             (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
                   (offset (clos:slot-definition-location slot))
                   (slottype (clos:slot-definition-type slot)))
@@ -503,9 +501,8 @@
               ;; the included structure's definition must already be
               ;; present in the compilation environment anyway. We don't expect
               ;; people to re-DEFUN or re-DEFSETF defstruct accessors.
-              (if (memq (get accessorname 'SYSTEM::DEFSTRUCT-WRITER name)
-                        (cdr names))
-                '()
+              (unless (memq (get accessorname 'SYSTEM::DEFSTRUCT-WRITER name)
+                            (cdr names))
                 `((PROCLAIM '(FUNCTION (SETF ,accessorname) (,slottype ,name) ,slottype))
                   (PROCLAIM '(INLINE (SETF ,accessorname)))
                   (DEFUN (SETF ,accessorname) (VALUE OBJECT)
@@ -1006,8 +1003,8 @@
                         'clos::inheritable-initer initer
                         ;; Here we tell initialize-instance-<structure-class> to
                         ;; not install its readers and writers functions,
-                        ;; because defstruct defines them itself, with additional
-                        ;; features: 1) inline declaration,
+                        ;; because defstruct defines them itself,
+                        ;; with additional features: 1) inline declaration,
                         ;; 2) in interpreted code, as interpreted functions with
                         ;; value type checking through THE.
                         ;; The readers and writers argument doesn't matter for
