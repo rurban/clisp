@@ -19,7 +19,10 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   using &make-stream;, but you should be <emphasis>extremely</emphasis>
   careful with such dubious actions!  See the &clisp-devel;
   <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=7203955"
-         >mailing list archives</ulink> for more details.</simpara></warning>
+         >mailing list archives</ulink> for more details.
+  Note that &make-stream; will duplicate the &file-des; (using &dup;),
+  so you <emphasis>still</emphasis> have to &close; the raw socket.
+</simpara></warning>
 
 <para>We implement access to
  <simplelist columns="4">
