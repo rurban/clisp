@@ -552,6 +552,7 @@
 <!ENTITY cont-r "<replaceable>contents</replaceable>">
 <!ENTITY count-r "<replaceable>count</replaceable>">
 <!ENTITY cplace-r "<replaceable>c-place</replaceable>">
+<!ENTITY create-r "<replaceable>create</replaceable>">
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
 <!ENTITY ctypei-r "<replaceable>c-type-internal</replaceable>">
 <!ENTITY data-r "<replaceable>data</replaceable>">
@@ -614,7 +615,9 @@
 <!ENTITY nval-r "<replaceable>new-value</replaceable>">
 <!ENTITY object-r "<replaceable>object</replaceable>">
 <!ENTITY offset-r "<replaceable>offset</replaceable>">
+<!ENTITY open-r "<replaceable>open</replaceable>">
 <!ENTITY option-r "<replaceable>option</replaceable>">
+<!ENTITY options-r "<replaceable>options</replaceable>">
 <!ENTITY os "<replaceable>operating system</replaceable>">
 <!ENTITY pack-r "<replaceable>package</replaceable>">
 <!ENTITY path-r "<replaceable>pathname</replaceable>">
