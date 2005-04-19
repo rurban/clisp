@@ -251,10 +251,10 @@
    or non-<replaceable>shared</replaceable>) lock.
  </simpara></listitem></varlistentry>
  <varlistentry id="with-stream-lock"><term>
-   <code>(<function>POSIX:WITH-STREAM-LOCK</function> (&stream-r; &rest-amp;
-    <replaceable>options</replaceable>) &body-amp; &body-r;)</code></term>
+   <code>(<function>POSIX:WITH-STREAM-LOCK</function> (&stream-r;
+    &rest-amp; &options-r;) &body-amp; &body-r;)</code></term>
   <listitem><simpara>Lock the &stream-r;, execute the &body-r;, unlock
-    the &stream-r;.  Pass <replaceable>options</replaceable> to
+    the &stream-r;.  Pass &options-r; to
     <link linkend="stream-lock"><function>POSIX:STREAM-LOCK</function></link>.
  </simpara></listitem></varlistentry>
  <varlistentry id="mknod"><term><code>(<function>POSIX:MKNOD</function>
