@@ -42,7 +42,7 @@
   <listitem><simpara>Return version information as 4 values: descriptive
     &string-t; and 3 &fixnum-t;s: major, minor and patch number (&db_version;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(BDB:DBE-CREATE &key-amp;
+ <varlistentry id="dbe-create"><term><code>(BDB:DBE-CREATE &key-amp;
     PASSWORD ENCRYPT HOST CLIENT_TIMEOUT SERVER_TIMEOUT)</code></term>
   <listitem><simpara>Create an environment handle (&dbe_create;),
     possibly connecting to a remote host (&DBE_set_rpc_server;) and
@@ -69,6 +69,12 @@
     HOME FORCE USE_ENVIRON USE_ENVIRON_ROOT)</code></term>
   <listitem><simpara>Destroy an environment (&DBE_remove;).
  </simpara></listitem></varlistentry>
+ <varlistentry id="with-dbe"><term><code>(BDB:WITH-DBE (var &key-amp;
+    &create-r; &options-r;) &body-amp; body)</code></term>
+  <listitem><simpara>Create an environment, execute &body-r;, close it.
+    &create-r; is a list of options to be passed to &dbe-create;,
+    &options-r; is a list of options to be passed to &dbe-set-options;.
+ </simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
@@ -76,7 +82,7 @@
 <section id="bdb-environment-config"><title>Environment Configuration</title>
 
 <variablelist>
-<varlistentry><term><code>(BDB:DBE-SET-OPTIONS dbe
+<varlistentry id="dbe-set-options"><term><code>(BDB:DBE-SET-OPTIONS dbe
    &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPT LOCK_TIMEOUT TXN_TIMEOUT SHM_KEY
    TAS_SPINS TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR LG_BSIZE LG_DIR LG_MAX
    LG_REGIONMAX LK_CONFLICTS LK_DETECT LK_MAX_LOCKERS LK_MAX_LOCKS
@@ -219,7 +225,8 @@
  DB->errx	Error message
  -->
 <variablelist>
-<varlistentry><term><code>(BDB:DB-CREATE dbe &key-amp; XA)</code></term>
+<varlistentry id="db-create"><term><code>(BDB:DB-CREATE dbe &key-amp;
+   XA)</code></term>
  <listitem><simpara>Create a database handle (&db_create;).
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(BDB:DB-CLOSE db &key-amp; NOSYNC)</code></term>
@@ -254,7 +261,7 @@
 <varlistentry><term><code>(BDB:DB-STAT db &key-amp; FAST_STAT)</code></term>
  <listitem><simpara>Return database statistics (&DB_get_byteswapped;,
    &DB_get_type;, &DB_stat;).</simpara></listitem></varlistentry>
-<varlistentry><term><code>(BDB:DB-OPEN db file &key-amp;
+<varlistentry id="db-open"><term><code>(BDB:DB-OPEN db file &key-amp;
    DATABASE TYPE MODE CREATE DIRTY_READ EXCL NOMMAP RDONLY
    THREAD TRUNCATE AUTO_COMMIT TRANSACTION)</code></term>
  <listitem><para>Open a database (&DB_open;).
@@ -300,10 +307,12 @@
    file name.  <constant>:DATABASE</constant>, if supplied,
    will force <constant>DB_ORDERCHKONLY</constant>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><code>(BDB:WITH-DB (var dbe file
-   &rest-amp; options &key-amp; xa &allow-other-keys-amp;)
-   &body-amp; body)</code></term>
+<varlistentry id="with-db"><term><code>(BDB:WITH-DB (var dbe file
+   &key-amp; &create-r; &options-r; &open-r;) &body-amp; body)</code></term>
  <listitem><simpara>Open the database, execute &body-r;, close it.
+   &create-r; is a list of options to be passed to &db-create;,
+   &options-r; is a list of options to be passed to &db-set-options;,
+   &open-r; is a list of options to be passed to &db-open;.
 </simpara></listitem></varlistentry>
 </variablelist></section>
 
@@ -322,7 +331,7 @@
  DB->set_h_hash	Set a hashing function
  -->
 <variablelist>
-<varlistentry><term><code>(BDB:DB-SET-OPTIONS db
+<varlistentry id="db-set-options"><term><code>(BDB:DB-SET-OPTIONS db
    &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPTION NCACHE CACHESIZE CACHE
    LORDER PAGESIZE BT_MINKEY H_FFACTOR H_NELEM Q_EXTENTSIZE
    RE_DELIM RE_LEN RE_PAD RE_SOURCE
@@ -433,7 +442,7 @@
 <section id="bdb-cursor"><title>Database Cursor Operations</title>
 
 <variablelist>
-<varlistentry><term><code>(BDB:MAKE-DBC db &key-amp;
+<varlistentry id="make-dbc"><term><code>(BDB:MAKE-DBC db &key-amp;
    DIRTY_READ WRITECURSOR TRANSACTION)</code></term>
  <listitem><simpara>Create a cursor handle (&DB_cursor;).
 </simpara></listitem></varlistentry>
@@ -477,8 +486,9 @@
  <listitem><simpara>Store by cursor (&DBC_put;).
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(BDB:WITH-DBC (var &rest-amp;
-   options) &body-amp; &body-r;))</code></term>
+   &options-r;) &body-amp; &body-r;))</code></term>
  <listitem><simpara>Open a cursor, execute &body-r;, close it.
+   &options-r; are passed to &make-dbc;.
 </simpara></listitem></varlistentry></variablelist></section>
 
 

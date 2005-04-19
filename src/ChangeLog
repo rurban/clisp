@@ -1,3 +1,9 @@
+2005-04-19  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/dbi.lisp (with-dbe): new macro
+	(with-db): accept :CREATE :OPTIONS :OPEN and pass them to
+	DB-CREATE, DB-SET-OPTIONS, DB-OPEN respectively
+
 2005-04-18  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c: include <utmpx.h> and <signal.h> in
@@ -20011,7 +20017,7 @@
 	(shmsave, close_shmid): ditto
 	* spvw_sigsegv.d (sigsegv_handler_failed): ditto
 	* stream.d (rd_ch_keyboard) [WIN32_NATIVE]: ditto
-	* win32aux.d (DumpProcessMemoryMap); ditto
+	* win32aux.d (DumpProcessMemoryMap): ditto
 	* pathname.d (string_concat): ditto
 	(debug_output, debug_printf): removed
 	(DOUT, SDOUT): use object_out() and nobject_out()
@@ -23678,7 +23684,7 @@
 2002-02-26  Sam Steingold  <sds@gnu.org>
 
 	lib dir can now be changed at run-time
-	* constsym.d, subr.d (set_lib_directory); added
+	* constsym.d, subr.d (set_lib_directory): added
 	* constobj.d (lib_dir): new object
 	* pathname.d (LIB-DIRECTORY): use it
 	(SET-LIB-DIRECTORY): set it (new function)
@@ -26585,7 +26591,7 @@
 	* gray.lisp: extracted from gstream.lisp
 	* gstream.lisp: moved to GSTREAM package
 	* init.lisp: separated LISP exported symbols into COMMON-LISP and
-	EXT (and friends);
+	EXT (and friends)
 	(in-package): define here
 	(flet, labels, macrolet): added temporary definitions
 	* inspect.lisp: export use variables from CUSTOM
