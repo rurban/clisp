@@ -39,12 +39,15 @@ show-db
                  (bdb:dbe-get-options dbe))))
   nil)
 show-dbe
+(defun show-file (file)
+  (with-open-file (st file :direction :input)
+    (format t "~&~S: ~:D byte~:P:~%" file (file-length st))
+    (loop :for l = (read-line st nil nil) :while l
+      :do (format t "--> ~S~%" l))
+    (file-length st)))
+show-file
 (defun finish-file (file)
-  (when (probe-file file)
-    (with-open-file (st file :direction :input)
-      (format t "~&~S: ~:D byte~:P:~%" file (file-length st))
-      (loop :for l = (read-line st nil nil) :while l
-        :do (format t "--> ~S~%" l))))
+  (when (probe-file file) (show-file file))
   (delete-file file)
   (probe-file file))
 finish-file
@@ -100,35 +103,30 @@ NIL
 
 ;;; recno with an underlying text file
 (with-open-file (s "bdb-data/recno-source.txt" :direction :output
-                   :external-format :unix)
+                   :external-format :unix :if-exists :supersede)
   (write-line "foo" s)
   (write-line "bar" s)
   (write-line "foobar" s)
   (file-length s))
 15
 
-(let ((db (bdb:db-create *dbe*)))
-  (bdb:db-set-options db :RE_SOURCE "recno-source.txt")
-  (bdb:db-open db "recno-source.db" :type :RECNO :create t)
+(bdb:with-db (db *dbe* "recno-source.db"
+                 :options (:RE_SOURCE "recno-source.txt")
+                 :open (:type :RECNO :create T))
   (show-db db)
-  (unwind-protect
-       (list (bdb:db-get db 1 :type :string)
-             (bdb:db-get db 2 :type :string)
-             (bdb:db-get db 3 :type :string)
-             (bdb:db-get db 4 :error nil))
-    (close db)))
+  (list (bdb:db-get db 1 :type :string)
+        (bdb:db-get db 2 :type :string)
+        (bdb:db-get db 3 :type :string)
+        (bdb:db-get db 4 :error nil)))
 ("foo" "bar" "foobar" :NOTFOUND)
 
-(let ((db (bdb:db-create *dbe*)))
-  (bdb:db-set-options db :RE_SOURCE "recno-source.txt")
-  (bdb:db-open db "recno-source.db")
+(bdb:with-db (db *dbe* "recno-source.db"
+                 :options (:RE_SOURCE "recno-source.txt"))
   (show-db db)
-  (unwind-protect
-       (bdb:db-put db 5 "bazonk")
-    (close db)))
+  (bdb:db-put db 5 "bazonk"))
 NIL
 
-(bdb:with-db (db *dbe* "recno-source.db" :rdonly t)
+(bdb:with-db (db *dbe* "recno-source.db" :open (:rdonly t))
   (show-db db)
   (bdb:with-dbc (cu db)
     (list
@@ -148,7 +146,7 @@ NIL
 (dolist (type '(:btree :hash))
   (print type)
   (bdb:with-db (db *dbe* (format nil "test-~A.db" type)
-                        :type type :create t)
+                   :open (:type type :create t))
     (show-db db)
     (print (loop :repeat 20 :for x = (random 30) :for x! = (! x)
              :collect (list x x! (bdb:db-put db x x!))))))
@@ -157,18 +155,17 @@ NIL
 ;;; write factorials into (:QUEUE :RECNO)
 (dolist (type '(:queue :recno))
   (print type)
-  (let ((db (bdb:db-create *dbe*)) (max 30))
-    ;; :RE_LEN must be set before DB-OPEN
-    (bdb:db-set-options
-     db :RE_LEN (print (* 4 (ceiling (integer-length (! max)) 32))) :RE_PAD 0)
-    (bdb:db-open db (format nil "test-~A.db" type) :type type :create t)
-    (show-db db)
-    (unwind-protect
-         (print (loop :repeat 20 :for x = (random max) :collect
-                  (list (bdb:db-put db nil x :action :APPEND) x
-                        (bdb:db-put db nil (! x) :action :APPEND) (! x))))
-      (close db))
-    (print db)))
+  (let ((max 30))
+    (bdb:with-db (db *dbe* (format nil "test-~A.db" type)
+                     :options (:RE_LEN (print (* 4 (ceiling (integer-length
+                                                             (! max)) 32)))
+                               :RE_PAD 0)
+                     :open (:type type :create t))
+      (show-db db)
+      (print (loop :repeat 20 :for x = (random max) :collect
+               (list (bdb:db-put db nil x :action :APPEND) x
+                     (bdb:db-put db nil (! x) :action :APPEND) (! x))))
+      (print db))))
 NIL
 
 ;; locks - will NOT be automatically closed by DBE-CLOSE
@@ -235,7 +232,7 @@ NIL
 #(98 97 114)                    ; "bar"
 
 (close *cursor*) T
-(close *db*)         T
+(close *db*)     T
 
 (let ((*print-pretty* t)) (setq *db* (print (bdb:db-create *dbe*))) nil) NIL
 (bdb:db-open *db* "bazonk.db") NIL
@@ -245,7 +242,7 @@ NIL
 ;;; read factorials from (:BTREE :HASH)
 (dolist (type '(:btree :hash))
   (print type)
-  (bdb:with-db (db *dbe* (format nil "test-~A.db" type) :rdonly t)
+  (bdb:with-db (db *dbe* (format nil "test-~A.db" type) :open (:rdonly t))
     (show-db db)
     (bdb:with-dbc (cu db)
       (loop (multiple-value-bind (key val)
@@ -259,7 +256,7 @@ NIL
 ;;; read factorials from (:QUEUE :RECNO)
 (dolist (type '(:queue :recno))
   (print type)
-  (bdb:with-db (db *dbe* (format nil "test-~A.db" type) :rdonly t)
+  (bdb:with-db (db *dbe* (format nil "test-~A.db" type) :open (:rdonly t))
     (show-db db)
     (bdb:with-dbc (cu db)
       (loop (multiple-value-bind (key val)
