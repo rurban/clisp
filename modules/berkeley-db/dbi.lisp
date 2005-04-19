@@ -5,26 +5,26 @@
 (defpackage "BDB"
   (:use "COMMON-LISP" "EXT")
   (:nicknames "BERKELEY-DB" "BERKDB")
-  (:export "DB-VERSION"
-           "BDB-HANDLE" "BDB-HANDLE-PARENTS" "BDB-HANDLE-DEPENDENTS"
-           "DBE" "DB" "TXN" "DBC" "LOGC" "MPOOLFILE" "DBLOCK" "LSN"
-           "DBE-CREATE" "DBE-CLOSE" "DBE-DBREMOVE" "DBE-DBRENAME" "DBE-OPEN"
-           "DBE-REMOVE" "DBE-SET-OPTIONS" "DBE-GET-OPTIONS"
-           "DB-CREATE" "DB-CLOSE" "DB-DEL" "DB-FD" "DB-GET" "DB-STAT"
-           "DB-OPEN" "DB-SYNC" "DB-TRUNCATE" "DB-UPGRADE" "DB-REMOVE"
-           "DB-RENAME" "DB-PUT" "DB-JOIN" "DB-KEY-RANGE" "DB-VERIFY"
-           "DB-SET-OPTIONS" "DB-GET-OPTIONS"
-           "MAKE-DBC" "DBC-CLOSE" "DBC-COUNT" "DBC-DEL"
-           "DBC-DUP" "DBC-GET" "DBC-PUT"
-           "LOCK-DETECT" "LOCK-GET" "LOCK-ID" "LOCK-ID-FREE" "LOCK-PUT"
-           "LOCK-CLOSE" "LOCK-STAT"
-           "LOG-ARCHIVE" "LOG-FILE" "LOG-FLUSH" "LOG-PUT" "LOG-STAT"
-           "LOG-COMPARE" "LOG-CURSOR" "LOGC-CLOSE" "LOGC-GET"
-           "TXN-BEGIN" "TXN-ABORT" "TXN-COMMIT" "TXN-DISCARD" "TXN-ID"
-           "TXN-CHECKPOINT" "TXN-PREPARE" "TXN-RECOVER" "TXN-SET-TIMEOUT"
-           "TXN-STAT"
-           "BDB-ERROR" "BDB-ERROR-NUMBER"
-           "WITH-DB" "WITH-DBC"))
+  (:export #:db-version
+           #:bdb-handle #:bdb-handle-parents #:bdb-handle-dependents
+           #:dbe #:db #:txn #:dbc #:logc #:mpoolfile #:dblock #:lsn
+           #:dbe-create #:dbe-close #:dbe-dbremove #:dbe-dbrename #:dbe-open
+           #:dbe-remove #:dbe-set-options #:dbe-get-options
+           #:db-create #:db-close #:db-del #:db-fd #:db-get #:db-stat
+           #:db-open #:db-sync #:db-truncate #:db-upgrade #:db-remove
+           #:db-rename #:db-put #:db-join #:db-key-range #:db-verify
+           #:db-set-options #:db-get-options
+           #:make-dbc #:dbc-close #:dbc-count #:dbc-del
+           #:dbc-dup #:dbc-get #:dbc-put
+           #:lock-detect #:lock-get #:lock-id #:lock-id-free #:lock-put
+           #:lock-close #:lock-stat
+           #:log-archive #:log-file #:log-flush #:log-put #:log-stat
+           #:log-compare #:log-cursor #:logc-close #:logc-get
+           #:txn-begin #:txn-abort #:txn-commit #:txn-discard #:txn-id
+           #:txn-checkpoint #:txn-prepare #:txn-recover #:txn-set-timeout
+           #:txn-stat
+           #:bdb-error #:bdb-error-number
+           #:with-dbe #:with-db #:with-dbc))
 
 (setf (package-lock "EXT") nil)
 (use-package '("BDB") "EXT")
