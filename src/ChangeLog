@@ -1,6 +1,6 @@
 2005-04-19  Sam Steingold  <sds@gnu.org>
 
-	* modules/berkeley-db/dbi.lisp (with-dbe): new macro
+	* modules/berkeley-db/dbi.lisp (with-dbe): new exported macro
 	(with-db): accept :CREATE :OPTIONS :OPEN and pass them to
 	DB-CREATE, DB-SET-OPTIONS, DB-OPEN respectively
 
