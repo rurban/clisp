@@ -4895,7 +4895,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  &function-t;s, each returning a &list-t;
  of <firstterm>bindings</firstterm>, i.e., either a
 <variablelist><varlistentry><term>&string-t;</term>
-<listitem><simpara>the help string printer by <command>Help</command>
+<listitem><simpara>the help string printed by <command>Help</command>
   in addition to the standard &clisp; help</simpara></listitem></varlistentry>
 <varlistentry><term>&cons-t;
   <literal role="data">(&string-t; . &function-t;)</literal></term>
@@ -5092,13 +5092,14 @@ exhaust the available line length.</para></formalpara>
 
 <para>The timing data printed by the macro &time; includes:
  <simplelist columns="1">
- <member>the real time ("wall" time),</member>
+ <member>the real time (<quote>wall</quote> time),</member>
  <member>the run time (processor time for this process),</member>
  <member>the number of bytes allocated, and</member>
  <member>the number of &gc;ions performed, if any.</member>
 </simplelist></para>
 
-<para>The macro <firstterm>&ts;</firstterm> (mnemonic: "TIME and Space")
+<para>The macro <firstterm>&ts;</firstterm> (mnemonic:
+ <quote><emphasis>TIME</emphasis> and <emphasis>S</emphasis>pace</quote>)
  is like the macro &time;: <code>(&ts; &form-r;)</code> evaluates the
  &form-r;, and, as a side effect, outputs detailed information about the
  memory allocations caused by this evaluation.  It also prints
