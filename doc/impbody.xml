@@ -4196,12 +4196,14 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 <section id="spacecharprint"><title>Characters</title>
 
-<para>Characters are printed as specified in &ansi-cl;, with one exception:
- The space character is printed as
- <computeroutput>#\Space</computeroutput> when the variable &spacecharprint;
- is &nil;. When &spacecharprint; is non-&nil;, it is printed as
- <computeroutput>#\ </computeroutput>; this is how <ulink
- url="&clhs;/Body/sec_22-1-3-2.html">22.1.3.2 Printing Characters</ulink>
+<para>Characters are printed as specified in &ansi-cl; using
+ &sharp-back;, with one exception: when &pri-esc; is in effect,
+ the space character is printed as
+ <quote><computeroutput>#\Space</computeroutput></quote> when the
+ variable &spacecharprint; is &nil;.
+ When &spacecharprint; is non-&nil;, it is printed as
+ <quote><computeroutput>#\&nbsp;</computeroutput></quote>; this is how
+ <ulink url="&clhs;/Body/sec_22-1-3-2.html">22.1.3.2 Printing Characters</ulink>
  specifies it.</para>
 
 </section>
