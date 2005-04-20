@@ -180,6 +180,7 @@
 <!ENTITY consing "<ulink url='&clhs;/Body/glo_c.html#cons'>consing[3]</ulink>">
 <!ENTITY recog-subt "<ulink url='&clhs;/Body/glo_r.html#recognizable_subtype'>recognizable subtype</ulink>">
 <!ENTITY place "<ulink url='&clhs;/Body/glo_p.html#place'>place</ulink>">
+<!ENTITY pri-esc "<ulink url='&clhs;/Body/glo_p.html#printer_escaping'>printer escaping</ulink>">
 <!ENTITY mul-val "<ulink url='&clhs;/Body/glo_m.html#multiple_values'>multiple values</ulink>">
 <!ENTITY finally "<ulink url='&clhs;/Body/sec_6-1-7-2.html'><literal>FINALLY</literal></ulink>">
 <!ENTITY cont-err "<ulink url='&clhs;/Body/glo_c.html#continuable'>continuable</ulink> &error-t;">
@@ -218,6 +219,7 @@
 
 <!-- *** reader *** -->
 <!ENTITY whitespace "<ulink url='&clhs;/Body/sec_2-1-4-7.html'>whitespace</ulink>">
+<!ENTITY sharp-back "<ulink url='&clhs;/Body/sec_2-4-8-1'><literal role='data'>#\</literal></ulink>">
 <!ENTITY sharp-A "<ulink url='&clhs;/Body/sec_2-4-8-12'><literal role='data'>#<replaceable>rank</replaceable>A</literal></ulink>">
 <!ENTITY sharp-S "<ulink url='&clhs;/Body/sec_2-4-8-13'><literal role='data'>#S</literal></ulink>">
 <!ENTITY sharp-P "<ulink url='&clhs;/Body/sec_2-4-8-14'><literal role='data'>#P</literal></ulink>">
