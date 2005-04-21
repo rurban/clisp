@@ -5,10 +5,10 @@
 	define depending on SIZEOF_DB_RECNO_T
 	(fill_dbt): re_len==-1 means this is a key and thus db_recno_t
 	must be handled specially; fix the bitsize argument to I_to_LEbytes()
-	(dbt_to_object): added the key_p argument, symmetric to re_len==-1
+	(dbt_to_object): added the key_type argument, symmetric to re_len==-1
+	(db_key_type): new function
 	(DB-DEL, DB-GET, DB-PUT, DB-KEY-RANGE, DBC-GET, DBC-PUT): pass
-	re_len==-1 to fill_dbt(key) becase re_len is not applicable to keys
-	(DB-GET, DB-PUT, DBC-GET, LOGC-GET): pass key_p to dbt_to_object()
+	db_key_type() to fill_dbt(key) and dbt_to_object()
 	(fill_or_init): re_len is int, not u_int32_t
 	* modules/berkeley-db/configure.in (db_recno_t): check SIZEOF
 

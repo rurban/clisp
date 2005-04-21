@@ -974,11 +974,11 @@ static object check_dbt_object (object obj) {
 #if SIZEOF_DB_RECNO_T == 8
 # define db_recno_p(i)     uint64_p(i)
 # define db_recno_to_I(r)  uint64_to_I(r)
-# define I_to_db_recno(i)  I_to_uint64(i)
+# define I_to_db_recno(i)  I_to_uint64(check_uint64(i))
 #elif SIZEOF_DB_RECNO_T == 4
 # define db_recno_p(i)     uint32_p(i)
 # define db_recno_to_I(r)  uint32_to_I(r)
-# define I_to_db_recno(i)  I_to_uint32(i)
+# define I_to_db_recno(i)  I_to_uint32(check_uint32(i))
 #else
 # error "db_recno_t size if unknown!"
 #endif
@@ -1022,7 +1022,7 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
     memcpy(key->data,TheSbvector(obj)->data + idx,key->size);
     end_system_call();
     return DBT_RAW;
-  } else if (re_len==-1 && db_recno_p(obj)) {
+  } else if (re_len==-1) {
     db_recno_t value = I_to_db_recno(obj);
     key->data = my_malloc(key->ulen = key->size = sizeof(db_recno_t));
     *(db_recno_t*)key->data = value;
@@ -1057,7 +1057,7 @@ static void free_dbt(DBT* dbt) {
 /* convert a DBT to an object of the specified type
  p_dbt->data is free()d and set to NULL
  can trigger GC */
-static object dbt_to_object (DBT *p_dbt, dbt_o_t type, bool key_p) {
+static object dbt_to_object (DBT *p_dbt, dbt_o_t type, int key_type) {
   if (p_dbt->data == NULL) return NIL;
   switch (type) {
     case DBT_RAW: {
@@ -1075,10 +1075,20 @@ static object dbt_to_object (DBT *p_dbt, dbt_o_t type, bool key_p) {
       return s;
     }
     case DBT_INTEGER:
-      if (key_p && p_dbt->size == sizeof(db_recno_t)) {
-        db_recno_t res = *(db_recno_t*)p_dbt->data;
-        free_dbt(p_dbt);
-        return db_recno_to_I(res);
+      if (key_type == -1) {
+        if (p_dbt->size == sizeof(db_recno_t)) {
+          db_recno_t res = *(db_recno_t*)p_dbt->data;
+          free_dbt(p_dbt);
+          return db_recno_to_I(res);
+        } else {
+          pushSTACK(`BDB::BDB-ERROR`);  /* error type */
+          pushSTACK(`:ERRNO`); pushSTACK(Fixnum_0);
+          pushSTACK(`"~S: bad logical record number size: ~S should be ~S"`);
+          pushSTACK(TheSubr(subr_self)->name);
+          pushSTACK(uint32_to_I(p_dbt->size));
+          pushSTACK(uint32_to_I(sizeof(db_recno_t)));
+          funcall(L(error_of_type),7);
+        }
       } else {
         object ret = LEbytes_to_I(p_dbt->size,(uintB*)p_dbt->data);
 #      if defined(DEBUG)
@@ -1106,6 +1116,16 @@ static u_int32_t record_length (DB *db) {
     return 0;
   } else return ret;
 }
+/* check whether the DB uses logical record numbers, see
+ <http://www.sleepycat.com/docs/ref/am_conf/logrec.html> */
+static inline int db_key_type (DB *db) {
+  DBTYPE db_type;
+  SYSCALL(db->get_type,(db,&db_type));
+  switch (db_type) {
+    case DB_QUEUE: case DB_RECNO: return -1;
+    default: return 0;
+  }
+}
 
 DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO_COMMIT)
 { /* Delete items from a database */
@@ -1113,7 +1133,7 @@ DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO_COMMIT)
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
   DBT key;
-  fill_dbt(STACK_0,&key,-1);
+  fill_dbt(STACK_0,&key,db_key_type(db));
   SYSCALL1(db->del,(db,txn,&key,flags),{free(key.data);});
   skipSTACK(2);
   VALUES0;
@@ -1140,7 +1160,7 @@ DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
   DBT key, val;
   int status;
-  fill_dbt(STACK_0,&key,-1);
+  fill_dbt(STACK_0,&key,db_key_type(db));
   init_dbt(&val,DB_DBT_MALLOC);
   skipSTACK(2);
   begin_system_call();
@@ -1155,7 +1175,7 @@ DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
     }
     error_bdb(status,"db->get");
   }
-  VALUES1(dbt_to_object(&val,out_type,false));
+  VALUES1(dbt_to_object(&val,out_type,0));
 }
 
 DEFCHECKER(check_dbtype,enum=DBTYPE,default=DB_UNKNOWN,prefix=DB, \
@@ -1303,10 +1323,13 @@ DEFUN(BDB:DB-RENAME, db file database newname)
 { /* Rename a database */
   DB *db = (DB*)bdb_handle(STACK_3,`BDB::DB`,BH_VALID);
   with_string_0(physical_namestring(STACK_2),GLO(pathname_encoding),file, {
-      with_string_0(check_string(STACK_1),GLO(misc_encoding),database, {
-          with_string_0(check_string(STACK_0),GLO(misc_encoding),newname, {
-              SYSCALL(db->rename,(db,file,database,newname,0));
-            });
+      with_string_0(check_string(STACK_0),GLO(misc_encoding),newname, {
+          if (nullp(STACK_1))   /* database=NIL */
+            SYSCALL(db->rename,(db,file,NULL,newname,0));
+          else
+            with_string_0(check_string(STACK_1),GLO(misc_encoding),database, {
+                SYSCALL(db->rename,(db,file,database,newname,0));
+              });
         });
     });
   VALUES0; skipSTACK(4);
@@ -1335,9 +1358,9 @@ DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
   if (action == DB_APPEND) {     /* DB is :QUEUE or :RECNO */
     init_dbt(&key,DB_DBT_MALLOC); /* key is ignored - it will be returned */
     SYSCALL1(db->put,(db,txn,&key,&val,action | flags),{free(val.data);});
-    VALUES1(dbt_to_object(&key,DBT_INTEGER,true));
+    VALUES1(dbt_to_object(&key,DBT_INTEGER,db_key_type(db)));
   } else {
-    fill_dbt(STACK_1,&key,-1);
+    fill_dbt(STACK_1,&key,db_key_type(db));
     switch (action) {
       case DB_NODUPDATA: case DB_NOOVERWRITE: {
         int status;
@@ -1407,7 +1430,7 @@ DEFUN(BDB:DB-KEY-RANGE, db key &key :TRANSACTION)
   DBT key;
   DB_KEY_RANGE key_range;
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
-  fill_dbt(STACK_0,&key,-1);
+  fill_dbt(STACK_0,&key,db_key_type(db));
   SYSCALL1(db->key_range,(db,txn,&key,&key_range,0),{free(key.data);});
   pushSTACK(c_double_to_DF((dfloatjanus*)&(key_range.less)));
   pushSTACK(c_double_to_DF((dfloatjanus*)&(key_range.equal)));
@@ -1865,8 +1888,9 @@ DEFUN(BDB:DBC-GET, cursor key data action &key :DIRTY_READ :MULTIPLE \
   u_int32_t flag = dbc_get_options() | dbc_get_action(popSTACK());
   DBC *cursor = (DBC*)bdb_handle(STACK_2,`BDB::DBC`,BH_VALID);
   DBT key, val;
+  int db_log_key = db_key_type(cursor->dbp);
   dbt_o_t val_type = fill_or_init(popSTACK(),&val,record_length(cursor->dbp));
-  dbt_o_t key_type = fill_or_init(popSTACK(),&key,-1);
+  dbt_o_t key_type = fill_or_init(popSTACK(),&key,db_log_key);
   int status;
   skipSTACK(1);                 /* drop cursor */
   begin_system_call();
@@ -1882,8 +1906,8 @@ DEFUN(BDB:DBC-GET, cursor key data action &key :DIRTY_READ :MULTIPLE \
     }
     error_bdb(status,"dbc->c_get");
   }
-  pushSTACK(dbt_to_object(&key,key_type,true));
-  value2 = dbt_to_object(&val,val_type,false);
+  pushSTACK(dbt_to_object(&key,key_type,db_log_key));
+  value2 = dbt_to_object(&val,val_type,0);
   value1 = popSTACK();
   mv_count = 2;
 }
@@ -1895,7 +1919,7 @@ DEFUN(BDB:DBC-PUT, cursor key data flag)
   u_int32_t flag = dbc_put_flag(popSTACK());
   DBC *cursor = (DBC*)bdb_handle(STACK_2,`BDB::DBC`,BH_VALID);
   DBT key, val;
-  fill_dbt(STACK_1,&key,-1);
+  fill_dbt(STACK_1,&key,db_key_type(cursor->dbp));
   fill_dbt(STACK_0,&val,record_length(cursor->dbp));
   SYSCALL1(cursor->c_put,(cursor,&key,&val,flag),
            {free(val.data);free(key.data);});
@@ -2176,7 +2200,7 @@ DEFUN(BDB:LOGC-GET, logc action &key :TYPE :ERROR)
   }
   if (action == DB_SET) {       /* STACK_0 is the LSN */
   } else STACK_0 = make_lsn(&lsn);
-  VALUES2(dbt_to_object(&data,out_type,false),popSTACK());
+  VALUES2(dbt_to_object(&data,out_type,0),popSTACK());
   free_dbt(&data);
   skipSTACK(1);
 }
