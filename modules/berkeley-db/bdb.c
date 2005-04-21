@@ -307,37 +307,38 @@ DEFUN(BDB:DBE-CLOSE, dbe)
   } else { skipSTACK(1); VALUES1(NIL); }
 }
 
+DEFFLAGSET(bdb_ac_flags, DB_AUTO_COMMIT)
 DEFUN(BDB:ENV-DBREMOVE, dbe file database &key :TRANSACTION :AUTO_COMMIT)
 { /* remove DATABASE from FILE or the whole FILE */
-  u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
-  DB_TXN *txn = (DB_TXN*)bdb_handle(STACK_1,`BDB::TXN`,BH_NIL_IS_NULL);
-  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_4,`BDB::DBE`,BH_VALID);
-  if (!nullp(STACK_2)) STACK_2 = check_string(STACK_2); /* DATABASE */
-  STACK_3 = physical_namestring(STACK_3);               /* FILE */
-  with_string_0(STACK_3,GLO(pathname_encoding),file, {
-      if (stringp(STACK_2)) {
-        with_string_0(STACK_2,GLO(misc_encoding),database, {
+  u_int32_t flags = bdb_ac_flags();
+  DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_2,`BDB::DBE`,BH_VALID);
+  if (!nullp(STACK_2)) STACK_2 = check_string(STACK_0); /* DATABASE */
+  STACK_1 = physical_namestring(STACK_1);               /* FILE */
+  with_string_0(STACK_1,GLO(pathname_encoding),file, {
+      if (stringp(STACK_0)) {
+        with_string_0(STACK_0,GLO(misc_encoding),database, {
             SYSCALL(dbe->dbremove,(dbe,txn,file,database,flags));
           });
       } else SYSCALL(dbe->dbremove,(dbe,txn,file,NULL,flags));
     });
-  VALUES0; skipSTACK(5);
+  VALUES0; skipSTACK(3);
 }
 
 DEFUN(BDB:DBE-DBRENAME, dbe file database newname       \
       &key :TRANSACTION :AUTO_COMMIT)
 { /* rename DATABASE to NEWNAME in FILE */
-  u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
-  DB_TXN *txn = (DB_TXN*)bdb_handle(STACK_1,`BDB::TXN`,BH_NIL_IS_NULL);
-  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_5,`BDB::DBE`,BH_VALID);
-  with_string_0(physical_namestring(STACK_4),GLO(pathname_encoding),file, {
-      with_string_0(check_string(STACK_3),GLO(misc_encoding),database, {
-          with_string_0(check_string(STACK_2),GLO(misc_encoding),newname, {
+  u_int32_t flags = bdb_ac_flags();
+  DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_3,`BDB::DBE`,BH_VALID);
+  with_string_0(physical_namestring(STACK_2),GLO(pathname_encoding),file, {
+      with_string_0(check_string(STACK_1),GLO(misc_encoding),database, {
+          with_string_0(check_string(STACK_0),GLO(misc_encoding),newname, {
               SYSCALL(dbe->dbrename,(dbe,txn,file,database,newname,flags));
             });
         });
     });
-  VALUES0; skipSTACK(6);
+  VALUES0; skipSTACK(4);
 }
 
 DEFFLAGSET(dbe_open_flags, DB_JOINENV DB_INIT_CDB DB_INIT_LOCK DB_INIT_LOG \
@@ -986,6 +987,17 @@ static object check_dbt_object (object obj) {
  when re_len is > 0, the database has fixed-record-length,
   so the integer will be padded on the left
   if re_len = -1, this is a key and it will be required to be a db_recno_t
+   <http://www.sleepycat.com/docs/ref/am_conf/logrec.html>:
+     In all cases for the Queue and Recno access methods, and when
+     calling the Btree access method using the DB->get and
+     DBcursor->c_get methods with the DB_SET_RECNO flag specified, the
+     data field of the key DBT must be a pointer to a memory location of
+     type db_recno_t <...>. The size field of the key DBT should be the
+     size of that type (for example, "sizeof(db_recno_t)" in the C
+     programming language). The db_recno_t type is a 32-bit unsigned
+     type, which limits the number of logical records in a Queue or
+     Recno database, and the maximum logical record which may be
+     directly retrieved from a Btree database, to 4,294,967,295.
  can trigger GC */
 static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
 {
@@ -1097,13 +1109,13 @@ static u_int32_t record_length (DB *db) {
 
 DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO_COMMIT)
 { /* Delete items from a database */
-  u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
-  DB_TXN *txn = (DB_TXN*)bdb_handle(STACK_1,`BDB::TXN`,BH_NIL_IS_NULL);
-  DB *db = (DB*)bdb_handle(STACK_3,`BDB::DB`,BH_VALID);
+  u_int32_t flags = bdb_ac_flags();
+  DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
+  DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
   DBT key;
-  fill_dbt(STACK_2,&key,-1);
+  fill_dbt(STACK_0,&key,-1);
   SYSCALL1(db->del,(db,txn,&key,flags),{free(key.data);});
-  skipSTACK(4);
+  skipSTACK(2);
   VALUES0;
 }
 
@@ -1269,12 +1281,12 @@ DEFUN(BDB:DB-SYNC, db)
 
 DEFUN(BDB:DB-TRUNCATE, db &key :TRANSACTION :AUTO_COMMIT)
 { /* Empty a database */
-  u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
-  DB_TXN *txn = (DB_TXN*)bdb_handle(STACK_1,`BDB::TXN`,BH_NIL_IS_NULL);
-  DB *db = (DB*)bdb_handle(STACK_2,`BDB::DB`,BH_VALID);
+  u_int32_t flags = bdb_ac_flags();
+  DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
+  DB *db = (DB*)bdb_handle(popSTACK(),`BDB::DB`,BH_VALID);
   u_int32_t count;
   SYSCALL(db->truncate,(db,txn,&count,flags));
-  VALUES1(UL_to_I(count)); skipSTACK(3);
+  VALUES1(UL_to_I(count));
 }
 
 DEFUN(BDB:DB-UPGRADE, db file &key :DUPSORT)
@@ -1312,12 +1324,11 @@ DEFUN(BDB:DB-REMOVE, db file database)
 }
 
 DEFCHECKER(db_put_action,prefix=DB, default=0, APPEND NODUPDATA NOOVERWRITE)
-DEFFLAGSET(db_put_flags, DB_AUTO_COMMIT)
 DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
 { /* Store items into a database */
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
   u_int32_t action = db_put_action(popSTACK());
-  u_int32_t flags = db_put_flags();
+  u_int32_t flags = bdb_ac_flags();
   DB *db = (DB*)bdb_handle(STACK_2,`BDB::DB`,BH_VALID);
   DBT key, val;
   fill_dbt(STACK_0,&val,record_length(db));
