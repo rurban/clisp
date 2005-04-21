@@ -1,6 +1,8 @@
 2005-04-21  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (print-tables-1): output C-NAME_parse()
+	* modules/syscalls/calls.c (parse_mode): removed
+	(SET-FILE-STAT, UMASK, MKNOD): use check_chmod_mode_parse instead
 
 2005-04-20  Sam Steingold  <sds@gnu.org>
 
