@@ -308,7 +308,7 @@ DEFUN(BDB:DBE-CLOSE, dbe)
 }
 
 DEFFLAGSET(bdb_ac_flags, DB_AUTO_COMMIT)
-DEFUN(BDB:ENV-DBREMOVE, dbe file database &key :TRANSACTION :AUTO_COMMIT)
+DEFUN(BDB:DBE-DBREMOVE, dbe file database &key :TRANSACTION :AUTO_COMMIT)
 { /* remove DATABASE from FILE or the whole FILE */
   u_int32_t flags = bdb_ac_flags();
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
