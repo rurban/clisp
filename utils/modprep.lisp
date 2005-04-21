@@ -1087,6 +1087,11 @@ commas and parentheses."
               (formatln out "    ret |= ~A(Car(STACK_0));" c-name)
               (formatln out "  skipSTACK(1);")
               (formatln out "  return ret;")
+              (formatln out "}")
+              (formatln out "static ~A ~A_parse (object a) {" c-type c-name)
+              (formatln out "  if (integerp(a)) return (~A)I_to_L(a);" c-type)
+              (formatln out "  if (listp(a)) return ~A_from_list(a);" c-name)
+              (formatln out "  return ~A(a);" c-name)
               (formatln out "}"))))
     (newline out)))
 
