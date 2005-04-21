@@ -35,6 +35,8 @@ if test "$ac_cv_member_DB_ENV_get_home" = "no"; then
   AC_MSG_ERROR([Berkeley-DB version 4.2 or better is required])
 fi
 AC_CHECK_FUNCS(gettimeofday localtime strftime)
+AC_CHECK_SIZEOF(db_recno_t,,[#include <stdio.h>
+#include <db.h>])
 
 AC_MSG_NOTICE([ * Berkeley-DB (Output):])
 AC_CONFIG_FILES(Makefile link.sh)
