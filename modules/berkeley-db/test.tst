@@ -26,25 +26,27 @@ rmrf
       (ext:make-dir name))
   NIL)
 prepare-dir
+(defun show (object) (fresh-line) (prin1 object) (terpri) object) show
 (defun show-db (db)
-  (let ((*print-pretty* t))
-    (print (list db (bdb:db-fd db) (bdb:db-stat db)
-                 (bdb:db-get-options db))))
+  (let* ((*print-pretty* t) (stat (bdb:db-stat db))
+         (file (and (eq :RECNO (bdb::db-stat-type stat))
+                    (bdb:db-get-options db :RE_SOURCE))))
+    (show (list db (bdb:db-fd db) stat (bdb:db-get-options db)))
+    (when file (show-file file)))
   nil)
 show-db
 (defun show-dbe (dbe)
   (let ((*print-pretty* t))
-    (print (list dbe :archive (bdb:log-archive dbe)
-                 (bdb:txn-stat dbe) (bdb:lock-stat dbe) (bdb:log-stat dbe)
-                 (bdb:dbe-get-options dbe))))
+    (show (list dbe :archive (bdb:log-archive dbe)
+                (bdb:txn-stat dbe) (bdb:lock-stat dbe) (bdb:log-stat dbe)
+                (bdb:dbe-get-options dbe))))
   nil)
 show-dbe
 (defun show-file (file)
   (with-open-file (st file :direction :input)
     (format t "~&~S: ~:D byte~:P:~%" file (file-length st))
     (loop :for l = (read-line st nil nil) :while l
-      :do (format t "--> ~S~%" l))
-    (file-length st)))
+      :do (format t "--> ~S~%" l))))
 show-file
 (defun finish-file (file)
   (when (probe-file file) (show-file file))
@@ -71,7 +73,7 @@ nil
 
 ;;; creation
 
-(defvar *dbe* (print (bdb:dbe-create))) *dbe*
+(defvar *dbe* (show (bdb:dbe-create))) *dbe*
 
 (bdb:dbe-set-options *dbe* :errfile "bdb-errors" :errpfx "zot" :verbose t
                      :data_dir "bdb-data/")
@@ -85,7 +87,7 @@ NIL
 
 (show-dbe *dbe*) NIL
 
-(defvar *db* (let ((*print-pretty* t)) (print (bdb:db-create *dbe*)))) *db*
+(defvar *db* (let ((*print-pretty* t)) (show (bdb:db-create *dbe*)))) *db*
 
 ;; the actual file goes to ./bdb-data/bazonk.db !
 (bdb:db-open *db* "bazonk.db" :type :BTREE :create t) NIL
@@ -144,33 +146,33 @@ NIL
 
 ;;; write factorials into (:BTREE :HASH)
 (dolist (type '(:btree :hash))
-  (print type)
+  (show type)
   (bdb:with-db (db *dbe* (format nil "test-~A.db" type)
                    :open (:type type :create t))
     (show-db db)
-    (print (loop :repeat 20 :for x = (random 30) :for x! = (! x)
-             :collect (list x x! (bdb:db-put db x x!))))))
+    (show (loop :repeat 20 :for x = (random 30) :for x! = (! x)
+            :collect (list x x! (bdb:db-put db x x!))))))
 NIL
 
 ;;; write factorials into (:QUEUE :RECNO)
 (dolist (type '(:queue :recno))
-  (print type)
+  (show type)
   (let ((max 30))
     (bdb:with-db (db *dbe* (format nil "test-~A.db" type)
-                     :options (:RE_LEN (print (* 4 (ceiling (integer-length
-                                                             (! max)) 32)))
+                     :options (:RE_LEN (show (* 4 (ceiling (integer-length
+                                                            (! max)) 32)))
                                :RE_PAD 0)
                      :open (:type type :create t))
       (show-db db)
-      (print (loop :repeat 20 :for x = (random max) :collect
-               (list (bdb:db-put db nil x :action :APPEND) x
-                     (bdb:db-put db nil (! x) :action :APPEND) (! x))))
-      (print db))))
+      (show (loop :repeat 20 :for x = (random max) :collect
+              (list (bdb:db-put db nil x :action :APPEND) x
+                    (bdb:db-put db nil (! x) :action :APPEND) (! x))))
+      (show db))))
 NIL
 
 ;; locks - will NOT be automatically closed by DBE-CLOSE
-(defparameter *locker* (print (bdb:lock-id *dbe*))) *locker*
-(defparameter *lock* (print (bdb:lock-get *dbe* "foo" *locker* :READ)))
+(defparameter *locker* (show (bdb:lock-id *dbe*))) *locker*
+(defparameter *lock* (show (bdb:lock-get *dbe* "foo" *locker* :READ)))
 *lock*
 
 (close *dbe*) T
@@ -183,7 +185,7 @@ NIL
 
 ;;; access
 
-(let ((*print-pretty* t)) (setq *dbe* (print (bdb:dbe-create))) nil) NIL
+(let ((*print-pretty* t)) (setq *dbe* (show (bdb:dbe-create))) nil) NIL
 
 (bdb:dbe-set-options *dbe* :errfile "bdb-errors" :verbose t
                      :data_dir "bdb-data/")
@@ -206,7 +208,7 @@ NIL
 
 (show-dbe *dbe*) NIL
 
-(let ((*print-pretty* t)) (setq *db* (print (bdb:db-create *dbe*))) nil) NIL
+(let ((*print-pretty* t)) (setq *db* (show (bdb:db-create *dbe*))) nil) NIL
 
 (bdb:db-open *db* "bazonk.db" :rdonly t) NIL
 
@@ -214,7 +216,7 @@ NIL
 
 (= (bdb:db-get-options *db* :errfile) (bdb:dbe-get-options *dbe* :errfile)) T
 
-(defvar *cursor* (print (bdb:make-dbc *db*))) *cursor*
+(defvar *cursor* (show (bdb:make-dbc *db*))) *cursor*
 
 (let ((li ()))
   (loop (multiple-value-bind (key val)
@@ -234,51 +236,63 @@ NIL
 (close *cursor*) T
 (close *db*)     T
 
-(let ((*print-pretty* t)) (setq *db* (print (bdb:db-create *dbe*))) nil) NIL
+(let ((*print-pretty* t)) (setq *db* (show (bdb:db-create *dbe*))) nil) NIL
 (bdb:db-open *db* "bazonk.db") NIL
 (bdb:db-truncate *db*)      2   ; the number of records discarded
 (close *db*)         T
 
 ;;; read factorials from (:BTREE :HASH)
-(dolist (type '(:btree :hash))
-  (print type)
-  (bdb:with-db (db *dbe* (format nil "test-~A.db" type) :open (:rdonly t))
-    (show-db db)
-    (bdb:with-dbc (cu db)
-      (loop (multiple-value-bind (key val)
-                (bdb:dbc-get cu :INTEGER :INTEGER :NEXT :error nil)
-              (when (eq key :notfound) (return))
-              (format t "~&=[count=~D]=> ~S -> ~S~%"
-                      (bdb:dbc-count cu) key val)
-              (assert (= (! key) val)))))))
-NIL
+(let ((errors ()))
+  (dolist (type '(:btree :hash) (nreverse errors))
+    (show type)
+    (push (list type) errors)
+    (bdb:with-db (db *dbe* (format nil "test-~A.db" type) :open (:rdonly t))
+      (show-db db)
+      (bdb:with-dbc (cu db)
+        (loop (multiple-value-bind (key val)
+                  (bdb:dbc-get cu :INTEGER :INTEGER :NEXT :error nil)
+                (when (eq key :notfound) (return))
+                (format t "~&=[count=~D]=> ~S -> ~S~%"
+                        (bdb:dbc-count cu) key val)
+                (unless (= (! key) val)
+                  (push (list :count (bdb:dbc-count cu) :key key :val val
+                              :key! (! key))
+                        (car errors)))))
+        (setf (car errors) (nreverse (car errors)))))))
+((:BTREE) (:HASH))
 
 ;;; read factorials from (:QUEUE :RECNO)
-(dolist (type '(:queue :recno))
-  (print type)
-  (bdb:with-db (db *dbe* (format nil "test-~A.db" type) :open (:rdonly t))
-    (show-db db)
-    (bdb:with-dbc (cu db)
-      (loop (multiple-value-bind (key val)
-                (bdb:dbc-get cu :INTEGER :INTEGER :NEXT :error nil)
-              (when (eq key :notfound) (return))
-              (format t "~&=[count=~D]=> ~S -> ~S~%"
-                      (bdb:dbc-count cu) key val)
-              (multiple-value-bind (key1 val1)
-                  (bdb:dbc-get cu :INTEGER :INTEGER :NEXT)
+(let ((errors ()))
+  (dolist (type '(:queue :recno) (nreverse errors))
+    (show type)
+    (push (list type) errors)
+    (bdb:with-db (db *dbe* (format nil "test-~A.db" type) :open (:rdonly t))
+      (show-db db)
+      (bdb:with-dbc (cu db)
+        (loop (multiple-value-bind (key val)
+                  (bdb:dbc-get cu :INTEGER :INTEGER :NEXT :error nil)
+                (when (eq key :notfound) (return))
                 (format t "~&=[count=~D]=> ~S -> ~S~%"
-                        (bdb:dbc-count cu) key1 val1)
-                (assert (= (! val) val1))))))))
-NIL
+                        (bdb:dbc-count cu) key val)
+                (multiple-value-bind (key1 val1)
+                    (bdb:dbc-get cu :INTEGER :INTEGER :NEXT)
+                  (format t "~&=[count=~D]=> ~S -> ~S~%"
+                          (bdb:dbc-count cu) key1 val1)
+                  (unless (= (! val) val1)
+                    (push (list :count (bdb:dbc-count cu) :key key :val val
+                                :key1 key1 :val1 val1 :val! (! val))
+                          (car errors))))))
+        (setf (car errors) (nreverse (car errors)))))))
+((:QUEUE) (:RECNO))
 
 ;; transactions - will be automatically closed (committed) by DBE-CLOSE
 (let ((txn (bdb:txn-begin *dbe*)) (*print-pretty* t))
-  (print (list txn (bdb:txn-begin *dbe* :parent txn) *dbe*))
+  (show (list txn (bdb:txn-begin *dbe* :parent txn) *dbe*))
   nil)
 nil
 
 ;; *locker* & *lock* come from a previous incarnation of *dbe*
-(bdb:lock-put *dbe* (print *lock*)) NIL
+(bdb:lock-put *dbe* (show *lock*)) NIL
 (bdb:lock-id-free *dbe* *locker*) NIL
 
 (show-dbe *dbe*) NIL
