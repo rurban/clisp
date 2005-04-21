@@ -59,11 +59,13 @@
     database newname &key-amp; TRANSACTION AUTO_COMMIT)</code></term>
   <listitem><simpara>Rename a database (&DBE_dbrename;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(BDB:DBE-OPEN dbe &key-amp;
-    HOME JOIN INIT_CDB INIT_LOCK INIT_LOG INIT_MPOOL INIT_TXN
+ <varlistentry id="dbe-open"><term><code>(BDB:DBE-OPEN dbe &key-amp;
+    FLAGS HOME JOIN INIT_CDB INIT_LOCK INIT_LOG INIT_MPOOL INIT_TXN
     RECOVER RECOVER_FATAL USE_ENVIRON USE_ENVIRON_ROOT CREATE
     LOCKDOWN PRIVATE SYSTEM_MEM THREAD MODE)</code></term>
   <listitem><simpara>Open an environment (&DBE_open;).
+    <constant>:FLAGS</constant> may be the value of a previous call
+    to <code>(&dbe-get-options; dbe :OPEN)</code>.
  </simpara></listitem></varlistentry>
  <varlistentry><term><code>(BDB:DBE-REMOVE dbe &key-amp;
     HOME FORCE USE_ENVIRON USE_ENVIRON_ROOT)</code></term>
@@ -113,7 +115,7 @@
     <member>&DBE_set_lk_max_locks;</member>
     <member>&DBE_set_lk_max_objects;</member>
 </simplelist></para></listitem></varlistentry>
-<varlistentry><term><code>(BDB:DBE-GET-OPTIONS dbe
+<varlistentry id="dbe-get-options"><term><code>(BDB:DBE-GET-OPTIONS dbe
    &optional-amp; &what-r;)</code></term>
  <listitem><para>Retrieve some environment options.
    <variablelist><title>Values of &what-r;</title>
@@ -209,11 +211,11 @@
        &unsigned-byte-vec; which must be passed to &TXN_prepare;.
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:HOME</constant></term>
-     <listitem><simpara>the home directory (when open) or &t;.
+     <listitem><simpara>the home directory (&DBE_get_home;) when open
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:OPEN</constant></term>
-     <listitem><simpara>the &list-t; of open flags (when open) or &t;.
-    </simpara></listitem></varlistentry>
+     <listitem><simpara>the &list-t; of flags passed to &dbe-open;
+       (&DBE_get_open_flags;)</simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 </variablelist></section>
 
@@ -262,7 +264,7 @@
  <listitem><simpara>Return database statistics (&DB_get_byteswapped;,
    &DB_get_type;, &DB_stat;).</simpara></listitem></varlistentry>
 <varlistentry id="db-open"><term><code>(BDB:DB-OPEN db file &key-amp;
-   DATABASE TYPE MODE CREATE DIRTY_READ EXCL NOMMAP RDONLY
+   DATABASE TYPE MODE FLAGS CREATE DIRTY_READ EXCL NOMMAP RDONLY
    THREAD TRUNCATE AUTO_COMMIT TRANSACTION)</code></term>
  <listitem><para>Open a database (&DB_open;).
    <constant>:TYPE</constant> should be one of
@@ -271,6 +273,8 @@
     <member><constant>:QUEUE</constant></member>
     <member><constant>:RECNO</constant></member>
     <member><constant>:UNKNOWN</constant> (default)</member></simplelist>
+   <constant>:FLAGS</constant> may be the value of a previous call
+   to <code>(&db-get-options; db :OPEN)</code>
 </para></listitem></varlistentry>
 <varlistentry><term><code>(BDB:DB-SYNC db)</code></term>
  <listitem><simpara>Flush a database to stable storage (&DB_sync;).
@@ -354,7 +358,7 @@
     <member>&DB_set_re_source;</member>
     <member>&DB_set_flags;</member>
    </simplelist></para></listitem></varlistentry>
-<varlistentry><term><code>(BDB:DB-GET-OPTIONS db
+<varlistentry id="db-get-options"><term><code>(BDB:DB-GET-OPTIONS db
    &optional-amp; &what-r;)</code></term>
  <listitem><para>Retrieve some database options.
    <variablelist><title>Values of &what-r;</title>
@@ -424,6 +428,16 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:LORDER</constant></term>
      <listitem><simpara>database byte order (&DB_get_lorder;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:DBNAME</constant></term>
+     <listitem><simpara>the file name and database name (&DB_get_dbname;)
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:TRANSACTIONAL</constant></term>
+     <listitem><simpara>the indicator whether the database is
+       transactional (&DB_get_transactional;)
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:OPEN</constant></term>
+     <listitem><simpara>the flags passed to &db-open; (&DB_get_open_flags;)
     </simpara></listitem></varlistentry>
   </variablelist></para>
   <warning><para>Once you call a method for one type of access method,
