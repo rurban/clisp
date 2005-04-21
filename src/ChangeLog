@@ -1,5 +1,18 @@
 2005-04-21  Sam Steingold  <sds@gnu.org>
 
+	clean-up the LEbytes_to_I breakage
+	* modules/berkeley-db/bdb.c (db_recno_p, db_recno_to_I, I_to_db_recno):
+	define depending on SIZEOF_DB_RECNO_T
+	(fill_dbt): re_len==-1 means this is a key and thus db_recno_t
+	must be handled specially; fix the bitsize argument to I_to_LEbytes()
+	(dbt_to_object): added the key_p argument, symmetric to re_len==-1
+	(DB-DEL, DB-GET, DB-PUT, DB-KEY-RANGE, DBC-GET, DBC-PUT): pass
+	re_len==-1 to fill_dbt(key) becase re_len is not applicable to keys
+	(DB-GET, DB-PUT, DBC-GET, LOGC-GET): pass key_p to dbt_to_object()
+	* modules/berkeley-db/configure.in (db_recno_t): check SIZEOF
+
+2005-04-21  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (base-mod-check, mod-check):
 	handle the case when there are no test files
 
