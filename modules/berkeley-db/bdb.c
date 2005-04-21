@@ -2140,7 +2140,7 @@ DEFUN(BDB:TXN-ABORT, txn)
   } else { skipSTACK(1); VALUES1(NIL); }
 }
 
-DEFCHECKER(txn_check_sync,prefix=DB_TXN,default=DB_TXN_NOSYNC, NOSYNC SYNC)
+DEFCHECKER(txn_check_sync,prefix=DB_TXN,default=0, NOSYNC SYNC)
 DEFUN(BDB:TXN-COMMIT, txn &key :SYNC)
 { /* Commit a transaction */
   u_int32_t flags = txn_check_sync(popSTACK());
