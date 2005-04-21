@@ -344,12 +344,16 @@ DEFFLAGSET(dbe_open_flags, DB_JOINENV DB_INIT_CDB DB_INIT_LOCK DB_INIT_LOG \
            DB_INIT_MPOOL DB_INIT_TXN DB_RECOVER DB_RECOVER_FATAL        \
            DB_USE_ENVIRON DB_USE_ENVIRON_ROOT DB_CREATE DB_LOCKDOWN     \
            DB_PRIVATE DB_SYSTEM_MEM DB_THREAD)
-DEFUN(BDB:DBE-OPEN, dbe &key :HOME :JOINENV :INIT_CDB :INIT_LOCK :INIT_LOG \
-      :INIT_MPOOL :INIT_TXN :RECOVER :RECOVER_FATAL :USE_ENVIRON        \
+DEFCHECKER(check_dbe_open_flags,prefix=DB,default=0,bitmasks=both,      \
+           type=uint32_t, JOINENV INIT_CDB INIT_LOCK INIT_LOG           \
+           INIT_MPOOL INIT_TXN RECOVER RECOVER_FATAL USE_ENVIRON        \
+           USE_ENVIRON_ROOT CREATE LOCKDOWN PRIVATE SYSTEM_MEM THREAD)
+DEFUN(BDB:DBE-OPEN, dbe &key :HOME :FLAGS :JOINENV :INIT_CDB :INIT_LOCK    \
+      :INIT_LOG :INIT_MPOOL :INIT_TXN :RECOVER :RECOVER_FATAL :USE_ENVIRON \
       :USE_ENVIRON_ROOT :CREATE :LOCKDOWN :PRIVATE :SYSTEM_MEM :THREAD :MODE)
 { /* open DB environment */
   int mode = posfixnum_default(popSTACK());
-  u_int32_t flags = dbe_open_flags();
+  u_int32_t flags = dbe_open_flags() | check_dbe_open_flags_parse(popSTACK());
   DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,BH_VALID);
   if (!missingp(STACK_0)) {
     with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),home,
@@ -639,11 +643,11 @@ static object dbe_get_home_dir (DB_ENV *dbe, int errorp) {
   if (home == NULL) return NIL;
   return asciz_to_string(home,GLO(pathname_encoding));
 }
-/* get the open flags
+/* get the DBE open flags
    return T when DBE is not yet open and a list otherwise
  can trigger GC */
 static object dbe_get_open_flags (DB_ENV *dbe, int errorp) {
-  u_int32_t flags, count=0, status;
+  u_int32_t flags, status;
   begin_system_call();
   status = dbe->get_open_flags(dbe,&flags);
   end_system_call();
@@ -651,22 +655,7 @@ static object dbe_get_open_flags (DB_ENV *dbe, int errorp) {
     if (errorp) error_bdb(status,"dbe->get_open_flags");
     error_message_reset(); return T;
   }
-  if (flags & DB_JOINENV) { pushSTACK(`:JOINENV`); count++; }
-  if (flags & DB_INIT_CDB) { pushSTACK(`:INIT_CDB`); count++; }
-  if (flags & DB_INIT_LOCK) { pushSTACK(`:INIT_LOCK`); count++; }
-  if (flags & DB_INIT_LOG) { pushSTACK(`:INIT_LOG`); count++; }
-  if (flags & DB_INIT_MPOOL) { pushSTACK(`:INIT_MPOOL`); count++; }
-  if (flags & DB_INIT_TXN) { pushSTACK(`:INIT_TXN`); count++; }
-  if (flags & DB_RECOVER) { pushSTACK(`:RECOVER`); count++; }
-  if (flags & DB_RECOVER_FATAL) { pushSTACK(`:RECOVER_FATAL`); count++; }
-  if (flags & DB_USE_ENVIRON) { pushSTACK(`:USE_ENVIRON`); count++; }
-  if (flags & DB_USE_ENVIRON_ROOT) { pushSTACK(`:USE_ENVIRON_ROOT`); count++; }
-  if (flags & DB_CREATE) { pushSTACK(`:CREATE`); count++; }
-  if (flags & DB_LOCKDOWN) { pushSTACK(`:LOCKDOWN`); count++; }
-  if (flags & DB_PRIVATE) { pushSTACK(`:PRIVATE`); count++; }
-  if (flags & DB_SYSTEM_MEM) { pushSTACK(`:SYSTEM_MEM`); count++; }
-  if (flags & DB_THREAD) { pushSTACK(`:THREAD`); count++; }
-  return listof(count);
+  return check_dbe_open_flags_to_list(flags);
 }
 /* get the flags
  can trigger GC */
@@ -1212,11 +1201,14 @@ DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
 
 DEFFLAGSET(db_open_flags, DB_CREATE DB_DIRTY_READ DB_EXCL DB_NOMMAP \
            DB_RDONLY DB_THREAD DB_TRUNCATE DB_AUTO_COMMIT)
-DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :CREATE :DIRTY_READ \
-      :EXCL :NOMMAP :RDONLY :THREAD :TRUNCATE :AUTO_COMMIT :TRANSACTION)
+DEFCHECKER(check_db_open_flags,prefix=DB,default=0,bitmasks=both,type=uint32_t,\
+           CREATE DIRTY_READ EXCL NOMMAP RDONLY THREAD TRUNCATE AUTO_COMMIT)
+DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :FLAGS      \
+      :CREATE :DIRTY_READ :EXCL :NOMMAP :RDONLY :THREAD :TRUNCATE \
+      :AUTO_COMMIT :TRANSACTION)
 { /* Open a database */
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
-  u_int32_t flags = db_open_flags();
+  u_int32_t flags = db_open_flags() | check_db_open_flags_parse(popSTACK());
   int mode = posfixnum_default2(popSTACK(),0644);
   DBTYPE db_type = check_dbtype(popSTACK());
   DB *db = (DB*)bdb_handle(STACK_2,`BDB::DB`,BH_VALID);
@@ -1468,6 +1460,20 @@ static object db_get_flags_list (DB *db) {
   if (flags & DB_SNAPSHOT) { pushSTACK(`:SNAPSHOT`); count++; }
   return listof(count);
 }
+/* get the DB open flags
+   return T when DB is not yet open and a list otherwise
+ can trigger GC */
+static object db_get_open_flags (DB *db, int errorp) {
+  u_int32_t flags, status;
+  begin_system_call();
+  status = db->get_open_flags(db,&flags);
+  end_system_call();
+  if (status) {
+    if (errorp) error_bdb(status,"db->get_open_flags");
+    error_message_reset(); return T;
+  }
+  return check_db_open_flags_to_list(flags);
+}
 
 DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :ERRPFX :PASSWORD :ENCRYPTION \
       :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :BT_MINKEY :H_FFACTOR \
@@ -1673,11 +1679,15 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     pushSTACK(`:DBNAME`); db_get_dbname(db,false);
     pushSTACK(value1); pushSTACK(value2); value1 = listof(2);
     pushSTACK(value1); count++;
+    pushSTACK(`:OPEN`); value1 = db_get_open_flags(db,false);
+    pushSTACK(value1); count++;
     VALUES1(listof(2*count));
   } else if (eq(what,`:CACHE`)) {
     db_get_cache(db,true); mv_count = 2;
   } else if (eq(what,`:DBNAME`)) {
     db_get_dbname(db,true); mv_count = 2;
+  } else if (eq(what,`:OPEN`)) {
+    VALUES1(db_get_open_flags(db,true));
   } else if (eq(what,`:ENCRYPTION`)) {
     u_int32_t flags;
     SYSCALL(db->get_encrypt_flags,(db,&flags));

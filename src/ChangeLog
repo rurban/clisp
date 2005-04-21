@@ -1,5 +1,15 @@
 2005-04-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (check_dbe_open_flags): new DEFCHECKER
+	(DBE-OPEN): accept :FLAGS
+	(dbe_get_open_flags): use check_dbe_open_flags_to_list()
+	(check_db_open_flags): new DEFCHECKER
+	(DB-OPEN): accept :FLAGS
+	(db_get_open_flags): new function (uses check_db_open_flags_to_list())
+	(DB-GET-OPTIONS): accept :OPEN
+
+2005-04-21  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (print-tables-1): output C-NAME_parse()
 	* modules/syscalls/calls.c (parse_mode): removed
 	(SET-FILE-STAT, UMASK, MKNOD): use check_chmod_mode_parse instead
