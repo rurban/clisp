@@ -367,7 +367,7 @@ DEFFLAGSET(dbe_remove_flags, DB_FORCE DB_USE_ENVIRON DB_USE_ENVIRON_ROOT)
 DEFUN(BDB:DBE-REMOVE, dbe &key :HOME :FORCE :USE_ENVIRON :USE_ENVIRON_ROOT)
 { /* destroy an environment */
   u_int32_t flags = dbe_remove_flags();
-  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,BH_VALID);
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,BH_INVALIDATE);
   if (!missingp(STACK_0)) {
     with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),home,
                   { SYSCALL(dbe->remove,(dbe,home,flags)); });
