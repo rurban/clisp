@@ -1320,13 +1320,13 @@ DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
   u_int32_t flags = db_put_flags();
   DB *db = (DB*)bdb_handle(STACK_2,`BDB::DB`,BH_VALID);
   DBT key, val;
-  fill_dbt(STACK_0,&val,-1);
+  fill_dbt(STACK_0,&val,record_length(db));
   if (action == DB_APPEND) {     /* DB is :QUEUE or :RECNO */
     init_dbt(&key,DB_DBT_MALLOC); /* key is ignored - it will be returned */
     SYSCALL1(db->put,(db,txn,&key,&val,action | flags),{free(val.data);});
     VALUES1(dbt_to_object(&key,DBT_INTEGER,true));
   } else {
-    fill_dbt(STACK_1,&key,record_length(db));
+    fill_dbt(STACK_1,&key,-1);
     switch (action) {
       case DB_NODUPDATA: case DB_NOOVERWRITE: {
         int status;
