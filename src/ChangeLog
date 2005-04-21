@@ -3,6 +3,8 @@
 	* modules/berkeley-db/bdb.c (asciz_to_string0): new inline
 	(dbe_get_errpfx, get_lg_dir, get_tmp_dir, get_re_source): use it
 	(txn_check_sync): restore default=0
+	(db_get_dbname, db_get_transactional): new functions
+	(DB-GET-OPTIONS): accept :DBNAME and :TRANSACTIONAL
 	* modules/berkeley-db/test.tst (show): new function,
 	use instead of PRINT for better spacing
 	collect bad items instead of using ASSERT
