@@ -1597,9 +1597,30 @@ static void db_get_cache (DB* db, int errorp) {
     value2 = fixnum(ncache);
   }
 }
+/* get file name and database name
+   value1 == file name, value2 = database name
+ can trigger GC */
+static void db_get_dbname (DB* db, int errorp) {
+  const char *fname, *dbname;
+  int status;
+  begin_system_call();
+  status = db->get_dbname(db,&fname,&dbname);
+  end_system_call();
+  if (status) {
+    if (errorp) error_bdb(status,"db->get_cachesize");
+    error_message_reset();
+    value1 = value2 = NIL;
+  } else {
+    pushSTACK(asciz_to_string0(fname,GLO(pathname_encoding)));
+    value2 = asciz_to_string0(dbname,GLO(misc_encoding));
+    value1 = popSTACK();
+  }
+}
+
 #define DEFINE_DB_GETTER1(g,t,f)   DEFINE_GETTER1(db,DB,g,t,f)
 DEFINE_DB_GETTER1(get_lorder,int,L_to_I(value))
 DEFINE_DB_GETTER1(get_pagesize,u_int32_t,UL_to_I(value))
+DEFINE_DB_GETTER1(get_transactional,int,(value?T:NIL))
 #define DEFINE_DB_GETTER2(getter,type,finish)           \
   static object db_##getter (DB* db,int errorp) {       \
     type value;                                         \
@@ -1648,9 +1669,15 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     pushSTACK(`:RE_LEN`); pushSTACK(db_get_re_len(db,false)); count++;
     pushSTACK(`:RE_PAD`); pushSTACK(db_get_re_pad(db,false)); count++;
     pushSTACK(`:RE_SOURCE`); pushSTACK(db_get_re_source(db,false)); count++;
+    pushSTACK(`:TRANSACTIONAL`); pushSTACK(db_get_transactional(db)); count++;
+    pushSTACK(`:DBNAME`); db_get_dbname(db,false);
+    pushSTACK(value1); pushSTACK(value2); value1 = listof(2);
+    pushSTACK(value1); count++;
     VALUES1(listof(2*count));
   } else if (eq(what,`:CACHE`)) {
     db_get_cache(db,true); mv_count = 2;
+  } else if (eq(what,`:DBNAME`)) {
+    db_get_dbname(db,true); mv_count = 2;
   } else if (eq(what,`:ENCRYPTION`)) {
     u_int32_t flags;
     SYSCALL(db->get_encrypt_flags,(db,&flags));
@@ -1665,6 +1692,8 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     VALUES1(dbe_get_errpfx(db->dbenv));
   } else if (eq(what,`:PAGESIZE`)) {
     VALUES1(db_get_pagesize(db));
+  } else if (eq(what,`:TRANSACTIONAL`)) {
+    VALUES1(db_get_transactional(db));
   } else if (eq(what,`:BT_MINKEY`)) {
     VALUES1(db_get_bt_minkey(db,true));
   } else if (eq(what,`:H_FFACTOR`)) {
