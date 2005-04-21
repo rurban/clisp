@@ -9,6 +9,7 @@
 	(DB-DEL, DB-GET, DB-PUT, DB-KEY-RANGE, DBC-GET, DBC-PUT): pass
 	re_len==-1 to fill_dbt(key) becase re_len is not applicable to keys
 	(DB-GET, DB-PUT, DBC-GET, LOGC-GET): pass key_p to dbt_to_object()
+	(fill_or_init): re_len is int, not u_int32_t
 	* modules/berkeley-db/configure.in (db_recno_t): check SIZEOF
 
 2005-04-21  Sam Steingold  <sds@gnu.org>
