@@ -1837,7 +1837,7 @@ DEFUN(BDB:DBC-DUP, cursor &key :POSITION)
   skipSTACK(1);
 }
 
-static dbt_o_t fill_or_init (object datum, DBT *pdbt, u_int32_t re_len) {
+static dbt_o_t fill_or_init (object datum, DBT *pdbt, int re_len) {
   if (symbolp(datum)) {       /* type spec for the return value */
     init_dbt(pdbt,DB_DBT_MALLOC);
     return check_dbt_type(datum);
