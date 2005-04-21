@@ -70,6 +70,10 @@ static void vecout (unsigned char* v, int l) {
 # define VECOUT(v,l)
 #endif
 
+/* convert C string to Lisp string; NULL --> NIL  */
+static inline object asciz_to_string0 (const char* a, object e)
+{ return a ? asciz_to_string(a,e) : NIL; }
+
 #include <db.h>
 
 #ifndef MAX
@@ -430,7 +434,7 @@ static object dbe_get_errpfx (DB_ENV *dbe) {
   begin_system_call();
   dbe->get_errpfx(dbe,&errpfx);
   end_system_call();
-  return errpfx ? asciz_to_string(errpfx,GLO(misc_encoding)) : NIL;
+  return asciz_to_string0(errpfx,GLO(misc_encoding));
 }
 /* define a flag checker */
 #define FLAG_EXTRACTOR(name,type)                       \
@@ -705,11 +709,11 @@ DEFINE_DBE_GETTER1(get_lk_max_locks,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_lk_max_objects,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_lg_bsize,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_lg_dir,const char *,
-                   value ? asciz_to_string(value,GLO(pathname_encoding)) : NIL)
+                   asciz_to_string0(value,GLO(pathname_encoding)))
 DEFINE_DBE_GETTER1(get_lg_max,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_lg_regionmax,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_tmp_dir,const char *,
-                   value ? asciz_to_string(value,GLO(pathname_encoding)) : NIL)
+                   asciz_to_string0(value,GLO(pathname_encoding)))
 DEFINE_DBE_GETTER1(get_tx_max,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_tx_timestamp,time_t,convert_time_to_universal(&value))
 
@@ -1618,7 +1622,7 @@ DEFINE_DB_GETTER2(get_re_delim,int,L_to_I(value))
 DEFINE_DB_GETTER2(get_re_len,u_int32_t,UL_to_I(value))
 DEFINE_DB_GETTER2(get_re_pad,int,L_to_I(value))
 DEFINE_DB_GETTER2(get_re_source,const char*,
-                  value ? asciz_to_string(value,GLO(pathname_encoding)) : NIL)
+                  asciz_to_string0(value,GLO(pathname_encoding)))
 FLAG_EXTRACTOR(db_get_flags_num,DB*)
 DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
 { /* retrieve database options */

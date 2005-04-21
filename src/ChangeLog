@@ -1,3 +1,8 @@
+2005-04-20  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c (asciz_to_string0): new inline
+	(dbe_get_errpfx, get_lg_dir, get_tmp_dir, get_re_source): use it
+
 2005-04-19  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/dbi.lisp (with-dbe): new exported macro
