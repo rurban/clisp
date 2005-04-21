@@ -3276,11 +3276,11 @@ cygwin_check full
 echol
 echol "base-mod-check : clisp ${TESTSDIR} # base"
 echotab 'for m in $(BASE_MODULES); do $(RM) $$m/*.erg; done'
-echotab 'z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (run-some-tests :dirlist '"'"'($$z))))"'
+echotab 'z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
 echol
 echol "mod-check : base-mod-check # full"
 echotab 'for m in $(MODULES); do $(RM) $$m/*.erg; done'
-echotab 'z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (run-some-tests :dirlist '"'"'($$z))))"'
+echotab 'z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
 echol
 OBSOLETE=$OBSOLETE" genclisph${HEXE}"
 
