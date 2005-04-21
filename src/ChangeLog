@@ -28,6 +28,7 @@
 	(DB-GET-OPTIONS): accept :OPEN
 	(bdb_ac_flags): replaces db_put_flags()
 	(ENV-DBREMOVE, DBE-DBRENAME, DB-DEL, DB-TRUNCATE, DB-PUT): use it
+	(DBE-REMOVE): invalidate the handle
 
 2005-04-21  Sam Steingold  <sds@gnu.org>
 

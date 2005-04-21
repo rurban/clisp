@@ -239,6 +239,7 @@ NIL
 (let ((*print-pretty* t)) (setq *db* (show (bdb:db-create *dbe*))) nil) NIL
 (bdb:db-open *db* "bazonk.db") NIL
 (bdb:db-truncate *db*)      2   ; the number of records discarded
+(multiple-value-list (bdb:db-get-options *db* :dbname)) ("bazonk.db" NIL)
 (close *db*)         T
 
 ;;; read factorials from (:BTREE :HASH)
@@ -297,6 +298,7 @@ nil
 
 (show-dbe *dbe*) NIL
 (close *dbe*)    T
+(bdb:dbe-remove (show (bdb:dbe-create)) :home "bdb-home/") NIL
 
 (finish-file "bdb-errors") NIL
 (rmrf "bdb-home/") T
