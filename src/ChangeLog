@@ -1,5 +1,10 @@
 2005-04-21  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (base-mod-check, mod-check):
+	handle the case when there are no test files
+
+2005-04-21  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (check_dbe_open_flags): new DEFCHECKER
 	(DBE-OPEN): accept :FLAGS
 	(dbe_get_open_flags): use check_dbe_open_flags_to_list()
