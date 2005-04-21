@@ -742,7 +742,7 @@ FLAG_EXTRACTOR(dbe_get_flags_num,DB_ENV*)
 DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
   object what = STACK_0;
   /* dbe may be NULL only for DB_XIDDATASIZE */
-  DB_ENV *dbe =(DB_ENV*) bdb_handle(STACK_1,`BDB::DBE`,
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,
                                     eq(what,`:DB_XIDDATASIZE`)
                                     ? BH_NIL_IS_NULL : BH_VALID);
   what = STACK_0; skipSTACK(2);
@@ -1315,7 +1315,7 @@ DEFCHECKER(db_put_action,prefix=DB, default=0, APPEND NODUPDATA NOOVERWRITE)
 DEFFLAGSET(db_put_flags, DB_AUTO_COMMIT)
 DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
 { /* Store items into a database */
-  DB_TXN *txn =(DB_TXN*) bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
+  DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
   u_int32_t action = db_put_action(popSTACK());
   u_int32_t flags = db_put_flags();
   DB *db = (DB*)bdb_handle(STACK_2,`BDB::DB`,BH_VALID);
