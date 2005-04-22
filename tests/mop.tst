@@ -2434,6 +2434,25 @@ T
 T
 
 
+;; Check that DEFMETHOD calls REMOVE-METHOD.
+(let ((remove-method-called nil))
+  (defclass testgenericfunction143 (standard-generic-function)
+    ()
+    (:metaclass clos:funcallable-standard-class))
+  (defmethod remove-method :before ((gf testgenericfunction143) (method standard-method))
+    (setq remove-method-called t))
+  (defgeneric testgf143 (x)
+    (:generic-function-class testgenericfunction143))
+  (defmethod testgf143 (x)
+    (declare (ignore x))
+    17)
+  (defmethod testgf143 (x)
+    (declare (ignore x))
+    19)
+  remove-method-called)
+T
+
+
 ;; Check that it's possible to call methods individually.
 (progn
   (defgeneric foo141 (x)
