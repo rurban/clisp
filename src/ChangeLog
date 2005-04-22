@@ -1,5 +1,11 @@
 2005-04-21  Bruno Haible  <bruno@clisp.org>
 
+	* genclisph.d (main): Emit check_array etc. conditionally, not if
+	COMPILE_STANDALONE is defined. Needed to avoid link errors with
+	compilers that don't eliminate inline functions.
+
+2005-04-21  Bruno Haible  <bruno@clisp.org>
+
 	* foreign.d (dlerror_string): Use 'const char*' instead of 'char*'.
 	Avoids a gcc warning on MacOS X.
 

@@ -1976,17 +1976,21 @@ int main(int argc, char* argv[])
   printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
 #endif
   printf("extern object check_array_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_array (object obj) {"
           " if (!arrayp(obj))"
             " obj = check_array_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_posfixnum_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_posfixnum (object obj) {"
           " if (!posfixnump(obj))"
             " obj = check_posfixnum_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline uintL posfixnum_default2 (object obj, uintL d) {"
          " return missingp(obj) ? d : posfixnum_to_L(check_posfixnum(obj)); "
@@ -2003,18 +2007,22 @@ int main(int argc, char* argv[])
   printf("#endif\n");
 #if notused
   printf("extern object check_char_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_char (object obj) {"
           " if (!charp(obj))"
             " obj = check_char_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
 #endif
   printf("extern object check_string_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_string (object obj) {"
           " if (!stringp(obj))"
             " obj = check_string_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object physical_namestring (object obj);\n");
 #if notused
   printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
@@ -2023,89 +2031,117 @@ int main(int argc, char* argv[])
   printf("nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));\n");
   printf("nonreturning_function(extern, fehler_key_badkw, (object fun, object key, object val, object kwlist));\n");
   printf("extern object check_uint8_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_uint8 (object obj) {"
           " if (!uint8_p(obj))"
             " obj = check_uint8_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_sint8_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_sint8 (object obj) {"
           " if (!sint8_p(obj))"
             " obj = check_sint8_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_uint16_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_uint16 (object obj) {"
           " if (!uint16_p(obj))"
             " obj = check_uint16_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_sint16_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_sint16 (object obj) {"
           " if (!sint16_p(obj))"
             " obj = check_sint16_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_uint32_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_uint32 (object obj) {"
           " if (!uint32_p(obj))"
             " obj = check_uint32_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_sint32_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_sint32 (object obj) {"
           " if (!sint32_p(obj))"
             " obj = check_sint32_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_uint64_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_uint64 (object obj) {"
           " if (!uint64_p(obj))"
             " obj = check_uint64_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_sint64_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_sint64 (object obj) {"
           " if (!sint64_p(obj))"
             " obj = check_sint64_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_uint_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_uint (object obj) {"
           " if (!uint_p(obj))"
             " obj = check_uint_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_sint_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_sint (object obj) {"
           " if (!sint_p(obj))"
             " obj = check_sint_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_ulong_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_ulong (object obj) {"
           " if (!ulong_p(obj))"
             " obj = check_ulong_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_slong_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_slong (object obj) {"
           " if (!slong_p(obj))"
             " obj = check_slong_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_ffloat_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_ffloat (object obj) {"
           " if (!single_float_p(obj))"
             " obj = check_ffloat_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern object check_dfloat_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_dfloat (object obj) {"
           " if (!double_float_p(obj))"
             " obj = check_dfloat_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("extern double to_double (object obj);\n");
   printf("extern int to_int (object obj);\n");
   printf("extern object find_package (object string);\n");
@@ -2296,11 +2332,13 @@ int main(int argc, char* argv[])
     printf("#define fp_validp(ptr)  ((record_flags(ptr) & %d) == 0)\n",bit(7));
     printf("#define mark_fp_invalid(ptr)  record_flags_set(ptr,%d)\n",bit(7));
     printf("extern object check_fpointer_replacement (object obj, bool restart_p);\n");
+    printf("#ifndef COMPILE_STANDALONE\n");
     printf("static inline object check_fpointer (object obj, bool restart_p) {"
            "  if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
            "    obj = check_fpointer_replacement(obj,restart_p);"
            "  return obj;"
            "}\n");
+    printf("#endif\n");
   #endif
   printf("extern void* my_malloc (size_t size);\n");
   printf("extern void* my_realloc (void *ptr, size_t size);\n");
