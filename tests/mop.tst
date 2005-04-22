@@ -3038,7 +3038,7 @@ t
   (defmethod add-method ((gf virtual-generic-function) (method method))
     (let ((<t> (find-class 't)))
       (unless (every #'(lambda (specializer) (eq specializer <t>))
-                     (clos:method-specializers method))
+                     (rest (clos:method-specializers method)))
         (error "invalid method for ~S: ~S. May only dispatch on the first argument."
                gf method)))
     (unless (typep (first (clos:method-specializers method)) 'class)
