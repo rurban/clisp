@@ -1,5 +1,15 @@
 2005-04-21  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (nonreturning_function, SP_register): Test for
+	__APPLE_CC__ > 1.
+	* eval.d (FAST_DISPATCH, FAST_DISPATCH_THREADED): Likewise.
+	* genclisph.d (main): For nonreturning_function, test for
+	__APPLE_CC__ > 1.
+	Needed because gcc-4.0 supports all the GCC features but defines
+	__APPLE_CC__ to 1.
+
+2005-04-21  Bruno Haible  <bruno@clisp.org>
+
 	* noreadline.d (NULL): Define as void*, not char*. Avoids gcc warning.
 
 2005-04-21  Sam Steingold  <sds@gnu.org>
