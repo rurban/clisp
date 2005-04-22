@@ -10,7 +10,7 @@
 #ifdef __cplusplus
   #define NULL  0
 #else
-  #define NULL  ((char*) 0L)
+  #define NULL  ((void*) 0L)
 #endif
 
 typedef int rl_command_func_t (int, int);
