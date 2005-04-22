@@ -73,7 +73,7 @@
                 (unless method-class-p (list :method-class method-class))
                 (unless declspecs-p (list :declarations declspecs))
                 (unless documentation-p (list :documentation documentation))))))
-    (dolist (method methods) (std-add-method gf method))
+    (dolist (method methods) (add-method gf method))
     gf))
 
 ;; When this is true, it is possible to replace a non-generic function with
@@ -255,7 +255,7 @@
                                                        (funcall arg1 backpointer))
                              arg2)))
              arg1)))
-    (std-add-method gf method)
+    (add-method gf method)
     method))
 
 ;;; (DECLAIM-METHOD function-name qualifier* spec-lambda-list)

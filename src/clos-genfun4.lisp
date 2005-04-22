@@ -181,13 +181,15 @@
     (std-find-method gf qualifiers specializers errorp)))
 
 ;; MOP p. 33
-(defgeneric add-method (gf method)
-  (:method ((gf standard-generic-function) (method method))
-    (std-add-method gf method)))
+(let ((*allow-making-generic* t))
+  (defgeneric add-method (gf method)
+    (:method ((gf standard-generic-function) (method method))
+      (std-add-method gf method))))
 ; No extended method check because this GF is specified in ANSI CL.
 ;(initialize-extended-method-check #'add-method)
 
 ;; MOP p. 91
+(fmakunbound 'remove-method)
 (defgeneric remove-method (gf method)
   (:method ((gf standard-generic-function) (method method))
     (std-remove-method gf method)))
