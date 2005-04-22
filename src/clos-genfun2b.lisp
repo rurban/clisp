@@ -864,6 +864,10 @@
   ;; not sealed.
   gf)
 
+;; Preliminary.
+(defun add-method (gf method)
+  (std-add-method gf method))
+
 ;; Remove a method from a generic function.
 (defun std-remove-method (gf method)
   (let ((old-method (find method (safe-gf-methods gf))))
@@ -901,6 +905,10 @@
         #'(lambda (dependent)
             (update-dependent gf dependent 'remove-method method)))))
   gf)
+
+;; Preliminary.
+(defun remove-method (gf method)
+  (std-remove-method gf method))
 
 ;; Find a method in a generic function.
 (defun std-find-method (gf qualifiers specializers &optional (errorp t))
@@ -960,7 +968,7 @@
     (apply #'shared-initialize-<standard-generic-function> gf 't args))
   (when methods-p
     ;; When invoked from DEFGENERIC: Install the defgeneric-originated methods.
-    (dolist (method methods) (std-add-method gf method)))
+    (dolist (method methods) (add-method gf method)))
   gf)
 
 (defun reinitialize-instance-<generic-function> (gf &rest args
@@ -994,7 +1002,7 @@
   (when methods-p
     ;; When invoked from DEFGENERIC: Install the defgeneric-originated
     ;; methods.
-    (dolist (method methods) (std-add-method gf method)))
+    (dolist (method methods) (add-method gf method)))
   ;; Notification of listeners:
   (map-dependents gf
     #'(lambda (dependent)

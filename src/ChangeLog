@@ -1,5 +1,20 @@
 2005-04-21  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun2a.lisp (safe-gf-methods): Avoid endless recursion also
+	for #'compute-discriminating-function and
+	#'compute-applicable-methods-using-classes.
+	* clos-genfun2b.lisp (add-method, remove-method): New preliminary
+	functions.
+	(initialize-instance-<generic-function>): Call add-method instead of
+	std-add-method.
+	(reinitialize-instance-<generic-function>): Likewise.
+	* clos-genfun3.lisp (make-generic-function, do-defmethod): Likewise.
+	* clos-genfun4.lisp (add-method, remove-method): Allow erasing
+	preliminary definition.
+	Reported by Pascal Costanza <pc@p-cos.net>.
+
+2005-04-21  Bruno Haible  <bruno@clisp.org>
+
 	* genclisph.d (main): Emit check_array etc. conditionally, not if
 	COMPILE_STANDALONE is defined. Needed to avoid link errors with
 	compilers that don't eliminate inline functions.
