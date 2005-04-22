@@ -599,7 +599,7 @@
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=10684
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14937
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14938 */
-#if defined(GNU) && !defined(__APPLE_CC__) && !defined(__cplusplus) && !(__GNUC__ == 3 && __GNUC_MINOR__ < 4) && !defined(MULTITHREAD) && (SAFETY < 2)
+#if defined(GNU) && !(__APPLE_CC__ > 1) && !defined(__cplusplus) && !(__GNUC__ == 3 && __GNUC_MINOR__ < 4) && !defined(MULTITHREAD) && (SAFETY < 2)
 /* Overview of use of registers in gcc terminology:
  fixed: mentioned in FIXED_REGISTERS
  used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS
@@ -947,7 +947,7 @@
 
 /* Declaration of a function that will never return (nonreturning function)
  nonreturning_function(extern,abort,(void)); == extern void abort (void); */
-#if defined(GNU) && !defined(__APPLE_CC__)
+#if defined(GNU) && !(__APPLE_CC__ > 1)
   #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
     /* Note:
        storclass __attribute__((__noreturn__)) void funname arguments
@@ -7916,7 +7916,7 @@ All other long words on the LISP-Stack are LISP-objects.
 # SP() returns the current value of the  SP.
 # setSP(adresse); sets the SP to a given value. Extremely dangerous!
 # FAST_SP defined, if SP-accesses are fast.
-#if defined(GNU) && !defined(__APPLE_CC__)
+#if defined(GNU) && !(__APPLE_CC__ > 1)
   # definition of the register, in which the SP resides.
   #ifdef MC680X0
     #define SP_register "sp"  # %sp = %a7

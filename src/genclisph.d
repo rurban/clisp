@@ -270,7 +270,7 @@ int main(int argc, char* argv[])
 #endif
   printf("#define STRING(token) #token\n");
   printf("#define STRINGIFY(token) STRING(token)\n");
-#if defined(GNU) && !defined(__APPLE_CC__)
+#if defined(GNU) && !(__APPLE_CC__ > 1)
  #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
   printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
   printf("  storclass void __attribute__((__noreturn__)) funname arguments\n");
