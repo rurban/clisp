@@ -745,7 +745,7 @@
     # Die Rückgabe des Restes in divu_32_rest ist also hier nicht nötig.
     global uint32 divu_3232_3232_ (uint32 x, uint32 y) {
       var uint32 q;
-      divu_3232_3232(x,y,q=,);
+      divu_3232_3232(x,y,q=,unused);
       return q;
     }
     #endif
