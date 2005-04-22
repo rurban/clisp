@@ -1,5 +1,10 @@
 2005-04-21  Bruno Haible  <bruno@clisp.org>
 
+	* foreign.d (dlerror_string): Use 'const char*' instead of 'char*'.
+	Avoids a gcc warning on MacOS X.
+
+2005-04-21  Bruno Haible  <bruno@clisp.org>
+
 	* arilev0.d (divu_3232_3232_): Use 'unused'. Avoids a gcc warning
 	"statement without effect".
 
