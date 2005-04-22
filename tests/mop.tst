@@ -2419,6 +2419,21 @@ T
 #-CLISP T
 
 
+;; Check that DEFMETHOD calls ADD-METHOD.
+(let ((add-method-called nil))
+  (defclass testgenericfunction142 (standard-generic-function)
+    ()
+    (:metaclass clos:funcallable-standard-class))
+  (defmethod add-method :before ((gf testgenericfunction142) (method standard-method))
+    (setq add-method-called t))
+  (defgeneric testgf142 (x)
+    (:generic-function-class testgenericfunction142))
+  (defmethod testgf142 (x)
+    (declare (ignore x)))
+  add-method-called)
+T
+
+
 ;; Check that it's possible to call methods individually.
 (progn
   (defgeneric foo141 (x)

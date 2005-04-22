@@ -29,7 +29,9 @@
 (defun safe-gf-methods (gf)
   (if (or (eq gf #'generic-function-methods) ; for bootstrapping
           (eq gf |#'generic-function-methods|)
-          (eq gf |#'compute-effective-method|))
+          (eq gf |#'compute-effective-method|)
+          (eq gf |#'compute-discriminating-function|)
+          (eq gf |#'compute-applicable-methods-using-classes|))
     (std-gf-methods gf)
     (generic-function-methods gf)))
 
