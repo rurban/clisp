@@ -1,5 +1,9 @@
 2005-04-21  Bruno Haible  <bruno@clisp.org>
 
+	* mop.tst: Add test that defmethod calls remove-method.
+
+2005-04-21  Bruno Haible  <bruno@clisp.org>
+
 	* mop.tst: Add test that defmethod calls add-method.
 	Reported by Pascal Costanza <pc@p-cos.net>.
 
