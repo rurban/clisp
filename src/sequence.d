@@ -1059,7 +1059,7 @@ global maygc Values coerce_sequence (object sequence, object result_type,
     var object typdescr2 =
       (error_p ? valid_type(&STACK_0) : valid_type1(&STACK_0));
     if (!error_p && nullp(typdescr2)) { /* result_type is not a sequence */
-      VALUES1(nullobj); skipSTACK(1); return;
+      VALUES1(nullobj); skipSTACK(3); return;
     }
     pushSTACK(typdescr2);
     # Stackaufbau: seq1, result-type, typdescr2-len, typdescr2.

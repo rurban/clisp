@@ -1,3 +1,7 @@
+2005-04-24  Sam Steingold  <sds@gnu.org>
+
+	* sequence.d (coerce_sequence): fixed STACK clean-up on !error_p
+
 2005-04-21  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun2a.lisp (safe-gf-methods): Avoid endless recursion also
