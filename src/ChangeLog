@@ -1,3 +1,11 @@
+2005-04-22  Sam Steingold  <sds@gnu.org>
+
+	prevent accidental EXT:! redefinition by users
+	* eval.d (SUBR-INFO): pass false to coerce_sequence() to avoid
+	bootstrap problems
+	* init.lisp (sys::check-redefinition): use SUBR-INFO to check
+	whether the function has been already defined in C
+
 2005-04-24  Sam Steingold  <sds@gnu.org>
 
 	* sequence.d (coerce_sequence): fixed STACK clean-up on !error_p

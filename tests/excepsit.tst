@@ -296,6 +296,9 @@ program-error
   (defgeneric foo11 (x)))
 program-error
 
+(defun ext:! (a b c) (+ a b c))
+PACKAGE-ERROR
+
 (defun foo11 ((x y 1) z) (list x y z))
 program-error
 

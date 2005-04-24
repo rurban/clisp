@@ -1,3 +1,7 @@
+2005-04-22  Sam Steingold  <sds@gnu.org>
+
+	* excepsit.tst: check that one cannot redefine EXT:!
+
 2005-04-24  Sam Steingold  <sds@gnu.org>
 
 	* conditions.tst: check some TYPE-ERRORs with COERCE

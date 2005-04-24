@@ -339,8 +339,10 @@ LISPFUNNR(subr_info,1)
   pushSTACK(fixnum(TheSubr(obj)->req_anz)); /* req-anz (req-nr) */
   pushSTACK(fixnum(TheSubr(obj)->opt_anz)); /* opt-anz (opt-nr) */
   pushSTACK(TheSubr(obj)->rest_flag == subr_norest ? NIL : T); /* rest-p */
-  coerce_sequence(TheSubr(obj)->keywords,S(list),true);
-  pushSTACK(value1); /* keyword-vector as list */
+  /* during bootstrap, before defseq.lisp is loaded, this may fail: */
+  coerce_sequence(TheSubr(obj)->keywords,S(list),false);
+  /* keyword-vector as list (during bootstrap: vector) */
+  pushSTACK(eq(value1,nullobj) ? TheSubr(obj)->keywords : value1);
   pushSTACK(TheSubr(obj)->key_flag == subr_key_allow ? T : NIL); /* allow-other-keys */
   funcall(L(values),6); /* 6 values */
 }
