@@ -1,3 +1,7 @@
+2005-04-24  Sam Steingold  <sds@gnu.org>
+
+	* conditions.tst: check some TYPE-ERRORs with COERCE
+
 2005-04-21  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Add test that defmethod calls remove-method.

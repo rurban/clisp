@@ -692,6 +692,20 @@ T
   (symbol-value 'foo))
 1
 
+(block nil
+  (handler-bind ((type-error (lambda (c)
+                               (return (list (type-error-expected-type c)
+                                             (type-error-datum c))))))
+    (coerce '(1 2 3) 'integer)))
+(INTEGER (1 2 3))
+
+(block nil
+  (handler-bind ((type-error (lambda (c)
+                               (return (list (type-error-expected-type c)
+                                             (type-error-datum c))))))
+    (coerce '(1 2 3) '(integer 1))))
+((INTEGER 1) (1 2 3))
+
 ;; make-hash-table
 (flet ((mht (test) (make-hash-table :test test)))
   (check-use-value mht eql bazonk :test equalp)) t
