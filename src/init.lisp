@@ -578,8 +578,9 @@
 (sys::%putd 'sys::check-redefinition
   (function sys::check-redefinition (lambda (symbol caller what)
     (let ((cur-file *current-source-file*)
-          ;; distinguish between undefined and defined at top-level
-          (old-file (getf (gethash symbol *documentation*) 'sys::file)))
+          (old-file ; distinguish between undefined and defined at top-level
+           (if (sys::subr-info symbol)
+               "C" (getf (gethash symbol *documentation*) 'sys::file))))
       (unless (or custom:*suppress-check-redefinition*
                   (equalp old-file cur-file)
                   (and (pathnamep old-file) (pathnamep cur-file)
