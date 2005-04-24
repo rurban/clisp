@@ -1433,12 +1433,14 @@
 (setq *compiled-file-types* '("fas"))
 
 ;; for the time being the files don't have to be searched:
-(defun search-file (filename extensions)
-  (mapcan #'(lambda (extension)
-              (let ((filename (merge-pathnames filename
-                                     (make-pathname :type extension))))
-                (if (probe-file filename) (list filename) '())))
-          extensions))
+(sys::%putd 'search-file
+ (sys::make-preliminary
+  (function search-file (lambda (filename extensions)
+    (mapcan #'(lambda (extension)
+                (let ((filename (merge-pathnames filename
+                                       (make-pathname :type extension))))
+                  (if (probe-file filename) (list filename) '())))
+            extensions)))))
 
 (proclaim '(special *compile-verbose*))
 (setq *compile-verbose* t)         ; defined in spvw.d
