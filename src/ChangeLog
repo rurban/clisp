@@ -1,3 +1,7 @@
+2005-04-25  Sam Steingold  <sds@gnu.org>
+
+	* utils/clispload.lsp (*expected-failures*): update
+
 2005-04-24  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (search-file): use MAKE-PRELIMINARY to avoid a warning
