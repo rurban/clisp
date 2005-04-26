@@ -296,6 +296,7 @@ program-error
   (defgeneric foo11 (x)))
 program-error
 
+;; redefinition
 (defun ext:! (a b c) (+ a b c))
 PACKAGE-ERROR
 
