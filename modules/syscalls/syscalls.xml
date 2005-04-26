@@ -442,7 +442,7 @@
      <member><constant>:LOW</constant></member>
      <member><constant>:IDLE</constant></member></simplelist>
     On &unix; calls &getpriority;, on &win32; calls
-    <function>GetPriorityClass</function>).</para>
+    <function>GetPriorityClass</function>.</para>
    <simpara>&setf;able using &setpriority; and
     <function>SetPriorityClass</function>.</simpara></listitem></varlistentry>
  <varlistentry id="process-id"><term><code>(OS:PROCESS-ID)</code></term>
