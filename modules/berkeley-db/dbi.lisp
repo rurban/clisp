@@ -261,7 +261,7 @@
   (xa_status 0 :type (unsigned-byte 32) :read-only t)
   ;; If the transaction is an XA transaction, the transaction's XA ID.
   (xid nil :type (vector (unsigned-byte 8)
-                         #,(dbe-get-options nil :DB_XIDDATASIZE))
+                         #,(dbe-get-options nil :DB-XIDDATASIZE))
        :read-only t))
 
 (defstruct (db-txn-stat (:constructor mktxnstat
