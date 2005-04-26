@@ -286,6 +286,40 @@ NIL
         (setf (car errors) (nreverse (car errors)))))))
 ((:QUEUE) (:RECNO))
 
+;; :BTREE/:SET-RECNO
+(bdb:with-db (db *dbe* (format nil "test-~A-~A.db" :BTREE :RECNUM)
+                 :open (:type :BTREE :create t) :options (:recnum t))
+  (show-db db)
+  (let ((*print-pretty* t))
+    (show (loop :repeat 20 :for x = (random 30) :for x! = (! x)
+            :collect (list x x! (bdb:db-put db x x!)))))
+  (show-db db))
+NIL
+
+(bdb:with-db (db *dbe* (format nil "test-~A-~A.db" :BTREE :RECNUM)
+                 :open (:rdonly t) :options (:recnum t))
+  (show-db db)
+  (loop :with key :and val
+    :for n :from 1 :to (bdb::db-stat-num-keys (bdb:db-stat db))
+    :do (setf (values key val) (bdb:db-get db n :action :SET-RECNO
+                                           :type :INTEGER :key-type :INTEGER))
+    (format t "~&=[~D]=> ~S -> ~S" n key val)
+    :unless (= (! key) val) :collect (list n key val (! key))))
+NIL
+
+(bdb:with-db (db *dbe* (format nil "test-~A-~A.db" :BTREE :RECNUM)
+                 :open (:rdonly t) :options (:recnum t))
+  (show-db db)
+  (bdb:with-dbc (cu db)
+    (loop :with key :and val
+      :for n :from 1 :to (bdb::db-stat-num-keys (bdb:db-stat db))
+      :do (setf (values key val) (bdb:dbc-get cu n :INTEGER :SET-RECNO))
+      (format t "~&=[~D/count=~D]=> ~S -> ~S" n (bdb:dbc-count cu) key val)
+      :unless (= (! key) val) :collect (list n key val (! key)) :end
+      :do (setq key (bdb:dbc-get cu :INTEGER :INTEGER :GET-RECNO))
+      :unless (= key n) :collect (list n key) :end)))
+NIL
+
 ;; transactions - will be automatically closed (committed) by DBE-CLOSE
 (let ((txn (bdb:txn-begin *dbe*)) (*print-pretty* t))
   (show (list txn (bdb:txn-begin *dbe* :parent txn) *dbe*))
