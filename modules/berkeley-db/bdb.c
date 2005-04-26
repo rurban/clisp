@@ -209,7 +209,7 @@ static void dbe_set_encryption (DB_ENV *dbe, gcv_object_t *o_flags_,
 }
 
 DEFUN(BDB:DBE-CREATE,&key :PASSWORD :ENCRYPT    \
-      :HOST :CLIENT_TIMEOUT :SERVER_TIMEOUT)
+      :HOST :CLIENT-TIMEOUT :SERVER-TIMEOUT)
 { /* Create an environment handle */
   DB_ENV *dbe, *dbe_cl;
   bool remote_p = boundp(STACK_2); /* host ==> remote */
@@ -308,7 +308,7 @@ DEFUN(BDB:DBE-CLOSE, dbe)
 }
 
 DEFFLAGSET(bdb_ac_flags, DB_AUTO_COMMIT)
-DEFUN(BDB:DBE-DBREMOVE, dbe file database &key :TRANSACTION :AUTO_COMMIT)
+DEFUN(BDB:DBE-DBREMOVE, dbe file database &key :TRANSACTION :AUTO-COMMIT)
 { /* remove DATABASE from FILE or the whole FILE */
   u_int32_t flags = bdb_ac_flags();
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
@@ -326,7 +326,7 @@ DEFUN(BDB:DBE-DBREMOVE, dbe file database &key :TRANSACTION :AUTO_COMMIT)
 }
 
 DEFUN(BDB:DBE-DBRENAME, dbe file database newname       \
-      &key :TRANSACTION :AUTO_COMMIT)
+      &key :TRANSACTION :AUTO-COMMIT)
 { /* rename DATABASE to NEWNAME in FILE */
   u_int32_t flags = bdb_ac_flags();
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
@@ -346,12 +346,12 @@ DEFFLAGSET(dbe_open_flags, DB_JOINENV DB_INIT_CDB DB_INIT_LOCK DB_INIT_LOG \
            DB_USE_ENVIRON DB_USE_ENVIRON_ROOT DB_CREATE DB_LOCKDOWN     \
            DB_PRIVATE DB_SYSTEM_MEM DB_THREAD)
 DEFCHECKER(check_dbe_open_flags,prefix=DB,default=0,bitmasks=both,      \
-           type=uint32_t, JOINENV INIT_CDB INIT_LOCK INIT_LOG           \
-           INIT_MPOOL INIT_TXN RECOVER RECOVER_FATAL USE_ENVIRON        \
-           USE_ENVIRON_ROOT CREATE LOCKDOWN PRIVATE SYSTEM_MEM THREAD)
-DEFUN(BDB:DBE-OPEN, dbe &key :HOME :FLAGS :JOINENV :INIT_CDB :INIT_LOCK    \
-      :INIT_LOG :INIT_MPOOL :INIT_TXN :RECOVER :RECOVER_FATAL :USE_ENVIRON \
-      :USE_ENVIRON_ROOT :CREATE :LOCKDOWN :PRIVATE :SYSTEM_MEM :THREAD :MODE)
+           type=uint32_t, JOINENV INIT-CDB INIT-LOCK INIT-LOG           \
+           INIT-MPOOL INIT-TXN RECOVER RECOVER-FATAL USE-ENVIRON        \
+           USE-ENVIRON-ROOT CREATE LOCKDOWN PRIVATE SYSTEM-MEM THREAD)
+DEFUN(BDB:DBE-OPEN, dbe &key :HOME :FLAGS :JOINENV :INIT-CDB :INIT-LOCK    \
+      :INIT-LOG :INIT-MPOOL :INIT-TXN :RECOVER :RECOVER-FATAL :USE-ENVIRON \
+      :USE-ENVIRON-ROOT :CREATE :LOCKDOWN :PRIVATE :SYSTEM-MEM :THREAD :MODE)
 { /* open DB environment */
   int mode = posfixnum_default(popSTACK());
   u_int32_t flags = dbe_open_flags() | check_dbe_open_flags_parse(popSTACK());
@@ -364,7 +364,7 @@ DEFUN(BDB:DBE-OPEN, dbe &key :HOME :FLAGS :JOINENV :INIT_CDB :INIT_LOCK    \
 }
 
 DEFFLAGSET(dbe_remove_flags, DB_FORCE DB_USE_ENVIRON DB_USE_ENVIRON_ROOT)
-DEFUN(BDB:DBE-REMOVE, dbe &key :HOME :FORCE :USE_ENVIRON :USE_ENVIRON_ROOT)
+DEFUN(BDB:DBE-REMOVE, dbe &key :HOME :FORCE :USE-ENVIRON :USE-ENVIRON-ROOT)
 { /* destroy an environment */
   u_int32_t flags = dbe_remove_flags();
   DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,BH_INVALIDATE);
@@ -460,15 +460,15 @@ static void set_verbose (DB_ENV *dbe, object arg, u_int32_t flag) {
 DEFCHECKER(check_lk_detect,prefix=DB_LOCK, default=DB_LOCK_DEFAULT, NORUN \
            DEFAULT EXPIRE MAXLOCKS MINLOCKS MINWRITE OLDEST RANDOM YOUNGEST)
 DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
-      :ERRFILE :ERRPFX :PASSWORD :ENCRYPT :LOCK_TIMEOUT :TXN_TIMEOUT :TIMEOUT \
-      :SHM_KEY :TAS_SPINS :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR      \
-      :LG_BSIZE :LG_DIR :LG_MAX :LG_REGIONMAX                           \
-      :LK_CONFLICTS :LK_DETECT :LK_MAX_LOCKERS :LK_MAX_LOCKS :LK_MAX_OBJECTS \
-      :AUTO_COMMIT :CDB_ALLDB :DIRECT_DB :DIRECT_LOG :NOLOCKING         \
-      :NOMMAP :NOPANIC :OVERWRITE :PANIC_ENVIRONMENT :REGION_INIT       \
-      :TXN_NOSYNC :TXN_WRITE_NOSYNC :YIELDCPU                           \
-      :VERB_CHKPOINT :VERB_DEADLOCK :VERB_RECOVERY :VERB_REPLICATION    \
-      :VERB_WAITSFOR :VERBOSE)
+      :ERRFILE :ERRPFX :PASSWORD :ENCRYPT :LOCK-TIMEOUT :TXN-TIMEOUT :TIMEOUT \
+      :SHM-KEY :TAS-SPINS :TX-TIMESTAMP :TX-MAX :DATA-DIR :TMP-DIR      \
+      :LG-BSIZE :LG-DIR :LG-MAX :LG-REGIONMAX                           \
+      :LK-CONFLICTS :LK-DETECT :LK-MAX-LOCKERS :LK-MAX-LOCKS :LK-MAX-OBJECTS \
+      :AUTO-COMMIT :CDB-ALLDB :DIRECT-DB :DIRECT-LOG :NOLOCKING         \
+      :NOMMAP :NOPANIC :OVERWRITE :PANIC-ENVIRONMENT :REGION-INIT       \
+      :TXN-NOSYNC :TXN-WRITE-NOSYNC :YIELDCPU                           \
+      :VERB-CHKPOINT :VERB-DEADLOCK :VERB-RECOVERY :VERB-REPLICATION    \
+      :VERB-WAITSFOR :VERBOSE)
 { /* set many options */
   DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(41),`BDB::DBE`,BH_VALID);
   { /* verbose */
@@ -524,7 +524,7 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       pushSTACK(NIL);           /* no PLACE */
       pushSTACK(STACK_1);       /* TYPE-ERROR slot DATUM */
       pushSTACK(`(ARRAY (UNSIGNED-BYTE 8) (* *))`); /* EXPECTED-TYPE */
-      pushSTACK(STACK_1); pushSTACK(`:LK_CONFLICTS`);
+      pushSTACK(STACK_1); pushSTACK(`:LK-CONFLICTS`);
       pushSTACK(TheSubr(subr_self)->name);
       check_value(type_error,
                   GETTEXT("~S: ~S must be a square matrix of bytes, not ~S"));
@@ -606,15 +606,15 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
 static object dbe_get_verbose (DB_ENV *dbe) {
   int count = 0, onoffp;
   SYSCALL(dbe->get_verbose,(dbe,DB_VERB_WAITSFOR,&onoffp));
-  if (onoffp) { pushSTACK(`:VERB_WAITSFOR`); count++; }
+  if (onoffp) { pushSTACK(`:VERB-WAITSFOR`); count++; }
   SYSCALL(dbe->get_verbose,(dbe,DB_VERB_REPLICATION,&onoffp));
-  if (onoffp) { pushSTACK(`:VERB_REPLICATION`); count++;}
+  if (onoffp) { pushSTACK(`:VERB-REPLICATION`); count++;}
   SYSCALL(dbe->get_verbose,(dbe,DB_VERB_RECOVERY,&onoffp));
-  if (onoffp) { pushSTACK(`:VERB_RECOVERY`); count++; }
+  if (onoffp) { pushSTACK(`:VERB-RECOVERY`); count++; }
   SYSCALL(dbe->get_verbose,(dbe,DB_VERB_DEADLOCK,&onoffp));
-  if (onoffp) { pushSTACK(`:VERB_DEADLOCK`); count++; }
+  if (onoffp) { pushSTACK(`:VERB-DEADLOCK`); count++; }
   SYSCALL(dbe->get_verbose,(dbe,DB_VERB_CHKPOINT,&onoffp));
-  if (onoffp) { pushSTACK(`:VERB_CHKPOINT`); count++; }
+  if (onoffp) { pushSTACK(`:VERB-CHKPOINT`); count++; }
   return listof(count);
 }
 /* get the data directory list
@@ -664,20 +664,20 @@ static object dbe_get_flags_list (DB_ENV *dbe) {
   u_int32_t count = 0, flags;
   SYSCALL(dbe->get_flags,(dbe,&flags));
   if (flags & DB_YIELDCPU) { pushSTACK(`:YIELDCPU`); count++; }
-  if (flags & DB_TXN_WRITE_NOSYNC) { pushSTACK(`:TXN_WRITE_NOSYNC`);count++; }
-  if (flags & DB_TXN_NOSYNC) { pushSTACK(`:TXN_NOSYNC`); count++; }
-  if (flags & DB_REGION_INIT) { pushSTACK(`:REGION_INIT`); count++; }
-  if (flags & DB_PANIC_ENVIRONMENT) {pushSTACK(`:PANIC_ENVIRONMENT`);count++;}
+  if (flags & DB_TXN_WRITE_NOSYNC) { pushSTACK(`:TXN-WRITE-NOSYNC`);count++; }
+  if (flags & DB_TXN_NOSYNC) { pushSTACK(`:TXN-NOSYNC`); count++; }
+  if (flags & DB_REGION_INIT) { pushSTACK(`:REGION-INIT`); count++; }
+  if (flags & DB_PANIC_ENVIRONMENT) {pushSTACK(`:PANIC-ENVIRONMENT`);count++;}
   if (flags & DB_OVERWRITE) { pushSTACK(`:OVERWRITE`); count++; }
   if (flags & DB_NOPANIC) { pushSTACK(`:NOPANIC`); count++; }
   if (flags & DB_NOMMAP) { pushSTACK(`:NOMMAP`); count++; }
   if (flags & DB_NOLOCKING) { pushSTACK(`:NOLOCKING`); count++; }
-  if (flags & DB_DIRECT_LOG) { pushSTACK(`:DIRECT_LOG`); count++; }
-  if (flags & DB_CDB_ALLDB) { pushSTACK(`:CDB_ALLDB`); count++; }
-  if (flags & DB_AUTO_COMMIT) { pushSTACK(`:AUTO_COMMIT`); count++; }
+  if (flags & DB_DIRECT_LOG) { pushSTACK(`:DIRECT-LOG`); count++; }
+  if (flags & DB_CDB_ALLDB) { pushSTACK(`:CDB-ALLDB`); count++; }
+  if (flags & DB_AUTO_COMMIT) { pushSTACK(`:AUTO-COMMIT`); count++; }
   SYSCALL(dbe->get_encrypt_flags,(dbe,&flags));
   switch (flags) {
-    case DB_ENCRYPT_AES: pushSTACK(`:ENCRYPT_AES`); count++; break;
+    case DB_ENCRYPT_AES: pushSTACK(`:ENCRYPT-AES`); count++; break;
     case 0: break;
     default: NOTREACHED;
   }
@@ -744,7 +744,7 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
   object what = STACK_0;
   /* dbe may be NULL only for DB_XIDDATASIZE */
   DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,
-                                    eq(what,`:DB_XIDDATASIZE`)
+                                    eq(what,`:DB-XIDDATASIZE`)
                                     ? BH_NIL_IS_NULL : BH_VALID);
   what = STACK_0; skipSTACK(2);
  restart_DBE_GET_OPTIONS:
@@ -755,25 +755,25 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     pushSTACK(`:FLAGS`); value1 = dbe_get_flags_list(dbe);
     pushSTACK(value1); count++;
     pushSTACK(`:TIMESTAMP`); pushSTACK(dbe_get_tx_timestamp(dbe)); count++;
-    pushSTACK(`:TX_MAX`); pushSTACK(dbe_get_tx_max(dbe)); count++;
-    pushSTACK(`:TMP_DIR`); pushSTACK(dbe_get_tmp_dir(dbe)); count++;
-    pushSTACK(`:DATA_DIR`); value1 = dbe_get_data_dirs(dbe);
+    pushSTACK(`:TX-MAX`); pushSTACK(dbe_get_tx_max(dbe)); count++;
+    pushSTACK(`:TMP-DIR`); pushSTACK(dbe_get_tmp_dir(dbe)); count++;
+    pushSTACK(`:DATA-DIR`); value1 = dbe_get_data_dirs(dbe);
     pushSTACK(value1); count++;
-    pushSTACK(`:TAS_SPINS`); pushSTACK(dbe_get_tas_spins(dbe)); count++;
-    pushSTACK(`:SHM_KEY`); pushSTACK(dbe_get_shm_key(dbe)); count++;
+    pushSTACK(`:TAS-SPINS`); pushSTACK(dbe_get_tas_spins(dbe)); count++;
+    pushSTACK(`:SHM-KEY`); pushSTACK(dbe_get_shm_key(dbe)); count++;
     pushSTACK(`:ERRPFX`); pushSTACK(dbe_get_errpfx(dbe)); count++;
     pushSTACK(`:ERRFILE`); pushSTACK(dbe_get_errfile(dbe)); count++;
     pushSTACK(`:TIMEOUT`); value1 = dbe_get_timeouts(dbe);
     pushSTACK(value1); count++;
-    pushSTACK(`:LG_BSIZE`); pushSTACK(dbe_get_lg_bsize(dbe)); count++;
-    pushSTACK(`:LG_DIR`); pushSTACK(dbe_get_lg_dir(dbe)); count++;
-    pushSTACK(`:LG_MAX`); pushSTACK(dbe_get_lg_max(dbe)); count++;
-    pushSTACK(`:LG_REGIONMAX`); pushSTACK(dbe_get_lg_regionmax(dbe)); count++;
-    pushSTACK(`:LK_CONFLICTS`); pushSTACK(dbe_get_lk_conflicts(dbe)); count++;
-    pushSTACK(`:LK_DETECT`); pushSTACK(dbe_get_lk_detect(dbe)); count++;
-    pushSTACK(`:LK_MAX_LOCKERS`);pushSTACK(dbe_get_lk_max_lockers(dbe));count++;
-    pushSTACK(`:LK_MAX_LOCKS`); pushSTACK(dbe_get_lk_max_locks(dbe)); count++;
-    pushSTACK(`:LK_MAX_OBJECTS`);pushSTACK(dbe_get_lk_max_objects(dbe));count++;
+    pushSTACK(`:LG-BSIZE`); pushSTACK(dbe_get_lg_bsize(dbe)); count++;
+    pushSTACK(`:LG-DIR`); pushSTACK(dbe_get_lg_dir(dbe)); count++;
+    pushSTACK(`:LG-MAX`); pushSTACK(dbe_get_lg_max(dbe)); count++;
+    pushSTACK(`:LG-REGIONMAX`); pushSTACK(dbe_get_lg_regionmax(dbe)); count++;
+    pushSTACK(`:LK-CONFLICTS`); pushSTACK(dbe_get_lk_conflicts(dbe)); count++;
+    pushSTACK(`:LK-DETECT`); pushSTACK(dbe_get_lk_detect(dbe)); count++;
+    pushSTACK(`:LK-MAX-LOCKERS`);pushSTACK(dbe_get_lk_max_lockers(dbe));count++;
+    pushSTACK(`:LK-MAX-LOCKS`); pushSTACK(dbe_get_lk_max_locks(dbe)); count++;
+    pushSTACK(`:LK-MAX-OBJECTS`);pushSTACK(dbe_get_lk_max_objects(dbe));count++;
     pushSTACK(`:HOMEDIR`); pushSTACK(dbe_get_home_dir(dbe,false)); count++;
     pushSTACK(`:OPEN`); value1 = dbe_get_open_flags(dbe,false);
     pushSTACK(value1); count++;
@@ -782,35 +782,35 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES1(dbe_get_verbose(dbe));
   } else if (eq(what,`:FLAGS`)) {
     VALUES1(dbe_get_flags_list(dbe));
-  } else if (eq(what,`:VERB_WAITSFOR`)) {
+  } else if (eq(what,`:VERB-WAITSFOR`)) {
     int onoffp;
     SYSCALL(dbe->get_verbose,(dbe,DB_VERB_WAITSFOR,&onoffp));
     VALUES_IF(onoffp);
-  } else if (eq(what,`:VERB_REPLICATION`)) {
+  } else if (eq(what,`:VERB-REPLICATION`)) {
     int onoffp;
     SYSCALL(dbe->get_verbose,(dbe,DB_VERB_REPLICATION,&onoffp));
     VALUES_IF(onoffp);
-  } else if (eq(what,`:VERB_RECOVERY`)) {
+  } else if (eq(what,`:VERB-RECOVERY`)) {
     int onoffp;
     SYSCALL(dbe->get_verbose,(dbe,DB_VERB_RECOVERY,&onoffp));
     VALUES_IF(onoffp);
-  } else if (eq(what,`:VERB_DEADLOCK`)) {
+  } else if (eq(what,`:VERB-DEADLOCK`)) {
     int onoffp;
     SYSCALL(dbe->get_verbose,(dbe,DB_VERB_DEADLOCK,&onoffp));
     VALUES_IF(onoffp);
-  } else if (eq(what,`:VERB_CHKPOINT`)) {
+  } else if (eq(what,`:VERB-CHKPOINT`)) {
     int onoffp;
     SYSCALL(dbe->get_verbose,(dbe,DB_VERB_CHKPOINT,&onoffp));
     VALUES_IF(onoffp);
   } else if (eq(what,`:YIELDCPU`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_YIELDCPU);
-  } else if (eq(what,`:TXN_WRITE_NOSYNC`)) {
+  } else if (eq(what,`:TXN-WRITE-NOSYNC`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_TXN_WRITE_NOSYNC);
-  } else if (eq(what,`:TXN_NOSYNC`)) {
+  } else if (eq(what,`:TXN-NOSYNC`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_TXN_NOSYNC);
-  } else if (eq(what,`:REGION_INIT`)) {
+  } else if (eq(what,`:REGION-INIT`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_REGION_INIT);
-  } else if (eq(what,`:PANIC_ENVIRONMENT`)) {
+  } else if (eq(what,`:PANIC-ENVIRONMENT`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_PANIC_ENVIRONMENT);
   } else if (eq(what,`:OVERWRITE`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_OVERWRITE);
@@ -820,45 +820,45 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_NOMMAP);
   } else if (eq(what,`:NOLOCKING`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_NOLOCKING);
-  } else if (eq(what,`:DIRECT_LOG`)) {
+  } else if (eq(what,`:DIRECT-LOG`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_DIRECT_LOG);
-  } else if (eq(what,`:CDB_ALLDB`)) {
+  } else if (eq(what,`:CDB-ALLDB`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_CDB_ALLDB);
-  } else if (eq(what,`:AUTO_COMMIT`)) {
+  } else if (eq(what,`:AUTO-COMMIT`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_AUTO_COMMIT);
-  } else if (eq(what,`:LG_BSIZE`)) {
+  } else if (eq(what,`:LG-BSIZE`)) {
     VALUES1(dbe_get_lg_bsize(dbe));
-  } else if (eq(what,`:LG_DIR`)) {
+  } else if (eq(what,`:LG-DIR`)) {
     VALUES1(dbe_get_lg_dir(dbe));
-  } else if (eq(what,`:LG_MAX`)) {
+  } else if (eq(what,`:LG-MAX`)) {
     VALUES1(dbe_get_lg_max(dbe));
-  } else if (eq(what,`:LG_REGIONMAX`)) {
+  } else if (eq(what,`:LG-REGIONMAX`)) {
     VALUES1(dbe_get_lg_regionmax(dbe));
-  } else if (eq(what,`:LK_CONFLICTS`)) {
+  } else if (eq(what,`:LK-CONFLICTS`)) {
     VALUES1(dbe_get_lk_conflicts(dbe));
-  } else if (eq(what,`:LK_DETECT`)) {
+  } else if (eq(what,`:LK-DETECT`)) {
     VALUES1(dbe_get_lk_detect(dbe));
-  } else if (eq(what,`:LK_MAX_LOCKERS`)) {
+  } else if (eq(what,`:LK-MAX-LOCKERS`)) {
     VALUES1(dbe_get_lk_max_lockers(dbe));
-  } else if (eq(what,`:LK_MAX_LOCKS`)) {
+  } else if (eq(what,`:LK-MAX-LOCKS`)) {
     VALUES1(dbe_get_lk_max_locks(dbe));
-  } else if (eq(what,`:LK_MAX_OBJECTS`)) {
+  } else if (eq(what,`:LK-MAX-OBJECTS`)) {
     VALUES1(dbe_get_lk_max_objects(dbe));
-  } else if (eq(what,`:TX_TIMESTAMP`)) {
+  } else if (eq(what,`:TX-TIMESTAMP`)) {
     VALUES1(dbe_get_tx_timestamp(dbe));
-  } else if (eq(what,`:TX_MAX`)) {
+  } else if (eq(what,`:TX-MAX`)) {
     VALUES1(dbe_get_tx_max(dbe));
-  } else if (eq(what,`:DATA_DIR`)) {
+  } else if (eq(what,`:DATA-DIR`)) {
     VALUES1(dbe_get_data_dirs(dbe));
-  } else if (eq(what,`:TMP_DIR`)) {
+  } else if (eq(what,`:TMP-DIR`)) {
     VALUES1(dbe_get_tmp_dir(dbe));
-  } else if (eq(what,`:TAS_SPINS`)) {
+  } else if (eq(what,`:TAS-SPINS`)) {
     VALUES1(dbe_get_tas_spins(dbe));
-  } else if (eq(what,`:SHM_KEY`)) {
+  } else if (eq(what,`:SHM-KEY`)) {
     VALUES1(dbe_get_shm_key(dbe));
-  } else if (eq(what,`:LOCK_TIMEOUT`)) {
+  } else if (eq(what,`:LOCK-TIMEOUT`)) {
     VALUES1(dbe_get_timeout(dbe,DB_SET_LOCK_TIMEOUT));
-  } else if (eq(what,`:TXN_TIMEOUT`)) {
+  } else if (eq(what,`:TXN-TIMEOUT`)) {
     VALUES1(dbe_get_timeout(dbe,DB_SET_TXN_TIMEOUT));
   } else if (eq(what,`:TIMEOUT`)) {
     VALUES1(dbe_get_timeouts(dbe));
@@ -866,7 +866,7 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     u_int32_t flags;
     SYSCALL(dbe->get_encrypt_flags,(dbe,&flags));
     switch (flags) {
-      case DB_ENCRYPT_AES: VALUES1(`:ENCRYPT_AES`);
+      case DB_ENCRYPT_AES: VALUES1(`:ENCRYPT-AES`);
       case 0: VALUES1(NIL);
       default: NOTREACHED;
     }
@@ -874,7 +874,7 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES1(dbe_get_errpfx(dbe));
   } else if (eq(what,`:ERRFILE`)) {
     VALUES1(dbe_get_errfile(dbe));
-  } else if (eq(what,`:DB_XIDDATASIZE`)) {
+  } else if (eq(what,`:DB-XIDDATASIZE`)) {
     VALUES1(fixnum(DB_XIDDATASIZE));
   } else if (eq(what,`:HOME`)) {
     VALUES1(dbe_get_home_dir(dbe,true));
@@ -1131,7 +1131,7 @@ static inline int db_key_type (DB *db, u_int32_t action) {
   }
 }
 
-DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO_COMMIT)
+DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO-COMMIT)
 { /* Delete items from a database */
   u_int32_t flags = bdb_ac_flags();
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
@@ -1154,7 +1154,7 @@ DEFUN(BDB:DB-FD, db)
 DEFCHECKER(db_get_action,prefix=DB, default=0, \
            CONSUME CONSUME-WAIT GET-BOTH SET-RECNO)
 DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_DIRTY_READ DB_MULTIPLE DB_RMW)
-DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
+DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO-COMMIT :DIRTY-READ :MULTIPLE :RMW \
       :TRANSACTION :ERROR :TYPE :KEY-TYPE)
 { /* Get items from a database */
   dbt_o_t key_type = check_dbt_type(popSTACK());
@@ -1193,7 +1193,7 @@ DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
 
 DEFCHECKER(check_dbtype,enum=DBTYPE,default=DB_UNKNOWN,prefix=DB, \
            UNKNOWN BTREE HASH QUEUE RECNO)
-DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
+DEFUN(BDB:DB-STAT, db &key :FAST-STAT)
 { /* Return database statistics */
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_FAST_STAT;
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
@@ -1280,10 +1280,10 @@ DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
 DEFFLAGSET(db_open_flags, DB_CREATE DB_DIRTY_READ DB_EXCL DB_NOMMAP \
            DB_RDONLY DB_THREAD DB_TRUNCATE DB_AUTO_COMMIT)
 DEFCHECKER(check_db_open_flags,prefix=DB,default=0,bitmasks=both,type=uint32_t,\
-           CREATE DIRTY_READ EXCL NOMMAP RDONLY THREAD TRUNCATE AUTO_COMMIT)
+           CREATE DIRTY-READ EXCL NOMMAP RDONLY THREAD TRUNCATE AUTO-COMMIT)
 DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :FLAGS      \
-      :CREATE :DIRTY_READ :EXCL :NOMMAP :RDONLY :THREAD :TRUNCATE \
-      :AUTO_COMMIT :TRANSACTION)
+      :CREATE :DIRTY-READ :EXCL :NOMMAP :RDONLY :THREAD :TRUNCATE \
+      :AUTO-COMMIT :TRANSACTION)
 { /* Open a database */
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
   u_int32_t flags = db_open_flags() | check_db_open_flags_parse(popSTACK());
@@ -1312,7 +1312,7 @@ DEFUN(BDB:DB-SYNC, db)
   VALUES0;
 }
 
-DEFUN(BDB:DB-TRUNCATE, db &key :TRANSACTION :AUTO_COMMIT)
+DEFUN(BDB:DB-TRUNCATE, db &key :TRANSACTION :AUTO-COMMIT)
 { /* Empty a database */
   u_int32_t flags = bdb_ac_flags();
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
@@ -1360,7 +1360,7 @@ DEFUN(BDB:DB-REMOVE, db file database)
 }
 
 DEFCHECKER(db_put_action,prefix=DB, default=0, APPEND NODUPDATA NOOVERWRITE)
-DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
+DEFUN(BDB:DB-PUT, db key val &key :AUTO-COMMIT :ACTION :TRANSACTION)
 { /* Store items into a database */
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
   u_int32_t action = db_put_action(popSTACK());
@@ -1398,7 +1398,7 @@ DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
 }
 
 DEFFLAGSET(db_join_flags, DB_JOIN_NOSORT)
-DEFUN(BDB:DB-JOIN, db cursors &key :JOIN_NOSORT)
+DEFUN(BDB:DB-JOIN, db cursors &key :JOIN-NOSORT)
 { /* create a specialized join cursor */
   u_int32_t flags = db_join_flags(), length, pos;
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
@@ -1530,7 +1530,7 @@ static object db_get_flags_list (DB *db) {
   SYSCALL(db->get_flags,(db,&flags));
   if (flags & DB_CHKSUM) { pushSTACK(`:CHKSUM`); count++; }
   if (flags & DB_ENCRYPT) { pushSTACK(`:ENCRYPT`); count++; }
-  if (flags & DB_TXN_NOT_DURABLE) { pushSTACK(`:TXN_NOT_DURABLE`); count++; }
+  if (flags & DB_TXN_NOT_DURABLE) { pushSTACK(`:TXN-NOT-DURABLE`); count++; }
   if (flags & DB_DUP) { pushSTACK(`:DUP`); count++; }
   if (flags & DB_DUPSORT) { pushSTACK(`:DUPSORT`); count++; }
   if (flags & DB_RECNUM) { pushSTACK(`:RECNUM`); count++; }
@@ -1555,9 +1555,9 @@ static object db_get_open_flags (DB *db, int errorp) {
 }
 
 DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :ERRPFX :PASSWORD :ENCRYPTION \
-      :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :BT_MINKEY :H_FFACTOR \
-      :H_NELEM :Q_EXTENTSIZE :RE_DELIM :RE_LEN :RE_PAD :RE_SOURCE       \
-      :CHKSUM :ENCRYPT :TXN_NOT_DURABLE :DUP :DUPSORT :RECNUM         \
+      :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :BT-MINKEY :H-FFACTOR \
+      :H-NELEM :Q-EXTENTSIZE :RE-DELIM :RE-LEN :RE-PAD :RE-SOURCE       \
+      :CHKSUM :ENCRYPT :TXN-NOT-DURABLE :DUP :DUPSORT :RECNUM         \
       :REVSPLITOFF :RENUMBER :SNAPSHOT)
 { /* set database options */
   DB *db = (DB*)bdb_handle(STACK_(26),`BDB::DB`,BH_VALID);
@@ -1746,14 +1746,14 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     pushSTACK(value1); count++;
     pushSTACK(`:LORDER`); pushSTACK(db_get_lorder(db)); count++;
     pushSTACK(`:PAGESIZE`); pushSTACK(db_get_pagesize(db)); count++;
-    pushSTACK(`:BT_MINKEY`); pushSTACK(db_get_bt_minkey(db,false)); count++;
-    pushSTACK(`:H_FFACTOR`); pushSTACK(db_get_h_ffactor(db,false)); count++;
-    pushSTACK(`:H_NELEM`); pushSTACK(db_get_h_nelem(db,false)); count++;
-    pushSTACK(`:Q_EXTENTSIZE`);pushSTACK(db_get_q_extentsize(db,false));count++;
-    pushSTACK(`:RE_DELIM`); pushSTACK(db_get_re_delim(db,false)); count++;
-    pushSTACK(`:RE_LEN`); pushSTACK(db_get_re_len(db,false)); count++;
-    pushSTACK(`:RE_PAD`); pushSTACK(db_get_re_pad(db,false)); count++;
-    pushSTACK(`:RE_SOURCE`); pushSTACK(db_get_re_source(db,false)); count++;
+    pushSTACK(`:BT-MINKEY`); pushSTACK(db_get_bt_minkey(db,false)); count++;
+    pushSTACK(`:H-FFACTOR`); pushSTACK(db_get_h_ffactor(db,false)); count++;
+    pushSTACK(`:H-NELEM`); pushSTACK(db_get_h_nelem(db,false)); count++;
+    pushSTACK(`:Q-EXTENTSIZE`);pushSTACK(db_get_q_extentsize(db,false));count++;
+    pushSTACK(`:RE-DELIM`); pushSTACK(db_get_re_delim(db,false)); count++;
+    pushSTACK(`:RE-LEN`); pushSTACK(db_get_re_len(db,false)); count++;
+    pushSTACK(`:RE-PAD`); pushSTACK(db_get_re_pad(db,false)); count++;
+    pushSTACK(`:RE-SOURCE`); pushSTACK(db_get_re_source(db,false)); count++;
     pushSTACK(`:TRANSACTIONAL`); pushSTACK(db_get_transactional(db)); count++;
     pushSTACK(`:DBNAME`); db_get_dbname(db,false);
     pushSTACK(value1); pushSTACK(value2); value1 = listof(2);
@@ -1771,7 +1771,7 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     u_int32_t flags;
     SYSCALL(db->get_encrypt_flags,(db,&flags));
     switch (flags) {
-      case DB_ENCRYPT_AES: VALUES1(`:ENCRYPT_AES`);
+      case DB_ENCRYPT_AES: VALUES1(`:ENCRYPT-AES`);
       case 0: VALUES1(NIL);
       default: NOTREACHED;
     }
@@ -1783,21 +1783,21 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     VALUES1(db_get_pagesize(db));
   } else if (eq(what,`:TRANSACTIONAL`)) {
     VALUES1(db_get_transactional(db));
-  } else if (eq(what,`:BT_MINKEY`)) {
+  } else if (eq(what,`:BT-MINKEY`)) {
     VALUES1(db_get_bt_minkey(db,true));
-  } else if (eq(what,`:H_FFACTOR`)) {
+  } else if (eq(what,`:H-FFACTOR`)) {
     VALUES1(db_get_h_ffactor(db,true));
-  } else if (eq(what,`:H_NELEM`)) {
+  } else if (eq(what,`:H-NELEM`)) {
     VALUES1(db_get_h_nelem(db,true));
-  } else if (eq(what,`:Q_EXTENTSIZE`)) {
+  } else if (eq(what,`:Q-EXTENTSIZE`)) {
     VALUES1(db_get_q_extentsize(db,true));
-  } else if (eq(what,`:RE_DELIM`)) {
+  } else if (eq(what,`:RE-DELIM`)) {
     VALUES1(db_get_re_delim(db,true));
-  } else if (eq(what,`:RE_LEN`)) {
+  } else if (eq(what,`:RE-LEN`)) {
     VALUES1(db_get_re_len(db,true));
-  } else if (eq(what,`:RE_PAD`)) {
+  } else if (eq(what,`:RE-PAD`)) {
     VALUES1(db_get_re_pad(db,true));
-  } else if (eq(what,`:RE_SOURCE`)) {
+  } else if (eq(what,`:RE-SOURCE`)) {
     VALUES1(db_get_re_source(db,true));
   } else if (eq(what,`:LORDER`)) {
     VALUES1(db_get_lorder(db));
@@ -1807,7 +1807,7 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     VALUES_IF(db_get_flags_num(db) & DB_CHKSUM);
   } else if (eq(what,`:ENCRYPT`)) {
     VALUES_IF(db_get_flags_num(db) & DB_ENCRYPT);
-  } else if (eq(what,`:TXN_NOT_DURABLE`)) {
+  } else if (eq(what,`:TXN-NOT-DURABLE`)) {
     VALUES_IF(db_get_flags_num(db) & DB_TXN_NOT_DURABLE);
   } else if (eq(what,`:DUP`)) {
     VALUES_IF(db_get_flags_num(db) & DB_DUP);
@@ -1832,7 +1832,7 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
 
 /* ===== cursors ===== */
 DEFFLAGSET(make_dbc_flags, DB_DIRTY_READ DB_WRITECURSOR)
-DEFUN(BDB:MAKE-DBC,db &key :TRANSACTION :DIRTY_READ :WRITECURSOR)
+DEFUN(BDB:MAKE-DBC,db &key :TRANSACTION :DIRTY-READ :WRITECURSOR)
 { /* create a cursor */
   u_int32_t flags = make_dbc_flags();
   DB_TXN *txn = (DB_TXN*)bdb_handle(STACK_0,`BDB::TXN`,BH_NIL_IS_NULL);
@@ -1894,8 +1894,8 @@ DEFCHECKER(dbc_get_action,prefix=DB,default=DB_CURRENT,                 \
            CURRENT FIRST GET-BOTH GET-BOTH-RANGE GET-RECNO JOIN-ITEM LAST \
            NEXT NEXT-DUP NEXT-NODUP PREV PREV-NODUP SET SET-RANGE SET-RECNO)
 DEFFLAGSET(dbc_get_options, DB_DIRTY_READ DB_MULTIPLE DB_MULTIPLE_KEY DB_RMW)
-DEFUN(BDB:DBC-GET, cursor key data action &key :DIRTY_READ :MULTIPLE \
-      :MULTIPLE_KEY :RMW :ERROR)
+DEFUN(BDB:DBC-GET, cursor key data action &key :DIRTY-READ :MULTIPLE \
+      :MULTIPLE-KEY :RMW :ERROR)
 { /* retrieve key/data pairs from the database */
   int no_error = nullp(popSTACK());
   u_int32_t flag = dbc_get_options();
@@ -2040,7 +2040,7 @@ DEFUN(BDB:LOCK-CLOSE, lock)
 }
 
 DEFFLAGSET(stat_flags, DB_STAT_CLEAR)
-DEFUN(BDB:LOCK-STAT,dbe &key :STAT_CLEAR)
+DEFUN(BDB:LOCK-STAT,dbe &key :STAT-CLEAR)
 { /* Return lock subsystem statistics */
   u_int32_t flags = stat_flags();
   DB_ENV *dbe = (DB_ENV*)bdb_handle(popSTACK(),`BDB::DBE`,BH_VALID);
@@ -2078,7 +2078,7 @@ DEFUN(BDB:LOCK-STAT,dbe &key :STAT_CLEAR)
 
 DEFFLAGSET(log_archive_flags,DB_ARCH_ABS DB_ARCH_DATA DB_ARCH_LOG \
            DB_ARCH_REMOVE)
-DEFUN(BDB:LOG-ARCHIVE, dbe &key :ARCH_ABS :ARCH_DATA :ARCH_LOG :ARCH_REMOVE)
+DEFUN(BDB:LOG-ARCHIVE, dbe &key :ARCH-ABS :ARCH-DATA :ARCH-LOG :ARCH-REMOVE)
 { /* return a list of log or database filenames. */
   u_int32_t flags = log_archive_flags();
   DB_ENV *dbe = (DB_ENV*)bdb_handle(popSTACK(),`BDB::DBE`,BH_VALID);
@@ -2143,7 +2143,7 @@ DEFUN(BDB:LOG-PUT, dbe data &key FLUSH)
   make_lsn(&lsn);
 }
 
-DEFUN(BDB:LOG-STAT, dbe &key :STAT_CLEAR)
+DEFUN(BDB:LOG-STAT, dbe &key :STAT-CLEAR)
 { /* logging subsystem statistics */
   u_int32_t flags = stat_flags();
   DB_ENV *dbe = (DB_ENV*)bdb_handle(popSTACK(),`BDB::DBE`,BH_VALID);
@@ -2243,7 +2243,7 @@ DEFUN(BDB:LOG-COMPARE, lsn1 lsn2)
 
 DEFFLAGSET(txn_begin_flags, DB_DIRTY_READ DB_TXN_NOSYNC \
            DB_TXN_NOWAIT DB_TXN_SYNC)
-DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DIRTY_READ :NOSYNC :NOWAIT :SYNC)
+DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DIRTY-READ :NOSYNC :NOWAIT :SYNC)
 { /* create a transaction */
   u_int32_t flags = txn_begin_flags();
   DB_TXN *parent = (DB_TXN*)bdb_handle(STACK_0,`BDB::TXN`,BH_NIL_IS_NULL), *ret;
@@ -2379,7 +2379,7 @@ DEFUN(BDB:TXN-SET-TIMEOUT, txn timeout which)
   VALUES0;
 }
 
-DEFUN(BDB:TXN-STAT, dbe &key :STAT_CLEAR)
+DEFUN(BDB:TXN-STAT, dbe &key :STAT-CLEAR)
 { /* transaction subsystem statistics */
   u_int32_t flags = stat_flags();
   DB_ENV *dbe = (DB_ENV*)bdb_handle(popSTACK(),`BDB::DBE`,BH_VALID);

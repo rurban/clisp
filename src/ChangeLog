@@ -1,5 +1,10 @@
 2005-04-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c, modules/berkeley-db/dbi.lisp:
+	use dash instead of underscore for all keywords
+
+2005-04-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (fill_dbt): re_len==-1 ==> integer object
 	(db_key_type): accept second action argument
 	(DB-GET, DBC-GET): handle :SET-RECNO and :GET-RECNO actions

@@ -30,7 +30,7 @@ prepare-dir
 (defun show-db (db)
   (let* ((*print-pretty* t) (stat (bdb:db-stat db))
          (file (and (eq :RECNO (bdb::db-stat-type stat))
-                    (bdb:db-get-options db :RE_SOURCE))))
+                    (bdb:db-get-options db :RE-SOURCE))))
     (show (list db (bdb:db-fd db) stat (bdb:db-get-options db)))
     (when file (show-file file)))
   nil)
@@ -76,13 +76,13 @@ nil
 (defvar *dbe* (show (bdb:dbe-create))) *dbe*
 
 (bdb:dbe-set-options *dbe* :errfile "bdb-errors" :errpfx "zot" :verbose t
-                     :data_dir "bdb-data/")
+                     :data-dir "bdb-data/")
 NIL
 
 (bdb:dbe-get-options *dbe* :errpfx) "zot"
 
 (bdb:dbe-open *dbe* :home "bdb-home/" :create t
-              :init_mpool t :init_txn t :init_lock t :init_log t)
+              :init-mpool t :init-txn t :init-lock t :init-log t)
 NIL
 
 (show-dbe *dbe*) NIL
@@ -113,7 +113,7 @@ NIL
 15
 
 (bdb:with-db (db *dbe* "recno-source.db"
-                 :options (:RE_SOURCE "recno-source.txt")
+                 :options (:RE-SOURCE "recno-source.txt")
                  :open (:type :RECNO :create T))
   (show-db db)
   (list (bdb:db-get db 1 :type :string)
@@ -123,7 +123,7 @@ NIL
 ("foo" "bar" "foobar" :NOTFOUND)
 
 (bdb:with-db (db *dbe* "recno-source.db"
-                 :options (:RE_SOURCE "recno-source.txt"))
+                 :options (:RE-SOURCE "recno-source.txt"))
   (show-db db)
   (bdb:db-put db 5 "bazonk"))
 NIL
@@ -159,9 +159,9 @@ NIL
   (show type)
   (let ((max 30))
     (bdb:with-db (db *dbe* (format nil "test-~A.db" type)
-                     :options (:RE_LEN (show (* 4 (ceiling (integer-length
+                     :options (:RE-LEN (show (* 4 (ceiling (integer-length
                                                             (! max)) 32)))
-                               :RE_PAD 0)
+                               :RE-PAD 0)
                      :open (:type type :create t))
       (show-db db)
       (show (loop :repeat 20 :for x = (random max) :collect
@@ -188,7 +188,7 @@ NIL
 (let ((*print-pretty* t)) (setq *dbe* (show (bdb:dbe-create))) nil) NIL
 
 (bdb:dbe-set-options *dbe* :errfile "bdb-errors" :verbose t
-                     :data_dir "bdb-data/")
+                     :data-dir "bdb-data/")
 NIL
 
 (let ((arr #A((unsigned-byte 8) (6 6)
@@ -198,12 +198,12 @@ NIL
                (0 1 1 0 0 0)
                (0 0 1 0 0 0)
                (0 1 1 0 0 0)))))
-  (bdb:dbe-set-options *dbe* :lk_conflicts arr)
-  (equalp arr (bdb:dbe-get-options *dbe* :lk_conflicts)))
+  (bdb:dbe-set-options *dbe* :lk-conflicts arr)
+  (equalp arr (bdb:dbe-get-options *dbe* :lk-conflicts)))
 T
 
 (bdb:dbe-open *dbe* :home "bdb-home/" :create t
-              :init_mpool t :init_txn t :init_lock t :init_log t)
+              :init-mpool t :init-txn t :init-lock t :init-log t)
 NIL
 
 (show-dbe *dbe*) NIL
