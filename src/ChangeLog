@@ -1,5 +1,13 @@
 2005-04-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (fill_dbt): re_len==-1 ==> integer object
+	(db_key_type): accept second action argument
+	(DB-GET, DBC-GET): handle :SET-RECNO and :GET-RECNO actions
+	(DB-PUT, DB-KEY-RANGE, DBC-PUT):
+	pass 0 as the second argument to db_key_type()
+
+2005-04-25  Sam Steingold  <sds@gnu.org>
+
 	* utils/clispload.lsp (*expected-failures*): update
 
 2005-04-24  Sam Steingold  <sds@gnu.org>
