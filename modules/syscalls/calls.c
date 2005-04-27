@@ -1339,10 +1339,10 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 #endif  /* chmod chown utime */
 
 /* <http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html> */
-DEFCHECKER(check_chmod_mode, type=mode_t, reverse=UL_to_I,              \
-           prefix=S, default=, bitmasks=both,                           \
-           ISUID ISGID ISVTX IRWXU IRUSR IWUSR IXUSR IRWXG IRGRP        \
-           IWGRP IXGRP IRWXO IROTH IWOTH IXOTH)
+DEFCHECKER(check_chmod_mode, type=mode_t, reverse=UL_to_I,      \
+           prefix=S_I, delim=, default=, bitmasks=both,         \
+           SUID SGID SVTX RWXU RUSR WUSR XUSR RWXG RGRP         \
+           WGRP XGRP RWXO ROTH WOTH XOTH)
 DEFUN(POSIX::CONVERT-MODE, mode)
 { /* convert between symbolic and numeric permissions */
   if (posfixnump(STACK_0))
@@ -1373,8 +1373,8 @@ static int creat1 (const char *path, mode_t mode)
   return close(fd);
 }
 #endif
-DEFCHECKER(mknod_type_check,prefix=S,default=,          \
-           IFIFO IFSOCK IFCHR IFDIR IFBLK IFREG)
+DEFCHECKER(mknod_type_check,prefix=S_I,delim=,default=, \
+           FIFO FSOCK FCHR FDIR FBLK FREG)
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
@@ -1387,19 +1387,19 @@ DEFUN(POSIX::MKNOD, path type mode)
   int (*mknod1)(const char *path, mode_t mode);
  mknod_restart:
 # if defined(HAVE_MKFIFO)
-  if (eq(`:IFIFO`,STACK_0)) {
+  if (eq(`:FIFO`,STACK_0)) {
     mknod1 = mkfifo; skipSTACK(1);
     goto mknod_do_it;
   }
 # endif  /* mkfifo */
 # if defined(HAVE_MKDIR)
-  if (eq(`:IFDIR`,STACK_0)) {
+  if (eq(`:FDIR`,STACK_0)) {
     mknod1 = mkdir; skipSTACK(1);
     goto mknod_do_it;
   }
 # endif  /* mkfifo */
 # if defined(HAVE_CREAT)
-  if (eq(`:IFDIR`,STACK_0)) {
+  if (eq(`:FDIR`,STACK_0)) {
     mknod1 = creat1; skipSTACK(1);
     goto mknod_do_it;
   }
@@ -1410,13 +1410,13 @@ DEFUN(POSIX::MKNOD, path type mode)
   { int count = 1;
     pushSTACK(`CL:MEMBER`);
 #  if defined(HAVE_MKFIFO)
-    pushSTACK(`:IFFIFO`); count++;
+    pushSTACK(`:FFIFO`); count++;
 #  endif
 #  if defined(HAVE_MKDIR)
-    pushSTACK(`:IFDIR`); count++;
+    pushSTACK(`:FDIR`); count++;
 #  endif
 #  if defined(HAVE_CREAT)
-    pushSTACK(`:IFREG`); count++;
+    pushSTACK(`:FREG`); count++;
 #  endif
     value1 = listof(count);
   } pushSTACK(value1);          /* TYPE-ERROR slot EXPECTED-TYPE */

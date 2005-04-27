@@ -2,6 +2,10 @@
 
 	* utils/modprep.lisp (checker): added slot DELIM
 	(to-C-name, new-checker): accept DELIM
+	* modules/syscalls/calls.c (check_chmod_mode, mknod_type_check):
+	prefix=S_I, void delim
+	(mknod): use :FIFO instead of :IFIFO &c
+	* modules/syscalls/posix.lisp (make-xterm-io-stream): ditto
 
 2005-04-27  Sam Steingold  <sds@gnu.org>
 
