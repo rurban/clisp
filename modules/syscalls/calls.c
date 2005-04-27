@@ -1364,14 +1364,69 @@ DEFUN(POSIX::UMASK, cmask)
 }
 #endif  /* umask */
 
-#if defined(HAVE_MKNOD)
+#if defined(HAVE_MKNOD) || defined(HAVE_MKFIFO) || defined(HAVE_MKDIR) || defined(HAVE_CREAT)
+#if defined(HAVE_CREAT) && !defined(HAVE_MKNOD)
+static int creat1 (const char *path, mode_t mode)
+{ /* creat() and close() immediately  */
+  int fd = creat(path,mode);
+  if (fd == -1) return -1;
+  return close(fd);
+}
+#endif
 DEFCHECKER(mknod_type_check,prefix=S,default=,          \
            IFIFO IFSOCK IFCHR IFDIR IFBLK IFREG)
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
   mode_t mode = check_chmod_mode_parse(popSTACK());
+#if defined(HAVE_MKNOD)
   mode |= mknod_type_check(popSTACK());
+#else
+  /* emulate mknod using mkfifo(), mkdir() and creat() */
+#define mknod(p,m,d) mknod1(p,m)
+  int (*mknod1)(const char *path, mode_t mode);
+ mknod_restart:
+# if defined(HAVE_MKFIFO)
+  if (eq(`:IFIFO`,STACK_0)) {
+    mknod1 = mkfifo; skipSTACK(1);
+    goto mknod_do_it;
+  }
+# endif  /* mkfifo */
+# if defined(HAVE_MKDIR)
+  if (eq(`:IFDIR`,STACK_0)) {
+    mknod1 = mkdir; skipSTACK(1);
+    goto mknod_do_it;
+  }
+# endif  /* mkfifo */
+# if defined(HAVE_CREAT)
+  if (eq(`:IFDIR`,STACK_0)) {
+    mknod1 = creat1; skipSTACK(1);
+    goto mknod_do_it;
+  }
+# endif  /* mkfifo */
+  /* invalid type */
+  pushSTACK(NIL);               /* no PLACE */
+  pushSTACK(STACK_1);           /* TYPE-ERROR slot DATUM */
+  { int count = 1;
+    pushSTACK(`CL:MEMBER`);
+#  if defined(HAVE_MKFIFO)
+    pushSTACK(`:IFFIFO`); count++;
+#  endif
+#  if defined(HAVE_MKDIR)
+    pushSTACK(`:IFDIR`); count++;
+#  endif
+#  if defined(HAVE_CREAT)
+    pushSTACK(`:IFREG`); count++;
+#  endif
+    value1 = listof(count);
+  } pushSTACK(value1);          /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(STACK_0); pushSTACK(STACK_2);
+  pushSTACK(TheSubr(subr_self)->name);
+  check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+  STACK_0 = value1;
+  goto mknod_restart;
+ mknod_do_it:
+#endif                          /* no mknod() */
   funcall(L(namestring),1);     /* drop path from STACK */
   with_string_0(value1,GLO(pathname_encoding),path, {
       begin_system_call();
@@ -1380,7 +1435,7 @@ DEFUN(POSIX::MKNOD, path type mode)
     });
   VALUES0;
 }
-#endif  /* mknod */
+#endif  /* mknod | mkfifo | mkdir | creat */
 
 #if defined(WIN32_NATIVE) || defined(HAVE_STATVFS)
 #if defined(WIN32_NATIVE)
