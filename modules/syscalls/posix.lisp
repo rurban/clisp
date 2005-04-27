@@ -307,21 +307,21 @@
 ;;;--------------------------------------------------------------------------
 #+unix
 (defun make-xterm-io-stream ()
-  (let* ((tmp (mkstemp "/tmp/clisp-x-io-XXXXXX"))
-         (file (namestring tmp))
+  (let* ((tmps (mkstemp "/tmp/clisp-x-io-XXXXXX"))
+         (file (namestring tmps))
          (title "CLISP I/O")
          xio
          (clos::*warn-if-gf-already-called* nil))
-    (close tmp) (delete-file tmp)
-    (mknod tmp :IFIFO :IRWXU)
+    (close tmps) (delete-file tmps)
+    (mknod tmps :IFIFO :IRWXU)
     (shell (format nil "xterm -n ~s -T ~s -e 'tty >> ~a; cat ~a' &"
                    title title file file))
     (setq xio (open file :direction :io))
     (defmethod close :after ((x (eql xio)) &rest junk)
       (declare (ignore x junk))
-      (with-open-file (s pipe :direction :output)
+      (with-open-file (s file :direction :output)
         (write-line (TEXT "Bye.") s))
-      (delete-file pipe)
+      (delete-file file)
       (let ((clos::*warn-if-gf-already-called* nil))
         (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
     xio))
