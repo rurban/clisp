@@ -1,3 +1,10 @@
+2005-04-27  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 1190843 ]: no mknod p on OS/X
+	* reploop.lisp (make-xterm-io-stream): moved to syscalls module
+	* modules/syscalls/posix.lisp (make-xterm-io-stream): use
+	POSIX:MKNOD and POSIX:MKSTEMP instead of the shell commands
+
 2005-04-25  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c, modules/berkeley-db/dbi.lisp:

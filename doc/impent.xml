@@ -260,7 +260,6 @@
 <!ENTITY mk-pipe-in "<link linkend='pipe'><function>EXT:MAKE-PIPE-INPUT-STREAM</function></link>">
 <!ENTITY mk-pipe-io "<link linkend='pipe'><function>EXT:MAKE-PIPE-IO-STREAM</function></link>">
 <!ENTITY mk-pipe-out "<link linkend='pipe'><function>EXT:MAKE-PIPE-OUTPUT-STREAM</function></link>">
-<!ENTITY mk-xterm-io "<link linkend='separate-io'><function>EXT:MAKE-XTERM-IO-STREAM</function></link>">
 <!ENTITY mop "<link linkend='mop-chap'>Meta-Object Protocol</link>">
 <!ENTITY muffle-cerrors "<link linkend='muffle-cerrors'><function>EXT:MUFFLE-CERRORS</function></link>">
 <!ENTITY need-defmethod "<simpara>You must define a method for this function.</simpara>">
@@ -405,6 +404,7 @@
 <!-- *** syscalls *** -->
 <!ENTITY resolve-host "<link linkend='resolve-host'><function>POSIX:RESOLVE-HOST-IPADDR</function></link>">
 <!ENTITY rlimit "<link linkend='rlimit'><function>POSIX:RLIMIT</function></link>">
+<!ENTITY mk-xterm-io "<link linkend='mk-xterm-io'><function>POSIX:MAKE-XTERM-IO-STREAM</function></link>">
 
 <!-- *** netica *** -->
 <!ENTITY netica-link "<ulink url='http://norsys.com/netica_c_api.htm'>Netica C API</ulink>">
