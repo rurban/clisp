@@ -317,6 +317,9 @@
     (shell (format nil "xterm -n ~s -T ~s -e 'tty >> ~a; cat ~a' &"
                    title title file file))
     (setq xio (open file :direction :io))
+    ;; we cannot rely on GC closing files because we also need to remove
+    ;; the FIFO which is done by the :AFTER method below
+    (ext:finalize xio #'close)
     (defmethod close :after ((x (eql xio)) &rest junk)
       (declare (ignore x junk))
       (with-open-file (s file :direction :output)
