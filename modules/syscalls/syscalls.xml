@@ -177,8 +177,7 @@
    If the system does not support a particular field (e.g., Win32 does
    not have a concept of a shell), &nil; (or the default, like
    <filename>c:\command.com</filename> for DOS) is returned.
-   </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
-  </simpara></listitem></varlistentry>
+   </simpara><simpara>&unix-only;</simpara></listitem></varlistentry>
  <varlistentry><term><code>(<function>POSIX:UNAME</function>)</code></term>
   <listitem><simpara>Return a structure describing the OS, derived from
     &uname;.</simpara></listitem></varlistentry>
@@ -422,13 +421,11 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="phys-mem"><term><code>(OS:PHYSICAL-MEMORY)</code></term>
   <listitem><simpara>Return 2 values: total and available physical memory.
-   </simpara><simpara>Works on both &unix; and &win32;.
- </simpara></listitem></varlistentry>
+   </simpara><simpara>&unix-w32-only;</simpara></listitem></varlistentry>
  <varlistentry id="file-owner"><term><code>(OS:FILE-OWNER
     &filename-r;)</code></term>
   <listitem><simpara>Return the owner of the file.</simpara>
-   <simpara>Works on both &unix; and &win32;.</simpara>
- </listitem></varlistentry>
+   <simpara>&unix-w32-only;</simpara></listitem></varlistentry>
  <varlistentry id="priority"><term><code>(OS:PRIORITY &pid-r;
     &optional-amp; &what-r;)</code></term>
   <listitem><para>Return the process priority, platform-dependent
@@ -506,6 +503,14 @@
   <listitem><simpara>calls &fsync; (<function>FlushFileBuffers</function>
     on &win32;) on the &file-des; associated with &stream-r;, or &sync;
     when &stream-r; is not supplied</simpara></listitem></varlistentry>
-</variablelist>
+ <varlistentry id="mk-xterm-io"><term>(&&mk-xterm-io;)</term>
+  <listitem><para>When running under the &X;, you can create a &bidi-s;,
+    which uses a new dedicated xterm, using the function &mk-xterm-io;:
+<programlisting language="lisp">
+  (&setq; &error-output-var;
+        (&setq; &debug-io-var;
+             (&mk-xterm-io;)))
+</programlisting></para><simpara>&unix-only;</simpara></listitem>
+</varlistentry></variablelist>
 
 </section>

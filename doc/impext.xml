@@ -4827,23 +4827,4 @@ are returned in an &alist;.</para>
  using <code>(&setf; (&getenv; &string-r;) &nval-r;)</code>.
 </para></section>
 
-<section id="separate-io"><title>Other</title>
-
-<variablelist>
-<!-- #ifdef UNIX -->
-<varlistentry><term>&unix-only;</term>
-<listitem><para>When running under the &X;, you can create
-  a &bidi-s;, which uses a new dedicated xterm, using the function
-  <firstterm>&mk-xterm-io;<indexterm id="mk-xterm" significance="preferred">
-    <primary id="mk-xterm-i"><function>MAKE-XTERM-IO-STREAM</function>
-  </primary></indexterm></firstterm>:
-<programlisting language="lisp">
-  (&setq; &error-output-var;
-    (&setq; &debug-io-var;
-      (&mk-xterm-io;)))
-</programlisting></para></listitem></varlistentry>
-<!-- #endif -->
-</variablelist>
-</section>
-
 </chapter>
