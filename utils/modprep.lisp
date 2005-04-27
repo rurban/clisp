@@ -196,7 +196,10 @@ The vector is freshly constructed, but the strings are shared"
         (vector-push-extend (aref cc ii) vec)))
     vec))
 
-(defun string-rest (line pos) (subseq line pos (prev-non-blank line nil)))
+(defun string-rest (line pos)
+  (unless pos
+    (error "~S:~D: incomplete instruction ~S" *input-file* *lineno* line))
+  (subseq line pos (prev-non-blank line nil)))
 
 (defun if-p (line)
   "#if/#ifdef/#ifndef"
