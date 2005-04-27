@@ -1,5 +1,10 @@
 2005-04-27  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (checker): added slot DELIM
+	(to-C-name, new-checker): accept DELIM
+
+2005-04-27  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (POSIX::MKNOD): when mknod() is not
 	present, use mkfifo(), mkdir(), and creat()
 	* modules/syscalls/configure.in (mkfifo, mkdir, creat): check

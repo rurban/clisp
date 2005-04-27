@@ -51,7 +51,8 @@ The input file is normal C code, modified like this:
   }
   it is convenient for parsing flag arguments to DEFUNs
 - DEFCHECKER(c_name, [enum|type]=..., suffix= ..., prefix=..., default=...,
-             bitmasks= ..., reverse= ..., C_CONST1 C_CONST2 C_CONST3)
+             bitmasks= ..., reverse= ..., delim= ...,
+             C_CONST1 C_CONST2 C_CONST3)
   is converted to
   static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
   static [enum_]type c_name (object arg) {
@@ -84,6 +85,7 @@ The input file is normal C code, modified like this:
  prefix, suffix default to ""
  reverse defaults to "" and means NOTREACHED
  bitmasks means additional *_to_list and *_from_list functions are defined
+ delim defaults to "_" and separates prefix and suffix
 
 Restrictions and caveats:
 - A module should consist of a single file.
@@ -620,31 +622,32 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 ;; type is the enum type name (if it is an enum typedef) and NIL otherwise
 ;; since enum constants cannot be checked by CPP, we do not ifdef them
 (defstruct (checker (:include cpp-helper))
-  enum-p type prefix suffix reverse bitmasks default cpp-odefs type-odef)
+  enum-p type prefix suffix delim reverse bitmasks default cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
-(defun to-C-name (name prefix suffix)
+(defun to-C-name (name prefix suffix delim)
   (etypecase name
     (string
      (setq name (substitute #\_ #\- name))
-     (when prefix (setq name (ext:string-concat prefix "_" name)))
-     (when suffix (setq name (ext:string-concat name "_" suffix))))
+     (when prefix (setq name (ext:string-concat prefix delim name)))
+     (when suffix (setq name (ext:string-concat name delim suffix))))
     (cons (setq name (second name))))
   name)
 (defun new-checker (name cpp-names &key type prefix suffix reverse default enum
-                    bitmasks (condition (current-condition)))
+                    bitmasks (delim "_") (condition (current-condition)))
   "NAME is the name of the checker function
 CPP-NAMES is the list of possible values, either strings or
  pairs (:KEYWORD VALUE), value is not #ifdef'ed"
   (setq default (and (not (eq default T)) default
                      (or (parse-integer default :junk-allowed t) default))
-        bitmasks (and (not (eq bitmasks T)) bitmasks))
+        bitmasks (and (not (eq bitmasks T)) bitmasks)
+        delim (if (eq delim T) "" delim))
   (when (and type enum)
     (error "~S(~S): cannot specify both ~A=~S and ~A=~S"
            'new-checker name :type type :enum enum))
   (let ((ch (make-checker :type (or type enum) :name name :reverse reverse
                           :prefix prefix :suffix suffix :bitmasks bitmasks
                           :enum-p (not (null enum)) :cpp-names cpp-names
-                          :default default))
+                          :delim delim :default default))
         (type-odef (if default
                        ;; note that if DEFAULT is an undefined CPP constant
                        ;; NIL will not be a valid argument
@@ -666,7 +669,8 @@ CPP-NAMES is the list of possible values, either strings or
              (etypecase name
                (string
                 (let ((co (ext:string-concat
-                           "defined(" (to-C-name name prefix suffix) ")")))
+                           "defined(" (to-C-name name prefix suffix delim)
+                           ")")))
                   (push (init-to-objdef (ext:string-concat ":" name)
                                         (concatenate 'vector condition
                                                      (list co)))
@@ -1007,6 +1011,7 @@ commas and parentheses."
     (newline out)
     (loop :for ch :across *checkers* :for default = (checker-default ch)
       :for prefix = (checker-prefix ch) :for suffix = (checker-suffix ch)
+      :for delim = (checker-delim ch)
       :for reverse = (checker-reverse ch) :for bitmasks = (checker-bitmasks ch)
       :for type-tag = (objdef-tag (checker-type-odef ch))
       :for c-name = (checker-name ch) :for c-type = (or (checker-type ch) "int")
@@ -1017,12 +1022,12 @@ commas and parentheses."
       :do (with-conditional (out (checker-cond-stack ch))
             (formatln out "static struct c_lisp_pair ~A_table[] = {" c-name)
             (loop :for name :in (checker-cpp-names ch)
-              :for C-name = (to-C-name name prefix suffix)
+              :for name-C = (to-C-name name prefix suffix delim)
               :for odef :in (checker-cpp-odefs ch)
               :for need-ifdef = (and (not enum-p) (stringp name))
-              :do (when need-ifdef (formatln out " #ifdef ~A" C-name))
-              (formatln out "  { ~A, &(O(~A)) }," C-name (objdef-tag odef))
-              (when (and need-default (string= default C-name))
+              :do (when need-ifdef (formatln out " #ifdef ~A" name-C))
+              (formatln out "  { ~A, &(O(~A)) }," name-C (objdef-tag odef))
+              (when (and need-default (string= default name-C))
                 (setq need-default nil))
               (when need-ifdef (formatln out " #endif")))
             (formatln out "  { 0, NULL }")
