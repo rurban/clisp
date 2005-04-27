@@ -313,7 +313,7 @@
          xio
          (clos::*warn-if-gf-already-called* nil))
     (close tmps) (delete-file tmps)
-    (mknod tmps :IFIFO :IRWXU)
+    (mknod tmps :FIFO :RWXU)
     (shell (format nil "xterm -n ~s -T ~s -e 'tty >> ~a; cat ~a' &"
                    title title file file))
     (setq xio (open file :direction :io))

@@ -45,11 +45,11 @@ T
 (os:set-file-stat *tmp2* :atime t :mtime t) NIL
 
 (os:convert-mode #o0666)
-#+unix (:IRUSR :IWUSR :IRGRP :IWGRP :IROTH :IWOTH)
-#+win32 (:IRUSR :IWUSR 54)
+#+unix (:RUSR :WUSR :RGRP :WGRP :ROTH :WOTH)
+#+win32 (:RUSR :WUSR 54)
 #-(or unix win32) ERROR
 
-(os:convert-mode '(:IRWXU #+unix :IRWXG #+unix :IRWXO))
+(os:convert-mode '(:RWXU #+unix :RWXG #+unix :RWXO))
 #+unix #o0777
 #+win32 #o0700
 #-(or unix win32) ERROR
