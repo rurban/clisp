@@ -15,6 +15,9 @@
 /* Define to 1 if you have the `confstr' function. */
 #undef HAVE_CONFSTR
 
+/* Define to 1 if you have the `creat' function. */
+#undef HAVE_CREAT
+
 /* Define to 1 if you have the `crypt' function. */
 #undef HAVE_CRYPT
 
@@ -128,6 +131,12 @@
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `mkdir' function. */
+#undef HAVE_MKDIR
+
+/* Define to 1 if you have the `mkfifo' function. */
+#undef HAVE_MKFIFO
 
 /* Define to 1 if you have the `mknod' function. */
 #undef HAVE_MKNOD
