@@ -320,7 +320,7 @@
     (defmethod close :after ((x (eql xio)) &rest junk)
       (declare (ignore x junk))
       (with-open-file (s file :direction :output)
-        (write-line (TEXT "Bye.") s))
+        (write-line (SYS::TEXT "Bye.") s))
       (delete-file file)
       (let ((clos::*warn-if-gf-already-called* nil))
         (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
