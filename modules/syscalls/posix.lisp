@@ -10,7 +10,7 @@
    #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
    #:hostent #:hostent-p #:hostent-name #:hostent-aliases #:hostent-addr-list
    #:hostent-addrtype #:file-owner #:physical-memory
-   #+(or :win32 :cygwin) #:file-properties
+   #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
    #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
    #:getpgid #:setpgrp #:getsid #:setsid #:setpgid #:kill #:sync
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma))
@@ -302,6 +302,29 @@
   #+win32 (let ((mem-stat (memory-status)))
             (values (memstat-total-physical mem-stat)
                     (memstat-avail-physical mem-stat))))
+
+
+;;;--------------------------------------------------------------------------
+#+unix
+(defun make-xterm-io-stream ()
+  (let* ((tmp (mkstemp "/tmp/clisp-x-io-XXXXXX"))
+         (file (namestring tmp))
+         (title "CLISP I/O")
+         xio
+         (clos::*warn-if-gf-already-called* nil))
+    (close tmp) (delete-file tmp)
+    (mknod tmp :IFIFO :IRWXU)
+    (shell (format nil "xterm -n ~s -T ~s -e 'tty >> ~a; cat ~a' &"
+                   title title file file))
+    (setq xio (open file :direction :io))
+    (defmethod close :after ((x (eql xio)) &rest junk)
+      (declare (ignore x junk))
+      (with-open-file (s pipe :direction :output)
+        (write-line (TEXT "Bye.") s))
+      (delete-file pipe)
+      (let ((clos::*warn-if-gf-already-called* nil))
+        (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
+    xio))
 
 ;;; restore locks
 (pushnew "POSIX" *system-package-list* :test #'string=)
