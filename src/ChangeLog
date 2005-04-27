@@ -1,5 +1,9 @@
 2005-04-27  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/configure.in (mkfifo, mkdir, creat): check
+
+2005-04-27  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 1190843 ]: no mknod p on OS/X
 	* reploop.lisp (make-xterm-io-stream): moved to syscalls module
 	* modules/syscalls/posix.lisp (make-xterm-io-stream): use
