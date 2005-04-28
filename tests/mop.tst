@@ -1052,6 +1052,15 @@ T
         operation-counter))
 (t t 3)
 
+;; Check that redefinition of a generic function correctly updates the lists
+;; of generic functions belonging to each specializer.
+(progn
+  (defgeneric foo142 (x) (:method ((x t))))
+  (defgeneric foo142 (x))
+  (null (member #'foo142
+                (clos:specializer-direct-generic-functions (find-class 't)))))
+T
+
 
 ;;; Check the direct-subclasses protocol
 ;;;   add-direct-subclass remove-direct-subclass class-direct-subclasses
