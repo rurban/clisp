@@ -1,3 +1,13 @@
+2005-04-28  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (stat_obj): new function
+	(my_chmod) [WIN32_NATIVE]: call SetFileAttributes()
+	(SET-FILE-STAT) [WIN32_NATIVE]: use check_file_attributes_parse()
+	and stat_obj()
+	(copy_attributes_and_close): ported to WIN32_NATIVE
+	close streams before utime() (it modifies atime&mtime)
+	wrap system calls with begin_system_call()/end_system_call()
+
 2005-04-28  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun2b.lisp (reinitialize-instance-<generic-function>): When
