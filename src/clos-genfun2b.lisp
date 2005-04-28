@@ -992,7 +992,12 @@
     (setf (std-gf-methods gf)
           (remove-if #'(lambda (method)
                          (when (method-from-defgeneric method)
+                           ;; Step 1: Remove method from the set.
                            (setf (method-generic-function method) nil)
+                           (setf (method-from-defgeneric method) nil)
+                           ;; Step 2: Call remove-direct-method for each specializer.
+                           (dolist (specializer (method-specializers method))
+                             (remove-direct-method specializer method))
                            t))
                      (safe-gf-methods gf))))
   (apply (cond ((eq (class-of gf) <standard-generic-function>)
