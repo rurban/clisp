@@ -1130,6 +1130,19 @@ static Handle stream_get_handle (object stream) {
   return stream_lend_handle(popSTACK(),!nullp(value1),NULL);
 }
 
+#if defined(HAVE_STAT)
+/* call stat() on the pathname
+ return the value returned by stat()
+ value1 = the actual pathname on which stat was called
+ can trigger GC */
+static int stat_obj (object path, struct stat *buf) {
+  int ret;
+  with_string_0(value1=physical_namestring(path),GLO(pathname_encoding),pathz,{
+      begin_system_call(); ret = stat(pathz,buf); end_system_call(); });
+  return ret;
+}
+#endif
+
 #if defined(HAVE_FSTAT) && defined(HAVE_STAT)
 # if !defined(HAVE_LSTAT)
 #  define lstat stat
@@ -1226,7 +1239,9 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
    STACK_O is the path - for error reporting
  can trigger GC */
 static void my_chmod (char *path, mode_t mode) {
-#if defined(HAVE_CHMOD)
+#if defined(WIN32_NATIVE)
+  if (!SetFileAttributes(path,mode)) OS_file_error(STACK_0);
+#elif defined(HAVE_CHMOD)
   if (chmod(path,mode)) OS_file_error(STACK_0);
 #else
   end_system_call();
@@ -1295,7 +1310,12 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
   uid_t uid = (missingp(STACK_0) ? skipSTACK(1), (uid_t)-1
                : posfixnum_to_L(check_posfixnum(popSTACK())));
   mode_t mode = (missingp(STACK_0) ? skipSTACK(1), (mode_t)-1
-                 : check_chmod_mode_parse(popSTACK()));
+#               if defined(WIN32_NATIVE)
+                 : (mode_t)check_file_attributes_parse(popSTACK())
+#               else
+                 : check_chmod_mode_parse(popSTACK())
+#               endif
+                 );
   struct utimbuf utb;
   bool utb_a = false, utb_m = false;
   if (!missingp(STACK_0)) {     /* mtime */
@@ -1303,10 +1323,8 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
       utb.modtime = I_to_UL(STACK_0) - UNIX_LISP_TIME_DIFF;
     else if (eq(STACK_0,T)) utb.modtime = time(&utb.modtime);
     else {
-      object path = physical_namestring(STACK_0);
       struct stat st;
-      with_string_0(path,GLO(pathname_encoding),pathz,
-                    { if (stat(pathz,&st) < 0) OS_file_error(path); });
+      if (stat_obj(STACK_0,&st)) OS_file_error(value1);
       utb.modtime = st.st_mtime;
     }
     utb_m = true;
@@ -1317,10 +1335,8 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
       utb.actime = I_to_UL(STACK_0) - UNIX_LISP_TIME_DIFF;
     else if (eq(STACK_1,T)) utb.actime = time(&utb.actime);
     else {
-      object path = physical_namestring(STACK_1);
       struct stat st;
-      with_string_0(path,GLO(pathname_encoding),pathz,
-                    { if (stat(pathz,&st) < 0) OS_file_error(path); });
+      if (stat_obj(STACK_1,&st)) OS_file_error(value1);
       utb.actime = st.st_atime;
     }
     utb_a = true;
@@ -1987,36 +2003,108 @@ static inline void symlink_file (char* old_pathstring, char* new_pathstring) {
 /* Copy attributes from stream STACK_1 to stream STACK_0 and close them
    can trigger GC */
 static void copy_attributes_and_close () {
-# if defined(UNIX)
-#  if defined(HAVE_FSTAT)       /* no go without fstat() */
   Handle source_fd = stream_lend_handle(STACK_1,true,NULL);
   Handle dest_fd = stream_lend_handle(STACK_0,false,NULL);
   struct stat source_sb;
   struct stat dest_sb;
 
+# if defined(HAVE_FSTAT) && !defined(WIN32_NATIVE)
+  begin_system_call();
   if (fstat(source_fd, &source_sb) == -1) {
+    end_system_call();
     pushSTACK(file_stream_truename(STACK_1));
     goto close_and_err;
   }
   if (fstat(dest_fd, &dest_sb) == -1) {
+    end_system_call();
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
-# if defined(HAVE_CHMOD) /*** file mode ***/
-  if (((source_sb.st_mode & 0777) != (dest_sb.st_mode & 0777))
-      && (fchmod(dest_fd, source_sb.st_mode & 0777) == -1)) {
+  end_system_call();
+# elif defined(HAVE_STAT)
+  if (stat_obj(STACK_1, &source_sb) == -1) {
+    pushSTACK(file_stream_truename(STACK_1));
+    goto close_and_err;
+  }
+  if (stat_obj(STACK_0, &dest_sb) == -1) {
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
+  }
+# else
+  goto close_success;
+# endif
+
+# if defined(WIN32_NATIVE) /*** file mode ***/
+  { BOOL ret;
+    BY_HANDLE_FILE_INFORMATION fi;
+    begin_system_call();
+    ret = GetFileInformationByHandle(source_fd,&fi);
+    end_system_call();
+    if (!ret) {
+      pushSTACK(file_stream_truename(STACK_1));
+      goto close_and_err;
+    }
+    with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),destz,{
+        begin_system_call();
+        ret = SetFileAttributes(destz,fi.dwFileAttributes);
+        end_system_call();
+      });
+    if (!ret) {
+      pushSTACK(file_stream_truename(STACK_0));
+      goto close_and_err;
+    }
+  }
+# elif defined(HAVE_FCHMOD)
+  begin_system_call();
+  if (((source_sb.st_mode & 0777) != (dest_sb.st_mode & 0777))
+      && (fchmod(dest_fd, source_sb.st_mode & 0777) == -1)) {
+    end_system_call();
+    pushSTACK(file_stream_truename(STACK_0));
+    goto close_and_err;
+  }
+  end_system_call();
+# elif defined(HAVE_CHMOD)
+  if ((source_sb.st_mode & 0777) != (dest_sb.st_mode & 0777)) {
+    int ret;
+    with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),destz,{
+        begin_system_call();
+        ret = chmod(destz, source_sb.st_mode & 0777);
+        end_system_call();
+      });
+    if (ret == -1) {
+      pushSTACK(file_stream_truename(STACK_0));
+      goto close_and_err;
+    }
   }
 # endif
 
 # if defined(HAVE_FCHOWN) /*** owner/group ***/
+  begin_system_call();
   if (fchown(dest_fd, source_sb.st_uid, source_sb.st_gid) == -1) {
+    end_system_call();
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
+  end_system_call();
+# elif defined(HAVE_CHOWN)
+  { int ret;
+    with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),destz,{
+        begin_system_call();
+        ret = chown(destz, source_sb.st_uid, source_sb.st_gid);
+        end_system_call();
+      });
+    if (ret == -1) {
+      pushSTACK(file_stream_truename(STACK_0));
+      goto close_and_err;
+    }
+  }
 # endif
+
 # if defined(HAVE_UTIME)
+  /* we must close the streams now - before utime() -
+     because close() modifies write and access times */
+  builtin_stream_close(&STACK_0);
+  builtin_stream_close(&STACK_1);
   { /*** access/mod times ***/
     struct utimbuf utb;
     int utime_ret;
@@ -2025,19 +2113,17 @@ static void copy_attributes_and_close () {
        kind of precision anyway. */
     utb.actime  = source_sb.st_atime;
     utb.modtime = source_sb.st_mtime;
-    with_string_0(physical_namestring(file_stream_truename(STACK_0)),
-                  GLO(pathname_encoding), dest_asciz,
-                  { utime_ret = utime(dest_asciz, &utb); });
+    with_string_0(physical_namestring(STACK_0), GLO(pathname_encoding), destz,{
+        begin_system_call();
+        utime_ret = utime(destz, &utb);
+        end_system_call();
+      });
     if (utime_ret == -1) {
       pushSTACK(file_stream_truename(STACK_0));
       goto close_and_err;
     }
   }
-# endif
-  goto close_success;
-#  endif  /* fstat() */
-# else
-  /*** FIXME: windows? ***/
+  return;
 # endif
  close_success:
   builtin_stream_close(&STACK_0);
@@ -2368,8 +2454,9 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 #include <shlobj.h>
 DEFCHECKER(check_file_attributes, type=DWORD, reverse=uint32_to_I,      \
            default=, prefix=FILE_ATTRIBUTE, bitmasks=both,              \
-           ARCHIVE COMPRESSED DIRECTORY ENCRYPTED HIDDEN NORMAL OFFLINE \
-           READONLY REPARSE_POINT SPARSE_FILE SYSTEM TEMPORARY)
+           ARCHIVE COMPRESSED DEVICE DIRECTORY ENCRYPTED HIDDEN NORMAL  \
+           NOT-CONTENT-INDEXED OFFLINE READONLY REPARSE-POINT SPARSE-FILE \
+           SYSTEM TEMPORARY)
 DEFUN(POSIX::CONVERT-ATTRIBUTES, attributes)
 { /* convert between symbolic and numeric file attributes */
   if (posfixnump(STACK_0))
