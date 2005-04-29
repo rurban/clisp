@@ -143,14 +143,14 @@ compiles the specified lisp files to a platform-independent
    <link linkend="opt-libdir">&lld;</link>)
    containing at least a main executable (&rt;) and an initial &mem-image;.
    Possible values are
-   <variablelist><varlistentry><term><command>base</command></term>
+   <variablelist><varlistentry><term>&base;</term>
      <listitem><simpara>the core &clisp;</simpara></listitem></varlistentry>
-    <varlistentry><term><command>full</command></term>
+    <varlistentry><term>&full;</term>
      <listitem><simpara>core plus all the modules with which this
        installation was built, see
        <olink targetdoc="impnotes" targetptr="modules"/>.
    </simpara></listitem></varlistentry></variablelist>
-   The default is <command>base</command>.</para></listitem></varlistentry>
+   The default is &base;.</para></listitem></varlistentry>
 <!-- #endif -->
 
 <varlistentry id="opt-memfile"><term><option>-M</option>
@@ -678,9 +678,8 @@ compiles the specified lisp files to a platform-independent
  <listitem><simpara>If you are reporting a <quote>hard crash</quote>
    (segmentation fault, bus error, core dump etc), please do
    <command>"./configure --with-debug --build build-g ; cd build-g; gdb"</command>,
-   then load the appropriate &linkset; by either <command>base</command>
-   or <command>full</command> &gdb; command,
-   and report the backtrace.</simpara></listitem>
+   then load the appropriate &linkset; by either &base; or &full; &gdb;
+   command, and report the backtrace.</simpara></listitem>
  <listitem><simpara>If you are using pre-built binaries and experience a
    hard crash, the problem is likely to be in the incompatibilities
    between the platform on which the binary was built and yours; please
