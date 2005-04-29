@@ -558,6 +558,7 @@
 <!ENTITY data-r "<replaceable>data</replaceable>">
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
 <!ENTITY dependent-r "<replaceable>dependent</replaceable>">
+<!ENTITY dest-r "<replaceable>destination</replaceable>">
 <!ENTITY digits-r "<replaceable>digits</replaceable>">
 <!ENTITY dimensions-r "<replaceable>dimensions</replaceable>">
 <!ENTITY direction-r "<replaceable>direction</replaceable>">
