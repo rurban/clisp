@@ -272,17 +272,14 @@
  <listitem><simpara>Change process mask using &umask;.
  </simpara></listitem></varlistentry>
  <varlistentry id="copy-file"><term>
-   <code>(<function>POSIX:COPY-FILE</function>
-    <replaceable>source-path</replaceable>
-    <replaceable>destination-path</replaceable>
+   <code>(<function>POSIX:COPY-FILE</function> &source-r; &dest-r;
     &key-amp; :METHOD :PRESERVE :IF-EXISTS :IF-DOES-NOT-EXIST)</code></term>
   <listitem><simpara>This is an interface to the &symlink;
     (when &method-r; is <constant>:SYMLINK</constant>),
     &link; (when it is <constant>:HARDLINK</constant>), and &rename;
     (when it is <constant>:RENAME</constant>) system calls, as well as,
     you guessed it, a generic file copy utility (when &method-r; is &copy-k;).
-   </simpara><simpara>Both <replaceable>source-path</replaceable> and
-    <replaceable>destination-path</replaceable> may be wild.
+   </simpara><simpara>Both &source-r; and &dest-r; may be wild.
  </simpara></listitem></varlistentry>
  <varlistentry id="dup-handle"><term>
    <code>(<function>POSIX:DUPLICATE-HANDLE</function>
