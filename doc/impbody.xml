@@ -3321,7 +3321,7 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
     <replaceable>file-length</replaceable>)</returnvalue>.
 </simpara></listitem></itemizedlist>
 
-If you want <emphasis>all</emphasis> the files <emphasis>and</emphasis>
+If you want <emphasis role="strong">all</emphasis> the files &and-e;
 subdirectories in the current directory, you should use
 <code>(&nconc; (&directory; "*/") (&directory; "*"))</code>.
 If you want all the files and subdirectories in all the subdirectories
@@ -4448,7 +4448,7 @@ the first one!</para></warning>
 
 <para>At compile time, <code>(&require; &foo-f;)</code>
 forms are treated specially: &load-paths; is searched for
-&foolisp-f; <emphasis>and</emphasis> <filename>#P"foo.lib"</filename>.
+&foolisp-f; &and-e; <filename>#P"foo.lib"</filename>.
 If the latest such file is a &lisp-file;, it is compiled;
 otherwise the &lib-file; is loaded.</para>
 

@@ -110,8 +110,7 @@ space.</para>
  <para>Memory images are &not-e; portable across different platforms
   (in contrast with platform-independent &fasl-file; files).
   They are &not-e; even portable across &linkset;s: image saved using
-  the <command>full</command> &linkset; cannot be used with
-  the <command>base</command> runtime:<screen>
+  the &full; &linkset; cannot be used with the &base; runtime:<screen>
 $ clisp -K full -x '(ext:saveinitmem)'
 $ clisp -K base -M lispinit.mem
 base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime
@@ -150,6 +149,9 @@ particular cultural conventions.</para>
 English, German, French, Spanish, Dutch and Russian.
 &clisp; also supports internationalized Lisp programs, through
 &ggettext;, see <xref linkend="ggettext"/>.</para>
+
+<para>User programs can also be internationalized,
+ see <xref linkend="i18n-mod"/>.</para>
 
 <section id="language"><title>The Language</title>
 
@@ -1995,7 +1997,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   &modprep;.</simpara>
  <warning><simpara>The &package-t;s must already exist and be unlocked,
    cf. &mod-preload;.</simpara></warning>
- <warning><simpara>If you are using &modprep; <emphasis>and</emphasis>
+ <warning><simpara>If you are using &modprep; &and-e;
    defining your own <quote>init-once</quote> function, it must call the
    <function>module__&name-r;__init_function_1__modprep</function>
    function!</simpara></warning></listitem></varlistentry>
@@ -2274,23 +2276,29 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>To use them, read <filename>unix/INSTALL</filename> and build
+<para>To use modules, read <filename>unix/INSTALL</filename> and build
  &clisp; in directory <filename>build-dir</filename> with, e.g.,<screen>
-bash$ ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
+<prompt>$</prompt> ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
 </screen>then run it with<screen>
-bash$ ./build-dir/clisp &opt-K; full
-</screen></para>
+<prompt>$</prompt> ./build-dir/clisp &opt-K; full
+ </screen>This will create a &base; &linkset; with modules
+ i18n, regexp and syscalls; and a &full; &linkset; with modules
+ pcre and new/clx in addition to the 3
+ <link linkend="base-modules">base modules</link>.</para>
 
-<para>See <xref linkend="ext-modules"/> for details.</para>
+<para>See <xref linkend="ext-modules"/>
+ for individual module documentation.</para>
 
-<note id="base-modules"><title>Base Modules</title>
- <para>Note that the default binary distribution includes the following modules
-  in <emphasis>both</emphasis> <command>base</command> <emphasis>and</emphasis>
-  <command>full</command> &linkset;s:<simplelist columns="1">
+<section id="base-modules"><title>Base and Full Modules</title>
+ <para>Note that the default binary distribution includes the following
+  modules in <emphasis>both</emphasis> &base; &and-e; &full; &linkset;s:
+  <simplelist columns="1">
    <member><link linkend="i18n-mod">i18n</link></member>
    <member><link linkend="regexp-mod">regexp</link></member>
    <member><link linkend="syscalls">syscalls</link></member>
-</simplelist></para></note>
+ </simplelist></para>
+ <para>The composition of the &full; &linkset; depends on the platform
+  and on the vendor preferences.</para></section>
 
 </section>
 
