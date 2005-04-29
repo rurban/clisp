@@ -7,8 +7,8 @@
 by calling the standard &c-lang; system facilities.
 The syntax of these &reg-exp;s is described in many places,
 such as your local &regex-h; manual and &emacs; info pages.</para>
-<simpara>This module is present even in the <command>base</command>
- &linkset; by default.  When this module is present, &features-var;
+&base-module;
+<simpara>When this module is present, &features-var;
  contains the symbol <constant>:REGEXP</constant>.</simpara>
 
 <variablelist id="re-api"><title>API</title>

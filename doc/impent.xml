@@ -495,6 +495,9 @@
 <!ENTITY mod-preload "<link linkend='mod-preload'><envar>TO_PRELOAD</envar></link>">
 <!ENTITY modinfo "<link linkend='modinfo'><function>EXT:MODULE-INFO</function></link>">
 <!ENTITY module "<link linkend='modules'>module</link>">
+<!ENTITY base-module "<simpara>This module is present even in the &base; &linkset; by default.</simpara>">
+<!ENTITY base "<olink targetdoc='impnotes' targetptr='base-modules'><command>base</command></olink>">
+<!ENTITY full "<olink targetdoc='impnotes' targetptr='base-modules'><command>full</command></olink>">
 <!ENTITY object-t "<link linkend='typecodes'><type>object</type></link>">
 <!ENTITY offset "<link linkend='offset'><function>FFI:OFFSET</function></link>">
 <!ENTITY param-mode "<link linkend='param-mode'><replaceable>PARAM-MODE</replaceable></link>">
@@ -822,6 +825,7 @@
 <!ENTITY unsigned-byte-vec "<literal role='type'>(&vector-t; (&unsigned-byte-t; 8))</literal>">
 <!ENTITY yes "<listitem><simpara>yes</simpara></listitem>">
 <!ENTITY no "<listitem><simpara>no</simpara></listitem>">
+<!ENTITY and-e "<emphasis role='strong'>and</emphasis>">
 <!ENTITY not-e "<emphasis role='strong'>not</emphasis>">
 <!ENTITY is-e "<emphasis role='strong'>is</emphasis>">
 <!ENTITY charset-glibc-libiconv "This character set is only available on
