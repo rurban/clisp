@@ -606,6 +606,7 @@
 <!ENTITY metaobject-r "<replaceable>metaobject</replaceable>">
 <!ENTITY method-r "<replaceable>method</replaceable>">
 <!ENTITY methods-r "<replaceable>methods</replaceable>">
+<!ENTITY mod-r "<replaceable>module</replaceable>">
 <!ENTITY mode-r "<replaceable>mode</replaceable>">
 <!ENTITY n-r "<replaceable>n</replaceable>">
 <!ENTITY name-r "<replaceable>name</replaceable>">

@@ -1959,27 +1959,22 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
     files.</simpara></warning></listitem></varlistentry>
 </variablelist>
 
-<para>The command <command>clisp-link create-module-set
- <replaceable>module-dir</replaceable>
+<para>The command <command>clisp-link create-module-set &mod-r;
  <replaceable>file1.c</replaceable> ...</command> creates a &modset;
- in <replaceable>module-dir</replaceable> which refers (via symbolic
- links) to <replaceable>file1.c</replaceable> etc.  The files are
- expected to be modules of their own.</para>
+ in &mod-r; directory which refers (via symbolic links)
+ to <replaceable>file1.c</replaceable> etc.
+ The files are expected to be modules of their own.</para>
 
-<para>The command <command>clisp-link add-module-set
- <replaceable>module-dir</replaceable>
- <replaceable>source-dir</replaceable>
- <replaceable>destination-dir</replaceable></command> combines a
- &linkset; in <replaceable>source-dir</replaceable> and a module in
- <replaceable>module-dir</replaceable> to a new &linkset;, in a
- directory <replaceable>destination-dir</replaceable> which is newly
- created.</para>
+<para>The command <command>clisp-link add-module-set &mod-r; &source-r;
+ &dest-r;</command> combines a &linkset; in directory &source-r; and a
+ &module; in directory &mod-r; to a new &linkset;, in the directory
+ &dest-r; which is newly created.</para>
 
-<para>The command <command>clisp-link run <replaceable>source-dir</replaceable>
- <replaceable>module-dir</replaceable> ...</command> runs the &linkset;
- in <replaceable>source-dir</replaceable>, with the module in
- <replaceable>module-dir</replaceable> loaded.  More than one module can
- be specified.  If &clisp; has been built with the configuration option
+<para>The command <command>clisp-link run &source-r; &mod-r; ...</command>
+ runs the &linkset; in directory &source-r;, with the &module; in
+ directory &mod-r; loaded.
+ More than one module can be specified.
+ If &clisp; has been built with the configuration option
  <option>--with-dynamic-modules</option>, the loading will be performed
  through <link linkend="mod-dynload">dynamic loading</link>.
  Otherwise - this is much slower - a temporary &linkset; will be created
@@ -2057,7 +2052,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <note><para>Dynamic loading does not work on all operating systems
   (&dlopen; or equivalent is required).</para></note>
 <note><para><option>--with-dynamic-modules</option> precludes some
-  efficiency optimizations which are on by default.</para></note>
+  efficiency optimizations which are enabled by default.</para></note>
 
 <para>Function <code>(&mod-dynload; &filename-r; ({&name-r;}+))</code>
  loads a shared object file or library containing a number of named
