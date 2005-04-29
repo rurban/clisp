@@ -503,7 +503,7 @@
   <listitem><simpara>calls &fsync; (<function>FlushFileBuffers</function>
     on &win32;) on the &file-des; associated with &stream-r;, or &sync;
     when &stream-r; is not supplied</simpara></listitem></varlistentry>
- <varlistentry id="mk-xterm-io"><term>(&&mk-xterm-io;)</term>
+ <varlistentry id="mk-xterm-io"><term>(&mk-xterm-io;)</term>
   <listitem><para>When running under the &X;, you can create a &bidi-s;,
     which uses a new dedicated xterm, using the function &mk-xterm-io;:
 <programlisting language="lisp">
