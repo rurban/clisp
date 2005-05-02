@@ -751,3 +751,25 @@ nil
   (setq a (make-foo140 :p 10))
   (list (is-foo140 a) (foo140-p a)))
 (T 10)
+
+;; ansi tests GET-PROPERTIES.ERROR.6, GETF.ERROR.4
+(block nil
+  (handler-bind ((type-error
+                  (lambda (c)
+                    (return
+                      (typep (type-error-datum c)
+                             (type-error-expected-type c))))))
+    (GETF '(A . B) 'C)))
+NIL
+
+(block nil
+  (handler-bind ((type-error
+                  (lambda (c)
+                    (return
+                      (typep (type-error-datum c)
+                             (type-error-expected-type c))))))
+    (GET-PROPERTIES '(A 1 B 2 C . D) '(X Y))))
+NIL
+
+(typep '#1=(A 1 B 2 #1#) 'SYS::PLIST)
+NIL

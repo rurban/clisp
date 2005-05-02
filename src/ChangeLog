@@ -1,5 +1,9 @@
 2005-05-02  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (PLIST): use LIST-LENGTH-DOTTED instead of LISTP+LENGTH
+
+2005-05-02  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/dbi.lisp, modules/syscalls/posix.lisp:
 	use EXPORTING to export structure slot accessors
 
