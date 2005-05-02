@@ -1,3 +1,9 @@
+2005-05-01  Sam Steingold  <sds@gnu.org>
+
+	* defstruct.lisp (defstruct): save accessor names in :READER and
+	:WRITER slots of the DIRECT-SLOT-DEFINITION: we cannot recover
+	accessor names later because of the :CONC-NAME option
+
 2005-04-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (stat_obj): new function

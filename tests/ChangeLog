@@ -1,3 +1,7 @@
+2005-05-02  Sam Steingold  <sds@gnu.org>
+
+	* mop.tst: test SLOT-DEFINITION-READERS for DEFSTRUCT
+
 2005-04-28  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Add a test for update of specializers -> methods lists.
