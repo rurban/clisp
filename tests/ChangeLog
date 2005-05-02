@@ -1,6 +1,7 @@
 2005-05-02  Sam Steingold  <sds@gnu.org>
 
 	* pack11.tst: check that REQUIRE accepts a CHARACTER
+	check that PROVIDE does not case-convert symbols
 
 2005-05-02  Sam Steingold  <sds@gnu.org>
 
