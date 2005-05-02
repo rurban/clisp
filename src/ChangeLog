@@ -1,5 +1,10 @@
 2005-05-02  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (module-name): reverted the 2002-07-21 patch:
+	STRINGP already accepts only strings, symbols, and characters
+
+2005-05-02  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (PLIST): use LIST-LENGTH-DOTTED instead of LISTP+LENGTH
 
 2005-05-02  Sam Steingold  <sds@gnu.org>
@@ -21420,7 +21425,8 @@
 
 2002-07-21  Bruno Haible  <bruno@clisp.org>
 
-	* defs1.lisp (module-name): Rewrite without using ETYPECASE.
+	* defs1.lisp (module-name): Do not allow numbers or pathnames as
+	module names.
 
 2002-07-21  Bruno Haible  <bruno@clisp.org>
 
