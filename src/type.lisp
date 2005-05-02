@@ -347,7 +347,9 @@
 (def-atomic-type foreign-pointer
   (lambda (x) (eq 'foreign-pointer (type-of x))))
 (def-atomic-type VECTOR vectorp)
-(def-atomic-type PLIST (lambda (x) (and (listp x) (evenp (length x)))))
+(def-atomic-type PLIST
+    (lambda (x) (multiple-value-bind (length tail) (list-length-dotted x)
+                  (and (null tail) (evenp length)))))
 
 (defmacro ensure-dim (type dim)
   ;; make sure DIM is a valid dimension
