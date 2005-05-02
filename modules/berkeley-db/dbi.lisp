@@ -5,6 +5,7 @@
 (defpackage "BDB"
   (:use "COMMON-LISP" "EXT")
   (:nicknames "BERKELEY-DB" "BERKDB")
+  (:shadowing-import-from "EXPORTING" #:defstruct #:define-condition)
   (:export #:db-version
            #:bdb-handle #:bdb-handle-parents #:bdb-handle-dependents
            #:dbe #:db #:txn #:dbc #:logc #:mpoolfile #:dblock #:lsn
@@ -23,7 +24,6 @@
            #:txn-begin #:txn-abort #:txn-commit #:txn-discard #:txn-id
            #:txn-checkpoint #:txn-prepare #:txn-recover #:txn-set-timeout
            #:txn-stat
-           #:bdb-error #:bdb-error-number
            #:with-dbe #:with-db #:with-dbc))
 
 (setf (package-lock "EXT") nil)
@@ -33,23 +33,23 @@
 (in-package "BDB")
 
 ;;; objects
-(defstruct (bdb-handle (:constructor nil) (:copier nil))
+(cl:defstruct (bdb-handle (:constructor nil) (:copier nil))
   (handle nil :read-only t)
   (parents nil)       ; parents cannot be closed until this is closed
   (dependents nil))  ; cannot close this until all dependents are closed
-(defstruct (dbe (:include bdb-handle) (:copier nil)
+(cl:defstruct (dbe (:include bdb-handle) (:copier nil)
                 (:constructor mkdbe (handle parents))))
-(defstruct (db (:include bdb-handle) (:copier nil)
+(cl:defstruct (db (:include bdb-handle) (:copier nil)
                (:constructor mkdb (handle parents))))
-(defstruct (dbc (:include bdb-handle) (:copier nil)
+(cl:defstruct (dbc (:include bdb-handle) (:copier nil)
                    (:constructor mkdbc (handle parents))))
-(defstruct (txn (:include bdb-handle) (:copier nil)
+(cl:defstruct (txn (:include bdb-handle) (:copier nil)
                 (:constructor mktxn (handle parents))))
-(defstruct (logc (:include bdb-handle) (:copier nil)
+(cl:defstruct (logc (:include bdb-handle) (:copier nil)
                  (:constructor mklogc (handle parents))))
-(defstruct (mpoolfile (:include bdb-handle) (:copier nil)
+(cl:defstruct (mpoolfile (:include bdb-handle) (:copier nil)
                       (:constructor mkmpoolfile (handle parents))))
-(defstruct (dblock (:copier nil) (:constructor mkdblock (handle parent)))
+(cl:defstruct (dblock (:copier nil) (:constructor mkdblock (handle parent)))
   (handle nil :read-only t) parent)
 
 (defun mkhandle (maker parents closer handle)
