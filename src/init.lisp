@@ -1504,7 +1504,13 @@
                       (bad last-p stream (TEXT "~S: compiled file ~A has a corrupt version marker ~S")))
                   (or (equal (system::version) (eval (second obj)))
                       (bad last-p stream (TEXT "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"))))))
-    (setq filename (pathname filename) path filename)
+    (setq filename (pathname filename)
+          ;; appending "/" to a logical pathname makes it invalid
+          path (if (logical-pathname-p filename)
+                   (translate-logical-pathname filename)
+                   filename))
+    ;; (OPEN "foo") errors out if we do (LOAD "foo")
+    ;; and both "foo.lisp" and "foo/" are present
     (unless (directory (string-concat (namestring path) "/"))
       (setq stream (my-open path)))
     (tagbody proceed
@@ -2048,8 +2054,7 @@
     (dolist (dir (cons '#""
                        ;; when filename has "..", ignore *load-paths*
                        ;; (to avoid errors with "**/../foo"):
-                       (if (memq #+(or UNIX WIN32) :UP
-                                 (pathname-directory filename))
+                       (if (memq :UP (pathname-directory filename))
                            '()
                            (mapcar #'pathname *load-paths*))))
       (let ((search-filename (merge-pathnames (merge-pathnames filename dir))))
