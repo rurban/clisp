@@ -573,7 +573,7 @@ nil
 t
 
 (find "provide-test" *modules* :test #'string=)
-"provide-test"
+"PROVIDE-TEST"
 
 ;; from ansi-tests
 (unless (member "z" *modules* :test #'string=)
@@ -581,8 +581,9 @@ t
 NIL
 
 (let ((*modules* *modules*))
-  (provide :ABAZONK) (member :ABAZONK *modules* :test #'string=))
-T
+  (provide :ABAZONK)
+  (not (member :ABAZONK *modules* :test #'string=)))
+NIL
 
 ;; <HS>/Body/mac_with-package-iterator.html
 (defun test-package-iterator (package)
