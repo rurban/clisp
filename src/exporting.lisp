@@ -114,7 +114,7 @@
   (export (sys::structure-boa-constructors name))
   (export (sys::structure-copier name))
   (export (sys::structure-predicate name))
-  (export (all-accessor-symbols (clos:class-direct-slots (find-class name)))))
+  (export (class-accessor-symbols (find-class name))))
 
 (cl:defmacro defstruct (name+options &rest slots)
   `(LET ((NAME (CL:DEFSTRUCT ,name+options ,@slots)))
