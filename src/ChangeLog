@@ -1,3 +1,8 @@
+2005-04-30  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (open-for-load): do not append "/" to a logical pathname
+	Reported by Pascal J.Bourguignon <pjb@informatimago.com>
+
 2005-05-01  Sam Steingold  <sds@gnu.org>
 
 	* defstruct.lisp (defstruct): save accessor names in :READER and
