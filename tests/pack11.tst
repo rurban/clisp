@@ -569,10 +569,9 @@ nil
 (and *modules* T)
 #+(or XCL ECL) T #+CLISP NIL #-(or XCL CLISP ECL) UNKNOWN
 
-(and (provide 'provide-test) t)
-t
-
-(find "provide-test" *modules* :test #'string=)
+(let ((*modules* *modules*))
+  (provide 'provide-test)
+  (find "PROVIDE-TEST" *modules* :test #'string=))
 "PROVIDE-TEST"
 
 ;; from ansi-tests
