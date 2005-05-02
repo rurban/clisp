@@ -130,22 +130,10 @@
 
 (cl:defmacro define-condition (name parent-types slot-specs &rest options)
   `(PROGN
-     (EXPORT '(,name
-               ,@(mapcan
-                   #'(lambda (slot-spec)
-                       (when (consp slot-spec)
-                         (let ((symbols '()))
-                           (do ((slot-options (cdr slot-spec)
-                                              (cddr slot-options)))
-                               ((endp slot-options))
-                             (when (sys::memq (first slot-options)
-                                              '(:READER :WRITER :ACCESSOR))
-                               (push (sys::function-block-name
-                                       (second slot-options))
-                                     symbols)))
-                           (nreverse symbols))))
-                   slot-specs)))
-     (CL:DEFINE-CONDITION ,name ,parent-types ,slot-specs ,@options)))
+     (EXPORT ',(or name '(NIL)))
+     (LET ((C (CL:DEFINE-CONDITION ,name ,parent-types ,slot-specs ,@options)))
+       (EXPORT (CLASS-ACCESSOR-SYMBOLS (FIND-CLASS C)))
+       C)))
 
 ;; Macros for the method-combination namespace.
 
