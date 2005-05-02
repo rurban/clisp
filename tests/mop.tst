@@ -128,7 +128,7 @@ T
      (slot8 :initform 88))
     (:metaclass structure-class))
   (defstruct (structure02c (:include structure02b (slot8 -88)))
-    slot9 
+    slot9
     (slot10 t)
     (slot11 (floor (exp 3))))
   (let ((a (make-structure02c))
@@ -2384,6 +2384,22 @@ T
       (remove-method #'clos:slot-definition-readers badmethod))))
 #+CLISP ERROR
 #-CLISP T
+
+#+CLISP
+(let ((struct (defstruct struct04 slot1)))
+  (nconc (mapcar #'clos:slot-definition-readers
+                 (clos:class-direct-slots (find-class struct)))
+         (mapcar #'clos:slot-definition-writers
+                 (clos:class-direct-slots (find-class struct)))))
+#+CLISP ((STRUCT04-SLOT1) ((SETF STRUCT04-SLOT1)))
+
+#+CLISP
+(let ((struct (defstruct struct04ro (slot1 t :read-only t))))
+  (nconc (mapcar #'clos:slot-definition-readers
+                 (clos:class-direct-slots (find-class struct)))
+         (mapcar #'clos:slot-definition-writers
+                 (clos:class-direct-slots (find-class struct)))))
+#+CLISP ((STRUCT04RO-SLOT1) NIL)
 
 ;; Check slot-definition-writers.
 (let ((*sampslot*

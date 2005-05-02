@@ -876,6 +876,7 @@
                         :initargs (clos:slot-definition-initargs slot)
                         :type (clos:slot-definition-type slot)
                         'clos::inheritable-initer (clos::slot-definition-inheritable-initer slot)
+                        ;; no readers/writers: these are inherited slots
                         :readers '()
                         :writers '())
                       (cdr slot+initff))
@@ -1001,17 +1002,10 @@
                         :initargs initargs
                         :type type
                         'clos::inheritable-initer initer
-                        ;; Here we tell initialize-instance-<structure-class> to
-                        ;; not install its readers and writers functions,
-                        ;; because defstruct defines them itself,
-                        ;; with additional features: 1) inline declaration,
-                        ;; 2) in interpreted code, as interpreted functions with
-                        ;; value type checking through THE.
-                        ;; The readers and writers argument doesn't matter for
-                        ;; type /= T.
-                        :readers '() ; not (list accessorname)
-                        :writers '() ; not (if read-only '() (list `(SETF ,accessorname)))
-                      )
+                        ;; we cannot recover accessor names later
+                        ;; because of the :CONC-NAME option
+                        :writers (if read-only '() (list `(SETF ,accessorname)))
+                        :readers (list accessorname))
                       initfunctionform)
                     directslotlist)
               (push (cons
