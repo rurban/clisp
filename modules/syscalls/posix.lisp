@@ -5,11 +5,11 @@
   (:use #:common-lisp #:ext)
   (:nicknames #:os)
   (:import-from "SYS" sys::process-id)
+  (:shadowing-import-from "EXPORTING" #:defstruct)
   (:export
    #:resolve-host-ipaddr #:bogomips #:mkstemp
    #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
-   #:hostent #:hostent-p #:hostent-name #:hostent-aliases #:hostent-addr-list
-   #:hostent-addrtype #:file-owner #:physical-memory
+   #:file-owner #:physical-memory
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
    #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
    #:getpgid #:setpgrp #:getsid #:setsid #:setpgid #:kill #:sync
@@ -23,9 +23,7 @@
 
 ;;; ============================================================
 #+unix (progn
-(export
- '(utmpx utmpx-p utmpx-type utmpx-user utmpx-id utmpx-line utmpx-pid utmpx-host
-   utmpx-tv endutxent getutxent getutxid getutxline pututxline setutxent))
+(export '(endutxent getutxent getutxid getutxline pututxline setutxent))
 (defstruct (utmpx (:constructor make-utmpx (type user id line pid host tv)))
   type user id line pid host tv)
 )
@@ -55,12 +53,9 @@
   (addrtype 2 :type fixnum :read-only t))
 
 ;;; ============================================================
-#+unix (progn
-(export
- '(user-data user-data-login-id user-data-passwd user-data-uid user-data-gid
-   user-data-full-name user-data-shell user-data-p
-   crypt encrypt setkey mknod))
+#+unix (export '(crypt encrypt setkey mknod))
 
+#+unix
 (defstruct (user-data (:constructor
                        make-user-data (login-id passwd uid gid full-name
                                        home-dir shell)))
@@ -72,15 +67,8 @@
   (full-name "" :type simple-string :read-only t)
   (home-dir  "" :type simple-string :read-only t)
   (shell     "" :type simple-string :read-only t))
-
-)
 ;;; ============================================================
-(export
- '(file-stat file-stat-file file-stat-dev file-stat-ino file-stat-mode
-   file-stat-nlink file-stat-uid file-stat-gid file-stat-rdev
-   file-stat-size file-stat-blksize file-stat-blocks file-stat-atime
-   file-stat-mtime file-stat-ctime file-stat-p set-file-stat
-   convert-mode umask))
+(export '(set-file-stat convert-mode umask))
 
 (defstruct (file-stat
              (:constructor
@@ -102,12 +90,6 @@
   (ctime     0 :type (integer 0) :read-only t))
 
 ;;; ============================================================
-(export
- '(stat-vfs stat-vfs-p stat-vfs-file stat-vfs-bsize stat-vfs-stat-vfs-frsize
-   stat-vfs-stat-vfs-blocks stat-vfs-stat-vfs-bfree stat-vfs-stat-vfs-bavail
-   stat-vfs-stat-vfs-files stat-vfs-stat-vfs-ffree stat-vfs-stat-vfs-favail
-   stat-vfs-stat-vfs-fsid stat-vfs-stat-vfs-flag stat-vfs-namemax))
-
 (defstruct (stat-vfs
              (:constructor
               make-stat-vfs (file bsize frsize blocks bfree bavail files
@@ -127,11 +109,8 @@
   (vol-name nil :type (or null string) :read-only t)
   (fs-type nil :type (or null string) :read-only t))
 ;;; ============================================================
-#+unix (progn
-(export
- '(uname uname-sysname uname-nodename uname-release uname-version uname-machine
-   uname-p sysconf confstr))
-
+#+unix (export '(sysconf confstr))
+#+unix
 (defstruct (uname (:constructor make-uname (sysname nodename release
                                             version machine)))
   "see uname(2) for details"
@@ -140,18 +119,8 @@
   (release      "" :type simple-string :read-only t)
   (version      "" :type simple-string :read-only t)
   (machine      "" :type simple-string :read-only t))
-)
 ;;; ============================================================
 #+unix (progn
-(export
- '(rlimit rlimit-p rlimit-cur rlimit-max
-   usage usage-p usage-user-time usage-system-time usage-max-rss
-   usage-shared-memory usage-data-memory usage-stack-memory
-   usage-minor-page-faults usage-major-page-faults usage-num-swaps
-   usage-blocks-input usage-blocks-output usage-messages-sent
-   usage-messages-received usage-signals usage-context-switches-voluntary
-   usage-context-switches-involuntary))
-
 (defstruct (rlimit (:constructor make-rlimit (cur max)))
   "see getrlimit(2) for details"
   (cur nil :type (or null (unsigned-byte 32)) :read-only t)
@@ -187,9 +156,7 @@
 )
 
 ;;; ============================================================
-(export '(file-info file-info-p file-info-attributes
-          file-info-ctime file-info-atime file-info-wtime file-info-size
-          file-info-name file-info-name-short convert-attributes))
+(export '(convert-attributes))
 
 (defstruct (file-info (:constructor make-file-info
                                     (attributes ctime atime wtime
@@ -212,10 +179,7 @@
                     (file-stat-file file-stat)))) ; name-short
 ;;; ============================================================
 #+(or win32 cygwin) (progn
-(export '(make-shortcut shortcut-info shortcut-info-working-directory
-          shortcut-info-arguments shortcut-info-show-command
-          shortcut-info-original shortcut-info-path shortcut-info-icon
-          shortcut-info-description shortcut-info-hot-key shortcut-info-p))
+(export '(make-shortcut))
 
 (defstruct (shortcut-info
              (:constructor make-shortcut-info
@@ -230,14 +194,6 @@
   (description nil :read-only t)
   (hot-key nil :read-only t)
   (stat nil :read-only t))
-
-(export '(system-info system-info-p
-          system-info-processor-architecture system-info-page-size
-          system-info-minimum-application-address
-          system-info-maximum-application-address
-          system-info-active-processor-mask system-info-number-of-processors
-          system-info-allocation-granularity
-          system-info-processor-level system-info-processor-revision))
 
 (defstruct (system-info
              (:constructor make-system-info
@@ -257,10 +213,6 @@
   (processor-level nil :read-only t)
   (processor-revision nil :read-only t))
 
-(export '(version version-p version-major version-minor version-build
-          version-platform version-service-pack version-service-pack-major
-          version-service-pack-minor version-suites version-product-type))
-
 (defstruct (version
              (:constructor make-version
                            (major minor build platform service-pack
@@ -275,10 +227,6 @@
   (service-pack-minor nil :read-only t)
   (suites nil :read-only t)
   (product-type nil :read-only t))
-
-(export '(memory-status memory-status-p
-          memstat-total-physical memstat-avail-physical memstat-total-page
-          memstat-avail-page memstat-total-virtual memstat-avail-virtual))
 
 (defstruct (memory-status
              (:conc-name memstat-)

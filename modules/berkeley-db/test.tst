@@ -29,7 +29,7 @@ prepare-dir
 (defun show (object) (fresh-line) (prin1 object) (terpri) object) show
 (defun show-db (db)
   (let* ((*print-pretty* t) (stat (bdb:db-stat db))
-         (file (and (eq :RECNO (bdb::db-stat-type stat))
+         (file (and (eq :RECNO (bdb:db-stat-type stat))
                     (bdb:db-get-options db :RE-SOURCE))))
     (show (list db (bdb:db-fd db) stat (bdb:db-get-options db)))
     (when file (show-file file)))
@@ -177,7 +177,13 @@ NIL
 
 (close *dbe*) T
 
-(close *lock*) ERROR
+(block nil
+  (handler-bind ((bdb:bdb-error
+                  (lambda (c)
+                    (format t "~&~A~%" c)
+                    (return (integerp (bdb:bdb-error-number c))))))
+    (close *lock*)))
+T
 
 (ext:dir "bdb-home/**") NIL
 (ext:dir "bdb-data/**") NIL
@@ -300,7 +306,7 @@ NIL
                  :open (:rdonly t) :options (:recnum t))
   (show-db db)
   (loop :with key :and val
-    :for n :from 1 :to (bdb::db-stat-num-keys (bdb:db-stat db))
+    :for n :from 1 :to (bdb:db-stat-num-keys (bdb:db-stat db))
     :do (setf (values key val) (bdb:db-get db n :action :SET-RECNO
                                            :type :INTEGER :key-type :INTEGER))
     (format t "~&=[~D]=> ~S -> ~S" n key val)
@@ -312,7 +318,7 @@ NIL
   (show-db db)
   (bdb:with-dbc (cu db)
     (loop :with key :and val
-      :for n :from 1 :to (bdb::db-stat-num-keys (bdb:db-stat db))
+      :for n :from 1 :to (bdb:db-stat-num-keys (bdb:db-stat db))
       :do (setf (values key val) (bdb:dbc-get cu n :INTEGER :SET-RECNO))
       (format t "~&=[~D/count=~D]=> ~S -> ~S" n (bdb:dbc-count cu) key val)
       :unless (= (! key) val) :collect (list n key val (! key)) :end
