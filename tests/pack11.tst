@@ -575,6 +575,11 @@ t
 (find "provide-test" *modules* :test #'string=)
 "provide-test"
 
+;; from ansi-tests
+(unless (member "z" *modules* :test #'string=)
+  (let ((*modules* *modules*)) (provide "z") (require #\z) nil))
+NIL
+
 ;; <HS>/Body/mac_with-package-iterator.html
 (defun test-package-iterator (package)
   (unless (packagep package)

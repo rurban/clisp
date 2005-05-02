@@ -149,13 +149,9 @@
 (defvar *modules* nil)
 
 (defun module-name (name)
-  (cond ((symbolp name) (string-downcase (symbol-name name)))
-        ((stringp name) name)
-        (t (error-of-type 'type-error
-             :datum name :expected-type '(or symbol string)
-             (type-error-string)
-             (typecase-error-string 'name '(symbol string))
-             name))))
+  (if (symbolp name)
+      (string-downcase (symbol-name name))
+      (string name)))
 
 (defun provide (name)
   (setq *modules* (adjoin (module-name name) *modules* :test #'string=)))

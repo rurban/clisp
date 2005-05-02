@@ -1,5 +1,9 @@
 2005-05-02  Sam Steingold  <sds@gnu.org>
 
+	* pack11.tst: check that REQUIRE accepts a CHARACTER
+
+2005-05-02  Sam Steingold  <sds@gnu.org>
+
 	* type.tst: PLISTs must be properly checked for being proper
 
 2005-05-02  Sam Steingold  <sds@gnu.org>
