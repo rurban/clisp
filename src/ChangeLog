@@ -1,7 +1,21 @@
 2005-05-02  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-PROVIDE, c-REQUIRE):
+	use STRING instead of MODULE-NAME
+	* defs1.lisp (provide, require): ditto
+	(module-name): removed
+	This partly reverts the 2002-07-15 patch. This is necessary
+	because case converting module names is not permitted by ANSI.
+
+2005-05-02  Sam Steingold  <sds@gnu.org>
+
+	* defs1.lisp (require): avoid duplication in *LOAD-PATHS*
+	to minimize disk access on recursive REQUIREs
+
+2005-05-02  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (module-name): reverted the 2002-07-21 patch:
-	STRINGP already accepts only strings, symbols, and characters
+	STRING already accepts only strings, symbols, and characters
 
 2005-05-02  Sam Steingold  <sds@gnu.org>
 

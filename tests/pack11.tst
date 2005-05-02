@@ -580,6 +580,10 @@ t
   (let ((*modules* *modules*)) (provide "z") (require #\z) nil))
 NIL
 
+(let ((*modules* *modules*))
+  (provide :ABAZONK) (member :ABAZONK *modules* :test #'string=))
+T
+
 ;; <HS>/Body/mac_with-package-iterator.html
 (defun test-package-iterator (package)
   (unless (packagep package)

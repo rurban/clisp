@@ -148,26 +148,21 @@
 
 (defvar *modules* nil)
 
-(defun module-name (name)
-  (if (symbolp name)
-      (string-downcase (symbol-name name))
-      (string name)))
-
 (defun provide (name)
-  (setq *modules* (adjoin (module-name name) *modules* :test #'string=)))
+  (setq *modules* (adjoin (string name) *modules* :test #'string=)))
 
 (defun require (module-name &optional (pathname nil p-given)
-                &aux (mod-name (module-name module-name)))
+                &aux (mod-name (string module-name)))
   (unless (member mod-name *modules* :test #'string=)
     (unless p-given (setq pathname (pathname mod-name)))
-    (let (#+CLISP
-          (*load-paths*
-           (cons (merge-pathnames "dynmod/" *lib-directory*)
-                 (if (null *load-truename*) *load-paths*
-                     (cons (make-pathname :name nil :type nil
-                                          :defaults *load-truename*)
-                           *load-paths*))))
+    (let (#+CLISP (*load-paths* *load-paths*)
           #-CLISP (*default-pathname-defaults* '#""))
+      #+CLISP (pushnew (merge-pathnames "dynmod/" *lib-directory*) *load-paths*
+                       :test #'equal)
+      #+CLISP (when *load-truename*
+                (pushnew (make-pathname :name nil :type nil
+                                        :defaults *load-truename*)
+                         *load-paths* :test #'equal))
       (if (atom pathname) (load pathname) (mapcar #'load pathname)))))
 
 
