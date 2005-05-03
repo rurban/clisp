@@ -1,5 +1,10 @@
 2005-05-03  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (compile-file-pathname-helper): use read-time
+	instead of run-time to produce a constant pathname
+
+2005-05-03  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (funcall): pass args_on_stack to with_saved_back_trace_subr
 
 2005-05-02  Sam Steingold  <sds@gnu.org>
