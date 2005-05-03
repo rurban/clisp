@@ -69,6 +69,31 @@
                (error "eval: ~S; compile: ~S" e-value c-value))
              e-value))))
 
+(defgeneric pretty-compare (result my-result log)
+  (:documentation "print a pretty comparison of two results")
+  (:method ((result sequence) (my-result sequence) (log stream))
+    (let ((pos (mismatch result my-result :test #'equalp)))
+      (let ((*print-length* 10))
+        (flet ((pretty-tail-10 (seq)
+                 (if (and (> (length seq) (+ pos 10))
+                          (typep seq 'string))
+                     (concatenate 'string (subseq seq pos (+ pos 10)) "...")
+                     (subseq seq pos))))
+          (format log "~&Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
+                  pos
+                  (if (< pos (length result)) (elt result pos) 'end-of-sequence)
+                  (if (< pos (length my-result)) (elt my-result pos) 'end-of-sequence)
+                  (pretty-tail-10 result)
+                  lisp-implementation
+                  (pretty-tail-10 my-result))))))
+  (:method ((result pathname) (my-result pathname) (log stream))
+    (dolist (slot '(pathname-host pathname-device pathname-directory
+                    pathname-name pathname-type pathname-version))
+      (let ((s-r (funcall slot result)) (s-m (funcall slot my-result)))
+        (format log "~&~S:~%CORRECT: ~S~%~7A: ~S~%~:[ DIFFERENT!~;same~]~%"
+                slot s-r lisp-implementation s-m (equal s-r s-m)))))
+  (:method ((result t) (my-result t) (log stream)))) ; do nothing
+
 (defvar *test-ignore-errors* t)
 (defun do-test (stream log)
   (let ((eof "EOF") (error-count 0) (total-count 0))
@@ -94,22 +119,7 @@
                  (format log "~&Form: ~S~%CORRECT: ~S~%~7A: ~S~%~@[~A~%~]"
                              form result lisp-implementation
                              my-result error-message)
-                 (when (and (typep result 'sequence)
-                            (typep my-result 'sequence))
-                   (let ((pos (mismatch result my-result :test #'equalp)))
-                     (let ((*print-length* 10))
-                       (flet ((pretty-tail-10 (seq)
-                                (if (and (> (length seq) (+ pos 10))
-                                         (typep seq 'string))
-                                  (concatenate 'string (subseq seq pos (+ pos 10)) "...")
-                                  (subseq seq pos))))
-                         (format log "~&Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
-                                 pos
-                                 (if (< pos (length result)) (elt result pos) 'end-of-sequence)
-                                 (if (< pos (length my-result)) (elt my-result pos) 'end-of-sequence)
-                                 (pretty-tail-10 result)
-                                 lisp-implementation
-                                 (pretty-tail-10 my-result))))))
+                 (pretty-compare result my-result log)
                  (format log "~%"))))))
     (values total-count error-count)))
 
