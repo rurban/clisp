@@ -5335,7 +5335,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
     goto done;
    apply_subr_norest:
-    with_saved_back_trace_subr(fun,STACK,-1,
+    with_saved_back_trace_subr(fun,STACK,args_on_stack,
       (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
    done:
     #if STACKCHECKS
