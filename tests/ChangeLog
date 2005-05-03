@@ -1,3 +1,10 @@
+2005-05-03  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (pretty-compare): new generic function
+	the SEQUENCE method extracted from DO-TEST
+	the new PATHNAME method implemented
+	(do-test): use it
+
 2005-05-02  Sam Steingold  <sds@gnu.org>
 
 	* pack11.tst: check that REQUIRE accepts a CHARACTER
