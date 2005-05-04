@@ -10,7 +10,7 @@
 
 <section id="bdb-objects"><title>Berkeley-DB Objects</title>
 
-<para>Thie module exports the following object types:
+<para>Thie module exports the following opaque &structure-object-t; types:
  <variablelist>
  <varlistentry><term><literal role="type">BDB:DBE</literal></term>
   <listitem><simpara>environment handle</simpara></listitem></varlistentry>
@@ -24,14 +24,22 @@
   <listitem><simpara>log cursor handle</simpara></listitem></varlistentry>
  <varlistentry><term><literal role="type">BDB:MPOOLFILE</literal></term>
   <listitem><simpara>memory pool file handle</simpara></listitem></varlistentry>
-</variablelist></para></section>
+ <varlistentry><term><literal role="type">BDB:DBLOCK</literal></term>
+  <listitem><simpara>lock handle</simpara></listitem></varlistentry>
+</variablelist>
+ They contain the internal handle (a &foreign-pointer-t;), the &list-t;
+ of parents, and the &list-t; of dependents.</para></section>
 
 
 <section id="bdb-close"><title>Closing handles</title>
 
-<para>&close; will close (or commit, in the case of a transaction) the
- Berkeley-DB handle objects.  &gc;or will also call &close;.
- Closing an object will first close all its dependents.</para>
+<para>&close; will close (or commit, in the case of a
+ <link linkend="bdb-transaction">transaction</link>, or
+ put, in the case of a <link linkend="bdb-lock">lock</link>)
+ the Berkeley-DB handle objects.  &gc;or will also call &close;.
+ Closing an object will &close; all its dependents and remove the object
+ itself from the dependents lists of its parents (but see
+ <link linkend="bdb-lock"><function>BDB:LOCK-CLOSE</function></link>).</para>
 </section>
 
 
@@ -546,7 +554,7 @@
 
 <variablelist>
 <varlistentry><term><code>(BDB:LOG-ARCHIVE dbe
-   &key-amp; :ARCH-ABS :ARCH-DATA :ARCH-LOG :ARCH-REMOVE)</code></term>
+   &key-amp; ARCH-ABS ARCH-DATA ARCH-LOG ARCH-REMOVE)</code></term>
  <listitem><simpara>Return a list of log or database filenames
    (&DBE_log_archive;).</simpara></listitem></varlistentry>
 <varlistentry><term><code>(BDB:LOG-FILE dbe lsn)</code></term>
