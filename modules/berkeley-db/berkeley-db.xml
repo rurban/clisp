@@ -12,19 +12,19 @@
 
 <para>Thie module exports the following opaque &structure-object-t; types:
  <variablelist>
- <varlistentry><term><literal role="type">BDB:DBE</literal></term>
+ <varlistentry><term><type>BDB:DBE</type></term>
   <listitem><simpara>environment handle</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="type">BDB:DB</literal></term>
+ <varlistentry><term><type>BDB:DB</type></term>
   <listitem><simpara>database handle</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="type">BDB:DBC</literal></term>
+ <varlistentry><term><type>BDB:DBC</type></term>
   <listitem><simpara>cursor handle</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="type">BDB:TXN</literal></term>
+ <varlistentry><term><type>BDB:TXN</type></term>
   <listitem><simpara>transaction handle</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="type">BDB:LOGC</literal></term>
+ <varlistentry><term><type>BDB:LOGC</type></term>
   <listitem><simpara>log cursor handle</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="type">BDB:MPOOLFILE</literal></term>
+ <varlistentry><term><type>BDB:MPOOLFILE</type></term>
   <listitem><simpara>memory pool file handle</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="type">BDB:DBLOCK</literal></term>
+ <varlistentry><term><type>BDB:DBLOCK</type></term>
   <listitem><simpara>lock handle</simpara></listitem></varlistentry>
 </variablelist>
  They contain the internal handle (a &foreign-pointer-t;), the &list-t;
