@@ -2547,14 +2547,13 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 </simpara></listitem></varlistentry>
 
 <varlistentry id="slot"><term><code>(&slot; &cplace-r;
-   <replaceable>slot-name</replaceable>)</code></term>
-<listitem><simpara>Struct or union component: If &cplace-r; is of
-  foreign type <literal role="type">(&c-struct; &class-r;
-  ... (<replaceable>slot-name</replaceable> &ctype-r;) ...)</literal> or
-  of type <literal role="type">(&c-union;
-  ... (<replaceable>slot-name</replaceable> &ctype-r;) ...)</literal>,
-  this will be of type &ctype-r;.
-  </simpara></listitem></varlistentry>
+   &slot-name-r;)</code></term>
+ <listitem><simpara>Struct or union component: If &cplace-r; is of
+   foreign type <literal role="type">(&c-struct; &class-r; ...
+    (&slot-name-r; &ctype-r;) ...)</literal> or of
+   type <literal role="type">(&c-union;
+    ... (&slot-name-r; &ctype-r;) ...)</literal>,
+   this will be of type &ctype-r;.</simpara></listitem></varlistentry>
 
 <varlistentry id="cast"><term><code>(&cast;
            &cplace-r; &ctype-r;)</code></term>
