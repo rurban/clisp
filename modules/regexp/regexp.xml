@@ -126,9 +126,7 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
 <section id="re-example"><title>Example</title>
 
 <para>The following code computes the number of people who use a
- particular shell:</para>
-<example id="re-example-lisp"><title>shell-count.lisp</title>
-<programlisting>
+ particular shell:<programlisting language="lisp">
 #!/usr/local/bin/clisp -C
 (&defpackage; "REGEXP-TEST" (:use "LISP" "REGEXP"))
 (&in-package; "REGEXP-TEST")
@@ -140,11 +138,10 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
     (loop (multiple-value-bind (r k v) (i)
             (unless r (return))
             (format t "[~d] ~s~30t== ~5:d~%" (incf n) k v)))))
-</programlisting></example>
+</programlisting></para>
 
-<para>For comparison, the same can be done by the following &perl;:</para>
-<example id="re-example-perl"><title>shell-count.perl</title>
-<programlisting>
+<para>For comparison, the same can be done by the following &perl;:
+<programlisting language="perl">
 #!/usr/local/bin/perl -w
 
 use diagnostics;
@@ -165,6 +162,6 @@ for my $kk (keys(%hash)) {
   print "[",++$ii,"] \"",$kk,"\"  --  ",$hash{$kk},"\n";
 }
 close(INF);
-</programlisting></example>
+</programlisting></para>
 </section>
 </section>
