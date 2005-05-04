@@ -12,7 +12,10 @@
 (defvar *clisp-home* (namestring (default-directory)))
 (defvar *clisp-linkset* "base")
 (defvar *clisp-driver* (ext:string-concat *clisp-home* "clisp.exe"))
-(defun clisp-cmd () (ext:string-concat *clisp-driver* " -K " *clisp-linkset*))
+(defun clisp-cmd ()
+  (if (position #\Space *clisp-home*)
+      (ext:string-concat "\"" *clisp-driver* "\" -K " *clisp-linkset*)
+      (ext:string-concat *clisp-driver* " -K " *clisp-linkset*)))
 
 (defvar *eflags*
   (make-array 4 :element-type '(unsigned-byte 8) :initial-contents '(0 0 0 0)))
