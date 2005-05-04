@@ -3675,9 +3675,7 @@ double test_dll(struct bar *ptr)
 limit the extent of external resources. Closing twice can be avoided by
 checking &validp;. All pointers depending on this resource can be
 disabled at once upon close by sharing their &foreign-pointer; using
-&set-foreign-pointer;.
-
-<programlisting language="lisp">
+&set-foreign-pointer;.<programlisting language="lisp">
 (def-c-type PGconn c-pointer) ; opaque pointer
 (def-call-out PQconnectdb (:return-type PGconn)
   (:arguments (conninfo c-string)))
@@ -3697,7 +3695,10 @@ disabled at once upon close by sharing their &foreign-pointer; using
 </programlisting>
 <warning><para>Sharing &foreign-pointer; goes both ways:
   invalidating the dependent resource will invalidate the primary one.
-</para></warning></para></example>
+</para></warning>
+<note><para>An alternative approach to resource management is
+  implemented in the <link linkend="berkeley-db">berkeley-db</link>
+  module, see <xref linkend="bdb-close"/>.</para></note></para></example>
 
 <example id="ex-dffi-float"><title>Float point array computations.</title>
 <para>Save this code into <filename>sum.c</filename>:
