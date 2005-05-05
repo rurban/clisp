@@ -4517,15 +4517,14 @@ input will be available.</para></formalpara>
 
 <orderedlist>
  <listitem><simpara>Associate the &mem-file; extension with
-   <command>c:\clisp\lisp.exe -B c:\clisp -M %s</command>.
+   <command>c:\clisp\clisp.exe -M %s</command>.
   </simpara></listitem>
  <listitem><simpara>Associate the &fasl-file; extension with
-   <command>c:\clisp\lisp.exe -B c:\clisp -M c:\clisp\lispinit.mem
-    -i %s</command>.
+   <command>c:\clisp\clisp.exe -i %s</command>
     Alternatively, you may want to have a function
     <function>main</function> in your &fasl-file; files and associate
-    the &fasl-file; extension with <command>c:\clisp\lisp.exe -B
-    c:\clisp -M c:\clisp\lispinit.mem -i %s -x (main)</command>.
+    the &fasl-file; extension with <command>c:\clisp\clisp.exe -i %s -x
+     (main)</command>.
   </simpara></listitem>
 </orderedlist>
 
