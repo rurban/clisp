@@ -4210,7 +4210,7 @@ Compiled, it will have inlined the library function calls.
     not block) and &nil; on timeout.</simpara></listitem></varlistentry>
  <varlistentry id="so-accept"><term><code>(&so-accept; &sose-r;
     &key-amp; &eltype; &extfmt; &buffered; &timeout-k;)</code></term>
-  <listitem id="timeout-k"><simpara>Creates the server-side two-way
+  <listitem id="timeout-k"><simpara>Creates the server-side &bidir-s;
     &socket-stream; for the connection.
    Waits for an attempt to connect to the server for no more than
    &timeout-k; &seconds; (which may be a non-negative &real-t; or a
@@ -4221,7 +4221,7 @@ Compiled, it will have inlined the library function calls.
  <varlistentry id="so-connect"><term><code>(&so-connect;
     <replaceable>port</replaceable> &optional-amp; [&host-r;] &key-amp;
     &eltype; &extfmt; &buffered; &timeout-k;)</code></term>
-  <listitem><simpara>Attempts to create a client-side two-way
+  <listitem><simpara>Attempts to create a client-side &bidir-s;
    &socket-stream;.  Blocks until the server accepts the connection, for
    no more than &timeout-k; &seconds;.  If it is 0, returns immediately
    and (probably) blocks on the next i/o operation (you can use
