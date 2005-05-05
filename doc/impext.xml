@@ -4553,8 +4553,8 @@ input will be available.</para></formalpara>
  these lines into <filename>/etc/rc.d/rc.local</filename>):
 
 <screen>
-bash# echo ":CLISP:E::fas::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
-bash# echo ":CLISP:E::lisp::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
+<prompt>#</prompt> echo ":CLISP:E::fas::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
+<prompt>#</prompt> echo ":CLISP:E::lisp::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
 </screen></para>
 
 <para>Then you can do the following:
