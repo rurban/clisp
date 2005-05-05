@@ -3764,7 +3764,7 @@ opened at run-time.</para>
 <para>Therefore, &affi-pac; supports only primitive &c-lang; types
 (integers 8, 16 and 32 bits wide, signed or unsigned, pointers) and
 defines no new types or classes.  Foreign functions are not first-class
-objects (you can define a &lambda; yourself), name spaces are
+objects (you can define a &lambda-m; yourself), name spaces are
 separate.</para>
 
 <para>The &affi-pac; does no tracking of resources.  Use &finalize;.</para>
@@ -3882,10 +3882,9 @@ you to specify the library by name, provided that its base has been
 declared.  It is recommended to use this macro and to reference the
 library by name.</para>
 
-<para>&clisp; will not close libraries for you at program exit.  [A
-previous version did so but now &affi-pac; is a module and there are no
-module exit functions.]  Programmers, watch
-<function>AFFI::*LIBRARIES-ALIST*</function>.</para>
+<para>&clisp; will not close libraries for you at program exit.
+ See <xref linkend="custom-init-fini"/> and watch
+ <function>AFFI::*LIBRARIES-ALIST*</function>.</para>
 
 </section>
 
@@ -3894,7 +3893,7 @@ module exit functions.]  Programmers, watch
 <para>The following foreign &c-lang; types are used in &affi-pac;.
 They are &not-e; regular &cl; types or &clos; classes.
 <informaltable id="affi-types-tab" frame="all">
- <tgroup cols="5" colsep="1" rowsep="1" align="center">
+ <tgroup cols="4" colsep="1" rowsep="1" align="center">
  <thead><row><entry>&affi-pac; name</entry><entry>Lisp equivalent</entry>
  <entry>&c-lang; equivalent</entry><entry>Comment</entry></row></thead><tbody>
 <row><entry>&nil;</entry><entry>&nil;</entry><entry><type>void</type></entry>
@@ -3918,11 +3917,9 @@ They are &not-e; regular &cl; types or &clos; classes.
   <entry><type>void*</type></entry><entry/></row>
 <row><entry>&external-k;</entry><entry>opaque</entry>
   <entry><type>void*</type></entry><entry/></row>
-<row><entry>&string-t;</entry>
-  <entry>&string-t; or &vector-t;</entry>
+<row><entry>&string-t;</entry><entry>&string-t; or &vector-t;</entry>
   <entry><type>char*</type></entry><entry/></row>
-<row><entry>&io-k;</entry>
-  <entry>&string-t; or &vector-t;</entry>
+<row><entry>&io-k;</entry><entry>&string-t; or &vector-t;</entry>
   <entry><type>char*</type></entry><entry/></row>
 </tbody></tgroup></informaltable></para>
 
@@ -4089,10 +4086,11 @@ Feel free to suggest enhancements to this facility!</para>
 </section>
 
 <section id="affi-examples"><title>Examples</title>
-<subtitle>NB: These examples are somewhat specific to the Amiga.</subtitle>
+<warning><para>These examples are somewhat specific to the
+  Amiga.</para></warning>
 
 <example id="affi-ex-1-predefined">
-   <title>Using a predefined library function file</title>
+ <title>Using a predefined library function file</title>
 
 <para><programlisting language="lisp">
 (&defpackage; "AFFI-TEST" (:use &cl-pac; "AFFI"))
@@ -4105,8 +4103,7 @@ Feel free to suggest enhancements to this facility!</para>
 
 ;; using only MLIBCALL allows not to load definitions at load-time
 (eval-when (compile eval)
-  (require-library-functions "exec.library"
-    :import '("FindTask")))
+  (require-library-functions "exec.library" :import '("FindTask")))
 
 (with-open-library ("exec.library")
   (print (mlibcall FindTask 0)))
