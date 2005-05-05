@@ -265,10 +265,12 @@
 <!ENTITY need-defmethod "<simpara>You must define a method for this function.</simpara>">
 <!ENTITY no-underflow "<link linkend='no-underflow'><function>EXT:WITHOUT-FLOATING-POINT-UNDERFLOW</function></link>">
 <!ENTITY opt-C "<option><olink targetdoc='man' targetptr='opt-load-comp'>-C</olink></option>">
+<!ENTITY opt-i "<option><olink targetdoc='man' targetptr='opt-init'>-i</olink></option>">
 <!ENTITY opt-K "<option><olink targetdoc='man' targetptr='opt-link-set'>-K</olink></option>">
 <!ENTITY opt-L "<option><olink targetdoc='man' targetptr='opt-lang'>-L</olink></option>">
 <!ENTITY opt-M "<option><olink targetdoc='man' targetptr='opt-memfile'>-M</olink></option>">
 <!ENTITY opt-v "<option><olink targetdoc='man' targetptr='opt-verbose'>-v</olink></option>">
+<!ENTITY opt-x "<option><olink targetdoc='man' targetptr='opt-exec-expr'>-x</olink></option>">
 <!ENTITY opt-modern "<option><olink targetdoc='man' targetptr='opt-modern'>-modern</olink></option>">
 <!ENTITY opt-on-error "<option><olink targetdoc='man' targetptr='opt-on-error'>-on-error</olink></option>">
 <!ENTITY pack-inverted "<link linkend='pack-inverted'><function>EXT:PACKAGE-CASE-INVERTED-P</function></link>">

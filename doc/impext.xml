@@ -4517,21 +4517,21 @@ input will be available.</para></formalpara>
 
 <orderedlist>
  <listitem><simpara>Associate the &mem-file; extension with
-   <command>c:\clisp\clisp.exe -M %s</command>.
+   <command>c:\clisp\clisp.exe &opt-M; %s</command>.
   </simpara></listitem>
  <listitem><simpara>Associate the &fasl-file; extension with
-   <command>c:\clisp\clisp.exe -i %s</command>
+   <command>c:\clisp\clisp.exe &opt-i; %s</command>
     Alternatively, you may want to have a function
     <function>main</function> in your &fasl-file; files and associate
-    the &fasl-file; extension with <command>c:\clisp\clisp.exe -i %s -x
-     (main)</command>.
+    the &fasl-file; extension with <command>c:\clisp\clisp.exe &opt-i;
+     %s &opt-x; (main)</command>.
   </simpara></listitem>
 </orderedlist>
 
 <para>Then clicking on the compiled lisp file (with &fasl-file;
  extension) will load the file (thus executing all the code in the
  file), while the clicking on a &clisp; &mem-image; (with &mem-file;
- extension) will start clisp with the given &mem-image;.</para>
+ extension) will start &clisp; with the given &mem-image;.</para>
 
 <note><para>Note that &clisp; is distributed with a file
  <filename>install.bat</filename>, which creates a file
