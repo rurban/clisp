@@ -3169,6 +3169,7 @@ if [ $CROSS = false ] ; then
   echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (setq regression-test::*compile-tests* t)' -repl"
   echol
   echol "${ANSITESTSDIR} :"
+  echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel update-ansi-tests"
   echotab "-mkdir ${ANSITESTSDIR}"
   # on win32, LN_S=copy and it accepts exactly 2 arguments
   for f in Makefile '*.lsp'; do
