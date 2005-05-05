@@ -111,8 +111,8 @@ space.</para>
   (in contrast with platform-independent &fasl-file; files).
   They are &not-e; even portable across &linkset;s: image saved using
   the &full; &linkset; cannot be used with the &base; runtime:<screen>
-$ clisp -K full -x '(ext:saveinitmem)'
-$ clisp -K base -M lispinit.mem
+<prompt>$</prompt> clisp -K full -x '(ext:saveinitmem)'
+<prompt>$</prompt> clisp -K base -M lispinit.mem
 base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime
 </screen></para></warning>
 
@@ -2080,7 +2080,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  executed in this order.)</para>
 
 <procedure><step><title>Create a new &modset;</title>
-<screen>$ clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></step>
+<screen><prompt>$</prompt> clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></step>
 
 <step><title>Modify the newly created
   <filename>linux/&link-sh;</filename></title>
@@ -2093,13 +2093,13 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <step><title>Compile <filename>linux.lisp</filename>, creating
   <filename>linux.c</filename></title>
-<screen>$ clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</screen></step>
+<screen><prompt>$</prompt> clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</screen></step>
 
 <step><title>Create a new &linkset;</title>
-<screen>$ clisp-link add-module-set linux base base+linux</screen></step>
+<screen><prompt>$</prompt> clisp-link add-module-set linux base base+linux</screen></step>
 
 <step><title>Run and try it</title>
-<screen>$ base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</screen></step>
+<screen><prompt>$</prompt> base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</screen></step>
 </procedure>
 
 </section>
@@ -3400,15 +3400,15 @@ It is possible to call this function from Lisp using the file
 Use the &module; facility:
 
 <screen>
-$ clisp-link create-module-set cfun callcfun.c
-$ cc -O -c cfun.c
-$ cd cfun
-$ ln -s ../cfun.o cfun.o
+<prompt>$</prompt> clisp-link create-module-set cfun callcfun.c
+<prompt>$</prompt> cc -O -c cfun.c
+<prompt>$</prompt> cd cfun
+<prompt>$</prompt> ln -s ../cfun.o cfun.o
 Add cfun.o to NEW_LIBS and NEW_FILES in &link-sh;.
-$ cd ..
-$ base/lisp.run -M base/lispinit.mem -c callcfun.lisp
-$ clisp-link add-module-set cfun base base+cfun
-$ base+cfun/lisp.run -M base+cfun/lispinit.mem -i callcfun
+<prompt>$</prompt> cd ..
+<prompt>$</prompt> base/lisp.run -M base/lispinit.mem -c callcfun.lisp
+<prompt>$</prompt> clisp-link add-module-set cfun base base+cfun
+<prompt>$</prompt> base+cfun/lisp.run -M base+cfun/lispinit.mem -i callcfun
 &gt; (test-c-call::call-cfun)
 i = 5
 s = A Lisp string
@@ -3426,7 +3426,7 @@ a[8] = 8.
 a[9] = 9.
 #S(TEST-C-CALL::CFUNR :X 10 :S "A C string")
 &gt;
-$ rm -r base+cfun
+<prompt>$</prompt> rm -r base+cfun
 </screen></para>
 
 <para>Note that there is a memory leak here: The return value
@@ -3507,10 +3507,10 @@ To test this, use the following test file <filename>sorttest.lisp</filename>:
 Now try
 
 <screen>
-$ clisp-link create-module-set sort sort2.c sorttest.c
-$ cc -O -c sort1.c
-$ cd sort
-$ ln -s ../sort1.o sort1.o
+<prompt>$</prompt> clisp-link create-module-set sort sort2.c sorttest.c
+<prompt>$</prompt> cc -O -c sort1.c
+<prompt>$</prompt> cd sort
+<prompt>$</prompt> ln -s ../sort1.o sort1.o
 </screen>
 
 Add <filename>sort1.o</filename> to <envar>NEW_LIBS</envar>
@@ -3522,14 +3522,14 @@ to &mod-preload; in &link-sh;.
 Proceed:
 
 <screen>
-$ cd ..
-$ base/lisp.run -M base/lispinit.mem -c sort2.lisp sorttest.lisp
-$ clisp-link add-module-set sort base base+sort
-$ base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
+<prompt>$</prompt> cd ..
+<prompt>$</prompt> base/lisp.run -M base/lispinit.mem -c sort2.lisp sorttest.lisp
+<prompt>$</prompt> clisp-link add-module-set sort base base+sort
+<prompt>$</prompt> base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
 &gt; (sort10 10 '#(0.501d0 0.528d0 0.615d0 0.550d0 0.711d0
                 0.523d0 0.585d0 0.670d0 0.271d0 0.063d0))
 #(0.063d0 0.271d0 0.501d0 0.523d0 0.528d0 0.55d0 0.585d0 0.615d0 0.67d0 0.711d0)
-$ rm -r base+sort
+<prompt>$</prompt> rm -r base+sort
 </screen></para></example>
 
 <example id="ex-call-in-dll">
@@ -3710,7 +3710,7 @@ double sum (int len, double *vec) {
 }
 </programlisting>
 and compile it with
-<screen>$ gcc -shared -o libsum.so sum.c</screen>
+<screen><prompt>$</prompt> gcc -shared -o libsum.so sum.c</screen>
 Now you can sum doubles:
 <programlisting language="lisp">
 (&def-call-out; sum (:name "sum") (:library "libsum.so") (:language :stdc)
@@ -4559,18 +4559,18 @@ bash# echo ":CLISP:E::lisp::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_
 
 <para>Then you can do the following:
 <screen>
-bash$ cat &lt;&lt; EOF &gt; hello.lisp
+<prompt>$</prompt> cat &lt;&lt; EOF &gt; hello.lisp
 (print "hello, world!")
 EOF
-bash$ clisp -c hello.lisp
+<prompt>$</prompt> clisp -c hello.lisp
 ;; Compiling file hello.lisp ...
 ;; Wrote file hello.lisp
 0 errors, 0 warnings
-bash$ chmod +x hello.fas
-bash$ hello.fas
+<prompt>$</prompt> chmod +x hello.fas
+<prompt>$</prompt> hello.fas
 
 "hello, world!"
-bash$
+<prompt>$</prompt>
 </screen></para>
 
 <para>Please read
