@@ -1,5 +1,11 @@
 2005-05-05  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (force_tty_output) [UNIX_DARWIN]:
+	ignore EOPNOTSUPP and ENODEV, just like in clear_tty_output()
+	Reported by Pascal Costanza <pc@p-cos.net>
+
+2005-05-05  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (ANSITESTSDIR): do update-ansi-tests first
 
 2005-05-04  Sam Steingold  <sds@gnu.org>

@@ -3509,6 +3509,9 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
         #ifdef UNIX_CYGWIN32 /* for win95 and xterm/rxvt */
         if ((errno != EBADF) && (errno != EACCES))
         #endif
+        #ifdef UNIX_DARWIN
+        if ((errno != EOPNOTSUPP) && (errno != ENODEV))
+        #endif
         if (!(errno==EINVAL))
           OS_error();
       #endif
