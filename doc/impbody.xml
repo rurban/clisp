@@ -4746,10 +4746,10 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   &cmd-abbrev-oper-header;<tbody>
  <row><entry><command>Error</command></entry>
    <entry><command>:e</command></entry>
-   <entry>print the last error message.</entry></row>
+   <entry>print the last error object.</entry></row>
  <row><entry><command>Inspect</command></entry>
    <entry><command>:i</command></entry>
-   <entry>inspect the last error message.</entry></row>
+   <entry>inspect the last error object.</entry></row>
  <row><entry><command>Mode-1</command></entry>
    <entry><command>:m1</command></entry>
    <entry>sets the current mode to 1: all the stack elements are considered.
