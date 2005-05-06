@@ -15,6 +15,7 @@
 	INSTALL-CLASS-DIRECT-ACCESSORS to avoid slot accessor redefinitions
 	* clos-class6.lisp (initialize-instance@structure-class): new method,
 	uses the DEFCLASS-FORM argument to avoid slot accessor redefinitions
+	* constobj.d (version): bumped
 
 2005-05-06  Sam Steingold  <sds@gnu.org>
 
