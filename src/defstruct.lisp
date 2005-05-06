@@ -10,8 +10,8 @@
    For structure types (but not for structure classes!):
 
    (get name 'DEFSTRUCT-DESCRIPTION) =
-     #(type size keyword-constructor slotlist boa-constructors copier predicate
-       defaultfun0 defaultfun1 ...)
+     #(type size keyword-constructor effective-slotlist direct-slotlist
+       boa-constructors copier predicate defaultfun0 defaultfun1 ...)
 
    type (if the type of the whole structure is meant):
       = LIST                   storage as list
@@ -25,8 +25,8 @@
    copier = NIL or the name of the copier function
    predicate = NIL or the name of the predicate function
 
-   slotlist is a packed description of the slots of a structure:
-   slotlist = ({slot}*)
+   effective-slotlist is a packed description of the slots of a structure:
+   effective-slotlist = ({slot}*)
    slot = an instance of structure-effective-slot-definition, containing:
          name - the slotname,
          initargs - a list containing the initialization argument,
@@ -43,6 +43,12 @@
               after the construction of the Structure the slot cannot be
               changed with (setf ...) anymore.
          (See also pr_structure_default() in io.d.)
+   direct-slotlist is the list of slots defined together with the structure:
+   direct-slotlist = ({slot*})
+   slot = an instance of structure-direct-slot-definition, containing:
+         name, initform, initfunction, initargs, type, initer - see above
+         writers - list of setters: ((setf struct-slot-name))
+         readers - list of getters: (struct-slot-name)
    The initializations are specified as follows:
      - not real slot (i.e. initargs = ()):
        initform           = `(QUOTE ,name)
@@ -67,17 +73,20 @@
 |#
 
 ;; Indices of the fixed elements of a defstruct-description:
+;; if you add a slot, you need to modify io.d:SYS::STRUCTURE-READER
 (defconstant *defstruct-description-type-location* 0)
 (defconstant *defstruct-description-size-location* 1)
 (defconstant *defstruct-description-kconstructor-location* 2)
 (defconstant *defstruct-description-slots-location* 3)
-(defconstant *defstruct-description-boa-constructors-location* 4)
-(defconstant *defstruct-description-copier-location* 5)
-(defconstant *defstruct-description-predicate-location* 6)
+(defconstant *defstruct-description-direct-slots-location* 4)
+(defconstant *defstruct-description-boa-constructors-location* 5)
+(defconstant *defstruct-description-copier-location* 6)
+(defconstant *defstruct-description-predicate-location* 7)
 (proclaim '(constant-inline *defstruct-description-type-location*
                             *defstruct-description-size-location*
                             *defstruct-description-kconstructor-location*
                             *defstruct-description-slots-location*
+                            *defstruct-description-direct-slots-location*
                             *defstruct-description-boa-constructors-location*
                             *defstruct-description-copier-location*
                             *defstruct-description-predicate-location*))
@@ -564,6 +573,15 @@
 (predefun clos::defstruct-remove-print-object-method (name) ; preliminary
   (declare (ignore name))
   nil)
+
+(defun make-load-form-slot-list (slotlist default-slots default-vars mlf)
+  (mapcar #'(lambda (slot+initff)
+              (let ((slot (car slot+initff)))
+                (funcall mlf
+                         slot
+                         (let ((i (position slot+initff default-slots)))
+                           (if i (nth i default-vars) (cdr slot+initff))))))
+          slotlist))
 
 (defmacro defstruct (&whole whole-form
                      name-and-options . docstring-and-slotargs)
@@ -1072,14 +1090,13 @@
                      (VECTOR ',type-option
                              ,size
                              ',keyword-constructor
-                             (LIST
-                               ,@(mapcar #'(lambda (slot+initff)
-                                             (let ((slot (car slot+initff)))
-                                               (clos::make-load-form-<structure-effective-slot-definition>
-                                                 slot
-                                                 (let ((i (position slot+initff slotdefaultslots)))
-                                                   (if i (nth i slotdefaultvars) (cdr slot+initff))))))
-                                         slotlist))
+                             (LIST ,@(make-load-form-slot-list
+                                      slotlist slotdefaultslots slotdefaultvars
+                                      'clos::make-load-form-<structure-effective-slot-definition>))
+                             (LIST ,@(make-load-form-slot-list
+                                      directslotlist slotdefaultdirectslots
+                                      slotdefaultvars
+                                      'clos::make-load-form-<structure-direct-slot-definition>))
                              ',boa-constructors
                              ',copier-option
                              ',predicate-option)))
@@ -1090,22 +1107,12 @@
                  ',boa-constructors
                  ',copier-option
                  ',predicate-option
-                 (LIST
-                   ,@(mapcar #'(lambda (slot+initff)
-                                 (let ((slot (car slot+initff)))
-                                   (clos::make-load-form-<structure-effective-slot-definition>
-                                     slot
-                                     (let ((i (position slot+initff slotdefaultslots)))
-                                       (if i (nth i slotdefaultvars) (cdr slot+initff))))))
-                             slotlist))
-                 (LIST
-                   ,@(mapcar #'(lambda (directslot+initff)
-                                 (let ((directslot (car directslot+initff)))
-                                   (clos::make-load-form-<structure-direct-slot-definition>
-                                     directslot
-                                     (let ((i (position directslot+initff slotdefaultdirectslots)))
-                                       (if i (nth i slotdefaultvars) (cdr directslot+initff))))))
-                             directslotlist)))
+                 (LIST ,@(make-load-form-slot-list
+                          slotlist slotdefaultslots slotdefaultvars
+                          'clos::make-load-form-<structure-effective-slot-definition>))
+                 (LIST ,@(make-load-form-slot-list
+                          directslotlist slotdefaultdirectslots slotdefaultvars
+                          'clos::make-load-form-<structure-direct-slot-definition>)))
               `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name))
            ,@constructor-forms)
          ,@(if (and named-option predicate-option)
@@ -1145,13 +1152,30 @@
         (clos::accessor-typecheck class 'structure-class 'structure-slots)
         (clos::class-slots class)))))
 #|
-(defun (setf structure-slots) (new-value name)
+ (defun (setf structure-slots) (new-value name)
   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
     (if desc
       (setf (svref desc *defstruct-description-slots-location*) new-value)
       (let ((class (find-class name)))
         (clos::accessor-typecheck class 'structure-class '(setf structure-slots))
         (setf (clos::class-slots class) new-value)))))
+|#
+
+(defun structure-direct-slots (name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (svref desc *defstruct-description-direct-slots-location*)
+      (let ((class (find-class name)))
+        (clos::accessor-typecheck class 'structure-class 'structure-direct-slots)
+        (clos::class-direct-slots class)))))
+#|
+ (defun (setf structure-slots) (new-value name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (setf (svref desc *defstruct-description-direct-slots-location*) new-value)
+      (let ((class (find-class name)))
+        (clos::accessor-typecheck class 'structure-class '(setf structure-direct-slots))
+        (setf (clos::class-direct-slots class) new-value)))))
 |#
 
 (defun structure-instance-size (name)
@@ -1162,7 +1186,7 @@
         (clos::accessor-typecheck class 'structure-class 'structure-instance-size)
         (clos::class-instance-size class)))))
 #|
-(defun (setf structure-instance-size) (new-value name)
+ (defun (setf structure-instance-size) (new-value name)
   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
     (if desc
       (setf (svref desc *defstruct-description-size-location*) new-value)
@@ -1177,7 +1201,7 @@
       (svref desc *defstruct-description-kconstructor-location*)
       (clos::class-kconstructor (find-class name)))))
 #|
-(defun (setf structure-kconstructor) (new-value name)
+ (defun (setf structure-kconstructor) (new-value name)
   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
     (if desc
       (setf (svref desc *defstruct-description-kconstructor-location*) new-value)
@@ -1190,7 +1214,7 @@
       (svref desc *defstruct-description-boa-constructors-location*)
       (clos::class-boa-constructors (find-class name)))))
 #|
-(defun (setf structure-boa-constructors) (new-value name)
+ (defun (setf structure-boa-constructors) (new-value name)
   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
     (if desc
       (setf (svref desc *defstruct-description-boa-constructors-location*) new-value)
@@ -1203,7 +1227,7 @@
       (svref desc *defstruct-description-copier-location*)
       (clos::class-copier (find-class name)))))
 #|
-(defun (setf structure-copier) (new-value name)
+ (defun (setf structure-copier) (new-value name)
   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
     (if desc
       (setf (svref desc *defstruct-description-copier-location*) new-value)
@@ -1216,7 +1240,7 @@
       (svref desc *defstruct-description-predicate-location*)
       (clos::class-predicate (find-class name)))))
 #|
-(defun (setf structure-predicate) (new-value name)
+ (defun (setf structure-predicate) (new-value name)
   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
     (if desc
       (setf (svref desc *defstruct-description-predicate-location*) new-value)
@@ -1232,4 +1256,7 @@
       (fmakunbound-if-present (structure-kconstructor name))
       (mapc #'fmakunbound (structure-boa-constructors name))
       (fmakunbound-if-present (structure-copier name))
-      (fmakunbound-if-present (structure-predicate name)))))
+      (fmakunbound-if-present (structure-predicate name))
+      (dolist (slot (structure-direct-slots name))
+        (mapc #'fmakunbound (clos::slot-definition-readers slot))
+        (mapc #'fmakunbound (clos::slot-definition-writers slot))))))

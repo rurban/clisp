@@ -1731,7 +1731,8 @@
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'initialize-instance later.
   (apply #'shared-initialize-<structure-class> class 't args)
-  (install-class-direct-accessors class)
+  ;; avoid slot accessor redefinition warning
+  ;; (install-class-direct-accessors class)
   class)
 
 (defun shared-initialize-<structure-class> (class situation &rest args
@@ -1752,7 +1753,7 @@
                                                  ((slots slots) '())
                                                  ((size size) 1)
                                             &allow-other-keys)
-  ;; metaclass ⊆ <structure-class>
+  ;; metaclass = <structure-class>
   (declare (ignore generic-accessors generic-accessors-p direct-slots-as-lists
                    direct-slots-as-metaobjects direct-default-initargs
                    documentation documentation-p))
@@ -1852,7 +1853,8 @@
           'size (if all-slots
                   (1+ (slot-definition-location (car (last all-slots))))
                   1)
-          :generic-accessors nil)))
+          :generic-accessors nil
+          'clos::defclass-form 'defstruct)))
 (defun undefine-structure-class (name) ; ABI
   (setf (find-class name) nil))
 
@@ -1989,7 +1991,7 @@
        &aux (direct-superclasses (class-direct-superclasses class))
             (name (class-name class))
             (old-slot-location-table (class-slot-location-table class)))
-  ;; metaclass ⊆ <semi-standard-class>
+  ;; metaclass = <semi-standard-class>
   (if (standard-class-p class)
     (check-metaclass-mix name direct-superclasses
                          #'standard-class-p 'STANDARD-CLASS)
