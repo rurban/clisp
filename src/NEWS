@@ -217,9 +217,11 @@ User visible changes
   Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance
   suite, which helped detect some of these deficiencies.
 
-* Global error handlers can now be established using EXT:SET-GLOBAL-HANDLER
+* Global error handlers can now be installed and removed using
+  EXT:SET-GLOBAL-HANDLER, EXT:WITHOUT-GLOBAL-HANDLERS,
   and -on-error command line option.
-  See <http://clisp.cons.org/impnotes.html#global-hanldler> for details.
+  See <http://clisp.cons.org/impnotes.html#global-hanldler> and
+  <http://clisp.cons.org/clisp.html#opt-on-error> for details.
 
 * TRANSLATE-PATHNAME and TRANSLATE-LOGICAL-PATHNAME accept a new keyword
   argument :ABSOLUTE which makes them convert their return values to
