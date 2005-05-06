@@ -327,6 +327,7 @@
 <!ENTITY scr-win "<link linkend='screen'><varname>SCREEN:*WINDOW*</varname></link>">
 <!ENTITY service-port "<link linkend='service-port'><function>SOCKET:SOCKET-SERVICE-PORT</function></link>">
 <!ENTITY set-global-handler "<olink targetdoc='impnotes' targetptr='global-handler'><function>EXT:SET-GLOBAL-HANDLER</function></olink>">
+<!ENTITY without-global-handlers "<olink targetdoc='impnotes' targetptr='without-global-handlers'><function>EXT:WITHOUT-GLOBAL-HANDLERS</function></olink>">
 <!ENTITY shell "<olink targetdoc='impnotes' targetptr='exec'><function>EXT:SHELL</function></olink>">
 <!ENTITY so-accept "<link linkend='so-accept'><function>SOCKET:SOCKET-ACCEPT</function></link>">
 <!ENTITY so-connect "<link linkend='so-connect'><function>SOCKET:SOCKET-CONNECT</function></link>">
