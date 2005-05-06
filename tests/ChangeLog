@@ -1,5 +1,10 @@
 2005-05-06  Sam Steingold  <sds@gnu.org>
 
+	* mop.tst: test STRUCTURE-DIRECT-SLOTS
+	and absence of slot accessor redefinition warnings
+
+2005-05-06  Sam Steingold  <sds@gnu.org>
+
 	* path.tst: #p"" ==> :DIRECTORY NIL
 
 2005-05-03  Sam Steingold  <sds@gnu.org>
