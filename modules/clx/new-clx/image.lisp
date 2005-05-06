@@ -22,7 +22,7 @@
 ;;;; CLX but most parts left unmodified (sans stripping some annoying
 ;;;; declares), so I leave the original copyright here.
 
-(require ':clx)
+(require "clx")
 
 (in-package :xlib)
 

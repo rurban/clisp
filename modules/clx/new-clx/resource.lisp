@@ -18,7 +18,7 @@
 ;;; express or implied warranty.
 ;;;
 
-(require :clx)
+(require "clx")
 (in-package :xlib)
 (declaim (declaration clx-values))
 
