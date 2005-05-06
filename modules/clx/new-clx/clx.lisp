@@ -7,7 +7,7 @@
   ;; (:use "COMMON-LISP" "CLOS")
   (:import-from "SYS" "STRING-CONCAT"))
 
-(provide ':clx)
+(provide "clx")
 
 (in-package :xlib)
 
