@@ -1,5 +1,10 @@
 2005-05-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/image.lisp, modules/clx/new-clx/resource.lisp:
+	pass a string to REQUIRE to avoid case conversion issues
+
+2005-05-06  Sam Steingold  <sds@gnu.org>
+
 	* defstruct.lisp: keep direct slot information
 	(*defstruct-description-direct-slots-location*): new constant
 	(make-load-form-slot-list): new function
