@@ -972,6 +972,12 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
  as a &list-t;, which can then be passed to &set-global-handler; as the
  first argument and the handlers re-established.</para></formalpara>
 
+<formalpara id="without-global-handlers">
+ <title>Macro &without-global-handlers;</title>
+<para>The macro <code>(&without-global-handlers; &body-amp;
+  &body-r;)</code> removes all global handlers, executes &body-r;, and
+ then restores the handlers.</para></formalpara>
+
 <formalpara id="with-restarts"><title>Macro &with-restarts;</title>
 <para>The macro &with-restarts; is like &restart-case;, except that the
  forms are specified after the restart clauses instead of before them,

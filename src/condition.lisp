@@ -35,7 +35,7 @@
 (in-package "EXT")
 (export
  '(muffle-cerrors appease-cerrors exit-on-error with-restarts os-error
-   abort-on-error set-global-handler
+   abort-on-error set-global-handler without-global-handlers
    source-program-error source-program-error-form source-program-error-detail
    simple-condition-format-string simple-charset-type-error retry)
  "EXT")
@@ -1745,3 +1745,10 @@ Returns the added or removed method(s)."
                method)))
           (t (error "~S(~S ~S): invalid arguments"
                     'set-global-handler condition-name handler)))))
+
+(defmacro without-global-handlers (&body body)
+  "Remove all global handlers, execute BODY, restore the handlers."
+  (let ((handlers (gensym "HANDLERS-")))
+    `(let ((,handlers (set-global-handler nil nil)))
+       (unwind-protect (progn ,@body)
+         (set-global-handler ,handlers nil)))))

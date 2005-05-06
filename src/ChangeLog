@@ -1,5 +1,9 @@
 2005-05-06  Sam Steingold  <sds@gnu.org>
 
+	* condition.lisp (without-global-handlers): new macro
+
+2005-05-06  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (SUBR-INFO): added a cast for C++ compilation
 	* pathname.d (use_default_dir): ditto
 
