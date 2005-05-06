@@ -1,5 +1,10 @@
 2005-05-06  Sam Steingold  <sds@gnu.org>
 
+	* eval.d (SUBR-INFO): added a cast for C++ compilation
+	* pathname.d (use_default_dir): ditto
+
+2005-05-06  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (PARSE-NAMESTRING): "" ==> :DIRECTORY NIL
 	(directory_namestring_parts): :DIRECTORY (:RELATIVE) => "./"
 	(merge_dirs, MERGE-PATHNAMES, directory_match, directory_diff)

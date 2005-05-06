@@ -5527,7 +5527,7 @@ local maygc object use_default_dir (object pathname) {
        form  (append default-subdirs (cdr subdirs))
             = (nreconc (reverse default-subdirs) (cdr subdirs)) */
       pushSTACK(pathname);
-      pushSTACK(consp(subdirs) ? Cdr(subdirs) : NIL);
+      pushSTACK(consp(subdirs) ? (object)Cdr(subdirs) : NIL);
       var object temp = default_directory();
       temp = ThePathname(temp)->pathname_directory;
       temp = reverse(temp);
