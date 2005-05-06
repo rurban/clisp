@@ -20,6 +20,18 @@
   (install-class-direct-accessors class)
   class)
 
+(defmethod initialize-instance ((class structure-class) &rest args
+                                &key ((defclass-form defclass-form))
+                                &allow-other-keys)
+  (if (eq defclass-form 'defstruct) ; called from DEFINE-STRUCTURE-CLASS
+      ;; we do not (CALL-NEXT-METHOD) because the
+      ;; INITIALIZE-INSTANCE@DEFINED-CLASS method calls
+      ;; INSTALL-CLASS-DIRECT-ACCESSORS which installs slot accessors
+      ;; immediately overwritten by the accessors defined by DEFSTRUCT
+      (apply #'shared-initialize class 't args)
+      (call-next-method))       ; initialize-instance@defined-class
+  class)
+
 (setf (fdefinition 'initialize-instance-<built-in-class>) #'initialize-instance)
 (setf (fdefinition 'make-instance-<built-in-class>) #'make-instance)
 (setf (fdefinition 'initialize-instance-<structure-class>) #'initialize-instance)

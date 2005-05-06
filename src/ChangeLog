@@ -1,5 +1,23 @@
 2005-05-06  Sam Steingold  <sds@gnu.org>
 
+	* defstruct.lisp: keep direct slot information
+	(*defstruct-description-direct-slots-location*): new constant
+	(make-load-form-slot-list): new function
+	(defstruct): use it; save direct slot information
+	(structure-direct-slots): new function
+	(structure-undefine-accessories): use it to remove slot accessors
+	* exporting.lisp (export-structure-accessories): use
+	STRUCTURE-DIRECT-SLOTS instead of CLASS-ACCESSOR-SYMBOLS
+	* io.d (STRUCTURE-READER): DEFSTRUCT-DESCRIPTION has length 8
+	* clos-class3.lisp (define-structure-class):
+	pass DEFCLASS-FORM 'DEFSTRUCT to MAKE-INSTANCE
+	(initialize-instance-<structure-class>): do not call
+	INSTALL-CLASS-DIRECT-ACCESSORS to avoid slot accessor redefinitions
+	* clos-class6.lisp (initialize-instance@structure-class): new method,
+	uses the DEFCLASS-FORM argument to avoid slot accessor redefinitions
+
+2005-05-06  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (without-global-handlers): new macro
 
 2005-05-06  Sam Steingold  <sds@gnu.org>

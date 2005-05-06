@@ -2401,6 +2401,37 @@ T
                  (clos:class-direct-slots (find-class struct)))))
 #+CLISP ((STRUCT04RO-SLOT1) NIL)
 
+#+CLISP
+(let ((struct (defstruct (struct04v (:type vector)) slot1)))
+  (nconc (mapcar #'clos:slot-definition-readers
+                 (sys::structure-direct-slots struct))
+         (mapcar #'clos:slot-definition-writers
+                 (sys::structure-direct-slots struct))))
+#+CLISP ((STRUCT04V-SLOT1) ((SETF STRUCT04V-SLOT1)))
+
+#+CLISP
+(let ((struct (defstruct (struct04rov (:type vector)) (slot1 t :read-only t))))
+  (nconc (mapcar #'clos:slot-definition-readers
+                 (sys::structure-direct-slots struct))
+         (mapcar #'clos:slot-definition-writers
+                 (sys::structure-direct-slots struct))))
+#+CLISP ((STRUCT04ROV-SLOT1) NIL)
+
+;; check that there are no redefinition warnings
+(let* ((f "defstruct-test.lisp")
+       (c (compile-file-pathname f))
+       #+CLISP (custom:*suppress-check-redefinition* nil)
+       #+CLISP (l (make-pathname :type "lib" :defaults c))
+       (*break-on-signals* t))
+  (with-open-file (s f :direction :output :if-exists :supersede)
+    (write '(defstruct struct05 slot) :stream s) (terpri s)
+    (write '(defstruct (struct05v (:type vector)) slotv) :stream s) (terpri s))
+  (unwind-protect (progn (compile-file f) nil)
+    (delete-file f)
+    (delete-file c)
+    #+clisp (delete-file l)))
+NIL
+
 ;; Check slot-definition-writers.
 (let ((*sampslot*
         (first (clos:class-direct-slots (defclass sampclass37 () ((x)))))))
