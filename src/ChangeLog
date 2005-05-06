@@ -2,6 +2,7 @@
 
 	* modules/clx/new-clx/image.lisp, modules/clx/new-clx/resource.lisp:
 	pass a string to REQUIRE to avoid case conversion issues
+	* modules/clx/new-clx/clx.lisp: PROVIDE whatever was REQUIREd
 
 2005-05-06  Sam Steingold  <sds@gnu.org>
 
