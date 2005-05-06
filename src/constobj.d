@@ -480,9 +480,6 @@
  #endif
   # argumentlist for WRITE-TO-STRING :
   LISPOBJ(base10_radixnil,"(:BASE 10 :RADIX NIL)")
-  # defaults-warning-string:
-  # default value for :DIRECTORY-argument:
-  LISPOBJ(directory_default,"(:RELATIVE)")
   # defaults for COMPILE-FILE-call in SPVW:
   LISPOBJ(source_file_type,"#\".lisp\"")
   LISPOBJ(compiled_file_type,"#\".fas\"")

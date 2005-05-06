@@ -1703,11 +1703,8 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
     #endif /* PATHNAME_WIN32 */
    #endif /* HAS_DEVICE */
     /* enter Directory-Start: */
-    {
-      var object new_cons = allocate_cons(); /* new Cons for Startpoint */
-      ThePathname(STACK_0)->pathname_directory = new_cons;
-      pushSTACK(new_cons); /* new (last (pathname-directory Pathname)) */
-    }
+    ThePathname(STACK_0)->pathname_directory = NIL;
+    pushSTACK(NIL); /* new (last (pathname-directory Pathname)) */
     /* stack layout:
      ..., Datenvektor, Pathname, (last (pathname-directory Pathname)).
      parse subdirectories: */
@@ -1843,19 +1840,19 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           if ((as_cint(ch) >= 'a') && (as_cint(ch) <= 'z')) {
             var object drive = allocate_string(1);
             TheSnstring(drive)->data[0] = ch;
+            ThePathname(STACK_1)->pathname_directory=STACK_0=allocate_cons();
             Car(STACK_0) = drive;
             Z_SHIFT(z,2);
             if (Z_AT_SLASH(z,pslashp,STACK_2)) Z_SHIFT(z,1);
-          } else goto continue_parsing_despite_semicolon;
+          } else goto continue_parsing_despite_colon;
         } else
-        continue_parsing_despite_semicolon:
+        continue_parsing_despite_colon:
       #endif
         /* if 1st char is a slash, start with :ABSOLUTE (otherwise :RELATIVE): */
         if (Z_AT_SLASH(z,pslashp,STACK_2)) {
           Z_SHIFT(z,1);
+          ThePathname(STACK_1)->pathname_directory=STACK_0=allocate_cons();
           Car(STACK_0) = S(Kabsolute);
-        } else {
-          Car(STACK_0) = S(Krelative);
         }
      #endif
       loop {
@@ -1897,6 +1894,10 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           STACK_0 = S(Kwild_inferiors); /* replace with :WILD-INFERIORS */
         }
        #endif /* PATHNAME_NOEXT */
+        if (nullp(STACK_1)) {
+          ThePathname(STACK_2)->pathname_directory=STACK_1=allocate_cons();
+          Car(STACK_1) = S(Krelative);
+        }
         /* lengthen (pathname-directory pathname) by subdir STACK_0: */
         var object new_cons = allocate_cons(); /* new Cons */
         Car(new_cons) = popSTACK(); /* = (cons subdir NIL) */
@@ -2411,22 +2412,28 @@ local uintC directory_namestring_parts (object pathname) {
     var object directory = xpathname_directory(logp,pathname);
    #if defined(LOGICAL_PATHNAMES)
     if (logp) {
-      if (eq(Car(directory),S(Krelative))) {
+      if (consp(directory) && eq(Car(directory),S(Krelative))) {
         pushSTACK(O(semicolon_string)); stringcount++; /* ";" on the Stack */
       }
     } else
    #endif
-   {
-    if (!mconsp(directory)) return stringcount; /* just in case */
-    /* is the first subdir = :ABSOLUTE or = :RELATIVE ? */
-    if (eq(Car(directory),S(Kabsolute))) {
-     #ifdef PATHNAME_WIN32
-      pushSTACK(O(backslash_string)); stringcount++; /* "\\" */
-     #endif
-     #ifdef PATHNAME_UNIX
-      pushSTACK(O(slash_string)); stringcount++; /* "/" */
-     #endif
-   }}
+#if defined(PATHNAME_WIN32)
+#define push_slash pushSTACK(O(backslash_string))
+#elif defined(PATHNAME_UNIX)
+#define push_slash pushSTACK(O(slash_string))
+#else
+#error "what is the directory separator on your platform?"
+#endif
+    {
+      if (!mconsp(directory)) return stringcount; /* no directory */
+      /* is the first subdir = :ABSOLUTE or = :RELATIVE ? */
+      if (eq(Car(directory),S(Kabsolute))) {
+        push_slash; stringcount++; /* "/" */
+      } else if (nullp(Cdr(directory))) { /* (:RELATIVE) ==> "./" */
+        pushSTACK(O(dot_string)); stringcount++; /* "." */
+        push_slash; stringcount++; /* "/" */
+        return stringcount;
+    }}
     directory = Cdr(directory); /* skip */
     /* other subdirs on the stack: */
     while (consp(directory)) {
@@ -2444,9 +2451,10 @@ local uintC directory_namestring_parts (object pathname) {
         pushSTACK(O(slash_string)); stringcount++; /* "/" */
        #endif
       }
-    directory = Cdr(directory);
+      directory = Cdr(directory);
     }
   }
+#undef push_slash
   return stringcount;
 }
 
@@ -2691,16 +2699,16 @@ local maygc object merge_dirs (object p_directory, object d_directory, bool p_lo
   SDOUT("merge_dirs:",p_directory);
   SDOUT("merge_dirs:",d_directory);
   if (called_from_make_pathname) {
-    if (!boundp(p_directory)) /* pathname-subdirs not given? */
+    if (missingp(p_directory)) /* pathname-subdirs not given? */
       new_subdirs = d_directory; /* use defaults-subdirs */
   } else if (!wildp) {
-    /* is pathname-subdirs trivial? */
-    if (eq(Car(p_directory),p_log ? S(Kabsolute) : S(Krelative))
-        && matomp(Cdr(p_directory))) {
-      new_subdirs = d_directory; /* use defaults-subdirs: */
+    if (nullp(p_directory) /* is pathname-subdirs trivial? */
+        || (eq(Car(p_directory),p_log ? S(Kabsolute) : S(Krelative))
+            && matomp(Cdr(p_directory)))) {
+      new_subdirs = d_directory; /* use defaults-subdirs */
     } else if (eq(Car(p_directory),S(Krelative))
                /* PATHNAME = :ABSOLUTE ==> merge is not needed */
-               && (eq(Car(d_directory),S(Kabsolute))
+               && ((consp(d_directory) && eq(Car(d_directory),S(Kabsolute)))
                    || !nullpSv(merge_pathnames_ansi))) {
       /* (append defaults-subdirs (cdr pathname-subdirs)) =
        (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) : */
@@ -2863,7 +2871,7 @@ LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
     { /* directories do not match: new-directory := pathname-directory */
       var object dir = xpathname_directory(p_log,p);
       TheLogpathname(newp)->pathname_directory =
-        (!boundp(dir) ? xpathname_directory(d_log,d) : dir);
+        (missingp(dir) ? xpathname_directory(d_log,d) : dir);
       goto ldirectories_OK;
     }
   lmatch_directories:
@@ -2951,7 +2959,7 @@ LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
   { /* directories do not match: new-directory := pathname-directory */
     var object dir = xpathname_directory(p_log,p);
     ThePathname(newp)->pathname_directory =
-      (!boundp(dir) ? xpathname_directory(d_log,d) : dir);
+      (missingp(dir) ? xpathname_directory(d_log,d) : dir);
   }
  directories_OK:
   /* the directories are OK now */
@@ -3429,9 +3437,8 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     if (!boundp(directory) && boundp(STACK_7)) {
       /* not specified but defaults is supplied */
       goto directory_ok;
-    } else if (missingp(directory)) {
-      /* not specified or NIL */
-      STACK_3 = O(directory_default); /* Default is (:RELATIVE) */
+    } else if (missingp(directory)) { /* not specified or NIL */
+      STACK_3 = NIL;                  /* default_directory == NIL */
       goto directory_ok;
     } else if (eq(directory,S(Kwild)) || eq(directory,S(Kwild_inferiors))) {
       directory = S(Kwild_inferiors);
@@ -3772,14 +3779,14 @@ local bool has_directory_wildcards (object pathname) {
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
     var object directory = TheLogpathname(pathname)->pathname_directory;
-    while (consp(directory = Cdr(directory)))
+    for (;consp(directory); directory = Cdr(directory))
       if (word_wild_p(Car(directory),true))
         return true;
     return false;
   }
  #endif
   var object directory = ThePathname(pathname)->pathname_directory;
-  while (consp(directory = Cdr(directory)))
+  for (;consp(directory); directory = Cdr(directory))
     if (wild_p(Car(directory),true))
       return true;
   return false;
@@ -4061,11 +4068,11 @@ local bool directory_match_ab (object m_list, object b_list, bool logical) {
     }
   }
 }
+#define DIRECTORY_TRIVIAL_P(dir) (nullp(dir) || (eq(Car(dir),S(Krelative)) && nullp(Cdr(dir))))
 local bool directory_match (object pattern, object sample, bool logical) {
-  /* compare pattern with O(directory_default): */
-  if (eq(Car(pattern),S(Krelative)) && nullp(Cdr(pattern)))
+  if (nullp(pattern)) /* compare pattern with directory_default */
     return true;
-  if (!boundp(sample)) return true;
+  if (missingp(sample)) return true;
   /* match startpoint: */
   if (!eq(Car(pattern),Car(sample)))
     return false;
@@ -4443,15 +4450,12 @@ local maygc void directory_diff_ab (object m_list, object b_list, bool logical,
     skipSTACK(1);
   }
 }
-#define SAMPLE_UNBOUND_CHECK \
-  if (!boundp(sample)) { push_solution_with(pattern); return; }
 local maygc void directory_diff (object pattern, object sample, bool logical,
                                  const gcv_object_t* previous,
                                  gcv_object_t* solutions) {
   DEBUG_DIFF(directory_diff);
-  SAMPLE_UNBOUND_CHECK;
-  /* compare pattern with O(directory_default) : */
-  if (eq(Car(pattern),S(Krelative)) && nullp(Cdr(pattern))) {
+  if (missingp(sample)) { push_solution_with(pattern); return; }
+  if (DIRECTORY_TRIVIAL_P(pattern)) { /* compare with directory_default */
     /* Augment the solution with the sample list - starting
      with :ABSOLUTE or :RELATIVE, it will not fit for "**". */
     push_solution_with(sample);
@@ -4468,7 +4472,7 @@ local maygc void nametype_diff (object pattern, object sample, bool logical,
                                 const gcv_object_t* previous,
                                 gcv_object_t* solutions) {
   DEBUG_DIFF(nametype_diff);
-  SAMPLE_UNBOUND_CHECK;
+  if (!boundp(sample)) { push_solution_with(pattern); return; }
   if (nullp(pattern)) {
     var object string = wild2string(sample);
     push_solution_with(string);
@@ -4480,7 +4484,7 @@ local maygc void version_diff (object pattern, object sample, bool logical,
                                const gcv_object_t* previous, gcv_object_t* solutions)
 { /* logical is ignored */
   DEBUG_DIFF(version_diff);
-  SAMPLE_UNBOUND_CHECK;
+  if (!boundp(sample)) { push_solution_with(pattern); return; }
   if (nullp(pattern) || eq(pattern,S(Kwild))) {
     push_solution_with(sample);
     return;
@@ -4493,7 +4497,6 @@ local maygc void version_diff (object pattern, object sample, bool logical,
 #undef push_solution_with
 #undef push_solution
 #undef DEBUG_DIFF
-#undef SAMPLE_UNBOUND_CHECK
 
 /* Each substitution is a list of Normal-Simple-Strings or Lists.
  (The Lists come into being with :WILD-INFERIORS in directory_diff().)
@@ -4696,19 +4699,15 @@ local maygc object translate_subdir (gcv_object_t* subst, object pattern,
 local maygc object translate_directory (gcv_object_t* subst, object pattern,
                                         bool logical) {
   DEBUG_TRAN(translate_directory);
-  /* compare pattern with O(directory_default): */
-  if (eq(Car(pattern),S(Krelative)) && nullp(Cdr(pattern))
-      && mconsp(*subst) && mconsp(Car(*subst))) {
+  /* compare pattern with directory_default: */
+  if (nullp(pattern) && mconsp(*subst)) {
     var object list = Car(*subst); *subst = Cdr(*subst);
-    if (eq(Car(list),S(Kabsolute)) || eq(Car(list),S(Krelative)))
-      return copy_list(list);
-    else
-      return nullobj;
+    return listp(list) ? copy_list(list) : nullobj;
   }
   /* if subst is :relative while pattern is :absolute,
      nothing is to be done */
   if (eq(Car(pattern),S(Kabsolute)) && mconsp(*subst)
-      && mconsp(Car(*subst)) && eq(Car(Car(*subst)),S(Krelative))) {
+      && DIRECTORY_TRIVIAL_P(Car(*subst))) {
     *subst = Cdr(*subst);
     return copy_list(pattern);
   }
@@ -4802,7 +4801,7 @@ local maygc object translate_pathname (gcv_object_t* subst, object pattern) {
     funcall(L(make_logical_pathname),2+2*HAS_DEVICE+8);
   else
  #endif
-        funcall(L(make_pathname),2+2*HAS_DEVICE+8);
+    funcall(L(make_pathname),2+2*HAS_DEVICE+8);
   skipSTACK(2);
   return value1;
  subst_error: /* Error because of nullobj. */
@@ -5169,9 +5168,9 @@ local maygc object use_default_dir (object pathname) {
   { /* Default for the directory: */
     var object subdirs = ThePathname(pathname)->pathname_directory;
     /* Does pathname-directory start with :RELATIVE ? */
-    if (eq(Car(subdirs),S(Krelative))) {
+    if (nullp(subdirs) || eq(Car(subdirs),S(Krelative))) {
       /* yes -> replace :RELATIVE with the default-directory: */
-      pushSTACK(Cdr(subdirs));
+      pushSTACK(consp(subdirs) ? Cdr(subdirs) : NIL);
      #if HAS_HOST /* PATHNAME_WIN32 */
       if (!nullp(ThePathname(pathname)->pathname_host)) {
         /* We do not have the concept of a current directory on a
@@ -5523,12 +5522,12 @@ local maygc object use_default_dir (object pathname) {
   { /* then build the default-directory into the pathname: */
     var object subdirs = ThePathname(pathname)->pathname_directory;
     /* does pathname-directory start with :RELATIVE? */
-    if (eq(Car(subdirs),S(Krelative))) {
+    if (nullp(subdirs) || eq(Car(subdirs),S(Krelative))) {
       /* yes -> replace :RELATIVE with default-subdirs, i.e.
        form  (append default-subdirs (cdr subdirs))
             = (nreconc (reverse default-subdirs) (cdr subdirs)) */
       pushSTACK(pathname);
-      pushSTACK(Cdr(subdirs));
+      pushSTACK(consp(subdirs) ? Cdr(subdirs) : NIL);
       var object temp = default_directory();
       temp = ThePathname(temp)->pathname_directory;
       temp = reverse(temp);
@@ -7642,7 +7641,7 @@ local maygc object shorter_directory (object pathname, bool resolve_links) {
   /* shorten the directory: */
   var object subdirs = ThePathname(pathname)->pathname_directory;
   if (nullp(Cdr(subdirs))) { /* root-directory ? */
-  baddir:
+   baddir:
     /* STACK_0 = pathname, FILE-ERROR slot PATHNAME */
     pushSTACK(STACK_0);
     fehler(file_error,GETTEXT("root directory not allowed here: ~S"));
