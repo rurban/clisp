@@ -1,3 +1,7 @@
+2005-05-06  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: #p"" ==> :DIRECTORY NIL
+
 2005-05-03  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (pretty-compare): new generic function

@@ -1,3 +1,16 @@
+2005-05-06  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (PARSE-NAMESTRING): "" ==> :DIRECTORY NIL
+	(directory_namestring_parts): :DIRECTORY (:RELATIVE) => "./"
+	(merge_dirs, MERGE-PATHNAMES, directory_match, directory_diff)
+	(translate_directory, use_default_dir):
+	treat NIL directory just like (:RELATIVE)
+	(SAMPLE_UNBOUND_CHECK): removed
+	(MAKE-PATHNAME): :DIRECTORY defaults to NIL
+	(has_directory_wildcards): :DIRECTORY may be NIL
+	* constobj.d (directory_default): removed
+	* utils/clispload.lsp (*expected-failures*): updated
+
 2005-05-05  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (force_tty_output) [UNIX_DARWIN]:
