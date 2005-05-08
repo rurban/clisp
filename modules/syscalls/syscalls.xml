@@ -450,8 +450,9 @@
     maskpri)</code></term>
   <listitem><simpara>calls &setlogmask;</simpara></listitem></varlistentry>
  <varlistentry id="syslog"><term><code>(POSIX:SYSLOG severity facility
-    &fmt-r; &rest-amp; format-arguments)</code></term>
-  <listitem><simpara>calls &syslog;</simpara></listitem></varlistentry>
+    &fmt-r; &rest-amp; &args-r;)</code></term>
+  <listitem><simpara>calls &syslog; on <code>(&apply; &format; &nil;
+     &fmt-r; &args-r;)</code></simpara></listitem></varlistentry>
  <varlistentry id="closelog"><term><code>(POSIX:CLOSELOG)</code></term>
   <listitem><simpara>calls &closelog;</simpara></listitem></varlistentry>
  <varlistentry id="kill"><term><code>(POSIX:KILL &pid-r; &sig-r;)</code></term>
