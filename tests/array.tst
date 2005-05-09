@@ -677,8 +677,8 @@ t
 
 (array-element-type
  (setq nil-vec (make-array 4 :element-type nil
-                           :displaced-to nil-arr
-                           :displaced-index-offset 2)))
+                             :displaced-to nil-arr
+                             :displaced-index-offset 2)))
 nil
 
 (typep nil-vec 'sequence)
