@@ -3055,14 +3055,13 @@ LISPFUN(enough_namestring,seclass_read,1,1,norest,nokey,0,NIL) {
           var object d_directory = xpathname_directory(log1,STACK_1);
           var object new_subdirs;
           /* compare pathname-subdirs and defaults-subdirs: */
-          if (equal(p_directory,d_directory)) {
-            /* equal -> use (cons :RELATIVE nil) : */
-            new_subdirs = NIL; goto insert_RELATIVE;
+          if (equal(p_directory,d_directory)) { /* ==> use NIL : */
+            new_subdirs = NIL;
           } else {
             /* Does neither pathname-subdirs nor defaults-subdirs
              start with :RELATIVE ? */
-            if (   (!eq(Car(p_directory),S(Krelative)))
-                && (!eq(Car(d_directory),S(Krelative)))) {
+            if (   (eq(Car(p_directory),S(Kabsolute)))
+                && (eq(Car(d_directory),S(Kabsolute)))) {
               /* yes -> test, if defaults-subdirs is a starting piece
                of the list pathname-subdirs: */
               var object Lp = p_directory;
@@ -3070,7 +3069,13 @@ LISPFUN(enough_namestring,seclass_read,1,1,norest,nokey,0,NIL) {
               /* Is Ld a starting piece of Lp ? */
               loop {
                 if (atomp(Ld)) { /* Ld finished -> yes */
-                  new_subdirs = Lp; goto insert_RELATIVE;
+                  new_subdirs = Lp;
+                  /* new-subdirs := (cons :RELATIVE new-subdirs) : */
+                  pushSTACK(new_subdirs);
+                  new_subdirs = allocate_cons();
+                  Cdr(new_subdirs) = popSTACK();
+                  Car(new_subdirs) = S(Krelative);
+                  goto subdirs_ok;
                 }
                 if (atomp(Lp))
                   break; /* Lp finished -> no */
@@ -3080,13 +3085,6 @@ LISPFUN(enough_namestring,seclass_read,1,1,norest,nokey,0,NIL) {
               }
             }
             new_subdirs = p_directory; /* new-subdirs := pathname-subdirs */
-            goto subdirs_ok;
-          }
-         insert_RELATIVE:
-          { /* new-subdirs := (cons :RELATIVE new-subdirs) : */
-            pushSTACK(new_subdirs);
-            new_subdirs = allocate_cons();
-            Cdr(new_subdirs) = popSTACK(); Car(new_subdirs) = S(Krelative);
           }
          subdirs_ok: /* new-subdirs is the new subdir-list. */
           /* new-directory := new-subdirs : */
