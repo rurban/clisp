@@ -1,6 +1,14 @@
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/mit-clx/dependent.lisp (host-address): use
+	READ-FROM-STRING instead of SLIT-SEQUENCE
+	* modules/clx/mit-clx/defsystem.lisp (dependent, load-clx):
+	removed split-sequence
+	* modules/clx/mit-clx/split-sequence.lisp: removed
+
+2005-05-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/dependent.lisp (host-address): use
 	POSIX::HOSTENT-ADDRTYPE instead of POSIX::HOSTENT-ADDR-TYPE
 	Reported by Pascal J.Bourguignon <pjb@informatimago.com>
 
