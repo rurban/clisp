@@ -14449,7 +14449,7 @@ extern uintL I_to_UL (object obj);
 extern sintL I_to_L (object obj);
 # is used by
 
-#if (defined(HAVE_FFI) || defined(HAVE_AFFI) || (SIZEOF_OFF_T > 4)) && defined(HAVE_LONGLONG)
+#if (defined(HAVE_FFI) || defined(HAVE_AFFI) || (SIZEOF_OFF_T > 4) || defined(WIN32_NATIVE)) && defined(HAVE_LONGLONG)
   # Converts an Integer >=0 into an unsigned quadword.
   # I_to_UQ(obj)
   # > obj: an object, should be an Integer >=0, <2^64

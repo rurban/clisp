@@ -282,7 +282,7 @@ global sint32 I_to_L (object obj)
   }
 }
 
-#if (defined(HAVE_FFI) || defined(HAVE_AFFI) || (SIZEOF_OFF_T > 4)) && defined(HAVE_LONGLONG)
+#if (defined(HAVE_FFI) || defined(HAVE_AFFI) || (SIZEOF_OFF_T > 4) || defined(WIN32_NATIVE)) && defined(HAVE_LONGLONG)
 
 /* converts integer >=0 into unsigned quadword.
  I_to_UQ(obj)
