@@ -231,7 +231,7 @@ T
     (:arguments (obj (c-ptr-null (c-array uint8 5))))
     (:return-type (c-array-ptr sint8)) (:language :stdc))
   (c-self (make-array 5 :element-type '(unsigned-byte 8)
-                      :initial-contents '(127 63 64 0 6))))
+                        :initial-contents '(127 63 64 0 6))))
 #(127 63 64)
 
 (progn
@@ -246,7 +246,7 @@ T
     (:arguments (obj (c-ptr (c-array-max uint16 4)) :in-out))
     (:return-type nil) (:language :stdc))
   (c-self (make-array 4 :element-type '(unsigned-byte 16)
-                      :initial-contents '(128 255 0 127))))
+                        :initial-contents '(128 255 0 127))))
 #(128 255)
 
 (progn
@@ -257,12 +257,12 @@ T
                 (a4 (c-ptr (c-array     uint32 2))))
     (:return-type (c-ptr (c-array-max sint32 4))) (:language :stdc))
   (c-self (make-array 3 :element-type '(unsigned-byte 32)
-                      :initial-contents '(128 0 127))
+                        :initial-contents '(128 0 127))
           (vector 1 2 3)
           (make-array 2 :element-type '(unsigned-byte 8)
-                      :initial-contents '(241 17))
+                        :initial-contents '(241 17))
           (make-array 2 :element-type '(unsigned-byte 32)
-                      :initial-contents '(1299 192225))))
+                        :initial-contents '(1299 192225))))
 #(128)
 
 (progn
@@ -277,7 +277,7 @@ T
     (:arguments (obj (c-ptr (c-array uint16 4)) :in-out))
     (:return-type nil) (:language :stdc))
   (c-self (make-array 4 :element-type '(unsigned-byte 16)
-                      :initial-contents '(128 255 0 127))))
+                        :initial-contents '(128 255 0 127))))
 #(128 255 0 127)
 
 (progn

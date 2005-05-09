@@ -747,19 +747,21 @@ T
 #+clisp
 (CHARACTER CHARACTER CHARACTER)
 
-#+clisp (progn
-(defvar *my-indent-level*)
-(with-output-to-string (out)
-  (let ((*print-right-margin* 20)
-        (*print-pretty* t)
-        (*my-indent-level* 2))
-    (with-fill-stream (fill out :text-indent '*my-indent-level*)
-      (format fill "~%this is some long sentence which will      be broken at spaces")
-      (force-output fill)
-      (let ((*my-indent-level* 5))
-        (format fill "~%and    properly indented to the level specified by the ~S argument which can be a ~S or an ~S - cool!" :TEXT-INDENT 'symbol 'integer))
-      (format fill "~%Don't forget  to call ~S on it, and/or use ~S   Pretty formatting of the  S-expressions    printed with ~~S is  preserved: ~S" 'force-output 'with-fill-stream '(defun qu (x y z) (if x (+ y z) (* y z)))))))
-)#+clisp "
+#+clisp
+(progn
+  (defvar *my-indent-level*)
+  (with-output-to-string (out)
+    (let ((*print-right-margin* 20)
+          (*print-pretty* t)
+          (*my-indent-level* 2))
+      (with-fill-stream (fill out :text-indent '*my-indent-level*)
+        (format fill "~%this is some long sentence which will      be broken at spaces")
+        (force-output fill)
+        (let ((*my-indent-level* 5))
+          (format fill "~%and    properly indented to the level specified by the ~S argument which can be a ~S or an ~S - cool!" :TEXT-INDENT 'symbol 'integer))
+        (format fill "~%Don't forget  to call ~S on it, and/or use ~S   Pretty formatting of the  S-expressions    printed with ~~S is  preserved: ~S" 'force-output 'with-fill-stream '(defun qu (x y z) (if x (+ y z) (* y z)))))))
+)
+#+clisp "
   this is some long
   sentence which
   will be broken at

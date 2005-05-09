@@ -52,10 +52,10 @@ clisp-test-bin-i/o
 nil
 
 (let ((vec (make-array 8 :element-type '(unsigned-byte 8)
-                       :initial-contents '(#x3f #xf0 0 0 0 0 0 0))))
-  (with-open-file (foo "./foocl" :direction
-                       :output #+SBCL :if-exists #+SBCL :supersede
-                       :element-type '(unsigned-byte 8))
+                         :initial-contents '(#x3f #xf0 0 0 0 0 0 0))))
+  (with-open-file (foo "./foocl" :direction :output
+                                 #+SBCL :if-exists #+SBCL :supersede
+                                 :element-type '(unsigned-byte 8))
     (write-sequence vec foo))
   (unwind-protect
        (with-open-file (foo "./foocl" :direction :input
