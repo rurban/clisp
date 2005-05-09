@@ -918,7 +918,7 @@
 	(no-host-error))
       (ecase family
 	((:internet nil 0)
-	 (unless (= (posix::hostent-addr-type hostent) 2)
+	 (unless (= (posix::hostent-addrtype hostent) 2)
 	   (no-address-error))
 	 (let ((addr (first (posix::hostent-addr-list hostent))))
 	   (etypecase addr
