@@ -5238,9 +5238,9 @@ local maygc object use_default_dir (object pathname) {
     subdirs = nreverse(popSTACK()); /* newlist, reverse again */
     skipSTACK(1);
     /* stack layout: pathname. */
-    pathname = popSTACK();
-    ThePathname(pathname)->pathname_directory =
+    ThePathname(STACK_0)->pathname_directory =
       simplify_directory(subdirs); /* enter into the pathname */
+    pathname = popSTACK();
   }
   return pathname;
 }
