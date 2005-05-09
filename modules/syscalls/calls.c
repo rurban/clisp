@@ -136,20 +136,20 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #    if defined(WIN32_NATIVE)
       LARGE_INTEGER size;
       begin_system_call();
-      size.LowPart = GetFileSize(fd,&size.HighPart);
+      size.LowPart = GetFileSize(fd,(DWORD*)&size.HighPart);
       /* Value returned can be (LONG) -1 even on success,
          check the last error code */
-      if ((LONG)size.LowPart == -1) failed_p = GetLastError();
-        else failed_p = 0;
+      if (size.LowPart == INVALID_FILE_SIZE) failed_p = GetLastError();
+      else failed_p = 0;
       end_system_call();
-      if (failed_p) goto error;
+      if (failed_p) goto stream_lock_error;
       length = size.LowPart;
 #    elif defined(HAVE_FSTAT)
       struct stat st;
       begin_system_call();
       failed_p = (-1 == fstat(fd,&st));
       end_system_call();
-      if (failed_p) goto error;
+      if (failed_p) goto stream_lock_error;
       length = st.st_size;
 #    else
       length = 0;
@@ -174,7 +174,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
     failed_p = lock_p = false; /* failed to lock, :BLOCK NIL */
 #endif
   end_system_call();
-  if (failed_p) { error:
+  if (failed_p) { stream_lock_error:
     if (eq(stream,nullobj)) OS_error();
     else OS_filestream_error(stream);
   }
@@ -303,7 +303,7 @@ DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT ELEMENT-TY
   with_string_0(STACK_0,GLO(pathname_encoding),prefix, {
       with_string_0(STACK_1,GLO(pathname_encoding),dir, {
           /* if no directory ==> use current "." */
-          STACK_7 = temp_name(dir[0] ? dir : ".",prefix);
+          STACK_7 = temp_name(dir[0] ? dir : (char*)".",prefix);
         });
     });
   pushSTACK(STACK_3);           /* ELEMENT-TYPE */
@@ -1157,6 +1157,9 @@ static int stat_obj (object path, struct stat *buf) {
 #  define lstat stat
 # endif
 static object check_chmod_mode_to_list (mode_t mode);
+#if defined(WIN32_NATIVE)
+static object check_file_attributes_to_list (DWORD attr);
+#endif
 DEFUN(POSIX::FILE-STAT, file &optional linkp)
 { /* Lisp interface to stat(2), lstat(2) and fstat(2)
  the first arg can be a pathname designator or a file descriptor designator
@@ -1173,7 +1176,6 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
       /* woe32 does have fstat(), but it does not accept a file handle,
          only an integer of an unknown nature */
       BY_HANDLE_FILE_INFORMATION fi;
-      static object check_file_attributes_to_list (DWORD attr);
       begin_system_call();
       if (!GetFileInformationByHandle(stream_get_handle(file),&fi))
         OS_file_error(STACK_1);
@@ -1398,6 +1400,12 @@ static int creat1 (const char *path, mode_t mode)
   return close(fd);
 }
 #endif
+#if defined(WIN32_NATIVE)
+static int mkdir1 (const char *path, mode_t mode)
+{ (void)mode; return mkdir(path); }
+#else
+# define mkdi1 mkdir
+#endif
 DEFCHECKER(mknod_type_check,prefix=S_I,delim=,default=, \
            FIFO FSOCK FCHR FDIR FBLK FREG)
 DEFUN(POSIX::MKNOD, path type mode)
@@ -1419,7 +1427,7 @@ DEFUN(POSIX::MKNOD, path type mode)
 # endif  /* mkfifo */
 # if defined(HAVE_MKDIR)
   if (eq(`:FDIR`,STACK_0)) {
-    mknod1 = mkdir; skipSTACK(1);
+    mknod1 = mkdir1; skipSTACK(1);
     goto mknod_do_it;
   }
 # endif  /* mkfifo */
@@ -1733,7 +1741,7 @@ sid_cache_put (PSID psid, const char *name)
 {
   if (sid_cache_count == sid_cache_allocated) {
     size_t new_allocated = 2 * sid_cache_allocated + 5;
-    sid_cache =
+    sid_cache = (struct sid_cache_entry*)
       (sid_cache != NULL
        ? realloc(sid_cache, new_allocated * sizeof(struct sid_cache_entry))
        : malloc(new_allocated * sizeof(struct sid_cache_entry)));
@@ -1742,7 +1750,7 @@ sid_cache_put (PSID psid, const char *name)
   if (sid_cache != NULL) {
     DWORD psid_len = GetLengthSid(psid);
     size_t name_len = strlen(name) + 1;
-    char *memory = malloc(psid_len+name_len);
+    char *memory = (char *)malloc(psid_len+name_len);
     if (memory == NULL)
       return;
     if (!CopySid(psid_len, memory, psid)) return;
