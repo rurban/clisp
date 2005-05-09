@@ -719,6 +719,13 @@ FIXME
         (make-pathname :defaults dflt :case :common))))
 foo
 
+(defun path= (p1 p2)
+  (flet ((path-components (p)
+           (list (pathname-host p) (pathname-device p) (pathname-directory p)
+                 (pathname-name p) (pathname-type p) (pathname-version p))))
+    (or (equal p1 p2) (list (path-components p1) (path-components p2)))))
+path=
+
 ;; :defaults arg is not subject to :case conversion
 (string= "c" (pathname-type (foo "c" nil) :case :common))
 t
@@ -739,7 +746,7 @@ t
                           :element-type 'character))
        (path (make-pathname :directory bar)))
   (setf (aref foo 3) #\/)
-  (equalp path (make-pathname :directory (pathname-directory path))))
+  (path= path (make-pathname :directory (pathname-directory path))))
 t
 
 (string= (namestring (make-pathname :name "FOO" :case :common
@@ -832,7 +839,7 @@ NIL
                             :version :wild))))
          (list (= (length d) 1)
                (notany #'wild-pathname-p d)
-               (equalp (car d) (truename file))))
+               (path= (car d) (truename file))))
     (delete-file file)))
 (T T T)
 
@@ -873,9 +880,17 @@ NIL
        (with-open-file (s file :direction :output)
          (list (not (null (probe-file file)))
                (not (null (probe-file s)))
-               (equalp (truename s) (truename file))))
+               (path= (truename s) (truename file))))
     (delete-file file)))
 (T T T)
+
+(let ((file "this-is-a-temp-file-to-be-removed-immediately"))
+  (unwind-protect
+       (with-open-file (s file :direction :output)
+         (path= (truename (enough-namestring s))
+                (truename (enough-namestring (truename s)))))
+    (delete-file file)))
+T
 
 (multiple-value-list
  (parse-namestring (make-array 0 :element-type 'character

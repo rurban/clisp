@@ -1,5 +1,9 @@
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
+	* path.tst (path=): new function; test ENOUGH-NAMESTRING
+
+2005-05-09  Sam Steingold  <sds@gnu.org>
+
 	* path.tst: test merging with NIL defaults
 
 2005-05-08  Bruno Haible  <bruno@clisp.org>
