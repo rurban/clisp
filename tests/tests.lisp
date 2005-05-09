@@ -212,7 +212,7 @@
                   #-OpenMCL         "backquot"
                   #+CLISP           "bin-io"
                   #-(and AKCL (not GCL)) "characters"
-                  #+(or CLISP ALLEGRO CMU OpenMCL) "clos"
+                  #+(or CLISP ALLEGRO CMU OpenMCL LISPWORKS) "clos"
                   #+CLISP ,@(unless disable-risky '("defhash"))
                   #+(and CLISP UNICODE) "encoding"
                                     "eval20"
@@ -231,10 +231,10 @@
                                     "lists154"
                                     "lists155"
                                     "lists156"
-                  #+(or CLISP GCL ALLEGRO CMU SBCL OpenMCL) "loop"
+                  #+(or CLISP GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) "loop"
                                     "macro8"
                                     "map"
-                  #+(or CLISP ALLEGRO CMU OpenMCL) "mop"
+                  #+(or CLISP ALLEGRO CMU OpenMCL LISPWORKS) "mop"
                                     "number"
                   #+CLISP           "number2"
                   #-(or AKCL ALLEGRO CMU OpenMCL) "pack11"
@@ -262,7 +262,7 @@
     (dotimes (i 20)
       (with-accumulating-errors (error-count total-count)
         (run-test "weakptr")))
-    #+(or CLISP ALLEGRO CMU)
+    #+(or CLISP ALLEGRO CMU LISPWORKS)
     (with-accumulating-errors (error-count total-count)
       (run-test "conditions" :ignore-errors nil))
     (with-accumulating-errors (error-count total-count)

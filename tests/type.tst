@@ -144,7 +144,7 @@ T
 
 ;; depends on (UPGRADED-COMPLEX-PART-TYPE '(EQL 0))
 (TYPEP #C(0 1) '(COMPLEX (EQL 0)))
-#+(or CLISP GCL CMU19 OpenMCL) NIL #+(or CMU18 SBCL) T #-(or CLISP GCL CMU SBCL OpenMCL) UNKNOWN
+#+(or CLISP GCL CMU19 OpenMCL) NIL #+(or CMU18 SBCL LISPWORKS) T #-(or CLISP GCL CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #| ; depends on (upgraded-array-element-type 'SYMBOL) !
  (TYPEP '#(A B C D) (QUOTE (VECTOR SYMBOL 4)))
@@ -169,10 +169,10 @@ NIL
 (TYPEP (QUOTE 2) (QUOTE (AND ATOM NUMBER)))
 T
 
-(TYPEP (QUOTE 2) (QUOTE (MEMBER 1 2 3)))
+(NOT (NOT (TYPEP (QUOTE 2) (QUOTE (MEMBER 1 2 3)))))
 T
 
-(TYPEP (QUOTE 2) (QUOTE (MEMBER 1 3)))
+(NOT (NOT (TYPEP (QUOTE 2) (QUOTE (MEMBER 1 3)))))
 NIL
 
 (TYPEP (QUOTE 2) (QUOTE (NOT (MEMBER 1 3))))
@@ -247,8 +247,8 @@ T
 (SUBTYPEP (QUOTE (OR (INTEGER 1 (5) FLOAT)))
           (QUOTE (OR FLOAT (MOD 5))))
 #+(or XCL ECL) T
-#+(or CLISP ALLEGRO CMU SBCL OpenMCL) ERROR
-#-(or XCL CLISP ALLEGRO CMU SBCL ECL OpenMCL) UNKNOWN
+#+(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) ERROR
+#-(or XCL CLISP ALLEGRO CMU SBCL ECL OpenMCL LISPWORKS) UNKNOWN
 
 (SUBTYPEP (QUOTE (OR (INTEGER 1 (5)) FLOAT)) (QUOTE (OR FLOAT (MOD 5))))
 T
@@ -339,9 +339,9 @@ NIL
 (subtypep 'null 'list) t
 (subtypep 'cons 'list) t
 
-(subtypep 'standard-char #-(or CMU SBCL) 'string-char #+(or CMU SBCL) 'character) t
+(subtypep 'standard-char #-(or CMU SBCL LISPWORKS) 'string-char #+(or CMU SBCL LISPWORKS) 'character) t
 
-(subtypep #-(or CMU SBCL) 'string-char #+(or CMU SBCL) 'character 'character) t
+(subtypep #-(or CMU SBCL LISPWORKS) 'string-char #+(or CMU SBCL LISPWORKS) 'character 'character) t
 
 (subtypep 'string 'vector) t
 
@@ -368,10 +368,10 @@ NIL
 (subtypep 'integer '*) ERROR
 
 (type-of (coerce '(1 2 3 4) '(simple-array (unsigned-byte 8))))
-#-(or CMU SBCL) (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (4)) #+(or CMU SBCL) ERROR
+#-(or CMU SBCL LISPWORKS) (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (4)) #+(or CMU SBCL LISPWORKS) ERROR
 
 (type-of (coerce '(1 2 3 4) '(simple-array *)))
-#-(or CMU SBCL) (SIMPLE-VECTOR 4) #+(or CMU SBCL) ERROR
+#-(or CMU SBCL LISPWORKS) (SIMPLE-VECTOR 4) #+(or CMU SBCL LISPWORKS) ERROR
 
 (type-of (coerce '(1 2 3 4) '(simple-array * (4))))
 (SIMPLE-VECTOR 4)
@@ -456,8 +456,8 @@ TYPEOF-TYPEP-SUBTYPE
 #+(or SBCL CMU) (FUNCTION NIL NIL)
 
 (typeof-typep-subtype #'print-object 'compiled-function)
-#-(or CMU SBCL) (STANDARD-GENERIC-FUNCTION NIL NIL)
-#+(or CMU SBCL) (STANDARD-GENERIC-FUNCTION T T)
+#-(or CMU SBCL LISPWORKS) (STANDARD-GENERIC-FUNCTION NIL NIL)
+#+(or CMU SBCL LISPWORKS) (STANDARD-GENERIC-FUNCTION T T)
 
 (typeof-typep-subtype #'print-object 'function)
 (STANDARD-GENERIC-FUNCTION T T)
@@ -552,6 +552,7 @@ TYPEOF-TYPEP-SUBTYPE
  (FUNCTION STREAM))
 
 ;; from GCL ansi-test
+(unintern 'bar) t
 (unintern 'foo) t
 #+SBCL (unintern 'copy-foo) #+SBCL t
 #+SBCL (unintern 'make-foo) #+SBCL t

@@ -4,7 +4,7 @@
 
 (PRIN1-TO-STRING 123) "123"
 
-(SETQ *A* (MAKE-ARRAY 10. :ELEMENT-TYPE #-(or CMU SBCL) 'STRING-CHAR #+(or CMU SBCL) 'CHARACTER :FILL-POINTER 0)) ""
+(SETQ *A* (MAKE-ARRAY 10. :ELEMENT-TYPE #-(or CMU SBCL LISPWORKS) 'STRING-CHAR #+(or CMU SBCL LISPWORKS) 'CHARACTER :FILL-POINTER 0)) ""
 
 (FORMAT *A* "XXX") NIL
 
@@ -74,13 +74,13 @@ nil
          (nreverse noticed))
       (delete-file file-written))))
 (0 2
- #+(or CLISP OpenMCL) 1 #+(or GCL CMU SBCL) T #-(or CLISP GCL CMU SBCL OpenMCL) UNKNOWN
+ #+(or CLISP OpenMCL LISPWORKS) 1 #+(or GCL CMU SBCL) T #-(or CLISP GCL CMU SBCL OpenMCL LISPWORKS) UNKNOWN
  2 0 2 5 7)
 
 (let ((s (make-string-input-stream
-          (make-array 10 :element-type 'character
-                      :displaced-to "abcdefghijklmnopqrst"
-                      :displaced-index-offset 5))))
+          (make-array 10 :element-type (array-element-type "")
+                         :displaced-to "abcdefghijklmnopqrst"
+                         :displaced-index-offset 5))))
   (prog1
       (list (read-char s) (read-char s) (file-position s)
             (file-position s 4) (read-char s)
@@ -101,11 +101,11 @@ nil
     (close s)))
 #+CLISP (#\a #\b 2 "ab" "foo" 1 #\z "fz" 0 #\u 1 #\w "uw")
 #+GCL (#\a #\b 2 "ab" "foo" T #\z "fz" T #\u T #\w "uw")
-#+SBCL (#\a #\b 2 "ab" "foo" 1 #\z "fzo" 0 #\u 1 #\w "uw")
-#-(or CLISP GCL SBCL) UNKNOWN
+#+(or SBCL LISPWORKS) (#\a #\b 2 "ab" "foo" 1 #\z "fzo" 0 #\u 1 #\w "uw")
+#-(or CLISP GCL SBCL LISPWORKS) UNKNOWN
 
 (let ((v (make-array 3 :adjustable t :fill-pointer 0
-                     :element-type 'character)))
+                       :element-type 'character)))
   (with-output-to-string (s v)
     (list (write-string "foo" s) (cons (file-position s) (copy-seq v))
           (file-position s 2) (write-string "bar" s)

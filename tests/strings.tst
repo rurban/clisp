@@ -927,7 +927,7 @@ error
 error
 
 (STRING-TRIM   (QUOTE (A)) "ababa")
-#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU OpenMCL) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU OpenMCL LISPWORKS) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (STRING-TRIM   "a" "ababa")
 "bab"
@@ -956,7 +956,7 @@ error
 error
 
 (STRING-LEFT-TRIM   (QUOTE (A)) "ababa")
-#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU OpenMCL) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU OpenMCL LISPWORKS) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (STRING-LEFT-TRIM   "a" "ababa")
 "baba"
@@ -984,7 +984,7 @@ error
 error
 
 (STRING-RIGHT-TRIM   (QUOTE (A)) "ababa")
-#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU OpenMCL) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+(or XCL SBCL) error #+(or CLISP GCL ECL ALLEGRO CMU OpenMCL LISPWORKS) "ababa" #-(or XCL CLISP GCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (STRING-RIGHT-TRIM   "a" "ababa")
 "abab"
@@ -1147,13 +1147,13 @@ error
 
 (let* ((s "abcdefgh")
        (d (make-array 5 :displaced-to s :displaced-index-offset 3
-                      :element-type 'character)))
+                        :element-type (array-element-type s))))
   (string-upcase d :start 2 :end 4))
 "deFGh"
 
 (let* ((s "abcdefgh")
        (d (make-array 5 :displaced-to s :displaced-index-offset 3
-                      :element-type 'character)))
+                        :element-type (array-element-type s))))
   (and (eq (nstring-upcase d :start 2 :end 4) d) d))
 "deFGh"
 

@@ -329,8 +329,8 @@ nil
     (setf a 1))
   a)
 ;; CMUCL compiles on the fly and therefore signals an error
-#-CMU 1
-#+CMU ERROR
+#-(or CMU LISPWORKS) 1
+#+(or CMU LISPWORKS) ERROR
 
 ;;prog*
 (let ((z '(1 0)))

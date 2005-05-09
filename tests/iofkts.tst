@@ -84,13 +84,13 @@ ERROR
 (123 3)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER "  123  " :JUNK-ALLOWED T))
-(123 #+XCL 7 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) 5 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN)
+(123 #+XCL 7 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) 5 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER "123 t" :JUNK-ALLOWED T))
-(123 #+XCL 4 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) 3 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN)
+(123 #+XCL 4 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) 3 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER "  123   t  " :JUNK-ALLOWED T))
-(123 #+XCL 8 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) 5 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN)
+(123 #+XCL 8 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) 5 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER " ( 12 ) 43   t  " :JUNK-ALLOWED
 T))
@@ -160,7 +160,7 @@ ERROR
 (NIL 0)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER B :JUNK-ALLOWED T))
-(1 #+XCL 2 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) 1 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN)
+(1 #+XCL 2 #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) 1 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN)
 
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER C :JUNK-ALLOWED T))
 (1 1)
@@ -170,12 +170,12 @@ ERROR
 
 (let* ((s "0123456789")
        (d (make-array 5 :displaced-to s :displaced-index-offset 3
-                      :element-type 'character)))
+                        :element-type (array-element-type s))))
   (multiple-value-list (parse-integer d :start 2 :end 5)))
 (567 5)
 
 (STREAM-ELEMENT-TYPE #+XCL STDIN #-XCL *TERMINAL-IO*)
-#+(or CLISP ALLEGRO CMU SBCL OpenMCL) CHARACTER #-(or CLISP ALLEGRO CMU SBCL OpenMCL) STRING-CHAR
+#+(or CLISP ALLEGRO CMU SBCL OpenMCL) CHARACTER #+LISPWORKS BASE-CHAR #-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) STRING-CHAR
 
 (PROGN (SETQ A (MAKE-STRING-INPUT-STREAM "aaa bbb")) T)
 T
@@ -466,28 +466,28 @@ T
 #-CMU
 ERROR
 
-(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\SPACE))
+(#-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR-P #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTERP (QUOTE #\SPACE))
 T
 
-(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\NEWLINE))
+(#-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR-P #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTERP (QUOTE #\NEWLINE))
 T
 
-(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\BACKSPACE))
+(#-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR-P #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTERP (QUOTE #\BACKSPACE))
 T
 
-(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\a))
+(#-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR-P #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTERP (QUOTE #\a))
 T
 
-(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\8))
+(#-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR-P #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTERP (QUOTE #\8))
 T
 
-(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\-))
+(#-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR-P #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTERP (QUOTE #\-))
 T
 
-(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\n))
+(#-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR-P #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTERP (QUOTE #\n))
 T
 
-(#-(or CMU SBCL OpenMCL) STRING-CHAR-P #+(or CMU SBCL OpenMCL) CHARACTERP (QUOTE #\())
+(#-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR-P #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTERP (QUOTE #\())
 T
 
 (STRINGP "das ist einer der Teststrings")
@@ -545,12 +545,12 @@ J
 
 (WITH-INPUT-FROM-STRING (S "animal crackers" :INDEX J :START 6 :END 20)
   (READ S))
-#+XCL CRACKERS #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) ERROR
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+XCL CRACKERS #+(or CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) ERROR
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 J
-#+XCL 20 #+(or CLISP AKCL ECL ALLEGRO SBCL OpenMCL) 7
-#-(or XCL CLISP AKCL ECL ALLEGRO SBCL OpenMCL) UNKNOWN
+#+XCL 20 #+(or CLISP AKCL ECL ALLEGRO SBCL OpenMCL LISPWORKS) 7
+#-(or XCL CLISP AKCL ECL ALLEGRO SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (SETQ A "Das ist wieder einmal einer der SUUPERTESTstrings.")
 "Das ist wieder einmal einer der SUUPERTESTstrings."
@@ -585,20 +585,12 @@ ERROR
 #+XCL "Das ist wieder einmal einer der SUUPERTESTstrings."
 #-XCL ERROR
 
-(let (result)
-  (list
-   (with-output-to-string (*standard-output*)
-     (setq result (multiple-value-list
-                   (write-string (make-array 0 :element-type nil)))))
-   result))
-("" (""))                       ; actually, ("" (#A(nil (0))))
-
 (GET-OUTPUT-STREAM-STRING B)
 #+XCL
 "Das ist wieder einmal einer der SUUPERTESTstrings.eder einmal einer der SUUPERTESTstrings.Das iDas ist wieder einmal einer der SUUPERTESTstrings.st wieder einma"
-#+(or CLISP AKCL ECL SBCL OpenMCL)
+#+(or CLISP AKCL ECL SBCL OpenMCL LISPWORKS)
 "Das ist wieder einmal einer der SUUPERTESTstrings.eder einmal einer der SUUPERTESTstrings.Das ist wieder einma"
-#-(or XCL CLISP AKCL ECL SBCL OpenMCL) UNKNOWN
+#-(or XCL CLISP AKCL ECL SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (WRITE-STRING A B)
 "Das ist wieder einmal einer der SUUPERTESTstrings."
@@ -616,7 +608,7 @@ ERROR
 "
 XXX "
 
-(SETQ A (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-(or CMU SBCL OpenMCL) STRING-CHAR #+(or CMU SBCL OpenMCL) CHARACTER)
+(SETQ A (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTER)
                     :FILL-POINTER 0))
 ""
 
@@ -647,7 +639,7 @@ A
 "1234567890"
 
 (SETQ A
-      (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-(or CMU SBCL OpenMCL) STRING-CHAR #+(or CMU SBCL OpenMCL) CHARACTER)
+      (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-(or CMU SBCL OpenMCL LISPWORKS) STRING-CHAR #+(or CMU SBCL OpenMCL LISPWORKS) CHARACTER)
                   :FILL-POINTER 0 :ADJUSTABLE T))
 ""
 
@@ -697,6 +689,14 @@ A
 t)
 T
 
+(let (result)
+  (list
+    (with-output-to-string (*standard-output*)
+      (setq result (multiple-value-list
+                     (write-string (make-array 0 :element-type nil)))))
+    result))
+("" (""))                       ; actually, ("" (#A(nil (0))))
+
 (let ((st (string (code-char 27))))
   (string= st (symbol-name (read-from-string
                             (prin1-to-string (make-symbol st))))))
@@ -712,11 +712,11 @@ t
           (DOLIST (CASE '(:UPCASE :DOWNCASE :CAPITALIZE))
             (FORMAT T "~VT" (* (INCF TAB) TABWIDTH))
             (WRITE SYMBOL :ESCAPE ESCAPE :CASE CASE)))))))
-#+OpenMCL
+#+(or OpenMCL LISPWORKS)
 " \\x         \\x          \\x          x           x           x
  |FoObAr|   |FoObAr|    |FoObAr|    FoObAr      foobar      Foobar
  |fOo|      |fOo|       |fOo|       fOo         foo         foo"
-#-OpenMCL
+#-(or OpenMCL LISPWORKS)
 " |x|        |x|         |x|         x           x           x
  |FoObAr|   |FoObAr|    |FoObAr|    FoObAr      foobar      Foobar
  |fOo|      |fOo|       |fOo|       fOo         foo         foo"
