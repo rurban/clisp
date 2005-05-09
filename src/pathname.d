@@ -2708,7 +2708,8 @@ local maygc object merge_dirs (object p_directory, object d_directory, bool p_lo
       new_subdirs = d_directory; /* use defaults-subdirs */
     } else if (eq(Car(p_directory),S(Krelative))
                /* PATHNAME = :ABSOLUTE ==> merge is not needed */
-               && ((consp(d_directory) && eq(Car(d_directory),S(Kabsolute)))
+               && consp(d_directory) /* DEFAULT = NIL ==> nothing to merge */
+               && (eq(Car(d_directory),S(Kabsolute))
                    || !nullpSv(merge_pathnames_ansi))) {
       /* (append defaults-subdirs (cdr pathname-subdirs)) =
        (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) : */

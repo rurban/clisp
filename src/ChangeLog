@@ -1,5 +1,9 @@
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (merge_dirs): fixed logic for NIL defaults
+
+2005-05-09  Sam Steingold  <sds@gnu.org>
+
 	* places.lisp (*ansi*): fixed the doc string: mention all 13 variables
 	and avoid non-ASCII characters to ensure non-UTF8 terminal compatibility
 
