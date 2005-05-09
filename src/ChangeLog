@@ -1,5 +1,11 @@
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/mit-clx/dependent.lisp (host-address): use
+	POSIX::HOSTENT-ADDRTYPE instead of POSIX::HOSTENT-ADDR-TYPE
+	Reported by Pascal J.Bourguignon <pjb@informatimago.com>
+
+2005-05-09  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (use_default_dir) [PATHNAME_WIN32]: fixed a GC-safety bug
 
 2005-05-09  Sam Steingold  <sds@gnu.org>
