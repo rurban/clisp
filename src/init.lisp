@@ -1614,7 +1614,8 @@
                      ""
                      (make-string *load-level* :initial-element #\Space)))
            (*load-input-stream* input-stream)
-           (*load-pathname* (if (pathnamep filename) filename nil))
+           (*load-pathname*
+            (if (pathnamep filename) (merge-pathnames filename) nil))
            (*load-truename*
              (if (pathnamep filename) (truename filename) nil))
            (*current-source-file* *load-truename*)
