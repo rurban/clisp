@@ -116,7 +116,9 @@ X
 (2 3 . #(4 5))
 
 ;; Must preserve the element type of a given vector.
+#+CLISP
 (array-element-type `#A((unsigned-byte 8) (3) (1 2 3)))
+#+CLISP
 (unsigned-byte 8)
 
 ;; Backquote macroexpansion must cons as little as possible.

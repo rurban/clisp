@@ -1,5 +1,12 @@
 ;;; -*- Lisp -*-
 
+#+LISPWORKS
+(progn
+  (defun gc () (mark-and-sweep 3))
+  t)
+#+LISPWORKS
+T
+
 ;; crashes
 (unless #-CLISP nil
         #+CLISP

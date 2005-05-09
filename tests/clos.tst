@@ -1,8 +1,8 @@
 ;; -*- Lisp -*-
 
-#-(or GCL CMU SBCL OpenMCL)
+#-(or GCL CMU SBCL OpenMCL LISPWORKS)
 (use-package "CLOS")
-#-(or GCL CMU SBCL OpenMCL)
+#-(or GCL CMU SBCL OpenMCL LISPWORKS)
 T
 
 (unintern '<C1>)

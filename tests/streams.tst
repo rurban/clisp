@@ -5,7 +5,8 @@
 #+XCL "#<%TYPE-STRUCTURE-STREAM NIL>"
 #+CLISP "#<OUTPUT BROADCAST-STREAM>"
 #+CMU "#<Broadcast Stream>"
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+LISPWORKS "#<Broadcast stream to ()>"
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 ;; CLOSE should not delete information about
 ;; element type, direction, and external format
@@ -31,9 +32,9 @@
   (close s))
 close-1
 
-(PROGN (SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
-(SETQ S2 (OPEN "d2.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
-(SETQ S3 (OPEN "d3.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(PROGN (SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
+(SETQ S2 (OPEN "d2.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
+(SETQ S3 (OPEN "d3.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
 (SETQ B1 (MAKE-BROADCAST-STREAM S1 S2 S3 *STANDARD-OUTPUT*)) T)   T
 
 (PRINT "test broadcast satz 1" B1)   "test broadcast satz 1"
@@ -78,7 +79,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t0.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t0.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT (QUOTE READ1) S)   READ1
 
@@ -87,17 +88,17 @@ close-1
 (CLOSE-1 S)   T
 
 (PROGN (SETQ INPTW (OPEN "t0.plc"))
-(SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
-(SETQ S2 (OPEN "d2.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
+(SETQ S2 (OPEN "d2.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
 (SETQ SY (MAKE-SYNONYM-STREAM (QUOTE S2)))
-(SETQ S3 (OPEN "d3.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ S3 (OPEN "d3.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
 (SETQ TW (MAKE-TWO-WAY-STREAM INPTW S3))
-(SETQ S4 (OPEN "d4.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ S4 (OPEN "d4.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
 (SETQ EC (MAKE-ECHO-STREAM INPTW S4))
-(SETQ S5 (OPEN "d5.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
-(SETQ S6 (OPEN "d6.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ S5 (OPEN "d5.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
+(SETQ S6 (OPEN "d6.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
 (SETQ B1 (MAKE-BROADCAST-STREAM S5 S6))
-(SETQ S7 (OPEN "d7.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ S7 (OPEN "d7.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
 (SETQ B2 (MAKE-BROADCAST-STREAM S1 SY TW EC B1 S7)) T)   T
 
 (PRINT "w to b2 1.satz" B2)   "w to b2 1.satz"
@@ -300,7 +301,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t1.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t1.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t1" S)   "1.satz t1"
 
@@ -308,7 +309,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t2.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t2.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t2" S)   "1.satz t2"
 
@@ -316,7 +317,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t3.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t3.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t3" S)   "1.satz t3"
 
@@ -324,7 +325,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t4.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t4.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t4" S)   "1.satz t4"
 
@@ -332,7 +333,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t5.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t5.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t5" S)   "1.satz t5"
 
@@ -340,7 +341,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t6.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t6.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t6" S)   "1.satz t6"
 
@@ -348,7 +349,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t7.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t7.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t7" S)   "1.satz t7"
 
@@ -356,7 +357,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t8.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t8.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t8" S)   "1.satz t8"
 
@@ -364,7 +365,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t9.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t9.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t9" S)   "1.satz t9"
 
@@ -372,7 +373,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t10.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ S (OPEN "t10.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t10" S)   "1.satz t10"
 
@@ -533,7 +534,7 @@ T
 
 (let* ((s "0123456789")
        (d (make-array 5 :displaced-to s :displaced-index-offset 3
-                      :element-type 'character))
+                        :element-type (array-element-type s)))
        (i (make-string-input-stream d 2 5)))
   (read i))
 567
@@ -669,9 +670,9 @@ E"
 
 (LENGTH (PRINC (GET-OUTPUT-STREAM-STRING OS)))   496
 
-(PROGN (SETQ OS (OPEN "d0.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
-(SETQ OS1 (OPEN "d1.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
-(SETQ IS (OPEN "t0.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
+(PROGN (SETQ OS (OPEN "d0.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
+(SETQ OS1 (OPEN "d1.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE))
+(SETQ IS (OPEN "t0.plc" :DIRECTION :OUTPUT #+(or SBCL LISPWORKS) :IF-EXISTS #+(or SBCL LISPWORKS) :SUPERSEDE)) T)   T
 
 (PRINC "'(a b #.(print \"1.zwischenwert\" os1) c d)" IS)
 "'(a b #.(print \"1.zwischenwert\" os1) c d)"
@@ -1004,7 +1005,7 @@ T
 (file-string-length (make-broadcast-stream) "foo") 1
 (stream-element-type (make-broadcast-stream))      T
 
-(let ((o (open "foo.bin" :direction :output #+SBCL :if-exists #+SBCL :supersede :element-type '(unsigned-byte 8)))
+(let ((o (open "foo.bin" :direction :output #+(or SBCL LISPWORKS) :if-exists #+(or SBCL LISPWORKS) :supersede :element-type '(unsigned-byte 8)))
       (i (make-string-input-stream "foo")))
   (unwind-protect (stream-element-type (make-two-way-stream i o))
     (close o) (delete-file o)
@@ -1016,8 +1017,8 @@ T
                       (make-string-input-stream "bar")
                       (make-string-input-stream "baz")
                       (make-string-input-stream "zot")))
-#-(or CMU SBCL) CHARACTER
-#+(or CMU SBCL) BASE-CHAR
+#-(or CMU SBCL LISPWORKS) CHARACTER
+#+(or CMU SBCL LISPWORKS) BASE-CHAR
 
 (let ((s (make-string-output-stream :element-type nil)))
   (list (typep #\z (stream-element-type s))

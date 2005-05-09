@@ -1,4 +1,4 @@
-;; -*- LIsp -*-
+;; -*- Lisp -*-
 
 (ACONS 'A 'B NIL)
 ((A . B))
@@ -18,12 +18,12 @@ ERROR
 
 (PAIRLIS '(A B C)
        '(1 2 3))
-#+(or XCL CLISP ALLEGRO CMU SBCL OpenMCL)
+#+(or XCL CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS)
 ((C . 3)
  (B . 2)
  (A . 1))
 #+(or AKCL ECL) ((A . 1) (B . 2) (C . 3))
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (ASSOC 'A
        '((B C)

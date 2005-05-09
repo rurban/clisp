@@ -217,21 +217,24 @@ T
         (unless i (return))
         (let ((j (position-if-not #'(lambda (c) (digit-char-p c 16)) string
                                   :start (+ i 1))))
-          (unless (and j (eql (char string j) #\})) (return))
-          (setq string (concatenate 'string (subseq string 0 (+ i 1)) (subseq string j)))
-          (setq pos (+ i 2)))))
+          (if (and j (eql (char string j) #\}))
+            (progn
+              (setq string (concatenate 'string (subseq string 0 (+ i 1)) (subseq string j)))
+              (setq pos (+ i 2)))
+            (setq pos (+ i 1))))))
     ;; For LISPWORKS: Substitute > for pattern [0-9A-F]{8}> :
     (do ((pos 0))
         (nil)
       (let ((i (search ">" string :start2 pos)))
         (unless i (return))
-        (unless (>= (- i pos) 8) (return))
-        (unless (eql (position-if-not #'(lambda (c) (digit-char-p c 16)) string
-                                      :start (- i 8))
-                     i)
-          (return))
-        (setq string (concatenate 'string (subseq string 0 (- i 8)) (subseq string i)))
-        (setq pos (+ (- i 8) 1))))
+        (if (and (>= (- i pos) 8)
+                 (eql (position-if-not #'(lambda (c) (digit-char-p c 16)) string
+                                       :start (- i 8))
+                      i))
+          (progn
+            (setq string (concatenate 'string (subseq string 0 (- i 8)) (subseq string i)))
+            (setq pos (+ (- i 8) 1)))
+          (setq pos (+ i 1)))))
     string))
 AS-STRING
 
@@ -313,7 +316,8 @@ AS-STRING
 #+ALLEGRO "#<ACLMOP:STANDARD-DIRECT-SLOT-DEFINITION #<Printer Error, obj=: #<UNBOUND-SLOT @ #x>>>"
 #+CMU "#<STANDARD-DIRECT-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:STANDARD-DIRECT-SLOT-DEFINITION \"unbound\">"
-#-(or CLISP ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+LISPWORKS "#<STANDARD-DIRECT-SLOT-DEFINITION \"#< Unbound Slot >\" >"
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'clos:standard-effective-slot-definition)))
@@ -321,7 +325,8 @@ AS-STRING
 #+ALLEGRO "#<ACLMOP:STANDARD-EFFECTIVE-SLOT-DEFINITION #<Printer Error, obj=: #<UNBOUND-SLOT @ #x>>>"
 #+CMU "#<STANDARD-EFFECTIVE-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:STANDARD-EFFECTIVE-SLOT-DEFINITION \"unbound\">"
-#-(or CLISP ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+LISPWORKS "#<STANDARD-EFFECTIVE-SLOT-DEFINITION \"#< Unbound Slot >\" >"
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'method-combination)))

@@ -14,7 +14,7 @@
 "foo  bar  "
 
 (format nil "~10:@<foo~;bar~>")
-#+(or XCL CLISP ALLEGRO OpenMCL) "  foo bar " #+(or AKCL ECL CMU SBCL) " foo bar  " #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+(or XCL CLISP ALLEGRO OpenMCL LISPWORKS) "  foo bar " #+(or AKCL ECL CMU SBCL) " foo bar  " #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (format nil "~10<foobar~>")
 "    foobar"
@@ -48,9 +48,9 @@
 "foo   bar   baz"
 
 (format nil "~12<~S~;~^~S~;~^~S~>" 'foo 'bar 'baz)
-#+(or CLISP ALLEGRO OpenMCL) "foo  bar baz"
+#+(or CLISP ALLEGRO OpenMCL LISPWORKS) "foo  bar baz"
 #+(or GCL CMU SBCL) "foo bar  baz"
-#-(or CLISP GCL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#-(or CLISP GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (progn
 (setq liste '(aaaaaaa bbbbbb cccccccccccc dddddddddddddd eeee fffffffff
@@ -116,7 +116,7 @@ T
       (when start-p (format stream prefix))
       (loop
         ; Hier ist parts /= NIL
-        (let ((pos (#+CLISP sys::line-position #+ALLEGRO excl::charpos #+CMU lisp::charpos #+SBCL sb-kernel:charpos #+OpenMCL ccl::column stream))
+        (let ((pos (#+CLISP sys::line-position #+ALLEGRO excl::charpos #+CMU lisp::charpos #+SBCL sb-kernel:charpos #+OpenMCL ccl::column #+LISPWORKS stream:stream-line-column stream))
               (parts-now '()))
           (let ((pos-now pos))
             (loop
@@ -168,7 +168,7 @@ FORMAT-BLOCKSATZ
   "~%;; "
   nil t nil
 )
-#+(or CLISP ALLEGRO)
+#+(or CLISP ALLEGRO LISPWORKS)
 "
 ;;  AAAAAAA  BBBBBB  CCCCCCCCCCCC DDDDDDDDDDDDDD EEEE FFFFFFFFF GGGGGGGG
 ;;  HHHHH  IIII  J KK LLL MMMM NNNNNN OOOOOOOOOO PPPPPPPPPPPPPPP QQQQQQQ
@@ -180,7 +180,7 @@ FORMAT-BLOCKSATZ
 ;;  HHHHH IIII J KK LLL MMMM NNNNNN OOOOOOOOOO  PPPPPPPPPPPPPPP  QQQQQQQ
 ;;  RRRRRRRRRRRR  S  TTT  UUUUUUUUU  VVVVVVV  WWWWWWWWWW  XXXXX   YYYYYY
 ;;  ZZZZZZZZ"
-#-(or CLISP ALLEGRO CMU SBCL) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 ;123456789;123456789;123456789;123456789;123456789;123456789;123456789;12
 
 (format-blocksatz nil
@@ -193,7 +193,7 @@ FORMAT-BLOCKSATZ
   "~%;; "
   50 t t
 )
-#+(or CLISP ALLEGRO)
+#+(or CLISP ALLEGRO LISPWORKS)
 "
 ;;  AAAAAAA   BBBBBB  CCCCCCCCCCCC  DDDDDDDDDDDDDD
 ;;  EEEE  FFFFFFFFF  GGGGGGGG  HHHHH IIII J KK LLL
@@ -207,7 +207,7 @@ FORMAT-BLOCKSATZ
 ;;  MMMM NNNNNN OOOOOOOOOO PPPPPPPPPPPPPPP QQQQQQQ
 ;;  RRRRRRRRRRRR   S   TTT    UUUUUUUUU    VVVVVVV
 ;;  WWWWWWWWWW     XXXXX      YYYYYY      ZZZZZZZZ"
-#-(or CLISP ALLEGRO CMU SBCL) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 ;123456789;123456789;123456789;123456789;123456789;
 
 ;;; unklare Bedeutung (Fehler in Sprachbeschreibung?)
@@ -433,58 +433,58 @@ foo
 
 (FORMAT NIL "format-s:--~s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~5s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c --ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c  --ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2,3s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c   --ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--|ABc|   --ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--|ABc|   --ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2,3,'*s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c***--ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--|ABc|***--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--|ABc|***--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~5@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:-- AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--  AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2,3@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--   AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--   |ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--   |ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2,3,'*@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--***AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--***|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--***|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (FORMAT NIL "format-s:--~:s--ende-*" (QUOTE (AB\c NIL XYZ)))
 #+XCL "format-s:--(AB\\c NIL XYZ)--ende-*"
-#+(or CLISP AKCL ALLEGRO CMU SBCL) "format-s:--(|ABc| NIL XYZ)--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO CMU SBCL) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--(|ABc| NIL XYZ)--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 (SETQ X 5)
 5
@@ -793,11 +793,11 @@ freshline:
 (FORMAT NIL "char normal:~c, as # would read:~@c, human read:~:c-*"
 #\SPACE
 #\SPACE #\SPACE)
-#+(or XCL CMU18 CLISP) "char normal: , as # would read:#\\Space, human read:Space-*"
-#+(or CMU19 SBCL)      "char normal: , as # would read:#\\ , human read:Space-*"
-#+(or AKCL LUCID)      "char normal:Space, as # would read:#\\Space, human read:Space-*"
-#+ALLEGRO              "char normal: , as # would read:#\\space, human read:space-*"
-#-(or XCL CMU SBCL CLISP AKCL LUCID ALLEGRO) UNKNOWN
+#+(or XCL CMU18 CLISP LISPWORKS) "char normal: , as # would read:#\\Space, human read:Space-*"
+#+(or CMU19 SBCL)                "char normal: , as # would read:#\\ , human read:Space-*"
+#+(or AKCL LUCID)                "char normal:Space, as # would read:#\\Space, human read:Space-*"
+#+ALLEGRO                        "char normal: , as # would read:#\\space, human read:space-*"
+#-(or XCL CMU SBCL CLISP AKCL LUCID ALLEGRO LISPWORKS) UNKNOWN
 
 (FORMAT NIL
 "cardinal:~r, roman new:~@r, roman-old:~:@r~
@@ -981,9 +981,9 @@ NIL
 "Twenty-three losers."
 
 (FORMAT NIL "**~c**" #\SPACE)
-#+(or XCL CMU SBCL CLISP ALLEGRO) "** **"
+#+(or XCL CMU SBCL CLISP ALLEGRO LISPWORKS) "** **"
 #+(or AKCL LUCID)            "**Space**"
-#-(or XCL CMU SBCL CLISP AKCL LUCID ALLEGRO) UNKNOWN
+#-(or XCL CMU SBCL CLISP AKCL LUCID ALLEGRO LISPWORKS) UNKNOWN
 
 (FORMAT NIL "**~:c**" #\SPACE)
 "**Space**"
@@ -1039,81 +1039,108 @@ T
 
 ;; Test elastic-newline as a FORMAT directive.
 
+#+CLISP
 (format nil "~&abc~.")
+#+CLISP
 "abc
 "
 
+#+CLISP
 (with-output-to-string (s) (funcall (formatter "~&abc~.") s))
+#+CLISP
 "abc
 "
 
+#+CLISP
 (format nil "~&abc~.~%")
+#+CLISP
 "abc
 "
 
+#+CLISP
 (format nil "~&abc~3.")
+#+CLISP
 "abc
 
 
 "
 
+#+CLISP
 (format nil "~&abc~0.")
+#+CLISP
 "abc"
 
 ;; Test elastic-newline on string-output-stream.
 
+#+CLISP
 (with-output-to-string (stream)
   (format stream "~&abc~."))
+#+CLISP
 "abc
 "
 
+#+CLISP
 (with-output-to-string (stream)
   (format stream "~&abc~.")
   (format stream "def"))
+#+CLISP
 "abc
 def"
 
+#+CLISP
 (with-output-to-string (stream)
   (format stream "~&abc~.")
   (format stream "~%def"))
+#+CLISP
 "abc
 def"
 
+#+CLISP
 (with-output-to-string (stream)
   (format stream "~&abc~.")
   (format stream "~&def"))
+#+CLISP
 "abc
 def"
 
+#+CLISP
 (with-output-to-string (stream)
   (format stream "~&abc~.~.")
   (format stream "~&~&def"))
+#+CLISP
 "abc
 def"
 
+#+CLISP
 (with-output-to-string (stream)
   (format stream "~&abc~%~.")
   (format stream "~&def"))
+#+CLISP
 "abc
 
 def"
 
+#+CLISP
 (with-output-to-string (stream)
   (format stream "~&abc~.")
   (format stream "~&~%def"))
+#+CLISP
 "abc
 
 def"
 
+#+CLISP
 (with-output-to-string (stream)
   (format stream "~&abc~%~.")
   (format stream "~&~%def"))
+#+CLISP
 "abc
 
 
 def"
 
 ;; Test elastic-newline also on Gray streams.
+#+CLISP
 (progn
   (defclass gray-string-output-stream (fundamental-character-output-stream)
     ((accumulator :type string)))
@@ -1167,6 +1194,7 @@ def"
       (format stream "~&~%def")
       (close stream)
       (coerce (slot-value stream 'accumulator) 'simple-string))))
+#+CLISP
 ("abc
 "
 "abc

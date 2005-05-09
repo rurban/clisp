@@ -476,7 +476,7 @@ FEXPAND-1
 NIL
 
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=678194&group_id=1355&atid=101355>
-(defvar *my-typeof-counter* 0)
+(defparameter *my-typeof-counter* 0)
 *my-typeof-counter*
 (defmacro my-typeof (place &environment env)
   (let ((exp-place (macroexpand place env)))
@@ -601,8 +601,10 @@ dm2b
     (format o "(load ~S)~%" file2))
   (with-open-file (o file2 :direction :output #+SBCL :if-exists #+SBCL :supersede)
     (write-line "(defun bar (a b) (sin (1+ a) (1- b a)))" o))
-  (unwind-protect (progn (load file1 #+CLISP :compiling #+CLISP t)
-                         (list (fboundp 'foo) (fboundp 'bar)))
+  (unwind-protect
+      (progn
+        (load file1 #+CLISP :compiling #+CLISP t)
+        (list (not (null (fboundp 'foo))) (not (null (fboundp 'bar)))))
     (delete-file file1) (delete-file file2)))
 (T T)
 
@@ -655,8 +657,8 @@ nil
     (delete-file (compile-file-pathname file))
     #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
   (ltv1))
-#+CLISP T #+(or CMU SBCL OpenMCL) NIL
-#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
+#+CLISP T #+(or CMU SBCL OpenMCL LISPWORKS) NIL
+#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 ;; compile-file is not allowed to collapse different LOAD-TIME-VALUE forms
 ;; even if the inner form is the same.
@@ -856,10 +858,13 @@ NIL
 (T 0 0)
 
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=890138&group_id=1355&atid=101355>
-(load "bug001.lisp") T
-(load "bug002.lisp") T
+(progn (load "bug001.lisp") t)
+T
+(progn (load "bug002.lisp") t)
+T
 
 ;; <http://clisp.cons.org/impnotes.html#defun-accept-spelalist>
+#+CLISP
 (let ((f (lambda ((x1 fixnum) (x2 integer) (x3 number) y z)
            (list x1 x2 x3 y z))))
   (flet ((g ((x1 fixnum) (x2 integer) (x3 number) y z)
@@ -867,6 +872,7 @@ NIL
     (list (funcall f 0 1 2 3 4)
           (funcall (compile nil f) 5 6 7 8 9)
           (g 'a 'b 'c 'd 'e))))
+#+CLISP
 ((0 1 2 3 4) (5 6 7 8 9) (e d c b a))
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
@@ -918,10 +924,11 @@ NIL
 (5 4 5 4 5 4)
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel:13153>
-(defun test-constant-folding (x) (* 1e30 x 1e30))
+(defun test-constant-folding (x) (* 1d200 x 1d200))
 TEST-CONSTANT-FOLDING
 (multiple-value-list (compile 'test-constant-folding))
-(TEST-CONSTANT-FOLDING 1 1)
+#+CLISP (TEST-CONSTANT-FOLDING 1 1)
+#-CLISP (TEST-CONSTANT-FOLDING NIL NIL)
 (test-constant-folding 12)
 ERROR
 
