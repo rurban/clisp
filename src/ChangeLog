@@ -1,5 +1,11 @@
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (load): bind *LOAD-PATHNAME* to the result of
+	MERGE-PATHNAMES as per ANSI CL spec
+	Found by Paul Dietz's ansi-tests test suite.
+
+2005-05-09  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (STREAM-LOCK, MKSTEMP, FILE-STAT, MKNOD)
 	(sid_cache_put) [WIN32_NATIVE]: fixed C++ compilation
 
