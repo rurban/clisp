@@ -1,3 +1,8 @@
+2005-05-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/i18n/gettext.c (get_locale_info, DECLARE_RES):
+	added casts for C++ compilation
+
 2005-05-09  Pascal J.Bourguignon  <pjb@informatimago.com>
 
 	* modules/syscalls/calls.c (OPENLOG): allocate ident and keep it
