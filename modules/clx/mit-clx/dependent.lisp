@@ -929,12 +929,15 @@
                     (ldb (byte 8  8) addr)
                     (ldb (byte 8  0) addr)))
  	     (string
-              (let ((parts (mapcar #'parse-integer
-                                   (split-sequence
-                                    #\.
-                                    addr :count 4))))
-		(cons :internet
-		      parts))))))))))
+              (let ((parts (read-from-string
+                            (nsubstitute #\Space #\. (ext:string-concat
+                                                      "(" addr ")")))))
+                (check-type parts (cons (unsigned-byte 8)
+                                        (cons (unsigned-byte 8)
+                                              (cons (unsigned-byte 8)
+                                                    (cons (unsigned-byte 8)
+                                                          NULL)))))
+		(cons :internet parts))))))))))
 
 
 ;;-----------------------------------------------------------------------------

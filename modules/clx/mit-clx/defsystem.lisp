@@ -153,7 +153,6 @@
        #+excl (compile-and-load "excldep")
        (compile-and-load "depdefs")
        (compile-and-load "clx")
-       (compile-and-load "split-sequence")
        (compile-and-load "dependent")
        #+excl (compile-and-load "exclcmac")	; these are just macros
        (compile-and-load "macros")		; these are just macros
@@ -222,7 +221,6 @@
       #+excl (load-binary "excldep")
       (load-binary "depdefs")
       (load-binary "clx")
-      (load-binary "split-sequence")
       (load-binary "dependent")
       (when macrosp
 	#+excl (load-binary "exclcmac")
