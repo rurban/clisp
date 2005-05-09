@@ -710,7 +710,8 @@ test-package-iterator
 (defun with-package-iterator-all (packages)
   (test-with-package-iterator packages :internal :external :inherited))
 (compile 'with-package-iterator-all)
-t)t
+t)
+T
 
 (with-package-iterator-internal (list (find-package "COMMON-LISP-USER"))) t
 (with-package-iterator-external (list (find-package "COMMON-LISP-USER"))) t

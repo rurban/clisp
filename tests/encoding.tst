@@ -98,7 +98,7 @@ ERROR
 ;;(coerce (ext:convert-string-from-bytes #(13) :mac) 'list) (#\Newline)
 
 (let ((vec (make-array 1000 :adjustable t :fill-pointer 0
-                       :element-type '(unsigned-byte 8))))
+                            :element-type '(unsigned-byte 8))))
   (map-into vec 'identity (ext:convert-string-to-bytes "Hello" charset:utf-8))
   ;; #(72 101 108 108 111)
   (ext:convert-string-from-bytes vec charset:utf-8))

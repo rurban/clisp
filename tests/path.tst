@@ -674,7 +674,7 @@ FIXME
 
 (let* ((s "abcdefghijk")
        (d (make-array 5 :displaced-to s :displaced-index-offset 3
-                      :element-type 'character)))
+                        :element-type 'character)))
   (parse-namestring d nil nil :start 2 :end 4))
 #+CLISP #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
                     :NAME "fg" :TYPE NIL :VERSION NIL)
@@ -736,7 +736,7 @@ t
 
 (let* ((foo (copy-seq "abcdefghijkl"))
        (bar (make-array 5 :displaced-to foo :displaced-index-offset 2
-                        :element-type 'character))
+                          :element-type 'character))
        (path (make-pathname :directory bar)))
   (setf (aref foo 3) #\/)
   (equalp path (make-pathname :directory (pathname-directory path))))
@@ -869,8 +869,8 @@ NIL
 
 (multiple-value-list
  (parse-namestring (make-array 0 :element-type 'character
-                               :displaced-to "foo"
-                               :displaced-index-offset 1)))
+                                 :displaced-to "foo"
+                                 :displaced-index-offset 1)))
 (#P"" 0)
 
 #+(and clisp win32)
