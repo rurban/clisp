@@ -2,8 +2,8 @@
 
 (setf a-vector (make-array 10))
 #+(or XCL CMU SBCL OpenMCL) #(0 0 0 0 0 0 0 0 0 0)
-#+(or CLISP AKCL ECL ALLEGRO) #(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+(or CLISP AKCL ECL ALLEGRO LISPWORKS) #(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (do ((i 0 (1+ i))
      (n (length a-vector)))
@@ -251,7 +251,9 @@ ERROR
 1
 
 (mapcan #'identity '(1 2 3))
-3
+#+(or CLISP ALLEGRO CMU SBCL OpenMCL) 3
+#+(or AKCL ECL GCL LISPWORKS) ERROR
+#-(or CLISP AKCL ECL GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #+CLISP
 (mapcap #'list '(a b) '(1 2 3) '(u i v))

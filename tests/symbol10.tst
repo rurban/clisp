@@ -15,11 +15,12 @@ NIL
          #+SBCL (eq (sb-int:info :variable :kind var) ':special)
          #+ECL (and (sys::specialp var) (not (constantp var))) ; specvar
          #+OpenMCL (ccl::proclaimed-special-p var)
+         #+LISPWORKS (and (system:declared-special-p var) (not (system:symbol-constant-p var)))
          (and (fboundp var) t)                       ; funktion. Eigenschaft
          (and (fboundp var) (macro-function var) t)  ; Macro?
          (and (fboundp var) (special-operator-p var) t)  ; Spezialform?
-         #-(or CLISP ECL) (and (symbol-plist var) t)          ; p-Liste?
-         #+(or CLISP ECL) (and (or (get var 'i1) (get var 'i2) (get var 'i3)) t) ; p-Liste?
+         #-(or CLISP ECL LISPWORKS) (and (symbol-plist var) t)          ; p-Liste?
+         #+(or CLISP ECL LISPWORKS) (and (or (get var 'i1) (get var 'i2) (get var 'i3)) t) ; p-Liste?
          (get var 'i1)                               ; i1
          (get var 'i2)                               ; i2
          (get var 'i3)                               ; i3
@@ -261,7 +262,7 @@ v3
 ;;; rebind
 
 (makunbound 'v3)
-#+(or XCL ALLEGRO CMU SBCL) v3 #+(or CLISP ECL OpenMCL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL OpenMCL) UNKNOWN
+#+(or XCL ALLEGRO CMU SBCL LISPWORKS) v3 #+(or CLISP ECL OpenMCL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL OpenMCL LISPWORKS) UNKNOWN
 (fmakunbound 'v3)
 v3
 
@@ -443,7 +444,7 @@ v5
 ;;; rebind
 
 (makunbound 'v5)
-#+(or XCL ALLEGRO CMU SBCL) v5 #+(or CLISP ECL OpenMCL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL OpenMCL) UNKNOWN
+#+(or XCL ALLEGRO CMU SBCL LISPWORKS) v5 #+(or CLISP ECL OpenMCL) ERROR #-(or XCL ALLEGRO CMU SBCL CLISP ECL OpenMCL LISPWORKS) UNKNOWN
 (not (null (remprop 'v5 'i2)))
 t
 (not (null (remprop 'v5 'i1)))

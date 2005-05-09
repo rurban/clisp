@@ -567,7 +567,7 @@ nil
 ; modules | provide | (require nicht getestet !)
 
 (and *modules* T)
-#+(or XCL ECL) T #+CLISP NIL #-(or XCL CLISP ECL) UNKNOWN
+#+(or XCL ECL LISPWORKS) T #+CLISP NIL #-(or XCL CLISP ECL LISPWORKS) UNKNOWN
 
 (let ((*modules* *modules*))
   (provide 'provide-test)
@@ -731,24 +731,34 @@ nil
    (setq SYSTEM::*COUTPUT-STREAM* 123)))
 #+CLISP 123
 
+#+CLISP
 (package-case-sensitive-p
  (make-package "TEST-PACKAGE-CASE" :case-sensitive t :case-inverted t))
+#+CLISP
 T
 
+#+CLISP
 (package-case-inverted-p
  (defpackage "TEST-PACKAGE-CASE" (:case-sensitive nil) (:case-inverted nil)))
+#+CLISP
 NIL
 
+#+CLISP
 (setf (package-case-inverted-p "TEST-PACKAGE-CASE") t
       (package-case-sensitive-p "TEST-PACKAGE-CASE") t)
+#+CLISP
 T
 
+#+CLISP
 (let ((*break-on-signals* 'warning))
   (package-case-sensitive-p
-   (defpackage "TEST-PACKAGE-CASE" (:case-inverted t) (:case-sensitive t))))
+    (defpackage "TEST-PACKAGE-CASE" (:case-inverted t) (:case-sensitive t))))
+#+CLISP
 T
 
+#+CLISP
 (delete-package "TEST-PACKAGE-CASE")
+#+CLISP
 T
 
 

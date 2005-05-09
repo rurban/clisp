@@ -1,3 +1,42 @@
+2005-05-08  Bruno Haible  <bruno@clisp.org>
+
+	* tests.lisp: Update for LispWorks 4.4.5.
+	* alltest.tst: Update for LispWorks. Mark sys::coerced-subseq tests as
+	clisp-only.
+	* array.tst: Update for LispWorks. Add test for array-total-size-limit's
+	value.
+	* backquot.tst: Mark a test as clisp-only.
+	* characters.tst: Update for LispWorks. Mark sys::char-invertcase test
+	as clisp-only.
+	* clos.tst: Update for LispWorks.
+	* conditions.tst: Update for LispWorks.
+	* format.tst: Update for LispWorks. Mark elastic-newline tests as
+	clisp-only.
+	* hashlong.tst: Update for LispWorks.
+	* iofkts.tst: Update for LispWorks. Move a misplaced test.
+	* lambda.tst: Update for LispWorks.
+	* lists152.tst: Update for LispWorks.
+	* lists153.tst: Update for LispWorks.
+	* lists154.tst: Update for LispWorks.
+	* lists155.tst: Update for LispWorks.
+	* lists156.tst: Update for LispWorks.
+	* macro8.tst: Update for LispWorks. Use defparameter instead of defvar.
+	Mark specialized-lambda-list test as clisp-only. Change
+	constant-folding test to use double-floats instead of single-floats.
+	* map.tst: Update for LispWorks.
+	* mop.tst: Update for LispWorks.
+	* pack11.tst: Update for LispWorks. Mark package-case tests as
+	clisp-only.
+	* setf.tst: Update for LispWorks.
+	* steele7.tst: Update for LispWorks.
+	* streams.tst: Update for LispWorks.
+	* streamslong.tst: Update for LispWorks.
+	* strings.tst: Update for LispWorks.
+	* symbol10.tst: Update for LispWorks.
+	* symbols.tst: Update for LispWorks.
+	* type.tst: Update for LispWorks. Unintern symbol BAR before defining
+	it as a class name.
+
 2005-05-06  Sam Steingold  <sds@gnu.org>
 
 	* mop.tst: test STRUCTURE-DIRECT-SLOTS

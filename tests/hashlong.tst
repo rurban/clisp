@@ -15,6 +15,9 @@
 #+SBCL (progn (setf (symbol-function 'setf-gethash)
                     (symbol-function 'sb-kernel:%puthash)) t)
 #+SBCL t
+#+LISPWORKS (progn (setf (symbol-function 'setf-gethash)
+                         (symbol-function 'system::%puthash)) t)
+#+LISPWORKS t
 
 (defun symbole ()
   (let ((b 0.)
