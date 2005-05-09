@@ -1,5 +1,11 @@
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c [WIN32_NATIVE]: fixed C++ compilation
+	(BUF_TYPE_T): new CPP define
+	(RECV, RECVFROM, SEND, SENDTO): cast buffer
+
+2005-05-09  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (ENOUGH-NAMESTRING): fixed for possible NIL directory
 
 2005-05-09  Sam Steingold  <sds@gnu.org>
