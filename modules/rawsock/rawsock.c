@@ -337,6 +337,12 @@ DEFUN(RAWSOCK:LISTEN,socket backlog) {
 }
 
 /* ================== RECEIVING ================== */
+/* FIXME: replace this with a complete autoconf check using CL_PROTO() */
+#if defined(WIN32_NATIVE)
+# define BUF_TYPE_T char*
+#else
+# define BUF_TYPE_T void*
+#endif
 
 /* remove 3 objects from the STACK and return the RECV flag
    based on MSG_PEEK MSG_OOB MSG_WAITALL */
@@ -347,7 +353,7 @@ DEFUN(RAWSOCK:RECV,socket buffer &key MSG_PEEK MSG_OOB MSG_WAITALL) {
   int retval;
   size_t buffer_len;
   void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
-  SYSCALL(retval,sock,recv(sock,buffer,buffer_len,flags));
+  SYSCALL(retval,sock,recv(sock,(BUF_TYPE_T)buffer,buffer_len,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
@@ -365,7 +371,8 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address \
   /* no GC after this point! */
   buffer = (void*)TheSbvector(STACK_1)->data;
   buffer_len = Sbvector_length(STACK_1);
-  SYSCALL(retval,sock,recvfrom(sock,buffer,buffer_len,flags,sa,&sa_size));
+  SYSCALL(retval,sock,recvfrom(sock,(BUF_TYPE_T)buffer,
+                               buffer_len,flags,sa,&sa_size));
   VALUES3(fixnum(retval),fixnum(sa_size),STACK_0); skipSTACK(3);
 }
 
@@ -402,7 +409,7 @@ DEFUN(RAWSOCK:SEND,socket buffer &key MSG_OOB MSG_EOR) {
   int retval;
   size_t buffer_len;
   void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
-  SYSCALL(retval,sock,send(sock,buffer,buffer_len,flags));
+  SYSCALL(retval,sock,send(sock,(const BUF_TYPE_T)buffer,buffer_len,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
@@ -432,8 +439,8 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
   /* no GC after this point! */
   buffer = (void*)TheSbvector(STACK_1)->data;
   buffer_len = Sbvector_length(STACK_1);
-  SYSCALL(retval,sock,
-          sendto(sock,buffer,buffer_len,flags,sa,sizeof(struct sockaddr)));
+  SYSCALL(retval,sock,sendto(sock,(const BUF_TYPE_T)buffer,
+                             buffer_len,flags,sa,sizeof(struct sockaddr)));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
