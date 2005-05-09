@@ -1,6 +1,7 @@
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
 	* execname.c (find_executable): added a cast for C++ compilation
+	* pathname.d (use_default_dir): ditto
 
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
