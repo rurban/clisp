@@ -259,7 +259,7 @@ static void get_locale_info (int what, char**res, int *res_size) {
   end_system_call();
   if (val == 0) OS_error();
   if (val > *res_size) {
-    *res = my_realloc(*res,val);
+    *res = (char*)my_realloc(*res,val);
     if (*res == NULL) OS_error();
     *res_size = val;
     begin_system_call();
@@ -476,7 +476,7 @@ DEFCHECKER(check_nl_item,CODESET                                        \
 #elif defined(WIN32_NATIVE)
 # define get_lang_info(what)  get_locale_info(what,&res,&res_size)
 # define res_to_obj() (asciz_to_string(res,GLO(misc_encoding)))
-# define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=my_malloc(res_size)
+# define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=(char*)my_malloc(res_size)
 # define FINISH_RES   begin_system_call(); free(res); end_system_call()
 #endif
 DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)
