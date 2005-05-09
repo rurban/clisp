@@ -1,5 +1,12 @@
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d, intelem.d (I_to_UQ): define on WIN32_NATIVE
+	for convert_time_from_universal()
+	* time.d (convert_time_from_universal): use I_to_UQ() instead of
+	its alias I_to_uint64()
+
+2005-05-09  Sam Steingold  <sds@gnu.org>
+
 	* execname.c (find_executable): added a cast for C++ compilation
 	* pathname.d (use_default_dir): ditto
 	* socket.d (resolve_host1): ditto
