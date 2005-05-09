@@ -352,7 +352,7 @@ global object string_to_addr (const char* name) {
 local int resolve_host1 (const void* addr, int addrlen, int family, void* ret) {
   *(struct hostent**)ret =
     (addrlen
-     ? gethostbyaddr(addr,addrlen,family)
+     ? gethostbyaddr((const char*)addr,addrlen,family)
      : gethostbyname((const char*)addr));
   return 0;
 }
