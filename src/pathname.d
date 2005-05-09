@@ -5171,7 +5171,7 @@ local maygc object use_default_dir (object pathname) {
     /* Does pathname-directory start with :RELATIVE ? */
     if (nullp(subdirs) || eq(Car(subdirs),S(Krelative))) {
       /* yes -> replace :RELATIVE with the default-directory: */
-      pushSTACK(consp(subdirs) ? Cdr(subdirs) : NIL);
+      pushSTACK(consp(subdirs) ? (object)Cdr(subdirs) : NIL);
      #if HAS_HOST /* PATHNAME_WIN32 */
       if (!nullp(ThePathname(pathname)->pathname_host)) {
         /* We do not have the concept of a current directory on a
