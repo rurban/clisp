@@ -193,12 +193,16 @@ DEFCHECKER(check_syslog_facility,default=LOG_USER,prefix=LOG,\
            LOCAL0 LOCAL1 LOCAL2 LOCAL3 LOCAL4 LOCAL5 LOCAL6 LOCAL7)
 DEFFLAGSET(syslog_opt_flags,LOG_PID LOG_CONS LOG_NDELAY LOG_ODELAY LOG_NOWAIT)
 #if defined(HAVE_OPENLOG)
+static char* log_ident=NULL;
 DEFUN(POSIX:OPENLOG,ident &key :PID :CONS :NDELAY :ODELAY :NOWAIT :FACILITY) {
   int facility = check_syslog_facility(popSTACK());
   int logopt = syslog_opt_flags();
   with_string_0(check_string(popSTACK()),GLO(misc_encoding),ident, {
       begin_system_call();
-      openlog(ident,logopt,facility);
+      if (log_ident) { free(log_ident); }
+      log_ident = (char*)my_malloc(strlen(ident)+1);
+      strcpy(log_ident,ident);
+      openlog(log_ident,logopt,facility);
       end_system_call();
     });
   VALUES0;
@@ -227,7 +231,12 @@ DEFUN(POSIX::%SYSLOG, severity facility message) {
 }
 #if defined(HAVE_CLOSELOG)
 DEFUN(POSIX:CLOSELOG,) {
-  begin_system_call(); closelog(); end_system_call();
+  begin_system_call();
+  closelog();
+#if defined(HAVE_OPENLOG)
+  if(log_ident) { free(log_ident); log_ident=NULL; }
+#endif
+  end_system_call();
   VALUES0;
 }
 #endif
