@@ -782,6 +782,16 @@ T
                                    :defaults (logical-pathname "FOO:")))
 (:ABSOLUTE)
 
+(let ((f "this-directory-does-not-exist")
+      (custom:*merge-pathnames-ansi* t))
+  (when (directory f) (delete-file f))
+  (list
+   (let ((d (ext:string-concat f "/")))
+     (when (directory d) (ext:delete-dir d))
+     (directory d))
+   (directory (ext:string-concat f "/*"))))
+(NIL NIL)
+
 ;; <http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html>
 (pathname-device (logical-pathname "FOO:"))
 :UNSPECIFIC
