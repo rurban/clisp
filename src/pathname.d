@@ -7642,7 +7642,6 @@ local maygc object shorter_directory (object pathname, bool resolve_links) {
   /* shorten the directory: */
   var object subdirs = ThePathname(pathname)->pathname_directory;
   if (nullp(Cdr(subdirs))) { /* root-directory ? */
-   baddir:
     /* STACK_0 = pathname, FILE-ERROR slot PATHNAME */
     pushSTACK(STACK_0);
     fehler(file_error,GETTEXT("root directory not allowed here: ~S"));
