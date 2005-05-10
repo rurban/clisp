@@ -1,3 +1,8 @@
+2005-05-10  Sam Steingold  <sds@gnu.org>
+
+	* defs1.lisp (encode-universal-time): time zone is specified by
+	ANSI in [-24;24], not [-13;12]; use ISO date format for error reporting
+
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c [WIN32_NATIVE]: fixed C++ compilation

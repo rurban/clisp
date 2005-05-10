@@ -747,10 +747,10 @@
                                     (when (floatp Zeitzone) (setq Zeitzone (rational Zeitzone)))
                                     (or (integerp Zeitzone)
                                         (and (rationalp Zeitzone) (integerp (* 3600 Zeitzone)))))
-                                  (<= -13 Zeitzone 12)))))))
+                                  (<= -24 Zeitzone 24)))))))
     (error-of-type 'error
-      (TEXT "incorrect date: ~S.~S.~S, ~Sh~Sm~Ss, time zone ~S")
-      Tag Monat Jahr Stunde Minute Sekunde Zeitzone))
+      (TEXT "incorrect date: ~S-~S-~S ~S:~S:~S, time zone ~S")
+      Jahr Monat Tag Stunde Minute Sekunde Zeitzone))
   (+ Sekunde
      (* 60 (+ Minute
               (* 60 (+ Stunde Zeitzone
