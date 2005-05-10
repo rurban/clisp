@@ -1,5 +1,9 @@
 2005-05-10  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d, intelem.d (I_to_Q, I_to_UQ) [HAVE_LONGLONG]: always define
+
+2005-05-10  Sam Steingold  <sds@gnu.org>
+
 	better error checking for UNION at al
 	* list.d (LIST-LENGTH-PROPER): new function
 	* constsym.d, subr.d (list_length_proper): added
