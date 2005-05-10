@@ -1816,7 +1816,7 @@ if [ $TSYS = win32msvc ] ; then
   echol
 fi
 if [ ${TSYS} = win32gcc ]; then
-  echol "PATH=/bin:."
+  echol "PATH=/bin:.:/mingw/bin"
   echol
 fi
 
