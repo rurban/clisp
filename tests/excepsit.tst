@@ -1235,6 +1235,22 @@ reader-error                  ; not division-by-zero!
 (read-from-string "31e300")
 reader-error                  ; not floating-point-overflow!
 
+(WITH-STANDARD-IO-SYNTAX
+  (LET ((*READ-SUPPRESS* T)) (READ-FROM-STRING "')")))
+READER-ERROR
+
+(WITH-STANDARD-IO-SYNTAX
+  (LET ((*READ-SUPPRESS* T)) (READ-FROM-STRING "#<")))
+READER-ERROR
+
+(WITH-STANDARD-IO-SYNTAX
+  (LET ((*READ-SUPPRESS* T)) (READ-FROM-STRING "# ")))
+READER-ERROR
+
+(WITH-STANDARD-IO-SYNTAX
+  (LET ((*READ-SUPPRESS* T)) (READ-FROM-STRING "#)")))
+READER-ERROR
+
 ;; loop: redeclaration of a variable
 (loop for x in '(1 2 3) for x in '(4 5 6) collect x)
 program-error
