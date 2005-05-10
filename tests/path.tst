@@ -67,7 +67,9 @@ nil
 #-CLISP FIXME
 
 (NAMESTRING #P"./")
-"./"
+#+WIN32 ".\\"
+#+UNIX "./"
+#-(OR WIN32 UNIX) FIXME
 
 (PARSE-NAMESTRING STRING)
 #+XCL
