@@ -398,7 +398,7 @@
                  (sys::check-redefinition
                   ',accessfn 'define-setf-expander
                   (and (get ',accessfn 'SYSTEM::SETF-EXPANDER)
-                       "SETF expander"))
+                       'SYSTEM::SETF-EXPANDER))
                  (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER
                    (CONS -5 (FUNCTION ,name))
                  )
@@ -416,7 +416,8 @@
               (REMPROP ',accessfn 'SYSTEM::DEFSTRUCT-WRITER)
               (SYS::CHECK-REDEFINITION
                ',accessfn 'DEFSETF
-               (and (get ',accessfn 'SYSTEM::SETF-EXPANDER) "SETF expander"))
+               (and (get ',accessfn 'SYSTEM::SETF-EXPANDER)
+                    'SYSTEM::SETF-EXPANDER))
               (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER ',(first args))
               (SYSTEM::%SET-DOCUMENTATION ',accessfn 'SETF
                 ,(if (and (null (cddr args))
@@ -477,7 +478,7 @@
                   (SYS::CHECK-REDEFINITION
                     ',accessfn 'DEFSETF
                     (AND (GET ',accessfn 'SYSTEM::SETF-EXPANDER)
-                         "SETF expander"))
+                         'SYSTEM::SETF-EXPANDER))
                   (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER
                     (LIST* ,arg-count ,(length storevars)
                            (FUNCTION ,(concat-pnames "SETF-" accessfn) ,setter)
