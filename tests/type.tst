@@ -758,8 +758,8 @@ nil
      (handler-bind ((type-error
                      (lambda (c)
                        (return
-                         (typep (type-error-datum c)
-                                (type-error-expected-type c))))))
+                         (typep (print (type-error-datum c))
+                                (print (type-error-expected-type c)))))))
        ,@forms)))
 CHECK-TYPE-ERROR
 
@@ -771,6 +771,10 @@ NIL
 NIL
 
 (check-type-error (FBOUNDP #'CAR))
+NIL
 
 (typep '#1=(A 1 B 2 #1#) 'SYS::PLIST)
+NIL
+
+(check-type-error (UNION NIL "A"))
 NIL

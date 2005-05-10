@@ -593,6 +593,18 @@ LISPFUNNR(list_length_dotted,1)
   else VALUES2(len,tail);
 }
 
+LISPFUNNR(list_length_proper,1)
+{ /* traverses the list just once, otherwise equivalent to
+   (defun list-length-proper (l)
+     (if (proper-list-p l) (length l)
+         (error ...))) */
+  var object tail = NIL;
+  var object len = list_length(STACK_0,&tail);
+  if (!nullp(tail)) fehler_proper_list_dotted(TheSubr(subr_self)->name,tail);
+  if (nullp(len)) fehler_proper_list_circular(TheSubr(subr_self)->name,STACK_0);
+  VALUES1(len); skipSTACK(1);
+}
+
 /* proper_list_p(obj)
    returns true if obj is a proper list, i.e. a list which is neither dotted
    nor circular, i.e. a list which ends in NIL. */
