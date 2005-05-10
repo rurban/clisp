@@ -14449,22 +14449,22 @@ extern uintL I_to_UL (object obj);
 extern sintL I_to_L (object obj);
 # is used by
 
-#if (defined(HAVE_FFI) || defined(HAVE_AFFI) || (SIZEOF_OFF_T > 4) || defined(WIN32_NATIVE)) && defined(HAVE_LONGLONG)
+#if defined(HAVE_LONGLONG)
   # Converts an Integer >=0 into an unsigned quadword.
   # I_to_UQ(obj)
   # > obj: an object, should be an Integer >=0, <2^64
   # < result: the Integer's vaulue as unsigned quadword
   extern uint64 I_to_UQ (object obj);
-  # is used by FOREIGN, for FFI
+  /* used by FOREIGN, for FFI, and by modules */
 #endif
 
-#if defined(HAVE_FFI) && defined(HAVE_LONGLONG)
+#if defined(HAVE_LONGLONG)
   # Converts an Integer into a signed quadword.
   # I_to_Q(obj)
   # > obj: an object, should be an Integer >=-2^63, <2^63
   # < result: the Integer's value as quadword.
   extern sint64 I_to_Q (object obj);
-  # is used by FOREIGN, for FFI
+  /* used by FOREIGN, for FFI, and by modules */
 #endif
 
 # Converts an Integer into a C-Integer of a given type.
