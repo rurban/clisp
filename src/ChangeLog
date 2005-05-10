@@ -1,5 +1,12 @@
 2005-05-10  Sam Steingold  <sds@gnu.org>
 
+	* places.lisp (define-setf-expander, defsetf): pass
+	SETF-EXPANDER instead of "SETF expander" to CHECK-REDEFINITION
+	* init.lisp (check-redefinition): when WHAT is SETF-EXPANDER,
+	avoid unnecessary warnings for SUBRs
+
+2005-05-10  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (PATH) [win32gcc]: added /mingw/bin
 
 2005-05-10  Sam Steingold  <sds@gnu.org>
