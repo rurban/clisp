@@ -603,6 +603,13 @@ NIL
              (funcall cons 1 2))))
 (KONS (1 . 2) 3)
 
+(let* ((n (min lambda-parameters-limit 1024))
+       (vars (loop repeat n collect (gensym))))
+  (eval
+   `(= ,n (flet ((%f ,vars (+ ,@vars)))
+            (%f ,@(loop for e in vars collect 1))))))
+T
+
 ;TAGBODY, GO, MULTIPLE-VALUE-LIST, MULTIPLE-VALUE-CALL, MULTIPLE-VALUE-PROG1,
 ;MULTIPLE-VALUE-BIND, MULTIPLE-VALUE-SETQ, VALUES, VALUES-LIST, CATCH,
 
