@@ -1,5 +1,12 @@
 2005-05-10  Sam Steingold  <sds@gnu.org>
 
+	fixed EXPECTED-TYPE in function-name errors
+	* constobj.d (type_designator_function_name): added
+	* error.d (check_funname_replacement):
+	use it instead of type_designator_function
+
+2005-05-10  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (encode-universal-time): time zone is specified by
 	ANSI in [-24;24], not [-13;12]; use ISO date format for error reporting
 

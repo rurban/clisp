@@ -1357,7 +1357,7 @@ global maygc object check_funname_replacement (condition_t errtype, object calle
     switch (errtype) {
       case type_error:
         pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
-        pushSTACK(O(type_designator_function)); /* slot EXPECTED-TYPE */
+        pushSTACK(O(type_designator_function_name)); /* slot EXPECTED-TYPE */
         break;
       case source_program_error:
         pushSTACK(obj);         /* SOURCE-PROGRAM-ERROR slot DETAIL */
