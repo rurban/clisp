@@ -1,5 +1,9 @@
 2005-05-10  Sam Steingold  <sds@gnu.org>
 
+	* excepsit.tst: 4 *READ-SUPRESS* tests from ANSI suite
+
+2005-05-10  Sam Steingold  <sds@gnu.org>
+
 	* type.tst (check-type-error): new macro;
 	use it to check type errors
 
