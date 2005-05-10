@@ -753,24 +753,24 @@ nil
   (list (is-foo140 a) (foo140-p a)))
 (T 10)
 
+(defmacro check-type-error (&body forms)
+  `(block nil
+     (handler-bind ((type-error
+                     (lambda (c)
+                       (return
+                         (typep (type-error-datum c)
+                                (type-error-expected-type c))))))
+       ,@forms)))
+CHECK-TYPE-ERROR
+
 ;; ansi tests GET-PROPERTIES.ERROR.6, GETF.ERROR.4
-(block nil
-  (handler-bind ((type-error
-                  (lambda (c)
-                    (return
-                      (typep (type-error-datum c)
-                             (type-error-expected-type c))))))
-    (GETF '(A . B) 'C)))
+(check-type-error (GETF '(A . B) 'C))
 NIL
 
-(block nil
-  (handler-bind ((type-error
-                  (lambda (c)
-                    (return
-                      (typep (type-error-datum c)
-                             (type-error-expected-type c))))))
-    (GET-PROPERTIES '(A 1 B 2 C . D) '(X Y))))
+(check-type-error (GET-PROPERTIES '(A 1 B 2 C . D) '(X Y)))
 NIL
+
+(check-type-error (FBOUNDP #'CAR))
 
 (typep '#1=(A 1 B 2 #1#) 'SYS::PLIST)
 NIL

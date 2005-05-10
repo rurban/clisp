@@ -1,3 +1,8 @@
+2005-05-10  Sam Steingold  <sds@gnu.org>
+
+	* type.tst (check-type-error): new macro;
+	use it to check type errors
+
 2005-05-09  Sam Steingold  <sds@gnu.org>
 
 	* path.tst (path=): new function; test ENOUGH-NAMESTRING

@@ -205,6 +205,7 @@
   LISPOBJ(type_designator_base_char,"(EXT::DESIGNATOR BASE-CHAR)")
   #endif
   LISPOBJ(type_designator_function,"(OR FUNCTION SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)) (CONS (EQL LAMBDA)))")
+  LISPOBJ(type_designator_function_name,"(OR SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)))")
   # Upper bound for the number of structure classes present in the system:
   LISPOBJ(structure_class_count_max,"0")
   # Upper bound for the number of standard classes present in the system:
