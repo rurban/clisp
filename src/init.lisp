@@ -580,7 +580,8 @@
   (function sys::check-redefinition (lambda (symbol caller what)
     (let ((cur-file *current-source-file*)
           (old-file ; distinguish between undefined and defined at top-level
-           (if (sys::subr-info symbol)
+           (if (and (not (eq what 'SYSTEM::SETF-EXPANDER))
+                    (sys::subr-info symbol))
                "C" (getf (gethash symbol *documentation*) 'sys::file))))
       (unless (or custom:*suppress-check-redefinition*
                   (equalp old-file cur-file)
