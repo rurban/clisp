@@ -226,20 +226,21 @@
 
 ;; convert the SET represented as a LIST to a SET represented as a HASH-TABLE
 (defun list-to-ht (l0 list &key test test-not key)
-  (unless test-not
-    (let ((ht-test (case test
-                     (eq 'fasthash-eq)
-                     ((eql nil) 'fasthash-eql)
-                     (equal 'fasthash-equal)
-                     (equalp 'fasthash-equalp))))
-      (when ht-test
-        ;; --- boxers or briefs? ---
-        ;; when is it worthwhile to use HASH-TABLEs as opposed to LISTS?
-        ;; in sequence.d:seq_duplicates() we use a HASH-TABLE
-        ;; when the list is longer than 10
-        ;; here we use the following heuristic,
-        ;; supported by a numeric experiment on Linux
-        (let ((n1 (length l0)) (n2 (length list)))
+  (let ((n1 (list-length-proper l0))
+        (n2 (list-length-proper list)))
+    (unless test-not
+      (let ((ht-test (case test
+                       (eq 'fasthash-eq)
+                       ((eql nil) 'fasthash-eql)
+                       (equal 'fasthash-equal)
+                       (equalp 'fasthash-equalp))))
+        (when ht-test
+          ;; --- boxers or briefs? ---
+          ;; when is it worthwhile to use HASH-TABLEs as opposed to LISTS?
+          ;; in sequence.d:seq_duplicates() we use a HASH-TABLE
+          ;; when the list is longer than 10
+          ;; here we use the following heuristic,
+          ;; supported by a numeric experiment on Linux
           (unless (and (> n1 15) (> n2 5))
             (return-from list-to-ht nil))
           ;; passed the test, generate the HASH-TABLE

@@ -338,7 +338,8 @@
    base-char-code-limit char-font-limit char-bits-limit char-control-bit
    char-meta-bit char-super-bit char-hyper-bit string-char-p
    long-float-digits package-lock hash-table-weak-p weak-key-value-table
-   the-environment arglist getenv special-variable-p list-length-dotted
+   the-environment arglist getenv special-variable-p
+   list-length-dotted list-length-proper
    *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
    fasthash-eq stablehash-eq fasthash-eql stablehash-eql fasthash-equal
    stablehash-equal define-hash-table-test package-case-sensitive-p

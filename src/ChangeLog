@@ -1,5 +1,14 @@
 2005-05-10  Sam Steingold  <sds@gnu.org>
 
+	better error checking for UNION at al
+	* list.d (LIST-LENGTH-PROPER): new function
+	* constsym.d, subr.d (list_length_proper): added
+	* init.lisp (list-length-proper): export
+	* error.d (fehler_proper_list_dotted): EXPECTED-TYPE = PROPER-LIST
+	* defs1.lisp (list-to-ht): use LIST-LENGTH-PROPER instead of LENGTH
+
+2005-05-10  Sam Steingold  <sds@gnu.org>
+
 	fixed EXPECTED-TYPE in function-name errors
 	* constobj.d (type_designator_function_name): added
 	* error.d (check_funname_replacement):
