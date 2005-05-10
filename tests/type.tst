@@ -758,8 +758,8 @@ nil
      (handler-bind ((type-error
                      (lambda (c)
                        (return
-                         (typep (print (type-error-datum c))
-                                (print (type-error-expected-type c)))))))
+                         (typep (type-error-datum c)
+                                (type-error-expected-type c))))))
        ,@forms)))
 CHECK-TYPE-ERROR
 
