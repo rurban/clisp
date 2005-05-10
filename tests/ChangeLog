@@ -1,6 +1,12 @@
 2005-05-10  Sam Steingold  <sds@gnu.org>
 
-	* excepsit.tst: 4 *READ-SUPRESS* tests from ANSI suite
+	* alltest.tst: added a FLET LAMBDA-PARAMETERS-LIMIT test from the
+	ANSI suite that crashes on GCTRIGGER_IF/handler_args under
+	mingw/g++ but not linux/g++
+
+2005-05-10  Sam Steingold  <sds@gnu.org>
+
+	* excepsit.tst: 4 *READ-SUPPRESS* tests from ANSI suite
 
 2005-05-10  Sam Steingold  <sds@gnu.org>
 
