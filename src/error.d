@@ -856,8 +856,8 @@ global maygc object check_list_replacement (object obj) {
  > obj: end of the list, non-list */
 nonreturning_function(global, fehler_proper_list_dotted, (object caller, object obj))
 {
-  pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
   fehler(type_error,GETTEXT("~S: A proper list must not end with ~S"));
 }
