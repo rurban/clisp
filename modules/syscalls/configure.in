@@ -23,9 +23,15 @@ if test "$ac_cv_header_shlobj_h" = yes ; then
 fi
 AC_CHECK_SIZEOF(struct timeval,,[#include <stdio.h>
 #include <sys/time.h>])
-AC_CHECK_MEMBERS([struct utmpx.ut_host],,,[#include <utmpx.h>])
-AC_MSG_CHECKING([whether f_fsid is scalar])
+AC_CHECK_SIZEOF(time_t,,[#include <stdio.h>
+#include <sys/types.h>])
+AC_CHECK_SIZEOF(suseconds_t,,[#include <stdio.h>
+#include <sys/types.h>])
+if test "$ac_cv_header_utmpx_h" = "yes"; then
+ AC_CHECK_MEMBERS([struct utmpx.ut_host],,,[#include <utmpx.h>])
+fi
 if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
+ AC_MSG_CHECKING([whether f_fsid is scalar])
  AC_TRY_COMPILE([#include <sys/statvfs.h>], [struct statvfs x; x.f_fsid = 0;],
   ac_cv_struct_fsid_scalar=yes, ac_cv_struct_fsid_scalar=no)
  AC_MSG_RESULT([$]ac_cv_struct_fsid_scalar)
