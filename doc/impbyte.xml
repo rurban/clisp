@@ -61,7 +61,7 @@
   Allows <command>cpp</command>-style
   preprocessing <emphasis>before</emphasis> &modprep; processing.
   Should be merged into &modprep;.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>utils/modprep</filename></term>
+<varlistentry><term><filename>utils/modprep.lisp</filename></term>
 <listitem><simpara>For some modules only, see <xref linkend="modprep"/>.
 </simpara></listitem></varlistentry>
 </variablelist></section>
