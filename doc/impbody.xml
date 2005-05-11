@@ -3844,8 +3844,6 @@ functions are provided:
 
 <section id="open"><title>Function &open;</title>
 
-<para>&open; cannot handle files of size &ge; 4 GB.</para>
-
 <para>&open; accepts an additional keyword &buffered;.</para>
 
 <variablelist><title>The acceptable values for the arguments to the
