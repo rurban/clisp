@@ -39,7 +39,9 @@
 </xsl:template>
 
 <xsl:param name="title.margin.left" select="'1pc'"/>
+<!-- http://docbook.sourceforge.net/release/xsl/current/doc/fo/ulink.footnotes.html -->
 <xsl:param name="ulink.footnotes" select="1"/>
-<xsl:param name="ulink.show" select="1"/>
+<!-- http://docbook.sourceforge.net/release/xsl/current/doc/fo/ulink.show.html -->
+<xsl:param name="ulink.show" select="0"/>
 
 </xsl:stylesheet>
