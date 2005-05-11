@@ -517,8 +517,9 @@ compiles the specified lisp files to a platform-independent
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #if defined(WIN32_NATIVE) -->
-<varlistentry><term><command>clisp.bat</command></term>
- <listitem><simpara>startup driver</simpara></listitem></varlistentry>
+<varlistentry><term><command>clisp.exe</command></term>
+ <listitem><simpara>startup driver (executable)
+</simpara></listitem></varlistentry>
 <!-- #endif -->
 
 <varlistentry id="runtime">
