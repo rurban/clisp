@@ -330,7 +330,7 @@ static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
   pushSTACK(asciz_to_string(utmpx->ut_user,GLO(misc_encoding)));
   pushSTACK(asciz_to_string(utmpx->ut_id,GLO(misc_encoding)));
   pushSTACK(asciz_to_string(utmpx->ut_line,GLO(misc_encoding)));
-  pushSTACK(fixnum(utmpx->ut_pid));
+  pushSTACK(L_to_I(utmpx->ut_pid));
 #if defined(HAVE_UTMPX_UT_HOST)
   pushSTACK(asciz_to_string(utmpx->ut_host,GLO(misc_encoding)));
 #else
@@ -338,7 +338,7 @@ static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
 #endif
   /* GLIBC 2.3.2 uses 32-bit slots for the utmpx->ut_tv even on 64-bit
      platforms, so SIZEOF_STRUCT_TIMEVAL is useless here */
-#define push32_64(x) pushSTACK(sizeof(x)==8 ? uint64_to_I(x) : uint32_to_I(x))
+#define push32_64(x) pushSTACK(sizeof(x)==8 ? uint64_to_I((uint64)x) : uint32_to_I((uint32)x))
   push32_64(utmpx->ut_tv.tv_sec);
   push32_64(utmpx->ut_tv.tv_usec);
 #undef push32_64

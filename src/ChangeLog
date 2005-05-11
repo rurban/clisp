@@ -1,3 +1,8 @@
+2005-05-11  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (utmpx_to_lisp):
+	added casts to avoid C++ warnings
+
 2005-05-10  Sam Steingold  <sds@gnu.org>
 
 	* places.lisp (define-setf-expander, defsetf): pass
