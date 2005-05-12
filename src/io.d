@@ -1677,9 +1677,11 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
 # condition.
 local void signal_reader_error (void* sp, gcv_object_t* frame, object label,
                                 object condition) {
-  # (SYS::ERROR-OF-TYPE 'READER-ERROR "~A" condition)
-  pushSTACK(S(reader_error)); pushSTACK(O(tildeA)); pushSTACK(condition);
-  funcall(L(error_of_type),3);
+  var gcv_object_t* stream_ = (gcv_object_t*)sp;
+  /* (SYS::ERROR-OF-TYPE 'READER-ERROR :STREAM label "~A" condition) */
+  pushSTACK(S(reader_error)); pushSTACK(S(Kstream)); pushSTACK(*stream_);
+  pushSTACK(O(tildeA)); pushSTACK(condition);
+  funcall(L(error_of_type),5);
 }
 
 # UP: checks, if a token consists only of Dots.
@@ -1979,7 +1981,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
       # ANSI CL 2.3.1.1 requires that we transform ARITHMETIC-ERROR
       # into READER-ERROR
       make_HANDLER_frame(O(handler_for_arithmetic_error),
-                         &signal_reader_error,NULL);
+                         &signal_reader_error,stream_);
       switch (numtype) {
         case 1: # Integer
           result = read_integer(base,info.sign,string,info.index1,info.index2);
