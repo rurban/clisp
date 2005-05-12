@@ -1,5 +1,9 @@
 2005-05-11  Sam Steingold  <sds@gnu.org>
 
+	* error.d (end_error): READER-ERROR also accepts :STREAM
+
+2005-05-11  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (utmpx_to_lisp):
 	added casts to avoid C++ warnings
 	* modules/syscalls/configure.in (time_t, suseconds_t): AC_CHECK_SIZEOF

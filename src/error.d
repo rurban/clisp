@@ -294,8 +294,9 @@ local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
         pushSTACK(S(Kobject)); pushSTACK(BEFORE(stackptr)); /* :object */
         argcount += 2;
       }
-      /* stream-error, end-of-file --> complete :stream */
+      /* stream-error, reader-error, end-of-file --> complete :stream */
       if (eq(type,S(simple_stream_error))
+          || eq(type,S(simple_reader_error))
           || eq(type,S(simple_end_of_file))) {
         pushSTACK(S(Kstream)); pushSTACK(BEFORE(stackptr)); /* :stream ... */
         argcount += 2;
