@@ -1,3 +1,8 @@
+2005-05-11  Bruno Haible  <bruno@clisp.org>
+
+	Fix bug in handling of reallocated simple-strings with TYPECODES.
+	* lispbibl.d (sstring_flags) [TYPECODES]: Include the forwarded_B bit.
+
 2005-05-12  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (finish_tty_output) [UNIX_DARWIN]:
