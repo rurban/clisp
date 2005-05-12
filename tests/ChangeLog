@@ -1,3 +1,8 @@
+2005-05-12  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: check that COMPILE-FILE
+	can accept a closed file as :OUTPUT-FILE
+
 2005-05-11  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: check that we can compile files in ansi mode
