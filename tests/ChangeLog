@@ -1,3 +1,7 @@
+2005-05-11  Sam Steingold  <sds@gnu.org>
+
+	* conditions.tst: check that READER-ERROR has slot :STREAM
+
 2005-05-10  Sam Steingold  <sds@gnu.org>
 
 	* alltest.tst: added a FLET LAMBDA-PARAMETERS-LIMIT test from the

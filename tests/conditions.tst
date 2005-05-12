@@ -861,3 +861,10 @@ T
     (let ((foo (gensym "UNBOUND-")))
       (progn (symbol-value foo) :bad))))
 :GOOD
+
+(block nil
+  (handler-bind ((reader-error (lambda (c)
+                                 (princ-error c)
+                                 (return (streamp (stream-error-stream c))))))
+    (read-from-string ")")))
+T
