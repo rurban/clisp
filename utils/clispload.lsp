@@ -177,10 +177,10 @@
   ;; In CLISP, it prints an empty information and returns some values.
   ROOM.2
 
-  ; The interaction between TRACE and generic functions needs to be fixed.
+  ;; The interaction between TRACE and generic functions needs to be fixed.
   TRACE.13 TRACE.14
 
-  ; Requires a rewrite of parts of the pretty-printer.
+  ;; Requires a rewrite of parts of the pretty-printer.
   PPRINT-TABULAR.6 PPRINT-TABULAR.7 PPRINT-TABULAR.8 PPRINT-TABULAR.9
   PPRINT-TABULAR.10 PPRINT-TABULAR.11 PPRINT-TABULAR.12 PPRINT-TABULAR.13
   PPRINT-TABULAR.14 PPRINT-TABULAR.15 PPRINT-TABULAR.16 PPRINT-TABULAR.17
@@ -241,11 +241,14 @@
   FORMAT.JUSTIFY.ERROR._.2 FORMAT.JUSTIFY.ERROR._.3 FORMAT.JUSTIFY.ERROR.I.1
   FORMAT.JUSTIFY.ERROR.I.2 FORMAT.JUSTIFY.ERROR.I.3
 
-  ; <http://www.lisp.org/HyperSpec/Issues/iss065.html>
-  ; COMPILER-DIAGNOSTICS:USE-HANDLER
+  ;; <http://www.lisp.org/HyperSpec/Issues/iss065.html>
+  ;; COMPILER-DIAGNOSTICS:USE-HANDLER
   COMPILE-FILE.2 COMPILE-FILE.2A
 
-  ; To be revisited:
+  ;; CLISP extends DISASSEMBLE to accept STRINGs, METHODs, and forms
+  DISASSEMBLE.ERROR.3
+
+  ;; To be revisited:
 
 ))
 
