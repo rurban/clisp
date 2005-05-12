@@ -6657,7 +6657,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp);
         pftimepoint = &filedata.ftCreationTime;                            \
       convert_time(pftimepoint,timepointp);                                \
     }
-  #define READDIR_entry_size()  filedata.nFileSizeLow
+#define READDIR_entry_size() (((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow)
 #endif
 
 #ifdef UNIX
@@ -7239,7 +7239,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                     if (dsp->full_p      /* :FULL wanted? */
                         && rresolved != shell_shortcut_notexists) { /* treat nonexisting as :FULL NIL */
                       var decoded_time_t timepoint;
-                      var uintL entry_size = 0;
+                      var off_t entry_size = 0;
                       /* get file attributes into these vars */
                       if (rresolved == shell_shortcut_file) {
                         /* need another readdir here */
@@ -7272,7 +7272,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                       pushSTACK(timepoint.Jahr);
                       { /* 6-element timestamp ==> the 3rd element */
                         object timestamp = listof(6); pushSTACK(timestamp); }
-                      pushSTACK(UL_to_I(entry_size)); /* length ==> 4th */
+                      pushSTACK(off_to_I(entry_size)); /* length ==> 4th */
                       { object fullinfo = listof(4); STACK_1 = fullinfo; }
                     }
                     /* now STACK_1 can contain either truename or

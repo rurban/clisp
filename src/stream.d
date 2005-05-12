@@ -32,9 +32,9 @@
 # < result: Integer with that value.
 # can trigger GC
 #if SIZEOF_OFF_T > 4
-  #define uoff_t_to_I UQ_to_I
+  #define uoff_to_I UQ_to_I
 #else
-  #define uoff_t_to_I UL_to_I
+  #define uoff_to_I UL_to_I
 #endif
 
 # Converts an Integer >=0 into an uoff_t value.
@@ -5968,11 +5968,12 @@ global object file_stream_truename (object s)
     }
 #endif
 #ifdef WIN32_NATIVE
-  #define handle_lseek(stream,handle,offset,mode,result_assignment)           \
-    { var DWORD result = SetFilePointer(TheHandle(handle),offset, NULL,mode); \
-      if (result == (DWORD)(-1))                                              \
-        { end_system_call(); OS_filestream_error(stream); }                   \
-      unused (result_assignment (off_t)result);                                      \
+  #define handle_lseek(stream,handle,offset,mode,result_assignment)     \
+    { var LARGE_INTEGER result, offset_tmp;                             \
+      offset_tmp.QuadPart = offset;                                     \
+      if (!SetFilePointerEx(TheHandle(handle),offset_tmp,&result,mode)) \
+        { end_system_call(); OS_filestream_error(stream); }             \
+      unused (result_assignment result.QuadPart);                       \
     }
 #endif
 
@@ -6215,7 +6216,8 @@ local void position_file_buffered (object stream, uoff_t position) {
       var uoff_t newposition;
       begin_system_call();
       handle_lseek(stream,BufferedStream_channel(stream),
-                   floor(position,strm_buffered_bufflen)*strm_buffered_bufflen,SEEK_SET,newposition=);
+                   floor(position,strm_buffered_bufflen)*strm_buffered_bufflen,
+                   SEEK_SET,newposition=);
       end_system_call();
       BufferedStream_buffstart(stream) = newposition;
     }
@@ -17221,19 +17223,19 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
         } else {
           switch (pos_type) {
             case POS_SET_END:   /* :END */
-              VALUES1(uoff_t_to_I(logical_position_file_end(stream))); break;
+              VALUES1(uoff_to_I(logical_position_file_end(stream))); break;
             case POS_SET_START: /* :START */
-              VALUES1(uoff_t_to_I(logical_position_file_start(stream))); break;
+              VALUES1(uoff_to_I(logical_position_file_start(stream))); break;
             case POS_SET_OFF:   /* OFFSET */
-              VALUES1(uoff_t_to_I(logical_position_file(stream,pos_off)));
+              VALUES1(uoff_to_I(logical_position_file(stream,pos_off)));
               break;
             case POS_QUERY:
               pos_off = BufferedStream_position(stream);
               /* if a character has been unread, decrement position
                  so that PEEK-CHAR does not modify FILE-POSITION */
             get_position_common:
-              VALUES1(uoff_t_to_I(pos_off - (TheStream(stream)->strmflags
-                                             & strmflags_unread_B ? 1 : 0)));
+              VALUES1(uoff_to_I(pos_off - (TheStream(stream)->strmflags
+                                           & strmflags_unread_B ? 1 : 0)));
               break;
             default: NOTREACHED;
           }
@@ -17267,7 +17269,7 @@ LISPFUNNR(file_length,1)
     var uoff_t endposition = logical_position_file_end(stream);
     # set back to old position:
     logical_position_file(stream,position);
-    VALUES1(uoff_t_to_I(endposition)); /* return End-Position */
+    VALUES1(uoff_to_I(endposition)); /* return End-Position */
   }
 }
 

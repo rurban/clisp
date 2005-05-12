@@ -1305,9 +1305,9 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       if (statbuf.st_size < file_offset) goto abort2;
      #endif
      #ifdef WIN32_NATIVE
-      var DWORD fsize = GetFileSize(handle,NULL);
-      if (fsize == 0xFFFFFFFF) goto abort1;
-      if (fsize < file_offset) goto abort2;
+      var LARGE_INTEGER fsize;
+      if (!GetFileSizeEx(handle,&fsize)) goto abort1;
+      if (fsize.QuadPart < file_offset) goto abort2;
      #endif
     }
     #endif  /* HAVE_MMAP */
