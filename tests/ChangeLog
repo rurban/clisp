@@ -1,3 +1,8 @@
+2005-05-12  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (check-ignore-errors): new macro (checks condition slots)
+	(do-errcheck): use it instead of IGNORE-ERRORS
+
 2005-05-11  Bruno Haible  <bruno@clisp.org>
 
 	* strings.tst: Add tests for reallocated simple-strings in make-array.

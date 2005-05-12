@@ -123,6 +123,34 @@
                  (format log "~%"))))))
     (values total-count error-count)))
 
+(defmacro check-ignore-errors (&body body)
+  `(handler-case (progn ,@body)
+     (type-error (c)
+       (if (ignore-errors
+             (typep (type-error-datum c) (type-error-expected-type c)))
+           (format nil "[~S --> ~A]: ~S is of type ~S" ',body c
+                   (type-error-datum c) (type-error-expected-type c))
+           c))
+     (stream-error (c)
+       (if (streamp (stream-error-stream c)) c
+           (format nil "[~S --> ~A]: ~S is not a ~S" ',body c
+                   (stream-error-stream c) 'stream)))
+     (file-error (c)
+       (let ((path (file-error-pathname c)))
+         (if (or (pathnamep path) (stringp path) (characterp path)) c
+             (format nil "[~S --> ~A]: ~S is not a ~S" ',body c
+                     (file-error-pathname c) 'pathname))))
+     (package-error (c)
+       (let ((pack (package-error-package c)))
+         (if (or (packagep pack) (stringp pack) (characterp pack)) c
+             (format nil "[~S --> ~A]: ~S is not a ~S" ',body c
+                     (package-error-package c) 'package))))
+     (cell-error (c)
+       (if (cell-error-name c) c
+           (format nil "[~S --> ~A]: no cell name" ',body c)))
+     (error (c) c)
+     (:no-error (v) (format t "~&no error, value: ~S~%" v))))
+
 (defun do-errcheck (stream log)
   (let ((eof "EOF") (error-count 0) (total-count 0))
     (loop
@@ -131,7 +159,7 @@
         (when (or (eq form eof) (eq errtype eof)) (return))
         (incf total-count)
         (fresh-line) (prin1 form) (terpri)
-        (let ((my-result (nth-value 1 (ignore-errors (my-eval form)))))
+        (let ((my-result (check-ignore-errors (my-eval form))))
           (multiple-value-bind (typep-result typep-error)
               (ignore-errors (typep my-result errtype))
             (cond ((and (not typep-error) typep-result)
