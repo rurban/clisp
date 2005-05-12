@@ -14437,6 +14437,15 @@ extern maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
   #define sintM_to_I(val)  Q_to_I(val)
 #endif
 
+/* converts off_t to an Integer */
+#if defined(WIN32_NATIVE)
+  #define off_to_I(val)  L2_to_I((sint32)((val)>>32),(uint32)(val))
+#elif SIZEOF_OFF_T > 4
+  #define off_to_I  Q_to_I
+#else
+  #define off_to_I  L_to_I
+#endif
+
 # Converts an Integer >=0 into an unsigned longword.
 # I_to_UL(obj)
 # > obj: an object, should be an Integer >=0, <2^32

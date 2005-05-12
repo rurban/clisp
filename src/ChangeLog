@@ -1,5 +1,19 @@
 2005-05-12  Sam Steingold  <sds@gnu.org>
 
+	support 4GB+ files on woe32
+	* lispbibl.d (off_to_I): new macro
+	* win32.d (off_t): define to sint64
+	(SIZEOF_OFF_T): define to 8
+	* pathname.d (READDIR_entry_size): return a 64-bit number
+	(directory_search_scandir) [WIN32_NATIVE]:
+	entry_size is off_t, not uintL
+	(loadmem_from_handle) [WIN32_NATIVE]:
+	use GetFileSizeEx() instead of GetFileSize()
+	* stream.d (handle_lseek) [WIN32_NATIVE]: use SetFilePointerEx()
+	instead of SetFilePointer()
+
+2005-05-12  Sam Steingold  <sds@gnu.org>
+
 	* io.d (signal_reader_error): expect STREAM in sp
 	(read_internal): pass stream_ in sp
 
