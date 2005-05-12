@@ -3006,13 +3006,14 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
   # Object from type info and address:
   # type_pointer_object(type,address)
-  #if (addr_shift==0)
+  #if defined(WIDE_SOFT) && !defined(WIDE_STRUCT)
+    # Cast to uintP, so that conversion of  address  to aint is done by Zero-Extend!
+    #define type_pointer_object(type,address)  \
+      type_untype_object(type,(aint)(uintP)(address)>>addr_shift)
+  #elif (addr_shift==0)
     # (No cast to aint, so NIL can be used to initialize.)
     #define type_pointer_object(type,address)  \
       type_untype_object(type,address)
-  #elif defined(WIDE_SOFT) && !defined(WIDE_STRUCT)
-    #define type_pointer_object(type,address)  \
-      type_untype_object(type,(aint)(address)>>addr_shift)
   #else # more efficient,
     # but this requires address to be divisible by 2^addr_shift:
     #define type_pointer_object(type,address)  \

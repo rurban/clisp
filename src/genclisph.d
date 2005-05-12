@@ -722,10 +722,10 @@ int main(int argc, char* argv[])
   printf("#define optimized_upointer(obj)  ((aint)((as_oint(obj) << %d) >> %d))\n",32-oint_addr_len-oint_addr_shift,32-oint_addr_len-addr_shift);
   printf("#define upointer(obj)  (untype(obj)<<%d)\n",addr_shift);
 #endif
-#if (addr_shift==0)
-  printf("#define type_pointer_object(type,address)  type_untype_object(type,address)\n");
-#elif defined(WIDE_SOFT) && !defined(WIDE_STRUCT)
+#if defined(WIDE_SOFT) && !defined(WIDE_STRUCT)
   printf("#define type_pointer_object(type,address)    type_untype_object(type,(aint)(address)>>%d)\n",addr_shift);
+#elif (addr_shift==0)
+  printf("#define type_pointer_object(type,address)  type_untype_object(type,address)\n");
 #else
   printf("#define type_pointer_object(type,address)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(address) << %d)))\n",oint_type_shift,oint_addr_shift-addr_shift);
 #endif
