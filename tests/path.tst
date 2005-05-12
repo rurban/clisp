@@ -944,3 +944,18 @@ T
         (not (null (delete-file f)))
         (ext:probe-directory d)))
 (T T T NIL)
+
+;; check that we can compile files in ansi mode
+(let ((f "compile-file-ansi-pathname.lisp") c
+      (custom:*print-pathnames-ansi* t))
+  (with-open-file (s f :direction :output :if-exists :supersede)
+    (format s "(defparameter *pathname-var*
+  #.(make-pathname :name \"foo.bar\" :type nil))~%"))
+  (unwind-protect (progn (load (setq c (compile-file f)))
+                         (pathname-name *pathname-var*))
+    (makunbound '*pathname-var*)
+    (unintern '*pathname-var*)
+    (delete-file f)
+    (delete-file c)
+    #+clisp (delete-file (make-pathname :type "lib" :defaults c))))
+"foo.bar"
