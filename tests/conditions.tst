@@ -868,3 +868,10 @@ T
                                  (return (streamp (stream-error-stream c))))))
     (read-from-string ")")))
 T
+
+(block nil
+  (handler-bind ((reader-error (lambda (c)
+                                 (princ-error c)
+                                 (return (streamp (stream-error-stream c))))))
+    (read-from-string ",1")))
+T
