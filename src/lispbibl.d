@@ -4848,7 +4848,8 @@ typedef sstring_ *  Sstring;
 #endif
 # Extract the flags of a simple string (reallocated or not):
 #ifdef TYPECODES
-  #define sstring_flags(ptr)  ((ptr)->tfl & 3)
+  # Three bits, containing also sstringflags_forwarded_B.
+  #define sstring_flags(ptr)  ((ptr)->tfl & 7)
   #define sstring_flags_clr(ptr,bits)  ((ptr)->tfl &= ~(uintL)(bits))
   #define sstring_flags_set(ptr,bits)  ((ptr)->tfl |= (uintL)(bits))
 #else
