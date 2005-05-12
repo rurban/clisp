@@ -1227,5 +1227,21 @@ error
 #+(and clisp unicode)
 ((8 NIL NIL) (16 NIL T) (16 NIL NIL) (32 NIL T) (32 NIL NIL))
 
+#+(and clisp unicode)
+(length (make-array '3 :element-type 'character
+                       :initial-contents '(#\U65E5 #\U672C #\U8A9E)))
+#+(and clisp unicode)
+3
+
+#+(and clisp unicode)
+(let ((x (make-array '(3 3) :element-type 'character
+                            :initial-contents '((#\U65E5 #\U672C #\U8A9E)
+                                                (#\T #\U00FC #\r)
+                                                (#\k #\U00E7 #\e)))))
+  (gc)
+  (array-dimensions x))
+#+(and clisp unicode)
+(3 3)
+
 (symbolp (make-symbol (make-array 0 :element-type nil))) T
 (string= "" (make-array 0 :element-type nil))            T
