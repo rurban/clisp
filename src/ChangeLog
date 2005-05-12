@@ -1,5 +1,11 @@
 2005-05-12  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (finish_tty_output) [UNIX_DARWIN]:
+	ignore EOPNOTSUPP and ENODEV, just like in clear_tty_output()
+	Reported by Pascal Costanza <pc@p-cos.net>
+
+2005-05-12  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (compile-file-pathname-helper): return OUTPUT-FILE
 	as is only if it is an open output stream
 
