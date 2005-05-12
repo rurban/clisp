@@ -1,6 +1,14 @@
 2005-05-11  Bruno Haible  <bruno@clisp.org>
 
-	Fix bug in handling of reallocated simple-strings with TYPECODES.
+	Make it possible to use 'aint' = 'uint64' on 32-bit machines.
+	* lispbibl.d (type_pointer_object) [TYPECODES]: If WIDE_SOFT, cast
+	the address to uintP first, to force zero-extend instead of sign-extend.
+	* genclisph.d (main): Likewise.
+
+2005-05-11  Bruno Haible  <bruno@clisp.org>
+
+	Fix bug in handling of reallocated simple-strings with TYPECODES,
+	introduced on 2004-02-18.
 	* lispbibl.d (sstring_flags) [TYPECODES]: Include the forwarded_B bit.
 
 2005-05-12  Sam Steingold  <sds@gnu.org>
