@@ -11046,7 +11046,10 @@ The function make-closure is required.
                    (first (search-file file *source-file-types*)))
               (merge-pathnames file #.(make-pathname :type "lisp")))))
     (values
-      (if (or (null output-file) (streamp output-file))
+      (if (or (null output-file)
+              (and (streamp output-file)
+                   (open-stream-p output-file)
+                   (output-stream-p output-file)))
         output-file
         (let ((tmp (merge-extension "fas" input-file)))
           (if (eq output-file 'T)

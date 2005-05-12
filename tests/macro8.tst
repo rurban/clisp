@@ -925,6 +925,18 @@ T
   (nreverse results))
 (5 4 5 4 5 4)
 
+(let* ((f "test-compile-file-output-argument.lisp")
+       (c (open (make-pathname :type "fas" :defaults f)
+                :direction :probe :if-does-not-exist :create)))
+  (with-open-file (s f :direction :output :if-exists :supersede
+                     :if-does-not-exist :create)
+    (format s "(defun foo (x) (1+ x))~%"))
+  (unwind-protect (progn (compile-file f :output-file c) t)
+    (delete-file f)
+    (delete-file c)
+    #+clisp (delete-file (make-pathname :type "lib" :defaults c))))
+T
+
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel:13153>
 (defun test-constant-folding (x) (* 1d200 x 1d200))
 TEST-CONSTANT-FOLDING

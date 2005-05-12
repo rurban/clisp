@@ -1,5 +1,10 @@
 2005-05-12  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (compile-file-pathname-helper): return OUTPUT-FILE
+	as is only if it is an open output stream
+
+2005-05-12  Sam Steingold  <sds@gnu.org>
+
 	* io.d (pr_orecord): enable saving pathnames into *.fas files even
 	when *PRINT-PATHNAMES-ANSI* is non-NIL
 
