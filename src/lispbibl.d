@@ -1247,7 +1247,7 @@ typedef signed int  signean;
     #define longjmp(x,y)  (_longjmp(x,y), NOTREACHED)
   #endif
 #endif
-# A longgjmp() can only be called using an `int'.
+# A longjmp() can only be called using an `int'.
 # But if we want to use a `long' and if sizeof(int) < sizeof(long),
 # we'll need a global variable:
 #if (int_bitsize == long_bitsize)
@@ -2958,7 +2958,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
                    ((oint)(aint)(address) << oint_addr_shift) ))
   #else # you don't have to shift if oint_addr_shift=0:
     #if defined(WIDE_SOFT)
-      # Beware: Conversion of  address to oint by Zero-Extend!
+      # Beware: Conversion of  address  to oint by Zero-Extend!
       #define type_untype_object(type,address)              \
         objectplus((oint)(aint)(address),(oint)(tint)(type)<<oint_type_shift)
     #elif defined(WIDE_AUXI)
