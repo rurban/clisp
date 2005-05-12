@@ -63,16 +63,17 @@
                 (listp object))
       (when *unquote-occurred*
         (error-of-type 'reader-error
+          :stream stream
           (TEXT "~S: unquotes may occur only in (...) or #(...) forms")
           'read)))
     (when (consp object)
       (let ((head (first object)))
         (when (or (eq head 'SPLICE) (eq head 'NSPLICE))
-          (bq-non-list-splice-error head :in-reader t)))
+          (bq-non-list-splice-error head :in-reader t :stream stream)))
       (when (bq-member 'SPLICE object)
-        (bq-dotted-splice-error 'SPLICE :in-reader t))
+        (bq-dotted-splice-error 'SPLICE :in-reader t :stream stream))
       (when (bq-member 'NSPLICE object)
-        (bq-dotted-splice-error 'NSPLICE :in-reader t)))
+        (bq-dotted-splice-error 'NSPLICE :in-reader t :stream stream)))
     (list 'BACKQUOTE object)))
 
 ;;; Handle the read syntax ,
@@ -80,18 +81,22 @@
   (declare (ignore char))
   (when (null *backquote-level*)
     (error-of-type 'reader-error
+      :stream stream
       (TEXT "~S: comma is illegal outside of backquote")
       'read))
   (when (zerop *backquote-level*)
     (error-of-type 'reader-error
+      :stream stream
       (TEXT "~S: more commas out than backquotes in, is illegal")
       'read))
   (when *reading-struct*
     (error-of-type 'reader-error
+      :stream stream
       (TEXT "~S: unquotes may not occur in structures")
       'read))
   (when *reading-array*
     (error-of-type 'reader-error
+      :stream stream
       (TEXT "~S: unquotes may not occur in arrays")
       'read))
   (setq *unquote-occurred* t)
@@ -120,8 +125,9 @@
 ;;; It's undefined behaviour; we signal an error for it.
 ;;; If :in-reader is t, then add the prefix "READ: ", to flag the error as
 ;;; coming from the reader.
-(defun bq-non-list-splice-error (sym &key in-reader)
+(defun bq-non-list-splice-error (sym &key in-reader (stream #,(sys::%unbound)))
   (error-of-type 'reader-error
+    :stream stream
     (if in-reader (TEXT "READ: ~@?") "~@?")
     (if (eq sym 'SPLICE)
       (TEXT "the syntax `,@form is invalid")
@@ -129,8 +135,9 @@
 
 ;;; Signal error for `(... . ,@form) or `(... . ,.form).
 ;;; It's undefined behaviour; we signal an error for it.
-(defun bq-dotted-splice-error (sym &key in-reader)
+(defun bq-dotted-splice-error (sym &key in-reader (stream #,(sys::%unbound)))
   (error-of-type 'reader-error
+    :stream stream
     (if in-reader (TEXT "READ: ~@?") "~@?")
     (if (eq sym 'SPLICE)
       (TEXT "the syntax `( ... . ,@form) is invalid")

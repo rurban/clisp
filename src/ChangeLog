@@ -1,6 +1,8 @@
 2005-05-11  Sam Steingold  <sds@gnu.org>
 
 	* error.d (end_error): READER-ERROR also accepts :STREAM
+	* backquote.lisp (backquote-reader, comma-reader)
+	(bq-non-list-splice-error, bq-dotted-splice-error): ditto
 
 2005-05-11  Sam Steingold  <sds@gnu.org>
 
