@@ -8787,42 +8787,42 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       pushSTACK(obj); funcall(L(namestring),1); obj = value1;
       ASSERT(stringp(obj));
       pushSTACK(obj); # string
-      if (!nullpSv(print_readably) && nullpSv(print_pathnames_ansi)) {
-        var gcv_object_t* obj_ = &STACK_0;
-        var bool not_compiling = nullpSv(compiling);
-        if (not_compiling) {
-          JUSTIFY_START(0);
-          JUSTIFY_LAST(false);
-            JUSTIFY_START(0);
-            JUSTIFY_LAST(false);
-            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'-');
-            write_sstring(stream_,O(lisp_implementation_type_string));
-            JUSTIFY_SPACE;
-            JUSTIFY_LAST(true);
-            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
-            pr_string(stream_,*obj_);
-            JUSTIFY_END_FILL;
-          JUSTIFY_SPACE;
-          JUSTIFY_LAST(true);
-            JUSTIFY_START(0);
-            JUSTIFY_LAST(false);
-            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'+');
-            write_sstring(stream_,O(lisp_implementation_type_string));
-            JUSTIFY_SPACE;
-            JUSTIFY_LAST(true);
-        }
-        pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),true,
-                        O(pathname_slotlist));
-        if (not_compiling) { JUSTIFY_END_FILL; JUSTIFY_END_FILL; }
-      } else {
-        if (!nullpSv(print_readably)
-            && !namestring_correctly_parseable_p(&STACK_1))
-          fehler_print_readably(STACK_1);
-        if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
-          # print "#P"
+      if (nullpSv(print_readably)) { /* not readably */
+        if (!nullpSv(print_escape)) { /* print "#P" */
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
         }
-        pr_string(stream_,STACK_0); # print the string
+        pr_string(stream_,STACK_0); /* print the string */
+      } else if (!nullpSv(compiling)) { /* readably & compiling */
+        pr_record_descr(stream_,STACK_1,S(pathname),true,O(pathname_slotlist));
+      } else if (nullpSv(print_pathnames_ansi)) { /* readably, not ANSI */
+        var gcv_object_t* obj_ = &STACK_0;
+        JUSTIFY_START(0);
+        JUSTIFY_LAST(false);
+          JUSTIFY_START(0);
+          JUSTIFY_LAST(false);
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'-');
+          write_sstring(stream_,O(lisp_implementation_type_string));
+          JUSTIFY_SPACE;
+          JUSTIFY_LAST(true);
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
+          pr_string(stream_,*obj_);
+          JUSTIFY_END_FILL;
+        JUSTIFY_SPACE;
+        JUSTIFY_LAST(true);
+          JUSTIFY_START(0);
+          JUSTIFY_LAST(false);
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'+');
+          write_sstring(stream_,O(lisp_implementation_type_string));
+          JUSTIFY_SPACE;
+          JUSTIFY_LAST(true);
+        pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),true,
+                        O(pathname_slotlist));
+        JUSTIFY_END_FILL; JUSTIFY_END_FILL;
+      } else {                  /* readably ANSI */
+        if (!namestring_correctly_parseable_p(&STACK_1))
+          fehler_print_readably(STACK_1);
+        write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
+        pr_string(stream_,STACK_0); /* #P"string" */
       }
       skipSTACK(2);
      #endif
