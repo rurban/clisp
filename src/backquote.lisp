@@ -14,7 +14,7 @@
 
 ;;; Parts of this file
 ;;; Copyright (C) 1988, 1989, 1992-2004 Michael Stoll, Bruno Haible
-;;; Copyright (C) 2002-2003 Sam Steingold
+;;; Copyright (C) 2002-2003, 2005 Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL.
 
 (in-package "SYSTEM")
