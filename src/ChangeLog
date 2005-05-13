@@ -1,3 +1,8 @@
+2005-05-13  Sam Steingold  <sds@gnu.org>
+
+	* backquote.lisp (bq-non-list-splice-error, bq-dotted-splice-error):
+	avoid bootstrapping problems by not using LOAD-TIME-EVAL
+
 2005-05-12  Sam Steingold  <sds@gnu.org>
 
 	support 4GB+ files on woe32
