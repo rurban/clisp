@@ -125,7 +125,7 @@
 ;;; It's undefined behaviour; we signal an error for it.
 ;;; If :in-reader is t, then add the prefix "READ: ", to flag the error as
 ;;; coming from the reader.
-(defun bq-non-list-splice-error (sym &key in-reader (stream #,(sys::%unbound)))
+(defun bq-non-list-splice-error (sym &key in-reader (stream (sys::%unbound)))
   (error-of-type 'reader-error
     :stream stream
     (if in-reader (TEXT "READ: ~@?") "~@?")
@@ -135,7 +135,7 @@
 
 ;;; Signal error for `(... . ,@form) or `(... . ,.form).
 ;;; It's undefined behaviour; we signal an error for it.
-(defun bq-dotted-splice-error (sym &key in-reader (stream #,(sys::%unbound)))
+(defun bq-dotted-splice-error (sym &key in-reader (stream (sys::%unbound)))
   (error-of-type 'reader-error
     :stream stream
     (if in-reader (TEXT "READ: ~@?") "~@?")
