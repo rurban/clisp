@@ -666,7 +666,7 @@ compiles the specified lisp files to a platform-independent
 <refsection id="bugs"><title>Bugs</title>
 
 <para>When you encounter a bug in &clisp;, please report it to the
- CLISP user mailing list &clisp-list; or the
+ &clisp; user mailing list &clisp-list; or the
  <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355">SourceForge bug tracker</ulink>.</para>
 
 <para><emphasis>Before</emphasis> submitting a bug report, please take
@@ -678,14 +678,14 @@ compiles the specified lisp files to a platform-independent
    before <command>"make"</command>).</simpara></listitem>
  <listitem><simpara>If you are reporting a <quote>hard crash</quote>
    (segmentation fault, bus error, core dump etc), please do
-   <command>"./configure --with-debug --build build-g ; cd build-g; gdb"</command>,
+   <command>"./configure --with-debug --build build-g ; cd build-g; gdb lisp.run"</command>,
    then load the appropriate &linkset; by either &base; or &full; &gdb;
    command, and report the backtrace.</simpara></listitem>
  <listitem><simpara>If you are using pre-built binaries and experience a
    hard crash, the problem is likely to be in the incompatibilities
    between the platform on which the binary was built and yours; please
-   try compiling the sources and report the problem if it
-   persists.</simpara></listitem></orderedlist>
+   try compiling the sources and report the problem if it persists.
+</simpara></listitem></orderedlist>
 
 <para>When submitting a bug report, please specify the
 following information:</para>
