@@ -2,10 +2,8 @@
 ;; some tests for PCRE
 ;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "pcre/test")'
 (multiple-value-bind (ve ma mi) (pcre:pcre-version)
-  (format t "~&Version: ~S (~D.~D)~%Options:~:{~%  ~25@A  ~S~}~%" ve ma mi
-          (mapcar (lambda (what) (list what (pcre:pcre-config what)))
-                  '(:UTF8 :NEWLINE :LINK-SIZE :POSIX-MALLOC-THRESHOLD
-                    :MATCH-LIMIT))))
+  (format t "~&Version: ~S (~D.~D)~%Options:~{~%  ~25@A  ~S~}~%" ve ma mi
+          (pcre:pcre-config)))
 NIL
 
 (if (<= 4 (nth-value 1 (pcre:pcre-version)))
@@ -32,6 +30,7 @@ NIL
 
 (let* ((p (pcre:pcre-compile "(a|(z))(bc)"))
        (r (pcre:pcre-exec p "abc")))
+  (format t "~&~S~%" (pcre:pattern-info p))
   (list r (pcre:match-strings r "abc")
         (pcre:pattern-info p :options)))
 (#(#S(PCRE::MATCH :START 0 :END 3) #S(PCRE::MATCH :START 0 :END 1) NIL
