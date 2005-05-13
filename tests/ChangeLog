@@ -1,3 +1,7 @@
+2005-05-13  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: more meaningful diagnostics for FILE-WRITE-DATE
+
 2005-05-12  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (check-ignore-errors): new macro (checks condition slots)
