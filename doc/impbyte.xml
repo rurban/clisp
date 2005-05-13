@@ -45,22 +45,22 @@
   can be used within blocks, like in <command>C++</command>
   and <command>C99</command>.</simpara></listitem></varlistentry>
 <varlistentry><term><filename>utils/ccpaux</filename></term>
-<listitem><simpara>When <command>cpp</command> cannot handle indented
-  directives, remove the indentation.</simpara></listitem></varlistentry>
+<listitem><simpara>When &cpp; cannot handle indented directives, remove
+  the indentation.</simpara></listitem></varlistentry>
 <varlistentry><term><filename>utils/gctrigger</filename></term>
 <listitem><simpara>Add <function>GCTRIGGER</function> statements at the
   head of function bodies (for functions marked with
   the <literal>maygc</literal> pseudo-keyword).
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>utils/deema</filename></term>
-<listitem><simpara>When <command>cpp</command> cannot handle empty macro
-  arguments, insert <literal>_EMA_</literal> instead.
+<listitem><simpara>When &cpp; cannot handle empty macro arguments,
+  insert <literal>_EMA_</literal> instead.
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>utils/ccmp2c</filename></term>
 <listitem><simpara>For the <literal>new-clx</literal> module only.
-  Allows <command>cpp</command>-style
-  preprocessing <emphasis>before</emphasis> &modprep; processing.
-  Should be merged into &modprep;.</simpara></listitem></varlistentry>
+  Allows &cpp;-style preprocessing <emphasis>before</emphasis> &modprep;
+  processing.  Should be merged into &modprep;.
+</simpara></listitem></varlistentry>
 <varlistentry><term><filename>utils/modprep.lisp</filename></term>
 <listitem><simpara>For some modules only, see <xref linkend="modprep"/>.
 </simpara></listitem></varlistentry>
