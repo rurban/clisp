@@ -1,7 +1,7 @@
 /*
  * PCRE - Perl Compatible Regular Expressions
  * <http://www.pcre.org/>
- * Copyright (C) 2003-2004 Sam Steingold
+ * Copyright (C) 2003-2005 Sam Steingold
  * GPL2
  */
 
@@ -32,49 +32,28 @@ DEFMODULE(pcre,"PCRE")
 DEFUN(PCRE::PCRE-VERSION,)
 { VALUES3(asciz_to_string(pcre_version(),GLO(misc_encoding)),
           fixnum(PCRE_MAJOR),fixnum(PCRE_MINOR)); }
-DEFUN(PCRE::PCRE-CONFIG,what)
+DEFCHECKER(pcre_config_option, prefix=PCRE_CONFIG, UTF8 NEWLINE LINK-SIZE\
+           POSIX-MALLOC-THRESHOLD MATCH-LIMIT STACKRECURSE UNICODE-PROPERTIES)
+DEFUN(PCRE::PCRE-CONFIG, &optional what)
 {
-  object arg = popSTACK();
- pcre_config_restart:
-  if (eq(arg,`:UTF8`)) {
-    int ret=0;
-#  if defined(PCRE_CONFIG_UTF8)
-    pcre_config(PCRE_CONFIG_UTF8,&ret);
-#  endif
-    VALUES_IF(ret==1);
-  } else if (eq(arg,`:NEWLINE`)) {
-    int ret=10;                 /* #\Newline */
-#  if defined(PCRE_CONFIG_NEWLINE)
-    pcre_config(PCRE_CONFIG_NEWLINE,&ret);
-#  endif
-    VALUES1(int_char(ret));
-  } else if (eq(arg,`:LINK-SIZE`)) {
-    int ret=0;
-#  if defined(PCRE_CONFIG_LINK_SIZE)
-    pcre_config(PCRE_CONFIG_LINK_SIZE,&ret);
-#  endif
-    VALUES1(fixnum(ret));
-  } else if (eq(arg,`:POSIX-MALLOC-THRESHOLD`)) {
-    int ret=0;
-#  if defined(PCRE_CONFIG_POSIX_MALLOC_THRESHOLD)
-    pcre_config(PCRE_CONFIG_POSIX_MALLOC_THRESHOLD,&ret);
-#  endif
-    VALUES1(fixnum(ret));
-  } else if (eq(arg,`:MATCH-LIMIT`)) {
-    int ret=0;
-#  if defined(PCRE_CONFIG_MATCH_LIMIT)
-    pcre_config(PCRE_CONFIG_MATCH_LIMIT,&ret);
-#  endif
-    VALUES1(fixnum(ret));
+  if (missingp(STACK_0)) {
+    int pos = 0;
+    for (; pos < pcre_config_option_table_size; pos++) {
+      int ret;
+      begin_system_call();
+      pcre_config(pcre_config_option_table[pos].c_const,&ret);
+      end_system_call();
+      pushSTACK(*pcre_config_option_table[pos].l_const);
+      pushSTACK(L_to_I(ret));
+    }
+    VALUES1(listof(2*pcre_config_option_table_size));
   } else {
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(arg);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(`(MEMBER :UTF8 :NEWLINE :LINK-SIZE :POSIX-MALLOC-THRESHOLD :MATCH-LIMIT)`); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: invalid config option ~S"));
-    arg = value1;
-    goto pcre_config_restart;
+    int option = pcre_config_option(STACK_0);
+    int ret = 0;
+    begin_system_call(); pcre_config(option,&ret); end_system_call();
+    VALUES1(L_to_I(ret));
   }
+  skipSTACK(1);
 }
 
 DEFUN(PCRE::PCRE-FREE,fp)
@@ -94,10 +73,14 @@ DEFUN(PCRE::PCRE-FREE,fp)
 DEFFLAGSET(pcre_compile_flags, PCRE_CASELESS PCRE_MULTILINE PCRE_DOTALL \
            PCRE_EXTENDED PCRE_ANCHORED PCRE_DOLLAR_ENDONLY PCRE_EXTRA   \
            PCRE_NOTBOL PCRE_NOTEOL PCRE_UNGREEDY PCRE_NOTEMPTY          \
-           PCRE_NO_AUTO_CAPTURE)
+           PCRE_NO_AUTO_CAPTURE PCRE_AUTO_CALLOUT PCRE_PARTIAL)
+DEFCHECKER(pcre_options,prefix=PCRE,bitmasks=both,\
+           CASELESS MULTILINE DOTALL EXTENDED ANCHORED DOLLAR-ENDONLY EXTRA \
+           NOTBOL NOTEOL UNGREEDY NOTEMPTY UTF8 NO-AUTO-CAPTURE NO-UTF8-CHECK \
+           AUTO-CALLOUT PARTIAL)
 DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
       :EXTENDED :ANCHORED :DOLLAR-ENDONLY :EXTRA :NOTBOL :NOTEOL :UNGREADY \
-      :NOTEMPTY :NO-AUTO-CAPTURE)
+      :NOTEMPTY :NO-AUTO-CAPTURE :AUTO-CALLOUT :PARTIAL)
 { /* compile the pattern, return PATTERN struct */
   int options = PCRE_UTF8 | pcre_compile_flags();
   bool study = !missingp(STACK_0);
@@ -156,148 +139,169 @@ static void check_pattern (object pat, pcre** compiled_pattern,
     (pcre_extra*)TheFpointer(TheStructure(pat)->recdata[2])->fp_pointer;
 }
 
-/* two object should be on STACK for the error message */
+/* two objects should be on STACK for the error message */
+DEFCHECKER(pcre_error_code,prefix=PCRE_ERROR, NOMATCH NULL BADOPTION    \
+           BADMAGIC UNKNOWN_NODE NOMEMORY NOSUBSTRING MATCHLIMIT CALLOUT \
+           BADUTF8 BADUTF8_OFFSET PARTIAL BADPARTIAL INTERNAL BADCOUNT)
 nonreturning_function(static, pcre_error, (int status)) {
+  pushSTACK(pcre_error_code_reverse(status));
   pushSTACK(sfixnum(status)); pushSTACK(TheSubr(subr_self)->name);
-  switch (status) {
-    case PCRE_ERROR_NOMATCH:        fehler(error,"~S/~S (~S ~S): NOMATCH");
-    case PCRE_ERROR_NULL:           fehler(error,"~S/~S (~S ~S): NULL");
-    case PCRE_ERROR_BADOPTION:      fehler(error,"~S/~S (~S ~S): BADOPTION");
-    case PCRE_ERROR_BADMAGIC:       fehler(error,"~S/~S (~S ~S): BADMAGIC");
-    case PCRE_ERROR_UNKNOWN_NODE:   fehler(error,"~S/~S (~S ~S): UNKNOWN_NODE");
-    case PCRE_ERROR_NOMEMORY:       fehler(error,"~S/~S (~S ~S): NOMEMORY");
-    case PCRE_ERROR_NOSUBSTRING:    fehler(error,"~S/~S (~S ~S): NOSUBSTRING");
-#  if defined(PCRE_ERROR_MATCHLIMIT)
-    case PCRE_ERROR_MATCHLIMIT:     fehler(error,"~S/~S (~S ~S): MATCHLIMIT");
-#  endif
-#  if defined(PCRE_ERROR_CALLOUT)
-    case PCRE_ERROR_CALLOUT:        fehler(error,"~S/~S (~S ~S): CALLOUT");
-#  endif
-#  if defined(PCRE_ERROR_BADUTF8)
-    case PCRE_ERROR_BADUTF8:        fehler(error,"~S/~S (~S ~S): BADUTF8");
-#  endif
-#  if defined(PCRE_ERROR_BADUTF8_OFFSET)
-    case PCRE_ERROR_BADUTF8_OFFSET: fehler(error,"~S/~S (~S ~S): BADUTF8_OFFSET");
-#  endif
-    default: fehler(error,"~S/~S (~S ~S): UNKNOWN ERROR");
-  }
+  fehler(error,"~S/~S=~S: ~S ~S");
 }
 
-DEFUN(PCRE:PATTERN-INFO,pattern request)
-{
-  pcre *c_pat;
-  pcre_extra *study;
-  int status;
-  check_pattern(STACK_1,&c_pat,&study);
- pcre_fullinfo_restart:
-# define INFO(opt,val,bad)    do {                      \
+
+#define PCRE_INFO(opt,val,bad)    do {                  \
     begin_system_call();                                \
     status = pcre_fullinfo(c_pat,study,opt,val);        \
     end_system_call();                                  \
     if (status < bad) pcre_error(status);               \
   } while(0)
-
-  if (eq(STACK_0,`:OPTIONS`)) {
-    unsigned long int options, nn = 0;
-    INFO(PCRE_INFO_OPTIONS,&options,0);
-    if (options & PCRE_CASELESS)  { nn++; pushSTACK(`:IGNORE-CASE`); }
-    if (options & PCRE_MULTILINE) { nn++; pushSTACK(`:MULTILINE`); }
-    if (options & PCRE_DOTALL)    { nn++; pushSTACK(`:DOTALL`); }
-    if (options & PCRE_EXTENDED)  { nn++; pushSTACK(`:EXTENDED`); }
-    if (options & PCRE_ANCHORED)  { nn++; pushSTACK(`:ANCHORED`); }
-    if (options & PCRE_DOLLAR_ENDONLY) { nn++; pushSTACK(`:DOLLAR_ENDONLY`); }
-    if (options & PCRE_EXTRA)     { nn++; pushSTACK(`:EXTRA`); }
-    if (options & PCRE_NOTBOL)    { nn++; pushSTACK(`:NOTBOL`); }
-    if (options & PCRE_NOTEOL)    { nn++; pushSTACK(`:NOTEOL`); }
-    if (options & PCRE_UNGREEDY)  { nn++; pushSTACK(`:UNGREEDY`); }
-    if (options & PCRE_NOTEMPTY)  { nn++; pushSTACK(`:NOTEMPTY`); }
-    if (options & PCRE_UTF8)      { nn++; pushSTACK(`:UTF8`); }
-#  if defined(PCRE_NO_AUTO_CAPTURE)
-    if (options & PCRE_NO_AUTO_CAPTURE) {nn++; pushSTACK(`:NO_AUTO_CAPTURE`);}
-#  endif
-#  if defined(PCRE_NO_UTF8_CHECK)
-    if (options & PCRE_NO_UTF8_CHECK) { nn++; pushSTACK(`:NO_UTF8_CHECK`); }
-#  endif
-    VALUES1(listof(nn));
-  } else if (eq(STACK_0,`:SIZE`)) {
-    unsigned long int length;
-    INFO(PCRE_INFO_SIZE,&length,0);
-    VALUES1(fixnum(length));
-  } else if (eq(STACK_0,`:CAPTURECOUNT`)) {
-    int count;
-    INFO(PCRE_INFO_CAPTURECOUNT,&count,0);
-    VALUES1(fixnum(count));
-  } else if (eq(STACK_0,`:BACKREFMAX`)) {
-    int ref;
-    INFO(PCRE_INFO_BACKREFMAX,&ref,0);
-    VALUES1(fixnum(ref));
+DEFCHECKER(fullinfo_arg,prefix=PCRE_INFO,OPTIONS SIZE CAPTURECOUNT      \
+           BACKREFMAX FIRSTBYTE FIRSTTABLE LASTLITERAL                  \
+           NAMEENTRYSIZE NAMECOUNT NAMETABLE STUDYSIZE)
+/* PCRE_INFO_DEFAULTTABLES -- does not look useful
+       Return a pointer to the internal default character tables within  PCRE.
+       The  fourth  argument should point to an unsigned char * variable. This
+       information call is provided for internal use by the pcre_study() func-
+       tion.  External  callers  can  cause PCRE to use its internal tables by
+       passing a NULL table pointer. */
+static object fullinfo_options (pcre *c_pat, pcre_extra *study) {
+  unsigned long int options, nn = 0;
+  int status;
+  PCRE_INFO(PCRE_INFO_OPTIONS,&options,0);
+  return pcre_options_to_list(options);
+}
+static object fullinfo_size (pcre *c_pat, pcre_extra *study) {
+  unsigned long int length;
+  int status;
+  PCRE_INFO(PCRE_INFO_SIZE,&length,0);
+  return UL_to_I(length);
+}
+static object fullinfo_int (pcre *c_pat, pcre_extra *study, int opt) {
+  int ret, status;
+  PCRE_INFO(opt,&ret,0);
+  return L_to_I(ret);
+}
 #if defined(PCRE_INFO_FIRSTBYTE)
-  } else if (eq(STACK_0,`:FIRSTBYTE`)) {
-    int value;
-    INFO(PCRE_INFO_FIRSTBYTE,&value,-2);
-    if (status == 0) VALUES1(int_char(value));
-    else if (status == -1) VALUES1(`:BOL`);
-    else if (status == -2) VALUES1(NIL);
+static object fullinfo_firstbyte (pcre *c_pat, pcre_extra *study) {
+  int value, status;
+  PCRE_INFO(PCRE_INFO_FIRSTBYTE,&value,-2);
+  if (status == 0) return int_char(value);
+  else if (status == -1) return `:BOL`;
+  else if (status == -2) return NIL;
+  else NOTREACHED;
+}
 #endif
-  } else if (eq(STACK_0,`:FIRSTTABLE`)) {
-    unsigned char table[256/sizeof(char)];
-    VALUES1(allocate_bit_vector(Atype_Bit,256));
-    begin_system_call();
-    status = pcre_fullinfo(c_pat,study,PCRE_INFO_FIRSTTABLE,&table);
-    if (status < 0) { end_system_call(); pcre_error(status); }
-    memcpy(TheSbvector(value1)->data,table,sizeof(table));
-    end_system_call();
-  } else if (eq(STACK_0,`:LASTLITERAL`)) {
-    int value;
-    INFO(PCRE_INFO_LASTLITERAL,&value,0);
-    if (status == 0) VALUES1(int_char(value));
-    else VALUES1(NIL);
-#if defined(PCRE_INFO_NAMEENTRYSIZE)
-  } else if (eq(STACK_0,`:NAMEENTRYSIZE`)) {
-    int value;
-    INFO(PCRE_INFO_NAMEENTRYSIZE,&value,0);
-    VALUES1(fixnum(value));
-#endif
-#if defined(PCRE_INFO_NAMECOUNT)
-  } else if (eq(STACK_0,`:NAMECOUNT`)) {
-    int value;
-    INFO(PCRE_INFO_NAMECOUNT,&value,0);
-    VALUES1(fixnum(value));
-#endif
+static object fullinfo_firsttable (pcre *c_pat, pcre_extra *study) {
+  unsigned char table[256];
+  object ret = allocate_bit_vector(Atype_Bit,256);
+  int status;
+  begin_system_call();
+  status = pcre_fullinfo(c_pat,study,PCRE_INFO_FIRSTTABLE,&table);
+  if (status < 0) { end_system_call(); pcre_error(status); }
+  memcpy(TheSbvector(ret)->data,table,sizeof(table));
+  end_system_call();
+  return ret;
+}
+static object fullinfo_lastliteral (pcre *c_pat, pcre_extra *study) {
+  int value, status;
+  PCRE_INFO(PCRE_INFO_LASTLITERAL,&value,0);
+  if (status == 0) return int_char(value);
+  else return NIL;
+}
 #if defined(PCRE_INFO_NAMECOUNT) && defined(PCRE_INFO_NAMEENTRYSIZE) && defined(PCRE_INFO_NAMETABLE)
-  } else if (eq(STACK_0,`:NAMETABLE`)) {
-    int count, size, pos;
-    char *table;
-    begin_system_call();
-    status = pcre_fullinfo(c_pat,study,PCRE_INFO_NAMECOUNT,&count);
-    if (status < 0) { end_system_call(); pcre_error(status); }
-    status = pcre_fullinfo(c_pat,study,PCRE_INFO_NAMEENTRYSIZE,&size);
-    if (status < 0) { end_system_call(); pcre_error(status); }
-    status = pcre_fullinfo(c_pat,study,PCRE_INFO_NAMETABLE,&table);
-    end_system_call();
-    if (status < 0) pcre_error(status);
-    for (pos = 0; pos < count; pos++, table+=size) {
-      pushSTACK(allocate_cons());
-      Car(STACK_0) = asciz_to_string(table+2,GLO(misc_encoding));
-      Cdr(STACK_0) = fixnum((table[0]<<1) + table[1]);
-    }
+static object fullinfo_nametable (pcre *c_pat, pcre_extra *study) {
+  int count, size, pos, status;
+  char *table;
+  begin_system_call();
+  status = pcre_fullinfo(c_pat,study,PCRE_INFO_NAMECOUNT,&count);
+  if (status < 0) { end_system_call(); pcre_error(status); }
+  status = pcre_fullinfo(c_pat,study,PCRE_INFO_NAMEENTRYSIZE,&size);
+  if (status < 0) { end_system_call(); pcre_error(status); }
+  status = pcre_fullinfo(c_pat,study,PCRE_INFO_NAMETABLE,&table);
+  end_system_call();
+  if (status < 0) pcre_error(status);
+  for (pos = 0; pos < count; pos++, table+=size) {
+    pushSTACK(allocate_cons());
+    Car(STACK_0) = asciz_to_string(table+2,GLO(misc_encoding));
+    Cdr(STACK_0) = fixnum((table[0]<<1) + table[1]);
+  }
+  return listof(count);
+}
+#endif
+DEFUN(PCRE:PATTERN-INFO,pattern &optional request)
+{
+  pcre *c_pat;
+  pcre_extra *study;
+  check_pattern(STACK_1,&c_pat,&study);
+  if (missingp(STACK_0)) {
+    int count = 0;
+    pushSTACK(`:OPTIONS`); pushSTACK(fullinfo_options(c_pat,study)); count+=2;
+    pushSTACK(`:SIZE`); pushSTACK(fullinfo_size(c_pat,study)); count+=2;
+    pushSTACK(`:CAPTURECOUNT`);
+    pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_CAPTURECOUNT)); count+=2;
+    pushSTACK(`:BACKREFMAX`);
+    pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_BACKREFMAX)); count+=2;
+#  if defined(PCRE_INFO_FIRSTBYTE)
+    pushSTACK(`:FIRSTBYTE`);pushSTACK(fullinfo_firstbyte(c_pat,study));count+=2;
+#  endif
+    pushSTACK(`:FIRSTTABLE`);
+    pushSTACK(fullinfo_firsttable(c_pat,study)); count+=2;
+    pushSTACK(`:LASTLITERAL`);
+    pushSTACK(fullinfo_lastliteral(c_pat,study)); count+=2;
+#  if defined(PCRE_INFO_NAMEENTRYSIZE)
+    pushSTACK(`:BACKREFMAX`);
+    pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_BACKREFMAX)); count+=2;
+#  endif
+#  if defined(PCRE_INFO_NAMEENTRYSIZE)
+    pushSTACK(`:NAMEENTRYSIZE`);
+    pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_NAMEENTRYSIZE)); count+=2;
+#  endif
+#  if defined(PCRE_INFO_NAMECOUNT)
+    pushSTACK(`:NAMECOUNT`);
+    pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_NAMECOUNT)); count+=2;
+#  endif
+#  if defined(PCRE_INFO_STUDYSIZE)
+    pushSTACK(`:STUDYSIZE`);
+    pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_STUDYSIZE)); count+=2;
+#  endif
+#  if defined(PCRE_INFO_NAMECOUNT) && defined(PCRE_INFO_NAMEENTRYSIZE) && defined(PCRE_INFO_NAMETABLE)
+    pushSTACK(`:NAMETABLE`);
+    pushSTACK(fullinfo_nametable(c_pat,study)); count+=2;
+#  endif
     VALUES1(listof(count));
-#endif
-#if defined(PCRE_INFO_STUDYSIZE)
-  } else if (eq(STACK_0,`:STUDYSIZE`)) {
-    size_t value;
-    INFO(PCRE_INFO_STUDYSIZE,&value,0);
-    VALUES1(fixnum(value));
-#endif
-  } else {                      /* error */
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(STACK_1); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S: ~S is not a valid option"));
-    STACK_0 = value1;
-    goto pcre_fullinfo_restart;
+  } else {
+    int arg = fullinfo_arg(STACK_0);
+    switch (arg) {
+      case PCRE_INFO_OPTIONS: VALUES1(fullinfo_options(c_pat,study)); break;
+      case PCRE_INFO_SIZE: VALUES1(fullinfo_size(c_pat,study)); break;
+      case PCRE_INFO_CAPTURECOUNT: case PCRE_INFO_BACKREFMAX:
+#    if defined(PCRE_INFO_NAMEENTRYSIZE)
+      case PCRE_INFO_NAMEENTRYSIZE:
+#    endif
+#    if defined(PCRE_INFO_NAMECOUNT)
+      case PCRE_INFO_NAMECOUNT:
+#    endif
+#    if defined(PCRE_INFO_STUDYSIZE)
+      case PCRE_INFO_STUDYSIZE:
+#    endif
+        VALUES1(fullinfo_int(c_pat,study,arg)); break;
+#    if defined(PCRE_INFO_FIRSTBYTE)
+      case PCRE_INFO_FIRSTBYTE: VALUES1(fullinfo_firstbyte(c_pat,study)); break;
+#    endif
+      case PCRE_INFO_FIRSTTABLE:
+        VALUES1(fullinfo_firsttable(c_pat,study)); break;
+      case PCRE_INFO_LASTLITERAL:
+        VALUES1(fullinfo_lastliteral(c_pat,study)); break;
+#    if defined(PCRE_INFO_NAMECOUNT) && defined(PCRE_INFO_NAMEENTRYSIZE) && defined(PCRE_INFO_NAMETABLE)
+      case PCRE_INFO_NAMETABLE: VALUES1(fullinfo_nametable(c_pat,study)); break;
+#    endif
+      default: NOTREACHED;
+    }
   }
   skipSTACK(2);
 }
+
 
 DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
 { /* pcre_get_stringnumber() : named substring index in OVECTOR */
@@ -363,8 +367,8 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
       pushSTACK(allocate_vector(ret)); /* return value */
       for (pos = ov_pos = 0; pos < ret; pos++, ov_pos+=2)
         if (ovector[ov_pos] >= 0) {
-          pushSTACK(fixnum(ovector[ov_pos]));
-          pushSTACK(fixnum(ovector[ov_pos+1]));
+          pushSTACK(L_to_I(ovector[ov_pos]));
+          pushSTACK(L_to_I(ovector[ov_pos+1]));
           funcall(`PCRE::MAKE-MATCH-BOA`,2);
           TheSvector(STACK_0)->data[pos] = value1;
         }
