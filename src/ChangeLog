@@ -1,5 +1,9 @@
 2005-05-13  Sam Steingold  <sds@gnu.org>
 
+	* modules/pcre/cpcre.c: updated for PCRE5
+
+2005-05-13  Sam Steingold  <sds@gnu.org>
+
 	* backquote.lisp (bq-non-list-splice-error, bq-dotted-splice-error):
 	avoid bootstrapping problems by not using LOAD-TIME-EVAL
 

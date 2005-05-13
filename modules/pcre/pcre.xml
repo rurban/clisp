@@ -27,7 +27,7 @@
   <listitem><simpara>Compile a pattern, optionally study it.
  </simpara></listitem></varlistentry>
  <varlistentry id="pattern-info"><term>
-   <code>(PCRE:PATTERN-INFO &pattern-r; request)</code></term>
+   <code>(PCRE:PATTERN-INFO &pattern-r; &optional-amp; request)</code></term>
   <listitem><simpara>Return some information about the &pattern-r;,
     such as <literal>:OPTIONS</literal> <literal>:SIZE</literal>
     <literal>:CAPTURECOUNT</literal> <literal>:BACKREFMAX</literal>
