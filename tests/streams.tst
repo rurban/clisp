@@ -953,14 +953,15 @@ WARNING: This form contains an error, a mistake, a bug, a
 "
 
 
-(let ((f "foo.bar") fwd1)
+(let ((f "foo.bar") fwd1 fwd2)
   (unwind-protect
        (progn ; FILE-WRITE-DATE should work on :PROBE streams
          (with-open-file (s f :direction :output #+SBCL :if-exists #+SBCL :supersede)
            (write f :stream s)
            (setq fwd1 (file-write-date s)))
          (with-open-file (s f :direction :probe)
-           (list (= fwd1 (file-write-date s))
+           (list (or (= fwd1 (setq fwd2 (file-write-date s)))
+                     (list fwd1 fwd2))
                  ;; PROBE streams are closed!
                  (open-stream-p s))))
     (delete-file f)))
