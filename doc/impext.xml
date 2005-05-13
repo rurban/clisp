@@ -2139,8 +2139,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   <varlistentry><term><function>DEFCHECKER</function></term>
    <listitem><simpara>define a &c-lang; function which will check that
      its argument is one of the specified keywords and return the value
-     of the appropriate <command>cpp</command> macro
-  </simpara></listitem></varlistentry>
+     of the appropriate &cpp; macro</simpara></listitem></varlistentry>
 </variablelist></para>
 
 <para>See <filename>modules/syscalls</filename> and other included
