@@ -24,7 +24,7 @@ all : regexp.fas regexi.o $(REGEX_O)
 regexp.fas : regexp.lisp
 	$(CLISP) -c regexp.lisp
 
-regexi.o : regexi.m.c $(REGEX_H)
+regexi.o : regexi.m.c $(REGEX_H) $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c regexi.m.c -o regexi.o
 
 regexi.m.c : regexi.c $(MODPREP)

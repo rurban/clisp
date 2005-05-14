@@ -4,7 +4,7 @@
 CC = gcc -O
 CPPFLAGS =
 CFLAGS = -Wall -fomit-frame-pointer -O2
-INCLUDES=.
+INCLUDES=..
 CPP = gcc -O -E -w
 CLFLAGS =
 
@@ -29,7 +29,7 @@ queens.o : queens.c
 callqueens.m.c : callqueens.c $(MODPREP)
 	$(CLISP) $(MODPREP) callqueens.c
 
-callqueens.o : callqueens.m.c
+callqueens.o : callqueens.m.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o
 
 # Make a module

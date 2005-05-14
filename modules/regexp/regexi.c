@@ -4,7 +4,7 @@
  * rewritten by Sam Steingold 2003-08-06
  */
 
-#include <clisp.h>
+#include "clisp.h"
 #include <sys/types.h>          /* regex.h needs this */
 #include <stdlib.h>             /* declare malloc(), free() */
 #include <stdio.h>              /* BUFSIZ */
