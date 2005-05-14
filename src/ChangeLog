@@ -305,13 +305,13 @@
 	* modules/queens/callqueens.c (USER::QUEENS): Use check_uint/I_to_uint
 	instead of check_posfixnum/posfixnum_to_L. Change result type from
 	uint32 to 'unsigned int'.
-	* modules/rawsock/rawsock.c (RAWSOCK:ACCEPT, RAWSOCK:BIND,
-	RAWSOCK:CONNECT, RAWSOCK:GETPEERNAME, RAWSOCK:GETSOCKNAME,
-	RAWSOCK:LISTEN, RAWSOCK:RECV, RAWSOCK:RECVFROM, RAWSOCK:RECVMSG,
-	RAWSOCK:SOCK-READ, RAWSOCK:SEND, RAWSOCK:SENDMSG, RAWSOCK:SENDTO,
-	RAWSOCK:SOCK-WRITE, RAWSOCK:SOCK-CLOSE, RAWSOCK:SHUTDOWN,
-	RAWSOCK:CONFIGDEV): Use check_uint/I_to_uint instead of
-	check_posfixnum/posfixnum_to_L.
+	* modules/rawsock/rawsock.c (RAWSOCK:SOCKATMARK, RAWSOCK:ACCEPT,
+	RAWSOCK:BIND, RAWSOCK:CONNECT, RAWSOCK:GETPEERNAME,
+	RAWSOCK:GETSOCKNAME, RAWSOCK:LISTEN, RAWSOCK:RECV, RAWSOCK:RECVFROM,
+	RAWSOCK:RECVMSG, RAWSOCK:SOCK-READ, RAWSOCK:SEND, RAWSOCK:SENDMSG,
+	RAWSOCK:SENDTO, RAWSOCK:SOCK-WRITE, RAWSOCK:SOCK-CLOSE,
+	RAWSOCK:SHUTDOWN, RAWSOCK:CONFIGDEV): Use check_uint/I_to_uint instead
+	of check_posfixnum/posfixnum_to_L.
 	* modules/regexp/regexi.c (REGEXP::REGEXP-EXEC): Update.
 	* modules/syscalls/calls.c (POSIX::STREAM-LOCK): Use uint_p/I_to_uint
 	instead of posfixnump/posfixnum_to_L.
