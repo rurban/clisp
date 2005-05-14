@@ -22,7 +22,7 @@ all : i18n.fas gettext.o
 i18n.fas : i18n.lisp
 	$(CLISP) -c i18n.lisp
 
-gettext.o : gettext.m.c
+gettext.o : gettext.m.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c gettext.m.c -o gettext.o
 
 gettext.m.c : gettext.c $(MODPREP)

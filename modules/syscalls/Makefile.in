@@ -26,7 +26,7 @@ posix.fas : posix.lisp
 calls.m.c: calls.c $(MODPREP)
 	$(CLISP) $(MODPREP) calls.c
 
-calls.o : calls.m.c
+calls.o : calls.m.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c calls.m.c -o calls.o
 
 # Make a module
