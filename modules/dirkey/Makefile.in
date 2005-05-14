@@ -24,7 +24,7 @@ dirkey1.fas : dirkey1.lisp
 dirkey.m.c: dirkey.c $(MODPREP)
 	$(CLISP) $(MODPREP) dirkey.c
 
-dirkey.o : dirkey.m.c
+dirkey.o : dirkey.m.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c dirkey.m.c -o dirkey.o
 
 # Make a module

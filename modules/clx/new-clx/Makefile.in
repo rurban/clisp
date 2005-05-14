@@ -3,7 +3,7 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = -O
-INCLUDES= ../../
+INCLUDES= ../..
 CLISP = clisp -q -norc
 MODPREP = ../../modprep.fas
 LN = ln
@@ -40,7 +40,7 @@ clx.c: clx.e $(MODPREP)
 	cp clx.e clx.d
 	$(CLISP) $(MODPREP) clx.d clx.c
 
-clx.o: clx.c
+clx.o: clx.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) -I$(INCLUDES) -c clx.c
 
 # Make a module

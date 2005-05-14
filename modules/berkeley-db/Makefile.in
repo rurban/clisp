@@ -24,7 +24,7 @@ dbi.fas : dbi.lisp
 bdb.m.c: bdb.c $(MODPREP)
 	$(CLISP) $(MODPREP) bdb.c
 
-bdb.o : bdb.m.c
+bdb.o : bdb.m.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(DBCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c bdb.m.c -o bdb.o
 
 # Make a module

@@ -1,5 +1,17 @@
 2005-05-14  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/Makefile.in (bdb.o): depend on clisp.h
+	* modules/clx/new-clx/Makefile.in (clx.o): ditto
+	* modules/dirkey/Makefile.in (dirkey.o): ditto
+	* modules/i18n/Makefile.in (gettext.o): ditto
+	* modules/queens/Makefile.in (callqueens.o): ditto
+	* modules/rawsock/Makefile.in (rawsock.o): ditto
+	* modules/regexp/Makefile.in (regexi.o): ditto
+	* modules/syscalls/Makefile.in (calls.o): ditto
+	* modules/regexp/regexi.c: include "clisp.h", not <clisp.h>
+
+2005-05-14  Sam Steingold  <sds@gnu.org>
+
 	when lndir copies or hard links, "cvs up" required "rm -rf module-dir"
 	* makemake.in (anymodule): always call lndir, even when
 	destination exists

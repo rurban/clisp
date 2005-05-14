@@ -22,7 +22,7 @@ all : sock.fas rawsock.o
 sock.fas : sock.lisp
 	$(CLISP) -c sock.lisp
 
-rawsock.o : rawsock.m.c
+rawsock.o : rawsock.m.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c rawsock.m.c -o rawsock.o
 
 rawsock.m.c : rawsock.c $(MODPREP)
