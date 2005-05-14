@@ -1428,11 +1428,10 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
   #define FN_MSD(obj)  \
     ((uintD)( (sintD)(typecode(obj) << (intDsize-1-sign_bit_t)) >> (intDsize-1)))
 #elif (sign_bit_o == oint_data_len+oint_data_shift) || ((oint_data_len==(FN_maxlength-1)*intDsize) && (sign_bit_o >= intDsize-1))
-  #if HAVE_DD
+  #if (sign_bit_o >= intDsize)
     #define FN_MSD(obj)  \
-      ((sintD)((sintDD)(sintD)(as_oint(obj)>>(sign_bit_o-(intDsize-1))) \
-               >>(oint_data_shift-sign_bit_o+FN_maxlength*intDsize-1)))
-  #elif (sign_bit_o < intDsize)
+      ((sintD)(as_oint(obj) >> (sign_bit_o-(intDsize-1))) >> (oint_data_shift-sign_bit_o+FN_maxlength*intDsize-1))
+  #else
     #define FN_MSD(obj)  \
       (((sintD)as_oint(obj) << (intDsize-1-sign_bit_o)) >> (FN_maxlength*intDsize-1-sign_bit_o+oint_data_shift))
   #endif
