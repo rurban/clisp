@@ -23,7 +23,7 @@ all : matlab.fas matlab.o wrap.fas
 matlab.c matlab.fas : matlab.lisp
 	$(CLISP) -c matlab.lisp
 
-matlab.o : matlab.c
+matlab.o : matlab.c $(INCLUDES)/clisp.h
 	$(CC) $(CFLAGS) -I$(INCLUDES) -I$(MATLAB) -c matlab.c
 
 %.fas: %.lisp
