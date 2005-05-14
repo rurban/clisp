@@ -30,7 +30,7 @@
 </section>
 
 <section id="src-preprocessing"><title>Source Pre-Processing</title>
-<para>&c-lang; sources are pre-procecessed with the following tools
+<para>&c-lang; sources are pre-processed with the following tools
    before being passed to the &c-lang; compiler:</para>
 <variablelist>
 <varlistentry><term><filename>utils/comment5</filename></term>

@@ -756,7 +756,7 @@ English, German, French, Spanish, Dutch and Russian.
     <primary id="foreign-enc-i"><varname>*FOREIGN-ENCODING*</varname>
  </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding for strings passed through the
- &ffi-pac; (some plaforms only). If it is a 1:1 encoding,
+ &ffi-pac; (some platforms only). If it is a 1:1 encoding,
  i.e. an encoding in which every character is represented by one byte,
  it is also used for passing characters through the &ffi-pac;.
 </simpara></listitem></varlistentry>
@@ -1580,7 +1580,7 @@ expands to
 <formalpara id="remove-plist">
      <title>Function <function>EXT:REMOVE-PLIST</function></title>
 <para>Similar to &remove; and &remf;, this function removes some
- properties from a property list.  It is non-destructve and thus can be
+ properties from a property list.  It is non-destructive and thus can be
  used on &rest-amp; arguments to remove some keyword parameters, e.g.,
 <programlisting language="lisp">
  (defmacro with-foo ((&key-amp; foo1 foo2) &body-amp; body)
@@ -2164,7 +2164,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    <function>popSTACK()</function> and <function>skipSTACK()</function>.
  </simpara></listitem>
  <listitem><simpara>Access object slots using the
-   approprate <function>TheFoo()</function> macro, e.g.,
+   appropriate <function>TheFoo()</function> macro, e.g.,
    <function>TheCons(my_cons)-&gt;Car</function>, but first check the
    type with <function>consp()</function>.</simpara></listitem>
  <listitem><simpara>Arguments are passed on the &STACK;, as illustrated
@@ -2818,7 +2818,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   <simpara>Function &foreign-free; deallocates memory at the address
    held by the given &f-ent;. If <constant>:FULL</constant> is supplied
    and the argument is of type &foreign-variable-t;, recursively frees
-   the whole complex stucture pointed to by this variable.</simpara>
+   the whole complex structure pointed to by this variable.</simpara>
   <simpara>If given a &foreign-function-t; object that corresponds to a
    &clisp; callback, deallocates it.  Callbacks are automatically
    created each time you pass a Lisp function via the &ffi-pac;.</simpara>
@@ -3570,7 +3570,7 @@ int CallInFunc(LispFunc f) {
  follows a typical pattern of &c-lang; "out"-parameter convention - it
  expects a pointer to a buffer it is going to fill.
  So you must view this parameter as either &out-k; or &in-out-k;.
- Additionaly, one must tell the function the size of the buffer.
+ Additionally, one must tell the function the size of the buffer.
  Here <replaceable>namelen</replaceable> is just an &in-k; parameter.
  Sometimes this will be an &in-out-k; parameter, returning the
  number of bytes actually filled in.</para>
@@ -3667,13 +3667,14 @@ double test_dll(struct bar *ptr)
 
 </example>
 
-<example id="ex-dffi-validity"><title>Controling validity of resources.</title>
+<example id="ex-dffi-validity"><title>Controlling validity of resources.</title>
 
-<para>&set-foreign-pointer; is useful in conjunction with (setf &validp;) to
-limit the extent of external resources. Closing twice can be avoided by
-checking &validp;. All pointers depending on this resource can be
-disabled at once upon close by sharing their &foreign-pointer; using
-&set-foreign-pointer;.<programlisting language="lisp">
+<para>&set-foreign-pointer; is useful in conjunction with <code>(&setf;
+  &validp;)</code> to limit the extent of external resources.
+ Closing twice can be avoided by checking &validp;.
+ All pointers depending on this resource can be disabled at once upon
+ close by sharing their &foreign-pointer; using &set-foreign-pointer;.
+<programlisting language="lisp">
 (def-c-type PGconn c-pointer) ; opaque pointer
 (def-call-out PQconnectdb (:return-type PGconn)
   (:arguments (conninfo c-string)))
@@ -3691,9 +3692,8 @@ disabled at once upon close by sharing their &foreign-pointer; using
     (setf (&validp; connection) nil)
     T))
 </programlisting>
-<warning><para>Sharing &foreign-pointer; goes both ways:
-  invalidating the dependent resource will invalidate the primary one.
-</para></warning>
+<warning><para>Sharing &foreign-pointer; goes both ways: invalidating
+  the dependent resource will invalidate the primary one.</para></warning>
 <note><para>An alternative approach to resource management is
   implemented in the <link linkend="berkeley-db">berkeley-db</link>
   module, see <xref linkend="bdb-close"/>.</para></note></para></example>
@@ -4029,7 +4029,7 @@ memory from the given vector (of type &string-t; or &unsigned-byte-vec;).
 <section id="affi-func-def"><title>Function Definition Files</title>
 
 <para><function>affi:require-library-functions</function> will &require; a
-file of name derived from thelibrary name and with type
+file of name derived from the library name and with type
 <filename>affi</filename>. It may be used to import all names into the
 current package or only a given subset identified by string names, using
 the <constant>:import</constant> keyword (recommended use).
