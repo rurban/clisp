@@ -1,5 +1,10 @@
 2005-05-13  Bruno Haible  <bruno@clisp.org>
 
+	* genclisph.d (main): Make VAROBJECT_HEADER definition consistent with
+	lispbibl.d. Undo LISPFUN_F modification from 2005-03-29.
+
+2005-05-13  Bruno Haible  <bruno@clisp.org>
+
 	* spvw.d (main) [UNIX_DARWIN && TYPECODES && TRIVIALMAP_MEMORY]:
 	Provide a good location of heaps.
 
