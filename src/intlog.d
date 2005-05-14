@@ -703,9 +703,9 @@ local maygc object I_logcount_I (object x);
 #define logcount_64()                                           \
     (                                                           \
       /* x32 consists of 64 1-bit-counters (0,1). */            \
-      x32 = (x32 & 0x5555555555555555ULL) + ((x32 & 0xAAAAAAAAAAAAAAAAULL) >> 1), \
+      x32 = (x32 & ULL(0x5555555555555555)) + ((x32 & ULL(0xAAAAAAAAAAAAAAAA)) >> 1), \
       /* x64 consists of 32 2-bit-counters (0,1,2). */          \
-      x32 = (x32 & 0x3333333333333333ULL) + ((x32 & 0xCCCCCCCCCCCCCCCCULL) >> 2), \
+      x32 = (x32 & ULL(0x3333333333333333)) + ((x32 & ULL(0xCCCCCCCCCCCCCCCC)) >> 2), \
       /* x32 consists of 16 4-bit-counters (0,1,2,3,4). */      \
       x32 = high32(x32)+low32(x32),                             \
       /* x32 consists of 8 4-bit-counters (0,...,8). */         \
