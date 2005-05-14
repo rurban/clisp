@@ -50,6 +50,31 @@
                    ((ptr)[0] = (uintD)((wert)>>24), (ptr)[1] = (uintD)((wert)>>16), (ptr)[2] = (uintD)((wert)>>8), (ptr)[3] = (uintD)(wert)))
 #endif
 
+/* conversion routines digit-sequence-part <--> longword:
+ get_maxV_Dptr(count,ptr)
+   fetches the next count bits from the ceiling(count/intDsize) digits at ptr.
+ ptr a variable of type uintD*,
+ wert a variable of type uintV,
+ count a variable or constant-expression with value >=0, <=intVsize. */
+#if (intVsize==32)
+  #define get_maxV_Dptr  get_max32_Dptr
+#else
+  #if (intDsize==32)
+    #define get_maxV_Dptr(count,ptr)  \
+      ((count)==0 ? 0 : \
+       (count)<=32 ? (uint64)((ptr)[0]) : \
+                     (( (uint64)((ptr)[0]) <<32) | (uint64)((ptr)[1])))
+  #endif
+  #if (intDsize==16)
+    #define get_maxV_Dptr(count,ptr)  \
+      ((count)==0 ? 0 : \
+       (count)<=16 ? (uint64)((ptr)[0]) : \
+       (count)<=32 ? (( (uint64)((ptr)[0]) <<16) | (uint64)((ptr)[1])) : \
+       (count)<=48 ? (((( (uint64)((ptr)[0]) <<16) | (uint64)((ptr)[1])) <<16) | (uint64)((ptr)[2])) : \
+                     (((((( (uint64)((ptr)[0]) <<16) | (uint64)((ptr)[1])) <<16) | (uint64)((ptr)[2])) <<16) | (uint64)((ptr)[3])))
+  #endif
+#endif
+
 /* get_uint1D_Dptr(ptr)  fetches 1 digit (unsigned) at ptr
  get_uint2D_Dptr(ptr)  fetches 2 digits (unsigned) at ptr
  get_uint3D_Dptr(ptr)  fetches 3 digits (unsigned) at ptr
@@ -101,14 +126,14 @@
 /* conversion routines integer <--> longword: */
 
 /* converts fixnum into longword.
- FN_to_L(obj)
+ FN_to_V(obj)
  > obj: a fixnum
- < result: the value of the fixnum as 32-bit-number. */
-local sint32 FN_to_L (object obj);
+ < result: the value of the fixnum as intVsize-bit-number. */
+local sintV FN_to_V (object obj);
 #if 1
-  #define FN_to_L(obj)  fixnum_to_L(obj)
+  #define FN_to_V(obj)  fixnum_to_V(obj)
 #else
-local sint32 FN_to_L (object obj)
+local sintV FN_to_V (object obj)
 {
   if (R_minusp(obj)) /* negative: fill with 1-bits */
     return (as_oint(obj) >> oint_data_shift) | ~ (FN_value_mask >> oint_data_shift);
@@ -117,20 +142,20 @@ local sint32 FN_to_L (object obj)
 }
 #endif
 
-/* FN_L_zerop(x,x_) determines, if x = 0 .
- x is a fixnum and x_ = FN_to_L(x). */
-#if (oint_data_len<intLsize)
-  #define FN_L_zerop(x,x_)  (x_==0)
+/* FN_V_zerop(x,x_) determines, if x = 0 .
+ x is a fixnum and x_ = FN_to_V(x). */
+#if (oint_data_len<intVsize)
+  #define FN_V_zerop(x,x_)  (x_==0)
 #else
-  #define FN_L_zerop(x,x_)  (eq(x,Fixnum_0))
+  #define FN_V_zerop(x,x_)  (eq(x,Fixnum_0))
 #endif
 
-/* FN_L_minusp(x,x_) determines, if x < 0 .
- x is a fixnum and x_ = FN_to_L(x). */
-#if (oint_data_len<intLsize)
-  #define FN_L_minusp(x,x_)  (x_<0)
+/* FN_V_minusp(x,x_) determines, if x < 0 .
+ x is a fixnum and x_ = FN_to_V(x). */
+#if (oint_data_len<intVsize)
+  #define FN_V_minusp(x,x_)  (x_<0)
 #else
-  #define FN_L_minusp(x,x_)  (R_minusp(x))
+  #define FN_V_minusp(x,x_)  (R_minusp(x))
 #endif
 
 #ifdef intQsize
@@ -160,7 +185,10 @@ global uint32 I_to_UL (object obj)
  #endif
   {
    case_posfixnum: /* fixnum >=0 */
-    return posfixnum_to_L(obj);
+   #if (intVsize>intLsize)
+    if (posfixnum_to_V(obj) >= vbitm(intLsize)) goto bad;
+   #endif
+    return posfixnum_to_V(obj);
    case_posbignum: { /* bignum >0 */
     var Bignum bn = TheBignum(obj);
     var uintC len = bignum_length(bn);
@@ -218,8 +246,12 @@ global sint32 I_to_L (object obj)
  #endif
   {
    case_posfixnum: { /* fixnum >=0 */
-    var sintL wert = posfixnum_to_L(obj);
+    var sintV wert = posfixnum_to_V(obj);
+   #if (intVsize>intLsize)
+    if ((uintV)wert >= vbit(intLsize-1)) goto bad;
+   #else
     if ((oint_data_len+1 > intLsize) && (wert < 0)) goto bad;
+   #endif
     return wert;
    }
    case_posbignum: { /* bignum >0 */
@@ -246,8 +278,12 @@ global sint32 I_to_L (object obj)
     goto bad;
    }
    case_negfixnum: { /* fixnum <0 */
-    var sintL wert = negfixnum_to_L(obj);
+    var sintV wert = negfixnum_to_V(obj);
+   #if (intVsize>intLsize)
+    if ((uintV)wert < (uintV)minus_vbit(intLsize-1)) goto bad;
+   #else
     if ((oint_data_len+1 > intLsize) && (wert >= 0)) goto bad;
+   #endif
     return wert;
    }
    case_negbignum: { /* bignum <0 */
@@ -302,7 +338,7 @@ global uint64 I_to_UQ (object obj)
  #endif
   {
    case_posfixnum: /* fixnum >=0 */
-    return (uint64)posfixnum_to_L(obj);
+    return (uint64)posfixnum_to_V(obj);
    case_posbignum: { /* bignum >0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
@@ -394,7 +430,7 @@ global sint64 I_to_Q (object obj)
  #endif
   {
    case_posfixnum: /* Fixnum >=0 */
-    return (uint64)posfixnum_to_L(obj);
+    return (uint64)posfixnum_to_V(obj);
    case_posbignum: { /* Bignum >0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
@@ -445,7 +481,7 @@ global sint64 I_to_Q (object obj)
       goto bad;
     }
    case_negfixnum: /* Fixnum <0 */
-    return (uint64)(uintL)negfixnum_to_L(obj) | (-wbitm(intLsize));
+    return (uint64)negfixnum_to_V(obj) | (-wbitm(intVsize));
    case_negbignum: { /* Bignum <0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
@@ -738,6 +774,7 @@ global maygc object UL_to_I (uint32 wert)
  > wert_hi|wert_lo: value of the integer, a signed 64-bit-integer.
  < result: integer with this value.
  can trigger GC */
+#if !(intVsize>32) /* if not already defined in lispbibl.d */
 global maygc object L2_to_I (sint32 wert_hi, uint32 wert_lo)
 {
   if (wert_hi == 0) {
@@ -872,12 +909,14 @@ global maygc object L2_to_I (sint32 wert_hi, uint32 wert_lo)
   #undef FILL_2_DIGITS
   #undef FILL_1_DIGIT
 }
+#endif
 
 /* converts an unsigned doppel-longword into an integer.
  UL2_to_I(wert_hi,wert_lo)
  > wert_hi|wert_lo: value of the integer, an unsigned 64-bit-integer.
  < result: integer with this value.
  can trigger GC */
+#if !(intVsize>32) /* if not already defined in lispbibl.d */
 global maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo)
 {
   if ((wert_hi == 0)
@@ -979,8 +1018,9 @@ global maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo)
   #undef FILL_2_DIGITS
   #undef FILL_1_DIGIT
 }
+#endif
 
-#ifdef intQsize
+#if defined(intQsize) || (intVsize>32)
 /* converts quadword into integer.
  Q_to_I(wert)
  > wert: value of the integer, a signed 64-bit-integer.
@@ -1012,9 +1052,9 @@ global maygc object Q_to_I (sint64 wert)
       var object newnum = allocate_bignum(i,0); \
       var uintD* ptr = &TheBignum(newnum)->data[i-1];
     #define IF_LENGTH(i)  \
-      if ((bn_minlength <= i) && (i*intDsize <= 64))      \
-        if (!((i+1)*intDsize <= 64)                       \
-            || ((uint64)wert < (uint64)bit(i*intDsize-1)) \
+      if ((bn_minlength <= i) && (i*intDsize <= 64))        \
+        if (!((i+1)*intDsize <= 64)                         \
+            || ((uint64)wert < (uint64)wbitc(i*intDsize-1)) \
            )
     IF_LENGTH(1)
       { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
@@ -1027,9 +1067,9 @@ global maygc object Q_to_I (sint64 wert)
       var object newnum = allocate_bignum(i,-1); \
       var uintD* ptr = &TheBignum(newnum)->data[i-1];
     #define IF_LENGTH(i)  \
-      if ((bn_minlength <= i) && (i*intDsize <= 64))             \
-        if (!((i+1)*intDsize <= 64)                              \
-            || ((uint64)wert >= (uint64)minus_bit(i*intDsize-1)) \
+      if ((bn_minlength <= i) && (i*intDsize <= 64))          \
+        if (!((i+1)*intDsize <= 64)                           \
+            || ((uint64)wert >= -(uint64)wbitc(i*intDsize-1)) \
            )
     IF_LENGTH(1)
       { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
@@ -1046,7 +1086,7 @@ global maygc object Q_to_I (sint64 wert)
 }
 #endif
 
-#if defined(intQsize) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
+#if defined(intQsize) || (intVsize>32) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
 /* converts unsigned quadword into integer >=0 .
  UQ_to_I(wert)
  > wert: value of the integer, an unsigned 64-bit-integer.
@@ -1243,7 +1283,7 @@ local maygc object NDS_to_I (const uintD* MSDptr, uintC len)
     if (bn_minlength>1 ? (len==0) : true)
       /* 0 digits */
       return Fixnum_0;
-   #ifndef intQsize
+   #if !(defined(intQsize) || (intVsize>32))
     var sint32 wert;
     if (bn_minlength>2 ? (len==1) : true) { /* 1 digit */
      len_1: wert = get_sint1D_Dptr(MSDptr);
@@ -1255,7 +1295,7 @@ local maygc object NDS_to_I (const uintD* MSDptr, uintC len)
      len_4: wert = get_sint4D_Dptr(MSDptr);
     } else if (false) { /* 5 digits */
      len_5: wert = get_sint4D_Dptr(&MSDptr[1]); }
-  #else /* defined(intQsize) && (intDsize==32) */
+  #else /* (defined(intQsize) || (intVsize>32)) && (intDsize==32) */
     var sint64 wert;
     if (true) { /* 1 digit */
      len_1: wert = (sint64)(sintD)MSDptr[0];
@@ -1674,33 +1714,33 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
       BN_to_NDS_1(obj_from_I_to_NDS,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); \
   } while(0)
 
-/* Fetches the next pFN_maxlength digits into a uint32:
+/* Fetches the next pFN_maxlength digits into a uintV:
  _ptr is of type uintD*. */
 #if (pFN_maxlength==1)
   #define pFN_maxlength_digits_at(_ptr)  \
-    (uint32)(_ptr[0])
+    (uintV)(_ptr[0])
 #elif (pFN_maxlength==2) && (intDsize==16)
   #define pFN_maxlength_digits_at(_ptr)  \
     highlow32_at(_ptr)
 #elif (pFN_maxlength==2)
   #define pFN_maxlength_digits_at(_ptr)  \
-    (((uint32)(_ptr[0])<<intDsize)|       \
-      (uint32)(_ptr[1]))
+    (((uintV)(_ptr[0])<<intDsize)|       \
+      (uintV)(_ptr[1]))
 #elif (pFN_maxlength==3)
   #define pFN_maxlength_digits_at(_ptr)  \
-    (((((uint32)(_ptr[0])<<intDsize)|     \
-        (uint32)(_ptr[1]))<<intDsize)|    \
-        (uint32)(_ptr[2]))
+    (((((uintV)(_ptr[0])<<intDsize)|     \
+        (uintV)(_ptr[1]))<<intDsize)|    \
+        (uintV)(_ptr[2]))
 #elif (pFN_maxlength==4)
   #define pFN_maxlength_digits_at(_ptr)  \
-    (((((((uint32)(_ptr[0])<<intDsize)|   \
-          (uint32)(_ptr[1]))<<intDsize)|  \
-          (uint32)(_ptr[2]))<<intDsize)|  \
-          (uint32)(_ptr[3]))
+    (((((((uintV)(_ptr[0])<<intDsize)|   \
+          (uintV)(_ptr[1]))<<intDsize)|  \
+          (uintV)(_ptr[2]))<<intDsize)|  \
+          (uintV)(_ptr[3]))
 #endif
 
 /* writes a uint32 into the next pFN_maxlength digits:
- _ptr is of type uintD*, _wert of type uint32. */
+ _ptr is of type uintD*, _wert of type uintV. */
 #if (pFN_maxlength==1)
   #define set_pFN_maxlength_digits_at(_ptr,_wert)  \
     (_ptr[0] = (uintD)_wert)

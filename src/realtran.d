@@ -470,7 +470,7 @@ local maygc object R_sin_R (object x)
   F_pi2_round_I_F(x); /* divide by pi/2 */
   /* stack layout: Argument, q mod 4, r. */
  {var object x = STACK_0;
-  var uintC mod4 = posfixnum_to_L(STACK_1); /* q mod 4 */
+  var uintC mod4 = posfixnum_to_V(STACK_1); /* q mod 4 */
   if (R_zerop(x) /* r=0.0 -> 1.0 */
       || (F_exponent_L(x) <= (sintL)(-F_float_digits(x))>>1)) /* e <= -d/2 <==> e <= -ceiling(d/2) ? */
     switch (mod4) {
@@ -515,7 +515,7 @@ local maygc object R_cos_R (object x)
   F_pi2_round_I_F(x); /* divide by pi/2 */
   /* stack layout: Argument, q mod 4, r. */
  {var object x = STACK_0;
-  var uintC mod4 = posfixnum_to_L(STACK_1); /* q mod 4 */
+  var uintC mod4 = posfixnum_to_V(STACK_1); /* q mod 4 */
   if (R_zerop(x) /* r=0.0 -> 1.0 */
       || (F_exponent_L(x) <= (sintL)(-F_float_digits(x))>>1)) /* e <= -d/2 <==> e <= -ceiling(d/2) ? */
     switch (mod4) {
@@ -610,7 +610,7 @@ local maygc void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
     skipSTACK(1);
   } /* stack layout: argument, q mod 4, r, cos(r), sin(r) */
   { /* compute sign */
-    var uintC q = posfixnum_to_L(STACK_3);
+    var uintC q = posfixnum_to_V(STACK_3);
     switch (q) { /* q mod 4 whether q is Fixnum or Bignum */
       case 0:
         STACK_(2+1) = STACK_0; STACK_(3+1) = STACK_1; break;

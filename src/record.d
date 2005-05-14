@@ -50,8 +50,8 @@ local gcv_object_t* record_up (void) {
   if_recordp(STACK_1, ; , { skipSTACK(1); fehler_record(); } );
   var object record = STACK_1;
   var uintL length = Record_length(record);
-  var uintL index;
-  if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length)))
+  var uintV index;
+  if (!(posfixnump(STACK_0) && ((index = posfixnum_to_V(STACK_0)) < length)))
     /* extract and check index */
     fehler_index(length);
   skipSTACK(2); /* clear up stack */
@@ -84,11 +84,11 @@ LISPFUNNR(record_length,1)
 
 /* check that the length is of type (INTEGER (0) (65536))
  > STACK_0: length
- < uintL length: checked length */
-#define test_record_length(length)                                           \
-  if (!(posfixnump(STACK_0)                                                  \
-        && ((length = posfixnum_to_L(STACK_0)) <= (uintL)(bitm(intWsize)-1)) \
-        && (length>0)))                                                      \
+ < uintV length: checked length */
+#define test_record_length(length)                                            \
+  if (!(posfixnump(STACK_0)                                                   \
+        && ((length = posfixnum_to_V(STACK_0)) <= (uintV)(vbitm(intWsize)-1)) \
+        && (length>0)))                                                       \
     fehler_record_length()
 nonreturning_function(local, fehler_record_length, (void)) {
   /* STACK_0 = length, TYPE-ERROR slot DATUM */
@@ -139,9 +139,9 @@ local gcv_object_t* structure_up (void) {
   goto fehler_bad_structure;
  yes: { /* type did occur: */
     var uintL length = (uintL)Structure_length(structure);
-    var uintL index;
+    var uintV index;
     /* fetch index and check */
-    if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length)))
+    if (!(posfixnump(STACK_0) && ((index = posfixnum_to_V(STACK_0)) < length)))
       fehler_index(length);
     /* address of the structure-component */
     return &TheStructure(structure)->recdata[index];
@@ -194,7 +194,7 @@ LISPFUNN(structure_store,4) {
    elements of Type type. */
 LISPFUNNR(make_structure,2) {
   /* check length, should be a fixnum /=0  that fits into a uintW: */
-  var uintL length;
+  var uintV length;
   test_record_length(length);
   skipSTACK(1);
   var object structure = allocate_structure(length);
@@ -356,10 +356,10 @@ LISPFUNNR(make_code_vector,1) {
   var object listr = popSTACK(); /* list */
   var uintB* ptr = &TheSbvector(bv)->data[0]; /* loop through the bit-vector */
   while (consp(listr)) {
-    var uintL byte;
+    var uintV byte;
     /* list element must be a fixnum >=0, <256 : */
     if (!(posfixnump(Car(listr))
-          && ((byte = posfixnum_to_L(Car(listr))) < (1<<intBsize))))
+          && ((byte = posfixnum_to_V(Car(listr))) < (1<<intBsize))))
       goto bad_byte;
     /* put into the bit-vector: */
     *ptr++ = (uintB)byte;
@@ -846,7 +846,7 @@ local inline maygc object class_of (object obj) {
  only for classes that are never redefined, such as CLASS, SLOT-DEFINITION. */
 LISPFUNN(allocate_metaobject_instance,2) {
   /* check length, should be a fixnum >0 that fits into a uintW: */
-  var uintL length;
+  var uintV length;
   test_record_length(length);
   skipSTACK(1);
   {
@@ -864,7 +864,7 @@ LISPFUNN(allocate_metaobject_instance,2) {
   length--;
   if (length > 0) {
     var gcv_object_t* ptr = &TheInstance(instance)->other[0];
-    dotimespL(length,length, { *ptr++ = unbound; } );
+    dotimespV(length,length, { *ptr++ = unbound; } );
   }
   VALUES1(instance); /* instance as value */
 }
@@ -873,7 +873,7 @@ LISPFUNN(allocate_metaobject_instance,2) {
  with Class class and n-1 additional slots. */
 LISPFUNN(allocate_std_instance,2) {
   /* check length, should be a fixnum >0 that fits into a uintW: */
-  var uintL length;
+  var uintV length;
   test_record_length(length);
   skipSTACK(1);
   { /* Fetch the class-version now, before any possible GC, at which the
@@ -890,7 +890,7 @@ LISPFUNN(allocate_std_instance,2) {
   length--;
   if (length > 0) {
     var gcv_object_t* ptr = &TheInstance(instance)->other[0];
-    dotimespL(length,length, { *ptr++ = unbound; } );
+    dotimespV(length,length, { *ptr++ = unbound; } );
   }
   VALUES1(instance); /* instance as value */
 }
@@ -899,7 +899,7 @@ LISPFUNN(allocate_std_instance,2) {
  CLOS-instance of length n, with Class class and n-3 additional slots. */
 LISPFUNN(allocate_funcallable_instance,2) {
   /* check length, should be a fixnum >3 that fits into a uintW: */
-  var uintL length;
+  var uintV length;
   test_record_length(length);
   if (!(length>3)) fehler_record_length();
   skipSTACK(1);
@@ -925,7 +925,7 @@ LISPFUNN(allocate_funcallable_instance,2) {
   length -= 3;
   {
     var gcv_object_t* ptr = &TheCclosure(instance)->clos_consts[1];
-    dotimespL(length,length, { *ptr++ = unbound; } );
+    dotimespV(length,length, { *ptr++ = unbound; } );
   }
   VALUES1(instance); /* instance as value */
 }
@@ -1022,10 +1022,10 @@ local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo) {
   instance_un_realloc(instance); /* by this time update_instance() is done */
   return (atomp(slotinfo)
           /* local slot, slotinfo is index */
-          ? &TheSrecord(instance)->recdata[posfixnum_to_L(slotinfo)]
+          ? &TheSrecord(instance)->recdata[posfixnum_to_V(slotinfo)]
           /* shared slot, slotinfo is (class-version . index) */
           : &TheSvector(TheClassVersion(Car(slotinfo))->cv_shared_slots)
-               ->data[posfixnum_to_L(Cdr(slotinfo))]);
+               ->data[posfixnum_to_V(Cdr(slotinfo))]);
 }
 
 /* UP: visits a slot.
@@ -1249,8 +1249,8 @@ local gcv_object_t* slot_access_up (void) {
     if (atomp(slotinfo)) {
       /* local slot, slotinfo is index */
       var uintL length = srecord_length(TheInstance(obj_forwarded));
-      var uintL index;
-      if (posfixnump(slotinfo) && ((index = posfixnum_to_L(slotinfo)) < length)) {
+      var uintV index;
+      if (posfixnump(slotinfo) && ((index = posfixnum_to_V(slotinfo)) < length)) {
         return &((Srecord)TheInstance(obj_forwarded))->recdata[index];
       } else {
         fehler_index(length);
@@ -1258,7 +1258,7 @@ local gcv_object_t* slot_access_up (void) {
     } else if (consp(slotinfo)) {
       /* shared slot, slotinfo is (class-version . index) */
       return &TheSvector(TheClassVersion(Car(slotinfo))->cv_shared_slots)
-                ->data[posfixnum_to_L(Cdr(slotinfo))];
+                ->data[posfixnum_to_V(Cdr(slotinfo))];
     } else {
       /* location already in STACK_0. */
       pushSTACK(TheSubr(subr_self)->name); /* function name */
@@ -1354,7 +1354,7 @@ global maygc object update_instance (object user_obj, object obj) {
     pushSTACK(TheClassVersion(cv)->cv_discarded_slots);
     # Fetch the values of the local slots that are discarded.
     {
-      var uintL max_local_slots = posfixnum_to_L(TheClass(TheClassVersion(cv)->cv_class)->instance_size);
+      var uintV max_local_slots = posfixnum_to_V(TheClass(TheClassVersion(cv)->cv_class)->instance_size);
       get_space_on_STACK(2*max_local_slots);
       var object plist = TheClassVersion(cv)->cv_discarded_slot_locations;
       var uintL count = 0;
@@ -1364,7 +1364,7 @@ global maygc object update_instance (object user_obj, object obj) {
         var object slotinfo = Car(plist);
         plist = Cdr(plist);
         ASSERT(atomp(slotinfo));
-        var object value = TheSrecord(obj)->recdata[posfixnum_to_L(slotinfo)];
+        var object value = TheSrecord(obj)->recdata[posfixnum_to_V(slotinfo)];
         if (!eq(value,unbound)) {
           pushSTACK(slotname);
           pushSTACK(value);
@@ -1382,7 +1382,7 @@ global maygc object update_instance (object user_obj, object obj) {
     {
       var object oldclass = TheClassVersion(cv)->cv_class;
       var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
-      var uintL max_local_slots = posfixnum_to_L(TheClass(newclass)->instance_size);
+      var uintV max_local_slots = posfixnum_to_V(TheClass(newclass)->instance_size);
       get_space_on_STACK(2*max_local_slots);
       var object plist = TheClassVersion(cv)->cv_kept_slot_locations;
       var uintL count = 0;
@@ -1394,10 +1394,10 @@ global maygc object update_instance (object user_obj, object obj) {
         var object value =
           (atomp(old_slotinfo)
            /* local slot, old_slotinfo is index */
-           ? TheSrecord(obj)->recdata[posfixnum_to_L(old_slotinfo)]
+           ? TheSrecord(obj)->recdata[posfixnum_to_V(old_slotinfo)]
            /* shared slot, old_slotinfo is (class . index) */
            : TheSvector(TheClassVersion(Car(old_slotinfo))->cv_shared_slots)
-               ->data[posfixnum_to_L(Cdr(old_slotinfo))]);
+               ->data[posfixnum_to_V(Cdr(old_slotinfo))]);
         if (!eq(value,unbound)) {
           pushSTACK(value);
           pushSTACK(new_slotinfo);
@@ -1434,7 +1434,7 @@ global maygc object update_instance (object user_obj, object obj) {
     dotimesL(kept_slots,kept_slots, {
       var object new_slotinfo = popSTACK();
       ASSERT(atomp(new_slotinfo));
-      TheSrecord(obj)->recdata[posfixnum_to_L(new_slotinfo)] = popSTACK();
+      TheSrecord(obj)->recdata[posfixnum_to_V(new_slotinfo)] = popSTACK();
     });
     STACK_3 = STACK_(2+4);
     # STACK layout: user-obj, UNWIND-PROTECT frame,
@@ -2020,7 +2020,7 @@ LISPFUNN(pchange_class,2) {
     instance_un_realloc(old_instance_forwarded);
     copy_mem_o(&TheInstance(value1)->inst_class_version,
                &TheInstance(old_instance_forwarded)->inst_class_version,
-               posfixnum_to_L(TheClass(STACK_0)->instance_size));
+               posfixnum_to_V(TheClass(STACK_0)->instance_size));
   }
   { /* Turn instance into a realloc (see the instance_un_realloc macro): */
     set_break_sem_1(); /* forbid interrupts */

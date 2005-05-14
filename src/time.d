@@ -1,6 +1,6 @@
 /*
  * Time measuring functions for CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2005
  */
 
@@ -626,11 +626,11 @@ LISPFUN(default_time_zone,seclass_default,0,1,norest,nokey,0,NIL)
     const uintL time_max = 1314888; /* 1.1.2050, quite arbitrary */
    #endif
     if (posfixnump(arg)
-        && (posfixnum_to_L(arg) >= 613608)   /* arg >= 1.1.1970 */
-        && (posfixnum_to_L(arg) <= time_max)) { /* arg < time_max */
-      now = (posfixnum_to_L(arg) - 613608) * 3600;
+        && (posfixnum_to_V(arg) >= 613608)   /* arg >= 1.1.1970 */
+        && (posfixnum_to_V(arg) <= time_max)) { /* arg < time_max */
+      now = (uintL)(posfixnum_to_V(arg) - 613608) * 3600;
     } else if (R_minusp(arg)
-               || (posfixnump(arg) && (posfixnum_to_L(arg) < 613608))) {
+               || (posfixnump(arg) && (posfixnum_to_V(arg) < 613608))) {
       now = 0;                /* < 1.1.1970 -> treat like 1.1.1970 */
     } else {
       now = (uintL)(time_max - 613608) * 3600; /* > max -> treat like max */
@@ -692,8 +692,8 @@ LISPFUNN(sleep,2)
  delay-seconds Sekunden und delay-useconds Mikrosekunden.
  Argument delay-seconds muss ein Fixnum >=0, <=16700000 sein,
  Argument delay-useconds muss ein Fixnum >=0, <=1000000 sein. */
-  var uintL useconds = posfixnum_to_L(popSTACK());
-  var uintL seconds = posfixnum_to_L(popSTACK());
+  var uintL useconds = posfixnum_to_V(popSTACK());
+  var uintL seconds = posfixnum_to_V(popSTACK());
   begin_system_call();
   loop {
     var struct timeval start_time;
@@ -749,8 +749,8 @@ LISPFUNN(sleep,2)
  delay-seconds Sekunden und delay-mseconds Millisekunden.
  Argument delay-seconds muss ein Fixnum >=0, <=4290000 sein,
  Argument delay-useconds muss ein Fixnum >=0, <=1000 sein. */
-  var uintL mseconds = posfixnum_to_L(popSTACK());
-  var uintL seconds = posfixnum_to_L(popSTACK());
+  var uintL mseconds = posfixnum_to_V(popSTACK());
+  var uintL seconds = posfixnum_to_V(popSTACK());
   begin_system_call();
   if (!msleep(1000*seconds+mseconds)) {
     end_system_call();
@@ -843,18 +843,18 @@ LISPFUNNR(time,0)
  as positional numbers with SHIFT digits, i.e.,
  (- (+ (ash n1 shift) n2) (+ (ash o1 shift) o2))
  the difference must be positive
- all numbers must be fixnums; the result is (UNSIGNED-BYTE 64) */
+ all numbers must be fixnums < 2^32; the result is (UNSIGNED-BYTE 64) */
 LISPFUNNF(delta4,5) {
   if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
-  var uintL shift = posfixnum_to_L(STACK_0);
+  var uintV shift = posfixnum_to_V(STACK_0);
   if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
-  var uintL o2 = posfixnum_to_L(STACK_1);
+  var uintV o2 = posfixnum_to_V(STACK_1);
   if (!posfixnump(STACK_2)) fehler_posfixnum(STACK_2);
-  var uintL o1 = posfixnum_to_L(STACK_2);
+  var uintV o1 = posfixnum_to_V(STACK_2);
   if (!posfixnump(STACK_3)) fehler_posfixnum(STACK_3);
-  var uintL n2 = posfixnum_to_L(STACK_3);
+  var uintV n2 = posfixnum_to_V(STACK_3);
   if (!posfixnump(STACK_4)) fehler_posfixnum(STACK_4);
-  var uintL n1 = posfixnum_to_L(STACK_4);
+  var uintV n1 = posfixnum_to_V(STACK_4);
   if ((o1 > n1) || ((o1 == n1) && (o2 > n2))) {
     pushSTACK(STACK_3);     /* n2 */
     pushSTACK(STACK_(4+1)); /* n1 */
@@ -863,7 +863,7 @@ LISPFUNNF(delta4,5) {
     pushSTACK(S(delta4));
     fehler(arithmetic_error,"~S: negative difference: [~S ~S] > [~S ~S]");
   }
-  var uintL del = n1 - o1;
+  var uintV del = n1 - o1;
   if (shift >= 32 || shift + I_integer_length(fixnum(del)) > 64) {
     pushSTACK(STACK_0); pushSTACK(S(ash));
     fehler(arithmetic_error,GETTEXT("~S: too large shift amount ~S"));

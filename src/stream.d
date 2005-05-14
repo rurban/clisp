@@ -428,7 +428,7 @@ local bool wr_ss_lpos (object stream, const chart* ptr, uintL len) {
  #endif
   # Add together the widths of the characters since the last NL:
   var bool result;
-  var uintL pos = 0;
+  var uintV pos = 0;
   var uintL count;
   dotimespL(count,len, {
     if (chareq(*--ptr,ascii(NL)))
@@ -439,7 +439,7 @@ local bool wr_ss_lpos (object stream, const chart* ptr, uintL len) {
   found_NL: # pos characters since the last NL
     ptr++; len = pos; pos = 0; result = true;
   } else { # pos==len
-    pos = posfixnum_to_L(TheStream(stream)->strm_wr_ch_lpos); result = false;
+    pos = posfixnum_to_V(TheStream(stream)->strm_wr_ch_lpos); result = false;
   }
   # There were len characters starting from ptr, pos is the Position there.
  #ifdef TERMINAL_USES_KEYBOARD
@@ -486,7 +486,7 @@ global maygc object stream_get_lastchar (object stream) {
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(lastchar),TheClass(clas)->slot_location_table,false);
     if (!eq(slotinfo,nullobj))
-      return TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)];
+      return TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)];
     else
       return NIL;
   }
@@ -509,7 +509,7 @@ local maygc void stream_set_lastchar (object stream, object ch) {
   var object slotinfo = gethash(S(lastchar),TheClass(clas)->slot_location_table,false);
   ch = popSTACK();
   if (!eq(slotinfo,nullobj))
-    TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = ch;
+    TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)] = ch;
 }
 
 # Reads a Byte from a Stream.
@@ -595,9 +595,9 @@ global maygc uintL read_byte_array (const gcv_object_t* stream_,
     pushSTACK(persev == persev_immediate || persev == persev_bonus ? T : NIL);
     pushSTACK(persev == persev_partial ? T : NIL);
     funcall(S(stream_read_byte_sequence),6);
-    var uintL result;
+    var uintV result;
     if (!(posfixnump(value1)
-          && (result = posfixnum_to_L(value1),
+          && (result = posfixnum_to_V(value1),
               result >= start && result <= start+len))) {
       pushSTACK(fixnum(start+len));
       pushSTACK(fixnum(start));
@@ -651,9 +651,9 @@ global maygc uintL write_byte_array (const gcv_object_t* stream_,
     if (mv_count >= 2) {
       /* second return value is index of first unwritten byte
          have to change that here into #bytes written */
-      var uintL result;
+      var uintV result;
       if (!(posfixnump(value2)
-            && (result = posfixnum_to_L(value2),
+            && (result = posfixnum_to_V(value2),
                 result >= start && result <= start+len))) {
         pushSTACK(fixnum(start+len));
         pushSTACK(fixnum(start));
@@ -842,9 +842,9 @@ global maygc uintL read_char_array (const gcv_object_t* stream_,
     pushSTACK(stream); pushSTACK(*chararray_);
     pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
     funcall(S(stream_read_char_sequence),4);
-    var uintL result;
+    var uintV result;
     if (!(posfixnump(value1)
-          && (result = posfixnum_to_L(value1),
+          && (result = posfixnum_to_V(value1),
               result >= start && result <= start+len))) {
       pushSTACK(fixnum(start+len));
       pushSTACK(fixnum(start));
@@ -925,8 +925,8 @@ global maygc void write_char (const gcv_object_t* stream_, object ch) {
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
-    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)])) {
-      TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = NIL;
+    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)])) {
+      TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)] = NIL;
       if (!eq(STACK_0,ascii_char(NL))) {
         # Call the generic function (STREAM-WRITE-CHAR stream #\Newline):
         pushSTACK(STACK_1); pushSTACK(ascii_char(NL));
@@ -977,8 +977,8 @@ global maygc void write_char_array (const gcv_object_t* stream_,
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
-    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)])) {
-      TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = NIL;
+    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)])) {
+      TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)] = NIL;
       var bool next_is_NL;
       SstringDispatch(*chararray_,X, {
         next_is_NL = chareq(as_chart(((SstringX)TheVarobject(*chararray_))->data[start]),ascii(NL));
@@ -1018,9 +1018,9 @@ local maygc void harden_elastic_newline (const gcv_object_t* stream_) {
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
-    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)])) {
+    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)])) {
       # (SETF (SLOT-VALUE stream '$penl) NIL):
-      TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = NIL;
+      TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)] = NIL;
       write_char(stream_,ascii_char(NL));
     }
   }
@@ -2362,8 +2362,8 @@ nonreturning_function(local, fehler_str_in_adjusted, (object stream)) {
 # READ-CHAR - Pseudo-Function for String-Input-Streams:
 local maygc object rd_ch_str_in (const gcv_object_t* stream_) {
   var object stream = *stream_;
-  var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index);
-  var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
+  var uintV index = posfixnum_to_V(TheStream(stream)->strm_str_in_index);
+  var uintV endindex = posfixnum_to_V(TheStream(stream)->strm_str_in_endindex);
   if (index >= endindex) {
     return eof_value; # EOF reached
   } else { # index < endvalid
@@ -2386,8 +2386,8 @@ local maygc uintL rd_ch_array_str_in (const gcv_object_t* stream_,
                                       const gcv_object_t* chararray_,
                                       uintL start, uintL len) {
   var object stream = *stream_;
-  var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index);
-  var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
+  var uintV index = posfixnum_to_V(TheStream(stream)->strm_str_in_index);
+  var uintV endindex = posfixnum_to_V(TheStream(stream)->strm_str_in_endindex);
   if (index < endindex) {
     var uintL srclen;
     var uintL srcoffset;
@@ -2424,8 +2424,8 @@ local maygc void close_str_in (object stream) {
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
 local maygc signean listen_char_str_in (object stream) {
-  var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index);
-  var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
+  var uintV index = posfixnum_to_V(TheStream(stream)->strm_str_in_index);
+  var uintV endindex = posfixnum_to_V(TheStream(stream)->strm_str_in_endindex);
   if (index >= endindex)
     return ls_eof; # EOF reached
   else
@@ -2791,9 +2791,9 @@ global maygc object make_pphelp_stream (void) {
 # READ-CHAR - Pseudo-Function for Buffered-Input-Streams:
 local maygc object rd_ch_buff_in (const gcv_object_t* stream_) {
   var object stream = *stream_;
-  var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index);
-  var uintL endindex =
-    posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
+  var uintV index = posfixnum_to_V(TheStream(stream)->strm_buff_in_index);
+  var uintV endindex =
+    posfixnum_to_V(TheStream(stream)->strm_buff_in_endindex);
   while (index >= endindex) { /* string end reached */
     # call fun:
     funcall(TheStream(stream)->strm_buff_in_fun,0);
@@ -2846,8 +2846,8 @@ local maygc void close_buff_in (object stream) {
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
 local maygc signean listen_char_buff_in (object stream) {
-  var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index);
-  var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
+  var uintV index = posfixnum_to_V(TheStream(stream)->strm_buff_in_index);
+  var uintV endindex = posfixnum_to_V(TheStream(stream)->strm_buff_in_endindex);
   if (index < endindex)
     return ls_avail;
   var object mode = TheStream(stream)->strm_buff_in_mode;
@@ -3345,9 +3345,9 @@ local maygc void test_eltype_arg (gcv_object_t* eltype_, decoded_el_t* decoded) 
            # [when oint_data_len <= log2(intDsize)+intWCsize-1 always
            #  eltype_size < 2^oint_data_len < intDsize*(2^intWCsize-1) ]
             || (as_oint(eltype_size) <
-                as_oint(fixnum(intDsize*(uintL)(bitm(intWCsize)-1)))))))
+                as_oint(fixnum(intDsize*(uintV)(vbitm(intWCsize)-1)))))))
     goto bad_eltype;
-  decoded->size = posfixnum_to_L(eltype_size);
+  decoded->size = posfixnum_to_V(eltype_size);
   return;
  bad_eltype:
   pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
@@ -5369,9 +5369,9 @@ local maygc void wr_by_ias_unbuffered (object stream, object obj) {
 # WRITE-BYTE - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 :
 local maygc void wr_by_iau8_unbuffered (object stream, object obj) {
   ASSERT_wr_int(stream,obj);
-  if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
+  if (!(posfixnump(obj) && (posfixnum_to_V(obj) < bit(8))))
     fehler_bad_integer(stream,obj);
-  UnbufferedStreamLow_write(stream)(stream,(uintB)posfixnum_to_L(obj));
+  UnbufferedStreamLow_write(stream)(stream,(uintB)posfixnum_to_V(obj));
 }
 
 # WRITE-BYTE-ARRAY - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 :
@@ -7334,9 +7334,9 @@ local maygc void wr_by_ics_buffered (object stream, object obj) {
 # WRITE-BYTE - Pseudo-Function for File-Streams of Integers, Type au, bitsize = 8 :
 local maygc void wr_by_iau8_buffered (object stream, object obj) {
   ASSERT_wr_int(stream,obj);
-  if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
+  if (!(posfixnump(obj) && (posfixnum_to_V(obj) < bit(8))))
     fehler_bad_integer(stream,obj);
-  write_byte_buffered(stream,(uintB)posfixnum_to_L(obj));
+  write_byte_buffered(stream,(uintB)posfixnum_to_V(obj));
 }
 
 # WRITE-BYTE-SEQUENCE for File-Streams of Integers, Type au, bitsize = 8 :
@@ -7782,7 +7782,7 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
         position_file_buffered(stream,0); # move to position 0
         var uintC count; # and write eofposition = 0
         dotimespC(count,sizeof(uintL), { buffered_writebyte(stream,0); } );
-      } else if (eofposition > (uintL)(bitm(oint_data_len)-1)) {
+      } else if (eofposition > (uintV)(vbitm(oint_data_len)-1)) {
        bad_eofposition:
         # No valid EOF-Position.
         # close File and report Error:
@@ -9210,7 +9210,7 @@ local maygc object rd_ch_terminal2 (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # EOF already?
     return eof_value;
-  if (!(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+  if (!(posfixnum_to_V(TheStream(stream)->strm_terminal_index)
         < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])) {
     # index=count -> must read a whole line from the keyboard:
     TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
@@ -9235,12 +9235,12 @@ local maygc object rd_ch_terminal2 (const gcv_object_t* stream_) {
         break; # deliver character of the Buffer
       }
     }
-    ASSERT(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+    ASSERT(posfixnum_to_V(TheStream(stream)->strm_terminal_index)
            < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]);
   }
   # index<count -> there are still characters in the buffer
-  var uintL index =
-    posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
+  var uintV index =
+    posfixnum_to_V(TheStream(stream)->strm_terminal_index); # Index
   TheStream(stream)->strm_terminal_index =
     fixnum_inc(TheStream(stream)->strm_terminal_index,1); # increase Index
   return code_char(TheSnstring(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index]); /* next Character */
@@ -9255,7 +9255,7 @@ local maygc object rd_ch_terminal2 (const gcv_object_t* stream_) {
 local maygc signean listen_char_terminal2 (object stream) {
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # EOF already?
     return ls_eof;
-  if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+  if (posfixnum_to_V(TheStream(stream)->strm_terminal_index)
       < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
     # index<count -> there are still characters in the buffer
     return ls_avail;
@@ -9395,7 +9395,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # EOF already?
     return eof_value;
-  if (!(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+  if (!(posfixnum_to_V(TheStream(stream)->strm_terminal_index)
         < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])) {
     # index=count -> must read a whole line from the keyboard:
     TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
@@ -9489,12 +9489,12 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheIarray(TheStream(stream)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
     }
-    ASSERT(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+    ASSERT(posfixnum_to_V(TheStream(stream)->strm_terminal_index)
            < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]);
   }
   # index<count -> there are still characters in the buffer
-  var uintL index =
-    posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
+  var uintV index =
+    posfixnum_to_V(TheStream(stream)->strm_terminal_index); # Index
   TheStream(stream)->strm_terminal_index =
     fixnum_inc(TheStream(stream)->strm_terminal_index,1); # increase Index
   return code_char(TheSnstring(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index]); /* next Character */
@@ -9509,7 +9509,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
 local signean listen_char_terminal3 (object stream) {
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # EOF already?
     return ls_eof;
-  if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+  if (posfixnum_to_V(TheStream(stream)->strm_terminal_index)
       < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
     # index<count -> there are still characters in the buffer
     return ls_avail;
@@ -10477,8 +10477,8 @@ LISPFUNN(set_window_cursor_position,3) {
   var Handle handle = ConsoleHandleR(stream);
   var COORD  sz     = ConsoleData(stream)->console_size;
   var COORD pos;
-  pos.Y = posfixnum_to_L(STACK_1);
-  pos.X = posfixnum_to_L(STACK_0);
+  pos.Y = posfixnum_to_V(STACK_1);
+  pos.X = posfixnum_to_V(STACK_0);
   if ((pos.Y < sz.Y) && (pos.X < sz.X)
       && (pos.Y >= 0) && (pos.X >= 0)) {
     v_move(handle,pos.Y,pos.X);
@@ -12239,8 +12239,8 @@ LISPFUNN(window_cursor_position,1) {
 
 LISPFUNN(set_window_cursor_position,3) {
   check_window_stream(STACK_2);
-  var uintL line = posfixnum_to_L(STACK_1);
-  var uintL column = posfixnum_to_L(STACK_0);
+  var uintV line = posfixnum_to_V(STACK_1);
+  var uintV column = posfixnum_to_V(STACK_0);
   if ((line < rows) && (column < cols)) {
     begin_system_call();
     gofromto(curr->y,curr->x,line,column); # position Cursor
@@ -12464,8 +12464,8 @@ LISPFUNN(window_cursor_position,1) {
 
 LISPFUNN(set_window_cursor_position,3) {
   check_window_stream(STACK_2);
-  var uintL line = posfixnum_to_L(STACK_1);
-  var uintL column = posfixnum_to_L(STACK_0);
+  var uintV line = posfixnum_to_V(STACK_1);
+  var uintV column = posfixnum_to_V(STACK_0);
   if ((line < LINES) && (column < COLS)) {
     begin_system_call();
     move(line,column); refresh(); # position Cursor
@@ -13486,16 +13486,16 @@ LISPFUNN(make_x11socket_stream,2) {
     pushSTACK(STACK_(1+2));
     fehler(type_error,GETTEXT("host should be string, not ~S"));
   }
-  if (!posfixnump(STACK_0)) {
-    pushSTACK(STACK_0);           # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
+  if (!uint16_p(STACK_0)) {
+    pushSTACK(STACK_0);        # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_uint16)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(STACK_(0+2));
     fehler(type_error,
-           GETTEXT("display should be a nonnegative fixnum, not ~S"));
+           GETTEXT("display should be a small nonnegative integer, not ~S"));
   }
   var const char* host = TheAsciz(string_to_asciz(STACK_1,O(misc_encoding)));
   begin_system_call();
-  var SOCKET handle = connect_to_x_server(host,posfixnum_to_L(STACK_0));
+  var SOCKET handle = connect_to_x_server(host,I_to_uint16(STACK_0));
   end_system_call();
   if (handle == INVALID_SOCKET) { SOCK_error(); }
   # build list:
@@ -13560,12 +13560,12 @@ local maygc void test_n_bytes_args (uintL* index_, uintL* count_) {
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,GETTEXT("~S: argument ~S should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"));
     }
-    if (!posfixnump(STACK_0))
-      fehler_posfixnum(STACK_0);
-    *count_ = posfixnum_to_L(popSTACK());
-    if (!posfixnump(STACK_0))
-      fehler_posfixnum(STACK_0);
-    *index_ = posfixnum_to_L(popSTACK());
+    if (!uint32_p(STACK_0))
+      fehler_uint32(STACK_0);
+    *count_ = posfixnum_to_V(popSTACK());
+    if (!uint32_p(STACK_0))
+      fehler_uint32(STACK_0);
+    *index_ = posfixnum_to_V(popSTACK());
     STACK_0 = array_displace_check(vector,*count_,index_);
   }
 }
@@ -13808,8 +13808,8 @@ LISPFUN(socket_server,seclass_default,0,1,norest,nokey,0,NIL) {
   if (missingp(STACK_0)) {
     sock = INVALID_SOCKET; port = 0; goto doit;
   }
-  if (posfixnump(STACK_0)) {
-    sock = INVALID_SOCKET; port = posfixnum_to_L(STACK_0); goto doit;
+  if (uint16_p(STACK_0)) {
+    sock = INVALID_SOCKET; port = I_to_uint16(STACK_0); goto doit;
   }
   if (builtin_stream_p(STACK_0)) {
     var object stream = STACK_0;
@@ -13892,15 +13892,15 @@ global maygc struct timeval * sec_usec (object sec, object usec, struct timeval 
       usec = value1;
     }
   }
-  if (!posfixnump(sec))
-    fehler_posfixnum(sec);
-  tv->tv_sec = posfixnum_to_L(sec);
+  if (!uint32_p(sec))
+    fehler_uint32(sec);
+  tv->tv_sec = I_to_uint32(sec);
   if (missingp(usec)) {
     tv->tv_usec = 0;
   } else {
-    if (!posfixnump(usec))
-      fehler_posfixnum(usec);
-    tv->tv_usec = posfixnum_to_L(usec);
+    if (!uint32_p(usec))
+      fehler_uint32(usec);
+    tv->tv_usec = I_to_uint32(usec);
   }
   return tv;
 }
@@ -13995,8 +13995,8 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);
 
-  if (!posfixnump(STACK_4))
-    fehler_posfixnum(STACK_4);
+  if (!uint16_p(STACK_4))
+    fehler_uint16(STACK_4);
 
   # Check and canonicalize the :BUFFERED argument:
   var signean buffered = test_buffered_arg(STACK_0);
@@ -14018,7 +14018,7 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
                                         O(misc_encoding)));
 
   begin_system_call();
-  var SOCKET handle = create_client_socket(hostname,posfixnum_to_L(STACK_4),tvp);
+  var SOCKET handle = create_client_socket(hostname,I_to_uint16(STACK_4),tvp);
   if (handle == INVALID_SOCKET) { SOCK_error(); }
   end_system_call();
   value1 = make_socket_stream(handle,&eltype,buffered,
@@ -14060,9 +14060,9 @@ local object test_socket_stream (object obj, bool check_open) {
  and return its socket-like handle(s) */
 local void stream_handles (object obj, bool check_open, bool* char_p,
                            SOCKET* in_sock, SOCKET* out_sock) {
-  if (posfixnump(obj)) {
-    if (in_sock)   *in_sock = (SOCKET)posfixnum_to_L(obj);
-    if (out_sock) *out_sock = (SOCKET)posfixnum_to_L(obj);
+  if (uint_p(obj)) {
+    if (in_sock)   *in_sock = (SOCKET)I_to_uint(obj);
+    if (out_sock) *out_sock = (SOCKET)I_to_uint(obj);
     if (char_p) *char_p = false;
     return;
   }
@@ -14338,19 +14338,20 @@ local void sock_opt_bool (SOCKET handle, int option, object value)
 }
 #endif
 #if defined(SO_RCVBUF) || defined(SO_SNDBUF) || defined(SO_RCVLOWAT) || defined(SO_SNDLOWAT)
-local void sock_opt_int (SOCKET handle, int option, object value)
+/* can trigger GC */
+local maygc void sock_opt_int (SOCKET handle, int option, object value)
 {
-  var uintL val;
+  var unsigned int val;
   var SOCKLEN_T len = sizeof(val);
   #ifdef HAVE_GETSOCKOPT
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char*)&val,&len))
     OS_error();
-  pushSTACK(fixnum(val));
+  pushSTACK(uint_to_I(val));
   if (!(eq(value,nullobj)))
   #endif
   {
-    if (!posfixnump(value)) fehler_posfixnum(value);
-    val = posfixnum_to_L(value);
+    if (!uint_p(value)) fehler_uint(value);
+    val = I_to_uint(value);
     if (-1 == setsockopt(handle,SOL_SOCKET,option,(char*)&val,len))
       OS_error();
   }
@@ -14448,15 +14449,15 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
       if (!(eq(arg,nullobj)))
       #endif
       { /* arg points to STACK so it is safe */
-        if (posfixnump(arg)) {
+        if (uint_p(arg)) {
           val.l_onoff = 1;
-          val.l_linger = posfixnum_to_L(arg);
+          val.l_linger = I_to_uint(arg);
         } else if (eq(T,arg)) {
           val.l_onoff = 1;
         } else if (nullp(arg)) {
           val.l_onoff = 0;
         } else
-          fehler_posfixnum(arg);
+          fehler_uint(arg);
         if (-1 == setsockopt(handle,SOL_SOCKET,SO_LINGER,(char*)&val,len))
           OS_error();
       }
@@ -14696,8 +14697,8 @@ LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
 {
   var Handle fd;
  restart_make_stream:
-  if (posfixnump(STACK_4)) {
-    fd = (Handle)posfixnum_to_L(STACK_4);
+  if (uint_p(STACK_4)) {
+    fd = (Handle)I_to_uint(STACK_4);
   } else if (eq(STACK_4,S(Kinput))) {
     fd = stdin_handle;
     if (missingp(STACK_3)) STACK_3 = S(Kinput);
@@ -16368,15 +16369,15 @@ global maygc object get_line_position (object stream) {
         # Maximum of Line-Positions of the single Streams
         {
           pushSTACK(TheStream(stream)->strm_broad_list);
-          var uintL maximum = 0; # previous Maximum := 0
+          var uintV maximum = 0; # previous Maximum := 0
           while (consp(STACK_0)) {
             var object next = # Line-Position of the next substream
               get_line_position(Car(STACK_0));
             if (nullp(next)) {
               skipSTACK(1); return NIL;
             }
-            if (posfixnum_to_L(next) > maximum)
-              maximum = posfixnum_to_L(next); # take Maximum
+            if (posfixnum_to_V(next) > maximum)
+              maximum = posfixnum_to_V(next); # take Maximum
             STACK_0 = Cdr(STACK_0);
           }
           skipSTACK(1); return fixnum(maximum); # Maximum as result
@@ -16402,7 +16403,7 @@ global maygc object get_line_position (object stream) {
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
-    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)])) {
+    if (!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)])) {
       # A newline is pending. The line position is already 0.
       skipSTACK(1);
       return Fixnum_0;
@@ -16465,7 +16466,7 @@ local maygc bool elastic_newline_pending_p (object stream) {
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
-    return !nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)]);
+    return !nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)]);
   }
 }
 
@@ -16563,7 +16564,7 @@ global maygc void elastic_newline (const gcv_object_t* stream_) {
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
-    TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = T;
+    TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)] = T;
   }
 }
 
@@ -17464,7 +17465,7 @@ global maygc bool stream_get_read_eval (object stream) {
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table,false);
-    var object value = TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)];
+    var object value = TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)];
     return !nullp(value);
   }
 }
@@ -17488,7 +17489,7 @@ global maygc void stream_set_read_eval (object stream, bool value) {
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table,false);
-    TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = (value ? T : NIL);
+    TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)] = (value ? T : NIL);
   }
 }
 

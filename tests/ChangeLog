@@ -1,3 +1,8 @@
+2005-05-11  Bruno Haible  <bruno@clisp.org>
+
+	* alltest.tst: Update for very large fixnum sizes.
+	* array.tst: Likewise.
+
 2005-05-13  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: more meaningful diagnostics for FILE-WRITE-DATE

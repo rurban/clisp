@@ -858,7 +858,7 @@ local maygc object I_to_FF (object x, bool signal_overflow)
     # Stackaufbau: q, r.
     # 2^24 <= q < 2^26, also ist q Fixnum oder Bignum mit bn_minlength Digits.
     var uint32 mant = ((FF_mant_len+3 <= oint_data_len)
-                       ? posfixnum_to_L(STACK_1)
+                       ? (uint32)posfixnum_to_V(STACK_1)
                        : I_to_UL(STACK_1)
                       );
     if (mant >= bit(FF_mant_len+2)) {

@@ -148,13 +148,13 @@ global uint32 hashcode1stable (object obj) {
     if (!nullp(TheClass(clas)->subclass_of_stablehash_p)) {
       /* The hashcode slot is known to be at position 1, thanks to
          :FIXED-SLOT-LOCATIONS. */
-      return posfixnum_to_L(TheInstance(obj_forwarded)->other[0]);
+      return posfixnum_to_V(TheInstance(obj_forwarded)->other[0]);
     }
   } else if (structurep(obj)) {
     if (!nullp(memq(S(structure_stablehash),TheStructure(obj)->structure_types))) {
       /* The hashcode slot is known to be at position 1, thanks to the way
          slots are inherited in DEFSTRUCT. */
-      return posfixnum_to_L(TheStructure(obj)->recdata[1]);
+      return posfixnum_to_V(TheStructure(obj)->recdata[1]);
     }
   } else if (symbolp(obj)) {
     var object hashcode = TheSymbol(obj)->hashcode;
@@ -163,7 +163,7 @@ global uint32 hashcode1stable (object obj) {
       pushSTACK(unbound); C_random_posfixnum(); hashcode = value1;
       TheSymbol(obj)->hashcode = hashcode;
     }
-    return posfixnum_to_L(hashcode);
+    return posfixnum_to_V(hashcode);
   }
   return hashcode1(obj);
 }
@@ -1503,7 +1503,7 @@ local /*maygc*/ object rehash (object ht) {
   }
   /* build up "list"-structure element-wise: */
   var object index = TheHashtable(ht)->ht_maxcount; /* MAXCOUNT */
-  var uintL maxcount = posfixnum_to_L(index);
+  var uintL maxcount = posfixnum_to_V(index);
   var gcv_object_t* KVptr = &TheHashedAlist(kvtable)->hal_data[3*maxcount]; /* end of kvtable */
   var object freelist = nix;
   var object count = Fixnum_0;
@@ -1525,7 +1525,7 @@ local /*maygc*/ object rehash (object ht) {
       if (user_defined_p) { /* restore - don't have to restore fixnums! */
         /* this implementation favors built-in ht-tests at the expense
            of the user-defined ones */
-        var uintL maxcount1 = posfixnum_to_L(index)+1;
+        var uintL maxcount1 = posfixnum_to_V(index)+1;
         ht = popSTACK();
         kvtable = TheHashtable(ht)->ht_kvtable;
         Ivektor = TheHashedAlist(kvtable)->hal_itable;
@@ -1613,7 +1613,7 @@ global /*maygc*/ bool hash_lookup_builtin (object ht, object obj, bool allowgc,
     &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex];
   var gcv_object_t* kvt_data = TheHashedAlist(kvtable)->hal_data;
   while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
-    var int index = posfixnum_to_L(*Nptr); /* next index */
+    var uintL index = posfixnum_to_V(*Nptr); /* next index */
     var gcv_object_t* Iptr = Nptr;
     var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
       kvt_data + 3*index;
@@ -1686,7 +1686,7 @@ global maygc bool hash_lookup_user (object ht, object obj, bool allowgc,
   var gcv_object_t* kvt_data = TheHashedAlist(kvtable)->hal_data;
   var uintL i_n; /* Iptr-Nptr FIXME: This is not GC-safe */
   while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
-    var uintL index = posfixnum_to_L(*Nptr); /* next index */
+    var uintL index = posfixnum_to_V(*Nptr); /* next index */
     var gcv_object_t* Iptr = Nptr;
     var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
       kvt_data + 3*index;
@@ -1754,7 +1754,7 @@ local maygc void warn_key_forces_gc_rehash (object ht, object key) {
  can trigger GC */
 #define hash_store(key,value)                                           \
   do {                                                                  \
-    var uintL index = posfixnum_to_L(freelist);    /* free index */     \
+    var uintL index = posfixnum_to_V(freelist);    /* free index */     \
     var object kvtable = TheHashtable(ht)->ht_kvtable;                  \
     /* address of the free entries in key-value-vector: */              \
     var gcv_object_t* KVptr = &TheHashedAlist(kvtable)->hal_data[3*index]; \
@@ -1862,25 +1862,28 @@ local maygc uintL prepare_resize (object maxcount, object mincount_threshold,
   if (!posfixnump(maxcount))
     goto check_maxcount;
   {
-    var uintL maxcountL = posfixnum_to_L(maxcount);
-    var uintL sizeL = 2*maxcountL+1;
+    var uintV maxcountV = posfixnum_to_V(maxcount);
+    var uintV sizeV = 2*maxcountV+1;
     /* SIZE odd in order to improve the hash-function! */
-    if (!(sizeL <= (uintL)(bitm(oint_data_len)-1)))
-      /* sizeL should fit into a fixnum */
+    if (!(sizeV <= (uintV)(vbitm(oint_data_len)-1)))
+      /* sizeV should fit into a fixnum */
+      goto check_maxcount;
+    if (!(sizeV <= (uintL)(bitm(intLsize)-1)))
+      /* sizeV should fit into an uintL */
       goto check_maxcount;
     /* numbers on the stack: */
     pushSTACK(maxcount);        /* MAXCOUNT */
-    pushSTACK(fixnum(sizeL));   /* SIZE */
+    pushSTACK(fixnum(sizeV));   /* SIZE */
     /* MINCOUNT := (floor (* maxcount mincount-threshold)) */
     pushSTACK(maxcount); pushSTACK(mincount_threshold); funcall(L(mal),2);
     pushSTACK(value1); funcall(L(floor),1);
     pushSTACK(value1);
     /* stack-layout: MAXCOUNT, SIZE, MINCOUNT.
      allocate new vectors: */
-    pushSTACK(allocate_vector(sizeL)); /* supply index-vector */
-    pushSTACK(allocate_kvt(weak,maxcountL)); /* supply key-value-vector */
+    pushSTACK(allocate_vector(sizeV)); /* supply index-vector */
+    pushSTACK(allocate_kvt(weak,maxcountV)); /* supply key-value-vector */
     /* finished. */
-    return maxcountL;
+    return maxcountV;
   }
  check_maxcount: /* maxcount no fixnum or too big */
   pushSTACK(weak); pushSTACK(mincount_threshold); /* save */
@@ -1917,7 +1920,7 @@ local maygc object resize (object ht, object maxcount) {
    Loop over the old key-value-vector and
    copy all key-value-pairs with key /= "leer" :
    For traversing the old key-value-vector: */
-  var uintL oldcount = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
+  var uintL oldcount = posfixnum_to_V(TheHashtable(ht)->ht_maxcount);
   var object oldKVvektor = TheHashtable(ht)->ht_kvtable;
   var gcv_object_t* oldKVptr = &TheHashedAlist(oldKVvektor)->hal_data[0];
   /* For traversing the new key-value-vector: */
@@ -1949,7 +1952,7 @@ local maygc object resize (object ht, object maxcount) {
   /* modify hash-table: */
   set_break_sem_2();                 /* protect from breaks */
   set_ht_invalid(TheHashtable(ht)); /* table must still be reorganized */
-  TheHashtable(ht)->ht_size = posfixnum_to_L(size);  /* enter new SIZE */
+  TheHashtable(ht)->ht_size = posfixnum_to_V(size);  /* enter new SIZE */
   TheHashtable(ht)->ht_maxcount = maxcount; /* enter new MAXCOUNT */
   TheHashtable(ht)->ht_kvtable = KVvektor; /* enter new key-value-vector */
   TheHashtable(ht)->ht_mincount = mincount; /* enter new MINCOUNT */
@@ -2008,7 +2011,7 @@ local void clrhash (object ht) {
   /* Delete pairs and build up freelist: */
   {
     var object index = TheHashtable(ht)->ht_maxcount; /* MAXCOUNT */
-    var uintL maxcount = posfixnum_to_L(index);
+    var uintL maxcount = posfixnum_to_V(index);
     var object freelist = nix;
     if (maxcount > 0) {
       var gcv_object_t* KVptr = &TheHashedAlist(kvtable)->hal_data[3*maxcount]; /* end of kvtable */
@@ -2310,7 +2313,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
     var object initial_contents = STACK_8;
     if (boundp(initial_contents)) { /* specified ? */
       var uintL initial_length = llength(initial_contents); /* length of the alist */
-      if (initial_length > posfixnum_to_L(STACK_2)) /* > size ? */
+      if (initial_length > posfixnum_to_V(STACK_2)) /* > size ? */
         STACK_2 = fixnum(initial_length); /* yes -> enlarge size */
     }
   } /* size is a fixnum >0, >= (length initial-contents) . */
@@ -2336,7 +2339,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
   TheHashtable(ht)->ht_kvtable = kvtable;
   TheHashedAlist(kvtable)->hal_itable = popSTACK();  /* index-vector */
   TheHashtable(ht)->ht_mincount = popSTACK(); /* MINCOUNT */
-  TheHashtable(ht)->ht_size = posfixnum_to_L(popSTACK()); /* SIZE */
+  TheHashtable(ht)->ht_size = posfixnum_to_V(popSTACK()); /* SIZE */
   TheHashtable(ht)->ht_maxcount = popSTACK(); /* MAXCOUNT */
   /* STACK layout:
      initial-contents, key-type, value-type,
@@ -2526,8 +2529,8 @@ LISPFUNN(remhash,2)
     TheHashedAlist(kvtable)->hal_count = fixnum_inc(TheHashedAlist(kvtable)->hal_count,-1);
     clr_break_sem_2();          /* allow breaks again */
     /* shrink the hash-table for COUNT < MINCOUNT : */
-    if (  posfixnum_to_L(TheHashedAlist(kvtable)->hal_count)
-        < posfixnum_to_L(TheHashtable(ht)->ht_mincount)) {
+    if (  posfixnum_to_V(TheHashedAlist(kvtable)->hal_count)
+        < posfixnum_to_V(TheHashtable(ht)->ht_mincount)) {
       /* shrink hash-table:
        maxcount := (max (floor (/ maxcount rehash-size)) 1) */
       pushSTACK(ht);            /* save hashtable */
@@ -2552,7 +2555,7 @@ LISPFUNN(maphash,2)
   var object ht = check_hashtable(STACK_0); /* hashtable argument */
   /* traverse the key-value-vector in reverse direction and
    call the function for all key-value-pairs with key /= "leer" : */
-  var uintL index = 3*posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
+  var uintL index = 3*posfixnum_to_V(TheHashtable(ht)->ht_maxcount);
   STACK_0 = TheHashtable(ht)->ht_kvtable; /* key-value-vector */
   /* stack-layout: function, key-value-vector. */
   while (index) {
@@ -2702,7 +2705,7 @@ LISPFUNN(hash_table_iterate,1) {
   if (consp(state)) {            /* hopefully a cons */
     var object table = Car(state); /* key-value-vector */
     loop {
-      var uintL index = posfixnum_to_L(Cdr(state));
+      var uintL index = posfixnum_to_V(Cdr(state));
       if (index==0)             /* index=0 -> no more elements */
         break;
       Cdr(state) = fixnum_inc(Cdr(state),-1); /* decrement index */
@@ -2730,14 +2733,14 @@ LISPFUNN(set_hash_table_weak_p,2)
   var object val = check_weak(STACK_1); /* weak-p */
   var object ht = STACK_0; /* hashtable argument */
   if (!eq(val,hash_table_weak_type(ht))) {
-    var uintL maxcount = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
+    var uintL maxcount = posfixnum_to_V(TheHashtable(ht)->ht_maxcount);
     var object new_kvt;
     for (;;) {
       new_kvt = allocate_kvt(val,maxcount);
       /* Check whether the hash-table has not been resized during
          allocate_kvt(). */
       var uintL new_maxcount =
-        posfixnum_to_L(TheHashtable(STACK_0)->ht_maxcount);
+        posfixnum_to_V(TheHashtable(STACK_0)->ht_maxcount);
       if (maxcount == new_maxcount)
         break;
       maxcount = new_maxcount;
@@ -2764,7 +2767,7 @@ LISPFUNN(class_gethash,2)
     ht = rehash(ht);
   {
     var uint32 code =           /* calculate hashcode1stable of the class */
-      posfixnum_to_L(TheClass(clas)->hashcode);
+      posfixnum_to_V(TheClass(clas)->hashcode);
     var uintL hashindex;
     divu_3232_3232(code,TheHashtable(ht)->ht_size, (void),hashindex = );
     var object kvtable = TheHashtable(ht)->ht_kvtable;
@@ -2772,7 +2775,7 @@ LISPFUNN(class_gethash,2)
       &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex];
     var gcv_object_t* kvt_data = TheHashedAlist(kvtable)->hal_data;
     while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
-      var uintL index = posfixnum_to_L(*Nptr); /* next index */
+      var uintL index = posfixnum_to_V(*Nptr); /* next index */
       var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
         kvt_data + 3*index;
       /* compare key */
@@ -2809,7 +2812,7 @@ local uint32 hashcode_tuple (uintC n, const gcv_object_t* args_pointer,
                              uintC depth) {
   if (n==1) {
     var object clas = Next(args_pointer);
-    return posfixnum_to_L(TheClass(clas)->hashcode); /* hashcode3stable_atom for classes */
+    return posfixnum_to_V(TheClass(clas)->hashcode); /* hashcode3stable_atom for classes */
   } else if (n<=16) {
     var uintC n1 = tuple_half_1[n];
     var uintC n2 = tuple_half_2[n]; /* n1 + n2 = n */
@@ -2903,7 +2906,7 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
       &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex];
     var gcv_object_t* kvt_data = TheHashedAlist(kvtable)->hal_data;
     while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
-      var uintL index = posfixnum_to_L(*Nptr); /* next index */
+      var uintL index = posfixnum_to_V(*Nptr); /* next index */
       var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
         kvt_data + 3*index;
       if (equal_tuple(KVptr[0],argcount,rest_args_pointer)) { /* compare key */

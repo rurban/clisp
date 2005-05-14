@@ -27,7 +27,7 @@ global maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer
      || ((count == floor(oint_data_len,8)+1)
          && (*bufferptr < bit(oint_data_len%8)))) {
     # yes -> build Fixnum >=0 :
-    var uintL wert = 0;
+    var uintV wert = 0;
     until (count==0) { wert = (wert<<8) | *bufferptr--; count--; }
     return fixnum(wert);
   }
@@ -109,7 +109,7 @@ global maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_
        || ((count == floor(oint_data_len,8)+1)
            && (*bufferptr < bit(oint_data_len%8)))) {
       # yes -> build Fixnum >=0:
-      var uintL value = 0;
+      var uintV value = 0;
       until (count==0) { value = (value<<8) | *bufferptr--; count--; }
       return posfixnum(value);
     }
@@ -126,9 +126,9 @@ global maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_
        || ((count == floor(oint_data_len,8)+1)
            && (*bufferptr >= (uintB)(-bit(oint_data_len%8))))) {
       # yes -> build Fixnum <0:
-      var uintL value = (uintL)(-1);
+      var uintV value = (uintV)(sintV)(-1);
       until (count==0) { value = (value<<8) | *bufferptr--; count--; }
-      return negfixnum(-wbitm(intLsize)+(oint)value);
+      return negfixnum(-wbitm(intVsize)+(oint)value);
     }
   }
   # Make bignum:
@@ -189,9 +189,9 @@ global bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr) {
   {
     var uintL count = bytesize;
     if (posfixnump(obj)) { # obj is a Fixnum >=0
-      var uintL value = posfixnum_to_L(obj);
+      var uintV value = posfixnum_to_V(obj);
       # check value < 2^bitsize:
-      if (!((bitsize>=oint_data_len) || (value < bit(bitsize))))
+      if (!((bitsize>=oint_data_len) || (value < vbit(bitsize))))
         return true;
       # store value in Bitbuffer:
       until (value==0) {
@@ -261,10 +261,10 @@ global bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr) {
   # Transfer obj into the buffer:
   {
     var uintL count = bytesize;
-    var uintL sign = (sintL)R_sign(obj);
+    var uintV sign = (sintV)(sintL)R_sign(obj);
     if (fixnump(obj)) {
       # obj is a Fixnum
-      var uintL value = fixnum_to_L(obj); # >=0 or <0, according to sign
+      var uintV value = fixnum_to_V(obj); # >=0 or <0, according to sign
       # check 0 <= value < 2^(bitsize-1) resp. -2^(bitsize-1) <= value < 0:
       value = value^sign;
       if (!((bitsize>oint_data_len) || (value < bit(bitsize-1))))

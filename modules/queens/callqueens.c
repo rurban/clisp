@@ -21,18 +21,18 @@ DEFUN(USER::QUEENS, n)
    * so we get the argument from the STACK immediately,
    * and clean up STACK at the same time
    */
-  uintL n = posfixnum_to_L(check_posfixnum(popSTACK()));
+  unsigned int n = I_to_uint(check_uint(popSTACK()));
   if (n>0 && n<=nmax) { /* the argument is good. Do our job: */
-    uint32 result;
+    unsigned int result;
     begin_call();
     result = queens(n); /* call external function */
     end_call();
     /*
      * Assume result is >=0 and <2^32 (which is guaranteed by the type
      * of problem we have and the amount of time queens() may have run).
-     * So an `uint32' is enough, and the following call is appropriate.
+     * So an unsigned int' is enough, and the following call is appropriate.
      */
-    VALUES1(uint32_to_I(result)); /* convert result to a nonnegative integer */
+    VALUES1(uint_to_I(result)); /* convert result to a nonnegative integer */
   } else /* We could issue an error. We prefer to return NIL here. */
     VALUES1(NIL);
 }

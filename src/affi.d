@@ -173,7 +173,7 @@ local void affi_callit(address, ffinfo, args)
         offset = 0;
       } elif (consp(both)) {
         mask = Cdr(both);
-        offset = I_to_L(Car(both)); # nur fixnum_to_L() (dann mit Überprüfung) ?
+        offset = I_to_L(Car(both)); # nur fixnum_to_V() (dann mit Überprüfung) ?
       } else
         goto bad_proto;
     }
@@ -229,7 +229,7 @@ local void affi_callit(address, ffinfo, args)
         mv_count=0; value1 = NIL;
       } else {
         if (fixnump(rtype)) {
-          switch(fixnum_to_L(rtype)) {
+          switch(fixnum_to_V(rtype)) {
             case  4L: value1 = UL_to_I(thing); break;
             case  2L: value1 = UL_to_I((uint16)thing); break;
             case  1L: value1 = UL_to_I((uint8)thing); break;
@@ -279,7 +279,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
     {
       var object rtype = TheSvector(ffinfo)->data[1];
       if (fixnump(rtype)) {
-        var sintL size = fixnum_to_L(rtype);
+        var sintL size = fixnum_to_V(rtype);
         if (size < 0)
           size = -size;
         if (size > 4 || size == 3)
@@ -304,7 +304,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
           var object arg = NEXT(args);
           if (fixnump(type)) {
             if (integerp(arg)) {
-              switch (fixnum_to_L(type)) {
+              switch (fixnum_to_V(type)) {
                 case 1L:
                   if (!uint8_p(arg))
                     goto bad_arg; # Fehlermeldung mit O(type_uint8) denkbar
@@ -515,7 +515,7 @@ LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
       value1 = UL_to_I(*(aint*)address);
     } elif (posfixnump(into)) {
       var uintL content;
-      switch (posfixnum_to_L(into)) {
+      switch (posfixnum_to_V(into)) {
         case 1L:
           content = *(UBYTE *)address; break;
         case 2L:
@@ -528,7 +528,7 @@ LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
       value1 = UL_to_I(content);
     } elif (fixnump(into)) {
       var sintL content;
-      switch (negfixnum_to_L(into)) {
+      switch ((sintV)negfixnum_to_V(into)) {
         case -1L:
           content = *(SBYTE *)address; break;
         case -2L:
@@ -616,7 +616,7 @@ LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
         goto bad_arg;
     } elif (posfixnump(type)) {
       var ULONG value = I_to_UL(wert);
-      switch (posfixnum_to_L(type)) {
+      switch (posfixnum_to_V(type)) {
         case 1L:
           if (value & ~0xFF)
             goto bad_arg;
@@ -637,7 +637,7 @@ LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
       }
     } elif (fixnump(type)) {
       var SLONG value = I_to_L(wert);
-      switch (negfixnum_to_L(type)) { # TODO valid range checks
+      switch ((sintV)negfixnum_to_V(type)) { # TODO valid range checks
         case -1L:
           *(SBYTE *)address = value;
           break;

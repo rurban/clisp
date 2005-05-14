@@ -300,9 +300,9 @@ typedef enum {
 LISPFUNNF(funtabref,1)
 {
   var object arg = popSTACK(); /* argument */
-  var uintL i;
+  var uintV i;
   if (posfixnump(arg) /* should be Fixnum >=0 */
-      && (i = posfixnum_to_L(arg),
+      && (i = posfixnum_to_V(arg),
           i < FUNTAB_length+FUNTABR_length)) { /* and < table-length */
     /* Name of the indexed element of the table: */
     value1 = (i < FUNTAB_length
@@ -703,7 +703,7 @@ global maygc void invoke_handlers (object cond) {
               var object closure = FRAME_(frame_closure);
               var object codevec = TheCclosure(closure)->clos_codevec;
               var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
-                + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
+                + (uintL)posfixnum_to_V(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
               interpret_bytecode(closure,codevec,index);
             } else {
               /* call C-Handler: */
@@ -2153,7 +2153,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
     var uintB* ptrflags = &TheSbvector(varflags)->data[var_count-spec_count];
     var uintC count = var_count-spec_count;
     while (count--) {
-      *--ptrflags = (uintB)posfixnum_to_L(popSTACK());
+      *--ptrflags = (uintB)posfixnum_to_V(popSTACK());
       *--ptr = popSTACK();
     }
     for (count = spec_count; count--;)
@@ -2420,7 +2420,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
   }
   var gcv_object_t* closure_ = &STACK_(frame_closure); /* &closure */
   var gcv_object_t* frame_pointer; /* pointer to the frame */
-  var uintC spec_count = posfixnum_to_L(TheIclosure(closure)->clos_spec_anz);
+  var uintC spec_count = posfixnum_to_V(TheIclosure(closure)->clos_spec_anz);
   var gcv_object_t *spec_ptr;
   { /* 2nd step: build variable-binding-frame: */
     var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
@@ -2492,7 +2492,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       *markptr = SET_BIT(*markptr,active_bit_o);/* activate binding */  \
      }}
     { /* process required parameters: fetch next argument and bind in stack */
-      var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_req_anz);
+      var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_req_anz);
       if (count>0) {
         if (argcount < count) {
           pushSTACK(TheIclosure(closure)->clos_name);
@@ -2510,7 +2510,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     { /* process optional parameters:
          fetch next argument; if there is none,
          execute an Init-form; then bind in stack. */
-      var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_opt_anz);
+      var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_opt_anz);
       if (count==0)
         goto optional_ende;
       {
@@ -2552,7 +2552,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       if (!nullp(TheIclosure(closure)->clos_rest_flag)) /* Rest-Flag? */
         bind_next_var(NIL,); /* yes -> bind to NIL */
       /* initialize &KEY-parameters without arguments : */
-      count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz); /* number of Keyword-parameters */
+      count = posfixnum_to_V(TheIclosure(closure)->clos_key_anz); /* number of Keyword-parameters */
       if (count>0) {
         STACK_0 = TheIclosure(closure)->clos_key_inits; /* their Init-forms */
         dotimespC(count,count, {
@@ -2631,7 +2631,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
                                 TheIclosure(closure)->clos_keywords);});
          #undef for_every_keyword
           /* Now assign the Key-values and evaluate the Key-Inits: */
-          var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz);
+          var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_key_anz);
           if (count > 0) {
             var object key_inits = TheIclosure(closure)->clos_key_inits;
             dotimespC(count,count, {
@@ -2665,7 +2665,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       }
     }
    aux: { /* process &AUX-parameter: */
-      var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_aux_anz);
+      var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_aux_anz);
       if (count>0) {
         pushSTACK(TheIclosure(closure)->clos_aux_inits); /* Init-forms for &AUX-variables */
         dotimespC(count,count, {
@@ -3108,7 +3108,7 @@ local maygc Values eval1 (object form)
     var gcv_object_t* STACKbefore = STACK;
     #endif
     # put arguments in the STACK:
-    switch ((uintW)posfixnum_to_L(TheFsubr(fun)->argtype)) {
+    switch ((uintW)posfixnum_to_V(TheFsubr(fun)->argtype)) {
       # Macro for 1 required-Parameter:
       #define REQ_PAR()  \
         { if (atomp(args)) goto fehler_zuwenig;                   \
@@ -6815,8 +6815,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           if (eq(hashvalue,nullobj))
             goto jmp; # not found -> jump to label
           else { /* interpret found Fixnum as label: */
-            DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_L(hashvalue));
-            byteptr += fixnum_to_L(hashvalue);
+            DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_V(hashvalue));
+            byteptr += fixnum_to_V(hashvalue);
           }
         }
         goto next_byte;
@@ -6829,8 +6829,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           if (eq(hashvalue,nullobj))
             goto jmp; # not found -> jump to label
           else { /* interpret found Fixnum as label: */
-            DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_L(hashvalue));
-            byteptr += fixnum_to_L(hashvalue);
+            DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_V(hashvalue));
+            byteptr += fixnum_to_V(hashvalue);
           }
         }
         goto next_byte;
@@ -7394,8 +7394,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         {
           var uintL m = Svector_length(Car(STACK_2)); # Number of Labels
           # (I could also declare the m above as 'auto' and use it here.)
-          var uintL i = posfixnum_to_L(value1); # Number of Labels
-          var uintL index = posfixnum_to_L(STACK_((m-i)+3)); # labeli
+          var uintL i = posfixnum_to_V(value1); # Number of Labels
+          var uintL index = posfixnum_to_V(STACK_((m-i)+3)); # labeli
           # get closure back, byteptr:=labeli_byteptr :
           closureptr = (gcv_object_t*) SP_(jmpbufsize+0);
           closure = *closureptr; # fetch Closure from Stack
@@ -7675,8 +7675,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         # builds up SP newly, occupies 1 SP-Entry and
         # starts a new STACK-Region.
         {
-          var uintL count = posfixnum_to_L(Car(handler_args.spdepth))
-                            + jmpbufsize * posfixnum_to_L(Cdr(handler_args.spdepth));
+          var uintL count = (uintL)posfixnum_to_V(Car(handler_args.spdepth))
+                            + jmpbufsize * (uintL)posfixnum_to_V(Cdr(handler_args.spdepth));
           if (count > 0) {
             var SPint* oldsp = handler_args.sp; # was formerly &SP_(0)
             # copy oldsp[0..count-1] to the current SP:
@@ -7899,9 +7899,9 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         index = value1;
         # and the Index must be Fixnum >= 0, < length(vec) :
         {
-          var uintL i;
+          var uintV i;
           if (!(posfixnump(index)
-                && ((i = posfixnum_to_L(index)) < Svector_length(vec))))
+                && ((i = posfixnum_to_V(index)) < Svector_length(vec))))
             goto svref_kein_index;
           VALUES1(TheSvector(vec)->data[i]); # indexed Element as value
         }
@@ -7913,9 +7913,9 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         index = value1;
         # and the Index must be a Fixnum >=0, <Length(vec) :
         {
-          var uintL i;
+          var uintV i;
           if (!(posfixnump(index)
-                && ((i = posfixnum_to_L(index)) < Svector_length(vec))))
+                && ((i = posfixnum_to_V(index)) < Svector_length(vec))))
             goto svref_kein_index;
           value1 = TheSvector(vec)->data[i] = popSTACK(); # put in new element
           mv_count = 1;
@@ -8010,7 +8010,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       # Increment. Optimized specifically for Fixnums >=0.
       #define INC(arg,statement)  \
         { if (posfixnump(arg) # Fixnum >= 0 and < most-positive-fixnum ? \
-              && !eq(arg,fixnum(bitm(oint_data_len)-1))) {               \
+              && !eq(arg,fixnum(vbitm(oint_data_len)-1))) {              \
             arg = fixnum_inc(arg,1); statement;                          \
           } else {                                                       \
             with_saved_context(                                          \

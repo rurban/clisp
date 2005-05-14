@@ -674,8 +674,8 @@ static object state_next_key (object state) {
   object stack = ITST_STACK(state);
   if (!nullp(stack)) {
     object node = ITST_NODE(state);
-    uintL keynum = posfixnum_to_L(NODE_KEY(node));
-    uintL keylen = posfixnum_to_L(NODE_KEY_S(node));
+    uintL keynum = posfixnum_to_V(NODE_KEY(node));
+    uintL keylen = posfixnum_to_V(NODE_KEY_S(node));
     char* buffer = (char*)alloca(keylen);
     Fpointer fp  = TheFpointer(NODE_HANDLE(node));
     XOUT(state,"state_next_key");
@@ -753,9 +753,9 @@ DEFUN(LDAP::DKEY-SEARCH-NEXT-ATT,state)
   }
  {object node = Car(stack);
   Fpointer fp = TheFpointer(NODE_HANDLE(node));
-  uintL attnum = posfixnum_to_L(NODE_ATT(node));
-  uintL attlen = posfixnum_to_L(NODE_ATT_S(node));
-  uintL datlen = posfixnum_to_L(NODE_DAT_S(node));
+  uintL attnum = posfixnum_to_V(NODE_ATT(node));
+  uintL attlen = posfixnum_to_V(NODE_ATT_S(node));
+  uintL datlen = posfixnum_to_V(NODE_DAT_S(node));
   char* att = (char*)alloca(attlen);
   char* dat = (char*)alloca(datlen);
   DWORD type;

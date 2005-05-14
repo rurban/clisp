@@ -336,7 +336,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
 { /* match the SUBJECT string against a pre-compiled PATTERN;
      return a vector of MATCH structures or NIL if no matches */
   int options = pcre_exec_flags();
-  int offset = posfixnum_default(popSTACK());
+  int offset = check_uint_default0(popSTACK());
   bool bool_p = !missingp(STACK_0);
   int *ovector;
   int capture_count, ovector_size, ret;

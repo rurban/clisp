@@ -441,7 +441,7 @@ local maygc object convert_function_to_foreign (object fun, object resulttype,
         if (equal_fvd(resulttype,Car(acons))
             && equal_argfvds(argtypes,Car(Cdr(acons)))
             && eq(flags,Car(Cdr(Cdr(acons))))) {
-          var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*posfixnum_to_L(Cdr(Cdr(Cdr(acons))))-2];
+          var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*posfixnum_to_V(Cdr(Cdr(Cdr(acons))))-2];
           triple[2] = fixnum_inc(triple[2],1); /* increment reference count */
           var object ffun = triple[1];
           ASSERT(equal_fvd(resulttype,TheFfunction(ffun)->ff_resulttype));
@@ -459,7 +459,7 @@ local maygc object convert_function_to_foreign (object fun, object resulttype,
   pushSTACK(argtypes);
   pushSTACK(flags);
   { /* First grab an index. */
-    var uintL f_index = posfixnum_to_L(TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[0]);
+    var uintV f_index = posfixnum_to_V(TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[0]);
     if (f_index != 0) { /* remove first index from the free list */
       var object dv = TheIarray(O(foreign_callin_vector))->data;
       TheSvector(dv)->data[0] = TheSvector(dv)->data[3*f_index];
@@ -2339,7 +2339,7 @@ LISPFUNN(lookup_foreign_variable,2)
   /* The first LOOKUP-FOREIGN-VARIABLE determines the variable's type. */
   if (nullp(TheFvariable(fvar)->fv_type)) {
     foreign_layout(fvd);
-    if (!((posfixnum_to_L(TheFvariable(fvar)->fv_size) == data_size)
+    if (!((posfixnum_to_V(TheFvariable(fvar)->fv_size) == data_size)
           && (((long)Faddress_value(TheFvariable(fvar)->fv_address)
                & (data_alignment-1)) == 0))) {
       pushSTACK(fvar);
@@ -2523,7 +2523,7 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
         pushSTACK(S(element));
         fehler(error,GETTEXT("~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
       }
-      var uintL subscript = posfixnum_to_L(subscriptobj);
+      var uintV subscript = posfixnum_to_V(subscriptobj);
       var uintL dim = I_to_uint32(*dimptr);
       if (!(subscript<dim)) {
         var object list = listof(argcount);
@@ -2846,7 +2846,7 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
 LISPFUNN(call_with_foreign_string,6)
 {
   if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
-  var uintL zeroes = posfixnum_to_L(popSTACK());
+  var uintV zeroes = posfixnum_to_V(popSTACK());
   STACK_4 = check_function(STACK_4);
  #ifdef UNICODE
   STACK_3 = check_encoding(STACK_3,&O(foreign_encoding),false);
@@ -2868,7 +2868,7 @@ LISPFUNN(call_with_foreign_string,6)
   if (bytesize>0)
     cstombs(encoding,srcptr,charsize,&stack_data[0],bytesize);
   if (zeroes != 0) { /* add terminating zero bytes */
-    do {stack_data[bytesize++] = 0;} while (--zeroes);
+    do { stack_data[bytesize++] = 0; } while (--zeroes > 0);
     charsize++;
   }
   { var object pointer_base = allocate_fpointer((void*)&stack_data[0]);
@@ -3282,7 +3282,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
   var object argfvds_top = TheFfunction(ffun)->ff_argtypes;
   if (!simple_vector_p(argfvds_top))
     fehler_function_no_fvd(ffun,S(foreign_call_out));
-  var uintWL flags = posfixnum_to_L(TheFfunction(ffun)->ff_flags);
+  var uintWL flags = posfixnum_to_V(TheFfunction(ffun)->ff_flags);
   switch (flags & 0x7F00) {
     /* For the moment, the only supported languages are "C" and "ANSI C". */
     case ff_lang_c:
@@ -3311,7 +3311,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
       for (i = 0; i < allargcount; i++) {
         var object argfvds = TheFfunction(Before(rest_args_pointer))->ff_argtypes;
         var object arg_fvd = TheSvector(argfvds)->data[2*i];
-        var uintWL arg_flags = posfixnum_to_L(TheSvector(argfvds)->data[2*i+1]);
+        var uintWL arg_flags = posfixnum_to_V(TheSvector(argfvds)->data[2*i+1]);
         if (!(arg_flags & ff_out)) {
           inargcount++;
           if (inargcount > argcount)
@@ -3388,7 +3388,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
       for (i = 0, j = 0; i < allargcount; i++) {
         var object argfvds = TheFfunction(Before(rest_args_pointer))->ff_argtypes;
         var object arg_fvd = TheSvector(argfvds)->data[2*i];
-        var uintWL arg_flags = posfixnum_to_L(TheSvector(argfvds)->data[2*i+1]);
+        var uintWL arg_flags = posfixnum_to_V(TheSvector(argfvds)->data[2*i+1]);
         var object arg;
         if (arg_flags & ff_out) {
           arg = unbound; /* only to avoid uninitialized variable */
@@ -3834,7 +3834,7 @@ local void callback (void* data, va_alist alist)
   var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*((uintL)(uintP)data)-2];
   var object fun = triple[0];
   var object ffun = triple[1];
-  var uintWL flags = posfixnum_to_L(TheFfunction(ffun)->ff_flags);
+  var uintWL flags = posfixnum_to_V(TheFfunction(ffun)->ff_flags);
   var object result_fvd = TheFfunction(ffun)->ff_resulttype;
   var object argfvds_top = TheFfunction(ffun)->ff_argtypes;
   var uintL argcount = Svector_length(argfvds_top)/2;
@@ -3863,7 +3863,7 @@ local void callback (void* data, va_alist alist)
     for (i = 0; i < argcount; i++) {
       var object argfvds = STACK_(i);
       var object arg_fvd = TheSvector(argfvds)->data[2*i];
-      var uintWL arg_flags = posfixnum_to_L(TheSvector(argfvds)->data[2*i+1]);
+      var uintWL arg_flags = posfixnum_to_V(TheSvector(argfvds)->data[2*i+1]);
       begin_system_call();
       var void* arg_addr = do_va_arg(flags,arg_fvd,alist);
       end_system_call();
