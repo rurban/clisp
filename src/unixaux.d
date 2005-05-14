@@ -798,8 +798,8 @@ global void abort() {
  used by syscalls and dirkey modules */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#define FACTOR (0x19db1ded53ea710LL)
-#define NSPERSEC 10000000LL
+#define FACTOR LL(0x19db1ded53ea710)
+#define NSPERSEC LL(10000000)
 global long time_t_from_filetime (const FILETIME * ptr) {
   /* A file time is the number of 100ns since jan 1 1601
      stuffed into two long words.

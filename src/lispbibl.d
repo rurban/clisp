@@ -1055,6 +1055,17 @@
 
 #define MALLOC(size,type)   (type*)malloc((size)*sizeof(type))
 
+# Literal constants of 64-bit integer types
+# LL(nnnn)  = nnnn parsed as a sint64
+# ULL(nnnn) = nnnn parsed as a uint64
+#if defined(HAVE_LONGLONG)
+  #define LL(nnnn) nnnn##LL
+  #define ULL(nnnn) nnnn##ULL
+#elif defined(MICROSOFT)
+  #define LL(nnnn) nnnn##i64
+  #define ULL(nnnn) nnnn##ui64
+#endif
+
 # Synonyms for Byte, Word, Longword:
 # SBYTE   = signed 8 bit integer
 # UBYTE   = unsigned 8 bit int
@@ -1069,7 +1080,7 @@
   #ifdef __CHAR_UNSIGNED__
     typedef signed char  SBYTE;
   #else
-      typedef char         SBYTE;
+    typedef char         SBYTE;
   #endif
   typedef unsigned char  UBYTE;
 #else
@@ -2596,26 +2607,26 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     # Bits 63..48 = Typcode, Bits 47..32 = zero, Bits 31..0 = address
     #define oint_type_shift 48
     #define oint_type_len 16
-    #define oint_type_mask 0xFFFF000000000000ULL
+    #define oint_type_mask ULL(0xFFFF000000000000)
     #define oint_addr_shift 0
     #define oint_addr_len 48
-    #define oint_addr_mask 0x0000FFFFFFFFFFFFULL
+    #define oint_addr_mask ULL(0x0000FFFFFFFFFFFF)
   #elif WIDE_ENDIANNESS
     # Bits 63..32 = Typcode, Bits 31..0 = address
     #define oint_type_shift 32
     #define oint_type_len 32
-    #define oint_type_mask 0xFFFFFFFF00000000ULL
+    #define oint_type_mask ULL(0xFFFFFFFF00000000)
     #define oint_addr_shift 0
     #define oint_addr_len 32
-    #define oint_addr_mask 0x00000000FFFFFFFFULL
+    #define oint_addr_mask ULL(0x00000000FFFFFFFF)
   #else # conversely it is a little slower:
     # Bits 63..32 = Adress, Bits 31..0 = Typcode
     #define oint_type_shift 0
     #define oint_type_len 32
-    #define oint_type_mask 0x00000000FFFFFFFFULL
+    #define oint_type_mask ULL(0x00000000FFFFFFFF)
     #define oint_addr_shift 32
     #define oint_addr_len 32
-    #define oint_addr_mask 0xFFFFFFFF00000000ULL
+    #define oint_addr_mask ULL(0xFFFFFFFF00000000)
   #endif
 # Now come the 32-bit platforms with TYPECODES. We need to support it only on
 # MC680X0 platforms without new gcc.
@@ -2890,10 +2901,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 # Bit operations on entities of type uintV:
 # ...vbit... instead of ...bit..., "v" = "value".
 #if (intVsize > 32)
-  #define vbit(n)  (1LL<<(n))
-  #define vbitm(n)  (2LL<<((n)-1))
+  #define vbit(n)  (LL(1)<<(n))
+  #define vbitm(n)  (LL(2)<<((n)-1))
   #define vbit_test(x,n)  ((x) & vbit(n))
-  #define minus_vbit(n)  (-1LL<<(n))
+  #define minus_vbit(n)  (-LL(1)<<(n))
 #else
   #define vbit  bit
   #define vbitm  bitm
@@ -2904,10 +2915,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 # Bit operations on entities of type oint:
 # ...wbit... instead of ...bit..., "w" = "wide".
 #if defined(WIDE_SOFT) || defined(WIDE_AUXI)
-  #define wbit(n)  (1LL<<(n))
-  #define wbitm(n)  (2LL<<((n)-1))
+  #define wbit(n)  (LL(1)<<(n))
+  #define wbitm(n)  (LL(2)<<((n)-1))
   #define wbit_test(x,n)  ((x) & wbit(n))
-  #define minus_wbit(n)  (-1LL<<(n))
+  #define minus_wbit(n)  (-LL(1)<<(n))
 #else
   #define wbit  bit
   #define wbitm  bitm
