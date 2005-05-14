@@ -5771,8 +5771,10 @@ typedef struct {
   gcv_object_t other[unspecified]       _attribute_aligned_object_;
 } *  Class;
 
+# Length of a <defined-class>.
+#define defined_class_length ((((ULONG)&((Class)0)->initialized-offsetofa(record_,recdata))/sizeof(gcv_object_t))+1)
 # Length of a <built-in-class>.
-#define built_in_class_length  ((((ULONG)&((Class)0)->initialized-offsetofa(record_,recdata))/sizeof(gcv_object_t))+1)
+#define built_in_class_length  (defined_class_length+1) # = clos::*<built-in-class>-instance-size*
 
 # Closures
 typedef struct {

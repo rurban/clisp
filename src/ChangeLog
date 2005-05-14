@@ -1,3 +1,9 @@
+2005-05-11  Bruno Haible  <bruno@clisp.org>
+
+	Fix bug introduced on 2005-01-27.
+	* lispbibl.d (defined_class_length): New macro.
+	(built_in_class_length): Define based on defined_class_length.
+
 2005-05-13  Sam Steingold  <sds@gnu.org>
 
 	* modules/pcre/cpcre.c: updated for PCRE5
