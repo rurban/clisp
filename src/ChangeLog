@@ -1,3 +1,10 @@
+2005-05-14  Sam Steingold  <sds@gnu.org>
+
+	when lndir copies or hard links, "cvs up" required "rm -rf module-dir"
+	* makemake.in (anymodule): always call lndir, even when
+	destination exists
+	* lndir: when destination exists, update it
+
 2005-05-13  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (clisp): Set COMPILE_STANDALONE. Fixes link error
