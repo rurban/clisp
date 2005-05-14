@@ -2679,6 +2679,16 @@ local inline int init_memory (const struct argv_initparams *p) {
       mem.heaps[0].heap_hardlimit = 0x40000000;
       mem.heaps[1].heap_limit = 0x64000000; # room until at least 0x7F000000
       mem.heaps[1].heap_hardlimit = 0x7F000000;
+      #elif defined(TYPECODES) && (oint_addr_len+addr_shift > pointer_bitsize)
+       #ifdef UNIX_DARWIN
+      # 'vmmap' shows that there is room between the malloc area at 0x01...... or 0x02......
+      # and the dyld at 0x8f......
+      mem.heaps[0].heap_limit = 0x10000000; # lower bound of large usable range
+      mem.heaps[1].heap_hardlimit = 0x8F000000; # upper bound of large usable range
+      mem.heaps[0].heap_hardlimit = mem.heaps[1].heap_limit = 0x60000000; # arbitrary separator address
+       #else
+        #error "Where is room in the memory map to put the heaps?"
+       #endif
       #else
        #ifdef TYPECODES
       var aint end = bitm(oint_addr_len+addr_shift);
