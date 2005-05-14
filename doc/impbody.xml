@@ -852,7 +852,7 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
    <primary id="meth-call-type-err-i">
     <classname>METHOD-CALL-TYPE-ERROR</classname>
  </primary></indexterm></firstterm>
-  is &signal;ed, additinally making &type-error-datum; and
+  is &signal;ed, additionally making &type-error-datum; and
   &type-error-expected-type; available.</para>
 
 </section>
@@ -933,7 +933,7 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 <formalpara id="muffle-cerrors"><title>Macro &muffle-cerrors;</title>
 <para>The macro <code>(&muffle-cerrors; {&form-r;}*)</code>
  executes the &form-r;s; when a &cont-err; occurs whose &continue; &restart-t;
- can be invoked non-interactively (this includes all &cont-err;s signalled
+ can be invoked non-interactively (this includes all &cont-err;s signaled
  by the function &cerror;), no message is printed, instead, the &continue;
  &restart-t; is invoked.</para></formalpara>
 
@@ -3949,7 +3949,7 @@ functions are provided:
  newline character is written or &force-output;/&finish-output; is called.
  Then &func-r; is called with a &simple-string-t; as argument,
  that contains the characters collected so far.
- &clear-output; dicards the characters collected so far.</para>
+ &clear-output; discards the characters collected so far.</para>
 </formalpara>
 
 <formalpara><title><code>(EXT:MAKE-BUFFERED-INPUT-STREAM &func-r;
