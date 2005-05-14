@@ -305,6 +305,13 @@ int main(int argc, char* argv[])
 #elif !defined(NO_ALLOCA)
   printf("extern void* alloca (int size);\n");
 #endif
+#if defined(HAVE_LONGLONG)
+  printf("#define LL(nnnn) nnnn##LL\n");
+  printf("#define ULL(nnnn) nnnn##ULL\n");
+#elif defined(MICROSOFT)
+  printf("#define LL(nnnn) nnnn##i64\n");
+  printf("#define ULL(nnnn) nnnn##ui64\n");
+#endif
 #ifdef __CHAR_UNSIGNED__
   emit_typedef("signed char","SBYTE");
 #else
@@ -620,10 +627,10 @@ int main(int argc, char* argv[])
 #endif
 #if (intVsize > 32)
 #if notused
-  printf("#define vbit(n)  (1LL<<(n))\n");
-  printf("#define vbitm(n)  (2LL<<((n)-1))\n");
+  printf("#define vbit(n)  (LL(1)<<(n))\n");
+  printf("#define vbitm(n)  (LL(2)<<((n)-1))\n");
   printf("#define vbit_test(x,n)  ((x) & vbit(n))\n");
-  printf("#define minus_vbit(n)  (-1LL<<(n))\n");
+  printf("#define minus_vbit(n)  (-LL(1)<<(n))\n");
 #endif
 #else
 #if notused
@@ -641,12 +648,12 @@ int main(int argc, char* argv[])
   printf("#define wbit_test  bit_test\n");
   printf("#define minus_wbit  minus_bit\n");
 #else
-  printf("#define wbit(n)  (1LL<<(n))\n");
+  printf("#define wbit(n)  (LL(1)<<(n))\n");
 #if notused
-  printf("#define wbitm(n)  (2LL<<((n)-1))\n");
+  printf("#define wbitm(n)  (LL(2)<<((n)-1))\n");
 #endif
   printf("#define wbit_test(x,n)  ((x) & wbit(n))\n");
-  printf("#define minus_wbit(n)  (-1LL<<(n))\n");
+  printf("#define minus_wbit(n)  (-LL(1)<<(n))\n");
 #endif
 #ifdef TYPECODES
  #if !(exact_uint_size_p(oint_type_len) && (tint_type_mask == bit(oint_type_len)-1))

@@ -1154,7 +1154,7 @@
     #define divu_6464_6464(x,y,q_zuweisung,r_zuweisung)  \
       { var uint64 _x = (x);                                                    \
         var uint64 _y = (y);                                                    \
-        if (_y <= (uint64)((1ULL<<32)-1))                                       \
+        if (_y <= (uint64)(((uint64)1<<32)-1))                                  \
           { var uint32 _q1;                                                     \
             var uint32 _q0;                                                     \
             var uint32 _r1;                                                     \
@@ -1167,7 +1167,7 @@
             var uint64 _y1 = _y; # y1 := y                                      \
             var uint32 _q;                                                      \
             do { _x1 = floor(_x1,2); _y1 = floor(_y1,2); } # k erhöhen          \
-               until (_y1 <= (uint64)((1ULL<<32)-1)); # bis y1 < beta           \
+               until (_y1 <= (uint64)(((uint64)1<<32)-1)); # bis y1 < beta      \
             { var uint32 _y2 = low32(_y1)+1; # y1+1 bilden                      \
               if (_y2==0)                                                       \
                 { _q = high32(_x1); } # y1+1=beta -> ein Shift                  \
