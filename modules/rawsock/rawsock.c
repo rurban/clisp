@@ -251,7 +251,7 @@ DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
 
 #if defined(HAVE_SOCKATMARK)
 DEFUN(RAWSOCK:SOCKATMARK, sock) {
-  rawsock_t sock = posfixnum_to_L(check_posfixnum(popSTACK()));
+  rawsock_t sock = I_to_uint(check_uint(popSTACK()));
   int retval;
   SYSCALL(retval,sock,sockatmark(sock));
   VALUES_IF(retval);
