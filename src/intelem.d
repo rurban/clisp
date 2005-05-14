@@ -1295,7 +1295,7 @@ local maygc object NDS_to_I (const uintD* MSDptr, uintC len)
      len_4: wert = get_sint4D_Dptr(MSDptr);
     } else if (false) { /* 5 digits */
      len_5: wert = get_sint4D_Dptr(&MSDptr[1]); }
-  #else /* (defined(intQsize) || (intVsize>32)) && (intDsize==32) */
+   #else /* (defined(intQsize) || (intVsize>32)) && (intDsize==32) */
     var sint64 wert;
     if (true) { /* 1 digit */
      len_1: wert = (sint64)(sintD)MSDptr[0];
