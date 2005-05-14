@@ -1130,7 +1130,7 @@ nonreturning_function(global, fehler_stringsize, (uintV size)) {
  fehler_class(caller,obj);
  > obj: the erroneous argument */
 nonreturning_function(global, fehler_class, (object obj)) {
-  pushSTACK(obj); /* TYPE-ERROR slot DATUM */
+  pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
   pushSTACK(S(class)); /* CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
@@ -1232,7 +1232,7 @@ nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller))
  > kw: Non-Symbol
  > caller: function */
 nonreturning_function(global, fehler_key_notkw, (object kw, object caller)) {
-  pushSTACK(kw); /* KEYWORD-ERROR slot DATUM */
+  pushSTACK(kw);        /* KEYWORD-ERROR slot DATUM */
   pushSTACK(S(symbol)); /* KEYWORD-ERROR slot EXPECTED-TYPE */
   pushSTACK(kw); pushSTACK(S(LLkey)); pushSTACK(caller);
   fehler(keyword_error,

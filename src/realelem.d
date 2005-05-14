@@ -955,7 +955,7 @@ global uint32 hashcode4_real (object obj)
      } else if (len > 32/intDsize) {
        msd = get_32_Dptr(&MSDptr[0]);
        msd2 = get_max32_Dptr(intDsize*len-32,&MSDptr[32/intDsize])
-         << (64-intDsize*len);
+              << (64-intDsize*len);
      } else if (len == 32/intDsize) {
        msd = get_32_Dptr(&MSDptr[0]);
        msd2 = 0;

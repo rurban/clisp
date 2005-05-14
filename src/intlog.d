@@ -518,7 +518,7 @@ local bool I_I_logbitp (object x, object y)
           return true;
         else
           return false;
-          }
+      }
     }
     /* test sign of y */
     if (R_minusp(y))

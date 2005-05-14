@@ -1508,8 +1508,8 @@ local maygc object RA_to_LF (object x, uintC len, bool signal_overflow)
     if (lendiff > (sintL)difflimit) {
       /* 0 <= k-m-16n-1 < k < intDsize*2^intWCsize */
       nenner = I_I_ash_I(STACK_1,(log2_intDsize+intWCsize<=oint_data_len /* intDsize*2^intWCsize <= 2^oint_data_len ? */
-                          ? fixnum( (uintL)(lendiff - difflimit))
-                          : UL_to_I((uintL)(lendiff - difflimit))));
+                                  ? fixnum( (uintL)(lendiff - difflimit))
+                                  : UL_to_I((uintL)(lendiff - difflimit))));
       zaehler = popSTACK(); /* a */
       skipSTACK(1);
     } else { /* 0 < -k+m+16n+1 <= m+1 + 16n < intDsize*2^intWCsize + intDsize*2^intWCsize */
