@@ -21,7 +21,7 @@ all : zlib.o zlib.fas
 zlib.c zlib.fas : zlib.lisp
 	$(CLISP) -c zlib.lisp
 
-zlib.o : zlib.c
+zlib.o : zlib.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c zlib.c
 
 # Make a module

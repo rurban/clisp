@@ -3,7 +3,7 @@
 CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -O2
-INCLUDES = ../../
+INCLUDES = ../..
 
 CLISP = clisp -q -norc
 
@@ -21,7 +21,7 @@ all : linux.o wrap.fas
 linux.c : linux.lisp
 	$(CLISP) -c linux.lisp
 
-linux.o : linux.c
+linux.o : linux.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c linux.c
 
 wrap.fas: wrap.lisp

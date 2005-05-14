@@ -22,7 +22,7 @@ all : netica.o wrap.fas
 netica.c netica.fas : netica.lisp
 	$(CLISP) -c netica.lisp
 
-netica.o : netica.c
+netica.o : netica.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I$(NETICA) -c netica.c
 
 %.fas: %.lisp

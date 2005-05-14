@@ -3,7 +3,7 @@
 CC = @CC@
 PARICPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-
+INCLUDES = ..
 CLISP = clisp -q -norc
 
 LN = ln
@@ -20,7 +20,7 @@ all : pari.o cpari.o pari.fas
 pari.fas pari.c : pari.lisp
 	$(CLISP) -c pari.lisp
 
-pari.o : pari.c
+pari.o : pari.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c pari.c
 
 cpari.o : cpari.c
