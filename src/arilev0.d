@@ -130,6 +130,31 @@
     #define highlow32_0(high)  ((uint32)(uint16)(high) << 16)
   #endif
 
+#if (intVsize>32)
+
+# High-Word einer 64-Bit-Zahl bestimmen
+# high32(wert)
+  extern uint32 high32 (uint64 wert);
+  #define high32(wert)  ((uint32)((uint64)(wert)>>32))
+
+# Low-Word einer 64-Bit-Zahl bestimmen
+# low32(wert)
+  extern uint32 low32 (uint64 wert);
+  #define low32(wert)  ((uint32)(uint64)(wert))
+
+# Eine 64-Bit-Zahl aus ihrem High-Word und ihrem Low-Word bestimmen:
+# highlow64(uint32 high, uint32 low)
+  extern uint64 highlow64 (uint32 high, uint32 low);
+  #define highlow64(high,low)  \
+    (((uint64)(uint32)(high) << 32) | (uint64)(uint32)(low))
+
+# Eine 64-Bit-Zahl aus ihrem High-Word und ihrem Low-Word 0 bestimmen:
+# highlow64_0(uint32 high)
+  extern uint64 highlow64_0 (uint32 high);
+  #define highlow64_0(high)  ((uint64)(uint32)(high) << 32)
+
+#endif
+
 # Multipliziert zwei 16-Bit-Zahlen miteinander und liefert eine 32-Bit-Zahl:
 # mulu16(arg1,arg2)
 # > arg1, arg2 : zwei 16-Bit-Zahlen
@@ -404,6 +429,59 @@
     # Wir können dafür auch die Bibliotheksroutine des C-Compilers nehmen:
     #define mulu32_unchecked(x,y)  ((uint32)((uint32)(x)*(uint32)(y)))
   #endif
+
+#if (intVsize>32)
+
+# Multipliziert zwei 32-Bit-Zahlen miteinander und liefert eine 64-Bit-Zahl:
+# mulu32_64(arg1,arg2)
+# > arg1, arg2 : zwei 32-Bit-Zahlen
+# < ergebnis : eine 64-Bit-Zahl
+  extern_C uint64 mulu32_64 (uint32 arg1, uint32 arg2);
+  #if defined(GNU) || defined(INTEL)
+    #if defined(I80386) && !defined(NO_ASM)
+      #define mulu32_64(x,y)  \
+        ({ var register uint32 _hi;                                   \
+           var register uint32 _lo;                                   \
+           __asm__("mull %2"                                          \
+                   : "=d" /* %edx */ (_hi), "=a" /* %eax */ (_lo)     \
+                   : "rm" ((uint32)(x)), "1" /* %eax */ ((uint32)(y)) \
+                  );                                                  \
+           highlow64(_hi,_lo);                                        \
+         })
+    #elif defined(SPARC64) && !defined(NO_ASM)
+      #define mulu32_64(x,y)  \
+        ({ var register uint64 _hi;                            \
+           var register uint64 _lo;                            \
+           __asm__("umul %2,%3,%0\n\trd %%y,%1"                \
+                   : "=&r" (_lo), "=r" (_hi)                   \
+                   : "r" ((uint32)(x)), "r" ((uint32)(y))      \
+                  );                                           \
+           highlow64((uint32)_hi,(uint32)_lo);                 \
+         })
+    #elif defined(MIPS) && !defined(NO_ASM)
+      #define mulu32_64(x,y)  \
+        ({ var register uint32 _hi;                       \
+           var register uint32 _lo;                       \
+           __asm__("multu %3,%2 ; mfhi %0 ; mflo %1"      \
+                   : "=r" (_hi), "=r" (_lo)               \
+                   : "r" ((uint32)(x)), "r" ((uint32)(y)) \
+                  );                                      \
+           highlow64(_hi,_lo);                            \
+         })
+    #elif defined(SPARC)
+      #define mulu32_64(x,y)  \
+        ({ var register uint32 _lo = mulu32_(x,y); # extern in Assembler \
+          {var register uint32 _hi __asm__("%g1");                       \
+           highlow64(_hi,_lo);                                           \
+         }})
+    #endif
+  #endif
+  #ifndef mulu32_64
+    #define mulu32_64(x,y)  \
+      ((uint64)(x) * (uint64)(y))
+  #endif
+
+#endif
 
 # Dividiert eine 16-Bit-Zahl durch eine 16-Bit-Zahl und
 # liefert einen 16-Bit-Quotienten und einen 16-Bit-Rest.
@@ -973,6 +1051,161 @@
       #endif
     #endif
   #endif
+
+#if (intVsize>32)
+
+# Dividiert eine 64-Bit-Zahl durch eine 32-Bit-Zahl und
+# liefert einen 64-Bit-Quotienten und einen 32-Bit-Rest.
+# divu_6432_6432(x,y,q=,r=);
+# > uint64 x: Zähler
+# > uint32 y: Nenner
+# Es sei bekannt, dass y>0.
+# < uint64 q: floor(x/y)
+# < uint32 r: x mod y
+# < x = q*y+r
+  extern_C uint64 divu_6432_6432_ (uint64 x, uint32 y); # -> Quotient q
+  extern uint32 divu_32_rest;                           # -> Rest r
+  #if 1
+    # Methode: (beta = 2^32)
+    # x = x1*beta+x0 schreiben.
+    # Division mit Rest: x1 = q1*y + r1, wobei 0 <= x1 < beta <= beta*y.
+    # Also 0 <= q1 < beta, 0 <= r1 < y.
+    # Division mit Rest: (r1*beta+x0) = q0*y + r0, wobei 0 <= r1*beta+x0 < beta*y.
+    # Also 0 <= q0 < beta, 0 <= r0 < y
+    # und x = x1*beta+x0 = (q1*beta+q0)*y + r0.
+    # Setze q := q1*beta+q0 und r := r0.
+    #ifdef GNU
+      #define divu_6432_6432(x,y,q_zuweisung,r_zuweisung)  \
+        ({var uint64 _x = (x);            \
+          var uint32 _y = (y);            \
+          var uint32 _q1;                 \
+          var uint32 _q0;                 \
+          var uint32 _r1;                 \
+          divu_6432_3232(0,high32(_x),_y, _q1 = , _r1 = ); \
+          divu_6432_3232(_r1,low32(_x),_y, _q0 = , _EMA_ r_zuweisung); \
+          q_zuweisung highlow64(_q1,_q0); \
+         })
+    #else
+      #define divu_6432_6432(x,y,q_zuweisung,r_zuweisung)  \
+        {var uint64 _x = (x);            \
+         var uint32 _y = (y);            \
+         var uint32 _q1;                 \
+         var uint32 _q0;                 \
+         var uint32 _r1;                 \
+         divu_6432_3232(0,high32(_x),_y, _q1 = , _r1 = ); \
+         divu_6432_3232(_r1,low32(_x),_y, _q0 = , _EMA_ r_zuweisung); \
+         q_zuweisung highlow64(_q1,_q0); \
+        }
+    #endif
+  #else
+    #define divu_6432_6432(x,y,q_zuweisung,r_zuweisung)  \
+      { q_zuweisung divu_6432_6432_(x,y); r_zuweisung divu_32_rest; }
+    #if 0
+      # divu_6432_6432_ extern in Assembler
+    #else
+      #ifdef LISPARIT
+      global uint64 divu_6432_6432_ (uint64 x, uint32 y) {
+        var uint32 q1;
+        var uint32 q0;
+        var uint32 r1;
+        divu_6432_3232(0,high32(x),y, q1 = , r1 = );
+        divu_6432_3232(r1,low32(x),y, q0 = , divu_32_rest =);
+        return highlow64(q1,q0);
+      }
+      #endif
+    #endif
+  #endif
+
+# Dividiert eine 64-Bit-Zahl durch eine 64-Bit-Zahl und
+# liefert einen 64-Bit-Quotienten und einen 64-Bit-Rest.
+# divu_6464_6464(x,y,q=,r=);
+# > uint64 x: Zähler
+# > uint64 y: Nenner
+# Es sei bekannt, dass y>0.
+# < uint64 q: floor(x/y)
+# < uint64 r: x mod y
+# < x = q*y+r
+  extern_C uint64 divu_6464_6464_ (uint64 x, uint64 y); # -> Quotient q
+  extern uint64 divu_64_rest;                           # -> Rest r
+  #if 1
+    # Methode: (beta = 2^n = 2^32, n = 32)
+    # Falls y < beta, handelt es sich um eine 64-durch-32-Bit-Division.
+    # Falls y >= beta:
+    # Quotient  q = floor(x/y) < beta  (da 0 <= x < beta^2, y >= beta).
+    # y habe genau n+k Bits (1 <= k <= n), d.h. 2^(n+k-1) <= y < 2^(n+k).
+    # Schreibe  x = 2^k*x1 + x0  mit  x1 := floor(x/2^k)
+    # und       y = 2^k*y1 + y0  mit  y1 := floor(y/2^k)
+    # und bilde den Näherungs-Quotienten floor(x1/y1)
+    # oder (noch besser) floor(x1/(y1+1)).
+    # Wegen 0 <= x1 < 2^(2n) und 0 < 2^(n-1) <= y1 < 2^n
+    # und  x1/(y1+1) <= x/y < x1/(y1+1) + 2
+    # (denn x1/(y1+1) = (x1*2^k)/((y1+1)*2^k) <= (x1*2^k)/y <= x/y
+    # und x/y - x1/(y1+1) = (x+x*y1-x1*y)/(y*(y1+1))
+    # = (x+x0*y1-x1*y0)/(y*(y1+1)) <= (x+x0*y1)/(y*(y1+1))
+    # <= x/(y*(y1+1)) + x0/y
+    # <= 2^(2n)/(2^(n+k-1)*(2^(n-1)+1)) + 2^k/2^(n+k-1)
+    # = 2^(n-k+1)/(2^(n-1)+1) + 2^(1-n) <= 2^n/(2^(n-1)+1) + 2^(1-n) < 2 )
+    # gilt  floor(x1/(y1+1)) <= floor(x/y) <= floor(x1/(y1+1)) + 2  .
+    # Man bildet also  q:=floor(x1/(y1+1))  (ein Shift um n Bit oder
+    # eine (2n)-durch-n-Bit-Division, mit Ergebnis q <= floor(x/y) < beta)
+    # und x-q*y und muss hiervon noch höchstens 2 mal y abziehen und q
+    # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
+    # x-floor(x/y)*y  der Division zu bekommen.
+    #define divu_6464_6464(x,y,q_zuweisung,r_zuweisung)  \
+      { var uint64 _x = (x);                                                    \
+        var uint64 _y = (y);                                                    \
+        if (_y <= (uint64)((1ULL<<32)-1))                                       \
+          { var uint32 _q1;                                                     \
+            var uint32 _q0;                                                     \
+            var uint32 _r1;                                                     \
+            divu_6432_3232(0,high32(_x),_y, _q1 = , _r1 = );                    \
+            divu_6432_3232(_r1,low32(_x),_y, _q0 = , _EMA_ r_zuweisung);        \
+            q_zuweisung highlow64(_q1,_q0);                                     \
+          }                                                                     \
+          else                                                                  \
+          { var uint64 _x1 = _x; # x1 := x                                      \
+            var uint64 _y1 = _y; # y1 := y                                      \
+            var uint32 _q;                                                      \
+            do { _x1 = floor(_x1,2); _y1 = floor(_y1,2); } # k erhöhen          \
+               until (_y1 <= (uint64)((1ULL<<32)-1)); # bis y1 < beta           \
+            { var uint32 _y2 = low32(_y1)+1; # y1+1 bilden                      \
+              if (_y2==0)                                                       \
+                { _q = high32(_x1); } # y1+1=beta -> ein Shift                  \
+                else                                                            \
+                { divu_6432_3232(high32(_x1),low32(_x1),_y2,_q=,); } # Division von x1 durch y1+1 \
+            }                                                                   \
+            # _q = q = floor(x1/(y1+1))                                         \
+            # x-q*y bilden (eine 32-mal-64-Bit-Multiplikation ohne Überlauf):   \
+            _x -= highlow64_0(mulu32_64(_q,high32(_y))); # q * high32(y) * beta \
+            # gefahrlos, da q*high32(y) <= q*y/beta <= x/beta < beta            \
+            _x -= mulu32_64(_q,low32(_y)); # q * low32(y)                       \
+            # gefahrlos, da q*high32(y)*beta + q*low32(y) = q*y <= x            \
+            # Noch höchstens 2 mal y abziehen:                                  \
+            if (_x >= _y)                                                       \
+              { _q += 1; _x -= _y;                                              \
+                if (_x >= _y)                                                   \
+                  { _q += 1; _x -= _y;                                          \
+              }   }                                                             \
+            r_zuweisung _x;                                                     \
+            q_zuweisung (uint64)(_q);                                           \
+      }   }
+  #else
+    #define divu_6464_6464(x,y,q_zuweisung,r_zuweisung)  \
+      { q_zuweisung divu_6464_6464_(x,y); r_zuweisung divu_64_rest; }
+    #if 0
+      # divu_6464_6464_ extern in Assembler
+    #else
+      #ifdef LISPARIT
+      global uint64 divu_6464_6464_ (uint64 x, uint64 y) {
+        var uint64 q = floor(x,y);
+        divu_64_rest = x - q*y;
+        return q;
+      }
+      #endif
+    #endif
+  #endif
+
+#endif
 
 # Zieht die Ganzzahl-Wurzel aus einer 32-Bit-Zahl und
 # liefert eine 16-Bit-Wurzel und einen Rest.

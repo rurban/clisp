@@ -534,7 +534,7 @@ nonreturning_function (static, closed_display_error,
 #define get_pixel(obj)   get_uint32(obj)
 #define make_pixel(obj)  make_uint32(obj)
 
-#define get_fixnum(obj)  fixnum_to_L (obj) /* WARNING: obj should be a variable (evaluated multiple) */
+#define get_fixnum(obj)  fixnum_to_V (obj) /* WARNING: obj should be a variable (evaluated multiple), and no range check is performed */
 
 #if 0
 #define get_uint8(obj)   I_to_uint8(obj)

@@ -1541,15 +1541,17 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   CHECK_GC_CONSISTENCY();
   CHECK_GC_UNMARKED(); CHECK_NULLOBJ(); CHECK_GC_CACHE(); CHECK_GC_GENERATIONAL(); SAVE_GC_DATA();
   CHECK_PACK_CONSISTENCY();
-  { /* Retrieve misc. data from header. (Can trigger GC!)
-       char memdumptime[4+1+2+1+2 +1+ 2+1+2+1+2+1]; // YYYY-MM-DD HH:MM:SS
-       sprintf(memdumptime,"%04d-%02d-%02d %02d:%02d:%02d",
-       posfixnum_to_L(header._dumptime.Jahr),
-       posfixnum_to_L(header._dumptime.Monat),
-       posfixnum_to_L(header._dumptime.Tag),
-       posfixnum_to_L(header._dumptime.Stunden),
-       posfixnum_to_L(header._dumptime.Minuten),
-       posfixnum_to_L(header._dumptime.Sekunden)); */
+  { /* Retrieve misc. data from header. (Can trigger GC!) */
+    #if 0
+      char memdumptime[4+1+2+1+2 +1+ 2+1+2+1+2+1]; // YYYY-MM-DD HH:MM:SS
+      sprintf(memdumptime,"%04u-%02u-%02u %02u:%02u:%02u",
+              (uintL)posfixnum_to_V(header._dumptime.Jahr),
+              (uintL)posfixnum_to_V(header._dumptime.Monat),
+              (uintL)posfixnum_to_V(header._dumptime.Tag),
+              (uintL)posfixnum_to_V(header._dumptime.Stunden),
+              (uintL)posfixnum_to_V(header._dumptime.Minuten),
+              (uintL)posfixnum_to_V(header._dumptime.Sekunden));
+    #endif
     char memdumptime[10+1];
     sprintf(memdumptime,"%u",header._dumptime);
     O(memory_image_timestamp) = ascii_to_string(memdumptime);

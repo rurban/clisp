@@ -100,12 +100,12 @@ DEFUNR(I18N:NGETTEXT,msgid msgid_plural n &optional domain category)
   {
     object arg = (STACK_2 = check_pos_integer(STACK_2));
     uint32 n;
-    if (posfixnump(arg))
-      n = posfixnum_to_L(arg);
+    if (uint32_p(arg))
+      n = I_to_uint32(arg);
     else {
       /* arg is a Bignum. Plural form depends only on (mod arg 1000000). */
       pushSTACK(arg); pushSTACK(fixnum(1000000)); funcall(L(mod),2);
-      n = 1000000 + posfixnum_to_L(value1);
+      n = 1000000 + (uint32)posfixnum_to_V(value1);
     }
     {
       object msgid = STACK_4;

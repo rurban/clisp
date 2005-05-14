@@ -174,7 +174,7 @@ local maygc Values read_form(void)
     if (!posfixnump(Symbol_value(S(recurse_count_standard_output))))
       /* should be fixnum >=0; otherwise emergency correction */
       Symbol_value(S(recurse_count_standard_output)) = Fixnum_0;
-    if (posfixnum_to_L(Symbol_value(S(recurse_count_standard_output))) > 3) {
+    if (posfixnum_to_V(Symbol_value(S(recurse_count_standard_output))) > 3) {
       /* too many nested i/o errors. */
       Symbol_value(S(recurse_count_standard_output)) = Fixnum_0;
       Symbol_value(S(standard_output)) = unbound;
@@ -184,7 +184,7 @@ local maygc Values read_form(void)
       if (!posfixnump(Symbol_value(S(recurse_count_debug_io))))
         /* should be fixnum >=0; otherwise emergency correction */
         Symbol_value(S(recurse_count_debug_io)) = Fixnum_0;
-      if (posfixnum_to_L(Symbol_value(S(recurse_count_debug_io))) > 3) {
+      if (posfixnum_to_V(Symbol_value(S(recurse_count_debug_io))) > 3) {
         /* too many nested i/o errors. */
         Symbol_value(S(recurse_count_debug_io)) = Fixnum_0;
         Symbol_value(S(debug_io)) = unbound;
@@ -845,9 +845,9 @@ local const climb_fun_t frame_down_table[] =
  increases STACK by 1 */
 local climb_fun_t test_mode_arg (const climb_fun_t* table) {
   var object arg = popSTACK();
-  var uintL mode;
+  var uintV mode;
   if (   !(posfixnump(arg)
-      && ((mode = posfixnum_to_L(arg)) > 0)
+      && ((mode = posfixnum_to_V(arg)) > 0)
       && (mode<=5))) {
     pushSTACK(arg);                /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_climb_mode)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1117,7 +1117,7 @@ global gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt) {
     var uintW numreq;
     var uintW numopt;
     var uintW body_flag;
-    switch ((uintW)posfixnum_to_L(TheFsubr(fun)->argtype)) {
+    switch ((uintW)posfixnum_to_V(TheFsubr(fun)->argtype)) {
       case fsubr_argtype_1_0_nobody: numreq = 1; numopt = 0; body_flag = 0; break;
       case fsubr_argtype_2_0_nobody: numreq = 2; numopt = 0; body_flag = 0; break;
       case fsubr_argtype_1_1_nobody: numreq = 1; numopt = 1; body_flag = 0; break;
@@ -1532,8 +1532,8 @@ LISPFUN(show_stack,seclass_default,0,3,norest,nokey,0,NIL)
   var gcv_object_t* start_frame = (missingp(STACK_0) ? (skipSTACK(1), &STACK_1)
                                    : test_framepointer_arg());
   var uintL frame_limit = (missingp(STACK_0) ? (skipSTACK(1), 0) :
-                           posfixnump(STACK_0) ? posfixnum_to_L(popSTACK())
-                           : (fehler_posfixnum(popSTACK()), 0));
+                           uint32_p(STACK_0) ? I_to_uint32(popSTACK())
+                           : (fehler_uint32(popSTACK()), 0));
   var climb_fun_t frame_up_x = (missingp(STACK_0)
                                 ? (skipSTACK(1), (climb_fun_t) NULL)
                                 : test_mode_arg(&frame_up_table[0]));

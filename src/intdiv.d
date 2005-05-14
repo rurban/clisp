@@ -288,27 +288,50 @@
       # x Fixnum >=0
       if (I_fixnump(y)) {
         # auch y Fixnum >=0
-        var uint32 x_ = posfixnum_to_L(x);
-        var uint32 y_ = posfixnum_to_L(y);
+        var uintV x_ = posfixnum_to_V(x);
+        var uintV y_ = posfixnum_to_V(y);
         if (y_==0) {
           divide_0();
         } elif (x_ < y_) {
           # Trivialfall: q=0, r=x
           goto trivial;
-        } elif (y_ < bit(16)) {
-          # 32-durch-16-Bit-Division
-          var uint32 q;
-          var uint16 r;
-          divu_3216_3216(x_,y_,q=,r=);
-          pushSTACK(UL_to_I(q));
-          pushSTACK(fixnum((uintL)r));
         } else {
-          # volle 32-durch-32-Bit-Division
-          var uint32 q;
-          var uint32 r;
-          divu_3232_3232(x_,y_,q=,r=);
-          pushSTACK(UL_to_I(q));
-          pushSTACK(UL_to_I(r));
+         #if (intVsize>32)
+          if (x_ >= vbit(32)) {
+            if (y_ < vbit(32)) {
+              # 64-durch-32-Bit-Division
+              var uint64 q;
+              var uint32 r;
+              divu_6432_6432(x_,y_,q=,r=);
+              pushSTACK(UQ_to_I(q));
+              pushSTACK(UL_to_I(r));
+            } else {
+              # volle 64-durch-64-Bit-Division
+              var uint64 q;
+              var uint64 r;
+              divu_6464_6464(x_,y_,q=,r=);
+              pushSTACK(UQ_to_I(q));
+              pushSTACK(UQ_to_I(r));
+            }
+          } else
+         #endif
+          {
+            if (y_ < bit(16)) {
+              # 32-durch-16-Bit-Division
+              var uint32 q;
+              var uint16 r;
+              divu_3216_3216(x_,y_,q=,r=);
+              pushSTACK(UL_to_I(q));
+              pushSTACK(fixnum((uintL)r));
+            } else {
+              # volle 32-durch-32-Bit-Division
+              var uint32 q;
+              var uint32 r;
+              divu_3232_3232(x_,y_,q=,r=);
+              pushSTACK(UL_to_I(q));
+              pushSTACK(UL_to_I(r));
+            }
+          }
         }
       } else {
         # y Bignum >0

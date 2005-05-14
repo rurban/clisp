@@ -750,7 +750,7 @@ local maygc object I_to_SF (object x, bool signal_overflow)
     I_I_divide_I_I(zaehler,nenner);
     # Stackaufbau: q, r.
     # 2^17 <= q < 2^19, also ist q Fixnum.
-    var uint32 mant = posfixnum_to_L(STACK_1);
+    var uint32 mant = posfixnum_to_V(STACK_1);
     if (mant >= bit(SF_mant_len+2)) {
       # 2^18 <= q < 2^19, schiebe um 2 Bits nach rechts
       var uintL rounding_bits = mant & (bit(2)-1);

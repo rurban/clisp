@@ -990,21 +990,21 @@ local object SF_I_scale_float_SF (object x, object delta)
   var uint32 mant;
   SF_decode(x, { return x; }, sign=,exp=,mant=);
   if (!R_minusp(delta)) { /* delta>=0 */
-    var uintL udelta;
+    var uintV udelta;
     if (I_fixnump(delta)
-        && ((udelta = posfixnum_to_L(delta))
-            <= (uintL)(SF_exp_high-SF_exp_low))) {
+        && ((udelta = posfixnum_to_V(delta))
+            <= (uintV)(SF_exp_high-SF_exp_low))) {
       exp = exp+udelta;
       encode_SF(sign,exp,mant, return);
     } else {
       fehler_overflow();
     }
   } else { /* delta<0 */
-    var uintL udelta;
+    var uintV udelta;
     if (I_fixnump(delta)
-        && ((udelta = negfixnum_abs_L(delta))
-            <= (uintL)(SF_exp_high-SF_exp_low))
-        && ((oint_data_len<intLsize) || !(udelta==0))) {
+        && ((udelta = negfixnum_abs_V(delta))
+            <= (uintV)(SF_exp_high-SF_exp_low))
+        && ((oint_data_len<intVsize) || !(udelta==0))) {
       exp = exp-udelta;
       encode_SF(sign,exp,mant, return);
     } else {
@@ -1029,21 +1029,21 @@ local maygc object FF_I_scale_float_FF (object x, object delta)
   var uint32 mant;
   FF_decode(x, { return x; }, sign=,exp=,mant=);
   if (!R_minusp(delta)) { /* delta>=0 */
-    var uintL udelta;
+    var uintV udelta;
     if (I_fixnump(delta)
-        && ((udelta = posfixnum_to_L(delta))
-            <= (uintL)(FF_exp_high-FF_exp_low))) {
+        && ((udelta = posfixnum_to_V(delta))
+            <= (uintV)(FF_exp_high-FF_exp_low))) {
       exp = exp+udelta;
       encode_FF(sign,exp,mant, return);
     } else {
       fehler_overflow();
     }
   } else { /* delta<0 */
-    var uintL udelta;
+    var uintV udelta;
     if (I_fixnump(delta)
-        && ((udelta = negfixnum_abs_L(delta))
-            <= (uintL)(FF_exp_high-FF_exp_low))
-        && ((oint_data_len<intLsize) || !(udelta==0))) {
+        && ((udelta = negfixnum_abs_V(delta))
+            <= (uintV)(FF_exp_high-FF_exp_low))
+        && ((oint_data_len<intVsize) || !(udelta==0))) {
       exp = exp-udelta;
       encode_FF(sign,exp,mant, return);
     } else {
@@ -1074,10 +1074,10 @@ local maygc object DF_I_scale_float_DF (object x, object delta)
   DF_decode2(x, { return x; }, sign=,exp=,manthi=,mantlo=);
  #endif
   if (!R_minusp(delta)) { /* delta>=0 */
-    var uintL udelta;
+    var uintV udelta;
     if (I_fixnump(delta)
-        && ((udelta = posfixnum_to_L(delta))
-            <= (uintL)(DF_exp_high-DF_exp_low))) {
+        && ((udelta = posfixnum_to_V(delta))
+            <= (uintV)(DF_exp_high-DF_exp_low))) {
       exp = exp+udelta;
      #ifdef intQsize
       encode_DF(sign,exp,mant, return);
@@ -1088,11 +1088,11 @@ local maygc object DF_I_scale_float_DF (object x, object delta)
       fehler_overflow();
     }
   } else { /* delta<0 */
-    var uintL udelta;
+    var uintV udelta;
     if (I_fixnump(delta)
-        && ((udelta = negfixnum_abs_L(delta))
-            <= (uintL)(DF_exp_high-DF_exp_low))
-        && ((oint_data_len<intLsize) || !(udelta==0))) {
+        && ((udelta = negfixnum_abs_V(delta))
+            <= (uintV)(DF_exp_high-DF_exp_low))
+        && ((oint_data_len<intVsize) || !(udelta==0))) {
       exp = exp-udelta;
      #ifdef intQsize
       encode_DF(sign,exp,mant, return);
@@ -1122,7 +1122,7 @@ local maygc object LF_I_scale_float_LF (object x, object delta)
   if (uexp==0)
     return x;
   pushSTACK(x); /* save x */
-  var uintL udelta;
+  var uintV udelta;
   /* |delta| must be <= LF_exp_high-LF_exp_low < 2^32 . Like with I_to_UL: */
  #ifdef TYPECODES
   switch (typecode(delta))
@@ -1135,7 +1135,7 @@ local maygc object LF_I_scale_float_LF (object x, object delta)
  #endif
   {
     case_posfixnum: /* Fixnum >=0 */
-    udelta = posfixnum_to_L(delta); goto pos;
+    udelta = posfixnum_to_V(delta); goto pos;
     case_posbignum: { /* Bignum >0 */
       var Bignum bn = TheBignum(delta);
      #define IF_LENGTH(i)                                               \
@@ -1156,7 +1156,7 @@ local maygc object LF_I_scale_float_LF (object x, object delta)
     }
     goto overflow; /* delta too large */
     case_negfixnum: /* Fixnum <0 */
-    udelta = negfixnum_to_L(delta); goto neg;
+    udelta = negfixnum_to_V(delta); goto neg;
     case_negbignum: { /* Bignum <0 */
       var Bignum bn = TheBignum(delta);
      #define IF_LENGTH(i)                                               \
@@ -1359,7 +1359,8 @@ local maygc void F_integer_decode_float_I_I_I (object x)
     var uintC len = Lfloat_length(x); /* number of mantissa digits */
     var uintC len1 = len+1; /* need one more digit */
     if (uintWCoverflow(len1)) { fehler_LF_toolong(); }
-    /* intDsize*len >= 53 >= 33 >= oint_data_len+1, also len >= bn_minlength. */
+    /* intDsize*len >= 53 implies intDsize*len >= 64 >= oint_data_len+1,
+       hence len >= bn_minlength. */
     {
       var object mant = allocate_bignum(len1,0); /* integer for mantissa */
       var uintD* mantptr = &TheBignum(mant)->data[0];

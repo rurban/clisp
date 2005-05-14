@@ -125,8 +125,8 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   fl.l_whence = SEEK_SET;
   fl.l_start = start;
 #endif
-  if (posfixnump(STACK_5)) {
-    fd = (Handle)posfixnum_to_L(STACK_5);
+  if (uint_p(STACK_5)) {
+    fd = (Handle)I_to_uint(STACK_5);
     stream = nullobj;
   } else {
     stream = open_file_stream_handle(STACK_5,&fd);
@@ -412,7 +412,7 @@ DEFUN(POSIX::SETUTXENT,) {
 /* ========================= processes & signals ========================= */
 #if defined(HAVE_GETSID)
 DEFUN(POSIX:GETSID, pid) {
-  pid_t pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  pid_t pid = I_to_uint32(check_uint32(popSTACK()));
   pid_t ret;
   begin_system_call(); ret=getsid(pid); end_system_call();
   if (ret==(pid_t)-1) OS_error();
@@ -429,7 +429,7 @@ DEFUN(POSIX:SETSID,) {
 #endif
 #if defined(HAVE_GETPGRP)
 DEFUN(POSIX:GETPGRP, pid) {
-  pid_t pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  pid_t pid = I_to_uint32(check_uint32(popSTACK()));
   pid_t ret;
   begin_system_call(); ret=getpgrp(pid); end_system_call();
   if (ret==(pid_t)-1) OS_error();
@@ -450,8 +450,8 @@ DEFUN(POSIX:SETPGRP,) {
 #endif
 #if defined(HAVE_SETPGID)
 DEFUN(POSIX:SETPGID, pid pgid) {
-  pid_t pgid = posfixnum_to_L(check_posfixnum(popSTACK()));
-  pid_t pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  pid_t pgid = I_to_uint32(check_uint32(popSTACK()));
+  pid_t pid = I_to_uint32(check_uint32(popSTACK()));
   int ret;
   begin_system_call(); ret=setpgid(pid,pgid); end_system_call();
   if (ret==-1) OS_error();
@@ -466,7 +466,7 @@ DEFCHECKER(check_signal,SIGABRT SIGALRM SIGBUS SIGCHLD SIGCONT SIGFPE SIGHUP \
 #if defined(HAVE_KILL)
 DEFUN(POSIX:KILL, pid sig) {
   int sig = check_signal(popSTACK());
-  pid_t pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  pid_t pid = I_to_uint32(check_uint32(popSTACK()));
   int ret;
   begin_system_call(); ret=kill(pid,sig); end_system_call();
   if (ret==-1) OS_error();
@@ -512,7 +512,7 @@ DEFCHECKER(check_priority_value,default=0,reverse=sint_to_I,                \
 DEFCHECKER(check_priority_which,prefix=PRIO,default=0, PROCESS PGRP USER)
 DEFUN(OS:PRIORITY, pid &optional which) {
   int which = check_priority_which(popSTACK());
-  int pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  int pid = I_to_uint32(check_uint32(popSTACK()));
   int res;
 #if defined(HAVE_GETPRIORITY)
   errno = 0;
@@ -536,7 +536,7 @@ DEFUN(OS:PRIORITY, pid &optional which) {
 DEFUN(OS:SET-PRIORITY, pid which value) {
   int value = check_priority_value(STACK_0);
   int which = check_priority_which(STACK_1);
-  int pid = posfixnum_to_L(check_posfixnum(STACK_2));
+  int pid = I_to_uint32(check_uint32(STACK_2));
   begin_system_call();
 #if defined(HAVE_SETPRIORITY)
   if (setpriority(which,pid,value)) OS_error();
@@ -1107,8 +1107,8 @@ DEFUN(POSIX::USER-DATA, user)
 #endif
 
   begin_system_call();
-  if (posfixnump(user))
-    pwd = getpwuid(posfixnum_to_L(user));
+  if (uint32_p(user))
+    pwd = getpwuid(I_to_uint32(user));
   else if (eq(user,`:DEFAULT`)) {
     char *username = getlogin();
     if (username != NULL)
@@ -1317,9 +1317,9 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
      http://www.opengroup.org/onlinepubs/009695399/functions/chown.html
      http://www.opengroup.org/onlinepubs/009695399/functions/chmod.html */
   gid_t gid = (missingp(STACK_0) ? skipSTACK(1), (gid_t)-1
-               : posfixnum_to_L(check_posfixnum(popSTACK())));
+               : I_to_uint32(check_uint32(popSTACK())));
   uid_t uid = (missingp(STACK_0) ? skipSTACK(1), (uid_t)-1
-               : posfixnum_to_L(check_posfixnum(popSTACK())));
+               : I_to_uint32(check_uint32(popSTACK())));
   mode_t mode = (missingp(STACK_0) ? skipSTACK(1), (mode_t)-1
 #               if defined(WIN32_NATIVE)
                  : (mode_t)check_file_attributes_parse(popSTACK())
@@ -1372,11 +1372,11 @@ DEFCHECKER(check_chmod_mode, type=mode_t, reverse=UL_to_I,      \
            WGRP XGRP RWXO ROTH WOTH XOTH)
 DEFUN(POSIX::CONVERT-MODE, mode)
 { /* convert between symbolic and numeric permissions */
-  if (posfixnump(STACK_0))
-    VALUES1(check_chmod_mode_to_list(posfixnum_to_L(check_posfixnum(popSTACK()))));
+  if (integerp(STACK_0))
+    VALUES1(check_chmod_mode_to_list(I_to_uint32(check_uint32(popSTACK()))));
   else if (listp(STACK_0))
-    VALUES1(fixnum(check_chmod_mode_from_list(popSTACK())));
-  else VALUES1(fixnum(check_chmod_mode(popSTACK())));
+    VALUES1(uint32_to_I(check_chmod_mode_from_list(popSTACK())));
+  else VALUES1(uint32_to_I(check_chmod_mode(popSTACK())));
 }
 
 #if defined(HAVE_UMASK)
@@ -2459,8 +2459,8 @@ DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE \
 
 DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 { /* Lisp interface to dup(2)/dup2(2). */
-  Handle new_handle = (Handle)posfixnum_default2(popSTACK(),(uintL)-1);
-  Handle old_handle = (Handle)posfixnum_to_L(check_posfixnum(popSTACK()));
+  Handle new_handle = (Handle)check_uint_defaulted(popSTACK(),(uintL)-1);
+  Handle old_handle = (Handle)I_to_uint(check_uint(popSTACK()));
   begin_system_call();
   new_handle = handle_dup(old_handle,new_handle);
   end_system_call();
@@ -2478,7 +2478,7 @@ DEFUN(POSIX::CONVERT-ATTRIBUTES, attributes)
 { /* convert between symbolic and numeric file attributes */
   if (posfixnump(STACK_0))
     VALUES1(check_file_attributes_to_list
-            (posfixnum_to_L(check_posfixnum(popSTACK()))));
+            (I_to_uint32(check_uint32(popSTACK()))));
   else if (listp(STACK_0))
     VALUES1(fixnum(check_file_attributes_from_list(popSTACK())));
   else VALUES1(fixnum(check_file_attributes(popSTACK())));
@@ -2585,9 +2585,9 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
     int icon_idx = 0;
     if (consp(STACK_0)) {       /* (file . index) or (file index) */
       icon_name = check_string(Car(STACK_0));
-      icon_idx = posfixnum_to_L(check_posfixnum(consp(Cdr(STACK_0))
-                                                ? Car(Cdr(STACK_0))
-                                                : Cdr(STACK_0)));
+      icon_idx = I_to_uint32(check_uint32(consp(Cdr(STACK_0))
+                                          ? Car(Cdr(STACK_0))
+                                          : Cdr(STACK_0)));
     } else icon_name = check_string(STACK_0);
     with_string_0(icon_name,GLO(pathname_encoding),iconz, {
       begin_system_call();

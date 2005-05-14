@@ -72,8 +72,8 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
   int eflags = regexp_exec_flags();
   object string = (STACK_3 = check_string(STACK_3));
   unsigned int length = vector_length(string);
-  unsigned int start = posfixnum_default2(STACK_1,0);
-  unsigned int end = posfixnum_default2(STACK_0,length);
+  unsigned int start = check_uint_defaulted(STACK_1,0);
+  unsigned int end = check_uint_defaulted(STACK_0,length);
   int status;
   bool bool_p = !missingp(STACK_2);
   regex_t *re;

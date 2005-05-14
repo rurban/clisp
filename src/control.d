@@ -11,7 +11,7 @@
 LISPFUN(exit,seclass_default,0,1,norest,nokey,0,NIL) {
   var object errorp = STACK_0;
   final_exitcode = missingp(errorp) ? 0 :
-                   (posfixnump(errorp) ? posfixnum_to_L(errorp) : 1);
+                   (uint_p(errorp) ? I_to_uint(errorp) : 1);
   quit();
 }
 
@@ -1984,8 +1984,8 @@ LISPFUNN(unwind_to_driver,1)
   var object arg = popSTACK();
   if (nullp(arg))
     reset(1);
-  else if (posfixnump(arg))
-    reset(posfixnum_to_L(arg));
+  else if (uint32_p(arg))
+    reset(I_to_uint32(arg));
   else
     reset(0);
 }

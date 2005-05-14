@@ -576,6 +576,10 @@
   #define WIDE_HARD
 #endif
 
+#if defined(WIDE_SOFT_LARGEFIXNUM) && !defined(WIDE_SOFT)
+  #define WIDE_SOFT
+#endif
+
 #if defined(WIDE) && !(defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(WIDE_AUXI))
   #define WIDE_SOFT
 #endif
@@ -1458,8 +1462,10 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 # Loop that will excute as statement a certain number of times:
 # dotimesW(countvar,count,statement);  if count fits into a uintW,
 # dotimesL(countvar,count,statement);  if  count only fits into a uintL,
+# dotimesV(countvar,count,statement);  if  count only fits into a uintV,
 # dotimespW(countvar,count,statement);  if count fits into a uintW and is >0,
 # dotimespL(countvar,count,statement);  if count fits only into a uintL and is >0.
+# dotimespV(countvar,count,statement);  if count fits only into a uintV and is >0.
 # The variable countvar has to be declared previously, be of type uintW or uintL,
 # and will be changed by this expression.
 # It must not be used in the statement itself!
@@ -1562,6 +1568,14 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 #define dotimespL(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL) \
   do { dotimes_check_sizeof(countvar_from_dotimespL,uintL); \
     dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL); \
+  } while(0)
+#define dotimesV(countvar_from_dotimesV,count_from_dotimesV,statement_from_dotimesV) \
+  do { dotimes_check_sizeof(countvar_from_dotimesV,uintV); \
+    dotimesL_(countvar_from_dotimesV,count_from_dotimesV,statement_from_dotimesV); \
+  } while(0)
+#define dotimespV(countvar_from_dotimespV,count_from_dotimespV,statement_from_dotimespV) \
+  do { dotimes_check_sizeof(countvar_from_dotimespV,uintV); \
+    dotimespL_(countvar_from_dotimespV,count_from_dotimespV,statement_from_dotimespV); \
   } while(0)
 # doconsttimes(count,statement);
 # executes a statement count times (count times the code!),
@@ -1679,7 +1693,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #endif
 
 #ifdef WIDE_SOFT
-  #ifdef GNU
+  #if defined(GNU) && !defined(WIDE_SOFT_LARGEFIXNUM)
     # Use the GNU-C extensions, to regard the wide oints as structs.
     #define WIDE_STRUCT
   #endif
@@ -2352,8 +2366,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_type_len 8
       #define oint_type_mask 0x000000000000007FUL
       #define oint_data_shift 7
-      #define oint_data_len 32
-      #define oint_data_mask 0x0000007FFFFFFF80UL
+      #define oint_data_len 48
+      #define oint_data_mask 0x007FFFFFFFFFFF80UL
       #define garcol_bit_o 63
     #elif !((defined(MC680X0) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || defined(LINUX_SPARC_OLD_GLIBC))
       #define oint_type_shift 0
@@ -2455,8 +2469,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_addr_len 48
       #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
       #define oint_data_shift 0
-      #define oint_data_len 32
-      #define oint_data_mask 0x00000000FFFFFFFFUL
+      #define oint_data_len 48
+      #define oint_data_mask 0x0000FFFFFFFFFFFFUL
     #else
       # Bits 63..33 = type code, bits 32..0 = address
       #if 1 # what is better??
@@ -2499,8 +2513,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_addr_len 48
       #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
       #define oint_data_shift 0
-      #define oint_data_len 32
-      #define oint_data_mask 0x00000000FFFFFFFFUL
+      #define oint_data_len 48
+      #define oint_data_mask 0x0000FFFFFFFFFFFFUL
     #else
       # Bits 63..32 = type code, bits 31..0 = address
       #define oint_type_shift 32
@@ -2532,8 +2546,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_addr_len 64
       #define oint_addr_mask 0xE000FFFFFFFFFFFFUL
       #define oint_data_shift 0
-      #define oint_data_len 32
-      #define oint_data_mask 0x00000000FFFFFFFFUL
+      #define oint_data_len 48
+      #define oint_data_mask 0x0000FFFFFFFFFFFFUL
     #else
       # Bits 63..32 = Typcode, Bits 31..0 = address
       #define oint_type_shift 32
@@ -2560,8 +2574,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_addr_len 48
       #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
       #define oint_data_shift 0
-      #define oint_data_len 32
-      #define oint_data_mask 0x00000000FFFFFFFFUL
+      #define oint_data_len 48
+      #define oint_data_mask 0x0000FFFFFFFFFFFFUL
     #else
       # Bits 63..40 = Typcode, Bits 39..0 = address
       #define oint_type_shift 40
@@ -2571,13 +2585,22 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_addr_len 64
       #define oint_addr_mask 0x000000FFFFFFFFFFUL
       #define oint_data_shift 0
-      #define oint_data_len 32
-      #define oint_data_mask 0x00000000FFFFFFFFUL
+      #define oint_data_len 40
+      #define oint_data_mask 0x000000FFFFFFFFFFUL
     #endif
   #endif
 #elif defined(WIDE_SOFT)
   # separate one 32-bit word for typcode and address.
-  #if WIDE_ENDIANNESS
+  #if defined(WIDE_SOFT_LARGEFIXNUM)
+    # Used to test large fixnums on 32-bit platforms.
+    # Bits 63..48 = Typcode, Bits 47..32 = zero, Bits 31..0 = address
+    #define oint_type_shift 48
+    #define oint_type_len 16
+    #define oint_type_mask 0xFFFF000000000000ULL
+    #define oint_addr_shift 0
+    #define oint_addr_len 48
+    #define oint_addr_mask 0x0000FFFFFFFFFFFFULL
+  #elif WIDE_ENDIANNESS
     # Bits 63..32 = Typcode, Bits 31..0 = address
     #define oint_type_shift 32
     #define oint_type_len 32
@@ -2638,8 +2661,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 # Generally we use all of the space of an address for the data of Fixnums etc.
 # Always     [oint_data_shift..oint_data_shift+oint_data_len-1] is subset of
 #            [oint_addr_shift..oint_addr_shift+oint_addr_len-1],
-# thus       oint_data_len <= oint_addr_len,
-# but also   oint_data_len <= intLsize = 32 .
+# thus       oint_data_len <= oint_addr_len.
 #ifndef oint_data_len
   #define oint_data_shift oint_addr_shift
   #define oint_data_len oint_addr_len
@@ -2652,6 +2674,16 @@ typedef unsigned_int_with_n_bits(oint_type_len)  tint;
 # Integer type for addresses:
 typedef unsigned_int_with_n_bits(oint_addr_len)  aint;
 typedef signed_int_with_n_bits(oint_addr_len)  saint;
+
+# Integer type for immediate values:
+# Always 32 = intLsize <= intVsize <= 64.
+#if (oint_data_len <= 32)
+  #define intVsize 32
+#else
+  #define intVsize 64
+#endif
+typedef unsigned_int_with_n_bits(intVsize)  uintV;
+typedef signed_int_with_n_bits(intVsize)  sintV;
 
 # Integer type used to represent an amount of memory:
 # (This may be larger than size_t or ptrdiff_t: size_t is required by ISO C to
@@ -2737,7 +2769,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 
 # Flavor of the garbage collection: normal or generational.
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
+#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && !defined(WIDE_SOFT_LARGEFIXNUM) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
   # "generational garbage collection" has some requirements.
   # With Linux, it will only work with 1.1.52, and higher, which will be checked in makemake.
   # On IRIX 6, it worked in the past, but leads to core dumps now. Reason unknown. FIXME!
@@ -2855,7 +2887,21 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))
 #endif
 
-# Bit operations on sizes of type oint:
+# Bit operations on entities of type uintV:
+# ...vbit... instead of ...bit..., "v" = "value".
+#if (intVsize > 32)
+  #define vbit(n)  (1LL<<(n))
+  #define vbitm(n)  (2LL<<((n)-1))
+  #define vbit_test(x,n)  ((x) & vbit(n))
+  #define minus_vbit(n)  (-1LL<<(n))
+#else
+  #define vbit  bit
+  #define vbitm  bitm
+  #define vbit_test  bit_test
+  #define minus_vbit  minus_bit
+#endif
+
+# Bit operations on entities of type oint:
 # ...wbit... instead of ...bit..., "w" = "wide".
 #if defined(WIDE_SOFT) || defined(WIDE_AUXI)
   #define wbit(n)  (1LL<<(n))
@@ -4542,53 +4588,53 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # Fixnum_minus1 is the number -1
 #define Fixnum_0  fixnum(0)
 #define Fixnum_1  fixnum(1)
-#define Fixnum_minus1  type_data_object( fixnum_type | bit(sign_bit_t), bitm(oint_data_len)-1 )
+#define Fixnum_minus1  type_data_object( fixnum_type | bit(sign_bit_t), vbitm(oint_data_len)-1 )
 
 # Value of a non-negative fixnum:
-# posfixnum_to_L(obj)
+# posfixnum_to_V(obj)
 # result is >= 0, < 2^oint_data_len.
 #if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
-  #define posfixnum_to_L(obj)  \
-    ((uintL)((as_oint(obj)&((oint)wbitm(oint_data_len+oint_data_shift)-1))>>oint_data_shift))
+  #define posfixnum_to_V(obj)  \
+    ((uintV)((as_oint(obj)&((oint)wbitm(oint_data_len+oint_data_shift)-1))>>oint_data_shift))
 #else
   # Long constants are slower than shifts on a SPARC-processor:
-  #define posfixnum_to_L(obj)  \
-    ((uintL)((as_oint(obj) << (32-oint_data_len-oint_data_shift)) >> (32-oint_data_len)))
+  #define posfixnum_to_V(obj)  \
+    ((uintV)((as_oint(obj) << (32-oint_data_len-oint_data_shift)) >> (32-oint_data_len)))
 #endif
 
 # Value of a negative fixnum:
-# negfixnum_to_L(obj)
+# negfixnum_to_V(obj)
 # Result is >= - 2^oint_data_len, < 0.
-#define negfixnum_to_L(obj)  (posfixnum_to_L(obj) | (-bitm(oint_data_len)))
+#define negfixnum_to_V(obj)  (posfixnum_to_V(obj) | (-vbitm(oint_data_len)))
 
 # Absolute value of a negative fixnum:
-# negfixnum_abs_L(obj)
+# negfixnum_abs_V(obj)
 # Result is > 0, <= 2^oint_data_len.
-# Beware: Possible wraparound at oint_data_len=intLsize!
-#define negfixnum_abs_L(obj)  \
-  ((uintL)((as_oint(fixnum_inc(Fixnum_minus1,1))-as_oint(obj))>>oint_data_shift))
+# Beware: Possible wraparound at oint_data_len=intVsize!
+#define negfixnum_abs_V(obj)  \
+  ((uintV)((as_oint(fixnum_inc(Fixnum_minus1,1))-as_oint(obj))>>oint_data_shift))
 
 # Value of a fixnum, obj should be a variable:
-# fixnum_to_L(obj)
-# Result is >= - 2^oint_data_len, < 2^oint_data_len and of Type sintL.
+# fixnum_to_V(obj)
+# Result is >= - 2^oint_data_len, < 2^oint_data_len and of Type sintV.
 # This macro should only be used for oint_data_len+1 <= intLsize!
-#if (oint_data_len>=intLsize)
-  # No space left for the sign-bit, thus fixnum_to_L = posfixnum_to_L = negfixnum_to_L !
-  #define fixnum_to_L(obj)  (sintL)posfixnum_to_L(obj)
+#if (oint_data_len>=intVsize)
+  # No space left for the sign-bit, thus fixnum_to_V = posfixnum_to_V = negfixnum_to_V !
+  #define fixnum_to_V(obj)  (sintV)posfixnum_to_V(obj)
 #elif (sign_bit_o == oint_data_len+oint_data_shift)
-  #define fixnum_to_L(obj)  \
-    (((sintL)as_oint(obj) << (intLsize-1-sign_bit_o)) >> (intLsize-1-sign_bit_o+oint_data_shift))
+  #define fixnum_to_V(obj)  \
+    (((sintV)as_oint(obj) << (intVsize-1-sign_bit_o)) >> (intVsize-1-sign_bit_o+oint_data_shift))
 #else
   #if !defined(SPARC)
-    #define fixnum_to_L(obj)  \
-      (sintL)( ((((sintL)as_oint(obj) >> sign_bit_o) << (intLsize-1)) >> (intLsize-1-oint_data_len)) \
-              |((uintL)((as_oint(obj) & ((oint)wbitm(oint_data_len+oint_data_shift)-1)) >> oint_data_shift)) \
+    #define fixnum_to_V(obj)  \
+      (sintV)( ((((sintV)as_oint(obj) >> sign_bit_o) << (intVsize-1)) >> (intVsize-1-oint_data_len)) \
+              |((uintV)((as_oint(obj) & ((oint)wbitm(oint_data_len+oint_data_shift)-1)) >> oint_data_shift)) \
              )
   #else
     # Long constants are slower than shifts on a SPARC-processor:
-    #define fixnum_to_L(obj)  \
-      (sintL)( ((((sintL)as_oint(obj) >> sign_bit_o) << (intLsize-1)) >> (intLsize-1-oint_data_len)) \
-              |(((uintL)as_oint(obj) << (intLsize-oint_data_len-oint_data_shift)) >> (intLsize-oint_data_len)) \
+    #define fixnum_to_V(obj)  \
+      (sintV)( ((((sintV)as_oint(obj) >> sign_bit_o) << (intVsize-1)) >> (intVsize-1-oint_data_len)) \
+              |(((uintV)as_oint(obj) << (intVsize-oint_data_len-oint_data_shift)) >> (intVsize-oint_data_len)) \
              )
   #endif
 #endif
@@ -4602,9 +4648,9 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
       (((sintQ)as_oint(obj) << (intQsize-1-sign_bit_o)) >> (intQsize-1-sign_bit_o+oint_data_shift))
   #else
     #define fixnum_to_Q(obj)  \
-      ( ((((sintQ)as_oint(obj) >> sign_bit_o) << (intQsize-1)) >> (intQsize-1-oint_data_len)) \
-       |((uintQ)((as_oint(obj) & (wbitm(oint_data_len+oint_data_shift)-1)) >> oint_data_shift)) \
-      )
+      (sintQ)( ((((sintQ)as_oint(obj) >> sign_bit_o) << (intQsize-1)) >> (intQsize-1-oint_data_len)) \
+              |((uintQ)((as_oint(obj) & (wbitm(oint_data_len+oint_data_shift)-1)) >> oint_data_shift)) \
+             )
   #endif
 #endif
 
@@ -6011,17 +6057,17 @@ typedef enum {
 # Small-Read-Label
 #ifdef TYPECODES
   #define make_small_read_label(n)  \
-    type_data_object(system_type, ((uintL)(n)<<1) + bit(0))
+    type_data_object(system_type, ((uintV)(n)<<1) + bit(0))
   #define small_read_label_integer_p(obj)  \
-    (posfixnump(obj) && (posfixnum_to_L(obj) < bit(oint_data_len-2)))
+    (posfixnump(obj) && (posfixnum_to_V(obj) < vbit(oint_data_len-2)))
   #define small_read_label_value(obj)  \
-    fixnum((as_oint(obj) >> (oint_data_shift+1)) & (bit(oint_data_len-2)-1))
+    fixnum((as_oint(obj) >> (oint_data_shift+1)) & (vbit(oint_data_len-2)-1))
 #else
   #define make_small_read_label(n)  \
-    type_data_object(small_read_label_type, (uintL)(n))
+    type_data_object(small_read_label_type, (uintV)(n))
   #define small_read_label_integer_p(obj)  posfixnump(obj)
   #define small_read_label_value(obj)  \
-    fixnum((as_oint(obj) >> oint_data_shift) & (bit(oint_data_len)-1))
+    fixnum((as_oint(obj) >> oint_data_shift) & (vbit(oint_data_len)-1))
 #endif
 
 # Machine pointers:
@@ -6048,7 +6094,7 @@ typedef enum {
 
 # System-Pointer
 #define make_system(data)  \
-  type_data_object(system_type, bit(oint_data_len-1) | bit(0) | ((bitm(oint_data_len)-1) & (data)))
+  type_data_object(system_type, vbit(oint_data_len-1) | bit(0) | ((vbitm(oint_data_len)-1) & (data)))
 # all such go into the special print routine io.d:pr_system()
 
 # missing value
@@ -6223,7 +6269,7 @@ typedef enum {
   #define TheHandle(obj)  (*(Handle*)(&TheSbvector(obj)->data[0]))
   #else
   # pack Handle in Fixnum>=0
-  #define TheHandle(obj)  ((Handle)posfixnum_to_L(obj))
+  #define TheHandle(obj)  ((Handle)posfixnum_to_V(obj))
   #endif
   # variable length object:
   #define TheVarobject(obj)                                              \
@@ -6389,7 +6435,7 @@ typedef enum {
   #define TheHandle(obj)  (*(Handle*)(&TheSbvector(obj)->data[0]))
   #else
   # pack Handle in Fixnum>=0
-  #define TheHandle(obj)  ((Handle)posfixnum_to_L(obj))
+  #define TheHandle(obj)  ((Handle)posfixnum_to_V(obj))
   #endif
   # Object of variable length:
   #define TheVarobject(obj)  ((Varobject)(ngci_pointable(obj)-varobject_bias))
@@ -11683,7 +11729,12 @@ extern maygc object ascii_to_string (const char * asciz);
 # constraint that the total-size of any array is a fixnum and (from ANSI CL)
 # that ARRAY-TOTAL-SIZE-LIMIT itself is also a fixnum.
 # (>=0, <2^oint_data_len):
-#define arraysize_limit_1  ((uintL)(bitm(oint_data_len)-2))
+#if (oint_data_len<=intLsize)
+  #define arraysize_limit_1  ((uintV)(vbitm(oint_data_len)-2))
+#else
+  # Respect the constraint that the total-size of any array is an uintL.
+  #define arraysize_limit_1  ((uintV)(vbitm(intLsize)-1))
+#endif
 
 /* ARRAY-RANK-LIMIT is chosen as large as possible, respecting the constraint
  that the rank of any array is an uintWC:
@@ -11778,10 +11829,10 @@ extern object iarray_displace_check (object array, uintL size, uintL* index);
 # Also verifies that all elements of the array are physically present.
 # array_displace_check(array,size,&index)
 # > object array: array
-# > uintL size: size
+# > uintV size: size
 # < result: storage vector
 # < index: is incremented by the offset into the storage vector
-extern object array_displace_check (object array, uintL size, uintL* index);
+extern object array_displace_check (object array, uintV size, uintL* index);
 # used by HASHTABL, PREDTYPE, IO, FOREIGN
 
 # Tests for the storage vector of an array of element type NIL.
@@ -12707,7 +12758,7 @@ extern maygc object hash_table_test (object ht);
   do {                                                                  \
     var object ht_from_map_hashtable = (ht);                            \
     var uintL index_from_map_hashtable =                                \
-      3*posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
+      3*posfixnum_to_V(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
     pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);         \
     loop {                                                              \
       if (index_from_map_hashtable==0) break;                           \
@@ -12725,7 +12776,7 @@ extern maygc object hash_table_test (object ht);
   do {                                                                  \
     var object ht_from_map_hashtable = (ht);                            \
     var uintL index_from_map_hashtable =                                \
-      posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
+      posfixnum_to_V(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
     var gcv_object_t* KVptr_from_map_hashtable =                        \
       &TheHashedAlist(TheHashtable(ht_from_map_hashtable)->ht_kvtable)->hal_data[3*index_from_map_hashtable]; \
     loop {                                                              \
@@ -13275,7 +13326,7 @@ nonreturning_function(extern, fehler_string_integer, (object obj));
 # Error message, if a string size is too big.
 # fehler_stringsize(size);
 # > size: the desired string length
-nonreturning_function(extern, fehler_stringsize, (uintL size));
+nonreturning_function(extern, fehler_stringsize, (uintV size));
 
 # Check a string size, reporting an error when it's too big.
 #define check_stringsize(size)  \
@@ -13378,6 +13429,37 @@ nonreturning_function(extern, fehler_too_few_args,
                       (object caller, object func, uintL ngiven, uintL nmin));
 
 # used by EVAL, FOREIGN
+
+# Error message, if an argument isn't of a given elementary C type.
+# fehler_<ctype>(obj);
+# > obj: the faulty argument
+nonreturning_function(extern, fehler_uint8, (object obj));
+nonreturning_function(extern, fehler_sint8, (object obj));
+nonreturning_function(extern, fehler_uint16, (object obj));
+nonreturning_function(extern, fehler_sint16, (object obj));
+nonreturning_function(extern, fehler_uint32, (object obj));
+nonreturning_function(extern, fehler_sint32, (object obj));
+nonreturning_function(extern, fehler_uint64, (object obj));
+nonreturning_function(extern, fehler_sint64, (object obj));
+# nonreturning_function(extern, fehler_uint, (object obj));
+# nonreturning_function(extern, fehler_sint, (object obj));
+#if (int_bitsize==16)
+  #define fehler_uint  fehler_uint16
+  #define fehler_sint  fehler_sint16
+#else # (int_bitsize==32)
+  #define fehler_uint  fehler_uint32
+  #define fehler_sint  fehler_sint32
+#endif
+# nonreturning_function(extern, fehler_ulong, (object obj));
+# nonreturning_function(extern, fehler_slong, (object obj));
+#if (long_bitsize==32)
+  #define fehler_ulong  fehler_uint32
+  #define fehler_slong  fehler_sint32
+#else # (long_bitsize==64)
+  #define fehler_ulong  fehler_uint64
+  #define fehler_slong  fehler_sint64
+#endif
+/* used by STREAM, ENCODING, modules */
 
 /* Check whether an object can be converted to an elementary C type.
  check_<ctype>(obj)
@@ -14363,7 +14445,12 @@ extern maygc object L_to_I (sint32 wert);
 # > wert_hi|wert_lo: value of the Integer, an signed 64-bit-Integer.
 # < result: Integer with that value.
 # can trigger GC
-extern maygc object L2_to_I (sint32 wert_hi, uint32 wert_lo);
+#if (intVsize>32)
+  #define L2_to_I(wert_hi,wert_lo)  \
+    Q_to_I(((sint64)(sint32)(wert_hi)<<32)|(sint64)(uint32)(wert_lo))
+#else
+  extern maygc object L2_to_I (sint32 wert_hi, uint32 wert_lo);
+#endif
 # is used by TIME, FOREIGN
 
 # Converts an unsigned double-longword into an Integer.
@@ -14371,10 +14458,15 @@ extern maygc object L2_to_I (sint32 wert_hi, uint32 wert_lo);
 # > wert_hi|wert_lo: value of the Integer, an unsigned 64-bit-Integer.
 # < result: Integer with that value.
 # can trigger GC
-extern maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
+#if (intVsize>32)
+  #define UL2_to_I(wert_hi,wert_lo)  \
+    UQ_to_I(((uint64)(uint32)(wert_hi)<<32)|(uint64)(uint32)(wert_lo))
+#else
+  extern maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
+#endif
 # is used by TIME, FOREIGN, and by the FFI
 
-#ifdef intQsize
+#if defined(intQsize) || (intVsize>32)
   # Converts a quadword into an Integer.
   # Q_to_I(wert)
   # > wert: value of the Integer, a signed 64-bit-Integer.
@@ -14384,7 +14476,7 @@ extern maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
   # is used by the FFI
 #endif
 
-#if defined(intQsize) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
+#if defined(intQsize) || (intVsize>32) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
   # Converts an unsigned quadword into an Integer >=0.
   # UQ_to_I(wert)
   # > wert: value of the Integer, an unsigned 64-bit-Integer.
@@ -14394,6 +14486,32 @@ extern maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
   # is used by MISC, TIME, FFI
 #endif
 
+# Converts a sintV into an Integer.
+# V_to_I(wert)
+# > wert: value of the Integer, a signed intVsize-bit-Integer.
+# < result: Integer with that value
+# can trigger GC
+# extern maygc object V_to_I (uintV wert);
+#if (intVsize<=32)
+  #define V_to_I(wert)  L_to_I(wert)
+#else
+  #define V_to_I(wert)  Q_to_I(wert)
+#endif
+# is used by LISPARIT
+
+# Converts an uintV into an Integer >=0.
+# UV_to_I(wert)
+# > wert: value of the Integer, an unsigned intVsize-bit-Integer.
+# < result: Integer with that value
+# can trigger GC
+# extern maygc object UV_to_I (uintV wert);
+#if (intVsize<=32)
+  #define UV_to_I(wert)  UL_to_I(wert)
+#else
+  #define UV_to_I(wert)  UQ_to_I(wert)
+#endif
+# is used by LISPARIT
+
 # Converts a C-Integer of a given type into an Integer
 # val should be a variable
 #define uint8_to_I(val)  fixnum((uint8)(val))
@@ -14402,7 +14520,7 @@ extern maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
 #define sint16_to_I(val)  L_to_I((sint32)(sint16)(val))
 #define uint32_to_I(val)  UL_to_I((uint32)(val))
 #define sint32_to_I(val)  L_to_I((sint32)(val))
-#ifdef intQsize
+#if defined(intQsize) || (intVsize>32)
   #define uint64_to_I(val)  UQ_to_I((uint64)(val))
   #define sint64_to_I(val)  Q_to_I((sint64)(val))
 #elif defined(HAVE_FFI)
@@ -14501,13 +14619,15 @@ extern sintL I_to_L (object obj);
     #define I_to_uint64(obj)  I_to_UQ(obj)
     #define I_to_sint64(obj)  I_to_Q(obj)
   #endif
-  #if (int_bitsize==16)
-    #define I_to_uint  I_to_uint16
-    #define I_to_sint  I_to_sint16
-  #else # (int_bitsize==32)
-    #define I_to_uint  I_to_uint32
-    #define I_to_sint  I_to_sint32
-  #endif
+#endif
+#if (int_bitsize==16)
+  #define I_to_uint  I_to_uint16
+  #define I_to_sint  I_to_sint16
+#else # (int_bitsize==32)
+  #define I_to_uint  I_to_uint32
+  #define I_to_sint  I_to_sint32
+#endif
+#if defined(HAVE_FFI) || defined(HAVE_AFFI)
   #if (long_bitsize==32)
     #define I_to_ulong  I_to_uint32
     #define I_to_slong  I_to_sint32

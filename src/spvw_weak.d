@@ -1,6 +1,6 @@
 /*
  * Garbage collection with weak references in CLISP
- * Bruno Haible 2004
+ * Bruno Haible 2004-2005
  */
 
 /* An array that contains the addresses of those objects whose mark bit is
@@ -488,8 +488,8 @@ local void propagate_through_weak (object obj, uintL index) {
 /* Straightens one pointer into a WeakHashedAlist. */
 local inline object weak_hashed_alist_update_one (object kvtable, uintL n, object x) {
   loop {
-    if (!(posfixnump(x) && posfixnum_to_L(x) < n)) abort();
-    var gcv_object_t* KVptr = &TheWeakHashedAlist(kvtable)->whal_data[3*posfixnum_to_L(x)];
+    if (!(posfixnump(x) && posfixnum_to_V(x) < n)) abort();
+    var gcv_object_t* KVptr = &TheWeakHashedAlist(kvtable)->whal_data[3*posfixnum_to_V(x)];
     if (!eq(KVptr[0],unbound))
       # Found an alive key/value pair at index x.
       break;

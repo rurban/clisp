@@ -1153,13 +1153,13 @@ local void init_symbol_functions (void) {
 # assign values to constants/variables:
 local void init_symbol_values (void) {
   # helper macro: constant := value+1
-  #define define_constant_UL1(symbol,value)                     \
-    do { var object x = # value+1 as integer                    \
-           ( ((uintL)(value) < (uintL)(bitm(oint_data_len)-1))  \
-                ? fixnum(value+1)                               \
-                : I_1_plus_I(UL_to_I(value))                    \
-            );                                                  \
-          define_constant(symbol,x);                            \
+  #define define_constant_UL1(symbol,value)                    \
+    do { var object x = # value+1 as integer                   \
+           (((uintV)(value) < (uintV)(vbitm(oint_data_len)-1)) \
+            ? fixnum(value+1)                                  \
+            : I_1_plus_I(UV_to_I(value))                       \
+           );                                                  \
+          define_constant(symbol,x);                           \
     } while(0)
   # common:
   define_constant(S(nil),S(nil));                 # NIL := NIL
@@ -1724,7 +1724,7 @@ local void print_banner ()
   };
   var const char * banner2 = "\n";
   var int candles = 0;
-  var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
+  var uintL offset = (posfixnum_to_V(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
   if (offset == 0) {
     begin_system_call();
     strcpy(banner0_line0,banner0_hanukka[0]);
@@ -2081,9 +2081,9 @@ local inline int parse_options (int argc, const char* const* argv,
                        # memory size limited by:
                        (oint_addr_len+addr_shift < intLsize-1
                         # address space in oint_addr_len+addr_shift bits
-                        ? bitm(oint_addr_len+addr_shift)
+                        ? vbitm(oint_addr_len+addr_shift)
                         # (resp. big dummy-limit)
-                        : (uintM)bitm(oint_addr_len+addr_shift)-1));
+                        : vbitm(oint_addr_len+addr_shift)-1));
             }
             break;
           case 't': # traditional, temporary directory

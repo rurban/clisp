@@ -25,8 +25,8 @@ local uintD* I_to_DS_n_ (object obj, uintC n, uintD* destptr) {
   /* Now there is room for n digits below destptr.
      fill upper part of the DS from obj, decrease destptr: */
   if (I_fixnump(obj)) { /* fixnum: */
-    var uint32 wert = FN_to_L(obj);
-    #define FN_maxlength_a  (intLsize/intDsize)
+    var uintV wert = FN_to_V(obj);
+    #define FN_maxlength_a  (intVsize/intDsize)
     #define FN_maxlength_b  (FN_maxlength<=FN_maxlength_a ? FN_maxlength : FN_maxlength_a)
     /* store FN_maxlength. FN_maxlength_b digits can be taken from wert. */
    #if (FN_maxlength_b > 1)
@@ -35,7 +35,7 @@ local uintD* I_to_DS_n_ (object obj, uintC n, uintD* destptr) {
    #endif
     *--destptr = (uintD)wert;
    #if (FN_maxlength > FN_maxlength_b)
-    /* oint_data_len = intLsize, we still need
+    /* oint_data_len = intVsize, we still need
        FN_maxlength-FN_maxlength_b = 1 digit. */
     *--destptr = (sintD)FN_sign(obj);
    #endif
@@ -121,20 +121,20 @@ local maygc object I_I_logand_I (object x, object y) {
   } else if (posfixnump(x)) { /* PosFixnum AND Bignum -> PosFixnum */
     var uintD* yLSDptr;
     BN_to_NDS_nocopy(y, ,,yLSDptr=);
-    var uint32 y_low = get_max32_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
+    var uintV y_low = get_maxV_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
     #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object(as_oint(x) & as_oint(posfixnum(y_low)));
     #else /* the fixnum_type tag can collide with the high bits of y_low */
-    return as_object(as_oint(x) & as_oint(posfixnum(y_low&(bitm(oint_data_len)-1))));
+    return as_object(as_oint(x) & as_oint(posfixnum(y_low&(vbitm(oint_data_len)-1))));
     #endif
   } else if (posfixnump(y)) { /* Bignum AND PosFixnum -> PosFixnum */
     var uintD* xLSDptr;
     BN_to_NDS_nocopy(x, ,,xLSDptr=);
-    var uint32 x_low = get_max32_Dptr(pFN_maxlength*intDsize,xLSDptr-pFN_maxlength);
+    var uintV x_low = get_maxV_Dptr(pFN_maxlength*intDsize,xLSDptr-pFN_maxlength);
     #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object(as_oint(posfixnum(x_low)) & as_oint(y));
     #else /* the fixnum_type tag can collide with the high bits of x_low */
-    return as_object(as_oint(posfixnum(x_low&(bitm(oint_data_len)-1))) & as_oint(y));
+    return as_object(as_oint(posfixnum(x_low&(vbitm(oint_data_len)-1))) & as_oint(y));
     #endif
   } else {
     SAVE_NUM_STACK /* save num_stack */
@@ -191,21 +191,21 @@ local maygc object I_I_lognand_I (object x, object y) {
     /* PosFixnum AND Bignum -> PosFixnum */
     var uintD* yLSDptr;
     BN_to_NDS_nocopy(y, ,,yLSDptr=);
-    var uint32 y_low = get_max32_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
+    var uintV y_low = get_maxV_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
     #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object((as_oint(x) & ((oint)y_low << oint_data_shift)) ^ as_oint(Fixnum_minus1));
     #else /* the fixnum_type tag can collide with the high bits of y_low */
-    return as_object((as_oint(x) & ((oint)(y_low&(bitm(oint_data_len)-1)) << oint_data_shift)) ^ as_oint(Fixnum_minus1));
+    return as_object((as_oint(x) & ((oint)(y_low&(vbitm(oint_data_len)-1)) << oint_data_shift)) ^ as_oint(Fixnum_minus1));
     #endif
   } else if (posfixnump(y)) {
     /* Bignum AND PosFixnum -> PosFixnum */
     var uintD* xLSDptr;
     BN_to_NDS_nocopy(x, ,,xLSDptr=);
-    var uint32 x_low = get_max32_Dptr(pFN_maxlength*intDsize,xLSDptr-pFN_maxlength);
+    var uintV x_low = get_maxV_Dptr(pFN_maxlength*intDsize,xLSDptr-pFN_maxlength);
     #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object((((oint)x_low << oint_data_shift) & as_oint(y)) ^ as_oint(Fixnum_minus1));
     #else /* the fixnum_type tag can collide with the high bits of x_low */
-    return as_object((((oint)(x_low&(bitm(oint_data_len)-1)) << oint_data_shift) & as_oint(y)) ^ as_oint(Fixnum_minus1));
+    return as_object((((oint)(x_low&(vbitm(oint_data_len)-1)) << oint_data_shift) & as_oint(y)) ^ as_oint(Fixnum_minus1));
     #endif
   } else {
     SAVE_NUM_STACK /* save num_stack */
@@ -261,11 +261,11 @@ local maygc object I_I_logandc2_I (object x, object y) {
     /* PosFixnum AND Bignum -> PosFixnum */
     var uintD* yLSDptr;
     BN_to_NDS_nocopy(y, ,,yLSDptr=);
-    var uint32 y_low = get_max32_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
+    var uintV y_low = get_maxV_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
     #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object(as_oint(x) & ~((oint)y_low << oint_data_shift));
     #else /* the fixnum_type tag can collide with the high bits of y_low */
-    return as_object(as_oint(x) & ~((oint)(y_low&(bitm(oint_data_len)-1)) << oint_data_shift));
+    return as_object(as_oint(x) & ~((oint)(y_low&(vbitm(oint_data_len)-1)) << oint_data_shift));
     #endif
   } else {
     SAVE_NUM_STACK /* save num_stack */
@@ -451,7 +451,7 @@ local bool I_I_logtest (object x, object y) {
         return true; /* x<0 -> yes. */
       /* x>=0. combine x with the pFN_maxlength last digits of y. */
       var uintD* yLSDptr;
-      var uintL x_ = posfixnum_to_L(x);
+      var uintV x_ = posfixnum_to_V(x);
       BN_to_NDS_nocopy(y, _EMA_,_EMA_,yLSDptr=);
      #if (pFN_maxlength > 1)
       doconsttimes(pFN_maxlength-1,
@@ -508,7 +508,7 @@ local bool I_I_logbitp (object x, object y)
 {
   if (!R_minusp(x)) { /* x>=0 ? */
     if (I_fixnump(x)) {
-      var uintL x_ = posfixnum_to_L(x);
+      var uintV x_ = posfixnum_to_V(x);
       var uintC ylen;
       var uintD* yLSDptr;
       I_to_NDS_nocopy(y, _EMA_,ylen=,yLSDptr=); /* DS for y */
@@ -576,13 +576,13 @@ global maygc object I_I_ash_I (object x, object y)
     if (!R_minusp(y)) { /* y>0 */
       if (I_bignump(y) /* y a bignum */
           || ((log2_intDsize+intWCsize < oint_data_len) /* intDsize*2^intWCsize < 2^oint_data_len ? */
-              && (as_oint(y) >= as_oint(fixnum(intDsize*bitc(intWCsize)))))) { /* a fixnum > bitlength of all integers */
+              && (as_oint(y) >= as_oint(fixnum(intDsize*vbitm(intWCsize)))))) { /* a fixnum > bitlength of all integers */
         /* y so large, that even (ASH 1 y) would cause an overflow. */
         goto badamount;
       } else {
-        var uintL y_ = (as_oint(y)-as_oint(Fixnum_0))>>oint_data_shift; /* value of y, >=0, <intDsize*2^intWCsize */
+        var uintV y_ = (as_oint(y)-as_oint(Fixnum_0))>>oint_data_shift; /* value of y, >=0, <intDsize*2^intWCsize */
         var uintL i = y_%intDsize; /* i = y mod intDsize, >=0, <intDsize */
-        var uintL k = floor(y_,intDsize); /* k = y div intDsize, >=0, <2^intWCsize */
+        var uintV k = floor(y_,intDsize); /* k = y div intDsize, >=0, <2^intWCsize */
         var uintD* LSDptr;
         var uintC len;
         var uintD* x_LSDptr;
@@ -617,12 +617,12 @@ global maygc object I_I_ash_I (object x, object y)
       if (I_bignump(y)) {
         goto sign; /* y a bignum -> return sign of x */
       } else {
-        var uintL y_ = ((as_oint(Fixnum_minus1)-as_oint(y))>>oint_data_shift)+1; /* value of -y, >0 */
-        #if (oint_data_len==32)
+        var uintV y_ = ((as_oint(Fixnum_minus1)-as_oint(y))>>oint_data_shift)+1; /* value of -y, >0 */
+        #if (oint_data_len==intVsize)
         if (y_==0) goto sign; /* y = most-negative-fixnum -> return sign of x */
         #endif
         var uintL i = y_%intDsize; /* i = (-y) mod intDsize, >=0, <intDsize */
-        var uintL k = floor(y_,intDsize); /* k = (-y) div intDsize, >=0 */
+        var uintV k = floor(y_,intDsize); /* k = (-y) div intDsize, >=0 */
         /* build DS for x: */
         var uintD* MSDptr;
         var uintC len;
@@ -699,6 +699,23 @@ local maygc object I_logcount_I (object x);
       x16 = (x16 & 0x00FFU) + (x16 >> 8)                        \
       /* x16 consists of 1 16-bit-counter (0,...,32). */        \
     )
+/* count bits of x32: (input x32, output x16) */
+#define logcount_64()                                           \
+    (                                                           \
+      /* x32 consists of 64 1-bit-counters (0,1). */            \
+      x32 = (x32 & 0x5555555555555555ULL) + ((x32 & 0xAAAAAAAAAAAAAAAAULL) >> 1), \
+      /* x64 consists of 32 2-bit-counters (0,1,2). */          \
+      x32 = (x32 & 0x3333333333333333ULL) + ((x32 & 0xCCCCCCCCCCCCCCCCULL) >> 2), \
+      /* x32 consists of 16 4-bit-counters (0,1,2,3,4). */      \
+      x32 = high32(x32)+low32(x32),                             \
+      /* x32 consists of 8 4-bit-counters (0,...,8). */         \
+      x32 = (x32 & 0x0F0F0F0FUL) + ((x32 & 0xF0F0F0F0UL) >> 4), \
+      /* x32 consists of 4 8-bit-counters (0,...,16). */        \
+      x32 = (x32 & 0x00FF00FFUL) + ((x32 & 0xFF00FF00UL) >> 8), \
+      /* x32 consists of 2 16-bit-counter (0,...,32). */        \
+      x16 = (x32 & 0x0000FFFFUL) + (x32 >> 16)                  \
+      /* x16 consists of 1 16-bit-counter (0,...,64). */        \
+    )
 #if (intWLsize==intLsize)
   #define x16  x32
 #endif
@@ -706,10 +723,14 @@ local maygc object I_logcount_I (object x)
 {
   if (I_fixnump(x)) {
     var uint16 x16; /* auxiliary variable */
-   {var uint32 x32 = FN_to_L(x); /* x as 32-bit-number */
-    if (FN_L_minusp(x,(sint32)x32))
+   {var uintV x32 = FN_to_V(x); /* x as intVsize-bit-number */
+    if (FN_V_minusp(x,(sintV)x32))
       x32 = ~ x32; /* if <0, make 1-complement */
+   #if (intVsize>32)
+    logcount_64(); /* count bits of x32 */
+   #else
     logcount_32(); /* count bits of x32 */
+   #endif
     return fixnum((uintL)x16);
   }} else {
     var uintD* MSDptr;
@@ -950,6 +971,18 @@ local maygc object I_logcount_I (object x)
       }
   #endif
 #endif
+#define integerlength64(digit,size_zuweisung)                               \
+  {                                                                         \
+    var uint64 x64 = (digit);                                               \
+    var uintC bitsize64 = 0;                                                \
+    var uint32 x32_from_integerlength64;                                    \
+    if (x64 >= ((uint64)1 << 32)) {                                         \
+      x32_from_integerlength64 = x64>>32; bitsize64 += 32;                  \
+    } else {                                                                \
+      x32_from_integerlength64 = x64;                                       \
+    }                                                                       \
+    integerlength32(x32_from_integerlength64, size_zuweisung bitsize64 + ); \
+  }
 #if (intDsize==8)
   #define integerlengthD  integerlength8
 #endif
@@ -965,13 +998,17 @@ local maygc object I_logcount_I (object x)
 global uintL I_integer_length (object x) {
   if (I_fixnump(x)) {
     var uintL bitcount = 0;
-    var uint32 x_ = FN_to_L(x); /* x as 32-bit-number */
-    if (FN_L_minusp(x,(sint32)x_))
+    var uintV x_ = FN_to_V(x); /* x as intVsize-bit-number */
+    if (FN_V_minusp(x,(sintV)x_))
       x_ = ~ x_; /* if <0, make 1-complement */
     if (!(x_==0)) {
+     #if (intVsize>32)
+      integerlength64(x_,bitcount=);
+     #else
       integerlength32(x_,bitcount=);
+     #endif
     }
-    return bitcount; /* 0 <= bitcount < 32. */
+    return bitcount; /* 0 <= bitcount < intVsize. */
   } else {
     var uintD* MSDptr;
     var uintC len;
@@ -997,13 +1034,17 @@ global uintL I_integer_length (object x) {
 local maygc object I_integer_length_I (object x) {
   if (I_fixnump(x)) {
     var uintL bitcount = 0;
-    var uint32 x_ = FN_to_L(x); /* x as 32-bit-number */
-    if (FN_L_minusp(x,(sint32)x_))
+    var uintV x_ = FN_to_V(x); /* x as intVsize-bit-number */
+    if (FN_V_minusp(x,(sintV)x_))
       x_ = ~ x_; /* if <0, make 1-complement */
     if (!(x_==0)) {
+     #if (intVsize>32)
+      integerlength64(x_,bitcount=);
+     #else
       integerlength32(x_,bitcount=);
+     #endif
     }
-    /* 0 <= bitcount < 32, fits in a fixnum. */
+    /* 0 <= bitcount < intVsize, fits in a fixnum. */
     return fixnum(bitcount);
   } else {
     var uintD* MSDptr;
@@ -1086,6 +1127,12 @@ local uintL I_ord2 (object x);
     digit = digit ^ (digit - 1); /* method 1a */        \
     integerlength32(digit,count_zuweisung -1 + )
 #endif
+#ifndef ord2_64
+/* Here, digit must be a variable. Digit is modified! */
+  #define ord2_64(digit,count_zuweisung)                \
+    digit = digit ^ (digit - 1); /* method 1a */        \
+    integerlength64(digit,count_zuweisung -1 + )
+#endif
 #ifndef ord2_D
 /* Here, digit must be a variable. Digit is modified! */
   #define ord2_D(digit,count_zuweisung)                 \
@@ -1095,15 +1142,23 @@ local uintL I_ord2 (object x);
 local uintL I_ord2 (object x)
 {
   if (I_fixnump(x)) {
-    var uint32 x_ = FN_to_L(x); /* x as 32-bit-number */
-   #if (oint_data_len < 32)
+    var uintV x_ = FN_to_V(x); /* x as intVsize-bit-number */
+   #if (oint_data_len < intVsize)
+    #if (intVsize>32)
+    ord2_64(x_,return);
+    #else
     ord2_32(x_,return);
-   #else /* oint_data_len=32, x_ can also be =0 . */
+    #endif
+   #else /* oint_data_len=intVsize, x_ can also be =0 . */
     /* Only method 1c works at x = most-negative-fixnum. */
     x_ = x_ | (- x_); x_ = ~ x_;
     if (x_ == 0)
       return 0;
+    #if (intVsize>32)
+    integerlength64(x_,return);
+    #else
     integerlength32(x_,return);
+    #endif
    #endif
   } else {
     var uintL bitcount = 0;
@@ -1124,10 +1179,14 @@ local uintL I_ord2 (object x)
             digits are null. */
 local uintL I_power2p (object x) {
   if (I_fixnump(x)) {
-    var uintL x_ = posfixnum_to_L(x);
+    var uintV x_ = posfixnum_to_V(x);
     if (!((x_ & (x_-1)) == 0))
       return 0; /* no power of two */
+   #if (intVsize>32)
+    integerlength64(x_,return); /* power of two: n = integer_length(x) */
+   #else
     integerlength32(x_,return); /* power of two: n = integer_length(x) */
+   #endif
   } else {
     var uintD* MSDptr;
     var uintC len;

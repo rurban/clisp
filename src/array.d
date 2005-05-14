@@ -1,6 +1,6 @@
 /*
  * Array functions
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-09-23
  */
@@ -287,10 +287,10 @@ global object iarray_displace_check (object array, uintL size, uintL* index) {
  Also verifies that all elements of the array are physically present.
  array_displace_check(array,size,&index)
  > object array: array
- > uintL size: size
+ > uintV size: size
  < result: storage vector
  < index: is incremented by the offset into the storage vector */
-global object array_displace_check (object array, uintL size, uintL* index) {
+global object array_displace_check (object array, uintV size, uintL* index) {
   if (array_simplep(array)) /* array indirect? */
     goto simple;
   loop {
@@ -407,7 +407,7 @@ local uintL test_subscripts (object array, gcv_object_t* argptr, uintC argcount)
         Before(args_pointer) = array;
         fehler_subscript_type(argcount);
       }
-      var uintL subscript = posfixnum_to_L(subscriptobj); /* as uintL */
+      var uintV subscript = posfixnum_to_V(subscriptobj); /* as uintL */
       var uintL dim = *dimptr++; /* corresponding dimension */
       if (subscript>=dim) { /* subscript must be smaller than dimension */
         Before(args_pointer) = array;
@@ -464,7 +464,7 @@ nonreturning_function(global, fehler_index_range, (object array, uintL bound)) {
 local uintL test_index (object vector) {
   if (!posfixnump(STACK_0)) /* index must be fixnum>=0 . */
     fehler_index_type(vector);
-  var uintL index = posfixnum_to_L(STACK_0); /* index as uintL */
+  var uintV index = posfixnum_to_V(STACK_0); /* index as uintL */
   var uintL length = (simple_string_p(vector) ? Sstring_length(vector) : Sarray_length(vector));
   if (index >= length) /* index must be smaller then length */
     fehler_index_range(vector,length);
@@ -594,8 +594,8 @@ local /*maygc*/ object storagevector_store (object datenvektor, uintL index,
     }
       break;
     case Array_type_sb2vector: {
-      var uintL wert;
-      if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(2))) {
+      var uintV wert;
+      if (posfixnump(element) && ((wert = posfixnum_to_V(element)) < bit(2))) {
         var uintB* ptr = &TheSbvector(datenvektor)->data[index/4];
         *ptr ^= (*ptr ^ (wert<<(2*((~index)%4)))) & ((bit(2)-1)<<(2*((~index)%4)));
         return datenvektor;
@@ -603,8 +603,8 @@ local /*maygc*/ object storagevector_store (object datenvektor, uintL index,
     }
       break;
     case Array_type_sb4vector: {
-      var uintL wert;
-      if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(4))) {
+      var uintV wert;
+      if (posfixnump(element) && ((wert = posfixnum_to_V(element)) < bit(4))) {
         var uintB* ptr = &TheSbvector(datenvektor)->data[index/2];
         *ptr ^= (*ptr ^ (wert<<(4*((~index)%2)))) & ((bit(4)-1)<<(4*((~index)%2)));
         return datenvektor;
@@ -612,16 +612,16 @@ local /*maygc*/ object storagevector_store (object datenvektor, uintL index,
     }
       break;
     case Array_type_sb8vector: {
-      var uintL wert;
-      if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(8))) {
+      var uintV wert;
+      if (posfixnump(element) && ((wert = posfixnum_to_V(element)) < bit(8))) {
         TheSbvector(datenvektor)->data[index] = wert;
         return datenvektor;
       }
     }
       break;
     case Array_type_sb16vector: {
-      var uintL wert;
-      if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(16))) {
+      var uintV wert;
+      if (posfixnump(element) && ((wert = posfixnum_to_V(element)) < bit(16))) {
         ((uint16*)&TheSbvector(datenvektor)->data[0])[index] = wert;
         return datenvektor;
       }
@@ -782,9 +782,10 @@ LISPFUNNR(row_major_aref,2)
   /* check index: */
   if (!posfixnump(STACK_0))
     fehler_index_type(array);
-  var uintL index = posfixnum_to_L(STACK_0);
-  if (index >= array_total_size(array)) /* index must be smaller than size */
+  var uintV indexv = posfixnum_to_V(STACK_0);
+  if (indexv >= array_total_size(array)) /* index must be smaller than size */
     fehler_index_range(array,array_total_size(array));
+  var uintL index = indexv;
   if (array_simplep(array)) {
     sstring_un_realloc(array);
   } else {
@@ -802,9 +803,10 @@ LISPFUNN(row_major_store,3)
   /* check index: */
   if (!posfixnump(STACK_0))
     fehler_index_type(array);
-  var uintL index = posfixnum_to_L(STACK_0);
-  if (index >= array_total_size(array)) /* index must be smaller than size */
+  var uintV indexv = posfixnum_to_V(STACK_0);
+  if (indexv >= array_total_size(array)) /* index must be smaller than size */
     fehler_index_range(array,array_total_size(array));
+  var uintL index = indexv;
   STACK_0 = array; STACK_1 = element;
   /* Stack layout: element, array. */
   if (array_simplep(array)) {
@@ -911,7 +913,7 @@ LISPFUNNR(array_dimension,2)
       goto fehler_axis;
   } else { /* non-simple array */
     if (posfixnump(axis_number)) { /* axis-number must be a fixnum >=0, */
-      var uintL axis = posfixnum_to_L(axis_number);
+      var uintV axis = posfixnum_to_V(axis_number);
       if (axis < (uintL)Iarray_rank(array)) { /* and <rank */
         var uintL* dimptr = &TheIarray(array)->dims[0];
         if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
@@ -1070,9 +1072,9 @@ LISPFUN(array_in_bounds_p,seclass_read,1,0,rest,nokey,0,NIL)
     if (!posfixnump(subscriptobj)) goto no;
     if (simple_string_p(array)) {
       sstring_un_realloc(array);
-      if (!(posfixnum_to_L(subscriptobj) < Sstring_length(array))) goto no;
+      if (!(posfixnum_to_V(subscriptobj) < Sstring_length(array))) goto no;
     } else {
-      if (!(posfixnum_to_L(subscriptobj) < Sarray_length(array))) goto no;
+      if (!(posfixnum_to_V(subscriptobj) < Sarray_length(array))) goto no;
     }
     goto yes;
   } else { /* non-simple array */
@@ -1094,7 +1096,7 @@ LISPFUN(array_in_bounds_p,seclass_read,1,0,rest,nokey,0,NIL)
         /* subscript must be fixnum>=0 , and subscript as uintL
            must be smaller than the corresponding dimension: */
         if (!( posfixnump(subscriptobj)
-               && (posfixnum_to_L(subscriptobj) < *dimptr++) ))
+               && (posfixnum_to_V(subscriptobj) < *dimptr++) ))
           goto no;
       });
     }
@@ -3776,7 +3778,7 @@ LISPFUNN(set_fill_pointer,2)
   var uintL* fillp = get_fill_pointer(STACK_1); /* fillpointer-address */
   if (!posfixnump(STACK_0)) /* new fill-pointer must be fixnum>=0 . */
     fehler_index_type(STACK_1);
-  var uintL newfillp = posfixnum_to_L(STACK_0); /* as uintL */
+  var uintV newfillp = posfixnum_to_V(STACK_0); /* as uintL */
   if (!(newfillp <= fillp[-1])) /* must be <= length */
     fehler_index_range(STACK_1,fillp[-1]+1);
   *fillp = newfillp; /* store new fill-pointer */
@@ -3846,11 +3848,11 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
     }
     var uintB atype = Iarray_flags(array) & arrayflags_atype_mask;
     var uintL len = fillp[-1]; /* former length (dimension 0) */
-    var uintL inc; /* wished increment of the length */
+    var uintV inc; /* wished increment of the length */
     if (boundp(extension)) {
       /* extension should be a fixnum >0, <arraysize_limit : */
       if ( !posfixnump(extension)
-           || ((inc = posfixnum_to_L(extension)) == 0)
+           || ((inc = posfixnum_to_V(extension)) == 0)
           #ifndef UNIX_DEC_ULTRIX_GCCBUG
            || (inc > arraysize_limit_1)
           #endif
@@ -3877,7 +3879,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
       if (inc<len)
         inc = len;
     }
-    var uintL newlen = len + inc; /* new length */
+    var uintV newlen = len + inc; /* new length */
    #ifndef UNIX_DEC_ULTRIX_GCCBUG
     if (newlen > arraysize_limit_1)
       fehler_extension(extension);
@@ -4257,13 +4259,17 @@ local uintL test_dims (uintL* totalsize_) {
       var object dim = Car(dims); /* next dimension */
       /* if (!integerp(dim)) fehler_dim_type(dim); */
       if (!posfixnump(dim)) fehler_dim_type(dim); /* must be Fixnum >=0 */
+     #if (oint_data_len>32)
+      if (posfixnum_to_V(dim) >= vbit(32)) /* must fit in 32 bits */
+        fehler_dim_type(dim);
+     #endif
       /* calculate totalsize * dim: */
       var uintL produkt_hi;
       var uintL produkt_lo;
      #if (oint_data_len<=24)
-      mulu24(totalsize,posfixnum_to_L(dim), produkt_hi=,produkt_lo=);
+      mulu24(totalsize,posfixnum_to_V(dim), produkt_hi=,produkt_lo=);
      #else
-      mulu32(totalsize,posfixnum_to_L(dim), produkt_hi=,produkt_lo=);
+      mulu32(totalsize,posfixnum_to_V(dim), produkt_hi=,produkt_lo=);
      #endif
      #ifndef UNIX_DEC_ULTRIX_GCCBUG
       if (!((produkt_hi==0) && (produkt_lo<=arraysize_limit_1))) /* product < 2^24 ? */
@@ -4285,7 +4291,11 @@ local uintL test_dims (uintL* totalsize_) {
   } else {
     /* dims is not a list. Should be a single dimension: */
     if (!posfixnump(dims)) fehler_dim_type(dims); /* must be Fixnum >=0 */
-    *totalsize_ = posfixnum_to_L(dims); /* Totalsize = single dimension */
+   #if (oint_data_len>32)
+    if (posfixnum_to_V(dims) >= vbit(32)) /* must fit in 32 bits */
+      fehler_dim_type(dims);
+   #endif
+    *totalsize_ = posfixnum_to_V(dims); /* Totalsize = single dimension */
     return 1; /* Rang = 1 */
   }
 }
@@ -4508,11 +4518,11 @@ local uintL test_displaced (uintB eltype, uintL totalsize) {
     }
   }
   /* check displaced-index-offset: */
-  var uintL displaced_index_offset;
+  var uintV displaced_index_offset;
   if (!boundp(STACK_0))
     displaced_index_offset = 0; /* default is 0 */
   else if (posfixnump(STACK_0))
-    displaced_index_offset = posfixnum_to_L(STACK_0);
+    displaced_index_offset = posfixnum_to_V(STACK_0);
   else {
     pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_array_index)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -4552,7 +4562,7 @@ local uintL test_fillpointer (uintL totalsize) {
     fehler(type_error,
            GETTEXT("~S: fill-pointer ~S should be a nonnegative fixnum"));
   } else {
-    var uintL fillpointer = posfixnum_to_L(STACK_2);
+    var uintV fillpointer = posfixnum_to_V(STACK_2);
     if (!(fillpointer <= totalsize)) { /* compare with length */
       pushSTACK(fixnum(totalsize));
       pushSTACK(STACK_(2+1));
@@ -4681,10 +4691,10 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
       var object dims = STACK_7;
       if (listp(dims)) {
         while (consp(dims)) {
-          *dimptr++ = posfixnum_to_L(Car(dims)); dims = Cdr(dims);
+          *dimptr++ = posfixnum_to_V(Car(dims)); dims = Cdr(dims);
         }
       } else {
-        *dimptr++ = posfixnum_to_L(dims);
+        *dimptr++ = posfixnum_to_V(dims);
       }
     }
     /* poss. store fill-pointer: */
@@ -4740,11 +4750,11 @@ local void reshape (object newvec, object newdims, object oldvec,
     ptr = reshape_stack;
     if (consp(newdims)) {
       dotimespC(count,rank, {
-        ptr->newdim = posfixnum_to_L(Car(newdims)); newdims = Cdr(newdims);
+        ptr->newdim = posfixnum_to_V(Car(newdims)); newdims = Cdr(newdims);
         ptr = ptr STACKop -1;
       });
     } else {
-      ptr->newdim = posfixnum_to_L(newdims);
+      ptr->newdim = posfixnum_to_V(newdims);
     }
     /* store olddim and mindim: */
     ptr = reshape_stack;
@@ -5014,10 +5024,10 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
         var object dims = STACK_7;
         if (listp(dims)) {
           while (consp(dims)) {
-            *dimptr++ = posfixnum_to_L(Car(dims)); dims = Cdr(dims);
+            *dimptr++ = posfixnum_to_V(Car(dims)); dims = Cdr(dims);
           }
         } else {
-          *dimptr++ = posfixnum_to_L(dims);
+          *dimptr++ = posfixnum_to_V(dims);
         }
       }
       /* poss. store fill-pointer resp. correct it: */
@@ -5118,7 +5128,7 @@ LISPFUNN(vector_init_start,2)
     fehler_vector(seq);
   var uintL len = vector_length(seq);
   /* index should be a Fixnum between 0 and len (inclusive) : */
-  if (posfixnump(STACK_0) && (posfixnum_to_L(STACK_0)<=len)) {
+  if (posfixnump(STACK_0) && (posfixnum_to_V(STACK_0)<=len)) {
     VALUES1(STACK_0); skipSTACK(2); /* return index */
   } else {
     /* stack layout: seq, index. */
@@ -5144,7 +5154,7 @@ LISPFUNN(vector_fe_init_end,2)
     fehler_vector(seq);
   var uintL len = vector_length(seq);
   /* index should be a Fixnum between 0 and len (inclusive) : */
-  if (posfixnump(STACK_0) && (posfixnum_to_L(STACK_0)<=len)) {
+  if (posfixnump(STACK_0) && (posfixnum_to_V(STACK_0)<=len)) {
     var object index = STACK_0;
     skipSTACK(2);
     VALUES1(eq(index,Fixnum_0)
@@ -5166,13 +5176,19 @@ LISPFUNN(vector_fe_init_end,2)
 
 LISPFUNN(make_bit_vector,1)
 { /* (SYS::MAKE-BIT-VECTOR size) returns a Bit-Vector with size bits. */
+  var uintL size;
   if (!posfixnump(STACK_0)) {
+   bad_size:
     /* STACK_0 = size, TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(O(type_array_length)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_1); /* size */
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,GETTEXT("~S: invalid bit-vector length ~S"));
   }
-  var uintL size = posfixnum_to_L(popSTACK()); /* length */
+  var uintV size = posfixnum_to_V(STACK_0); /* length */
+ #if (intVsize>intLsize)
+  if (size >= vbit(intLsize)) goto bad_size;
+ #endif
   VALUES1(allocate_bit_vector(Atype_Bit,size)); /* return a bit-vector */
+  skipSTACK(1);
 }

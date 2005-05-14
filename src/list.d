@@ -1,6 +1,6 @@
 /*
  * List functions for CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
  * Sam Steingold 1999-2004
  */
@@ -633,10 +633,16 @@ global bool proper_list_p (object obj) {
  can trigger GC */
 local maygc uintL get_integer_truncate (object number) {
   /* for speed, handle the most common case first */
-  if (posfixnump(number)) return posfixnum_to_L(number);
+  if (posfixnump(number)) {
+   #if (intVsize>intLsize)
+    if (posfixnum_to_V(number) >= vbitm(intLsize))
+      return ~(uintL)0; /* most-positive-uintL */
+   #endif
+    return posfixnum_to_V(number);
+  }
   number = check_pos_integer(number);
   if (uint32_p(number)) return I_to_UL(number);
-  return ~(uintL)0; /* most-positive-uint32 */
+  return ~(uintL)0; /* most-positive-uintL */
 }
 
 LISPFUNNR(nth,2)

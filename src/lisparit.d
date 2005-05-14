@@ -1296,15 +1296,17 @@ LISPFUN(float_digits,seclass_foldable,1,1,norest,nokey,0,NIL)
   } else { /* 2 arguments: (FLOAT-DIGITS number digits) */
     if (!posfixnump(STACK_0)) /* not a fixnum!?? */
       fehler_digits(STACK_0);
-    var uintL d = posfixnum_to_L(STACK_0); /* = I_to_UL(STACK_0); ?? */
+    var uintV d = posfixnum_to_V(STACK_0); /* = I_to_UL(STACK_0); ?? */
     if (d==0) /* should be >0 */
       fehler_digits(STACK_0);
     STACK_1 = check_real(STACK_1);
     /* convert STACK_1 into a float with at least d bits: */
     if (d > DF_mant_len+1) { /* -> long-float */
       d = ceiling(d,intDsize);
-      if ((intWCsize<32) && (d > (bitc(intWCsize)-1)))
+     #if (intWCsize<intVsize)
+      if (d >= vbit(intWCsize))
         fehler_LF_toolong();
+     #endif
       VALUES1(R_to_LF(STACK_1,d));
     } else if (d > FF_mant_len+1) /* a double-float is sufficient */
       VALUES1(R_to_DF(STACK_1));  /* -> double-float */
@@ -1628,7 +1630,14 @@ LISPFUN(random,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(random_posfixnum,seclass_default,0,1,norest,nokey,0,NIL)
 {
   var object r = check_random_state(popSTACK());
+ #if (oint_data_len <= 32)
   var uintL value = random_L(r) >> (32-oint_data_len);
+ #else
+  #define random1_len (oint_data_len/2)
+  #define random2_len ((oint_data_len+1)/2)
+  var uintV value = ((uint64)(random_L(r) >> (32-random1_len)) << random2_len)
+                    | (uint64)(random_L(r) >> (32-random2_len));
+ #endif
   VALUES1(fixnum(value));
 }
 
@@ -1770,12 +1779,14 @@ LISPFUNN(set_long_float_digits,1)
   var object arg = STACK_0;
   if (!posfixnump(arg)) /* not necessarily Fixnum!?? */
     fehler_digits(arg);
-  var uintL d = posfixnum_to_L(arg); /* = I_to_UL(arg); ?? */
+  var uintV d = posfixnum_to_V(arg); /* = I_to_UL(arg); ?? */
   if (d==0) /* should be >0 */
     fehler_digits(arg);
   d = ceiling(d,intDsize);
-  if ((intWCsize<32) && (d > (bitc(intWCsize)-1)))
+ #if (intWCsize<intVsize)
+  if (d >= vbit(intWCsize))
     fehler_LF_toolong();
+ #endif
   if (d < LF_minlen)
     d = LF_minlen; /* coerce d>=LF_minlen */
   set_lf_digits(d);
@@ -1788,7 +1799,7 @@ local maygc object log_digits (object x, object digits, gcv_object_t* objptr) {
   /* check digits-argument: */
   if (!posfixnump(digits)) /* not necessarily Fixnum!?? */
     fehler_digits(digits);
-  var uintL d = posfixnum_to_L(digits); /* = I_to_UL(digits); ?? */
+  var uintV d = posfixnum_to_V(digits); /* = I_to_UL(digits); ?? */
   if (d==0) /* should be >0 */
     fehler_digits(digits);
   /* fetch known value: */
@@ -1796,8 +1807,10 @@ local maygc object log_digits (object x, object digits, gcv_object_t* objptr) {
   /* convert ln_x into a float with at least d bits: */
   if (d > DF_mant_len+1) { /* -> long-float */
     d = ceiling(d,intDsize);
-    if ((intWCsize<32) && (d > (bitc(intWCsize)-1)))
+   #if (intWCsize<intVsize)
+    if (d >= vbit(intWCsize))
       fehler_LF_toolong();
+   #endif
     var uintC oldlen = Lfloat_length(ln_x); /* existing length */
     if (d < oldlen)
       return LF_shorten_LF(ln_x,d);
