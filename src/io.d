@@ -9848,7 +9848,7 @@ local maygc void pr_cclosure_codevector (const gcv_object_t* stream_, object cod
         JUSTIFY_LAST(len==1 || length+1 >= length_limit);
         codevec = *codevec_;
         var uintL index = length;
-#if BIG_ENDIAN_P
+       #if BIG_ENDIAN_P
          # calculate Byte-Index, converting Big-Endian -> Little-Endian :
         if (index < header_end_index) {
           switch (index) {
@@ -9864,7 +9864,7 @@ local maygc void pr_cclosure_codevector (const gcv_object_t* stream_, object cod
               break;
           }
         }
-#endif
+       #endif
         # print Byte:
         pr_hex2(stream_,TheSbvector(codevec)->data[index]);
         length++; # increase index
