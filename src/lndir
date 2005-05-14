@@ -60,15 +60,7 @@ while test $# -gt 1 ; do
 done
 }
 
-if test -r "$SRC"; then
-  :
-else
-  fail "$0: source does not exist: $SRC"
-fi
-
-if test -r "$DST"; then
-  fail "$0: destination already exists: $DST"
-fi
+test -r "$SRC" || fail "$0: source does not exist: $SRC"
 
 mkdirparent "$DST"
 
@@ -79,7 +71,7 @@ done
 
 for f in `cd "$SRC" > /dev/null ; find . -type f -print`; do
   f=`echo "$f" | sed -e 's,^\./,,'`
-  link "$SRC"/"$f" "$DST"/"$f"
+  cmp -s "$SRC"/"$f" "$DST"/"$f" || link "$SRC"/"$f" "$DST"/"$f"
 done
 
 exit 0
