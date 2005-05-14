@@ -598,6 +598,8 @@ int main(int argc, char* argv[])
 #endif
   sprintf(buf,"uint%d",oint_type_len); emit_typedef(buf,"tint");
   sprintf(buf,"uint%d",oint_addr_len); emit_typedef(buf,"aint");
+  sprintf(buf,"uint%d",intVsize); emit_typedef(buf,"uintV");
+  sprintf(buf,"sint%d",intVsize); emit_typedef(buf,"sintV");
 #if notused
   sprintf(buf,"sint%d",oint_addr_len); emit_typedef(buf,"saint");
 #endif
@@ -615,6 +617,21 @@ int main(int argc, char* argv[])
   printf("static inline object objectplus (object obj, saint offset) { return (object){u:{both:{ one_ob: obj.one_o+offset, auxi_ob: obj.auxi_o }}}; }\n");
 #else
   printf("#define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))\n");
+#endif
+#if (intVsize > 32)
+#if notused
+  printf("#define vbit(n)  (1LL<<(n))\n");
+  printf("#define vbitm(n)  (2LL<<((n)-1))\n");
+  printf("#define vbit_test(x,n)  ((x) & vbit(n))\n");
+  printf("#define minus_vbit(n)  (-1LL<<(n))\n");
+#endif
+#else
+#if notused
+  printf("#define vbit  bit\n");
+  printf("#define vbitm  bitm\n");
+  printf("#define vbit_test  bit_test\n");
+  printf("#define minus_vbit  minus_bit\n");
+#endif
 #endif
 #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI))
   printf("#define wbit  bit\n");
@@ -904,24 +921,24 @@ int main(int argc, char* argv[])
   printf("#define fixnum(x)  type_data_object(%d,x)\n",fixnum_type);
   printf("#define Fixnum_0  fixnum(0)\n");
   printf("#define Fixnum_1  fixnum(1)\n");
-  printf2("#define Fixnum_minus1  type_data_object(%d,%x)\n",(tint)(fixnum_type | bit(sign_bit_t)),(aint)(bitm(oint_data_len)-1));
+  printf2("#define Fixnum_minus1  type_data_object(%d,%x)\n",(tint)(fixnum_type | bit(sign_bit_t)),(aint)(vbitm(oint_data_len)-1));
 #if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
-  printf2("#define posfixnum_to_L(obj)  ((uintL)((as_oint(obj)&%x)>>%d))\n",(oint)wbitm(oint_data_len+oint_data_shift)-1,oint_data_shift);
+  printf2("#define posfixnum_to_V(obj)  ((uintV)((as_oint(obj)&%x)>>%d))\n",(oint)wbitm(oint_data_len+oint_data_shift)-1,oint_data_shift);
 #else
-  printf("#define posfixnum_to_L(obj)  ((uintL)((as_oint(obj) << %d) >> %d))\n",32-oint_data_len-oint_data_shift,32-oint_data_len);
+  printf("#define posfixnum_to_V(obj)  ((uintV)((as_oint(obj) << %d) >> %d))\n",32-oint_data_len-oint_data_shift,32-oint_data_len);
 #endif
 #if notused
-  printf1("#define negfixnum_to_L(obj)  (posfixnum_to_L(obj) | %x)\n",(uintL)(-bitm(oint_data_len)));
+  printf1("#define negfixnum_to_V(obj)  (posfixnum_to_V(obj) | %x)\n",(uintV)(-vbitm(oint_data_len)));
 #endif
-#if (oint_data_len>=intLsize)
-  printf("#define fixnum_to_L(obj)  (sintL)posfixnum_to_L(obj)\n");
+#if (oint_data_len>=intVsize)
+  printf("#define fixnum_to_V(obj)  (sintV)posfixnum_to_V(obj)\n");
 #elif (sign_bit_o == oint_data_len+oint_data_shift)
-  printf("#define fixnum_to_L(obj)  (((sintL)as_oint(obj) << %d) >> %d)\n",intLsize-1-sign_bit_o,intLsize-1-sign_bit_o+oint_data_shift);
+  printf("#define fixnum_to_V(obj)  (((sintV)as_oint(obj) << %d) >> %d)\n",intVsize-1-sign_bit_o,intVsize-1-sign_bit_o+oint_data_shift);
 #else
  #if !defined(SPARC)
-  printf5("#define fixnum_to_L(obj)  (sintL)( ((((sintL)as_oint(obj) >> %d) << %d) >> %d) | ((uintL)((as_oint(obj) & %x) >> %d)) )\n",sign_bit_o,intLsize-1,intLsize-1-oint_data_len,(oint)wbitm(oint_data_len+oint_data_shift)-1,oint_data_shift);
+  printf5("#define fixnum_to_V(obj)  (sintV)( ((((sintV)as_oint(obj) >> %d) << %d) >> %d) | ((uintV)((as_oint(obj) & %x) >> %d)) )\n",sign_bit_o,intVsize-1,intVsize-1-oint_data_len,(oint)wbitm(oint_data_len+oint_data_shift)-1,oint_data_shift);
  #else
-  printf("#define fixnum_to_L(obj)  (sintL)( ((((sintL)as_oint(obj) >> %d) << %d) >> %d) | (((uintL)as_oint(obj) << %d) >> %d) )\n",sign_bit_o,intLsize-1,intLsize-1-oint_data_len,intLsize-oint_data_len-oint_data_shift,intLsize-oint_data_len);
+  printf("#define fixnum_to_V(obj)  (sintV)( ((((sintV)as_oint(obj) >> %d) << %d) >> %d) | (((uintV)as_oint(obj) << %d) >> %d) )\n",sign_bit_o,intVsize-1,intVsize-1-oint_data_len,intVsize-oint_data_len-oint_data_shift,intVsize-oint_data_len);
  #endif
 #endif
   printf("#define fixnum_inc(obj,delta)  objectplus(obj, (soint)(delta) << %d)\n",oint_data_shift);
@@ -1030,7 +1047,7 @@ int main(int argc, char* argv[])
   printf1("#define make_machine(ptr)  as_object((oint)(ptr)+%d)\n",machine_bias);
  #endif
 #endif
-  printf3("#define make_system(data)  type_data_object(%d,%x | (%x & (data)))\n",(tint)system_type,(oint)(bit(oint_data_len-1) | bit(0)),(oint)(bitm(oint_data_len)-1));
+  printf3("#define make_system(data)  type_data_object(%d,%x | (%x & (data)))\n",(tint)system_type,(oint)(vbit(oint_data_len-1) | bit(0)),(oint)(vbitm(oint_data_len)-1));
   printf("#define unbound  make_system(0x%x)\n",0xFFFFFFUL);
   printf("#define nullobj  make_machine(0)\n");
 #ifdef DEBUG_GCSAFETY
@@ -1934,7 +1951,7 @@ int main(int argc, char* argv[])
   printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
   printf("extern uintL vector_length (object vector);\n");
   printf("extern object vectorof (uintC len);\n");
-  printf("extern object array_displace_check (object array, uintL size, uintL* index);\n");
+  printf("extern object array_displace_check (object array, uintV size, uintL* index);\n");
   printf("#define simple_nilarray_p(obj)  nullp(obj)\n");
   printf("nonreturning_function(extern, fehler_nilarray_retrieve, (void));\n");
   printf("extern uintBWL array_atype (object array);\n");
@@ -1991,12 +2008,6 @@ int main(int argc, char* argv[])
           " return obj;"
         " }\n");
   printf("#endif\n");
-  printf("#ifndef COMPILE_STANDALONE\n");
-  printf("static inline uintL posfixnum_default2 (object obj, uintL d) {"
-         " return missingp(obj) ? d : posfixnum_to_L(check_posfixnum(obj)); "
-         "}\n");
-  printf("#endif\n");
-  printf("#define posfixnum_default(obj) posfixnum_default2(obj,0)\n");
   printf("extern object check_pos_integer_replacement (object obj);\n");
   printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_pos_integer (object obj) {"
@@ -2030,6 +2041,28 @@ int main(int argc, char* argv[])
   printf("nonreturning_function(extern, fehler_string_integer, (object obj));\n");
   printf("nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));\n");
   printf("nonreturning_function(extern, fehler_key_badkw, (object fun, object key, object val, object kwlist));\n");
+  printf("nonreturning_function(extern, fehler_uint8, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_sint8, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_uint16, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_sint16, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_uint32, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_sint32, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_uint64, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_sint64, (object obj));\n");
+#if (int_bitsize==16)
+  printf("#define fehler_uint  fehler_uint16\n");
+  printf("#define fehler_sint  fehler_sint16\n");
+#else
+  printf("#define fehler_uint  fehler_uint32\n");
+  printf("#define fehler_sint  fehler_sint32\n");
+#endif
+#if (long_bitsize==32)
+  printf("#define fehler_ulong  fehler_uint32\n");
+  printf("#define fehler_slong  fehler_sint32\n");
+#else
+  printf("#define fehler_ulong  fehler_uint64\n");
+  printf("#define fehler_slong  fehler_sint64\n");
+#endif
   printf("extern object check_uint8_replacement (object obj);\n");
   printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_uint8 (object obj) {"
@@ -2224,11 +2257,31 @@ int main(int argc, char* argv[])
 #else
   printf("extern object UL_to_I (uintL wert);\n");
 #endif
+#if (intVsize>32)
+  printf("#define L2_to_I(wert_hi,wert_lo)  Q_to_I(((sint64)(sint32)(wert_hi)<<32)|(sint64)(uint32)(wert_lo))\n");
+#else
   printf("extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);\n");
+#endif
+#if (intVsize>32)
+  printf("#define UL2_to_I(wert_hi,wert_lo)  UQ_to_I(((uint64)(uint32)(wert_hi)<<32)|(uint64)(uint32)(wert_lo))\n");
+#else
   printf("extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);\n");
-#ifdef intQsize
+#endif
+#if defined(intQsize) || (intVsize>32)
   printf("extern object Q_to_I (sint64 wert);\n");
   printf("extern object UQ_to_I (uint64 wert);\n");
+#endif
+#if notused
+#if (intVsize<=32)
+  printf("#define V_to_I(wert)  L_to_I(wert)\n");
+#else
+  printf("#define V_to_I(wert)  Q_to_I(wert)\n");
+#endif
+#if (intVsize<=32)
+  printf("#define UV_to_I(wert)  UL_to_I(wert)\n");
+#else
+  printf("#define UV_to_I(wert)  UQ_to_I(wert)\n");
+#endif
 #endif
   printf("#define uint8_to_I(val)  fixnum((uint8)(val))\n");
   printf("#define sint8_to_I(val)  L_to_I((sint32)(sint8)(val))\n");
@@ -2236,7 +2289,7 @@ int main(int argc, char* argv[])
   printf("#define sint16_to_I(val)  L_to_I((sint32)(sint16)(val))\n");
   printf("#define uint32_to_I(val)  UL_to_I((uint32)(val))\n");
   printf("#define sint32_to_I(val)  L_to_I((sint32)(val))\n");
-#ifdef intQsize
+#if defined(intQsize) || (intVsize>32)
   printf("#define uint64_to_I(val)  UQ_to_I((uint64)(val))\n");
   printf("#define sint64_to_I(val)  Q_to_I((sint64)(val))\n");
 #else
@@ -2293,6 +2346,13 @@ int main(int argc, char* argv[])
   printf("#define I_to_ulong  I_to_uint64\n");
   printf("#define I_to_slong  I_to_sint64\n");
 #endif
+  /* Note: The following are _not_ in lispbibl.d! */
+  printf("#ifndef COMPILE_STANDALONE\n");
+  printf("static inline unsigned int check_uint_defaulted (object obj, unsigned int defolt) {"
+          " return missingp(obj) ? defolt : I_to_uint(check_uint(obj)); "
+         "}\n");
+  printf("#endif\n");
+  printf("#define check_uint_default0(obj) check_uint_defaulted(obj,0)\n");
   printf("extern object UDS_to_I (uintD* MSDptr, uintC len);\n");
   printf("extern object DS_to_I (const uintD* MSDptr, uintC len);\n");
 #if notused

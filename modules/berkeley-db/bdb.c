@@ -222,8 +222,8 @@ DEFUN(BDB:DBE-CREATE,&key :PASSWORD :ENCRYPT    \
 #  error "how does your Berkeley DB create a remote client?"
 # endif
   if (remote_p) {
-    if (posfixnump(STACK_0)) sv_timeout = posfixnum_to_L(STACK_0);
-    if (posfixnump(STACK_1)) cl_timeout = posfixnum_to_L(STACK_1);
+    if (uint_p(STACK_0)) sv_timeout = I_to_uint(STACK_0);
+    if (uint_p(STACK_1)) cl_timeout = I_to_uint(STACK_1);
    host_restart:
     if (stringp(STACK_2)) {     /* string host */
       with_string_0(STACK_2,GLO(misc_encoding),hostz, {
@@ -353,7 +353,7 @@ DEFUN(BDB:DBE-OPEN, dbe &key :HOME :FLAGS :JOINENV :INIT-CDB :INIT-LOCK    \
       :INIT-LOG :INIT-MPOOL :INIT-TXN :RECOVER :RECOVER-FATAL :USE-ENVIRON \
       :USE-ENVIRON-ROOT :CREATE :LOCKDOWN :PRIVATE :SYSTEM-MEM :THREAD :MODE)
 { /* open DB environment */
-  int mode = posfixnum_default(popSTACK());
+  int mode = check_uint_default0(popSTACK());
   u_int32_t flags = dbe_open_flags() | check_dbe_open_flags_parse(popSTACK());
   DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,BH_VALID);
   if (!missingp(STACK_0)) {
@@ -574,20 +574,19 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
   if (!missingp(STACK_0)) {     /* TIMEOUT = TXN_TIMEOUT & LOCK_TIMEOUT */
     STACK_0 = check_list(STACK_0);
     if (consp(STACK_0)) {
-      db_timeout_t txn_timeout = posfixnum_to_L(check_posfixnum(Car(STACK_0)));
+      db_timeout_t txn_timeout = I_to_uint(check_uint(Car(STACK_0)));
       SYSCALL(dbe->set_timeout,(dbe,txn_timeout,DB_SET_TXN_TIMEOUT));
       STACK_0 = check_list(Cdr(STACK_0));
       if (consp(STACK_0)) {
-        db_timeout_t lock_timeout =
-          posfixnum_to_L(check_posfixnum(Car(STACK_0)));
+        db_timeout_t lock_timeout = I_to_uint(check_uint(Car(STACK_0)));
         SYSCALL(dbe->set_timeout,(dbe,lock_timeout,DB_SET_LOCK_TIMEOUT));
       }
     }
   }
   skipSTACK(1);
-  DBE_SET1(timeout,db_timeout_t,posfixnum_to_L(check_posfixnum(STACK_0)),
+  DBE_SET1(timeout,db_timeout_t,I_to_uint(check_uint(STACK_0)),
            (dbe,timeout,DB_SET_TXN_TIMEOUT));
-  DBE_SET1(timeout,db_timeout_t,posfixnum_to_L(check_posfixnum(STACK_0)),
+  DBE_SET1(timeout,db_timeout_t,I_to_uint(check_uint(STACK_0)),
            (dbe,timeout,DB_SET_LOCK_TIMEOUT));
   if (!missingp(STACK_1))       /* PASSWORD */
     dbe_set_encryption(dbe,&STACK_0,&STACK_1);
@@ -1287,7 +1286,7 @@ DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :FLAGS      \
 { /* Open a database */
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
   u_int32_t flags = db_open_flags() | check_db_open_flags_parse(popSTACK());
-  int mode = posfixnum_default2(popSTACK(),0644);
+  int mode = check_uint_defaulted(popSTACK(),0644);
   DBTYPE db_type = check_dbtype(popSTACK());
   DB *db = (DB*)bdb_handle(STACK_2,`BDB::DB`,BH_VALID);
   /* string is resolved by Berkeley-DB relative to data_dirs */
@@ -1403,7 +1402,7 @@ DEFUN(BDB:DB-JOIN, db cursors &key :JOIN-NOSORT)
   u_int32_t flags = db_join_flags(), length, pos;
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
   DBC **curslist, *dbc;
-  pushSTACK(STACK_0); funcall(L(length),1); length = posfixnum_to_L(value1);
+  pushSTACK(STACK_0); funcall(L(length),1); length = posfixnum_to_V(value1);
   curslist = (DBC**)alloca((1+length)*sizeof(DBC*));
   if (curslist == NULL) {
     pushSTACK(TheSubr(subr_self)->name);
@@ -1630,14 +1629,14 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :ERRPFX :PASSWORD :ENCRYPTION \
   }
   skipSTACK(1);
   if (!missingp(STACK_0)) {     /* LORDER */
-    int lorder = posfixnum_to_L(check_posfixnum(STACK_0));
+    int lorder = I_to_uint(check_uint(STACK_0));
     SYSCALL(db->set_lorder,(db,lorder));
   }
   skipSTACK(1);
   if (!missingp(STACK_0)) {     /* CACHE = (ncache cachesize) */
     STACK_0 = check_list(STACK_0);
     if (consp(STACK_0)) {
-      int ncache = posfixnum_to_L(check_posfixnum(Car(STACK_0)));
+      int ncache = I_to_uint(check_uint(Car(STACK_0)));
       u_int32_t gbytes=0, bytes=0;
       STACK_0 = check_list(Cdr(STACK_0));
       if (consp(STACK_0))
@@ -1647,7 +1646,7 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :ERRPFX :PASSWORD :ENCRYPTION \
   }
   skipSTACK(1);
   if (!missingp(STACK_0)) {     /* CACHESIZE */
-    int ncache = posfixnum_default(STACK_1);
+    int ncache = check_uint_default0(STACK_1);
     u_int32_t gbytes, bytes;
     size_to_giga_bytes(STACK_0,&gbytes,&bytes);
     SYSCALL(db->set_cachesize,(db,gbytes,bytes,ncache));
@@ -2302,8 +2301,8 @@ DEFUN(BDB:TXN-CHECKPOINT, dbe &key :KBYTE :MIN :FORCE)
 { /* flush the underlying memory pool, write a checkpoint record to the
      log, and then flush the log. */
   u_int32_t flags = txn_checkpoint_flags();
-  u_int32_t min = posfixnum_default(popSTACK());
-  u_int32_t kbyte = posfixnum_default(popSTACK());
+  u_int32_t min = check_uint_default0(popSTACK());
+  u_int32_t kbyte = check_uint_default0(popSTACK());
   DB_ENV *dbe = (DB_ENV*)bdb_handle(popSTACK(),`BDB::DBE`,BH_VALID);
   SYSCALL(dbe->txn_checkpoint,(dbe,kbyte,min,flags));
   VALUES0;

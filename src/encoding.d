@@ -1950,10 +1950,10 @@ LISPFUN(charset_range,seclass_read,3,1,norest,nokey,0,NIL) {
   var uintL maxintervals;
   if (missingp(STACK_0))
     maxintervals = ~(uintL)0;
-  else if (posfixnump(STACK_0))
-    maxintervals = posfixnum_to_L(STACK_0);
+  else if (uint32_p(STACK_0))
+    maxintervals = I_to_uint32(STACK_0);
   else
-    fehler_posfixnum(STACK_0);
+    fehler_uint32(STACK_0);
   VALUES1(i1 <= i2 ?
           Encoding_range(encoding)(encoding,i1,i2,maxintervals) :
           (object)O(empty_string));

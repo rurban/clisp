@@ -1244,7 +1244,7 @@ global object coerce_char (object obj) {
     if (len==1)
       return code_char(schar(string,offset));
   } else if (nullpSv(coerce_fixnum_char_ansi) && posfixnump(obj)) {
-    var uintL code = posfixnum_to_L(obj);
+    var uintV code = posfixnum_to_V(obj);
     if (code < char_code_limit)
       /* obj is a fixnum >=0, < char_code_limit */
       return code_char(as_chart(code));
@@ -1575,7 +1575,7 @@ local maygc uintWL test_radix_arg (void) {
   if (!boundp(arg))
     return 10;
   if (posfixnump(arg)) {
-    var uintL radix = posfixnum_to_L(arg);
+    var uintV radix = posfixnum_to_V(arg);
     if ((2 <= radix) && (radix <= 36))
       return radix;
   }
@@ -1931,10 +1931,10 @@ LISPFUNNF(code_char,1)
            GETTEXT("~S: the code argument should be an integer, not ~S"));
   }
   /* codeobj is now an integer. */
-  var uintL code;
+  var uintV code;
   /* test, if  0 <= code < char_code_limit : */
   if (posfixnump(codeobj)
-      && ((code = posfixnum_to_L(codeobj)) < char_code_limit)) {
+      && ((code = posfixnum_to_V(codeobj)) < char_code_limit)) {
     VALUES1(code_char(as_chart(code))); /* handicraft character */
   } else {
     VALUES1(NIL); /* else value NIL */
@@ -1986,9 +1986,9 @@ LISPFUN(digit_char,seclass_foldable,1,1,norest,nokey,0,NIL)
   }
   /* weightobj is now an integer. */
   /* test, if 0<=weight<radix, else NIL: */
-  var uintL weight;
+  var uintV weight;
   if (posfixnump(weightobj)
-      && ((weight = posfixnum_to_L(weightobj)) < radix)) {
+      && ((weight = posfixnum_to_V(weightobj)) < radix)) {
     weight = weight + '0'; /* convert into digit */
     if (weight > '9')
       weight += 'A'-'0'-10; /* or turn it into a letter */
@@ -2008,8 +2008,8 @@ LISPFUNNF(int_char,1)
   var object arg = popSTACK(); /* integer-Argument */
   if (integerp(arg)) {
     /* turn into a character if 0 <= arg < char_code_limit, else NIL */
-    var uintL i;
-    if ((posfixnump(arg)) && ((i = posfixnum_to_L(arg)) < char_code_limit)) {
+    var uintV i;
+    if ((posfixnump(arg)) && ((i = posfixnum_to_V(arg)) < char_code_limit)) {
       VALUES1(code_char(as_chart(i)));
     } else {
       VALUES1(NIL);
@@ -2255,7 +2255,7 @@ nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj,
 /* Macro: checks an index-argument
  test_index(woher,wohin_zuweisung,def,default,vergleich,grenze,ucname,lcname)
  woher : expression, where the index (as object) comes from.
- wohin_zuweisung : assigns the result (as uintL) .
+ wohin_zuweisung : assigns the result (as uintV) .
  def : 0 if we do not have to test for default values,
        1 if the default is set in on unbound,
        2 if the default is set in on unbound or NIL.
@@ -2275,7 +2275,7 @@ nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj,
         { fehler_posint(kw,index); }                                    \
       /* index is >=0. */                                               \
       if (!((posfixnump(index)) &&                                      \
-            ((wohin_zuweisung posfixnum_to_L(index)) vergleich grenze))) { \
+            ((wohin_zuweisung posfixnum_to_V(index)) vergleich grenze))) { \
         if (0 vergleich 0)                                              \
           /* "<= grenze" - comparison not satisfied (grenze == limit) */ \
           { fehler_cmp_inclusive(kw,index,grenze); }                    \
@@ -2291,7 +2291,7 @@ nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj,
  < return: index in the string */
 local uintL test_index_arg (uintL len)
 {
-  var uintL i;
+  var uintV i;
   /* i := Index STACK_0, no default value, must be <len: */
   test_index(STACK_0,i=,0,0,<,len,nullobj);
   return i;
@@ -2393,7 +2393,8 @@ LISPFUNN(store_schar,3)
 global object test_vector_limits (stringarg* arg) {
   if (arg->len > 0 && simple_nilarray_p(arg->string))
     fehler_nilarray_retrieve();
-  var uintL start, end;
+  var uintV start;
+  var uintV end;
   /* arg->len is the length (<2^oint_data_len).
      check :START-argument:
      start := Index STACK_1, default value 0, must be <=len : */
@@ -2493,8 +2494,8 @@ local maygc void test_1_stringsym_limits (bool invert, object* string_,
                                           uintL* offset_, uintL* len_) {
   var object string;
   var uintL len;
-  var uintL start;
-  var uintL end;
+  var uintV start;
+  var uintV end;
   /* check string/symbol-argument: */
   string = test_stringsymchar_arg(STACK_2,invert);
   len = vector_length(string);
@@ -2547,8 +2548,8 @@ local void test_2_stringsym_limits (bool invert, stringarg* arg1, stringarg* arg
     /* now, len1 is the length (<2^oint_data_len) of string1. */
   }
   { /* check :START1 and :END1: */
-    var uintL start1;
-    var uintL end1;
+    var uintV start1;
+    var uintV end1;
     /* check :START1-argument:
        start1 := Index STACK_3, default value 0, must be <=len1: */
     test_index(STACK_3,start1=,1,0,<=,len1,S(Kstart1));
@@ -2570,8 +2571,8 @@ local void test_2_stringsym_limits (bool invert, stringarg* arg1, stringarg* arg
       fehler_nilarray_retrieve();
   }
   { /* check :START2 and :END2: */
-    var uintL start2;
-    var uintL end2;
+    var uintV start2;
+    var uintV end2;
     /* check :START2-argument:
        start2 := Index STACK_1, default value 0, must be <=len2: */
     test_index(STACK_1,start2=,1,0,<=,len2,S(Kstart2));
@@ -3194,7 +3195,7 @@ LISPFUN(search_string_equal,seclass_read,2,0,norest,key,4,
 LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
         (kw(initial_element),kw(element_type)) )
 { /* (MAKE-STRING size :initial-element :element-type) */
-  var uintL size;
+  var uintV size;
   /* check size: */
   if (!posfixnump(STACK_2)) { /* size must be fixnum >= 0 */
     pushSTACK(STACK_2); /* TYPE-ERROR slot DATUM */
@@ -3203,7 +3204,7 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
     fehler(type_error,
            GETTEXT("~S: the string length ~S should be nonnegative fixnum"));
   }
-  size = posfixnum_to_L(STACK_2);
+  size = posfixnum_to_V(STACK_2);
   check_stringsize(size);
   /* check element-type: */
   if (boundp(STACK_0)) {
@@ -3675,8 +3676,8 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (SUBSTRING string start [end]) like SUBSEQ, but only for strings */
   var object string;
   var uintL len;
-  var uintL start;
-  var uintL end;
+  var uintV start;
+  var uintV end;
   /* check string/symbol-argument: */
   /* FIXME: This does the wrong thing in a case-sensitive package. */
   string = test_stringsymchar_arg(STACK_2,false);

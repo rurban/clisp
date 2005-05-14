@@ -506,16 +506,18 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
   {
     # Optimization for vectors:
     if (vectorp(STACK_6) && vectorp(STACK_4) && posfixnump(STACK_2)) {
-      var uintL count = posfixnum_to_L(STACK_2);
+      var uintV count = posfixnum_to_V(STACK_2);
       if (count > 0) {
-        var uintL index1 = posfixnum_to_L(STACK_1);
-        var uintL index2 = posfixnum_to_L(STACK_0);
-        if (index1+count > vector_length(STACK_6))
+        var uintV index1v = posfixnum_to_V(STACK_1);
+        var uintV index2v = posfixnum_to_V(STACK_0);
+        if (index1v+count > vector_length(STACK_6))
           with_saved_back_trace_subr(L(aref),STACK STACKop -2,-1,
             fehler_vector_index_range(STACK_6); );
-        if (index2+count > vector_length(STACK_4))
+        if (index2v+count > vector_length(STACK_4))
           with_saved_back_trace_subr(L(store),STACK STACKop -3,-1,
             fehler_vector_index_range(STACK_4); );
+        var uintL index1 = index1v;
+        var uintL index2 = index2v;
         var object dv1 = array_displace_check(STACK_6,count,&index1);
         var object dv2 = array_displace_check(STACK_4,count,&index2);
         if (eq(dv1,dv2))
@@ -588,7 +590,7 @@ local void seq_check_index (object seq, object index) {
   if (vectorp(seq)) { # vector ==>
     # check index against active length (may be smaller than total size)
     var uintL len = vector_length(seq);
-    if (posfixnum_to_L(index) >= len) {
+    if (posfixnum_to_V(index) >= len) {
       pushSTACK(index);
       fehler_index_range(seq,len);
     }
@@ -760,7 +762,7 @@ LISPFUNNR(reverse,1) # (REVERSE sequence), CLTL S. 248
       pushSTACK(value1);
       # Stackaufbau: seq1, typdescr, count, seq2.
       if (vectorp(STACK_3) && posfixnump(STACK_1)) {
-        var uintL count = posfixnum_to_L(STACK_1);
+        var uintV count = posfixnum_to_V(STACK_1);
         if (count > 0) {
           var uintL index1 = 0;
           var object dv1 = array_displace_check(STACK_3,count,&index1);
@@ -867,7 +869,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
         fehler(error,GETTEXT("~S: bad length ~S"));
       }
       {
-        var uintL len = posfixnum_to_L(value1); # len
+        var uintV len = posfixnum_to_V(value1); # len
         # Grundidee: Um eine Sequence mit len Elementen umzudrehen, müssen
         # der linke und der rechte Block mit je floor(len/2) Elementen
         # vertauscht und dann einzeln umgedreht werden (rekursiv!); das
@@ -875,14 +877,14 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
         # Entrekursivierter Algorithmus:
         # Für j=0,1,2,... sind 2^j mal zwei (fast) adjazente Blöcke
         # der Länge k2=floor(len/2^(j+1)) zu vertauschen.
-        var uintL j = 0; # j := 0
-        var uintL k = len; # k = floor(len/2^j) := len
-        var uintL k2; # k2 = floor(k/2)
-        var uintL k1; # k1 = ceiling(k/2)
+        var uintV j = 0; # j := 0
+        var uintV k = len; # k = floor(len/2^j) := len
+        var uintV k2; # k2 = floor(k/2)
+        var uintV k1; # k1 = ceiling(k/2)
         until ((k2 = floor(k,2)) == 0) { # k halbiert =0 -> Schleifenende
           k1 = k - k2; # k1 = (altes k) - (neues k) = ceiling((altes k)/2)
           {
-            var uintL pstack = 0; # ein Pseudo-Stack
+            var uintV pstack = 0; # ein Pseudo-Stack
             # Stackaufbau: seq, typdescr.
             pushSTACK(STACK_1); funcall(seq_init(STACK_(0+1)),1); # (SEQ-INIT seq)
             pushSTACK(value1);
@@ -896,7 +898,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
             loop {
               # Zwei Blöcke der Länge k2 = floor(len/2^(j+1)) vertauschen:
               {
-                var uintL i = k2; # i:=k2 >0
+                var uintV i = k2; # i:=k2 >0
                 do {
                   # (SEQ-ACCESS seq pointer1) bilden:
                   pushSTACK(STACK_3); pushSTACK(STACK_(1+1));
@@ -922,22 +924,22 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
                 } until (i==0); # bei i=0 Schleifenende
               }
               pstack = pstack+1; # stack:=stack+1
-              if (pstack == (1UL<<j)) # stack=2^j geworden -> Schleifenabbruch
+              if (pstack == vbit(j)) # stack=2^j geworden -> Schleifenabbruch
                 break;
               # pointer1 und pointer2 um k1+(0 oder 1) Stellen weiterrücken:
               {
-                var uintL skipcount = k1;
+                var uintV skipcount = k1;
                 {
                   var uintL r1 = 1;
                   # r := Anzahl der Nullbits am Ende der Dualdarstellung von stack:
                   {
                     var uintL pstackr = pstack;
-                    while ((pstackr & bit(0))==0) {
+                    while ((pstackr & vbit(0))==0) {
                       pstackr = pstackr>>1; r1=r1+1;
                     }
                   }
                   # r1 = r+1
-                  if (len & bit(j-r1)) # Bit j-r-1 in len gesetzt?
+                  if (len & vbit(j-r1)) # Bit j-r-1 in len gesetzt?
                     skipcount++; # falls ja: skipcount=k1+1, sonst skipcount=k1
                 }
                 # skipcount >= k1 >= k2 > 0
@@ -1000,8 +1002,9 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
       if (!(eq(STACK_3,Fixnum_0))) { # size (ein Integer) = 0 -> nichts zu tun
         pushSTACK(value1);
         if (!boundp(STACK_(1+1))
-            && vectorp(value1) && array_simplep(value1) && posfixnump(STACK_(3+1))) {
-          if (elt_fill(value1,0,posfixnum_to_L(STACK_(3+1)),STACK_(2+1)))
+            && vectorp(value1) && array_simplep(value1)
+            && posfixnump(STACK_(3+1)) && uint32_p(STACK_(3+1))) {
+          if (elt_fill(value1,0,posfixnum_to_V(STACK_(3+1)),STACK_(2+1)))
             fehler_store(STACK_0,STACK_(2+1));
         } else {
           # Stackaufbau: typdescr, count, element, updatefun, type-len, seq.
@@ -1630,7 +1633,7 @@ LISPFUN(map_into,seclass_default,2,0,rest,nokey,0,NIL)
           if (vectorp(sequence)) {
             # Bei der result-sequence wird der Fill-Pointer ignoriert.
             # pointer ist der Index als Fixnum.
-            if (posfixnum_to_L(pointer) >= array_total_size(sequence))
+            if (posfixnum_to_V(pointer) >= array_total_size(sequence))
               goto end_reached;
           } else {
             # (SEQ-ENDTEST sequence pointer) :
@@ -1917,12 +1920,13 @@ LISPFUN(fill,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
     STACK_2 = value1; # =: pointer
     # Stackaufbau: sequence, item, pointer, count, typdescr.
     if (vectorp(STACK_4) && posfixnump(STACK_1)) {
-      var uintL count = posfixnum_to_L(STACK_1);
+      var uintV count = posfixnum_to_V(STACK_1);
       if (count > 0) {
-        var uintL index = posfixnum_to_L(STACK_2);
-        if (index+count > vector_length(STACK_4))
+        var uintV indexv = posfixnum_to_V(STACK_2);
+        if (indexv+count > vector_length(STACK_4))
           with_saved_back_trace_subr(L(store),STACK STACKop -3,-1,
             fehler_vector_index_range(STACK_4); );
+        var uintL index = indexv;
         var object dv = array_displace_check(STACK_4,count,&index);
         if (elt_fill(dv,index,count,STACK_3))
           fehler_store(STACK_4,STACK_3);
@@ -2236,14 +2240,14 @@ nonreturning_function(global, fehler_both_tests, (void)) {
 # < mv_space/mv_count: values
 # can trigger GC
   # help_function is defined to be the type of such a helper function:
-  typedef maygc object (*help_function) (gcv_object_t* stackptr, uintL bvl, uintL dl);
+  typedef maygc object (*help_function) (gcv_object_t* stackptr, uintV bvl, uintV dl);
   local maygc Values seq_filterop (gcv_object_t* stackptr, up_function up_fun, help_function help_fun)
   {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     pushSTACK(*(stackptr STACKop -4)); # key
     # (- end start) bestimmen und neuen Bitvektor allozieren:
-    var uintL bvl; # Bitvektor-Länge
-    var uintL dl = 0; # Anzahl der im Bitvektor gesetzten Bits
+    var uintV bvl; # Bitvektor-Länge
+    var uintV dl = 0; # Anzahl der im Bitvektor gesetzten Bits
     {
       var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
       # bvsize = (- end start), ein Integer >=0
@@ -2252,7 +2256,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,GETTEXT("~S: sequence ~S is too long"));
       }
-      bvl = posfixnum_to_L(bvsize); # Länge des Bitvektors als Longword
+      bvl = posfixnum_to_V(bvsize); # Länge des Bitvektors als Longword
     }
     pushSTACK(allocate_bit_vector_0(bvl)); # neuer Bitvektor bv
     # Stackaufbau: ... count, typdescr,
@@ -2267,7 +2271,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       # Stackaufbau: ... count, typdescr,
       #              l, sequence, key, bv,
       #              pointer, countdown [STACK].
-      var uintL bvi = bvl; # Schleife bvl mal durchlaufen
+      var uintV bvi = bvl; # Schleife bvl mal durchlaufen
       until (bvi==0) {
         bvi--;
         if (!(nullp(STACK_(1+4+2))) && eq(STACK_0,Fixnum_0))
@@ -2299,7 +2303,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       # Stackaufbau: ... count, typdescr,
       #              l, sequence, key, bv,
       #              pointer, countdown [STACK].
-      var uintL bvi = 0; # Schleife bvl mal durchlaufen
+      var uintV bvi = 0; # Schleife bvl mal durchlaufen
       until (bvi==bvl) {
         if (!(nullp(STACK_(1+4+2))) && eq(STACK_0,Fixnum_0))
           # count/=NIL und countdown=0 -> Schleife kann abgebrochen werden
@@ -2343,17 +2347,17 @@ nonreturning_function(global, fehler_both_tests, (void)) {
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local maygc object remove_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
+  local maygc object remove_help (gcv_object_t* stackptr, uintV bvl, uintV dl)
   {
     # dl=0 -> sequence unverändert zurückgeben:
     if (dl==0)
       return *(stackptr STACKop 0);
     if (eq(seq_type(STACK_2),S(list))) { # type LIST ?
-      var uintL start = posfixnum_to_L(*(stackptr STACKop -2));
-      var uintL nl;
+      var uintV start = posfixnum_to_V(*(stackptr STACKop -2));
+      var uintV nl;
       {
         # Find the highest bit set in the bit vector:
-        var uintL bvi = bvl;
+        var uintV bvi = bvl;
         for (;;) {
           bvi--;
           if (sbvector_btst(STACK_0,bvi))
@@ -2374,7 +2378,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       }
       # Copy the middle part, stopping at index nl:
       {
-        var uintL bvi;
+        var uintV bvi;
         for (bvi = 0; bvi < nl; bvi++) {
           if (!sbvector_btst(STACK_0,bvi)) {
             # Bit is zero, keep element.
@@ -2419,7 +2423,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       }
       {
         # Mittleres Teilstück: sieben.
-        var uintL bvi = 0;
+        var uintV bvi = 0;
         until (bvi==bvl) {
           if (!(sbvector_btst(STACK_(1+5+2),bvi))) { # (sbit bv bvi) abfragen
             # Bit ist nicht gesetzt, also Element übernehmen
@@ -2459,7 +2463,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local maygc object delete_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
+  local maygc object delete_help (gcv_object_t* stackptr, uintV bvl, uintV dl)
   {
     # dl=0 -> sequence unverändert zurückgeben:
     if (dl==0)
@@ -2477,15 +2481,15 @@ nonreturning_function(global, fehler_both_tests, (void)) {
         # Vorderes Teilstück:
         # start mal mit list:=Cdr(list) weiterrücken:
         {
-          var uintL count;
-          dotimesL(count,posfixnum_to_L(*(stackptr STACKop -2)), {
+          var uintV count;
+          dotimesV(count,posfixnum_to_V(*(stackptr STACKop -2)), {
             list_ = &Cdr(list); list = *list_;
           });
         }
         # Mittleres Teilstück:
         # bvl mal ein Bit abfragen und evtl. ein Cons streichen:
         {
-          var uintL bvi = 0;
+          var uintV bvi = 0;
           until (bvi==bvl) {
             if (sbvector_btst(STACK_0,bvi)) { # (sbit bv bvi) abfragen
               # Bit ist =1 -> Cons bei list herausnehmen:
@@ -2519,7 +2523,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       # j = Source-Index, i = Destination-Index, start <= i <= j .
       # Mittleres Teilstück:
       {
-        var uintL bvi = 0;
+        var uintV bvi = 0;
         until (bvi==bvl) {
           if (!(sbvector_btst(STACK_3,bvi))) { # (sbit bv bvi) abfragen
             # Bit gelöscht -> Element übertragen:
@@ -2588,7 +2592,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       pushSTACK(STACK_(1+4)); # countdown := count
       # Stack layout: ..., count, typdescr,
       #               l, result1, result2, pointer, countdown [STACK].
-      var uintL bvl; # length of relevant portion
+      var uintV bvl; # length of relevant portion
       {
         var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
         # bvsize = (- end start), an integer >=0
@@ -2597,7 +2601,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,GETTEXT("~S: sequence ~S is too long"));
         }
-        bvl = posfixnum_to_L(bvsize);
+        bvl = posfixnum_to_V(bvsize);
       }
       for (; bvl > 0; bvl--) {
         if (!nullp(STACK_(1+5)) && eq(STACK_0,Fixnum_0))
@@ -2667,7 +2671,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       pushSTACK(STACK_(1+4)); # countdown := count
       # Stack layout: ..., count, typdescr,
       #               l, result, pointer, last, countdown [STACK].
-      var uintL bvl; # length of relevant portion
+      var uintV bvl; # length of relevant portion
       {
         var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
         # bvsize = (- end start), an integer >=0
@@ -2676,7 +2680,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,GETTEXT("~S: sequence ~S is too long"));
         }
-        bvl = posfixnum_to_L(bvsize);
+        bvl = posfixnum_to_V(bvsize);
       }
       for (; bvl > 0; bvl--) {
         if (!nullp(STACK_(1+5)) && eq(STACK_0,Fixnum_0))
@@ -2864,7 +2868,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > bvl: = end - start
 # < mv_space/mv_count: values
 # can trigger GC
-  local maygc Values remove_duplicates_list_from_start (up2_function up2_fun, uintL bvl)
+  local maygc Values remove_duplicates_list_from_start (up2_function up2_fun, uintV bvl)
   {
     var gcv_object_t* stackptr = &STACK_(6+2);
     pushSTACK(NIL); # result1 := NIL
@@ -2877,7 +2881,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
     #   sequence [stackptr], from-end, start, end, key, test, test-not,
     #   typdescr, l, result1, result2, pointer1.
     # pointer1 goes from left to right (from start to end).
-    var uintL l1 = bvl;
+    var uintV l1 = bvl;
     for (; l1 > 1; l1--) {
       # Fetch next element:
       pushSTACK(STACK_(6+5)); # sequence
@@ -2896,7 +2900,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       #   sequence [stackptr], from-end, start, end, key, test, test-not,
       #   typdescr, l, result1, result2, pointer1,
       #   item1, pointer2.
-      var uintL l2 = l1-1;
+      var uintV l2 = l1-1;
       do {
         # pointer2 := (SEQ-UPD sequence pointer2) :
         STACK_0 = Cdr(STACK_0);
@@ -2943,7 +2947,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > bvl: = end - start
 # < mv_space/mv_count: values
 # can trigger GC
-  local maygc Values delete_duplicates_list_from_start (up2_function up2_fun, uintL bvl)
+  local maygc Values delete_duplicates_list_from_start (up2_function up2_fun, uintV bvl)
   {
     var gcv_object_t* stackptr = &STACK_(6+2);
     pushSTACK(STACK_(6+2)); # result := sequence
@@ -2963,7 +2967,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
     #   sequence [stackptr], from-end, start, end, key, test, test-not,
     #   typdescr, l, result, pointer1, lastpointer1.
     # pointer1 goes from left to right (from start to end).
-    var uintL l1 = bvl;
+    var uintV l1 = bvl;
     for (; l1 > 1; l1--) {
       # Fetch next element:
       pushSTACK(STACK_(6+5)); # sequence
@@ -2982,7 +2986,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       #   sequence [stackptr], from-end, start, end, key, test, test-not,
       #   typdescr, l, result, pointer1, lastpointer1,
       #   item1, pointer2.
-      var uintL l2 = l1-1;
+      var uintV l2 = l1-1;
       do {
         # pointer2 := (SEQ-UPD sequence pointer2) :
         STACK_0 = Cdr(STACK_0);
@@ -3032,7 +3036,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > bvl: = end - start
 # < mv_space/mv_count: values
 # can trigger GC
-  local maygc Values delete_duplicates_list_from_end (up2_function up2_fun, uintL bvl)
+  local maygc Values delete_duplicates_list_from_end (up2_function up2_fun, uintV bvl)
   {
     var gcv_object_t* stackptr = &STACK_(6+2);
     pushSTACK(STACK_(6+2)); # sequence
@@ -3043,7 +3047,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
     #   sequence [stackptr], from-end, start, end, key, test, test-not,
     #   typdescr, l, pointer1.
     # pointer1 goes from left to right (from start to end).
-    var uintL l1 = bvl;
+    var uintV l1 = bvl;
     for (; l1 > 1; l1--) {
       # Fetch next element:
       pushSTACK(STACK_(6+3)); # sequence
@@ -3066,7 +3070,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       #   item1, pointer2, lastpointer2.
       # pointer2 := (SEQ-UPD sequence pointer2) :
       STACK_1 = Cdr(STACK_1);
-      var uintL l2 = l1-1;
+      var uintV l2 = l1-1;
       do {
         pushSTACK(STACK_(6+3+3)); # sequence
         pushSTACK(STACK_(1+1)); # pointer2
@@ -3155,7 +3159,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
     }
     # Now all arguments are checked.
-    var uintL bvl; # Bitvektor-Länge
+    var uintV bvl; # Bitvektor-Länge
     # (- end start) bestimmen:
     {
       var object size = I_I_minus_I(STACK_(3+2),STACK_(4+2));
@@ -3164,9 +3168,9 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         pushSTACK(*(stackptr STACKop 0)); # sequence
         fehler(error,GETTEXT("too long sequence ~S"));
       }
-      bvl = posfixnum_to_L(size);
+      bvl = posfixnum_to_V(size);
     }
-    var uintL dl = 0; # Anzahl der im Bitvektor gesetzten Bits
+    var uintV dl = 0; # Anzahl der im Bitvektor gesetzten Bits
     # Bei :test #'eq/eql/equal und großer Länge verwende Hashtabelle:
     if (bvl < 10)
       goto standard;
@@ -3204,7 +3208,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         #   pointer1.
         # pointer1 läuft von links nach rechts (von start bis end).
         {
-          var uintL bvi1 = 0; # Schleife bvl mal durchlaufen
+          var uintV bvi1 = 0; # Schleife bvl mal durchlaufen
           until (bvi1==bvl) {
             if (!(sbvector_btst(STACK_(0+1),bvi1))) { # (sbit bv bvi1) abfragen
               # falls Bit=0: dieses Element ist noch nicht gestrichen ->
@@ -3233,7 +3237,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
               #   pointer1, item1, pointer2.
               # pointer2 läuft von pointer1 nach rechts.
               {
-                var uintL bvi2 = bvi1+1; # bvi2 := bvi1+1
+                var uintV bvi2 = bvi1+1; # bvi2 := bvi1+1
                 until (bvi2==bvl) {
                   if (!(sbvector_btst(STACK_(0+3),bvi2))) { # (sbit bv bvi2) abfragen
                     # falls Bit=0: dieses Element ist auch noch nicht gestrichen.
@@ -3303,7 +3307,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         #   pointer0, pointer2.
         # pointer2 läuft von links nach rechts (von start bis end).
         {
-          var uintL bvi2 = 0; # Schleife bvl mal durchlaufen
+          var uintV bvi2 = 0; # Schleife bvl mal durchlaufen
           until (bvi2==bvl) {
             if (!(sbvector_btst(STACK_(0+2),bvi2))) { # (sbit bv bvi2) abfragen
               # falls Bit=0: dieses Element ist noch nicht gestrichen ->
@@ -3330,7 +3334,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
               #   pointer0, pointer2, item2, pointer1.
               # pointer1 läuft von links bis pointer2.
               {
-                var uintL bvi1 = 0; # bvi1 := 0
+                var uintV bvi1 = 0; # bvi1 := 0
                 until (bvi1==bvi2) {
                   if (!(sbvector_btst(STACK_(0+4),bvi1))) { # (sbit bv bvi1) abfragen
                     # falls Bit=0: dieses Element ist auch noch nicht gestrichen.
@@ -3392,7 +3396,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       if (!(nullp(STACK_(5+3+2)))) { # from-end abfragen
         # from-end ist angegeben
         # pointer läuft von links nach rechts (von start bis end).
-        var uintL bvi = 0; # Schleife bvl mal durchlaufen
+        var uintV bvi = 0; # Schleife bvl mal durchlaufen
         until (bvi==bvl) {
           {
             pushSTACK(STACK_(6+3+2)); # sequence
@@ -3417,7 +3421,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       } else {
         # from-end ist nicht angegeben
         # pointer läuft von links nach rechts (von start bis end).
-        var uintL bvi = 0; # Schleife bvl mal durchlaufen
+        var uintV bvi = 0; # Schleife bvl mal durchlaufen
         until (bvi==bvl) {
           {
             pushSTACK(STACK_(6+3+2)); # sequence
@@ -3431,7 +3435,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
             var object old_value = shifthash(STACK_1,value1,fixnum(bvi),true);
             if (!nullp(old_value)) {
               # item war schon in ht -> wird an der vorigen Position gestrichen
-              var uintL i = posfixnum_to_L(old_value);
+              var uintV i = posfixnum_to_V(old_value);
               sbvector_bset(STACK_(0+2),i); # (setf (sbit bv i) 1)
               dl = dl+1; # dl:=dl+1
             }
@@ -3478,7 +3482,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local maygc object substitute_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
+  local maygc object substitute_help (gcv_object_t* stackptr, uintV bvl, uintV dl)
   {
     # dl=0 -> sequence unverändert zurückgeben:
     if (dl==0)
@@ -3494,8 +3498,8 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
         #              L1, L2.
         # Erste start Conses kopieren:
         {
-          var uintL count = posfixnum_to_L(*(stackptr STACKop -2)); # 0 <= start <= l ==> start ist Fixnum
-          dotimesL(count,count, {
+          var uintV count = posfixnum_to_V(*(stackptr STACKop -2)); # 0 <= start <= l ==> start ist Fixnum
+          dotimesV(count,count, {
             # Hier gilt (revappend L1 L2) = sequence
             var object new_cons = allocate_cons();
             var object L2 = STACK_0;
@@ -3509,7 +3513,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
         {
           var object bv = STACK_(0+2);
           loop {
-            var uintL bvl_1 = bvl-1;
+            var uintV bvl_1 = bvl-1;
             if (sbvector_btst(bv,bvl_1)) # Bit bvl-1 abfragen
               break;
             bvl = bvl_1; # Bit =0 -> bvl erniedrigen und weitersuchen
@@ -3517,7 +3521,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
         }
         # Teilabschnitt kopieren bzw. mit newitem füllen:
         {
-          var uintL bvi = 0; # bvi := 0
+          var uintV bvi = 0; # bvi := 0
           until (bvi==bvl) { # Schleife bvl mal durchlaufen
             if (sbvector_btst(STACK_(0+2),bvi)) { # (sbit bv bvi) abfragen
               # Bit =1 -> newitem nehmen
@@ -3569,7 +3573,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
     }
     {
       # Mittleres Teilstück:
-      var uintL bvi = 0;
+      var uintV bvi = 0;
       until (bvi==bvl) {
         var object item; # zu übernehmendes Element
         if (sbvector_btst(STACK_(1+5+2),bvi)) { # (sbit bv bvi) abfragen
@@ -3629,7 +3633,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
       pushSTACK(STACK_(1+4)); # countdown := count
       # Stack layout: ..., count, typdescr,
       #               l, result1, result2, pointer, countdown [STACK].
-      var uintL bvl; # length of relevant portion
+      var uintV bvl; # length of relevant portion
       {
         var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
         # bvsize = (- end start), an integer >=0
@@ -3638,7 +3642,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,GETTEXT("~S: sequence ~S is too long"));
         }
-        bvl = posfixnum_to_L(bvsize);
+        bvl = posfixnum_to_V(bvsize);
       }
       for (; bvl > 0; bvl--) {
         if (!nullp(STACK_(1+5)) && eq(STACK_0,Fixnum_0))
@@ -3725,7 +3729,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local maygc object nsubstitute_fe_help (gcv_object_t* stackptr, uintL bvl, uintL dl)
+  local maygc object nsubstitute_fe_help (gcv_object_t* stackptr, uintV bvl, uintV dl)
   {
     {
       pushSTACK(*(stackptr STACKop 0)); # sequence
@@ -3736,7 +3740,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
     # Stackaufbau: ..., typdescr, l, bv,
     #                   pointer.
     {
-      var uintL bvi = 0; # bvi := 0
+      var uintV bvi = 0; # bvi := 0
       until (bvi==bvl) { # Schleife bvl mal durchlaufen
         if (sbvector_btst(STACK_(0+1),bvi)) { # (sbit bv bvi) abfragen
           # Bit =1 -> ersetze Element durch newitem:
@@ -5022,8 +5026,8 @@ LISPFUN(read_char_sequence,seclass_default,2,0,norest,key,2,
     # start- und end-Argumente überprüfen:
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),S(string))) { # Typname = STRING ?
-      var uintL start = posfixnum_to_L(STACK_2);
-      var uintL end = posfixnum_to_L(STACK_1);
+      var uintV start = posfixnum_to_V(STACK_2);
+      var uintV end = posfixnum_to_V(STACK_1);
       if (end-start == 0) {
         VALUES1(Fixnum_0); skipSTACK(5); return;
       }
@@ -5072,9 +5076,9 @@ LISPFUN(write_char_sequence,seclass_default,2,0,norest,key,2,
     # start- und end-Argumente überprüfen:
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),S(string))) { # Typname = STRING ?
-      var uintL start = posfixnum_to_L(STACK_2);
-      var uintL end = posfixnum_to_L(STACK_1);
-      var uintL len = end-start;
+      var uintV start = posfixnum_to_V(STACK_2);
+      var uintV end = posfixnum_to_V(STACK_1);
+      var uintV len = end-start;
       if (len > 0) {
         var uintL index = 0;
         STACK_0 = array_displace_check(STACK_4,end,&index);
@@ -5120,8 +5124,8 @@ LISPFUN(read_byte_sequence,seclass_default,2,0,norest,key,4,
   test_start_end(&O(kwpair_start),&STACK_1); /* check start and end */
   if (eq(seq_type(STACK_0),fixnum(8))) {
     /* type = (VECTOR (UNSIGNED-BYTE 8)) ? */
-    var uintL start = posfixnum_to_L(STACK_2);
-    var uintL end = posfixnum_to_L(STACK_1);
+    var uintV start = posfixnum_to_V(STACK_2);
+    var uintV end = posfixnum_to_V(STACK_1);
     var uintL index = 0;
     STACK_0 = array_displace_check(STACK_4,end,&index);
     var uintL result =
@@ -5174,8 +5178,8 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,4,
   test_start_end(&O(kwpair_start),&STACK_1); /* check start and end */
   if (eq(seq_type(STACK_0),fixnum(8))) {
     /* type = (VECTOR (UNSIGNED-BYTE 8)) ? */
-    var uintL start = posfixnum_to_L(STACK_2);
-    var uintL end = posfixnum_to_L(STACK_1);
+    var uintV start = posfixnum_to_V(STACK_2);
+    var uintV end = posfixnum_to_V(STACK_1);
     var uintL index = 0;
     STACK_0 = array_displace_check(STACK_4,end,&index);
     var uintL result =
@@ -5184,7 +5188,7 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,4,
     skipSTACK(4);
     VALUES2(popSTACK(),fixnum(start+result));
   } else {
-    var uintL end = posfixnum_to_L(STACK_1);
+    var uintV end = posfixnum_to_V(STACK_1);
     /* subtract start and end: */
     STACK_1 = I_I_minus_I(STACK_1,STACK_2); /* (- end start), an integer >=0 */
     /* stack layout: sequence, item, start, count, typdescr. */

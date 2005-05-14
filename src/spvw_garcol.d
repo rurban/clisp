@@ -1342,29 +1342,29 @@ local void gc_markphase (void)
   # relocation of an object of variable length, advance p1 and p2:
   # move_aligned_p1_p2(count);
   #if (varobject_alignment==1)
-    #define uintV  uintB
+    #define uintVLA  uintB
   #elif (varobject_alignment==2)
-    #define uintV  uintW
+    #define uintVLA  uintW
   #elif (varobject_alignment==4)
-    #define uintV  uintL
+    #define uintVLA  uintL
   #elif (varobject_alignment==8)
-    #define uintV  uintL2
+    #define uintVLA  uintL2
   #else
     #error "Unbekannter Wert von 'varobject_alignment'!"
   #endif
   #if defined(GNU) && (__GNUC__ < 3) && !defined(__cplusplus) # better for optimization
     #if defined(fast_dotimesL) && (intMsize==intLsize)
       #define move_aligned_p1_p2(count)  \
-        dotimespL(count,count/varobject_alignment, *((uintV*)p2)++ = *((uintV*)p1)++; )
+        dotimespL(count,count/varobject_alignment, *((uintVLA*)p2)++ = *((uintVLA*)p1)++; )
     #else
       #define move_aligned_p1_p2(count)  \
-        do { *((uintV*)p2)++ = *((uintV*)p1)++; count -= varobject_alignment; } until (count==0)
+        do { *((uintVLA*)p2)++ = *((uintVLA*)p1)++; count -= varobject_alignment; } until (count==0)
     #endif
   #else # other compilers do not accept ((type*)p)++ .
     # how efficient is this here??
     #define move_aligned_p1_p2(count)  \
       do {                                                    \
-        *(uintV*)p2 = *(uintV*)p1;                            \
+        *(uintVLA*)p2 = *(uintVLA*)p1;                        \
         p1 += varobject_alignment; p2 += varobject_alignment; \
         count -= varobject_alignment;                         \
       } until (count==0)

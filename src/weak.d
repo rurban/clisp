@@ -147,7 +147,7 @@ local inline maygc object check_weaklist (object obj) {
 LISPFUNNR(weak_list_list,1) {
   var object mwl = STACK_0 = check_weaklist(STACK_0);
   var object wl = TheMutableWeakList(mwl)->mwl_list;
-  var uintL len = posfixnum_to_L(TheWeakList(wl)->wl_count);
+  var uintL len = posfixnum_to_V(TheWeakList(wl)->wl_count);
   # Allocate result list.
   pushSTACK(NIL);
   var object result = make_list(len);
@@ -155,7 +155,7 @@ LISPFUNNR(weak_list_list,1) {
   # Fetch mwl, wl, len again.
   mwl = popSTACK();
   wl = TheMutableWeakList(mwl)->mwl_list;
-  var uintL newlen = posfixnum_to_L(TheWeakList(wl)->wl_count);
+  var uintL newlen = posfixnum_to_V(TheWeakList(wl)->wl_count);
   # The weak list may have shrunk during the allocation of the result.
   ASSERT(newlen <= len);
   for (; len > newlen; len--)
@@ -758,7 +758,7 @@ LISPFUNNR(weak_alist_type,1) {
 LISPFUNNR(weak_alist_contents,1) {
   var object mwal = STACK_0 = check_weakalist(STACK_0);
   var object wal = TheMutableWeakAlist(mwal)->mwal_list;
-  var uintL len = posfixnum_to_L(TheWeakAlist(wal)->wal_count);
+  var uintL len = posfixnum_to_V(TheWeakAlist(wal)->wal_count);
   # Allocate result list.
   pushSTACK(NIL);
   var object result = make_list(2*len);
@@ -766,7 +766,7 @@ LISPFUNNR(weak_alist_contents,1) {
   # Fetch mwal, wal, len again.
   mwal = popSTACK();
   wal = TheMutableWeakAlist(mwal)->mwal_list;
-  var uintL newlen = posfixnum_to_L(TheWeakAlist(wal)->wal_count);
+  var uintL newlen = posfixnum_to_V(TheWeakAlist(wal)->wal_count);
   # The weak alist may have shrunk during the allocation of the result.
   ASSERT(newlen <= len);
   for (; len > newlen; len--)
@@ -1111,7 +1111,7 @@ LISPFUN(set_weak_alist_value,seclass_default,3,0,norest,key,2,
       activate_weak(wal); /* add to O(all_weakpointers) if needed */
     #endif
   } else {
-    var uintL count = posfixnum_to_L(TheWeakAlist(wal)->wal_count);
+    var uintL count = posfixnum_to_V(TheWeakAlist(wal)->wal_count);
     if (count < maxlen) {
       # There is room in wal, but not at the end. We have to compact it first,
       # before we can append a new pair.

@@ -929,7 +929,7 @@ local bool hash_table_equalp (object ht1, object ht2)
     return false;
   /* have to traverse keys */
   { # Look whether ht1 is contained in ht2.
-    var uintL index = posfixnum_to_L(TheHashtable(ht1)->ht_maxcount);
+    var uintL index = posfixnum_to_V(TheHashtable(ht1)->ht_maxcount);
     var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht1)->ht_kvtable)->hal_data;
     for (; index > 0; KVptr += 3, index--)
       if (!eq(KVptr[0],unbound)) {
@@ -939,7 +939,7 @@ local bool hash_table_equalp (object ht1, object ht2)
       }
   }
   { # Look whether ht2 is contained in ht1.
-    var uintL index = posfixnum_to_L(TheHashtable(ht2)->ht_maxcount);
+    var uintL index = posfixnum_to_V(TheHashtable(ht2)->ht_maxcount);
     var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht2)->ht_kvtable)->hal_data;
     for (; index > 0; KVptr += 3, index--)
       if (!eq(KVptr[0],unbound)) {
@@ -2170,9 +2170,10 @@ global bool typep_classname (object obj, object classname) {
  < result: the expansion (when not a deftyped type, returns the argument)
  can trigger GC */
 global maygc object expand_deftype (object type_spec, bool once_p) {
-  var uintL max_depth = posfixnump(Symbol_value(S(deftype_depth_limit))) ?
-    posfixnum_to_L(Symbol_value(S(deftype_depth_limit))) :
-    posfixnum_to_L(Symbol_value(S(most_positive_fixnum)));
+  var uintV max_depth =
+    (posfixnump(Symbol_value(S(deftype_depth_limit)))
+     ? posfixnum_to_V(Symbol_value(S(deftype_depth_limit)))
+     : posfixnum_to_V(Symbol_value(S(most_positive_fixnum))));
   pushSTACK(type_spec);
  start:
   if (max_depth > 0) max_depth--;
@@ -2683,7 +2684,7 @@ typedef struct {
 /* Initialize a hs_locals_t.
    NB: This does stack allocation on the caller's stack. */
 #define init_hs_locals(locals)  \
-  var DYNAMIC_ARRAY(free_room,NODE, (locals.structure_classes.free_count = posfixnum_to_L(O(structure_class_count_max))) + (locals.standard_classes.free_count = posfixnum_to_L(O(standard_class_count_max)))); \
+  var DYNAMIC_ARRAY(free_room,NODE, (locals.structure_classes.free_count = posfixnum_to_V(O(structure_class_count_max))) + (locals.standard_classes.free_count = posfixnum_to_V(O(standard_class_count_max)))); \
   init_hs_locals_rest(&locals,free_room);
 #define done_hs_locals(locals)  \
   FREE_DYNAMIC_ARRAY(free_room);
@@ -3165,7 +3166,7 @@ global void with_gc_statistics (gc_function_t* fun) {
     dynamic_bind(S(recurse_count_gc_statistics),fixnum_inc(Symbol_value(S(recurse_count_gc_statistics)),1)); /* increase sys::*recurse-count-gc-statistics* */
     if (!posfixnump(Symbol_value(S(recurse_count_gc_statistics)))) /* should be a Fixnum >=0 */
       Symbol_value(S(recurse_count_gc_statistics)) = Fixnum_0; /* otherwise emergency correction */
-    if (posfixnum_to_L(Symbol_value(S(recurse_count_gc_statistics))) > 3) {
+    if (posfixnum_to_V(Symbol_value(S(recurse_count_gc_statistics))) > 3) {
       /* recursion depth too big. */
       danger = true;
       dynamic_bind(S(gc_statistics_stern),Fixnum_0);

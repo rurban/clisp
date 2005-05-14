@@ -124,7 +124,7 @@ local maygc void newinsert (object sym, uintL size) {
 
 local object rehash_symtab (object symtab) {
   pushSTACK(symtab); /* save symbol-table */
-  var uintL oldsize = posfixnum_to_L(Symtab_size(symtab)); /* old size */
+  var uintL oldsize = posfixnum_to_V(Symtab_size(symtab)); /* old size */
   var uintL newsize; /* new size */
   var object size; /* new size (as Fixnum) */
   pushSTACK(Symtab_table(symtab)); /* oldtable = old table-vector */
@@ -219,7 +219,7 @@ local object rehash_symtab (object symtab) {
    < sym: the symbol from the symbol-table, that has the given printname */
 local bool symtab_lookup (object string, bool invert, object symtab, object* sym_) {
   var uintL index = /* Index = Hashcode mod size */
-    string_hashcode(string,invert) % posfixnum_to_L(Symtab_size(symtab));
+    string_hashcode(string,invert) % (uintL)posfixnum_to_V(Symtab_size(symtab));
   /* entry in the table */
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!listp(entry)) { /* entry is a single symbol */
@@ -253,7 +253,7 @@ local bool symtab_lookup (object string, bool invert, object symtab, object* sym
  < result: true, if found */
 local bool symtab_find (object sym, object symtab) {
   var uintL index = /* Index = Hashcode mod size */
-    string_hashcode(Symbol_name(sym),false) % posfixnum_to_L(Symtab_size(symtab));
+    string_hashcode(Symbol_name(sym),false) % (uintL)posfixnum_to_V(Symtab_size(symtab));
   /* entry in the table */
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!listp(entry)) { /* entry is a single symbol */
@@ -277,8 +277,8 @@ local bool symtab_find (object sym, object symtab) {
  can trigger GC */
 local maygc object symtab_insert (object sym, object symtab) {
   { /* first test if reorganization is necessary: */
-    var uintL size = posfixnum_to_L(Symtab_size(symtab));
-    var uintL count = posfixnum_to_L(Symtab_count(symtab));
+    var uintL size = posfixnum_to_V(Symtab_size(symtab));
+    var uintL count = posfixnum_to_V(Symtab_count(symtab));
     /* if count>=2*size , the table must be reorganized: */
     if (count >= 2*size) {
       pushSTACK(sym); /* save symbol */
@@ -288,7 +288,7 @@ local maygc object symtab_insert (object sym, object symtab) {
   }
   /* then insert the symbol: */
   var uintL index = /* Index = Hashcode mod size */
-    string_hashcode(Symbol_name(sym),false) % posfixnum_to_L(Symtab_size(symtab));
+    string_hashcode(Symbol_name(sym),false) % (uintL)posfixnum_to_V(Symtab_size(symtab));
   /* entry in the table */
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!nullp(entry) || nullp(sym)) {
@@ -322,7 +322,7 @@ local maygc object symtab_insert (object sym, object symtab) {
  > symtab: symboltable */
 local void symtab_delete (object sym, object symtab) {
   var uintL index = /* Index = Hashcode mod size */
-    string_hashcode(Symbol_name(sym),false) % posfixnum_to_L(Symtab_size(symtab));
+    string_hashcode(Symbol_name(sym),false) % (uintL)posfixnum_to_V(Symtab_size(symtab));
   var gcv_object_t* entryptr = &TheSvector(Symtab_table(symtab))->data[index];
   var object entry = *entryptr; /* entry in the table */
   if (!listp(entry)) { /* entry is a single symbol */
@@ -1320,7 +1320,7 @@ local maygc void map_symtab (object fun, object symtab) {
   pushSTACK(fun); /* function */
   pushSTACK(Symtab_table(symtab)); /* table vector */
   /* number of entries */
-  var uintL size = posfixnum_to_L(Symtab_size(symtab));
+  var uintL size = posfixnum_to_V(Symtab_size(symtab));
   var gcv_object_t* offset = 0; /* offset = sizeof(gcv_object_t)*index */
   var uintC count;
   dotimespC(count,size, {
@@ -1359,7 +1359,7 @@ typedef maygc void one_sym_function_t (void* data, object sym);
 local maygc void map_symtab_c (one_sym_function_t* fun, void* data, object symtab) {
   pushSTACK(Symtab_table(symtab)); /* table vector */
   /* number of entries */
-  var uintL size = posfixnum_to_L(Symtab_size(symtab));
+  var uintL size = posfixnum_to_V(Symtab_size(symtab));
   var gcv_object_t* offset = 0; /* offset = sizeof(gcv_object_t)*index */
   var uintC count;
   dotimespC(count,size, {
@@ -2775,13 +2775,13 @@ LISPFUNN(package_iterate,1) {
         }
         /* entry became =NIL -> go to next Index */
         {
-          var uintL index = posfixnum_to_L(TheSvector(state)->data[1]);
+          var uintL index = posfixnum_to_V(TheSvector(state)->data[1]);
           if (index > 0) {
             TheSvector(state)->data[1] = fixnum_inc(TheSvector(state)->
                                                     data[1],-1);
             index--;
             /* check index as a precaution */
-            entry = (index < posfixnum_to_L(Symtab_size(symtab))
+            entry = (index < (uintL)posfixnum_to_V(Symtab_size(symtab))
                      ? (object)TheSvector(Symtab_table(symtab))->data[index]
                      : NIL);
             goto search3;

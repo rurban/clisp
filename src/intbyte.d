@@ -55,30 +55,30 @@
       fehler_byte(obj);
   }
 
-# Byte_to_L_L(byte, size=,position=); wandelt das Byte byte (eine Variable)
+# Byte_to_V_V(byte, size=,position=); wandelt das Byte byte (eine Variable)
 # um in size und position, beides uintL >=0, <2^oint_data_len.
-  #define Byte_to_L_L(byte, size_zuweisung,position_zuweisung)  \
-    {                                                           \
-      if bytep(byte) {                                          \
-        size_zuweisung posfixnum_to_L(TheByte(byte)->byte_size); \
-        position_zuweisung posfixnum_to_L(TheByte(byte)->byte_position); \
-      } else                                                    \
-        fehler_byte(byte);                                      \
+  #define Byte_to_V_V(byte, size_zuweisung,position_zuweisung)           \
+    {                                                                    \
+      if (bytep(byte)) {                                                 \
+        size_zuweisung posfixnum_to_V(TheByte(byte)->byte_size);         \
+        position_zuweisung posfixnum_to_V(TheByte(byte)->byte_position); \
+      } else                                                             \
+        fehler_byte(byte);                                               \
     }
 
 # fullbyte_I(p,q) liefert zu p,q die Zahl 2^q-2^p als Integer,
-# wobei p und q uintL sind. Bei p<=q ist das Ergebnis also
+# wobei p und q uintV sind. Bei p<=q ist das Ergebnis also
 # ein Integer >=0, bei dem genau die Bits p,...,q-1 gesetzt sind.
 # can trigger GC
-  local maygc object fullbyte_I (uintL p, uintL q)
+  local maygc object fullbyte_I (uintV p, uintV q)
   {
     if (p==q)
       return Fixnum_0; # p=q -> 0 als Ergebnis
     else {
-      var object Iq = UL_to_I(q); # q als Integer >=0
+      var object Iq = UV_to_I(q); # q als Integer >=0
       var object I2q = I_I_ash_I(Fixnum_1,Iq); # 2^q als Integer
       pushSTACK(I2q); # retten
-      var object Ip = UL_to_I(p); # p als Integer >=0
+      var object Ip = UV_to_I(p); # p als Integer >=0
       var object I2p = I_I_ash_I(Fixnum_minus1,Ip); # - 2^p als Integer
       I2q = popSTACK();
       return I_I_plus_I(I2p,I2q); # 2^q und -2^p addieren
@@ -158,10 +158,10 @@
     #   q:=min(p+s,l).
     #   Extrahiere die Bits p,...,q-1 von n.
     #   Falls p+s>l und n<0, füge p+s-l Einsenbits an (addiere 2^s-2^(l-p)).
-    var uintL s;
-    var uintL p;
+    var uintV s;
+    var uintV p;
     var uintL l;
-    Byte_to_L_L(b, s=,p=); # size s und position p bestimmen
+    Byte_to_V_V(b, s=,p=); # size s und position p bestimmen
     l = I_integer_length(n); # l = (integer-length n)
     if (l<=p) {
       # l<=p
@@ -176,7 +176,7 @@
       var object erg;
       pushSTACK(n); # n retten
       {
-        var uintL ps = p+s;
+        var uintV ps = p+s;
         # Bits p,...,q-1 mit q = min(p+s,l) extrahieren:
         erg = ldb_extract(n,p,(ps<l ? ps : l));
         n = popSTACK(); # n zurück
@@ -263,10 +263,10 @@
     #                       und bei n<0 sind Bits p+s-1..l =1.
     #     Falls p+s<=l,
     #       extrahiere die Bits p,...,p+s-1 von n und teste sie.
-    var uintL s;
-    var uintL p;
+    var uintV s;
+    var uintV p;
     var uintL l;
-    Byte_to_L_L(b, s=,p=); # size s und position p bestimmen
+    Byte_to_V_V(b, s=,p=); # size s und position p bestimmen
     if (s==0)
       return false;
     l = I_integer_length(n); # l = (integer-length n)
@@ -278,7 +278,7 @@
         return true; # n<0
     } else {
       # l>p
-      var uintL ps = p+s;
+      var uintV ps = p+s;
       if (ps>l) # p+s>l ?
         return true;
       # Bits p,...,q-1 mit q = min(p+s,l) = p+s extrahieren und testen:
@@ -350,11 +350,11 @@
     #   q:=min(p+s,l).
     #   Extrahiere die Bits p,...,q-1 von n.
     #   Falls p+s>l und n<0, füge p+s-l Einsenbits an (addiere 2^(p+s)-2^l).
-    var uintL s;
-    var uintL p;
+    var uintV s;
+    var uintV p;
     var uintL l;
-    Byte_to_L_L(b, s=,p=); # size s und position p bestimmen
-    var uintL ps = p+s;
+    Byte_to_V_V(b, s=,p=); # size s und position p bestimmen
+    var uintV ps = p+s;
     l = I_integer_length(n); # l = (integer-length n)
     if (l<=p) {
       # l<=p

@@ -256,10 +256,10 @@
     if (eq(x,Fixnum_0))
       return Fixnum_0;
     if (I_fixnump(x)) {
-      var sint32 x_ = FN_to_L(x);
-      #if (oint_data_len+1 > intLsize)
+      var sintV x_ = FN_to_V(x);
+      #if (oint_data_len+1 > 32)
       # nur falls x ein Integer mit höchstens 32 Bit ist:
-      if (((sint32)FN_sign(x) ^ x_) >= 0)
+      if ((uintV)((sintV)FN_sign(x) ^ x_) < vbit(31))
       #endif
         {
           # Wert direkt quadrieren:
@@ -722,11 +722,12 @@
     if (eq(x,Fixnum_0) || eq(y,Fixnum_0))
       return Fixnum_0;
     if (I_fixnump(x) && I_fixnump(y)) {
-      var sint32 x_ = FN_to_L(x);
-      var sint32 y_ = FN_to_L(y);
-      #if (oint_data_len+1 > intLsize)
+      var sintV x_ = FN_to_V(x);
+      var sintV y_ = FN_to_V(y);
+      #if (oint_data_len+1 > 32)
       # nur falls x und y Integers mit höchstens 32 Bit sind:
-      if ((((sint32)FN_sign(x) ^ x_) >= 0) && (((sint32)FN_sign(y) ^ y_) >= 0))
+      if (((uintV)((sintV)FN_sign(x) ^ x_) < vbit(31))
+          && ((uintV)((sintV)FN_sign(y) ^ y_) < vbit(31)))
       #endif
         {
           # Werte direkt multiplizieren:
@@ -833,9 +834,9 @@
   local maygc object FN_fak_I (object n);
   # UP für Fakultät:
   # Bilde das Produkt prod(a < i <= b, 2*i+1), wobei 0 <= a < b klein.
-    local object prod_ungerade (uintL a, uintL b)
+    local object prod_ungerade (uintV a, uintV b)
     {
-      var uintL diff = b-a; # Anzahl der Faktoren
+      var uintV diff = b-a; # Anzahl der Faktoren
       if (diff <= 4) {
         # Produkt iterativ bilden
         var object faktor = fixnum(2*b+1); # 2*b+1 als letzter Faktor
@@ -848,7 +849,7 @@
         return produkt;
       } else {
         # Produkt rekursiv bilden
-        var uintL c = floor(a+b,2); # c:=floor((a+b)/2)
+        var uintV c = floor(a+b,2); # c:=floor((a+b)/2)
         var object teil = prod_ungerade(a,c); # erstes Teilprodukt
         pushSTACK(teil);
         teil = prod_ungerade(c,b); # zweites Teilprodukt
@@ -857,7 +858,7 @@
     }
   local maygc object FN_fak_I (object n)
   {
-    local var const uintL fakul_table [] = {
+    local var const uintV fakul_table [] = {
       1UL,
       1UL,
       1UL*2,
@@ -882,6 +883,22 @@
       #if (oint_data_len>=29)
       1UL*2*3*4*5*6*7*8*9*10*11*12,
       #if (oint_data_len>=33)
+      1ULL*2*3*4*5*6*7*8*9*10*11*12*13,
+      #if (oint_data_len>=37)
+      1ULL*2*3*4*5*6*7*8*9*10*11*12*13*14,
+      #if (oint_data_len>=41)
+      1ULL*2*3*4*5*6*7*8*9*10*11*12*13*14*15,
+      #if (oint_data_len>=45)
+      1ULL*2*3*4*5*6*7*8*9*10*11*12*13*14*15*16,
+      #if (oint_data_len>=49)
+      1ULL*2*3*4*5*6*7*8*9*10*11*12*13*14*15*16*17,
+      #if (oint_data_len>=53)
+      1ULL*2*3*4*5*6*7*8*9*10*11*12*13*14*15*16*17*18,
+      #if (oint_data_len>=57)
+      1ULL*2*3*4*5*6*7*8*9*10*11*12*13*14*15*16*17*18*19,
+      #if (oint_data_len>=62)
+      1ULL*2*3*4*5*6*7*8*9*10*11*12*13*14*15*16*17*18*19*20,
+      #if (oint_data_len>=66)
       ...
       #endif
       #endif
@@ -894,8 +911,16 @@
       #endif
       #endif
       #endif
+      #endif
+      #endif
+      #endif
+      #endif
+      #endif
+      #endif
+      #endif
+      #endif
       };
-    var uintL n_ = posfixnum_to_L(n);
+    var uintV n_ = posfixnum_to_V(n);
     if (n_ < sizeof(fakul_table)/sizeof(uintL)) {
       return fixnum(fakul_table[n_]);
     } else {
@@ -912,10 +937,10 @@
         #       = prod(floor((A-1)/2) < i <= floor((B-1)/2), 2*i+1)
         # wobei B = floor(n/2^(k-1)), A = floor(n/2^k) = floor(B/2).
         {
-          var uintL b = floor(posfixnum_to_L(STACK_0)-1,2);
+          var uintV b = floor(posfixnum_to_V(STACK_0)-1,2);
           if (b==0) # B=2 oder B=1 -> Produkt fertig
             break;
-          var uintL a = floor(posfixnum_to_L(n)-1,2);
+          var uintV a = floor(posfixnum_to_V(n)-1,2);
           pushSTACK(n);
           var object temp = prod_ungerade(a,b);
           temp = I_I_expt_I(temp,STACK_2); # hoch k nehmen

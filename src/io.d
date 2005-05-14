@@ -157,7 +157,7 @@ local object allocate_syntax_table (void) {
 local uintB syntax_table_get_notinline (object table, chart c) {
   var object val = gethash(code_char(c),Cdr(table),false);
   if (!eq(val,nullobj))
-    return posfixnum_to_L(val);
+    return posfixnum_to_V(val);
   else
     return (graphic_char_p(c) ? syntax_constituent : syntax_illegal);
 }
@@ -675,7 +675,7 @@ LISPFUN(set_macro_character,seclass_default,2,2,norest,nokey,0,NIL)
         && eq(TheCclosure(function)->clos_codevec,
               TheCclosure(O(dispatch_reader))->clos_codevec)) {
       var object vector =
-        ((Srecord)TheCclosure(function))->recdata[posfixnum_to_L(O(dispatch_reader_index))];
+        ((Srecord)TheCclosure(function))->recdata[posfixnum_to_V(O(dispatch_reader_index))];
       if (simple_vector_p(vector)) {
         # It's a clone of #'dispatch-reader. Pull out the vector.
         function = copy_perchar_table(vector);
@@ -719,7 +719,7 @@ LISPFUN(get_macro_character,seclass_read,1,1,norest,nokey,0,NIL)
         pushSTACK(copy_perchar_table(entry));
         var object newclos = allocate_cclosure_copy(O(dispatch_reader));
         do_cclosure_copy(newclos,O(dispatch_reader));
-        ((Srecord)TheCclosure(newclos))->recdata[posfixnum_to_L(O(dispatch_reader_index))] = popSTACK();
+        ((Srecord)TheCclosure(newclos))->recdata[posfixnum_to_V(O(dispatch_reader_index))] = popSTACK();
         value1 = newclos;
       } else
         value1 = entry;
@@ -807,7 +807,7 @@ LISPFUN(get_dispatch_macro_character,seclass_read,2,1,norest,nokey,0,NIL)
   skipSTACK(3);
 }
 
-#define RTCase(rt) ((uintW)posfixnum_to_L(TheReadtable(rt)->readtable_case))
+#define RTCase(rt) ((uintW)posfixnum_to_V(TheReadtable(rt)->readtable_case))
 
 LISPFUNN(readtable_case,1)
 { /* (READTABLE-CASE readtable), CLTL2 S. 549 */
@@ -855,9 +855,9 @@ LISPFUNN(set_readtable_case,2)
 # < result: value of the Symbols, >=2, <=36.
 local uintL get_base (object symbol) {
   var object value = Symbol_value(symbol);
-  var uintL wert;
+  var uintV wert;
   if (posfixnump(value)
-      && (wert = posfixnum_to_L(value), ((wert >= 2) && (wert <= 36)))) {
+      && (wert = posfixnum_to_V(value), ((wert >= 2) && (wert <= 36)))) {
     return wert;
   } else {
     Symbol_value(symbol) = fixnum(10);
@@ -3070,10 +3070,10 @@ LISPFUNN(radix_reader,3) { # reads #R
     fehler(reader_error,
            GETTEXT("~S from ~S: the number base must be given between #"" and R"));
   }
-  var uintL base;
+  var uintV base;
   # n must be a Fixnum between 2 and 36 (inclusive):
   if (posfixnump(STACK_0)
-      && (base = posfixnum_to_L(STACK_0), (base >= 2) && (base <= 36))) {
+      && (base = posfixnum_to_V(STACK_0), (base >= 2) && (base <= 36))) {
     return_Values radix_2(base); # interprete Token as rational number
   } else {
     pushSTACK(*stream_); # STREAM-ERROR slot STREAM
@@ -3250,13 +3250,13 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
     });
   }
   # check n:
-  var uintL n; # Length of Bitvectors
+  var uintV n; # Length of Bitvector
   if (nullp(STACK_0)) {
     n = len; # Defaultvalue is the Tokenlength
   } else {
     # n specified, an Integer >=0.
-    n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
-         : bitm(oint_data_len)-1); # Bignum -> big value
+    n = (posfixnump(STACK_0) ? posfixnum_to_V(STACK_0) # Fixnum -> value
+         : vbitm(oint_data_len)-1); # Bignum -> big value
     if (n<len) {
       pushSTACK(*stream_); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(0+1)); # n
@@ -3273,6 +3273,16 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
       fehler(reader_error, # ANSI CL 2.4.8.4. wants a reader-error here
              GETTEXT("~S from ~S: must specify element of bit vector of length ~S"));
     }
+   #if (intVsize>intLsize)
+    if (n >= vbit(intLsize)) {
+      /* STACK_0 = n, TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_array_length)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(STACK_1); /* n */
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(type_error,GETTEXT("~S from ~S: invalid bit-vector length ~S"));
+    }
+   #endif
   }
   # create new Bit-Vector with length n:
   var object bv = allocate_bit_vector(Atype_Bit,n);
@@ -3334,13 +3344,13 @@ LISPFUNN(vector_reader,3) { # reads #(
   }
   var uintL len = llength(elements); # Listlength
   # check n:
-  var uintL n; # Length of Vector
+  var uintV n; # Length of Vector
   if (nullp(STACK_0)) {
     n = len; # Defaultvalue is the length of the Token
   } else {
     # specify n, an Integer >=0.
-    n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
-         : bitm(oint_data_len)-1); # Bignum -> big value
+    n = (posfixnump(STACK_0) ? posfixnum_to_V(STACK_0) # Fixnum -> value
+         : vbitm(oint_data_len)-1); # Bignum -> big value
     if (n<len) {
       pushSTACK(*stream_); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(0+1)); # n
@@ -3357,6 +3367,16 @@ LISPFUNN(vector_reader,3) { # reads #(
       fehler(reader_error,
              GETTEXT("~S from ~S: must specify element of vector of length ~S"));
     }
+   #if (intVsize>intLsize)
+    if (n >= vbit(intLsize)) {
+      /* STACK_0 = n, TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_array_length)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(STACK_1); /* n */
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(type_error,GETTEXT("~S from ~S: invalid vector length ~S"));
+    }
+   #endif
   }
   # create new Vector with Length n:
   pushSTACK(elements); # save List
@@ -3632,7 +3652,7 @@ local maygc object lookup_label (void) {
     Symbol_value(S(read_reference_table));
   # Execute (assoc n alist :test #'read-label-equal):
   var bool smallp = small_read_label_integer_p(n);
-  var object label = (smallp ? make_small_read_label(posfixnum_to_L(n)) : nullobj);
+  var object label = (smallp ? make_small_read_label(posfixnum_to_V(n)) : nullobj);
   while (consp(alist)) {
     var object acons = Car(alist); # List-element
     if (!consp(acons)) goto bad_reftab; # must be a Cons !
@@ -4290,9 +4310,19 @@ LISPFUNN(closure_reader,3) { # read #Y
     # are Fixnums >=0, <256 in Base 16  (with one or two digits).
     # e.g. #9Y(0 4 F CD 6B8FD1e4 5)
     # n is an Integer >=0.
-    var uintL n =
-      (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
-       : bitm(oint_data_len)-1); # Bignum -> big value
+    var uintV n =
+      (posfixnump(STACK_0) ? posfixnum_to_V(STACK_0) # Fixnum -> value
+       : vbitm(oint_data_len)-1); # Bignum -> big value
+   #if (intVsize>intLsize)
+    if (n >= vbit(intLsize)) {
+      /* STACK_0 = n, TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_array_length)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(STACK_1); /* n */
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(type_error,GETTEXT("~S from ~S: invalid code vector length ~S"));
+    }
+   #endif
     # get new Bit-Vector with n Bytes:
     STACK_1 = allocate_bit_vector(Atype_8Bit,n);
     # stack layout: Stream, Codevektor, n.
@@ -4767,14 +4797,14 @@ LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
   }
   # junk_allowed = value of :junk-allowed-Argument.
   # process :radix-Argument:
-  var uintL base;
+  var uintV base;
   {
     var object arg = popSTACK();
     if (!boundp(arg))
       base = 10;                /* Default 10 */
     else
       while (!(posfixnump(arg)
-               && (base = posfixnum_to_L(arg), ((base >= 2) && (base <= 36))))) {
+               && (base = posfixnum_to_V(arg), ((base >= 2) && (base <= 36))))) {
         pushSTACK(NIL);           /* no PLACE */
         pushSTACK(arg);           /* TYPE-ERROR slot DATUM */
         pushSTACK(O(type_radix)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -5423,11 +5453,11 @@ local maygc void write_sstring_case (const gcv_object_t* stream_, object string)
 # < stream: Stream
 # can trigger GC
 local maygc void spaces (const gcv_object_t* stream_, object anzahl) {
-  var uintL count;
+  var uintV count;
  #ifdef IO_DEBUG
   ASSERT(posfixnump(anzahl));
  #endif
-  dotimesL(count,posfixnum_to_L(anzahl), {
+  dotimesV(count,posfixnum_to_V(anzahl), {
     write_ascii_char(stream_,' ');
   });
 }
@@ -5557,18 +5587,18 @@ local uintL format_tab (object stream, object colon_p, object atsig_p,
                         object col_num, object col_inc) {
   var uintL col_num_i;
   if (nullp(col_num)) col_num_i = 1;
-  else if (posfixnump(col_num)) col_num_i = posfixnum_to_L(col_num);
+  else if (posfixnump(col_num)) col_num_i = posfixnum_to_V(col_num);
   else NOTREACHED; # fehler_posfixnum(col_num);
   var uintL col_inc_i;
   if (nullp(col_inc)) col_inc_i = 1;
-  else if (posfixnump(col_inc)) col_inc_i = posfixnum_to_L(col_inc);
+  else if (posfixnump(col_inc)) col_inc_i = posfixnum_to_V(col_inc);
   else NOTREACHED; # fehler_posfixnum(col_inc);
   var uintL new_col_i = col_num_i +
     (!nullp(colon_p) && boundp(Symbol_value(S(prin_indentation)))
-     ? posfixnum_to_L(Symbol_value(S(prin_indentation))) : 0);
+     ? posfixnum_to_V(Symbol_value(S(prin_indentation))) : 0);
   var uintL new_inc_i = (col_inc_i == 0 ? 1 : col_inc_i);
   var object pos = get_line_position(stream);
-  var uintL pos_i = (nullp(pos) ? (uintL)-1 : posfixnum_to_L(pos));
+  var uintL pos_i = (nullp(pos) ? (uintL)-1 : posfixnum_to_V(pos));
  #if IO_DEBUG > 1
   printf("format_tab[%s%s]: cn=%d ci=%d nc=%d ni=%d p=%d ==> ",
          (nullp(atsig_p)?"":"@"),(nullp(colon_p)?"":":"),col_num_i,
@@ -5601,9 +5631,9 @@ local uintL format_tab (object stream, object colon_p, object atsig_p,
 # print the pretty prefix (prefix string and indentation)
 # and compute its length
 # can trigger GC when stream_ is non-NULL
-local /*maygc*/ uintL pprint_prefix (const gcv_object_t* stream_, object indent) {
+local /*maygc*/ uintV pprint_prefix (const gcv_object_t* stream_, object indent) {
   GCTRIGGER_IF(stream_ != NULL, GCTRIGGER1(indent));
-  var uintL len = 0;
+  var uintV len = 0;
   var object prefix = Symbol_value(S(prin_line_prefix));
   if (stringp(prefix)) {
     var uintL add = vector_length(prefix);
@@ -5612,13 +5642,13 @@ local /*maygc*/ uintL pprint_prefix (const gcv_object_t* stream_, object indent)
       write_string(stream_,prefix);
   }
   if (posfixnump(indent)) {
-    var uintL add = posfixnum_to_L(indent);
+    var uintV add = posfixnum_to_V(indent);
     len += add;
     if ((stream_ != NULL) && (add != 0))
       spaces(stream_,indent);
   }
  #if IO_DEBUG > 1
-  printf("pprint_prefix(%s): %d\n",(stream_==NULL?"null":"valid"),len);
+  printf("pprint_prefix(%s): %u\n",(stream_==NULL?"null":"valid"),len);
  #endif
   return len;
 }
@@ -5626,20 +5656,20 @@ local /*maygc*/ uintL pprint_prefix (const gcv_object_t* stream_, object indent)
 # return
 #     (- (or *print-right-margin* sys::*prin-linelength*) (pprint_prefix))
 local object right_margin (void) {
-  var uintL pp_pref_len = pprint_prefix(NULL,Fixnum_0);
+  var uintV pp_pref_len = pprint_prefix(NULL,Fixnum_0);
   var object prm = Symbol_value(S(print_right_margin));
   if (nullp(prm))
     prm = Symbol_value(S(prin_linelength));
   else if (posfixnump(prm))
     ; # okay
   else if (posbignump(prm))
-    prm = fixnum(bitm(oint_data_len)-1);
+    prm = fixnum(vbitm(oint_data_len)-1);
   else {
     pushSTACK(prm); pushSTACK(S(print_right_margin));
     fehler(error,GETTEXT("~S: must be a positive integer or NIL, not ~S"));
   }
   if (nullp(prm)) return prm; # *PRIN-LINELENGTH* is NIL
-  var uintL margin = posfixnum_to_L(prm);
+  var uintV margin = posfixnum_to_V(prm);
   if (margin <= pp_pref_len) return Fixnum_0;
   else return fixnum(margin - pp_pref_len);
 }
@@ -5745,15 +5775,15 @@ local maygc void klammer_zu (const gcv_object_t* stream_) {
         goto new_line;
       }
       var uintL len = TheIarray(lastline)->dims[1]; # lendgh = Fill-Pointer of line
-      var uintL need = posfixnum_to_L(pos) + 1; # necessary number of Spaces
+      var uintV need = posfixnum_to_V(pos) + 1; # necessary number of Spaces
       if (len < need) # line too short ?
         goto new_line; # yes -> start new line
       lastline = TheIarray(lastline)->data; # last line, Normal-Simple-String
       var chart* charptr = &TheSnstring(lastline)->data[0];
       # test, if (need) number of spaces are ahead:
       {
-        var uintL count;
-        dotimespL(count,need, {
+        var uintV count;
+        dotimespV(count,need, {
           if (!chareq(*charptr++,ascii(' '))) # Space ?
             goto new_line; # no -> start new line
         });
@@ -5964,12 +5994,12 @@ local maygc void justify_end_fill (const gcv_object_t* stream_) {
           # line-position + 1 + string_width(single-liner) + traillength <= L ?
           var object linelength = right_margin();
           if (nullp(linelength) # =NIL -> yes, it fits
-              || (posfixnum_to_L(TheStream(*stream_)->strm_pphelp_lpos) # line-position
+              || (posfixnum_to_V(TheStream(*stream_)->strm_pphelp_lpos) # line-position
                   + pphelp_string_width(block) # width of the single-liner
                   + (nullpSv(print_rpars) && matomp(Cdr(STACK_0))
-                     ? posfixnum_to_L(Symbol_value(S(prin_prev_traillength))) /* SYS::*PRIN-PREV-TRAILLENGTH* */
+                     ? posfixnum_to_V(Symbol_value(S(prin_prev_traillength))) /* SYS::*PRIN-PREV-TRAILLENGTH* */
                      : 0)
-                  < posfixnum_to_L(linelength))) { # < linelength ?
+                  < posfixnum_to_V(linelength))) { # < linelength ?
             # stil fits.
             # print Space instead of Newline:
             write_ascii_char(stream_,' ');
@@ -6030,7 +6060,7 @@ local maygc void justify_end_linear (const gcv_object_t* stream_) {
     {
       var object linelength = right_margin();
       if (nullp(linelength)) goto gesamt_einzeiler; # =NIL -> single-liner
-      var uintL totalneed = posfixnum_to_L(Symbol_value(S(prin_l1))); # Sum := L1 = SYS::*PRIN-L1*
+      var uintV totalneed = posfixnum_to_V(Symbol_value(S(prin_l1))); # Sum := L1 = SYS::*PRIN-L1*
       var object blocks = Symbol_value(S(prin_jblocks)); # SYS::*PRIN-JBLOCKS*
       do { # peruse (non-empty) block list:
         var object block = Car(blocks); # Block (single-liner)
@@ -6038,10 +6068,10 @@ local maygc void justify_end_linear (const gcv_object_t* stream_) {
         blocks = Cdr(blocks);
       } while (consp(blocks));
       if (nullpSv(print_rpars))
-        totalneed += posfixnum_to_L(Symbol_value(S(prin_prev_traillength))); # SYS::*PRIN-PREV-TRAILLENGTH*
+        totalneed += posfixnum_to_V(Symbol_value(S(prin_prev_traillength))); # SYS::*PRIN-PREV-TRAILLENGTH*
       # totalneed = L1 + (total width of blocks) + (number of blocks) + Traillength
       # compare this with linelength + 1 :
-      if (totalneed <= posfixnum_to_L(linelength)+1)
+      if (totalneed <= posfixnum_to_V(linelength)+1)
         goto gesamt_einzeiler;
       else
         goto gesamt_mehrzeiler;
@@ -6119,7 +6149,7 @@ local void justify_last (void) {
 # > stream: stream
 # < stream: stream
 # changes STACK
-local void indent_start (const gcv_object_t* stream_, uintL delta) {
+local void indent_start (const gcv_object_t* stream_, uintV delta) {
   if (!PPHELP_STREAM_P(*stream_)) { # normal stream -> nothing to do
   } else { # Pretty-Print-Help-Stream
     { # bind SYS::*PRIN-L1*:
@@ -6178,15 +6208,15 @@ local void indentprep_start (const gcv_object_t* stream_) {
 # < stream: stream
 # < result: indentation width
 # changes STACK
-local uintL indentprep_end (const gcv_object_t* stream_) {
+local uintV indentprep_end (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (!PPHELP_STREAM_P(stream)) { # normal stream -> nothing to do
     return 0;
   } else { # Pretty-Print-Help-Stream
-    var uintL lpos_now = # current line-position
-      posfixnum_to_L(TheStream(stream)->strm_pphelp_lpos);
-    var uintL lpos_before = # memorized line-position
-      posfixnum_to_L(popSTACK());
+    var uintV lpos_now = # current line-position
+      posfixnum_to_V(TheStream(stream)->strm_pphelp_lpos);
+    var uintV lpos_before = # memorized line-position
+      posfixnum_to_V(popSTACK());
     return (lpos_now>=lpos_before ? lpos_now-lpos_before : 0);
   }
 }
@@ -6222,7 +6252,7 @@ local /*maygc*/ bool level_check (const gcv_object_t* stream_) {
   var object limit = Symbol_value(S(print_level)); # *PRINT-LEVEL*
   if (nullpSv(print_readably)
       && posfixnump(limit) # is there a limit?
-      && (posfixnum_to_L(level) >= posfixnum_to_L(limit))) { # reached it or exceeded it?
+      && (posfixnum_to_V(level) >= posfixnum_to_V(limit))) { # reached it or exceeded it?
     # yes -> print '#' and return:
     pr_level(stream_); return true;
   } else { # no -> *PRINT-LEVEL* not yet reached.
@@ -6254,7 +6284,10 @@ local uintL get_print_length (void) {
   var object limit = Symbol_value(S(print_length)); # *PRINT-LENGTH*
   return (nullpSv(print_readably)
           && posfixnump(limit) # a Fixnum >=0 ?
-          ? posfixnum_to_L(limit) # yes
+          #if (intVsize>intLsize)
+          && (posfixnum_to_V(limit) <= vbitm(intLsize)-1)
+          #endif
+          ? posfixnum_to_V(limit) # yes
           : ~(uintL)0);           # no -> limit "infinite"
 }
 
@@ -6284,8 +6317,8 @@ local bool check_lines_limit (void) {
   var object now = Symbol_value(S(prin_lines)); # SYS::*PRIN-LINES*
   if (!posfixnump(now))
     return true;
-  var uintL max_lines = posfixnum_to_L(limit);
-  var uintL cur_lines = posfixnum_to_L(now);
+  var uintV max_lines = posfixnum_to_V(limit);
+  var uintV cur_lines = posfixnum_to_V(now);
   return max_lines <= cur_lines;
 }
 
@@ -6345,7 +6378,7 @@ local bool circle_p (object obj,circle_info_t* ci) {
     var uintL m1 = Svector_length(table); # length m+1
     if (m1==0) goto bad_table; # should be >0!
     var gcv_object_t* ptr = &TheSvector(table)->data[0]; # pointer in the vector
-    var uintL i = posfixnum_to_L(*ptr++); # first element i
+    var uintV i = posfixnum_to_V(*ptr++); # first element i
     var uintL index = 1;
     for (; index < m1; index++) { # run through the loop m times
       if (eq(*ptr++,obj)) # compare obj with the next vector-element
@@ -6406,7 +6439,7 @@ local maygc void pr_circle (const gcv_object_t* stream_, object obj, pr_routine_
         write_ascii_char(stream_,'=');
       }
       {
-        var uintL indent = INDENTPREP_END;
+        var uintV indent = INDENTPREP_END;
         obj = popSTACK(); # return obj
         # print obj (indented):
         INDENT_START(indent);
@@ -6452,10 +6485,10 @@ local void pretty_print_call (const gcv_object_t* stream_, object obj, pr_routin
 local maygc object space_available (object stream) {
   var object line_pos = get_line_position(stream);
   if (!posfixnump(line_pos)) return NIL;
-  var uintL pos = posfixnum_to_L(line_pos);
+  var uintV pos = posfixnum_to_V(line_pos);
   var object prm = right_margin();
   if (!posfixnump(prm)) return NIL;
-  var uintL mar = posfixnum_to_L(prm);
+  var uintV mar = posfixnum_to_V(prm);
   if (mar < pos) return Fixnum_0;
   return fixnum(mar-pos);
 }
@@ -6479,7 +6512,7 @@ local object pphelp_length (object pph_stream) {
         TheStream(pph_stream)->strm_pphelp_modus = mehrzeiler;
         return NIL;
       }
-    } # else if (posfixnump(top)) ret += posfixnum_to_L(top);
+    } # else if (posfixnump(top)) ret += posfixnum_to_V(top);
     else NOTREACHED;
   }
   return fixnum(ret);
@@ -6504,7 +6537,7 @@ local maygc inline bool string_fit_line_p (const gcv_object_t *stream_,
     if (mconsp(list)) len += vector_length(Car(list)); # string!
     else return false; # do not need to print this tab
   } else NOTREACHED;
-  return posfixnum_to_L(avail) >= len + offset;
+  return posfixnum_to_V(avail) >= len + offset;
 }
 
 # UP: Binds the variables of the printer and then calls a printer-routine.
@@ -6565,9 +6598,9 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
           var bool fit_this_line = !nullp(pphs_len);
           if (posfixnump(pphs_len) # could POSSIBLY be a single-liner
               && posfixnump(prm)) { # have right margin
-            var uintL pphs_len_i = posfixnum_to_L(pphs_len);
-            var uintL prm_i = posfixnum_to_L(prm);
-            var uintL pos_i = posfixnum_to_L(Symbol_value(S(prin_l1)));
+            var uintV pphs_len_i = posfixnum_to_V(pphs_len);
+            var uintV prm_i = posfixnum_to_V(prm);
+            var uintV pos_i = posfixnum_to_V(Symbol_value(S(prin_l1)));
             fit_this_line = (pphs_len_i <= (prm_i - pos_i));
             if (pphs_len_i > prm_i)
               TheStream(ppstream)->strm_pphelp_modus = mehrzeiler;
@@ -7331,11 +7364,11 @@ local pr_routine_t* special_list_p (object obj, bool dotted_p) {
 
 # UP: returns the value of the fixnum *PRINT-INDENT-LISTS*.
 # get_indent_lists()
-# < result: fixnum > 0
-local uintL get_indent_lists (void) {
+# < result: value of a fixnum > 0
+local uintV get_indent_lists (void) {
   var object obj = Symbol_value(S(print_indent_lists));
   if (posfixnump(obj)) {
-    var uintL indent = posfixnum_to_L(obj);
+    var uintV indent = posfixnum_to_V(obj);
     if (indent > 0)
       return indent;
   }
@@ -8114,7 +8147,7 @@ local maygc void pr_array (const gcv_object_t* stream_, object obj) {
         pr_uint(stream_,r); # print rank decimally
         write_ascii_char(stream_,'A');
         {
-          var uintL indent = INDENTPREP_END;
+          var uintV indent = INDENTPREP_END;
           # then print the array-elements:
           INDENT_START(indent);
         }
@@ -8709,9 +8742,9 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         if (show_contents) {
           if (detailed_contents) {
             var uintL index = # move Index into the Key-Value-Vector
-              3*posfixnum_to_L(TheHashtable(obj)->ht_maxcount);
+              3*posfixnum_to_V(TheHashtable(obj)->ht_maxcount);
             pushSTACK(TheHashtable(obj)->ht_kvtable); # Key-Value-Vector
-            var uintL count = posfixnum_to_L(TheHashedAlist(STACK_0)->hal_count);
+            var uintL count = posfixnum_to_V(TheHashedAlist(STACK_0)->hal_count);
             pr_kvtable(stream_,&STACK_0,index,count);
             skipSTACK(1);
           } else {
@@ -9783,19 +9816,19 @@ local maygc void pr_cclosure_codevector (const gcv_object_t* stream_, object cod
     pushSTACK(codevec); # save Codevector
     var gcv_object_t* codevec_ = &STACK_0; # and memorize, where it is
     var uintL len = Sbvector_length(codevec); # length in Bytes
-#if BIG_ENDIAN_P
+   #if BIG_ENDIAN_P
     var uintL header_end_index =
       (TheSbvector(codevec)->data[CCV_FLAGS] & bit(7) ?
        CCV_START_KEY : CCV_START_NONKEY);
-#endif
+   #endif
     # print prefix:
     INDENTPREP_START;
     write_ascii_char(stream_,'#');
     pr_uint(stream_,len); # print length decimally
     write_ascii_char(stream_,'Y');
     {
-      var uintL indent = INDENTPREP_END;
-# print main part:
+      var uintV indent = INDENTPREP_END;
+    # print main part:
       INDENT_START(indent); # indent
     }
     KLAMMER_AUF;
@@ -10074,7 +10107,7 @@ LISPFUN(pprint_indent,seclass_default,2,1,norest,nokey,0,NIL) {
   check_ostream(&STACK_0);
   /* check the indentation increment */
   STACK_1 = check_real(STACK_1);
-  var int offset=0;
+  var sintV offset = 0;
   {
     var object num = STACK_1;
     if (!integerp(num)) {
@@ -10082,20 +10115,23 @@ LISPFUN(pprint_indent,seclass_default,2,1,norest,nokey,0,NIL) {
       num = value1;
     }
     if (!fixnump(num)) {
+     bad_num:
       pushSTACK(STACK_1);   # TYPE-ERROR slot DATUM
       pushSTACK(S(fixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_1); pushSTACK(S(pprint_indent));
       fehler(type_error,GETTEXT("~S: argument ~S is too large"));
     }
-    offset = fixnum_to_L(num);
+    offset = fixnum_to_V(num);
+    if ((oint_data_len==intVsize) && (posfixnump(num) ? offset < 0 : offset >= 0))
+      goto bad_num;
   }
   # check the relative-to arg
   var object indent = Symbol_value(S(prin_indentation));
   var object linepos = get_line_position(STACK_0);
-  var uintL linepos_i = (posfixnump(linepos) ? posfixnum_to_L(linepos) : 0);
+  var uintV linepos_i = (posfixnump(linepos) ? posfixnum_to_V(linepos) : 0);
   if (eq(S(Kblock),STACK_2)) {
     if (posfixnump(indent))
-      offset += posfixnum_to_L(indent);
+      offset += posfixnum_to_V(indent);
   } else if (eq(S(Kcurrent),STACK_2)) {
     if (linepos_i > 0)
       offset += linepos_i;
@@ -10113,7 +10149,7 @@ LISPFUN(pprint_indent,seclass_default,2,1,norest,nokey,0,NIL) {
    #if IO_DEBUG > 1
     printf("pprint-indent: %d --> %d\n",
            !boundp(Symbol_value(S(prin_indentation))) ? -1 :
-           posfixnum_to_L(Symbol_value(S(prin_indentation))),offset);
+           posfixnum_to_V(Symbol_value(S(prin_indentation))),offset);
    #endif
     Symbol_value(S(prin_indentation)) = fixnum(offset);
     if (linepos_i < offset)

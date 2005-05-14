@@ -386,7 +386,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
         if (I_fixnump(TheRatio(y)->rt_num) /* |m| klein */
             && I_fixnump(TheRatio(y)->rt_den) /* n klein */
            ) {
-          var uintL n = posfixnum_to_L(TheRatio(y)->rt_den);
+          var uintV n = posfixnum_to_V(TheRatio(y)->rt_den);
           if ((n & (n-1)) == 0) { /* n Zweierpotenz? */
             pushSTACK(TheRatio(y)->rt_num); /* m retten */
             until ((n = n>>1) ==0) { x = N_sqrt_N(x); } /* n-te Wurzel ziehen */

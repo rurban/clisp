@@ -125,15 +125,15 @@
       # x ist Fixnum
       if (I_fixnump(y)) {
         # x,y sind Fixnums
-        #if (oint_data_len+1 < intLsize)
-        return L_to_I( FN_to_L(x) + FN_to_L(y) ); # als 32-Bit-Zahlen addieren
+        #if (oint_data_len+1 < intVsize)
+        return V_to_I( FN_to_V(x) + FN_to_V(y) ); # als intVsize-Bit-Zahlen addieren
         #elif defined(intQsize)
         return Q_to_I( FN_to_Q(x) + FN_to_Q(y) ); # als 64-Bit-Zahlen addieren
-        #else
+        #elif (intVsize==32)
         var sint32 xhi = FN_sign(x);
-        var uint32 xlo = FN_to_L(x);
+        var uint32 xlo = FN_to_V(x);
         var sint32 yhi = FN_sign(y);
-        var uint32 ylo = FN_to_L(y);
+        var uint32 ylo = FN_to_V(y);
         xhi += yhi;
         xlo += ylo;
         if (xlo < ylo)
@@ -150,8 +150,8 @@
       if (I_fixnump(y))
       xBN_yFN: {
         # x ist Bignum, y ist Fixnum, also x länger
-        var sint32 y_ = FN_to_L(y); # Wert von y
-        if (FN_L_zerop(y,y_))
+        var sintV y_ = FN_to_V(y); # Wert von y
+        if (FN_V_zerop(y,y_))
           return x; # bei y=0 Ergebnis x
         {
           SAVE_NUM_STACK # num_stack retten
@@ -164,19 +164,19 @@
           # y_ zu den oberen pFN_maxlength Digits von x addieren:
           {
             var uintD* midptr = &LSDptr[-(uintP)pFN_maxlength];
-            var uint32 x_ = pFN_maxlength_digits_at(midptr);
-            var uint32 x_new = x_+(uint32)y_;
+            var uintV x_ = pFN_maxlength_digits_at(midptr);
+            var uintV x_new = x_+(uintV)y_;
             set_pFN_maxlength_digits_at(midptr,x_new);
             if (x_new < x_) {
               # Carry.
-              if (!FN_L_minusp(y,y_)) { # kürzerer Summand war positiv
+              if (!FN_V_minusp(y,y_)) { # kürzerer Summand war positiv
                 # Dann ist ein positiver Übertrag weiterzutragen
                 # (Beispiel: 0002FFFC + 0007 = 00030003)
                 DS_1_plus(midptr,len-pFN_maxlength);
               }
             } else {
               # Kein Carry.
-              if (FN_L_minusp(y,y_)) { # kürzerer Summand war negativ
+              if (FN_V_minusp(y,y_)) { # kürzerer Summand war negativ
                 # Dann ist ein negativer Übertrag weiterzutragen
                 # (Beispiel: 00020003 + FFF5 = 0001FFF8)
                 DS_minus1_plus(midptr,len-pFN_maxlength);
@@ -242,13 +242,13 @@
   {
     if (I_fixnump(x)) {
       # Fixnum -> Long, negieren, -> Integer
-      #if (oint_data_len+1 < intLsize)
-      return L_to_I(- FN_to_L(x));
+      #if (oint_data_len+1 < intVsize)
+      return V_to_I(- FN_to_V(x));
       #elif defined(intQsize)
       return Q_to_I(- FN_to_Q(x));
-      #else
+      #elif (intVsize==32)
       var sint32 xhi = FN_sign(x);
-      var uint32 xlo = FN_to_L(x);
+      var uint32 xlo = FN_to_V(x);
       if (xlo==0) {
         xhi = -xhi;
       } else {
@@ -300,15 +300,15 @@
       # x ist Fixnum
       if (I_fixnump(y)) {
         # x,y sind Fixnums
-        #if (oint_data_len+1 < intLsize)
-        return L_to_I( FN_to_L(x) - FN_to_L(y) ); # als 32-Bit-Zahlen subtrahieren
+        #if (oint_data_len+1 < intVsize)
+        return V_to_I( FN_to_V(x) - FN_to_V(y) ); # als intVsize-Bit-Zahlen subtrahieren
         #elif defined(intQsize)
         return Q_to_I( FN_to_Q(x) - FN_to_Q(y) ); # als 64-Bit-Zahlen subtrahieren
-        #else
+        #elif (intVsize==32)
         var sint32 xhi = FN_sign(x);
-        var uint32 xlo = FN_to_L(x);
+        var uint32 xlo = FN_to_V(x);
         var sint32 yhi = FN_sign(y);
-        var uint32 ylo = FN_to_L(y);
+        var uint32 ylo = FN_to_V(y);
         xhi -= yhi;
         if (xlo < ylo)
           xhi -= 1;
@@ -317,8 +317,8 @@
         #endif
       } else {
         # x ist Fixnum, y ist Bignum, also y länger
-        var sint32 x_ = FN_to_L(x); # Wert von x
-        if (FN_L_zerop(x,x_))
+        var sintV x_ = FN_to_V(x); # Wert von x
+        if (FN_V_zerop(x,x_))
           return I_minus_I(y); # bei x=0 Ergebnis (- y)
         {
           SAVE_NUM_STACK # num_stack retten
@@ -338,19 +338,19 @@
           # x_ zu den oberen pFN_maxlength Digits von -y addieren:
           {
             var uintD* midptr = &LSDptr[-(uintP)pFN_maxlength];
-            var uint32 y_ = pFN_maxlength_digits_at(midptr);
-            var uint32 y_new = y_+(uint32)x_;
+            var uintV y_ = pFN_maxlength_digits_at(midptr);
+            var uintV y_new = y_+(uintV)x_;
             set_pFN_maxlength_digits_at(midptr,y_new);
             if (y_new < y_) {
               # Carry.
-              if (!FN_L_minusp(x,x_)) { # kürzerer Summand war positiv
+              if (!FN_V_minusp(x,x_)) { # kürzerer Summand war positiv
                 # Dann ist ein positiver Übertrag weiterzutragen
                 # (Beispiel: 0002FFFC + 0007 = 00030003)
                 DS_1_plus(midptr,len-pFN_maxlength);
               }
             } else {
               # Kein Carry.
-              if (FN_L_minusp(x,x_)) { # kürzerer Summand war negativ
+              if (FN_V_minusp(x,x_)) { # kürzerer Summand war negativ
                 # Dann ist ein negativer Übertrag weiterzutragen
                 # (Beispiel: 00020003 + FFF5 = 0001FFF8)
                 DS_minus1_plus(midptr,len-pFN_maxlength);
@@ -366,8 +366,8 @@
       # x ist Bignum
       if (I_fixnump(y)) {
         # x ist Bignum, y ist Fixnum, also x länger
-        var sint32 y_ = FN_to_L(y); # Wert von y
-        if (FN_L_zerop(y,y_))
+        var sintV y_ = FN_to_V(y); # Wert von y
+        if (FN_V_zerop(y,y_))
           return x; # bei y=0 Ergebnis x
         {
           SAVE_NUM_STACK # num_stack retten
@@ -380,19 +380,19 @@
           # y_ von den oberen pFN_maxlength Digits von x subtrahieren:
           {
             var uintD* midptr = &LSDptr[-(uintP)pFN_maxlength];
-            var uint32 x_ = pFN_maxlength_digits_at(midptr);
-            var uint32 x_new = x_-(uint32)y_;
+            var uintV x_ = pFN_maxlength_digits_at(midptr);
+            var uintV x_new = x_-(uintV)y_;
             set_pFN_maxlength_digits_at(midptr,x_new);
-            if (x_new > x_) { # bzw. (x_ < (uint32)y_), da y_>0
+            if (x_new > x_) { # bzw. (x_ < (uintV)y_), da y_>0
               # Carry.
-              if (!FN_L_minusp(y,y_)) { # kürzerer Summand war positiv
+              if (!FN_V_minusp(y,y_)) { # kürzerer Summand war positiv
                 # Dann ist ein negativer Übertrag weiterzutragen
                 # (Beispiel: 00030003 - 0007 = 0002FFFC)
                 DS_minus1_plus(midptr,len-pFN_maxlength);
               }
             } else {
               # Kein Carry.
-              if (FN_L_minusp(y,y_)) { # kürzerer Summand war negativ
+              if (FN_V_minusp(y,y_)) { # kürzerer Summand war negativ
                 # Dann ist ein positiver Übertrag weiterzutragen
                 # (Beispiel: 0002FFF8 - FFF5 = 00030003)
                 DS_1_plus(midptr,len-pFN_maxlength);

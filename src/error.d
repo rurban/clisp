@@ -45,7 +45,7 @@ local void begin_error (void)
                fixnum_inc(Symbol_value(S(recursive_error_count)),1));
   if (!posfixnump(Symbol_value(S(recursive_error_count)))) /* should be a fixnum >=0 */
     Symbol_value(S(recursive_error_count)) = Fixnum_0; /* otherwise emergency correction */
-  if (posfixnum_to_L(Symbol_value(S(recursive_error_count))) > 3) {
+  if (posfixnum_to_V(Symbol_value(S(recursive_error_count))) > 3) {
     /* multiple nested error message. */
     Symbol_value(S(recursive_error_count)) = Fixnum_0; /* delete error count */
     /* bind *PRINT-PRETTY* to NIL (in order to save memory): */
@@ -1117,8 +1117,8 @@ nonreturning_function(global, fehler_string_integer, (object obj)) {
 /* Error message, if a string size is too big.
  fehler_stringsize(size);
  > size: the desired string length  */
-nonreturning_function(global, fehler_stringsize, (uintL size)) {
-  var object obj = UL_to_I(size);
+nonreturning_function(global, fehler_stringsize, (uintV size)) {
+  var object obj = UV_to_I(size);
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_stringsize)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -1423,6 +1423,66 @@ nonreturning_function(global, fehler_too_few_args,
     pushSTACK(caller);
     fehler(program_error,GETTEXT("~S: Too few arguments (~S instead of at least ~S) given to ~S"));
   }
+}
+
+# Error message, if an argument isn't of a given elementary C type.
+# fehler_<ctype>(obj);
+# > obj: the faulty argument
+nonreturning_function(global, fehler_uint8, (object obj)) {
+  pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(fixnum(8)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
+}
+nonreturning_function(global, fehler_sint8, (object obj)) {
+  pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(fixnum(8)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
+}
+nonreturning_function(global, fehler_uint16, (object obj)) {
+  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(fixnum(16)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
+}
+nonreturning_function(global, fehler_sint16, (object obj)) {
+  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(fixnum(16)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
+}
+nonreturning_function(global, fehler_uint32, (object obj)) {
+  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(fixnum(32)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
+}
+nonreturning_function(global, fehler_sint32, (object obj)) {
+  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(fixnum(32)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
+}
+nonreturning_function(global, fehler_uint64, (object obj)) {
+  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(fixnum(64)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
+}
+nonreturning_function(global, fehler_sint64, (object obj)) {
+  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(fixnum(64)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
 }
 
 /* error, if argument is not an integer in the range of the C type 'uint8'.

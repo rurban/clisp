@@ -175,10 +175,10 @@ local void nobject_out1 (FILE* out, object obj, int level) {
    #endif
   } else if (hash_table_p(obj)) {
     fputs("#(",out); XOUT(S(hash_table));
-    fprintf(out," size=%u maxcount=%d mincount=%d free=",
+    fprintf(out," size=%u maxcount=%u mincount=%u free=",
             TheHashtable(obj)->ht_size,
-            posfixnum_to_L(TheHashtable(obj)->ht_maxcount),
-            posfixnum_to_L(TheHashtable(obj)->ht_mincount));
+            (uintL)posfixnum_to_V(TheHashtable(obj)->ht_maxcount),
+            (uintL)posfixnum_to_V(TheHashtable(obj)->ht_mincount));
     fputs("\n  test=",out);
     if (ht_test_code_user_p(ht_test_code(record_flags(TheHashtable(obj))))) {
       XOUT(TheHashtable(obj)->ht_test); fputc('/',out);
@@ -224,7 +224,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputs("#<instance ",out);
     XOUT(TheInstance(obj)->inst_class_version);
     fprintf(out," 0x%lx>",as_oint(obj));
-  } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_L(obj));
+  } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_V(obj));
   else if (eq(obj,unbound))   string_out(out,O(printstring_unbound));
   else if (eq(obj,nullobj))   fputs("#<NULLOBJ>",out);
   else if (eq(obj,disabled))  string_out(out,O(printstring_disabled_pointer));

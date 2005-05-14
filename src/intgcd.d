@@ -46,11 +46,11 @@
 # |B| = x[n]*z[n-1] + x[n-1]*z[n] >= x[n]*2*g + 0 = |u|*2*g.)
 
 # Liefert den ggT zweier Langworte.
-# UL_UL_gcd_UL(a,b)
-# > uintL a,b: zwei Langworte >0
+# UV_UV_gcd_UV(a,b)
+# > uintV a,b: zwei Langworte >0
 # < ergebnis: (gcd a b), ein Langwort >0
 #if GCD_ALGO==2 # nur dann brauchen wir's
-  local uintL UL_UL_gcd_UL (uintL a, uintL b);
+  local uintV UV_UV_gcd_UV (uintV a, uintV b);
 # binäre Methode:
 # (gcd a b) :==
 #   (prog ((j 0))
@@ -75,10 +75,10 @@
 #   )
 # Statt j zu erhöhen und immer Bit 0 von a und b abfragen,
 # fragen wir stattdessen immer Bit j von a und b ab; Bits j-1..0 sind =0.
-  local uintL UL_UL_gcd_UL (uintL a, uintL b)
+  local uintV UV_UV_gcd_UV (uintV a, uintV b)
   {
     #ifdef DUMMER_GGT # so macht's ein Mathematiker:
-    var uintL bit_j = bit(0);
+    var uintV bit_j = bit(0);
     loop {
       # a,b >0
       if (!((a & bit_j) ==0)) {
@@ -93,7 +93,7 @@
       bit_j = bit_j<<1;
     }
     #else # Trick von B. Degel:
-    var uintL bit_j = (a | b); # endet mit einer 1 und j Nullen
+    var uintV bit_j = (a | b); # endet mit einer 1 und j Nullen
     bit_j = bit_j ^ (bit_j - 1); # Maske = bit(j) | bit(j-1) | ... | bit(0)
     if (!((a & bit_j) ==0)) {
       if (!((b & bit_j) ==0))
@@ -336,7 +336,7 @@
     if (I_fixnump(a) && I_fixnump(b)) { # ggT zweier Fixnums >0
       # bleibt Fixnum, da (gcd a b) <= (min a b)
       skipSTACK(1);
-      return fixnum(UL_UL_gcd_UL(posfixnum_to_L(a),posfixnum_to_L(b)));
+      return fixnum(UV_UV_gcd_UV(posfixnum_to_V(a),posfixnum_to_V(b)));
     }
     {
       var signean vergleich = I_I_comp(a,b);
