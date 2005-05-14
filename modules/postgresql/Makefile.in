@@ -21,7 +21,7 @@ all : postgresql.o sql.fas
 postgresql.c : postgresql.lisp
 	$(CLISP) -c postgresql.lisp
 
-postgresql.o : postgresql.c
+postgresql.o : postgresql.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(PQCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c postgresql.c
 
 sql.fas : sql.lisp

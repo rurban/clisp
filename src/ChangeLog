@@ -8,6 +8,14 @@
 	* modules/rawsock/Makefile.in (rawsock.o): ditto
 	* modules/regexp/Makefile.in (regexi.o): ditto
 	* modules/syscalls/Makefile.in (calls.o): ditto
+	* modules/postgresql/Makefile.in (.o): ditto
+	* modules/bindings/glibc/Makefile.in (linux.o): ditto
+	* modules/bindings/win32/Makefile.in (win32.o): ditto
+	* modules/matlab/Makefile.in (matlab.o): ditto
+	* modules/netica/Makefile.in (netica.o): ditto
+	* modules/pari/Makefile.in (pari.o): ditto
+	* modules/wildcard/Makefile.in (wildcard.o): ditto
+	* modules/zlib/Makefile.in (zlib.o): ditto
 	* modules/regexp/regexi.c: include "clisp.h", not <clisp.h>
 
 2005-05-14  Sam Steingold  <sds@gnu.org>
