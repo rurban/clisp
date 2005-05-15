@@ -762,7 +762,7 @@ FOO
     (< nslots-before (sys::%record-length i))))
 #+CLISP
 T
-  
+
 ;; Redefining a finalized class must not change its identity.
 (let (c1 c2)
   (defclass foo60-b () ())
@@ -4148,3 +4148,19 @@ ERROR
 ERROR
 (defmethod foo132b ((x forwardclass02)))
 ERROR
+
+;;; <http://article.gmane.org/gmane.lisp.clisp.general:9582>
+(let ((ret ()))
+  (defclass mixin-foo-133 nil nil)
+  (defclass class-foo-133 (mixin-foo-133) nil)
+  (defgeneric fun-133 (x))
+  (defmethod fun-133 ((x class-foo-133))
+    (push 'class-foo-133 ret))
+  (defclass class-bar-133 nil nil)
+  (defmethod fun-133 :after ((x class-bar-133))
+    (push 'class-bar-133-after ret))
+  ;; redefine class class-foo
+  (defclass mixin-foo-133 (class-bar-133) nil)
+  (fun-133 (make-instance 'class-foo-133))
+  (nreverse ret))
+(CLASS-FOO-133 CLASS-BAR-133-AFTER)
