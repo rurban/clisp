@@ -1,5 +1,9 @@
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (ENOUGH-NAMESTRING): check consp() before taking Car()
+
+2005-05-16  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (compile-file): return the FAS file truename as per ANSI
 
 2005-05-14  Sam Steingold  <sds@gnu.org>
