@@ -402,6 +402,8 @@ Portability
 
 * Dynamic modules now work on woe32 too.
 
+* Support 4GB+ files on woe32.
+
 
 
 2.33.2 (2004-06-02)
