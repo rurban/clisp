@@ -989,3 +989,8 @@ T
     (delete-file cf)
     #+clisp (delete-file (make-pathname :type "lib" :defaults cf))))
 (T T)
+
+(compile-file-pathname "foo" :OUTPUT-FILE (logical-pathname "SYS:foo.fas"))
+#+CLISP #S(LOGICAL-PATHNAME :HOST "SYS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
+                            :NAME "FOO" :TYPE "FAS" :VERSION :NEWEST)
+#-CLISP FIXME

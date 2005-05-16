@@ -3386,7 +3386,8 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         goto device_ok;
      #ifdef LOGICAL_PATHNAMES
       else if (logical) {
-        if (logpathnamep(device)) { /* Pathname -> its device */
+        if (logpathnamep(device) /* Pathname -> its device */
+            || (eq(device,S(Kunspecific)))) { /* :UNSPECIFIC -> NIL */
           STACK_4 = NIL; goto device_ok;
         }
       }
@@ -3423,11 +3424,14 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
  #else /* HAS_DEVICE */
   {
     var object device = STACK_4;
-    if (boundp(device)) /* specified ? */
-      if (!(nullp(device) || xpathnamep(device))) { /* NIL or Pathname -> OK */
-        /* None of the desired cases -> error: */
+    if (boundp(device)) { /* specified ? */
+      if (nullp(device) /* NIL, :UNSPECIFIC Pathname -> OK */
+          || eq(device,S(Kunspecific)) || xpathnamep(device)) {
+        STACK_4 = NIL;
+      } else { /* None of the desired cases -> error: */
         pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto fehler_arg;
       }
+    }
   }
  #endif
   { /* 3. check directory: */
