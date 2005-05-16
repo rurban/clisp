@@ -212,6 +212,7 @@ User visible changes
     7 digits.
   + IN-PACKAGE forms with constant arguments are no longer executed by the
     compiler if they occur in a non-null lexical environment.
+  + COMPILE-FILE now always returns the TRUENAME of its output file.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
   suite, which helped detect some of these deficiencies.
   Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance

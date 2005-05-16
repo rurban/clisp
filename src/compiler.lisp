@@ -11251,7 +11251,8 @@ The function make-closure is required.
                     (terpri verbose-out)
                     (format verbose-out (TEXT ";; Wrote file ~A") listing)
                     (elastic-newline verbose-out)))
-                (values (if compilation-successful output-file nil)
+                (values (and compilation-successful output-file
+                             (truename *fasoutput-stream*))
                         (compile-warnings-p)
                         (compile-failure-p))))
             (when new-output-stream

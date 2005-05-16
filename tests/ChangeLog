@@ -1,3 +1,7 @@
+2005-05-16  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: check that COMPILE-FILE returns the truename
+
 2005-05-15  Sam Steingold  <sds@gnu.org>
 
 	* clos.tst: added a test from
