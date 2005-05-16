@@ -1480,7 +1480,9 @@
 (defun open-for-load (filename extra-file-types external-format
                       &aux stream (present-files t) obj path bad-file)
  (block open-for-load
-  (when (streamp filename)
+  (when (and (streamp filename)
+             (open-stream-p filename)
+             (output-stream-p filename))
     (return-from open-for-load (values filename filename)))
   (labels ((compiledp (name)
              (member (pathname-type name) *compiled-file-types*

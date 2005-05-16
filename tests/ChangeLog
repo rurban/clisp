@@ -1,5 +1,9 @@
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
+	* path.tst: check that LOAD can handle invalid streams
+
+2005-05-16  Sam Steingold  <sds@gnu.org>
+
 	* path.tst: check COMPILE-FILE-PATHNAME
 	with :OUTPUT-FILE LOGICAL-PATHNAME
 
