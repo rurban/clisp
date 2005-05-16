@@ -1,7 +1,12 @@
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (open-for-load): return FILENAME as is only if it is
+	an open output stream, just like in COMPILE-FILE-PATHNAME-HELPER
+
+2005-05-16  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (MAKE-PATHNAME): accept :DEVICE :UNSPECIFIC to mean
-	NIL because of COMPILE-FILE-PATHNAME with logcal :OUTPUT-FILE
+	NIL because of COMPILE-FILE-PATHNAME with logical :OUTPUT-FILE
 
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
