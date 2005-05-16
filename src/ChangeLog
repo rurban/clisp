@@ -1,5 +1,10 @@
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
+	* defmacro.lisp (make-macro-expansion): when PRE-PROCESS is supplied,
+	this is a DEFINE-COMPILER-MACRO call, so name could be a (SETF symbol)
+
+2005-05-16  Sam Steingold  <sds@gnu.org>
+
 	* documentation.lisp (documentation): return NIL for KEYWORDs
 	because :LAMBDA = (FUNCTION-NAME (LAMBDA () ...)) for all LAMBDAs
 	* init.lisp (%set-documentation): ditto
