@@ -1482,7 +1482,7 @@
  (block open-for-load
   (when (and (streamp filename)
              (open-stream-p filename)
-             (output-stream-p filename))
+             (input-stream-p filename))
     (return-from open-for-load (values filename filename)))
   (labels ((compiledp (name)
              (member (pathname-type name) *compiled-file-types*
