@@ -3060,8 +3060,8 @@ LISPFUN(enough_namestring,seclass_read,1,1,norest,nokey,0,NIL) {
           } else {
             /* Does neither pathname-subdirs nor defaults-subdirs
              start with :RELATIVE ? */
-            if (   (eq(Car(p_directory),S(Kabsolute)))
-                && (eq(Car(d_directory),S(Kabsolute)))) {
+            if (   consp(p_directory) && (eq(Car(p_directory),S(Kabsolute)))
+                && consp(d_directory) && (eq(Car(d_directory),S(Kabsolute)))) {
               /* yes -> test, if defaults-subdirs is a starting piece
                of the list pathname-subdirs: */
               var object Lp = p_directory;
