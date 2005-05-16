@@ -450,7 +450,8 @@ the actual object #<MACRO expander> for the FENV.
       :detail macrodef
       (TEXT "Cannot define a macro from that: ~S")
       macrodef))
-  (unless (symbolp (car macrodef))
+  ;; pre-process ==> compiler macro, accept function names
+  (unless (funcall (if pre-process #'function-name-p #'symbolp) (car macrodef))
     (error-of-type 'source-program-error
       :form macrodef
       :detail (car macrodef)
@@ -479,7 +480,8 @@ the actual object #<MACRO expander> for the FENV.
                                ,@declarations
                                ,@(nreverse %null-tests)
                                ,@(nreverse %keyword-tests)
-                               (BLOCK ,name ,@body-rest))))
+                               (BLOCK ,(function-block-name name)
+                                 ,@body-rest))))
               (if lengthtest
                 (setq mainform
                       `(IF ,lengthtest
