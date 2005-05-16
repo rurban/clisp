@@ -723,8 +723,9 @@ foo
 
 (defun path= (p1 p2)
   (flet ((path-components (p)
-           (list (pathname-host p) (pathname-device p) (pathname-directory p)
-                 (pathname-name p) (pathname-type p) (pathname-version p))))
+           (list (type-of p) (pathname-host p) (pathname-device p)
+                 (pathname-directory p) (pathname-name p) (pathname-type p)
+                 (pathname-version p))))
     (or (equal p1 p2) (list (path-components p1) (path-components p2)))))
 path=
 
@@ -959,3 +960,32 @@ T
     (delete-file c)
     #+clisp (delete-file (make-pathname :type "lib" :defaults c))))
 "foo.bar"
+
+(let ((f "compile-file-pathname.lisp") cf cfp)
+  (with-open-file (s f :direction :output :if-exists :supersede)
+    (format s "(defun cfp-test () #.*compile-file-truename*)~%"))
+  (setq cf (compile-file f)
+        cfp (truename (compile-file-pathname f)))
+  (load cf)
+  (unwind-protect
+       (list (path= cf cfp)
+             (path= (truename f) (cfp-test)))
+    (delete-file f)
+    (delete-file cf)
+    #+clisp (delete-file (make-pathname :type "lib" :defaults cf))))
+(T T)
+
+(let ((f (logical-pathname "FOO:compile-file-pathname.lisp")) cf cfp)
+  (with-open-file (s f :direction :output :if-exists :supersede)
+    (type-of (truename s))
+    (format s "(defun cfp-test () #.*compile-file-truename*)~%"))
+  (setq cf (print (compile-file f))
+        cfp (truename (compile-file-pathname f)))
+  (load cf)
+  (unwind-protect
+       (list (path= cf cfp)
+             (path= (truename f) (cfp-test)))
+    (delete-file f)
+    (delete-file cf)
+    #+clisp (delete-file (make-pathname :type "lib" :defaults cf))))
+(T T)
