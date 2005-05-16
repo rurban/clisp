@@ -981,7 +981,7 @@ T
     (format s "(defun cfp-test () #.*compile-file-truename*)~%"))
   (setq cf (print (compile-file f))
         cfp (truename (compile-file-pathname f)))
-  (load cf)
+  (load (open cf :direction :probe :if-does-not-exist :error))
   (unwind-protect
        (list (path= cf cfp)
              (path= (truename f) (cfp-test)))
