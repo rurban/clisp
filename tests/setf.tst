@@ -558,3 +558,9 @@ T
 ; Clean up.
 (unintern 'x)
 T
+
+(setf (documentation (lambda () 'abazonk) 'function) "abazonk doc")
+"abazonk doc"
+
+(documentation (lambda () 'bazonk) 'function)
+NIL

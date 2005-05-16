@@ -29,9 +29,11 @@
     (documentation (second (check-function-name  x 'documentation))
                    'setf-compiler-macro))
   (:method ((x symbol) (doc-type (eql 'function)))
-    (if (and (fboundp x) (typep-class (fdefinition x) <standard-generic-function>))
-      (std-gf-documentation (fdefinition x))
-      (getf (gethash x sys::*documentation*) doc-type)))
+    (cond ((and (fboundp x)
+                (typep-class (fdefinition x) <standard-generic-function>))
+           (std-gf-documentation (fdefinition x)))
+          ((keywordp x) NIL) ; :LAMBDA = (function-name (lambda () ...))
+          (t (getf (gethash x sys::*documentation*) doc-type))))
   (:method ((x symbol) (doc-type symbol))
     ;; doc-type = `compiler-macro', `setf', `variable', `type',
     ;; `setf-compiler-macro'

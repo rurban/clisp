@@ -1,5 +1,11 @@
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
+	* documentation.lisp (documentation): return NIL for KEYWORDs
+	because :LAMBDA = (FUNCTION-NAME (LAMBDA () ...)) for all LAMBDAs
+	* init.lisp (%set-documentation): ditto
+
+2005-05-16  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (ENOUGH-NAMESTRING): check consp() before taking Car()
 
 2005-05-16  Sam Steingold  <sds@gnu.org>
