@@ -1,5 +1,10 @@
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
+	* setf.tst: check that (DOCUMENTATION (LAMBDA () ...)) does not
+	persist from one LAMBDA to another
+
+2005-05-16  Sam Steingold  <sds@gnu.org>
+
 	* path.tst: check that COMPILE-FILE returns the truename
 
 2005-05-15  Sam Steingold  <sds@gnu.org>
