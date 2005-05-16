@@ -1,7 +1,7 @@
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (open-for-load): return FILENAME as is only if it is
-	an open input stream, symmetric to in COMPILE-FILE-PATHNAME-HELPER
+	an open input stream, symmetric to COMPILE-FILE-PATHNAME-HELPER
 
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
@@ -1959,8 +1959,8 @@
 
 	* realtran.d (R_ln_R): Remove start_p argument.
 	(R_R_log_R): Update.
-	* comptran.d (N_log_N, N_N_log_N, R_R_atanh_R_R, R_R_asinh_R_R,
-	N_acos_N, N_acosh_N): Update.
+	* comptran.d (N_log_N, N_N_log_N, R_R_atanh_R_R, R_R_asinh_R_R)
+	(N_acos_N, N_acosh_N): Update.
 	* lisparit.d (log_digits): Update.
 
 2005-02-20  Bruno Haible  <bruno@clisp.org>
@@ -2911,8 +2911,8 @@
 	* compiler.lisp (process-declarations): Return the other declspecs as a
 	fifth value.
 	(push-*denv*): New function.
-	(c-LAMBDABODY, c-LET/LET*, c-LOCALLY, c-MULTIPLE-VALUE-BIND,
-	c-SYMBOL-MACROLET, c-FUNCALL-INLINE): Call push-*denv* immediately
+	(c-LAMBDABODY, c-LET/LET*, c-LOCALLY, c-MULTIPLE-VALUE-BIND)
+	(c-SYMBOL-MACROLET, c-FUNCALL-INLINE): Call push-*denv* immediately
 	before compiling the body-forms.
 
 2005-01-21  Bruno Haible  <bruno@clisp.org>
@@ -3372,8 +3372,8 @@
 	(SRCDOCDIR_): Renamed from DOCDIR_.
 	(SRCDOCDIR_M): Renamed from DOCDIR_M.
 	(DOCDIR): New variable.
-	(mandir, MANDIR, htmldir, HTMLDIR, dvidir, DVIDIR, psdir, PSDIR,
-	pdfdir, PDFDIR): New variables.
+	(mandir, MANDIR, htmldir, HTMLDIR, dvidir, DVIDIR, psdir, PSDIR)
+	(pdfdir, PDFDIR): New variables.
 	(brace_to_paren): New variable.
 	(datadir): Renamed from shared.
 	* _distmakefile (datadir): Renamed from shared.
@@ -3706,8 +3706,8 @@
 	* lispbibl.d (top_of_back_trace_frame): New declaration.
 	(bt_beyond_stack_p): Use it instead of bt_stack.
 	(with_saved_back_trace): Add stack argument.
-	(with_saved_back_trace_fsubr, with_saved_back_trace_subr,
-	with_saved_back_trace_cclosure, with_saved_back_trace_iclosure): New
+	(with_saved_back_trace_fsubr, with_saved_back_trace_subr)
+	(with_saved_back_trace_cclosure, with_saved_back_trace_iclosure): New
 	macros.
 	* debug.d (driver): Correct bt_stack value.
 	(break_driver): Correct bt_stack and bt_function values.
@@ -4023,8 +4023,8 @@
 
 	Optimize away empty LET* in place macro expansions.
 	* places.lisp (wrap-let*): New function.
-	(push, pop, psetf, pushnew, remf, define-modify-macro, setf,
-	multiple-value-setf): Use it.
+	(push, pop, psetf, pushnew, remf, define-modify-macro, setf)
+	(multiple-value-setf): Use it.
 
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
@@ -4068,10 +4068,10 @@
 
 2004-12-18  Bruno Haible  <bruno@clisp.org>
 
-	* places.lisp (get-setf-method, push, pop, psetf, pushnew, remf,
-	rotatef, define-modify-macro, setf, shiftf, getf, char-bit, ldb,
-	mask-field, the, apply, progn, locally, if, values, setf-VALUES-aux,
-	multiple-value-setf): Use reasonable variable names.
+	* places.lisp (get-setf-method, push, pop, psetf, pushnew, remf)
+	(rotatef, define-modify-macro, setf, shiftf, getf, char-bit, ldb)
+	(mask-field, the, apply, progn, locally, if, values, setf-VALUES-aux)
+	(multiple-value-setf): Use reasonable variable names.
 	* condition.lisp (assert): Likewise.
 	* macros3.lisp (expand-LETF*, expand-LETF): Likewise.
 
@@ -4240,8 +4240,8 @@
 	* spvw.d (SP_anchor): New variable.
 	(main): Initialize it.
 	* spvw_debug.d (DEBUG_SPVW_ASSERT): New macro.
-	* spvw_global.d (is_valid_varobject_address, is_valid_cons_address,
-	is_valid_heap_object_address, is_valid_stack_address): New macros.
+	* spvw_global.d (is_valid_varobject_address, is_valid_cons_address)
+	(is_valid_heap_object_address, is_valid_stack_address): New macros.
 	* spvw_garcol.d (update) [DEBUG_SPVW]: Check that the pointers being
 	written to memory are valid.
 	* spvw_genera1.d (rebuild_old_generation_cache) [DEBUG_SPVW]: Check
@@ -4536,13 +4536,13 @@
 
 	* lispbibl.d (shifthash): Add allowgc argument.
 	* hashtabl.d (shifthash): Add allowgc argument.
-	* io.d (perchar_table_put, copy_perchar_table,
-	syntax_table_put_notinline, copy_readtable_contents): Pass allowgc =
+	* io.d (perchar_table_put, copy_perchar_table)
+	(syntax_table_put_notinline, copy_readtable_contents): Pass allowgc =
 	true.
 	* sequence.d (seq_duplicates): Likewise.
 	* pathname.d (TRANSLATE-LOGICAL-PATHNAME, directory_search): Likewise.
-	* foreign.d (register_foreign_variable, register_foreign_function,
-	convert_function_to_foreign): Pass allowgc = true.
+	* foreign.d (register_foreign_variable, register_foreign_function)
+	(convert_function_to_foreign): Pass allowgc = true.
 	(free_foreign_callin): Pass allowgc = false.
 
 2004-12-08  Bruno Haible  <bruno@clisp.org>
@@ -4593,8 +4593,8 @@
 	(UTILS): Add gctrigger.
 	* lispbibl.d (maygc): New macro.
 	(inc_allocstamp): New overloaded function.
-	(GCTRIGGER, GCTRIGGER1, GCTRIGGER2, GCTRIGGER3, GCTRIGGER4, GCTRIGGER5,
-	GCTRIGGER6, GCTRIGGER_IF): New macros.
+	(GCTRIGGER, GCTRIGGER1, GCTRIGGER2, GCTRIGGER3, GCTRIGGER4, GCTRIGGER5)
+	(GCTRIGGER6, GCTRIGGER_IF): New macros.
 	* lispbibl.d: Use maygc declaration where possible.
 	* spvw.d: Likewise.
 	* spvw_circ.d: Likewise.
@@ -5121,8 +5121,8 @@
 	(mmap_prepare): Use uintM.
 	* spvw_multimap.d (mmap_interval_t): Change the type of mm_len to
 	uintM.
-	(remember_mmap_interval, fdmap, zeromap, open_temp_fd, fdsave,
-	open_shmid, shmsave): Take an uintM.
+	(remember_mmap_interval, fdmap, zeromap, open_temp_fd, fdsave)
+	(open_shmid, shmsave): Take an uintM.
 	(multimap): Update.
 	* spvw_singlemap.d (filemap): Take an uintM.
 	* spvw_page.d (_Page): Change type of gcpriv.l to uintM.
@@ -5137,11 +5137,11 @@
 	(recalc_space): Update.
 	* spvw_objsize.d (varobject_bytelength): Return uintM.
 	(size_svector): Likewise.
-	(objsize, objsize_symbol, objsize_sbvector, objsize_sb2vector,
-	objsize_sb4vector, objsize_sb8vector, objsize_sb16vector,
-	objsize_sb32vector, objsize_svector, objsize_sxrecord, objsize_lrecord,
-	objsize_bignum, objsize_ffloat, objsize_dfloat, objsize_lfloat,
-	objsize_func_t): Likewise.
+	(objsize, objsize_symbol, objsize_sbvector, objsize_sb2vector)
+	(objsize_sb4vector, objsize_sb8vector, objsize_sb16vector)
+	(objsize_sb32vector, objsize_svector, objsize_sxrecord, objsize_lrecord)
+	(objsize_bignum, objsize_ffloat, objsize_dfloat, objsize_lfloat)
+	(objsize_func_t): Likewise.
 	* spvw_update.d (update_varobject, update_svector): Use uintM.
 	* spvw_fault.d (xmprotect, xmmprotect): Take an uintM.
 	* spvw_garcol.d (gc_sweep1_varobject_page): Update.
@@ -5156,8 +5156,8 @@
 	to uintM.
 	(activate_weak): Update.
 	* spvw_allocate.d (relax_reserve, mymalloc): Take an uintM.
-	(not_enough_room_p, make_space, make_space_gc, make_space_true,
-	make_space_false, make_space_using_malloc): Likewise.
+	(not_enough_room_p, make_space, make_space_gc, make_space_true)
+	(make_space_false, make_space_using_malloc): Likewise.
 	* spvw_typealloc.d (allocate_vector): Use uintM.
 	* spvw_walk.d (map_heap_objects): Update.
 	* spvw_memfile.d (savemem, loadmem_from_handle): Use uintM.
@@ -5227,8 +5227,8 @@
 	Call also set-<forward-referenced-class>-...
 	(set-<class>-<potential-class>, set-<class>-<defined-class>): Disable
 	package lock.
-	(set-<forward-referenced-class>-<misdesigned-forward-referenced-class>,
-	set-<forward-referenced-class>-<forward-reference-to-class>): New
+	(set-<forward-referenced-class>-<misdesigned-forward-referenced-class>)
+	(set-<forward-referenced-class>-<forward-reference-to-class>): New
 	functions.
 
 2004-11-18  Bruno Haible  <bruno@clisp.org>
@@ -5269,9 +5269,9 @@
 	instead of class-p.
 	* clos-class4.lisp (shared-initialize@potential-class): Renamed from
 	shared-initialize@class.
-	* clos-class5.lisp (*make-instance-table*,
-	*reinitialize-instance-table*,
-	*update-instance-for-redefined-class-table*): Update.
+	* clos-class5.lisp (*make-instance-table*)
+	(*reinitialize-instance-table*)
+	(*update-instance-for-redefined-class-table*): Update.
 	(note-ai-change): Use defined-class-p instead of class-p.
 	(update-instance-for-different-class@potential-class@standard-object):
 	Renamed from update-instance-for-different-class@class@standard-object.
@@ -5377,8 +5377,8 @@
 	(make_standard_output_file_stream): Renamed from make_standard_output.
 	Turn into a function.
 	(make_standard_error_file_stream): New function.
-	(get_standard_input_file_stream, get_standard_output_file_stream,
-	get_standard_error_file_stream): New functions.
+	(get_standard_input_file_stream, get_standard_output_file_stream)
+	(get_standard_error_file_stream): New functions.
 	(make_terminal_io): Use get_standard_{input,output}_file_stream instead
 	of make_standard_{input,output}.
 	(terminal_io_input_stream): New function, replaces init_standard_input.
@@ -5590,8 +5590,8 @@
 2004-11-08  Bruno Haible  <bruno@clisp.org>
 
 	Don't call initialize-instance for dummy generic-function instances.
-	* clos-genfun2b.lisp (allocate-generic-function-instance,
-	make-generic-function-prototype): New functions.
+	* clos-genfun2b.lisp (allocate-generic-function-instance)
+	(make-generic-function-prototype): New functions.
 	* clos-genfun3.lisp (analyze-defgeneric): Use
 	make-generic-function-prototype instead of
 	make-generic-function-instance.
@@ -5631,8 +5631,8 @@
 	(shared-initialize-<semi-standard-class>): Initialize the
 	direct-instance-specializers slot to empty.
 	(update-subclass-instance-specializer-generic-functions): New function.
-	(add-direct-instance-specializer, remove-direct-instance-specializer,
-	list-direct-instance-specializers): New functions.
+	(add-direct-instance-specializer, remove-direct-instance-specializer)
+	(list-direct-instance-specializers): New functions.
 	* clos-genfun1.lisp (<funcallable-standard-class>-instance-size*):
 	Increment.
 	* clos-class5.lisp (do-change-class): Update the old class' and the new
@@ -6437,9 +6437,9 @@
 2004-10-16  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class3.lisp (define-structure-class): Remove redundant code.
-	* defstruct.lisp (ds-make-constructor-body, ds-make-boa-constructor,
-	ds-make-keyword-constructor, ds-make-readers, ds-make-writers,
-	defstruct): For type = T, all slots are "real"; don't call
+	* defstruct.lisp (ds-make-constructor-body, ds-make-boa-constructor)
+	(ds-make-keyword-constructor, ds-make-readers, ds-make-writers)
+	(defstruct): For type = T, all slots are "real"; don't call
 	ds-real-slot-p in this case.
 
 2004-10-16  Bruno Haible  <bruno@clisp.org>
@@ -6583,8 +6583,8 @@
 2004-10-13  Bruno Haible  <bruno@clisp.org>
 
 	Reorganize some CLOS code.
-	* clos-genfun1.lisp (|#'compute-discriminating-function| etc.,
-	safe-gf-*): Move to clos-genfun2a.lisp.
+	* clos-genfun1.lisp (|#'compute-discriminating-function| etc.)
+	(safe-gf-*): Move to clos-genfun2a.lisp.
 	* clos-methcomb2.lisp (method-applicable-p, sort-applicable-methods):
 	Move to clos-genfun2a.lisp.
 	* clos-genfun2a.lisp, clos-genfun2b.lisp: New files, from
@@ -6601,8 +6601,8 @@
 	(compute-applicable-methods-using-classes-<generic-function>):
 	Renamed from
 	compute-applicable-methods-using-classes-<standard-generic-function>.
-	* clos-genfun4.lisp (compute-applicable-methods,
-	compute-applicable-methods-using-classes): Generalize the method from
+	* clos-genfun4.lisp (compute-applicable-methods)
+	(compute-applicable-methods-using-classes): Generalize the method from
 	<standard-generic-function> to <generic-function>.
 
 2004-10-12  Bruno Haible  <bruno@clisp.org>
@@ -6742,8 +6742,8 @@
 	(compute-applicable-methods-for-set): Call safe-gf-signature
 	instead of std-gf-signature.
 	* clos-method2.lisp (analyze-method-description): Likewise.
-	* clos-genfun4.lisp (no-applicable-method, missing-required-method,
-	no-next-method): Likewise.
+	* clos-genfun4.lisp (no-applicable-method, missing-required-method)
+	(no-next-method): Likewise.
 	(generic-function-signature): New generic function. Initialize
 	|#'generic-function-signature|.
 
@@ -6961,8 +6961,8 @@
 	New generic function (setf method-generic-function).
 	* clos-method1.lisp ((setf method-generic-function)): New preliminary
 	function.
-	* clos-genfun2.lisp (std-add-method, std-remove-method,
-	reinitialize-instance-<generic-function>): Use it instead of
+	* clos-genfun2.lisp (std-add-method, std-remove-method)
+	(reinitialize-instance-<generic-function>): Use it instead of
 	(setf std-method-generic-function).
 	* clos-method3.lisp ((setf method-generic-function)): New generic
 	function.
@@ -6975,8 +6975,8 @@
 	(standard-method): Remove from-defgeneric slot.
 	(initialize-instance-<standard-method>): Refer to
 	initialize-instance-<method>. Don't initialize from-defgeneric.
-	* clos-genfun2.lisp (std-remove-method,
-	reinitialize-instance-<generic-function>): Update.
+	* clos-genfun2.lisp (std-remove-method)
+	(reinitialize-instance-<generic-function>): Update.
 	* clos-method3.lisp (initialize-instance@method): New method.
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>
@@ -6991,8 +6991,8 @@
 	std-method-initfunction with a type check for <standard-method>.
 
 	Prepare for non-standard methods.
-	* clos-methcomb2.lisp (method-list-to-continuation,
-	effective-method-code-bricks, build-effective-method-function-form):
+	* clos-methcomb2.lisp (method-list-to-continuation)
+	(effective-method-code-bricks, build-effective-method-function-form):
 	Protect all calls to std-method-fast-function,
 	std-method-wants-next-method-p with a type check for <standard-method>.
 	* clos-genfun2.lisp (std-add-method): Likewise.
@@ -7002,9 +7002,9 @@
 	Optimize type checks.
 	* clos-class3.lisp (compute-slots-<slotted-class>-around): Use
 	typep-class instead of typep.
-	* clos-methcomb2.lisp (check-em-duplicates-option,
-	callable-method-form-p, effective-method-code-bricks,
-	build-effective-method-function-form): Likewise.
+	* clos-methcomb2.lisp (check-em-duplicates-option)
+	(callable-method-form-p, effective-method-code-bricks)
+	(build-effective-method-function-form): Likewise.
 	* clos-genfun3.lisp (analyze-defgeneric): Likewise.
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>
@@ -7018,8 +7018,8 @@
 	fmakunbound.
 
 	Respect user-defined methods on method-lambda-list.
-	* clos-genfun2.lisp (check-signature-congruence, std-add-method,
-	gf-keyword-arguments): Call method-signature instead of
+	* clos-genfun2.lisp (check-signature-congruence, std-add-method)
+	(gf-keyword-arguments): Call method-signature instead of
 	std-gf-signature.
 	* clos-genfun3.lisp (defmethod): Likewise.
 	* clos-method3.lisp (method-signature): Redefine without fmakunbound.
@@ -7037,14 +7037,14 @@
 	* clos-methcomb2.lisp (partition-method-list): Add gf argument. Call
 	safe-method-qualifiers instead of std-method-qualifiers.
 	(standard-method-combination-expander): Update.
-	(standard-method-combination-check-method-qualifiers,
-	standard-method-combination-call-next-method-allowed,
-	short-form-method-combination-expander,
-	short-form-method-combination-check-method-qualifiers,
-	short-form-method-combination-call-next-method-allowed): Call
+	(standard-method-combination-check-method-qualifiers)
+	(standard-method-combination-call-next-method-allowed)
+	(short-form-method-combination-expander)
+	(short-form-method-combination-check-method-qualifiers)
+	(short-form-method-combination-call-next-method-allowed): Call
 	method-qualifiers instead of std-method-qualifiers.
-	* clos-genfun2.lisp (invalid-method-qualifiers-error, methods-agree-p,
-	std-find-method): Call method-qualifiers instead of
+	* clos-genfun2.lisp (invalid-method-qualifiers-error, methods-agree-p)
+	(std-find-method): Call method-qualifiers instead of
 	std-method-qualifiers.
 	* clos-genfun4.lisp (no-primary-method, no-next-method): Call
 	method-qualifiers instead of std-method-qualifiers.
@@ -7061,25 +7061,25 @@
 	std-method-specializers.
 	(long-form-method-combination-collect-duplicates): Call
 	method-specializers instead of std-method-specializers.
-	* clos-genfun2.lisp (methods-agree-p, std-add-method,
-	std-remove-method, std-find-method): Call method-specializers instead
-	of std-method-specializers.
+	* clos-genfun2.lisp (methods-agree-p, std-add-method)
+	(std-remove-method, std-find-method): Call method-specializers
+	instead of std-method-specializers.
 	(compute-dispatch): Call safe-method-specializers instead of
 	std-method-specializers.
 	(compute-applicable-methods-<standard-generic-function>): Update.
-	(compute-applicable-methods-using-classes-<standard-generic-function>,
-	compute-applicable-methods-for-set,
-	check-method-only-standard-specializers): Call safe-method-specializers
-	instead of std-method-specializers.
+	(compute-applicable-methods-using-classes-<standard-generic-function>)
+	(compute-applicable-methods-for-set)
+	(check-method-only-standard-specializers): Call
+	safe-method-specializers instead of std-method-specializers.
 	* clos-genfun4.lisp (dispatching-arg-p, dispatching-arg-type): Call
 	method-specializers instead of std-method-specializers.
 	* clos-method3.lisp (method-specializers): Redefine without fmakunbound.
 	Initialize |#'method-specializers|.
-	* clos-class5.lisp (note-ai-change, note-ii-change, note-ri-change,
-	note-uirc-change, note-uidc-change, note-si-change,
-	valid-make-instance-keywords, valid-reinitialize-instance-keywords,
-	valid-update-instance-for-redefined-class-keywords,
-	valid-update-instance-for-different-class-keywords): Call
+	* clos-class5.lisp (note-ai-change, note-ii-change, note-ri-change)
+	(note-uirc-change, note-uidc-change, note-si-change)
+	(valid-make-instance-keywords, valid-reinitialize-instance-keywords)
+	(valid-update-instance-for-redefined-class-keywords)
+	(valid-update-instance-for-different-class-keywords): Call
 	method-specializers instead of std-method-specializers.
 	* describe.lisp (describe-object@generic-function): Likewise.
 
@@ -7088,11 +7088,11 @@
 	* clos-method1.lisp (method-lambda-list-to-signature): New function,
 	extracted from initialize-instance-<standard-method>.
 	(initialize-instance-<standard-method>): Use it.
-	(method-function, method-qualifiers, method-lambda-list,
-	method-signature, method-specializers, method-generic-function): New
+	(method-function, method-qualifiers, method-lambda-list)
+	(method-signature, method-specializers, method-generic-function): New
 	preliminary functions.
-	* clos-method3.lisp (method-function, method-qualifiers,
-	method-lambda-list, method-specializers, method-generic-function):
+	* clos-method3.lisp (method-function, method-qualifiers)
+	(method-lambda-list, method-specializers, method-generic-function):
 	Fmakunbound before defgeneric.
 	(method-signature): New generic function.
 
@@ -7100,9 +7100,9 @@
 
 	Respect user-defined methods on finalize-inheritance.
 	* clos-class3.lisp (finalize-inheritance): New preliminary function.
-	(subclassp, update-subclasses-for-redefined-class,
-	update-subclasses-for-redefined-class-nonrecursive): Use it instead of
-	finalize-class.
+	(subclassp, update-subclasses-for-redefined-class)
+	(update-subclasses-for-redefined-class-nonrecursive): Use it
+	instead of finalize-class.
 
 2004-10-13  Bruno Haible  <bruno@clisp.org>
 
@@ -7133,14 +7133,14 @@
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
 	Allow tracing of compute-applicable-methods et al.
-	* clos-genfun1.lisp (|#'compute-discriminating-function|,
-	|#'compute-applicable-methods|,
-	|#'compute-applicable-methods-using-classes|,
-	|#'compute-effective-method|): New variables.
+	* clos-genfun1.lisp (|#'compute-discriminating-function|)
+	(|#'compute-applicable-methods|)
+	(|#'compute-applicable-methods-using-classes|)
+	(|#'compute-effective-method|): New variables.
 	* clos-methcomb2.lisp (compute-effective-method-as-function-form):
 	Use them.
-	* clos-genfun2.lisp (install-dispatch,
-	compute-applicable-methods-effective-method): Likewise.
+	* clos-genfun2.lisp (install-dispatch)
+	(compute-applicable-methods-effective-method): Likewise.
 	* clos-genfun4.lisp: Initialize |#'compute-discriminating-function|,
 	|#'compute-applicable-methods|,
 	|#'compute-applicable-methods-using-classes|,
@@ -7165,8 +7165,8 @@
 	* clos-genfun1.lisp
 	(*<funcallable-standard-class>-valid-initialization-keywords*): New
 	constant.
-	(funcallable-standard-object, generic-function,
-	standard-generic-function): Define through defclass instead of
+	(funcallable-standard-object, generic-function)
+	(standard-generic-function): Define through defclass instead of
 	ensure-class.
 
 2004-10-09  Bruno Haible  <bruno@clisp.org>
@@ -7283,8 +7283,8 @@
 	(subscripts_to_index): Fix invalid STACK accesses.
 	(SYS::STORE): Store the checked array in the STACK, for
 	storagevector_store.
-	(SVREF, SYS::SVSTORE, SYS::%SVSTORE, ROW-MAJOR-AREF,
-	SYS::ROW-MAJOR-STORE): Update.
+	(SVREF, SYS::SVSTORE, SYS::%SVSTORE, ROW-MAJOR-AREF)
+	(SYS::ROW-MAJOR-STORE): Update.
 	(ARRAY-IN-BOUNDS-P): Update. Fix invocation of fehler_subscript_type.
 	(ARRAY-ROW-MAJOR-INDEX): Fix invalid STACK accesses.
 	(fehler_bit_array): Pass the array as argument, not on the STACK.
@@ -7594,8 +7594,8 @@
 	options.
 	* clos-class1.lisp (semi-standard-class): Provide an initarg and a
 	default-initarg for the fixed-slot-locations slot.
-	(*<standard-class>-valid-initialization-keywords*,
-	*<standard-class>-default-initargs*): New constants.
+	(*<standard-class>-valid-initialization-keywords*)
+	(*<standard-class>-default-initargs*): New constants.
 	* clos-class3.lisp (defclass): Don't special-case :fixed-slot-locations
 	option. Use *<standard-class>-valid-initialization-keywords*,
 	*<standard-class>-default-initargs*.
@@ -7603,25 +7603,25 @@
 2004-09-20  Bruno Haible  <bruno@clisp.org>
 
 	Change syntax of DEFCLASS :fixed-slot-locations option.
-	* clos-slotdef1.lisp (slot-definition, direct-slot-definition,
-	effective-slot-definition, standard-slot-definition,
-	standard-direct-slot-definition, standard-effective-slot-definition,
-	structure-direct-slot-definition, structure-effective-slot-definition):
+	* clos-slotdef1.lisp (slot-definition, direct-slot-definition)
+	(effective-slot-definition, standard-slot-definition)
+	(standard-direct-slot-definition, standard-effective-slot-definition)
+	(structure-direct-slot-definition, structure-effective-slot-definition):
 	Provide a boolean argument to the :fixed-slot-locations option.
 	* clos-stablehash1.lisp (standard-stablehash): Likewise.
 	* clos-specializer1.lisp (specializer, eql-specializer): Likewise.
-	* clos-class1.lisp (class, built-in-class, slotted-class,
-	structure-class, semi-standard-class, standard-class): Likewise.
-	* clos-class3.lisp (reinitialize-instance-<class>,
-	shared-initialize-<semi-standard-class>): Convert the option, a list,
+	* clos-class1.lisp (class, built-in-class, slotted-class)
+	(structure-class, semi-standard-class, standard-class): Likewise.
+	* clos-class3.lisp (reinitialize-instance-<class>)
+	(shared-initialize-<semi-standard-class>): Convert the option, a list,
 	to a boolean.
-	* clos-method1.lisp (standard-method, standard-accessor-method,
-	standard-reader-method, standard-writer-method): Provide a boolean
+	* clos-method1.lisp (standard-method, standard-accessor-method)
+	(standard-reader-method, standard-writer-method): Provide a boolean
 	argument to the :fixed-slot-locations option.
 	* clos-methcomb1.lisp (method-combination): Likewise.
-	* clos-genfun1.lisp (funcallable-standard-class,
-	funcallable-standard-object, generic-function,
-	standard-generic-function): Likewise.
+	* clos-genfun1.lisp (funcallable-standard-class)
+	(funcallable-standard-object, generic-function)
+	(standard-generic-function): Likewise.
 
 2004-09-22  Sam Steingold  <sds@gnu.org>
 
@@ -7689,8 +7689,8 @@
 	(*<slotted-class>-valid-initargs-from-slots-location*): Renamed from
 	*<slotted-class>-valid-initargs-location*.
 	(class-valid-initargs-from-slots): Renamed from class-valid-initargs.
-	* clos-class3.lisp (shared-initialize-<structure-class>,
-	finalize-instance-semi-standard-class): Update.
+	* clos-class3.lisp (shared-initialize-<structure-class>)
+	(finalize-instance-semi-standard-class): Update.
 	* clos-class5.lisp (valid-initarg-keywords): Update.
 	* clos-class6.lisp (class-valid-initargs-from-slots): Renamed from
 	class-valid-initargs.
@@ -7773,8 +7773,8 @@
 
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
-	* clos-class3.lisp (compute-slots-<slotted-class>-around,
-	create-shared-slots-vector): Fix bug in 2004-09-12 patch.
+	* clos-class3.lisp (compute-slots-<slotted-class>-around)
+	(create-shared-slots-vector): Fix bug in 2004-09-12 patch.
 
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
@@ -7796,8 +7796,8 @@
 
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
-	* init.lisp (remove-old-definitions, open-for-load,
-	specialized-lambda-list-to-ordinary, defun): Fix indentation. Use
+	* init.lisp (remove-old-definitions, open-for-load)
+	(specialized-lambda-list-to-ordinary, defun): Fix indentation. Use
 	'when' instead of 'if' without else-branch.
 
 2004-09-16  Bruno Haible  <bruno@clisp.org>
@@ -7856,8 +7856,8 @@
 	* lispbibl.d (SlotDefinition): Add fields slotdef_efm_svuc,
 	slotdef_efm_ssvuc, slotdef_efm_sbuc, slotdef_efm_smuc.
 	* record.d (slot_using_class_up): New function.
-	(CLOS::%SLOT-VALUE-USING-CLASS, CLOS::%SET-SLOT-VALUE-USING-CLASS,
-	CLOS::%SLOT-BOUNDP-USING-CLASS, CLOS::%SLOT-MAKUNBOUND-USING-CLASS):
+	(CLOS::%SLOT-VALUE-USING-CLASS, CLOS::%SET-SLOT-VALUE-USING-CLASS)
+	(CLOS::%SLOT-BOUNDP-USING-CLASS, CLOS::%SLOT-MAKUNBOUND-USING-CLASS):
 	New functions.
 	(slot_up): Remove function.
 	(CLOS:SLOT-VALUE): Inline slot_up. Handle the general case slotinfo:
@@ -7874,36 +7874,36 @@
 	* clos-slotdef1.lisp (effective-slot-definition): Add slots efm-svuc,
 	efm-ssvuc, efm-sbuc, efm-smuc.
 	(*<effective-slot-definition>-efm-...-location*): New constants.
-	(slot-definition-efm-svuc, slot-definition-efm-ssvuc,
-	slot-definition-efm-sbuc, slot-definition-efm-smuc): New accessors.
-	(make-instance-<standard-effective-slot-definition>,
-	structure-effective-slot-definition-initff,
-	structure-effective-slot-definition-readonly,
-	make-instance-<structure-effective-slot-definition>): Update.
-	* clos-slotdef3.lisp (slot-definition-efm-svuc,
-	slot-definition-efm-ssvuc, slot-definition-efm-sbuc,
-	slot-definition-efm-smuc): New accessors.
+	(slot-definition-efm-svuc, slot-definition-efm-ssvuc)
+	(slot-definition-efm-sbuc, slot-definition-efm-smuc): New accessors.
+	(make-instance-<standard-effective-slot-definition>)
+	(structure-effective-slot-definition-initff)
+	(structure-effective-slot-definition-readonly)
+	(make-instance-<structure-effective-slot-definition>): Update.
+	* clos-slotdef3.lisp (slot-definition-efm-svuc)
+	(slot-definition-efm-ssvuc, slot-definition-efm-sbuc)
+	(slot-definition-efm-smuc): New accessors.
 	* clos-class3.lisp (compute-slots-<slotted-class>-around): Properly
 	extract the location from the slot-location-table entry.
 	(create-shared-slots-vector): Likewise.
 	(compute-slot-location-table-entry): New function.
 	(compute-slot-location-table): Use it.
 	(list-all-finalized-subclasses): Make it work also for class <t>.
-	* clos-genfun2.lisp (|#'slot-value-using-class|,
-	|#'(setf slot-value-using-class)|, |#'slot-boundp-using-class|,
-	|#'slot-makunbound-using-class|): New variables.
+	* clos-genfun2.lisp (|#'slot-value-using-class|)
+	(|#'(setf slot-value-using-class)|, |#'slot-boundp-using-class|)
+	(|#'slot-makunbound-using-class|): New variables.
 	(std-add-method, std-remove-method): Notify when one of these generic
 	functions changes.
-	* clos-slots2.lisp (invalidate-slot-value-info, note-svuc-change,
-	note-ssvuc-change, note-sbuc-change, note-smuc-change): New functions.
+	* clos-slots2.lisp (invalidate-slot-value-info, note-svuc-change)
+	(note-ssvuc-change, note-sbuc-change, note-smuc-change): New functions.
 	(slot-value-using-class, (setf slot-value-using-class),
 	slot-boundp-using-class, slot-makunbound-using-class): New generic
 	functions.
 
 2004-09-12  Bruno Haible  <bruno@clisp.org>
 
-	* clos-genfun2.lisp (compute-applicable-methods-effective-method-for-set,
-	compute-applicable-methods-for-set): New functions.
+	* clos-genfun2.lisp (compute-applicable-methods-for-set)
+	(compute-applicable-methods-effective-method-for-set): New functions.
 
 2004-09-14  Sam Steingold  <sds@gnu.org>
 
@@ -8052,8 +8052,8 @@
 	(generic-function): Add slot 'listeners'.
 	(shared-initialize-<generic-function>): Initialize the listeners.
 	* clos-genfun2.lisp (map-dependents-<generic-function>): New function.
-	(std-add-method, std-remove-method,
-	reinitialize-instance-<generic-function>): Invoke map-dependents.
+	(std-add-method, std-remove-method)
+	(reinitialize-instance-<generic-function>): Invoke map-dependents.
 	* clos-dependent.lisp: New file.
 	* clos.lisp: Load it.
 	* makemake.in (LPARTS): Add clos-dependent.
@@ -8618,8 +8618,8 @@
 
 	* init.lisp: Export compute-discriminating-function.
 	* clos-package.lisp: Likewise.
-	* clos-genfun2.lisp (compute-discriminating-function,
-	compute-discriminating-function-<standard-generic-function>): New
+	* clos-genfun2.lisp (compute-discriminating-function)
+	(compute-discriminating-function-<standard-generic-function>): New
 	functions.
 	(install-dispatch): Call compute-discriminating-function.
 	* clos-genfun5.lisp (compute-discriminating-function): New generic
@@ -8688,8 +8688,8 @@
 
 	* constobj.d: Make O(terminal_encoding) also available if !UNICODE.
 	* encoding.d (init_dependent_encodings): Initialize it.
-	* stream.d (make_keyboard_stream, make_terminal_stream_,
-	SCREEN:MAKE-WINDOW): Install O(terminal_encoding) as the stream's
+	* stream.d (make_keyboard_stream, make_terminal_stream_)
+	(SCREEN:MAKE-WINDOW): Install O(terminal_encoding) as the stream's
 	encoding also if !UNICODE.
 	Fixes a bug introduced on 2004-05-21.
 	Reported by Michael Livshin <clisp@cmm.kakpryg.net>.
@@ -8713,8 +8713,8 @@
 	(%whole-form): Proclaim special.
 	(%expand-form): Bind %whole-form. Pass both :FORM and :DETAIL when
 	signalling a source-program-error.
-	(%expand-list, %expand-lambda, %expand-lambdalist, %expand-varspez,
-	%expand-varspez*, %expand-fundefs-1, %expand-funmacdefs-1): Pass both
+	(%expand-list, %expand-lambda, %expand-lambdalist, %expand-varspez)
+	(%expand-varspez*, %expand-fundefs-1, %expand-funmacdefs-1): Pass both
 	:FORM and :DETAIL when signalling a source-program-error.
 	(defun, do): Likewise.
 	(defmacro): Pass whole form to sys::make-macro-expansion.
@@ -8797,8 +8797,8 @@
 	source-program-error.
 	(call-method, make-method, make-method-error,): Pass both :FORM and
 	:DETAIL when signalling a source-program-error.
-	(call-method-arg1-error, call-method-arg2-error,
-	call-method-arg2elements-error): Likewise.
+	(call-method-arg1-error, call-method-arg2-error)
+	(call-method-arg2elements-error): Likewise.
 	(build-effective-method-function-form): Update for changed errfunc
 	signature.
 	(compute-effective-method-as-function-form): Update.
@@ -8831,8 +8831,8 @@
 	(restart-case, with-restarts): Update.
 	* foreign1.lisp (DEF-C-VAR): Pass both :FORM and :DETAIL when
 	signalling a source-program-error.
-	(element, deref, slot, cast, offset, c-var-object, c-var-address,
-	typeof): Likewise.
+	(element, deref, slot, cast, offset, c-var-object, c-var-address)
+	(typeof): Likewise.
 	* affi1.lisp (mlibcall): Pass both :FORM and :DETAIL when signalling a
 	source-program-error.
 	* macros3.lisp (LETF*): Pass whole form to expand-LETF*.
@@ -8858,8 +8858,8 @@
 	* clos-genfun3.lisp (defmethod, declaim-method, analyze-defgeneric):
 	Likewise.
 	* documentation.lisp (documentation, (setf documentation)): Likewise.
-	* foreign1.lisp (DEF-C-TYPE, DEF-C-VAR, DEF-CALL-OUT, DEF-LIB-CALL-OUT,
-	DEF-CALL-IN, def-c-enum): Likewise.
+	* foreign1.lisp (DEF-C-TYPE, DEF-C-VAR, DEF-CALL-OUT, DEF-LIB-CALL-OUT)
+	(DEF-CALL-IN, def-c-enum): Likewise.
 
 2004-08-21  Bruno Haible  <bruno@clisp.org>
 
@@ -9066,8 +9066,8 @@
 	the required arguments, not the required arguments themselves.
 	(compute-effective-method-as-function-form): Bootstrapping hack for
 	compute-applicable-methods-using-classes.
-	* clos-genfun2.lisp (compute-applicable-methods-using-classes,
-	compute-applicable-methods-using-classes-<standard-generic-function>):
+	* clos-genfun2.lisp (compute-applicable-methods-using-classes)
+	(compute-applicable-methods-using-classes-<standard-generic-function>):
 	New functions.
 	(check-method-only-standard-specializers): Add caller argument.
 	(compute-applicable-methods-effective-method): Call
@@ -9352,8 +9352,8 @@
 	* record.d (check_genericlambda_function_replacement): Renamed from
 	check_generic_function_replacement.
 	(check_genericlambda_function): Renamed from check_generic_function.
-	(SYS::%COPY-GENERIC-FUNCTION,
-	SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION): Update.
+	(SYS::%COPY-GENERIC-FUNCTION)
+	(SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION): Update.
 	* predtype.d (GENERIC-FUNCTION-P): Remove function.
 	* eval.d (FUNTAB): Remove generic-function-p.
 	* savemem.lisp (%saveinitmem): Use typep instead of generic-function-p.
@@ -9461,8 +9461,8 @@
 	generic function.
 	(make-generic-function-form): Update. Pass a lambda-list and
 	argument-precedence-order to make-generic-function.
-	* clos-genfun5.lisp (shared-initialize@generic-function,
-	shared-initialize@standard-generic-function): New functions.
+	* clos-genfun5.lisp (shared-initialize@generic-function)
+	(shared-initialize@standard-generic-function): New functions.
 	(no-applicable-method, missing-required-method, no-primary-method)
 	(no-next-method): Update.
 	(check-generic-function-initialized): New function.
@@ -9550,17 +9550,17 @@
 	(<semi-standard-class>, *<semi-standard-class>-defclass*): New
 	variables.
 	(standard-class): Inherit from semi-standard-class.
-	(class-current-version, class-fixed-slot-locations, class-instantiated,
-	class-finalized-direct-subclasses-table, class-prototype): Generalize
+	(class-current-version, class-fixed-slot-locations, class-instantiated)
+	(class-finalized-direct-subclasses-table, class-prototype): Generalize
 	to work on semi-standard-class.
 	(class-funcallablep): New accessor.
 	(*<standard-class>-instance-size*): Update.
-	(<funcallable-standard-class>,
-	*<funcallable-standard-class>-class-version*,
-	<funcallable-standard-object>): New variables.
+	(<funcallable-standard-class>)
+	(*<funcallable-standard-class>-class-version*)
+	(<funcallable-standard-object>): New variables.
 	(semi-standard-class-p): New function.
-	* clos-class2.lisp (<funcallable-standard-class>,
-	<funcallable-standard-object>): New variables.
+	* clos-class2.lisp (<funcallable-standard-class>)
+	(<funcallable-standard-object>): New variables.
 	* clos-class3.lisp (ensure-class-using-class-<t>): Add a special case
 	for <funcallable-standard-class>.
 	(default-direct-superclasses): Special case for
@@ -9593,29 +9593,29 @@
 	(do-change-class): New function.
 	(change-class): Add more methods.
 	(make-instances-obsolete): Update.
-	* clos-class6.lisp (initialize-instance-<funcallable-standard-class>,
-	make-instance-<funcallable-standard-class>): Replace.
+	* clos-class6.lisp (initialize-instance-<funcallable-standard-class>)
+	(make-instance-<funcallable-standard-class>): Replace.
 	(class-funcallablep, (setf class-funcallablep)): New functions.
-	(class-current-version, class-fixed-slot-locations, class-instantiated,
-	class-finalized-direct-subclasses-table, class-prototype): Generalize
+	(class-current-version, class-fixed-slot-locations, class-instantiated)
+	(class-finalized-direct-subclasses-table, class-prototype): Generalize
 	to class semi-standard-class.
 	(finalize-inheritance, compute-slots): Likewise.
 	(validate-superclass): Add special support for
 	<funcallable-standard-object>.
 	* compiler.lisp (make-trampoline): New function.
 	* clos-genfun1.lisp (funcallable-standard-class): New class.
-	(<funcallable-standard-class>,
-	*<funcallable-standard-class>-class-version*,
-	*<funcallable-standard-class>-instance-size*): New variables.
-	(make-instance-<funcallable-standard-class>,
-	initialize-instance-<funcallable-standard-class>,
-	shared-initialize-<funcallable-standard-class>): New functions.
+	(<funcallable-standard-class>)
+	(*<funcallable-standard-class>-class-version*)
+	(*<funcallable-standard-class>-instance-size*): New variables.
+	(make-instance-<funcallable-standard-class>)
+	(initialize-instance-<funcallable-standard-class>)
+	(shared-initialize-<funcallable-standard-class>): New functions.
 	(funcallable-standard-object): New class.
 	(<funcallable-standard-object>): New variable.
 	* clos-slotdef1.lisp (convert-direct-slots): Use semi-standard-class-p
 	instead of standard-class-p.
-	* clos-slotdef3.lisp (direct-slot-definition-class,
-	effective-slot-definition-class): Generalize to class
+	* clos-slotdef3.lisp (direct-slot-definition-class)
+	(effective-slot-definition-class): Generalize to class
 	semi-standard-class.
 	* clos-print.lisp (print-object@class): Use semi-standard-class-p
 	instead of standard-class-p.
@@ -9664,8 +9664,8 @@
 	* clos-methcomb1.lisp (method-combination): Define using defclass,
 	as subclass of metaobject.
 	(<method-combination>): New variable.
-	(initialize-instance-<method-combination>,
-	make-instance-<method-combination>, copy-method-combination): New
+	(initialize-instance-<method-combination>)
+	(make-instance-<method-combination>, copy-method-combination): New
 	functions.
 	* clos-methcomb2.lisp: Use make-instance-<method-combination> instead
 	of make-method-combination.
@@ -9906,8 +9906,8 @@
 	* clos-method3.lisp (method-lambda-list): New function.
 	* clos-class3.lisp (install-class-direct-accessors): Provide
 	:lambda-list arguments for all methods.
-	* clos-class5.lisp (shared-initialize, reinitialize-instance,
-	initialize-instance, allocate-instance, make-instance): Likewise.
+	* clos-class5.lisp (shared-initialize, reinitialize-instance)
+	(initialize-instance, allocate-instance, make-instance): Likewise.
 
 2004-06-03  Bruno Haible  <bruno@clisp.org>
 
@@ -10076,9 +10076,9 @@
 	Move install-class-direct-accessors call to initialize-instance.
 	* clos-class3.lisp (ensure-class-using-class-<t>): Don't call
 	install-class-direct-accessors after making a new class.
-	(initialize-instance-<built-in-class>,
-	initialize-instance-<structure-class>,
-	initialize-instance-<standard-class>): Call
+	(initialize-instance-<built-in-class>)
+	(initialize-instance-<structure-class>)
+	(initialize-instance-<standard-class>): Call
 	install-class-direct-accessors here.
 	* clos-class6.lisp (initialize-instance@class): New method.
 
@@ -10104,8 +10104,8 @@
 	* clos-class4.lisp (shared-initialize@structure-class): Accept
 	:generic-accessors argument.
 	(shared-initialize@standard-class): Likewise.
-	* clos-class6.lisp (class-generic-accessors,
-	(setf class-generic-accessors)): New generic functions.
+	* clos-class6.lisp (class-generic-accessors)
+	((setf class-generic-accessors)): New generic functions.
 	* compiler.lisp: Set *compile-accessor-functions* to nil temporarily.
 
 2004-05-31  Bruno Haible  <bruno@clisp.org>
@@ -10134,8 +10134,8 @@
 
 2004-05-30  Bruno Haible  <bruno@clisp.org>
 
-	* clos-class3.lisp (install-class-direct-accessors,
-	remove-accessor-methods, add-accessor-methods): New functions,
+	* clos-class3.lisp (install-class-direct-accessors)
+	(remove-accessor-methods, add-accessor-methods): New functions,
 	extracted from ensure-class-using-class-<t>.
 	(ensure-class-using-class-<t>): Use them.
 
@@ -10188,9 +10188,9 @@
 	initialize-instance@structure-class.
 	(shared-initialize@standard-class): Replaces
 	initialize-instance@standard-class.
-	* clos-class6.lisp (initialize-instance-<built-in-class>,
-	initialize-instance-<structure-class>,
-	initialize-instance-<standard-class>): Set to #'initialize-instance.
+	* clos-class6.lisp (initialize-instance-<built-in-class>)
+	(initialize-instance-<structure-class>)
+	(initialize-instance-<standard-class>): Set to #'initialize-instance.
 
 2004-07-18  Sam Steingold  <sds@gnu.org>
 
@@ -10240,8 +10240,8 @@
 2004-06-10  Bruno Haible  <bruno@clisp.org>
 
 	Add error checking for effective-method options.
-	* clos-methcomb2.lisp (check-em-arguments-option,
-	check-em-generic-function-option): New functions, extracted from
+	* clos-methcomb2.lisp (check-em-arguments-option)
+	(check-em-generic-function-option): New functions, extracted from
 	define-method-combination.
 	(check-em-duplicates-option): New function.
 	(compute-effective-method-as-function-form): Call
@@ -10363,8 +10363,8 @@
 	* clos-class3.lisp (compute-default-initargs-<class>): New function.
 	(compute-default-initargs): New function.
 	(checked-compute-default-initargs): New function.
-	(initialize-instance-<structure-class>,
-	finalize-instance-standard-class): Call it.
+	(initialize-instance-<structure-class>)
+	(finalize-instance-standard-class): Call it.
 	* clos-class6.lisp (compute-default-initargs): New generic function.
 
 2004-07-13  Bruno Haible  <bruno@clisp.org>
@@ -10406,8 +10406,8 @@
 	slot.
 	(initialize-instance-<slot-definition>): Check the allocation argument
 	here.
-	(initialize-instance-<direct-slot-definition>,
-	initialize-instance-<effective-slot-definition>): ... not here.
+	(initialize-instance-<direct-slot-definition>)
+	(initialize-instance-<effective-slot-definition>): ... not here.
 	(standard-effective-slot-definition-p): New function.
 	* clos-class3.lisp (compute-slots-<class>-primary): New function,
 	extracted from std-compute-slots.
@@ -10415,10 +10415,11 @@
 	std-compute-slots and std-layout-slots.
 	(compute-slots, checked-compute-slots): New functions.
 	(std-compute-slots, std-layout-slots): Remove functions.
-	(compute-instance-size, compute-shared-size,
-	create-shared-slots-vector, compute-slot-location-table): New functions.
-	(initialize-instance-<structure-class>,
-	finalize-instance-standard-class): Use the compute-slots functions
+	(compute-instance-size, compute-shared-size)
+	(create-shared-slots-vector, compute-slot-location-table):
+	New functions.
+	(initialize-instance-<structure-class>)
+	(finalize-instance-standard-class): Use the compute-slots functions
 	instead of std-compute-slots, std-layout-slots.
 	* clos-class6.lisp (compute-slots): New generic function.
 
@@ -10539,12 +10540,12 @@
 	Make the class-precedence-list computation customizable.
 	* init.lisp: Export compute-class-precedence-list.
 	* clos-package.lisp: Likewise.
-	* clos-class3.lisp (compute-class-precedence-list-<class>,
-	compute-class-precedence-list, checked-compute-class-precedence-list):
+	* clos-class3.lisp (compute-class-precedence-list-<class>)
+	(compute-class-precedence-list, checked-compute-class-precedence-list):
 	New functions.
-	(initialize-instance-<built-in-class>,
-	initialize-instance-<structure-class>,
-	finalize-instance-standard-class): Use
+	(initialize-instance-<built-in-class>)
+	(initialize-instance-<structure-class>)
+	(finalize-instance-standard-class): Use
 	checked-compute-class-precedence-list instead of std-compute-cpl.
 	* clos-class6.lisp (compute-class-precedence-list): New generic
 	function.
@@ -10614,8 +10615,8 @@
 	find-method-combination. Make argument required. i18n.
 	((setf get-method-combination)): Renamed from
 	(setf find-method-combination).
-	* clos-methcomb2.lisp (define-method-combination,
-	coerce-to-method-combination): Update.
+	* clos-methcomb2.lisp (define-method-combination)
+	(coerce-to-method-combination): Update.
 	* clos-genfun2.lisp (%make-gf): Update.
 	* documentation.lisp (documentation, (setf documentation)): Update.
 
@@ -10710,8 +10711,8 @@
 	(list-all-finalized-subclasses): Likewise.
 	Completely revamped bootstrapping.
 	(%defclos): Pass 3 class-versions and <class>.
-	* defstruct.lisp (clos::define-structure-class,
-	clos::undefine-structure-class): Remove preliminary functions.
+	* defstruct.lisp (clos::define-structure-class)
+	(clos::undefine-structure-class): Remove preliminary functions.
 	(structure-object): Remove definition, now done in clos-class3.lisp.
 	* clos.lisp: Load clos-class[456] instead of clos-class[235].
 	* clos-slotdef2.lisp: Don't use #'make-instance here.
@@ -10722,8 +10723,8 @@
 	* clos-class4.lisp: New file.
 	* clos-class5.lisp (class-name, (setf class-name)): Move to
 	clos-class6.lisp.
-	(initialize-instance@standard-class,
-	initialize-instance@structure-class): Move to clos-class3.lisp.
+	(initialize-instance@standard-class)
+	(initialize-instance@structure-class): Move to clos-class3.lisp.
 	(class-prototype, class-finalized-p): Move to clos-class6.lisp.
 	* clos-genfun2.lisp (*dynamically-modifiable-generic-function-names*):
 	Add validate-superclass.
@@ -10801,8 +10802,8 @@
 
 	* clos-method2.lisp (compute-effective-method-as-function): Convert
 	result from a form to a function.
-	* clos-methcomb2.lisp (compute-effective-method-function,
-	standard-method-combination-expander): Don't do the conversion here.
+	* clos-methcomb2.lisp (compute-effective-method-function)
+	(standard-method-combination-expander): Don't do the conversion here.
 
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 
@@ -10967,9 +10968,9 @@
 	* clos-genfun2.lisp (compute-applicable-methods-effective-method): Do
 	the method selection here.
 	(compute-effective-method-as-function): New function.
-	* clos-methcomb2.lisp (standard-method-combination-expander,
-	short-form-method-combination-expander,
-	long-form-method-combination-expander): Add methods argument, remove
+	* clos-methcomb2.lisp (standard-method-combination-expander)
+	(short-form-method-combination-expander)
+	(long-form-method-combination-expander): Add methods argument, remove
 	args argument. Don't do the method selection here.
 	(define-method-combination): Update.
 
@@ -11142,8 +11143,8 @@
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	* clos-macros.lisp: New file.
-	* clos-class2.lisp (add-direct-subclass, remove-direct-subclass,
-	list-direct-subclasses): Define through def-weak-set-accessors.
+	* clos-class2.lisp (add-direct-subclass, remove-direct-subclass)
+	(list-direct-subclasses): Define through def-weak-set-accessors.
 	* init.lisp: Load clos-macros.
 	* makemake.in (LPARTS): Add clos-macros.
 	* po/Makefile.devel (LISPSOURCES): Add clos-macros.
@@ -11193,7 +11194,7 @@
 	* clos-class2.lisp (finalize-instance-standard-class): For the slot
 	location table, use test STABLEHASH-EQ.
 	(std-compute-slots): Use test STABLEHASH-EQL instead of EQL.
-	(initialize-instance-structure-class: For the slot location table,
+	(initialize-instance-structure-class): For the slot location table
 	use test STABLEHASH-EQ.
 	* clos-genfun2.lisp (prototype-table): Use hash table test
 	STABLEHASH-EQUAL.
@@ -11275,10 +11276,10 @@
 
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
-	* clos-genfun2.lisp (callinfo, gf-signature, gf-argorder, gf-methods,
-	gf-method-combination): Move to clos-genfun1.lisp.
-	* clos-genfun1.lisp (callinfo, gf-signature, gf-argorder, gf-methods,
-	gf-method-combination): New functions, from clos-genfun2.lisp.
+	* clos-genfun2.lisp (callinfo, gf-signature, gf-argorder, gf-methods)
+	(gf-method-combination): Move to clos-genfun1.lisp.
+	* clos-genfun1.lisp (callinfo, gf-signature, gf-argorder, gf-methods)
+	(gf-method-combination): New functions, from clos-genfun2.lisp.
 
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
@@ -11296,10 +11297,10 @@
 
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
-	* clos-genfun1.lisp (methods-agree-p, specializers-agree-p,
-	same-specializers-p): Move to clos-genfun3.lisp.
-	* clos-genfun3.lisp (methods-agree-p, specializers-agree-p,
-	same-specializers-p): New functions, from clos-genfun1.lisp.
+	* clos-genfun1.lisp (methods-agree-p, specializers-agree-p)
+	(same-specializers-p): Move to clos-genfun3.lisp.
+	* clos-genfun3.lisp (methods-agree-p, specializers-agree-p)
+	(same-specializers-p): New functions, from clos-genfun1.lisp.
 
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
@@ -11342,17 +11343,17 @@
 	* clos-class2.lisp (class): Inherit from structure-stablehash.
 	(std-compute-superclasses, add-direct-subclass, list-all-subclasses):
 	Use a hash table with test STABLEHASH-EQ.
-	* clos-class5.lisp (*make-instance-table*,
-	*reinitialize-instance-table*,
-	*update-instance-for-redefined-class-table*): Likewise.
+	* clos-class5.lisp (*make-instance-table*)
+	(*reinitialize-instance-table*)
+	(*update-instance-for-redefined-class-table*): Likewise.
 	* clos-genfun2.lisp (compute-dispatch): When the number of dispatching
 	arguments is 1, use a hash table with test STABLEHASH-EQ.
 
 2004-05-13  Bruno Haible  <bruno@clisp.org>
 
 	Use FASTHASH-EQ as test for hash tables indexed by characters.
-	* io.d (allocate_perchar_table, copy_perchar_table,
-	allocate_syntax_table, copy_readtable_contents): Use FASTHASH-EQ as
+	* io.d (allocate_perchar_table, copy_perchar_table)
+	(allocate_syntax_table, copy_readtable_contents): Use FASTHASH-EQ as
 	test for MAKE-HASH-TABLE.
 
 2004-05-14  Bruno Haible  <bruno@clisp.org>
@@ -11755,9 +11756,9 @@
 
 	Merge ht_kvtable and ht_ntable. For weak hash tables, use
 	WeakHashedAlist instead of WeakAlist.
-	* lispbibl.d (Rectype_WeakHashedAlist_Key,
-	Rectype_WeakHashedAlist_Value, Rectype_WeakHashedAlist_Either,
-	Rectype_WeakHashedAlist_Both): New enum items.
+	* lispbibl.d (Rectype_WeakHashedAlist_Key)
+	(Rectype_WeakHashedAlist_Value, Rectype_WeakHashedAlist_Either)
+	(Rectype_WeakHashedAlist_Both): New enum items.
 	(Hashtable): Remove ht_ntable field.
 	(hashtable_length): Decrement.
 	(kvtable_data): Update.
@@ -11766,8 +11767,8 @@
 	(Lrecord_nonweak_length): Update.
 	(map_hashtable, map_hashtable_nogc): Update.
 	* spvw_gcmark.d (gc_mark): Handle Rectype_WeakHashedAlist_*.
-	* spvw_weak.d (max_watchset_count, get_watchset,
-	propagate_through_weak, weak_clean_dead, weak_must_activate): Handle
+	* spvw_weak.d (max_watchset_count, get_watchset)
+	(propagate_through_weak, weak_clean_dead, weak_must_activate): Handle
 	Rectype_WeakHashedAlist_*.
 	* spvw_circ.d (get_circ_mark, get_circ_unmark): Handle
 	Rectype_WeakHashedAlist_*.
@@ -11985,8 +11986,8 @@
 	(hashtable_length): Update.
 	(hashtable_xlength): New macro.
 	(allocate_hash_table): Use hashtable_xlength.
-	* hashtabl.d (HT_GOOD_P, hashcode_cook, hashcode, rehash, hash_lookup,
-	CLASS-TUPLE-GETHASH): Use an unboxed ht_size.
+	* hashtabl.d (HT_GOOD_P, hashcode_cook, hashcode, rehash, hash_lookup)
+	(CLASS-TUPLE-GETHASH): Use an unboxed ht_size.
 	(resize, MAKE-HASH-TABLE): Update.
 	* spvw_debug.d (nobject_out1): Update.
 
@@ -12246,12 +12247,12 @@
 	LINUX_NOEXEC_HEAPCODES.
 	(STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES): New macros.
 	(LINUX_NOEXEC_HEAPCODES): Use garcol_bit_o = 0.
-	(machine_bias, varobject_bias, cons_bias, immediate_bias, subr_bias,
-	imm_type_shift, fixnum_type, sfloat_type, char_type, read_label_type,
-	system_type, sign_bit_t, sign_bit_o, bignum_bit_o, number_immediatep,
-	varobjects_misaligned, nonimmediate_bias_mask,
-	nonimmediate_heapcode_mask, type_data_object, type_zero_oint,
-	immediate_object_p, gcinvariant_object_p, gcinvariant_bias_p)
+	(machine_bias, varobject_bias, cons_bias, immediate_bias, subr_bias)
+	(imm_type_shift, fixnum_type, sfloat_type, char_type, read_label_type)
+	(system_type, sign_bit_t, sign_bit_o, bignum_bit_o, number_immediatep)
+	(varobjects_misaligned, nonimmediate_bias_mask)
+	(nonimmediate_heapcode_mask, type_data_object, type_zero_oint)
+	(immediate_object_p, gcinvariant_object_p, gcinvariant_bias_p)
 	[LINUX_NOEXEC_HEAPCODES]: New definitions for LINUX_NOEXEC_HEAPCODES.
 	(varobject_alignment): Define to 8 for LINUX_NOEXEC_HEAPCODES.
 	(consp, varobjectp): Generalize for LINUX_NOEXEC_HEAPCODES.
@@ -12366,8 +12367,8 @@
 	* genclisph.d (main): Update definitions of subr_t and LISPFUN_F.
 	* subr.d (LISPFUN_D, LISPFUN_F, LISPFUN_G): Also initialize the subrs'
 	GCself and type, flags and length.
-	* spvw.d (init_subr_tab_1, init_other_modules_1, init_module_2,
-	dynload_modules): Also initialize the subrs' GCself.
+	* spvw.d (init_subr_tab_1, init_other_modules_1, init_module_2)
+	(dynload_modules): Also initialize the subrs' GCself.
 	* spvw_update.d (update_subr_tab): Don't use subr_const_offset.
 	* spvw_garcol.d (gc_markphase): Treat subrs like constsyms.
 	(alive): The mark bit is now at the beginning of the Subr.
@@ -12515,8 +12516,8 @@
 	in the form (symbol form func) instead of (symbol . initer).
 	* clos-class2.lisp (defclass): Produce :DIRECT-DEFAULT-INITARGS
 	as a list of (symbol form func).
-	(ensure-class, equal-default-initargs,
-	finalize-instance-standard-class, initialize-instance-structure-class):
+	(ensure-class, equal-default-initargs)
+	(finalize-instance-standard-class, initialize-instance-structure-class):
 	Update.
 
 2004-05-17  Bruno Haible  <bruno@clisp.org>
@@ -12934,9 +12935,9 @@
 	Load clos-slotdef1.
 	* clos-package.lisp: Export symbols of the slot-definition MOP.
 	* clos.lisp: Load clos-slotdef2 and clos-slotdef3.
-	* defstruct.lisp (make-ds-slot, ds-slot-name, ds-slot-initargs,
-	ds-slot-offset, ds-slot-initer, ds-slot-default, ds-slot-type,
-	ds-slot-readonly, copy-ds-slot): Rewrite using slot-definition.
+	* defstruct.lisp (make-ds-slot, ds-slot-name, ds-slot-initargs)
+	(ds-slot-offset, ds-slot-initer, ds-slot-default, ds-slot-type)
+	(ds-slot-readonly, copy-ds-slot): Rewrite using slot-definition.
 	(ds-slot-initfunctionform, ds-pseudo-slot-default): New macros.
 	(ds-typep, ds-typep-expansion, ds-canonicalize-type): Use
 	ds-pseudo-slot-default.
@@ -13046,8 +13047,8 @@
 	* clos-class2.lisp (initialize-instance-standard-class): Call
 	%initialize-instance. Initialize a few slots to nil.
 	(initialize-instance-structure-class): Call %initialize-instance.
-	* clos-class5.lisp (initialize-instance@standard-class,
-	initialize-instance@structure-class): Remove (call-next-method) that
+	* clos-class5.lisp (initialize-instance@standard-class)
+	(initialize-instance@structure-class): Remove (call-next-method) that
 	doesn't belong here.
 
 2004-04-24  Bruno Haible  <bruno@clisp.org>
@@ -13178,8 +13179,8 @@
 	* eval.d (bytecode_enum_t): Define unconditionally.
 	(init_cclosures): New function.
 	* spvw.d (init_object_tab): Call it.
-	* record.d (SYS::MAKE-CONSTANT-INITFUNCTION,
-	SYS::CONSTANT-INITFUNCTION-P): New functions.
+	* record.d (SYS::MAKE-CONSTANT-INITFUNCTION)
+	(SYS::CONSTANT-INITFUNCTION-P): New functions.
 
 2004-04-28  Bruno Haible  <bruno@clisp.org>
 
@@ -13202,8 +13203,8 @@
 
 	* clos-class2.lisp (ensure-class): Pass the old finalized and
 	direct-superclasses status to update-subclasses-for-redefined-class.
-	(update-subclasses-for-redefined-class,
-	update-subclasses-for-redefined-class-nonrecursive): Update the
+	(update-subclasses-for-redefined-class)
+	(update-subclasses-for-redefined-class-nonrecursive): Update the
 	direct-subclasses lists of the superclasses correctly.
 
 2004-04-29  Bruno Haible  <bruno@clisp.org>
@@ -14345,10 +14346,10 @@
 	ANSI CL compliance: Improved argument list checking.
 	* record.d (check_keywords): Remove macro.
 	(check_initialization_argument_list): New function.
-	(CLOS::%ALLOCATE-INSTANCE, CLOS::%SHARED-INITIALIZE,
-	CLOS::%REINITIALIZE-INSTANCE, CLOS::%INITIALIZE-INSTANCE,
-	CLOS::%MAKE-INSTANCE): Use check_initialization_argument_list instead
-	of check_keywords.
+	(CLOS::%ALLOCATE-INSTANCE, CLOS::%SHARED-INITIALIZE)
+	(CLOS::%REINITIALIZE-INSTANCE, CLOS::%INITIALIZE-INSTANCE)
+	(CLOS::%MAKE-INSTANCE): Use check_initialization_argument_list
+	instead of check_keywords.
 
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
@@ -14428,16 +14429,16 @@
 	* spvw.d (SP_ueber, STACK_ueber): Move newline out of GETTEXTL.
 	(main): Likewise, also out of CLSTEXT.
 	* spvw_alloca.d (malloca): Move newline out of GETTEXTL.
-	* spvw_allocate.d (error_speicher_voll, make_space_gc_true,
-	make_space_gc_false, make_space_gc): Likewise.
+	* spvw_allocate.d (error_speicher_voll, make_space_gc_true)
+	(make_space_gc_false, make_space_gc): Likewise.
 	* spvw_memfile.d (loadmem, loadmem_from_handle): Likewise.
 	* spvw_mmap.d (mmap_zeromap): Likewise.
 	* spvw_multimap.d (fdmap, open_temp_fd, initmap): Likewise.
 	* spvw_sigsegv.d (sigsegv_handler_failed, stackoverflow_handler):
 	Likewise.
 	* affi1.lisp (defflibfun): Move newline and freshline out of TEXT.
-	* compiler.lisp (c-warn, c-error, match-known-unknown-functions,
-	c-report-problems, compile-file, disassemble-closure): Likewise.
+	* compiler.lisp (c-warn, c-error, match-known-unknown-functions)
+	(c-report-problems, compile-file, disassemble-closure): Likewise.
 	* condition.lisp (prompt-for-new-value): Likewise.
 	* describe.lisp (describe-slotted-object, describe-object, describe1):
 	Likewise.
@@ -14760,8 +14761,8 @@
 	* genclisph.d (main): Undo last change to general_vector_p. Emit
 	declarations of simple_nilarray_p, fehler_nilarray_retrieve. Update
 	unpack_sstring_alloca.
-	* array.d (iarray_displace, iarray_displace_check,
-	array_displace_check): Use simple_nilarray_p instead of nullp.
+	* array.d (iarray_displace, iarray_displace_check)
+	(array_displace_check): Use simple_nilarray_p instead of nullp.
 	(fehler_nilarray_retrieve): Renamed from fehler_retrieve. Remove
 	argument.
 	(fehler_nilarray_store): New function.
@@ -14909,10 +14910,10 @@
 	correctly.
 	(stringof, MAKE-STRING, string_concat): Check the string size before
 	allocating the string.
-	* array.d (VECTOR-PUSH-EXTEND, make_ssstring, ssstring_extend_low,
-	make_storagevector, ADJUST-ARRAY): Likewise.
-	* encoding.d (n_char_to_string, ascii_to_string,
-	CONVERT-STRING-FROM-BYTES): Likewise.
+	* array.d (VECTOR-PUSH-EXTEND, make_ssstring, ssstring_extend_low)
+	(make_storagevector, ADJUST-ARRAY): Likewise.
+	* encoding.d (n_char_to_string, ascii_to_string)
+	(CONVERT-STRING-FROM-BYTES): Likewise.
 	* lisparit.d (decimal_string): Likewise.
 
 2004-02-18  Bruno Haible  <bruno@clisp.org>
@@ -14977,35 +14978,35 @@
 	Update.
 	(allocate_imm_s32string): Define also if TYPECODES. Update.
 	(reallocate_small_string): Update.
-	* charstrg.d (unpack_string_ro, sstring_store, sstring_store_array,
-	stringof, copy_string, coerce_ss): Update.
+	* charstrg.d (unpack_string_ro, sstring_store, sstring_store_array)
+	(stringof, copy_string, coerce_ss): Update.
 	(coerce_imm_ss): Define also if TYPECODES.
-	(coerce_normal_ss, coerce_imm_normal_ss, SYS::STRING-INFO, char_name,
-	CHAR, SCHAR, SYSTEM::STORE-CHAR, SYSTEM::STORE-SCHAR): Update.
+	(coerce_normal_ss, coerce_imm_normal_ss, SYS::STRING-INFO, char_name)
+	(CHAR, SCHAR, SYSTEM::STORE-CHAR, SYSTEM::STORE-SCHAR): Update.
 	(test_string_limits_rw): Define as a function also for TYPECODES.
-	(test_stringsymchar_arg, MAKE-STRING, nstring_upcase, string_upcase,
-	STRING-UPCASE, nstring_downcase, string_downcase, STRING-DOWNCASE,
-	nstring_capitalize, STRING-CAPITALIZE, subsstring, SUBSTRING,
-	string_concat): Update.
-	* array.d (vector_length, iarray_displace, iarray_displace_check,
-	array_displace_check, test_index, subscripts_to_index,
-	storagevector_store, ROW-MAJOR-AREF, SYS::ROW-MAJOR-STORE,
-	ARRAY-DIMENSION, array_dimensions, ARRAY-IN-BOUNDS-P,
-	ARRAY-ROW-MAJOR-INDEX, elt_copy_T_Char, elt_copy_Char_Char, elt_fill,
-	elt_reverse, VECTOR-PUSH-EXTEND, ssstring_push_extend,
-	ssstring_append_extend, make_storagevector, initial_contents_aux,
-	ADJUST-ARRAY): Update.
-	* encoding.d (n_char_to_string, n_char_to_string_, string_to_asciz_,
-	CONVERT-STRING-FROM-BYTES): Update.
-	* pathname.d (common_case, test_optional_host, copy_upcase, all_digits,
-	PARSE-NAMESTRING, MAKE-PATHNAME, wildcard_match, use_default_dir):
+	(test_stringsymchar_arg, MAKE-STRING, nstring_upcase, string_upcase)
+	(STRING-UPCASE, nstring_downcase, string_downcase, STRING-DOWNCASE)
+	(nstring_capitalize, STRING-CAPITALIZE, subsstring, SUBSTRING)
+	(string_concat): Update.
+	* array.d (vector_length, iarray_displace, iarray_displace_check)
+	(array_displace_check, test_index, subscripts_to_index)
+	(storagevector_store, ROW-MAJOR-AREF, SYS::ROW-MAJOR-STORE)
+	(ARRAY-DIMENSION, array_dimensions, ARRAY-IN-BOUNDS-P)
+	(ARRAY-ROW-MAJOR-INDEX, elt_copy_T_Char, elt_copy_Char_Char, elt_fill)
+	(elt_reverse, VECTOR-PUSH-EXTEND, ssstring_push_extend)
+	(ssstring_append_extend, make_storagevector, initial_contents_aux)
+	(ADJUST-ARRAY): Update.
+	* encoding.d (n_char_to_string, n_char_to_string_, string_to_asciz_)
+	(CONVERT-STRING-FROM-BYTES): Update.
+	* pathname.d (common_case, test_optional_host, copy_upcase, all_digits)
+	(PARSE-NAMESTRING, MAKE-PATHNAME, wildcard_match, use_default_dir):
 	Update.
-	* stream.d (read_char_array, rd_ch_array_str_in, wr_ch_array_str_out,
-	wr_ch_array_pphelp, rd_ch_array_buffered, lisp_completion,
-	rd_ch_terminal2, rd_ch_terminal3, wr_ch_array_terminal3): Update.
-	* io.d (sstring_printf, test_potential_number_syntax, upcase_token,
-	case_convert_token, char_reader, radix_2, bit_vector_reader,
-	write_string, pphelp_string_width, klammer_zu, pr_enter_1): Update.
+	* stream.d (read_char_array, rd_ch_array_str_in, wr_ch_array_str_out)
+	(wr_ch_array_pphelp, rd_ch_array_buffered, lisp_completion)
+	(rd_ch_terminal2, rd_ch_terminal3, wr_ch_array_terminal3): Update.
+	* io.d (sstring_printf, test_potential_number_syntax, upcase_token)
+	(case_convert_token, char_reader, radix_2, bit_vector_reader)
+	(write_string, pphelp_string_width, klammer_zu, pr_enter_1): Update.
 	* package.d (test_package_arg, DELETE-PACKAGE): Update.
 	* debug.d (read_form): Update.
 	* error.d (fehler_sstring_immutable): Define also if TYPECODES.
@@ -15015,8 +15016,8 @@
 2004-02-16  Bruno Haible  <bruno@clisp.org>
 
 	Clean up instance forward pointers during garbage collection.
-	* lispbibl.d (instflags_backpointer_B, instflags_relocated_B,
-	mark_inst_clean): New macros.
+	* lispbibl.d (instflags_backpointer_B, instflags_relocated_B)
+	(mark_inst_clean): New macros.
 	* spvw_update.d (do_update_record): Obey also update_instance_unrealloc
 	and update_in_unrealloc.
 	* spvw_garcol.d (make_GCself): New macro.
@@ -15245,8 +15246,8 @@
 
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (<libintl.h>, array_total_size, instanceof, schar,
-	seclass_object): Omit these when COMPILE_STANDALONE is defined.
+	* lispbibl.d (<libintl.h>, array_total_size, instanceof, schar)
+	(seclass_object): Omit these when COMPILE_STANDALONE is defined.
 	* makemake.in (txt, genclisph.o, clisp-test-lispbibl): Define
 	COMPILE_STANDALONE.
 	Needed to avoid dependencies to fehler_notreached() etc. with C
@@ -15926,8 +15927,8 @@
 2004-02-14  Bruno Haible  <bruno@clisp.org>
 
 	* genclisph.d (make_system, vectorp): Make consistent with lispbibl.d.
-	(simple_vector_p, simple_string_p, simple_bit_vector_p, bit_vector_p,
-	TheFpointer) [TYPECODES]: Fix compilation errors.
+	(simple_vector_p, simple_string_p, simple_bit_vector_p, bit_vector_p)
+	(TheFpointer) [TYPECODES]: Fix compilation errors.
 	(general_vector_p, arrayp): New exports.
 
 2004-02-14  Bruno Haible  <bruno@clisp.org>
@@ -16187,9 +16188,9 @@
 
 	* Makefile.devel (%/configure.in, %/config.h.in): Restrict the rule
 	to not match files in ffcall and libcharset.
-	(ffcall/vacall/config.h.in, ffcall/trampoline/config.h.in,
-	ffcall/callback/vacall_r/vacall_r.h.in,
-	ffcall/callback/trampoline_r/config.h.in): Remove empty rules.
+	(ffcall/vacall/config.h.in, ffcall/trampoline/config.h.in)
+	(ffcall/callback/vacall_r/vacall_r.h.in)
+	(ffcall/callback/trampoline_r/config.h.in): Remove empty rules.
 
 2004-02-02  Sam Steingold  <sds@gnu.org>
 
@@ -20402,8 +20403,8 @@
 	* spvw_global.d (init_mem_heaptypes): Depend on IMMEDIATE_FFLOAT.
 	* spvw_mark.d (mark, unmark, marked): Update.
 	* spvw_memfile.d (loadmem_update): Depend on IMMEDIATE_FFLOAT.
-	* spvw_objsize.d (size_ffloat, objsize, objsize_ffloat,
-	init_objsize_table): Depend on IMMEDIATE_FFLOAT.
+	* spvw_objsize.d (size_ffloat, objsize, objsize_ffloat)
+	(init_objsize_table): Depend on IMMEDIATE_FFLOAT.
 	* spvw_typealloc.d (allocate_ffloat): Depend on IMMEDIATE_FFLOAT.
 	* constobj.d (hs_single_float, FF_zero, FF_one, FF_minusone): Depend
 	on IMMEDIATE_FFLOAT.
