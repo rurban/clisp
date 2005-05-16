@@ -51,11 +51,11 @@
 2005-05-13  Bruno Haible  <bruno@clisp.org>
 
 	Make it possible to use 64-bit integer types with MSVC.
-	* stdint_.h (int64_t, uint64_t, int_least64_t, uint_least64_t,
-	int_fast64_t, uint_fast64_t, intmax_t, uintmax_t, INT64_MIN, INT64_MAX,
-	UINT64_MAX, INT_LEAST64_MIN, INT_LEAST64_MAX, UINT_LEAST64_MAX,
-	INT_FAST64_MIN, INT_FAST64_MAX, UINT_FAST64_MAX, INTMAX_MIN,
-	INTMAX_MAX, UINTMAX_MAX, INT64_C, UINT64_C, INTMAX_C, UINTMAX_C):
+	* stdint_.h (int64_t, uint64_t, int_least64_t, uint_least64_t)
+	(int_fast64_t, uint_fast64_t, intmax_t, uintmax_t, INT64_MIN, INT64_MAX)
+	(UINT64_MAX, INT_LEAST64_MIN, INT_LEAST64_MAX, UINT_LEAST64_MAX)
+	(INT_FAST64_MIN, INT_FAST64_MAX, UINT_FAST64_MAX, INTMAX_MIN)
+	(INTMAX_MAX, UINTMAX_MAX, INT64_C, UINT64_C, INTMAX_C, UINTMAX_C):
 	Add support for 64-bit integers in the MSVC compiler.
 	* lispbibl.d (LL, ULL): New macros.
 	(oint_type_mask, oint_addr_mask) [WIDE_SOFT]: Use ULL macro.
@@ -88,8 +88,8 @@
 	(negfixnum_abs_V): Renamed from negfixnum_abs_L. Return an uintV value.
 	(fixnum_to_V): Renamed from fixnum_to_L. Return a sintV value.
 	(fixnum_to_Q): Cast to sintQ.
-	(make_small_read_label, small_read_label_integer_p,
-	small_read_label_value): Use uintV type and vbit* macros.
+	(make_small_read_label, small_read_label_integer_p)
+	(small_read_label_value): Use uintV type and vbit* macros.
 	(make_system): Likewise.
 	(TheHandle): Use posfixnum_to_V instead of posfixnum_to_L.
 	(arraysize_limit_1): Define as 2^32-1 if oint_data_len > 32.
@@ -97,8 +97,8 @@
 	(map_hashtable, map_hashtable_nogc): Use posfixnum_to_V instead of
 	posfixnum_to_L.
 	(fehler_stringsize): Change argument type to uintV.
-	(fehler_uint8, fehler_sint8, fehler_uint16, fehler_sint16,
-	fehler_uint32, fehler_sint32, fehler_uint64, fehler_sint64): New
+	(fehler_uint8, fehler_sint8, fehler_uint16, fehler_sint16)
+	(fehler_uint32, fehler_sint32, fehler_uint64, fehler_sint64): New
 	declarations.
 	(fehler_uint, fehler_sint, fehler_ulong, fehler_slong): New macros.
 	(L2_to_I, UL2_to_I): Define as macros if intVsize>32.
@@ -119,8 +119,8 @@
 	Emit check_uint_default0 instead of posfixnum_default.
 	* error.d (begin_error): Use posfixnum_to_V instead of posfixnum_to_L.
 	(fehler_stringsize): Change argument type to uintV.
-	(fehler_uint8, fehler_sint8, fehler_uint16, fehler_sint16,
-	fehler_uint32, fehler_sint32, fehler_uint64, fehler_sint64): New
+	(fehler_uint8, fehler_sint8, fehler_uint16, fehler_sint16)
+	(fehler_uint32, fehler_sint32, fehler_uint64, fehler_sint64): New
 	functions.
 	* arilev0.d (high32, low32, highlow64, highlow64_0): New macros.
 	(mulu32_64): New macro.
@@ -140,8 +140,8 @@
 	(pFN_maxlength_digits_at): Return a value of type uintV instead of
 	uint32.
 	* intlog.d (I_to_DS_n_): Use uintV instead of uint32.
-	(I_I_logand_I, I_I_lognand_I, I_I_logandc2_I, I_I_logtest, I_I_logbitp,
-	I_I_ash_I): Use uintV instead of uint32. Use vbit* macros.
+	(I_I_logand_I, I_I_lognand_I, I_I_logandc2_I, I_I_logtest, I_I_logbitp)
+	(I_I_ash_I): Use uintV instead of uint32. Use vbit* macros.
 	(logcount_64): New macro.
 	(I_logcount_I): Use uintV instead of uint32. Use logcount_64 if
 	intVsize>32.
@@ -172,8 +172,8 @@
 	(UI_to_LEbytes, I_to_LEbytes): Likewise.
 	* sfloat.d (RA_to_SF): Use posfixnum_to_V instead of posfixnum_to_L.
 	* ffloat.d (RA_to_FF): Use posfixnum_to_V instead of posfixnum_to_L.
-	* flo_rest.d (SF_I_scale_float_SF, FF_I_scale_float_FF,
-	DF_I_scale_float_DF, LF_I_scale_float_LF): Use uintV instead of uintL.
+	* flo_rest.d (SF_I_scale_float_SF, FF_I_scale_float_FF)
+	(DF_I_scale_float_DF, LF_I_scale_float_LF): Use uintV instead of uintL.
 	* realtran.d (R_sin_R, R_cos_R, R_cos_sin_R_R): Use posfixnum_to_V
 	instead of posfixnum_to_L.
 	* comptran.d (N_N_expt_N): Use uintV instead of uintL.
@@ -201,8 +201,8 @@
 	(CODE-CHAR, DIGIT-CHAR, INT-CHAR): Likewise.
 	(test_index): Expect an assignment to an uintV. Use posfixnum_to_V
 	instead of posfixnum_to_L.
-	(test_index_arg, test_vector_limits, test_1_stringsym_limits,
-	test_2_stringsym_limits): Use uintV instead of uintL.
+	(test_index_arg, test_vector_limits, test_1_stringsym_limits)
+	(test_2_stringsym_limits): Use uintV instead of uintL.
 	(MAKE-STRING, SUBSTRING): Likewise.
 	* debug.d (read_form): Use posfixnum_to_V instead of posfixnum_to_L.
 	(test_mode_arg): Use uintV instead of uintL.
@@ -233,16 +233,16 @@
 	posfixnum_to_L.
 	(rehash, hash_lookup_builtin, hash_lookup_user, hash_store): Likewise.
 	(prepare_resize): Use uintV instead of uintL.
-	(resize, clrhash, MAKE-HASH-TABLE, REMHASH, MAPHASH,
-	SYSTEM::HASH-TABLE-ITERATE, (SETF HASH-TABLE-WEAK-P),
-	CLOS::CLASS-GETHASH, hashcode_tuple, CLOS::CLASS-TUPLE-GETHASH): Use
-	posfixnum_to_V instead of posfixnum_to_L.
+	(resize, clrhash, MAKE-HASH-TABLE, REMHASH, MAPHASH)
+	(SYSTEM::HASH-TABLE-ITERATE, (SETF HASH-TABLE-WEAK-P))
+	(CLOS::CLASS-GETHASH, hashcode_tuple, CLOS::CLASS-TUPLE-GETHASH):
+	Use posfixnum_to_V instead of posfixnum_to_L.
 	* io.d (syntax_table_get_notinline): Use posfixnum_to_V instead of
 	posfixnum_to_L.
 	(SET-MACRO-CHARACTER, GET-MACRO-CHARACTER, RTCase): Likewise.
 	(get_base): Use uintV instead of uintL.
-	(bit_vector_reader, vector_reader): Use uintV instead of uintL. Signal
-	error if n >= 2^32.
+	(bit_vector_reader, vector_reader): Use uintV instead of uintL.
+	Signal error if n >= 2^32.
 	(lookup_label): Use posfixnum_to_V instead of posfixnum_to_L.
 	(closure_reader): Use uintV instead of uintL. Signal error if n >= 2^32.
 	(PARSE-INTEGER): Use uintV instead of uintL.
@@ -268,9 +268,9 @@
 	fixnum_to_V. Use uintV instead of uintL.
 	* list.d (get_integer_truncate): If intVsize>32, check whether the
 	argument is >= 2^32.
-	* package.d (rehash_symtab, symtab_lookup, symtab_find, symtab_insert,
-	symtab_delete, map_symtab, map_symtab_c, SYSTEM::PACKAGE-ITERATE): Use
-	posfixnum_to_V instead of posfixnum_to_L.
+	* package.d (rehash_symtab, symtab_lookup, symtab_find, symtab_insert)
+	(symtab_delete, map_symtab, map_symtab_c, SYSTEM::PACKAGE-ITERATE):
+	Use posfixnum_to_V instead of posfixnum_to_L.
 	* predtype.d (hash_table_equalp): Use posfixnum_to_V instead of
 	posfixnum_to_L.
 	(expand_deftype): Use uintV instead of uintL.
@@ -278,9 +278,9 @@
 	posfixnum_to_L.
 	* record.d (record_up): Use uintV instead of uintL.
 	(test_record_length): Expect an uintV variable.
-	(structure_up, SYS::%MAKE-STRUCTURE, SYS::MAKE-CODE-VECTOR,
-	CLOS::ALLOCATE-METAOBJECT-INSTANCE, CLOS::ALLOCATE-STD-INSTANCE,
-	CLOS::ALLOCATE-FUNCALLABLE-INSTANCE): Use uintV instead of uintL.
+	(structure_up, SYS::%MAKE-STRUCTURE, SYS::MAKE-CODE-VECTOR)
+	(CLOS::ALLOCATE-METAOBJECT-INSTANCE, CLOS::ALLOCATE-STD-INSTANCE)
+	(CLOS::ALLOCATE-FUNCALLABLE-INSTANCE): Use uintV instead of uintL.
 	(ptr_to_slot): Use posfixnum_to_V instead of posfixnum_to_L.
 	(slot_access_up, update_instance): Use uintV instead of uintL.
 	(CLOS::%CHANGE-CLASS): Use posfixnum_to_V instead of posfixnum_to_L.
@@ -294,15 +294,15 @@
 	(seq_filterop): Use uintV instead of uintL.
 	(remove_help, delete_help): Change argument types to uintV.
 	(remove_op, delete_op): Use uintV instead of uintL.
-	(remove_duplicates_list_from_start, delete_duplicates_list_from_start,
-	delete_duplicates_list_from_end):
+	(remove_duplicates_list_from_start, delete_duplicates_list_from_start)
+	(delete_duplicates_list_from_end):
 	Change argument type to uintV.
 	(seq_duplicates): Use uintV instead of uintL.
 	(substitute_help): Change argument types to uintV.
 	(substitute_op): Use uintV instead of uintL.
 	(nsubstitute_fe_help): Change argument types to uintV.
-	(READ-CHAR-SEQUENCE, WRITE-CHAR-SEQUENCE, READ-BYTE-SEQUENCE,
-	WRITE-BYTE-SEQUENCE): Use uintV instead of uintL.
+	(READ-CHAR-SEQUENCE, WRITE-CHAR-SEQUENCE, READ-BYTE-SEQUENCE)
+	(WRITE-BYTE-SEQUENCE): Use uintV instead of uintL.
 	* spvw.d (define_constant_UL1): Use UV_to_I instead of UL_to_I.
 	(print_banner): Use posfixnum_to_V instead of posfixnum_to_L.
 	(main): Use vbit* macros.
@@ -319,8 +319,8 @@
 	of uintL.
 	(write_char, write_char_array, harden_elastic_newline): Use
 	posfixnum_to_V instead of posfixnum_to_L.
-	(rd_ch_str_in, rd_ch_array_str_in, listen_char_str_in, rd_ch_buff_in,
-	listen_char_buff_in, test_eltype_arg): Use uintV instead of uintL.
+	(rd_ch_str_in, rd_ch_array_str_in, listen_char_str_in, rd_ch_buff_in)
+	(listen_char_buff_in, test_eltype_arg): Use uintV instead of uintL.
 	(wr_by_iau8_unbuffered, wr_by_iau8_buffered): Use posfixnum_to_V
 	instead of posfixnum_to_L.
 	(make_file_stream): Use uintV instead of uintL.
@@ -348,8 +348,8 @@
 	(MAKE-STREAM): Use uint_p/I_to_uint instead of
 	posfixnump/posfixnum_to_L.
 	(get_line_position): Use uintV instead of uintL.
-	(elastic_newline_pending_p, elastic_newline, stream_get_read_eval,
-	stream_set_read_eval): Use posfixnum_to_V instead of posfixnum_to_L.
+	(elastic_newline_pending_p, elastic_newline, stream_get_read_eval)
+	(stream_set_read_eval): Use posfixnum_to_V instead of posfixnum_to_L.
 	* time.d (SYS::DEFAULT-TIME-ZONE, SYSTEM::%SLEEP): Use posfixnum_to_V
 	instead of posfixnum_to_L.
 	(SYS::DELTA4): Use uintV instead of uintL.
@@ -375,18 +375,18 @@
 	* modules/queens/callqueens.c (USER::QUEENS): Use check_uint/I_to_uint
 	instead of check_posfixnum/posfixnum_to_L. Change result type from
 	uint32 to 'unsigned int'.
-	* modules/rawsock/rawsock.c (RAWSOCK:SOCKATMARK, RAWSOCK:ACCEPT,
-	RAWSOCK:BIND, RAWSOCK:CONNECT, RAWSOCK:GETPEERNAME,
-	RAWSOCK:GETSOCKNAME, RAWSOCK:LISTEN, RAWSOCK:RECV, RAWSOCK:RECVFROM,
-	RAWSOCK:RECVMSG, RAWSOCK:SOCK-READ, RAWSOCK:SEND, RAWSOCK:SENDMSG,
-	RAWSOCK:SENDTO, RAWSOCK:SOCK-WRITE, RAWSOCK:SOCK-CLOSE,
-	RAWSOCK:SHUTDOWN, RAWSOCK:CONFIGDEV): Use check_uint/I_to_uint instead
-	of check_posfixnum/posfixnum_to_L.
+	* modules/rawsock/rawsock.c (RAWSOCK:SOCKATMARK, RAWSOCK:ACCEPT)
+	(RAWSOCK:BIND, RAWSOCK:CONNECT, RAWSOCK:GETPEERNAME)
+	(RAWSOCK:GETSOCKNAME, RAWSOCK:LISTEN, RAWSOCK:RECV, RAWSOCK:RECVFROM)
+	(RAWSOCK:RECVMSG, RAWSOCK:SOCK-READ, RAWSOCK:SEND, RAWSOCK:SENDMSG)
+	(RAWSOCK:SENDTO, RAWSOCK:SOCK-WRITE, RAWSOCK:SOCK-CLOSE)
+	(RAWSOCK:SHUTDOWN, RAWSOCK:CONFIGDEV): Use check_uint/I_to_uint
+	instead of check_posfixnum/posfixnum_to_L.
 	* modules/regexp/regexi.c (REGEXP::REGEXP-EXEC): Update.
 	* modules/syscalls/calls.c (POSIX::STREAM-LOCK): Use uint_p/I_to_uint
 	instead of posfixnump/posfixnum_to_L.
-	(POSIX:GETSID, POSIX:GETPGRP, POSIX:SETPGID, POSIX:KILL, OS:PRIORITY,
-	OS:SET-PRIORITY): Use check_uint32/I_to_uint32 instead of
+	(POSIX:GETSID, POSIX:GETPGRP, POSIX:SETPGID, POSIX:KILL, OS:PRIORITY)
+	(OS:SET-PRIORITY): Use check_uint32/I_to_uint32 instead of
 	check_posfixnum/posfixnum_to_L.
 	(POSIX::USER-DATA, POSIX::SET-FILE-STAT, POSIX::CONVERT-MODE): Use
 	check_uint32/I_to_uint32 instead of check_posfixnum/posfixnum_to_L.
