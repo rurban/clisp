@@ -1,5 +1,10 @@
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (MAKE-PATHNAME): accept :DEVICE :UNSPECIFIC to mean
+	NIL because of COMPILE-FILE-PATHNAME with logcal :OUTPUT-FILE
+
+2005-05-16  Sam Steingold  <sds@gnu.org>
+
 	* defmacro.lisp (make-macro-expansion): when PRE-PROCESS is supplied,
 	this is a DEFINE-COMPILER-MACRO call, so name could be a (SETF symbol)
 

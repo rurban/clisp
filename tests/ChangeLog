@@ -1,5 +1,10 @@
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
+	* path.tst: check COMPILE-FILE-PATHNAME
+	with :OUTPUT-FILE LOGICAL-PATHNAME
+
+2005-05-16  Sam Steingold  <sds@gnu.org>
+
 	* setf.tst: check that (DOCUMENTATION (LAMBDA () ...)) does not
 	persist from one LAMBDA to another
 
