@@ -552,22 +552,23 @@
                                        :test 'stablehash-equal :warn-if-needs-rehash-after-gc t :size 1000)) ; :weak :key
 (sys::%putd 'sys::%set-documentation
   (function sys::%set-documentation (lambda (symbol doctype value) ; ABI
-    #| ;; cannot use due to bootstrapping
+    (unless (keywordp symbol) ; :LAMBDA = (function-name (lambda () ...))
+      #| ;; cannot use due to bootstrapping
       (if value
         (setf (getf (gethash symbol *documentation*) doctype) value)
         (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
           (when (and found-p (remf rec doctype) (null rec))
             (remhash symbol *documentation*))))
-    |#
-    (if value
-      (let ((rec (sys::%putf (gethash symbol *documentation*)
-                             doctype value)))
-        (when rec (sys::puthash symbol *documentation* rec)))
-      (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
-        (when found-p
-          (setq rec (sys::%remf rec doctype))
-          (cond ((null rec) (remhash symbol *documentation*))
-                ((atom rec) (sys::puthash symbol *documentation* rec))))))
+      |#
+      (if value
+        (let ((rec (sys::%putf (gethash symbol *documentation*)
+                               doctype value)))
+          (when rec (sys::puthash symbol *documentation* rec)))
+        (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
+          (when found-p
+            (setq rec (sys::%remf rec doctype))
+            (cond ((null rec) (remhash symbol *documentation*))
+                  ((atom rec) (sys::puthash symbol *documentation* rec)))))))
     value)))
 
 (proclaim '(special *load-truename* custom:*suppress-check-redefinition*
