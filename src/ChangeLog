@@ -1,3 +1,10 @@
+2005-05-17  Sam Steingold  <sds@gnu.org>
+
+	* .gdbinit (ansi_tests_compiled): new command
+	(SIGSEGV, SIGBUS): do not handle (commented out): gdb 6+ does not
+	stop .gdbinit processing after a failed command, so SIGSEGV
+	remained handled even on platforms without GENERATIONAL_GC
+
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (open-for-load): return FILENAME as is only if it is
