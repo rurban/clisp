@@ -74,6 +74,12 @@ document ansi_tests
          run the gcl/ansi-test suite
 end
 
+define ansi_tests_compiled
+  run -B . -N locale -M lispinit.mem -q -norc -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests))"
+end
+document ansi_tests
+         run the gcl/ansi-test suite - compiled
+end
 
 define stack
   set $idx = $arg1
@@ -146,8 +152,8 @@ info break
 #       `handle SIG*'
 #ifdef GENERATIONAL_GC
 break sigsegv_handler_failed
-handle SIGSEGV noprint nostop
-handle SIGBUS noprint nostop
+#handle SIGSEGV noprint nostop
+#handle SIGBUS noprint nostop
 #endif
 
 # cut and paste when you stop in interpret_bytecode_()
