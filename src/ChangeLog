@@ -1,5 +1,9 @@
 2005-05-18  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d (sec_usec): export
+
+2005-05-18  Sam Steingold  <sds@gnu.org>
+
 	* m4/tcpconn.m4 (CL_TCPCONN): check for getsockopt() here
 	* configure.in: do not check for getsockopt() here
 	* modules/rawsock/configure.in: use CL_TCPCONN
