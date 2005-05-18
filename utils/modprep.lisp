@@ -234,7 +234,7 @@ The vector is freshly constructed, but the strings are shared"
 (defun split-option (argument)
   "foo=bar ==> (:foo bar)"
   (let ((= (position #\= argument)))
-    (if (and = (= 1 (count #\= argument)))
+    (if =
         (list (intern (nstring-upcase
                        (subseq argument 0 (prev-non-blank argument =)))
                       #.(find-package "KEYWORD"))
@@ -256,15 +256,17 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
     (unless (member name *commands* :test #'string=)
       (return-from split-command nil))
     ;; valid command in LINE
-    (unless end (error "no closing paren in ~S[~:D;~:D]" line start end))
-    (unless paren (error "no opening paren in ~S[~:D;~:D]" line start last))
+    (unless end (error "~S:~D: no closing paren in ~S[~:D;~:D]"
+                       *input-file* *lineno* line start end))
+    (unless paren (error "~S:~D: no opening paren in ~S[~:D;~:D]"
+                         *input-file* *lineno* line start last))
     (setq start (next-non-blank line (1+ paren)))
     (do ((comma (position #\, line :end last :start start)))
         ((null comma) (push (subseq line start last) args))
       (push (subseq line start (prev-non-blank line comma)) args)
       (setq start (next-non-blank line (1+ comma))
             comma (position #\, line :end last :start (1+ comma))))
-    (values name (nreverse (map-into args #'split-option args)) (1+ end))))
+    (values name (nreverse args) (1+ end))))
 (defun string-object-p (obj)
   "check whether the object is a string"
   (let ((len (1- (length obj))))
@@ -273,7 +275,7 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
 (defun extract-argument-string (arg)
   (if (string-object-p arg)
       (subseq arg 1 (1- (length arg)))
-      (error "expected a string, got ~A" arg)))
+      (error "~S:~D: expected a string, got ~A" *input-file* *lineno* arg)))
 
 (defun defmodule-p (line)
   (multiple-value-bind (name args) (split-command line)
@@ -452,7 +454,7 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
               (signature-rest-p sig) (signature-key-p sig))
         (incf *emulation-count*)
         (when (signature-rest-p sig) ; why?!
-          (error "~A: cannot emulate &rest" fname))
+          (error "~S:~D:~A: cannot emulate &rest" *input-file* *lineno* fname))
         (let* ((min-arg (signature-req sig))
                (req+opt (+ min-arg (signature-opt sig)))
                (max-arg
@@ -645,8 +647,8 @@ CPP-NAMES is the list of possible values, either strings or
         bitmasks (and (not (eq bitmasks T)) bitmasks)
         delim (if (eq delim T) "" delim))
   (when (and type enum)
-    (error "~S(~S): cannot specify both ~A=~S and ~A=~S"
-           'new-checker name :type type :enum enum))
+    (error "~S:~D:~S(~S): cannot specify both ~A=~S and ~A=~S"
+           *input-file* *lineno* 'new-checker name :type type :enum enum))
   (let ((ch (make-checker :type (or type enum) :name name :reverse reverse
                           :prefix prefix :suffix suffix :bitmasks bitmasks
                           :enum-p (not (null enum)) :cpp-names cpp-names
@@ -696,12 +698,12 @@ CPP-NAMES is the list of possible values, either strings or
     :do (setq pos2 (min len (or (next-blank line pos1) len)))
     :collect (split-option (subseq line pos1 pos2))))
 (defun def-something-p (line command-alist)
-  "Parse a COMMAND(c_name,[type,]CPP_CONST...) line."
+  "Parse a COMMAND(c_name,[options]CPP_CONST...) line."
   (multiple-value-bind (name args last constructor) (split-command line)
     (setq constructor (cdr (assoc name command-alist :test #'string=)))
     (unless constructor (return-from def-something-p nil))
     (apply constructor (first args) (word-list (car (last args)))
-           (mapcan #'identity (cdr (nbutlast args))))
+           (mapcan #'split-option (cdr (nbutlast args))))
     (subseq line last)))
 
 (defstruct vardef
