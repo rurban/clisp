@@ -6,14 +6,32 @@
 /* Define to 1 if you have the <errno.h> header file. */
 #undef HAVE_ERRNO_H
 
+/* Define to 1 if you have the `getsockopt' function. */
+#undef HAVE_GETSOCKOPT
+
 /* Define to 1 if you have the `htonl' function. */
 #undef HAVE_HTONL
 
 /* Define to 1 if you have the `htons' function. */
 #undef HAVE_HTONS
 
+/* Define to 1 if you have the `inet_addr' function. */
+#undef HAVE_INET_ADDR
+
+/* Define to 1 if you have the `inet_ntop' function. */
+#undef HAVE_INET_NTOP
+
+/* Define to 1 if you have the `inet_pton' function. */
+#undef HAVE_INET_PTON
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* <sys/socket.h> defines AF_INET */
+#undef HAVE_IPV4
+
+/* <sys/socket.h> defines AF_INET6 */
+#undef HAVE_IPV6
 
 /* Define to 1 if you have the <linux/if_packet.h> header file. */
 #undef HAVE_LINUX_IF_PACKET_H
@@ -26,6 +44,9 @@
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
+
+/* Define to 1 if you have the <netinet/tcp.h> header file. */
+#undef HAVE_NETINET_TCP_H
 
 /* Define to 1 if you have the <net/if.h> header file. */
 #undef HAVE_NET_IF_H
@@ -56,6 +77,9 @@
 
 /* Define to 1 if you have the `sendmsg' function. */
 #undef HAVE_SENDMSG
+
+/* Define to 1 if you have the `setsockopt' function. */
+#undef HAVE_SETSOCKOPT
 
 /* Define to 1 if you have the `sockatmark' function. */
 #undef HAVE_SOCKATMARK
@@ -108,6 +132,16 @@
 /* Define to 1 if you have the <ws2tcpip.h> header file. */
 #undef HAVE_WS2TCPIP_H
 
+/* declaration of inet_addr() needs const */
+#undef INET_ADDR_CONST
+
+/* Define as .s_addr if the return type of inet_addr() is a struct type, as
+   empty if it is a scalar type */
+#undef INET_ADDR_SUFFIX
+
+/* need <linux/in6.h> for the in6_addr and sockaddr_in6 types */
+#undef IPV6_NEED_LINUX_IN6_H
+
 /* need <sys/file.h> for using open() flags like O_RDWR */
 #undef OPEN_NEEDS_SYS_FILE_H
 
@@ -126,6 +160,9 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* return type of inet_addr() */
+#undef RET_INET_ADDR_TYPE
+
 /* declaration of select() needs const in the fifth argument */
 #undef SELECT_CONST
 
@@ -134,6 +171,15 @@
 
 /* type of `width' in select() declaration */
 #undef SELECT_WIDTH_T
+
+/* type of `optval' in setsockopt() declaration */
+#undef SETSOCKOPT_ARG_T
+
+/* declaration of setsockopt() needs const */
+#undef SETSOCKOPT_CONST
+
+/* type of `optlen' in setsockopt() declaration */
+#undef SETSOCKOPT_OPTLEN_T
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

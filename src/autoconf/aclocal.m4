@@ -12821,7 +12821,7 @@ CL_COMPILE_CHECK([IPv6 sockets in linux/in6.h], cl_cv_socket_ipv6_linux,
 AC_DEFINE(IPV6_NEED_LINUX_IN6_H,,[need <linux/in6.h> for the in6_addr and sockaddr_in6 types])
 AC_DEFINE(HAVE_IPV6))
 fi
-AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr setsockopt)
+AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr setsockopt getsockopt)
 AC_CHECK_HEADERS(netinet/in.h arpa/inet.h)dnl
 if test $ac_cv_func_inet_addr = yes; then
 CL_PROTO([inet_addr], [
