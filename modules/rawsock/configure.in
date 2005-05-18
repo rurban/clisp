@@ -12,7 +12,8 @@ AC_PROG_CPP
 
 AC_MSG_NOTICE([* RAWSOCK (Headers):])
 AC_HEADER_STDC
-AC_CHECK_HEADERS([sys/socket.h netinet/in.h arpa/inet.h linux/if_packet.h \
+CL_TCPCONN
+AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h \
    sys/ioctl.h errno.h stropts.h poll.h sys/un.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[
 #if HAVE_SYS_SOCKET_H
