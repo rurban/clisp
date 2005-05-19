@@ -58,6 +58,13 @@ NIL
   (print (setq *recv-ret* (list size (from-bytes *buffer* size))))
   T) T
 
+(listp (setf (rawsock:socket-option *sock* NIL)
+             (pprint (rawsock:socket-option *sock* NIL))))
+T
+(listp (setf (rawsock:socket-option *sock* NIL :level :ALL)
+             (pprint (rawsock:socket-option *sock* NIL :level :ALL))))
+T
+
 (rawsock:shutdown *sock* :io) 0
 (rawsock:sock-close *sock*) 0
 
