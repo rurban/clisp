@@ -211,6 +211,8 @@ abc(A B C)def
 > (format t (formatter "abc~,'*Sdef") '(a b c))
 abc*(A B C)def
 Similarly "abc~3W"
+how about run-time format string check to warn about
+ (format t "~A" a b) and (format t "~A ~B ~C" a b)
 
 
 If you (TRACE generic-function) and then reload the file defining that
@@ -235,6 +237,15 @@ etc. that are ported to ACL can be ported to clisp with minimal effort.
 
 
 clean up and modularize spvw.d
+
+
+Add fast unicode attribute accessors (like CHAR-NUMERIC-P and CHAR-DECOMPOSE)
+and augment the reader to return 168 from
+ (let ((*read-base* 16))
+   (read-from-string
+     (concatenate 'string
+       (string #\MATHEMATICAL_BOLD_CAPITAL_A)
+       (string #\MATHEMATICAL_BOLD_DIGIT_EIGHT))))
 
 
 larger fixnums on 64-bit platforms
