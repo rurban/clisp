@@ -12,7 +12,7 @@
            #:accept #:bind #:connect
            #:getpeername #:getsockname
            #:listen #:recv #:recvfrom #:recvmsg
-           #:send #:sendmsg #:sendto
+           #:send #:sendmsg #:sendto #:socket-option
            #:shutdown #:socket #:socketpair #:sockatmark
            #:sock-read #:sock-write #:sock-close
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-data
@@ -30,6 +30,10 @@
 (defstruct (msghdr (:constructor make-msghdr (%data)))
   (%data (missing msghdr) :read-only t :type (vector (unsigned-byte 8))))
 )
+
+(defsetf socket-option (&rest args) (value)
+  (let ((val (gensym "SOCKET-OPTION")))
+    `(let ((,val ,value)) (set-socket-option ,val ,@args))))
 
 (defconstant sockaddr-family-size (sockaddr-family-size))
 (defun sockaddr-data (sa) (subseq (sockaddr-%data sa) sockaddr-family-size))
