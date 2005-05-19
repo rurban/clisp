@@ -1,6 +1,17 @@
 2005-05-19  Sam Steingold  <sds@gnu.org>
 
-	* modules/rawsock/rawsock.c (RAWSOCK:SOCKET-OPTION): new function
+	* stream.d (stream_handles): made global for modules;
+	respect check_open for streams
+	* genclisph.d (SOCKET) [UNIX]: emit typedef
+	[WIN32_NATIVE]: include winsock2.h for SOCKET
+	(stream_handles): export
+	* modules/rawsock/rawsock.c (RAWSOCK:SOCKET-OPTION)
+	(RAWSOCK::SET-SOCKET-OPTION): use stream_handles()
+
+2005-05-19  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c (RAWSOCK:SOCKET-OPTION)
+	(RAWSOCK::SET-SOCKET-OPTION): new functions
 	* modules/rawsock/sock.lisp (RAWSOCK:SOCKET-OPTION): new defsetf
 
 2005-05-19  Sam Steingold  <sds@gnu.org>
