@@ -14037,8 +14037,8 @@ local object test_socket_stream (object obj, bool check_open) {
       case strmtype_socket:
         if (check_open
             && ((TheStream(obj)->strmflags & strmflags_open_B) == 0)) {
-          pushSTACK(obj);       # TYPE-ERROR slot DATUM
-          pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
+          pushSTACK(S(stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
           pushSTACK(obj);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
@@ -14049,8 +14049,8 @@ local object test_socket_stream (object obj, bool check_open) {
         break;
     }
   }
-  pushSTACK(obj);       # TYPE-ERROR slot DATUM
-  pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(stream));         /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~S: argument ~S is not a SOCKET-STREAM"));
@@ -14058,8 +14058,8 @@ local object test_socket_stream (object obj, bool check_open) {
 
 /* check whether the object is a handle stream or a socket-server
  and return its socket-like handle(s) */
-local void stream_handles (object obj, bool check_open, bool* char_p,
-                           SOCKET* in_sock, SOCKET* out_sock) {
+global void stream_handles (object obj, bool check_open, bool* char_p,
+                            SOCKET* in_sock, SOCKET* out_sock) {
   if (uint_p(obj)) {
     if (in_sock)   *in_sock = (SOCKET)I_to_uint(obj);
     if (out_sock) *out_sock = (SOCKET)I_to_uint(obj);
@@ -14071,9 +14071,10 @@ local void stream_handles (object obj, bool check_open, bool* char_p,
     if (in_sock) *in_sock = TheSocket(TheSocketServer(obj)->socket_handle);
     return;
   }
-  if (!(streamp(obj) && TheStream(obj)->strmflags & strmflags_open_B)) {
-    pushSTACK(obj);       # TYPE-ERROR slot DATUM
-    pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
+  if (!(streamp(obj)
+        && (!check_open || TheStream(obj)->strmflags & strmflags_open_B))) {
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(stream));       /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,GETTEXT("~S: argument ~S is not an open stream"));

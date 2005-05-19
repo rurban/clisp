@@ -2208,6 +2208,7 @@ int main(int argc, char* argv[])
   printf("#include <time.h>\n");
   printf("extern object convert_time_to_universal (const time_t* time);\n");
   printf("extern void convert_time_from_universal (object universal, time_t* time);\n");
+  emit_typedef("int","SOCKET");
 #endif
 #if defined(UNIX_CYGWIN32)
   printf("#include <windows.h>\n");
@@ -2226,11 +2227,13 @@ int main(int argc, char* argv[])
   printf("#endif\n");
 #endif
 #if defined(WIN32_NATIVE)
+  printf("#include <winsock2.h>\n"); /* defines SOCKET */
   printf("extern object convert_time_to_universal (const FILETIME* time);\n");
   printf("#define convert_time_to_universal_w32 convert_time_to_universal\n");
   printf("extern void convert_time_from_universal (object universal, FILETIME* time);\n");
   printf("#define convert_time_from_universal_w32 convert_time_from_universal\n");
 #endif
+  printf("extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);\n");
   printf("#define UNIX_LISP_TIME_DIFF 2208988800UL\n");
   printf("extern Handle handle_dup (Handle old_handle, Handle new_handle);\n");
   printf("extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);\n");

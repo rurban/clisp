@@ -53,16 +53,11 @@
 #endif
 #if defined(HAVE_WINSOCK2_H)
 # include <winsock2.h>
-# define SHUT_RD   SD_RECEIVE
-# define SHUT_WR   SD_SEND
-# define SHUT_RDWR SD_BOTH
-  typedef SOCKET rawsock_t;
-#else
-  typedef int rawsock_t;
 #endif
 #if defined(HAVE_WS2TCPIP_H)
 # include <ws2tcpip.h>
 #endif
+typedef SOCKET rawsock_t;
 
 DEFMODULE(rawsock,"RAWSOCK")
 
@@ -630,7 +625,8 @@ DEFUN(RAWSOCK:SOCKET-OPTION, sock name &key :LEVEL)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/getsockopt.html */
   int level = sockopt_level(popSTACK());
   int name = sockopt_name(popSTACK());
-  rawsock_t sock = I_to_uint(popSTACK()); /* FIXME: use stream_handles() ? */
+  rawsock_t sock;
+  stream_handles(popSTACK(),true,NULL,&sock,NULL);
   if (level == -1) {                      /* :ALL */
     int pos1;
     for (pos1=1; pos1 < sockopt_level_table_size; pos1++) {
@@ -743,7 +739,8 @@ DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/setsockopt.html */
   int level = sockopt_level(popSTACK());
   int name = sockopt_name(popSTACK());
-  rawsock_t sock = I_to_uint(popSTACK()); /* FIXME: use stream_handles() ? */
+  rawsock_t sock;
+  stream_handles(popSTACK(),true,NULL,&sock,NULL);
   if (level == -1) {                      /* :ALL */
     pushSTACK(STACK_0);
     while (consp(STACK_0)) {
