@@ -417,5 +417,6 @@ FUN(object,void*,TheMachine)
 FUN(object,Stream,TheStream)
 FUN(object,object,Car)
 FUN(object,object,Cdr)
+FUN(object,Symbol,TheSymbol)
 #undef FUN
 #endif
