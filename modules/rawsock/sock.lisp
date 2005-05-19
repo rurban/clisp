@@ -39,7 +39,7 @@
   (let* ((socket (socket :AF_UNIX type 0))
          (address (make-sockaddr :AF_UNIX
                                  (ext:convert-string-to-bytes
-                                  (namestring (absolute-pathname pathname))
+                                  (namestring (ext:absolute-pathname pathname))
                                   ext:*pathname-encoding*))))
     (connect socket address)
     (values socket address)))
@@ -52,7 +52,7 @@ Passes :TYPE to SOCKET and all the other options to MAKE-STREAM."
   (multiple-value-bind (sock address) (open-unix-socket pathname type)
     (setq opts (ext:remove-plist opts :type))
     (let ((stream (apply #'ext:make-stream sock opts)))
-      (finalize stream #'close)
+      (ext:finalize stream #'close)
       (sock-close sock)
       (values stream address))))
 
