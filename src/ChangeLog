@@ -1,5 +1,10 @@
 2005-05-19  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (RAWSOCK:SOCKET-OPTION): new function
+	* modules/rawsock/sock.lisp (RAWSOCK:SOCKET-OPTION): new defsetf
+
+2005-05-19  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/sock.lisp (open-unix-socket): added the package
 	prefix for EXT:ABSOLUTE-PATHNAME
 	(open-unix-socket-stream): ditto for EXT:FINALIZE

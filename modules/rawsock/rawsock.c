@@ -524,6 +524,272 @@ DEFUN(RAWSOCK:CONFIGDEV, socket name ipaddress &key PROMISC NOARP) {
 }
 #endif  /* HAVE_NET_IF_H */
 
+/* ================== socket options ================== */
+#if defined(HAVE_GETSOCKOPT) || defined(HAVE_SETSOCKOPT)
+DEFCHECKER(sockopt_level,default=SOL_SOCKET, ALL=-1 SOL-SOCKET          \
+           SOL-IP SOL-IPX SOL-AX25 SOL-ATALK SOL-NETROM SOL-TCP SOL-UDP \
+           IPPROTO-IP IPPROTO-IPV6 IPPROTO-ICMP IPPROTO-RAW IPPROTO-TCP \
+           IPPROTO-UDP IPPROTO-IGMP IPPROTO-IPIP IPPROTO-EGP IPPROTO-PUP \
+           IPPROTO-IDP IPPROTO-GGP IPPROTO-ND IPPROTO-HOPOPTS           \
+           IPPROTO-ROUTING IPPROTO-FRAGMENT IPPROTO-ESP IPPROTO-AH      \
+           IPPROTO-ICMPV6 IPPROTO-DSTOPTS IPPROTO-NONE)
+DEFCHECKER(sockopt_name,default=-1,prefix=SO,                            \
+           DEBUG ACCEPTCONN BROADCAST USELOOPBACK PEERCRED              \
+           REUSEADDR KEEPALIVE LINGER OOBINLINE SNDBUF RCVBUF ERROR TYPE \
+           DONTROUTE RCVLOWAT RCVTIMEO SNDLOWAT SNDTIMEO)
+#endif
+#if defined(HAVE_GETSOCKOPT)
+#define GET_SOCK_OPT(opt_type,retform) do {                             \
+    opt_type val;                                                       \
+    SOCKLEN_T len = sizeof(val);                                        \
+    int status;                                                         \
+    begin_system_call();                                                \
+    status = getsockopt(sock,level,name,(SETSOCKOPT_ARG_T)&val,&len);   \
+    end_system_call();                                                  \
+    if (status==0) return retform;                                      \
+    else return (err_p ? OS_file_error(fixnum(sock)),NIL : S(Kerror));  \
+  } while(0)
+/* can trigger GC */
+static object timeval_to_number (struct timeval *tv) {
+#define TO_INT(x) (sizeof(x)==4 ? sint32_to_I(x) : sint64_to_I(x))
+  if (tv->tv_usec) {
+    pushSTACK(TO_INT(tv->tv_usec)); pushSTACK(fixnum(1000000));
+    funcall(L(durch),2); pushSTACK(value1);
+    pushSTACK(TO_INT(tv->tv_sec)); funcall(L(plus),2);
+    return value1;
+  } else return TO_INT(tv->tv_sec);
+#undef TO_INT
+}
+/* can trigger GC */
+static object get_sock_opt (rawsock_t sock, int level, int name, int err_p) {
+  switch (name) {
+#  if defined(SO_DEBUG)
+    case SO_DEBUG:
+#  endif
+#  if defined(SO_ACCEPTCONN)
+    case SO_ACCEPTCONN:
+#  endif
+#  if defined(SO_BROADCAST)
+    case SO_BROADCAST:
+#  endif
+#  if defined(SO_REUSEADDR)
+    case SO_REUSEADDR:
+#  endif
+#  if defined(SO_KEEPALIVE)
+    case SO_KEEPALIVE:
+#  endif
+#  if defined(SO_OOBINLINE)
+    case SO_OOBINLINE:
+#  endif
+#  if defined(SO_DONTROUTE)
+    case SO_DONTROUTE:
+#  endif
+#  if defined(SO_USELOOPBACK)
+    case SO_USELOOPBACK:
+#  endif
+      GET_SOCK_OPT(int,val ? T : NIL);
+#  if defined(SO_PEERCRED)
+    case SO_PEERCRED:
+#  endif
+#  if defined(SO_RCVLOWAT)
+    case SO_RCVLOWAT:
+#  endif
+#  if defined(SO_SNDLOWAT)
+    case SO_SNDLOWAT:
+#  endif
+#  if defined(SO_SNDBUF)
+    case SO_SNDBUF:
+#  endif
+#  if defined(SO_RCVBUF)
+    case SO_RCVBUF:
+#  endif
+#  if defined(SO_ERROR)
+    case SO_ERROR:
+#  endif
+      GET_SOCK_OPT(int,sint_to_I(val));
+#  if defined(SO_TYPE)
+    case SO_TYPE:
+      GET_SOCK_OPT(int,check_socket_type_reverse(val));
+#  endif
+#  if defined(SO_LINGER)
+    case SO_LINGER:
+      GET_SOCK_OPT(struct linger,val.l_onoff ? sint_to_I(val.l_linger) : NIL);
+#  endif
+#  if defined(SO_RCVTIMEO)
+    case SO_RCVTIMEO:
+#  endif
+#  if defined(SO_SNDTIMEO)
+    case SO_SNDTIMEO:
+#  endif
+      GET_SOCK_OPT(struct timeval,timeval_to_number(&val));
+    default: NOTREACHED;
+  }
+}
+#undef GET_SOCK_OPT
+DEFUN(RAWSOCK:SOCKET-OPTION, sock name &key :LEVEL)
+{ /* http://www.opengroup.org/onlinepubs/009695399/functions/getsockopt.html */
+  int level = sockopt_level(popSTACK());
+  int name = sockopt_name(popSTACK());
+  rawsock_t sock = I_to_uint(popSTACK()); /* FIXME: use stream_handles() ? */
+  if (level == -1) {                      /* :ALL */
+    int pos1;
+    for (pos1=1; pos1 < sockopt_level_table_size; pos1++) {
+      pushSTACK(*sockopt_level_table[pos1].l_const);
+      if (name == -1) {
+        int pos2;
+        for (pos2=0; pos2 < sockopt_name_table_size; pos2++) {
+          pushSTACK(*sockopt_name_table[pos2].l_const);
+          pushSTACK(get_sock_opt(sock,sockopt_level_table[pos1].c_const,
+                                 sockopt_name_table[pos2].c_const,0));
+        }
+        { object tmp = listof(2*sockopt_name_table_size); pushSTACK(tmp); }
+      } else
+        pushSTACK(get_sock_opt(sock,sockopt_level_table[pos1].c_const,name,0));
+    }
+    VALUES1(listof(2*(sockopt_level_table_size-1))); /* skip :ALL */
+  } else {
+    if (name == -1) {
+      int pos2;
+      for (pos2=0; pos2 < sockopt_name_table_size; pos2++) {
+        pushSTACK(*sockopt_name_table[pos2].l_const);
+        pushSTACK(get_sock_opt(sock,level,sockopt_name_table[pos2].c_const,0));
+      }
+      VALUES1(listof(2*sockopt_name_table_size));
+    } else
+      VALUES1(get_sock_opt(sock,level,name,1));
+  }
+}
+#endif
+#if defined(HAVE_SETSOCKOPT)
+#define SET_SOCK_OPT(opt_type,valform) do {                             \
+    int status;                                                         \
+    opt_type val; valform;                                              \
+    begin_system_call();                                                \
+    status = setsockopt(sock,level,name,(SETSOCKOPT_ARG_T)&val,sizeof(val)); \
+    end_system_call();                                                  \
+    if (status) OS_file_error(fixnum(sock));                            \
+    return;                                                             \
+  } while(0)
+static void set_sock_opt (rawsock_t sock, int level, int name, object value) {
+  if (eq(value,S(Kerror))) return;
+  switch (name) {
+#  if defined(SO_DEBUG)
+    case SO_DEBUG:
+#  endif
+#  if defined(SO_ACCEPTCONN)
+    case SO_ACCEPTCONN:
+#  endif
+#  if defined(SO_BROADCAST)
+    case SO_BROADCAST:
+#  endif
+#  if defined(SO_REUSEADDR)
+    case SO_REUSEADDR:
+#  endif
+#  if defined(SO_KEEPALIVE)
+    case SO_KEEPALIVE:
+#  endif
+#  if defined(SO_OOBINLINE)
+    case SO_OOBINLINE:
+#  endif
+#  if defined(SO_DONTROUTE)
+    case SO_DONTROUTE:
+#  endif
+#  if defined(SO_USELOOPBACK)
+    case SO_USELOOPBACK:
+#  endif
+      SET_SOCK_OPT(int,val=!nullp(value));
+#  if defined(SO_PEERCRED)
+    case SO_PEERCRED:
+#  endif
+#  if defined(SO_RCVLOWAT)
+    case SO_RCVLOWAT:
+#  endif
+#  if defined(SO_SNDLOWAT)
+    case SO_SNDLOWAT:
+#  endif
+#  if defined(SO_SNDBUF)
+    case SO_SNDBUF:
+#  endif
+#  if defined(SO_RCVBUF)
+    case SO_RCVBUF:
+#  endif
+#  if defined(SO_ERROR)
+    case SO_ERROR:
+#  endif
+      SET_SOCK_OPT(int,val=I_to_sint32(check_sint32(value)));
+#  if defined(SO_TYPE)
+    case SO_TYPE:
+      SET_SOCK_OPT(int,val=check_socket_type(value));
+#  endif
+#  if defined(SO_LINGER)
+    case SO_LINGER:
+      SET_SOCK_OPT(struct linger,
+                   if (nullp(value)) val.l_onoff=0;
+                   else { val.l_onoff = 1;
+                     val.l_linger = I_to_sint32(check_sint32(value));});
+#  endif
+#  if defined(SO_RCVTIMEO)
+    case SO_RCVTIMEO:
+#  endif
+#  if defined(SO_SNDTIMEO)
+    case SO_SNDTIMEO:
+#  endif
+      SET_SOCK_OPT(struct timeval,sec_usec(value,NIL,&val));
+    default: NOTREACHED;
+  }
+}
+#undef SET_SOCK_OPT
+DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
+{ /* http://www.opengroup.org/onlinepubs/009695399/functions/setsockopt.html */
+  int level = sockopt_level(popSTACK());
+  int name = sockopt_name(popSTACK());
+  rawsock_t sock = I_to_uint(popSTACK()); /* FIXME: use stream_handles() ? */
+  if (level == -1) {                      /* :ALL */
+    pushSTACK(STACK_0);
+    while (consp(STACK_0)) {
+      int level = sockopt_level(Car(STACK_0));
+      STACK_0 = Cdr(STACK_0);
+      if (!consp(STACK_0)) goto set_socket_option_error;
+      if (name == -1) {
+        pushSTACK(Car(STACK_0));
+        while (consp(STACK_0)) {
+          name = sockopt_name(Car(STACK_0));
+          STACK_0 = Cdr(STACK_0);
+          if (!consp(STACK_0)) goto set_socket_option_error;
+          set_sock_opt(sock,level,name,Car(STACK_0));
+        }
+        name = -1;
+        if (!nullp(STACK_0)) goto set_socket_option_error;
+        skipSTACK(1);
+      } else
+        set_sock_opt(sock,level,name,Car(STACK_0));
+    }
+    if (!nullp(STACK_0)) goto set_socket_option_error;
+    skipSTACK(1);
+  } else {
+    if (name == -1) {
+      pushSTACK(STACK_0);
+      while (consp(STACK_0)) {
+        name = sockopt_name(Car(STACK_0));
+        STACK_0 = Cdr(STACK_0);
+        if (!consp(STACK_0)) goto set_socket_option_error;
+        set_sock_opt(sock,level,name,Car(STACK_0));
+      }
+      if (!nullp(STACK_0)) goto set_socket_option_error;
+      skipSTACK(1);
+    } else
+      set_sock_opt(sock,level,name,Car(STACK_0));
+  }
+  VALUES1(popSTACK()); return;
+ set_socket_option_error:
+  /* the bad value is now STACK_0 */
+  pushSTACK(sockopt_level_reverse(level));
+  pushSTACK(sockopt_name_reverse(name));
+  pushSTACK(fixnum(sock));
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~S(~S ~S ~S): invalid value: ~S"));
+}
+#endif
 /* ================== CHECKSUM from Fred Cohen ================== */
 
 DEFUN(RAWSOCK:IPCSUM, &optional buffer) { /* IP CHECKSUM */
