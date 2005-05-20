@@ -979,7 +979,7 @@ T
   (with-open-file (s f :direction :output :if-exists :supersede)
     (type-of (truename s))
     (format s "(defun cfp-test () #.*compile-file-truename*)~%"))
-  (setq cf (print (compile-file f))
+  (setq cf (compile-file f)
         cfp (truename (compile-file-pathname f)))
   (load (open cf :direction :probe :if-does-not-exist :error))
   (unwind-protect
@@ -989,6 +989,18 @@ T
     (delete-file cf)
     #+clisp (delete-file (make-pathname :type "lib" :defaults cf))))
 (T T)
+
+(let ((f "compile-file-pathname.lisp"))
+  (with-open-file (s f :direction :output :if-exists :supersede
+                     :if-does-not-exist :create)
+    (format s "(defun cfp-test () #.*compile-file-pathname*)~%"))
+  (setq cf (compile-file f))
+  (load (open cf :direction :probe :if-does-not-exist :error))
+  (unwind-protect (path= (cfp-test) (merge-pathnames f))
+    (delete-file f)
+    (delete-file cf)
+    #+clisp (delete-file (make-pathname :type "lib" :defaults cf))))
+T
 
 (compile-file-pathname "foo" :OUTPUT-FILE (logical-pathname "SYS:foo.fas"))
 #+CLISP #S(LOGICAL-PATHNAME :HOST "SYS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)

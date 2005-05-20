@@ -1,3 +1,7 @@
+2005-05-20  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: check that *COMPILE-FILE-PATHNAME* is what it should be
+
 2005-05-16  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: check that LOAD can handle invalid streams

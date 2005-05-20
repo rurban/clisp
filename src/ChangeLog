@@ -1,5 +1,10 @@
 2005-05-20  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (compile-file): as per the ANSI CL spec,
+	bind *COMPILE-FILE-PATHNAME* to (merge-pathnames file)
+
+2005-05-20  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: removed a spurious double line
 
 2005-05-20  Sam Steingold  <sds@gnu.org>
