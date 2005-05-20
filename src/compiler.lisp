@@ -4375,7 +4375,12 @@ for-value   NIL or T
                (seclass-or-f seclass anodei)
                (if (null Lr)
                  ;; last form -> take over directly
-                 (push anodei codelist)
+                 (if (and (anode-constantp anodei)
+                          (null (anode-constant-value anodei)))
+                   ;; (or ... (foo) nil) ==> (or ... (values (foo)))
+                   ;; replace the test with (VALUES1)
+                   (setf (car codelist) '(VALUES1))
+                   (push anodei codelist))
                  ;; not the last form -> create test
                  (if (anode-constantp anodei)
                    ;; constant NIL -> omit, constant /= NIL -> finished

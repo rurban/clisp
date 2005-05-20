@@ -1,5 +1,13 @@
 2005-05-20  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-OR): (or ... (foo) nil) ==> (or ... (values (foo)))
+	this permits a better optimization of (COND ((...))),
+	i.e., when a clause consists of just the test form.
+	This adds 71 bytes to compiler.fas (0.01%) and removes 91 bytes
+	total from all the other files, for a net change of 20 bytes (0.0005%)
+
+2005-05-20  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (SHUT_RD, SHUT_WR, SHUT_RDWR)
 	[WIN32_NATIVE]: defined
 	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
