@@ -1422,7 +1422,6 @@ if [ $CROSS = false ] ; then
       #   dependencies.
       if test -f /usr/lib/libdl_stubs.a; then
         LIBS=$LIBS' -lnsl -lsocket -ldl_stubs -lnswfiles -lnswnis -lnswnisplus -ltcpip -lswitch -lnswcompat -lstraddr -lintl'
-        LIBS=$LIBS' -lnsl -lsocket -ldl_stubs -lnswfiles -lnswnis -lnswnisplus -ltcpip -lswitch -lnswcompat -lstraddr -lintl'
       else
         # Newer versions of Solaris (Solaris 2.2 and newer) don't have
         # libdl_stubs.a any more. This means that you cannot link -static !

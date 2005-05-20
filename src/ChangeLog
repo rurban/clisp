@@ -1,5 +1,9 @@
 2005-05-20  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: removed a spurious double line
+
+2005-05-20  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-OR): (or ... (foo) nil) ==> (or ... (values (foo)))
 	this permits a better optimization of (COND ((...))),
 	i.e., when a clause consists of just the test form.
