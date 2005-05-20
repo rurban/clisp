@@ -1,3 +1,9 @@
+2005-05-20  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c (SHUT_RD, SHUT_WR, SHUT_RDWR)
+	[WIN32_NATIVE]: defined
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
 2005-05-19  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (stream_handles): made global for modules;
