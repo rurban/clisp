@@ -1667,7 +1667,7 @@ nonreturning_function (local, print_license, (void)) {
     "You should have received a copy of the GNU General Public License\n",
     "along with " PACKAGE_NAME ", see file GNU-GPL.\n",
     "If not, write to the Free Software Foundation, Inc.,\n",
-    "59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.\n",
+    "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.\n",
     "\n",
     "Distribution of Lisp programs meant to run in " PACKAGE_NAME "\n",
     "without sources is possible under certain conditions.\n",
