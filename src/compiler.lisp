@@ -11104,7 +11104,7 @@ The function make-closure is required.
                                ((:verbose *compile-verbose*) *compile-verbose*)
                                ((:print *compile-print*) *compile-print*)
                                (external-format :default)
-                          &aux liboutput-file (*coutput-file* nil)
+                          &aux liboutput-file (*coutput-file* nil) input-file
                                (*compile-file-directory*
                                  (if (eq t output-file)
                                    nil
@@ -11112,7 +11112,7 @@ The function make-closure is required.
                                                   :defaults output-file)))
                                (new-output-stream nil)
                                (new-listing-stream nil))
-  (multiple-value-setq (output-file file)
+  (multiple-value-setq (output-file input-file)
     (compile-file-pathname-helper file output-file))
   (when (and output-file (not (streamp output-file)))
     (setq liboutput-file (merge-extension "lib" output-file))
@@ -11120,18 +11120,18 @@ The function make-closure is required.
     (setq new-output-stream t))
   (when (and listing (not (streamp listing)))
     (setq listing (if (eq listing 'T)
-                    (merge-extension "lis" file)
+                    (merge-extension "lis" output-file)
                     (merge-pathnames listing)))
     (setq new-listing-stream t))
-  (with-open-file (istream file :direction :input-immutable
+  (with-open-file (istream input-file :direction :input-immutable
                            :external-format external-format)
     (let ((listing-stream ; a stream or NIL
             (if new-listing-stream
               (open listing :direction :output)
               (if (streamp listing) listing nil))))
       (unwind-protect
-        (let* ((*compile-file-pathname* file)
-               (*compile-file-truename* (truename file))
+        (let* ((*compile-file-pathname* (merge-pathnames file)) ; as per ANSI
+               (*compile-file-truename* (truename input-file))
                (*current-source-file* *compile-file-truename*)
                (*compile-file-lineno1* nil)
                (*compile-file-lineno2* nil)
@@ -11156,7 +11156,7 @@ The function make-closure is required.
                 (fresh-line listing-stream)
                 (format listing-stream
                   (TEXT "Listing of compilation of file ~A~%on ~@? by ~A, version ~A")
-                  file
+                  input-file
                   (date-format)
                   (multiple-value-list (get-decoded-time))
                   ;; List (sec min hour day month year ...)
@@ -11190,7 +11190,8 @@ The function make-closure is required.
                     (form-count 0))
                 (when verbose-out
                   (fresh-line verbose-out)
-                  (format verbose-out (TEXT ";; Compiling file ~A ...") file)
+                  (format verbose-out (TEXT ";; Compiling file ~A ...")
+                          input-file)
                   (elastic-newline verbose-out))
                 (when *fasoutput-stream*
                   (let ((*package* *keyword-package*))
