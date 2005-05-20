@@ -1366,7 +1366,7 @@ local void init_symbol_values (void) {
   # loaded shared libraries.
   # On FreeBSD 4.0, if set to T, gdb stops the clisp process.
   # On Woe32, the debugging APIs are flawed, the Cygwin developers say.
-  #if defined(UNIX_FREEBSD) || defined(UNIX_CYGWIN)
+  #if defined(UNIX_FREEBSD) || defined(UNIX_CYGWIN32)
   define_variable(S(disassemble_use_live_process),NIL);
   #else
   define_variable(S(disassemble_use_live_process),T);

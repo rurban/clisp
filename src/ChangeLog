@@ -1,5 +1,9 @@
 2005-05-20  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (init_symbol_values): UNIX_CYGWIN -> UNIX_CYGWIN32
+
+2005-05-20  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/sock.lisp (SOCKET-OPTION): simplified DEFSETF
 	* modules/syscalls/calls.c (SET-PRIORITY): made value the first
 	argument, it is easier to return it this way
