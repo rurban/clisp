@@ -1,3 +1,7 @@
+2005-05-20  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/sock.lisp (SOCKET-OPTION): simplified DEFSETF
+
 2005-05-20  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (print_license): Update FSF postal address.
