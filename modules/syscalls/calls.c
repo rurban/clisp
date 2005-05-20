@@ -533,10 +533,10 @@ DEFUN(OS:PRIORITY, pid &optional which) {
 #endif
   VALUES1(check_priority_value_reverse(res));
 }
-DEFUN(OS:SET-PRIORITY, pid which value) {
+DEFUN(OS::SET-PRIORITY, value pid which) {
+  int which = check_priority_which(popSTACK());
+  int pid = I_to_uint32(check_uint32(popSTACK()));
   int value = check_priority_value(STACK_0);
-  int which = check_priority_which(STACK_1);
-  int pid = I_to_uint32(check_uint32(STACK_2));
   begin_system_call();
 #if defined(HAVE_SETPRIORITY)
   if (setpriority(which,pid,value)) OS_error();
@@ -551,7 +551,7 @@ DEFUN(OS:SET-PRIORITY, pid which value) {
   NOTREACHED;
 #endif
   end_system_call();
-  VALUES1(STACK_0); skipSTACK(3);
+  VALUES1(popSTACK());
 }
 
 /* posix math functions in <math.h> */

@@ -42,7 +42,7 @@
   `(%syslog ,severity ,facility (format nil ,format ,@args)))
 ;;; ============================================================
 (defsetf priority (pid &optional which) (value)
-  `(set-priority ,pid ,which ,value))
+  `(set-priority ,value ,pid ,which))
 ;;; ============================================================
 (defstruct (hostent (:constructor
                      make-hostent (name aliases addr-list addrtype)))
