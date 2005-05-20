@@ -31,9 +31,7 @@
   (%data (missing msghdr) :read-only t :type (vector (unsigned-byte 8))))
 )
 
-(defsetf socket-option (&rest args) (value)
-  (let ((val (gensym "SOCKET-OPTION")))
-    `(let ((,val ,value)) (set-socket-option ,val ,@args))))
+(defsetf socket-option (&rest args) (value) `(set-socket-option ,value ,@args))
 
 (defconstant sockaddr-family-size (sockaddr-family-size))
 (defun sockaddr-data (sa) (subseq (sockaddr-%data sa) sockaddr-family-size))
