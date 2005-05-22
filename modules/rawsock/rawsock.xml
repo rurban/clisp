@@ -33,7 +33,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   <member>&recv;</member><member>&recvfrom;</member><member>&recvmsg;</member>
   <member>&send;</member><member>&sendmsg;</member><member>&sendto;</member>
   <member>&socket;</member><member>&sockatmark;</member>
-  <member>&socketpair;</member><member>&shutdown;</member></simplelist>
+  <member>&socketpair;</member></simplelist>
  using same-named lisp functions in package
  <quote role="package">RAWSOCK</quote>.
  Additionally,<itemizedlist>
@@ -46,7 +46,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 
 <para>The interface to &getsockopt; and &setsockopt; is available via
  the &setf;able function
- <code>(RAWSOCK:SOCKET-OPTION &sock-r; &name-t; &key-amp; :LEVEL)</code>
+ <code>(RAWSOCK:SOCKET-OPTION &sock-r; &name-r; &key-amp; :LEVEL)</code>
  which returns and sets individual (for specific option &name-r;
  and <replaceable>level</replaceable>) and multiple (when &name-r; is
  &nil; and/or <replaceable>level</replaceable> is &all-k;) options.
@@ -54,6 +54,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 
 <para>We do not interface to &select; or &poll;,
  they are available through &so-status;.</para>
+
+<para>We do not interface to &shutdown;,
+ it are available through &sost-shut;.</para>
 
 <para>We do not interface to &gethostbyname; or &gethostbyaddr;,
  they are available through &resolve-host;.</para>
