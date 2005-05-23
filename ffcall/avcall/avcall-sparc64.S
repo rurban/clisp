@@ -241,11 +241,11 @@ __builtin_avcall:
 	ldx	[%i0+104], %o4
 	call	%g3, 0
 	ldx	[%i0+112], %o5
-	mov	%o0, %g1
 	nop
 	ld	[%i0+24], %g3
 	cmp	%g3, 1
 	be,pn	%icc, .LL43
+	mov	%o0, %g1
 	cmp	%g3, 0
 	be,pn	%icc, .LL157
 	cmp	%g3, 2
