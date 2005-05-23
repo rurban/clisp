@@ -26,10 +26,6 @@
  */
 #endif
 
-/* needed for execname.c to work
-   the only reason at this time is the UNIX stat() headers */
-# include "lispbibl.c"
-
 /* Declare strlen(), strcpy(), strcat(). */
 # include <string.h>
 /* Declare stderr. */
@@ -39,7 +35,14 @@
 # include "w32shell.c"
 #endif
 
-# include "execname.c"
+/* needed for execname.c to work */
+# include <sys/types.h>         /* stat */
+# include <sys/stat.h>          /* stat */
+# include <unistd.h>            /* access */
+# include <stdlib.h>            /* getenv, abort */
+# include <errno.h>             /* ENOMEM, ENOENT, errno */
+# include <sys/param.h>         /* MAXPATHLEN */
+#include "execname.c"
 
 #if !defined(HAVE_PERROR_DECL)
 /* Both <errno.h> and <stdio.h> failed to declare perror(). Declare it now. */
