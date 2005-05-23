@@ -57,8 +57,9 @@ __vacall:
 	st	%f31, [%fp+1895]
 	st	%g0, [%fp+1775]
 	stx	%g0, [%fp+1791]
-	call	%o2, 0
 	st	%g0, [%fp+1799]
+	call	%o2, 0
+	st	%g0, [%fp+1831]
 	ld	[%fp+1799], %o0
 	cmp	%o0, 0
 	be,pn	%icc, .LL4

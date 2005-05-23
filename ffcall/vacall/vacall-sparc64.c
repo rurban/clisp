@@ -1,7 +1,7 @@
 /* vacall function for sparc64 CPU */
 
 /*
- * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2005 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -113,6 +113,7 @@ __vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
   list.aptr = (long)(&firstword - 6);
   list.raddr = (void*)0;
   list.rtype = __VAvoid;
+  list.anum = 0;
   /* Call vacall_function. The macros do all the rest. */
 #ifndef REENTRANT
   (*vacall_function) (&list);
