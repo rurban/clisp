@@ -12,9 +12,9 @@ AC_PREREQ(2.13)
 AC_DEFUN([CL_SMALL_STRUCT_RETURN],
 [AC_CACHE_CHECK([whether small structs are returned in registers], cl_cv_c_struct_return_small, [
 AC_TRY_RUN(GL_NOCRASH[
-typedef struct { int x; } foo; int y;
+typedef struct { long x; } foo; long y;
 foo foofun () { foo f; f.x = y; return f; }
-int (*fun) () = (int (*) ()) foofun;
+long (*fun) () = (long (*) ()) foofun;
 int main()
 { nocrash_init();
   y = 37; if ((*fun)() != 37) exit(1);
