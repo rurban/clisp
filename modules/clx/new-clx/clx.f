@@ -604,7 +604,11 @@ static object make_display (Display *dpy)
   funcall(L(make_structure),2); pushSTACK(value1);
   TheStructure(STACK_0)->recdata[slot_DISPLAY_FOREIGN_POINTER]
     = allocate_fpointer (dpy);
-  pushSTACK(S(Ktest)); pushSTACK(S(equal));
+#if oint_data_len<29
+  pushSTACK(S(Ktest)); pushSTACK(S(stablehash_equal)); /* key is a cons */
+#else
+  pushSTACK(S(Ktest)); pushSTACK(S(stablehash_eq)); /* key is a fixnum */
+#endif
   funcall (L(make_hash_table), 2);
   TheStructure(STACK_0)->recdata[slot_DISPLAY_HASH_TABLE]     = value1;
   TheStructure(STACK_0)->recdata[slot_DISPLAY_PLIST]          = NIL;
@@ -754,7 +758,25 @@ static object make_xid_obj_low (gcv_object_t *prealloc, gcv_object_t *type,
   }
 }
 
+#if oint_data_len<29
 DEFVAR(xlib_a_cons,`(NIL . NIL)`);
+/* return the XID object for lookup (old) */
+static inline object XID_to_object_old (XID xid) {
+  Car (O(xlib_a_cons)) = make_uint16 (xid & 0xFFFF); /* lower halfword */
+  Cdr (O(xlib_a_cons)) = make_uint16 (xid >> 16);    /* upper halfword */
+  return O(xlib_a_cons);
+}
+/* return the XID object for creation (new) */
+static inline object XID_to_object_new (XID xid) {
+  pushSTACK(make_uint16 (xid & 0xFFFF)); /* lower halfword */
+  pushSTACK(make_uint16 (xid >> 16));    /* upper halfword */
+  funcall(L(cons),2);                    /* cons them */
+  return value1;
+}
+#else
+#define XID_to_object_old(xid)  fixnum(xid)
+#define XID_to_object_new(xid)  fixnum(xid)
+#endif
 
 /* find the resource in the display hash table
  < display object, XID number
@@ -766,9 +788,7 @@ static object lookup_xid (object dpy, XID xid) {
     return nullobj;
   } else {
     object ht = display_hash_table(dpy);
-    Car (O(xlib_a_cons)) = make_uint16 (xid & 0xFFFF); /* lower halfword */
-    Cdr (O(xlib_a_cons)) = make_uint16 (xid >> 16);    /* upper halfword */
-    value1 = gethash(O(xlib_a_cons),ht,false);    /* look it up */
+    value1 = gethash(XID_to_object_old(xid),ht,false);    /* look it up */
     if (!eq(value1,nullobj)) {  /* something found? */
       mv_count = 1;             /* simply return what we found */
       return nullobj;
@@ -782,9 +802,7 @@ static object lookup_xid (object dpy, XID xid) {
  can trigger GC */
 static void set_resource_id (gcv_object_t *ht, XID xid,
                              gcv_object_t *resource) {
-  pushSTACK(make_uint16 (xid & 0xFFFF)); /* lower halfword */
-  pushSTACK(make_uint16 (xid >> 16));    /* upper halfword */
-  funcall(L(cons),2);                    /* cons `em */
+  value1 = XID_to_object_new(xid);
   pushSTACK(value1);                     /* key for puthash */
   pushSTACK(*ht);                        /* hashtable */
   pushSTACK(*resource);                  /* value */
@@ -794,9 +812,7 @@ static void set_resource_id (gcv_object_t *ht, XID xid,
 /* delete the resource ID from the display
  < display hash-table object, XID number */
 static Values delete_resource_id (gcv_object_t *ht, XID xid) {
-  Car (O(xlib_a_cons)) = make_uint16 (xid & 0xFFFF); /* lower halfword */
-  Cdr (O(xlib_a_cons)) = make_uint16 (xid >> 16);    /* upper halfword */
-  pushSTACK(O(xlib_a_cons)); pushSTACK(*ht); funcall(L(remhash),2);
+  pushSTACK(XID_to_object_old(xid)); pushSTACK(*ht); funcall(L(remhash),2);
 }
 
 static object make_xid_obj_2 (object type, object dpy, XID xid,
