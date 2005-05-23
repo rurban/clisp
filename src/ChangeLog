@@ -1,3 +1,13 @@
+2005-05-22  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (make_display): when fixnum size is less
+	than 29, use STABLEHASH-EQUAL hash table, otherwize STABLEHASH-EQ
+	(xlib_a_cons): not needed when fixnum can hold XID
+	(XID_to_object_old, XID_to_object_new): define differently depending on
+	whether fixnum can hold XID or not
+	(lookup_xid, delete_resource_id): use XID_to_object_old
+	(set_resource_id): use XID_to_object_new
+
 2005-05-20  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (init_symbol_values): UNIX_CYGWIN -> UNIX_CYGWIN32
@@ -15397,7 +15407,7 @@
 	Needed for Linux/x86 with glibc <= 2.1.
 
 2004-03-11  Sam Steingold  <sds@gnu.org>
-            Bruno Haible  <bruno@clisp.org>
+	    Bruno Haible  <bruno@clisp.org>
 
 	* configure.in: Check for <sys/statvfs.h> and <sys/statfs.h>.
 	* unix.d: Prefer <sys/statvfs.h> over <sys/statfs.h>. Use <sys/mount.h>
@@ -15620,7 +15630,7 @@
 	Don't cast the size to uintW.
 
 2004-03-04  Bruno Haible  <bruno@clisp.org>
-            Sam Steingold  <sds@gnu.org>
+	    Sam Steingold  <sds@gnu.org>
 
 	* package.d (string_hashcode): Don't ignore the 17th and following
 	characters. Use + instead of |, to maintain statistical
@@ -15716,7 +15726,7 @@
 	Reported by Russell McManus <russell_mcmanus@yahoo.com>.
 
 2004-02-29  Sam Steingold  <sds@gnu.org>
-            Bruno Haible  <bruno@clisp.org>
+	    Bruno Haible  <bruno@clisp.org>
 
 	* encoding.d (encoding_from_name): Call FIND-SYMBOL and remove most of
 	the mapping table.
@@ -22163,7 +22173,7 @@
 	* version.h: 2.29 is released
 
 2002-07-25  Sam Steingold  <sds@gnu.org>
-            Bruno Haible <bruno@clisp.org>
+	    Bruno Haible <bruno@clisp.org>
 
 	fixed the (compile nil (lambda () ... #'(lambda ...))) bug
 	* compiler.lisp (symbol-suffix): also work when funname is NIL,
