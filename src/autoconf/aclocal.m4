@@ -1314,9 +1314,9 @@ AC_PREREQ(2.13)
 AC_DEFUN([CL_SMALL_STRUCT_RETURN],
 [AC_CACHE_CHECK([whether small structs are returned in registers], cl_cv_c_struct_return_small, [
 AC_TRY_RUN(GL_NOCRASH[
-typedef struct { int x; } foo; int y;
+typedef struct { long x; } foo; long y;
 foo foofun () { foo f; f.x = y; return f; }
-int (*fun) () = (int (*) ()) foofun;
+long (*fun) () = (long (*) ()) foofun;
 int main()
 { nocrash_init();
   y = 37; if ((*fun)() != 37) exit(1);
@@ -1521,8 +1521,8 @@ fi
 
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-# 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+# USA.
 
 # _AC_FUNC_FNMATCH_IF(STANDARD = GNU | POSIX, CACHE_VAR, IF-TRUE, IF-FALSE)
 # -------------------------------------------------------------------------
@@ -7933,7 +7933,8 @@ ifelse([$1], [],
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+# USA.
 #
 # As a special exception to the GNU General Public License, if you
 # distribute this file as part of a program that contains a

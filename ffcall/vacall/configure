@@ -3221,9 +3221,9 @@ nocrash_init (void)
 }
 #endif
 
-typedef struct { int x; } foo; int y;
+typedef struct { long x; } foo; long y;
 foo foofun () { foo f; f.x = y; return f; }
-int (*fun) () = (int (*) ()) foofun;
+long (*fun) () = (long (*) ()) foofun;
 int main()
 { nocrash_init();
   y = 37; if ((*fun)() != 37) exit(1);
