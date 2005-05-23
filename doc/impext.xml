@@ -98,9 +98,12 @@ extension, &mem-file; extension is automatically added).
    &package-var; in the image being saved, and defaults to the current
    value of &package-var;.</simpara></listitem></varlistentry>
  <varlistentry><term><constant>:KEEP-GLOBAL-HANDLERS</constant></term>
-  <listitem><simpara>When non-&nil;, the currently established global
+  <listitem><para>When non-&nil;, the currently established global
     handlers (either with &set-global-handler; or with &opt-on-error;)
-    are inherited by the image.</simpara></listitem></varlistentry>
+    are inherited by the image.  Defaults to &nil;, so that<screen>
+<prompt>$</prompt> clisp -i myfile -x '(ext:saveinitmem)'
+</screen>will produce an image without any global handlers inherited
+    from the batch mode of the above command.</para></listitem></varlistentry>
 </variablelist>
 You can use this memory image with the &opt-M; option.
 On &unix; systems, you may compress it with &gnu; &gzip; to save disk
