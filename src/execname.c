@@ -30,20 +30,20 @@ static int maybe_executable (const char * filename) {
   struct stat statexe;
   struct stat statfile;
   if (access(filename,R_OK|X_OK) < 0)
-    return false;
+    return 0/*false*/;
   if (executable_fd < 0)
-    return true;
+    return 1/*true*/;
   /* If we already have an executable_fd, check that filename points to
    the same inode. */
   if (fstat(executable_fd,&statexe) < 0)
-    return true;
+    return 1/*true*/;
   if (stat(filename,&statfile) < 0)
-    return false;
+    return 0/*false*/;
   if (statfile.st_dev
       && statfile.st_dev == statexe.st_dev
       && statfile.st_ino == statexe.st_ino)
-    return true;
-  return false;
+    return 1/*true*/;
+  return 0/*false*/;
 }
 #endif
 
@@ -95,7 +95,7 @@ int find_executable (const char * program_name) {
       const char * p_next;
       for (p = path; *p; p = p_next) {
         const char * q;
-        uintL p_len;
+        unsigned long p_len;
         for (q = p; *q; q++) { if (*q == ':') break; }
         p_len = q-p; p_next = (*q=='\0' ? q : q+1);
         { /* We have a path item at p, of length p_len.
