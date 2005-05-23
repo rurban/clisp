@@ -305,8 +305,8 @@ compiles the specified lisp files to a platform-independent
        &appease-cerrors;) other &error-t;s are handled in the default way
     </simpara></listitem></varlistentry>
     <varlistentry><term>debug</term>
-     <listitem><simpara>&error-t;s &invoke-debugger;
-    </simpara></listitem></varlistentry>
+     <listitem><simpara>&error-t;s &invoke-debugger; (the normal &repl;
+       behavior)</simpara></listitem></varlistentry>
     <varlistentry><term>abort</term>
      <listitem><simpara>&cont-err;s are appeased, other &error-t;s
        are &abort;ed with &abort-on-error;</simpara></listitem></varlistentry>
