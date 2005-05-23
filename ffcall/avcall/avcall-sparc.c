@@ -108,7 +108,7 @@ __builtin_avcall(av_alist* l)
     }
 
 					/* call function with 1st 6 args */
-  i = ({ __avword iret;	/* %o0 */
+  i = ({ register __avword iret __asm__("%o0");
          iret = (*l->func)(l->args[0], l->args[1], l->args[2],
 			   l->args[3], l->args[4], l->args[5]);
          asm ("nop");	/* struct returning functions skip this instruction */
