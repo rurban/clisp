@@ -1,5 +1,17 @@
 2005-05-22  Bruno Haible  <bruno@clisp.org>
 
+	* stdint_.h (_STDINT_H_HAVE_INT64): New macro. Use it in #ifdefs.
+	(INT64_MIN): Fix definition.
+	Suggested by Paul Eggert <eggert@cs.ucla.edu>.
+
+	* stdint_.h (_STDINT_H_NEED_SIGNED_INT_TYPES): Renamed from
+	NEED_SIGNED_INT_TYPES.
+
+	* stdint_.h (_STDINT_H_HAVE_SYSTEM_INTTYPES): Renamed from
+	HAVE_SYSTEM_INTTYPES.
+
+2005-05-22  Bruno Haible  <bruno@clisp.org>
+
 	* m4/ffcall-smallstruct.m4 (CL_SMALL_STRUCT_RETURN): Use 'long'
 	instead of 'int'. Needed because on sparc64, 'int' has 32 bits,
 	a function returning a 'struct { int x; }' returns the result in the
