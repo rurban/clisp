@@ -1,3 +1,12 @@
+2005-05-22  Bruno Haible  <bruno@clisp.org>
+
+	* m4/ffcall-smallstruct.m4 (CL_SMALL_STRUCT_RETURN): Use 'long'
+	instead of 'int'. Needed because on sparc64, 'int' has 32 bits,
+	a function returning a 'struct { int x; }' returns the result in the
+	32 _high_ bits of %o0, whereas a function returning 'int' returns the
+	result in the 32 _low_ bits of %o0 (sign-extended to 64 bits).
+	Reported by Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
+
 2005-05-22  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (make_display): when fixnum size is less
