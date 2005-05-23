@@ -1,8 +1,10 @@
 2005-05-23  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (distrib) [!BINARY_DISTRIB]: do not expect gnu tr
-	* _clisp.c: do not include lispbibl.c bacause it is not included
+	* _clisp.c: do not include lispbibl.c because it is not included
 	with a binary distribution; include execname.c textually
+	* execname.c (maybe_executable): do not use boolean constants
+	(find_executable): use "unsigned long" instead of "uintL"
 
 2005-05-22  Bruno Haible  <bruno@clisp.org>
 
