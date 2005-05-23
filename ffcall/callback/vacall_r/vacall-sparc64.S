@@ -56,6 +56,7 @@ __vacall_r:
 	st	%g0, [%fp+1775]
 	stx	%g0, [%fp+1791]
 	st	%g0, [%fp+1799]
+	st	%g0, [%fp+1831]
 	ldx	[%g5], %o2
 	call	%o2, 0
 	add	%fp, 1775, %o1
