@@ -3728,7 +3728,7 @@ done
 if test -z "$BINARY_DISTRIB"; then
   line="cat distmakefile"
   for dir in base full; do
-    DIR=`echo "${dir}" | tr a-z A-Z`
+    DIR=`echo "${dir}" | tr '[a-z]' '[A-Z]'`
     line="$line | { . ${dir}/makevars ; ${dir}_files='' ; for f in modules.o \$\$FILES ; do ${dir}_files=\"\$\$${dir}_files\"' ${dir}/'\"\$\$f\" ; done ; ${dir}_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) ${dir}_libs=\"\$\$${dir}_libs \$\$f\";; *) ${dir}_libs=\"\$\$${dir}_libs\"' ${dir}/'\"\$\$f\";; esac ; done ; sed_escape_commas='s/,/\\\\,/g' ; ${dir}_libs=\`echo \"\$\$${dir}_libs\" | sed -e \"\$\$sed_escape_commas\"\` ; sed -e \"s,@@${DIR}_FILES@@,\$\$${dir}_files,\" -e \"s,@@${DIR}_LIBS@@,\$\$${dir}_libs,\"; }"
   done
   echotab "$line > \$(TOPDIR)/Makefile"
