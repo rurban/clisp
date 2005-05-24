@@ -3728,7 +3728,8 @@ echo "$as_me: error: cannot find PCRE library" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-for ac_func in pcre_get_stringnumber
+
+for ac_func in pcre_get_stringnumber pcre_config
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5

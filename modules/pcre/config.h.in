@@ -6,6 +6,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Define to 1 if you have the `pcre_config' function. */
+#undef HAVE_PCRE_CONFIG
+
 /* Define to 1 if you have the `pcre_get_stringnumber' function. */
 #undef HAVE_PCRE_GET_STRINGNUMBER
 
