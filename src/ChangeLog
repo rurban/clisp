@@ -1,3 +1,9 @@
+2005-05-24  Sam Steingold  <sds@gnu.org>
+
+	pcre 3 lacks pcre_config()
+	* modules/pcre/configure.in: check for pcre_config()
+	* modules/pcre/cpcre.c (pcre-config) [HAVE_PCRE_CONFIG]: add condition
+
 2005-05-24  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_sigsegv.d (stackoverflow_handler): Treat WIN32_NATIVE like
