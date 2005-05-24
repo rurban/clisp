@@ -202,6 +202,8 @@
 <!ENTITY seconds "<ulink url='&clhs;/Body/sec_25-1-4-4.html'>seconds</ulink>">
 <!ENTITY TZ "<ulink url='&clhs;/Body/glo_t.html#time_zone'>time zone</ulink>">
 <!ENTITY feature-expr "<ulink url='&clhs;/Body/sec_24-1-2-1.html'>feature exression</ulink>">
+<!ENTITY graphic "<ulink url='&clhs;/Body/glo_g.html#graphic'>graphic</ulink>">
+<!ENTITY printing "<ulink url='&clhs;/Body/glo_p.html#printing'>printing</ulink>">
 
 <!-- *** variables, bindings etc *** -->
 <!ENTITY environment "<ulink url='&clhs;/Body/sec_3-1-1.html'>environment</ulink>">
