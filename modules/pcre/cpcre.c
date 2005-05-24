@@ -32,6 +32,7 @@ DEFMODULE(pcre,"PCRE")
 DEFUN(PCRE::PCRE-VERSION,)
 { VALUES3(asciz_to_string(pcre_version(),GLO(misc_encoding)),
           fixnum(PCRE_MAJOR),fixnum(PCRE_MINOR)); }
+#if defined(HAVE_PCRE_CONFIG)
 DEFCHECKER(pcre_config_option, prefix=PCRE_CONFIG, UTF8 NEWLINE LINK-SIZE\
            POSIX-MALLOC-THRESHOLD MATCH-LIMIT STACKRECURSE UNICODE-PROPERTIES)
 DEFUN(PCRE::PCRE-CONFIG, &optional what)
@@ -55,6 +56,7 @@ DEFUN(PCRE::PCRE-CONFIG, &optional what)
   }
   skipSTACK(1);
 }
+#endif
 
 DEFUN(PCRE::PCRE-FREE,fp)
 { /* free the pcre* or pcre_extra* object */

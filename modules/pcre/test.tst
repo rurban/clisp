@@ -3,7 +3,7 @@
 ;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "pcre/test")'
 (multiple-value-bind (ve ma mi) (pcre:pcre-version)
   (format t "~&Version: ~S (~D.~D)~%Options:~{~%  ~25@A  ~S~}~%" ve ma mi
-          (pcre:pcre-config)))
+          (and (fboundp 'pcre:pcre-config) (pcre:pcre-config))))
 NIL
 
 (if (<= 4 (nth-value 1 (pcre:pcre-version)))
