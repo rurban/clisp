@@ -2133,7 +2133,7 @@ can give problems:
 <section id="graph-char"><title>Graphic Characters
    <ulink url="&clhs;/Body/sec_13-1-4-1.html">[CLHS-13.1.4.1]</ulink></title>
 
-<para>The graphic characters are those &unicode; characters which are
+<para>The &graphic; characters are those &unicode; characters which are
  defined by the &unicode; standard, excluding the ranges
  <keycode>U0000</keycode> &hellip; <keycode>U001F</keycode> and
  <keycode>U007F</keycode> &hellip; <keycode>U009F</keycode>.</para>
@@ -2280,7 +2280,7 @@ can give problems:
 <para>The types <classname>EXT:STRING-CHAR</classname> and
  &base-char-t; are equivalent to &character-t;.</para>
 
-<para>The graphic characters have been described
+<para>The &graphic; characters have been described
  <link linkend="graph-char">above</link>.</para>
 
 <para>The standard characters are &nl-s; and the graphic characters with
@@ -2315,7 +2315,7 @@ and the international alphabetic characters from the character set:
 
 <section id="char-platform-dep"><title>Platform-Dependent Characters</title>
 
-<para>The characters that are not graphic chars and the space character
+<para>The characters that are not &graphic; chars and the space character
  have names:</para>
 
 <!-- #ifdef WIN32_CHARNAMES -->
@@ -3067,13 +3067,13 @@ checks whether the &hash-table-t; is weak.</para>
   <row><entry>[ &file-slash; ]</entry>
    <entry>&file-slash; denotes absolute pathnames</entry></row>
   <row><entry>{ &name-r; &file-slash; }</entry>
-   <entry>each one a subdirectory</entry></row>
+   <entry>each &name-r; is a subdirectory</entry></row>
   <row><entry>[ &name-r; [&file-dot; &type-r;] ]</entry>
    <entry>filename with type (extension)</entry></row>
 </tbody></tgroup></informaltable>
 
 <para>Name and type may be &string-t;s of any &length;
- (consisting of printing &ascii; characters, except &file-slash;).</para>
+ (consisting of &printing; &character-t;s, except &file-slash;).</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
@@ -3084,14 +3084,14 @@ checks whether the &hash-table-t; is weak.</para>
   <row><entry>[ [<replaceable>drivespec</replaceable>] : ]</entry>
    <entry>a letter &file-star;|&file-letter-lc;|&file-letter-uc;</entry></row>
   <row><entry>{ &name-r; [. &type-r;] \ }</entry>
-   <entry>each one a subdirectory, &file-bsla; may be
+   <entry>each &name-r; is a subdirectory, &file-bsla; may be
      replaced by &file-slash;</entry></row>
   <row><entry>[ &name-r; [. &type-r;] ]</entry>
    <entry>filename with type (extension)</entry></row>
 </tbody></tgroup></informaltable>
 
 <para>Name and type may be &string-t;s of any &length;
- (consisting of printing &ascii; characters, except &file-slash;,
+ (consisting of &printing; &character-t;s, except &file-slash;,
  &file-bsla;, &file-colon;).</para></listitem></varlistentry>
 <!-- #endif -->
 
@@ -3115,9 +3115,6 @@ checks whether the &hash-table-t; is weak.</para>
   <ulink url="&clhs;/Body/glo_p.html#pathname_designator">pathname
    designator</ulink>, namely its &symbol-name; is converted to the
   operating system's preferred pathname case.</para></formalpara>
-
-<formalpara><title>Function &pathname;</title>
- <para>&pathname; always returns a physical pathname.</para></formalpara>
 
 <formalpara><title>Function &pathname-match-p;</title>
  <para>&pathname-match-p; does not interpret missing components as
@@ -3289,7 +3286,7 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
  same; in particular, authorship is preserved by copying, while
  ownership is not.</para>
 <para>Use
- <link linkend="file-owner"><function>POSIX:FILE-OWNER</function></link>
+ <link linkend="file-owner"><function>OS:FILE-OWNER</function></link>
  to find the owner of the file.</para></simplesect>
 
 <simplesect id="probe-dir"><title>Function &probe-dir;</title>
