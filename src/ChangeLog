@@ -1,5 +1,14 @@
 2005-05-24  Sam Steingold  <sds@gnu.org>
 
+	* hashtabl.d (SXHASH): when fixnums are large enough, do not fold
+	the value to fit into 24 bits: consider (SXHASH (1- (ASH 1 32))):
+	On 32-bit platforms, hashcode_bignum() is used (returns 3 ==> 3).
+	On 64-bit platforms, hashcode_fixnum() is used (4294967175 ==> 135).
+	Therefore, limiting ourselves to 24 bits on all platforms
+	does not buy us anything anyway.
+
+2005-05-24  Sam Steingold  <sds@gnu.org>
+
 	pcre 3 lacks pcre_config()
 	* modules/pcre/configure.in: check for pcre_config()
 	* modules/pcre/cpcre.c (pcre-config) [HAVE_PCRE_CONFIG]: add condition

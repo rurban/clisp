@@ -3181,15 +3181,21 @@ LISPFUNN(sxhash,1)
    are similar, (sxhash x) and (sxhash y) yield the same mathematical
    value even if x and y exist in different Lisp images of the same
    implementation.
-   This means that as long as some CLISPs have 24-bit fixnums,
-   we have to limit SXHASH to 24 bits on all platforms.
-   (assuming that CLISP on Tru64 and CLISP on Win32
-   are the same implementations) */
-  #if oint_data_len >= 24
-    sx = sx % 0xFFFFFF;
-    VALUES1(fixnum(sx));
-  #else
-    #error "sxhash results do not fit in a fixnum"
-  #endif
+   This might be interpreted - assuming that CLISP on Tru64 and CLISP on Win32
+   are the same implementations - that (SXHASH (1- (ASH 1 32))) should return
+   the same value both on 32-bit platforms (where 4294967295 is a bignum)
+   and on 64-bit platforms (where is is a fixnum).
+   On 32-bit platforms, hashcode_bignum() is used (returns 3 ==> 3).
+   On 64-bit platforms, hashcode_fixnum() is used (returns 4294967175 ==> 135).
+   Therefore, limiting ourselves to 24 bits on all platforms
+   does not buy us anything anyway. */
+#if oint_data_len >= 32
+  VALUES1(fixnum(sx));
+#elif oint_data_len == 24
+  sx = sx % 0xFFFFFF;
+  VALUES1(fixnum(sx));
+#else
+ #error "sxhash results do not fit in a fixnum"
+#endif
 }
 
