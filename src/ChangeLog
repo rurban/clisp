@@ -1,3 +1,9 @@
+2005-05-24  Bruno Haible  <bruno@clisp.org>
+
+	* spvw_sigsegv.d (stackoverflow_handler): Treat WIN32_NATIVE like
+	UNIX_CYGWIN.
+	Based on a patch by Doug Currie <e@flavors.com>.
+
 2005-05-23  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (distrib) [!BINARY_DISTRIB]: do not expect gnu tr

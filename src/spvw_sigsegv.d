@@ -148,7 +148,7 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_regs[9])); }
    #endif
   #endif
-  #ifdef UNIX_CYGWIN32
+  #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
    #ifdef I80386
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->Ebx)); }
    #endif
