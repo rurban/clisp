@@ -564,3 +564,10 @@ T
 
 (documentation (lambda () 'bazonk) 'function)
 NIL
+
+(setf (documentation (compile nil (lambda () 'abazonk)) 'function)
+      "abazonk doc compiled")
+"abazonk doc compiled"
+
+(documentation (compile nil (lambda () 'bazonk)) 'function)
+NIL
