@@ -1,5 +1,9 @@
 2005-05-25  Sam Steingold  <sds@gnu.org>
 
+	* excepsit.tst (PROCLAIM): forbid dotted declaration-specifier lists
+
+2005-05-25  Sam Steingold  <sds@gnu.org>
+
 	* setf.tst: check that (DOCUMENTATION (COMPILE NIL (LAMBDA () ...)))
 	does not persist from one LAMBDA to another
 
