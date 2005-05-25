@@ -2098,7 +2098,7 @@ LISPFUNN(proclaim,1)
   }
   var object decltype = Car(STACK_0/*declspec*/); /* declaration type */
   if (eq(decltype,S(special))) { /* SPECIAL */
-    while (consp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
+    while (!endp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
       var object symbol = check_symbol(Car(STACK_0/*declspec*/));
       if (symmacro_var_p(TheSymbol(symbol))) {
         /* HyperSpec/Body/mac_define-symbol-macro.html says that making a
@@ -2112,7 +2112,7 @@ LISPFUNN(proclaim,1)
       set_special_flag(TheSymbol(symbol));
     }
   } else if (eq(decltype,S(declaration))) { /* DECLARATION */
-    while (consp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
+    while (!endp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
       var object symbol = check_symbol(Car(STACK_0/*declspec*/));
       /* (PUSHNEW symbol (cdr declaration-types)) : */
       if (nullp(memq(symbol,Cdr(O(declaration_types))))) {
@@ -2127,7 +2127,7 @@ LISPFUNN(proclaim,1)
     }
   } else if (eq(decltype,S(inline)) || eq(decltype,S(notinline))) {
     pushSTACK(decltype); /* INLINE, NOTINLINE */
-    while (consp( STACK_1/*declspec*/ = Cdr(STACK_1/*declspec*/) )) {
+    while (!endp( STACK_1/*declspec*/ = Cdr(STACK_1/*declspec*/) )) {
       var object symbol = check_funname(source_program_error,S(proclaim),
                                         Car(STACK_1/*declspec*/));
       /*(SYS::%PUT (SYS::GET-FUNNAME-SYMBOL symbol) 'SYS::INLINABLE decltype)*/
@@ -2139,7 +2139,7 @@ LISPFUNN(proclaim,1)
   } else if (eq(decltype,S(constant_inline))
              || eq(decltype,S(constant_notinline))) {
     pushSTACK(decltype); /* CONSTANT-INLINE, CONSTANT-NOTINLINE */
-    while (consp( STACK_1/*declspec*/ = Cdr(STACK_1/*declspec*/) )) {
+    while (!endp( STACK_1/*declspec*/ = Cdr(STACK_1/*declspec*/) )) {
       var object symbol = check_symbol(Car(STACK_1/*declspec*/));
       /* (SYS::%PUT symbol 'SYS::CONSTANT-INLINABLE decltype) : */
       pushSTACK(symbol); pushSTACK(S(constant_inlinable));
