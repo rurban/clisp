@@ -1,5 +1,10 @@
 2005-05-25  Sam Steingold  <sds@gnu.org>
 
+	* defseq.lisp (LIST): use LIST-LENGTH-PROPER instead of LIST-LLENGTH
+	* list.d, constsym.d, subr.d (list_llength): removed
+
+2005-05-25  Sam Steingold  <sds@gnu.org>
+
 	* control.d (PROCLAIM): forbid dotted declaration-specifier lists
 
 2005-05-25  Sam Steingold  <sds@gnu.org>

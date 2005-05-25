@@ -1,5 +1,5 @@
-;; Definitionen der Standard-Sequence-Typen
-;; (in Verbindung mit SEQUENCE.Q)
+;; Definitions for the standard sequence types
+;; (in conjunction with SEQUENCE.D)
 ;; Bruno Haible 9.7.1989, 1.8.1989, 2.8.1989
 
 (in-package "SYSTEM")
@@ -16,7 +16,7 @@
     #'list-access
     #'list-access-set
     #'identity
-    #'list-llength
+    #'ext::list-length-proper
     #'make-list
     #'list-elt
     #'list-set-elt
@@ -24,7 +24,7 @@
     #'list-fe-init-end
 ) )
 
-(%defseq ; VECTOR steht für GENERAL-VECTOR
+(%defseq ; VECTOR stands for GENERAL-VECTOR
   (vector
     'VECTOR
     #'vector-init
