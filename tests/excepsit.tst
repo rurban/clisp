@@ -1273,3 +1273,6 @@ program-error
 
 (fdefinition (list 'setf (gensym)))
 undefined-function
+
+(proclaim '(integer . foo))
+type-error

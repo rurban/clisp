@@ -1,5 +1,9 @@
 2005-05-25  Sam Steingold  <sds@gnu.org>
 
+	* control.d (PROCLAIM): forbid dotted declaration-specifier lists
+
+2005-05-25  Sam Steingold  <sds@gnu.org>
+
 	* documentation.lisp (documentation): return NIL for NIL
 	because NIL = (FUNCTION-NAME (COMPILE NIL (LAMBDA () ...)))
 	* init.lisp (%set-documentation): ditto
