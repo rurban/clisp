@@ -1,3 +1,9 @@
+2005-05-25  Sam Steingold  <sds@gnu.org>
+
+	* documentation.lisp (documentation): return NIL for NIL
+	because NIL = (FUNCTION-NAME (COMPILE NIL (LAMBDA () ...)))
+	* init.lisp (%set-documentation): ditto
+
 2005-05-24  Sam Steingold  <sds@gnu.org>
 
 	* hashtabl.d (SXHASH): when fixnums are large enough, do not fold

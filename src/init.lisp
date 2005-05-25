@@ -552,7 +552,8 @@
                                        :test 'stablehash-equal :warn-if-needs-rehash-after-gc t :size 1000)) ; :weak :key
 (sys::%putd 'sys::%set-documentation
   (function sys::%set-documentation (lambda (symbol doctype value) ; ABI
-    (unless (keywordp symbol) ; :LAMBDA = (function-name (lambda () ...))
+    (unless (or (keywordp symbol) ; :LAMBDA = (function-name (lambda () ...))
+                (null symbol)) ; NIL = (function-name (compile nil (lambda ())))
       #| ;; cannot use due to bootstrapping
       (if value
         (setf (getf (gethash symbol *documentation*) doctype) value)
