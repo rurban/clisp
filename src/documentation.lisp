@@ -33,6 +33,7 @@
                 (typep-class (fdefinition x) <standard-generic-function>))
            (std-gf-documentation (fdefinition x)))
           ((keywordp x) NIL) ; :LAMBDA = (function-name (lambda () ...))
+          ((null x) NIL) ; NIL = (function-name (compile nil (lambda () ...)))
           (t (getf (gethash x sys::*documentation*) doc-type))))
   (:method ((x symbol) (doc-type symbol))
     ;; doc-type = `compiler-macro', `setf', `variable', `type',
