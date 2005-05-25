@@ -1977,18 +1977,6 @@ LISPFUNN(list_access_set,3)
   skipSTACK(3);
 }
 
-LISPFUNN(list_llength,1)
-{ /* #'(lambda (seq) (do ((L seq (cdr L)) (N 0 (1+ N))) ((endp L) N))) */
-  var object list = popSTACK();
-  var object tail = NIL;
-  var object len = list_length(list,&tail);
-  if (nullp(len))
-    fehler_proper_list_circular(S(list_llength),list);
-  if (!nullp(tail))
-    fehler_proper_list_dotted(S(list_llength),tail);
-  VALUES1(len);
-}
-
 /* UP: get the list element at the given index
  elt_up(seq,index)
  > seq
