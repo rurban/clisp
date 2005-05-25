@@ -3301,7 +3301,7 @@ for-value   NIL or T
                         deprecation-info)))))
 
 ;; note global OPTIMIZE proclamations
-;; sed by c-PROCLAIM and PROCLAIM in control.d
+;; used by c-PROCLAIM and PROCLAIM in control.d
 (defun note-optimize (specs)
   (dolist (quality specs)
     (multiple-value-bind (quality value) (parse-optimize-quality quality)
