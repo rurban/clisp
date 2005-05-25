@@ -950,6 +950,8 @@ ERROR
 (multiple-value-list (compile nil #'test-constant-folding))
 (#.#'test-constant-folding nil nil)
 
+(funcall (compile nil (lambda () (cond (nil)))))
+NIL
 
 ; Clean up.
 (unintern 'x)
