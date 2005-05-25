@@ -2148,8 +2148,9 @@ LISPFUNN(proclaim,1)
     skipSTACK(1); /*decltype*/
   } else if (eq(decltype,S(optimize))) {
     pushSTACK(Cdr(STACK_0)); funcall(S(note_optimize),1);
+  } else {                /* check that the declspec is a proper list */
+    pushSTACK(STACK_0/*declspec*/); funcall(L(list_length_proper),1);
   }
-  /* the rest is ignored. */
   VALUES1(NIL); skipSTACK(1);
 }
 
