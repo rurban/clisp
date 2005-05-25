@@ -4376,7 +4376,8 @@ for-value   NIL or T
                (if (null Lr)
                  ;; last form -> take over directly
                  (if (and (anode-constantp anodei)
-                          (null (anode-constant-value anodei)))
+                          (null (anode-constant-value anodei))
+                          (car codelist))
                    ;; (or ... (foo) nil) ==> (or ... (values (foo)))
                    ;; replace the test with (VALUES1)
                    (setf (car codelist) '(VALUES1))
