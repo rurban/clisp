@@ -2329,6 +2329,11 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  approach: the only foreign languages we support for now are &c-lang;
  and ANSI &c-lang;.</para>
 
+<note><simpara>Unless specifically noted otherwise, type specification
+  parameters are not evaluated, so that they can be compiled by
+  &parse-c-type; into the internal format at macroexpansion time.
+</simpara></note>
+
 <variablelist><title>special &ffi-pac; forms; &name-r; is any Lisp
    &symbol-t;; &cname-r; is a &string-t;.</title>
 <varlistentry id="def-c-type">
@@ -2682,14 +2687,14 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   (thus it returns &t; for all non-foreign arguments).</simpara>
  <simpara>You can invalidate a foreign object using
   <code>(&setf; &validp;)</code>.
-  You cannot resurrect a zombie, nor can you kill a non-foreign
-  object.</simpara></listitem></varlistentry>
+  You cannot resurrect a zombie, nor can you kill a non-foreign object.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="fptr"><term><code>(&foreign-pointer; &f-ent;)</code></term>
  <listitem><simpara>&foreign-pointer; returns the &foreign-pointer-t;
    associated with the Lisp object of type &foreign-address-t;,
-   &foreign-pointer-t;, &foreign-variable-t; or
-   &foreign-function-t;.</simpara></listitem></varlistentry>
+   &foreign-pointer-t;, &foreign-variable-t; or &foreign-function-t;.
+</simpara></listitem></varlistentry>
 
 <varlistentry><term><code>(&set-foreign-pointer; &f-ent; {&f-ent; |
    &copy-k;})</code></term>
