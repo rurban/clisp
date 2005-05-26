@@ -1475,7 +1475,7 @@ DEFUN(POSIX:MKDTEMP, template) {
 #if defined(HAVE_MKDTEMP)
   object fname = physical_namestring(popSTACK());
   with_string_0(fname,GLO(pathname_encoding),namez,{
-      char *c_template, *ret;
+      char *c_template;
       begin_system_call();
       if (namez_bytelen > 6
           && namez[namez_bytelen-1]=='X'
@@ -1490,9 +1490,8 @@ DEFUN(POSIX:MKDTEMP, template) {
         strcpy(c_template,namez);
         strcat(c_template,"XXXXXX");
       }
-      ret = mkdtemp(c_template);
+      if (NULL == mkdtemp(c_template)) OS_error();
       end_system_call();
-      if (ret == NULL) OS_error();
       fname = asciz_to_string(c_template,GLO(pathname_encoding));
     });
   pushSTACK(fname);
