@@ -1404,7 +1404,7 @@ static int creat1 (const char *path, mode_t mode)
 static int mkdir1 (const char *path, mode_t mode)
 { (void)mode; return mkdir(path); }
 #else
-# define mkdi1 mkdir
+# define mkdir1 mkdir
 #endif
 DEFCHECKER(mknod_type_check,prefix=S_I,delim=,default=, \
            FIFO FSOCK FCHR FDIR FBLK FREG)
@@ -1443,7 +1443,7 @@ DEFUN(POSIX::MKNOD, path type mode)
   { int count = 1;
     pushSTACK(`CL:MEMBER`);
 #  if defined(HAVE_MKFIFO)
-    pushSTACK(`:FFIFO`); count++;
+    pushSTACK(`:FIFO`); count++;
 #  endif
 #  if defined(HAVE_MKDIR)
     pushSTACK(`:FDIR`); count++;
@@ -1469,6 +1469,61 @@ DEFUN(POSIX::MKNOD, path type mode)
   VALUES0;
 }
 #endif  /* mknod | mkfifo | mkdir | creat */
+
+#if defined(HAVE_MKDTEMP) || defined(WIN32_NATIVE) || (defined(HAVE_MKDIR) && defined(HAVE_TEMPNAM))
+DEFUN(POSIX:MKDTEMP, template) {
+#if defined(HAVE_MKDTEMP)
+  object fname = physical_namestring(popSTACK());
+  with_string_0(fname,GLO(pathname_encoding),namez,{
+      char *c_template, *ret;
+      begin_system_call();
+      if (namez_bytelen > 6
+          && namez[namez_bytelen-1]=='X'
+          && namez[namez_bytelen-2]=='X'
+          && namez[namez_bytelen-3]=='X'
+          && namez[namez_bytelen-4]=='X'
+          && namez[namez_bytelen-5]=='X'
+          && namez[namez_bytelen-6]=='X') {
+        c_template = namez;
+      } else {
+        c_template = (char*)alloca(namez_bytelen+6);
+        strcpy(c_template,namez);
+        strcat(c_template,"XXXXXX");
+      }
+      ret = mkdtemp(c_template);
+      end_system_call();
+      if (ret == NULL) OS_error();
+      fname = asciz_to_string(c_template,GLO(pathname_encoding));
+    });
+  pushSTACK(fname);
+#else  /* WIN32_NATIVE || (MKDIR && TEMPNAM) */
+  /* http://www.opengroup.org/onlinepubs/009695399/functions/tempnam.html */
+  pushSTACK(STACK_0); funcall(L(pathname),1); pushSTACK(value1);
+  pushSTACK(value1); funcall(L(directory_namestring),1); pushSTACK(value1);
+  pushSTACK(STACK_1); funcall(L(file_namestring),1); pushSTACK(value1);
+  /* stack layout: template arg, template pathname, dir, file */
+  with_string_0(STACK_0,GLO(pathname_encoding),prefix, {
+      with_string_0(STACK_1,GLO(pathname_encoding),dir, {
+          /* if no directory ==> use current "." */
+          STACK_3 = temp_name(dir[0] ? dir : (char*)".",prefix);
+          with_string_0(STACK_3,GLO(pathname_encoding),newdir, {
+              begin_system_call();
+              if (mkdir1(newdir,0700)) OS_file_error(STACK_2);
+              end_system_call();
+            });
+        });
+    });
+  skipSTACK(3);
+#endif
+  /* stack layout: the name of the new directory - without the trailing slash */
+#if defined(WIN32_NATIVE)
+  pushSTACK(GLO(backslash_string));
+#else
+  pushSTACK(GLO(slash_string));
+#endif
+  VALUES1(string_concat(2));
+}
+#endif
 
 #if defined(WIN32_NATIVE) || defined(HAVE_STATVFS)
 #if defined(WIN32_NATIVE)
