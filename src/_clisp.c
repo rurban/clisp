@@ -32,7 +32,9 @@
 # include <stdio.h>
 
 #if defined(WIN32_NATIVE)
-# include "w32shell.c"
+# undef UNICODE
+# include <windows.h>
+#include "w32shell.c"
 #endif
 
 /* needed for execname.c to work */
