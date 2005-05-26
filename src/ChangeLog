@@ -1,5 +1,12 @@
 2005-05-26  Sam Steingold  <sds@gnu.org>
 
+	* _clisp.c [WIN32_NATIVE]: include w32shell.c textually;
+	also include <windows.h>
+	* w32shell.c: added a space in "# include <shlobj.h>" so that
+	txt2c will not try to include <shlobj.h> textually
+
+2005-05-26  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (MKDTEMP): new function
 	* modules/syscalls/posix.lisp (MKDTEMP): export
 	* modules/syscalls/configure.in (mkdtemp): check
