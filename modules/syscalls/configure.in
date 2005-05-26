@@ -50,12 +50,12 @@ fi
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
 CL_RLIMIT
-AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname mkstemp tempnam dnl
+AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
 getlogin getpwent getpwnam getpwuid getuid dnl
 openlog setlogmask syslog closelog dnl
 getpgid setpgrp getsid setpgid setsid kill dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
-mkfifo mkdir creat dnl
+mkfifo mkdir creat mkstemp tempnam mkdtemp dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync)
 AC_FUNC_CHOWN
 AC_SEARCH_LIBS(erf, m)

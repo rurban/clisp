@@ -1,3 +1,9 @@
+2005-05-26  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (MKDTEMP): new function
+	* modules/syscalls/posix.lisp (MKDTEMP): export
+	* modules/syscalls/configure.in (mkdtemp): check
+
 2005-05-25  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-OR): fixed last patch

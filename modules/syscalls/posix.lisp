@@ -7,7 +7,7 @@
   (:import-from "SYS" sys::process-id)
   (:shadowing-import-from "EXPORTING" #:defstruct)
   (:export
-   #:resolve-host-ipaddr #:bogomips #:mkstemp
+   #:resolve-host-ipaddr #:bogomips #:mkstemp #:mkdtemp
    #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
    #:file-owner #:physical-memory
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream

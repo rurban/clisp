@@ -496,6 +496,11 @@
    <simpara>When &mkstemp; is missing, use &tempnam;.
     On &win32; use <function>GetTempFileName</function>.
  </simpara></listitem></varlistentry>
+ <varlistentry id="mkdtemp"><term><code>(POSIX:MKDTEMP
+    &filename-r;)</code></term>
+  <listitem><simpara>calls <function>mkdtemp</function> (similar to
+    &mkstemp; but not in POSIX), returns the namestring of a new empty
+    temporary directory.</simpara></listitem></varlistentry>
  <varlistentry id="sync"><term><code>(POSIX:SYNC &optional-amp;
     &stream-r;)</code></term>
   <listitem><simpara>calls &fsync; (<function>FlushFileBuffers</function>
