@@ -6429,7 +6429,8 @@ fi
 
 
 
-for ac_func in clock confstr fcntl gethostent sysconf uname mkstemp tempnam getlogin getpwent getpwnam getpwuid getuid openlog setlogmask syslog closelog getpgid setpgrp getsid setpgid setsid kill endutxent getutxent getutxid getutxline pututxline setutxent mkfifo mkdir creat fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync
+
+for ac_func in clock confstr fcntl gethostent sysconf uname getlogin getpwent getpwnam getpwuid getuid openlog setlogmask syslog closelog getpgid setpgrp getsid setpgid setsid kill endutxent getutxent getutxid getutxline pututxline setutxent mkfifo mkdir creat mkstemp tempnam mkdtemp fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
