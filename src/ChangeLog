@@ -1,3 +1,8 @@
+2005-05-27  Sam Steingold  <sds@gnu.org>
+
+	* spvw_language.d (init_language) [WIN32_NATIVE]: avoid a mingw
+	crash by setting argv_localedir to "" when it is NULL
+
 2005-05-26  Sam Steingold  <sds@gnu.org>
 
 	* _clisp.c [WIN32_NATIVE]: include <windows.h>

@@ -220,6 +220,10 @@ global void init_language (const char* argv_language,
         }
       }
     #endif
+   #if defined(WIN32_NATIVE)
+    /* this avoids a segfault on mingw */
+    if (argv_localedir == NULL) argv_localedir = "";
+   #endif
     bindtextdomain("clisp",argv_localedir);
     bindtextdomain("clisplow",argv_localedir);
     if (must_free_argv_localedir) free((void*)argv_localedir);
