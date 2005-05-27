@@ -30,7 +30,7 @@ int shell_quote (char * dest, const char * source) {
 }
 
 /*========== shell shortcut resolution ==========*/
-# include <shlobj.h>
+#include <shlobj.h>
 
 /* extracts a filename field from windows shortcut
  > filename: name the shortcut file
