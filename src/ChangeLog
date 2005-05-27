@@ -1,9 +1,6 @@
 2005-05-26  Sam Steingold  <sds@gnu.org>
 
-	* _clisp.c [WIN32_NATIVE]: include w32shell.c textually;
-	also include <windows.h>
-	* w32shell.c: added a space in "# include <shlobj.h>" so that
-	txt2c will not try to include <shlobj.h> textually
+	* _clisp.c [WIN32_NATIVE]: include <windows.h>
 
 2005-05-26  Sam Steingold  <sds@gnu.org>
 
