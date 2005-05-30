@@ -1,5 +1,9 @@
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
+	* clos.tst: Adjust numbering of last patch. Add a little sharper test.
+
+2005-05-29  Bruno Haible  <bruno@clisp.org>
+
 	* setf.tst: Add tests for DOCUMENTATION and (SETF DOCUMENTATION) on
 	interpreted functions and macros.
 
