@@ -1,5 +1,12 @@
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
+	Fix compilation with g++ 3.3/3.4 if TYPECODES && OBJECT_STRUCT
+	&& !DEBUG_GCSAFETY.
+	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB):
+	Don't define if OBJECT_STRUCT and g++ 3.3/3.4.
+
+2005-05-28  Bruno Haible  <bruno@clisp.org>
+
 	* intserial.d (LEbytes_to_UI, LEbytes_to_I) [TYPECODES]: Fix
 	compilation error in C++ mode with g++ 3.3 and 3.4.
 
