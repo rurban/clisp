@@ -54,6 +54,13 @@ T
 #+LISPWORKS
 T
 
+#+LISPWORKS
+(progn
+  (defun gc () (mark-and-sweep 3))
+  t)
+#+LISPWORKS
+T
+
 #-(or ALLEGRO CMU18 OpenMCL LISPWORKS)
 (progn
   (defstruct rectangle1 (x 0.0) (y 0.0))
@@ -649,7 +656,7 @@ T
   (defgeneric foo111 (x))
   (defmethod foo111 ((x integer)) (* x x))
   (defgeneric foo111 (x) (:generic-function-class my-gf-class))
-  #-LISPWORKS (gc)
+  (gc)
   (defmethod foo111 ((x float)) (* x x x))
   (list (foo111 10) (foo111 3.0) (my-myslot #'foo111)
         #+CLISP (eq (sys::%record-ref #'foo111 0) (clos::class-current-version (find-class 'my-gf-class)))))
@@ -662,7 +669,7 @@ T
   (defmethod foo112 ((x integer)) (* x x))
   (defgeneric foo112 (x) (:generic-function-class my-gf-class))
   (defmethod foo112 ((x float)) (* x x x))
-  #-LISPWORKS (gc)
+  (gc)
   (list (foo112 10) (foo112 3.0) (my-myslot #'foo112)
         #+CLISP (eq (sys::%record-ref #'foo112 0) (clos::class-current-version (find-class 'my-gf-class)))))
 #-OpenMCL
