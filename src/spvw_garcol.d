@@ -963,7 +963,11 @@ local void gc_markphase (void)
       # to it. This ensures that the backchain is a singly linked list.
       if (record_flags(TheInstance(forward)) & instflags_backpointer_B)
         /*NOTREACHED*/ abort();
-      TheInstance(forward)->GCself = with_mark_bit(make_GCself(instance_type,p2));
+      #ifdef TYPECODES
+      # The type is either instance_type or closure_type.
+      var tint type = mtypecode(((Varobject)p2)->GCself) & ~bit(garcol_bit_t);
+      #endif
+      TheInstance(forward)->GCself = with_mark_bit(make_GCself(type,p2));
       record_flags_set(TheInstance(forward),instflags_backpointer_B);
     }
     # Don't reclaim the space at p2 during this GC, because
@@ -976,7 +980,11 @@ local void gc_markphase (void)
   local void gc_sweep1_instance_target (aint p2, aint p1) {
     if (record_flags((Instance)p2) & instflags_relocated_B)
       /*NOTREACHED*/ abort();
-    var gcv_object_t target; target = with_mark_bit(make_GCself(instance_type,p1));
+    #ifdef TYPECODES
+    # The type is either instance_type or closure_type.
+    var tint type = mtypecode(((Varobject)p2)->GCself) & ~bit(garcol_bit_t);
+    #endif
+    var gcv_object_t target; target = with_mark_bit(make_GCself(type,p1));
     var aint backchain = p2;
     for (;;) {
       var gcv_object_t backpointer = ((Varobject)backchain)->GCself;
