@@ -221,7 +221,8 @@
 
 2005-05-20  Sam Steingold  <sds@gnu.org>
 
-	* makemake.in: removed a spurious double line
+	* makemake.in: removed duplicated link options only needed for early
+	versions of Solaris
 
 2005-05-20  Sam Steingold  <sds@gnu.org>
 
