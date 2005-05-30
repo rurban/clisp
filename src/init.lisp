@@ -552,24 +552,22 @@
                                        :test 'stablehash-equal :warn-if-needs-rehash-after-gc t :size 1000)) ; :weak :key
 (sys::%putd 'sys::%set-documentation
   (function sys::%set-documentation (lambda (symbol doctype value) ; ABI
-    (unless (or (keywordp symbol) ; :LAMBDA = (function-name (lambda () ...))
-                (null symbol)) ; NIL = (function-name (compile nil (lambda ())))
-      #| ;; cannot use due to bootstrapping
-      (if value
-        (setf (getf (gethash symbol *documentation*) doctype) value)
-        (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
-          (when (and found-p (remf rec doctype) (null rec))
-            (remhash symbol *documentation*))))
-      |#
-      (if value
-        (let ((rec (sys::%putf (gethash symbol *documentation*)
-                               doctype value)))
-          (when rec (sys::puthash symbol *documentation* rec)))
-        (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
-          (when found-p
-            (setq rec (sys::%remf rec doctype))
-            (cond ((null rec) (remhash symbol *documentation*))
-                  ((atom rec) (sys::puthash symbol *documentation* rec)))))))
+    #| ;; cannot use due to bootstrapping
+    (if value
+      (setf (getf (gethash symbol *documentation*) doctype) value)
+      (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
+        (when (and found-p (remf rec doctype) (null rec))
+          (remhash symbol *documentation*))))
+    |#
+    (if value
+      (let ((rec (sys::%putf (gethash symbol *documentation*)
+                             doctype value)))
+        (when rec (sys::puthash symbol *documentation* rec)))
+      (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
+        (when found-p
+          (setq rec (sys::%remf rec doctype))
+          (cond ((null rec) (remhash symbol *documentation*))
+                ((atom rec) (sys::puthash symbol *documentation* rec))))))
     value)))
 
 (proclaim '(special *load-truename* custom:*suppress-check-redefinition*
@@ -1910,6 +1908,7 @@
                    `',name
                    `(LOAD-TIME-VALUE (GET-SETF-SYMBOL ',(second name)))))
                 (lambdabody `(,lambdalist
+                              ,@(if docstring `(,docstring) '())
                               (DECLARE (SYS::IN-DEFUN ,name) ,@declarations)
                               (BLOCK ,(function-block-name name)
                                 ,@body-rest))))
