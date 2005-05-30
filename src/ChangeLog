@@ -1,5 +1,23 @@
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
+	Optimize the caching of the expansion of FUNCTION-MACRO-LET
+	macroexpanders.
+	* defmacro.lisp (make-macro-expansion): Return an additional second
+	value, the expansion's lambdabody.
+	(make-funmacro-full-lambdabody, make-funmacro-expander): New functions.
+	* clos-methcomb2.lisp (add-next-method-local-functions): Insert the
+	macroexpander's full lambdabody instead of the unprocessed lambdabody.
+	* control.d (SYSTEM::FUNCTION-MACRO-LET): Call make-funmacro-expander
+	instead of make-macro-expander.
+	* compiler.lisp (c-FUNCTION-MACRO-LET): Likewise.
+	* init.lisp (%expand-funmacdefs-2): Expand the macroexpander in the
+	null lexical environment.
+	(defmacro): Update.
+	* macros1.lisp (defmacro-special): Update.
+	* cmacros.lisp (define-compiler-macro): Update.
+
+2005-05-29  Bruno Haible  <bruno@clisp.org>
+
 	Speedup creation of interpreted.mem and halfcompiled.mem.
 	* init.lisp (%expand-lexical-variables, %expand-special-declarations):
 	Declare inner lambdas as being already expanded.

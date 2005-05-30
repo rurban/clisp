@@ -1690,6 +1690,7 @@ LISPSYM(setf,"SETF",lisp) /* marker in CONTROL */
 LISPSYM(psetf,"PSETF",lisp) /* marker in CONTROL */
 LISPSYM(multiple_value_setf,"MULTIPLE-VALUE-SETF",system) /* marker in CONTROL */
 LISPSYM(make_macro_expander,"MAKE-MACRO-EXPANDER",system) /* function for CONTROL */
+LISPSYM(make_funmacro_expander,"MAKE-FUNMACRO-EXPANDER",system) /* function for CONTROL */
 LISPSYM(type_for_discrimination,"TYPE-FOR-DISCRIMINATION",system) /* function for CONTROL */
 LISPSYM(pthe,"%THE",system) /* function for CONTROL */
 LISPSYM(compile_form,"COMPILE-FORM",system) /* function for CONTROL */

@@ -1067,12 +1067,12 @@ LISPSPECFORM(macrolet, 1,0,body)
 }
 
 LISPSPECFORM(function_macro_let, 1,0,body)
-{ /* (SYSTEM::FUNCTION-MACRO-LET ({(name fun-lambdabody macro-lambdabody)})
+{ /* (SYSTEM::FUNCTION-MACRO-LET ({(name fun-lambdabody macro-full-lambdabody)})
         {form})
  is similar to FLET, except that alternative macro definitions
  are provided for every function. */
   var object body = popSTACK(); /* ({form}) */
-  var object funmacspecs = popSTACK(); /* {(name fun-lambdabody macro-lambdabody)} */
+  var object funmacspecs = popSTACK(); /* {(name fun-lambdabody macro-full-lambdabody)} */
   /* build FunctionMacro bindings frame : */
   var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
   while (consp(funmacspecs)) {
@@ -1103,14 +1103,12 @@ LISPSPECFORM(function_macro_let, 1,0,body)
       goto fehler_spec;
     pushSTACK(name); /* save name */
     pushSTACK(Car(Cdr(funmacspecs))); /* fun-lambdabody */
-    pushSTACK(Car(Cdr(Cdr(funmacspecs)))); /* macro-lambdabody */
+    pushSTACK(Car(Cdr(Cdr(funmacspecs)))); /* macro-full-lambdabody */
     /* turn fun-lambdabody into a closure: */
     STACK_1 = get_closure(STACK_1,name,false,&aktenv);
     { /* build macro-expander:
-         (SYSTEM::MAKE-MACRO-EXPANDER (cons name macro-lambdabody) nil) */
-      var object macrodef = allocate_cons();
-      Car(macrodef) = STACK_2; Cdr(macrodef) = STACK_0;
-      pushSTACK(macrodef); pushSTACK(NIL); funcall(S(make_macro_expander),2);
+         (SYSTEM::MAKE-FUNMACRO-EXPANDER name macro-full-lambdabody) */
+      pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); funcall(S(make_funmacro_expander),2);
       pushSTACK(value1); C_macro_expander();
       STACK_0 = value1;
     }
