@@ -322,7 +322,7 @@ User visible changes
 * The second, optional argument of EXT:SPECIAL-VARIABLE-P can no longer be T;
   please use (THE-ENVIRONMENT) instead.
 
-* New function FEATUREP - the run-time version of read-time #+/#-.
+* New function EXT:FEATUREP - the run-time version of read-time #+/#-.
   See <http://clisp.cons.org/impnotes.html#featurep> for details.
 
 * Bug fixes:
@@ -394,7 +394,7 @@ Portability
 -----------
 
 * Heaps and memory images larger than 4 GB are now supported on 64-bit
-  platforms.
+  platforms and on Windows.
 
 * Weak pointers now also work on platforms without mmap().
 
@@ -402,7 +402,8 @@ Portability
 
 * Dynamic modules now work on woe32 too.
 
-* Support 4GB+ files on woe32.
+* On most 64-bit platforms, fixnums are now 49 bits wide (including the sign
+  bit), instead of 33 bits wide.
 
 
 
