@@ -1,5 +1,10 @@
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (XCFLAGS): Don't force HEAPCODES when DEBUG_GCSAFETY is
+	used.
+
+2005-05-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix a bug introduced on 2002-02-22.
 	* spvw_language.d (init_language): Don't set O(current_language).
 	Fixes a crash in TYPECODES && MAP_MEMORY && DEBUG_GCSAFETY builds.
