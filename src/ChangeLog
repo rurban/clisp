@@ -1,5 +1,12 @@
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
+	Fix a bug introduced on 2002-02-22.
+	* spvw_language.d (init_language): Don't set O(current_language).
+	Fixes a crash in TYPECODES && MAP_MEMORY && DEBUG_GCSAFETY builds.
+	It is forbidden to work with 'object's before init_memory().
+
+2005-05-28  Bruno Haible  <bruno@clisp.org>
+
 	Make DEBUG_GCSAFETY work with TYPECODES.
 	* lispbibl.d (pointable, type_pointable, types_pointable): Move up.
 	(pointable_unchecked): Renamed from pointable. Use
