@@ -1832,6 +1832,16 @@ typedef enum {
     (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_error)())
 #endif
 
+# Handling of ANSI C errors
+# ANSIC_error();
+# > int errno: error code
+#ifdef UNIX
+  #define ANSIC_error OS_error
+#else
+  nonreturning_function(extern, ANSIC_error, (void));
+#endif
+# used by SPVW, STREAM
+
 #ifdef MULTITHREAD
 
 #include "xthread.c"

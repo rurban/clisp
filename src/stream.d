@@ -3947,12 +3947,12 @@ local iconv_t open_iconv (const char * to_code, const char * from_code,
                           object charset) {
   var iconv_t cd = iconv_open(to_code,from_code);
   if ((cd == (iconv_t)(-1)) && (!eq(nullobj,charset))) {
-    if (OS_errno == EINVAL) {
+    if (errno == EINVAL) {
       end_system_call();
       pushSTACK(charset);
       fehler(error,GETTEXT("unknown character set ~S"));
     }
-    OS_error();
+    ANSIC_error();
   }
   return cd;
 }
@@ -3965,13 +3965,13 @@ global bool check_charset (const char * code, object charset) {
   if (cd == (iconv_t)(-1)) return false;
   if (iconv_close(cd) < 0) {
     if (eq(nullobj,charset)) return false;
-    OS_error();
+    ANSIC_error();
   }
   cd = open_iconv(code,CLISP_INTERNAL_CHARSET,charset);
   if (cd == (iconv_t)(-1)) return false;
   if (iconv_close(cd) < 0) {
     if (eq(nullobj,charset)) return false;
-    OS_error();
+    ANSIC_error();
   }
   end_system_call();
   return true;
@@ -3996,28 +3996,31 @@ global uintL iconv_mblen (object encoding, const uintB* src,
         var char* outptr = (char*)tmpbuf;
         var size_t outsize = tmpbufsize*sizeof(chart);
         var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
-        var int my_errno = OS_errno;
-        if (res == (size_t)(-1) && my_errno != E2BIG) {
+        if (res == (size_t)(-1) && errno != E2BIG) {
           # At the end of a delimited string, we treat
           # EINVAL (incomplete input) like EILSEQ (conversion error)
-          if (my_errno == EILSEQ || my_errno == EINVAL) {
+          if (errno == EILSEQ || errno == EINVAL) {
             ASSERT(insize > 0);
             var object action = TheEncoding(encoding)->enc_towcs_error;
             if (eq(action,S(Kignore))) {
               inptr++; insize--;
             } else if (eq(action,S(Kerror))) {
-              iconv_close(cd); OS_set_errno(EILSEQ); OS_error();
+              iconv_close(cd); errno = EILSEQ; ANSIC_error();
             } else {
               outptr += sizeof(chart);
               inptr++; insize--;
             }
-          } else
-            OS_error_saving_errno({ iconv_close(cd); });
+          } else {
+            var int saved_errno = errno;
+            iconv_close(cd);
+            errno = saved_errno;
+            ANSIC_error();
+          }
         }
         count += (outptr-(char*)tmpbuf);
       }
     }
-    if (iconv_close(cd) < 0) { OS_error(); }
+    if (iconv_close(cd) < 0) { ANSIC_error(); }
     end_system_call();
   });
   #undef tmpbufsize
@@ -4043,14 +4046,13 @@ global void iconv_mbstowcs (object encoding, object stream,
         if (res == (size_t)(-1)) {
           # At the end of a delimited string, we treat
           # EINVAL (incomplete input) like EILSEQ (conversion error)
-          var int my_errno = OS_errno;
-          if (my_errno == EILSEQ || my_errno == EINVAL) {
+          if (errno == EILSEQ || errno == EINVAL) {
             ASSERT(insize > 0);
             var object action = TheEncoding(encoding)->enc_towcs_error;
             if (eq(action,S(Kignore))) {
               inptr++; insize--;
             } else if (eq(action,S(Kerror))) {
-              iconv_close(cd); OS_set_errno(EILSEQ); OS_error();
+              iconv_close(cd); errno = EILSEQ; ANSIC_error();
             } else {
               if (outsize < sizeof(chart))
                 break;
@@ -4058,11 +4060,15 @@ global void iconv_mbstowcs (object encoding, object stream,
               outptr += sizeof(chart); outsize -= sizeof(chart);
               inptr++; insize--;
             }
-          } else
-            OS_error_saving_errno({ iconv_close(cd); });
+          } else {
+            var int saved_errno = errno;
+            iconv_close(cd);
+            errno = saved_errno;
+            ANSIC_error();
+          }
         }
       }
-      if (iconv_close(cd) < 0) { OS_error(); }
+      if (iconv_close(cd) < 0) { ANSIC_error(); }
       end_system_call();
       ASSERT(insize == 0 && outsize == 0);
     });
@@ -4073,12 +4079,11 @@ global void iconv_mbstowcs (object encoding, object stream,
     while (insize > 0) {
       var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
       if (res == (size_t)(-1)) {
-        var int my_errno = OS_errno;
-        if (my_errno == EINVAL) # incomplete input?
+        if (errno == EINVAL) # incomplete input?
           break;
-        else if (my_errno == E2BIG) # output buffer full?
+        else if (errno == E2BIG) # output buffer full?
           break;
-        else if (my_errno == EILSEQ) {
+        else if (errno == EILSEQ) {
           ASSERT(insize > 0);
           var object action = TheEncoding(encoding)->enc_towcs_error;
           if (eq(action,S(Kignore))) {
@@ -4086,7 +4091,7 @@ global void iconv_mbstowcs (object encoding, object stream,
           } else if (eq(action,S(Kerror))) {
             if (inptr > (const char*)*srcp)
               break;
-            OS_error();
+            ANSIC_error();
           } else {
             if (outsize < sizeof(chart))
               break;
@@ -4095,7 +4100,7 @@ global void iconv_mbstowcs (object encoding, object stream,
             inptr++; insize--;
           }
         } else {
-          OS_error();
+          ANSIC_error();
         }
       }
     }
@@ -4124,9 +4129,8 @@ global uintL iconv_wcslen (object encoding, const chart* src,
         var char* outptr = (char*)tmpbuf;
         var size_t outsize = tmpbufsize;
         var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
-        var int my_errno = OS_errno;
-        if (res == (size_t)(-1) && my_errno != E2BIG) {
-          if (my_errno == EILSEQ) { # invalid input?
+        if (res == (size_t)(-1) && errno != E2BIG) {
+          if (errno == EILSEQ) { # invalid input?
             ASSERT(insize >= sizeof(chart));
             var object action = TheEncoding(encoding)->enc_tombs_error;
             if (eq(action,S(Kignore))) {
@@ -4142,8 +4146,8 @@ global uintL iconv_wcslen (object encoding, const chart* src,
                   != (size_t)(-1)) {
                 inptr += sizeof(chart); insize -= sizeof(chart);
               } else {
-                if (OS_errno != EILSEQ) {
-                  OS_error();
+                if (errno != EILSEQ) {
+                  ANSIC_error();
                 } else {
                   end_system_call();
                   fehler_unencodable(encoding,*(const chart*)inptr);
@@ -4153,10 +4157,14 @@ global uintL iconv_wcslen (object encoding, const chart* src,
               end_system_call();
               fehler_unencodable(encoding,*(const chart*)inptr);
             }
-          } else if (my_errno == EINVAL) { /* incomplete input? */
+          } else if (errno == EINVAL) { /* incomplete input? */
             NOTREACHED;
-          } else
-            OS_error_saving_errno({ iconv_close(cd); });
+          } else {
+            var int saved_errno = errno;
+            iconv_close(cd);
+            errno = saved_errno;
+            ANSIC_error();
+          }
         }
         count += (outptr-(char*)tmpbuf);
       }
@@ -4166,14 +4174,18 @@ global uintL iconv_wcslen (object encoding, const chart* src,
       var size_t outsize = tmpbufsize;
       var size_t res = iconv(cd,NULL,NULL,&outptr,&outsize);
       if (res == (size_t)(-1)) {
-        if (OS_errno == E2BIG) { # output buffer too small?
+        if (errno == E2BIG) { # output buffer too small?
           NOTREACHED;
-        } else
-          OS_error_saving_errno({ iconv_close(cd); });
+        } else {
+          var int saved_errno = errno;
+          iconv_close(cd);
+          errno = saved_errno;
+          ANSIC_error();
+        }
       }
       count += (outptr-(char*)tmpbuf);
     }
-    if (iconv_close(cd) < 0) { OS_error(); }
+    if (iconv_close(cd) < 0) { ANSIC_error(); }
     end_system_call();
   });
   #undef tmpbufsize
@@ -4197,8 +4209,7 @@ global void iconv_wcstombs (object encoding, object stream,
       while (insize > 0) {
         var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
         if (res == (size_t)(-1)) {
-          var int my_errno = OS_errno;
-          if (my_errno == EILSEQ) { /* invalid input? */
+          if (errno == EILSEQ) { /* invalid input? */
             ASSERT(insize >= sizeof(chart));
             var object action = TheEncoding(encoding)->enc_tombs_error;
             if (eq(action,S(Kignore))) {
@@ -4213,8 +4224,8 @@ global void iconv_wcstombs (object encoding, object stream,
               if (iconv(cd,&inptr1,&insize1,&outptr,&outsize) != (size_t)(-1)) {
                 inptr += sizeof(chart); insize -= sizeof(chart);
               } else {
-                if (OS_errno != EILSEQ) {
-                  OS_error();
+                if (errno != EILSEQ) {
+                  ANSIC_error();
                 } else {
                   end_system_call();
                   fehler_unencodable(encoding,*(const chart*)inptr);
@@ -4224,24 +4235,32 @@ global void iconv_wcstombs (object encoding, object stream,
               end_system_call();
               fehler_unencodable(encoding,*(const chart*)inptr);
             }
-          } else if (my_errno == EINVAL) { /* incomplete input? */
+          } else if (errno == EINVAL) { /* incomplete input? */
             NOTREACHED;
-          } else if (my_errno == E2BIG) { /* output buffer too small? */
+          } else if (errno == E2BIG) { /* output buffer too small? */
             NOTREACHED;
-          } else
-            OS_error_saving_errno({ iconv_close(cd); });
+          } else {
+            var int saved_errno = errno;
+            iconv_close(cd);
+            errno = saved_errno;
+            ANSIC_error();
+          }
         }
       }
       {
         var size_t res = iconv(cd,NULL,NULL,&outptr,&outsize);
         if (res == (size_t)(-1)) {
-          if (OS_errno == E2BIG) { /* output buffer too small? */
+          if (errno == E2BIG) { /* output buffer too small? */
             NOTREACHED;
-          } else
-            OS_error_saving_errno({ iconv_close(cd); });
+          } else {
+            var int saved_errno = errno;
+            iconv_close(cd);
+            errno = saved_errno;
+            ANSIC_error();
+          }
         }
       }
-      if (iconv_close(cd) < 0) { OS_error(); }
+      if (iconv_close(cd) < 0) { ANSIC_error(); }
       end_system_call();
       # Now insize == 0, and if iconv_wcslen has been used to determine
       # the destination size, then also outsize == 0.
@@ -4252,9 +4271,8 @@ global void iconv_wcstombs (object encoding, object stream,
     begin_system_call();
     while (insize > 0) {
       var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
-      var int my_errno = OS_errno;
       if (res == (size_t)(-1)) {
-        if (my_errno == EILSEQ) { # invalid input?
+        if (errno == EILSEQ) { # invalid input?
           ASSERT(insize >= sizeof(chart));
           var object action = TheEncoding(encoding)->enc_tombs_error;
           if (eq(action,S(Kignore))) {
@@ -4271,11 +4289,10 @@ global void iconv_wcstombs (object encoding, object stream,
             if (iconv(cd,&inptr1,&insize1,&outptr,&outsize) != (size_t)(-1)) {
               inptr += sizeof(chart); insize -= sizeof(chart);
             } else {
-              my_errno = OS_errno;
-              if (my_errno == E2BIG)
+              if (errno == E2BIG)
                 break;
-              else if (my_errno != EILSEQ) {
-                OS_error();
+              else if (errno != EILSEQ) {
+                ANSIC_error();
               } else {
                 if (inptr > (char*)*srcp)
                   break;
@@ -4289,12 +4306,12 @@ global void iconv_wcstombs (object encoding, object stream,
             end_system_call();
             fehler_unencodable(encoding,*(const chart*)inptr);
           }
-        } else if (my_errno == EINVAL) { # incomplete input?
+        } else if (errno == EINVAL) { # incomplete input?
           NOTREACHED;
-        } else if (my_errno == E2BIG) { # output buffer full?
+        } else if (errno == E2BIG) { # output buffer full?
           break;
         } else {
-          OS_error();
+          ANSIC_error();
         }
       }
     }
@@ -4334,8 +4351,7 @@ global object iconv_range (object encoding, uintL start, uintL end,
         {
           var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
           if (res == (size_t)(-1)) {
-            var int my_errno = OS_errno;
-            if (my_errno == EILSEQ) { /* invalid input? */
+            if (errno == EILSEQ) { /* invalid input? */
               end_system_call();
               # ch not encodable -> finish the interval
               if (have_i1_i2) {
@@ -4348,12 +4364,16 @@ global object iconv_range (object encoding, uintL start, uintL end,
                 if (count == maxintervals)
                   break;
               }
-            } else if (my_errno == EINVAL) { /* incomplete input? */
+            } else if (errno == EINVAL) { /* incomplete input? */
               NOTREACHED;
-            } else if (my_errno == E2BIG) { /* output buffer too small? */
+            } else if (errno == E2BIG) { /* output buffer too small? */
               NOTREACHED;
-            } else
-              OS_error_saving_errno({ iconv_close(cd); });
+            } else {
+              var int saved_errno = errno;
+              iconv_close(cd);
+              errno = saved_errno;
+              ANSIC_error();
+            }
           } else {
             end_system_call();
             /* ch encodable -> extend the interval */
@@ -4375,7 +4395,7 @@ global object iconv_range (object encoding, uintL start, uintL end,
       }
     }
     begin_system_call();
-    if (iconv_close(cd) < 0) { OS_error(); }
+    if (iconv_close(cd) < 0) { ANSIC_error(); }
     end_system_call();
   };
   return stringof(2*count);
@@ -4427,13 +4447,13 @@ local void ChannelStream_init (object stream) {
 local void ChannelStream_fini (object stream) {
   if (ChannelStream_iconvdesc(stream) != (iconv_t)0) {
     begin_system_call();
-    if (iconv_close(ChannelStream_iconvdesc(stream)) < 0) { OS_error(); }
+    if (iconv_close(ChannelStream_iconvdesc(stream)) < 0) { ANSIC_error(); }
     end_system_call();
     ChannelStream_iconvdesc(stream) = (iconv_t)0;
   }
   if (ChannelStream_oconvdesc(stream) != (iconv_t)0) {
     begin_system_call();
-    if (iconv_close(ChannelStream_oconvdesc(stream)) < 0) { OS_error(); }
+    if (iconv_close(ChannelStream_oconvdesc(stream)) < 0) { ANSIC_error(); }
     end_system_call();
     ChannelStream_oconvdesc(stream) = (iconv_t)0;
   }
