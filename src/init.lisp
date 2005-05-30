@@ -1140,7 +1140,8 @@
   (if vars
     (setq *venv*
       (apply #'vector
-        (nconc (mapcan #'(lambda (v) (list v nil)) vars) (list *venv*))))))
+        (nconc (mapcan #'(lambda (v) (declare (source nil)) (list v nil)) vars)
+               (list *venv*))))))
 
 ;; Adds SPECIAL-Declarations at the beginning of a Body to *venv* .
 (defun %expand-special-declarations (body)
@@ -1148,11 +1149,13 @@
     (declare (ignore body-rest)) ; do not throw away declarations!
     (let ((specials nil))
       (mapc #'(lambda (declspec)
+                (declare (source nil))
                 (if (and (consp declspec) (null (cdr (last declspec))))
                   (if (eq (car declspec) 'SPECIAL)
                     (mapc #'(lambda (x)
+                              (declare (source nil))
                               (if (symbolp x)
-                                  (setq specials (cons x specials))))
+                                (setq specials (cons x specials))))
                           (cdr declspec)))))
             (nreverse declarations))
       (setq specials (nreverse specials))
