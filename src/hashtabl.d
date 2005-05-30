@@ -2289,7 +2289,8 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
  check_rehash_threshold: { /* check rehash-threshold: should be real in [0;1]*/
     var object rehash_threshold = STACK_0;
     if (boundp(rehash_threshold)) { /* not specified -> OK */
-      if_realp(rehash_threshold,{},{
+      if_realp(rehash_threshold, ;, goto bad_rehash_threshold;);
+      if (false) {
        bad_rehash_threshold:
         pushSTACK(NIL); /* no PLACE */
         pushSTACK(rehash_threshold); /* TYPE-ERROR slot DATUM */
@@ -2299,7 +2300,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
         check_value(type_error,GETTEXT("~S: ~S argument should be a real between 0 and 1, not ~S"));
         STACK_0 = value1;
         goto check_rehash_threshold;
-      });
+      }
       pushSTACK(Fixnum_1);
       pushSTACK(rehash_threshold);
       pushSTACK(Fixnum_0);
