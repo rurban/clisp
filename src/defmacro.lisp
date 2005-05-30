@@ -492,17 +492,17 @@ the actual object #<MACRO expander> for the FENV.
               (values
                 `(FUNCTION ,name
                    (LAMBDA (<MACRO-FORM> ,(or envvar '<ENV-ARG>))
-                   (DECLARE (CONS <MACRO-FORM>))
-                   ,@(if envvar
-                       declarations ;; possibly contains a (declare (ignore envvar))
-                       '((DECLARE (IGNORE <ENV-ARG>))))
-                   ,@(if docstring (list docstring))
-                   ,@(if pre-process
-                       `((setq <MACRO-FORM> (,pre-process <MACRO-FORM>))))
-                   ,mainform))
-               name
-               lambdalist
-               docstring))))))))
+                     (DECLARE (CONS <MACRO-FORM>))
+                     ,@(if envvar
+                         declarations ;; possibly contains a (declare (ignore envvar))
+                         '((DECLARE (IGNORE <ENV-ARG>))))
+                     ,@(if docstring (list docstring))
+                     ,@(if pre-process
+                         `((setq <MACRO-FORM> (,pre-process <MACRO-FORM>))))
+                     ,mainform))
+                name
+                lambdalist
+                docstring))))))))
 
 ;; Creates a macro expander for MACROLET.
 (defun make-macro-expander (macrodef whole-form
