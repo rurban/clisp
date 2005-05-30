@@ -1,5 +1,12 @@
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
+	Fix omission in 2004-06-20 patch.
+	* spvw_garcol.d (gc_sweep1_instance_forward,
+	gc_sweep1_instance_target) [TYPECODES]: Make it work for closure_type
+	as well.
+
+2005-05-29  Bruno Haible  <bruno@clisp.org>
+
 	Optimize the caching of the expansion of FUNCTION-MACRO-LET
 	macroexpanders.
 	* defmacro.lisp (make-macro-expansion): Return an additional second
