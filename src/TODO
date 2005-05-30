@@ -211,8 +211,9 @@ abc(A B C)def
 > (format t (formatter "abc~,'*Sdef") '(a b c))
 abc*(A B C)def
 Similarly "abc~3W"
-how about run-time format string check to warn about
+[sam] how about run-time format string check to warn about
  (format t "~A" a b) and (format t "~A ~B ~C" a b)
+[bruno] I believe a compiler warning is more appropriate
 
 
 If you (TRACE generic-function) and then reload the file defining that
@@ -240,12 +241,17 @@ clean up and modularize spvw.d
 
 
 Add fast unicode attribute accessors (like CHAR-NUMERIC-P and CHAR-DECOMPOSE)
+[bruno] Agreed, this is a binding it my libunistring
 and augment the reader to return 168 from
  (let ((*read-base* 16))
    (read-from-string
      (concatenate 'string
        (string #\MATHEMATICAL_BOLD_CAPITAL_A)
        (string #\MATHEMATICAL_BOLD_DIGIT_EIGHT))))
+[bruno] better not. It was argued in comp.lang.lisp that the behaviour of
+        the Lisp reader should remain based on the traditional notion of
+        "digit". (ANSI CL is ambiguous in its definition of "digit". Unexpected
+        behaviour in this area can lead to security issues.)
 
 
 larger fixnums on 64-bit platforms
