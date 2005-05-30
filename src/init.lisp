@@ -1402,7 +1402,8 @@
           (multiple-value-call #'%expand-cons (cdr funmacdef)
             (%expand-lambdabody (cadr funmacdef))
             (multiple-value-call #'%expand-cons (cddr funmacdef)
-              (%expand-lambdabody (caddr funmacdef))
+              (let ((*venv* nil) (*fenv* nil))
+                (%expand-lambdabody (caddr funmacdef)))
               (cdddr funmacdef) nil)))
         (%expand-funmacdefs-2 (rest funmacdefs))))))
 ;; (%expand-handlers handlers) expands a Typ/Handler-List
@@ -1828,9 +1829,9 @@
     (function defmacro (lambda (form env)
       (declare (ignore env))
       (let ((preliminaryp (eq (car form) 'sys::predefmacro)))
-        (multiple-value-bind (expansion name lambdalist docstring)
+        (multiple-value-bind (expansion expansion-lambdabody name lambdalist docstring)
             (sys::make-macro-expansion (cdr form) form)
-          (declare (ignore lambdalist))
+          (declare (ignore expansion-lambdabody lambdalist))
           `(LET ()
              (EVAL-WHEN ,(if preliminaryp '(LOAD EVAL) '(COMPILE LOAD EVAL))
                (SYSTEM::REMOVE-OLD-DEFINITIONS ',name

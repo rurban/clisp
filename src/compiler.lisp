@@ -60,6 +60,7 @@
 ;; and it is used by other program parts.
 (import '(sys::function-name-p sys::parse-body sys::add-implicit-block
           sys::make-load-time-eval sys::make-macro-expander
+          sys::make-funmacro-expander
           sys::analyze-lambdalist sys::specialized-lambda-list-to-ordinary
           sys::closure-name sys::closure-codevec sys::closure-consts
           sys::fixnump sys::short-float-p sys::single-float-p
@@ -5536,8 +5537,7 @@ for-value   NIL or T
                    (fnode (c-lambdabody
                             (symbol-suffix (fnode-name *func*) name)
                             (second funmacdef)))
-                   (macro (make-macro-expander (cons name (third funmacdef))
-                                               *form*)))
+                   (macro (make-funmacro-expander name (third funmacdef))))
               (push name L1)
               (push fnode L2)
               (push macro L3))

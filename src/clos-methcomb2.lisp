@@ -251,38 +251,40 @@
               `(IF ,cont
                  (FUNCALL ,cont ,@req-dummies)
                  (%NO-NEXT-METHOD ,backpointer ,@req-dummies)))))
-        ((&REST NEW-ARG-EXPRS)
-         (IF NEW-ARG-EXPRS
-           ;; argument checking in the interpreter only
-           (LIST 'IF '(EVAL-WHEN (EVAL) T)
-             (LIST '%CALL-NEXT-METHOD
-               ',backpointer
-               ',cont
-               (LIST ',(if rest-dummy 'LIST* 'LIST)
-                 ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                 ,@(if rest-dummy `(',rest-dummy) '()))
-               (CONS 'LIST NEW-ARG-EXPRS))
-             (LIST 'IF ',cont
-               (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS)
-               (LIST* '%NO-NEXT-METHOD ',backpointer NEW-ARG-EXPRS)))
-           ,(if rest-dummy
-              `(LIST 'IF ',cont
-                 (LIST 'APPLY ',cont
-                   ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                   ',rest-dummy)
-                 (LIST 'APPLY '(FUNCTION %NO-NEXT-METHOD)
+        ,(system::make-funmacro-full-lambdabody
+           `(CALL-NEXT-METHOD (&REST NEW-ARG-EXPRS)
+             (IF NEW-ARG-EXPRS
+               ;; argument checking in the interpreter only
+               (LIST 'IF '(EVAL-WHEN (EVAL) T)
+                 (LIST '%CALL-NEXT-METHOD
                    ',backpointer
-                   ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                   ',rest-dummy))
-              `(LIST 'IF ',cont
-                 (LIST 'FUNCALL ',cont
-                   ,@(mapcar #'(lambda (x) `',x) req-dummies))
-                 (LIST '%NO-NEXT-METHOD
-                   ',backpointer
-                   ,@(mapcar #'(lambda (x) `',x) req-dummies)))))))
+                   ',cont
+                   (LIST ',(if rest-dummy 'LIST* 'LIST)
+                     ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                     ,@(if rest-dummy `(',rest-dummy) '()))
+                   (CONS 'LIST NEW-ARG-EXPRS))
+                 (LIST 'IF ',cont
+                   (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS)
+                   (LIST* '%NO-NEXT-METHOD ',backpointer NEW-ARG-EXPRS)))
+               ,(if rest-dummy
+                  `(LIST 'IF ',cont
+                     (LIST 'APPLY ',cont
+                       ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                       ',rest-dummy)
+                     (LIST 'APPLY '(FUNCTION %NO-NEXT-METHOD)
+                       ',backpointer
+                       ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                       ',rest-dummy))
+                  `(LIST 'IF ',cont
+                     (LIST 'FUNCALL ',cont
+                       ,@(mapcar #'(lambda (x) `',x) req-dummies))
+                     (LIST '%NO-NEXT-METHOD
+                       ',backpointer
+                       ,@(mapcar #'(lambda (x) `',x) req-dummies))))))))
       (NEXT-METHOD-P
         (() ,cont)
-        (() ',cont)))
+        ,(system::make-funmacro-full-lambdabody
+           `(NEXT-METHOD-P () ',cont))))
      ,@body))
 
 (defmacro call-method (&whole whole-form

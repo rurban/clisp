@@ -489,20 +489,22 @@ the actual object #<MACRO expander> for the FENV.
                       `(IF ,lengthtest
                          (MACRO-CALL-ERROR <MACRO-FORM>)
                          ,mainform)))
-              (values
-                `(FUNCTION ,name
-                   (LAMBDA (<MACRO-FORM> ,(or envvar '<ENV-ARG>))
-                     (DECLARE (CONS <MACRO-FORM>))
-                     ,@(if envvar
-                         declarations ;; possibly contains a (declare (ignore envvar))
-                         '((DECLARE (IGNORE <ENV-ARG>))))
-                     ,@(if docstring (list docstring))
-                     ,@(if pre-process
-                         `((setq <MACRO-FORM> (,pre-process <MACRO-FORM>))))
-                     ,mainform))
-                name
-                lambdalist
-                docstring))))))))
+              (let ((lambdabody
+                      `((<MACRO-FORM> ,(or envvar '<ENV-ARG>))
+                        (DECLARE (CONS <MACRO-FORM>))
+                        ,@(if envvar
+                            declarations ;; possibly contains a (declare (ignore envvar))
+                            '((DECLARE (IGNORE <ENV-ARG>))))
+                        ,@(if docstring (list docstring))
+                        ,@(if pre-process
+                            `((setq <MACRO-FORM> (,pre-process <MACRO-FORM>))))
+                        ,mainform)))
+                (values
+                  `(FUNCTION ,name (LAMBDA ,@lambdabody))
+                  lambdabody
+                  name
+                  lambdalist
+                  docstring)))))))))
 
 ;; Creates a macro expander for MACROLET.
 (defun make-macro-expander (macrodef whole-form
@@ -525,3 +527,16 @@ the actual object #<MACRO expander> for the FENV.
                                            *toplevel-denv*))))
   (make-macro
     (evalhook (make-macro-expansion macrodef whole-form) nil nil env)))
+
+;; Creates a macro expander for FUNCTION-MACRO-LET.
+;; Unlike in MACROLET, the macro is defined in the null lexical environment.
+(defun make-funmacro-full-lambdabody (macrodef)
+  (multiple-value-bind (expansion expansion-lambdabody)
+      (make-macro-expansion macrodef
+                            `(#:FUNCTION-MACRO-LET ,macrodef)) ; a dummy
+    (declare (ignore expansion))
+    expansion-lambdabody))
+(defun make-funmacro-expander (name full-lambdabody)
+  (make-macro
+    (evalhook `(FUNCTION ,name (LAMBDA ,@full-lambdabody)) nil nil
+              *toplevel-environment*)))
