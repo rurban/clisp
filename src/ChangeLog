@@ -1,5 +1,18 @@
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
+	Store the documentation string of interpreted functions in the
+	function object. Make DOCUMENTATION work for traced functions.
+	* init.lisp (sys::%set-documentation): Undo last patch.
+	(defun): Add the doc string back to the function's lambdabody.
+	* functions.lisp (unwrapped-fdefinition): New function.
+	* documentation.lisp (documentation): Undo last patch. Use
+	unwrapped-fdefinition instead of fdefinition. Look for the docstring
+	of a function first in the function object.
+	((setf documentation)): Use unwrapped-fdefinition instead of
+	fdefinition. Store the docstring also in the function object.
+
+2005-05-29  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (*compile-file-resolved-pathname*): New variable.
 	(compile-file): Bind it.
 

@@ -50,3 +50,13 @@
          (sys::closure-name obj))
         ((sys::closurep obj) ; interpreted closure?
          (sys::closure-name obj))))
+
+;; Returns the function definition of a function name, ignoring wrappers
+;; installed by TRACE, profilers etc.
+(defun unwrapped-fdefinition (funname)
+  (let* ((sym (get-funname-symbol funname))
+         (def (or (get sym 'sys::traced-definition)
+                  (symbol-function sym))))
+    (if (macrop def)
+      (macro-expander def)
+      def)))

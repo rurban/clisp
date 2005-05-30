@@ -570,6 +570,85 @@ NIL
 (documentation (compile nil (lambda () 'bazonk)) 'function)
 NIL
 
+;; Check that DOCUMENTATION on anonymous lambdas works.
+
+(documentation (lambda () "interpreted anonymous doc" 42) 'function)
+"interpreted anonymous doc"
+
+#| NYI
+(documentation (compile nil (lambda () "compiled anonymous doc" 42)) 'function)
+"compiled anonymous doc"
+|#
+
+;; Check that (SETF DOCUMENTATION) on anonymous lambdas works.
+
+(let ((f (lambda () "interpreted anonymous doc" 42)))
+  (setf (documentation f 'function) "new doc")
+  (documentation f 'function))
+"new doc"
+
+#| NYI
+(let ((f (compile nil (lambda () "interpreted anonymous doc" 42))))
+  (setf (documentation f 'function) "new doc")
+  (documentation f 'function))
+"new doc"
+|#
+
+;; Check that DOCUMENTATION and SETF DOCUMENTATION work on the function object.
+
+(progn
+  (defun func01 () "interpreted doc" 42)
+  (let ((old-func #'func01)
+        (new-func (lambda () "new interpreted doc" 43)))
+    (setf (fdefinition 'func01) new-func)
+    (list* (documentation old-func 'function)
+           (documentation new-func 'function)
+           (documentation 'func01 'function)
+           (progn
+             (setf (documentation 'func01 'function) "replaced doc")
+             (list
+               (documentation old-func 'function)
+               (documentation new-func 'function)
+               (documentation 'func01 'function))))))
+("interpreted doc" "new interpreted doc" "new interpreted doc"
+ "interpreted doc" "replaced doc" "replaced doc")
+
+#| NYI
+(progn
+  (defun func02 () "compiled doc" 42)
+  (let ((old-func #'func02)
+        (new-func (compile nil (lambda () "new compiled doc" 43))))
+    (setf (fdefinition 'func02) new-func)
+    (list* (documentation old-func 'function)
+           (documentation new-func 'function)
+           (documentation 'func02 'function)
+           (progn
+             (setf (documentation 'func02 'function) "replaced doc")
+             (list
+               (documentation old-func 'function)
+               (documentation new-func 'function)
+               (documentation 'func02 'function))))))
+("compiled doc" "new compiled doc" "new compiled doc"
+ "compiled doc" "replaced doc" "replaced doc")
+|#
+
+(progn
+  (defmacro func03 () "macro doc" 42)
+  (let ((old-func (macro-function 'func03))
+        (new-func (lambda (form env) "new macro doc" 43)))
+    (setf (macro-function 'func03) new-func)
+    (list* (documentation old-func 'function)
+           (documentation new-func 'function)
+           (documentation 'func03 'function)
+           (progn
+             (setf (documentation 'func03 'function) "replaced doc")
+             (list
+               (documentation old-func 'function)
+               (documentation new-func 'function)
+               (documentation 'func03 'function))))))
+("macro doc" "new macro doc" "new macro doc"
+ "macro doc" "replaced doc" "replaced doc")
+
 
 ; Clean up.
 (unintern 'x)
