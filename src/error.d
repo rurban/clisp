@@ -419,11 +419,19 @@ global maygc object check_classname (object obj, object type) {
 #undef OS_filestream_error
 
 #ifdef UNIX
-#include "errunix.c"
+  /* Define OS_error, OS_file_error. */
+  #include "errunix.c"
+#else
+  /* Define just ANSIC_error. */
+  #define OS_error ANSIC_error
+  #define OS_error_internal ANSIC_error_internal
+  #include "errunix.c"
+  #undef OS_error_internal
+  #undef OS_error
 #endif /* UNIX */
 
 #ifdef WIN32_NATIVE
-#include "errwin32.c"
+  #include "errwin32.c"
 #endif
 
 /* Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
