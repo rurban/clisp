@@ -1840,8 +1840,10 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           if ((as_cint(ch) >= 'a') && (as_cint(ch) <= 'z')) {
             var object drive = allocate_string(1);
             TheSnstring(drive)->data[0] = ch;
-            ThePathname(STACK_1)->pathname_directory=STACK_0=allocate_cons();
-            Car(STACK_0) = drive;
+            var object new_cons = allocate_cons();
+            Car(new_cons) = drive;
+            ThePathname(STACK_1)->pathname_directory = new_cons;
+            STACK_0 = new_cons;
             Z_SHIFT(z,2);
             if (Z_AT_SLASH(z,pslashp,STACK_2)) Z_SHIFT(z,1);
           } else goto continue_parsing_despite_colon;
@@ -1851,8 +1853,10 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         /* if 1st char is a slash, start with :ABSOLUTE (otherwise :RELATIVE): */
         if (Z_AT_SLASH(z,pslashp,STACK_2)) {
           Z_SHIFT(z,1);
-          ThePathname(STACK_1)->pathname_directory=STACK_0=allocate_cons();
-          Car(STACK_0) = S(Kabsolute);
+          var object new_cons = allocate_cons();
+          Car(new_cons) = S(Kabsolute);
+          ThePathname(STACK_1)->pathname_directory = new_cons;
+          STACK_0 = new_cons;
         }
      #endif
       loop {
@@ -1895,8 +1899,10 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         }
        #endif /* PATHNAME_NOEXT */
         if (nullp(STACK_1)) {
-          ThePathname(STACK_2)->pathname_directory=STACK_1=allocate_cons();
-          Car(STACK_1) = S(Krelative);
+          var object new_cons = allocate_cons();
+          Car(new_cons) = S(Krelative);
+          ThePathname(STACK_2)->pathname_directory = new_cons;
+          STACK_1 = new_cons;
         }
         /* lengthen (pathname-directory pathname) by subdir STACK_0: */
         var object new_cons = allocate_cons(); /* new Cons */
