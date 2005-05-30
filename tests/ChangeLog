@@ -1,5 +1,9 @@
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
+	* setf.tst: Fix placement and comments of last patch.
+
+2005-05-29  Bruno Haible  <bruno@clisp.org>
+
 	* mop.tst: On LISPWORKS, use the (gc) substitute.
 
 2005-05-25  Sam Steingold  <sds@gnu.org>
