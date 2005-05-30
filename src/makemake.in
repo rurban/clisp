@@ -1342,7 +1342,7 @@ if [ "$DEBUGGING" = debug ] ; then
   fi
   XCFLAGS=$XCFLAGS' -DDEBUG_OS_ERROR -DDEBUG_SPVW -DDEBUG_BYTECODE -DSAFETY=3'
   case "$CC" in
-    *"g++"* ) XCFLAGS=$XCFLAGS' -DDEBUG_GCSAFETY -DHEAPCODES'; ;;
+    *"g++"* ) XCFLAGS=$XCFLAGS' -DDEBUG_GCSAFETY'; ;;
   esac
 fi
 
