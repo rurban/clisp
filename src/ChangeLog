@@ -1,5 +1,9 @@
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
+	* .gdbinit: Add comments reflecting 2005-05-17 change.
+
+2005-05-28  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (XCFLAGS): Don't force HEAPCODES when DEBUG_GCSAFETY is
 	used.
 
