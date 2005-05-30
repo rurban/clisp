@@ -96,7 +96,13 @@
 (defvar *compile-warnings* t) ; if compiler-warnings are reported
 (defvar *compile-verbose* t) ; if compiler-comments are reported
 (defvar *compile-print* nil) ; if compiler reports, where he currently is
+;; The first argument passed to COMPILE-FILE. Does not necessarily refer to
+;; a file!
 (defvar *compile-file-pathname* nil) ; CLtL2 p. 680
+;; The physical pathname denoting the file being compiled. Determined from
+;; *compile-file-pathname*. Includes the file extension.
+(defvar *compile-file-resolved-pathname* nil)
+;; *compile-file-truename* = (truename *compile-file-resolved-pathname*).
 (defvar *compile-file-truename* nil) ; CLtL2 p. 680
 (defvar *compile-file-directory* nil) ; for c-REQUIRE
 (defvar *compile-file-lineno1* nil)
@@ -11128,13 +11134,14 @@ The function make-closure is required.
                     (merge-pathnames listing)))
     (setq new-listing-stream t))
   (with-open-file (istream input-file :direction :input-immutable
-                           :external-format external-format)
+                                      :external-format external-format)
     (let ((listing-stream ; a stream or NIL
             (if new-listing-stream
               (open listing :direction :output)
               (if (streamp listing) listing nil))))
       (unwind-protect
         (let* ((*compile-file-pathname* (merge-pathnames file)) ; as per ANSI
+               (*compile-file-resolved-pathname* input-file) ; more useful
                (*compile-file-truename* (truename input-file))
                (*current-source-file* *compile-file-truename*)
                (*compile-file-lineno1* nil)
