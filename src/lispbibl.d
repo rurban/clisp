@@ -3652,6 +3652,87 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 
 
+#ifdef TYPECODES
+
+# You have to remove the typebits in order to access the components
+# of an object.
+# pointable(obj) does this, returning a void*.
+# pointable_unchecked(obj) likewise, but without the DEBUG_GCSAFETY check.
+# pointable_address_unchecked(obj_o) likewise, but takes an oint as argument
+#                                    and returns an aint.
+  #if !((oint_addr_shift==0) && (addr_shift==0))
+    #define pointable_unchecked(obj)  ((void*)upointer(obj))
+    #define pointable_address_unchecked(obj_o)  \
+      (((aint)((obj_o) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift)) << addr_shift)
+  #else
+    #define pointable_unchecked(obj)  \
+      ((void*)pointable_address_unchecked(as_oint(obj)))
+    # If oint_addr_shift=0 and addr_shift=0, you don't have to shift.
+    #if !((tint_type_mask & (addressbus_mask>>oint_type_shift)) == 0)
+      #define pointable_address_unchecked(obj_o)  \
+        ((aint)(obj_o) & ((aint)oint_addr_mask | ~addressbus_mask))
+    #else
+      # Moreover if oint_type_mask and addressbus_mask are disjoint
+      # (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0),
+      # no typebits are being sent to the address bus anyway.
+      # So there's nothing to be done:
+      #define pointable_address_unchecked(obj_o)  (aint)(obj_o)
+    #endif
+  #endif
+  #ifdef DEBUG_GCSAFETY
+    # Check that obj has not been held in a GC-unsafe variable while a
+    # memory allocation was made.
+    static inline void* pointable (gcv_object_t obj) {
+      return pointable_unchecked(obj);
+    }
+    static inline void* pointable (object obj) {
+      return pointable_unchecked((gcv_object_t)obj); # The cast does the check.
+    }
+  #else
+    #define pointable(obj)  pointable_unchecked(obj)
+  #endif
+
+# If you want to access an object with a known type-info whose
+# set typebits are being swallowed by the address bus (the
+# typebits, that are =0 don't matter), you can do without 'untype':
+  #if defined(DEBUG_GCSAFETY)
+    #define type_pointable(type,obj)  pointable(obj)
+  #elif defined(WIDE_STRUCT)
+    #define type_pointable(type,obj)  ((void*)((obj).u.both.addr))
+  #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
+    #if (addr_shift==0)
+      #define type_pointable(type,obj)  \
+        ((oint_addr_shift==0) && ((type_zero_oint(type) & addressbus_mask) == 0) \
+         ? (void*)(aint)as_oint(obj)                                             \
+         : (void*)(aint)pointable(obj)                                           \
+        )
+    #elif !(addr_shift==0)
+      # Analogous, but here the macro 'optimized_upointer'
+      # assumes the role of the address bus:
+      #define type_pointable(type,obj)  \
+        ((optimized_upointer(type_data_object(type,0)) == 0) \
+         ? (void*)(aint)optimized_upointer(obj)              \
+         : (void*)(aint)pointable(obj)                       \
+        )
+    #endif
+  #else
+    # If pointable(obj) = obj, type_pointable() doesn't do anything as well:
+    #define type_pointable(type,obj)  ((void*)(aint)as_oint(obj))
+  #endif
+
+# If you want to access an object that has one of several known
+# type infos, you can probably omit the 'untype'.
+# The  OR of the type infos is more authoritative.
+  #define types_pointable(ORed_types,obj)  type_pointable(ORed_types,obj)
+
+#else # HEAPCODES
+
+  #define pointable_address_unchecked(obj_o)  \
+    (((aint)((obj_o) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift)) << addr_shift)
+
+#endif
+
+
 #if defined(SINGLEMAP_MEMORY) && (((system_type*1UL << oint_type_shift) & addressbus_mask) == 0)
   # The STACK resides in a singlemap-area as well, Typinfo system_type.
   #define SINGLEMAP_MEMORY_STACK
@@ -3731,7 +3812,7 @@ extern bool inside_gc;
         if (((obj_o) & wbit(garcol_bit_o)) == 0) /* exclude frame words from the STACK */ \
           if (!gcinvariant_oint_p(obj_o)) /* exclude immediate objects */      \
             /* Access a single char, without needing to subtract the bias. */  \
-            *(volatile char *)(((aint)((obj_o) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift)) <<addr_shift); \
+            *(volatile char *)pointable_address_unchecked(obj_o);              \
     } while (0)
 
   # When a gcv_object_t is fetched from a GC visible location (in the heap or
@@ -4030,23 +4111,28 @@ extern bool inside_gc;
 # this first word (except the GC bit, which it temporarily uses).
 
 # Type of the header flags:
-#if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA) && !defined(IA64)
+#if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA) && !defined(IA64) && !defined(DEBUG_GCSAFETY)
   # Access to an individual byte is possible
   #define hfintsize  intBsize
   typedef uintB  hfint;
 #else
   # access to a full word
-  #define hfintsize  intLsize
-  typedef uintL  hfint;
+  #define hfintsize  pointer_bitsize
+  typedef uintP  hfint;
 #endif
 
 # Objecs with variable length
 #ifdef TYPECODES
-  #define VAROBJECT_HEADER  \
+  #ifdef DEBUG_GCSAFETY
+    #define VAROBJECT_HEADER  \
+               gcv_object_t _GCself;  # Self pointer for GC, contains flags
+  #else
+    #define VAROBJECT_HEADER  \
                union {                                                    \
                  gcv_object_t _GCself;  # Self pointer for GC             \
                  hfint flags[sizeof(gcv_object_t)/sizeof(hfint)]; # Flags \
                } header;
+  #endif
 #else
   #define VAROBJECT_HEADER  \
                gcv_object_t GCself;  # Self pointer for GC \
@@ -4057,15 +4143,20 @@ typedef struct {
 } varobject_;
 typedef varobject_ *  Varobject;
 #ifdef TYPECODES
-  #define GCself  header._GCself
-  # The typecode can be found in the byte ((Varobject)p)->header_flags.
-  #if !(oint_type_len>=hfintsize ? oint_type_shift%hfintsize==0 : floor(oint_type_shift,hfintsize)==floor(oint_type_shift+oint_type_len-1,hfintsize))
-    #error "Bogus header_flags -- redefine header_flags!"
-  #endif
-  #if BIG_ENDIAN_P
-    #define header_flags  header.flags[sizeof(gcv_object_t)/sizeof(hfint)-1-floor(oint_type_shift,hfintsize)]
+  #ifdef DEBUG_GCSAFETY
+    #define GCself  _GCself
+    #define header_flags  _GCself.one_o
   #else
-    #define header_flags  header.flags[floor(oint_type_shift,hfintsize)]
+    #define GCself  header._GCself
+    # The typecode can be found in the byte ((Varobject)p)->header_flags.
+    #if !(oint_type_len>=hfintsize ? oint_type_shift%hfintsize==0 : floor(oint_type_shift,hfintsize)==floor(oint_type_shift+oint_type_len-1,hfintsize))
+      #error "Bogus header_flags -- redefine header_flags!"
+    #endif
+    #if BIG_ENDIAN_P
+      #define header_flags  header.flags[sizeof(gcv_object_t)/sizeof(hfint)-1-floor(oint_type_shift,hfintsize)]
+    #else
+      #define header_flags  header.flags[floor(oint_type_shift,hfintsize)]
+    #endif
   #endif
   # it applies  mtypecode(((Varobject)p)->GCself) =
   # (((Varobject)p)->header_flags >> (oint_type_shift%hfintsize)) & tint_type_mask
@@ -6131,159 +6222,143 @@ typedef enum {
 #endif
 
 
-#ifdef TYPECODES
-
-# You have to remove the typebits in order to access the components
-# of an object.
-  #if !((oint_addr_shift==0) && (addr_shift==0))
-    #define pointable(obj)  ((void*)upointer(obj))
-  #else
-    # If oint_addr_shift=0 and addr_shift=0, you don't have to shift.
-    #if !((tint_type_mask & (addressbus_mask>>oint_type_shift)) == 0)
-      #define pointable(obj)  \
-        ((void*)((aint)as_oint(obj) & ((aint)oint_addr_mask | ~addressbus_mask)))
-    #else
-      # Moreover if oint_type_mask and addressbus_mask are disjunct
-      # (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0),
-      # no typebits are being sent to the address bus anyway.
-      # So there's nothing to be done:
-      #define pointable(obj)  ((void*)(aint)as_oint(obj))
-    #endif
-  #endif
-  #ifdef DEBUG_GCSAFETY
-    # Check that obj has not been held in a GC-unsafe variable while a
-    # memory allocation was made.
-    static inline void* gcsafety_pointable (gcv_object_t obj) {
-      return pointable(obj);
-    }
-    static inline void* gcsafety_pointable (object obj) {
-      return pointable((gcv_object_t)obj); # The cast does the check.
-    }
-    #undef pointable
-    #define pointable gcsafety_pointable
-  #endif
-
-# If you want to access an object with a known type-info whose
-# set typebits are being swallowed by the address bus (the
-# typebits, that are =0 don't matter), you can do without 'untype':
-  #if defined(DEBUG_GCSAFETY)
-    #define type_pointable(type,obj)  pointable(obj)
-  #elif defined(WIDE_STRUCT)
-    #define type_pointable(type,obj)  ((void*)((obj).u.both.addr))
-  #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
-    #if (addr_shift==0)
-      #define type_pointable(type,obj)  \
-        ((oint_addr_shift==0) && ((type_zero_oint(type) & addressbus_mask) == 0) \
-         ? (void*)(aint)as_oint(obj)                                             \
-         : (void*)(aint)pointable(obj)                                           \
-        )
-    #elif !(addr_shift==0)
-      # Analogous, but here the macro 'optimized_upointer'
-      # assumes the role of the address bus:
-      #define type_pointable(type,obj)  \
-        ((optimized_upointer(type_data_object(type,0)) == 0) \
-         ? (void*)(aint)optimized_upointer(obj)              \
-         : (void*)(aint)pointable(obj)                       \
-        )
-    #endif
-  #else
-    # If pointable(obj) = obj, type_pointable() doesn't do anything as well:
-    #define type_pointable(type,obj)  ((void*)(aint)as_oint(obj))
-  #endif
-
-# If you want to access an object that has one of several known
-# type infos, you can probably omit the 'untype'.
-# The  OR of the type infos is more authoritative.
-  #define types_pointable(ORed_types,obj)  type_pointable(ORed_types,obj)
-
-#endif # TYPECODES
+# cgci_pointable(obj)  converts a certainly GC-invariant object to an aint.
+# pgci_pointable(obj)  converts a possibly GC-invariant object to an aint.
+# ngci_pointable(obj)  converts a not GC-invariant object to an aint.
+#if defined(DEBUG_GCSAFETY)
+  static inline aint cgci_pointable (object obj) {
+    return obj.one_o;
+  }
+  static inline aint cgci_pointable (gcv_object_t obj) {
+    return obj.one_o;
+  }
+  static inline aint pgci_pointable (object obj) {
+    if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj)
+          || obj.allocstamp == alloccount || nonimmsubrp(obj)))
+      abort();
+    nonimmprobe(obj.one_o);
+    return obj.one_o;
+  }
+  static inline aint pgci_pointable (gcv_object_t obj) {
+    nonimmprobe(obj.one_o);
+    return obj.one_o;
+  }
+  static inline aint ngci_pointable (object obj) {
+    if (!(gcinvariant_symbol_p(obj)
+          || obj.allocstamp == alloccount || nonimmsubrp(obj)))
+      abort();
+    nonimmprobe(obj.one_o);
+    return obj.one_o;
+  }
+  static inline aint ngci_pointable (gcv_object_t obj) {
+    nonimmprobe(obj.one_o);
+    return obj.one_o;
+  }
+#elif defined(WIDE_AUXI)
+  #define cgci_pointable(obj)  (obj).one_o
+  #define pgci_pointable(obj)  (obj).one_o
+  #define ngci_pointable(obj)  (obj).one_o
+#else
+  #define cgci_pointable(obj)  as_oint(obj)
+  #define pgci_pointable(obj)  as_oint(obj)
+  #define ngci_pointable(obj)  as_oint(obj)
+#endif
 
 # TheCons(object) yields the Cons that's equivalent to object.
 # The information that it is a Cons has to be put into it.
 # The other type conversions are similar.
 #ifdef TYPECODES
-  #define TheCons(obj)  ((Cons)(types_pointable(cons_type,obj)))
-  #define TheRatio(obj)  ((Ratio)(types_pointable(ratio_type|bit(sign_bit_t),obj)))
-  #define TheComplex(obj)  ((Complex)(type_pointable(complex_type,obj)))
-  #define TheSymbol(obj)  ((Symbol)(type_pointable(symbol_type,obj)))
+  #ifdef DEBUG_GCSAFETY
+    #define cgci_types_pointable(ORed_types,obj)  cgci_pointable(obj)
+    #define pgci_types_pointable(ORed_types,obj)  pgci_pointable(obj)
+    #define ngci_types_pointable(ORed_types,obj)  ngci_pointable(obj)
+  #else
+    #define cgci_types_pointable(ORed_types,obj)  types_pointable(ORed_types,obj)
+    #define pgci_types_pointable(ORed_types,obj)  types_pointable(ORed_types,obj)
+    #define ngci_types_pointable(ORed_types,obj)  types_pointable(ORed_types,obj)
+  #endif
+  #define TheCons(obj)  ((Cons)(ngci_types_pointable(cons_type,obj)))
+  #define TheRatio(obj)  ((Ratio)(ngci_types_pointable(ratio_type|bit(sign_bit_t),obj)))
+  #define TheComplex(obj)  ((Complex)(ngci_types_pointable(complex_type,obj)))
+  #define TheSymbol(obj)  ((Symbol)(ngci_types_pointable(symbol_type,obj)))
   #if (oint_symbolflags_shift==oint_type_shift)
-  #define TheSymbolflagged(obj)  ((Symbol)(types_pointable(symbol_type|bit(active_bit)|bit(dynam_bit)|bit(svar_bit),obj)))
+  #define TheSymbolflagged(obj)  ((Symbol)(ngci_types_pointable(symbol_type|bit(active_bit)|bit(dynam_bit)|bit(svar_bit),obj)))
   #else
   #define TheSymbolflagged(obj)  TheSymbol(symbol_without_flags(obj))
   #endif
-  #define TheBignum(obj)  ((Bignum)(types_pointable(bignum_type|bit(sign_bit_t),obj)))
+  #define TheBignum(obj)  ((Bignum)(ngci_types_pointable(bignum_type|bit(sign_bit_t),obj)))
   #ifndef IMMEDIATE_FFLOAT
-  #define TheFfloat(obj)  ((Ffloat)(types_pointable(ffloat_type|bit(sign_bit_t),obj)))
+  #define TheFfloat(obj)  ((Ffloat)(ngci_types_pointable(ffloat_type|bit(sign_bit_t),obj)))
   #endif
-  #define TheDfloat(obj)  ((Dfloat)(types_pointable(dfloat_type|bit(sign_bit_t),obj)))
-  #define TheLfloat(obj)  ((Lfloat)(types_pointable(lfloat_type|bit(sign_bit_t),obj)))
-  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type,obj)))
-  #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type,obj)))
-  #define TheCodevec(obj)  ((Codevec)(types_pointable(sb8vector_type,obj)))
-  #define TheS8string(obj)  ((S8string)(types_pointable(sstring_type,obj)))
-  #define TheS16string(obj)  ((S16string)(types_pointable(sstring_type,obj)))
-  #define TheS32string(obj)  ((S32string)(types_pointable(sstring_type,obj)))
-  #define TheSnstring(obj)  ((Snstring)(types_pointable(sstring_type,obj)))
-  #define TheSistring(obj)  ((Sistring)(types_pointable(sstring_type,obj)))
-  #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type,obj)))
-  #define TheSvector(obj)  ((Svector)(types_pointable(svector_type,obj)))
-  #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type|string_type|vector_type,obj)))
-  #define TheRecord(obj)  ((Record)(types_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type|lrecord_type,obj)))
-  #define TheLrecord(obj)  ((Lrecord)(types_pointable(lrecord_type,obj)))
-  #define TheSrecord(obj)  ((Srecord)(types_pointable(closure_type|structure_type|orecord_type|instance_type,obj)))
-  #define TheXrecord(obj)  ((Xrecord)(types_pointable(stream_type|orecord_type,obj)))
-  #define ThePackage(obj)  ((Package)(type_pointable(orecord_type,obj)))
-  #define TheHashtable(obj)  ((Hashtable)(type_pointable(orecord_type,obj)))
-  #define TheReadtable(obj)  ((Readtable)(type_pointable(orecord_type,obj)))
-  #define ThePathname(obj)  ((Pathname)(type_pointable(orecord_type,obj)))
+  #define TheDfloat(obj)  ((Dfloat)(ngci_types_pointable(dfloat_type|bit(sign_bit_t),obj)))
+  #define TheLfloat(obj)  ((Lfloat)(ngci_types_pointable(lfloat_type|bit(sign_bit_t),obj)))
+  #define TheSarray(obj)  ((Sarray)(ngci_types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type,obj)))
+  #define TheSbvector(obj)  ((Sbvector)(ngci_types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type,obj)))
+  #define TheCodevec(obj)  ((Codevec)(ngci_types_pointable(sb8vector_type,obj)))
+  #define TheS8string(obj)  ((S8string)(ngci_types_pointable(sstring_type,obj)))
+  #define TheS16string(obj)  ((S16string)(ngci_types_pointable(sstring_type,obj)))
+  #define TheS32string(obj)  ((S32string)(ngci_types_pointable(sstring_type,obj)))
+  #define TheSnstring(obj)  ((Snstring)(ngci_types_pointable(sstring_type,obj)))
+  #define TheSistring(obj)  ((Sistring)(ngci_types_pointable(sstring_type,obj)))
+  #define TheSstring(obj)  ((Sstring)(ngci_types_pointable(sstring_type,obj)))
+  #define TheSvector(obj)  ((Svector)(ngci_types_pointable(svector_type,obj)))
+  #define TheIarray(obj)  ((Iarray)(ngci_types_pointable(mdarray_type|bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type|string_type|vector_type,obj)))
+  #define TheRecord(obj)  ((Record)(ngci_types_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type|lrecord_type,obj)))
+  #define TheLrecord(obj)  ((Lrecord)(ngci_types_pointable(lrecord_type,obj)))
+  #define TheSrecord(obj)  ((Srecord)(ngci_types_pointable(closure_type|structure_type|orecord_type|instance_type,obj)))
+  #define TheXrecord(obj)  ((Xrecord)(ngci_types_pointable(stream_type|orecord_type,obj)))
+  #define ThePackage(obj)  ((Package)(ngci_types_pointable(orecord_type,obj)))
+  #define TheHashtable(obj)  ((Hashtable)(ngci_types_pointable(orecord_type,obj)))
+  #define TheReadtable(obj)  ((Readtable)(ngci_types_pointable(orecord_type,obj)))
+  #define ThePathname(obj)  ((Pathname)(ngci_types_pointable(orecord_type,obj)))
   #ifdef LOGICAL_PATHNAMES
-  #define TheLogpathname(obj)  ((Logpathname)(type_pointable(orecord_type,obj)))
+  #define TheLogpathname(obj)  ((Logpathname)(ngci_types_pointable(orecord_type,obj)))
   #endif
-  #define The_Random_state(obj)  ((Random_state)(type_pointable(orecord_type,obj)))
-  #define TheByte(obj)  ((Byte)(type_pointable(orecord_type,obj)))
-  #define TheFsubr(obj)  ((Fsubr)(type_pointable(orecord_type,obj)))
-  #define TheLoadtimeeval(obj)  ((Loadtimeeval)(type_pointable(orecord_type,obj)))
-  #define TheSymbolmacro(obj)  ((Symbolmacro)(type_pointable(orecord_type,obj)))
-  #define TheGlobalSymbolmacro(obj)  ((GlobalSymbolmacro)(type_pointable(orecord_type,obj)))
-  #define TheMacro(obj)  ((Macro)(type_pointable(orecord_type,obj)))
-  #define TheFunctionMacro(obj)  ((FunctionMacro)(type_pointable(orecord_type,obj)))
-  #define TheBigReadLabel(obj)  ((BigReadLabel)(type_pointable(orecord_type,obj)))
-  #define TheEncoding(obj)  ((Encoding)(type_pointable(orecord_type,obj)))
+  #define The_Random_state(obj)  ((Random_state)(ngci_types_pointable(orecord_type,obj)))
+  #define TheByte(obj)  ((Byte)(ngci_types_pointable(orecord_type,obj)))
+  #define TheFsubr(obj)  ((Fsubr)(ngci_types_pointable(orecord_type,obj)))
+  #define TheLoadtimeeval(obj)  ((Loadtimeeval)(ngci_types_pointable(orecord_type,obj)))
+  #define TheSymbolmacro(obj)  ((Symbolmacro)(ngci_types_pointable(orecord_type,obj)))
+  #define TheGlobalSymbolmacro(obj)  ((GlobalSymbolmacro)(ngci_types_pointable(orecord_type,obj)))
+  #define TheMacro(obj)  ((Macro)(ngci_types_pointable(orecord_type,obj)))
+  #define TheFunctionMacro(obj)  ((FunctionMacro)(ngci_types_pointable(orecord_type,obj)))
+  #define TheBigReadLabel(obj)  ((BigReadLabel)(ngci_types_pointable(orecord_type,obj)))
+  #define TheEncoding(obj)  ((Encoding)(ngci_types_pointable(orecord_type,obj)))
   #ifdef FOREIGN
-  #define TheFpointer(obj)  ((Fpointer)(type_pointable(orecord_type,obj)))
+  #define TheFpointer(obj)  ((Fpointer)(ngci_types_pointable(orecord_type,obj)))
   #endif
   #ifdef DYNAMIC_FFI
-  #define TheFaddress(obj)  ((Faddress)(type_pointable(orecord_type,obj)))
-  #define TheFvariable(obj)  ((Fvariable)(type_pointable(orecord_type,obj)))
-  #define TheFfunction(obj)  ((Ffunction)(type_pointable(orecord_type,obj)))
+  #define TheFaddress(obj)  ((Faddress)(ngci_types_pointable(orecord_type,obj)))
+  #define TheFvariable(obj)  ((Fvariable)(ngci_types_pointable(orecord_type,obj)))
+  #define TheFfunction(obj)  ((Ffunction)(ngci_types_pointable(orecord_type,obj)))
   #endif
-  #define TheWeakpointer(obj)  ((Weakpointer)(type_pointable(orecord_type,obj)))
-  #define TheMutableWeakList(obj)  ((MutableWeakList)(type_pointable(orecord_type,obj)))
-  #define TheWeakList(obj)  ((WeakList)(type_pointable(lrecord_type,obj)))
-  #define TheWeakAnd(obj)  ((WeakAnd)(type_pointable(lrecord_type,obj)))
-  #define TheWeakOr(obj)  ((WeakOr)(type_pointable(lrecord_type,obj)))
-  #define TheWeakmapping(obj)  ((Weakmapping)(type_pointable(orecord_type,obj)))
-  #define TheWeakAndMapping(obj)  ((WeakAndMapping)(type_pointable(lrecord_type,obj)))
-  #define TheWeakOrMapping(obj)  ((WeakOrMapping)(type_pointable(lrecord_type,obj)))
-  #define TheMutableWeakAlist(obj)  ((MutableWeakAlist)(type_pointable(orecord_type,obj)))
-  #define TheWeakAlist(obj)  ((WeakAlist)(type_pointable(lrecord_type,obj)))
-  #define TheWeakHashedAlist(obj)  ((WeakHashedAlist)(type_pointable(lrecord_type,obj)))
-  #define TheFinalizer(obj)  ((Finalizer)(type_pointable(orecord_type,obj)))
+  #define TheWeakpointer(obj)  ((Weakpointer)(ngci_types_pointable(orecord_type,obj)))
+  #define TheMutableWeakList(obj)  ((MutableWeakList)(ngci_types_pointable(orecord_type,obj)))
+  #define TheWeakList(obj)  ((WeakList)(ngci_types_pointable(lrecord_type,obj)))
+  #define TheWeakAnd(obj)  ((WeakAnd)(ngci_types_pointable(lrecord_type,obj)))
+  #define TheWeakOr(obj)  ((WeakOr)(ngci_types_pointable(lrecord_type,obj)))
+  #define TheWeakmapping(obj)  ((Weakmapping)(ngci_types_pointable(orecord_type,obj)))
+  #define TheWeakAndMapping(obj)  ((WeakAndMapping)(ngci_types_pointable(lrecord_type,obj)))
+  #define TheWeakOrMapping(obj)  ((WeakOrMapping)(ngci_types_pointable(lrecord_type,obj)))
+  #define TheMutableWeakAlist(obj)  ((MutableWeakAlist)(ngci_types_pointable(orecord_type,obj)))
+  #define TheWeakAlist(obj)  ((WeakAlist)(ngci_types_pointable(lrecord_type,obj)))
+  #define TheWeakHashedAlist(obj)  ((WeakHashedAlist)(ngci_types_pointable(lrecord_type,obj)))
+  #define TheFinalizer(obj)  ((Finalizer)(ngci_types_pointable(orecord_type,obj)))
   #ifdef SOCKET_STREAMS
-  #define TheSocketServer(obj) ((Socket_server)(type_pointable(orecord_type,obj)))
+  #define TheSocketServer(obj) ((Socket_server)(ngci_types_pointable(orecord_type,obj)))
   #endif
   #ifdef YET_ANOTHER_RECORD
-  #define TheYetanother(obj)  ((Yetanother)(type_pointable(orecord_type,obj)))
+  #define TheYetanother(obj)  ((Yetanother)(ngci_types_pointable(orecord_type,obj)))
   #endif
-  #define TheStream(obj)  ((Stream)(type_pointable(stream_type,obj)))
-  #define TheStructure(obj)  ((Structure)(type_pointable(structure_type,obj)))
-  #define TheClosure(obj)  ((Closure)(type_pointable(closure_type,obj)))
-  #define TheIclosure(obj)  ((Iclosure)(type_pointable(closure_type,obj)))
-  #define TheCclosure(obj)  ((Cclosure)(type_pointable(closure_type,obj)))
-  #define TheInstance(obj)  ((Instance)(types_pointable(instance_type|closure_type,obj)))
-  #define TheSubr(obj)  ((Subr)(type_pointable(subr_type,obj)))
-  #define TheFramepointer(obj)  ((gcv_object_t*)(type_pointable(system_type,obj)))
-  #define TheMachine(obj)  ((void*)(type_pointable(machine_type,obj)))
+  #define TheStream(obj)  ((Stream)(ngci_types_pointable(stream_type,obj)))
+  #define TheStructure(obj)  ((Structure)(ngci_types_pointable(structure_type,obj)))
+  #define TheClosure(obj)  ((Closure)(ngci_types_pointable(closure_type,obj)))
+  #define TheIclosure(obj)  ((Iclosure)(ngci_types_pointable(closure_type,obj)))
+  #define TheCclosure(obj)  ((Cclosure)(ngci_types_pointable(closure_type,obj)))
+  #define TheInstance(obj)  ((Instance)(ngci_types_pointable(instance_type|closure_type,obj)))
+  #define TheSubr(obj)  ((Subr)(cgci_types_pointable(subr_type,obj)))
+  #define TheFramepointer(obj)  ((gcv_object_t*)(cgci_types_pointable(system_type,obj)))
+  #define TheMachine(obj)  ((void*)(cgci_types_pointable(machine_type,obj)))
   #define TheMachineCode(obj)  TheMachine(obj)
   #define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
   #ifdef FOREIGN_HANDLE
@@ -6296,7 +6371,7 @@ typedef enum {
   # variable length object:
   #define TheVarobject(obj)                                              \
     ((Varobject)                                                         \
-     (types_pointable                                                    \
+     (ngci_types_pointable                                               \
       (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type        \
          |sb16vector_type|sb32vector_type                                \
        |sstring_type|svector_type                                        \
@@ -6311,7 +6386,7 @@ typedef enum {
     )))
   # Object that represents a pointer into the memory:
   #define ThePointer(obj)                                               \
-    (types_pointable                                                    \
+    (pgci_types_pointable                                               \
      (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type        \
         |sb16vector_type|sb32vector_type                                \
       |sstring_type|svector_type                                        \
@@ -6327,47 +6402,6 @@ typedef enum {
       obj                                                               \
     ))
 #else # no TYPECODES
-  # cgci_pointable(obj)  converts a certainly GC-invariant object to an aint.
-  # pgci_pointable(obj)  converts a possibly GC-invariant object to an aint.
-  # ngci_pointable(obj)  converts a not GC-invariant object to an aint.
-  #if defined(DEBUG_GCSAFETY)
-    static inline aint cgci_pointable (object obj) {
-      return obj.one_o;
-    }
-    static inline aint cgci_pointable (gcv_object_t obj) {
-      return obj.one_o;
-    }
-    static inline aint pgci_pointable (object obj) {
-      if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj)
-            || obj.allocstamp == alloccount || nonimmsubrp(obj)))
-        abort();
-      nonimmprobe(obj.one_o);
-      return obj.one_o;
-    }
-    static inline aint pgci_pointable (gcv_object_t obj) {
-      nonimmprobe(obj.one_o);
-      return obj.one_o;
-    }
-    static inline aint ngci_pointable (object obj) {
-      if (!(gcinvariant_symbol_p(obj)
-            || obj.allocstamp == alloccount || nonimmsubrp(obj)))
-        abort();
-      nonimmprobe(obj.one_o);
-      return obj.one_o;
-    }
-    static inline aint ngci_pointable (gcv_object_t obj) {
-      nonimmprobe(obj.one_o);
-      return obj.one_o;
-    }
-  #elif defined(WIDE_AUXI)
-    #define cgci_pointable(obj)  (obj).one_o
-    #define pgci_pointable(obj)  (obj).one_o
-    #define ngci_pointable(obj)  (obj).one_o
-  #else
-    #define cgci_pointable(obj)  as_oint(obj)
-    #define pgci_pointable(obj)  as_oint(obj)
-    #define ngci_pointable(obj)  as_oint(obj)
-  #endif
   #define TheCons(obj)  ((Cons)(ngci_pointable(obj)-cons_bias))
   #define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-varobject_bias))
   #define TheComplex(obj)  ((Complex)(ngci_pointable(obj)-varobject_bias))
