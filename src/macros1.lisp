@@ -11,7 +11,9 @@
 ;; as special forms, have a macro expander available.
 (defmacro defmacro-special (&whole whole-form
                             &body macrodef)
-  (multiple-value-bind (expansion name) (make-macro-expansion macrodef whole-form)
+  (multiple-value-bind (expansion expansion-lambdabody name lambdalist docstring)
+      (make-macro-expansion macrodef whole-form)
+    (declare (ignore expansion-lambdabody lambdalist docstring))
     `(SYSTEM::%PUT ',name 'SYSTEM::MACRO ,expansion)))
 
 (defmacro defvar (&whole whole-form
