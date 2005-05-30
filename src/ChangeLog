@@ -1,5 +1,11 @@
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
+	Supplement to 2005-05-23 patch.
+	* makemake.in (clisp): Remove COMPILE_STANDALONE from the compilation
+	flags. 
+
+2005-05-28  Bruno Haible  <bruno@clisp.org>
+
 	* .gdbinit: Add comments reflecting 2005-05-17 change.
 
 2005-05-28  Bruno Haible  <bruno@clisp.org>
