@@ -1,5 +1,10 @@
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
+	* hashtabl.d (MAKE-HASH-TABLE) [TYPECODES]: Fix a compilation error
+	in C++ mode.
+
+2005-05-28  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to use iconv() on platforms other than Unix. Fixes
 	2005-03-01 patch.
 	* lispbibl.d (ANSIC_error): New declaration.
