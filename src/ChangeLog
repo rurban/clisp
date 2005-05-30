@@ -1,5 +1,12 @@
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
+	Fix unmaintainable hack introduced on 2005-05-16.
+	* defmacro.lisp (make-macro-expansion): Add valid-name-p argument.
+	* cmacros.lisp (define-compiler-macro): Pass valid-name-p argument.
+	(strip-funcall-form): Mark as ABI.
+
+2005-05-28  Bruno Haible  <bruno@clisp.org>
+
 	Supplement to 2005-05-23 patch.
 	* makemake.in (clisp): Remove COMPILE_STANDALONE from the compilation
 	flags. 

@@ -443,15 +443,17 @@ the actual object #<MACRO expander> for the FENV.
           (t `(NOT (<= ,(+ header %min-args)
                        ,len ,(+ header %arg-count)))))))
 
-(defun make-macro-expansion (macrodef whole-form &optional pre-process)
+(defun make-macro-expansion (macrodef whole-form
+                             ;; Optional arguments, for define-compiler-macro:
+                             &optional (valid-name-p #'symbolp)
+                                       pre-process)
   (when (atom macrodef)
     (error-of-type 'source-program-error
       :form macrodef
       :detail macrodef
       (TEXT "Cannot define a macro from that: ~S")
       macrodef))
-  ;; pre-process ==> compiler macro, accept function names
-  (unless (funcall (if pre-process #'function-name-p #'symbolp) (car macrodef))
+  (unless (funcall valid-name-p (car macrodef))
     (error-of-type 'source-program-error
       :form macrodef
       :detail (car macrodef)
