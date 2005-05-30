@@ -2,7 +2,9 @@
   # OS_error();
   # > int errno: error code
     nonreturning_function(global, OS_error, (void));
+  #ifdef UNIX
     nonreturning_function(global, OS_file_error, (object pathname));
+  #endif
 
   # Problem: many different UNIX variants, each with its own set of error
   # messages.
@@ -653,7 +655,7 @@ local void OS_error_internal (uintC errcode)
  #ifdef UNIX
   write_errorstring(GETTEXT("UNIX error "));
  #else
-  write_errorstring(GETTEXT("UNIX library error "));
+  write_errorstring(GETTEXT("POSIX library error "));
  #endif
   /* output errno: */
   write_errorobject(fixnum(errcode));
@@ -686,6 +688,7 @@ nonreturning_function(global, OS_error, (void)) {
   end_error(args_end_pointer STACKop 7,true); /* finish error */
   NOTREACHED;
 }
+#ifdef UNIX
 nonreturning_function(global, OS_file_error, (object pathname)) {
   var uintC errcode; /* positive error number */
   begin_system_call();
@@ -701,6 +704,7 @@ nonreturning_function(global, OS_file_error, (object pathname)) {
   end_error(args_end_pointer STACKop 7,true); /* finish error */
   NOTREACHED;
 }
+#endif
 
   #undef translate
   #ifdef GNU_GETTEXT
@@ -710,6 +714,7 @@ nonreturning_function(global, OS_file_error, (object pathname)) {
     #define translate(string)  string
   #endif
 
+#ifdef UNIX
 /* print an error
  > int errorcode: error code (errno) */
 global void errno_out (int errorcode) {
@@ -728,4 +733,4 @@ global void errno_out (int errorcode) {
     fprintf(stderr,"%d",errorcode);
   fprintf(stderr,".\n");
 }
-
+#endif

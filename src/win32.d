@@ -433,6 +433,11 @@ extern void DumpProcessMemoryMap (void); /* see win32aux.d */
 /* PROT_WRITE, PROT_EXEC not used
  used by spvw.d */
 
+/* Character set conversion: */
+/* Yaroslav Kavenchuk reports some problems with iconv(), either due to
+   incorrect builds of libiconv or to missing support in makemake.in. So
+   disable it. */
+#undef HAVE_ICONV
 
 /* Now it's time to enable our UNICODE macro again. */
 #ifdef UNICODE_SAVED

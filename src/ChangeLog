@@ -1,3 +1,17 @@
+2005-05-28  Bruno Haible  <bruno@clisp.org>
+
+	Make it possible to use iconv() on platforms other than Unix. Fixes
+	2005-03-01 patch.
+	* lispbibl.d (ANSIC_error): New declaration.
+	* errunix.d [!UNIX]: Define only OS_error.
+	* error.d [!UNIX]: Include errunix.c, to define ANSIC_error.
+	* stream.d (open_iconv, check_charset, iconv_mblen, iconv_mbstowcs,
+	iconv_wcslen, iconv_wcstombs, iconv_range, ChannelStream_fini): Undo
+	2005-03-01 patch. Call ANSIC_error instead of OS_error.
+
+	* win32.d: Undefine HAVE_ICONV, in case it's set by unixconf.h (on
+	mingw).
+
 2005-05-27  Sam Steingold  <sds@gnu.org>
 
 	* spvw_language.d (init_language) [WIN32_NATIVE]: avoid a mingw
