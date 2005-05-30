@@ -1,5 +1,10 @@
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
+	* compiler.lisp (*compile-file-resolved-pathname*): New variable.
+	(compile-file): Bind it.
+
+2005-05-29  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (c-OR): Rearrange 2005-05-20 patch for better
 	maintainability.
 
