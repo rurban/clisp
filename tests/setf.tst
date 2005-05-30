@@ -554,10 +554,8 @@ BOTHVARS
   (eq a b))
 T
 
-
-; Clean up.
-(unintern 'x)
-T
+;; Check that DOCUMENTATION's value from different anonymous lambdas are
+;; independent.
 
 (setf (documentation (lambda () 'abazonk) 'function) "abazonk doc")
 "abazonk doc"
@@ -571,3 +569,8 @@ NIL
 
 (documentation (compile nil (lambda () 'bazonk)) 'function)
 NIL
+
+
+; Clean up.
+(unintern 'x)
+T
