@@ -232,8 +232,6 @@ global void init_language (const char* argv_language,
    #endif
   }
  #endif
-  O(current_language) = current_language_o(language);
-  return;
 }
 
  #ifdef GNU_GETTEXT
