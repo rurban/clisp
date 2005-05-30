@@ -3168,7 +3168,14 @@ if [ $CROSS = false ] ; then
   echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (setq regression-test::*compile-tests* t)' -repl"
   echol
   echol "${ANSITESTSDIR} :"
-  echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel update-ansi-tests"
+  # Do NOT update the ansi-tests directory automatically, because
+  # 1. "make check-ansi-tests" would fail as soon as Paul Dietz adds a test
+  #    that happens to fail in clisp. But we don't want to put out new releases
+  #    on a weekly or monthly basis, nor do we want to get flooded by reports
+  #    of failing "make check".
+  # 2. 'cvs' does not work on machines that are not connected to the internet.
+  # 3. Makefile.devel does not work if 'make' is not GNU make.
+  # echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel update-ansi-tests"
   echotab "-mkdir ${ANSITESTSDIR}"
   # on win32, LN_S=copy and it accepts exactly 2 arguments
   for f in Makefile '*.lsp'; do
