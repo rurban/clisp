@@ -1,5 +1,6 @@
 ;;; CLISP Compiler Macros
 ;;; Sam Steingold 2001-05-09
+;;; Bruno Haible 2005
 ;;; CLHS 3.2.2.1 http://www.lisp.org/HyperSpec/Body/sec_3-2-2-1.html
 
 (in-package "SYSTEM")
@@ -65,16 +66,17 @@
   (and (function-form-p form) (function-name-p (second form))))
 
 ;; (funcall (function foo) ...) ==> (foo ...)
-(defun strip-funcall-form (form)
+(defun strip-funcall-form (form) ; ABI
   (if (and (eq (car form) 'funcall) (simple-function-form-p (second form)))
-      (cons (second (second form)) (cddr form))
-      form))
+    (cons (second (second form)) (cddr form))
+    form))
 
 (defmacro define-compiler-macro (&whole whole-form
                                  name args &body body)
   (declare (ignore name args body))
   (multiple-value-bind (expansion name lambdalist docstring)
-      (sys::make-macro-expansion (cdr whole-form) whole-form 'strip-funcall-form)
+      (sys::make-macro-expansion (cdr whole-form) whole-form
+                                 #'function-name-p 'strip-funcall-form)
     (declare (ignore lambdalist))
     (sys::check-redefinition name 'define-compiler-macro
                              (and (compiler-macro-function name)
