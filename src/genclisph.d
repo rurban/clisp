@@ -841,9 +841,7 @@ int main(int argc, char* argv[])
 #else
   printf3("#define pointable_address_unchecked(obj_o)  (((aint)((obj_o) >> %d) & %d) << %d)\n",oint_addr_shift,(aint)(oint_addr_mask >> oint_addr_shift),addr_shift);
 #endif
-#if notused /* Here we can assume inside_gc is false. */
   printf("extern bool inside_gc;\n");
-#endif
 #ifdef DEBUG_GCSAFETY
   printf("static inline bool gcinvariant_symbol_p (object obj);\n");
  #ifdef LINUX_NOEXEC_HEAPCODES
@@ -851,7 +849,7 @@ int main(int argc, char* argv[])
  #else
   printf("#define nonimmsubrp(obj)  false\n");
  #endif
-  printf1("#define nonimmprobe(obj_o)  do { if (((obj_o) & %d) == 0) if (!gcinvariant_oint_p(obj_o)) *(volatile char *)pointable_address_unchecked(obj_o); } while (0)\n",wbit(garcol_bit_o));
+  printf1("#define nonimmprobe(obj_o)  do { if (!inside_gc) if (((obj_o) & %d) == 0) if (!gcinvariant_oint_p(obj_o)) *(volatile char *)pointable_address_unchecked(obj_o); } while (0)\n",wbit(garcol_bit_o));
   printf("inline gcv_object_t::operator object () const { nonimmprobe(one_o); return (object){ one_o: one_o, allocstamp: alloccount }; }\n");
   printf("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); one_o = as_oint(obj); nonimmprobe(one_o); }\n");
   printf("inline gcv_object_t::gcv_object_t () {}\n");

@@ -1,5 +1,13 @@
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
+	Fix a bug of DEBUG_GCSAFETY with modules.
+	* genclisph.d (main): In nonimmprobe, don't optimize away inside_gc.
+	Needed because gcv_object_t::gcv_object_t uses nonimmprobe, and all
+	definitions of gcv_object_t::gcv_object_t must be equivalent, because
+	the linker picks one of them at random.
+
+2005-05-29  Bruno Haible  <bruno@clisp.org>
+
 	Fix omission in 2004-06-20 patch.
 	* spvw_garcol.d (gc_sweep1_instance_forward,
 	gc_sweep1_instance_target) [TYPECODES]: Make it work for closure_type
