@@ -1802,10 +1802,12 @@ can give problems:
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&cpu-type-header;<tbody>
    <row><entry>&most-positive-fixnum;</entry>
     <entry>2<superscript>24</superscript>-1 = 16777215</entry>
-    <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
+    <entry>2<superscript>32</superscript>-1 = 4294967295 or
+           2<superscript>48</superscript>-1 = 281474976710655</entry></row>
    <row><entry>&most-negative-fixnum;</entry>
     <entry>-2<superscript>24</superscript> = -16777216</entry>
-    <entry>-2<superscript>32</superscript> = -4294967296</entry></row>
+    <entry>-2<superscript>32</superscript> = -4294967296 or
+           -2<superscript>48</superscript> = -281474976710656</entry></row>
 </tbody></tgroup></table></section>
 
 <section id="bignum-lim"><title>Bignum Limits
