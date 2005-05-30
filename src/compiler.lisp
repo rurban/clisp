@@ -4364,6 +4364,15 @@ for-value   NIL or T
                 (Lr (cdr *form*))
                 (label (make-label *for-value*))) ; Label at the end
                ((null Lr)
+                ;; If the last anode is known to be side-effect-free and to
+                ;; evaluate to NIL, drop it, and turn the jump before it to
+                ;; (VALUES1).
+                (let ((last-anode (car codelist)))
+                  (when (and (anode-constantp last-anode)
+                             (null (anode-constant-value last-anode))
+                             (cdr codelist))
+                    (pop codelist)
+                    (setf (car codelist) '(VALUES1))))
                 (push label codelist)
                 (make-anode
                   :type 'OR
@@ -4376,13 +4385,7 @@ for-value   NIL or T
                (seclass-or-f seclass anodei)
                (if (null Lr)
                  ;; last form -> take over directly
-                 (if (and (anode-constantp anodei)
-                          (null (anode-constant-value anodei))
-                          (car codelist))
-                   ;; (or ... (foo) nil) ==> (or ... (values (foo)))
-                   ;; replace the test with (VALUES1)
-                   (setf (car codelist) '(VALUES1))
-                   (push anodei codelist))
+                 (push anodei codelist)
                  ;; not the last form -> create test
                  (if (anode-constantp anodei)
                    ;; constant NIL -> omit, constant /= NIL -> finished
