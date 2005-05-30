@@ -143,15 +143,12 @@ break prepare_error
 
 info break
 
-# these should come last:
-# without GENERATIONAL_GC there is no sigsegv_handler_failed(),
-# so the next `break' command will fail,
-# thus the two last `handle' commands will not be executed,
-# thus we _will_ see the backtrace
-# ergo: `break sigsegv_handler_failed' must come _before_
-#       `handle SIG*'
 #ifdef GENERATIONAL_GC
+# This command fails in a build without GENERATIONAL_GC; this is normal.
 break sigsegv_handler_failed
+# You need to execute these two commands by hand, but *only* in a build
+# with GENERATIONAL_GC. Also you need to undo them when the breakpoint
+# at sigsegv_handler_failed has been triggered.
 #handle SIGSEGV noprint nostop
 #handle SIGBUS noprint nostop
 #endif
