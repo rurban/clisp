@@ -6,7 +6,7 @@
 # > bufferptr: address of bytesize bytes of memory
 # < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
 global maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr) {
-  var gcv_object_t fake = FAKE_8BIT_VECTOR(bufferptr);
+  var gcv_object_t fake; fake = FAKE_8BIT_VECTOR(bufferptr);
   return LESbvector_to_UI(bytesize,&fake);
 }
 
@@ -81,7 +81,7 @@ global maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer
 # > bufferptr: address of bytesize bytes of memory
 # < result: an integer with I_integer_length(result) < 8*bytesize
 global maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr) {
-  var gcv_object_t fake = FAKE_8BIT_VECTOR(bufferptr);
+  var gcv_object_t fake; fake = FAKE_8BIT_VECTOR(bufferptr);
   return LESbvector_to_I(bytesize,&fake);
 }
 
