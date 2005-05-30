@@ -1,5 +1,48 @@
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
+	Make DEBUG_GCSAFETY work with TYPECODES.
+	* lispbibl.d (pointable, type_pointable, types_pointable): Move up.
+	(pointable_unchecked): Renamed from pointable. Use
+	pointable_address_unchecked.
+	(pointable_address_unchecked): New macro.
+	(pointable): Renamed from gcsafety_pointable.
+	(nonimmprobe): Use pointable_address_unchecked.
+	(hfintsize, hfint): Use a full word if DEBUG_GCSAFETY. When using a
+	full word, use an uintP, not an uintL.
+	(VAROBJECT_HEADER) [TYPECODES]: If DEBUG_GCSAFETY, don't wrap _GCself
+	in a union.
+	(GCself, header_flags) [TYPECODES]: Define differently if
+	DEBUG_GCSAFETY.
+	(cgci_pointable, pgci_pointable, ngci_pointable): Define also if
+	TYPECODES.
+	(cgci_types_pointable, pgci_types_pointable, ngci_types_pointable): New
+	macros.
+	(TheCons, TheRatio, TheComplex, TheSymbol, TheSymbolflagged, TheBignum,
+	TheFfloat, TheDfloat, TheLfloat, TheSarray, TheSbvector, TheCodevec,
+	TheS8string, TheS16string, TheS32string, TheSnstring, TheSistring,
+	TheSstring, TheSvector, TheIarray, TheRecord, TheLrecord, TheSrecord,
+	TheXrecord, ThePackage, TheHashtable, TheReadtable, ThePathname,
+	TheLogpathname, The_Random_state, TheByte, TheFsubr, TheLoadtimeeval,
+	TheSymbolmacro, TheGlobalSymbolmacro, TheMacro, TheFunctionMacro,
+	TheBigReadLabel, TheEncoding, TheFpointer, TheFaddress, TheFvariable,
+	TheFfunction, TheWeakpointer, TheMutableWeakList, TheWeakList,
+	TheWeakAnd, TheWeakOr, TheWeakmapping, TheWeakAndMapping,
+	TheWeakOrMapping, TheMutableWeakAlist, TheWeakAlist,
+	TheWeakHashedAlist, TheFinalizer, TheSocketServer, TheYetanother,
+	TheStream, TheStructure, TheClosure, TheIclosure, TheCclosure,
+	TheInstance, TheVarobject): Define using ngci_types_pointable.
+	(TheSubr, TheFramepointer, TheMachine): Define using
+	cgci_types_pointable.
+	(ThePointer): Define using pgci_types_pointable.
+	* subr.d (LISPFUN_F, LISPFUN_G) [TYPECODES]: Provide different
+	definition if DEBUG_GCSAFETY.
+	* constsym.d (LISPSYM_B) [TYPECODES]: Provide different definition if
+	DEBUG_GCSAFETY.
+	* genclisph.d (main): Update. Provide definitions for
+	pointable_unchecked, pointable_address_unchecked, symbol_tab.
+
+2005-05-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation with g++ 3.3/3.4 if TYPECODES && OBJECT_STRUCT
 	&& !DEBUG_GCSAFETY.
 	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB):

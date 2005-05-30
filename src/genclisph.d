@@ -799,6 +799,48 @@ int main(int argc, char* argv[])
   printf("#define gcinvariant_object_p(obj)  gcinvariant_type_p(typecode(obj))\n");
   printf2("#define gcinvariant_oint_p(obj_o)  gcinvariant_type_p((tint)((obj_o) >> %d) & %d)\n",oint_type_shift,oint_type_mask >> oint_type_shift);
 #endif
+#ifdef TYPECODES
+ #if !((oint_addr_shift==0) && (addr_shift==0))
+  printf("#define pointable_unchecked(obj)  ((void*)upointer(obj))\n");
+  printf3("#define pointable_address_unchecked(obj_o)  (((aint)((obj_o) >> %d) & %d) << %d)\n",oint_addr_shift,(aint)(oint_addr_mask >> oint_addr_shift),addr_shift);
+ #else
+  printf("#define pointable_unchecked(obj)  ((void*)pointable_address_unchecked(as_oint(obj)))\n");
+  #if !(((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0)
+  printf1("#define pointable_address_unchecked(obj_o)  ((aint)(obj_o) & %x)\n",(aint)oint_addr_mask | ~addressbus_mask);
+  #else
+  printf("#define pointable_address_unchecked(obj_o)  (aint)(obj_o)\n");
+  #endif
+ #endif
+ #ifdef DEBUG_GCSAFETY
+  printf("static inline void* pointable (gcv_object_t obj) { return pointable_unchecked(obj); }\n");
+  printf("static inline void* pointable (object obj) { return pointable_unchecked((gcv_object_t)obj); }\n");
+ #else
+  printf("#define pointable(obj)  pointable_unchecked(obj)\n");
+ #endif
+ #if defined(DEBUG_GCSAFETY)
+  #define printf_type_pointable(xgci,type)  printf(#xgci"_pointable(obj)");
+ #elif defined(WIDE_STRUCT)
+  #define printf_type_pointable(xgci,type)  printf("((void*)((obj).u.both.addr))");
+ #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
+  #if (addr_shift==0)
+   #define printf_type_pointable(xgci,type)  \
+     if ((oint_addr_shift==0) && ((type_zero_oint(type) & addressbus_mask) == 0)) \
+       printf("((void*)(aint)as_oint(obj))");                           \
+     else                                                               \
+       printf("((void*)(aint)pointable(obj))");
+  #elif !(addr_shift==0)
+   #define printf_type_pointable(xgci,type)  \
+    if (optimized_upointer(type_data_object(type,0)) == 0)      \
+      printf("((void*)(aint)optimized_upointer(obj))");         \
+    else                                                        \
+      printf("((void*)(aint)pointable(obj))");
+  #endif
+ #else
+  #define printf_type_pointable(xgci,type)  printf("((void*)(aint)as_oint(obj))");
+ #endif
+#else
+  printf3("#define pointable_address_unchecked(obj_o)  (((aint)((obj_o) >> %d) & %d) << %d)\n",oint_addr_shift,(aint)(oint_addr_mask >> oint_addr_shift),addr_shift);
+#endif
 #if notused /* Here we can assume inside_gc is false. */
   printf("extern bool inside_gc;\n");
 #endif
@@ -809,14 +851,22 @@ int main(int argc, char* argv[])
  #else
   printf("#define nonimmsubrp(obj)  false\n");
  #endif
-  printf4("#define nonimmprobe(obj_o)  do { if (((obj_o) & %d) == 0) if (!gcinvariant_oint_p(obj_o)) *(volatile char *)(((aint)((obj_o) >> %d) & %d) <<%d); } while (0)\n",wbit(garcol_bit_o),oint_addr_shift,(aint)(oint_addr_mask >> oint_addr_shift),addr_shift);
+  printf1("#define nonimmprobe(obj_o)  do { if (((obj_o) & %d) == 0) if (!gcinvariant_oint_p(obj_o)) *(volatile char *)pointable_address_unchecked(obj_o); } while (0)\n",wbit(garcol_bit_o));
   printf("inline gcv_object_t::operator object () const { nonimmprobe(one_o); return (object){ one_o: one_o, allocstamp: alloccount }; }\n");
   printf("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); one_o = as_oint(obj); nonimmprobe(one_o); }\n");
   printf("inline gcv_object_t::gcv_object_t () {}\n");
 #endif
 #ifdef TYPECODES
+ #ifdef DEBUG_GCSAFETY
+  printf("#define VAROBJECT_HEADER  gcv_object_t _GCself;\n");
+ #else
   printf("#define VAROBJECT_HEADER  union { gcv_object_t _GCself; } header;\n");
+ #endif
+ #ifdef DEBUG_GCSAFETY
+  printf("#define GCself  _GCself\n");
+ #else
   printf("#define GCself  header._GCself\n");
+ #endif
 #else
   printf("#define VAROBJECT_HEADER  gcv_object_t GCself; uintL tfl;\n");
 #endif
@@ -1063,86 +1113,50 @@ int main(int argc, char* argv[])
 #else
   printf("#define gcv_nullobj  nullobj\n");
 #endif
-#ifdef TYPECODES
- #if !((oint_addr_shift==0) && (addr_shift==0))
-  printf("#define pointable(obj)  ((void*)upointer(obj))\n");
- #else
-  #if !(((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0)
-  printf1("#define pointable(obj)  ((void*)((aint)as_oint(obj) & %x))\n",(aint)oint_addr_mask | ~addressbus_mask);
-  #else
-  printf("#define pointable(obj)  ((void*)as_oint(obj))\n");
-  #endif
- #endif
- #ifdef DEBUG_GCSAFETY
-  printf("static inline void* gcsafety_pointable (gcv_object_t obj) { return pointable(obj); }\n");
-  printf("static inline void* gcsafety_pointable (object obj) { return pointable((gcv_object_t)obj); }\n");
-  printf("#undef pointable\n");
-  printf("#define pointable gcsafety_pointable\n");
- #endif
- #if defined(DEBUG_GCSAFETY)
-  #define printf_type_pointable(type)  printf("pointable(obj)");
- #elif defined(WIDE_STRUCT)
-  #define printf_type_pointable(type)  printf("((void*)((obj).u.both.addr))");
- #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
-  #if (addr_shift==0)
-   #define printf_type_pointable(type)  \
-     if ((oint_addr_shift==0) && ((type_zero_oint(type) & addressbus_mask) == 0)) \
-       printf("((void*)(aint)as_oint(obj))");                           \
-     else                                                               \
-       printf("((void*)(aint)pointable(obj))");
-  #elif !(addr_shift==0)
-   #define printf_type_pointable(type)  \
-    if (optimized_upointer(type_data_object(type,0)) == 0)      \
-      printf("((void*)(aint)optimized_upointer(obj))");         \
-    else                                                        \
-      printf("((void*)(aint)pointable(obj))");
-  #endif
- #else
-  #define printf_type_pointable(type)  printf("((void*)(aint)as_oint(obj))");
- #endif
-  printf("#define TheCons(obj)  ((Cons)("); printf_type_pointable(cons_type); printf("))\n");
-#if notused
-  printf("#define TheRatio(obj)  ((Ratio)("); printf_type_pointable(ratio_type|bit(sign_bit_t)); printf("))\n");
-  printf("#define TheComplex(obj)  ((Complex)("); printf_type_pointable(complex_type); printf("))\n");
-#endif
-  printf("#define TheSymbol(obj)  ((Symbol)("); printf_type_pointable(symbol_type); printf("))\n");
-  printf("#define TheBignum(obj)  ((Bignum)("); printf_type_pointable(bignum_type|bit(sign_bit_t)); printf("))\n");
-#if notused
-  printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type); printf("))\n");
-#endif
-  printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type); printf("))\n");
-  printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(sstring_type); printf("))\n");
-  printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(svector_type); printf("))\n");
-  printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
-  printf("#define TheSrecord(obj)  ((Srecord)("); printf_type_pointable(closure_type|structure_type|orecord_type|instance_type); printf("))\n");
-#if notused
-  printf("#define TheXrecord(obj)  ((Xrecord)("); printf_type_pointable(stream_type|orecord_type); printf("))\n");
-  printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(orecord_type); printf("))\n");
-#endif
-  printf("#define TheStructure(obj)  ((Structure)("); printf_type_pointable(structure_type); printf("))\n");
-  printf("#define TheClosure(obj)  ((Closure)("); printf_type_pointable(closure_type); printf("))\n");
-  printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(instance_type|closure_type); printf("))\n");
-  printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(subr_type); printf("))\n");
-#if notused
-  printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(machine_type); printf("))\n");
-#endif
-#else
- #if defined(DEBUG_GCSAFETY)
+#if defined(DEBUG_GCSAFETY)
   printf("static inline aint cgci_pointable (object obj) { return obj.one_o; }\n");
   printf("static inline aint cgci_pointable (gcv_object_t obj) { return obj.one_o; }\n");
   printf("static inline aint pgci_pointable (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }\n");
   printf("static inline aint pgci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }\n");
   printf("static inline aint ngci_pointable (object obj) { if (!(gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }\n");
   printf("static inline aint ngci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }\n");
- #elif defined(WIDE_AUXI)
+#elif defined(WIDE_AUXI)
   printf("#define cgci_pointable(obj)  (obj).one_o\n");
   printf("#define pgci_pointable(obj)  (obj).one_o\n");
   printf("#define ngci_pointable(obj)  (obj).one_o\n");
- #else
+#else
   printf("#define cgci_pointable(obj)  as_oint(obj)\n");
   printf("#define pgci_pointable(obj)  as_oint(obj)\n");
   printf("#define ngci_pointable(obj)  as_oint(obj)\n");
- #endif
+#endif
+#ifdef TYPECODES
+  printf("#define TheCons(obj)  ((Cons)("); printf_type_pointable(ngci,cons_type); printf("))\n");
+#if notused
+  printf("#define TheRatio(obj)  ((Ratio)("); printf_type_pointable(ngci,ratio_type|bit(sign_bit_t)); printf("))\n");
+  printf("#define TheComplex(obj)  ((Complex)("); printf_type_pointable(ngci,complex_type); printf("))\n");
+#endif
+  printf("#define TheSymbol(obj)  ((Symbol)("); printf_type_pointable(ngci,symbol_type); printf("))\n");
+  printf("#define TheBignum(obj)  ((Bignum)("); printf_type_pointable(ngci,bignum_type|bit(sign_bit_t)); printf("))\n");
+#if notused
+  printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(ngci,sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type); printf("))\n");
+#endif
+  printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(ngci,sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type); printf("))\n");
+  printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(ngci,sstring_type); printf("))\n");
+  printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(ngci,svector_type); printf("))\n");
+  printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(ngci,closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
+  printf("#define TheSrecord(obj)  ((Srecord)("); printf_type_pointable(ngci,closure_type|structure_type|orecord_type|instance_type); printf("))\n");
+#if notused
+  printf("#define TheXrecord(obj)  ((Xrecord)("); printf_type_pointable(ngci,stream_type|orecord_type); printf("))\n");
+  printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(ngci,orecord_type); printf("))\n");
+#endif
+  printf("#define TheStructure(obj)  ((Structure)("); printf_type_pointable(ngci,structure_type); printf("))\n");
+  printf("#define TheClosure(obj)  ((Closure)("); printf_type_pointable(ngci,closure_type); printf("))\n");
+  printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(ngci,instance_type|closure_type); printf("))\n");
+  printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(cgci,subr_type); printf("))\n");
+#if notused
+  printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(cgci,machine_type); printf("))\n");
+#endif
+#else
   printf1("#define TheCons(obj)  ((Cons)(ngci_pointable(obj)-%d))\n",cons_bias);
 #if notused
   printf1("#define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-%d))\n",varobject_bias);
@@ -1664,9 +1678,7 @@ int main(int argc, char* argv[])
  #endif
 #else
   printf1("#define symbol_tab_addr ((struct symbol_tab_ *)type_zero_oint(%d))\n",(tint)symbol_type);
-#if notused
   printf("#define symbol_tab  (*symbol_tab_addr)\n");
-#endif
   printf("#define S_help_(name)  (as_object((oint)(&symbol_tab_addr->name)))\n");
 #endif
   printf("#define NIL  S(nil)\n");
@@ -1832,7 +1844,11 @@ int main(int argc, char* argv[])
   printf("#define subr_norest_function_args  (void)\n");
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
 #ifdef TYPECODES
+ #ifdef DEBUG_GCSAFETY
+  printf4("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { gcv_nullobj, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
+ #else
   printf4("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { { gcv_nullobj }, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
+ #endif
 #else
   printf1("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { gcv_nullobj, %d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength));
 #endif
@@ -1908,9 +1924,9 @@ int main(int argc, char* argv[])
   printf("extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);\n");
   printf("extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);\n");
  #ifdef TYPECODES
-  printf("#define TheS8string(obj) ((S8string)("); printf_type_pointable(sstring_type); printf("))\n");
-  printf("#define TheS16string(obj) ((S16string)("); printf_type_pointable(sstring_type); printf("))\n");
-  printf("#define TheS32string(obj) ((S32string)("); printf_type_pointable(sstring_type); printf("))\n");
+  printf("#define TheS8string(obj) ((S8string)("); printf_type_pointable(ngci,sstring_type); printf("))\n");
+  printf("#define TheS16string(obj) ((S16string)("); printf_type_pointable(ngci,sstring_type); printf("))\n");
+  printf("#define TheS32string(obj) ((S32string)("); printf_type_pointable(ngci,sstring_type); printf("))\n");
  #else
   printf("#define TheS8string(obj) ((S8string)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf("#define TheS16string(obj) ((S16string)(ngci_pointable(obj)-%d))\n",varobject_bias);
@@ -2396,7 +2412,7 @@ int main(int argc, char* argv[])
     emit_typedef("struct { XRECORD_HEADER void* fp_pointer;} *","Fpointer");
     printf("#define fpointerp(obj) (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Fpointer);
     #ifdef TYPECODES
-      printf("#define TheFpointer(obj)  ((Fpointer)("); printf_type_pointable(orecord_type); printf("))\n");
+      printf("#define TheFpointer(obj)  ((Fpointer)("); printf_type_pointable(ngci,orecord_type); printf("))\n");
     #else
       printf("#define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-%d))\n",varobject_bias);
     #endif

@@ -19,8 +19,13 @@
 
 /* expander for the initialization of the symbol table: */
 #ifdef TYPECODES
-  #define LISPSYM_B(name,printname,package)  \
-    { {S(name)}, unbound, unbound, unbound, NIL, NIL, NIL, },
+  #ifdef DEBUG_GCSAFETY
+    #define LISPSYM_B(name,printname,package)  \
+      { S(name), unbound, unbound, unbound, NIL, NIL, NIL, },
+  #else
+    #define LISPSYM_B(name,printname,package)  \
+      { {S(name)}, unbound, unbound, unbound, NIL, NIL, NIL, },
+  #endif
 #else
   #if defined(LINUX_NOEXEC_HEAPCODES) && 0
     #define LISPSYM_B(name,printname,package)  \
