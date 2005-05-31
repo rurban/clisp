@@ -168,6 +168,7 @@
 	* stream.d (open_iconv, check_charset, iconv_mblen, iconv_mbstowcs,
 	iconv_wcslen, iconv_wcstombs, iconv_range, ChannelStream_fini): Undo
 	2005-03-01 patch. Call ANSIC_error instead of OS_error.
+	* makemake.in (ERROR_INCLUDES): Add errunix unconditionally.
 
 	* win32.d: Undefine HAVE_ICONV, in case it's set by unixconf.h (on
 	mingw).
