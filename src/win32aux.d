@@ -974,6 +974,18 @@ global int interruptible_socket_wait (SOCKET socket_handle,
   return DoInterruptible(&do_socket_wait,&params,true) && params.success;
 }
 
+/* Changing a file handle's position. */
+global off_t lseek (HANDLE fd, off_t offset, DWORD mode)
+{
+  LONG offset_hi = offset >> 32;
+  DWORD offset_lo = offset & 0xFFFFFFFF;
+  offset_lo = SetFilePointer(fd,offset_lo,&offset_hi,mode);
+  if (offset_lo == (DWORD)(-1) && GetLastError() != NO_ERROR)
+    return -1;
+  else
+    return ((sint64)(sint32)offset_hi << 32) | (uint64)(uint32)offset_lo;
+}
+
 /* Testing for possibly interactive handle. */
 global int isatty (HANDLE handle)
 {
