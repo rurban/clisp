@@ -5979,21 +5979,12 @@ global object file_stream_truename (object s)
 #         SEEK_CUR  "relative"
 #         SEEK_END  "at the end"
 # < result: new Position
-#ifdef UNIX
+#if defined(UNIX) || defined(WIN32_NATIVE)
   #define handle_lseek(stream,handle,offset,mode,result_assignment)     \
     { var off_t result = lseek(TheHandle(handle),offset,mode);          \
       if (result<0) /* error occurred? */                               \
         { end_system_call(); OS_filestream_error(stream); }             \
       unused (result_assignment result);                                \
-    }
-#endif
-#ifdef WIN32_NATIVE
-  #define handle_lseek(stream,handle,offset,mode,result_assignment)     \
-    { var LARGE_INTEGER result, offset_tmp;                             \
-      offset_tmp.QuadPart = offset;                                     \
-      if (!SetFilePointerEx(TheHandle(handle),offset_tmp,&result,mode)) \
-        { end_system_call(); OS_filestream_error(stream); }             \
-      unused (result_assignment result.QuadPart);                       \
     }
 #endif
 

@@ -225,7 +225,11 @@ extern ssize_t fd_write (HANDLE fd, const void* buf, size_t nbyte, perseverance_
 #define safe_write(fd,buf,nbyte)  fd_write(fd,buf,nbyte,persev_partial)
 #define full_write(fd,buf,nbyte)  fd_write(fd,buf,nbyte,persev_full)
 /* Changing the position within a file. */
-#define lseek(handle,offset,mode)  ((int)SetFilePointer(handle,offset,NULL,mode))
+/* _off_t is sint32, but the Win32 APIs support 64-bit file offsets. */
+#define off_t  sint64
+#undef SIZEOF_OFF_T  /* on mingw, it was defined in unixconf.h */
+#define SIZEOF_OFF_T  8
+extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
 #undef SEEK_SET
 #undef SEEK_CUR
 #undef SEEK_END
@@ -422,11 +426,6 @@ extern void DumpProcessMemoryMap (void); /* see win32aux.d */
 /* #define HAVE_MMAP */
 #define HAVE_MUNMAP
 #define HAVE_WORKING_MPROTECT
-#define off_t  sint64
-#if defined(SIZEOF_OFF_T)       /* defined in unixconf.h */
-  #undef SIZEOF_OFF_T
-#endif
-#define SIZEOF_OFF_T 8
 #define PROT_NONE  PAGE_NOACCESS
 #define PROT_READ  PAGE_READONLY
 #define PROT_READ_WRITE PAGE_READWRITE
