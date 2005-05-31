@@ -394,7 +394,9 @@ Portability
 -----------
 
 * Heaps and memory images larger than 4 GB are now supported on 64-bit
-  platforms and on Windows.
+  platforms.
+
+* Support files larger than 2 GB or 4 GB also on Windows.
 
 * Weak pointers now also work on platforms without mmap().
 
