@@ -488,7 +488,6 @@ local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance
     var OVERLAPPED overlap;
     var DWORD nchars;
     var DWORD err;
-    overlap.Offset = 0;
     overlap.OffsetHigh = 0;
     overlap.Offset = SetFilePointer(fd, 0, (LONG*)&overlap.OffsetHigh,
                                     FILE_CURRENT);
@@ -664,9 +663,8 @@ global ssize_t fd_write (HANDLE fd, const void* b, size_t nbyte,
     var OVERLAPPED overlap;
     var DWORD nchars;
     var DWORD err;
-    overlap.Offset = 0;
     overlap.OffsetHigh = 0;
-    overlap.Offset = SetFilePointer(fd, 0, (LONG*) &overlap.OffsetHigh,
+    overlap.Offset = SetFilePointer(fd, 0, (LONG*)&overlap.OffsetHigh,
                                     FILE_CURRENT);
     ResetEvent(aux_event);
     overlap.hEvent = aux_event;
