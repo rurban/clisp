@@ -3192,7 +3192,7 @@ LISPFUNN(sxhash,1)
    does not buy us anything anyway. */
 #if oint_data_len >= 32
   VALUES1(fixnum(sx));
-#elif oint_data_len == 24
+#elif oint_data_len >= 24
   sx = sx % 0xFFFFFF;
   VALUES1(fixnum(sx));
 #else
