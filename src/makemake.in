@@ -1617,9 +1617,7 @@ if [ "${with_unicode}" != no ] ; then
 fi
 
 ERROR_INCLUDES=''
-if [ $TSYS = master -o $TOS = unix ] ; then
-  ERROR_INCLUDES=$ERROR_INCLUDES' errunix'
-fi
+ERROR_INCLUDES=$ERROR_INCLUDES' errunix'
 if [ $TSYS = master -o $TOS = win32 ] ; then
   ERROR_INCLUDES=$ERROR_INCLUDES' errwin32'
 fi
