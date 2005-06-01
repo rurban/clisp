@@ -180,7 +180,7 @@ global void init_language (const char* argv_language,
     textdomain(textdomain(NULL));
   }
  #endif
- chosen2:
+ chosen2: ;
   # At this point we have chosen the language based upon an
   # environment variable GNU gettext knows about.
  #ifdef GNU_GETTEXT

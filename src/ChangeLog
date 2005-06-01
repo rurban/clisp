@@ -1,5 +1,9 @@
 2005-06-01  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_language.d (init_language): Fix syntax error in last patch.
+
+2005-06-01  Bruno Haible  <bruno@clisp.org>
+
 	* m4/poll.m4 (CL_POLL): Check against MacOS X 10.4.0 poll() bug.
 
 2005-05-30  Bruno Haible  <bruno@clisp.org>
