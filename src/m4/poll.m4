@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2004 Free Software Foundation, Inc.
+dnl Copyright (C) 2004-2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -12,8 +12,46 @@ AC_PREREQ(2.57)
 
 AC_DEFUN([CL_POLL],
 [AC_REQUIRE([CL_OPENFLAGS])dnl
-AC_CHECK_FUNCS(poll)
-if test $ac_cv_func_poll = yes; then
+AC_CHECK_FUNC(poll,
+  [# Check whether poll() works on special files (like /dev/null) and
+   # and ttys (like /dev/tty). On MacOS X 10.4.0, it doesn't.
+   AC_TRY_RUN([
+#include <fcntl.h>
+#include <poll.h>
+     int main()
+     {
+       struct pollfd ufd;
+       /* Try /dev/null for reading. */
+       ufd.fd = open ("/dev/null", O_RDONLY);
+       if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
+         return 0;
+       ufd.events = POLLIN;
+       ufd.revents = 0;
+       if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLIN))
+         return 1;
+       /* Try /dev/null for writing. */
+       ufd.fd = open ("/dev/null", O_WRONLY);
+       if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
+         return 0;
+       ufd.events = POLLOUT;
+       ufd.revents = 0;
+       if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLOUT))
+         return 1;
+       /* Trying /dev/tty may be too environment dependent. */
+       return 0;
+     }],
+     [cl_cv_func_poll=yes],
+     [cl_cv_func_poll=no],
+     [# When cross-compiling, assume that poll() works everywhere except on
+      # MacOS X, regardless of its version.
+      AC_EGREP_CPP([MacOSX], [
+#if defined(__APPLE__) && defined(__MACH__)
+This is MacOSX
+#endif
+], [cl_cv_func_poll=no], [cl_cv_func_poll=yes])])])
+if test $cl_cv_func_poll = yes; then
+  AC_DEFINE([HAVE_POLL], 1,
+    [Define to 1 if you have the 'poll' function and it works.])
 # Now check whether poll() works reliably on regular files, i.e. signals
 # immediate readability and writability, both before EOF and at EOF.
 # On FreeBSD 4.0, it doesn't.
