@@ -1,6 +1,6 @@
 /*
  * Include file for WIN32_NATIVE version of CLISP
- * Bruno Haible 1997-2004
+ * Bruno Haible 1997-2005
  * Sam Steingold 1999-2003
  */
 
@@ -61,6 +61,10 @@
 #define OS_errno GetLastError()
 #define OS_set_errno(e) SetLastError(e)
 /* used by error.d, spvw.d, stream.d, pathname.d, socket.d */
+
+/* Table of ANSI C error messages */
+#include <errno.h>
+/* used by error.d, stream.d */
 
 /* Getting memory. */
 #include <stdlib.h>
