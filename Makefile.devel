@@ -72,6 +72,7 @@ TEMPDIR = /tmp/clispdos
 
 
 all : makefiles check-configures update-ansi-tests update-docbook-utils     \
+	fixperms                                                            \
 	potfiles                                                            \
 	src/version.h                                                       \
 	src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c \
@@ -230,6 +231,9 @@ update-docbook-utils:
 CLISP=$(CURDIR)/build/clisp
 potfiles :
 	cd src/po && CLISP='$(CLISP)' $(MAKE) -f Makefile.devel && $(MAKE) -f Makefile.devel clean
+
+fixperms :
+	./utils/fix-perms.sh
 
 
 view-man :
@@ -439,7 +443,7 @@ install-gcc:
 	rm -rf gcc-$(GCC_VERSION)
 
 
-distrib : linux-distrib src-distrib
+distrib : fixperms linux-distrib src-distrib
 
 ## Pre-release TODO:
 # echo URL-tar.bz2| mail -s "clisp-`cat VERSION`" translation@IRO.UMontreal.CA

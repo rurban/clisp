@@ -1,3 +1,9 @@
+2005-06-03  Bruno Haible  <bruno@clisp.org>
+
+	* utils/fix-perms.sh: New file.
+	* Makefile.devel (fixperms): New target.
+	(all, distrib): Depend on it.
+
 2005-06-02  Bruno Haible  <bruno@clisp.org>
 
 	* win32.d: Include <errno.h>.
