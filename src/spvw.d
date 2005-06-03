@@ -2922,10 +2922,12 @@ local void maygc run_hooks (object hooks) {
 # Perform the main actions as specified by the command-line arguments.
 local inline void main_actions (struct argv_actions *p) {
   /* print greeting: */
-  if (!nullpSv(quiet))           /* SYS::*QUIET* /= NIL ? */
-    { p->argv_verbose = 1; }        /* prevents the greeting */
-  if (p->argv_execute_file != NULL) /* batch-mode ? */
-    { p->argv_verbose = 1; }        /* prevents the greeting */
+  if (!nullpSv(quiet)                    /* SYS::*QUIET* /= NIL ? */
+      || p->argv_execute_file != NULL) { /* batch-mode ? */
+    /* prevents the greeting */
+    if (p->argv_verbose > 1)
+      p->argv_verbose = 1;
+  }
   if (p->argv_verbose>=2 || p->argv_license)
     print_banner();
   if (p->argv_license)

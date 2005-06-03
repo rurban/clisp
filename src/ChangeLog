@@ -1,5 +1,10 @@
 2005-06-03  Bruno Haible  <bruno@clisp.org>
 
+	* spvw.d (main_actions): Don't increase argv_verbose.
+	Reported by David Tolpin <dvd@davidashen.net>.
+
+2005-06-03  Bruno Haible  <bruno@clisp.org>
+
 	* utils/fix-perms.sh: New file.
 	* Makefile.devel (fixperms): New target.
 	(all, distrib): Depend on it.
