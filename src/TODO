@@ -211,9 +211,8 @@ abc(A B C)def
 > (format t (formatter "abc~,'*Sdef") '(a b c))
 abc*(A B C)def
 Similarly "abc~3W"
-[sam] how about run-time format string check to warn about
+how about a compile-time format string check to warn about
  (format t "~A" a b) and (format t "~A ~B ~C" a b)
-[bruno] I believe a compiler warning is more appropriate
 
 
 If you (TRACE generic-function) and then reload the file defining that
