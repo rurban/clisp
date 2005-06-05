@@ -1,3 +1,8 @@
+2005-06-05  Sam Steingold  <sds@gnu.org>
+
+	* clispload.lsp (*expected-failures*): added MISC.598 (assumes
+	that complex numbers have the same Re & Im types)
+
 2005-06-03  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (main_actions): Don't increase argv_verbose.
@@ -121,7 +126,7 @@
 
 	Supplement to 2005-05-23 patch.
 	* makemake.in (clisp): Remove COMPILE_STANDALONE from the compilation
-	flags. 
+	flags.
 
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
