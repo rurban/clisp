@@ -13827,6 +13827,7 @@ typedef enum {
 extern direction_t check_direction (object dir);
 
 # check the :IF-DOES-NOT-EXIST argument
+# check_if_does_not_exist(argument)
 # return one of the following:
 typedef enum {
   IF_DOES_NOT_EXIST_UNBOUND,
@@ -13836,7 +13837,12 @@ typedef enum {
 } if_does_not_exist_t;
 extern if_does_not_exist_t check_if_does_not_exist (object if_not_exist);
 
+# Converts a :IF-DOES-NOT-EXIST enum item to a symbol.
+# if_does_not_exist_symbol(item)
+extern object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist);
+
 # check the :IF-EXISTS argument
+# check_if_exists(argument)
 # return one of the following:
 typedef enum {
   IF_EXISTS_UNBOUND,
@@ -13849,6 +13855,10 @@ typedef enum {
   IF_EXISTS_OVERWRITE
 } if_exists_t;
 extern if_exists_t check_if_exists (object if_exists);
+
+# Converts a :IF-EXISTS enum item to a symbol.
+# if_exists_symbol(item)
+extern object if_exists_symbol (if_exists_t if_exists);
 
 # ##################### PREDBIBL for PREDTYPE.D ############################ #
 
