@@ -397,23 +397,6 @@ global maygc void correctable_error (condition_t errortype, const char* errorstr
   funcall(S(correctable_error),2);
 }
 
-/* Check that OBJ is of type TYPE and return it.
- used only by modules at this time, thus not declared in lispbibl.d
- can trigger GC */
-global maygc object check_classname (object obj, object type) {
-  while (!typep_classname(obj,type)) {
-    pushSTACK(type);            /* save type */
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(type);            /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(type); pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
-    obj = value1; type = popSTACK();
-  }
-  return obj;
-}
-
 #undef OS_error
 #undef OS_file_error
 #undef OS_filestream_error
@@ -794,6 +777,25 @@ LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
                   above has caught a throw. */
   skipSTACK(3); /* unwind CATCH-frame */
   VALUES1(NIL);
+}
+
+/* check_classname(obj,type)
+ > obj: an object
+ > classname: a symbol expected to name a class with "proper name" classname
+ < result: an object of the given type, either the same as obj or a replacement
+ can trigger GC */
+global maygc object check_classname (object obj, object type) {
+  while (!typep_classname(obj,type)) {
+    pushSTACK(type);            /* save type */
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(type);            /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(type); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+    obj = value1; type = popSTACK();
+  }
+  return obj;
 }
 
 #ifdef FOREIGN
