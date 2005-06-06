@@ -2186,7 +2186,7 @@ echol
 echolist "DFILES =" "$DFILES $ARI_ASMD $SP_ASMD" ".d"
 echol
 
-echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD" ".c"
+echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD gen.lispbibl" ".c"
 echol
 
 echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
@@ -2434,7 +2434,11 @@ echol
 
 for f in $DFILES ; do
   echol "${f}.c : ${f}.d comment5${HEXE}${XDECL_DEPENDENCIES}"
-  echotabpipe "\$(COMMENT5) ${f}.d${CHSCONVERT_FILTER} ${XDECL_FILTER} > ${f}.c"
+  gen_filter=
+  case "${f}" in
+    lispbibl) gen_filter=" | sed -e 's/^\\(%% .*\\)//'" ;;
+  esac
+  echotabpipe "\$(COMMENT5) ${f}.d${CHSCONVERT_FILTER}${gen_filter} ${XDECL_FILTER} > ${f}.c"
   echol
 done
 
@@ -2494,6 +2498,12 @@ if [ $TSYS != win32msvc ] ; then
     echol
   done
 fi
+
+for f in lispbibl; do
+  echol "gen.${f}.c : ${f}.d comment5${HEXE}"
+  echotabpipe "\$(COMMENT5) ${f}.d${CHSCONVERT_FILTER} | sed -e '/^#line/n;ta;:a;s/^%% //;tb;s/^.*\$\$//;:b' > gen.${f}.c"
+  echol
+done
 
 if [ "${with_dynamic_ffi}" != no -a $HOS = unix ] ; then
   echol "trampoline${NEXT}trampoline.h :"
@@ -2559,6 +2569,9 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = lisparit ] ; then
     depends=$depends''$LISPARIT_INCLUDES''$ARI_ASMS
+  fi
+  if [ $f = genclisph ] ; then
+    depends=$depends' gen.lispbibl'
   fi
   for g in $depends ; do
     dependsc=$dependsc' '$g'.c'

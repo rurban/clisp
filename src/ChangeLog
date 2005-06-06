@@ -1,5 +1,16 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d: Include the C code for generating clisp.h, with %%.
+	* genclisph.d (main): Remove most statements. Include gen.lispbibl.c.
+	Emit convert_time_to_universal_w32, convert_time_from_universal_w32 as
+	inline functions.
+	* makemake.in (CFILES): Add gen.lispbibl.
+	(lispbibl.c): Blank out the %% lines.
+	(gen.lispbibl.c): New rule.
+	(genclisph.[oi]): Depend on gen.lispbibl.c.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* unix.d (time_t_from_filetime, time_t_to_filetime) [UNIX_CYGWIN32]:
 	New declarations.
 
