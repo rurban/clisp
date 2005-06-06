@@ -1,5 +1,9 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (stream_handles): New declaration.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (open_file_stream_handle, file_stream_truename): New
 	declarations.
 
