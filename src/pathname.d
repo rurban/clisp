@@ -4974,8 +4974,11 @@ LISPFUNN(absolute_pathname,1)
   VALUES1(pathname);
 }
 
-/* for modules: coerce to an absolute physical pathname and
-   return its namestring
+/* Converts an object into an absolute physical pathname and returns its
+   namestring.
+ physical_namestring(thing)
+ > thing: an object
+ < result: the namestring of the pathname denoted by thing
  can trigger GC */
 global maygc object physical_namestring (object thing) {
   var object pathname = coerce_pathname(thing);

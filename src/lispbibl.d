@@ -13763,6 +13763,14 @@ extern BOOL real_path (LPCSTR namein, LPSTR nameout);
  can trigger GC */
 extern maygc bool namestring_correctly_parseable_p (gcv_object_t *path_);
 
+/* Converts an object into an absolute physical pathname and returns its
+   namestring.
+ physical_namestring(thing)
+ > thing: an object
+ < result: the namestring of the pathname denoted by thing
+ can trigger GC */
+extern maygc object physical_namestring (object thing);
+
 # UP: Gives the directory-namestring in OS-format of a halfway checked
 #     pathname assuming that the directory of the pathname exists.
 # assume_dir_exists()
