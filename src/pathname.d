@@ -6366,7 +6366,8 @@ global direction_t check_direction (object dir) {
   }
 }
 
-/* check the :IF-DOES-NOT-EXIST argument */
+/* check the :IF-DOES-NOT-EXIST argument
+   check_if_does_not_exist(argument) */
 global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
   if (!boundp(if_not_exist))
     return IF_DOES_NOT_EXIST_UNBOUND;
@@ -6384,6 +6385,9 @@ global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
     fehler(type_error,GETTEXT("~S: illegal ~S argument ~S"));
   }
 }
+
+/* Converts a :IF-DOES-NOT-EXIST enum item to a symbol.
+   if_does_not_exist_symbol(item)*/
 global object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist) {
   switch (if_not_exist) {
     case IF_DOES_NOT_EXIST_UNBOUND: return unbound;
@@ -6394,7 +6398,8 @@ global object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist) {
   NOTREACHED;
 }
 
-/* check the :IF-EXISTS argument */
+/* check the :IF-EXISTS argument
+   check_if_exists(argument) */
 global if_exists_t check_if_exists (object if_exists) {
   if (!boundp(if_exists))
     return IF_EXISTS_UNBOUND;
@@ -6419,6 +6424,9 @@ global if_exists_t check_if_exists (object if_exists) {
     fehler(type_error,GETTEXT("~S: illegal ~S argument ~S"));
   }
 }
+
+/* Converts a :IF-EXISTS enum item to a symbol.
+   if_exists_symbol(item) */
 global object if_exists_symbol (if_exists_t if_exists) {
   switch (if_exists) {          /* :IF-EXISTS */
     case IF_EXISTS_UNBOUND: return unbound;
@@ -6667,7 +6675,8 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp);
         pftimepoint = &filedata.ftCreationTime;                            \
       convert_time(pftimepoint,timepointp);                                \
     }
-#define READDIR_entry_size() (((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow)
+  #define READDIR_entry_size()  \
+    (((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow)
 #endif
 
 #ifdef UNIX
