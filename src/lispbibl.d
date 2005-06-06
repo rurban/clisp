@@ -7985,6 +7985,15 @@ typedef enum {
 # is used by PATHNAME
 #endif
 
+#ifdef UNIX
+/* the inverse of convert_time_to_universal() */
+extern void convert_time_from_universal (object universal, time_t* time);
+#endif
+#ifdef WIN32_NATIVE
+/* the inverse of convert_time_to_universal() */
+extern void convert_time_from_universal (object universal, FILETIME* time);
+#endif
+
 # UP: Initializes the time variables upon the LISP-System-Start.
 # init_time();
   extern void init_time (void);
