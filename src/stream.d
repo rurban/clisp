@@ -5954,6 +5954,7 @@ typedef struct strm_i_buffered_extrafields_t {
 # File-Stream in general
 # ======================
 
+/* FIXME: Add documentation */
 /* for syscall module */
 global object file_stream_truename (object s)
 { return FileStream_truename(s); }
@@ -17095,6 +17096,7 @@ local object check_open_file_stream (object obj, bool strict_p) {
   fehler(type_error,GETTEXT("~S: argument ~S is not an open file stream"));
 }
 
+/* FIXME: Add documentation */
 /* for syscall module */
 global object open_file_stream_handle (object stream, Handle *fd) {
   stream = check_open_file_stream(stream,true);
