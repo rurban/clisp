@@ -1,5 +1,10 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* pathname.d (MAKE-PATHNAME): Remove useless code introduced on
+	2005-05-16.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (if_does_not_exist_symbol, if_exists_symbol): New
 	declarations.
 
