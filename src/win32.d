@@ -27,17 +27,15 @@
 #define WIN32_LEAN_AND_MEAN  /* avoid including junk */
 #undef unused /* `unused' is used in function declarations. */
 #ifdef __MINGW32__
-/* need this for isatty(), write() &c in <mingw/io.h> */
- #define _UWIN
- #define ULONGLONG OS_ULONGLONG
- #define ULONG OS_ULONG
- #include <windows.h>
- #undef ULONG
- #undef ULONGLONG
- #define unused_void (void)
+  #define ULONGLONG OS_ULONGLONG
+  #define ULONG OS_ULONG
+  #include <windows.h>
+  #undef ULONG
+  #undef ULONGLONG
+  #define unused_void (void)
 #else
- #include <windows.h>
- #define unused_void
+  #include <windows.h>
+  #define unused_void
 #endif
 
 /* Declaration of operating system types,
@@ -233,6 +231,9 @@ extern ssize_t fd_write (HANDLE fd, const void* buf, size_t nbyte, perseverance_
 #define off_t  sint64
 #undef SIZEOF_OFF_T  /* on mingw, it was defined in unixconf.h */
 #define SIZEOF_OFF_T  8
+#ifdef __MINGW32__
+  #define lseek clisp_lseek /* avoid collision with prototype in <mingw/io.h> */
+#endif
 extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
 #undef SEEK_SET
 #undef SEEK_CUR
@@ -337,6 +338,9 @@ extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event wa
  requires linking with wsock32.lib */
 
 /* Hacking the terminal */
+#ifdef __MINGW32__
+  #define isatty clisp_isatty /* avoid collision with prototype in <mingw/io.h> */
+#endif
 extern int isatty (HANDLE handle); /* see win32aux.d */
 /* used by stream.d */
 

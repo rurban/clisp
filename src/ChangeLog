@@ -1,3 +1,8 @@
+2005-06-06  Bruno Haible  <bruno@clisp.org>
+
+	* win32.d (_UWIN): Remove macro.
+	(lseek, isatty) [MINGW]: Define to clisp-private names.
+
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d: Include the C code for generating clisp.h, with %%.
