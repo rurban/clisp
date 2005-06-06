@@ -14943,6 +14943,20 @@ extern maygc object coerce_float (object obj, object type);
 extern maygc object decimal_string (object x);
 # is used by PATHNAME
 
+/* Converts a function's argument to a C 'double'.
+ to_double(obj)
+ > obj: an object, usually a real number
+ < result: its value as a C 'double'
+ can trigger GC */
+extern maygc double to_double (object x);
+
+/* Converts a function's argument to a C 'int'.
+ to_int(obj)
+ > obj: an object, usually an integer
+ < result: its value as a C 'int'
+ can trigger GC */
+extern maygc int to_int (object x);
+
 # ###################### FOREIGNBIBL for FOREIGN.D ########################## #
 
 #ifdef DYNAMIC_FFI
