@@ -1,3 +1,8 @@
+2005-06-06  Sam Steingold  <sds@gnu.org>
+
+	* modules/bindings/win32/win32.lisp: use full paths for :LIBRARY
+	arguments (needed on cygwin)
+
 2005-06-06  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_language.d (init_language): When argv_localedir is NULL, don't
