@@ -1,3 +1,9 @@
+2005-06-06  Sam Steingold  <sds@gnu.org>
+
+	* compelem.d (N_imagpart): use the normal Rational/Float contagion
+	rules for reals
+	* clispload.lsp (*expected-failures*): removed MISC.598
+
 2005-06-06  Bruno Haible  <bruno@clisp.org>
 
 	* win32.d (_UWIN): Remove macro.

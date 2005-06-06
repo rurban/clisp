@@ -43,10 +43,12 @@ global maygc object F_complex_C (object x) {
 #if 0
   local object N_imagpart_R (object x)
   {
-    return (N_realp(x) ? Fixnum_0 : TheComplex(x)->c_imag);
+    return (N_realp(x)
+            ? (R_floatp(x) ? RA_F_exact_contagion_R(Fixnum_0,x) : Fixnum_0)
+            : TheComplex(x)->c_imag);
   }
 #else # Macro spart Code
-  #define N_imagpart_R(x)  (N_realp(x) ? Fixnum_0 : (object)TheComplex(x)->c_imag)
+  #define N_imagpart_R(x)  (N_realp(x) ? (R_floatp(x) ? RA_F_exact_contagion_R(Fixnum_0,x) : Fixnum_0) : (object)TheComplex(x)->c_imag)
 #endif
 
 # N_conjugate_N(x) liefert die konjugiert komplexe Zahl zur Zahl x.
