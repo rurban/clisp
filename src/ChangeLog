@@ -1,5 +1,10 @@
 2005-06-06  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (MACHINE-INSTANCE, socket_getlocalname_aux)
+	(socket_getpeername): avoid a GCC warning "value computed is not used"
+
+2005-06-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/bindings/win32/win32.lisp: use full paths for :LIBRARY
 	arguments (needed on cygwin)
 
