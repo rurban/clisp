@@ -14372,6 +14372,10 @@ extern object file_stream_truename (object s);
 extern maygc object make_file_stream (direction_t direction, bool append_flag, bool handle_at_pos_0);
 # is used by PATHNAME
 
+/* check whether the object is a handle stream or a socket-server
+ and return its socket-like handle(s) */
+extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);
+
 # Makes a Broadcast-Stream using a Stream stream.
 # make_broadcast1_stream(stream)
 # can trigger GC
