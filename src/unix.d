@@ -1,6 +1,6 @@
 /*
  * The include file for the UNIX version of CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2002
  */
 
@@ -835,6 +835,14 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
   extern_C iconv_t iconv_open (const char * to_code, const char * from_code);
   extern_C size_t iconv (iconv_t cd, ICONV_CONST char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t* outbytesleft);
   extern_C int iconv_close (iconv_t cd);
+#endif
+
+/* Interpretation of FILETIME structure: */
+#ifdef UNIX_CYGWIN32
+  #define WIN32_LEAN_AND_MEAN
+  #include <windows.h>
+  extern long time_t_from_filetime (const FILETIME * ptr);
+  extern void time_t_to_filetime (time_t time_in, FILETIME * out);
 #endif
 
 
