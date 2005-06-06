@@ -13159,6 +13159,13 @@ nonreturning_function(extern, OS_filestream_error, (object stream));
 extern maygc void tast_break (void);
 # is used by EVAL, IO, SPVW, STREAM
 
+/* check_classname(obj,type)
+ > obj: an object
+ > classname: a symbol expected to name a class with "proper name" classname
+ < result: an object of the given type, either the same as obj or a replacement
+ can trigger GC */
+extern maygc object check_classname (object obj, object type);
+
 #ifdef FOREIGN
 /* check_fpointer(obj,restart_p)
  > obj: an object

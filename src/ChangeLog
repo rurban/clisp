@@ -1,5 +1,10 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (check_classname): New declaration.
+	* error.d (check_classname): Fix documentation.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (to_double, to_int): New declarations.
 	* lisparit.d (to_double, to_int): Fix missing documentation.
 	(to_double): Simplify.
