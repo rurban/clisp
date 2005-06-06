@@ -1,3 +1,7 @@
+2005-06-06  Bruno Haible  <bruno@clisp.org>
+
+	* clispload.lsp (*expected-failures*): Add DECLARATION.[4-11].
+
 2005-06-06  Sam Steingold  <sds@gnu.org>
 
 	* compelem.d (N_imagpart): use the normal Rational/Float contagion
