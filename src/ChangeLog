@@ -1,5 +1,9 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (my_realloc): New declaration.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (stream_handles): New declaration.
 
 2005-06-04  Bruno Haible  <bruno@clisp.org>
