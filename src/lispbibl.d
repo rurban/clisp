@@ -14287,6 +14287,9 @@ extern maygc void elastic_newline (const gcv_object_t* stream_);
 extern maygc Handle stream_lend_handle (object stream, bool inputp, int * handletype);
 /* used by STREAM */
 
+/* FIXME: Add documentation */
+extern object open_file_stream_handle (object stream, Handle *fd);
+
 /* Function: Reads several bytes from a stream.
  read_byte_array(&stream,&bytearray,start,len,persev)
  > stream: stream (on the STACK)
@@ -14339,6 +14342,9 @@ extern maygc void write_char_array (const gcv_object_t* stream_, const gcv_objec
 # < result: Stream
 extern object var_stream (object sym, uintB strmflags);
 # is used by IO, PACKAGE, ERROR, DEBUG, SPVW
+
+/* FIXME: Add documentation */
+extern object file_stream_truename (object s);
 
 # UP: makes a file-stream
 # make_file_stream(direction,append_flag,handle_fresh)
