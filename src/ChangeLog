@@ -1,5 +1,10 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (open_file_stream_handle, file_stream_truename): New
+	declarations.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (addr_to_string, nonintr_connect, string_to_addr,
 	resolve_host, connect_to_x_server, socket_getlocalname,
 	socket_getpeername, create_server_socket, accept_connection,
