@@ -215,7 +215,7 @@ LISPFUNN(machine_instance,0)
          #ifdef HAVE_IPV6
           if (h->h_addrtype == AF_INET6) {
             var char buffer[45+1];
-            ipv6_ntop(buffer,*(const struct in6_addr*)h->h_addr);
+            (void)ipv6_ntop(buffer,*(const struct in6_addr*)h->h_addr);
             pushSTACK(ascii_to_string(" ["));
             pushSTACK(asciz_to_string(buffer,O(misc_encoding)));
             pushSTACK(ascii_to_string("]"));
@@ -756,7 +756,7 @@ local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
   switch (((struct sockaddr *)&addr)->sa_family) {
    #ifdef HAVE_IPV6
     case AF_INET6:
-      ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
+      (void)ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
       hd->port = ntohs(addr.inaddr6.sin6_port);
       break;
    #endif
@@ -804,7 +804,7 @@ global host_data_t * socket_getpeername (SOCKET socket_handle,
   switch (((struct sockaddr *)&addr)->sa_family) {
     #ifdef HAVE_IPV6
     case AF_INET6:
-      ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
+      (void)ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
       hd->port = ntohs(addr.inaddr6.sin6_port);
       if (resolve_p)
         hp = gethostbyaddr((const char *)&addr.inaddr6.sin6_addr,
