@@ -1,5 +1,11 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (to_double, to_int): New declarations.
+	* lisparit.d (to_double, to_int): Fix missing documentation.
+	(to_double): Simplify.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (physical_namestring): New declaration.
 	* pathname.d (physical_namestring): Improve documentation.
 

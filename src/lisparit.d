@@ -422,20 +422,6 @@ local maygc object check_rational_replacement (object obj) {
   return obj;
 }
 
-/* coercions - used in modules
- can trigger GC */
-global maygc double to_double (object x) {
-  double ret;
-  x = check_real(x);
-  DF_to_c_double(R_rationalp(x) ? RA_to_DF(x,true) : F_to_DF(x),
-                 (dfloatjanus*)&ret);
-  return ret;
-}
-global maygc int to_int (object x) {
-  x = check_integer(x);
-  return I_to_L(x);
-}
-
 /* UP: Returns the decimal string representation of an integer >= 0.
  decimal_string(x)
  > object x: an integer >= 0
@@ -1107,6 +1093,28 @@ global maygc object coerce_float (object obj, object type) {
     return R_to_LF(obj,I_to_UL(O(LF_digits))); /* default precision */
   else /* FLOAT */
     return R_float_F(obj);
+}
+
+/* Converts a function's argument to a C 'double'.
+ to_double(obj)
+ > obj: an object, usually a real number
+ < result: its value as a C 'double'
+ can trigger GC */
+global maygc double to_double (object x) {
+  double ret;
+  x = check_real(x);
+  DF_to_c_double(R_to_DF(x), (dfloatjanus*)&ret);
+  return ret;
+}
+
+/* Converts a function's argument to a C 'int'.
+ to_int(obj)
+ > obj: an object, usually an integer
+ < result: its value as a C 'int'
+ can trigger GC */
+global maygc int to_int (object x) {
+  x = check_integer(x);
+  return I_to_L(x);
 }
 
 LISPFUNNF(rational,1)
