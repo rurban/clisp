@@ -3431,10 +3431,9 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
   {
     var object device = STACK_4;
     if (boundp(device)) { /* specified ? */
-      if (nullp(device) /* NIL, :UNSPECIFIC Pathname -> OK */
-          || eq(device,S(Kunspecific)) || xpathnamep(device)) {
-        STACK_4 = NIL;
-      } else { /* None of the desired cases -> error: */
+      if (!(nullp(device) || eq(device,S(Kunspecific))
+            || xpathnamep(device))) { /* NIL or :UNSPECIFIC or Pathname -> OK */
+        /* None of the desired cases -> error: */
         pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto fehler_arg;
       }
     }
