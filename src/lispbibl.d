@@ -9374,6 +9374,10 @@ extern bool asciz_equal (const char * asciz1, const char * asciz2);
 extern void* my_malloc (size_t size);
 /* used by FOREIGN and modules */
 
+/* reallocate memory and check for success */
+extern void* my_realloc (void* ptr, size_t size);
+/* used by modules */
+
 #if defined(GNU) && (SAFETY < 2)
   #ifdef HAVE_BUILTIN_STRLEN
     #define asciz_length(a)  ((uintL)__builtin_strlen(a))
