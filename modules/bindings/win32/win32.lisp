@@ -21,22 +21,29 @@
 ;; this is not necessary: we are not creating a C file anyway
 ;;(c-lines "#define WINVER 0x0500~%#include <windows.h>~%")
 
-(def-call-out GetCommandLineA (:library "kernel32.dll")
+(defconstant system32 (ext:string-concat (ext:getenv "WINDIR") "\\system32\\"))
+(defconstant advapi32 (ext:string-concat system32 "advapi32.dll"))
+(defconstant kernel32 (ext:string-concat system32 "kernel32.dll"))
+(defconstant secur32 (ext:string-concat system32 "secur32.dll"))
+(defconstant shell32 (ext:string-concat system32 "shell32.dll"))
+(defconstant user32 (ext:string-concat system32 "user32.dll"))
+
+(def-call-out GetCommandLineA (:library kernel32)
   (:arguments) (:return-type c-string))
 
-(def-call-out GetLastError (:library "kernel32.dll")
+(def-call-out GetLastError (:library kernel32)
   (:arguments) (:return-type dword))
 
-(def-call-out GetCurrentProcess (:library "kernel32.dll")
+(def-call-out GetCurrentProcess (:library kernel32)
   (:arguments) (:return-type handle))
 
-(def-call-out GetCurrentThread (:library "kernel32.dll")
+(def-call-out GetCurrentThread (:library kernel32)
   (:arguments) (:return-type handle))
 
-(def-call-out GetCurrentProcessId (:library "kernel32.dll")
+(def-call-out GetCurrentProcessId (:library kernel32)
   (:arguments) (:return-type dword))
 
-(def-call-out CloseHandle (:library "kernel32.dll")
+(def-call-out CloseHandle (:library kernel32)
   (:arguments (handle handle)) (:return-type boolean))
 
 ;; (c-lines "#include <winnt.h>~%")
@@ -66,7 +73,7 @@
   (PROCESS_ALL_ACCESS
    #.(cl:logior STANDARD_RIGHTS_REQUIRED SYNCHRONIZE #xFFF)))
 
-(def-call-out OpenProcess (:library "kernel32.dll")
+(def-call-out OpenProcess (:library kernel32)
   (:arguments (access-flag dword) ; PROCESS
               (inherit-handle boolean)
               (pid dword))
@@ -80,13 +87,13 @@
   (EWX_FORCE            #x4)
   (EWX_POWEROFF         #x8)
   (EWX_FORCEIFHUNG     #x10))
-(def-call-out ExitWindowsEx (:library "User32.dll")
+(def-call-out ExitWindowsEx (:library user32)
   (:arguments (flags uint)      ; EWX
               (reserved dword))
   (:return-type boolean))
 
 (def-c-enum GR_OBJECTS GR_GDIOBJECTS GR_USEROBJECTS)
-(def-call-out GetGuiResources (:library "User32.dll")
+(def-call-out GetGuiResources (:library user32)
   (:arguments (process handle)
               (flags dword))    ; GR_OBJECTS
   (:return-type dword))
@@ -107,7 +114,7 @@
   (LR_CREATEDIBSECTION 8192)
   (LR_COPYFROMRESOURCE #x4000)
   (LR_SHARED 32768))
-(def-call-out LoadImageA (:library "User32.dll")
+(def-call-out LoadImageA (:library user32)
   (:arguments (application-instance-handle handle)
               (image-name c-string)
               (type uint) (width int) (height int)
@@ -122,47 +129,47 @@
   (defconstant BUFSIZ 4096)     ; <stdio.h>
   (defconstant MAX_PATH 260))   ; <windef.h>
 
-(def-call-out GetModuleFileNameA (:library "kernel32.dll")
+(def-call-out GetModuleFileNameA (:library kernel32)
   (:arguments (application-instance-handle handle)
               (name (c-ptr (c-array-max character #.MAX_PATH)) :out :alloca)
               (size dword))  ; always pass MAX_PATH as the second argument
   (:return-type dword))
 
-(def-call-out GetModuleHandleA (:library "kernel32.dll")
+(def-call-out GetModuleHandleA (:library kernel32)
   (:arguments (name c-string))
   (:return-type handle))
 
 ;; (c-lines "#include <winicon.h>~%")
 
-(def-call-out GetConsoleTitleA (:library "kernel32.dll")
+(def-call-out GetConsoleTitleA (:library kernel32)
   (:arguments (buffer (c-ptr (c-array-max character #.BUFSIZ)) :out :alloca)
               (size dword))  ; always pass BUFSIZ as the only argument
   (:return-type dword))
 
-(def-call-out SetConsoleTitleA (:library "kernel32.dll")
+(def-call-out SetConsoleTitleA (:library kernel32)
   (:arguments (title c-string))
   (:return-type boolean))
 
 ;; system information
-(def-call-out GetSystemDirectoryA (:library "kernel32.dll")
+(def-call-out GetSystemDirectoryA (:library kernel32)
   (:arguments (buffer (c-ptr (c-array-max character #.MAX_PATH)) :out :alloca)
               (size uint)) ; pass MAX_PATH
   (:return-type uint))
-(def-call-out GetWindowsDirectoryA (:library "kernel32.dll")
+(def-call-out GetWindowsDirectoryA (:library kernel32)
   (:arguments (buffer (c-ptr (c-array-max character #.MAX_PATH)) :out :alloca)
               (size uint)) ; pass MAX_PATH
   (:return-type uint))
-(def-call-out GetCurrentDirectoryA (:library "kernel32.dll")
+(def-call-out GetCurrentDirectoryA (:library kernel32)
   (:arguments (size dword) ; pass MAX_PATH
               (buffer (c-ptr (c-array-max character #.MAX_PATH)) :out :alloca))
   (:return-type dword))
-(def-call-out GetVersion (:library "kernel32.dll")
+(def-call-out GetVersion (:library kernel32)
   (:arguments) (:return-type dword))
 
 ;; user name
 (eval-when (compile eval load)
   (defconstant UNLEN 256)) ; <lmcons.h>
-(def-call-out GetUserNameA (:library "advapi32.dll")
+(def-call-out GetUserNameA (:library advapi32)
   (:arguments (buffer (c-ptr (c-array-max character #.UNLEN)) :out :alloca)
               (size (c-ptr dword) :in-out)) ; pass UNLEN
   (:return-type boolean))
@@ -178,12 +185,12 @@
   (NameUserPrincipal 8)
   (NameCanonicalEx 9)
   (NameServicePrincipal 10))
-(def-call-out GetUserNameExA (:library "secur32.dll")
+(def-call-out GetUserNameExA (:library secur32)
   (:arguments (name-format EXTENDED_NAME_FORMAT)
               (buffer (c-ptr (c-array-max character #.UNLEN)) :out :alloca)
               (size (c-ptr ulong) :in-out)) ; pass UNLEN
   (:return-type boolean))
-(def-call-out GetComputerObjectNameA (:library "secur32.dll")
+(def-call-out GetComputerObjectNameA (:library secur32)
   (:arguments (name-format EXTENDED_NAME_FORMAT)
               (buffer (c-ptr (c-array-max character #.UNLEN)) :out :alloca)
               (size (c-ptr ulong) :in-out)) ; pass UNLEN
@@ -193,7 +200,7 @@
 (eval-when (compile eval load)
   (defconstant MAX_COMPUTERNAME_LENGTH 16)) ; <winbase.h>
 
-(def-call-out GetComputerNameA (:library "kernel32.dll")
+(def-call-out GetComputerNameA (:library kernel32)
   (:arguments (buffer (c-ptr (c-array-max character #.MAX_COMPUTERNAME_LENGTH))
                       :out :alloca)
               (size (c-ptr dword) :in-out)) ; pass MAX_COMPUTERNAME_LENGTH
@@ -210,7 +217,7 @@
   ComputerNamePhysicalDnsFullyQualified
   ComputerNameMax)
 
-(def-call-out GetComputerNameExA (:library "kernel32.dll")
+(def-call-out GetComputerNameExA (:library kernel32)
   (:arguments (type-name COMPUTER_NAME_FORMAT)
               (buffer (c-ptr (c-array-max character #.MAX_COMPUTERNAME_LENGTH))
                       :out :alloca)
@@ -246,7 +253,7 @@
   (SW_SHOWDEFAULT 10)
   (SW_FORCEMINIMIZE 11)
   (SW_MAX 11))
-(def-call-out ShellExecuteA (:library "shell32.dll")
+(def-call-out ShellExecuteA (:library shell32)
   (:arguments (parent handle) (operation c-string) (file c-string)
               (parameters c-string) (directory c-string) (show SHOW_COMMAND))
   (:return-type int))
