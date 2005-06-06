@@ -168,6 +168,7 @@
   #endif
 #endif
 
+/* FIXME: Add documentation */
 /* for syscalls & rawsock modules */
 global object addr_to_string (short type, char *addr) {
   var char buffer[MAXHOSTNAMELEN];
@@ -264,7 +265,8 @@ LISPFUNN(machine_instance,0)
 #define CLOSESOCKET(fd)  \
   do { while ((closesocket(fd) < 0) && sock_errno_is(EINTR)) ; } while (0)
 
-/* A wrapper around the connect() function. */
+/* A wrapper around the connect() function.
+ To be used inside begin/end_system_call() only. */
 global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen) {
   var int retval;
   do {
@@ -342,6 +344,8 @@ local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret)
   (void)family; /* ignore */
   return 0;
 }
+
+/* FIXME: Add documentation */
 global object string_to_addr (const char* name) {
   object ret;
   begin_system_call();
@@ -349,6 +353,7 @@ global object string_to_addr (const char* name) {
   end_system_call();
   return ret;
 }
+
 local int resolve_host1 (const void* addr, int addrlen, int family, void* ret) {
   *(struct hostent**)ret =
     (addrlen
@@ -356,6 +361,8 @@ local int resolve_host1 (const void* addr, int addrlen, int family, void* ret) {
      : gethostbyname((const char*)addr));
   return 0;
 }
+
+/* FIXME: Add documentation */
 global struct hostent* resolve_host (object arg) {
   var struct hostent* he;
   if (eq(arg,S(Kdefault))) {
@@ -528,14 +535,6 @@ local SOCKET with_host_port (const char* host, unsigned short port,
 
 /* ========================== X server connection ======================== */
 
-/*   connect_to_x_server():
- Attempts to connect to server, given host name and display number.
- Returns file descriptor (network socket). Returns -1 and sets errno
- if connection fails.
- An empty hostname is interpreted as the most efficient local connection to
- a server on the same machine (usually a UNIX domain socket).
- hostname="unix" is interpreted as a UNIX domain connection. */
-
 #ifndef ENOSYS
   #define ENOSYS  EINVAL
 #endif
@@ -605,6 +604,14 @@ local SOCKET connect_to_x_via_ip (struct sockaddr * addr, int addrlen,
   #define X_TCP_PORT  6000  /* from <X11/Xproto.h> */
 #endif
 
+/* connect_to_x_server(host,display)
+ Attempts to connect to server, given host name and display number.
+ Returns file descriptor (network socket). Returns -1 and sets errno
+ if connection fails.
+ An empty hostname is interpreted as the most efficient local connection to
+ a server on the same machine (usually a UNIX domain socket).
+ hostname="unix" is interpreted as a UNIX domain connection.
+ To be used inside begin/end_system_call() only. */
 global SOCKET connect_to_x_server (const char* host, int display)
 {
   var SOCKET fd;         /* file descriptor to return */
@@ -735,14 +742,12 @@ typedef union {
  #endif
 } sockaddr_max_t;
 
-/* Auxiliary function:
- socket_getlocalname(socket_handle,hd)
- socket_getlocalname_aux(socket_handle,hd)
- return the IP name of the localhost for the given socket. */
-
-/* Fills only hd->hostname and hd->port, not hd->truename. */
+/* socket_getlocalname_aux(socket_handle,hd)
+ Return the IP name of the localhost for the given socket.
+ Fills only hd->hostname and hd->port, not hd->truename.
+ To be used inside begin/end_system_call() only. */
 local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
-                                             host_data_t * hd ) {
+                                             host_data_t * hd) {
   var sockaddr_max_t addr;
   var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
   if (getsockname(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
@@ -764,7 +769,10 @@ local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
   return hd;
 }
 
-/* Fills all of *hd. */
+/* socket_getlocalname(socket_handle,hd)
+ Return the IP name of the localhost for the given socket.
+ Fills all of *hd.
+ To be used inside begin/end_system_call() only. */
 global host_data_t * socket_getlocalname (SOCKET socket_handle,
                                           host_data_t * hd, bool resolve_p) {
   if (socket_getlocalname_aux(socket_handle,hd) == NULL)
@@ -780,11 +788,10 @@ global host_data_t * socket_getlocalname (SOCKET socket_handle,
   return hd;
 }
 
-/* Auxiliary function:
- socket_getpeername (socket_handle, hd)
- returns the name of the host to which IP socket fd is connected. */
-
-/* Fills all of *hd. */
+/* socket_getpeername(socket_handle,hd)
+ Returns the name of the host to which IP socket fd is connected.
+ Fills all of *hd.
+ To be used inside begin/end_system_call() only. */
 global host_data_t * socket_getpeername (SOCKET socket_handle,
                                          host_data_t * hd, bool resolve_p) {
   var sockaddr_max_t addr;
@@ -831,8 +838,6 @@ global host_data_t * socket_getpeername (SOCKET socket_handle,
    This can (and should) be done multiple times for the same
    socket_handle. */
 
-global SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
-                                    unsigned int port);
 local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
                                 void* ignore) {
   var SOCKET fd;
@@ -859,6 +864,7 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
   saving_sock_errno(CLOSESOCKET(fd));
   return INVALID_SOCKET;
 }
+
 global SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
                                     unsigned int port) {
   var SOCKET fd;
@@ -909,12 +915,10 @@ global SOCKET accept_connection (SOCKET socket_handle) {
 }
 
 /* Creation of sockets on the client side:
- SOCKET fd = create_client_socket(hostname,port,void* timeout);
+ SOCKET fd = create_client_socket(hostname,port,timeout);
    creates a connection to a server (which must be waiting
    on the specified host and port). */
 
-global SOCKET create_client_socket (const char* hostname, unsigned int port,
-                                    void* timeout);
 local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
                              void* timeout) {
   /* <http://cr.yp.to/docs/connect.html>:
@@ -964,9 +968,9 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
   return INVALID_SOCKET;
 }
 
-global SOCKET create_client_socket (const char*hostname, unsigned intport,
+global SOCKET create_client_socket (const char* hostname, unsigned int port,
                                     void* timeout) {
-  return with_host_port(hostname,(unsigned short)intport,
+  return with_host_port(hostname,(unsigned short)port,
                         &connect_via_ip,timeout);
 }
 
