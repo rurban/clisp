@@ -1,5 +1,10 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* unix.d (time_t_from_filetime, time_t_to_filetime) [UNIX_CYGWIN32]:
+	New declarations.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (convert_time_from_universal): New declaration.
 
 2005-06-04  Bruno Haible  <bruno@clisp.org>
