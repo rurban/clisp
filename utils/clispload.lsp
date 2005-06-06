@@ -100,7 +100,7 @@
 
   ;; CLISP supports complex numbers with realpart and imagpart of different
   ;; types.
-  COMPLEX.2 COMPLEX.4 COMPLEX.5 IMAGPART.4 MISC.598
+  COMPLEX.2 COMPLEX.4 COMPLEX.5 IMAGPART.4 
 
   ;; Paul Dietz assumes that the classes STREAM and CONDITION are disjoint.
   ;; In CLISP they are not, because the user can create subclasses inheriting
