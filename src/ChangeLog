@@ -1,3 +1,8 @@
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (if_does_not_exist_symbol, if_exists_symbol): New
+	declarations.
+
 2005-06-05  Sam Steingold  <sds@gnu.org>
 
 	* clispload.lsp (*expected-failures*): added MISC.598 (assumes
