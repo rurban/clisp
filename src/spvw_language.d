@@ -220,10 +220,11 @@ global void init_language (const char* argv_language,
         }
       }
     #endif
-   #if defined(WIN32_NATIVE)
-    /* this avoids a segfault on mingw */
-    if (argv_localedir == NULL) argv_localedir = "";
-   #endif
+    # If argv_localedir is NULL, the user is not interested in localized
+    # messages. Therefore use a directory that doesn't contain message
+    # catalogs.
+    if (argv_localedir == NULL)
+      argv_localedir = "/nonexistent";
     bindtextdomain("clisp",argv_localedir);
     bindtextdomain("clisplow",argv_localedir);
     if (must_free_argv_localedir) free((void*)argv_localedir);

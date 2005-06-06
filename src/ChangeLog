@@ -1,5 +1,11 @@
 2005-06-06  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_language.d (init_language): When argv_localedir is NULL, don't
+	use any message catalogs, not even those in the default location
+	/usr/share/locale.
+
+2005-06-06  Bruno Haible  <bruno@clisp.org>
+
 	* clispload.lsp (*expected-failures*): Add DECLARATION.[4-11].
 
 2005-06-06  Sam Steingold  <sds@gnu.org>
