@@ -14456,6 +14456,73 @@ extern bool terminal_stream_p(object stream);
 extern bool check_charset (const char * code, object charset);
 # used in encoding.d
 
+# ###################### SOCKBIBL for SOCKET.D ############################# #
+
+#if defined(UNIX) || defined(WIN32_NATIVE)
+/* FIXME: Add documentation */
+extern object addr_to_string (short type, char *addr);
+#endif
+
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
+/* A wrapper around the connect() function.
+ To be used inside begin/end_system_call() only. */
+extern int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
+#endif
+
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
+/* FIXME: Add documentation */
+extern object string_to_addr (const char* name);
+#endif
+
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
+/* FIXME: Add documentation */
+extern struct hostent* resolve_host (object arg);
+#endif
+
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
+/* connect_to_x_server(host,display)
+ Attempts to connect to server, given host name and display number.
+ Returns file descriptor (network socket). Returns -1 and sets errno
+ if connection fails.
+ An empty hostname is interpreted as the most efficient local connection to
+ a server on the same machine (usually a UNIX domain socket).
+ hostname="unix" is interpreted as a UNIX domain connection.
+ To be used inside begin/end_system_call() only. */
+extern SOCKET connect_to_x_server (const char* host, int display);
+#endif
+
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
+/* socket_getlocalname(socket_handle,hd)
+ Return the IP name of the localhost for the given socket.
+ Fills all of *hd.
+ To be used inside begin/end_system_call() only. */
+extern host_data_t * socket_getlocalname (SOCKET socket_handle, host_data_t * hd, bool resolve_p);
+#endif
+
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
+/* socket_getpeername(socket_handle,hd)
+ Returns the name of the host to which IP socket fd is connected.
+ Fills all of *hd.
+ To be used inside begin/end_system_call() only. */
+extern host_data_t * socket_getpeername (SOCKET socket_handle, host_data_t * hd, bool resolve_p);
+#endif
+
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
+/* Creates a socket to which other processes can connect. */
+extern SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
+#endif
+
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
+/* Waits for a connection to another process. */
+extern SOCKET accept_connection (SOCKET socket_handle);
+#endif
+
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
+/* Creates a connection to a server (which must be waiting
+   on the specified host and port). */
+extern SOCKET create_client_socket (const char* hostname, unsigned int port, void* timeout);
+#endif
+
 # ####################### SYMBIBL for SYMBOL.D ############################# #
 
 # UP: Returns the gobal definition of a symbol's function,
