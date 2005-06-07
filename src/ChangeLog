@@ -1,5 +1,9 @@
 2005-06-07  Bruno Haible  <bruno@clisp.org>
 
+	* Makefile.devel (EXCLUDE): Exclude also the 'queued' directory.
+
+2005-06-07  Bruno Haible  <bruno@clisp.org>
+
 	* win32.d [MINGW]: Include <io.h> before redefining lseek, isatty.
 
 2005-06-06  Bruno Haible  <bruno@clisp.org>

@@ -26,7 +26,7 @@ GROFF = nroff -man
 EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
         --exclude .cvsignore --exclude \*~ --exclude .\#\*                 \
-        --exclude $(AUTOCONF_CACHE) --exclude tmp                          \
+        --exclude $(AUTOCONF_CACHE) --exclude tmp --exclude queued         \
         `sed "s/^/--exclude /" doc/.cvsignore`                             \
         --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
