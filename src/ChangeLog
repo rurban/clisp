@@ -1,3 +1,20 @@
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (Encoding, Encoding_wcslen, Encoding_wcstombs, cslen,
+	cstombs, TheEncoding, TheMachineCode, ThePseudofun, Pseudofun): Emit
+	to clisp.h.
+	(with_string_0, with_sstring_0): Use cslen instead of cslen_f,
+	cstombs instead of cstombs_f.
+	* encoding.d (cslen_f, cslen_ff, cstombs_f, cstombs_ff): Remove
+	functions.
+	* genclisph.d (main): Don't emit cslen_f, cslen_ff, cstombs_f,
+	cstombs_ff.
+	* modules/syscalls/calls.c (LispToPropVariant, PropSpecSetStr,
+	with_string_0w): Use cslen instead of cslen_f, cstombs instead of
+	cstombs_f.
+	* modules/clx/new-clx/clx.f (to_XChar2b): Use cstombs instead of
+	cstombs_f.
+
 2005-06-06  Sam Steingold  <sds@gnu.org>
 
 	* socket.d (MACHINE-INSTANCE, socket_getlocalname_aux)

@@ -226,16 +226,6 @@ int main(int argc, char* argv[])
  #endif
    printf("#define LISPFUN  LISPFUN_B\n");
 
- #if defined(UNICODE)
-   printf("extern uintL cslen_f (object encoding, const chart*src, uintL srclen);\n");
-   printf("extern void cstombs_f (object encoding, const chart *src, uintL srclen, uintB* dest, uintL destlen);\n");
- #else
-   printf("#define cslen_f(e,s,l)  cslen_ff(s,l)\n");
-   printf("extern uintL cslen_ff (const chart*src, uintL srclen);\n");
-   printf("#define cstombs_f(e,s,l,d,n) cstombs_ff(s,l,d,n)\n");
-   printf("extern void cstombs_ff (const chart *src, uintL srclen, uintB* dest, uintL destlen);\n");
- #endif
-
   /* Note: The following inline/macro definitions are _not_ in lispbibl.d! */
 
   printf("#ifndef COMPILE_STANDALONE\n");

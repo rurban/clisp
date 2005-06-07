@@ -6378,6 +6378,23 @@ typedef struct {
          begin_system_call(); memcpy(dest,src,srclen); end_system_call(); \
     } while(0)
 #endif
+%% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t enc_eol%s; gcv_object_t enc_towcs_error%s; gcv_object_t enc_tombs_error%s;",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+%% #ifdef UNICODE
+%%   sprintf(buf+strlen(buf)," gcv_object_t enc_charset%s; gcv_object_t enc_mblen%s; gcv_object_t enc_mbstowcs%s; gcv_object_t enc_wcslen%s; gcv_object_t enc_wcstombs%s; gcv_object_t enc_range%s; gcv_object_t enc_table%s; uintL min_bytes_per_char; uintL max_bytes_per_char;",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+%% #endif
+%% strcat(buf," } *");
+%% emit_typedef(buf,"Encoding");
+%% #ifdef UNICODE
+%%   printf("#define Encoding_wcslen(encoding)  ((uintL (*) (object, const chart*, const chart*)) ThePseudofun(TheEncoding(encoding)->enc_wcslen))\n");
+%%   printf("#define Encoding_wcstombs(encoding)  ((void (*) (object, object, const chart**, const chart*, uintB**, uintB*)) ThePseudofun(TheEncoding(encoding)->enc_wcstombs))\n");
+%% #endif
+%% #ifdef UNICODE
+%%   printf("#define cslen(encoding,src,srclen)  Encoding_wcslen(encoding)(encoding,src,(src)+(srclen))\n");
+%%   printf("#define cstombs(encoding,src,srclen,dest,destlen)  do { const chart* _srcptr = (src); const chart* _srcendptr = _srcptr+(srclen); uintB* _destptr = (dest); uintB* _destendptr = _destptr+(destlen); Encoding_wcstombs(encoding)(encoding,nullobj,&_srcptr,_srcendptr,&_destptr,_destendptr); } while(0)\n");
+%% #else
+%%   printf("#define cslen(encoding,src,srclen)  (srclen)\n");
+%%   printf("#define cstombs(encoding,src,srclen,dest,destlen)  do { begin_system_call(); memcpy(dest,src,srclen); end_system_call(); } while(0)\n");
+%% #endif
 
 #ifdef FOREIGN
 # foreign pointer wrap
@@ -7505,6 +7522,7 @@ typedef enum {
 %%   printf("#define TheXrecord(obj)  ((Xrecord)("); printf_type_pointable(ngci,stream_type|orecord_type); printf("))\n");
 %%   printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(ngci,orecord_type); printf("))\n");
 %%   #endif
+%%   printf("#define TheEncoding(obj)  ((Encoding)("); printf_type_pointable(ngci,orecord_type); printf("))\n");
 %%   #ifdef FOREIGN
 %%     printf("#define TheFpointer(obj)  ((Fpointer)("); printf_type_pointable(ngci,orecord_type); printf("))\n");
 %%   #endif
@@ -7512,9 +7530,9 @@ typedef enum {
 %%   printf("#define TheClosure(obj)  ((Closure)("); printf_type_pointable(ngci,closure_type); printf("))\n");
 %%   printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(ngci,instance_type|closure_type); printf("))\n");
 %%   printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(cgci,subr_type); printf("))\n");
-%%   #if notused
 %%   printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(cgci,machine_type); printf("))\n");
-%%   #endif
+%%   printf("#define TheMachineCode(obj)  TheMachine(obj)\n");
+%%   printf("#define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))\n");
 %% #else
 %%   printf1("#define TheCons(obj)  ((Cons)(ngci_pointable(obj)-%d))\n",cons_bias);
 %%   #if notused
@@ -7540,6 +7558,7 @@ typedef enum {
 %%   printf1("#define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
 %%   printf1("#define ThePackage(obj)  ((Package)(ngci_pointable(obj)-%d))\n",varobject_bias);
 %%   #endif
+%%   printf("#define TheEncoding(obj)  ((Encoding)(ngci_pointable(obj)-%d))\n",varobject_bias);
 %%   #ifdef FOREIGN
 %%     printf("#define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-%d))\n",varobject_bias);
 %%   #endif
@@ -7547,9 +7566,15 @@ typedef enum {
 %%   printf1("#define TheClosure(obj)  ((Closure)(ngci_pointable(obj)-%d))\n",varobject_bias);
 %%   printf1("#define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-%d))\n",varobject_bias);
 %%   printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
-%%   #if notused
 %%   printf1("#define TheMachine(obj)  ((void*)(cgci_pointable(obj)-%d))\n",machine_bias);
+%%   #if (log2_C_CODE_ALIGNMENT >= 2)
+%%     printf("#define TheMachineCode(obj)  TheMachine(obj)\n");
+%%   #elif defined(HPPA)
+%%     printf("#define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)+2))\n");
+%%   #else
+%%     printf2("#define TheMachineCode(obj)  ((void*)(((uintP)TheMachine(obj)>>%d)|%d))\n",2-log2_C_CODE_ALIGNMENT,CODE_ADDRESS_RANGE&~((~(uintP)0)>>(2-log2_C_CODE_ALIGNMENT)));
 %%   #endif
+%%   printf("#define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))\n");
 %% #endif
 
 # Some acronyms
@@ -11222,6 +11247,7 @@ extern struct subr_tab_ {
 # FUNCALL) or constant C data.
 # For SAVEMEM/LOADMEM we have a table of all such pseudofunctions.
 typedef const void *  Pseudofun; # assume function pointers fit in a void*
+%% printf("typedef const void *  Pseudofun;\n");
 
 # Declaration of the tables of relocatable pointers:
 #define PSEUDO  PSEUDO_A
@@ -13530,9 +13556,9 @@ extern maygc object ascii_to_string (const char * asciz);
 %% printf("    var object ascizvar##_string = unpack_string_ro(string,&ascizvar##_len,&ascizvar##_offset);");
 %% printf("    var const chart* ptr1;");
 %% printf("    unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,ascizvar##_offset, ptr1=);");
-%% printf("   {var uintL ascizvar##_bytelen = cslen_f(encoding,ptr1,ascizvar##_len);");
+%% printf("   {var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len);");
 %% printf("    var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
-%% printf("    cstombs_f(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
+%% printf("    cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
 %% printf("    ascizvar##_data[ascizvar##_bytelen] = 0;");
 %% printf("    {var char* ascizvar = (char*) &ascizvar##_data[0];");
 %% printf("     statement");
@@ -13545,9 +13571,9 @@ extern maygc object ascii_to_string (const char * asciz);
 %% printf("   {var uintL ascizvar##_len = Sstring_length(ascizvar##_string);");
 %% printf("    var const chart* ptr1;");
 %% printf("    unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);");
-%% printf("   {var uintL ascizvar##_bytelen = cslen_f(encoding,ptr1,ascizvar##_len);");
+%% printf("   {var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len);");
 %% printf("    var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
-%% printf("    cstombs_f(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
+%% printf("    cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
 %% printf("    ascizvar##_data[ascizvar##_bytelen] = 0;");
 %% printf("    {var char* ascizvar = (char*) &ascizvar##_data[0];");
 %% printf("     statement");
