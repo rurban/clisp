@@ -3038,22 +3038,22 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
       unpack_sstring_alloca(str_string,str_len,str_offset, ptr1=);
       if (typehint == VT_LPWSTR || typehint == VT_BSTR) {
         uintL str_bytelen =
-          cslen_f(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len);
+          cslen(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len);
         LPWSTR str = SysAllocStringByteLen(NULL,str_bytelen+4);
         if (typehint == VT_BSTR) {
           /* it's ok, SysAllocStringByteLen returns pointer after DWORD */
           *(((DWORD *)str)-1) = (DWORD)str_bytelen;
         }
-        cstombs_f(Symbol_value(S(unicode_16_little_endian)),ptr1,
-                  str_len,(uintB *)str,str_bytelen);
+        cstombs(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len,
+                uintB *)str,str_bytelen);
         ((uintB *)str)[str_bytelen] = '\0';
         ((uintB *)str)[str_bytelen+1] = '\0';
         pvar->pwszVal = str;
         pvar->vt = typehint;
       } else { /* Win XP explorer seems to create ANSI strings. So do we. */
-        uintL str_bytelen = cslen_f(GLO(misc_encoding),ptr1,str_len);
+        uintL str_bytelen = cslen(GLO(misc_encoding),ptr1,str_len);
         char * str = (char *) SysAllocStringByteLen(NULL, str_bytelen+2);
-        cstombs_f(GLO(misc_encoding),ptr1,str_len,(uintB *)str,str_bytelen);
+        cstombs(GLO(misc_encoding),ptr1,str_len,(uintB *)str,str_bytelen);
         str[str_bytelen] = '\0';
         pvar->pszVal = str;
         pvar->vt = VT_LPSTR;
@@ -3179,10 +3179,10 @@ static void PropSpecSetStr (object str, PROPSPEC * pspec) {
     const chart* ptr1;
     unpack_sstring_alloca(str_string,str_len,str_offset, ptr1=);
     { uintL str_bytelen =
-        cslen_f(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len);
+        cslen(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len);
       pspec->lpwstr = (LPOLESTR) malloc(str_bytelen+2);
-      cstombs_f(Symbol_value(S(unicode_16_little_endian)),ptr1,
-                str_len,(uintB *)pspec->lpwstr,str_bytelen);
+      cstombs(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len,
+              (uintB *)pspec->lpwstr,str_bytelen);
       ((uintB *)pspec->lpwstr)[str_bytelen] = '\0';
       ((uintB *)pspec->lpwstr)[str_bytelen+1] = '\0';
     }
@@ -3272,10 +3272,10 @@ static const char * DecodeHRESULT (HRESULT hres) {
     var const chart* ptr1;                     \
     unpack_sstring_alloca(wcvar##_string,wcvar##_len,wcvar##_offset, ptr1=); \
    {var uintL wcvar##_bytelen =                \
-     cslen_f(Symbol_value(S(unicode_16_little_endian)),ptr1,wcvar##_len); \
+     cslen(Symbol_value(S(unicode_16_little_endian)),ptr1,wcvar##_len); \
     var DYNAMIC_ARRAY(wcvar##_data,uintB,wcvar##_bytelen+2); \
-    cstombs_f(Symbol_value(S(unicode_16_little_endian)),ptr1,\
-      wcvar##_len,&wcvar##_data[0],wcvar##_bytelen); \
+    cstombs(Symbol_value(S(unicode_16_little_endian)),ptr1,wcvar##_len,\
+            &wcvar##_data[0],wcvar##_bytelen); \
     wcvar##_data[wcvar##_bytelen] = '\0';            \
     wcvar##_data[wcvar##_bytelen+1] = '\0';          \
     {var WCHAR* wcvar = (WCHAR*) &wcvar##_data[0];   \
