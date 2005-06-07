@@ -11265,6 +11265,12 @@ extern struct pseudodata_tab_ {
 #undef PSEUDO
 # is used by STREAM, SPVW
 
+# Declaration of the functions that can be stored in Lisp objects.
+#define PSEUDO  PSEUDO_C
+#include "pseudofun.c"
+#undef PSEUDO
+# is used by STREAM, and to avoid gcc -Wmissing-declarations warnings
+
 # Return an ADDRESS object encapsulating a pseudofunction.
 #ifdef TYPECODES
   #define P(fun)  type_constpointer_object(machine_type,(Pseudofun)&(fun))
@@ -13623,6 +13629,11 @@ extern maygc object ascii_to_string (const char * asciz);
     FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
   }}} while(0)
 # is used by PATHNAME
+
+/* Error, when a character cannot be converted to an encoding.
+ fehler_unencodable(encoding,ch); */
+nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
+# is used by STREAM
 
 # ####################### ARRBIBL for ARRAY.D ############################## #
 
@@ -16553,6 +16564,32 @@ extern maygc object make_file_stream (direction_t direction, bool append_flag, b
 extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);
 %% printf("extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);\n");
 
+#ifdef PIPES
+/* mkops_from_handles(pipe,process_id)
+   Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
+   > STACK_0: buffered
+   > STACK_1: element-type
+   > STACK_2: encoding
+   < STACK_0: result - a PIPE-OUTPUT-STREAM
+   Used in LAUNCH
+   Can trigger GC */
+extern maygc void mkops_from_handles (Handle opipe, int process_id);
+# is used by PATHNAME
+#endif
+
+#ifdef PIPES
+/* mkips_from_handles(pipe,process_id)
+   Make a PIPE-INPUT-STREAM from pipe handle and a process-id
+   > STACK_0: buffered
+   > STACK_1: element-type
+   > STACK_2: encoding
+   < STACK_0: result - a PIPE-INPUT-STREAM
+   Used in LAUNCH
+   Can trigger GC */
+extern maygc void mkips_from_handles (Handle ipipe, int process_id);
+# is used by PATHNAME
+#endif
+
 # Makes a Broadcast-Stream using a Stream stream.
 # make_broadcast1_stream(stream)
 # can trigger GC
@@ -17233,6 +17270,9 @@ extern maygc object c_double_to_DF (const dfloatjanus* val_);
 extern void DF_to_c_double (object obj, dfloatjanus* val_);
 %% printf("extern void DF_to_c_double (object obj, dfloatjanus* val_);\n");
 
+/* hash-code of a Long-Float: mixture of exponent, length, first 32 bits */
+extern uint32 hashcode_lfloat (object obj);
+
 /* (complex x (float 0 x)) */
 extern object F_complex_C (object x);
 
@@ -17564,6 +17604,17 @@ extern maygc object decimal_string (object x);
 /* Returns a multiline string containing some info about the flags with which
    the executable was built. */
 extern object built_flags (void);
+
+# ####################### FOR DEBUGGING UNDER GDB ######################## #
+
+#ifdef GENERATIONAL_GC
+# Put a breakpoint here if you want to catch CLISP just before it dies.
+extern void sigsegv_handler_failed (void* address);
+#endif
+
+/* For debugging: From within gdb, type: call ext_show_stack().
+   Equivalent to (ext:show-stack) from the Lisp prompt. */
+extern void ext_show_stack (void);
 
 /*************************************************************************/
 

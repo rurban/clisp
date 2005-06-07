@@ -8894,7 +8894,7 @@ local void lisp_completion_ignore (void* sp, gcv_object_t* frame, object label,
   throw_to(S(conversion_failure));
 }
 # Completion of Lisp-Symbols
-global maygc char** lisp_completion (char* text, int start, int end) {
+local maygc char** lisp_completion (char* text, int start, int end) {
   # text[0..end-start-1] = the_line[start..end-1]
   # This is a Callback-Function, we must set the Stack correctly again:
   begin_callback();
@@ -12963,7 +12963,7 @@ LISPFUN(make_pipe_output_stream,seclass_default,1,0,norest,key,3,
   VALUES1(add_to_open_streams(stream)); /* return stream */
 }
 
-/* mkops_from_handles
+/* mkops_from_handles(pipe,process_id)
    Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
    > STACK_0: buffered
    > STACK_1: element-type
@@ -12997,7 +12997,7 @@ global maygc void mkops_from_handles (Handle opipe, int process_id) {
   add_to_open_streams(STACK_0); /* return stream */
 }
 
-/* mkips_from_handles
+/* mkips_from_handles(pipe,process_id)
    Make a PIPE-INPUT-STREAM from pipe handle and a process-id
    > STACK_0: buffered
    > STACK_1: element-type
@@ -17557,9 +17557,6 @@ LISPFUNN(defgray,1) {
   #endif
 
 # table of all pseudo-functions
-#define PSEUDO  PSEUDO_C
-#include "pseudofun.c"
-#undef PSEUDO
 global struct pseudocode_tab_ pseudocode_tab = {
   #define PSEUDO  PSEUDO_D
   #include "pseudofun.c"

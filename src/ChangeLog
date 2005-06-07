@@ -1,5 +1,20 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	Compile with gcc -Wmissing-declarations.
+	* makemake.in (XCFLAGS): Add -Wmissing-declarations.
+	* lispbibl.d: Include pseudofun.c with PSEUDO_C.
+	(fehler_unencodable, mkops_from_handles, mkips_from_handles,
+	hashcode_lfloat, sigsegv_handler_failed, ext_show_stack): New
+	declarations.
+	* io.d (print): Make local.
+	* pathname.d (fehler_pathname_designator): Make local.
+	(mkops_from_handles, mkips_from_handles): Remove declarations.
+	* stream.d (lisp_completion): Make local.
+	Move pseudofun.c include with PSEUDO_C to lispbibl.d.
+	* foreign.d (convert_to_foreign_allocaing): Make local.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	Remove warnings emitted by gcc -Wstrict-prototypes.
 	* unix.d (errno): Don't declare. Assume <errno.h> does it.
 	* spvw.d (print_banner): Define with void argument list.
