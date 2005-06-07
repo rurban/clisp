@@ -1,0 +1,25 @@
+Not sure whether this has bad side effects.
+
+2005-06-06  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (MODULES): Don't use with_module_* variables any more.
+
+*** clisp-20050527/src/makemake.in.bak	2005-06-04 21:10:49.000000000 +0200
+--- clisp-20050527/src/makemake.in	2005-06-07 02:34:44.000000000 +0200
+***************
+*** 1870,1876 ****
+  if [ $TOS = unix ] ; then
+    echol   "# clx/new-clx          faster X11 interface (replaces clx/mit-clx)"
+  fi
+! echol "MODULES = ${MODULES} "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
+  echol
+  echol "# Command line options passed to the configure files of add-on modules"
+  echol "MODULE_CONFIGURE_FLAGS =${module_configure_flags}"
+--- 1880,1886 ----
+  if [ $TOS = unix ] ; then
+    echol   "# clx/new-clx          faster X11 interface (replaces clx/mit-clx)"
+  fi
+! echol "MODULES = ${MODULES}"
+  echol
+  echol "# Command line options passed to the configure files of add-on modules"
+  echol "MODULE_CONFIGURE_FLAGS =${module_configure_flags}"
