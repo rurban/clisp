@@ -1,5 +1,10 @@
 2005-06-07  Bruno Haible  <bruno@clisp.org>
 
+	* genclisph.d (print_printf_arg, printf_with_args, print_file,
+	emit_typedef_test, emit_typedef, emit_typedef_f): Declare as local.
+
+2005-06-07  Bruno Haible  <bruno@clisp.org>
+
 	* Makefile.devel (EXCLUDE): Exclude also the 'queued' directory.
 
 2005-06-07  Bruno Haible  <bruno@clisp.org>
