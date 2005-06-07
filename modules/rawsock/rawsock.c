@@ -3,6 +3,7 @@
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
  * Sam Steingold 2004-2005
+ * Bruno Haible 2004-2005
  * <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
  */
 
@@ -147,36 +148,72 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   } while(0)
 
 /* ================== arpa/inet.h interface ================== */
-/* define even when the OS lacks the C functions; in that case,
-   return the argument on the assumption
-   that the host order is the same as the network order */
+/* Define even when the OS lacks the C functions; in that case,
+   we emulate the C functions. */
 DEFUN(RAWSOCK:HTONL, num) {
   uint32 arg = I_to_uint32(check_uint32(popSTACK()));
+  uint32 result;
 #if defined(HAVE_HTONL)
-  begin_system_call(); arg = htonl(arg); end_system_call();
+  begin_system_call(); result = htonl(arg); end_system_call();
+#else
+  union { struct { uint8 octet3; uint8 octet2; uint8 octet1; uint8 octet0; } o;
+          uint32 all;
+        }
+        word;
+  word.all = arg;
+  result = ((uint32)word.o.octet3 << 24) | ((uint32)word.o.octet2 << 16)
+           | ((uint32)word.o.octet1 << 8) | (uint32)word.o.octet0;
 #endif
-  VALUES1(uint32_to_I(arg));
+  VALUES1(uint32_to_I(result));
 }
 DEFUN(RAWSOCK:NTOHL, num) {
   uint32 arg = I_to_uint32(check_uint32(popSTACK()));
+  uint32 result;
 #if defined(HAVE_NTOHL)
-  begin_system_call(); arg = ntohl(arg); end_system_call();
+  begin_system_call(); result = ntohl(arg); end_system_call();
+#else
+  union { struct { uint8 octet3; uint8 octet2; uint8 octet1; uint8 octet0; } o;
+          uint32 all;
+        }
+        word;
+  word.o.octet3 = (arg >> 24) & 0xff;
+  word.o.octet2 = (arg >> 16) & 0xff;
+  word.o.octet1 = (arg >> 8) & 0xff;
+  word.o.octet0 = arg & 0xff;
+  result = word.all;
 #endif
-  VALUES1(uint32_to_I(arg));
+  VALUES1(uint32_to_I(result));
 }
 DEFUN(RAWSOCK:HTONS, num) {
   uint16 arg = I_to_uint16(check_uint16(popSTACK()));
+  uint16 result;
 #if defined(HAVE_HTONS)
-  begin_system_call(); arg = htons(arg); end_system_call();
+  begin_system_call(); result = htons(arg); end_system_call();
+#else
+  union { struct { uint8 octet1; uint8 octet0; } o;
+          uint16 all;
+        }
+        word;
+  word.all = arg;
+  result = ((uint16)word.o.octet1 << 8) | (uint16)word.o.octet0;
 #endif
-  VALUES1(uint16_to_I(arg));
+  VALUES1(uint16_to_I(result));
 }
 DEFUN(RAWSOCK:NTOHS, num) {
   uint16 arg = I_to_uint16(check_uint16(popSTACK()));
+  uint16 result;
 #if defined(HAVE_NTOHS)
-  begin_system_call(); arg = ntohs(arg); end_system_call();
+  begin_system_call(); result = ntohs(arg); end_system_call();
+#else
+  union { struct { uint8 octet1; uint8 octet0; } o;
+          uint16 all;
+        }
+        word;
+  word.o.octet1 = (arg >> 8) & 0xff;
+  word.o.octet0 = arg & 0xff;
+  result = word.all;
 #endif
-  VALUES1(uint16_to_I(arg));
+  VALUES1(uint16_to_I(result));
 }
 DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
   int family = check_socket_domain(STACK_1);
