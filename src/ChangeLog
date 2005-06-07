@@ -1,5 +1,18 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	Remove warnings emitted by gcc -Wstrict-prototypes.
+	* unix.d (errno): Don't declare. Assume <errno.h> does it.
+	* spvw.d (print_banner): Define with void argument list.
+	* stream.d (get_col): Likewise.
+	* pathname.d (fix_parse_namestring_dot_file, nullfile,
+	interpret_launch_priority): Likewise.
+	* hashtabl.d (get_eq_hashfunction, get_eql_hashfunction,
+	get_equal_hashfunction): Likewise.
+	* debug.d (ext_show_stack): Likewise.
+	* realtran.d (sin_stack, cos_stack): Likewise.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (Encoding, Encoding_wcslen, Encoding_wcstombs, cslen,
 	cstombs, TheEncoding, TheMachineCode, ThePseudofun, Pseudofun): Emit
 	to clisp.h.

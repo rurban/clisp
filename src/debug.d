@@ -1542,7 +1542,7 @@ LISPFUN(show_stack,seclass_default,0,3,norest,nokey,0,NIL)
 
 /* For debugging: From within gdb, type: call ext_show_stack().
    Equivalent to (ext:show-stack) from the Lisp prompt. */
-global void ext_show_stack () {
+global void ext_show_stack (void) {
   pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound); C_show_stack();
 }
 

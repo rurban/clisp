@@ -431,7 +431,7 @@ local maygc void F_pi2_round_I_F (object x)
 }
 
 /* compute the sin(r=STACK_0) with precision of STACK_2 */
-local maygc object sin_stack ()
+local maygc object sin_stack (void)
 {
   var object x = F_sqrt_F(F_sinx_F(STACK_0)); /* sin(r)/r */
   x = F_F_mal_F(x,STACK_0); /* sin(r) = (sin(r)/r) * r */
@@ -439,7 +439,7 @@ local maygc object sin_stack ()
 }
 
 /* compute the cos(r=STACK_0) with precision of STACK_2 */
-local maygc object cos_stack ()
+local maygc object cos_stack (void)
 {
   var object s = F_I_scale_float_F(STACK_0,Fixnum_minus1); /* s := r/2 */
   pushSTACK(s);
