@@ -49,7 +49,7 @@ local const char* ULsuffix = "UL";
 local const char* ULLsuffix = "ULL";
 #endif
 
-void print_printf_arg (const printf_arg* arg)
+local void print_printf_arg (const printf_arg* arg)
   {
     switch (arg->size) {
       case sizeof(uint8):
@@ -81,7 +81,7 @@ void print_printf_arg (const printf_arg* arg)
     }
   }
 
-void printf_with_args (const char* string, int argcount, printf_arg* args)
+local void printf_with_args (const char* string, int argcount, printf_arg* args)
 {
   while (*string) {
     if (string[0]=='%') {
@@ -153,7 +153,7 @@ void printf_with_args (const char* string, int argcount, printf_arg* args)
     printf_with_args(string,7,args); \
   }
 
-void print_file (const char* fname) {
+local void print_file (const char* fname) {
   char buf[BUFSIZ];
   FILE* includefile = fopen(fname,"r");
   char* line;
@@ -166,18 +166,18 @@ void print_file (const char* fname) {
 static FILE *header_f = NULL, *test_f = NULL;
 static unsigned int test_count = 0, typedef_count = 0;
 
-void emit_typedef_test (const char *new_type) {
+local void emit_typedef_test (const char *new_type) {
   fprintf(test_f,"  printf(\"sizeof(%s)=%%d\\n\",sizeof(%s));\n",
           new_type,new_type);
   test_count++;
 }
-void emit_typedef (const char* def, const char* new_type) {
+local void emit_typedef (const char* def, const char* new_type) {
   fprintf(header_f,"typedef %s %s;\n",def,new_type);
   typedef_count++;
   if (test_f) emit_typedef_test(new_type);
 }
 
-void emit_typedef_f (const char* format, const char* new_type) {
+local void emit_typedef_f (const char* format, const char* new_type) {
   fputs("typedef ",header_f);
   fprintf(header_f,format,new_type);
   fputs(";\n",header_f);
