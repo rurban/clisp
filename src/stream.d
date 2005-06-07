@@ -14677,7 +14677,7 @@ local maygc object handle_to_stream (Handle fd, object direction, object buff_p,
   pushSTACK(buff_p);
   pushSTACK(ext_fmt);
   pushSTACK(eltype);
-  pushSTACK(allocate_handle(handle_dup1(fd)));
+  pushSTACK(allocate_handle(handle_dup(fd)));
   dir = check_direction(direction);
  #ifdef UNIX
   { /* set Filename to /dev/fd/<fd> */
