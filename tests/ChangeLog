@@ -1,3 +1,8 @@
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
+	* path.tst: Use UNKNOWN, not FIXME, for not-yet-determined values in
+	other implementations.
+
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Adjust numbering of last patch. Add a little sharper test.
