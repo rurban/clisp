@@ -886,7 +886,7 @@ local maygc object merge_defaults (object pathname) {
 /* error-message because of illegal pathname-argument.
  fehler_pathname_designator(thing); ( fehler_... = error_... )
  > thing: (erroneous) argument */
-nonreturning_function(global, fehler_pathname_designator, (object thing)) {
+nonreturning_function(local, fehler_pathname_designator, (object thing)) {
   pushSTACK(thing);                       /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_designator_pathname)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(O(type_designator_pathname));
@@ -8325,9 +8325,6 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
 #endif
 
 #if defined(UNIX) || defined (WIN32_NATIVE)
-
-extern maygc void mkops_from_handles (Handle opipe, int process_id);
-extern maygc void mkips_from_handles (Handle ipipe, int process_id);
 
 #ifdef UNIX
 
