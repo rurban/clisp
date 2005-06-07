@@ -233,6 +233,7 @@ extern ssize_t fd_write (HANDLE fd, const void* buf, size_t nbyte, perseverance_
 #undef SIZEOF_OFF_T  /* on mingw, it was defined in unixconf.h */
 #define SIZEOF_OFF_T  8
 #ifdef __MINGW32__
+  #include <io.h>
   #define lseek clisp_lseek /* avoid collision with prototype in <mingw/io.h> */
 #endif
 extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
@@ -340,6 +341,7 @@ extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event wa
 
 /* Hacking the terminal */
 #ifdef __MINGW32__
+  # include <io.h>
   #define isatty clisp_isatty /* avoid collision with prototype in <mingw/io.h> */
 #endif
 extern int isatty (HANDLE handle); /* see win32aux.d */
