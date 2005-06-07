@@ -4,7 +4,7 @@ See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
-bind-eval.tst failure on Linux/amd64 [sam]
+bind-eval.tst failure on Linux/amd64 [bruno]
 
 use LockFile instead of LockFileEx [sam]
 
@@ -16,6 +16,32 @@ workaround for extra comma in _clisp.1 [sam]
 
 regression: resolution of logical pathnames is broken, try
    (compile-file (logical-pathname "FOO.LISP")) [sam]
+
+regression: [bruno]
+=============== script.lisp ==================
+(print (list 'script-args *args*))
+(print (list '*standard-input* *standard-input*))
+(print (list '*standard-output* *standard-output*))
+(print (list '*error-output* *error-output*))
+(print (list '*terminal-io* *terminal-io*))
+(print (list '*debug-io* *debug-io*))
+(print "tell me something...") 
+(print (read-line *standard-input*))
+"first"
+(with-open-stream (in (make-stream :input))
+  (print in)
+  (print "tell me something else...")
+  (print (read-line in)))
+"second"
+(setf (stream-element-type *standard-input*) '(unsigned-byte 8))
+(print (list '*standard-input* *standard-input*))
+=============== script.lisp ==================
+$ cat script.lisp | clisp
+*** - (SETF STREAM-ELEMENT-TYPE) on #<IO TERMINAL-STREAM> is illegal
+$ clisp < script.lisp
+same + hangs instead of terminating.
+$ clisp script.lisp
+works fine.
 
 Readline interface problem:
 [2]> (macroexü
