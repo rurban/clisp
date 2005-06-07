@@ -210,6 +210,49 @@ x=`echo "$cl_cv_address_stack" | sed -e 's,^guessing ,,'`"UL"
 AC_DEFINE_UNQUOTED(STACK_ADDRESS_RANGE,$x,[address range of the C stack])
 ])
 
+# alloca.m4 serial 5
+dnl Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_ALLOCA],
+[
+  dnl Work around a bug of AC_EGREP_CPP in autoconf-2.57.
+  AC_REQUIRE([AC_PROG_CPP])
+  AC_REQUIRE([AC_PROG_EGREP])
+
+  AC_REQUIRE([AC_FUNC_ALLOCA])
+  if test $ac_cv_func_alloca_works = no; then
+    gl_PREREQ_ALLOCA
+  fi
+
+  # Define an additional variable used in the Makefile substitution.
+  if test $ac_cv_working_alloca_h = yes; then
+    AC_EGREP_CPP([Need own alloca], [
+#if defined __GNUC__ || defined _AIX || defined _MSC_VER
+	Need own alloca
+#endif
+      ],
+      [AC_DEFINE(HAVE_ALLOCA, 1,
+	    [Define to 1 if you have `alloca' after including <alloca.h>,
+	     a header that may be supplied by this distribution.])
+       ALLOCA_H=alloca.h],
+      [ALLOCA_H=])
+  else
+    ALLOCA_H=alloca.h
+  fi
+  AC_SUBST([ALLOCA_H])
+
+  AC_DEFINE(HAVE_ALLOCA_H, 1,
+    [Define HAVE_ALLOCA_H for backward compatibility with older code
+     that includes <alloca.h> only if HAVE_ALLOCA_H is defined.])
+])
+
+# Prerequisites of lib/alloca.c.
+# STACK_DIRECTION is already handled by AC_FUNC_ALLOCA.
+AC_DEFUN([gl_PREREQ_ALLOCA], [:])
+
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
@@ -11576,6 +11619,45 @@ fi
 fi
 fi
 fi])
+
+#serial 1003
+dnl Copyright (C) 2003 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+# This macro can be removed once we can rely on Autoconf 2.57a or later,
+# since we can then use its AC_C_RESTRICT.
+
+# gl_C_RESTRICT
+# --------------
+# Determine whether the C/C++ compiler supports the "restrict" keyword
+# introduced in ANSI C99, or an equivalent.  Do nothing if the compiler
+# accepts it.  Otherwise, if the compiler supports an equivalent,
+# define "restrict" to be that.  Here are some variants:
+# - GCC supports both __restrict and __restrict__
+# - older DEC Alpha C compilers support only __restrict
+# - _Restrict is the only spelling accepted by Sun WorkShop 6 update 2 C
+# Otherwise, define "restrict" to be empty.
+AC_DEFUN([gl_C_RESTRICT],
+[AC_CACHE_CHECK([for C/C++ restrict keyword], gl_cv_c_restrict,
+  [gl_cv_c_restrict=no
+   # Try the official restrict keyword, then gcc's __restrict, and
+   # the less common variants.
+   for ac_kw in restrict __restrict __restrict__ _Restrict; do
+     AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+      [float * $ac_kw x;])],
+      [gl_cv_c_restrict=$ac_kw; break])
+   done
+  ])
+ case $gl_cv_c_restrict in
+   restrict) ;;
+   no) AC_DEFINE(restrict,,
+	[Define to equivalent of C99 restrict keyword, or to nothing if this
+	is not supported.  Do not define if restrict is supported directly.]) ;;
+   *)  AC_DEFINE_UNQUOTED(restrict, $gl_cv_c_restrict) ;;
+ esac
+])
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
