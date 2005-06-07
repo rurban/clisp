@@ -6,16 +6,16 @@ MUST-FIX BEFORE NEXT RELEASE
 
 bind-eval.tst failure on Linux/amd64 [bruno]
 
-use LockFile instead of LockFileEx [sam]
+use LockFile instead of LockFileEx [sds]
 
-comments for addr_to_string, string_to_addr [sam]
+comments for addr_to_string, string_to_addr [sds]
 
-comments for open_file_stream_handle, file_stream_truename [sam]
+comments for open_file_stream_handle, file_stream_truename [sds]
 
-workaround for extra comma in _clisp.1 [sam]
+workaround for extra comma in _clisp.1 [sds]
 
 regression: resolution of logical pathnames is broken, try
-   (compile-file (logical-pathname "FOO.LISP")) [sam]
+   (compile-file (logical-pathname "FOO.LISP")) [sds]
 
 regression: [bruno]
 =============== script.lisp ==================
@@ -43,6 +43,8 @@ same + hangs instead of terminating.
 $ clisp script.lisp
 works fine.
 
+doc fix: more details on fixnum size on 64 bit CPU [bruno]
+
 Readline interface problem:
 [2]> (macroexü
 *** - AREF: Index 9 für "(macroexü" ist zu groß.
@@ -62,7 +64,7 @@ MUST-FIX BEFORE RELEASE 2.35
 ============================
 
 Many pretty-printer test failures.
-(Sam - but Bruno has to fix the risky-test in iofkts.tst first)
+(sds - but bruno has to fix the risky-test in iofkts.tst first)
 
 Inefficiency of class redefinition when old or new class is unfinalizable
 
