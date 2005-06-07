@@ -2273,7 +2273,7 @@ local void* allocaing (void* old_data, uintL size, uintL alignment)
   allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + size);
   return result;
 }
-global maygc void convert_to_foreign_allocaing (object fvd, object obj, void* data)
+local maygc void convert_to_foreign_allocaing (object fvd, object obj, void* data)
 {
   converter_malloc = &allocaing;
   convert_to_foreign(fvd,obj,data);

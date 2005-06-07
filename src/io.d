@@ -10053,7 +10053,7 @@ global maygc void prin1 (const gcv_object_t* stream_, object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-global maygc void print (const gcv_object_t* stream_, object obj) {
+local maygc void print (const gcv_object_t* stream_, object obj) {
   pushSTACK(obj); # save Object
   write_ascii_char(stream_,NL); # print #\Newline
   obj = popSTACK();

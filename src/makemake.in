@@ -1041,7 +1041,7 @@ fi
 
 if [ $XCC_GCC = true ] ; then
   XCC_GCC_VERSION=`LC_ALL=C $XCC -v 2>&1 | grep version | sed -n -e '$p' | sed -e 's/.*version //g' -e 's/gcc //'`
-  XCFLAGS='-W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type '
+  XCFLAGS='-W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -Wmissing-declarations '
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
       # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
