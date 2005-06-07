@@ -4,6 +4,19 @@ See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
+bind-eval.tst failure on Linux/amd64 [sam]
+
+use LockFile instead of LockFileEx [sam]
+
+comments for addr_to_string, string_to_addr [sam]
+
+comments for open_file_stream_handle, file_stream_truename [sam]
+
+workaround for extra comma in _clisp.1 [sam]
+
+regression: resolution of logical pathnames is broken, try
+   (compile-file (logical-pathname "FOO.LISP")) [sam]
+
 Readline interface problem:
 [2]> (macroexü
 *** - AREF: Index 9 für "(macroexü" ist zu groß.
