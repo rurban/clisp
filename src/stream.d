@@ -14883,7 +14883,7 @@ local /*maygc*/ object terminal_io_output_stream (object preallocated_default) {
 #ifdef GNU_READLINE
 local int next_line_virtual(int,int);
 local int previous_line_virtual(int,int);
-local int get_col() {
+local int get_col (void) {
   int col=rl_point;
   while(col && rl_line_buffer[col]!='\n') col--;
   return rl_point - col;
