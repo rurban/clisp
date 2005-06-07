@@ -1,5 +1,12 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* modules/syscalls/calls.c: Assume stdlib.h exists.
+	(POSIX::STREAM-LOCK): Use a 64-bit variable for the length on systems
+	with 64-bit off_t and on Woe32. Fix wrong assigment from GetLastError()
+	to 'bool'.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* modules/regexp/regex.c: Undo 2005-03-18 patch.
 	* modules/regexp/alloca_.h: New file, from gnulib.
 	* modules/regexp/alloca.c: New file, from gnulib.
