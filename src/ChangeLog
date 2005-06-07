@@ -1,5 +1,10 @@
 2005-06-06  Bruno Haible  <bruno@clisp.org>
 
+	* modules/berkeley-db/bdb.c (fill_dbt): Call I_to_LEbytes differently,
+	avoiding a prior memset().
+
+2005-06-06  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in: Ignore --with-module=... options for modules that are
 	already contained in BASE_MODULES.
 	Reported by <bsd1628@bwphotog.net>.

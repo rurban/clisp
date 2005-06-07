@@ -1040,8 +1040,7 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
     }
     key->ulen = key->size = bytesize;
     key->data = my_malloc(bytesize);
-    begin_system_call(); memset(key->data,0,bytesize); end_system_call();
-    if (I_to_LEbytes(obj,bitsize,(uintB*)key->data))
+    if (I_to_LEbytes(obj,8*bytesize,(uintB*)key->data))
       NOTREACHED;               /* there must not be an overflow! */
 #  if defined(DEBUG)
     ASSERT(eql(LEbytes_to_I(bytesize,(uintB*)key->data),obj));
