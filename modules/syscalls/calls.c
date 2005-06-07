@@ -70,9 +70,6 @@
 #if defined(HAVE_SYSLOG_H)
 # include <syslog.h>
 #endif
-#if defined(HAVE_STDLIB_H)
-# include <stdlib.h>
-#endif
 #if defined(HAVE_UTMPX_H)
 # include <utmpx.h>
 #endif
@@ -81,6 +78,7 @@
 #endif
 
 #include <stdio.h>              /* for BUFSIZ */
+#include <stdlib.h>
 #include <string.h>             /* for strcpy(), strcat() */
 
 /* #define DEBUG */
@@ -112,13 +110,14 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   bool lock_p = !nullp(STACK_4), failed_p;
   object stream;
   uintL start = missingp(STACK_1) ? 0 : I_to_UL(STACK_1);
-  uintL length;
 #if defined(WIN32_NATIVE)
+  uint64 length;
   DWORD flags = !lock_p ? 0 :
     (missingp(STACK_2) ? LOCKFILE_EXCLUSIVE_LOCK : 0) |
     (nullp(STACK_3) ? 0 : LOCKFILE_FAIL_IMMEDIATELY);
   OVERLAPPED ol = {0,0,start,0,NULL};
 #else
+  off_t length;
   int cmd = nullp(STACK_3) ? F_SETLK : F_SETLKW;
   struct flock fl;
   fl.l_type = missingp(STACK_2) ? F_RDLCK : F_WRLCK;
@@ -134,16 +133,16 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   if (missingp(STACK_0)) { /* no :LENGTH => use file size */
     if (posfixnump(STACK_5)) { /* no stream given, use OS to get file size */
 #    if defined(WIN32_NATIVE)
-      LARGE_INTEGER size;
+      uint32 size_hi;
+      uint32 size_lo;
       begin_system_call();
-      size.LowPart = GetFileSize(fd,(DWORD*)&size.HighPart);
+      size_lo = GetFileSize(fd,(DWORD*)&size_hi);
       /* Value returned can be (LONG) -1 even on success,
          check the last error code */
-      if (size.LowPart == INVALID_FILE_SIZE) failed_p = GetLastError();
-      else failed_p = 0;
+      failed_p = (size_lo == INVALID_FILE_SIZE) && (GetLastError() != 0);
       end_system_call();
       if (failed_p) goto stream_lock_error;
-      length = size.LowPart;
+      length = ((uint64)size_hi << 32) | (uint64)size_lo;
 #    elif defined(HAVE_FSTAT)
       struct stat st;
       begin_system_call();
@@ -156,12 +155,23 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #    endif
     } else { /* a valid stream has been supplied */
       pushSTACK(stream); funcall(L(file_length),1);
+     #ifdef I_to_uint64
+      length = (sizeof(length) > 4 ? I_to_UQ(value1) : I_to_UL(value1));
+     #else
       length = I_to_UL(value1);
+     #endif
     }
-  } else length = I_to_UL(STACK_0);
+  } else {
+   #ifdef I_to_uint64
+    length = (sizeof(length) > 4 ? I_to_UQ(STACK_0) : I_to_UL(STACK_0));
+   #else
+    length = I_to_UL(STACK_0);
+   #endif
+  }
   begin_system_call();
 #if defined(WIN32_NATIVE)
   if (lock_p) {
+    /* FIXME: LockFileEx does not exist on Windows95/98/ME. */
     failed_p = !LockFileEx(fd,flags,0,length,0,&ol);
     if (failed_p && nullp(STACK_3) && GetLastError() == ERROR_LOCK_VIOLATION)
       failed_p = lock_p = false; /* failed to lock, :BLOCK NIL */
@@ -174,9 +184,12 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
     failed_p = lock_p = false; /* failed to lock, :BLOCK NIL */
 #endif
   end_system_call();
-  if (failed_p) { stream_lock_error:
-    if (eq(stream,nullobj)) OS_error();
-    else OS_filestream_error(stream);
+  if (failed_p) {
+   stream_lock_error:
+    if (eq(stream,nullobj))
+      OS_error();
+    else
+      OS_filestream_error(stream);
   }
   skipSTACK(6);
   VALUES_IF(lock_p);
