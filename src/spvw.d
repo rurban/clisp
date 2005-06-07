@@ -1687,7 +1687,7 @@ nonreturning_function (local, print_license, (void)) {
 #include "spvw_calendar.c"
 
 # print the banner
-local void print_banner ()
+local void print_banner (void)
 { const char * const banner0[] = { # some lines above 66 characters
   #  |Column 0           |Column 20                                    |Col 66
   # "012345678901234567890123456789012345678901234567890123456789012345678901"

@@ -1396,7 +1396,7 @@ local bool logical_host_p (object host) {
 
 #ifdef PATHNAME_NOEXT
 /* can trigger GC */
-local maygc void fix_parse_namestring_dot_file()
+local maygc void fix_parse_namestring_dot_file (void)
 { /* make sure *PARSE-NAMESTRING-DOT-FILE* is valid */
   Symbol_value(S(parse_namestring_dot_file)) = S(Ktype); /*CLISP default*/
   pushSTACK(NIL);
@@ -8332,7 +8332,7 @@ extern maygc void mkips_from_handles (Handle ipipe, int process_id);
 #ifdef UNIX
 
 /* /dev/null handle. */
-local Handle nullfile () {
+local Handle nullfile (void) {
   var Handle result = INVALID_HANDLE_VALUE;
   begin_system_call();
   result = open("/dev/null",O_RDWR);
@@ -8353,7 +8353,7 @@ local void mkpipe (Handle * hin, bool dummy1, Handle * hout, bool dummy2) {
 #elif defined(WIN32_NATIVE)
 
 /* /dev/null on NT/W95. */
-local Handle nullfile () {
+local Handle nullfile (void) {
   var Handle result = NULL;
   begin_system_call();
   result = CreateFile("NUL", GENERIC_READ | GENERIC_WRITE,
@@ -8441,7 +8441,7 @@ local maygc void make_launch_pipe (int istack, bool parent_inputp,
 /* paranoidal close */
 #define ParaClose(h) if (!CloseHandle(h)) { end_system_call(); OS_error(); }
 
-local maygc sintL interpret_launch_priority () {
+local maygc sintL interpret_launch_priority (void) {
   var sintL pry = NORMAL_PRIORITY_CLASS;
   if (!boundp(STACK_0)) return NORMAL_PRIORITY_CLASS;
   var object priority_arg = STACK_0;

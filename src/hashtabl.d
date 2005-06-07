@@ -2038,7 +2038,7 @@ local void clrhash (object ht) {
 }
 
 /* UP: fetches the value of *eq-hashfunction*. */
-local object get_eq_hashfunction () {
+local object get_eq_hashfunction (void) {
   var object value = Symbol_value(S(eq_hashfunction));
   if (eq(value,S(fasthash_eq)) || eq(value,S(stablehash_eq)))
     return value;
@@ -2058,7 +2058,7 @@ local object get_eq_hashfunction () {
 }
 
 /* UP: fetches the value of *eql-hashfunction*. */
-local object get_eql_hashfunction () {
+local object get_eql_hashfunction (void) {
   var object value = Symbol_value(S(eql_hashfunction));
   if (eq(value,S(fasthash_eql)) || eq(value,S(stablehash_eql)))
     return value;
@@ -2078,7 +2078,7 @@ local object get_eql_hashfunction () {
 }
 
 /* UP: fetches the value of *equal-hashfunction*. */
-local object get_equal_hashfunction () {
+local object get_equal_hashfunction (void) {
   var object value = Symbol_value(S(equal_hashfunction));
   if (eq(value,S(fasthash_equal)) || eq(value,S(stablehash_equal)))
     return value;

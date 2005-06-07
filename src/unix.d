@@ -25,7 +25,7 @@
 
 /* the table of the system error messages */
 #include <errno.h>
-extern int errno; /* last error code */
+/* extern int errno; */ /* last error code */
 /* NB: errno may be a macro which expands to a function call.
    Therefore access and assignment to errno must be wrapped in
    begin_system_call()/end_system_call() */
