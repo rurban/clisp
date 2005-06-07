@@ -1,3 +1,9 @@
+2005-06-06  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in: Ignore --with-module=... options for modules that are
+	already contained in BASE_MODULES.
+	Reported by <bsd1628@bwphotog.net>.
+
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
 	* modules/syscalls/calls.c: Assume stdlib.h exists.
