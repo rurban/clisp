@@ -1735,23 +1735,6 @@ extern object iconv_range (object encoding, uintL start, uintL end,
 
 #endif
 
-/* -- for modules -- */
-#if defined(UNICODE)
-uintL cslen_f (object encoding, const chart*src, uintL srclen)
-#else
-#define cslen_f(e,s,l)  cslen_ff(s,l)
-uintL cslen_ff (const chart*src, uintL srclen)
-#endif
-{ return cslen(encoding,src,srclen); }
-#if defined(UNICODE)
-void cstombs_f (object encoding, const chart *src, uintL srclen,
-                uintB* dest, uintL destlen)
-#else
-#define cstombs_f(e,s,l,d,n) cstombs_ff(s,l,d,n)
-void cstombs_ff (const chart *src, uintL srclen, uintB* dest, uintL destlen)
-#endif
-{ cstombs(encoding,src,srclen,dest,destlen); }
-
 /* ----------------------------------------------------------------------- */
 
 #endif /* UNICODE */

@@ -3670,7 +3670,7 @@ static int to_XChar2b (object font, XFontStruct* font_info, const chart* src,
     if (!nullp(encoding)/*&& TheEncoding(encoding)->max_bytes_per_char==1*/) {
       /* Special hack: use the font's encoding */
       if (count > 0) {
-        cstombs_f(encoding,src,count,(uintB*)dst,count);
+        cstombs(encoding,src,count,(uintB*)dst,count);
         return 1;
       }
     } else
