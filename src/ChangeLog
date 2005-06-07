@@ -1,5 +1,23 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* modules/regexp/regex.c: Undo 2005-03-18 patch.
+	* modules/regexp/alloca_.h: New file, from gnulib.
+	* modules/regexp/alloca.c: New file, from gnulib.
+	* src/m4/alloca.m4: New file, from gnulib.
+	* src/m4/restrict.m4: New file, from gnulib.
+	* modules/regexp/configure.in: Invoke 'restrict' and 'alloca'
+	requisites. Set ALLOCA to empty if we don't need it.
+	* modules/regexp/Makefile.in (ALLOCA_H): New variable.
+	(DISTRIBFILES): Add alloca.o if needed.
+	(all): Depend on alloca.o if needed.
+	(regex.o): Depend on $(ALLOCA_H).
+	(alloca.o, alloca.h): New rules.
+	(clean): Also remove alloca.h.
+	* modules/regexp/link.sh.in (NEW_FILES, NEW_LIBS): Add alloca.o if
+	needed.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	* modules/rawsock/rawsock.c (RAWSOCK:HTONL): Make it work also if the
 	system doesn't have the htonl() function.
 	(RAWSOCK:NTOHL): Likewise for ntohl().
