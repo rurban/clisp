@@ -272,7 +272,7 @@
 /* <errno.h> or <stdio.h> contains a declaration for perror() */
 #undef HAVE_PERROR_DECL
 
-/* Define to 1 if you have the `poll' function. */
+/* Define to 1 if you have the 'poll' function and it works. */
 #undef HAVE_POLL
 
 /* Define if you have the putenv() function. */
