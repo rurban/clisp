@@ -438,7 +438,8 @@ extern_C char* getwd (char* pathname); /* GETWD(3) */
   #define O_BINARY  0
 #endif
 #define my_open_mask  0644
-#define Handle  uintW  /* the type of a file deskriptor */
+#define Handle  int  /* the type of a file descriptor */
+#define INVALID_HANDLE  -1
 extern_C off_t lseek (int fd, off_t offset, int whence); /* LSEEK(2V) */
 #ifndef SEEK_SET /* e.g., UNIX_NEXTSTEP */
   /* position modes, see <unistd.h> : */
@@ -714,7 +715,7 @@ extern_C int pipe (int fd[2]); /* PIPE(2V) */
   #include <vfork.h>
 #endif
 /* vfork() declared in <vfork.h> or <unistd.h> */
-extern_C int dup2 (int fd1, int fd2); /* DUP(2V) */
+extern_C int dup2 (int oldfd, int newfd); /* DUP(2V) */
 #if defined(HAVE_SETPGID)
   extern_C pid_t getpid (void); /* GETPID(2V) */
   extern_C int setpgid (pid_t pid, pid_t pgid); /* SETPGID(2V), SETSID(2V), TERMIO(4) */

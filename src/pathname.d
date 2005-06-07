@@ -8120,12 +8120,36 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
 
 #endif
 
-/* duplicate the handle (maybe into new_handle)
- must be surrounded with begin_system_call()/end_system_call() */
-global Handle handle_dup (Handle old_handle, Handle new_handle) {
+/* Duplicate an open file handle.
+ handle_dup(oldfd)
+ Similar to dup(oldfd), with error checking.
+ To be called only inside begin/end_system_call(). */
+global Handle handle_dup (Handle old_handle) {
+  int new_handle;
  #if defined(UNIX)
-  new_handle = (HNULLP(new_handle) ? dup(old_handle)
-                : dup2(old_handle,new_handle));
+  new_handle = dup(old_handle);
+  if (new_handle < 0) { OS_error(); }
+ #elif defined(WIN32_NATIVE)
+  new_handle = INVALID_HANDLE_VALUE;
+  if (!DuplicateHandle(GetCurrentProcess(),old_handle,
+                       GetCurrentProcess(),&new_handle,
+                       0, true, DUPLICATE_SAME_ACCESS))
+    OS_error();
+ #else
+  NOTREACHED;
+ #endif
+  return new_handle;
+}
+
+/* Duplicate an open file handle.
+ handle_dup2(oldfd,newfd)
+ Similar to dup2(oldfd,newfd), with error checking. The result may or may not
+ be equal to newfd.
+ To be called only inside begin/end_system_call(). */
+global Handle handle_dup2 (Handle old_handle, Handle new_handle) {
+ #if defined(UNIX)
+  new_handle = dup2(old_handle,new_handle);
+  if (new_handle < 0) { OS_error(); }
  #elif defined(WIN32_NATIVE)
   if (!DuplicateHandle(GetCurrentProcess(),old_handle,
                        GetCurrentProcess(),&new_handle,
@@ -8134,7 +8158,6 @@ global Handle handle_dup (Handle old_handle, Handle new_handle) {
  #else
   NOTREACHED;
  #endif
-  if (HNULLP(new_handle)) OS_error();
   return new_handle;
 }
 
@@ -8330,7 +8353,7 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
 
 /* /dev/null handle. */
 local Handle nullfile (void) {
-  var Handle result = INVALID_HANDLE_VALUE;
+  var Handle result;
   begin_system_call();
   result = open("/dev/null",O_RDWR);
   end_system_call();
@@ -8351,7 +8374,7 @@ local void mkpipe (Handle * hin, bool dummy1, Handle * hout, bool dummy2) {
 
 /* /dev/null on NT/W95. */
 local Handle nullfile (void) {
-  var Handle result = NULL;
+  var Handle result;
   begin_system_call();
   result = CreateFile("NUL", GENERIC_READ | GENERIC_WRITE,
                       FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
@@ -8365,12 +8388,12 @@ local void mkpipe (Handle * hin, bool dupinp, Handle * hout, bool dupoutp) {
   begin_system_call();
   if (!CreatePipe(hin,hout,NULL,0)) { OS_error(); }
   if (dupinp) {/* make it inheritable */
-    var Handle hin1 = handle_dup1(*hin);
+    var Handle hin1 = handle_dup(*hin);
     if (!CloseHandle(*hin)) { OS_error(); }
     *hin = hin1;
   }
   if (dupoutp) {
-    var Handle hout1 = handle_dup1(*hout);
+    var Handle hout1 = handle_dup(*hout);
     if (!CloseHandle(*hout)) { OS_error(); }
     *hout = hout1;
   }
@@ -8384,35 +8407,39 @@ local maygc bool init_launch_streamarg (int istack, bool child_inputp,
                                         Handle * hnull, bool * wait_p)
 {
   var int handletype = 0;
-  *h = INVALID_HANDLE_VALUE;
-  *ph = INVALID_HANDLE_VALUE;
+  *h = INVALID_HANDLE;
+  *ph = INVALID_HANDLE;
   if (boundp(STACK_(istack)) && eq(STACK_(istack),S(Kterminal))
       || !boundp(STACK_(istack)))
-    *h = handle_dup1(stdhandle);
+    *h = handle_dup(stdhandle);
   else if (nullp(STACK_(istack))) {
-    if (HNULLP(*hnull)) *hnull = nullfile();
-    *h = handle_dup1(*hnull);
+    if (*hnull == INVALID_HANDLE)
+      *hnull = nullfile();
+    *h = handle_dup(*hnull);
   } else if (eq(STACK_(istack),S(Kpipe))) {
     if (child_inputp)
-    /* make an input pipe for child, ph = parent's handle */
+      /* make an input pipe for child, ph = parent's handle */
       mkpipe(h,true,ph,false);
-    /* make an output pipe for child */
-      else mkpipe(ph,false,h,true);
-    if (HNULLP(*ph) || HNULLP(*h)) return false;
+    else
+      /* make an output pipe for child */
+      mkpipe(ph,false,h,true);
+    if (*ph == INVALID_HANDLE || *h == INVALID_HANDLE)
+      return false;
     *wait_p = false; /* TODO: error when wait_p */
   } else {
-    *h = handle_dup1(stream_lend_handle(STACK_(istack),
-                                        child_inputp,/* child i/o direction is the same as lisp user i/o direction */
-                                        &handletype));
-    if (handletype!=1) return false;
+    *h = handle_dup(stream_lend_handle(STACK_(istack),
+                                       child_inputp,/* child i/o direction is the same as lisp user i/o direction */
+                                       &handletype));
+    if (handletype != 1)
+      return false;
   }
-  return !HNULLP(*h);
+  return (*h != INVALID_HANDLE);
 }
 
 local maygc void make_launch_pipe (int istack, bool parent_inputp,
                                    Handle hparent_pipe, int childpid)
 {
-  if (!HNULLP(hparent_pipe)) {
+  if (hparent_pipe != INVALID_HANDLE) {
     pushSTACK(STACK_7);     /* encoding */
     pushSTACK(STACK_(8+1)); /* element-type */
     pushSTACK(STACK_(6+2)); /* buffered */
@@ -8484,19 +8511,22 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   else STACK_5 = check_list(STACK_5);
   var long priority = interpret_launch_priority();/* from STACK_0 */
   var bool wait_p = !nullp(STACK_4); /* default: do wait! */
-  var Handle hnull = INVALID_HANDLE_VALUE;
+  var Handle hnull = INVALID_HANDLE;
   var Handle hinput;
   var Handle hparent_out; /* in case of pipe */
   /* STACK_3 == input_stream_arg */
   if (!init_launch_streamarg(3, true, stdin_handle, &hinput, &hparent_out,
-                        &hnull,&wait_p)) OS_error();
+                             &hnull,&wait_p))
+    OS_error();
   var Handle houtput, hparent_in;
   /* STACK_2 == output_stream_arg */
   if (!init_launch_streamarg(2, false, stdout_handle, &houtput, &hparent_in,
-                        &hnull,&wait_p)) {
+                             &hnull,&wait_p)) {
     begin_system_call();
-    if (!HNULLP(hinput) && hinput!=stdin_handle) ParaClose(hinput);
-    if (!HNULLP(hparent_out)) ParaClose(hparent_out);
+    if (hinput != INVALID_HANDLE && hinput != stdin_handle)
+      ParaClose(hinput);
+    if (hparent_out != INVALID_HANDLE)
+      ParaClose(hparent_out);
     end_system_call();
     OS_error();
   }
@@ -8505,14 +8535,18 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   if (!init_launch_streamarg(1, false, stderr_handle, &herror, &hparent_errin,
                         &hnull,&wait_p)) {
     begin_system_call();
-    if (!HNULLP(hinput) && hinput!=stdin_handle) ParaClose(hinput);
-    if (!HNULLP(hparent_out)) ParaClose(hparent_out);
-    if (!HNULLP(houtput) && houtput != stdout_handle) ParaClose(houtput);
-    if (!HNULLP(hparent_in)) ParaClose(hparent_in);
+    if (hinput != INVALID_HANDLE && hinput != stdin_handle)
+      ParaClose(hinput);
+    if (hparent_out != INVALID_HANDLE)
+      ParaClose(hparent_out);
+    if (houtput != INVALID_HANDLE && houtput != stdout_handle)
+      ParaClose(houtput);
+    if (hparent_in != INVALID_HANDLE)
+      ParaClose(hparent_in);
     end_system_call();
     OS_error();
   }
-  if (!HNULLP(hnull)) {
+  if (hnull != INVALID_HANDLE) {
     begin_system_call();
     ParaClose(hnull);
     end_system_call();
@@ -8551,21 +8585,22 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   if (child_id == 0) {/* What ?! I am the clone ?! */
    /* TODO: close ALL unused opened handles since unclosed handles
       (to previously opened pipes) can prevent childs to end up properly */
-   #define CHILD_DUP(from,to)                                           \
-    if (handle_dup(from,to) == (Handle)-1) {                            \
-        fprintf(stderr,"clisp/child: cannot duplicate %d to %d: %s\n",  \
-                from,to,strerror(errno));                               \
-        _exit(-1);                                                      \
-      }                                                                 \
-      if (from>2) close(from)
+   #define CHILD_DUP(from,to)                                            \
+      if (dup2(from,to) < 0) {                                           \
+          fprintf(stderr,"clisp/child: cannot duplicate %d to %d: %s\n", \
+                  from,to,strerror(errno));                              \
+          _exit(-1);                                                     \
+        }                                                                \
+      if (from>2)                                                        \
+        close(from)
     CHILD_DUP(hinput,0);
     CHILD_DUP(houtput,1);
     CHILD_DUP(herror,2);
    #undef CHILD_DUP
     /* close child copies of parent's handles */
-    if (!HNULLP(hparent_out)) close(hparent_out);
-    if (!HNULLP(hparent_in)) close(hparent_in);
-    if (!HNULLP(hparent_errin)) close(hparent_errin);
+    if (hparent_out >= 0) close(hparent_out);
+    if (hparent_in >= 0) close(hparent_in);
+    if (hparent_errin >= 0) close(hparent_errin);
    #ifdef HAVE_NICE
     errno = 0; nice(priority);
     if (errno) {
@@ -8667,9 +8702,9 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   make_launch_pipe (1, true, hparent_errin, child_id);
 
   value1 = wait_p ? fixnum(exit_code) : fixnum(child_id);
-  value2 = (!HNULLP(hparent_out))   ? (object)STACK_3 : NIL; /* INPUT */
-  value3 = (!HNULLP(hparent_in))    ? (object)STACK_2 : NIL; /* OUTPUT */
-  value4 = (!HNULLP(hparent_errin)) ? (object)STACK_1 : NIL; /* ERROR */
+  value2 = (hparent_out   != INVALID_HANDLE) ? (object)STACK_3 : NIL; /* INPUT */
+  value3 = (hparent_in    != INVALID_HANDLE) ? (object)STACK_2 : NIL; /* OUTPUT */
+  value4 = (hparent_errin != INVALID_HANDLE) ? (object)STACK_1 : NIL; /* ERROR */
   mv_count = 4;
 
   skipSTACK(10);

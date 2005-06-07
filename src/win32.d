@@ -82,6 +82,7 @@ nonreturning_function(extern, abort, (void));
 
 /* Type of a file handle */
 #define Handle  HANDLE
+#define INVALID_HANDLE  INVALID_HANDLE_VALUE
 #define FOREIGN_HANDLE          /* box them */
 
 /* File handles of standard input, standard output, standard error */

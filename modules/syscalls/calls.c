@@ -2516,7 +2516,10 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
   Handle new_handle = (Handle)check_uint_defaulted(popSTACK(),(uintL)-1);
   Handle old_handle = (Handle)I_to_uint(check_uint(popSTACK()));
   begin_system_call();
-  new_handle = handle_dup(old_handle,new_handle);
+  if (new_handle == (Handle)(uintL)-1)
+    new_handle = handle_dup(old_handle);
+  else
+    new_handle = handle_dup2(old_handle,new_handle);
   end_system_call();
   VALUES1(fixnum(new_handle));
 }
