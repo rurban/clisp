@@ -1,5 +1,13 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	* modules/rawsock/rawsock.c (RAWSOCK:HTONL): Make it work also if the
+	system doesn't have the htonl() function.
+	(RAWSOCK:NTOHL): Likewise for ntohl().
+	(RAWSOCK:HTONS): Likewise for htons().
+	(RAWSOCK:NTOHS): Likewise for ntohs().
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	Emulate Unix APIs on Woe32, not vice versa.
 	* lispbibl.d (handle_dup): Remove declaration.
 	(INVALID_HANDLE_VALUE, HNULLP): Remove macro.
