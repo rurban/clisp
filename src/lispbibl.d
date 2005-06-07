@@ -2084,7 +2084,6 @@ typedef enum {
   #if defined(UNIX_CYGWIN32)
     /* <sigsegv.h> includes <windows.h> */
     #undef WIN32
-    #undef INVALID_HANDLE_VALUE
   #endif
 #endif
 
@@ -15946,16 +15945,20 @@ extern maygc object OSdir_to_pathname (const char* path);
 extern maygc void init_pathnames (void);
 # is used by SPVW
 
-/* duplicate the handle (maybe into new_handle)
- must be surrounded with begin_system_call()/end_system_call() */
-extern Handle handle_dup (Handle old_handle, Handle new_handle);
-#if !defined(WIN32_NATIVE)
-#define INVALID_HANDLE_VALUE ((Handle)(-1))
-#endif
-#define HNULLP(h) ((h)==INVALID_HANDLE_VALUE)
-#define handle_dup1(h) handle_dup(h,INVALID_HANDLE_VALUE)
-/* used by STREAM */
-%% printf("extern Handle handle_dup (Handle old_handle, Handle new_handle);\n");
+/* Duplicate an open file handle.
+ handle_dup(oldfd)
+ Similar to dup(oldfd), with error checking.
+ To be called only inside begin/end_system_call(). */
+extern Handle handle_dup (Handle old_handle);
+%% printf("extern Handle handle_dup (Handle old_handle);\n");
+
+/* Duplicate an open file handle.
+ handle_dup2(oldfd,newfd)
+ Similar to dup2(oldfd,newfd), with error checking. The result may or may not
+ be equal to newfd.
+ To be called only inside begin/end_system_call(). */
+extern Handle handle_dup2 (Handle old_handle, Handle new_handle);
+%% printf("extern Handle handle_dup2 (Handle old_handle, Handle new_handle);\n");
 
 # Locates the executable program immediately after the program start.
 # find_executable(argv[0])

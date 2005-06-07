@@ -1,5 +1,25 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
+	Emulate Unix APIs on Woe32, not vice versa.
+	* lispbibl.d (handle_dup): Remove declaration.
+	(INVALID_HANDLE_VALUE, HNULLP): Remove macro.
+	(handle_dup1): Remove macro.
+	(handle_dup): New declaration, replaces handle_dup1.
+	(handle_dup2): New declaration, replaces a case of handle_dup.
+	* unix.d (Handle): Change to 'int'.
+	(INVALID_HANDLE): New macro.
+	* win32.d (INVALID_HANDLE): New macro.
+	* pathname.d (handle_dup, handle_dup2): Replace old function
+	handle_dup.
+	(nullfile): Remove unused initializer.
+	(mkpipe, init_launch_streamarg, make_launch_pipe, LAUNCH): Update.
+	(LAUNCH) [UNIX]: Call dup2, not handle_dup2, since handle_dup2 does
+	unwanted error handling.
+	* stream.d (handle_to_stream): Update.
+	* modules/syscalls/calls.c (POSIX::DUPLICATE-HANDLE): Update.
+
+2005-06-04  Bruno Haible  <bruno@clisp.org>
+
 	Compile with gcc -Wmissing-declarations.
 	* makemake.in (XCFLAGS): Add -Wmissing-declarations.
 	* lispbibl.d: Include pseudofun.c with PSEUDO_C.
