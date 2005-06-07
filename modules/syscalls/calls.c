@@ -3061,7 +3061,7 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
           *(((DWORD *)str)-1) = (DWORD)str_bytelen;
         }
         cstombs(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len,
-                uintB *)str,str_bytelen);
+                (uintB *)str,str_bytelen);
         ((uintB *)str)[str_bytelen] = '\0';
         ((uintB *)str)[str_bytelen+1] = '\0';
         pvar->pwszVal = str;
