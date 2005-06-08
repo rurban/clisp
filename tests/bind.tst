@@ -8,7 +8,7 @@
 6
 (let ((x 5)) (multiple-value-bind (x) (1+ x) (declare (special x)) x))
 6
-(let ((x 5)) ((lambda (x) (declare (special x)) x)  (1+ x)))
+(let ((x 5)) ((lambda (x) (declare (special x)) x) (1+ x)))
 6
 
 ;; similarly, without enclosing lexical binding
@@ -30,7 +30,7 @@ GOOD
 (block foo
   (handler-bind ((unbound-variable
                   (lambda (c) (princ-error c) (return-from foo 'good))))
-    ((lambda (x) (declare (special x)) x)  (1+ x))))
+    ((lambda (x) (declare (special x)) x) (1+ x))))
 GOOD
 
 ;; variable being declared special is not being bound - a "free" declaration
@@ -40,7 +40,7 @@ GOOD
 6
 (let ((x 5)) (multiple-value-bind (y) (1+ x) (declare (special x)) y))
 6
-(let ((x 5)) ((lambda (y) (declare (special x)) y)  (1+ x)))
+(let ((x 5)) ((lambda (y) (declare (special x)) y) (1+ x)))
 6
 
 ;; variable is not being declared special
@@ -50,7 +50,7 @@ GOOD
 6
 (let ((x 5)) (multiple-value-bind (x) (1+ x) x))
 6
-(let ((x 5)) ((lambda (x) x)  (1+ x)))
+(let ((x 5)) ((lambda (x) x) (1+ x)))
 6
 
 ;; CLHS 3.3.4 - a "bound" declaration
@@ -336,3 +336,18 @@ SYMBOL-TYPE-FN
       (list y x))
     (bind-test-function-1)))
 (2 1)
+
+(let ((x 5)) (let ((x (1+ x)) (z (1+ x))) (declare (special x)) z))
+6
+
+(let ((x 5)) (let* ((x (1+ x)) (z (1+ x))) (declare (special x)) z))
+7
+
+(let ((x 5)) (multiple-value-bind (x z) (values (1+ x) (1+ x)) (declare (special x)) z))
+6
+
+(let ((x 5)) ((lambda (x z) (declare (special x)) z) (1+ x) (1+ x)))
+6
+
+(let ((x 5)) ((lambda (&optional x z) (declare (special x)) z) (1+ x) (1+ x)))
+6
