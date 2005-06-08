@@ -292,26 +292,27 @@
 
 ;; in GNU, errno is a per-thread variable, so def-c-var is not appropriate
 ;; (def-c-var errno (:type ffi:int))
-;; link error: "undefined reference to `errno'"
+;; Instead, errno is a cpp macro expanding to *__errno_location()
+;; However, on PPC/glibc, no __errno_location() was found, and
+;; some people use this file with *BSD.
 
-(c-lines "#include <bits/errno.h>~%")
+(c-lines "static int *clisp_errno_location(void);~%")
+(c-lines "static int *clisp_errno_location() { return &errno; }~%")
 
-(def-call-out errno-location (:name "__errno_location")
+(ffi:def-call-out errno-location (:name "clisp_errno_location")
   (:arguments) (:return-type (c-pointer int)))
 
 ;; (define-symbol-macro errno (foreign-value (__errno_location))); setf-able
-;; Here we optimize the most common use through an extra function
-(def-call-out get-errno (:name "__errno_location")
+;; Optimize the most common use through an extra function
+(ffi:def-call-out get-errno (:name "clisp_errno_location")
   (:arguments) (:return-type (c-ptr int)))
 
-(define-symbol-macro errno (get-errno)); not setf-able per se
-(defun set-errno (value)
+(define-symbol-macro errno (get-errno)); not yet setf-able
+(cl:defun set-errno (value)
   (setf (foreign-value (errno-location)) value))
-(defsetf get-errno set-errno)
+(cl:defsetf get-errno set-errno); errno becomes setf-able
 
-; ------------------------------ <errno.h> ------------------------------------
-
-; ============================ <sys/errno.h> ==================================
+; ---------------------------- <sys/errno.h> ----------------------------------
 
 ;;; ============================== <float.h> ==================================
 

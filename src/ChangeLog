@@ -1,3 +1,8 @@
+2005-06-08  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* modules/bindings/glibc/linux.lisp (errno): Remove dependency on
+	__errno_location().
+
 2005-06-07  Bruno Haible  <bruno@clisp.org>
 
 	* genclisph.d (print_printf_arg, printf_with_args, print_file,
