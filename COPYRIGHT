@@ -25,17 +25,17 @@ Note:
   This copyright does *not* cover user programs that run in CLISP and
   third-party packages not part of CLISP, if
     a) They only reference external symbols in CLISP's public packages
-       (namely the packages COMMON-LISP, COMMON-LISP-USER, KEYWORD, EXT),
-       i.e. if they don't rely on CLISP internals and would as well run
-       in any other Common Lisp implementation. Or
+       (namely the packages COMMON-LISP, COMMON-LISP-USER, KEYWORD, CLOS,
+       GRAY, EXT), i.e. if they don't rely on CLISP internals and would as
+       well run in any other Common Lisp implementation. Or
     b) They only reference external symbols in CLISP's public packages
-       (namely the packages COMMON-LISP, COMMON-LISP-USER, KEYWORD, EXT)
-       and some external, not CLISP specific, symbols in third-party
-       packages that are released with source code under a GPL compatible
-       license and that run in a great number of Common Lisp implementations,
-       i.e. if they rely on CLISP internals only to the extent needed
-       for gaining some functionality also available in a great number of
-       Common Lisp implementations.
+       (namely the packages COMMON-LISP, COMMON-LISP-USER, KEYWORD, CLOS,
+       GRAY, EXT) and some external, not CLISP specific, symbols in
+       third-party packages that are released with source code under a
+       GPL compatible license and that run in a great number of Common Lisp
+       implementations, i.e. if they rely on CLISP internals only to the
+       extent needed for gaining some functionality also available in a
+       great number of Common Lisp implementations.
   Such user programs are not covered by the term "derived work" used in
   the GNU GPL. Neither is their compiled code, i.e. the result of compiling
   them by use of the function COMPILE-FILE. We refer to such user programs
