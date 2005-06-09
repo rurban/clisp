@@ -1503,7 +1503,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     FREE_DYNAMIC_ARRAY(old_modules);
     begin_system_call(); free(offset_subrs); end_system_call();
   }
-  /* declase open files as closed: */
+  /* declare open files as closed: */
   closed_all_files();
  #ifdef GENERATIONAL_GC
   O(gc_count) = Fixnum_0;  /* so far no GCs: */
