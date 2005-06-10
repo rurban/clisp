@@ -483,6 +483,7 @@ good
 ((INTEGER 1) (1 2 3))
 
 ;; Check that after a Ctrl-D (EOF), assert without places is not retried.
+#+CLISP
 (let ((done nil))
   (block test
     (sys::driver
@@ -495,6 +496,7 @@ good
                     (make-two-way-stream (make-string-input-stream "")
                                          *terminal-io*)))
               (assert (= 1 2))))))))
+#+CLISP
 nil
 
 (block nil
