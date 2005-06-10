@@ -293,6 +293,9 @@
     #+(or CLISP ALLEGRO CMU LISPWORKS)
     (with-accumulating-errors (error-count total-count)
       (run-test "conditions" :ignore-errors nil))
+    #+CLISP
+    (with-accumulating-errors (error-count total-count)
+      (run-test "restarts" :ignore-errors nil))
     (with-accumulating-errors (error-count total-count)
       (run-test "excepsit" :tester #'do-errcheck))
     (format t "~&~s: grand total: ~:d error~:p out of ~:d test~:p~%"
