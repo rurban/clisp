@@ -137,7 +137,9 @@
 (def-c-var pari-series-precision (:name "precdl") (:type ulong))
 
 ;; there is no global prec in PARI 2
+(c-lines "ulong clisp_get_prec (void);~%") ; prototype
 (c-lines "ulong clisp_get_prec (void) { return /*prec*/ 64; }~%")
+(c-lines "void clisp_set_prec (ulong p);~%") ; prototype
 (c-lines "void clisp_set_prec (ulong p) { /*prec=*/(void)p; }~%")
 
 (def-call-out pari-get-real-prec-raw (:name "clisp_get_prec")
@@ -221,6 +223,7 @@
   (:return-type (c-ptr-null entree)))
 
 ;; this optimization is not necessary, it just saves some memory
+(c-lines "char* get_entry_doc (char* s);~%") ; prototype
 (c-lines "char* get_entry_doc (char* s) { entree *e = is_entry(s); return e==NULL?NULL:e->help; }~%")
 (def-call-out get_entry_doc (:arguments (s c-string)) (:return-type c-string))
 
@@ -1619,6 +1622,7 @@
 (pari-call-out factor-cantor-zassenhaus "factcantor" (x p))
 
 ;; GEN subres(GEN x, GEN y);
+(c-lines "GEN subres0 (GEN x, GEN y);~%") ; prototype
 (c-lines "GEN subres0 (GEN x, GEN y) { return subres(x,y); }~%")
 (pari-call-out resultant "subres0" (x y) "resultant")
 ;; GEN discsr(GEN x);
