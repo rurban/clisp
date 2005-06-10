@@ -71,8 +71,10 @@ weakptr-test
 (let ((*print-circle* t))
   (setf (weak-pointer-value wp) wpp)
   (prin1-to-string wp))
+#+CLISP "#1=#<WEAK-POINTER #<WEAK-POINTER #1#>>"
+#+CMU "#1=#<Weak Pointer: #<Weak Pointer: #1#>>"
 #+LISPWORKS "#1=#(#(#1#))"
-#-LISPWORKS "#1=#<WEAK-POINTER #<WEAK-POINTER #1#>>"
+#-(or CLISP CMU LISPWORKS) UNKNOWN
 
 (progn (makunbound 'co) (makunbound 'wp) (makunbound 'wpp) (gc)
        (fmakunbound 'weakptr-test))

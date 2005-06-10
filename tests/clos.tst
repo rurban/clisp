@@ -488,7 +488,7 @@ T
                    &aux (compiled-file (compile-file-pathname lisp-file)))
   (unwind-protect
        (progn
-         (with-open-file (stream lisp-file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+         (with-open-file (stream lisp-file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
            (format stream "(in-package ~s)~%(defparameter ~S '#.~S)~%"
                    (package-name (symbol-package symbol))
                    symbol symbol))
@@ -533,7 +533,7 @@ FOO
   (defmethod make-load-form ((x foo) &optional env)
     (make-load-form-saving-slots x :environment env))
   (defparameter *tmp-file* "mlf-tmp.lisp")
-  (with-open-file (s *tmp-file* :direction :output #+SBCL :if-exists #+SBCL :supersede)
+  (with-open-file (s *tmp-file* :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (format s "(defparameter *foo* '#S(FOO :A BAR-CONST))~%"))
   (load (compile-file *tmp-file*))
   *foo*)
@@ -638,7 +638,7 @@ FOO
   (unwind-protect
        (progn
          (makunbound '*foo*)
-         (with-open-file (f file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+         (with-open-file (f file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
            (format f "(eval-when (compile load eval) (defstruct foo slot))~@
                       (defparameter *foo* #.(make-foo))~%"))
          (load (setq c (compile-file file)))
@@ -3884,7 +3884,9 @@ T
                           (UNLESS NEW-ARGUMENTS (SETQ NEW-ARGUMENTS ARGUMENTS))
                           (IF (NULL NEXT-METHODS-LIST)
                             (ERROR "no next method for arguments ~:S" ARGUMENTS)
-                            (FUNCALL (#+SBCL SB-PCL:METHOD-FUNCTION #-SBCL METHOD-FUNCTION
+                            (FUNCALL (#+SBCL SB-PCL:METHOD-FUNCTION
+                                      #+CMU MOP:METHOD-FUNCTION
+                                      #-(or SBCL CMU) METHOD-FUNCTION
                                        (FIRST NEXT-METHODS-LIST))
                                      NEW-ARGUMENTS (REST NEXT-METHODS-LIST)))))
                    (APPLY #'(LAMBDA ,unspecialized-lambdalist ,@body) ARGUMENTS)))))

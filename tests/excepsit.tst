@@ -405,7 +405,7 @@ type-error
 ;; into pathname.d.
 #-BeOS
 (progn
-  (with-open-file (s "./foo35.tmp" :direction :output #+SBCL :if-exists #+SBCL :supersede))
+  (with-open-file (s "./foo35.tmp" :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede))
   (delete-file "./foo35.tmp/bar"))
 #-BeOS
 file-error
@@ -476,11 +476,11 @@ file-error
 (file-length *terminal-io*)
 type-error
 
-(with-open-file (s "./foo35.tmp" :direction :output #+SBCL :if-exists #+SBCL :supersede)
+(with-open-file (s "./foo35.tmp" :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
   (file-position s 0.0))
 error
 
-(with-open-file (s "./foo35.tmp" :direction :output #+SBCL :if-exists #+SBCL :supersede)
+(with-open-file (s "./foo35.tmp" :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
   (file-position s -1))
 error
 
@@ -943,7 +943,7 @@ type-error
 error
 
 (let ((filename "./foo51.bin"))
-  (with-open-file (s filename :direction :output #+SBCL :if-exists #+SBCL :supersede
+  (with-open-file (s filename :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                               :if-exists :overwrite
                               :if-does-not-exist :create))
   (with-open-file (s filename :direction :input
@@ -954,7 +954,7 @@ end-of-file
 null
 
 (let ((filename "./foo52.txt"))
-  (with-open-file (s filename :direction :output #+SBCL :if-exists #+SBCL :supersede
+  (with-open-file (s filename :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                               :if-exists :overwrite
                               :if-does-not-exist :create))
   (with-open-file (s filename :direction :input)
@@ -964,7 +964,7 @@ end-of-file
 null
 
 (let ((filename "./foo53.txt"))
-  (with-open-file (s filename :direction :output #+SBCL :if-exists #+SBCL :supersede
+  (with-open-file (s filename :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                               :if-exists :overwrite
                               :if-does-not-exist :create))
   (with-open-file (s filename :direction :input)

@@ -22,7 +22,7 @@
                                              (random 1d0))))
   (let ((eltype (list type size)))
     (with-open-file (foo file-name :direction :output
-                         #+SBCL :if-exists #+SBCL :supersede
+                         #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                          :element-type 'unsigned-byte)
       (dolist (num int-list)
         (write-integer num foo eltype endianness))
@@ -54,7 +54,7 @@ nil
 (let ((vec (make-array 8 :element-type '(unsigned-byte 8)
                          :initial-contents '(#x3f #xf0 0 0 0 0 0 0))))
   (with-open-file (foo "./foocl" :direction :output
-                                 #+SBCL :if-exists #+SBCL :supersede
+                                 #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                                  :element-type '(unsigned-byte 8))
     (write-sequence vec foo))
   (unwind-protect

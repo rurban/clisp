@@ -21,7 +21,7 @@
                                             (ash 1 (1- size))))
                                    (loop :repeat num-bytes :collect
                                          (random (ash 1 size))))))
-  (with-open-file (foo file-name :direction :output #+SBCL :if-exists #+SBCL :supersede
+  (with-open-file (foo file-name :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                        :element-type (list type size))
     (dolist (byte bytes)
       (write-byte byte foo)))
@@ -51,7 +51,7 @@ nil
     (unwind-protect (progn
          (with-open-file (s "test.bin"
                             :element-type '(unsigned-byte 8)
-                            :direction :output #+SBCL :if-exists #+SBCL :supersede
+                            :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                             :if-exists :error)
            (notice (file-position s)) ;1
            (write-byte 5 s)
