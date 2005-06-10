@@ -1,5 +1,11 @@
 2005-06-10  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (XCFLAGS) [CC_CPLUSPLUS=true]: do not add
+	-Wmissing-declarations: 'cc1plus: warning: command line option
+	"-Wmissing-declarations" is valid for C/ObjC but not for C++'
+
+2005-06-10  Sam Steingold  <sds@gnu.org>
+
 	avoid -Wstrict-prototypes warnings in modules
 	* foreign1.lisp (finalize-coutput-file): emit init/fini prototypes
 	* utils/modprep.lisp (print-tables-2): ditto
