@@ -1275,18 +1275,18 @@
 ;; GEN akell(GEN e, GEN n);
 (pari-call-out ell-l-series-n "akell" (e n))
 
-;; GEN localreduction(GEN e, GEN p1);
-(pari-call-out ell-local-reduction "localreduction" (e p1) "localred")
-;; GEN globalreduction(GEN e1);
-(pari-call-out ell-global-reduction "globalreduction" (e1) "globalred")
+;; GEN elllocalred(GEN e, GEN p1);
+(pari-call-out ell-local-reduction "elllocalred" (e p1))
+;; GEN ellglobalred(GEN e1);
+(pari-call-out ell-global-reduction "ellglobalred" (e1))
 
 ;; GEN lseriesell(GEN e, GEN s, GEN N, GEN A, long prec);
 (pari-call-out-prec ell-l-series-value "lseriesell" (e s N A))
 
 ;; GEN pointell(GEN e, GEN z, long prec);
 (pari-call-out-prec ell-z-to-xy "pointell" (e z))
-;; GEN taniyama(GEN e);
-(pari-call-out ell-modular-parametrization "taniyama" (e))
+;; GEN elltaniyama(GEN e, long prec);
+(pari-call-out-prec ell-modular-parametrization "elltaniyama" (e))
 
 ;; GEN orderell(GEN e, GEN p);
 (pari-call-out ell-order "orderell" (e p))
