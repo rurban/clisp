@@ -1,5 +1,21 @@
 2005-06-09  Bruno Haible  <bruno@clisp.org>
 
+	* bin-io.tst: Update for cmucl-19b-pre1.
+	* clos.tst: Likewise.
+	* encoding.tst: Likewise.
+	* eval20.tst: Likewise.
+	* excepsit.tst: Likewise.
+	* iofkts.tst: Likewise.
+	* macro8.tst: Likewise.
+	* path.tst: Likewise.
+	* streams.tst: Likewise.
+	* streamslong.tst: Likewise.
+	* type.tst: Likewise.
+	* weakptr.tst: Likewise.
+	* tests.lisp (run-test, run-all-tests): Likewise.
+
+2005-06-09  Bruno Haible  <bruno@clisp.org>
+
 	Move lots of CLISP-only tests to a separate file.
 	* conditions.tst: Move restart tests out to restarts.tst.
 	* lists152.tst: Likewise.
