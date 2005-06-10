@@ -1,5 +1,12 @@
 2005-06-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/pari.lisp: updated for pari 2.2.11
+	(ell-local-reduction): use elllocalred
+	(ell-global-reduction): use ellglobalred
+	(ell-modular-parametrization): use elltaniyama
+
+2005-06-10  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (note-c-call-in): emit prototypes
 	* modules/pari/pari.lisp (clisp_get_prec, clisp_set_prec)
 	(get_entry_doc, subres0): ditto
