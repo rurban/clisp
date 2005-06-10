@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 
-;;(with-open-file (f "ucs" :direction :output #+SBCL :if-exists #+SBCL :supersede :element-type '(unsigned-byte 8))
+;;(with-open-file (f "ucs" :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede :element-type '(unsigned-byte 8))
 ;;  (write-byte-sequence #(0 65 0) f))
 
 ;; <http://sourceforge.net/tracker/index.php?func=detail&aid=543072&group_id=1355&atid=101355>

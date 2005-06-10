@@ -549,8 +549,8 @@ J
 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 J
-#+XCL 20 #+(or CLISP AKCL ECL ALLEGRO SBCL OpenMCL LISPWORKS) 7
-#-(or XCL CLISP AKCL ECL ALLEGRO SBCL OpenMCL LISPWORKS) UNKNOWN
+#+XCL 20 #+(or CLISP AKCL ECL ALLEGRO SBCL OpenMCL LISPWORKS) 7 #+CMU 16
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (SETQ A "Das ist wieder einmal einer der SUUPERTESTstrings.")
 "Das ist wieder einmal einer der SUUPERTESTstrings."
@@ -774,8 +774,14 @@ MY-PPRINT-LOGICAL
    (pprint-logical-block (out nil :prefix "#[" :suffix "]")
      (let ((cl (class-of obj)))
        (write (class-name cl) :stream out)
-       (loop :for slotdef :in (#+(or GCL OpenMCL) class-slots #-(or GCL OpenMCL) clos:class-slots cl)
-         :for slot = (#+(or GCL OpenMCL) slot-definition-name #-(or GCL OpenMCL) clos:slot-definition-name slotdef)
+       (loop :for slotdef :in (#+(or GCL OpenMCL) class-slots
+                               #+SBCL sb-mop:class-slots
+                               #+CMU mop:class-slots
+                               #-(or GCL OpenMCL SBCL CMU) clos:class-slots cl)
+         :for slot = (#+(or GCL OpenMCL) slot-definition-name
+                      #+SBCL sb-mop:slot-definition-name
+                      #+CMU mop:slot-definition-name
+                      #-(or GCL OpenMCL SBCL CMU) clos:slot-definition-name slotdef)
          :when (and slot (slot-boundp obj slot))
          :do (write-char #\space out) (pprint-newline :fill out)
          (write slot :stream out)
@@ -797,7 +803,8 @@ T
 (let ((*print-readably* t))
   (with-output-to-string (out) (pprint-linear out (list 'a 'b 'c))))
 #+CLISP "(|COMMON-LISP-USER|::|A| |COMMON-LISP-USER|::|B| |COMMON-LISP-USER|::|C|)"
-#-CLISP "(A B C)"
+#+CMU "(A . (B C))"
+#-(or CLISP CMU) "(A B C)"
 
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)

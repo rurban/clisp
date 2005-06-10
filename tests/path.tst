@@ -33,7 +33,7 @@ TYPE "ABC" SYSTEM::VERSION NIL)
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
             :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
 
-(SETF STREAM (OPEN STRING :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)
+(SETF STREAM (OPEN STRING :DIRECTION :OUTPUT #+(or CMU SBCL) :IF-EXISTS #+(or CMU SBCL) :SUPERSEDE)
       a nil)
 nil
 
@@ -808,7 +808,7 @@ T
 
 (let* ((old "foo-bar.old")
        (new (make-pathname :type "new" :defaults old)))
-  (with-open-file (s old :direction :output #+SBCL :if-exists #+SBCL :supersede) (write-line "to be renamed" s))
+  (with-open-file (s old :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede) (write-line "to be renamed" s))
   (unwind-protect
        (list (list (not (not (probe-file old))) (probe-file new))
              (length (multiple-value-list (rename-file old new)))

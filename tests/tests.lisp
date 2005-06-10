@@ -184,7 +184,7 @@
   (with-open-file (s (merge-extension "tst" testname) :direction :input)
     (format t "~&~s: started ~s~%" 'run-test s)
     (with-open-file (log logfile :direction :output
-                                 #+SBCL :if-exists #+SBCL :supersede
+                                 #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (let ((*package* *package*) (*print-circle* t) (*print-pretty* nil))
         (setf (values total-count error-count)
@@ -262,7 +262,7 @@
                   #+(or CLISP GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) "loop"
                                     "macro8"
                                     "map"
-                  #+(or CLISP ALLEGRO CMU OpenMCL LISPWORKS) "mop"
+                  #+(or CLISP ALLEGRO OpenMCL LISPWORKS) "mop"
                                     "number"
                   #+CLISP           "number2"
                   #-(or AKCL ALLEGRO CMU OpenMCL) "pack11"
