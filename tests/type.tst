@@ -144,7 +144,7 @@ T
 
 ;; depends on (UPGRADED-COMPLEX-PART-TYPE '(EQL 0))
 (TYPEP #C(0 1) '(COMPLEX (EQL 0)))
-#+(or CLISP GCL CMU19 OpenMCL) NIL #+(or CMU18 SBCL LISPWORKS) T #-(or CLISP GCL CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#+(or CLISP GCL CMU19A OpenMCL) NIL #+(or CMU18 (and CMU19 (not CMU19A)) SBCL LISPWORKS) T #-(or CLISP GCL CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #| ; depends on (upgraded-array-element-type 'SYMBOL) !
  (TYPEP '#(A B C D) (QUOTE (VECTOR SYMBOL 4)))
@@ -773,7 +773,9 @@ NIL
 (check-type-error (FBOUNDP #'CAR))
 NIL
 
+#+CLISP
 (typep '#1=(A 1 B 2 #1#) 'SYS::PLIST)
+#+CLISP
 NIL
 
 (check-type-error (UNION NIL "A"))

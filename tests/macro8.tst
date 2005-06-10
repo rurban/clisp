@@ -246,7 +246,7 @@ TEST-COMPILER
 ;; the bug was fixed by bruno in compiler.lisp 1.80
 (progn
   (defun stem (&key (obj (error "missing OBJ")))
-    (with-open-file (stream obj :direction :output #+SBCL :if-exists #+SBCL :supersede)
+    (with-open-file (stream obj :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
       (truename stream)))
   (compile 'stem)
   (delete-file (stem :obj "foo-bar-zot"))
@@ -587,7 +587,7 @@ dm2b
 (12 22)
 
 (let ((file "tmp.lisp"))
-  (with-open-file (o file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+  (with-open-file (o file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-line "(defun caller (a b) (foo a b))" o)
     (write-line "(defun foo (a b c) (list a b c))" o))
   (unwind-protect
@@ -598,10 +598,10 @@ dm2b
 (1 2 3)
 
 (let ((file1 "tmp1.lisp") (file2 "tmp2.lisp"))
-  (with-open-file (o file1 :direction :output #+SBCL :if-exists #+SBCL :supersede)
+  (with-open-file (o file1 :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-line "(defun foo (a b c) (cons b c a))" o)
     (format o "(load ~S)~%" file2))
-  (with-open-file (o file2 :direction :output #+SBCL :if-exists #+SBCL :supersede)
+  (with-open-file (o file2 :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-line "(defun bar (a b) (sin (1+ a) (1- b a)))" o))
   (unwind-protect
       (progn
@@ -636,7 +636,7 @@ dm2b
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
 (let ((file "tmp.lisp"))
-  (with-open-file (out file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+  (with-open-file (out file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write '(eval-when (load compile eval)
              (+ (funcall (compile nil (lambda () (load-time-value (+ 2 3)))))
               120))
@@ -651,7 +651,7 @@ nil
 ;; compile-file is allowed to collapse different occurrences of the same
 ;; LOAD-TIME-VALUE form, and in fact, CLISP does so.
 (let ((file "tmp.lisp"))
-  (with-open-file (out file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+  (with-open-file (out file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-string "(defun ltv1 () (eq #1=(load-time-value (cons nil nil)) #1#))" out))
   (unwind-protect
       (progn (compile-file file) (load (compile-file-pathname file)))
@@ -665,7 +665,7 @@ nil
 ;; compile-file is not allowed to collapse different LOAD-TIME-VALUE forms
 ;; even if the inner form is the same.
 (let ((file "tmp.lisp"))
-  (with-open-file (out file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+  (with-open-file (out file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-string "(defun ltv2 () (eq (load-time-value #1=(cons nil nil)) (load-time-value #1#)))" out))
   (unwind-protect
       (progn (compile-file file) (load (compile-file-pathname file)))
@@ -677,7 +677,7 @@ NIL
 
 ;; compile-file is not allowed to collapse different LOAD-TIME-VALUE forms.
 (let ((file "tmp.lisp"))
-  (with-open-file (out file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+  (with-open-file (out file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-string "(defun ltv3 () (eq (load-time-value (cons nil nil)) (load-time-value (cons nil nil))))" out))
   (unwind-protect
       (progn (compile-file file) (load (compile-file-pathname file)))
@@ -879,8 +879,10 @@ T
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
 (let ((fname "donc.lisp") (results '()) compiled)
-  (with-open-file (out fname :direction :output :if-exists :overwrite
-                       :if-does-not-exist :create)
+  (with-open-file (out fname :direction :output
+                             #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
+                             :if-exists :overwrite
+                             :if-does-not-exist :create)
     (write '(defparameter *donc* nil) :stream out)
     (terpri out)
     (write '(eval-when (:load-toplevel :compile-toplevel :execute)
@@ -902,8 +904,10 @@ T
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/13127>
 (let ((fname "donc.lisp") (results '()) compiled)
-  (with-open-file (out fname :direction :output :if-exists :overwrite
-                       :if-does-not-exist :create)
+  (with-open-file (out fname :direction :output
+                             #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
+                             :if-exists :overwrite
+                             :if-does-not-exist :create)
     (write '(defmacro m1 (x)
              (compile x (lambda nil (load-time-value (+ 2 3)))) 4)
            :stream out)
