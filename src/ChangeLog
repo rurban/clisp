@@ -1,6 +1,8 @@
 2005-06-10  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp (note-c-call-in): emit prototypes
+	* modules/pari/pari.lisp (clisp_get_prec, clisp_set_prec)
+	(get_entry_doc, subres0): ditto
 
 2005-06-10  Sam Steingold  <sds@gnu.org>
 
