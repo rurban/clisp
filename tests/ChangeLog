@@ -1,5 +1,9 @@
 2005-06-09  Bruno Haible  <bruno@clisp.org>
 
+	* conditions.tst: Mark a test as clisp-only.
+
+2005-06-09  Bruno Haible  <bruno@clisp.org>
+
 	* bin-io.tst: Update for cmucl-19b-pre1.
 	* clos.tst: Likewise.
 	* encoding.tst: Likewise.
