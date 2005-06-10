@@ -1,5 +1,9 @@
 2005-06-10  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp (note-c-call-in): emit prototypes
+
+2005-06-10  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (XCFLAGS) [CC_CPLUSPLUS=true]: do not add
 	-Wmissing-declarations: 'cc1plus: warning: command line option
 	"-Wmissing-declarations" is valid for C/ObjC but not for C++'

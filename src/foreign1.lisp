@@ -1022,25 +1022,18 @@
            (argflags (split-c-fun-arglist args 1))
            (argnames (mapcar #'(lambda (argtype) (declare (ignore argtype))
                                  (symbol-name (gensym "g")))
-                             argtypes)))
+                             argtypes))
+           (par-list (mapcar #'to-c-typedecl argtypes argnames))
+           (par-string (format nil "(~{~A~^, ~})" (or par-list '("void"))))
+           (fun+type (to-c-typedecl rettype (format nil "(~A)" c-name))))
       (prepare-c-typedecl rettype)
       ;(mapc #'prepare-c-typedecl argtypes)
-      (format *coutput-stream* "~%extern ~A "
-              (to-c-typedecl rettype (format nil "(~A)" c-name)))
+      ;; prototype + start
+      (format *coutput-stream* "~%~A ~A;~%~A " fun+type par-string fun+type)
       (if (flag-set-p flags ff-language-ansi-c)
-        ; ANSI C parameter declarations
-        (progn
-          (format *coutput-stream* "(")
-          (if argtypes
-            (do ((argtypesr argtypes (cdr argtypesr))
-                 (argnamesr argnames (cdr argnamesr)))
-                ((null argtypesr))
-              (format *coutput-stream* "~A"
-                      (to-c-typedecl (car argtypesr) (car argnamesr)))
-              (when (cdr argtypesr) (format *coutput-stream* ", ")))
-            (format *coutput-stream* "void"))
-          (format *coutput-stream* ")"))
-        ; K&R C parameter declarations
+        ;; ANSI C parameter declarations
+        (format *coutput-stream* "~A" par-string)
+        ;; K&R C parameter declarations
         (progn
           (format *coutput-stream* "(")
           (do ((argnamesr argnames (cdr argnamesr)))
@@ -1048,11 +1041,8 @@
             (format *coutput-stream* "~A" (car argnamesr))
             (when (cdr argnamesr) (format *coutput-stream* ", ")))
           (format *coutput-stream* ")")
-          (do ((argtypesr argtypes (cdr argtypesr))
-               (argnamesr argnames (cdr argnamesr)))
-              ((null argtypesr))
-            (format *coutput-stream* "~%  ~A;"
-                    (to-c-typedecl (car argtypesr) (car argnamesr))))))
+          (dolist (par par-list)
+            (format *coutput-stream* "~%  ~A;" par))))
       (format *coutput-stream* "~%{~%  begin_callback();~%")
       (let ((inargcount 0) (outargcount (if (eq rettype 'NIL) 0 1))
             (flag-output (logior ff-flag-out ff-flag-in-out)))
