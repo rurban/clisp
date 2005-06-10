@@ -1,3 +1,11 @@
+2005-06-09  Bruno Haible  <bruno@clisp.org>
+
+	Move lots of CLISP-only tests to a separate file.
+	* conditions.tst: Move restart tests out to restarts.tst.
+	* lists152.tst: Likewise.
+	* restarts.tst: New file.
+	+ tests.lisp (run-all-tests): Run it after conditions.tst.
+
 2005-06-08  Sam Steingold  <sds@gnu.org>
 
 	* bind.tst: 5 more tests
