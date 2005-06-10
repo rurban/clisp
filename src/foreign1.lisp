@@ -731,10 +731,14 @@
                           *coutput-stream*)))
         (format *coutput-stream* ");~%")))
     (format *coutput-stream*
-            "~%void module__~A__init_function_1 (module_t* module)~%~
+            "~%void module__~A__init_function_1 (module_t* module);~%~
+            ~%void module__~A__init_function_2 (module_t* module);~%~
+            ~%void module__~A__fini_function (module_t* module);~%~
+            ~2%void module__~A__init_function_1 (module_t* module)~%~
             {~{~%~A~}~%}~2%~
             void module__~A__init_function_2 (module_t* module)~%~
             {~{~%~A~}~%"
+            *c-name* *c-name* *c-name*
             *c-name* *init-once* *c-name* *init-always*)
     (dolist (variable *variable-list*)
       (format *coutput-stream*
