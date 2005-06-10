@@ -1,3 +1,10 @@
+2005-06-10  Sam Steingold  <sds@gnu.org>
+
+	avoid -Wstrict-prototypes warnings in modules
+	* foreign1.lisp (finalize-coutput-file): emit init/fini prototypes
+	* utils/modprep.lisp (print-tables-2): ditto
+	* genclisph.d (LISPFUN_B): emit subr prototype
+
 2005-06-08  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* modules/bindings/glibc/linux.lisp (errno): Remove dependency on
