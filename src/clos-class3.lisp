@@ -1753,7 +1753,7 @@
                                                  ((slots slots) '())
                                                  ((size size) 1)
                                             &allow-other-keys)
-  ;; metaclass = <structure-class>
+  ;; metaclass ⊆ <structure-class>
   (declare (ignore generic-accessors generic-accessors-p direct-slots-as-lists
                    direct-slots-as-metaobjects direct-default-initargs
                    documentation documentation-p))
@@ -1991,7 +1991,7 @@
        &aux (direct-superclasses (class-direct-superclasses class))
             (name (class-name class))
             (old-slot-location-table (class-slot-location-table class)))
-  ;; metaclass = <semi-standard-class>
+  ;; metaclass ⊆ <semi-standard-class>
   (if (standard-class-p class)
     (check-metaclass-mix name direct-superclasses
                          #'standard-class-p 'STANDARD-CLASS)
