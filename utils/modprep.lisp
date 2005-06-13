@@ -1140,6 +1140,7 @@ commas and parentheses."
             (format out "  { ~S, ~S }," (fundef-pack fd) (fundef-name fd))))
     (formatln out "  0")
     (formatln out "};") (newline out)
+    ; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
     (formatln out "void ~A (module_t* module);" *init-1-name*)
     (formatln out "void ~A (module_t* module)" *init-1-name*)
     (formatln out "{")
@@ -1157,12 +1158,14 @@ commas and parentheses."
     (formatln out "}")
     (when *init-2-name*         ; no init2 => define a dummy
       (newline out)
+      ; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
       (formatln out "void ~A (module_t* module);" *init-2-name*)
       (formatln out "void ~A (module_t* module)" *init-2-name*)
       (formatln out "{")
       (formatln out "}"))
     (when *fini-name*           ; no fini-func => define a dummy
       (newline out)
+      ; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
       (formatln out "void ~A (module_t* module);" *fini-name*)
       (formatln out "void ~A (module_t* module)" *fini-name*)
       (formatln out "{")

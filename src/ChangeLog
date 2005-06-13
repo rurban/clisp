@@ -1,5 +1,10 @@
 2005-06-12  Bruno Haible  <bruno@clisp.org>
 
+	Avoid "gcc -missing-declarations" warnings.
+	* modules/syscalls/calls.c (module__syscalls__init_function_2): Declare.
+
+2005-06-12  Bruno Haible  <bruno@clisp.org>
+
 	Make PROVIDE, REQUIRE work as expected in case-inverted packages.
 	* defs1.lisp (module-name): New function.
 	(provide, require): Use it instead of #'string.
