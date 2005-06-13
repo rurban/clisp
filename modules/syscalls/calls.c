@@ -1943,6 +1943,7 @@ static StgOpenStorageExFuncType StgOpenStorageExFunc = NULL;
 static HMODULE ole32 = NULL;
 #endif
 
+void module__syscalls__init_function_2 (module_t* module);
 void module__syscalls__init_function_2 (module_t* module) {
 #if defined(WIN32_NATIVE)
   kernel32 = LoadLibrary ("kernel32.dll");
