@@ -69,11 +69,11 @@
     (when (consp object)
       (let ((head (first object)))
         (when (or (eq head 'SPLICE) (eq head 'NSPLICE))
-          (bq-non-list-splice-error head :in-reader t :stream stream)))
+          (bq-non-list-splice-error head stream)))
       (when (bq-member 'SPLICE object)
-        (bq-dotted-splice-error 'SPLICE :in-reader t :stream stream))
+        (bq-dotted-splice-error 'SPLICE stream))
       (when (bq-member 'NSPLICE object)
-        (bq-dotted-splice-error 'NSPLICE :in-reader t :stream stream)))
+        (bq-dotted-splice-error 'NSPLICE stream)))
     (list 'BACKQUOTE object)))
 
 ;;; Handle the read syntax ,
@@ -123,25 +123,37 @@
 
 ;;; Signal error for `,.form or `,@form.
 ;;; It's undefined behaviour; we signal an error for it.
-;;; If :in-reader is t, then add the prefix "READ: ", to flag the error as
+;;; If stream is non-NIL, then add the prefix "READ: ", to flag the error as
 ;;; coming from the reader.
-(defun bq-non-list-splice-error (sym &key in-reader (stream (sys::%unbound)))
-  (error-of-type 'reader-error
-    :stream stream
-    (if in-reader (TEXT "READ: ~@?") "~@?")
-    (if (eq sym 'SPLICE)
-      (TEXT "the syntax `,@form is invalid")
-      (TEXT "the syntax `,.form is invalid"))))
+(defun bq-non-list-splice-error (sym &optional stream)
+  (let ((errmsg
+          (if (eq sym 'SPLICE)
+            (TEXT "the syntax `,@form is invalid")
+            (TEXT "the syntax `,.form is invalid"))))
+    (if stream
+      (error-of-type 'reader-error
+        :stream stream
+        (TEXT "READ: ~@?")
+        errmsg)
+      (error-of-type 'error
+        "~@?"
+        errmsg))))
 
 ;;; Signal error for `(... . ,@form) or `(... . ,.form).
 ;;; It's undefined behaviour; we signal an error for it.
-(defun bq-dotted-splice-error (sym &key in-reader (stream (sys::%unbound)))
-  (error-of-type 'reader-error
-    :stream stream
-    (if in-reader (TEXT "READ: ~@?") "~@?")
-    (if (eq sym 'SPLICE)
-      (TEXT "the syntax `( ... . ,@form) is invalid")
-      (TEXT "the syntax `( ... . ,.form) is invalid"))))
+(defun bq-dotted-splice-error (sym &optional stream)
+  (let ((errmsg
+          (if (eq sym 'SPLICE)
+            (TEXT "the syntax `( ... . ,@form) is invalid")
+            (TEXT "the syntax `( ... . ,.form) is invalid"))))
+    (if stream
+      (error-of-type 'reader-error
+        :stream stream
+        (TEXT "READ: ~@?")
+        errmsg)
+      (error-of-type 'error
+        "~@?"
+        errmsg))))
 
 ;;; ============================== Macroexpander ==============================
 

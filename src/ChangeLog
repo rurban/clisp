@@ -1,3 +1,9 @@
+2005-06-12  Bruno Haible  <bruno@clisp.org>
+
+	* backquote.lisp (bq-non-list-splice-error, bq-dotted-splice-error):
+	Change calling convention, to avoid use of sys::%unbound.
+	(backquote-reader): Update.
+
 2005-06-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp: updated for pari 2.2.11
