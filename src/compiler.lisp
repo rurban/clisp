@@ -67,6 +67,7 @@
           sys::double-float-p sys::long-float-p
           sys::search-file sys::date-format sys::line-number
           sys::%funtabref sys::inlinable sys::constant-inlinable
+          sys::module-name
           sys::*compiling* sys::*compiling-from-file* sys::*inline-functions*
           sys::*venv* sys::*fenv* sys::*benv* sys::*genv* sys::*denv*
           sys::*toplevel-environment* sys::*toplevel-denv*
@@ -3391,14 +3392,14 @@ for-value   NIL or T
 
 ;; auxiliary function: PROVIDE on file-compilation, cf. function PROVIDE
 (defun c-PROVIDE (module-name)
-  (pushnew (string module-name) *compiled-modules* :test #'string=))
+  (pushnew (module-name module-name) *compiled-modules* :test #'string=))
 
 ;; auxiliary function: REQUIRE on file-compilation, cf. function REQUIRE
-(defun c-REQUIRE (module-name &optional (pathname nil p-given)
-                  &aux (mod-name (string module-name)))
-  (unless (or (member mod-name *modules* :test #'string=)
-              (member mod-name *compiled-modules* :test #'string=))
-    (unless p-given (setq pathname (pathname mod-name)))
+(defun c-REQUIRE (module-name &optional (pathname nil p-given))
+  (setq module-name (module-name module-name))
+  (unless (or (member module-name *modules* :test #'string=)
+              (member module-name *compiled-modules* :test #'string=))
+    (unless p-given (setq pathname (pathname module-name)))
     (flet ((load-lib (file)
              (let* ((*load-paths*
                       (cons (make-pathname :name nil :type nil

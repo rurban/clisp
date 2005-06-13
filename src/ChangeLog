@@ -1,5 +1,12 @@
 2005-06-12  Bruno Haible  <bruno@clisp.org>
 
+	Make PROVIDE, REQUIRE work as expected in case-inverted packages.
+	* defs1.lisp (module-name): New function.
+	(provide, require): Use it instead of #'string.
+	* compiler.lisp (c-PROVIDE, c-REQUIRE): Likewise.
+
+2005-06-12  Bruno Haible  <bruno@clisp.org>
+
 	* constobj.d: Rename O(type_designator_function_name) to
 	O(type_function_name).
 	* error.d: Update.

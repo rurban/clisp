@@ -148,13 +148,22 @@
 
 (defvar *modules* nil)
 
-(defun provide (name)
-  (setq *modules* (adjoin (string name) *modules* :test #'string=)))
+; Conversion from module name to string.
+; cl-user::abc -> "ABC", cs-cl-user::abc -> "abc".
+(defun module-name (name)
+  (if (and (symbolp name)
+           (symbol-package name)
+           (package-case-inverted-p (symbol-package name)))
+    (cs-cl:string name)
+    (string name)))
 
-(defun require (module-name &optional (pathname nil p-given)
-                &aux (mod-name (string module-name)))
-  (unless (member mod-name *modules* :test #'string=)
-    (unless p-given (setq pathname (pathname mod-name)))
+(defun provide (name)
+  (setq *modules* (adjoin (module-name name) *modules* :test #'string=)))
+
+(defun require (module-name &optional (pathname nil p-given))
+  (setq module-name (module-name module-name))
+  (unless (member module-name *modules* :test #'string=)
+    (unless p-given (setq pathname (pathname module-name)))
     (let (#+CLISP (*load-paths* *load-paths*)
           #-CLISP (*default-pathname-defaults* '#""))
       #+CLISP (pushnew (merge-pathnames "dynmod/" *lib-directory*) *load-paths*
