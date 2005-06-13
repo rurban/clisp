@@ -212,6 +212,7 @@ int main(int argc, char* argv[])
 #include "gen.lispbibl.c"
 
    printf("#define LISPFUNN(name,req_anz)  LISPFUN(name,sec,req_anz,0,norest,nokey,0,NIL)\n");
+   /* In LISPFUN_B, emit the decl first, to avoid "gcc -missing-declarations" warnings. */
    printf("#define LISPFUN_B(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  Values C_##name subr_##rest_flag##_function_args; Values C_##name subr_##rest_flag##_function_args\n");
    printf("#define subr_norest_function_args  (void)\n");
    printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
