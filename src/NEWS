@@ -221,7 +221,7 @@ User visible changes
 * Global error handlers can now be installed and removed using
   EXT:SET-GLOBAL-HANDLER, EXT:WITHOUT-GLOBAL-HANDLERS,
   and -on-error command line option.
-  See <http://clisp.cons.org/impnotes.html#global-hanldler> and
+  See <http://clisp.cons.org/impnotes.html#global-handler> and
   <http://clisp.cons.org/clisp.html#opt-on-error> for details.
 
 * TRANSLATE-PATHNAME and TRANSLATE-LOGICAL-PATHNAME accept a new keyword
