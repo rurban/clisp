@@ -205,7 +205,6 @@
   LISPOBJ(type_designator_base_char,"(EXT::DESIGNATOR BASE-CHAR)")
   #endif
   LISPOBJ(type_designator_function,"(OR FUNCTION SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)) (CONS (EQL LAMBDA)))")
-  LISPOBJ(type_designator_function_name,"(OR SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)))")
   # Upper bound for the number of structure classes present in the system:
   LISPOBJ(structure_class_count_max,"0")
   # Upper bound for the number of standard classes present in the system:
@@ -356,6 +355,7 @@
   # vector with conditions and simple-conditions:
   LISPOBJ(error_types,"#()")
   # for errors of type TYPE-ERROR:
+  LISPOBJ(type_function_name,"(OR SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)))")
   LISPOBJ(type_uint8,"(INTEGER 0 255)") # or "(UNSIGNED-BYTE 8)"
   LISPOBJ(type_sint8,"(INTEGER -128 127)") # or "(SIGNED-BYTE 8)"
   LISPOBJ(type_uint16,"(INTEGER 0 65535)") # or "(UNSIGNED-BYTE 16)"
