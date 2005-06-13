@@ -1,5 +1,11 @@
 2005-06-12  Bruno Haible  <bruno@clisp.org>
 
+	* constobj.d: Rename O(type_designator_function_name) to
+	O(type_function_name).
+	* error.d: Update.
+
+2005-06-12  Bruno Haible  <bruno@clisp.org>
+
 	* backquote.lisp (bq-non-list-splice-error, bq-dotted-splice-error):
 	Change calling convention, to avoid use of sys::%unbound.
 	(backquote-reader): Update.
