@@ -5954,8 +5954,10 @@ typedef struct strm_i_buffered_extrafields_t {
 # File-Stream in general
 # ======================
 
-/* FIXME: Add documentation */
-/* for syscall module */
+/* return the file stream truename
+ > s: file stream (open or closed) - no type check is done!
+ < truename of the file associated with the stream
+ for syscall module */
 global object file_stream_truename (object s)
 { return FileStream_truename(s); }
 
@@ -17096,9 +17098,13 @@ local object check_open_file_stream (object obj, bool strict_p) {
   fehler(type_error,GETTEXT("~S: argument ~S is not an open file stream"));
 }
 
-/* FIXME: Add documentation */
-/* for syscall module */
-global object open_file_stream_handle (object stream, Handle *fd) {
+/* extract the OS file handle from the file stream
+ > stream: open Lisp file stream
+ < fd: OS file handle
+ < stream: corrected stream in case stream was invalid
+ for syscall module
+ can trigger GC */
+global maygc object open_file_stream_handle (object stream, Handle *fd) {
   stream = check_open_file_stream(stream,true);
   *fd = ChannelStream_ihandle(stream);
   return stream;

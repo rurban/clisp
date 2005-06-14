@@ -16472,9 +16472,14 @@ extern maygc Handle stream_lend_handle (object stream, bool inputp, int * handle
 /* used by STREAM */
 %% printf("extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);\n");
 
-/* FIXME: Add documentation */
-extern object open_file_stream_handle (object stream, Handle *fd);
-%% printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");
+/* extract the OS file handle from the file stream
+ > stream: open Lisp file stream
+ < fd: OS file handle
+ < stream: corrected stream in case stream was invalid
+ for syscall module
+ can trigger GC */
+extern maygc object open_file_stream_handle (object stream, Handle *fd);
+%% printf("extern maygc object open_file_stream_handle (object stream, Handle *fd);\n");
 
 /* Function: Reads several bytes from a stream.
  read_byte_array(&stream,&bytearray,start,len,persev)
@@ -16531,7 +16536,10 @@ extern maygc void write_char_array (const gcv_object_t* stream_, const gcv_objec
 extern object var_stream (object sym, uintB strmflags);
 # is used by IO, PACKAGE, ERROR, DEBUG, SPVW
 
-/* FIXME: Add documentation */
+/* return the file stream truename
+ > s: file stream (open or closed) - no type check is done!
+ < truename of the file associated with the stream
+ for syscall module */
 extern object file_stream_truename (object s);
 %% printf("extern object file_stream_truename (object s);\n");
 
