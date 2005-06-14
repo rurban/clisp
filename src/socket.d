@@ -168,9 +168,13 @@
   #endif
 #endif
 
-/* FIXME: Add documentation */
-/* for syscalls & rawsock modules */
-global object addr_to_string (short type, char *addr) {
+/* Convert the IP address from C format to Lisp
+ > type: address type (AF_INET..)
+ > addr: whatever the address is for this type
+ < lisp string representing the address in a human-readable format
+ for syscalls & rawsock modules
+ can trigger GC */
+global maygc object addr_to_string (short type, char *addr) {
   var char buffer[MAXHOSTNAMELEN];
  #ifdef HAVE_IPV6
   if (type == AF_INET6)
@@ -345,7 +349,11 @@ local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret)
   return 0;
 }
 
-/* FIXME: Add documentation */
+/* Convert the IP address from C format to Lisp
+ > name: FQDN or dotted quad or IPv6 address
+ < lisp string for FQDN or integer for IPv[46] numerics
+ for syscalls & rawsock modules
+ can trigger GC */
 global object string_to_addr (const char* name) {
   object ret;
   begin_system_call();
@@ -362,7 +370,15 @@ local int resolve_host1 (const void* addr, int addrlen, int family, void* ret) {
   return 0;
 }
 
-/* FIXME: Add documentation */
+/* Return the hostent specified by the host designator
+ > arg: host name designator:
+        :DEFAULT - current host
+        string/symbol: FQDN is resolved (gethostbyname)
+        uint32: raw IPv4 address (gethostbyaddr)
+        uint128: raw IPv6 address (gethostbyaddr)
+        bit vector: raw IPv4[46] address (gethostbyaddr)
+ < static hostent descriptor from LIBC
+ for syscalls & rawsock modules */
 global struct hostent* resolve_host (object arg) {
   var struct hostent* he;
   if (eq(arg,S(Kdefault))) {
