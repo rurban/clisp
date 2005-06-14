@@ -104,6 +104,38 @@ DEFMODULE(syscalls,"POSIX")
 # include <fcntl.h>
 #endif
 
+#if defined(WIN32_NATIVE)
+/* LockFileEx does not exist on Windows95/98/ME. */
+typedef BOOL (WINAPI * LockFileExFuncType)
+  (HANDLE hFile, DWORD dwFlags, DWORD dwReserved,
+   DWORD nNumberOfBytesToLockLow, DWORD nNumberOfBytesToLockHigh,
+   LPOVERLAPPED lpOverlapped);
+static LockFileExFuncType LockFileExFunc = NULL;
+static BOOL my_LockFileEx
+(HANDLE hFile, DWORD dwFlags, DWORD dwReserved,
+ DWORD nNumberOfBytesToLockLow, DWORD nNumberOfBytesToLockHigh,
+ LPOVERLAPPED lpOverlapped)
+{
+  (void)dwFlags; (void)dwReserved;
+  return LockFile(hFile,lpOverlapped->Offset,lpOverlapped->OffsetHigh,
+                  nNumberOfBytesToLockLow,nNumberOfBytesToLockHigh);
+}
+typedef BOOL (WINAPI * UnlockFileExFuncType)
+  (HANDLE hFile, DWORD dwReserved,
+   DWORD nNumberOfBytesToUnlockLow, DWORD nNumberOfBytesToUnlockHigh,
+   LPOVERLAPPED lpOverlapped);
+static UnlockFileExFuncType UnlockFileExFunc = NULL;
+static BOOL my_UnlockFileEx
+(HANDLE hFile, DWORD dwReserved,
+ DWORD nNumberOfBytesToUnlockLow, DWORD nNumberOfBytesToUnlockHigh,
+ LPOVERLAPPED lpOverlapped)
+{
+  (void)dwReserved;
+  return UnlockFile(hFile,lpOverlapped->Offset,lpOverlapped->OffsetHigh,
+                    nNumberOfBytesToUnlockLow,nNumberOfBytesToUnlockHigh);
+}
+#endif
+
 DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 { /* the interface to fcntl(2) */
   Handle fd = (Handle)-1;
@@ -171,12 +203,11 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   begin_system_call();
 #if defined(WIN32_NATIVE)
   if (lock_p) {
-    /* FIXME: LockFileEx does not exist on Windows95/98/ME. */
-    failed_p = !LockFileEx(fd,flags,0,length,0,&ol);
+    failed_p = !(*LockFileExFunc)(fd,flags,0,length,0,&ol);
     if (failed_p && nullp(STACK_3) && GetLastError() == ERROR_LOCK_VIOLATION)
       failed_p = lock_p = false; /* failed to lock, :BLOCK NIL */
   } else
-    failed_p = !UnlockFileEx(fd,0,length,0,&ol);
+    failed_p = !(*UnlockFileExFunc)(fd,0,length,0,&ol);
 #else
   fl.l_len = length;
   if ((failed_p = (-1 == fcntl(fd,cmd,&fl)))
@@ -1559,8 +1590,8 @@ struct statvfs {
 };
 #define HAVE_STATVFS_F_VOLNAME
 #define HAVE_STATVFS_F_FSTYPE
-int statvfs (const char *fname, struct statvfs *sfs)
-{
+int statvfs (const char *fname, struct statvfs *sfs);
+int statvfs (const char *fname, struct statvfs *sfs) {
   /* GetDiskFreeSpaceEx must be called before GetDiskFreeSpace on
      WinME, to avoid the MS KB 314417 bug */
   ULARGE_INTEGER availb, freeb, totalb;
@@ -1952,6 +1983,14 @@ void module__syscalls__init_function_2 (module_t* module) {
       GetProcAddress (kernel32, "CreateHardLinkA");
     BackupWriteFunc = (BackupWriteFuncType)
       GetProcAddress (kernel32, "BackupWrite");
+    LockFileExFunc = (LockFileExFuncType)
+      GetProcAddress (kernel32, "LockFileEx");
+    if (LockFileExFunc == NULL)
+      LockFileExFunc = (LockFileExFuncType) &my_LockFileEx;
+    UnlockFileExFunc = (UnlockFileExFuncType)
+      GetProcAddress (kernel32, "UnlockFileEx");
+    if (UnlockFileExFunc == NULL)
+      UnlockFileExFunc = (UnlockFileExFuncType) &my_UnlockFileEx;
   }
 #endif
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)

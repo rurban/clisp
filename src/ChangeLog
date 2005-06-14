@@ -1,3 +1,12 @@
+2005-06-14  Sam Steingold  <sds@gnu.org>
+
+	make executables built on NT run on w95
+	* modules/syscalls/calls.c (LockFileExFuncType, UnlockFileExFuncType):
+	new typedefs
+	(LockFileExFunc, UnlockFileExFunc): new statis variables
+	(STREAM-LOCK): use them instead of the NT functions
+	(module__syscalls__init_function_2): init them
+
 2005-06-12  Bruno Haible  <bruno@clisp.org>
 
 	Avoid "gcc -missing-declarations" warnings.

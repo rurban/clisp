@@ -6,8 +6,6 @@ MUST-FIX BEFORE NEXT RELEASE
 
 bind-eval.tst failure on Linux/amd64 [bruno]
 
-use LockFile instead of LockFileEx [sds]
-
 resolve_host/IPv6 [bruno]
 
 workaround for an extra comma in _clisp.1 [sds]
