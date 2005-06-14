@@ -16686,11 +16686,16 @@ extern bool check_charset (const char * code, object charset);
 # ###################### SOCKBIBL for SOCKET.D ############################# #
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
-/* FIXME: Add documentation */
-extern object addr_to_string (short type, char *addr);
+/* Convert the IP address from C format to Lisp
+ > type: address type (AF_INET..)
+ > addr: whatever the address is for this type
+ < lisp string representing the address in a human-readable format
+ for syscalls & rawsock modules
+ can trigger GC */
+extern maygc object addr_to_string (short type, char *addr);
 #endif
 %% #if defined(UNIX) || defined(WIN32_NATIVE)
-%%   printf("extern object addr_to_string (short type, char *addr);\n");
+%%   printf("extern maygc object addr_to_string (short type, char *addr);\n");
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
@@ -16700,15 +16705,27 @@ extern int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
 #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
-/* FIXME: Add documentation */
-extern object string_to_addr (const char* name);
+/* Convert the IP address from C format to Lisp
+ > name: FQDN or dotted quad or IPv6 address
+ < lisp string for FQDN or integer for IPv[46] numerics
+ for syscalls & rawsock modules
+ can trigger GC */
+extern maygc object string_to_addr (const char* name);
 #endif
 %% #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
-%%   printf("extern object string_to_addr (const char *name);\n");
+%%   printf("extern maygc object string_to_addr (const char *name);\n");
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
-/* FIXME: Add documentation */
+/* Return the hostent specified by the host designator
+ > arg: host name designator:
+        :DEFAULT - current host
+        string/symbol: FQDN is resolved (gethostbyname)
+        uint32: raw IPv4 address (gethostbyaddr)
+        uint128: raw IPv6 address (gethostbyaddr)
+        bit vector: raw IPv4[46] address (gethostbyaddr)
+ < static hostent descriptor from LIBC
+ for syscalls & rawsock modules */
 extern struct hostent* resolve_host (object arg);
 #endif
 %% #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)

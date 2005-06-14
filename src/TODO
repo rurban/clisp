@@ -8,11 +8,11 @@ bind-eval.tst failure on Linux/amd64 [bruno]
 
 use LockFile instead of LockFileEx [sds]
 
-comments for addr_to_string, string_to_addr [sds]
-
 comments for open_file_stream_handle, file_stream_truename [sds]
 
-workaround for extra comma in _clisp.1 [sds]
+resolve_host/IPv6 [bruno]
+
+workaround for an extra comma in _clisp.1 [sds]
 
 regression: resolution of logical pathnames is broken, try
    (compile-file (logical-pathname "FOO.LISP")) [sds]
@@ -25,7 +25,7 @@ regression: [bruno]
 (print (list '*error-output* *error-output*))
 (print (list '*terminal-io* *terminal-io*))
 (print (list '*debug-io* *debug-io*))
-(print "tell me something...") 
+(print "tell me something...")
 (print (read-line *standard-input*))
 "first"
 (with-open-stream (in (make-stream :input))
