@@ -16479,7 +16479,7 @@ extern maygc Handle stream_lend_handle (object stream, bool inputp, int * handle
  for syscall module
  can trigger GC */
 extern maygc object open_file_stream_handle (object stream, Handle *fd);
-%% printf("extern maygc object open_file_stream_handle (object stream, Handle *fd);\n");
+%% printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");
 
 /* Function: Reads several bytes from a stream.
  read_byte_array(&stream,&bytearray,start,len,persev)
@@ -16703,7 +16703,7 @@ extern bool check_charset (const char * code, object charset);
 extern maygc object addr_to_string (short type, char *addr);
 #endif
 %% #if defined(UNIX) || defined(WIN32_NATIVE)
-%%   printf("extern maygc object addr_to_string (short type, char *addr);\n");
+%%   printf("extern object addr_to_string (short type, char *addr);\n");
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
@@ -16721,7 +16721,7 @@ extern int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
 extern maygc object string_to_addr (const char* name);
 #endif
 %% #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
-%%   printf("extern maygc object string_to_addr (const char *name);\n");
+%%   printf("extern object string_to_addr (const char *name);\n");
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
