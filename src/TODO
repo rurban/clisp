@@ -8,8 +8,6 @@ bind-eval.tst failure on Linux/amd64 [bruno]
 
 use LockFile instead of LockFileEx [sds]
 
-comments for open_file_stream_handle, file_stream_truename [sds]
-
 resolve_host/IPv6 [bruno]
 
 workaround for an extra comma in _clisp.1 [sds]
