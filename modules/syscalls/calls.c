@@ -1590,8 +1590,7 @@ struct statvfs {
 };
 #define HAVE_STATVFS_F_VOLNAME
 #define HAVE_STATVFS_F_FSTYPE
-int statvfs (const char *fname, struct statvfs *sfs);
-int statvfs (const char *fname, struct statvfs *sfs) {
+static int statvfs (const char *fname, struct statvfs *sfs) {
   /* GetDiskFreeSpaceEx must be called before GetDiskFreeSpace on
      WinME, to avoid the MS KB 314417 bug */
   ULARGE_INTEGER availb, freeb, totalb;
