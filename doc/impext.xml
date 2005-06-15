@@ -1503,7 +1503,7 @@ In other words, each pair is:
 </section>
 
 
-<section id="macros3"><title>Additional Fancy Macros</title>
+<section id="macros3"><title>Additional Fancy Macros and Functions</title>
 
 <para>&clisp; comes with some extension macros, mostly defined in the
  file &macros3-lisp; and loaded from the file &init-lisp; during
@@ -1512,7 +1512,7 @@ In other words, each pair is:
 <formalpara id="ethe"><title>Macro &ethe;</title>
 <para><code>(&ethe; &val-type-r; &form-r;)</code>
  enforces a type check in both interpreted and compiled code.
- </para></formalpara>
+</para></formalpara>
 
 <formalpara id="letf"><title>Macros &letf; &amp; &letf-star;</title>
 <para>These macros are similar to &let; and &let-star;, respectively,
