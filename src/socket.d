@@ -354,7 +354,7 @@ local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret)
  < lisp string for FQDN or integer for IPv[46] numerics
  for syscalls & rawsock modules
  can trigger GC */
-global object string_to_addr (const char* name) {
+global maygc object string_to_addr (const char* name) {
   object ret;
   begin_system_call();
   with_host(name,&string_to_addr1,&ret);
