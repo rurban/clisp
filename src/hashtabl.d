@@ -69,12 +69,8 @@
 
  data-structure of the hash-table (see LISPBIBL.D):
  recflags codes the type and the state of the hash-table:
-   Bit 0 set, when EQ-hashtable
-   Bit 1 set, when EQL-hashtable
-   Bit 2 set, when EQUAL-hashtable
-   Bit 3 set, when EQUALP-hashtable
-   When all bits 0-3 are not set, user-defined ht_test
-   Bit 4-6 =0
+   Bit 0..3 encode the test and the hash-code function
+   Bit 4..6 are state used to emit warnings for not GC-invariant keys
    Bit 7 set, when table must be reorganized after GC
  ht_size                uintL>0 = length of the ITABLE
  ht_maxcount            Fixnum>0 = length of the NTABLE
