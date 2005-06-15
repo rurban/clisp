@@ -17101,7 +17101,7 @@ local object check_open_file_stream (object obj, bool strict_p) {
 /* extract the OS file handle from the file stream
  > stream: open Lisp file stream
  < fd: OS file handle
- < stream: corrected stream in case stream was invalid
+ < result: either stream, or a corrected stream in case stream was invalid
  for syscall module
  can trigger GC */
 global maygc object open_file_stream_handle (object stream, Handle *fd) {
