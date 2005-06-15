@@ -11,7 +11,7 @@ resolve_host/IPv6 [bruno]
 workaround for an extra comma in _clisp.1 [sds]
 
 regression: resolution of logical pathnames is broken, try
-   (compile-file (logical-pathname "FOO.LISP")) [sds]
+   (compile-file (logical-pathname "SYS:FOO.LISP")) [sds]
 
 regression: [bruno]
 =============== script.lisp ==================
