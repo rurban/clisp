@@ -401,9 +401,6 @@ Distribute impnotes.html in the form of CLAHS, as an annotation against
 Harlequin's HyperSpec. See http://clisp.cons.org/~haible/clahs/.
 
 
-FFI: Introduce a macro like CMU's FFI:ADDR
-
-
 FFI: Actually support :language :cc/:gcc by passing appropriate flags
 to the avcall/vacall macros. The default should be the same compiler
 as the one used to compile clisp.
