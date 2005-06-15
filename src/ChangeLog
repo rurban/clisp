@@ -1,3 +1,7 @@
+2005-06-15  Bruno Haible  <bruno@clisp.org>
+
+	* socket.d (string_to_addr): Mark as maygc.
+
 2005-06-14  Sam Steingold  <sds@gnu.org>
 
 	make executables built on NT run on w95
