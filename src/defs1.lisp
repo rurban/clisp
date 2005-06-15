@@ -2,7 +2,7 @@
 ;;;; 1.8.1989, 2.9.1989, 8.10.1989
 
 (in-package "EXT")
-(export '(doseq dohash without-package-lock))
+(export '(doseq dohash without-package-lock memoized))
 
 (export '(#-(or UNIX WIN32) custom::*default-time-zone*
           custom::*system-package-list*)
@@ -851,8 +851,8 @@
         (write-to-string object :level level :length length)
 ) ) ) )
 
-;; (MEMOIZED form) memoizes the result of form from its first evaluation.
 (defmacro memoized (form)
+  "(MEMOIZED form) memoizes the result of FORM from its first evaluation."
   `(LET ((MEMORY
            (IF (EVAL-WHEN (EVAL) T)
              ',(cons nil nil)
