@@ -2,6 +2,13 @@
 
 	* socket.d (string_to_addr): Mark as maygc.
 
+2005-06-15  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* defs1.lisp (memoized): export it from EXT.
+	* ../doc/impbody.xml: (TYPE-OF 0 or 1) yields BIT;
+	HASH-TABLE-TEST now returns EXT:FAST/STABLEHASH-EQ/EQL/EQUAL,
+	not EQ, EQL nor EQUAL anymore.
+
 2005-06-14  Sam Steingold  <sds@gnu.org>
 
 	make executables built on NT run on w95
@@ -8915,7 +8922,7 @@
 	(struct argv_initparams): Remove argv_stackneed.
 	(parse_options): Drop support for option -s.
 	(main): Don't reserve space for SP. Don't call setSP.
-	* doc/clisp.xml.in: Remove documentation of option -s.
+	* ../doc/clisp.xml.in: Remove documentation of option -s.
 
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 

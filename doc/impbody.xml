@@ -333,7 +333,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  <listitem><simpara>&cons-t;</simpara></listitem>
  <listitem><simpara>&symbol-t;, &null-t;, &boolean-t;,
   &keyword-t;</simpara></listitem>
- <listitem><simpara><literal role="type">(&integer-t; 0
+ <listitem><simpara>&bit-t;<literal role="type">(&integer-t; 0
   #.&most-positive-fixnum;)</literal>, <literal role="type">(&integer-t;
   #.&most-negative-fixnum; (0))</literal>, <literal role="type">(&integer-t;
   (#.&most-positive-fixnum;))</literal>, <literal role="type">(&integer-t; *
@@ -2812,8 +2812,12 @@ checks whether the &hash-table-t; is weak.</para>
 </section>
 
 <section id="ht-test"><title>Function &hash-table-test;</title>
-<para>Function &hash-table-test; returns either one of the four standard
- symbols &eq;, &eql;, &equal;, &equalp;, or, for &hash-table-t;s
+<para>Function &hash-table-test; returns either one of &fasthash-eq;,
+ &stablehash-eq;, <constant>EXT:FASTHASH-EQL</constant>,
+ <constant>EXT:STABLEHASH-EQL</constant>,
+ <constant>EXT:FASTHASH-EQUAL</constant>,
+ <constant>EXT:STABLEHASH-EQUAL</constant>, &equalp; (but not &eq;, &eql;
+ nor &equal; anymore), or, for &hash-table-t;s
  created with a user-defined &hash-table-test; (see macro &defhash;),
  a &cons-t; cell <literal role="data">(&test-f; . &hash-f;)</literal>.
 </para></section>
