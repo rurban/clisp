@@ -757,6 +757,7 @@
 <!ENTITY pprint-pop "<ulink url='&clhs;/Body/locmac_pprint-pop.html'><function>PPRINT-POP</function></ulink>">
 <!ENTITY pprint-tab "<ulink url='&clhs;/Body/fun_pprint-tab.html'><function>PPRINT-TAB</function></ulink>">
 <!ENTITY pprint-tabular "<ulink url='&clhs;/Body/fun_pprint-fi_rint-tabular.html'><function>PPRINT-TABULAR</function></ulink>">
+<!ENTITY primary-value-glo "<ulink url='&clhs;/Body/glo_p.html'>primary value</ulink>">
 <!ENTITY prin1 "<ulink url='&clhs;/Body/fun_writecm_p_rintcm_princ.html'><function>PRIN1</function></ulink>">
 <!ENTITY prin1-to-string "<ulink url='&clhs;/Body/fun_write-to-_nc-to-string.html'><function>PRIN1-TO-STRING</function></ulink>">
 <!ENTITY princ "<ulink url='&clhs;/Body/fun_writecm_p_rintcm_princ.html'><function>PRINC</function></ulink>">
