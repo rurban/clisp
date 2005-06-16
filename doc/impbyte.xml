@@ -778,20 +778,31 @@ see <xref linkend="src-modules"/>.</para>
 <section id="lisp-obj-in-c"><title>Lisp objects in &clisp;</title>
 
 <itemizedlist><title>Three kinds of storage are distinguished:</title>
- <listitem><simpara>&clisp; data (the "heap"), i.e. storage which contains
-  Lisp objects and is managed by the garbage collector.</simpara></listitem>
+ <listitem><simpara>&clisp; data (the <quote>heap</quote>), i.e. storage
+  which contains &clisp; &object-t;s and is managed by the &gc;or.
+ </simpara></listitem>
  <listitem><simpara>&clisp; stack (called &STACK;), contains &clisp;
-  &object-t;s</simpara></listitem>
+  &object-t;s visible to the &gc;or</simpara></listitem>
  <listitem><simpara>&c-lang; data (including program text, data,
   &malloc;ed memory)</simpara></listitem>
 </itemizedlist>
 
-<para>A &clisp; object is one word, containing a tag
- (partial type information) and either immediate data
- (e.g. &fixnum-t;s or &short-float-t;s) or a pointer to storage.
+<para>A &clisp; object is one word, containing a tag (partial type
+information) and either immediate data or a pointer to storage.
 Pointers to &c-lang; data have tag = <literal>machine_type</literal> = 0,
 pointers to &clisp; stack have tag = <literal>system_type</literal>,
 most other pointers point to &clisp; data.</para>
+
+<variablelist id="immediate-o"><title>Immediate objects</title>
+<varlistentry><term>32-bit CPU</term>
+ <listitem><para><simplelist columns="1"><member>&fixnum-t;</member>
+    <member>&short-float-t;</member><member>&character-t;</member>
+</simplelist></para></listitem></varlistentry>
+<varlistentry><term>64-bit CPU</term>
+ <listitem><para>In addition to the above, <simplelist columns="1">
+    <member>&single-float-t; (with &typecodes;)</member>
+</simplelist></para></listitem></varlistentry>
+</variablelist>
 
 <para>Let us turn to these &clisp; objects that consume regular &clisp;
 memory.  Every &clisp; object has a size which is determined when the
@@ -804,9 +815,9 @@ given by the function <function>objsize()</function>.</para>
 <para>&clisp; objects which contain exactly 2 &clisp; objects
 (i.e. &cons-t;es, &complex-t; numbers, &ratio-t;s) are
 stored in a separate area and occupy 2 words each.
-All other &clisp; objects have "varying length" (more precisely,
-not a fixed length) and include a word for &gc;ion purposes
-at their beginning.</para>
+All other &clisp; objects have <quote>varying</quote> length
+(more precisely, not a fixed length) and include a word for &gc;ion
+purposes at their beginning.</para>
 
 <para>The garbage collector is invoked by
  <function>allocate_*()</function> calls according to certain heuristics.
