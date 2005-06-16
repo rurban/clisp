@@ -4778,10 +4778,10 @@ EOF
 <varlistentry><term><code>(&mk-pipe-io; &command-r; &key-amp; &eltype;
    &extfmt; &buffered;)</code></term>
 <listitem><simpara>returns three values.
-  The first value is a &bidi-s; that will simultaneously pass its output
+  The &pri-val; is a &bidi-s; that will simultaneously pass its output
   as input to the execution of the given operating system command and
   supply the output from this command as input.
-  The second and third value will be the &in-s; and the &out-s; that
+  The second and third value are the &in-s; and the &out-s; that
   make up the &bidi-s;, respectively.</simpara>
  <warning><simpara>These three streams must be closed
    individually.</simpara></warning>

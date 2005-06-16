@@ -3332,14 +3332,14 @@ restrictions.</para>
    the classes of the required arguments.</simpara>
   <simpara>If it is possible to completely determine the ordered list of
    applicable methods based only on the supplied classes, this generic
-   function returns that list as its first value and true as its second
+   function returns that list as its &pri-val; and true as its second
    value.  The returned list of &m-mo;s is sorted by
    precedence order, the most specific method coming first.  If no
    methods are applicable to arguments with the specified classes, the
    empty list and true are returned.</simpara>
   <simpara>If it is not possible to completely determine the ordered
    list of applicable methods based only on the supplied classes, this
-   generic function returns an unspecified first value and false as its
+   generic function returns an unspecified &pri-val; and false as its
    second value.</simpara>
   <simpara>When a generic function is invoked, the discriminating
    function must determine the ordered list of methods applicable to the
@@ -3352,7 +3352,7 @@ restrictions.</para>
    &compute-applicable-methods-UC; and &compute-applicable-methods-mop; must
    be maintained: for any given generic function and set of arguments,
    if &compute-applicable-methods-UC; returns a second value of true,
-   the first value must be equal to the value that would be returned by
+   the &pri-val; must be equal to the value that would be returned by
    a corresponding call to &compute-applicable-methods-mop;.  The results
    are undefined if a portable method on either of these generic
    functions causes this consistency to be violated.</simpara>
@@ -3369,7 +3369,7 @@ restrictions.</para>
    that could be applicable to arguments of the supplied classes, this
    method returns the ordered list of applicable methods as its first
    value and true as its second value.</simpara>
-  <simpara>Otherwise this method returns an unspecified first value and
+  <simpara>Otherwise this method returns an unspecified &pri-val; and
    false as its second value.</simpara>
   <simpara>This method can be overridden. Because of the consistency
    requirements between this generic function and
@@ -3658,7 +3658,7 @@ override the system's definitions.</para>
    the discriminating function then calls &compute-applicable-methods-mop;.
   </simpara><para>When &compute-applicable-methods-UC; returns a second
    value of true, the discriminating function is permitted to memoize
-   the first returned value as follows.  The discriminating function may
+   the &pri-val; as follows.  The discriminating function may
    reuse the list of applicable methods without calling
    &compute-applicable-methods-UC; again provided that:
    <orderedlist numeration="lowerroman">
