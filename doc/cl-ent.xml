@@ -184,6 +184,7 @@
 <!ENTITY place "<ulink url='&clhs;/Body/glo_p.html#place'>place</ulink>">
 <!ENTITY pri-esc "<ulink url='&clhs;/Body/glo_p.html#printer_escaping'>printer escaping</ulink>">
 <!ENTITY mul-val "<ulink url='&clhs;/Body/glo_m.html#multiple_values'>multiple values</ulink>">
+<!ENTITY pri-val "<ulink url='&clhs;/Body/glo_p.html#primary_value'>primary value</ulink>">
 <!ENTITY finally "<ulink url='&clhs;/Body/sec_6-1-7-2.html'><literal>FINALLY</literal></ulink>">
 <!ENTITY cont-err "<ulink url='&clhs;/Body/glo_c.html#continuable'>continuable</ulink> &error-t;">
 <!ENTITY funname "<ulink url='&clhs;/Body/glo_f.html#function_name'>function name</ulink>">
