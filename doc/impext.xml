@@ -1544,10 +1544,9 @@ is approximately equivalent to
 </programlisting>
 </para></formalpara>
 
-<formalpara id="memoized">
-     <title>Macro <function>EXT:MEMOIZED</function></title>
+<formalpara id="memoized"><title>Macro <function>EXT:MEMOIZED</function></title>
 <para><code>(<function>EXT:MEMOIZED</function> &form-r;)</code>
- memoizes the &primary-value-glo; of <literal>FORM</literal> from its first evaluation.
+ memoizes the &pri-val; of &form-r; from its first evaluation.
 </para></formalpara>
 
 <formalpara id="with-collect">
