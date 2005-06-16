@@ -148,6 +148,7 @@ html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 	cd html && sed 's/^/ln -vf /' .symlinks | sh -
 	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "impnotes" \
 		-o $@/ chunk.xsl $<
+	xsltproc --timing -o $@/id-href.map id-href-map.xsl tdb-chunk.xml
 	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "man" \
 		-o $@/clisp.html pile.xsl clisp.xml
 	sed $(SGML_UNCOMMENT) $@/clisp.html > _clisp-1.html
@@ -157,7 +158,7 @@ html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 #	time xmlto xhtml -o $@/ -m chunk.xsl $<
 #	time docbook2html --dsl impnotes.dsl -o $@ $<
 	egrep -Hnr 'id="id[0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p html/*.html impnotes.css \
+	(test -n "$(DIST)" && scp -p html/*.html html/id-href.map impnotes.css \
 	 $(DIST)/impnotes/;) || true
 
 up: impnotes.html html
