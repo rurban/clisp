@@ -5,9 +5,6 @@
 2005-06-15  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* defs1.lisp (memoized): export it from EXT.
-	* ../doc/impbody.xml: (TYPE-OF 0 or 1) yields BIT;
-	HASH-TABLE-TEST now returns EXT:FAST/STABLEHASH-EQ/EQL/EQUAL,
-	not EQ, EQL nor EQUAL anymore.
 
 2005-06-14  Sam Steingold  <sds@gnu.org>
 
@@ -75,8 +72,8 @@
 
 2005-06-07  Bruno Haible  <bruno@clisp.org>
 
-	* genclisph.d (print_printf_arg, printf_with_args, print_file,
-	emit_typedef_test, emit_typedef, emit_typedef_f): Declare as local.
+	* genclisph.d (print_printf_arg, printf_with_args, print_file)
+	(emit_typedef_test, emit_typedef, emit_typedef_f): Declare as local.
 
 2005-06-07  Bruno Haible  <bruno@clisp.org>
 
@@ -88,8 +85,8 @@
 
 2005-06-06  Bruno Haible  <bruno@clisp.org>
 
-	* modules/berkeley-db/bdb.c (fill_dbt): Call I_to_LEbytes differently,
-	avoiding a prior memset().
+	* modules/berkeley-db/bdb.c (fill_dbt): Call I_to_LEbytes
+	differently, avoiding a prior memset().
 
 2005-06-06  Bruno Haible  <bruno@clisp.org>
 
@@ -100,9 +97,9 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
 	* modules/syscalls/calls.c: Assume stdlib.h exists.
-	(POSIX::STREAM-LOCK): Use a 64-bit variable for the length on systems
-	with 64-bit off_t and on Woe32. Fix wrong assigment from GetLastError()
-	to 'bool'.
+	(POSIX::STREAM-LOCK): Use a 64-bit variable for the length on
+	systems with 64-bit off_t and on Woe32. Fix wrong assigment from
+	GetLastError() to 'bool'.
 
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
@@ -155,8 +152,8 @@
 	Compile with gcc -Wmissing-declarations.
 	* makemake.in (XCFLAGS): Add -Wmissing-declarations.
 	* lispbibl.d: Include pseudofun.c with PSEUDO_C.
-	(fehler_unencodable, mkops_from_handles, mkips_from_handles,
-	hashcode_lfloat, sigsegv_handler_failed, ext_show_stack): New
+	(fehler_unencodable, mkops_from_handles, mkips_from_handles)
+	(hashcode_lfloat, sigsegv_handler_failed, ext_show_stack): New
 	declarations.
 	* io.d (print): Make local.
 	* pathname.d (fehler_pathname_designator): Make local.
@@ -171,26 +168,26 @@
 	* unix.d (errno): Don't declare. Assume <errno.h> does it.
 	* spvw.d (print_banner): Define with void argument list.
 	* stream.d (get_col): Likewise.
-	* pathname.d (fix_parse_namestring_dot_file, nullfile,
-	interpret_launch_priority): Likewise.
-	* hashtabl.d (get_eq_hashfunction, get_eql_hashfunction,
-	get_equal_hashfunction): Likewise.
+	* pathname.d (fix_parse_namestring_dot_file, nullfile)
+	(interpret_launch_priority): Likewise.
+	* hashtabl.d (get_eq_hashfunction, get_eql_hashfunction)
+	(get_equal_hashfunction): Likewise.
 	* debug.d (ext_show_stack): Likewise.
 	* realtran.d (sin_stack, cos_stack): Likewise.
 
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (Encoding, Encoding_wcslen, Encoding_wcstombs, cslen,
-	cstombs, TheEncoding, TheMachineCode, ThePseudofun, Pseudofun): Emit
-	to clisp.h.
+	* lispbibl.d (Encoding, Encoding_wcslen, Encoding_wcstombs, cslen)
+	(cstombs, TheEncoding, TheMachineCode, ThePseudofun, Pseudofun):
+	Emit to clisp.h.
 	(with_string_0, with_sstring_0): Use cslen instead of cslen_f,
 	cstombs instead of cstombs_f.
 	* encoding.d (cslen_f, cslen_ff, cstombs_f, cstombs_ff): Remove
 	functions.
 	* genclisph.d (main): Don't emit cslen_f, cslen_ff, cstombs_f,
 	cstombs_ff.
-	* modules/syscalls/calls.c (LispToPropVariant, PropSpecSetStr,
-	with_string_0w): Use cslen instead of cslen_f, cstombs instead of
+	* modules/syscalls/calls.c (LispToPropVariant, PropSpecSetStr)
+	(with_string_0w): Use cslen instead of cslen_f, cstombs instead of
 	cstombs_f.
 	* modules/clx/new-clx/clx.f (to_XChar2b): Use cstombs instead of
 	cstombs_f.
@@ -261,10 +258,10 @@
 
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (addr_to_string, nonintr_connect, string_to_addr,
-	resolve_host, connect_to_x_server, socket_getlocalname,
-	socket_getpeername, create_server_socket, accept_connection,
-	create_client_socket): New declarations.
+	* lispbibl.d (addr_to_string, nonintr_connect, string_to_addr)
+	(resolve_host, connect_to_x_server, socket_getlocalname)
+	(socket_getpeername, create_server_socket, accept_connection)
+	(create_client_socket): New declarations.
 	* socket.d: Improve documentation.
 	(create_server_socket, create_client_socket): Remove redundant
 	declarations.
@@ -375,9 +372,9 @@
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
 	Fix omission in 2004-06-20 patch.
-	* spvw_garcol.d (gc_sweep1_instance_forward,
-	gc_sweep1_instance_target) [TYPECODES]: Make it work for closure_type
-	as well.
+	* spvw_garcol.d (gc_sweep1_instance_forward)
+	(gc_sweep1_instance_target) [TYPECODES]: Make it work for
+	closure_type as well.
 
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
@@ -460,27 +457,27 @@
 	TYPECODES.
 	(cgci_types_pointable, pgci_types_pointable, ngci_types_pointable): New
 	macros.
-	(TheCons, TheRatio, TheComplex, TheSymbol, TheSymbolflagged, TheBignum,
-	TheFfloat, TheDfloat, TheLfloat, TheSarray, TheSbvector, TheCodevec,
-	TheS8string, TheS16string, TheS32string, TheSnstring, TheSistring,
-	TheSstring, TheSvector, TheIarray, TheRecord, TheLrecord, TheSrecord,
-	TheXrecord, ThePackage, TheHashtable, TheReadtable, ThePathname,
-	TheLogpathname, The_Random_state, TheByte, TheFsubr, TheLoadtimeeval,
-	TheSymbolmacro, TheGlobalSymbolmacro, TheMacro, TheFunctionMacro,
-	TheBigReadLabel, TheEncoding, TheFpointer, TheFaddress, TheFvariable,
-	TheFfunction, TheWeakpointer, TheMutableWeakList, TheWeakList,
-	TheWeakAnd, TheWeakOr, TheWeakmapping, TheWeakAndMapping,
-	TheWeakOrMapping, TheMutableWeakAlist, TheWeakAlist,
-	TheWeakHashedAlist, TheFinalizer, TheSocketServer, TheYetanother,
-	TheStream, TheStructure, TheClosure, TheIclosure, TheCclosure,
-	TheInstance, TheVarobject): Define using ngci_types_pointable.
+	(TheCons, TheRatio, TheComplex, TheSymbol, TheSymbolflagged, TheBignum)
+	(TheFfloat, TheDfloat, TheLfloat, TheSarray, TheSbvector, TheCodevec)
+	(TheS8string, TheS16string, TheS32string, TheSnstring, TheSistring)
+	(TheSstring, TheSvector, TheIarray, TheRecord, TheLrecord, TheSrecord)
+	(TheXrecord, ThePackage, TheHashtable, TheReadtable, ThePathname)
+	(TheLogpathname, The_Random_state, TheByte, TheFsubr, TheLoadtimeeval)
+	(TheSymbolmacro, TheGlobalSymbolmacro, TheMacro, TheFunctionMacro)
+	(TheBigReadLabel, TheEncoding, TheFpointer, TheFaddress, TheFvariable)
+	(TheFfunction, TheWeakpointer, TheMutableWeakList, TheWeakList)
+	(TheWeakAnd, TheWeakOr, TheWeakmapping, TheWeakAndMapping)
+	(TheWeakOrMapping, TheMutableWeakAlist, TheWeakAlist)
+	(TheWeakHashedAlist, TheFinalizer, TheSocketServer, TheYetanother)
+	(TheStream, TheStructure, TheClosure, TheIclosure, TheCclosure)
+	(TheInstance, TheVarobject): Define using ngci_types_pointable.
 	(TheSubr, TheFramepointer, TheMachine): Define using
 	cgci_types_pointable.
 	(ThePointer): Define using pgci_types_pointable.
 	* subr.d (LISPFUN_F, LISPFUN_G) [TYPECODES]: Provide different
 	definition if DEBUG_GCSAFETY.
-	* constsym.d (LISPSYM_B) [TYPECODES]: Provide different definition if
-	DEBUG_GCSAFETY.
+	* constsym.d (LISPSYM_B) [TYPECODES]: Provide different definition
+	if DEBUG_GCSAFETY.
 	* genclisph.d (main): Update. Provide definitions for
 	pointable_unchecked, pointable_address_unchecked, symbol_tab.
 
@@ -508,9 +505,9 @@
 	* lispbibl.d (ANSIC_error): New declaration.
 	* errunix.d [!UNIX]: Define only OS_error.
 	* error.d [!UNIX]: Include errunix.c, to define ANSIC_error.
-	* stream.d (open_iconv, check_charset, iconv_mblen, iconv_mbstowcs,
-	iconv_wcslen, iconv_wcstombs, iconv_range, ChannelStream_fini): Undo
-	2005-03-01 patch. Call ANSIC_error instead of OS_error.
+	* stream.d (open_iconv, check_charset, iconv_mblen, iconv_mbstowcs)
+	(iconv_wcslen, iconv_wcstombs, iconv_range, ChannelStream_fini):
+	Undo 2005-03-01 patch. Call ANSIC_error instead of OS_error.
 	* makemake.in (ERROR_INCLUDES): Add errunix unconditionally.
 
 	* win32.d: Undefine HAVE_ICONV, in case it's set by unixconf.h (on
@@ -6703,7 +6700,7 @@
 	initff.
 	(structure-effective-slot-definition-initff): Remove accessor.
 	(structure-effective-slot-definition-readonly): Update.
-	(initialize-instance-<structure-effective-slot-definition>: Remove
+	(initialize-instance-<structure-effective-slot-definition>): Remove
 	initff argument.
 	(make-instance-<structure-effective-slot-definition>): Update.
 	(make-load-form-<structure-effective-slot-definition>): Use
@@ -8922,7 +8919,6 @@
 	(struct argv_initparams): Remove argv_stackneed.
 	(parse_options): Drop support for option -s.
 	(main): Don't reserve space for SP. Don't call setSP.
-	* ../doc/clisp.xml.in: Remove documentation of option -s.
 
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 
@@ -22649,7 +22645,6 @@
 	(needs): drop .clisp and .clisp-full in favor of clisp.c
 	(IMPNOTES_FILES) [win32]: added clisp.ico
 	(clisp): new target
-	* doc/clisp.ico: new file
 
 2002-08-05  Sam Steingold  <sds@gnu.org>
 
@@ -27208,8 +27203,6 @@
 	* init.lisp: Load "international".
 	* makemake.in (CPARTS): Add i18n.
 	(LPARTS): Add international.
-	* ../doc/impext.xml: Rename section "The Language" to
-	"Internationalization". Add gettext binding documentation and example.
 
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
@@ -29476,7 +29469,6 @@
 2000-05-11  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (socket_status): use HANDLE_SET & HANDLE_ISSET macros.
-	* ../doc/impext.xml: document LISP:SOCKET-STATUS.
 
 2000-05-09  Sam Steingold  <sds@gnu.org>
 
@@ -37030,7 +37022,6 @@
 	* linuxlibc6/link.sh, linuxlibc6/Makefile: Likewise.
 	* clx/mit-clx/link.sh, clx/mit-clx/Makefile.clisp: Likewise.
 	* clx/new-clx/link.sh, clx/new-clx/Makefile: Likewise.
-	* doc/module.txt, impnotes.html: Update.
 	* _clisp.c: Ignore option -W.
 
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
