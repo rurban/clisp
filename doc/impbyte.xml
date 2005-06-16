@@ -1304,7 +1304,7 @@ specially adapted to &cl; &mul-val;:
   <listitem><simpara>an unsigned integer.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&value1;</term>
-  <listitem><simpara>the first value, a &clisp; object.
+  <listitem><simpara>the &pri-val;, a &clisp; object.
   If &mv-count; = 0, this is &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term>&mv-space;</term>
   <listitem><simpara>all values except the first one, an array of &clisp;
