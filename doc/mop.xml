@@ -806,8 +806,8 @@ arguments received by the &ensure-class; function.  Examples of typical
   to &ensure-class;.</simpara>
 <programlisting language="lisp">
 (defclass plane (moving-object graphics-object)
-     ((altitude :initform 0 :accessor plane-altitude)
-      (speed))
+  ((altitude :initform 0 :accessor plane-altitude)
+   (speed))
   (:default-initargs :engine *jet*))
 
 (ensure-class 'plane
@@ -830,11 +830,11 @@ arguments received by the &ensure-class; function.  Examples of typical
   which are the values of those properties.</simpara>
 <programlisting language="lisp">
 (defclass sst (plane)
-     ((mach mag-step 2
-            locator sst-mach
-            locator mach-location
-            :reader mach-speed
-            :reader mach))
+  ((mach mag-step 2
+         locator sst-mach
+         locator mach-location
+         :reader mach-speed
+         :reader mach))
   (:metaclass faster-class)
   (another-option foo bar))
 
@@ -3568,7 +3568,7 @@ override the system's definitions.</para>
 
 <programlisting language="lisp">
 (defclass my-generic-function (standard-generic-function)
-     ()
+  ()
   (:default-initargs :method-class (find-class 'my-method)))
 
 (defclass my-method (standard-method) ())
@@ -4743,9 +4743,9 @@ inherited by subclasses; it controls only instances of the class
 itself.
 <programlisting language="lisp">
 (defclass ordered-class (standard-class)
-     ((slot-order :initform ()
-                  :initarg :slot-order
-                  :reader class-slot-order)))
+  ((slot-order :initform ()
+               :initarg :slot-order
+               :reader class-slot-order)))
 
 (defmethod compute-slots ((class ordered-class))
   (let ((order (class-slot-order class)))
@@ -4764,8 +4764,8 @@ instances of <classname>point</classname> itself.
 
 <programlisting language="lisp">
 (defclass point ()
-     ((x :initform 0)
-      (y :initform 0))
+  ((x :initform 0)
+   (y :initform 0))
   (:metaclass ordered-class)
   (:slot-order x y))
 
@@ -4814,8 +4814,8 @@ objects linked, for example, by hash tables.)
 
 <programlisting language="lisp">
 (defclass constructor ()
-     ((name :initarg :name :accessor constructor-name)
-      (fields :initarg :fields :accessor constructor-fields))
+  ((name :initarg :name :accessor constructor-name)
+   (fields :initarg :fields :accessor constructor-fields))
   (:metaclass funcallable-standard-class))
 
 (defmethod initialize-instance :after ((c constructor) &key-amp;)
@@ -5181,7 +5181,7 @@ specific class of updater do the appropriate update work.</para>
 
 <programlisting language="lisp">
 (defclass updater ()
-     ((dependent :initarg :dependent :reader dependent)))
+  ((dependent :initarg :dependent :reader dependent)))
 
 (defun record-updater (class dependee dependent &rest-amp; initargs)
   (let ((updater (apply #'make-instance class :dependent dependent
