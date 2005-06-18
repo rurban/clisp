@@ -10,8 +10,6 @@ resolve_host/IPv6 [bruno]
 
 workaround for an extra comma in _clisp.1 [sds]
 
-get-charset-range: move the "caching" code to the test suite [bruno]
-
 regression: resolution of logical pathnames is broken, try
    (compile-file (logical-pathname "SYS:FOO.LISP")) [sds]
 
@@ -93,6 +91,9 @@ URGENT PROBLEMS
 ===============
 
 Should handle these soon.
+
+
+get-charset-range: move the "caching" code to the test suite [bruno]
 
 
 Embeddability: additional API in spvw.d; example.
