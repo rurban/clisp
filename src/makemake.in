@@ -2366,7 +2366,7 @@ if [ ${HSYS} = "win32gcc" ]; then
 # **HACK**: avoid -mno-cygwin so that utilities understand symbolic links
 UTILCC=gcc
 EOF
-else echol "UTILCC=CC"
+else echol "UTILCC=$(CC)"
 fi
 for util in ${UTILS} ; do
   case ${util} in
