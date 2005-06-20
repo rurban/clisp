@@ -37,8 +37,6 @@ same + hangs instead of terminating.
 $ clisp script.lisp
 works fine.
 
-doc fix: more details on fixnum size on 64 bit CPU [bruno]
-
 Readline interface problem:
 [2]> (macroexü
 *** - AREF: Index 9 für "(macroexü" ist zu groß.
