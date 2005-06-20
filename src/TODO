@@ -6,8 +6,6 @@ MUST-FIX BEFORE NEXT RELEASE
 
 bind-eval.tst failure on Linux/amd64 [bruno]
 
-resolve_host/IPv6 [bruno]
-
 workaround for an extra comma in _clisp.1 [sds]
 
 regression: resolution of logical pathnames is broken, try
