@@ -1574,7 +1574,7 @@ global maygc object check_uint32_replacement (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not an 32-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a 32-bit number"));
     obj = value1;
   } while (!uint32_p(obj));
   return obj;
@@ -1591,7 +1591,7 @@ global maygc object check_sint32_replacement (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not an 32-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a 32-bit number"));
     obj = value1;
   } while (!sint32_p(obj));
   return obj;
@@ -1608,7 +1608,7 @@ global maygc object check_uint64_replacement (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not an 64-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a 64-bit number"));
     obj = value1;
   } while (!uint64_p(obj));
   return obj;
@@ -1625,7 +1625,7 @@ global maygc object check_sint64_replacement (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not an 64-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a 64-bit number"));
     obj = value1;
   } while (!sint64_p(obj));
   return obj;
