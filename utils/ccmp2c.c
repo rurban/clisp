@@ -694,7 +694,7 @@ new_statement (void)
     {
       /* Start a new function.  */
       func_number++; func_statements = 0;
-      printf ("void main%d (TEXT *curr)\n", func_number);
+      printf ("static void main%d (TEXT *curr)\n", func_number);
       printf ("{\n");
       {
         string_t main_line;
