@@ -2361,36 +2361,37 @@ if [ $CROSS = true ] ; then
   echotab "if [ ! -f unixconf.h ] ; then \$(TOUCH) unixconf.h ; fi"
   echol
 fi
+if [ ${HSYS} = "win32gcc" ]; then
+  cat <<EOF
+# **HACK**: avoid -mno-cygwin so that utilities understand symbolic links
+UTILCC=gcc
+EOF
+else echol "UTILCC=CC"
+fi
 for util in ${UTILS} ; do
   case ${util} in
     ccpaux | deema | txt2c | ccmp2c )
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+      echotab_to_HEXE "\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
       echol ;;
     comment5 )
       if [ $CC_NEED_CCPAUX = true ] ; then
         echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${CCPAUX}"
         echotab "${HERE}ccpaux${HEXE} < ${UTILDIR_}${util}.c > ${util}.c"
-        echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
+        echotab_to_HEXE "\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
         echotab "\$(RM) ${util}.c"
         echol
         OBSOLETE=$OBSOLETE" ${util}.c"
       else
         echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-        if [ ${HSYS} = "win32gcc" ]; then
-          # **HACK**: avoid -mno-cygwin so that comment5.exe
-          #           understands symbolic links
-          echotab_to_HEXE "gcc \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
-        else
-          echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
-        fi
+        echotab_to_HEXE "\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
         echol
       fi
       ;;
     gctrigger | varbrace )
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
       echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d > ${util}.c"
-      echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
+      echotab_to_HEXE "\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
       echotab "\$(RM) ${util}.c"
       echol
       OBSOLETE=$OBSOLETE" ${util}.c" ;;

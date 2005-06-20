@@ -1,5 +1,12 @@
 2005-06-20  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (UTILCC): new makefile variable: simplifies the hack
+	necessary to make some utilities (comment5 and txt2c) that must
+	understand symbolic links to permit building in a separate
+	directory on woe32/cygwin/mingw
+
+2005-06-20  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (resolve_host) [HAVE_IPV6]: handle numeric IPv6 addresses
 
 2005-06-20  Sam Steingold  <sds@gnu.org>
