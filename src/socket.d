@@ -455,18 +455,15 @@ global struct hostent* resolve_host (object arg) {
     }
   }
  #ifdef HAVE_IPV6
-  else if (fixnump(arg)) { /* what if we ever get fixnums>32 bit?! */
-    var uintL ip = I_to_UL(arg);
+  else if ((fixnump(arg) && positivep(arg))
+           || (bignump(arg) && positivep(arg)
+               && Bignum_length(arg)*intDsize <= sizeof(struct in6_addr))) {
+    /* arg is an integer of length at most 128 bit - IPv6 address */
     var struct in6_addr addr;
+    UI_to_LEbytes(arg,8*sizeof(struct in6_addr),(uintB*)&addr);
     begin_system_call();
-    memset(&addr,0,sizeof(struct in6_addr));
-    memcpy(&addr,&ip,sizeof(uintL)); /* FIXME: endianness?! */
     he = gethostbyaddr((char*)&addr,sizeof(struct in6_addr),AF_INET6);
     end_system_call();
-  } else if (bignump(arg) && positivep(arg)
-             && Bignum_length(arg)*intDsize <= sizeof(struct in6_addr)) {
-    /* arg is an integer of length at most 128 bit - IPv6 address */
-    NOTREACHED;                 /* FIXME */
   }
  #endif
   else fehler_string_integer(arg);
