@@ -971,8 +971,8 @@ static object make_font_with_info (object dpy, Font fn, object name,
 
 static Font get_font (object obj);
 
-XFontStruct *get_font_info_and_display (object obj, object* fontf,
-                                        Display **dpyf)
+static XFontStruct *get_font_info_and_display (object obj, object* fontf,
+                                               Display **dpyf)
 { /* Fetches the font information from a font, if it isn't there
       already, query the server for it.
       Further more if a gcontext is passed in, fetch its font slot instead.
@@ -1090,7 +1090,7 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf,
   return info;              /* all done */
 }
 
-object get_font_name (object obj)
+static object get_font_name (object obj)
 {
   pushSTACK(obj);                       /* the instance */
   pushSTACK(`XLIB::NAME`);              /* slot */
@@ -1438,7 +1438,7 @@ static void get_key_vector (object obj, char key_vector [32])
   NOTIMPLEMENTED;
 }
 
-object make_visual_info (Visual *vis)
+static object make_visual_info (Visual *vis)
 {
   pushSTACK(`(XLIB::VISUAL-INFO)`); pushSTACK(fixnum(8));
   funcall(L(make_structure),2); pushSTACK(value1);
@@ -1609,7 +1609,7 @@ DEFUN(XLIB:MAKE-STATE-MASK, &rest args)
  *  Chapter 2   Displays
  * ----------------------------------------------------------------------- */
 
-Display *x_open_display (char* display_name, int display_number) {
+static Display *x_open_display (char* display_name, int display_number) {
   Display *dpy;
 
   /* On one hand fetching the DISPLAY variable if in doubt is a nice
@@ -1645,11 +1645,10 @@ Display *x_open_display (char* display_name, int display_number) {
   return dpy;
 }
 
+int xlib_error_handler (Display*, XErrorEvent*);
+int xlib_io_error_handler (Display*);
 DEFUN(XLIB:OPEN-DISPLAY, &rest args)
 { /* (XLIB:OPEN-DISPLAY host &key :display &allow-other-keys) */
-  int xlib_error_handler (Display*, XErrorEvent*);
-  int xlib_io_error_handler (Display*);
-
   char *display_name = NULL;    /* the host to connect to */
   int  display_number = 0;      /* the display number */
   Display *dpy;
@@ -1926,6 +1925,7 @@ DEFUN(XLIB:DISPLAY-AFTER-FUNCTION, display) /* OK */
   skipSTACK(1);
 }
 
+int xlib_after_function (Display *display);
 DEFUN(XLIB:SET-DISPLAY-AFTER-FUNCTION, arg1 arg2) /* OK */
 { /* TODO - check for function type [Not very important since the
    xlib_after_function should get this error.] */
@@ -1935,7 +1935,6 @@ DEFUN(XLIB:SET-DISPLAY-AFTER-FUNCTION, arg1 arg2) /* OK */
   if (nullp (STACK_0)) {
     X_CALL(XSetAfterFunction (dpy, NULL)); /* Q: Is that right?! */
   } else {
-    int xlib_after_function (Display *display);
     X_CALL(XSetAfterFunction (dpy, xlib_after_function));
   }
   VALUES1(STACK_0);
@@ -3696,7 +3695,7 @@ static int to_XChar2b (object font, XFontStruct* font_info, const chart* src,
   return 2;
 }
 
-void general_draw_text (int image_p)
+static void general_draw_text (int image_p)
 { /* General text drawing routine to not to have to duplicate code for
      DRAW-GLYPHS and DRAW-IMAGE-GLYPHS. */
   int size = 0;            /* 8 or 16, 0="have to look into the font" */
@@ -4468,7 +4467,7 @@ DEFUN(XLIB:FONT-PROPERTY, font name)
 
 /* 8.5  Character Attributes */
 
-XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
+static XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
 {
   /* from XLoadFont(3X11):
    *
@@ -7629,6 +7628,7 @@ DEFUN(XPM:READ-FILE-TO-PIXMAP, drawable filename &key SHAPE-MASK-P PIXMAP-P)
 }
 ##endif
 
+void module__clx__init_function_2 (module_t *module);
 void module__clx__init_function_2 (module_t *module)
 {  /* setze doch `XLIB::*DISPLAYS*` auf NIL ! */
 #if 0
