@@ -8,6 +8,11 @@
 	prototypes to avoid warnings
 	* utils/ccmp2c.c (new_statement): declare main%d static
 	to avoid warnings
+	* modules/clx/new-clx/clx.f (get_font_info_and_display, get_font_name)
+	(make_visual_info, x_open_display, general_draw_text, font_char_info)
+	(module__clx__init_function_2): declare static to avoid warnings
+	(xlib_error_handler, xlib_io_error_handler, xlib_after_function):
+	global prototypes to avoid warnings
 
 2005-06-20  Sam Steingold  <sds@gnu.org>
 
