@@ -1,5 +1,9 @@
 2005-06-20  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (resolve_host) [HAVE_IPV6]: handle numeric IPv6 addresses
+
+2005-06-20  Sam Steingold  <sds@gnu.org>
+
 	* error.d (check_uint32_replacement, check_sint32_replacement)
 	(check_uint64_replacement, check_sint64_replacement):
 	fixed the message: use the correct article
