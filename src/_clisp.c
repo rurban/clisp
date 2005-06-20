@@ -34,6 +34,8 @@
 #if defined(WIN32_NATIVE)
 # undef UNICODE
 # include <windows.h>
+int shell_quote (char * dest, const char * source);
+BOOL real_path (LPCSTR namein, LPSTR nameout);
 # include "w32shell.c"
 #endif
 
@@ -44,6 +46,7 @@
 # include <stdlib.h>            /* getenv, abort */
 # include <errno.h>             /* ENOMEM, ENOENT, errno */
 # include <sys/param.h>         /* MAXPATHLEN */
+int find_executable (const char * program_name);
 #include "execname.c"
 
 #if !defined(HAVE_PERROR_DECL)
