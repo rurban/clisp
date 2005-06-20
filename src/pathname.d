@@ -4365,7 +4365,7 @@ local maygc void nametype_diff_aux (object pattern, object sample, bool logical,
     var object string = wild2string(sample);
     push_solution_with(string);
     return;
-    }
+  }
   if (eq(sample,S(Kwild))) return;
   if (nullp(pattern)) {
     if (nullp(sample))
