@@ -5262,7 +5262,7 @@ local maygc object use_default_dir (object pathname) {
      wildcards aren't allowed. "." and ".." can be used.
  < fullname: buffer should be not less than MAX_PATH
  < result: true on success */
-BOOL FullName (LPCSTR shortname, LPSTR fullname) {
+static BOOL FullName (LPCSTR shortname, LPSTR fullname) {
   var char current[_MAX_PATH];
   var char * rent = current;/* current+end-device-pos, rest after X: */
   var int state = 1;
@@ -8125,7 +8125,7 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
  Similar to dup(oldfd), with error checking.
  To be called only inside begin/end_system_call(). */
 global Handle handle_dup (Handle old_handle) {
-  int new_handle;
+  Handle new_handle;
  #if defined(UNIX)
   new_handle = dup(old_handle);
   if (new_handle < 0) { OS_error(); }
