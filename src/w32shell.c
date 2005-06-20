@@ -36,7 +36,7 @@ int shell_quote (char * dest, const char * source) {
  > filename: name the shortcut file
  < resolved: buffer not less than MAX_PATH
  < result:   true if link was successfully resolved */
-BOOL resolve_shell_shortcut (LPCSTR filename, LPSTR resolved) {
+static BOOL resolve_shell_shortcut (LPCSTR filename, LPSTR resolved) {
   DWORD fileattr;
   HRESULT hres;
   IShellLink* psl;
@@ -121,7 +121,7 @@ typedef enum {
  > filename : name of link file to resolve
  < resolved : buffer to receive resolved name
  < result : status of resolving and target file attributes */
-shell_shortcut_target_t
+static shell_shortcut_target_t
 resolve_shell_shortcut_more (LPCSTR filename, LPSTR resolved)
 {
   char pathname[_MAX_PATH];
@@ -170,7 +170,8 @@ resolve_shell_shortcut_more (LPCSTR filename, LPSTR resolved)
  < resolved: buffer for resolved path and filename.
  < result: shell_shortcut_notresolved if file exists or link is invalid.
            otherwise - shortcut target status */
-shell_shortcut_target_t resolve_shell_symlink (LPCSTR filename, LPSTR resolved)
+static shell_shortcut_target_t
+resolve_shell_symlink (LPCSTR filename, LPSTR resolved)
 {
   char pathname[_MAX_PATH];
   DWORD fileattr;

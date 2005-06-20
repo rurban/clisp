@@ -2,6 +2,8 @@
 
 	* pathname.d (FullName): declare static to avoid a warning
 	(handle_dup): fixed local variable type
+	* w32shell.c (resolve_shell_shortcut, resolve_shell_shortcut_more)
+	(resolve_shell_symlink): declare static to avoid warnings
 
 2005-06-20  Sam Steingold  <sds@gnu.org>
 
