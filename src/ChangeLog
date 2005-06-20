@@ -1,3 +1,9 @@
+2005-06-20  Sam Steingold  <sds@gnu.org>
+
+	* error.d (check_uint32_replacement, check_sint32_replacement)
+	(check_uint64_replacement, check_sint64_replacement):
+	fixed the message: use the correct article
+
 2005-06-18  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (oint_data_len, oint_data_mask): On 64-bit platforms,
