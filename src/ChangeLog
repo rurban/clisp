@@ -1,5 +1,10 @@
 2005-06-21  Sam Steingold  <sds@gnu.org>
 
+	* charstrg.d (coerce_char): no INPUT-CHARACTER without KEYBOARD
+	Reported by Roland Averkamp <roland.averkamp@gmx.de>
+
+2005-06-21  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (logical-pathname-translations "SYS"): updated
 	for the 2005-05-06 #p"" ==> :DIRECTORY NIL patch
 

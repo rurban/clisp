@@ -1248,11 +1248,14 @@ global object coerce_char (object obj) {
     if (code < char_code_limit)
       /* obj is a fixnum >=0, < char_code_limit */
       return code_char(as_chart(code));
-  } else if (typep_classname(obj,S(input_character))) {
+  }
+#if defined(KEYBOARD)
+  else if (typep_classname(obj,S(input_character))) {
     /* obj is an INPUT-CHARACTER. Call (SYS::INPUT-CHARACTER-CHAR obj): */
     pushSTACK(obj); funcall(S(input_character_char),1);
     return charp(value1) ? value1 : NIL;
   }
+#endif
   /* was none of it -> can not be converted into a character */
   return NIL; /* NIL as result */
 }
