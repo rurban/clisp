@@ -1,3 +1,8 @@
+2005-06-21  Sam Steingold  <sds@gnu.org>
+
+	* documentation.lisp ((setf documentation), documentation):
+	removed the unnecessary (ignore doc-type) declarations (avoids warnings)
+
 2005-06-20  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (FullName): declare static to avoid a warning
