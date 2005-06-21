@@ -4459,13 +4459,9 @@ _ACEOF
 fi
 fi
 
-
-for ac_func in poll
-do
-as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $ac_func" >&5
-echo $ECHO_N "checking for $ac_func... $ECHO_C" >&6
-if eval "test \"\${$as_ac_var+set}\" = set"; then
+echo "$as_me:$LINENO: checking for poll" >&5
+echo $ECHO_N "checking for poll... $ECHO_C" >&6
+if test "${ac_cv_func_poll+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
@@ -4474,12 +4470,12 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-/* Define $ac_func to an innocuous variant, in case <limits.h> declares $ac_func.
+/* Define poll to an innocuous variant, in case <limits.h> declares poll.
    For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define $ac_func innocuous_$ac_func
+#define poll innocuous_poll
 
 /* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char $ac_func (); below.
+    which can conflict with char poll (); below.
     Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
     <limits.h> exists even on freestanding compilers.  */
 
@@ -4489,7 +4485,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 # include <assert.h>
 #endif
 
-#undef $ac_func
+#undef poll
 
 /* Override any gcc2 internal prototype to avoid an error.  */
 #ifdef __cplusplus
@@ -4498,14 +4494,14 @@ extern "C"
 #endif
 /* We use char because int might match the return type of a gcc2
    builtin and then its argument prototype would still apply.  */
-char $ac_func ();
+char poll ();
 /* The GNU C library defines this for functions which it implements
     to always fail with ENOSYS.  Some functions are actually named
     something starting with __ and the normal name is an alias.  */
-#if defined (__stub_$ac_func) || defined (__stub___$ac_func)
+#if defined (__stub_poll) || defined (__stub___poll)
 choke me
 #else
-char (*f) () = $ac_func;
+char (*f) () = poll;
 #endif
 #ifdef __cplusplus
 }
@@ -4514,7 +4510,7 @@ char (*f) () = $ac_func;
 int
 main ()
 {
-return f != $ac_func;
+return f != poll;
   ;
   return 0;
 }
@@ -4541,27 +4537,107 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  eval "$as_ac_var=yes"
+  ac_cv_func_poll=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-eval "$as_ac_var=no"
+ac_cv_func_poll=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_var'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_var'}'`" >&6
-if test `eval echo '${'$as_ac_var'}'` = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define `echo "HAVE_$ac_func" | $as_tr_cpp` 1
+echo "$as_me:$LINENO: result: $ac_cv_func_poll" >&5
+echo "${ECHO_T}$ac_cv_func_poll" >&6
+if test $ac_cv_func_poll = yes; then
+  # Check whether poll() works on special files (like /dev/null) and
+   # and ttys (like /dev/tty). On MacOS X 10.4.0, it doesn't.
+   if test "$cross_compiling" = yes; then
+  # When cross-compiling, assume that poll() works everywhere except on
+      # MacOS X, regardless of its version.
+      cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#if defined(__APPLE__) && defined(__MACH__)
+This is MacOSX
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "MacOSX" >/dev/null 2>&1; then
+  cl_cv_func_poll=no
+else
+  cl_cv_func_poll=yes
+fi
+rm -f conftest*
+
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <fcntl.h>
+#include <poll.h>
+     int main()
+     {
+       struct pollfd ufd;
+       /* Try /dev/null for reading. */
+       ufd.fd = open ("/dev/null", O_RDONLY);
+       if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
+         return 0;
+       ufd.events = POLLIN;
+       ufd.revents = 0;
+       if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLIN))
+         return 1;
+       /* Try /dev/null for writing. */
+       ufd.fd = open ("/dev/null", O_WRONLY);
+       if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
+         return 0;
+       ufd.events = POLLOUT;
+       ufd.revents = 0;
+       if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLOUT))
+         return 1;
+       /* Trying /dev/tty may be too environment dependent. */
+       return 0;
+     }
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_func_poll=yes
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+cl_cv_func_poll=no
+fi
+rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+if test $cl_cv_func_poll = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_POLL 1
 _ACEOF
 
-fi
-done
-
-if test $ac_cv_func_poll = yes; then
 # Now check whether poll() works reliably on regular files, i.e. signals
 # immediate readability and writability, both before EOF and at EOF.
 # On FreeBSD 4.0, it doesn't.
