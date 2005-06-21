@@ -622,7 +622,16 @@ implementations to provide performance optimizations by analyzing, at
 the time the first instance of a metaobject class is initialized, what
 portable methods will be applicable to it.  This can make it possible to
 optimize calls to those specified generic functions which would have no
-applicable portable methods.</simpara></note></listitem></itemizedlist>
+applicable portable methods.</simpara></note>
+<note id="mop-mo-redef-clisp-warn">&clisp-only;
+ <simpara>When a metaobject class is redefined,
+  &clisp; issues a &warning-t; that the redefinition has no effect.
+  To avoid this warning, place all metaobject class definitions in a
+  separate file, compile it in a <emphasis>separate</emphasis> session
+  (because &defclass; in &clisp; is evaluated at &compile-time; too
+  see <xref linkend="mop-compile-ui-macro"/>),
+  and then &load; it only <emphasis>once</emphasis> per session.
+</simpara></note></listitem></itemizedlist>
 </para>&else-undefined;
 
 <note><simpara>The specification technology used in this document needs
@@ -727,7 +736,7 @@ This is discussed in <xref linkend="mop-meth-init-defmethod-body"/>.</para>
 <section id="mop-compile-ui-macro">
  <title>Compile-file Processing of the User Interface Macros</title>
 
-<para>It is common practice for &cl; compilers, while processing a file
+<para>It is a common practice for &cl; compilers, while processing a file
 or set of files, to maintain information about the definitions that have
 been compiled so far.  Among other things, this makes it possible to
 ensure that a global macro definition (&defmacro; form) which appears in
