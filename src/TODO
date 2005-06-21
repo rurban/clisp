@@ -8,9 +8,6 @@ bind-eval.tst failure on Linux/amd64 [bruno]
 
 workaround for an extra comma in _clisp.1 [sds]
 
-regression: resolution of logical pathnames is broken, try
-   (compile-file (logical-pathname "SYS:FOO.LISP")) [sds]
-
 regression: [bruno]
 =============== script.lisp ==================
 (print (list 'script-args *args*))
