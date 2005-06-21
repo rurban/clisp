@@ -550,7 +550,7 @@
                               t)))))))))
       (error (TEXT "No translations for logical host ~S found") host)))
   (set-logical-pathname-translations "SYS"
-    '((";*.LISP" "*.lisp") ("*" "*"))))
+    '((";*.LISP" "*.lisp") (";*" "*") ("*" "/*"))))
 
 
 ;;; functions for time (Chapter 25.4.1)
