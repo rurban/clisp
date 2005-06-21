@@ -1,5 +1,10 @@
 2005-06-21  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (logical-pathname-translations "SYS"): updated
+	for the 2005-05-06 #p"" ==> :DIRECTORY NIL patch
+
+2005-06-21  Sam Steingold  <sds@gnu.org>
+
 	* documentation.lisp ((setf documentation), documentation):
 	removed the unnecessary (ignore doc-type) declarations (avoids warnings)
 
