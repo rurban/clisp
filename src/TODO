@@ -89,6 +89,33 @@ Should handle these soon.
 get-charset-range: move the "caching" code to the test suite [bruno]
 
 
+encode-universal-time is buggy around the DST switches
+<http://article.gmane.org/gmane.lisp.clisp.devel:14115>
+around each switch from/to DST, for 4 hours, we have a 1 hour
+discrepancy between ENCODE-UNIVERSAL-TIME and DECODE-UNIVERSAL-TIME.
+since this happens only from 1970 to 2037, i.e., during the "UNIX
+epoque", it is safe to conclude that the problem lies around the
+DEFAULT-TIME-ZONE function.
+(defun check-ut (time)
+  (multiple-value-bind (se mi ho da mo ye time1) (decode-universal-time time)
+    (setq time1 (encode-universal-time se mi ho da mo ye))
+    (unless (= time1 time)
+      (list time (list se mi ho da mo ye) time1 (- time1 time)))))
+(defun time-loop (start end step)
+  (loop with state = nil for tm from start below end by step
+    for check = (check-ut tm) do
+    (case state
+      ((:good) (when check (setq state :bad) (print check)))
+      ((:bad) (unless check (setq state :good) (print tm)))
+      (t (setq state (if check :bad :good)) (print (list state tm check))))))
+(time-loop 100000 305539424200 5000)
+(time-loop 4300066700 4300081201 10)
+(:GOOD 4300066700 NIL)
+(4300066800 (0 0 3 6 4 2036) 4300070400 3600)
+4300081200
+(/ (- 4300081200 4300066800) 3600) ==> 4
+
+
 Embeddability: additional API in spvw.d; example.
 <https://sourceforge.net/tracker/index.php?func=detail&aid=423264&group_id=1355&atid=351355>
 
