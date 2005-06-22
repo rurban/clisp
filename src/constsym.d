@@ -1172,6 +1172,8 @@ LISPSYM(deref,"%DEREF",ffi) /* ABI */
 LISPSYM(slot,"%SLOT",ffi) /* ABI */
 LISPSYM(cast,"%CAST",ffi) /* ABI */
 LISPSYM(offset,"%OFFSET",ffi) /* ABI */
+LISPSYM(read_memory_as,"MEMORY-AS",ffi) /* ABI */
+LISPSYM(write_memory_as,"WRITE-MEMORY-AS",ffi)
 LISPSYM(exec_on_stack,"EXEC-ON-STACK",ffi) /* ABI */
 LISPSYM(call_with_foreign_string,"CALL-WITH-FOREIGN-STRING",ffi)
 LISPSYM(foreign_allocate,"FOREIGN-ALLOCATE",ffi)
