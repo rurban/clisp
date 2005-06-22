@@ -2247,13 +2247,14 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  <varlistentry><term>queens</term>
   <listitem><simpara>Compute the number of solutions to the &n-r;-queens
     problem on a <replaceable>n*n</replaceable> checkboard (a toy
-    example for the users to explore).</simpara></listitem></varlistentry>
+    example for the users to explore the &clisp; &module; system).
+ </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="dir-key">dirkey</link></term>
   <listitem><simpara>Directory Access (LDAP, &win32; registry etc).
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="berkeley-db">berkeley-db</link></term>
-  <listitem><simpara>&sleepycat-berkeley-db;
-    interface</simpara></listitem></varlistentry>
+  <listitem><simpara>&sleepycat-berkeley-db; interface.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="regexp-mod">regexp</link></term>
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
      Expressions</ulink> matching, compiling, executing.
@@ -2272,11 +2273,10 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   <listitem><simpara>Use some system calls in a platform-independent way.
     See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="wildcard">wildcard</link></term>
-  <listitem><simpara>Shell (&sh;) globbing (&path-match;)
+  <listitem><simpara>Shell (&sh;) globbing (&path-match;).
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="rawsock">rawsock</link></term>
-  <listitem><simpara>Raw socket access.
- </simpara></listitem></varlistentry>
+  <listitem><simpara>Raw socket access.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="zlib">zlib</link></term>
   <listitem><simpara>Compress &vector-t;s using
     <ulink url="http://www.zlib.org">ZLIB</ulink>.
@@ -2285,13 +2285,12 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 
 <para>To use modules, read <filename>unix/INSTALL</filename> and build
  &clisp; in directory <filename>build-dir</filename> with, e.g.,<screen>
-<prompt>$</prompt> ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
-</screen>then run it with<screen>
-<prompt>$</prompt> ./build-dir/clisp &opt-K; full
- </screen>This will create a &base; &linkset; with modules
- i18n, regexp and syscalls; and a &full; &linkset; with modules
- pcre and new/clx in addition to the 3
- <link linkend="base-modules">base modules</link>.</para>
+  <prompt>$</prompt> ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
+</screen>then run it with
+<screen><prompt>$</prompt> ./build-dir/clisp &opt-K; full</screen>
+This will create a &base; &linkset; with modules i18n, regexp and
+syscalls; and a &full; &linkset; with modules pcre and new/clx in
+addition to the 3 <link linkend="base-modules">base modules</link>.</para>
 
 <para>See <xref linkend="ext-modules"/>
  for individual module documentation.</para>
