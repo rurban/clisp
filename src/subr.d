@@ -1385,6 +1385,8 @@ LISPFUNN(deref,1)
 LISPFUNN(slot,2)
 LISPFUNN(cast,2)
 LISPFUNN(offset,3)
+LISPFUN(read_memory_as,seclass_default,2,1,norest,nokey,0,NIL)
+LISPFUN(write_memory_as,seclass_default,3,1,norest,nokey,0,NIL)
 LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL)
 LISPFUNN(call_with_foreign_string,6)
 LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,

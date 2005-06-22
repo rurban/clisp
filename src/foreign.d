@@ -2766,6 +2766,41 @@ LISPFUNN(offset,3) {
   skipSTACK(3+1);
 }
 
+/* Low-level, little consing accessors */
+
+/* (FFI:MEMORY-AS address ffi-type &optional byte-offset)
+   a low-level, little-consing accessor to memory, in effect
+   similar to (foreign-value (foreign-variable address type)) */
+LISPFUN(read_memory_as,seclass_default,2,1,norest,nokey,0,NIL)
+{
+  /* TODO accept foreign_pointer as well, without consing */
+  /* TODO refuse foreign-function */
+  var object fp = foreign_address(STACK_2,false);
+  var void* address = Faddress_value(fp);
+  if (!missingp(STACK_0)) {
+    STACK_0 = check_sint32(STACK_0);
+    address = (void*)((uintP)address + (sintP)I_to_sint32(STACK_0));
+  }
+  /* TODO asciz_to_string is not suitable for unicode */
+  var object item = eq(STACK_1,S(string))
+        ? asciz_to_string((uintB*)address,O(foreign_encoding))
+        : convert_from_foreign(STACK_1,address);
+  VALUES1(item); skipSTACK(3);
+}
+
+/* (FFI::WRITE-MEMORY-AS value address type &optional byte-offset) */
+LISPFUN(write_memory_as,seclass_default,3,1,norest,nokey,0,NIL)
+{
+  var object fp = foreign_address(STACK_2,false);
+  var void* address = Faddress_value(fp);
+  if (!missingp(STACK_0)) {
+    STACK_0 = check_sint32(STACK_0);
+    address = (void*)((uintP)address + (sintP)I_to_sint32(STACK_0));
+  }
+  convert_to_foreign_nomalloc(STACK_1,STACK_3,address);
+  VALUES1(STACK_3); skipSTACK(4);
+}
+
 /* Stack-allocated objects */
 
 /* (FFI::EXEC-ON-STACK thunk fvd [initarg]) allocates foreign objects

@@ -27,7 +27,7 @@
           with-foreign-object with-c-var with-foreign-string
           foreign-allocate allocate-deep allocate-shallow foreign-free
           foreign-pointer set-foreign-pointer
-          close-foreign-library
+          close-foreign-library memory-as
           foreign-variable foreign-function))
 
 (eval-when (load compile eval)
@@ -930,6 +930,10 @@
 (defmacro allocate-shallow (ffi-type &rest keywords &key count read-only)
   (declare (ignore count read-only)) ; to be accessed via keywords
   `(foreign-allocate (parse-c-type ,ffi-type) ,@keywords))
+
+;; =========================== low-level interface ===========================
+
+(sys::def-setf-alias memory-as write-memory-as)
 
 ;; ============================ named C functions ============================
 
