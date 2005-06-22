@@ -36,7 +36,7 @@
 	* conditions.tst: Move restart tests out to restarts.tst.
 	* lists152.tst: Likewise.
 	* restarts.tst: New file.
-	+ tests.lisp (run-all-tests): Run it after conditions.tst.
+	* tests.lisp (run-all-tests): Run it after conditions.tst.
 
 2005-06-08  Sam Steingold  <sds@gnu.org>
 
