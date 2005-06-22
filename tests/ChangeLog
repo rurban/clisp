@@ -1,5 +1,9 @@
 2005-06-22  Sam Steingold  <sds@gnu.org>
 
+	* bind.tst: 6 more MACROLET tests inspired by ansi-tests
+
+2005-06-22  Sam Steingold  <sds@gnu.org>
+
 	* path.tst: check that the "SYS" logical host works
 
 2005-06-09  Bruno Haible  <bruno@clisp.org>
