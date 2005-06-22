@@ -1,5 +1,9 @@
 2005-06-22  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (run-test): print logfile's truename when there are errors
+
+2005-06-22  Sam Steingold  <sds@gnu.org>
+
 	* bind.tst: 6 more MACROLET tests inspired by ansi-tests
 
 2005-06-22  Sam Steingold  <sds@gnu.org>
