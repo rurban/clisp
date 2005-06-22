@@ -5,15 +5,6 @@ MUST-FIX BEFORE NEXT RELEASE
 ============================
 
 bind-eval.tst failure on Linux/amd64 [bruno]
-also MACROLET.43 in ansi-tests:
-(let ((*x* nil))
-  (declare (special *x*))
-  (let ((*f* #'(lambda nil *x*)))
-    (declare (special *f*))
-    (eval `(macrolet ((%m (*x*) (declare (special *f*)) (funcall *f*)))
-             (%m t)))))
-==> T (should be NIL)
-BOTH (compiled and evaluated) -- on all platfoms EXCEPT Linux/amd64.
 
 workaround for an extra comma in _clisp.1 [sds]
 
