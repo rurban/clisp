@@ -628,8 +628,8 @@ applicable portable methods.</simpara></note>
   &clisp; issues a &warning-t; that the redefinition has no effect.
   To avoid this warning, place all metaobject class definitions in a
   separate file, compile it in a <emphasis>separate</emphasis> session
-  (because &defclass; in &clisp; is evaluated at &compile-time; too
-  see <xref linkend="mop-compile-ui-macro"/>),
+  (because &defclass; in &clisp; is evaluated at &compile-time; too;
+  see <xref linkend="mop-ov-ui-others"/>),
   and then &load; it only <emphasis>once</emphasis> per session.
 </simpara></note></listitem></itemizedlist>
 </para>&else-undefined;
@@ -764,14 +764,19 @@ before attempting to compile certain portable programs.</para>
 <section id="mop-ov-ui-others">
  <title>Compile-file Processing of Specific User Interface Macros</title>
 <variablelist><varlistentry><term>&defclass;</term>
-  <listitem><simpara><xref linkend="mop-cl-defclass"/>
- </simpara></listitem></varlistentry>
+  <listitem><simpara><xref linkend="mop-cl-defclass"/></simpara>
+   <note>&clisp-only;<para>&clisp; evaluates &defclass; forms also at
+     &compile-time;.</para></note></listitem></varlistentry>
  <varlistentry><term>&defmethod;</term>
-  <listitem><simpara><xref linkend="mop-meth-init-defmethod"/>
- </simpara></listitem></varlistentry>
+  <listitem><simpara><xref linkend="mop-meth-init-defmethod"/></simpara>
+   <note>&clisp-only;<para>&clisp; does &not-e; evaluate &defmethod;
+     forms at &compile-time; except as necessary for signature checking.
+ </para></note></listitem></varlistentry>
  <varlistentry><term>&defgeneric;</term>
-  <listitem><simpara><xref linkend="mop-gf-init-defgeneric"/>
-</simpara></listitem></varlistentry></variablelist>
+  <listitem><simpara><xref linkend="mop-gf-init-defgeneric"/></simpara>
+   <note>&clisp-only;<para>&clisp; does &not-e; evaluate &defgeneric;
+     forms at &compile-time; except as necessary for signature checking.
+</para></note></listitem></varlistentry></variablelist>
 </section><!-- mop-ov-ui-others -->
 </section><!-- mop-ui-macro -->
 
