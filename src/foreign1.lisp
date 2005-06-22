@@ -906,9 +906,8 @@
                                       (null-terminated-p t) (start 0) (end nil))
   (call-with-foreign-string thunk encoding string start end
                             (if null-terminated-p
-                              #-UNICODE 1
-                              #+UNICODE (sys::encoding-zeroes encoding)
-                              0)))
+                                (sys::encoding-zeroes encoding)
+                                0)))
 
 (defmacro with-foreign-string ((foreign-variable char-count byte-count string
                                 &rest keywords
