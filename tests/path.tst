@@ -1006,3 +1006,7 @@ T
 #+CLISP #S(LOGICAL-PATHNAME :HOST "SYS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
                             :NAME "FOO" :TYPE "FAS" :VERSION :NEWEST)
 #-CLISP UNKNOWN
+
+(translate-logical-pathname (logical-pathname "SYS:FOO.LISP"))
+#+CLISP #p"/foo.lisp"
+#-CLISP UNKNOWN

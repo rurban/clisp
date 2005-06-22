@@ -1,3 +1,7 @@
+2005-06-22  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: check that the "SYS" logical host works
+
 2005-06-09  Bruno Haible  <bruno@clisp.org>
 
 	* conditions.tst: Mark a test as clisp-only.
