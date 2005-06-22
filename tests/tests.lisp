@@ -186,12 +186,15 @@
     (with-open-file (log logfile :direction :output
                                  #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
+      (setq logfile (truename log))
       (let ((*package* *package*) (*print-circle* t) (*print-pretty* nil))
         (setf (values total-count error-count)
               (funcall *run-test-tester* s log)))))
-  (when (zerop error-count) (delete-file logfile))
   (format t "~&~s: finished ~s (~:d error~:p out of ~:d test~:p)~%"
           'run-test testname error-count total-count)
+  (if (zerop error-count)
+      (delete-file logfile)
+      (format t "~s: see ~a~%" 'run-test logfile))
   (values total-count error-count))
 
 (defmacro with-accumulating-errors ((error-count total-count) &body body)
