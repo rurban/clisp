@@ -4857,8 +4857,8 @@ objects linked, for example, by hash tables.)
  <title>Function &standard-instance-access;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><code>(&standard-instance-access; &instance-r;
-    &location-r;)</code></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&standard-instance-access;
+    &instance-r; &location-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&instance-r;</term>
@@ -4875,18 +4875,16 @@ objects linked, for example, by hash tables.)
    this function is intended to provide highly optimized access to the
    slots associated with an instance.</simpara>
   <para>The following restrictions apply to the use of this function:
-   <itemizedlist>
-    <listitem><simpara>The &instance-r; argument must be a standard
-      instance (it must have been returned by
+   <itemizedlist><listitem><simpara>The &instance-r; argument must be a
+      standard instance (it must have been returned by
       <literal role="method">&allocate-instance;(&standard-class;)</literal>).
     </simpara></listitem>
     <listitem><simpara>The &instance-r; argument cannot be an
       non-updated obsolete instance.</simpara></listitem>
     <listitem><simpara>The &location-r; argument must be a location of
       one of the directly accessible slots of the instance's class.
-    </simpara></listitem>
-    <listitem><simpara>The slot must be bound.</simpara></listitem>
-   </itemizedlist></para>
+    </simpara></listitem><listitem><simpara>The slot must be bound.
+  </simpara></listitem></itemizedlist></para>
   &else-undefined;</listitem></varlistentry></variablelist>
 
 <note>&clisp-only;<simpara>The second and third restrictions do not
@@ -4906,8 +4904,8 @@ objects linked, for example, by hash tables.)
    <varlistentry><term>&instance-r;</term>
     <listitem><simpara>an object</simpara></listitem></varlistentry>
    <varlistentry><term>&location-r;</term>
-    <listitem><simpara>a slot location
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+    <listitem><simpara>a slot location</simpara></listitem></varlistentry>
+</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The result of this function is an object.
 </simpara></listitem></varlistentry>
@@ -4926,7 +4924,7 @@ objects linked, for example, by hash tables.)
     <listitem><simpara>The &location-r; argument must be a location of
       one of the directly accessible slots of the instance's class.
     </simpara></listitem><listitem><simpara>The slot must be bound.
-   </simpara></listitem></itemizedlist></para>
+  </simpara></listitem></itemizedlist></para>
   &else-undefined;</listitem></varlistentry></variablelist>
 
 <note>&clisp-only;<simpara>The second and third restrictions do not
@@ -5492,9 +5490,9 @@ cache of the dependent when it is updated.</para>
 </para></listitem>
 <listitem><para>The generic function &ensure-gf-UC; accepts a
   &declare-k; keyword.</para></listitem>
-<listitem><para>The function &standard-instance-access; supports
-  non-updated obsolete instances and also supports slots with allocation
-  &class-k;.</para></listitem>
+<listitem><para>The functions &funcallable-standard-instance-access; and
+  &standard-instance-access; support non-updated obsolete instances and
+  also support slots with allocation &class-k;.</para></listitem>
 <listitem><para>The existence of the &class-direct-subclasses; function
   does not prevent otherwise unreferenced classes from being &gc;ed.
 </para></listitem>
