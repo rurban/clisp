@@ -838,7 +838,7 @@
 <!ENTITY charset-ascii "<link linkend='charset-ASCII'>ASCII character set</link>">
 <!ENTITY ascii-pl-ext "a platform specific extension of the &charset-ascii;">
 <!ENTITY ascii-iso-ext "an extension of the &charset-ascii;, suitable for the">
-<!ENTITY err-sig "&error-t; is &signal;led">
+<!ENTITY err-sig "&error-t; is &signal;ed">
 <!ENTITY sig-err "&signal;s an &error-t;">
 
 <!ENTITY clisp-only "<title>Implementation dependent: only in &clisp;.</title>">
