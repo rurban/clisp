@@ -515,6 +515,7 @@
 <!ENTITY with-c-var "<link linkend='foreign-stack'><function>FFI:WITH-C-VAR</function></link>">
 <!ENTITY with-foreign-object "<link linkend='foreign-stack'><function>FFI:WITH-FOREIGN-OBJECT</function></link>">
 <!ENTITY with-foreign-string "<link linkend='foreign-stack-string'><function>FFI:WITH-FOREIGN-STRING</function></link>">
+<!ENTITY memory-as "<link linkend='memory-as'><function>FFI:MEMORY-AS</function></link>">
 
 <!-- *** Byte code *** -->
 <!ENTITY block-const "<link linkend='comp-fun'><literal>block-const</literal></link>">

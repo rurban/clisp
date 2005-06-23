@@ -2338,7 +2338,7 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
   &parse-c-type; into the internal format at macroexpansion time.
 </simpara></note>
 
-<variablelist><title>special &ffi-pac; forms; &name-r; is any Lisp
+<variablelist><title>High-level &ffi-pac; forms; &name-r; is any Lisp
    &symbol-t;; &cname-r; is a &string-t;.</title>
 <varlistentry id="def-c-type">
  <term><code>(&def-c-type; &name-r; &ctype-r;)</code></term>
@@ -2868,6 +2868,15 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
    Set these variables to non-&nil; if the headers are not available or
    not usable.</simpara></listitem></varlistentry>
 
+</variablelist>
+
+<variablelist id="dffi-low"><title>Low-level &ffi-pac; forms.</title>
+<varlistentry id="memory-as">
+ <term><code>(&memory-as; &addr-r; &type-r; &optional-amp;
+   &offset-r;)</code></term>
+ <term><code>(&setf (&memory-as; &addr-r; &type-r; &optional-amp; &offset-r;)
+   &value-r;)</code></term>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
