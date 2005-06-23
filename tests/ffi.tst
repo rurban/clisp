@@ -89,6 +89,53 @@ ERROR
   (cast place '(c-array sint8 (3 2))))
 #2A((-1 -2) (-3 -9) (-8 -7))
 
+(with-foreign-object (a '(c-array sint32 4)
+                        #(122222 928389716 -1987234239 -123141))
+  (memory-as a 'sint32 8))
+-1987234239
+
+(with-c-var (a '(c-array sint32 4)
+               #(122222 928389716 -19 -123141))
+  (setf (memory-as (c-var-address a) 'sint32 8) 478798798) a)
+#(122222 928389716 478798798 -123141)
+
+(with-c-var (a '(c-array sint32 4)
+               #(122222 928389716 -19 -123141))
+  (setf (memory-as (c-var-address a) 'sint32 8) 478798798))
+478798798
+
+(with-foreign-object (a '(c-array double-float 2)
+                        #(9.05d12 -12.765d-13))
+  (memory-as a 'double-float 0))
+9.05d12
+
+(with-foreign-object (a '(c-array single-float 2)
+                        #(9.05f12 -12.765f-13))
+  (memory-as a 'single-float 0))
+9.05f12
+
+(with-foreign-object (x 'single-float)
+  (list (setf (memory-as x 'single-float) -28.23f-15)
+	(foreign-value x)))
+(-28.23f-15 -28.23f-15)
+
+(with-c-var (p '(c-ptr sint32) -823498)
+  (= (foreign-address-unsigned
+      (memory-as (c-var-address p) 'c-pointer))
+     (foreign-address-unsigned (c-var-address (deref p)))))
+t
+
+(with-foreign-object (p '(c-ptr sint32) -823498)
+  (= (foreign-address-unsigned (memory-as p 'c-pointer))
+     (foreign-address-unsigned p)))
+nil
+
+(with-foreign-object (p '(c-ptr sint16))
+  (with-foreign-object (i 'sint16 -32765)
+    (list (eq (setf (memory-as p 'c-pointer) i) i)
+	  (foreign-value p))))
+(t -32765)
+
 (progn
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (obj (c-pointer short)))
@@ -617,6 +664,22 @@ FOREIGN-AS-STRING
 (with-foreign-string (f e b "abc" :start 1 :end 2)
   (foreign-as-string (foreign-address f)))
 "b"
+
+(with-foreign-string (f e b "abcd" :start 1 :end 3
+                        #+UNICODE :encoding #+UNICODE charset:ascii)
+  (memory-as f 'character 1))
+#\c
+
+(with-foreign-string (f e b "abcde" :start 1 :end 4
+                        #+UNICODE :encoding #+UNICODE charset:ascii)
+  (memory-as f 'string 1))
+"cd"
+
+;#+UNICODE ; clisp writes a BOM at start and I don't want to depend on that
+;(with-foreign-string (f e b "abcde" :start 1 :end 4
+;                        :encoding charset:utf-16)
+;  (memory-as f 'string 2))
+;#+UNICODE "cd"
 
 (let ((f (with-foreign-string (fv e b "ABC") fv)))
   (validp f))
