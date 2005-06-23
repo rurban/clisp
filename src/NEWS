@@ -230,10 +230,10 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#translate-pathname> and
   <http://clisp.cons.org/impnotes.html#translate-logpath> for details.
 
-* New function ABSOLUTE-PATHNAME.
+* New function EXT:ABSOLUTE-PATHNAME.
   See <http://clisp.cons.org/impnotes.html#absolute-pathname> for details.
 
-* New function ELASTIC-NEWLINE and new FORMAT directive "~.".
+* New function EXT:ELASTIC-NEWLINE and new FORMAT directive "~.".
   See <http://clisp.cons.org/impnotes.html#elastic-newline>
   and <http://clisp.cons.org/impnotes.html#format-dot> for details.
   Through this function, CLISP no longer produces spurious blank lines when
@@ -265,34 +265,35 @@ User visible changes
   functions defined in the lexical environment outside the MACROLET form
   now signal an error. Previously, this resulted in undefined behaviour.
 
-* The FFI recognizes the c-type declaration (C-POINTER <c-type>) to
+* The FFI recognizes the c-type declaration (FFI:C-POINTER <c-type>) to
   handle references without conversion to/from Lisp structures.
   See <http://clisp.cons.org/impnotes.html#c-pointer> for details.
 
-* The FFI variable *FOREIGN-ENCODING* can now be a multibyte encoding.
+* The FFI variable FFI:*FOREIGN-ENCODING* can now be a multibyte encoding.
   The warning "*FOREIGN-ENCODING*: reset to ASCII" at startup is gone.
 
-* New FFI constructor functions FOREIGN-VARIABLE and FOREIGN-FUNCTION,
-  more operators are now exported (FOREIGN-VALUE, PARSE-C-TYPE).
+* New FFI constructor functions FFI:FOREIGN-VARIABLE and FFI:FOREIGN-FUNCTION,
+  more operators are now exported (FFI:FOREIGN-VALUE, FFI:PARSE-C-TYPE).
   See <http://clisp.cons.org/impnotes.html#dffi-make-var>
   and <http://clisp.cons.org/impnotes.html#dffi-make-func> for details.
 
-* FFI macro C-LINES can now be used to fine-tune
+* FFI macro FFI:C-LINES can now be used to fine-tune
   initialization and finalization.
   See <http://clisp.cons.org/impnotes.html#c-lines> for details.
 
-* New FFI function CLOSE-FOREIGN-LIBRARY can be used to unload a library.
+* New FFI function FFI:CLOSE-FOREIGN-LIBRARY can be used to unload a library.
   See <http://clisp.cons.org/impnotes.html#dffi-close-lib> for details.
 
-* New FFI low-level accessor MEMORY-AS.
+* New FFI low-level accessor FFI:MEMORY-AS.
+  See <http://clisp.cons.org/impnotes.html#memory-as> for details.
 
 * Foreign functions and variables can now be documented using the
-  :DOCUMENTATION option to DEF-CALL-OUT and DEF-C-VAR.
+  :DOCUMENTATION option to FFI:DEF-CALL-OUT and FFI:DEF-C-VAR.
 
 * Buffered streams now are suitable for interactive streams. It is no longer
   necessary to use :BUFFERED NIL to avoid blocking in various situations.
 
-* Function READ-BYTE-SEQUENCE takes a new keyword argument :INTERACTIVE.
+* Function EXT:READ-BYTE-SEQUENCE takes a new keyword argument :INTERACTIVE.
   See <http://clisp.cons.org/impnotes.html#rd-by-seq> for details.
 
 * Methods on GRAY:STREAM-READ-BYTE-SEQUENCE and GRAY:STREAM-WRITE-BYTE-SEQUENCE
@@ -301,7 +302,7 @@ User visible changes
 * The possible values of the :WEAK argument of MAKE-HASH-TABLE are changed:
   Use :KEY-AND-VALUE instead of :EITHER, :KEY-OR-VALUE instead of :BOTH now.
 
-* The :LIBRARY option argument to DEF-CALL-OUT and DEF-C-VAR is now
+* The :LIBRARY option argument to EXT:DEF-CALL-OUT and EXT:DEF-C-VAR is now
   evaluated (i.e., it can now be a variable) and may take a value of
   :DEFAULT and :NEXT in addition to being a string as before.
   See <http://clisp.cons.org/impnotes.html#def-c-var> and
