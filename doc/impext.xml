@@ -2874,7 +2874,7 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
 <varlistentry id="memory-as">
  <term><code>(&memory-as; &addr-r; &type-r; &optional-amp;
    &offset-r;)</code></term>
- <term><code>(&setf (&memory-as; &addr-r; &type-r; &optional-amp; &offset-r;)
+ <term><code>(&setf; (&memory-as; &addr-r; &type-r; &optional-amp; &offset-r;)
    &value-r;)</code></term>
  <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 </variablelist>
