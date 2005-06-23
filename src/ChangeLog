@@ -6,8 +6,9 @@
 2005-06-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign.d (read_memory_as, write_memory_as): low-level accessors
-	* foreign1.lisp (memory-as): export and define (setf memory-as)
-
+	* subr.d, constsym.d (read_memory_as, write_memory_as): added
+	* foreign1.lisp (MEMORY-AS): export and define (SETF MEMORY-AS)
+	
 2005-06-21  Sam Steingold  <sds@gnu.org>
 
 	* charstrg.d (coerce_char): no INPUT-CHARACTER without KEYBOARD
