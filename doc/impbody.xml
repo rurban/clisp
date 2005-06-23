@@ -940,7 +940,7 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 <formalpara id="appease-cerrors"><title>Macro &appease-cerrors;</title>
 <para>The macro <code>(&appease-cerrors; {&form-r;}*)</code>
  executes the &form-r;s; when a &cont-err; occurs whose &continue; &restart-t;
- can be invoked non-interactively (this includes all &cont-err;s &signal;led
+ can be invoked non-interactively (this includes all &cont-err;s &signal;ed
  by the function &cerror;), it is reported as a &warning-t;, and the
  &continue; &restart-t; is invoked.</para></formalpara>
 
@@ -2698,7 +2698,7 @@ be one of &fasthash-eq;, &stablehash-eq;.</para>
  <constant>EXT:STABLEHASH-EQUAL</constant>.</para>
 
 <para>The <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> argument,
-if true, causes a &warning-t; to be &signal;led when an object is stored
+if true, causes a &warning-t; to be &signal;ed when an object is stored
 into the table which will force table reorganizations at the first
 access of the table after each &gc;ion.
 This keyword argument can be used to check whether &stablehash-eq;
