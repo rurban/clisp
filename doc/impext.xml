@@ -2896,8 +2896,8 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
   <informaltable id="simple-c-type-tab" frame="all">
  <tgroup cols="5" colsep="1" rowsep="1" align="center">
  <thead><row><entry>Lisp name</entry><entry>Lisp equivalent</entry>
- <entry>&c-lang; equivalent</entry><entry>ILU
- equivalent</entry><entry>Comment</entry></row></thead><tbody>
+ <entry>&c-lang; equivalent</entry><entry>&ilu; equivalent</entry>
+ <entry>Comment</entry></row></thead><tbody>
 <row><entry>&nil;</entry><entry>&nil;</entry><entry><type>void</type></entry>
    <entry/><entry>as a result type only</entry></row>
 <row><entry>&boolean-t;</entry><entry>&boolean-t;</entry>
