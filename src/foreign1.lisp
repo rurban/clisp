@@ -932,7 +932,7 @@
 
 ;; =========================== low-level interface ===========================
 
-(sys::def-setf-alias memory-as write-memory-as)
+(sys::def-setf-alias memory-as write-memory-as) ; ABI
 
 ;; ============================ named C functions ============================
 
