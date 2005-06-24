@@ -2880,8 +2880,7 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
  Allows to allocate many zero bytes (like a partially filled buffer) */
 LISPFUNN(call_with_foreign_string,6)
 {
-  if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
-  var uintV zeroes = posfixnum_to_V(popSTACK());
+  var uintV zeroes = posfixnum_to_V(check_posfixnum(popSTACK()));
   STACK_4 = check_function(STACK_4);
  #ifdef UNICODE
   STACK_3 = check_encoding(STACK_3,&O(foreign_encoding),false);

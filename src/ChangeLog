@@ -1,3 +1,7 @@
+2005-06-24  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (CALL-WITH-FOREIGN-STRING): use check_posfixnum()
+
 2005-06-22  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp (exec-with-foreign-string): ENCODING-ZEROES is
@@ -8,7 +12,7 @@
 	* foreign.d (read_memory_as, write_memory_as): low-level accessors
 	* subr.d, constsym.d (read_memory_as, write_memory_as): added
 	* foreign1.lisp (MEMORY-AS): export and define (SETF MEMORY-AS)
-	
+
 2005-06-21  Sam Steingold  <sds@gnu.org>
 
 	* charstrg.d (coerce_char): no INPUT-CHARACTER without KEYBOARD
