@@ -2773,7 +2773,8 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
    &c-lang; stack.</simpara>
   <simpara>When <replaceable>null-terminated-p</replaceable> is true,
    which is the default, a variable number of zero bytes is appended,
-   depending on the encoding, e.g. 2 for &utf-8;,
+   depending on the encoding, e.g. 2 for
+   <link linkend="charset-UTF-16"><constant>CHARSET:UTF-16</constant></link>,
    and accounted for in <replaceable>byte-count</replaceable>,
    and <replaceable>char-count</replaceable> is incremented by one.</simpara>
   <simpara>The &foreign-address-t; object bound to &f-addr; is
@@ -3071,16 +3072,18 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
  <literal role="type">(&c-array; &character-t; <replaceable>dim&sub-1;</replaceable>)</literal>,
  <literal role="type">(&c-array-max; &character-t; &maxdim-r;)</literal>,
  <literal role="type">(&c-array-ptr; &character-t;)</literal>
- are governed by &foreign-enc;.
- The conversion of &character-t;,
- not 1-dimensional arrays <literal role="type">(&c-array; &character-t; (<replaceable>dim&sub-1;</replaceable> ... <replaceable>dim&sub-n;</replaceable>))</literal>,
- <literal role="type">(&c-ptr; &character-t;)</literal>,
- <literal role="type">(&c-ptr-null; &character-t;)</literal>
+ are governed by &foreign-enc; and dimensions are given in bytes.
+ The conversion of &character-t;, and as such of
+ <literal role="type">(&c-ptr; &character-t;)</literal>, or
+ <literal role="type">(&c-ptr-null; &character-t;)</literal>, as well as
+ that of not 1-dimensional arrays <literal role="type">(&c-array; &character-t;
+ (<replaceable>dim&sub-1;</replaceable> ... <replaceable>dim&sub-n;</replaceable>))</literal>,
  are governed by &foreign-enc; if the latter is a 1:1 encoding, or by the
- &ascii; encoding otherwise.
- The type <type>char</type>, on the other hand, is a numeric type and does
- not use character encodings.</para>
+ &ascii; encoding otherwise.</para>
 <!-- #endif -->
+<para>
+ Remember that the type <type>char</type> is a numeric type and does
+ not use character encodings.</para>
 
 </section>
 
