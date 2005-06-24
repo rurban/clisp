@@ -1,5 +1,10 @@
 2005-06-24  Sam Steingold  <sds@gnu.org>
 
+	RFE #[ 1226120 ]: configure shall report essential findings
+	* configure: report configure findings
+
+2005-06-24  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (CALL-WITH-FOREIGN-STRING): use check_posfixnum()
 
 2005-06-22  Sam Steingold  <sds@gnu.org>

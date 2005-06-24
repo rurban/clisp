@@ -597,16 +597,26 @@ if test -n "$do_config"; then
   cd ..
 fi
 
+have_ffi=no
 if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
   if (cd $ABS_DIRNAME/avcall && make) &&
      (cd $ABS_DIRNAME/callback && make) &&
      (cd $ABS_DIRNAME/avcall && make check) &&
      (cd $ABS_DIRNAME/callback && make check); then
     makemake_args="--with-dynamic-ffi $makemake_args"
+    have_ffi=yes
   fi
 fi
 
 makemake_args="${makemake_args} ${target} ${debug}";
+
+. ${ABS_DIRNAME}/config.cache
+cat <<EOF
+Configure findings:
+  FFI:        ${have_ffi}
+  readline:   ${ac_cv_use_readline}
+  libsigsegv: ${cl_cv_lib_sigsegv}
+EOF
 
 if test -z "$do_build"; then
 
