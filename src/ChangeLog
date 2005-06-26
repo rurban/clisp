@@ -1,7 +1,7 @@
 2005-06-26  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-OR): handle empty codelist
-	Reported by Dan Corkill <dancorkill@comcast.net>
+	Reported by Dan Corkill <dancorkill@comcast.net> & bug #[ 1227764 ]
 
 2005-06-24  Sam Steingold  <sds@gnu.org>
 
