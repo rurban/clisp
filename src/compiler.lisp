@@ -4375,7 +4375,7 @@ for-value   NIL or T
                 ;; evaluate to NIL, drop it, and turn the jump before it to
                 ;; (VALUES1).
                 (let ((last-anode (car codelist)))
-                  (when (and (anode-constantp last-anode)
+                  (when (and last-anode (anode-constantp last-anode)
                              (null (anode-constant-value last-anode))
                              (cdr codelist))
                     (pop codelist)
