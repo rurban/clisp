@@ -1,3 +1,7 @@
+2005-06-26  Sam Steingold  <sds@gnu.org>
+
+	* macros8.tst: test (cond (t)) compilation
+
 2005-06-22  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-test): print logfile's truename when there are errors

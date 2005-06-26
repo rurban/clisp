@@ -957,6 +957,9 @@ ERROR
 (funcall (compile nil (lambda () (cond (nil)))))
 NIL
 
+(funcall (compile nil (lambda () (cond (t)) nil)))
+NIL
+
 ; Clean up.
 (unintern 'x)
 T
