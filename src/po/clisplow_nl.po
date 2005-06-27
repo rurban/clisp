@@ -23,7 +23,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-03-17 17:40:58-0500\n"
+"POT-Creation-Date: 2005-06-24 12:20:25-0400\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -49,20 +49,37 @@ msgstr "Onbekend argumenttype voor SUBR\n"
 msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Onbekend argumenttype voor SUBR\n"
 
-#: spvw.d:1541
+#: spvw.d:1542
 #, fuzzy
 msgid "module '%s' requires package %s.\n"
 msgstr "module `%s' vereist package %s.\n"
 
-#: spvw.d:1581
+#: spvw.d:1552
+#, fuzzy
+msgid "module '%s' redefines symbol "
+msgstr "module `%s' vereist package %s.\n"
+
+#: spvw.d:1554
+#, fuzzy
+msgid " in the locked package "
+msgstr "een gewiste package."
+
+#: spvw.d:1556
+#, fuzzy
+msgid ""
+"\n"
+"old definition: "
+msgstr " met macrodefinitie"
+
+#: spvw.d:1593
 msgid "is an ANSI Common Lisp."
 msgstr ""
 
-#: spvw.d:1583
+#: spvw.d:1595
 msgid "Usage:  "
 msgstr ""
 
-#: spvw.d:1585
+#: spvw.d:1597
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
@@ -70,210 +87,210 @@ msgid ""
 " read-eval-print loop is entered.\n"
 msgstr ""
 
-#: spvw.d:1589
+#: spvw.d:1601
 msgid "Informative output:\n"
 msgstr ""
 
-#: spvw.d:1590
+#: spvw.d:1602
 msgid " -h, --help    - print this help and exit\n"
 msgstr ""
 
-#: spvw.d:1591
+#: spvw.d:1603
 msgid " --version     - print the version information\n"
 msgstr ""
 
-#: spvw.d:1592
+#: spvw.d:1604
 msgid " --license     - print the licensing information\n"
 msgstr ""
 
-#: spvw.d:1593
+#: spvw.d:1605
 msgid "Memory image selection:\n"
 msgstr ""
 
-#: spvw.d:1594
+#: spvw.d:1606
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr ""
 
-#: spvw.d:1596
+#: spvw.d:1608
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr ""
 
-#: spvw.d:1598
+#: spvw.d:1610
 msgid " -M memfile    - use this memory image\n"
 msgstr ""
 
-#: spvw.d:1599
+#: spvw.d:1611
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-#: spvw.d:1601
+#: spvw.d:1613
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr ""
 
-#: spvw.d:1603
+#: spvw.d:1615
 msgid "Internationalization:\n"
 msgstr ""
 
-#: spvw.d:1604
+#: spvw.d:1616
 msgid " -L language   - set user language\n"
 msgstr ""
 
-#: spvw.d:1605
+#: spvw.d:1617
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr ""
 
-#: spvw.d:1606
+#: spvw.d:1618
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 
-#: spvw.d:1607
+#: spvw.d:1619
 msgid "Interoperability:\n"
 msgstr ""
 
-#: spvw.d:1608
+#: spvw.d:1620
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 msgstr ""
 
-#: spvw.d:1611
+#: spvw.d:1623
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr ""
 
-#: spvw.d:1612
+#: spvw.d:1624
 msgid " -I            - be ILISP-friendly\n"
 msgstr ""
 
-#: spvw.d:1613
+#: spvw.d:1625
 msgid "Startup actions:\n"
 msgstr ""
 
-#: spvw.d:1614
+#: spvw.d:1626
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr ""
 
-#: spvw.d:1615
+#: spvw.d:1627
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr ""
 
-#: spvw.d:1616
+#: spvw.d:1628
 msgid " -modern       - start in a case-sensitive lowercase-preferring package\n"
 msgstr ""
 
-#: spvw.d:1617
+#: spvw.d:1629
 msgid " -p package    - start in the package\n"
 msgstr ""
 
-#: spvw.d:1618
+#: spvw.d:1630
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr ""
 
-#: spvw.d:1619
+#: spvw.d:1631
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr ""
 
-#: spvw.d:1620
+#: spvw.d:1632
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr ""
 
-#: spvw.d:1621
+#: spvw.d:1633
 msgid "Actions:\n"
 msgstr ""
 
-#: spvw.d:1622
+#: spvw.d:1634
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr ""
 
-#: spvw.d:1623
+#: spvw.d:1635
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr ""
 
-#: spvw.d:1624
+#: spvw.d:1636
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr ""
 
-#: spvw.d:1625
+#: spvw.d:1637
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr ""
 
-#: spvw.d:1626
-msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
+#: spvw.d:1638
+msgid " -on-error action - action can be one of debug, exit, abort, appease\n"
 msgstr ""
 
-#: spvw.d:1627
-msgid " -repl              - enter the interactive read-eval-print loop when done\n"
-msgstr ""
-
-#: spvw.d:1628
-msgid "Default action is an interactive read-eval-print loop.\n"
-msgstr ""
-
-#: spvw.d:1637
-msgid "%s: use '-h' for help"
+#: spvw.d:1639
+msgid " -repl            - enter the interactive read-eval-print loop when done\n"
 msgstr ""
 
 #: spvw.d:1640
+msgid "Default action is an interactive read-eval-print loop.\n"
+msgstr ""
+
+#: spvw.d:1649
+msgid "%s: use '-h' for help"
+msgstr ""
+
+#: spvw.d:1652
 #, fuzzy
 msgid "invalid argument"
 msgstr "Ongeldig argument"
 
-#: spvw.d:2016
+#: spvw.d:2054
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Syntaxis voor %s: nnnnnnn of nnnnKB of nMB"
 
-#: spvw.d:2021
+#: spvw.d:2059
 msgid "%s out of range"
 msgstr "%s is buiten bereik"
 
-#: spvw.d:2026
+#: spvw.d:2064
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:2042
+#: spvw.d:2080
 msgid "memory size"
 msgstr "grootte geheugen"
 
-#: spvw.d:2058
+#: spvw.d:2096
 msgid "multiple -t"
 msgstr ""
 
-#: spvw.d:2078
+#: spvw.d:2116
 msgid "multiple -B"
 msgstr ""
 
-#: spvw.d:2113
+#: spvw.d:2151
 #, fuzzy
 msgid "-E requires an argument"
 msgstr "~S vereiste argumenten"
 
-#: spvw.d:2353
+#: spvw.d:2413
 msgid "-l without -c is invalid"
 msgstr ""
 
-#: spvw.d:2359
+#: spvw.d:2419
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S op ~S is ongeldig"
 
-#: spvw.d:2364
+#: spvw.d:2424
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2485
+#: spvw.d:2545
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Waarde van malloc() = %x stemt niet overeen met de typecodes."
 
-#: spvw.d:2492
+#: spvw.d:2552
 msgid "Only %d bytes available."
 msgstr "Nog maar %d bytes beschikbaar."
 
-#: spvw.d:2732
+#: spvw.d:2802
 msgid "Could not determine the end of the SP stack!"
 msgstr "Kan het einde van de SP stack niet bepalen!"
 
-#: spvw.d:3291
+#: spvw.d:3330
 #, fuzzy
 msgid "%s: Not enough memory for Lisp."
 msgstr "Niet genoeg geheugen voor Lisp."
@@ -410,7 +427,7 @@ msgstr "SIGSEGV kan niet hersteld worden. Fout-adres = 0x%x."
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
 msgstr "Apollo 13 scenario: Stapeloverloop afhandeling mislukt. Bij de volgende stapeloverloop gaan we plat!!!"
 
-#: spvw_garcol.d:1975
+#: spvw_garcol.d:1983
 #, fuzzy
 msgid "munmap() failed."
 msgstr "munmap() mislukt."
@@ -423,7 +440,7 @@ msgstr "*** - Geen ruimte meer voor LISP objecten: RESET"
 msgid "Trying to make room through a GC..."
 msgstr "Ik probeer ruimte te maken door een GC..."
 
-#: spvw_memfile.d:816 spvw_memfile.d:1562
+#: spvw_memfile.d:816 spvw_memfile.d:1566
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "besturingssysteem-fout bij het lezen van opstart bestand `%s'"
@@ -433,384 +450,384 @@ msgstr "besturingssysteem-fout bij het lezen van opstart bestand `%s'"
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "Kan het opstartbestand niet in het geheugen afbeelden."
 
-#: spvw_memfile.d:1567
+#: spvw_memfile.d:1571
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "opstartbestand was niet gemaakt door deze versie van LISP"
 
-#: spvw_memfile.d:1571
+#: spvw_memfile.d:1575
 #, fuzzy
 msgid "%s: not enough memory for initialization"
 msgstr "onvoldoende geheugen om te starten"
 
-#: errunix.d:56
+#: errunix.d:58
 msgid "Invalid multibyte or wide character"
 msgstr ""
 
-#: errunix.d:63
+#: errunix.d:65
 msgid "Operation not permitted"
 msgstr "Geen toestemming hiervoor"
 
-#: errunix.d:69
+#: errunix.d:71
 msgid "No such file or directory"
 msgstr "Bestand of map bestaat niet"
 
-#: errunix.d:75
+#: errunix.d:77
 msgid "No such process"
 msgstr "Proces bestaat niet"
 
-#: errunix.d:81
+#: errunix.d:83
 msgid "Interrupted system call"
 msgstr "Onderbroken systeemaanroep"
 
-#: errunix.d:87
+#: errunix.d:89
 msgid "I/O error"
 msgstr "Invoer/uitvoer fout"
 
-#: errunix.d:93
+#: errunix.d:95
 msgid "No such device or address"
 msgstr "Apparaat bestaat niet of station leeg"
 
-#: errunix.d:99
+#: errunix.d:101
 msgid "Arg list too long"
 msgstr "Argumentenlijst is te lang"
 
-#: errunix.d:105
+#: errunix.d:107
 msgid "Exec format error"
 msgstr "Geen uitvoerbaar bestand"
 
-#: errunix.d:111
+#: errunix.d:113
 msgid "Bad file number"
 msgstr "Foutief bestandsnummer"
 
-#: errunix.d:117
+#: errunix.d:119
 msgid "No child processes"
 msgstr "Geen kindprocessen"
 
-#: errunix.d:123
+#: errunix.d:125
 msgid "No more processes"
 msgstr "Geen verdere processen"
 
-#: errunix.d:129
+#: errunix.d:131
 msgid "Not enough memory"
 msgstr "Niet genoeg geheugen"
 
-#: errunix.d:135
+#: errunix.d:137
 msgid "Permission denied"
 msgstr "Geen toestemming"
 
-#: errunix.d:141
+#: errunix.d:143
 msgid "Bad address"
 msgstr "Foutief adres"
 
-#: errunix.d:147
+#: errunix.d:149
 msgid "Block device required"
 msgstr "Alleen blokgestuurde apparaten toegestaan"
 
-#: errunix.d:153
+#: errunix.d:155
 msgid "Device busy"
 msgstr "Apparaat bezig"
 
-#: errunix.d:159
+#: errunix.d:161
 msgid "File exists"
 msgstr "Bestand bestaat al"
 
-#: errunix.d:165
+#: errunix.d:167
 msgid "Cross-device link"
 msgstr "Koppelingen kunnen alleen op hetzelfde apparaat"
 
-#: errunix.d:171
+#: errunix.d:173
 msgid "No such device"
 msgstr "Apparaat bestaat niet"
 
-#: errunix.d:177
+#: errunix.d:179
 msgid "Not a directory"
 msgstr "Geen map"
 
-#: errunix.d:183
+#: errunix.d:185
 msgid "Is a directory"
 msgstr "Is een map"
 
-#: errunix.d:189
+#: errunix.d:191
 msgid "Invalid argument"
 msgstr "Ongeldig argument"
 
-#: errunix.d:195
+#: errunix.d:197
 msgid "File table overflow"
 msgstr "Bestandstabel overloop"
 
-#: errunix.d:201
+#: errunix.d:203
 msgid "Too many open files"
 msgstr "Te veel open bestanden"
 
-#: errunix.d:207
+#: errunix.d:209
 msgid "Inappropriate ioctl for device"
 msgstr "Ongeschikte ioctl voor apparaat"
 
-#: errunix.d:213
+#: errunix.d:215
 msgid "Text file busy"
 msgstr "Tekstbestand in gebruik"
 
-#: errunix.d:219
+#: errunix.d:221
 msgid "File too large"
 msgstr "Bestand te groot"
 
-#: errunix.d:225
+#: errunix.d:227
 msgid "No space left on device"
 msgstr "Geen vrije ruimte op apparaat"
 
-#: errunix.d:231
+#: errunix.d:233
 msgid "Illegal seek"
 msgstr "Ongeldige zoekopdracht"
 
-#: errunix.d:237
+#: errunix.d:239
 msgid "Read-only file system"
 msgstr "Bestandssysteem is alleen maar leesbaar"
 
-#: errunix.d:243
+#: errunix.d:245
 msgid "Too many links"
 msgstr "Te veel koppelingen"
 
-#: errunix.d:249
+#: errunix.d:251
 #, fuzzy
 msgid "Broken pipe, child process terminated or socket closed"
 msgstr "Pijp kapot, kindproces beëindigd"
 
-#: errunix.d:259
+#: errunix.d:261
 msgid "Argument out of domain"
 msgstr "Argument buiten bereik"
 
-#: errunix.d:265
+#: errunix.d:267
 msgid "Result too large"
 msgstr "Resultaat te groot"
 
-#: errunix.d:272
+#: errunix.d:274
 msgid "Operation would block"
 msgstr "Bewerking zou blokkeren"
 
-#: errunix.d:278
+#: errunix.d:280
 msgid "Operation now in progress"
 msgstr "Dit kan nog wel even duren"
 
-#: errunix.d:284
+#: errunix.d:286
 msgid "Operation already in progress"
 msgstr "Bewerking is al aan de gang"
 
-#: errunix.d:291
+#: errunix.d:293
 msgid "Too many levels of symbolic links"
 msgstr "Te veel niveaus van symbolische koppelingen"
 
-#: errunix.d:297
+#: errunix.d:299
 msgid "File name too long"
 msgstr "Bestandsnaam te lang"
 
-#: errunix.d:303
+#: errunix.d:305
 msgid "Directory not empty"
 msgstr "Map niet leeg"
 
-#: errunix.d:310
+#: errunix.d:312
 msgid "Stale NFS file handle"
 msgstr "Verouderde bestandstoegang op NFS"
 
-#: errunix.d:316
+#: errunix.d:318
 #, fuzzy
 msgid "Too many levels of remote in path"
 msgstr "Te veel niveaus verwijzingen naar andere computers"
 
-#: errunix.d:323
+#: errunix.d:325
 msgid "Socket operation on non-socket"
 msgstr "Socket-bewerking op iets dat geen socket is"
 
-#: errunix.d:329
+#: errunix.d:331
 msgid "Destination address required"
 msgstr "Bestemmingsadres vereist"
 
-#: errunix.d:335
+#: errunix.d:337
 msgid "Message too long"
 msgstr "Bericht te lang"
 
-#: errunix.d:341
+#: errunix.d:343
 msgid "Protocol wrong type for socket"
 msgstr "Verkeerd type protocol voor socket"
 
-#: errunix.d:347
+#: errunix.d:349
 msgid "Option not supported by protocol"
 msgstr "Optie niet ondersteund door protocol"
 
-#: errunix.d:353
+#: errunix.d:355
 msgid "Protocol not supported"
 msgstr "Protocol niet ondersteund"
 
-#: errunix.d:359
+#: errunix.d:361
 msgid "Socket type not supported"
 msgstr "Type socket niet ondersteund"
 
-#: errunix.d:365
+#: errunix.d:367
 msgid "Operation not supported on socket"
 msgstr "Bewerking op socket niet ondersteund"
 
-#: errunix.d:371
+#: errunix.d:373
 msgid "Protocol family not supported"
 msgstr "Protocolfamilie niet ondersteund"
 
-#: errunix.d:377
+#: errunix.d:379
 msgid "Address family not supported by protocol family"
 msgstr "Adresfamilie niet ondersteund door protocolfamilie"
 
-#: errunix.d:383
+#: errunix.d:385
 msgid "Address already in use"
 msgstr "Adres is al in gebruik"
 
-#: errunix.d:389
+#: errunix.d:391
 msgid "Cannot assign requested address"
 msgstr "Kan aangevraagd adres niet toekennen"
 
-#: errunix.d:395
+#: errunix.d:397
 msgid "Network is down"
 msgstr "Netwerk is plat"
 
-#: errunix.d:401
+#: errunix.d:403
 msgid "Network is unreachable"
 msgstr "Netwerk is niet bereikbaar"
 
-#: errunix.d:407
+#: errunix.d:409
 msgid "Network dropped connection on reset"
 msgstr "Server is herstart, netwerkverbinding kwijt"
 
-#: errunix.d:413
+#: errunix.d:415
 msgid "Software caused connection abort"
 msgstr "Moest deze verbinding verbreken"
 
-#: errunix.d:419
+#: errunix.d:421
 msgid "Connection reset by peer"
 msgstr "Verbinding door andere kant verbroken"
 
-#: errunix.d:425
+#: errunix.d:427
 msgid "No buffer space available"
 msgstr "Niet genoeg ruimte voor een buffer"
 
-#: errunix.d:431
+#: errunix.d:433
 msgid "Socket is already connected"
 msgstr "Socket is al verbonden"
 
-#: errunix.d:437
+#: errunix.d:439
 msgid "Socket is not connected"
 msgstr "Socket is niet verbonden"
 
-#: errunix.d:443
+#: errunix.d:445
 msgid "Cannot send after socket shutdown"
 msgstr "Kan niet naar gesloten socket zenden"
 
-#: errunix.d:449
+#: errunix.d:451
 msgid "Too many references: cannot splice"
 msgstr "Te veel verwijzingen; kan niet verbinden"
 
-#: errunix.d:455
+#: errunix.d:457
 msgid "Connection timed out"
 msgstr "Tijdsoverschrijding bij verbinden"
 
-#: errunix.d:461
+#: errunix.d:463
 msgid "Connection refused"
 msgstr "Verbinding geweigerd"
 
-#: errunix.d:466
+#: errunix.d:468
 msgid "Remote peer released connection"
 msgstr "Andere kant heeft verbinding los gelaten"
 
-#: errunix.d:471
+#: errunix.d:473
 msgid "Host is down"
 msgstr "Andere computer is plat"
 
-#: errunix.d:477
+#: errunix.d:479
 msgid "Host is unreachable"
 msgstr "Andere computer is niet bereikbaar"
 
-#: errunix.d:482
+#: errunix.d:484
 msgid "Networking error"
 msgstr "Netwerkfout"
 
-#: errunix.d:488
+#: errunix.d:490
 msgid "Too many processes"
 msgstr "Te veel processen"
 
-#: errunix.d:494
+#: errunix.d:496
 msgid "Too many users"
 msgstr "Te veel gebruikers"
 
-#: errunix.d:500
+#: errunix.d:502
 msgid "Disk quota exceeded"
 msgstr "Schijfquotum overschreden"
 
-#: errunix.d:507
+#: errunix.d:509
 msgid "Not a stream device"
 msgstr "Geen `stream' apparaat"
 
-#: errunix.d:513
+#: errunix.d:515
 msgid "Timer expired"
 msgstr "Timer verlopen"
 
-#: errunix.d:519
+#: errunix.d:521
 msgid "Out of stream resources"
 msgstr "Geen ruimte meer voor stream"
 
-#: errunix.d:525
+#: errunix.d:527
 msgid "No message of desired type"
 msgstr "Geen bericht van gewenst type"
 
-#: errunix.d:531
+#: errunix.d:533
 msgid "Not a data message"
 msgstr "Geen gegevens-bericht"
 
-#: errunix.d:538
+#: errunix.d:540
 #, fuzzy
 msgid "Identifier removed"
 msgstr "`Identifier' verwijderd"
 
-#: errunix.d:545
+#: errunix.d:547
 msgid "Resource deadlock would occur"
 msgstr "Patstelling voor hulpbronnen zou optreden"
 
-#: errunix.d:551
+#: errunix.d:553
 msgid "No record locks available"
 msgstr "Geen record-vergrendelingen beschikbaar"
 
-#: errunix.d:558
+#: errunix.d:560
 msgid "Machine is not on the network"
 msgstr "Machine bevindt zich niet op het netwerk"
 
-#: errunix.d:564 errunix.d:570
+#: errunix.d:566 errunix.d:572
 msgid "Object is remote"
 msgstr "Object is op de andere computer"
 
-#: errunix.d:576
+#: errunix.d:578
 msgid "Link has been severed"
 msgstr "Koppeling is doorgehakt"
 
-#: errunix.d:582
+#: errunix.d:584
 msgid "Advertise error"
 msgstr "Advertise-fout"
 
-#: errunix.d:588
+#: errunix.d:590
 msgid "Srmount error"
 msgstr "Srmount-fout"
 
-#: errunix.d:594
+#: errunix.d:596
 msgid "Communication error on send"
 msgstr "Communicatiefout bij zenden"
 
-#: errunix.d:600
+#: errunix.d:602
 msgid "Protocol error"
 msgstr "Protocol-fout"
 
-#: errunix.d:606
+#: errunix.d:608
 #, fuzzy
 msgid "Multihop attempted"
 msgstr "Multihop geprobeerd"
 
-#: errunix.d:618
+#: errunix.d:620
 msgid "Remote address changed"
 msgstr "Adres van andere computer is gewijzigd"
 
-#: errunix.d:625
+#: errunix.d:627
 msgid "Function not implemented"
 msgstr "Functie niet geïmplementeerd"

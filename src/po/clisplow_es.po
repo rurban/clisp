@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.12  2005/03/17 23:14:48  sds
+# regenerated
+#
 # Revision 1.11  2005/02/16 22:30:56  haible
 # Regenerated.
 #
@@ -176,6 +179,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.12  2005/03/17 23:14:48  sds
+# regenerated
+#
 # Revision 1.11  2005/02/16 22:30:56  haible
 # Regenerated.
 #
@@ -262,7 +268,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-03-17 17:40:58-0500\n"
+"POT-Creation-Date: 2005-06-24 12:20:25-0400\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -390,20 +396,52 @@ msgstr "Tipo de argumento desconocido para SUBR\n"
 #
 # Pues si, tienes toda la razón del mundo - cll
 #
-#: spvw.d:1541
+#: spvw.d:1542
 #, fuzzy
 msgid "module '%s' requires package %s.\n"
 msgstr "el módulo `%s' necesita el paquete %s.\n"
 
-#: spvw.d:1581
+#
+# "el módulo `%s' necesita el paquete %s.\n"
+#
+# Me parece más natural en español, aunque gramaticalmente no estaba
+# mal. - lsg
+#
+# Pues si, tienes toda la razón del mundo - cll
+#
+#: spvw.d:1552
+#, fuzzy
+msgid "module '%s' redefines symbol "
+msgstr "el módulo `%s' necesita el paquete %s.\n"
+
+#: spvw.d:1554
+#, fuzzy
+msgid " in the locked package "
+msgstr "un paquete borrado."
+
+# Sugerencia: definición de macro. sv
+#
+# Hmmm, ..., lo de macro definición es bastante típico en informática
+# (ya sabes, ...) Sin embargo, en Lisp se suele decir definición de
+# macro, tal y como tú propones, ..., pues vale, ¡sugerencia
+# completamente aceptada! cll
+#
+#: spvw.d:1556
+#, fuzzy
+msgid ""
+"\n"
+"old definition: "
+msgstr " con definición de macro"
+
+#: spvw.d:1593
 msgid "is an ANSI Common Lisp."
 msgstr ""
 
-#: spvw.d:1583
+#: spvw.d:1595
 msgid "Usage:  "
 msgstr ""
 
-#: spvw.d:1585
+#: spvw.d:1597
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
@@ -411,146 +449,146 @@ msgid ""
 " read-eval-print loop is entered.\n"
 msgstr ""
 
-#: spvw.d:1589
+#: spvw.d:1601
 msgid "Informative output:\n"
 msgstr ""
 
-#: spvw.d:1590
+#: spvw.d:1602
 msgid " -h, --help    - print this help and exit\n"
 msgstr ""
 
-#: spvw.d:1591
+#: spvw.d:1603
 msgid " --version     - print the version information\n"
 msgstr ""
 
-#: spvw.d:1592
+#: spvw.d:1604
 msgid " --license     - print the licensing information\n"
 msgstr ""
 
-#: spvw.d:1593
+#: spvw.d:1605
 msgid "Memory image selection:\n"
 msgstr ""
 
-#: spvw.d:1594
+#: spvw.d:1606
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr ""
 
-#: spvw.d:1596
+#: spvw.d:1608
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr ""
 
-#: spvw.d:1598
+#: spvw.d:1610
 msgid " -M memfile    - use this memory image\n"
 msgstr ""
 
-#: spvw.d:1599
+#: spvw.d:1611
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-#: spvw.d:1601
+#: spvw.d:1613
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr ""
 
-#: spvw.d:1603
+#: spvw.d:1615
 msgid "Internationalization:\n"
 msgstr ""
 
-#: spvw.d:1604
+#: spvw.d:1616
 msgid " -L language   - set user language\n"
 msgstr ""
 
-#: spvw.d:1605
+#: spvw.d:1617
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr ""
 
-#: spvw.d:1606
+#: spvw.d:1618
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 
-#: spvw.d:1607
+#: spvw.d:1619
 msgid "Interoperability:\n"
 msgstr ""
 
-#: spvw.d:1608
+#: spvw.d:1620
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 msgstr ""
 
-#: spvw.d:1611
+#: spvw.d:1623
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr ""
 
-#: spvw.d:1612
+#: spvw.d:1624
 msgid " -I            - be ILISP-friendly\n"
 msgstr ""
 
-#: spvw.d:1613
+#: spvw.d:1625
 msgid "Startup actions:\n"
 msgstr ""
 
-#: spvw.d:1614
+#: spvw.d:1626
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr ""
 
-#: spvw.d:1615
+#: spvw.d:1627
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr ""
 
-#: spvw.d:1616
+#: spvw.d:1628
 msgid " -modern       - start in a case-sensitive lowercase-preferring package\n"
 msgstr ""
 
-#: spvw.d:1617
+#: spvw.d:1629
 msgid " -p package    - start in the package\n"
 msgstr ""
 
-#: spvw.d:1618
+#: spvw.d:1630
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr ""
 
-#: spvw.d:1619
+#: spvw.d:1631
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr ""
 
-#: spvw.d:1620
+#: spvw.d:1632
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr ""
 
-#: spvw.d:1621
+#: spvw.d:1633
 msgid "Actions:\n"
 msgstr ""
 
-#: spvw.d:1622
+#: spvw.d:1634
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr ""
 
-#: spvw.d:1623
+#: spvw.d:1635
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr ""
 
-#: spvw.d:1624
+#: spvw.d:1636
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr ""
 
-#: spvw.d:1625
+#: spvw.d:1637
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr ""
 
-#: spvw.d:1626
-msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
+#: spvw.d:1638
+msgid " -on-error action - action can be one of debug, exit, abort, appease\n"
 msgstr ""
 
-#: spvw.d:1627
-msgid " -repl              - enter the interactive read-eval-print loop when done\n"
+#: spvw.d:1639
+msgid " -repl            - enter the interactive read-eval-print loop when done\n"
 msgstr ""
 
-#: spvw.d:1628
+#: spvw.d:1640
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr ""
 
-#: spvw.d:1637
+#: spvw.d:1649
 msgid "%s: use '-h' for help"
 msgstr ""
 
@@ -567,12 +605,12 @@ msgstr ""
 #
 # A propósito del trozo de "1984", venga, ya estoy esperando :) - cll
 #
-#: spvw.d:1640
+#: spvw.d:1652
 #, fuzzy
 msgid "invalid argument"
 msgstr "Argumento inválido"
 
-#: spvw.d:2016
+#: spvw.d:2054
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB"
 
@@ -587,32 +625,32 @@ msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB"
 #
 # ¿No te mola más? - cll
 #
-#: spvw.d:2021
+#: spvw.d:2059
 msgid "%s out of range"
 msgstr "%s se ha salido del rango"
 
-#: spvw.d:2026
+#: spvw.d:2064
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:2042
+#: spvw.d:2080
 msgid "memory size"
 msgstr "tamaño de memoria"
 
-#: spvw.d:2058
+#: spvw.d:2096
 msgid "multiple -t"
 msgstr ""
 
-#: spvw.d:2078
+#: spvw.d:2116
 msgid "multiple -B"
 msgstr ""
 
-#: spvw.d:2113
+#: spvw.d:2151
 #, fuzzy
 msgid "-E requires an argument"
 msgstr "~S argumentos obligatorios"
 
-#: spvw.d:2353
+#: spvw.d:2413
 msgid "-l without -c is invalid"
 msgstr ""
 
@@ -624,16 +662,16 @@ msgstr ""
 #
 # ¿os gusta o lo encontrais raro?
 #
-#: spvw.d:2359
+#: spvw.d:2419
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S no es posible sobre el flujo ~S"
 
-#: spvw.d:2364
+#: spvw.d:2424
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2485
+#: spvw.d:2545
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución del código de tipo."
@@ -643,7 +681,7 @@ msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución
 #
 # aMadre mía!! Tienes toda la razón del mundo - cll :)
 #
-#: spvw.d:2492
+#: spvw.d:2552
 msgid "Only %d bytes available."
 msgstr "Sólo quedan %d bytes disponibles."
 
@@ -651,11 +689,11 @@ msgstr "Sólo quedan %d bytes disponibles."
 # viene decir "SP stack"? ¿Se referirán con ello a la pila del sistema?
 # - cll
 #
-#: spvw.d:2732
+#: spvw.d:2802
 msgid "Could not determine the end of the SP stack!"
 msgstr "No fue posible determinar el final de la pila SP!"
 
-#: spvw.d:3291
+#: spvw.d:3330
 #, fuzzy
 msgid "%s: Not enough memory for Lisp."
 msgstr "No hay memoria suficiente para Lisp."
@@ -872,7 +910,7 @@ msgstr "No se puede subsanar SIGSEGV. Dirección de fallo = 0x%x."
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
 msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. a¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!"
 
-#: spvw_garcol.d:1975
+#: spvw_garcol.d:1983
 #, fuzzy
 msgid "munmap() failed."
 msgstr "munmap() falló."
@@ -904,7 +942,7 @@ msgstr "Intentando obtener más espacio a través de un GC ..."
 #
 # - cll
 #
-#: spvw_memfile.d:816 spvw_memfile.d:1562
+#: spvw_memfile.d:816 spvw_memfile.d:1566
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
@@ -914,21 +952,21 @@ msgstr "error del sistema operativo durante la carga del fichero de inicializaci
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
 
-#: spvw_memfile.d:1567
+#: spvw_memfile.d:1571
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP"
 
-#: spvw_memfile.d:1571
+#: spvw_memfile.d:1575
 #, fuzzy
 msgid "%s: not enough memory for initialization"
 msgstr "no hay memoria suficiente para la inicialización"
 
-#: errunix.d:56
+#: errunix.d:58
 msgid "Invalid multibyte or wide character"
 msgstr ""
 
-#: errunix.d:63
+#: errunix.d:65
 msgid "Operation not permitted"
 msgstr "Operación no permitida"
 
@@ -941,15 +979,15 @@ msgstr "Operación no permitida"
 # que, tal y como tu mismo apuntas, Leo, se debe decir "fichero" y no
 # "archivo" - cll
 #
-#: errunix.d:69
+#: errunix.d:71
 msgid "No such file or directory"
 msgstr "No existe ese fichero o directorio"
 
-#: errunix.d:75
+#: errunix.d:77
 msgid "No such process"
 msgstr "No existe tal proceso"
 
-#: errunix.d:81
+#: errunix.d:83
 msgid "Interrupted system call"
 msgstr "Llamada al sistema interrumpida"
 
@@ -958,26 +996,26 @@ msgstr "Llamada al sistema interrumpida"
 # Vaya, tu sugerencia es tan informática que me impresiona que se me
 # haya escapado. cll
 #
-#: errunix.d:87
+#: errunix.d:89
 msgid "I/O error"
 msgstr "Error de E/S"
 
 # La traducción de este mensaje ha sido tomada de libc-1.98.es.po
 # (traducción realizada por Enrique Melero).
 #
-#: errunix.d:93
+#: errunix.d:95
 msgid "No such device or address"
 msgstr "Dispositivo no configurado"
 
-#: errunix.d:99
+#: errunix.d:101
 msgid "Arg list too long"
 msgstr "Lista de argumentos demasiado larga"
 
-#: errunix.d:105
+#: errunix.d:107
 msgid "Exec format error"
 msgstr "Formato de programa no ejecutable"
 
-#: errunix.d:111
+#: errunix.d:113
 msgid "Bad file number"
 msgstr "Número de fichero incorrecto"
 
@@ -988,23 +1026,23 @@ msgstr "Número de fichero incorrecto"
 # una traducción ya aceptada y que además, resulta de mezclar lo que yo
 # he puesto y de tu sugerencia. cll
 #
-#: errunix.d:117
+#: errunix.d:119
 msgid "No child processes"
 msgstr "Ningún proceso hijo"
 
-#: errunix.d:123
+#: errunix.d:125
 msgid "No more processes"
 msgstr "No hay más procesos"
 
-#: errunix.d:129
+#: errunix.d:131
 msgid "Not enough memory"
 msgstr "No hay memoria suficiente"
 
-#: errunix.d:135
+#: errunix.d:137
 msgid "Permission denied"
 msgstr "Permiso denegado"
 
-#: errunix.d:141
+#: errunix.d:143
 msgid "Bad address"
 msgstr "Dirección incorrecta"
 
@@ -1012,31 +1050,31 @@ msgstr "Dirección incorrecta"
 # Antes decía "Dispositivo de bloque requerido".
 # Por cierto, en otros sitios hemos puesto "dispositivo de bloques".
 # ¿cómo es? sv
-#: errunix.d:147
+#: errunix.d:149
 msgid "Block device required"
 msgstr "Se requiere un dispositivo de bloque"
 
-#: errunix.d:153
+#: errunix.d:155
 msgid "Device busy"
 msgstr "Dispositivo ocupado"
 
-#: errunix.d:159
+#: errunix.d:161
 msgid "File exists"
 msgstr "El fichero ya existe"
 
-#: errunix.d:165
+#: errunix.d:167
 msgid "Cross-device link"
 msgstr "Enlace cruzado entre dispositivos"
 
-#: errunix.d:171
+#: errunix.d:173
 msgid "No such device"
 msgstr "No existe tal dispositivo"
 
-#: errunix.d:177
+#: errunix.d:179
 msgid "Not a directory"
 msgstr "No es un directorio"
 
-#: errunix.d:183
+#: errunix.d:185
 msgid "Is a directory"
 msgstr "Es un directorio"
 
@@ -1053,51 +1091,51 @@ msgstr "Es un directorio"
 #
 # A propósito del trozo de "1984", venga, ya estoy esperando :) - cll
 #
-#: errunix.d:189
+#: errunix.d:191
 msgid "Invalid argument"
 msgstr "Argumento inválido"
 
-#: errunix.d:195
+#: errunix.d:197
 msgid "File table overflow"
 msgstr "Desbordamiento de la tabla de ficheros"
 
-#: errunix.d:201
+#: errunix.d:203
 msgid "Too many open files"
 msgstr "Demasiados ficheros abiertos"
 
-#: errunix.d:207
+#: errunix.d:209
 msgid "Inappropriate ioctl for device"
 msgstr "El dispositivo no acepta la llamada `ioctl'"
 
-#: errunix.d:213
+#: errunix.d:215
 msgid "Text file busy"
 msgstr "Fichero de texto en uso"
 
-#: errunix.d:219
+#: errunix.d:221
 msgid "File too large"
 msgstr "Fichero demasiado grande"
 
-#: errunix.d:225
+#: errunix.d:227
 msgid "No space left on device"
 msgstr "No queda espacio en el dispositivo"
 
-#: errunix.d:231
+#: errunix.d:233
 msgid "Illegal seek"
 msgstr "Desplazamiento inválido"
 
-#: errunix.d:237
+#: errunix.d:239
 msgid "Read-only file system"
 msgstr "Sistema de ficheros de sólo lectura"
 
-#: errunix.d:243
+#: errunix.d:245
 msgid "Too many links"
 msgstr "Demasiados enlaces"
 
-#: errunix.d:249
+#: errunix.d:251
 msgid "Broken pipe, child process terminated or socket closed"
 msgstr ""
 
-#: errunix.d:259
+#: errunix.d:261
 msgid "Argument out of domain"
 msgstr "Argumento fuera del dominio"
 
@@ -1107,21 +1145,21 @@ msgstr "Argumento fuera del dominio"
 # Si, ya he cambiado `largo' por `grande' en todos los mensajes. Un
 # fallo realmente infantil :( - cll
 #
-#: errunix.d:265
+#: errunix.d:267
 msgid "Result too large"
 msgstr "El resultado es demasiado grande"
 
 # La traducción de este mensaje ha sido tomada de libc-1.98.es.po
 # (traducción realizada por Enrique Melero).
 #
-#: errunix.d:272
+#: errunix.d:274
 msgid "Operation would block"
 msgstr "La operación se bloquearía"
 
 # La traducción de este mensaje ha sido tomada de libc-1.98.es.po
 # (traducción realizada por Enrique Melero).
 #
-#: errunix.d:278
+#: errunix.d:280
 msgid "Operation now in progress"
 msgstr "Operación en curso"
 
@@ -1132,29 +1170,29 @@ msgstr "Operación en curso"
 # me he encontrado con el mismo mensaje y el dice: "La operación ya se
 # está llevando a cabo". Me gusta bastante. cll
 #
-#: errunix.d:284
+#: errunix.d:286
 msgid "Operation already in progress"
 msgstr "La operación ya se está llevando a cabo"
 
 # La traducción de este mensaje ha sido tomada de libc-1.98.es.po
 # (traducción realizada por Enrique Melero).
 #
-#: errunix.d:291
+#: errunix.d:293
 msgid "Too many levels of symbolic links"
 msgstr "Demasiados niveles de enlaces simbólicos"
 
-#: errunix.d:297
+#: errunix.d:299
 msgid "File name too long"
 msgstr "Nombre de fichero demasiado largo"
 
-#: errunix.d:303
+#: errunix.d:305
 msgid "Directory not empty"
 msgstr "El directorio no está vacío"
 
 # La traducción de este mensaje ha sido tomada de libc-1.98.es.po
 # (traducción realizada por Enrique Melero).
 #
-#: errunix.d:310
+#: errunix.d:312
 msgid "Stale NFS file handle"
 msgstr "Fichero NFS bloqueado"
 
@@ -1165,59 +1203,59 @@ msgstr "Fichero NFS bloqueado"
 # (3ra edición) de Winston y Horn en el "Vocabulario bilingüe de
 # términos técnicos", en la página 650.
 #
-#: errunix.d:316
+#: errunix.d:318
 msgid "Too many levels of remote in path"
 msgstr "Demasiados niveles de profundidad en la trayectoria"
 
-#: errunix.d:323
+#: errunix.d:325
 msgid "Socket operation on non-socket"
 msgstr "Operación de `sockets' sobre un \"no-socket\""
 
-#: errunix.d:329
+#: errunix.d:331
 msgid "Destination address required"
 msgstr "Se necesita la dirección del destino"
 
-#: errunix.d:335
+#: errunix.d:337
 msgid "Message too long"
 msgstr "Mensaje demasiado largo"
 
-#: errunix.d:341
+#: errunix.d:343
 msgid "Protocol wrong type for socket"
 msgstr "Tipo de protocolo incorrecto para el `socket'"
 
-#: errunix.d:347
+#: errunix.d:349
 msgid "Option not supported by protocol"
 msgstr "Opción no soportada por el protocolo"
 
-#: errunix.d:353
+#: errunix.d:355
 msgid "Protocol not supported"
 msgstr "Protocolo no soportado"
 
-#: errunix.d:359
+#: errunix.d:361
 msgid "Socket type not supported"
 msgstr "Tipo de `socket' no soportado"
 
 # Pongo `socket' en vez de socket. sv
-#: errunix.d:365
+#: errunix.d:367
 msgid "Operation not supported on socket"
 msgstr "Acción no permitida en un `socket'"
 
-#: errunix.d:371
+#: errunix.d:373
 msgid "Protocol family not supported"
 msgstr "Familia de protocolos no soportada"
 
-#: errunix.d:377
+#: errunix.d:379
 msgid "Address family not supported by protocol family"
 msgstr "Familia de direcciones no soportada por el protocolo"
 
-#: errunix.d:383
+#: errunix.d:385
 msgid "Address already in use"
 msgstr "Dirección en uso"
 
 # Sugerencia: No se puede asignar. sv
 #
 # ¡Vale!, "No puede asignarse ..." es demasiado, ..., ¿impersonal? cll
-#: errunix.d:389
+#: errunix.d:391
 msgid "Cannot assign requested address"
 msgstr "No se puede asignar la dirección requerida"
 
@@ -1225,15 +1263,15 @@ msgstr "No se puede asignar la dirección requerida"
 #
 # ¡Sí, señor! así es, de hecho, como debe decirse, ... cll
 #
-#: errunix.d:395
+#: errunix.d:397
 msgid "Network is down"
 msgstr "La red no está operativa"
 
-#: errunix.d:401
+#: errunix.d:403
 msgid "Network is unreachable"
 msgstr "No es posible conectarse con la red"
 
-#: errunix.d:407
+#: errunix.d:409
 msgid "Network dropped connection on reset"
 msgstr "Se ha perdido la conexión con la red debido a una reinicialización"
 
@@ -1246,11 +1284,11 @@ msgstr "Se ha perdido la conexión con la red debido a una reinicialización"
 #
 # Vale, si, me gusta a saco - cll
 #
-#: errunix.d:413
+#: errunix.d:415
 msgid "Software caused connection abort"
 msgstr "El software ha provocado la interrupción de la conexión"
 
-#: errunix.d:419
+#: errunix.d:421
 msgid "Connection reset by peer"
 msgstr "Conexión reinicializada por el otro extremo"
 
@@ -1271,7 +1309,7 @@ msgstr "Conexión reinicializada por el otro extremo"
 #
 # pues he utilizado `buffer' tal cual, ... - cll
 #
-#: errunix.d:425
+#: errunix.d:427
 msgid "No buffer space available"
 msgstr "No queda espacio en el buffer"
 
@@ -1280,31 +1318,31 @@ msgstr "No queda espacio en el buffer"
 # Te digo lo mismo que te dije antes. Cuando hay finalizado con la
 # traducción me pondré a cambiar todas estas cosas con macros. cll
 #
-#: errunix.d:431
+#: errunix.d:433
 msgid "Socket is already connected"
 msgstr "El `socket' ya está conectado"
 
-#: errunix.d:437
+#: errunix.d:439
 msgid "Socket is not connected"
 msgstr "El `socket' no está conectado"
 
 # Añado comitas a `socket'. Es una especie de convenio que seguimos
 # cuando no nos queda más remedio que poner la palabra inglesa.
 # Así al menos reconocemos que es una palabra extraña. sv
-#: errunix.d:443
+#: errunix.d:445
 msgid "Cannot send after socket shutdown"
 msgstr "No se puede enviar después de la ruptura del `socket'"
 
-#: errunix.d:449
+#: errunix.d:451
 msgid "Too many references: cannot splice"
 msgstr ""
 
 # Duda: ¿ Se excedió el tiempo para la conexión ?
-#: errunix.d:455
+#: errunix.d:457
 msgid "Connection timed out"
 msgstr "Se excedió el tiempo para la conexión"
 
-#: errunix.d:461
+#: errunix.d:463
 msgid "Connection refused"
 msgstr "Conexión rechazada"
 
@@ -1317,7 +1355,7 @@ msgstr "Conexión rechazada"
 #
 # Vale, si, me gusta a saco - cll
 #
-#: errunix.d:466
+#: errunix.d:468
 #, fuzzy
 msgid "Remote peer released connection"
 msgstr "El software ha provocado la interrupción de la conexión"
@@ -1342,13 +1380,13 @@ msgstr "El software ha provocado la interrupción de la conexión"
 # caso, todo el mundo comprende perfectamente que el `host' es un
 # servidor. cll
 #
-#: errunix.d:471
+#: errunix.d:473
 msgid "Host is down"
 msgstr "El servidor no está disponible"
 
 # Aquí, pues idem de idem, ... :) cll
 #
-#: errunix.d:477
+#: errunix.d:479
 msgid "Host is unreachable"
 msgstr "No se puede conectar con el servidor"
 
@@ -1356,53 +1394,53 @@ msgstr "No se puede conectar con el servidor"
 #
 # ¡Sí, señor! así es, de hecho, como debe decirse, ... cll
 #
-#: errunix.d:482
+#: errunix.d:484
 #, fuzzy
 msgid "Networking error"
 msgstr "La red no está operativa"
 
-#: errunix.d:488
+#: errunix.d:490
 msgid "Too many processes"
 msgstr "Demasiados procesos"
 
-#: errunix.d:494
+#: errunix.d:496
 msgid "Too many users"
 msgstr "Demasiados usuarios"
 
-#: errunix.d:500
+#: errunix.d:502
 msgid "Disk quota exceeded"
 msgstr "Cuota de disco excedida"
 
-#: errunix.d:507
+#: errunix.d:509
 msgid "Not a stream device"
 msgstr "No es un dispositivo de flujo"
 
-#: errunix.d:513
+#: errunix.d:515
 msgid "Timer expired"
 msgstr "El temporizador expiró"
 
 # La traducción de este mensaje ha sido tomada de libc-1.98.es.po
 # (traducción realizada por Enrique Melero).
 #
-#: errunix.d:519
+#: errunix.d:521
 msgid "Out of stream resources"
 msgstr "Alcanzado el límite de recursos de `streams'"
 
-#: errunix.d:525
+#: errunix.d:527
 msgid "No message of desired type"
 msgstr "No hay mensajes del tipo deseado"
 
-#: errunix.d:531
+#: errunix.d:533
 msgid "Not a data message"
 msgstr "No es un mensaje de datos"
 
-#: errunix.d:538
+#: errunix.d:540
 msgid "Identifier removed"
 msgstr "Identificador desechado"
 
 # Duda: Eso del `inter-bloqueo' ¿estará bien?
 #
-#: errunix.d:545
+#: errunix.d:547
 msgid "Resource deadlock would occur"
 msgstr "Podría ocurrir un interbloqueo entre recursos"
 
@@ -1412,55 +1450,55 @@ msgstr "Podría ocurrir un interbloqueo entre recursos"
 # en su respuesta a mi mail y he puesto, simplemente: "No quedan
 # registros de bloqueo disponibles"
 #
-#: errunix.d:551
+#: errunix.d:553
 msgid "No record locks available"
 msgstr "No quedan registros de bloqueo disponibles"
 
-#: errunix.d:558
+#: errunix.d:560
 msgid "Machine is not on the network"
 msgstr "La máquina no está en la red"
 
-#: errunix.d:564 errunix.d:570
+#: errunix.d:566 errunix.d:572
 msgid "Object is remote"
 msgstr "El objeto es remoto"
 
-#: errunix.d:576
+#: errunix.d:578
 msgid "Link has been severed"
 msgstr "El enlace ha sido destruído"
 
-#: errunix.d:582
+#: errunix.d:584
 msgid "Advertise error"
 msgstr "Error de anuncio"
 
 # La traducción de este mensaje ha sido tomada de libc-1.98.es.po
 # (traducción realizada por Enrique Melero).
 #
-#: errunix.d:588
+#: errunix.d:590
 msgid "Srmount error"
 msgstr "Error de `srmount'"
 
-#: errunix.d:594
+#: errunix.d:596
 msgid "Communication error on send"
 msgstr "Error de comunicaciones en el envío"
 
-#: errunix.d:600
+#: errunix.d:602
 msgid "Protocol error"
 msgstr "Error de protocolo"
 
 # La traducción de este mensaje ha sido tomada de libc-1.98.es.po
 # (traducción realizada por Enrique Melero).
 #
-#: errunix.d:606
+#: errunix.d:608
 msgid "Multihop attempted"
 msgstr "Se ha intentado un multihop"
 
 # La traducción de este mensaje ha sido tomada de libc-1.98.es.po
 # (traducción realizada por Enrique Melero).
 #
-#: errunix.d:618
+#: errunix.d:620
 msgid "Remote address changed"
 msgstr "La dirección remota ha cambiado"
 
-#: errunix.d:625
+#: errunix.d:627
 msgid "Function not implemented"
 msgstr "Función no implementada"
