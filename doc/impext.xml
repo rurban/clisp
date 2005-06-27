@@ -231,10 +231,11 @@ English, German, French, Spanish, Dutch and Russian.
  <varlistentry><term><link linkend="charset">character set</link></term>
   <listitem><simpara>This denotes both the set of characters that
     can be represented and passed through the I/O channel, and the way
-    these characters translate into raw bytes.  In this context, for
-    example, "UTF-8" and "UCS-4" are considered different, although they
-    can represent the same set of characters.
- </simpara></listitem></varlistentry>
+    these characters translate into raw bytes.
+    In this context, for example, &utf-8; and
+    <link linkend="charset-UCS-4"><constant>CHARSET:UCS-4</constant></link>
+    are considered different, although they can represent the same set
+    of characters.</simpara></listitem></varlistentry>
  <varlistentry><term>&line-term; mode</term>
   <listitem><simpara>This denotes the way newline characters are
     represented.</simpara></listitem></varlistentry>
@@ -2759,9 +2760,8 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
     &start-r; &end-r;) &body-amp; &body-r;)</code></term>
  <listitem><simpara>This forms converts a Lisp &string-r; according to
    the &encoding-r;, allocating space on the &c-lang; execution stack.
-   &encoding-r; can be any &encoding;, e.g.
-   <link linkend="charset-UTF-16"><constant>CHARSET:UTF-16</constant></link>
-   or &utf-8;, whereas &foreign-enc; must be an &ascii;-compatible encoding.
+   &encoding-r; can be any &encoding;, e.g. &utf-16; or &utf-8;,
+   whereas &foreign-enc; must be an &ascii;-compatible encoding.
    </simpara>
   <simpara>&body-r; is then executed with the three variables &f-addr;,
    <replaceable>char-count</replaceable> and
@@ -2773,8 +2773,7 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
    &c-lang; stack.</simpara>
   <simpara>When <replaceable>null-terminated-p</replaceable> is true,
    which is the default, a variable number of zero bytes is appended,
-   depending on the encoding, e.g. 2 for
-   <link linkend="charset-UTF-16"><constant>CHARSET:UTF-16</constant></link>,
+   depending on the encoding, e.g. 2 for &utf-16;,
    and accounted for in <replaceable>byte-count</replaceable>,
    and <replaceable>char-count</replaceable> is incremented by one.</simpara>
   <simpara>The &foreign-address-t; object bound to &f-addr; is
@@ -3072,18 +3071,19 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
  <literal role="type">(&c-array; &character-t; <replaceable>dim&sub-1;</replaceable>)</literal>,
  <literal role="type">(&c-array-max; &character-t; &maxdim-r;)</literal>,
  <literal role="type">(&c-array-ptr; &character-t;)</literal>
- are governed by &foreign-enc; and dimensions are given in bytes.
+ is governed by &foreign-enc; and dimensions are given
+ in <emphasis>bytes</emphasis>.
  The conversion of &character-t;, and as such of
  <literal role="type">(&c-ptr; &character-t;)</literal>, or
  <literal role="type">(&c-ptr-null; &character-t;)</literal>, as well as
- that of not 1-dimensional arrays <literal role="type">(&c-array; &character-t;
+ that of multi-dimensional arrays <literal role="type">(&c-array; &character-t;
  (<replaceable>dim&sub-1;</replaceable> ... <replaceable>dim&sub-n;</replaceable>))</literal>,
  are governed by &foreign-enc; if the latter is a 1:1 encoding, or by the
  &ascii; encoding otherwise.</para>
 <!-- #endif -->
-<para>
- Remember that the type <type>char</type> is a numeric type and does
- not use character encodings.</para>
+<note><para>Remember that the &c-lang; type <type>char</type> is
+  a <emphasis>numeric</emphasis> type and does not use &character-t;
+  &encoding;s.</para></note>
 
 </section>
 

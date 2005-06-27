@@ -369,6 +369,7 @@
 <!ENTITY uncompile "<link linkend='uncompile'><function>EXT:UNCOMPILE</function></link>">
 <!ENTITY user-commands "<link linkend='user-commands'><varname>CUSTOM:*USER-COMMANDS*</varname></link>">
 <!ENTITY utf-8 "<link linkend='charset-UTF-8'><constant>CHARSET:UTF-8</constant></link>">
+<!ENTITY utf-16 "<link linkend='charset-UTF-16'><constant>CHARSET:UTF-16</constant></link>">
 <!ENTITY warn-fpc "<link linkend='warn-fpc'><varname>CUSTOM:*WARN-ON-FLOATING-POINT-CONTAGION*</varname></link>">
 <!ENTITY warn-fprc "<link linkend='warn-fprc'><varname>CUSTOM:*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION*</varname></link>">
 <!ENTITY wdkey-open "<link linkend='with-dir-key-open'><function>LDAP:WITH-DIR-KEY-OPEN</function></link>">
