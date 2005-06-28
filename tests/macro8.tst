@@ -960,6 +960,15 @@ NIL
 (funcall (compile nil (lambda () (cond (t)) nil)))
 NIL
 
+(let (x)
+  (defun circularity-in-code () '(one two three . #1=(many . #1#)))
+  (setq x (circularity-in-code))
+  (subseq x 0 7))
+(ONE TWO THREE MANY MANY MANY MANY)
+
 ; Clean up.
-(unintern 'x)
+(progn
+  (fmakunbound 'circularity-in-code)
+  (unintern 'circularity-in-code)
+  (unintern 'x))
 T

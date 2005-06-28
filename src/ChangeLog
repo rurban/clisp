@@ -1,3 +1,10 @@
+2005-06-28  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (%return-p): quoted constants cannot contain
+	RETURN-FROM forms (this fixes a bug whereby quoted circular list
+	hang the evaluator)
+	Reported by Devon Sean McCullough <Lisp-Hacker@Jovi.Net>
+
 2005-06-26  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-OR): handle empty codelist
