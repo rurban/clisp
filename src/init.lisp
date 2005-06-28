@@ -1290,6 +1290,7 @@
       (let ((form (car body)))
         (if ; determine, if form contains a (RETURN-FROM name ...) :
          (and (consp form)
+              (not (eq (first form) 'quote))
               (or (and (eq (first form) 'return-from) ; (RETURN-FROM name ...)
                        (eq (second form) name))
                   (and (consp (first form))           ; lambda-list
