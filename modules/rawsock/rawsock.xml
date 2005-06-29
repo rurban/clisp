@@ -11,7 +11,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <warning id="rawsock-use-sockets"><title>Use &socket-stream; instead!</title>
  <simpara>This interface is very low-level, and you probably do not need
  it - unless you are doing something <emphasis>very</emphasis> unusual.
- If you are interested in TCP/IP (Internet) sockets, you should use
+ If you are interested in TCP/IP (Internet) stream sockets, you should use
  &socket-stream;s, &not-e; this package.</simpara></warning>
 
 <warning id="rawsock-not-streams"><title>Do &not-e; use &make-stream;!</title>
@@ -21,7 +21,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=7203955"
          >mailing list archives</ulink> for more details.
   Note that &make-stream; will duplicate the &file-des; (using &dup;),
-  so you <emphasis>still</emphasis> have to &close; the raw socket.
+  so you <emphasis>still</emphasis> have to &close; the original raw socket.
 </simpara></warning>
 
 <para>We implement access to
@@ -32,7 +32,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   <member>&ntohl;</member><member>&ntohs;</member><member>&listen-c;</member>
   <member>&recv;</member><member>&recvfrom;</member><member>&recvmsg;</member>
   <member>&send;</member><member>&sendmsg;</member><member>&sendto;</member>
-  <member>&socket;</member><member>&sockatmark;</member>
+  <member>&shutdown;</member><member>&socket;</member><member>&sockatmark;</member>
   <member>&socketpair;</member></simplelist>
  using same-named lisp functions in package
  <quote role="package">RAWSOCK</quote>.
@@ -55,8 +55,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <para>We do not interface to &select; or &poll;,
  they are available through &so-status;.</para>
 
-<para>We do not interface to &shutdown;,
- it are available through &sost-shut;.</para>
+<para>Although we do interface to &shutdown; at this time,
+ in the future it will be available through &sost-shut;.</para>
 
 <para>We do not interface to &gethostbyname; or &gethostbyaddr;,
  they are available through &resolve-host;.</para>
