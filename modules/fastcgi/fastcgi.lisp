@@ -64,8 +64,14 @@
 ; WRITE-STDOUT
 (defun write-stdout (data)
   "(FASTCGI::WRITE-STDOUT string) - Write a string to standard output"
-  (let ((s (to-string data)))
-    (fcgi_write_stdout s (length s))))
+  ;; Do it in chunks since there seems to be FFI problems with large buffers
+  (do* ((chunksize 65536)
+		(s (to-string data))
+		(totlen (length s)))
+	   ((= 0 (length s)) totlen)
+	   (let ((to-write (min (length s) chunksize)))
+		 (fcgi_write_stdout (subseq s 0 to-write) to-write)
+		 (setf s (subseq s to-write)))))
 
 ; WRITE-STDERR
 (defun write-stderr (data)
