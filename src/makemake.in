@@ -2801,13 +2801,16 @@ fi
 
 for f in libcharset; do
   if [ ${LIB_TYPE} = "unix" ] ; then
-    echol "libcharset.h libcharset.a :"
+    echol "libcharset.h libcharset.a localcharset.h :"
     echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
     echol
   fi
   if [ ${LIB_TYPE} = "win32" ] ; then
     echol "libcharset.h : ${SRCTOPDIR_M}$f${NEXT_M}include${NEXT_M}libcharset.h"
     echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}libcharset.h libcharset.h"
+    echol
+    echol "localcharset.h : ${SRCTOPDIR_M}$f${NEXT_M}include${NEXT_M}localcharset.h"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}localcharset.h localcharset.h"
     echol
     echol "charset.lib : ${SRCTOPDIR_M}$f${NEXT_M}lib${NEXT_M}charset.lib"
     echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}lib${NEXT_}charset.lib charset.lib"
