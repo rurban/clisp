@@ -18,7 +18,7 @@
       extern int sys_nerr; # Number of OS error messages
       extern char* sys_errlist[]; # Table of OS error messages
     #endif
-    local const char* strerror (int errnum);
+    local const char* strerror (int errnum)
     {
       # Attention: There is no guarantee that all system error values are
       # less than sys_nerr. On IRIX 5.2, EDQUOT >= sys_nerr.
