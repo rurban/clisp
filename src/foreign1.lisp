@@ -74,7 +74,7 @@
                  ;     (or (alphanumericp ch) (eql ch #\_)) ; don't allow #\$
                  ;)
                   (or (char<= #\A c #\Z) (char<= #\a c #\z) (char<= #\0 c #\9)
-                      (char= #\_ c)
+                      (char= #\_ c) (char= #\@ c)
                 ) )
               name
        )
