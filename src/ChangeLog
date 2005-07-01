@@ -1,3 +1,8 @@
+2005-07-01  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: copy localcharset.h to the build directory on msvc too
+	Reported by Jörg Höhle <hoehle@users.sourceforge.net>
+
 2005-07-01  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign1.lisp (c-ident-p): accept @ in foreign names,
