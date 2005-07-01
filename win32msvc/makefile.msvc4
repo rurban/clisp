@@ -244,6 +244,7 @@ spvw_walk.d \
 spvw_ctype.d \
 spvw_language.d \
 spvw_memfile.d \
+errunix.d \
 errwin32.d \
 aridecl.d \
 arilev0.d \
@@ -359,6 +360,7 @@ spvw_walk.c \
 spvw_ctype.c \
 spvw_language.c \
 spvw_memfile.c \
+errunix.c \
 errwin32.c \
 aridecl.c \
 arilev0.c \
@@ -395,7 +397,8 @@ genclisph.c \
 modules.c \
 noreadline.c \
 ari80386.c \
-sp80386.c
+sp80386.c \
+gen.lispbibl.c
 
 OBJECTS = \
 spvw.obj \
@@ -860,31 +863,32 @@ floatparam.h : floatparam.c unixconf.h
 
 ../utils/gcc-cccp/cccp.exe :
 
+UTILCC=$(CC)
 comment5.exe : ..\utils\comment5.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\comment5.c /Fecomment5.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\comment5.c /Fecomment5.exe
 
 gctrigger.exe : ..\utils\gctrigger.d comment5.exe
 	$(COMMENT5) ..\utils\gctrigger.d > gctrigger.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) gctrigger.c /Fegctrigger.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) gctrigger.c /Fegctrigger.exe
 	$(RM) gctrigger.c
 
 varbrace.exe : ..\utils\varbrace.d comment5.exe
 	$(COMMENT5) ..\utils\varbrace.d > varbrace.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) varbrace.c /Fevarbrace.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) varbrace.c /Fevarbrace.exe
 	$(RM) varbrace.c
 
 txt2c.exe : ..\utils\txt2c.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\txt2c.c /Fetxt2c.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\txt2c.c /Fetxt2c.exe
 
 ccmp2c.exe : ..\utils\ccmp2c.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\ccmp2c.c /Feccmp2c.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\ccmp2c.c /Feccmp2c.exe
 
 
 stdbool.h : stdbool.h.in
 	sed -e s/@HAVE__BOOL@/0/g < stdbool.h.in > stdbool.h
 
-stdint.h : stdint.h.in
-	sed -e s/@HAVE_LONG_64BIT@/0/g -e s/@HAVE_LONGLONG_64BIT@/0/g < stdint.h.in > stdint.h
+stdint.h : stdint_.h
+	sed -e s/@HAVE_LONG_64BIT@/0/g -e s/@HAVE_LONG_LONG_64BIT@/0/g < stdint_.h > stdint.h
 
 allc : init $(CFILES)
 
@@ -979,7 +983,7 @@ built.c : built.d comment5.exe gctrigger.exe varbrace.exe
 	$(COMMENT5) built.d | $(GCTRIGGER) | $(VARBRACE) > built.c
 
 lispbibl.c : lispbibl.d comment5.exe gctrigger.exe varbrace.exe
-	$(COMMENT5) lispbibl.d | $(GCTRIGGER) | $(VARBRACE) > lispbibl.c
+	$(COMMENT5) lispbibl.d | sed -e 's/^\(%%%% .*\)//' | $(GCTRIGGER) | $(VARBRACE) > lispbibl.c
 
 fsubr.c : fsubr.d comment5.exe gctrigger.exe varbrace.exe
 	$(COMMENT5) fsubr.d | $(GCTRIGGER) | $(VARBRACE) > fsubr.c
@@ -1116,6 +1120,9 @@ spvw_language.c : spvw_language.d comment5.exe gctrigger.exe varbrace.exe
 spvw_memfile.c : spvw_memfile.d comment5.exe gctrigger.exe varbrace.exe
 	$(COMMENT5) spvw_memfile.d | $(GCTRIGGER) | $(VARBRACE) > spvw_memfile.c
 
+errunix.c : errunix.d comment5.exe gctrigger.exe varbrace.exe
+	$(COMMENT5) errunix.d | $(GCTRIGGER) | $(VARBRACE) > errunix.c
+
 errwin32.c : errwin32.d comment5.exe gctrigger.exe varbrace.exe
 	$(COMMENT5) errwin32.d | $(GCTRIGGER) | $(VARBRACE) > errwin32.c
 
@@ -1226,6 +1233,9 @@ ari80386.c : ari80386.d comment5.exe
 
 sp80386.c : sp80386.d comment5.exe 
 	$(COMMENT5) sp80386.d > sp80386.c
+
+gen.lispbibl.c : lispbibl.d comment5.exe
+	$(COMMENT5) lispbibl.d | sed -e '/^#line/n;ta;:a;s/^%%%% //;tb;s/^.*$$//;:b' > gen.lispbibl.c
 
 allo : allc spvw.obj spvwtabf.obj spvwtabs.obj spvwtabo.obj eval.obj control.obj encoding.obj pathname.obj stream.obj socket.obj io.obj array.obj hashtabl.obj list.obj package.obj record.obj weak.obj sequence.obj charstrg.obj debug.obj error.obj misc.obj time.obj predtype.obj symbol.obj lisparit.obj i18n.obj foreign.obj win32aux.obj built.obj
 
@@ -1554,16 +1564,16 @@ debug.obj : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c 
 	$(MV) debug.i.obj debug.obj
 	$(RM) debug.i.c
 
-error.i : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c stdbool.h stdint.h libcharset.h
+error.i : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errunix.c errwin32.c stdbool.h stdint.h libcharset.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) error.c > error.i
 
-error.s : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c stdbool.h stdint.h libcharset.h
+error.s : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errunix.c errwin32.c stdbool.h stdint.h libcharset.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) error.c > error.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c error.i.c /FAs /Faerror.s
 	$(RM) error.i.obj
 	$(RM) error.i.c
 
-error.obj : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c stdbool.h stdint.h libcharset.h
+error.obj : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errunix.c errwin32.c stdbool.h stdint.h libcharset.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) error.c > error.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c error.i.c
 	$(RM) error.obj
@@ -1714,16 +1724,16 @@ built.obj : built.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c 
 	$(MV) built.i.obj built.obj
 	$(RM) built.i.c
 
-genclisph.i : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
+genclisph.i : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c gen.lispbibl.c stdbool.h stdint.h libcharset.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE genclisph.c > genclisph.i
 
-genclisph.s : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
+genclisph.s : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c gen.lispbibl.c stdbool.h stdint.h libcharset.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE genclisph.c > genclisph.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE -c genclisph.i.c /FAs /Fagenclisph.s
 	$(RM) genclisph.i.obj
 	$(RM) genclisph.i.c
 
-genclisph.obj : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
+genclisph.obj : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c gen.lispbibl.c stdbool.h stdint.h libcharset.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE genclisph.c > genclisph.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE -c genclisph.i.c
 	$(RM) genclisph.obj
@@ -1810,6 +1820,9 @@ callback.lib : ..\ffcall\callback\callback.lib
 
 libcharset.h : ..\libcharset\include\libcharset.h
 	-$(LN_S) ..\libcharset\include\libcharset.h libcharset.h
+
+localcharset.h : ..\libcharset\include\localcharset.h
+	-$(LN_S) ..\libcharset\include\localcharset.h localcharset.h
 
 charset.lib : ..\libcharset\lib\charset.lib
 	-$(LN_S) ..\libcharset\lib\charset.lib charset.lib
@@ -2852,7 +2865,7 @@ boot : modular lispinit.mem
 	test -d boot || (mkdir boot && cd boot && for f in lisp.a avcall.lib callback.lib  modules.h modules.o makevars lisp.exe lispinit.mem; do $(LN_S) ..\$$f $$f; done) || ($(RMRF) boot ; exit 1)
 
 anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas clisp.h
-	test -d $@ || lndir ..\modules/$@ $@
+	lndir ..\modules/$@ $@
 	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ( cache=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache; if test -f $${cache} ; then . $${cache}; if test "$${ac_cv_env_CC_set}" = set; then CC="$${ac_cv_env_CC_value}"; export CC; fi; ./configure --cache-file=$${cache} $(MODULE_CONFIGURE_FLAGS); else ./configure $(MODULE_CONFIGURE_FLAGS); fi ) ; fi
 	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}/lispbibl.c $${dots}/fsubr.c $${dots}/subr.c $${dots}/pseudofun.c $${dots}/constsym.c $${dots}/constobj.c $${dots}/win32.c $${dots}/xthread.c $${dots}/stdbool.h $${dots}/stdint.h $${dots}/libcharset.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
@@ -2864,9 +2877,13 @@ full : modular base $(MODULES)
 	$(RMRF) full
 	CLISP_LINKKIT=. clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
 
-full-check : full clisp
+base-mod-check : clisp tests # base
+	for m in $(BASE_MODULES); do $(RM) $$m/*.erg; done
+	z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp  -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+
+mod-check : base-mod-check # full
 	for m in $(MODULES); do $(RM) $$m/*.erg; done
-	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full  -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(run-some-tests '($$z))"
+	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full  -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 IMPNOTES = impnotes.html impnotes.css clisp.png clisp.ico
@@ -2999,12 +3016,13 @@ clisp.rc : clisp.ico
 	echo "MAINICON ICON \"clisp.ico\"" > clisp.rc
 
 clisp : clisp.c clispres.o w32shell.c execname.c
-	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR=NULL -DLOCALEDIR=NULL clisp.c clispres.o $(LIBS) -o clisp
+	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.o $(LIBS) -o clisp
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : install.lisp install.bat clisp.man clisp.html force
 	version=$(VERSION) ; \
 	distdir=clisp-$$version ; \
+	rm -rf $$distdir; \
 	mkdir $$distdir ; \
 	for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es install.bat ; do \
 	  if test -f $$f ; then cp -p $$f $$distdir/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/$$f ; fi ; \
@@ -3021,9 +3039,11 @@ distrib : install.lisp install.bat clisp.man clisp.html force
 	  if test -f $$f ; then cp -p $$f $$distdir/doc/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/doc/$$f ; fi ; \
 	done ; \
 	mkdir $$distdir/emacs; \
+	cp -p ../emacs/clhs.el $$distdir/emacs/clhs.el ; \
 	cp -p ../emacs/clisp-coding.el $$distdir/emacs/clisp-coding.el ; \
 	cp -p ../emacs/clisp-indent.el $$distdir/emacs/clisp-indent.el ; \
 	cp -p ../emacs/clisp-indent.lisp $$distdir/emacs/clisp-indent.lisp ; \
+	cp -p ../emacs/clisp-ffi.el $$distdir/emacs/clisp-ffi.el ; \
 	mkdir $$distdir/src ; \
 	cp -p $(LISPFILES) install.lisp $$distdir/src/ ; \
 	chmod 755 $$distdir/. $$distdir/*/. ; \
