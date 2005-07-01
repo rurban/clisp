@@ -64,6 +64,9 @@
 #include <errno.h>
 /* used by error.d, stream.d */
 
+#define HAVE_STRERROR
+/* used by errunix.d */
+
 /* Getting memory. */
 #include <stdlib.h>
 #include <malloc.h>

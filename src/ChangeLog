@@ -1,3 +1,10 @@
+2005-07-01  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign1.lisp (c-ident-p): accept @ in foreign names,
+	useful for some libraries using :STDC-STDCALL.
+	* errunix.d (strerror) [!HAVE_STRERROR]: fix typo.
+	* win32.d (HAVE_STRERROR): #define (errunix.d needs it)
+
 2005-06-28  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (%return-p): quoted constants cannot contain
