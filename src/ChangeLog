@@ -1,3 +1,7 @@
+2005-07-05  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (MEMORY-AS): fixed a cast for g++ compilation
+
 2005-07-01  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: copy localcharset.h to the build directory on msvc too

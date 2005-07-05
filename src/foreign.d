@@ -2783,7 +2783,7 @@ LISPFUN(read_memory_as,seclass_default,2,1,norest,nokey,0,NIL)
   }
   /* TODO asciz_to_string is not suitable for unicode */
   var object item = eq(STACK_1,S(string))
-        ? asciz_to_string((uintB*)address,O(foreign_encoding))
+        ? asciz_to_string((char*)address,O(foreign_encoding))
         : convert_from_foreign(STACK_1,address);
   VALUES1(item); skipSTACK(3);
 }
