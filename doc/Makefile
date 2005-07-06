@@ -79,6 +79,8 @@ SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
 		-e 's/ *--> *<!-- */\n/g' \
 		-e 's/ *<!-- */\n/g' -e 's/ *--> */\n/g'
 
+ROFF_UNCOMMENT=$(subst --,\\-\\-,$(SGML_UNCOMMENT))
+
 all: check impnotes.html regexp.html man
 
 MAKE_TDB=xsltproc --timing --stringparam collect.xref.targets "only" \
@@ -111,7 +113,7 @@ clisp.1: clisp.xml common.xsl man.xsl tdb-pile.xml olink-pile.xml
 		-o $@ man.xsl $<
 
 _clisp.1: clisp.1
-	sed $(SGML_UNCOMMENT) $< > $@
+	sed $(ROFF_UNCOMMENT) $< > $@
 
 impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(RM) $@
