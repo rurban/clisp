@@ -1,5 +1,9 @@
 2005-07-06  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: remove the last(?) vestiges of DOS support
+
+2005-07-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/pari.lisp (binomial-coefficient): commented out
 	because `binomial' is not found in libpari-2.2.dll at link time
 
