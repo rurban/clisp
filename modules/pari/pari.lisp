@@ -1006,11 +1006,11 @@
 ;; GEN lllgramkerimgen(GEN x);
 ;; GEN lllgramallgen(GEN x, long all);
 
-;; GEN binome(GEN x, long k);
-(pari-call-out binomial-coefficient "binome" (x (k long)) "bin")
+;; GEN binomial(GEN x, long k);
+;(pari-call-out binomial-coefficient "binomial" (x k))
 ;; GEN gscal(GEN x, GEN y);
 ;; GEN cyclo(long n);
-(pari-call-out cyclotomic-polynomial "cyclo" ((n long)))
+(pari-call-out cyclotomic-polynomial "cyclo" ((n long)) "polcyclo")
 ;; GEN vecsort(GEN x, GEN k);
 (pari-call-out vector-sort-key "vecsort" (x k))
 
