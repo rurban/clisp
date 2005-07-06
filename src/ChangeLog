@@ -1,5 +1,11 @@
 2005-07-06  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (OUT): new variable
+	(clisp): fixed msvc rule
+	Reported by Jörg Höhle
+
+2005-07-06  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: remove the last(?) vestiges of DOS support
 
 2005-07-06  Sam Steingold  <sds@gnu.org>
