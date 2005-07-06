@@ -79,6 +79,14 @@ or MSVC7.0 development environment, using native system calls
    or uncomment and modify the value of MSVCDIR in src\makefile to
    match your site.
 
+   Now that the libraries recommended in 1. are not distributed with
+   CLISP anymore, the makefiles do not make use of them. For
+   actually using libsigsegv with CLISP, here is a way to go:
+        a) Compile the library as per libsigsegv\README.woe32
+        b) Copy sigsegv.lib and sigsegv.h to src   
+        c) Remove -DNO_SIGSEGV from CFLAGS in src\makefile
+        d) Add sigsegv.lib to LIBS in src\makefile
+
         cd src
         nmake
 
