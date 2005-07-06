@@ -518,7 +518,7 @@ if test -n "$do_config"; then
     done
   fi
   # Create subdirectories for the modules parts, and fill them.
-  # The modules outright assumes that $(srcdir)='.',
+  # The modules outright assume that $(srcdir)='.',
   # hence all files need to be linked over.
   #for subdir in `cd modules > /dev/null ; find . -type d -print`; do
   #  maybe_mkdir "${ABS_DIRNAME}/${f}";
