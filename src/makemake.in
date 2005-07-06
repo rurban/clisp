@@ -988,8 +988,10 @@ fi
 # TOBJ = extension for compiled modules on target
 if [ $TSYS = win32msvc ] ; then
   TOBJ='.obj'
+  OUT='/link /out:'
 else
   TOBJ='.o'
+  OUT='-o '
 fi
 
 # Main cpu dependencies:
@@ -2847,26 +2849,23 @@ if [ $HOS != win32 ] ; then
     LIBGCC_DIR='`'"${XCC} -print-libgcc-file-name"' | sed -e '"'"'s,[^/]*$$,,'"'"'`'
     echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE} || /usr/ccs/bin/ld -V -dy -Bdynamic -Y P,/usr/ccs/lib:/usr/lib -Qy -o lisp${LEXE} ${LIBGCC_DIR}crt1.o ${LIBGCC_DIR}crti.o /usr/ccs/lib/values-Xa.o ${LIBGCC_DIR}crtbegin.o \$(OBJECTS) modules${TOBJ} -L${LIBGCC_DIR} -L/usr/ccs/bin ${LIBS} -lgcc -lc ${LIBGCC_DIR}crtend.o ${LIBGCC_DIR}crtn.o -lgcc"
   else
-    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE}"
+    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${OUT}lisp${LEXE}"
   fi
   if [ $HOS = unix ] ; then
     echotab "-sync"
   fi
   echol
-elif [ $HSYS = win32gcc ] ; then
-  echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE}"
-elif [ $HSYS = win32msvc ] ; then
+else
   # MSVC's incremental linking is buggy, avoid it.
-  echotab "\$(RM) lisp.ilk"
-  echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} /link /out:lisp${LEXE}"
+  if [ $HSYS = win32msvc ] ; then echotab "\$(RM) lisp.ilk"; fi
+  echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${OUT}lisp${LEXE}"
   # With msvc4/5, need at least 1200 KB stack for creating the first
   # interpreted.mem, but the default stack size is only 1 MB.
   # With msvc6, need more than 2 MB for compiling compiler.lisp.
-  if [ ${COMPILER} != msvc7 ]; then
+  if [ $HSYS = win32msvc -a ${COMPILER} != msvc7 ]; then
     # Jay Kint <jkint@icosahedron.org> says that msvc7(.NET) does not need this
     echotab "editbin /stack:3145728 lisp${LEXE}"
   fi
-else echo "makemake: unknown ${HOS} platform: ${HSYS}"; exit 1;
 fi
 
 echol
@@ -3460,8 +3459,8 @@ if [ $CROSS = false ] ; then
       fi
       ;;
   esac
-  echol "clisp : clisp.c${DRIVER_DEP}"
-  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} -o clisp"
+  echol "clisp${TEXE} : clisp.c${DRIVER_DEP}"
+  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
