@@ -561,6 +561,10 @@ Dec2002 Developer tools with the gcc 3.3 update work OOTB, but
 older versions of GCC might require the `--traditional-cpp' option.
 If you get weird compilation errors (like #else mismatch), try it.
 
+MacOS X comes with an ancient, incompatible BSD readline version from Apple.
+To use the Fink version instead, invoke the top-level configure as
+./configure --with-readline-prefix=/sw ...
+
 
 On AIX 3 and 4:
 
