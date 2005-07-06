@@ -1,5 +1,10 @@
 2005-07-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/pari.lisp (binomial-coefficient): commented out
+	because `binomial' is not found in libpari-2.2.dll at link time
+
+2005-07-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (error_callback, error_message_reset):
 	declare static to avoid warnings
 	(module__bdb__init_function_2): added a prototype
