@@ -254,7 +254,15 @@ executes a compiled version of form.</para>
 
 <para><code>(&proclaim; '(&special-dec; &var-r;))</code> declarations
  cannot be undone.  The same holds for &defvar;, &defparameter; and
- &defconstant; declarations.</para>
+ &defconstant; declarations.  The only way out is
+ <programlisting language="lisp">
+  (let ((name (&symbol-name; variable)) (package (&symbol-package; variable)))
+    (&unintern; variable)
+    (&intern; name package))
+ </programlisting>
+ but this will also lose any symbol properties (&symbol-plist;)
+ as well as function and macro definitions (&symbol-function;).
+ Of course, the new &var-r; is &not-e; &eq; to the old one.</para>
 
 <para>It is an error if a &defconstant; variable is bound at the moment
  the &defconstant; is executed, but &defconstant; does not check
