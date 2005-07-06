@@ -429,7 +429,7 @@ fi
 
 abs_path_pwd () { cd "$1" > /dev/null; ${ABSPATHPWD}; }
 
-maybe_mkdir() { test -d "$1" || mkdir "$1"; }
+maybe_mkdir() { test -d "$1" || mkdir -p "$1"; }
 
 INPLACE=''
 if test -n "$srcdir" ; then
@@ -608,7 +608,7 @@ if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
   fi
 fi
 
-makemake_args="${makemake_args} ${target} ${debug}";
+makemake_args="${makemake_args} ${subdir_srcdir_args} ${target} ${debug}";
 
 . ${ABS_DIRNAME}/config.cache
 cat <<EOF
