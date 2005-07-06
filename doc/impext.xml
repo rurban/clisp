@@ -141,17 +141,21 @@ base/lisp.run: initialization file `lispinit.mem' was not created by this versio
 
 <section id="i18n"><title>Internationalization of &clisp;</title>
 
-<para><quote>Internationalization</quote> means to prepare a program so
-that it can use multiple national languages and national cultural
-conventions without requiring further source code changes.  Localization
-means providing the data - mostly textual translations - necessary for
-an internationalized program to work in a particular language and with
-particular cultural conventions.</para>
+<variablelist><varlistentry><term>Internationalization
+   (<quote>i18n</quote>)</term>
+  <listitem><simpara>preparing a program so that it can use multiple
+    national languages and national cultural conventions without requiring
+    further source code changes.</simpara></listitem></varlistentry>
+<varlistentry><term>Localization (<quote>l10n</quote>)</term>
+ <listitem><simpara>providing the data - mostly textual translations -
+   necessary for an internationalized program to work in a particular
+   language and with particular cultural conventions.
+</simpara></listitem></varlistentry></variablelist>
 
 <para>&clisp; is internationalized, and is localized for the languages
 English, German, French, Spanish, Dutch and Russian.
 &clisp; also supports internationalized Lisp programs, through
-&ggettext;, see <xref linkend="ggettext"/>.</para>
+&ggettext;, see <xref linkend="i18n-mod"/>.</para>
 
 <para>User programs can also be internationalized,
  see <xref linkend="i18n-mod"/>.</para>
