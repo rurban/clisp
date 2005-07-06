@@ -1,3 +1,7 @@
+2005-07-06  Sam Steingold  <sds@gnu.org>
+
+	* version.sh: bumped because of many bug fixes
+
 2005-07-05  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (MEMORY-AS): fixed a cast for g++ compilation
