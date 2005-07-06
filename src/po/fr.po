@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-06-24 12:20:12-0400\n"
+"POT-Creation-Date: 2005-07-06 11:20:31-0400\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -667,7 +667,7 @@ msgstr "Le symbôle ~S n'a pas de valeur."
 msgid "~S: assignment to constant symbol ~S is impossible"
 msgstr "Une assignation du symbôle constant ~S n'est pas possible."
 
-#: eval.d:7258 control.d:2256
+#: eval.d:7258 control.d:2243
 #, lisp-format
 msgid "~S: too many arguments given to ~S"
 msgstr "~S: Trop d'arguments pour ~S."
@@ -677,7 +677,7 @@ msgstr "~S: Trop d'arguments pour ~S."
 msgid "(~S ~S): the tagbody of the tags ~S has already been left"
 msgstr "(~S ~S): Le «tagbody» avec les marqueurs ~S a déjà été quitté."
 
-#: eval.d:7535 control.d:1978
+#: eval.d:7535 control.d:1965
 #, lisp-format
 msgid "~S: there is no CATCHer for tag ~S"
 msgstr "~S: Il n'y a pas de CATCH correspondant au marqueur ~S."
@@ -746,137 +746,137 @@ msgstr "~S: Une chaîne de documentation n'est pas permise ici : ~S"
 msgid "~S: illegal variable specification ~S"
 msgstr "~S: ~S n'est pas une spécification de variable licite."
 
-#: control.d:560
+#: control.d:547
 #, fuzzy, lisp-format
 msgid "~S: symbol ~S has been declared SPECIAL and may not be re-defined as a SYMBOL-MACRO"
 msgstr "~S : Le symbole ~S ne peut être déclaré SPECIAL et macro en même temps."
 
-#: control.d:566
+#: control.d:553
 #, fuzzy, lisp-format
 msgid "~S: symbol ~S must not be declared SPECIAL and defined a SYMBOL-MACRO at the same time"
 msgstr "~S : Le symbole ~S ne peut être déclaré SPECIAL et macro en même temps."
 
-#: control.d:603
+#: control.d:590
 #, lisp-format
 msgid "~S: too many variables and/or declarations"
 msgstr "~S: Trop de déclarations et/ou de variables."
 
-#: control.d:866
+#: control.d:853
 #, lisp-format
 msgid "~S: ~S is not a function specification"
 msgstr "~S: ~S n'est pas une spécification de fonction."
 
-#: control.d:1041
+#: control.d:1028
 #, lisp-format
 msgid "~S: ~S is not a macro specification"
 msgstr "~S: ~S n'est pas une spécification de macro."
 
-#: control.d:1048
+#: control.d:1035
 #, lisp-format
 msgid "~S: macro name ~S should be a symbol"
 msgstr "~S: Le nom de macro ~S n'est pas un symbôle."
 
-#: control.d:1103
+#: control.d:1090
 #, fuzzy, lisp-format
 msgid "~S: ~S is not a function and macro specification"
 msgstr "~S: ~S n'est pas une spécification de fonction."
 
-#: control.d:1110
+#: control.d:1097
 #, fuzzy, lisp-format
 msgid "~S: function and macro name ~S should be a symbol"
 msgstr "~S: Le nom de fonction ~S n'est pas un symbôle."
 
-#: control.d:1225
+#: control.d:1212
 #, lisp-format
 msgid "~S: clause ~S should be a list"
 msgstr "~S: La clause ~S doit être une liste."
 
-#: control.d:1255
+#: control.d:1242
 #, lisp-format
 msgid "~S: missing key list: ~S"
 msgstr "~S : la liste d'objects-clé manque: ~S"
 
-#: control.d:1264 macros1.lisp:296
+#: control.d:1251 macros1.lisp:296
 #, lisp-format
 msgid "~S: the ~S clause must be the last one"
 msgstr "~S : La clause ~S doit être la dernière."
 
-#: control.d:1319
+#: control.d:1306
 #, lisp-format
 msgid "~S: the block named ~S has already been left"
 msgstr "~S: Le bloc de nom ~S a déjà été quitté."
 
-#: control.d:1354
+#: control.d:1341
 #, lisp-format
 msgid "~S: no block named ~S is currently visible"
 msgstr "~S: Aucun bloc de nom ~S n'est visible."
 
-#: control.d:1612
+#: control.d:1599
 #, lisp-format
 msgid "~S: ~S is neither tag nor form"
 msgstr "~S: ~S n'est ni un marqueur ni une forme à evaluer."
 
-#: control.d:1654
+#: control.d:1641
 #, lisp-format
 msgid "~S: illegal tag ~S"
 msgstr "~S: ~S n'est pas un marqueur permis."
 
-#: control.d:1692
+#: control.d:1679
 #, lisp-format
 msgid "~S: tagbody for tag ~S has already been left"
 msgstr "~S: Le TAGBODY du marqueur ~S a déjà été quitté."
 
-#: control.d:1706
+#: control.d:1693
 #, lisp-format
 msgid "~S: no tag named ~S is currently visible"
 msgstr "~S: Aucun marqueur de nom ~S n'est visible."
 
-#: control.d:1720
+#: control.d:1707
 #, lisp-format
 msgid "~S: too many values"
 msgstr "~S: Trop de valeurs."
 
-#: control.d:1760
+#: control.d:1747
 #, lisp-format
 msgid "~S: too many arguments to ~S"
 msgstr "~S: Trop d'arguments pour ~S."
 
-#: control.d:2018
+#: control.d:2005
 #, lisp-format
 msgid "Argument ~S is not a macroexpansion environment"
 msgstr "L'argument ~S n'est pas un environnement pour macros"
 
-#: control.d:2076
+#: control.d:2063
 #, lisp-format
 msgid "declarations ~S are not allowed here"
 msgstr "Les déclarations ~S ne sont pas permises à cet endroit."
 
-#: control.d:2097
+#: control.d:2084
 #, lisp-format
 msgid "~S: ~S evaluated to the values ~S, not of type ~S"
 msgstr "~S: La forme ~S a produit les valeurs ~S qui ne sont pas de type ~S."
 
-#: control.d:2108
+#: control.d:2095
 #, lisp-format
 msgid "~S: bad declaration ~S"
 msgstr "~S: Mauvaise déclaration : ~S"
 
-#: control.d:2119
+#: control.d:2106
 #, lisp-format
 msgid "~S: attempting to turn ~S into a ~S variable, but it is already a global symbol-macro."
 msgstr ""
 
-#: control.d:2373 error.d:901
+#: control.d:2360 error.d:901
 #, fuzzy, lisp-format
 msgid "~S: ~S is not a symbol"
 msgstr "~SS : ~SS n'est pas un symbole."
 
-#: control.d:2406
+#: control.d:2393
 #, lisp-format
 msgid "keyword argument list ~S has an odd length"
 msgstr "La liste de mots clé ~S est de longueur impaire."
 
-#: control.d:2443
+#: control.d:2430
 #, fuzzy, lisp-format
 msgid ""
 "Illegal keyword/value pair ~S, ~S in argument list.\n"
@@ -3853,7 +3853,7 @@ msgstr "L'argument de destination n'est ni NIL, ni T, ni un «stream» ni une chaî
 msgid "~S: The control-string must be a string, not ~S"
 msgstr "~S : La chaîne de contrôle doit être une chaîne et non ~S"
 
-#: init.lisp:312 init.lisp:2112 condition.lisp:1522 reploop.lisp:466
+#: init.lisp:312 init.lisp:2113 condition.lisp:1522 reploop.lisp:466
 msgid "Continuable Error"
 msgstr ""
 
@@ -3970,91 +3970,91 @@ msgstr "La lambda-liste ne peut pas se terminer par l'atome ~S"
 msgid "~S: variable list ends with the atom ~S"
 msgstr "~S : La liste de variables se termine par l'atome ~S"
 
-#: init.lisp:1346
+#: init.lisp:1347
 #, lisp-format
 msgid "FLET/LABELS: code contains a dotted list, ending with ~S"
 msgstr "FLET/LABELS : une paire pointée dans le code, terminée par ~S"
 
-#: init.lisp:1356
+#: init.lisp:1357
 #, lisp-format
 msgid "illegal syntax in FLET/LABELS: ~S"
 msgstr "syntaxe incorrecte dans FLET/LABELS : ~S"
 
-#: init.lisp:1376
+#: init.lisp:1377
 #, fuzzy, lisp-format
 msgid "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S"
 msgstr "Occurence d'une paire pointée dans le code de COND, terminée en : ~S."
 
-#: init.lisp:1389
+#: init.lisp:1390
 #, fuzzy, lisp-format
 msgid "illegal syntax in FUNCTION-MACRO-LET: ~S"
 msgstr "syntaxe illégale dans MACROLET : ~S"
 
-#: init.lisp:1478 condition.lisp:1559
+#: init.lisp:1479 condition.lisp:1559
 msgid "WARNING:"
 msgstr "AVERTISSEMENT :"
 
-#: init.lisp:1510
+#: init.lisp:1511
 #, lisp-format
 msgid "~S: compiled file ~A lacks a version marker"
 msgstr ""
 
-#: init.lisp:1512
+#: init.lisp:1513
 #, lisp-format
 msgid "~S: compiled file ~A has a corrupt version marker ~S"
 msgstr ""
 
-#: init.lisp:1514
+#: init.lisp:1515
 #, fuzzy, lisp-format
 msgid "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"
 msgstr "Ce fichier provient d'une autre version de LISP et doit être recompilé."
 
-#: init.lisp:1613
+#: init.lisp:1614
 #, fuzzy, lisp-format
 msgid "~S: A file with name ~A does not exist"
 msgstr "Il n'existe pas de fichier de nom ~A."
 
-#: init.lisp:1639
+#: init.lisp:1640
 #, fuzzy, lisp-format
 msgid "Loading file ~A ..."
 msgstr "Chargement du fichier "
 
-#: init.lisp:1675 defs1.lisp:500
+#: init.lisp:1676 defs1.lisp:500
 #, fuzzy, lisp-format
 msgid "Loaded file ~A"
 msgstr "Chargement du fichier "
 
-#: init.lisp:1687
+#: init.lisp:1688
 #, lisp-format
 msgid "~S: missing function name and/or parameter list"
 msgstr "~S : Le nom de fonction et/ou la liste de paramètre manque"
 
-#: init.lisp:1697
+#: init.lisp:1698
 #, fuzzy, lisp-format
 msgid "~S: special operator ~S cannot be redefined."
 msgstr "~S : La forme spéciale ~S ne peut pas être redéfinie."
 
-#: init.lisp:1731 macros1.lisp:144
+#: init.lisp:1732 macros1.lisp:144
 #, lisp-format
 msgid "exit clause in ~S must be a list"
 msgstr "La clause de sortie dans ~S doit être une liste."
 
-#: init.lisp:1881
+#: init.lisp:1882
 #, lisp-format
 msgid "~S: cannot define a function from that: ~S"
 msgstr "~S : Pas de définition de fonction possible à partir de: ~S"
 
-#: init.lisp:1887 clos-genfun3.lisp:100 clos-genfun3.lisp:172
+#: init.lisp:1888 clos-genfun3.lisp:100 clos-genfun3.lisp:172
 #, lisp-format
 msgid "~S: the name of a function must be a symbol, not ~S"
 msgstr "~S : Le nom d'une fonction doit être un symbole et non ~S"
 
-#: init.lisp:1893
+#: init.lisp:1894
 #, lisp-format
 msgid "~S: function ~S is missing a lambda list"
 msgstr "~S : Il manque une lambda-liste à la fonction ~S."
 
-#: init.lisp:2119 condition.lisp:1529 reploop.lisp:493
+#: init.lisp:2120 condition.lisp:1529 reploop.lisp:493
 msgid "If you continue (by typing 'continue'): "
 msgstr "Si vous continuez (en tapant «continue»): "
 
