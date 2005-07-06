@@ -2853,35 +2853,20 @@ if [ $HOS != win32 ] ; then
     echotab "-sync"
   fi
   echol
-else
-  if [ $HSYS = win32gcc -o $HSYS = win32msvc ] ; then
-    if [ $HSYS = win32gcc ] ; then
-      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE}"
-    fi
-    if [ $HSYS = win32msvc ] ; then
-      # MSVC's incremental linking is buggy, avoid it.
-      echotab "\$(RM) lisp.ilk"
-      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} /link /out:lisp${LEXE}"
-      # With msvc4/5, need at least 1200 KB stack for creating the first
-      # interpreted.mem, but the default stack size is only 1 MB.
-      # With msvc6, need more than 2 MB for compiling compiler.lisp.
-      if [ ${COMPILER} != msvc7 ]; then
-        # Jay Kint <jkint@icosahedron.org> says that msvc7(.NET)
-        # does not need this
-        echotab "editbin /stack:3145728 lisp${LEXE}"
-      fi
-    fi
-  else
-    # DOS has a very limited command line length
-    # XCLFLAGS=$XCLFLAGS' -s' # strip, does not work anymore on emx0.8f
-    echotab "\$(RM) lisp"
-    echotab "\$(RM) lisp${LEXE}"
-    echotab "${XCC} ${XCFLAGS} -o lisp @gcclink.in ${XCLFLAGS} ${LIBS}"
-    echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p"
-    # strip may be done only afterwards because of -lvideo
-    echotab "emxbind -s lisp${LEXE}"
+elif [ $HSYS = win32gcc ] ; then
+  echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE}"
+elif [ $HSYS = win32msvc ] ; then
+  # MSVC's incremental linking is buggy, avoid it.
+  echotab "\$(RM) lisp.ilk"
+  echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} /link /out:lisp${LEXE}"
+  # With msvc4/5, need at least 1200 KB stack for creating the first
+  # interpreted.mem, but the default stack size is only 1 MB.
+  # With msvc6, need more than 2 MB for compiling compiler.lisp.
+  if [ ${COMPILER} != msvc7 ]; then
+    # Jay Kint <jkint@icosahedron.org> says that msvc7(.NET) does not need this
+    echotab "editbin /stack:3145728 lisp${LEXE}"
   fi
-  echol
+else echo "makemake: unknown ${HOS} platform: ${HSYS}"; exit 1;
 fi
 
 echol
