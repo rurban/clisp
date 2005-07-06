@@ -100,7 +100,7 @@ DEFUN(BDB:DB-VERSION,)
 }
 
 static char *error_message = NULL;
-void error_callback (const char *errpfx, char *msg) {
+static void error_callback (const char *errpfx, char *msg) {
   int offset = errpfx ? strlen(errpfx)+4 : 0;
   if (error_message) NOTREACHED;
   error_message = (char*)my_malloc(1 + offset + strlen(msg));
@@ -114,7 +114,7 @@ void error_callback (const char *errpfx, char *msg) {
   strcpy(error_message+offset,msg);
 }
 #define FREE_RESET(x) if (x) { free(x); x = NULL; }
-void error_message_reset (void) { FREE_RESET(error_message) }
+static void error_message_reset (void) { FREE_RESET(error_message) }
 nonreturning_function(static, error_bdb, (int status, char *caller)) {
   end_system_call();
   pushSTACK(`BDB::BDB-ERROR`);  /* error type */
@@ -2413,6 +2413,7 @@ DEFUN(BDB:TXN-STAT, dbe &key :STAT-CLEAR)
   begin_system_call(); free(stat); end_system_call();
 }
 
+void module__bdb__init_function_2 (module_t* module);
 void module__bdb__init_function_2 (module_t* module)
 {
 #if defined(DEBUG)
