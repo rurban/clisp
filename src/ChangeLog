@@ -1,5 +1,13 @@
 2005-07-06  Sam Steingold  <sds@gnu.org>
 
+	fixed "./configure --build foo/bar/baz"
+	* configure (maybe_mkdir): pass "-p" to mkdir
+	(makemake_args): pass subdir_srcdir_args down to makemake
+	* makemake.in (anymodule): pass srcdir to module configure
+	Reported by Will Newton
+
+2005-07-06  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (OUT): new variable
 	(clisp): fixed msvc rule
 	Reported by Jörg Höhle
