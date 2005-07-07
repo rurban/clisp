@@ -1,6 +1,6 @@
 2005-07-07  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* w32shell.c (default_executable_name) [WIN32_NATIVE]: default to
+	* execname.c (default_executable_name) [WIN32_NATIVE]: default to
 	lisp.exe, not lisp.run
 	* _clisp.c [!UNIX]: do not #include files specific to UNIX
 
