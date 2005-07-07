@@ -39,13 +39,15 @@ BOOL real_path (LPCSTR namein, LPSTR nameout);
 # include "w32shell.c"
 #endif
 
+# include <stdlib.h>            /* getenv, abort */
+#if defined(UNIX)
 /* needed for execname.c to work */
 # include <sys/types.h>         /* stat */
 # include <sys/stat.h>          /* stat */
 # include <unistd.h>            /* access */
-# include <stdlib.h>            /* getenv, abort */
 # include <errno.h>             /* ENOMEM, ENOENT, errno */
 # include <sys/param.h>         /* MAXPATHLEN */
+#endif
 int find_executable (const char * program_name);
 #include "execname.c"
 
