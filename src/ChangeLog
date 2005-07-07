@@ -1,3 +1,7 @@
+2005-07-07  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in [win32msvc]: use rc+cvtres to add the icon to clisp.exe
+
 2005-07-07  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* execname.c (default_executable_name) [WIN32_NATIVE]: default to
