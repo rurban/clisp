@@ -3441,12 +3441,18 @@ echol
 if [ $CROSS = false ] ; then
   DRIVER_DEP=''; DRIVER_RES=''
   if [ $HOS = win32 ]; then
-    DRIVER_RES=' clispres.o'
+    DRIVER_RES=" clispres${TOBJ}"
     DRIVER_DEP=${DRIVER_RES}' w32shell.c execname.c'
-    echol "clispres.o : clisp.rc"
-    echotab "windres -i clisp.rc -o clispres.o"
+    echol "clispres${TOBJ} : clisp.rc clisp.ico"
+    if [ ${TSYS} = win32gcc ]; then
+      echotab "windres -i clisp.rc -o clispres.o"
+    else
+      echotab "rc /v /foclisp.res clisp.rc"
+      echotab "cvtres /verbose /out:clispres.obj clisp.res"
+      echotab "-\$(RM) clisp.res"
+    fi
     echol
-    echol "clisp.rc : clisp.ico"
+    echol "clisp.rc :"
     echotab 'echo "MAINICON ICON \"clisp.ico\"" > clisp.rc'
     echol
   fi
