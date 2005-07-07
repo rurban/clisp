@@ -1,7 +1,11 @@
+2005-07-07  Sam Steingold  <sds@gnu.org>
+
+	* setf.tst: check that GET-SETF-EXPANSION accepts NIL environment arg
+
 2005-07-06  Sam Steingold  <sds@gnu.org>
 
 	* bind.tst: use -X- and -F- instead of *X* and *F* to avoid
-	conflict with globaly special variables defined elsewhere
+	conflict with globally special variables defined elsewhere
 
 2005-06-28  Sam Steingold  <sds@gnu.org>
 
