@@ -3271,7 +3271,7 @@ done
 echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 
-# make sure no cygwin libraries creeped into the mingw distribution
+# make sure no cygwin libraries crept into the mingw distribution
 cygwin_check() {
   if [ "$host_os" = cygwin -a "${TSYS}" = win32gcc ]; then
     echotab "if cygcheck $1/lisp.exe | grep cyg; then exit 1; else true; fi"
@@ -3288,7 +3288,7 @@ echotab "\$(RMRF) full"
 echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 cygwin_check full
 echol
-echol "base-mod-check : clisp$(TEXE) ${TESTSDIR} # base"
+echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
 echotab 'for m in $(BASE_MODULES); do $(RM) $$m/*.erg; done'
 echotab 'z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
 echol
