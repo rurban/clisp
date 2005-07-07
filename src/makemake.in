@@ -2220,7 +2220,7 @@ echol
 
 needs="init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem lispinit.mem manual"
 if [ \( $HOS = unix -o ${HSYS} = win32gcc \) -a $CROSS = false ] ; then
-  needs=".gdbinit "$needs' modular $(BASE_MODULES) $(MODULES) clisp${TEXE} boot base full'
+  needs=".gdbinit "$needs' modular $(BASE_MODULES) $(MODULES) '"clisp${TEXE} boot base full"
 fi
 if [ $TSYS = win32msvc -a "$DEBUGGING" = debug ] ; then
   needs=$needs" lisp.bsc"
