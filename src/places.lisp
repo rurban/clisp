@@ -123,7 +123,11 @@
                  (values tempvars
                          tempforms
                          `(,storevar)
-                         `((SETF ,(first form)) ,storevar ,@tempvars)
+                         ;; this is identical to CLISP-specific
+                         ;; ((SETF ,(first form)) ,storevar ,@tempvars)
+                         ;; but the we will return the form
+                         ;; that will not confuse 3rd party code walkers
+                         `(FUNCALL #'(SETF ,(first form)) ,storevar ,@tempvars)
                          `(,(first form) ,@tempvars)
                 ))
         )) )
