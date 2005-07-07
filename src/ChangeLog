@@ -11,6 +11,7 @@
 
 	* makemake.in [win32msvc]: use rc+cvtres to add the icon to clisp.exe
 	(anymodule): use {MODULESDIR_} for ./configure --srcdir
+	(needs): fixed quoting
 
 2005-07-07  Jörg Höhle  <hoehle@users.sourceforge.net>
 
