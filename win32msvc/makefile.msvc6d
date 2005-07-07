@@ -1840,7 +1840,6 @@ lisp.exe : $(OBJECTS) modules.obj avcall.lib callback.lib  charset.lib  data
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) modules.obj $(LIBS) /link /out:lisp.exe
 	editbin /stack:3145728 lisp.exe
 
-
 lisp.bsc : lisp.exe
 	bscmake /n /o lisp *.sbr
 
@@ -3020,8 +3019,8 @@ clispres.o : clisp.rc
 clisp.rc : clisp.ico
 	echo "MAINICON ICON \"clisp.ico\"" > clisp.rc
 
-clisp : clisp.c clispres.o w32shell.c execname.c
-	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.o $(LIBS) -o clisp
+clisp.exe : clisp.c clispres.o w32shell.c execname.c
+	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.o $(LIBS) /link /out:clisp.exe
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : install.lisp install.bat clisp.man clisp.html force
