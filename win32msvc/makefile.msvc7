@@ -2863,7 +2863,7 @@ boot : modular lispinit.mem
 
 anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas clisp.h
 	lndir ..\modules/$@ $@
-	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ( cache=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache; if test -f $${cache} ; then . $${cache}; if test "$${ac_cv_env_CC_set}" = set; then CC="$${ac_cv_env_CC_value}"; export CC; fi; ./configure --cache-file=$${cache} $(MODULE_CONFIGURE_FLAGS); else ./configure $(MODULE_CONFIGURE_FLAGS); fi ) ; fi
+	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ( cache=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache; if test -f $${cache} ; then . $${cache}; if test "$${ac_cv_env_CC_set}" = set; then CC="$${ac_cv_env_CC_value}"; export CC; fi; ./configure --cache-file=$${cache} --srcdir=..\modules/$@ $(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=..\modules/$@ $(MODULE_CONFIGURE_FLAGS); fi ) ; fi
 	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}/lispbibl.c $${dots}/fsubr.c $${dots}/subr.c $${dots}/pseudofun.c $${dots}/constsym.c $${dots}/constobj.c $${dots}/win32.c $${dots}/xthread.c $${dots}/stdbool.h $${dots}/stdint.h $${dots}/libcharset.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 base : modular boot $(BASE_MODULES)
@@ -2874,7 +2874,7 @@ full : modular base $(MODULES)
 	$(RMRF) full
 	CLISP_LINKKIT=. clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
 
-base-mod-check : clisp tests # base
+base-mod-check : clisp.exe tests # base
 	for m in $(BASE_MODULES); do $(RM) $$m/*.erg; done
 	z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp  -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
@@ -3006,14 +3006,16 @@ editors.txt : ..\doc\editors.txt
 	-$(LN_S) ..\doc\editors.txt editors.txt
 
 
-clispres.o : clisp.rc
-	windres -i clisp.rc -o clispres.o
+clispres.obj : clisp.rc clisp.ico
+	rc /v /foclisp.res clisp.rc
+	cvtres /verbose /out:clispres.obj clisp.res
+	-$(RM) clisp.res
 
-clisp.rc : clisp.ico
+clisp.rc :
 	echo "MAINICON ICON \"clisp.ico\"" > clisp.rc
 
-clisp.exe : clisp.c clispres.o w32shell.c execname.c
-	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.o $(LIBS) /link /out:clisp.exe
+clisp.exe : clisp.c clispres.obj w32shell.c execname.c
+	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.obj $(LIBS) /link /out:clisp.exe
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : install.lisp install.bat clisp.man clisp.html force
