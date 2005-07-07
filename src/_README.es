@@ -28,8 +28,8 @@ Este libro está disponible en formato HTML via FTP en:
 
 y puede consultarse a través de WWW en:
 
-  http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html o
-  http://www.cs.cmu.edu:8001/afs/cs/project/ai-repository/ai/html/cltl/cltl2.html .
+  http://www-2.cs.cmu.edu/Groups/AI/html/cltl/cltl2.html o
+  http://www-2.cs.cmu.edu/afs/cs/project/ai-repository/ai/html/cltl/cltl2.html .
 
 Nota para los expertos: Este texto estandar se ha convertido en un
 estándar ANSI, que puede obtenerse <<<exceptionally>>> sin cargo alguno en:
