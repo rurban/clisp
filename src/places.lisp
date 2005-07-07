@@ -31,7 +31,9 @@
 ;;   SM3  stores      variables whose values are used by the setter form
 ;;   SM4  setterform  setter form
 ;;   SM5  getterform  getter form
-(defun get-setf-expansion (form &optional (env (vector nil nil)))
+(defun get-setf-expansion (form &optional env)
+  (unless env ; user may pass env=NIL to mean "null lexical environment"
+    (setq env (vector nil nil)))
   (loop
     ; 1. Schritt: nach globalen SETF-Definitionen suchen:
     (when (and (consp form) (symbolp (car form)))

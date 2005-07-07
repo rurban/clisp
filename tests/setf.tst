@@ -576,7 +576,7 @@ NIL
 "interpreted anonymous doc"
 
 #| NYI
-(documentation (compile nil (lambda () "compiled anonymous doc" 42)) 'function)
+ (documentation (compile nil (lambda () "compiled anonymous doc" 42)) 'function)
 "compiled anonymous doc"
 |#
 
@@ -588,7 +588,7 @@ NIL
 "new doc"
 
 #| NYI
-(let ((f (compile nil (lambda () "interpreted anonymous doc" 42))))
+ (let ((f (compile nil (lambda () "interpreted anonymous doc" 42))))
   (setf (documentation f 'function) "new doc")
   (documentation f 'function))
 "new doc"
@@ -614,7 +614,7 @@ NIL
  "interpreted doc" "replaced doc" "replaced doc")
 
 #| NYI
-(progn
+ (progn
   (defun func02 () "compiled doc" 42)
   (let ((old-func #'func02)
         (new-func (compile nil (lambda () "new compiled doc" 43))))
@@ -628,7 +628,7 @@ NIL
                (documentation old-func 'function)
                (documentation new-func 'function)
                (documentation 'func02 'function))))))
-("compiled doc" "new compiled doc" "new compiled doc"
+ ("compiled doc" "new compiled doc" "new compiled doc"
  "compiled doc" "replaced doc" "replaced doc")
 |#
 
@@ -649,6 +649,9 @@ NIL
 ("macro doc" "new macro doc" "new macro doc"
  "macro doc" "replaced doc" "replaced doc")
 
+;; user may pass env=NIL to get-setf-expansion to mean null lexical environment
+(length (multiple-value-list (get-setf-expansion '(x) nil)))
+5
 
 ; Clean up.
 (unintern 'x)
