@@ -1,5 +1,9 @@
 2005-07-07  Sam Steingold  <sds@gnu.org>
 
+	* utils/clispload.lsp (*expected-failures*): added MAKE-CONDITION.[34]
+
+2005-07-07  Sam Steingold  <sds@gnu.org>
+
 	* places.lisp (get-setf-expansion): user may pass env=NIL to mean
 	null lexical environment
 

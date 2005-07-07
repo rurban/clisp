@@ -253,6 +253,13 @@
   ;; CLISP extends DISASSEMBLE to accept STRINGs, METHODs, and forms
   DISASSEMBLE.ERROR.3
 
+  ;; MAKE-CONDITION must replace (OR PROGRAM-ERROR TYPE-ERROR) with ERROR
+  ;; before invoking MAKE-INSTANCE
+  MAKE-CONDITION.3
+
+  ;; (SUBTYPEP '(AND SIMPLE-ERROR TYPE-ERROR) 'CONDITION) must return T
+  MAKE-CONDITION.4
+
   ;; To be revisited:
 
 ))
