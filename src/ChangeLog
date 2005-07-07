@@ -1,3 +1,9 @@
+2005-07-07  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* w32shell.c (default_executable_name) [WIN32_NATIVE]: default to
+	lisp.exe, not lisp.run
+	* _clisp.c [!UNIX]: do not #include files specific to UNIX
+
 2005-07-06  Sam Steingold  <sds@gnu.org>
 
 	fixed "./configure --build foo/bar/baz"
