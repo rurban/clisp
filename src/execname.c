@@ -9,7 +9,7 @@
 
 /* file name of the executable */
 static char* executable_name = NULL;
-#ifdef UNIX_CYGWIN32
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 /* note that up and including win2000, detaching from a process kills it
  <http://article.gmane.org/gmane.os.cygwin/32245>
  <http://article.gmane.org/gmane.os.cygwin/32246>
