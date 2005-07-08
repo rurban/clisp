@@ -21,12 +21,17 @@
 ;; this is not necessary: we are not creating a C file anyway
 ;;(c-lines "#define WINVER 0x0500~%#include <windows.h>~%")
 
-(defconstant system32 (ext:string-concat (ext:getenv "WINDIR") "\\system32\\"))
-(defconstant advapi32 (ext:string-concat system32 "advapi32.dll"))
-(defconstant kernel32 (ext:string-concat system32 "kernel32.dll"))
-(defconstant secur32 (ext:string-concat system32 "secur32.dll"))
-(defconstant shell32 (ext:string-concat system32 "shell32.dll"))
-(defconstant user32 (ext:string-concat system32 "user32.dll"))
+;(defconstant system32 (ext:string-concat (ext:getenv "WINDIR") "\\system32\\"))
+(defconstant advapi32      ; (ext:string-concat system32 "advapi32.dll")
+  "advapi32.dll")
+(defconstant kernel32      ; (ext:string-concat system32 "kernel32.dll")
+  "kernel32.dll")
+(defconstant secur32        ; (ext:string-concat system32 "secur32.dll")
+  "secur32.dll")
+(defconstant shell32        ; (ext:string-concat system32 "shell32.dll")
+  "shell32.dll")
+(defconstant user32          ; (ext:string-concat system32 "user32.dll")
+  "user32.dll")
 
 (def-call-out GetCommandLineA (:library kernel32)
   (:arguments) (:return-type c-string))
@@ -258,6 +263,61 @@
   (:arguments (parent handle) (operation c-string) (file c-string)
               (parameters c-string) (directory c-string) (show SHOW_COMMAND))
   (:return-type int))
+
+;;; i/o
+(def-call-out GetStdHandle (:library kernel32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/dllproc/base/getstdhandle.asp")
+  (:arguments (nStdHandle dword)) (:return-type handle))
+
+(defconstant STD_INPUT_HANDLE   ; ((DWORD)-10)
+  (- (ash 1 (bitsizeof 'dword)) 10)
+  "Handle to the standard input device.
+Initially, this is a handle to the console input buffer, CONIN$.")
+(defconstant STD_OUTPUT_HANDLE  ; ((DWORD)-11)
+  (- (ash 1 (bitsizeof 'dword)) 11)
+  "Handle to the standard output device.
+Initially, this is a handle to the active console screen buffer, CONOUT$.")
+(defconstant STD_ERROR_HANDLE   ; ((DWORD)-12)
+  (- (ash 1 (bitsizeof 'dword)) 12)
+  "Handle to the standard error device.
+Initially, this is a handle to the active console screen buffer, CONOUT$.")
+
+(def-call-out ReadFile (:library kernel32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/fileio/fs/readfile.asp")
+  (:arguments (hFile handle)
+              (lpBuffer c-pointer)
+	      (nNumberOfBytesToRead dword)
+              (lpNumberOfBytesRead (c-ptr dword) :out)
+	      (lpOverlapped c-pointer))
+  (:return-type boolean))
+
+(def-call-out WriteFile (:library kernel32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/fileio/fs/writefile.asp")
+  (:arguments (hFile handle)
+              (lpBuffer c-pointer)
+	      (nNumberOfBytesToWrite dword)
+              (lpNumberOfBytesWritten (c-ptr dword) :out)
+	      (lpOverlapped c-pointer))
+  (:return-type boolean))
+
+(def-call-out ReadConsoleA (:library kernel32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/dllproc/base/readconsole.asp")
+  (:arguments (hConsoleInput handle)
+              (lpBuffer c-pointer)
+              (nNumberOfCharsToRead dword)
+              (lpNumberOfCharsRead (c-ptr dword) :out)
+              (lpReserved c-pointer))
+  (:return-type boolean))
+
+(def-call-out WriteConsoleA (:library kernel32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/dllproc/base/writeconsole.asp")
+  (:arguments (hConsoleOutput handle)
+              (lpBuffer c-pointer)
+              (nNumberOfCharsToWrite dword)
+              (lpNumberOfCharsWritten (c-ptr dword) :out)
+              (lpReserved c-pointer))
+  (:return-type boolean))
+
 
 #|
 
