@@ -48,6 +48,13 @@ some platforms can be found in file unix/PLATFORMS.
       <ftp://ftp.gnu.org/pub/gnu/gettext/>
       <http://www.gnu.org/software/gettext/>
 
+   When you install your libraries in a non-standard location, you will
+   need to tell the location to the top-level configure, e.g.:
+   ./configure --with-libreadline-prefix=/sw               \
+               --with-libsigsegv-prefix=/usr/local         \
+               --with-libiconv-prefix=/home/user/my/prefix \
+               --build my-buld-directory
+
 3. Choose the name of a directory in which to build CLISP.
    (This allows you to build CLISP with different compilers on the same
    machine or for different architectures in the same filesystem, sharing
