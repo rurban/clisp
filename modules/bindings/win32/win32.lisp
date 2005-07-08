@@ -9,7 +9,7 @@
            #:defconstant #:defun #:defmacro
            #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
-(ffi:default-foreign-language :stdc)
+(ffi:default-foreign-language :stdc-stdcall) ; WINAPI means __stdcall
 
 (in-package "W32")
 
@@ -123,6 +123,7 @@
 #| example:
  (setq icon (win32:LoadImageA nil "d:\\gnu\\clisp\\current\\doc\\clisp.ico"
                               win32:IMAGE_ICON 0 0  win32:LR_LOADFROMFILE))
+ free using DestroyIcon(handle), not shown
 |#
 
 (eval-when (compile eval load)
