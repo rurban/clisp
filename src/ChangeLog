@@ -1,3 +1,7 @@
+2005-07-10  Sam Steingold  <sds@gnu.org>
+
+	* modules/bindings/win32/win32.lisp (DestroyIcon): new function
+
 2005-07-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp: do NOT use full paths for
