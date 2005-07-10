@@ -120,15 +120,20 @@
   (LR_COPYFROMRESOURCE #x4000)
   (LR_SHARED 32768))
 (def-call-out LoadImageA (:library user32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/winui/winui/windowsuserinterface/resources/introductiontoresources/resourcereference/resourcefunctions/loadimage.asp")
   (:arguments (application-instance-handle handle)
               (image-name c-string)
               (type uint) (width int) (height int)
               (options int))    ; load_options
   (:return-type handle))
+(def-call-out DestroyIcon (:library user32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/winui/winui/windowsuserinterface/resources/icons/iconreference/iconfunctions/destroyicon.asp")
+  (:arguments (hIcon handle))
+  (:return-type boolean))
 #| example:
  (setq icon (win32:LoadImageA nil "d:\\gnu\\clisp\\current\\doc\\clisp.ico"
-                              win32:IMAGE_ICON 0 0  win32:LR_LOADFROMFILE))
- free using DestroyIcon(handle), not shown
+                              win32:IMAGE_ICON 0 0 win32:LR_LOADFROMFILE))
+ (win32:DestroyIcon icon)
 |#
 
 (eval-when (compile eval load)
