@@ -273,6 +273,10 @@
 (def-call-out GetStdHandle (:library kernel32)
   (:documentation "http://msdn.microsoft.com/library/en-us/dllproc/base/getstdhandle.asp")
   (:arguments (nStdHandle dword)) (:return-type handle))
+(def-call-out SetStdHandle (:library kernel32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/dllproc/base/setstdhandle.asp")
+  (:arguments (nStdHandle dword) (hHandle handle))
+  (:return-type boolean))
 
 (defconstant STD_INPUT_HANDLE   ; ((DWORD)-10)
   (- (ash 1 (bitsizeof 'dword)) 10)
