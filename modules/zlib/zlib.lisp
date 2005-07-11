@@ -79,5 +79,5 @@
 
 (pushnew :zlib *features*)
 (provide "zlib")
-(pushnew "ZLIB" *system-package-list* :test #'string=)
+(pushnew "ZLIB" custom:*system-package-list* :test #'string=)
 (setf (package-lock "ZLIB") t)
