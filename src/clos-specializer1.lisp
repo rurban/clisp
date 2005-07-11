@@ -15,8 +15,8 @@
   '(defclass specializer (standard-stablehash metaobject)
      (($direct-methods          ; weak-list or weak-hash-table of methods that
                                 ; use this specializer
-        :initform nil))
-     (:fixed-slot-locations t)))
+       :initform nil))
+    (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
 (defconstant *<specializer>-direct-methods-location* 2)
@@ -152,14 +152,14 @@
 
 ;; EQL-specializers for numbers.
 (defvar *eql-specializer-table*
-        (make-hash-table :key-type 'number :value-type 'eql-specializer
-                         :test 'ext:fasthash-eql :warn-if-needs-rehash-after-gc t))
+  (make-hash-table :key-type 'number :value-type 'eql-specializer
+                   :test 'ext:fasthash-eql :warn-if-needs-rehash-after-gc t))
 
 ;; EQL-specializers for other kinds of objects.
 (defvar *eq-specializer-table*
-        (make-hash-table :key-type '(not number) :value-type 'eql-specializer
-                         :test 'ext:stablehash-eq
-                         :weak :key))
+  (make-hash-table :key-type '(not number) :value-type 'eql-specializer
+                   :test 'ext:stablehash-eq
+                   :weak :key))
 
 ;; MOP p. 70
 (defun intern-eql-specializer (object)
@@ -167,7 +167,7 @@
     (or (gethash object table)
         (setf (gethash object table)
               (make-instance-<eql-specializer> <eql-specializer>
-                'singleton object)))))
+                                               'singleton object)))))
 
 ;; Returns the eql-specializer for the given object only if it already exists,
 ;; otherwise nil.
@@ -181,7 +181,7 @@
 
 (defun print-object-<eql-specializer> (specializer stream)
   (print-unreadable-object (specializer stream :type t)
-      (write (eql-specializer-object specializer) :stream stream)))
+    (write (eql-specializer-object specializer) :stream stream)))
 
 ;;; ===========================================================================
 
