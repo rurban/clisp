@@ -278,5 +278,5 @@
     xio))
 
 ;;; restore locks
-(pushnew "POSIX" *system-package-list* :test #'string=)
-(setf (package-lock *system-package-list*) t)
+(pushnew "POSIX" custom:*system-package-list* :test #'string=)
+(setf (package-lock custom:*system-package-list*) t)

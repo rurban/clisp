@@ -13,7 +13,7 @@
 
 (in-package "PCRE")
 (pushnew :pcre *features*)
-(push "PCRE" ext:*system-package-list*)
+(push "PCRE" custom:*system-package-list*)
 
 (defstruct (pattern (:constructor make-pat (compiled study)))
   (compiled nil :read-only t)
