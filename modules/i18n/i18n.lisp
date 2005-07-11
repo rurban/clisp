@@ -1,6 +1,6 @@
 ;;; CLISP i18n module
 ;;; Copyright (C) 1990-2004 Bruno Haible
-;;; Copyright (C) 1998-2004 Sam Steingold
+;;; Copyright (C) 1998-2005 Sam Steingold
 ;;
 ;; Interface to GNU gettext
 ;;
@@ -66,3 +66,4 @@
 
 (pushnew "I18N" custom:*system-package-list* :test #'string=)
 (setf (package-lock custom:*system-package-list*) t)
+(pushnew :i18n *features*)
