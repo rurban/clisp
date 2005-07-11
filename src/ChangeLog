@@ -1,3 +1,10 @@
+2005-07-11  Sam Steingold  <sds@gnu.org>
+
+	* modules/pcre/pcre.lisp, modules/zlib/zlib.lisp:
+	* modules/syscalls/posix.lisp, modules/rawsock/sock.lisp:
+	* modules/berkeley-db/dbi.lisp, modules/dirkey/dirkey1.lisp:
+	*SYSTEM-PACKAGE-LIST* is in CUSTOM
+
 2005-07-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp (DestroyIcon): new function

@@ -131,5 +131,5 @@ If collect is non-nil, collect all the keys into an a-list."
         `,storeform)))
 
 ;;; restore locks
-(pushnew "LDAP" *system-package-list* :test #'string=)
-(setf (package-lock *system-package-list*) t)
+(pushnew "LDAP" custom:*system-package-list* :test #'string=)
+(setf (package-lock custom:*system-package-list*) t)

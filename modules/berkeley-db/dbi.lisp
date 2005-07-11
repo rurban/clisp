@@ -348,5 +348,5 @@
   (($errno :initarg :errno :reader bdb-error-number)))
 
 ;;; restore locks
-(pushnew "BDB" *system-package-list* :test #'string=)
-(setf (package-lock *system-package-list*) t)
+(pushnew "BDB" custom:*system-package-list* :test #'string=)
+(setf (package-lock custom:*system-package-list*) t)
