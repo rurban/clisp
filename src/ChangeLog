@@ -1,5 +1,9 @@
 2005-07-11  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (parse_options): print (EXT:MODULE-INFO) for --version
+
+2005-07-11  Sam Steingold  <sds@gnu.org>
+
 	* modules/i18n/i18n.lisp (*features*): add :I18N
 
 2005-07-11  Sam Steingold  <sds@gnu.org>

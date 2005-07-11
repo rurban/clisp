@@ -2316,6 +2316,14 @@ local inline int parse_options (int argc, const char* const* argv,
                 "(PRINC \"Software: \") (PRINC (SOFTWARE-VERSION))"
                 "(PRINC \" \") (PRINC (SOFTWARE-TYPE)) (TERPRI)"
                 "(PRINC \"Features: \") (PRINC *FEATURES*) (TERPRI)"
+                /* Each module should augment *FEATURES*, so this should
+                   not be necessary.
+                   Unfortunately, we have no control over the user code,
+                   thus we cannot enforce this requirement.
+                   Since the "--version" output is used for bug reporting,
+                   we must make it as complete and accurate as possible,
+                   so we prefer to err on the side of verbosity. */
+                "(PRINC \"C Modules: \") (PRINC (EXT:MODULE-INFO)) (TERPRI)"
                 "(PRINC \"Installation directory: \")"
                 "(PRINC (SYS::LIB-DIRECTORY)) (TERPRI)"
                 "(PRINC \"User language: \")"
