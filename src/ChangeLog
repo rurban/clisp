@@ -1,3 +1,8 @@
+2005-07-12  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (MSVCDIR): output sample values for all versions
+	Reported by Ury Marshak <urym@two-bytes.com>
+
 2005-07-11  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp (SetStdHandle): added
