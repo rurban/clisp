@@ -181,8 +181,9 @@
 (def-c-var pari-2    (:name "gen_2") (:type pari-gen) (:read-only t))
 (def-c-var pari-1/2  (:name "ghalf") (:type pari-gen) (:read-only t))
 (def-c-var pari-i    (:name "gi")    (:type pari-gen) (:read-only t))
-(def-c-var pari-0    (:name "gzero") (:type pari-gen) (:read-only t))
+(def-c-var pari-0    (:name "gen_0") (:type pari-gen) (:read-only t))
 (def-c-var pari--1   (:name "gen_m1") (:type pari-gen) (:read-only t))
+(def-c-var pari-nil  (:name "gnil")  (:type pari-gen) (:read-only t))
 
 ;; extern  GEN *polun,*polx;
 (def-c-var pari-poly-1 (:name "polun") (:type (c-ptr pari-gen)) (:read-only t))
@@ -367,7 +368,7 @@
 ;;;  <default> ::= <expression>
 ;;; <gp-name> defaults to <pari-name>, <type> defaults to pari-gen,
 ;;; <mode> defaults to :in, and <allocation> defaults to :none.
-;;; This defines a foreign function pari-<name> with arguments and return
+;;; This defines a foreign function <pari-name> with arguments and return
 ;;; type as specified. Moreover, if <gp-name> is non-nil, a function
 ;;; <name> is defined and <name> is exported from the PARI package.
 ;;; Arguments and return value are converted as necessary.
@@ -532,11 +533,10 @@
 
 ;;; /* anal.c */
 
-;; GEN lisexpr(char *t);
+;; GEN readexpr(char *t);
 ;; GEN readexpr(char **c);
-;; GEN lisseq(char *t);
-(pari-call-out read-from-string "lisseq" ((str c-string :in :alloca)) nil)
-;; GEN readseq(char **c);
+;; GEN readseq(char *t);
+(pari-call-out read-from-string "readseq" ((str c-string :in :alloca)) nil)
 
 ;; void switchin(char *name);
 ;; GEN switchout(char *name);
@@ -569,9 +569,9 @@
 (pari-call-out add-primes "addprimes" (primes) "addprimes")
 
 ;; GEN bezout(GEN a, GEN b, GEN *u, GEN *v);
-;; GEN chinois(GEN x, GEN y);
-(pari-call-out chinese-lift "chinois" (x y) "chinese")
-;; GEN mpinvmod(GEN a, GEN m);
+;; GEN chinese(GEN x, GEN y);
+(pari-call-out chinese-lift "chinese" (x y))
+;; GEN Fp_inv(GEN a, GEN m);
 ;; GEN puissmodulo(GEN a, GEN n, GEN m);
 ;; GEN fibo(long n);
 (pari-call-out fibonacci "fibo" ((n long)))
@@ -608,11 +608,10 @@
 ;; GEN divisors(GEN n);
 (pari-call-out divisors "divisors" (n))
 
-;; GEN ellfacteur(GEN n1);
 ;; GEN classno(GEN x);
 (pari-call-out quadratic-class-number "classno" (x))
 ;; GEN classno2(GEN x);
-;; GEN classno3(GEN x);
+;; GEN hclassno(GEN x);
 ;; GEN fundunit(GEN x);
 (pari-call-out quadratic-unit "fundunit" (x) "unit")
 ;; GEN regula(GEN x, long prec);
@@ -702,7 +701,7 @@
 ;; GEN ispsp(GEN x);
 ;; GEN issquarefree(GEN x);
 ;; GEN isfundamental(GEN x);
-;; GEN mpsqrtmod(GEN a, GEN p, GEN *pr);
+;; GEN Fp_sqrt(GEN a, GEN p, GEN *pr);
 
 ;; int millerrabin(GEN n, long k);
 ;; GEN pseudopremier(GEN n, GEN a);
@@ -822,8 +821,8 @@
 
 ;; GEN idealhermite(GEN nf, GEN x);
 (pari-call-out ideal-to-hnf "idealhermite" (nf x))
-;; GEN idealhermite2(GEN nf, GEN a, GEN b);
-(pari-call-out ideal-2-generators-to-hnf "idealhermite2" (nf a b))
+;; GEN idealhnf0(GEN nf, GEN a, GEN b);
+(pari-call-out ideal-2-generators-to-hnf "idealhnf0" (nf a b))
 ;; GEN idealadd(GEN nf, GEN x, GEN y);
 (pari-call-out ideal-add "idealadd" (nf x y))
 ;; GEN idealaddtoone(GEN nf, GEN x, GEN y);
@@ -879,8 +878,8 @@
 
 ;; GEN nfdiveuc(GEN nf, GEN a, GEN b);
 (pari-call-out nf-element-euclidean-divide "nfdiveuc" (nf a b))
-;; GEN nfdivres(GEN nf, GEN a, GEN b);
-(pari-call-out nf-element-euclidean-divmod "nfdivres" (nf a b))
+;; GEN nfdivrem(GEN nf, GEN a, GEN b);
+(pari-call-out nf-element-euclidean-divmod "nfdivrem" (nf a b))
 ;; GEN nfmod(GEN nf, GEN a, GEN b);
 (pari-call-out nf-element-mod "nfmod" (nf a b))
 ;; GEN element_div(GEN nf, GEN x, GEN y);
@@ -950,7 +949,7 @@
 ;; #define element_sqrmodpr(nf,x,prhall) (nfreducemodpr(nf,element_sqr(nf,x);
 ;; GEN prhall))
 
-;;; /* bibli1.c */
+;;; /* base1.c */
 
 ;; GEN tayl(GEN x, long v, long precdl);
 (pari-call-out taylor-expansion "tayl"
@@ -969,12 +968,11 @@
 (pari-call-out laplace-transform "laplace" (x))
 
 ;; GEN gprec(GEN x, long l);
-(pari-call-out change-precision "gprec" (x (l long)) "prec")
+(pari-call-out change-precision "gprec" (x (l long)) "precision")
 ;; GEN convol(GEN x, GEN y);
 (pari-call-out hadamard-product "convol" (x y))
 ;; GEN ggrando(GEN x, long n);
-;; GEN ggrandocp(GEN x, long n);
-(pari-call-out pari-o "ggrandocp" (a (b long)) "o")
+(pari-call-out pari-o "ggrando" (a (b long)) "O")
 ;; GEN gconvsp(GEN x);
 ;; GEN gconvpe(GEN x);
 
@@ -1007,7 +1005,7 @@
 ;; GEN lllgramallgen(GEN x, long all);
 
 ;; GEN binomial(GEN x, long k);
-;(pari-call-out binomial-coefficient "binomial" (x k))
+(pari-call-out binomial-coefficient "binomial" (x k))
 ;; GEN gscal(GEN x, GEN y);
 ;; GEN cyclo(long n);
 (pari-call-out cyclotomic-polynomial "cyclo" ((n long)) "polcyclo")
@@ -1063,10 +1061,10 @@
 (pari-call-out polymod-reverse "polymodrecip" (x) "modreverse")
 ;; GEN genrand(void);
 (pari-call-out pari-random "genrand" () "random")
-;; GEN permute(long n, GEN x);
-(pari-call-out permutation "permute" ((n long) x) "permutation")
-;; GEN permuteInv(GEN x);
-(pari-call-out permutation-number "permuteInv" (x) "permutation2num")
+;; GEN numtoperm(long n, GEN x);
+(pari-call-out permutation "numtoperm" ((n long) x))
+;; GEN permtonum(GEN x);
+(pari-call-out permutation-number "permtonum" (x))
 
 ;; long mymyrand();
 
@@ -1319,8 +1317,8 @@
 ;; void pariflush(void);
 ;; #endif /* CLISP_MODULE */
 
-;; char* gen2str(GEN x);
-(pari-call-out (write-to-string c-string :malloc-free) "gen2str" (x) nil)
+;; char* GENtostr(GEN x);
+(pari-call-out (write-to-string c-string :malloc-free) "GENtostr" (x) nil)
 
 ;; void fprintferr(char* pat, ...);
 ;; void flusherr();
@@ -1370,10 +1368,10 @@
 ;; GEN gabs(GEN x, long prec);
 (pari-call-out-prec pari-abs "gabs" (x) "abs")
 
-;; GEN gpui(GEN x, GEN n, long prec);
-(pari-call-out-prec pari-expt "gpui" (x n) "^")
-;; GEN gpuigs(GEN x, long n);
-(pari-call-out pari-expt-integer "gpuigs" (x (n long)) "^")
+;; GEN gpow(GEN x, GEN n, long prec);
+(pari-call-out-prec pari-expt "gpow" (x n) "^")
+;; GEN gpowgs(GEN x, long n);
+(pari-call-out pari-expt-integer "gpowgs" (x (n long)) "^")
 
 ;; GEN gmax(GEN x, GEN y);
 (pari-call-out pari-max "gmax" (x y) "max")
@@ -1520,8 +1518,8 @@
 (pari-call-out (compare boolean) "gcmp" (x y) "?")
 ;; GEN lexcmp(GEN x, GEN y);
 (pari-call-out (compare-lex boolean) "lexcmp" (x y) "lex")
-;; GEN gegal(GEN x, GEN y);
-(pari-call-out (equal? boolean) "gegal" (x y) "==")
+;; GEN gequal(GEN x, GEN y);
+(pari-call-out (equal? boolean) "gequal" (x y) "==")
 ;; GEN polegal(GEN x, GEN y);
 ;; GEN vecegal(GEN x, GEN y);
 ;; GEN gsigne(GEN x);
@@ -1559,17 +1557,17 @@
 ;;(pari-call-out (rounderror long) "rounderror" (x))
 ;; GEN gsize(GEN x);
 ;;(pari-call-out (size long) "gsize" (x) "size")
-;; GEN pvaluation(GEN x, GEN p, GEN *py);
+;; GEN Z_pvalrem(GEN x, GEN p, GEN *py);
 
 ;; double  rtodbl(GEN x);
 ;; GEN gtodouble(GEN x);
 
 ;;; /* polarit.c */
 ;; GEN ginvmod(GEN x, GEN y);
-;; GEN gred(GEN x);
+;; GEN gcopy(GEN x);
 ;; GEN gdeuc(GEN x, GEN y);
-;; GEN gres(GEN x, GEN y);
-;; GEN poldivres(GEN x, GEN y, GEN *pr);
+;; GEN grem(GEN x, GEN y);
+;; GEN poldivrem(GEN x, GEN y, GEN *pr);
 
 ;; GEN poleval(GEN x, GEN y);
 ;; GEN roots(GEN x, long l);
@@ -1595,13 +1593,11 @@
 (pari-call-out content "content" (x))
 ;; GEN primpart(GEN x);
 ;; GEN psres(GEN x, GEN y);
-;; GEN factmod9(GEN f, GEN p, GEN a);
-(pari-call-out factor-in-fq "factmod9" (f p a) "factfq")
+;; GEN factorff(GEN f, GEN p, GEN a);
+(pari-call-out factor-in-fq "factorff" (f p a))
 
 ;; GEN factmod(GEN f, GEN p);
 (pari-call-out factor-in-fp "factmod" (f p))
-;; GEN factmod2(GEN f, GEN p);
-;; GEN factmod_gen(GEN f, GEN p);
 ;; GEN rootmod(GEN f, GEN p);
 (pari-call-out mod-p-roots "rootmod" (f p))
 ;; GEN rootmod2(GEN f, GEN p);
@@ -1651,9 +1647,8 @@
 
 ;; GEN newtonpoly(GEN x, GEN p);
 (pari-call-out newton-polygon "newtonpoly" (x p))
-;; GEN apprgen(GEN f, GEN a);
-;; GEN apprgen9(GEN f, GEN a);
-(pari-call-out lift-padic-roots "apprgen9" (f a) "apprpadic")
+;; GEN padicappr(GEN f, GEN a);
+(pari-call-out lift-padic-roots "padicappr" (f a))
 ;; GEN rootpadic(GEN f, GEN p, long r);
 (pari-call-out padic-roots "rootpadic" (f p (prec long)))
 ;; GEN rootpadicfast(GEN f, GEN p, long r, long flall);
@@ -1673,7 +1668,7 @@
 (export 'count-real-roots)
 
 ;; int poldivis(GEN x, GEN y, GEN *z);
-;; GEN gdivise(GEN x, GEN y);
+;; GEN gdvd(GEN x, GEN y);
 
 ;; void    gredsp(GEN *px);
 ;; GEN split(long m, GEN *t, long d, long p, GEN q);
@@ -1695,7 +1690,7 @@
 (pari-call-out-prec arithmetic-geometric-mean "agm" (x y))
 ;; GEN palog(GEN x);
 
-;; GEN mpsqrt(GEN x);
+;; GEN sqrtr(GEN x);
 ;; GEN gsqrt(GEN x, long prec);
 (pari-call-out-prec pari-sqrt "gsqrt" (x) "sqrt")
 
@@ -1709,8 +1704,8 @@
 ;; GEN mpexp1(GEN x);
 ;; GEN mpexp(GEN x);
 
-;; GEN logagm(GEN q);
-;; GEN glogagm(GEN x, long prec);
+;; GEN mplog(GEN q);
+;; GEN glog(GEN x, long prec);
 
 ;; GEN mpsc1(GEN x, long *ptmod8);
 ;; GEN mpcos(GEN x);
@@ -1990,10 +1985,8 @@
 ;; GEN stoi(long x);
 
 ;; GEN cgetg(long x, long y);
-;; GEN negi(GEN x);
-;; GEN negr(GEN x);
-;; GEN absi(GEN x);
-;; GEN absr(GEN x);
+;; GEN mpneg(GEN x);
+;; GEN mpabs(GEN x);
 (def-call-out pari-cgetg
   (:name "cgetg")
   (:return-type pari-gen)
@@ -2004,7 +1997,7 @@
 
 ;; GEN gerepile(long l, long p, GEN q);
 ;; GEN icopy(GEN x);
-;; GEN rcopy(GEN x);
+;; GEN mpcopy(GEN x);
 #|
  (def-call-out pari-gerepile
   (:name "gerepile")
