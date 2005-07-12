@@ -1,5 +1,9 @@
 2005-07-12  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/pari.lisp: updated obsolete names
+
+2005-07-12  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (MSVCDIR): output sample values for all versions
 	Reported by Ury Marshak <urym@two-bytes.com>
 
