@@ -101,14 +101,14 @@ clisp.xml: clisp.xml.in ../version.sh Makefile
 
 XMLOUT=xsltproc --timing --stringparam target.database.document
 
-clisp.html: clisp.xml common.xsl pile.xsl tdb-pile.xml olink-pile.xml
+clisp.html: clisp.xml common.xsl pile.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" --stringparam current.docid "man" \
 		-o $@ pile.xsl $<
 
 _clisp.html: clisp.html
 	sed $(SGML_UNCOMMENT) $< > $@
 
-clisp.1: clisp.xml common.xsl man.xsl tdb-pile.xml olink-pile.xml
+clisp.1: clisp.xml common.xsl man.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" --stringparam current.docid "man" \
 		-o $@ man.xsl $<
 
