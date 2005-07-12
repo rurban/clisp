@@ -3,10 +3,6 @@
 <xsl:import href="/usr/share/docbook-xsl/manpages/docbook.xsl"/>
 <!-- xsl:import href="common.xsl"/ -->
 
-<xsl:template match="ulink"> <!-- ignore ulink -->
- <xsl:apply-templates/>
-</xsl:template>
-
 <!-- here we just convert comments into < ! - - ... - - >
   for further processing with sed(1) (see Makefile) -->
 <xsl:template match="comment()">
