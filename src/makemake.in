@@ -1937,14 +1937,10 @@ fi
 #   echol "INLINE = /usr/lib/inline"
 # fi
 if [ $HSYS = win32msvc ] ; then
-  if [ $COMPILER = msvc4 ] ; then
-    echol "MSVCDIR = d:/msdev"
-  fi
-  if [ $COMPILER = msvc5 -o $COMPILER = msvc6 ] ; then
-    echol "#MSVCDIR = d:/devstudio/vc"
-    echol "#MSVCDIR = c:/msvs/vc98"
-    echol "#MSVCDIR = \"C:/Program Files/Microsoft Visual Studio/VC98\""
-  fi
+  echol "#MSVCDIR = d:/msdev"
+  echol "#MSVCDIR = d:/devstudio/vc"
+  echol "#MSVCDIR = c:/msvs/vc98"
+  echol "#MSVCDIR = \"C:/Program Files/Microsoft Visual Studio/VC98\""
 fi
 # echotab_to_HEXE command source target
 # outputs a `make' statement that executes "command source" and creates
