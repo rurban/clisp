@@ -47,10 +47,10 @@ local void move_conses (sintM delta);
 #if DEBUG_GC_MARK
   #define IF_DEBUG_GC_MARK(statement)  statement
   #if defined(WIDE_SOFT) || defined(WIDE_AUXI)
-    # oint is defined as uint64.
+    /* oint is defined as uint64. */
     #define PRIoint "ll"
   #else
-    # oint is defined as uintP. Assume pointer_bitsize == long_bitsize.
+    /* oint is defined as uintP. Assume pointer_bitsize == long_bitsize. */
     #define PRIoint "l"
   #endif
 #else
@@ -1358,7 +1358,7 @@ local void gc_markphase (void)
   #elif (varobject_alignment==8)
     #define uintVLA  uintL2
   #else
-    #error "Unbekannter Wert von 'varobject_alignment'!"
+    #error "Unknown value for 'varobject_alignment'!"
   #endif
   #if defined(GNU) && (__GNUC__ < 3) && !defined(__cplusplus) # better for optimization
     #if defined(fast_dotimesL) && (intMsize==intLsize)
