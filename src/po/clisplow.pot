@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33.84\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-06 11:20:39-0400\n"
-"PO-Revision-Date: 2005-07-06 11:20:39-0400\n"
+"POT-Creation-Date: 2005-07-13 14:40:54-0400\n"
+"PO-Revision-Date: 2005-07-13 14:40:54-0400\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -239,31 +239,31 @@ msgstr ""
 msgid "-E requires an argument"
 msgstr ""
 
-#: spvw.d:2413
+#: spvw.d:2421
 msgid "-l without -c is invalid"
 msgstr ""
 
-#: spvw.d:2419
+#: spvw.d:2427
 msgid "-x with -c is invalid"
 msgstr ""
 
-#: spvw.d:2424
+#: spvw.d:2432
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2545
+#: spvw.d:2553
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr ""
 
-#: spvw.d:2552
+#: spvw.d:2560
 msgid "Only %d bytes available."
 msgstr ""
 
-#: spvw.d:2802
+#: spvw.d:2810
 msgid "Could not determine the end of the SP stack!"
 msgstr ""
 
-#: spvw.d:3330
+#: spvw.d:3338
 msgid "%s: Not enough memory for Lisp."
 msgstr ""
 

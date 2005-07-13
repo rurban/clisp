@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-06 11:20:31-0400\n"
+"POT-Creation-Date: 2005-07-13 14:40:38-0400\n"
 "PO-Revision-Date: 2004-04-12 00:45+0200\n"
 "Last-Translator: Bruno Haible <bruno@clisp.org>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -284,61 +284,61 @@ msgstr ""
 msgid "-E requires an argument"
 msgstr " notwendige Argumente"
 
-#: spvw.d:2413
+#: spvw.d:2421
 msgid "-l without -c is invalid"
 msgstr ""
 
-#: spvw.d:2419
+#: spvw.d:2427
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S auf ~S ist unzulässig."
 
-#: spvw.d:2424
+#: spvw.d:2432
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2545
+#: spvw.d:2553
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Ergebnis von malloc() = %x ist nicht mit der Typcodeverteilung kompatibel."
 
-#: spvw.d:2552
+#: spvw.d:2560
 msgid "Only %d bytes available."
 msgstr "Nur %d Bytes verfügbar."
 
-#: spvw.d:2802
+#: spvw.d:2810
 msgid "Could not determine the end of the SP stack!"
 msgstr "Konnte das Ende des SP-Stacks nicht herausfinden!"
 
-#: spvw.d:2946
+#: spvw.d:2954
 msgid "WARNING: No initialization file specified."
 msgstr "WARNUNG: Keine Initialisierungs-Datei angegeben."
 
-#: spvw.d:2948 spvw.d:2960
+#: spvw.d:2956 spvw.d:2968
 msgid "Please try: "
 msgstr "Versuchen Sie: "
 
-#: spvw.d:2958
+#: spvw.d:2966
 msgid "WARNING: No installation directory specified."
 msgstr "WARNUNG: Kein Initialisierungs-Verzeichnis angegeben."
 
-#: spvw.d:3001 spvw.d:3127
+#: spvw.d:3009 spvw.d:3135
 msgid "WARNING: no such package: "
 msgstr "WARNUNG: Paket existiert nicht: "
 
-#: spvw.d:3054
+#: spvw.d:3062
 msgid "The name of the Run-Control file has changed from '_clisprc' to '.clisprc' on all platforms. Please rename your Run-Control file."
 msgstr ""
 
-#: spvw.d:3330
+#: spvw.d:3338
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Nicht genug Speicher für Lisp."
 
-#: spvw.d:3384
+#: spvw.d:3392
 msgid "Bye."
 msgstr "Bis bald!"
 
-#: spvw.d:3390
+#: spvw.d:3398
 msgid "Press a key to terminate..."
 msgstr "Zum Beenden bitte Taste drücken..."
 
@@ -4260,7 +4260,7 @@ msgstr "In ~S wird die Konstante ~S umdefiniert. Ihr alter Wert war ~S."
 msgid "Invalid syntax in ~S form: ~S."
 msgstr "Ungültige Syntax in ~S-Form: ~S."
 
-#: macros1.lisp:250 places.lisp:641 places.lisp:880
+#: macros1.lisp:250 places.lisp:647 places.lisp:886
 #, lisp-format
 msgid "~S called with an odd number of arguments: ~S"
 msgstr "~S mit einer ungeraden Anzahl von Argumenten aufgerufen: ~S"
@@ -4488,77 +4488,77 @@ msgstr "Fehlender &REST-Parameter in der Lambdaliste: ~S"
 msgid "The function (~S ~S) is hidden by a SETF expander."
 msgstr "Die Funktion (~S ~S) ist durch einen SETF-Expander verborgen."
 
-#: places.lisp:78
+#: places.lisp:80
 #, lisp-format
 msgid "The argument ~S to ~S should be a keyword."
 msgstr "Das Argument ~S zu ~S sollte ein Keyword sein."
 
-#: places.lisp:131
+#: places.lisp:137
 #, lisp-format
 msgid "~S: Argument ~S is not a SETF place."
 msgstr "~S: Das Argument muss eine 'SETF-place' sein, ist aber keine: ~S"
 
-#: places.lisp:141
+#: places.lisp:147
 #, fuzzy, lisp-format
 msgid "SETF place ~S should produce exactly one store variable."
 msgstr "Diese 'SETF-place' produziert mehrere 'Store-Variable': ~S"
 
-#: places.lisp:346
+#: places.lisp:352
 #, lisp-format
 msgid "The name of the accessor must be a symbol, not ~S"
 msgstr "Der Name der Zugriffs-Funktion muss ein Symbol sein und nicht ~S."
 
-#: places.lisp:385
+#: places.lisp:391
 #, lisp-format
 msgid "The SETF expander for ~S may not be called with ~S arguments."
 msgstr "Der SETF-Expander für ~S kann nicht mit ~S Argumenten aufgerufen werden."
 
-#: places.lisp:431
+#: places.lisp:437
 #, lisp-format
 msgid "~S: Too many arguments: ~S"
 msgstr "~S: Zu viele Argumente: ~S"
 
-#: places.lisp:436
+#: places.lisp:442
 #, lisp-format
 msgid "~S: The documentation string must be a string: ~S"
 msgstr "~S: Der Dokumentationsstring muss ein String sein, nicht ~S"
 
-#: places.lisp:457 places.lisp:746 clos-methcomb2.lisp:186 clos-methcomb2.lisp:190
+#: places.lisp:463 places.lisp:752 clos-methcomb2.lisp:186 clos-methcomb2.lisp:190
 #, fuzzy, lisp-format
 msgid "~S ~S: invalid ~S lambda-list: ~A"
 msgstr "~S ~S: Lambda-Liste enthält Unzulässiges: ~S"
 
-#: places.lisp:493
+#: places.lisp:499
 #, lisp-format
 msgid "(~S ~S): Illegal syntax."
 msgstr "(~S ~S): Unzulässige Syntax."
 
-#: places.lisp:523
+#: places.lisp:529
 #, lisp-format
 msgid "~S: index ~S is too large for ~S"
 msgstr "~S: Index ~S ist zu groß für ~S"
 
-#: places.lisp:874
+#: places.lisp:880
 #, lisp-format
 msgid "~S: Illegal place: ~S"
 msgstr "~S: Unzulässige 'SETF-Place'-Form: ~S"
 
-#: places.lisp:895
+#: places.lisp:901
 #, lisp-format
 msgid "~S: too few arguments: ~S"
 msgstr "~S: Zuwenig Argumente: ~S"
 
-#: places.lisp:1068 places.lisp:1135
+#: places.lisp:1074 places.lisp:1141
 #, lisp-format
 msgid "~S is only defined for functions of the form #'symbol."
 msgstr "~S ist nur für Funktionen der Form #'symbol definiert."
 
-#: places.lisp:1076
+#: places.lisp:1082
 #, lisp-format
 msgid "~S on ~S is not a SETF place."
 msgstr "~S von ~S kann nicht als 'SETF-Place' aufgefasst werden."
 
-#: places.lisp:1185
+#: places.lisp:1191
 #, lisp-format
 msgid "SETF place ~S expects different numbers of values in the true and false branches (~D vs. ~D values)."
 msgstr "'SETF-Place' ~S erwartet eine andere Anzahl Werte im Wahr-Fall als im Falsch-Fall (~D bzw. ~D Werte)."
