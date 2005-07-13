@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>clisp</title><link rel="stylesheet" href="impnotes.css" type="text/css" /><link rev="made" href="mailto:clisp-list@sf.net" /><meta name="generator" content="DocBook XSL Stylesheets V2005-07-01_06:40_snapshot" /></head><body><div class="refentry" lang="en" xml:lang="en"><a id="clisp"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>clisp — ANSI Common Lisp compiler, interpreter and debugger.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">clisp</code>  [[<code class="option"><a href="#opt-help">-h</a></code>] |  [<code class="option"><a href="#opt-help">--help</a></code>]] [<code class="option"><a href="#opt-version">--version</a></code>] [<code class="option"><a href="#opt-license">--license</a></code>] [<code class="option"><a href="#opt-libdir">-B <em class="replaceable"><code>lisp-lib-dir</code></em></a></code>]
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>clisp</title><link rel="stylesheet" href="impnotes.css" type="text/css" /><link rev="made" href="mailto:clisp-list@sf.net" /><meta name="generator" content="DocBook XSL Stylesheets V2005-07-12_04:47_snapshot" /></head><body><div class="refentry" lang="en" xml:lang="en"><a id="clisp"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>clisp — ANSI Common Lisp compiler, interpreter and debugger.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">clisp</code>  [[<code class="option"><a href="#opt-help">-h</a></code>] |  [<code class="option"><a href="#opt-help">--help</a></code>]] [<code class="option"><a href="#opt-version">--version</a></code>] [<code class="option"><a href="#opt-license">--license</a></code>] [<code class="option"><a href="#opt-libdir">-B <em class="replaceable"><code>lisp-lib-dir</code></em></a></code>]
 #ifdef UNIX
 [<code class="option"><a href="#opt-link-set">-K
    <em class="replaceable"><code>linking-set</code></em></a></code>]
@@ -256,9 +256,8 @@ compiles the specified lisp files to a platform-independent
    for parsing by the <a href="impnotes.html#image" class="olink">init function</a> of the current image.
    This option must be the last one.
    No <a href="clisp.html#opt-norc" class="olink">RC file</a> will be executed.
-</dd></dl></div></div><div class="refsection" lang="en" xml:lang="en"><a id="reference"></a><h2>Reference</h2><p><a id="ansi-cl"></a>The language implemented mostly conforms to the
- <a href="impnotes.html#ref-ansi" class="olink">ANSI Common Lisp
-  standard</a>.</p></div><div class="refsection" lang="en" xml:lang="en"><a id="usage"></a><h2>Usage</h2><div class="variablelist"><dl><dt>help</dt><dd>get context-sensitive on-line help, see
+</dd></dl></div></div><div class="refsection" lang="en" xml:lang="en"><a id="reference"></a><h2>Language Reference</h2><p><a id="ansi-cl"></a>The language implemented is [<span class="citation"><a href="#ansi-cl">ANSI CL standard</a></span>].
+ The implementation mostly conforms to the <a href="impnotes.html#ref-ansi" class="olink">ANSI Common Lisp standard</a>.</p></div><div class="refsection" lang="en" xml:lang="en"><a id="usage"></a><h2>Usage</h2><div class="variablelist"><dl><dt>help</dt><dd>get context-sensitive on-line help, see
    <a href="impnotes.html#environment" class="olink">Chapter 25, Environment
    [CLHS-25]</a>.
 </dd><dt>(<a href="http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos-list.html" target="_top"><code class="function">APROPOS</code></a> <em class="replaceable"><code>name</code></em>)</dt><dd><a href="impnotes.html#apropos" class="olink">list
@@ -283,12 +282,11 @@ compiles the specified lisp files to a platform-independent
 #ifdef GNU_READLINE
 <dt>arrow keys</dt><dd>for editing and viewing the input history, using the
    <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://cnswww.cns.cwru.edu/~chet/readline/rltop.html" target="_top">readline</a> library.</dd><dt><a id="completion"></a>Tab key</dt><dd><p>Context sensitive:
-  </p><div class="itemizedlist"><ul type="disc"><li>If you are in the "function
-     position" (in the first symbol after an opening paren or in the
-     first symbol after a <span><strong class="command">#'</strong></span>), the completion is
+  </p><div class="itemizedlist"><ul type="disc"><li>If you are in the “<span class="quote">function
+     position</span>” (in the first symbol after an opening paren or in
+     the first symbol after a <a href="http://www.lisp.org/HyperSpec/Body/sec_2-4-8-2" target="_top"><span class="data"><code class="literal">#'</code></span></a>), the completion is
      limited to the symbols that name functions.</li><li>If you are in the "filename position" (inside a
-     string after <span><strong class="command">#P</strong></span>), the completion is done
-     across file names,
+     string after <a href="http://www.lisp.org/HyperSpec/Body/sec_2-4-8-14" target="_top"><span class="data"><code class="literal">#P</code></span></a>), the completion is done across file names,
      <a href="http://www.gnu.org/software/bash/" target="_top">bash</a>-style.
    </li><li>If you have not typed anything yet, you will get
      a help message, as if by the
@@ -380,7 +378,8 @@ compiles the specified lisp files to a platform-independent
 <a href="http://www.xemacs.org" target="_top">XEmacs</a> - <span><strong class="command">xemacs</strong></span>(1).</p></div><div class="refsection" lang="en" xml:lang="en"><a id="bugs"></a><h2>Bugs</h2><p>When you encounter a bug in <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>, please report it to the
  <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> user mailing list <code class="email">&lt;<a href="mailto:clisp-list/at/lists.sourceforge.net"><a href="http://lists.sourceforge.net/lists/listinfo/clisp-list" target="_top">clisp-list/at/lists.sourceforge.net</a></a>&gt;</code> or the
  <a href="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355" target="_top">SourceForge bug tracker</a>.</p><p><span class="emphasis"><em>Before</em></span> submitting a bug report, please take
- the following basic steps to make the report more useful:</p><div class="orderedlist"><ol type="1"><li>Please do a clean build (remove your build directory
+ the following basic steps to make the report more useful:
+</p><div class="orderedlist"><ol type="1"><li>Please do a clean build (remove your build directory
    and build <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> with <span><strong class="command">"./configure --build build"</strong></span>
    or at least do a <span><strong class="command">"make distclean"</strong></span>
    before <span><strong class="command">"make"</strong></span>).</li><li>If you are reporting a “<span class="quote">hard crash</span>”
@@ -392,7 +391,8 @@ compiles the specified lisp files to a platform-independent
    between the platform on which the binary was built and yours; please
    try compiling the sources and report the problem if it persists.
 </li></ol></div><p>When submitting a bug report, please specify the
-following information:</p><div class="orderedlist"><ol type="1"><li>What is your platform (<span><strong class="command"><a href="http://www.opengroup.org/onlinepubs/007904975/utilities/uname.html" target="_top"><span><strong class="command">uname</strong></span></a> -a</strong></span>
+following information:
+</p><div class="orderedlist"><ol type="1"><li>What is your platform (<span><strong class="command"><a href="http://www.opengroup.org/onlinepubs/007904975/utilities/uname.html" target="_top"><span><strong class="command">uname</strong></span></a> -a</strong></span>
    on a <a href="http://www.UNIX-systems.org/online.html" target="_top"><span class="strong"><strong>UNIX</strong></span></a> system)?  Compiler version?
    <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://www.gnu.org/software/libc/" target="_top">libc</a> version (on <a href="http://www.gnu.org" target="_top">GNU</a>/<a href="http://www.linux.org/" target="_top"><span class="strong"><strong>Linux</strong></span></a>)?</li><li>Where did you get the sources or binaries?  When?
    (Absolute dates are preferred over the relative ones).</li><li>How did you build <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>?
@@ -400,21 +400,21 @@ following information:</p><div class="orderedlist"><ol type="1"><li>What is your
    <span><strong class="command"><a href="#opt-version">"clisp
      --version"</a></strong></span>?</li><li>Please supply the full output (copy and paste) of
    all the error messages, as well as detailed instructions on how to
-   reproduce them.</li></ol></div><p>Known bugs, some of which may be platform-dependent, include:</p><div class="itemizedlist">
+   reproduce them.</li></ol></div><p>Known bugs, some of which may be platform-dependent, include:
+</p><div class="itemizedlist">
 #ifdef SPVW_MIXED_BLOCKS
-<ul type="disc"><li>The memory management scheme is not very
-  flexible.</li>
+<ul type="disc"><li>The memory management scheme is not very flexible.
+</li>
 #endif
-<li>No on-line documentation beyond <a href="http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos-list.html" target="_top"><code class="function">APROPOS</code></a>
-  and <a href="http://www.lisp.org/HyperSpec/Body/fun_describe.html" target="_top"><code class="function">DESCRIBE</code></a> is available.</li>
 #ifdef UNIX_COHERENT
 <li><a href="impnotes.html#with-kbd" class="olink"><code class="varname">EXT:*KEYBOARD-INPUT*</code></a> does not
   recognize <span><strong class="keycap">Control</strong></span>-<span class="keysym">S</span>
   and <span><strong class="keycap">Control</strong></span>-<span class="keysym">Q</span>.</li>
 #endif
-</ul></div></div><div class="refsection" lang="en" xml:lang="en"><a id="projects"></a><h2>Projects</h2><div class="itemizedlist"><ul type="disc"><li>Write on-line documentation.</li><li>Enhance the compiler so that it can inline local
+<li>No on-line documentation beyond <a href="http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos-list.html" target="_top"><code class="function">APROPOS</code></a>
+  and <a href="http://www.lisp.org/HyperSpec/Body/fun_describe.html" target="_top"><code class="function">DESCRIBE</code></a> is available.</li></ul></div></div><div class="refsection" lang="en" xml:lang="en"><a id="projects"></a><h2>Projects</h2><div class="itemizedlist"><ul type="disc"><li>Write on-line documentation.</li><li>Enhance the compiler so that it can inline local
    functions.</li><li>Specify a portable set of window and graphics
    operations.</li><li>Add Multi-Threading capabilities, via OS
    threads.</li></ul></div></div><div class="refsection" lang="en" xml:lang="en"><a id="authors"></a><h2>CLISP Authors</h2><p><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> project was started in late 1980-ies by <span class="author"><span class="firstname">Bruno</span> <span class="surname">Haible</span></span> and
  <span class="author"><span class="firstname">Michael</span> <span class="surname">Stoll</span></span>, both in Germany.</p><p>See <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT?rev=HEAD&amp;content-type=text/plain" target="_top">COPYRIGHT</a>
-for the list of other contributors and the license.</p></div></div><div class="refentryinfo"><hr width="100%" /><table width="100%" summary="man page meta info"><th><td align="left"><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> version 2.33.84</td><td align="center">Platform: CYGWIN_NT-5.0</td><td align="right">Last modified: 2005-07-06</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://www.gnu.org"><img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468" height="60" alt="[Come and see what GNU creates for YOU]" /></a></td><td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=clisp" /></a></td></tr></table></div></body></html>
+for the list of other contributors and the license.</p></div></div><div class="refentryinfo"><hr width="100%" /><table width="100%" summary="man page meta info"><th><td align="left"><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> version 2.33.84</td><td align="center">Platform: CYGWIN_NT-5.0</td><td align="right">Last modified: 2005-07-13</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://www.gnu.org"><img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468" height="60" alt="[Come and see what GNU creates for YOU]" /></a></td><td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=clisp" /></a></td></tr></table></div></body></html>

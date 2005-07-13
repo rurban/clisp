@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-06 11:20:31-0400\n"
+"POT-Creation-Date: 2005-07-13 14:40:38-0400\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -291,61 +291,61 @@ msgstr ""
 msgid "-E requires an argument"
 msgstr "~S обязательных аргументов"
 
-#: spvw.d:2413
+#: spvw.d:2421
 msgid "-l without -c is invalid"
 msgstr ""
 
-#: spvw.d:2419
+#: spvw.d:2427
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S в ~S не допускается"
 
-#: spvw.d:2424
+#: spvw.d:2432
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2545
+#: spvw.d:2553
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Значение функции malloc() = %x не совместимо с typecode."
 
-#: spvw.d:2552
+#: spvw.d:2560
 msgid "Only %d bytes available."
 msgstr "Только %d байтов доступно."
 
-#: spvw.d:2802
+#: spvw.d:2810
 msgid "Could not determine the end of the SP stack!"
 msgstr "Невозможно определить конец стека SP !"
 
-#: spvw.d:2946
+#: spvw.d:2954
 msgid "WARNING: No initialization file specified."
 msgstr "ПРЕДУПРЕЖДЕНИЕ: Не указан файл инициализации."
 
-#: spvw.d:2948 spvw.d:2960
+#: spvw.d:2956 spvw.d:2968
 msgid "Please try: "
 msgstr "Попробуйте: "
 
-#: spvw.d:2958
+#: spvw.d:2966
 msgid "WARNING: No installation directory specified."
 msgstr "ПРЕДУПРЕЖДЕНИЕ: Не указан файл инициализации."
 
-#: spvw.d:3001 spvw.d:3127
+#: spvw.d:3009 spvw.d:3135
 msgid "WARNING: no such package: "
 msgstr "ПРЕДУПРЕЖДЕНИЕ: нет такого пакета: "
 
-#: spvw.d:3054
+#: spvw.d:3062
 msgid "The name of the Run-Control file has changed from '_clisprc' to '.clisprc' on all platforms. Please rename your Run-Control file."
 msgstr ""
 
-#: spvw.d:3330
+#: spvw.d:3338
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Не достаточно памяти для Лиспa."
 
-#: spvw.d:3384
+#: spvw.d:3392
 msgid "Bye."
 msgstr "До свидания! Не поминайте лихом!"
 
-#: spvw.d:3390
+#: spvw.d:3398
 msgid "Press a key to terminate..."
 msgstr "Нажмите любую клавишу на прощание..."
 
@@ -4328,7 +4328,7 @@ msgstr "~S переопределяет константу ~S. Ее прежнее значение было ~S."
 msgid "Invalid syntax in ~S form: ~S."
 msgstr "Некорректный синтаксис в форме ~S: ~S."
 
-#: macros1.lisp:250 places.lisp:641 places.lisp:880
+#: macros1.lisp:250 places.lisp:647 places.lisp:886
 #, lisp-format
 msgid "~S called with an odd number of arguments: ~S"
 msgstr "~S вызывается с нечетным количеством аргументов: ~S"
@@ -4556,77 +4556,77 @@ msgstr "Отсутствует параметр &REST в лямбда-списке ~S"
 msgid "The function (~S ~S) is hidden by a SETF expander."
 msgstr "Функция (~S ~S) спрятана процессором SETF."
 
-#: places.lisp:78
+#: places.lisp:80
 #, lisp-format
 msgid "The argument ~S to ~S should be a keyword."
 msgstr "Аргумент ~S для ~S должен быть ключевым."
 
-#: places.lisp:131
+#: places.lisp:137
 #, lisp-format
 msgid "~S: Argument ~S is not a SETF place."
 msgstr "~S: Аргумент ~S - не обобщенная ячейка."
 
-#: places.lisp:141
+#: places.lisp:147
 #, fuzzy, lisp-format
 msgid "SETF place ~S should produce exactly one store variable."
 msgstr "Обобщенная ячейка ~S задает более, чем одну переменную для запоминания."
 
-#: places.lisp:346
+#: places.lisp:352
 #, lisp-format
 msgid "The name of the accessor must be a symbol, not ~S"
 msgstr "Имя функции доступа должно быть символом, а не ~S"
 
-#: places.lisp:385
+#: places.lisp:391
 #, lisp-format
 msgid "The SETF expander for ~S may not be called with ~S arguments."
 msgstr "Процессор SETF для ~S не может вызываться с ~S аргументами."
 
-#: places.lisp:431
+#: places.lisp:437
 #, lisp-format
 msgid "~S: Too many arguments: ~S"
 msgstr "~S: Слишком много аргументов: ~S"
 
-#: places.lisp:436
+#: places.lisp:442
 #, lisp-format
 msgid "~S: The documentation string must be a string: ~S"
 msgstr "~S: Строка документации должна быть строкой: ~S"
 
-#: places.lisp:457 places.lisp:746 clos-methcomb2.lisp:186 clos-methcomb2.lisp:190
+#: places.lisp:463 places.lisp:752 clos-methcomb2.lisp:186 clos-methcomb2.lisp:190
 #, fuzzy, lisp-format
 msgid "~S ~S: invalid ~S lambda-list: ~A"
 msgstr "~S ~S: некорректна часть лямбда-списка: ~S"
 
-#: places.lisp:493
+#: places.lisp:499
 #, lisp-format
 msgid "(~S ~S): Illegal syntax."
 msgstr "(~S ~S): Некорректный синтаксис."
 
-#: places.lisp:523
+#: places.lisp:529
 #, lisp-format
 msgid "~S: index ~S is too large for ~S"
 msgstr "~S: индекс ~S слишком большой для ~S"
 
-#: places.lisp:874
+#: places.lisp:880
 #, lisp-format
 msgid "~S: Illegal place: ~S"
 msgstr "~S: некорректный синтаксис: ~S"
 
-#: places.lisp:895
+#: places.lisp:901
 #, lisp-format
 msgid "~S: too few arguments: ~S"
 msgstr "~S: Слишком мало аргументов: ~S"
 
-#: places.lisp:1068 places.lisp:1135
+#: places.lisp:1074 places.lisp:1141
 #, lisp-format
 msgid "~S is only defined for functions of the form #'symbol."
 msgstr "~S определен только для функций в форме #'symbol."
 
-#: places.lisp:1076
+#: places.lisp:1082
 #, lisp-format
 msgid "~S on ~S is not a SETF place."
 msgstr "~S для ~S не является обобщенной ячейкой."
 
-#: places.lisp:1185
+#: places.lisp:1191
 #, lisp-format
 msgid "SETF place ~S expects different numbers of values in the true and false branches (~D vs. ~D values)."
 msgstr "Обобщенная ячейка ~S ожидает разное количество значений в своих двух ветвях (~D и ~D)."
