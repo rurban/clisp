@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33.84\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-06 11:20:32-0400\n"
-"PO-Revision-Date: 2005-07-06 11:20:32-0400\n"
+"POT-Creation-Date: 2005-07-13 14:40:39-0400\n"
+"PO-Revision-Date: 2005-07-13 14:40:41-0400\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -271,59 +271,59 @@ msgstr "multiple -B"
 msgid "-E requires an argument"
 msgstr "-E requires an argument"
 
-#: spvw.d:2413
+#: spvw.d:2421
 msgid "-l without -c is invalid"
 msgstr "-l without -c is invalid"
 
-#: spvw.d:2419
+#: spvw.d:2427
 msgid "-x with -c is invalid"
 msgstr "-x with -c is invalid"
 
-#: spvw.d:2424
+#: spvw.d:2432
 msgid "-x with lisp-file is invalid"
 msgstr "-x with lisp-file is invalid"
 
-#: spvw.d:2545
+#: spvw.d:2553
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Return value of malloc() = %lx is not compatible with type code distribution."
 
-#: spvw.d:2552
+#: spvw.d:2560
 msgid "Only %d bytes available."
 msgstr "Only %d bytes available."
 
-#: spvw.d:2802
+#: spvw.d:2810
 msgid "Could not determine the end of the SP stack!"
 msgstr "Could not determine the end of the SP stack!"
 
-#: spvw.d:2946
+#: spvw.d:2954
 msgid "WARNING: No initialization file specified."
 msgstr "WARNING: No initialization file specified."
 
-#: spvw.d:2948 spvw.d:2960
+#: spvw.d:2956 spvw.d:2968
 msgid "Please try: "
 msgstr "Please try: "
 
-#: spvw.d:2958
+#: spvw.d:2966
 msgid "WARNING: No installation directory specified."
 msgstr "WARNING: No installation directory specified."
 
-#: spvw.d:3001 spvw.d:3127
+#: spvw.d:3009 spvw.d:3135
 msgid "WARNING: no such package: "
 msgstr "WARNING: no such package: "
 
-#: spvw.d:3054
+#: spvw.d:3062
 msgid "The name of the Run-Control file has changed from '_clisprc' to '.clisprc' on all platforms. Please rename your Run-Control file."
 msgstr "The name of the Run-Control file has changed from '_clisprc' to '.clisprc' on all platforms. Please rename your Run-Control file."
 
-#: spvw.d:3330
+#: spvw.d:3338
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Not enough memory for Lisp."
 
-#: spvw.d:3384
+#: spvw.d:3392
 msgid "Bye."
 msgstr "Bye."
 
-#: spvw.d:3390
+#: spvw.d:3398
 msgid "Press a key to terminate..."
 msgstr "Press a key to terminate..."
 
@@ -4225,7 +4225,7 @@ msgstr "~S redefines the constant ~S. Its old value was ~S."
 msgid "Invalid syntax in ~S form: ~S."
 msgstr "Invalid syntax in ~S form: ~S."
 
-#: macros1.lisp:250 places.lisp:641 places.lisp:880
+#: macros1.lisp:250 places.lisp:647 places.lisp:886
 #, lisp-format
 msgid "~S called with an odd number of arguments: ~S"
 msgstr "~S called with an odd number of arguments: ~S"
@@ -4453,77 +4453,77 @@ msgstr "Missing &WHOLE parameter in lambda list ~S"
 msgid "The function (~S ~S) is hidden by a SETF expander."
 msgstr "The function (~S ~S) is hidden by a SETF expander."
 
-#: places.lisp:78
+#: places.lisp:80
 #, lisp-format
 msgid "The argument ~S to ~S should be a keyword."
 msgstr "The argument ~S to ~S should be a keyword."
 
-#: places.lisp:131
+#: places.lisp:137
 #, lisp-format
 msgid "~S: Argument ~S is not a SETF place."
 msgstr "~S: Argument ~S is not a SETF place."
 
-#: places.lisp:141
+#: places.lisp:147
 #, lisp-format
 msgid "SETF place ~S should produce exactly one store variable."
 msgstr "SETF place ~S should produce exactly one store variable."
 
-#: places.lisp:346
+#: places.lisp:352
 #, lisp-format
 msgid "The name of the accessor must be a symbol, not ~S"
 msgstr "The name of the accessor must be a symbol, not ~S"
 
-#: places.lisp:385
+#: places.lisp:391
 #, lisp-format
 msgid "The SETF expander for ~S may not be called with ~S arguments."
 msgstr "The SETF expander for ~S may not be called with ~S arguments."
 
-#: places.lisp:431
+#: places.lisp:437
 #, lisp-format
 msgid "~S: Too many arguments: ~S"
 msgstr "~S: Too many arguments: ~S"
 
-#: places.lisp:436
+#: places.lisp:442
 #, lisp-format
 msgid "~S: The documentation string must be a string: ~S"
 msgstr "~S: The documentation string must be a string: ~S"
 
-#: places.lisp:457 places.lisp:746 clos-methcomb2.lisp:186 clos-methcomb2.lisp:190
+#: places.lisp:463 places.lisp:752 clos-methcomb2.lisp:186 clos-methcomb2.lisp:190
 #, lisp-format
 msgid "~S ~S: invalid ~S lambda-list: ~A"
 msgstr "~S ~S: invalid ~S lambda-list: ~A"
 
-#: places.lisp:493
+#: places.lisp:499
 #, lisp-format
 msgid "(~S ~S): Illegal syntax."
 msgstr "(~S ~S): Illegal syntax."
 
-#: places.lisp:523
+#: places.lisp:529
 #, lisp-format
 msgid "~S: index ~S is too large for ~S"
 msgstr "~S: index ~S is too large for ~S"
 
-#: places.lisp:874
+#: places.lisp:880
 #, lisp-format
 msgid "~S: Illegal place: ~S"
 msgstr "~S: Illegal place: ~S"
 
-#: places.lisp:895
+#: places.lisp:901
 #, lisp-format
 msgid "~S: too few arguments: ~S"
 msgstr "~S: too few arguments: ~S"
 
-#: places.lisp:1068 places.lisp:1135
+#: places.lisp:1074 places.lisp:1141
 #, lisp-format
 msgid "~S is only defined for functions of the form #'symbol."
 msgstr "~S is only defined for functions of the form #'symbol."
 
-#: places.lisp:1076
+#: places.lisp:1082
 #, lisp-format
 msgid "~S on ~S is not a SETF place."
 msgstr "~S on ~S is not a SETF place."
 
-#: places.lisp:1185
+#: places.lisp:1191
 #, lisp-format
 msgid "SETF place ~S expects different numbers of values in the true and false branches (~D vs. ~D values)."
 msgstr "SETF place ~S expects different numbers of values in the true and false branches (~D vs. ~D values)."
