@@ -1,3 +1,7 @@
+2005-07-13  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (setup.hint) [cygwin]: fixed curr/test output
+
 2005-07-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp: updated obsolete names
