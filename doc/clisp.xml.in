@@ -670,7 +670,7 @@ compiles the specified lisp files to a platform-independent
  <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355">SourceForge bug tracker</ulink>.</para>
 
 <para><emphasis>Before</emphasis> submitting a bug report, please take
- the following basic steps to make the report more useful:</para>
+ the following basic steps to make the report more useful:
 <orderedlist>
  <listitem><simpara>Please do a clean build (remove your build directory
    and build &clisp; with <command>"./configure --build build"</command>
@@ -685,11 +685,10 @@ compiles the specified lisp files to a platform-independent
    hard crash, the problem is likely to be in the incompatibilities
    between the platform on which the binary was built and yours; please
    try compiling the sources and report the problem if it persists.
-</simpara></listitem></orderedlist>
+</simpara></listitem></orderedlist></para>
 
 <para>When submitting a bug report, please specify the
-following information:</para>
-
+following information:
 <orderedlist>
  <listitem><simpara>What is your platform (<command>&uname-u; -a</command>
    on a &unix; system)?  Compiler version?
@@ -703,23 +702,22 @@ following information:</para>
      --version"</link></command>?</simpara></listitem>
  <listitem><simpara>Please supply the full output (copy and paste) of
    all the error messages, as well as detailed instructions on how to
-   reproduce them.</simpara></listitem></orderedlist>
+   reproduce them.</simpara></listitem></orderedlist></para>
 
-<para>Known bugs, some of which may be platform-dependent, include:</para>
-
+<para>Known bugs, some of which may be platform-dependent, include:
 <itemizedlist>
 <!-- #ifdef SPVW_MIXED_BLOCKS -->
-<listitem><simpara>The memory management scheme is not very
-  flexible.</simpara></listitem>
+<listitem><simpara>The memory management scheme is not very flexible.
+</simpara></listitem>
 <!-- #endif -->
-<listitem><simpara>No on-line documentation beyond &apropos;
-  and &describe; is available.</simpara></listitem>
 <!-- #ifdef UNIX_COHERENT -->
 <listitem><simpara>&kbd-in; does not
   recognize <keycombo>&ctrl;<keysym>S</keysym></keycombo>
   and <keycombo>&ctrl;<keysym>Q</keysym></keycombo>.</simpara></listitem>
 <!-- #endif -->
-</itemizedlist>
+<listitem><simpara>No on-line documentation beyond &apropos;
+  and &describe; is available.</simpara></listitem>
+</itemizedlist></para>
 </refsection>
 
 <refsection id="projects"><title>Projects</title>
