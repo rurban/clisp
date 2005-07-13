@@ -34,11 +34,27 @@ XMLSOC := $(firstword $(wildcard /usr/share/sgml/xml.soc \
                                  /usr/share/OpenSP/xml.soc \
                                  /usr/share/sgml/jade_dsl/xml.soc \
                                  /usr/share/sgml/openjade-1.3.1/pubtext/xml.soc \
+                                 /usr/share/sgml/declaration/xml.soc \
+                                 $(shell locate /xml.soc) \
                                  ))
 
 XALAN=$(JAVAXML)/xalan-j_2_0_0
 SAXON=$(JAVAXML)/saxon
 CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxon.jar
+
+# name of XML catalog file to create
+# (if not specified, no local catalog created or used)
+CATALOG_FILE=catalog.xml
+
+# Local path to DocBook XSL stylesheets on your system.
+# Make sure to use a trailing slash.
+STYLESHEETS_PATH=/usr/share/docbook-xsl-snapshot/
+
+# Stylesheets URI used in the CLISP project *.xsl files.
+STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/current/
+
+# The xmlcatalog utility (from libxml2)
+XMLCATALOG=xmlcatalog
 
 # chose one:
 #TEXI2HTML=texi2html -monolithic -verbose $< -out_file $@
@@ -81,9 +97,23 @@ SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
 
 ROFF_UNCOMMENT=$(subst --,\\-\\-,$(SGML_UNCOMMENT))
 
-all: check impnotes.html regexp.html man
+all: check $(CATALOG_FILE) impnotes.html regexp.html man
 
-MAKE_TDB=xsltproc --timing --stringparam collect.xref.targets "only" \
+ifneq (,$(CATALOG_FILE))
+# depends on Makefile because of $(STYLESHEETS_PATH)
+$(CATALOG_FILE): Makefile
+	$(RM) $(CATALOG_FILE)
+	$(XMLCATALOG) --create > $(CATALOG_FILE)
+	$(XMLCATALOG) --noout --add "rewriteURI" \
+		$(STYLESHEETS_URI) $(STYLESHEETS_PATH) $(CATALOG_FILE)
+	$(XMLCATALOG) --noout --add "rewriteSystem" \
+		$(STYLESHEETS_URI) $(STYLESHEETS_PATH) $(CATALOG_FILE)
+XSLTPROC=XML_CATALOG_FILES="$(CATALOG_FILE) ${XML_CATALOG_FILES}" xsltproc
+else
+XSLTPROC=xsltproc
+endif
+
+MAKE_TDB=$(XSLTPROC) --timing --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
 
 tdb-man.xml: clisp.xml pile.xsl common.xsl
@@ -99,7 +129,7 @@ clisp.xml: clisp.xml.in ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
 
-XMLOUT=xsltproc --timing --stringparam target.database.document
+XMLOUT=$(XSLTPROC) --timing --stringparam target.database.document
 
 clisp.html: clisp.xml common.xsl pile.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" --stringparam current.docid "man" \
@@ -150,7 +180,7 @@ html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 	cd html && sed 's/^/ln -vf /' .symlinks | sh -
 	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "impnotes" \
 		-o $@/ chunk.xsl $<
-	xsltproc --timing -o $@/id-href.map id-href-map.xsl tdb-chunk.xml
+	$(XSLTPROC) --timing -o $@/id-href.map id-href-map.xsl tdb-chunk.xml
 	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "man" \
 		-o $@/clisp.html pile.xsl clisp.xml
 	sed $(SGML_UNCOMMENT) $@/clisp.html > _clisp-1.html
@@ -172,7 +202,7 @@ regexp.html: ../modules/regexp/regexp.texinfo
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
-		clisp.html clisp.1 tdb-*.xml
+		clisp.html clisp.1 tdb-*.xml $(CATALOG_FILE)
 
 count: $(IMPNOTES)
 	wc $^
