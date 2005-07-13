@@ -119,6 +119,7 @@ Embeddability: additional API in spvw.d; example.
 
 
 Update PARI module: there is no global precision variable anymore.
+Many functions have been added since the module has been written.
 
 
 nested REQUIRE is broken
