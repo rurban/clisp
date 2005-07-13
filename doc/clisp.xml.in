@@ -443,7 +443,7 @@ compiles the specified lisp files to a platform-independent
 
 <refsection id="reference"><title>Language Reference</title>
 
-<para id="ansi-cl">The language implemented is &ansi-cl.
+<para id="ansi-cl">The language implemented is &ansi-cl;.
  The implementation mostly conforms to the <olink targetdoc="impnotes"
  targetptr="ref-ansi">ANSI Common Lisp standard</olink>.</para>
 
