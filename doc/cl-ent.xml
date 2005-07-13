@@ -237,6 +237,7 @@
 
 <!-- *** format instructions *** -->
 <!ENTITY format-a "<ulink url='&clhs;/Body/sec_22-3-4-1.html'><literal>~A</literal></ulink>">
+<!ENTITY format-amp "<ulink url='&clhs;/Body/sec_22-3-1-3.html'><literal>~&amp;</literal></ulink>">
 <!ENTITY format-b "<ulink url='&clhs;/Body/sec_22-3-2-3.html'><literal>~B</literal></ulink>">
 <!ENTITY format-c "<ulink url='&clhs;/Body/sec_22-3-1-1.html'><literal>~:@C</literal></ulink>">
 <!ENTITY format-d "<ulink url='&clhs;/Body/sec_22-3-2-2.html'><literal>~D</literal></ulink>">
@@ -245,6 +246,7 @@
 <!ENTITY format-f "<ulink url='&clhs;/Body/sec_22-3-3-1.html'><literal>~F</literal></ulink>">
 <!ENTITY format-g "<ulink url='&clhs;/Body/sec_22-3-3-3.html'><literal>~G</literal></ulink>">
 <!ENTITY format-o "<ulink url='&clhs;/Body/sec_22-3-2-4.html'><literal>~O</literal></ulink>">
+<!ENTITY format-percent "<ulink url='&clhs;/Body/sec_22-3-1-2.html'><literal>~%</literal></ulink>">
 <!ENTITY format-r "<ulink url='&clhs;/Body/sec_22-3-2-1.html'><literal>~R</literal></ulink>">
 <!ENTITY format-rs "<ulink url='&clhs;/Body/sec_22-3-2-1.html'><literal>~:R</literal></ulink>">
 <!ENTITY format-s "<ulink url='&clhs;/Body/sec_22-3-4-2.html'><literal>~S</literal></ulink>">
