@@ -2558,23 +2558,19 @@ class &slotdef-t;.</para>
  <listitem><simpara>The &type-k; argument is a type specifier name.  An
    &err-sig; otherwise.  The &type-k; argument defaults to the symbol &t;.
  </simpara></listitem>
- <listitem><simpara>The &allocation-k; argument is a symbol.  An
+ <listitem><simpara>The &allocation-k; argument is a &symbol-t;.  An
    &err-sig; otherwise.  The &allocation-k; argument defaults to the
    symbol &instance-k;.</simpara></listitem>
- <listitem><simpara>The &initargs-k; argument is a list of symbols.  An
-   &err-sig; if this argument is not a &proper-list-glo;, or if any element of
-   this list is not a symbol.  The &initargs-k; argument defaults to the
-   empty list.</simpara></listitem>
- <listitem><simpara>The &readers-k; argument is a list of function
-   names.  An &err-sig; if it is not a &proper-list-glo;, or if any element is
-   not a valid function name. It defaults to the empty list.  An
-   &err-sig; if this argument is supplied and the metaobject is not a
-   direct slot definition.</simpara></listitem>
- <listitem><simpara>The &writers-k; argument is a list of function
-   names.  An &err-sig; if it is not a &proper-list-glo;, or if any element is
-   not a valid function name. It defaults to the empty list.  An
-   &err-sig; if this argument is supplied and the metaobject is not a
-   direct slot definition.</simpara></listitem>
+ <listitem><simpara>The &initargs-k; argument is a &list-t; of &symbol-t;s.
+   An &err-sig; if this argument is not a &proper-list-glo;, or if any
+   element of this list is not a &symbol;.  The &initargs-k; argument
+   defaults to the empty list.</simpara></listitem>
+ <listitem><simpara>The &readers-k; and &writers-k; arguments are
+   &list-t;s of function names.  An &err-sig; if they are not
+   &proper-list-glo;s, or if any element is not a valid function name.
+   They default to the empty list.  An &err-sig; if either of these
+   arguments is supplied and the metaobject is not a &dsd-t;.
+ </simpara></listitem>
  &doc-k-li;
 </itemizedlist>
 
