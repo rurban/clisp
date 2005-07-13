@@ -484,13 +484,12 @@ compiles the specified lisp files to a platform-independent
 
 <varlistentry id="completion"><term>Tab key</term>
  <listitem><para>Context sensitive:
-  <itemizedlist><listitem><simpara>If you are in the "function
-     position" (in the first symbol after an opening paren or in the
-     first symbol after a <command>#'</command>), the completion is
+  <itemizedlist><listitem><simpara>If you are in the <quote>function
+     position</quote> (in the first symbol after an opening paren or in
+     the first symbol after a &sharp-prime;), the completion is
      limited to the symbols that name functions.</simpara></listitem>
    <listitem><simpara>If you are in the "filename position" (inside a
-     string after <command>#P</command>), the completion is done
-     across file names,
+     string after &sharp-P;), the completion is done across file names,
      <ulink url="http://www.gnu.org/software/bash/">bash</ulink>-style.
    </simpara></listitem>
    <listitem><simpara>If you have not typed anything yet, you will get
