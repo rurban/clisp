@@ -3629,10 +3629,12 @@ echo_dist_modules () {
 if [ ${HSYSOS} = cygwin ]; then
   echol "full/lisp.exe : full"
   echol
-  echol "CLISP_RELEASE=1"
-  echol "setup.hint : " # full/lisp.exe
+  echol "CLISP_RELEASE_TYPE=curr"
+  echol "# Makefile: \$(MODULES)"
+  echol "# full/lisp.exe: dependencies"
+  echol "setup.hint : # Makefile full/lisp.exe"
   echotab "\$(RM) setup.hint"
-  echotab "if test \$(CLISP_RELEASE) != 1; then echo 'test: \$(VERSION)-\$(CLISP_RELEASE)' >> setup.hint; echo 'curr: \$(VERSION)-1' >> setup.hint; fi"
+  echotab "echo '\$(CLISP_RELEASE_TYPE): \$(VERSION)-1' >> setup.hint"
   echotab "echo 'sdesc: \"an ANSI Common Lisp implementation\"' >> setup.hint"
   echotab "echo 'category: Devel Interpreters Math Shells' >> setup.hint"
   echotab 'REQ=''; for f in `cygcheck full/lisp.exe`; do echo "* "$$f; f=`cygpath -u $$f`; REQ=$${REQ}" "`cygcheck -f $$f|sed "s/-.*//"`; done; echo "="$${REQ}; echo "requires:"$${REQ} >> setup.hint'
