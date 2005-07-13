@@ -226,6 +226,7 @@
 <!-- *** reader *** -->
 <!ENTITY whitespace "<ulink url='&clhs;/Body/sec_2-1-4-7.html'>whitespace</ulink>">
 <!ENTITY sharp-back "<ulink url='&clhs;/Body/sec_2-4-8-1'><literal role='data'>#\</literal></ulink>">
+<!ENTITY sharp-prime "<ulink url='&clhs;/Body/sec_2-4-8-2'><literal role='data'>#'</literal></ulink>">
 <!ENTITY sharp-A "<ulink url='&clhs;/Body/sec_2-4-8-12'><literal role='data'>#<replaceable>rank</replaceable>A</literal></ulink>">
 <!ENTITY sharp-S "<ulink url='&clhs;/Body/sec_2-4-8-13'><literal role='data'>#S</literal></ulink>">
 <!ENTITY sharp-P "<ulink url='&clhs;/Body/sec_2-4-8-14'><literal role='data'>#P</literal></ulink>">
