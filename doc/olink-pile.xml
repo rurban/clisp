@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE targetset
-          SYSTEM "file:///usr/share/docbook-xsl/common/targetdatabase.dtd" [
+          SYSTEM "http://docbook.sourceforge.net/release/xsl/current/common/targetdatabase.dtd" [
   <!ENTITY man-targets SYSTEM "tdb-man.xml">
   <!ENTITY imp-targets SYSTEM "tdb-pile.xml">
 ]>
