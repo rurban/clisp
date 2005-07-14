@@ -519,7 +519,7 @@ User visible changes
   (Large File Support).
 
 * New module berkeley-db interfaces to
-  <http://www.sleepycat.com/docs/api_c/dbt_class.html>
+  <http://www.sleepycat.com/docs/api_c/frame.html>
   and allows working with Berkeley DB databases.
   See <http://clisp.cons.org/impnotes.html#berkeley-db> for details.
 
