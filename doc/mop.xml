@@ -2563,7 +2563,7 @@ class &slotdef-t;.</para>
    symbol &instance-k;.</simpara></listitem>
  <listitem><simpara>The &initargs-k; argument is a &list-t; of &symbol-t;s.
    An &err-sig; if this argument is not a &proper-list-glo;, or if any
-   element of this list is not a &symbol;.  The &initargs-k; argument
+   element of this list is not a &symbol-t;.  The &initargs-k; argument
    defaults to the empty list.</simpara></listitem>
  <listitem><simpara>The &readers-k; and &writers-k; arguments are
    &list-t;s of function names.  An &err-sig; if they are not
