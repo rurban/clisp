@@ -1,6 +1,7 @@
 <!-- Berkley DB XML entities -->
-<!ENTITY bdb "http://www.sleepycat.com/docs/api_c/">
-<!ENTITY sleepycat-berkeley-db "<ulink url='http://www.sleepycat.com/docs/index.html'>Berkeley DB from Sleepycat Software</ulink>">
+<!ENTITY bdb-doc "http://www.sleepycat.com/docs/">
+<!ENTITY bdb "&bdb-doc;api_c/">
+<!ENTITY sleepycat-berkeley-db "<ulink url='&bdb-doc;index.html'>Berkeley DB from Sleepycat Software</ulink>">
 <!ENTITY db_create "<ulink url='&bdb;db_create.html'><function>db_create</function></ulink>">
 <!ENTITY db_version "<ulink url='&bdb;env_version.html'><function>db_version</function></ulink>">
 <!ENTITY db_log_compare "<ulink url='&bdb;log_compare.html'><function>log_compare</function></ulink>">
