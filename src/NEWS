@@ -391,6 +391,7 @@ Modules
 
 * Module berkeley-db is vastly expanded.
   See <http://clisp.cons.org/impnotes.html#berkeley-db> for details.
+  Added support for Berkeley DB 4.3.
 
 * Modules now have an exit function.
   See <http://clisp.cons.org/impnotes.html#modexit> for details.

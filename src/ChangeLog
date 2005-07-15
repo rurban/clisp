@@ -1,5 +1,17 @@
 2005-07-15  Sam Steingold  <sds@gnu.org>
 
+	support Berkeley-DB 4.3
+	* modules/berkeley-db/bdb.c (BDB:DB-VERSION): also return
+	LOGVERSION, TXNVERSION, SEQUENCE_VERSION
+	(DBE-SET-OPTIONS): also accept DSYNC-LOG LOG-AUTOREMOVE LOG-INMEMORY
+	(DB-GET, MAKE-DBC, TXN-BEGIN): also accept DEGREE-2
+	(DB-STAT): also accept TRANSACTION
+	(DB-SET-OPTIONS): also accept INORDER
+	* modules/berkeley-db/configure.in: check for DB_ENV.set_msgcall,
+	DB->stat/TXN, DB_ENV->set_errcall/DBE, get_transactional
+
+2005-07-15  Sam Steingold  <sds@gnu.org>
+
 	* configure (--list-modules): new option
 
 2005-07-15  Sam Steingold  <sds@gnu.org>

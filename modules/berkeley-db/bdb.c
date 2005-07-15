@@ -76,42 +76,92 @@ static inline object asciz_to_string0 (const char* a, object e)
 
 #include <db.h>
 
-#ifndef MAX
-# define MAX(a,b) ((a)>(b) ? a : b)
-#endif
-
 /* this has to be before DEFCHECKERs */
 typedef enum { DBT_RAW, DBT_STRING, DBT_INTEGER } dbt_o_t;
 
 DEFMODULE(bdb,"BDB")
 
-DEFUN(BDB:DB-VERSION,)
+DEFUN(BDB:DB-VERSION,&optional subsystems-p)
 { /* Berkeley-DB version */
   int major, minor, patch;
   char * version;
   begin_system_call();
   version = db_version(&major,&minor,&patch);
   end_system_call();
+  if (major != DB_VERSION_MAJOR || minor != DB_VERSION_MINOR) {
+    pushSTACK(fixnum(DB_VERSION_MINOR)); pushSTACK(fixnum(DB_VERSION_MAJOR));
+    pushSTACK(fixnum(minor)); pushSTACK(fixnum(major));
+    fehler(serious_condition,GETTEXT("Version mismatch: compile=~S.~S link=~S~S"));
+  }
+  if (patch != DB_VERSION_PATCH) {
+    /* is this warning warranted? */
+    pushSTACK(fixnum(DB_VERSION_PATCH)); pushSTACK(fixnum(patch));
+    fehler(warning,GETTEXT("Patch level mismatch: compile=~S link=~S"));
+  }
   value1 = asciz_to_string(version,GLO(misc_encoding));
   value2 = fixnum(major);
   value3 = fixnum(minor);
   value4 = fixnum(patch);
-  mv_count = 4;
+  if (missingp(STACK_0)) {
+    mv_count = 4;
+  } else {                      /* return subsystem versions too */
+    int subsystem_count = 0;
+#  if defined(DB_LOCKVERSION)
+    pushSTACK(`:LOCK`); pushSTACK(fixnum(DB_LOCKVERSION)); subsystem_count++;
+#  endif
+#  if defined(DB_LOGVERSION)
+    pushSTACK(`:LOG`); pushSTACK(fixnum(DB_LOGVERSION)); subsystem_count++;
+#  endif
+#  if defined(DB_TXNVERSION)
+    pushSTACK(`:TXN`); pushSTACK(fixnum(DB_TXNVERSION)); subsystem_count++;
+#  endif
+#  if defined(DB_BTREEVERSION)
+    pushSTACK(`:BTREE`); pushSTACK(fixnum(DB_BTREEVERSION)); subsystem_count++;
+#  endif
+#  if defined(DB_HASHVERSION)
+    pushSTACK(`:HASH`); pushSTACK(fixnum(DB_HASHVERSION)); subsystem_count++;
+#  endif
+#  if defined(DB_QAMVERSION)
+    pushSTACK(`:QAM`); pushSTACK(fixnum(DB_QAMVERSION)); subsystem_count++;
+#  endif
+#  if defined(DB_SEQUENCE_VERSION)
+    pushSTACK(`:SEQUENCE`); pushSTACK(fixnum(DB_SEQUENCE_VERSION));
+    subsystem_count++;
+#  endif
+    value5 = listof(2*subsystem_count);
+    mv_count = 5;
+  }
+  skipSTACK(1);
 }
 
 static char *error_message = NULL;
-static void error_callback (const char *errpfx, char *msg) {
-  int offset = errpfx ? strlen(errpfx)+4 : 0;
-  if (error_message) NOTREACHED;
-  error_message = (char*)my_malloc(1 + offset + strlen(msg));
-  if (errpfx) {
-    error_message[0] = '[';
-    strcpy(error_message+1,errpfx);
-    error_message[offset-3] = ']';
-    error_message[offset-2] = ':';
-    error_message[offset-1] = ' ';
+#if defined(HAVE_DBE_SET_ERRCALL_ACCEPT_DBE)
+static void error_callback (const DB_ENV* dbe,
+                            const char *errpfx, const char *msg)
+#else
+static void error_callback (const char *errpfx, char *msg)
+#endif
+{
+  char *data;
+  if (error_message) { /* append the new message to the previous ones */
+    int len = strlen(error_message);
+    error_message = (char*)my_realloc(error_message,3 + strlen(msg) + len);
+    error_message[len++] = ';';
+    error_message[len++] = ' ';
+    data = error_message + len;
+  } else {
+    int offset = errpfx ? strlen(errpfx)+4 : 0;
+    data = error_message = (char*)my_malloc(1 + offset + strlen(msg));
+    if (errpfx) {
+      data[0] = '[';
+      strcpy(data+1,errpfx);
+      data[offset-3] = ']';
+      data[offset-2] = ':';
+      data[offset-1] = ' ';
+    }
+    data += offset;
   }
-  strcpy(error_message+offset,msg);
+  strcpy(data,msg);
 }
 #define FREE_RESET(x) if (x) { free(x); x = NULL; }
 static void error_message_reset (void) { FREE_RESET(error_message) }
@@ -275,7 +325,7 @@ static void time_stamp (FILE* out, char* prefix) {
 /* some DB parameters (errfile, errpfx) are actually kept in DB.dbenv field.
  http://groups.google.com/groups?&selm=adecb6f.0408050624.5ed0a11e@posting.google.com
  therefore, instead of calling db->get_errfile(db,...) we call
- db->dbenv(get_errfile(db->dbenv,...).
+ db->dbenv(get_errfile(db->dbenv,...)).
  note that DB-CLOSE should close these parameters
  only if it is a standalone DB! */
 static void close_errfile (DB_ENV *dbe) {
@@ -464,26 +514,28 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       :SHM-KEY :TAS-SPINS :TX-TIMESTAMP :TX-MAX :DATA-DIR :TMP-DIR      \
       :LG-BSIZE :LG-DIR :LG-MAX :LG-REGIONMAX                           \
       :LK-CONFLICTS :LK-DETECT :LK-MAX-LOCKERS :LK-MAX-LOCKS :LK-MAX-OBJECTS \
-      :AUTO-COMMIT :CDB-ALLDB :DIRECT-DB :DIRECT-LOG :NOLOCKING         \
+      :AUTO-COMMIT :CDB-ALLDB :DIRECT-DB :DSYNC-LOG :LOG-AUTOREMOVE \
+      :LOG-INMEMORY :DIRECT-LOG :NOLOCKING                              \
       :NOMMAP :NOPANIC :OVERWRITE :PANIC-ENVIRONMENT :REGION-INIT       \
       :TXN-NOSYNC :TXN-WRITE-NOSYNC :YIELDCPU                           \
       :VERB-CHKPOINT :VERB-DEADLOCK :VERB-RECOVERY :VERB-REPLICATION    \
       :VERB-WAITSFOR :VERBOSE)
 { /* set many options */
-  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(41),`BDB::DBE`,BH_VALID);
-  { /* verbose */
-    object verbosep = popSTACK(); /* :VERBOSE - all */
-    set_verbose(dbe,verbosep,DB_VERB_WAITSFOR);
-    set_verbose(dbe,verbosep,DB_VERB_REPLICATION);
-    set_verbose(dbe,verbosep,DB_VERB_RECOVERY);
-    set_verbose(dbe,verbosep,DB_VERB_DEADLOCK);
-    set_verbose(dbe,verbosep,DB_VERB_CHKPOINT);
-    set_verbose(dbe,popSTACK(),DB_VERB_WAITSFOR);
-    set_verbose(dbe,popSTACK(),DB_VERB_REPLICATION);
-    set_verbose(dbe,popSTACK(),DB_VERB_RECOVERY);
-    set_verbose(dbe,popSTACK(),DB_VERB_DEADLOCK);
-    set_verbose(dbe,popSTACK(),DB_VERB_CHKPOINT);
-  }
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(44),`BDB::DBE`,BH_VALID);
+  set_verbose(dbe,popSTACK(),DB_VERB_WAITSFOR | DB_VERB_REPLICATION
+#            if defined(DB_VERB_CHKPOINT)
+              | DB_VERB_CHKPOINT
+#            endif
+              | DB_VERB_RECOVERY | DB_VERB_DEADLOCK);
+  set_verbose(dbe,popSTACK(),DB_VERB_WAITSFOR);
+  set_verbose(dbe,popSTACK(),DB_VERB_REPLICATION);
+  set_verbose(dbe,popSTACK(),DB_VERB_RECOVERY);
+  set_verbose(dbe,popSTACK(),DB_VERB_DEADLOCK);
+#if defined(DB_VERB_CHKPOINT)
+  set_verbose(dbe,popSTACK(),DB_VERB_CHKPOINT);
+#else
+  skipSTACK(1);               /* drop :VERB-CHKPOINT */
+#endif
   { /* flags */
     u_int32_t flags_on = 0, flags_off = 0;
     set_flags(popSTACK(),&flags_on,&flags_off,DB_YIELDCPU);
@@ -496,6 +548,17 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
     set_flags(popSTACK(),&flags_on,&flags_off,DB_NOMMAP);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_NOLOCKING);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_DIRECT_LOG);
+#  if defined(DB_LOG_INMEMORY)
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_LOG_INMEMORY);
+#  else
+    skipSTACK(1);               /* skip :LOG-INMEMORY */
+#  endif
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_LOG_AUTOREMOVE);
+#  if defined(DB_DSYNC_LOG)
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_DSYNC_LOG);
+#  else
+    skipSTACK(1);               /* skip :DSYNC-LOG */
+#  endif
     set_flags(popSTACK(),&flags_on,&flags_off,DB_DIRECT_DB);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_CDB_ALLDB);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_AUTO_COMMIT);
@@ -612,8 +675,10 @@ static object dbe_get_verbose (DB_ENV *dbe) {
   if (onoffp) { pushSTACK(`:VERB-RECOVERY`); count++; }
   SYSCALL(dbe->get_verbose,(dbe,DB_VERB_DEADLOCK,&onoffp));
   if (onoffp) { pushSTACK(`:VERB-DEADLOCK`); count++; }
+#if defined(DB_VERB_CHKPOINT)
   SYSCALL(dbe->get_verbose,(dbe,DB_VERB_CHKPOINT,&onoffp));
   if (onoffp) { pushSTACK(`:VERB-CHKPOINT`); count++; }
+#endif
   return listof(count);
 }
 /* get the data directory list
@@ -671,6 +736,13 @@ static object dbe_get_flags_list (DB_ENV *dbe) {
   if (flags & DB_NOPANIC) { pushSTACK(`:NOPANIC`); count++; }
   if (flags & DB_NOMMAP) { pushSTACK(`:NOMMAP`); count++; }
   if (flags & DB_NOLOCKING) { pushSTACK(`:NOLOCKING`); count++; }
+#if defined(DB_LOG_INMEMORY)
+  if (flags & DB_LOG_INMEMORY) { pushSTACK(`:LOG-INMEMORY`); count++; }
+#endif
+  if (flags & DB_LOG_AUTOREMOVE) { pushSTACK(`:LOG-AUTOREMOVE`); count++; }
+#if defined(DB_DSYNC_LOG)
+  if (flags & DB_DSYNC_LOG) { pushSTACK(`:DSYNC-LOG`); count++; }
+#endif
   if (flags & DB_DIRECT_LOG) { pushSTACK(`:DIRECT-LOG`); count++; }
   if (flags & DB_CDB_ALLDB) { pushSTACK(`:CDB-ALLDB`); count++; }
   if (flags & DB_AUTO_COMMIT) { pushSTACK(`:AUTO-COMMIT`); count++; }
@@ -797,10 +869,12 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     int onoffp;
     SYSCALL(dbe->get_verbose,(dbe,DB_VERB_DEADLOCK,&onoffp));
     VALUES_IF(onoffp);
+#if defined(DB_VERB_CHKPOINT)
   } else if (eq(what,`:VERB-CHKPOINT`)) {
     int onoffp;
     SYSCALL(dbe->get_verbose,(dbe,DB_VERB_CHKPOINT,&onoffp));
     VALUES_IF(onoffp);
+#endif
   } else if (eq(what,`:YIELDCPU`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_YIELDCPU);
   } else if (eq(what,`:TXN-WRITE-NOSYNC`)) {
@@ -819,6 +893,16 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_NOMMAP);
   } else if (eq(what,`:NOLOCKING`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_NOLOCKING);
+#if defined(DB_LOG_INMEMORY)
+  } else if (eq(what,`:LOG-INMEMORY`)) {
+    VALUES_IF(dbe_get_flags_num(dbe) & DB_LOG_INMEMORY);
+#endif
+  } else if (eq(what,`:LOG-AUTOREMOVE`)) {
+    VALUES_IF(dbe_get_flags_num(dbe) & DB_LOG_AUTOREMOVE);
+#if defined(DB_DSYNC_LOG)
+  } else if (eq(what,`:DSYNC-LOG`)) {
+    VALUES_IF(dbe_get_flags_num(dbe) & DB_DSYNC_LOG);
+#endif
   } else if (eq(what,`:DIRECT-LOG`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_DIRECT_LOG);
   } else if (eq(what,`:CDB-ALLDB`)) {
@@ -1151,9 +1235,10 @@ DEFUN(BDB:DB-FD, db)
 
 DEFCHECKER(db_get_action,prefix=DB, default=0, \
            CONSUME CONSUME-WAIT GET-BOTH SET-RECNO)
-DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_DIRTY_READ DB_MULTIPLE DB_RMW)
-DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO-COMMIT :DIRTY-READ :MULTIPLE :RMW \
-      :TRANSACTION :ERROR :TYPE :KEY-TYPE)
+DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_DEGREE_2 DB_DIRTY_READ \
+           DB_MULTIPLE DB_RMW)
+DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO-COMMIT :DEGREE-2 :DIRTY-READ \
+      :MULTIPLE :RMW :TRANSACTION :ERROR :TYPE :KEY-TYPE)
 { /* Get items from a database */
   dbt_o_t key_type = check_dbt_type(popSTACK());
   dbt_o_t out_type = check_dbt_type(popSTACK());
@@ -1191,8 +1276,14 @@ DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO-COMMIT :DIRTY-READ :MULTIPLE :RMW \
 
 DEFCHECKER(check_dbtype,enum=DBTYPE,default=DB_UNKNOWN,prefix=DB, \
            UNKNOWN BTREE HASH QUEUE RECNO)
-DEFUN(BDB:DB-STAT, db &key :FAST-STAT)
+DEFUN(BDB:DB-STAT, db &key :FAST-STAT :TRANSACTION)
 { /* Return database statistics */
+  DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
+#if defined(HAVE_DB_STAT_ACCEPT_TXN)
+# define DB_STAT(s)   SYSCALL(db->stat,(db,txn,&s,flags));
+#else
+# define DB_STAT(s)   SYSCALL(db->stat,(db,&s,flags));
+#endif
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_FAST_STAT;
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
   int swapped_p;
@@ -1207,7 +1298,7 @@ DEFUN(BDB:DB-STAT, db &key :FAST-STAT)
 #define STAT_SLOT_FAST(slot)   pushSTACK(flags ? NIL : UL_to_I(slot)); count++
     case DB_HASH: {
       DB_HASH_STAT *hash_stat;
-      SYSCALL(db->stat,(db,&hash_stat,flags));
+      DB_STAT(hash_stat);
       STAT_SLOT(hash_stat->hash_magic);
       STAT_SLOT(hash_stat->hash_version);
       STAT_SLOT(hash_stat->hash_nkeys);
@@ -1228,7 +1319,7 @@ DEFUN(BDB:DB-STAT, db &key :FAST-STAT)
     } break;
     case DB_BTREE: case DB_RECNO: {
       DB_BTREE_STAT *btree_stat;
-      SYSCALL(db->stat,(db,&btree_stat,flags));
+      DB_STAT(btree_stat);
       STAT_SLOT(btree_stat->bt_magic);
       STAT_SLOT(btree_stat->bt_version);
       STAT_SLOT(btree_stat->bt_nkeys);
@@ -1252,7 +1343,7 @@ DEFUN(BDB:DB-STAT, db &key :FAST-STAT)
     } break;
     case DB_QUEUE: {
       DB_QUEUE_STAT *queue_stat;
-      SYSCALL(db->stat,(db,&queue_stat,flags));
+      DB_STAT(queue_stat);
       STAT_SLOT(queue_stat->qs_magic);
       STAT_SLOT(queue_stat->qs_version);
       STAT_SLOT(queue_stat->qs_nkeys);
@@ -1271,6 +1362,7 @@ DEFUN(BDB:DB-STAT, db &key :FAST-STAT)
     default: NOTREACHED;
 #undef STAT_SLOT
 #undef STAT_SLOT_FAST
+#undef DB_STAT
   }
   skipSTACK(2);
 }
@@ -1527,14 +1619,17 @@ static object db_get_flags_list (DB *db) {
   int count = 0;
   SYSCALL(db->get_flags,(db,&flags));
   if (flags & DB_CHKSUM) { pushSTACK(`:CHKSUM`); count++; }
-  if (flags & DB_ENCRYPT) { pushSTACK(`:ENCRYPT`); count++; }
-  if (flags & DB_TXN_NOT_DURABLE) { pushSTACK(`:TXN-NOT-DURABLE`); count++; }
   if (flags & DB_DUP) { pushSTACK(`:DUP`); count++; }
   if (flags & DB_DUPSORT) { pushSTACK(`:DUPSORT`); count++; }
+  if (flags & DB_ENCRYPT) { pushSTACK(`:ENCRYPT`); count++; }
+#if defined(DB_INORDER)
+  if (flags & DB_INORDER) { pushSTACK(`:INORDER`); count++; }
+#endif
   if (flags & DB_RECNUM) { pushSTACK(`:RECNUM`); count++; }
-  if (flags & DB_REVSPLITOFF) { pushSTACK(`:REVSPLITOFF`); count++; }
   if (flags & DB_RENUMBER) { pushSTACK(`:RENUMBER`); count++; }
+  if (flags & DB_REVSPLITOFF) { pushSTACK(`:REVSPLITOFF`); count++; }
   if (flags & DB_SNAPSHOT) { pushSTACK(`:SNAPSHOT`); count++; }
+  if (flags & DB_TXN_NOT_DURABLE) { pushSTACK(`:TXN-NOT-DURABLE`); count++; }
   return listof(count);
 }
 /* get the DB open flags
@@ -1555,20 +1650,25 @@ static object db_get_open_flags (DB *db, int errorp) {
 DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :ERRPFX :PASSWORD :ENCRYPTION \
       :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :BT-MINKEY :H-FFACTOR \
       :H-NELEM :Q-EXTENTSIZE :RE-DELIM :RE-LEN :RE-PAD :RE-SOURCE       \
-      :CHKSUM :ENCRYPT :TXN-NOT-DURABLE :DUP :DUPSORT :RECNUM         \
-      :REVSPLITOFF :RENUMBER :SNAPSHOT)
+      :CHKSUM :DUP :DUPSORT :ENCRYPT :INORDER :RECNUM :RENUMBER         \
+      :REVSPLITOFF :SNAPSHOT :TXN-NOT-DURABLE)
 { /* set database options */
-  DB *db = (DB*)bdb_handle(STACK_(26),`BDB::DB`,BH_VALID);
+  DB *db = (DB*)bdb_handle(STACK_(27),`BDB::DB`,BH_VALID);
   { /* flags */
     u_int32_t flags_on = 0, flags_off = 0;
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_TXN_NOT_DURABLE);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_SNAPSHOT);
-    set_flags(popSTACK(),&flags_on,&flags_off,DB_RENUMBER);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_REVSPLITOFF);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_RENUMBER);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_RECNUM);
+#  if defined(DB_INORDER)
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_INORDER);
+#  else
+    skipSTACK(1);               /*  drop :INORDER */
+#  endif
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_ENCRYPT);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_DUPSORT);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_DUP);
-    set_flags(popSTACK(),&flags_on,&flags_off,DB_TXN_NOT_DURABLE);
-    set_flags(popSTACK(),&flags_on,&flags_off,DB_ENCRYPT);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_CHKSUM);
     if (flags_off || flags_on) {
       u_int32_t flags;
@@ -1703,7 +1803,15 @@ static void db_get_dbname (DB* db, int errorp) {
 #define DEFINE_DB_GETTER1(g,t,f)   DEFINE_GETTER1(db,DB,g,t,f)
 DEFINE_DB_GETTER1(get_lorder,int,L_to_I(value))
 DEFINE_DB_GETTER1(get_pagesize,u_int32_t,UL_to_I(value))
+#if defined(HAVE_DB_GET_TRANSACTIONAL_1ARG)
+static object db_get_transactional (DB* db) {
+  int val;
+  begin_system_call(); val = db->get_transactional(db); end_system_call();
+  return val ? T : NIL;
+}
+#else
 DEFINE_DB_GETTER1(get_transactional,int,(value?T:NIL))
+#endif
 #define DEFINE_DB_GETTER2(getter,type,finish)           \
   static object db_##getter (DB* db,int errorp) {       \
     type value;                                         \
@@ -1801,22 +1909,26 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     VALUES1(db_get_lorder(db));
   } else if (eq(what,`:FLAGS`)) {
     VALUES1(db_get_flags_list(db));
-  } else if (eq(what,`:CHKSUM`)) {
-    VALUES_IF(db_get_flags_num(db) & DB_CHKSUM);
-  } else if (eq(what,`:ENCRYPT`)) {
-    VALUES_IF(db_get_flags_num(db) & DB_ENCRYPT);
   } else if (eq(what,`:TXN-NOT-DURABLE`)) {
     VALUES_IF(db_get_flags_num(db) & DB_TXN_NOT_DURABLE);
+  } else if (eq(what,`:CHKSUM`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_CHKSUM);
   } else if (eq(what,`:DUP`)) {
     VALUES_IF(db_get_flags_num(db) & DB_DUP);
   } else if (eq(what,`:DUPSORT`)) {
     VALUES_IF(db_get_flags_num(db) & DB_DUPSORT);
+  } else if (eq(what,`:ENCRYPT`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_ENCRYPT);
+#if defined(DB_INORDER)
+  } else if (eq(what,`:INORDER`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_INORDER);
+#endif
   } else if (eq(what,`:RECNUM`)) {
     VALUES_IF(db_get_flags_num(db) & DB_RECNUM);
-  } else if (eq(what,`:REVSPLITOFF`)) {
-    VALUES_IF(db_get_flags_num(db) & DB_REVSPLITOFF);
   } else if (eq(what,`:RENUMBER`)) {
     VALUES_IF(db_get_flags_num(db) & DB_RENUMBER);
+  } else if (eq(what,`:REVSPLITOFF`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_REVSPLITOFF);
   } else if (eq(what,`:SNAPSHOT`)) {
     VALUES_IF(db_get_flags_num(db) & DB_SNAPSHOT);
   } else {
@@ -1829,8 +1941,8 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
 }
 
 /* ===== cursors ===== */
-DEFFLAGSET(make_dbc_flags, DB_DIRTY_READ DB_WRITECURSOR)
-DEFUN(BDB:MAKE-DBC,db &key :TRANSACTION :DIRTY-READ :WRITECURSOR)
+DEFFLAGSET(make_dbc_flags, DB_DEGREE_2 DB_DIRTY_READ DB_WRITECURSOR)
+DEFUN(BDB:MAKE-DBC,db &key :TRANSACTION :DEGREE-2 :DIRTY-READ :WRITECURSOR)
 { /* create a cursor */
   u_int32_t flags = make_dbc_flags();
   DB_TXN *txn = (DB_TXN*)bdb_handle(STACK_0,`BDB::TXN`,BH_NIL_IS_NULL);
@@ -1891,9 +2003,10 @@ static dbt_o_t fill_or_init (object datum, DBT *pdbt, int re_len) {
 DEFCHECKER(dbc_get_action,prefix=DB,default=DB_CURRENT,                 \
            CURRENT FIRST GET-BOTH GET-BOTH-RANGE GET-RECNO JOIN-ITEM LAST \
            NEXT NEXT-DUP NEXT-NODUP PREV PREV-NODUP SET SET-RANGE SET-RECNO)
-DEFFLAGSET(dbc_get_options, DB_DIRTY_READ DB_MULTIPLE DB_MULTIPLE_KEY DB_RMW)
-DEFUN(BDB:DBC-GET, cursor key data action &key :DIRTY-READ :MULTIPLE \
-      :MULTIPLE-KEY :RMW :ERROR)
+DEFFLAGSET(dbc_get_options, DB_DEGREE_2 DB_DIRTY_READ DB_MULTIPLE \
+           DB_MULTIPLE_KEY DB_RMW)
+DEFUN(BDB:DBC-GET, cursor key data action &key :DEGREE-2 :DIRTY-READ \
+      :MULTIPLE :MULTIPLE-KEY :RMW :ERROR)
 { /* retrieve key/data pairs from the database */
   int no_error = nullp(popSTACK());
   u_int32_t flag = dbc_get_options();
@@ -2239,9 +2352,10 @@ DEFUN(BDB:LOG-COMPARE, lsn1 lsn2)
 
 /* ===== transactions ===== */
 
-DEFFLAGSET(txn_begin_flags, DB_DIRTY_READ DB_TXN_NOSYNC \
+DEFFLAGSET(txn_begin_flags, DB_DEGREE_2 DB_DIRTY_READ DB_TXN_NOSYNC \
            DB_TXN_NOWAIT DB_TXN_SYNC)
-DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DIRTY-READ :NOSYNC :NOWAIT :SYNC)
+DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DEGREE-2 :DIRTY-READ \
+      :NOSYNC :NOWAIT :SYNC)
 { /* create a transaction */
   u_int32_t flags = txn_begin_flags();
   DB_TXN *parent = (DB_TXN*)bdb_handle(STACK_0,`BDB::TXN`,BH_NIL_IS_NULL), *ret;

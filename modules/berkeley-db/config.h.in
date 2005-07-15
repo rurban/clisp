@@ -1,10 +1,22 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* Define to 1 if DB_ENV->set_errcall() accepts DBE */
+#undef HAVE_DBE_SET_ERRCALL_ACCEPT_DBE
+
 /* Define to 1 if `get_home' is member of `DB_ENV'. */
 #undef HAVE_DB_ENV_GET_HOME
 
+/* Define to 1 if `set_msgcall' is member of `DB_ENV'. */
+#undef HAVE_DB_ENV_SET_MSGCALL
+
+/* Define to 1 if DB->get_transactional() accepts just 1 argument */
+#undef HAVE_DB_GET_TRANSACTIONAL_1ARG
+
 /* Define to 1 if you have the <db.h> header file. */
 #undef HAVE_DB_H
+
+/* Define to 1 if DB->stat() accepts TXNid */
+#undef HAVE_DB_STAT_ACCEPT_TXN
 
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY

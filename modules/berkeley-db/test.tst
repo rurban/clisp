@@ -2,8 +2,8 @@
 ;; some tests for Berkeley-DB
 ;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "berkeley-db/test")'
 
-(multiple-value-bind (ve ma mi pa) (bdb:db-version)
-  (format t "~&Version: ~S (~D.~D.~D)~%" ve ma mi pa))
+(multiple-value-bind (ve ma mi pa subsystems) (bdb:db-version t)
+  (format t "~&Version: ~S (~D.~D.~D) ~S~%" ve ma mi pa subsystems))
 NIL
 
 ;;; --- helpers ---
@@ -23,7 +23,7 @@ rmrf
 (defun prepare-dir (name)
   (if (ext:probe-directory name)
       (kill-down name)
-      (ext:make-dir name))
+      (ensure-directories-exist name :verbose t))
   NIL)
 prepare-dir
 (defun show (object) (fresh-line) (prin1 object) (terpri) object) show
@@ -75,9 +75,13 @@ nil
 
 (defvar *dbe* (show (bdb:dbe-create))) *dbe*
 
-(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :errpfx "zot" :verbose t
+(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :errpfx "zot"
                      :data-dir "bdb-data/")
 NIL
+
+;; :verbose does not work in 4.3 (need msgfile?)
+;;(bdb:dbe-set-options *dbe* :verbose t)
+;;NIL
 
 (bdb:dbe-get-options *dbe* :errpfx) "zot"
 
@@ -193,9 +197,12 @@ T
 
 (let ((*print-pretty* t)) (setq *dbe* (show (bdb:dbe-create))) nil) NIL
 
-(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :verbose t
-                     :data-dir "bdb-data/")
+(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :data-dir "bdb-data/")
 NIL
+
+;; :verbose does not work in 4.3 (need msgfile?)
+;;(bdb:dbe-set-options *dbe* :verbose t)
+;;NIL
 
 (let ((arr #A((unsigned-byte 8) (6 6)
               ((0 0 0 0 0 0)
