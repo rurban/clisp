@@ -182,6 +182,73 @@ nonreturning_function(static, error_bdb, (int status, char *caller)) {
   } else funcall(L(error_of_type),7);
   NOTREACHED;
 }
+
+#if defined(HAVE_DB_ENV_SET_MSGCALL)
+/* a collection of messages */
+struct messages { int max; int len; char* msgs[unspecified]; };
+
+/* allocate the struct+space for max pointers */
+static struct messages * make_messages (int max) {
+  struct messages * data = (struct messages*)
+    my_malloc(sizeof(struct messages) + (max-unspecified)*sizeof(char*));
+  if (max<1) abort();
+  data->len = 0;
+  data->max = max;
+  while (max) data->msgs[--max] = NULL;
+  return data;
+}
+
+/* release all messages and the structure itself */
+static void free_messages (struct messages* data) {
+  if (data) {
+    while (data->len) free(data->msgs[--data->len]);
+    free(data);
+  }
+}
+#define close_messages(data) do{ free_messages(data); data=NULL; }while(0)
+
+/* convert all messages to a list of strings
+ can trigger GC */
+static object extract_messages (struct messages* data) {
+  if (data && data->len) {
+    int ii;
+    for (ii=0; ii < data->len; ii++) {
+      pushSTACK(asciz_to_string(data->msgs[ii],GLO(misc_encoding)));
+      free(data->msgs[ii]);
+    }
+    data->len = 0;
+    return listof(ii);
+  } else return NIL;
+}
+
+/* add an extra message
+ since we may need to reallocate, DATA is passed by reference */
+static void add_message (struct messages* *data_, const char* msg) {
+  if ((*data_) == NULL) (*data_) = make_messages(5);
+  if ((*data_)->max = (*data_)->len) {  /* double the space */
+    int new_max = 2*(*data_)->max;
+    (*data_) = (struct messages*)
+      my_realloc((*data_), (sizeof(struct messages) +
+                            (new_max-unspecified)*sizeof(char*)));
+    (*data_)->max = new_max;
+  }
+  { /* now max>len */
+    int len = strlen(msg);
+    (*data_)->msgs[++(*data_)->len] = (char*)my_malloc(len+1);
+    strcpy((*data_)->msgs[(*data_)->len],msg);
+  }
+}
+
+/* dbe is a const pointer, so we cannot change its slots explicitly
+   (e.g., by assigning to app_private),
+   so we have to pass an address to add_message() */
+static void message_callback (const DB_ENV* dbe, const char *msg) {
+  add_message((struct messages**)&(dbe->app_private),msg);
+}
+#else
+#define close_messages(data)  data=NULL
+#endif
+
 #define SYSCALL1(caller,args,cleanup)     do {                  \
     int db_error_code;                                          \
     begin_system_call();                                        \
@@ -304,8 +371,12 @@ DEFUN(BDB:DBE-CREATE,&key :PASSWORD :ENCRYPT    \
   if (!missingp(STACK_4))       /* :PASSWD */
     dbe_set_encryption(dbe,&STACK_3,&STACK_4);
   skipSTACK(5);
-  /* set error callback */
-  begin_system_call(); dbe->set_errcall(dbe,&error_callback); end_system_call();
+  /* set error & message callbacks */
+  begin_system_call(); dbe->set_errcall(dbe,&error_callback);
+#if defined(HAVE_DB_ENV_SET_MSGCALL)
+  dbe->set_msgcall(dbe,&message_callback);
+#endif
+  end_system_call();
   wrap_finalize(dbe,NIL,`BDB::MKDBE`,``BDB::DBE-CLOSE``);
 }
 
@@ -322,22 +393,74 @@ static void time_stamp (FILE* out, char* prefix) {
   fputs("\n",out);
 }
 
+/* open the C file and return it
+ can trigger GC */
+static FILE* my_fopen (object path) {
+  FILE *ret;
+  with_string_0(path=physical_namestring(path),GLO(pathname_encoding),pathz,{
+      begin_system_call();
+      ret = fopen(pathz,"w");
+      if (ret == NULL) OS_file_error(path);
+      time_stamp(ret,"opened");
+      end_system_call();
+    });
+  return ret;
+}
+
 /* some DB parameters (errfile, errpfx) are actually kept in DB.dbenv field.
  http://groups.google.com/groups?&selm=adecb6f.0408050624.5ed0a11e@posting.google.com
  therefore, instead of calling db->get_errfile(db,...) we call
  db->dbenv(get_errfile(db->dbenv,...)).
  note that DB-CLOSE should close these parameters
  only if it is a standalone DB! */
-static void close_errfile (DB_ENV *dbe) {
-  FILE *errfile;
-  begin_system_call();
-  dbe->get_errfile(dbe,&errfile);
-  if (errfile && (errfile != stdout) && (errfile != stderr)) {
-    time_stamp(errfile,"closed");
-    fclose(errfile);
+#define CLOSE_FILE(which)                               \
+  static void close_##which##file (DB_ENV *dbe) {       \
+    FILE *file;                                         \
+    begin_system_call();                                \
+    dbe->get_##which##file(dbe,&file);                  \
+    if (file && (file != stdout) && (file != stderr)) { \
+      time_stamp(file,"closed");                        \
+      fclose(file);                                     \
+    }                                                   \
+    end_system_call();                                  \
   }
-  end_system_call();
-}
+CLOSE_FILE(err)
+/* set :ERRFILE to STACK_0
+ can trigger GC */
+#define RESET_FILE(which)                                               \
+  static void reset_##which##file (DB_ENV *dbe) {                       \
+    close_##which##file(dbe);                                           \
+    if (nullp(STACK_0)) {                                               \
+      begin_system_call(); dbe->set_##which##file(dbe,NULL);            \
+      end_system_call();                                                \
+    } else {                                                            \
+      FILE *file = my_fopen(STACK_0);                                   \
+      begin_system_call(); dbe->set_##which##file(dbe,file);            \
+      end_system_call();                                                \
+    }                                                                   \
+  }
+RESET_FILE(err)
+/* extract errfile */
+#define EXTRACT_FILE(which)                             \
+  static object dbe_get_##which##file (DB_ENV *dbe) {   \
+    FILE* file;                                         \
+    int fd = -1;                                        \
+    begin_system_call();                                \
+    dbe->get_##which##file(dbe,&file);                  \
+    if (file) fd = fileno(file);                        \
+    end_system_call();                                  \
+    return fd >= 0 ? fixnum(fd) : NIL;                  \
+  }
+EXTRACT_FILE(err)
+#if defined(HAVE_DB_ENV_SET_MSGCALL)
+CLOSE_FILE(msg)
+RESET_FILE(msg)
+EXTRACT_FILE(msg)
+#else
+# define close_msgfile(dbe)   do{}while(0)
+# define reset_msgfile(dbe)   do{}while(0)
+# define dbe_get_msgfile(dbe) NIL
+#endif
 static void close_errpfx (DB_ENV *dbe) {
   const char *errpfx;
   begin_system_call();
@@ -352,10 +475,20 @@ DEFUN(BDB:DBE-CLOSE, dbe)
     funcall(`BDB::KILL-HANDLE`,1);
     close_errfile(dbe);
     close_errpfx(dbe);
+    close_msgfile(dbe);
+    close_messages(dbe->app_private);
     SYSCALL(dbe->close,(dbe,0));
     VALUES1(T);
   } else { skipSTACK(1); VALUES1(NIL); }
 }
+
+#if defined(HAVE_DB_ENV_SET_MSGCALL)
+DEFUN(BDB:DBE-MESSAGES, dbe)
+{ /* close DB environment */
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(popSTACK(),`BDB::DBE`,BH_VALID);
+  VALUES1(extract_messages(dbe->app_private));
+}
+#endif
 
 DEFFLAGSET(bdb_ac_flags, DB_AUTO_COMMIT)
 DEFUN(BDB:DBE-DBREMOVE, dbe file database &key :TRANSACTION :AUTO-COMMIT)
@@ -435,40 +568,6 @@ DEFUN(BDB:DBE-REMOVE, dbe &key :HOME :FORCE :USE-ENVIRON :USE-ENVIRON-ROOT)
  DB_ENV->set_paniccall	Set panic callback
 */
 
-/* open the C file and return it
- can trigger GC */
-static FILE* my_fopen (object path) {
-  FILE *ret;
-  with_string_0(path=physical_namestring(path),GLO(pathname_encoding),pathz,{
-      begin_system_call();
-      ret = fopen(pathz,"w");
-      if (ret == NULL) OS_file_error(path);
-      time_stamp(ret,"opened");
-      end_system_call();
-    });
-  return ret;
-}
-/* set :ERRFILE to STACK_0
- can trigger GC */
-static void reset_errfile (DB_ENV *dbe) {
-  close_errfile(dbe);
-  if (nullp(STACK_0)) {
-    begin_system_call(); dbe->set_errfile(dbe,NULL); end_system_call();
-  } else {
-    FILE *errfile = my_fopen(STACK_0);
-    begin_system_call(); dbe->set_errfile(dbe,errfile); end_system_call();
-  }
-}
-/* extract errfile */
-static object dbe_get_errfile (DB_ENV *dbe) {
-  FILE* errfile;
-  int fd = -1;
-  begin_system_call();
-  dbe->get_errfile(dbe,&errfile);
-  if (errfile) fd = fileno(errfile);
-  end_system_call();
-  return fd >= 0 ? fixnum(fd) : NIL;
-}
 /* set :ERRPFX to STACK_0
  can trigger GC */
 static void reset_errpfx (DB_ENV *dbe) {
@@ -482,7 +581,7 @@ static void reset_errpfx (DB_ENV *dbe) {
         begin_system_call(); dbe->set_errpfx(dbe,errpfx); end_system_call();
       });
 }
-/* extract errfile
+/* extract errpfx
  can trigger GC */
 static object dbe_get_errpfx (DB_ENV *dbe) {
   const char* errpfx;
@@ -519,9 +618,11 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       :NOMMAP :NOPANIC :OVERWRITE :PANIC-ENVIRONMENT :REGION-INIT       \
       :TXN-NOSYNC :TXN-WRITE-NOSYNC :YIELDCPU                           \
       :VERB-CHKPOINT :VERB-DEADLOCK :VERB-RECOVERY :VERB-REPLICATION    \
-      :VERB-WAITSFOR :VERBOSE)
+      :VERB-WAITSFOR :VERBOSE :MSGFILE)
 { /* set many options */
-  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(44),`BDB::DBE`,BH_VALID);
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(45),`BDB::DBE`,BH_VALID);
+  if (!missingp(STACK_0)) reset_msgfile(dbe);
+  skipSTACK(1);                 /* drop :MSGFILE */
   set_verbose(dbe,popSTACK(),DB_VERB_WAITSFOR | DB_VERB_REPLICATION
 #            if defined(DB_VERB_CHKPOINT)
               | DB_VERB_CHKPOINT
@@ -834,6 +935,7 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     pushSTACK(`:SHM-KEY`); pushSTACK(dbe_get_shm_key(dbe)); count++;
     pushSTACK(`:ERRPFX`); pushSTACK(dbe_get_errpfx(dbe)); count++;
     pushSTACK(`:ERRFILE`); pushSTACK(dbe_get_errfile(dbe)); count++;
+    pushSTACK(`:MSGFILE`); pushSTACK(dbe_get_msgfile(dbe)); count++;
     pushSTACK(`:TIMEOUT`); value1 = dbe_get_timeouts(dbe);
     pushSTACK(value1); count++;
     pushSTACK(`:LG-BSIZE`); pushSTACK(dbe_get_lg_bsize(dbe)); count++;
@@ -957,6 +1059,8 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES1(dbe_get_errpfx(dbe));
   } else if (eq(what,`:ERRFILE`)) {
     VALUES1(dbe_get_errfile(dbe));
+  } else if (eq(what,`:MSGFILE`)) {
+    VALUES1(dbe_get_msgfile(dbe));
   } else if (eq(what,`:DB-XIDDATASIZE`)) {
     VALUES1(fixnum(DB_XIDDATASIZE));
   } else if (eq(what,`:HOME`)) {
@@ -1005,6 +1109,7 @@ DEFUN(BDB:DB-CLOSE, db &key :NOSYNC)
     if (orphan_p) {
       close_errfile(db->dbenv);
       close_errpfx(db->dbenv);
+      close_msgfile(db->dbenv);
     }
     SYSCALL(db->close,(db,flags));
     VALUES1(T);
@@ -1647,13 +1752,13 @@ static object db_get_open_flags (DB *db, int errorp) {
   return check_db_open_flags_to_list(flags);
 }
 
-DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :ERRPFX :PASSWORD :ENCRYPTION \
-      :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :BT-MINKEY :H-FFACTOR \
-      :H-NELEM :Q-EXTENTSIZE :RE-DELIM :RE-LEN :RE-PAD :RE-SOURCE       \
+DEFUN(BDB:DB-SET-OPTIONS, db &key :MSGFILE :ERRFILE :ERRPFX :PASSWORD \
+      :ENCRYPTION :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :BT-MINKEY \
+      :H-FFACTOR :H-NELEM :Q-EXTENTSIZE :RE-DELIM :RE-LEN :RE-PAD :RE-SOURCE \
       :CHKSUM :DUP :DUPSORT :ENCRYPT :INORDER :RECNUM :RENUMBER         \
       :REVSPLITOFF :SNAPSHOT :TXN-NOT-DURABLE)
 { /* set database options */
-  DB *db = (DB*)bdb_handle(STACK_(27),`BDB::DB`,BH_VALID);
+  DB *db = (DB*)bdb_handle(STACK_(28),`BDB::DB`,BH_VALID);
   { /* flags */
     u_int32_t flags_on = 0, flags_off = 0;
     set_flags(popSTACK(),&flags_on,&flags_off,DB_TXN_NOT_DURABLE);
@@ -1758,6 +1863,8 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :ERRPFX :PASSWORD :ENCRYPTION \
   skipSTACK(1);
   if (!missingp(STACK_0)) reset_errfile(db->dbenv);
   skipSTACK(1);
+  if (!missingp(STACK_0)) reset_msgfile(db->dbenv);
+  skipSTACK(1);
   VALUES0; skipSTACK(1);        /* skip db */
 }
 
@@ -1848,6 +1955,7 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     pushSTACK(value1); count++;
     pushSTACK(`:ERRPFX`); pushSTACK(dbe_get_errpfx(db->dbenv)); count++;
     pushSTACK(`:ERRFILE`); pushSTACK(dbe_get_errfile(db->dbenv)); count++;
+    pushSTACK(`:MSGFILE`); pushSTACK(dbe_get_msgfile(db->dbenv)); count++;
     pushSTACK(`:FLAGS`); value1 = db_get_flags_list(db);
     pushSTACK(value1); count++;
     pushSTACK(`:LORDER`); pushSTACK(db_get_lorder(db)); count++;
@@ -1883,6 +1991,8 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     }
   } else if (eq(what,`:ERRFILE`)) {
     VALUES1(dbe_get_errfile(db->dbenv));
+  } else if (eq(what,`:MSGFILE`)) {
+    VALUES1(dbe_get_msgfile(db->dbenv));
   } else if (eq(what,`:ERRPFX`)) {
     VALUES1(dbe_get_errpfx(db->dbenv));
   } else if (eq(what,`:PAGESIZE`)) {
