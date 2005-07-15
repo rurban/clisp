@@ -1,5 +1,9 @@
 2005-07-15  Sam Steingold  <sds@gnu.org>
 
+	* configure (--list-modules): new option
+
+2005-07-15  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (DEVPREFIX): "cd c:" --> "cd c:/" to avoid a cygwin error
 	./makemake: line 724: cd: c:: No such file or directory
 
