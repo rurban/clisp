@@ -5,6 +5,7 @@
 
 <xsl:param name="man.string.subst.map">
  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+ <!-- From Michael Smith <xmldoc@users.sourceforge.net> -->
  <!-- * This first set up substitutions attempts to "normalize" all -->
  <!-- * "converted" comments so that they are turned into real roff comments -->
  <!-- * (backward compatible ones with \" instead of \#) and are always -->
