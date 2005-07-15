@@ -2,8 +2,12 @@
 
 <section id="berkeley-db"><title>Berkeley DB access.</title>
 
-<para>This interface to &sleepycat-berkeley-db; exports almost all
- functions in the official &c-lang; API.</para>
+<para>This interface to &sleepycat-berkeley-db; exports most
+ functions in the official &c-lang; API.
+ Supported versions:<simplelist type="horiz" columns="1">
+  <member><ulink url="&bdb-doc;ref/upgrade.4.2/toc.html">4.2</ulink></member>
+  <member><ulink url="&bdb-doc;ref/upgrade.4.3/toc.html">4.3</ulink></member>
+</simplelist></para>
 
 <simpara>When this module is present, &features-var; contains the
  symbol <constant>:BERKELEY-DB</constant>.</simpara>
@@ -46,10 +50,17 @@
 <section id="bdb-db-environment"><title>Database Environment</title>
 
 <variablelist>
- <varlistentry><term><code>(BDB:DB-VERSION)</code></term>
-  <listitem><simpara>Return version information as 4 values: descriptive
-    &string-t; and 3 &fixnum-t;s: major, minor and patch number (&db_version;).
- </simpara></listitem></varlistentry>
+ <varlistentry><term><code>(BDB:DB-VERSION &optional-amp;
+    subsystems-too)</code></term>
+  <listitem><para>Return version information as multiple values:<orderedlist>
+     <listitem><simpara>descriptive &string-t; (from &db_version;)
+     </simpara></listitem>
+     <listitem><simpara>major version number (&fixnum-t;)</simpara></listitem>
+     <listitem><simpara>minor version number (&fixnum-t;)</simpara></listitem>
+     <listitem><simpara>patch number (&fixnum-t;)</simpara></listitem>
+    </orderedlist>When the optional argument is non-&nil;, returns the
+    &alist; of the subsystem versions as the 5th value.
+ </para></listitem></varlistentry>
  <varlistentry id="dbe-create"><term><code>(BDB:DBE-CREATE &key-amp;
     PASSWORD ENCRYPT HOST CLIENT-TIMEOUT SERVER-TIMEOUT)</code></term>
   <listitem><simpara>Create an environment handle (&dbe_create;),
@@ -96,10 +107,10 @@
    &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPT LOCK-TIMEOUT TXN-TIMEOUT SHM-KEY
    TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR LG-BSIZE LG-DIR LG-MAX
    LG-REGIONMAX LK-CONFLICTS LK-DETECT LK-MAX-LOCKERS LK-MAX-LOCKS
-   LK-MAX-OBJECTS AUTO-COMMIT CDB-ALLDB DIRECT-DB DIRECT-LOG NOLOCKING
-   NOMMAP NOPANIC OVERWRITE PANIC-ENVIRONMENT REGION-INIT TXN-NOSYNC
-   TXN-WRITE-NOSYNC YIELDCPU VERB-CHKPOINT VERB-DEADLOCK VERB-RECOVERY
-   VERB-REPLICATION VERB-WAITSFOR VERBOSE)</code></term>
+   LK-MAX-OBJECTS AUTO-COMMIT CDB-ALLDB DIRECT-DB DSYNC-LOG LOG-AUTOREMOVE
+   LOG-INMEMORY DIRECT-LOG NOLOCKING NOMMAP NOPANIC OVERWRITE PANIC-ENVIRONMENT
+   REGION-INIT TXN-NOSYNC TXN-WRITE-NOSYNC YIELDCPU VERB-CHKPOINT VERB-DEADLOCK
+   VERB-RECOVERY VERB-REPLICATION VERB-WAITSFOR VERBOSE)</code></term>
  <listitem><para>Set some environment options using <simplelist columns="4">
     <member>&DBE_set_flags;</member>
     <member>&DBE_set_verbose;</member>
@@ -149,6 +160,9 @@
     <varlistentry><term><constant>:AUTO-COMMIT</constant></term>
      <term><constant>:CDB-ALLDB</constant></term>
      <term><constant>:DIRECT-DB</constant></term>
+     <term><constant>:DSYNC-LOG</constant></term>
+     <term><constant>:LOG-AUTOREMOVE</constant></term>
+     <term><constant>:LOG-INMEMORY</constant></term>
      <term><constant>:DIRECT-LOG</constant></term>
      <term><constant>:NOLOCKING</constant></term>
      <term><constant>:NOMMAP</constant></term>
@@ -249,8 +263,8 @@
 <varlistentry><term><code>(BDB:DB-FD db)</code></term>
  <listitem><simpara>Return a file descriptor from a database (&DB_fd;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><code>(BDB:DB-GET db key &key-amp; ACTION
-   AUTO-COMMIT DIRTY-READ MULTIPLE RMW TRANSACTION (ERROR &t;))</code></term>
+<varlistentry><term><code>(BDB:DB-GET db key &key-amp; ACTION AUTO-COMMIT
+   DEGREE-2 DIRTY-READ MULTIPLE RMW TRANSACTION (ERROR &t;))</code></term>
  <listitem><para>Get items from a database (&DB_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    instead <constant>:NOTFOUND</constant> is returned.
@@ -268,7 +282,8 @@
    <member><constant>:NODUPDATA</constant></member>
    <member><constant>:NOOVERWRITE</constant></member></simplelist>
 </para></listitem></varlistentry>
-<varlistentry><term><code>(BDB:DB-STAT db &key-amp; FAST-STAT)</code></term>
+<varlistentry><term><code>(BDB:DB-STAT db &key-amp; FAST-STAT
+   TRANSACTION)</code></term>
  <listitem><simpara>Return database statistics (&DB_get_byteswapped;,
    &DB_get_type;, &DB_stat;).</simpara></listitem></varlistentry>
 <varlistentry id="db-open"><term><code>(BDB:DB-OPEN db file &key-amp;
@@ -347,7 +362,7 @@
    &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPTION NCACHE CACHESIZE CACHE
    LORDER PAGESIZE BT-MINKEY H-FFACTOR H-NELEM Q-EXTENTSIZE
    RE-DELIM RE-LEN RE-PAD RE-SOURCE
-   CHKSUM ENCRYPT TXN-NOT-DURABLE DUP DUPSORT RECNUM REVSPLITOFF
+   CHKSUM ENCRYPT TXN-NOT-DURABLE DUP DUPSORT INORDER RECNUM REVSPLITOFF
    RENUMBER SNAPSHOT)</code></term>
  <listitem><para>Set some database options using <simplelist columns="4">
     <member>&DBE_set_errfile;</member>
@@ -381,6 +396,7 @@
      <term><constant>:TXN-NOT-DURABLE</constant></term>
      <term><constant>:DUP</constant></term>
      <term><constant>:DUPSORT</constant></term>
+     <term><constant>:INORDER</constant></term>
      <term><constant>:RECNUM</constant></term>
      <term><constant>:REVSPLITOFF</constant></term>
      <term><constant>:RENUMBER</constant></term>
@@ -465,7 +481,7 @@
 
 <variablelist>
 <varlistentry id="make-dbc"><term><code>(BDB:MAKE-DBC db &key-amp;
-   DIRTY-READ WRITECURSOR TRANSACTION)</code></term>
+   DEGREE-2 DIRTY-READ WRITECURSOR TRANSACTION)</code></term>
  <listitem><simpara>Create a cursor handle (&DB_cursor;).
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(BDB:DBC-CLOSE cursor)</code></term>
@@ -480,8 +496,8 @@
 <varlistentry><term><code>(BDB:DBC-DUP cursor &key-amp; POSITION)</code></term>
  <listitem><simpara>Duplicate a cursor (&DBC_dup;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><code>(BDB:DBC-GET cursor key data
-   action &key-amp; DIRTY-READ MULTIPLE (ERROR &t;))</code></term>
+<varlistentry><term><code>(BDB:DBC-GET cursor key data action
+   &key-amp; DEGREE-2 DIRTY-READ MULTIPLE (ERROR &t;))</code></term>
  <listitem><para>Retrieve by cursor (&DBC_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    <constant>:NOTFOUND</constant> or <constant>:KEYEMPTY</constant>
@@ -694,7 +710,7 @@ DB_SEQUENCE->set_range	Set the range for a sequence
 
 <variablelist>
 <varlistentry><term><code>(BDB:TXN-BEGIN dbe &key-amp;
-   PARENT DIRTY-READ NOSYNC NOWAIT SYNC)</code></term>
+   DEGREE-2 PARENT DIRTY-READ NOSYNC NOWAIT SYNC)</code></term>
  <listitem><simpara>Begin a transaction (&DBE_txn_begin;).
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(BDB:TXN-ABORT txn)</code></term>

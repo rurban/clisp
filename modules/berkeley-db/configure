@@ -3942,6 +3942,7 @@ if test "$ac_cv_search_db_env_create" = "no"; then
 echo "$as_me: error: cannot find Berkeley-DB library" >&2;}
    { (exit 1); exit 1; }; }
 fi
+
 echo "$as_me:$LINENO: checking for DB_ENV.get_home" >&5
 echo $ECHO_N "checking for DB_ENV.get_home... $ECHO_C" >&6
 if test "${ac_cv_member_DB_ENV_get_home+set}" = set; then
@@ -4049,6 +4050,117 @@ if test $ac_cv_member_DB_ENV_get_home = yes; then
 
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DB_ENV_GET_HOME 1
+_ACEOF
+
+
+fi
+echo "$as_me:$LINENO: checking for DB_ENV.set_msgcall" >&5
+echo $ECHO_N "checking for DB_ENV.set_msgcall... $ECHO_C" >&6
+if test "${ac_cv_member_DB_ENV_set_msgcall+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <db.h>
+
+int
+main ()
+{
+static DB_ENV ac_aggr;
+if (ac_aggr.set_msgcall)
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_member_DB_ENV_set_msgcall=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <db.h>
+
+int
+main ()
+{
+static DB_ENV ac_aggr;
+if (sizeof ac_aggr.set_msgcall)
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_member_DB_ENV_set_msgcall=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_member_DB_ENV_set_msgcall=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_member_DB_ENV_set_msgcall" >&5
+echo "${ECHO_T}$ac_cv_member_DB_ENV_set_msgcall" >&6
+if test $ac_cv_member_DB_ENV_set_msgcall = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DB_ENV_SET_MSGCALL 1
 _ACEOF
 
 
@@ -4591,6 +4703,196 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+
+echo "$as_me:$LINENO: checking whether DB->stat() accepts TXNid" >&5
+echo $ECHO_N "checking whether DB->stat() accepts TXNid... $ECHO_C" >&6
+if test "${ac_cv_db_stat_accept_txn+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <db.h>
+int
+main ()
+{
+DB db; db.stat(&db,NULL,0,NULL);
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_db_stat_accept_txn=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_db_stat_accept_txn=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_db_stat_accept_txn" >&5
+echo "${ECHO_T}$ac_cv_db_stat_accept_txn" >&6
+if test "$ac_cv_db_stat_accept_txn" = "yes"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_DB_STAT_ACCEPT_TXN 1
+_ACEOF
+
+fi
+
+echo "$as_me:$LINENO: checking whether DB_ENV->set_errcall() accepts DBE" >&5
+echo $ECHO_N "checking whether DB_ENV->set_errcall() accepts DBE... $ECHO_C" >&6
+if test "${ac_cv_dbe_set_errcall_accept_dbe+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+CFLAGS_save="$CFLAGS"
+CFLAGS="$CFLAGS -Werror"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <db.h>
+void my_callback (const DB_ENV* dbe, const char *errpfx, const char *msg) {}
+int
+main ()
+{
+DB_ENV dbe; dbe.set_errcall(&dbe,&my_callback);
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_dbe_set_errcall_accept_dbe=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_dbe_set_errcall_accept_dbe=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+CFLAGS=$CFLAGS_save
+fi
+echo "$as_me:$LINENO: result: $ac_cv_dbe_set_errcall_accept_dbe" >&5
+echo "${ECHO_T}$ac_cv_dbe_set_errcall_accept_dbe" >&6
+if test "$ac_cv_dbe_set_errcall_accept_dbe" = "yes"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_DBE_SET_ERRCALL_ACCEPT_DBE 1
+_ACEOF
+
+fi
+
+echo "$as_me:$LINENO: checking whether DB->get_transactional() accepts just 1 argument" >&5
+echo $ECHO_N "checking whether DB->get_transactional() accepts just 1 argument... $ECHO_C" >&6
+if test "${ac_cv_db_get_transactional_1arg+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <db.h>
+int
+main ()
+{
+DB db; db.get_transactional(&db);
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_db_get_transactional_1arg=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_db_get_transactional_1arg=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_db_get_transactional_1arg" >&5
+echo "${ECHO_T}$ac_cv_db_get_transactional_1arg" >&6
+if test "$ac_cv_db_get_transactional_1arg" = "yes"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_DB_GET_TRANSACTIONAL_1ARG 1
+_ACEOF
+
+fi
 
 { echo "$as_me:$LINENO:  * Berkeley-DB (Output):" >&5
 echo "$as_me:  * Berkeley-DB (Output):" >&6;}
