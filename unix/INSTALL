@@ -101,6 +101,8 @@ some platforms can be found in file unix/PLATFORMS.
 
 5. If you wish to build CLISP with add-on modules, edit Makefile and change
    the line defining the MODULES variable.
+   The list of modules included with the distribution is available via
+         ./configure --list-modules
 
 6. Type
 
