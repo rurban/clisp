@@ -719,7 +719,7 @@ fi
 if [ ${HSYSOS} != win32gcc -a ${HSYSOS} != cygwin ]; then
   PWDCMD='`pwd`'
 else
-  DEVPREFIX=`(cd c:; pwd | sed 's,^/\([a-z]*\)/.*,\1,')`
+  DEVPREFIX=`(cd c:/; pwd | sed 's,^/\([a-z]*\)/.*,\1,')`
   PWDCMD='`pwd|sed '"'s,^/${DEVPREFIX}/\\(.\\),\1:,'"'`'
 fi
 HERE_='`pwd`'"${NEXT_}"

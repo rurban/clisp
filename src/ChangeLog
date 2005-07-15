@@ -1,3 +1,8 @@
+2005-07-15  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (DEVPREFIX): "cd c:" --> "cd c:/" to avoid a cygwin error
+	./makemake: line 724: cd: c:: No such file or directory
+
 2005-07-15  Devon Sean McCullough  <Lisp-Hacker@Jovi.Net>
 
 	* makemake.in (gen.lispbibl.c): fixed the sed(1) expression to
