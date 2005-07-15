@@ -1,3 +1,8 @@
+2005-07-15  Devon Sean McCullough  <Lisp-Hacker@Jovi.Net>
+
+	* makemake.in (gen.lispbibl.c): fixed the sed(1) expression to
+	work on macos-10.4-darwin-8.2.0
+
 2005-07-13  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (setup.hint) [cygwin]: fixed curr/test output
