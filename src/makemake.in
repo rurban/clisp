@@ -2508,7 +2508,7 @@ fi
 
 for f in lispbibl; do
   echol "gen.${f}.c : ${f}.d comment5${HEXE}"
-  echotabpipe "\$(COMMENT5) ${f}.d${CHSCONVERT_FILTER} | sed -e '/^#line/n;ta;:a;s/^%% //;tb;s/^.*\$\$//;:b' > gen.${f}.c"
+  echotabpipe "\$(COMMENT5) ${f}.d${CHSCONVERT_FILTER} | sed -e '/^#line/n;s/^%% //;t' -e 's/^.*\$\$//' > gen.${f}.c"
   echol
 done
 
