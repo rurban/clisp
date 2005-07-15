@@ -70,6 +70,9 @@
  <varlistentry><term><code>(BDB:DBE-CLOSE dbe)</code></term>
   <listitem><simpara>Close an environment (&DBE_close;).
     You can also call &close;.</simpara></listitem></varlistentry>
+ <varlistentry><term><code>(BDB:DBE-MESSAGES dbe)</code></term>
+  <listitem><simpara>Return the verbose messages accumulated so far
+    (requires 4.3 or better).</simpara></listitem></varlistentry>
  <varlistentry><term><code>(BDB:DBREMOVE dbe file
     database &key-amp; TRANSACTION AUTO-COMMIT)</code></term>
   <listitem><simpara>Remove a database (&DBE_dbremove;).
@@ -104,9 +107,9 @@
 
 <variablelist>
 <varlistentry id="dbe-set-options"><term><code>(BDB:DBE-SET-OPTIONS dbe
-   &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPT LOCK-TIMEOUT TXN-TIMEOUT SHM-KEY
-   TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR LG-BSIZE LG-DIR LG-MAX
-   LG-REGIONMAX LK-CONFLICTS LK-DETECT LK-MAX-LOCKERS LK-MAX-LOCKS
+   &key-amp; MSGFILE ERRFILE ERRPFX PASSWORD ENCRYPT LOCK-TIMEOUT TXN-TIMEOUT
+   SHM-KEY TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR LG-BSIZE LG-DIR
+   LG-MAX LG-REGIONMAX LK-CONFLICTS LK-DETECT LK-MAX-LOCKERS LK-MAX-LOCKS
    LK-MAX-OBJECTS AUTO-COMMIT CDB-ALLDB DIRECT-DB DSYNC-LOG LOG-AUTOREMOVE
    LOG-INMEMORY DIRECT-LOG NOLOCKING NOMMAP NOPANIC OVERWRITE PANIC-ENVIRONMENT
    REGION-INIT TXN-NOSYNC TXN-WRITE-NOSYNC YIELDCPU VERB-CHKPOINT VERB-DEADLOCK
@@ -123,6 +126,7 @@
     <member>&DBE_set_timeout;</member>
     <member>&DBE_set_encrypt;</member>
     <member>&DBE_set_errfile;</member>
+    <member>&DBE_set_msgfile;</member>
     <member>&DBE_set_errpfx;</member>
     <member>&DBE_set_lg_bsize;</member>
     <member>&DBE_set_lg_dir;</member>
@@ -224,6 +228,9 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:ERRFILE</constant></term>
      <listitem><simpara>&file-des; or &nil; (&DBE_get_errfile;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:MSGFILE</constant></term>
+     <listitem><simpara>&file-des; or &nil; (&DBE_get_msgfile;).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:ERRPFX</constant></term>
      <listitem><simpara>&string-t; or &nil; (&DBE_get_errpfx;).
@@ -359,13 +366,14 @@
  -->
 <variablelist>
 <varlistentry id="db-set-options"><term><code>(BDB:DB-SET-OPTIONS db
-   &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPTION NCACHE CACHESIZE CACHE
+   &key-amp; ERRFILE MSGFILE ERRPFX PASSWORD ENCRYPTION NCACHE CACHESIZE CACHE
    LORDER PAGESIZE BT-MINKEY H-FFACTOR H-NELEM Q-EXTENTSIZE
    RE-DELIM RE-LEN RE-PAD RE-SOURCE
    CHKSUM ENCRYPT TXN-NOT-DURABLE DUP DUPSORT INORDER RECNUM REVSPLITOFF
    RENUMBER SNAPSHOT)</code></term>
  <listitem><para>Set some database options using <simplelist columns="4">
     <member>&DBE_set_errfile;</member>
+    <member>&DBE_set_msgfile;</member>
     <member>&DBE_set_errpfx;</member>
     <member>&DB_set_encrypt;</member>
     <member>&DB_set_cachesize;</member>
@@ -412,6 +420,9 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:ERRFILE</constant></term>
      <listitem><simpara>&file-des; or &nil; (&DBE_get_errfile;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:MSGFILE</constant></term>
+     <listitem><simpara>&file-des; or &nil; (&DBE_get_msgfile;).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:ERRPFX</constant></term>
      <listitem><simpara>&string-t; or &nil; (&DBE_get_errpfx;).
