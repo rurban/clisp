@@ -95,7 +95,7 @@ SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
 		-e 's/ *--> *<!-- */\n/g' \
 		-e 's/ *<!-- */\n/g' -e 's/ *--> */\n/g'
 
-ROFF_UNCOMMENT=$(subst --,\\-\\-,$(SGML_UNCOMMENT))
+ROFF_UNCOMMENT=-e 's/^\.\\"<!\\-\\-\(.*\)\\-\\->$$/\1/'
 
 all: check $(CATALOG_FILE) impnotes.html regexp.html man
 
