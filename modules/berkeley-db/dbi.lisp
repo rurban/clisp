@@ -10,7 +10,7 @@
            #:bdb-handle #:bdb-handle-parents #:bdb-handle-dependents
            #:dbe #:db #:txn #:dbc #:logc #:mpoolfile #:dblock #:lsn
            #:dbe-create #:dbe-close #:dbe-dbremove #:dbe-dbrename #:dbe-open
-           #:dbe-remove #:dbe-set-options #:dbe-get-options
+           #:dbe-remove #:dbe-set-options #:dbe-get-options #:dbe-messages
            #:db-create #:db-close #:db-del #:db-fd #:db-get #:db-stat
            #:db-open #:db-sync #:db-truncate #:db-upgrade #:db-remove
            #:db-rename #:db-put #:db-join #:db-key-range #:db-verify

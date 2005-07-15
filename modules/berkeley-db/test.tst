@@ -21,10 +21,8 @@ kill-down
   (ext:delete-dir name))
 rmrf
 (defun prepare-dir (name)
-  (if (ext:probe-directory name)
-      (kill-down name)
-      (ensure-directories-exist name :verbose t))
-  NIL)
+  (ensure-directories-exist name :verbose t)
+  (kill-down name))
 prepare-dir
 (defun show (object) (fresh-line) (prin1 object) (terpri) object) show
 (defun show-db (db)
@@ -37,9 +35,11 @@ prepare-dir
 show-db
 (defun show-dbe (dbe)
   (let ((*print-pretty* t))
-    (show (list dbe :archive (bdb:log-archive dbe)
-                (bdb:txn-stat dbe) (bdb:lock-stat dbe) (bdb:log-stat dbe)
-                (bdb:dbe-get-options dbe))))
+    (show (list* dbe :archive (bdb:log-archive dbe)
+                 (bdb:txn-stat dbe) (bdb:lock-stat dbe) (bdb:log-stat dbe)
+                 (bdb:dbe-get-options dbe)
+                 (when (fboundp 'bdb:dbe-messages)
+                   (list :messages (bdb:dbe-messages dbe))))))
   nil)
 show-dbe
 (defun show-file (file)
@@ -69,14 +69,14 @@ nil
 
 (prepare-dir "bdb-home/") NIL
 (prepare-dir "bdb-data/") NIL
-(progn (delete-file "bdb-errors") NIL) NIL
+(progn (delete-file "bdb-errors") (delete-file "bdb-msg") NIL) NIL
 
 ;;; creation
 
 (defvar *dbe* (show (bdb:dbe-create))) *dbe*
 
-(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :errpfx "zot"
-                     :data-dir "bdb-data/")
+(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :msgfile "bdb-msg"
+                     :errpfx "zot" :data-dir "bdb-data/")
 NIL
 
 ;; :verbose does not work in 4.3 (need msgfile?)
@@ -192,12 +192,14 @@ T
 (ext:dir "bdb-home/**") NIL
 (ext:dir "bdb-data/**") NIL
 (finish-file "bdb-errors") NIL
+(finish-file "bdb-msg") NIL
 
 ;;; access
 
 (let ((*print-pretty* t)) (setq *dbe* (show (bdb:dbe-create))) nil) NIL
 
-(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :data-dir "bdb-data/")
+(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :msgfile "bdb-msg"
+                     :data-dir "bdb-data/")
 NIL
 
 ;; :verbose does not work in 4.3 (need msgfile?)
@@ -228,6 +230,7 @@ NIL
 (show-db *db*) NIL
 
 (= (bdb:db-get-options *db* :errfile) (bdb:dbe-get-options *dbe* :errfile)) T
+(eql (bdb:db-get-options *db* :msgfile) (bdb:dbe-get-options *dbe* :msgfile)) T
 
 (defvar *cursor* (show (bdb:make-dbc *db*))) *cursor*
 
@@ -348,5 +351,6 @@ nil
 (bdb:dbe-remove (show (bdb:dbe-create)) :home "bdb-home/") NIL
 
 (finish-file "bdb-errors") NIL
+(finish-file "bdb-msg") NIL
 (rmrf "bdb-home/") T
 (rmrf "bdb-data/") T

@@ -1,5 +1,19 @@
 2005-07-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c: use msgcall and msgfile (Berkeley-DB 4.3)
+	(struct messages): new type
+	(make_messages, free_messages, close_messages, extract_messages)
+	(add_message): operate on the messages
+	(message_callback): callback for msgcall
+	(DBE-CREATE): init msgcall
+	(close_msgfile, reset_msgfile, dbe_get_msgfile): added
+	(BDB:DBE-MESSAGES): new function
+	(DBE-SET-OPTIONS, DB-SET-OPTIONS, DBE-GET-OPTIONS, DB-GET-OPTIONS):
+	accept :MSGFILE
+	* modules/berkeley-db/dbi.lisp (BDB:DBE-MESSAGES): export
+
+2005-07-15  Sam Steingold  <sds@gnu.org>
+
 	support Berkeley-DB 4.3
 	* modules/berkeley-db/bdb.c (BDB:DB-VERSION): also return
 	LOGVERSION, TXNVERSION, SEQUENCE_VERSION
