@@ -1,5 +1,9 @@
 2005-07-15  Sam Steingold  <sds@gnu.org>
 
+	* utils/varbrace.d (convert): declare static to avoid a warning
+
+2005-07-15  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c: use msgcall and msgfile (Berkeley-DB 4.3)
 	(struct messages): new type
 	(make_messages, free_messages, close_messages, extract_messages)
