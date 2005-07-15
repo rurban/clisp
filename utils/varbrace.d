@@ -1296,7 +1296,7 @@ local struct {
   } opening[MAXBRACES];
 } open_braces;
 
-void convert (FILE* infp, FILE* outfp, const char* infilename)
+static void convert (FILE* infp, FILE* outfp, const char* infilename)
 {
   # Initialize input variables.
   infile = infp;
