@@ -1084,12 +1084,12 @@ But the &gc; looks only on the &STACK; and not in the &c-lang;
 variables. (Anything else would not be portable.)
 Therefore at every "unsafe" point, i.e. every call to such a subroutine,
 all the &c-lang; variables of type &object-t;
-<emphasis>MUST BE ASSUMED TO BECOME GARBAGE</emphasis>.
+<emphasis role="strong">MUST BE ASSUMED TO BECOME GARBAGE</emphasis>.
 (Except for &object-t;s that are known to be unmovable,
  e.g. immediate data or <type>Subr</type>s.)
 Pointers inside &clisp; data (e.g. to the characters of a &string-t;
 or to the elements of a &simple-vector-t;) become
-<emphasis>INVALID</emphasis> as well.</para>
+<emphasis role="strong">INVALID</emphasis> as well.</para>
 
 <para>The workaround is usually to allocate all the needed &clisp; data
 first and do the rest of the computation with &c-lang; variables,
@@ -1098,7 +1098,7 @@ without calling unsafe routines, and without worrying about &gc;.</para>
 <para>Run-time GC-safety checking is available when you build &clisp;
  with a C++ compiler, e.g.:
 <screen id="clisp-config-gxx">
-bash$ CC=g++ ./configure --with-debug build-g-gxx
+<prompt>$</prompt> CC=g++ ./configure --with-debug build-g-gxx
 </screen>
 When built like this, &clisp; will &abort-c; when you reference
 GC-unsafe data after an allocation (which could have triggered a
