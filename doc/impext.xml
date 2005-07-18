@@ -776,6 +776,9 @@ English, German, French, Spanish, Dutch and Russian.
 <para>The default encoding objects are initialized as described in
  <olink targetdoc="man" targetptr="opt-enc"/></para>
 
+<note><para>Reminder: you have to use &letf;/&letf-star; for
+  &symbol-macro;s; &let;/&let-star; will &not-e; work!</para></note>
+
 </section>
 
 <section id="string-byte">
@@ -1523,31 +1526,20 @@ In other words, each pair is:
 <para>These macros are similar to &let; and &let-star;, respectively,
  except that they can bind &place;s, even &place;s with &mul-val;.
  Example:
-
-<programlisting language="lisp">
- (letf (((values a b) form)) ...)
+<programlisting language="lisp">(letf (((values a b) form)) ...)
 </programlisting>
-
 is equivalent to
-
-<programlisting language="lisp">
- (multiple-value-bind (a b) form ...)
+<programlisting language="lisp">(multiple-value-bind (a b) form ...)
 </programlisting>
-
 while
-
-<programlisting language="lisp">
-(letf (((first l) 7)) ...)
+<programlisting language="lisp">(letf (((first l) 7)) ...)
 </programlisting>
-
 is approximately equivalent to
-
 <programlisting language="lisp">
  (&let-star; ((#:g1 l) (#:g2 (first #:g1)))
    (&unwind-protect; (&progn; (&setf; (first #:g1) 7) ...)
       (&setf; (first #:g1) #:g2)))
-</programlisting>
-</para></formalpara>
+</programlisting></para></formalpara>
 
 <formalpara id="memoized"><title>Macro <function>EXT:MEMOIZED</function></title>
 <para><code>(<function>EXT:MEMOIZED</function> &form-r;)</code>
@@ -1564,8 +1556,8 @@ is approximately equivalent to
  &mul-val;.  E.g.,
 
 <programlisting language="lisp">
- (ext:with-collect (c0 c1)
-   (dotimes (i 10) (if (oddp i) (c0 i) (c1 i))))
+(ext:with-collect (c0 c1)
+  (dotimes (i 10) (if (oddp i) (c0 i) (c1 i))))
 </programlisting>
 
 returns two &list-t;s <returnvalue>(1 3 5 7 9)</returnvalue>
@@ -1579,14 +1571,14 @@ and <returnvalue>(0 2 4 6 8)</returnvalue> as &mul-val;.
  <ulink url="http://www.paulgraham.com/onlisp.html"><quote>On
   Lisp</quote></ulink>, this macro is useful for writing other macros:
 <programlisting language="lisp">
- (with-gensyms ("FOO-" bar baz zot) ...)
+(with-gensyms ("FOO-" bar baz zot) ...)
 </programlisting>
 expands to
 <programlisting language="lisp">
- (let ((bar (gensym "FOO-BAR-"))
-       (baz (gensym "FOO-BAZ-"))
-       (zot (gensym "FOO-ZOT-")))
-   ...)
+(let ((bar (gensym "FOO-BAR-"))
+      (baz (gensym "FOO-BAZ-"))
+      (zot (gensym "FOO-ZOT-")))
+  ...)
 </programlisting>
 </para></formalpara>
 
@@ -1596,15 +1588,15 @@ expands to
  properties from a property list.  It is non-destructive and thus can be
  used on &rest-amp; arguments to remove some keyword parameters, e.g.,
 <programlisting language="lisp">
- (defmacro with-foo ((&key-amp; foo1 foo2) &body-amp; body)
-   `(... ,foo1 ... ,foo2 ... ,@body))
- (defmacro with-foo-bar ((&rest-amp; opts &key-amp; bar1 bar2
-                          &allow-other-keys-amp;)
-                         &body-amp; body)
-   `(with-foo (,@(remove-plist opts :bar1 :bar2)
-      ... ,bar1 ... ,bar2 ... ,@body)))
- (defun foo-bar ()
-   (with-foo-bar (:bar1 1 :foo2 2) ...))
+(defmacro with-foo ((&key-amp; foo1 foo2) &body-amp; body)
+  `(... ,foo1 ... ,foo2 ... ,@body))
+(defmacro with-foo-bar ((&rest-amp; opts &key-amp; bar1 bar2
+                         &allow-other-keys-amp;)
+                        &body-amp; body)
+  `(with-foo (,@(remove-plist opts :bar1 :bar2)
+     ... ,bar1 ... ,bar2 ... ,@body)))
+(defun foo-bar ()
+  (with-foo-bar (:bar1 1 :foo2 2) ...))
 </programlisting>
 here <function>WITH-FOO</function> does not receive the
 <literal>:BAR1 1</literal> argument from <function>FOO-BAR</function>.
