@@ -1631,7 +1631,7 @@ local void usage (void) {
   printf(GETTEXTL(" -norc         - do not load the user ~/.clisprc file\n"));
   printf(GETTEXTL(" -i file       - load initfile (can be repeated)\n"));
   printf(GETTEXTL("Actions:\n"));
-  printf(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"));
+  printf(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile lispfile\n"));
   printf(GETTEXTL(" -x expressions - execute the expressions, then exit\n"));
   printf(GETTEXTL(" lispfile [argument ...] - load lispfile, then exit\n"));
   printf(GETTEXTL("These actions put CLISP into a batch mode, which is overridden by\n"));
