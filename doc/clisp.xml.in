@@ -21,10 +21,12 @@
 
 <refentry id="clisp">
 
-<refentryinfo>
+ <refentryinfo>
  <title>&clisp; version @VERSION@</title>
  <subtitle>Platform: @PLATFORM@</subtitle>
  <date>Last modified: @TODAY@</date>
+ <productnumber>@VERSION@</productnumber>
+ <productname>CLISP</productname>
  &bruno; &sds;
  <authorblurb><para>Bugs in both this manual page and &clisp; itself
    should be reported to the mailing list &clisp-list;.</para></authorblurb>
@@ -35,6 +37,8 @@
 <refmeta>
 <refentrytitle>clisp</refentrytitle>
 <manvolnum>1</manvolnum>
+<refmiscinfo class="source-name">ANSI Common Lisp</refmiscinfo>
+<refmiscinfo class="manual">Platform: @PLATFORM@</refmiscinfo>
 </refmeta>
 
 <refnamediv>
