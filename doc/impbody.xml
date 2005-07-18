@@ -92,12 +92,12 @@
   <ulink url="&clhs;/Body/sec_2-4-6.html">[CLHS-2.4.6]</ulink></title>
 
 <para>The backquote read macro also works when nested. Example:
-<informalexample id="bq-nested"><programlisting language="lisp">
+<programlisting id="bq-nested" language="lisp">
    (&eval; ``(,#'(&lambda-m; () ',a) ,#'(&lambda-m; () ',b)))
- = (&eval; `(list #'(&lambda-m; () ',a) #'(&lambda-m; () ',b)))
- = (&eval; (list 'list (list 'function (list 'lambda nil (list 'quote a)))
+ &equiv; (&eval; `(list #'(&lambda-m; () ',a) #'(&lambda-m; () ',b)))
+ &equiv; (&eval; (list 'list (list 'function (list 'lambda nil (list 'quote a)))
                      (list 'function (list 'lambda nil (list 'quote b)))))
-</programlisting></informalexample></para>
+</programlisting></para>
 
 </section>
 
@@ -214,7 +214,7 @@ ignored by the interpreter.</para>
 <para>The declaration &compile-decl; has the effect that the current
  form is compiled prior to execution.  Examples:
 <programlisting language="lisp">
- (&locally; (&declare; (compile)) &form-r;)
+(&locally; (&declare; (compile)) &form-r;)
 </programlisting>
 executes a compiled version of form.</para>
 
@@ -256,9 +256,9 @@ executes a compiled version of form.</para>
  cannot be undone.  The same holds for &defvar;, &defparameter; and
  &defconstant; declarations.  The only way out is
  <programlisting language="lisp">
-  (let ((name (&symbol-name; variable)) (package (&symbol-package; variable)))
-    (&unintern; variable)
-    (&intern; name package))
+(let ((name (&symbol-name; variable)) (package (&symbol-package; variable)))
+  (&unintern; variable)
+  (&intern; name package))
  </programlisting>
  but this will also lose any symbol properties (&symbol-plist;)
  as well as function and macro definitions (&symbol-function;).
@@ -818,7 +818,7 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
 <para>There have been some tightening in the &loop; syntax between
  &cltl2; and &ansi-cl;, e.g., the following form is legal in the
  former but not the latter:<programlisting language="lisp">
-  (loop initially for i from 1 to 5 do (print i) finally return i)
+(loop initially for i from 1 to 5 do (print i) finally return i)
 </programlisting>
 When <firstterm>&loop-ansi;</firstterm> is &nil;, such forms are still
 accepted in &clisp; but elicit a warning at macro-expansion time.
@@ -1096,7 +1096,7 @@ temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
    <email>haflich@pacbell.net</email></author></title>
 <para>This should prevent you from accidentally hosing yourself with
 <programlisting language="lisp">
- (&defstruct; instance ...)
+(&defstruct; instance ...)
 </programlisting>
 and allow enforcing modularity.
 Note that you will also get the &cont-err; when you try to
@@ -1731,8 +1731,8 @@ can give problems:
  greatest common divisor of the integers &x1-r;, ..., &xn-r;, and
  &k1-r;, ..., &kn-r; are the integer coefficients such that
 <programlisting language="lisp">
- &l-r; = (&gcd; &x1-r; ... &xn-r;)
-   = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
+&l-r; = (&gcd; &x1-r; ... &xn-r;)
+  = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
 </programlisting></para></formalpara>
 
 <formalpara id="mod-expt">
@@ -1765,14 +1765,14 @@ can give problems:
 <section id="float-decode"><title>Float Decoding
   <ulink url="&clhs;/Body/fun_decode-fl_decode-float.html">[CLHS]</ulink></title>
 
- <para>&float-radix; always returns <returnvalue>2</returnvalue>.</para>
+<para>&float-radix; always returns <returnvalue>2</returnvalue>.</para>
 
- <para><code>(&float-digits; &number-r; &digits-r;)</code> coerces
-   &number-r; (a &real-t; number) to a floating point number with at
-   least &digits-r; mantissa digits.  The following always evaluates to
-   &t;: <programlisting language="lisp">
-   (&geq; (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
- </programlisting></para>
+<para><code>(&float-digits; &number-r; &digits-r;)</code> coerces
+ &number-r; (a &real-t;) to a floating point number with at least
+ &digits-r; mantissa digits.  The following always evaluates to &t;:
+ <programlisting language="lisp">
+(&geq; (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
+</programlisting></para>
 
 </section>
 
@@ -2475,15 +2475,15 @@ and the international alphabetic characters from the character set:
 <formalpara id="mapcap"><title>Function &mapcap;</title>
 <para>The function &mapcap; is like &mapcan;, except that it
  concatenates the resulting lists with &append; instead of &nconc;:
- <programlisting><code>(&mapcap; &func-r; &x1-r; ... &xn-r;)</code> &equiv;
-<code>(&apply; #'&append; (&mapcar; &func-r; &x1-r; ... &xn-r;))</code></programlisting>
+<programlisting language="lisp">(&mapcap; &func-r; &x1-r; ... &xn-r;) &equiv;
+(&apply; #'&append; (&mapcar; &func-r; &x1-r; ... &xn-r;))</programlisting>
 (Actually a bit more efficient that this would have been.)</para></formalpara>
 
 <formalpara id="maplap"><title>Function &maplap;</title>
 <para>The function &maplap; is like &mapcon;, except that it
  concatenates the resulting lists with &append; instead of &nconc;:
- <programlisting><code>(&maplap; &func-r; &x1-r; ... &xn-r;)</code> &equiv;
-<code>(&apply; #'&append; (&maplist; &func-r; &x1-r; ... &xn-r;))</code></programlisting>
+ <programlisting language="lisp">(&maplap; &func-r; &x1-r; ... &xn-r;) &equiv;
+(&apply; #'&append; (&maplist; &func-r; &x1-r; ... &xn-r;))</programlisting>
  (Actually a bit more efficient that this would have been.)</para></formalpara>
 
 </section>
@@ -2792,24 +2792,24 @@ checks whether the &hash-table-t; is weak.</para>
 <para>You can define a new hash table test using the macro
  &defhash;: <code>(&defhash; test-name &test-f; &hash-f;)</code>, after
  which <replaceable>test-name</replaceable> can be passed as the
- &test-k; argument to &make-hash-table;.  E.g.: <programlisting
- language="lisp"> (&defhash; string &string-eq; &sxhash;)
+ &test-k; argument to &make-hash-table;.
+ E.g.: <programlisting language="lisp">(&defhash; string &string-eq; &sxhash;)
  (&make-hash-table; :test 'string)</programlisting>
 (which is not too useful because it is equivalent to an &equal;
 &hash-table-t; but less efficient).</para>
 
 <para>The fundamental requirement is that the &test-f; and &hash-f; are
  consistent: <programlisting language="lisp">
-  (&funcall; &test-f; &x-r; &y-r;) &rArr;
-  (&areq; (&funcall; &hash-f; &x-r;) (&funcall; &hash-f; &y-r;))
+(&funcall; &test-f; &x-r; &y-r;) &rArr;
+(&areq; (&funcall; &hash-f; &x-r;) (&funcall; &hash-f; &y-r;))
  </programlisting>
  This means that the following definition: <programlisting language="lisp">
-  (&defhash; number &areq; &sxhash;) <lineannotation>; broken!</lineannotation>
+(&defhash; number &areq; &sxhash;) <lineannotation>; broken!</lineannotation>
  </programlisting>
  is &not-e; correct because <code>(&areq; 1 1d0)</code> is
  &t; but <code>(&areq; (&sxhash; 1) (&sxhash; 1d0))</code>
  is &nil;.  The correct way is, e.g.: <programlisting language="lisp">
-  (&defhash; number &areq; (&lambda-m; (x) (&sxhash; (&coerce; x '&short-float-t;))))
+(&defhash; number &areq; (&lambda-m; (x) (&sxhash; (&coerce; x '&short-float-t;))))
  </programlisting>
  (note that <code>(&coerce; &x-r; &short-float-t;)</code> does &not-e;
  cons up &fresh; objects while <code>(&coerce; &x-r;
@@ -4916,23 +4916,23 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   the function is called.
 </simpara></listitem></varlistentry></variablelist>
 E.g.,
-<informalexample><programlisting language="lisp">
- (setq &user-commands;
-       (list (lambda () (list (format nil "~2%User-defined commands:")))
-             (lambda ()
-               (flet ((panic () (format t "don't panic, ~D~%" (random 42))))
-                 (list (format nil "~%panic   :p    hit the panic button!")
-                       (cons "panic" #'panic)
-                       (cons ":p" #'panic))))
-             (lambda ()
-               (let ((curses #("ouch" "yuk" "bletch")))
-                 (flet ((swear ()
-                          (format t "~A!~%"
-                                  (aref curses (random (length curses))))))
-                   (list (format nil "~%swear   :e    curse")
-                         (cons "swear" #'swear)
-                         (cons ":e" #'swear)))))))
-</programlisting></informalexample></para></section>
+<programlisting language="lisp">
+(setq &user-commands;
+      (list (lambda () (list (format nil "~2%User-defined commands:")))
+            (lambda ()
+              (flet ((panic () (format t "don't panic, ~D~%" (random 42))))
+                (list (format nil "~%panic   :p    hit the panic button!")
+                      (cons "panic" #'panic)
+                      (cons ":p" #'panic))))
+            (lambda ()
+              (let ((curses #("ouch" "yuk" "bletch")))
+                (flet ((swear ()
+                         (format t "~A!~%"
+                                 (aref curses (random (length curses))))))
+                  (list (format nil "~%swear   :e    curse")
+                        (cons "swear" #'swear)
+                        (cons ":e" #'swear)))))))
+</programlisting></para></section>
 
 </section>
 
@@ -5225,23 +5225,22 @@ exhaust the available line length.</para></formalpara>
  &two-way-stream-t;, named &ds-t;.
  If you have a &source-r; &bidi-s; &x-r; and you want all transactions
  (input and output) on &x-r; to be copied to the &target-r; &out-s; &y-r;,
- you can do
- <programlisting id="dribble-example">
-  (&defvar; *loggable* &x-r;)
-  (&setq; &x-r; (&make-synonym-stream; '*loggable*))
-  (&defun; toggle-logging (&optional-amp; s)
-    (&multiple-value-bind; (so ta) (dribble-toggle *loggable* s)
-      (&when; (&streamp; so) (&setq; *loggable* so))
-      ta))
-  (toggle-logging &y-r;)     ; start logging
-  ...
-  (toggle-logging)       ; finish logging
-  ...
-  (toggle-logging &y-r;)     ; restart logging
-  ...
-  (toggle-logging)       ; finish logging
-  (&close; &y-r;)
- </programlisting></para>
+ you can do <programlisting id="dribble-example" language="lisp">
+(&defvar; *loggable* &x-r;)
+(&setq; &x-r; (&make-synonym-stream; '*loggable*))
+(&defun; toggle-logging (&optional-amp; s)
+  (&multiple-value-bind; (so ta) (dribble-toggle *loggable* s)
+    (&when; (&streamp; so) (&setq; *loggable* so))
+    ta))
+(toggle-logging &y-r;)     ; start logging
+...
+(toggle-logging)       ; finish logging
+...
+(toggle-logging &y-r;)     ; restart logging
+...
+(toggle-logging)       ; finish logging
+(&close; &y-r;)
+</programlisting></para>
 
 <variablelist>
  <varlistentry id="drist"><term><code>
