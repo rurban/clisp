@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.15  2005/07/13 19:11:34  sds
+# regenerated for 2.33.84
+#
 # Revision 1.14  2005/07/06 17:05:52  sds
 # regenerated
 #
@@ -185,6 +188,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.15  2005/07/13 19:11:34  sds
+# regenerated for 2.33.84
+#
 # Revision 1.14  2005/07/06 17:05:52  sds
 # regenerated
 #
@@ -280,7 +286,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-13 14:40:38-0400\n"
+"POT-Creation-Date: 2005-07-20 19:46:52-0400\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -600,7 +606,7 @@ msgid "Actions:\n"
 msgstr ""
 
 #: spvw.d:1634
-msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
+msgid " -c [-l] lispfile [-o outputfile] - compile lispfile\n"
 msgstr ""
 
 #: spvw.d:1635

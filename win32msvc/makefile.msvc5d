@@ -62,6 +62,7 @@ CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/i
 CLFLAGS = 
 LIBS = charset.lib avcall.lib callback.lib  user32.lib ws2_32.lib advapi32.lib ole32.lib shell32.lib
 X_LIBS = 
+#MSVCDIR = d:/msdev
 #MSVCDIR = d:/devstudio/vc
 #MSVCDIR = c:/msvs/vc98
 #MSVCDIR = "C:/Program Files/Microsoft Visual Studio/VC98"
@@ -1237,7 +1238,7 @@ sp80386.c : sp80386.d comment5.exe
 	$(COMMENT5) sp80386.d > sp80386.c
 
 gen.lispbibl.c : lispbibl.d comment5.exe
-	$(COMMENT5) lispbibl.d | sed -e '/^#line/n;ta;:a;s/^%%%% //;tb;s/^.*$$//;:b' > gen.lispbibl.c
+	$(COMMENT5) lispbibl.d | sed -e '/^#line/n;s/^%%%% //;t' -e 's/^.*$$//' > gen.lispbibl.c
 
 allo : allc spvw.obj spvwtabf.obj spvwtabs.obj spvwtabo.obj eval.obj control.obj encoding.obj pathname.obj stream.obj socket.obj io.obj array.obj hashtabl.obj list.obj package.obj record.obj weak.obj sequence.obj charstrg.obj debug.obj error.obj misc.obj time.obj predtype.obj symbol.obj lisparit.obj i18n.obj foreign.obj win32aux.obj built.obj
 
@@ -2870,7 +2871,7 @@ boot : modular lispinit.mem
 
 anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas clisp.h
 	lndir ..\modules/$@ $@
-	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ( cache=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache; if test -f $${cache} ; then . $${cache}; if test "$${ac_cv_env_CC_set}" = set; then CC="$${ac_cv_env_CC_value}"; export CC; fi; ./configure --cache-file=$${cache} --srcdir=..\modules/$@ $(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=..\modules/$@ $(MODULE_CONFIGURE_FLAGS); fi ) ; fi
+	m=`cd ..\modules\$@; pwd`; if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ( cache=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache; if test -f $${cache} ; then . $${cache}; if test "$${ac_cv_env_CC_set}" = set; then CC="$${ac_cv_env_CC_value}"; export CC; fi; ./configure --cache-file=$${cache} --srcdir=$$m $(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=$$m $(MODULE_CONFIGURE_FLAGS); fi ) ; fi
 	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}/lispbibl.c $${dots}/fsubr.c $${dots}/subr.c $${dots}/pseudofun.c $${dots}/constsym.c $${dots}/constobj.c $${dots}/win32.c $${dots}/xthread.c $${dots}/stdbool.h $${dots}/stdint.h $${dots}/libcharset.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 base : modular boot $(BASE_MODULES)
