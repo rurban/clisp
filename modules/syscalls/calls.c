@@ -3321,20 +3321,20 @@ static const char * DecodeHRESULT (HRESULT hres) {
 }
 
 #define with_string_0w(string,wcvar,statement) \
-  do { var uintL wcvar##_len;                  \
-    var uintL wcvar##_offset;                  \
-    var object wcvar##_string = unpack_string_ro(string,&wcvar##_len,&wcvar##_offset); \
-    var const chart* ptr1;                     \
+  do { uintL wcvar##_len;                  \
+    uintL wcvar##_offset;                  \
+    object wcvar##_string = unpack_string_ro(string,&wcvar##_len,&wcvar##_offset); \
+    const chart* ptr1;                     \
     unpack_sstring_alloca(wcvar##_string,wcvar##_len,wcvar##_offset, ptr1=); \
-   {var uintL wcvar##_bytelen =                \
+   {uintL wcvar##_bytelen =                \
      cslen(Symbol_value(S(unicode_16_little_endian)),ptr1,wcvar##_len); \
-    var DYNAMIC_ARRAY(wcvar##_data,uintB,wcvar##_bytelen+2); \
+    DYNAMIC_ARRAY(wcvar##_data,uintB,wcvar##_bytelen+2); \
     cstombs(Symbol_value(S(unicode_16_little_endian)),ptr1,wcvar##_len,\
             &wcvar##_data[0],wcvar##_bytelen); \
     wcvar##_data[wcvar##_bytelen] = '\0';            \
     wcvar##_data[wcvar##_bytelen+1] = '\0';          \
-    {var WCHAR* wcvar = (WCHAR*) &wcvar##_data[0];   \
-     statement                                       \
+   {WCHAR* wcvar = (WCHAR*) &wcvar##_data[0];   \
+    statement                                       \
     }                                                \
     FREE_DYNAMIC_ARRAY(wcvar##_data);                \
   }} while(0)
