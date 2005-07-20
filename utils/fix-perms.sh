@@ -19,3 +19,5 @@ find . -type f -perm +111 '(' \
   -o -name 'README' \
   ')' \
   -exec chmod a-x '{}' ';'
+
+find . -name configure -exec chmod +x '{}' ';'
