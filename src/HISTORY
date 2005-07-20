@@ -1,5 +1,9 @@
 Version  Date            New features
 
+2.34     2005-07-20      MOP, weak structures, case sensitive symbols,
+                         global error handlers.
+                         New modules: matlab, rawsock, zlib, i18n, pari.
+
 2.33.2   2004-06-02      portability: RedHat Fedora Linux/x86
 
 2.33.1   2004-05-22      bug-fixes, portability: gcc 3.4

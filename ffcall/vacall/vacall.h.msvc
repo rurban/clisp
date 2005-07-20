@@ -2,7 +2,7 @@
 #define _VACALL_H
 
 /*
- * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2005 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -71,10 +71,10 @@
 /* Define if floating-point results are returned in the integer registers */
 #undef __IREG_FLOAT_RETURN__
 
-/* CL_LONGLONG */
-/* Define if your compiler supports the `long long' type. */
-#ifndef HAVE_LONGLONG
-#undef HAVE_LONGLONG
+/* gl_AC_TYPE_LONG_LONG */
+/* Define if your compiler supports the 'long long' type. */
+#ifndef HAVE_LONG_LONG
+#undef HAVE_LONG_LONG
 #endif
 
 /* AC_C_CHAR_UNSIGNED */
@@ -89,12 +89,6 @@
  */
 #ifndef __VA_ALIST_WORDS
 #define __VA_ALIST_WORDS  256
-#endif
-
-/* The `signed' keyword.
- */
-#if !defined(__STDC__) && !defined(__CHAR_UNSIGNED__) && !defined(signed)
-#define signed
 #endif
 
 /* Determine the alignment of a type at compile time.
@@ -195,12 +189,7 @@ enum __VA_alist_flags
 				  __VA_SUNPROCC_STRUCT_RETURN,
 #else
 #if defined(__PCC_STRUCT_RETURN__) /* defined through configure, see above */
-				  __VA_PCC_STRUCT_RETURN |
-#if defined(__sparc__) && !defined(__sparc64__) && defined(sun) && !(defined(__STDC__) || defined(__GNUC__)) /* sun cc */
-  				  __VA_SUNCC_STRUCT_RETURN,
-#else
-  				  0,
-#endif
+				  __VA_PCC_STRUCT_RETURN,
 #else
 #if defined(__SMALL_STRUCT_RETURN__) || defined(__mipsn32__) || defined(__mips64__) /* defined through configure, see above */
 				  __VA_SMALL_STRUCT_RETURN |
@@ -276,48 +265,14 @@ enum __VA_alist_flags
 
   /* how to pass floats */
   /* ANSI C compilers and GNU gcc pass floats as floats.
-   * K&R C compilers pass floats as doubles.
-   * (Except some compilers like SGI MIPS "cc" and "cc -cckr" if a prototype is
-   * known for the called functions. But to compile a program with prototypes,
-   * "cc -ansi" is better anyway.
+   * K&R C compilers pass floats as doubles. We don't support them any more.
    */
   __VA_ANSI_FLOAT_ARGS		= 0,    /* pass floats as floats */
-  __VA_TRADITIONAL_FLOAT_ARGS	= 1<<8, /* pass floats as doubles */
-  /* the default way to pass floats */
-  /* This choice here is based on the assumption that the function you are
-   * going to call has been compiled with the same compiler you are using to
-   * include this file.
-   * If you want to call functions with another float passing convention,
-   * just  #define __VA_FLOAT_ARGS ...
-   * before or after #including <vacall.h>.
-   */
-#ifndef __VA_FLOAT_ARGS
-#if defined(__STDC__) || defined(__GNUC__) /* what about hppa "cc -Aa" ?? */
-  __VA_FLOAT_ARGS		= __VA_ANSI_FLOAT_ARGS,
-#else
-  __VA_FLOAT_ARGS		= __VA_TRADITIONAL_FLOAT_ARGS,
-#endif
-#endif
 
   /* how to pass and return small integer arguments */
   __VA_ANSI_INTEGERS		= 0, /* no promotions */
   __VA_TRADITIONAL_INTEGERS	= 0, /* promote [u]char, [u]short to [u]int */
   /* Fortunately these two methods are compatible. Our macros work with both. */
-  /* the default way to pass and return small integer arguments */
-  /* This choice here is based on the assumption that the function you are
-   * going to call has been compiled with the same compiler you are using to
-   * include this file.
-   * If you want to call functions with another float passing convention,
-   * just  #define __VA_INTEGERS ...
-   * before or after #including <vacall.h>.
-   */
-#ifndef __VA_INTEGERS
-#if defined(__STDC__) || defined(__GNUC__)
-  __VA_INTEGERS			= __VA_ANSI_INTEGERS,
-#else
-  __VA_INTEGERS			= __VA_TRADITIONAL_INTEGERS,
-#endif
-#endif
 
   /* stack cleanup policy */
   __VA_CDECL_CLEANUP		= 0, /* caller pops args after return */
@@ -448,7 +403,7 @@ typedef __va_alist* va_alist;
  * Definition of the va_start_xxx macros.
  */
 #define __VA_START_FLAGS  \
-  __VA_STRUCT_RETURN | __VA_FLOAT_RETURN | __VA_STRUCT_ARGS | __VA_FLOAT_ARGS | __VA_INTEGERS | __VA_CLEANUP
+  __VA_STRUCT_RETURN | __VA_FLOAT_RETURN | __VA_STRUCT_ARGS | __VA_CLEANUP
 #define __va_start(LIST,RETTYPE)  \
   ((LIST)->flags = __VA_START_FLAGS,					\
    (LIST)->rtype = (RETTYPE)						\
@@ -819,12 +774,6 @@ typedef __va_alist* va_alist;
 
 /* Floating point arguments. */
 
-#define va_arg_float(LIST)  \
-  ((LIST)->flags & __VA_TRADITIONAL_FLOAT_ARGS				\
-   ? (float)va_arg_double(LIST)						\
-   : __va_arg_float(LIST)						\
-  )
-
 #if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__sparc__) || defined(__sparc64__) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__ia64__) || defined(__x86_64__) || defined(__s390__)
 #define __va_align_double(LIST)
 #endif
@@ -855,7 +804,7 @@ typedef __va_alist* va_alist;
    ? *(double*)((LIST)->aptr - sizeof(double) - 6*sizeof(double))	\
    : *(double*)((LIST)->aptr - sizeof(double))				\
   )
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   (((LIST)->aptr += sizeof(double)) <= (LIST)->memargptr		\
    ? /* The first 6 args have been put into memory by "stt" instructions */\
      /* (see vacall-alpha.s!). Therefore load them as doubles. */	\
@@ -871,14 +820,14 @@ typedef __va_alist* va_alist;
  * elsewhere.
  */
 #if 1 /* gcc-2.5.2 passes these args in general registers! A bug, I think. */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   (*(float*)((LIST)->aptr -= sizeof(float)))
 #define va_arg_double(LIST)  \
   (__va_align_double(LIST)						\
    *(double*)((LIST)->aptr -= sizeof(double))				\
   )
 #else /* this would be correct if the args were passed in float registers. */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   (((LIST)->aptr -= sizeof(float)) >= (LIST)->memargptr			\
    ? /* The first 4 float args are stored separately. */		\
      *(float*)((LIST)->aptr + (LIST)->farg_offset)			\
@@ -897,7 +846,7 @@ typedef __va_alist* va_alist;
 /* The first 0,1,2 registers are stored elsewhere if they are floating-point
  * parameters.
  */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   ((LIST)->aptr += sizeof(float),					\
    (LIST)->anum++,							\
    ((LIST)->anum == 1							\
@@ -921,7 +870,7 @@ typedef __va_alist* va_alist;
 /* The first 0,..,8 registers are stored elsewhere if they are floating-point
  * parameters.
  */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   (__va_align_double(LIST)						\
    (LIST)->aptr += sizeof(double),					\
    (++(LIST)->anum <= 8							\
@@ -940,7 +889,7 @@ typedef __va_alist* va_alist;
 /* The first 0,..,16 registers are stored elsewhere if they are floating-point
  * parameters.
  */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   (__va_align_double(LIST)						\
    (LIST)->aptr += sizeof(double),					\
    (++(LIST)->anum <= 16						\
@@ -957,7 +906,7 @@ typedef __va_alist* va_alist;
 #endif
 #if defined(__rs6000__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))
 /* The first 13 floating-point args have been stored elsewhere. */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   ((LIST)->aptr += sizeof(float),					\
    ((LIST)->memfargptr < &(LIST)->farg[13]				\
     ? (float) *((LIST)->memfargptr++)					\
@@ -973,7 +922,7 @@ typedef __va_alist* va_alist;
 #endif
 #if defined(__rs6000__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))
 /* The first 8 floating-point args have been stored elsewhere. */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   ((LIST)->memfargptr < &(LIST)->farg[8]				\
    ? (float) *((LIST)->memfargptr++)					\
    : ((LIST)->aptr = ((LIST)->onstack == 0                              \
@@ -997,7 +946,7 @@ typedef __va_alist* va_alist;
 #endif
 #if defined(__s390__)
 /* The first 2 floating-point args have been stored elsewhere. */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   ((LIST)->memfargptr < &(LIST)->farg[2]				\
    ? (LIST)->memdargptr++, (float) *((LIST)->memfargptr++)		\
    : ((LIST)->aptr = ((LIST)->onstack == 0                              \
@@ -1021,7 +970,7 @@ typedef __va_alist* va_alist;
 #endif
 #if defined(__ia64__)
 /* The first 8 floating-point args have been stored elsewhere. */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   ((LIST)->aptr += sizeof(__vaword),					\
    ((LIST)->memfargptr < &(LIST)->farg[8]				\
     ? (float) *((LIST)->memfargptr++)					\
@@ -1037,7 +986,7 @@ typedef __va_alist* va_alist;
 #endif
 #if defined(__x86_64__)
 /* The first 8 floating-point args have been stored elsewhere. */
-#define __va_arg_float(LIST)  \
+#define va_arg_float(LIST)  \
   ((LIST)->memfargptr < &(LIST)->farg[8]				\
    ? ((LIST)->memfargptr++,						\
       *(float*)((LIST)->memfargptr - 1)					\
@@ -1052,8 +1001,8 @@ typedef __va_alist* va_alist;
       *(double*)((LIST)->aptr - sizeof(__vaword))			\
   )  )
 #endif
-#ifndef __va_arg_float
-#define __va_arg_float(LIST)	__va_arg(LIST,float)
+#ifndef va_arg_float
+#define va_arg_float(LIST)	__va_arg(LIST,float)
 #endif
 #ifndef va_arg_double
 #define va_arg_double(LIST)  \
@@ -1270,17 +1219,10 @@ extern "C" void (*vacall) (); /* the return type is variable, not void! */
 #else
 extern void (*vacall) (); /* the return type is variable, not void! */
 #endif
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 extern void (* vacall_function) (va_alist);
 extern int __va_error1 (enum __VAtype, enum __VAtype);
 extern int __va_error2 (unsigned int);
-extern void __structcpy (void* dest, void* src, unsigned long size, unsigned long alignment);
-#else
-extern void (* vacall_function) ();
-extern int __va_error1 ();
-extern int __va_error2 ();
-extern void __structcpy ();
-#endif
+extern void __structcpy (void* dest, const void* src, unsigned long size, unsigned long alignment);
 typedef union { __vaword room[__VA_ALIST_WORDS]; double align; } __va_struct_buffer_t;
 extern __va_struct_buffer_t __va_struct_buffer;
 
