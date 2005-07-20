@@ -91,11 +91,9 @@ FILLIN=. ../version.sh && sed -e 's,@DTD@,$(DTD),' \
 	    -e 's,@PLATFORM@,'`uname`',' \
 	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`','
 
-SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
-		-e 's/ *--> *<!-- */\n/g' \
-		-e 's/ *<!-- */\n/g' -e 's/ *--> */\n/g'
+SGML_UNCOMMENT=-e 's/^<!--\#\(.*\)-->$$/\#\1/'
 
-ROFF_UNCOMMENT=-e 's/^\.\\"<!\\-\\-\(.*\)\\-\\->$$/\1/'
+ROFF_UNCOMMENT=-e 's/^\.\\"<!\\-\\-\#\(.*\)\\-\\->$$/\#\1/'
 
 all: check $(CATALOG_FILE) impnotes.html regexp.html man
 
