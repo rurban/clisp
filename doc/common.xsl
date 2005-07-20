@@ -79,7 +79,8 @@ set       toc,title
 <xsl:template match="comment()">  <!-- pass through comments -->
  <xsl:text>&#10;</xsl:text>
  <xsl:comment><xsl:value-of select="normalize-space(.)"/></xsl:comment>
- <xsl:if test="not(following-sibling::comment())">
+ <!-- http://article.gmane.org/gmane.text.docbook.apps:13033 -->
+ <xsl:if test="not(following-sibling::node()[1][self::comment()])">
   <xsl:text>&#10;</xsl:text></xsl:if>
 </xsl:template>
 
