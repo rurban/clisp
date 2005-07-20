@@ -2,14 +2,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>clisp</title><link rel="stylesheet" href="impnotes.css" type="text/css" /><link rev="made" href="mailto:clisp-list@sf.net" /><meta name="generator" content="DocBook XSL Stylesheets V2005-07-12_04:47_snapshot" /></head><body><div class="refentry" lang="en" xml:lang="en"><a id="clisp"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>clisp — ANSI Common Lisp compiler, interpreter and debugger.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">clisp</code>  [[<code class="option"><a href="#opt-help">-h</a></code>] |  [<code class="option"><a href="#opt-help">--help</a></code>]] [<code class="option"><a href="#opt-version">--version</a></code>] [<code class="option"><a href="#opt-license">--license</a></code>] [<code class="option"><a href="#opt-libdir">-B <em class="replaceable"><code>lisp-lib-dir</code></em></a></code>]
 #ifdef UNIX
-[<code class="option"><a href="#opt-link-set">-K
+ [<code class="option"><a href="#opt-link-set">-K
    <em class="replaceable"><code>linking-set</code></em></a></code>]
 #endif
-[<code class="option"><a href="#opt-memfile">-M
+ [<code class="option"><a href="#opt-memfile">-M
    <em class="replaceable"><code>mem-file</code></em></a></code>] [<code class="option"><a href="#opt-memsize">-m
    <em class="replaceable"><code>mem-size</code></em></a></code>]
 #ifdef MULTIMAP_MEMORY_VIA_FILE
-[<code class="option"><a href="#opt-tempdir">-t
+ [<code class="option"><a href="#opt-tempdir">-t
    <em class="replaceable"><code>temp-dir</code></em></a></code>]
 #endif
  [<code class="option"><a href="#opt-lang">-L <em class="replaceable"><code>language</code></em></a></code>] [<code class="option"><a href="#opt-locale">-N <em class="replaceable"><code>locale-dir</code></em></a></code>] [<code class="option"><a href="#opt-enc">-E<em class="replaceable"><code>domain</code></em> <em class="replaceable"><code>encoding</code></em></a></code>] [[<code class="option"><a href="#opt-verbose">-q</a></code>] |  [<code class="option"><a href="#opt-verbose">--quiet</a></code>] |  [<code class="option"><a href="#opt-verbose">--silent</a></code>] |  [<code class="option"><a href="clisp.html#opt-verbose" class="olink">-v</a></code>] |  [<code class="option"><a href="#opt-verbose">--verbose</a></code>]] [<code class="option"><a href="#opt-on-error">-on-error
@@ -35,6 +35,7 @@ compiles the specified lisp files to a platform-independent
    This is the directory containing the linking sets and other data files.
 
 #ifdef UNIX
+
    This option is normally not necessary, because the installation directory
    is already built-in into the <span><strong class="command">clisp</strong></span> executable.
 
@@ -63,6 +64,7 @@ compiles the specified lisp files to a platform-independent
    this <span><strong class="command">clisp</strong></span> <a href="#runtime">runtime</a>.
 
 #ifdef UNIX
+
    It may have been compressed using <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://www.gzip.org/" target="_top"><span><strong class="command">gzip</strong></span></a>.
 
 #endif
@@ -77,15 +79,19 @@ compiles the specified lisp files to a platform-independent
    The default is 2 megabytes.
 
 #if (oint_addr_len+addr_shift==24)
+
    The argument is constrained between 100 KB and 16 MB.
 
 #elif (oint_addr_len+addr_shift==26)
+
    The argument is constrained between 100 KB and 64 MB.
 
 #elif (oint_addr_len+addr_shift==28)
+
    The argument is constrained between 100 KB and 256 MB.
 
 #else
+
    The argument is constrained above 100 KB.
 
 #endif
@@ -94,7 +100,9 @@ compiles the specified lisp files to a platform-independent
 
 #if defined(SPVW_MIXED) && defined(SPVW_BLOCKS)
 
+
 #ifdef GENERATIONAL_GC
+
    is not likely to actually use the entire
    <em class="replaceable"><code>mem-size</code></em> since garbage collection will
    periodically reduce the amount of used memory.
@@ -102,11 +110,14 @@ compiles the specified lisp files to a platform-independent
    to be used.
 
 #else
+
    eventually uses the entire <em class="replaceable"><code>mem-size</code></em>.
 
 #endif
 
+
 #else
+
    allocates memory dynamically.
    <em class="replaceable"><code>mem-size</code></em> is essentially ignored
    (except that it determines the Lisp <a href="impnotes.html#vm" class="olink"><code class="literal">STACK</code></a> size).
@@ -126,9 +137,11 @@ compiles the specified lisp files to a platform-independent
    This may be
 
 #ifndef GNU_GETTEXT
+
    only <span><strong class="command">english</strong></span>.
 
 #else
+
    one of <span class="simplelist"><span><strong class="command">english</strong></span>, <span><strong class="command">german</strong></span>, <span><strong class="command">french</strong></span>, <span><strong class="command">spanish</strong></span>, <span><strong class="command">dutch</strong></span>, <span><strong class="command">russian</strong></span></span>.
    Other languages may be specified through the <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a>
    <code class="envar">LANG</code>,
@@ -185,6 +198,7 @@ compiles the specified lisp files to a platform-independent
    not suppressed.
 
 #ifdef GNU_READLINE
+
    Furthermore, the <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://cnswww.cns.cwru.edu/~chet/readline/rltop.html" target="_top">readline</a> library treats
    <a href="#completion">Tab</a> as a normal self-inserting
    character, so you should always use this option when you invoke
@@ -243,6 +257,7 @@ compiles the specified lisp files to a platform-independent
    strings, representing the <em class="replaceable"><code>argument</code></em>s.
 
 #ifdef UNIX
+
    The first line of <em class="replaceable"><code>lisp-file</code></em> may start with <span><strong class="command">#!</strong></span>,
    thus permitting <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> to be used as a script interpreter.
 
@@ -266,11 +281,14 @@ compiles the specified lisp files to a platform-independent
  <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>.</dd><dt>EOF
 
 #if defined(UNIX)
+
  (<span><strong class="keycap">Control</strong></span>-<span class="keysym">D</span> on <a href="http://www.UNIX-systems.org/online.html" target="_top"><span class="strong"><strong>UNIX</strong></span></a>)
 
 #endif
 
+
 #if defined(WIN32_NATIVE)
+
  (<span><strong class="keycap">Control</strong></span>-<span class="keysym">Z</span> on <a href="http://winehq.com/" target="_top"><span class="strong"><strong>Win32</strong></span></a>)
 
 #endif
@@ -345,6 +363,7 @@ compiles the specified lisp files to a platform-independent
    <code class="option"><a href="clisp.html#opt-lang" class="olink">-L</a></code> option.
 
 #ifdef UNICODE
+
    It also specifies the locale determining the character set in use, unless
    already specified through the <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a> <code class="envar">LC_CTYPE</code>.
 
@@ -417,4 +436,4 @@ following information:
    operations.</li><li>Add Multi-Threading capabilities, via OS
    threads.</li></ul></div></div><div class="refsection" lang="en" xml:lang="en"><a id="authors"></a><h2>CLISP Authors</h2><p><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> project was started in late 1980-ies by <span class="author"><span class="firstname">Bruno</span> <span class="surname">Haible</span></span> and
  <span class="author"><span class="firstname">Michael</span> <span class="surname">Stoll</span></span>, both in Germany.</p><p>See <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT?rev=HEAD&amp;content-type=text/plain" target="_top">COPYRIGHT</a>
-for the list of other contributors and the license.</p></div></div><div class="refentryinfo"><hr width="100%" /><table width="100%" summary="man page meta info"><th><td align="left"><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> version 2.33.84</td><td align="center">Platform: CYGWIN_NT-5.0</td><td align="right">Last modified: 2005-07-18</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://www.gnu.org"><img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468" height="60" alt="[Come and see what GNU creates for YOU]" /></a></td><td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=clisp" /></a></td></tr></table></div></body></html>
+for the list of other contributors and the license.</p></div></div><div class="refentryinfo"><hr width="100%" /><table width="100%" summary="man page meta info"><th><td align="left"><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> version 2.34</td><td align="center">Platform: CYGWIN_NT-5.0</td><td align="right">Last modified: 2005-07-20</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://www.gnu.org"><img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468" height="60" alt="[Come and see what GNU creates for YOU]" /></a></td><td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=clisp" /></a></td></tr></table></div></body></html>

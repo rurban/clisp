@@ -443,7 +443,7 @@ distrib : fixperms linux-distrib src-distrib
 # echo URL-tar.bz2| mail -s "clisp-`cat VERSION`" translation@IRO.UMontreal.CA
 ## RELEASE TODO:
 # Before doing a "make src-distrib":
-# * update src/configure.in (version number), src/NEWS, src/HISTORY
+# * update version.sh, src/NEWS, src/HISTORY
 # * update clisp.lsm, clisp.spec
 # * "make -f Makefile.devel"
 # * "make -f Makefile.devel check-configures"
