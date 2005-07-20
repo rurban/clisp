@@ -1,5 +1,9 @@
 2005-07-20  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel: remove the last vestiges of DOS support
+
+2005-07-20  Sam Steingold  <sds@gnu.org>
+
 	* utils/fix-perms.sh: make configure files executable
 
 2005-07-18  Sam Steingold  <sds@gnu.org>
