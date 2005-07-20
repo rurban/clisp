@@ -1,5 +1,9 @@
 2005-07-20  Sam Steingold  <sds@gnu.org>
 
+	* m4/libtool.m4: upgrade to libtool-1.5.18 + clisp 2005-07-08 patch
+
+2005-07-20  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (var): do not put into clisp.h
 	(elif, loop, until): deprecated
 
