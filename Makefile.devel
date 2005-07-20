@@ -65,12 +65,6 @@ SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
 
 SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7)
 
-DOSDIR = /c:/clisp/src
-EMXDIR = /c:/emx
-RSXDIR = /c:/rsx
-TEMPDIR = /tmp/clispdos
-
-
 all : makefiles check-configures update-ansi-tests update-docbook-utils     \
 	fixperms                                                            \
 	potfiles                                                            \
