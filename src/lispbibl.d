@@ -1069,21 +1069,24 @@
                    such as 'value1' or 'mv_space'. */
 #define maygc
 
-# Storage-Class-Specifier in declarations at the beginning of a block:
-# var                       will lead a variable declaration
+/* Storage-Class-Specifier in declarations at the beginning of a block:
+ var                       will lead a variable declaration
+ used by utils/varbrace to allow declarations mixed with other statements */
 #define var
-%% printf("#define var\n");
 
-# Generalized if-statement:
-# if (cond1) ... {elif (condi) ...} [else ...]
+/* Generalized if-statement:
+ if (cond1) ... {elif (condi) ...} [else ...]
+ _deprecated_, please use standard C */
 #define elif  else if
 
-# Infinite loop, can only be left with break;  or  return...;:
+/* Infinite loop, can only be left with break;  or  return...;:
+ _deprecated_, please use standard C */
 #define loop  while (1)
 
-# Reverted stop condition in loops:
-# Allows   until (expression) statement
-# and      do statement until (expression);
+/* Reverted stop condition in loops:
+ Allows   until (expression) statement
+ and      do statement until (expression);
+ _deprecated_, please use standard C */
 #define until(expression)  while(!(expression))
 
 # Case-statement for a value >=0
