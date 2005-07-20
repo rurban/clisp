@@ -1,5 +1,10 @@
 2005-07-20  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (var): do not put into clisp.h
+	(elif, loop, until): deprecated
+
+2005-07-20  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel: remove the last vestiges of DOS support
 
 2005-07-20  Sam Steingold  <sds@gnu.org>
