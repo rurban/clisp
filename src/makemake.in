@@ -2251,7 +2251,7 @@ if [ ! $TSYS = win32msvc ] ; then
   echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
   echol
   if [ -n "${SRCDIR}" ] ; then
-    for f in makemake.in unixconf.h.in configure VERSION version.h; do
+    for f in makemake.in unixconf.h.in configure version.h; do
       link_dep "${f}" "${SRCDIR}${f}"
     done
   fi
