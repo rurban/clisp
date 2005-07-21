@@ -1170,10 +1170,13 @@
       type)))
 ;; Conversion of an encoding to a list of intervals.
 #+UNICODE
-(let ((table (make-hash-table :key-type '(or string symbol) :value-type 'simple-string
-                              :test 'stablehash-equal :warn-if-needs-rehash-after-gc t)))
-  ;; cache: charset name -> list of intervals #(start1 end1 ... startm endm)
-  #| ; Now in C and much more efficient.
+(defun get-charset-range (charset &optional maxintervals)
+  (let ((table #,(make-hash-table :key-type '(or string symbol)
+                                  :value-type 'simple-string
+                                  :test 'stablehash-equal
+                                  :warn-if-needs-rehash-after-gc t)))
+    ;; cache: charset name -> list of intervals #(start1 end1 ... startm endm)
+    #| ; Now in C and much more efficient.
   (defun charset-range (encoding start end)
     (setq start (char-code start))
     (setq end (char-code end))
@@ -1188,27 +1191,18 @@
         (incf i))
       (when i2 (setq intervals (list* i2 i1 intervals)))
       (map 'simple-string #'code-char (nreverse intervals))))
-  |#
-  ;; Return the definition range of a character set. If necessary, compute it
-  ;; and store it in the cache.
-  (defun get-charset-range (charset &optional maxintervals)
+    |#
+    ;; Return the definition range of a character set. If necessary, compute it
+    ;; and store it in the cache.
     (or (gethash charset table)
         (setf (gethash charset table)
               (charset-range (make-encoding :charset charset)
                              (code-char 0) (code-char (1- char-code-limit))
-                             maxintervals))))
-  ;; Fill the cache, but cache only the results with small lists of intervals.
-  ;; Some iconv based encodings have large lists of intervals (up to 5844
-  ;; intervals for ISO-2022-JP-2) which are rarely used and not worth caching.
-  (do-external-symbols (sym (find-package "CHARSET"))
-    (let* ((charset (encoding-charset (symbol-value sym)))
-           (computed-range (get-charset-range charset 100))
-           (intervals (/ (length computed-range) 2)))
-      (when (>= intervals 100) (remhash charset table)))))
+                             maxintervals)))))
 #| ;; Older code for a special case.
 ;; Test whether all characters encodable in encoding1 are also encodable in
 ;; encoding2.
-(defun charset-subtypep (encoding1 encoding2)
+ (defun charset-subtypep (encoding1 encoding2)
   #-UNICODE (declare (ignore encoding1 encoding2)) #-UNICODE t
   #+UNICODE
   (let* ((intervals1 (get-charset-range (encoding-charset encoding1)))

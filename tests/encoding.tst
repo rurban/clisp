@@ -103,3 +103,16 @@ ERROR
   ;; #(72 101 108 108 111)
   (ext:convert-string-from-bytes vec charset:utf-8))
 "Hello"
+
+;; Fill the cache, but cache only the results with small lists of intervals.
+;; Some iconv based encodings have large lists of intervals (up to 5844
+;; intervals for ISO-2022-JP-2) which are rarely used and not worth caching.
+(let ((list ()))
+  (do-external-symbols (sym (find-package "CHARSET"))
+    (push (list sym (ash (length (sys::get-charset-range
+                                  (encoding-charset (symbol-value sym))))
+                         -1))
+          list))
+  (setq list (sort list #'< :key #'second))
+  (format t "~& ~:D encoding~:P:~%~:{~25@A: ~5:D~%~}" (length list) list))
+NIL
