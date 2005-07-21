@@ -4,9 +4,11 @@
 #
 # To verify:   find . -type f -perm +111 -print
 
-find . -type f -perm +111 '(' \
+find . -type f -follow -perm +111 '(' \
      -name '*.in' \
   -o -name '*.xml' \
+  -o -name '*.html' \
+  -o -name '*.png' \
   -o -name '*.xsl' \
   -o -name '*.m4' \
   -o -name '*.h' \
