@@ -1,10 +1,13 @@
 This file contains suggestions for further work.
 See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 
-MUST-FIX BEFORE NEXT RELEASE
-============================
+URGENT PROBLEMS
+===============
+Should handle these soon.
+
 
 bind-eval.tst failure on Linux/amd64 [bruno]
+
 
 regression: [bruno]
 =============== script.lisp ==================
@@ -32,6 +35,7 @@ same + hangs instead of terminating.
 $ clisp script.lisp
 works fine.
 
+
 Readline interface problem:
 [2]> (macroexü
 *** - AREF: Index 9 für "(macroexü" ist zu groß.
@@ -41,22 +45,17 @@ Breakpoint 15, lisp_completion_matches (text=0x822c1d8 "macroexü", start=1,
 (gdb) p strlen(text)
 $1 = 9
 
-Restore interpretation of command-line options.
-[sds: what does this mean? bad command line should result in an error message
- and a note about "--help", and not the full - potentially multi-page! -
- help message ]
-
-
-MUST-FIX BEFORE RELEASE 2.35
-============================
 
 Many pretty-printer test failures.
 (sds - but bruno has to fix the risky-test in iofkts.tst first)
 
+
 Inefficiency of class redefinition when old or new class is unfinalizable
+
 
 support perseverances also on write side
 change wr_by_array_iau8_buffered to use persev instead of persev_full
+
 
 binary stdio
 <http://article.gmane.org/gmane.lisp.clisp.devel:12268>
@@ -76,12 +75,6 @@ it still might make sense to change regular_handle_p().
 Note that this runs into the FRESH-LINE/same_handle_p issues.
 Maybe (SETF STREAM-ELEMENT-TYPE) should work on TERMINAL-STREAMs?
 Maybe all streams should be bivalent?
-
-
-URGENT PROBLEMS
-===============
-
-Should handle these soon.
 
 
 get-charset-range: move the "caching" code to the test suite [bruno]
