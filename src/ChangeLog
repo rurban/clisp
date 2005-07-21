@@ -1,5 +1,9 @@
 2005-07-21  Sam Steingold  <sds@gnu.org>
 
+	* subtypep.lisp (get-charset-range): do not fill the cache here
+
+2005-07-21  Sam Steingold  <sds@gnu.org>
+
 	* utils/fix-perms.sh: follow symlinks and also "-x" HTML and PNG
 
 2005-07-21  Sam Steingold  <sds@gnu.org>
