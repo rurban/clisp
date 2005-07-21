@@ -2549,7 +2549,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
  trigger GC during the entire lifetime of the variable 'foo'!
 */
 
-%% var const char* attribute_aligned_object = "";
+%% const char* attribute_aligned_object = "";
 %% #if defined(WIDE_AUXI) || defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)
 %%   #if defined(WIDE) && !defined(WIDE_HARD)
 %%     #ifdef GENERATIONAL_GC
@@ -3693,7 +3693,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 %%     printf("#define mtypecode(expr)  typecode(expr)\n");
 %%   #else
 %%     #if defined(MC68000) && defined(GNU) && !defined(NO_ASM) && (oint_type_shift==24) && (oint_type_len==8)
-%%       printf("#define typecode(expr)  ({var tint __typecode; __asm__ (\"roll #8,%%0\" : \"=d\" (__typecode) : \"0\" (as_oint(expr)) ); __typecode; })\n");
+%%       printf("#define typecode(expr)  ({tint __typecode; __asm__ (\"roll #8,%%0\" : \"=d\" (__typecode) : \"0\" (as_oint(expr)) ); __typecode; })\n");
 %%     #elif defined(SPARC) && !defined(WIDE)
 %%       printf("#define typecode(expr)  ((as_oint(expr) << %d) >> %d)\n",
 %%              32-oint_type_len-oint_type_shift,32-oint_type_len);
@@ -9594,7 +9594,7 @@ typedef SPint sp_jmp_buf[jmpbufsize];
 # The initial value of SP() during main().
 extern void* SP_anchor;
 %% #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
-%%   printf("%s\n","#define SP()  ({var aint __SP; __asm__ __volatile__ (\"movl %%esp,%0\" : \"=g\" (__SP) : ); __SP; })");
+%%   printf("%s\n","#define SP()  ({aint __SP; __asm__ __volatile__ (\"movl %%esp,%0\" : \"=g\" (__SP) : ); __SP; })");
 %% #endif
 
 # LISP-Stack: STACK
@@ -9869,7 +9869,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 %%   #ifdef HAVE_SAVED_STACK
 %%     printf(" STACK = saved_STACK;");
 %%   #endif
-%%   printf(" { var gcv_object_t* top_of_frame = STACK; pushSTACK(as_object((aint)callback_saved_registers)); finish_frame(CALLBACK); } callback_saved_registers = registers; } ");
+%%   printf(" { gcv_object_t* top_of_frame = STACK; pushSTACK(as_object((aint)callback_saved_registers)); finish_frame(CALLBACK); } callback_saved_registers = registers; } ");
 %% #endif
 %% printf("end_call()\n");
 %% printf("#define end_callback() ");
@@ -12037,10 +12037,10 @@ re-enters the corresponding top-level loop.
 %% #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM) && !defined(WIDE) && defined(STACK_register)
 %%   #ifdef STACK_DOWN
 %%     printf("#define pushSTACK(obj)  ({ __asm__ __volatile__ (\"movel %%0,%s%s@-\" : : \"g\" ((object)(obj)) : \"%s\" ); })\n",REGISTER_PREFIX,STACK_register,STACK_register);
-%%     printf("#define popSTACK()  ({var object __result; __asm__ __volatile__ (\"movel %s%s@+,%%0\" : \"=g\" (__result) : : \"%s\" ); __result; })\n",REGISTER_PREFIX,STACK_register,STACK_register);
+%%     printf("#define popSTACK()  ({object __result; __asm__ __volatile__ (\"movel %s%s@+,%%0\" : \"=g\" (__result) : : \"%s\" ); __result; })\n",REGISTER_PREFIX,STACK_register,STACK_register);
 %%   #else
 %%     printf("#define pushSTACK(obj)  ({ __asm__ __volatile__ (\"movel %%0,%s%s@+\" : : \"g\" ((object)(obj)) : \"%s\" ); })\n",REGISTER_PREFIX,STACK_register,STACK_register);
-%%     printf("#define popSTACK()  ({var object __result; __asm__ __volatile__ (\"movel %s%s@-,%%0\" : \"=g\" (__result) : : \"%s\" ); __result; })\n",REGISTER_PREFIX,STACK_register,STACK_register);
+%%     printf("#define popSTACK()  ({object __result; __asm__ __volatile__ (\"movel %s%s@-,%%0\" : \"=g\" (__result) : : \"%s\" ); __result; })\n",REGISTER_PREFIX,STACK_register,STACK_register);
 %%   #endif
 %% #else
 %%   printf("#define pushSTACK(obj)  (STACK_(-1) = (obj), STACK skipSTACKop -1)\n");
@@ -12060,7 +12060,7 @@ re-enters the corresponding top-level loop.
 #define STACK_9  (STACK_(9))
 #define STACK_10  (STACK_(10))
 # etc.
-%% { var int i;
+%% { int i;
 %%   for (i=0; i<=10; i++)
 %%     printf("#define STACK_%d  (STACK_(%d))\n",i,i);
 %% }
@@ -13502,31 +13502,31 @@ extern maygc object ascii_to_string (const char * asciz);
 #endif
 # is used by PATHNAME, MISC, FOREIGN
 %% printf("#define with_string_0(string,encoding,ascizvar,statement) ");
-%% printf("    do { var uintL ascizvar##_len;");
-%% printf("    var uintL ascizvar##_offset;");
-%% printf("    var object ascizvar##_string = unpack_string_ro(string,&ascizvar##_len,&ascizvar##_offset);");
-%% printf("    var const chart* ptr1;");
+%% printf("    do { uintL ascizvar##_len;");
+%% printf("    uintL ascizvar##_offset;");
+%% printf("    object ascizvar##_string = unpack_string_ro(string,&ascizvar##_len,&ascizvar##_offset);");
+%% printf("    const chart* ptr1;");
 %% printf("    unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,ascizvar##_offset, ptr1=);");
-%% printf("   {var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len);");
-%% printf("    var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
+%% printf("   {uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len);");
+%% printf("    DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
 %% printf("    cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
 %% printf("    ascizvar##_data[ascizvar##_bytelen] = 0;");
-%% printf("    {var char* ascizvar = (char*) &ascizvar##_data[0];");
-%% printf("     statement");
+%% printf("   {char* ascizvar = (char*) &ascizvar##_data[0];");
+%% printf("    statement");
 %% printf("    }");
 %% printf("    FREE_DYNAMIC_ARRAY(ascizvar##_data);");
 %% printf("  }} while(0)\n");
 %% printf("#define with_sstring_0(string,encoding,ascizvar,statement)");
-%% printf("  do { var object ascizvar##_string = (string);");
+%% printf("  do { object ascizvar##_string = (string);");
 %% printf("    sstring_un_realloc(ascizvar##_string);");
-%% printf("   {var uintL ascizvar##_len = Sstring_length(ascizvar##_string);");
-%% printf("    var const chart* ptr1;");
+%% printf("   {uintL ascizvar##_len = Sstring_length(ascizvar##_string);");
+%% printf("    const chart* ptr1;");
 %% printf("    unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);");
-%% printf("   {var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len);");
-%% printf("    var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
+%% printf("   {uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len);");
+%% printf("    DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
 %% printf("    cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
 %% printf("    ascizvar##_data[ascizvar##_bytelen] = 0;");
-%% printf("    {var char* ascizvar = (char*) &ascizvar##_data[0];");
+%% printf("    {char* ascizvar = (char*) &ascizvar##_data[0];");
 %% printf("     statement");
 %% printf("    }");
 %% printf("    FREE_DYNAMIC_ARRAY(ascizvar##_data);");
@@ -14284,7 +14284,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
 %%   printf("  } else if (sstring_eltype(TheSstring(string)) == %d) {",Sstringtype_32Bit);
 %%   printf("    charptr_assignment (const chart*) &TheS32string(string)->data[offset];");
 %%   printf("  } else {");
-%%   printf("    var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));");
+%%   printf("    chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));");
 %%   printf("    if ((len) > 0) {");
 %%   printf("      if (sstring_eltype(TheSstring(string)) == %d)",Sstringtype_16Bit);
 %%   printf("        copy_16bit_32bit(&TheS16string(string)->data[offset],(cint32*)_unpacked_,len);");
