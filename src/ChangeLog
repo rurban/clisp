@@ -1,3 +1,8 @@
+2005-07-21  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/link.sh (TO_LOAD): removed split-sequence
+	* modules/clx/mit-clx/Makefile (ALLLISP, ALLFAS): ditto
+
 2005-07-20  Sam Steingold  <sds@gnu.org>
 
 	* version.sh: clisp 2.34 release
