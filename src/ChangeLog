@@ -1,5 +1,9 @@
 2005-07-21  Sam Steingold  <sds@gnu.org>
 
+	* utils/fix-perms.sh: follow symlinks and also "-x" HTML and PNG
+
+2005-07-21  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (distrib) [cygwin]: fixed CLISP_VR; use /tmp for DEST_TMP
 
 2005-07-21  Sam Steingold  <sds@gnu.org>
