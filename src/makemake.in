@@ -3658,10 +3658,10 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo '' >> cygwin.README"
   echotab "cat SUMMARY >> cygwin.README"
   echol
-  echol "CLISP_VR=\$(CLISP_VERSION)-\$(CLISP_RELEASE)"
+  echol "CLISP_VR=\$(CLISP_VERSION)-1"
   echol "CLISP_SCRIPT=\$(CLISP_VR).sh"
   echol "CLISP_CYGWIN=\$(CLISP_VERSION)-cygwin-"`uname -r|sed 's/(.*)//g'`.tar.bz2
-  echol "DEST_TMP='`pwd`/.install'"
+  echol "DEST_TMP=/tmp/clisp-install"
   echol "distrib : setup.hint cygwin.README force"
   echotab "\$(RMRF) \$(DEST_TMP) \$(CLISP_VR).tar.bz2; mkdir -p \$(DEST_TMP)"
   echotab "\$(MAKE) install prefix=/usr DESTDIR=\$(DEST_TMP)"
