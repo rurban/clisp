@@ -445,9 +445,7 @@ distrib : fixperms linux-distrib src-distrib
 # Before doing a "make src-distrib":
 # * update version.sh, src/NEWS, src/HISTORY
 # * update clisp.lsm, clisp.spec
-# * "make -f Makefile.devel"
-# * "make -f Makefile.devel check-configures"
-# * check that src/genclisph.d is up to date.
+# * "make -f Makefile.devel all"
 # web pages to be updated:
 # www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
 
