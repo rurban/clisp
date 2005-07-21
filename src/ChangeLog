@@ -1,5 +1,9 @@
 2005-07-20  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (VERSION): removed
+
+2005-07-20  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d: do not put "var" into clisp.h
 
 2005-07-20  Sam Steingold  <sds@gnu.org>
