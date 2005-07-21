@@ -77,9 +77,6 @@ Maybe (SETF STREAM-ELEMENT-TYPE) should work on TERMINAL-STREAMs?
 Maybe all streams should be bivalent?
 
 
-get-charset-range: move the "caching" code to the test suite
-
-
 remove clhs.txt; add impnotes id-href.map lookup
 
 
