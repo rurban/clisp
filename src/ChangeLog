@@ -1,5 +1,9 @@
 2005-07-21  Sam Steingold  <sds@gnu.org>
 
+	* win32.d (HAVE_STRERROR): define to 1 to avoid a warning
+
+2005-07-21  Sam Steingold  <sds@gnu.org>
+
 	* subtypep.lisp (get-charset-range): do not fill the cache here
 
 2005-07-21  Sam Steingold  <sds@gnu.org>
