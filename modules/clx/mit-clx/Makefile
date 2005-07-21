@@ -12,13 +12,13 @@ ALLLISP = attributes.lisp buffer.lisp bufmac.lisp clx.lisp depdefs.lisp \
   dependent.lisp describe.lisp display.lisp fonts.lisp gcontext.lisp \
   graphics.lisp image.lisp input.lisp keysyms.lisp macros.lisp manager.lisp \
   package.lisp requests.lisp resource.lisp text.lisp trace.lisp translate.lisp \
-  split-sequence.lisp shape.lisp
+  shape.lisp
 
 ALLFAS =  attributes.fas buffer.fas bufmac.fas clx.fas depdefs.fas \
   dependent.fas describe.fas display.fas fonts.fas gcontext.fas \
   graphics.fas image.fas input.fas keysyms.fas macros.fas manager.fas \
   package.fas requests.fas resource.fas text.fas trace.fas translate.fas \
-  split-sequence.fas shape.fas
+  shape.fas
 
 
 # Choose one of the packers:
