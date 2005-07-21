@@ -1,5 +1,9 @@
 2005-07-20  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: clisp 2.34 release
+
+2005-07-20  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (VERSION): removed
 
 2005-07-20  Sam Steingold  <sds@gnu.org>
