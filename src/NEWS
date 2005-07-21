@@ -268,7 +268,7 @@ User visible changes
 
 * References from within macros defined through MACROLET to variables or
   functions defined in the lexical environment outside the MACROLET form
-  now signal an error. Previously, this resulted in undefined behaviour.
+  now signal an error. Previously, this resulted in undefined behavior.
 
 * The FFI recognizes the c-type declaration (FFI:C-POINTER <c-type>) to
   handle references without conversion to/from Lisp structures.
@@ -320,7 +320,7 @@ User visible changes
 * The user commands can now be extended using CUSTOM:*USER-COMMANDS*.
   See <http://clisp.cons.org/impnotes.html#user-commands> for details.
 
-* Initialisation and finalization of the CLISP process can now be
+* Initialization and finalization of the CLISP process can now be
   augmented with CUSTOM:*INIT-HOOKS* and CUSTOM:*FINI-HOOKS*.
   See <http://clisp.cons.org/impnotes.html#init-hooks> and
   <http://clisp.cons.org/impnotes.html#fini-hooks> for details.
