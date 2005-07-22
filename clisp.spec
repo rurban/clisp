@@ -38,7 +38,7 @@ Source:       ftp://ftp.gnu.org/pub/gnu/clisp/latest/
 URL:          http://clisp.cons.org/
 Packager:     Sam Steingold <sds@gnu.org>
 Provides:     clisp, ansi-cl
-Distribution: Red Hat GNU/Linux
+Distribution: Fedora Core GNU/Linux
 BuildRoot:    %{_tmppath}/%{name}-root
 %description
 %(cat SUMMARY)
