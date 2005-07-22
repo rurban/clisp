@@ -6704,7 +6704,7 @@ local inline int stat_for_search (char* pathstring, struct stat * statbuf) {
  > STACK_1: a pathname
  > STACK_0: new Subdir-component, a Simple-String
  < result: new pathname with directory lengthened by subdir
- increases STACK by 2
+ removes the 2 arguments from the STACK
  can trigger GC */
 local maygc object pathname_add_subdir (void) {
   /* copy pathname and lengthen its directory according to
@@ -6755,41 +6755,6 @@ local void with_stat_info (void) {
 }
 #endif
 
-/* Check whether a directory exists.
- check_stat_directory(namestring_asciz,error_statement,exists_statement);
- If the directory does not exist or is a file, does nothing. */
-#ifdef UNIX
-  #define check_stat_directory(namestring_asciz,error_statement,exists_statement) \
-    { var struct stat status;                                           \
-      begin_system_call();                                              \
-      if (stat(namestring_asciz,&status)) {                             \
-        if (errno!=ENOENT)                                              \
-          { end_system_call(); error_statement }                        \
-        else /* subdirectory does not exist -> OK. */                   \
-          { end_system_call(); }                                        \
-      } else { /* file exists. */                                       \
-        end_system_call();                                              \
-        if (S_ISDIR(status.st_mode)) /* is it a directory? */           \
-          { exists_statement }                                          \
-    }}
-#endif
-#ifdef WIN32_NATIVE
-  #define check_stat_directory(namestring_asciz,error_statement,exists_statement) \
-    { var DWORD fileattr;                                               \
-      begin_system_call();                                              \
-      fileattr = GetFileAttributes(namestring_asciz);                   \
-      if (fileattr == 0xFFFFFFFF) {                                     \
-        if (!WIN32_ERROR_NOT_FOUND)                                     \
-          { end_system_call(); error_statement }                        \
-        else /* subdirectory does not exist -> OK. */                   \
-          { end_system_call(); }                                        \
-      } else { /* File exists. */                                       \
-        end_system_call();                                              \
-        if (fileattr & FILE_ATTRIBUTE_DIRECTORY) /* is it a directory? */ \
-          { exists_statement }                                          \
-    }}
-#endif
-
 /* Search for a subdirectory with a given name.
  directory_search_1subdir(subdir,namestring);
  > STACK_0 = pathname
@@ -6799,48 +6764,59 @@ local void with_stat_info (void) {
  < STACK_0: replaced
  < STACK_(3+1): augmented
  can trigger GC */
+local maygc void copy_pathname_and_add_subdir (object subdir)
+{ /* copy pathname(STACK_0) and lengthen its directory by subdir: */
+  pushSTACK(subdir);
+  { var object pathname = pathname_add_subdir();
+    pushSTACK(pathname);
+  }
+  { /* push this new pathname in front of new-pathname-list: */
+    var object new_cons = allocate_cons();
+    Car(new_cons) = STACK_0;
+    Cdr(new_cons) = STACK_(3+1);
+    STACK_(3+1) = new_cons;
+  }
+}
 
-#if !defined(WIN32_NATIVE)
-local maygc void directory_search_1subdir (object subdir, object namestring) {
-  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    check_stat_directory(namestring_asciz,
-    { OS_file_error(STACK_0); },
-    { /* copy pathname and lengthen its directory by subdir: */
-      pushSTACK(subdir);
-      {
-        var object pathname = pathname_add_subdir();
-        pushSTACK(pathname);
-      }
-      { /* push this new pathname in front of new-pathname-list: */
-        var object new_cons = allocate_cons();
-        Car(new_cons) = STACK_0;
-        Cdr(new_cons) = STACK_(3+1);
-        STACK_(3+1) = new_cons;
-      }
-    });
-  });
-}
-#else
-local maygc void directory_search_1subdir (object subdir, object namestring) {
-  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    char resolved[MAX_PATH];
-    if (real_path(namestring_asciz,resolved)) {
-      /* copy pathname and lengthen its directory by subdir: */
-      pushSTACK(subdir);
-      {
-        var object pathname = pathname_add_subdir();
-        pushSTACK(pathname);
-      }
-      { /* push this new pathname in front of new-pathname-list: */
-        var object new_cons = allocate_cons();
-        Car(new_cons) = STACK_0;
-        Cdr(new_cons) = STACK_(3+1);
-        STACK_(3+1) = new_cons;
-      }
+/* Check whether a directory exists and call copy_pathname_and_add_subdir()
+   on it; if the directory does not exist or is a file, do nothing */
+local maygc void check_sub_directory (object subdir, char* namestring_asciz) {
+#if defined(UNIX)
+  struct stat status;
+  int ret;
+  begin_system_call(); ret = stat(namestring_asciz,&status); end_system_call();
+  if (ret) {
+    if (errno != ENOENT)        /* subdirectory does not exist -> OK. */
+      OS_file_error(STACK_0);
+  } else {                       /* file exists. */
+    if (S_ISDIR(status.st_mode)) /* is it a directory? */
+      copy_pathname_and_add_subdir(subdir);
+  }
+#elif defined(WIN32_NATIVE)
+  char resolved[MAX_PATH];
+  if (real_path(namestring_asciz,resolved)) {
+    DWORD fileattr;
+    begin_system_call();
+    fileattr = GetFileAttributes(resolved);
+    end_system_call();
+    if (fileattr == 0xFFFFFFFF) {
+      /* you get ERROR_INVALID_NAME on GetFileAttributes("foo/")
+         when file "foo" exists */
+      if (!(WIN32_ERROR_NOT_FOUND || GetLastError() == ERROR_INVALID_NAME))
+        OS_file_error(STACK_0);
+    } else {                                   /* file exists. */
+      if (fileattr & FILE_ATTRIBUTE_DIRECTORY) /* is it a directory? */
+        copy_pathname_and_add_subdir(subdir);
     }
+  }
+#endif
+}
+
+local maygc void directory_search_1subdir (object subdir, object namestring) {
+  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+    check_sub_directory(subdir,namestring_asciz);
   });
 }
-#endif
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
 /* Returns a truename dependent hash code for a directory.

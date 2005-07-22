@@ -1010,3 +1010,17 @@ T
 (translate-logical-pathname (logical-pathname "SYS:FOO.LISP"))
 #+CLISP #p"/foo.lisp"
 #-CLISP UNKNOWN
+
+;; ensure that when "foo" is a file, (directory "foo/") returns NIL
+(let* ((f "foo") r (f1 (concatenate 'string f "/")))
+  (delete-file f)
+  (push (directory f) r)
+  (push (directory f1) r)
+  (open f :direction :probe :if-does-not-exist :create)
+  (push (equalp (directory f) (list (truename f))) r)
+  (push (directory f1) r)
+  (delete-file f)
+  (push (directory f) r)
+  (push (directory f1) r)
+  (nreverse r))
+(NIL NIL T NIL NIL NIL)
