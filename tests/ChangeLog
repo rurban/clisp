@@ -1,3 +1,7 @@
+2005-07-22  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: when "foo" is a file, (directory "foo/") must return NIL
+
 2005-07-21  Sam Steingold  <sds@gnu.org>
 
 	* encoding.tst: test SYS::GET-CHARSET-RANGE (was in src/subtypep.lisp)
