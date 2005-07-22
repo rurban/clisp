@@ -1,3 +1,9 @@
+2005-07-22  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (clisp.1, clisp.html): substitute ${host} (on unix)
+	or ${TSYS} (on win32) for @PLATFORM@
+	* doc/Makefile (FILLIN): do not substitute @PLATFORM@ here
+
 2005-07-21  Sam Steingold  <sds@gnu.org>
 
 	* win32.d (HAVE_STRERROR): define to 1 to avoid a warning
