@@ -56,6 +56,7 @@ options: The following options are recognized:
           --without-dynamic-ffi   do not support Foreign Function Interface
           --with-dynamic-modules  support Dynamic Modules
           --without-unicode       no UNICODE support: character=8bit
+          --without-readline      do not look for GNU readline
           --with-threads=FLAVOR   support multiple threads in one CLISP image
                  via OS threads [highly experimental - use at your own risk]
                  FLAVORs = POSIX_THREADS POSIXOLD_THREADS SOLARIS_THREADS
