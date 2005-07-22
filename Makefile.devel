@@ -60,7 +60,7 @@ SOURCES2 = $T/src
 SOURCES4 = $T/ffcall $T/libcharset $T/utils
 SOURCES5 = $T/unix $T/win32msvc $T/nextapp
 SOURCES6 = $T/modules
-# $T/benchmarks are for developers only
+# for developers only: $T/benchmarks $T/sacla-tests $T/ansi-tests
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
 
 SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7)

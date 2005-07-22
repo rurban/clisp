@@ -1,5 +1,12 @@
 2005-07-22  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check): ansi-tests and sacla-tests are for
+	developers only and are not included in the source distribution,
+	so check should not depend on them;
+	for developers, it should also depend on benchmarks
+
+2005-07-22  Sam Steingold  <sds@gnu.org>
+
 	Fixed win32 bug: when "foo" is a file, (directory "foo/") returned
 	non-NIL and this prevented loading ~/.clisprc
 	* pathname.d (check_stat_directory): removed

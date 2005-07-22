@@ -3014,11 +3014,7 @@ fi
 CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${someflags}"
 
 if [ $CROSS = false ] ; then
-
-  echol "# Perform self-tests."
-  echol "check : check-recompile check-fresh-line check-tests check-sacla-tests check-ansi-tests check-ansi-tests-compiled"
-  echodummyrule check
-  echol
+  CHECK_DEPS="check-recompile check-fresh-line check-tests"
 
   echol "# check the sources:"
   echol "# 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up"
@@ -3146,32 +3142,39 @@ if [ $CROSS = false ] ; then
   done
   echol
 
-  SACLA_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -i tests.lisp"
-  echol "check-sacla-tests : ${SACLATESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "cd ${SACLATESTSDIR} && ${SACLA_CLISP} -x '(ext:exit (> (nth-value 1 (run-all-tests)) 0))'"
-  echol
-  echol "${SACLATESTSDIR} :"
-  echotab "-mkdir ${SACLATESTSDIR}"
-  # on win32, LN_S=copy and it accepts exactly 2 arguments
-  for f in '*.lisp'; do
-    echotab "cd ${SACLATESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}sacla-tests${NEXT_}${f} ."
-  done
-  echol
+  # sacla-tests are not included in the source distribution
+  if test -d "${PARENT_SRCTOPDIR_}sacla-tests"; then
+    CHECK_DEPS=${CHECK_DEPS}" check-sacla-tests"
+    SACLA_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -i tests.lisp"
+    echol "check-sacla-tests : ${SACLATESTSDIR} lisp${LEXE} lispinit.mem"
+    echotab "cd ${SACLATESTSDIR} && ${SACLA_CLISP} -x '(ext:exit (> (nth-value 1 (run-all-tests)) 0))'"
+    echol
+    echol "${SACLATESTSDIR} :"
+    echotab "-mkdir ${SACLATESTSDIR}"
+    # on win32, LN_S=copy and it accepts exactly 2 arguments
+    for f in '*.lisp'; do
+      echotab "cd ${SACLATESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}sacla-tests${NEXT_}${f} ."
+    done
+    echol
+  fi
 
-  ANSI_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -m 30000KW -ansi -i clispload.lsp"
-  echol "check-ansi-tests : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log"
-  echol
-  echol "check-ansi-tests-debug : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\")' -repl"
-  echol
-  echol "check-ansi-tests-compiled : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-compiled-log"
-  echol
-  echol "check-ansi-tests-compiled-debug : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (setq regression-test::*compile-tests* t)' -repl"
-  echol
-  echol "${ANSITESTSDIR} :"
+  # ansi-tests are not included in the source distribution
+  if test -d "${PARENT_SRCTOPDIR_}ansi-tests"; then
+    CHECK_DEPS=${CHECK_DEPS}" check-ansi-tests check-ansi-tests-compiled"
+    ANSI_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -m 30000KW -ansi -i clispload.lsp"
+    echol "check-ansi-tests : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
+    echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log"
+    echol
+    echol "check-ansi-tests-debug : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
+    echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\")' -repl"
+    echol
+    echol "check-ansi-tests-compiled : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
+    echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-compiled-log"
+    echol
+    echol "check-ansi-tests-compiled-debug : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
+    echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (setq regression-test::*compile-tests* t)' -repl"
+    echol
+    echol "${ANSITESTSDIR} :"
   # Do NOT update the ansi-tests directory automatically, because
   # 1. "make check-ansi-tests" would fail as soon as Paul Dietz adds a test
   #    that happens to fail in clisp. But we don't want to put out new releases
@@ -3180,16 +3183,18 @@ if [ $CROSS = false ] ; then
   # 2. 'cvs' does not work on machines that are not connected to the internet.
   # 3. Makefile.devel does not work if 'make' is not GNU make.
   # echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel update-ansi-tests"
-  echotab "-mkdir ${ANSITESTSDIR}"
-  # on win32, LN_S=copy and it accepts exactly 2 arguments
-  for f in Makefile '*.lsp'; do
-    echotab "cd ${ANSITESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}ansi-tests${NEXT_}${f} ."
-  done
-  echotab "cd ${ANSITESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}utils${NEXT_}clispload.lsp ."
-  echol
+    echotab "-mkdir ${ANSITESTSDIR}"
+    # on win32, LN_S=copy and it accepts exactly 2 arguments
+    for f in Makefile '*.lsp'; do
+      echotab "cd ${ANSITESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}ansi-tests${NEXT_}${f} ."
+    done
+    echotab "cd ${ANSITESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}utils${NEXT_}clispload.lsp ."
+    echol
+  fi
 
   # benchmarks are for developers only, and the developers work from the CVS
   if test -d ${SRCTOPDIR}CVS; then
+    CHECK_DEPS=${CHECK_DEPS}" bench"
     echol "bench : ${BENCHDIR}"
     echotab "CLISP=\"${CLISP_}\"; export CLISP; cd ${BENCHDIR}; \$(MAKE) CLISP=\"\$\$CLISP\" clisp"
     echol
@@ -3200,6 +3205,11 @@ if [ $CROSS = false ] ; then
     done
     echol
   fi
+
+  echol "# Perform self-tests."
+  echol "check : ${CHECK_DEPS}"
+  echodummyrule check
+  echol
   echol
 fi
 
