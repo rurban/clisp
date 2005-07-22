@@ -88,7 +88,6 @@ endif
 FILLIN=. ../version.sh && sed -e 's,@DTD@,$(DTD),' \
 	    -e 's,@DTDVER@,$(DTDVER),' \
 	    -e 's,@VERSION@,'$${VERSION_NUMBER}',' \
-	    -e 's,@PLATFORM@,'`uname`',' \
 	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`','
 
 SGML_UNCOMMENT=-e 's/^<!--\#\(.*\)-->$$/\#\1/'
