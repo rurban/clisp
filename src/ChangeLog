@@ -1,5 +1,15 @@
 2005-07-22  Sam Steingold  <sds@gnu.org>
 
+	Fixed win32 bug: when "foo" is a file, (directory "foo/") returned
+	non-NIL and this prevented loading ~/.clisprc
+	* pathname.d (check_stat_directory): removed
+	(copy_pathname_and_add_subdir): extracted from
+	directory_search_1subdir()
+	(check_sub_directory): replaces check_stat_directory()
+	(directory_search_1subdir): call it
+
+2005-07-22  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (clisp.1, clisp.html): substitute ${host} (on unix)
 	or ${TSYS} (on win32) for @PLATFORM@
 	* doc/Makefile (FILLIN): do not substitute @PLATFORM@ here
