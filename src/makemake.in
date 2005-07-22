@@ -1042,6 +1042,7 @@ if [ "${verbose}" = true -o "${verbose}" = yes ]; then
  host_cpu = "${host_cpu}"
       cpu = "${cpu}"
   host_os = "${host_os}"
+     host = "${host}"
 # target system:
      TSYS = "${TSYS}"
    TSYSOS = "${TSYSOS}"
@@ -3393,10 +3394,16 @@ for f in $TXT_FILES ; do
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
   fi
   if [ $f = clisp.html -a "${HSDEFAULT}" != "${hyperspec}" ] ; then
-    line=$line" | sed -e  ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
+    line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
   fi
   if [ $f = distmakefile ] ; then
     line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\""
+  fi
+  if [ $f = clisp.1 -o $f = clisp.html ]; then
+    if [ $HOS = win32 ]; then
+      line=$line" | sed -e \"s,@PLATFORM@,${TSYS},g\""
+    else line=$line" | sed -e \"s,@PLATFORM@,${host},g\""
+    fi
   fi
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) txt.c"
