@@ -1,5 +1,11 @@
 2005-07-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (ensure_living_display): avoid
+	"Unprintable error message" by always returning when the argument
+	is a DISPLAY
+
+2005-07-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/queens/link.sh (INCLUDES): no need for '-I'
 	Reported by "Dr. Werner Fink" <werner@suse.de>
 

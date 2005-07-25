@@ -646,8 +646,8 @@ static Bool ensure_living_display (gcv_object_t *objf)
  'objf' should point into the stack due to GC. */
   if (typep_classname (*objf, `XLIB::DISPLAY`)) { /* Is it a display at all? */
     object fptr = TheStructure(*objf)->recdata[slot_DISPLAY_FOREIGN_POINTER];
-    if (fpointerp(fptr) && fp_validp(TheFpointer(fptr)))
-      return (TheFpointer(fptr)->fp_pointer != NULL);
+    return (fpointerp(fptr) && fp_validp(TheFpointer(fptr))
+            && (TheFpointer(fptr)->fp_pointer != NULL));
   }
   /* Fall through -- raise type error */
   my_type_error(`XLIB::DISPLAY`,*(objf));
