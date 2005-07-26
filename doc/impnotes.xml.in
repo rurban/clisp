@@ -99,8 +99,10 @@
 
 <para>The second part, <xref linkend="extensions"/>, documents the
  &clisp; extensions, i.e., the functionality that goes beyond the
- &ansi-cl; requirements.  It includes widely portable common extensions,
- e.g., the &amop;, as well as &clisp;-specific extensions.</para>
+ &ansi-cl; requirements.
+ It includes widely portable common extensions, e.g.,
+ <xref linkend="mop-chap"/>, as well as &clisp;-specific extensions,
+ e.g., <xref linkend="socket"/>.</para>
 
 <para>The third part, <xref linkend="internals"/>, is intended mostly
  for developers as it documents the &clisp; internals, e.g., &gc;ion,
