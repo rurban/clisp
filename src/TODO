@@ -55,6 +55,12 @@ SOCKET-STREAM-SHUTDOWN /= CLOSE
 
 <http://article.gmane.org/gmane.lisp.clisp.general:9893>:
 DIRECTORY, *PATHNAME-ENCODING*, and Denial-Of-Service attack
+I would call this an error in clisp: if it lists a directory
+over which a user has no control (e.g., /tmp), then it is trivial for
+an adversary to create a denial-of-service attack.
+Unix pathnames are not strictly in any particular character encoding:
+they are merely byte strings in which only slash and NUL have special
+significance.
 
 
 Inefficiency of class redefinition when old or new class is unfinalizable
