@@ -50,6 +50,13 @@ Many pretty-printer test failures.
 (sds - but bruno has to fix the risky-test in iofkts.tst first)
 
 
+SOCKET-STREAM-SHUTDOWN /= CLOSE
+
+
+<http://article.gmane.org/gmane.lisp.clisp.general:9893>:
+DIRECTORY, *PATHNAME-ENCODING*, and Denial-Of-Service attack
+
+
 Inefficiency of class redefinition when old or new class is unfinalizable
 
 
