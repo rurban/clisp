@@ -496,27 +496,6 @@ DEFUN(RAWSOCK:SOCK-CLOSE, socket) {
   VALUES1(fixnum(retval));
 }
 
-#if defined(HAVE_SHUTDOWN)
-#if defined(WIN32_NATIVE)
-# define SHUT_RD   SD_RECEIVE
-# define SHUT_WR   SD_SEND
-# define SHUT_RDWR SD_BOTH
-#endif
-DEFUN(RAWSOCK:SHUTDOWN, socket direction) {
-  direction_t direction = check_direction(popSTACK());
-  rawsock_t sock = I_to_uint(check_uint(popSTACK()));
-  int how, retval;
-  switch (direction) {
-    case DIRECTION_PROBE: case DIRECTION_IO: how = SHUT_RDWR; break;
-    case DIRECTION_INPUT_IMMUTABLE: case DIRECTION_INPUT: how = SHUT_RD; break;
-    case DIRECTION_OUTPUT: how = SHUT_WR; break;
-    default: NOTREACHED;
-  }
-  SYSCALL(retval,sock,shutdown(sock,how));
-  VALUES1(fixnum(retval));
-}
-#endif
-
 #if defined(HAVE_NET_IF_H)
 /* STACK_1 = name, for error reporting */
 static void configdev (rawsock_t sock, char* name, int ipaddress, int flags) {

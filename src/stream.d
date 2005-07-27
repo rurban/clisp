@@ -3768,13 +3768,15 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
                                        # therefore needs special treatment in
                                        # the low_listen function on some OSes
                                        # (used by unbuffered streams only)
-  #define strm_ichannel  strm_other[4] # the input channel,
+  #define strm_ichannel_position 4     /* ichannel index */
+  #define strm_ichannel  strm_other[strm_ichannel_position] # the input channel,
                                        # an encapsulated handle, or, on
                                        # WIN32_NATIVE, an encapsulated SOCKET
 
 # Fields used for the output side only:
 
-  #define strm_ochannel  strm_other[5] # the output channel,
+  #define strm_ochannel_position 5    /* ochannel index */
+  #define strm_ochannel strm_other[strm_ochannel_position] # the output channel,
                                        # an encapsulated handle, or, on
                                        # WIN32_NATIVE, an encapsulated SOCKET
 
@@ -14593,17 +14595,31 @@ LISPFUNN(socket_stream_handle,1)
 
 #ifdef HAVE_SHUTDOWN
 
-# close a socket stream using shutdown(2)
-# if DIRECTION is not :IO, CLOSE is also required!
-# (SOCKET-STREAM-SHUTDOWN socket direction)
+/* close a socket stream using shutdown(2)
+ (SOCKET-STREAM-SHUTDOWN socket direction) */
+local SOCKET get_handle_and_mark (object stream, uintB flag, int channel) {
+  TheStream(stream)->strmflags &= ~flag;
+  if (ChannelStream_buffered(stream)) {
+    buffered_flush_everything(stream);
+    return TheSocket(BufferedStream_channel(stream));
+  } else
+    return TheSocket(TheStream(stream)->strm_other[channel]);
+}
 LISPFUNN(socket_stream_shutdown,2) {
   var direction_t dir = check_direction(popSTACK());
-  var object socket = test_socket_stream(STACK_0,false);
   var int shutdown_how = -1;
-  var bool rd_p = ((TheStream(STACK_0)->strmflags & strmflags_rd_B) != 0);
-  var bool wr_p = ((TheStream(STACK_0)->strmflags & strmflags_wr_B) != 0);
+  var bool rd_p = true;
+  var bool wr_p = true;
+  var uintB flag = 0;
+  var SOCKET handle = -1;
+  if (!integerp(STACK_0)) {
+    test_socket_stream(STACK_0,false);
+    rd_p = ((TheStream(STACK_0)->strmflags & strmflags_rd_B) != 0);
+    wr_p = ((TheStream(STACK_0)->strmflags & strmflags_wr_B) != 0);
+  } else /* raw socket */
+    handle = (SOCKET)(I_to_uint32(check_uint32(STACK_0)));
   switch (dir) {
-    case DIRECTION_PROBE: # INPUT/OUTPUT/IO
+    case DIRECTION_PROBE:       /* INPUT/OUTPUT/IO */
       if (rd_p) {
         if (wr_p) value1 = S(Kio);
         else value1 = S(Kinput);
@@ -14613,57 +14629,69 @@ LISPFUNN(socket_stream_shutdown,2) {
       }
       goto done;
     case DIRECTION_INPUT_IMMUTABLE: case DIRECTION_INPUT:
-      if (!wr_p) { # already not writable => CLOSE
-        TheStream(STACK_0)->strmflags ^= strmflags_wr_B; # restore :IO
-        funcall(L(built_in_stream_close),1); return;
-      } else if (!rd_p) { # not readable => done
+      if (!rd_p) {              /* not readable => done */
         value1 = NIL; goto done;
       } else {
         shutdown_how = SHUT_RD;
-        TheStream(STACK_0)->strmflags &= ~strmflags_rd_B;
+        flag = strmflags_rd_B;
       }
       break;
     case DIRECTION_OUTPUT:
-      if (!rd_p) { # already not readable => CLOSE
-        TheStream(STACK_0)->strmflags ^= strmflags_rd_B; # restore :IO
-        funcall(L(built_in_stream_close),1); return;
-      } else if (!wr_p) { # not writable => done
+      if (!wr_p) {              /* not writable => done */
         value1 = NIL; goto done;
       } else {
         shutdown_how = SHUT_WR;
-        TheStream(STACK_0)->strmflags &= ~strmflags_wr_B;
+        flag = strmflags_wr_B;
       }
       break;
-    case DIRECTION_IO: funcall(L(built_in_stream_close),1); return;
-    default: NOTREACHED;
-  }
-  # still open in both directions
-  switch (TheStream(STACK_0)->strmtype) {
-    case strmtype_twoway_socket:
-      if (dir == DIRECTION_OUTPUT) {
-        STACK_0 = TheStream(STACK_0)->strm_twoway_socket_output;
-        TheStream(STACK_0)->strmflags &= ~strmflags_wr_B;
-      } else { # DIRECTION_INPUT || DIRECTION_INPUT_IMMUTABLE
-        STACK_0 = TheStream(STACK_0)->strm_twoway_socket_input;
-        TheStream(STACK_0)->strmflags &= ~strmflags_rd_B;
-      } /*FALLTHROUGH*/
-    case strmtype_socket:
-      if (ChannelStream_buffered(STACK_0))
-        buffered_flush_everything(STACK_0);
-      begin_system_call();
-      if (shutdown((SOCKET)(ChannelStream_ihandle(STACK_0)),shutdown_how))
-        { SOCK_error(); }
-      end_system_call();
+    case DIRECTION_IO:
+      shutdown_how = SHUT_RDWR;
+      flag = strmflags_wr_B | strmflags_rd_B;
       break;
     default: NOTREACHED;
   }
+  if (streamp(STACK_0)) {
+    switch (TheStream(STACK_0)->strmtype) {
+      case strmtype_twoway_socket:
+        switch (dir) {
+          case DIRECTION_OUTPUT:
+            TheStream(STACK_0)->strmflags &= ~strmflags_wr_B;
+            handle =
+              get_handle_and_mark(TheStream(STACK_0)->strm_twoway_socket_output,
+                                  strmflags_wr_B,strm_ochannel_position);
+            break;
+          case DIRECTION_IO:
+            TheStream(STACK_0)->strmflags &= ~strmflags_wr_B;
+            get_handle_and_mark(TheStream(STACK_0)->strm_twoway_socket_output,
+                                strmflags_wr_B,strm_ochannel_position);
+            /*FALLTHROUGH*/
+          case DIRECTION_INPUT: case DIRECTION_INPUT_IMMUTABLE:
+            TheStream(STACK_0)->strmflags &= ~strmflags_rd_B;
+            handle =
+              get_handle_and_mark(TheStream(STACK_0)->strm_twoway_socket_input,
+                                  strmflags_rd_B,strm_ichannel_position);
+            break;
+          default: NOTREACHED;
+        }
+        break;
+      case strmtype_socket:
+        handle = get_handle_and_mark(STACK_0,flag,strm_ichannel_position);
+      break;
+      default: NOTREACHED;
+    }
+  }
+  begin_system_call();
+  if (shutdown(handle,shutdown_how))
+    { SOCK_error(); }
+  end_system_call();
+  value1 = NIL;
  done:
   skipSTACK(1);
   mv_count = 1;
 }
 #endif
 
-#endif # SOCKET_STREAMS
+#endif  /* SOCKET_STREAMS */
 
 
 # Streams in general
@@ -15752,7 +15780,7 @@ global maygc void builtin_stream_close (const gcv_object_t* stream_) {
       if (ChannelStream_buffered(stream)) {
         close_buffered(stream);
       } else {
-        if (TheStream(stream)->strmflags & strmflags_wr_B)
+        if (!nullp(TheStream(stream)->strm_ochannel))
           close_ochannel(stream);
         else
           close_ichannel(stream);

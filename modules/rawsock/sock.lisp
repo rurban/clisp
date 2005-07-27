@@ -13,7 +13,7 @@
            #:getpeername #:getsockname
            #:listen #:recv #:recvfrom #:recvmsg
            #:send #:sendmsg #:sendto #:socket-option
-           #:shutdown #:socket #:socketpair #:sockatmark
+           #:socket #:socketpair #:sockatmark
            #:sock-read #:sock-write #:sock-close
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-data
            #:sockaddr-family-size #:msghdr #:make-msghdr
