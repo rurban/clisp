@@ -1,3 +1,7 @@
+2005-07-27  Sam Steingold  <sds@gnu.org>
+
+	* spvw_debug.d (TheCons_): a new debugging prop
+
 2005-07-26  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (SOCKET-STREAM-SHUTDOWN): never call close(2), just
