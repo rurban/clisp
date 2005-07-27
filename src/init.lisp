@@ -1589,7 +1589,8 @@
 (proclaim '(notinline eval-loaded-form))
 (sys::%putd 'eval-loaded-form
   (sys::make-preliminary
-    (function eval-loaded-form (lambda (obj)
+    (function eval-loaded-form (lambda (obj file)
+      (declare (ignore file))
       (eval-loaded-form-low obj)))))
 
 ;; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
@@ -1654,7 +1655,7 @@
               (when *load-echo* (fresh-line))
               (let ((obj (read input-stream nil eof-indicator)))
                 (when (eql obj eof-indicator) (go done))
-                (case (setq obj (eval-loaded-form obj))
+                (case (setq obj (eval-loaded-form obj *load-truename*))
                   (skip (go weiter))
                   (stop (go done)))
                 (when *load-print*
