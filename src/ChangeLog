@@ -1,3 +1,12 @@
+2005-07-26  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (SOCKET-STREAM-SHUTDOWN): never call close(2), just
+	shutdown(2) in the appropriate direction; accept raw sockets
+	(builtin_stream_close): decide on which stream channel to close
+	based on the channel value and not on strmflags
+	* modules/rawsock/rawsock.c (SHUTDOWN): removed
+	* modules/rawsock/sock.lisp (shutdown): removed
+
 2005-07-27  Sam Steingold  <sds@gnu.org>
 
 	* condition.lisp (eval-loaded-form): accept a FILE argument and

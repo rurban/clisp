@@ -1,3 +1,13 @@
+User visible changes
+--------------------
+
+* SOCKET:SOCKET-STREAM-SHUTDOWN does not call CLOSE anymore,
+  just shutdown(2) - as it has always been documented.
+  It now also works on raw sockets, thus RAWSOCK:SHUTDOWN has been removed.
+  See <http://clisp.cons.org/impnotes.html#sost-shut> and
+  <http://clisp.cons.org/impnotes.html#rawsock> for details.
+
+
 2.34 (2005-07-20)
 =================
 
