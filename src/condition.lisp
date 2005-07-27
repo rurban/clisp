@@ -1344,14 +1344,23 @@
 
 ;; redefine the function in init.lisp, used by LOAD
 (eval-when (compile) (fmakunbound 'eval-loaded-form)) ; avoid a warning
-(defun eval-loaded-form (obj)
+;; FILE is the *LOAD-TRUENAME* of the file being loaded
+;; we cannot use *LOAD-TRUENAME* because when the error is in a nested LOAD,
+;; we will get the truename of the inner-most file instead of the current one
+(defun eval-loaded-form (obj file)
   (restart-case (eval-loaded-form-low obj)
     (skip
-        :report (lambda (out) (format out (TEXT "skip this form and proceed")))
+        :report (lambda (out)
+                  (format out (TEXT "skip "))
+                  (if (compiled-function-p obj)
+                      (write (sys::closure-name obj) :stream out
+                             :pretty nil :escape nil)
+                      (write obj :stream out :pretty nil :escape nil
+                             :level 2 :length 3)))
         :interactive default-restart-interactive
         () (return-from eval-loaded-form 'skip))
     (stop
-        :report (lambda (out) (format out (TEXT "stop loading file")))
+        :report (lambda (out) (format out (TEXT "stop loading file ~A") file))
         :interactive default-restart-interactive
         () (return-from eval-loaded-form 'stop))))
 
