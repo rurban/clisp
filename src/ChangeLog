@@ -1,3 +1,9 @@
+2005-07-29  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (gen.lispbibl.c): fixed the sed(1) expression to work on
+	solaris, darwin, openbsd, msys (gnu sed 3), cygwin&linux (gnu sed 4)
+	Suggested by rouben@pc18.math.umbc.edu (Rouben Rostamian)
+
 2005-07-27  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (TheCons_): a new debugging prop
