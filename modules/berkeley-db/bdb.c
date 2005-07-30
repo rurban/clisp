@@ -603,7 +603,7 @@ static void set_flags (object arg, u_int32_t *flag_on, u_int32_t *flag_off,
   if (boundp(arg))
     *(nullp(arg) ? flag_off : flag_on) |= values;
 }
-static void set_verbose (DB_ENV *dbe, object arg, u_int32_t flag) {
+static void my_set_verbose (DB_ENV *dbe, object arg, u_int32_t flag) {
   if (boundp(arg)) SYSCALL(dbe->set_verbose,(dbe,flag,!nullp(arg)));
 }
 DEFCHECKER(check_lk_detect,prefix=DB_LOCK, default=DB_LOCK_DEFAULT, NORUN \
@@ -623,17 +623,21 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
   DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(45),`BDB::DBE`,BH_VALID);
   if (!missingp(STACK_0)) reset_msgfile(dbe);
   skipSTACK(1);                 /* drop :MSGFILE */
-  set_verbose(dbe,popSTACK(),DB_VERB_WAITSFOR | DB_VERB_REPLICATION
-#            if defined(DB_VERB_CHKPOINT)
-              | DB_VERB_CHKPOINT
-#            endif
-              | DB_VERB_RECOVERY | DB_VERB_DEADLOCK);
-  set_verbose(dbe,popSTACK(),DB_VERB_WAITSFOR);
-  set_verbose(dbe,popSTACK(),DB_VERB_REPLICATION);
-  set_verbose(dbe,popSTACK(),DB_VERB_RECOVERY);
-  set_verbose(dbe,popSTACK(),DB_VERB_DEADLOCK);
+  { object arg = popSTACK();
+    my_set_verbose(dbe,arg,DB_VERB_WAITSFOR);
+    my_set_verbose(dbe,arg,DB_VERB_REPLICATION);
+#  if defined(DB_VERB_CHKPOINT)
+    my_set_verbose(dbe,arg,DB_VERB_CHKPOINT);
+#  endif
+    my_set_verbose(dbe,arg,DB_VERB_RECOVERY);
+    my_set_verbose(dbe,arg,DB_VERB_DEADLOCK);
+  }
+  my_set_verbose(dbe,popSTACK(),DB_VERB_WAITSFOR);
+  my_set_verbose(dbe,popSTACK(),DB_VERB_REPLICATION);
+  my_set_verbose(dbe,popSTACK(),DB_VERB_RECOVERY);
+  my_set_verbose(dbe,popSTACK(),DB_VERB_DEADLOCK);
 #if defined(DB_VERB_CHKPOINT)
-  set_verbose(dbe,popSTACK(),DB_VERB_CHKPOINT);
+  my_set_verbose(dbe,popSTACK(),DB_VERB_CHKPOINT);
 #else
   skipSTACK(1);               /* drop :VERB-CHKPOINT */
 #endif
