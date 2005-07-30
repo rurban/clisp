@@ -1,3 +1,14 @@
+2005-07-30  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d (DEFAULT_1_1_ENCODING): iso-8859-1 (corresponds to
+	the CLISP CODE-CHAR/CHAR-CODE conversion on the first 255 bytes)
+	(encoding_from_name): when `name' does not name a known encoding,
+	use the locale default instead of ASCII/UTF-8 (for CLISP contexts)
+	and DEFAULT_1_1_ENCODING when context=locale (can it ever happen?!)
+	-E "1:1" and "8bit" now mean DEFAULT_1_1_ENCODING
+	(init_dependent_encodings, SET-FOREIGN-ENCODING):
+	O(foreign_8bit_encoding) defaults to DEFAULT_1_1_ENCODING, not to ASCII
+
 2005-07-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (BDB:DBE-SET-OPTIONS):

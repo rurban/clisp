@@ -2272,12 +2272,23 @@ local char *canonicalize_encoding (char *encoding) {
 }
 #endif
 
+/* The reasonable 1:1 default.
+ Rationale: this avoids random encoding errors,
+   e.g., when DIRECTORY is called on startup and the use home dir
+   contains files with non-ASCII names
+ The right default encoding is the one defined by the CLISP
+   CODE-CHAR/CHAR-CODE conversion on the first 255 bytes, i.e., ISO-8859-1 */
+#define DEFAULT_1_1_ENCODING  Symbol_value(S(iso8859_1))
+#define DEFAULT_1_1_ENCODING_NAME "ISO-8859-1"
+
 /* Returns an encoding specified by a name.
  The line-termination is OS dependent.
  encoding_from_name(name,context)
  > char* name: Any of the canonical names returned by the locale_charset()
                function.
  > char* context: for warnings
+ > STACK_0 : if context /= locale and name does not make an encoding
+             - the default locale encoding
  can trigger GC */
 local maygc object encoding_from_name (const char* name, const char* context) {
  #ifdef UNICODE
@@ -2291,24 +2302,24 @@ local maygc object encoding_from_name (const char* name, const char* context) {
   else if (asciz_equal(name,"SJIS"))
     pushSTACK(Symbol_value(S(shift_jis)));
   #endif
+  else if (asciz_equal(name,"1:1") || asciz_equal(name,"8BIT"))
+    pushSTACK(DEFAULT_1_1_ENCODING);
   else {
     pushSTACK(asciz_to_string(name,Symbol_value(S(ascii))));
     pushSTACK(O(charset_package));
     C_find_symbol();
     if (!nullp(value2) && encodingp(Symbol_value(value1)))
       pushSTACK(Symbol_value(value1));
-    else { /* Use a reasonable default. */
-      if (asciz_equal(context,"*FOREIGN-ENCODING*")) {
-        fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using ASCII"),
-                context,name);
-        fputs("\n",stderr);
-        pushSTACK(Symbol_value(S(ascii)));
-      } else {
-        fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using UTF-8"),
-                context,name);
-        fputs("\n",stderr);
-        pushSTACK(Symbol_value(S(utf_8)));
-      }
+    else if (asciz_equal(context,"locale")) { /* can this ever happen?! */
+      fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using %s"),
+              context,name,DEFAULT_1_1_ENCODING_NAME);
+      fputs("\n",stderr);
+      pushSTACK(DEFAULT_1_1_ENCODING);
+    } else  {
+      fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using %s"),
+              context,name,"locale encoding");
+      fputs("\n",stderr);
+      pushSTACK(STACK_0);
     }
   }
  #else
@@ -2372,7 +2383,7 @@ global void init_dependent_encodings(void) {
   O(foreign_8bit_encoding) =
     (TheEncoding(O(foreign_encoding))->max_bytes_per_char == 1
      ? O(foreign_encoding)
-     : Symbol_value(S(ascii)));
+     : DEFAULT_1_1_ENCODING);
  #endif
   O(misc_encoding) =
     (argv_encoding_misc == NULL ? (object)STACK_0
@@ -2440,7 +2451,7 @@ LISPFUNN(set_foreign_encoding,1) {
   O(foreign_8bit_encoding) =
     (TheEncoding(O(foreign_encoding))->max_bytes_per_char == 1
      ? O(foreign_encoding)
-     : Symbol_value(S(ascii)));
+     : DEFAULT_1_1_ENCODING);
   VALUES1(encoding);
 }
 
