@@ -7,6 +7,12 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#sost-shut> and
   <http://clisp.cons.org/impnotes.html#rawsock> for details.
 
+* When the command line option -E receives an invalid encoding,
+  ISO-8859-1 is used instead. [It was ASCII (for *FOREIGN-ENCODING*) or
+  UTF-8 (for all other encodings) before.]
+  Rationale: this is a 1:1 that corresponds to CLISP CODE-CHAR/CHAR-CODE
+  and avoids spurious errors in DIRECTORY on startup.
+
 
 2.34 (2005-07-20)
 =================
