@@ -79,9 +79,8 @@ nil
                      :errpfx "zot" :data-dir "bdb-data/")
 NIL
 
-;; :verbose does not work in 4.3 (need msgfile?)
-;;(bdb:dbe-set-options *dbe* :verbose t)
-;;NIL
+(bdb:dbe-set-options *dbe* :verbose t)
+NIL
 
 (bdb:dbe-get-options *dbe* :errpfx) "zot"
 
@@ -202,9 +201,8 @@ T
                      :data-dir "bdb-data/")
 NIL
 
-;; :verbose does not work in 4.3 (need msgfile?)
-;;(bdb:dbe-set-options *dbe* :verbose t)
-;;NIL
+(bdb:dbe-set-options *dbe* :verbose t)
+NIL
 
 (let ((arr #A((unsigned-byte 8) (6 6)
               ((0 0 0 0 0 0)

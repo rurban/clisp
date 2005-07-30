@@ -1,5 +1,10 @@
 2005-07-29  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (BDB:DBE-SET-OPTIONS):
+	dbe->set_verbose() does not accept bit flag combinations
+
+2005-07-29  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (gen.lispbibl.c): fixed the sed(1) expression to work on
 	solaris, darwin, openbsd, msys (gnu sed 3), cygwin&linux (gnu sed 4)
 	Suggested by rouben@pc18.math.umbc.edu (Rouben Rostamian)
