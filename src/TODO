@@ -315,11 +315,6 @@ and augment the reader to return 168 from
         behaviour in this area can lead to security issues.)
 
 
-larger fixnums on 64-bit platforms
-<https://sourceforge.net/tracker/index.php?func=detail&aid=999750&group_id=1355&atid=351355>
-should be able to get 48-bit fixnums
-
-
 error recovery
 <https://sourceforge.net/tracker/index.php?func=detail&aid=946463&group_id=1355&atid=351355>
 The ability not to lose the computation on error is
