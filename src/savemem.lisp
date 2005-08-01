@@ -28,10 +28,10 @@
 ;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function verbose
-                    keep-global-handlers
-                    ((:start-package *package*) *package*)
+                    keep-global-handlers (start-package *package*)
                     (locked-packages *system-package-list*))
   (let* ((old-driver *driver*) old-global-handlers
+         (*package* (sys::%find-package start-package))
          (fn (merge-pathnames filename #.(make-pathname :type "mem")))
          (*driver*
            #'(lambda ()
