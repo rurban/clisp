@@ -383,7 +383,7 @@ bool inside_gc = false;
   #ifdef DEBUG_SPVW
     # check, if the tables of the packages are to some extent okay:
       #define CHECK_PACK_CONSISTENCY()  check_pack_consistency()
-      global void check_pack_consistency (void)
+      local void check_pack_consistency (void)
       {
         var object plist = O(all_packages);
         while (consp(plist)) {
@@ -396,7 +396,7 @@ bool inside_gc = false;
             var object symtab = symtabs[i];
             var object table = TheSvector(symtab)->data[1];
             var uintL index = Svector_length(table);
-            until (index==0) {
+            while (index!=0) {
               var object entry = TheSvector(table)->data[--index];
               var uintC count = 0;
               while (consp(entry)) {

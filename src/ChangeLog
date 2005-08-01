@@ -1,5 +1,9 @@
 2005-08-01  Sam Steingold  <sds@gnu.org>
 
+	* spvw_global.d (check_pack_consistency): made static to avoid warning
+
+2005-08-01  Sam Steingold  <sds@gnu.org>
+
 	* savemem.lisp (saveinitmem): ensure that *PACKAGE*
 	is bound to a package
 
