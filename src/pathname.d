@@ -4076,7 +4076,10 @@ local bool directory_match_ab (object m_list, object b_list, bool logical) {
     }
   }
 }
-#define DIRECTORY_TRIVIAL_P(dir) (nullp(dir) || (eq(Car(dir),S(Krelative)) && nullp(Cdr(dir))))
+local inline bool directory_trivial_p (object dir) {
+  return nullp(dir)
+    || (consp(dir) ? (eq(Car(dir),S(Krelative)) && nullp(Cdr(dir))) : false);
+}
 local bool directory_match (object pattern, object sample, bool logical) {
   if (nullp(pattern)) /* compare pattern with directory_default */
     return true;
@@ -4463,7 +4466,7 @@ local maygc void directory_diff (object pattern, object sample, bool logical,
                                  gcv_object_t* solutions) {
   DEBUG_DIFF(directory_diff);
   if (missingp(sample)) { push_solution_with(pattern); return; }
-  if (DIRECTORY_TRIVIAL_P(pattern)) { /* compare with directory_default */
+  if (directory_trivial_p(pattern)) { /* compare with directory_default */
     /* Augment the solution with the sample list - starting
      with :ABSOLUTE or :RELATIVE, it will not fit for "**". */
     push_solution_with(sample);
@@ -4715,7 +4718,7 @@ local maygc object translate_directory (gcv_object_t* subst, object pattern,
   /* if subst is :relative while pattern is :absolute,
      nothing is to be done */
   if (eq(Car(pattern),S(Kabsolute)) && mconsp(*subst)
-      && DIRECTORY_TRIVIAL_P(Car(*subst))) {
+      && directory_trivial_p(Car(*subst))) {
     *subst = Cdr(*subst);
     return copy_list(pattern);
   }
