@@ -1,3 +1,9 @@
+2005-08-01  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (directory_trivial_p): check whether (CAR DIR) is a CONS
+	This caused a crash on Sparc/Solaris 10.
+	Reported by Nelson H. F. Beebe <beebe@math.utah.edu>
+
 2005-07-30  Sam Steingold  <sds@gnu.org>
 
 	* encoding.d (DEFAULT_1_1_ENCODING): iso-8859-1 (corresponds to
