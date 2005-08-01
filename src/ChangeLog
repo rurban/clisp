@@ -1,5 +1,11 @@
 2005-08-01  Sam Steingold  <sds@gnu.org>
 
+	when the specified memory image does not exist, try appending ".mem"
+	* spvw_memfile.d (open_filename): new function (extracted from loadmem)
+	(loadmem): use it, and retry with filename".mem" on failure
+
+2005-08-01  Sam Steingold  <sds@gnu.org>
+
 	* spvw_global.d (check_pack_consistency): made static to avoid warning
 
 2005-08-01  Sam Steingold  <sds@gnu.org>

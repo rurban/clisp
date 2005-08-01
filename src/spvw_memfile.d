@@ -774,15 +774,11 @@ local void loadmem_update_fsubr (Fsubr fsubrptr)
     }
   }
 }
-local void loadmem (const char* filename)
-{
-  /* open file for reading: */
-  begin_system_call();
- #ifdef UNIX
-  var int handle = OPEN((char*)filename,O_RDONLY|O_BINARY,my_open_mask);
-  if (handle<0) goto abort1;
- #endif
- #if defined(WIN32_NATIVE)
+local Handle open_filename (const char* filename)
+{ /* open file for reading: */
+ #if defined(UNIX)
+  return OPEN((char*)filename,O_RDONLY|O_BINARY,my_open_mask);
+ #elif defined(WIN32_NATIVE)
   #define CYGDRIVE "/cygdrive/"
   #define CYGDRIVE_LEN 10
   #ifdef __MINGW32__
@@ -801,14 +797,35 @@ local void loadmem (const char* filename)
   #undef CYGDRIVE
   #undef CYGDRIVE_LEN
   var char resolved[MAX_PATH];
-  var Handle handle =
-    /* try to resolve shell shortcuts in the filename */
+  return /* try to resolve shell shortcuts in the filename */
     CreateFile((real_path(filename,resolved) ? resolved : filename),
                GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
                NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-  if (handle==INVALID_HANDLE_VALUE) goto abort1;
+ #else
+  #error "missing open_filename()"
  #endif
+}
+local void loadmem (const char* filename)
+{
+#if defined(UNIX)
+ #define INVALID_HANDLE_P(handle)  (handle<0)
+#elif defined(WIN32_NATIVE)
+ #define INVALID_HANDLE_P(handle)  (handle == INVALID_HANDLE)
+#else
+ #error "missing INVALID_HANDLE_P()"
+#endif
+  var Handle handle;
+  begin_system_call();
+  handle = open_filename(filename);
+  if (INVALID_HANDLE_P(handle)) { /* try filename.mem */
+    var char* filename_mem = alloca(strlen(filename)+4);
+    strcpy(filename_mem,filename);
+    strcat(filename_mem,".mem");
+    handle = open_filename(filename_mem);
+    if (INVALID_HANDLE_P(handle)) goto abort1;
+  }
   end_system_call();
+#undef INVALID_HANDLE_P
   loadmem_from_handle(handle,filename);
   return;
  abort1: {
