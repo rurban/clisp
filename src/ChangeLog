@@ -1,5 +1,12 @@
 2005-08-02  Sam Steingold  <sds@gnu.org>
 
+	* encoding.d (init_dependent_encodings, SET-FOREIGN-ENCODING):
+	partially reversed the 2005-07-30 patch: O(foreign_8bit_encoding)
+	must agree with O(foreign_encoding) and only ASCII agrees with
+	_all_ encodings, so use ASCII instead of DEFAULT_1_1_ENCODING
+
+2005-08-02  Sam Steingold  <sds@gnu.org>
+
 	use symbol property lists instead of the global *DOCUMENTATION*
 	hash table: the table is not weak, so it is not cleaned up
 	this also reduced the size of lispinit.mem by almost 10% (15k)

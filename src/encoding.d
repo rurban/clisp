@@ -2383,7 +2383,9 @@ global void init_dependent_encodings(void) {
   O(foreign_8bit_encoding) =
     (TheEncoding(O(foreign_encoding))->max_bytes_per_char == 1
      ? O(foreign_encoding)
-     : DEFAULT_1_1_ENCODING);
+     /* not DEFAULT_1_1_ENCODING because foreign_8bit_encoding must agree
+        with foreign_encoding and only ASCII agrees with _all_ encodings */
+     : Symbol_value(S(ascii)));
  #endif
   O(misc_encoding) =
     (argv_encoding_misc == NULL ? (object)STACK_0
@@ -2451,7 +2453,7 @@ LISPFUNN(set_foreign_encoding,1) {
   O(foreign_8bit_encoding) =
     (TheEncoding(O(foreign_encoding))->max_bytes_per_char == 1
      ? O(foreign_encoding)
-     : DEFAULT_1_1_ENCODING);
+     : Symbol_value(S(ascii)));
   VALUES1(encoding);
 }
 
