@@ -1,5 +1,19 @@
 2005-08-02  Sam Steingold  <sds@gnu.org>
 
+	use symbol property lists instead of the global *DOCUMENTATION*
+	hash table: the table is not weak, so it is not cleaned up
+	this also reduced the size of lispinit.mem by almost 10% (15k)
+	* init.lisp (get-funname-symbol): moved up
+	(get-doc-entity-symbol): new function
+	(%set-documentation, check-redefinition):
+	use it with GET instead of GETHASH
+	* describe.lisp (describe1): do not use *DOCUMENTATION*
+	* documentation.lisp (documentation, (setf documentation)): ditto
+	also, CHECK-FUNCTION-NAME may return a symbol when given a list
+	(function-documentation, set-function-documentation): new functions
+
+2005-08-02  Sam Steingold  <sds@gnu.org>
+
 	* package.d (cerror_package_locked): PACKAGE-ERROR slot PACKAGE
 	must be a PACKAGE, not a list thereof (coming from CHECK-REDEFINITION)
 

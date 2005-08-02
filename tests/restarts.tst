@@ -1,3 +1,4 @@
+;; -*- Lisp -*-
 ;; restarts
 (defmacro check-use-value (fun good bad &key (type 'type-error) (test 'eql))
   `(handler-bind ((,type (lambda (c) (princ-error c) (use-value ',good))))
@@ -339,9 +340,18 @@ T
   (delete-package p3) (delete-package p4))
 T
 
-(handler-bind ((error (lambda (c) (princ c) (terpri) (use-value '(9 8 7 6)))))
+(handler-bind ((error (lambda (c) (princ-error c) (use-value '(9 8 7 6)))))
   (list (butlast 123 2)
         (butlast '#1=(1 2 3 . #1#) 2)
         (last 123 2)
         (last '#1# 2)))
 ((9 8) (9 8) (7 6) (7 6))
+
+(handler-bind ((error (lambda (c) (princ c) (use-value 'doc-restart))))
+  (setf (documentation '(doc-restart) 'function)
+        "docstring for doc-restart")
+  (documentation 'doc-restart 'function))
+"docstring for doc-restart"
+
+(unintern 'doc-restart)
+T
