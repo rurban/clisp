@@ -2310,7 +2310,7 @@ local maygc object encoding_from_name (const char* name, const char* context) {
     C_find_symbol();
     if (!nullp(value2) && encodingp(Symbol_value(value1)))
       pushSTACK(Symbol_value(value1));
-    else if (asciz_equal(context,"locale")) { /* can this ever happen?! */
+    else if (asciz_equal(context,"locale")) { /* e.g., name=ISO8859-1 */
       fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using %s"),
               context,name,DEFAULT_1_1_ENCODING_NAME);
       fputs("\n",stderr);
