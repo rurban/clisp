@@ -282,7 +282,6 @@
                                     "strings"
                   #-(or AKCL ECL)   "symbol10"
                                     "symbols"
-                                    "time"
                   #+XCL             "tprint"
                   #+XCL             "tread"
                                     "type"
