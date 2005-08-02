@@ -694,7 +694,8 @@ local maygc void cerror_package_locked (object func, object pack, object obj) {
   pushSTACK(NIL);              /* 7 continue-format-string */
   pushSTACK(S(package_error)); /* 6 error type */
   pushSTACK(S(Kpackage));      /* 5 :PACKAGE */
-  pushSTACK(pack);             /* 4 PACKAGE-ERROR slot PACKAGE */
+  if (consp(pack)) pushSTACK(Car(pack)); /* from check-redefinition */
+  else pushSTACK(pack);        /* 4 PACKAGE-ERROR slot PACKAGE */
   pushSTACK(NIL);              /* 3 error-format-string */
   pushSTACK(func);             /* 2 */
   pushSTACK(obj);              /* 1 */
