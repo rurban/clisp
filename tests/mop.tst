@@ -1807,8 +1807,9 @@ EXTRA
 
 ;;; Check that finalize-inheritance is called when it should be.
 (let ((finalize-inheritance-history '()))
-  (defmethod clos:finalize-inheritance :after ((class class))
-    (push (class-name class) finalize-inheritance-history))
+  (ext:without-package-lock ("CLOS")
+    (defmethod clos:finalize-inheritance :after ((class class))
+      (push (class-name class) finalize-inheritance-history)))
   (defclass testclass52a () ())
   (defclass testclass52c (testclass52a testclass52b) ())
   (defclass testclass52d (testclass52c) ())
