@@ -176,7 +176,8 @@ V1
 
 (symbol-plist 'beispiel)
 #+XCL (DOCUMENTATION ((TYP2 . "doc 3") (TYP1 . "doc 1")))
-#+(or CLISP GCL) NIL
+#+CLISP (SYSTEM::DOC (TYP2 "doc 3" TYP1 "doc 1"))
+#+(or GCL) NIL
 #+ALLEGRO (EXCL::%DOCUMENTATION ((TYP2 . "doc 3") (TYP1 . "doc 1")))
 #+(or CMU SBCL OpenMCL) NIL
 #+LISPWORKS (PKG::SYMBOL-NAME-STRING "BEISPIEL")
