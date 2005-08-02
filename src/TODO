@@ -46,7 +46,7 @@ Breakpoint 15, lisp_completion_matches (text=0x822c1d8 "macroexü", start=1,
 $1 = 9
 
 
-Many pretty-printer test failures.
+Many pretty-printer ansi test failures.
 (sds - but bruno has to fix the risky-test in iofkts.tst first)
 
 
