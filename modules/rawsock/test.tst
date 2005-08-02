@@ -15,22 +15,22 @@
                 (concatenate 'string "(" (substitute #\Space #\. ip) ")")))
            (ve (make-array (- total family) :element-type '(unsigned-byte 8)
                            :initial-element 0)))
-      (print he)
+      (show he)
       (setf port (rawsock:htons port)
             (aref ve 0) (ldb #.(byte 8 0) port)
             (aref ve 1) (ldb #.(byte 8 8) port))
       (replace ve li :start1 2)
-      (print ve)
-      (setq sa (print (rawsock:make-sockaddr :INET ve)))
+      (show ve)
+      (setq sa (show (rawsock:make-sockaddr :INET ve)))
       (assert (equalp ve (rawsock:sockaddr-data sa)))
-      (print (list 'rawsock:sockaddr-family
-                   (multiple-value-list (rawsock:sockaddr-family sa))))
+      (show (list 'rawsock:sockaddr-family
+                  (multiple-value-list (rawsock:sockaddr-family sa))))
       sa))
   (defun local-sa-check (sock sa-local)
     (let* ((sa (rawsock:getsockname sock T))
            (data (rawsock:sockaddr-data sa)))
-      (print sa)
-      (print (list 'port (+ (aref data 1) (ash (aref data 0) 8))))
+      (show sa)
+      (show (list 'port (+ (aref data 1) (ash (aref data 0) 8))))
       (and (= (rawsock:sockaddr-family sa) (rawsock:sockaddr-family sa-local))
            (equalp (subseq data 2)
                    (subseq (rawsock:sockaddr-data sa-local) 2)))))
@@ -38,14 +38,14 @@
   (defvar *buffer* (make-array 1024 :element-type '(unsigned-byte 8)))
   (defvar *sock*) (defvar *sock1*) (defvar *sock2*)
   (defvar *recv-ret*) #-:win32 (defvar *read-ret*)
-  (print (list 'rawsock:sockaddr-family-size
-               (multiple-value-list (rawsock:sockaddr-family-size))))
+  (show (list 'rawsock:sockaddr-family-size
+              (multiple-value-list (rawsock:sockaddr-family-size))))
   T) T
 
 (progn (setq *sa-remote* (host->sa "ftp.gnu.org" 21)) T) T
 (progn (setq *sa-local* (host->sa :default)) T) T
 
-(integerp (print (setq *sock* (rawsock:socket :INET :STREAM nil)))) T
+(integerp (show (setq *sock* (rawsock:socket :INET :STREAM nil)))) T
 
 (unless (equalp #(127 0 0 1) (subseq (rawsock:sockaddr-data *sa-local*) 2 6))
   (rawsock:bind *sock* *sa-local*)
@@ -55,21 +55,21 @@ NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
 (let ((size (rawsock:recv *sock* *buffer*)))
-  (print (setq *recv-ret* (list size (from-bytes *buffer* size))))
+  (show (setq *recv-ret* (list size (from-bytes *buffer* size))))
   T) T
 
 (listp (setf (rawsock:socket-option *sock* NIL)
-             (pprint (rawsock:socket-option *sock* NIL))))
+             (show (rawsock:socket-option *sock* NIL) :pretty t)))
 T
 (listp (setf (rawsock:socket-option *sock* NIL :level :ALL)
-             (pprint (rawsock:socket-option *sock* NIL :level :ALL))))
+             (show (rawsock:socket-option *sock* NIL :level :ALL) :pretty t)))
 T
 
 (rawsock:shutdown *sock* :io) 0
 (rawsock:sock-close *sock*) 0
 
 (let ((so (rawsock:socket :INET :STREAM nil)))
-  (print (list so *sock*))
+  (show (list so *sock*))
   (= so *sock*))
 T
 
@@ -82,7 +82,7 @@ NIL
 
 #-:win32 ;; on win32, read() cannot be called on a socket!
 (let ((size (rawsock:sock-read *sock* *buffer*)))
-  (print (setq *read-ret* (list size (from-bytes *buffer* size))))
+  (show (setq *read-ret* (list size (from-bytes *buffer* size))))
   T) T
 
 #-:win32 (equal *recv-ret* *read-ret*) T
@@ -92,7 +92,7 @@ NIL
   (setf (values *sock1* *sock2*)
         ;; :INET works on cygwin but not on Linux
         (rawsock:socketpair :UNIX :STREAM nil))
-  (print (list *sock1* *sock2*))
+  (show (list *sock1* *sock2*))
   T) T
 
 #-:win32

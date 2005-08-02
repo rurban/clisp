@@ -24,7 +24,6 @@ rmrf
   (ensure-directories-exist name :verbose t)
   (kill-down name))
 prepare-dir
-(defun show (object) (fresh-line) (prin1 object) (terpri) object) show
 (defun show-db (db)
   (let* ((*print-pretty* t) (stat (bdb:db-stat db))
          (file (and (eq :RECNO (bdb:db-stat-type stat))
