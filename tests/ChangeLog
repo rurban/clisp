@@ -1,5 +1,10 @@
 2005-08-02  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (run-all-tests): run "time"
+	* time.tst: new file
+
+2005-08-02  Sam Steingold  <sds@gnu.org>
+
 	* restarts.tst: test CHECK-FUNCTION-NAME in DOCUMENTATION
 	* setf.tst, alltest.tst: DOCUMENTATION is now in SYMBOL-PLIST
 
