@@ -1,5 +1,10 @@
 2005-08-02  Sam Steingold  <sds@gnu.org>
 
+	* mop.tst: unlock "CLOS" when defining a
+	CLOS:FINALIZE-INHERITANCE method
+
+2005-08-02  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (show): moved here from the individual test files
 
 2005-07-25  Sam Steingold  <sds@gnu.org>
