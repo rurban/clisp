@@ -94,6 +94,10 @@
                 slot s-r lisp-implementation s-m (equal s-r s-m)))))
   (:method ((result t) (my-result t) (log stream)))) ; do nothing
 
+(defun show (object &key ((:pretty *print-pretty*) *print-pretty*))
+  "Print the object on its own line and return it. Used in many tests!"
+  (fresh-line) (prin1 object) (terpri) object)
+
 (defvar *test-ignore-errors* t)
 (defun do-test (stream log)
   (let ((eof "EOF") (error-count 0) (total-count 0))
@@ -102,7 +106,7 @@
             (result (read stream nil eof)))
         (when (or (eq form eof) (eq result eof)) (return))
         (incf total-count)
-        (fresh-line) (prin1 form) (terpri)
+        (show form)
         (multiple-value-bind (my-result error-message)
             (if *test-ignore-errors*
                 (with-ignored-errors (my-eval form)) ; return ERROR on errors
@@ -158,7 +162,7 @@
             (errtype (read stream nil eof)))
         (when (or (eq form eof) (eq errtype eof)) (return))
         (incf total-count)
-        (fresh-line) (prin1 form) (terpri)
+        (show form)
         (let ((my-result (check-ignore-errors (my-eval form))))
           (multiple-value-bind (typep-result typep-error)
               (ignore-errors (typep my-result errtype))
@@ -278,6 +282,7 @@
                                     "strings"
                   #-(or AKCL ECL)   "symbol10"
                                     "symbols"
+                                    "time"
                   #+XCL             "tprint"
                   #+XCL             "tread"
                                     "type"
