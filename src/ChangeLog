@@ -1,3 +1,9 @@
+2005-08-02  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/test.tst (show): moved to tests/tests.lisp
+	* modules/rawsock/test.tst, modules/zlib/test.tst:
+	use SHOW instead of PRINT
+
 2005-08-01  Sam Steingold  <sds@gnu.org>
 
 	when the specified memory image does not exist, try appending ".mem"
