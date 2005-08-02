@@ -546,28 +546,31 @@
              (TEXT "function")
              nil))))))
 
-(proclaim '(special *documentation*))
-(setq *documentation* (make-hash-table :key-type 'symbol ; actually (or symbol cons)
-                                       :value-type 'list
-                                       :test 'stablehash-equal :warn-if-needs-rehash-after-gc t :size 1000)) ; :weak :key
+
+;; Mapping funname -> symbol (required by PROCLAIM SPECIAL)
+(sys::%putd 'get-funname-symbol
+  (function get-funname-symbol (lambda (funname)
+    (if (atom funname)
+      funname
+      (get-setf-symbol (second funname))))))
+
+;; return the symbol on whose plist the object's documentation will be kept
+(sys::%putd 'get-doc-entity-symbol
+  (function get-doc-entity-symbol (lambda (object)
+    ;; object can be a symbol, (setf symbol), or (func-name quals specs)
+    (get-funname-symbol (if (function-name-p object) object (first object))))))
+
 (sys::%putd 'sys::%set-documentation
-  (function sys::%set-documentation (lambda (symbol doctype value) ; ABI
-    #| ;; cannot use due to bootstrapping
-    (if value
-      (setf (getf (gethash symbol *documentation*) doctype) value)
-      (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
-        (when (and found-p (remf rec doctype) (null rec))
-          (remhash symbol *documentation*))))
-    |#
-    (if value
-      (let ((rec (sys::%putf (gethash symbol *documentation*)
-                             doctype value)))
-        (when rec (sys::puthash symbol *documentation* rec)))
-      (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
-        (when found-p
+  (function sys::%set-documentation (lambda (object doctype value) ; ABI
+    (let* ((symbol (get-doc-entity-symbol object))
+           (rec (get symbol 'sys::doc)))
+      (if value
+        (let ((new-val (sys::%putf rec doctype value)))
+          (when new-val (sys::%put symbol 'sys::doc new-val)))
+        (when rec
           (setq rec (sys::%remf rec doctype))
-          (cond ((null rec) (remhash symbol *documentation*))
-                ((atom rec) (sys::puthash symbol *documentation* rec))))))
+          (cond ((null rec) (remprop symbol 'sys::doc))
+                ((atom rec) (sys::%put symbol 'sys::doc rec))))))
     value)))
 
 (proclaim '(special *load-truename* custom:*suppress-check-redefinition*
@@ -577,12 +580,13 @@
       *current-source-file* nil)
 
 (sys::%putd 'sys::check-redefinition
-  (function sys::check-redefinition (lambda (symbol caller what)
+  (function sys::check-redefinition (lambda (object caller what)
     (let ((cur-file *current-source-file*)
           (old-file ; distinguish between undefined and defined at top-level
            (if (and (not (eq what 'SYSTEM::SETF-EXPANDER))
-                    (sys::subr-info symbol))
-               "C" (getf (gethash symbol *documentation*) 'sys::file))))
+                    (sys::subr-info object))
+               "C" (getf (get (get-doc-entity-symbol object) 'sys::doc)
+                         'sys::file))))
       (unless (or custom:*suppress-check-redefinition*
                   (equalp old-file cur-file)
                   (and (pathnamep old-file) (pathnamep cur-file)
@@ -590,19 +594,19 @@
                               (pathname-name cur-file))))
         (sys::check-package-lock
          caller
-         (cond ((atom symbol) (symbol-package symbol))
-               ((function-name-p symbol) (symbol-package (second symbol)))
+         (cond ((atom object) (symbol-package object))
+               ((function-name-p object) (symbol-package (second object)))
                ((mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
                             (let ((oo (if (atom obj) obj (second obj))))
                               (when (symbolp oo)
                                 (symbol-package oo))))
-                        symbol)))
-         symbol)
+                        object)))
+         object)
         (when what ; when not yet defined, `what' is NIL
           (warn (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")
-                caller what symbol (or cur-file "top-level")
+                caller what object (or cur-file "top-level")
                 (or old-file "top-level")))
-        (system::%set-documentation symbol 'sys::file cur-file))))))
+        (system::%set-documentation object 'sys::file cur-file))))))
 
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions (lambda (symbol &optional (preliminary nil)) ; ABI
@@ -1564,13 +1568,6 @@
           ;; no file - return NIL
           (return-from open-for-load (values nil filename))))
       (go proceed)))))
-
-;; Mapping funname -> symbol (required by PROCLAIM SPECIAL)
-(sys::%putd 'get-funname-symbol
-  (function get-funname-symbol (lambda (funname)
-    (if (atom funname)
-      funname
-      (get-setf-symbol (second funname))))))
 
 ;; in theory this is a good idea:
 ;;   (proclaim '(inline eval-loaded-form-low))

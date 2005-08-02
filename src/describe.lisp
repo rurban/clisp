@@ -544,7 +544,7 @@ to print the corresponding values, or T for all of them.")
     (terpri stream) ; blank line
     (if (memq obj *describe-done*)
       (format stream (TEXT "~A [see above]") objstring)
-      (let ((doc (gethash obj *documentation*)))
+      (let ((doc (and (symbolp obj) (get obj 'sys::doc))))
         (push obj *describe-done*)
         (format stream (TEXT "~A is ") objstring)
         (describe-object obj stream)
