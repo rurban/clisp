@@ -1,5 +1,9 @@
 2005-08-03  Sam Steingold  <sds@gnu.org>
 
+	* spvw_memfile.d (loadmem): add a cast for C++ compilation
+
+2005-08-03  Sam Steingold  <sds@gnu.org>
+
 	* documentation.lisp (function-documentation):
 	pass NAME, not X, to SYS::GET-FUNNAME-SYMBOL
 

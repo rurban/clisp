@@ -818,7 +818,7 @@ local void loadmem (const char* filename)
   begin_system_call();
   handle = open_filename(filename);
   if (INVALID_HANDLE_P(handle)) { /* try filename.mem */
-    var char* filename_mem = alloca(strlen(filename)+4);
+    var char* filename_mem = (char*)alloca(strlen(filename)+4);
     strcpy(filename_mem,filename);
     strcat(filename_mem,".mem");
     handle = open_filename(filename_mem);
