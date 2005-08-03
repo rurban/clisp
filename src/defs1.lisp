@@ -774,7 +774,7 @@
     #-(or UNIX WIN32)
     (setq time-zone *default-time-zone*
           Sommerzeit (let ((UT (- UT (round (* 3600 time-zone)))))
-                       (multiple-value-bind (UTTag Stunde) (floor (floor UT 3600) 24)
+                       (multiple-value-bind (UTTag Stunde) (floor UT (* 3600 24))
                          (multiple-value-bind (Jahr Jahrtag) (Jahr&Tag UTTag)
                            (funcall *default-dst-check* Jahr Jahrtag Stunde))))
           Zeitzone (- time-zone (if Sommerzeit 1 0)))
