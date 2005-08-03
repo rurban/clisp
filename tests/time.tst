@@ -4,10 +4,12 @@
 ;; <http://www.lisp.org/HyperSpec/Body/sec_25-1-4-1.html>
 ;; <http://www.lisp.org/HyperSpec/Body/sec_25-1-4-2.html>
 
-(encode-universal-time 0 0 0 1 1 1900 0)
-0
+;; from <http://www.lisp.org/HyperSpec/Body/fun_encode-universal-time.html>
+(encode-universal-time 0 0 0 1 1 1900 0) 0
+(encode-universal-time 0 0 1 4 7 1976 5) 2414296800
 
 (defun check-universal-time (time &optional tz)
+  "check that DECODE-UNIVERSAL-TIME is the inverse of ENCODE-UNIVERSAL-TIME"
   (multiple-value-bind (se mi ho da mo ye wk ds-p zone)
       (apply #'decode-universal-time time (and tz (list tz)))
     (let ((ut (encode-universal-time se mi ho da mo ye
@@ -16,11 +18,13 @@
         (list time (list se mi ho da mo ye wk ds-p zone tz) ut (- ut time))))))
 CHECK-UNIVERSAL-TIME
 
-(compile 'check-universal-time)
-CHECK-UNIVERSAL-TIME
+;; compile for speed & check documentation perseverance
+(stringp (documentation 'check-universal-time 'function)) T
+(compile 'check-universal-time) CHECK-UNIVERSAL-TIME
+(stringp (documentation #'check-universal-time t)) T
 
 (defun time-loop (start end step &optional tz)
-  "return ther periods of badness"
+  "return the periods of badness"
   (time
    (loop :with state = nil :with ret = nil
      :for tm :from start :below end :by step
@@ -32,21 +36,20 @@ CHECK-UNIVERSAL-TIME
      :finally (return (nreverse ret)))))
 TIME-LOOP
 
-(compile 'time-loop)
-TIME-LOOP
+;; compile for speed & check documentation perseverance
+(stringp (documentation #'time-loop t)) T
+(compile 'time-loop) TIME-LOOP
+(stringp (documentation 'time-loop 'function)) T
 
-;;(time-loop 100000 10000000000 5000)
-NIL
+;; default timezone: fails for all lisps around DST switch
+;; (time-loop 100000 10000000000 5000)  NIL
+;; (time-loop 4300066700 4300081201 10) NIL
 
-;;(time-loop 4300066700 4300081201 10)
-NIL
+;; specific timezone
+(time-loop 100000 10000000000 5000 0)  NIL
+(time-loop 4300066700 4300081201 10 0) NIL
 
-(time-loop 100000 10000000000 5000 0)
-NIL
-
-(time-loop 4300066700 4300081201 10 0)
-NIL
-
+;; random times, specific timezone
 (let ((total 10000))
   (loop :with bad = 0 :repeat total :for time = (random 10000000000)
     :for check = (check-universal-time time 0)
@@ -54,3 +57,7 @@ NIL
     :finally (format t "~&~:D out of ~:D bad: ~5F%~%"
                      bad total (/ bad total 1d-2))))
 NIL
+
+;; clean up
+(unintern 'time-loop) T
+(unintern 'check-universal-time) T
