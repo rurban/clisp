@@ -7,12 +7,12 @@
 (defun function-documentation (x)
   (if (typep-class x <standard-generic-function>)
       (std-gf-documentation x)
-      (let ((name (sys::function-name x)))
-        (or (and (eq (type-of x) 'FUNCTION) ; interpreted function?
-                 (sys::%record-ref x 2))
+      (or (and (eq (type-of x) 'FUNCTION) ; interpreted function?
+               (sys::%record-ref x 2))
+          (let ((name (sys::function-name x)))
             (and (sys::function-name-p name)
                  (fboundp name) (eq x (sys::unwrapped-fdefinition name))
-                 (getf (get (sys::get-funname-symbol x) 'sys::doc)
+                 (getf (get (sys::get-funname-symbol name) 'sys::doc)
                        'function))))))
 
 ;;; documentation
