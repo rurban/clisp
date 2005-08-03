@@ -1,5 +1,10 @@
 2005-08-03  Sam Steingold  <sds@gnu.org>
 
+	* documentation.lisp (function-documentation):
+	pass NAME, not X, to SYS::GET-FUNNAME-SYMBOL
+
+2005-08-03  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (decode-universal-time) [!(UNIX|WIN32)]:
 	call FLOOR just once instead of twice
 
