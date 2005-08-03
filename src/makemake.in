@@ -3143,7 +3143,7 @@ if [ $CROSS = false ] ; then
   echol
 
   # sacla-tests are not included in the source distribution
-  if test -d "${PARENT_SRCTOPDIR_}sacla-tests"; then
+  if test -d "${SRCTOPDIR_}sacla-tests"; then
     CHECK_DEPS=${CHECK_DEPS}" check-sacla-tests"
     SACLA_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -i tests.lisp"
     echol "check-sacla-tests : ${SACLATESTSDIR} lisp${LEXE} lispinit.mem"
@@ -3159,7 +3159,7 @@ if [ $CROSS = false ] ; then
   fi
 
   # ansi-tests are not included in the source distribution
-  if test -d "${PARENT_SRCTOPDIR_}ansi-tests"; then
+  if test -d "${SRCTOPDIR_}ansi-tests"; then
     CHECK_DEPS=${CHECK_DEPS}" check-ansi-tests check-ansi-tests-compiled"
     ANSI_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -m 30000KW -ansi -i clispload.lsp"
     echol "check-ansi-tests : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
@@ -3192,8 +3192,8 @@ if [ $CROSS = false ] ; then
     echol
   fi
 
-  # benchmarks are for developers only, and the developers work from the CVS
-  if test -d ${SRCTOPDIR}CVS; then
+  # benchmarks are not included in the source distribution
+  if test -d "${SRCTOPDIR_}benchmarks"; then
     CHECK_DEPS=${CHECK_DEPS}" bench"
     echol "bench : ${BENCHDIR}"
     echotab "CLISP=\"${CLISP_}\"; export CLISP; cd ${BENCHDIR}; \$(MAKE) CLISP=\"\$\$CLISP\" clisp"
