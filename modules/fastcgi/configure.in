@@ -1,6 +1,8 @@
 # configure.ac for FastCGI module
 
 AC_INIT(clisp-fastcgi-interface, 0.1, hin@alma.com)
+AC_CONFIG_SRCDIR(fastcgi.lisp)
+AC_CONFIG_HEADERS(config.h)
 
 # Checks for programs.
 AC_PROG_CC
