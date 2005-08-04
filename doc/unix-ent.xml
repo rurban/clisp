@@ -148,6 +148,7 @@
 <!ENTITY make "<ulink url='&unix-u;/make.html'><command>make</command></ulink>">
 <!ENTITY man "<ulink url='&unix-u;/man.html'><command>man</command></ulink>">
 <!ENTITY sh "<ulink url='&unix-u;/sh.html'><command>/bin/sh</command></ulink>">
+<!ENTITY touch "<ulink url='&unix-u;/touch.html'><command>touch</command></ulink>">
 <!ENTITY uname-u "<ulink url='&unix-u;/uname.html'><command>uname</command></ulink>">
 <!ENTITY sh-lang "<ulink url='&unix-u;/xcu_chap02.html'>Shell Command Language</ulink>">
 <!ENTITY path-match "<ulink url='&unix-u;/xcu_chap02.html#tag_02_13'>Pathname Matching</ulink>">
