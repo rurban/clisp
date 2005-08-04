@@ -11,15 +11,15 @@ AC_CONFIG_HEADERS(config.h)
 AC_MSG_NOTICE([* Regexp (Checks)])
 AC_PROG_CC
 AC_PROG_CPP
-AC_AIX
 AC_HEADER_STDC
 AC_CHECK_HEADERS(string.h sys/types.h)
 AM_GNU_GETTEXT([external])
 gl_C_RESTRICT
 gl_FUNC_ALLOCA
-CL_REGEXP
+gl_INCLUDED_REGEX([regex.c])
+
 # can we use the system-wide regex implementation?
-if test "$ac_cv_use_included_regexp" = no -a "$cl_cv_regexp" = yes; then
+if test "$ac_use_included_regex" = no -a "$cl_cv_regexp" = yes; then
   REGEX_H=""
   REGEX_O=""
   ALLOCA=""
