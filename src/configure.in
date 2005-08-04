@@ -23,6 +23,14 @@ GNU CLISP is distributed under the GNU GPL, see file COPYRIGHT])dnl
 AC_REVISION([$Id$])dnl
 AC_CONFIG_HEADERS(unixconf.h)
 dnl
+AC_MSG_NOTICE([* checks for UNIX variants that set DEFS])
+dnl DEFS _ALL_SOURCE
+AC_AIX
+dnl DEFS _GNU_SOURCE
+AC_GNU_SOURCE
+dnl DEFS __EXTENSIONS__
+gl_USE_SYSTEM_EXTENSIONS
+dnl
 AC_MSG_NOTICE([* checks for programs])
 dnl
 dnl sets variable CC
@@ -44,12 +52,7 @@ AC_CHECK_PROG(GROFF,groff,groff)
 dnl sets variable DVIPDF
 AC_CHECK_PROG(DVIPDF,dvipdf,dvipdf)
 dnl
-AC_MSG_NOTICE([* checks for UNIX variants that set DEFS])
-dnl
-dnl DEFS _ALL_SOURCE
-AC_AIX
-dnl DEFS _GNU_SOURCE
-AC_GNU_SOURCE
+AC_MSG_NOTICE([* checks for system features])
 dnl DEFS _FILE_OFFSET_BITS, _LARGE_FILES
 AC_SYS_LARGEFILE
 dnl sets variables CC_GCC, GCC_X_NONE

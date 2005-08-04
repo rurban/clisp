@@ -10,7 +10,6 @@ AC_CONFIG_HEADERS(config.h)
 AC_MSG_NOTICE([ * Wildcard (Checks)])
 AC_PROG_CC
 AC_PROG_CPP
-AC_AIX
 AC_HEADER_STDC
 gl_FUNC_FNMATCH_POSIX
 if test -n "$FNMATCH_H"; then
