@@ -591,8 +591,7 @@ compiles the specified lisp files to a platform-independent
    <replaceable>charset</replaceable> is an optional character set
    specification, and needs normally not be given because the character
    set can be inferred from the language and country.
-   This &env-var; can be overridden with the
-   <option><link linkend="opt-enc">-E</link></option> option.
+   This &env-var; can be overridden with the &opt-E; option.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
@@ -741,8 +740,8 @@ following information:
 <para>&clisp; project was started in late 1980-ies by &bruno; and
  &stoll;, both in Germany.</para>
 
-<para>See <ulink url="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT?rev=HEAD&amp;content-type=text/plain">COPYRIGHT</ulink>
-for the list of other contributors and the license.</para>
+<para>See <ulink url="&clisp-cvs;COPYRIGHT">COPYRIGHT</ulink>
+ for the list of other contributors and the license.</para>
 
 </refsection>
 
