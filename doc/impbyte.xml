@@ -652,11 +652,11 @@
 <varlistentry><term><filename>doc/clisp.xml.in</filename></term>
  <listitem><simpara>&docbook;/&xml; sources for the &clisp; manual page
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>src/_clisp.1</filename></term>
+<varlistentry><term><filename><replaceable>build-dir</replaceable>/clisp.1</filename></term>
  <listitem><simpara>the platform-specific &man; manual page,
    generated from <filename>doc/clisp.xml.in</filename>
    at <emphasis>build</emphasis> time</simpara></listitem></varlistentry>
-<varlistentry><term><filename>src/_clisp.html</filename></term>
+<varlistentry><term><filename><replaceable>build-dir</replaceable>/clisp.html</filename></term>
  <listitem><simpara>the platform-specific &html; manual page,
    generated from <filename>doc/clisp.xml.in</filename>
    at <emphasis>build</emphasis> time</simpara></listitem></varlistentry>
@@ -667,7 +667,7 @@
      <listitem><simpara>&clisp;-independent general &cl;-related entities
     </simpara></listitem></varlistentry>
     <varlistentry><term><filename>doc/clhs-ent.xml</filename></term>
-     <listitem><simpara>generated list of &clhs; concepts
+     <listitem><simpara>generated list of &hyperspec; entities
     </simpara></listitem></varlistentry>
     <varlistentry><term><filename>doc/impent.xml</filename></term>
      <listitem><simpara>&clisp;-specific entities
@@ -728,10 +728,10 @@
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>autoconf/autoconf.m4</filename></term>
  <listitem><simpara><command>autoconf</command>'s driver macros.
-   Part of &autoconf; 2.53</simpara></listitem></varlistentry>
+   Part of &autoconf; 2.57</simpara></listitem></varlistentry>
 <varlistentry><term><filename>m4/*.m4</filename></term>
  <listitem><simpara>a repertoire of features.
-   Use with &autoconf; 2.53</simpara></listitem></varlistentry>
+   Use with &autoconf; 2.57</simpara></listitem></varlistentry>
 <varlistentry><term><filename>configure</filename></term>
  <listitem><simpara>configuration script, generated
    from <filename>configure.in</filename></simpara></listitem></varlistentry>
