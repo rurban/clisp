@@ -105,6 +105,7 @@
 <!ENTITY ggettext "&gnu; <ulink url='http://www.gnu.org/software/gettext/gettext.html'>gettext</ulink>">
 <!ENTITY glibc "&gnu; <ulink url='http://www.gnu.org/software/libc/'>libc</ulink>">
 <!ENTITY libiconv "&gnu; <ulink url='http://www.gnu.org/software/libiconv/'>libiconv</ulink>">
+<!ENTITY libsigsegv "&gnu; <ulink url='http://libsigsegv.sourceforge.net/'>libsigsegv</ulink>">
 <!ENTITY readline "&gnu; <ulink url='http://cnswww.cns.cwru.edu/~chet/readline/rltop.html'>readline</ulink>">
 <!ENTITY autoconf "&gnu; <ulink url='http://www.gnu.org/software/autoconf/'>autoconf</ulink>">
 <!ENTITY gpl "<ulink url='http://www.gnu.org/copyleft/gpl.html'>GPL</ulink>">
@@ -162,6 +163,7 @@
 <!ENTITY docbook "<ulink url='http://www.docbook.org/'>DocBook</ulink>">
 <!ENTITY html "<ulink url='http://www.w3.org/MarkUp/'>HTML</ulink>">
 <!ENTITY xml "<ulink url='http://www.w3.org/XML/'>XML</ulink>">
+<!ENTITY mime "<ulink url='http://www.faqs.org/rfcs/rfc2045.html'>MIME</ulink>">
 
 <!-- *** CLHS - Common Lisp HyperSpec *** -->
 
