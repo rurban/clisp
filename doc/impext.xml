@@ -718,7 +718,7 @@ English, German, French, Spanish, Dutch and Russian.
  charset of the &encoding-r;, as a &symbol-t; or a &string-t;.</para>
 
 <warning><para><code>(&string; (&enc-charset; &encoding-r;))</code> is
-  not necessarily a valid MIME name.</para></warning>
+  not necessarily a valid &mime; name.</para></warning>
 
 </section>
 
@@ -773,8 +773,7 @@ English, German, French, Spanish, Dutch and Russian.
 </variablelist>
 <!-- #endif -->
 
-<para>The default encoding objects are initialized as described in
- <olink targetdoc="man" targetptr="opt-enc"/></para>
+<para>The default encoding objects are initialized according to &opt-E;.</para>
 
 <note><para>Reminder: you have to use &letf;/&letf-star; for
   &symbol-macro;s; &let;/&let-star; will &not-e; work!</para></note>
