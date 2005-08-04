@@ -31,9 +31,6 @@
 # endif
 #endif
 #if defined(HAVE_UNISTD_H)
-# if defined(__sun)
-#  define __EXTENSIONS__        /* enable confstr() prototype */
-# endif
 # include <unistd.h>
 #endif
 #if defined(HAVE_SYS_UNISTD_H)
