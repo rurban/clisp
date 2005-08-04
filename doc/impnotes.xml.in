@@ -15,6 +15,7 @@
   <!ENTITY mop-sec SYSTEM "mop.xml">
   <!ENTITY imp-ext SYSTEM "impext.xml">
   <!ENTITY imp-byte SYSTEM "impbyte.xml">
+  <!ENTITY faq SYSTEM "faq.xml">
   <!ENTITY dirkey SYSTEM "../modules/dirkey/dirkey.xml">
   <!ENTITY % ent-bdb SYSTEM "../modules/berkeley-db/ent-bdb.xml">
   %ent-bdb;
@@ -185,8 +186,13 @@
 
 &imp-byte;
 
+<part id="appendices"><title>Appendices</title>
+
+&faq;
 &gfdl-text;
 &gpl-text;
+
+</part>
 
 <index id="idx"/>
 
