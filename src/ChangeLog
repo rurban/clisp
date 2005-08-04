@@ -1,3 +1,8 @@
+2005-08-04  Sam Steingold  <sds@gnu.org>
+
+	* modules/fastcgi/configure.in, modules/oracle/configure.in:
+	generate config.h
+
 2005-08-03  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check): fixed the test for sacla-tests and ansi-tests

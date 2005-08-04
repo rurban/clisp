@@ -8,6 +8,8 @@
 
 # Process this file with autoconf to produce a configure script.
 AC_INIT(oracle-clisp, 0.1, hin@alma.com)
+AC_CONFIG_SRCDIR(oracle.lisp)
+AC_CONFIG_HEADERS(config.h)
 
 # Checks for programs.
 AC_PROG_CC
