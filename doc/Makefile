@@ -3,7 +3,7 @@
 
 DTDVER=4.3
 IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml \
-	impext.xml impissue.xml impbyte.xml unix-ent.xml mop-ent.xml	\
+	impext.xml impissue.xml impbyte.xml unix-ent.xml mop-ent.xml faq.xml \
 	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
 	../modules/regexp/regexp.xml ../modules/netica/netica.xml       \
 	../modules/berkeley-db/berkeley-db.xml ../modules/pcre/pcre.xml \
