@@ -1,5 +1,13 @@
 2005-08-04  Sam Steingold  <sds@gnu.org>
 
+	make configure creation process more robust
+	* Makefile.devel (MODULES, MOD_CONFIGURES, MOD_CONFIG_H_IN)
+	(CLISP_CONFIGURES, FFCALL, FFCALL_CONFIGURES): new variables
+	(CONFIGURES, CONFIG_H_IN): use them
+	(src/autoconf/aclocal.m4): depend only on CLISP_CONFIGURES
+
+2005-08-04  Sam Steingold  <sds@gnu.org>
+
 	updated bundled regex to the latest gnulib version
 	* configure.in: call gl_USE_SYSTEM_EXTENSIONS
 	* modules/regexp/configure.in: use gl_INCLUDED_REGEX instead of
