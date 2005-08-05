@@ -11198,7 +11198,7 @@ The function make-closure is required.
                     (*no-code* (and (null *fasoutput-stream*)
                                     (null listing-stream)))
                     (*toplevel-for-value* t)
-                    (eof-value "EOF")
+                    (eof-value istream)
                     (form-count 0))
                 (when verbose-out
                   (fresh-line verbose-out)
@@ -11236,14 +11236,19 @@ The function make-closure is required.
                   (peek-char t istream nil eof-value)
                   (setq *compile-file-lineno1* (line-number istream))
                   (let* ((form (read istream nil eof-value))
-                         (form-name (make-symbol
-                                      (write-to-string
-                                        form :level 2 :length 3 :pretty nil))))
+                         (form-name (write-to-string
+                                     form :level 2 :length 3 :pretty nil)))
                     (setq *compile-file-lineno2* (line-number istream))
                     (when (eql form eof-value) (return))
                     (when *compile-print* (format t "~&; ~A~." form-name))
-                    (compile-toplevel-form form
-                      (symbol-suffix form-name (incf form-count)))))
+                    (compile-toplevel-form
+                     form (symbol-suffix
+                           (make-symbol
+                            (string-concat
+                             (prin1-to-string *compile-file-lineno1*) " "
+                             (prin1-to-string *compile-file-lineno2*) " "
+                             form-name))
+                           (incf form-count)))))
                 (finalize-coutput-file)
                 (setq compilation-successful (zerop *error-count*))
                 (when verbose-out
