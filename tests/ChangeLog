@@ -1,3 +1,7 @@
+2005-08-05  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: test EXT:COMPILED-FILE-P
+
 2005-08-03  Sam Steingold  <sds@gnu.org>
 
 	* time.tst: check docstring preservation under compilation; add cleanup

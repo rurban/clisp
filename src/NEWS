@@ -13,6 +13,11 @@ User visible changes
   Rationale: this is a 1:1 that corresponds to CLISP CODE-CHAR/CHAR-CODE
   and avoids spurious errors in DIRECTORY on startup.
 
+* New function EXT:COMPILED-FILE-P - checks whether the file is a
+  CLISP-compiled file with a compatible bytecode format.
+  See <http://clisp.cons.org/impnotes.html#compiled-file-p> for details.
+
+
 
 2.34 (2005-07-20)
 =================
