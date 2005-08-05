@@ -574,9 +574,12 @@
     value)))
 
 (proclaim '(special *load-truename* custom:*suppress-check-redefinition*
+            *current-source-line-1* *current-source-line-2*
             *current-source-file*))
 (setq *load-truename* nil
       custom:*suppress-check-redefinition* nil
+      *current-source-line-1* nil
+      *current-source-line-2* nil
       *current-source-file* nil)
 
 (sys::%putd 'sys::check-redefinition
@@ -587,6 +590,7 @@
                     (sys::subr-info object))
                "C" (getf (get (get-doc-entity-symbol object) 'sys::doc)
                          'sys::file))))
+      (when (consp old-file) (setq old-file (car old-file)))
       (unless (or custom:*suppress-check-redefinition*
                   (equalp old-file cur-file)
                   (and (pathnamep old-file) (pathnamep cur-file)
@@ -605,8 +609,13 @@
         (when what ; when not yet defined, `what' is NIL
           (warn (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")
                 caller what object (or cur-file "top-level")
-                (or old-file "top-level")))
-        (system::%set-documentation object 'sys::file cur-file))))))
+                (or old-file "top-level"))))
+      (system::%set-documentation
+       object 'sys::file
+       ;; note that when CUR-FILE is "foo.fas",
+       ;; *current-source-line-[12]* point into "foo.lisp"!
+       (and cur-file (list cur-file *current-source-line-1*
+                           *current-source-line-2*)))))))
 
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions (lambda (symbol &optional (preliminary nil)) ; ABI
@@ -1578,7 +1587,18 @@
 ;; therefore the "test" target (self-recompilation) will fail
 (defun eval-loaded-form-low (obj)
   (multiple-value-list
-   (cond ((compiled-function-p obj) (funcall obj))
+   (cond ((compiled-function-p obj)
+          ;; assume that this is a top-level form compiled by COMPILE-FILE
+          ;; then its name starts with the source file line numbers --
+          ;; extract them and put into *current-source-line-[12]*
+          (let ((name (and (closurep obj) (symbol-name (closure-name obj)))))
+            (multiple-value-bind (l1 pos) (parse-integer name :junk-allowed t)
+              (when l1
+                (let ((l2 (parse-integer name :junk-allowed t :start pos)))
+                  (when l2
+                    (setq *current-source-line-1* l1
+                          *current-source-line-2* l2))))))
+          (funcall obj))
          (*load-compiling* (funcall (compile-form-in-toplevel-environment obj)))
          (t (eval obj)))))
 
@@ -1626,6 +1646,8 @@
            (*load-truename*
              (if (pathnamep filename) (truename filename) nil))
            (*current-source-file* *load-truename*)
+           (*current-source-line-1* nil)
+           (*current-source-line-2* nil)
            #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
            (*package* *package*) ; bind *PACKAGE*
            (*readtable* *readtable*) ; bind *READTABLE*
@@ -1650,7 +1672,10 @@
         (unwind-protect
             (tagbody weiter
               (when *load-echo* (fresh-line))
+              (peek-char t input-stream nil eof-indicator)
+              (setq *current-source-line-1* (line-number input-stream))
               (let ((obj (read input-stream nil eof-indicator)))
+                (setq *current-source-line-2* (line-number input-stream))
                 (when (eql obj eof-indicator) (go done))
                 (case (setq obj (eval-loaded-form obj *load-truename*))
                   (skip (go weiter))
