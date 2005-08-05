@@ -108,6 +108,8 @@
 <!ENTITY libsigsegv "&gnu; <ulink url='http://libsigsegv.sourceforge.net/'>libsigsegv</ulink>">
 <!ENTITY readline "&gnu; <ulink url='http://cnswww.cns.cwru.edu/~chet/readline/rltop.html'>readline</ulink>">
 <!ENTITY autoconf "&gnu; <ulink url='http://www.gnu.org/software/autoconf/'>autoconf</ulink>">
+<!ENTITY asdf "<ulink url='http://www.cliki.net/asdf'><function>asdf</function></ulink>">
+<!ENTITY defsystem "<ulink url='http://www.cliki.net/defsystem'><function>defsystem</function></ulink>">
 <!ENTITY gpl "<ulink url='http://www.gnu.org/copyleft/gpl.html'>GPL</ulink>">
 <!ENTITY lgpl "<ulink url='http://www.gnu.org/copyleft/lgpl.html'>LGPL</ulink>">
 <!ENTITY gfdl "<ulink url='http://www.gnu.org/copyleft/fdl.html'>GFDL</ulink>">
