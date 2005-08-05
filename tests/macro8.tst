@@ -966,6 +966,20 @@ NIL
   (subseq x 0 7))
 (ONE TWO THREE MANY MANY MANY MANY)
 
+#+clisp
+(let* ((f "test-compiled-file-p.lisp") (c (compile-file-pathname f)))
+  (open f :direction :probe :if-does-not-exist :create)
+  (delete-file c)
+  (list (multiple-value-list (ext:compiled-file-p c))
+        (multiple-value-list (ext:compiled-file-p f))
+        (unwind-protect (multiple-value-list
+                         (ext:compiled-file-p (setq c (compile-file f))))
+          (delete-file f)
+          (delete-file c)
+          #+clisp (delete-file (make-pathname :type "lib" :defaults c)))))
+#+clisp
+((NIL) (NIL) (T))
+
 ; Clean up.
 (progn
   (fmakunbound 'circularity-in-code)
