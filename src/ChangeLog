@@ -1,3 +1,8 @@
+2005-08-05  Sam Steingold  <sds@gnu.org>
+
+	* macros3.lisp (compiled-file-p): implemented CLRFI-2
+	<http://clrfi.alu.org/clrfi/clrfi-2-compiled-file-p>
+
 2005-08-04  Sam Steingold  <sds@gnu.org>
 
 	make configure creation process more robust

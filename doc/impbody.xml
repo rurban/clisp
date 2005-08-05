@@ -4686,6 +4686,17 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  &form-r; is a &feature-expr;.</para>
 </section>
 
+<section id="compiled-file-p"><title>Function
+  <function>EXT:COMPILED-FILE-P</function>
+  <ulink url="&clrfi;/clrfi-2-compiled-file-p">[CLRFI-2]</ulink></title>
+<para><code>(EXT:COMPILED-FILE-P &filename-r;)</code> returns non-&nil;
+ when the file &filename-r; exists, is readable, and appears to be a
+ &clisp;-compiled &fasl-file; compatible with the currently used
+ &bytecode; format.</para>
+<para>System definition facilities (such as &asdf; or &defsystem;) can
+ use it to determine whether the file needs to be recompiled.</para>
+</section>
+
 </section>
 </chapter>
 

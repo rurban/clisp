@@ -1,5 +1,5 @@
 (in-package "EXT")
-(export '(ethe letf letf* with-collect))
+(export '(ethe letf letf* with-collect compiled-file-p))
 (in-package "SYSTEM")
 ;;; ---------------------------------------------------------------------------
 ;;; Wie THE, nur dass auch im compilierten Code der Typtest durchgeführt wird.
@@ -367,3 +367,16 @@ on other lisps (which is 1.5-2 times as fast as push/nreverse there)."
                          collectors ret tail tmp)
         ,@forms
         (values ,@ret)))))
+
+;;; ---------------------------------------------------------------------------
+(defun compiled-file-p (file-name)
+  "Return non-NIL is FILE-NAME names a CLISP-compiled file
+with compatible bytecodes."
+  (with-open-file (in file-name :direction :input :if-does-not-exist nil)
+    (handler-bind ((error (lambda (c) (declare (ignore c))
+                                  (return-from compiled-file-p nil))))
+      (and in (char= #\( (peek-char nil in))
+           (let ((form (read in nil nil)))
+             (and (consp form)
+                  (eq (car form) 'SYSTEM::VERSION)
+                  (null (eval form))))))))
