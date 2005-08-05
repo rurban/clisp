@@ -15,8 +15,8 @@
 	* modules/wildcard/configure.in: do not call AC_AIX (done by toplevel)
 	* modules/regexp/regex.c, modules/regexp/regex.h: updated
 	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
-	* modules/regexp/regexec.c, m4/extensions.m4, m4/onceonly.m4:
-	* m4/regex.m4: added
+	* modules/regexp/regexec.c, modules/regexp/regcomp.c:
+	* m4/extensions.m4, m4/onceonly.m4, m4/regex.m4: added
 	* m4/regexp.m4: removed
 	* modules/regexp/link.sh.in: remove all gnulib regex files when
 	using the system-wide regex implementation
