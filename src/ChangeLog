@@ -1,5 +1,15 @@
 2005-08-05  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (compile-file): put source line number into the
+	name of the compiled top-level form
+	* init.lisp (*current-source-line-1*, *current-source-line-2*): added
+	(sys::check-redefinition): FILE doc is now (file start-line end-line)
+	(eval-loaded-form-low): set *CURRENT-SOURCE-LINE-[12]* from the
+	compiled top-level form
+	(load): bind and set *CURRENT-SOURCE-LINE-[12]*
+
+2005-08-05  Sam Steingold  <sds@gnu.org>
+
 	* macros3.lisp (compiled-file-p): implemented CLRFI-2
 	<http://clrfi.alu.org/clrfi/clrfi-2-compiled-file-p>
 
