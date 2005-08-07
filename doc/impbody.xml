@@ -974,6 +974,15 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 <formalpara id="global-handler"><title>Function &set-global-handler;</title>
 <para>The function <code>(&set-global-handler; &cond-r; handler)</code>
  establishes a global handler for the &cond-r;.
+ The <replaceable>handler</replaceable> should be &funcall;able (a
+ &symbol-t; or a &function-t;).  If it returns, the next applicable
+ handler is invoked, so if you do not want to land in the debugger, it
+ should &not-e; return.
+ E.g., the option &opt-on-error; <option>abort</option> and the macro
+ &abort-on-error; are implemented by installing the following handler:
+ <programlisting language="lisp">(defun sys::abortonerror (condition)
+  (sys::report-error condition)
+  (invoke-restart (find-restart 'abort condition)))</programlisting>
  When <replaceable>handler</replaceable> is &nil;, the handler
  for &cond-r; is removed and returned.
  When &cond-r; is also &nil;, all global handlers are removed and returned

@@ -1714,6 +1714,7 @@ non-continuable error or a Ctrl-C interrupt occurs."
 (defun set-global-handler (condition-name handler)
   "Make HANDLER handle CONDITION globally.
 HANDLER should be funcallable (symbol or function).
+If it returns, the next applicable error handler is invoked.
 When HANDLER is nil, remove the global handler for CONDITION.
 Returns the added or removed method(s)."
   (let ((clos::*warn-if-gf-already-called* nil)
