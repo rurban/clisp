@@ -21,7 +21,7 @@ further explanations of the issues could be provided).</para>
 <para>Please submit more questions (and answers!) to &clisp-list;.</para>
 </abstract>
 
-<qandaset defaultlabel="qanda"><title>FAQ</title>
+<qandaset><title>FAQ</title>
 
 <qandadiv id="faq-meta"><title>Meta Information</title>
 
@@ -294,17 +294,20 @@ further explanations of the issues could be provided).</para>
   directly.</para></answer></qandaentry>
 
 <qandaentry id="faq-ide">
- <question id="faq-ide-q"><simpara>Where is the IDE?</simpara></question>
-<answer><para>I use &emacs;, running &clisp; as an "inferior lisp"
-  (i.e., &clisp; running as an &emacs; sub-process).  Some people prefer
-  &ilisp; or &slime; to the standard &emacs; facilities.</para>
-<para>See also<itemizedlist>
-  <listitem><simpara><ulink url="http://ciapek.uci.agh.edu.pl/~kwlodarc/VisualCLisp/en.htm" >VisualCLisp</ulink></simpara></listitem>
-  <listitem><simpara><ulink url="http://jabberwocky.sourceforge.net/">Jabberwocky</ulink></simpara></listitem>
-  <listitem><simpara><ulink url="http://gclisp.sourceforge.net/">GClisp</ulink></simpara></listitem>
-  <listitem><simpara>&phemlock;</simpara></listitem>
-  <listitem><simpara><ulink url="http://cl-cookbook.sourceforge.net/windows.html">The Common Lisp Cookbook</ulink></simpara></listitem>
-</itemizedlist></para></answer></qandaentry>
+<question id="faq-ide-q"><simpara>Where is the <acronym>IDE<remark>Integrated
+    Development Environment</remark></acronym>?</simpara></question>
+<answer><formalpara><title>&emacs;-based</title><para><itemizedlist>
+    <listitem><simpara><ulink url="http://www.gnu.org/software/emacs/manual/emacs.html#External%20Lisp"><function>inferior-lisp</function></ulink></simpara></listitem>
+    <listitem><simpara>&slime;</simpara></listitem>
+    <listitem><simpara>&ilisp;</simpara></listitem>
+ </itemizedlist></para></formalpara>
+ <formalpara><title>non-&emacs;-based</title><para><itemizedlist>
+    <listitem><simpara><ulink url="http://ciapek.uci.agh.edu.pl/~kwlodarc/VisualCLisp/en.htm" >VisualCLisp</ulink></simpara></listitem>
+    <listitem><simpara><ulink url="http://jabberwocky.sourceforge.net/">Jabberwocky</ulink></simpara></listitem>
+    <listitem><simpara><ulink url="http://gclisp.sourceforge.net/">GClisp</ulink></simpara></listitem>
+    <listitem><simpara>&phemlock;</simpara></listitem>
+    <listitem><simpara><ulink url="http://cl-cookbook.sourceforge.net/windows.html">The Common Lisp Cookbook</ulink></simpara></listitem>
+</itemizedlist></para></formalpara></answer></qandaentry>
 
 
 <qandaentry id="faq-opt"><question id="faq-opt-q"><simpara>What are the
@@ -370,8 +373,9 @@ further explanations of the issues could be provided).</para>
  <ulink url="http://article.gmane.org/gmane.lisp.clisp.general:8691">here</ulink>.</para></answer></qandaentry>
 
 
-<qandaentry id="faq-gui"><question id="faq-gui-q"><simpara>How do I
-   create a GUI for my &clisp; program?</simpara></question>
+<qandaentry id="faq-gui"><question id="faq-gui-q"><simpara>How do I create
+   a <acronym>GUI<remark>Graphical User Interface</remark></acronym>
+   for my &clisp; program?</simpara></question>
  <answer><para>There are many options,
   see <ulink url="http://clisp.cons.org/resources.html#software">"Common
     Lisp software running in &clisp;"</ulink>.</para></answer></qandaentry>
