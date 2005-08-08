@@ -62,3 +62,7 @@ h6 { font-size: 110%; }
 /* platform dependencies */
 .plat-dep
 { background-color: lightcyan; color: darkred; }
+
+/* highlight the FAQ questions */
+.question
+{ background-color: lightyellow; }
