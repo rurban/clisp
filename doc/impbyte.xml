@@ -643,7 +643,7 @@
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>src/_README</filename></term>
  <listitem><para>master for the distribution's README<variablelist>
-    <varlistentry><term><filename>_README.en</filename></term>
+    <varlistentry><term><filename>src/_README.en</filename></term>
      <term><filename>src/_README.de</filename></term>
      <term><filename>src/_README.es</filename></term>
      <listitem><simpara>translations of <filename>_README</filename>
@@ -777,7 +777,7 @@ see <xref linkend="src-modules"/>.</para>
 
 <section id="lisp-obj-in-c"><title>Lisp objects in &clisp;</title>
 
-<itemizedlist><title>Three kinds of storage are distinguished:</title>
+<orderedlist><title>Three kinds of storage are distinguished:</title>
  <listitem><simpara>&clisp; data (the <quote>heap</quote>), i.e. storage
   which contains &clisp; &object-t;s and is managed by the &gc;or.
  </simpara></listitem>
@@ -785,7 +785,7 @@ see <xref linkend="src-modules"/>.</para>
   &object-t;s visible to the &gc;or</simpara></listitem>
  <listitem><simpara>&c-lang; data (including program text, data,
   &malloc;ed memory)</simpara></listitem>
-</itemizedlist>
+</orderedlist>
 
 <para>A &clisp; object is one word, containing a tag (partial type
 information) and either immediate data or a pointer to storage.
@@ -804,7 +804,7 @@ most other pointers point to &clisp; data.</para>
 </simplelist></para></listitem></varlistentry>
 </variablelist>
 
-<para>Let us turn to these &clisp; objects that consume regular &clisp;
+<para>Let us turn to those &clisp; objects that consume regular &clisp;
 memory.  Every &clisp; object has a size which is determined when the
 object is allocated (using one of the <function>allocate_*()</function>
 routines). The size can be computed from the type tag and - if necessary
