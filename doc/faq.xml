@@ -199,11 +199,12 @@ further explanations of the issues could be provided).</para>
 <qandadiv id="faq-menorah"><title>Logo</title>
 <qandaentry id="faq-menorah-why"><question id="faq-menorah-why-q"><simpara>Why
    is &clisp; using menorah as the logo?</simpara></question>
-<answer><para>If you must have some answer and you do not care whether
-  it is correct or not, you may simply think that &cl; brings
-  the <emphasis>Light</emphasis> to a programmer, and &clisp; is a vehicle
-  that carries the <emphasis>Light</emphasis>.</para>
- <formalpara><title>History</title>
+<answer><label>Whimsical</label>
+ <para>If you must have some answer and you do not care whether it is
+  correct or not, you may simply think that &cl; brings
+  the <emphasis>Light</emphasis> to a programmer, and &clisp; is a
+  vehicle that carries the <emphasis>Light</emphasis>.</para></answer>
+<answer><label>Historical</label>
   <para>&clisp; has been using the menorah for the logo since the project was
    first started in the late 1980-ies by Bruno Haible and Michael Stoll.
    This <emphasis>probably</emphasis> reflects the authors' affection
@@ -211,7 +212,7 @@ further explanations of the issues could be provided).</para>
    (neither of the two original authors is Jewish by birth).
    You may ask the original authors for details yourself.
    Both of them are very busy though, so do not expect a prompt reply.
- </para></formalpara></answer></qandaentry>
+ </para></answer></qandaentry>
 
 <qandaentry id="faq-menorah-current"><question id="faq-menorah-current-q">
   <simpara>Shouldn't the logo be changed now due to the current
@@ -383,7 +384,9 @@ further explanations of the issues could be provided).</para>
 
 <qandadiv id="faq-trouble"><title>Troubles</title>
 
-<qandaentry id="faq-enc-err"><question id="faq-enc-err-q"><para>What do
+<qandaentry id="faq-enc-err">
+ <blockinfo><title>What do charset errors mean?</title></blockinfo>
+ <question id="faq-enc-err-q"><para>What do
    these messages mean: <quote><computeroutput>invalid byte #x94 in
     CHARSET:ASCII conversion</computeroutput></quote> and
    <quote><computeroutput>character #\u00B3 cannot be represented in the
@@ -437,43 +440,41 @@ further explanations of the issues could be provided).</para>
 <answer><para>&clisp; has <link linkend="vm"><emphasis>two</emphasis>
    stacks</link>, the <quote>program stack</quote> and the <quote>lisp
    stack</quote>, and both may occasionally overflow.</para>
+ <itemizedlist><title>Avoiding stack overflow: Generic</title>
+  <listitem><simpara>You will always get a stack
+    overflow when you try to print a circular object (list or
+    structure) and &print-circle-var; is &nil;.
+    Just set &print-circle-var; to &t;.</simpara></listitem>
+  <listitem><simpara>You will always get a stack overflow on infinite
+    recursion.</simpara></listitem>
+  <listitem><simpara>Some simple functions (like
+    <ulink url="http://en.wikipedia.org/wiki/Ackermann_function">Ackermann's</ulink>)
+    recurse more than you might expect and can run out of stack on
+    relatively small inputs.</simpara></listitem>
+  <listitem><simpara>Compiled code uses less stack (and memory) and is
+    faster.</simpara></listitem>
+  <listitem><simpara>If you really do need more Lisp stack, you can
+    increase it by telling &clisp; to
+    <olink targetdoc="man" targetptr="opt-memsize">pre-allocate more
+     memory</olink>.</simpara></listitem>
+  <listitem><simpara>If you get a segmentation fault after (or instead
+    of) a <quote>program stack overflow</quote> message, please make
+    sure that you had &libsigsegv; installed when you configured and
+    built &clisp;.</simpara></listitem></itemizedlist>
 
-<formalpara><title>Avoiding stack overflow: Generic</title>
- <para><itemizedlist><listitem><simpara>You will always get a stack
-     overflow when you try to print a circular object (list or
-     structure) and &print-circle-var; is &nil;.
-     Just set &print-circle-var; to &t;.</simpara></listitem>
-   <listitem><simpara>You will always get a stack overflow on infinite
-     recursion.</simpara></listitem>
-   <listitem><simpara>Some simple functions (like
-     <ulink url="http://en.wikipedia.org/wiki/Ackermann_function">Ackermann's</ulink>)
-     recurse more than you might expect and can run out of stack on
-     relatively small inputs.</simpara></listitem>
-   <listitem><simpara>Compiled code uses less stack (and memory) and is
-     faster.</simpara></listitem>
-   <listitem><simpara>If you really do need more Lisp stack, you can
-     increase it by telling &clisp; to
-     <olink targetdoc="man" targetptr="opt-memsize">pre-allocate more
-      memory</olink>.</simpara></listitem>
-   <listitem><simpara>If you get a segmentation fault after (or instead
-     of) a <quote>program stack overflow</quote> message, please make
-     sure that you had &libsigsegv; installed when you configured and
-     built &clisp;.</simpara></listitem></itemizedlist></para></formalpara>
+<variablelist><title>Avoiding stack overflow: Platform-specific</title>
+ <varlistentry><term>&win32-only;</term>
+  <listitem><simpara><ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=1785942">modify SYSTEM.INI or change PIF that you use to invoke &clisp;</ulink> or
+    <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=1662294">set program stack using editbin</ulink> (answered on &clisp-list;)</simpara></listitem></varlistentry>
+ <varlistentry><term>&unix-only;</term>
+  <listitem><simpara>Increase program stack with <command>ulimit
+     -s</command> (or <command>limit stacksize</command> if you are using
+    <ulink url="http://www.faqs.org/faqs/unix-faq/shell/csh-whynot/"
+           ><literal>csh</literal></ulink>) to at least 8 MB.
+</simpara></listitem></varlistentry></variablelist></answer></qandaentry>
 
-<formalpara><title>Avoiding stack overflow: Platform-specific</title>
-<para><variablelist><varlistentry><term>&win32-only;</term>
-   <listitem><simpara><ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=1785942">modify SYSTEM.INI or change PIF that you use to invoke &clisp;</ulink> or
-     <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=1662294">set program stack using editbin</ulink> (answered on &clisp-list;)</simpara></listitem></varlistentry>
-  <varlistentry><term>&unix-only;</term>
-   <listitem><simpara>Increase program stack with <command>ulimit
-      -s</command> (or <command>limit stacksize</command> if you are using
-     <ulink url="http://www.faqs.org/faqs/unix-faq/shell/csh-whynot/"
-            ><literal>csh</literal></ulink>) to at least 8 MB.
-</simpara></listitem></varlistentry></variablelist></para></formalpara>
-</answer></qandaentry>
-
-<qandaentry id="faq-self-mod"><question id="faq-self-mod-q"><simpara>Why
-   does my program return different values on each
+<qandaentry id="faq-self-mod"><question id="faq-self-mod-q">
+  <simpara>Why does my program return different values on each
    invocation?</simpara></question>
 <answer><para>The following code modifies itself:
 <programlisting language="lisp">(let ((var '(a b c)))
@@ -509,7 +510,9 @@ trying to &nconc; a circular list).</para>
 </screen>and re-&make;.</para></answer></qandaentry>
 
 
-<qandaentry id="faq-fp"><question id="faq-fp-q"><para>Why don't floating
+<qandaentry id="faq-fp">
+ <blockinfo><title>Is floating point arithmetics broken?</title></blockinfo>
+ <question id="faq-fp-q"><para>Why don't floating
    point arithmetics return what I want?<programlisting language="lisp">
 (- 1.1 0.9)
 <computeroutput>0.20000005</computeroutput>
@@ -522,11 +525,11 @@ trying to &nconc; a circular list).</para>
  </para>
 <para>See also <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=12445006">this message</ulink> in &clisp-list;.</para>
 
-<para>PS. If you want <emphasis>exact</emphasis> calculations, use
- &rational-t;s:<programlisting language="lisp">
+<formalpara><title>PS.</title><para>If you want <emphasis>exact</emphasis>
+ calculations, use &rational-t;s:<programlisting language="lisp">
 (- 11/10 9/10)
 <computeroutput>1/5</computeroutput>
-</programlisting></para></answer></qandaentry>
+</programlisting></para></formalpara></answer></qandaentry>
 
 
 <qandaentry id="faq-other-problem"><question id="faq-other-problem-q">
