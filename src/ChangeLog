@@ -1,5 +1,9 @@
 2005-08-10  Sam Steingold  <sds@gnu.org>
 
+	* m4/onceonly.m4: use gnulib/m4/onceonly_2_57.m4
+
+2005-08-10  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (char-invertcase, string-invertcase)
 	(nstring-invertcase): export
 	* charstrg.d (STRING-INVERTCASE): accept :START and :END
