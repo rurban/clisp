@@ -2049,9 +2049,8 @@ global chart invert_case (chart ch) {
   return ch;
 }
 
-/* (SYS::CHAR-INVERTCASE char) */
 LISPFUNNF(char_invertcase,1)
-{
+{ /* (EXT:CHAR-INVERTCASE char) */
   var object arg = check_char(popSTACK());
   VALUES1(code_char(invert_case(char_code(arg))));
 }
@@ -2161,14 +2160,6 @@ global maygc object string_invertcase (object string) {
   DBGREALLOC(string);
   return string;
 }
-
-/* (SYS::STRING-INVERTCASE string) */
-LISPFUNNR(string_invertcase,1)
-{
-  var object arg = check_string(popSTACK());
-  VALUES1(string_invertcase(arg));
-}
-
 
 /* error, if index-argument is not an integer. */
 nonreturning_function(local, fehler_int, (object kw, object obj)) {
@@ -3616,6 +3607,29 @@ LISPFUN(string_capitalize,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   test_1_stringsym_limits(false,&string,&offset,&len);
   pushSTACK(string);
   nstring_capitalize(string,offset,len);
+  string = popSTACK();
+  sstring_un_realloc(string);
+  VALUES1(string);
+}
+
+LISPFUN(nstring_invertcase,seclass_default,1,0,norest,key,2,
+        (kw(start),kw(end)) )
+{ /* (EXT:NSTRING-INVERTCASE string :start :end) */
+  var stringarg arg;
+  var object string = test_string_limits_rw(&arg);
+  pushSTACK(string);
+  nstring_invertcase(arg.string,arg.offset+arg.index,arg.len);
+  VALUES1(popSTACK());
+}
+
+LISPFUN(string_invertcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
+{ /* (EXT:STRING-INVERTCASE string :start :end) */
+  var object string;
+  var uintL offset;
+  var uintL len;
+  test_1_stringsym_limits(false,&string,&offset,&len);
+  pushSTACK(string);
+  nstring_invertcase(string,offset,len);
   string = popSTACK();
   sstring_un_realloc(string);
   VALUES1(string);

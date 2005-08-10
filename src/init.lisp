@@ -337,6 +337,7 @@
    int-char char-bits char-font char-bit set-char-bit char-key
    base-char-code-limit char-font-limit char-bits-limit char-control-bit
    char-meta-bit char-super-bit char-hyper-bit string-char-p
+   char-invertcase string-invertcase nstring-invertcase
    long-float-digits package-lock hash-table-weak-p weak-key-value-table
    the-environment arglist getenv special-variable-p
    list-length-dotted list-length-proper

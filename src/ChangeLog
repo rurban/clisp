@@ -1,3 +1,15 @@
+2005-08-10  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (char-invertcase, string-invertcase)
+	(nstring-invertcase): export
+	* charstrg.d (STRING-INVERTCASE): accept :START and :END
+	(NSTRING-INVERTCASE): implemented
+	* constsym.d (NSTRING-INVERTCASE): added
+	(char-invertcase, string-invertcase): moved from SYS to EXT
+	* subr.d (string-invertcase): accept :START and :END
+	(nstring-invertcase): added
+	* subrkw.d (string-invertcase, nstring-invertcase): added
+
 2005-08-05  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (compile-file): put source line number into the
