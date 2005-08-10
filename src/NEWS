@@ -17,6 +17,11 @@ User visible changes
   CLISP-compiled file with a compatible bytecode format.
   See <http://clisp.cons.org/impnotes.html#compiled-file-p> for details.
 
+* New functions EXT:CHAR-INVERTCASE, EXT:STRING-INVERTCASE and
+  EXT:NSTRING-INVERTCASE invert case of characters and strings.
+  See <http://clisp.cons.org/impnotes.html#char-invertcase> and
+  <http://clisp.cons.org/impnotes.html#string-invertcase> for details.
+
 
 
 2.34 (2005-07-20)

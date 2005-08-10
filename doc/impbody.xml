@@ -53,6 +53,14 @@
 <chapter id="syntax"><title>Syntax
    <ulink url="&clhs;/Body/chap-2.html">[CLHS-2]</ulink></title>
 
+<section id="std-char"><title>Standard Characters
+  <ulink url="&clhs;/Body/sec_2-1-3.html">[CLHS-2.1.3]</ulink></title>
+
+<para>The standard characters are &nl-s; and the
+ <link linkend="graph-char">graphic characters</link>
+ with a &code-char; between 32 and 126 (inclusive).</para>
+</section>
+
 <section id="reader-alg"><title>Reader Algorithm
    <ulink url="&clhs;/Body/sec_2-2.html">[CLHS-2.2]</ulink></title>
 
@@ -2161,12 +2169,28 @@ can give problems:
    <ulink url="&clhs;/Body/sec_13-1-4-2.html">[CLHS-13.1.4.2]</ulink></title>
 
 <para>The alphabetic characters are those &unicode; characters which are
- defined as letters by the &unicode; standard.</para>
+ defined as letters by the &unicode; standard, e.g., the &ascii; characters
+<literallayout>             ABCDEFGHIJKLMNOPQRSTUVWXYZ
+             abcdefghijklmnopqrstuvwxyz
+</literallayout>
+and the international alphabetic characters from the character set:
+<literallayout>             &Ccedil;&uuml;&eacute;&acirc;&auml;&agrave;&aring;&ccedil;&ecirc;&euml;&egrave;&iuml;&icirc;&igrave;&Auml;&Aring;&Eacute;&aelig;&AElig;&ocirc;&ouml;&ograve;&ucirc;&ugrave;&yuml;&Ouml;&Uuml;&szlig;&aacute;&iacute;&oacute;&uacute;&ntilde;&Ntilde;&ordf;&ordm;&atilde;&otilde;&Oslash;&oslash;&Agrave;&Atilde;&Otilde; etc.
+</literallayout></para>
 
 </section>
 
+<section id="char-case"><title>Characters With Case
+   <ulink url="&clhs;/Body/sec_13-1-4-3.html">[CLHS-13.1.4.3]</ulink></title>
+
+<section id="char-invertcase"><title>Function &char-invertcase;</title>
+<para><code>(&char-invertcase; &ch-r;)</code> returns the corresponding
+ character in the other case for &char;, i.e., &char-upcase; for a
+ lowercase character and &char-downcase; for an uppercase character; for
+ a character that does not have a case attribute, the argument is returned.
+ See also &string-invertcase; and &nstring-invertcase;.</para></section>
+
 <section id="char-ext"><title>Case of Implementation-Defined Characters
-   <ulink url="&clhs;/Body/sec_13-1-4-3-4.html">[CLHS-13.1.4.3.4]</ulink></title>
+  <ulink url="&clhs;/Body/sec_13-1-4-3-4.html">[CLHS-13.1.4.3.4]</ulink></title>
 
 <para>The characters with case are those &unicode; characters &c-r;, for
  which the upper case mapping &uc-r; and the lower case mapping &lc-r;
@@ -2185,6 +2209,8 @@ can give problems:
 
 </section>
 
+</section>
+
 <section id="num-char"><title>Numeric Characters
    <ulink url="&clhs;/Body/sec_13-1-4-4.html">[CLHS-13.1.4.4]</ulink></title>
 
@@ -2197,6 +2223,10 @@ can give problems:
    <ulink url="&clhs;/Body/sec_13-1-6.html">[CLHS-13.1.6]</ulink></title>
 
 <para>The characters are ordered according to their &unicode; code.</para>
+
+<para>The functions &char-equal; &char-not-equal;, &char-lessp;,
+ &char-greaterp;, &char-not-greaterp;, &char-not-lessp; ignore bits and
+ font attributes of their arguments.</para>
 
 </section>
 
@@ -2279,6 +2309,8 @@ can give problems:
 <section id="char-dict"><title>The Characters Dictionary
    <ulink url="&clhs;/Body/sec_the_chara_s_dictionary.html">[CLHS-13.2]</ulink></title>
 
+<section id="char-code"><title>Function &char-code;</title>
+
 <para>&char-code; takes values from &zero; (inclusive) to
  &char-code-limit; (exclusive), i.e., the implementation
  supports exactly &char-code-limit; characters.</para>
@@ -2293,41 +2325,22 @@ can give problems:
              <entry>2<superscript>8</superscript> = 256</entry>
              <entry>17 * 2<superscript>16</superscript> = 1114112</entry></row>
 </tbody></tgroup></table>
-
-<para>The types <classname>EXT:STRING-CHAR</classname> and
- &base-char-t; are equivalent to &character-t;.</para>
-
-<para>The &graphic; characters have been described
- <link linkend="graph-char">above</link>.</para>
-
-<para>The standard characters are &nl-s; and the graphic characters with
- a code between 32 and 126 (inclusive).</para>
-
-<para>The alphabetic characters are these characters:
-<literallayout>             ABCDEFGHIJKLMNOPQRSTUVWXYZ
-             abcdefghijklmnopqrstuvwxyz
-</literallayout>
-and the international alphabetic characters from the character set:
-<literallayout>             &Ccedil;&uuml;&eacute;&acirc;&auml;&agrave;&aring;&ccedil;&ecirc;&euml;&egrave;&iuml;&icirc;&igrave;&Auml;&Aring;&Eacute;&aelig;&AElig;&ocirc;&ouml;&ograve;&ucirc;&ugrave;&yuml;&Ouml;&Uuml;&szlig;&aacute;&iacute;&oacute;&uacute;&ntilde;&Ntilde;&ordf;&ordm;&atilde;&otilde;&Oslash;&oslash;&Agrave;&Atilde;&Otilde; etc.
-</literallayout></para>
-
-<para>The functions &char-equal; &char-not-equal;, &char-lessp;,
- &char-greaterp;, &char-not-greaterp;, &char-not-lessp; ignore bits and
- font attributes of their arguments.</para>
-
 </section>
 
-<section id="char-width"><title>Functions on characters</title>
+<section id="base-char"><title>Type &base-char-t;</title>
+<para>The types <classname>EXT:STRING-CHAR</classname> (removed by
+ &iss026;) and &base-char-t; are equivalent to &character-t;.</para>
+</section>
 
-<formalpara><title>Function <code>(&char-width; &ch-r;)</code></title>
-<para>returns the number of screen columns occupied by &ch-r;.
+<section id="char-width"><title>Function &char-width;</title>
+<para><code>(&char-width; &ch-r;)</code> returns the number of screen
+ columns occupied by &ch-r;.
  This is 0 for non-spacing characters
-  (such as control characters and many combining characters),
+ (such as control characters and many combining characters),
  2 for double-width East Asian characters,
  and 1 for all other characters.
  See also function &string-width;.
-</para></formalpara>
-
+</para></section>
 </section>
 
 <section id="char-platform-dep"><title>Platform-Dependent Characters</title>
@@ -2560,6 +2573,14 @@ and the international alphabetic characters from the character set:
  of the &string-r;'s characters:<programlisting language="lisp">
 (&reduce; #'&plus; &string-r; &key-k; #'&char-width;)
 </programlisting></para></section>
+
+<section id="string-invertcase"><title>Functions &string-invertcase;
+  and &nstring-invertcase;</title>
+<para><code>(&string-invertcase; &string-r; &key-amp; &start-r; &end-r;)</code>
+ and <code>(&nstring-invertcase; &string-r; &key-amp; &start-r; &end-r;)</code>
+ are similar to &string-upcase; et al: they use &char-invertcase; to
+ invert the case of each characters in the argument string region.</para>
+</section>
 
 </section>
 </chapter>
