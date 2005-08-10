@@ -1,7 +1,7 @@
 /*
  * List of all the SUBRs with Keywords
  * Bruno Haible 1990-2004
- * Sam Steingold 1998-2004
+ * Sam Steingold 1998-2005
  */
 
 v(7, (kw(adjustable),kw(element_type),kw(initial_element),
@@ -46,6 +46,8 @@ s(nstring_downcase)
 s(string_downcase)
 s(nstring_capitalize)
 s(string_capitalize)
+s(nstring_invertcase)
+s(string_invertcase)
 s(write_string)
 s(write_line)
 s(coerced_subseq)

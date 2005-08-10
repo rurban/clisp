@@ -177,6 +177,7 @@
 <!ENTITY ch-meta "<link linkend='char-bits'><constant>EXT:CHAR-META-BIT</constant></link>">
 <!ENTITY ch-super "<link linkend='char-bits'><constant>EXT:CHAR-SUPER-BIT</constant></link>">
 <!ENTITY char-width "<link linkend='char-width'><function>EXT:CHAR-WIDTH</function></link>">
+<!ENTITY char-invertcase "<link linkend='char-invertcase'><function>EXT:CHAR-INVERTCASE</function></link>">
 <!ENTITY char-key "<link linkend='with-kbd'><function>EXT:CHAR-KEY</function></link>">
 <!ENTITY cur-frame "<link linkend='cur-frame'>current stack frame</link>">
 <!ENTITY no-prim "<link linkend='no-prim'><function>CLOS:NO-PRIMARY-METHOD</function></link>">
@@ -359,6 +360,8 @@
 <!ENTITY st-uc "<link linkend='st-uc'><function>GRAY:STREAM-UNREAD-CHAR</function></link>">
 <!ENTITY st-wc "<link linkend='st-wc'><function>GRAY:STREAM-WRITE-CHAR</function></link>">
 <!ENTITY string-width "<link linkend='string-width'><function>EXT:STRING-WIDTH</function></link>">
+<!ENTITY string-invertcase "<link linkend='string-invertcase'><function>EXT:STRING-INVERTCASE</function></link>">
+<!ENTITY nstring-invertcase "<link linkend='string-invertcase'><function>EXT:NSTRING-INVERTCASE</function></link>">
 <!ENTITY suppress-check-redef "<link linkend='suppress-check-redef'><varname>CUSTOM:*SUPPRESS-CHECK-REDEFINITION*</varname></link>">
 <!ENTITY sys-pack-list "<link linkend='pack-lock'><varname>CUSTOM:*SYSTEM-PACKAGE-LIST*</varname></link>">
 <!ENTITY term-enc "<olink targetdoc='impnotes' targetptr='term-enc'><varname>CUSTOM:*TERMINAL-ENCODING*</varname></olink>">
