@@ -18,6 +18,6 @@
           (setq cs-sym standard-sym)))
       (export (list cs-sym) cs-cl-package))))
 
-;; #<PACKAGE CS-COMMON-LISP-USER> is default case-sensitive user package.
+;; #<PACKAGE CS-COMMON-LISP-USER> is the default case-sensitive user package.
 (use-package '("CS-COMMON-LISP" "EXT") "CS-COMMON-LISP-USER")
 (pushnew "CS-COMMON-LISP" custom:*system-package-list* :test #'string=)
