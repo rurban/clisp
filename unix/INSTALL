@@ -171,7 +171,7 @@ some platforms can be found in file unix/PLATFORMS.
    If you build with some modules, you can test those of them that come
    with a test suite with:
 
-         make full-check
+         make mod-check
 
    Note that the modules may use external libraries, and test failures
    may indicate bugs in those libraries rather than in CLISP.
