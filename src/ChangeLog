@@ -1,3 +1,7 @@
+2005-08-11  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (DEVPREFIX): simplified
+
 2005-08-10  Sam Steingold  <sds@gnu.org>
 
 	* m4/onceonly.m4: use gnulib/m4/onceonly_2_57.m4
