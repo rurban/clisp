@@ -210,7 +210,7 @@ ignored by the interpreter.</para>
  <code>(&ftype-dec; &type-r; &func-r; ...)</code>,
    are ignored by both the interpreter and the compiler.</para>
 
-<section id="safety-decl"><title>Declaration &safety-dec;.</title>
+<section id="safety-decl"><title>Declaration &safety-dec;</title>
 <para>Declaration <code>(&optimize-dec; (&safety-dec; 3))</code>
  results in <quote>safe</quote> compiled code: function calls are never
  eliminated. This guarantees the semantics described in
@@ -2491,8 +2491,7 @@ and the international alphabetic characters from the character set:
 <section id="cons-dict"><title>The Conses Dictionary
    <ulink url="&clhs;/Body/sec_the_conses_dictionary.html">[CLHS-14.2]</ulink></title>
 
-<section id="map-func">
-   <title>Functions &mapcar;, &mapcan;, &maplist;, &mapcon;, ...</title>
+<section id="map-func"><title>Mapping Functions</title>
 
 <formalpara id="mapcap"><title>Function &mapcap;</title>
 <para>The function &mapcap; is like &mapcan;, except that it
@@ -2775,7 +2774,7 @@ checks whether the &hash-table-t; is weak.</para>
 <para>See also <xref linkend="weak-ht"/>.</para>
 
 <section id="hashtable-gc-rehash">
- <title>Interaction between &hash-table-t;s and &gc;ion.</title>
+ <title>Interaction between &hash-table-t;s and &gc;ion</title>
 
 <para>When a hash table contains keys to be compared by identity - such
  as &number-t;s in &hash-table-t;s with the &hash-table-test; &eq;;
@@ -2955,7 +2954,7 @@ checks whether the &hash-table-t; is weak.</para>
  characters are allowed in the strings, and &name-r; &eq; &nil; may not
  be allowed either.</para>
 
-<section id="path-dir-canon"><title>Directory canonicalization.</title>
+<section id="path-dir-canon"><title>Directory canonicalization</title>
 <para>As permitted by the &make-pathname; specification, the &pathname-t;
  directory component is canonicalized when the pathname is constructed:
  <orderedlist>
@@ -2971,7 +2970,7 @@ checks whether the &hash-table-t; is weak.</para>
 </para>
 </section>
 
-<section id="path-platform-specific"><title>Platform-specific issues.</title>
+<section id="path-platform-specific"><title>Platform-specific issues</title>
 
 <!-- #ifdef PATHNAME_UNIX -->
 <variablelist>
@@ -3049,7 +3048,7 @@ checks whether the &hash-table-t; is weak.</para>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_NOEXT -->
-<formalpara id="name-type-split"><title>Name/type namestring split.</title>
+<formalpara id="name-type-split"><title>Name/type namestring split</title>
 <para><variablelist>
 <varlistentry><term>&unix-w32-only;</term>
 <listitem><para>A filename is split into name and type according to the
@@ -3096,7 +3095,7 @@ checks whether the &hash-table-t; is weak.</para>
   Components of a Logical Pathname</ulink>.</para>
 </section>
 
-<section id="path-external-notation"><title>External notation.</title>
+<section id="path-external-notation"><title>External notation</title>
 
 <para>External notation of pathnames (cf. &parse-namestring; and
  &namestring;), of course without spaces, [,],{,}:</para>
@@ -3460,7 +3459,7 @@ pointing to non-existent files and can take the following values:
 
 </section>
 
-<section id="terminal"><title>Terminal interaction.</title>
+<section id="terminal"><title>Terminal interaction</title>
 
 <para>See also <xref linkend="screen"/>.</para>
 

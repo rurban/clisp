@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <section id="mop-chap"><title>Meta-Object Protocol</title>
-<subtitle>Adapted from chapters 5 and 6 of &amop;.</subtitle>
+<subtitle>Adapted from chapters 5 and 6 of &amop;</subtitle>
 
 <section id="mop-intro"><title>Introduction</title>
 
@@ -431,7 +431,7 @@ has a <quote>no</quote> in this column.</para>
   from &standard-method-t;.</simpara></note>
 
 <note><title>Implementation dependent: only in &clisp; and some
-  other implementations.</title>
+  other implementations</title>
  <simpara>The class &funcallable-standard-object-t;'s class
   precedence list contains &function-t; before &standard-object-t;, not
   after &standard-object-t;.
@@ -1918,7 +1918,7 @@ dependents of the &c-mo; will be updated by calling
 
 <section id="compute-dsd-initargs">
  <title>Generic Function &compute-dsd-initargs;</title>
- <subtitle>Implementation dependent: only in &clisp;.</subtitle>
+ <note>&clisp-only;<simpara/></note>
 
 <variablelist><varlistentry><term>Syntax</term>
   <listitem><simpara><code>(&compute-dsd-initargs; &class-r; &rest-amp;
@@ -2124,7 +2124,7 @@ dependents of the &c-mo; will be updated by calling
 
 <section id="compute-esd-initargs">
  <title>Generic Function &compute-esd-initargs;</title>
- <subtitle>Implementation dependent: only in &clisp;.</subtitle>
+ <note>&clisp-only;<simpara/></note>
 
 <variablelist><varlistentry><term>Syntax</term>
  <listitem><simpara><code>(&compute-esd-initargs; &class-r; &dsds-r;)
@@ -2414,7 +2414,7 @@ that was associated with the &sdmo; during initialization.</para></section>
 
 <section id="slotd-mo-readers-methods"><title>Methods</title>
 
-<variablelist><title>The specified methods for the &sdmo; readers.</title>
+<variablelist><title>The specified methods for the &sdmo; readers</title>
  <varlistentry>
   <term><literal role="method">(&slotdef-name;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
@@ -2730,7 +2730,7 @@ initialization or reinitialization.</para></section>
 <section id="gf-name-methods"><title>Methods</title>
 
 <variablelist><title>The specified methods for the &gfmo; reader generic
-  functions.</title>
+  functions</title>
 <varlistentry>
  <term><literal role="method">(&gf-name;
    (&gf-r; &standard-generic-function-t;))</literal></term>
@@ -3461,7 +3461,7 @@ their own memoization scheme.</para></simplesect>
 
 <section id="compute-effective-method-as-function">
  <title>Function &compute-effective-method-as-function;</title>
-<subtitle>Implementation dependent: only in &clisp;.</subtitle>
+ <note>&clisp-only;<simpara/></note>
 <variablelist><varlistentry><term>Syntax</term>
  <listitem><simpara><code>(&compute-effective-method-as-function;
     &gf-r; &methods-r; &args-r;)</code></simpara></listitem></varlistentry>
@@ -3611,7 +3611,7 @@ override the system's definitions.</para>
 </informalexample>
 
 <note>&clisp-only;<formalpara id="no-make-method-lambda">
-  <title>The generic function &make-method-lambda; is not implemented.</title>
+  <title>The generic function &make-method-lambda; is not implemented</title>
   <para>Its specification is misdesigned: it mixes &compile-time; and
    &exec-time; behaviour. The essential problem is: where could the
    generic-function argument come from?
@@ -3809,7 +3809,7 @@ with the method during initialization.</para></section>
 <section id="mop-meth-mo-readers-methods"><title>Methods</title>
 
 <variablelist>
- <title>The specified methods for the &m-mo; readers.</title>
+ <title>The specified methods for the &m-mo; readers</title>
 <varlistentry>
  <term><literal role="method">(&method-specializers;
    (&method-r; &standard-method-t;))</literal></term>
@@ -4033,7 +4033,7 @@ is comparable to the method definition shown
 
 <section id="mop-meth-efficiency"><title>Efficiency</title>
  <subtitle>Implementation dependent: only in &clisp; and some other
-  implementations.</subtitle>
+  implementations</subtitle>
  <simpara>Methods created through &defmethod; have a faster calling
   convention than methods created through a portable &make-instance;
   invocation.</simpara>
@@ -4268,7 +4268,7 @@ the &dsdmo; that defined this method.  This is the value of the
 initialization.</para>
 
 <variablelist><title>The specified methods for the accessor &m-mo;
-  readers.</title>
+  readers</title>
 <varlistentry><term><literal role="method">(&accessor-method-slotdef;
    (&method-r; &standard-accessor-method-t;))</literal></term>
  <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
@@ -5438,7 +5438,7 @@ cache of the dependent when it is updated.</para>
 </section><!-- mop-dep-maint-protocol -->
 </section><!-- mop-dep-maint -->
 
-<section id="mop-clisp"><title>Deviations from &amop;.</title>
+<section id="mop-clisp"><title>Deviations from &amop;</title>
 
 <para>This section lists the differences between the &amop; and the
 &clisp; implementation thereof.</para>

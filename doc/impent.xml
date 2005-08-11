@@ -849,7 +849,7 @@
 <!ENTITY err-sig "&error-t; is &signal;ed">
 <!ENTITY sig-err "&signal;s an &error-t;">
 
-<!ENTITY clisp-only "<title>Implementation dependent: only in &clisp;.</title>">
+<!ENTITY clisp-only "<title>Implementation dependent: only in &clisp;</title>">
 <!ENTITY win32-only "<emphasis role='plat-dep'>&win32; platform only.</emphasis>">
 <!ENTITY unix-only "<emphasis role='plat-dep'>&unix; platform only.</emphasis>">
 <!ENTITY unix-w32-only "<emphasis role='plat-dep'>&unix;, &win32; platforms only.</emphasis>">

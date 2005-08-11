@@ -3,10 +3,10 @@
 <chapter id="ext-p-indep"><title>Platform Independent Extensions</title>
 
 <section id="custom-init-fini"><title>Customizing &clisp; Process
-  Initialization and Termination.</title>
+  Initialization and Termination</title>
 
 <section id="cradle-grave"><title>Cradle to Grave</title>
-<subtitle>What is done when.</subtitle>
+<subtitle>What is done when</subtitle>
 <procedure><step><title>Initialization</title>
  <substeps><step><simpara>Load the &mem-image;.</simpara></step>
   <step><simpara>Install internal signal handlers.</simpara></step>
@@ -686,7 +686,7 @@ English, German, French, Spanish, Dutch and Russian.
 
 </section>
 
-<section id="make-encoding"><title>Function &make-encoding;.</title>
+<section id="make-encoding"><title>Function &make-encoding;</title>
 
 <para>The function <code>(&make-encoding; &key-amp; :CHARSET
      :LINE-TERMINATOR :INPUT-ERROR-ACTION :OUTPUT-ERROR-ACTION)</code>
@@ -711,7 +711,7 @@ English, German, French, Spanish, Dutch and Russian.
 
 </section>
 
-<section id="enc-charset"><title>Function &enc-charset;.</title>
+<section id="enc-charset"><title>Function &enc-charset;</title>
 <subtitle>&unicode-only;</subtitle>
 
 <para>The function <code>(&enc-charset; &encoding-r;)</code> returns the
@@ -722,7 +722,7 @@ English, German, French, Spanish, Dutch and Russian.
 
 </section>
 
-<section id="enc-dflt"><title>Default encodings.</title>
+<section id="enc-dflt"><title>Default encodings</title>
 
 <para>Besides every &file-pipe-socket-s; containing an encoding,
  the following &symbol-macro; places contain global &encoding;s:</para>
@@ -1609,7 +1609,7 @@ here <function>WITH-FOO</function> does not receive the
 
 </section>
 
-<section id="customize"><title>Customizing &clisp; behavior.</title>
+<section id="customize"><title>Customizing &clisp; behavior</title>
 
 <para>The user-customizable variables are located in the package
  &custom-pac; and thus can be listed using
@@ -1821,7 +1821,7 @@ here <function>WITH-FOO</function> does not receive the
 <section id="modules"><title>External Modules</title>
 <subtitle>&unix-w32-only;</subtitle>
 
-<note id="mod-win32"><title>Modules on &win32;.</title>
+<note id="mod-win32"><title>Modules on &win32;</title>
  <para>Everything described in the section will work verbatim on &win32;
   when using &cygwin; or &mingw;, <emphasis>except</emphasis> for one
   thing - you will need to replace the <filename>run</filename>
@@ -1988,7 +1988,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 </section>
 
-<section id="modinit"><title>Module initialization.</title>
+<section id="modinit"><title>Module initialization</title>
 
 <para>Each module has two initialization functions:
 <variablelist><varlistentry>
@@ -2019,7 +2019,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <para>See also <xref linkend="custom-init-fini"/>.</para>
 </section>
 
-<section id="modfini"><title>Module finalization.</title>
+<section id="modfini"><title>Module finalization</title>
 
 <para>Each module has a finalization function
 <variablelist><varlistentry>
@@ -2196,7 +2196,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 </section>
 
 <section id="included-modules">
-   <title>Modules included in the source distribution.</title>
+   <title>Modules included in the source distribution</title>
 
 <para>The following modules come with the <emphasis>source</emphasis>
  distribution of &clisp; (but are not necessarily built in a
@@ -2335,7 +2335,7 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
 </simpara></note>
 
 <variablelist><title>High-level &ffi-pac; forms; &name-r; is any Lisp
-   &symbol-t;; &cname-r; is a &string-t;.</title>
+   &symbol-t;; &cname-r; is a &string-t;</title>
 <varlistentry id="def-c-type">
  <term><code>(&def-c-type; &name-r; &ctype-r;)</code></term>
  <listitem><simpara>This form makes &name-r; a shortcut for &ctype-r;.
@@ -2865,7 +2865,7 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
 
 </variablelist>
 
-<variablelist id="dffi-low"><title>Low-level &ffi-pac; forms.</title>
+<variablelist id="dffi-low"><title>Low-level &ffi-pac; forms</title>
 <varlistentry id="memory-as">
  <term><code>(&memory-as; &addr-r; &type-r; &optional-amp;
    &offset-r;)</code></term>
@@ -3082,7 +3082,7 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
 
 </section>
 
-<section id="c-flavor"><title>The choice of the &c-lang; flavor.</title>
+<section id="c-flavor"><title>The choice of the &c-lang; flavor</title>
 
 <para>&c-function;, &def-call-in;, &def-call-out; take a &lang-k; argument.
 The &lang-r; is either &c-k; (denotes K&amp;R &c-lang;) or &stdc-k;
@@ -3624,7 +3624,7 @@ int CallInFunc(LispFunc f) {
 </example>
 
 <example id="dffi-dll-var">
- <title>Accessing variables in shared libraries.</title>
+ <title>Accessing variables in shared libraries</title>
 
 <para>Suppose one wants to access and modify variables that reside in
  shared libraries:
@@ -3686,7 +3686,7 @@ double test_dll(struct bar *ptr)
 
 </example>
 
-<example id="ex-dffi-validity"><title>Controlling validity of resources.</title>
+<example id="ex-dffi-validity"><title>Controlling validity of resources</title>
 
 <para>&set-foreign-pointer; is useful in conjunction with <code>(&setf;
   &validp;)</code> to limit the extent of external resources.
@@ -3717,7 +3717,7 @@ double test_dll(struct bar *ptr)
   implemented in the <link linkend="berkeley-db">berkeley-db</link>
   module, see <xref linkend="bdb-close"/>.</para></note></para></example>
 
-<example id="ex-dffi-float"><title>Float point array computations.</title>
+<example id="ex-dffi-float"><title>Float point array computations</title>
 <para>Save this code into <filename>sum.c</filename>:
 <programlisting language="C">
 double sum (int len, double *vec) {
@@ -4826,7 +4826,7 @@ EOF
 </section>
 </section>
 
-<section id="getenv"><title>Operating System Environment.</title>
+<section id="getenv"><title>Operating System Environment</title>
 
 <para>Most modern operating systems support &env-var;s that associate
  strings (<quote>variables</quote>) with other strings
