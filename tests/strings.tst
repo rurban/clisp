@@ -1246,5 +1246,5 @@ error
 (symbolp (make-symbol (make-array 0 :element-type nil))) T
 (string= "" (make-array 0 :element-type nil))            T
 
-#+clisp (string-invertcase "AbCbEfGh" :start 1 :end 5)
+#+clisp (string-invertcase "AbCdEfGh" :start 1 :end 5)
 #+clisp "ABcDefGh"
