@@ -761,10 +761,10 @@
 </chapter>
 
 <chapter id="gc"><title>Overview of &clisp;'s Garbage Collection</title>
- <subtitle>These are internals, which are of interest only to the
-  &clisp; developers.
-  If you are not subscribed to &clisp-devel;,
-  this chapter is probably not for you.</subtitle>
+
+ <abstract><simpara>These are internals, which are of interest only to the
+   &clisp; developers.  If you are not subscribed to &clisp-devel;, this
+   chapter is probably not for you.</simpara></abstract>
 
 <section id="internals-intro"><title>Introduction</title>
 
@@ -1131,7 +1131,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 </section>
 </chapter>
 
-<chapter id="extend"><title>Extending &clisp;.</title>
+<chapter id="extend"><title>Extending &clisp;</title>
 
 <epigraph><attribution><ulink url="http://www.franz.com/~jkf/">John
   Foderaro</ulink></attribution>
@@ -1151,7 +1151,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  to access &c-lang; libraries in an easy way (including creating
  &foreign-function;s dynamically).</para></note>
 
-<section id="add-fun"><title>Adding a built-in function.</title>
+<section id="add-fun"><title>Adding a built-in function</title>
 
 <para>In the rare cases when you really need to modify &clisp;
  internals and add a truly built-in function, you should read the
@@ -1187,7 +1187,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  use &module;s and/or &ffi-pac; instead of adding built-ins directly.
 </para></section>
 
-<section id="add-var"><title>Adding a built-in variable.</title>
+<section id="add-var"><title>Adding a built-in variable</title>
 
 <para>If you must be able to access the Lisp variable in the &c-lang;
  code, follow these steps:
@@ -1202,7 +1202,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
     package in file &init-lisp;;</simpara></listitem></itemizedlist></para>
 </section>
 
-<section id="recompile"><title>Recompilation.</title>
+<section id="recompile"><title>Recompilation</title>
 
 <para><emphasis>Any</emphasis> change that forces &make; to remake
  &lisp-run;, will force recompilation of all &lisp-file; files and
@@ -1232,8 +1232,9 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 
 </chapter>
 
-<chapter id="bytecode"><title>The &clisp; bytecode specification</title>
-<subtitle>Last modified: 19 September 1998.</subtitle>
+<chapter id="bytecode">
+ <chapterinfo><date>Last modified: 1998-09-19</date></chapterinfo>
+ <title>The &clisp; bytecode specification</title>
 
 <section id="byte-intro"><title>Introduction</title>
 
@@ -2453,7 +2454,7 @@ operands) for the following frequent instructions:</para>
     followed by a <literal role="byte">JMP</literal>?
  </para></abstract>
  <simplesect id="byte-jmptail-a">
-  <title>Answer: This is a shortcut for the most common use.</title>
+  <title>Answer: This is a shortcut for the most common use</title>
   <para>Using <literal role="byte">JMPTAIL</literal> requires 3
    instructions, <literal role="byte">JMP</literal> requires more.
    When <literal role="byte">JMPTAIL</literal> needs to be called, we

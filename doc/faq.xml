@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <appendix id="faq"><title>Frequently Asked Questions (With Answers)
-  about &clisp;.</title>
+  about &clisp;</title>
 
 <abstract>
 <para>This is a list of frequently asked questions about &clisp; on the
@@ -525,7 +525,7 @@ trying to &nconc; a circular list).</para>
  </para>
 <para>See also <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=12445006">this message</ulink> in &clisp-list;.</para>
 
-<formalpara><title>PS.</title><para>If you want <emphasis>exact</emphasis>
+<formalpara><title>PS</title><para>If you want <emphasis>exact</emphasis>
  calculations, use &rational-t;s:<programlisting language="lisp">
 (- 11/10 9/10)
 <computeroutput>1/5</computeroutput>

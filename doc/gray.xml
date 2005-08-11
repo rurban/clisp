@@ -320,7 +320,7 @@ and is supported by most &cl; implementations currently in use.</para>
     &wr-by-seq;).</simpara></listitem></varlistentry>
 </variablelist>
 
-<section id="fill-stream"><title>Class &fill-stream;.</title>
+<section id="fill-stream"><title>Class &fill-stream;</title>
 <para>As an example of the use of &gray-pac; &stream-t;s, &clisp;
  offers an additional class, &fill-stream;.  An instance of this class
  is a <quote>formatting</quote> &stream-t;, which makes the final
