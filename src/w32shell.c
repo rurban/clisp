@@ -237,7 +237,7 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
       /* save slash or zero */
       saved_char = *nametocheck_end;
       *nametocheck_end = 0;
-      /* Is it . or .. ? FF handles this strange way */
+      /* Is it . or .. ? FFF handles this strange way */
       { char * cp = nametocheck;
         for (;*cp=='.';cp++);
         dots_only = !(*cp) && cp > nametocheck; }
@@ -249,15 +249,16 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
       if (have_stars && saved_char) return FALSE;
       if (!have_stars) {
         if (dots_only || !*nametocheck) {
-          /* treat 'start/./end' and 'drive|host|slash/' specially */
+          /* treat 'start/./end', 'drive/', 'host/' specially */
           /* search for ....\.\* */
           char saved[2];
           if (nametocheck_end - nameout + 2 > MAX_PATH) return FALSE;
-          strncpy(saved,nametocheck_end+1,2);
-          strncpy(nametocheck_end,"\\*",3);
+          saved[0] = nametocheck_end[1]; saved[1] = nametocheck_end[2];
+          /* !*nametocheck here means there was "something\" before */
+          strcpy(nametocheck_end,*nametocheck?"\\*":"*");
           h = FindFirstFile(nameout,&wfd);
-          strncpy(nametocheck_end+1,saved,2);
-          *nametocheck_end = 0;
+          nametocheck_end[1] = saved[0]; nametocheck_end[2] = saved[1];
+          nametocheck_end[0] = 0;
           if (h != INVALID_HANDLE_VALUE) {
             FindClose(h); /* don't substitute */
           } else return FALSE; /* don't try lnk */
