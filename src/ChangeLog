@@ -1,3 +1,8 @@
+2005-08-12  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	* src/w32shell.c (real_path): fixed a bug with root directory 
+	checking on Win32 (1252861).
+
 2005-08-11  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (DEVPREFIX): simplified
