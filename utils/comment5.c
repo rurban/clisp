@@ -36,7 +36,7 @@ Syntax eines Inputfile:
 
 int main (int argc, char* argv[]) {
   char infilenamebuffer[1000];
-  char outfilenamebuffer[1000];
+  char outfilenamebuffer[1000] = "stdout";
   FILE * infile;
   FILE * outfile;
   if (argc==3) { /* Aufruf der Form 'comment source destination' */
@@ -139,7 +139,7 @@ int main (int argc, char* argv[]) {
     L3:  ; /* am File-Ende */
   }
   /* error checking should work after file closing, but it does not */
-  if (ferror(infile))
+  if (ferror(infile) || fclose(infile))
     { perror(infilenamebuffer); exit(__LINE__); }
   if (ferror(outfile) || fclose(outfile))
     { perror(outfilenamebuffer); exit(__LINE__); }
