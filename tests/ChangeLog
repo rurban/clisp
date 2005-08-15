@@ -1,5 +1,9 @@
 2005-08-15  Sam Steingold  <sds@gnu.org>
 
+	* path.tst: more feedback on failure
+
+2005-08-15  Sam Steingold  <sds@gnu.org>
+
 	* streams.tst: test (DESCRIBE NIL)
 
 2005-08-10  Sam Steingold  <sds@gnu.org>
