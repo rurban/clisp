@@ -50,7 +50,7 @@ something like \"file:/usr/local/doc/HyperSpec/\"."
   (if (string-match "^file:/" root)
       (with-current-buffer (get-buffer-create " *clhs-tmp-buf*")
         (insert-file-contents-literally
-         (let* ((d (concat (substring root 5) "/Data/"))
+         (let* ((d (concat (substring root 6) "/Data/"))
                 (f (concat d "Map_Sym.txt")))
            (if (file-exists-p f) f
              (setq f (concat d "Symbol-Table.text"))
