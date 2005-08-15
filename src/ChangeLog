@@ -1,12 +1,17 @@
+2005-08-15  Sam Steingold  <sds@gnu.org>
+
+	* documentation.lisp (documentation, (setf documentation)): specialize
+	on CONS, not on NIL, to ensure that NIL is treated as a SYMBOL
+
 2005-08-13  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
-	* utils/comment5.c (main): init outfilenamebuffer so it 
+	* utils/comment5.c (main): init outfilenamebuffer so it
 	won't contain trash when piping to exiting program occurs.
 	Close infile before exit.
 
 2005-08-12  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
-	* src/w32shell.c (real_path): fixed a bug with root directory 
+	* src/w32shell.c (real_path): fixed a bug with root directory
 	checking on Win32 (1252861).
 
 2005-08-11  Sam Steingold  <sds@gnu.org>
