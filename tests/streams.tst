@@ -979,6 +979,9 @@ T
            (describe (make-array nil :element-type nil) s)))
 T
 
+(stringp (with-output-to-string (s) (describe nil s)))
+T
+
 (WITH-INPUT-FROM-STRING (*S* "abcde")
   (DECLARE (SPECIAL *S*))
   (LET ((SS (MAKE-SYNONYM-STREAM '*S*)))
