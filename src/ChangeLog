@@ -1,3 +1,7 @@
+2005-08-16  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/regex.h: sync with gnulib (support G++)
+
 2005-08-15  Sam Steingold  <sds@gnu.org>
 
 	* documentation.lisp (documentation, (setf documentation)): specialize
