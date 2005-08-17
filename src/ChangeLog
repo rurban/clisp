@@ -23860,7 +23860,7 @@
 	Russian messages are now working
 	* configure.in (ALL_LINGUAS): added `ru'
 	* constsym.d (russian): added
-	* init.lisp (russian.lisp) [GETTEX UNICODE]: load
+	* init.lisp (russian.lisp) [GETTEXT UNICODE]: load
 	* russian.lisp: new file
 	* spvw_language.d (language_russian): added
 	(current_language_o, init_language): handle it
