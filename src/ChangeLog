@@ -1,8 +1,12 @@
+2005-08-18  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (libopen) [!WIN32_NATIVE]: pass RTLD_GLOBAL to dlopen()
+
 2005-08-18  John Hinsdale <hin@alma.com>
 
 	* modules/oracle/orafns.c, oracle.lisp: handle floats as double
 	precision by default; allow multiple connects to the same
-	server via connectiond IDs          
+	server via connection IDs
 
 2005-08-18  Sam Steingold  <sds@gnu.org>
 
