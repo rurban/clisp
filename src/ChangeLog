@@ -1,3 +1,9 @@
+2005-08-18  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/configure.in: call AC_HEADER_TIME
+	* modules/rawsock/rawsock.c: include <time.h>
+	so that "struct timeval" will be available on OSX too
+
 2005-08-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regex.h: sync with gnulib (support G++)
