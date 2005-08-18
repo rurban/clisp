@@ -3,6 +3,7 @@
 	* modules/rawsock/configure.in: call AC_HEADER_TIME
 	* modules/rawsock/rawsock.c: include <time.h>
 	so that "struct timeval" will be available on OSX too
+	(optional_sockaddr_argument): declare static to avoid a warning
 
 2005-08-16  Sam Steingold  <sds@gnu.org>
 
