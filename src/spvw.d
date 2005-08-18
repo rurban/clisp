@@ -3441,7 +3441,7 @@ global void * libopen (const char* libname)
   return (void*)LoadLibrary(libname);
  #else
   /* FIXME: On UNIX_DARWIN, need to search for the library in /usr/lib */
-  return dlopen(libname,RTLD_NOW);
+  return dlopen(libname,RTLD_NOW|RTLD_GLOBAL);
  #endif
 }
 
