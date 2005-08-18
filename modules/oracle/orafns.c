@@ -1153,10 +1153,11 @@ static int fetch_data_len(int dtype, int dlen, int long_len)
   case 96:  /* CHAR (SQLT_AFC) */
     return dlen + 1;
     
+	/* Use 1000 for numbers so that very large/small floats will never be truncated */
   case 2:   /* NUMBER (SQLT_NUM) */
   case 3:   /* INTEGER (SQLT_INT) */
   case 4:   /* FLOAT (SQLT_FLT) */
-    return 50;
+    return 1000;
     
   case 104: /* ROWID DESC (SQLT_RDD) */
 	return 50;

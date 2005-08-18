@@ -98,14 +98,16 @@ to-sqlval to-string update-row valid-symbol
 
 ; CONNECT
 
-(defun connect (user password server &optional schema (auto-commit t) (prefetch-buffer-bytes 0) (long-len -1) truncate-ok)
-"(ORACLE::CONNECT user password server &optional schema auto-commit prefetch-buffer-bytes long-len truncate-ok)
+(defun connect (user password server &optional schema (auto-commit t) (prefetch-buffer-bytes 0) (long-len -1) truncate-ok connid)
+"(ORACLE::CONNECT user password server &optional schema auto-commit prefetch-buffer-bytes long-len truncate-ok connid)
 
 Connect to an Oracle database.  All subsequent operations will affect
 this database.  A single program can access several different
 databases by repeated calls to CONNECT.  Connections are cached: if
-you call CONNECT again with the same arguments, the actual Oracle
-connection will be re-used.  CONNECT may not be called inside the
+you call CONNECT again with the same user, schema and server, the
+actual Oracle connection will be re-used.  This can be overriden by
+using the CONNID parameter to identify multiple connections to the
+same user, schema and server.  CONNECT may not be called inside the
 WITH-TRANSACTION macro.
 
 Required arguments:
@@ -131,6 +133,8 @@ Optional arguments:
                  will disable long fetching entirely.  If NIL or negative, defaults to
                  500k bytes.
     truncate-ok  If set, allow truncation of LONG columns to long-len (default: NIL).
+    connid       String assigning an ID making the connection unique among other
+                 connections to with the same (user schema sever)
 
 Returns: T if a cached connection was re-used (NIL if a new connection
          was created and cached).
@@ -147,7 +151,7 @@ Returns: T if a cached connection was re-used (NIL if a new connection
       (setf *oracle-connection-cache* (make-hash-table :test #'equal)))
 
   ; Construct key for connection cache
-  (let* ((hkey (connection-key user schema server))
+  (let* ((hkey (connection-key user schema server connid))
          (conn (gethash hkey *oracle-connection-cache*))
          (result t))
 
@@ -768,7 +772,13 @@ Argument: none
   (let ((dtype (sqlcol-type sc)))
     (cond ((null val) nil)
           ((find dtype '("NUMBER" "INTEGER" "FLOAT") :test #'equal)
-           (read-from-string val))
+		   (let ((old-default-format *read-default-float-format*))
+			 ;; Adjust default float format, read, then restore old value
+			 (unwind-protect
+				 (progn
+				   (setf *read-default-float-format* 'double-float)
+				   (read-from-string val))
+			   (setf *read-default-float-format* old-default-format))))
           ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2" "LONG" "RAW" "LONG RAW" "BLOB" "CLOB" "BFILE" "ROWID DESC") :test #'equal)
            val)
           (t (db-error (cat "Unsupported data type '" dtype "'"))))))
@@ -821,10 +831,13 @@ Argument: none
 
 ; CONNECTION-KEY
 ; Construct key suitable for use in hash table keyed on
-; unique triple of (user, schema, server)
-(defun connection-key (user schema server)
+; unique triple of (user, schema, server) and optional connection ID
+(defun connection-key (user schema server &optional connid)
   ; Use ~-delimited string - pretty disgusting, eh?
-  (cat (string-upcase user) "~" (string-upcase schema) "~" (string-upcase server)))
+  (let ((result (cat (string-upcase user) "~" (string-upcase schema) "~" (string-upcase server))))
+	(when connid
+	  (setf result (cat result "~" connid)))
+	result))
 
 ; PAIRS-TO-HASH
 ; Convert a list of pairs ((key1 val1) (key2 val2) ...) to hash, enforcing key uniqueness
