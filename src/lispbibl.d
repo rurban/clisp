@@ -2549,13 +2549,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
  trigger GC during the entire lifetime of the variable 'foo'!
 */
 
-%% const char* attribute_aligned_object = "";
-%% #if defined(WIDE_AUXI) || defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)
-%%   #if defined(WIDE) && !defined(WIDE_HARD)
-%%     #ifdef GENERATIONAL_GC
-%%       attribute_aligned_object = " __attribute__ ((aligned(8)))";
-%%     #endif
-%%   #endif
+%% #if (defined(WIDE_AUXI) || defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)) && defined(WIDE) && !defined(WIDE_HARD) && defined(GENERATIONAL_GC)
+%%   #define attribute_aligned_object " __attribute__ ((aligned(8)))"
+%% #else
+%%   #define attribute_aligned_object ""
 %% #endif
 
 #if !defined(WIDE_SOFT)

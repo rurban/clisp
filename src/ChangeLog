@@ -1,5 +1,10 @@
 2005-08-18  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (attribute_aligned_object): use "#define" instead of
+	a constant variable declaration "const char*" for gen.lispbibl.c
+
+2005-08-18  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (PROC): handle OpenBSD 3.4 where `uname -p` prints
 	"Intel Pentium III (Coppermine) ("GenuineIntel" 686-class)"
 
