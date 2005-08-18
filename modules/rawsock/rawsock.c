@@ -306,8 +306,8 @@ DEFUN(RAWSOCK:SOCKATMARK, sock) {
    SOCKADDR: extract data
  DANGER: the return value is invalidated by GC!
  can trigger GC */
-void optional_sockaddr_argument (gcv_object_t *arg, struct sockaddr**sa,
-                                 SOCKLEN_T *size) {
+static void optional_sockaddr_argument (gcv_object_t *arg, struct sockaddr**sa,
+                                        SOCKLEN_T *size) {
   if (nullp(*arg)) *sa = NULL;
   else {
     if (eq(T,*arg)) *arg = make_sockaddr();
