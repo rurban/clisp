@@ -1,5 +1,10 @@
 2005-08-18  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (PROC): handle OpenBSD 3.4 where `uname -p` prints
+	"Intel Pentium III (Coppermine) ("GenuineIntel" 686-class)"
+
+2005-08-18  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (libopen) [!WIN32_NATIVE]: pass RTLD_GLOBAL to dlopen()
 
 2005-08-18  John Hinsdale <hin@alma.com>

@@ -3738,7 +3738,10 @@ echol "# The distribution's top directory"
 echol "TOPDIR=clisp-"`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
 echol
 echol "# Distribution file"
-PROC=`((uname -p) 2>/dev/null || mach 2>/dev/null) | $tolower`
+# on OpenBSD 3.4, `uname -p` prints
+#   "Intel Pentium III (Coppermine) ("GenuineIntel" 686-class)"
+# instead of i386; and `arch` (=HSYS) prints "OpenBSD.i386"
+PROC=`((uname -p) 2>/dev/null || mach 2>/dev/null) | $tolower | sed 's/ .*//'`
 echol "DISTFILE=\$(PACKDIR)/\$(TOPDIR)-${HSYS:-unknown}-${PROC:-unknown}-${HSYSOS:-unknown}-`uname -r|sed 's/(.*)//g'`\$(PACKEXT)"
 echol
 needs='all'
