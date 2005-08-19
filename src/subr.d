@@ -350,9 +350,9 @@ LISPFUN(string_downcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(nstring_capitalize,seclass_default,1,0,norest,key,2,
         (kw(start),kw(end)) )
 LISPFUN(string_capitalize,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
-LISPFUN(string_invertcase,seclass_default,1,0,norest,key,2,
+LISPFUN(nstring_invertcase,seclass_default,1,0,norest,key,2,
         (kw(start),kw(end)) )
-LISPFUN(nstring_invertcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(string_invertcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUNNR(string,1)
 LISPFUNNR(cs_string,1)
 LISPFUNNR(name_char,1)
