@@ -14753,7 +14753,7 @@ LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
     if (missingp(STACK_3)) STACK_3 = S(Koutput);
   } else if (streamp(STACK_4)) {
     var direction_t dir = check_direction(STACK_3);
-    fd = stream_lend_handle(STACK_4,READ_P(dir),NULL);
+    fd = stream_lend_handle(&STACK_4,READ_P(dir),NULL);
   } else {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(S(Kerror)); pushSTACK(S(Koutput)); pushSTACK(S(Kinput));
@@ -16680,14 +16680,17 @@ local bool maygc check_endianness_arg (object arg) {
  handle outside of stream object as far as the latter
  is not used and not GCed.
  stream_lend_handle(stream, inputp, handletype)
- > stream: stream for handle to extract
+ > stream_: stream for handle to extract
  > inputp: whether its input or output side is requested.
+ < stream_: corrected stream (if the original argument was not a handle stream)
  < int * handletype 0:reserved, 1:file, 2:socket
  < Handle result - extracted handle
  can trigger GC */
-global maygc Handle stream_lend_handle (object stream, bool inputp, int * handletype)
+global maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp,
+                                        int * handletype)
 {
   var int errkind;
+  var object stream = *stream_;
  restart_stream_lend_handle:
   errkind = 0;
   /* TODO: use finish-output ? */
@@ -16782,7 +16785,7 @@ global maygc Handle stream_lend_handle (object stream, bool inputp, int * handle
     (errkind==0)?GETTEXT("~S: argument ~S does not contain a valid OS stream handle")
     :(errkind==1)?GETTEXT("~S: ~S: buffered pipe-input-streams are not supported")
     :GETTEXT("~S: ~S: stream of wrong direction"));
-  stream = value1;
+  *stream_ = stream = value1;
   goto restart_stream_lend_handle;
 }
 

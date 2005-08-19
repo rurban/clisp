@@ -8406,7 +8406,7 @@ local maygc bool init_launch_streamarg (int istack, bool child_inputp,
       return false;
     *wait_p = false; /* TODO: error when wait_p */
   } else {
-    *h = handle_dup(stream_lend_handle(STACK_(istack),
+    *h = handle_dup(stream_lend_handle(&(STACK_(istack)),
                                        child_inputp,/* child i/o direction is the same as lisp user i/o direction */
                                        &handletype));
     if (handletype != 1)
