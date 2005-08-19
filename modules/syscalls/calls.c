@@ -101,6 +101,28 @@ DEFMODULE(syscalls,"POSIX")
 # include <fcntl.h>
 #endif
 
+/* ============================== aux ============================== */
+
+/* the input handle from input stream and output handle from output stream
+ can trigger GC */
+static Handle stream_get_handle (gcv_object_t *stream_) {
+  if (uint_p(*stream_)) {
+    Handle fd = (Handle)I_to_uint(*stream_);
+    *stream_ = nullobj;
+    return fd;
+  } else {
+    pushSTACK(*stream_); funcall(L(input_stream_p),1);
+    return stream_lend_handle(stream_,!nullp(value1),NULL);
+  }
+}
+
+/* signal the appropriate error error */
+nonreturning_function(static, error_OS_stream, (object stream)) {
+  if (eq(stream,nullobj)) OS_error();
+  else OS_filestream_error(stream);
+}
+
+/* ============================== locking ============================== */
 #if defined(WIN32_NATIVE)
 /* LockFileEx does not exist on Windows95/98/ME. */
 typedef BOOL (WINAPI * LockFileExFuncType)
@@ -212,19 +234,13 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
     failed_p = lock_p = false; /* failed to lock, :BLOCK NIL */
 #endif
   end_system_call();
-  if (failed_p) {
-   stream_lock_error:
-    if (eq(stream,nullobj))
-      OS_error();
-    else
-      OS_filestream_error(stream);
-  }
+  if (failed_p) stream_lock_error:
+    error_OS_stream(stream);
   skipSTACK(6);
   VALUES_IF(lock_p);
 }
 
 #endif  /* fcntl | WIN32_NATIVE */
-
 /* ============================== syslog ============================== */
 #if defined(HAVE_SYSLOG)
 DEFCHECKER(check_syslog_severity,prefix=LOG,reverse=sint_to_I,  \
@@ -522,19 +538,13 @@ DEFUN(POSIX:SYNC, &optional file) {
 #  if defined(HAVE_SYNC)
     begin_system_call(); sync(); end_system_call();
 #  endif
-#  if defined(HAVE_FSYNC)
-  } else if (integerp(STACK_0)) { /* fsync() */
-    begin_system_call();
-    if (-1 == fsync(I_to_UL(STACK_0))) OS_error();
-    end_system_call();
-#  endif
   } else {                      /* fsync() */
-    Handle fd = stream_lend_handle(STACK_0,false,NULL);
+    Handle fd = stream_get_handle(&STACK_0);
     begin_system_call();
 #  if defined(HAVE_FSYNC)
-    if (-1 == fsync(fd)) OS_file_error(STACK_0);
+    if (-1 == fsync(fd)) error_OS_stream(STACK_0);
 #  elif defined(WIN32_NATIVE)
-    if (!FlushFileBuffers(fd)) OS_file_error(STACK_0);
+    if (!FlushFileBuffers(fd)) error_OS_stream(STACK_0);
 #  endif
     end_system_call();
   }
@@ -1173,13 +1183,6 @@ DEFUN(POSIX::USER-DATA, user)
 }
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
 
-/* the the input handle from input stream and output handle from output stream
- can trigger GC */
-static Handle stream_get_handle (object stream) {
-  pushSTACK(stream); pushSTACK(stream); funcall(L(input_stream_p),1);
-  return stream_lend_handle(popSTACK(),!nullp(value1),NULL);
-}
-
 #if defined(HAVE_STAT)
 /* call stat() on the pathname
  return the value returned by stat()
@@ -1210,6 +1213,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   struct stat buf;
 
   if (builtin_stream_p(file)) {
+    Handle fd;
     pushSTACK(file); funcall(L(built_in_stream_open_p),1);
     file = STACK_1;             /* restore */
     if (!nullp(value1)) {       /* open stream ==> use FD */
@@ -1218,8 +1222,8 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
          only an integer of an unknown nature */
       BY_HANDLE_FILE_INFORMATION fi;
       begin_system_call();
-      if (!GetFileInformationByHandle(stream_get_handle(file),&fi))
-        OS_file_error(STACK_1);
+      if (!GetFileInformationByHandle(fd=stream_get_handle(&STACK_1),&fi))
+        error_OS_stream(STACK_1);
       end_system_call();
       pushSTACK(STACK_1);       /* file */
       pushSTACK(uint32_to_I(fi.dwVolumeSerialNumber)); /* device */
@@ -1235,9 +1239,10 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
       pushSTACK(convert_time_to_universal(&(fi.ftCreationTime)));
       goto call_make_file_stat;
 #    else
-      if (fstat(stream_get_handle(file),&buf) < 0) OS_error();
+      if (fstat(fd=stream_get_handle(&STACK_1),&buf) < 0)
+        error_OS_stream(STACK_1);
       end_system_call();
-      file = STACK_1;        /* restore */
+      file = eq(STACK_1,nullobj) ? fixnum(fd) : STACK_1; /* restore */
 #    endif
     } else goto stat_pathname;
   } else if (integerp(file)) {
@@ -1659,11 +1664,14 @@ DEFUN(POSIX::STAT-VFS, file)
     pushSTACK(file); funcall(L(built_in_stream_open_p),1);
     file = popSTACK();          /* restore */
     if (!nullp(value1)) { /* open stream ==> use FD */
+      Handle fd;
       pushSTACK(file);          /* save */
       begin_system_call();
-      if (fstatvfs(stream_get_handle(file),&buf) < 0) OS_error();
+      if (fstatvfs(fd=stream_get_handle(&STACK_0),&buf) < 0)
+        error_OS_stream(STACK_0);
       end_system_call();
-      file = popSTACK();        /* restore */
+      file = eq(STACK_0,nullobj) ? fixnum(fd) : STACK_0; /* restore */
+      skipSTACK(1);
     } else goto stat_pathname;
   } else if (integerp(file)) {
     begin_system_call();
@@ -2123,8 +2131,8 @@ static inline void symlink_file (char* old_pathstring, char* new_pathstring) {
 /* Copy attributes from stream STACK_1 to stream STACK_0 and close them
    can trigger GC */
 static void copy_attributes_and_close () {
-  Handle source_fd = stream_lend_handle(STACK_1,true,NULL);
-  Handle dest_fd = stream_lend_handle(STACK_0,false,NULL);
+  Handle source_fd = stream_lend_handle(&STACK_1,true,NULL);
+  Handle dest_fd = stream_lend_handle(&STACK_0,false,NULL);
   struct stat source_sb;
   struct stat dest_sb;
 
@@ -2302,8 +2310,8 @@ static void copy_file_low (object source, object dest,
     uintL bytes_read;
     char buffer[strm_buffered_bufflen];
     /* stack layout: 0 - dest-stream; 1 - source-stream */
-    Handle fd_in = stream_lend_handle(STACK_1,true,NULL);
-    Handle fd_ou = stream_lend_handle(STACK_0,false,NULL);
+    Handle fd_in = stream_lend_handle(&STACK_1,true,NULL);
+    Handle fd_ou = stream_lend_handle(&STACK_0,false,NULL);
     while ((bytes_read = fd_read(fd_in,buffer,strm_buffered_bufflen,
                                  persev_full))) {
       total_count += bytes_read;

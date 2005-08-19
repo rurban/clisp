@@ -16406,14 +16406,15 @@ extern maygc void elastic_newline (const gcv_object_t* stream_);
  handle outside of stream object as far as the latter
  is not used and not GCed.
  stream_lend_handle(stream, inputp, handletype)
- > stream: stream for handle to extract
+ > stream_: stream for handle to extract
  > inputp: whether its input or output side is requested.
+ < stream_: corrected stream (if the original argument was not a handle stream)
  < int * handletype 0:reserved, 1:file, 2:socket
  < Handle result - extracted handle
  can trigger GC */
-extern maygc Handle stream_lend_handle (object stream, bool inputp, int * handletype);
+extern maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int * handletype);
 /* used by STREAM */
-%% printf("extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);\n");
+%% printf("extern Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int * handletype);\n");
 
 /* extract the OS file handle from the file stream
  > stream: open Lisp file stream

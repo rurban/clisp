@@ -1,3 +1,19 @@
+2005-08-19  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (stream_lend_handle): propagate up the possible change
+	in the first argument coming from check_value()
+	* lispbibl.d (stream_lend_handle): updated the declaration
+	* pathname.d (init_launch_streamarg):
+	updated the call to stream_lend_handle()
+	* modules/syscalls/calls.c (stream_get_handle): propagate up the
+	possible change in the first argument coming from stream_lend_handle()
+	(error_OS_stream): new function
+	(STREAM-LOCK): use it
+	(SYNC): use stream_get_handle()
+	(FILE-STAT): updated call to stream_get_handle()
+	(copy_attributes_and_close, copy_file_low):
+	updated call to stream_lend_handle()
+
 2005-08-18  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (attribute_aligned_object): use "#define" instead of
