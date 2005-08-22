@@ -1,3 +1,9 @@
+2005-08-22  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/regcomp.c, modules/regexp/regex.h:
+	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
+	* modules/regexp/regexec.c, m4/regex.m4: sync with gnulib
+
 2005-08-19  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (stream_lend_handle): propagate up the possible change
