@@ -227,7 +227,11 @@ while test -z "$endofargs"; do
       # We don't need to add $module to MODULES if it's already contained
       # in BASE_MODULES.
       case " $BASE_MODULES " in
-        *" $module "*) ;;
+        *" $module "*) cat <<EOF >&2
+$0: argument $1 is ignored because $module is a base module
+$0: see http://clisp.cons.org/impnotes/modules.html#base-modules
+EOF
+          ;;
         *) MODULES="$MODULES $module" ;;
       esac
       shift
