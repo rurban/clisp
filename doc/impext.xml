@@ -2292,7 +2292,7 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
  for individual module documentation.</para>
 
 <section id="base-modules"><title>Base and Full Modules</title>
- <para>Note that the default binary distribution includes the following
+ <para>Note that the default build process includes the following
   modules in <emphasis>both</emphasis> &base; &and-e; &full; &linkset;s:
   <simplelist columns="1">
    <member><link linkend="i18n-mod">i18n</link></member>

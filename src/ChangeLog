@@ -1,5 +1,9 @@
 2005-08-22  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: issue a warninig on --with-module=base-module
+
+2005-08-22  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/regcomp.c, modules/regexp/regex.h:
 	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
 	* modules/regexp/regexec.c, m4/regex.m4: sync with gnulib
