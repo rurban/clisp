@@ -256,11 +256,16 @@
     the &stream-r;.  Pass &options-r; to
     <link linkend="stream-lock"><function>POSIX:STREAM-LOCK</function></link>.
  </simpara></listitem></varlistentry>
+ <varlistentry id="fcntl"><term><code>(<function>POSIX:STREAM-OPTIONS</function>
+    &stream-r; &command-r; &optional-amp; &value-r;)</code></term>
+  <listitem><simpara>Call &fcntl;, &command-r; can
+    be <constant>:FD</constant> or <constant>:FL</constant>.
+ </simpara></listitem></varlistentry>
  <varlistentry id="mknod"><term><code>(<function>POSIX:MKNOD</function>
     &path-r; &type-r; &mode-r;)</code></term>
  <listitem><simpara>Create a special file using &mknod;.
-   Use <literal>:FIFO</literal> to create pipes
-   and <literal>:SOCK</literal> to create sockets.
+   Use <constant>:FIFO</constant> to create pipes
+   and <constant>:SOCK</constant> to create sockets.
  </simpara></listitem></varlistentry>
  <varlistentry id="convert-modes">
   <term><code>(<function>POSIX:CONVERT-MODE</function> &mode-r;)</code></term>

@@ -22,6 +22,9 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#char-invertcase> and
   <http://clisp.cons.org/impnotes.html#string-invertcase> for details.
 
+* New function POSIX:STREAM-OPTIONS calls fcntl(2).
+  See <http://clisp.cons.org/impnotes.html#fcntl> for details.
+
 
 
 2.34 (2005-07-20)
