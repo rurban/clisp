@@ -1294,7 +1294,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
       if (fstat(fd=stream_get_handle(&STACK_1),&buf) < 0)
         error_OS_stream(STACK_1);
       end_system_call();
-      file = eq(STACK_1,nullobj) ? fixnum(fd) : STACK_1; /* restore */
+      file = eq(STACK_1,nullobj) ? fixnum(fd) : (object)STACK_1; /* restore */
 #    endif
     } else goto stat_pathname;
   } else if (integerp(file)) {
@@ -1722,7 +1722,7 @@ DEFUN(POSIX::STAT-VFS, file)
       if (fstatvfs(fd=stream_get_handle(&STACK_0),&buf) < 0)
         error_OS_stream(STACK_0);
       end_system_call();
-      file = eq(STACK_0,nullobj) ? fixnum(fd) : STACK_0; /* restore */
+      file = eq(STACK_0,nullobj) ? fixnum(fd) : (object)STACK_0; /* restore */
       skipSTACK(1);
     } else goto stat_pathname;
   } else if (integerp(file)) {
