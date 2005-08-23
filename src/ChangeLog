@@ -1,6 +1,11 @@
 2005-08-22  Sam Steingold  <sds@gnu.org>
 
-	* makemake.in: issue a warninig on --with-module=base-module
+	* utils/modprep.lisp (print-tables-1): *_to_list():
+	when c_const is 0, do not put l_const into the list
+
+2005-08-22  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: issue a warning on --with-module=base-module
 
 2005-08-22  Sam Steingold  <sds@gnu.org>
 
