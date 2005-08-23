@@ -9,7 +9,7 @@
   (:export
    #:resolve-host-ipaddr #:bogomips #:mkstemp #:mkdtemp
    #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
-   #:file-owner #:physical-memory
+   #:file-owner #:physical-memory #:stream-options
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
    #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
    #:getpgid #:setpgrp #:getsid #:setsid #:setpgid #:kill #:sync
