@@ -133,7 +133,7 @@ compiles the specified lisp files to a platform-independent
    This is the directory containing the linking sets and other data files.
 <!-- #ifdef UNIX -->
    This option is normally not necessary, because the installation directory
-   is already built-in into the <command>clisp</command> executable.
+   is already built-in into the &clisp-cmd; executable.
 <!-- #endif -->
    Directory &lld; can be changed dynamically using the
    &symbol-macro; <varname>*LIB-DIRECTORY*</varname>.
@@ -161,8 +161,7 @@ compiles the specified lisp files to a platform-independent
   <replaceable>mem-file</replaceable></term>
  <listitem><simpara>Specifies the initial &mem-image;.
    This must be a memory dump produced by the
-   <function>EXT:SAVEINITMEM</function> function by
-   this <command>clisp</command> &rt;.
+   <function>EXT:SAVEINITMEM</function> function by this &clisp-cmd; &rt;.
 <!-- #ifdef UNIX -->
    It may have been compressed using &gnu; &gzip;.
 <!-- #endif -->
@@ -515,7 +514,7 @@ compiles the specified lisp files to a platform-independent
 
 <variablelist>
 <!-- #ifdef UNIX -->
-<varlistentry><term><command>clisp</command></term>
+<varlistentry><term>&clisp-cmd;</term>
  <listitem><simpara>startup driver (a script or an executable)
 </simpara></listitem></varlistentry>
 <!-- #endif -->
