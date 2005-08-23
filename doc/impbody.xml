@@ -3628,8 +3628,8 @@ This keyboard input is not echoed on the screen.  During execution of a
 </section>
 
 <section id="make-stream"><title>Function &make-stream;</title>
-<para>Function &make-stream; creates a Lisp stream out of an OS file
- handle: <code>(&make-stream; &object-r; &key-amp; &direction-k;
+<para>Function &make-stream; creates a Lisp stream out of an OS &file-des;:
+ <code>(&make-stream; &object-r; &key-amp; &direction-k;
   &eltype; &extfmt; &buffered;)</code></para>
 <para>&object-r; designates an OS handle (a &file-des;),
  and should be one of the following: <variablelist>
@@ -3652,7 +3652,7 @@ This keyboard input is not echoed on the screen.  During execution of a
 
 <warning id="make-stream-warn-buffering"><title>Beware of buffering!</title>
  <para>When there are several Lisp &stream-t;s backed by the same OS
-  file handle, the behavior may be highly confusing when some of the
+  &file-des;, the behavior may be highly confusing when some of the
   Lisp streams are &buffered;.  Use &force-output; for &out-s;s,
   and <link linkend="bulk-io">bulk input</link> for &in-s;s.</para></warning>
 
