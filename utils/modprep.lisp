@@ -1080,7 +1080,7 @@ commas and parentheses."
               (formatln out "  unsigned int index = 0;")
               (formatln out "  for (; index < ~A_table_size; index++) {" c-name)
               (formatln out "    unsigned int c_const = ~A_table[index].c_const;" c-name)
-              (formatln out "    if (c_const == (a & c_const)) {")
+              (formatln out "    if (c_const && (c_const == (a & c_const))) {")
               (formatln out "      pushSTACK(*~A_table[index].l_const);" c-name)
               (formatln out "      count++;")
               (formatln out "      a &= ~~c_const;") ; clear this bit
