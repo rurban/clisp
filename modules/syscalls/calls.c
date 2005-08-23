@@ -90,8 +90,6 @@ extern object nobject_out (FILE* stream, object obj);
 # define XOUT(o,l)
 #endif
 
-DEFMODULE(syscalls,"POSIX")
-
 #if defined(HAVE_FCNTL) || defined(WIN32_NATIVE)
 /* we use posix fcntl() on unix and win32 LockFileEx() on win32.
    since cygwin supports fcntl(), we use it there, but another option
@@ -100,6 +98,8 @@ DEFMODULE(syscalls,"POSIX")
 #if defined(HAVE_FCNTL_H)
 # include <fcntl.h>
 #endif
+
+DEFMODULE(syscalls,"POSIX")
 
 /* ============================== aux ============================== */
 
@@ -239,8 +239,60 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   skipSTACK(6);
   VALUES_IF(lock_p);
 }
-
 #endif  /* fcntl | WIN32_NATIVE */
+
+/* ============================== fcntl ============================== */
+#if defined(HAVE_FCNTL)
+DEFCHECKER(check_fcntl_cmd, prefix=F_GET, delim=, default=,FD FL)
+/* note that O_ACCMODE is treated specially */
+DEFCHECKER(check_fl_flags, prefix=O, default=,bitmasks=both,          \
+           RDONLY WRONLY RDWR APPEND CREAT TRUNC EXCL NOCTTY SYNC NONBLOCK \
+           BINARY TEXT NOINHERIT DIRECT LARGEFILE DIRECTORY NOFOLLOW)
+DEFCHECKER(check_fd_flags, prefix=FD,bitmasks=both,CLOEXEC)
+DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
+{ /* http://www.opengroup.org/onlinepubs/009695399/functions/fcntl.html */
+  int cmd = check_fcntl_cmd(STACK_1);
+  object stream;                /* for error reporting */
+  Handle fd = stream_get_handle(&STACK_2);
+  int value;
+  if (boundp(STACK_0)) {
+    switch (cmd) {
+      case F_GETFD: value = check_fd_flags_from_list(STACK_0);
+        cmd = F_SETFD; break;
+      case F_GETFL: value = check_fl_flags_from_list(STACK_0);
+        cmd = F_SETFL; break;
+      default: NOTREACHED;
+    }
+    begin_system_call();
+    if (-1 == fcntl(fd,cmd,value)) error_OS_stream(STACK_2);
+    end_system_call();
+    VALUES0;
+  } else {
+    begin_system_call();
+    if (-1 == (value = fcntl(fd,cmd))) error_OS_stream(STACK_2);
+    end_system_call();
+    switch (cmd) {
+      case F_GETFD: value1 = check_fd_flags_to_list(value); break;
+      case F_GETFL:
+        switch (value & O_ACCMODE) {
+          case O_RDONLY: STACK_0 = `:RDONLY`; break;
+          case O_WRONLY: STACK_0 = `:WRONLY`; break;
+          case O_RDWR: STACK_0 = `:RDWR`; break;
+          default: NOTREACHED;
+        }
+        STACK_1 = check_fl_flags_to_list(value & ~O_ACCMODE);
+        value1 = allocate_cons();
+        Car(value1) = STACK_0;
+        Cdr(value1) = STACK_1;
+        break;
+      default: NOTREACHED;
+    }
+    mv_count = 1;
+  }
+  skipSTACK(3);
+}
+#endif
+
 /* ============================== syslog ============================== */
 #if defined(HAVE_SYSLOG)
 DEFCHECKER(check_syslog_severity,prefix=LOG,reverse=sint_to_I,  \

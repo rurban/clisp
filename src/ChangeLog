@@ -1,3 +1,8 @@
+2005-08-23  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (POSIX::STREAM-OPTIONS): implemented
+	* modules/syscalls/posix.lisp (POSIX::STREAM-OPTIONS): export
+
 2005-08-22  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (print-tables-1): *_to_list():
