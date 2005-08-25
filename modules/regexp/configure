@@ -861,9 +861,10 @@ Optional Packages:
   --without-libiconv-prefix     don't search for libiconv in includedir and libdir
   --with-libintl-prefix[=DIR]  search for libintl in DIR/include and DIR/lib
   --without-libintl-prefix     don't search for libintl in includedir and libdir
-  --without-included-regex don't compile regex; this is the default on
-			systems with recent-enough versions of the GNU C
-			Library (use with caution on other systems)
+  --without-included-regex
+                          don't compile regex; this is the default on systems
+                          with recent-enough versions of the GNU C Library
+                          (use with caution on other systems)
 
 Some influential environment variables:
   CC          C compiler command
@@ -5825,21 +5826,28 @@ done
 
 
 
-  # Assume we'll default to using the included regex.c.
-  ac_use_included_regex=yes
+# Check whether --with-included-regex or --without-included-regex was given.
+if test "${with_included_regex+set}" = set; then
+  withval="$with_included_regex"
 
-  # However, if the system regex support is good enough that it passes the
-  # the following run test, then default to *not* using the included regex.c.
-  # If cross compiling, assume the test would fail and use the included
-  # regex.c.  The first failing regular expression is from `Spencer ere
-  # test #75' in grep-2.3.
-  echo "$as_me:$LINENO: checking for working re_compile_pattern" >&5
+fi;
+
+  case $with_included_regex in
+  yes|no) ac_use_included_regex=$with_included_regex
+	;;
+  '')
+    # If the system regex support is good enough that it passes the the
+    # following run test, then default to *not* using the included regex.c.
+    # If cross compiling, assume the test would fail and use the included
+    # regex.c.  The first failing regular expression is from `Spencer ere
+    # test #75' in grep-2.3.
+    echo "$as_me:$LINENO: checking for working re_compile_pattern" >&5
 echo $ECHO_N "checking for working re_compile_pattern... $ECHO_C" >&6
-if test "${gl_cv_func_working_re_compile_pattern+set}" = set; then
+if test "${gl_cv_func_re_compile_pattern_broken+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   if test "$cross_compiling" = yes; then
-         gl_cv_func_working_re_compile_pattern=no
+         gl_cv_func_re_compile_pattern_broken=yes
 else
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -5926,33 +5934,29 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  gl_cv_func_working_re_compile_pattern=yes
+  gl_cv_func_re_compile_pattern_broken=no
 else
   echo "$as_me: program exited with status $ac_status" >&5
 echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
 ( exit $ac_status )
-gl_cv_func_working_re_compile_pattern=no
+gl_cv_func_re_compile_pattern_broken=yes
 fi
 rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
 fi
 fi
-echo "$as_me:$LINENO: result: $gl_cv_func_working_re_compile_pattern" >&5
-echo "${ECHO_T}$gl_cv_func_working_re_compile_pattern" >&6
-  if test $gl_cv_func_working_re_compile_pattern = yes; then
-    ac_use_included_regex=no
-  fi
+echo "$as_me:$LINENO: result: $gl_cv_func_re_compile_pattern_broken" >&5
+echo "${ECHO_T}$gl_cv_func_re_compile_pattern_broken" >&6
+    ac_use_included_regex=$gl_cv_func_re_compile_pattern_broken
+    ;;
+  *) { { echo "$as_me:$LINENO: error: Invalid value for --with-included-regex: $with_included_regex" >&5
+echo "$as_me: error: Invalid value for --with-included-regex: $with_included_regex" >&2;}
+   { (exit 1); exit 1; }; }
+    ;;
+  esac
 
-
-# Check whether --with-included-regex or --without-included-regex was given.
-if test "${with_included_regex+set}" = set; then
-  withval="$with_included_regex"
-  gl_with_regex=$withval
-else
-  gl_with_regex=$ac_use_included_regex
-fi;
-  if test "X$gl_with_regex" = Xyes; then
+  if test $ac_use_included_regex = yes; then
     case $LIBOBJS in
     "regex.$ac_objext"   | \
   *" regex.$ac_objext"   | \
