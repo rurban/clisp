@@ -15034,6 +15034,11 @@ nonreturning_function(extern, OS_filestream_error, (object stream));
   # > DWORD errorcode: error code
   extern void errno_out (DWORD errorcode);
 #endif
+#if defined(DEBUG_OS_ERROR)
+  /* Show the file and line number of the caller of errno_out(). */
+  #define errno_out(e)  \
+    (fprintf(stderr,"\n[%s:%d]",__FILE__,__LINE__), (errno_out)(e))
+#endif
 
 # UP: Executes break-loop because of a keyboard-interrupt.
 # > -(STACK) : calling funtion

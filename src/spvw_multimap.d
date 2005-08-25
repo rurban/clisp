@@ -160,7 +160,6 @@
        ) {
       fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
               map_addr);
-      fputs("\n",stderr);
       errno_out(errno);
       return -1; # error
     }
