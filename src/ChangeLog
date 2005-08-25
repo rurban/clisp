@@ -1,3 +1,10 @@
+2005-08-25  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (src/autoconf/aclocal.m4): prepend AC_GNU_SOURCE
+	to configure.ac and strip it from configures
+	Suggested by Stepan Kasal <kasal@ucw.cz> in
+	http://article.gmane.org/gmane.comp.lib.gnulib.bugs:4165
+
 2005-08-24  Sam Steingold  <sds@gnu.org>
 
 	explicitly close all file descriptors before exec()
