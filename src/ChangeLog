@@ -1,5 +1,11 @@
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: instead of having the user edit Makefile and select
+	the packer, check for gzip/compress and assume that tar is present
+	* configure.in: check for gzip/compress
+
+2005-08-25  Sam Steingold  <sds@gnu.org>
+
 	* m4/regex.m4, modules/regexp/regcomp.c, modules/regexp/regex.h:
 	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
 	* modules/regexp/regexec.c, modules/regexp/regex.c: sync with gnulib
