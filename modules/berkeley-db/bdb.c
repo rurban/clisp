@@ -205,7 +205,8 @@ static void free_messages (struct messages* data) {
     free(data);
   }
 }
-#define close_messages(data) do{ free_messages(data); data=NULL; }while(0)
+#define close_messages(data) \
+  do{ free_messages((struct messages*)data); data=NULL; }while(0)
 
 /* convert all messages to a list of strings
  can trigger GC */
@@ -486,7 +487,7 @@ DEFUN(BDB:DBE-CLOSE, dbe)
 DEFUN(BDB:DBE-MESSAGES, dbe)
 { /* close DB environment */
   DB_ENV *dbe = (DB_ENV*)bdb_handle(popSTACK(),`BDB::DBE`,BH_VALID);
-  VALUES1(extract_messages(dbe->app_private));
+  VALUES1(extract_messages((struct messages*)dbe->app_private));
 }
 #endif
 
