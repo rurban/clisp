@@ -1,3 +1,14 @@
+2005-08-24  Sam Steingold  <sds@gnu.org>
+
+	explicitly close all file descriptors before exec()
+	* socket.d (connect_to_x_server): do not set FD_CLOEXEC
+	* configure.in: check for sysconf and
+	* unixaux.d (close_all_fd): new function
+	* unix.d (close_all_fd): declare it
+	* stream.d (create_input_pipe, create_output_pipe, create_io_pipe):
+	call it before execl()
+	* pathname.d (EXECUTE, LAUNCH): call it before execv() and execvp()
+
 2005-08-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX::STREAM-OPTIONS): implemented

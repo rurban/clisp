@@ -8070,6 +8070,7 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
       begin_want_sigcld();
       if ((child = vfork()) ==0) {
         /* this program part is executed by the child-process: */
+        close_all_fd();
         execv(argv[0],argv); /* call program */
         _exit(-1); /* if this fails, end the child-process */
       }
@@ -8588,6 +8589,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
       _exit(-1);
     }
    #endif
+    close_all_fd();
     execvp(*argv,argv);
     fprintf(stderr,"clisp/child: execvp failed: %s\n",strerror(errno));
     _exit(-1);

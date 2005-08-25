@@ -552,13 +552,6 @@ local SOCKET with_host_port (const char* host, unsigned short port,
   #define ENOSYS  EINVAL
 #endif
 
-#ifndef WIN32
-  #include <fcntl.h> /* declares fcntl() and defines F_SETFD */
-  #ifndef FD_CLOEXEC
-    #define FD_CLOEXEC  1
-  #endif
-#endif
-
 #ifdef UNIXCONN
   #include <sys/un.h>  /* defines struct sockaddr_un */
   /* set X_UNIX_PATH and - on hpux only - OLD_UNIX_PATH */
@@ -731,11 +724,6 @@ global SOCKET connect_to_x_server (const char* host, int display)
       {
         OS_set_errno(ENOSYS); return INVALID_SOCKET;
       }
-
- #ifndef WIN32
-  /* Set close-on-exec so that we won't get confused if we fork(). */
-  fcntl(fd,F_SETFD,FD_CLOEXEC);
- #endif
 
   return fd;
 }
