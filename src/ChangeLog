@@ -1,5 +1,13 @@
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
+	* m4/regex.m4, modules/regexp/regcomp.c, modules/regexp/regex.h:
+	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
+	* modules/regexp/regexec.c, modules/regexp/regex.c: sync with gnulib
+	* modules/regexp/configure.in: add AC_GNU_SOURCE,
+	use gl_REGEX instead of gl_INCLUDED_REGEX
+
+2005-08-25  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (src/autoconf/aclocal.m4): prepend AC_GNU_SOURCE
 	to configure.ac and strip it from configures
 	Suggested by Stepan Kasal <kasal@ucw.cz> in
