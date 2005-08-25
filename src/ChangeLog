@@ -1,8 +1,7 @@
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
-	* modules/syscalls/configure.in: do not check for <time.h>
-	and <sys/time.h> using AC_CHECK_HEADERS
-	because they are already checked by AC_HEADER_TIME
+	* modules/syscalls/configure.in, modules/syscalls/calls.c:
+	assume <sys/types.h> exists, just like in unix.d
 
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
