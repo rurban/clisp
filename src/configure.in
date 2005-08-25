@@ -52,6 +52,8 @@ AC_CHECK_PROG(GROFF,groff,groff)
 dnl sets variable DVIPDF
 AC_CHECK_PROG(DVIPDF,dvipdf,dvipdf)
 dnl
+AC_CHECK_PROGS(COMPRESS,gzip zip compress)
+dnl
 AC_MSG_NOTICE([* checks for system features])
 dnl DEFS _FILE_OFFSET_BITS, _LARGE_FILES
 AC_SYS_LARGEFILE

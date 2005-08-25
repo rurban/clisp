@@ -3706,38 +3706,19 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "\$(RMRF) \$(CLISP_VERSION).tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch"
   echol
 elif [ ${HOS} = unix ] ; then   # but not cygwin!
-cat <<!!
-# Choose one of the packers:
-
-# Standard Unix packer. Compress afterwards.
-#PACK = tar
-#PACKOPT = -cvf
-#PACKEXT = .tar
-
-# GNU tar together with compress.
-#PACK = tar
-#PACKOPT = cvfhz
-#PACKEXT = .tar.Z
-
-# GNU tar together with GNU gzip. Excellent performance.
-PACK = tar
-PACKOPT = cvfhz
-PACKEXT = .tar.gz
-
-# Popular DOS packer.
-#PACK = zip
-#PACKOPT = -r
-#PACKEXT = .zip
-
-# Popular Atari packer.
-#PACK = zoo
-#PACKOPT = -add
-#PACKEXT = .zoo
-
-# Temporary directory for packing
-PACKDIR = .
-
-!!
+COMPRESS=@COMPRESS@
+if [ -z "${COMPRESS}" ]; then
+  echol "# tar"
+  echol "PACKEXT=.tar"
+else
+  echol "# tar+gzip"
+  echol "PACKEXT=.tar.gz"
+  echol "COMPRESS=${COMPRESS}"
+fi
+echol
+echol "# Temporary directory for packing"
+echol "PACKDIR = ."
+echol
 echol "# The distribution's top directory"
 echol "TOPDIR=clisp-"`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
 echol
@@ -3817,7 +3798,11 @@ fi
 # Final packing.
 echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
 echotab "chmod a+x \$(TOPDIR)/. \$(TOPDIR)/*/."
-echotab "\$(PACK) \$(PACKOPT) \$(DISTFILE) \$(TOPDIR)"
+if [ -z "${COMPRESS}" ]; then
+  echotab "tar cvfh \$(DISTFILE) \$(TOPDIR)"
+else
+  echotab "tar cvfh - \$(TOPDIR) | \$(COMPRESS) > \$(DISTFILE)"
+fi
 echotab "${HLN} \$(DISTFILE) clisp\$(PACKEXT)"
 echotab "\$(RMRF) \$(TOPDIR)"
 echol
