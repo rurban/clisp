@@ -1,5 +1,10 @@
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: do note create rules for development targets
+	unless the user is working from the CVS
+
+2005-08-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/configure.in, modules/syscalls/calls.c:
 	assume <sys/types.h> exists, just like in unix.d
 
