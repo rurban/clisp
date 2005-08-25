@@ -828,3 +828,18 @@ global void time_t_to_filetime (time_t time_in, FILETIME *out)
 #endif
 
 /* ======================================================================== */
+/* close all file descriptors before exec()
+ this is more reliable than FD_CLOEXEC because there are many places that
+ can open file descriptors (Berkeley-DB, rawsock &c) that we do not control */
+global void close_all_fd (void) {
+#if defined(HAVE_SYSCONF) && defined(_SC_OPEN_MAX)
+  int fd = sysconf(_SC_OPEN_MAX) - 1;
+#elif defined(HAVE_GETDTABLESIZE)
+  int fd = getdtablesize() - 1;
+#elif defined(OPEN_MAX)
+  int fd = OPEN_MAX;
+#else
+  int fd = 16;                  /* just a guess */
+#endif
+  while (fd >= 3) close(fd--);
+}

@@ -12652,6 +12652,7 @@ local inline void create_input_pipe (const char* command) {
             # in order to empty the pipe (and not the child-process).)
             # turn child-process into a background process:
             SETSID(); # it receives its own process group
+            close_all_fd();
             execl(SHELL,            # call shell
                   SHELL,            # =: argv[0]
                   "-c",             # =: argv[1]
@@ -12861,6 +12862,7 @@ local inline void create_output_pipe (const char* command) {
             # child-process is called, in order to fill the pipe again.)
             # turn child-process into a background process:
             SETSID(); # it receives its own process group
+            close_all_fd();
             execl(SHELL,            # call shell
                   SHELL,            # =: argv[0]
                   "-c",             # =: argv[1]
@@ -13091,6 +13093,7 @@ local inline void create_io_pipe (const char* command) {
                   # in order to empty the pipe.)
                   # turn child-process into a background process:
                   SETSID(); # it receives its own process group
+                  close_all_fd();
                   execl(SHELL,            # call shell
                         SHELL,            # =: argv[0]
                         "-c",             # =: argv[1]
