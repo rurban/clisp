@@ -2,6 +2,7 @@
 
 	* errunix.d, errwin32.d (errno_out): print newline beforehand
 	* lispbibl.d (errno_out) [DEBUG_OS_ERROR]: print file:line
+	* error.d: #undef errno_out
 	* spvw_memfile.d (loadmem): do not print newline before errno_out()
 	* spvw_mmap.d (mmap_zeromap): ditto
 	* spvw_multimap.d (fdmap): ditto
