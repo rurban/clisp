@@ -19,14 +19,8 @@
 
 static void re_string_construct_common (const char *str, int len,
 					re_string_t *pstr,
-					RE_TRANSLATE_TYPE trans, int icase,
+					REG_TRANSLATE_TYPE trans, int icase,
 					const re_dfa_t *dfa) internal_function;
-#ifdef RE_ENABLE_I18N
-static int re_string_skip_chars (re_string_t *pstr, int new_raw_idx,
-				 wint_t *last_wc) internal_function;
-#endif /* RE_ENABLE_I18N */
-static reg_errcode_t register_state (re_dfa_t *dfa, re_dfastate_t *newstate,
-				     unsigned int hash) internal_function;
 static re_dfastate_t *create_ci_newstate (re_dfa_t *dfa,
 					  const re_node_set *nodes,
 					  unsigned int hash) internal_function;
@@ -34,8 +28,6 @@ static re_dfastate_t *create_cd_newstate (re_dfa_t *dfa,
 					  const re_node_set *nodes,
 					  unsigned int context,
 					  unsigned int hash) internal_function;
-static inline unsigned int calc_state_hash (const re_node_set *nodes,
-					    unsigned int context) internal_function;
 
 /* Functions for string operation.  */
 
@@ -45,7 +37,7 @@ static inline unsigned int calc_state_hash (const re_node_set *nodes,
 static reg_errcode_t
 internal_function
 re_string_allocate (re_string_t *pstr, const char *str, int len, int init_len,
-		    RE_TRANSLATE_TYPE trans, int icase, const re_dfa_t *dfa)
+		    REG_TRANSLATE_TYPE trans, int icase, const re_dfa_t *dfa)
 {
   reg_errcode_t ret;
   int init_buf_len;
@@ -73,7 +65,7 @@ re_string_allocate (re_string_t *pstr, const char *str, int len, int init_len,
 static reg_errcode_t
 internal_function
 re_string_construct (re_string_t *pstr, const char *str, int len,
-		     RE_TRANSLATE_TYPE trans, int icase, const re_dfa_t *dfa)
+		     REG_TRANSLATE_TYPE trans, int icase, const re_dfa_t *dfa)
 {
   reg_errcode_t ret;
   memset (pstr, '\0', sizeof (re_string_t));
@@ -169,13 +161,13 @@ re_string_realloc_buffers (re_string_t *pstr, int new_buf_len)
 static void
 internal_function
 re_string_construct_common (const char *str, int len, re_string_t *pstr,
-			    RE_TRANSLATE_TYPE trans, int icase,
+			    REG_TRANSLATE_TYPE trans, int icase,
 			    const re_dfa_t *dfa)
 {
   pstr->raw_mbs = (const unsigned char *) str;
   pstr->len = len;
   pstr->raw_len = len;
-  pstr->trans = (unsigned RE_TRANSLATE_TYPE) trans;
+  pstr->trans = (unsigned REG_TRANSLATE_TYPE) trans;
   pstr->icase = icase ? 1 : 0;
   pstr->mbs_allocated = (trans != NULL || icase);
   pstr->mb_cur_max = dfa->mb_cur_max;
