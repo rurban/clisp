@@ -147,6 +147,9 @@
 /* have getcwd() */
 #undef HAVE_GETCWD
 
+/* Define to 1 if you have the `getdtablesize' function. */
+#undef HAVE_GETDTABLESIZE
+
 /* have gethostbyname() */
 #undef HAVE_GETHOSTBYNAME
 
@@ -370,6 +373,9 @@
 
 /* Define to 1 if `d_namlen' is member of `struct dirent'. */
 #undef HAVE_STRUCT_DIRENT_D_NAMLEN
+
+/* Define to 1 if you have the `sysconf' function. */
+#undef HAVE_SYSCONF
 
 /* Define to 1 if you have the <sys/file.h> header file. */
 #undef HAVE_SYS_FILE_H
@@ -648,6 +654,9 @@
 
 /* no <dirent.h>, use <sys/ndir.h> */
 #undef SYSNDIR
+
+/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
+#undef TIME_WITH_SYS_TIME
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
