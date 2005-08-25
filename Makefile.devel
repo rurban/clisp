@@ -137,7 +137,10 @@ configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
 src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4) \
 			$(addsuffix .in,$(CLISP_CONFIGURES))
 	egrep '(AC_INIT|AC_PREREQ)' src/configure.in > configure.ac
-	cat $(addsuffix .in,$(CLISP_CONFIGURES)) | egrep -v '(AC_INIT|AC_CONFIG_HEADER|AC_OUTPUT|AC_CONFIG_FILE.*(Makefile|link\.sh)|_CANONICAL_|AC_PREREQ)' >> configure.ac
+	echo AC_GNU_SOURCE >> configure.ac
+	cat $(addsuffix .in,$(CLISP_CONFIGURES)) | \
+	egrep -v -e 'AC_(INIT|PREREQ|CANONICAL_|GNU_SOURCE|CONFIG_HEADER|OUTPUT)' \
+		-e 'AC_CONFIG_FILE.*(Makefile|link\.sh)' >> configure.ac
 	echo AC_OUTPUT >> configure.ac
 	aclocal -I `pwd`/src/m4 --output=src/autoconf/aclocal.m4
 	$(RM) configure.ac
