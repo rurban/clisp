@@ -1,5 +1,11 @@
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/configure.in: do not check for <time.h>
+	and <sys/time.h> using AC_CHECK_HEADERS
+	because they are already checked by AC_HEADER_TIME
+
+2005-08-25  Sam Steingold  <sds@gnu.org>
+
 	* unixaux.d (close_all_fd): also try getrlimit() before OPEN_MAX
 	* unix.d: include <time.h> and <sys/time.h> as recommended by the
 	autoconf manual (see AC_HEADER_TIME); include <sys/resource.h>
