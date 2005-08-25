@@ -2232,7 +2232,7 @@ echodummyrule all
 echol
 
 # development targets
-if [ ! $TSYS = win32msvc ] ; then
+if [ ! $TSYS = win32msvc -a -d "${SRCTOPDIR}CVS" ] ; then
   echol "makemake : makemake.in config.status"
   echotab "sh config.status --file=makemake"
   echol
