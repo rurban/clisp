@@ -831,7 +831,6 @@ local void loadmem (const char* filename)
  abort1: {
     var int abort_errno = OS_errno;
     fprintf(stderr,GETTEXTL("%s: operating system error during load of initialization file `%s'"),program_name,filename);
-    fputs("\n",stderr);
     errno_out(abort_errno);
   }
   goto abort_quit;
