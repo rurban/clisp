@@ -718,7 +718,7 @@ nonreturning_function(global, OS_file_error, (object pathname)) {
 /* print an error
  > int errorcode: error code (errno) */
 global void errno_out (int errorcode) {
-  fprintf(stderr," errno = ");
+  fprintf(stderr,"\n errno = ");
   var os_error_t errormsg;
   get_errormsg(errorcode,&errormsg);
   errormsg.msg = translate(errormsg.msg);

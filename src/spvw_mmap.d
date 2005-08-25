@@ -65,7 +65,7 @@
         != KERN_SUCCESS) {
       fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
               map_addr);
-      fputs("\n",stderr);
+      errno_out();
       return -1; /* error */
     }
     return 0;
@@ -196,7 +196,6 @@
       var DWORD errcode = GetLastError();
       fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
               map_addr);
-      fputs("\n",stderr);
       errno_out(errcode);
       return -1; /* error */
     }
@@ -357,7 +356,6 @@
          == (void*)(-1)) {
       fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
               map_addr);
-      fputs("\n",stderr);
       errno_out(errno);
       return -1; /* error */
     }

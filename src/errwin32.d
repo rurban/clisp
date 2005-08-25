@@ -4141,7 +4141,7 @@ local void errno_out_body (const char* name, const char* msg) {
     fprintf(stderr,".");
 }
 global void errno_out (DWORD errorcode) {
-  fprintf(stderr," GetLastError() = 0x%x",errorcode);
+  fprintf(stderr,"\n GetLastError() = 0x%x",errorcode);
   get_OS_error_info(errorcode,&errno_out_body);
   fputs("\n",stderr);
 }
