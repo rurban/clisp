@@ -1,5 +1,12 @@
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
+	* m4/regex.m4, modules/regexp/regcomp.c, modules/regexp/regex.h:
+	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
+	* modules/regexp/regexec.c, modules/regexp/regex.c: sync with gnulib
+	G++ finally can compile regex!
+
+2005-08-25  Sam Steingold  <sds@gnu.org>
+
 	* errunix.d, errwin32.d (errno_out): print newline beforehand
 	* lispbibl.d (errno_out) [DEBUG_OS_ERROR]: print file:line
 	* error.d: #undef errno_out
