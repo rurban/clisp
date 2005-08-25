@@ -19,8 +19,21 @@
   #include <stdlib.h>
 #endif
 #include <sys/types.h>  /* declares pid_t, uid_t */
+#if defined(TIME_WITH_SYS_TIME)
+ #include <sys/time.h>
+ #include <time.h>
+#else
+ #if defined(HAVE_SYS_TIME_H)
+  #include <sys/time.h>
+ #elif defined(HAVE_TIME_H)
+  #include <time.h>
+ #endif
+#endif
 #ifdef HAVE_UNISTD_H
   #include <unistd.h>
+#endif
+#if defined(HAVE_SYS_RESOURCE_H)
+ #include <sys/resource.h>
 #endif
 
 /* the table of the system error messages */
@@ -110,8 +123,6 @@ extern_C char* strerror (int errnum);
 #endif
 #ifdef HAVE_MACH_VM /* vm_allocate(), task_self(), ... available */
   /* the headers for UNIX_NEXTSTEP must look indescribable ... */
-  #include <sys/time.h> /* needed for <sys/resource.h> on UNIX_RHAPSODY */
-  #include <sys/resource.h>
   #undef local
   #include <mach/mach_interface.h>
   #if defined(UNIX_NEXTSTEP) || defined(UNIX_RHAPSODY)
@@ -186,8 +197,6 @@ extern_C char* strerror (int errnum);
 
 /* make stack large enough */
 #ifdef UNIX_NEXTSTEP
-  #include <sys/time.h>
-  #include <sys/resource.h>
   extern_C int getrlimit (RLIMIT_RESOURCE_T resource, struct rlimit * rlim); /* GETRLIMIT(2) */
   extern_C int setrlimit (RLIMIT_RESOURCE_T resource, SETRLIMIT_CONST struct rlimit * rlim); /* SETRLIMIT(2) */
 #endif
@@ -256,7 +265,6 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
 /* extern_C {unsigned|} int alarm ({unsigned|} int seconds); / * ALARM(3V) */
 #if !defined(HAVE_UALARM) && defined(HAVE_SETITIMER)
   #define NEED_OWN_UALARM /* ualarm() can be implemented with setitimer() */
-  #include <sys/time.h>
   /* declares setitimer() */
   #define HAVE_UALARM
 #endif
@@ -473,9 +481,6 @@ extern_C int fsync (int fd); /* FSYNC(2) */
   #ifdef UNIX_BEOS
     #include <sys/socket.h>
   #endif
-  #ifndef _EMUL_SYS_TIME_H
-    #include <sys/time.h>
-  #endif
   #ifdef HAVE_SYS_SELECT_H
     #include <sys/select.h>
   #endif
@@ -647,17 +652,7 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
 /* used by SPVW, STREAM */
 
 /* process date/time of day: */
-#ifdef TM_IN_SYS_TIME
-  #include <sys/time.h>
-#else
-  #include <time.h>
-#endif
-/* declare time(), localtime(), gmtime() */
-/* used by SPVW, MISC */
-
-/* query date/time of day: */
 #if defined(HAVE_GETTIMEOFDAY)
-  #include <sys/time.h>
   #ifdef GETTIMEOFDAY_DOTS
     extern_C int gettimeofday (struct timeval * tp, ...); /* GETTIMEOFDAY(2) */
   #else
@@ -679,10 +674,6 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
   #endif
   extern int gettimeofday (struct timeval * tp, struct timezone * tzp); /* see unixaux.d */
 #elif defined(HAVE_TIMES_CLOCK)
-  #include <time.h> /* needed for CLK_TCK */
-  #ifndef CLK_TCK
-    #include <sys/time.h> /* needed for CLK_TCK, under UNIX_SYSV_PTX */
-  #endif
   #include <sys/times.h>
   extern_C clock_t times (struct tms * buffer); /* TIMES(3V) */
   extern_C time_t time (time_t* tloc); /* TIME(3V) */
@@ -693,8 +684,6 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
 
 /* inquire used time of the process: */
 #if defined(HAVE_GETRUSAGE)
-  #include <sys/time.h>
-  #include <sys/resource.h>
   extern_C int getrusage (RUSAGE_WHO_T who, struct rusage * rusage); /* GETRUSAGE(2) */
   /* prototype useless, there 'struct rusage' /= 'struct rusage' */
 #elif defined(HAVE_SYS_TIMES_H)
