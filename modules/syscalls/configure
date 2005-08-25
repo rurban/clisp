@@ -2875,8 +2875,7 @@ done
 
 
 
-
-for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h sys/statvfs.h sys/types.h crypt.h utmpx.h stdlib.h shlobj.h
+for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h sys/statvfs.h crypt.h utmpx.h stdlib.h shlobj.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
