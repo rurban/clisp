@@ -831,15 +831,21 @@ global void time_t_to_filetime (time_t time_in, FILETIME *out)
 /* close all file descriptors before exec()
  this is more reliable than FD_CLOEXEC because there are many places that
  can open file descriptors (Berkeley-DB, rawsock &c) that we do not control */
+#define CLISP_OPEN_MAX_FALLBACK  256/* just a guess */
 global void close_all_fd (void) {
 #if defined(HAVE_SYSCONF) && defined(_SC_OPEN_MAX)
   int fd = sysconf(_SC_OPEN_MAX) - 1;
 #elif defined(HAVE_GETDTABLESIZE)
   int fd = getdtablesize() - 1;
+#elif defined(HAVE_GETRLIMIT) && defined(RLIMIT_NOFILE)
+  int fd;
+  struct rlimit rl;
+  if (0 == getrlimit(RLIMIT_NOFILE,&rl)) fd = rl.rlim_cur;
+  else fd = CLISP_OPEN_MAX_FALLBACK;
 #elif defined(OPEN_MAX)
   int fd = OPEN_MAX;
 #else
-  int fd = 16;                  /* just a guess */
+  int fd = CLISP_OPEN_MAX_FALLBACK;
 #endif
   while (fd >= 3) close(fd--);
 }

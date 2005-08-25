@@ -1,5 +1,13 @@
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
+	* unixaux.d (close_all_fd): also try getrlimit() before OPEN_MAX
+	* unix.d: include <time.h> and <sys/time.h> as recommended by the
+	autoconf manual (see AC_HEADER_TIME); include <sys/resource.h>
+	* configure.in: call AC_CHECK_FUNCS and AC_CHECK_HEADERS just once;
+	use AC_HEADER_TIME to check for <time.h> and <sys/time.h>
+
+2005-08-25  Sam Steingold  <sds@gnu.org>
+
 	* m4/regex.m4, modules/regexp/regcomp.c, modules/regexp/regex.h:
 	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
 	* modules/regexp/regexec.c, modules/regexp/regex.c: sync with gnulib
