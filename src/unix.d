@@ -846,6 +846,8 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
   extern void time_t_to_filetime (time_t time_in, FILETIME * out);
 #endif
 
+/* close all file descriptors before exec() */
+global void close_all_fd (void);
 
 /* CLISP as a NeXTstep-GUI-Application: */
 #ifdef NEXTAPP
