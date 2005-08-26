@@ -716,9 +716,11 @@ nonreturning_function(global, OS_file_error, (object pathname)) {
 
 #ifdef UNIX
 /* print an error
- > int errorcode: error code (errno) */
-global void errno_out (int errorcode) {
-  fprintf(stderr,"\n errno = ");
+ > int errorcode: error code (errno)
+ > FILE: Filename (with quotation marks) as constant ASCIZ-String
+ > LINE: line number */
+global void errno_out_low (int errorcode, const char* file, uintL line) {
+  fprintf(stderr,"\n[%s:%d] errno = ", file, line);
   var os_error_t errormsg;
   get_errormsg(errorcode,&errormsg);
   errormsg.msg = translate(errormsg.msg);

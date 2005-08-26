@@ -15022,23 +15022,18 @@ nonreturning_function(extern, OS_filestream_error, (object stream));
 #endif
 %% printf("nonreturning_function(extern, OS_filestream_error, (object stream));\n");
 
+/* Prints error directly via the OS:  errno_out_low(errorcode,FILE,LINE);
+ > errorcode: error code
+ > FILE: Filename (with quotation marks) as constant ASCIZ-String
+ > LINE: line number */
 #if defined(UNIX)
-  # Prints error directly via the OS
-  # errno_out(errorcode);
-  # > int errorcode: error code
-  extern void errno_out (int errorcode);
+extern void errno_out_low (int errorcode, const char* file, uintL line);
 #endif
 #if defined(WIN32_NATIVE)
-  # Prints error directly via the OS
-  # errno_out(errorcode);
-  # > DWORD errorcode: error code
-  extern void errno_out (DWORD errorcode);
+extern void errno_out_low (DWORD errorcode, const char* file, uintL line);
 #endif
-#if defined(DEBUG_OS_ERROR)
-  /* Show the file and line number of the caller of errno_out(). */
-  #define errno_out(e)  \
-    (fprintf(stderr,"\n[%s:%d]",__FILE__,__LINE__), (errno_out)(e))
-#endif
+/* Show the file and line number of the caller of errno_out(). */
+#define errno_out(e)   errno_out_low(e,__FILE__,__LINE__)
 
 # UP: Executes break-loop because of a keyboard-interrupt.
 # > -(STACK) : calling funtion
