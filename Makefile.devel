@@ -114,8 +114,11 @@ win32msvc/makefile.msvc7 : makemake
 	./makemake --with-dynamic-ffi \
 		win32msvc msvc7 > win32msvc/makefile.msvc7
 
-makemake : src/makemake.in
-	(echo "#!/bin/sh" ; cat src/makemake.in) > makemake
+makemake : src/makemake.in version.sh
+	. version.sh; { \
+	echo "#!/bin/sh" ; \
+	sed "s/@PACKAGE_VERSION@/$${VERSION_NUMBER}/g" src/makemake.in ; \
+	} > makemake
 	chmod a+x makemake
 
 CURDIR=$(shell pwd)

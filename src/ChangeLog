@@ -1,5 +1,9 @@
 2005-08-26  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (makemake): substitute @PACKAGE_VERSION@
+
+2005-08-26  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: avoid putting ${} into Makefile, use $() instead
 
 2005-08-26  John Hinsdale <hin@alma.com>
