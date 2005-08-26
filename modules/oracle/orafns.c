@@ -79,6 +79,7 @@ static int       check_active_statement(struct db_conn *, char *);
 static int       check_active_select(struct db_conn *, char *);
 static int       empty(char *);
 static char *    valid_string(char *);
+static void      hexify (unsigned char *, int) ;
 
 /* Static indicator variables for input data */
 static sb4      null_indicator = -1;
@@ -403,8 +404,12 @@ static int fetch_row(struct db_conn * db)
 			return db->success = 0;
 		  }
 		
-		  /* Null-terminate the data buffer */
-		  ((char *) col->data)[minof(act_nread, db->long_len)] = '\0';
+                  /* For BLOB or BFILE, convert to hex */
+                  if ( col->dtype == SQLT_BLOB || col->dtype == SQLT_BFILE )
+                    hexify((unsigned char *) col->data, act_nread);
+                  else
+                    /* Null-terminate the data buffer */
+                    ((char *) col->data)[minof(act_nread, db->long_len)] = '\0';
 		}
 	}
     else if ( col->indicator == -1 )
@@ -1164,9 +1169,12 @@ static int fetch_data_len(int dtype, int dlen, int long_len)
 
   case 8:   /* LONG (SQLT_LNG) */
   case 112: /* CLOB (SQLT_CLOB) */
+    return long_len + 1;
+    
+	/* Use twice long_len for BLOBs so we can convert to hex */
   case 113: /* BLOB (SQLT_BLOB) */
   case 114: /* BFILE (SQLT_FILE) */
-    return long_len + 1;
+    return 2 * long_len + 1;
 
   case 24:  /* LONG RAW (SQLT_LBI) */
     return 2 * long_len + 1;
@@ -1426,6 +1434,24 @@ static int set_auto_commit(struct db_conn * db, int auto_commit)
 static int empty(char * s) { return !s || !*s; }
 /* Map NULL to empty string */
 static char * valid_string(char * s) { return s ? s : ""; }
+
+/* Convert a binary buffer to null-terminated hex in place.  Actual
+   allocation of buf must be twice N plus 1.  Work from the end to the
+   start so we don't stomp on ourselves. */
+/* Convert int to hex */
+#define itoh(n)(((n) > 9) ? ((n) - 10 + 'A') : ((n) + '0'))
+static void hexify (unsigned char * buf, int n) 
+{
+  int i;
+  for ( i = n-1; i >= 0; i-- ) {
+	unsigned char c = buf[i];
+    buf[2*i] = itoh(c / 16);
+    buf[2*i + 1] = itoh(c & 0xF);
+  }
+
+  /* Null terminate */
+  buf[2*n] = '\0';
+}
 
 /* ------------------------------------------------------------------------------------------------------------- */
 
