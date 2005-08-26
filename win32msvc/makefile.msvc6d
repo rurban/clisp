@@ -159,7 +159,7 @@ DVIPDF = dvipdf
 # need to do is to add its name to the MODULES definition line above.
 #
 
-VERSION=@PACKAGE_VERSION@
+VERSION=2.34
 CLISP_VERSION=clisp-$(VERSION)
 
 # List of add-on modules that are already hardwired in the base linking set
@@ -1238,7 +1238,7 @@ sp80386.c : sp80386.d comment5.exe
 	$(COMMENT5) sp80386.d > sp80386.c
 
 gen.lispbibl.c : lispbibl.d comment5.exe
-	$(COMMENT5) lispbibl.d | sed -e '/^#line/n;s/^%%%% //;t' -e 's/^.*$$//' > gen.lispbibl.c
+	$(COMMENT5) lispbibl.d | sed -e '/^%%%% /{s///p;d;}' -e '/^#line /!s/.*//' > gen.lispbibl.c
 
 allo : allc spvw.obj spvwtabf.obj spvwtabs.obj spvwtabo.obj eval.obj control.obj encoding.obj pathname.obj stream.obj socket.obj io.obj array.obj hashtabl.obj list.obj package.obj record.obj weak.obj sequence.obj charstrg.obj debug.obj error.obj misc.obj time.obj predtype.obj symbol.obj lisparit.obj i18n.obj foreign.obj win32aux.obj built.obj
 
@@ -2159,9 +2159,6 @@ lispinit.mem : lisp.exe $(FASFILES)
 	$(RUN) -x "(and (load \"init.fas\") (ext::saveinitmem) (ext::exit)) (ext::exit t)"
 
 
-# Perform self-tests.
-check : check-recompile check-fresh-line check-tests check-sacla-tests check-ansi-tests check-ansi-tests-compiled
-
 # check the sources:
 # 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up
 # 2. no variables of type gcv_object_t - only pointers to it
@@ -2810,30 +2807,8 @@ tests :
 	cd tests && $(LN_S) ..\..\tests\*.lisp .
 	cd tests && $(LN_S) ..\..\tests\*.tst .
 
-check-sacla-tests : sacla-tests lisp.exe lispinit.mem
-	cd sacla-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale  -Efile UTF-8 -Eterminal UTF-8 -norc -i tests.lisp -x '(ext:exit (> (nth-value 1 (run-all-tests)) 0))'
-
-sacla-tests :
-	-mkdir sacla-tests
-	cd sacla-tests && $(LN_S) ..\..\sacla-tests\*.lisp .
-
-check-ansi-tests : ansi-tests lisp.exe lispinit.mem
-	cd ansi-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale  -Efile UTF-8 -Eterminal UTF-8 -norc -m 30000KW -ansi -i clispload.lsp -x '(in-package "CL-TEST") (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log
-
-check-ansi-tests-debug : ansi-tests lisp.exe lispinit.mem
-	cd ansi-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale  -Efile UTF-8 -Eterminal UTF-8 -norc -m 30000KW -ansi -i clispload.lsp -x '(in-package "CL-TEST")' -repl
-
-check-ansi-tests-compiled : ansi-tests lisp.exe lispinit.mem
-	cd ansi-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale  -Efile UTF-8 -Eterminal UTF-8 -norc -m 30000KW -ansi -i clispload.lsp -x '(in-package "CL-TEST") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-compiled-log
-
-check-ansi-tests-compiled-debug : ansi-tests lisp.exe lispinit.mem
-	cd ansi-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale  -Efile UTF-8 -Eterminal UTF-8 -norc -m 30000KW -ansi -i clispload.lsp -x '(in-package "CL-TEST") (setq regression-test::*compile-tests* t)' -repl
-
-ansi-tests :
-	-mkdir ansi-tests
-	cd ansi-tests && $(LN_S) ..\..\ansi-tests\Makefile .
-	cd ansi-tests && $(LN_S) ..\..\ansi-tests\*.lsp .
-	cd ansi-tests && $(LN_S) ..\..\utils\clispload.lsp .
+# Perform self-tests.
+check : check-recompile check-fresh-line check-tests
 
 
 clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
@@ -2958,7 +2933,7 @@ clisp.1 : ../doc/_clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c const
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
-	txt | $(GREP) -v "^ *$$" > clisp.1
+	txt | $(GREP) -v "^ *$$" | sed -e "s,@PLATFORM@,win32msvc,g" > clisp.1
 	$(RM) txt.c
 	$(RM) txt.exe
 
@@ -2968,7 +2943,7 @@ clisp.html : ../doc/_clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
-	txt | sed -e  s,=\"http://www.lisp.org/HyperSpec//,=\"http://www.lisp.org/HyperSpec/, > clisp.html
+	txt | sed -e s,=\"http://www.lisp.org/HyperSpec//,=\"http://www.lisp.org/HyperSpec/, | sed -e "s,@PLATFORM@,win32msvc,g" > clisp.html
 	$(RM) txt.c
 	$(RM) txt.exe
 
