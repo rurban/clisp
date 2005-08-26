@@ -2291,7 +2291,7 @@ if [ $TSYS = win32msvc ] ; then
   echotab '$(RM) cflags.h'
   echotab '$(MV) cflags.h.new cflags.h'
 else
-  echotab 'if cmp cflags.h.new cflags.h > /dev/null 2>&1; then ${RM} cflags.h.new; else ${MV} cflags.h.new cflags.h; fi'
+  echotab 'if cmp cflags.h.new cflags.h > /dev/null 2>&1; then $(RM) cflags.h.new; else $(MV) cflags.h.new cflags.h; fi'
 fi
 echotab '$(TOUCH) cflags.h.stamp'
 echol
@@ -3042,7 +3042,7 @@ if [ $CROSS = false ] ; then
         echotab "sed '${SEDRE}' ${f}.fas > ${f}.fas1"
         echotab "sed '${SEDRE}' ${RECOMPILEDIR}/${f}.fas > ${RECOMPILEDIR}/${f}.fas1"
         echotab "cmp -s ${f}.fas1 ${RECOMPILEDIR}/${f}.fas1 ${FAIL}"
-        echotab "${RM} ${f}.fas1 ${RECOMPILEDIR}/${f}.fas1"
+        echotab "\$(RM) ${f}.fas1 ${RECOMPILEDIR}/${f}.fas1"
       else
         echotab "cmp -s ${f}.fas ${RECOMPILEDIR}/${f}.fas ${FAIL}"
       fi
