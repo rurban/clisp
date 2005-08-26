@@ -1,8 +1,12 @@
+2005-08-26  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: avoid putting ${} into Makefile, use $() instead
+
 2005-08-26  John Hinsdale <hin@alma.com>
 
 	* modules/oracle/oracle.lisp, orafns.c: Handle Oracle BLOB data
-	on output as array of (UNSIGNED-BYTE 8) and allow embedded NUL
-	bytes. Reported by Tomas Hlavaty <kvietaag@seznam.cz>
+	on output as array of (UNSIGNED-BYTE 8) and allow embedded NUL bytes.
+	Reported by Tomas Hlavaty <kvietaag@seznam.cz>
 
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
