@@ -1,5 +1,13 @@
 2005-08-26  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d, errunix.d, errwin32.d (errno_out_low):
+	renamed from errno_out(), accept __FILE__ and __LINE__
+	* error.d: do not #undef errno_out
+	* lispbibl.d (errno_out): define always,
+	passing __FILE__ and __LINE__ to errno_out_low()
+
+2005-08-26  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (makemake): substitute @PACKAGE_VERSION@
 
 2005-08-26  Sam Steingold  <sds@gnu.org>
