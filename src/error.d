@@ -400,7 +400,6 @@ global maygc void correctable_error (condition_t errortype, const char* errorstr
 #undef OS_error
 #undef OS_file_error
 #undef OS_filestream_error
-#undef errno_out
 
 #ifdef UNIX
   /* Define OS_error, OS_file_error. */

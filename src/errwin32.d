@@ -4131,7 +4131,9 @@
     }
 
 /* print an error
- > DWORD errorcode: error code (errno) */
+ > DWORD errorcode: error code (errno)
+ > FILE: Filename (with quotation marks) as constant ASCIZ-String
+ > LINE: line number */
 local void errno_out_body (const char* name, const char* msg) {
   if (name != NULL)
     fprintf(stderr," (%s)",name);
@@ -4140,8 +4142,8 @@ local void errno_out_body (const char* name, const char* msg) {
   else
     fprintf(stderr,".");
 }
-global void errno_out (DWORD errorcode) {
-  fprintf(stderr,"\n GetLastError() = 0x%x",errorcode);
+global void errno_out_low (DWORD errorcode, const char* file, uintL line) {
+  fprintf(stderr,"\n[%s:%d] GetLastError() = 0x%x",file,line,errorcode);
   get_OS_error_info(errorcode,&errno_out_body);
   fputs("\n",stderr);
 }
