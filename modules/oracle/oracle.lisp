@@ -767,10 +767,13 @@ Argument: none
 
 ; Convert Oracle type based on sqlcol data type.  Oracle numerics are converted
 ; to the appropriate internal Lisp type using READ-FROM-STRING.  NULL is retained
-; as Lisp NIL, and strings and dates are left as Lisp string.
+; as Lisp NIL, BLOB and BFILE are converted to array of bytes,
+; and strings and dates are left as Lisp string.
 (defun convert-type (val sc)
   (let ((dtype (sqlcol-type sc)))
     (cond ((null val) nil)
+		  ((find dtype '("BLOB" "BFILE") :test #'equal)
+		   (hex-to-byte-array val))
           ((find dtype '("NUMBER" "INTEGER" "FLOAT") :test #'equal)
 		   (let ((old-default-format *read-default-float-format*))
 			 ;; Adjust default float format, read, then restore old value
@@ -779,7 +782,7 @@ Argument: none
 				   (setf *read-default-float-format* 'double-float)
 				   (read-from-string val))
 			   (setf *read-default-float-format* old-default-format))))
-          ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2" "LONG" "RAW" "LONG RAW" "BLOB" "CLOB" "BFILE" "ROWID DESC") :test #'equal)
+          ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2" "LONG" "RAW" "LONG RAW" "CLOB" "ROWID DESC") :test #'equal)
            val)
           (t (db-error (cat "Unsupported data type '" dtype "'"))))))
 
@@ -1063,6 +1066,33 @@ Argument: none
 ; Get "C" truth of object (0 or 1).  Useful for passing args to "C"
 (defun c-truth (x)
   (if (lisp-truth x) 1 0))
+
+;; HEX-VALUE -- Get integer value of single upper-case hex digit
+(defun hex-value (h)
+  (cond ((and (char>= h #\A) (char<= h #\F))
+         (+ 10 (- (char-code h) (char-code #\A))))
+        ((and (char>= h #\a) (char<= h #\f))
+         (+ 10 (- (char-code h) (char-code #\a))))
+        ((and (char>= h #\0) (char<= h #\9))
+         (- (char-code h) (char-code #\0)))
+        (t (error "Invalid hex digit"))))
+
+;; HEX-BYTE-VALUE -- Get byte value of pair of hex digits
+(defun hex-byte-value (hh)
+  (+ (* 16 (hex-value (elt hh 0)))
+     (hex-value (elt hh 1))))
+
+;; HEX-TO-BYTE-ARRAY -- Convert hex string to byte array
+(defun hex-to-byte-array (h)
+  (let* ((size (/ (length h) 2))
+         (result (make-array size :element-type '(unsigned-byte 8))))
+    (loop
+     for i from 0 to (1- size) do
+     (let ((offset (* 2 i)))
+       (setf (elt result i)
+             (coerce (hex-byte-value (subseq h offset (+ 2 offset)))
+                     '(unsigned-byte 8)))))
+    result))
 
 ; FLATTEN
 ; Flatten list (lifted from Paul Graham)
