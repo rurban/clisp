@@ -2044,7 +2044,7 @@ typedef enum {
 %% printf("#include <stdlib.h>\n");
 %% printf("#include <sys/types.h>\n");
 %% #if defined(UNIX)
-%%   printf("#define Handle uintW\n");
+%%   emit_typedef("int","Handle");
 %%   emit_typedef("int","SOCKET");
 %%   #ifdef UNIX_CYGWIN32
 %%     printf("#include <windows.h>\n");
