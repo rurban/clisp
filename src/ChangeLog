@@ -1,7 +1,8 @@
-2005-08-25  Sam Steingold  <sds@gnu.org>
+2005-08-26  John Hinsdale <hin@alma.com>
 
-	* modules/berkeley-db/bdb.c (close_messages, DBE-MESSAGES):
-	added casts for C++ compilation
+	* modules/oracle/oracle.lisp, orafns.c: Handle Oracle BLOB data
+	on output as array of (UNSIGNED-BYTE 8) and allow embedded NUL
+	bytes. Reported by Tomas Hlavaty <kvietaag@seznam.cz>
 
 2005-08-25  Sam Steingold  <sds@gnu.org>
 
