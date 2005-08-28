@@ -28,11 +28,11 @@ further explanations of the issues could be provided).</para>
 <qandadiv id="faq-meta-misc"><title>Miscellaneous</title>
 <qandaentry id="faq-gpl"><question id="faq-gpl-q"><simpara>License
    - why &gnu; &gpl;?</simpara></question>
-<answer><para><ulink url="&clisp-cvs;doc/Why-CLISP-is-under-GPL">Because
+<answer><para><ulink role="clisp-cvs" url="doc/Why-CLISP-is-under-GPL">Because
    &clisp; uses &readline;</ulink>.</para>
 <para>Note that this does not necessarily prevent you from distributing
  your proprietary products based on &clisp;. See <emphasis>Note</emphasis>
- in <ulink url="&clisp-cvs;COPYRIGHT">COPYRIGHT</ulink>.
+ in <filename role="clisp-cvs">COPYRIGHT</filename>.
 </para></answer></qandaentry>
 
 <qandaentry id="faq-ansi"><question id="faq-ansi-q"><simpara>What about
@@ -248,7 +248,7 @@ further explanations of the issues could be provided).</para>
   student human rights protesters at the Tienanmen square in Beijing,
   and people appear to have already forgotten this crime.
   A note to that effect was kept in the file
-  <ulink url="&clisp-cvs;src/timezone.lisp">timezone.lisp</ulink>
+  <filename role="clisp-cvs">src/timezone.lisp</filename>
   until 2002, when it was decided that is was not visible enough there
   and moved it here.</para></answer></qandaentry>
 
@@ -341,7 +341,8 @@ further explanations of the issues could be provided).</para>
   </simpara></listitem></varlistentry>
   <varlistentry><term>&http; (really Frequently Asked!)</term>
    <listitem><itemizedlist>
-     <listitem><simpara>&clisp; comes with <ulink url="&clisp-cvs;src/inspect.lisp"><filename>inspect.lisp</filename></ulink>
+     <listitem><simpara>&clisp; comes with
+       <filename role="clisp-cvs">src/inspect.lisp</filename>
        which implements a rudimentary &http; server</simpara></listitem>
      <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/donc/http.lisp">CLOCC/src/donc/</ulink> has an &http; server</simpara></listitem>
      <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/cllib/url.lisp">CLOCC/src/cllib/</ulink> handles URLs</simpara></listitem>
@@ -501,13 +502,14 @@ trying to &nconc; a circular list).</para>
 <qandaentry id="faq-autoconf"><question id="faq-autoconf-q"><simpara>Why
    is autoconf invoked during build?</simpara></question>
 <answer><para>When building from the CVS HEAD development sources, you
-  will sometimes get errors when &make; tries to regenerate
-  a <filename>configure</filename> script for you.
+  will sometimes get errors when <command role="unix">make</command>
+  tries to regenerate a <filename>configure</filename> script for you.
  <emphasis role="strong">This is never necessary!</emphasis>
  (and will not happen in an officially released source distribution).
- Please just &touch; the target, e.g.:<screen>
+ Please just <command role="unix">touch</command> the target, e.g.:<screen>
 <prompt>$</prompt> touch src/configure
-</screen>and re-&make;.</para></answer></qandaentry>
+</screen>and re-<command role="unix">make</command>.
+</para></answer></qandaentry>
 
 
 <qandaentry id="faq-fp">

@@ -33,35 +33,35 @@
 <para>&c-lang; sources are pre-processed with the following tools
    before being passed to the &c-lang; compiler:</para>
 <variablelist>
-<varlistentry><term><filename>utils/comment5</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/comment5</filename></term>
 <listitem><simpara>Convert &sh;-style comments (lines starting
   with <literal>"# "</literal>) to &c-lang;-style comments
   (<literal>/**/</literal>).</simpara>
  <warning><para>The use of &sh;-style comments is deprecated.</para></warning>
 </listitem></varlistentry>
-<varlistentry><term><filename>utils/varbrace</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/varbrace</filename></term>
 <listitem><simpara>Add braces to &c-lang; source code, so that variable
   declarations (introduced with the pseudo-keyword <literal>var</literal>)
   can be used within blocks, like in <command>C++</command>
   and <command>C99</command>.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>utils/ccpaux</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/ccpaux</filename></term>
 <listitem><simpara>When &cpp; cannot handle indented directives, remove
   the indentation.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>utils/gctrigger</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/gctrigger</filename></term>
 <listitem><simpara>Add <function>GCTRIGGER</function> statements at the
   head of function bodies (for functions marked with
   the <literal>maygc</literal> pseudo-keyword).
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>utils/deema</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/deema</filename></term>
 <listitem><simpara>When &cpp; cannot handle empty macro arguments,
   insert <literal>_EMA_</literal> instead.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>utils/ccmp2c</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/ccmp2c</filename></term>
 <listitem><simpara>For the <literal>new-clx</literal> module only.
   Allows &cpp;-style preprocessing <emphasis>before</emphasis> &modprep;
   processing.  Should be merged into &modprep;.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>utils/modprep.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/modprep.lisp</filename></term>
 <listitem><simpara>For some modules only, see <xref linkend="modprep"/>.
 </simpara></listitem></varlistentry>
 </variablelist></section>
@@ -73,36 +73,40 @@
 <section id="src-includes"><title>Includes</title>
 
 <variablelist>
-<varlistentry><term><filename>lispbibl.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/lispbibl.d</filename></term>
  <listitem><simpara>main include file</simpara></listitem></varlistentry>
-<varlistentry id="fsubr-d"><term>&fsubr-d;</term>
+<varlistentry id="fsubr-d">
+ <term><filename role="clisp-cvs">src/fsubr.d</filename></term>
  <listitem><simpara>list of all built-in special forms
 </simpara></listitem></varlistentry>
-<varlistentry id="subr-d"><term>&subr-d;</term>
+<varlistentry id="subr-d">
+ <term><filename role="clisp-cvs">src/subr.d</filename></term>
  <listitem><simpara>list of all built-in functions
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>pseudofun.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/pseudofun.d</filename></term>
  <listitem><simpara>list of all <quote>pseudo functions</quote>
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>constpack.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/constpack.d</filename></term>
  <listitem><simpara>list of packages accessed by &c-lang; code
 </simpara></listitem></varlistentry>
-<varlistentry id="constsym-d"><term>&constsym-d;</term>
+<varlistentry id="constsym-d"><term>
+  <filename role="clisp-cvs">src/constsym.d</filename></term>
  <listitem><simpara>list of symbols accessed by &c-lang; code
 </simpara></listitem></varlistentry>
-<varlistentry id="constobj-d"><term>&constobj-d;</term>
+<varlistentry id="constobj-d">
+ <term><filename role="clisp-cvs">src/constobj.d</filename></term>
  <listitem><simpara>list of miscellaneous objects accessed by &c-lang; code
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>unix.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/unix.d</filename></term>
  <listitem><simpara>include file for the &unix; implementations
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>win32.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/win32.d</filename></term>
  <listitem><simpara>include file for the &win32; based versions
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>xthread.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/xthread.d</filename></term>
  <listitem><simpara>include file for thread support
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>modules.h</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/modules.h</filename></term>
  <listitem><simpara>list of foreign &module;s
 </simpara></listitem></varlistentry>
 </variablelist>
@@ -111,101 +115,108 @@
 <section id="src-modules"><title>Internal &c-lang; Modules</title>
 
 <variablelist>
-<varlistentry id="spvw-d"><term>&spvw-d;</term>
+<varlistentry id="spvw-d">
+ <term><filename role="clisp-cvs">src/spvw.d</filename></term>
  <listitem><para>Memory management (&gc;ion), startup; some OS interface.
-   <variablelist><varlistentry><term><filename>avl.d</filename></term>
+   <variablelist><varlistentry>
+     <term><filename role="clisp-cvs">src/avl.d</filename></term>
      <listitem><simpara>An implementation of AVL (Adelson-Velskii and
        Landis) trees.</simpara></listitem></varlistentry>
-    <varlistentry><term><filename>sort.d</filename></term>
+    <varlistentry><term><filename role="clisp-cvs">src/sort.d</filename></term>
      <listitem><simpara>A sorting routine.</simpara></listitem></varlistentry>
-    <varlistentry id="subrkw-d"><term>&subrkw-d;</term>
+    <varlistentry id="subrkw-d">
+     <term><filename role="clisp-cvs">src/subrkw.d</filename></term>
      <listitem><simpara>The list of all built-in functions with keywords
        in &lalist;.</simpara></listitem></varlistentry></variablelist>
 </para></listitem></varlistentry>
-<varlistentry><term><filename>spvwtabf.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/spvwtabf.d</filename></term>
  <listitem><simpara>The table of built-in special operators and functions.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>spvwtabs.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/spvwtabs.d</filename></term>
  <listitem><simpara>The table of all &symbol-t;s accessed by &c-lang; code.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>spvwtabo.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/spvwtabo.d</filename></term>
  <listitem><simpara>The table of miscellaneous objects accessed by
    &c-lang; code.</simpara></listitem></varlistentry>
-<varlistentry id="eval-d"><term>&eval-d;</term>
+<varlistentry id="eval-d">
+ <term><filename role="clisp-cvs">src/eval.d</filename></term>
  <listitem><para>Evaluator (form interpreter) and &bytecode; interpreter.
    <variablelist><varlistentry id="bytecode-d"><term>&bytecode-d;</term>
      <listitem><simpara>List of &bytecode;s.</simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
-<varlistentry><term><filename>control.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/control.d</filename></term>
  <listitem><simpara>Special operator interpreter.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>pathname.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/pathname.d</filename></term>
  <listitem><simpara>Pathnames, file- and directory-related functions.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>stream.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/stream.d</filename></term>
  <listitem><simpara>&stream-t;s of all kinds: &file-stream-t;s,
    <link linkend="terminal">terminal</link> streams, &string-stream-t;s
    etc.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>socket.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/socket.d</filename></term>
  <listitem><simpara>Opening sockets for TCP/IP and CLX.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>io.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/io.d</filename></term>
  <listitem><simpara>The lisp reader (parser) and printer (also pretty
    printer).</simpara></listitem></varlistentry>
-<varlistentry><term><filename>array.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/array.d</filename></term>
  <listitem><simpara>Functions dealing with &array-t;s and &vector-t;s.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>hashtabl.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/hashtabl.d</filename></term>
  <listitem><simpara>Functions dealing with &hash-table-t;s.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>list.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/list.d</filename></term>
  <listitem><simpara>Functions dealing with &list-t;s.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>package.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/package.d</filename></term>
  <listitem><simpara>Functions dealing with &package-t;s.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>record.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/record.d</filename></term>
  <listitem><simpara>Functions dealing with records (structures, closures, etc.)
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>sequence.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/sequence.d</filename></term>
  <listitem><simpara>The generic &sequence-t; functions.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>charstrg.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/charstrg.d</filename></term>
  <listitem><simpara>Functions dealing with &character-t;s and &string-t;s.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>debug.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/debug.d</filename></term>
  <listitem><simpara>Support for debugging and the &repl;
    (see <xref linkend="debugger"/>).</simpara></listitem></varlistentry>
-<varlistentry><term><filename>error.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/error.d</filename></term>
  <listitem><para>&error-t; handling and &signal;ing.
-   <variablelist><varlistentry><term><filename>errunix.d</filename></term>
+   <variablelist><varlistentry>
+     <term><filename role="clisp-cvs">src/errunix.d</filename></term>
      <listitem><simpara>&unix;-specific error messages.
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>errwin32.d</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">src/errwin32.d</filename></term>
      <listitem><simpara>&win32;-specific error messages.
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
-<varlistentry><term><filename>misc.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/misc.d</filename></term>
  <listitem><simpara>Miscellaneous functions.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>time.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/time.d</filename></term>
  <listitem><simpara>Timing functions.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>predtype.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/predtype.d</filename></term>
  <listitem><simpara>Predicates, type tests.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>symbol.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/symbol.d</filename></term>
  <listitem><simpara>Functions dealing with &symbol-t;s.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>unixaux.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/unixaux.d</filename></term>
  <listitem><simpara>Auxiliary functions (&unix; version only).
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>win32aux.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/win32aux.d</filename></term>
  <listitem><simpara>Auxiliary functions (&win32; version only).
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>foreign.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/foreign.d</filename></term>
  <listitem><simpara>&ffi-pac; support.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>lisparit.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/lisparit.d</filename></term>
  <listitem><simpara>Functions dealing with numbers (arithmetic), see
    <xref linkend="src-arith"/>.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>noreadline.d</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/noreadline.d</filename></term>
  <listitem><simpara>Dummy plug-in for the &readline; library.
 </simpara></listitem></varlistentry>
 </variablelist>
@@ -214,95 +225,95 @@
 <section id="src-arith"><title>Number system (arithmetic)</title>
 
 <variablelist>
-<varlistentry><term><filename>lisparit.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/lisparit.d</filename></term>
  <listitem><simpara>initialization, input/output of numbers, lisp functions
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>aridecl.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/aridecl.d</filename></term>
  <listitem><simpara>declarations</simpara></listitem></varlistentry>
-<varlistentry><term><filename>arilev0.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/arilev0.d</filename></term>
  <listitem><simpara>arithmetic at the machine level
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>arilev1.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/arilev1.d</filename></term>
  <listitem><simpara>digit sequences</simpara></listitem></varlistentry>
-<varlistentry><term><filename>arilev1c.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/arilev1c.d</filename></term>
  <listitem><simpara>operations on digit sequences, written in &c-lang;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>arilev1i.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/arilev1i.d</filename></term>
  <listitem><simpara>operations on digit sequences, as inline functions
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>arilev1e.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/arilev1e.d</filename></term>
  <listitem><simpara>operations on digit sequences, bindings to external
    routines</simpara></listitem></varlistentry>
-<varlistentry><term><filename>intelem.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intelem.d</filename></term>
  <listitem><simpara>&integer-t;s: elementary operations
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intlog.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intlog.d</filename></term>
  <listitem><simpara>&integer-t;s: logical connectives
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intplus.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intplus.d</filename></term>
  <listitem><simpara>&integer-t;s: addition and subtraction
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intcomp.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intcomp.d</filename></term>
  <listitem><simpara>&integer-t;s: comparison
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intbyte.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intbyte.d</filename></term>
  <listitem><simpara>&integer-t;s: byte operations &ldb;, &dpb;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intmal.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intmal.d</filename></term>
  <listitem><simpara>&integer-t;s: multiplication
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intdiv.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intdiv.d</filename></term>
  <listitem><simpara>&integer-t;s: division
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intgcd.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intgcd.d</filename></term>
  <listitem><simpara>&integer-t;s: &gcd; and &lcm;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>int2adic.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/int2adic.d</filename></term>
  <listitem><simpara>&integer-t;s: operations on 2-adic integers
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intsqrt.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intsqrt.d</filename></term>
  <listitem><simpara>&integer-t;s: square root, n-th root
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intprint.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intprint.d</filename></term>
  <listitem><simpara>subroutines for &integer-t; output
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>intread.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/intread.d</filename></term>
  <listitem><simpara>subroutines for &integer-t; input
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>rational.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/rational.d</filename></term>
  <listitem><simpara>rational numbers (&ratio-t;s)
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>sfloat.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/sfloat.d</filename></term>
  <listitem><simpara>elementary operations for &short-float-t;s
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>ffloat.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ffloat.d</filename></term>
  <listitem><simpara>elementary operations for &single-float-t;s
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>dfloat.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/dfloat.d</filename></term>
  <listitem><simpara>elementary operations for &double-float-t;s
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>lfloat.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/lfloat.d</filename></term>
  <listitem><simpara>elementary operations for &long-float-t;s
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>flo_konv.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/flo_konv.d</filename></term>
  <listitem><simpara>conversions between &float-t;s
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>flo_rest.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/flo_rest.d</filename></term>
  <listitem><simpara>general &float-t; operations
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>realelem.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/realelem.d</filename></term>
  <listitem><simpara>elementary functions for &real-t; numbers
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>realrand.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/realrand.d</filename></term>
  <listitem><simpara>random numbers
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>realtran.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/realtran.d</filename></term>
  <listitem><simpara>transcendental functions for &real-t; numbers
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>compelem.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/compelem.d</filename></term>
  <listitem><simpara>elementary functions for &complex-t; numbers
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>comptran.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/comptran.d</filename></term>
  <listitem><simpara>transcendental functions for &complex-t; numbers
 </simpara></listitem></varlistentry>
 </variablelist>
@@ -310,34 +321,36 @@
 <section id="src-ari-asm"><title>External routines for the arithmetic
   system, written in assembly language</title>
 <variablelist>
-<varlistentry><term><filename>ari68000.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ari68000.d</filename></term>
  <listitem><simpara>written in 68000 assembler, MIT syntax
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>ari68020.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ari68020.d</filename></term>
  <listitem><simpara>written in 68020 assembler, MIT syntax
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>arisparc.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/arisparc.d</filename></term>
  <listitem><simpara>written in SPARC assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>arisparc64.d</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/arisparc64.d</filename></term>
  <listitem><simpara>written in 64-bit SPARC assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>ari80386.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ari80386.d</filename></term>
  <listitem><simpara>written in i386/i486 assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>arimips.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/arimips.d</filename></term>
  <listitem><simpara>written in MIPS assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>arimips64.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/arimips64.d</filename></term>
  <listitem><simpara>written in 64-bit MIPS assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>arihppa.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/arihppa.d</filename></term>
  <listitem><simpara>written in HPPA-1.0 assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>arivaxunix.d</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/arivaxunix.d</filename></term>
  <listitem><simpara>written in VAX assembler, Unix assembler syntax
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>ariarm.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ariarm.d</filename></term>
  <listitem><simpara>written in ARM assembler
 </simpara></listitem></varlistentry>
 </variablelist></section>
@@ -347,19 +360,19 @@
   stack, written in assembly language</title>
 
 <variablelist>
-<varlistentry><term><filename>sp68000.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/sp68000.d</filename></term>
  <listitem><simpara>written in 68000 assembler, MIT syntax
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>spsparc.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/spsparc.d</filename></term>
  <listitem><simpara>written in SPARC assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>spsparc64.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/spsparc64.d</filename></term>
  <listitem><simpara>written in 64-bit SPARC assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>sp80386.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/sp80386.d</filename></term>
  <listitem><simpara>written in i386/i486 assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>spmips.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/spmips.d</filename></term>
  <listitem><simpara>written in MIPS assembler
 </simpara></listitem></varlistentry>
 </variablelist></section>
@@ -368,10 +381,10 @@
 <section id="src-asm-misc"><title>Other assembly language stuff</title>
 
 <variablelist>
-<varlistentry><term><filename>asmi386.sh</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/asmi386.sh</filename></term>
  <listitem><simpara>converts i386 assembler from MIT syntax to a macro syntax
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>asmi386.hh</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/asmi386.hh</filename></term>
  <listitem><simpara>expands i386 assembler in macro syntax to either MIT
    or Intel syntax</simpara></listitem></varlistentry>
 </variablelist>
@@ -380,249 +393,316 @@
 <section id="src-lisp"><title>Lisp source files</title>
 
 <variablelist>
-<varlistentry id="init-lisp"><term>&init-lisp;</term>
+<varlistentry id="init-lisp">
+ <term><filename role="clisp-cvs">src/init.lisp</filename></term>
  <listitem><simpara>the first file to be loaded during bootstrapping,
  loads everything else</simpara></listitem></varlistentry>
-<varlistentry><term><filename>defseq.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/defseq.lisp</filename></term>
  <listitem><simpara>defines the usual sequence types for the generic
    sequence functions</simpara></listitem></varlistentry>
-<varlistentry><term><filename>backquote.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/backquote.lisp</filename></term>
  <listitem><simpara>implements the backquote read macro
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>defmacro.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/defmacro.lisp</filename></term>
  <listitem><simpara>implements &defmacro;</simpara></listitem></varlistentry>
-<varlistentry><term><filename>macros1.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/macros1.lisp</filename></term>
  <listitem><simpara>the most important macros
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>macros2.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/macros2.lisp</filename></term>
  <listitem><simpara>some other macros
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>defs1.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/defs1.lisp</filename></term>
  <listitem><simpara>miscellaneous definitions
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>timezone.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/timezone.lisp</filename></term>
  <listitem><simpara>site-dependent definition of time zone, except for
    &unix; and &win32;.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>places.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/places.lisp</filename></term>
  <listitem><simpara>macros using &place;s, definitions of most standard
    and extensiion &place;s</simpara></listitem></varlistentry>
-<varlistentry id="floatprint-lisp"><term>&floatprint-lisp;</term>
+<varlistentry id="floatprint-lisp">
+ <term><filename role="clisp-cvs">src/floatprint.lisp</filename></term>
  <listitem><simpara>defines <link linkend="write-float-decimal"><function>SYS::WRITE-FLOAT-DECIMAL</function></link>
    for printing floating point numbers in base 10
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>type.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/type.lisp</filename></term>
  <listitem><simpara>functions working with type specifiers: &typep;,
    &subtypep;</simpara></listitem></varlistentry>
-<varlistentry><term><filename>defstruct.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/defstruct.lisp</filename></term>
  <listitem><simpara>implements the macro &defstruct;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>format.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/format.lisp</filename></term>
  <listitem><simpara>implements the function &format;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>room.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/room.lisp</filename></term>
  <listitem><simpara>implements the function &room;
    (see also <xref linkend="room"/>)</simpara></listitem></varlistentry>
-<varlistentry><term><filename>savemem.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/savemem.lisp</filename></term>
  <listitem><simpara>see <xref linkend="image"/>
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>keyboard.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/keyboard.lisp</filename></term>
  <listitem><simpara>implements the macro &with-kbd;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>runprog.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/runprog.lisp</filename></term>
  <listitem><simpara>implements the functions &run-prog;, &run-cmd; etc.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>query.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/query.lisp</filename></term>
  <listitem><simpara>implements the functions &y-or-n-p; and &yes-or-no-p;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>reploop.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/reploop.lisp</filename></term>
  <listitem><simpara>support for debugging and the &repl;
    (see <xref linkend="debugger"/>)</simpara></listitem></varlistentry>
-<varlistentry><term><filename>dribble.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/dribble.lisp</filename></term>
  <listitem><simpara>implements the functions &dribble; and
    <link linkend="dribble"><function>EXT:DRIBBLE-STREAM</function></link>
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>complete.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/complete.lisp</filename></term>
  <listitem><simpara>implements completion, see <xref linkend="terminal"/>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>describe.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/describe.lisp</filename></term>
  <listitem><simpara>implements functions &describe;, &apropos;, &apropos-list;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>trace.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/trace.lisp</filename></term>
  <listitem><simpara><link linkend="trace">tracer</link>
 </simpara></listitem></varlistentry>
-<varlistentry id="macros3-lisp"><term>&macros3-lisp; (optional)</term>
+<varlistentry id="macros3-lisp">
+ <term><filename role="clisp-cvs">src/macros3.lisp</filename> (optional)</term>
  <listitem><simpara>the macros &letf;, &letf-star; and &ethe;
 </simpara></listitem></varlistentry>
-<varlistentry id="config-lisp"><term>&config-lisp;</term>
+<varlistentry id="config-lisp">
+ <term><filename role="clisp-cvs">src/config.lisp</filename></term>
  <listitem><para>(user written) site-dependent configuration,
    may be a link to one of the following:<variablelist>
-    <varlistentry><term><filename>cfgsunux.lisp</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">src/cfgsunux.lisp</filename></term>
      <listitem><simpara>for &unix;, using SunOS
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>cfgunix.lisp</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">src/cfgunix.lisp</filename></term>
      <listitem><simpara>for any other &unix;
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>cfgwin32.lisp</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">src/cfgwin32.lisp</filename></term>
      <listitem><simpara>for the &win32;
     </simpara></listitem></varlistentry></variablelist>
    See <xref linkend="customize"/>.</para></listitem></varlistentry>
-<varlistentry><term><filename>compiler.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/compiler.lisp</filename></term>
  <listitem><simpara>compiles Lisp code to &bytecode;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>disassem.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/disassem.lisp</filename></term>
  <listitem><simpara>the function &disassemble;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>defs2.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/defs2.lisp</filename></term>
  <listitem><simpara>miscellaneous &ansi-cl; definitions
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>loop.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/loop.lisp</filename></term>
  <listitem><simpara>implements the &ansi-cl;-compatible &loop; macro
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>clos.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/clos.lisp</filename></term>
  <listitem><para>loads the various parts of the &clos;:<variablelist>
-  <varlistentry><term><filename>clos-package.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-package.lisp</filename></term>
    <listitem><simpara>declares the imports and exports of the
      &clos-pac; package</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-macros.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-macros.lisp</filename></term>
    <listitem><simpara>defines some internal macros used by the &clos;
      implementation</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-class0.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-class0.lisp</filename></term>
    <listitem><simpara>defines the <classname>class-version</classname>
      structure</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-metaobject1.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-metaobject1.lisp</filename></term>
    <listitem><simpara>defines the &metaobject-t; class
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-slotdef1.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-slotdef1.lisp</filename></term>
    <listitem><simpara>defines the &slot-definition-t; class and its
      subclasses</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-slotdef2.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-slotdef2.lisp</filename></term>
    <listitem><simpara>defines &initialize-instance; methods for
      &slot-definition-t; and its subclasses</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-slotdef3.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-slotdef3.lisp</filename></term>
    <listitem><simpara>defines the generic functions that can be used on
      &slot-definition-t; objects</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-stablehash1.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-stablehash1.lisp</filename></term>
    <listitem><simpara>defines the &standard-stablehash; class
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-stablehash2.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-stablehash2.lisp</filename></term>
    <listitem><simpara>defines &initialize-instance; methods for
      &standard-stablehash;</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-specializer1.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-specializer1.lisp</filename></term>
    <listitem><simpara>defines the &specializer-t; class and its subclasses
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-specializer2.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-specializer2.lisp</filename></term>
    <listitem><simpara>defines &initialize-instance; methods for
      &specializer-t; and its subclasses</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-specializer3.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-specializer3.lisp</filename></term>
    <listitem><simpara>defines the generic functions that can be used on
      &specializer-t; objects</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-class1.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-class1.lisp</filename></term>
    <listitem><simpara>defines the <classname>potential-class</classname>
      class and its subclasses</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-class2.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-class2.lisp</filename></term>
    <listitem><simpara>implements the mapping from class names to classes
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-class3.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-class3.lisp</filename></term>
    <listitem><simpara>implements the &defclass; macro, class definition
      and class redefinition</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-class4.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-class4.lisp</filename></term>
    <listitem><simpara>defines &initialize-instance; methods
      for <classname>potential-class</classname> and its
      subclasses</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-class5.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-class5.lisp</filename></term>
    <listitem><simpara>implements the special logic of &make-instance;,
      &initialize-instance; etc.</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-class6.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-class6.lisp</filename></term>
    <listitem><simpara>defines the generic functions that can be used on
      <classname>potential-class</classname> objects
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-method1.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-method1.lisp</filename></term>
    <listitem><simpara>defines the &method-t; class and its subclasses
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-method2.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-method2.lisp</filename></term>
    <listitem><simpara>implements the bulk of &defmethod;
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-method3.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-method3.lisp</filename></term>
    <listitem><simpara>defines the generic functions that can be used on
      &method-t; objects</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-method4.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-method4.lisp</filename></term>
    <listitem><simpara>makes generic functions on &standard-method-t;
      objects extensible</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-methcomb1.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-methcomb1.lisp</filename></term>
    <listitem><simpara>defines the &method-combination-t; class
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-methcomb2.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-methcomb2.lisp</filename></term>
    <listitem><simpara>implements method combination (part 2 of generic
      function dispatch and execution) and the &define-method-combination; macro
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-methcomb3.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-methcomb3.lisp</filename></term>
    <listitem><simpara>defines &initialize-instance; methods for
      &method-combination-t;</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-methcomb4.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-methcomb4.lisp</filename></term>
    <listitem><simpara>makes generic functions on &method-combination-t;
      objects extensible</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-genfun1.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-genfun1.lisp</filename></term>
    <listitem><simpara>defines the &generic-function-t; class and its
      metaclass, superclass and subclasses</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-genfun2a.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-genfun2a.lisp</filename></term>
    <listitem><simpara>implements part 1 of generic function dispatch and
      execution</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-genfun2b.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-genfun2b.lisp</filename></term>
    <listitem><simpara>implements part 3 of generic function dispatch and
      execution</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-genfun3.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-genfun3.lisp</filename></term>
    <listitem><simpara>implements creation of generic function objects,
      &defmethod;, &defgeneric;</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-genfun4.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-genfun4.lisp</filename></term>
    <listitem><simpara>defines &initialize-instance; methods for
      &generic-function-t; and its subclasses</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-genfun5.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-genfun5.lisp</filename></term>
    <listitem><simpara>makes generic functions on &generic-function-t;
      objects extensible</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-slots1.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-slots1.lisp</filename></term>
    <listitem><simpara>implements low-level slot access, &with-slots;,
      &with-accessors;</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-slots2.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-slots2.lisp</filename></term>
    <listitem><simpara>defines the generic functions that deal with slot access
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-dependent.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-dependent.lisp</filename></term>
    <listitem><simpara>implements notification from metaobjects to
      dependent objects</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-print.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-print.lisp</filename></term>
    <listitem><simpara>implements the function &print-object;
   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>clos-custom.lisp</filename></term>
+  <varlistentry>
+   <term><filename role="clisp-cvs">src/clos-custom.lisp</filename></term>
    <listitem><simpara>provides user customization of the &clos;
   </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
-<varlistentry><term><filename>condition.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/condition.lisp</filename></term>
  <listitem><simpara>implements the &cl; Condition System (&clcs;)
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>gstream.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/gstream.lisp</filename></term>
  <listitem><simpara>generic stream default methods
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>foreign1.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/foreign1.lisp</filename></term>
  <listitem><simpara>&ffi-pac; interface
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>screen.lisp</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/screen.lisp</filename></term>
  <listitem><simpara>the screen access package, see <xref linkend="screen"/>
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>edit.lisp</filename> (optional)</term>
+<varlistentry><term><filename role="clisp-cvs">src/edit.lisp</filename>
+  (optional)</term>
  <listitem><simpara>the screen editor (&ed;), &uncompile;
 </simpara></listitem></varlistentry>
-<varlistentry id="inspect-lisp"><term>&inspect-lisp;</term>
+<varlistentry id="inspect-lisp">
+ <term><filename role="clisp-cvs">src/inspect.lisp</filename></term>
  <listitem><simpara>implements &inspect; (tty and &http; frontends)
 </simpara></listitem></varlistentry>
-<varlistentry id="exporting-lisp"><term>&exporting-lisp;</term>
+<varlistentry id="exporting-lisp">
+ <term><filename role="clisp-cvs">src/exporting.lisp</filename></term>
  <listitem><simpara>Macros that export their definienda,
    see <xref linkend="exporting"/>.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>threads.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/threads.lisp</filename></term>
  <listitem><simpara>MT interface</simpara></listitem></varlistentry>
-<varlistentry><term><filename>spanish.lisp</filename></term>
- <term><filename>german.lisp</filename></term>
- <term><filename>french.lisp</filename></term>
- <term><filename>russian.lisp</filename></term>
- <term><filename>dutch.lisp</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/spanish.lisp</filename></term>
+ <term><filename role="clisp-cvs">src/german.lisp</filename></term>
+ <term><filename role="clisp-cvs">src/french.lisp</filename></term>
+ <term><filename role="clisp-cvs">src/russian.lisp</filename></term>
+ <term><filename role="clisp-cvs">src/dutch.lisp</filename></term>
  <listitem><simpara><link linkend="i18n">i18n</link> user messages
 </simpara></listitem></varlistentry>
 </variablelist></section>
@@ -630,7 +710,7 @@
 <section id="src-ext-mod"><title>External Modules</title>
 
 <variablelist>
-<varlistentry><term><filename>modules/**/</filename></term>
+<varlistentry><term><filename role="clisp-cvs">modules/</filename></term>
  <listitem><simpara>individual external module sources
 </simpara></listitem></varlistentry>
 </variablelist></section>
@@ -638,84 +718,102 @@
 <section id="src-doc"><title>Documentation</title>
 
 <variablelist>
-<varlistentry id="src-news"><term>&news;</term>
+<varlistentry id="src-news">
+ <term><filename role="clisp-cvs">src/NEWS</filename></term>
  <listitem><simpara>the list of the user-visible changes
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>src/_README</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/_README</filename></term>
  <listitem><para>master for the distribution's README<variablelist>
-    <varlistentry><term><filename>src/_README.en</filename></term>
-     <term><filename>src/_README.de</filename></term>
-     <term><filename>src/_README.es</filename></term>
-     <listitem><simpara>translations of <filename>_README</filename>
+    <varlistentry>
+     <term><filename role="clisp-cvs">src/_README.en</filename></term>
+     <term><filename role="clisp-cvs">src/_README.de</filename></term>
+     <term><filename role="clisp-cvs">src/_README.es</filename></term>
+     <listitem><simpara>translations of
+       <filename role="clisp-cvs">src/_README</filename>
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
-<varlistentry><term><filename>doc/clisp.xml.in</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">doc/clisp.xml.in</filename></term>
  <listitem><simpara>&docbook;/&xml; sources for the &clisp; manual page
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename><replaceable>build-dir</replaceable>/clisp.1</filename></term>
- <listitem><simpara>the platform-specific &man; manual page,
-   generated from <filename>doc/clisp.xml.in</filename>
+ <listitem><simpara>the platform-specific
+   <command role="unix">man</command> manual page,
+   generated from <filename role="clisp-cvs">doc/clisp.xml.in</filename>
    at <emphasis>build</emphasis> time</simpara></listitem></varlistentry>
 <varlistentry><term><filename><replaceable>build-dir</replaceable>/clisp.html</filename></term>
  <listitem><simpara>the platform-specific &html; manual page,
-   generated from <filename>doc/clisp.xml.in</filename>
+   generated from <filename role="clisp-cvs">doc/clisp.xml.in</filename>
    at <emphasis>build</emphasis> time</simpara></listitem></varlistentry>
-<varlistentry><term><filename>doc/impnotes.xml.in</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">doc/impnotes.xml.in</filename></term>
  <listitem><para>the master &docbook;/&xml; file for these
    implementation notes; includes the following files<variablelist>
-    <varlistentry><term><filename>doc/cl-ent.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/cl-ent.xml</filename></term>
      <listitem><simpara>&clisp;-independent general &cl;-related entities
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/clhs-ent.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/clhs-ent.xml</filename></term>
      <listitem><simpara>generated list of &hyperspec; entities
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/impent.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/impent.xml</filename></term>
      <listitem><simpara>&clisp;-specific entities
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/unix-ent.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/unix-ent.xml</filename></term>
      <listitem><simpara>&unix;-related entities
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/mop-ent.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/mop-ent.xml</filename></term>
      <listitem><simpara>&mop;-related entities
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/impbody.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/impbody.xml</filename></term>
      <listitem><simpara>most of <xref linkend="clhs-chapters"/>
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/impissue.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/impissue.xml</filename></term>
      <listitem><simpara><xref linkend="issues"/>
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/gray.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/gray.xml</filename></term>
      <listitem><simpara><xref linkend="gray"/>
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/mop.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/mop.xml</filename></term>
      <listitem><simpara><xref linkend="mop-chap"/>
     </simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/impext.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/impext.xml</filename></term>
      <listitem><simpara><xref linkend="ext-p-indep"/> and
        <xref linkend="ext-platform"/></simpara></listitem></varlistentry>
-    <varlistentry><term><filename>doc/impbyte.xml</filename></term>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/impbyte.xml</filename></term>
      <listitem><simpara>this <xref linkend="internals"/>
     </simpara></listitem></varlistentry>
     <varlistentry><term><filename>modules/**/*.xml</filename></term>
      <listitem><simpara>individual external module documentation
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
-<varlistentry><term><filename>doc/impnotes.html</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">doc/impnotes.html</filename></term>
  <listitem><simpara>these &html; implementation notes,
-   generated from <filename>doc/impnotes.xml.in</filename>
+   generated from <filename role="clisp-cvs">doc/impnotes.xml.in</filename>
    at <emphasis>release</emphasis> time</simpara></listitem></varlistentry>
 </variablelist></section>
 
 <section id="src-i18n"><title>Internationalization</title>
 
 <variablelist>
-<varlistentry><term><filename>po/*.pot</filename></term>
+<varlistentry><term><filename>src/po/*.pot</filename></term>
  <listitem><simpara>list of translatable messages (<quote>portable
     object template</quote>)</simpara></listitem></varlistentry>
-<varlistentry><term><filename>po/*.po</filename></term>
+<varlistentry><term><filename>src/po/*.po</filename></term>
  <listitem><simpara>translated messages (<quote>portable objects</quote>)
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>po/*.gmo</filename></term>
+<varlistentry><term><filename>src/po/*.gmo</filename></term>
  <listitem><simpara>translated messages (<quote>&gnu; format message
     objects</quote>)</simpara></listitem></varlistentry>
 </variablelist></section>
@@ -723,37 +821,44 @@
 <section id="src-conf-unix"><title>Automatic configuration on &unix;</title>
 
 <variablelist>
-<varlistentry><term><filename>configure.in</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/configure.in</filename></term>
  <listitem><simpara>lists features to be checked
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>autoconf/autoconf.m4</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/autoconf/autoconf.m4</filename></term>
  <listitem><simpara><command>autoconf</command>'s driver macros.
    Part of &autoconf; 2.57</simpara></listitem></varlistentry>
-<varlistentry><term><filename>m4/*.m4</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/m4/</filename></term>
  <listitem><simpara>a repertoire of features.
    Use with &autoconf; 2.57</simpara></listitem></varlistentry>
-<varlistentry><term><filename>configure</filename></term>
- <listitem><simpara>configuration script, generated
-   from <filename>configure.in</filename></simpara></listitem></varlistentry>
-<varlistentry><term><filename>intparam.c</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/configure</filename></term>
+ <listitem><simpara>configuration script, generated from
+   <filename role="clisp-cvs">src/configure.in</filename>
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename role="clisp-cvs">src/intparam.c</filename></term>
  <listitem><simpara>figures out some machine parameters (word size,
    endianness etc.)</simpara></listitem></varlistentry>
-<varlistentry><term><filename>floatparam.c</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/floatparam.c</filename></term>
  <listitem><simpara>figures out some floating point arithmetics parameters
    (rounding, epsilons etc.)</simpara></listitem></varlistentry>
-<varlistentry><term><filename>unixconf.h.in</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/unixconf.h.in</filename></term>
  <listitem><simpara>header file master, generated
-   from <filename>configure.in</filename>.
-   <filename>unixconf.h</filename> contains the values of the features
-   discovered by <filename>configure</filename>.
+   from <filename role="clisp-cvs">src/configure.in</filename>.
+   <filename><replaceable>build-dir</replaceable>/unixconf.h</filename>
+   contains the values of the features
+   discovered by <filename role="clisp-cvs">src/configure</filename>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>makemake.in</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/makemake.in</filename></term>
  <listitem><simpara>makefile construction script master
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>_clisp.c</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/_clisp.c</filename></term>
  <listitem><simpara>master for the distribution's driver program
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>_distmakefile</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/_distmakefile</filename></term>
  <listitem><simpara>master for the distribution's Makefile
 </simpara></listitem></varlistentry>
 </variablelist></section>
@@ -770,7 +875,7 @@
 
 <para>Knowing that most &malloc; implementations are buggy and/or slow,
 and because &clisp; needs to perform &gc;ion, &clisp; has its
-own memory management subsystem in files <filename>spvw*.d</filename>,
+own memory management subsystem in files <filename>src/spvw*.d</filename>,
 see <xref linkend="src-modules"/>.</para>
 
 </section>
@@ -1038,9 +1143,10 @@ operating system and is determined at build time.</para>
 only object carried by its pages.
 There are no small objects in pages belonging to a big object.</para>
 
-<para>The following combinations of memory model and &mmap; tricks are
-possible (the number indicates the order in which the respective models
-have been developed):</para>
+<para>The following combinations of memory model and
+ <function role="unix">mmap</function> tricks are possible (the number
+ indicates the order in which the respective models have been
+ developed):</para>
 
 <table id="mem-models-comb-typecodes" frame="all">
  <title>Memory models with &typecodes;</title>
@@ -1100,9 +1206,9 @@ without calling unsafe routines, and without worrying about &gc;.</para>
 <screen id="clisp-config-gxx">
 <prompt>$</prompt> CC=g++ ./configure --with-debug build-g-gxx
 </screen>
-When built like this, &clisp; will &abort-c; when you reference
-GC-unsafe data after an allocation (which could have triggered a
-&gc;ion), and &gdb; will pinpoint the trouble spot.</para>
+When built like this, &clisp; will <function role="unix">abort</function>
+when you reference GC-unsafe data after an allocation (which could have
+triggered a &gc;ion), and &gdb; will pinpoint the trouble spot.</para>
 
 <para>Specifically, when &clisp; is configured
  as <link linkend="clisp-config-gxx">above</link>, there is a
@@ -1204,8 +1310,9 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 
 <section id="recompile"><title>Recompilation</title>
 
-<para><emphasis>Any</emphasis> change that forces &make; to remake
- &lisp-run;, will force recompilation of all &lisp-file; files and
+<para><emphasis>Any</emphasis> change that forces
+ <command role="unix">make</command> to remake &lisp-run;,
+ will force recompilation of all &lisp-file; files and
  re-dumping of &lispinit;, which may be time-consuming.  This is not
  always necessary, depending on what kind of change you introduced.
 </para>
@@ -2464,8 +2571,8 @@ operands) for the following frequent instructions:</para>
    removes the junk.  <literal role="byte">JMPTAIL</literal> is a
    convenient shortcut which shortens the bytecode - because typically
    one would really have to clean-up the &STACK; by hand or make the
-   calculations in <filename>compiler.lisp</filename> more complicated.
-</para></simplesect></section>
+   calculations in <filename role="clisp-cvs">src/compiler.lisp</filename>
+   more complicated.</para></simplesect></section>
 
 </section>
 

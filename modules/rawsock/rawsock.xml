@@ -2,7 +2,8 @@
 
 <section id="rawsock"><title>Raw Socket Access.</title>
 
-<para>This is the raw socket interface, as described in &socket-h;.
+<para>This is the raw socket interface, as described in
+ <filename role="unix">sys/socket.h</filename>.
 Sockets are represented by their &fixnum-t; &file-des;s.</para>
 
 <simpara>When this module is present, &features-var; contains the
@@ -20,31 +21,45 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   careful with such dubious actions!  See the &clisp-devel;
   <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=7203955"
          >mailing list archives</ulink> for more details.
-  Note that &make-stream; will duplicate the &file-des; (using &dup;),
+  Note that &make-stream; will duplicate the &file-des;
+  (using <function role="unix">dup</function>),
   so you <emphasis>still</emphasis> have to &close; the original raw socket.
 </simpara></warning>
 
 <para>We implement access to
  <simplelist columns="4">
-  <member>&accept;</member><member>&bind;</member><member>&connect;</member>
-  <member>&getpeername;</member><member>&getsockname;</member>
-  <member>&htonl;</member><member>&htons;</member>
-  <member>&ntohl;</member><member>&ntohs;</member><member>&listen-c;</member>
-  <member>&recv;</member><member>&recvfrom;</member><member>&recvmsg;</member>
-  <member>&send;</member><member>&sendmsg;</member><member>&sendto;</member>
-  <member>&socket;</member><member>&sockatmark;</member>
-  <member>&socketpair;</member></simplelist>
+  <member><function role="unix">accept</function></member>
+  <member><function role="unix">bind</function></member>
+  <member><function role="unix">connect</function></member>
+  <member><function role="unix">getpeername</function></member>
+  <member><function role="unix">getsockname</function></member>
+  <member><function role="unix">htonl</function></member>
+  <member><function role="unix">htons</function></member>
+  <member><function role="unix">listen</function></member>
+  <member><function role="unix">ntohl</function></member>
+  <member><function role="unix">ntohs</function></member>
+  <member><function role="unix">recv</function></member>
+  <member><function role="unix">recvfrom</function></member>
+  <member><function role="unix">recvmsg</function></member>
+  <member><function role="unix">send</function></member>
+  <member><function role="unix">sendmsg</function></member>
+  <member><function role="unix">sendto</function></member>
+  <member><function role="unix">sockatmark</function></member>
+  <member><function role="unix">socket</function></member>
+  <member><function role="unix">socketpair</function></member></simplelist>
  using same-named lisp functions in package
  <quote role="package">RAWSOCK</quote>.
  Additionally,<itemizedlist>
   <listitem><simpara><function>RAWSOCK:SOCK-READ</function>
-    calls &read-c;;</simpara></listitem>
+    calls <function role="unix">read</function>;</simpara></listitem>
   <listitem><simpara><function>RAWSOCK:SOCK-WRITE</function>
-    calls &write-c;;</simpara></listitem>
- <listitem><simpara><function>RAWSOCK:SOCK-CLOSE</function>
-   calls &close-c;.</simpara></listitem></itemizedlist></para>
+    calls <function role="unix">write</function>;</simpara></listitem>
+  <listitem><simpara><function>RAWSOCK:SOCK-CLOSE</function>
+    calls <function role="unix">close</function>.</simpara></listitem>
+</itemizedlist></para>
 
-<para>The interface to &getsockopt; and &setsockopt; is available via
+<para>The interface to <function role="unix">getsockopt</function>
+ and <function role="unix">setsockopt</function> is available via
  the &setf;able function
  <code>(RAWSOCK:SOCKET-OPTION &sock-r; &name-r; &key-amp; :LEVEL)</code>
  which returns and sets individual (for specific option &name-r;
@@ -52,21 +67,26 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  &nil; and/or <replaceable>level</replaceable> is &all-k;) options.
  (See also &so-opt;.)</para>
 
-<para>We do not interface to &select; or &poll;,
+<para>We do not interface to <function role="unix">select</function>
+ or <function role="unix">poll</function>,
  they are available through &so-status;.</para>
 
-<para>We do not interface to &shutdown;,
+<para>We do not interface to <function role="unix">shutdown</function>,
  it is available through &sost-shut;.</para>
 
-<para>We do not interface to &gethostbyname; or &gethostbyaddr;,
+<para>We do not interface to <function role="unix">gethostbyname</function>
+ or <function role="unix">gethostbyaddr</function>,
  they are available through &resolve-host;.</para>
 
 <variablelist id="rawsock-add-on"><title>Additional Functions</title>
  <varlistentry><term><code>(RAWSOCK:CONVERT-ADDRESS
     <replaceable>family</replaceable> &addr-r;)</code></term>
   <listitem><simpara>convert between &string-t; and &integer-t; IP
-    &addr-r; representations using &inet_addr;, &inet_ntoa;, &inet_ntop;,
-    or &inet_pton;.</simpara></listitem></varlistentry>
+    &addr-r; representations using <function role="unix">inet_addr</function>,
+    <function role="unix">inet_ntoa</function>,
+    <function role="unix">inet_ntop</function>,
+    or <function role="unix">inet_pton</function>.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><code>(RAWSOCK:MAKE-SOCKADDR
     <replaceable>family</replaceable> &data-r;)</code></term>
   <listitem><simpara>create a <type>sockaddr</type> object.
@@ -85,7 +105,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  </simpara></listitem></varlistentry>
  <varlistentry><term><code>(RAWSOCK:MAKE-MSGHDR &data-r;)</code></term>
   <listitem><simpara>Create a <type>RAWSOCK:MSGHDR</type> object for
-    &sendmsg; and &recvmsg;.</simpara></listitem></varlistentry>
+    <function role="unix">sendmsg</function> and
+    <function role="unix">recvmsg</function>.
+ </simpara></listitem></varlistentry>
  <varlistentry>
   <term><code>(RAWSOCK:IPCSUM &optional-amp; &buf-r;)</code></term>
   <term><code>(RAWSOCK:ICMPCSUM &optional-amp; &buf-r;)</code></term>
@@ -97,7 +119,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <varlistentry><term><code>(RAWSOCK:BUFFER)</code></term>
   <listitem><simpara>Return the internal buffer, used as the default
     argument in the checksum functions and when &nil; is passed as the
-    &buf-r; argument to the i/o functions like &sendto;.
+    &buf-r; argument to the i/o functions like
+    <function role="unix">sendto</function>.
  </simpara></listitem></varlistentry>
  <varlistentry><term><code>(RAWSOCK:RESIZE-BUFFER &size-r;)</code></term>
   <listitem><simpara>Resize the internal buffer.
@@ -105,7 +128,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r; &name-r; &addr-r;
     &key-amp; <replaceable>promisc</replaceable>
     <replaceable>noarp</replaceable>)</code></term>
-  <listitem><simpara>Set some socket options and IP &addr-r; with &ioctl;.
+  <listitem><simpara>Set some socket options and IP &addr-r;
+  with <function role="unix">ioctl</function>.
  </simpara></listitem></varlistentry>
 </variablelist>
 

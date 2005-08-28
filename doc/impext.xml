@@ -623,7 +623,7 @@ English, German, French, Spanish, Dutch and Russian.
 
 <simpara>On &gnu; systems (such as &gnu;/&linux; and &gnu;/&hurd;)
  and on systems with &libiconv; you get this list by calling the
- <emphasis>program</emphasis> &iconv-u;: <command>iconv -l</command>.
+ <emphasis>program</emphasis>: <command role="unix">iconv -l</command>.
  </simpara>
 
 <simpara>The reason we use only &glibc; 2.2 or &libiconv; is
@@ -1514,7 +1514,7 @@ In other words, each pair is:
 
 <para>&clisp; comes with some extension macros, mostly defined in the
  file &macros3-lisp; and loaded from the file &init-lisp; during
- &make;:</para>
+ <command role="unix">make</command>:</para>
 
 <formalpara id="ethe"><title>Macro &ethe;</title>
 <para><code>(&ethe; &val-type-r; &form-r;)</code>
@@ -2056,22 +2056,24 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   flag <option>--with-dynamic-modules</option>.</emphasis></subtitle>
 
 <note><para>Dynamic loading does not work on all operating systems
-  (&dlopen; or equivalent is required).</para></note>
+  (<function role="unix">dlopen</function> or equivalent is required).
+</para></note>
 <note><para><option>--with-dynamic-modules</option> precludes some
   efficiency optimizations which are enabled by default.</para></note>
 
 <para>Function <code>(&mod-dynload; &filename-r; ({&name-r;}+))</code>
  loads a shared object file or library containing a number of named
- external &clisp; modules.  This facility cannot be used to &dlopen; and
- access arbitrary shared libraries.</para>
+ external &clisp; modules.  This facility <emphasis>cannot</emphasis> be
+ used to access arbitrary shared libraries.</para>
 
-<para>External modules for &clisp; are those which contain a
- <literal>module__&name-r;__subr_tab</literal>, among others.
- This serves to register external functions which operate on
- Lisp-level structures with &clisp;.</para>
+<para>External modules for &clisp; are shared objects
+ (dynamic libraries) that contain the
+ <literal>module__&name-r;__subr_tab</literal> variable, among others.
+ This serves to register external functions which operate on Lisp-level
+ structures with &clisp;.</para>
 
-<para>To use &dlopen; with modules, you should add
- <option>-fPIC</option> to the module's compilation options.
+<para>To use <function role="unix">dlopen</function> with modules,
+ you should add <option>-fPIC</option> to the module's compilation options.
  Something like <command>cc -shared -o &name-r;.so &name-r;.o</command>
  may be needed to produce the shared object file.</para>
 
@@ -2146,8 +2148,9 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
      of the appropriate &cpp; macro</simpara></listitem></varlistentry>
 </variablelist></para>
 
-<para>See <filename>modules/syscalls</filename> and other included
- modules for more examples and file &modprep; for full documentation.</para>
+<para>See <filename role="clisp-cvs">modules/syscalls/</filename> and
+ other included modules for more examples and file &modprep; for full
+ documentation.</para>
 <warning><para>If you manipulate Lisp objects, you need to watch for
   <link linkend="gc-safety">GC-safety</link>.</para></warning>
 </section>
@@ -2189,8 +2192,9 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  <link linkend="make-pack">case-sensitive</link> and use
  &exporting-lisp; in the &clisp; distribution to make &ffi-pac; forms
  and &defun;, &defmacro; at al export the symbols they define.
- See <filename>modules/netica</filename>, <filename>modules/matlab</filename>
- and <filename>modules/bindings/*</filename> for examples.</para>
+ See <filename role="clisp-cvs">modules/netica/</filename>,
+ <filename role="clisp-cvs">modules/matlab/</filename> and
+ <filename role="clisp-cvs">modules/bindings/</filename> for examples.</para>
 </section>
 
 </section>
@@ -2249,7 +2253,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   <listitem><simpara>Directory Access (LDAP, &win32; registry etc).
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="berkeley-db">berkeley-db</link></term>
-  <listitem><simpara>&sleepycat-berkeley-db; interface.
+  <listitem><simpara><ulink role="bdb" url="index.html">Berkeley DB
+     from Sleepycat Software</ulink> interface.
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="regexp-mod">regexp</link></term>
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
@@ -2279,9 +2284,10 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>To use modules, read <filename>unix/INSTALL</filename> and build
- &clisp; in directory <filename>build-dir</filename> with, e.g.,<screen>
-  <prompt>$</prompt> ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
+<para>To use modules, read <filename role="clisp-cvs">unix/INSTALL</filename>
+ and build &clisp; in directory <filename>build-dir</filename> with,
+ e.g.,<screen>
+<prompt>$</prompt> ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
 </screen>then run it with
 <screen><prompt>$</prompt> ./build-dir/clisp &opt-K; full</screen>
 This will create a &base; &linkset; with modules i18n, regexp and
@@ -2376,8 +2382,9 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
  <listitem><simpara>Specifies the (optional) dynamic library
    which contains the variable.</simpara>
   <simpara>&name-r; should <emphasis>evaluate</emphasis> to a &string-t;
-   or, depending on the underlying &dlsym; implementation, &default-k;
-   or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
+   or, depending on the underlying <function role="unix">dlsym</function>
+   implementation, &default-k; or <constant>:NEXT</constant>.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
  <listitem><simpara>Specifies the (optional) &variable-doc; documentation.
 </simpara></listitem></varlistentry>
@@ -2410,8 +2417,9 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
  <listitem><simpara>Specifies the (optional) dynamic library
    which contains the function.</simpara>
   <simpara>&name-r; should <emphasis>evaluate</emphasis> to a &string-t;,
-   or, depending on the underlying &dlsym; implementation, &default-k;
-   or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
+   or, depending on the underlying <function role="unix">dlsym</function>
+   implementation, &default-k; or <constant>:NEXT</constant>.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
  <listitem><simpara>Specifies the (optional) &function-doc; documentation.
 </simpara></listitem></varlistentry>
@@ -2773,7 +2781,8 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
    and <replaceable>char-count</replaceable> is incremented by one.</simpara>
   <simpara>The &foreign-address-t; object bound to &f-addr; is
    invalidated upon the exit from the form.</simpara>
-  <para>A stupid example (a quite costly interface to &mblen;):
+  <para>A stupid example (a quite costly interface
+   to <function role="unix">mblen</function>):
 <programlisting language="lisp">(with-foreign-string (fv elems bytes string
                       :encoding charset:jis... :null-terminated-p nil
                       :end 5)
@@ -2797,7 +2806,8 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
    &key-amp; :INITIAL-CONTENTS &count-k; &ro-k;)</code></term>
  <listitem><simpara>Macro &allocate-shallow; allocates
    <code>(&sizeof; &ctype-r;)</code>
-   bytes on the &c-lang; heap and zeroes them out (like &calloc;).
+   bytes on the &c-lang; heap and zeroes them out
+   (like <function role="unix">calloc</function>).
    When &count-k; is supplied, &ctype-r; is substituted with
    <literal role="type">(&c-array; &ctype-r; &count-r;)</literal>,
    except when &ctype-r; is &character-t;, in which case
@@ -2805,7 +2815,8 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
    is used instead.
    When &ro-k; is supplied, the Lisp side is prevented from modifying the
    memory contents.  This can be used as an indication that some foreign
-   side is going to fill this memory (e.g. via &read-c;).</simpara>
+   side is going to fill this memory
+   (e.g. via <function role="unix">read</function>).</simpara>
   <simpara>Returns a &foreign-variable-t; object of the actual &ctype-r;,
    whose address part points to the newly allocated memory.</simpara>
   <simpara>&allocate-deep; will call &c-lang; &malloc; as many times
@@ -3341,7 +3352,8 @@ or (setq my_struct (deref (slot my_struct 'n)))
 
 <example id="dffi-extern-func1"><title>Calling an external function</title>
 
-<para>On ANSI &c-lang; systems, &stdlib-h; contains the declarations:
+<para>On ANSI &c-lang; systems, <filename role="unix">stdlib.h</filename>
+ contains the declarations:
 
 <programlisting language="C">
 typedef struct {
@@ -3449,8 +3461,7 @@ a[9] = 9.
 
 <para>Note that there is a memory leak here: The return value
 <varname>r2</varname> of <function>cfun()</function> is
-&malloc;ed but never &free;d. Specifying
-<programlisting language="lisp">
+&malloc;ed but never &free;d. Specifying<programlisting language="lisp">
 (:return-type (c-ptr cfunr) :malloc-free)
 </programlisting>
 is not an alternative because this would also
@@ -3472,7 +3483,8 @@ instead, in conjunction with
 <example id="ex-call-in"><title>Calling Lisp from &c-lang;</title>
 
 <para>To sort an array of double-floats using the Lisp function &sort;
- instead of the &c-lang; library function &qsort;, one can use the
+ instead of the &c-lang; library function
+ <function role="unix">qsort</function>, one can use the
  following interface code <filename>sort1.c</filename>.
  The main problem is to pass a variable-sized array.
 
@@ -3579,7 +3591,7 @@ int CallInFunc(LispFunc f) {
 </programlisting></para></example>
 
 <example id="dffi-gethostname"><title>Variable size arguments:
-  calling &gethostname; from &clisp;</title>
+  calling <function role="unix">gethostname</function> from &clisp;</title>
 
 <para><funcsynopsis id="gethostname-synopsis"><funcprototype>
    <funcdef><type>int</type> <function>gethostname</function></funcdef>
@@ -3617,7 +3629,7 @@ int CallInFunc(LispFunc f) {
       ;; &out-k; and &in-out-k; parameters are returned as &mul-val;
       (gethostname 256)
     (if (zerop success) name
-        (error ...)))) ;; &strerror;(&errno;)
+        (error ...)))) ;; <function role="unix">strerror</function>(<varname role="unix">errno</varname>)
 
 (defvar hostname (myhostname))
 </programlisting>
@@ -3749,9 +3761,9 @@ Now you can sum doubles:
   <listitem><simpara><ulink url="http://article.gmane.org/gmane.lisp.clisp.general/6626">"variable length arrays"</ulink></simpara></listitem>
  </itemizedlist>
 </para>
-<para>Even more examples can be found in the
- file <filename>clisp/tests/ffi.tst</filename> in the &clisp; source
- distribution.</para>
+<para>Even more examples can be found in the file
+ <filename role="clisp-cvs">tests/ffi.tst</filename>
+ in the &clisp; source distribution.</para>
 </section>
 </section>
 
@@ -3946,7 +3958,8 @@ They are &not-e; regular &cl; types or &clos; classes.
 allocated and filled from the address returned (unless &c-NULL;).
 Functions with &io-k; parameters are passed the address of the Lisp
 string or unsigned byte vector. These are not &c-NULL;-terminated!
-This is useful for functions like like &read-c; which do not need an
+This is useful for functions like
+like <function role="unix">read-c</function> which do not need an
 array at a constant address longer than the dynamic extent of the call
 (it is dangerous to define callback functions with &io-k; - or
 &string-t; - type parameters).
@@ -4093,11 +4106,12 @@ does not call finalizers when it exits, use &unwind-protect;.</para>
 
 <para>You can consider the library bases being symbols in need of being
 imported from the package &affi-pac; originating from a brain-damage, causing
-the usual symbol headaches when using foreign functions calls within
-macros.  Luckily, even if the high-level interface (or its
-implementation in <filename>affi1.lisp</filename>) were to change, the
-low-level part (<filename>affi.d</filename>) should remain untouched as
-all it knows are &integer-t;s and &foreign-pointer-t;s, no &symbol-t;s.
+the usual symbol headaches when using foreign functions calls within macros.
+Luckily, even if the high-level interface (or its implementation in
+<filename role="clisp-cvs">src/affi1.lisp</filename>) were to change,
+the low-level part (<filename role="clisp-cvs">src/affi.d</filename>)
+should remain untouched as all it knows are &integer-t;s and
+&foreign-pointer-t;s, no &symbol-t;s.
 The difficulty is just to get the library base value at run-time.
 Feel free to suggest enhancements to this facility!</para>
 
@@ -4251,7 +4265,8 @@ Compiled, it will have inlined the library function calls.
   <listitem><simpara>Checks whether it is possible to read from or write
    to a &socket-stream; or whether a connection is available on a
    &socket-server; without blocking.</simpara>
-   <simpara>For the cognoscenti: this is the interface to &select;, so
+   <simpara>For the cognoscenti: this is the interface
+    to <function role="unix">select</function>, so
     it will work for any &clisp; &stream-t; which is based on a
     &file-des;, e.g., &kbd-in; and &file-pipe-socket-s;, as well as
     for <link linkend="rawsock">raw sockets</link>.</simpara>
@@ -4369,7 +4384,8 @@ Compiled, it will have inlined the library function calls.
  <varlistentry id="sost-shut"><term><code>(&sost-shut; &sost-r;
     &direction-r;)</code></term>
   <listitem><simpara>Some Internet protocols, such as &http;, provide for
-   closing the connection in one &direction-r; using &shutdown;.
+   closing the connection in one &direction-r;
+   using <function role="unix">shutdown</function>.
    This function provides an interface to this &unix; system call.
    &direction-r; should be &input-k; or &output-k;.
    Note that you should still call &close; after you are done with your
@@ -4389,11 +4405,13 @@ Compiled, it will have inlined the library function calls.
  <varlistentry id="so-opt"><term><code>(&so-opt; &sose-r; &rest-amp;
     {&option-r;}*)</code></term>
   <listitem><simpara>Query and, optionally, set socket options using
-   &getsockopt; and &setsockopt;.
+   <function role="unix">getsockopt</function>
+   and <function role="unix">setsockopt</function>.
    An &option-r; is a keyword, optionally followed by the new value.
-   When the new value is not supplied, &setsockopt; is not called.
+   When the new value is not supplied,
+   <function role="unix">setsockopt</function> is not called.
    For each option the old (or current, if new value was not supplied)
-   value is returned. E.g., <code>(&so-opt; &sose-r;
+   value is returned.  E.g., <code>(&so-opt; &sose-r;
    :SO-LINGER 1 :SO-RCVLOWAT)</code> returns 2 values: &nil;, the old
    value of the <constant>:SO-LINGER</constant> option, and 1, the
    current value of the <constant>:SO-RCVLOWAT</constant> option.
@@ -4428,8 +4446,8 @@ Compiled, it will have inlined the library function calls.
 
 <para>These three techniques apply to a single &lisp-file; or &fasl-file; file.
  If your application is made up of several &lisp-file; or &fasl-file; files,
- you can simply concatenate them (using &cat;) into one file;
- the techniques then apply to that concatenated file.</para>
+ you can simply concatenate them (using <command role="unix">cat</command>)
+ into one file; the techniques then apply to that concatenated file.</para>
 </section>
 
 <!-- #ifdef UNIX -->
@@ -4439,7 +4457,8 @@ Compiled, it will have inlined the library function calls.
 <para>On &unix;, a text file (&fasl-file; or &lisp-file;) can
  be made executable by adding a first line of the form
  <screen>#!&interp-r; [&interp-args;]</screen>
- and using &chmod-u; to make the script executable.</para>
+ and using <command role="unix">chmod</command> to make the file
+ executable.</para>
 
 <formalpara><title>OS Requirements</title>
  <para>&clisp; can be used as a script interpreter under the following
@@ -4455,8 +4474,8 @@ Compiled, it will have inlined the library function calls.
  &clisp-cmd; is a shell script because a &c-lang; compiler cannot be
  assumed to be installed on this platform.  If you do have a &c-lang;
  compiler installed, build &clisp; from the source yourself;
- <command>&make; install</command> will install &clisp-cmd; as a real
- executable.</simpara></listitem>
+ <command role="unix">make install</command> will install &clisp-cmd; as
+ a real executable.</simpara></listitem>
 <listitem><para>On some platforms, the first line which specifies the
  interpreter is limited in length:
    <itemizedlist>
@@ -4489,10 +4508,12 @@ Compiled, it will have inlined the library function calls.
    to a &list-t; of &string-t;s, representing the arguments given to the
    Lisp script (i.e., <envar>$1</envar> in &sh; becomes <code>(&first;
      &args;)</code> etc).</simpara></listitem>
-  <listitem><simpara>The standard &unix; i/o facilities (see &stdio-h;)
-    are used: &standard-input-var; is bound to &stdin;,
-    &standard-output-var; to &stdout;, and
-    &error-output-var; to &stderr;.</simpara></listitem>
+  <listitem><simpara>The standard &unix; i/o facilities
+    (see <filename role="unix">stdio.h</filename>) are used:
+    &standard-input-var; is bound to <varname role="unix">stdin</varname>,
+    &standard-output-var; to <varname role="unix">stdout</varname>, and
+    &error-output-var; to <varname role="unix">stderr</varname>.
+  </simpara></listitem>
   <listitem><simpara>The &cont-err;s will be turned into &warning-t;s
    (using &appease-cerrors;).</simpara></listitem>
   <listitem><simpara>Non-&cont-err;s and
@@ -4552,7 +4573,7 @@ input will be available.</para></formalpara>
  extension) will start &clisp; with the given &mem-image;.</para>
 
 <note><para>Note that &clisp; is distributed with a file
- <filename>install.bat</filename>, which creates a file
+ <filename role="clisp-cvs">src/install.bat</filename>, which creates a file
  <filename>clisp.lnk</filename> on your desktop and also associates
  &fasl-file;, &lisp-file;, and &mem-file; files with &clisp;.</para></note>
 
@@ -4604,15 +4625,15 @@ EOF
  section <link linkend="quickstart">Quickstarting delivery with
  &clisp;</link>.</para>
 
-<para>&clisp; is
- <ulink url="http://www.gnu.org/philosophy/free-sw.html">Free
+<para>&clisp; is <ulink url="http://www.gnu.org/philosophy/free-sw.html">Free
   Software</ulink>, covered by the &gnu; &gpl;, with special
  terms governing the distribution of applications that run in &clisp;.
- The precise terms can be found in the <filename>COPYRIGHT</filename>
- file contained in the source and binary distributions of &clisp;.  Here
- is an informal clarification what these terms mean in practice.  Please
- refer to the said <filename>COPYRIGHT</filename> file when in
- doubt.</para>
+ The precise terms can be found in the
+ <filename role="clisp-cvs">COPYRIGHT</filename>
+ file contained in the source and binary distributions of &clisp;.
+ Here is an informal clarification what these terms mean in practice.
+ Please refer to the said <filename role="clisp-cvs">COPYRIGHT</filename>
+ file when in doubt.</para>
 
 <para>In many cases, &clisp; does not force an application to be covered
  by the &gnu; &gpl;. Nevertheless, we encourage you to release your software
