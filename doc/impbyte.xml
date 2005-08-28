@@ -33,35 +33,39 @@
 <para>&c-lang; sources are pre-processed with the following tools
    before being passed to the &c-lang; compiler:</para>
 <variablelist>
-<varlistentry><term><filename role="clisp-cvs">utils/comment5</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">utils/comment5.c</filename></term>
 <listitem><simpara>Convert &sh;-style comments (lines starting
   with <literal>"# "</literal>) to &c-lang;-style comments
   (<literal>/**/</literal>).</simpara>
  <warning><para>The use of &sh;-style comments is deprecated.</para></warning>
 </listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">utils/varbrace</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">utils/varbrace.d</filename></term>
 <listitem><simpara>Add braces to &c-lang; source code, so that variable
   declarations (introduced with the pseudo-keyword <literal>var</literal>)
   can be used within blocks, like in <command>C++</command>
   and <command>C99</command>.</simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">utils/ccpaux</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/ccpaux.c</filename></term>
 <listitem><simpara>When &cpp; cannot handle indented directives, remove
   the indentation.</simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">utils/gctrigger</filename></term>
+<varlistentry>
+ <term><filename role="clisp-cvs">utils/gctrigger.d</filename></term>
 <listitem><simpara>Add <function>GCTRIGGER</function> statements at the
   head of function bodies (for functions marked with
   the <literal>maygc</literal> pseudo-keyword).
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">utils/deema</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/deema.c</filename></term>
 <listitem><simpara>When &cpp; cannot handle empty macro arguments,
   insert <literal>_EMA_</literal> instead.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">utils/ccmp2c</filename></term>
+<varlistentry><term><filename role="clisp-cvs">utils/ccmp2c.c</filename></term>
 <listitem><simpara>For the <literal>new-clx</literal> module only.
   Allows &cpp;-style preprocessing <emphasis>before</emphasis> &modprep;
-  processing.  Should be merged into &modprep;.
+  processing.  Should be merged into &modprep; eventually.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">utils/modprep.lisp</filename></term>
+<varlistentry id="modprep-file">
+ <term><filename role="clisp-cvs">utils/modprep.lisp</filename></term>
 <listitem><simpara>For some modules only, see <xref linkend="modprep"/>.
 </simpara></listitem></varlistentry>
 </variablelist></section>
