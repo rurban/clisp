@@ -1,3 +1,11 @@
+2005-08-28  Sam Steingold  <sds@gnu.org>
+
+	moved PARI i/o from Lisp to C to enable C++ compilation ("const" issues)
+	* modules/pari/cpari.c (clispPutc, clispPuts, clispFlush)
+	(clispErrPutc, clispErrPuts, clispErrFlush, clispErrDie): added
+	* modules/pari/pari.lisp (pari-putc, pari-puts, pari-flush)
+	(pari-err-putc, pari-err-puts, pari-err-flush, pari-err-die): removed
+
 2005-08-26  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (Handle) [UNIX]: use emit_typedef and define to int
