@@ -216,7 +216,7 @@ RE-TEST
 (re-test "(a+|b)+" "ab") ("ab" #-:regex-left "b" #+:regex-left "a")
 (re-test "(a+|b)?" "ab") ("a"  "a")
 (re-test "[^ab]*" "cde") ("cde")
-(re-test "(^)*" "-") ("" "")
+(re-test "(^)*" "-") ("" NIL)
 ;; non-POSIX (re-test "(ab|)*" "-") ("" "")
 (re-test ")(" "-") ; ()
 ERROR ; (")("): "Unmatched ( or \\("
@@ -406,7 +406,7 @@ yz")
 ("aaab-a" #-:regex-left "b" #+:regex-left "a" "a" "b")
 (re-test "(a)*-\\1" "aaa-a") ("aaa-a" "a")
 (re-test "(a)*-\\1b" "aaa-b") ()
-(re-test "([xyz])(-\\2)" "x-y") ()
+(re-test "([xyz])(-\\2)" "x-y") ERROR ; "Invalid back reference"
 (re-test "(([xyz])(-\\2))" "x-y") ()
 (re-test "(([xyz])(-\\2)*)*" "x-y") ("x" "x" "x" NIL)
 (re-test "(([xyz])(-\\2)*)*" "x-") ("x" "x" "x" NIL)
@@ -415,7 +415,7 @@ yz")
 #+:regex-left ("xy" "y" "y" NIL)
 
 ;; kmp -- this *should* match
-(re-test "((.*)\\1)+" "xxxxxx") ()
+(re-test "((.*)\\1)+" "xxxxxx") ERROR ; "Invalid back reference"
 ;; (re-test "((.*)\\1)+" "xxxxxx")
 ;; #-:regex-left ("xxxxxx" "" "")
 ;; #+:regex-left ("xxxxxx" "xxxxxx" "xxx")
@@ -434,7 +434,7 @@ yz")
 (re-test "(.*)\\1\\1(.*)\\2\\2\\2" "aaaaa") ("aaaa" "" "a")
 ;; alternative: ("aaa" "a" "")
 (re-test "(.*)\\1\\1" "aaa") ("aaa" "a")
-(re-test "(.*)*\\1" "xx") ("xx" #-:regex-left "" #+:regex-left "x")
+(re-test "(.*)*\\1" "xx") ("xx" #-:regex-left "x" #+:regex-left "")
 (re-test "(....).*\\1" "beriberi") ("beriberi" "beri")
 
 ;; Some tests for class matches (my own)
@@ -523,7 +523,7 @@ yz")
 
 ;; misc
 ;; kmp it is legal for a* to match nothing
-(re-test "(a*)*" "aaaa") ("aaaa" #-:regex-left "" #+:regex-left "aaaa")
+(re-test "(a*)*" "aaaa") ("aaaa" #-:regex-left "aaaa" #+:regex-left "")
 ;; kmp it is legal for a* to match nothing
-(re-test "(a*)+" "aaaa") ("aaaa" #-:regex-left "" #+:regex-left "aaaa")
+(re-test "(a*)+" "aaaa") ("aaaa" #-:regex-left "aaaa" #+:regex-left "")
 (re-test "(a+)*" "aaaa") ("aaaa" "aaaa")
