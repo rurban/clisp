@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.16  2005/07/20 23:58:29  sds
+# clisp 2.34 (2005-07-20)
+#
 # Revision 1.15  2005/07/13 19:11:34  sds
 # regenerated for 2.33.84
 #
@@ -188,6 +191,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.16  2005/07/20 23:58:29  sds
+# clisp 2.34 (2005-07-20)
+#
 # Revision 1.15  2005/07/13 19:11:34  sds
 # regenerated for 2.33.84
 #
@@ -286,7 +292,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-20 19:46:52-0400\n"
+"POT-Creation-Date: 2005-08-28 12:09:15-0400\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -832,7 +838,7 @@ msgstr "*** - Memoria agotada. REINICIE"
 #
 # Y desde luego, respecto del acento tienes toda la razón del mundo - cll
 #
-#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:358 spvw_multimap.d:161
+#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
 msgstr "No se puede asignar la memoria a la dirección 0x%x ."
@@ -867,27 +873,27 @@ msgstr "No se puede reservar el rango de direcciones a 0x%x ."
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
 msgstr "No se puede reservar el rango de direcciones 0x%x-0x%x ."
 
-#: spvw_mmap.d:226
+#: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping() falló."
 
-#: spvw_mmap.d:234
+#: spvw_mmap.d:233
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(dirección=0x%x,segmento=0x%x) falló."
 
-#: spvw_mmap.d:240
+#: spvw_mmap.d:239
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
 msgstr "MapViewOfFileEx() devolvió 0x%x en vez de 0x%x."
 
-#: spvw_mmap.d:255
+#: spvw_mmap.d:254
 msgid "VirtualFree() failed."
 msgstr "VirtualFree() falló."
 
-#: spvw_mmap.d:268
+#: spvw_mmap.d:267
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() falló."
 
-#: spvw_mmap.d:338 spvw_multimap.d:115 spvw_multimap.d:191
+#: spvw_mmap.d:337 spvw_multimap.d:115 spvw_multimap.d:190
 #, fuzzy
 msgid "Cannot open <%s>."
 msgstr "No se puede abrir %s."
@@ -901,7 +907,7 @@ msgstr "No se puede abrir %s."
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) falló."
 
-#: spvw_multimap.d:200
+#: spvw_multimap.d:199
 #, fuzzy
 msgid "Cannot delete <%s>."
 msgstr "No se puede borrar %s ."
@@ -911,27 +917,27 @@ msgstr "No se puede borrar %s ."
 # aquellos casos en que esto no es posible, lo he indicado
 # explícitamente con un comentario indicando el motivo. - cll
 #
-#: spvw_multimap.d:218
+#: spvw_multimap.d:217
 #, fuzzy
 msgid "** WARNING: ** Too little free disk space for <%s>."
 msgstr "** ATENCIÓN: ** Hay muy poco espacio libre en disco para %s ."
 
-#: spvw_multimap.d:220
+#: spvw_multimap.d:219
 #, fuzzy
 msgid "Please restart LISP with less memory (option -m)."
 msgstr "Por favor, vuelva a ejecutar LISP con menos memoria (opción -m)."
 
-#: spvw_multimap.d:229
+#: spvw_multimap.d:228
 #, fuzzy
 msgid "Cannot make <%s> long enough."
 msgstr "No es posible agrandar %s lo suficiente."
 
-#: spvw_multimap.d:243
+#: spvw_multimap.d:242
 #, fuzzy
 msgid "Cannot fill <%s>."
 msgstr "No se puede rellenar %s ."
 
-#: spvw_multimap.d:256 spvw_multimap.d:290
+#: spvw_multimap.d:255 spvw_multimap.d:289
 #, fuzzy
 msgid "Cannot close <%s>."
 msgstr "No se puede cerrar %s ."
@@ -945,24 +951,24 @@ msgstr "No se puede cerrar %s ."
 # "raras". El problema es que no estaba seguro de que el término
 # "soporte" fuese aceptado. Pero si es así, pues perfecto - cll
 #
-#: spvw_multimap.d:328
+#: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
 msgstr "Recompile su sistema operativo con soporte para SYSV IPC."
 
 #
 # "no se puede asignar un segmento privado en la memoria compartida" - lsg
 #
-#: spvw_multimap.d:341
+#: spvw_multimap.d:340
 #, fuzzy
 msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "No se puede asignar un segmento privado en la memoria compartida."
 
-#: spvw_multimap.d:358
+#: spvw_multimap.d:357
 #, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
 msgstr "No se puede asignar la memoria compartida a la direccion 0x%x."
 
-#: spvw_multimap.d:376 spvw_multimap.d:382
+#: spvw_multimap.d:375 spvw_multimap.d:381
 #, fuzzy
 msgid "%s: Cannot fill shared memory."
 msgstr "No se puede rellenar la memoria compartida."
@@ -971,7 +977,7 @@ msgstr "No se puede rellenar la memoria compartida."
 # En este y en otros tantos mensajes, he seguido tu consejo, Leo. He
 # traducido `remove' por `desechar' en todos los sitios. - cll
 #
-#: spvw_multimap.d:395
+#: spvw_multimap.d:394
 msgid "Cannot remove shared memory segment."
 msgstr "No se puede desechar el segmento de memoria compartida."
 
@@ -1062,32 +1068,32 @@ msgstr "el disco está lleno"
 #
 # - cll
 #
-#: spvw_memfile.d:816 spvw_memfile.d:1566
+#: spvw_memfile.d:833 spvw_memfile.d:1582
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-#: spvw_memfile.d:1278
+#: spvw_memfile.d:1294
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
 
-#: spvw_memfile.d:1571
+#: spvw_memfile.d:1587
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP"
 
-#: spvw_memfile.d:1575
+#: spvw_memfile.d:1591
 #, fuzzy
 msgid "%s: not enough memory for initialization"
 msgstr "no hay memoria suficiente para la inicialización"
 
-#: eval.d:814 init.lisp:760 init.lisp:775 compiler.lisp:1189
+#: eval.d:814 init.lisp:774 init.lisp:789 compiler.lisp:1189
 #, lisp-format
 msgid "Invalid access to the value of the lexical variable ~S from within a ~S definition"
 msgstr ""
 
-#: eval.d:1000 init.lisp:700 init.lisp:714 compiler.lisp:947
+#: eval.d:1000 init.lisp:714 init.lisp:728 compiler.lisp:947
 #, lisp-format
 msgid "Invalid access to the local function definition of ~S from within a ~S definition"
 msgstr ""
@@ -1422,7 +1428,7 @@ msgstr "Demasiados valores devueltos"
 msgid "Corrupted STACK in ~S at byte ~S"
 msgstr "Pila corrupta en ~S en el byte ~S"
 
-#: control.d:79 init.lisp:1170
+#: control.d:79 init.lisp:1184
 #, lisp-format
 msgid "~S: ~S should be a lambda expression"
 msgstr "~S: ~S debe ser una expresión lambda"
@@ -1647,17 +1653,13 @@ msgstr ""
 msgid "invalid byte #x~C~C in ~S conversion"
 msgstr ""
 
-#: encoding.d:1816 encoding.d:1827 encoding.d:1837 encoding.d:1848 pathname.d:1274 pathname.d:3611 pathname.d:6367 pathname.d:6387 pathname.d:6426 pathname.d:7568 pathname.d:8483 stream.d:3249 stream.d:3355 stream.d:16627 hashtabl.d:2211 error.d:1217
+#: encoding.d:1816 encoding.d:1827 encoding.d:1837 encoding.d:1848 pathname.d:1274 pathname.d:3611 pathname.d:6370 pathname.d:6390 pathname.d:6429 pathname.d:7547 pathname.d:8463 stream.d:3249 stream.d:3355 stream.d:16658 hashtabl.d:2211 error.d:1217
 #, lisp-format
 msgid "~S: illegal ~S argument ~S"
 msgstr "~S: el argumento de ~S es inválido: ~S"
 
-#: encoding.d:2302
-msgid "WARNING: %s: no encoding %s, using ASCII"
-msgstr ""
-
-#: encoding.d:2307
-msgid "WARNING: %s: no encoding %s, using UTF-8"
+#: encoding.d:2314 encoding.d:2319
+msgid "WARNING: %s: no encoding %s, using %s"
 msgstr ""
 
 #
@@ -1808,37 +1810,37 @@ msgstr "Aquí no están permitidos los comodines: ~S"
 msgid "~S: argument ~S should be ~S, ~S, ~S, ~S, ~S, ~S or ~S"
 msgstr "~S: el argumento ~S debe ser ~S, ~S, ~S, ~S, ~S, ~S o ~S"
 
-#: pathname.d:4819
+#: pathname.d:4822
 #, lisp-format
 msgid "~S: replacement pieces ~S do not fit into ~S"
 msgstr "~S: las piezas de intercambio ~S no caben en ~S"
 
-#: pathname.d:4902
+#: pathname.d:4905
 #, lisp-format
 msgid "~S: ~S is not a specialization of ~S"
 msgstr "~S: ~S no es una especialización de ~S"
 
-#: pathname.d:4958
+#: pathname.d:4961
 #, lisp-format
 msgid "(~S ~S ~S ~S) is ambiguous: ~S"
 msgstr "(~S ~S ~S ~S) es ambiguo: ~S"
 
-#: pathname.d:5002
+#: pathname.d:5005
 #, lisp-format
 msgid "nonexistent directory: ~S"
 msgstr "directorio inexistente: ~S"
 
-#: pathname.d:5011
+#: pathname.d:5014
 #, fuzzy, lisp-format
 msgid "~S: file ~S already exists"
 msgstr "~S: El fichero ~S ya existe"
 
-#: pathname.d:5228
+#: pathname.d:5231
 #, lisp-format
 msgid "no directory ~S above ~S"
 msgstr "no existe el directorio ~S bajo ~S"
 
-#: pathname.d:5235
+#: pathname.d:5238
 #, lisp-format
 msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~S"
 msgstr "\"..\\\\\" después de \"...\\\\\" es inválido: ~S"
@@ -1848,7 +1850,7 @@ msgstr "\"..\\\\\" después de \"...\\\\\" es inválido: ~S"
 # Tienes razón. Ahora que veo este mensaje me lío a poner dos puntos en
 # los mensajes anteriores. cll
 #
-#: pathname.d:5511
+#: pathname.d:5514
 #, lisp-format
 msgid "UNIX error while GETWD: ~S"
 msgstr "Se produjo un error UNIX durante la ejecución de GETWD: ~S"
@@ -1867,7 +1869,7 @@ msgstr "Se produjo un error UNIX durante la ejecución de GETWD: ~S"
 #
 # Por este motivo, creo que lo más conveniente es dejarlo como está. cll
 #
-#: pathname.d:5518
+#: pathname.d:5521
 #, lisp-format
 msgid "UNIX GETWD returned ~S"
 msgstr "Se produjo un error UNIX durante la ejecución de GETWD: ~S"
@@ -1876,47 +1878,47 @@ msgstr "Se produjo un error UNIX durante la ejecución de GETWD: ~S"
 #
 # Lo mismo también ;) cll
 #
-#: pathname.d:5613
+#: pathname.d:5616
 #, lisp-format
 msgid "UNIX REALPATH returned ~S"
 msgstr "Se produjo un error UNIX durante la ejecución de REALPATH: ~S"
 
-#: pathname.d:5652
+#: pathname.d:5655
 #, lisp-format
 msgid "~S: ~S names a directory, not a file"
 msgstr "~S: ~S es el nombre de un directorio, no de un fichero"
 
-#: pathname.d:5792
+#: pathname.d:5795
 #, lisp-format
 msgid "no file name given: ~S"
 msgstr "no se ha entregado ningún nombre de fichero: ~S"
 
-#: pathname.d:5803
+#: pathname.d:5806
 #, lisp-format
 msgid "not a directory: ~S"
 msgstr "no es un directorio: ~S"
 
-#: pathname.d:5848
+#: pathname.d:5851
 #, lisp-format
 msgid "~S: file ~S does not exist"
 msgstr "~S: el fichero ~S no existe"
 
-#: pathname.d:5882
+#: pathname.d:5885
 #, lisp-format
 msgid "~S: pathname with type but without name makes no sense: ~S"
 msgstr "~S: un PATHNAME con tipo, pero sin nombre, no tiene ningún sentido: ~S"
 
-#: pathname.d:6052
+#: pathname.d:6055
 #, fuzzy, lisp-format
 msgid "cannot delete file ~S since there is a file stream open to it"
 msgstr "no se puede borrar el fichero ~S puesto que hay un flujo abierto sobre el"
 
-#: pathname.d:6102
+#: pathname.d:6105
 #, fuzzy, lisp-format
 msgid "cannot rename file ~S since there is a file stream open to it"
 msgstr "no se puede renombrar el fichero ~S puesto que hay un flujo abierto sobre el"
 
-#: pathname.d:7666
+#: pathname.d:7645
 #, lisp-format
 msgid "root directory not allowed here: ~S"
 msgstr "el directorio raíz no está permitido aquí: ~S"
@@ -1924,11 +1926,11 @@ msgstr "el directorio raíz no está permitido aquí: ~S"
 # Duda: ¿Creando *el* directorio? ¿Creando *un* directorio? De momento,
 # simplemente "Creando directorio" - cll
 #
-#: pathname.d:7758
+#: pathname.d:7737
 msgid "Creating directory: "
 msgstr "Creando directorio: "
 
-#: pathname.d:8817
+#: pathname.d:8798
 #, lisp-format
 msgid "~S: library directory is not known, use a command line option to specify it"
 msgstr ""
@@ -1941,7 +1943,7 @@ msgstr ""
 #
 # ¿os gusta o lo encontrais raro?
 #
-#: stream.d:275 stream.d:13795
+#: stream.d:275 stream.d:13800
 #, lisp-format
 msgid "~S on ~S is illegal"
 msgstr "~S no es posible sobre el flujo ~S"
@@ -2083,7 +2085,7 @@ msgstr "~S está más allá del final porque la cadena ~S ha sido ajustada"
 msgid "~S: ~S is not a string input stream"
 msgstr "~S: ~S no es un flujo de entrada con buffer"
 
-#: stream.d:2538 charstrg.d:3223
+#: stream.d:2538 charstrg.d:3214
 #, fuzzy, lisp-format
 msgid "~S: ~S argument must be a subtype of ~S, not ~S"
 msgstr "~SS: el argumento debe ser ~SS, ~SS o ~SS, pero no ~SS"
@@ -2119,27 +2121,27 @@ msgstr "~S: El argumento ~S debe ser una cadena con un puntero de relleno"
 msgid "~S: ~S is not a buffered input stream"
 msgstr "~S: ~S no es un flujo de entrada con buffer"
 
-#: stream.d:3873
+#: stream.d:3875
 #, lisp-format
 msgid "~S: Ctrl-C: User break"
 msgstr "~S: Ctrl-C: Interrupción del usuario"
 
-#: stream.d:3953
+#: stream.d:3955
 #, fuzzy, lisp-format
 msgid "unknown character set ~S"
 msgstr "Registro desconocido: ~SS"
 
-#: stream.d:5716
+#: stream.d:5718
 #, lisp-format
 msgid "Unbuffered streams need an ~S with a bit size being a multiple of 8, not ~S"
 msgstr ""
 
-#: stream.d:6076
+#: stream.d:6078
 #, lisp-format
 msgid "Closed ~S because disk is full."
 msgstr "Se ha cerrado ~S porque el disco está lleno."
 
-#: stream.d:6194
+#: stream.d:6196
 #, lisp-format
 msgid "cannot position ~S beyond EOF"
 msgstr "no es posible colocarse en ~S más allá de EOF"
@@ -2148,12 +2150,12 @@ msgstr "no es posible colocarse en ~S más allá de EOF"
 # en la asignatura de Sistemas Operativos, en mi Facultad, los
 # llamábamos "ficheros normales". ¿Qué tal os suena?.
 #
-#: stream.d:7717
+#: stream.d:7719
 #, fuzzy, lisp-format
 msgid "~S: argument ~S ~S was specified, but ~S is not a regular file."
 msgstr "~S: ~S no es un fichero normal."
 
-#: stream.d:7751
+#: stream.d:7753
 #, lisp-format
 msgid "~S: arguments ~S ~S and ~S ~S were specified, but ~S is not a regular file."
 msgstr ""
@@ -2161,35 +2163,35 @@ msgstr ""
 # Duda: aqui he traducido de la version francesa (no se frances, pero
 # por lo que parece que pone, ...)
 #
-#: stream.d:7807
+#: stream.d:7809
 #, lisp-format
 msgid "file ~S is not an integer file"
 msgstr "el fichero ~S no tiene el formato de un fichero de enteros"
 
-#: stream.d:8925
+#: stream.d:8927
 #, fuzzy, lisp-format
 msgid "Return value ~S of call to ~S is not a list."
 msgstr "El valor de ~S no es un flujo: ~S"
 
-#: stream.d:8946
+#: stream.d:8948
 #, fuzzy, lisp-format
 msgid "Return value ~S of call to ~S contains ~S which is not a ~S."
 msgstr "El valor de ~S no es un flujo: ~S"
 
-#: stream.d:10111
+#: stream.d:10113
 #, lisp-format
 msgid "~S: argument ~S should be a window stream"
 msgstr "~S: el argumento ~S debe ser un WINDOW-STREAM"
 
-#: stream.d:10657
+#: stream.d:10659
 msgid "cannot output to standard output"
 msgstr "no se puede escribir en la salida estándar"
 
-#: stream.d:11848
+#: stream.d:11850
 msgid "environment has no TERM variable"
 msgstr "no existe ninguna variable de entorno TERM"
 
-#: stream.d:11853
+#: stream.d:11855
 #, lisp-format
 msgid "terminal type ~S unknown to termcap"
 msgstr "No existe ninguna entrada para el tipo de terminal ~S en termcap"
@@ -2202,7 +2204,7 @@ msgstr "No existe ninguna entrada para el tipo de terminal ~S en termcap"
 # 	tipo "usando el modo de impresora" o algo así, ¿no os parece
 # 	mejor?
 #
-#: stream.d:11866
+#: stream.d:11868
 msgid "insufficient terminal: hardcopy terminal"
 msgstr "terminal insuficiente: usando el modo de impresora"
 
@@ -2211,23 +2213,23 @@ msgstr "terminal insuficiente: usando el modo de impresora"
 # alemana (aunque no sé ni alemán ni francés) hacen ---por lo visto---,
 # lo que yo: una traducción libre.
 #
-#: stream.d:11870
+#: stream.d:11872
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr "teminal insuficiente: no se puede inicializar la salida"
 
-#: stream.d:11874
+#: stream.d:11876
 msgid "insufficient terminal: cannot scroll"
 msgstr "terminal insuficiente: no se puede desplazar la pantalla"
 
-#: stream.d:11879
+#: stream.d:11881
 msgid "insufficient terminal: cannot clear screen"
 msgstr "terminal insuficiente: no se puede borrar la pantalla"
 
-#: stream.d:11883
+#: stream.d:11885
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr "terminal insuficiente: no se puede situar el cursor aleatoriamente"
 
-#: stream.d:12344
+#: stream.d:12346
 #, lisp-format
 msgid "~S: package SCREEN is not implemented"
 msgstr "~S: el paquete SCREEN no está implementado"
@@ -2242,7 +2244,7 @@ msgstr "~S: el paquete SCREEN no está implementado"
 # (A propósito, el juego ese de LucasArts es a¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
-#: stream.d:13501
+#: stream.d:13506
 #, lisp-format
 msgid "host should be string, not ~S"
 msgstr "el anfitrión debe ser una cadena de caracteres y no ~S"
@@ -2254,136 +2256,136 @@ msgstr "el anfitrión debe ser una cadena de caracteres y no ~S"
 # por ser el nombre de un subtipo (o tipo, si se quiere) en Lisp, est
 # sin traducir, ...
 #
-#: stream.d:13508
+#: stream.d:13513
 #, fuzzy, lisp-format
 msgid "display should be a small nonnegative integer, not ~S"
 msgstr "el `display' debe ser un entero del tipo FIXNUM >=0, y no ~S"
 
-#: stream.d:13575
+#: stream.d:13580
 #, lisp-format
 msgid "~S: argument ~S should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
 msgstr "~S: el argumento ~S debe ser un vector del tipo (ARRAY (UNSIGNED-BYTE 8) (*)) "
 
-#: stream.d:13597 stream.d:16772 stream.d:16830 stream.d:16883 stream.d:16942 io.d:947
+#: stream.d:13602 stream.d:16806 stream.d:16864 stream.d:16917 stream.d:16976 io.d:947
 #, lisp-format
 msgid "~S: input stream ~S has reached its end"
 msgstr "~S: el flujo de entrada ~S ha alcanzado su final"
 
-#: stream.d:13790 record.d:217 record.d:513 record.d:674 record.d:712 record.d:753 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:956
+#: stream.d:13795 record.d:217 record.d:513 record.d:674 record.d:712 record.d:753 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:956
 #, fuzzy, lisp-format
 msgid "~S: ~S is not a ~S"
 msgstr "~S: ~S no es un par"
 
-#: stream.d:13848
+#: stream.d:13853
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is neither an open SOCKET-STREAM nor a positive FIXNUM"
 msgstr "~S: el argumento ~S no es un SOCKET-STREAM"
 
-#: stream.d:14059
+#: stream.d:14064
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is not an open SOCKET-STREAM"
 msgstr "~S: el argumento ~S no es un SOCKET-STREAM"
 
-#: stream.d:14070
+#: stream.d:14075
 #, lisp-format
 msgid "~S: argument ~S is not a SOCKET-STREAM"
 msgstr "~S: el argumento ~S no es un SOCKET-STREAM"
 
-#: stream.d:14094
+#: stream.d:14099
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is not an open stream"
 msgstr "~S: el argumento ~S no es el flujo de un fichero abierto"
 
-#: stream.d:14296
+#: stream.d:14301
 #, fuzzy, lisp-format
 msgid "~S: list ~S is too long (~S maximum)"
 msgstr "~S: la secuencia ~S es demasiado larga"
 
-#: stream.d:14518
+#: stream.d:14523
 #, fuzzy, lisp-format
 msgid "~S: argument ~S should be of type ~S."
 msgstr "~S: el argumento ~S debe ser un flujo del tipo ~S"
 
-#: stream.d:14703
+#: stream.d:14734
 #, fuzzy, lisp-format
 msgid "Invalid direction ~S for accessing ~S"
 msgstr "Sintaxis inválida en la forma ~SS: ~SS."
 
-#: stream.d:14733
+#: stream.d:14764
 #, fuzzy, lisp-format
 msgid "~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"
 msgstr "~SS: ~SS debe ser una expresión lambda"
 
-#: stream.d:15012
+#: stream.d:15043
 #, lisp-format
 msgid "The value of ~S is not a stream: ~S"
 msgstr "El valor de ~S no es un flujo: ~S"
 
-#: stream.d:15014
+#: stream.d:15045
 #, lisp-format
 msgid "The value of ~S is not an appropriate stream: ~S"
 msgstr "El valor de ~S no es un flujo apropiado: ~S"
 
-#: stream.d:15026
+#: stream.d:15057
 #, fuzzy, lisp-format
 msgid "The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."
 msgstr "El valor de ~S no era un flujo: ~S. Ha sido cambiado por ~S."
 
-#: stream.d:15039
+#: stream.d:15070
 msgid "readline library: out of memory."
 msgstr "biblioteca readline: la memoria ha sido agotada."
 
-#: stream.d:15343
+#: stream.d:15374
 #, fuzzy, lisp-format
 msgid "~S: The ~S of ~S cannot be changed from ~S to ~S."
 msgstr "~S: ~S no puede convertirse al tipo ~S"
 
-#: stream.d:15914
+#: stream.d:15945
 #, fuzzy, lisp-format
 msgid "Return value ~S of call to ~S is not a string."
 msgstr "El valor de ~S no es un flujo: ~S"
 
-#: stream.d:16431
+#: stream.d:16462
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a fixnum >= 0 or NIL."
 msgstr ""
 
-#: stream.d:16594
+#: stream.d:16625
 #, lisp-format
 msgid "~S needs an ~S with a bit size being a multiple of 8, not ~S"
 msgstr ""
 
-#: stream.d:16644
+#: stream.d:16675
 #, fuzzy, lisp-format
 msgid "~S: illegal endianness argument ~S"
 msgstr "~S: el argumento de ~S es inválido: ~S"
 
-#: stream.d:16754
+#: stream.d:16788
 #, fuzzy, lisp-format
 msgid "~S: argument ~S does not contain a valid OS stream handle"
 msgstr "~S: el argumento ~S no es el flujo de un fichero abierto"
 
-#: stream.d:16755
+#: stream.d:16789
 #, lisp-format
 msgid "~S: ~S: buffered pipe-input-streams are not supported"
 msgstr ""
 
-#: stream.d:16756
+#: stream.d:16790
 #, fuzzy, lisp-format
 msgid "~S: ~S: stream of wrong direction"
 msgstr "~S: ~S no es una función"
 
-#: stream.d:17016 stream.d:17026
+#: stream.d:17050 stream.d:17060
 #, fuzzy, lisp-format
 msgid "~S is not a ~S, cannot be output onto ~S"
 msgstr "~S no es un entero, no puede escribirse en ~S"
 
-#: stream.d:17098
+#: stream.d:17132
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is not an open file stream"
 msgstr "~S: el argumento ~S no es el flujo de un fichero abierto"
 
-#: stream.d:17133
+#: stream.d:17167
 #, fuzzy, lisp-format
 msgid "~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"
 msgstr "~S: el argumento de posición debe ser ~S, ~S o un número no negativo del tipo FIXNUM, pero no ~S"
@@ -3367,26 +3369,26 @@ msgstr "el símbolo ~S no puede ser borrado de la tabla de símbolos"
 msgid "~S inconsistent: symbol ~S is a shadowing symbol but not present"
 msgstr "inconsistencia en ~S: el símbolo ~S es un símbolo que eclipsa a otro/s, sin embargo no está presente."
 
-#: package.d:704
+#: package.d:705
 msgid "Ignore the lock and proceed"
 msgstr ""
 
-#: package.d:705
+#: package.d:706
 #, lisp-format
 msgid "~A(~S): ~S is locked"
 msgstr ""
 
-#: package.d:736
+#: package.d:737
 #, lisp-format
 msgid "~S: Importing ~S into ~S would turn it into a constant, but it is already a global symbol-macro."
 msgstr ""
 
-#: package.d:946
+#: package.d:947
 #, fuzzy
 msgid "symbol ~A from ~A will become a shadowing symbol"
 msgstr "el símbolo ~A del paquete #<PACKAGE ~A> se convertirá en un símbolo que eclipsa a otro"
 
-#: package.d:977
+#: package.d:978
 #, fuzzy, lisp-format
 msgid ""
 "Uninterning ~S from ~S uncovers a name conflict.\n"
@@ -3402,7 +3404,7 @@ msgstr "Puede elegir el símbolo en favor del cual se resolverá el conflicto."
 # Si, creo que tienes toda la razón, ... Entonces pongo `sacar' que
 # aunque suene muy burro, creo que es muy, muy claro, ...
 #
-#: package.d:1025
+#: package.d:1026
 #, fuzzy
 msgid "((IMPORT \"import it and unintern the other symbol\" . T) (IGNORE \"do not import it, leave undone\" . NIL))"
 msgstr "((\"I\" \"impórtarlo y sacar el otro símbolo\" T) (\"N\" \"no importarlo, dejarlo como está\" NIL))"
@@ -3410,7 +3412,7 @@ msgstr "((\"I\" \"impórtarlo y sacar el otro símbolo\" T) (\"N\" \"no importarlo
 #
 # Aquí tengo la misma duda anterior - lsg
 #
-#: package.d:1029
+#: package.d:1030
 #, fuzzy
 msgid "((IMPORT \"import it, unintern one other symbol and shadow the other symbols\" . T) (IGNORE \"do not import it, leave undone\" . NIL))"
 msgstr "((\"I\" \"importarlo, sacar uno de los otro símbolos y eclipsar el resto\" T) (\"N\" \"no importarlo, dejarlo como está\" NIL))"
@@ -3418,22 +3420,22 @@ msgstr "((\"I\" \"importarlo, sacar uno de los otro símbolos y eclipsar el resto
 #
 # Lo mismo de antes - lsg
 #
-#: package.d:1033
+#: package.d:1034
 #, fuzzy
 msgid "((IMPORT \"import it and shadow the other symbol\" . T) (IGNORE \"do nothing\" . NIL))"
 msgstr "((\"I\" \"importarlo y eclipsar el otro símbolo\" T) (\"N\" \"no hacer nada\" NIL))"
 
-#: package.d:1039
+#: package.d:1040
 #, fuzzy, lisp-format
 msgid "Importing ~S into ~S produces a name conflict with ~S and other symbols."
 msgstr "la importación de ~SS en ~SS produce un conflicto de nombres con ~SS y otros símbolos."
 
-#: package.d:1040
+#: package.d:1041
 #, fuzzy, lisp-format
 msgid "Importing ~S into ~S produces a name conflict with ~S."
 msgstr "la importación de ~SS en ~SS produce un conflicto de nombres con ~SS."
 
-#: package.d:1140
+#: package.d:1141
 #, lisp-format
 msgid "UNEXPORT in ~S is illegal"
 msgstr "UNEXPORT en ~S es inválido"
@@ -3444,7 +3446,7 @@ msgstr "UNEXPORT en ~S es inválido"
 # Ya, o sea, que cambie "sobre" por "con". Vale, me gusta mucho más tu
 # mensaje que el mío - cll
 #
-#: package.d:1159
+#: package.d:1160
 #, lisp-format
 msgid "UNEXPORT works only on accessible symbols, not on ~S in ~S"
 msgstr "UNEXPORT sólo funciona sobre símbolos accesibles, no con ~S en ~S"
@@ -3452,21 +3454,21 @@ msgstr "UNEXPORT sólo funciona sobre símbolos accesibles, no con ~S en ~S"
 #
 # La misma cuestión anterior entre imperativo e infinitivo - lsg
 #
-#: package.d:1208
+#: package.d:1209
 #, fuzzy
 msgid "((IMPORT \"import the symbol first\" . T) (IGNORE \"do nothing, do not export the symbol\" . NIL))"
 msgstr "((\"I\" importar el símbolo primero\" T) (\"N\" \"no hacer nada, no exportar el símbolo\"))"
 
-#: package.d:1210
+#: package.d:1211
 #, fuzzy, lisp-format
 msgid "~S: Symbol ~S should be imported into ~S before being exported."
 msgstr "el símbolo ~SS debe ser importado a ~SS antes de ser exportado."
 
-#: package.d:1244
+#: package.d:1245
 msgid "the symbol to export, "
 msgstr "el símbolo a exportar, "
 
-#: package.d:1255
+#: package.d:1256
 msgid "the old symbol, "
 msgstr "El símbolo original, "
 
@@ -3475,26 +3477,26 @@ msgstr "El símbolo original, "
 # a de un paquete A entra en conflicto con el símbolo b _del_ paquete
 # B. Luego, debe ser 'de'.
 #
-#: package.d:1269
+#: package.d:1270
 #, fuzzy, lisp-format
 msgid ""
 "Exporting ~S from ~S produces a name conflict with ~S from ~S.\n"
 "You may choose which symbol should be accessible in ~S."
 msgstr "la exportación de ~SS desde ~SS produce un conflicto de nombres con ~SS de ~SS."
 
-#: package.d:1496
+#: package.d:1497
 #, fuzzy, lisp-format
 msgid ""
 "(~S ~S ~S): ~S name conflicts remain\n"
 "Which symbol with name ~S should be accessible in ~S?"
 msgstr "¿ Qué símbolo con nombre ~SS debe ser accesible en ~SS ?"
 
-#: package.d:1720
+#: package.d:1721
 #, lisp-format
 msgid "The value of *PACKAGE* was not a package. Old value ~S. New value ~S."
 msgstr "El valor de *PACKAGE* no era un paquete. Valor anterior ~S. Nuevo valor ~S."
 
-#: package.d:1739
+#: package.d:1740
 #, fuzzy, lisp-format
 msgid "~S: Package ~S has been deleted."
 msgstr "El paquete ~S ha sido borrado."
@@ -3504,17 +3506,17 @@ msgstr "El paquete ~S ha sido borrado."
 # pienso que "No hay ningún paquete con el nombre ~SS" es ligeramente
 # mejor, ¿qué te parece? - cll
 #
-#: package.d:1751
+#: package.d:1752
 #, fuzzy, lisp-format
 msgid "~S: There is no package with name ~S"
 msgstr "~SS: No hay ningún paquete con el nombre ~SS."
 
-#: package.d:1768
+#: package.d:1769
 #, lisp-format
 msgid "~S: argument should be a package or a package name, not ~S"
 msgstr "~S: el argumento debe ser un paquete o el nombre de un paquete, no ~S"
 
-#: package.d:1880
+#: package.d:1881
 #, lisp-format
 msgid "~S: there is already a package named ~S"
 msgstr "~S: ya hay un paquete llamado ~S"
@@ -3524,40 +3526,40 @@ msgstr "~S: ya hay un paquete llamado ~S"
 #
 # Si, ya he cambiado `debería' por `debe' en todos los mensajes - cll
 #
-#: package.d:2178
+#: package.d:2179
 #, lisp-format
 msgid "~S: argument should be a symbol or a list of symbols, not ~S"
 msgstr "~S: el argumento debe ser un símbolo o una lista de símbolos, no ~S"
 
-#: package.d:2307
+#: package.d:2308
 msgid "discard this nickname"
 msgstr ""
 
-#: package.d:2308
+#: package.d:2309
 msgid "return the existing package"
 msgstr ""
 
-#: package.d:2312
+#: package.d:2313
 #, fuzzy
 msgid "input another nickname"
 msgstr "Puede introducir otro apodo."
 
-#: package.d:2313
+#: package.d:2314
 #, fuzzy
 msgid "input another name"
 msgstr "Puede introducir otro nombre."
 
-#: package.d:2319
+#: package.d:2320
 #, fuzzy, lisp-format
 msgid "~S: a package with name ~S already exists."
 msgstr "ya existe un paquete con el nombre ~SS."
 
-#: package.d:2410
+#: package.d:2411
 #, fuzzy, lisp-format
 msgid "One should not change the case sensitiveness of ~S."
 msgstr "No es posible cambiar las mayúsculas/minúsculas de ~S."
 
-#: package.d:2421
+#: package.d:2422
 #, fuzzy, lisp-format
 msgid "One should not change the case inversion of ~S."
 msgstr "No es posible cambiar las mayúsculas/minúsculas de ~S."
@@ -3572,7 +3574,7 @@ msgstr "No es posible cambiar las mayúsculas/minúsculas de ~S."
 # Muy bueno, muy bueno, ... :) Santiago, por aquí hay mucho cachondeo :) - cll
 #
 #
-#: package.d:2491
+#: package.d:2492
 msgid "Ignore."
 msgstr "Ignorar."
 
@@ -3581,12 +3583,12 @@ msgstr "Ignorar."
 # pienso que "No hay ningún paquete con el nombre ~S" es ligeramente
 # mejor, ¿qué te parece? - cll
 #
-#: package.d:2492
+#: package.d:2493
 #, lisp-format
 msgid "~S: There is no package with name ~S."
 msgstr "~S: No hay ningún paquete con el nombre ~S."
 
-#: package.d:2520
+#: package.d:2521
 #, lisp-format
 msgid "~*Delete ~S anyway."
 msgstr ""
@@ -3606,12 +3608,12 @@ msgstr ""
 # más español", es que de hecho la expresión "es utilizado" aunque es
 # correcta, no parece muy española, por favor, ¿sugerencias? - cll
 #
-#: package.d:2521
+#: package.d:2522
 #, lisp-format
 msgid "~S: ~S is used by ~{~S~^, ~}."
 msgstr "~S: ~S es utilizado por ~{~S~^, ~}."
 
-#: package.d:2690
+#: package.d:2691
 #, fuzzy, lisp-format
 msgid "~S: ~S is not using ~S"
 msgstr "Esto no es una cadena: ~S"
@@ -3829,89 +3831,89 @@ msgstr "~S: el argumento de ponderación debe ser un entero, y no ~S"
 msgid "~S: argument should be an integer, not ~S"
 msgstr "~S: el argumento debe ser un entero, no ~S"
 
-#: charstrg.d:2180 compiler.lisp:7110
+#: charstrg.d:2171 compiler.lisp:7110
 #, lisp-format
 msgid "~S: index should be an integer, not ~S"
 msgstr "~S: el índice debe ser un entero, no ~S"
 
-#: charstrg.d:2183
+#: charstrg.d:2174
 #, lisp-format
 msgid "~S: ~S-index should be an integer, not ~S"
 msgstr "~S: el índice ~S debe ser un entero, no ~S"
 
-#: charstrg.d:2194
+#: charstrg.d:2185
 #, lisp-format
 msgid "~S: index should be NIL or an integer, not ~S"
 msgstr "~S: el índice debe ser NIL o un entero, no ~S"
 
-#: charstrg.d:2197
+#: charstrg.d:2188
 #, lisp-format
 msgid "~S: ~S-index should be NIL or an integer, not ~S"
 msgstr "~S: el índice ~S debe ser NIL o un entero, no ~S"
 
-#: charstrg.d:2208
+#: charstrg.d:2199
 #, lisp-format
 msgid "~S: index should not be negative: ~S"
 msgstr "~S: el índice no debe ser negativo: ~S"
 
-#: charstrg.d:2211
+#: charstrg.d:2202
 #, lisp-format
 msgid "~S: ~S-index should not be negative: ~S"
 msgstr "~S: el índice ~S no debe ser negativo: ~S"
 
-#: charstrg.d:2229
+#: charstrg.d:2220
 #, lisp-format
 msgid "~S: index ~S should not be greater than the length of the string"
 msgstr "~S: el índice ~S no debe ser mayor que la longitud de la cadena"
 
-#: charstrg.d:2232
+#: charstrg.d:2223
 #, lisp-format
 msgid "~S: ~S-index ~S should not be greater than the length of the string"
 msgstr "~S: el índice ~S = ~S no debe ser mayor que la longitud de la cadena"
 
-#: charstrg.d:2251
+#: charstrg.d:2242
 #, lisp-format
 msgid "~S: index ~S should be less than the length of the string"
 msgstr "~S: el índice ~S debe ser menor que la longitud de la cadena"
 
-#: charstrg.d:2254
+#: charstrg.d:2245
 #, lisp-format
 msgid "~S: ~S-index ~S should be less than the length of the string"
 msgstr "~S: el índice ~S = ~S debe ser menor que la longitud de la cadena"
 
-#: charstrg.d:2415
+#: charstrg.d:2406
 #, fuzzy, lisp-format
 msgid "~S: :START-index ~S must not be greater than :END-index ~S"
 msgstr "~S: El índice :start ~S no debe ser mayor que el índice :end ~S"
 
-#: charstrg.d:2480
+#: charstrg.d:2471
 #, fuzzy, lisp-format
 msgid "~S: argument ~S should be a string, a symbol or a character"
 msgstr "~S: el argumento ~S debe ser del tipo string o string-char, o un símbolo"
 
-#: charstrg.d:2519 charstrg.d:3702
+#: charstrg.d:2510 charstrg.d:3716
 #, lisp-format
 msgid "~S: :start-index ~S must not be greater than :end-index ~S"
 msgstr "~S: El índice :start ~S no debe ser mayor que el índice :end ~S"
 
-#: charstrg.d:2569
+#: charstrg.d:2560
 #, lisp-format
 msgid "~S: :start1-index ~S must not be greater than :end1-index ~S"
 msgstr "~S: El índice start1 ~S no debe ser mayor que el índice :end1 ~S"
 
-#: charstrg.d:2592
+#: charstrg.d:2583
 #, lisp-format
 msgid "~S: :start2-index ~S must not be greater than :end2-index ~S"
 msgstr "~S: El índice :start2 ~S no debe ser mayor que el índice :end2 ~S"
 
-#: charstrg.d:3208
+#: charstrg.d:3199
 #, lisp-format
 msgid "~S: the string length ~S should be nonnegative fixnum"
 msgstr ""
 "~S: la longitud de la cadena de caracteres ~S debe ser un número no negativo\n"
 "del tipo FIXNUM"
 
-#: charstrg.d:3240
+#: charstrg.d:3231
 #, fuzzy, lisp-format
 msgid "~S: ~S argument ~S should be of type ~S"
 msgstr "~S: el argumento ~S debe ser un flujo del tipo ~S"
@@ -5443,29 +5445,29 @@ msgstr "El argumento destino no es NIL, ni tampoco T, un flujo o una cadena: ~S"
 msgid "~S: The control-string must be a string, not ~S"
 msgstr "~S: La cadena de control debe ser una cadena, y no ~S"
 
-#: init.lisp:312 init.lisp:2113 condition.lisp:1522 reploop.lisp:466
+#: init.lisp:312 init.lisp:2137 condition.lisp:1531 reploop.lisp:466
 msgid "Continuable Error"
 msgstr ""
 
-#: init.lisp:537
+#: init.lisp:538
 #, fuzzy
 msgid "special operator"
 msgstr "una forma especial"
 
-#: init.lisp:541
+#: init.lisp:542
 msgid "macro"
 msgstr "macro"
 
-#: init.lisp:546
+#: init.lisp:547
 msgid "function"
 msgstr "función"
 
-#: init.lisp:602
+#: init.lisp:611
 #, fuzzy, lisp-format
 msgid "~A: redefining ~A ~S in ~A, was defined in ~A"
 msgstr "~S: redefiniendo ~S; ¡estaba siendo rastreada!"
 
-#: init.lisp:612
+#: init.lisp:626
 #, fuzzy, lisp-format
 msgid "~S is a special operator and may not be redefined."
 msgstr "~S es una forma especial y por ello, no puede ser redefinida"
@@ -5476,57 +5478,57 @@ msgstr "~S es una forma especial y por ello, no puede ser redefinida"
 # Sí, tu sugerencia me gusta. Como se nota que tienes experiencia, ...,
 # ¿eh? cll
 #
-#: init.lisp:626
+#: init.lisp:640
 #, lisp-format
 msgid "DEFUN/DEFMACRO: redefining ~S; it was traced!"
 msgstr "DEFUN/DEFMACRO: redefiniendo ~S; ¡se estaba rastreando!"
 
-#: init.lisp:641
+#: init.lisp:655
 #, lisp-format
 msgid "~S is impossible in compiled code"
 msgstr "~S es imposible en código compilado"
 
-#: init.lisp:723
+#: init.lisp:737
 #, lisp-format
 msgid "~S is an invalid function environment"
 msgstr "~S es un entorno de función inválido"
 
-#: init.lisp:784
+#: init.lisp:798
 #, lisp-format
 msgid "~S is an invalid variable environment"
 msgstr "~S es un entorno de variable inválido"
 
-#: init.lisp:851
+#: init.lisp:865
 #, lisp-format
 msgid "~S: ~S is illegal since ~S is a local macro"
 msgstr "~S: ~S es inválido, puesto que ~S es una macro local"
 
-#: init.lisp:854
+#: init.lisp:868
 #, lisp-format
 msgid "~S: invalid function environment ~S"
 msgstr "~S: ~S es un entorno de función inválido"
 
-#: init.lisp:860
+#: init.lisp:874
 #, lisp-format
 msgid "~S: ~S is invalid since ~S is not a symbol"
 msgstr "~S: ~S es incorrecto, puesto que ~S no es un símbolo"
 
-#: init.lisp:1008
+#: init.lisp:1022
 #, lisp-format
 msgid "code after MACROLET contains a dotted list, ending with ~S"
 msgstr "el código después de MACROLET contiene una lista punteada que termina con ~S"
 
-#: init.lisp:1022
+#: init.lisp:1036
 #, lisp-format
 msgid "illegal syntax in MACROLET: ~S"
 msgstr "sintaxis inválida en MACROLET: ~S"
 
-#: init.lisp:1044
+#: init.lisp:1058
 #, lisp-format
 msgid "code after SYMBOL-MACROLET contains a dotted list, ending with ~S"
 msgstr "el código después de SYMBOL-MACROLET contiene una lista punteada que termina con ~S"
 
-#: init.lisp:1056 compiler.lisp:5771
+#: init.lisp:1070 compiler.lisp:5771
 #, fuzzy, lisp-format
 msgid "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
 msgstr ""
@@ -5535,7 +5537,7 @@ msgstr ""
 "#-#-#-#-#  es2.po (GNU clisp 1996-03-31)  #-#-#-#-#\n"
 "~S: el símbolo ~S no debe declararse SPECIAL, al mismo tiempo que es el de una macro"
 
-#: init.lisp:1069 compiler.lisp:5768
+#: init.lisp:1083 compiler.lisp:5768
 #, fuzzy, lisp-format
 msgid "~S: symbol ~S is declared special and must not be declared a macro"
 msgstr ""
@@ -5544,52 +5546,52 @@ msgstr ""
 "#-#-#-#-#  es2.po (GNU clisp 1996-03-31)  #-#-#-#-#\n"
 "~S: el símbolo ~S no debe declararse SPECIAL, al mismo tiempo que es el de una macro"
 
-#: init.lisp:1076
+#: init.lisp:1090
 #, lisp-format
 msgid "illegal syntax in SYMBOL-MACROLET: ~S"
 msgstr "sintaxis inválida en SYMBOL-MACROLET: ~S"
 
-#: init.lisp:1102
+#: init.lisp:1116
 #, lisp-format
 msgid "bad function environment occurred in ~S: ~S"
 msgstr "se encontró un entorno de función incorrecto en ~S: ~S"
 
-#: init.lisp:1111
+#: init.lisp:1125
 #, lisp-format
 msgid "~S: invalid form ~S"
 msgstr "~S: forma inválida ~S"
 
-#: init.lisp:1128
+#: init.lisp:1142
 #, lisp-format
 msgid "code contains a dotted list, ending with ~S"
 msgstr "el código contiene una lista punteada que termina con ~S"
 
-#: init.lisp:1204
+#: init.lisp:1218
 #, lisp-format
 msgid "lambda list must not end with the atom ~S"
 msgstr "la lista lambda no debe terminar con el átomo ~S"
 
-#: init.lisp:1233 init.lisp:1250
+#: init.lisp:1247 init.lisp:1264
 #, lisp-format
 msgid "~S: variable list ends with the atom ~S"
 msgstr "~S: la lista de variables termina con el átomo ~S"
 
-#: init.lisp:1347
+#: init.lisp:1361
 #, lisp-format
 msgid "FLET/LABELS: code contains a dotted list, ending with ~S"
 msgstr "FLET/LABELS: el código contiene una lista punteada que termina con ~S"
 
-#: init.lisp:1357
+#: init.lisp:1371
 #, lisp-format
 msgid "illegal syntax in FLET/LABELS: ~S"
 msgstr "sintaxis inválida en FLET/LABELS: ~S"
 
-#: init.lisp:1377
+#: init.lisp:1391
 #, fuzzy, lisp-format
 msgid "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S"
 msgstr "El código de COND contiene una lista punteada que termina con ~S"
 
-#: init.lisp:1390
+#: init.lisp:1404
 #, fuzzy, lisp-format
 msgid "illegal syntax in FUNCTION-MACRO-LET: ~S"
 msgstr "sintaxis inválida en MACROLET: ~S"
@@ -5599,71 +5601,71 @@ msgstr "sintaxis inválida en MACROLET: ~S"
 # ¡Hey! A mí lo de aviso no me acababa de gustar. ATENCIÓN queda de
 # vicio, ... cll
 #
-#: init.lisp:1479 condition.lisp:1559
+#: init.lisp:1493 condition.lisp:1568
 msgid "WARNING:"
 msgstr "ATENCIÓN:"
 
-#: init.lisp:1511
+#: init.lisp:1525
 #, lisp-format
 msgid "~S: compiled file ~A lacks a version marker"
 msgstr ""
 
-#: init.lisp:1513
+#: init.lisp:1527
 #, lisp-format
 msgid "~S: compiled file ~A has a corrupt version marker ~S"
 msgstr ""
 
-#: init.lisp:1515
+#: init.lisp:1529
 #, fuzzy, lisp-format
 msgid "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"
 msgstr "Este fichero fue producido por otra versión de lisp. Debe recompilarse."
 
-#: init.lisp:1614
+#: init.lisp:1633
 #, fuzzy, lisp-format
 msgid "~S: A file with name ~A does not exist"
 msgstr "No existe ningún fichero con el nombre ~A"
 
-#: init.lisp:1640
+#: init.lisp:1661
 #, fuzzy, lisp-format
 msgid "Loading file ~A ..."
 msgstr "Cargando el fichero \""
 
-#: init.lisp:1676 defs1.lisp:500
+#: init.lisp:1700 defs1.lisp:500
 #, fuzzy, lisp-format
 msgid "Loaded file ~A"
 msgstr "Cargando el fichero \""
 
-#: init.lisp:1688
+#: init.lisp:1712
 #, lisp-format
 msgid "~S: missing function name and/or parameter list"
 msgstr "~S: no se ha indicado el nombre de la función y/o la lista de parámetros"
 
-#: init.lisp:1698
+#: init.lisp:1722
 #, fuzzy, lisp-format
 msgid "~S: special operator ~S cannot be redefined."
 msgstr "~S: la forma especial ~S no puede ser redefinida."
 
-#: init.lisp:1732 macros1.lisp:144
+#: init.lisp:1756 macros1.lisp:144
 #, lisp-format
 msgid "exit clause in ~S must be a list"
 msgstr "la cláusula exit en ~S debe ser una lista"
 
-#: init.lisp:1882
+#: init.lisp:1906
 #, fuzzy, lisp-format
 msgid "~S: cannot define a function from that: ~S"
 msgstr "~: no es posible definir una función a partir de ~S"
 
-#: init.lisp:1888 clos-genfun3.lisp:100 clos-genfun3.lisp:172
+#: init.lisp:1912 clos-genfun3.lisp:100 clos-genfun3.lisp:172
 #, lisp-format
 msgid "~S: the name of a function must be a symbol, not ~S"
 msgstr "~S: el nombre de una función debe ser un símbolo, no ~S"
 
-#: init.lisp:1894
+#: init.lisp:1918
 #, lisp-format
 msgid "~S: function ~S is missing a lambda list"
 msgstr "~S: la función ~S debe tener una lista lambda"
 
-#: init.lisp:2120 condition.lisp:1529 reploop.lisp:493
+#: init.lisp:2144 condition.lisp:1538 reploop.lisp:493
 msgid "If you continue (by typing 'continue'): "
 msgstr "Si continúa (tecleando `continue'): "
 
@@ -5975,7 +5977,7 @@ msgstr "El valor de ~S debe ser de uno de los tipos ~{~S~^, ~}"
 msgid "The value of ~S must be one of ~{~S~^, ~}"
 msgstr "El valor de ~S debe ser uno de los siguientes ~{~S~^, ~}"
 
-#: macros2.lisp:103 condition.lisp:1368
+#: macros2.lisp:103 condition.lisp:1377
 #, lisp-format
 msgid "~S used as a key in ~S, it would be better to use parentheses."
 msgstr "~S es usado como una clave en ~S, sería mejor utilizar paréntesis."
@@ -7665,36 +7667,36 @@ msgstr "Listado de la compilación del fichero ~A~%el ~@? por ~A, versión ~A"
 msgid ";; Compiling file ~A ..."
 msgstr "Compilando el fichero ~A ..."
 
-#: compiler.lisp:11252 compiler.lisp:11256 compiler.lisp:11270
+#: compiler.lisp:11257 compiler.lisp:11261 compiler.lisp:11275
 #, fuzzy, lisp-format
 msgid ";; Wrote file ~A"
 msgstr " de la fuente ~S"
 
-#: compiler.lisp:11261 compiler.lisp:11265
+#: compiler.lisp:11266 compiler.lisp:11270
 #, fuzzy, lisp-format
 msgid ";; Deleted file ~A"
 msgstr " de la fuente ~S"
 
-#: compiler.lisp:11309
+#: compiler.lisp:11314
 #, fuzzy, lisp-format
 msgid "Disassembly of function ~S"
 msgstr "Desensamblado de la función "
 
-#: compiler.lisp:11319
+#: compiler.lisp:11324
 #, fuzzy, lisp-format
 msgid "~S required argument~:P"
 msgstr "~S argumentos obligatorios"
 
-#: compiler.lisp:11321
+#: compiler.lisp:11326
 #, fuzzy, lisp-format
 msgid "~S optional argument~:P"
 msgstr "~S argumentos opcionales"
 
-#: compiler.lisp:11324
+#: compiler.lisp:11329
 msgid "Rest parameter"
 msgstr "Parámetro resto"
 
-#: compiler.lisp:11325
+#: compiler.lisp:11330
 msgid "No rest parameter"
 msgstr "Sin parámetro de resto"
 
@@ -7704,30 +7706,30 @@ msgstr "Sin parámetro de resto"
 # Bueno, en este caso es perfecta :) No hay ningún problema de ningún
 # tipo
 #
-#: compiler.lisp:11329
+#: compiler.lisp:11334
 #, fuzzy, lisp-format
 msgid "~S keyword parameter~:P: "
 msgstr "parámetro~P clave: "
 
-#: compiler.lisp:11336
+#: compiler.lisp:11341
 msgid "Other keywords are allowed."
 msgstr "Se permiten otras palabras clave."
 
-#: compiler.lisp:11339
+#: compiler.lisp:11344
 msgid "No keyword parameters"
 msgstr "Sin parámetros clave"
 
-#: compiler.lisp:11355
+#: compiler.lisp:11360
 #, lisp-format
 msgid "reads special variable~P: ~{~S~^ ~}"
 msgstr ""
 
-#: compiler.lisp:11359
+#: compiler.lisp:11364
 #, lisp-format
 msgid "writes special variable~P: ~{~S~^ ~}"
 msgstr ""
 
-#: compiler.lisp:11362
+#: compiler.lisp:11367
 #, lisp-format
 msgid "~S byte-code instruction~:P:"
 msgstr ""
@@ -8716,17 +8718,37 @@ msgstr ""
 msgid "specify return values"
 msgstr "Demasiados valores devueltos"
 
-#: condition.lisp:1350
-#, lisp-format
-msgid "skip this form and proceed"
-msgstr ""
-
+# Duda: Francamente, no sé porqué motivo esto no fué traducido al
+# FRANCÉS o al INGLÉS (compruébese en el código, ...) porque en
+# realidad, queda pero que muy bien poner `paso' cuando se hace la
+# depuración paso a paso, ...
+#
+# Este mensaje, de hecho, aparece cuando se hace algo del tipo:
+#
+# > (step (+ 2 3))
+# step 1 --> (+ 2 3)
+# Step 1>
+#
+# ..., donde, traduciendo el primer `step' al español, queda algo muy
+# propio:
+#
+# > (step (+ 2 3))
+# paso 1 --> (+ 2 3)
+# Step 1>
+#
+# A mi me gusta así, ..., aA SACO!!
+#
 #: condition.lisp:1354
 #, fuzzy, lisp-format
-msgid "stop loading file"
+msgid "skip "
+msgstr "paso "
+
+#: condition.lisp:1363
+#, fuzzy, lisp-format
+msgid "stop loading file ~A"
 msgstr "Cargando el fichero \""
 
-#: condition.lisp:1486 condition.lisp:1585
+#: condition.lisp:1495 condition.lisp:1594
 #, lisp-format
 msgid "Return from ~S loop"
 msgstr "Retorno del bucle ~S"
@@ -8737,7 +8759,7 @@ msgstr "Retorno del bucle ~S"
 # serio que un toque de atención"? Así parecería que el compilador le va
 # a meter una paliza al pobre programador, ... :) - cll
 #
-#: condition.lisp:1569
+#: condition.lisp:1578
 #, lisp-format
 msgid "~S: This is more serious than a warning: ~A"
 msgstr "~S: Esto es más serio que una advertencia: ~A"
@@ -8747,7 +8769,7 @@ msgstr "~S: Esto es más serio que una advertencia: ~A"
 # ¡Hey! A mí lo de aviso no me acababa de gustar. ATENCIÓN queda de
 # vicio, ... cll
 #
-#: condition.lisp:1575
+#: condition.lisp:1584
 #, fuzzy
 msgid "WARNING: "
 msgstr "ATENCIÓN:"
@@ -9359,7 +9381,7 @@ msgstr "no aparece en ningún paquete"
 #
 #: describe.lisp:260
 #, fuzzy, lisp-format
-msgid ", is accessible in ~:d package~:*~[~;~:;s~] ~{~A~^, ~}"
+msgid ", is accessible in ~:d package~:p ~{~A~^, ~}"
 msgstr " y es accesible desde ~:[el paquete~;los paquetes~] ~{~A~^, ~}"
 
 #: describe.lisp:265
@@ -9547,7 +9569,7 @@ msgstr "el paquete ~A"
 
 #: describe.lisp:374
 #, fuzzy, lisp-format
-msgid ". It has ~:d nickname~:*~[~;~:;s~] ~{~A~^, ~}"
+msgid ". It has ~:d nickname~:p ~{~A~^, ~}"
 msgstr ". Tiene los apodos ~{~A~^, ~}"
 
 # Duda: Debo comprobarlo en el código fuente de CLisp pero estoy casi
@@ -9560,12 +9582,12 @@ msgstr ""
 
 #: describe.lisp:382
 #, fuzzy, lisp-format
-msgid "imports the external symbols of ~:d package~:*~[~;~:;s~] ~{~A~^, ~} and "
+msgid "imports the external symbols of ~:d package~:p ~{~A~^, ~} and "
 msgstr "importa los símbolos externos de~:[l paquete~; los paquetes~] ~{~A~^, ~} y "
 
 #: describe.lisp:388
 #, fuzzy, lisp-format
-msgid "exports ~[no symbols~:;~:*~:d symbol~:*~[~;~:;s~]~]"
+msgid "exports ~[no symbols~:;~:*~:d symbol~:p~]"
 msgstr "~:[no exporta ningún símbolo~;exporta los símbolos~:*~{~<~%~:; ~S~>~^~}~]"
 
 #: describe.lisp:391
@@ -9575,7 +9597,7 @@ msgstr ""
 
 #: describe.lisp:394
 #, fuzzy, lisp-format
-msgid " to ~:d package~:*~[~;~:;s~] ~{~A~^, ~}"
+msgid " to ~:d package~:p ~{~A~^, ~}"
 msgstr " ~:[al paquete~;a los paquetes~]: ~{~A~^, ~}"
 
 #: describe.lisp:397
