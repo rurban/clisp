@@ -1740,7 +1740,7 @@ if [ $TSYS = master -o "${with_dynamic_ffi}" != no ] ; then
 fi
 LPARTS=$LPARTS' exporting german'
 if [ "${with_unicode}" != no ] ; then
-  LPARTS=$LPARTS' french spanish russian'
+  LPARTS=$LPARTS' french spanish russian danish'
 fi
 LPARTS=$LPARTS' dutch deprecated config'
 

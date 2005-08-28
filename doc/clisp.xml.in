@@ -235,7 +235,8 @@ compiles the specified lisp files to a platform-independent
     <member><command>french</command></member>
     <member><command>spanish</command></member>
     <member><command>dutch</command></member>
-    <member><command>russian</command></member></simplelist>.
+    <member><command>russian</command></member>
+    <member><command>danish</command></member></simplelist>.
    Other languages may be specified through the &env-var;
    <envar>LANG</envar>,
    provided the corresponding message catalog is installed.

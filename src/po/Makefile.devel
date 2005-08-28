@@ -2,12 +2,12 @@
 # Do not use it unless you know exactly what you are doing!
 
 # This Makefile requires GNU make and
-# GNU gettext 0.13 or above (msgfmt, msguniq, msgen, xgettext).
+# GNU gettext 0.15 or above (msgfmt, msguniq, msgen, xgettext).
 
 SHELL = /bin/sh
 RM = rm -rf
 
-GMSGFMT = msgfmt --statistics --check
+GMSGFMT = /cygdrive/d/gnu/gettext-0.15-pre1/gettext-tools/src/msgfmt.exe --statistics --check
 
 all : tmp pot gmo
 
@@ -15,7 +15,7 @@ all : tmp pot gmo
 PREDEF_LINGUAS = en
 # Other languages must be translated by hand. They must also be added
 # to the variable ALL_LINGUAS in ../configure.in.
-OTHER_LINGUAS = de fr es nl ru
+OTHER_LINGUAS = da de fr es nl ru
 
 LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
 
@@ -64,7 +64,7 @@ LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               screen beossock runprog query reploop dribble complete \
               describe room edit macros3 clhs inspect gray threads \
               case-sensitive foreign1 exporting \
-              german french spanish russian dutch \
+              german french spanish russian dutch danish \
               deprecated affi1
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
