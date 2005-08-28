@@ -25,6 +25,8 @@ User visible changes
 * New function POSIX:STREAM-OPTIONS calls fcntl(2).
   See <http://clisp.cons.org/impnotes.html#fcntl> for details.
 
+* Explicitly close all possible file descriptors before exec().
+
 * Danish translations of the user interface messages have been added.
   Thanks to Dennis Decker Jensen <dennisdjensen@tiscali.dk>.
 
