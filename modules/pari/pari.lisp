@@ -13,54 +13,6 @@
 
 (pushnew :pari *features*)
 
-;;; Define the functions for output and error output from pari
-
-(defun pari-putc (c) (write-char c *standard-output*))
-(defun pari-puts (s) (write-string s *standard-output*))
-(defun pari-flush () (finish-output *standard-output*))
-
-(def-call-in pari-putc
-  (:name "clispPutc")
-  (:return-type nil)
-  (:arguments (c character))
-  (:language :stdc))
-(def-call-in pari-puts
-  (:name "clispPuts")
-  (:return-type nil)
-  (:arguments (s c-string :in :malloc-free))
-  (:language :stdc))
-(def-call-in pari-flush
-  (:name "clispFlush")
-  (:return-type nil)
-  (:arguments)
-  (:language :stdc))
-
-(defun pari-err-putc (c) (write-char c *error-output*))
-(defun pari-err-puts (s) (write-string s *error-output*))
-(defun pari-err-flush () (finish-output *error-output*))
-(defun pari-err-die () (error "Error within pari."))
-
-(def-call-in pari-err-putc
-  (:name "clispErrPutc")
-  (:return-type nil)
-  (:arguments (c character))
-  (:language :stdc))
-(def-call-in pari-err-puts
-  (:name "clispErrPuts")
-  (:return-type nil)
-  (:arguments (s c-string :in :malloc-free))
-  (:language :stdc))
-(def-call-in pari-err-flush
-  (:name "clispErrFlush")
-  (:return-type nil)
-  (:arguments)
-  (:language :stdc))
-(def-call-in pari-err-die
-  (:name "clispErrDie")
-  (:return-type nil)
-  (:arguments)
-  (:language :stdc))
-
 ;;; Declare all the pari types, variables, functions, ...
 (c-lines "#undef T~%#include <pari/pari.h>~%")
 
