@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.16  2005/07/20 23:58:29  sds
+# clisp 2.34 (2005-07-20)
+#
 # Revision 1.15  2005/07/13 19:11:34  sds
 # regenerated for 2.33.84
 #
@@ -188,6 +191,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.16  2005/07/20 23:58:29  sds
+# clisp 2.34 (2005-07-20)
+#
 # Revision 1.15  2005/07/13 19:11:34  sds
 # regenerated for 2.33.84
 #
@@ -286,7 +292,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-20 19:47:00-0400\n"
+"POT-Creation-Date: 2005-08-27 23:46:01-0400\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -742,7 +748,7 @@ msgstr "*** - Memoria agotada. REINICIE"
 #
 # Y desde luego, respecto del acento tienes toda la razón del mundo - cll
 #
-#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:358 spvw_multimap.d:161
+#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
 msgstr "No se puede asignar la memoria a la dirección 0x%x ."
@@ -777,27 +783,27 @@ msgstr "No se puede reservar el rango de direcciones a 0x%x ."
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
 msgstr "No se puede reservar el rango de direcciones 0x%x-0x%x ."
 
-#: spvw_mmap.d:226
+#: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping() falló."
 
-#: spvw_mmap.d:234
+#: spvw_mmap.d:233
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(dirección=0x%x,segmento=0x%x) falló."
 
-#: spvw_mmap.d:240
+#: spvw_mmap.d:239
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
 msgstr "MapViewOfFileEx() devolvió 0x%x en vez de 0x%x."
 
-#: spvw_mmap.d:255
+#: spvw_mmap.d:254
 msgid "VirtualFree() failed."
 msgstr "VirtualFree() falló."
 
-#: spvw_mmap.d:268
+#: spvw_mmap.d:267
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() falló."
 
-#: spvw_mmap.d:338 spvw_multimap.d:115 spvw_multimap.d:191
+#: spvw_mmap.d:337 spvw_multimap.d:115 spvw_multimap.d:190
 #, fuzzy
 msgid "Cannot open <%s>."
 msgstr "No se puede abrir %s."
@@ -811,7 +817,7 @@ msgstr "No se puede abrir %s."
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) falló."
 
-#: spvw_multimap.d:200
+#: spvw_multimap.d:199
 #, fuzzy
 msgid "Cannot delete <%s>."
 msgstr "No se puede borrar %s ."
@@ -821,27 +827,27 @@ msgstr "No se puede borrar %s ."
 # aquellos casos en que esto no es posible, lo he indicado
 # explícitamente con un comentario indicando el motivo. - cll
 #
-#: spvw_multimap.d:218
+#: spvw_multimap.d:217
 #, fuzzy
 msgid "** WARNING: ** Too little free disk space for <%s>."
 msgstr "** ATENCIÓN: ** Hay muy poco espacio libre en disco para %s ."
 
-#: spvw_multimap.d:220
+#: spvw_multimap.d:219
 #, fuzzy
 msgid "Please restart LISP with less memory (option -m)."
 msgstr "Por favor, vuelva a ejecutar LISP con menos memoria (opción -m)."
 
-#: spvw_multimap.d:229
+#: spvw_multimap.d:228
 #, fuzzy
 msgid "Cannot make <%s> long enough."
 msgstr "No es posible agrandar %s lo suficiente."
 
-#: spvw_multimap.d:243
+#: spvw_multimap.d:242
 #, fuzzy
 msgid "Cannot fill <%s>."
 msgstr "No se puede rellenar %s ."
 
-#: spvw_multimap.d:256 spvw_multimap.d:290
+#: spvw_multimap.d:255 spvw_multimap.d:289
 #, fuzzy
 msgid "Cannot close <%s>."
 msgstr "No se puede cerrar %s ."
@@ -855,24 +861,24 @@ msgstr "No se puede cerrar %s ."
 # "raras". El problema es que no estaba seguro de que el término
 # "soporte" fuese aceptado. Pero si es así, pues perfecto - cll
 #
-#: spvw_multimap.d:328
+#: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
 msgstr "Recompile su sistema operativo con soporte para SYSV IPC."
 
 #
 # "no se puede asignar un segmento privado en la memoria compartida" - lsg
 #
-#: spvw_multimap.d:341
+#: spvw_multimap.d:340
 #, fuzzy
 msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "No se puede asignar un segmento privado en la memoria compartida."
 
-#: spvw_multimap.d:358
+#: spvw_multimap.d:357
 #, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
 msgstr "No se puede asignar la memoria compartida a la direccion 0x%x."
 
-#: spvw_multimap.d:376 spvw_multimap.d:382
+#: spvw_multimap.d:375 spvw_multimap.d:381
 #, fuzzy
 msgid "%s: Cannot fill shared memory."
 msgstr "No se puede rellenar la memoria compartida."
@@ -881,7 +887,7 @@ msgstr "No se puede rellenar la memoria compartida."
 # En este y en otros tantos mensajes, he seguido tu consejo, Leo. He
 # traducido `remove' por `desechar' en todos los sitios. - cll
 #
-#: spvw_multimap.d:395
+#: spvw_multimap.d:394
 msgid "Cannot remove shared memory segment."
 msgstr "No se puede desechar el segmento de memoria compartida."
 
@@ -960,22 +966,22 @@ msgstr "Intentando obtener más espacio a través de un GC ..."
 #
 # - cll
 #
-#: spvw_memfile.d:816 spvw_memfile.d:1566
+#: spvw_memfile.d:833 spvw_memfile.d:1582
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-#: spvw_memfile.d:1278
+#: spvw_memfile.d:1294
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
 
-#: spvw_memfile.d:1571
+#: spvw_memfile.d:1587
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP"
 
-#: spvw_memfile.d:1575
+#: spvw_memfile.d:1591
 #, fuzzy
 msgid "%s: not enough memory for initialization"
 msgstr "no hay memoria suficiente para la inicialización"
