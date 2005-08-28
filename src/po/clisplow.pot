@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.34\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-20 19:47:00-0400\n"
-"PO-Revision-Date: 2005-07-20 19:47:00-0400\n"
+"POT-Creation-Date: 2005-08-27 23:46:01-0400\n"
+"PO-Revision-Date: 2005-08-27 23:46:01-0400\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -275,7 +275,7 @@ msgstr ""
 msgid "*** - Memory exhausted. RESET"
 msgstr ""
 
-#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:358 spvw_multimap.d:161
+#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 msgid "Cannot map memory to address 0x%lx ."
 msgstr ""
 
@@ -287,27 +287,27 @@ msgstr ""
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
 msgstr ""
 
-#: spvw_mmap.d:226
+#: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
 msgstr ""
 
-#: spvw_mmap.d:234
+#: spvw_mmap.d:233
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr ""
 
-#: spvw_mmap.d:240
+#: spvw_mmap.d:239
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
 msgstr ""
 
-#: spvw_mmap.d:255
+#: spvw_mmap.d:254
 msgid "VirtualFree() failed."
 msgstr ""
 
-#: spvw_mmap.d:268
+#: spvw_mmap.d:267
 msgid "VirtualProtect() failed."
 msgstr ""
 
-#: spvw_mmap.d:338 spvw_multimap.d:115 spvw_multimap.d:191
+#: spvw_mmap.d:337 spvw_multimap.d:115 spvw_multimap.d:190
 msgid "Cannot open <%s>."
 msgstr ""
 
@@ -315,47 +315,47 @@ msgstr ""
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
 msgstr ""
 
-#: spvw_multimap.d:200
+#: spvw_multimap.d:199
 msgid "Cannot delete <%s>."
 msgstr ""
 
-#: spvw_multimap.d:218
+#: spvw_multimap.d:217
 msgid "** WARNING: ** Too little free disk space for <%s>."
 msgstr ""
 
-#: spvw_multimap.d:220
+#: spvw_multimap.d:219
 msgid "Please restart LISP with less memory (option -m)."
 msgstr ""
 
-#: spvw_multimap.d:229
+#: spvw_multimap.d:228
 msgid "Cannot make <%s> long enough."
 msgstr ""
 
-#: spvw_multimap.d:243
+#: spvw_multimap.d:242
 msgid "Cannot fill <%s>."
 msgstr ""
 
-#: spvw_multimap.d:256 spvw_multimap.d:290
+#: spvw_multimap.d:255 spvw_multimap.d:289
 msgid "Cannot close <%s>."
 msgstr ""
 
-#: spvw_multimap.d:328
+#: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
 msgstr ""
 
-#: spvw_multimap.d:341
+#: spvw_multimap.d:340
 msgid "Cannot allocate private shared memory segment of size %d."
 msgstr ""
 
-#: spvw_multimap.d:358
+#: spvw_multimap.d:357
 msgid "Cannot map shared memory to address 0x%lx."
 msgstr ""
 
-#: spvw_multimap.d:376 spvw_multimap.d:382
+#: spvw_multimap.d:375 spvw_multimap.d:381
 msgid "%s: Cannot fill shared memory."
 msgstr ""
 
-#: spvw_multimap.d:395
+#: spvw_multimap.d:394
 msgid "Cannot remove shared memory segment."
 msgstr ""
 
@@ -395,19 +395,19 @@ msgstr ""
 msgid "Trying to make room through a GC..."
 msgstr ""
 
-#: spvw_memfile.d:816 spvw_memfile.d:1566
+#: spvw_memfile.d:833 spvw_memfile.d:1582
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr ""
 
-#: spvw_memfile.d:1278
+#: spvw_memfile.d:1294
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr ""
 
-#: spvw_memfile.d:1571
+#: spvw_memfile.d:1587
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr ""
 
-#: spvw_memfile.d:1575
+#: spvw_memfile.d:1591
 msgid "%s: not enough memory for initialization"
 msgstr ""
 

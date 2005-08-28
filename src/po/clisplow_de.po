@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-20 19:47:00-0400\n"
+"POT-Creation-Date: 2005-08-27 23:46:01-0400\n"
 "PO-Revision-Date: 2004-04-12 00:45+0200\n"
 "Last-Translator: Bruno Haible <bruno@clisp.org>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -300,7 +300,7 @@ msgstr "*** - Kein virtueller Speicher mehr verfügbar: RESET"
 msgid "*** - Memory exhausted. RESET"
 msgstr "*** - Speicher voll: RESET"
 
-#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:358 spvw_multimap.d:161
+#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
 msgstr "Kann keinen Speicher an Adresse 0x%x legen."
@@ -315,27 +315,27 @@ msgstr "Kann Adressbereich ab 0x%x nicht reservieren."
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
 msgstr "Kann Adressbereich 0x%x-0x%x nicht reservieren."
 
-#: spvw_mmap.d:226
+#: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping() scheiterte."
 
-#: spvw_mmap.d:234
+#: spvw_mmap.d:233
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) scheiterte."
 
-#: spvw_mmap.d:240
+#: spvw_mmap.d:239
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
 msgstr "MapViewOfFileEx() lieferte 0x%x statt 0x%x."
 
-#: spvw_mmap.d:255
+#: spvw_mmap.d:254
 msgid "VirtualFree() failed."
 msgstr "VirtualFree() scheiterte."
 
-#: spvw_mmap.d:268
+#: spvw_mmap.d:267
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() scheiterte."
 
-#: spvw_mmap.d:338 spvw_multimap.d:115 spvw_multimap.d:191
+#: spvw_mmap.d:337 spvw_multimap.d:115 spvw_multimap.d:190
 msgid "Cannot open <%s>."
 msgstr "Kann %s nicht öffnen."
 
@@ -344,48 +344,48 @@ msgstr "Kann %s nicht öffnen."
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) scheitert."
 
-#: spvw_multimap.d:200
+#: spvw_multimap.d:199
 msgid "Cannot delete <%s>."
 msgstr "Kann %s nicht löschen."
 
-#: spvw_multimap.d:218
+#: spvw_multimap.d:217
 msgid "** WARNING: ** Too little free disk space for <%s>."
 msgstr "** WARNUNG: ** Zu wenig freier Plattenplatz für %s ."
 
-#: spvw_multimap.d:220
+#: spvw_multimap.d:219
 msgid "Please restart LISP with less memory (option -m)."
 msgstr "Bitte Lisp mit weniger Speicher (Option -m) neu starten."
 
-#: spvw_multimap.d:229
+#: spvw_multimap.d:228
 msgid "Cannot make <%s> long enough."
 msgstr "Kann %s nicht aufblähen."
 
-#: spvw_multimap.d:243
+#: spvw_multimap.d:242
 msgid "Cannot fill <%s>."
 msgstr "Kann %s nicht füllen."
 
-#: spvw_multimap.d:256 spvw_multimap.d:290
+#: spvw_multimap.d:255 spvw_multimap.d:289
 msgid "Cannot close <%s>."
 msgstr "Kann %s nicht schließen."
 
-#: spvw_multimap.d:328
+#: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
 msgstr "Compilieren Sie Ihr Betriebssystem neu mit Unterstützung von SYSV IPC."
 
-#: spvw_multimap.d:341
+#: spvw_multimap.d:340
 msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "Kann kein privates Shared-Memory-Segment der Größe %d aufmachen."
 
-#: spvw_multimap.d:358
+#: spvw_multimap.d:357
 #, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
 msgstr "Kann kein Shared-Memory an Adresse 0x%x legen."
 
-#: spvw_multimap.d:376 spvw_multimap.d:382
+#: spvw_multimap.d:375 spvw_multimap.d:381
 msgid "%s: Cannot fill shared memory."
 msgstr "%s: Kann Shared Memory nicht füllen."
 
-#: spvw_multimap.d:395
+#: spvw_multimap.d:394
 msgid "Cannot remove shared memory segment."
 msgstr "Kann Shared-Memory-Segment nicht entfernen."
 
@@ -427,20 +427,20 @@ msgstr "*** - Speicherplatz für LISP-Objekte ist voll: RESET"
 msgid "Trying to make room through a GC..."
 msgstr "Versuche, durch eine GC Platz zu schaffen..."
 
-#: spvw_memfile.d:816 spvw_memfile.d:1566
+#: spvw_memfile.d:833 spvw_memfile.d:1582
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: Betriebssystem-Fehler beim Versuch, die Initialisierungs-Datei »%s« zu laden."
 
-#: spvw_memfile.d:1278
+#: spvw_memfile.d:1294
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Kann die Initialisierungs-Datei »%s« nicht in den Speicher legen."
 
-#: spvw_memfile.d:1571
+#: spvw_memfile.d:1587
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "%s: Initialisierungs-Datei »%s« wurde nicht von dieser Lisp-Version erzeugt."
 
-#: spvw_memfile.d:1575
+#: spvw_memfile.d:1591
 msgid "%s: not enough memory for initialization"
 msgstr "%s: Speicherplatz reicht für die Initialisierung nicht aus."
 

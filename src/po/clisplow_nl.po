@@ -23,7 +23,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-07-20 19:47:00-0400\n"
+"POT-Creation-Date: 2005-08-27 23:46:01-0400\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -303,7 +303,7 @@ msgstr "*** - Geen virtueel geheugen beschikbaar. RESET"
 msgid "*** - Memory exhausted. RESET"
 msgstr "*** - Geen geheugen meer beschikbaar. RESET"
 
-#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:358 spvw_multimap.d:161
+#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
 msgstr "Kan geheugen niet op adres 0x%x afbeelden."
@@ -318,27 +318,27 @@ msgstr "Kan geheugen bereik op 0x%x niet reserveren."
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
 msgstr "Kan geheugen bereik op 0x%x-0x%x niet reserveren."
 
-#: spvw_mmap.d:226
+#: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping() mislukt."
 
-#: spvw_mmap.d:234
+#: spvw_mmap.d:233
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) mislukt."
 
-#: spvw_mmap.d:240
+#: spvw_mmap.d:239
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
 msgstr "MapViewOfFileEx() gaf 0x%x terug in plaats van 0x%x."
 
-#: spvw_mmap.d:255
+#: spvw_mmap.d:254
 msgid "VirtualFree() failed."
 msgstr "VirtualFree() mislukt."
 
-#: spvw_mmap.d:268
+#: spvw_mmap.d:267
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() mislukt."
 
-#: spvw_mmap.d:338 spvw_multimap.d:115 spvw_multimap.d:191
+#: spvw_mmap.d:337 spvw_multimap.d:115 spvw_multimap.d:190
 #, fuzzy
 msgid "Cannot open <%s>."
 msgstr "Kan %s niet openen."
@@ -348,56 +348,56 @@ msgstr "Kan %s niet openen."
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) mislukt."
 
-#: spvw_multimap.d:200
+#: spvw_multimap.d:199
 #, fuzzy
 msgid "Cannot delete <%s>."
 msgstr "Kan %s niet verwijderen."
 
-#: spvw_multimap.d:218
+#: spvw_multimap.d:217
 #, fuzzy
 msgid "** WARNING: ** Too little free disk space for <%s>."
 msgstr "** LET OP: ** Te weinig vrije schijfruimte voor %s."
 
-#: spvw_multimap.d:220
+#: spvw_multimap.d:219
 #, fuzzy
 msgid "Please restart LISP with less memory (option -m)."
 msgstr "Herstart a.u.b. LISP met minder geheugen (optie -m)."
 
-#: spvw_multimap.d:229
+#: spvw_multimap.d:228
 #, fuzzy
 msgid "Cannot make <%s> long enough."
 msgstr "Kan %s niet lang genoeg maken."
 
-#: spvw_multimap.d:243
+#: spvw_multimap.d:242
 #, fuzzy
 msgid "Cannot fill <%s>."
 msgstr "Kan %s niet vullen."
 
-#: spvw_multimap.d:256 spvw_multimap.d:290
+#: spvw_multimap.d:255 spvw_multimap.d:289
 #, fuzzy
 msgid "Cannot close <%s>."
 msgstr "Kan %s niet sluiten."
 
-#: spvw_multimap.d:328
+#: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
 msgstr "Hercompileer uw besturingssysteem met ondersteuning van SYSV IPC."
 
-#: spvw_multimap.d:341
+#: spvw_multimap.d:340
 #, fuzzy
 msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "Kan privé shared-memory segment niet reserveren. "
 
-#: spvw_multimap.d:358
+#: spvw_multimap.d:357
 #, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
 msgstr "Kan shared-memory niet afbeelden op adres 0x%x."
 
-#: spvw_multimap.d:376 spvw_multimap.d:382
+#: spvw_multimap.d:375 spvw_multimap.d:381
 #, fuzzy
 msgid "%s: Cannot fill shared memory."
 msgstr "Kan shared-memory niet vullen."
 
-#: spvw_multimap.d:395
+#: spvw_multimap.d:394
 msgid "Cannot remove shared memory segment."
 msgstr "Kan shared-memory segment niet verwijderen."
 
@@ -440,22 +440,22 @@ msgstr "*** - Geen ruimte meer voor LISP objecten: RESET"
 msgid "Trying to make room through a GC..."
 msgstr "Ik probeer ruimte te maken door een GC..."
 
-#: spvw_memfile.d:816 spvw_memfile.d:1566
+#: spvw_memfile.d:833 spvw_memfile.d:1582
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "besturingssysteem-fout bij het lezen van opstart bestand `%s'"
 
-#: spvw_memfile.d:1278
+#: spvw_memfile.d:1294
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "Kan het opstartbestand niet in het geheugen afbeelden."
 
-#: spvw_memfile.d:1571
+#: spvw_memfile.d:1587
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "opstartbestand was niet gemaakt door deze versie van LISP"
 
-#: spvw_memfile.d:1575
+#: spvw_memfile.d:1591
 #, fuzzy
 msgid "%s: not enough memory for initialization"
 msgstr "onvoldoende geheugen om te starten"
