@@ -3369,8 +3369,8 @@ If you want <emphasis role="strong">all</emphasis> the files &and-e;
 subdirectories in the current directory, you should use
 <code>(&nconc; (&directory; "*/") (&directory; "*"))</code>.
 If you want all the files and subdirectories in all the subdirectories
-under the current directory
-(similar to the &ls; <option>-R</option> &unix; command),
+under the current directory (similar to the <command role="unix">ls
+ <option>-R</option></command> &unix; command),
 use <code>(&nconc; (&directory; "**/") (&directory; "**/*"))</code>.
 
 <!-- #ifdef UNIX -->
@@ -3656,8 +3656,9 @@ This keyboard input is not echoed on the screen.  During execution of a
   Lisp streams are &buffered;.  Use &force-output; for &out-s;s,
   and <link linkend="bulk-io">bulk input</link> for &in-s;s.</para></warning>
 
-<para>The handle is duplicated (with &dup;), so it is safe to &close;
- a &stream-t; returned by &make-stream;.</para></section>
+<para>The handle is duplicated (with <function role="unix">dup</function>),
+ so it is safe to &close; a &stream-t; returned by &make-stream;.</para>
+</section>
 
 <section id="bin-input"><title>Binary input, &read-byte;,
   &rd-integer; &amp; &rd-float;</title>
@@ -3904,11 +3905,11 @@ functions are provided:
    </simpara></listitem></varlistentry>
  <varlistentry id="extfmt"><term>&extfmt;</term>
   <listitem><simpara>&encoding;s, (constant) &symbol-t;s in the
-   &charset-pac; package, &string-t;s (denoting &iconv;-based
-   encodings), the symbol &default-k;, and the &line-term; keywords
-   &unix-k;, &mac-k;, &dos-k;.  The default encoding is &def-file-enc;.
+    &charset-pac; package, &string-t;s (denoting &iconv;-based encodings),
+    the symbol &default-k;, and the &line-term; keywords
+    &unix-k;, &mac-k;, &dos-k;.  The default encoding is &def-file-enc;.
     This argument determines how the lisp &character-t; data is
-   converted to/from the 8-bit bytes that the underlying OS uses.
+    converted to/from the 8-bit bytes that the underlying OS uses.
   </simpara></listitem></varlistentry>
  <varlistentry id="buffered"><term>&buffered;</term>
   <listitem><para>&nil;, &t;, or &default-k;.
@@ -5210,7 +5211,8 @@ exhaust the available line length.</para></formalpara>
  <listitem><simpara>The functions &short-site-name;, &long-site-name;
    should be defined in a site-specific &config-lisp; file.
    The default implementations try to read the value of the &env-var;
-   <envar>ORGANIZATION</envar>, and, failing that, call &uname;.
+   <envar>ORGANIZATION</envar>, and, failing that,
+   call <function role="unix">uname</function>.
 </simpara></listitem></varlistentry>
 <varlistentry><term>&win32-only;</term>
  <listitem><simpara>The functions &short-site-name;, &long-site-name;
@@ -5321,8 +5323,8 @@ exhaust the available line length.</para></formalpara>
     otherwise &warn; that no appropriate action may be taken.
     &path-r; may be an open &out-s; or a &path-des;.
     See <link linkend="dribble-example">above</link> for the sample usage.
-    See also <filename>#P"src/dribble.lisp"</filename> in the &clisp;
-    source tree.
+    See also <filename role="clisp-cvs">src/dribble.lisp</filename> in
+    the &clisp; source tree.
 </simpara></listitem></varlistentry></variablelist></section>
 
 <section id="version"><title>Function &lisp-implementation-version;</title>

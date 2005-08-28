@@ -674,12 +674,12 @@ compiles the specified lisp files to a platform-independent
  the following basic steps to make the report more useful:
 <orderedlist>
  <listitem><simpara>Please do a clean build (remove your build directory
-   and build &clisp; with <command>"./configure --build build"</command>
-   or at least do a <command>"make distclean"</command>
-   before <command>"make"</command>).</simpara></listitem>
+   and build &clisp; with <command>./configure --build build</command>
+   or at least do a <command role="unix">make distclean</command>
+   before <command role="unix">make</command>).</simpara></listitem>
  <listitem><simpara>If you are reporting a <quote>hard crash</quote>
    (segmentation fault, bus error, core dump etc), please do
-   <command>"./configure --with-debug --build build-g ; cd build-g; gdb lisp.run"</command>,
+   <command>./configure --with-debug --build build-g ; cd build-g; gdb lisp.run</command>,
    then load the appropriate &linkset; by either &base; or &full; &gdb;
    command, and report the backtrace.</simpara></listitem>
  <listitem><simpara>If you are using pre-built binaries and experience a
@@ -691,16 +691,16 @@ compiles the specified lisp files to a platform-independent
 <para>When submitting a bug report, please specify the
 following information:
 <orderedlist>
- <listitem><simpara>What is your platform (<command>&uname-u; -a</command>
-   on a &unix; system)?  Compiler version?
+ <listitem><simpara>What is your platform (<command role="unix">uname
+    -a</command> on a &unix; system)?  Compiler version?
    &glibc; version (on &gnu;/&linux;)?</simpara></listitem>
  <listitem><simpara>Where did you get the sources or binaries?  When?
    (Absolute dates are preferred over the relative ones).</simpara></listitem>
  <listitem><simpara>How did you build &clisp;?
    (What command, options &amp;c.)</simpara></listitem>
  <listitem><simpara>What is the output of
-   <command><link linkend="opt-version">"clisp
-     --version"</link></command>?</simpara></listitem>
+   <command><link linkend="opt-version">clisp
+     --version</link></command>?</simpara></listitem>
  <listitem><simpara>Please supply the full output (copy and paste) of
    all the error messages, as well as detailed instructions on how to
    reproduce them.</simpara></listitem></orderedlist></para>
