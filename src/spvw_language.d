@@ -43,6 +43,7 @@ local bool init_language_from (const char* langname);
   #define language_spanish   3
   #define language_dutch     4
   #define language_russian   5
+  #define language_danish    6
 #endif
 
 local object current_language_o (uintL lang) {
@@ -54,6 +55,7 @@ local object current_language_o (uintL lang) {
     case language_spanish:  return S(spanish);
     case language_dutch:    return S(dutch);
     case language_russian:  return S(russian);
+    case language_danish:   return S(danish);
    #endif
     default: NOTREACHED;
   }
@@ -97,6 +99,10 @@ local bool init_language_from (const char* langname) {
   if (asciz_equal(langname,"NEDERLANDS") || asciz_equal(langname,"nederlands")
       || asciz_equal(langname,"DUTCH") || asciz_equal(langname,"dutch")) {
     language = language_dutch; return true;
+  }
+  if (asciz_equal(langname,"DANSK") || asciz_equal(langname,"dansk")
+      || asciz_equal(langname,"DANISH") || asciz_equal(langname,"danish")) {
+    language = language_danish; return true;
   }
  #endif
   return false;
@@ -159,14 +165,17 @@ global void init_language (const char* argv_language,
   # 4. environment variable LANG.
   # We clobber LC_MESSAGES and unset the earlier two variables.
   {
-    var const char * locale =
-      language == language_english ? "en_US" :
-      language == language_deutsch ? "de_DE" :
-      language == language_francais ? "fr_FR" :
-      language == language_spanish ? "es_ES" :
-      language == language_dutch ? "nl_NL" :
-      language == language_russian ? "ru_RU" :
-      "";
+    var const char * locale;
+    switch (language) {
+      case language_english:  locale = "en_US"; break;
+      case language_deutsch:  locale = "de_DE"; break;
+      case language_francais: locale = "fr_FR"; break;
+      case language_spanish:  locale = "es_ES"; break;
+      case language_dutch:    locale = "nl_NL"; break;
+      case language_russian:  locale = "ru_RU"; break;
+      case language_danish:   locale = "da_DA"; break;
+      default:                locale = "";
+    }
     if (getenv("LANGUAGE"))
       clisp_setenv("LANGUAGE","");
     if (getenv("LC_ALL"))

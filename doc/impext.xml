@@ -153,7 +153,7 @@ base/lisp.run: initialization file `lispinit.mem' was not created by this versio
 </simpara></listitem></varlistentry></variablelist>
 
 <para>&clisp; is internationalized, and is localized for the languages
-English, German, French, Spanish, Dutch and Russian.
+English, German, French, Spanish, Dutch, Russian, and Danish.
 &clisp; also supports internationalized Lisp programs, through
 &ggettext;, see <xref linkend="i18n-mod"/>.</para>
 
@@ -175,6 +175,7 @@ English, German, French, Spanish, Dutch and Russian.
  <member><constant>NEDERLANDS</constant> (i.e., Dutch)</member>
  <member><constant>&Rcy;&Ucy;&Scy;&Scy;&Kcy;&Icy;&Jcy;</constant>
   (i.e. Russian)</member>
+ <member><constant>DANSK</constant> (i.e., Danish)</member>
 </simplelist></para>
 
 <para>This is controlled by the &symbol-macro;
