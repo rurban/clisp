@@ -18,6 +18,80 @@
      apply-templates is mapc on children
      apply-imports is call-next-method -->
 
+<!-- ============================ CLISP CVS ============================ -->
+<xsl:param name="clisp.cvs.top" select="'http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/'"/>
+<xsl:template match="ulink[@role='clisp-cvs']">
+ <a class="{@role}" href="{$clisp.cvs.top}{@url}"><xsl:apply-templates/></a>
+</xsl:template>
+<xsl:template match="filename[@role='clisp-cvs']">
+ <a class="{@role}" href="{$clisp.cvs.top}{.}"><xsl:apply-imports/></a>
+</xsl:template>
+<!-- =========================== / CLISP CVS =========================== -->
+
+<!-- =========== The Open Group Base Specifications Issue 6 ============ -->
+<xsl:param name="unix.top"
+           select="'http://www.opengroup.org/onlinepubs/007904975/'"/>
+<xsl:template match="function[@role='unix'] | varname[@role='unix']">
+ <a class="{@role}" href="{$unix.top}functions/{.}.html"
+    ><xsl:apply-imports/></a>
+</xsl:template>
+
+<xsl:template match="command[@role='unix']">
+ <a class="{@role}" href="{$unix.top}utilities/{substring-before(normalize-space(.),' ')}.html"><xsl:apply-imports/></a>
+</xsl:template>
+
+<xsl:template match="ulink[@role='unix']">
+ <a class="{@role}" href="{$unix.top}{@url}"><xsl:apply-templates/></a>
+</xsl:template>
+
+<xsl:template match="filename[@role='unix']">
+ <a class="{@role}" href="{$unix.top}basedefs/{translate(.,'/','')}.html"
+    >&lt;<xsl:apply-imports/>&gt;</a> <!-- formatting for &lt;/&gt;? -->
+ <!-- xsl:call-template name="filename">&lt;<xsl:value-of select="."/>&gt;</xsl:call-template -->
+</xsl:template>
+<!-- ========== / The Open Group Base Specifications Issue 6 =========== -->
+
+<!-- =========================== Berkeley DB =========================== -->
+<xsl:param name="bdb.top" select="'http://www.sleepycat.com/docs/'"/>
+<xsl:template match="ulink[@role='bdb']">
+ <a class="{@role}" href="{$bdb.top}{@url}"><xsl:apply-templates/></a>
+</xsl:template>
+
+<xsl:template match="function[@role='bdb']">
+ <a class="{@role}"><xsl:attribute name="href">
+   <xsl:value-of select="$bdb.top"/><xsl:text>api_c/</xsl:text>
+   <xsl:choose>
+    <xsl:when test=".='db_create'"><xsl:text>db_class</xsl:text></xsl:when>
+    <xsl:when test=".='db_env_create'"><xsl:text>env_class</xsl:text></xsl:when>
+    <xsl:when test=".='db_sequence_create'">
+     <xsl:text>seq_class</xsl:text></xsl:when>
+    <xsl:when test=".='db_strerror'">
+     <xsl:text>env_strerror</xsl:text></xsl:when>
+    <xsl:when test=".='db_version'"><xsl:text>env_version</xsl:text></xsl:when>
+    <xsl:when test=".='log_compare'"><xsl:text>log_compare</xsl:text></xsl:when>
+    <xsl:when test="starts-with(.,'DB_LOGC-')">
+     <xsl:text>logc_</xsl:text></xsl:when>
+    <xsl:when test="starts-with(.,'DB_TXN-')">
+     <xsl:text>txn_</xsl:text></xsl:when>
+    <xsl:when test="starts-with(.,'DB_ENV-')">
+     <xsl:text>env_</xsl:text></xsl:when>
+    <xsl:when test="starts-with(.,'DB_SEQUENCE-')">
+     <xsl:text>seq_</xsl:text></xsl:when>
+    <xsl:when test="starts-with(.,'DB_MPOOLFILE-')">
+     <xsl:text>memp_</xsl:text></xsl:when>
+    <xsl:when test="starts-with(.,'DBCursor-')">
+     <xsl:text>dbc_</xsl:text></xsl:when>
+    <xsl:when test="starts-with(.,'DB-')">
+     <xsl:text>db_</xsl:text></xsl:when>
+    <xsl:otherwise><xsl:message>unknown function/db element <xsl:value-of select="."/></xsl:message></xsl:otherwise>
+   </xsl:choose>
+   <xsl:value-of select="substring-after(.,'>')"/>
+   <xsl:text>.html</xsl:text>
+  </xsl:attribute>
+  <xsl:apply-imports/>
+</a></xsl:template>
+<!-- ========================== / Berkeley DB ========================== -->
+
 <xsl:template match="literal[@role = 'type'
       or @role = 'method' or @role = 'data' or @role = 'byte']">
  <span class="{@role}"><xsl:apply-imports/></span>

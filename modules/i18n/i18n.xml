@@ -217,20 +217,23 @@ she will get the output
 <variablelist>
 <varlistentry id="set-locale"><term><code>(&set-locale;
    &optional-amp; &category; &locale;)</code></term>
- <listitem><simpara>This is an interface to &setlocale;.</simpara>
+ <listitem><simpara>This is an interface to
+   <function role="unix">setlocale</function>.</simpara>
   <simpara>When &locale; is missing or &nil;, return the current one.</simpara>
   <simpara>When &category; is missing or &nil;, return all categories
    as a &list-t;.</simpara></listitem></varlistentry>
 
 <varlistentry id="locale-conv"><term><code>(&locale-conv;)</code></term>
- <listitem><simpara>This is an interface to &localeconv;.</simpara>
+ <listitem><simpara>This is an interface to
+   <function role="unix">localeconv</function>.</simpara>
   <simpara>Returns a <type>I18N:LOCALE-CONV</type>
    structure.</simpara></listitem></varlistentry>
 
 <varlistentry id="lang-info"><term><code>(&lang-info;
    &optional-amp; &item-r;)</code></term>
- <listitem><simpara>This is an interface to &nl_langinfo; (&unix;)
-   and <function>GetLocaleInfo</function> (&win32;).</simpara>
+ <listitem><simpara>This is an interface to
+   <function role="unix">nl_langinfo</function> (&unix;)
+   and <function role="win32">GetLocaleInfo</function> (&win32;).</simpara>
   <simpara>When &item-r; is missing or &nil;,
    return all available information as a &list-t;.</simpara>
 </listitem></varlistentry></variablelist>
