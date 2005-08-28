@@ -91,3 +91,5 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}/share/locale/nl/LC_MESSAGES/clisplow.mo
 %{prefix}/share/locale/ru/LC_MESSAGES/clisp.mo
 %{prefix}/share/locale/ru/LC_MESSAGES/clisplow.mo
+%{prefix}/share/locale/da/LC_MESSAGES/clisp.mo
+%{prefix}/share/locale/da/LC_MESSAGES/clisplow.mo
