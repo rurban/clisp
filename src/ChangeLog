@@ -1,5 +1,10 @@
 2005-08-28  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
+	* modules/regexp/regexec.c, modules/regexp/regex.c: sync with gnulib
+
+2005-08-28  Sam Steingold  <sds@gnu.org>
+
 	Danish messages from Dennis Decker Jensen <dennisdjensen@tiscali.dk>
 	* configure.in (ALL_LINGUAS): added `da'
 	* constsym.d (danish): added
