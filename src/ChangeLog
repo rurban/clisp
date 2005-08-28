@@ -1,5 +1,9 @@
 2005-08-28  Sam Steingold  <sds@gnu.org>
 
+	* describe.lisp (describe-object): use "~:p" instead of "~:*~[~;~:;s~]"
+
+2005-08-28  Sam Steingold  <sds@gnu.org>
+
 	moved PARI i/o from Lisp to C to enable C++ compilation ("const" issues)
 	* modules/pari/cpari.c (clispPutc, clispPuts, clispFlush)
 	(clispErrPutc, clispErrPuts, clispErrFlush, clispErrDie): added
