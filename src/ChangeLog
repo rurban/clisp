@@ -2,6 +2,8 @@
 
 	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
 	* modules/regexp/regexec.c, modules/regexp/regex.c: sync with gnulib
+	* modules/regexp/test.tst: fixed the tests whose behavior changed
+	during the transition from to the multi-byte version
 
 2005-08-28  Sam Steingold  <sds@gnu.org>
 
