@@ -408,7 +408,7 @@
 <!ENTITY warn-on-hashtable-needing-rehash-after-gc "<link linkend='hashtable-gc-rehash-warn'><varname>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname></link>">
 <!ENTITY err-pr-bt "<olink targetdoc='impnotes' targetptr='err-pr-bt'><varname>CUSTOM:*REPORT-ERROR-PRINT-BACKTRACE*</varname></olink>">
 <!-- *** pre-processors *** -->
-<!ENTITY modprep "<link linkend='modprep'><command>modprep.lisp</command></link>">
+<!ENTITY modprep "<link linkend='modprep-file'><command>modprep</command></link>">
 
 <!-- *** syscalls *** -->
 <!ENTITY resolve-host "<link linkend='resolve-host'><function>POSIX:RESOLVE-HOST-IPADDR</function></link>">
