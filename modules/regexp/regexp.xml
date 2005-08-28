@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<section id="regexp-mod"><title>&clisp; &regexp-pac; module</title>
+<section id="regexp-mod"><title>POSIX Regular Expressions</title>
 
 <para>The &regexp-pac; module implements the
  <ulink url="regexp.html">POSIX regular expressions</ulink>
