@@ -2247,6 +2247,7 @@
 
 (LOAD "exporting")              ; auto-exporting defining macros
 
+#+(and GETTEXT UNICODE) (LOAD "danish") ; Danish messages
 #+GETTEXT (LOAD "german")       ; German messages
 #+(and GETTEXT UNICODE) (LOAD "french") ; French messages
 #+(and GETTEXT UNICODE) (LOAD "spanish") ; Spanish messages
