@@ -1,5 +1,15 @@
 2005-08-27  Bruno Haible  <bruno@clisp.org>
 
+	More cross-compilation support.
+	* m4/intparam.m4: New file.
+	* m4/floatparam.m4: New file.
+	* m4/param.m4: Renamed from m4/intparam.m4.
+	(CL_MACHINE): Add an additional CROSS_MACRO parameter.
+	* configure.in (CL_MACHINE): When cross-compiling, use
+	CL_INTPARAM_CROSS and CL_FLOATPARAM_CROSS.
+
+2005-08-27  Bruno Haible  <bruno@clisp.org>
+
 	* m4/rusage.m4 (CL_RUSAGE): Fix error when cross-compiling.
 
 2005-08-29  Sam Steingold  <sds@gnu.org>

@@ -299,10 +299,10 @@ CL_DOUBLE_UNDERFLOW
 CL_DOUBLE_INEXACT
 dnl builds intparam.h
 CL_MACHINE([integer types and behaviour],
-${srcdir}/intparam.c,intparam.h,cl_cv_file_intparam_h)
+${srcdir}/intparam.c,[CL_INTPARAM_CROSS],intparam.h,cl_cv_file_intparam_h)
 dnl builds floatparam.h
 CL_MACHINE([floating-point types and behaviour],
-${srcdir}/floatparam.c,floatparam.h,cl_cv_file_floatparam_h)
+${srcdir}/floatparam.c,[CL_FLOATPARAM_CROSS],floatparam.h,cl_cv_file_floatparam_h)
 dnl
 AC_MSG_NOTICE([* output file generation])
 dnl
