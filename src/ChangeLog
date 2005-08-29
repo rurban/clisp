@@ -1,5 +1,9 @@
 2005-08-29  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: clisp 2.35 release
+
+2005-08-29  Sam Steingold  <sds@gnu.org>
+
 	* m4/floatparam.m4: require gt_TYPE_LONGDOUBLE instead of CL_LONGDOUBLE
 	use $gt_cv_c_long_double instead of $cl_cv_c_longdouble
 	* m4/intparam.m4: require gl_AC_TYPE_LONG_LONG and gt_TYPE_LONGDOUBLE
