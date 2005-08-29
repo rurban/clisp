@@ -58,6 +58,7 @@ an adversary to create a denial-of-service attack.
 Unix pathnames are not strictly in any particular character encoding:
 they are merely byte strings in which only slash and NUL have special
 significance.
+Should *PATHNAME-ENCODING* be 1:1?
 
 
 Inefficiency of class redefinition when old or new class is unfinalizable
