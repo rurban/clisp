@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -10,14 +10,15 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
 AC_PREREQ(2.13)
 
+dnl CL_MACHINE([MESSAGE], [PROGRAM_TO_RUN], [CROSS_MACRO], [DESTINATION], [CACHE_VAR])
 AC_DEFUN([CL_MACHINE],
 [AC_REQUIRE([AC_PROG_CC])dnl
 AC_REQUIRE([AC_C_CHAR_UNSIGNED])dnl
 cl_machine_file_c=$2
-cl_machine_file_h=$3
-if test $cross_compiling = no; then
-if test -z "$[$4]"; then
+if test -z "$[$5]"; then
 AC_CHECKING(for [$1])
+if test $cross_compiling = no; then
+cl_machine_file_h=$4
 cat > conftest.$ac_ext <<EOF
 #include "confdefs.h"
 EOF
@@ -40,13 +41,14 @@ if test -s conftest; then
     rm -f "$cl_machine_file_h"
     mv conftest.h "$cl_machine_file_h"
   fi
-  [$4]=1
+  [$5]=1
 else
   echo "creation of $cl_machine_file_h failed"
 fi
 rm -f conftest*
-fi
 else
-echo "cross-compiling - cannot create $cl_machine_file_h"
+echo "creating $cl_machine_file_h"
+$3([$4])
+fi
 fi
 ])
