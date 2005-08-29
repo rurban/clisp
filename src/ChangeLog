@@ -1,5 +1,11 @@
 2005-08-27  Bruno Haible  <bruno@clisp.org>
 
+	Make the long-float overflow check work on 64-bit platforms.
+	* aridecl.d (LF_exp_mid, LF_exp_high): Define as 'unsigned int',
+	not 'unsigned long'.
+
+2005-08-27  Bruno Haible  <bruno@clisp.org>
+
 	More cross-compilation support.
 	* m4/intparam.m4: New file.
 	* m4/floatparam.m4: New file.
