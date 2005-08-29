@@ -1,3 +1,7 @@
+2005-08-29  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (src/configure): depend on version.sh
+
 2005-08-28  Sam Steingold  <sds@gnu.org>
 
 	* noreadline.d: add prototypes to avoid warnings
