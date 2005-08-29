@@ -154,7 +154,7 @@ AUTOCONF_CACHE = autom4te.cache
 AUTOHEADER = autoheader
 
 $(CLISP_CONFIGURES) utils/hln/configure: %/configure : \
-			%/configure.in $(AUTOCONF_FILES)
+			%/configure.in $(AUTOCONF_FILES) version.sh
 	cd $*; $(AUTOCONF) --include=$(CURDIR)/src/autoconf --include=$(CURDIR)
 
 $(MOD_CONFIG_H_IN) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
