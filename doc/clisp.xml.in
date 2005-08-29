@@ -740,7 +740,7 @@ following information:
 <para>&clisp; project was started in late 1980-ies by &bruno; and
  &stoll;, both in Germany.</para>
 
-<para>See <ulink url="&clisp-cvs;COPYRIGHT">COPYRIGHT</ulink>
+<para>See <filename role="clisp-cvs">COPYRIGHT</filename>
  for the list of other contributors and the license.</para>
 
 </refsection>
