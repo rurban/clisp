@@ -719,14 +719,6 @@ else
   PARENT_M="$PARENT_"
   NEXT_M="$NEXT_"
 fi
-# maybe convert the cygwin cygdrive pathnames
-if [ ${HSYSOS} != win32gcc -a ${HSYSOS} != cygwin ]; then
-  PWDCMD='`pwd`'
-else
-  # http://article.gmane.org/gmane.os.cygwin:67868
-  DEVPREFIX=`mount -p | sed -nr '2s,/([^ ]+) +\S+ +\S+$,\1,p'`
-  PWDCMD='`pwd|sed '"'s,^/${DEVPREFIX}/\\(.\\),\1:,'"'`'
-fi
 HERE_='`pwd`'"${NEXT_}"
 
 # Various other installation directories.
@@ -3487,7 +3479,7 @@ if [ $CROSS = false ] ; then
       ;;
   esac
   echol "clisp${TEXE} : clisp.c${DRIVER_DEP}"
-  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
+  echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
@@ -3690,7 +3682,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echol "distrib : setup.hint cygwin.README force"
   echotab "\$(RMRF) \$(DEST_TMP) \$(CLISP_VR).tar.bz2; mkdir -p \$(DEST_TMP)"
   echotab "\$(MAKE) install prefix=/usr DESTDIR=\$(DEST_TMP)"
-  echotab "cd \$(DEST_TMP); tar cvfj ../\$(CLISP_CYGWIN) *"
+  echotab "builddir=\"\`pwd\`\"; cd \$(DEST_TMP); tar cvfj \"\$\$builddir\"/\$(CLISP_CYGWIN) *"
   echotab "ln \$(CLISP_CYGWIN) \$(CLISP_VR).tar.bz2"
   echotab "\$(RMRF) \$(DEST_TMP)"
   echol
