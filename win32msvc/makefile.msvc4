@@ -159,7 +159,7 @@ DVIPDF = dvipdf
 # need to do is to add its name to the MODULES definition line above.
 #
 
-VERSION=2.34
+VERSION=2.35
 CLISP_VERSION=clisp-$(VERSION)
 
 # List of add-on modules that are already hardwired in the base linking set
@@ -530,6 +530,7 @@ german.lisp \
 french.lisp \
 spanish.lisp \
 russian.lisp \
+danish.lisp \
 dutch.lisp \
 deprecated.lisp \
 config.lisp
@@ -627,6 +628,7 @@ german.fas \
 french.fas \
 spanish.fas \
 russian.fas \
+danish.fas \
 dutch.fas \
 deprecated.fas \
 config.fas
@@ -729,6 +731,7 @@ stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
 stage\russian.lisp \
+stage\danish.lisp \
 stage\dutch.lisp \
 stage\deprecated.lisp \
 stage\config.lisp
@@ -826,6 +829,7 @@ stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
 stage\russian.fas \
+stage\danish.fas \
 stage\dutch.fas \
 stage\deprecated.fas \
 stage\config.fas
@@ -2137,6 +2141,9 @@ spanish.fas : spanish.lisp lisp.exe halfcompiled.mem
 russian.fas : russian.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c russian.lisp
 
+danish.fas : danish.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c danish.lisp
+
 dutch.fas : dutch.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c dutch.lisp
 
@@ -2447,6 +2454,9 @@ stage\spanish.lisp : spanish.lisp
 stage\russian.lisp : russian.lisp
 	$(LN_S) russian.lisp stage
 
+stage\danish.lisp : danish.lisp
+	$(LN_S) danish.lisp stage
+
 stage\dutch.lisp : dutch.lisp
 	$(LN_S) dutch.lisp stage
 
@@ -2734,6 +2744,9 @@ stage\spanish.fas : stage\spanish.lisp lisp.exe stage\testinit.mem
 
 stage\russian.fas : stage\russian.lisp lisp.exe stage\testinit.mem
 	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\russian.lisp
+
+stage\danish.fas : stage\danish.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\danish.lisp
 
 stage\dutch.fas : stage\dutch.lisp lisp.exe stage\testinit.mem
 	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\dutch.lisp

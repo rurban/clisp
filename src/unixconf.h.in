@@ -217,6 +217,9 @@
 /* Define if the compiler supports the 'long long' type */
 #undef HAVE_LONGLONG
 
+/* Define if you have the 'long double' type. */
+#undef HAVE_LONG_DOUBLE
+
 /* Define if you have the 'long long' type. */
 #undef HAVE_LONG_LONG
 
@@ -672,6 +675,10 @@
 
 /* have <termios.h> but need <sys/ptem.h> for `struct winsize' */
 #undef WINSIZE_NEED_SYS_PTEM_H
+
+/* Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX). */
+#undef WORDS_BIGENDIAN
 
 /* Define to 1 if on AIX 3.
    System headers sometimes define this.
