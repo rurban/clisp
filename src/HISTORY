@@ -1,5 +1,9 @@
 Version  Date            New features
 
+2.35     2005-08-29      COMPILED-FILE-P, CHAR-INVERTCASE, STRING-INVERTCASE,
+                         NSTRING-INVERTCASE, STREAM-OPTIONS;
+                         close all FDs before exec()
+
 2.34     2005-07-20      MOP, weak structures, case sensitive symbols,
                          global error handlers.
                          New modules: matlab, rawsock, zlib, i18n, pari.
