@@ -1,5 +1,10 @@
 2005-08-29  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (PWDCMD): removed
+	(distrib) [cygwin]: fixed tar.bz2 location
+
+2005-08-29  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: clisp 2.35 release
 
 2005-08-29  Sam Steingold  <sds@gnu.org>
