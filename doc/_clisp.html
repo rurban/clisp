@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>clisp</title><link rel="stylesheet" href="impnotes.css" type="text/css" /><link rev="made" href="mailto:clisp-list@sf.net" /><meta name="generator" content="DocBook XSL Stylesheets V2005-07-12_04:47_snapshot" /></head><body><div class="refentry" lang="en" xml:lang="en"><a id="clisp"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>clisp — ANSI Common Lisp compiler, interpreter and debugger.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">clisp</code>  [[<code class="option"><a href="#opt-help">-h</a></code>] |  [<code class="option"><a href="#opt-help">--help</a></code>]] [<code class="option"><a href="#opt-version">--version</a></code>] [<code class="option"><a href="#opt-license">--license</a></code>] [<code class="option"><a href="#opt-libdir">-B <em class="replaceable"><code>lisp-lib-dir</code></em></a></code>]
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>clisp</title><link rel="stylesheet" href="impnotes.css" type="text/css" /><link rev="made" href="mailto:clisp-list@sf.net" /><meta name="generator" content="DocBook XSL Stylesheets V1.69.1" /></head><body><div class="refentry" lang="en" xml:lang="en"><a id="clisp"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>clisp — ANSI Common Lisp compiler, interpreter and debugger.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">clisp</code>  [[<code class="option"><a href="#opt-help">-h</a></code>] |  [<code class="option"><a href="#opt-help">--help</a></code>]] [<code class="option"><a href="#opt-version">--version</a></code>] [<code class="option"><a href="#opt-license">--license</a></code>] [<code class="option"><a href="#opt-libdir">-B <em class="replaceable"><code>lisp-lib-dir</code></em></a></code>]
 #ifdef UNIX
  [<code class="option"><a href="#opt-link-set">-K
    <em class="replaceable"><code>linking-set</code></em></a></code>]
@@ -60,8 +60,7 @@ compiles the specified lisp files to a platform-independent
 <dt><a id="opt-memfile"></a><code class="option">-M</code>
   <em class="replaceable"><code>mem-file</code></em></dt><dd>Specifies the initial <a href="impnotes.html#image" class="olink">memory image</a>.
    This must be a memory dump produced by the
-   <code class="function">EXT:SAVEINITMEM</code> function by
-   this <span><strong class="command">clisp</strong></span> <a href="#runtime">runtime</a>.
+   <code class="function">EXT:SAVEINITMEM</code> function by this <span><strong class="command">clisp</strong></span> <a href="#runtime">runtime</a>.
 
 #ifdef UNIX
 
@@ -129,7 +128,7 @@ compiles the specified lisp files to a platform-independent
 <dt><a id="opt-tempdir"></a><code class="option">-t</code>
   <em class="replaceable"><code>temp-dir</code></em></dt><dd>Specifies the directory where the temporary core
    file is to be held.  This option takes precedence over the
-   <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a> <code class="envar">TMPDIR</code>.
+   <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a> <code class="envar">TMPDIR</code>.
 </dd>
 #endif
 <dt><a id="opt-lang"></a><code class="option">-L</code> <em class="replaceable"><code>language</code></em></dt><dd><p>Specifies the language <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>
@@ -142,8 +141,8 @@ compiles the specified lisp files to a platform-independent
 
 #else
 
-   one of <span class="simplelist"><span><strong class="command">english</strong></span>, <span><strong class="command">german</strong></span>, <span><strong class="command">french</strong></span>, <span><strong class="command">spanish</strong></span>, <span><strong class="command">dutch</strong></span>, <span><strong class="command">russian</strong></span></span>.
-   Other languages may be specified through the <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a>
+   one of <span class="simplelist"><span><strong class="command">english</strong></span>, <span><strong class="command">german</strong></span>, <span><strong class="command">french</strong></span>, <span><strong class="command">spanish</strong></span>, <span><strong class="command">dutch</strong></span>, <span><strong class="command">russian</strong></span>, <span><strong class="command">danish</strong></span></span>.
+   Other languages may be specified through the <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a>
    <code class="envar">LANG</code>,
    provided the corresponding message catalog is installed.
 
@@ -155,7 +154,7 @@ compiles the specified lisp files to a platform-independent
   <code class="filename"><em class="replaceable"><code>locale-dir</code></em>/<em class="replaceable"><code>language</code></em>/LC_MESSAGES/clisp.mo</code>.
   This directory may be changed dynamically using the <a href="http://www.lisp.org/HyperSpec/Body/mac_define-symbol-macro.html" target="_top"><code class="classname">SYMBOL-MACRO</code></a>
   <a href="impnotes.html#language" class="olink"><code class="varname">CUSTOM:*CURRENT-LANGUAGE*</code></a>.</dd><dt><a id="opt-enc"></a><code class="option">-E</code><em class="replaceable"><code>domain</code></em> <em class="replaceable"><code>encoding</code></em></dt><dd><p>Specifies the encoding used for the given domain,
-   overriding the default which depends on the <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a>s
+   overriding the default which depends on the <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a>s
    <code class="envar">LC_ALL</code>, <code class="envar">LC_CTYPE</code>, <code class="envar">LANG</code>.
    <em class="replaceable"><code>domain</code></em> can be
    </p><div class="variablelist"><dl><dt><code class="constant">file</code></dt><dd>affecting <a href="impnotes.html#def-file-enc" class="olink"><code class="varname">CUSTOM:*DEFAULT-FILE-ENCODING*</code></a>
@@ -327,7 +326,7 @@ compiles the specified lisp files to a platform-independent
 <dt><a id="runtime"></a><code class="filename">lisp.run</code><br /><code class="filename">lisp.exe</code></dt><dd>main executable (runtime)
 </dd><dt><code class="filename">lispinit.mem</code></dt><dd>initial <a href="impnotes.html#image" class="olink">memory image</a></dd><dt><a id="config-lisp"></a><code class="filename">config.lisp</code></dt><dd>site-dependent configuration (should have been
   customized before <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> was built); see
-  <a href="impnotes.html#customize" class="olink">Section 30.12, “Customizing CLISP behavior.”</a>
+  <a href="impnotes.html#customize" class="olink">Section 30.12, “Customizing CLISP behavior”</a>
 </dd><dt><code class="filename">*.lisp</code></dt><dd>lisp source</dd><dt><code class="filename">*.fas</code></dt><dd>lisp code, compiled by <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>
 </dd><dt><code class="filename">*.lib</code></dt><dd>lisp source library information,
   generated by <a href="impnotes.html#compilefile" class="olink"><code class="function">COMPILE-FILE</code></a>, see
@@ -337,9 +336,9 @@ compiles the specified lisp files to a platform-independent
 </dd></dl></div><p>For the <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> source files,
  see <a href="impnotes.html#source-files" class="olink">Chapter 33, The source files of CLISP</a>.</p></div>
 #ifdef HAVE_ENVIRONMENT
-<div class="refsection" lang="en" xml:lang="en"><a id="environment"></a><h2>Environment</h2><p>All <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a>s that <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> uses are read at most once.</p><div class="variablelist"><dl><dt><code class="envar">CLISP_LANGUAGE</code></dt><dd>specifies the language <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> uses to communicate
+<div class="refsection" lang="en" xml:lang="en"><a id="environment"></a><h2>Environment</h2><p>All <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a>s that <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> uses are read at most once.</p><div class="variablelist"><dl><dt><code class="envar">CLISP_LANGUAGE</code></dt><dd>specifies the language <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> uses to communicate
    with the user.  The legal values are identical to those of the <code class="option"><a href="clisp.html#opt-lang" class="olink">-L</a></code>
-   option which can be used to override this <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a>.
+   option which can be used to override this <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a>.
 </dd>
 #ifdef UNICODE
 <dt><code class="envar">LC_CTYPE</code></dt><dd>specifies the locale which determines the character
@@ -353,19 +352,18 @@ compiles the specified lisp files to a platform-independent
    <em class="replaceable"><code>charset</code></em> is an optional character set
    specification, and needs normally not be given because the character
    set can be inferred from the language and country.
-   This <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a> can be overridden with the
-   <code class="option"><a href="#opt-enc">-E</a></code> option.
+   This <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a> can be overridden with the <code class="option"><a href="clisp.html#opt-enc" class="olink">-Edomain encoding</a></code> option.
 </dd>
 #endif
 <dt><code class="envar">LANG</code></dt><dd>specifies the language <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>
    uses to communicate with the user, unless it is already specified
-   through the <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a> <code class="envar">CLISP_LANGUAGE</code> or the
+   through the <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a> <code class="envar">CLISP_LANGUAGE</code> or the
    <code class="option"><a href="clisp.html#opt-lang" class="olink">-L</a></code> option.
 
 #ifdef UNICODE
 
    It also specifies the locale determining the character set in use, unless
-   already specified through the <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a> <code class="envar">LC_CTYPE</code>.
+   already specified through the <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a> <code class="envar">LC_CTYPE</code>.
 
 #endif
 
@@ -399,11 +397,11 @@ compiles the specified lisp files to a platform-independent
  <a href="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355" target="_top">SourceForge bug tracker</a>.</p><p><span class="emphasis"><em>Before</em></span> submitting a bug report, please take
  the following basic steps to make the report more useful:
 </p><div class="orderedlist"><ol type="1"><li>Please do a clean build (remove your build directory
-   and build <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> with <span><strong class="command">"./configure --build build"</strong></span>
-   or at least do a <span><strong class="command">"make distclean"</strong></span>
-   before <span><strong class="command">"make"</strong></span>).</li><li>If you are reporting a “<span class="quote">hard crash</span>”
+   and build <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> with <span><strong class="command">./configure --build build</strong></span>
+   or at least do a <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/utilities/make.html"><span><strong class="command">make distclean</strong></span></a>
+   before <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/utilities/.html"><span><strong class="command">make</strong></span></a>).</li><li>If you are reporting a “<span class="quote">hard crash</span>”
    (segmentation fault, bus error, core dump etc), please do
-   <span><strong class="command">"./configure --with-debug --build build-g ; cd build-g; gdb lisp.run"</strong></span>,
+   <span><strong class="command">./configure --with-debug --build build-g ; cd build-g; gdb lisp.run</strong></span>,
    then load the appropriate <a href="impnotes.html#linkset" class="olink">linking set</a> by either <a href="impnotes.html#base-modules" class="olink"><span><strong class="command">base</strong></span></a> or <a href="impnotes.html#base-modules" class="olink"><span><strong class="command">full</strong></span></a> <a href="http://sources.redhat.com/gdb/" target="_top"><span><strong class="command">gdb</strong></span></a>
    command, and report the backtrace.</li><li>If you are using pre-built binaries and experience a
    hard crash, the problem is likely to be in the incompatibilities
@@ -411,13 +409,13 @@ compiles the specified lisp files to a platform-independent
    try compiling the sources and report the problem if it persists.
 </li></ol></div><p>When submitting a bug report, please specify the
 following information:
-</p><div class="orderedlist"><ol type="1"><li>What is your platform (<span><strong class="command"><a href="http://www.opengroup.org/onlinepubs/007904975/utilities/uname.html" target="_top"><span><strong class="command">uname</strong></span></a> -a</strong></span>
-   on a <a href="http://www.UNIX-systems.org/online.html" target="_top"><span class="strong"><strong>UNIX</strong></span></a> system)?  Compiler version?
+</p><div class="orderedlist"><ol type="1"><li>What is your platform (<a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/utilities/uname.html"><span><strong class="command">uname
+    -a</strong></span></a> on a <a href="http://www.UNIX-systems.org/online.html" target="_top"><span class="strong"><strong>UNIX</strong></span></a> system)?  Compiler version?
    <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://www.gnu.org/software/libc/" target="_top">libc</a> version (on <a href="http://www.gnu.org" target="_top">GNU</a>/<a href="http://www.linux.org/" target="_top"><span class="strong"><strong>Linux</strong></span></a>)?</li><li>Where did you get the sources or binaries?  When?
    (Absolute dates are preferred over the relative ones).</li><li>How did you build <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>?
    (What command, options &amp;c.)</li><li>What is the output of
-   <span><strong class="command"><a href="#opt-version">"clisp
-     --version"</a></strong></span>?</li><li>Please supply the full output (copy and paste) of
+   <span><strong class="command"><a href="#opt-version">clisp
+     --version</a></strong></span>?</li><li>Please supply the full output (copy and paste) of
    all the error messages, as well as detailed instructions on how to
    reproduce them.</li></ol></div><p>Known bugs, some of which may be platform-dependent, include:
 </p><div class="itemizedlist">
@@ -435,5 +433,5 @@ following information:
    functions.</li><li>Specify a portable set of window and graphics
    operations.</li><li>Add Multi-Threading capabilities, via OS
    threads.</li></ul></div></div><div class="refsection" lang="en" xml:lang="en"><a id="authors"></a><h2>CLISP Authors</h2><p><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> project was started in late 1980-ies by <span class="author"><span class="firstname">Bruno</span> <span class="surname">Haible</span></span> and
- <span class="author"><span class="firstname">Michael</span> <span class="surname">Stoll</span></span>, both in Germany.</p><p>See <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT?rev=HEAD&amp;content-type=text/plain" target="_top">COPYRIGHT</a>
-for the list of other contributors and the license.</p></div></div><div class="refentryinfo"><hr width="100%" /><table width="100%" summary="man page meta info"><th><td align="left"><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> version 2.34</td><td align="center">Platform: @PLATFORM@</td><td align="right">Last modified: 2005-07-21</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://www.gnu.org"><img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468" height="60" alt="[Come and see what GNU creates for YOU]" /></a></td><td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=clisp" /></a></td></tr></table></div></body></html>
+ <span class="author"><span class="firstname">Michael</span> <span class="surname">Stoll</span></span>, both in Germany.</p><p>See <a class="clisp-cvs" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT"><code class="filename">COPYRIGHT</code></a>
+ for the list of other contributors and the license.</p></div></div><div class="refentryinfo"><hr width="100%" /><table width="100%" summary="man page meta info"><th><td align="left"><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> version 2.35</td><td align="center">Platform: @PLATFORM@</td><td align="right">Last modified: 2005-08-29</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://www.gnu.org"><img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468" height="60" alt="[Come and see what GNU creates for YOU]" /></a></td><td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=clisp" /></a></td></tr></table></div></body></html>
