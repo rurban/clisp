@@ -23,7 +23,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-08-28 12:09:15-0400\n"
+"POT-Creation-Date: 2005-08-29 12:46:24-0400\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -3616,15 +3616,15 @@ msgstr "~S: de waarde van ~S moet een random-state zijn, niet ~S"
 msgid "~S: argument should be positive and an integer or float, not ~S"
 msgstr "~S: argument moet positief zijn en een geheel getal of float, niet ~S"
 
-#: aridecl.d:350
+#: aridecl.d:352
 msgid "division by zero"
 msgstr "deling door nul"
 
-#: aridecl.d:358
+#: aridecl.d:360
 msgid "floating point overflow"
 msgstr "drijvende komma overloop"
 
-#: aridecl.d:366
+#: aridecl.d:368
 msgid "floating point underflow"
 msgstr "drijvende komma onderloop"
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-08-28 12:09:15-0400\n"
+"POT-Creation-Date: 2005-08-29 12:46:24-0400\n"
 "PO-Revision-Date: 2004-04-12 00:45+0200\n"
 "Last-Translator: Bruno Haible <bruno@clisp.org>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -3569,15 +3569,15 @@ msgstr "~S: Der Wert von ~S sollte ein ~S sein, nicht ~S"
 msgid "~S: argument should be positive and an integer or float, not ~S"
 msgstr "~S: Argument muss positiv und Integer oder Float sein, nicht ~S"
 
-#: aridecl.d:350
+#: aridecl.d:352
 msgid "division by zero"
 msgstr "Division durch Null"
 
-#: aridecl.d:358
+#: aridecl.d:360
 msgid "floating point overflow"
 msgstr "Floating-Point Überlauf"
 
-#: aridecl.d:366
+#: aridecl.d:368
 msgid "floating point underflow"
 msgstr "Floating-Point Unterlauf"
 
