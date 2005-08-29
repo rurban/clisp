@@ -8,8 +8,8 @@ dnl From Bruno Haible.
 
 AC_DEFUN([CL_INTPARAM_CROSS],
 [
-  AC_REQUIRE([CL_LONGLONG])
-  AC_REQUIRE([CL_LONGDOUBLE])
+  AC_REQUIRE([gl_AC_TYPE_LONG_LONG])
+  AC_REQUIRE([gt_TYPE_LONGDOUBLE])
   AC_REQUIRE([AC_C_BIGENDIAN])
   cl_machine_file_h=$1
   {
@@ -17,14 +17,14 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     CL_INTPARAM_BITSIZE([short], [short_bitsize])
     CL_INTPARAM_BITSIZE([int], [int_bitsize])
     CL_INTPARAM_BITSIZE([long], [long_bitsize])
-    if test $cl_cv_c_longlong = yes; then
+    if test $ac_cv_type_long_long = yes; then
       CL_INTPARAM_BITSIZE([long long], [longlong_bitsize])
     fi
     CL_INTPARAM_BITSIZE([unsigned char], [uchar_bitsize])
     CL_INTPARAM_BITSIZE([unsigned short], [ushort_bitsize])
     CL_INTPARAM_BITSIZE([unsigned int], [uint_bitsize])
     CL_INTPARAM_BITSIZE([unsigned long], [ulong_bitsize])
-    if test $cl_cv_c_longlong = yes; then
+    if test $ac_cv_type_long_long = yes; then
       CL_INTPARAM_BITSIZE([unsigned long long], [ulonglong_bitsize])
     fi
     if test -n "$char_bitsize"; then
@@ -55,7 +55,7 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     else
       echo "#error \"Integers of type long have no binary representation!!\""
     fi
-    if test $cl_cv_c_longlong = yes; then
+    if test $ac_cv_type_long_long = yes; then
       if test -n "$longlong_bitsize"; then
         echo "/* Integers of type long long have $longlong_bitsize bits. */"
         echo "#define long_long_bitsize $longlong_bitsize"
@@ -88,7 +88,7 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     else
       echo "#error \"Integers of type unsigned long have no binary representation!!\""
     fi
-    if test $cl_cv_c_longlong = yes; then
+    if test $ac_cv_type_long_long = yes; then
       if test -n "$ulonglong_bitsize"; then
         echo "/* Integers of type unsigned long long have $ulonglong_bitsize bits. */"
         echo
@@ -108,7 +108,7 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     if test "$long_bitsize" != "$ulong_bitsize"; then
       echo "#error \"Integer types long and unsigned long have different sizes!!\""
     fi
-    if test $cl_cv_c_longlong = yes; then
+    if test $ac_cv_type_long_long = yes; then
       if test "$longlong_bitsize" != "$ulonglong_bitsize"; then
         echo "#error \"Integer types long long and unsigned long long have different sizes!!\""
       fi
@@ -160,7 +160,7 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     CL_INTPARAM_ALIGNOF([unsigned long], [alignment_ulong])
     echo "/* Type unsigned long has sizeof = $sizeof_ulong and alignment = $alignment_ulong. */"
     echo
-    if test $cl_cv_c_longlong = yes; then
+    if test $ac_cv_type_long_long = yes; then
       CL_INTPARAM_SIZEOF([long long], [sizeof_longlong])
       CL_INTPARAM_ALIGNOF([long long], [alignment_longlong])
       echo "/* Type long long has sizeof = $sizeof_longlong and alignment = $alignment_longlong. */"
@@ -184,7 +184,7 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     echo "#define sizeof_double $sizeof_double"
     echo "#define alignment_double $alignment_double"
     echo
-    if test $cl_cv_c_longdouble = yes; then
+    if test $gt_cv_c_long_double = yes; then
       CL_INTPARAM_SIZEOF([long double], [sizeof_longdouble])
       CL_INTPARAM_ALIGNOF([long double], [alignment_longdouble])
       echo "/* Type long double has sizeof = $sizeof_longdouble and alignment = $alignment_longdouble. */"
@@ -212,7 +212,7 @@ AC_DEFUN([CL_INTPARAM_CROSS],
         echo "#define int_big_endian"
         echo "/* Type unsigned long is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */"
         echo "#define long_big_endian"
-        if test $cl_cv_c_longlong = yes; then
+        if test $ac_cv_type_long_long = yes; then
           echo "/* Type unsigned long long is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */"
           echo "#define long_long_big_endian"
         fi
@@ -224,7 +224,7 @@ AC_DEFUN([CL_INTPARAM_CROSS],
         echo "#define int_little_endian"
         echo "/* Type unsigned long is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */"
         echo "#define long_little_endian"
-        if test $cl_cv_c_longlong = yes; then
+        if test $ac_cv_type_long_long = yes; then
           echo "/* Type unsigned long long is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */"
           echo "#define long_long_little_endian"
         fi
@@ -233,7 +233,7 @@ AC_DEFUN([CL_INTPARAM_CROSS],
         echo "#error \"Type short is stored in memory in an obscure manner!!\""
         echo "#error \"Type int is stored in memory in an obscure manner!!\""
         echo "#error \"Type long is stored in memory in an obscure manner!!\""
-        if test $cl_cv_c_longlong = yes; then
+        if test $ac_cv_type_long_long = yes; then
           echo "#error \"Type long long is stored in memory in an obscure manner!!\""
         fi
         ;;
