@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-08-28 12:09:15-0400\n"
+"POT-Creation-Date: 2005-08-29 12:46:24-0400\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -3571,15 +3571,15 @@ msgstr "~S : La valeur de ~S devrait être un «random-state» et non ~S."
 msgid "~S: argument should be positive and an integer or float, not ~S"
 msgstr "~S : L'argument doit être positif et de type entier ou flottant et non ~S."
 
-#: aridecl.d:350
+#: aridecl.d:352
 msgid "division by zero"
 msgstr "Division par zéro"
 
-#: aridecl.d:358
+#: aridecl.d:360
 msgid "floating point overflow"
 msgstr "Débordement de nombre à virgule flottante"
 
-#: aridecl.d:366
+#: aridecl.d:368
 msgid "floating point underflow"
 msgstr "Débordement vers zéro de nombre à virgule flottante"
 

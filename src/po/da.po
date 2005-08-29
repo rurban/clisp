@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.32.91\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-08-28 12:09:15-0400\n"
+"POT-Creation-Date: 2005-08-29 12:46:24-0400\n"
 "PO-Revision-Date: 2004-09-08 23:56:00 GMT\n"
 "Last-Translator: Dennis Decker Jensen <dennisdjensen@tiscali.dk>\n"
 "Language-Team: Danish <dansk@klid.dk>\n"
@@ -3798,15 +3798,15 @@ msgstr "~S: værdien af ~S skal være en ~S, ikke ~S"
 msgid "~S: argument should be positive and an integer or float, not ~S"
 msgstr "~S: argumentet skal være positivt og et heltal eller kommatal, ikke ~S"
 
-#: aridecl.d:350
+#: aridecl.d:352
 msgid "division by zero"
 msgstr "deling med nul"
 
-#: aridecl.d:358
+#: aridecl.d:360
 msgid "floating point overflow"
 msgstr "kommatal-overløb"
 
-#: aridecl.d:366
+#: aridecl.d:368
 msgid "floating point underflow"
 msgstr "kommatal-underløb"
 
@@ -6211,6 +6211,11 @@ msgstr "~S: ~A skal anføres sammen med FROM eller DOWNFROM."
 #, lisp-format
 msgid "~S: illegal syntax near ~S in ~S"
 msgstr "~S: ugyldig syntaks nær ~s i ~s"
+
+#: loop.lisp:988
+#, lisp-format
+msgid "~S: ambiguous result:~:{~%~S from ~@{~{~A ~S~}~^, ~}~}"
+msgstr ""
 
 #: loop.lisp:1060
 #, lisp-format
