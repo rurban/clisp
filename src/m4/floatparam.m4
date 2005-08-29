@@ -8,7 +8,7 @@ dnl From Bruno Haible.
 
 AC_DEFUN([CL_FLOATPARAM_CROSS],
 [
-  AC_REQUIRE([CL_LONGDOUBLE])
+  AC_REQUIRE([gt_TYPE_LONGDOUBLE])
   cl_machine_file_h=$1
   {
     echo "/* Rounding modes, for use below */"
@@ -17,7 +17,7 @@ AC_DEFUN([CL_FLOATPARAM_CROSS],
     echo "#define rounds_to_infinity       2  /* 1 ulp */"
     echo "#define rounds_to_minus_infinity 3  /* 1 ulp */"
     echo
-    for type in float double "`if test $cl_cv_c_longdouble = yes; then echo 'long double'; fi`"; do
+    for type in float double "`if test $gt_cv_c_long_double = yes; then echo 'long double'; fi`"; do
       if test -n "$type"; then
         epsilon_bits=-1; y="($type)1.0"
         while true; do
