@@ -1,3 +1,12 @@
+2005-08-29  Sam Steingold  <sds@gnu.org>
+
+	* m4/floatparam.m4: require gt_TYPE_LONGDOUBLE instead of CL_LONGDOUBLE
+	use $gt_cv_c_long_double instead of $cl_cv_c_longdouble
+	* m4/intparam.m4: require gl_AC_TYPE_LONG_LONG and gt_TYPE_LONGDOUBLE
+	instead of CL_LONGLONG and CL_LONGDOUBLE
+	use $ac_cv_type_long_long and $gt_cv_c_long_double
+	instead of $cl_cv_c_longlong and $cl_cv_c_longdouble
+
 2005-08-27  Bruno Haible  <bruno@clisp.org>
 
 	Make the long-float overflow check work on 64-bit platforms.
