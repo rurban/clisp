@@ -486,7 +486,7 @@ case $# in
      CC="@CC@"                           # either 'gcc -O' or 'cc'
      CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
      CPPFLAGS='@CPPFLAGS@'               # additional options for $CC and $CPP
-     CLFLAGS='@LDFLAGS@'                 # additional options for linking
+     LDFLAGS='@LDFLAGS@'                 # additional options for linking
      CC_GCC='@CC_GCC@'                   # either true or false
      CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
      CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
