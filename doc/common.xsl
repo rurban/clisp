@@ -202,12 +202,8 @@ set       toc,title
     <td align="center"><a href="http://www.gnu.org">
       <img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468"
            height="60" alt="[Come and see what GNU creates for YOU]"/></a></td>
-    <td align="right"><a href="http://sourceforge.net">
-      <img width="125" height="37" alt="[SourceForge]">
-       <xsl:attribute name="src">
-        <xsl:text>http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=</xsl:text>
-        <xsl:value-of select="@id"/>
- </xsl:attribute></img></a></td></tr></table></div>
+    <td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page={@id}"/></a></td>
+ </tr></table></div>
 </xsl:template>
 
 </xsl:stylesheet>
