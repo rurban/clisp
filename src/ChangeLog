@@ -1,3 +1,10 @@
+2005-08-30  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (PACK, PACKOPT, PACKEXT): remove,
+	assume tar/bzip2/gzip are present on the developer's machine
+	(linux-distrib, linux--distrib): remove (unused)
+	(distrib): do not depend on linux-distrib
+
 2005-08-29  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (PWDCMD): removed
