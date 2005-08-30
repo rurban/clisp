@@ -2336,6 +2336,10 @@ typedef enum {
 #if defined(UNIX)
   #define HAVE_SIGNALS
 #endif
+/* pass on for clx/new-clx */
+%% #ifdef HAVE_SIGNALS
+%%   printf("#define HAVE_SIGNALS\n");
+%% #endif
 # Whether we can even react to asynchronous signals:
 # (If WIDE && !WIDE_HARD, writing a pointer is usually no elementary
 # operation anymore!)
@@ -11081,7 +11085,7 @@ extern maygc void savemem (object stream);
 
 #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   # Set ONLY during write() calls to pipes directed to subprocesses.
-  extern bool writing_to_subprocess;
+extern bool writing_to_subprocess;
 #endif
 
 
