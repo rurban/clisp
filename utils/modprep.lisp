@@ -950,7 +950,7 @@ commas and parentheses."
     (formatln out "#define F(varname) subr_tab_ptr_as_object(&(~a._##varname))"
               subr-tab)
     (newline out)
-    (formatln out "struct {")
+    (formatln out "struct ~A_t {" object-tab)
     (setq *objdefs* (sort *objdefs* #'string-lessp :key #'objdef-tag)
           *fundefs* (sort *fundefs* #'string-lessp :key #'fundef-tag))
     (loop :for od :across *objdefs*
@@ -963,7 +963,7 @@ commas and parentheses."
     (formatln out "uintC ~A_size = sizeof(~A)/sizeof(gcv_object_t);"
               object-tab object-tab)
     (newline out)
-    (formatln out "struct {")
+    (formatln out "struct ~A_t {" object-tab-initdata)
     (loop :for od :across *objdefs*
       :do (with-conditional (out (objdef-cond-stack od))
             (format out "  object_initdata_t _~A;" (objdef-tag od))))
@@ -1128,7 +1128,7 @@ commas and parentheses."
     (formatln out "};")
     (formatln out "uintC ~A_size = (sizeof(struct ~A_t)-varobjects_misaligned-sizeof(int))/sizeof(subr_t);" subr-tab subr-tab)
     (newline out)
-    (formatln out "struct {")
+    (formatln out "struct ~A_t {" subr-tab-initdata)
     (loop :for fd :across *fundefs*
       :do (with-conditional (out (fundef-cond-stack fd))
             (format out "  subr_initdata_t _~A;" (fundef-tag fd))))
@@ -1195,7 +1195,7 @@ commas and parentheses."
     (setq *lines* (read-all-input in)))
   (format t "~:D line~:P~%" (length *lines*))
   (parse *lines*)
-  (format t "~%;; ~S: ~:D object~:P, ~:D DEFUN~:P~[~:;~:* (~:d emulated)~]~
+  (format t "~&;; ~S: ~:D object~:P, ~:D DEFUN~:P~[~:;~:* (~:d emulated)~]~
 ~[~*~:;~:*, ~:D DEFVAR~:P (~:D init~:P)~]~%;; packages: ~S~%"
           'modprep (length *objdefs*) (length *fundefs*)
           *emulation-count* (length *vardefs*) (length *varinits*)
