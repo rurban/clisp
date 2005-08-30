@@ -960,9 +960,8 @@ commas and parentheses."
       :do (with-conditional (out (vardef-cond-stack vd))
             (format out "  gcv_object_t _~A;" (vardef-tag vd))))
     (formatln out "} ~A;" object-tab)
-    (formatln
-     out "uintC module__~A__object_tab_size = sizeof(~A)/sizeof(gcv_object_t);"
-     *module-name* object-tab)
+    (formatln out "uintC ~A_size = sizeof(~A)/sizeof(gcv_object_t);"
+              object-tab object-tab)
     (newline out)
     (formatln out "struct {")
     (loop :for od :across *objdefs*
@@ -1127,7 +1126,7 @@ commas and parentheses."
           (format out "  LISPFUN_F~A" (fundef-lispfun fd sig)))))
     (formatln out "  0")
     (formatln out "};")
-    (formatln out "uintC module__~A__subr_tab_size = (sizeof(struct ~A_t)-varobjects_misaligned-sizeof(int))/sizeof(subr_t);" *module-name* subr-tab)
+    (formatln out "uintC ~A_size = (sizeof(struct ~A_t)-varobjects_misaligned-sizeof(int))/sizeof(subr_t);" subr-tab subr-tab)
     (newline out)
     (formatln out "struct {")
     (loop :for fd :across *fundefs*
@@ -1140,7 +1139,7 @@ commas and parentheses."
             (format out "  { ~S, ~S }," (fundef-pack fd) (fundef-name fd))))
     (formatln out "  0")
     (formatln out "};") (newline out)
-    ; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
+    ;; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
     (formatln out "void ~A (module_t* module);" *init-1-name*)
     (formatln out "void ~A (module_t* module)" *init-1-name*)
     (formatln out "{")
@@ -1158,14 +1157,14 @@ commas and parentheses."
     (formatln out "}")
     (when *init-2-name*         ; no init2 => define a dummy
       (newline out)
-      ; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
+      ;; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
       (formatln out "void ~A (module_t* module);" *init-2-name*)
       (formatln out "void ~A (module_t* module)" *init-2-name*)
       (formatln out "{")
       (formatln out "}"))
     (when *fini-name*           ; no fini-func => define a dummy
       (newline out)
-      ; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
+      ;; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
       (formatln out "void ~A (module_t* module);" *fini-name*)
       (formatln out "void ~A (module_t* module)" *fini-name*)
       (formatln out "{")
