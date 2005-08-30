@@ -1,6 +1,8 @@
 2005-08-30  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (HAVE_SIGNALS): pass on to clisp.h for clx/new-clx
+	* modules/clx/new-clx/clx.f (writing_to_subprocess):
+	define as "extern" without checking for SIGPIPE
 
 2005-08-30  Sam Steingold  <sds@gnu.org>
 
