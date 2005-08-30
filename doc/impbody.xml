@@ -3863,14 +3863,13 @@ functions are provided:
 <title>Avoiding blank lines, &elastic-newline;</title>
 
 <para>The function <code>(&elastic-newline; [&stream-r;])</code> is like
- &fresh-line; but the other way around: It outputs a conditional newline on
- &stream-r;, which is canceled if the <emphasis>next</emphasis> output on
- &stream-r; happens to be a newline.  More precisely,
- <code>(&elastic-newline; [&stream-r;])</code> causes a newline to be
- output right before the next character is written on &stream-r;, if this
- character is not a newline. The newline is also output if the next operation
- on the stream is &fresh-line;, &finish-output;, &force-output; or
- &close;.</para>
+ &fresh-line; but the other way around: It outputs a conditional newline
+ on &stream-r;, which is canceled if the <emphasis>next</emphasis>
+ output on &stream-r; happens to be a newline.  More precisely, it
+ causes a newline to be output right before the next character is
+ written on &stream-r;, if this character is not a newline.
+ The newline is also output if the next operation on the stream is
+ &fresh-line;, &finish-output;, &force-output; or &close;.</para>
 
 <para>The functionality of &elastic-newline; is also available through
  the &format; directive <link linkend="format-dot">~.</link>.</para>
@@ -3878,6 +3877,9 @@ functions are provided:
 <para>A technique for avoiding unnecessary blank lines in output is to
  begin each chunk of output with a call to &fresh-line; and to terminate it
  with a call to &elastic-newline;.</para>
+
+<para>See also
+ <filename role="clisp-cvs">doc/Newline-Convention.txt</filename>.</para>
 
 </section>
 
