@@ -1,5 +1,9 @@
 2005-08-30  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (HAVE_SIGNALS): pass on to clisp.h for clx/new-clx
+
+2005-08-30  Sam Steingold  <sds@gnu.org>
+
 	* clisp-link.in (fail, check_dir, make_dest, check_linkset)
 	(check_module): new functions; use them throughout the file
 	(verbose): call exit (using fail) if the command fails
