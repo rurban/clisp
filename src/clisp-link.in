@@ -41,9 +41,40 @@ vecho () {
   echo "$@"
 }
 
+# print an error message and exit
+fail () { echo "$0: $@" 1>&2; exit 1; }
+
+# ensure that "$1" is a directory
+check_dir () { test -d "$1" || fail "$1 is not a directory"; }
+
+# make "$1" as a new directory
+make_dest () {
+  if [ -r "$1" ] ; then
+    if [ -d "$1" ] ; then
+      fail "$1 already exists"
+    else
+      fail "$1 is not a directory"
+    fi
+  fi
+  mkdir "$1"
+}
+
+LISPRUN="lisp@LEXE@"
+# ensure that "$1" contains a CLISP linking set
+check_linkset () {
+  test -r "$1"/lisp.a -a -x "$1"/${LISPRUN} -a -r "$1"/lispinit.mem \
+    -a -r "$1"/modules.h -a -r "$1"/modules.o -a -r "$1"/makevars ||
+  fail "directory $1 does not contain a CLISP linking set"
+}
+
+# ensure that "$1" contains a CLISP module
+check_module () {
+  test -r "$1/link.sh" || fail "directory $1 does not contain a CLISP module"
+}
+
 verbose () {
   echo "$@"
-  "$@"
+  "$@" || fail "failed in `pwd`"
 }
 
 # func_tmpdir
@@ -70,11 +101,7 @@ func_tmpdir ()
     # directory.
     tmp=$TMPDIR/gt$$-$RANDOM
     (umask 077 && mkdir "$tmp")
-  } ||
-  {
-    echo "$0: cannot create a temporary directory in $TMPDIR" >&2
-    { (exit 1); exit 1; }
-  }
+  } || fail "cannot create a temporary directory in $TMPDIR"
 }
 
 # prepare the loading infrastructure for the current dynamic module.
@@ -136,11 +163,9 @@ if [ -n "$CLISP_LINKKIT" ] ; then
 else
   linkkitdir=./linkkit
 fi
-LISPRUN="lisp@LEXE@"
-if [ ! -r "$linkkitdir"/modules.d -o ! -r "$linkkitdir"/modules.c -o ! -r "$linkkitdir"/clisp.h ] ; then
-  echo "$0: No link kit found in $CLISP_LINKKIT" 1>&2
-  exit 1
-fi
+
+test -r "$linkkitdir"/modules.d -a -r "$linkkitdir"/modules.c -a -r "$linkkitdir"/clisp.h ||
+  fail "No link kit found in $CLISP_LINKKIT"
 absolute_linkkitdir=`cd "$linkkitdir" ; /bin/pwd`
 
 # Dispatch according to the first argument.
@@ -160,10 +185,15 @@ case "$1" in
     # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$dir"/makevars
     vecho "$0: Entering directory \`$dir'"
+    start_dir=`pwd`
+    cd "$dir"
     # Generate new modules.o, compiled from modules.c, includes modules.h
-    (cd "$dir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
+    link "$absolute_linkkitdir"/modules.c modules.c
+    verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c
+    rm -f modules.c
     # Generate new ${LISPRUN}
-    (cd "$dir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
+    verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN}
+    cd "${start_dir}"
     vecho "$0: Leaving directory \`$dir'"
     # Done.
     trap '' 1 2 15
@@ -179,16 +209,7 @@ case "$1" in
     shift
     shift
     files="$*"
-    if [ -r "$moduledir" ] ; then
-      if [ -d "$moduledir" ] ; then
-        echo "$0: $moduledir already exists" 1>&2
-        exit 1
-      else
-        echo "$0: $moduledir is not a directory" 1>&2
-        exit 1
-      fi
-    fi
-    mkdir "$moduledir"
+    make_dest "$moduledir"
     modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
     files_c=''
     files_o=''
@@ -273,42 +294,19 @@ case "$1" in
     moduledir="$2"
     sourcedir="$3"
     destinationdir="$4"
-    if [ ! -d "$moduledir" ] ; then
-      echo "$0: $moduledir is not a directory" 1>&2
-      exit 1
-    fi
-    if [ ! -d "$sourcedir" ] ; then
-      echo "$0: $sourcedir is not a directory" 1>&2
-      exit 1
-    fi
-    if [ -r "$destinationdir" ] ; then
-      if [ -d "$destinationdir" ] ; then
-        echo "$0: $destinationdir already exists" 1>&2
-        exit 1
-      else
-        echo "$0: $destinationdir is not a directory" 1>&2
-        exit 1
-      fi
-    fi
-    mkdir "$destinationdir"
+    check_dir "$moduledir"
+    check_dir "$sourcedir"
+    make_dest "$destinationdir"
     absolute_currentdir=`/bin/pwd`
     absolute_sourcedir=`cd "$sourcedir" ; /bin/pwd`
     absolute_destinationdir=`cd "$destinationdir" ; /bin/pwd`
     installbasedir=`dirname "$sourcedir"`
     # What to do if we abort.
     trap 'rm -rf "$absolute_destinationdir"' 1 2 15
-    if [ "$absolute_sourcedir" = "$absolute_destinationdir" ] ; then
-      echo "$0: directories $sourcedir and $destinationdir may not be the same" 1>&2
-      exit 1
-    fi
-    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/${LISPRUN} -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
-      echo "$0: directory $sourcedir does not contain a clisp linking set" 1>&2
-      exit 1
-    fi
-    if [ ! -r "$moduledir/link.sh" ] ; then
-      echo "$0: directory $moduledir does not contain a clisp module" 1>&2
-      exit 1
-    fi
+    test "$absolute_sourcedir" = "$absolute_destinationdir" &&
+      fail "directories $sourcedir and $destinationdir may not be the same"
+    check_linkset "$sourcedir"
+    check_module "$moduledir"
     modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
     # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$sourcedir"/makevars
@@ -338,10 +336,15 @@ case "$1" in
     # Update the LIBS and FILES variables
     LIBS=${NEW_LIBS}' '${LIBS}
     FILES=${FILES}' '${NEW_FILES}
+    start_dir=`pwd`
+    cd "$destinationdir"
     # Generate new modules.o, compiled from modules.c, includes new modules.h
-    (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
+    link "$absolute_linkkitdir"/modules.c modules.c
+    verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c
+    rm -f modules.c
     # Generate new ${LISPRUN}
-    (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
+    verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN}
+    cd "${start_dir}"
     if [ -n "$TO_PRELOAD" ] ; then
       # Generate new preliminary lispinit.mem
       to_preload=''
@@ -381,46 +384,19 @@ case "$1" in
     shift
     shift
     moduledirs="$@"
-    if [ ! -d "$sourcedir" ] ; then
-      echo "$0: $sourcedir is not a directory" 1>&2
-      exit 1
-    fi
-    if [ -r "$destinationdir" ] ; then
-      if [ -d "$destinationdir" ] ; then
-        echo "$0: $destinationdir already exists" 1>&2
-        exit 1
-      else
-        echo "$0: $destinationdir is not a directory" 1>&2
-        exit 1
-      fi
-    fi
-    for moduledir in $moduledirs; do
-      if [ ! -d "$moduledir" ] ; then
-        echo "$0: $moduledir is not a directory" 1>&2
-        exit 1
-      fi
-    done
-    mkdir "$destinationdir"
+    check_dir "$sourcedir"
+    make_dest "$destinationdir"
+    for moduledir in $moduledirs; do check_dir "$moduledir"; done
     absolute_currentdir=`/bin/pwd`
     absolute_sourcedir=`cd "$sourcedir" ; /bin/pwd`
     absolute_destinationdir=`cd "$destinationdir" ; /bin/pwd`
     installbasedir=`dirname "$sourcedir"`
     # What to do if we abort.
     trap 'rm -rf "$absolute_destinationdir"' 1 2 15
-    if [ "$absolute_sourcedir" = "$absolute_destinationdir" ] ; then
-      echo "$0: directories $sourcedir and $destinationdir may not be the same" 1>&2
-      exit 1
-    fi
-    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/${LISPRUN} -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
-      echo "$0: directory $sourcedir does not contain a clisp linking set" 1>&2
-      exit 1
-    fi
-    for moduledir in $moduledirs; do
-      if [ ! -r "$moduledir/link.sh" ] ; then
-        echo "$0: directory $moduledir does not contain a clisp module" 1>&2
-        exit 1
-      fi
-    done
+    test "$absolute_sourcedir" = "$absolute_destinationdir" &&
+      fail "directories $sourcedir and $destinationdir may not be the same"
+    check_linkset "$sourcedir"
+    for moduledir in $moduledirs; do check_module "$moduledir"; done
     # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$sourcedir"/makevars
     if [ -z "$moduledirs" ] ; then
@@ -486,10 +462,15 @@ case "$1" in
           LOAD=${LOAD}' -i '"$moduledir/$f"
         done
       done
+      start_dir=`pwd`
+      cd "$destinationdir"
       # Generate new modules.o, compiled from modules.c, includes new modules.h
-      (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
+      link "$absolute_linkkitdir"/modules.c modules.c
+      verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c
+      rm -f modules.c
       # Generate new ${LISPRUN}
-      (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
+      verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN}
+      cd "${start_dir}"
       if [ -n "$PRELOAD" ] ; then
         # Generate new preliminary lispinit.mem
         verbose "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
@@ -524,27 +505,11 @@ case "$1" in
     shift
     if test "@with_dynamic_modules@" != no; then
       moduledirs="$@"
-      if [ ! -d "$sourcedir" ] ; then
-        echo "$0: $sourcedir is not a directory" 1>&2
-        exit 1
-      fi
-      for moduledir in $moduledirs; do
-        if [ ! -d "$moduledir" ] ; then
-          echo "$0: $moduledir is not a directory" 1>&2
-          exit 1
-        fi
-      done
+      check_dir "$sourcedir"
+      for moduledir in $moduledirs; do check_dir "$moduledir"; done
       absolute_currentdir=`/bin/pwd`
-      if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/${LISPRUN} -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
-        echo "$0: directory $sourcedir does not contain a clisp linking set" 1>&2
-        exit 1
-      fi
-      for moduledir in $moduledirs; do
-        if [ ! -r "$moduledir/link.sh" ] ; then
-          echo "$0: directory $moduledir does not contain a clisp module" 1>&2
-          exit 1
-        fi
-      done
+      check_linkset  "$sourcedir"
+      for moduledir in $moduledirs; do check_module "$moduledir"; done
       # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
       . "$sourcedir"/makevars
       if [ -z "$moduledirs" ] ; then

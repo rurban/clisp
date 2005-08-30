@@ -1,5 +1,12 @@
 2005-08-30  Sam Steingold  <sds@gnu.org>
 
+	* clisp-link.in (fail, check_dir, make_dest, check_linkset)
+	(check_module): new functions; use them throughout the file
+	(verbose): call exit (using fail) if the command fails
+	avoid sub-shells to exit on the first failure
+
+2005-08-30  Sam Steingold  <sds@gnu.org>
+
 	* configure: when --with-dynamic-ffi is supplied, but the FFI
 	fails to build, issue an error message and fail
 
