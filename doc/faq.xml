@@ -358,7 +358,7 @@ further explanations of the issues could be provided).</para>
 
 
 <qandaentry id="faq-rc"><question id="faq-rc-q"><simpara>Where is the
-   init file on my platform?</simpara></question>
+   init (<quote>RC</quote>) file on my platform?</simpara></question>
 <answer><para>Read the file <filename>&lt;clisp.html#opt-norc&gt;</filename>
   in your build directory or binary distribution (this is the version of
   the user manual <olink targetdoc="man"/> for your platform).</para>
@@ -401,8 +401,8 @@ further explanations of the issues could be provided).</para>
 <para>This may also be caused by filesystem access.
  If your &path-enc; is set incorrectly, many filesystem accesses (like
  &load;, &directory; etc) will raise this error.
- Note that &load; will traverse the directories mentioned in &load-paths;.
- This applies to the <link linkend="faq-rc">init file</link> too.
+ Note that &load; will traverse the directories mentioned in &load-paths;
+ - this applies to the <link linkend="faq-rc">init (RC) file</link> too.
  You will need to set &path-enc; or pass &opt-E; to &clisp;.
  Using a <quote>1:1</quote> encoding, such as
  <link linkend="charset-ISO-8859-1"><constant>ISO-8859-1</constant></link>,
