@@ -1,5 +1,10 @@
 2005-08-30  Sam Steingold  <sds@gnu.org>
 
+	* configure: when --with-dynamic-ffi is supplied, but the FFI
+	fails to build, issue an error message and fail
+
+2005-08-30  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (LDFLAGS): fixed handling (were effectively ignored)
 
 2005-08-30  Sam Steingold  <sds@gnu.org>

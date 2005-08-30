@@ -54,6 +54,7 @@ options: The following options are recognized:
          --without-PACKAGE     do not use PACKAGE
            PACKAGEs available (the default is the opposite of the following):
           --without-dynamic-ffi   do not support Foreign Function Interface
+                                  the default is to support it when available
           --with-dynamic-modules  support Dynamic Modules
           --without-unicode       no UNICODE support: character=8bit
           --without-readline      do not look for GNU readline
@@ -113,7 +114,7 @@ prev=''
 passnext=''
 passnextm=''
 debug=''
-do_ffi='yes'
+do_ffi='default'
 target=''
 
 for arg # in "$@"
@@ -341,6 +342,9 @@ do
       --without-dynamic-ffi | --with-dynamic-ffi=no | --with-no-dynamic-ffi)
         do_ffi="no" ;;
 
+      --with-dynamic-ffi | --with-dynamic-ffi=yes)
+        do_ffi="yes" ;;
+
       --with-dynamic-modules | --with-dynamic-modules=yes)
         makemake_args="--with-dynamic-modules ${makemake_args}" ;;
 
@@ -544,7 +548,7 @@ if test -n "$do_config"; then
   done
   cd ..;
   FFI_DIRS="";
-  if [ "$do_ffi" = "yes" ]; then
+  if [ "$do_ffi" = "yes" -o "$do_ffi" = "default" ]; then
     FFI_DIRS="avcall callback";
     # Create subdirectories for the ffcall parts, and fill them.
     # The Makefiles carefully use $(srcdir).
@@ -585,7 +589,7 @@ if test -n "$do_config"; then
   conf_dir $ABS_DIRNAME $subdir_srcdir_args \
     $subdir_configure_args --cache-file=config.cache
   cd $ABS_DIRNAME;
-  if [ "$do_ffi" = "yes" ]; then
+  if [ "$do_ffi" = "yes" -o "$do_ffi" = "default" ]; then
     for subdir in ${FFI_DIRS}; do
       if test -d $subdir; then
         conf_dir $subdir --srcdir="$RREL_SRCDIR/ffcall/$subdir" \
@@ -613,6 +617,9 @@ if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
      (cd $ABS_DIRNAME/callback && make check); then
     makemake_args="--with-dynamic-ffi $makemake_args"
     have_ffi=yes
+  elif [ "$do_ffi" = "yes" ]; then
+    echo "$0: despite --with-dynamic-ffi, FFCALL could not be built" 1>&2
+    exit 1
   fi
 fi
 
@@ -621,7 +628,7 @@ makemake_args="${makemake_args} ${subdir_srcdir_args} ${target} ${debug}";
 . ${ABS_DIRNAME}/config.cache
 cat <<EOF
 Configure findings:
-  FFI:        ${have_ffi}
+  FFI:        ${have_ffi} (user requested: ${do_ffi})
   readline:   ${ac_cv_use_readline}
   libsigsegv: ${cl_cv_lib_sigsegv}
 EOF
