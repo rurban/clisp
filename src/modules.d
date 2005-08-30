@@ -1,6 +1,7 @@
 /*
  * Module für CLISP
  * Bruno Haible 1994-2004
+ * Sam Steingold 2002-2005
  */
 
 /* All dependencies on modules.h are collected here! */
@@ -22,8 +23,9 @@ uintC module_count =
 extern uintC subr_tab_data_size;
 extern uintC object_tab_size;
 #define MODULE(module_name)                                             \
-  extern struct { VAROBJECTS_ALIGNMENT_DUMMY_DECL subr_t subrs[1]; }    \
-         module__##module_name##__subr_tab;                             \
+  extern struct module__##module_name##__subr_tab_t                     \
+  { VAROBJECTS_ALIGNMENT_DUMMY_DECL subr_t subrs[1]; }                  \
+    module__##module_name##__subr_tab;                                  \
   extern uintC module__##module_name##__subr_tab_size;                  \
   extern gcv_object_t module__##module_name##__object_tab[];            \
   extern uintC module__##module_name##__object_tab_size;                \
