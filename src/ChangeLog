@@ -4,6 +4,8 @@
 	name all types (even those used just once) to avoid the GCC 4 warning
 	"non-local variable '<anonymous struct> ...' uses anonymous type"
 	(modprep): use "~&" to avoid an extra blank line
+	* modules.d (MODULE): avoid the GCC 4 warning
+	"non-local variable '<anonymous struct> ...' uses anonymous type"
 
 2005-08-30  Sam Steingold  <sds@gnu.org>
 
