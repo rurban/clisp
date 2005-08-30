@@ -10,18 +10,7 @@ PERL = perl
 GROFF = nroff -man
 # GROFF = groff -mandoc
 
-# Choose one of the packers:
-
-# Standard Unix packer. Compress afterwards.
-#PACK = tar
-#PACKOPT = -cvf
-#PACKEXT = .tar
-
-# GNU tar together with compress.
-#PACK = tar
-#PACKOPT = cvfhz
-#PACKEXT = .tar.Z
-
+# Assume tar/bzip2/gzip are present
 # set this if you are using GNU tar
 EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
@@ -29,26 +18,6 @@ EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude $(AUTOCONF_CACHE) --exclude tmp --exclude queued         \
         `sed "s/^/--exclude /" doc/.cvsignore`                             \
         --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
-
-# GNU tar together with GNU gzip. Good performance.
-#PACK = tar
-#PACKOPT = cvfhz
-#PACKEXT = .tar.gz
-
-# GNU tar together with bzip2. Slow, but excellent compression rates.
-PACK = tar
-PACKOPT = cvfhj
-PACKEXT = .tar.bz2
-
-# Popular DOS packer.
-#PACK = zip
-#PACKOPT = -r
-#PACKEXT = .zip
-
-# Popular Atari packer.
-#PACK = zoo
-#PACKOPT = -add
-#PACKEXT = .zoo
 
 # The distribution's top directory is called TOPDIR here.
 # Use clisp-YYYY-MM-DD where DD.MM.YYYY is the date.
@@ -418,7 +387,7 @@ install-gcc:
 	rm -rf gcc-$(GCC_VERSION)
 
 
-distrib : fixperms linux-distrib src-distrib
+distrib : fixperms src-distrib
 
 ## Pre-release TODO:
 # echo URL-tar.bz2| mail -s "clisp-`cat VERSION`" translation@IRO.UMontreal.CA
@@ -439,7 +408,7 @@ distrib : fixperms linux-distrib src-distrib
 # https://sourceforge.net/news/submit.php?group_id=1355
 
 VER=$(shell . version.sh ; echo $$VERSION_NUMBER)
-SRC_DIST=/tmp/clisp-$(VER)$(PACKEXT)
+SRC_DIST=/tmp/clisp-$(VER).tar.bz2
 SRC_DIST1=/tmp/clisp-$(VER).tar.gz
 SSHUP=podval:~/public_html/clisp/
 FTPUP=upload.sf.net:/incoming sunsite.unc.edu:/incoming/linux
@@ -460,13 +429,7 @@ src-distrib : potfiles force
 
 src--distrib : force
 	ln -s . $(TOPDIR)
-	$(PACK) $(PACKOPT) $(SRC_DIST) $(EXCLUDE) $(SOURCES)
+	tar cvfhj $(SRC_DIST) $(EXCLUDE) $(SOURCES)
 	rm -f $(TOPDIR)
-
-linux-distrib : force
-	$(MAKE) linux--distrib
-
-linux--distrib : force
-	cd make.gcc && $(MAKE) PACK="$(PACK)" PACKOPT="$(PACKOPT)" PACKEXT="$(PACKEXT)" distrib
 
 force :
