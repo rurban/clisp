@@ -279,9 +279,9 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
    &equiv; <constant>UNICODE-32</constant>
    &equiv; <constant>UNICODE-32-BIG-ENDIAN</constant>,
    the 21-bit &unicode; character set. Every character is represented as
-   four bytes.</simpara></listitem>
- <listitem id="charset-UNICODE-32-LITTLE-ENDIAN"><simpara><constant>UNICODE-32-LITTLE-ENDIAN</constant>
- </simpara></listitem>
+   four bytes. This encoding is used by &clisp; internally.</simpara></listitem>
+ <listitem id="charset-UNICODE-32-LITTLE-ENDIAN">
+  <simpara><constant>UNICODE-32-LITTLE-ENDIAN</constant></simpara></listitem>
  <listitem id="charset-UTF-8"><simpara><constant>UTF-8</constant>,
    the 21-bit &unicode; character set.
    Every character is represented as one to four bytes.
@@ -321,10 +321,18 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
    Code for Information Interchange - &ascii;).</simpara></listitem>
  <listitem id="charset-ISO-8859-1"><simpara><constant>ISO-8859-1</constant>,
    &ascii-iso-ext; Afrikaans, Albanian, Basque, Breton, Catalan,
-   Cornish, Danish, Dutch, English, Faeroese, Finnish, French,
+   Cornish, Danish, Dutch, English, F&aelig;roese, Finnish, French,
    Frisian, Galician, German, Greenlandic, Icelandic, Irish, Italian,
-   Latin, Luxemburgish, Norwegian, Portuguese, Raeto-Romanic,
-   Scottish, Spanish, and Swedish languages.</simpara></listitem>
+   Latin, Luxemburgish, Norwegian, Portuguese, R&aelig;to-Romanic,
+   Scottish, Spanish, and Swedish languages.</simpara>
+  <para>This encoding has the nice property that<programlisting language="lisp">
+(loop :for i :from 0 :to 255
+  :always (equalp (ext:convert-string-to-bytes (string (code-char i))
+                                               charset:iso-8859-1)
+                  (vector i)))
+<returnvalue>T</returnvalue></programlisting>
+   i.e., it is compatible with &clisp; &code-char;/&char-code;
+   in its own domain.</para></listitem>
  <listitem id="charset-ISO-8859-2"><simpara><constant>ISO-8859-2</constant>,
    &ascii-iso-ext; Croatian, Czech, German, Hungarian, Polish,
    Slovak, Slovenian, and Sorbian languages. </simpara></listitem>
@@ -352,8 +360,8 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
    &ascii-iso-ext; Estonian, Latvian, Lithuanian, Polish and Sami
    (Lappish) languages.</simpara></listitem>
  <listitem id="charset-ISO-8859-14"><simpara><constant>ISO-8859-14</constant>,
-   &ascii-iso-ext; Irish Gaelic, Manx Gaelic, Scottish Gaelic, and
-   Welsh languages.</simpara></listitem>
+   &ascii-iso-ext; Irish G&aelig;lic, Manx G&aelig;lic, Scottish
+   G&aelig;lic, and Welsh languages.</simpara></listitem>
  <listitem id="charset-ISO-8859-15"><simpara><constant>ISO-8859-15</constant>,
    &ascii-iso-ext; ISO-8859-1 languages, with improvements for
    French, Finnish and the Euro.</simpara></listitem>
