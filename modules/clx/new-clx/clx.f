@@ -464,9 +464,11 @@ static Display *pop_display (void);
  must actually disable SIGPIPE - see src/spvw_sigpipe.d */
 #define RELY_ON_WRITING_TO_SUBPROCESS
 #if defined(RELY_ON_WRITING_TO_SUBPROCESS)
-#if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+/* including <signal.h> just for the sake of SIGPIPE
+   (which is always there anyway) is a total waste */
+# if defined(HAVE_SIGNALS) /* && defined(SIGPIPE) */
 extern
-#endif
+# endif
 bool writing_to_subprocess;
 # define begin_x_call() writing_to_subprocess=true;begin_call()
 # define end_x_call()   end_call();writing_to_subprocess=false
