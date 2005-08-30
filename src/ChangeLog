@@ -1,5 +1,12 @@
 2005-08-30  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (print-tables-1, print-tables-2):
+	name all types (even those used just once) to avoid the GCC 4 warning
+	"non-local variable '<anonymous struct> ...' uses anonymous type"
+	(modprep): use "~&" to avoid an extra blank line
+
+2005-08-30  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (HAVE_SIGNALS): pass on to clisp.h for clx/new-clx
 	* modules/clx/new-clx/clx.f (writing_to_subprocess):
 	define as "extern" without checking for SIGPIPE
