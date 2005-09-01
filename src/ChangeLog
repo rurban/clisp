@@ -1,5 +1,11 @@
 2005-09-01  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (set_sock_opt_many): new function
+	(SET-SOCKET-OPTION): use it; also use endp() and
+	fehler_plist_odd() to report argument errors
+
+2005-09-01  Sam Steingold  <sds@gnu.org>
+
 	capture failed test output into the log file
 	* tests/tests.lisp (*eval-out*, *eval-err*): new variables
 	(my-eval): reset their streams before evaluating the form
