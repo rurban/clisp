@@ -1282,11 +1282,10 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
   </simpara></listitem>
   <listitem><simpara>export your function name from the appropriate
     package in file &init-lisp;;</simpara></listitem>
-  <listitem><simpara>when you are done, you should run <command>make
-     check-sources</command> in your build directory: this will check
-    that the definitions (source files) and the declarations
-    (&subr-d;, &subrkw-d;
-    and &fsubr-d;) are in sync.</simpara></listitem>
+  <listitem><simpara>when you are done, you should run
+    <command role="unix">make check-sources</command> in your build directory:
+    this will check that the definitions (source files) and the declarations
+    (&subr-d;, &subrkw-d; and &fsubr-d;) are in sync.</simpara></listitem>
 </itemizedlist></para>
 
 <warning><para>Be very careful with the <emphasis>GC-unsafe</emphasis>
