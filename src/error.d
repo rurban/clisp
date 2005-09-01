@@ -1220,6 +1220,16 @@ global maygc object check_encoding (object arg, const gcv_object_t *e_default,
   goto restart;
 }
 
+/* Error when the property list has odd length
+ fehler_plist_odd(caller,plist);
+ > plist: bad plist */
+nonreturning_function(global, fehler_plist_odd, (object plist)) {
+  pushSTACK(plist);             /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
+  pushSTACK(plist); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: the property list ~S has an odd length"));
+}
+
 /* error-message for non-paired keyword-arguments
  fehler_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK

@@ -15373,6 +15373,12 @@ extern maygc object check_encoding (object obj, const gcv_object_t* e_default,
                                     bool keyword_p);
 /* used by ENCODING, FOREIGN */
 
+/* Error when the property list has odd length
+ fehler_plist_odd(caller,plist);
+ > plist: bad plist */
+nonreturning_function(extern, fehler_plist_odd, (object plist));
+%% printf("nonreturning_function(extern, fehler_plist_odd, (object plist));\n");
+
 /* error-message for non-paired keyword-arguments
  fehler_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK

@@ -1,3 +1,11 @@
+2005-09-01  Sam Steingold  <sds@gnu.org>
+
+	* error.d (fehler_plist_odd): moved here from symbol.d,
+	do not accept caller argument, use subr_self instead
+	* symbol.d (fehler_plist_odd): moved to error.d
+	(GETF, PUTF, REMF, GET-PROPERTIES): updated calls to fehler_plist_odd()
+	* lispbibl.d (fehler_plist_odd): added the prototype
+
 2005-08-30  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (print-tables-1, print-tables-2):
