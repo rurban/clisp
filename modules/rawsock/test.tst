@@ -58,14 +58,16 @@ NIL
   (show (setq *recv-ret* (list size (from-bytes *buffer* size))))
   T) T
 
+#+unix
 (listp (setf (rawsock:socket-option *sock* NIL)
              (show (rawsock:socket-option *sock* NIL) :pretty t)))
 T
+#+unix
 (listp (setf (rawsock:socket-option *sock* NIL :level :ALL)
              (show (rawsock:socket-option *sock* NIL :level :ALL) :pretty t)))
 T
 
-(rawsock:shutdown *sock* :io) 0
+(ext:socket-stream-shutdown *sock* :io) NIL
 (rawsock:sock-close *sock*) 0
 
 (let ((so (rawsock:socket :INET :STREAM nil)))
