@@ -1,5 +1,14 @@
 2005-09-01  Sam Steingold  <sds@gnu.org>
 
+	capture failed test output into the log file
+	* tests/tests.lisp (*eval-out*, *eval-err*): new variables
+	(my-eval): reset their streams before evaluating the form
+	(do-test, do-errcheck): write them to log on test failure
+	(run-test): bind *EVAL-OUT* and *EVAL-ERR* to string streams
+	and *ERROR-OUTPUT* and  *STANDARD-OUTPUT* to broadcast streams
+
+2005-09-01  Sam Steingold  <sds@gnu.org>
+
 	* error.d (fehler_plist_odd): moved here from symbol.d,
 	do not accept caller argument, use subr_self instead
 	* symbol.d (fehler_plist_odd): moved to error.d

@@ -59,7 +59,11 @@
   #-(or CLISP AKCL GCL ECL ALLEGRO CMU) (lisp-implementation-type))
 
 (defvar *eval-method* :eval)
+(defvar *eval-out* nil)
+(defvar *eval-err* nil)
 (defun my-eval (form)
+  (when *eval-out* (get-output-stream-string *eval-out*))
+  (when *eval-err* (get-output-stream-string *eval-err*))
   (ecase *eval-method*
     (:eval (eval form))
     (:compile (funcall (compile nil `(lambda () ,form))))
@@ -102,7 +106,7 @@
 (defun do-test (stream log)
   (let ((eof "EOF") (error-count 0) (total-count 0))
     (loop
-      (let ((form (read stream nil eof))
+      (let ((form (read stream nil eof)) out err
             (result (read stream nil eof)))
         (when (or (eq form eof) (eq result eof)) (return))
         (incf total-count)
@@ -111,6 +115,8 @@
             (if *test-ignore-errors*
                 (with-ignored-errors (my-eval form)) ; return ERROR on errors
                 (my-eval form)) ; don't disturb the condition system when testing it!
+          (setq out (and *eval-out* (get-output-stream-string *eval-out*))
+                err (and *eval-err* (get-output-stream-string *eval-err*)))
           (cond ((eql result my-result)
                  (format t "~&EQL-OK: ~S~%" result))
                 ((equal result my-result)
@@ -124,7 +130,8 @@
                              form result lisp-implementation
                              my-result error-message)
                  (pretty-compare result my-result log)
-                 (format log "~%"))))))
+                 (format log "~[~:;OUT:~%~S~%~]~[~:;ERR:~%~S~]~2%"
+                         (length out) out (length err) err))))))
     (values total-count error-count)))
 
 (defmacro check-ignore-errors (&body body)
@@ -163,7 +170,9 @@
         (when (or (eq form eof) (eq errtype eof)) (return))
         (incf total-count)
         (show form)
-        (let ((my-result (check-ignore-errors (my-eval form))))
+        (let ((my-result (check-ignore-errors (my-eval form)))
+              (out (and *eval-out* (get-output-stream-string *eval-out*)))
+              (err (and *eval-err* (get-output-stream-string *eval-err*))))
           (multiple-value-bind (typep-result typep-error)
               (ignore-errors (typep my-result errtype))
             (cond ((and (not typep-error) typep-result)
@@ -171,9 +180,10 @@
                   (t
                    (incf error-count)
                    (format t "~&ERROR!! ~S instead of ~S !~%" my-result errtype)
-                   (format log "~&Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
-                               form errtype lisp-implementation
-                               my-result)))))))
+                   (format log "~&Form: ~S~%CORRECT: ~S~%~7A: ~S~%~
+                                ~[~:;OUT:~%~S~%~]~[~:;ERR:~%~S~]~2%"
+                               form errtype lisp-implementation my-result
+                               (length out) out (length err) err)))))))
     (values total-count error-count)))
 
 (defvar *run-test-tester* #'do-test)
@@ -188,10 +198,16 @@
   (with-open-file (s (merge-extension "tst" testname) :direction :input)
     (format t "~&~s: started ~s~%" 'run-test s)
     (with-open-file (log logfile :direction :output
-                                 #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
+                                 #+(or CMU SBCL) :if-exists
+                                 #+(or CMU SBCL) :supersede
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (setq logfile (truename log))
-      (let ((*package* *package*) (*print-circle* t) (*print-pretty* nil))
+      (let* ((*package* *package*) (*print-circle* t) (*print-pretty* nil)
+             (*eval-err* (make-string-output-stream))
+             (*error-output* (make-broadcast-stream *error-output* *eval-err*))
+             (*eval-out* (make-string-output-stream))
+             (*standard-output* (make-broadcast-stream *standard-output*
+                                                       *eval-out*)))
         (setf (values total-count error-count)
               (funcall *run-test-tester* s log)))))
   (format t "~&~s: finished ~s (~:d error~:p out of ~:d test~:p)~%"
