@@ -768,6 +768,25 @@ static void set_sock_opt (rawsock_t sock, int level, int name, object value) {
   }
 }
 #undef SET_SOCK_OPT
+/* name=-1   => set many socket options from the plist
+   otherwise => set this option
+ can trigger GC */
+static void set_sock_opt_many (rawsock_t sock, int level, int name,
+                               object opt_or_plist) {
+  if (name == -1) {
+    pushSTACK(opt_or_plist); pushSTACK(opt_or_plist);
+    while (!endp(STACK_0)) {
+      int name = sockopt_name(Car(STACK_0));
+      STACK_0 = Cdr(STACK_0);
+      if (!consp(STACK_0)) fehler_plist_odd(STACK_1);
+      set_sock_opt(sock,level,name,Car(STACK_0));
+      STACK_0 = Cdr(STACK_0);
+    }
+    skipSTACK(2);
+  } else
+    set_sock_opt(sock,level,name,opt_or_plist);
+}
+
 DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/setsockopt.html */
   int level = sockopt_level(popSTACK());
@@ -776,52 +795,21 @@ DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
   stream_handles(popSTACK(),true,NULL,&sock,NULL);
   if (level == -1) {                      /* :ALL */
     pushSTACK(STACK_0);
-    while (consp(STACK_0)) {
+    while (!endp(STACK_0)) {
       int level = sockopt_level(Car(STACK_0));
       STACK_0 = Cdr(STACK_0);
-      if (!consp(STACK_0)) goto set_socket_option_error;
-      if (name == -1) {
-        pushSTACK(Car(STACK_0));
-        while (consp(STACK_0)) {
-          name = sockopt_name(Car(STACK_0));
-          STACK_0 = Cdr(STACK_0);
-          if (!consp(STACK_0)) goto set_socket_option_error;
-          set_sock_opt(sock,level,name,Car(STACK_0));
-        }
-        name = -1;
-        if (!nullp(STACK_0)) goto set_socket_option_error;
-        skipSTACK(1);
-      } else
-        set_sock_opt(sock,level,name,Car(STACK_0));
+      if (!consp(STACK_0)) fehler_plist_odd(STACK_1);
+      set_sock_opt_many(sock,level,name,Car(STACK_0));
+      STACK_0 = Cdr(STACK_0);
     }
-    if (!nullp(STACK_0)) goto set_socket_option_error;
     skipSTACK(1);
-  } else {
-    if (name == -1) {
-      pushSTACK(STACK_0);
-      while (consp(STACK_0)) {
-        name = sockopt_name(Car(STACK_0));
-        STACK_0 = Cdr(STACK_0);
-        if (!consp(STACK_0)) goto set_socket_option_error;
-        set_sock_opt(sock,level,name,Car(STACK_0));
-      }
-      if (!nullp(STACK_0)) goto set_socket_option_error;
-      skipSTACK(1);
-    } else
-      set_sock_opt(sock,level,name,Car(STACK_0));
-  }
-  VALUES1(popSTACK()); return;
- set_socket_option_error:
-  /* the bad value is now STACK_0 */
-  pushSTACK(sockopt_level_reverse(level));
-  pushSTACK(sockopt_name_reverse(name));
-  pushSTACK(fixnum(sock));
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S(~S ~S ~S): invalid value: ~S"));
+  } else
+    set_sock_opt_many(sock,level,name,STACK_0);
+  VALUES1(popSTACK());
 }
 #endif
-/* ================== CHECKSUM from Fred Cohen ================== */
 
+/* ================== CHECKSUM from Fred Cohen ================== */
 DEFUN(RAWSOCK:IPCSUM, &optional buffer) { /* IP CHECKSUM */
   unsigned char* buffer = TheSbvector(check_buffer_arg(popSTACK()))->data;
   register long sum=0;           /* assumes long == 32 bits */
