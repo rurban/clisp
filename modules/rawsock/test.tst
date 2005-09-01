@@ -59,13 +59,25 @@ NIL
   T) T
 
 #+unix
-(listp (setf (rawsock:socket-option *sock* NIL)
-             (show (rawsock:socket-option *sock* NIL) :pretty t)))
+(listp (show (rawsock:socket-option *sock* NIL) :pretty t))
 T
 #+unix
-(listp (setf (rawsock:socket-option *sock* NIL :level :ALL)
-             (show (rawsock:socket-option *sock* NIL :level :ALL) :pretty t)))
+(listp (show (rawsock:socket-option *sock* NIL :level :ALL) :pretty t))
 T
+
+#+unix (setf (rawsock:socket-option *sock* NIL) '(:debug nil))
+#+unix (:DEBUG NIL)
+
+#+unix (setf (rawsock:socket-option *sock* NIL :level :all)
+             '(:sol-socket (:debug nil)))
+#+unix (:SOL-SOCKET (:DEBUG NIL))
+
+#+unix (setf (rawsock:socket-option *sock* :debug) nil)
+#+unix NIL
+
+#+unix (setf (rawsock:socket-option *sock* :debug :level :all)
+             '(:sol-socket nil))
+#+unix (:SOL-SOCKET NIL)
 
 (ext:socket-stream-shutdown *sock* :io) NIL
 (rawsock:sock-close *sock*) 0
