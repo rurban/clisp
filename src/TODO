@@ -86,6 +86,9 @@ it still might make sense to change regular_handle_p().
 Note that this runs into the FRESH-LINE/same_handle_p issues.
 Maybe (SETF STREAM-ELEMENT-TYPE) should work on TERMINAL-STREAMs?
 Maybe all streams should be bivalent?
+Related issue: LISTEN works on binary streams in all Lisps except CLISP.
+LISTEN should work on all streams and READ-CHAR-WILL-HANG-P should be
+merged with READ-BYTE-WILL-HANG-P into WILL-HANG-P.
 
 
 remove clhs.txt; add impnotes id-href.map lookup
