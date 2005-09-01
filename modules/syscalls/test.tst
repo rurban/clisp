@@ -15,13 +15,13 @@ T
   T)
 T
 
-(find :rdwr (show (os:stream-options *tmp1* :fl))) :RDWR
-(with-open-file (s *tmp1*) (find :rdonly (show (os:stream-options s :fl)))) :RDONLY
-(os:stream-options *tmp1* :fd) NIL
-(os:stream-options *tmp1* :fd '(:cloexec)) NIL
-(os:stream-options *tmp1* :fd) (:cloexec)
-(os:stream-options *tmp1* :fd nil) NIL
-(os:stream-options *tmp1* :fd) NIL
+#+unix (find :rdwr (show (os:stream-options *tmp1* :fl))) #+unix :RDWR
+#+unix (with-open-file (s *tmp1*) (find :rdonly (show (os:stream-options s :fl)))) #+unix :RDONLY
+#+unix (os:stream-options *tmp1* :fd) NIL
+#+unix (os:stream-options *tmp1* :fd '(:cloexec)) NIL
+#+unix (os:stream-options *tmp1* :fd) #+unix (:cloexec)
+#+unix (os:stream-options *tmp1* :fd nil) NIL
+#+unix (os:stream-options *tmp1* :fd) NIL
 
 (os:stream-lock *tmp1* t) T
 (os:stream-lock *tmp1* nil) NIL
