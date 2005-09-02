@@ -1879,7 +1879,7 @@ fi
 if [ $TOS = unix ] ; then
   echol   "# clx/new-clx          faster X11 interface (replaces clx/mit-clx)"
 fi
-echol "MODULES = ${MODULES} "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
+echol "MODULES = ${MODULES}"
 echol
 echol "# Command line options passed to the configure files of add-on modules"
 echol "MODULE_CONFIGURE_FLAGS =${module_configure_flags}"
