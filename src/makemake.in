@@ -1849,15 +1849,13 @@ echol "# installation. This is useful when preparing a binary distribution."
 echol "DESTDIR ="
 echol
 echol     "# (partial) list of available add-on modules"
-echol     "# (see directory modules/ for the full list):"
-echol     "# queens               the queens function as a separate module"
+echol     "# (see directory modules/ for the full list"
+echol     "#  or pass --list-modules to top-level configure):"
+echol     "# queens               the queens function (a toy example)"
 echol     "# dirkey               the directory access (LDAP, win32 registry)"
 echol     "# berkeley-db          the Berkeley DB access"
-echol     "# syscalls             export some POSIX (and other) system calls"
 echol     "# rawsock              raw socket access"
-echol     "# regexp               POSIX regular expressions"
 echol     "# pcre                 Perl-compatible regular expressions"
-echol     "# i18n                 Lisp program internationalization"
 if [ "${with_dynamic_ffi}" != no ]; then
   echol   "# wildcard             wildcard matching"
   echol   "# postgresql           interface to PostgreSQL ODBMS"
@@ -2119,7 +2117,10 @@ fi
 echol "VERSION="`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
 echol "CLISP_VERSION=clisp-\$(VERSION)"
 echol
-echol "# List of add-on modules that are already hardwired in the base linking set"
+echol "# Add-on modules that are present in all linking sets (including base)"
+echol "# syscalls             export some POSIX (and other) system calls"
+echol "# regexp               POSIX regular expressions"
+echol "# i18n                 Lisp program internationalization"
 echol "BASE_MODULES = ${BASE_MODULES}"
 echol
 echol "COMMENT5 = ${HERE}comment5"
