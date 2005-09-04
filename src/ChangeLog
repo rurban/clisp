@@ -1,3 +1,9 @@
+2005-09-04  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/configure.in: added AC_CHECK_SIZEOF(off_t)
+	* modules/syscalls/calls.c (I_to_offset): define
+	(STREAM-LOCK): use it
+
 2005-06-06  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (MODULES): Don't use with_module_* variables any more.

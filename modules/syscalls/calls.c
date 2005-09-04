@@ -153,6 +153,11 @@ static BOOL my_UnlockFileEx
 }
 #endif
 
+#if defined(SIZEOF_OFF_T) && SIZEOF_OFF_T == 8
+# define I_to_offset(x)  I_to_uint64(x)
+#else
+# define I_to_offset(x)  I_to_uint32(x)
+#endif
 DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 { /* the interface to fcntl(2) */
   Handle fd = (Handle)-1;
@@ -162,24 +167,23 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #if defined(WIN32_NATIVE)
   uint64 length;
   DWORD flags = !lock_p ? 0 :
-    (missingp(STACK_2) ? LOCKFILE_EXCLUSIVE_LOCK : 0) |
-    (nullp(STACK_3) ? 0 : LOCKFILE_FAIL_IMMEDIATELY);
+    (missingp(STACK_2) ? LOCKFILE_EXCLUSIVE_LOCK : 0) | /* SHARED */
+    (nullp(STACK_3) ? 0 : LOCKFILE_FAIL_IMMEDIATELY);   /* BLOCK */
   OVERLAPPED ol = {0,0,start,0,NULL};
 #else
   off_t length;
-  int cmd = nullp(STACK_3) ? F_SETLK : F_SETLKW;
+  int cmd = nullp(STACK_3) ? F_SETLK : F_SETLKW; /* BLOCK */
   struct flock fl;
-  fl.l_type = missingp(STACK_2) ? F_RDLCK : F_WRLCK;
+  fl.l_type = missingp(STACK_2) ? F_RDLCK : F_WRLCK; /* SHARED */
   fl.l_whence = SEEK_SET;
   fl.l_start = start;
 #endif
-  if (uint_p(STACK_5)) {
+  if (uint_p(STACK_5)) {        /* STREAM */
     fd = (Handle)I_to_uint(STACK_5);
     stream = nullobj;
-  } else {
+  } else
     stream = open_file_stream_handle(STACK_5,&fd);
-  }
-  if (missingp(STACK_0)) { /* no :LENGTH => use file size */
+  if (missingp(STACK_0)) {     /* no :LENGTH => use file size */
     if (posfixnump(STACK_5)) { /* no stream given, use OS to get file size */
 #    if defined(WIN32_NATIVE)
       uint32 size_hi;
@@ -204,19 +208,10 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #    endif
     } else { /* a valid stream has been supplied */
       pushSTACK(stream); funcall(L(file_length),1);
-     #ifdef I_to_uint64
-      length = (sizeof(length) > 4 ? I_to_UQ(value1) : I_to_UL(value1));
-     #else
-      length = I_to_UL(value1);
-     #endif
+      length = I_to_offset(value1);
     }
-  } else {
-   #ifdef I_to_uint64
-    length = (sizeof(length) > 4 ? I_to_UQ(STACK_0) : I_to_UL(STACK_0));
-   #else
-    length = I_to_UL(STACK_0);
-   #endif
-  }
+  } else
+    length = I_to_offset(STACK_0);
   begin_system_call();
 #if defined(WIN32_NATIVE)
   if (lock_p) {
