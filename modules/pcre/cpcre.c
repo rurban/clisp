@@ -18,7 +18,7 @@
 
 #ifndef FOREIGN
 #error FOREIGN is not defined.
-#error REGEXP needs a CLISP built with the foreign pointer datatype support.
+#error PCRE needs a CLISP built with the foreign pointer datatype support.
 #error Go into the main CLISP makefile and add a -DFOREIGN=void*
 #error to CFLAGS make variable and rebuild CLISP before coming back here.
 #endif
@@ -33,7 +33,7 @@ DEFUN(PCRE::PCRE-VERSION,)
 { VALUES3(asciz_to_string(pcre_version(),GLO(misc_encoding)),
           fixnum(PCRE_MAJOR),fixnum(PCRE_MINOR)); }
 #if defined(HAVE_PCRE_CONFIG)
-DEFCHECKER(pcre_config_option, prefix=PCRE_CONFIG, UTF8 NEWLINE LINK-SIZE\
+DEFCHECKER(pcre_config_option, prefix=PCRE_CONFIG, UTF8 NEWLINE LINK-SIZE \
            POSIX-MALLOC-THRESHOLD MATCH-LIMIT STACKRECURSE UNICODE-PROPERTIES)
 DEFUN(PCRE::PCRE-CONFIG, &optional what)
 {
