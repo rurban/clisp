@@ -116,6 +116,7 @@ passnextm=''
 debug=''
 do_ffi='default'
 target=''
+ignore_absence_of_libsigsegv=''
 
 for arg # in "$@"
 do
@@ -359,6 +360,9 @@ do
       --enable-* | --disable-*)
         subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args $arg" ;;
+
+      --ignore-absence-of-libsigsegv)
+        ignore_absence_of_libsigsegv=yes ;;
 
       --*)
         echo "$0: invalid argument $arg" 1>&2
@@ -632,6 +636,32 @@ Configure findings:
   readline:   ${ac_cv_use_readline}
   libsigsegv: ${cl_cv_lib_sigsegv}
 EOF
+if [ "${cl_cv_lib_sigsegv}" != "yes" ]; then
+  if [ "${ignore_absence_of_libsigsegv}" = "yes" ]; then
+    echo "As you requested, we will proceed without libsigsegv..."
+  else
+    SIGSEGV=libsigsegv-2.2
+    cat <<EOF 1>&2
+$0: libsigsegv was not detected, thus some features, such as
+  generational garbage collection and
+  stack overflow detection in interpreted Lisp code
+cannot be provided.
+Please do this:
+  mkdir tools; cd tools; prefix=\`pwd\`/${ac_cv_host}
+  wget http://ftp.gnu.org/pub/gnu/libsigsegv/${SIGSEGV}.tar.gz
+  tar xfz ${SIGSEGV}.tar.gz
+  cd ${SIGSEGV}
+  ./configure --prefix=\${prefix} && make && make check && make install
+  cd ../..
+  ./configure --with-libsigsegv-prefix=\${prefix} $*
+If you insist on building without libsigsegv, please pass
+  --ignore-absence-of-libsigsegv
+to this script:
+  ./configure --ignore-absence-of-libsigsegv $*
+EOF
+    exit 1;
+  fi
+fi
 
 if test -z "$do_build"; then
 
