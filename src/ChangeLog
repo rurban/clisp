@@ -1,5 +1,10 @@
 2005-09-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (POSIX::STREAM-LOCK) [!WIN32_NATIVE]:
+	SHARED defaults to NIL
+
+2005-09-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/configure.in: bail out when X is not found
 
 2005-09-04  Sam Steingold  <sds@gnu.org>
