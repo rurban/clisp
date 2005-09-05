@@ -3897,6 +3897,14 @@ fi
 fi
 
 
+if test "$have_x" != "yes"; then
+  { { echo "$as_me:$LINENO: error: cannot find X Window System
+See \`config.log' for more details." >&5
+echo "$as_me: error: cannot find X Window System
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
 
 for ac_func in XGetAtomNames
 do
