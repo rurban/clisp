@@ -2043,10 +2043,10 @@ cat <<\!!
 # If you want an add-on module to be _built_ automatically with CLISP,
 # the following additional requirements have to be obeyed.
 #
-#   1. The module must be located in a subdirectory of clisp's source
+#   1. The module must be located in a subdirectory of clisp's build
 #      directory.
-#      Examples: clisp/src/ wildcard/
-#                clisp/src/ bindings/glibc/
+#      Examples: clisp/build/wildcard/
+#                clisp/build/bindings/glibc/
 #
 #   2. If the module contains a file called "configure", it is assumed
 #      to be a GNU autoconf generated configuration file, and is called
@@ -2064,13 +2064,11 @@ cat <<\!!
 #             CPPFLAGS           the C compiler flags when compiling some source
 #             CFLAGS             the C compiler flags
 #             INCLUDES           a directory containing CLISP header files
-#             LISPBIBL_INCLUDES  if you #include "lispbibl.c", put this onto
-#                                the dependency line
 #             CLFLAGS            the C compiler flags when linking an executable
 #             LIBS               the libraries used when linking an executable
 #             RANLIB             the name of the "ranlib" command
 #             CLISP              a command which calls the already built
-#                                "base" clisp.
+#                                "boot" clisp.
 #           Typically, you will have rules like this in your Makefile:
 #               foo.o : foo.c
 #                       $(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c foo.c
@@ -3272,11 +3270,7 @@ echotab "${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
 # src/build-aux/install-sh _AND_ also its own sources, thus we must
 # point it to modules/... in the original source tree
 echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
-EVERY_INCLUDES_DOTS_C=''
-for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
-  EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'/$f
-done
-echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 
 # make sure no cygwin libraries crept into the mingw distribution

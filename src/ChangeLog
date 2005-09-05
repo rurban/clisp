@@ -1,5 +1,9 @@
 2005-09-05  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (LISPBIBL_INCLUDES): removed, modules use clisp.h now
+
+2005-09-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (POSIX::STREAM-LOCK) [!WIN32_NATIVE]:
 	SHARED defaults to NIL
 
