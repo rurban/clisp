@@ -167,14 +167,14 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #if defined(WIN32_NATIVE)
   uint64 length;
   DWORD flags = !lock_p ? 0 :
-    (missingp(STACK_2) ? LOCKFILE_EXCLUSIVE_LOCK : 0) | /* SHARED */
-    (nullp(STACK_3) ? 0 : LOCKFILE_FAIL_IMMEDIATELY);   /* BLOCK */
+    (missingp(STACK_2) ? LOCKFILE_EXCLUSIVE_LOCK : 0) | /* (SHARED NIL) */
+    (nullp(STACK_3) ? 0 : LOCKFILE_FAIL_IMMEDIATELY);   /* (BLOCK T) */
   OVERLAPPED ol = {0,0,start,0,NULL};
 #else
   off_t length;
-  int cmd = nullp(STACK_3) ? F_SETLK : F_SETLKW; /* BLOCK */
+  int cmd = nullp(STACK_3) ? F_SETLK : F_SETLKW; /* (BLOCK T) */
   struct flock fl;
-  fl.l_type = missingp(STACK_2) ? F_RDLCK : F_WRLCK; /* SHARED */
+  fl.l_type = missingp(STACK_2) ? F_WRLCK : F_RDLCK; /* (SHARED NIL) */
   fl.l_whence = SEEK_SET;
   fl.l_start = start;
 #endif
