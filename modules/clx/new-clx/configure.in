@@ -13,6 +13,10 @@ dnl find a path to X11
 dnl this generates X_LIBS, X_CFLAGS and X_PRE_LIBS
 AC_PATH_XTRA
 
+if test "$have_x" != "yes"; then
+  AC_MSG_FAILURE([cannot find X Window System])
+fi
+
 AC_CHECK_FUNCS(XGetAtomNames)
 
 dnl Look for Xpm

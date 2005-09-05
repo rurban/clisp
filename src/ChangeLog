@@ -1,3 +1,7 @@
+2005-09-05  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/configure.in: bail out when X is not found
+
 2005-09-04  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/configure.in: added AC_CHECK_SIZEOF(off_t)
