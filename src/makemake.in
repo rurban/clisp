@@ -1377,9 +1377,10 @@ fi
 if [ "$cpu" = i386 -a "$TSYSOS" = "sunos" ] ; then # Solaris 2
   XCFLAGS=$XCFLAGS'' # maybe add -DUSL
 fi
+
+UNAME_R=`uname -r | $tolower | sed 's/ .*//'`
 if [ "$cpu" = i386 -a "$TSYSOS" = linux -a $CROSS = false ] ; then # Linux
   # Generational GC requires Linux 1.1.52 or newer
-  UNAME_R=`uname -r | $tolower`
   case "$UNAME_R" in
     0.* | 1.0.* | 1.1.[0-9] | 1.1.[1-4][0-9] | 1.1.5[0-1] )
       XCFLAGS=$XCFLAGS' -DNO_GENERATIONAL_GC' ;;
@@ -3672,7 +3673,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echol
   echol "CLISP_VR=\$(CLISP_VERSION)-1"
   echol "CLISP_SCRIPT=\$(CLISP_VR).sh"
-  echol "CLISP_CYGWIN=\$(CLISP_VERSION)-cygwin-"`uname -r|sed 's/(.*)//g'`.tar.bz2
+  echol "CLISP_CYGWIN=\$(CLISP_VERSION)-cygwin-${UNAME_R}.tar.bz2"
   echol "DEST_TMP=/tmp/clisp-install"
   echol "distrib : setup.hint cygwin.README force"
   echotab "\$(RMRF) \$(DEST_TMP) \$(CLISP_VR).tar.bz2; mkdir -p \$(DEST_TMP)"
@@ -3707,14 +3708,10 @@ echol "# Temporary directory for packing"
 echol "PACKDIR = ."
 echol
 echol "# The distribution's top directory"
-echol "TOPDIR=clisp-"`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
+echol 'TOPDIR=clisp-\$(VERSION)'
 echol
 echol "# Distribution file"
-# on OpenBSD 3.4, `uname -p` prints
-#   "Intel Pentium III (Coppermine) ("GenuineIntel" 686-class)"
-# instead of i386; and `arch` (=HSYS) prints "OpenBSD.i386"
-PROC=`((uname -p) 2>/dev/null || mach 2>/dev/null) | $tolower | sed 's/ .*//'`
-echol "DISTFILE=\$(PACKDIR)/\$(TOPDIR)-${HSYS:-unknown}-${PROC:-unknown}-${HSYSOS:-unknown}-`uname -r|sed 's/(.*)//g'`\$(PACKEXT)"
+echol "DISTFILE=\$(PACKDIR)/\$(TOPDIR)-${host}-${UNAME_R}\$(PACKEXT)"
 echol
 needs='all'
 if test "$HLN" != ln; then

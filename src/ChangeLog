@@ -1,3 +1,7 @@
+2005-09-05  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (DISTFILE): use ${host} as discovered by configure
+
 2005-09-04  Sam Steingold  <sds@gnu.org>
 
 	* configure: when libsigsegv is not found, print instructions on
