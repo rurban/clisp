@@ -790,6 +790,14 @@ MY-PPRINT-LOGICAL
  t)
 T
 
+(let ((*print-length* 123))
+  (defmethod print-object ((obj c1) (out stream))
+    (setq *print-length* 321)
+    (call-next-method))
+  (write-to-string (make-instance 'c1) :length 222)
+  *print-length*)
+123
+
 (write-to-string (make-instance 'c2 'b 123 'cc 42) :pretty t)
 "#[C2 B 123 CC 42]"
 
@@ -805,6 +813,27 @@ T
 #+CLISP "(|COMMON-LISP-USER|::|A| |COMMON-LISP-USER|::|B| |COMMON-LISP-USER|::|C|)"
 #+CMU "(A . (B C))"
 #-(or CLISP CMU) "(A B C)"
+
+;; cleanup
+(progn
+  (makunbound 'bs)
+  (makunbound 'str1)
+  (makunbound 's1)
+  (makunbound 'string1)
+  (makunbound 'string2)
+  (makunbound 'a)
+  (makunbound 'aa)
+  (makunbound 'b)
+  (makunbound 'c)
+  (makunbound 'd)
+  (makunbound 'j)
+  (makunbound 'x)
+  (fmakunbound 'ask)
+  (fmakunbound 'my-pprint-reverse)
+  (fmakunbound 'my-pprint-logical)
+  (setf (find-class 'c1) nil
+        (find-class 'c2) nil))
+NIL
 
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
