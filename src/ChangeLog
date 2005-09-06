@@ -2,6 +2,10 @@
 
 	* modules/syscalls/calls.c (POSIX::STREAM-LOCK) [!WIN32_NATIVE]:
 	when LOCK-P is NIL, actually do unlock
+	[WIN32_NATIVE]: fixed :BLOCK handling
+	always use OS to get file size instead of calling FILE-LENGTH
+	because on win32 FILE-LENGTH will fail with ERROR_LOCK_VIOLATION
+	when the underlying file is locked
 
 2005-09-05  Sam Steingold  <sds@gnu.org>
 
