@@ -168,7 +168,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   uint64 length;
   DWORD flags = !lock_p ? 0 :
     (missingp(STACK_2) ? LOCKFILE_EXCLUSIVE_LOCK : 0) | /* (SHARED NIL) */
-    (nullp(STACK_3) ? 0 : LOCKFILE_FAIL_IMMEDIATELY);   /* (BLOCK T) */
+    (nullp(STACK_3) ? LOCKFILE_FAIL_IMMEDIATELY : 0);   /* (BLOCK T) */
   OVERLAPPED ol = {0,0,start,0,NULL};
 #else
   off_t length;
@@ -185,32 +185,30 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   } else
     stream = open_file_stream_handle(STACK_5,&fd);
   if (missingp(STACK_0)) {     /* no :LENGTH => use file size */
-    if (posfixnump(STACK_5)) { /* no stream given, use OS to get file size */
-#    if defined(WIN32_NATIVE)
-      uint32 size_hi;
-      uint32 size_lo;
-      begin_system_call();
-      size_lo = GetFileSize(fd,(DWORD*)&size_hi);
-      /* Value returned can be (LONG) -1 even on success,
-         check the last error code */
-      failed_p = (size_lo == INVALID_FILE_SIZE) && (GetLastError() != 0);
-      end_system_call();
-      if (failed_p) goto stream_lock_error;
-      length = ((uint64)size_hi << 32) | (uint64)size_lo;
-#    elif defined(HAVE_FSTAT)
-      struct stat st;
-      begin_system_call();
-      failed_p = (-1 == fstat(fd,&st));
-      end_system_call();
-      if (failed_p) goto stream_lock_error;
-      length = st.st_size;
-#    else
-      length = 0;
-#    endif
-    } else { /* a valid stream has been supplied */
-      pushSTACK(stream); funcall(L(file_length),1);
-      length = I_to_offset(value1);
-    }
+    /* we use OS to get file size instead of calling FILE-LENGTH because
+       on win32 FILE-LENGTH will fail with ERROR_LOCK_VIOLATION when the
+       underlying file is locked */
+#  if defined(WIN32_NATIVE)
+    uint32 size_hi;
+    uint32 size_lo;
+    begin_system_call();
+    size_lo = GetFileSize(fd,(DWORD*)&size_hi);
+    /* Value returned can be (LONG) -1 even on success,
+       check the last error code */
+    failed_p = (size_lo == INVALID_FILE_SIZE) && (GetLastError() != 0);
+    end_system_call();
+    if (failed_p) goto stream_lock_error;
+    length = ((uint64)size_hi << 32) | (uint64)size_lo;
+#  elif defined(HAVE_FSTAT)
+    struct stat st;
+    begin_system_call();
+    failed_p = (-1 == fstat(fd,&st));
+    end_system_call();
+    if (failed_p) goto stream_lock_error;
+    length = st.st_size;
+#  else
+    length = 0;
+#  endif
   } else
     length = I_to_offset(STACK_0);
   begin_system_call();
