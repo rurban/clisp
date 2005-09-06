@@ -174,7 +174,8 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   off_t length;
   int cmd = nullp(STACK_3) ? F_SETLK : F_SETLKW; /* (BLOCK T) */
   struct flock fl;
-  fl.l_type = missingp(STACK_2) ? F_WRLCK : F_RDLCK; /* (SHARED NIL) */
+  fl.l_type = !lock_p ? F_UNLCK :          /* unlock */
+    missingp(STACK_2) ? F_WRLCK : F_RDLCK; /* (SHARED NIL) */
   fl.l_whence = SEEK_SET;
   fl.l_start = start;
 #endif
