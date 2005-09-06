@@ -3708,7 +3708,7 @@ echol "# Temporary directory for packing"
 echol "PACKDIR = ."
 echol
 echol "# The distribution's top directory"
-echol 'TOPDIR=clisp-\$(VERSION)'
+echol 'TOPDIR=clisp-$(VERSION)'
 echol
 echol "# Distribution file"
 echol "DISTFILE=\$(PACKDIR)/\$(TOPDIR)-${host}-${UNAME_R}\$(PACKEXT)"
