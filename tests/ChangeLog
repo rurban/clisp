@@ -1,3 +1,9 @@
+2005-09-06  Sam Steingold  <sds@gnu.org>
+
+	* iofkts.tst: check that WRITE-TO-STRING binds variables for
+	supplied keyword arguments
+	remove global definitions at the end of file
+
 2005-08-15  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: more feedback on failure
