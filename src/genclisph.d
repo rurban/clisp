@@ -43,45 +43,45 @@ typedef struct {
     else abort();
 #endif
 
-local const char* Lsuffix = "L";
-local const char* ULsuffix = "UL";
+static const char* Lsuffix = "L";
+static const char* ULsuffix = "UL";
 #ifdef HAVE_LONGLONG
-local const char* ULLsuffix = "ULL";
+static const char* ULLsuffix = "ULL";
 #endif
 
-local void print_printf_arg (const printf_arg* arg)
-  {
-    switch (arg->size) {
-      case sizeof(uint8):
-        printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val8));
-        break;
-      case sizeof(uint16):
-        printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val16));
-        break;
-      case sizeof(uint32):
-        printf(arg->base=='d' ? "%lu%s" : "0x%lX%s", (unsigned long)(arg->value.val32), ULsuffix);
-        break;
-      #ifdef HAVE_LONGLONG
-      case sizeof(uint64):
-        #if (long_bitsize == 64)
-          if (!(sizeof(uint64) == sizeof(unsigned long))) abort();
-          printf("0x%lX%s", (unsigned long)(arg->value.val64), ULsuffix);
-        #else
-          if (!(sizeof(uint32) == sizeof(unsigned long))) abort();
-          printf("0x%lX%08lX%s",
-                 (unsigned long)(arg->value.val64 >> 32),
-                 (unsigned long)(arg->value.val64 & 0xFFFFFFFFUL),
-                 ULLsuffix
-                );
-        #endif
-        break;
-      #endif
-      default:
-        abort();
-    }
+static void print_printf_arg (const printf_arg* arg)
+{
+  switch (arg->size) {
+    case sizeof(uint8):
+      printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val8));
+      break;
+    case sizeof(uint16):
+      printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val16));
+      break;
+    case sizeof(uint32):
+      printf(arg->base=='d' ? "%lu%s" : "0x%lX%s", (unsigned long)(arg->value.val32), ULsuffix);
+      break;
+   #ifdef HAVE_LONGLONG
+    case sizeof(uint64):
+     #if (long_bitsize == 64)
+      if (!(sizeof(uint64) == sizeof(unsigned long))) abort();
+      printf("0x%lX%s", (unsigned long)(arg->value.val64), ULsuffix);
+     #else
+      if (!(sizeof(uint32) == sizeof(unsigned long))) abort();
+      printf("0x%lX%08lX%s",
+             (unsigned long)(arg->value.val64 >> 32),
+             (unsigned long)(arg->value.val64 & 0xFFFFFFFFUL),
+             ULLsuffix);
+     #endif
+      break;
+   #endif
+    default:
+      abort();
   }
+}
 
-local void printf_with_args (const char* string, int argcount, printf_arg* args)
+static void printf_with_args (const char* string, int argcount,
+                              printf_arg* args)
 {
   while (*string) {
     if (string[0]=='%') {
@@ -153,7 +153,7 @@ local void printf_with_args (const char* string, int argcount, printf_arg* args)
     printf_with_args(string,7,args); \
   }
 
-local void print_file (const char* fname) {
+static void print_file (const char* fname) {
   char buf[BUFSIZ];
   FILE* includefile = fopen(fname,"r");
   char* line;
@@ -166,24 +166,27 @@ local void print_file (const char* fname) {
 static FILE *header_f = NULL, *test_f = NULL;
 static unsigned int test_count = 0, typedef_count = 0;
 
-local void emit_typedef_test (const char *new_type) {
+static void emit_typedef_test (const char *new_type) {
   fprintf(test_f,"  printf(\"sizeof(%s)=%%d\\n\",sizeof(%s));\n",
           new_type,new_type);
   test_count++;
 }
-local void emit_typedef (const char* def, const char* new_type) {
+
+static void emit_typedef (const char* def, const char* new_type) {
   fprintf(header_f,"typedef %s %s;\n",def,new_type);
   typedef_count++;
   if (test_f) emit_typedef_test(new_type);
 }
 
-local void emit_typedef_f (const char* format, const char* new_type) {
+static void emit_typedef_f (const char* format, const char* new_type) {
   fputs("typedef ",header_f);
   fprintf(header_f,format,new_type);
   fputs(";\n",header_f);
   typedef_count++;
   if (test_f) emit_typedef_test(new_type);
 }
+
+
 
 int main(int argc, char* argv[])
 {
