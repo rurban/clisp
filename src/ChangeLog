@@ -1,5 +1,11 @@
 2005-09-07  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/test.tst: test file locking by starting and
+	controlling via pipes two sub-processes
+	(flush-stream, proc-send): new functions
+
+2005-09-07  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (emit_typedef_f): increment typedef_count, not test_count
 
 2005-09-06  Sam Steingold  <sds@gnu.org>
@@ -156,7 +162,7 @@
 	* modules/regexp/regex_internal.c, modules/regexp/regex_internal.h:
 	* modules/regexp/regexec.c, modules/regexp/regex.c: sync with gnulib
 	* modules/regexp/test.tst: fixed the tests whose behavior changed
-	during the transition from to the multi-byte version
+	during the transition from uni-byte to the multi-byte version
 
 2005-08-28  Sam Steingold  <sds@gnu.org>
 
