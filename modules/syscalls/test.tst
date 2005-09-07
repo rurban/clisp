@@ -107,7 +107,66 @@ T
 (listp (show (multiple-value-list (os:physical-memory))))
 T
 
-(progn (delete-file *tmp1*) (makunbound '*tmp1*) (unintern '*tmp1*)
+;; test file locking
+(let ((buf (make-array 100 :fill-pointer t :adjustable t
+                       :element-type 'character)))
+  (defun flush-stream (s)
+    (setf (fill-pointer buf) 0)
+    (loop :for c = (read-char-no-hang s nil nil) :while c
+      :do (vector-push-extend c buf))
+    (show buf)))
+FLUSH-STREAM
+
+(defun proc-send (proc fmt &rest args)
+  (apply #'format proc fmt args)
+  (terpri proc) (force-output proc) (sleep 1)
+  (flush-stream proc))
+PROC-SEND
+
+(let* ((argv (ext:argv)) (run (aref argv 0))
+       (args (list "-M" (aref argv (1+ (position "-M" argv :test #'string=)))
+                   "-norc" "-q")))
+  (defparameter *proc1* (ext:run-program run :arguments args
+                                         :input :stream :output :stream))
+  (defparameter *proc2* (ext:run-program run :arguments args
+                                         :input :stream :output :stream))
+  (sleep 1)
+  (flush-stream *proc1*)
+  (flush-stream *proc2*)
+  t)
+T
+
+(stringp
+ (proc-send *proc1* "(setq s (open ~S :direction :output :if-exists :append))"
+            (truename *tmp1*)))
+T
+(stringp
+ (proc-send *proc2* "(setq s (open ~S :direction :output :if-exists :append))"
+            (truename *tmp1*)))
+T
+
+(read-from-string (proc-send *proc1* "(stream-lock s t)")) T
+(proc-send *proc2* "(stream-lock s t)")  "" ; blocked
+
+(read-from-string (proc-send *proc1* "(stream-lock s nil)")) NIL ; released
+(read-from-string (flush-stream *proc2*)) T             ; acquired
+
+(read-from-string (proc-send *proc1* "(stream-lock s t :block nil)")) NIL
+(read-from-string (proc-send *proc2* "(stream-lock s nil)")) NIL ; released
+(read-from-string (proc-send *proc1* "(stream-lock s t :block nil)")) T
+(read-from-string (proc-send *proc1* "(stream-lock s nil)")) NIL ; released
+
+(progn (proc-send *proc1* "(close s)~%(ext:quit)")
+       (close (two-way-stream-input-stream *proc1*))
+       (close (two-way-stream-output-stream *proc1*))
+       (close *proc1*) (makunbound '*proc1*) (unintern '*proc1*)
+       (proc-send *proc2* "(close s)~%(ext:quit)" )
+       (close (two-way-stream-input-stream *proc2*))
+       (close (two-way-stream-output-stream *proc2*))
+       (close *proc2*) (makunbound '*proc2*) (unintern '*proc2*)
+       (delete-file *tmp1*) (makunbound '*tmp1*) (unintern '*tmp1*)
        (delete-file *tmp2*) (makunbound '*tmp2*) (unintern '*tmp2*)
+       (fmakunbound 'flush-stream) (unintern 'flush-stream)
+       (fmakunbound 'proc-send) (unintern 'proc-send)
        T)
 T
