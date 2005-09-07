@@ -181,7 +181,7 @@ local void emit_typedef_f (const char* format, const char* new_type) {
   fputs("typedef ",header_f);
   fprintf(header_f,format,new_type);
   fputs(";\n",header_f);
-  test_count++;
+  typedef_count++;
   if (test_f) emit_typedef_test(new_type);
 }
 
