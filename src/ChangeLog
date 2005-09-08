@@ -1,3 +1,9 @@
+2005-09-08  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (record_) [TYPECODES]: rectype and recflags should
+	come in the same order in lispbibl.d and clisp.h
+	Reported by "Dr. Werner Fink" <werner@suse.de>
+
 2005-09-07  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/test.tst: test file locking by starting and

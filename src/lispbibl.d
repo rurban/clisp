@@ -4887,7 +4887,7 @@ typedef record_ *  Record;
     ((ptr)->tfl ^= (((ptr)->tfl ^ (uintL)(newflags)<<8) & 0xFF00))
 #endif
 %% #ifdef TYPECODES
-%%   sprintf(buf,"struct { VAROBJECT_HEADER uintB recflags; sintB rectype; uintW recfiller; gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
+%%   sprintf(buf,"struct { VAROBJECT_HEADER sintB rectype; uintB recflags; uintW recfiller; gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
 %% #else
 %%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
 %% #endif
