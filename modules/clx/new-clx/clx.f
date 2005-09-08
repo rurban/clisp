@@ -6555,16 +6555,16 @@ DEFUN(XLIB:CHANGE-POINTER-CONTROL, display &key ACCELERATION THRESHOLD)
       goto L21;                /* 9     (JMP L21) */
      L11:                      /* 11    L11 */
       pushSTACK(STACK_1);      /* 11    (LOAD&PUSH 1) */
-      pushSTACK(fixnum(-1));   /* 12 (CONST&PUSH 2) ; -1 */
+      pushSTACK(Fixnum_minus1);/* 12 (CONST&PUSH 2) ; -1 */
       funcall (L(ash), 2);     /* 13 (CALLS2&STORE 210 1) ; ASH */
       STACK_1 = value1;
       pushSTACK(STACK_0);      /* 16 (LOAD&PUSH 0) */
-      pushSTACK(fixnum(-1));   /* 17 (CONST&PUSH 2) ; -1 */
+      pushSTACK(Fixnum_minus1);/* 17 (CONST&PUSH 2) ; -1 */
       funcall (L(ash), 2);     /* 18 (CALLS2&STORE 210 0) ; ASH */
       STACK_0 = value1;        /* 18 */
      L21:                      /* 21 L21 */
       pushSTACK(STACK_1);      /* 21 (LOAD&PUSH 1) */
-      pushSTACK(fixnum(1));    /* 22 (CONST&PUSH 0) ; 1 */
+      pushSTACK(Fixnum_1);     /* 22 (CONST&PUSH 0) ; 1 */
       funcall (L(gleich), 2);  /* 23 (CALLSR&JMPIF 1 45 L41) ; = */
       if(!nullp(value1)) goto L41;
       pushSTACK(STACK_1);      /* 27 (LOAD&PUSH 1) */
