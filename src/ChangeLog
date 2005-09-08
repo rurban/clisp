@@ -1,5 +1,10 @@
 2005-09-08  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (XLIB:CHANGE-POINTER-CONTROL): use
+	Fixnum_minus1 instead of fixnum(-1) which is actually illegal
+
+2005-09-08  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (emit_define_test, emit_define): new functions
 	(emit_define1): new macro
 	(define_count): new static variable
