@@ -10,8 +10,8 @@ T
 
 (let ((*standard-output* (make-broadcast-stream
                           *standard-output* *tmp1* *tmp2*)))
-  (show (write *tmp1* :stream *tmp1*))
-  (show (write *tmp2* :stream *tmp2*))
+  (show (write *tmp1* :stream *tmp1*)) (terpri *tmp1*)
+  (show (write *tmp2* :stream *tmp2*)) (terpri *tmp2*)
   T)
 T
 
@@ -155,6 +155,22 @@ T
 (read-from-string (proc-send *proc2* "(stream-lock s nil)")) NIL ; released
 (read-from-string (proc-send *proc1* "(stream-lock s t :block nil)")) T
 (read-from-string (proc-send *proc1* "(stream-lock s nil)")) NIL ; released
+
+;; check :rename-and-delete
+;; woe32 signals ERROR_SHARING_VIOLATION
+;; when renaming a file opened by a different process
+#-win32
+(let ((inode (show (posix:file-stat-ino (posix:file-stat *tmp1*)))))
+  (with-open-stream (s (ext:run-program
+                        "tail" :arguments (list "-f" (namestring *tmp1*)
+                                                (format nil "--pid=~D"
+                                                        (os:process-id)))
+                        :output :stream))
+    (sleep t) (flush-stream s)
+    (with-open-file (new *tmp1* :direction :output
+                         :if-exists :rename-and-delete)
+      (= inode (show (posix:file-stat-ino (posix:file-stat new)))))))
+#-win32 NIL
 
 (progn (proc-send *proc1* "(close s)~%(ext:quit)")
        (close (two-way-stream-input-stream *proc1*))
