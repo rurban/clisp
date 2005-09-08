@@ -16,6 +16,7 @@
 
 	* lispbibl.d (record_) [TYPECODES]: rectype and recflags should
 	come in the same order in lispbibl.d and clisp.h
+	same for SRECORD_HEADER and XRECORD_HEADER
 	Reported by "Dr. Werner Fink" <werner@suse.de>
 
 2005-09-07  Sam Steingold  <sds@gnu.org>
