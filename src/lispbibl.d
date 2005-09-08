@@ -4988,7 +4988,7 @@ typedef srecord_ *  Srecord;
 #endif
 #define Srecord_length(obj)  srecord_length(TheSrecord(obj))
 %% #ifdef TYPECODES
-%%   emit_define("SRECORD_HEADER","VAROBJECT_HEADER uintB recflags; sintB rectype; uintW reclength;");
+%%   emit_define("SRECORD_HEADER","VAROBJECT_HEADER sintB rectype; uintB recflags; uintW reclength;");
 %% #else
 %%   emit_define("SRECORD_HEADER","VAROBJECT_HEADER");
 %% #endif
@@ -5028,7 +5028,7 @@ typedef xrecord_ *  Xrecord;
 #define Xrecord_length(obj)  xrecord_length(TheXrecord(obj))
 #define Xrecord_xlength(obj)  xrecord_xlength(TheXrecord(obj))
 %% #ifdef TYPECODES
-%%   emit_define("XRECORD_HEADER","VAROBJECT_HEADER uintB recflags; sintB rectype; uintB reclength; uintB recxlength;");
+%%   emit_define("XRECORD_HEADER","VAROBJECT_HEADER sintB rectype; uintB recflags; uintB reclength; uintB recxlength;");
 %% #else
 %% emit_define("XRECORD_HEADER","VAROBJECT_HEADER");
 %% #endif
