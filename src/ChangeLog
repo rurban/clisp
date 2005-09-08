@@ -1,5 +1,10 @@
 2005-09-08  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/test.tst: check that OPEN :IF-EXISTS
+	:RENAME-AND-DELETE produces a file with a new INODE (bug 1239523)
+
+2005-09-08  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (record_) [TYPECODES]: rectype and recflags should
 	come in the same order in lispbibl.d and clisp.h
 	Reported by "Dr. Werner Fink" <werner@suse.de>
