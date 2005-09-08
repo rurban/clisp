@@ -164,7 +164,7 @@ static void print_file (const char* fname) {
 }
 
 static FILE *header_f = NULL, *test_f = NULL;
-static unsigned int test_count = 0, typedef_count = 0;
+static unsigned int test_count = 0, typedef_count = 0, define_count = 0;
 
 static void emit_typedef_test (const char *new_type) {
   fprintf(test_f,"  printf(\"sizeof(%s)=%%d\\n\",sizeof(%s));\n",
@@ -186,7 +186,18 @@ static void emit_typedef_f (const char* format, const char* new_type) {
   if (test_f) emit_typedef_test(new_type);
 }
 
+static void emit_define_test (const char* form, const char* definition) {
+  fprintf(test_f,"  printf(\"%s=%%s\\n\",STRINGIFY(%s));\n",form,definition);
+  test_count++;
+}
 
+static void emit_define (const char* form, const char* definition) {
+  fprintf(header_f,"#define %s %s\n",form,definition);
+  define_count++;
+  if (test_f) emit_define_test(form,definition);
+}
+
+#define emit_define1(form,args)  sprintf args; emit_define(form,buf)
 
 int main(int argc, char* argv[])
 {
@@ -272,14 +283,6 @@ int main(int argc, char* argv[])
   printf("#define DEFUNW DEFUN\n");
   printf("#define DEFUND DEFUN\n");
   printf("#define DEFVAR(varname)\n");
-  /* check some constants */
-#define TESTOUT(o)     do { if (test_f) {                               \
-  test_count++; fprintf(test_f,"  printf(\"" #o "=%s\\n\");\n",STRINGIFY(o)); \
- }} while(0)
-  TESTOUT(T);
-  TESTOUT(NIL);
-  TESTOUT(unbound);
-  TESTOUT(nullobj);
   /* done - check for errors, close test files &c */
   if (ferror(stdout)) exit(1);
   if (ferror(header_f)) exit(1);
@@ -287,7 +290,8 @@ int main(int argc, char* argv[])
     fprintf(test_f,"  return 0;\n}\n");
     if (ferror(test_f)) exit(1);
     fclose(test_f);
-    fprintf(stderr,"wrote %d tests\n",test_count);
+    fprintf(stderr,"wrote %d tests (%d typedefs, %d defines)\n",
+            test_count,typedef_count,define_count);
   }
   exit(0);
 }
