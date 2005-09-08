@@ -1,5 +1,14 @@
 2005-09-08  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d (emit_define_test, emit_define): new functions
+	(emit_define1): new macro
+	(define_count): new static variable
+	(main): use it in stat output
+	* lispbibl.dl: use emit_define and emit_define1 in _some_ places
+	cannot use it for fixnum() and The[Type] yet
+
+2005-09-08  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/test.tst: check that OPEN :IF-EXISTS
 	:RENAME-AND-DELETE produces a file with a new INODE (bug 1239523)
 
