@@ -166,7 +166,7 @@ T
                                                 (format nil "--pid=~D"
                                                         (os:process-id)))
                         :output :stream))
-    (sleep t) (flush-stream s)
+    (sleep 1) (flush-stream s)
     (with-open-file (new *tmp1* :direction :output
                          :if-exists :rename-and-delete)
       (= inode (show (posix:file-stat-ino (posix:file-stat new)))))))
