@@ -1,5 +1,11 @@
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (%DISPLAY-XID): wrap XAllocID in X_CALL
+	(image_put_and_destroy): wrapper
+	(handle_image_z, PUT-IMAGE): use it
+
+2005-09-12  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (export_def): added
 	(emit_define1): removed
 	* lispbibl.d: use export_def() instead of emit_define() and
