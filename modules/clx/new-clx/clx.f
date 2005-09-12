@@ -4293,7 +4293,7 @@ DEFUN(XLIB:FONT-PATH, display &key RESULT-TYPE) /* [OK] */
 }
 
 /*  (SETF (XLIB:FONT-PATH display) new-path)
-     == (XLIB:SET-FONT-PATH display new-path)
+   == (XLIB:SET-FONT-PATH display  new-path)
 
   NOTE  - The CLX manual says that pathnames are also o.k. as arguments.
           But I consider it dirty, since the X server may live on an
@@ -4806,7 +4806,7 @@ DEFUN(XLIB:ALLOC-COLOR, arg1 arg2)
   error_no_such_color(STACK_1,STACK_0);
 }
 
-/* XLIB:ALLOC-COLOR-CELLS colormap colors &key (:planes 0) :contiguous_p
+/* XLIB:ALLOC-COLOR-CELLS colormap colors &key (:planes 0) :contiguous-p
                           (:result-type 'list)
  returns
    pixels, masks -- Type sequence of pixels */
