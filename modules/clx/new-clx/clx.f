@@ -1872,7 +1872,8 @@ DEFUN(XLIB:DISPLAY-RELEASE-NUMBER, display) /* OK */
 DEFUN(XLIB::%DISPLAY-XID, display)
 {
   Display *dpy = pop_display ();
-  VALUES1(make_uint29(XAllocID(dpy)));
+  XID xid; X_CALL(xid = XAllocID(dpy));
+  VALUES1(make_uint29(xid));
 }
 
 DEFUN(XLIB:DISPLAY-XID, display)
@@ -2074,13 +2075,13 @@ DEFUN(XLIB:DISPLAY-TRACE, &rest args)
 
 DEF_SCREEN_PROP(XLIB:SCREEN-BLACK-PIXEL,          uint32,   BlackPixelOfScreen)
 DEF_SCREEN_PROP(XLIB:SCREEN-WHITE-PIXEL,          uint32,   WhitePixelOfScreen)
-DEF_SCREEN_PROP(XLIB:SCREEN-EVENT-MASK-AT-OPEN,   uint32,    EventMaskOfScreen)
-DEF_SCREEN_PROP(XLIB:SCREEN-HEIGHT,               sint16,     HeightOfScreen)
-DEF_SCREEN_PROP(XLIB:SCREEN-HEIGHT-IN-MILLIMETERS,sint16,     HeightMMOfScreen)
-DEF_SCREEN_PROP(XLIB:SCREEN-WIDTH,                sint16,     WidthOfScreen)
-DEF_SCREEN_PROP(XLIB:SCREEN-WIDTH-IN-MILLIMETERS, sint16,     WidthMMOfScreen)
-DEF_SCREEN_PROP(XLIB:SCREEN-MAX-INSTALLED-MAPS,   uint16,     MaxCmapsOfScreen)
-DEF_SCREEN_PROP(XLIB:SCREEN-MIN-INSTALLED-MAPS,   uint16,     MinCmapsOfScreen)
+DEF_SCREEN_PROP(XLIB:SCREEN-EVENT-MASK-AT-OPEN,   uint32,   EventMaskOfScreen)
+DEF_SCREEN_PROP(XLIB:SCREEN-HEIGHT,               sint16,   HeightOfScreen)
+DEF_SCREEN_PROP(XLIB:SCREEN-HEIGHT-IN-MILLIMETERS,sint16,   HeightMMOfScreen)
+DEF_SCREEN_PROP(XLIB:SCREEN-WIDTH,                sint16,   WidthOfScreen)
+DEF_SCREEN_PROP(XLIB:SCREEN-WIDTH-IN-MILLIMETERS, sint16,   WidthMMOfScreen)
+DEF_SCREEN_PROP(XLIB:SCREEN-MAX-INSTALLED-MAPS,   uint16,   MaxCmapsOfScreen)
+DEF_SCREEN_PROP(XLIB:SCREEN-MIN-INSTALLED-MAPS,   uint16,   MinCmapsOfScreen)
 DEF_SCREEN_PROP(XLIB:SCREEN-ROOT-DEPTH,           uint16, DefaultDepthOfScreen)
 DEF_SCREEN_PROP(XLIB:SCREEN-ROOT-VISUAL,          visual,DefaultVisualOfScreen)
 DEF_SCREEN_PROP(XLIB:SCREEN-ROOT-VISUAL-INFO,     visual_info,DefaultVisualOfScreen) /* NIM */
@@ -2569,20 +2570,19 @@ DEFUN(XLIB:QUERY-TREE, window &key RESULT-TYPE)
   Window parent;
   Window *childs;
   unsigned int nchilds, i;
+  int status;
 
   win = get_window_and_display (STACK_1, &dpy);
   pushSTACK(get_display_obj (STACK_1));
   dpy_objf = &(STACK_0);
 
-  begin_x_call();
-  if (XQueryTree (dpy, win, &root, &parent, &childs, &nchilds)) {
-    end_x_call();
-
+  X_CALL(status = XQueryTree(dpy,win,&root,&parent,&childs,&nchilds));
+  if (status) {
     /* Now push all childrens */
     for (i = 0; i < nchilds; i++)
       pushSTACK(make_window (*dpy_objf, childs[i]));
 
-    if (childs) XFree (childs);
+    if (childs) X_CALL(XFree(childs));
 
     /* Now cons `em together */
     value1 = coerce_result_type(nchilds,res_type);
@@ -2595,7 +2595,6 @@ DEFUN(XLIB:QUERY-TREE, window &key RESULT-TYPE)
     value1 = popSTACK();
     mv_count = 3;
   } else {
-    end_x_call();
     /* Wat schall wi nu tun? */
     VALUES1(NIL);
   }
@@ -3951,6 +3950,17 @@ static void ensure_valid_put_image_args (int src_x, int src_y, int w, int h,
   }
 }
 
+/* call XPutImage + XDestroyImage */
+static void image_put_and_destroy (Display* dpy, Drawable drawable, GC gcontext,
+                                   XImage* im, int src_x, int src_y,
+                                   int x, int y, unsigned int w, unsigned int h)
+{
+  begin_x_call();
+  XPutImage (dpy, drawable, gcontext, im, src_x, src_y, x,y,w,h);
+  XDestroyImage (im); /* Note: XDestroyImage frees im->data for us */
+  end_x_call();
+}
+
 static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
                             GC gcontext, Drawable drawable,
                             int bitmap_p, Display *dpy)
@@ -4018,11 +4028,7 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
     }
   skipSTACK(1);         /* pixarray */
 
-  begin_x_call();
-    XPutImage (dpy, drawable, gcontext, im, src_x, src_y, x,y,w,h);
-    /* Note: XDestroyImage frees 'data' for us */
-    XDestroyImage (im);
-  end_x_call();
+  image_put_and_destroy (dpy, drawable, gcontext, im, src_x, src_y, x,y,w,h);
 
   skipSTACK(1);                 /* clean up */
   return;                       /* all done */
@@ -4208,10 +4214,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
       dprintf (("\nXPutImage (.., src_x=%d, src_y=%d, x=%d,y=%d,w=%d,h=%d);",
                 src_x, src_y, x,y,w,h));
 
-      begin_x_call();
-      XPutImage (dpy, drawable, gcontext, im, src_x, src_y, x,y,w,h);
-      XDestroyImage (im);
-      end_x_call();
+      image_put_and_destroy (dpy,drawable,gcontext,im,src_x,src_y,x,y,w,h);
     }
 
     goto raus;
@@ -4778,40 +4781,34 @@ DEFUN(XLIB:ALLOC-COLOR, arg1 arg2)
   Display *dpy;
   Colormap  cm = get_colormap_and_display (STACK_1, &dpy);
   XColor color;
+  int status;
 
   if (stringp (STACK_0) || symbolp (STACK_0)) {
     XColor exact_color;
 
     with_stringable_0_tc (STACK_0, GLO(misc_encoding), name, {
-      begin_x_call();
-      if (XAllocNamedColor (dpy, cm, name, &color, &exact_color)) {
-        end_x_call();
-        pushSTACK(make_pixel (color.pixel)); /* pixel */
-        pushSTACK(make_color (&color));      /* screen color */
-        value3 = make_color (&exact_color);   /* exact color */
-        value2 = popSTACK();
-        value1 = popSTACK();
-        mv_count = 3;
-      } else {
-        end_x_call();
-        goto failed;
-      }
+        X_CALL(status = XAllocNamedColor(dpy,cm,name,&color,&exact_color));
+        if (status) {
+          pushSTACK(make_pixel (color.pixel)); /* pixel */
+          pushSTACK(make_color (&color));      /* screen color */
+          value3 = make_color (&exact_color);   /* exact color */
+          value2 = popSTACK();
+          value1 = popSTACK();
+          mv_count = 3;
+        } else
+          goto failed;
     });
   } else if (color_p (STACK_0)) {
     get_color (dpy, STACK_0, &color);
-    begin_x_call();
-    if (XAllocColor (dpy, cm, &color)) {
-      end_x_call();
-
+    X_CALL(status = XAllocColor(dpy,cm,&color));
+    if (status) {
       pushSTACK(make_pixel(color.pixel)); /* pixel */
       value2 = make_color(&color);        /* screen color */
       value3 = STACK_1;         /* exact color (what the luser gave) */
       value1 = popSTACK();
       mv_count = 3;
-    } else {
-      end_x_call();
+    } else
       goto failed;
-    }
   } else my_type_error(`(OR STRING SYMBOL XLIB::COLOR)`,STACK_0);
 
   skipSTACK(2);
@@ -4834,6 +4831,7 @@ DEFUN(XLIB:ALLOC-COLOR-CELLS, colormap colors \
   unsigned int nplanes = get_uint32_0(STACK_2);
   Bool    contiguous_p = !missingp(STACK_1);
   gcv_object_t *res_type = &STACK_0;
+  int status;
 
   /* FIXME -- we should introduce some checks here, since if the luser gave
             nonsense arguments, we might run into real problems. */
@@ -4843,11 +4841,10 @@ DEFUN(XLIB:ALLOC-COLOR-CELLS, colormap colors \
     {
       DYNAMIC_ARRAY (pixels, unsigned long, npixels);
 
-      begin_x_call();
-      if (XAllocColorCells (dpy, cm, contiguous_p, plane_masks,
-                            nplanes, pixels, npixels)) {
+      X_CALL(status = XAllocColorCells(dpy,cm,contiguous_p,plane_masks,
+                                       nplanes,pixels,npixels));
+      if (status) {
         unsigned i;
-        end_x_call();
 
         for (i = 0; i < nplanes; i++)
           pushSTACK(make_uint32 (plane_masks [i]));
@@ -4857,12 +4854,9 @@ DEFUN(XLIB:ALLOC-COLOR-CELLS, colormap colors \
         for (i = 0; i < npixels; i++)
           pushSTACK(make_uint32 (pixels [i]));
         VALUES2(coerce_result_type(npixels,res_type),popSTACK());
-      } else {
-        end_x_call();
-
-        VALUES1(NIL);
+      } else
         /* Q: Should we raise a x-error-sonstwas condition here? */
-      }
+        VALUES1(NIL);
 
       FREE_DYNAMIC_ARRAY (pixels);
     }
@@ -4946,20 +4940,17 @@ DEFUN(XLIB:LOOKUP-COLOR, colormap name) /* [OK] */
   Display *dpy;
   Colormap  cm = get_colormap_and_display (STACK_1, &dpy);
   XColor exact_color, screen_color;
+  int status;
 
   with_stringable_0_tc (STACK_0, GLO(misc_encoding), name, {
-      begin_x_call();
-      if (XLookupColor (dpy, cm, name, &exact_color, &screen_color)) {
-        end_x_call();
-
+      X_CALL(status = XLookupColor(dpy,cm,name,&exact_color,&screen_color));
+      if (status) {
         pushSTACK(make_color (&screen_color));
         value2 = make_color (&exact_color);
         value1 = popSTACK();
         mv_count = 2;
-      } else {
-        end_x_call();
+      } else
         error_no_such_color(STACK_1,STACK_0);
-      }
     });
   skipSTACK(2);
 }
@@ -5816,10 +5807,9 @@ static void travel_queque (Display *dpy, int peek_p, int discard_p,
  travel_queque:
 
   if (timeout != -1) {
-    begin_x_call();
-    XEventsQueued(dpy, force_output_p ? QueuedAfterFlush : QueuedAfterReading);
+    X_CALL(XEventsQueued(dpy, force_output_p
+                         ? QueuedAfterFlush : QueuedAfterReading));
     r = QLength (dpy);
-    end_x_call();
 
     if (r == 0) {
       int conn;
