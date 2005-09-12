@@ -525,7 +525,7 @@
 #if !defined(BIG_ENDIAN_P)
   #error "Bogus BIG_ENDIAN_P -- set BIG_ENDIAN_P again!"
 #endif
-%% printf("#define BIG_ENDIAN_P  %d%s\n",BIG_ENDIAN_P,ULsuffix);
+%% export_def(BIG_ENDIAN_P);
 
 # A property of the processor (and C compiler): The alignment of C functions.
 # (See gcc's machine descriptions, macro FUNCTION_BOUNDARY, for information.)
@@ -882,25 +882,25 @@
 %%   printf("#endif\n");
 %% #endif
 
-#define VALUES_IF(cond) \
+#define VALUES_IF(cond)                         \
   do { value1 = (cond) ? T : NIL; mv_count = 1; } while (0)
-%% emit_define("VALUES_IF(C)","do{ value1 = (C) ? T : NIL; mv_count = 1; }while(0)");
+%% export_def(VALUES_IF(C));
 
 #define VALUES0                                 \
   do { value1 = NIL; mv_count = 0; } while (0)
-%% emit_define("VALUES0","do{ value1 = NIL; mv_count = 0; }while(0)");
+%% export_def(VALUES0);
 
 #define VALUES1(A)                               \
   do { value1 = (A); mv_count = 1; } while (0)
-%% emit_define("VALUES1(A)","do{ value1 = (A); mv_count = 1; }while(0)");
+%% export_def(VALUES1(A));
 
 #define VALUES2(A,B)                            \
   do { value1 = (A); value2 = (B); mv_count = 2; } while (0)
-%% emit_define("VALUES2(A,B)","do{ value1 = (A); value2 = (B); mv_count = 2;}while(0)");
+%% export_def(VALUES2(A,B));
 
 #define VALUES3(A,B,C)                          \
   do { value1 = (A); value2 = (B); value3 = (C); mv_count = 3; } while (0)
-%% emit_define("VALUES3(A,B,C)","do{ value1 = (A); value2 = (B); value3 = (C); mv_count = 3;}while(0)");
+%% export_def(VALUES3(A,B,C));
 
 # ###################### Macros for C ##################### #
 
@@ -934,13 +934,8 @@
   #define BEGIN_DECLS
   #define END_DECLS
 #endif
-%% printf("#ifdef __cplusplus\n");
-%% printf("#define BEGIN_DECLS  extern \"C\" {\n");
-%% printf("#define END_DECLS    }\n");
-%% printf("#else\n");
-%% printf("#define BEGIN_DECLS\n");
-%% printf("#define END_DECLS\n");
-%% printf("#endif\n");
+%% export_def(BEGIN_DECLS);
+%% export_def(END_DECLS);
 
 # Empty macro-arguments:
 # Some compilers (ie. cc under HP-UX) seem to interpret a macro call
@@ -1042,21 +1037,7 @@
   #define nonreturning_function(storclass,funname,arguments)  \
     storclass void funname arguments
 #endif
-%% #if defined(GNU) && !(__APPLE_CC__ > 1)
-%%   #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
-%%     emit_define("nonreturning_function(storclass,funname,arguments)",
-%%            "storclass void __attribute__((__noreturn__)) funname arguments");
-%%   #else
-%%     emit_define("nonreturning_function(storclass,funname,arguments)");
-%%                 "storclass void funname arguments");
-%%   #endif
-%% #elif defined(MICROSOFT)
-%%   emit_define("nonreturning_function(storclass,funname,arguments)",
-%%               "__declspec(noreturn) storclass void funname arguments");
-%% #else
-%%   emit_define("nonreturning_function(storclass,funname,arguments)",
-%%               "storclass void funname arguments");
-%% #endif
+%% export_def(nonreturning_function(storclass,funname,arguments));
 
 /* A function that can trigger GC is declared either as
    - maygc, if (1) all callers must assume the worst case: that it triggers GC,
@@ -1108,11 +1089,11 @@
 
 # Marking a program line that may not be reached: NOTREACHED;
 #define NOTREACHED  fehler_notreached(__FILE__,__LINE__)
-%% emit_define("NOTREACHED","fehler_notreached(__FILE__,__LINE__)");
+%% export_def(NOTREACHED);
 
 # Asserting an arithmetic expression: ASSERT(expr);
 #define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
-%% emit_define("ASSERT(expr)","do { if (!(expr)) NOTREACHED; } while(0)");
+%% export_def(ASSERT(expr));
 
 # Ensure the Linux headers define nonstandard symbols like IPC_INFO.
 #ifdef UNIX_LINUX
@@ -1281,11 +1262,7 @@ typedef signed int  signean;
   #define NULL  ((void*) 0L)
 #endif
 %% printf("#undef NULL\n");
-%% printf("#ifdef __cplusplus\n");
-%% emit_define("NULL","0");
-%% printf("#else\n");
-%% emit_define("NULL","((void*) 0L)");
-%% printf("#endif\n");
+%% export_def(NULL);
 
 #include <stdio.h>    /* libc i/o */
 
@@ -1329,11 +1306,7 @@ typedef signed int  signean;
   # However, HP-UX- and IRIX-compilers will only work with this:
   #define unspecified 1
 #endif
-%% #if defined(GNU)
-%%   emit_define("unspecified","0");
-%% #else
-%%   emit_define("unspecified","1");
-%% #endif
+%% export_def(unspecified);
 
 # Pointer arithmetics: add a given offset (measured in bytes)
 # to a pointer.
@@ -1346,11 +1319,7 @@ typedef signed int  signean;
   # Cheap way:
   #define pointerplus(pointer,offset)  ((void*)((ULONG)(pointer)+(offset)))
 #endif
-%% #if !(defined(GNU) || (pointer_bitsize > 32))
-%%   emit_define("pointerplus(pointer,offset)","((void*)((ULONG)(pointer)+(offset)))");
-%% #else
-%%   emit_define("pointerplus(pointer,offset)","((UBYTE*)(pointer)+(offset))");
-%% #endif
+%% export_def(pointerplus(pointer,offset));
 
 # Bit number n (0<=n<32)
 #define bit(n)  (1L<<(n))
@@ -1387,30 +1356,14 @@ typedef signed int  signean;
 #define minus_bit(n)  (-1L<<(n))
 # Minus bit number n (0<n<=32) mod 2^32
 #define minus_bitm(n)  (-2L<<((n)-1))
-%% printf("#define bit(n)  (1%s<<(n))\n",Lsuffix);
+%% export_def(bit(n));
 %% #if notused
-%% printf("#define bitm(n)  (2%s<<((n)-1))\n",Lsuffix);
+%% export_def(bitm(n));
 %% #endif
-%% #if !defined(SPARC)
-%%   emit_define("bit_test(x,n)","((x) & bit(n))");
-%% #else
-%%   #if defined(SPARC64)
-%%     #if !defined(GNU)
-%%       emit_define("bit_test(x,n)","((n)<12 ? ((x) & bit(n)) : ((sint64)((uint64)(x) << (63-(n))) < 0))");
-%%     #else
-%%       emit_define("bit_test(x,n)","((((n)<12) && ((x) & bit(n))) || (((n)>=12) && ((sint64)((uint64)(x) << (63-(n))) < 0)))");
-%%     #endif
-%%   #else
-%%     #if !defined(GNU)
-%%       emit_define("bit_test(x,n)","((n)<12 ? ((x) & bit(n)) : ((sint32)((uint32)(x) << (31-(n))) < 0))");
-%%     #else
-%%       emit_define("bit_test(x,n)","((((n)<12) && ((x) & bit(n))) || (((n)>=12) && ((sint32)((uint32)(x) << (31-(n))) < 0)))");
-%%     #endif
-%%   #endif
-%% #endif
-%% printf("#define minus_bit(n)  (-1%s<<(n))\n",Lsuffix);
+%% export_def(bit_test(x,n));
+%% export_def(minus_bit(n));
 %% #if notused
-%% printf("#define minus_bitm(n)  (-2%s<<((n)-1))\n",Lsuffix);
+%% export_def(minus_bitm(n));
 %% #endif
 
 # floor(a,b) yields for a>=0, b>0  floor(a/b).
@@ -1423,19 +1376,20 @@ typedef signed int  signean;
 # b should be a 'constant expression'.
 #define ceiling(a_from_ceiling,b_from_ceiling)  \
   (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))
-%% printf("#define ceiling(a_from_ceiling,b_from_ceiling)  (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))\n");
+%% export_def(ceiling(a_from_ceiling,b_from_ceiling));
 
 # round_down(a,b) rounds a>=0 so that b>0 divides it.
 # b should be a 'constant expression'.
 #define round_down(a_from_round,b_from_round)  \
   (floor(a_from_round,b_from_round)*(b_from_round))
+%% /* FIXME: Difference between lispbibl.d and clisp.h */
 %% printf("#define round_down(a_from_round,b_from_round)  (ifloor(a_from_round,b_from_round)*(b_from_round))\n");
 
 # round_up(a,b) rounds a>=0 so that b>0 divides it.
 # b should be a 'constant expression'.
 #define round_up(a_from_round,b_from_round)  \
   (ceiling(a_from_round,b_from_round)*(b_from_round))
-%% printf("#define round_up(a_from_round,b_from_round)  (ceiling(a_from_round,b_from_round)*(b_from_round))\n");
+%% export_def(round_up(a_from_round,b_from_round));
 
 # non-local exits
 #include <setjmp.h>
@@ -1504,23 +1458,8 @@ typedef signed int  signean;
     arrayeltype* arrayvar = (arrayeltype*)malloca((arraysize)*sizeof(arrayeltype))
   #define FREE_DYNAMIC_ARRAY(arrayvar)  freea(arrayvar)
 #endif
-%% #if defined(GNU)
-%%   #ifdef DECALPHA
-%%     emit_define("DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)","arrayeltype arrayvar[(arraysize)+1]");
-%%   #else
-%%     emit_define("DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)","arrayeltype arrayvar[arraysize]");
-%%   #endif
-%%   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
-%% #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT)
-%%   emit_define("DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)","arrayeltype* arrayvar = (arrayeltype*)alloca((arraysize)*sizeof(arrayeltype))");
-%%   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
-%% #else
-%%   printf("#include <stdlib.h>\n");
-%%   printf("extern void* malloca (size_t size);\n");
-%%   printf("extern void freea (void* ptr);\n");
-%%   emit_define("DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)","arrayeltype* arrayvar = (arrayeltype*)malloca((arraysize)*sizeof(arrayeltype))");
-%%   emit_define("FREE_DYNAMIC_ARRAY(arrayvar)","freea(arrayvar)");
-%% #endif
+%% export_def(DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize));
+%% export_def(FREE_DYNAMIC_ARRAY(arrayvar));
 
 # Signed/Unsigned-Integer-types with given minumum size:
 typedef UBYTE   uint1;   # unsigned 1 bit Integer
@@ -1886,9 +1825,9 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
   #define dotimespC dotimespL
 #endif
 # Use 'uintC' for counters, which are small most of the time.
-%% emit_define("uintC","uintWL");
+%% export_def(uintC);
 %% #if notused
-%% emit_define("sintC","sintWL");
+%% export_def(sintC);
 %% #endif
 
 # The arithmetics use "digit sequences" of "digits".
@@ -2053,7 +1992,7 @@ typedef enum {
 %%   #endif
 %% #elif defined(WIN32_NATIVE)
 %%   printf("#include <windows.h>\n");
-%%   emit_define("Handle","HANDLE");
+%%   export_def(Handle);
 %%   printf("#include <winsock2.h>\n"); /* defines SOCKET */
 %% #else
 %%   printf("#error \"what is Handle on your platform?!\"\n");
@@ -2100,11 +2039,7 @@ typedef enum {
   #define unused
  #endif
 #endif
-%% #ifdef GNU
-%%   emit_define("unused","(void)");
-%% #else
-%%   printf("#define unused\n");
-%% #endif
+%% export_def(unused);
 
 # Consensys and Solaris: "#define DS 3", "#define SP ESP", "#define EAX 11".
 # Grr...
@@ -2387,7 +2322,7 @@ typedef enum {
 #endif
 # When changed: do nothing
 %% #ifdef FOREIGN
-%%   emit_define("FOREIGN","void*");
+%%   export_def(FOREIGN);
 %% #endif
 
 # Whether the STACK is checked at certain key points:
@@ -2706,37 +2641,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #define as_oint(expr)  (oint)(expr)
   #define as_object(o)  (gcv_object_t)(o)
 #endif
-%% #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
-%%   emit_define("as_oint(expr)","((expr).one_o)");
-%%   #if defined(WIDE_STRUCT)
-%%     printf("#define as_object(o)  ((object){u:{one_u:(o)}");
-%%     #ifdef DEBUG_GCSAFETY
-%%       printf(",allocstamp:alloccount");
-%%     #endif
-%%     printf("})\n");
-%%   #elif defined(OBJECT_STRUCT)
-%%     printf("#define as_object(o)  ((object){one_o:(o)");
-%%     #ifdef DEBUG_GCSAFETY
-%%       printf(",allocstamp:alloccount");
-%%     #endif
-%%     printf("})\n");
-%%   #endif
-%% #elif defined(WIDE_AUXI)
-%%   emit_define("as_oint(expr)","((expr).u.align_o)");
-%%   printf("#define as_object_with_auxi(o)  ((object){u:{both:{ one_ob: (o), auxi_ob: 0 }}");
-%%   #ifdef DEBUG_GCSAFETY
-%%     printf(",allocstamp:alloccount");
-%%   #endif
-%%   printf("})\n");
-%%   printf("#define as_object(o)  ((object){u:{align_o:(o)}");
-%%   #ifdef DEBUG_GCSAFETY
-%%     printf(",allocstamp:alloccount");
-%%   #endif
-%%   printf("})\n");
-%% #else
-%%   emit_define("as_oint(expr)","(oint)(expr)");
-%%   emit_define("as_object(o)","(gcv_object_t)(o)");
-%% #endif
+%% export_def(as_oint(expr));
+%% export_def(as_object(o));
 
 # Separation of an oint in type bits and address:
 # oint_type_mask  is always subset  (2^oint_type_len-1)<<oint_type_shift
@@ -3005,12 +2911,12 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #error "TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DHEAPCODES."
 #endif
 %% #if notused
-%% printf("#define oint_type_shift  %d\n",oint_type_shift);
-%% printf("#define oint_type_len  %d\n",oint_type_len);
-%% printf1("#define oint_type_mask  %x\n",(oint)oint_type_mask);
-%% printf("#define oint_addr_shift  %d\n",oint_addr_shift);
-%% printf("#define oint_addr_len  %d\n",oint_addr_len);
-%% printf1("#define oint_addr_mask  %x\n",(oint)oint_addr_mask);
+%%  export_def(oint_type_shift);
+%%  export_def(oint_type_len);
+%%  export_def(oint_type_mask);
+%%  export_def(oint_addr_shift);
+%%  export_def(oint_addr_len);
+%%  export_def(oint_addr_mask);
 %% #endif
 
 # Generally we use all of the space of an address for the data of Fixnums etc.
@@ -3023,9 +2929,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #define oint_data_mask oint_addr_mask
 #endif
 %% #if notused
-%% printf("#define oint_data_shift  %d\n",oint_data_shift);
-%% printf("#define oint_data_len  %d\n",oint_data_len);
-%% printf1("#define oint_data_mask  %x\n",(oint)oint_data_mask);
+%%  export_def(oint_data_shift);
+%%  export_def(oint_data_len);
+%%  export_def(oint_data_mask);
 %% #endif
 
 # Integer type for typebits:
@@ -3076,7 +2982,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define addr_shift 0
 #endif
 %% #if notused
-%% printf("#define addr_shift  %d\n",addr_shift);
+%%  export_def(addr_shift);
 %% #endif
 
 # Verify the values w.r.t. the autoconfigured CODE_ADDRESS_RANGE and
@@ -3250,7 +3156,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define tint_type_mask  (oint_type_mask >> oint_type_shift)
 #endif
 %% #if notused
-%% printf1("#define tint_type_mask  %x\n",(tint)tint_type_mask);
+%% export_def(tint_type_mask);
 %% #endif
 
 # To add something to an object/oint:
@@ -3285,20 +3191,11 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define vbit_test  bit_test
   #define minus_vbit  minus_bit
 #endif
-%% #if (intVsize > 32)
-%%   #if notused
-%%   emit_define("vbit(n)","(LL(1)<<(n))");
-%%   emit_define("vbitm(n)","(LL(2)<<((n)-1))");
-%%   emit_define("vbit_test(x,n)","((x) & vbit(n))");
-%%   emit_define("minus_vbit(n)","(-LL(1)<<(n))");
-%%   #endif
-%% #else
-%%   #if notused
-%%   emit_define("vbit","bit");
-%%   emit_define("vbitm","bitm");
-%%   emit_define("vbit_test","bit_test");
-%%   emit_define("minus_vbit","minus_bit");
-%%   #endif
+%% #if notused
+%%  export_def(vbit(n));
+%%  export_def(vbitm(n));
+%%  export_def(vbit_test(x,n));
+%%  export_def(minus_vbit(n));
 %% #endif
 
 # Bit operations on entities of type oint:
@@ -3314,21 +3211,12 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define wbit_test  bit_test
   #define minus_wbit  minus_bit
 #endif
-%% #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI))
-%%   emit_define("wbit","bit");
-%%   #if notused
-%%   emit_define("wbitm","bitm");
-%%   #endif
-%%   emit_define("wbit_test","bit_test");
-%%   emit_define("minus_wbit","minus_bit");
-%% #else
-%%   emit_define("wbit(n)","(LL(1)<<(n))");
-%%   #if notused
-%%   emit_define("wbitm(n)","(LL(2)<<((n)-1))");
-%%   #endif
-%%   emit_define("wbit_test(x,n)","((x) & wbit(n))");
-%%   emit_define("minus_wbit(n)","(-LL(1)<<(n))");
+%% export_def(wbit);
+%% #if notused
+%%  export_def(wbitm);
 %% #endif
+%% export_def(wbit_test);
+%% export_def(minus_wbit);
 
 #ifdef TYPECODES
 
@@ -3478,8 +3366,8 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #else # more efficient,
     # but this requires address to be divisible by 2^addr_shift:
     #define type_pointer_object(type,address)  \
-      (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
-                   ((oint)(aint)(address) << (oint_addr_shift-addr_shift)) ))
+      (as_object(((oint)(tint)(type) << oint_type_shift) + \
+                 ((oint)(aint)(address) << (oint_addr_shift-addr_shift))))
   #endif
 
   # Object from constant type info and constant address:
@@ -3521,7 +3409,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     # Varobjects all start with a word containing the type (1 byte) and a
     # length field (up to 24 bits).
 
-    /* These are the biases, mod 8. */ 
+    /* These are the biases, mod 8. */
       #define machine_bias    0UL  /* mod 4 */
       #define subr_bias       2UL  /* mod 4 */
       #define varobject_bias  1UL  /* mod 4 */
@@ -3689,129 +3577,21 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 #endif # TYPECODES
 %% #ifdef TYPECODES
-%%   #if !(exact_uint_size_p(oint_type_len) && (tint_type_mask == bit(oint_type_len)-1))
-%%     printf2("#define typecode(expr)  ((tint)(as_oint(expr) >> %d) & %x)\n",oint_type_shift,(oint)(oint_type_mask >> oint_type_shift));
-%%     emit_define("mtypecode(expr)","typecode(expr)");
-%%   #else
-%%     #if defined(MC68000) && defined(GNU) && !defined(NO_ASM) && (oint_type_shift==24) && (oint_type_len==8)
-%%       emit_define("typecode(expr)","({tint __typecode; __asm__ (\"roll #8,%%0\" : \"=d\" (__typecode) : \"0\" (as_oint(expr)) ); __typecode; })");
-%%     #elif defined(SPARC) && !defined(WIDE)
-%%       printf("#define typecode(expr)  ((as_oint(expr) << %d) >> %d)\n",
-%%              32-oint_type_len-oint_type_shift,32-oint_type_len);
-%%     #elif defined(WIDE) && defined(WIDE_STRUCT)
-%%       emit_define("typecode(expr)","((expr).u.both.type)");
-%%     #else
-%%       printf("#define typecode(expr)  ((tint)(as_oint(expr) >> %d))\n",
-%%              oint_type_shift);
-%%     #endif
-%%     #ifdef fast_mtypecode
-%%       #ifndef WIDE
-%%         printf("#define mtypecode(expr)  (*(tint*)&(expr)+%d)\n",
-%%                3*((oint_type_shift==0)==BIG_ENDIAN_P));
-%%       #endif
-%%       #ifdef WIDE
-%%         #ifdef WIDE_STRUCT
-%%           emit_define("mtypecode(expr)","((expr).u.both.type)");
-%%         #elif (oint_type_len==16)
-%%           printf("#define mtypecode(expr)  (*((tint*)&(expr)+%d))\n",
-%%                  3*((oint_type_shift==0)==BIG_ENDIAN_P));
-%%         #elif (oint_type_len==32)
-%%           printf("#define mtypecode(expr)  (*((tint*)&(expr)+%d))\n",
-%%                  ((oint_type_shift==0)==BIG_ENDIAN_P));
-%%         #endif
-%%       #endif
-%%     #else
-%%       emit_define("mtypecode(expr)","typecode(expr)");
-%%     #endif
-%%   #endif
-%%   #if notused
-%%   #if defined(WIDE) && defined(WIDE_STRUCT)
-%%     emit_define("untype(expr)","((expr).u.both.addr)");
-%%   #elif !(defined(SPARC) && (oint_addr_len+oint_addr_shift<32))
-%%     printf2("#define untype(expr)  ((aint)(as_oint(expr) >> %d) & %x)\n",
-%%             oint_addr_shift,(oint)(oint_addr_mask >> oint_addr_shift));
-%%   #else
-%%     printf("#define untype(expr)  ((aint)((as_oint(expr) << %d) >> %d))\n",
-%%            32-oint_addr_len-oint_addr_shift,32-oint_addr_len);
-%%   #endif
-%%   #endif
-%%   #if defined(WIDE) && defined(WIDE_STRUCT)
-%%     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
-%%       printf("#define type_untype_object(type,address)  ((object){{(tint)(type),(aint)(address)}");
-%%     #else
-%%       printf("#define type_untype_object(type,address)  ((object){{(aint)(address),(tint)(type)}");
-%%     #endif
-%%     #ifdef DEBUG_GCSAFETY
-%%       printf(",allocstamp:alloccount");
-%%     #endif
-%%     printf("})\n");
-%%   #elif !(oint_addr_shift==0)
-%%     printf("#define type_untype_object(type,address)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(address) << %d)))\n",oint_type_shift,oint_addr_shift);
-%%   #else
-%%     #if defined(WIDE_SOFT)
-%%       printf("#define type_untype_object(type,address)  objectplus((oint)(aint)(address),(oint)(tint)(type)<<%d)\n",oint_type_shift);
-%%     #elif defined(WIDE_AUXI)
-%%       printf("#define type_untype_object(type,address)  as_object_with_auxi((aint)pointerplus((address),(aint)(tint)(type)<<%d))\n",oint_type_shift);
-%%     #elif defined(OBJECT_STRUCT)
-%%       printf("#define type_untype_object(type,address)  as_object((oint)pointerplus((address),(oint)(tint)(type)<<%d))\n",oint_type_shift);
-%%     #else
-%%       printf("#define type_untype_object(type,address)  as_object(pointerplus((address),(oint)(tint)(type)<<%d))\n",oint_type_shift);
-%%     #endif
-%%   #endif
-%%   #if defined(WIDE) && defined(WIDE_STRUCT)
-%%     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
-%%       printf("#define type_data_object(type,address)  ((object){{(tint)(type),(aint)(address)}");
-%%     #else
-%%       printf("#define type_data_object(type,address)  ((object){{(aint)(address),(tint)(type)}");
-%%     #endif
-%%     #ifdef DEBUG_GCSAFETY
-%%       printf(",allocstamp:alloccount");
-%%     #endif
-%%     printf("})\n");
-%%   #elif !(oint_addr_shift==0)
-%%     printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_addr_shift);
-%%   #else
-%%     printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + (oint)(aint)(data)))\n",oint_type_shift);
-%%   #endif
-%%   #if (addr_shift==0)
-%%     emit_define("upointer","untype");
-%%   #else
-%%     printf("#define optimized_upointer(obj)  ((aint)((as_oint(obj) << %d) >> %d))\n",32-oint_addr_len-oint_addr_shift,32-oint_addr_len-addr_shift);
-%%     printf("#define upointer(obj)  (untype(obj)<<%d)\n",addr_shift);
-%%   #endif
-%%   #if defined(WIDE_SOFT) && !defined(WIDE_STRUCT)
-%%     printf("#define type_pointer_object(type,address)    type_untype_object(type,(aint)(address)>>%d)\n",addr_shift);
-%%   #elif (addr_shift==0)
-%%     emit_define("type_pointer_object(type,address)","type_untype_object(type,address)");
-%%   #else
-%%     printf("#define type_pointer_object(type,address)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(address) << %d)))\n",oint_type_shift,oint_addr_shift-addr_shift);
-%%   #endif
-%%   emit_define("type_constpointer_object(type,address)","type_pointer_object(type,address)");
-%%   #if defined(WIDE_SOFT) && defined(WIDE_STRUCT)
-%%     emit_define("type_zero_oint(type)","as_oint(type_untype_object(type,0))");
-%%   #else
-%%     printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
-%%   #endif
+%%  export_def(typecode(expr));
+%%  export_def(mtypecode(expr));
+%%  export_def(type_untype_object(type,address));
+%%  export_def(upointer(obj));
+%%  export_def(type_pointer_object(type,address));
+%%  export_def(type_constpointer_object(type,address));
 %% #else
-%%   #ifdef STANDARD_HEAPCODES
-%%     printf1("#define number_immediatep(obj)  ((as_oint(obj) & %d) != 0)\n",wbit(1));
-%%     printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_data_shift);
-%%     printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
-%%     emit_define("immediate_object_p(obj)","((7 & ~as_oint(obj)) == 0)");
-%%     emit_define("gcinvariant_object_p(obj)","(((as_oint(obj) & 1) == 0) || immediate_object_p(obj))");
-%%     emit_define("gcinvariant_oint_p(obj_o)","((((obj_o) & 1) == 0) || ((7 & ~(obj_o)) == 0))");
-%%     emit_define("gcinvariant_bias_p(bias)","((((bias) & 1) == 0) || ((7 & ~(bias)) == 0))");
-%%   #endif
-%%   #ifdef LINUX_NOEXEC_HEAPCODES
-%%     printf1("#define number_immediatep(obj)  ((as_oint(obj) & %d) == 0)\n",wbit(1));
-%%     printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_data_shift);
-%%     printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
-%%     emit_define("immediate_object_p(obj)","((0xC0000003 & ~as_oint(obj)) == 0x00000003)");
-%%     emit_define("gcinvariant_object_p(obj)","((as_oint(obj) & bit(1)) == 0)");
-%%     emit_define("gcinvariant_oint_p(obj_o)","(((obj_o) & bit(1)) == 0)");
-%%     emit_define("gcinvariant_bias_p(bias)","(((bias) & 2) == 0)");
-%%   #endif
+%%  export_def(number_immediatep(obj));
+%%  export_def(immediate_object_p(obj));
+%%  export_def(gcinvariant_object_p(obj));
+%%  export_def(gcinvariant_oint_p(obj_o));
+%%  export_def(gcinvariant_bias_p(bias));
 %% #endif
+%% export_def(type_data_object(type,address));
+%% export_def(type_zero_oint(obj));
 
 # The misalignment of varobjects, modulo varobject_alignment.
 #ifndef varobjects_misaligned
@@ -3822,12 +3602,8 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #else
   #define VAROBJECTS_ALIGNMENT_DUMMY_DECL
 #endif
-%% printf1("#define varobjects_misaligned  %d\n",varobjects_misaligned);
-%% #if varobjects_misaligned
-%%   printf1("#define VAROBJECTS_ALIGNMENT_DUMMY_DECL  char alignment_dummy[%d];\n",varobjects_misaligned);
-%% #else
-%%   printf("#define VAROBJECTS_ALIGNMENT_DUMMY_DECL\n");
-%% #endif
+%% export_def(varobjects_misaligned);
+%% export_def(VAROBJECTS_ALIGNMENT_DUMMY_DECL);
 
 # The misalignment of conses, modulo 2*sizeof(gcv_object_t).
 #ifndef conses_misaligned
@@ -3872,7 +3648,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #if (varobject_alignment % bit(addr_shift))
   #error "Bogus varobject_alignment -- readjust varobject_alignment!!"
 #endif
-%% printf1("#define varobject_alignment  %d\n",varobject_alignment);
+%% export_def(varobject_alignment);
 
 
 #ifdef TYPECODES
@@ -4176,19 +3952,11 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 #endif # TYPECODES
 %% #ifdef TYPECODES
-%%   #ifndef IMMEDIATE_FFLOAT
-%%     printf1("#define gcinvariant_type_p(type)  (((type) & ~%d) == 0)\n",BTB5|BTB1|BTB0);
-%%   #else
-%%     #if (TB1==TB0+1) && (TB2==TB0+2) && (TB3==TB0+3) && (TB4==TB0+4) && (TB5==TB0+5)
-%%       printf2("#define gcinvariant_type_p(type)  ((((type)>>%d)<0x14) && ((bit((type)>>%d) & 0xFFF4FFFCUL) == 0))\n",TB0+1,TB0+1);
-%%     #else
-%%       printf1("#define gcinvariant_type_p(type)  gcinvariant_type_aux((type)>>%d)\n",TB1);
-%%       printf2("#define gcinvariant_type_sum(type)  (((type) | ((type)>>%d)) & %d)\n",TB5-(TB2+1),((BTB2<<1)+BTB2+BTB1)>>TB1);
-%%       printf3("#define gcinvariant_type_aux(type)  (((type) < %d) && ((type) & ~%d) == 0 && (bit(gcinvariant_type_sum(type)) & %d) != 0)\n",(BTB5+(BTB2<<1))>>TB1,(BTB5|BTB2|BTB1)>>TB1, bit(0) | bit(1) | bit(bit(TB2+1-TB1)) | bit(bit(TB2+1-TB1) | 1) | bit(bit(TB2+1-TB1) | bit(TB2-TB1) | 1));
-%%     #endif
-%%   #endif
-%%   emit_define("gcinvariant_object_p(obj)","gcinvariant_type_p(typecode(obj))");
-%%   printf2("#define gcinvariant_oint_p(obj_o)  gcinvariant_type_p((tint)((obj_o) >> %d) & %d)\n",oint_type_shift,oint_type_mask >> oint_type_shift);
+%%  export_def(gcinvariant_type_p(type));
+%%  export_def(gcinvariant_type_sum(type));
+%%  export_def(gcinvariant_type_aux(type));
+%%  export_def(gcinvariant_object_p(obj));
+%%  export_def(gcinvariant_oint_p(obj_o));
 %% #endif
 
 
@@ -4219,7 +3987,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #endif
 #endif
 %% #if notused
-%% printf1("#define addressbus_mask  %x\n",(oint)addressbus_mask);
+%% export_def(addressbus_mask);
 %% #endif
 
 
@@ -4303,46 +4071,14 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 #endif
 %% #ifdef TYPECODES
-%%   #if !((oint_addr_shift==0) && (addr_shift==0))
-%%     emit_define("pointable_unchecked(obj)","((void*)upointer(obj))");
-%%     printf3("#define pointable_address_unchecked(obj_o)  (((aint)((obj_o) >> %d) & %d) << %d)\n",oint_addr_shift,(aint)(oint_addr_mask >> oint_addr_shift),addr_shift);
-%%   #else
-%%     emit_define("pointable_unchecked(obj)","((void*)pointable_address_unchecked(as_oint(obj)))");
-%%     #if !(((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0)
-%%       printf1("#define pointable_address_unchecked(obj_o)  ((aint)(obj_o) & %x)\n",(aint)oint_addr_mask | ~addressbus_mask);
-%%     #else
-%%       emit_define("pointable_address_unchecked(obj_o)","(aint)(obj_o)");
-%%     #endif
-%%   #endif
-%%   #ifdef DEBUG_GCSAFETY
-%%     printf("static inline void* pointable (gcv_object_t obj) { return pointable_unchecked(obj); }\n");
-%%     printf("static inline void* pointable (object obj) { return pointable_unchecked((gcv_object_t)obj); }\n");
-%%   #else
-%%     emit_define("pointable(obj)","pointable_unchecked(obj)");
-%%   #endif
-%%   #if defined(DEBUG_GCSAFETY)
-%%     #define printf_type_pointable(xgci,type)  printf(#xgci"_pointable(obj)");
-%%   #elif defined(WIDE_STRUCT)
-%%     #define printf_type_pointable(xgci,type)  printf("((void*)((obj).u.both.addr))");
-%%   #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
-%%     #if (addr_shift==0)
-%%       #define printf_type_pointable(xgci,type)  \
-%%         if ((oint_addr_shift==0) && ((type_zero_oint(type) & addressbus_mask) == 0)) \
-%%           printf("((void*)(aint)as_oint(obj))");                           \
-%%         else                                                               \
-%%           printf("((void*)(aint)pointable(obj))");
-%%     #elif !(addr_shift==0)
-%%       #define printf_type_pointable(xgci,type)  \
-%%        if (optimized_upointer(type_data_object(type,0)) == 0)      \
-%%          printf("((void*)(aint)optimized_upointer(obj))");         \
-%%        else                                                        \
-%%          printf("((void*)(aint)pointable(obj))");
-%%     #endif
-%%   #else
-%%     #define printf_type_pointable(xgci,type)  printf("((void*)(aint)as_oint(obj))");
-%%   #endif
-%% #else
-%%   printf3("#define pointable_address_unchecked(obj_o)  (((aint)((obj_o) >> %d) & %d) << %d)\n",oint_addr_shift,(aint)(oint_addr_mask >> oint_addr_shift),addr_shift);
+%%  export_def(pointable_unchecked(obj));
+%%  export_def(pointable_address_unchecked(obj_o));
+%%  #ifdef DEBUG_GCSAFETY
+%%   printf("static inline void* pointable (gcv_object_t obj) { return pointable_unchecked(obj); }\n");
+%%   printf("static inline void* pointable (object obj) { return pointable_unchecked((gcv_object_t)obj); }\n");
+%%  #else
+%%   emit_define("pointable(obj)","pointable_unchecked(obj)");
+%%  #endif
 %% #endif
 
 
@@ -4474,7 +4210,7 @@ extern bool inside_gc;
 %%   #else
 %%     emit_define("nonimmsubrp(obj)","false");
 %%   #endif
-%%   printf1("#define nonimmprobe(obj_o)  do { if (!inside_gc) if (((obj_o) & %d) == 0) if (!gcinvariant_oint_p(obj_o)) *(volatile char *)pointable_address_unchecked(obj_o); } while (0)\n",wbit(garcol_bit_o));
+%%   export_def(nonimmprobe(obj_o));
 %%   printf("inline gcv_object_t::operator object () const { nonimmprobe(one_o); return (object){ one_o: one_o, allocstamp: alloccount }; }\n");
 %%   printf("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); one_o = as_oint(obj); nonimmprobe(one_o); }\n");
 %%   printf("inline gcv_object_t::gcv_object_t () {}\n");
@@ -4746,6 +4482,11 @@ extern bool inside_gc;
   #define hfintsize  pointer_bitsize
   typedef uintP  hfint;
 #endif
+%% #if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA) && !defined(IA64) && !defined(DEBUG_GCSAFETY)
+%%   emit_typedef("uintB","hfint");
+%% #else
+%%   emit_typedef("uintP","hfint");
+%% #endif
 
 # Objecs with variable length
 #ifdef TYPECODES
@@ -4816,22 +4557,10 @@ typedef varobject_ *  Varobject;
     #define var_bit0_hf  (var_bit0_f+8)
     #define var_bit1_hf  (var_bit1_f+8)
 #endif
+%% export_def(VAROBJECT_HEADER);
 %% #ifdef TYPECODES
-%%   #ifdef DEBUG_GCSAFETY
-%%     emit_define("VAROBJECT_HEADER","gcv_object_t _GCself;");
-%%   #else
-%%     emit_define("VAROBJECT_HEADER","union { gcv_object_t _GCself; } header;");
-%%   #endif
-%%   #ifdef DEBUG_GCSAFETY
-%%     emit_define("GCself","_GCself");
-%%   #else
-%%     emit_define("GCself","header._GCself");
-%%   #endif
-%% #else
-%%   emit_define("VAROBJECT_HEADER","gcv_object_t GCself; uintL tfl;");
-%% #endif
-%% #ifndef TYPECODES
-%%   emit_define("varobject_type(ptr)","((sintB)((ptr)->tfl & 0xFF))");
+%%  export_def(GCself);
+%%  export_def(varobject_type(ptr));
 %% #endif
 
 # Records
@@ -4853,13 +4582,18 @@ typedef varobject_ *  Varobject;
 #   - Simple-Records, if rectype < rectype_limit.
 #   - Extended-Records, if rectype >= rectype_limit.
 
+#ifdef TYPECODES
+  #define RECORD_HEADER                                               \
+    VAROBJECT_HEADER   /* self-pointer GC */                          \
+    sintB rectype;     /* for OtherRecord and LongRecord: sub-type */ \
+    uintB recflags;    /* for OtherRecord: flags */                   \
+    uintW reclength;   /* lengths and others */
+#else
+  #define RECORD_HEADER  \
+    VAROBJECT_HEADER   /* self-pointer for GC, tfl */
+#endif
 typedef struct {
-  VAROBJECT_HEADER # self-pointer for GC
-  #ifdef TYPECODES
-    sintB rectype;   # for OtherRecord and LongRecord: sub-type
-    uintB recflags;  # for OtherRecord: flags
-    uintW recfiller; # length and others
-  #endif
+  RECORD_HEADER
   gcv_object_t recdata[unspecified] _attribute_aligned_object_; # elements
 } record_;
 typedef record_ *  Record;
@@ -4886,27 +4620,15 @@ typedef record_ *  Record;
   #define record_flags_replace(ptr,newflags)  \
     ((ptr)->tfl ^= (((ptr)->tfl ^ (uintL)(newflags)<<8) & 0xFF00))
 #endif
-%% #ifdef TYPECODES
-%%   sprintf(buf,"struct { VAROBJECT_HEADER sintB rectype; uintB recflags; uintW recfiller; gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
-%% #else
-%%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
-%% #endif
+%% export_def(RECORD_HEADER);
+%% sprintf(buf,"struct { RECORD_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
 %% emit_typedef(buf,"record_");
 %% emit_typedef("record_ *","Record");
-%% #ifdef TYPECODES
-%%   emit_define("record_type(ptr)","((ptr)->rectype)");
-%% #else
-%%   emit_define("record_type(ptr)","varobject_type(ptr)");
-%% #endif
-%% emit_define("Record_type(obj)","record_type(TheRecord(obj))");
-%% #ifdef TYPECODES
-%%   emit_define("record_flags(ptr)","((ptr)->recflags)");
-%%   emit_define("record_flags_set(ptr,bits)","((ptr)->recflags |= (bits))");
-%% #else
-%%   emit_define("record_flags(ptr)","(((ptr)->tfl >> 8) & 0xFF)");
-%%   emit_define("record_flags_set(ptr,bits)","((ptr)->tfl |= ((uintL)(bits) << 8))");
-%% #endif
-%% emit_define("Record_flags(obj)","record_flags(TheRecord(obj))");
+%% export_def(record_type(ptr));
+%% export_def(Record_type(obj));
+%% export_def(record_flags(ptr));
+%% export_def(record_flags_set(ptr,bits));
+%% export_def(Record_flags(obj));
 
 #ifdef TYPECODES
   #define VRECORD_HEADER  \
@@ -4925,18 +4647,10 @@ typedef vrecord_ *  Vrecord;
 #else
   #define vrecord_length(ptr)  ((ptr)->tfl >> 8)
 #endif
-%% #ifdef TYPECODES
-%%   emit_define("VRECORD_HEADER","VAROBJECT_HEADER uintL length;");
-%% #else
-%%   emit_define("VRECORD_HEADER","VAROBJECT_HEADER");
-%% #endif
+%% export_def(VRECORD_HEADER);
 %% emit_typedef("struct { VRECORD_HEADER }","vrecord_");
 %% emit_typedef("vrecord_ *","Vrecord");
-%% #ifdef TYPECODES
-%%   emit_define("vrecord_length(ptr)","((ptr)->length)");
-%% #else
-%%   emit_define("vrecord_length(ptr)","((ptr)->tfl >> 8)");
-%% #endif
+%% export_def(vrecord_length(ptr));
 
 #ifdef TYPECODES
   #define LRECORD_HEADER  \
@@ -4987,19 +4701,11 @@ typedef srecord_ *  Srecord;
   #define srecord_length(ptr)  ((ptr)->tfl >> 16)
 #endif
 #define Srecord_length(obj)  srecord_length(TheSrecord(obj))
-%% #ifdef TYPECODES
-%%   emit_define("SRECORD_HEADER","VAROBJECT_HEADER sintB rectype; uintB recflags; uintW reclength;");
-%% #else
-%%   emit_define("SRECORD_HEADER","VAROBJECT_HEADER");
-%% #endif
+%% export_def(SRECORD_HEADER);
 %% sprintf(buf,"struct { SRECORD_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
 %% emit_typedef(buf,"srecord_");
 %% emit_typedef("srecord_ *","Srecord");
-%% #ifdef TYPECODES
-%%   emit_define("srecord_length(ptr)","((ptr)->reclength)");
-%% #else
-%%   emit_define("srecord_length(ptr)","((ptr)->tfl >> 16)");
-%% #endif
+%% export_def(srecord_length(ptr));
 
 #ifdef TYPECODES
   #define XRECORD_HEADER                                                \
@@ -5027,131 +4733,217 @@ typedef xrecord_ *  Xrecord;
 #endif
 #define Xrecord_length(obj)  xrecord_length(TheXrecord(obj))
 #define Xrecord_xlength(obj)  xrecord_xlength(TheXrecord(obj))
-%% #ifdef TYPECODES
-%%   emit_define("XRECORD_HEADER","VAROBJECT_HEADER sintB rectype; uintB recflags; uintB reclength; uintB recxlength;");
-%% #else
-%% emit_define("XRECORD_HEADER","VAROBJECT_HEADER");
-%% #endif
+%% export_def(XRECORD_HEADER);
 %% #if notused
 %% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
 %% emit_typedef(buf,"xrecord_");
 %% emit_typedef("xrecord_ *","Xrecord");
 %% #endif
 
-# Possible rectype values for records.
-  enum {
-           enum_rectype_first = -4,     # Try to keep rectype_limit = 0.
-         Rectype_Closure,
-         Rectype_Structure,             # only used #ifndef case_structure
-         Rectype_Instance,
-           rectype_limit, # Here is the limit between Srecord and Xrecord.
-         Rectype_Hashtable = rectype_limit,
-         #ifndef TYPECODES
-           /* Rectype_vector is the bottom ARRAY & VECTOR */
-         Rectype_vector,            /* 1 */ # Iarray, not Srecord/Xrecord
-         Rectype_bvector,           /* 2 */ # Iarray, not Srecord/Xrecord
-         Rectype_b2vector,          /* 3 */ # Iarray, not Srecord/Xrecord
-         Rectype_b4vector,          /* 4 */ # Iarray, not Srecord/Xrecord
-         Rectype_b8vector,          /* 5 */ # Iarray, not Srecord/Xrecord
-         Rectype_b16vector,         /* 6 */ # Iarray, not Srecord/Xrecord
-         Rectype_b32vector,         /* 7 */ # Iarray, not Srecord/Xrecord
-         Rectype_unused1,           /* 8 */
-           /* Rectype_Svector is the bottom SIMPLE VECTOR */
-         Rectype_Svector,           /* 9 */ # Svector, not Srecord/Xrecord
-         Rectype_Sbvector,         /* 10 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb2vector,        /* 11 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb4vector,        /* 12 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb8vector,        /* 13 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb16vector,       /* 14 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb32vector,       /* 15 */ # Sbvector, not Srecord/Xrecord
-         Rectype_unused2,          /* 16 */
-           /* Rectype_S8string is the bottom STRING */
-         Rectype_S8string,         /* 17 */ # S8string, not Srecord/Xrecord
-         Rectype_Imm_S8string,     /* 18 */ # immutable S8string, not Srecord/Xrecord
-         Rectype_S16string,        /* 19 */ # S16string, not Srecord/Xrecord
-         Rectype_Imm_S16string,    /* 20 */ # immutable S16string, not Srecord/Xrecord
-         Rectype_S32string,        /* 21 */ # S32string, not Srecord/Xrecord
-         Rectype_Imm_S32string,    /* 22 */ # immutable S32string, not Srecord/Xrecord
-         Rectype_reallocstring,    /* 23 */ # reallocated simple string, an Sistring, only used #ifdef HAVE_SMALL_SSTRING
-           /* Rectype_reallocstring is the top SIMPLE-STRING & SIMPLE-VECTOR */
-         Rectype_string,           /* 24 */ # Iarray, not Srecord/Xrecord
-           /* Rectype_string is the top STRING */
-         Rectype_mdarray,          /* 25 */ # Iarray, not Srecord/Xrecord
-           /* Rectype_mdarray is the top ARRAY */
-           /* Rectype_Bignum is the bottom NUMBER */
-         Rectype_Bignum,                # Bignum, not Srecord/Xrecord
-         Rectype_Lfloat,                # Lfloat, not Srecord/Xrecord
-         Rectype_Dfloat,
-         Rectype_Ffloat,
-         #endif
-         #ifdef SPVW_MIXED
-         Rectype_Ratio,
-         Rectype_Complex,
-         #endif
-                          # Here the numbers end.
-         #ifndef TYPECODES
-         Rectype_Symbol,
-         #endif
-         Rectype_Package,
-         Rectype_Readtable,
-         Rectype_Pathname,
-         #ifdef LOGICAL_PATHNAMES
-         Rectype_Logpathname,
-         #endif
-         Rectype_Random_State,
-         #ifndef case_stream
-         Rectype_Stream,
-         #endif
-         Rectype_Byte,
-         Rectype_Subr,
-         Rectype_Fsubr,
-         Rectype_Loadtimeeval,
-         Rectype_Symbolmacro,
-         Rectype_GlobalSymbolmacro,
-         Rectype_Macro,
-         Rectype_FunctionMacro,
-         Rectype_BigReadLabel,
-         Rectype_Encoding,
-         Rectype_Fpointer,              # only used #ifdef FOREIGN
-         #ifdef DYNAMIC_FFI
-         Rectype_Faddress,
-         Rectype_Fvariable,
-         Rectype_Ffunction,
-         #endif
-         Rectype_Weakpointer,
-         Rectype_MutableWeakList,
-         Rectype_MutableWeakAlist,
-         Rectype_Weakmapping,
-         Rectype_Finalizer,
-         #ifdef SOCKET_STREAMS
-         Rectype_Socket_Server,
-         #endif
-         #ifdef YET_ANOTHER_RECORD
-         Rectype_Yetanother,
-         #endif
-           rectype_longlimit, # Here is the limit between Srecord/Xrecord and Lrecord.
-         Rectype_WeakList,
-         Rectype_WeakAnd,
-         Rectype_WeakOr,
-         Rectype_WeakAndMapping,
-         Rectype_WeakOrMapping,
-         Rectype_WeakAlist_Key,
-         Rectype_WeakAlist_Value,
-         Rectype_WeakAlist_Either,
-         Rectype_WeakAlist_Both,
-         Rectype_WeakHashedAlist_Key,
-         Rectype_WeakHashedAlist_Value,
-         Rectype_WeakHashedAlist_Either,
-         Rectype_WeakHashedAlist_Both,
-         rectype_for_broken_compilers_that_dont_like_trailing_commas
-       };
+/* *** Possible rectype values for records. *** */
+enum {
+  enum_rectype_first = -4, /* Try to keep rectype_limit = 0. */
+  Rectype_Closure,
+%% printf("#define Rectype_Closure %d\n",Rectype_Closure);
+  Rectype_Structure,     /* only used #ifndef case_structure */
+%% printf("#define Rectype_Structure %d\n",Rectype_Structure);
+  Rectype_Instance,
+%% printf("#define Rectype_Instance %d\n",Rectype_Instance);
+     rectype_limit, /* Here is the limit between Srecord and Xrecord. */
+  Rectype_Hashtable = rectype_limit,
+%% printf("#define Rectype_Hashtable %d\n",Rectype_Hashtable);
+#ifndef TYPECODES
+%% #ifndef TYPECODES
+  /* Rectype_vector is the bottom ARRAY & VECTOR */
+  Rectype_vector,       /* 1 -- Iarray, not Srecord/Xrecord */
+%% printf("#define Rectype_vector %d\n",Rectype_vector);
+  Rectype_bvector,      /* 2 -- Iarray, not Srecord/Xrecord */
+%% printf("#define Rectype_bvector %d\n",Rectype_bvector);
+  Rectype_b2vector,     /* 3 -- Iarray, not Srecord/Xrecord */
+%% printf("#define Rectype_b2vector %d\n",Rectype_b2vector);
+  Rectype_b4vector,     /* 4 -- Iarray, not Srecord/Xrecord */
+%% printf("#define Rectype_b4vector %d\n",Rectype_b4vector);
+  Rectype_b8vector,     /* 5 -- Iarray, not Srecord/Xrecord */
+%% printf("#define Rectype_b8vector %d\n",Rectype_b8vector);
+  Rectype_b16vector,    /* 6 -- Iarray, not Srecord/Xrecord */
+%% printf("#define Rectype_b16vector %d\n",Rectype_b16vector);
+  Rectype_b32vector,    /* 7 -- Iarray, not Srecord/Xrecord */
+%% printf("#define Rectype_b32vector %d\n",Rectype_b32vector);
+  Rectype_unused1,           /* 8 */
+  /* Rectype_Svector is the bottom SIMPLE VECTOR */
+  Rectype_Svector,     /* 9 -- Svector, not Srecord/Xrecord */
+%% printf("#define Rectype_Svector %d\n",Rectype_Svector);
+  Rectype_Sbvector,   /* 10 -- Sbvector, not Srecord/Xrecord */
+%% printf("#define Rectype_Sbvector %d\n",Rectype_Sbvector);
+  Rectype_Sb2vector,  /* 11 -- Sbvector, not Srecord/Xrecord */
+%% printf("#define Rectype_Sb2vector %d\n",Rectype_Sb2vector);
+  Rectype_Sb4vector,  /* 12 -- Sbvector, not Srecord/Xrecord */
+%% printf("#define Rectype_Sb4vector %d\n",Rectype_Sb4vector);
+  Rectype_Sb8vector,  /* 13 -- Sbvector, not Srecord/Xrecord */
+%% printf("#define Rectype_Sb8vector %d\n",Rectype_Sb8vector);
+  Rectype_Sb16vector, /* 14 -- Sbvector, not Srecord/Xrecord */
+%% printf("#define Rectype_Sb16vector %d\n",Rectype_Sb16vector);
+  Rectype_Sb32vector, /* 15 -- Sbvector, not Srecord/Xrecord */
+%% printf("#define Rectype_Sb32vector %d\n",Rectype_Sb32vector);
+  Rectype_unused2,          /* 16 */
+  /* Rectype_S8string is the bottom STRING */
+  Rectype_S8string,   /* 17 -- S8string, not Srecord/Xrecord */
+%% printf("#define Rectype_S8string %d\n",Rectype_S8string);
+  Rectype_Imm_S8string, /* 18 -- immutable S8string, not Srecord/Xrecord */
+%% printf("#define Rectype_Imm_S8string %d\n",Rectype_Imm_S8string);
+  Rectype_S16string, /* 19 -- S16string, not Srecord/Xrecord */
+%% printf("#define Rectype_S16string %d\n",Rectype_S16string);
+  Rectype_Imm_S16string, /* 20 -- immutable S16string, not Srecord/Xrecord */
+%% printf("#define Rectype_Imm_S16string %d\n",Rectype_Imm_S16string);
+  Rectype_S32string, /* 21 -- S32string, not Srecord/Xrecord */
+%% printf("#define Rectype_S32string %d\n",Rectype_S32string);
+  Rectype_Imm_S32string, /* 22 -- immutable S32string, not Srecord/Xrecord */
+%% printf("#define Rectype_Imm_S32string %d\n",Rectype_Imm_S32string);
+  Rectype_reallocstring, /* 23 -- reallocated simple string, an Sistring, only used #ifdef HAVE_SMALL_SSTRING */
+%% printf("#define Rectype_reallocstring %d\n",Rectype_reallocstring);
+  /* Rectype_reallocstring is the top SIMPLE-STRING & SIMPLE-VECTOR */
+  Rectype_string,      /* 24 -- Iarray, not Srecord/Xrecord */
+%% printf("#define Rectype_string %d\n",Rectype_string);
+  /* Rectype_string is the top STRING */
+  Rectype_mdarray,     /* 25 -- Iarray, not Srecord/Xrecord */
+%% printf("#define Rectype_mdarray %d\n",Rectype_mdarray);
+  /* Rectype_mdarray is the top ARRAY */
+  /* Rectype_Bignum is the bottom NUMBER */
+  Rectype_Bignum,        /* Bignum, not Srecord/Xrecord */
+%% printf("#define Rectype_Bignum %d\n",Rectype_Bignum);
+  Rectype_Lfloat,        /* Lfloat, not Srecord/Xrecord */
+%% printf("#define Rectype_Lfloat %d\n",Rectype_Lfloat);
+  Rectype_Dfloat,
+%% printf("#define Rectype_Dfloat %d\n",Rectype_Dfloat);
+  Rectype_Ffloat,
+%% printf("#define Rectype_Ffloat %d\n",Rectype_Ffloat);
+%% #endif
+#endif  /* TYPECODES */
+#ifdef SPVW_MIXED
+%% #ifdef SPVW_MIXED
+  Rectype_Ratio,
+%% printf("#define Rectype_Ratio %d\n",Rectype_Ratio);
+  Rectype_Complex,
+%% printf("#define Rectype_Complex %d\n",Rectype_Complex);
+%% #endif
+#endif /* SPVW_MIXED */
+  /* *** Here the numbers end. *** */
+#ifndef TYPECODES
+%% #ifndef TYPECODES
+  Rectype_Symbol,
+%% printf("#define Rectype_Symbol %d\n",Rectype_Symbol);
+%% #endif
+#endif  /* TYPECODES */
+  Rectype_Package,
+%% printf("#define Rectype_Package %d\n",Rectype_Package);
+  Rectype_Readtable,
+%% printf("#define Rectype_Readtable %d\n",Rectype_Readtable);
+  Rectype_Pathname,
+%% printf("#define Rectype_Pathname %d\n",Rectype_Pathname);
+#ifdef LOGICAL_PATHNAMES
+%% #ifdef LOGICAL_PATHNAMES
+  Rectype_Logpathname,
+%% printf("#define Rectype_Logpathname %d\n",Rectype_Logpathname);
+%% #endif
+#endif  /* LOGICAL_PATHNAMES */
+  Rectype_Random_State,
+%% printf("#define Rectype_Random_State %d\n",Rectype_Random_State);
+#ifndef case_stream
+%% #ifndef case_stream
+  Rectype_Stream,
+%% printf("#define Rectype_Stream %d\n",Rectype_Stream);
+%% #endif
+#endif  /* case_stream */
+  Rectype_Byte,
+%% printf("#define Rectype_Byte %d\n",Rectype_Byte);
+  Rectype_Subr,
+%% printf("#define Rectype_Subr %d\n",Rectype_Subr);
+  Rectype_Fsubr,
+%% printf("#define Rectype_Fsubr %d\n",Rectype_Fsubr);
+  Rectype_Loadtimeeval,
+%% printf("#define Rectype_Loadtimeeval %d\n",Rectype_Loadtimeeval);
+  Rectype_Symbolmacro,
+%% printf("#define Rectype_Symbolmacro %d\n",Rectype_Symbolmacro);
+  Rectype_GlobalSymbolmacro,
+%% printf("#define Rectype_GlobalSymbolmacro %d\n",Rectype_GlobalSymbolmacro);
+  Rectype_Macro,
+%% printf("#define Rectype_Macro %d\n",Rectype_Macro);
+  Rectype_FunctionMacro,
+%% printf("#define Rectype_FunctionMacro %d\n",Rectype_FunctionMacro);
+  Rectype_BigReadLabel,
+%% printf("#define Rectype_BigReadLabel %d\n",Rectype_BigReadLabel);
+  Rectype_Encoding,
+%% printf("#define Rectype_Encoding %d\n",Rectype_Encoding);
+  Rectype_Fpointer,      /* only used #ifdef FOREIGN */
+%% printf("#define Rectype_Fpointer %d\n",Rectype_Fpointer);
+#ifdef DYNAMIC_FFI
+%% #ifdef DYNAMIC_FFI
+  Rectype_Faddress,
+%% printf("#define Rectype_Faddress %d\n",Rectype_Faddress);
+  Rectype_Fvariable,
+%% printf("#define Rectype_Fvariable %d\n",Rectype_Fvariable);
+  Rectype_Ffunction,
+%% printf("#define Rectype_Ffunction %d\n",Rectype_Ffunction);
+%% #endif
+#endif  /* DYNAMIC_FFI */
+  Rectype_Weakpointer,
+%% printf("#define Rectype_Weakpointer %d\n",Rectype_Weakpointer);
+  Rectype_MutableWeakList,
+%% printf("#define Rectype_MutableWeakList %d\n",Rectype_MutableWeakList);
+  Rectype_MutableWeakAlist,
+%% printf("#define Rectype_MutableWeakAlist %d\n",Rectype_MutableWeakAlist);
+  Rectype_Weakmapping,
+%% printf("#define Rectype_Weakmapping %d\n",Rectype_Weakmapping);
+  Rectype_Finalizer,
+%% printf("#define Rectype_Finalizer %d\n",Rectype_Finalizer);
+#ifdef SOCKET_STREAMS
+%% #ifdef SOCKET_STREAMS
+  Rectype_Socket_Server,
+%% printf("#define Rectype_Socket_Server %d\n",Rectype_Socket_Server);
+%% #endif
+#endif  /* SOCKET_STREAMS */
+#ifdef YET_ANOTHER_RECORD
+%% #ifdef YET_ANOTHER_RECORD
+  Rectype_Yetanother,
+%% printf("#define Rectype_Yetanother %d\n",Rectype_Yetanother);
+%% #endif
+#endif /* YET_ANOTHER_RECORD */
+  rectype_longlimit, /* the boundary between Srecord/Xrecord and Lrecord. */
+  Rectype_WeakList,
+%% printf("#define Rectype_WeakList %d\n",Rectype_WeakList);
+  Rectype_WeakAnd,
+%% printf("#define Rectype_WeakAnd %d\n",Rectype_WeakAnd);
+  Rectype_WeakOr,
+%% printf("#define Rectype_WeakOr %d\n",Rectype_WeakOr);
+  Rectype_WeakAndMapping,
+%% printf("#define Rectype_WeakAndMapping %d\n",Rectype_WeakAndMapping);
+  Rectype_WeakOrMapping,
+%% printf("#define Rectype_WeakOrMapping %d\n",Rectype_WeakOrMapping);
+  Rectype_WeakAlist_Key,
+%% printf("#define Rectype_WeakAlist_Key %d\n",Rectype_WeakAlist_Key);
+  Rectype_WeakAlist_Value,
+%% printf("#define Rectype_WeakAlist_Value %d\n",Rectype_WeakAlist_Value);
+  Rectype_WeakAlist_Either,
+%% printf("#define Rectype_WeakAlist_Either %d\n",Rectype_WeakAlist_Either);
+  Rectype_WeakAlist_Both,
+%% printf("#define Rectype_WeakAlist_Both %d\n",Rectype_WeakAlist_Both);
+  Rectype_WeakHashedAlist_Key,
+%% printf("#define Rectype_WeakHashedAlist_Key %d\n",Rectype_WeakHashedAlist_Key);
+  Rectype_WeakHashedAlist_Value,
+%% printf("#define Rectype_WeakHashedAlist_Value %d\n",Rectype_WeakHashedAlist_Value);
+  Rectype_WeakHashedAlist_Either,
+%% printf("#define Rectype_WeakHashedAlist_Either %d\n",Rectype_WeakHashedAlist_Either);
+  Rectype_WeakHashedAlist_Both,
+%% printf("#define Rectype_WeakHashedAlist_Both %d\n",Rectype_WeakHashedAlist_Both);
+  rectype_for_broken_compilers_that_dont_like_trailing_commas
+};
 
-# -------------------------- the various types -------------------------- #
+/* -------------------------- the various types -------------------------- */
 
-# Cons
+/* Cons */
 typedef struct {
-  gcv_object_t cdr _attribute_aligned_object_; # CDR
-  gcv_object_t car _attribute_aligned_object_; # CAR
+  gcv_object_t cdr _attribute_aligned_object_; /* CDR */
+  gcv_object_t car _attribute_aligned_object_; /* CAR */
 } cons_;
 typedef cons_ *  Cons;
 %% sprintf(buf,"struct { gcv_object_t cdr%s; gcv_object_t car%s; }",attribute_aligned_object,attribute_aligned_object);
@@ -5342,20 +5134,8 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # Characters can therefore be compared for equality using EQ, this is an
 # oint comparison, among the characters a comparison of their integral code.
 %% sprintf(buf,"uint%d",char_int_len); emit_typedef(buf,"cint");
-%% printf1("#define int_char(int_from_int_char)  type_data_object(%d,(aint)(cint)(int_from_int_char))\n",(tint)char_type);
-%% #if !((oint_data_shift==0) && (char_int_len<=oint_data_len) && (exact_uint_size_p(char_int_len)))
-%%   #ifdef TYPECODES
-%%     emit_define("char_int(char_from_char_int)","((cint)(untype(char_from_char_int)))");
-%%   #else
-%%     #if (char_type>>oint_data_shift)==0 || (char_int_len<=16)
-%%       printf1("#define char_int(char_from_char_int)  ((cint)(as_oint(char_from_char_int)>>%d))\n",oint_data_shift);
-%%     #else
-%%       printf2("#define char_int(char_from_char_int)  ((cint)((as_oint(char_from_char_int)>>%d)&%d))\n",oint_data_shift,bitm(oint_data_len)-1);
-%%     #endif
-%%   #endif
-%% #else
-%%   emit_define("char_int(char_from_char_int)","((cint)as_oint(char_from_char_int))");
-%% #endif
+%% export_def(int_char(int_from_int_char));
+%% export_def(char_int(char_from_char_int));
 
 # A standalone character. Prefer `chart' to `cint' wherever possible because
 # it is typesafe. sizeof(chart) = sizeof(cint).
@@ -5388,16 +5168,14 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 #define charlt(ch1,ch2)  (as_cint(ch1) < as_cint(ch2))
 #define chargt(ch1,ch2)  (as_cint(ch1) > as_cint(ch2))
 %% #ifdef CHART_STRUCT
-%%   emit_typedef("struct { cint one; }","chart");
-%%   emit_define("as_cint(ch)","((ch).one)");
-%%   emit_define("as_chart(c)","((chart){one:(c)})");
+%%   emit_typedef("struct { cint one_c; }","chart");
 %% #else
 %%   emit_typedef("cint","chart");
-%%   emit_define("as_cint(ch)","(ch)");
-%%   emit_define("as_chart(c)","(c)");
 %% #endif
-%% printf("#define code_char(ch)  int_char(as_cint(ch))\n");
-%% printf("#define char_code(obj)  as_chart(char_int(obj))\n");
+%% export_def(as_cint(ch));
+%% export_def(as_chart(c));
+%% export_def(code_char(ch));
+%% export_def(char_code(obj));
 
 # Conversion standard char (in ASCII encoding) --> chart.
 #define ascii(x)  as_chart((uintB)(x))
@@ -5454,16 +5232,16 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # x is an expression with 0 <= x < 2^oint_data_len.
 # (Should really be called posfixnum(x).)
 #define fixnum(x)  type_data_object(fixnum_type,x)
-%% printf("#define fixnum(x)  type_data_object(%d,x)\n",fixnum_type);
+%% export_def(fixnum(x));
 
 # Fixnum_0 is the number 0, Fixnum_1 is the number 1,
 # Fixnum_minus1 is the number -1
 #define Fixnum_0  fixnum(0)
 #define Fixnum_1  fixnum(1)
 #define Fixnum_minus1  type_data_object( fixnum_type | bit(sign_bit_t), vbitm(oint_data_len)-1 )
-%% printf("#define Fixnum_0  fixnum(0)\n");
-%% printf("#define Fixnum_1  fixnum(1)\n");
-%% printf2("#define Fixnum_minus1  type_data_object(%d,%x)\n",(tint)(fixnum_type | bit(sign_bit_t)),(aint)(vbitm(oint_data_len)-1));
+%% export_def(Fixnum_0);
+%% export_def(Fixnum_1);
+%% export_def(Fixnum_minus1);
 
 # Value of a non-negative fixnum:
 # posfixnum_to_V(obj)
@@ -5476,18 +5254,14 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
   #define posfixnum_to_V(obj)  \
     ((uintV)((as_oint(obj) << (32-oint_data_len-oint_data_shift)) >> (32-oint_data_len)))
 #endif
-%% #if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
-%%   printf2("#define posfixnum_to_V(obj)  ((uintV)((as_oint(obj)&%x)>>%d))\n",(oint)wbitm(oint_data_len+oint_data_shift)-1,oint_data_shift);
-%% #else
-%%   printf("#define posfixnum_to_V(obj)  ((uintV)((as_oint(obj) << %d) >> %d))\n",32-oint_data_len-oint_data_shift,32-oint_data_len);
-%% #endif
+%% export_def(posfixnum_to_V(obj));
 
 # Value of a negative fixnum:
 # negfixnum_to_V(obj)
 # Result is >= - 2^oint_data_len, < 0.
 #define negfixnum_to_V(obj)  (posfixnum_to_V(obj) | (-vbitm(oint_data_len)))
 %% #if notused
-%% printf1("#define negfixnum_to_V(obj)  (posfixnum_to_V(obj) | %x)\n",(uintV)(-vbitm(oint_data_len)));
+%% export_def(negfixnum_to_V(obj));
 %% #endif
 
 # Absolute value of a negative fixnum:
@@ -5521,17 +5295,7 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
              )
   #endif
 #endif
-%% #if (oint_data_len>=intVsize)
-%%   printf("#define fixnum_to_V(obj)  (sintV)posfixnum_to_V(obj)\n");
-%% #elif (sign_bit_o == oint_data_len+oint_data_shift)
-%%   printf("#define fixnum_to_V(obj)  (((sintV)as_oint(obj) << %d) >> %d)\n",intVsize-1-sign_bit_o,intVsize-1-sign_bit_o+oint_data_shift);
-%% #else
-%%   #if !defined(SPARC)
-%%     printf5("#define fixnum_to_V(obj)  (sintV)( ((((sintV)as_oint(obj) >> %d) << %d) >> %d) | ((uintV)((as_oint(obj) & %x) >> %d)) )\n",sign_bit_o,intVsize-1,intVsize-1-oint_data_len,(oint)wbitm(oint_data_len+oint_data_shift)-1,oint_data_shift);
-%%   #else
-%%     printf("#define fixnum_to_V(obj)  (sintV)( ((((sintV)as_oint(obj) >> %d) << %d) >> %d) | (((uintV)as_oint(obj) << %d) >> %d) )\n",sign_bit_o,intVsize-1,intVsize-1-oint_data_len,intVsize-oint_data_len-oint_data_shift,intVsize-oint_data_len);
-%%   #endif
-%% #endif
+%% export_def(fixnum_to_V(obj));
 
 #ifdef intQsize
   # Value of a fixnum, obj should be a variable:
@@ -5556,21 +5320,21 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # < result: incremented fixnum
 #define fixnum_inc(obj,delta)                                           \
     objectplus(obj, (soint)(delta) << oint_data_shift)
-%% printf("#define fixnum_inc(obj,delta)  objectplus(obj, (soint)(delta) << %d)\n",oint_data_shift);
+%% export_def(fixnum_inc(obj,delta));
 
 # posfixnum(x) is a fixnum with value x>=0.
 #define posfixnum(x)  fixnum_inc(Fixnum_0,x)
-%% printf("#define posfixnum(x)  fixnum_inc(Fixnum_0,x)\n");
+%% export_def(posfixnum(x));
 
 # negfixnum(x) is a fixnum with value x<0.
 # (Beware if x is unsigned!)
 #define negfixnum(x)  fixnum_inc(fixnum_inc(Fixnum_minus1,1),x)
-%% printf("#define negfixnum(x)  fixnum_inc(fixnum_inc(Fixnum_minus1,1),x)\n");
+%% export_def(negfixnum(x));
 
 # sfixnum(x) is a fixnum with value x,
 # x is a constant-expression with -2^oint_data_len <= x < 2^oint_data_len.
 #define sfixnum(x) ((x)>=0 ? posfixnum(x) : negfixnum(x))
-%% printf("#define sfixnum(x) ((x)>=0 ? posfixnum(x) : negfixnum(x))\n");
+%% export_def(sfixnum(x));
 
 # Convert a character into a fixnum >=0 (the same as for char-int):
 #ifdef WIDE_STRUCT
@@ -5612,12 +5376,8 @@ typedef bignum_ *  Bignum;
 %%   emit_typedef("struct { VAROBJECT_HEADER uintD data[unspecified]; }","bignum_");
 %% #endif
 %% emit_typedef("bignum_ *","Bignum");
-%% #ifdef TYPECODES
-%%   printf("#define bignum_length(ptr)  ((ptr)->length)\n");
-%% #else
-%%   printf("#define bignum_length(ptr)  srecord_length(ptr)\n");
-%% #endif
-%% printf("#define Bignum_length(obj)  bignum_length(TheBignum(obj))\n");
+%% export_def(bignum_length(ptr));
+%% export_def(Bignum_length(obj));
 
 # Single-Floats
 typedef uint32 ffloat; # 32-Bit-Float in IEEE-format
@@ -5709,8 +5469,8 @@ typedef sarray_ *  Sarray;
 %% emit_typedef("struct { VRECORD_HEADER }","sarray_");
 %% emit_typedef("sarray_ *","Sarray");
 %% #endif
-%% emit_define("sarray_length(ptr)","vrecord_length(ptr)");
-%% printf("#define Sarray_length(obj)  sarray_length(TheSarray(obj))\n");
+%% export_def(sarray_length(ptr));
+%% export_def(Sarray_length(obj));
 
 # simple bit vector
 typedef struct {
@@ -5722,8 +5482,8 @@ typedef sbvector_ *  Sbvector;
 #define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))
 %% emit_typedef("struct { VRECORD_HEADER uint8  data[unspecified]; }","sbvector_");
 %% emit_typedef("sbvector_ *","Sbvector");
-%% emit_define("sbvector_length(ptr)","sarray_length(ptr)");
-%% emit_define("Sbvector_length(obj)","sbvector_length(TheSbvector(obj))");
+%% export_def(sbvector_length(ptr));
+%% export_def(Sbvector_length(obj));
 
 # simple string template
 #ifdef TYPECODES
@@ -5842,15 +5602,11 @@ typedef sstring_ *  Sstring;
   #define sstringflags_relocated_B    bit(1)
   #define mark_sstring_clean(ptr)  \
     sstring_flags_clr(ptr,sstringflags_backpointer_B|sstringflags_relocated_B)
-%% #ifdef TYPECODES
-%%   emit_define("SSTRING_HEADER","VAROBJECT_HEADER uintL tfl;");
-%% #else
-%%   emit_define("SSTRING_HEADER","VAROBJECT_HEADER");
-%% #endif
+%% export_def(SSTRING_HEADER);
 %% emit_typedef("struct { SSTRING_HEADER }","sstring_");
 %% emit_typedef("sstring_ *","Sstring");
 %% #ifdef HAVE_SMALL_SSTRING
-%%   emit_define("STRUCT_SSTRING(cint_type)","struct { SSTRING_HEADER cint_type data[unspecified]; }");
+%%   export_def(STRUCT_SSTRING(cint_type));
 %%   emit_typedef("STRUCT_SSTRING(cint8)","s8string_");
 %%   emit_typedef("s8string_ *","S8string");
 %%   emit_typedef("STRUCT_SSTRING(cint16)","s16string_");
@@ -5859,17 +5615,9 @@ typedef sstring_ *  Sstring;
 %%   emit_typedef("s32string_ *","S32string");
 %% #endif
 %% emit_typedef("struct { SSTRING_HEADER chart data[unspecified]; }","snstring_");
-%% #ifdef TYPECODES
-%%   emit_define("sstring_length(ptr)","((ptr)->tfl >> 6)");
-%% #else
-%%   emit_define("sstring_length(ptr)","((ptr)->tfl >> 10)");
-%% #endif
-%%   emit_define("Sstring_length(obj)","sstring_length(TheSstring(obj))");
-%% #ifdef TYPECODES
-%%   emit_define("sstring_eltype(ptr)","(((ptr)->tfl >> 4) & 3)");
-%% #else
-%%   printf("#define sstring_eltype(ptr)  ((record_type(ptr) - %d) >> 1)\n",Rectype_S8string);
-%% #endif
+%% export_def(sstring_length(ptr));
+%% export_def(Sstring_length(obj));
+%% export_def(sstring_eltype(ptr));
 
 # simple vector
 typedef struct {
@@ -5948,9 +5696,9 @@ typedef iarray_ *  Iarray;
 #define Atype_T      6  # storage vector is of type svector_type
 #define Atype_Char   7  # storage vector is of type sstring_type
 #define Atype_NIL    8  # storage vector is NIL
-%%   printf("#define Atype_Bit %d\n",Atype_Bit);
-%%   printf("#define Atype_8Bit %d\n",Atype_8Bit);
-%%   printf("#define Atype_32Bit %d\n",Atype_32Bit);
+%% export_def(Atype_Bit);
+%% export_def(Atype_8Bit);
+%% export_def(Atype_32Bit);
 
 # array-types
 #ifdef TYPECODES
@@ -6026,10 +5774,7 @@ typedef iarray_ *  Iarray;
   #define type_bits_to_atype(type)  (type)
 #endif
 %% #ifdef TYPECODES
-%%   printf("#define Array_type_simple_bit_vector(atype)  (%d+((atype)<<%d)",Array_type_sbvector,TB0);
-%%   if (TB0+1 != TB1) printf("+((atype)&%d)",bit(TB0+1)-bit(TB1));
-%%   if (TB1+1 != TB2) printf("+((atype)&%d)",bit(TB1+1)-bit(TB2));
-%%   printf(")\n");
+%%  export_def(Array_type_simple_bit_vector(atype));
 %% #endif
 
 /* Packages */
@@ -6331,16 +6076,11 @@ typedef struct {
 %% strcat(buf," } *");
 %% emit_typedef(buf,"Encoding");
 %% #ifdef UNICODE
-%%   printf("#define Encoding_wcslen(encoding)  ((uintL (*) (object, const chart*, const chart*)) ThePseudofun(TheEncoding(encoding)->enc_wcslen))\n");
-%%   printf("#define Encoding_wcstombs(encoding)  ((void (*) (object, object, const chart**, const chart*, uintB**, uintB*)) ThePseudofun(TheEncoding(encoding)->enc_wcstombs))\n");
+%%  export_def(Encoding_wcslen(encoding));
+%%  export_def(Encoding_wcstombs(encoding));
 %% #endif
-%% #ifdef UNICODE
-%%   printf("#define cslen(encoding,src,srclen)  Encoding_wcslen(encoding)(encoding,src,(src)+(srclen))\n");
-%%   printf("#define cstombs(encoding,src,srclen,dest,destlen)  do { const chart* _srcptr = (src); const chart* _srcendptr = _srcptr+(srclen); uintB* _destptr = (dest); uintB* _destendptr = _destptr+(destlen); Encoding_wcstombs(encoding)(encoding,nullobj,&_srcptr,_srcendptr,&_destptr,_destendptr); } while(0)\n");
-%% #else
-%%   emit_define("cslen(encoding,src,srclen)","(srclen)");
-%%   emit_define("cstombs(encoding,src,srclen,dest,destlen)","do { begin_system_call(); memcpy(dest,src,srclen); end_system_call(); } while(0)");
-%% #endif
+%% export_def(cslen(encoding,src,srclen));
+%% export_def(cstombs(encoding,src,srclen,dest,destlen));
 
 #ifdef FOREIGN
 # foreign pointer wrap
@@ -6358,8 +6098,8 @@ typedef struct {
 #endif
 %% #ifdef FOREIGN
 %%   emit_typedef("struct { XRECORD_HEADER void* fp_pointer;} *","Fpointer");
-%%   printf("#define fp_validp(ptr)  ((record_flags(ptr) & %d) == 0)\n",bit(7));
-%%   printf("#define mark_fp_invalid(ptr)  record_flags_set(ptr,%d)\n",bit(7));
+%%   export_def(fp_validp(ptr));
+%%   export_def(mark_fp_invalid(ptr));
 %% #endif
 
 #ifdef DYNAMIC_FFI
@@ -6706,7 +6446,7 @@ typedef struct {
   #endif
   #define strm_buffered_bufflen 4096   # buffer length, a power of 2, <2^16
 # is used by stream.d, pathname.d, io.d
-%% printf("#define strm_buffered_bufflen %d\n",strm_buffered_bufflen);
+%% export_def(strm_buffered_bufflen);
 
 # Structures
 typedef Srecord  Structure;
@@ -6714,7 +6454,7 @@ typedef Srecord  Structure;
 #define structure_length(ptr)  srecord_length(ptr)
 #define Structure_length(obj)  structure_length(TheStructure(obj))
 %% emit_typedef("Srecord","Structure");
-%% emit_define("structure_types","recdata[0]");
+%% export_def(structure_types);
 
 # CLOS class-versions, see clos.lisp
 typedef struct {
@@ -6919,13 +6659,9 @@ typedef struct {
 #define CCV_START_KEY          14
 # Compiled closures, where Bit 4 has been set in the flags of clos_codevec
 # are generic functions.
-%% #ifdef TYPECODES
-%%   emit_define("closure_flags(ptr)","((ptr)->recflags)");
-%% #else
-%%   emit_define("closure_flags(ptr)","record_flags(ptr)");
-%% #endif
-%% printf1("#define closure_instancep(ptr)  (closure_flags(ptr) & %d)\n",closflags_instance_B);
-%% printf("#define Closure_instancep(obj)  closure_instancep(TheClosure(obj))\n");
+%% export_def(closure_flags(ptr));
+%% export_def(closure_instancep(ptr));
+%% export_def(Closure_instancep(obj));
 
 # A compiled LISP-function gets its arguments on the STACK
 # and returns its values in MULTIPLE_VALUE_SPACE.
@@ -7103,15 +6839,7 @@ typedef enum {
     #define make_machine(ptr)  as_object((oint)(ptr)+machine_bias)
   #endif
 #endif
-%% #ifdef TYPECODES
-%%   printf1("#define make_machine(ptr)  type_pointer_object(%d,ptr)\n",(tint)machine_type);
-%% #else
-%%   #if defined(WIDE_AUXI)
-%%     printf1("#define make_machine(ptr)  as_object_with_auxi((aint)(ptr)+%d)\n",machine_bias);
-%%   #else
-%%     printf1("#define make_machine(ptr)  as_object((oint)(ptr)+%d)\n",machine_bias);
-%%   #endif
-%% #endif
+%% export_def(make_machine(ptr));
 
 # Pointer to machine code
 # make_machine_code(ptr)
@@ -7127,11 +6855,11 @@ typedef enum {
 #define make_system(data)  \
   type_data_object(system_type, vbit(oint_data_len-1) | bit(0) | ((vbitm(oint_data_len)-1) & (data)))
 # all such go into the special print routine io.d:pr_system()
-%% printf3("#define make_system(data)  type_data_object(%d,%x | (%x & (data)))\n",(tint)system_type,(oint)(vbit(oint_data_len-1) | bit(0)),(oint)(vbitm(oint_data_len)-1));
+%% export_def(make_system(data));
 
 # missing value
 #define unbound  make_system(0xFFFFFFUL)
-%% printf("#define unbound  make_system(0x%x)\n",0xFFFFFFUL);
+%% export_def(unbound);
 
 # missing object (internal use only):
 #define nullobj  make_machine(0)  # = as_object((oint)0)
@@ -7140,12 +6868,8 @@ typedef enum {
 #else
   #define gcv_nullobj  nullobj
 #endif
-%% emit_define("nullobj","make_machine(0)");
-%% #ifdef DEBUG_GCSAFETY
-%%   emit_define("gcv_nullobj","(gcv_object_t)nullobj");
-%% #else
-%%   emit_define("gcv_nullobj","nullobj");
-%% #endif
+%% export_def(nullobj);
+%% export_def(gcv_nullobj);
 
 
 # cgci_pointable(obj)  converts a certainly GC-invariant object to an aint.
@@ -7196,14 +6920,10 @@ typedef enum {
 %%   printf("static inline aint pgci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }\n");
 %%   printf("static inline aint ngci_pointable (object obj) { if (!(gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }\n");
 %%   printf("static inline aint ngci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }\n");
-%% #elif defined(WIDE_AUXI)
-%%   emit_define("cgci_pointable(obj)","(obj).one_o");
-%%   emit_define("pgci_pointable(obj)","(obj).one_o");
-%%   emit_define("ngci_pointable(obj)","(obj).one_o");
 %% #else
-%%   emit_define("cgci_pointable(obj)","as_oint(obj)");
-%%   emit_define("pgci_pointable(obj)","as_oint(obj)");
-%%   emit_define("ngci_pointable(obj)","as_oint(obj)");
+%%   export_def(cgci_pointable(obj));
+%%   export_def(pgci_pointable(obj));
+%%   export_def(ngci_pointable(obj));
 %% #endif
 
 # TheCons(object) yields the Cons that's equivalent to object.
@@ -7443,85 +7163,41 @@ typedef enum {
 #define TheClassVersion(obj)  ((ClassVersion)TheSvector(obj))
 #define TheSlotDefinition(obj)  ((SlotDefinition)TheInstance(obj))
 #define TheClass(obj)  ((Class)TheInstance(obj))
-%% #ifdef TYPECODES
-%%   printf("#define TheCons(obj)  ((Cons)("); printf_type_pointable(ngci,cons_type); printf("))\n");
-%%   #if notused
-%%   printf("#define TheRatio(obj)  ((Ratio)("); printf_type_pointable(ngci,ratio_type|bit(sign_bit_t)); printf("))\n");
-%%   printf("#define TheComplex(obj)  ((Complex)("); printf_type_pointable(ngci,complex_type); printf("))\n");
-%%   #endif
-%%   printf("#define TheSymbol(obj)  ((Symbol)("); printf_type_pointable(ngci,symbol_type); printf("))\n");
-%%   printf("#define TheBignum(obj)  ((Bignum)("); printf_type_pointable(ngci,bignum_type|bit(sign_bit_t)); printf("))\n");
-%%   #if notused
-%%   printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(ngci,sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type); printf("))\n");
-%%   #endif
-%%   printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(ngci,sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type); printf("))\n");
-%%   #ifdef HAVE_SMALL_SSTRING
-%%     printf("#define TheS8string(obj) ((S8string)("); printf_type_pointable(ngci,sstring_type); printf("))\n");
-%%     printf("#define TheS16string(obj) ((S16string)("); printf_type_pointable(ngci,sstring_type); printf("))\n");
-%%     printf("#define TheS32string(obj) ((S32string)("); printf_type_pointable(ngci,sstring_type); printf("))\n");
-%%   #endif
-%%   printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(ngci,sstring_type); printf("))\n");
-%%   printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(ngci,svector_type); printf("))\n");
-%%   printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(ngci,closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
-%%   printf("#define TheSrecord(obj)  ((Srecord)("); printf_type_pointable(ngci,closure_type|structure_type|orecord_type|instance_type); printf("))\n");
-%%   #if notused
-%%   printf("#define TheXrecord(obj)  ((Xrecord)("); printf_type_pointable(ngci,stream_type|orecord_type); printf("))\n");
-%%   printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(ngci,orecord_type); printf("))\n");
-%%   #endif
-%%   printf("#define TheEncoding(obj)  ((Encoding)("); printf_type_pointable(ngci,orecord_type); printf("))\n");
-%%   #ifdef FOREIGN
-%%     printf("#define TheFpointer(obj)  ((Fpointer)("); printf_type_pointable(ngci,orecord_type); printf("))\n");
-%%   #endif
-%%   printf("#define TheStructure(obj)  ((Structure)("); printf_type_pointable(ngci,structure_type); printf("))\n");
-%%   printf("#define TheClosure(obj)  ((Closure)("); printf_type_pointable(ngci,closure_type); printf("))\n");
-%%   printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(ngci,instance_type|closure_type); printf("))\n");
-%%   printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(cgci,subr_type); printf("))\n");
-%%   printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(cgci,machine_type); printf("))\n");
-%%   printf("#define TheMachineCode(obj)  TheMachine(obj)\n");
-%%   printf("#define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))\n");
-%% #else
-%%   printf1("#define TheCons(obj)  ((Cons)(ngci_pointable(obj)-%d))\n",cons_bias);
-%%   #if notused
-%%   printf1("#define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   printf1("#define TheComplex(obj)  ((Complex)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   #endif
-%%   printf1("#define TheSymbol(obj)  ((Symbol)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   printf1("#define TheBignum(obj)  ((Bignum)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   #if notused
-%%   printf1("#define TheSarray(obj)  ((Sarray)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   #endif
-%%   printf1("#define TheSbvector(obj)  ((Sbvector)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   #ifdef HAVE_SMALL_SSTRING
-%%     printf("#define TheS8string(obj) ((S8string)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%     printf("#define TheS16string(obj) ((S16string)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%     printf("#define TheS32string(obj) ((S32string)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   #endif
-%%   printf1("#define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   printf1("#define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   printf1("#define TheRecord(obj)  ((Record)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   printf1("#define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   #if notused
-%%   printf1("#define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   printf1("#define ThePackage(obj)  ((Package)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   #endif
-%%   printf("#define TheEncoding(obj)  ((Encoding)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   #ifdef FOREIGN
-%%     printf("#define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   #endif
-%%   printf1("#define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   printf1("#define TheClosure(obj)  ((Closure)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   printf1("#define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-%d))\n",varobject_bias);
-%%   printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
-%%   printf1("#define TheMachine(obj)  ((void*)(cgci_pointable(obj)-%d))\n",machine_bias);
-%%   #if (log2_C_CODE_ALIGNMENT >= 2)
-%%     printf("#define TheMachineCode(obj)  TheMachine(obj)\n");
-%%   #elif defined(HPPA)
-%%     printf("#define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)+2))\n");
-%%   #else
-%%     printf2("#define TheMachineCode(obj)  ((void*)(((uintP)TheMachine(obj)>>%d)|%d))\n",2-log2_C_CODE_ALIGNMENT,CODE_ADDRESS_RANGE&~((~(uintP)0)>>(2-log2_C_CODE_ALIGNMENT)));
-%%   #endif
-%%   printf("#define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))\n");
+%% export_def(TheCons(obj));
+%% #if notused
+%%   export_def(TheRatio(obj));
+%%   export_def(TheComplex(obj));
 %% #endif
+%% export_def(TheSymbol(obj));
+%% export_def(TheBignum(obj));
+%% #if notused
+%%   export_def(TheSarray(obj));
+%% #endif
+%% export_def(TheSbvector(obj));
+%% #ifdef HAVE_SMALL_SSTRING
+%%   export_def(TheS8string(obj));
+%%   export_def(TheS16string(obj));
+%%   export_def(TheS32string(obj));
+%% #endif
+%% export_def(TheSstring(obj));
+%% export_def(TheSvector(obj));
+%% export_def(TheRecord(obj));
+%% export_def(TheSrecord(obj));
+%% #if notused
+%%   export_def(TheXrecord(obj));
+%%   export_def(ThePackage(obj));
+%% #endif
+%% export_def(TheEncoding(obj));
+%% #ifdef FOREIGN
+%%   export_def(TheFpointer(obj));
+%% #endif
+%% export_def(TheStructure(obj));
+%% export_def(TheClosure(obj));
+%% export_def(TheInstance(obj));
+%% export_def(TheSubr(obj));
+%% export_def(TheMachine(obj));
+%% export_def(TheMachineCode(obj));
+%% export_def(ThePseudofun(obj));
 
 # Some acronyms
 # Access to objects that are conses:
@@ -7560,13 +7236,13 @@ typedef enum {
   (Record_type(obj) >= rectype_longlimit \
    ? Lrecord_nonweak_length(obj)         \
    : SXrecord_nonweak_length(obj))
-%% printf("#define Car(obj)  (TheCons(obj)->car)\n");
-%% printf("#define Cdr(obj)  (TheCons(obj)->cdr)\n");
-%% printf("#define Symbol_value(obj)  (TheSymbol(obj)->symvalue)\n");
-%% printf("#define Symbol_function(obj)  (TheSymbol(obj)->symfunction)\n");
-%% printf("#define Symbol_plist(obj)  (TheSymbol(obj)->proplist)\n");
-%% printf("#define Symbol_name(obj)  (TheSymbol(obj)->pname)\n");
-%% printf("#define Symbol_package(obj)  (TheSymbol(obj)->homepackage)\n");
+%% export_def(Car(obj));
+%% export_def(Cdr(obj));
+%% export_def(Symbol_value(obj));
+%% export_def(Symbol_function(obj));
+%% export_def(Symbol_plist(obj));
+%% export_def(Symbol_name(obj));
+%% export_def(Symbol_package(obj));
 
 
 # ####################### type test predicates ############################### #
@@ -7590,30 +7266,22 @@ typedef enum {
 #else
   #define eq(obj1,obj2)  ((obj1) == (obj2))
 #endif
-%% #if defined(DEBUG_GCSAFETY)
-%%   emit_define("eq(obj1,obj2)","(pgci_pointable(obj1) == pgci_pointable(obj2))");
-%% #elif defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
-%%   emit_define("eq(obj1,obj2)","(as_oint(obj1) == as_oint(obj2))");
-%% #elif defined(WIDE_AUXI)
-%%   emit_define("eq(obj1,obj2)","((obj1).one_o == (obj2).one_o)");
-%% #else
-%%   emit_define("eq(obj1,obj2)","((obj1) == (obj2))");
-%% #endif
+%% export_def(eq(obj1,obj2));
 
 # Test for NIL
 #define nullp(obj)  (eq(obj,NIL))
-%% emit_define("nullp(obj)","(eq(obj,NIL))");
+%% export_def(nullp(obj));
 
 # Shorthand: Test a fixed symbol's value for NIL
 #define nullpSv(sym) ( nullp(Symbol_value(S(sym))))
 
 # Test for an argument's value, whether the argument was provided.
 #define boundp(obj)  (!eq(obj,unbound))
-%% printf("#define boundp(obj)  (!eq(obj,unbound))\n");
+%% export_def(boundp(obj));
 
 # Test for an argument's value, whether the argument was not provided or NIL.
 #define missingp(obj)  (!boundp(obj) || nullp(obj))
-%% printf("#define missingp(obj)  (!boundp(obj) || nullp(obj))\n");
+%% export_def(missingp(obj));
 
 # Test for Cons
 #ifdef TYPECODES
@@ -7637,27 +7305,8 @@ typedef enum {
   #define consp(obj)  ((as_oint(obj) & 7) == (cons_bias+conses_misaligned))
   #define mconsp(obj)  consp(obj)
 #endif
-%% #ifdef TYPECODES
-%%   #if defined(cons_bit_o)
-%%     #ifdef fast_mtypecode
-%%       #ifdef WIDE_STRUCT
-%%         printf1("#define consp(obj)  (typecode(obj) & bit(%d))\n",cons_bit_t);
-%%       #else
-%%         printf1("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-%%       #endif
-%%       printf1("#define mconsp(obj)  (mtypecode(obj) & bit(%d))\n",cons_bit_t);
-%%     #else
-%%       printf1("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-%%       printf("#define mconsp(obj)  consp(obj)\n");
-%%     #endif
-%%   #else
-%%     printf1("#define consp(obj)  (typecode(obj) == %d)\n",(tint)cons_type);
-%%     printf1("#define mconsp(obj)  (mtypecode(obj) == %d)\n",(tint)cons_type);
-%%   #endif
-%% #else
-%%   printf2("#define consp(obj)  ((as_oint(obj) & %d) == %d)\n",7,cons_bias+conses_misaligned);
-%%   printf("#define mconsp(obj)  consp(obj)\n");
-%% #endif
+%% export_def(consp(obj));
+%% export_def(mconsp(obj));
 
 # Test for Atom
 #ifdef TYPECODES
@@ -7681,41 +7330,22 @@ typedef enum {
   #define atomp(obj)  (!consp(obj))
   #define matomp(obj)  atomp(obj)
 #endif
-%% #ifdef TYPECODES
-%%   #if defined(cons_bit_o)
-%%     #ifdef fast_mtypecode
-%%       #ifdef WIDE_STRUCT
-%%         printf1("#define atomp(obj)  ((typecode(obj) & bit(%d))==0)\n",cons_bit_t);
-%%       #else
-%%         printf1("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-%%       #endif
-%%       printf1("#define matomp(obj)  ((mtypecode(obj) & bit(%d))==0)\n",cons_bit_t);
-%%     #else
-%%       printf1("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-%%       printf("#define matomp(obj)  atomp(obj)\n");
-%%     #endif
-%%   #else
-%%     printf1("#define atomp(obj)  (!(typecode(obj) == %d))\n",(tint)cons_type);
-%%     printf1("#define matomp(obj)  (!(mtypecode(obj) == %d))\n",(tint)cons_type);
-%%   #endif
-%% #else
-%%   printf("#define atomp(obj)  (!consp(obj))\n");
-%%   printf("#define matomp(obj)  atomp(obj)\n");
-%% #endif
+%% export_def(atomp(obj));
+%% export_def(matomp(obj));
 
 # For all type tests below this line, the argument must be side-effect-free.
 # Ideally a variable, but a STACK_(n) reference works as well.
 
 # Test for List
 #define listp(obj)  (nullp(obj) || consp(obj))
-%% printf("#define listp(obj)  (nullp(obj) || consp(obj))\n");
+%% export_def(listp(obj));
 
 #ifndef TYPECODES
   # Test for Object with variable length
   #define varobjectp(obj)  ((as_oint(obj) & nonimmediate_heapcode_mask) == (varobject_bias+varobjects_misaligned))
 #endif
 %% #ifndef TYPECODES
-%%   printf2("#define varobjectp(obj)  ((as_oint(obj) & %d) == %d)\n",nonimmediate_heapcode_mask,varobject_bias+varobjects_misaligned);
+%%   export_def(varobjectp(obj));
 %% #endif
 
 # Test for Symbol
@@ -7734,19 +7364,7 @@ typedef enum {
   #define symbolp(obj)  \
     (varobjectp(obj) && (Record_type(obj) == Rectype_Symbol))
 #endif
-%% #ifdef TYPECODES
-%%   #if defined(symbol_bit_o)
-%%     #ifdef WIDE_STRUCT
-%%       printf("#define symbolp(obj)  (typecode(obj) & bit(%d))\n",symbol_bit_t);
-%%     #else
-%%       printf("#define symbolp(obj)  (wbit_test(as_oint(obj),%d))\n",symbol_bit_o);
-%%     #endif
-%%   #else
-%%     printf1("#define symbolp(obj)  (typecode(obj) == %d)\n",(tint)symbol_type);
-%%   #endif
-%% #else
-%%   printf1("#define symbolp(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Symbol);
-%% #endif
+%% export_def(symbolp(obj));
 
 # Test for number
 #ifdef TYPECODES
@@ -7766,13 +7384,9 @@ typedef enum {
 #endif
 %% #if notused
 %% #ifdef TYPECODES
-%%   #ifdef WIDE_STRUCT
-%%     printf("#define numberp(obj)  (typecode(obj) & bit(%d))\n",number_bit_t);
-%%   #else
-%%     printf("#define numberp(obj)  (wbit_test(as_oint(obj),%d))\n",number_bit_o);
-%%   #endif
+%%  export_def(numberp(obj));
 %% #else
-%%   printf2("#define immediate_number_p(obj)  ((as_oint(obj) & %d) == %d)\n",(4 << imm_type_shift) | immediate_bias,(fixnum_type&sfloat_type));
+%%  export_def(immediate_number_p(obj));
 %% #endif
 %% #endif
 
@@ -7787,11 +7401,7 @@ typedef enum {
     (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_vector) \
                          <= Rectype_string - Rectype_vector))
 #endif
-%% #ifdef TYPECODES
-%%   printf2("#define vectorp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)sbvector_type,(tint)(vector_type-sbvector_type));
-%% #else
-%%   printf2("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - %d) <= %d))\n",Rectype_vector,Rectype_string-Rectype_vector);
-%% #endif
+%% export_def(vectorp(obj));
 
 # Test for simple-vector or simple-bit-vector or simple-string
 #ifdef TYPECODES
@@ -7826,11 +7436,7 @@ typedef enum {
   #define simple_vector_p(obj)  \
     (varobjectp(obj) && (Record_type(obj) == Rectype_Svector))
 #endif
-%% #ifdef TYPECODES
-%%   printf1("#define simple_vector_p(obj)  (typecode(obj) == %d)\n",(tint)svector_type);
-%% #else
-%%   printf1("#define simple_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Svector);
-%% #endif
+%% export_def(simple_vector_p(obj));
 
 # Test for general-vector=(vector t)
 #ifdef TYPECODES
@@ -7843,11 +7449,7 @@ typedef enum {
      && ((Record_type(obj) & ~(Rectype_Svector ^ Rectype_vector)) == (Rectype_Svector & Rectype_vector)) \
     )
 #endif
-%% #ifdef TYPECODES
-%%   printf2("#define general_vector_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)svector_type);
-%% #else
-%%   printf2("#define general_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d))\n",Rectype_Svector^Rectype_vector,Rectype_Svector&Rectype_vector);
-%% #endif
+%% export_def(general_vector_p(obj));
 
 # Test for simple-string
 #ifdef TYPECODES
@@ -7859,11 +7461,7 @@ typedef enum {
     (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_S8string) \
                          <= Rectype_reallocstring - Rectype_S8string))
 #endif
-%% #ifdef TYPECODES
-%%   printf1("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
-%% #else
-%%   printf("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - %d) <= %d))\n",Rectype_S8string,Rectype_reallocstring - Rectype_S8string);
-%% #endif
+%% export_def(simple_string_p(obj));
 
 # Test for string
 #ifdef TYPECODES
@@ -7875,11 +7473,7 @@ typedef enum {
     (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_S8string) \
                          <= Rectype_string - Rectype_S8string))
 #endif
-%% #ifdef TYPECODES
-%%   printf2("#define stringp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sstring_type);
-%% #else
-%%   printf("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - %d) <= %d))\n",Rectype_S8string,Rectype_reallocstring - Rectype_S8string);
-%% #endif
+%% export_def(stringp(obj));
 
 /* test for (VECTOR NIL) */
 #ifdef TYPECODES
@@ -7905,11 +7499,7 @@ typedef enum {
   #define simple_bit_vector_p(atype,obj)  \
     (varobjectp(obj) && (Record_type(obj) == Rectype_Sbvector+(atype)))
 #endif
-%% #ifdef TYPECODES
-%%   printf("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
-%% #else
-%%   printf1("#define simple_bit_vector_p(atype,obj)  (varobjectp(obj) && (Record_type(obj) == %d+(atype)))\n",Rectype_Sbvector);
-%% #endif
+%% export_def(simple_bit_vector_p(atype,obj));
 
 # Test for bit[n]-vector
 #ifdef TYPECODES
@@ -7922,11 +7512,7 @@ typedef enum {
      && ((Record_type(obj) & ~(Rectype_Sbvector ^ Rectype_bvector)) == (Rectype_Sbvector & Rectype_bvector) + (atype)) \
     )
 #endif
-%% #ifdef TYPECODES
-%%   printf1("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == Array_type_simple_bit_vector(atype))\n",(tint)bit(notsimple_bit_t));
-%% #else
-%%   printf2("#define bit_vector_p(atype,obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d+(atype)))\n",Rectype_Sbvector^Rectype_bvector,Rectype_Sbvector&Rectype_bvector);
-%% #endif
+%% export_def(bit_vector_p(atype,obj));
 
 # Test for Array (general)
 #ifdef TYPECODES
@@ -7940,11 +7526,7 @@ typedef enum {
     (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_vector) \
                          <= Rectype_mdarray - Rectype_vector))
 #endif
-%% #ifdef TYPECODES
-%%   printf2("#define arrayp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)mdarray_type,(tint)(vector_type-mdarray_type));
-%% #else
-%%   printf2("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-%d) <= %d))\n",Rectype_vector,Rectype_mdarray-Rectype_vector);
-%% #endif
+%% export_def(arrayp(obj));
 
 # Test for Array, that isn't a Vector (type byte %100)
 #ifdef TYPECODES
@@ -8026,11 +7608,7 @@ typedef enum {
 # Test for funcallable CLOS-Instance
 #define funcallable_instance_p(obj)  \
   (closurep(obj) && Closure_instancep(obj))
-%% #ifdef TYPECODES
-%%   printf2("#define instancep(obj)  (typecode(obj)==%d || (typecode(obj)==%d && Cclosure_instance_p(obj)))\n",(tint)instance_type,(tint)closure_type);
-%% #else
-%%   printf2("#define instancep(obj)  (varobjectp(obj) && (Record_type(obj) == %d || (Record_type(obj) == %d && Cclosure_instance_p(obj))))\n",Rectype_Instance,Rectype_Closure);
-%% #endif
+%% export_def(instancep(obj));
 
 # Test for CLOS-class or forward-reference.
 # Our CLOS implements all classes as instances of a
@@ -8094,11 +7672,7 @@ typedef enum {
 #else
   #define orecordp(obj)  varobjectp(obj)
 #endif
-%% #ifdef TYPECODES
-%%   printf1("#define orecordp(obj)  (typecode(obj)==%d)\n",(tint)orecord_type);
-%% #else
-%%   printf("#define orecordp(obj)  varobjectp(obj)\n");
-%% #endif
+%% export_def(orecordp(obj));
 
 # Test for Long-Record
 # This is not really a type test (because there is no well-defined type
@@ -8116,11 +7690,7 @@ typedef enum {
   #define structurep(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Structure))
 #endif
-%% #ifdef case_structure
-%%   printf1("#define structurep(obj)  (typecode(obj)==%d)\n",(tint)structure_type);
-%% #else
-%%   printf("#define structurep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Structure);
-%% #endif
+%% export_def(structurep(obj));
 
 # Test for Builtin-Stream
 #ifdef case_stream
@@ -8129,11 +7699,7 @@ typedef enum {
   #define builtin_stream_p(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Stream))
 #endif
-%% #ifdef case_stream
-%%   printf("#define builtin_stream_p(obj) (typecode(obj)==%d)\n",stream_type);
-%% #else
-%%   printf("#define builtin_stream_p(obj) (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Stream);
-%% #endif
+%% export_def(builtin_stream_p(obj));
 
 # Test for Stream
 #define streamp(obj)  \
@@ -8143,7 +7709,7 @@ typedef enum {
 #define packagep(obj)  \
   (orecordp(obj) && (Record_type(obj) == Rectype_Package))
 %% #if notused
-%% printf("#define packagep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Package);
+%% export_def(packagep(obj));
 %% #endif
 
 # Test for Hash-Table
@@ -8221,7 +7787,7 @@ typedef enum {
 #define fpointerp(obj)  \
   (orecordp(obj) && (Record_type(obj) == Rectype_Fpointer))
 %% #ifdef FOREIGN
-%%   printf("#define fpointerp(obj) (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Fpointer);
+%%   export_def(fpointerp(obj));
 %% #endif
 
 # Test for Faddress
@@ -8267,11 +7833,7 @@ typedef enum {
 #else
   #define charp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == char_type)
 #endif
-%% #ifdef TYPECODES
-%%   printf("#define charp(obj)  (typecode(obj)==%d)\n",(tint)char_type);
-%% #else
-%%   printf("#define charp(obj)  ((as_oint(obj) & %d) == %d)\n",(7 << imm_type_shift) | immediate_bias,char_type);
-%% #endif
+%% export_def(charp(obj));
 
 #if (base_char_code_limit < char_code_limit)
 # Test for base character
@@ -8392,11 +7954,7 @@ typedef enum {
    (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type) \
     || (varobjectp(obj) && (Record_type(obj) == Rectype_Bignum)))
 #endif
-%% #ifdef TYPECODES
-%%   printf2("#define integerp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((fixnum_type|bignum_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type)),(tint)(fixnum_type&bignum_type));
-%% #else
-%%   printf3("#define integerp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && (Record_type(obj) == %d)))\n",(6 << imm_type_shift) | immediate_bias,fixnum_type,Rectype_Bignum);
-%% #endif
+%% export_def(integerp(obj));
 
 # Test for Fixnum
 #ifdef TYPECODES
@@ -8404,11 +7962,7 @@ typedef enum {
 #else
   #define fixnump(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type)
 #endif
-%% #ifdef TYPECODES
-%%   printf2("#define fixnump(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)fixnum_type);
-%% #else
-%%   printf2("#define fixnump(obj)  ((as_oint(obj) & %d) == %d)\n",(6 << imm_type_shift) | immediate_bias,fixnum_type);
-%% #endif
+%% export_def(fixnump(obj));
 
 # Test for Fixnum >=0
 #ifdef TYPECODES
@@ -8416,11 +7970,7 @@ typedef enum {
 #else
   #define posfixnump(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == fixnum_type)
 #endif
-%% #ifdef TYPECODES
-%%   printf1("#define posfixnump(obj)  (typecode(obj) == %d)\n",(tint)fixnum_type);
-%% #else
-%%   printf2("#define posfixnump(obj)  ((as_oint(obj) & %d) == %d)\n",(7 << imm_type_shift) | immediate_bias,fixnum_type);
-%% #endif
+%% export_def(posfixnump(obj));
 
 # Test for Bignum
 #ifdef TYPECODES
@@ -8429,11 +7979,7 @@ typedef enum {
   #define bignump(obj)  \
     (varobjectp(obj) && (Record_type(obj) == Rectype_Bignum))
 #endif
-%% #ifdef TYPECODES
-%%   printf2("#define bignump(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)bignum_type);
-%% #else
-%%   printf1("#define bignump(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Bignum);
-%% #endif
+%% export_def(bignump(obj));
 
 # Test for Bignum >=0
 #ifdef TYPECODES
@@ -8444,11 +7990,7 @@ typedef enum {
      && (Record_type(obj) == Rectype_Bignum) \
      && ((Record_flags(obj) & bit(7)) == 0))
 #endif
-%% #ifdef TYPECODES
-%%   printf("#define posbignump(obj)  (typecode(obj) == %d)\n",(tint)bignum_type);
-%% #else
-%%   printf("#define posbignump(obj)  (varobjectp(obj) && (Record_type(obj) == %d) && ((Record_flags(obj) & %d) == 0))\n",Rectype_Bignum,bit(7));
-%% #endif
+%% export_def(posbignump(obj));
 
 # Test for Ratio
 #ifdef TYPECODES
@@ -8457,11 +7999,7 @@ typedef enum {
   #define ratiop(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Ratio))
 #endif
 %% #if notused
-%% #ifdef TYPECODES
-%%   printf2("#define ratiop(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)ratio_type);
-%% #else
-%%   printf1("#define ratiop(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Ratio);
-%% #endif
+%%   export_def(ratiop(obj));
 %% #endif
 
 # Test for Float
@@ -8477,11 +8015,7 @@ typedef enum {
          && ((uintB)(Record_type(obj)-Rectype_Lfloat) <= Rectype_Ffloat-Rectype_Lfloat)))
 #endif
 %% #if notused
-%% #ifdef TYPECODES
-%%   printf2("#define floatp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((sfloat_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t)) & ~(sfloat_type&ffloat_type&dfloat_type&lfloat_type)),(tint)(sfloat_type&ffloat_type&dfloat_type&lfloat_type));
-%% #else
-%%   printf4("#define floatp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && ((uintB)(Record_type(obj)-%d) <= %d)))\n",(6 << imm_type_shift) | immediate_bias,sfloat_type,Rectype_Lfloat,Rectype_Ffloat-Rectype_Lfloat);
-%% #endif
+%%   export_def(floatp(obj));
 %% #endif
 
 # Test for Short-Float
@@ -8491,11 +8025,7 @@ typedef enum {
   #define short_float_p(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == sfloat_type)
 #endif
 %% #if notused
-%% #ifdef TYPECODES
-%%   printf2("#define short_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)sfloat_type);
-%% #else
-%%   printf2("#define short_float_p(obj)  ((as_oint(obj) & &d) == %d)\n",(6 << imm_type_shift) | immediate_bias,sfloat_type);
-%% #endif
+%%   export_def(short_float_p(obj));
 %% #endif
 
 # Test for Single-Float
@@ -8504,11 +8034,7 @@ typedef enum {
 #else
   #define single_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Ffloat))
 #endif
-%% #ifdef TYPECODES
-%%   printf2("#define single_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)ffloat_type);
-%% #else
-%%   printf1("#define single_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Ffloat);
-%% #endif
+%% export_def(single_float_p(obj));
 
 # Test for Double-Float
 #ifdef TYPECODES
@@ -8516,11 +8042,7 @@ typedef enum {
 #else
   #define double_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Dfloat))
 #endif
-%% #ifdef TYPECODES
-%%   printf2("#define double_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)dfloat_type);
-%% #else
-%%   printf1("#define double_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Dfloat);
-%% #endif
+%% export_def(double_float_p(obj));
 
 # Test for Long-Float
 #ifdef TYPECODES
@@ -8529,11 +8051,7 @@ typedef enum {
   #define long_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Lfloat))
 #endif
 %% #if notused
-%% #ifdef TYPECODES
-%%   printf2("#define long_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)lfloat_type);
-%% #else
-%%   printf1("#define long_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Lfloat);
-%% #endif
+%%   export_def(long_float_p(obj));
 %% #endif
 
 # Test for Complex
@@ -8543,11 +8061,7 @@ typedef enum {
   #define complexp(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Complex))
 #endif
 %% #if notused
-%% #ifdef TYPECODES
-%%   printf1("#define complexp(obj)  (typecode(obj) == %d)\n",(tint)complex_type);
-%% #else
-%%   printf1("#define complexp(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Complex);
-%% #endif
+%%   export_def(complexp(obj));
 %% #endif
 
 # Test if a real number is >=0:
@@ -8564,15 +8078,7 @@ typedef enum {
      ? /* fixnum, sfloat */ (as_oint(obj) & wbit(sign_bit_o)) == 0 \
      : /* bignum, [fdl]float */ (Record_flags(obj) & bit(7)) == 0)
 #endif
-%% #ifdef TYPECODES
-%%   #ifdef WIDE_STRUCT
-%%     printf("#define positivep(obj)  ((typecode(obj) & bit(%d)) == 0)\n",sign_bit_t);
-%%   #else
-%%     printf("#define positivep(obj)  (!wbit_test(as_oint(obj),%d))\n",sign_bit_o);
-%%   #endif
-%% #else
-%%   printf2("#define positivep(obj)  (number_immediatep(obj) ? (as_oint(obj) & %d) == 0 : (Record_flags(obj) & %d) == 0)\n",wbit(sign_bit_o),bit(7));
-%% #endif
+%% export_def(positivep(obj));
 
 
 # switch with typcodes:
@@ -8946,11 +8452,7 @@ typedef enum {
 #else
   #define R_minusp(obj)  (!positivep(obj))
 #endif
-%% #ifdef TYPECODES
-%%   printf("#define R_minusp(obj)  (wbit_test(as_oint(obj),%d))\n",vorz_bit_o);
-%% #else
-%%   printf("#define R_minusp(obj)  (!positivep(obj))\n");
-%% #endif
+%% export_def(R_minusp(obj));
 
 # Tests a rational number whether it's an Integer.
 #ifdef TYPECODES
@@ -8998,11 +8500,7 @@ typedef enum {
 #else
   #define FN_positivep(obj)  ((as_oint(obj) & wbit(sign_bit_o)) == 0)
 #endif
-%% #ifdef TYPECODES
-%%   printf("#define FN_positivep(obj)  positivep(obj)\n");
-%% #else
-%%   printf1("#define FN_positivep(obj)  ((as_oint(obj) & %d) == 0)\n",wbit(sign_bit_o));
-%% #endif
+%% export_def(FN_positivep(obj));
 
 # Tests a Bignum whether it is >=0.
 #ifdef TYPECODES
@@ -9010,11 +8508,7 @@ typedef enum {
 #else
   #define BN_positivep(obj)  ((Record_flags(obj) & bit(7)) == 0)
 #endif
-%% #ifdef TYPECODES
-%%   printf("#define BN_positivep(obj)  positivep(obj)\n");
-%% #else
-%%   printf1("#define BN_positivep(obj)  ((Record_flags(obj) & %d) == 0)\n",bit(7));
-%% #endif
+%% export_def(BN_positivep(obj));
 
 # Tests a number whether it's a real number
 #define N_realp(obj)  (!complexp(obj))
@@ -9095,36 +8589,18 @@ typedef enum {
   #define ulong_p  uint64_p
   #define slong_p  sint64_p
 #endif
-%% printf2("#define uint8_p(obj)  ((as_oint(obj) & ~%x) == %x)\n",(oint)0xFF << oint_data_shift,as_oint(Fixnum_0));
-%% printf3("#define sint8_p(obj)  (((as_oint(obj) ^ (FN_positivep(obj) ? 0 : %x)) & ~%x) == %x)\n",as_oint(Fixnum_minus1)^as_oint(Fixnum_0),(oint)0x7F << oint_data_shift,as_oint(Fixnum_0));
-%% printf2("#define uint16_p(obj)  ((as_oint(obj) & ~%x) == %x)\n",(oint)0xFFFF << oint_data_shift,as_oint(Fixnum_0));
-%% printf3("#define sint16_p(obj)  (((as_oint(obj) ^ (FN_positivep(obj) ? 0 : %x)) & ~%x) == %x)\n",as_oint(Fixnum_minus1)^as_oint(Fixnum_0),(oint)0x7FFF << oint_data_shift,as_oint(Fixnum_0));
-%% #if (oint_data_len>=32)
-%%   printf2("#define uint32_p(obj)  ((as_oint(obj) & ~%x) == %x)\n",(oint)0xFFFFFFFF << oint_data_shift,as_oint(Fixnum_0));
-%% #else
-%%   printf3("#define uint32_p(obj)  (posfixnump(obj) || (posbignump(obj) && (Bignum_length(obj) <= %d) && ((Bignum_length(obj) < %d) || (TheBignum(obj)->data[0] < (uintD)bit(%d)) )))\n",ceiling(33,intDsize),ceiling(33,intDsize),32%intDsize);
-%% #endif
-%% #if (oint_data_len>=31)
-%%   printf3("#define sint32_p(obj)  (((as_oint(obj) ^ (FN_positivep(obj) ? 0 : %x)) & ~%x) == %x)\n",as_oint(Fixnum_minus1)^as_oint(Fixnum_0),(oint)0x7FFFFFFF << oint_data_shift,as_oint(Fixnum_0));
-%% #else
-%%   printf3("#define sint32_p(obj)  (fixnump(obj) || (bignump(obj) && (Bignum_length(obj) <= %d) && ((Bignum_length(obj) < %d) || ((TheBignum(obj)->data[0] ^ (BN_positivep(obj) ? (uintD)0 : ~(uintD)0)) < (uintD)bit(%d)) )))\n",ceiling(32,intDsize),ceiling(32,intDsize),31%intDsize);
-%% #endif
-%% printf3("#define uint64_p(obj)  (posfixnump(obj) || (posbignump(obj) && (Bignum_length(obj) <= %d) && ((Bignum_length(obj) < %d) || (TheBignum(obj)->data[0] < (uintD)bit(%d)) )))\n",ceiling(65,intDsize),ceiling(65,intDsize),64%intDsize);
-%% printf3("#define sint64_p(obj)  (fixnump(obj) || (bignump(obj) && (Bignum_length(obj) <= %d) && ((Bignum_length(obj) < %d) || ((TheBignum(obj)->data[0] ^ (BN_positivep(obj) ? (uintD)0 : ~(uintD)0)) < (uintD)bit(%d)) )))\n",ceiling(64,intDsize),ceiling(64,intDsize),63%intDsize);
-%% #if (int_bitsize==16)
-%%   emit_define("uint_p","uint16_p");
-%%   emit_define("sint_p","sint16_p");
-%% #else
-%%   emit_define("uint_p","uint32_p");
-%%   emit_define("sint_p","sint32_p");
-%% #endif
-%% #if (long_bitsize==32)
-%%   emit_define("ulong_p","uint32_p");
-%%   emit_define("slong_p","sint32_p");
-%% #else
-%%   emit_define("ulong_p","uint64_p");
-%%   emit_define("slong_p","sint64_p");
-%% #endif
+%% export_def(uint8_p(obj));
+%% export_def(sint8_p(obj));
+%% export_def(uint16_p(obj));
+%% export_def(sint16_p(obj));
+%% export_def(uint32_p(obj));
+%% export_def(sint32_p(obj));
+%% export_def(uint64_p(obj));
+%% export_def(sint64_p(obj));
+%% export_def(uint_p);
+%% export_def(sint_p);
+%% export_def(ulong_p);
+%% export_def(slong_p);
 
 
 # ####################### TIMEBIBL in TIME.D ############################## #
@@ -9132,7 +8608,7 @@ typedef enum {
 # (* 25567 24 60 60) => 2208988800
 # the number of seconds from 1900-01-01 to 1970-01-01
 #define UNIX_LISP_TIME_DIFF 2208988800UL
-%% emit_define("UNIX_LISP_TIME_DIFF","2208988800UL");
+%% export_def(UNIX_LISP_TIME_DIFF);
 
 # Type which is used for 'Internal Time':
 #ifdef TIME_1
@@ -9824,85 +9300,10 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 %% #if defined(HAVE_SAVED_STACK)
 %%   printf("extern gcv_object_t* saved_STACK;\n");
 %% #endif
-%%   printf("#define begin_call()");
-%% #ifdef HAVE_SAVED_mv_count
-%%   printf(" saved_mv_count = mv_count;");
-%% #endif
-%% #ifdef HAVE_SAVED_value1
-%%   printf(" saved_value1 = value1;");
-%% #endif
-%% #ifdef HAVE_SAVED_back_trace
-%%   printf(" saved_back_trace = back_trace;");
-%% #endif
-%% #ifdef HAVE_SAVED_STACK
-%%   printf(" saved_STACK = STACK;");
-%% #endif
-%% printf("\n");
-%% printf("#define end_call()");
-%% #ifdef HAVE_SAVED_mv_count
-%%   printf(" mv_count = saved_mv_count;");
-%% #endif
-%% #ifdef HAVE_SAVED_value1
-%%   printf(" value1 = saved_value1;");
-%% #endif
-%% #ifdef HAVE_SAVED_back_trace
-%%   printf(" back_trace = saved_back_trace;");
-%% #endif
-%% #ifdef HAVE_SAVED_STACK
-%%   printf(" saved_STACK = (gcv_object_t*)NULL;");
-%% #endif
-%% printf("\n");
-%% printf("#define begin_callback()  ");
-%% #ifdef HAVE_SAVED_REGISTERS
-%%   printf("{ struct registers * registers = alloca(sizeof(struct registers));");
-%%   #ifdef STACK_register
-%%     printf(" registers->STACK_register_contents = STACK_reg;");
-%%   #endif
-%%   #ifdef mv_count_register
-%%     printf(" registers->mv_count_register_contents = mv_count_reg;");
-%%   #endif
-%%   #ifdef value1_register
-%%     printf(" registers->value1_register_contents = value1_reg;");
-%%   #endif
-%%   #ifdef back_trace_register
-%%     printf(" registers->back_trace_register_contents = back_trace_reg;");
-%%   #endif
-%%   #ifdef HAVE_SAVED_STACK
-%%     printf(" STACK = saved_STACK;");
-%%   #endif
-%%   printf(" { gcv_object_t* top_of_frame = STACK; pushSTACK(as_object((aint)callback_saved_registers)); finish_frame(CALLBACK); } callback_saved_registers = registers; } ");
-%% #endif
-%% printf("end_call()\n");
-%% printf("#define end_callback() ");
-%% #ifdef HAVE_SAVED_mv_count
-%%   printf(" saved_mv_count = mv_count;");
-%% #endif
-%% #ifdef HAVE_SAVED_value1
-%%   printf(" saved_value1 = value1;");
-%% #endif
-%% #ifdef HAVE_SAVED_back_trace
-%%   printf(" saved_back_trace = back_trace;");
-%% #endif
-%% #ifdef HAVE_SAVED_REGISTERS
-%%   printf(" { struct registers * registers = callback_saved_registers; if (!(framecode(STACK_(0)) == CALLBACK_frame_info)) abort(); callback_saved_registers = (struct registers *)(aint)as_oint(STACK_(1)); skipSTACK(2);");
-%%   #ifdef HAVE_SAVED_STACK
-%%     printf(" saved_STACK = STACK;");
-%%   #endif
-%%   #ifdef STACK_register
-%%     printf(" STACK_reg = registers->STACK_register_contents;");
-%%   #endif
-%%   #ifdef mv_count_register
-%%     printf(" mv_count_reg = registers->mv_count_register_contents;");
-%%   #endif
-%%   #ifdef value1_register
-%%     printf(" value1_reg = registers->value1_register_contents;");
-%%   #endif
-%%   #ifdef back_trace_register
-%%     printf(" back_trace_reg = registers->back_trace_register_contents;");
-%%   #endif
-%%   printf(" }");
-%% #endif
-%% printf("\n");
+%% export_def(begin_call());
+%% export_def(end_call());
+%% export_def(begin_callback());
+%% export_def(end_callback());
 
 # Every OS-call (or a sequence thereof) has to be framed with
 #   begin_system_call();
@@ -9956,13 +9357,8 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define begin_arith_call()
   #define end_arith_call()
 #endif
-%% #ifdef NO_ASYNC_INTERRUPTS
-%%   printf("#define begin_system_call()\n");
-%%   printf("#define end_system_call()\n");
-%% #else
-%%   printf("#define begin_system_call()  begin_call()\n");
-%%   printf("#define end_system_call()  end_call()\n");
-%% #endif
+%% export_def(begin_system_call());
+%% export_def(end_system_call());
 
 #if defined(HAVE_STACK_OVERFLOW_RECOVERY)
   # Detection of SP-overflow through a Guard-Page or other mechanisms.
@@ -10027,14 +9423,9 @@ nonreturning_function(extern, SP_ueber, (void));
 #endif
 nonreturning_function(extern, STACK_ueber, (void));
 %% #if notused
-%% emit_define("check_STACK()","if (STACK_overflow()) STACK_ueber()");
-%% #ifdef STACK_DOWN
-%%   emit_define("STACK_overflow()","( (aint)STACK < (aint)STACK_bound )");
-%%   emit_define("get_space_on_STACK(n)","if ( (aint)STACK < (aint)STACK_bound + (aint)(n) ) STACK_ueber()");
-%% #else
-%%   emit_define("STACK_overflow()","( (aint)STACK > (aint)STACK_bound )");
-%%   emit_define("get_space_on_STACK(n)","if ( (aint)STACK + (aint)(n) > (aint)STACK_bound ) STACK_ueber()");
-%% #endif
+%% export_def(check_STACK());
+%% export_def(STACK_overflow());
+%% export_def(get_space_on_STACK(n));
 %% printf("extern void* STACK_bound;\n");
 %% printf("nonreturning_function(extern, STACK_ueber, (void));\n");
 %% #endif
@@ -10104,16 +9495,14 @@ nonreturning_function(extern, fehler_notreached, (const char * file, uintL line)
   extern void init_language (const char*, const char*);
 #endif
 %% #ifndef LANGUAGE_STATIC
-%%   #ifndef GNU_GETTEXT
-%%     emit_define("GETTEXT(english)","english");
-%%   #else
+%%   #ifdef GNU_GETTEXT
 %%     printf("#define GNU_GETTEXT\n");
 %%     printf("#ifndef COMPILE_STANDALONE\n");
 %%     printf("#include <libintl.h>\n");
 %%     printf("#endif\n");
 %%     printf("extern const char * clgettext (const char * msgid);\n");
-%%     emit_define("GETTEXT","clgettext");
 %%   #endif
+%%   export_def(GETTEXT);
 %% #endif
 
 # Fetch the message translations of a string: "CL String getTEXT"
@@ -10152,9 +9541,7 @@ extern maygc object object_out (object obj);
 extern maygc object nobject_out (FILE* out, object obj);
 # used for debugging purposes
 %% printf("extern object object_out (object obj);\n");
-%% printf("#define OBJECT_OUT(obj,label)");
-%% printf(" (printf(\"[%%s:%%d] %%s: %%s:\\n\",__FILE__,__LINE__,STRING(obj),label),");
-%% printf("  obj=object_out(obj))\n");
+%% export_def(OBJECT_OUT(obj,label));
 
 # After allocating memory for an object, add the type infos.
 #ifdef TYPECODES
@@ -10356,11 +9743,7 @@ extern maygc object allocate_imm_s32string (uintL len);
   #define allocate_string(len)  allocate_s8string(len)
 #endif
 # is used by ARRAY, CHARSTRG, STREAM, PATHNAME
-%% #ifdef UNICODE
-%%   emit_define("allocate_string(len)","allocate_s32string(len)");
-%% #else
-%%   emit_define("allocate_string(len)","allocate_s8string(len)");
-%% #endif
+%% export_def(allocate_string(len));
 
 # Macro: Allocates a normal string on the stack, with dynamic extent.
 #   { var DYNAMIC_STRING(obj,len);
@@ -10792,7 +10175,7 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
 %% #if defined(FOREIGN_HANDLE)
 %%   printf("extern object allocate_handle (Handle handle);\n");
 %% #else
-%%   printf("#define allocate_handle(handle)  fixnum((uintL)(handle))\n");
+%%   export_def(allocate_handle(handle));
 %% #endif
 
 # UP: allocates Bignum
@@ -10888,11 +10271,7 @@ extern uintL asciz_length (const char * asciz);
 #endif
 # is used by SPVW
 %% #ifdef asciz_length
-%%   #if defined(GNU) && (SAFETY < 2) && (__GNUC__ >= 2)
-%%     emit_define("asciz_length(a)","((uintL)__builtin_strlen(a))");
-%%   #else
-%%     emit_define("asciz_length(a)","((uintL)strlen(a))");
-%%   #endif
+%%   export_def(asciz_length(a));
 %% #else
 %%   printf("extern uintL asciz_length (const char * asciz);\n");
 %% #endif
@@ -10906,7 +10285,7 @@ extern bool asciz_equal (const char * asciz1, const char * asciz2);
 # is used by STREAM
 %% #if notused
 %% #ifdef asciz_length
-%%   emit_define("asciz_equal(a1,a2)","(__builtin_strcmp(a1,a2)==0)");
+%%   export_def(asciz_equal(a1,a2));
 %% #else
 %%   printf("extern bool asciz_equal (const char * asciz1, const char * asciz2);\n");
 %% #endif
@@ -11158,35 +10537,23 @@ extern struct subr_tab_ {
       #define subr_tab_ptr_as_object(subr_addr)  objectplus(subr_addr,subr_bias)
     #endif
   #endif
-  #define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)
+  #define L_help_(name)  subr_tab_ptr_as_object(&subr_tab.name)
 #else
   # define subr_tab_addr  ((struct subr_tab_ *)type_constpointer_object(subr_type,0))
   #define subr_tab_addr  ((struct subr_tab_ *)type_zero_oint(subr_type))
   #define subr_tab  (*subr_tab_addr)
   #define subr_tab_ptr_as_object(subr_addr)  (as_object((oint)(subr_addr)))
-  #define L(name)  subr_tab_ptr_as_object(&subr_tab_addr->D_##name)
+  #define L_help_(name)  subr_tab_ptr_as_object(&subr_tab_addr->name)
 #endif
+#define L(name)  L_help_(D_##name)
 # is used by all modules
-%% #if !defined(MAP_MEMORY_TABLES)
-%%   printf("#define subr_tab  subr_tab_data\n");
-%%   #ifdef TYPECODES
-%%     printf1("#define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(%d,subr_addr))\n",(tint)subr_type);
-%%   #else
-%%     #if defined(WIDE_AUXI)
-%%       printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object_with_auxi((aint)(subr_addr)+%d)\n",subr_bias);
-%%     #elif defined(OBJECT_STRUCT)
-%%       printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+%d)\n",subr_bias);
-%%     #else
-%%       printf1("#define subr_tab_ptr_as_object(subr_addr)  objectplus(subr_addr,%d)\n",subr_bias);
-%%     #endif
-%%   #endif
-%%   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)\n");
-%% #else
-%%   printf1("#define subr_tab_addr  ((struct subr_tab_ *)type_zero_oint(%d))\n",(tint)subr_type);
-%%   printf("#define subr_tab  (*subr_tab_addr)\n");
-%%   printf("#define subr_tab_ptr_as_object(subr_addr)  (as_object((oint)(subr_addr)))\n");
-%%   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab_addr->D_##name)\n");
+%% #if defined(MAP_MEMORY_TABLES)
+%%   export_def(subr_tab_addr);
 %% #endif
+%% export_def(subr_tab);
+%% export_def(subr_tab_ptr_as_object(subr_addr));
+%% export_def(L_help_(name));
+%% emit_define("L(name)","L_help_(D_##name)");
 
 
 # Pseudofunctions are addresses of C functions (to be called directly, not via
@@ -11271,30 +10638,17 @@ extern struct symbol_tab_ {
   #endif
 #endif
 # is used by all modules
-%% printf("#define S(name)  S_help_(S_##name)\n");
-%% #if !defined(MAP_MEMORY_TABLES)
-%%   printf("#define symbol_tab  symbol_tab_data\n");
-%%   #ifdef TYPECODES
-%%     printf1("#define S_help_(name)  (type_constpointer_object(%d,&symbol_tab.name))\n",(tint)symbol_type);
-%%   #else
-%%     #if defined(WIDE_AUXI)
-%%       printf1("#define S_help_(name)  as_object_with_auxi((aint)&symbol_tab.name+%d)\n",varobject_bias);
-%%     #elif defined(OBJECT_STRUCT)
-%%       printf1("#define S_help_(name)  as_object((oint)&symbol_tab.name+%d)\n",varobject_bias);
-%%     #else
-%%       printf1("#define S_help_(name)  objectplus(&symbol_tab.name,%d)\n",varobject_bias);
-%%     #endif
-%%   #endif
-%% #else
-%%   printf1("#define symbol_tab_addr ((struct symbol_tab_ *)type_zero_oint(%d))\n",(tint)symbol_type);
-%%   printf("#define symbol_tab  (*symbol_tab_addr)\n");
-%%   printf("#define S_help_(name)  (as_object((oint)(&symbol_tab_addr->name)))\n");
+%% emit_define("S(name)","S_help_(S_##name)");
+%% #if defined(MAP_MEMORY_TABLES)
+%%   export_def(symbol_tab_addr);
 %% #endif
+%% export_def(symbol_tab);
+%% export_def(S_help_(name));
 
 #define NIL  S(nil)
 #define T    S(t)
-%% emit_define("NIL","S(nil)");
-%% emit_define("T","S(t)");
+%% export_def(NIL);
+%% export_def(T);
 
 #if defined(DEBUG_GCSAFETY)
 # gcinvariant_symbol_p(obj)
@@ -12026,28 +11380,12 @@ re-enters the corresponding top-level loop.
   #define popSTACK()  (_setSTACK(STACK STACKop 1), STACK_(-1))
   #define skipSTACK(n)  (_setSTACK(STACK STACKop (sintP)(n)))
 #endif
-%% #ifdef STACK_DOWN
-%%   emit_define("STACK_(n)","(STACK[(sintP)(n)])");
-%%   emit_define("skipSTACKop","+=");
-%%   emit_define("STACKop","+");
-%% #else
-%%   emit_define("STACK_(n)","(STACK[-1-(sintP)(n)])");
-%%   emit_define("skipSTACKop","-=");
-%%   emit_define("STACKop","-");
-%% #endif
-%% #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM) && !defined(WIDE) && defined(STACK_register)
-%%   #ifdef STACK_DOWN
-%%     printf("#define pushSTACK(obj)  ({ __asm__ __volatile__ (\"movel %%0,%s%s@-\" : : \"g\" ((object)(obj)) : \"%s\" ); })\n",REGISTER_PREFIX,STACK_register,STACK_register);
-%%     printf("#define popSTACK()  ({object __result; __asm__ __volatile__ (\"movel %s%s@+,%%0\" : \"=g\" (__result) : : \"%s\" ); __result; })\n",REGISTER_PREFIX,STACK_register,STACK_register);
-%%   #else
-%%     printf("#define pushSTACK(obj)  ({ __asm__ __volatile__ (\"movel %%0,%s%s@+\" : : \"g\" ((object)(obj)) : \"%s\" ); })\n",REGISTER_PREFIX,STACK_register,STACK_register);
-%%     printf("#define popSTACK()  ({object __result; __asm__ __volatile__ (\"movel %s%s@-,%%0\" : \"=g\" (__result) : : \"%s\" ); __result; })\n",REGISTER_PREFIX,STACK_register,STACK_register);
-%%   #endif
-%% #else
-%%   emit_define("pushSTACK(obj)","(STACK_(-1) = (obj), STACK skipSTACKop -1)");
-%%   emit_define("popSTACK()","(STACK skipSTACKop 1, STACK_(-1))");
-%% #endif
-%% emit_define("skipSTACK(n)","(STACK skipSTACKop (sintP)(n))");
+%% export_def(STACK_(n));
+%% export_def(skipSTACKop);
+%% export_def(STACKop);
+%% export_def(pushSTACK(obj));
+%% export_def(popSTACK());
+%% export_def(skipSTACK(n));
 
 #define STACK_0  (STACK_(0))
 #define STACK_1  (STACK_(1))
@@ -12143,7 +11481,7 @@ re-enters the corresponding top-level loop.
 # is used by EVAL, CONTROL,
 #                    Macros LIST_TO_MV, MV_TO_LIST, STACK_TO_MV, MV_TO_STACK
 %% #if notused
-%% emit_define1("mv_limit",(buf,"%d",mv_limit));
+%% export_def(mv_limit);
 %% #endif
 %% #if !defined(mv_count_register)
 %%   printf("extern uintC mv_count;\n");
@@ -12319,7 +11657,7 @@ nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 %%   printf("register p_backtrace_t back_trace __asm__(\"%s\");\n",back_trace_register);
 %%   printf("#endif\n");
 %% #endif
-%% emit_define("subr_self","back_trace->bt_function");
+%% export_def(subr_self);
 
 # Within the body of a SUBR: Access to the arguments.
 # A SUBR with a fixed number of arguments can access them through the STACK:
@@ -12371,13 +11709,8 @@ nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 %% emit_define("args_end_pointer","STACK");
 %% #if notused
 %% emit_define("set_args_end_pointer(new_args_end_pointer)","STACK = (new_args_end_pointer)");
-%% #ifdef STACK_DOWN
-%%   emit_define("NEXT(argpointer)","(*(--(argpointer)))");
-%%   emit_define("BEFORE(argpointer)","(*((argpointer)++))");
-%% #else
-%%   emit_define("NEXT(argpointer)","(*((argpointer)++))");
-%%   emit_define("BEFORE(argpointer)","(*(--(argpointer)))");
-%% #endif
+%% export_def(NEXT(argpointer));
+%% export_def(BEFORE(argpointer));
 %% emit_define("Next(pointer)","(*(STACKpointable(pointer) STACKop -1))");
 %% emit_define("Before(pointer)","(*(STACKpointable(pointer) STACKop 0))");
 %% #endif
@@ -12645,7 +11978,7 @@ typedef struct {
 #define CBLOCK_frame_info  CBLOCK_CTAGBODY_frame_info
 #define CTAGBODY_frame_info  CBLOCK_CTAGBODY_frame_info
 %% #ifdef HAVE_SAVED_REGISTERS
-%%   printf1("#define CALLBACK_frame_info  %d\n",CALLBACK_frame_info);
+%%   export_def(CALLBACK_frame_info);
 %% #endif
 
 # Bits for Symbols in VAR-Frames:
@@ -12762,18 +12095,10 @@ typedef struct {
   typedef oint fcint;
 #endif
 # is used by EVAL, CONTROL, DEBUG
-%% #ifdef TYPECODES
-%%   printf("#define framecode(bottomword)  mtypecode(bottomword)\n");
-%% #else
-%%   #ifdef STANDARD_HEAPCODES
-%%     printf("#define makebottomword(type,size)  as_object((oint)(type)+(oint)(size))\n");
-%%     printf1("#define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(%d))\n",FB1);
-%%   #endif
-%%   #ifdef LINUX_NOEXEC_HEAPCODES
-%%     printf("#define makebottomword(type,size)  as_object((oint)(type)+((oint)(size)<<6))\n");
-%%     printf1("#define framecode(bottomword)  (as_oint(bottomword) & %d)\n",0x3F);
-%%   #endif
+%% #ifdef HEAPCODES
+%%  export_def(makebottomword(type,size));
 %% #endif
+%% export_def(framecode(bottomword));
 
 # To determine the size of a frame:
 # STACK_item_count(new_STACK_ptr,old_STACK_ptr)
@@ -12816,22 +12141,8 @@ typedef struct {
     (STACK_(-1) = framebottomword(frametype##_frame_info,top_of_frame,STACK STACKop -1), skipSTACK(-1))
 #endif
 # is used by EVAL, CONTROL
-%% #ifdef TYPECODES
-%%   #if !defined(SINGLEMAP_MEMORY_STACK)
-%%     printf("#define framebottomword(type,top_of_frame,bot_of_frame)  type_pointer_object(type,top_of_frame)\n");
-%%   #else
-%%     printf1("#define framebottomword(type,top_of_frame,bot_of_frame)  as_object(type_zero_oint(type)-type_zero_oint(%d)+(oint)(top_of_frame))\n",(tint)system_type);
-%%   #endif
-%%   printf("#define finish_frame(frametype)  pushSTACK(framebottomword(frametype##_frame_info,top_of_frame,bot_of_frame_ignored))\n");
-%% #else
-%%   #ifdef STACK_UP
-%%     printf("#define framebottomword(type,top_of_frame,bot_of_frame)  makebottomword(type,(uintP)(bot_of_frame)-(uintP)(top_of_frame))\n");
-%%   #endif
-%%   #ifdef STACK_DOWN
-%%     printf("#define framebottomword(type,top_of_frame,bot_of_frame)  makebottomword(type,(uintP)(top_of_frame)-(uintP)(bot_of_frame))\n");
-%%   #endif
-%%   printf("#define finish_frame(frametype)  (STACK_(-1) = framebottomword(frametype##_frame_info,top_of_frame,STACK STACKop -1), skipSTACK(-1))\n");
-%% #endif
+%% export_def(framebottomword(type,top_of_frame,bot_of_frame));
+%% export_def(finish_frame(frametype));
 
 # Makes a Frame for all 5 Environments
 # make_ENV5_frame();
@@ -13452,10 +12763,10 @@ extern maygc object ascii_to_string (const char * asciz);
 %% #ifdef UNICODE
 %%   printf("extern object string_to_asciz (object obj, object encoding);\n");
 %% #else
-%%   emit_define("string_to_asciz(obj,encoding)","string_to_asciz_(obj)");
+%%   export_def(string_to_asciz(obj,encoding));
 %%   printf("extern object string_to_asciz_ (object obj);\n");
 %% #endif
-%% printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
+%% export_def(TheAsciz(obj));
 
 # Converts a String to an ASCIZ-String on the C-Stack.
 # with_string_0(string,encoding,asciz,statement);
@@ -13470,68 +12781,45 @@ extern maygc object ascii_to_string (const char * asciz);
     } while(0)
   #define with_sstring_0  with_string_0
 #else
-  #define with_string_0(string,encoding,ascizvar,statement)  \
-    do { var uintL ascizvar##_len;                                        \
-      var uintL ascizvar##_offset;                                        \
-      var object ascizvar##_string = unpack_string_ro(string,&ascizvar##_len,&ascizvar##_offset); \
-      var const chart* ptr1;                                              \
-      unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,ascizvar##_offset, ptr1=); \
-     {var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
-      var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);      \
-      cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen); \
-      ascizvar##_data[ascizvar##_bytelen] = '\0';                         \
-      {var char* ascizvar = (char*) &ascizvar##_data[0];                  \
-       statement                                                          \
-      }                                                                   \
-      FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
+  #define with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data) \
+    do { var uintL ascizvar_len;                                        \
+      var uintL ascizvar_offset;                                        \
+      var object ascizvar_string = unpack_string_ro(string,&ascizvar_len,&ascizvar_offset); \
+      var const chart* ptr1;                                            \
+      unpack_sstring_alloca(ascizvar_string,ascizvar_len,ascizvar_offset, ptr1=); \
+     {var uintL ascizvar_bytelen = cslen(encoding,ptr1,ascizvar_len);   \
+      var DYNAMIC_ARRAY(ascizvar_data,uintB,ascizvar_bytelen+1);        \
+      cstombs(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen); \
+      ascizvar_data[ascizvar_bytelen] = '\0';                           \
+     {var char* ascizvar = (char*) &ascizvar_data[0];                   \
+      statement}                                                        \
+      FREE_DYNAMIC_ARRAY(ascizvar_data);                                \
     }} while(0)
-  #define with_sstring_0(string,encoding,ascizvar,statement)  \
-    do { var object ascizvar##_string = (string);                         \
-      sstring_un_realloc(ascizvar##_string);                              \
-     {var uintL ascizvar##_len = Sstring_length(ascizvar##_string);       \
-      var const chart* ptr1;                                              \
-      unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);   \
-     {var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
-      var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);      \
-      cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen); \
-      ascizvar##_data[ascizvar##_bytelen] = '\0';                         \
-      {var char* ascizvar = (char*) &ascizvar##_data[0];                  \
-       statement                                                          \
-      }                                                                   \
-      FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
+  #define with_string_0(string,encoding,ascizvar,statement) \
+    with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data)
+  #define with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data) \
+    do { var object ascizvar_string = (string);                         \
+      sstring_un_realloc(ascizvar_string);                              \
+     {var uintL ascizvar_len = Sstring_length(ascizvar_string);         \
+      var const chart* ptr1;                                            \
+      unpack_sstring_alloca(ascizvar_string,ascizvar_len,0, ptr1=);     \
+     {var uintL ascizvar_bytelen = cslen(encoding,ptr1,ascizvar_len);   \
+      var DYNAMIC_ARRAY(ascizvar_data,uintB,ascizvar_bytelen+1);        \
+      cstombs(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen); \
+      ascizvar_data[ascizvar_bytelen] = '\0';                           \
+     {var char* ascizvar = (char*) &ascizvar_data[0];                   \
+      statement}                                                        \
+      FREE_DYNAMIC_ARRAY(ascizvar_data);                                \
     }}} while(0)
+  #define with_sstring_0(string,encoding,ascizvar,statement) \
+    with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data)
 #endif
 # is used by PATHNAME, MISC, FOREIGN
-%% printf("#define with_string_0(string,encoding,ascizvar,statement) ");
-%% printf("    do { uintL ascizvar##_len;");
-%% printf("    uintL ascizvar##_offset;");
-%% printf("    object ascizvar##_string = unpack_string_ro(string,&ascizvar##_len,&ascizvar##_offset);");
-%% printf("    const chart* ptr1;");
-%% printf("    unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,ascizvar##_offset, ptr1=);");
-%% printf("   {uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len);");
-%% printf("    DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
-%% printf("    cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
-%% printf("    ascizvar##_data[ascizvar##_bytelen] = 0;");
-%% printf("   {char* ascizvar = (char*) &ascizvar##_data[0];");
-%% printf("    statement");
-%% printf("    }");
-%% printf("    FREE_DYNAMIC_ARRAY(ascizvar##_data);");
-%% printf("  }} while(0)\n");
-%% printf("#define with_sstring_0(string,encoding,ascizvar,statement)");
-%% printf("  do { object ascizvar##_string = (string);");
-%% printf("    sstring_un_realloc(ascizvar##_string);");
-%% printf("   {uintL ascizvar##_len = Sstring_length(ascizvar##_string);");
-%% printf("    const chart* ptr1;");
-%% printf("    unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);");
-%% printf("   {uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len);");
-%% printf("    DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);");
-%% printf("    cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen);");
-%% printf("    ascizvar##_data[ascizvar##_bytelen] = 0;");
-%% printf("    {char* ascizvar = (char*) &ascizvar##_data[0];");
-%% printf("     statement");
-%% printf("    }");
-%% printf("    FREE_DYNAMIC_ARRAY(ascizvar##_data);");
-%% printf("  }}} while(0)\n");
+%% export_def(with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data));
+%% export_def(with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data));
+%% /* cannot use emit_define because Rectype_* is not a define in lispbibl.d */
+%% printf("#define with_string_0(string,encoding,ascizvar,statement) with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data)\n");
+%% printf("#define with_sstring_0(string,encoding,ascizvar,statement) with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data)\n");
 
 # In some foreign modules, we call library functions that can do callbacks.
 # When we pass a parameter to such a library function, maybe it first does a
@@ -13699,7 +12987,7 @@ extern object array_displace_check (object array, uintV size, uintL* index);
 # Tests for the storage vector of an array of element type NIL.
 # simple_nilarray_p(obj)
 #define simple_nilarray_p(obj)  nullp(obj)
-%% emit_define("simple_nilarray_p(obj)","nullp(obj)");
+%% export_def(simple_nilarray_p(obj));
 
 # error-message
 # > array: array (usually a Vector)
@@ -14277,34 +13565,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
     }
 #endif
 # is used by
-%% #ifdef HAVE_SMALL_SSTRING
-%%   printf("#define unpack_sstring_alloca(string,len,offset,charptr_assignment)");
-%%   printf("  if (simple_nilarray_p(string)) {");
-%%   printf("    if ((len) > 0) fehler_nilarray_retrieve();");
-%%   printf("    charptr_assignment NULL;");
-%%   printf("  } else if (sstring_eltype(TheSstring(string)) == %d) {",Sstringtype_32Bit);
-%%   printf("    charptr_assignment (const chart*) &TheS32string(string)->data[offset];");
-%%   printf("  } else {");
-%%   printf("    chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));");
-%%   printf("    if ((len) > 0) {");
-%%   printf("      if (sstring_eltype(TheSstring(string)) == %d)",Sstringtype_16Bit);
-%%   printf("        copy_16bit_32bit(&TheS16string(string)->data[offset],(cint32*)_unpacked_,len);");
-%%   printf("      else if (sstring_eltype(TheSstring(string)) == %d)",Sstringtype_8Bit);
-%%   printf("        copy_8bit_32bit(&TheS8string(string)->data[offset],(cint32*)_unpacked_,len);");
-%%   printf("      else");
-%%   printf("        NOTREACHED;");
-%%   printf("    }");
-%%   printf("    charptr_assignment (const chart*) _unpacked_;");
-%%   printf("  }\n");
-%% #else
-%%   printf("#define unpack_sstring_alloca(string,len,offset,charptr_assignment)");
-%%   printf("  if (simple_nilarray_p(string)) {");
-%%   printf("    if ((len) > 0) fehler_nilarray_retrieve();");
-%%   printf("    charptr_assignment NULL;");
-%%   printf("  } else {");
-%%   printf("    charptr_assignment (const chart*) &TheSnstring(string)->data[offset];");
-%%   printf("  }\n");
-%% #endif
+%% export_def(unpack_sstring_alloca(string,len,offset,charptr_assignment));
 
 # UP: Fetches a character from a simple string.
 # schar(string,index)
@@ -16807,7 +16068,7 @@ extern maygc object L_to_I (sint32 wert);
 #endif
 # is used by MISC, TIME, STREAM, PATHNAME, HASHTABL, SPVW, ARRAY
 %% #if (intLsize<=oint_data_len)
-%%   printf("#define UL_to_I(wert)  fixnum((uintL)(wert))\n");
+%%   export_def(UL_to_I(wert));
 %% #else
 %%   printf("extern object UL_to_I (uintL wert);\n");
 %% #endif
@@ -16825,7 +16086,7 @@ extern maygc object L_to_I (sint32 wert);
 #endif
 # is used by TIME, FOREIGN
 %% #if (intVsize>32)
-%%   printf("#define L2_to_I(wert_hi,wert_lo)  Q_to_I(((sint64)(sint32)(wert_hi)<<32)|(sint64)(uint32)(wert_lo))\n");
+%%   export_def(L2_to_I(wert_hi,wert_lo));
 %% #else
 %%   printf("extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);\n");
 %% #endif
@@ -16843,7 +16104,7 @@ extern maygc object L_to_I (sint32 wert);
 #endif
 # is used by TIME, FOREIGN, and by the FFI
 %% #if (intVsize>32)
-%%   printf("#define UL2_to_I(wert_hi,wert_lo)  UQ_to_I(((uint64)(uint32)(wert_hi)<<32)|(uint64)(uint32)(wert_lo))\n");
+%%   export_def(UL2_to_I(wert_hi,wert_lo));
 %% #else
 %%   printf("extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);\n");
 %% #endif
@@ -16944,33 +16205,18 @@ extern maygc object L_to_I (sint32 wert);
   #define slong_to_I(val)  sint64_to_I(val)
 #endif
 # is used by MISC, for FFI
-%% printf("#define uint8_to_I(val)  fixnum((uint8)(val))\n");
-%% printf("#define sint8_to_I(val)  L_to_I((sint32)(sint8)(val))\n");
-%% printf("#define uint16_to_I(val)  fixnum((uint16)(val))\n");
-%% printf("#define sint16_to_I(val)  L_to_I((sint32)(sint16)(val))\n");
-%% printf("#define uint32_to_I(val)  UL_to_I((uint32)(val))\n");
-%% printf("#define sint32_to_I(val)  L_to_I((sint32)(val))\n");
-%% #if defined(intQsize) || (intVsize>32)
-%%   printf("#define uint64_to_I(val)  UQ_to_I((uint64)(val))\n");
-%%   printf("#define sint64_to_I(val)  Q_to_I((sint64)(val))\n");
-%% #else
-%%   printf("#define uint64_to_I(val)  UL2_to_I((uint32)((val)>>32),(uint32)(val))\n");
-%%   printf("#define sint64_to_I(val)  L2_to_I((sint32)((val)>>32),(uint32)(val))\n");
-%% #endif
-%% #if (int_bitsize==16)
-%%   printf("#define uint_to_I(val)  uint16_to_I(val)\n");
-%%   printf("#define sint_to_I(val)  sint16_to_I(val)\n");
-%% #else  /* (int_bitsize==32) */
-%%   printf("#define uint_to_I(val)  uint32_to_I(val)\n");
-%%   printf("#define sint_to_I(val)  sint32_to_I(val)\n");
-%% #endif
-%% #if (long_bitsize==32)
-%%   printf("#define ulong_to_I(val)  uint32_to_I(val)\n");
-%%   printf("#define slong_to_I(val)  sint32_to_I(val)\n");
-%% #else  /* (long_bitsize==64) */
-%%   printf("#define ulong_to_I(val)  uint64_to_I(val)\n");
-%%   printf("#define slong_to_I(val)  sint64_to_I(val)\n");
-%% #endif
+%% export_def(uint8_to_I(val));
+%% export_def(sint8_to_I(val));
+%% export_def(uint16_to_I(val));
+%% export_def(sint16_to_I(val));
+%% export_def(uint32_to_I(val));
+%% export_def(sint32_to_I(val));
+%% export_def(uint64_to_I(val));
+%% export_def(sint64_to_I(val));
+%% export_def(uint_to_I(val));
+%% export_def(sint_to_I(val));
+%% export_def(ulong_to_I(val));
+%% export_def(slong_to_I(val));
 
 # Converts a uintM integer into an Integer.
 #if intMsize <= intLsize
@@ -17074,36 +16320,18 @@ extern sintL I_to_L (object obj);
   #endif
 #endif
 # is used by FFI
-%% printf("#define I_to_uint8(obj)  (uint8)(as_oint(obj) >> %d)\n",oint_data_shift);
-%% printf("#define I_to_sint8(obj)  (sint8)(as_oint(obj) >> %d)\n",oint_data_shift);
-%% printf("#define I_to_uint16(obj)  (uint16)(as_oint(obj) >> %d)\n",oint_data_shift);
-%% printf("#define I_to_sint16(obj)  (sint16)(as_oint(obj) >> %d)\n",oint_data_shift);
-%% #if (oint_data_len>=32)
-%%   printf("#define I_to_uint32(obj)  (uint32)(as_oint(obj) >> %d)\n",oint_data_shift);
-%% #else
-%%   emit_define("I_to_uint32(obj)","I_to_UL(obj)");
-%% #endif
-%% #if (oint_data_len>=31)
-%%   printf("#define I_to_sint32(obj)  (sint32)(as_oint(obj) >> %d)\n",oint_data_shift);
-%% #else
-%%   emit_define("I_to_sint32(obj)","I_to_L(obj)");
-%% #endif
-%% emit_define("I_to_uint64(obj)","I_to_UQ(obj)");
-%% emit_define("I_to_sint64(obj)","I_to_Q(obj)");
-%% #if (int_bitsize==16)
-%%   emit_define("I_to_uint","I_to_uint16");
-%%   emit_define("I_to_sint","I_to_sint16");
-%% #else  /* (int_bitsize==32) */
-%%   emit_define("I_to_uint","I_to_uint32");
-%%   emit_define("I_to_sint","I_to_sint32");
-%% #endif
-%% #if (long_bitsize==32)
-%%   emit_define("I_to_ulong","I_to_uint32");
-%%   emit_define("I_to_slong","I_to_sint32");
-%% #else  /* (long_bitsize==64) */
-%%   emit_define("I_to_ulong","I_to_uint64");
-%%   emit_define("I_to_slong","I_to_sint64");
-%% #endif
+%% export_def(I_to_uint8(obj));
+%% export_def(I_to_sint8(obj));
+%% export_def(I_to_uint16(obj));
+%% export_def(I_to_sint16(obj));
+%% export_def(I_to_uint32(obj));
+%% export_def(I_to_sint32(obj));
+%% export_def(I_to_uint64(obj));
+%% export_def(I_to_sint64(obj));
+%% export_def(I_to_uint);
+%% export_def(I_to_sint);
+%% export_def(I_to_ulong);
+%% export_def(I_to_slong);
 
 /* Unsigned Digit Sequence to Integer
  UDS_to_I(MSDptr,len)
