@@ -1,5 +1,15 @@
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d (export_def): added
+	(emit_define1): removed
+	* lispbibl.d: use export_def() instead of emit_define() and
+	emit_define1() most of the time.
+	BENFIT: reliably correct definitions are exported
+	COST: the definitions are not always readable
+	TODO: use "gcc -E -dM" -- like with lispbibl.h -- instead
+
+2005-09-12  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (FORCE-GCONTEXT-CHANGES): clean-up STACK
 	(SHAPE-COMBINE): accept :SOURCE-KIND
 
@@ -21,7 +31,7 @@
 	(emit_define1): new macro
 	(define_count): new static variable
 	(main): use it in stat output
-	* lispbibl.dl: use emit_define and emit_define1 in _some_ places
+	* lispbibl.d: use emit_define and emit_define1 in _some_ places
 	cannot use it for fixnum() and The[Type] yet
 
 2005-09-08  Sam Steingold  <sds@gnu.org>
