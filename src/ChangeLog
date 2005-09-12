@@ -1,3 +1,8 @@
+2005-09-12  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (FORCE-GCONTEXT-CHANGES): clean-up STACK
+	(SHAPE-COMBINE): accept :SOURCE-KIND
+
 2005-09-12  "Dr. Werner Fink"  <werner@suse.de>
 
 	* modules/clx/new-clx/clx.f (GCONTEXT-ID, FORCE-GCONTEXT-CHANGES)
