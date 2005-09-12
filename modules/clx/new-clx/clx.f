@@ -3169,7 +3169,10 @@ DEFUN(XLIB:SET-GCONTEXT-FONT, font context &optional pseudo-p)
 
 DEFUN(XLIB:GCONTEXT-ID, context)
 {
-  VALUES1(make_uint32(XGContextFromGC(get_gcontext (popSTACK()))));
+  GContext context;
+  GC gc = get_gcontext (popSTACK());
+  X_CALL(context = XGContextFromGC(gc));
+  VALUES1(make_uint32(context));
 }
 
 static void query_best_X (Status (*query) (Display*, Drawable,
@@ -3246,7 +3249,7 @@ DEFUN(XLIB:FORCE-GCONTEXT-CHANGES, context)
 {
   Display *dpy;
   GC gcon = get_gcontext_and_display (STACK_0, &dpy);
-  XFlushGC (dpy, gcon);     /* This function is actually undocumented */
+  X_CALL(XFlushGC(dpy,gcon)); /* This function is actually undocumented */
   VALUES1(NIL);
 }
 
@@ -4139,7 +4142,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
 
     {
       XGCValues vals;
-      XGetGCValues (dpy, gcontext, GCForeground|GCBackground, &vals);
+      X_CALL(XGetGCValues(dpy,gcontext,GCForeground|GCBackground,&vals));
       fg = vals.foreground;
       bg = vals.background;
 
@@ -4885,16 +4888,14 @@ DEFUN(XLIB:ALLOC-COLOR-PLANES, colormap colors \
   gcv_object_t *res_type = &STACK_0;
 
   {
+    int status;
     DYNAMIC_ARRAY (pixels, unsigned long, ncolors);
 
-    begin_x_call();
-
-    if (XAllocColorPlanes (dpy, cm, contiguous_p, pixels, ncolors,
-                           nreds, ngreens, nblues,
-                           &red_mask, &green_mask, &blue_mask)) {
+    X_CALL(status = XAllocColorPlanes(dpy,cm,contiguous_p,pixels,ncolors,
+                                      nreds,ngreens,nblues,
+                                      &red_mask,&green_mask,&blue_mask));
+    if (status) {
       uintC i;
-      end_x_call();
-
       for (i = 0; i < ncolors; i++)
         pushSTACK(make_uint32 (pixels [i]));
       value1 = coerce_result_type(ncolors,res_type);
@@ -7228,8 +7229,9 @@ DEFCHECKER(get_shape_operation,default=ShapeSet, SET=ShapeSet UNION=ShapeUnion \
 static Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
 { /* Ensures that the SHAPE extension is initialized. If it is not available
      and error_p is set raise an appropriate error message. */
-  int event_base, error_base;
-  if (XShapeQueryExtension (dpy, &event_base, &error_base)) {
+  int event_base, error_base, status;
+  X_CALL(status = XShapeQueryExtension(dpy,&event_base,&error_base));
+  if (status) {
     /* Everything is ok just proceed */
     return True;
   } else {
@@ -7249,9 +7251,10 @@ static Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
 DEFUN(XLIB:SHAPE-VERSION, display)
 {
   Display *dpy = (pushSTACK(STACK_0), pop_display());
-  int major_version, minor_version;
+  int major_version, minor_version, status;
   if (ensure_shape_extension (dpy, STACK_0, 0)) { /* Is it there? */
-    if (XShapeQueryVersion (dpy, &major_version, &minor_version)) {
+    X_CALL(status = XShapeQueryVersion(dpy,&major_version,&minor_version));
+    if (status) {
       VALUES2(make_uint16(major_version),make_uint16(minor_version));
       skipSTACK(1);
       return;                   /* all done */
@@ -7290,11 +7293,10 @@ DEFUN(XLIB:SHAPE-COMBINE, destination source \
 
   if (pixmap_p (STACK_0)) {
     Pixmap src = get_pixmap (STACK_0);
-    XShapeCombineMask (dpy, dest, kind, x_off, y_off, src, op);
+    X_CALL(XShapeCombineMask(dpy,dest,kind,x_off,y_off,src,op));
   } else if (window_p (STACK_0)) {
-    /* FIXME -- a :source-kind keyword is missing here. */
     Pixmap src = get_window (STACK_0);
-    XShapeCombineShape(dpy,dest,kind,x_off,y_off,src,kind/*src_kind*/,op);
+    X_CALL(XShapeCombineShape(dpy,dest,kind,x_off,y_off,src,kind,op));
   } else if (listp (STACK_0) || vectorp (STACK_0)) {
     int i, nrectangles = get_uint32(funcall1(L(length),STACK_0));
     DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
@@ -7318,9 +7320,9 @@ DEFUN(XLIB:SHAPE-COMBINE, destination source \
       rectangles[i].height = get_sint16(value1);
     }
 
-    XShapeCombineRectangles (dpy, dest, kind, x_off, y_off,
-                             rectangles, nrectangles,
-                             op, ordering);
+    X_CALL(XShapeCombineRectangles(dpy,dest,kind,x_off,y_off,
+                                   rectangles,nrectangles,
+                                   op,ordering));
 
     FREE_DYNAMIC_ARRAY (rectangles);
   }
@@ -7339,7 +7341,7 @@ DEFUN(XLIB:SHAPE-OFFSET, destination kind x-offset y-offset)
 
   (void)ensure_shape_extension (dpy, get_display_obj (STACK_3), 1);
 
-  XShapeOffsetShape (dpy, dest, kind, x_offset, y_offset);
+  X_CALL(XShapeOffsetShape(dpy,dest,kind,x_offset,y_offset));
 
   VALUES1(NIL);
   skipSTACK(4);
@@ -7380,7 +7382,7 @@ DEFUN(XLIB:ICONIFY-WINDOW, window screen)
   Screen  *scr = get_screen (popSTACK());
   Display *dpy;
   Window   win = get_window_and_display (popSTACK(), &dpy);
-  XIconifyWindow (dpy, win, XScreenNumberOfScreen (scr));
+  X_CALL(XIconifyWindow(dpy,win,XScreenNumberOfScreen(scr)));
   VALUES1(NIL);
 }
 
@@ -7389,7 +7391,7 @@ DEFUN(XLIB:WITHDRAW-WINDOW, window screen)
   Screen  *scr = get_screen (popSTACK());
   Display *dpy;
   Window   win = get_window_and_display (popSTACK(), &dpy);
-  XWithdrawWindow (dpy, win, XScreenNumberOfScreen (scr));
+  X_CALL(XWithdrawWindow(dpy,win,XScreenNumberOfScreen(scr)));
   VALUES1(NIL);
 }
 
