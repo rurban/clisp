@@ -3250,6 +3250,7 @@ DEFUN(XLIB:FORCE-GCONTEXT-CHANGES, context)
   Display *dpy;
   GC gcon = get_gcontext_and_display (STACK_0, &dpy);
   X_CALL(XFlushGC(dpy,gcon)); /* This function is actually undocumented */
+  skipSTACK(1);
   VALUES1(NIL);
 }
 
@@ -7267,15 +7268,17 @@ DEFUN(XLIB:SHAPE-VERSION, display)
 }
 
 /*   XLIB:SHAPE-COMBINE destination source
-          &key (:kind :bounding) (:x-offset 0) (:y-offset 0)
+          &key (:kind :bounding) (:source-kind :bounding)
+               (:x-offset 0) (:y-offset 0)
                (:operation :set) (:ordering :unsorted) */
 DEFUN(XLIB:SHAPE-COMBINE, destination source \
-      &key KIND X-OFFSET Y-OFFSET OPERATION ORDERING)
+      &key KIND SOURCE-KIND X-OFFSET Y-OFFSET OPERATION ORDERING)
 {
   int ordering = get_ordering(popSTACK());
   int       op = get_shape_operation(popSTACK());
   int    y_off = get_sint16_0(popSTACK());
   int    x_off = get_sint16_0(popSTACK());
+  int src_kind = get_shape_kind(popSTACK());
   int     kind = get_shape_kind(popSTACK());
   Display *dpy;
   Window  dest = get_window_and_display (STACK_1, &dpy);
@@ -7296,7 +7299,7 @@ DEFUN(XLIB:SHAPE-COMBINE, destination source \
     X_CALL(XShapeCombineMask(dpy,dest,kind,x_off,y_off,src,op));
   } else if (window_p (STACK_0)) {
     Pixmap src = get_window (STACK_0);
-    X_CALL(XShapeCombineShape(dpy,dest,kind,x_off,y_off,src,kind,op));
+    X_CALL(XShapeCombineShape(dpy,dest,kind,x_off,y_off,src,src_kind,op));
   } else if (listp (STACK_0) || vectorp (STACK_0)) {
     int i, nrectangles = get_uint32(funcall1(L(length),STACK_0));
     DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
