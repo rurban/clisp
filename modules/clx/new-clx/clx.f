@@ -3962,6 +3962,30 @@ static void image_put_and_destroy (Display* dpy, Drawable drawable, GC gcontext,
   XPutImage (dpy, drawable, gcontext, im, src_x, src_y, x,y,w,h);
   XDestroyImage (im); /* Note: XDestroyImage frees im->data for us */
   end_x_call();
+  dprintf (("\nXPutImage (.., src_x=%d, src_y=%d, x=%d,y=%d,w=%d,h=%d);",
+            src_x, src_y, x,y,w,h));
+}
+
+/* allocate memory and create the image */
+static XImage* create_image (Display *dpy, unsigned int depth, int bitmap_p,
+                             unsigned int width, unsigned int height,
+                             int bytes_per_line) {
+  /* Allocate memory */
+  char *data = (char*) my_malloc (bytes_per_line * height);
+  XImage *im;
+
+  /* Actually create the image */
+  X_CALL(im = XCreateImage (dpy, 0, depth,
+                            (bitmap_p && (depth == 1)) ? XYBitmap : ZPixmap, 0,
+                            data, width, height, 32, bytes_per_line));
+  if (im == 0) {
+    free (data);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler (error, "~S: XCreateImage call failed.");
+  }
+  dprintf (("im.bytes_per_line = %d (vs. %d)",
+            im->bytes_per_line, bytes_per_line));
+  return im;
 }
 
 static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
@@ -3992,24 +4016,13 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
     case 1: bytes_per_line = ((width+31)/32)*4; break;
     case 8: bytes_per_line = ((width+3)/4)*4; break;
     default:
-      goto sorry;
+      pushSTACK(sfixnum(depth));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error, "~S: depth=~S is not supported");
   }
-
-  /* Allocate memory */
-  data = (char*) my_malloc (bytes_per_line * height);
 
   /* Actually create the image */
-  X_CALL(im = XCreateImage (dpy, 0, depth,
-                            (bitmap_p && (depth == 1)) ? XYBitmap : ZPixmap, 0,
-                            data,
-                            width, height,
-                            32, bytes_per_line));
-
-  if (im == 0) {
-    free (data);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler (error, "~S: XCreateImage call failed.");
-  }
+  im = create_image (dpy, depth, bitmap_p, width, height, bytes_per_line);
 
   /* fetch the pixarray */
   pushSTACK(STACK_0);
@@ -4034,10 +4047,6 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
   image_put_and_destroy (dpy, drawable, gcontext, im, src_x, src_y, x,y,w,h);
 
   skipSTACK(1);                 /* clean up */
-  return;                       /* all done */
-
-sorry:
-  fehler (error, "Sorry, my implementation of XLIB:PUT-IMAGE is still incomplete.");
 }
 
 #if DEBUG_CLX
@@ -4173,22 +4182,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
           goto fake;
       }
 
-      data = (char*) my_malloc (bytes_per_line * height);
-
-      X_CALL(im = XCreateImage (dpy, 0, depth,
-                                (bitmap_p && depth == 1) ? XYBitmap : ZPixmap,
-                                0, data, width, height,
-                                32, bytes_per_line));
-      dprintf (("im.bytes_per_line = %d (vs. %d)",
-                im->bytes_per_line, bytes_per_line));
-
-      if (im == 0) {
-        free (data);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler (error, "~S: XCreateImage call failed.");
-      }
-
-      dprintf (("\nstill here"));
+      im = create_image(dpy,depth,bitmap_p,width,height,bytes_per_line);
 
       pushSTACK(STACK_7); funcall(`XLIB::IMAGE-XY-P`,1);
       if (!nullp (value1)) {
@@ -4211,12 +4205,6 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
           X_CALL(XPutPixel (im, ix, iy, v));
         }
       skipSTACK(1);
-
-      dprintf (("\nwatch out for blitter"));
-
-      dprintf (("\nXPutImage (.., src_x=%d, src_y=%d, x=%d,y=%d,w=%d,h=%d);",
-                src_x, src_y, x,y,w,h));
-
       image_put_and_destroy (dpy,drawable,gcontext,im,src_x,src_y,x,y,w,h);
     }
 

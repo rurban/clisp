@@ -1,11 +1,13 @@
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (%DISPLAY-XID): wrap XAllocID in X_CALL
-	(image_put_and_destroy): wrapper
+	(image_put_and_destroy): wrapper for XPutImage & XDestroyImage
 	(handle_image_z, PUT-IMAGE): use it
-	(foreign_slot): wrapper
+	(foreign_slot): wrapper for SLOT-VALUE & check_fpointer
 	(get_ptr_object_and_display, get_font_info_and_display)
 	(DISCARD-FONT-INFO): use it
+	(create_image): wrapper for XCreateImage
+	(handle_image_z, PUT-IMAGE): use it
 
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
