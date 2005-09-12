@@ -705,6 +705,14 @@ static object make_ptr_obj (object type, object dpy, void *ptr)
   return value1;
 }
 
+/* return the fp_pointer of the foreign slot
+   value1 is set the slot value
+ can trigger GC */
+static void* foreign_slot (object obj, object slot) {
+  pushSTACK(obj); pushSTACK(slot); funcall(L(slot_value), 2);
+  return TheFpointer(value1 = check_fpointer(value1,false))->fp_pointer;
+}
+
 static void *get_ptr_object_and_display (object type, object obj,
                                          Display **dpyf)
 { /* 'obj'  is the lisp object, whose C representation is returned.
@@ -722,12 +730,10 @@ static void *get_ptr_object_and_display (object type, object obj,
       funcall(L(slot_value), 2); pushSTACK(value1);
       *dpyf = pop_display ();
     }
-
-    pushSTACK(STACK_0)/* 'obj' */; pushSTACK(`XLIB::PTR`);
-    funcall(L(slot_value), 2);
-    value1 = check_fpointer(value1,false);
-    skipSTACK(2);              /* clean up */
-    return TheFpointer(value1)->fp_pointer; /* all done */
+    { void * ret = foreign_slot(STACK_0/* 'obj' */,`XLIB::PTR`);
+      skipSTACK(2);                    /* clean up */
+      return ret;
+    }
   } else my_type_error(STACK_1/*type*/,STACK_0/*obj*/);
 }
 
@@ -998,10 +1004,7 @@ static XFontStruct *get_font_info_and_display (object obj, object* fontf,
 
   pushSTACK(obj);               /* save */
 
-  pushSTACK(obj); pushSTACK(`XLIB::FONT-INFO`);
-  funcall(L(slot_value),2); /* (slot-value obj 'font-info) */
-  value1 = check_fpointer(value1,false);
-  info = (XFontStruct*) TheFpointer(value1)->fp_pointer;
+  info = (XFontStruct*) foreign_slot(obj,`XLIB::FONT-INFO`);
   if (!info) {
     /* We have no font information already, so go and ask the server for it. */
 
@@ -4273,10 +4276,7 @@ DEFUN(XLIB:DISCARD-FONT-INFO, font)
 {
   XFontStruct *info;
 
-  pushSTACK(STACK_0); pushSTACK(`XLIB::FONT-INFO`);
-  funcall(L(slot_value), 2);    /* (slot-value obj `font-info) */
-  value1 = check_fpointer(value1,false);
-  info = (XFontStruct*) TheFpointer(value1)->fp_pointer;
+  info = (XFontStruct*) foreign_slot(STACK_0,`XLIB::FONT-INFO`);
   TheFpointer(value1)->fp_pointer = NULL; /* No longer valid */
 
   X_CALL(if (info) XFreeFontInfo (NULL, info, 1));
