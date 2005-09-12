@@ -3,6 +3,9 @@
 	* modules/clx/new-clx/clx.f (%DISPLAY-XID): wrap XAllocID in X_CALL
 	(image_put_and_destroy): wrapper
 	(handle_image_z, PUT-IMAGE): use it
+	(foreign_slot): wrapper
+	(get_ptr_object_and_display, get_font_info_and_display)
+	(DISCARD-FONT-INFO): use it
 
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
