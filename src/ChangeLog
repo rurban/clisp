@@ -1,3 +1,10 @@
+2005-09-12  "Dr. Werner Fink"  <werner@suse.de>
+
+	* modules/clx/new-clx/clx.f (GCONTEXT-ID, FORCE-GCONTEXT-CHANGES)
+	(PUT-IMAGE, ALLOC-COLOR-PLANES, ensure_shape_extension)
+	(SHAPE-VERSION, SHAPE-COMBINE, SHAPE-OFFSET, ICONIFY-WINDOW)
+	(WITHDRAW-WINDOW): wrap X calls in X_CALL
+
 2005-09-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XLIB:CHANGE-POINTER-CONTROL): use
