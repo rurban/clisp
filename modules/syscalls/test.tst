@@ -62,7 +62,9 @@ T
 #+win32 #o0700
 #-(or unix win32) ERROR
 
-(os:stat-vfs-p (show (os:stat-vfs *tmp2*))) T
+(and (fboundp 'os:stat-vfs)
+     (not (os:stat-vfs-p (show (os:stat-vfs *tmp2*)))))
+NIL
 
 (string= (show #+win32 (ext:string-concat (ext:getenv "USERDOMAIN") "\\"
                                           (ext:getenv "USERNAME"))
