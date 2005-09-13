@@ -1,6 +1,7 @@
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/test.tst: SHOW the results for FILE-OWNER
+	physical-memory: guard against broken unixes, like FreeBSD 4.10-BETA
 
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
