@@ -18,7 +18,7 @@
 ;;; Helper Functions
 ;;;
 
-(defvar *sql-log* *standard-output*)
+(defvar *sql-log* nil)
 
 (define-condition sql-error (error)
   ((type :type symbol :reader sql-type :initarg :type)
@@ -58,11 +58,13 @@
               (PQtty conn) (PQoptions conn)))
     conn))
 
-(defmacro with-sql-connection ((conn &rest options) &body body)
-  `(let ((,conn (sql-connect ,@options)))
-    (unwind-protect (progn ,@body)
-      ;; close the connection to the database and cleanup
-      (pq-finish ,conn))))
+(defmacro with-sql-connection ((conn &rest options &key (log '*sql-log*)
+                                     &allow-other-keys) &body body)
+  `(let* ((*sql-log* ,log)
+          (,conn (sql-connect ,@(ext:remove-plist options :log))))
+     (unwind-protect (progn ,@body)
+       ;; close the connection to the database and cleanup
+       (pq-finish ,conn))))
 
 (defun sql-transaction (conn command status &optional (clear-p t))
   (let ((res (PQexec conn command)))
