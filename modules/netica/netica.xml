@@ -14,7 +14,8 @@
 </para>
 
 <para>Additionally, some higher level functionality is available
- (see <filename>modules/netica/demo.lisp</filename> for a sample usage):</para>
+ (see <filename role="clisp-cvs">modules/netica/demo.lisp</filename>
+ for sample usage):</para>
 
 <variablelist>
 <varlistentry><term><code>(netica:start-netica &key-amp;

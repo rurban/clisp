@@ -12,7 +12,8 @@
 </para>
 
 <para>Additionally, some higher level functionality is available
- (see <filename>modules/matlab/test.tst</filename> for sample usage):</para>
+ (see <filename role="clisp-cvs">modules/matlab/test.tst</filename>
+ for sample usage):</para>
 
 <formalpara id="matlab-matfile-content">
  <title><code>(matfile-content mf)</code></title>
