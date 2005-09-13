@@ -1,10 +1,12 @@
 2005-09-13  Sam Steingold  <sds@gnu.org>
 
 	* modules/postgresql/sql.lisp (*sql-log*): init to NIL to avoid
-	savind a closed terminal stream into the image
+	saving a closed terminal stream into the image
 	(with-sql-connection): accept :LOG and bind *sql-log*
 	* modules/postgresql/postgresql.lisp ("SQL"): make DEFVAR exporting
 	Reported by Richard Ray <rray@mstc.state.ms.us>
+	* modules/postgresql/sql.lisp: moved tests into ...
+	* modules/postgresql/test.tst: new file
 
 2005-09-13  "Dr. Werner Fink"  <werner@suse.de>
 
