@@ -1614,6 +1614,8 @@ DEFUN(XLIB:MAKE-STATE-MASK, &rest args)
  *  Chapter 2   Displays
  * ----------------------------------------------------------------------- */
 
+int xlib_error_handler (Display*, XErrorEvent*);
+int xlib_io_error_handler (Display*);
 static Display *x_open_display (char* display_name, int display_number) {
   Display *dpy;
 
@@ -1632,6 +1634,9 @@ static Display *x_open_display (char* display_name, int display_number) {
     DYNAMIC_ARRAY (cname, char, len + 5);
 
     begin_x_call();
+    /* install the error handlers before XOpenDisplay to catch errors there */
+    XSetErrorHandler (xlib_error_handler);
+    XSetIOErrorHandler (xlib_io_error_handler);
     if (strchr(display_name,':'))
       strcpy(cname, display_name);
     else
@@ -1650,8 +1655,6 @@ static Display *x_open_display (char* display_name, int display_number) {
   return dpy;
 }
 
-int xlib_error_handler (Display*, XErrorEvent*);
-int xlib_io_error_handler (Display*);
 DEFUN(XLIB:OPEN-DISPLAY, &rest args)
 { /* (XLIB:OPEN-DISPLAY host &key :display &allow-other-keys) */
   char *display_name = NULL;    /* the host to connect to */
@@ -1683,12 +1686,6 @@ DEFUN(XLIB:OPEN-DISPLAY, &rest args)
     with_string_0(*display_arg,GLO(misc_encoding),displayz,
                   { dpy = x_open_display(displayz,display_number); });
   } else dpy = x_open_display(NULL,display_number);
-
-  /* Now link in the error handler: */
-  begin_x_call();
-  XSetErrorHandler (xlib_error_handler);
-  XSetIOErrorHandler (xlib_io_error_handler);
-  end_x_call();
 
 # if !defined(RELY_ON_WRITING_TO_SUBPROCESS)
   disable_sigpipe();

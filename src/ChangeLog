@@ -3,6 +3,9 @@
 	* modules/clx/new-clx/demos/sokoban.lisp (find-outers):
 	call DISPLAY-FORCE-OUTPUT
 	* modules/clx/new-clx/clx.f (PUT-IMAGE): do not call XSync()
+	(x_open_display): install error handlers here before
+	XOpenDisplay() to catch errors there too
+	(OPEN-DISPLAY): do not install error handlers
 
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
