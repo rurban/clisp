@@ -26,8 +26,7 @@ You define a class with DEFCLASS:
 
    (DEFCLASS class-name (superclass-name*)
      (slot-description*)
-     class-option*
-   )
+     class-option*)
 
 For simple things, forget about class options.
 
@@ -47,8 +46,7 @@ consider the DEFSTRUCT:
 
    (defstruct person
      (name 'bill)
-     (age 10)
-   )
+     (age 10))
 
 DEFSTRUCT would automatically define slots with expressions to
 compute default initial values, access-functions like PERSON-NAME
@@ -62,12 +60,10 @@ A DEFCLASS that provided similar access functions, etc, would be:
    (defclass person ()
      ((name :accessor person-name
             :initform 'bill
-            :initarg :name
-      )
+            :initarg :name)
       (age :accessor person-age
            :initform 10
-           :initarg :age
-   ) ))
+           :initarg :age)))
 
 Note that DEFCLASS lets you control what things are called.  For
 instance, you don't have to call the accessor PERSON-NAME.  You could
@@ -109,8 +105,7 @@ implementation details and don't have to use keyword parameters
 for everything.  For instance, you might want to define
 
   (defun make-person (name age)
-    (make-instance 'person :name name :age age)
-  )
+    (make-instance 'person :name name :age age))
 
 if you wanted the name and age to be required, positional parameters,
 rather than keyword parameters.
@@ -118,19 +113,19 @@ rather than keyword parameters.
 The accessor functions can be used to get and set slot values:
 
    <cl> (setq p1 (make-instance 'person :name 'jill :age 100))
-   #<person @ #x7bf826> 
+   #<person @ #x7bf826>
 
    <cl> (person-name p1)
-   jill 
+   jill
 
    <cl> (person-age p1)
-   100 
+   100
 
    <cl> (setf (person-age p1) 101)
-   101 
+   101
 
    <cl> (person-age p1)
-   101 
+   101
 
 Note that when you use DEFCLASS, the instances are printed using
 the #<...> notation, rather than as #s(person :name jill :age 100).
@@ -140,19 +135,19 @@ on the generic function PRINT-OBJECT.
 Slots can also be accessed by name using (SLOT-VALUE instance slot-name):
 
    <cl> (slot-value p1 'name)
-   jill 
+   jill
 
    <cl> (setf (slot-value p1 'name) 'jillian)
-   jillian 
+   jillian
 
    <cl> (person-name p1)
-   jillian 
+   jillian
 
 You can find out various things about an instance by calling
 DESCRIBE:
 
    <cl> (describe p1)
-   #<person @ #x7bf826> is an instance of class 
+   #<person @ #x7bf826> is an instance of class
         #<clos:standard-class person @ #x7ad8ae>:
    The following slots have :INSTANCE allocation:
    age     101
@@ -190,20 +185,17 @@ Here are some subclasses:
 
    <cl> (defclass teacher (person)
           ((subject :accessor teacher-subject
-                    :initarg :subject
-        ) ))
-   #<clos:standard-class teacher @ #x7cf796> 
+                    :initarg :subject)))
+   #<clos:standard-class teacher @ #x7cf796>
 
    <cl> (defclass maths-teacher (teacher)
-          ((subject :initform "Mathematics"))
-        )
-   #<clos:standard-class maths-teacher @ #x7d94be> 
+          ((subject :initform "Mathematics")))
+   #<clos:standard-class maths-teacher @ #x7d94be>
 
    <cl> (setq p2 (make-instance 'maths-teacher
                     :name 'john
-                    :age 34
-        )        )
-   #<maths-teacher @ #x7dcc66> 
+                    :age 34))
+   #<maths-teacher @ #x7dcc66>
 
    <cl> (describe p2)
    #<maths-teacher @ #x7dcc66> is an instance of
@@ -282,8 +274,7 @@ Anyway, all of the interesting things happen in methods.  A method is
 defined by:
 
    (DEFMETHOD generic-function-name specialized-lambda-list
-     form*
-   )
+     form*)
 
 This may look fairly cryptic, but compare it to DEFUN described in
 a similar way:
@@ -308,15 +299,13 @@ can apply to instances of any class, including classes that were
 not defined by DEFCLASS.  For example:
 
    (defmethod change-subject ((teach teacher) new-subject)
-     (setf (teacher-subject teach) new-subject)
-   )
+     (setf (teacher-subject teach) new-subject))
 
 Here the new-subject could be any object.  If you want to restrict
 it, you might do something like:
 
    (defmethod change-subject ((teach teacher) (new-subject string))
-     (setf (teacher-subject teach) new-subject)
-   )
+     (setf (teacher-subject teach) new-subject))
 
 Or you could define classes of subjects.
 
@@ -335,21 +324,18 @@ specific involves more than one parameter.  The parameters
 are considered from left to right.
 
    (defmethod test ((x number) (y number))
-     '(num num)
-   )
+     '(num num))
 
    (defmethod test ((i integer) (y number))
-     '(int num)
-   )
+     '(int num))
 
    (defmethod test ((x number) (j integer))
-     '(num int)
-   )
+     '(num int))
 
    (test 1 1)      =>  (int num), not (num int)
-   (test 1 1/2)    =>  (int num) 
-   (test 1/2 1)    =>  (num int) 
-   (test 1/2 1/2)  =>  (num num) 
+   (test 1 1/2)    =>  (int num)
+   (test 1/2 1)    =>  (num int)
+   (test 1/2 1/2)  =>  (num num)
 
 
 6. Method combination.
@@ -392,40 +378,34 @@ example will show how they work:
    (defclass food () ())
 
    (defmethod cook :before ((f food))
-     (print "A food is about to be cooked.")
-   )
+     (print "A food is about to be cooked."))
 
    (defmethod cook :after ((f food))
-     (print "A food has been cooked.")
-   )
+     (print "A food has been cooked."))
 
    (defclass pie (food)
-     ((filling :accessor pie-filling :initarg :filling :initform 'apple))
-   )
+     ((filling :accessor pie-filling :initarg :filling :initform 'apple)))
 
    (defmethod cook ((p pie))
      (print "Cooking a pie")
-     (setf (pie-filling p) (list 'cooked (pie-filling p)))
-   )
+     (setf (pie-filling p) (list 'cooked (pie-filling p))))
 
    (defmethod cook :before ((p pie))
-     (print "A pie is about to be cooked.")
-   )
+     (print "A pie is about to be cooked."))
 
    (defmethod cook :after ((p pie))
-     (print "A pie has been cooked.")
-   )
+     (print "A pie has been cooked."))
 
    (setq pie-1 (make-instance 'pie :filling 'apple))
 
 And now:
 
    <cl> (cook pie-1)
-   "A pie is about to be cooked." 
-   "A food is about to be cooked." 
-   "Cooking a pie" 
-   "A food has been cooked." 
-   "A pie has been cooked." 
+   "A pie is about to be cooked."
+   "A food is about to be cooked."
+   "Cooking a pie"
+   "A food has been cooked."
+   "A pie has been cooked."
    (cooked apple)
 
 
@@ -439,8 +419,7 @@ are used for grouping.
 Defining a class:
 
    (DEFCLASS class-name (superclass-name*)
-     (slot-description*)
-   )
+     (slot-description*))
 
 Slot descriptions:
 
@@ -457,8 +436,7 @@ Making instances:
 Method definitions:
 
    (DEFMETHOD generic-function-name [qualifier] specialized-lambda-list
-     form*
-   )
+     form*)
 
 where
 
@@ -479,11 +457,7 @@ Some functions:
    (CLASS-NAME class) -> symbol
 
    (CLASS-PRECEDENCE-LIST class) -> list of classes
-   [This is called (CLOS::CLASS-PRECEDENCE-LIST class) in CLISP.]
 
    (CLASS-DIRECT-SUPERCLASSES class) -> list of classes
-   [This is called (CLOS::CLASS-DIRECT-SUPERCLASSES class) in CLISP.]
 
    (CLASS-DIRECT-SUBCLASSES class) -> list of classes
-   [This isn't available in CLISP.]
-
