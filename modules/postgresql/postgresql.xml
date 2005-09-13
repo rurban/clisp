@@ -16,8 +16,8 @@
 <simpara>When this module is present, &features-var;
  contains the symbol <constant>:POSTGRESQL</constant>.</simpara>
 
-<para>See <filename>modules/postgresql/sql.lisp</filename> for sample
- usage.</para>
+<para>See <filename role="clisp-cvs">modules/postgresql/test.tst</filename>
+ for sample usage.</para>
 
 <para>Additionally, some higher level functionality is available:</para>
 
