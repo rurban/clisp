@@ -132,7 +132,8 @@
               (push (list (* x 40) (* y 40) 40 40) *rects*))))
         (setf (xlib:drawable-width *window*)  (* 40 (1+ maxx))
               (xlib:drawable-height *window*) (* 40 (1+ maxy)))
-        (xlib:shape-combine *window* *rects*)) )))
+        (xlib:shape-combine *window* *rects*))))
+  (xlib:display-force-output *display*))
 
 (defun init-field (&optional (level *level*))
   "Does all initialisation work needed when going to a different level."
