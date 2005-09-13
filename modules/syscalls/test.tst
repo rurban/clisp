@@ -104,7 +104,14 @@ T
 (os:memory-status-p (show (os:memory-status)))
 T
 
-(listp (show (multiple-value-list (os:physical-memory))))
+(let ((sysconf #+unix (show (os:sysconf)) #-unix nil))
+  ;; guard against broken unixes, like FreeBSD 4.10-BETA
+  (if #+unix (and (get sysconf :PAGESIZE)
+                  (get sysconf :PHYS-PAGES)
+                  (get sysconf :AVPHYS-PAGES))
+      #-unix T
+      (listp (show (multiple-value-list (os:physical-memory))))
+      T))
 T
 
 ;; test file locking
