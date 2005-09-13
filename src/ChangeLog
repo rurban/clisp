@@ -1,3 +1,9 @@
+2005-09-13  "Dr. Werner Fink"  <werner@suse.de>
+
+	* modules/clx/new-clx/demos/sokoban.lisp (find-outers):
+	call DISPLAY-FORCE-OUTPUT
+	* modules/clx/new-clx/clx.f (PUT-IMAGE): do not call XSync()
+
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/test.tst: SHOW the results for FILE-OWNER
