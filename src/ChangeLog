@@ -1,5 +1,9 @@
 2005-09-12  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/test.tst: SHOW the results for FILE-OWNER
+
+2005-09-12  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (%DISPLAY-XID): wrap XAllocID in X_CALL
 	(image_put_and_destroy): wrapper for XPutImage & XDestroyImage
 	(handle_image_z, PUT-IMAGE): use it
