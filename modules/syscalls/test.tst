@@ -64,11 +64,11 @@ T
 
 (os:stat-vfs-p (show (os:stat-vfs *tmp2*))) T
 
-(string= #+win32 (ext:string-concat (ext:getenv "USERDOMAIN") "\\"
-                                    (ext:getenv "USERNAME"))
-         #+unix (ext:getenv "USER")
-         #-(or unix win32) ERROR
-         (os:file-owner *tmp1*))
+(string= (show #+win32 (ext:string-concat (ext:getenv "USERDOMAIN") "\\"
+                                          (ext:getenv "USERNAME"))
+               #+unix (ext:getenv "USER")
+               #-(or unix win32) ERROR)
+         (show (os:file-owner *tmp1*)))
 T
 
 (progn (close *tmp1*) (close *tmp2*) T) T
