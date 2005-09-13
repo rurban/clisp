@@ -116,11 +116,11 @@ rational, a rational plus a real is a real, and a real plus a complex
 is a complex. Here are some examples:
 
 > (+ 3 3/4)             ;type contagion
-15/4 
+15/4
 > (exp 1)               ;e
-2.7182817 
+2.7182817
 > (exp 3)               ;e*e*e
-20.085537 
+20.085537
 > (expt 3 4.2)          ;exponent with a base other than e
 100.90418
 > (+ 5 6 7 (* 8 9 10))  ;the fns +-*/ all accept multiple arguments
@@ -219,10 +219,9 @@ FOO
 > (foo 5 0)                     ;calling a function
 10
 > (defun fact (x)               ;a recursive function
-    (if (> x 0) 
+    (if (> x 0)
       (* x (fact (- x 1)))
-      1
-  ) )
+      1))
 FACT
 > (fact 5)
 120
@@ -235,8 +234,7 @@ T
 > (defun bar (x)                ;a function with multiple statements in
     (setq x (* x 3))            ;its body -- it will return the value
     (setq x (/ x 2))            ;returned by its final statement
-    (+ x 4)
-  )
+    (+ x 4))
 BAR
 > (bar 6)
 13
@@ -469,10 +467,8 @@ let special form, which looks like this:
 
         (let ((var1 val1)
               (var2 val2)
-              ...
-             )
-          body
-        )
+              ...)
+          body)
 
 Let binds var1 to val1, var2 to val2, and so forth; then it executes
 the statements in its body. The body of a let follows exactly the same
@@ -480,12 +476,11 @@ rules that a function body does. Some examples:
 
 > (let ((a 3)) (+ a 1))
 4
-> (let ((a 2) 
+> (let ((a 2)
         (b 3)
         (c 0))
     (setq c (+ a b))
-    c
-  )
+    c)
 5
 > (setq c 4)
 4
@@ -501,8 +496,7 @@ var2, etc. that the let is binding. For example,
 
 > (let ((x 1)
         (y (+ x 1)))
-    y
-  )
+    y)
 Error: Attempt to take the value of the unbound symbol X
 
 If the symbol x already has a global value, stranger happenings will
@@ -512,8 +506,7 @@ result:
 7
 > (let ((x 1)
         (y (+ x 1)))
-    y
-  )
+    y)
 8
 
 The let* special form is just like let except that it allows values to
@@ -523,23 +516,20 @@ reference variables defined earlier in the let*. For example,
 7
 > (let* ((x 1)
          (y (+ x 1)))
-    y
-  )
+    y)
 2
 
 The form
 
         (let* ((x a)
                (y b))
-          ...
-        ) 
+          ...)
 
 is equivalent to
 
         (let ((x a))
           (let ((y b))
-            ...
-        ) )
+            ...))
 
 
 
@@ -561,13 +551,13 @@ the let which binds regular, check-regular returns the variable's
 global value.
 
 > (setq regular 5)
-5 
+5
 > (defun check-regular () regular)
-CHECK-REGULAR 
+CHECK-REGULAR
 > (check-regular)
-5 
+5
 > (let ((regular 6)) (check-regular))
-5 
+5
 
 In this example, the function check-special references a special (ie,
 dynamically scoped) variable. Since the call to check-special is
@@ -652,8 +642,7 @@ an example:
 > (defstruct foo
     bar
     baaz
-    quux
-  )
+    quux)
 FOO
 
 This example defines a data type called foo which is a structure
@@ -663,9 +652,9 @@ makes a new object of type foo; the others access the fields of an
 object of type foo. Here is how to use these functions:
 
 > (make-foo)
-#s(FOO :BAR NIL :BAAZ NIL :QUUX NIL) 
+#s(FOO :BAR NIL :BAAZ NIL :QUUX NIL)
 > (make-foo :baaz 3)
-#s(FOO :BAR NIL :BAAZ 3 :QUUX NIL) 
+#s(FOO :BAR NIL :BAAZ 3 :QUUX NIL)
 > (foo-bar *)
 NIL
 > (foo-baaz **)
@@ -771,8 +760,7 @@ each statement in its body, then returns the value of the final one.
     (progn
       (setq a (+ b 7))
       (setq b (+ c 8)))
-    (setq b 4)
-  )
+    (setq b 4))
 13
 
 An if statement which lacks either a then or an else clause can be
@@ -792,8 +780,7 @@ bodies. (Eg, (when x a b c) is equivalent to (if x (progn a b c)).)
 
 > (when t
     (setq a 5)
-    (+ a 6)
-  )
+    (+ a 6))
 11
 
 More complicated conditionals can be defined using the cond special
@@ -814,8 +801,7 @@ selected condition. For example:
    ((evenp a) a)        ;if a is even return a
    ((> a 7) (/ a 2))    ;else if a is bigger than 7 return a/2
    ((< a 5) (- a 1))    ;else if a is smaller than 5 return a-1
-   (t 17)               ;else return 17
-  )
+   (t 17))              ;else return 17
 2
 
 If the action in the selected cond clause is missing, cond returns what
@@ -832,8 +818,7 @@ least 1. (If you succeed, please publish the result.)
     (cond
      ((= x 1) steps)
      ((oddp x) (hotpo (+ 1 (* x 3)) (+ 1 steps)))
-     (t (hotpo (/ x 2) (+ 1 steps)))
-  ) )
+     (t (hotpo (/ x 2) (+ 1 steps)))))
 A
 > (hotpo 7 0)
 16
@@ -846,8 +831,7 @@ B
    (a 5)
    ((d e) 7)
    ((b f) 3)
-   (otherwise 9)
-  )
+   (otherwise 9))
 3
 
 The otherwise clause at the end means that if x is not a, b, d, e, or
@@ -863,25 +847,23 @@ example,
 
 > (setq a 4)
 4
-> (loop 
+> (loop
    (setq a (+ a 1))
-   (when (> a 7) (return a))
-  )
+   (when (> a 7) (return a)))
 8
 > (loop
    (setq a (- a 1))
-   (when (< a 3) (return))
-  )
+   (when (< a 3) (return)))
 NIL
 
 The next simplest is dolist: dolist binds a variable to the elements of
 a list in order and stops when it hits the end of the list.
 
 > (dolist (x '(a b c)) (print x))
-A 
-B 
-C 
-NIL 
+A
+B
+C
+NIL
 
 Dolist always returns nil. Note that the value of x in the above
 example was never nil: the NIL below the C was the value that dolist
@@ -894,19 +876,18 @@ looks like this:
        (y 1 (* y 2)))
       ((> x 5) y)
     (print y)
-    (print 'working)
-  )
-1 
-WORKING 
-2 
-WORKING 
-4 
-WORKING 
-8 
-WORKING 
-16 
-WORKING 
-32 
+    (print 'working))
+1
+WORKING
+2
+WORKING
+4
+WORKING
+8
+WORKING
+16
+WORKING
+32
 
 The first part of a do specifies what variables to bind, what their
 initial values are, and how to update them. The second part specifies a
@@ -928,8 +909,7 @@ which returns a value from the surrounding function:
 
 > (defun foo (x)
     (return-from foo 3)
-    x
-  )
+    x)
 FOO
 > (foo 17)
 3
@@ -940,8 +920,7 @@ can create a named block with the block special form:
 
 > (block foo
     (return-from foo 7)
-    3
-  )
+    3)
 7
 
 The return special form can return from any block named nil. Loops are
@@ -949,8 +928,7 @@ by default labelled nil, but you can make your own nil-labelled blocks:
 
 > (block nil
     (return 7)
-    3
-  )
+    3)
 7
 
 Another form which causes a nonlocal exit is the error form:
@@ -1012,8 +990,7 @@ example, the following two forms are equivalent:
 > (do ((x '(1 2 3 4 5) (cdr x))
        (y nil))
       ((null x) (reverse y))
-    (push (+ (car x) 2) y)
-  )
+    (push (+ (car x) 2) y))
 (3 4 5 6 7)
 > (mapcar #'(lambda (x) (+ x 2)) '(1 2 3 4 5))
 (3 4 5 6 7)
