@@ -147,8 +147,8 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(FILLIN) $< > $@
 
 check: impnotes.xml $(IMPNOTES) clisp.xml
-	$(NSGMLS) -s -e -g -c$(XMLSOC) impnotes.xml
 	$(NSGMLS) -s -e -g -c$(XMLSOC) clisp.xml
+	$(NSGMLS) -s -e -g -c$(XMLSOC) impnotes.xml
 	xmllint --noout --valid --postvalid --timing --noent clisp.xml
 	xmllint --noout --valid --postvalid --timing --noent impnotes.xml
 
