@@ -4077,6 +4077,7 @@ void dump_image (XImage *image)
 #define DUMP_IMAGE(im)
 #endif
 
+/* make sure to call DISPLAY-FORCE-OUTPUT after this function! */
 DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
       &key SRC-X SRC-Y X Y WIDTH HEIGHT BITMAP-P)
 { /* This is a *VERY* silly implementation.
@@ -4142,10 +4143,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
     dprintf(("\n;; put-image: IMAGE-X -> %dx%d+%d+%d",w,h,x,y));
     DUMP_IMAGE(&im);
 
-    begin_x_call();
-    XPutImage (dpy, drawable, gcontext, &im, src_x, src_y, x,y,w,h);
-    XSync (dpy, 0);
-    end_x_call();
+    X_CALL(XPutImage(dpy,drawable,gcontext,&im,src_x,src_y,x,y,w,h));
 
     goto raus;
   } else {
