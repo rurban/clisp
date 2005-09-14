@@ -1,5 +1,17 @@
 2005-09-14  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (sec_usec): support 64-bit struct timeval
+	(sec_usec_number): new function
+	* lispbibl.d (sec_usec_number): export
+	* configure.in (struct timeval): check sizeof
+	* modules/rawsock/rawsock.c (timeval_to_number): removed
+	(get_sock_opt): use sec_usec_number() instead of timeval_to_number()
+	* modules/syscalls/calls.c (utmpx_to_lisp): use sec_usec_number()
+	* modules/syscalls/test.tst: added a GETUTXENT test
+	* modules/syscalls/configure.in: removed unused sizeof tests
+
+2005-09-14  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (GETTEXT): properly define in clisp.h on woe32
 
 2005-09-14  Sam Steingold  <sds@gnu.org>

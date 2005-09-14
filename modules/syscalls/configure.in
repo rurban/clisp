@@ -21,14 +21,7 @@ sys/statvfs.h crypt.h utmpx.h stdlib.h shlobj.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
 fi
-AC_CHECK_SIZEOF(struct timeval,,[#include <stdio.h>
-#include <sys/time.h>])
-AC_CHECK_SIZEOF(time_t,,[#include <stdio.h>
-#include <sys/types.h>])
-AC_CHECK_SIZEOF(suseconds_t,,[#include <stdio.h>
-#include <sys/types.h>])
-AC_CHECK_SIZEOF(off_t,,[#include <stdio.h>
-#include <sys/types.h>])
+AC_CHECK_SIZEOF(off_t)
 if test "$ac_cv_header_utmpx_h" = "yes"; then
  AC_CHECK_MEMBERS([struct utmpx.ut_host],,,[#include <utmpx.h>])
 fi

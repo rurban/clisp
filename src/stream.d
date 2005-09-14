@@ -13894,8 +13894,8 @@ LISPFUNN(socket_server_host,1) {
  sec = posfixnum or (SEC . USEC) or (SEC USEC) or float or ratio or nil/unbound
  usec = posfixnum or nil/unbound
  can trigger GC */
-global maygc struct timeval * sec_usec (object sec, object usec, struct timeval *tv)
-{
+global maygc struct timeval * sec_usec (object sec, object usec,
+                                        struct timeval *tv) {
   if (missingp(sec)) {
     return NULL;
   } else if (consp(sec)) {
@@ -13911,18 +13911,37 @@ global maygc struct timeval * sec_usec (object sec, object usec, struct timeval 
       usec = value1;
     }
   }
-  if (!uint32_p(sec))
-    fehler_uint32(sec);
-  tv->tv_sec = I_to_uint32(sec);
-  if (missingp(usec)) {
-    tv->tv_usec = 0;
-  } else {
-    if (!uint32_p(usec))
-      fehler_uint32(usec);
-    tv->tv_usec = I_to_uint32(usec);
-  }
+#if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
+ #define TV_SEC(s)  I_to_uint64(check_uint64(sec))
+#else
+ #define TV_SEC(s)  I_to_uint32(check_uint32(sec))
+#endif
+  tv->tv_sec = TV_SEC(sec);
+  tv->tv_usec = (missingp(usec) ? 0 : TV_SEC(usec));
+#undef TV_SEC
   return tv;
 }
+
+/* Convert C sec/usec (struct timeval et al) pair into Lisp number (of seconds)
+ if abs_p is true, add UNIX_LISP_TIME_DIFF
+ can trigger GC */
+#if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
+#define TO_INT(x)  uint64_to_I(x)
+global maygc object sec_usec_number (uint64 sec, uint64 usec, bool abs_p)
+#else
+#define TO_INT(x)  uint32_to_I(x)
+global maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p)
+#endif
+{
+  pushSTACK(TO_INT((abs_p ? UNIX_LISP_TIME_DIFF : 0) + sec));
+  if (usec) {
+    pushSTACK(TO_INT(usec)); pushSTACK(fixnum(1000000)); funcall(L(durch),2);
+    pushSTACK(value1); funcall(L(plus),2);
+    return value1;
+  } else
+    return popSTACK();
+}
+#undef TO_INT
 
 #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
 # wait for the socket server to have a connection ready

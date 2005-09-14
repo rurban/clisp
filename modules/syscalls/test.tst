@@ -5,6 +5,12 @@
 (os:hostent-p (show (os:resolve-host-ipaddr "localhost")))
 T
 
+#+unix
+(when (fboundp 'os:getutxent)
+  (not (integerp (show (length (loop :for utmpx = (os:getutxent) :while utmpx
+                                 :collect (show utmpx :pretty t)))))))
+#+unix NIL
+
 (defparameter *tmp1* (os:mkstemp "syscalls-tests-")) *tmp1*
 (defparameter *tmp2* (os:mkstemp "syscalls-tests-")) *tmp2*
 
