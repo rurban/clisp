@@ -13,7 +13,9 @@
 ;;; Helper Functions
 ;;;
 
-(defvar *sql-log* nil)
+(defvar *sql-log* nil "The PostgreSQL log stream or NIL.")
+(defvar *sql-login* "postgres" "The default PostgreSQL login.")
+(defvar *sql-password* "postgres" "The default PostgreSQL passowrd.")
 
 (define-condition sql-error (error)
   ((type :type symbol :reader sql-type :initarg :type)
@@ -39,7 +41,7 @@
          :type (if res :request :connection)))
 
 (defun sql-connect (&key host port options tty name
-                    (login "postgres") (password "postgres"))
+                    (login *sql-login*) (password *sql-password*))
   (let ((conn (PQsetdbLogin host port options tty name login password)))
     (when conn (set-foreign-pointer conn :copy))
     (unless (and conn (= (PQstatus conn) CONNECTION_OK))

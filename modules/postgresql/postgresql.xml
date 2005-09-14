@@ -60,6 +60,16 @@
  <listitem><simpara>execure the &body-r; on the &res-r; of &command-r;,
    then <function>sql:pq-clear</function> the &res-r;
 </simpara></listitem></varlistentry>
+<varlistentry id="sql:sql-login"><term><code>sql:*sql-login*</code></term>
+ <listitem><simpara>the default <replaceable>login</replaceable>
+   argument to <function>sql:sql-connect</function>
+   (initially set to <quote>postgres</quote>)
+</simpara></listitem></varlistentry>
+<varlistentry id="sql:sql-password"><term><code>sql:*sql-password*</code></term>
+ <listitem><simpara>the default <replaceable>password</replaceable>
+   argument to <function>sql:sql-connect</function>
+   (initially set to <quote>postgres</quote>)
+</simpara></listitem></varlistentry>
 <varlistentry id="sql:sql-log"><term><code>sql:*sql-log*</code></term>
  <listitem><simpara>when non-&nil;, should be a &stream-t;;
    <function>sql:sql-connect</function>
