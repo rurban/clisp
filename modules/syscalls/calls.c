@@ -437,13 +437,7 @@ static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
 #else
   pushSTACK(NIL);
 #endif
-  /* GLIBC 2.3.2 uses 32-bit slots for the utmpx->ut_tv even on 64-bit
-     platforms, so SIZEOF_STRUCT_TIMEVAL is useless here */
-#define push32_64(x) pushSTACK(sizeof(x)==8 ? uint64_to_I((uint64)x) : uint32_to_I((uint32)x))
-  push32_64(utmpx->ut_tv.tv_sec);
-  push32_64(utmpx->ut_tv.tv_usec);
-#undef push32_64
-  { object tmp = listof(2); pushSTACK(tmp); }
+  pushSTACK(sec_usec_number(utmpx->ut_tv.tv_sec,utmpx->ut_tv.tv_usec,1));
   if (utmpx_o) {
     TheStructure(*utmpx_o)->recdata[7] = popSTACK(); /* tv */
     TheStructure(*utmpx_o)->recdata[6] = popSTACK(); /* host */

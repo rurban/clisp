@@ -149,6 +149,9 @@ dnl DEFS SIZEOF_OFF_T
 AC_CHECK_SIZEOF([off_t])
 dnl DEFS SIZEOF_INO_T
 AC_CHECK_SIZEOF([ino_t])
+dnl DEFS SIZEOF_STRUCT_TIMEVAL
+AC_CHECK_SIZEOF(struct timeval,,[#include <stdio.h>
+#include <sys/time.h>])
 dnl
 AC_MSG_NOTICE([* checks for structure members])
 dnl
