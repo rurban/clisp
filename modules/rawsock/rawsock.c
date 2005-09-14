@@ -578,17 +578,6 @@ DEFCHECKER(sockopt_name,default=-1,prefix=SO,                            \
     else return (err_p ? OS_file_error(fixnum(sock)),NIL : S(Kerror));  \
   } while(0)
 /* can trigger GC */
-static object timeval_to_number (struct timeval *tv) {
-#define TO_INT(x) (sizeof(x)==4 ? sint32_to_I(x) : sint64_to_I(x))
-  if (tv->tv_usec) {
-    pushSTACK(TO_INT(tv->tv_usec)); pushSTACK(fixnum(1000000));
-    funcall(L(durch),2); pushSTACK(value1);
-    pushSTACK(TO_INT(tv->tv_sec)); funcall(L(plus),2);
-    return value1;
-  } else return TO_INT(tv->tv_sec);
-#undef TO_INT
-}
-/* can trigger GC */
 static object get_sock_opt (rawsock_t sock, int level, int name, int err_p) {
   switch (name) {
 #  if defined(SO_DEBUG)
@@ -649,7 +638,7 @@ static object get_sock_opt (rawsock_t sock, int level, int name, int err_p) {
 #  if defined(SO_SNDTIMEO)
     case SO_SNDTIMEO:
 #  endif
-      GET_SOCK_OPT(struct timeval,timeval_to_number(&val));
+      GET_SOCK_OPT(struct timeval,sec_usec_number(val.tv_sec,val.tv_usec,0));
     default: NOTREACHED;
   }
 }

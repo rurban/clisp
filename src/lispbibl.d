@@ -15448,6 +15448,20 @@ static inline maygc object check_stream (object obj) {
 extern maygc struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
 %% printf("extern struct timeval * sec_usec (object sec, object usec, struct timeval *tv);\n");
 
+/* Convert C sec/usec (struct timeval et al) pair into Lisp number (of seconds)
+ if abs_p is true, add UNIX_LISP_TIME_DIFF
+ can trigger GC */
+#if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
+global maygc object sec_usec_number (uint64 sec, uint64 usec, bool abs_p);
+#else
+global maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p);
+#endif
+%% #if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
+%% printf("extern object sec_usec_number (uint64 sec, uint64 usec, bool abs_p);\n");
+%% #else
+%% printf("extern object sec_usec_number (uint32 sec, uint32 usec, bool abs_p);\n");
+%% #endif
+
 /* UP: Initializes the stream variables.
  init_streamvars(batch_p);
  > batch_p: Flag, whether *standard-input*, *standard-output*, *error-output*
