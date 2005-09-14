@@ -1,3 +1,9 @@
+2005-09-14  Sam Steingold  <sds@gnu.org>
+
+	* modules/postgresql/sql.lisp (*sql-login*, *sql-password*):
+	new variables
+	(sql-connect): default login and password to them instead of a literal
+
 2005-09-13  Sam Steingold  <sds@gnu.org>
 
 	* modules/postgresql/sql.lisp (*sql-log*): init to NIL to avoid
