@@ -106,6 +106,7 @@ DEFUN(BDB:DB-VERSION,&optional subsystems-p)
     mv_count = 4;
   } else {                      /* return subsystem versions too */
     int subsystem_count = 0;
+    pushSTACK(value1);          /*  save */
 #  if defined(DB_LOCKVERSION)
     pushSTACK(`:LOCK`); pushSTACK(fixnum(DB_LOCKVERSION)); subsystem_count++;
 #  endif
@@ -129,6 +130,7 @@ DEFUN(BDB:DB-VERSION,&optional subsystems-p)
     subsystem_count++;
 #  endif
     value5 = listof(2*subsystem_count);
+    value1 = popSTACK();        /* restore */
     mv_count = 5;
   }
   skipSTACK(1);

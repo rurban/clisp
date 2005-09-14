@@ -1,5 +1,9 @@
 2005-09-14  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (BDB:DB-VERSION): fixed a GC-safety bug
+
+2005-09-14  Sam Steingold  <sds@gnu.org>
+
 	* modules/postgresql/sql.lisp (*sql-login*, *sql-password*):
 	new variables
 	(sql-connect): default login and password to them instead of a literal
