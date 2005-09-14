@@ -632,6 +632,9 @@
 /* The size of a `rlim_t', as computed by sizeof. */
 #undef SIZEOF_RLIM_T
 
+/* The size of a `struct timeval', as computed by sizeof. */
+#undef SIZEOF_STRUCT_TIMEVAL
+
 /* socklen_t (if defined in <sys/socket.h>) or int otherwise) */
 #undef SOCKLEN_T
 
