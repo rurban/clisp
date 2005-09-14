@@ -9494,15 +9494,15 @@ nonreturning_function(extern, fehler_notreached, (const char * file, uintL line)
   # init the language and the locale
   extern void init_language (const char*, const char*);
 #endif
-%% #ifndef LANGUAGE_STATIC
-%%   #ifdef GNU_GETTEXT
-%%     printf("#define GNU_GETTEXT\n");
-%%     printf("#ifndef COMPILE_STANDALONE\n");
-%%     printf("#include <libintl.h>\n");
-%%     printf("#endif\n");
-%%     printf("extern const char * clgettext (const char * msgid);\n");
-%%   #endif
+%% #if !defined(LANGUAGE_STATIC) && defined(GNU_GETTEXT)
+%%   printf("#define GNU_GETTEXT\n");
+%%   printf("#ifndef COMPILE_STANDALONE\n");
+%%   printf("#include <libintl.h>\n");
+%%   printf("#endif\n");
+%%   printf("extern const char * clgettext (const char * msgid);\n");
 %%   export_def(GETTEXT);
+%% #else
+%%   export_def(GETTEXT(english));
 %% #endif
 
 # Fetch the message translations of a string: "CL String getTEXT"
