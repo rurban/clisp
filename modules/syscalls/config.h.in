@@ -328,15 +328,6 @@
 /* The size of a `rlim_t', as computed by sizeof. */
 #undef SIZEOF_RLIM_T
 
-/* The size of a `struct timeval', as computed by sizeof. */
-#undef SIZEOF_STRUCT_TIMEVAL
-
-/* The size of a `suseconds_t', as computed by sizeof. */
-#undef SIZEOF_SUSECONDS_T
-
-/* The size of a `time_t', as computed by sizeof. */
-#undef SIZEOF_TIME_T
-
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
