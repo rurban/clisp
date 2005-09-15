@@ -508,8 +508,11 @@ trying to &nconc; a circular list).</para>
  (and will not happen in an officially released source distribution).
  Please just <command role="unix">touch</command> the target, e.g.:<screen>
 <prompt>$</prompt> touch src/configure
-</screen>and re-<command role="unix">make</command>.
-</para></answer></qandaentry>
+</screen>and re-<command role="unix">make</command>.</para>
+<para>You can also pass <option>--disable-maintainer-mode</option>
+ to top-level <filename>configure</filename> script (this is the default
+ when you are &not-e; working from the CVS).</para>
+</answer></qandaentry>
 
 
 <qandaentry id="faq-fp">

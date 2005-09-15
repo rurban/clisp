@@ -1,5 +1,10 @@
 2005-09-15  Sam Steingold  <sds@gnu.org>
 
+	* configure: document --enable-maintainer-mode
+	* makemake.in: handle --enable-maintainer-mode
+
+2005-09-15  Sam Steingold  <sds@gnu.org>
+
 	(clisp.h): ensure that __FILE__ and __LINE__ are expanded
 	after the file is included, not when it is generated
 	* lispbibl.d (NOTREACHED, ASSERT, OBJECT_OUT): do not use
