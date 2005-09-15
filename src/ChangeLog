@@ -1,5 +1,9 @@
 2005-09-14  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (GCself, varobject_type): fixed export conditional
+
+2005-09-14  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (sec_usec): support 64-bit struct timeval
 	(sec_usec_number): new function
 	* lispbibl.d (sec_usec_number): export

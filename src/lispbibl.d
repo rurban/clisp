@@ -4558,7 +4558,7 @@ typedef varobject_ *  Varobject;
     #define var_bit1_hf  (var_bit1_f+8)
 #endif
 %% export_def(VAROBJECT_HEADER);
-%% #ifdef TYPECODES
+%% #ifndef TYPECODES
 %%  export_def(GCself);
 %%  export_def(varobject_type(ptr));
 %% #endif
