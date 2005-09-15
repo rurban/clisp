@@ -48,6 +48,9 @@
 (def-call-out GetCurrentProcessId (:library kernel32)
   (:arguments) (:return-type dword))
 
+(def-call-out GetCurrentThreadId (:library kernel32)
+  (:arguments) (:return-type dword))
+
 (def-call-out CloseHandle (:library kernel32)
   (:arguments (handle handle)) (:return-type boolean))
 
