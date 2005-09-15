@@ -1089,11 +1089,11 @@
 
 # Marking a program line that may not be reached: NOTREACHED;
 #define NOTREACHED  fehler_notreached(__FILE__,__LINE__)
-%% export_def(NOTREACHED);
+%% printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)\n");
 
 # Asserting an arithmetic expression: ASSERT(expr);
 #define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
-%% export_def(ASSERT(expr));
+%%  printf("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)\n");
 
 # Ensure the Linux headers define nonstandard symbols like IPC_INFO.
 #ifdef UNIX_LINUX
@@ -6054,21 +6054,22 @@ typedef struct {
 #ifdef UNICODE
   #define cslen(encoding,src,srclen)  \
     Encoding_wcslen(encoding)(encoding,src,(src)+(srclen))
-  #define cstombs(encoding,src,srclen,dest,destlen)  \
+  #define cstombs_help_(encoding,src,srclen,dest,destlen,A)         \
     do { var const chart* _srcptr = (src);                          \
       var const chart* _srcendptr = _srcptr+(srclen);               \
       var uintB* _destptr = (dest);                                 \
       var uintB* _destendptr = _destptr+(destlen);                  \
       Encoding_wcstombs(encoding)(encoding,nullobj,&_srcptr,_srcendptr,&_destptr,_destendptr); \
-      ASSERT((_srcptr == _srcendptr) && (_destptr == _destendptr)); \
+      A((_srcptr == _srcendptr) && (_destptr == _destendptr)); \
     } while(0)
 #else
   #define cslen(encoding,src,srclen)  (srclen)
-  #define cstombs(encoding,src,srclen,dest,destlen)  \
-    do { ASSERT((srclen) == (destlen));                                   \
+  #define cstombs_help_(encoding,src,srclen,dest,destlen,A)           \
+    do { A((srclen) == (destlen));                                   \
          begin_system_call(); memcpy(dest,src,srclen); end_system_call(); \
     } while(0)
 #endif
+#define cstombs(encoding,src,srclen,dest,destlen)  cstombs_help_(encoding,src,srclen,dest,destlen,ASSERT)
 %% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t enc_eol%s; gcv_object_t enc_towcs_error%s; gcv_object_t enc_tombs_error%s;",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
 %% #ifdef UNICODE
 %%   sprintf(buf+strlen(buf)," gcv_object_t enc_charset%s; gcv_object_t enc_mblen%s; gcv_object_t enc_mbstowcs%s; gcv_object_t enc_wcslen%s; gcv_object_t enc_wcstombs%s; gcv_object_t enc_range%s; gcv_object_t enc_table%s; uintL min_bytes_per_char; uintL max_bytes_per_char;",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
@@ -6080,7 +6081,8 @@ typedef struct {
 %%  export_def(Encoding_wcstombs(encoding));
 %% #endif
 %% export_def(cslen(encoding,src,srclen));
-%% export_def(cstombs(encoding,src,srclen,dest,destlen));
+%% export_def(cstombs_help_(encoding,src,srclen,dest,destlen,A));
+%% puts("#define cstombs(encoding,src,srclen,dest,destlen)  cstombs_help_(encoding,src,srclen,dest,destlen,ASSERT)");
 
 #ifdef FOREIGN
 # foreign pointer wrap
@@ -9541,7 +9543,7 @@ extern maygc object object_out (object obj);
 extern maygc object nobject_out (FILE* out, object obj);
 # used for debugging purposes
 %% printf("extern object object_out (object obj);\n");
-%% export_def(OBJECT_OUT(obj,label));
+%% puts("#define OBJECT_OUT(obj,label)  (printf(\"[%s:%d] %s: %s:\\n\",__FILE__,__LINE__,STRING(obj),label),obj=object_out(obj))");
 
 # After allocating memory for an object, add the type infos.
 #ifdef TYPECODES
@@ -12781,45 +12783,45 @@ extern maygc object ascii_to_string (const char * asciz);
     } while(0)
   #define with_sstring_0  with_string_0
 #else
-  #define with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data) \
+  #define with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,U) \
     do { var uintL ascizvar_len;                                        \
       var uintL ascizvar_offset;                                        \
       var object ascizvar_string = unpack_string_ro(string,&ascizvar_len,&ascizvar_offset); \
       var const chart* ptr1;                                            \
-      unpack_sstring_alloca(ascizvar_string,ascizvar_len,ascizvar_offset, ptr1=); \
+      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,ascizvar_offset, ptr1=,U); \
      {var uintL ascizvar_bytelen = cslen(encoding,ptr1,ascizvar_len);   \
       var DYNAMIC_ARRAY(ascizvar_data,uintB,ascizvar_bytelen+1);        \
-      cstombs(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen); \
+      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,U); \
       ascizvar_data[ascizvar_bytelen] = '\0';                           \
      {var char* ascizvar = (char*) &ascizvar_data[0];                   \
       statement}                                                        \
       FREE_DYNAMIC_ARRAY(ascizvar_data);                                \
     }} while(0)
   #define with_string_0(string,encoding,ascizvar,statement) \
-    with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data)
-  #define with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data) \
+    with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,NOTREACHED)
+  #define with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,U) \
     do { var object ascizvar_string = (string);                         \
       sstring_un_realloc(ascizvar_string);                              \
      {var uintL ascizvar_len = Sstring_length(ascizvar_string);         \
       var const chart* ptr1;                                            \
-      unpack_sstring_alloca(ascizvar_string,ascizvar_len,0, ptr1=);     \
+      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,0, ptr1=,U); \
      {var uintL ascizvar_bytelen = cslen(encoding,ptr1,ascizvar_len);   \
       var DYNAMIC_ARRAY(ascizvar_data,uintB,ascizvar_bytelen+1);        \
-      cstombs(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen); \
+      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,U); \
       ascizvar_data[ascizvar_bytelen] = '\0';                           \
      {var char* ascizvar = (char*) &ascizvar_data[0];                   \
       statement}                                                        \
       FREE_DYNAMIC_ARRAY(ascizvar_data);                                \
     }}} while(0)
   #define with_sstring_0(string,encoding,ascizvar,statement) \
-    with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data)
+with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,NOTREACHED)
 #endif
 # is used by PATHNAME, MISC, FOREIGN
-%% export_def(with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data));
-%% export_def(with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data));
+%% export_def(with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,U));
+%% export_def(with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,U));
 %% /* cannot use emit_define because Rectype_* is not a define in lispbibl.d */
-%% printf("#define with_string_0(string,encoding,ascizvar,statement) with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data)\n");
-%% printf("#define with_sstring_0(string,encoding,ascizvar,statement) with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data)\n");
+%% puts("#define with_string_0(string,encoding,ascizvar,statement) with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,NOTREACHED)");
+%% puts("#define with_sstring_0(string,encoding,ascizvar,statement) with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,NOTREACHED)");
 
 # In some foreign modules, we call library functions that can do callbacks.
 # When we pass a parameter to such a library function, maybe it first does a
@@ -13537,7 +13539,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
 # < const chart* charptr: pointer to the characters
 #   (may be in string, may be on the stack)
 #ifdef HAVE_SMALL_SSTRING
-  #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
+  #define unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,u) \
     if (simple_nilarray_p(string)) {                                           \
       if ((len) > 0) fehler_nilarray_retrieve();                               \
       charptr_assignment NULL;                                                 \
@@ -13548,15 +13550,15 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
       if ((len) > 0) {                                                         \
         if (sstring_eltype(TheSstring(string)) == Sstringtype_16Bit)           \
           copy_16bit_32bit(&TheS16string(string)->data[offset],(cint32*)_unpacked_,len);\
-        elif (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit)          \
+        else if (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit) \
           copy_8bit_32bit(&TheS8string(string)->data[offset],(cint32*)_unpacked_,len);\
         else                                                                   \
-          NOTREACHED;                                                          \
+          u;                                                            \
       }                                                                        \
       charptr_assignment (const chart*) _unpacked_;                            \
     }
 #else
-  #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
+  #define unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,u) \
     if (simple_nilarray_p(string)) {                                           \
       if ((len) > 0) fehler_nilarray_retrieve();                               \
       charptr_assignment NULL;                                                 \
@@ -13564,8 +13566,11 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
       charptr_assignment (const chart*) &TheSnstring(string)->data[offset];    \
     }
 #endif
+#define unpack_sstring_alloca(string,len,offset,charptr_assignment)     \
+  unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,NOTREACHED)
 # is used by
-%% export_def(unpack_sstring_alloca(string,len,offset,charptr_assignment));
+%% export_def(unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,u));
+%% printf("#define unpack_sstring_alloca(s,l,o,c) unpack_sstring_alloca_help_(s,l,o,c,NOTREACHED)");
 
 # UP: Fetches a character from a simple string.
 # schar(string,index)
