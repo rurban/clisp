@@ -15,83 +15,86 @@ dirname: Name of directory in which to build CLISP. This allows you to build
          architectures in the same filesystem, sharing the same source.
          Default is "src".
 options: The following options are recognized:
-         --help                print this message and exit
-         --version             print the CLISP version and exit
-         --config              unix/INSTALL step 3: configuration only
-         --build               unix/INSTALL steps 3-8: configure, build, check
-         --install             unix/INSTALL step 9: install
-         The following options set installation parameters:
-         --srcdir=SRCDIR       sets the source directory to SRCDIR
-         The following options are passed to subordinate `configure' scripts:
-         --quiet, --silent     do not print `checking...' messages
-         --prefix=PREFIX       base directory for files to be installed
-         --exec-prefix=PREFIX  base directory for architecture-dependent
-                               files to be installed
-         --fsstnd=STYLE        specify file system standard for installation
-         --bindir=DIR          sets the installation directory for executables
-         --libdir=DIR          sets the installation directory for libraries
-         --includedir=DIR      sets the installation directory for C header
-                               files
-         --datadir=DIR         sets the installation directory for
-                               read-only architecture-independent data
-         --localedir=DIR       sets the installation directory for
-                               locale-dependent architecture-independent data
-         --docdir=DIR          sets the installation directory for
-                               documentation
-         --mandir=DIR          sets the installation directory for
-                               documentation in man page format
-         --htmldir=DIR         sets the installation directory for
-                               documentation in HTML format
-         --dvidir=DIR          sets the installation directory for
-                               documentation in TeX DVI format
-         --psdir=DIR           sets the installation directory for
-                               documentation in PostScript format
-         --pdfdir=DIR          sets the installation directory for
-                               documentation in PDF format
-         --host=HOST           specify host in CPU-VENDOR-OS format (just
-                               in case config.guess guesses wrong)
-         --with-PACKAGE        use PACKAGE
-         --without-PACKAGE     do not use PACKAGE
-           PACKAGEs available (the default is the opposite of the following):
-          --without-dynamic-ffi   do not support Foreign Function Interface
-                                  the default is to support it when available
-          --with-dynamic-modules  support Dynamic Modules
-          --without-unicode       no UNICODE support: character=8bit
-          --without-readline      do not look for GNU readline
-          --with-threads=FLAVOR   support multiple threads in one CLISP image
-                 via OS threads [highly experimental - use at your own risk]
-                 FLAVORs = POSIX_THREADS POSIXOLD_THREADS SOLARIS_THREADS
-                           C_THREADS WIN32_THREADS
-         --with-module=MODULE  build with add-on MODULE
-                               some modules require dynamic FFI,
-                               so it will be turned on if the FFI checks pass
-         --list-modules        list the modules included in the distribution
-         --hyperspec=URL       the path to the Common Lisp HyperSpec
-           (the default is http://www.lisp.org/HyperSpec/
-            or the value of the environment variable CLHSROOT, if set).
-         --with-debug          pass "debug" to makemake (CFLAGS+=g &c)
-         --edit-config         edit config.lisp with ${EDITOR:-vi} before make
-                               (useful with --build and --install)
+  --help                print this message and exit
+  --version             print the CLISP version and exit
+  --config              unix/INSTALL step 3: configuration only
+  --build               unix/INSTALL steps 3-8: configure, build, check
+  --install             unix/INSTALL step 9: install
+ The following options set installation parameters:
+  --srcdir=SRCDIR       sets the source directory to SRCDIR
+ The following options are passed to subordinate `configure' scripts:
+  --quiet, --silent     do not print `checking...' messages
+  --prefix=PREFIX       base directory for files to be installed
+  --exec-prefix=PREFIX  base directory for architecture-dependent
+                        files to be installed
+  --fsstnd=STYLE        specify file system standard for installation
+  --bindir=DIR          sets the installation directory for executables
+  --libdir=DIR          sets the installation directory for libraries
+  --includedir=DIR      sets the installation directory for C header files
+  --datadir=DIR         sets the installation directory for
+                        read-only architecture-independent data
+  --localedir=DIR       sets the installation directory for
+                        locale-dependent architecture-independent data
+  --docdir=DIR          sets the installation directory for documentation
+  --mandir=DIR          sets the installation directory for
+                        documentation in man page format
+  --htmldir=DIR         sets the installation directory for
+                        documentation in HTML format
+  --dvidir=DIR          sets the installation directory for
+                        documentation in TeX DVI format
+  --psdir=DIR           sets the installation directory for
+                        documentation in PostScript format
+  --pdfdir=DIR          sets the installation directory for
+                        documentation in PDF format
+  --host=HOST           specify host in CPU-VENDOR-OS format (just
+                        in case config.guess guesses wrong)
+  --enable-maintainer-mode   enable make rules and dependencies not useful
+                             (and sometimes confusing) to the casual installer
+                        The default is determined by the presence of the
+                         CVS directories: if you are working from the CVS,
+                         you probably do want maintainer-mode enabled.
+  --with-PACKAGE        use PACKAGE
+  --without-PACKAGE     do not use PACKAGE
+    PACKAGEs available (the default is the opposite of the following):
+   --without-dynamic-ffi   do not support Foreign Function Interface
+                           the default is to support it when available
+   --with-dynamic-modules  support Dynamic Modules
+   --without-unicode       no UNICODE support: character=8bit
+   --without-readline      do not look for GNU readline
+   --with-threads=FLAVOR   support multiple threads in one CLISP image
+             via OS threads [highly experimental - use at your own risk]
+             FLAVORs = POSIX_THREADS POSIXOLD_THREADS SOLARIS_THREADS
+                       C_THREADS WIN32_THREADS
+  --with-module=MODULE  build with add-on MODULE
+                        some modules require dynamic FFI,
+                        so FFI will be turned on if its checks pass
+  --list-modules        list the modules included in the distribution
+  --hyperspec=URL       the path to the Common Lisp HyperSpec
+                        (the default is http://www.lisp.org/HyperSpec/ or the
+                        value of the environment variable CLHSROOT, if set)
+  --with-debug          pass "debug" to makemake (CFLAGS+=g &c)
+  --edit-config         edit config.lisp with ${EDITOR:-vi} before make
+                        (useful with --build and --install)
 Example:
-         configure --build built-with-gcc
-         su bin
-         configure --install built-with-gcc
-         exit
+  configure --build built-with-gcc
+  su bin
+  configure --install built-with-gcc
+  exit
 Specifying the C compiler:
-         If you wish to specify the C compiler that will get used to build
-         CLISP, set the environment variables CC, CFLAGS, LIBS.
-         Put compiler flags that have to be passed to the preprocessor
-         into the CC variable, not the CFLAGS variable.
-         For example, if you want to use gcc in ANSI C mode,
-         execute the following before calling `configure':
-               setenv CC "gcc -ansi"                 if using csh
-               export CC="gcc -ansi"                 if using bash or ksh
-               CC="gcc -ansi"; export CC             if using sh
+  If you wish to specify the C compiler that will get used to build
+  CLISP, set the environment variables CC, CFLAGS, LIBS.
+  Put compiler flags that have to be passed to the preprocessor
+  into the CC variable, not the CFLAGS variable.
+  For example, if you want to use gcc in ANSI C mode,
+  execute the following before calling `configure':
+        setenv CC "gcc -ansi"                 if using csh
+        export CC="gcc -ansi"                 if using bash or ksh
+        CC="gcc -ansi"; export CC             if using sh
 Using GNU libiconv (only needed if you do not have GNU LIBC 2.2 or better):
-         If you want to use GNU libiconv which is not installed system-wide,
-         you may supply a --with-libiconv-prefix argument
-         (type './src/configure --help' for details).
-         The same goes for non-standard locations of libintl and libsigsegv.
+  If you want to use GNU libiconv which is not installed system-wide,
+  you may supply a --with-libiconv-prefix argument
+  (type './src/configure --help' for details).
+  The same goes for non-standard locations of libintl and libsigsegv.
 EOP
 }
 
