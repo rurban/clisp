@@ -1,8 +1,12 @@
 2005-09-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/bindings/win32/win32.lisp (GetCurrentThreadId): added
+
+2005-09-15  Sam Steingold  <sds@gnu.org>
+
 	* configure: document --enable-maintainer-mode
 	* makemake.in: handle --enable-maintainer-mode
-	the only developer targer (affected by --enable-maintainer-mode)
+	the only developer target (affected by --enable-maintainer-mode)
 	is remaking src/configure using autoconf
 
 2005-09-15  Sam Steingold  <sds@gnu.org>
