@@ -2241,7 +2241,7 @@ echol "all : $needs"
 echodummyrule all
 echol
 
-# development targets
+# developer targets
 if [ -z "${enable_maintainer_mode}" ]; then # not supplied
   if [ ! $TSYS = win32msvc -a -d "${SRCTOPDIR}CVS" ] ; then
     enable_maintainer_mode=yes;
@@ -2249,34 +2249,35 @@ if [ -z "${enable_maintainer_mode}" ]; then # not supplied
   fi
 fi
 if [ "${enable_maintainer_mode}" = yes ]; then
-  echol "makemake : makemake.in config.status"
-  echotab "sh config.status --file=makemake"
-  echol
-  echol "unixconf.h : unixconf.h.in config.status"
-  echotab "sh config.status --header=unixconf.h"
-  # when config.status detects that it did not change unixconf.h, it
-  # will not touch it, and on the next make unixconf.h will be remade
-  # again and again ... - avoid it
-  echotab "touch unixconf.h"
-  echol
-  echol "Makefile : makemake"
-  echotab "$0$makemake_args > Makefile.tmp"
-  echotab "\$(MV) Makefile Makefile~"
-  echotab "\$(MV) Makefile.tmp Makefile"
-  OBSOLETE="$OBSOLETE Makefile~"
-  echol
-  echol "config.status : configure"
-  echotab "\$(RM) config.cache"
-  echotab "sh config.status --recheck"
-  echol
   echol "${SRCDIR}configure : ${SRCDIR}configure.in"
   echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
   echol
-  if [ -n "${SRCDIR}" ] ; then
-    for f in makemake.in unixconf.h.in configure version.h; do
-      link_dep "${f}" "${SRCDIR}${f}"
-    done
-  fi
+fi
+
+echol "makemake : makemake.in config.status"
+echotab "sh config.status --file=makemake"
+echol
+echol "unixconf.h : unixconf.h.in config.status"
+echotab "sh config.status --header=unixconf.h"
+# when config.status detects that it did not change unixconf.h, it
+# will not touch it, and on the next make unixconf.h will be remade
+# again and again ... - avoid it
+echotab "touch unixconf.h"
+echol
+echol "Makefile : makemake"
+echotab "$0$makemake_args > Makefile.tmp"
+echotab "\$(MV) Makefile Makefile~"
+echotab "\$(MV) Makefile.tmp Makefile"
+OBSOLETE="$OBSOLETE Makefile~"
+echol
+echol "config.status : configure"
+echotab "\$(RM) config.cache"
+echotab "sh config.status --recheck"
+echol
+if [ -n "${SRCDIR}" ] ; then
+  for f in makemake.in unixconf.h.in configure version.h; do
+    link_dep "${f}" "${SRCDIR}${f}"
+  done
 fi
 
 if [ $TSYS = win32msvc ] ; then
