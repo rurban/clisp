@@ -13570,7 +13570,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
   unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,NOTREACHED)
 # is used by
 %% export_def(unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,u));
-%% printf("#define unpack_sstring_alloca(s,l,o,c) unpack_sstring_alloca_help_(s,l,o,c,NOTREACHED)");
+%% puts("#define unpack_sstring_alloca(s,l,o,c) unpack_sstring_alloca_help_(s,l,o,c,NOTREACHED)");
 
 # UP: Fetches a character from a simple string.
 # schar(string,index)
