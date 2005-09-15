@@ -14339,9 +14339,9 @@ static inline maygc object check_fpointer (object obj, bool restart_p) {
 %%   puts("extern object check_fpointer_replacement (object obj, bool restart_p);");
 %%   puts("#ifndef COMPILE_STANDALONE");
 %%   puts("static inline object check_fpointer (object obj, bool restart_p) {"
-%%         " if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
-%%           " obj = check_fpointer_replacement(obj,restart_p);"
-%%         " return obj;"
+%%          " if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
+%%            " obj = check_fpointer_replacement(obj,restart_p);"
+%%          " return obj;"
 %%        " }");
 %%   puts("#endif");
 %% #endif
@@ -14360,21 +14360,24 @@ nonreturning_function(extern, fehler_list, (object obj));
  < result: a list, either the same as obj or a replacement
  can trigger GC */
 extern maygc object check_list_replacement (object obj);
+
+/* create check function for name */
+#define MAKE_CHECK_LOW(name,test)                               \
+  static inline maygc object check_##name (object obj) {        \
+    if (!test(obj))                                             \
+      obj = check_##name##_replacement(obj);                    \
+    return obj;                                                 \
+  }
+#define MAKE_CHECK(name) MAKE_CHECK_LOW(name,name##p)
+#define MAKE_CHECK_(name) MAKE_CHECK_LOW(name,name##_p)
+
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_list (object obj) {
-  if (!listp(obj))
-    obj = check_list_replacement(obj);
-  return obj;
-}
+MAKE_CHECK(list)
 #endif
 /* used by PATHNAME */
 %% puts("extern object check_list_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% puts("static inline object check_list (object obj) {"
-%%        " if (!listp(obj))"
-%%          " obj = check_list_replacement(obj);"
-%%        " return obj;"
-%%      " }");
+%% export_literal(MAKE_CHECK(list));
 %% puts("#endif");
 
 # Error message, if an object isn't a proper list because it is dotted.
@@ -14452,19 +14455,12 @@ nonreturning_function(extern, fehler_vector, (object obj));
  can trigger GC */
 extern maygc object check_array_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_array (object obj) {
-  if (!arrayp(obj)) obj = check_array_replacement(obj);
-  return obj;
-}
+MAKE_CHECK(array)
 #endif
 /* used by ARRAY, modules */
 %% puts("extern object check_array_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% puts("static inline object check_array (object obj) {"
-%%        " if (!arrayp(obj))"
-%%          " obj = check_array_replacement(obj);"
-%%        " return obj;"
-%%      " }");
+%% export_literal(MAKE_CHECK(array));
 %% puts("#endif");
 
 /* error-message, if an object is not an environment.
@@ -14484,20 +14480,12 @@ nonreturning_function(extern, fehler_posfixnum, (object obj));
  can trigger GC */
 extern maygc object check_posfixnum_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_posfixnum (object obj) {
-  if (!posfixnump(obj))
-    obj = check_posfixnum_replacement(obj);
-  return obj;
-}
+MAKE_CHECK(posfixnum)
 #endif
 /* used by STREAM, LISPARIT */
 %% puts("extern object check_posfixnum_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% puts("static inline object check_posfixnum (object obj) {"
-%%        " if (!posfixnump(obj))"
-%%          " obj = check_posfixnum_replacement(obj);"
-%%        " return obj;"
-%%      "}");
+%% export_literal(MAKE_CHECK(posfixnum));
 %% puts("#endif");
 
 /* check_integer(obj)
@@ -14506,11 +14494,7 @@ static inline maygc object check_posfixnum (object obj) {
  can trigger GC */
 extern maygc object check_integer_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_integer (object obj) {
-  if (!integerp(obj))
-    obj = check_integer_replacement(obj);
-  return obj;
-}
+MAKE_CHECK(integer)
 #endif
 /* used by LISPARIT */
 
@@ -14529,11 +14513,11 @@ static inline maygc object check_pos_integer (object obj) {
 /* used by LISPARIT, LIST */
 %% puts("extern object check_pos_integer_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_pos_integer (object obj) {"
-%%         " if (!(integerp(obj) && !R_minusp(obj)))"
-%%           " obj = check_posfixnum_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% puts("static inline object check_pos_integer (object obj) {"
+%%        " if (!(integerp(obj) && !R_minusp(obj)))"
+%%          " obj = check_posfixnum_replacement(obj);"
+%%        " return obj;"
+%%      " }\n");
 %% puts("#endif");
 
 # Error message, if an argument isn't a Character:
@@ -14548,21 +14532,13 @@ nonreturning_function(extern, fehler_char, (object obj));
  can trigger GC */
 extern maygc object check_char_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_char (object obj) {
-  if (!charp(obj))
-    obj = check_char_replacement(obj);
-  return obj;
-}
+MAKE_CHECK(char)
 #endif
 /* used by CHARSTRG, ENCODING, IO */
 %% #if notused
 %% puts("extern object check_char_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_char (object obj) {"
-%%         " if (!charp(obj))"
-%%           " obj = check_char_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK(char));
 %% puts("#endif");
 %% #endif
 
@@ -14572,20 +14548,12 @@ static inline maygc object check_char (object obj) {
  can trigger GC */
 extern maygc object check_string_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_string (object obj) {
-  if (!stringp(obj))
-    obj = check_string_replacement(obj);
-  return obj;
-}
+MAKE_CHECK(string)
 #endif
 /* used by CHARSTRG, FOREIGN, MISC, PACKAGE, PATHNAME, STREAM, SOCKET, I18N */
 %% puts("extern object check_string_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_string (object obj) {"
-%%         " if (!stringp(obj))"
-%%           " obj = check_string_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK(string));
 %% puts("#endif");
 
 # Error message, if an argument isn't a Simple-String:
@@ -14674,11 +14642,7 @@ nonreturning_function(extern, fehler_key_badkw,
  can trigger GC */
 extern maygc object check_function_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_function (object obj) {
-  if (!functionp(obj))
-    obj = check_function_replacement(obj);
-  return obj;
-}
+MAKE_CHECK(function)
 #endif
 /* used by RECORD, EVAL, SEQUENCE, SYMBOL, FOREIGN */
 
@@ -14789,228 +14753,116 @@ nonreturning_function(extern, fehler_sint64, (object obj));
  can trigger GC */
 extern maygc object check_uint8_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_uint8 (object obj) {
-  if (!uint8_p(obj))
-    obj = check_uint8_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(uint8)
 #endif
 extern maygc object check_sint8_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_sint8 (object obj) {
-  if (!sint8_p(obj))
-    obj = check_sint8_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(sint8)
 #endif
 extern maygc object check_uint16_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_uint16 (object obj) {
-  if (!uint16_p(obj))
-    obj = check_uint16_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(uint16)
 #endif
 extern maygc object check_sint16_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_sint16 (object obj) {
-  if (!sint16_p(obj))
-    obj = check_sint16_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(sint16)
 #endif
 extern maygc object check_uint32_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_uint32 (object obj) {
-  if (!uint32_p(obj))
-    obj = check_uint32_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(uint32)
 #endif
 extern maygc object check_sint32_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_sint32 (object obj) {
-  if (!sint32_p(obj))
-    obj = check_sint32_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(sint32)
 #endif
 extern maygc object check_uint64_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_uint64 (object obj) {
-  if (!uint64_p(obj))
-    obj = check_uint64_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(uint64)
 #endif
 extern maygc object check_sint64_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_sint64 (object obj) {
-  if (!sint64_p(obj))
-    obj = check_sint64_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(sint64)
 #endif
 extern maygc object check_uint_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_uint (object obj) {
-  if (!uint_p(obj))
-    obj = check_uint_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(uint)
 #endif
 extern maygc object check_sint_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_sint (object obj) {
-  if (!sint_p(obj))
-    obj = check_sint_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(sint)
 #endif
 extern maygc object check_ulong_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_ulong (object obj) {
-  if (!ulong_p(obj))
-    obj = check_ulong_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(ulong)
 #endif
 extern maygc object check_slong_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_slong (object obj) {
-  if (!slong_p(obj))
-    obj = check_slong_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_(slong)
 #endif
 extern maygc object check_ffloat_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_ffloat (object obj) {
-  if (!single_float_p(obj))
-    obj = check_ffloat_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_LOW(ffloat,single_float_p)
 #endif
 extern maygc object check_dfloat_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_dfloat (object obj) {
-  if (!double_float_p(obj))
-    obj = check_dfloat_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_LOW(dfloat,double_float_p)
 #endif
 # is used by STREAM, FFI
 %% puts("extern object check_uint8_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_uint8 (object obj) {"
-%%         " if (!uint8_p(obj))"
-%%           " obj = check_uint8_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(uint8));
 %% puts("#endif");
 %% puts("extern object check_sint8_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_sint8 (object obj) {"
-%%         " if (!sint8_p(obj))"
-%%           " obj = check_sint8_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(sint8));
 %% puts("#endif");
 %% puts("extern object check_uint16_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_uint16 (object obj) {"
-%%         " if (!uint16_p(obj))"
-%%           " obj = check_uint16_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(uint16));
 %% puts("#endif");
 %% puts("extern object check_sint16_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_sint16 (object obj) {"
-%%         " if (!sint16_p(obj))"
-%%           " obj = check_sint16_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(sint16));
 %% puts("#endif");
 %% puts("extern object check_uint32_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_uint32 (object obj) {"
-%%         " if (!uint32_p(obj))"
-%%           " obj = check_uint32_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(uint32));
 %% puts("#endif");
 %% puts("extern object check_sint32_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_sint32 (object obj) {"
-%%         " if (!sint32_p(obj))"
-%%           " obj = check_sint32_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(sint32));
 %% puts("#endif");
 %% puts("extern object check_uint64_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_uint64 (object obj) {"
-%%         " if (!uint64_p(obj))"
-%%           " obj = check_uint64_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(uint64));
 %% puts("#endif");
 %% puts("extern object check_sint64_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_sint64 (object obj) {"
-%%         " if (!sint64_p(obj))"
-%%           " obj = check_sint64_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(sint64));
 %% puts("#endif");
 %% puts("extern object check_uint_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_uint (object obj) {"
-%%         " if (!uint_p(obj))"
-%%           " obj = check_uint_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(uint));
 %% puts("#endif");
 %% puts("extern object check_sint_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_sint (object obj) {"
-%%         " if (!sint_p(obj))"
-%%           " obj = check_sint_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(sint));
 %% puts("#endif");
 %% puts("extern object check_ulong_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_ulong (object obj) {"
-%%         " if (!ulong_p(obj))"
-%%           " obj = check_ulong_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(ulong));
 %% puts("#endif");
 %% puts("extern object check_slong_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_slong (object obj) {"
-%%         " if (!slong_p(obj))"
-%%           " obj = check_slong_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_(slong));
 %% puts("#endif");
 %% puts("extern object check_ffloat_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_ffloat (object obj) {"
-%%         " if (!single_float_p(obj))"
-%%           " obj = check_ffloat_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_LOW(ffloat,single_float_p));
 %% puts("#endif");
 %% puts("extern object check_dfloat_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% printf("static inline object check_dfloat (object obj) {"
-%%         " if (!double_float_p(obj))"
-%%           " obj = check_dfloat_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
+%% export_literal(MAKE_CHECK_LOW(dfloat,double_float_p));
 %% puts("#endif");
 
 # ##################### PACKBIBL for PACKAGE.D ############################# #

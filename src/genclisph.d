@@ -199,6 +199,7 @@ static void emit_define (const char* form, const char* definition) {
 
 /* this cannot be used on X whose definition includes ## ! */
 #define export_def(x)  puts("#define " #x "  " STRING(x))
+#define export_literal(x)  puts(STRING(x))
 
 int main(int argc, char* argv[])
 {
