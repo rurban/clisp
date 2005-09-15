@@ -2,6 +2,8 @@
 
 	* lispbibl.d: use puts() instead of printf() when possible
 	(MAKE_CHECK_LOW, MAKE_CHECK, MAKE_CHECK_): new macros
+	(with_string_0_help_, with_sstring_0_help_): take both "A" for
+	cstombs_help_() and "NR" for unpack_sstring_alloca_help_()
 	* genclisph.d (export_literal): added
 
 2005-09-15  Sam Steingold  <sds@gnu.org>
