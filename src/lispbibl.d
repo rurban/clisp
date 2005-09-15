@@ -310,10 +310,10 @@
   #endif
 #endif
 %% #ifdef WIN32_NATIVE
-%%   printf("#define WIN32_NATIVE\n");
+%%   puts("#define WIN32_NATIVE");
 %% #endif
 %% #ifdef UNIX
-%%   printf("#define UNIX\n");
+%%   puts("#define UNIX");
 %% #endif
 
 
@@ -851,7 +851,7 @@
   #define RESTORE_REGISTERS(inner_statement)
 #endif
 %% #ifdef HAVE_SAVED_REGISTERS
-%%   printf("#ifndef IN_MODULE_CC\n");
+%%   puts("#ifndef IN_MODULE_CC");
 %%   #ifdef STACK_register
 %%     printf("register long STACK_reg __asm__(\"%s\");\n",STACK_register);
 %%   #endif
@@ -877,9 +877,9 @@
 %%   #ifdef back_trace_register
 %%     printf("long back_trace_register_contents; ");
 %%   #endif
-%%   printf("};\n");
-%%   printf("extern struct registers * callback_saved_registers;\n");
-%%   printf("#endif\n");
+%%   puts("};");
+%%   puts("extern struct registers * callback_saved_registers;");
+%%   puts("#endif");
 %% #endif
 
 #define VALUES_IF(cond)                         \
@@ -922,9 +922,9 @@
 #if !defined(GNU) && !defined(inline)
   #define inline      # inline foo() {...} --> foo() {...}
 #endif
-%% printf("#if !defined(__GNUC__) && !defined(inline)\n");
-%% printf("#define inline\n");
-%% printf("#endif\n");
+%% puts("#if !defined(__GNUC__) && !defined(inline)");
+%% puts("#define inline");
+%% puts("#endif");
 
 # Definitions for C++-Compilers:
 #ifdef __cplusplus
@@ -965,17 +965,17 @@
 #define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)
 #define CONCAT6(aaa,bbb,ccc,ddd,eee,fff)  CONCAT6_(aaa,bbb,ccc,ddd,eee,fff)
 #define CONCAT7(aaa,bbb,ccc,ddd,eee,fff,ggg)  CONCAT7_(aaa,bbb,ccc,ddd,eee,fff,ggg)
-%% printf("#define CONCAT_(xxx,yyy)  xxx##yyy\n");
-%% printf("#define CONCAT3_(aaa,bbb,ccc)  aaa##bbb##ccc\n");
+%% puts("#define CONCAT_(xxx,yyy)  xxx##yyy");
+%% puts("#define CONCAT3_(aaa,bbb,ccc)  aaa##bbb##ccc");
 %% #if notused
-%% printf("#define CONCAT4_(aaa,bbb,ccc,ddd)  aaa##bbb##ccc##ddd\n");
-%% printf("#define CONCAT5_(aaa,bbb,ccc,ddd,eee)  aaa##bbb##ccc##ddd##eee\n");
+%% puts("#define CONCAT4_(aaa,bbb,ccc,ddd)  aaa##bbb##ccc##ddd");
+%% puts("#define CONCAT5_(aaa,bbb,ccc,ddd,eee)  aaa##bbb##ccc##ddd##eee");
 %% #endif
-%% printf("#define CONCAT(xxx,yyy)  CONCAT_(xxx,yyy)\n");
-%% printf("#define CONCAT3(aaa,bbb,ccc)  CONCAT3_(aaa,bbb,ccc)\n");
+%% puts("#define CONCAT(xxx,yyy)  CONCAT_(xxx,yyy)");
+%% puts("#define CONCAT3(aaa,bbb,ccc)  CONCAT3_(aaa,bbb,ccc)");
 %% #if notused
-%% printf("#define CONCAT4(aaa,bbb,ccc,ddd)  CONCAT4_(aaa,bbb,ccc,ddd)\n");
-%% printf("#define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)\n");
+%% puts("#define CONCAT4(aaa,bbb,ccc,ddd)  CONCAT4_(aaa,bbb,ccc,ddd)");
+%% puts("#define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)");
 %% #endif
 
 # Generation of goto-tag macros:
@@ -988,8 +988,8 @@
 # STRING(token)  ==>  "token"
 #define STRING(token) #token
 #define STRINGIFY(token) STRING(token)
-%% printf("#define STRING(token) #token\n");
-%% printf("#define STRINGIFY(token) STRING(token)\n");
+%% puts("#define STRING(token) #token");
+%% puts("#define STRINGIFY(token) STRING(token)");
 
 # Storage-Class-Specifier in top-level-declarations:
 # for variables:
@@ -1089,11 +1089,11 @@
 
 # Marking a program line that may not be reached: NOTREACHED;
 #define NOTREACHED  fehler_notreached(__FILE__,__LINE__)
-%% printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)\n");
+%% puts("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)");
 
 # Asserting an arithmetic expression: ASSERT(expr);
 #define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
-%%  printf("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)\n");
+%%  puts("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)");
 
 # Ensure the Linux headers define nonstandard symbols like IPC_INFO.
 #ifdef UNIX_LINUX
@@ -1125,19 +1125,19 @@
 %% #ifdef GNU
 %%   emit_define("alloca","__builtin_alloca");
 %% #elif defined(MICROSOFT)
-%%   printf("#include <malloc.h>\n");
+%%   puts("#include <malloc.h>");
 %%   emit_define("alloca","_alloca");
 %% #elif defined(HAVE_ALLOCA_H)
-%%   printf("#include <alloca.h>\n");
+%%   puts("#include <alloca.h>");
 %%   #ifndef alloca
 %%     #if !(defined(UNIX_OSF) || defined(UNIX_DEC_ULTRIX))
-%%       printf("extern void* alloca (int size);\n");
+%%       puts("extern void* alloca (int size);");
 %%     #endif
 %%   #endif
 %% #elif defined(_AIX)
-%%   printf("#pragma alloca\n");
+%%   puts("#pragma alloca");
 %% #elif !defined(NO_ALLOCA)
-%%   printf("extern void* alloca (int size);\n");
+%%   puts("extern void* alloca (int size);");
 %% #endif
 
 #define MALLOC(size,type)   (type*)malloc((size)*sizeof(type))
@@ -1153,11 +1153,11 @@
   #define ULL(nnnn) nnnn##ui64
 #endif
 %% #if defined(HAVE_LONGLONG)
-%%   printf("#define LL(nnnn) nnnn##LL\n");
-%%   printf("#define ULL(nnnn) nnnn##ULL\n");
+%%   puts("#define LL(nnnn) nnnn##LL");
+%%   puts("#define ULL(nnnn) nnnn##ULL");
 %% #elif defined(MICROSOFT)
-%%   printf("#define LL(nnnn) nnnn##i64\n");
-%%   printf("#define ULL(nnnn) nnnn##ui64\n");
+%%   puts("#define LL(nnnn) nnnn##i64");
+%%   puts("#define ULL(nnnn) nnnn##ui64");
 %% #endif
 
 # Synonyms for Byte, Word, Longword:
@@ -1243,7 +1243,7 @@
 
 #include <stdbool.h>  /* boolean values */
 %% #ifdef HAVE_STDBOOL_H
-%%   printf("#include <stdbool.h>\n");
+%%   puts("#include <stdbool.h>");
 %% #else
 %%   print_file("stdbool.h");
 %% #endif
@@ -1261,7 +1261,7 @@ typedef signed int  signean;
 #elif !(defined(INTEL) || defined(_AIX))
   #define NULL  ((void*) 0L)
 #endif
-%% printf("#undef NULL\n");
+%% puts("#undef NULL");
 %% export_def(NULL);
 
 #include <stdio.h>    /* libc i/o */
@@ -1370,7 +1370,7 @@ typedef signed int  signean;
 # b should be a 'constant expression'.
 #define floor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))
 %% /* FIXME: Difference between lispbibl.d and clisp.h */
-%% printf("#define ifloor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))\n");
+%% puts("#define ifloor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))");
 
 # ceiling(a,b) yields for a>=0, b>0  ceiling(a/b) = floor((a+b-1)/b).
 # b should be a 'constant expression'.
@@ -1383,7 +1383,7 @@ typedef signed int  signean;
 #define round_down(a_from_round,b_from_round)  \
   (floor(a_from_round,b_from_round)*(b_from_round))
 %% /* FIXME: Difference between lispbibl.d and clisp.h */
-%% printf("#define round_down(a_from_round,b_from_round)  (ifloor(a_from_round,b_from_round)*(b_from_round))\n");
+%% puts("#define round_down(a_from_round,b_from_round)  (ifloor(a_from_round,b_from_round)*(b_from_round))");
 
 # round_up(a,b) rounds a>=0 so that b>0 divides it.
 # b should be a 'constant expression'.
@@ -1887,16 +1887,16 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 
 %% #if notused
 %% #ifdef WIDE_HARD
-%%   printf("#define WIDE_HARD\n");
+%%   puts("#define WIDE_HARD");
 %% #endif
 %% #ifdef WIDE_SOFT
-%%   printf("#define WIDE_SOFT\n");
+%%   puts("#define WIDE_SOFT");
 %% #endif
 %% #ifdef WIDE_AUXI
-%%   printf("#define WIDE_AUXI\n");
+%%   puts("#define WIDE_AUXI");
 %% #endif
 %% #ifdef WIDE
-%%   printf("#define WIDE\n");
+%%   puts("#define WIDE");
 %% #endif
 %% #endif
 
@@ -1921,7 +1921,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
   #endif
 #endif
 %% #ifdef HEAPCODES
-%%   printf("#define HEAPCODES\n");
+%%   puts("#define HEAPCODES");
 %% #endif
 
 #ifdef WIDE_SOFT
@@ -1980,29 +1980,29 @@ typedef enum {
 #ifdef WIN32_NATIVE
   #include "win32.c"
 #endif
-%% printf("#include <stdlib.h>\n");
-%% printf("#include <sys/types.h>\n");
+%% puts("#include <stdlib.h>");
+%% puts("#include <sys/types.h>");
 %% #if defined(UNIX)
 %%   emit_typedef("int","Handle");
 %%   emit_typedef("int","SOCKET");
 %%   #ifdef UNIX_CYGWIN32
-%%     printf("#include <windows.h>\n");
-%%     printf("extern long time_t_from_filetime (const FILETIME * ptr);\n");
-%%     printf("extern void time_t_to_filetime (time_t time_in, FILETIME * out);\n");
+%%     puts("#include <windows.h>");
+%%     puts("extern long time_t_from_filetime (const FILETIME * ptr);");
+%%     puts("extern void time_t_to_filetime (time_t time_in, FILETIME * out);");
 %%   #endif
 %% #elif defined(WIN32_NATIVE)
-%%   printf("#include <windows.h>\n");
+%%   puts("#include <windows.h>");
 %%   export_def(Handle);
-%%   printf("#include <winsock2.h>\n"); /* defines SOCKET */
+%%   puts("#include <winsock2.h>"); /* defines SOCKET */
 %% #else
-%%   printf("#error \"what is Handle on your platform?!\"\n");
+%%   puts("#error \"what is Handle on your platform?!\"");
 %% #endif
 %% #if defined(UNIX)
-%%   printf("extern ssize_t fd_read (int fd, void* buf, size_t nbyte, perseverance_t persev);\n");
-%%   printf("extern ssize_t fd_write (int fd, const void* buf, size_t nbyte, perseverance_t persev);\n");
+%%   puts("extern ssize_t fd_read (int fd, void* buf, size_t nbyte, perseverance_t persev);");
+%%   puts("extern ssize_t fd_write (int fd, const void* buf, size_t nbyte, perseverance_t persev);");
 %% #elif defined(WIN32_NATIVE)
-%%   printf("extern ssize_t fd_read (Handle fd, void* buf, size_t nbyte, perseverance_t persev);\n");
-%%   printf("extern ssize_t fd_write (Handle fd, const void* buf, size_t nbyte, perseverance_t persev);\n");
+%%   puts("extern ssize_t fd_read (Handle fd, void* buf, size_t nbyte, perseverance_t persev);");
+%%   puts("extern ssize_t fd_write (Handle fd, const void* buf, size_t nbyte, perseverance_t persev);");
 %% #endif
 
 # execute statement on interrupt:
@@ -2077,7 +2077,7 @@ typedef enum {
   #define OS_error()  \
     (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_error)())
 #endif
-%% printf("nonreturning_function(extern, OS_error, (void));\n");
+%% puts("nonreturning_function(extern, OS_error, (void));");
 
 # Handling of ANSI C errors
 # ANSIC_error();
@@ -2273,7 +2273,7 @@ typedef enum {
 #endif
 /* pass on for clx/new-clx */
 %% #ifdef HAVE_SIGNALS
-%%   printf("#define HAVE_SIGNALS\n");
+%%   puts("#define HAVE_SIGNALS");
 %% #endif
 # Whether we can even react to asynchronous signals:
 # (If WIDE && !WIDE_HARD, writing a pointer is usually no elementary
@@ -2580,8 +2580,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 %%     emit_define("auxi_o","u.both.auxi_ob");
 %%   #elif defined(OBJECT_STRUCT)
 %%     #ifdef DEBUG_GCSAFETY
-%%       printf("struct object { uintP one_o; uintL allocstamp; };\n");
-%%       printf("struct gcv_object_t { uintP one_o; operator object () const; gcv_object_t (object obj); gcv_object_t (struct fake_gcv_object obj); gcv_object_t (); };\n");
+%%       puts("struct object { uintP one_o; uintL allocstamp; };");
+%%       puts("struct gcv_object_t { uintP one_o; operator object () const; gcv_object_t (object obj); gcv_object_t (struct fake_gcv_object obj); gcv_object_t (); };");
 %%     #else
 %%       emit_typedef("struct { uintP one_o; }","gcv_object_t");
 %%     #endif
@@ -3114,7 +3114,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define INIT_ALLOCSTAMP
 #endif
 %% #ifdef DEBUG_GCSAFETY
-%%   printf("extern uintL alloccount;\n");
+%%   puts("extern uintL alloccount;");
 %% #else
 %%   emit_typedef("gcv_object_t","object");
 %% #endif
@@ -3173,7 +3173,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 %% #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT))
 %%   emit_define("objectplus(obj,offset)","((object)pointerplus(obj,offset))");
 %% #elif defined(WIDE_AUXI)
-%%   printf("static inline object objectplus (object obj, saint offset) { return (object){u:{both:{ one_ob: obj.one_o+offset, auxi_ob: obj.auxi_o }}}; }\n");
+%%   puts("static inline object objectplus (object obj, saint offset) { return (object){u:{both:{ one_ob: obj.one_o+offset, auxi_ob: obj.auxi_o }}}; }");
 %% #else
 %%   emit_define("objectplus(obj,offset)","as_object(as_oint(obj)+(soint)(offset))");
 %% #endif
@@ -4074,8 +4074,8 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 %%  export_def(pointable_unchecked(obj));
 %%  export_def(pointable_address_unchecked(obj_o));
 %%  #ifdef DEBUG_GCSAFETY
-%%   printf("static inline void* pointable (gcv_object_t obj) { return pointable_unchecked(obj); }\n");
-%%   printf("static inline void* pointable (object obj) { return pointable_unchecked((gcv_object_t)obj); }\n");
+%%   puts("static inline void* pointable (gcv_object_t obj) { return pointable_unchecked(obj); }");
+%%   puts("static inline void* pointable (object obj) { return pointable_unchecked((gcv_object_t)obj); }");
 %%  #else
 %%   emit_define("pointable(obj)","pointable_unchecked(obj)");
 %%  #endif
@@ -4137,7 +4137,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 # garcol_bit(!) into the heap, where they are guaranteed to lead to a crash
 # later. So, uncontrolled memory accesses are forbidden while inside_gc.
 extern bool inside_gc;
-%% printf("extern bool inside_gc;\n");
+%% puts("extern bool inside_gc;");
 
 
 #ifdef DEBUG_GCSAFETY
@@ -4204,16 +4204,16 @@ extern bool inside_gc;
 
 #endif
 %% #ifdef DEBUG_GCSAFETY
-%%   printf("static inline bool gcinvariant_symbol_p (object obj);\n");
+%%   puts("static inline bool gcinvariant_symbol_p (object obj);");
 %%   #ifdef LINUX_NOEXEC_HEAPCODES
-%%     printf("static inline bool nonimmsubrp (object obj);\n");
+%%     puts("static inline bool nonimmsubrp (object obj);");
 %%   #else
 %%     emit_define("nonimmsubrp(obj)","false");
 %%   #endif
 %%   export_def(nonimmprobe(obj_o));
-%%   printf("inline gcv_object_t::operator object () const { nonimmprobe(one_o); return (object){ one_o: one_o, allocstamp: alloccount }; }\n");
-%%   printf("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); one_o = as_oint(obj); nonimmprobe(one_o); }\n");
-%%   printf("inline gcv_object_t::gcv_object_t () {}\n");
+%%   puts("inline gcv_object_t::operator object () const { nonimmprobe(one_o); return (object){ one_o: one_o, allocstamp: alloccount }; }");
+%%   puts("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); one_o = as_oint(obj); nonimmprobe(one_o); }");
+%%   puts("inline gcv_object_t::gcv_object_t () {}");
 %% #endif
 
 
@@ -6679,7 +6679,7 @@ typedef struct {
   typedef Values (*lisp_function_t)();
 # If this is changed, every call of a C-function with the result type
 # 'Values' (especially 'funcall', 'apply', 'eval') is to be checked.
-%% printf("typedef void Values;\n"); /* emit_typedef useless: no sizeof(void) */
+%% puts("typedef void Values;"); /* emit_typedef useless: no sizeof(void) */
 %% emit_typedef_f("Values (*%s)()","lisp_function_t");
 
 # FSUBRs
@@ -6812,7 +6812,7 @@ typedef enum {
      just sets some global variables. */
   seclass_default /* may do side effects */
 } seclass_t;
-%% printf("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};\n");
+%% puts("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};");
 
 # Small-Read-Label
 #ifdef TYPECODES
@@ -6916,12 +6916,12 @@ typedef enum {
   #define ngci_pointable(obj)  as_oint(obj)
 #endif
 %% #if defined(DEBUG_GCSAFETY)
-%%   printf("static inline aint cgci_pointable (object obj) { return obj.one_o; }\n");
-%%   printf("static inline aint cgci_pointable (gcv_object_t obj) { return obj.one_o; }\n");
-%%   printf("static inline aint pgci_pointable (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }\n");
-%%   printf("static inline aint pgci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }\n");
-%%   printf("static inline aint ngci_pointable (object obj) { if (!(gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }\n");
-%%   printf("static inline aint ngci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }\n");
+%%   puts("static inline aint cgci_pointable (object obj) { return obj.one_o; }");
+%%   puts("static inline aint cgci_pointable (gcv_object_t obj) { return obj.one_o; }");
+%%   puts("static inline aint pgci_pointable (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }");
+%%   puts("static inline aint pgci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }");
+%%   puts("static inline aint ngci_pointable (object obj) { if (!(gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }");
+%%   puts("static inline aint ngci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }");
 %% #else
 %%   export_def(cgci_pointable(obj));
 %%   export_def(pgci_pointable(obj));
@@ -8779,10 +8779,10 @@ typedef enum {
 # is used by PATHNAME
 #endif
 %% #ifdef UNIX
-%%   printf("extern object convert_time_to_universal (const time_t* time);\n");
+%%   puts("extern object convert_time_to_universal (const time_t* time);");
 %% #endif
 %% #ifdef WIN32_NATIVE
-%%   printf("extern object convert_time_to_universal (const FILETIME* time);\n");
+%%   puts("extern object convert_time_to_universal (const FILETIME* time);");
 %% #endif
 
 #ifdef UNIX
@@ -8794,10 +8794,10 @@ extern void convert_time_from_universal (object universal, time_t* time);
 extern void convert_time_from_universal (object universal, FILETIME* time);
 #endif
 %% #ifdef UNIX
-%%   printf("extern void convert_time_from_universal (object universal, time_t* time);\n");
+%%   puts("extern void convert_time_from_universal (object universal, time_t* time);");
 %% #endif
 %% #ifdef WIN32_NATIVE
-%%   printf("extern void convert_time_from_universal (object universal, FILETIME* time);\n");
+%%   puts("extern void convert_time_from_universal (object universal, FILETIME* time);");
 %% #endif
 
 # UP: Initializes the time variables upon the LISP-System-Start.
@@ -9105,11 +9105,11 @@ extern void* SP_anchor;
   #error "Unknown STACK direction -- readjust STACK_DOWN/STACK_UP!"
 #endif
 %% #if !defined(STACK_register)
-%%   printf("extern gcv_object_t* STACK;\n");
+%%   puts("extern gcv_object_t* STACK;");
 %% #else
-%%   printf("#ifndef IN_MODULE_CC\n");
+%%   puts("#ifndef IN_MODULE_CC");
 %%   printf("register gcv_object_t* STACK __asm__(\"%s\");\n",STACK_register);
-%%   printf("#endif\n");
+%%   puts("#endif");
 %% #endif
 
 /* A singly-linked list of all currently active function calls.
@@ -9128,7 +9128,7 @@ extern void back_trace_check (const struct backtrace_t *bt,
 #define BT_CHECK(b,l)
 #endif
 #define BT_CHECK1(l)  BT_CHECK(back_trace,l)
-%% printf("struct backtrace_t {\n  struct backtrace_t* bt_next;\n  gcv_object_t bt_function;\n  gcv_object_t *bt_stack;\n  int bt_num_arg;\n};\n");
+%% puts("struct backtrace_t {\n  struct backtrace_t* bt_next;\n  gcv_object_t bt_function;\n  gcv_object_t *bt_stack;\n  int bt_num_arg;\n};");
 
 #if defined(DEBUG_BACKTRACE) && defined(__cplusplus)
 struct p_backtrace_t {
@@ -9291,16 +9291,16 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define end_callback()  SAVE_GLOBALS(); RESTORE_REGISTERS(;)
 #endif
 %% #ifdef HAVE_SAVED_mv_count
-%%   printf("extern uintC saved_mv_count;\n");
+%%   puts("extern uintC saved_mv_count;");
 %% #endif
 %% #ifdef HAVE_SAVED_value1
-%%   printf("extern object saved_value1;\n");
+%%   puts("extern object saved_value1;");
 %% #endif
 %% #ifdef HAVE_SAVED_back_trace
-%%   printf("extern p_backtrace_t saved_back_trace;\n");
+%%   puts("extern p_backtrace_t saved_back_trace;");
 %% #endif
 %% #if defined(HAVE_SAVED_STACK)
-%%   printf("extern gcv_object_t* saved_STACK;\n");
+%%   puts("extern gcv_object_t* saved_STACK;");
 %% #endif
 %% export_def(begin_call());
 %% export_def(end_call());
@@ -9428,8 +9428,8 @@ nonreturning_function(extern, STACK_ueber, (void));
 %% export_def(check_STACK());
 %% export_def(STACK_overflow());
 %% export_def(get_space_on_STACK(n));
-%% printf("extern void* STACK_bound;\n");
-%% printf("nonreturning_function(extern, STACK_ueber, (void));\n");
+%% puts("extern void* STACK_bound;");
+%% puts("nonreturning_function(extern, STACK_ueber, (void));");
 %% #endif
 
 # Tests, if there are still n Bytes free on the STACK.
@@ -9456,7 +9456,7 @@ extern int final_exitcode;
 # > line: line number
 nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));
 # used by all modules
-%% printf("nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));\n");
+%% puts("nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));");
 
 # Language that's used to communicate with the user:
 #ifdef LANGUAGE_STATIC
@@ -9497,11 +9497,11 @@ nonreturning_function(extern, fehler_notreached, (const char * file, uintL line)
   extern void init_language (const char*, const char*);
 #endif
 %% #if !defined(LANGUAGE_STATIC) && defined(GNU_GETTEXT)
-%%   printf("#define GNU_GETTEXT\n");
-%%   printf("#ifndef COMPILE_STANDALONE\n");
-%%   printf("#include <libintl.h>\n");
-%%   printf("#endif\n");
-%%   printf("extern const char * clgettext (const char * msgid);\n");
+%%   puts("#define GNU_GETTEXT");
+%%   puts("#ifndef COMPILE_STANDALONE");
+%%   puts("#include <libintl.h>");
+%%   puts("#endif");
+%%   puts("extern const char * clgettext (const char * msgid);");
 %%   export_def(GETTEXT);
 %% #else
 %%   export_def(GETTEXT(english));
@@ -9517,7 +9517,7 @@ extern maygc object CLSTEXT (const char*);
 %%   #ifndef GNU_GETTEXT
 %%     emit_define("CLSTEXT","ascii_to_string");
 %%   #else
-%%     printf("extern object CLSTEXT (const char* asciz);\n");
+%%     puts("extern object CLSTEXT (const char* asciz);");
 %%   #endif
 %% #endif
 
@@ -9542,7 +9542,7 @@ extern maygc object object_out (object obj);
  non-consing, STACK non-modifying */
 extern maygc object nobject_out (FILE* out, object obj);
 # used for debugging purposes
-%% printf("extern object object_out (object obj);\n");
+%% puts("extern object object_out (object obj);");
 %% puts("#define OBJECT_OUT(obj,label)  (printf(\"[%s:%d] %s: %s:\\n\",__FILE__,__LINE__,STRING(obj),label),obj=object_out(obj))");
 
 # After allocating memory for an object, add the type infos.
@@ -9576,7 +9576,7 @@ extern internal_time_t gc_time;
 extern maygc object allocate_cons (void);
 # is used by LIST, SEQUENCE, PACKAGE, EVAL, CONTROL, RECORD,
 #            PREDTYPE, IO, STREAM, PATHNAME, SYMBOL, ARRAY, LISPARIT
-%% printf("extern object allocate_cons (void);\n");
+%% puts("extern object allocate_cons (void);");
 
 # UP: Returns a newly created uninterned symbol with a given Printname.
 # make_symbol(string)
@@ -9586,7 +9586,7 @@ extern maygc object allocate_cons (void);
 extern maygc object make_symbol (object string);
 # is used by PACKAGE, IO, SYMBOL
 %% #if notused
-%% printf("extern object make_symbol (object string);\n");
+%% puts("extern object make_symbol (object string);");
 %% #endif
 
 # UP: allocates a general vector
@@ -9596,7 +9596,7 @@ extern maygc object make_symbol (object string);
 # can trigger GC
 extern maygc object allocate_vector (uintL len);
 # is used by ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL
-%% printf("extern object allocate_vector (uintL len);\n");
+%% puts("extern object allocate_vector (uintL len);");
 
 # Function: Allocates a bit/byte vector.
 # allocate_bit_vector(atype,len)
@@ -9606,7 +9606,7 @@ extern maygc object allocate_vector (uintL len);
 # can trigger GC
 extern maygc object allocate_bit_vector (uintB atype, uintL len);
 # is used by ARRAY, IO, RECORD, LISPARIT, STREAM, CLX
-%% printf("extern object allocate_bit_vector (uintB atype, uintL len);\n");
+%% puts("extern object allocate_bit_vector (uintB atype, uintL len);");
 
 # Macro: Allocates a 8bit-vector on the stack, with dynamic extent.
 #   { var DYNAMIC_8BIT_VECTOR(obj,len);
@@ -9677,7 +9677,7 @@ extern maygc object allocate_s8string (uintL len);
 #define allocate_s8string(len)  allocate_s32string(len)
 #endif
 %% #if !defined(UNICODE)
-%%   printf("extern object allocate_s8string (uintL len);\n");
+%%   puts("extern object allocate_s8string (uintL len);");
 %% #endif
 
 #if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
@@ -9722,7 +9722,7 @@ extern maygc object allocate_imm_s16string (uintL len);
 extern maygc object allocate_s32string (uintL len);
 #endif
 %% #ifdef UNICODE
-%%   printf("extern object allocate_s32string (uintL len);\n");
+%%   puts("extern object allocate_s32string (uintL len);");
 %% #endif
 
 #ifdef UNICODE
@@ -10111,7 +10111,7 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
 /* used by FFI & modules */
 #endif
 %% #ifdef FOREIGN
-%%   printf("extern object allocate_fpointer (FOREIGN foreign);\n");
+%%   puts("extern object allocate_fpointer (FOREIGN foreign);");
 %% #endif
 
 # UP: allocates foreign address
@@ -10175,7 +10175,7 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
   #define allocate_handle(handle)  fixnum((uintL)(handle))
 #endif
 %% #if defined(FOREIGN_HANDLE)
-%%   printf("extern object allocate_handle (Handle handle);\n");
+%%   puts("extern object allocate_handle (Handle handle);");
 %% #else
 %%   export_def(allocate_handle(handle));
 %% #endif
@@ -10275,7 +10275,7 @@ extern uintL asciz_length (const char * asciz);
 %% #ifdef asciz_length
 %%   export_def(asciz_length(a));
 %% #else
-%%   printf("extern uintL asciz_length (const char * asciz);\n");
+%%   puts("extern uintL asciz_length (const char * asciz);");
 %% #endif
 
 # UP: Compares two ASCIZ-Strings.
@@ -10289,19 +10289,19 @@ extern bool asciz_equal (const char * asciz1, const char * asciz2);
 %% #ifdef asciz_length
 %%   export_def(asciz_equal(a1,a2));
 %% #else
-%%   printf("extern bool asciz_equal (const char * asciz1, const char * asciz2);\n");
+%%   puts("extern bool asciz_equal (const char * asciz1, const char * asciz2);");
 %% #endif
 %% #endif
 
 /* allocate memory and check for success */
 extern void* my_malloc (size_t size);
 /* used by FOREIGN and modules */
-%% printf("extern void* my_malloc (size_t size);\n");
+%% puts("extern void* my_malloc (size_t size);");
 
 /* reallocate memory and check for success */
 extern void* my_realloc (void* ptr, size_t size);
 /* used by modules */
-%% printf("extern void* my_realloc (void *ptr, size_t size);\n");
+%% puts("extern void* my_realloc (void *ptr, size_t size);");
 
 # UP: Returns a Table of all circularities within an Object.
 # (A circularity is a Sub-Object contained within this Object,
@@ -10516,14 +10516,14 @@ extern struct subr_tab_ {
 } subr_tab_data;
 #undef LISPFUN
 # is used by Macro L
-%% printf("extern struct subr_tab_ {\n");
-%% printf("  VAROBJECTS_ALIGNMENT_DUMMY_DECL\n");
+%% puts("extern struct subr_tab_ {");
+%% puts("  VAROBJECTS_ALIGNMENT_DUMMY_DECL");
 %% #undef LISPFUN
 %% #define LISPFUN(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
 %%   printf("  subr_t %s;\n",STRING(D_##name));
 %% #include "subr.c"
 %% #undef LISPFUN
-%% printf("} subr_tab_data;\n");
+%% puts("} subr_tab_data;");
 
 # Abbreviation for LISP-Subr with a given name: L(name)
 #if !defined(MAP_MEMORY_TABLES)
@@ -10562,7 +10562,7 @@ extern struct subr_tab_ {
 # FUNCALL) or constant C data.
 # For SAVEMEM/LOADMEM we have a table of all such pseudofunctions.
 typedef const void *  Pseudofun; # assume function pointers fit in a void*
-%% printf("typedef const void *  Pseudofun;\n");
+%% puts("typedef const void *  Pseudofun;");
 
 # Declaration of the tables of relocatable pointers:
 #define PSEUDO  PSEUDO_A
@@ -10603,13 +10603,13 @@ extern struct symbol_tab_ {
 } symbol_tab_data;
 #undef LISPSYM
 # is used by Macro S, gcinvariant_symbol_p
-%% printf("extern struct symbol_tab_ {\n");
-%% printf("  VAROBJECTS_ALIGNMENT_DUMMY_DECL\n");
+%% puts("extern struct symbol_tab_ {");
+%% puts("  VAROBJECTS_ALIGNMENT_DUMMY_DECL");
 %% #define LISPSYM(name,printname,package)  \
 %%   printf("  symbol_ %s;\n",STRING(S_##name));
 %% #include "constsym.c"
 %% #undef LISPSYM
-%% printf("} symbol_tab_data;\n");
+%% puts("} symbol_tab_data;");
 
 # Abbreviation for LISP-Symbol with a given name: S(name)
 #define S(name)  S_help_(S_##name)
@@ -10699,7 +10699,7 @@ static inline bool gcinvariant_symbol_p (object obj) {
 %%   #else
 %%     printf("as_oint(obj)");
 %%   #endif
-%%   printf(" - (aint)&symbol_tab < sizeof(symbol_tab))) return true; else return false; }\n");
+%%   puts(" - (aint)&symbol_tab < sizeof(symbol_tab))) return true; else return false; }");
 %% #endif
 
 # The macro NIL_IS_CONSTANT tells , whether NIL is recognized
@@ -10718,16 +10718,16 @@ extern struct object_tab_ {
 } object_tab;
 #undef LISPOBJ
 # is used by Macro O
-%% printf("extern struct object_tab_ {\n");
+%% puts("extern struct object_tab_ {");
 %% #define LISPOBJ(name,init)  printf("  gcv_object_t %s;\n",STRING(name));
 %% #include "constobj.c"
 %% #undef LISPOBJ
-%% printf("} object_tab;\n");
+%% puts("} object_tab;");
 
 # Abbreviation for other LISP-object with a given Name:
 #define O(name)  (object_tab.name)
 %% /* FIXME: Difference between lispbibl.d and clisp.h */
-%% printf("#define GLO(name)  (object_tab.name)\n");
+%% puts("#define GLO(name)  (object_tab.name)");
 
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
 # handle_fault_range(PROT_READ,start,end) makes an address range readable.
@@ -10747,7 +10747,7 @@ extern struct object_tab_ {
 
 # Number of external modules:
 extern uintC module_count;
-%% printf("extern uintC module_count;\n");
+%% puts("extern uintC module_count;");
 
 # Data for initialization of a module's subr_tab:
 typedef struct {
@@ -10793,11 +10793,11 @@ typedef struct module_t {
 %% #endif
 %% strcat(buf," }"); emit_typedef(buf,"module_t");
 %% #ifdef DYNAMIC_MODULES
-%%   printf("BEGIN_DECLS\n");
-%%   printf("extern void add_module (module_t * new_module);\n");
-%%   printf("END_DECLS\n");
+%%   puts("BEGIN_DECLS");
+%%   puts("extern void add_module (module_t * new_module);");
+%%   puts("END_DECLS");
 %% #else
-%%   printf("extern module_t modules[];\n");
+%%   puts("extern module_t modules[];");
 %% #endif
 
 #if defined(HAVE_DYNLOAD) || defined(WIN32_NATIVE)
@@ -11486,19 +11486,19 @@ re-enters the corresponding top-level loop.
 %% export_def(mv_limit);
 %% #endif
 %% #if !defined(mv_count_register)
-%%   printf("extern uintC mv_count;\n");
+%%   puts("extern uintC mv_count;");
 %% #else
-%%   printf("#ifndef IN_MODULE_CC\n");
+%%   puts("#ifndef IN_MODULE_CC");
 %%   printf("register uintC mv_count __asm__(\"%s\");\n",mv_count_register);
-%%   printf("#endif\n");
+%%   puts("#endif");
 %% #endif
 %% printf("extern object mv_space [%d];\n",mv_limit-1);
 %% #if !defined(value1_register)
 %%   emit_define("value1","mv_space[0]");
 %% #else
-%%   printf("#ifndef IN_MODULE_CC\n");
+%%   puts("#ifndef IN_MODULE_CC");
 %%   printf("register object value1 __asm__(\"%s\");\n",value1_register);
-%%   printf("#endif\n");
+%%   puts("#endif");
 %% #endif
 %% { int i = 2;
 %%   for (; i <=9 ; i++)
@@ -11639,7 +11639,7 @@ re-enters the corresponding top-level loop.
 nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 # is used by EVAL, CONTROL, LISPARIT
 %% #if notused
-%% printf("nonreturning_function(extern, fehler_mv_zuviel, (object caller));\n");
+%% puts("nonreturning_function(extern, fehler_mv_zuviel, (object caller));");
 %% #endif
 
 #if !defined(back_trace_register)
@@ -11653,11 +11653,11 @@ nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 #endif
 #define subr_self  back_trace->bt_function
 %% #if !defined(back_trace_register)
-%%   printf("extern p_backtrace_t back_trace;\n");
+%%   puts("extern p_backtrace_t back_trace;");
 %% #else
-%%   printf("#ifndef IN_MODULE_CC\n");
+%%   puts("#ifndef IN_MODULE_CC");
 %%   printf("register p_backtrace_t back_trace __asm__(\"%s\");\n",back_trace_register);
-%%   printf("#endif\n");
+%%   puts("#endif");
 %% #endif
 %% export_def(subr_self);
 
@@ -12229,7 +12229,7 @@ typedef struct {
 extern maygc Values apply (object fun, uintC args_on_stack, object other_args);
 # is used by EVAL, CONTROL, IO, PATHNAME, ERROR
 %% #if notused
-%% printf("extern Values apply (object fun, uintC args_on_stack, object other_args);\n");
+%% puts("extern Values apply (object fun, uintC args_on_stack, object other_args);");
 %% #endif
 
 # UP: Applies a function to its arguments.
@@ -12241,7 +12241,7 @@ extern maygc Values apply (object fun, uintC args_on_stack, object other_args);
 # modifies STACK, can trigger GC
 extern maygc Values funcall (object fun, uintC argcount);
 # is used by all Modules
-%% printf("extern Values funcall (object fun, uintC argcount);\n");
+%% puts("extern Values funcall (object fun, uintC argcount);");
 
 # UP: Evaluates a Form in the current Environment.
 # eval(form);
@@ -12251,7 +12251,7 @@ extern maygc Values funcall (object fun, uintC argcount);
 extern maygc Values eval (object form);
 # is used by CONTROL, DEBUG
 %% #if notused
-%% printf("extern Values eval (object form);\n");
+%% puts("extern Values eval (object form);");
 %% #endif
 
 # UP: Evaluates a Form in a given Environment.
@@ -12716,10 +12716,10 @@ extern void init_dependent_encodings (void);
 #endif
 # is used by PATHNAME
 %% #ifdef UNICODE
-%%   printf("extern object n_char_to_string (const char* charptr, uintL len, object encoding);\n");
+%%   puts("extern object n_char_to_string (const char* charptr, uintL len, object encoding);");
 %% #else
 %%   emit_define("n_char_to_string(charptr,len,encoding)","n_char_to_string_(charptr,len)");
-%%   printf("extern object n_char_to_string_ (const char* charptr, uintL len);\n");
+%%   puts("extern object n_char_to_string_ (const char* charptr, uintL len);");
 %% #endif
 
 # UP: Converts an ASCIZ-String to a LISP-String.
@@ -12739,12 +12739,12 @@ extern void init_dependent_encodings (void);
 extern maygc object ascii_to_string (const char * asciz);
 # is used by SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH
 %% #ifdef UNICODE
-%%   printf("extern object asciz_to_string (const char * asciz, object encoding);\n");
+%%   puts("extern object asciz_to_string (const char * asciz, object encoding);");
 %% #else
 %%   emit_define("asciz_to_string(asciz,encoding)","asciz_to_string_(asciz)");
-%%   printf("extern object asciz_to_string_ (const char * asciz);\n");
+%%   puts("extern object asciz_to_string_ (const char * asciz);");
 %% #endif
-%%   printf("extern object ascii_to_string (const char * asciz);\n");
+%% puts("extern object ascii_to_string (const char * asciz);");
 
 # UP: Converts a String to an ASCIZ-String.
 # string_to_asciz(obj,encoding)
@@ -12763,10 +12763,10 @@ extern maygc object ascii_to_string (const char * asciz);
 #define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
 # is used by STREAM, PATHNAME
 %% #ifdef UNICODE
-%%   printf("extern object string_to_asciz (object obj, object encoding);\n");
+%%   puts("extern object string_to_asciz (object obj, object encoding);");
 %% #else
 %%   export_def(string_to_asciz(obj,encoding));
-%%   printf("extern object string_to_asciz_ (object obj);\n");
+%%   puts("extern object string_to_asciz_ (object obj);");
 %% #endif
 %% export_def(TheAsciz(obj));
 
@@ -12783,15 +12783,15 @@ extern maygc object ascii_to_string (const char * asciz);
     } while(0)
   #define with_sstring_0  with_string_0
 #else
-  #define with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,U) \
+  #define with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,NR) \
     do { var uintL ascizvar_len;                                        \
       var uintL ascizvar_offset;                                        \
       var object ascizvar_string = unpack_string_ro(string,&ascizvar_len,&ascizvar_offset); \
       var const chart* ptr1;                                            \
-      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,ascizvar_offset, ptr1=,U); \
+      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,ascizvar_offset, ptr1=,NR); \
      {var uintL ascizvar_bytelen = cslen(encoding,ptr1,ascizvar_len);   \
       var DYNAMIC_ARRAY(ascizvar_data,uintB,ascizvar_bytelen+1);        \
-      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,U); \
+      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,NR); \
       ascizvar_data[ascizvar_bytelen] = '\0';                           \
      {var char* ascizvar = (char*) &ascizvar_data[0];                   \
       statement}                                                        \
@@ -12799,15 +12799,15 @@ extern maygc object ascii_to_string (const char * asciz);
     }} while(0)
   #define with_string_0(string,encoding,ascizvar,statement) \
     with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,NOTREACHED)
-  #define with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,U) \
+  #define with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,NR) \
     do { var object ascizvar_string = (string);                         \
       sstring_un_realloc(ascizvar_string);                              \
      {var uintL ascizvar_len = Sstring_length(ascizvar_string);         \
       var const chart* ptr1;                                            \
-      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,0, ptr1=,U); \
+      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,0, ptr1=,NR); \
      {var uintL ascizvar_bytelen = cslen(encoding,ptr1,ascizvar_len);   \
       var DYNAMIC_ARRAY(ascizvar_data,uintB,ascizvar_bytelen+1);        \
-      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,U); \
+      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,NR); \
       ascizvar_data[ascizvar_bytelen] = '\0';                           \
      {var char* ascizvar = (char*) &ascizvar_data[0];                   \
       statement}                                                        \
@@ -12817,8 +12817,8 @@ extern maygc object ascii_to_string (const char * asciz);
 with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,NOTREACHED)
 #endif
 # is used by PATHNAME, MISC, FOREIGN
-%% export_def(with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,U));
-%% export_def(with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,U));
+%% export_def(with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,NR));
+%% export_def(with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,NR));
 %% /* cannot use emit_define because Rectype_* is not a define in lispbibl.d */
 %% puts("#define with_string_0(string,encoding,ascizvar,statement) with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,NOTREACHED)");
 %% puts("#define with_sstring_0(string,encoding,ascizvar,statement) with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,NOTREACHED)");
@@ -12940,7 +12940,7 @@ extern maygc object copy_sbvector (object vector);
 # < result: its length
 extern uintL vector_length (object vector);
 # used by many modules
-%% printf("extern uintL vector_length (object vector);\n");
+%% puts("extern uintL vector_length (object vector);");
 
 # Function: Canonicalizes an array element-type and returns its
 # element type code.
@@ -12963,7 +12963,7 @@ extern maygc uintB eltype_code (object element_type);
 # can trigger GC
 extern maygc object vectorof (uintC len);
 # used by PREDTYPE
-%% printf("extern object vectorof (uintC len);\n");
+%% puts("extern object vectorof (uintC len);");
 
 # Function: For an indirect array, returns the storage vector and the offset.
 # Also verifies that all elements of the array are physically present.
@@ -12984,7 +12984,7 @@ extern object iarray_displace_check (object array, uintL size, uintL* index);
 # < index: is incremented by the offset into the storage vector
 extern object array_displace_check (object array, uintV size, uintL* index);
 # used by HASHTABL, PREDTYPE, IO, FOREIGN
-%% printf("extern object array_displace_check (object array, uintV size, uintL* index);\n");
+%% puts("extern object array_displace_check (object array, uintV size, uintL* index);");
 
 # Tests for the storage vector of an array of element type NIL.
 # simple_nilarray_p(obj)
@@ -13000,7 +13000,7 @@ nonreturning_function(extern, fehler_index_range, (object array, uintL bound));
 # error message: attempt to retrieve a value from (ARRAY NIL)
 nonreturning_function(extern, fehler_nilarray_retrieve, (void));
 # used by PREDTYPE
-%% printf("nonreturning_function(extern, fehler_nilarray_retrieve, (void));\n");
+%% puts("nonreturning_function(extern, fehler_nilarray_retrieve, (void));");
 
 # error message: attempt to store a value in (ARRAY NIL)
 nonreturning_function(extern, fehler_nilarray_store, (void));
@@ -13058,7 +13058,7 @@ nonreturning_function(extern, fehler_store, (object array, object value));
 /* return Atype for the given array */
 global uintBWL array_atype (object array);
 /* used by socket.d and modules */
-%% printf("extern uintBWL array_atype (object array);\n");
+%% puts("extern uintBWL array_atype (object array);");
 
 # Function: Returns the element-type of an array.
 # array_element_type(array)
@@ -13074,7 +13074,7 @@ extern maygc object array_element_type (object array);
  < uintL result: its rank = number of dimensions */
 extern uintL array_rank (object array);
 # used by modules
-%% printf("extern uintL array_rank (object array);\n");
+%% puts("extern uintL array_rank (object array);");
 
 /* Returns the dimensions of an array.
  get_array_dimensions(array,rank,&dimensions[]);
@@ -13084,7 +13084,7 @@ extern uintL array_rank (object array);
  < uintL dimensions[0..rank-1]: the array's dimensions */
 extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);
 # used by modules
-%% printf("extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);\n");
+%% puts("extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);");
 
 # Function: Returns the list of dimensions of an array.
 # array_dimensions(array)
@@ -13203,7 +13203,7 @@ extern bool array_has_fill_pointer_p (object array);
 extern maygc object allocate_bit_vector_0 (uintL len);
 # used by SEQUENCE
 %% #if notused
-%% printf("extern object allocate_bit_vector_0 (uintL len);\n");
+%% puts("extern object allocate_bit_vector_0 (uintL len);");
 %% #endif
 
 # The following functions work on "semi-simple string"s.
@@ -13298,7 +13298,7 @@ extern maygc object ssbvector_push_extend (object ssbvector, uintB b);
 extern chart up_case (chart ch);
 # is used by IO, PREDTYPE, PATHNAME
 %% #if notused
-%% printf("extern chart up_case (chart ch);\n");
+%% puts("extern chart up_case (chart ch);");
 %% #endif
 
 # Converts Byte ch to downcase
@@ -13306,7 +13306,7 @@ extern chart up_case (chart ch);
 extern chart down_case (chart ch);
 # is used by IO, PATHNAME
 %% #if notused
-%% printf("extern chart down_case (chart ch);\n");
+%% puts("extern chart down_case (chart ch);");
 %% #endif
 
 # Checks whether a Character is alphanumeric.
@@ -13348,7 +13348,7 @@ extern void copy_8bit_8bit (const uint8* src, uint8* dest, uintL len);
 extern void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   printf("extern void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len);\n");
+%%   puts("extern void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len);");
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13360,7 +13360,7 @@ extern void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len);
 extern void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   printf("extern void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len);\n");
+%%   puts("extern void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len);");
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13373,7 +13373,7 @@ extern void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len);
 extern void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   printf("extern void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len);\n");
+%%   puts("extern void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len);");
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13385,7 +13385,7 @@ extern void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len);
 extern void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   printf("extern void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len);\n");
+%%   puts("extern void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len);");
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13397,7 +13397,7 @@ extern void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len);
 extern void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   printf("extern void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len);\n");
+%%   puts("extern void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len);");
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13410,7 +13410,7 @@ extern void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len);
 extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   printf("extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);\n");
+%%   puts("extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);");
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13423,7 +13423,7 @@ extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);
 extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   printf("extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);\n");
+%%   puts("extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);");
 %% #endif
 
 #if defined(UNICODE)
@@ -13604,7 +13604,7 @@ extern object unpack_string_rw (object string, uintL* len, uintL* offset);
 # < object result: datastorage vector, a simple-string or NIL
 extern object unpack_string_ro (object string, uintL* len, uintL* offset);
 # is used by STREAM, HASHTABL, PACKAGE, SEQUENCE, ENCODING
-%% printf("extern object unpack_string_ro (object string, uintL* len, uintL* offset);\n");
+%% puts("extern object unpack_string_ro (object string, uintL* len, uintL* offset);");
 
 # UP: tests two Strings for equality
 # string_gleich(string1,string2)
@@ -13621,7 +13621,7 @@ extern bool string_gleich (object string1, object string2);
 # < result: /=0, if equal
 extern bool string_equal (object string1, object string2);
 # is used by IO, PATHNAME
-%% printf("extern bool string_equal (object string1, object string2);\n");
+%% puts("extern bool string_equal (object string1, object string2);");
 
 # UP: Stores a character in a string.
 # > string: a mutable string that is or was simple
@@ -13886,7 +13886,7 @@ extern maygc object subsstring (object string, uintL start, uintL end);
 # can trigger GC
 extern maygc object string_concat (uintC argcount);
 # is used by PACKAGE, PATHNAME, DEBUG, SYMBOL
-%% printf("extern object string_concat (uintC argcount);\n");
+%% puts("extern object string_concat (uintC argcount);");
 
 # ###################### DEBUGBIB for DEBUG.D ############################ #
 
@@ -13914,7 +13914,7 @@ extern maygc void break_driver (bool continuable_p);
 # can trigger GC - if allowgc is true
 extern /*maygc*/ object gethash (object obj, object ht, bool allowgc);
 # is used by EVAL, RECORD, PATHNAME, FOREIGN
-%% printf("extern object gethash (object obj, object ht, bool allowgc);\n");
+%% puts("extern object gethash (object obj, object ht, bool allowgc);");
 
 # UP: Locates a key in a hash-table and gives the older value.
 # shifthash(ht,obj,value) == (SHIFTF (GETHASH obj ht) value)
@@ -14069,7 +14069,7 @@ extern maygc void prin1 (const gcv_object_t* stream_, object obj);
 # can trigger GC
 extern maygc object copy_list (object list);
 # is used by PACKAGE
-%% printf("extern object copy_list (object old_list);\n");
+%% puts("extern object copy_list (object old_list);");
 
 # UP: Reverses a list constructively.
 # reverse(list)
@@ -14099,7 +14099,7 @@ extern uintL llength1 (object obj, object* last);
 extern maygc object make_list (uintL len);
 # is used by
 %% #if notused
-%% printf("extern object make_list (uintL len);\n");
+%% puts("extern object make_list (uintL len);");
 %% #endif
 
 # UP: reverses a list destructively.
@@ -14108,7 +14108,7 @@ extern maygc object make_list (uintL len);
 # < result: list (xm ... x1), EQ to the old one
 extern object nreverse (object list);
 # is used by SEQUENCE, EVAL, CONTROL, IO, PATHNAME, ERROR, DEBUG, PACKAGE
-%% printf("extern object nreverse (object list);\n");
+%% puts("extern object nreverse (object list);");
 
 # UP: A0 := (nreconc A0 A1)
 # nreconc(list,obj)
@@ -14126,7 +14126,7 @@ extern object nreconc (object list, object obj);
 # < result: modified list
 extern object deleteq (object list, object obj);
 # is used by PACKAGE, STREAM
-%% printf("extern object deleteq (object list, object obj);\n");
+%% puts("extern object deleteq (object list, object obj);");
 
 /* UP: check whether OBJ ends a proper list
  endp(obj)
@@ -14136,7 +14136,7 @@ extern object deleteq (object list, object obj);
            error otherwise */
 extern bool endp (object obj);
 /* used by CONTROL */
-%% printf("extern bool endp (object obj);\n");
+%% puts("extern bool endp (object obj);");
 
 /* Finds the length of a possibly circular or dotted list.
  list_length(list,&dotted)
@@ -14163,12 +14163,12 @@ extern bool proper_list_p (object obj);
 # modifies STACK, can trigger GC
 extern maygc object listof (uintC len);
 /* used by STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, ERROR, SPVW */
-%% printf("extern object listof (uintC len);\n");
+%% puts("extern object listof (uintC len);");
 
 # UP: find OBJ in LIS: (MEMBER OBJ LIS :TEST #'EQ)
 extern object memq (const object obj, const object lis);
 # used by RECORD
-%% printf("extern object memq (const object obj, const object lis);\n");
+%% puts("extern object memq (const object obj, const object lis);");
 
 # ####################### MISCBIBL for MISC.D ############################## #
 
@@ -14231,7 +14231,7 @@ typedef enum {
  > on the STACK: initial values for the Condition, depending on error-type */
 nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));
 /* used by all modules */
-%% printf("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));\n");
+%% puts("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));");
 
 /* Report an error and try to recover by asking the user to supply a value.
  check_value(errortype,errorstring);
@@ -14248,7 +14248,7 @@ nonreturning_function(extern, fehler, (condition_t errortype, const char * error
  can trigger GC */
 extern maygc void check_value (condition_t errortype, const char * errorstring);
 /* used by all modules */
-%% printf("extern void check_value (condition_t errortype, const char * errorstring);\n");
+%% puts("extern void check_value (condition_t errortype, const char * errorstring);");
 
 /* Report an error and try to recover by asking the user to choose among some
  alternatives.
@@ -14278,7 +14278,7 @@ nonreturning_function(extern, OS_file_error, (object pathname));
   #define OS_file_error(pathname)  \
     (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_file_error)(pathname))
 #endif
-%% printf("nonreturning_function(extern, OS_file_error, (object pathname));\n");
+%% puts("nonreturning_function(extern, OS_file_error, (object pathname));");
 
 # Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
 # OS_filestream_error(stream);
@@ -14290,7 +14290,7 @@ nonreturning_function(extern, OS_filestream_error, (object stream));
   #define OS_filestream_error(stream)  \
     (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_filestream_error)(stream))
 #endif
-%% printf("nonreturning_function(extern, OS_filestream_error, (object stream));\n");
+%% puts("nonreturning_function(extern, OS_filestream_error, (object stream));");
 
 /* Prints error directly via the OS:  errno_out_low(errorcode,FILE,LINE);
  > errorcode: error code
@@ -14317,7 +14317,7 @@ extern maygc void tast_break (void);
  < result: an object of the given type, either the same as obj or a replacement
  can trigger GC */
 extern maygc object check_classname (object obj, object type);
-%% printf("extern object check_classname (object obj, object classname);\n");
+%% puts("extern object check_classname (object obj, object classname);");
 
 #ifdef FOREIGN
 /* check_fpointer(obj,restart_p)
@@ -14336,14 +14336,14 @@ static inline maygc object check_fpointer (object obj, bool restart_p) {
 /* used by FOREIGN and REGEXP (amd maybe other non-FFI modules) */
 #endif
 %% #ifdef FOREIGN
-%%   printf("extern object check_fpointer_replacement (object obj, bool restart_p);\n");
-%%   printf("#ifndef COMPILE_STANDALONE\n");
-%%   printf("static inline object check_fpointer (object obj, bool restart_p) {"
-%%           " if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
-%%             " obj = check_fpointer_replacement(obj,restart_p);"
-%%           " return obj;"
-%%         " }\n");
-%%   printf("#endif\n");
+%%   puts("extern object check_fpointer_replacement (object obj, bool restart_p);");
+%%   puts("#ifndef COMPILE_STANDALONE");
+%%   puts("static inline object check_fpointer (object obj, bool restart_p) {"
+%%         " if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
+%%           " obj = check_fpointer_replacement(obj,restart_p);"
+%%         " return obj;"
+%%        " }");
+%%   puts("#endif");
 %% #endif
 
 # Error message, if an object isn't a list.
@@ -14352,7 +14352,7 @@ static inline maygc object check_fpointer (object obj, bool restart_p) {
 nonreturning_function(extern, fehler_list, (object obj));
 /* used by LIST, EVAL, STREAM */
 %% #if notused
-%% printf("nonreturning_function(extern, fehler_list, (object obj));\n");
+%% puts("nonreturning_function(extern, fehler_list, (object obj));");
 %% #endif
 
 /* check_list(obj)
@@ -14368,14 +14368,14 @@ static inline maygc object check_list (object obj) {
 }
 #endif
 /* used by PATHNAME */
-%% printf("extern object check_list_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
-%% printf("static inline object check_list (object obj) {"
-%%         " if (!listp(obj))"
-%%           " obj = check_list_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
-%% printf("#endif\n");
+%% puts("extern object check_list_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
+%% puts("static inline object check_list (object obj) {"
+%%        " if (!listp(obj))"
+%%          " obj = check_list_replacement(obj);"
+%%        " return obj;"
+%%      " }");
+%% puts("#endif");
 
 # Error message, if an object isn't a proper list because it is dotted.
 # fehler_proper_list_dotted(caller,obj);
@@ -14383,7 +14383,7 @@ static inline maygc object check_list (object obj) {
 # > obj: End of list, non-list
 nonreturning_function(extern, fehler_proper_list_dotted, (object caller, object obj));
 # is used by LIST
-%% printf("nonreturning_function(extern, fehler_proper_list_dotted, (object caller, object obj));\n");
+%% puts("nonreturning_function(extern, fehler_proper_list_dotted, (object caller, object obj));");
 
 # Error message, if an object isn't a proper list because it is circular.
 # fehler_proper_list_circular(caller,obj);
@@ -14434,7 +14434,7 @@ extern maygc object check_symbol_special (object obj, object caller);
 nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));
 /* is used by ARRAY, EVAL */
 %% #if notused
-%% printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
+%% puts("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));");
 %% #endif
 
 /* Error message, if an object isn't a vector.
@@ -14443,7 +14443,7 @@ nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));
 nonreturning_function(extern, fehler_vector, (object obj));
 /* is used by ARRAY */
 %% #if notused
-%% printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
+%% puts("nonreturning_function(extern, fehler_vector, (object obj));");
 %% #endif
 
 /* check_array(obj)
@@ -14458,14 +14458,14 @@ static inline maygc object check_array (object obj) {
 }
 #endif
 /* used by ARRAY, modules */
-%% printf("extern object check_array_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
-%% printf("static inline object check_array (object obj) {"
-%%         " if (!arrayp(obj))"
-%%           " obj = check_array_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
-%% printf("#endif\n");
+%% puts("extern object check_array_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
+%% puts("static inline object check_array (object obj) {"
+%%        " if (!arrayp(obj))"
+%%          " obj = check_array_replacement(obj);"
+%%        " return obj;"
+%%      " }");
+%% puts("#endif");
 
 /* error-message, if an object is not an environment.
  fehler_environment(obj);
@@ -14491,14 +14491,14 @@ static inline maygc object check_posfixnum (object obj) {
 }
 #endif
 /* used by STREAM, LISPARIT */
-%% printf("extern object check_posfixnum_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
-%% printf("static inline object check_posfixnum (object obj) {"
-%%         " if (!posfixnump(obj))"
-%%           " obj = check_posfixnum_replacement(obj);"
-%%         " return obj;"
-%%       " }\n");
-%% printf("#endif\n");
+%% puts("extern object check_posfixnum_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
+%% puts("static inline object check_posfixnum (object obj) {"
+%%        " if (!posfixnump(obj))"
+%%          " obj = check_posfixnum_replacement(obj);"
+%%        " return obj;"
+%%      "}");
+%% puts("#endif");
 
 /* check_integer(obj)
  > obj: an object
@@ -14527,14 +14527,14 @@ static inline maygc object check_pos_integer (object obj) {
 }
 #endif
 /* used by LISPARIT, LIST */
-%% printf("extern object check_pos_integer_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("extern object check_pos_integer_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_pos_integer (object obj) {"
 %%         " if (!(integerp(obj) && !R_minusp(obj)))"
 %%           " obj = check_posfixnum_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
+%% puts("#endif");
 
 # Error message, if an argument isn't a Character:
 # fehler_char(obj);
@@ -14556,14 +14556,14 @@ static inline maygc object check_char (object obj) {
 #endif
 /* used by CHARSTRG, ENCODING, IO */
 %% #if notused
-%% printf("extern object check_char_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("extern object check_char_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_char (object obj) {"
 %%         " if (!charp(obj))"
 %%           " obj = check_char_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
+%% puts("#endif");
 %% #endif
 
 /* check_string(obj)
@@ -14579,14 +14579,14 @@ static inline maygc object check_string (object obj) {
 }
 #endif
 /* used by CHARSTRG, FOREIGN, MISC, PACKAGE, PATHNAME, STREAM, SOCKET, I18N */
-%% printf("extern object check_string_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("extern object check_string_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_string (object obj) {"
 %%         " if (!stringp(obj))"
 %%           " obj = check_string_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
+%% puts("#endif");
 
 # Error message, if an argument isn't a Simple-String:
 # fehler_sstring(obj);
@@ -14594,7 +14594,7 @@ static inline maygc object check_string (object obj) {
 nonreturning_function(extern, fehler_sstring, (object obj));
 # is used by CHARSTRG
 %% #if notused
-%% printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
+%% puts("nonreturning_function(extern, fehler_sstring, (object obj));");
 %% #endif
 
 # Checks a simple-string for being mutable.
@@ -14611,7 +14611,7 @@ nonreturning_function(extern, fehler_sstring, (object obj));
 # Error message, if an argument is not of type (OR STRING INTEGER).
 # fehler_string_integer(obj);
 nonreturning_function(extern, fehler_string_integer, (object obj));
-%% printf("nonreturning_function(extern, fehler_string_integer, (object obj));\n");
+%% puts("nonreturning_function(extern, fehler_string_integer, (object obj));");
 
 # Error message, if a string size is too big.
 # fehler_stringsize(size);
@@ -14643,14 +14643,14 @@ extern maygc object check_encoding (object obj, const gcv_object_t* e_default,
  fehler_plist_odd(caller,plist);
  > plist: bad plist */
 nonreturning_function(extern, fehler_plist_odd, (object plist));
-%% printf("nonreturning_function(extern, fehler_plist_odd, (object plist));\n");
+%% puts("nonreturning_function(extern, fehler_plist_odd, (object plist));");
 
 /* error-message for non-paired keyword-arguments
  fehler_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK
  > caller: function */
 nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));
-%% printf("nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));\n");
+%% puts("nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));");
 
 /* error-message for flawed keyword
  fehler_key_notkw(kw);
@@ -14666,7 +14666,7 @@ nonreturning_function(extern, fehler_key_notkw, (object key, object caller));
  > kwlist: list of legal keywords */
 nonreturning_function(extern, fehler_key_badkw,
                       (object fun, object key, object val, object kwlist));
-%% printf("nonreturning_function(extern, fehler_key_badkw, (object fun, object key, object val, object kwlist));\n");
+%% puts("nonreturning_function(extern, fehler_key_badkw, (object fun, object key, object val, object kwlist));");
 
 /* check_function(obj)
  > obj: an object
@@ -14758,14 +14758,14 @@ nonreturning_function(extern, fehler_sint64, (object obj));
   #define fehler_slong  fehler_sint64
 #endif
 /* used by STREAM, ENCODING, modules */
-%% printf("nonreturning_function(extern, fehler_uint8, (object obj));\n");
-%% printf("nonreturning_function(extern, fehler_sint8, (object obj));\n");
-%% printf("nonreturning_function(extern, fehler_uint16, (object obj));\n");
-%% printf("nonreturning_function(extern, fehler_sint16, (object obj));\n");
-%% printf("nonreturning_function(extern, fehler_uint32, (object obj));\n");
-%% printf("nonreturning_function(extern, fehler_sint32, (object obj));\n");
-%% printf("nonreturning_function(extern, fehler_uint64, (object obj));\n");
-%% printf("nonreturning_function(extern, fehler_sint64, (object obj));\n");
+%% puts("nonreturning_function(extern, fehler_uint8, (object obj));");
+%% puts("nonreturning_function(extern, fehler_sint8, (object obj));");
+%% puts("nonreturning_function(extern, fehler_uint16, (object obj));");
+%% puts("nonreturning_function(extern, fehler_sint16, (object obj));");
+%% puts("nonreturning_function(extern, fehler_uint32, (object obj));");
+%% puts("nonreturning_function(extern, fehler_sint32, (object obj));");
+%% puts("nonreturning_function(extern, fehler_uint64, (object obj));");
+%% puts("nonreturning_function(extern, fehler_sint64, (object obj));");
 %% #if (int_bitsize==16)
 %%   emit_define("fehler_uint","fehler_uint16");
 %%   emit_define("fehler_sint","fehler_sint16");
@@ -14900,118 +14900,118 @@ static inline maygc object check_dfloat (object obj) {
 }
 #endif
 # is used by STREAM, FFI
-%% printf("extern object check_uint8_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("extern object check_uint8_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_uint8 (object obj) {"
 %%         " if (!uint8_p(obj))"
 %%           " obj = check_uint8_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_sint8_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_sint8_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_sint8 (object obj) {"
 %%         " if (!sint8_p(obj))"
 %%           " obj = check_sint8_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_uint16_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_uint16_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_uint16 (object obj) {"
 %%         " if (!uint16_p(obj))"
 %%           " obj = check_uint16_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_sint16_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_sint16_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_sint16 (object obj) {"
 %%         " if (!sint16_p(obj))"
 %%           " obj = check_sint16_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_uint32_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_uint32_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_uint32 (object obj) {"
 %%         " if (!uint32_p(obj))"
 %%           " obj = check_uint32_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_sint32_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_sint32_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_sint32 (object obj) {"
 %%         " if (!sint32_p(obj))"
 %%           " obj = check_sint32_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_uint64_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_uint64_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_uint64 (object obj) {"
 %%         " if (!uint64_p(obj))"
 %%           " obj = check_uint64_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_sint64_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_sint64_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_sint64 (object obj) {"
 %%         " if (!sint64_p(obj))"
 %%           " obj = check_sint64_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_uint_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_uint_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_uint (object obj) {"
 %%         " if (!uint_p(obj))"
 %%           " obj = check_uint_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_sint_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_sint_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_sint (object obj) {"
 %%         " if (!sint_p(obj))"
 %%           " obj = check_sint_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_ulong_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_ulong_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_ulong (object obj) {"
 %%         " if (!ulong_p(obj))"
 %%           " obj = check_ulong_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_slong_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_slong_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_slong (object obj) {"
 %%         " if (!slong_p(obj))"
 %%           " obj = check_slong_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_ffloat_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_ffloat_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_ffloat (object obj) {"
 %%         " if (!single_float_p(obj))"
 %%           " obj = check_ffloat_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
-%% printf("extern object check_dfloat_replacement (object obj);\n");
-%% printf("#ifndef COMPILE_STANDALONE\n");
+%% puts("#endif");
+%% puts("extern object check_dfloat_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
 %% printf("static inline object check_dfloat (object obj) {"
 %%         " if (!double_float_p(obj))"
 %%           " obj = check_dfloat_replacement(obj);"
 %%         " return obj;"
 %%       " }\n");
-%% printf("#endif\n");
+%% puts("#endif");
 
 # ##################### PACKBIBL for PACKAGE.D ############################# #
 
@@ -15050,7 +15050,7 @@ extern bool find_external_symbol (object string, bool invert, object pack, objec
 # < result: Package with that name or NIL
 extern object find_package (object string);
 # is used by IO, EVAL
-%% printf("extern object find_package (object string);\n");
+%% puts("extern object find_package (object string);");
 
 # UP: Interns a symbol with a given printname in a package.
 # intern(string,invert,pack,&sym)
@@ -15065,7 +15065,7 @@ extern object find_package (object string);
 # can trigger GC
 extern maygc uintBWL intern (object string, bool invert, object pack, object* sym_);
 # is used by IO, SPVW
-%% printf("extern uintBWL intern (object string, object pack, object* sym_);\n");
+%% puts("extern uintBWL intern (object string, object pack, object* sym_);");
 
 # UP: Interns a symbol with a given printname in the Keyword-Package.
 # intern_keyword(string)
@@ -15074,7 +15074,7 @@ extern maygc uintBWL intern (object string, bool invert, object pack, object* sy
 # can trigger GC
 extern maygc object intern_keyword (object string);
 # is used by IO, EVAL, GRAPH
-%% printf("extern object intern_keyword (object string);\n");
+%% puts("extern object intern_keyword (object string);");
 
 # UP: Imports a symbol into a package
 # import(&sym,&pack);
@@ -15127,7 +15127,7 @@ extern maygc bool namestring_correctly_parseable_p (gcv_object_t *path_);
  < result: the namestring of the pathname denoted by thing
  can trigger GC */
 extern maygc object physical_namestring (object thing);
-%% printf("extern object physical_namestring (object obj);\n");
+%% puts("extern object physical_namestring (object obj);");
 
 # UP: Gives the directory-namestring in OS-format of a halfway checked
 #     pathname assuming that the directory of the pathname exists.
@@ -15148,7 +15148,7 @@ extern maygc object assume_dir_exists (void);
  can trigger GC */
 extern maygc object pathname_to_OSdir (object pathname, bool use_default);
 /* used by modules (I18N) */
-%% printf("extern object pathname_to_OSdir (object pathname, bool use_default);\n");
+%% puts("extern object pathname_to_OSdir (object pathname, bool use_default);");
 
 /* Converts an OS directory specification to a directory pathname.
  > path: a pathname referring to a directory
@@ -15156,7 +15156,7 @@ extern maygc object pathname_to_OSdir (object pathname, bool use_default);
  can trigger GC */
 extern maygc object OSdir_to_pathname (const char* path);
 /* used by modules (I18N) */
-%% printf("extern object OSdir_to_pathname (const char* path);\n");
+%% puts("extern object OSdir_to_pathname (const char* path);");
 
 # UP: Initializes the pathname-system.
 # init_pathnames();
@@ -15169,7 +15169,7 @@ extern maygc void init_pathnames (void);
  Similar to dup(oldfd), with error checking.
  To be called only inside begin/end_system_call(). */
 extern Handle handle_dup (Handle old_handle);
-%% printf("extern Handle handle_dup (Handle old_handle);\n");
+%% puts("extern Handle handle_dup (Handle old_handle);");
 
 /* Duplicate an open file handle.
  handle_dup2(oldfd,newfd)
@@ -15177,7 +15177,7 @@ extern Handle handle_dup (Handle old_handle);
  be equal to newfd.
  To be called only inside begin/end_system_call(). */
 extern Handle handle_dup2 (Handle old_handle, Handle new_handle);
-%% printf("extern Handle handle_dup2 (Handle old_handle, Handle new_handle);\n");
+%% puts("extern Handle handle_dup2 (Handle old_handle, Handle new_handle);");
 
 # Locates the executable program immediately after the program start.
 # find_executable(argv[0])
@@ -15201,7 +15201,7 @@ extern direction_t check_direction (object dir);
 %% printf("typedef enum { DIRECTION_PROBE=%d, DIRECTION_INPUT=%d, DIRECTION_INPUT_IMMUTABLE=%d, DIRECTION_OUTPUT=%d, DIRECTION_IO=%d} direction_t;\n",
 %%        DIRECTION_PROBE, DIRECTION_INPUT, DIRECTION_INPUT_IMMUTABLE,
 %%        DIRECTION_OUTPUT, DIRECTION_IO);
-%% printf("extern direction_t check_direction (object dir);\n");
+%% puts("extern direction_t check_direction (object dir);");
 
 # check the :IF-DOES-NOT-EXIST argument
 # check_if_does_not_exist(argument)
@@ -15214,12 +15214,12 @@ typedef enum {
 } if_does_not_exist_t;
 extern if_does_not_exist_t check_if_does_not_exist (object if_not_exist);
 %% emit_typedef("enum { IF_DOES_NOT_EXIST_UNBOUND, IF_DOES_NOT_EXIST_ERROR, IF_DOES_NOT_EXIST_NIL, IF_DOES_NOT_EXIST_CREATE }","if_does_not_exist_t");
-%% printf("extern if_does_not_exist_t check_if_does_not_exist (object if_not_exist);\n");
+%% puts("extern if_does_not_exist_t check_if_does_not_exist (object if_not_exist);");
 
 # Converts a :IF-DOES-NOT-EXIST enum item to a symbol.
 # if_does_not_exist_symbol(item)
 extern object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist);
-%% printf("extern object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist);\n");
+%% puts("extern object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist);");
 
 # check the :IF-EXISTS argument
 # check_if_exists(argument)
@@ -15236,12 +15236,12 @@ typedef enum {
 } if_exists_t;
 extern if_exists_t check_if_exists (object if_exists);
 %% emit_typedef("enum { IF_EXISTS_UNBOUND, IF_EXISTS_ERROR, IF_EXISTS_NIL, IF_EXISTS_RENAME, IF_EXISTS_RENAME_AND_DELETE, IF_EXISTS_SUPERSEDE, IF_EXISTS_APPEND, IF_EXISTS_OVERWRITE }","if_exists_t");
-%% printf("extern if_exists_t check_if_exists (object if_exists);\n");
+%% puts("extern if_exists_t check_if_exists (object if_exists);");
 
 # Converts a :IF-EXISTS enum item to a symbol.
 # if_exists_symbol(item)
 extern object if_exists_symbol (if_exists_t if_exists);
-%% printf("extern object if_exists_symbol (if_exists_t if_exists);\n");
+%% puts("extern object if_exists_symbol (if_exists_t if_exists);");
 
 #if defined(WIN32_NATIVE)
 /* ------------------- Functions defined in w32shell.c ------------------- */
@@ -15274,7 +15274,7 @@ extern BOOL real_path (LPCSTR namein, LPSTR nameout);
 extern bool eql (object obj1, object obj2);
 # is used by CONTROL, EVAL, HASHTABL, LISPARIT
 %% #if notused
-%% printf("extern bool eql (object obj1, object obj2);\n");
+%% puts("extern bool eql (object obj1, object obj2);");
 %% #endif
 
 # UP: tests for equality EQUAL
@@ -15284,7 +15284,7 @@ extern bool eql (object obj1, object obj2);
 extern bool equal (object obj1, object obj2);
 # is used by EVAL, PATHNAME, HASHTABL, MISC
 %% #if notused
-%% printf("extern bool equal (object obj1, object obj2);\n");
+%% puts("extern bool equal (object obj1, object obj2);");
 %% #endif
 
 # UP: tests for a more lax equality EQUALP
@@ -15294,7 +15294,7 @@ extern bool equal (object obj1, object obj2);
 extern bool equalp (object obj1, object obj2);
 # is used by PATHNAME, HASHTABL
 %% #if notused
-%% printf("extern bool equalp (object obj1, object obj2);\n");
+%% puts("extern bool equalp (object obj1, object obj2);");
 %% #endif
 
 /* typep_class(obj,clas)
@@ -15303,7 +15303,7 @@ extern bool equalp (object obj1, object obj2);
  < true if the object is an instance of the class, false otherwise
  clobbers value1, mv_count */
 extern bool typep_class (object obj, object clas);
-%% printf("extern bool typep_class (object obj, object clazz);\n");
+%% puts("extern bool typep_class (object obj, object clazz);");
 
 /* typep_classname(obj,classname)
  > obj: an object
@@ -15311,7 +15311,7 @@ extern bool typep_class (object obj, object clas);
  < true if the object is an instance of the class, false otherwise
  clobbers value1, mv_count */
 extern bool typep_classname (object obj, object classname);
-%% printf("extern bool typep_classname (object obj, object classname);\n");
+%% puts("extern bool typep_classname (object obj, object classname);");
 
 # UP: expand all DEFTYPE definitions in the type spec
 # (recursively, unless once_p is true)
@@ -15451,7 +15451,7 @@ static inline maygc object check_stream (object obj) {
  usec = posfixnum or nil/unbound
  can trigger GC */
 extern maygc struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
-%% printf("extern struct timeval * sec_usec (object sec, object usec, struct timeval *tv);\n");
+%% puts("extern struct timeval * sec_usec (object sec, object usec, struct timeval *tv);");
 
 /* Convert C sec/usec (struct timeval et al) pair into Lisp number (of seconds)
  if abs_p is true, add UNIX_LISP_TIME_DIFF
@@ -15462,9 +15462,9 @@ global maygc object sec_usec_number (uint64 sec, uint64 usec, bool abs_p);
 global maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p);
 #endif
 %% #if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
-%% printf("extern object sec_usec_number (uint64 sec, uint64 usec, bool abs_p);\n");
+%% puts("extern object sec_usec_number (uint64 sec, uint64 usec, bool abs_p);");
 %% #else
-%% printf("extern object sec_usec_number (uint32 sec, uint32 usec, bool abs_p);\n");
+%% puts("extern object sec_usec_number (uint32 sec, uint32 usec, bool abs_p);");
 %% #endif
 
 /* UP: Initializes the stream variables.
@@ -15590,7 +15590,7 @@ extern bool interactive_stream_p (object stream);
 # can trigger GC
 extern maygc void builtin_stream_close (const gcv_object_t* stream_);
 # is used by PATHNAME, SPVW, DEBUG, MISC
-%% printf("extern void builtin_stream_close (const gcv_object_t* stream_);\n");
+%% puts("extern void builtin_stream_close (const gcv_object_t* stream_);");
 
 # UP: Closes a list of open files.
 # close_some_files(list);
@@ -15704,7 +15704,7 @@ extern maygc void elastic_newline (const gcv_object_t* stream_);
  can trigger GC */
 extern maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int * handletype);
 /* used by STREAM */
-%% printf("extern Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int * handletype);\n");
+%% puts("extern Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int * handletype);");
 
 /* extract the OS file handle from the file stream
  > stream: open Lisp file stream
@@ -15713,7 +15713,7 @@ extern maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int 
  for syscall module
  can trigger GC */
 extern maygc object open_file_stream_handle (object stream, Handle *fd);
-%% printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");
+%% puts("extern object open_file_stream_handle (object stream, Handle *fd);");
 
 /* Function: Reads several bytes from a stream.
  read_byte_array(&stream,&bytearray,start,len,persev)
@@ -15726,7 +15726,7 @@ extern maygc object open_file_stream_handle (object stream, Handle *fd);
  can trigger GC */
 extern maygc uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 /* used by SEQUENCE, PATHNAME */
-%% printf("extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);\n");
+%% puts("extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);");
 
 # Function: Writes several bytes to a stream.
 # write_byte_array(&stream,&bytearray,start,len,no_hang)
@@ -15739,7 +15739,7 @@ extern maygc uintL read_byte_array (const gcv_object_t* stream_, const gcv_objec
 # can trigger GC
 extern maygc uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 # is used by SEQUENCE
-%% printf("extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);\n");
+%% puts("extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);");
 
 # Function: Reads several characters from a stream.
 # read_char_array(&stream,&chararray,start,len)
@@ -15775,7 +15775,7 @@ extern object var_stream (object sym, uintB strmflags);
  < truename of the file associated with the stream
  for syscall module */
 extern object file_stream_truename (object s);
-%% printf("extern object file_stream_truename (object s);\n");
+%% puts("extern object file_stream_truename (object s);");
 
 # UP: makes a file-stream
 # make_file_stream(direction,append_flag,handle_fresh)
@@ -15802,12 +15802,12 @@ extern object file_stream_truename (object s);
 # can trigger GC
 extern maygc object make_file_stream (direction_t direction, bool append_flag, bool handle_at_pos_0);
 # is used by PATHNAME
-%% printf("extern object make_file_stream (direction_t direction, bool append_flag,bool handle_fresh);/*+6 arguments on the STACK!*/\n");
+%% puts("extern object make_file_stream (direction_t direction, bool append_flag,bool handle_fresh);/*+6 arguments on the STACK!*/");
 
 /* check whether the object is a handle stream or a socket-server
  and return its socket-like handle(s) */
 extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);
-%% printf("extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);\n");
+%% puts("extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);");
 
 #ifdef PIPES
 /* mkops_from_handles(pipe,process_id)
@@ -15937,7 +15937,7 @@ extern bool check_charset (const char * code, object charset);
 extern maygc object addr_to_string (short type, char *addr);
 #endif
 %% #if defined(UNIX) || defined(WIN32_NATIVE)
-%%   printf("extern object addr_to_string (short type, char *addr);\n");
+%%   puts("extern object addr_to_string (short type, char *addr);");
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
@@ -15955,7 +15955,7 @@ extern int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
 extern maygc object string_to_addr (const char* name);
 #endif
 %% #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
-%%   printf("extern object string_to_addr (const char *name);\n");
+%%   puts("extern object string_to_addr (const char *name);");
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
@@ -15971,7 +15971,7 @@ extern maygc object string_to_addr (const char* name);
 extern struct hostent* resolve_host (object arg);
 #endif
 %% #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
-%%   printf("extern struct hostent* resolve_host (object arg);\n");
+%%   puts("extern struct hostent* resolve_host (object arg);");
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
@@ -16036,7 +16036,7 @@ extern object Symbol_function_checked (object symbol);
 extern object get (object symbol, object key);
 # is used by IO, CONTROL, EVAL, PREDTYPE, SEQUENCE
 %% #if notused
-%% printf("extern object get (object symbol, object key);\n");
+%% puts("extern object get (object symbol, object key);");
 %% #endif
 
 # ##################### ARITBIBL for LISTARIT.D ############################ #
@@ -16067,7 +16067,7 @@ extern maygc void init_arith (void);
 # can trigger GC
 extern maygc object L_to_I (sint32 wert);
 /* used by TIME */
-%% printf("extern object L_to_I (sint32 wert);\n");
+%% puts("extern object L_to_I (sint32 wert);");
 
 # Converts an unsigned longword into an Integer >=0.
 # UL_to_I(wert)
@@ -16089,7 +16089,7 @@ extern maygc object L_to_I (sint32 wert);
 %% #if (intLsize<=oint_data_len)
 %%   export_def(UL_to_I(wert));
 %% #else
-%%   printf("extern object UL_to_I (uintL wert);\n");
+%%   puts("extern object UL_to_I (uintL wert);");
 %% #endif
 
 # converts a double-longword into an Integer.
@@ -16107,7 +16107,7 @@ extern maygc object L_to_I (sint32 wert);
 %% #if (intVsize>32)
 %%   export_def(L2_to_I(wert_hi,wert_lo));
 %% #else
-%%   printf("extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);\n");
+%%   puts("extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);");
 %% #endif
 
 # Converts an unsigned double-longword into an Integer.
@@ -16125,7 +16125,7 @@ extern maygc object L_to_I (sint32 wert);
 %% #if (intVsize>32)
 %%   export_def(UL2_to_I(wert_hi,wert_lo));
 %% #else
-%%   printf("extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);\n");
+%%   puts("extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);");
 %% #endif
 
 #if defined(intQsize) || (intVsize>32)
@@ -16138,7 +16138,7 @@ extern maygc object L_to_I (sint32 wert);
   # is used by the FFI
 #endif
 %% #if defined(intQsize) || (intVsize>32)
-%%   printf("extern object Q_to_I (sint64 wert);\n");
+%%   puts("extern object Q_to_I (sint64 wert);");
 %% #endif
 
 #if defined(intQsize) || (intVsize>32) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
@@ -16151,7 +16151,7 @@ extern maygc object L_to_I (sint32 wert);
   # is used by MISC, TIME, FFI
 #endif
 %% #if defined(intQsize) || (intVsize>32)
-%%   printf("extern object UQ_to_I (uint64 wert);\n");
+%%   puts("extern object UQ_to_I (uint64 wert);");
 %% #endif
 
 # Converts a sintV into an Integer.
@@ -16266,7 +16266,7 @@ extern maygc object L_to_I (sint32 wert);
 # < result: the Integer's value as unsigned longword
 extern uintL I_to_UL (object obj);
 # is used by TIME, ARRAY
-%% printf("extern uintL I_to_UL (object obj);\n");
+%% puts("extern uintL I_to_UL (object obj);");
 
 # Converts an Integer into a signed quadword
 # I_to_L(obj)
@@ -16274,7 +16274,7 @@ extern uintL I_to_UL (object obj);
 # < result: the Integer's value as signed quadword
 extern sintL I_to_L (object obj);
 # is used by
-%% printf("extern sintL I_to_L (object obj);\n");
+%% puts("extern sintL I_to_L (object obj);");
 
 #if defined(HAVE_LONGLONG)
   # Converts an Integer >=0 into an unsigned quadword.
@@ -16285,7 +16285,7 @@ extern sintL I_to_L (object obj);
   /* used by FOREIGN, for FFI, and by modules */
 #endif
 %% #ifdef HAVE_LONGLONG
-%%   printf("extern uint64 I_to_UQ (object obj);\n");
+%%   puts("extern uint64 I_to_UQ (object obj);");
 %% #endif
 
 #if defined(HAVE_LONGLONG)
@@ -16297,7 +16297,7 @@ extern sintL I_to_L (object obj);
   /* used by FOREIGN, for FFI, and by modules */
 #endif
 %% #ifdef HAVE_LONGLONG
-%%   printf("extern sint64 I_to_Q (object obj);\n");
+%%   puts("extern sint64 I_to_Q (object obj);");
 %% #endif
 
 # Converts an Integer into a C-Integer of a given type.
@@ -16360,7 +16360,7 @@ extern sintL I_to_L (object obj);
  can trigger GC */
 extern maygc object UDS_to_I (uintD* MSDptr, uintC len);
 /* is used by modules */
-%% printf("extern object UDS_to_I (uintD* MSDptr, uintC len);\n");
+%% puts("extern object UDS_to_I (uintD* MSDptr, uintC len);");
 
 /* Digit Sequence to Integer
  DS_to_I(MSDptr,len)
@@ -16369,7 +16369,7 @@ extern maygc object UDS_to_I (uintD* MSDptr, uintC len);
  can trigger GC */
 extern maygc object DS_to_I (const uintD* MSDptr, uintC len);
 /* is used by modules */
-%% printf("extern object DS_to_I (const uintD* MSDptr, uintC len);\n");
+%% puts("extern object DS_to_I (const uintD* MSDptr, uintC len);");
 
 # I_I_comp(x,y) compares two Integers x and y.
 # Result: 0 if x=y, +1 if x>y, -1 if x<y.
@@ -16382,7 +16382,7 @@ extern signean I_I_comp (object x, object y);
 extern maygc object I_1_plus_I (object x);
 # is used by SEQUENCE, SPVW, SYMBOL
 %% #if notused
-%% printf("extern object I_1_plus_I (object x);\n");
+%% puts("extern object I_1_plus_I (object x);");
 %% #endif
 
 # (1- x), where x is an Integer. Result Integer.
@@ -16391,7 +16391,7 @@ extern maygc object I_1_plus_I (object x);
 extern maygc object I_minus1_plus_I (object x);
 # is used by SEQUENCE
 %% #if notused
-%% printf("extern object I_minus1_plus_I (object x);\n");
+%% puts("extern object I_minus1_plus_I (object x);");
 %% #endif
 
 # (+ x y), where x and y are Integers. Result Integer.
@@ -16400,7 +16400,7 @@ extern maygc object I_minus1_plus_I (object x);
 extern maygc object I_I_plus_I (object x, object y);
 # is used by SEQUENCE
 %% #if notused
-%% printf("extern object I_I_plus_I (object x, object y);\n");
+%% puts("extern object I_I_plus_I (object x, object y);");
 %% #endif
 
 # (- x y), where x and y are Integers. Result Integer.
@@ -16409,7 +16409,7 @@ extern maygc object I_I_plus_I (object x, object y);
 extern maygc object I_I_minus_I (object x, object y);
 # is used by SEQUENCE
 %% #if notused
-%% printf("extern object I_I_minus_I (object x, object y);\n");
+%% puts("extern object I_I_minus_I (object x, object y);");
 %% #endif
 
 # (ASH x y), where x and y are Integers. Result Integer.
@@ -16422,7 +16422,7 @@ extern maygc object I_I_ash_I (object x, object y);
 # I_integer_length(x)
 extern uintL I_integer_length (object x);
 # is used by ARRAY
-%% printf("extern uintL I_integer_length (object x);\n");
+%% puts("extern uintL I_integer_length (object x);");
 
 # Converts a little-endian byte sequence to an unsigned integer.
 # > bytesize: number of given 8-bit bytes of the integer,
@@ -16430,7 +16430,7 @@ extern uintL I_integer_length (object x);
 # > bufferptr: address of bytesize bytes of memory
 # < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
 extern maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);
-%% printf("extern object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);\n");
+%% puts("extern object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);");
 
 # Converts a little-endian byte sequence to an unsigned integer.
 # > bytesize: number of given 8-bit bytes of the integer,
@@ -16447,7 +16447,7 @@ extern maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer
 # > bufferptr: address of bytesize bytes of memory
 # < result: an integer with I_integer_length(result) < 8*bytesize
 extern maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);
-%% printf("extern object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);\n");
+%% puts("extern object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);");
 
 # Converts a little-endian byte sequence to an integer.
 # > bytesize: number of given 8-bit bytes of the integer, > 0,
@@ -16467,7 +16467,7 @@ extern maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_
 #   true, if obj is out of range
 extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);
 # is used by STREAM
-%% printf("extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);\n");
+%% puts("extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);");
 
 # Converts an integer to a little-endian byte sequence.
 # > obj: an integer
@@ -16477,27 +16477,27 @@ extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);
 #   true, if obj is out of range
 extern bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);
 # is used by STREAM
-%% printf("extern bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);\n");
+%% puts("extern bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);");
 
 # c_float_to_FF(&val) converts an IEEE-single-float val into an single-float.
 # can trigger GC
 extern maygc object c_float_to_FF (const ffloatjanus* val_);
-%% printf("extern object c_float_to_FF (const ffloatjanus* val_);\n");
+%% puts("extern object c_float_to_FF (const ffloatjanus* val_);");
 
 # FF_to_c_float(obj,&val);
 # converts single-float obj into an IEEE-single-float val.
 extern void FF_to_c_float (object obj, ffloatjanus* val_);
-%% printf("extern void FF_to_c_float (object obj, ffloatjanus* val_);\n");
+%% puts("extern void FF_to_c_float (object obj, ffloatjanus* val_);");
 
 # c_double_to_DF(&val) converts an IEEE-double-float val into a double-float.
 # can trigger GC
 extern maygc object c_double_to_DF (const dfloatjanus* val_);
-%% printf("extern object c_double_to_DF (const dfloatjanus* val_);\n");
+%% puts("extern object c_double_to_DF (const dfloatjanus* val_);");
 
 # DF_to_c_double(obj,&val);
 # converts a double-float obj into an IEEE-double-float val.
 extern void DF_to_c_double (object obj, dfloatjanus* val_);
-%% printf("extern void DF_to_c_double (object obj, dfloatjanus* val_);\n");
+%% puts("extern void DF_to_c_double (object obj, dfloatjanus* val_);");
 
 /* hash-code of a Long-Float: mixture of exponent, length, first 32 bits */
 extern uint32 hashcode_lfloat (object obj);
@@ -16607,7 +16607,7 @@ extern maygc object coerce_float (object obj, object type);
  < result: its value as a C 'double'
  can trigger GC */
 extern maygc double to_double (object x);
-%% printf("extern double to_double (object obj);\n");
+%% puts("extern double to_double (object obj);");
 
 /* Converts a function's argument to a C 'int'.
  to_int(obj)
@@ -16615,7 +16615,7 @@ extern maygc double to_double (object x);
  < result: its value as a C 'int'
  can trigger GC */
 extern maygc int to_int (object x);
-%% printf("extern int to_int (object obj);\n");
+%% puts("extern int to_int (object obj);");
 
 # UP: Returns the decimal string representation of an integer >= 0.
 # decimal_string(x)
@@ -16654,7 +16654,7 @@ extern maygc object decimal_string (object x);
 # Specifies that when the value is replaced and the variable contains pointers,
 # the old storage will be free()d and new storage will be allocated via malloc().
 #define fv_malloc    bit(1)
-%%   printf("extern void register_foreign_variable (void* address, const char * name, uintBWL flags, uintL size);\n");
+%%   puts("extern void register_foreign_variable (void* address, const char * name, uintBWL flags, uintL size);");
 
 # Registers a foreign function.
 # register_foreign_function(address,name,flags);
@@ -16682,12 +16682,12 @@ extern maygc object decimal_string (object x);
 #define ff_out            bit(4)
 # Set this if the arg is also treated as a return value.
 #define ff_inout          bit(5)
-%%   printf("extern void register_foreign_function (void* address, const char * name, uintWL flags);\n");
+%%   puts("extern void register_foreign_function (void* address, const char * name, uintWL flags);");
 
 # Convert foreign data to Lisp data.
 # can trigger GC
   extern maygc object convert_from_foreign (object fvd, const void* data);
-%%   printf("extern object convert_from_foreign (object fvd, const void* data);\n");
+%%   puts("extern object convert_from_foreign (object fvd, const void* data);");
 
 # Convert Lisp data to foreign data.
 # The foreign data is allocated through malloc() and has more than dynamic
@@ -16695,7 +16695,7 @@ extern maygc object decimal_string (object x);
 # free_foreign() is called on it.)
 # can trigger GC
   extern void convert_to_foreign_mallocing (object fvd, object obj, void* data);
-%%   printf("extern void convert_to_foreign_mallocing (object fvd, object obj, void* data);\n");
+%%   puts("extern void convert_to_foreign_mallocing (object fvd, object obj, void* data);");
 
 # Convert Lisp data to foreign data.
 # The foreign data storage is reused.
@@ -16703,7 +16703,7 @@ extern maygc object decimal_string (object x);
 # Also beware against NULL pointers! They are not treated specially.
 # can trigger GC
   extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);
-%%   printf("extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);\n");
+%%   puts("extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);");
 
 # Initialize the FFI.
   extern maygc void init_ffi (void);
