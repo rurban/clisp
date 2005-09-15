@@ -3237,6 +3237,7 @@ if [ $HOS = unix -o $HSYS = win32gcc ]; then
 else
   echotab "comp clisp-test-clisp.out clisp-test-lispbibl.out"
 fi
+echotab "grep lispbibl.d clisp.h && exit 1"
 echotab "\$(RM) genclisph${HEXE} clisp-test-clisp${HEXE} clisp-test-lispbibl${HEXE} clisp-test-clisp.out clisp-test-lispbibl.out"
 OBSOLETE="$OBSOLETE clisp-test.c"
 echol

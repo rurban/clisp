@@ -1,3 +1,14 @@
+2005-09-15  Sam Steingold  <sds@gnu.org>
+
+	(clisp.h): ensure that __FILE__ and __LINE__ are expanded
+	after the file is included, not when it is generated
+	* lispbibl.d (NOTREACHED, ASSERT, OBJECT_OUT): do not use
+	export_def() to avoid putting string "lispbibl.d" into clisp.h
+	(cstombs, unpack_sstring_alloca): define using *_help_()
+	for the same reason
+	(with_string_0_help_, with_sstring_0_help_): ditto
+	* makemake.in (clisp.h): check that the string "lispbibl.d" is not there
+
 2005-09-14  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (GCself, varobject_type): fixed export conditional
