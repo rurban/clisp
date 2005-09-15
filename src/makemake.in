@@ -275,7 +275,25 @@ EOF
       module_configure_flags="$module_configure_flags $1"
       shift
       ;;
-    --enable-* | --disable-*)
+    -disable-* | --disable-*)
+      feature=`echol "$1"|sed 's/-*disable-//'`
+      # Delete all the valid chars; see if any are left.
+      if test -n "`echol $feature|sed 's/[-a-zA-Z0-9_]*//g'`"; then
+        echol "$0: $feature: invalid feature name" >&2; exit 1
+      fi
+      feature=`echol $feature | sed 's/-/_/g'`
+      my_eval "enable_$feature=no"
+      module_configure_flags="$module_configure_flags $1"
+      shift
+      ;;
+    -enable-* | --enable-*)
+      feature=`echol "$1"|sed 's/-*enable-//'`
+      # Delete all the valid chars; see if any are left.
+      if test -n "`echol $feature|sed 's/[-a-zA-Z0-9_]*//g'`"; then
+        echol "$0: $feature: invalid feature name" >&2; exit 1
+      fi
+      feature=`echol $feature | sed 's/-/_/g'`
+      my_eval "enable_$feature=yes"
       module_configure_flags="$module_configure_flags $1"
       shift
       ;;
@@ -2224,7 +2242,13 @@ echodummyrule all
 echol
 
 # development targets
-if [ ! $TSYS = win32msvc -a -d "${SRCTOPDIR}CVS" ] ; then
+if [ -z "${enable_maintainer_mode}" ]; then # not supplied
+  if [ ! $TSYS = win32msvc -a -d "${SRCTOPDIR}CVS" ] ; then
+    enable_maintainer_mode=yes;
+  else enable_maintainer_mode=no;
+  fi
+fi
+if [ "${enable_maintainer_mode}" = yes ]; then
   echol "makemake : makemake.in config.status"
   echotab "sh config.status --file=makemake"
   echol
