@@ -1,5 +1,10 @@
 2005-09-16  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (check_ut_type):
+	added RUN-LVL and ACCOUNTING
+
+2005-09-16  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/configure.in (XGetAtomNames): fixed the test
 	use CL_FIND_X instead of AC_PATH_XTRA
 	* modules/clx/new-clx/link.sh, modules/clx/new-clx/Makefile.in:
