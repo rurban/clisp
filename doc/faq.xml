@@ -537,6 +537,15 @@ trying to &nconc; a circular list).</para>
 </programlisting></para></formalpara></answer></qandaentry>
 
 
+<qandaentry id="faq-random">
+ <blockinfo><title>Is &random; broken?</title></blockinfo>
+ <question id="faq-random-q"><para>Why does <screen>
+<prompt>$</prompt> clisp -q -norc &opt-x; '(&random; 1s0)'
+</screen> always print the same number?</para></question>
+<answer><para>Reproducibility is important.
+  See <xref linkend="random-state"/>.</para></answer></qandaentry>
+
+
 <qandaentry id="faq-other-problem"><question id="faq-other-problem-q">
   <simpara>Why is the function <function>FOO</function>
    broken?!</simpara></question>
