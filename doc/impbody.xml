@@ -1758,6 +1758,17 @@ can give problems:
  is equivalent to <code>(&mod; (&expt; &k-r; &l-r;) &m-r;)</code>
  except it is more efficient for very large arguments.</para></formalpara>
 
+<simplesect id="random-state"><title>Variable &random-state-var;</title>
+<para>To ease reproducibility, the variable &random-state-var; is
+ initialized to the same value on each invocation, so that <screen>
+<prompt>$</prompt> clisp -q -norc &opt-x; '(&random; 1s0)'
+</screen> will always print the same number.</para>
+<para>If you want a new random state on each invocation, you can arrange
+ for that by using &init-function;: <screen>
+<prompt>$</prompt> clisp -norc &opt-x; '(saveinitmem "foo" :init-function (&lambda-m; () (&setq; &random-state-var; (&make-random-state; &t;))))'
+</screen> or by placing <code>(&setq; &random-state-var;
+  (&make-random-state; &t;))</code> into your &RC-file;.</para></simplesect>
+
 </section>
 
 <section id="float-notes"><title>Floating Point</title>
