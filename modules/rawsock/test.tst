@@ -4,6 +4,7 @@
 ;; relies on some functions in the syscalls module
 
 (multiple-value-bind (family total) (rawsock:sockaddr-family-size)
+  (show (list family total))
   (defun to-bytes (string) (ext:convert-string-to-bytes string charset:ascii))
   (defun from-bytes (vec &optional size)
     (ext:convert-string-from-bytes vec charset:ascii :end size))
