@@ -4,7 +4,7 @@
 ;; relies on some functions in the syscalls module
 
 (multiple-value-bind (family total) (rawsock:sockaddr-family-size)
-  (show (list family total))
+  (show (list 'rawsock:sockaddr-family-size family total))
   (defun to-bytes (string) (ext:convert-string-to-bytes string charset:ascii))
   (defun from-bytes (vec &optional size)
     (ext:convert-string-from-bytes vec charset:ascii :end size))
@@ -39,8 +39,6 @@
   (defvar *buffer* (make-array 1024 :element-type '(unsigned-byte 8)))
   (defvar *sock*) (defvar *sock1*) (defvar *sock2*)
   (defvar *recv-ret*) #-:win32 (defvar *read-ret*)
-  (show (list 'rawsock:sockaddr-family-size
-              (multiple-value-list (rawsock:sockaddr-family-size))))
   T) T
 
 (progn (setq *sa-remote* (host->sa "ftp.gnu.org" 21)) T) T
