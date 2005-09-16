@@ -331,23 +331,7 @@ Initially, this is a handle to the active console screen buffer, CONOUT$.")
   (:return-type boolean))
 
 
-#|
-
- (defun check-all (enum-type function buf-size)
-  (format t "~&;; ~s:~%" function)
-  (maphash (lambda (key val)
-             (let ((res (multiple-value-list (funcall function key buf-size))))
-               (format t " ~S -> ~S~@[ ~S~]~%" val res
-                       (unless (car res) (w32:GetLastError)))))
-           (ffi::enum-table enum-type)))
- (check-all 'w32:EXTENDED_NAME_FORMAT 'w32:GetUserNameExA w32::UNLEN)
- (check-all 'w32:EXTENDED_NAME_FORMAT 'w32:GetComputerObjectNameA w32::UNLEN)
- (check-all 'w32:COMPUTER_NAME_FORMAT 'w32:GetComputerNameExA
-            w32::MAX_COMPUTERNAME_LENGTH)
-
-|#
-
-;;; ==========================================================================
+;; ==========================================================================
 
 (pushnew "WIN32" custom:*system-package-list* :test #'string=)
 (provide "win32")
