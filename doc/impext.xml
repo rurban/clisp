@@ -4628,56 +4628,6 @@ EOF
 
 </section>
 
-<section id="app-dev"><title>Application delivery with &clisp;</title>
-
-<para>Some ways of packaging &clisp; programs are discussed in the
- section <link linkend="quickstart">Quickstarting delivery with
- &clisp;</link>.</para>
-
-<para>&clisp; is <ulink url="http://www.gnu.org/philosophy/free-sw.html">Free
-  Software</ulink>, covered by the &gnu; &gpl;, with special
- terms governing the distribution of applications that run in &clisp;.
- The precise terms can be found in the
- <filename role="clisp-cvs">COPYRIGHT</filename>
- file contained in the source and binary distributions of &clisp;.
- Here is an informal clarification what these terms mean in practice.
- Please refer to the said <filename role="clisp-cvs">COPYRIGHT</filename>
- file when in doubt.</para>
-
-<para>In many cases, &clisp; does not force an application to be covered
- by the &gnu; &gpl;. Nevertheless, we encourage you to release your software
- under an open source license. The benefits of such a license for
- your users are numerous, in particular they are free to modify the
- application when their needs/requirements change, and they are free to
- recompile the application when they upgrade their machine or operating
- system.</para>
-
-<para>&clisp; extensions, i.e. programs which need to access
- non-portable &clisp; internal symbols (in the packages &sys-pac;,
- &clos-pac;, &ffi-pac;, ...), must be covered by &gnu; &gpl; as
- well.</para>
-
-<para>Other programs running in &clisp; have to or need not to be placed
- under &gnu; &gpl;, depending on their distribution form:
-
-<itemizedlist>
- <listitem><simpara>Programs distributed as Lisp source or &fasl-file;
-   files can be distributed without restrictions coming from &clisp;.
- </simpara></listitem>
- <listitem><simpara>Programs distributed as &clisp; &mem-image;s can be
-  distributed only if accompanied with the non-&clisp; &fasl-file; files
-  which make up the &mem-image;, and a &make-file; for rebuilding the
-  &mem-image;.</simpara></listitem>
- <listitem><simpara>If you need to distribute a modified &clisp;
-  executable (for example, incorporating additional &module;s written
-  in &c-lang;), you must distribute its full source under &gnu; &gpl;.
-  If you are not satisfied with this, you can instead put the additional
-  &module;s into a separate (non-&clisp;) program, with which your Lisp
-  program will communicate via &socket-stream;s.</simpara></listitem>
-</itemizedlist></para>
-
-</section>
-
 <section id="shell"><title>Shell, Pipes and Printing</title>
 
 <section id="exec"><title>Shell</title>
