@@ -1,3 +1,10 @@
+2005-09-16  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/configure.in (XGetAtomNames): fixed the test
+	use CL_FIND_X instead of AC_PATH_XTRA
+	* modules/clx/new-clx/link.sh, modules/clx/new-clx/Makefile.in:
+	updated for to use CL_FIND_X instead of AC_PATH_XTRA
+
 2005-09-15  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d: use puts() instead of printf() when possible
