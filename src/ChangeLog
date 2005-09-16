@@ -1,5 +1,16 @@
 2005-09-16  Sam Steingold  <sds@gnu.org>
 
+	removed the implicit assumption that struct sockaddr consists
+	of 2 slots sa_family and sa_data with no padding - fixes BSD
+	* modules/rawsock/rawsock.c (my_check_argument): use GETTEXT
+	(SOCKADDR-FAMILY-SIZE): removed
+	(SOCKADDR-SLOT): new function, replaces SOCKADDR-FAMILY-SIZE;
+	not exported
+	* modules/rawsock/sock.lisp (sockaddr-data): use SOCKADDR-SLOT;
+	use EXPORTING:DEFIN, export SOCKADDR-P and MSGHDR-P
+
+2005-09-16  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (check_ut_type):
 	added RUN-LVL and ACCOUNTING
 

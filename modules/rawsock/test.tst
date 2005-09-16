@@ -3,18 +3,17 @@
 ;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "rawsock/test")'
 ;; relies on some functions in the syscalls module
 
-(multiple-value-bind (family total) (rawsock:sockaddr-family-size)
-  (show (list 'rawsock:sockaddr-family-size family total))
+(progn
   (defun to-bytes (string) (ext:convert-string-to-bytes string charset:ascii))
   (defun from-bytes (vec &optional size)
     (ext:convert-string-from-bytes vec charset:ascii :end size))
   (defun host->sa (host &optional (port 0))
-    ;; note that sockaddr must be of TOTAL size!
     (let* ((he (posix:resolve-host-ipaddr host)) sa
            (ip (first (posix:hostent-addr-list he)))
            (li (read-from-string
                 (concatenate 'string "(" (substitute #\Space #\. ip) ")")))
-           (ve (make-array (- total family) :element-type '(unsigned-byte 8)
+           (ve (make-array (nth-value 1 (rawsock::sockaddr-slot :data))
+                           :element-type '(unsigned-byte 8)
                            :initial-element 0)))
       (show he)
       (setf port (rawsock:htons port)
@@ -35,6 +34,9 @@
       (and (= (rawsock:sockaddr-family sa) (rawsock:sockaddr-family sa-local))
            (equalp (subseq data 2)
                    (subseq (rawsock:sockaddr-data sa-local) 2)))))
+  (dolist (what '(nil :data :family))
+    (show (cons (list 'rawsock::sockaddr-slot what)
+                (multiple-value-list (rawsock::sockaddr-slot what)))))
   (defvar *sa-remote*) (defvar *sa-local*)
   (defvar *buffer* (make-array 1024 :element-type '(unsigned-byte 8)))
   (defvar *sock*) (defvar *sock1*) (defvar *sock2*)
