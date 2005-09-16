@@ -7,16 +7,16 @@
 (defpackage #:rawsock
   (:documentation "Raw Socket access")
   (:use #:lisp)
+  (:shadowing-import-from "EXPORTING" #:defun)
   (:shadow #:listen)            ; an ANSI CL symbol
-  (:export #:buffer #:open-unix-socket #:open-unix-socket-stream
-           #:accept #:bind #:connect
+  (:export #:buffer #:accept #:bind #:connect
            #:getpeername #:getsockname
            #:listen #:recv #:recvfrom #:recvmsg
            #:send #:sendmsg #:sendto #:socket-option
            #:socket #:socketpair #:sockatmark
            #:sock-read #:sock-write #:sock-close
-           #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-data
-           #:sockaddr-family-size #:msghdr #:make-msghdr
+           #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-p
+           #:msghdr #:msghdr-p #:make-msghdr
            #:htonl #:htons #:ntohl #:ntohs #:convert-address
            #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum))
 
@@ -33,8 +33,7 @@
 
 (defsetf socket-option (&rest args) (value) `(set-socket-option ,value ,@args))
 
-(defconstant sockaddr-family-size (sockaddr-family-size))
-(defun sockaddr-data (sa) (subseq (sockaddr-%data sa) sockaddr-family-size))
+(defun sockaddr-data (sa) (subseq (sockaddr-%data sa) #,(sockaddr-slot :data)))
 
 (defun open-unix-socket (pathname &optional (type :SOCK_STREAM))
   "Return the socket (fixnum) pointing to this UNIX socket special device."

@@ -28,6 +28,7 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <string.h>            /* for memcpy(3) */
+# include <stddef.h>            /* for offsetof */
 #endif
 #if defined(HAVE_SYS_SOCKET_H)
 # include <sys/socket.h>
@@ -77,7 +78,7 @@ DEFMODULE(rawsock,"RAWSOCK")
 static object my_check_argument (object name, object datum) {
   pushSTACK(NIL);               /* no PLACE */
   pushSTACK(name); pushSTACK(datum); pushSTACK(TheSubr(subr_self)->name);
-  check_value(error,"~S: ~S is not a valid ~S argument");
+  check_value(error,GETTEXT("~S: ~S is not a valid ~S argument"));
   return value1;
 }
 /* can trigger GC */
@@ -118,9 +119,30 @@ DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size);
   VALUES2(fixnum(sa->sa_family),fixnum(size));
 }
-DEFUN(RAWSOCK:SOCKADDR-FAMILY-SIZE,) {
-  struct sockaddr sa;
-  VALUES2(fixnum(sizeof(sa.sa_family)),fixnum(sizeof(struct sockaddr)));
+DEFUN(RAWSOCK:SOCKADDR-SLOT,&optional slot) {
+  /* return offset & size of the slo in SOCKADDR */
+ restart_sockaddr_slot:
+  if (missingp(STACK_0)) {
+    VALUES1(fixnum(sizeof(struct sockaddr)));
+  } else if (eq(STACK_0,`:FAMILY`)) {
+    struct sockaddr sa;
+    VALUES2(fixnum(offsetof(struct sockaddr,sa_family)),
+            fixnum(sizeof(sa.sa_family)));
+  } else if (eq(STACK_0,`:DATA`)) {
+    struct sockaddr sa;
+    VALUES2(fixnum(offsetof(struct sockaddr,sa_data)),
+            fixnum(sizeof(sa.sa_data)));
+  } else {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(STACK_1);         /* TYPE-ERROR slot DATUM */
+    pushSTACK(`(MEMBER :FAMILY :DATA)`); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(`SOCKADDR`); pushSTACK(STACK_2);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: unknown slot ~S for ~S"));
+    STACK_0 = value1;
+    goto restart_sockaddr_slot;
+  }
+  skipSTACK(1);
 }
 
 /* can trigger GC */
