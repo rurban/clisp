@@ -422,8 +422,8 @@ DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT ELEMENT-TY
 
 /* ================= user accounting database functions ================= */
 #if defined(HAVE_UTMPX_H)
-DEFCHECKER(check_ut_type,default=,EMPTY BOOT-TIME OLD-TIME NEW-TIME \
-           USER-PROCESS INIT-PROCESS LOGIN-PROCESS DEAD-PROCESS)
+DEFCHECKER(check_ut_type,default=,EMPTY RUN-LVL BOOT-TIME OLD-TIME NEW-TIME \
+           USER-PROCESS INIT-PROCESS LOGIN-PROCESS DEAD-PROCESS ACCOUNTING)
 /* convert C struct utmpx to Lisp
  can trigger GC */
 static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
