@@ -79,11 +79,11 @@ The input file is normal C code, modified like this:
       if (a == c_name_table[index].c_const)
         return *c_name_table[index].l_const;
     if (a == default) return NIL;
-    NOTREACHED; /* or "return reverse(a);" if reverse is supplied */
+    ERROR; /* or "return reverse(a);" if reverse is supplied */
   }
  enum means no #ifdef
  prefix, suffix default to ""
- reverse defaults to "" and means NOTREACHED
+ reverse defaults to "" and means ERROR
  bitmasks means additional *_to_list and *_from_list functions are defined
  delim defaults to "_" and separates prefix and suffix
 
@@ -1061,17 +1061,37 @@ commas and parentheses."
             (formatln out "  }")
             (formatln out "}")
             (formatln out "static object ~A_reverse (~A a) {" c-name c-type)
-            (formatln out "  unsigned int index = 0;")
-            (formatln out "  for (; index < ~A_table_size; index++)" c-name)
+            (formatln out "  unsigned int index;")
+            (formatln out " ~A_reverse_restart:" c-name)
+            (formatln out "  for (index=0; index < ~A_table_size; index++)"
+                      c-name)
             (formatln out "    if (a == ~A_table[index].c_const)" c-name)
             (formatln out "      return *~A_table[index].l_const;" c-name)
             (when need-default
               (unless enum-p (formatln out " #ifdef ~A" default))
               (formatln out "  if (a == ~A) return NIL;" default)
               (unless enum-p (formatln out " #endif")))
-            (if (stringp reverse)
-                (formatln out "  return ~A(a);" reverse)
-                (formatln out "  NOTREACHED;"))
+            (cond ((stringp reverse)
+                   (formatln out "  return ~A(a);" reverse))
+                  (t (formatln out "  pushSTACK(L_to_I(a));/*DATUM*/")
+                     (formatln out "  for (index=0; index < ~A_table_size; index++)" c-name)
+                     (formatln out "    pushSTACK(L_to_I(~A_table[index].c_const));" c-name)
+                     (formatln out "  pushSTACK(S(member));")
+                     (formatln out "  { object tmp=listof(~A_table_size+1);"
+                               c-name)
+                     (formatln out "    pushSTACK(tmp); }/*EXPECTED-TYPE*/")
+                     (formatln out "  for (index=0; index < ~A_table_size; index++) {" c-name)
+                     (formatln out "    pushSTACK(L_to_I(~A_table[index].c_const));" c-name)
+                     (formatln out "    pushSTACK(*~A_table[index].l_const);"
+                               c-name)
+                     (formatln out "    { object tmp=listof(2); pushSTACK(tmp); }")
+                     (formatln out "  }")
+                     (formatln out "  { object tmp=listof(~A_table_size); pushSTACK(tmp); }" c-name)
+                     (formatln out "  pushSTACK(STACK_2);/*a*/")
+                     (formatln out "  pushSTACK(TheSubr(subr_self)->name);")
+                     (formatln out "  check_value(type_error,GETTEXT(\"~~S: ~A_reverse(~~S): unknown C value, known values: ~~S\"));" c-name)
+                     (formatln out "  a = I_to_L(check_slong(value1));")
+                     (formatln out "  goto ~A_reverse_restart;" c-name)))
             (formatln out "}")
             (when bitmasks
               (formatln out "static object ~A_to_list (~A a) {" c-name c-type)
