@@ -156,16 +156,17 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   int family = check_socket_domain(STACK_1);
   struct sockaddr sa;
   unsigned char *buffer;
-  size_t buffer_len;
+  size_t buffer_len, data_start = offsetof(struct sockaddr,sa_data);
   STACK_0 = check_buffer_arg(STACK_0);
   buffer_len = Sbvector_length(STACK_0);
-  pushSTACK(allocate_bit_vector(Atype_8Bit,sizeof(sa.sa_family)+buffer_len));
+  pushSTACK(allocate_bit_vector(Atype_8Bit,data_start + buffer_len));
   buffer = (unsigned char *)TheSbvector(STACK_0)->data;
-  ((struct sockaddr*)buffer)->sa_family = family;
   begin_system_call();
+  memset(buffer,0,data_start + buffer_len);
   memcpy(((struct sockaddr*)buffer)->sa_data,TheSbvector(STACK_1)->data,
          buffer_len);
   end_system_call();
+  ((struct sockaddr*)buffer)->sa_family = family;
   funcall(`RAWSOCK::MAKE-SA`,1);
   skipSTACK(2);
 }
@@ -504,7 +505,7 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
   buffer = (void*)TheSbvector(STACK_1)->data;
   buffer_len = Sbvector_length(STACK_1);
   SYSCALL(retval,sock,sendto(sock,(const BUF_TYPE_T)buffer,
-                             buffer_len,flags,sa,sizeof(struct sockaddr)));
+                             buffer_len,flags,sa,size));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
