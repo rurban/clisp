@@ -18,7 +18,7 @@
 	(SOCKADDR-SLOT): new function, replaces SOCKADDR-FAMILY-SIZE;
 	not exported
 	* modules/rawsock/sock.lisp (sockaddr-data): use SOCKADDR-SLOT;
-	use EXPORTING:DEFIN, export SOCKADDR-P and MSGHDR-P
+	use EXPORTING:DEFUN, export SOCKADDR-P and MSGHDR-P
 
 2005-09-16  Sam Steingold  <sds@gnu.org>
 
