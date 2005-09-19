@@ -48,11 +48,42 @@
 (def-call-out GetCurrentProcessId (:library kernel32)
   (:arguments) (:return-type dword))
 
+(def-call-out GetProcessVersion (:library kernel32)
+  (:arguments (pid dword)) (:return-type dword))
+
+;;; longhorn
+;; (def-call-out GetProcessId (:library kernel32)
+;;   (:arguments (hProcess handle)) (:return-type dword))
+
 (def-call-out GetCurrentThreadId (:library kernel32)
   (:arguments) (:return-type dword))
 
+;;; longhorn
+;; (def-call-out GetProcessIdOfThread (:library kernel32)
+;;   (:arguments (hThread handle)) (:return-type dword))
+
+;;; longhorn
+;; (def-call-out GetThreadId (:library kernel32)
+;;   (:arguments (hThread handle)) (:return-type dword))
+
+(def-call-out GetThreadPriority (:library kernel32)
+  (:arguments (hThread handle)) (:return-type int))
+
+(def-call-out GetThreadPriorityBoost (:library kernel32)
+  (:arguments (hThread handle) (no-boost (c-ptr boolean) :out))
+  (:return-type boolean))
+
+(def-call-out GetProcessPriorityBoost (:library kernel32)
+  (:arguments (hProcess handle) (no-boost (c-ptr boolean) :out))
+  (:return-type boolean))
+
 (def-call-out CloseHandle (:library kernel32)
   (:arguments (handle handle)) (:return-type boolean))
+
+(defmacro with-handle ((handle form) &body forms)
+  `(let ((,handle ,form))
+     (unwind-protect (progn ,@forms)
+       (when ,handle (CloseHandle ,handle)))))
 
 ;; (c-lines "#include <winnt.h>~%")
 (eval-when (compile eval load)
