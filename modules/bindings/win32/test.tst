@@ -9,16 +9,53 @@
 (integerp (show (win32:GetCurrentProcessId))) T
 (integerp (show (win32:GetCurrentThreadId))) T
 
-(let ((handle (win32:GetModuleHandleA "kernel32")))
-  (unwind-protect (show-mv (win32:GetModuleFileNameA handle win32:MAX_PATH))
-    (win32:CloseHandle handle)))
+(let ((version (win32:GetProcessVersion 0)))
+  (listp (show (list (ldb (byte 16 0) version)
+                     (ldb (byte 16 16) version)))))
+T
+
+;;; longhorn
+;; (win32:with-handle (thread (win32:GetCurrentThread))
+;;   (= (win32:GetProcessIdOfThread thread)
+;;      (win32:GetCurrentProcessId)))
+;; T
+
+;;; longhorn
+;; (win32:with-handle (thread (win32:GetCurrentThread))
+;;   (= (win32:GetThreadId thread)
+;;      (win32:GetCurrentThreadId)))
+;; T
+
+;;; longhorn
+;; (win32:with-handle (process (win32:GetCurrentProcess))
+;;   (= (win32:GetProcessId process)
+;;      (win32:GetCurrentProcessId)))
+;; T
+
+(win32:with-handle (thread (win32:GetCurrentThread))
+  (show-mv (win32:GetThreadPriority thread)))
+T
+
+(win32:with-handle (thread (win32:GetCurrentThread))
+  (show-mv (win32:GetThreadPriorityBoost thread)))
+T
+
+(win32:with-handle (process (win32:GetCurrentProcess))
+  (show-mv (win32:GetProcessPriorityBoost process)))
+T
+
+(win32:with-handle (handle (win32:GetModuleHandleA "kernel32"))
+  (show-mv (win32:GetModuleFileNameA handle win32:MAX_PATH)))
 T
 
 (show-mv (win32:GetConsoleTitleA win32:BUFSIZ)) T
 (show-mv (win32:GetSystemDirectoryA win32:MAX_PATH)) T
 (show-mv (win32:GetWindowsDirectoryA win32:MAX_PATH)) T
 (show-mv (win32:GetCurrentDirectoryA win32:MAX_PATH)) T
-(integerp (show (win32:GetVersion))) T
+(let ((version (win32:GetVersion)))
+  (listp (show (list (ldb (byte 16 0) version)
+                     (ldb (byte 16 16) version)))))
+T
 (show-mv (win32:GetUserNameA win32:UNLEN)) T
 (show-mv (win32:GetComputerNameA win32:MAX_COMPUTERNAME_LENGTH)) T
 
