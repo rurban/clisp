@@ -1,3 +1,9 @@
+2005-09-19  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c (MAKE-SOCKADDR): do not make
+	unwarranted assumptions about struct sockaddr structure
+	(SENDTO): pass size to sendto()
+
 2005-09-17  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (print-tables-1): do not use NOTREACHED,
