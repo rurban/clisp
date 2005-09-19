@@ -1710,25 +1710,17 @@ can give problems:
 <section id="num-dict"><title>The Numbers Dictionary
    <ulink url="&clhs;/Body/sec_the_numbers_dictionary.html">[CLHS-12.2]</ulink></title>
 
-<formalpara id="ucpt"><title>Function &upgraded-complex-part-type;</title>
-<para>When the argument is not a &recog-subt; or &real-t;,
- &upgraded-complex-part-type; &signal;s an &error-t;, otherwise it
- returns its argument (even though a &complex-t; number in &clisp; can
- always have &realpart; and &imagpart; of any type) because it allows
- the most precise type inference.</para></formalpara>
-
-<formalpara id="default-float-format">
- <title>Variable &default-float-format;</title>
-<para>When rational numbers are to be converted to floats (due to
- &float;, &coerce;, &sqrt; or a transcendental function), the result
- type is given by the variable &default-float-format;.</para></formalpara>
-
-<formalpara id="no-underflow"><title>Macro &no-underflow;</title>
-<para>The macro <code>(&no-underflow; {&form-r;}*)</code> executes the
- &form-r;s, with errors of type &floating-point-underflow-t; inhibited.
- Floating point operations will silently return zero instead of
- &signal;ing an &error-t; of type &floating-point-underflow-t;.
-</para></formalpara>
+<section id="random-state"><title>Random Numbers</title>
+<para>To ease reproducibility, the variable &random-state-var; is
+ initialized to the same value on each invocation, so that <screen>
+<prompt>$</prompt> clisp -q -norc &opt-x; '(&random; 1s0)'
+</screen> will always print the same number.</para>
+<para>If you want a new random state on each invocation, you can arrange
+ for that by using &init-function;: <screen>
+<prompt>$</prompt> clisp -norc &opt-x; '(saveinitmem "foo" :init-function (&lambda-m; () (&setq; &random-state-var; (&make-random-state; &t;))))'
+<prompt>$</prompt> clisp -q -norc &opt-M; foo.mem &opt-x; '(&random; 1s0)'
+</screen> or by placing <code>(&setq; &random-state-var;
+  (&make-random-state; &t;))</code> into your &RC-file;.</para></section>
 
 <section id="int-func-ext"><title>Additional Integer Functions</title>
 
@@ -1758,20 +1750,9 @@ can give problems:
  is equivalent to <code>(&mod; (&expt; &k-r; &l-r;) &m-r;)</code>
  except it is more efficient for very large arguments.</para></formalpara>
 
-<simplesect id="random-state"><title>Variable &random-state-var;</title>
-<para>To ease reproducibility, the variable &random-state-var; is
- initialized to the same value on each invocation, so that <screen>
-<prompt>$</prompt> clisp -q -norc &opt-x; '(&random; 1s0)'
-</screen> will always print the same number.</para>
-<para>If you want a new random state on each invocation, you can arrange
- for that by using &init-function;: <screen>
-<prompt>$</prompt> clisp -norc &opt-x; '(saveinitmem "foo" :init-function (&lambda-m; () (&setq; &random-state-var; (&make-random-state; &t;))))'
-</screen> or by placing <code>(&setq; &random-state-var;
-  (&make-random-state; &t;))</code> into your &RC-file;.</para></simplesect>
-
 </section>
 
-<section id="float-notes"><title>Floating Point</title>
+<section id="float-notes"><title>Floating Point Arithmetics</title>
 
 <formalpara id="expt"><title>Function &expt;</title>
 <para><code>(&expt; &base-r; <replaceable>exponent</replaceable>)</code>
@@ -1787,6 +1768,34 @@ can give problems:
   by &lfd-l;.  When this precision is changed, the value of &pi-v; is
   automatically recomputed.  Therefore &pi-v; is &not-e; a &constant;.
 </para></formalpara>
+
+<formalpara id="ucpt"><title>Function &upgraded-complex-part-type;</title>
+<para>When the argument is not a &recog-subt; or &real-t;,
+ &upgraded-complex-part-type; &signal;s an &error-t;, otherwise it
+ returns its argument (even though a &complex-t; number in &clisp; can
+ always have &realpart; and &imagpart; of any type) because it allows
+ the most precise type inference.</para></formalpara>
+
+<formalpara id="default-float-format">
+ <title>Variable &default-float-format;</title>
+<para>When rational numbers are to be converted to floats (due to
+ &float;, &coerce;, &sqrt; or a transcendental function), the result
+ type is given by the variable &default-float-format;.</para></formalpara>
+
+<formalpara id="no-underflow"><title>Macro &no-underflow;</title>
+<para>The macro <code>(&no-underflow; {&form-r;}*)</code> executes the
+ &form-r;s, with errors of type &floating-point-underflow-t; inhibited.
+ Floating point operations will silently return zero instead of
+ &signal;ing an &error-t; of type &floating-point-underflow-t;.
+</para></formalpara>
+
+<formalpara id="float-invalid-op">
+ <title>Condition &floating-point-invalid-operation-t;</title>
+<para>This &condition-t; is never &signal;ed by &clisp;.</para></formalpara>
+
+<formalpara id="float-inexact">
+ <title>Condition &floating-point-inexact-t;</title>
+<para>This &condition-t; is never &signal;ed by &clisp;.</para></formalpara>
 
 </section>
 
@@ -1869,15 +1878,6 @@ can give problems:
 
 </section>
 
-<section id="float-invalid-op">
-  <title>Condition &floating-point-invalid-operation-t;</title>
-<para>This &condition-t; is never &signal;ed by &clisp;.</para>
-</section>
-
-<section id="float-inexact">
-  <title>Condition &floating-point-inexact-t;</title>
-<para>This &condition-t; is never &signal;ed by &clisp;.</para>
-</section>
 </section>
 </chapter>
 
