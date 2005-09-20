@@ -4370,7 +4370,7 @@ warning, you need to fix the source code of the incriminated method.</para>
   <entry>should not occur</entry></row>
 </tbody></tgroup></table></para>
 
-<section id="chario"><title>characters</title>
+<section id="chario"><title>Characters</title>
 
 <para><keysym>#\Code</keysym> allows input of characters of arbitrary code:
  e.g., <keysym>#\Code231</keysym> reads as the character
@@ -4680,17 +4680,18 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <!-- #ifdef UNICODE -->
 <varlistentry><term><constant>:UNICODE</constant></term>
  <listitem><simpara>if &unicode; (ISO 10646) characters are supported
-   (see &charset-pac;)</simpara></listitem></varlistentry>
+   (see <xref linkend="encoding"/>)</simpara></listitem></varlistentry>
 <!-- #endif -->
 <varlistentry><term><constant>:LOOP</constant></term>
- <listitem><simpara>&loop; is implemented</simpara></listitem></varlistentry>
+ <listitem><simpara><quote>extended</quote> &loop; form is implemented
+</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:CLOS</constant></term>
  <listitem><simpara>&clos; is implemented</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:MOP</constant></term>
  <listitem><simpara>&mop; is implemented</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:WIN32</constant></term>
  <listitem><simpara>if &hw; = PC (clone) and &os; = &win32;
-  (Windows 95/98/NT/Me/2000/XP)</simpara></listitem></varlistentry>
+  (Windows 95/98/Me/NT/2000/XP)</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:PC386</constant></term>
  <listitem><simpara>if &hw; = PC (clone).  It can be used as an
    indicator for the mainstream hardware characteristics (such as the
@@ -4734,7 +4735,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   <ulink url="&clrfi;/clrfi-2-compiled-file-p">[CLRFI-2]</ulink></title>
 <para><code>(EXT:COMPILED-FILE-P &filename-r;)</code> returns non-&nil;
  when the file &filename-r; exists, is readable, and appears to be a
- &clisp;-compiled &fasl-file; compatible with the currently used
+ &clisp;-compiled &fasl-file; file compatible with the currently used
  &bytecode; format.</para>
 <para>System definition facilities (such as &asdf; or &defsystem;) can
  use it to determine whether the file needs to be recompiled.</para>
@@ -5276,8 +5277,8 @@ exhaust the available line length.</para></formalpara>
  enabled, a warning is printed, and the new dribbling request is
  ignored.</para>
 
-<para>Dribbling is implemented via a kind (but &not-e; &recog-subt;) of
- &two-way-stream-t;, named &ds-t;.
+<para>Dribbling is implemented via a kind (but &not-e; a &recog-subt;)
+ of &two-way-stream-t;, named &ds-t;.
  If you have a &source-r; &bidi-s; &x-r; and you want all transactions
  (input and output) on &x-r; to be copied to the &target-r; &out-s; &y-r;,
  you can do <programlisting id="dribble-example" language="lisp">
