@@ -247,7 +247,7 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
   object stream;                /* for error reporting */
   Handle fd = stream_get_handle(&STACK_2);
   int value;
-  if (boundp(STACK_0)) {
+  if (boundp(STACK_0)) {        /* SET */
     switch (cmd) {
       case F_GETFD: value = check_fd_flags_from_list(STACK_0);
         cmd = F_SETFD; break;
@@ -259,7 +259,7 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
     if (-1 == fcntl(fd,cmd,value)) error_OS_stream(STACK_2);
     end_system_call();
     VALUES0;
-  } else {
+  } else {                      /* GET */
     begin_system_call();
     if (-1 == (value = fcntl(fd,cmd))) error_OS_stream(STACK_2);
     end_system_call();
