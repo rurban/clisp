@@ -15,11 +15,8 @@
    #:getpgid #:setpgrp #:getsid #:setsid #:setpgid #:kill #:sync
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma))
 
-(setf (package-lock "EXT") nil)
-(use-package '("POSIX") "EXT")
-(ext:re-export "POSIX" "EXT")
 (pushnew :syscalls *features*)
-(in-package "POSIX")
+(in-package #:posix)
 
 ;;; ============================================================
 #+unix (progn
@@ -277,6 +274,10 @@
         (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
     xio))
 
-;;; restore locks
+;;;--------------------------------------------------------------------------
+(setf (package-lock "EXT") nil)
+(use-package '("POSIX") "EXT")
+(without-package-lock ("SYS") (shadow '("VERSION") "SYS"))
+(ext:re-export "POSIX" "EXT")
 (pushnew "POSIX" custom:*system-package-list* :test #'string=)
 (setf (package-lock custom:*system-package-list*) t)
