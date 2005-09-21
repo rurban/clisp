@@ -102,6 +102,14 @@
   "Print the object on its own line and return it. Used in many tests!"
   (fresh-line) (prin1 object) (terpri) object)
 
+(defun type-error-handler (err)
+  "Print the condition and THROW.
+Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
+  (princ-error err)
+  (let ((da (type-error-datum err)) (et (type-error-expected-type err)))
+    (show (list :datum da :expected-type et) :pretty t)
+    (throw 'type-error-handler (typep da et))))
+
 (defvar *test-ignore-errors* t)
 (defun do-test (stream log)
   (let ((eof "EOF") (error-count 0) (total-count 0))
