@@ -1,3 +1,7 @@
+2005-09-21  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (type-error-handler): new function
+
 2005-09-06  Sam Steingold  <sds@gnu.org>
 
 	* iofkts.tst: check that WRITE-TO-STRING binds variables for
