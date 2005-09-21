@@ -1,7 +1,24 @@
 User visible changes
 --------------------
 
+* Infrastructure:
+  + Top-level configure now accepts the option --enable-maintainer-mode
+    that affects autoconf-related Makefile targets.  The default value
+    is determined based on the presence of the CVS directories.
+  + When libsigsegv is not found, print instructions on getting/building
+    libsigsegv and bail out; override with --ignore-absence-of-libsigsegv.
+  + When --with-dynamic-ffi is supplied, but the FFI fails to build, abort.
+  + makemake no longer checks with_module_* variables.
+
 * Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled code.
+
+* Fixed re-exporting symbols from POSIX to EXT.
+
+* Fixed module rawsock on platforms with non-trivial struct sockaddr layout.
+
+* Fixed module postgresql logging behavior.
+
+* Fixed clisp.h generation to conform to the internal definitions.
 
 
 2.35 (2005-08-29)
