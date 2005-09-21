@@ -1,5 +1,5 @@
 ;;; Utilities for function objects
-;;; Sam Steingold 2001-2004
+;;; Sam Steingold 2001-2005
 ;;; Bruno Haible 2004
 
 (in-package "COMMON-LISP")
@@ -27,7 +27,9 @@
          (values nil nil (sys::subr-info obj)))
         ((sys::%compiled-function-p obj) ; compiled closure?
          (let* ((name (sys::closure-name obj))
-                (def (get name 'sys::definition)))
+                (def (get (if (symbolp name)
+                              name (get (second name) 'sys::setf-function))
+                          'sys::definition)))
            (values (when def (cons 'LAMBDA (cddar def))) t name)))
         ((sys::closurep obj) ; interpreted closure?
          (values (cons 'LAMBDA (sys::%record-ref obj 1)) ; lambda-expression without docstring
