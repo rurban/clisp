@@ -1,3 +1,7 @@
+2005-09-21  Sam Steingold  <sds@gnu.org>
+
+	* misc.d (map_lisp_to_c, map_c_to_lisp): fixed EXPECTED-TYPE
+
 2005-09-20  Sam Steingold  <sds@gnu.org>
 
 	instead of DEFCHECKER creating a bunch of undebuggable identical

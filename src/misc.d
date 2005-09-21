@@ -698,16 +698,18 @@ global maygc long map_lisp_to_c (object obj, const c_lisp_map_t *map) {
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     /* TYPE-ERROR slot EXPECTED-TYPE : (member [nil] l_const ...)
        or (or integer (member [nil] l_const ...)) */
+    pushSTACK(S(member));
+    if (map->have_default_value_p) pushSTACK(NIL);
     for (index = 0; index < map->size; index++)
       pushSTACK(*(map->table[index].l_const));
-    if (map->have_default_value_p) pushSTACK(NIL);
-    pushSTACK(S(member));
     var object tmp=listof(map->size+1+(map->have_default_value_p?1:0));
     pushSTACK(tmp);
     if (map->use_default_function_p) {
-      pushSTACK(S(integer));
       pushSTACK(S(or));
-      var object tmp=listof(2); pushSTACK(tmp);
+      pushSTACK(S(integer));
+      pushSTACK(STACK_2);       /* (member [nil] l_const ...) */
+      var object tmp=listof(3);
+      STACK_0 = tmp; /* replace (member ...) with (or integer (member ...)) */
     }
     pushSTACK(map_to_alist(map));
     pushSTACK(asciz_to_string(map->name,O(misc_encoding)));
@@ -731,9 +733,9 @@ global maygc object map_c_to_lisp (long val, const c_lisp_map_t *map) {
   if (map->use_default_function_p) return L_to_I(val);
   pushSTACK(NIL);                   /* no PLACE */
   pushSTACK(L_to_I(val));           /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(member));
   for (index=0; index < map->size; index++)
     pushSTACK(L_to_I(map->table[index].c_const));
-  pushSTACK(S(member));
   var object tmp=listof(map->size+1);
   pushSTACK(tmp);               /*TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(map_to_alist(map));
