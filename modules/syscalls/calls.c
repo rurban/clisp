@@ -872,15 +872,15 @@ DEFUN(POSIX::SYSCONF, &optional what)
     VALUES1(L_to_I(res));
   } else { /* all possible values */
     int pos = 0;
-    for (; pos < sysconf_arg_table_size; pos++) {
+    for (; pos < sysconf_arg_map.size; pos++) {
       int res;
       begin_system_call();
-      res = sysconf(sysconf_arg_table[pos].c_const);
+      res = sysconf(sysconf_arg_map.table[pos].c_const);
       end_system_call();
-      pushSTACK(*sysconf_arg_table[pos].l_const);
+      pushSTACK(*sysconf_arg_map.table[pos].l_const);
       pushSTACK(L_to_I(res));
     }
-    VALUES1(listof(2*sysconf_arg_table_size));
+    VALUES1(listof(2*sysconf_arg_map.size));
   }
 }
 #endif /* HAVE_SYSCONF */
@@ -929,12 +929,12 @@ DEFUN(POSIX::CONFSTR, &optional what)
     CS_S(cmd); mv_count = 1;
   } else { /* all possible values */
     unsigned int pos = 0;
-    for (; pos < confstr_arg_table_size; pos++) {
-      CS_S(confstr_arg_table[pos].c_const);
-      pushSTACK(*confstr_arg_table[pos].l_const);
+    for (; pos < confstr_arg_map.size; pos++) {
+      CS_S(confstr_arg_map.table[pos].c_const);
+      pushSTACK(*confstr_arg_map.table[pos].l_const);
       pushSTACK(value1);
     }
-    VALUES1(listof(2*confstr_arg_table_size));
+    VALUES1(listof(2*confstr_arg_map.size));
   }
 }
 #endif /* HAVE_CONFSTR */
@@ -1010,12 +1010,12 @@ DEFUN(POSIX::RLIMIT, &optional what)
     funcall(L(values),2);
   } else {
     unsigned int pos;
-    for (pos = 0; pos < getrlimit_arg_table_size; pos++) {
-      pushSTACK(*getrlimit_arg_table[pos].l_const);
-      RLIM(getrlimit_arg_table[pos].c_const);
+    for (pos = 0; pos < getrlimit_arg_map.size; pos++) {
+      pushSTACK(*getrlimit_arg_map.table[pos].l_const);
+      RLIM(getrlimit_arg_map.table[pos].c_const);
       funcall(`POSIX::MAKE-RLIMIT`,2); pushSTACK(value1);
     }
-    VALUES1(listof(2*getrlimit_arg_table_size));
+    VALUES1(listof(2*getrlimit_arg_map.size));
   }
 #undef RLIM
 }
@@ -1238,10 +1238,6 @@ static int stat_obj (object path, struct stat *buf) {
 # if !defined(HAVE_LSTAT)
 #  define lstat stat
 # endif
-static object check_chmod_mode_to_list (mode_t mode);
-#if defined(WIN32_NATIVE)
-static object check_file_attributes_to_list (DWORD attr);
-#endif
 DEFUN(POSIX::FILE-STAT, file &optional linkp)
 { /* Lisp interface to stat(2), lstat(2) and fstat(2)
  the first arg can be a pathname designator or a file descriptor designator
@@ -1394,7 +1390,6 @@ static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
   begin_system_call();
 #endif
 }
-static mode_t check_chmod_mode_parse (object mode_arg); /* see below */
 DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 { /* interface to chmod(2), chown(2), utime(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
@@ -1406,9 +1401,9 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
                : I_to_uint32(check_uint32(popSTACK())));
   mode_t mode = (missingp(STACK_0) ? skipSTACK(1), (mode_t)-1
 #               if defined(WIN32_NATIVE)
-                 : (mode_t)check_file_attributes_parse(popSTACK())
+                 : (mode_t)check_file_attributes_from_list(popSTACK())
 #               else
-                 : check_chmod_mode_parse(popSTACK())
+                 : check_chmod_mode_from_list(popSTACK())
 #               endif
                  );
   struct utimbuf utb;
@@ -1456,18 +1451,16 @@ DEFCHECKER(check_chmod_mode, type=mode_t, reverse=UL_to_I,      \
            WGRP XGRP RWXO ROTH WOTH XOTH)
 DEFUN(POSIX::CONVERT-MODE, mode)
 { /* convert between symbolic and numeric permissions */
-  if (integerp(STACK_0))
-    VALUES1(check_chmod_mode_to_list(I_to_uint32(check_uint32(popSTACK()))));
-  else if (listp(STACK_0))
-    VALUES1(uint32_to_I(check_chmod_mode_from_list(popSTACK())));
-  else VALUES1(uint32_to_I(check_chmod_mode(popSTACK())));
+  VALUES1(integerp(STACK_0)
+          ? check_chmod_mode_to_list(I_to_uint32(check_uint32(popSTACK())))
+          : uint32_to_I(check_chmod_mode_from_list(popSTACK())));
 }
 
 #if defined(HAVE_UMASK)
 DEFUN(POSIX::UMASK, cmask)
 { /* lisp interface to umask(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/umask.html */
-  mode_t cmask = check_chmod_mode_parse(popSTACK());
+  mode_t cmask = check_chmod_mode_from_list(popSTACK());
   begin_system_call();
   cmask = umask(cmask);
   end_system_call();
@@ -1495,7 +1488,7 @@ DEFCHECKER(mknod_type_check,prefix=S_I,delim=,default=, \
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
-  mode_t mode = check_chmod_mode_parse(popSTACK());
+  mode_t mode = check_chmod_mode_from_list(popSTACK());
 #if defined(HAVE_MKNOD)
   mode |= mknod_type_check(popSTACK());
 #else

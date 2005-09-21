@@ -540,7 +540,8 @@ DEFUN(BDB:DBE-OPEN, dbe &key :HOME :FLAGS :JOINENV :INIT-CDB :INIT-LOCK    \
       :USE-ENVIRON-ROOT :CREATE :LOCKDOWN :PRIVATE :SYSTEM-MEM :THREAD :MODE)
 { /* open DB environment */
   int mode = check_uint_default0(popSTACK());
-  u_int32_t flags = dbe_open_flags() | check_dbe_open_flags_parse(popSTACK());
+  u_int32_t flags = dbe_open_flags()
+    | check_dbe_open_flags_from_list(popSTACK());
   DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,BH_VALID);
   if (!missingp(STACK_0)) {
     with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),home,
@@ -1488,7 +1489,7 @@ DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :FLAGS      \
       :AUTO-COMMIT :TRANSACTION)
 { /* Open a database */
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
-  u_int32_t flags = db_open_flags() | check_db_open_flags_parse(popSTACK());
+  u_int32_t flags = db_open_flags() | check_db_open_flags_from_list(popSTACK());
   int mode = check_uint_defaulted(popSTACK(),0644);
   DBTYPE db_type = check_dbtype(popSTACK());
   DB *db = (DB*)bdb_handle(STACK_2,`BDB::DB`,BH_VALID);

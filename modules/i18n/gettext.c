@@ -208,26 +208,26 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
   if (missingp(*category)) {
     int pos = 0;
     if (missingp(*locale)) {
-      for (; pos < check_locale_category_table_size; pos++) {
+      for (; pos < check_locale_category_map.size; pos++) {
         begin_system_call();
-        res = setlocale(check_locale_category_table[pos].c_const,NULL);
+        res = setlocale(check_locale_category_map.table[pos].c_const,NULL);
         end_system_call();
-        pushSTACK(*check_locale_category_table[pos].l_const);
+        pushSTACK(*check_locale_category_map.table[pos].l_const);
         pushSTACK(res ? asciz_to_string(res,GLO(misc_encoding)) : NIL);
       }
     } else {
       *locale = check_string(*locale);
       with_string_0(*locale,GLO(misc_encoding),loc_z,{
-          for (; pos < check_locale_category_table_size; pos++) {
+          for (; pos < check_locale_category_map.size; pos++) {
             begin_system_call();
-            res = setlocale(check_locale_category_table[pos].c_const,loc_z);
+            res = setlocale(check_locale_category_map.table[pos].c_const,loc_z);
             end_system_call();
-            pushSTACK(*check_locale_category_table[pos].l_const);
+            pushSTACK(*check_locale_category_map.table[pos].l_const);
             pushSTACK(res ? asciz_to_string(res,GLO(misc_encoding)) : NIL);
           }
         });
     }
-    VALUES1(listof(2*check_locale_category_table_size));
+    VALUES1(listof(2*check_locale_category_map.size));
   } else {
     int cat_value = check_locale_category(*category);
     if (missingp(*locale)) {
@@ -485,13 +485,13 @@ DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)
   if (missingp(what)) {         /* everything */
     int pos = 0;
     DECLARE_RES;
-    for (; pos < check_nl_item_table_size; pos++) {
-      get_lang_info(check_nl_item_table[pos].c_const);
-      pushSTACK(*check_nl_item_table[pos].l_const);
+    for (; pos < check_nl_item_map.size; pos++) {
+      get_lang_info(check_nl_item_map.table[pos].c_const);
+      pushSTACK(*check_nl_item_map.table[pos].l_const);
       pushSTACK(res_to_obj());
     }
     FINISH_RES;
-    VALUES1(listof(2*check_nl_item_table_size));
+    VALUES1(listof(2*check_nl_item_map.size));
   } else {
     int item = check_nl_item(what);
     DECLARE_RES;
