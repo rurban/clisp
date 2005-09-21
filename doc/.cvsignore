@@ -1,9 +1,10 @@
 html
+impnotes.fo
 impnotes.pdf
 impnotes.tex
 impnotes.texi
 impnotes.xml
-tidy.err
+*.err
 clisp.1
 clisp.html
 clisp.xml
