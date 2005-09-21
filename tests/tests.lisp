@@ -138,7 +138,7 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
                              form result lisp-implementation
                              my-result error-message)
                  (pretty-compare result my-result log)
-                 (format log "~[~:;OUT:~%~S~%~]~[~:;ERR:~%~S~]~2%"
+                 (format log "~[~*~:;OUT:~%~S~%~]~[~*~:;ERR:~%~S~]~2%"
                          (length out) out (length err) err))))))
     (values total-count error-count)))
 
@@ -189,7 +189,7 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
                    (incf error-count)
                    (format t "~&ERROR!! ~S instead of ~S !~%" my-result errtype)
                    (format log "~&Form: ~S~%CORRECT: ~S~%~7A: ~S~%~
-                                ~[~:;OUT:~%~S~%~]~[~:;ERR:~%~S~]~2%"
+                                ~[~*~:;OUT:~%~S~%~]~[~*~:;ERR:~%~S~]~2%"
                                form errtype lisp-implementation my-result
                                (length out) out (length err) err)))))))
     (values total-count error-count)))
