@@ -674,28 +674,30 @@ DEFUN(RAWSOCK:SOCKET-OPTION, sock name &key :LEVEL)
   stream_handles(popSTACK(),true,NULL,&sock,NULL);
   if (level == -1) {                      /* :ALL */
     int pos1;
-    for (pos1=1; pos1 < sockopt_level_table_size; pos1++) {
-      pushSTACK(*sockopt_level_table[pos1].l_const);
+    for (pos1=1; pos1 < sockopt_level_map.size; pos1++) {
+      const c_lisp_pair_t *level_clp = &(sockopt_level_map.table[pos1]);
+      pushSTACK(*(level_clp->l_const));
       if (name == -1) {
         int pos2;
-        for (pos2=0; pos2 < sockopt_name_table_size; pos2++) {
-          pushSTACK(*sockopt_name_table[pos2].l_const);
-          pushSTACK(get_sock_opt(sock,sockopt_level_table[pos1].c_const,
-                                 sockopt_name_table[pos2].c_const,0));
+        for (pos2=0; pos2 < sockopt_name_map.size; pos2++) {
+          const c_lisp_pair_t *name_clp = &(sockopt_name_map.table[pos2]);
+          pushSTACK(*name_clp->l_const);
+          pushSTACK(get_sock_opt(sock,level_clp->c_const,name_clp->c_const,0));
         }
-        { object tmp = listof(2*sockopt_name_table_size); pushSTACK(tmp); }
+        { object tmp = listof(2*sockopt_name_map.size); pushSTACK(tmp); }
       } else
-        pushSTACK(get_sock_opt(sock,sockopt_level_table[pos1].c_const,name,0));
+        pushSTACK(get_sock_opt(sock,level_clp->c_const,name,0));
     }
-    VALUES1(listof(2*(sockopt_level_table_size-1))); /* skip :ALL */
+    VALUES1(listof(2*(sockopt_level_map.size-1))); /* skip :ALL */
   } else {
     if (name == -1) {
       int pos2;
-      for (pos2=0; pos2 < sockopt_name_table_size; pos2++) {
-        pushSTACK(*sockopt_name_table[pos2].l_const);
-        pushSTACK(get_sock_opt(sock,level,sockopt_name_table[pos2].c_const,0));
+      for (pos2=0; pos2 < sockopt_name_map.size; pos2++) {
+        const c_lisp_pair_t *name_clp = &(sockopt_name_map.table[pos2]);
+        pushSTACK(*(name_clp->l_const));
+        pushSTACK(get_sock_opt(sock,level,name_clp->c_const,0));
       }
-      VALUES1(listof(2*sockopt_name_table_size));
+      VALUES1(listof(2*sockopt_name_map.size));
     } else
       VALUES1(get_sock_opt(sock,level,name,1));
   }

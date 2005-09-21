@@ -1,5 +1,19 @@
 2005-09-20  Sam Steingold  <sds@gnu.org>
 
+	instead of DEFCHECKER creating a bunch of undebuggable identical
+	functions, it now creates a data structure that is passed to a few
+	standard built-in functions
+	* misc.d (map_to_alist, map_lisp_to_c, map_c_to_lisp, map_c_to_list)
+	(map_list_to_c): implemented
+	* lispbibl.d (c_lisp_pair_t, c_lisp_map_t): added, export to clisp.h
+	* utils/modprep.lisp (print-tables-1): instead of checked
+	functions, output #defines using map_* functions
+	* modules/berkeley-db/bdb.c, modules/i18n/gettext.c:
+	* modules/pcre/cpcre.c, modules/rawsock/rawsock.c:
+	* modules/syscalls/calls.c: updated to use the map_* functions
+
+2005-09-20  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/posix.lisp: do (ext:re-export "POSIX" "EXT") at
 	the end of the file to re-export all POSIX symbols
 

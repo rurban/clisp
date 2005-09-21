@@ -39,15 +39,15 @@ DEFUN(PCRE::PCRE-CONFIG, &optional what)
 {
   if (missingp(STACK_0)) {
     int pos = 0;
-    for (; pos < pcre_config_option_table_size; pos++) {
+    for (; pos < pcre_config_option_map.size; pos++) {
       int ret;
       begin_system_call();
-      pcre_config(pcre_config_option_table[pos].c_const,&ret);
+      pcre_config(pcre_config_option_map.table[pos].c_const,&ret);
       end_system_call();
-      pushSTACK(*pcre_config_option_table[pos].l_const);
+      pushSTACK(*pcre_config_option_map.table[pos].l_const);
       pushSTACK(L_to_I(ret));
     }
-    VALUES1(listof(2*pcre_config_option_table_size));
+    VALUES1(listof(2*pcre_config_option_map.size));
   } else {
     int option = pcre_config_option(STACK_0);
     int ret = 0;
