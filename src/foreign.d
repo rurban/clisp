@@ -35,9 +35,10 @@ local maygc object make_faddress (object base, uintP offset)
 }
 
 /* return the foreign address of the foreign object
- can trigger GC */
-local maygc object foreign_address (object obj, bool allocate_p)
+ can trigger GC -- only when allocate_p is TRUE */
+local /*maygc*/ object foreign_address (object obj, bool allocate_p)
 {
+  GCTRIGGER_IF(allocate_p,GCTRIGGER());
   if (orecordp(obj)) {
     switch (Record_type(obj)) {
       case Rectype_Fpointer:
@@ -3949,9 +3950,11 @@ local object dlerror_string (void)
 }
 #endif
 
-/* FIXME: COMMENT! */
 /* Open a library with the given name and version
- can trigger GC */
+ name: pointer to a Lisp string
+ version: library version, not used (a holdover from Amiga?)
+ returns a dlopen() handle to the DLL
+ can trigger GC -- only on error */
 local maygc void * open_library (gcv_object_t* name, uintL version)
 {
   var void * handle;
@@ -3964,18 +3967,24 @@ local maygc void * open_library (gcv_object_t* name, uintL version)
     #elif defined(WIN32_NATIVE)
       return NULL;
     #else
+      pushSTACK(NIL); /* no PLACE */
       pushSTACK(S(Kdefault));
       pushSTACK(S(foreign_library));
-      fehler(error,GETTEXT("~S: ~S is not supported on this platform."));
+      check_value(error,GETTEXT("~S: ~S is not supported on this platform."));
+      *name = value1;
+      goto open_library_restart;
     #endif
   }
   if (eq(*name,S(Knext))) {
     #if defined(RTLD_NEXT)
       return RTLD_NEXT;
     #else
+      pushSTACK(NIL); /* no PLACE */
       pushSTACK(S(Knext));
       pushSTACK(S(foreign_library));
-      fehler(error,GETTEXT("~S: ~S is not supported on this platform."));
+      check_value(error,GETTEXT("~S: ~S is not supported on this platform."));
+      *name = value1;
+      goto open_library_restart;
     #endif
   }
   with_string_0(*name = check_string(*name),O(misc_encoding),libname, {
@@ -4046,11 +4055,12 @@ local /*maygc*/ void* object_handle (object library, gcv_object_t *name,
   return address;
 }
 
-/* FIXME: BETTER COMMENT! */
-/* update the DLL pointer and all related objects
- acons = (library fpointer object1 object2 ...)
- can trigger GC */
-local void update_library (object acons, uintL version) {
+/* update the DLL pointer and all related objects: re-open the library,
+ and update the base fp_pointer of fpointer-library-handle and all objects in
+ acons = (library-name fpointer-library-handle object1 object2 ...)
+ version = library version, not used (a holdover from Amiga?)
+ can trigger GC -- only on error in open_library() */
+local maygc void update_library (object acons, uintL version) {
   pushSTACK(acons);
   pushSTACK(Car(acons)); /* lib_name */
   var void *lib_handle = open_library(&STACK_0,version);

@@ -1,5 +1,12 @@
 2005-09-21  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (foreign_address): use GCTRIGGER_IF(allocate_p)
+	instead of a blanket maygc, as appropriate
+	(open_library): always restart on error
+	(update_library): mark as maygc
+
+2005-09-21  Sam Steingold  <sds@gnu.org>
+
 	* functions.lisp (function-lambda-expression):
 	handle compiled (SETF FOO)
 	Reported by Pascal Bourguignon <pjb@informatimago.com>
