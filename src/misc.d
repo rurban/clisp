@@ -1,7 +1,7 @@
 /*
  * Miscellaneous CLISP functions
  * Bruno Haible 1990-2005
- * Sam Steingold 1999-2004
+ * Sam Steingold 1999-2005
  */
 
 #include "lispbibl.c"
@@ -667,4 +667,112 @@ LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
 LISPFUN(argv,seclass_no_se,0,0,norest,nokey,0,NIL)
 {
   VALUES1(copy_svector(O(argv)));
+}
+
+/* === a module facility to map CPP constants to Lisp symbols. ===
+ return : alist of ((C lisp) ...)
+ may trigger GC */
+local maygc object map_to_alist (const c_lisp_map_t *map) {
+  unsigned int index;
+  for (index=0; index < map->size; index++) {
+    pushSTACK(L_to_I(map->table[index].c_const));
+    pushSTACK(*(map->table[index].l_const));
+    { object tmp=listof(2); pushSTACK(tmp); }
+  }
+  return listof(map->size);
+}
+
+/* Lisp symbol ---> C number
+ may trigger GC -- on error only */
+global maygc long map_lisp_to_c (object obj, const c_lisp_map_t *map) {
+  unsigned int index;
+ restart_map_lisp_to_c:
+  if (map->use_default_function_p && integerp(obj)) return I_to_L(obj);
+  else if (map->have_default_value_p && missingp(obj))
+    return map->default_value;
+  else {
+    for (index = 0; index < map->size; index++)
+      if (eq(obj,*(map->table[index].l_const)))
+        return map->table[index].c_const;
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    /* TYPE-ERROR slot EXPECTED-TYPE : (member [nil] l_const ...)
+       or (or integer (member [nil] l_const ...)) */
+    for (index = 0; index < map->size; index++)
+      pushSTACK(*(map->table[index].l_const));
+    if (map->have_default_value_p) pushSTACK(NIL);
+    pushSTACK(S(member));
+    var object tmp=listof(map->size+1+(map->have_default_value_p?1:0));
+    pushSTACK(tmp);
+    if (map->use_default_function_p) {
+      pushSTACK(S(integer));
+      pushSTACK(S(or));
+      var object tmp=listof(2); pushSTACK(tmp);
+    }
+    pushSTACK(map_to_alist(map));
+    pushSTACK(asciz_to_string(map->name,O(misc_encoding)));
+    pushSTACK(STACK_3/*obj*/); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,
+                GETTEXT("~S: Lisp value ~S is not found in table ~S: ~S"));
+    obj = value1;
+    goto restart_map_lisp_to_c;
+  }
+}
+
+/* C number ---> Lisp symbol
+ may trigger GC -- on error only */
+global maygc object map_c_to_lisp (long val, const c_lisp_map_t *map) {
+  unsigned int index;
+ restart_map_c_to_lisp:
+  for (index=0; index < map->size; index++)
+    if (val == map->table[index].c_const)
+      return *(map->table[index].l_const);
+  if (map->have_default_value_p && val == map->default_value) return NIL;
+  if (map->use_default_function_p) return L_to_I(val);
+  pushSTACK(NIL);                   /* no PLACE */
+  pushSTACK(L_to_I(val));           /* TYPE-ERROR slot DATUM */
+  for (index=0; index < map->size; index++)
+    pushSTACK(L_to_I(map->table[index].c_const));
+  pushSTACK(S(member));
+  var object tmp=listof(map->size+1);
+  pushSTACK(tmp);               /*TYPE-ERROR slot EXPECTED-TYPE*/
+  pushSTACK(map_to_alist(map));
+  pushSTACK(asciz_to_string(map->name,O(misc_encoding)));
+  pushSTACK(STACK_3/*val*/); pushSTACK(TheSubr(subr_self)->name);
+  check_value(type_error,
+              GETTEXT("~S: C value ~S is not found in table ~S: ~S"));
+  val = I_to_L(check_slong(value1));
+  goto restart_map_c_to_lisp;
+}
+
+/* C number ---> list of Lisp symbols, each denoting a bit
+ may trigger GC */
+global maygc object map_c_to_list (long val, const c_lisp_map_t *map) {
+  unsigned int count = 0;
+  unsigned int index = 0;
+  for (; index < map->size; index++) {
+    unsigned long c_const = map->table[index].c_const;
+    if (c_const && (c_const == (val & c_const))) {
+      pushSTACK(*(map->table[index].l_const));
+      count++;
+      val &= ~c_const;         /* clear this bit */
+    }
+  }
+  /* not all bits accounted for: */
+  if (val) { pushSTACK(L_to_I(val)); count++; }
+  return listof(count);
+}
+
+/* list of Lisp symbols, each denoting a bit ---> C number
+ may trigger GC -- on error only */
+global maygc long map_list_to_c (object obj, const c_lisp_map_t *map) {
+  if (listp(obj)) {
+    long ret = 0;
+    pushSTACK(obj);
+    for (; !endp(STACK_0); STACK_0 = Cdr(STACK_0))
+      ret |= map_lisp_to_c(Car(STACK_0),map);
+    skipSTACK(1);
+    return ret;
+  } else
+    return map_lisp_to_c(obj,map);
 }

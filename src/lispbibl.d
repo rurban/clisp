@@ -14180,6 +14180,27 @@ extern object memq (const object obj, const object lis);
 
 #endif
 
+/* for modules */
+typedef struct { long c_const; gcv_object_t *l_const; } c_lisp_pair_t;
+typedef struct {
+  const c_lisp_pair_t *table;         /* C <--> Lisp */
+  const unsigned int size;            /* table length */
+  const long default_value; /* what to use when Lisp value is missing */
+  const bool have_default_value_p;   /* use default_value? */
+  const bool use_default_function_p; /* use L_to_I when there is no map entry */
+  const char *name;                  /* map name for error messages */
+} c_lisp_map_t;
+extern maygc long map_lisp_to_c (object obj, const c_lisp_map_t *map);
+extern maygc object map_c_to_lisp (long val, const c_lisp_map_t *map);
+extern maygc object map_c_to_list (long val, const c_lisp_map_t *map);
+global maygc long map_list_to_c (object obj, const c_lisp_map_t *map);
+%% emit_typedef("struct { long c_const; gcv_object_t *l_const; }","c_lisp_pair_t");
+%% emit_typedef("struct { const c_lisp_pair_t *table; const unsigned int size; const long default_value; const bool have_default_value_p;  const bool use_default_function_p; const char *name; }","c_lisp_map_t");
+%% puts("extern long map_lisp_to_c (object obj, const c_lisp_map_t *map);");
+%% puts("extern object map_c_to_lisp (long val, const c_lisp_map_t *map);");
+%% puts("extern object map_c_to_list (long val, const c_lisp_map_t *map);");
+%% puts("extern long map_list_to_c (object obj, const c_lisp_map_t *map);");
+
 # ####################### ERRBIBL for ERROR.D ############################## #
 
 # Classification of the known condition-types:
