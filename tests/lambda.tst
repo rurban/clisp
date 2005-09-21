@@ -265,6 +265,44 @@ UNKNOWN
 
 (fmakunbound 'foo) foo
 
+(defun (setf foo) (v a) (setf (car a) v)) (setf foo)
+
+(multiple-value-list (function-lambda-expression #'(setf foo)))
+#+CLISP
+((LAMBDA (V A) (DECLARE (SYSTEM::IN-DEFUN (SETF FOO)))
+  (BLOCK FOO (SETF (CAR A) V)))
+ #(NIL NIL NIL NIL ((DECLARATION OPTIMIZE DECLARATION)))
+ (SETF FOO))
+#+CMU
+((lambda (v a) (block foo (setf (car a) v))) nil (setf foo))
+#+SBCL
+(NIL T (SETF FOO))
+#+OpenMCL
+(NIL NIL (SETF FOO))
+#+LISPWORKS
+((LAMBDA (X) (DECLARE (LAMBDA-NAME (SETF FOO)))
+  (BLOCK FOO (SETF (CAR A) V))) NIL (SETF FOO))
+#-(or CLISP CMU SBCL OpenMCL LISPWORKS)
+UNKNOWN
+
+(compile '(setf foo)) (setf foo)
+
+(multiple-value-list (function-lambda-expression #'(setf foo)))
+#+CLISP
+((LAMBDA (V A) (SETF (CAR A) V)) T (SETF FOO))
+#+CMU
+((lambda (v a) (block foo (setf (car a) v))) nil (setf foo))
+#+SBCL
+(NIL T (SETF FOO))
+#+OpenMCL
+(NIL NIL (SETF FOO))
+#+LISPWORKS
+(NIL NIL (SETF FOO))
+#-(or CLISP CMU SBCL OpenMCL LISPWORKS)
+UNKNOWN
+
+(fmakunbound '(setf foo)) (setf foo)
+
 ;; disassemble
 #+clisp (setf (getenv "PAGER") "cat") #+clisp "cat"
 #-(and clisp (or win32 cygwin BeOS)) (disassemble 'car) nil

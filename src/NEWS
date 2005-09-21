@@ -1,3 +1,9 @@
+User visible changes
+--------------------
+
+* Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled code.
+
+
 2.35 (2005-08-29)
 =================
 

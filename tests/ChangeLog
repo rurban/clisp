@@ -1,5 +1,9 @@
 2005-09-21  Sam Steingold  <sds@gnu.org>
 
+	* lambda.tst: test (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO))
+
+2005-09-21  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (do-test, do-errcheck): fixed format string
 
 2005-09-21  Sam Steingold  <sds@gnu.org>
