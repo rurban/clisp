@@ -1,5 +1,9 @@
 2005-09-21  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (do-test, do-errcheck): fixed format string
+
+2005-09-21  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (type-error-handler): new function
 
 2005-09-06  Sam Steingold  <sds@gnu.org>
