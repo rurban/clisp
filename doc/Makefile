@@ -19,11 +19,13 @@ JAVAXML=c:/java
 JAVA=/cygdrive/c/java/bin/java.exe
 SEP=;
 DTD=/usr/share/docbook-xml$(DTDVER)/docbookx.dtd
+FOP=/cygdrive/c/java/fop-0.20.5/fop.bat
 else
 JAVAXML=/usr/local/src/xml
 JAVA=java
 SEP=:
 DTD=/usr/share/sgml/docbook/xml-dtd-$(DTDVER)/docbookx.dtd
+FOP=fop
 endif
 DTD=../utils/docbook/docbookx.dtd
 NSGMLS=onsgmls
@@ -127,17 +129,17 @@ clisp.xml: clisp.xml.in ../version.sh Makefile
 	$(FILLIN) $< > $@
 
 XMLOUT=$(XSLTPROC) --timing --stringparam target.database.document
+DOC_MAN=--stringparam current.docid "man"
+DOC_IMP=--stringparam current.docid "impnotes"
 
 clisp.html: clisp.xml common.xsl pile.xsl $(OLINK)
-	$(XMLOUT) "olink-pile.xml" --stringparam current.docid "man" \
-		-o $@ pile.xsl $<
+	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ pile.xsl $<
 
 _clisp.html: clisp.html
 	sed $(SGML_UNCOMMENT) $< > $@
 
 clisp.1: clisp.xml common.xsl man.xsl $(OLINK)
-	$(XMLOUT) "olink-pile.xml" --stringparam current.docid "man" \
-		-o $@ man.xsl $<
+	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ man.xsl $<
 
 _clisp.1: clisp.1
 	sed $(ROFF_UNCOMMENT) $< > $@
@@ -156,8 +158,7 @@ impnotes.texi: impnotes.xml $(IMPNOTES)
 	time docbook2texi $<
 
 impnotes.html: impnotes.xml $(IMPNOTES) common.xsl pile.xsl $(OLINK)
-	$(XMLOUT) "olink-pile.xml" --stringparam current.docid "impnotes" \
-		-o $@ pile.xsl $<
+	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ pile.xsl $<
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
 	egrep -Hn 'id="id[0-9]*"' $@ || true
@@ -168,18 +169,18 @@ man: _clisp.html _clisp.1
 	(cd ../build && make clisp.html clisp.1 && \
 	 test -n "$(DIST)" && scp -p clisp.1 clisp.html $(DIST)/) || true
 
-impnotes.pdf: impnotes.xml $(IMPNOTES)
-	time docbook2pdf $<
-	$(RM) impnotes.out
+impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl
+	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ fo.xsl $<
+
+impnotes.pdf: impnotes.fo
+	$(FOP) -fo $< -pdf $@
 
 html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
 	cd html && grep -v -e "^#" .symlinks | sed 's/^/ln -vf /' | sh -
-	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "impnotes" \
-		-o $@/ chunk.xsl $<
+	$(XMLOUT) "olink-chunk.xml" $(DOC_IMP) -o $@/ chunk.xsl $<
 	$(XSLTPROC) --timing -o $@/id-href.map id-href-map.xsl tdb-chunk.xml
-	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "man" \
-		-o $@/clisp.html pile.xsl clisp.xml
+	$(XMLOUT) "olink-chunk.xml" $(DOC_MAN) -o $@/clisp.html pile.xsl clisp.xml
 	sed $(SGML_UNCOMMENT) $@/clisp.html > _clisp-1.html
 	cd ../build; make clisp-1.html;
 	mv -f ../build/clisp-1.html $@/clisp.html
@@ -199,7 +200,7 @@ regexp.html: ../modules/regexp/regexp.texinfo
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
-		clisp.html clisp.1 tdb-*.xml $(CATALOG_FILE)
+		clisp.html clisp.1 tdb-*.xml $(CATALOG_FILE) impnotes.fo
 
 count: $(IMPNOTES)
 	wc $^
