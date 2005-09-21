@@ -46,6 +46,15 @@
 (progn (setq *sa-remote* (host->sa "ftp.gnu.org" 21)) T) T
 (progn (setq *sa-local* (host->sa :default)) T) T
 
+(catch 'type-error-handler
+  (handler-bind ((type-error #'type-error-handler))
+    (rawsock:socket :INET :FOO nil)))
+NIL
+(catch 'type-error-handler
+  (handler-bind ((type-error #'type-error-handler))
+    (rawsock:socket :FOO :STREAM nil)))
+NIL
+
 (integerp (show (setq *sock* (rawsock:socket :INET :STREAM nil)))) T
 
 (unless (equalp #(127 0 0 1) (subseq (rawsock:sockaddr-data *sa-local*) 2 6))
