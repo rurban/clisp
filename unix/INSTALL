@@ -1,8 +1,10 @@
 Installation on Unix:
 ---------------------
 
-This file describes the standard installation procedure. Special hints for
-some platforms can be found in file unix/PLATFORMS.
+This file describes the standard installation procedure.
+Please do read this entire file before starting
+- or, if you are impatient, start with step 12.
+Special hints for some platforms can be found in file unix/PLATFORMS.
 
 1. (Optional)
    Choose which C compiler to use for building CLISP.
@@ -198,8 +200,9 @@ some platforms can be found in file unix/PLATFORMS.
 
 10. If you want other people to benefit from your work, you can make a binary
    distribution of CLISP for your platform which we will distribute.
-   To do this, make sure you have executed step 7 above, adjust the definitions
-   of ROFF_MAN, PACK, PACKOPT, PACKEXT in the makefile, then type
+   To do this, make sure you have executed step 7 above,
+   adjust the definition of ROFF_MAN in the makefile,
+   then type
 
          make distrib
 
@@ -218,7 +221,7 @@ some platforms can be found in file unix/PLATFORMS.
 
          ./configure --with-module=rawsock --build build-dir
 
-    this covers the build process through step 8.
+    this covers the build process through step 8 (except mod-check).
     You will need to become root to do the install.
 
 
