@@ -3848,7 +3848,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
     }
     var uintB atype = Iarray_flags(array) & arrayflags_atype_mask;
     var uintL len = fillp[-1]; /* former length (dimension 0) */
-    var uintV inc; /* wished increment of the length */
+    var uintV inc; /* desired increment of the length */
     if (boundp(extension)) {
       /* extension should be a fixnum >0, <arraysize_limit : */
       if ( !posfixnump(extension)
@@ -3878,6 +3878,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
       /* but at least the former length: */
       if (inc<len)
         inc = len;
+      extension = UV_to_I(inc);
     }
     var uintV newlen = len + inc; /* new length */
    #ifndef UNIX_DEC_ULTRIX_GCCBUG

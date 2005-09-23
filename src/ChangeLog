@@ -1,3 +1,8 @@
+2005-09-23  Sam Steingold  <sds@gnu.org>
+
+	* array.d (VECTOR-PUSH-EXTEND): set extension to inc when it is
+	not supplied (for error reporting)
+
 2005-09-21  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (foreign_address): use GCTRIGGER_IF(allocate_p)
