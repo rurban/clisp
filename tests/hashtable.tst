@@ -67,5 +67,26 @@ T
         (gethash x ht)))
 (T 12)
 
+(let ((ht (make-hash-table :test 'ext:fasthash-eq)))
+  (defstruct ht-test-struct a b c)
+  (setq x (make-ht-test-struct :a 1 :b 2 :c ht))
+  (setf (gethash ht ht) ht
+        (gethash x ht) 12)
+  (setq x (read-from-string (with-standard-io-syntax (write-to-string x)))
+        ht (ht-test-struct-c x))
+  (setf (ht-test-struct-a x) (ext:! 123)
+        (gethash (ext:! 20) ht) (ext:! 21)
+        (gethash (ext:! 21) ht) (ext:! 22)
+        (gethash (ext:! 22) ht) (ext:! 23))
+  (ext:gc)
+  (setf (ht-test-struct-b x) (ext:! 124)
+        (gethash (ext:! 30) ht) (ext:! 61)
+        (gethash (ext:! 41) ht) (ext:! 72)
+        (gethash (ext:! 52) ht) (ext:! 83))
+  (ext:gc)
+  (list (eq (gethash ht ht) ht)
+        (gethash x ht)))
+(T 12)
+
 ;; clean-up
 (setf (find-class 'ht-test-struct) nil) nil
