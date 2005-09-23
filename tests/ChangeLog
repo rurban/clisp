@@ -1,3 +1,7 @@
+2005-09-23  Sam Steingold  <sds@gnu.org>
+
+	* hashtable.tst: added read/write consistency tests
+
 2005-09-21  Sam Steingold  <sds@gnu.org>
 
 	* lambda.tst: test (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO))
