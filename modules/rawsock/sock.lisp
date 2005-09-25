@@ -9,7 +9,7 @@
   (:use #:lisp)
   (:shadowing-import-from "EXPORTING" #:defun)
   (:shadow #:listen)            ; an ANSI CL symbol
-  (:export #:buffer #:accept #:bind #:connect
+  (:export #:buffer #:resize-buffer #:accept #:bind #:connect
            #:getpeername #:getsockname
            #:listen #:recv #:recvfrom #:recvmsg
            #:send #:sendmsg #:sendto #:socket-option
