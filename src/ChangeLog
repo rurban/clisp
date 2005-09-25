@@ -1,5 +1,15 @@
 2005-09-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (GETUID, %SETUID, GETGID, %SETGID)
+	(GETEUID, %SETEUID, GETEGID, %SETEGID): implemented
+	* modules/syscalls/posix.lisp (getuid, getgid, geteuid, getegid):
+	exported and DEFSETFed
+	* modules/syscalls/configure.in (gid_t, uid_t): AC_CHECK_SIZEOF
+	(getegid, geteuid, getgid, getuid, setegid, seteuid, setgid, setuid):
+	AC_CHECK_FUNCS
+
+2005-09-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/sock.lisp (resize-buffer): export
 	* modules/rawsock/rawsock.c (SENDTO): fixed STACK cleanup
 

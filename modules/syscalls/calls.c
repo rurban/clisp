@@ -1221,6 +1221,55 @@ DEFUN(POSIX::USER-DATA, user)
 }
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
 
+#if SIZEOF_GID_T == 8
+# define gid_to_I(g)  uint64_to_I(g)
+# define I_to_gid(g)  I_to_uint64(g=check_sint64(g))
+#else
+# define gid_to_I(g)  uint32_to_I(g)
+# define I_to_gid(g)  I_to_uint32(g=check_sint32(g))
+#endif
+#if SIZEOF_UID_T == 8
+# define uid_to_I(g)  uint64_to_I(g)
+# define I_to_uid(g)  I_to_uint64(g=check_sint64(g))
+#else
+# define uid_to_I(g)  uint32_to_I(g)
+# define I_to_uid(g)  I_to_uint32(g=check_sint32(g))
+#endif
+#define GETTER(type,call)                                       \
+  type##_t id;                                                  \
+  begin_system_call(); id = call(); end_system_call();          \
+  VALUES1(type##_to_I(id))
+#define SETTER(type,call)                                       \
+  type##_t id = I_to_##type(STACK_0);                           \
+  int status;                                                   \
+  begin_system_call(); status = call(id); end_system_call();    \
+  if (status) OS_error();                                       \
+  VALUES1(popSTACK())
+#if defined(HAVE_GETUID)
+DEFUN(POSIX:GETUID,){ GETTER(uid,getuid); }
+#endif
+#if defined(HAVE_SETUID)
+DEFUN(POSIX::%SETUID, uid) { SETTER(uid,setuid); }
+#endif
+#if defined(HAVE_GETGID)
+DEFUN(POSIX:GETGID,){ GETTER(gid,getgid); }
+#endif
+#if defined(HAVE_SETGID)
+DEFUN(POSIX::%SETGID, gid) { SETTER(gid,setgid); }
+#endif
+#if defined(HAVE_GETEUID)
+DEFUN(POSIX:GETEUID,){ GETTER(uid,geteuid); }
+#endif
+#if defined(HAVE_SETEUID)
+DEFUN(POSIX::%SETEUID, euid) { SETTER(uid,seteuid); }
+#endif
+#if defined(HAVE_GETEGID)
+DEFUN(POSIX:GETEGID,){ GETTER(gid,getegid); }
+#endif
+#if defined(HAVE_SETEGID)
+DEFUN(POSIX::%SETEGID, egid) { SETTER(gid,setegid); }
+#endif
+
 #if defined(HAVE_STAT)
 /* call stat() on the pathname
  return the value returned by stat()

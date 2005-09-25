@@ -25,6 +25,14 @@
   type user id line pid host tv)
 )
 ;;; ============================================================
+#+unix (progn
+(export '(getuid getgid geteuid getegid))
+(defsetf getuid posix::%setuid)
+(defsetf getgid posix::%setgid)
+(defsetf geteuid posix::%seteuid)
+(defsetf getegid posix::%setegid)
+)
+;;; ============================================================
 (defmacro with-stream-lock ((stream &rest options) &body body)
   "Lock the stream, execute the body, unlock the stream."
   `(unwind-protect (progn (stream-lock ,stream t ,@options) ,@body)
