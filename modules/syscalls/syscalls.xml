@@ -539,6 +539,22 @@
  <varlistentry id="setutxent"><term><code>(POSIX:SETUTXENT)</code></term>
   <listitem><simpara>calls <function role="unix">setutxent</function>
  </simpara></listitem></varlistentry>
+ <varlistentry id="getuid"><term><code>(POSIX:GETUID)</code></term>
+  <term><code>(&setf (POSIX:GETUID) &uid-r;)</code></term>
+  <listitem><simpara>Call <function role="unix">getuid</function> and
+   <function role="unix">setuid</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="getgid"><term><code>(POSIX:GETGID)</code></term>
+  <term><code>(&setf (POSIX:GETGID) &gid-r;)</code></term>
+  <listitem><simpara>Call <function role="unix">getgid</function> and
+   <function role="unix">setgid</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="geteuid"><term><code>(POSIX:GETEUID)</code></term>
+  <term><code>(&setf (POSIX:GETEUID) &uid-r;)</code></term>
+  <listitem><simpara>Call <function role="unix">geteuid</function> and
+   <function role="unix">seteuid</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="getegid"><term><code>(POSIX:GETEGID)</code></term>
+  <term><code>(&setf (POSIX:GETEGID) &gid-r;)</code></term>
+  <listitem><simpara>Call <function role="unix">getegid</function> and
+   <function role="unix">setegid</function>.</simpara></listitem></varlistentry>
  <varlistentry id="mkstemp"><term><code>(POSIX:MKSTEMP &filename-r;
     &key-amp; &direction-k; &eltype; &extfmt; &buffered;)</code></term>
   <listitem><simpara>calls <function role="unix">mkstemp</function>,

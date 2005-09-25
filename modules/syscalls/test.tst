@@ -35,6 +35,11 @@ T
 (os:priority (os:process-id))
 :NORMAL
 
+#+unix (let ((id (show (getuid)))) (= id (setf (getuid) id))) T
+#+unix (let ((id (show (getgid)))) (= id (setf (getgid) id))) T
+#+unix (let ((id (show (geteuid)))) (= id (setf (geteuid) id))) T
+#+unix (let ((id (show (getegid)))) (= id (setf (getegid) id))) T
+
 #+unix
 (listp (show (if (fboundp 'os:sysconf) (os:sysconf) '(no os:sysconf)))) T
 #+unix
@@ -42,11 +47,11 @@ T
 
 #+unix
 (listp (show (if (fboundp 'os:usage)
-                  (multiple-value-list (os:usage)) '(no os:usage))))
+                 (multiple-value-list (os:usage)) '(no os:usage))))
 T
 #+unix
 (listp (show (if (fboundp 'os:rlimit)
-                  (multiple-value-list (os:rlimit)) '(no os:rlimit))))
+                 (multiple-value-list (os:rlimit)) '(no os:rlimit))))
 T
 
 #+unix
