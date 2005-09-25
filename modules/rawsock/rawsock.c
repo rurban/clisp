@@ -506,7 +506,7 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
   buffer_len = Sbvector_length(STACK_1);
   SYSCALL(retval,sock,sendto(sock,(const BUF_TYPE_T)buffer,
                              buffer_len,flags,sa,size));
-  VALUES1(fixnum(retval)); skipSTACK(2);
+  VALUES1(fixnum(retval)); skipSTACK(3);
 }
 
 DEFUN(RAWSOCK:SOCK-WRITE,socket buffer) {
