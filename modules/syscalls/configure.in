@@ -22,6 +22,8 @@ if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
 fi
 AC_CHECK_SIZEOF(off_t)
+AC_CHECK_SIZEOF(gid_t)
+AC_CHECK_SIZEOF(uid_t)
 if test "$ac_cv_header_utmpx_h" = "yes"; then
  AC_CHECK_MEMBERS([struct utmpx.ut_host],,,[#include <utmpx.h>])
 fi
@@ -46,11 +48,12 @@ fi
 AC_MSG_NOTICE([ * System Calls (Functions)])
 CL_RLIMIT
 AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
-getlogin getpwent getpwnam getpwuid getuid dnl
+getlogin getpwent getpwnam getpwuid dnl
 openlog setlogmask syslog closelog dnl
 getpgid setpgrp getsid setpgid setsid kill dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
 mkfifo mkdir creat mkstemp tempnam mkdtemp dnl
+getegid geteuid getgid getuid setegid seteuid setgid setuid dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync)
 AC_FUNC_CHOWN
 AC_SEARCH_LIBS(erf, m)
