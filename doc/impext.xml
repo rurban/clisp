@@ -4735,7 +4735,10 @@ EOF
  &stream-t; is returned.
  If &stream-k; was specified for both &input-k; and &output-k;, three
  Lisp &stream-t;s are returned, as for the function &mk-pipe-io;.
- This use of &run-prog; can cause
+ Otherwise, the return value depends on the process termination
+ status: if it ended normally (without signal, core-dump etc), its exit
+ status is returned as an &integer-t;, otherwise &nil; is returned.</para>
+<para>This use of &run-prog; can cause
  <link linkend="deadlock">deadlocks</link>, see &mk-pipe-io;.</para>
 </listitem></varlistentry>
 <!-- #endif -->
