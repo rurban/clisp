@@ -36,9 +36,9 @@ if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
   AC_DEFINE([HAVE_SCALAR_FSID], 1,
     [Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.])
  fi
- AC_CHECK_SIZEOF(fsblkcnt_t ,,[#include <stdio.h>
+ AC_CHECK_SIZEOF(fsblkcnt_t,,[#include <stdio.h>
 #include <sys/statvfs.h>])
- AC_CHECK_SIZEOF(fsfilcnt_t ,,[#include <stdio.h>
+ AC_CHECK_SIZEOF(fsfilcnt_t,,[#include <stdio.h>
 #include <sys/statvfs.h>])
 fi
 if test "$ac_cv_header_sys_stat_h" = "yes"; then
@@ -58,8 +58,8 @@ fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync)
 AC_FUNC_CHOWN
 AC_SEARCH_LIBS(erf, m)
 AC_CHECK_FUNCS(erf erfc lgamma fstatvfs statvfs getpriority setpriority)
-AC_CHECK_DECLS(lgamma_r, , , [#include <math.h>] )
-AC_CHECK_DECLS(signgam, , , [#include <math.h>] )
+AC_CHECK_DECLS(lgamma_r,,,[#include <math.h>])
+AC_CHECK_DECLS(signgam,,,[#include <math.h>])
 AC_SEARCH_LIBS(crypt, crypt)
 AC_CHECK_FUNCS(crypt encrypt setkey GlobalMemoryStatusEx)
 CL_LSTAT
@@ -72,7 +72,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #include <unistd.h>
 #endif
 #include <sys/types.h>
-], [[pid_t pid = setpgrp();]])],
+],[[pid_t pid = setpgrp();]])],
 ac_cv_func_setpgrp_posix=yes,ac_cv_func_setpgrp_posix=no)])
 if test "$ac_cv_func_setpgrp_posix" = "yes"; then
 AC_DEFINE(HAVE_SETPGRP_POSIX,1,
