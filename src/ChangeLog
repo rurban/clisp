@@ -1,3 +1,7 @@
+2005-09-25  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/sock.lisp (resize-buffer): export
+
 2005-09-23  Sam Steingold  <sds@gnu.org>
 
 	* array.d (VECTOR-PUSH-EXTEND): set extension to inc when it is
