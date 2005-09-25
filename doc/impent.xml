@@ -588,6 +588,7 @@
 <!ENTITY func-r "<replaceable>function</replaceable>">
 <!ENTITY funcname-r "<replaceable>function-name</replaceable>">
 <!ENTITY gf-r "<replaceable>generic-function</replaceable>">
+<!ENTITY gid-r "<replaceable>gid</replaceable>">
 <!ENTITY hash-f "<replaceable>hash-function</replaceable>">
 <!ENTITY host-r "<replaceable>host</replaceable>">
 <!ENTITY hw "<replaceable>hardware</replaceable>">
@@ -676,6 +677,7 @@
 <!ENTITY test-f "<replaceable>test-function</replaceable>">
 <!ENTITY type-r "<replaceable>type</replaceable>">
 <!ENTITY uc-r "<replaceable>uc</replaceable>">
+<!ENTITY uid-r "<replaceable>uid</replaceable>">
 <!ENTITY v-r "<replaceable>v</replaceable>">
 <!ENTITY val-type-r "<replaceable>value-type</replaceable>">
 <!ENTITY value-r "<replaceable>value</replaceable>">
