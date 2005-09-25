@@ -163,7 +163,7 @@ set       toc,title
 <xsl:template match="acronym">
  <acronym>
   <xsl:attribute name="title">
-   <xsl:value-of select="remark"/>
+   <xsl:value-of select="normalize-space(remark)"/>
   </xsl:attribute>
   <xsl:apply-imports/>
  </acronym>
