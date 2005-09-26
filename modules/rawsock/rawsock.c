@@ -138,23 +138,33 @@ static object make_sockaddr (void) {
   return value1;
 }
 
+struct pos {
+  gcv_object_t *vector;
+  unsigned int position;
+};
+void coerce_into_bytes (void *arg, object element);
+void coerce_into_bytes (void *arg, object element) {
+  struct pos * pos = (struct pos *)arg;
+  uint8 value = I_to_uint8(check_uint8(element));
+  TheSbvector(*(pos->vector))->data[pos->position++] = value;
+}
+
 DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   int family = check_socket_domain(STACK_1);
   struct sockaddr sa;
   unsigned char *buffer, *data;
   size_t buffer_len, data_start = offsetof(struct sockaddr,sa_data);
-  /* this is yuky, but necessary: the return value of parse_buffer_arg()
-     is invalidated by GC, so we must do it _after_ we allocate buffer */
-  STACK_0 = check_byte_vector(STACK_0);
-  buffer_len = vector_length(STACK_0);
+  struct pos arg;
+  pushSTACK(STACK_0); funcall(L(length),1);
+  buffer_len = I_to_uint32(value1);
   pushSTACK(allocate_bit_vector(Atype_8Bit,data_start + buffer_len));
   buffer = (unsigned char *)TheSbvector(STACK_0)->data;
-  data = (unsigned char *)parse_buffer_arg(&STACK_1,&buffer_len);
   begin_system_call();
   memset(buffer,0,data_start + buffer_len);
-  memcpy(((struct sockaddr*)buffer)->sa_data,data,buffer_len);
   end_system_call();
   ((struct sockaddr*)buffer)->sa_family = family;
+  arg.vector = &(STACK_0); arg.position = data_start;
+  map_sequence(STACK_1/*data*/,coerce_into_bytes,(void*)&arg);
   funcall(`RAWSOCK::MAKE-SA`,1);
   skipSTACK(2);
 }
