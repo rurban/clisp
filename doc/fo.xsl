@@ -4,6 +4,8 @@
                 version="1.0">
 <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl"/>
 <xsl:param name="paper.type" select="'letter'"/>
+<xsl:param name="xep.extensions" select="1"/>
+<xsl:param name="target.database.document" select="'olink-pile.xml'"/>
 
 <xsl:template match="epigraph">
  <fo:block text-align="right" margin-left="50%">
