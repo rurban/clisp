@@ -81,20 +81,15 @@ static object my_check_argument (object name, object datum) {
   check_value(error,GETTEXT("~S: ~S is not a valid ~S argument"));
   return value1;
 }
-/* can trigger GC */
-static object check_buffer_arg (object arg) {
-  while (1) {
-    if (missingp(arg)) return O(buffer);
-    if (simple_bit_vector_p(Atype_8Bit,arg)) return arg;
-    arg = check_classname(arg,S(simple_bit_vector));
-  }
-}
 /* DANGER: the return value is invalidated by GC!
  can trigger GC */
 static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size) {
-  *arg_ = check_buffer_arg(*arg_);
-  *size = Sbvector_length(*arg_);
-  return (void*)TheSbvector(*arg_)->data;
+  uintL offset = 0;
+  object data;
+  *arg_ = check_byte_vector(*arg_);
+  *size = vector_length(*arg_);
+  data = array_displace_check(*arg_,*size,&offset);
+  return (void*)(TheSbvector(data)->data + offset);
 }
 /* DANGER: the return value is invalidated by GC!
  can trigger GC */
@@ -102,15 +97,6 @@ static void* check_struct_data (object type, object arg, SOCKLEN_T *size) {
   object vec = TheStructure(check_classname(arg,type))->recdata[1];
   *size = Sbvector_length(vec);
   return (void*)TheSbvector(vec)->data;
-}
-
-DEFVAR(buffer,`#.(MAKE-ARRAY 1518 :ELEMENT-TYPE (QUOTE (UNSIGNED-BYTE 8)))`);
-DEFUN(RAWSOCK:BUFFER,) { VALUES1(O(buffer)); }
-DEFUN(RAWSOCK:RESIZE-BUFFER,new-size) {
-  /* new-size is already STACK_0 */
-  pushSTACK(S(Kelement_type)); pushSTACK(`(UNSIGNED-BYTE 8)`);
-  funcall(L(make_array),3);
-  O(buffer)=value1;
 }
 
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
@@ -134,9 +120,9 @@ DEFUN(RAWSOCK:SOCKADDR-SLOT,&optional slot) {
             fixnum(sizeof(sa.sa_data)));
   } else {
     pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(STACK_1);         /* TYPE-ERROR slot DATUM */
+    pushSTACK(STACK_1/*slot*/); /* TYPE-ERROR slot DATUM */
     pushSTACK(`(MEMBER :FAMILY :DATA)`); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(`SOCKADDR`); pushSTACK(STACK_2);
+    pushSTACK(`SOCKADDR`); pushSTACK(STACK_2/*slot*/);
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: unknown slot ~S for ~S"));
     STACK_0 = value1;
@@ -155,16 +141,18 @@ static object make_sockaddr (void) {
 DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   int family = check_socket_domain(STACK_1);
   struct sockaddr sa;
-  unsigned char *buffer;
+  unsigned char *buffer, *data;
   size_t buffer_len, data_start = offsetof(struct sockaddr,sa_data);
-  STACK_0 = check_buffer_arg(STACK_0);
-  buffer_len = Sbvector_length(STACK_0);
+  /* this is yuky, but necessary: the return value of parse_buffer_arg()
+     is invalidated by GC, so we must do it _after_ we allocate buffer */
+  STACK_0 = check_byte_vector(STACK_0);
+  buffer_len = vector_length(STACK_0);
   pushSTACK(allocate_bit_vector(Atype_8Bit,data_start + buffer_len));
   buffer = (unsigned char *)TheSbvector(STACK_0)->data;
+  data = (unsigned char *)parse_buffer_arg(&STACK_1,&buffer_len);
   begin_system_call();
   memset(buffer,0,data_start + buffer_len);
-  memcpy(((struct sockaddr*)buffer)->sa_data,TheSbvector(STACK_1)->data,
-         buffer_len);
+  memcpy(((struct sockaddr*)buffer)->sa_data,data,buffer_len);
   end_system_call();
   ((struct sockaddr*)buffer)->sa_family = family;
   funcall(`RAWSOCK::MAKE-SA`,1);
@@ -430,11 +418,10 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address &key PEEK OOB WAITALL) {
   void *buffer;
   size_t buffer_len;
   SOCKLEN_T sa_size;
-  STACK_1 = check_buffer_arg(STACK_1);
+  STACK_1 = check_byte_vector(STACK_1);
   optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
-  /* no GC after this point! */
-  buffer = (void*)TheSbvector(STACK_1)->data;
-  buffer_len = Sbvector_length(STACK_1);
+  /* no GC after this point! - buffer has been checked already */
+  buffer = parse_buffer_arg(&STACK_1,&buffer_len);
   SYSCALL(retval,sock,recvfrom(sock,(BUF_TYPE_T)buffer,
                                buffer_len,flags,sa,&sa_size));
   VALUES3(fixnum(retval),fixnum(sa_size),STACK_0); skipSTACK(3);
@@ -498,11 +485,10 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key OOB EOR) {
   void *buffer;
   size_t buffer_len;
   SOCKLEN_T size;
-  STACK_1 = check_buffer_arg(STACK_1);
+  STACK_1 = check_byte_vector(STACK_1);
   sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
-  /* no GC after this point! */
-  buffer = (void*)TheSbvector(STACK_1)->data;
-  buffer_len = Sbvector_length(STACK_1);
+  /* no GC after this point! - buffer has been checked already */
+  buffer = parse_buffer_arg(&STACK_1,&buffer_len);
   SYSCALL(retval,sock,sendto(sock,(const BUF_TYPE_T)buffer,
                              buffer_len,flags,sa,size));
   VALUES1(fixnum(retval)); skipSTACK(3);
@@ -823,12 +809,14 @@ DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
 #endif
 
 /* ================== CHECKSUM from Fred Cohen ================== */
-DEFUN(RAWSOCK:IPCSUM, &optional buffer) { /* IP CHECKSUM */
-  unsigned char* buffer = TheSbvector(check_buffer_arg(popSTACK()))->data;
+DEFUN(RAWSOCK:IPCSUM, buffer) { /* IP CHECKSUM */
+  size_t length;
+  unsigned char* buffer = (unsigned char*)parse_buffer_arg(&STACK_0,&length);
   register long sum=0;           /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr=&(buffer[14]);
   unsigned int nbytes;
+  /* FIXME: check length > ??? */
   buffer[24]=0;buffer[25]=0;nbytes=(buffer[14] & 0xF) << 2; /* checksum=0, headerlen */
   while(nbytes>1){sum += *ptr; ptr++; sum += *ptr <<8; ptr++; nbytes -= 2;}
   if(nbytes==1){sum += *ptr;}     /* mop up an odd byte,  if necessary */
@@ -837,14 +825,17 @@ DEFUN(RAWSOCK:IPCSUM, &optional buffer) { /* IP CHECKSUM */
   buffer[24]=(result & 0xFF);
   buffer[25]=((result >> 8) & 0xFF);
   VALUES1(fixnum(result));
+  skipSTACK(1);
 }
 
-DEFUN(RAWSOCK:ICMPCSUM, &optional buffer) { /* ICMP CHECKSUM */
-  unsigned char* buffer = TheSbvector(check_buffer_arg(popSTACK()))->data;
+DEFUN(RAWSOCK:ICMPCSUM, buffer) { /* ICMP CHECKSUM */
+  size_t length;
+  unsigned char* buffer = (unsigned char*)parse_buffer_arg(&STACK_0,&length);
   register long sum=0;           /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr;
   unsigned int nbytes, off, offset;
+  /* FIXME: check length > ??? */
   off=((buffer[14]&0xF)<<2);offset=off+14; /* start of ICMP header */
   buffer[offset+2]=0;buffer[offset+3]=0;
   nbytes=(((buffer[16])<<8)+(buffer[17]))-off; /* bytes in ICMP part */
@@ -856,14 +847,17 @@ DEFUN(RAWSOCK:ICMPCSUM, &optional buffer) { /* ICMP CHECKSUM */
   buffer[offset+2]=(result & 0xFF);
   buffer[offset+3]=((result >> 8) & 0xFF);
   VALUES1(fixnum(result));
+  skipSTACK(1);
 }
 
-DEFUN(RAWSOCK:TCPCSUM, &optional buffer) {      /* TCP checksum */
-  unsigned char* buffer = TheSbvector(check_buffer_arg(popSTACK()))->data;
+DEFUN(RAWSOCK:TCPCSUM, buffer) {      /* TCP checksum */
+  size_t length;
+  unsigned char* buffer = (unsigned char*)parse_buffer_arg(&STACK_0,&length);
   register unsigned long sum;  /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr;
   unsigned int nbytes, packsize, offset;
+  /* FIXME: check length > ??? */
   sum = (buffer[26]<<8)+ buffer[27]+(buffer[28]<<8)+ buffer[29];  /* Src IP */
   sum +=(buffer[30]<<8)+ buffer[31]+(buffer[32]<<8)+ buffer[33];  /* Dst IP */
   sum +=(buffer[23]);           /* zero followed by protocol */
@@ -881,14 +875,17 @@ DEFUN(RAWSOCK:TCPCSUM, &optional buffer) {      /* TCP checksum */
   buffer[offset+17+14]=(result & 0xFF);
   buffer[offset+16+14]=((result >> 8) & 0xFF);
   VALUES1(fixnum(result));
+  skipSTACK(1);
 }
 
-DEFUN(RAWSOCK:UDPCSUM, &optional buffer) { /* UDP checksum */
-  unsigned char* buffer = TheSbvector(check_buffer_arg(popSTACK()))->data;
+DEFUN(RAWSOCK:UDPCSUM, buffer) { /* UDP checksum */
+  size_t length;
+  unsigned char* buffer = (unsigned char*)parse_buffer_arg(&STACK_0,&length);
   register unsigned long sum = 0;  /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr;
   unsigned int nbytes, packsize, offset;
+  /* FIXME: check length > ??? */
   sum = (buffer[26]<<8)+ buffer[27]+(buffer[28]<<8)+ buffer[29];  /* Src IP */
   sum +=(buffer[30]<<8)+ buffer[31]+(buffer[32]<<8)+ buffer[33];  /* Dst IP */
   sum +=(buffer[23]);           /* zero followed by protocol */
@@ -906,4 +903,5 @@ DEFUN(RAWSOCK:UDPCSUM, &optional buffer) { /* UDP checksum */
   buffer[offset+7+14]=(result & 0xFF);
   buffer[offset+6+14]=((result >> 8) & 0xFF);
   VALUES1(fixnum(result));
+  skipSTACK(1);
 }

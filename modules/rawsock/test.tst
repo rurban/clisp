@@ -10,6 +10,7 @@
   (defun host->sa (host &optional (port 0))
     (let* ((he (posix:resolve-host-ipaddr host)) sa
            (ip (first (posix:hostent-addr-list he)))
+           (type (posix:hostent-addrtype he))
            (li (read-from-string
                 (concatenate 'string "(" (substitute #\Space #\. ip) ")")))
            (ve (make-array (nth-value 1 (rawsock::sockaddr-slot :data))
@@ -21,10 +22,12 @@
             (aref ve 1) (ldb #.(byte 8 8) port))
       (replace ve li :start1 2)
       (show ve)
-      (setq sa (show (rawsock:make-sockaddr :INET ve)))
+      (setq sa (show (rawsock:make-sockaddr type ve)))
       (assert (equalp ve (rawsock:sockaddr-data sa)))
       (show (list 'rawsock:sockaddr-family
                   (multiple-value-list (rawsock:sockaddr-family sa))))
+      (assert (string= ip (rawsock:convert-address
+                           type (show (rawsock:convert-address type ip)))))
       sa))
   (defun local-sa-check (sock sa-local)
     (let* ((sa (rawsock:getsockname sock T))
@@ -131,3 +134,23 @@ T
 (rawsock:sock-write 1 (to-bytes "foo"))
 3
 
+;;;; root only??
+(integerp (show (setq *sock* (rawsock:socket :INET :DGRAM 0)))) T
+
+(progn
+  (setq *sa-remote*
+        (rawsock:make-sockaddr
+         :inet (make-array 16 :element-type '(unsigned-byte 8)
+                           :initial-contents
+                           '(101 116 104 48 0 0 0 0 0 0 0 0 0 0 0 0))))
+  (show *sa-remote*)
+  ;;(show (posix:resolve-host-ipaddr
+  ;;       (make-array 4 :element-type '(unsigned-byte 8)
+  ;;                   :displaced-to (rawsock:sockaddr-data *sa-remote*))))
+  (loop :for (x y) :in '((12 8)(14 #x45) (17 40)(22 #x40)(23 6)(26 10)(29 10))
+    :do (setf (aref *buffer* x) y))
+  (rawsock:ipcsum *buffer*))
+32133
+
+(rawsock:sendto *sock* *buffer* *sa-remote*)
+1024
