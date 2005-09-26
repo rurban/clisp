@@ -337,11 +337,11 @@
 /* declaration of setrlimit() needs const */
 #undef SETRLIMIT_CONST
 
-/* The size of a `fsblkcnt_t ', as computed by sizeof. */
-#undef SIZEOF_FSBLKCNT_T_
+/* The size of a `fsblkcnt_t', as computed by sizeof. */
+#undef SIZEOF_FSBLKCNT_T
 
-/* The size of a `fsfilcnt_t ', as computed by sizeof. */
-#undef SIZEOF_FSFILCNT_T_
+/* The size of a `fsfilcnt_t', as computed by sizeof. */
+#undef SIZEOF_FSFILCNT_T
 
 /* The size of a `gid_t', as computed by sizeof. */
 #undef SIZEOF_GID_T

@@ -4440,9 +4440,9 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
  fi
- echo "$as_me:$LINENO: checking for fsblkcnt_t " >&5
-echo $ECHO_N "checking for fsblkcnt_t ... $ECHO_C" >&6
-if test "${ac_cv_type_fsblkcnt_t_+set}" = set; then
+ echo "$as_me:$LINENO: checking for fsblkcnt_t" >&5
+echo $ECHO_N "checking for fsblkcnt_t... $ECHO_C" >&6
+if test "${ac_cv_type_fsblkcnt_t+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
@@ -4457,9 +4457,9 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-if ((fsblkcnt_t  *) 0)
+if ((fsblkcnt_t *) 0)
   return 0;
-if (sizeof (fsblkcnt_t ))
+if (sizeof (fsblkcnt_t))
   return 0;
   ;
   return 0;
@@ -4487,24 +4487,24 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_type_fsblkcnt_t_=yes
+  ac_cv_type_fsblkcnt_t=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_type_fsblkcnt_t_=no
+ac_cv_type_fsblkcnt_t=no
 fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
-echo "$as_me:$LINENO: result: $ac_cv_type_fsblkcnt_t_" >&5
-echo "${ECHO_T}$ac_cv_type_fsblkcnt_t_" >&6
+echo "$as_me:$LINENO: result: $ac_cv_type_fsblkcnt_t" >&5
+echo "${ECHO_T}$ac_cv_type_fsblkcnt_t" >&6
 
-echo "$as_me:$LINENO: checking size of fsblkcnt_t " >&5
-echo $ECHO_N "checking size of fsblkcnt_t ... $ECHO_C" >&6
-if test "${ac_cv_sizeof_fsblkcnt_t_+set}" = set; then
+echo "$as_me:$LINENO: checking size of fsblkcnt_t" >&5
+echo $ECHO_N "checking size of fsblkcnt_t... $ECHO_C" >&6
+if test "${ac_cv_sizeof_fsblkcnt_t+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test "$ac_cv_type_fsblkcnt_t_" = yes; then
+  if test "$ac_cv_type_fsblkcnt_t" = yes; then
   # The cast to unsigned long works around a bug in the HP C Compiler
   # version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
   # declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
@@ -4523,7 +4523,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t ))) >= 0)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t))) >= 0)];
 test_array [0] = 0
 
   ;
@@ -4566,7 +4566,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t ))) <= $ac_mid)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t))) <= $ac_mid)];
 test_array [0] = 0
 
   ;
@@ -4625,7 +4625,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t ))) < 0)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t))) < 0)];
 test_array [0] = 0
 
   ;
@@ -4668,7 +4668,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t ))) >= $ac_mid)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t))) >= $ac_mid)];
 test_array [0] = 0
 
   ;
@@ -4735,7 +4735,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t ))) <= $ac_mid)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsblkcnt_t))) <= $ac_mid)];
 test_array [0] = 0
 
   ;
@@ -4774,10 +4774,10 @@ fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 done
 case $ac_lo in
-?*) ac_cv_sizeof_fsblkcnt_t_=$ac_lo;;
-'') { { echo "$as_me:$LINENO: error: cannot compute sizeof (fsblkcnt_t ), 77
+?*) ac_cv_sizeof_fsblkcnt_t=$ac_lo;;
+'') { { echo "$as_me:$LINENO: error: cannot compute sizeof (fsblkcnt_t), 77
 See \`config.log' for more details." >&5
-echo "$as_me: error: cannot compute sizeof (fsblkcnt_t ), 77
+echo "$as_me: error: cannot compute sizeof (fsblkcnt_t), 77
 See \`config.log' for more details." >&2;}
    { (exit 1); exit 1; }; } ;;
 esac
@@ -4798,8 +4798,8 @@ cat >>conftest.$ac_ext <<_ACEOF
 #include <stdio.h>
 #include <sys/statvfs.h>
 
-long longval () { return (long) (sizeof (fsblkcnt_t )); }
-unsigned long ulongval () { return (long) (sizeof (fsblkcnt_t )); }
+long longval () { return (long) (sizeof (fsblkcnt_t)); }
+unsigned long ulongval () { return (long) (sizeof (fsblkcnt_t)); }
 #include <stdio.h>
 #include <stdlib.h>
 int
@@ -4809,17 +4809,17 @@ main ()
   FILE *f = fopen ("conftest.val", "w");
   if (! f)
     exit (1);
-  if (((long) (sizeof (fsblkcnt_t ))) < 0)
+  if (((long) (sizeof (fsblkcnt_t))) < 0)
     {
       long i = longval ();
-      if (i != ((long) (sizeof (fsblkcnt_t ))))
+      if (i != ((long) (sizeof (fsblkcnt_t))))
 	exit (1);
       fprintf (f, "%ld\n", i);
     }
   else
     {
       unsigned long i = ulongval ();
-      if (i != ((long) (sizeof (fsblkcnt_t ))))
+      if (i != ((long) (sizeof (fsblkcnt_t))))
 	exit (1);
       fprintf (f, "%lu\n", i);
     }
@@ -4840,16 +4840,16 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_sizeof_fsblkcnt_t_=`cat conftest.val`
+  ac_cv_sizeof_fsblkcnt_t=`cat conftest.val`
 else
   echo "$as_me: program exited with status $ac_status" >&5
 echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
 ( exit $ac_status )
-{ { echo "$as_me:$LINENO: error: cannot compute sizeof (fsblkcnt_t ), 77
+{ { echo "$as_me:$LINENO: error: cannot compute sizeof (fsblkcnt_t), 77
 See \`config.log' for more details." >&5
-echo "$as_me: error: cannot compute sizeof (fsblkcnt_t ), 77
+echo "$as_me: error: cannot compute sizeof (fsblkcnt_t), 77
 See \`config.log' for more details." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -4858,19 +4858,19 @@ fi
 fi
 rm -f conftest.val
 else
-  ac_cv_sizeof_fsblkcnt_t_=0
+  ac_cv_sizeof_fsblkcnt_t=0
 fi
 fi
-echo "$as_me:$LINENO: result: $ac_cv_sizeof_fsblkcnt_t_" >&5
-echo "${ECHO_T}$ac_cv_sizeof_fsblkcnt_t_" >&6
+echo "$as_me:$LINENO: result: $ac_cv_sizeof_fsblkcnt_t" >&5
+echo "${ECHO_T}$ac_cv_sizeof_fsblkcnt_t" >&6
 cat >>confdefs.h <<_ACEOF
-#define SIZEOF_FSBLKCNT_T_ $ac_cv_sizeof_fsblkcnt_t_
+#define SIZEOF_FSBLKCNT_T $ac_cv_sizeof_fsblkcnt_t
 _ACEOF
 
 
- echo "$as_me:$LINENO: checking for fsfilcnt_t " >&5
-echo $ECHO_N "checking for fsfilcnt_t ... $ECHO_C" >&6
-if test "${ac_cv_type_fsfilcnt_t_+set}" = set; then
+ echo "$as_me:$LINENO: checking for fsfilcnt_t" >&5
+echo $ECHO_N "checking for fsfilcnt_t... $ECHO_C" >&6
+if test "${ac_cv_type_fsfilcnt_t+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
@@ -4885,9 +4885,9 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-if ((fsfilcnt_t  *) 0)
+if ((fsfilcnt_t *) 0)
   return 0;
-if (sizeof (fsfilcnt_t ))
+if (sizeof (fsfilcnt_t))
   return 0;
   ;
   return 0;
@@ -4915,24 +4915,24 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_type_fsfilcnt_t_=yes
+  ac_cv_type_fsfilcnt_t=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_type_fsfilcnt_t_=no
+ac_cv_type_fsfilcnt_t=no
 fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
-echo "$as_me:$LINENO: result: $ac_cv_type_fsfilcnt_t_" >&5
-echo "${ECHO_T}$ac_cv_type_fsfilcnt_t_" >&6
+echo "$as_me:$LINENO: result: $ac_cv_type_fsfilcnt_t" >&5
+echo "${ECHO_T}$ac_cv_type_fsfilcnt_t" >&6
 
-echo "$as_me:$LINENO: checking size of fsfilcnt_t " >&5
-echo $ECHO_N "checking size of fsfilcnt_t ... $ECHO_C" >&6
-if test "${ac_cv_sizeof_fsfilcnt_t_+set}" = set; then
+echo "$as_me:$LINENO: checking size of fsfilcnt_t" >&5
+echo $ECHO_N "checking size of fsfilcnt_t... $ECHO_C" >&6
+if test "${ac_cv_sizeof_fsfilcnt_t+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test "$ac_cv_type_fsfilcnt_t_" = yes; then
+  if test "$ac_cv_type_fsfilcnt_t" = yes; then
   # The cast to unsigned long works around a bug in the HP C Compiler
   # version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
   # declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
@@ -4951,7 +4951,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t ))) >= 0)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t))) >= 0)];
 test_array [0] = 0
 
   ;
@@ -4994,7 +4994,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t ))) <= $ac_mid)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t))) <= $ac_mid)];
 test_array [0] = 0
 
   ;
@@ -5053,7 +5053,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t ))) < 0)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t))) < 0)];
 test_array [0] = 0
 
   ;
@@ -5096,7 +5096,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t ))) >= $ac_mid)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t))) >= $ac_mid)];
 test_array [0] = 0
 
   ;
@@ -5163,7 +5163,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t ))) <= $ac_mid)];
+static int test_array [1 - 2 * !(((long) (sizeof (fsfilcnt_t))) <= $ac_mid)];
 test_array [0] = 0
 
   ;
@@ -5202,10 +5202,10 @@ fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 done
 case $ac_lo in
-?*) ac_cv_sizeof_fsfilcnt_t_=$ac_lo;;
-'') { { echo "$as_me:$LINENO: error: cannot compute sizeof (fsfilcnt_t ), 77
+?*) ac_cv_sizeof_fsfilcnt_t=$ac_lo;;
+'') { { echo "$as_me:$LINENO: error: cannot compute sizeof (fsfilcnt_t), 77
 See \`config.log' for more details." >&5
-echo "$as_me: error: cannot compute sizeof (fsfilcnt_t ), 77
+echo "$as_me: error: cannot compute sizeof (fsfilcnt_t), 77
 See \`config.log' for more details." >&2;}
    { (exit 1); exit 1; }; } ;;
 esac
@@ -5226,8 +5226,8 @@ cat >>conftest.$ac_ext <<_ACEOF
 #include <stdio.h>
 #include <sys/statvfs.h>
 
-long longval () { return (long) (sizeof (fsfilcnt_t )); }
-unsigned long ulongval () { return (long) (sizeof (fsfilcnt_t )); }
+long longval () { return (long) (sizeof (fsfilcnt_t)); }
+unsigned long ulongval () { return (long) (sizeof (fsfilcnt_t)); }
 #include <stdio.h>
 #include <stdlib.h>
 int
@@ -5237,17 +5237,17 @@ main ()
   FILE *f = fopen ("conftest.val", "w");
   if (! f)
     exit (1);
-  if (((long) (sizeof (fsfilcnt_t ))) < 0)
+  if (((long) (sizeof (fsfilcnt_t))) < 0)
     {
       long i = longval ();
-      if (i != ((long) (sizeof (fsfilcnt_t ))))
+      if (i != ((long) (sizeof (fsfilcnt_t))))
 	exit (1);
       fprintf (f, "%ld\n", i);
     }
   else
     {
       unsigned long i = ulongval ();
-      if (i != ((long) (sizeof (fsfilcnt_t ))))
+      if (i != ((long) (sizeof (fsfilcnt_t))))
 	exit (1);
       fprintf (f, "%lu\n", i);
     }
@@ -5268,16 +5268,16 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_sizeof_fsfilcnt_t_=`cat conftest.val`
+  ac_cv_sizeof_fsfilcnt_t=`cat conftest.val`
 else
   echo "$as_me: program exited with status $ac_status" >&5
 echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
 ( exit $ac_status )
-{ { echo "$as_me:$LINENO: error: cannot compute sizeof (fsfilcnt_t ), 77
+{ { echo "$as_me:$LINENO: error: cannot compute sizeof (fsfilcnt_t), 77
 See \`config.log' for more details." >&5
-echo "$as_me: error: cannot compute sizeof (fsfilcnt_t ), 77
+echo "$as_me: error: cannot compute sizeof (fsfilcnt_t), 77
 See \`config.log' for more details." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -5286,13 +5286,13 @@ fi
 fi
 rm -f conftest.val
 else
-  ac_cv_sizeof_fsfilcnt_t_=0
+  ac_cv_sizeof_fsfilcnt_t=0
 fi
 fi
-echo "$as_me:$LINENO: result: $ac_cv_sizeof_fsfilcnt_t_" >&5
-echo "${ECHO_T}$ac_cv_sizeof_fsfilcnt_t_" >&6
+echo "$as_me:$LINENO: result: $ac_cv_sizeof_fsfilcnt_t" >&5
+echo "${ECHO_T}$ac_cv_sizeof_fsfilcnt_t" >&6
 cat >>confdefs.h <<_ACEOF
-#define SIZEOF_FSFILCNT_T_ $ac_cv_sizeof_fsfilcnt_t_
+#define SIZEOF_FSFILCNT_T $ac_cv_sizeof_fsfilcnt_t
 _ACEOF
 
 
