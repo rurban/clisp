@@ -33,7 +33,11 @@
 
 (defsetf socket-option (&rest args) (value) `(set-socket-option ,value ,@args))
 
-(defun sockaddr-data (sa) (subseq (sockaddr-%data sa) #,(sockaddr-slot :data)))
+(defun sockaddr-data (sa)
+  (let ((%data (sockaddr-%data sa)) (offset #,(sockaddr-slot :data)))
+    (make-array (- (length %data) offset) :displaced-to %data
+                :displaced-index-offset offset
+                :element-type '(unsigned-byte 8))))
 
 (defun open-unix-socket (pathname &optional (type :SOCK_STREAM))
   "Return the socket (fixnum) pointing to this UNIX socket special device."
