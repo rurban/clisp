@@ -412,7 +412,7 @@ DEFUN(RAWSOCK:LISTEN,socket backlog) {
 /* remove 3 objects from the STACK and return the RECV flag
    based on MSG_PEEK MSG_OOB MSG_WAITALL */
 DEFFLAGSET(recv_flags,MSG_PEEK MSG_OOB MSG_WAITALL)
-DEFUN(RAWSOCK:RECV,socket buffer &key MSG_PEEK MSG_OOB MSG_WAITALL) {
+DEFUN(RAWSOCK:RECV,socket buffer &key PEEK OOB WAITALL) {
   int flags = recv_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
@@ -422,8 +422,7 @@ DEFUN(RAWSOCK:RECV,socket buffer &key MSG_PEEK MSG_OOB MSG_WAITALL) {
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
-DEFUN(RAWSOCK:RECVFROM, socket buffer address \
-      &key MSG_PEEK MSG_OOB MSG_WAITALL) {
+DEFUN(RAWSOCK:RECVFROM, socket buffer address &key PEEK OOB WAITALL) {
   int flags = recv_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_2));
   int retval;
@@ -442,7 +441,7 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address \
 }
 
 #if defined(HAVE_RECVMSG)       /* not on win32 */
-DEFUN(RAWSOCK:RECVMSG,socket message &key MSG_PEEK MSG_OOB MSG_WAITALL) {
+DEFUN(RAWSOCK:RECVMSG,socket message &key PEEK OOB WAITALL) {
   int flags = recv_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
@@ -468,7 +467,7 @@ DEFUN(RAWSOCK:SOCK-READ,socket buffer) {
 /* remove 2 objects from the STACK and return the SEND flag
    based on MSG_OOB MSG_EOR */
 DEFFLAGSET(send_flags, MSG_OOB MSG_EOR)
-DEFUN(RAWSOCK:SEND,socket buffer &key MSG_OOB MSG_EOR) {
+DEFUN(RAWSOCK:SEND,socket buffer &key OOB EOR) {
   int flags = send_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
@@ -479,7 +478,7 @@ DEFUN(RAWSOCK:SEND,socket buffer &key MSG_OOB MSG_EOR) {
 }
 
 #if defined(HAVE_SENDMSG)       /* not on win32 */
-DEFUN(RAWSOCK:SENDMSG,socket message &key MSG_OOB MSG_EOR) {
+DEFUN(RAWSOCK:SENDMSG,socket message &key OOB EOR) {
   int flags = send_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
@@ -491,7 +490,7 @@ DEFUN(RAWSOCK:SENDMSG,socket message &key MSG_OOB MSG_EOR) {
 }
 #endif
 
-DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
+DEFUN(RAWSOCK:SENDTO, socket buffer address &key OOB EOR) {
   int flags = send_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_2));
   int retval;

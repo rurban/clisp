@@ -12,6 +12,8 @@
 
 	* modules/rawsock/sock.lisp (resize-buffer): export
 	* modules/rawsock/rawsock.c (SENDTO): fixed STACK cleanup
+	(RECV, RECVFROM, RECVMSG, SEND, SENDMSG, SENDTO): removed "MSG_"
+	prefix from the &key arguments
 
 2005-09-23  Sam Steingold  <sds@gnu.org>
 
