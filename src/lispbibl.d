@@ -14385,12 +14385,12 @@ extern maygc object check_list_replacement (object obj);
 /* create check function for name */
 #define MAKE_CHECK_LOW(name,test)                               \
   static inline maygc object check_##name (object obj) {        \
-    if (!test(obj))                                             \
+    if (!test)                                                  \
       obj = check_##name##_replacement(obj);                    \
     return obj;                                                 \
   }
-#define MAKE_CHECK(name) MAKE_CHECK_LOW(name,name##p)
-#define MAKE_CHECK_(name) MAKE_CHECK_LOW(name,name##_p)
+#define MAKE_CHECK(name) MAKE_CHECK_LOW(name,name##p(obj))
+#define MAKE_CHECK_(name) MAKE_CHECK_LOW(name,name##_p(obj))
 
 #ifndef COMPILE_STANDALONE
 MAKE_CHECK(list)
@@ -14484,6 +14484,21 @@ MAKE_CHECK(array)
 %% export_literal(MAKE_CHECK(array));
 %% puts("#endif");
 
+/* check_byte_vector_replacement(obj)
+ > obj: not an (ARRAY (UNSIGNED-BYTE 8) (*))
+ < result: an (ARRAY (UNSIGNED-BYTE 8) (*)), a replacement
+ can trigger GC */
+extern maygc object check_byte_vector_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+MAKE_CHECK_LOW(byte_vector,bit_vector_p(Atype_8Bit,obj))
+#endif
+/* used by STREAM, modules */
+%% puts("extern object check_byte_vector_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
+%% export_literal(MAKE_CHECK_LOW(byte_vector,bit_vector_p(Atype_8Bit,obj)));
+%% puts("#endif");
+
+
 /* error-message, if an object is not an environment.
  fehler_environment(obj);
  > obj: non-vector */
@@ -14525,20 +14540,12 @@ MAKE_CHECK(integer)
  can trigger GC */
 extern maygc object check_pos_integer_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-static inline maygc object check_pos_integer (object obj) {
-  if (!(integerp(obj) && !R_minusp(obj)))
-    obj = check_pos_integer_replacement(obj);
-  return obj;
-}
+MAKE_CHECK_LOW(pos_integer,(integerp(obj)&&!R_minusp(obj)))
 #endif
 /* used by LISPARIT, LIST */
 %% puts("extern object check_pos_integer_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% puts("static inline object check_pos_integer (object obj) {"
-%%        " if (!(integerp(obj) && !R_minusp(obj)))"
-%%          " obj = check_posfixnum_replacement(obj);"
-%%        " return obj;"
-%%      " }\n");
+%% export_literal(MAKE_CHECK_LOW(pos_integer,(integerp(obj)&&!R_minusp(obj))));
 %% puts("#endif");
 
 # Error message, if an argument isn't a Character:
@@ -14822,11 +14829,11 @@ MAKE_CHECK_(slong)
 #endif
 extern maygc object check_ffloat_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-MAKE_CHECK_LOW(ffloat,single_float_p)
+MAKE_CHECK_LOW(ffloat,single_float_p(obj))
 #endif
 extern maygc object check_dfloat_replacement (object obj);
 #ifndef COMPILE_STANDALONE
-MAKE_CHECK_LOW(dfloat,double_float_p)
+MAKE_CHECK_LOW(dfloat,double_float_p(obj))
 #endif
 # is used by STREAM, FFI
 %% puts("extern object check_uint8_replacement (object obj);");
@@ -14879,11 +14886,11 @@ MAKE_CHECK_LOW(dfloat,double_float_p)
 %% puts("#endif");
 %% puts("extern object check_ffloat_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% export_literal(MAKE_CHECK_LOW(ffloat,single_float_p));
+%% export_literal(MAKE_CHECK_LOW(ffloat,single_float_p(obj)));
 %% puts("#endif");
 %% puts("extern object check_dfloat_replacement (object obj);");
 %% puts("#ifndef COMPILE_STANDALONE");
-%% export_literal(MAKE_CHECK_LOW(dfloat,double_float_p));
+%% export_literal(MAKE_CHECK_LOW(dfloat,double_float_p(obj)));
 %% puts("#endif");
 
 # ##################### PACKBIBL for PACKAGE.D ############################# #

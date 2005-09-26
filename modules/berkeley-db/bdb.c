@@ -1133,19 +1133,16 @@ static void init_dbt (DBT* p_dbt , u_int32_t flags) {
 
 /* ensure that the return value is a byte vector of specified length
  can trigger GC */
-static object check_byte_vector (object obj, int length) {
-  while (!bit_vector_p(Atype_8Bit,obj)
-         && (length<0 || length!=vector_length(obj))) {
+static object check_byte_vector_len (object obj, int length) {
+ check_byte_vector_len_restart:
+  obj = check_byte_vector(obj);
+  if (length > 0 &&  length!=vector_length(obj)) {
     pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(GLO(type_uint8_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(GLO(type_uint8_vector)); pushSTACK(obj);
+    pushSTACK(fixnum(length)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    if (length >= 0) {
-      pushSTACK(fixnum(length));
-      check_value(type_error,GETTEXT("~S: ~S is not a vector of type ~S and length ~S"));
-    } else check_value(type_error,GETTEXT("~S: ~S is not a vector of type ~S"));
+    check_value(error,GETTEXT("~S: byte vector ~S should have length ~S"));
     obj = value1;
+    goto check_byte_vector_len_restart;
   }
   return obj;
 }
@@ -2545,7 +2542,7 @@ DEFUN(BDB:TXN-CHECKPOINT, dbe &key :KBYTE :MIN :FORCE)
 static u_int8_t* check_gid (gcv_object_t *obj_) {
   uintL idx;
   object data_vector;
-  *obj_ = check_byte_vector(*obj_,DB_XIDDATASIZE);
+  *obj_ = check_byte_vector_len(*obj_,DB_XIDDATASIZE);
   data_vector = array_displace_check(*obj_,DB_XIDDATASIZE,&idx);
   return TheSbvector(data_vector)->data+idx;
 }

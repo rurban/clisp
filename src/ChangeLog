@@ -1,3 +1,13 @@
+2005-09-26  Sam Steingold  <sds@gnu.org>
+
+	* error.d (check_byte_vector_replacement): added
+	* lispbibl.d (MAKE_CHECK_LOW): tweak to be more general
+	(check_byte_vector_replacement): prototype and export to clisp.h
+	* stream.d (test_n_bytes_args): use check_uint32() and
+	check_byte_vector()
+	* modules/berkeley-db/bdb.c (check_byte_vector): replaced with
+	check_byte_vector_len(), use check_byte_vector()
+
 2005-09-25  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (GETUID, %SETUID, GETGID, %SETGID)
@@ -45,7 +55,7 @@
 	* misc.d (map_to_alist, map_lisp_to_c, map_c_to_lisp, map_c_to_list)
 	(map_list_to_c): implemented
 	* lispbibl.d (c_lisp_pair_t, c_lisp_map_t): added, export to clisp.h
-	* utils/modprep.lisp (print-tables-1): instead of checked
+	* utils/modprep.lisp (print-tables-1): instead of checker
 	functions, output #defines using map_* functions
 	* modules/berkeley-db/bdb.c, modules/i18n/gettext.c:
 	* modules/pcre/cpcre.c, modules/rawsock/rawsock.c:

@@ -982,6 +982,24 @@ global maygc object check_array_replacement (object obj) {
   return obj;
 }
 
+/* check_byte_vector_replacement(obj)
+ > obj: not an (ARRAY (UNSIGNED-BYTE 8) (*))
+ < result: an (ARRAY (UNSIGNED-BYTE 8) (*)), a replacement
+ can trigger GC */
+global maygc object check_byte_vector_replacement (object obj) {
+  do {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_uint8_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(O(type_uint8_vector)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: argument ~S is not a vector of type ~S"));
+    obj = value1;
+  } while (!bit_vector_p(Atype_8Bit,obj));
+  return obj;
+}
+
+
 /* error-message, if an object is not an environment.
  fehler_environment(obj);
  > obj: non-vector */
