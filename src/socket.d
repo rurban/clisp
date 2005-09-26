@@ -420,7 +420,7 @@ global struct hostent* resolve_host (object arg) {
       default: goto resolve_host_bad_vector;
     }
     if (data_size == sizeof(struct in_addr)) {
-      var uintL index;
+      var uintL index = 0;
       var object data = array_displace_check(arg,vec_len,&index);
       begin_system_call();
       he = gethostbyaddr((char*)(TheSbvector(data)->data+index),
@@ -429,7 +429,7 @@ global struct hostent* resolve_host (object arg) {
     }
    #ifdef HAVE_IPV6
     else if (data_size == sizeof(struct in6_addr)) {
-      var uintL index;
+      var uintL index = 0;
       var object data = array_displace_check(arg,vec_len,&index);
       begin_system_call();
       he = gethostbyaddr((char*)(TheSbvector(data)->data+index),

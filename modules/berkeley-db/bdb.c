@@ -2540,7 +2540,7 @@ DEFUN(BDB:TXN-CHECKPOINT, dbe &key :KBYTE :MIN :FORCE)
    a (vector (unsigned-byte 8) DB_XIDDATASIZE))
  can trigger GC, the return value is invalidated by GC */
 static u_int8_t* check_gid (gcv_object_t *obj_) {
-  uintL idx;
+  uintL idx = 0;
   object data_vector;
   *obj_ = check_byte_vector_len(*obj_,DB_XIDDATASIZE);
   data_vector = array_displace_check(*obj_,DB_XIDDATASIZE,&idx);
