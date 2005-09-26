@@ -27,35 +27,55 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 </simpara></warning>
 
 <para>We implement access to
- <simplelist columns="4">
-  <member><function role="unix">accept</function></member>
-  <member><function role="unix">bind</function></member>
-  <member><function role="unix">connect</function></member>
-  <member><function role="unix">getpeername</function></member>
-  <member><function role="unix">getsockname</function></member>
-  <member><function role="unix">htonl</function></member>
-  <member><function role="unix">htons</function></member>
-  <member><function role="unix">listen</function></member>
-  <member><function role="unix">ntohl</function></member>
-  <member><function role="unix">ntohs</function></member>
-  <member><function role="unix">recv</function></member>
-  <member><function role="unix">recvfrom</function></member>
-  <member><function role="unix">recvmsg</function></member>
-  <member><function role="unix">send</function></member>
-  <member><function role="unix">sendmsg</function></member>
-  <member><function role="unix">sendto</function></member>
-  <member><function role="unix">sockatmark</function></member>
-  <member><function role="unix">socket</function></member>
-  <member><function role="unix">socketpair</function></member></simplelist>
+ <simplelist columns="1">
+  <member><code>(<function role="unix">accept</function>
+    &sock-r; &addr-r;)</code></member>
+  <member><code>(<function role="unix">bind</function>
+    &sock-r; &addr-r;)</code></member>
+  <member><code>(<function role="unix">connect</function>
+    &sock-r; &addr-r;)</code></member>
+  <member><code>(<function role="unix">getpeername</function>
+    &sock-r; &addr-r;)</code></member>
+  <member><code>(<function role="unix">getsockname</function>
+    &sock-r; &addr-r;)</code></member>
+  <member><code>(<function role="unix">htonl</function> &n-r;)</code></member>
+  <member><code>(<function role="unix">htons</function> &n-r;)</code></member>
+  <member><code>(<function role="unix">listen</function>
+    &sock-r; <replaceable>backlog</replaceable>)</code></member>
+  <member><code>(<function role="unix">ntohl</function> &n-r;)</code></member>
+  <member><code>(<function role="unix">ntohs</function> &n-r;)</code></member>
+  <member><code>(<function role="unix">recv</function>
+    &sock-r; &buf-r; &key-amp; peek oob waitall)</code></member>
+  <member><code>(<function role="unix">recvfrom</function>
+    &sock-r; &buf-r; &addr-r; &key-amp; peek oob waitall)</code></member>
+  <member><code>(<function role="unix">recvmsg</function>
+    &sock-r; &mesg-r; &key-amp; peek oob waitall)</code></member>
+  <member><code>(<function role="unix">send</function>
+    &sock-r; &buf-r; &key-amp; oob eor)</code></member>
+  <member><code>(<function role="unix">sendmsg</function>
+    &sock-r; &mesg-r; &key-amp; oob eor)</code></member>
+  <member><code>(<function role="unix">sendto</function>
+    &sock-r; &buf-r; &addr-r; &key-amp; oob eor)</code></member>
+  <member><code>(<function role="unix">sockatmark</function>
+    &sock-r;)</code></member>
+  <member><code>(<function role="unix">socket</function>
+    <replaceable>domain</replaceable> &type-r;
+    <replaceable>protocol</replaceable>)</code></member>
+  <member><code>(<function role="unix">socketpair</function>
+    <replaceable>domain</replaceable> &type-r;
+    <replaceable>protocol</replaceable>)</code></member></simplelist>
  using same-named lisp functions in package
  <quote role="package">RAWSOCK</quote>.
  Additionally,<itemizedlist>
-  <listitem><simpara><function>RAWSOCK:SOCK-READ</function>
-    calls <function role="unix">read</function>;</simpara></listitem>
-  <listitem><simpara><function>RAWSOCK:SOCK-WRITE</function>
-    calls <function role="unix">write</function>;</simpara></listitem>
-  <listitem><simpara><function>RAWSOCK:SOCK-CLOSE</function>
-    calls <function role="unix">close</function>.</simpara></listitem>
+  <listitem><simpara><code>(<function>RAWSOCK:SOCK-READ</function>
+     &sock-r; &buf-r;)</code> calls
+    <function role="unix">read</function>;</simpara></listitem>
+  <listitem><simpara><code>(<function>RAWSOCK:SOCK-WRITE</function>
+     &sock-r; &buf-r;)</code> calls
+   <function role="unix">write</function>;</simpara></listitem>
+  <listitem><simpara><code>(<function>RAWSOCK:SOCK-CLOSE</function>
+     &sock-r;)</code> calls
+    <function role="unix">close</function>.</simpara></listitem>
 </itemizedlist></para>
 
 <variablelist id="rawsock-args"><title>Common arguments</title>
@@ -71,7 +91,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    &integer-t;, or a platform-specific keyword, e.g.,
    <constant>:INET</constant> stands for <constant>AF_INET</constant>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><type>int</type> <replaceable>type</replaceable></term>
+<varlistentry><term><type>int</type> &type-r;</term>
  <listitem><simpara>A &nil; (stands for <constant>SOCK_STREAM</constant>),
    &integer-t;, or a platform-specific keyword, e.g.,
    <constant>:DGRAM</constant> stands for <constant>SOCK_DGRAM</constant>.
