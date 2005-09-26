@@ -140,9 +140,7 @@ T
 (progn
   (setq *sa-remote*
         (rawsock:make-sockaddr
-         :inet (make-array 16 :element-type '(unsigned-byte 8)
-                           :initial-contents
-                           '(101 116 104 48 0 0 0 0 0 0 0 0 0 0 0 0))))
+         :inet '(101 116 104 48 0 0 0 0 0 0 0 0 0 0 0 0)))
   (show *sa-remote*)
   ;;(show (posix:resolve-host-ipaddr
   ;;       (make-array 4 :element-type '(unsigned-byte 8)

@@ -88,7 +88,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    length because Lisp can determine it itself.  The vector may be
    adjustable and have a fill pointer.</simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> &sock-r;</term>
- <listitem><simpara>An &integer-t;.</simpara></listitem></varlistentry>
+ <listitem><simpara>An &integer-t; (returned by
+   <function role="unix">socketpair</function> or
+   <function role="unix">socket</function>).</simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> <replaceable>family</replaceable></term>
  <term><type>int</type> <replaceable>domain</replaceable></term>
  <listitem><simpara>A &nil; (stands for <constant>AF_UNSPEC</constant>),
