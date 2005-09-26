@@ -1,5 +1,10 @@
 2005-09-26  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (resolve_host): init offset before array_displace_check()
+	* modules/berkeley-db/bdb.c (check_gid): ditto
+
+2005-09-26  Sam Steingold  <sds@gnu.org>
+
 	* error.d (check_byte_vector_replacement): added
 	* lispbibl.d (MAKE_CHECK_LOW): tweak to be more general
 	(check_byte_vector_replacement): prototype and export to clisp.h
