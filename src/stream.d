@@ -13570,23 +13570,9 @@ local maygc void test_n_bytes_args (uintL* index_, uintL* count_) {
                           P(rd_by_iau8_unbuffered))
                     && eq(TheStream(STACK_3)->strm_wr_by,
                           P(wr_by_iau8_unbuffered))));
-  {
-    var object vector = STACK_2;
-    if (!bit_vector_p(Atype_8Bit,vector)) {
-      pushSTACK(vector);               # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_uint8_vector)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(vector);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~S: argument ~S should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"));
-    }
-    if (!uint32_p(STACK_0))
-      fehler_uint32(STACK_0);
-    *count_ = posfixnum_to_V(popSTACK());
-    if (!uint32_p(STACK_0))
-      fehler_uint32(STACK_0);
-    *index_ = posfixnum_to_V(popSTACK());
-    STACK_0 = array_displace_check(vector,*count_,index_);
-  }
+  *count_ = I_to_UL(check_uint32(popSTACK()));
+  *index_ = I_to_UL(check_uint32(popSTACK()));
+  STACK_0 = array_displace_check(check_byte_vector(STACK_0),*count_,index_);
 }
 
 LISPFUNN(read_n_bytes,4) {
