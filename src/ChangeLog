@@ -1,5 +1,16 @@
 2005-09-26  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (check_buffer_arg): removed
+	(parse_buffer_arg): accept arbitrary vectors
+	(BUFFER, RESIZE-BUFFER): removed
+	(MAKE-SOCKADDR, RECVFROM, SENDTO): modified for the
+	parse_buffer_arg() change
+	(IPCSUM, ICMPCSUM, TCPCSUM, UDPCSUM): buffer argument is now required
+	* modules/rawsock/sock.lisp (sockaddr-data): return a vector
+	displaced to the underlying data structure
+
+2005-09-26  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (resolve_host): init offset before array_displace_check()
 	* modules/berkeley-db/bdb.c (check_gid): ditto
 

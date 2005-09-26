@@ -58,6 +58,54 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     calls <function role="unix">close</function>.</simpara></listitem>
 </itemizedlist></para>
 
+<variablelist id="rawsock-args"><title>Common arguments</title>
+<varlistentry><term><type>void*</type> &buf-r;</term>
+ <listitem><simpara>A &unsigned-byte-vec;.  You do not need to supply its
+   length because Lisp can determine it itself.  The vector may be
+   adjustable and have a fill pointer.</simpara></listitem></varlistentry>
+<varlistentry><term><type>int</type> &sock-r;</term>
+ <listitem><simpara>An &integer-t;.</simpara></listitem></varlistentry>
+<varlistentry><term><type>int</type> <replaceable>family</replaceable></term>
+ <term><type>int</type> <replaceable>domain</replaceable></term>
+ <listitem><simpara>A &nil; (stands for <constant>AF_UNSPEC</constant>),
+   &integer-t;, or a platform-specific keyword, e.g.,
+   <constant>:INET</constant> stands for <constant>AF_INET</constant>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><type>int</type> <replaceable>type</replaceable></term>
+ <listitem><simpara>A &nil; (stands for <constant>SOCK_STREAM</constant>),
+   &integer-t;, or a platform-specific keyword, e.g.,
+   <constant>:DGRAM</constant> stands for <constant>SOCK_DGRAM</constant>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><type>int</type> <replaceable>protocol</replaceable></term>
+ <listitem><simpara>A &nil; (stands for 0), &integer-t;, or a
+   platform-specific keyword, e.g., <constant>:ARP</constant> stands
+   for <constant>ETH_P_ARP</constant>.</simpara></listitem></varlistentry>
+<varlistentry><term><type>int</type> <replaceable>flags</replaceable></term>
+ <listitem><simpara>This &c-lang; argument corresponds to keyword
+   arguments to the Lisp functions.  E.g., <function>rawsock:send</function>
+   accepts <constant>:OOB</constant> and <constant>EOR</constant> arguments,
+   while <function>rawsock:recv</function> accepts <constant>PEEK</constant>,
+   <constant>OOB</constant> and <constant>WAITALL</constant>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><type>struct sockaddr</type> &addr-r;</term>
+ <listitem><simpara>An object returned by
+   <link linkend="make-sockaddr"><function>MAKE-SOCKADDR</function></link>.
+   You do not need to supply its length because Lisp can determine it itself.
+</simpara></listitem></varlistentry>
+</variablelist>
+
+<note id="rawsock-plat-dep-constants"><title>Platform-dependent Keywords</title>
+<para>One can extract the list of acceptable platform-dependent
+ keywords for, e.g., socket domain using the following code:
+<programlisting language="lisp">
+ (&block; &nil;
+   (&handler-bind; ((&type-error-t;
+                    (&lambda-m; (c)
+                      (&format; &t; "~&amp;error: ~A~%" c)
+                      (&return; (&cddr; (&third; (&type-error-expected-type; c)))))))
+     (rawsock:socket "bad" &nil; &nil;)))
+</programlisting></para></note>
+
 <para>The interface to <function role="unix">getsockopt</function>
  and <function role="unix">setsockopt</function> is available via
  the &setf;able function
@@ -87,18 +135,19 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     <function role="unix">inet_ntop</function>,
     or <function role="unix">inet_pton</function>.
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(RAWSOCK:MAKE-SOCKADDR
+ <varlistentry id="make-sockaddr"><term><code>(RAWSOCK:MAKE-SOCKADDR
     <replaceable>family</replaceable> &data-r;)</code></term>
   <listitem><simpara>create a <type>sockaddr</type> object.
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(RAWSOCK:SOCKADDR-FAMILY
-    <replaceable>sockaddr</replaceable>)</code></term>
-  <listitem><simpara>return the numeric family of a
+ <varlistentry><term><code>(RAWSOCK:SOCKADDR-FAMILY &addr-r;)</code></term>
+  <listitem><simpara>return the numeric family of the
     <type>sockaddr</type> object.</simpara></listitem></varlistentry>
- <varlistentry><term><code>(RAWSOCK:SOCKADDR-DATA
-    <replaceable>sockaddr</replaceable>)</code></term>
-  <listitem><simpara>return a &fresh; data vector of a
-    <type>sockaddr</type> object.</simpara></listitem></varlistentry>
+ <varlistentry><term><code>(RAWSOCK:SOCKADDR-DATA &addr-r;)</code></term>
+  <listitem><simpara>return a &fresh; &vector-t; displaced to the
+    <structfield>data</structfield> field of the
+    <type>sockaddr</type> object.</simpara>
+   <warning><simpara>Modifying this &vector-t;'s content will modify the
+     &addr-r; argument data!</simpara></warning></listitem></varlistentry>
  <varlistentry><term><code>(RAWSOCK:OPEN-UNIX-SOCKET
     &path-r; &optional-amp; &type-r;)</code></term>
   <listitem><simpara>open a &unix; socket special file.
@@ -109,21 +158,11 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     <function role="unix">recvmsg</function>.
  </simpara></listitem></varlistentry>
  <varlistentry>
-  <term><code>(RAWSOCK:IPCSUM &optional-amp; &buf-r;)</code></term>
-  <term><code>(RAWSOCK:ICMPCSUM &optional-amp; &buf-r;)</code></term>
-  <term><code>(RAWSOCK:TCPCSUM &optional-amp; &buf-r;)</code></term>
-  <term><code>(RAWSOCK:UDPCSUM &optional-amp; &buf-r;)</code></term>
+  <term><code>(RAWSOCK:IPCSUM &buf-r;)</code></term>
+  <term><code>(RAWSOCK:ICMPCSUM &buf-r;)</code></term>
+  <term><code>(RAWSOCK:TCPCSUM &buf-r;)</code></term>
+  <term><code>(RAWSOCK:UDPCSUM &buf-r;)</code></term>
   <listitem><simpara>Compute the appropriate protocol checksum.
-    &buf-r; defaults to the internal buffer.
- </simpara></listitem></varlistentry>
- <varlistentry><term><code>(RAWSOCK:BUFFER)</code></term>
-  <listitem><simpara>Return the internal buffer, used as the default
-    argument in the checksum functions and when &nil; is passed as the
-    &buf-r; argument to the i/o functions like
-    <function role="unix">sendto</function>.
- </simpara></listitem></varlistentry>
- <varlistentry><term><code>(RAWSOCK:RESIZE-BUFFER &size-r;)</code></term>
-  <listitem><simpara>Resize the internal buffer.
  </simpara></listitem></varlistentry>
  <varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r; &name-r; &addr-r;
     &key-amp; <replaceable>promisc</replaceable>
