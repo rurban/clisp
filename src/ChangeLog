@@ -1,5 +1,34 @@
 2005-09-27  Sam Steingold  <sds@gnu.org>
 
+	use map_sequence() instead of ELT
+	* modules/clx/new-clx/clx.f (get_seq_len, set_seq): new functions
+	(struct seq_rectangle, coerce_into_rectangle): MAP infrastructure
+	(SET-GCONTEXT-CLIP-MASK, DRAW-RECTANGLES, SHAPE-COMBINE): use it
+	(struct seq_point, coerce_into_point): MAP infrastructure
+	(DRAW-POINTS): use it
+	(struct seq_segment, coerce_into_segment): MAP infrastructure
+	(DRAW-SEGMENTS): use it
+	(struct seq_arc, coerce_into_arc): MAP infrastructure
+	(DRAW-ARCS): use it
+	(struct seq_path, coerce_into_path): MAP infrastructure
+	(SET-FONT-PATH): use it
+	(struct seq_pixel, coerce_into_pixel): MAP infrastructure
+	(FREE-COLORS): use it
+	(struct seq_color, coerce_into_color): MAP infrastructure
+	(QUERY-COLORS): use it
+	(struct seq_pixel_color, coerce_into_pixel_color): MAP infrastructure
+	(STORE-COLORS): use it
+	(struct seq_map, coerce_into_map): MAP infrastructure
+	(CHANGE-PROPERTY): use it
+	(struct seq_xatom, coerce_into_xatom): MAP infrastructure
+	(ROTATE-PROPERTIES): use it
+	(struct seq_uint8, coerce_into_uint8): MAP infrastructure
+	(SET-POINTER-MAPPING): use it
+	* modules/clx/new-clx/demos/sokoban.lisp (find-outers): pass a
+	flat list to SHAPE-COMBINE instead of a list of lists
+
+2005-09-27  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (map_sequence_function_t): do not use
 	emit_typedef_f() because g++ complains:
 	error: invalid application of `sizeof' to a function type
