@@ -158,18 +158,6 @@ set       toc,title
   <xsl:text>&#10;</xsl:text></xsl:if>
 </xsl:template>
 
-<!-- DocBook: [acronym]FOO[remark]BAR[/remark][/acronym]
-  XHTML: [acronym title="BAR"]FOO[/acronym] -->
-<xsl:template match="acronym">
- <acronym>
-  <xsl:attribute name="title">
-   <xsl:value-of select="normalize-space(remark)"/>
-  </xsl:attribute>
-  <xsl:apply-imports/>
- </acronym>
-</xsl:template>
-<xsl:template match="acronym/remark"/>
-
 <xsl:param name="generate.section.toc.level" select="10"/>
 <xsl:param name="toc.section.depth" select="10"/>
 <xsl:param name="toc.max.depth" select="3"/>
