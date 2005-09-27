@@ -50,7 +50,7 @@ CATALOG_FILE=catalog.xml
 
 # Local path to DocBook XSL stylesheets on your system.
 # Make sure to use a trailing slash.
-STYLESHEETS_PATH=/usr/share/docbook-xsl/
+STYLESHEETS_PATH=/usr/share/docbook-xsl-snapshot/
 
 # Stylesheets URI used in the CLISP project *.xsl files.
 STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/current/
@@ -169,14 +169,15 @@ man: _clisp.html _clisp.1
 	(cd ../build && make clisp.html clisp.1 && \
 	 test -n "$(DIST)" && scp -p clisp.1 clisp.html $(DIST)/) || true
 
-#impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl
-#	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ fo.xsl $<
+impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl
+	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ fo.xsl $<
 
 #impnotes.pdf: impnotes.fo
 #	$(FOP) -fo $< -pdf $@
 
-impnotes.pdf: impnotes.xml $(IMPNOTES) fo.xsl $(OLINK)
-	./xep.bat -xml $< -xsl fo.xsl -out $@
+impnotes.pdf: impnotes.fo # impnotes.xml $(IMPNOTES) fo.xsl $(OLINK)
+#	./xep.bat -xml $< -xsl fo.xsl -out $@
+	./xep.bat -fo $< -out $@
 
 html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
