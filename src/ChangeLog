@@ -1,3 +1,8 @@
+2005-09-27  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c (MAKE-SOCKADDR): DATA is optional and
+	can be an integer specifying the data size (0 content)
+
 2005-09-26  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (map_sequence_function_t, map_sequence): export to clisp.h

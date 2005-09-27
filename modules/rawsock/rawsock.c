@@ -149,14 +149,20 @@ void coerce_into_bytes (void *arg, object element) {
   TheSbvector(*(pos->vector))->data[pos->position++] = value;
 }
 
-DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
+DEFUN(RAWSOCK:MAKE-SOCKADDR,family &optional data) {
   int family = check_socket_domain(STACK_1);
   struct sockaddr sa;
   unsigned char *buffer, *data;
   size_t buffer_len, data_start = offsetof(struct sockaddr,sa_data);
   struct pos arg;
-  pushSTACK(STACK_0); funcall(L(length),1);
-  buffer_len = I_to_uint32(value1);
+  if (missingp(STACK_0)) {      /* standard size */
+    buffer_len = sizeof(struct sockaddr) - data_start;
+  } else if (posfixnump(STACK_0)) { /* integer data => as if sequence of 0 */
+    buffer_len = posfixnum_to_V(STACK_0);
+  } else {                      /* data should be a sequence */
+    pushSTACK(STACK_0); funcall(L(length),1);
+    buffer_len = I_to_uint32(value1);
+  }
   pushSTACK(allocate_bit_vector(Atype_8Bit,data_start + buffer_len));
   buffer = (unsigned char *)TheSbvector(STACK_0)->data;
   begin_system_call();
@@ -164,7 +170,8 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   end_system_call();
   ((struct sockaddr*)buffer)->sa_family = family;
   arg.vector = &(STACK_0); arg.position = data_start;
-  map_sequence(STACK_1/*data*/,coerce_into_bytes,(void*)&arg);
+  if (!missingp(STACK_1) && !posfixnump(STACK_1))
+    map_sequence(STACK_1/*data*/,coerce_into_bytes,(void*)&arg);
   funcall(`RAWSOCK::MAKE-SA`,1);
   skipSTACK(2);
 }
