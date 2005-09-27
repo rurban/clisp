@@ -3050,6 +3050,40 @@ DEFUN(XLIB:GCONTEXT-CLIP-MASK, context)
   /* mv_count = 1; - done by get_slot() */
 }
 
+/* convert Lisp FOO-SEQ to a C vector */
+static int get_seq_len (gcv_object_t *seq, gcv_object_t *type, int size) {
+  int num = get_uint32(funcall1(L(length),*seq));
+  if (num % size) {
+    pushSTACK(fixnum(size)); pushSTACK(fixnum(num)); pushSTACK(*type);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,"~S: Argument is not a proper ~S; length of sequence, ~S, is not a multiple of ~S.");
+  }
+  return num/size;
+}
+struct seq_generic { void *seq; int slot; };
+static void set_seq (gcv_object_t *l_seq, void *c_seq,
+                     map_sequence_function_t mapper) {
+  struct seq_generic seq;
+  seq.seq = c_seq; seq.slot = 0;
+  map_sequence(*l_seq,mapper,(void*)&seq);
+}
+
+/* convert Lisp RECT-SEQ to a C vector */
+struct seq_rectangle { XRectangle *rectangle; int slot; };
+void coerce_into_rectangle (void *arg, object element);
+void coerce_into_rectangle (void *arg, object element) {
+  struct seq_rectangle *rec = (struct seq_rectangle *)arg;
+  switch (rec->slot) {
+    case 0: rec->rectangle->x = get_sint16(element);
+      rec->slot = 1; break;
+    case 1: rec->rectangle->y = get_sint16(element);
+      rec->slot = 2; break;
+    case 2: rec->rectangle->width = get_uint16(element);
+      rec->slot = 3; break;
+    case 3: rec->rectangle->height = get_uint16(element);
+      rec->slot = 0; rec->rectangle++; break;
+  }
+}
 
 DEFUN(XLIB:SET-GCONTEXT-CLIP-MASK, clip-mask gcontext &optional ordering)
 { /* (SETF (XLIB:GCONTEXT-CLIP-MASK gcontext &optional ordering) clip-mask) */
@@ -3067,55 +3101,24 @@ DEFUN(XLIB:SET-GCONTEXT-CLIP-MASK, clip-mask gcontext &optional ordering)
             We should think about the portability of using a halfword-vector
             and then beam the data directly into the rectangles vector. */
     int ordering = get_ordering(STACK_0);
-    int n = get_sint32(funcall1(L(length),STACK_2));
-
-    /* See if length is a multiple of 4? */
-    if (n%4) {
-      pushSTACK(TheSubr (subr_self)->name);
-      pushSTACK(`XLIB::RECT-SEQ`);
-      pushSTACK(fixnum(n));
-      fehler (error, "~S: Argument is no proper ~S; Length of sequence, ~S, is no multiple of four.");
-    }
+    int n = get_seq_len(&STACK_2,&`XLIB::RECT-SEQ`,4);
+    DYNAMIC_ARRAY (rectangles, XRectangle, n);
+    set_seq(&STACK_2,rectangles,coerce_into_rectangle);
 
     {
-      int i;
-
-      DYNAMIC_ARRAY (rectangles, XRectangle, n/4);
-
-      /* btw all this copying of sequences, could probably be warped into some
-       common function/macro.  This function should also cdr-down lists,
-       since elt is highly unappropriate for lists. [most cases we get
-       lists.] */
-
-      for (i = 0; i < n; i += 4) {
-        pushSTACK(STACK_2); pushSTACK(fixnum(i+0)); funcall (L(elt), 2);
-        rectangles[i/4].x = get_sint16(value1);
-
-        pushSTACK(STACK_2); pushSTACK(fixnum(i+1)); funcall (L(elt), 2);
-        rectangles[i/4].y = get_sint16(value1);
-
-        pushSTACK(STACK_2); pushSTACK(fixnum(i+2)); funcall (L(elt), 2);
-        rectangles[i/4].width = get_sint16(value1);
-
-        pushSTACK(STACK_2); pushSTACK(fixnum(i+3)); funcall (L(elt), 2);
-        rectangles[i/4].height = get_sint16(value1);
-      }
-
-      {
-        XGCValues values;
-        begin_x_call();
-        XGetGCValues (dpy, gcontext, GCClipXOrigin|GCClipYOrigin, &values);
-        XSetClipRectangles (dpy, gcontext, values.clip_x_origin,
-                            values.clip_y_origin, rectangles, n/4, ordering);
-        end_x_call();
-      }
-
-      /* ok. now copy the value given by user, so if he messes around with
-       what he gave as argument, it will not affect the saved value. */
-      STACK_2 = funcall1(L(copy_seq),STACK_2);
-
-      FREE_DYNAMIC_ARRAY (rectangles);
+      XGCValues values;
+      begin_x_call();
+      XGetGCValues (dpy, gcontext, GCClipXOrigin|GCClipYOrigin, &values);
+      XSetClipRectangles (dpy, gcontext, values.clip_x_origin,
+                          values.clip_y_origin, rectangles, n/4, ordering);
+      end_x_call();
     }
+
+    /* ok. now copy the value given by user, so if he messes around with
+       what he gave as argument, it will not affect the saved value. */
+    STACK_2 = funcall1(L(copy_seq),STACK_2);
+
+    FREE_DYNAMIC_ARRAY (rectangles);
   }
 
   /* Now save the value just set in the %clip-mask slot. */
@@ -3418,27 +3421,29 @@ DEFUN(XLIB:DRAW-POINT, drawable gcontext x y)
   VALUES1(NIL);
 }
 
+/* convert Lisp POINT-SEQ to a C vector */
+struct seq_point { XPoint *point; int slot; };
+void coerce_into_point (void *arg, object element);
+void coerce_into_point (void *arg, object element) {
+  struct seq_point *rec = (struct seq_point *)arg;
+  sint16 val = get_sint16(element);
+  switch (rec->slot) {
+    case 0: rec->point->x = val;
+      rec->slot = 1; break;
+    case 1: rec->point->y = val;
+      rec->slot = 0; rec->point++; break;
+  }
+}
+
 DEFUN(XLIB:DRAW-POINTS, drawable gcontext points &optional relative-p)
 {
   Display   *dpy;
   Drawable    da = get_drawable_and_display (STACK_3, &dpy);
   GC          gc = get_gcontext (STACK_2);
   int relative_p = !missingp(STACK_0);
-  int npts = get_uint32(funcall1(L(length),STACK_1)), i;
+  int npts = get_seq_len(&STACK_1,&`XLIB::POINT-SEQ`,2);
   DYNAMIC_ARRAY (pts, XPoint, npts);
-
-  for (i = 0; i < npts; i++) {
-    pushSTACK(STACK_1);       /* points argument */
-    pushSTACK(fixnum(i));     /* index */
-    funcall (L(elt), 2);
-    pushSTACK(value1);        /* save element */
-
-    pushSTACK(STACK_0); pushSTACK(fixnum(0)); funcall (L(elt), 2);
-    pts[i].x = get_sint16(value1);
-
-    pushSTACK(fixnum(1)); funcall (L(elt), 2);
-    pts[i].y = get_sint16(value1);
-  }
+  set_seq(&STACK_1,pts,coerce_into_point);
 
   X_CALL(XDrawPoints (dpy, da, gc, pts, npts,
                       relative_p ? CoordModePrevious : CoordModeOrigin));
@@ -3484,16 +3489,9 @@ DEFUN(XLIB:DRAW-LINES, drawable gcontext points &key RELATIVE-P FILL-P SHAPE)
   int relative_p = !missingp(STACK_2);
   int     fill_p = !missingp(STACK_1);
   int      shape = (boundp(STACK_0) ? get_shape(STACK_0) : Complex);
-  int npoints = get_uint32(funcall1(L(length),STACK_3))/2 , i;
+  int npoints = get_seq_len(&STACK_3,&`XLIB::POINT-SEQ`,2);
   DYNAMIC_ARRAY (points, XPoint, npoints);
-
-  for (i = 0; i < npoints; i++) {
-    pushSTACK(STACK_3); pushSTACK(fixnum(2*i + 0)); funcall (L(elt), 2);
-    points[i].x = get_sint16(value1);
-
-    pushSTACK(STACK_3); pushSTACK(fixnum(2*i + 1)); funcall (L(elt), 2);
-    points[i].y = get_sint16(value1);
-  }
+  set_seq(&STACK_3,points,coerce_into_point);
 
   begin_x_call();
   if (fill_p)
@@ -3510,32 +3508,34 @@ DEFUN(XLIB:DRAW-LINES, drawable gcontext points &key RELATIVE-P FILL-P SHAPE)
   skipSTACK(6);
 }
 
+/* convert Lisp SEG-SEQ to a C vector */
+struct seq_segment { XSegment *segment; int slot; };
+void coerce_into_segment (void *arg, object element);
+void coerce_into_segment (void *arg, object element) {
+  struct seq_segment *rec = (struct seq_segment *)arg;
+  sint16 val = get_sint16(element);
+  switch (rec->slot) {
+    case 0: rec->segment->x1 = val;
+      rec->slot = 1; break;
+    case 1: rec->segment->y1 = val;
+      rec->slot = 2; break;
+    case 2: rec->segment->x2 = val;
+      rec->slot = 3; break;
+    case 3: rec->segment->y2 = val;
+      rec->slot = 0; rec->segment++; break;
+  }
+}
+
 DEFUN(XLIB:DRAW-SEGMENTS, drawable gcontext segments)
 {
   Display *dpy;
   Drawable da  = get_drawable_and_display (STACK_2, &dpy);
   GC gc        = get_gcontext (STACK_1);
-  int nsegments = get_uint32(funcall1(L(length),STACK_0))/4 , i;
+  int nsegments = get_seq_len(&STACK_0,&`XLIB::SEG-SEQ`,4);
   DYNAMIC_ARRAY (segments, XSegment, nsegments);
-
-  for (i = 0; i < nsegments; i++) {
-    pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 0)); funcall (L(elt), 2);
-    segments[i].x1 = get_sint16(value1);
-
-    pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 1)); funcall (L(elt), 2);
-    segments[i].y1 = get_sint16(value1);
-
-    pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 2)); funcall (L(elt), 2);
-    segments[i].x2 = get_sint16(value1);
-
-    pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 3)); funcall (L(elt), 2);
-    segments[i].y2 = get_sint16(value1);
-  }
-
+  set_seq(&STACK_0,segments,coerce_into_segment);
   X_CALL(XDrawSegments (dpy, da, gc, segments, nsegments));
-
   FREE_DYNAMIC_ARRAY (segments);
-
   VALUES1(NIL);
   skipSTACK(3);
 }
@@ -3564,30 +3564,12 @@ DEFUN(XLIB:DRAW-RECTANGLES, drawable gcontext rectangles &optional fill-p)
   Drawable da  = get_drawable_and_display (STACK_3, &dpy);
   GC gc        = get_gcontext (STACK_2);
   int fill_p   = missingp(STACK_0);
-  int nrectangles = get_uint32(funcall1(L(length),STACK_1))/4 , i;
-
-  {
-    DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
-
-    for (i = 0; i < nrectangles; i++) {
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*4 + 0)); funcall (L(elt), 2);
-      rectangles[i].x = get_sint16(value1);
-
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*4 + 1)); funcall (L(elt), 2);
-      rectangles[i].y = get_sint16(value1);
-
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*4 + 2)); funcall (L(elt), 2);
-      rectangles[i].width = get_sint16(value1);
-
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*4 + 3)); funcall (L(elt), 2);
-      rectangles[i].height = get_sint16(value1);
-    }
-
-    X_CALL((fill_p ? XFillRectangles : XDrawRectangles)
-           (dpy, da, gc, rectangles, nrectangles));
-
-    FREE_DYNAMIC_ARRAY (rectangles);
-  }
+  int nrectangles = get_seq_len(&STACK_1,&`XLIB::RECT-SEQ`,4);
+  DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
+  set_seq(&STACK_1,rectangles,coerce_into_rectangle);
+  X_CALL((fill_p ? XFillRectangles : XDrawRectangles)
+         (dpy, da, gc, rectangles, nrectangles));
+  FREE_DYNAMIC_ARRAY (rectangles);
 
   VALUES1(NIL);
   skipSTACK(4);
@@ -3619,39 +3601,38 @@ DEFUN(XLIB:DRAW-ARC, &rest args)
   VALUES0;
 }
 
+/* convert Lisp ARC-SEQ to a C vector */
+struct seq_arc { XArc *arc; int slot; };
+void coerce_into_arc (void *arg, object element);
+void coerce_into_arc (void *arg, object element) {
+  struct seq_arc *rec = (struct seq_arc *)arg;
+  switch (rec->slot) {
+    case 0: rec->arc->x = get_sint16(element);
+      rec->slot = 1; break;
+    case 1: rec->arc->y = get_sint16(element);
+      rec->slot = 2; break;
+    case 2: rec->arc->width = get_uint16(element);
+      rec->slot = 3; break;
+    case 3: rec->arc->height = get_uint16(element);
+      rec->slot = 4; break;
+    case 4: rec->arc->angle1 = get_angle(element);
+      rec->slot = 5; break;
+    case 5: rec->arc->angle2 = get_angle(element);
+      rec->slot = 0; rec->arc++; break;
+  }
+}
+
 DEFUN(XLIB:DRAW-ARCS, drawable gcontext arcs &optional fill-p)
 { /* arcs = ((x y width height angle1 angle2) ...) */
   Display *dpy;
   Drawable da  = get_drawable_and_display (STACK_3, &dpy);
   GC gc        = get_gcontext (STACK_2);
   int fill_p   = missingp(STACK_0);
-  int narcs = get_uint32(funcall1(L(length),STACK_1)) / 6 , i;
+  int narcs = get_seq_len(&STACK_1,&`XLIB::ARC-SEQ`,6);
   DYNAMIC_ARRAY (arcs, XArc, narcs);
-
-  for (i = 0; i < narcs; i++) {
-    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 0)); funcall (L(elt), 2);
-    arcs[i].x = get_sint16(value1);
-
-    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 1)); funcall (L(elt), 2);
-    arcs[i].y = get_sint16(value1);
-
-    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 2)); funcall (L(elt), 2);
-    arcs[i].width = get_sint16(value1);
-
-    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 3)); funcall (L(elt), 2);
-    arcs[i].height = get_sint16(value1);
-
-    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 4)); funcall (L(elt), 2);
-    arcs[i].angle1 = get_angle(value1);
-
-    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 5)); funcall (L(elt), 2);
-    arcs[i].angle2 = get_angle(value1);
-  }
-
+  set_seq(&STACK_1,arcs,coerce_into_arc);
   X_CALL((fill_p ? XFillArcs : XDrawArcs) (dpy, da, gc, arcs, narcs));
-
   FREE_DYNAMIC_ARRAY (arcs);
-
   VALUES1(NIL);
   skipSTACK(4);
 }
@@ -4287,30 +4268,38 @@ DEFUN(XLIB:FONT-PATH, display &key RESULT-TYPE) /* [OK] */
   skipSTACK(2);         /* all done */
 }
 
+/* convert a Lisp sequence of pathnames to a C vector */
+struct seq_path { char **path; };
+void coerce_into_path (void *arg, object element);
+void coerce_into_path (void *arg, object element) {
+  struct seq_path *rec = (struct seq_path *)arg;
+  if (stringp(element)) { coerce_into_path_string:
+    with_string_0 (element, GLO(pathname_encoding), frob, {
+        uintL j = frob_bytelen+1;
+        char *path = (char*)my_malloc(j);
+        while (j--) path[j] = frob[j];
+        *(rec->path++) = path;
+      });
+  } else {
+    element = physical_namestring(element);
+    goto coerce_into_path_string;
+  }
+}
+
 /*  (SETF (XLIB:FONT-PATH display) new-path)
    == (XLIB:SET-FONT-PATH display  new-path)
 
   NOTE  - The CLX manual says that pathnames are also o.k. as arguments.
           But I consider it dirty, since the X server may live on an
           entirely different architecture than the client. */
-DEFUN(XLIB:SET-FONT-PATH, arg1 arg2)
+DEFUN(XLIB:SET-FONT-PATH, display new-path)
 {
   Display *dpy = (pushSTACK(STACK_1), pop_display());
   int npathen = get_uint32(funcall1(L(length),STACK_0)) , i;
+  struct seq_path sp;
   DYNAMIC_ARRAY (pathen, char*, npathen);
-
-  for (i = 0; i < npathen; i++) {
-    pushSTACK(STACK_0);       /* pathen */
-    pushSTACK(fixnum(i));     /* index */
-    funcall (L(elt), 2);
-    if (stringp (value1)) {
-      with_string_0 (value1, GLO(misc_encoding), frob, {
-        uintL j = asciz_length (frob)+1; /* das ist bloed, denn laenge ist ja schon bekannt 8-( */
-        pathen [i] = (char*) my_malloc (j);
-        while (j--) pathen[i][j] = frob[j];
-      });
-    } else my_type_error(S(string),value1);
-  }
+  sp.path = pathen;
+  map_sequence(STACK_0,coerce_into_path,(void*)&sp);
 
   begin_x_call();
   XSetFontPath (dpy, pathen, npathen);
@@ -4895,20 +4884,22 @@ DEFUN(XLIB:ALLOC-COLOR-PLANES, colormap colors \
   skipSTACK(7);
 }
 
+/* convert a Lisp sequence of pixels to a C vector */
+struct seq_pixel { unsigned long* pixel; };
+void coerce_into_pixel (void *arg, object element);
+void coerce_into_pixel (void *arg, object element)
+{ *(((struct seq_pixel *)arg)->pixel++) = get_pixel(element); }
+
 DEFUN(XLIB:FREE-COLORS, colormap pixels &optional plane-mask)
 {
   Display *dpy;
   Colormap  cm = get_colormap_and_display (STACK_2, &dpy);
   unsigned long plane_mask = (boundp(STACK_0) ? get_pixel (STACK_0) : 0);
-  unsigned int npixels = get_uint32(funcall1(L(length),STACK_1)) , i;
+  unsigned int npixels = get_uint32(funcall1(L(length),STACK_1));
+  struct seq_pixel sp;
   DYNAMIC_ARRAY (pixels, unsigned long, npixels);
-
-  for (i = 0; i < npixels; i++) {
-    pushSTACK(STACK_1);       /* pixels */
-    pushSTACK(fixnum(i));     /* index */
-    funcall (L(elt), 2);
-    pixels[i] = get_pixel (value1);
-  }
+  sp.pixel = pixels;
+  map_sequence(STACK_1,coerce_into_pixel,(void*)&sp);
 
   X_CALL(XFreeColors (dpy, cm, pixels, npixels, plane_mask));
 
@@ -4938,20 +4929,24 @@ DEFUN(XLIB:LOOKUP-COLOR, colormap name) /* [OK] */
   skipSTACK(2);
 }
 
+/* convert a Lisp sequence of pixels to a C vector of colors at them */
+struct seq_color { Display *dpy; XColor* color; };
+void coerce_into_color (void *arg, object element);
+void coerce_into_color (void *arg, object element) {
+  struct seq_color *sc = (struct seq_color *)arg;
+  get_color(sc->dpy,element,sc->color++);
+}
+
 DEFUN(XLIB:QUERY-COLORS, colormap pixels &key RESULT-TYPE)
 { /* returns: colors -- Type sequence of color. */
   Display *dpy;
   Colormap cm = get_colormap_and_display (STACK_2, &dpy);
   gcv_object_t *res_type = &STACK_0;
   int ncolors = get_uint32(funcall1(L(length),STACK_1)), i;
+  struct seq_color sc;
   DYNAMIC_ARRAY (colors, XColor, ncolors);
-
-  for (i = 0; i < ncolors; i++) {
-    pushSTACK(STACK_1);             /* the colors arguments */
-    pushSTACK(fixnum(i));           /* the index */
-    funcall (L(elt), 2);            /* fetch it */
-    get_color (dpy, value1, &(colors[i])); /* and convert */
-  }
+  sc.dpy = dpy; sc.color = colors;
+  map_sequence(STACK_1,coerce_into_color,(void*)&sc);
 
   X_CALL(XQueryColors (dpy, cm, colors, ncolors));
   /* FIXME - find what to do with the DoRed, DoGreen, and DoBlue flags?! */
@@ -4985,6 +4980,22 @@ DEFUN(XLIB:STORE-COLOR, colormap pixel color &key RED-P GREEN-P BLUE-P)
   skipSTACK(3);
 }
 
+/* convert a Lisp sequence of (pixel color) to a C vector of colors */
+struct seq_pixel_color { Display *dpy; XColor* color; int slot; char flags; };
+void coerce_into_pixel_color (void *arg, object element);
+void coerce_into_pixel_color (void *arg, object element) {
+  struct seq_pixel_color *spc = (struct seq_pixel_color *)arg;
+  switch (spc->slot) {
+    case 0:
+      spc->color->pixel = get_pixel(element);
+      spc->color->flags = spc->flags;
+      spc->slot = 1; break;
+    case 1:
+      get_color(spc->dpy,element,spc->color++);
+      spc->slot = 0; break;
+  }
+}
+
 /*  XLIB:STORE-COLORS colormap pixel-colors
          &key (:red-p t) (:green-p t) (:blue-p t) */
 DEFUN(XLIB:STORE-COLORS, colormap pixel-colors &key RED-P GREEN-P BLUE-P)
@@ -4992,38 +5003,15 @@ DEFUN(XLIB:STORE-COLORS, colormap pixel-colors &key RED-P GREEN-P BLUE-P)
   char flags = xlib_rgb();
   Display *dpy;
   Colormap cm = get_colormap_and_display (STACK_1, &dpy);
-  int ncolors = get_uint32(funcall1(L(length),STACK_0));
+  int ncolors = get_seq_len(&STACK_0,&`XLIB::PIXEL-COLORS-SEQ`,2);
+  struct seq_pixel_color spc;
+  DYNAMIC_ARRAY (colors, XColor, ncolors);
+  spc.dpy = dpy; spc.color = colors; spc.slot = 0; spc.flags = flags;
+  map_sequence(STACK_0,coerce_into_pixel_color,(void*)&spc);
 
-  if (ncolors%2) {
-    pushSTACK(STACK_0);
-    pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler (error, ("~S: Argument PIXEL-COLORS (~S) should an even number of elements"));
-  }
+  X_CALL(XStoreColors (dpy, cm, colors, ncolors));
 
-  ncolors /= 2;
-
-  {
-    DYNAMIC_ARRAY (colors, XColor, ncolors);
-
-    int i;
-    for (i = 0; i < ncolors; i++) {
-      /* FIXME: Argument should be a list, so we should rather cdr it down. */
-      pushSTACK(STACK_0);       /* the pixel-colors arguments */
-      pushSTACK(fixnum(i*2+1));                 /* the index */
-      funcall (L(elt), 2);                      /* fetch it */
-      get_color (dpy, value1, &(colors[i]));
-
-      pushSTACK(STACK_0);              /* the pixel-colors arguments */
-      pushSTACK(fixnum(i*2));          /* the index */
-      funcall (L(elt), 2);             /* fetch it */
-      colors[i].pixel = get_uint32 (value1);
-      colors[i].flags = flags;
-    }
-
-    X_CALL(XStoreColors (dpy, cm, colors, ncolors));
-
-    FREE_DYNAMIC_ARRAY (colors);
-  }
+  FREE_DYNAMIC_ARRAY (colors);
   VALUES1(NIL);
   skipSTACK(2);
 }
@@ -5205,6 +5193,27 @@ DEFUN(XLIB:INTERN-ATOM, display atom) /* OK */
 }
 
 /* 11.2  Properties */
+
+/* convert a Lisp sequence of (pixel color) to a C vector of colors */
+struct seq_map { gcv_object_t *transform; unsigned char *data; int format; };
+void coerce_into_map (void *arg, object element);
+void coerce_into_map (void *arg, object element) {
+  struct seq_map *sm = (struct seq_map *)arg;
+  if (!missingp(*(sm->transform))) { /* call the transform function */
+    pushSTACK(element); funcall(*(sm->transform),1); element = value1;
+  }
+  switch (sm->format) {
+    case 8:   *((uint8*)(sm->data)) = get_uint8(element);  sm->data++;  break;
+    case 16: *((uint16*)(sm->data)) = get_uint16(element); sm->data+=2; break;
+    case 32: *((uint32*)(sm->data)) = get_aint32(element); sm->data+=4; break;
+      /* NOTE: I am using aint32, here not knowing if that is correct,
+         the manual does not specify of which type the property data
+         should be. [aint16, aint8 also?]. */
+    default:
+      NOTREACHED;
+  }
+}
+
 DEFCHECKER(check_propmode,default=PropModeReplace, REPLACE=PropModeReplace \
            PREPEND=PropModePrepend APPEND=PropModeAppend)
 /*   XLIB:CHANGE-PROPERTY window property data type format
@@ -5220,7 +5229,6 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   int      mode = check_propmode(STACK_3);
   int     start = get_uint32_0 (STACK_2);
   int       end;
-  int         i;
   int       len;
   unsigned char *data;
 
@@ -5241,30 +5249,10 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   }
 
   {
+    struct seq_map sm;
     DYNAMIC_ARRAY (data, unsigned char, len ? len : 1);
-
-    for (i = start; i < end; i++) {
-      pushSTACK(STACK_6);               /* data argument */
-      pushSTACK(fixnum(i));             /* index */
-      funcall (L(elt), 2);              /* fetch element */
-
-      if (!missingp(STACK_0)) {
-        /* call the transform function */
-        pushSTACK(value1);
-        funcall (STACK_1, 1);
-      }
-
-      switch (format) {
-        case 8:  ((uint8*) data)[i] = get_uint8  (value1); break;
-        case 16: ((uint16*)data)[i] = get_uint16 (value1); break;
-        case 32: ((uint32*)data)[i] = get_aint32 (value1); break;
-          /* NOTE: I am using aint32, here not knowing if that is correct,
-                 the manual does not specify of which type the property data
-                 should be. [aint16, aint8 also?]. */
-        default:
-          NOTREACHED;
-      }
-    }
+    sm.transform = &STACK_0; sm.data = data; sm.format = format;
+    map_sequence(STACK_6,coerce_into_map,(void*)&sm);
 
     X_CALL(XChangeProperty (dpy, win, property, type, format, mode, data,
                             (end-start)));
@@ -5400,25 +5388,28 @@ DEFUN(XLIB:LIST-PROPERTIES, window &key RESULT-TYPE) /* OK */
   skipSTACK(2);         /* all done */
 }
 
+/* convert a Lisp sequence of X Atoms to a C vector */
+struct seq_xatom { Display *dpy; Atom* atom; };
+void coerce_into_xatom (void *arg, object element);
+void coerce_into_xatom (void *arg, object element) {
+  struct seq_xatom *sa = (struct seq_xatom *)arg;
+  *(sa->atom++) = get_xatom(sa->dpy,element);
+}
+
 DEFUN(XLIB:ROTATE-PROPERTIES, window properties &optional delta)
 { /* XLIB:ROTATE-PROPERTIES window properties &optional (delta 1) */
   Display *dpy;
   Window win   = get_window_and_display (STACK_2, &dpy);
   int delta    = (boundp(STACK_0) ? get_sint32 (STACK_0) : 1);
-  int num_props = get_uint32(funcall1(L(length),STACK_1)), i;
+  int num_props = get_uint32(funcall1(L(length),STACK_1));
+  struct seq_xatom sa;
   DYNAMIC_ARRAY (props, Atom, num_props);
-
-  for (i = 0; i < num_props; i++) {
-    pushSTACK(STACK_1);
-    pushSTACK(fixnum(i));
-    funcall (L(elt), 2);
-    props[i] = get_xatom (dpy, value1);
-  }
+  sa.dpy = dpy; sa.atom = props;
+  map_sequence(STACK_1,coerce_into_xatom,(void*)&sa);
 
   X_CALL(XRotateWindowProperties (dpy, win, props, num_props, delta));
 
   FREE_DYNAMIC_ARRAY (props);
-
   VALUES1(NIL);
   skipSTACK(3);         /* all done */
 }
@@ -6617,29 +6608,30 @@ DEFUN(XLIB:POINTER-MAPPING, display &key RESULT-TYPE)
   skipSTACK(2);                /* all done */
 }
 
+/* convert a Lisp sequence of uint8 to a C vector */
+struct seq_uint8 { unsigned char* data; };
+void coerce_into_uint8 (void *arg, object element);
+void coerce_into_uint8 (void *arg, object element)
+{ *(((struct seq_uint8 *)arg)->data++) = get_uint8(element); }
+
 /*  (SETF (XLIB:POINTER-MAPPING display) mapping)
  == (XLIB:SET-POINTER-MAPPING display mapping) */
 DEFUN(XLIB:SET-POINTER-MAPPING, arg1 arg2)
 {
   Display *dpy = (pushSTACK(STACK_1), pop_display());
-  int nmap = get_uint32(funcall1(L(length),STACK_0)), i;
+  int nmap = get_uint32(funcall1(L(length),STACK_0));
   int result;
+  struct seq_uint8 su;
   DYNAMIC_ARRAY (map, unsigned char, nmap);
-
-  for (i = 0; i < nmap; i++) {
-    pushSTACK(STACK_0);       /* mapping argument */
-    pushSTACK(fixnum(i));     /* index */
-    funcall (L(elt), 2);
-    map [i] = get_uint8 (value1);
-  }
+  su.data = map;
+  map_sequence(STACK_0,coerce_into_uint8,(void*)&su);
 
   X_CALL(result = XSetPointerMapping (dpy, map, nmap));
 
   /* From XSetPointerMapping(3X11):
 
-     If any of  the buttons to be altered  are logically in the down
-     state, XSetPointerMapping  returns MappingBusy, and the mapping
-     is not changed.
+     If any of the buttons to be altered are logically in the down state,
+     XSetPointerMapping returns MappingBusy, and the mapping is not changed.
 
      What should we do with that?! */
 
@@ -7274,32 +7266,11 @@ DEFUN(XLIB:SHAPE-COMBINE, destination source \
     Pixmap src = get_window (STACK_0);
     X_CALL(XShapeCombineShape(dpy,dest,kind,x_off,y_off,src,src_kind,op));
   } else if (listp (STACK_0) || vectorp (STACK_0)) {
-    int i, nrectangles = get_uint32(funcall1(L(length),STACK_0));
+    int nrectangles = get_seq_len(&STACK_0,&`XLIB::RECT-SEQ`,4);
     DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
-
-    for (i = 0; i < nrectangles; i++) {
-      pushSTACK(STACK_0);     /* rectangles */
-      pushSTACK(fixnum(i));   /* index */
-      funcall (L(elt), 2);
-      pushSTACK(value1);      /* save element */
-
-      pushSTACK(STACK_0); pushSTACK(fixnum(0)); funcall (L(elt), 2);
-      rectangles[i].x = get_sint16(value1);
-
-      pushSTACK(STACK_0); pushSTACK(fixnum(1)); funcall (L(elt), 2);
-      rectangles[i].y = get_sint16(value1);
-
-      pushSTACK(STACK_0); pushSTACK(fixnum(2)); funcall (L(elt), 2);
-      rectangles[i].width = get_sint16(value1);
-
-      pushSTACK(fixnum(3)); funcall (L(elt), 2);
-      rectangles[i].height = get_sint16(value1);
-    }
-
+    set_seq(&STACK_0,rectangles,coerce_into_rectangle);
     X_CALL(XShapeCombineRectangles(dpy,dest,kind,x_off,y_off,
-                                   rectangles,nrectangles,
-                                   op,ordering));
-
+                                   rectangles,nrectangles,op,ordering));
     FREE_DYNAMIC_ARRAY (rectangles);
   }
 
