@@ -1,5 +1,11 @@
 2005-09-27  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (map_sequence_function_t): do not use
+	emit_typedef_f() because g++ complains:
+	error: invalid application of `sizeof' to a function type
+
+2005-09-27  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (MAKE-SOCKADDR): DATA is optional and
 	can be an integer specifying the data size (0 content)
 
