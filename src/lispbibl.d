@@ -15303,7 +15303,9 @@ extern maygc Values coerce_sequence (object sequence, object result_type,
 typedef maygc void map_sequence_function_t (void* arg, object element);
 extern maygc void map_sequence (object obj, map_sequence_function_t* fun, void* arg);
 /* used by ARRAY, modules */
-%% emit_typedef_f("void %s (void* arg, object element)","map_sequence_function_t");
+/* do not use emit_typedef_f because g++ complains:
+ error: invalid application of `sizeof' to a function type */
+%% puts("typedef void map_sequence_function_t (void* arg, object element);");
 %% puts("extern void map_sequence (object obj, map_sequence_function_t* fun, void* arg);");
 
 # Error, if both :TEST, :TEST-NOT - argumente have been given.
