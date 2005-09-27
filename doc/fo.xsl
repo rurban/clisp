@@ -6,6 +6,9 @@
 <xsl:param name="paper.type" select="'letter'"/>
 <xsl:param name="xep.extensions" select="1"/>
 <xsl:param name="target.database.document" select="'olink-pile.xml'"/>
+<xsl:param name="hyphenate" select="'false'"/>
+<xsl:param name="alignment" select="'left'"/>
+<xsl:param name="variablelist.as.blocks" select="1"/>
 
 <xsl:template match="epigraph">
  <fo:block text-align="right" margin-left="50%">
