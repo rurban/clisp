@@ -295,8 +295,8 @@ further explanations of the issues could be provided).</para>
   directly.</para></answer></qandaentry>
 
 <qandaentry id="faq-ide">
-<question id="faq-ide-q"><simpara>Where is the <acronym>IDE<remark>Integrated
-    Development Environment</remark></acronym>?</simpara></question>
+<question id="faq-ide-q"><simpara>Where is the <acronym>IDE<alt>Integrated
+    Development Environment</alt></acronym>?</simpara></question>
 <answer><formalpara><title>&emacs;-based</title><para><itemizedlist>
     <listitem><simpara><ulink url="http://www.gnu.org/software/emacs/manual/emacs.html#External%20Lisp"><function>inferior-lisp</function></ulink></simpara></listitem>
     <listitem><simpara>&slime;</simpara></listitem>
@@ -376,7 +376,7 @@ further explanations of the issues could be provided).</para>
 
 
 <qandaentry id="faq-gui"><question id="faq-gui-q"><simpara>How do I create
-   a <acronym>GUI<remark>Graphical User Interface</remark></acronym>
+   a <acronym>GUI<alt>Graphical User Interface</alt></acronym>
    for my &clisp; program?</simpara></question>
  <answer><para>There are many options,
   see <ulink url="http://clisp.cons.org/resources.html#software">"Common
