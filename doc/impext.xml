@@ -4379,7 +4379,7 @@ Compiled, it will have inlined the library function calls.
     number; the server-side can use this to see who connected.</simpara>
    <simpara>When the optional second argument is non-&nil;, the hostname
     resolution is disabled and just the IP address is returned, without
-    the <acronym>FQDN<remark>Fully Qualified Domain Name</remark></acronym>.
+    the <acronym>FQDN<alt>Fully Qualified Domain Name</alt></acronym>.
  </simpara></listitem></varlistentry>
  <varlistentry id="sost-local"><term><code>(&sost-local;
     &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</code></term>

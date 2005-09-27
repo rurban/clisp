@@ -15,7 +15,7 @@
 <!ENTITY clos "<ulink url='&clhs;/Body/chap-7.html'><command>CLOS</command></ulink>">
 <!ENTITY clcs "<ulink url='&clhs;/Body/chap-9.html'><command>CLCS</command></ulink>">
 <!ENTITY clx "<ulink url='http://www.cliki.net/CLX'><command>CLX</command></ulink>">
-<!ENTITY ilu "<ulink url='http://www2.parc.com/istl/projects/ILU/'><acronym>ILU<remark>Inter-Language Unification</remark></acronym></ulink>">
+<!ENTITY ilu "<ulink url='http://www2.parc.com/istl/projects/ILU/'><acronym>ILU<alt>Inter-Language Unification</alt></acronym></ulink>">
 
 <!ENTITY ansi-cl "<citation><link linkend='ansi-cl'>ANSI CL standard</link></citation>">
 <!ENTITY ansi-cl-bib
