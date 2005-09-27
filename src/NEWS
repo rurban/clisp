@@ -10,7 +10,12 @@ User visible changes
   + When --with-dynamic-ffi is supplied, but the FFI fails to build, abort.
   + makemake no longer checks with_module_* variables.
 
+* New SETF-able functions POSIX:GETUID, POSIX:GETGID, POSIX:GETEUID,
+  POSIX:GETEGID.
+
 * Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled code.
+
+* Use MAP instead of ELT for sequence access in NEW-CLX.
 
 * Fixed re-exporting symbols from POSIX to EXT.
 
