@@ -123,7 +123,7 @@
    LOG-INMEMORY DIRECT-LOG NOLOCKING NOMMAP NOPANIC OVERWRITE PANIC-ENVIRONMENT
    REGION-INIT TXN-NOSYNC TXN-WRITE-NOSYNC YIELDCPU VERB-CHKPOINT VERB-DEADLOCK
    VERB-RECOVERY VERB-REPLICATION VERB-WAITSFOR VERBOSE)</code></term>
- <listitem><para>Set some environment options using <simplelist columns="4">
+ <listitem><para>Set some environment options using <simplelist columns="3">
     <member><function role="bdb">DB_ENV-&gt;set_flags</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_verbose</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_tmp_dir</function></member>
@@ -423,7 +423,7 @@
    RE-DELIM RE-LEN RE-PAD RE-SOURCE
    CHKSUM ENCRYPT TXN-NOT-DURABLE DUP DUPSORT INORDER RECNUM REVSPLITOFF
    RENUMBER SNAPSHOT)</code></term>
- <listitem><para>Set some database options using <simplelist columns="4">
+ <listitem><para>Set some database options using <simplelist columns="3">
     <member><function role="bdb">DB_ENV-&gt;set_errfile</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_msgfile</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_errpfx</function></member>
