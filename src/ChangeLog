@@ -5,6 +5,8 @@
 	* modules/clx/new-clx/clx.f (travel_queque): timeout is struct timeval
 	(get_timeout): removed
 	(PROCESS-EVENT, EVENT-LISTEN): use sec_usec() instead of get_timeout()
+	* modules/clx/new-clx/demos/clx-demos.lisp: load "koch"
+	* modules/clx/new-clx/demos/koch.lisp: new demo
 
 2005-09-27  Sam Steingold  <sds@gnu.org>
 
