@@ -298,7 +298,7 @@ slot in instances of the class is available.
  <title>Inheritance Structure of Metaobject Classes</title>
 
 <figure id="mop-mo-cl-inheritance-fig">
- <title>Inheritance Structure of Metaobject Classes</title>
+ <title>Inheritance structure of metaobject classes</title>
  <mediaobject><imageobject>
    <imagedata width="100%" scalefit="1" fileref="mop-classes-all.png"/>
 </imageobject></mediaobject></figure>
@@ -994,7 +994,7 @@ of evaluating or executing the &defclass; form.</para>
 <section id="mop-cl-Inheritance">
  <title>Inheritance Structure of &c-mo; Classes</title>
 <figure id="mop-cl-Inheritance-fig">
- <title>Inheritance Structure of &c-mo; Classes</title>
+ <title>Inheritance structure of &c-mo; classes</title>
  <mediaobject><imageobject>
    <imagedata width="100%" scalefit="1" fileref="mop-classes-class.png"/>
 </imageobject></mediaobject></figure>
@@ -2327,7 +2327,7 @@ dependents of the &c-mo; will be updated by calling
 <section id="mop-sd-inheritance">
  <title>Inheritance Structure of &sdmo; Classes</title>
 <figure id="mop-sd-inheritance-fig">
- <title>Inheritance Structure of &sdmo; Classes</title>
+ <title>Inheritance structure of &sdmo; classes</title>
  <mediaobject><imageobject>
    <imagedata width="100%" scalefit="1" fileref="mop-classes-slotdef.png"/>
 </imageobject></mediaobject></figure>
@@ -2631,7 +2631,7 @@ restrictions.</para>
 <section id="mop-gf-inheritance">
  <title>Inheritance Structure of &gfmo; Classes</title>
 <figure id="mop-gf-inheritance-fig">
- <title>Inheritance Structure of &gfmo; Classes</title>
+ <title>Inheritance structure of &gfmo; classes</title>
  <mediaobject><imageobject>
    <imagedata width="100%" scalefit="1" fileref="mop-classes-genfun.png"/>
 </imageobject></mediaobject></figure>
@@ -3730,7 +3730,7 @@ override the system's definitions.</para>
 <section id="mop-meth-inheritance">
  <title>Inheritance Structure of &m-mo; Classes</title>
 <figure id="mop-meth-inheritance-fig">
- <title>Inheritance Structure of &m-mo; Classes</title>
+ <title>Inheritance structure of &m-mo; classes</title>
  <mediaobject><imageobject>
    <imagedata width="100%" scalefit="1" fileref="mop-classes-method.png"/>
 </imageobject></mediaobject></figure>
@@ -4371,7 +4371,7 @@ initialization.</para>
 <section id="mop-specializers-inheritance">
  <title>Inheritance Structure of Specializer Metaobject Classes</title>
 <figure id="mop-specializers-inheritance-fig">
- <title>Inheritance Structure of Specializer Metaobject Classes</title>
+ <title>Inheritance structure of specializer metaobject classes</title>
  <mediaobject><imageobject>
    <imagedata width="100%" scalefit="1" fileref="mop-classes-specializer.png"/>
 </imageobject></mediaobject></figure>
@@ -4623,7 +4623,7 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 <section id="mop-meth-comb-inheritance">
  <title>Inheritance Structure of &mcmo; Classes</title>
 <figure id="mop-meth-comb-inheritance-fig">
- <title>Inheritance Structure of Method Combination Metaobject Classes</title>
+ <title>Inheritance structure of method combination metaobject classes</title>
  <mediaobject><imageobject>
    <imagedata width="100%" scalefit="1" fileref="mop-classes-methcomb.png"/>
 </imageobject></mediaobject></figure>
