@@ -1,3 +1,11 @@
+2005-09-28  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/demos/sokoban.lisp (sokoban-usage): renamed
+	from USAGE to avoid a conflict with POSIX
+	* modules/clx/new-clx/clx.f (travel_queque): timeout is struct timeval
+	(get_timeout): removed
+	(PROCESS-EVENT, EVENT-LISTEN): yse sec_usec() instead of get_timeout()
+
 2005-09-27  Sam Steingold  <sds@gnu.org>
 
 	use map_sequence() instead of ELT
