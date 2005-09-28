@@ -66,3 +66,6 @@ h6 { font-size: 110%; }
 /* highlight the FAQ questions */
 .question
 { background-color: lightyellow; }
+
+/* term in table */
+td span.term { font-weight: bold; }
