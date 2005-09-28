@@ -859,4 +859,4 @@
 <!ENTITY non-unicode-only "<emphasis role='plat-dep'>Only in &clisp; built &without; compile-time flag &unicode;</emphasis>">
 <!ENTITY no-platform-only "<emphasis role='plat-dep'>No platform supports this currently</emphasis>">
 <!ENTITY advantages "<title>Advantages and Disadvantages</title>
- <?dbhtml list-presentation='table'?><?dbfo list-presentation='table'?>">
+ <?dbhtml list-presentation='table'?><?dbfo list-presentation='list'?>">
