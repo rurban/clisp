@@ -332,7 +332,7 @@
                (update)
                (xlib:display-finish-output *display*)))))))
 
-(defun usage ()
+(defun sokoban-usage ()
   "Print a short description on how to play sokoban."
   (format T "
 
@@ -366,7 +366,7 @@ If you quit sokoban using 'q' the current state will be saved in
 (defun sokoban ()
   (when (or (null *display*) (closed-display-p *display*))
     (init-sokoban)
-    (usage))
+    (sokoban-usage))
   (block event-loop
     (xlib:event-case (*display*)
       (:button-press (code window x y)
@@ -391,7 +391,7 @@ If you quit sokoban using 'q' the current state will be saved in
           (#o153 #|k|# (return-from sokoban 'killed))
           (#o141 #|a|# (stats))
           (#o144 #|d|# (setq *sokoban-debug* (not *sokoban-debug*)))
-          (#o150 #|h|# (usage))
+          (#o150 #|h|# (sokoban-usage))
           (#o156 #|n|#
            (cond ((ready-p)
                   (incf *level*)
