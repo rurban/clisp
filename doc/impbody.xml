@@ -1817,7 +1817,7 @@ can give problems:
   <ulink url="&clhs;/Body/convar_boole-_cm_boole-xor.html">[CLHS]</ulink></title>
 
  <table id="bool-op-table" frame="all">
-  <title>Boolean Operations</title>
+  <title>Boolean operations</title>
   <tgroup cols="2" colsep="1" rowsep="1" align="left">
    <thead><row><entry>constant</entry><entry>value</entry></row></thead><tbody>
     <row><entry>&boole-clr;</entry><entry>0</entry></row>
@@ -2361,7 +2361,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef WIN32_CHARNAMES -->
 <table id="dos-win32-chars-table" frame="all">
- <title>&win32-only;</title>
+ <title>Additional characters (&win32-only;).</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><code>(&code-char; #x00)</code></entry>
@@ -2392,7 +2392,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef UNIX_CHARNAMES -->
 <table id="unix-chars-table" frame="all">
- <title>&unix-only;</title>
+ <title>Additional characters (&unix-only;).</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><code>(&code-char; #x00)</code></entry>
