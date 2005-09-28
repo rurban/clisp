@@ -5759,15 +5759,14 @@ static int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
 }
 
 static void travel_queque (Display *dpy, int peek_p, int discard_p,
-                           int force_output_p, int timeout)
+                           int force_output_p, struct timeval *timeout)
 { /* peek_p == not remove-processed-p
   discard_p == remove-unprocessed-p
-  timeout in second or -1 to block.
+  timeout in sec/usec or NULL to block.
  BUGS:
   - take care that discard-current-event will work as expected!
   - also we need an unwind protect here!
   - handler may also be a vector of functions. [How strange?!]
-  - timeout should be a 'struct timeval'.
  TODO:
   - I want this routine to be interruptible by user in a continueable fashion.
  Way to go:
@@ -5780,26 +5779,23 @@ static void travel_queque (Display *dpy, int peek_p, int discard_p,
 
  travel_queque:
 
-  if (timeout != -1) {
+  if (timeout) {
     X_CALL(XEventsQueued(dpy, force_output_p
                          ? QueuedAfterFlush : QueuedAfterReading));
     r = QLength (dpy);
 
     if (r == 0) {
       int conn;
-      struct timeval tv;
       fd_set ifds;
-      tv.tv_sec = timeout;
-      tv.tv_usec = 0;
 
       conn = ConnectionNumber (dpy); /* this is the fd. */
       FD_ZERO (&ifds);
       FD_SET (conn, &ifds);
-      X_CALL(r = select (conn+1, &ifds, NULL, NULL, &tv));
+      X_CALL(r = select (conn+1, &ifds, NULL, NULL, timeout));
 
       if ((r > 0) && FD_ISSET (conn, &ifds)) {
-        /* timeout has to reduce by amount waited here for input; Or what?! */
-        timeout = 0;
+        /* timeout has to reduce by amount waited here for input;
+           -- presumably select does that */
       } else {
         /* Nothing there, so just return */
         VALUES1(NIL);
@@ -5835,19 +5831,14 @@ static void travel_queque (Display *dpy, int peek_p, int discard_p,
     if (peek_p) X_CALL(XPutBackEvent (dpy, &ev));
 }
 
-static void get_timeout (object o, struct timeval *tv)
-{ /* FIXME: should accept also fractions of a second. */
-  tv->tv_sec = get_uint32 (o);
-  tv->tv_usec = 0;
-}
-
 DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER TIMEOUT PEEK-P DISCARD-P \
       FORCE-OUTPUT-P)
 {
   Display *dpy = (pushSTACK(STACK_5), pop_display());
   int force_output_p = (boundp(STACK_0) ? get_bool(STACK_0) : 1);
   int discard_p = !missingp(STACK_1), peek_p = !missingp(STACK_2);
-  int timeout = integerp(STACK_3) ? (int) get_uint32(STACK_3) : -1;
+  struct timeval tv;
+  struct timeval *timeout = sec_usec(STACK_3,NIL,&tv);
 
   if (!boundp(STACK_4))
     NOTIMPLEMENTED;
@@ -5977,21 +5968,16 @@ DEFUN(XLIB:DISCARD-CURRENT-EVENT, display)
   event-listen will not return until an event arrives. */
 DEFUN(XLIB:EVENT-LISTEN, display &optional timeout)
 {
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
-  struct timeval timeout;
+  struct timeval tv;
+  struct timeval *timeout = sec_usec(popSTACK(),NIL,&tv);
+  Display *dpy = pop_display();
   int r;
   XEvent trashcan;
 
-  if (nullp(STACK_0)) {
-    /* Block */
+  if (timeout == NULL) { /* Block */
     X_CALL(while (!(r = QLength (dpy))) XPeekEvent (dpy, &trashcan));
     value1 = make_uint32 (r);
   } else {
-    if (!boundp(STACK_0))
-      timeout.tv_sec = timeout.tv_usec = 0;
-    else
-      get_timeout (STACK_0, &timeout);
-
     r = QLength (dpy);
 
     if (r) {
@@ -6004,7 +5990,7 @@ DEFUN(XLIB:EVENT-LISTEN, display &optional timeout)
       conn = ConnectionNumber (dpy); /* this is the fd. */
       FD_ZERO (&ifds);
       FD_SET (conn, &ifds);
-      X_CALL(r = select (conn+1, &ifds, NULL, NULL, &timeout));
+      X_CALL(r = select (conn+1, &ifds, NULL, NULL, timeout));
       if ((r > 0) && FD_ISSET (conn, &ifds)) {
         /* RTFS: To flush or not to flush is here the question! */
         X_CALL(r = XEventsQueued (dpy, QueuedAfterReading));
@@ -6014,7 +6000,6 @@ DEFUN(XLIB:EVENT-LISTEN, display &optional timeout)
       }
     }
   }
-  skipSTACK(2);
   mv_count = 1;
 }
 
