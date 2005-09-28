@@ -1030,7 +1030,7 @@ operating system and is determined at build time.</para>
   When no more room is available, some reserve area beyond the right end
   of the block is halved, and the 2-pointer objects are moved to the
   right accordingly.
-  <variablelist><title>overview</title>
+  <variablelist>&advantages;
    <varlistentry><term>(+)</term>
     <listitem><simpara>Simple management.
     </simpara></listitem></varlistentry>
@@ -1048,7 +1048,7 @@ operating system and is determined at build time.</para>
   The former one has a hole to the right and is extensible to the right,
   the latter one has a hole to the left and is extensible to the left.
   Similar to the previous model, except that the hole is unmapped.
-  <variablelist><title>overview</title>
+  <variablelist>&advantages;
    <varlistentry><term>(+)</term>
     <listitem><simpara>Total heap size grows depending on the
      application's needs.</simpara></listitem></varlistentry>
@@ -1064,7 +1064,7 @@ operating system and is determined at build time.</para>
  <listitem><para>The heap consists of two big blocks, one for
   variable-length objects and one for 2-pointer objects.
   Both have a hole to the right, but are extensible to the right.
-  <variablelist><title>overview</title>
+  <variablelist>&advantages;
    <varlistentry><term>(+)</term>
     <listitem><simpara>Total heap size grows depending on the
      application's needs.</simpara></listitem></varlistentry>
@@ -1091,9 +1091,9 @@ operating system and is determined at build time.</para>
   If the holes then make up more than 25% of the occupied storage, a
   second GC turn moves objects across pages, from nearly empty ones to
   nearly full ones, with the aim to free as many pages as possible.
-  <variablelist><title>overview</title>
+  <variablelist>&advantages;
    <varlistentry><term>(-)</term>
-    <listitem><simpara>every allocation requires AVL tree operations,
+    <listitem><simpara>Every allocation requires AVL tree operations,
      thus slower</simpara></listitem></varlistentry>
    <varlistentry><term>(+)</term>
     <listitem><simpara>Total heap size grows depending on the
@@ -1107,9 +1107,9 @@ operating system and is determined at build time.</para>
  <listitem><para>Just like SPVW_MIXED_PAGES, except that every page
   contains data of only a single type tag, i.e. there is a Heap for
   every type tag.
-  <variablelist><title>overview</title>
+  <variablelist>&advantages;
    <varlistentry><term>(-)</term>
-    <listitem><simpara>every allocation requires AVL tree operations,
+    <listitem><simpara>Every allocation requires AVL tree operations,
      thus slower</simpara></listitem></varlistentry>
    <varlistentry><term>(+)</term>
     <listitem><simpara>Total heap size grows depending on the
@@ -1131,7 +1131,7 @@ operating system and is determined at build time.</para>
   last GC reaches 50% of the amount of used space at the last GC, but at
   least 512 KB.
   The &gc;ion cleans up each block separately: data is moved left.
-  <variablelist><title>overview</title>
+  <variablelist>&advantages;
    <varlistentry><term>(+)</term>
     <listitem><simpara>Total heap size grows depending on the
      application's needs.</simpara></listitem></varlistentry>
@@ -1155,9 +1155,10 @@ There are no small objects in pages belonging to a big object.</para>
 <table id="mem-models-comb-typecodes" frame="all">
  <title>Memory models with &typecodes;</title>
 <tgroup cols="6" colsep="1" rowsep="1" align="center">
-<thead><row><entry/><entry>no MAP_MEMORY</entry>
- <entry>TRIVIALMAP_MEMORY</entry><entry>SINGLEMAP_MEMORY</entry>
- <entry>MULTIMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>
+<thead><row><entry/><entry><xref linkend="MMC-A"/></entry>
+ <entry><xref linkend="MMC-B"/></entry><entry><xref linkend="MMC-C"/></entry>
+ <entry><xref linkend="MMC-D"/></entry><entry><xref linkend="MMC-E"/></entry>
+</row></thead>
 <tbody><row><entry>SPVW_MIXED_BLOCKS_OPPOSITE</entry><entry>1</entry>
       <entry>10</entry><entry/><entry>2</entry><entry>9</entry></row>
 <row><entry>SPVW_MIXED_BLOCKS_STAGGERED</entry>
@@ -1173,14 +1174,25 @@ There are no small objects in pages belonging to a big object.</para>
 <table id="mem-models-comb-heapcodes" frame="all">
  <title>Memory models with &heapcodes;</title>
 <tgroup cols="4" colsep="1" rowsep="1" align="center">
-<thead><row><entry/><entry>no MAP_MEMORY</entry>
- <entry>TRIVIALMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>
+<thead><row><entry/><entry><xref linkend="MMC-A"/></entry>
+ <entry><xref linkend="MMC-B"/></entry><entry><xref linkend="MMC-E"/></entry>
+</row></thead>
 <tbody><row><entry>SPVW_MIXED_BLOCKS_OPPOSITE</entry>
       <entry>*</entry><entry>*</entry><entry>*</entry></row>
 <row><entry>SPVW_MIXED_BLOCKS_STAGGERED</entry>
      <entry/><entry>*</entry><entry>*</entry></row>
 <row><entry>SPVW_MIXED_PAGES</entry><entry>*</entry><entry/><entry/></row>
 </tbody></tgroup></table>
+
+<orderedlist numeration="upperalpha"><title>Legend to
+  <xref linkend="mem-models-comb-typecodes"/> and
+  <xref linkend="mem-models-comb-heapcodes"/></title>
+ <listitem id="MMC-A"><simpara>no MAP_MEMORY</simpara></listitem>
+ <listitem id="MMC-B"><simpara>TRIVIALMAP_MEMORY</simpara></listitem>
+ <listitem id="MMC-C"><simpara>SINGLEMAP_MEMORY</simpara></listitem>
+ <listitem id="MMC-D"><simpara>MULTIMAP_MEMORY</simpara></listitem>
+ <listitem id="MMC-E"><simpara>GENERATIONAL_GC</simpara></listitem>
+</orderedlist>
 
 </section>
 
