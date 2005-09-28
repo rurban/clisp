@@ -6029,7 +6029,7 @@ DEFUN(XLIB:SEND-EVENT, &rest args)
 
     encode_event (argcount-3, STACK_(argcount-2), dpy, &event);
     X_CALL(XSendEvent (dpy, window, propagate_p, event_mask, &event));
-    /* XSendEvent returns also some Status, should we interprete it?
+    /* XSendEvent returns also some Status, should we interpret it?
      If yes: How?! */
     skipSTACK(argcount);
     VALUES1(NIL);
