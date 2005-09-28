@@ -4,7 +4,7 @@
 	from USAGE to avoid a conflict with POSIX
 	* modules/clx/new-clx/clx.f (travel_queque): timeout is struct timeval
 	(get_timeout): removed
-	(PROCESS-EVENT, EVENT-LISTEN): yse sec_usec() instead of get_timeout()
+	(PROCESS-EVENT, EVENT-LISTEN): use sec_usec() instead of get_timeout()
 
 2005-09-27  Sam Steingold  <sds@gnu.org>
 
