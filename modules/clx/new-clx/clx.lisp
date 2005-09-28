@@ -447,49 +447,48 @@
                       &body clauses)
   (let ((slots (gensym)))
     ;; FIXME this implementation is not 100%
-    force-output-p
     `(process-event ,display
-                    :timeout ,timeout
-                    :peek-p ,peek-p
-                    :discard-p ,discard-p
-                    :force-output-p ,force-output-p
+       :timeout ,timeout
+       :peek-p ,peek-p
+       :discard-p ,discard-p
+       :force-output-p ,force-output-p
        :handler
-       #'(lambda (&rest ,slots &key event-key &allow-other-keys)
-           ;; (print slots)
-           (cond ,@(mapcar
-                    #'(lambda (clause)
-                        (let ((event-or-events (car clause))
-                              (binding-list (cadr clause))
-                              (test-form (caddr clause))
-                              (body-forms (cdddr clause)))
-                          (cond ((member event-or-events '(t otherwise))
-                                 ;;Special case
-                                 `((and t
-                                        ,@(if test-form
-                                              (list `(apply #'(lambda (&key ,@binding-list &allow-other-keys) ,test-form) ,slots))
-                                            nil))
-                                   ,@(if body-forms
-                                         (list `(apply #'(lambda (&key ,@binding-list &allow-other-keys)
-                                                           ,@body-forms)
-                                                       ,slots))
-                                       nil)) )
-                                (t
-                                 ;; Make-up keywords from the event-keys
-                                 (unless (listp event-or-events)
-                                   (setq event-or-events (list event-or-events)))
-                                 (setq event-or-events (mapcar #'kintern event-or-events))
-                                 `((and ,(if (cdr event-or-events)
-                                             `(member event-key ',event-or-events)
-                                           `(eq event-key ',(car event-or-events)))
-                                        ,@(if test-form
-                                              (list `(apply #'(lambda (&key ,@binding-list &allow-other-keys) ,test-form) ,slots))
-                                            nil))
-                                   ,@(if body-forms
-                                         (list `(apply #'(lambda (&key ,@binding-list &allow-other-keys)
-                                                           ,@body-forms)
-                                                       ,slots))
-                                       nil) )))))
-                    clauses) )) )))
+       (lambda (&rest ,slots &key event-key &allow-other-keys)
+         ;; (print slots)
+         (cond ,@(mapcar
+                  (lambda (clause)
+                    (let ((event-or-events (car clause))
+                          (binding-list (cadr clause))
+                          (test-form (caddr clause))
+                          (body-forms (cdddr clause)))
+                      (cond ((member event-or-events '(t otherwise))
+                             ;;Special case
+                             `((and t
+                                    ,@(if test-form
+                                          (list `(apply #'(lambda (&key ,@binding-list &allow-other-keys) ,test-form) ,slots))
+                                          nil))
+                               ,@(if body-forms
+                                     (list `(apply (lambda (&key ,@binding-list &allow-other-keys)
+                                                     ,@body-forms)
+                                                   ,slots))
+                                     nil)))
+                            (t ;; Make-up keywords from the event-keys
+                             (unless (listp event-or-events)
+                               (setq event-or-events (list event-or-events)))
+                             (setq event-or-events
+                                   (mapcar #'kintern event-or-events))
+                             `((and ,(if (cdr event-or-events)
+                                         `(member event-key ',event-or-events)
+                                         `(eq event-key ',(car event-or-events)))
+                                    ,@(if test-form
+                                          (list `(apply #'(lambda (&key ,@binding-list &allow-other-keys) ,test-form) ,slots))
+                                          nil))
+                               ,@(if body-forms
+                                     (list `(apply #'(lambda (&key ,@binding-list &allow-other-keys)
+                                                       ,@body-forms)
+                                                   ,slots))
+                                     nil))))))
+                  clauses))))))
 
 (defmacro EVENT-CASE ((&rest args) &body clauses)
   ;; Event-case is just event-cond with the whole body in the test-form
@@ -1323,8 +1322,7 @@
   (make-instance 'gcontext))
 
 ;; What has that to do with graphics?!
-(defparameter *keyword-package* (find-package :keyword))
-(defun kintern (name) (intern (string name) *keyword-package*))
+(defun kintern (name) (intern (string name) #,(find-package :keyword)))
 
 ;;;;From depdefs.lisp
 ;;;;
