@@ -9,6 +9,8 @@
 <xsl:param name="hyphenate" select="'false'"/>
 <xsl:param name="alignment" select="'left'"/>
 <xsl:param name="variablelist.as.blocks" select="1"/>
+<xsl:param name="variablelist.term.break.after" select="1"/>
+<xsl:param name="variablelist.term.separator" select="''"/>
 
 <xsl:template match="epigraph">
  <fo:block text-align="right" margin-left="50%">
@@ -40,7 +42,7 @@
 
 <xsl:template match="emphasis[@role = 'plat-dep']">
  <fo:inline>
-  <xsl:text>Platform Dependent: </xsl:text>
+  <fo:inline font-weight="bold">Platform Dependent: </fo:inline>
   <xsl:apply-imports/>
  </fo:inline>
 </xsl:template>
