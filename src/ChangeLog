@@ -7,6 +7,9 @@
 	(PROCESS-EVENT, EVENT-LISTEN): use sec_usec() instead of get_timeout()
 	* modules/clx/new-clx/demos/clx-demos.lisp: load "koch"
 	* modules/clx/new-clx/demos/koch.lisp: new demo
+	* modules/clx/new-clx/clx.lisp (*keyword-package*): removed
+	(kintern): do not use it
+	(EVENT-COND): removed some gunk
 
 2005-09-27  Sam Steingold  <sds@gnu.org>
 
