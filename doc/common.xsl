@@ -6,6 +6,8 @@
 <xsl:param name="link.mailto.url" select="'mailto:clisp-list@sf.net'"/>
 <!-- xsl:param name="suppress.navigation" select="0"/-->
 <xsl:param name="inherit.keywords" select="0"/>
+<xsl:param name="variablelist.term.break.after" select="1"/>
+<xsl:param name="variablelist.term.separator" select="''"/>
 
 <!-- xsl:template name="user.header.content">
  <p>CLISP Implementation Notes [user.header.content]</p><hr width="100%"/>
@@ -142,12 +144,6 @@ set       toc,title
 <xsl:template match="programlisting/computeroutput">
  <xsl:text>&#8658;&#160;</xsl:text> <!-- &rArr; + &nbsp; -->
  <xsl:apply-imports/>
-</xsl:template>
-
-<xsl:template match="varlistentry/term">
- <xsl:call-template name="anchor"/>
- <xsl:apply-templates/>
- <xsl:if test="following-sibling::term"><br/></xsl:if>
 </xsl:template>
 
 <xsl:template match="comment()">  <!-- pass through comments -->
