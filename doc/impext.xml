@@ -4522,7 +4522,7 @@ Compiled, it will have inlined the library function calls.
     &standard-input-var; is bound to <varname role="unix">stdin</varname>,
     &standard-output-var; to <varname role="unix">stdout</varname>, and
     &error-output-var; to <varname role="unix">stderr</varname>.
-  </simpara></listitem>
+    Note <xref linkend="dribble-script"/>.</simpara></listitem>
   <listitem><simpara>The &cont-err;s will be turned into &warning-t;s
    (using &appease-cerrors;).</simpara></listitem>
   <listitem><simpara>Non-&cont-err;s and
