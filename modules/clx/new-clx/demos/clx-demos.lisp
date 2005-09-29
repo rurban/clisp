@@ -1,5 +1,5 @@
 ;;; Common stuff for the demos
-;;; Copyright (C) 1999-2004 by Sam Steingold (sds@gnu.org)
+;;; Copyright (C) 1999-2005 by Sam Steingold (sds@gnu.org)
 ;;; GPL2 is applicable
 
 (defpackage "CLX-DEMOS"
