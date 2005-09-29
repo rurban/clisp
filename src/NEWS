@@ -13,9 +13,11 @@ User visible changes
 * New SETF-able functions POSIX:GETUID, POSIX:GETGID, POSIX:GETEUID,
   POSIX:GETEGID.
 
-* Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled code.
+* New NEW-CLX demo: foch.lisp draws fractal snoflakes.
 
 * Use MAP instead of ELT for sequence access in NEW-CLX.
+
+* Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled code.
 
 * Fixed re-exporting symbols from POSIX to EXT.
 
