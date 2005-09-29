@@ -10,10 +10,13 @@ User visible changes
   + When --with-dynamic-ffi is supplied, but the FFI fails to build, abort.
   + makemake no longer checks with_module_* variables.
 
+* New module readline offers some advanced readline and history features.
+  It is a BASE module and is available when both FFI and readline are present.
+
 * New SETF-able functions POSIX:GETUID, POSIX:GETGID, POSIX:GETEUID,
   POSIX:GETEGID.
 
-* New NEW-CLX demo: foch.lisp draws fractal snoflakes.
+* New NEW-CLX demo: foch.lisp draws fractal snowflakes.
 
 * Use MAP instead of ELT for sequence access in NEW-CLX.
 
