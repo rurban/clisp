@@ -210,8 +210,14 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     else XOUT(TheWeakpointer(obj)->wp_cdr);
     fprintf(out," 0x%lx>",as_oint(obj));
   } else if (fpointerp(obj)) {
-    fputs("#<",out); string_out(out,O(printstring_fpointer));
+    fputs("#<",out);
+    if (!fp_validp(TheFpointer(obj))) string_out(out,O(printstring_invalid));
+    string_out(out,O(printstring_fpointer));
     fprintf(out," 0x%lx>",TheFpointer(obj)->fp_pointer);
+  } else if (faddressp(obj)) {
+    fputs("#<",out); string_out(out,O(printstring_faddress)); fputs(" ",out);
+    XOUT(TheFaddress(obj)->fa_base);
+    fprintf(out," + 0x%lx>",TheFaddress(obj)->fa_offset);
   } else if (structurep(obj)) {
     var uintL ii;
     fputs("#<structure",out);
