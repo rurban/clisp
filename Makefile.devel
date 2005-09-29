@@ -93,7 +93,7 @@ makemake : src/makemake.in version.sh
 CURDIR=$(shell pwd)
 
 MODULES=berkeley-db clx/new-clx dirkey fastcgi i18n oracle pari pcre \
-	postgresql rawsock regexp syscalls wildcard zlib
+	postgresql rawsock readline regexp syscalls wildcard zlib
 MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 MOD_CONFIG_H_IN=$(patsubst %,modules/%/config.h.in,$(MODULES))
 CLISP_CONFIGURES=src/configure $(MOD_CONFIGURES)

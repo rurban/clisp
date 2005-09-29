@@ -1,5 +1,12 @@
 2005-09-29  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (MODULES): added readline
+	* makemake.in (BASE_MODULES): add readline
+	when both readline and FFI are present
+	* modules/readline: new module directory
+
+2005-09-29  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (get_standard_output_file_stream)
 	(get_standard_error_file_stream): return a synonym stream instead
 	of a terminal stream for the benefit of dribble

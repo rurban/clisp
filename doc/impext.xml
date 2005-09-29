@@ -2286,6 +2286,10 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  <varlistentry><term><link linkend="syscalls">syscalls</link></term>
   <listitem><simpara>Use some system calls in a platform-independent way.
     See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
+ <varlistentry><term>readline</term>
+  <listitem><simpara>When &readline; and &ffi-pac; are available,
+    some advanced readline and history features are exported using this module.
+    See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="wildcard">wildcard</link></term>
   <listitem><simpara>Shell (&sh;) globbing (&path-match;).
  </simpara></listitem></varlistentry>
@@ -2317,7 +2321,8 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
    <member><link linkend="i18n-mod">i18n</link></member>
    <member><link linkend="regexp-mod">regexp</link></member>
    <member><link linkend="syscalls">syscalls</link></member>
- </simplelist></para>
+   <member>readline (only when both &readline; and &ffi-pac; are
+    available)</member></simplelist></para>
  <para>The composition of the &full; &linkset; depends on the platform
   and on the vendor preferences.</para></section>
 

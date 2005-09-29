@@ -211,6 +211,7 @@ with_threads=no
 # i18n: essential for internationalized programs
 # syscalls: very useful for scripting
 # regexp: useful for scripting and text processing
+# readline: additional facilities for REPL, added later if appropriate
 BASE_MODULES="i18n syscalls regexp"
 
 verbose=${CLISP_MAKEMAKE_VERBOSE:-false}
@@ -226,7 +227,7 @@ while test -z "$endofargs"; do
       module=`echol "$1"|sed 's/-*with-module=//'`
       # We don't need to add $module to MODULES if it's already contained
       # in BASE_MODULES.
-      case " $BASE_MODULES " in
+      case " $BASE_MODULES readline " in
         *" $module "*) cat <<EOF >&2
 $0: argument $1 is ignored because $module is a base module
 $0: see http://clisp.cons.org/impnotes/modules.html#base-modules
@@ -1535,6 +1536,9 @@ if [ $TOS = unix ] ; then
     # --without-readline was supplied
     XCFLAGS=$XCFLAGS' -DNO_READLINE'
   else
+    if [ "${with_dynamic_ffi}" != no ]; then
+      BASE_MODULES=${BASE_MODULES}" readline"
+    fi
     FILES='libnoreadline.a '$FILES
     if [ "${with_readline}" != ifpossible ]; then
       # --with-readline was supplied ==> barf when readline is missing
