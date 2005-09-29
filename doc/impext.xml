@@ -19,7 +19,9 @@
   <step><simpara><link linkend="modinit">Initialize
      modules</link>.</simpara></step>
   <step><simpara>Run all functions in &init-hooks;.</simpara></step>
-  <step><simpara>Say <quote>hi</quote> unless suppressed by &opt-v;.
+  <step><simpara>Say <quote>hi</quote>, unless suppressed by &opt-v;.
+  </simpara></step><step><simpara>Load &RC-file;, unless suppressed by
+    <olink targetdoc="man" targetptr="opt-norc"><option>-norc</option></olink>
  </simpara></step></substeps></step>
 <step><title>The actual work</title><para>Handle command line options: file
   <olink targetdoc="man" targetptr="opt-init">loading</olink> and/or
