@@ -5339,7 +5339,34 @@ exhaust the available line length.</para></formalpara>
     See <link linkend="dribble-example">above</link> for the sample usage.
     See also <filename role="clisp-cvs">src/dribble.lisp</filename> in
     the &clisp; source tree.
-</simpara></listitem></varlistentry></variablelist></section>
+</simpara></listitem></varlistentry></variablelist>
+
+<section id="dribble-script"><title>Scripting and &dribble;.</title>
+
+<para>&dribble; works by operating on &terminal-io-var;,
+ thus is does &not-e; work when &clisp; acts as a script interpreter
+ (see <xref linkend="quickstart-unix"/>).</para>
+
+<para>Traditionally, &cl; implementations set &standard-input-var;,
+ &standard-output-var;, and &error-output-var; to a &synonym-stream-t;
+ pointing to &terminal-io-var;, and &clisp; is no exception.
+ Thus changing &terminal-io-var; to a dribble stream affects all
+ standard i/o.</para>
+
+<para>On the other hand, when &clisp; acts as a script interpreter,
+ it adheres to the &unix; <filename role="unix">stdio.h</filename>
+ <link linkend="script-exec">conventions</link>, thus &standard-input-var;,
+ &standard-output-var;, and &error-output-var; are normal &file-stream-t;s,
+ and thus are &not-e; affected by &dribble; (&terminal-io-var; - and
+ thus <code>(&print; ... &t;)</code> - &is-e; still affected).
+ The &clhs; explicitly permits this behavior by stating
+ <blockquote><para>&dribble; is intended primarily for interactive
+   debugging; its effect cannot be relied upon when used in a program.
+</para></blockquote></para>
+
+</section>
+
+</section>
 
 <section id="version"><title>Function &lisp-implementation-version;</title>
 
