@@ -14829,10 +14829,10 @@ local maygc object get_standard_output_file_stream (void) {
       && (TheStream(terminal_stream)->strmflags & strmflags_open_B)
       && (TheStream(terminal_stream)->strmflags & strmflags_wr_ch_B)
       && TheStream(terminal_stream)->strmtype == strmtype_terminal) {
-    # For FRESH-LINE to work correctly, we must avoid that *TERMINAL-IO* and
-    # the stream returned by this function have a different wr_ch_lpos field.
-    # Therefore we just return *TERMINAL-IO*.
-    return terminal_stream;
+    /* For FRESH-LINE to work correctly, we must avoid that *TERMINAL-IO* and
+     the stream returned by this function have a different wr_ch_lpos field.
+     Therefore we just return (MAKE-SYNONYM-STREAM (QUOTE *TERMINAL-IO*)). */
+    return make_synonym_stream(S(terminal_io));
   }
   #endif
   if (nullp(O(standard_output_file_stream)))
@@ -14850,10 +14850,10 @@ local maygc object get_standard_error_file_stream (void) {
       && (TheStream(terminal_stream)->strmflags & strmflags_open_B)
       && (TheStream(terminal_stream)->strmflags & strmflags_wr_ch_B)
       && TheStream(terminal_stream)->strmtype == strmtype_terminal) {
-    # For FRESH-LINE to work correctly, we must avoid that *TERMINAL-IO* and
-    # the stream returned by this function have a different wr_ch_lpos field.
-    # Therefore we just return *TERMINAL-IO*.
-    return terminal_stream;
+    /* For FRESH-LINE to work correctly, we must avoid that *TERMINAL-IO* and
+     the stream returned by this function have a different wr_ch_lpos field.
+     Therefore we just return (MAKE-SYNONYM-STREAM (QUOTE *TERMINAL-IO*)). */
+    return make_synonym_stream(S(terminal_io));
   }
   #endif
   if (nullp(O(standard_error_file_stream)))
