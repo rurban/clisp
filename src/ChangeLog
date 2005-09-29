@@ -1,5 +1,11 @@
 2005-09-29  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (get_standard_output_file_stream)
+	(get_standard_error_file_stream): return a synonym stream instead
+	of a terminal stream for the benefit of dribble
+
+2005-09-29  Sam Steingold  <sds@gnu.org>
+
 	* spvw_debug.d (nobject_out1): handle Foreign-Address
 
 2005-09-28  Sam Steingold  <sds@gnu.org>
