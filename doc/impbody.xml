@@ -5359,7 +5359,7 @@ exhaust the available line length.</para></formalpara>
  &standard-output-var;, and &error-output-var; are normal &file-stream-t;s,
  and thus are &not-e; affected by &dribble; (&terminal-io-var; - and
  thus <code>(&print; ... &t;)</code> - &is-e; still affected).
- The &clhs; explicitly permits this behavior by stating
+ The &ansi-cl; explicitly permits this behavior by stating
  <blockquote><para>&dribble; is intended primarily for interactive
    debugging; its effect cannot be relied upon when used in a program.
 </para></blockquote></para>
