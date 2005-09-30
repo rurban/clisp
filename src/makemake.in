@@ -1536,15 +1536,16 @@ if [ $TOS = unix ] ; then
     # --without-readline was supplied
     XCFLAGS=$XCFLAGS' -DNO_READLINE'
   else
-    if [ "${with_dynamic_ffi}" != no ]; then
-      BASE_MODULES=${BASE_MODULES}" readline"
-    fi
     FILES='libnoreadline.a '$FILES
-    if [ "${with_readline}" != ifpossible ]; then
-      # --with-readline was supplied ==> barf when readline is missing
-      if grep "#undef HAVE_READLINE" unixconf.h >/dev/null 2>&1; then
+    if grep "#undef HAVE_READLINE" unixconf.h >/dev/null 2>&1; then
+      if [ "${with_readline}" != ifpossible ]; then
+        # --with-readline was supplied ==> barf when readline is missing
         echol "makemake: configure failed to detect readline" >&2
         exit 1
+      fi
+    else                        # readline is present
+      if [ "${with_dynamic_ffi}" != no ]; then
+        BASE_MODULES=${BASE_MODULES}" readline"
       fi
     fi
   fi

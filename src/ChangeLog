@@ -1,3 +1,8 @@
+2005-09-30  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (BASE_MODULES): fixed last patch:
+	add "readline" only when libreadline is actually available
+
 2005-09-29  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (MODULES): added readline
