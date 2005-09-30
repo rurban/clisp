@@ -1,5 +1,12 @@
 2005-09-30  Sam Steingold  <sds@gnu.org>
 
+	clisp -v -v sets *LOAD-ECHO* to T
+	* constsym.d (load_echo): added
+	* spvw.d (init_symbol_values): init *load-echo* to NIL
+	(main_actions): when argv_verbose > 3, set *load-echo* to T
+
+2005-09-30  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (open_library): quite a few platforms do not define
 	RTLD_DEFAULT, but accept NULL as a library handle to mean the
 	same (e.g., WIN32, FreeBSD, MacOSX), so we always accept :DEFAULT
