@@ -442,12 +442,23 @@ local maygc object convert_function_to_foreign (object fun, object resulttype,
         if (equal_fvd(resulttype,Car(acons))
             && equal_argfvds(argtypes,Car(Cdr(acons)))
             && eq(flags,Car(Cdr(Cdr(acons))))) {
-          var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*posfixnum_to_V(Cdr(Cdr(Cdr(acons))))-2];
-          triple[2] = fixnum_inc(triple[2],1); /* increment reference count */
+          var uintV f_index = posfixnum_to_V(Cdr(Cdr(Cdr(acons))));
+          var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*f_index-2];
           var object ffun = triple[1];
           ASSERT(equal_fvd(resulttype,TheFfunction(ffun)->ff_resulttype));
           ASSERT(equal_argfvds(argtypes,TheFfunction(ffun)->ff_argtypes));
           ASSERT(eq(flags,TheFfunction(ffun)->ff_flags));
+          var object faddress = TheFfunction(ffun)->ff_address;
+          if (fp_validp(TheFpointer(TheFaddress(faddress)->fa_base))) {
+            triple[2] = fixnum_inc(triple[2],1); /* increment reference count */
+          } else {     /* callback from a previous session -- renew */
+            triple[2] = Fixnum_1; /* reset reference count */
+            begin_system_call();
+            TheFaddress(faddress)->fa_offset =
+              (uintP)alloc_callback(&callback,(void*)(uintP)f_index);
+            end_system_call();
+            TheFaddress(faddress)->fa_base = O(fp_zero);
+          }
           return ffun;
         }
       }
@@ -3976,16 +3987,16 @@ local maygc void * open_library (gcv_object_t* name, uintL version)
     #endif
   }
   if (eq(*name,S(Knext))) {
-    #if defined(RTLD_NEXT)
-      return RTLD_NEXT;
-    #else
-      pushSTACK(NIL); /* no PLACE */
-      pushSTACK(S(Knext));
-      pushSTACK(S(foreign_library));
-      check_value(error,GETTEXT("~S: ~S is not supported on this platform."));
-      *name = value1;
-      goto open_library_restart;
-    #endif
+   #if defined(RTLD_NEXT)
+    return RTLD_NEXT;
+   #else
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(S(Knext));
+    pushSTACK(S(foreign_library));
+    check_value(error,GETTEXT("~S: ~S is not supported on this platform."));
+    *name = value1;
+    goto open_library_restart;
+   #endif
   }
   with_string_0(*name = check_string(*name),O(misc_encoding),libname, {
     begin_system_call();
