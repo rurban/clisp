@@ -1341,6 +1341,7 @@ local void init_symbol_values (void) {
   define_variable(S(load_compiling),NIL); /* *LOAD-COMPILING* := NIL */
   define_variable(S(load_verbose),T); /* *LOAD-VERBOSE* := T */
   define_variable(S(load_print),NIL); /* *LOAD-PRINT* := NIL */
+  define_variable(S(load_echo),NIL); /* *LOAD-ECHO* := NIL */
   define_variable(S(compile_print),NIL); /* *COMPILE-PRINT* := NIL */
   define_variable(S(compile_verbose),T); /* *COMPILE-VERBOSE* := T */
   define_variable(S(report_error_print_backtrace),NIL); /* *REPORT-ERROR-PRINT-BACKTRACE* := NIL */
@@ -3023,6 +3024,8 @@ local inline void main_actions (struct argv_actions *p) {
                                     *report-error-print-backtrace* t) */
     Symbol_value(S(report_error_print_backtrace)) =
       Symbol_value(S(load_print)) = Symbol_value(S(compile_print)) = T;
+  if (p->argv_verbose > 3)      /* (setq *load-echo* t) */
+    Symbol_value(S(load_echo)) = T;
   if (p->argv_developer) { /* developer mode */
     /* unlock all packages */
     var object packlist = O(all_packages);
