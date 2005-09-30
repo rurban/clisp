@@ -1,3 +1,10 @@
+2005-09-29  Sam Steingold  <sds@gnu.org>
+
+	enable saving callbacks into memory images
+	* foreign.d (convert_function_to_foreign): when the Ffunction
+	found in O(foreign_callin_table) is invalid, renew it
+	Reported by Tomas Zellerin <zellerin@gmail.com>
+
 2005-09-30  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (BASE_MODULES): fixed last patch:
