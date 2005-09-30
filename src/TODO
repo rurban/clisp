@@ -195,6 +195,10 @@ gcc -I. -fPIC -x none -Wl,-export-dynamic -shared -o dynmod/lib-i18n.dll gettext
 gettext.o(.text+0x7f):i18n/gettext.c:2296: undefined reference to `_I_to_L'
 gettext.o(.text+0xcb):i18n/gettext.c:2301: undefined reference to `_STACK'
 gettext.o(.text+0xd2):i18n/gettext.c:2301: undefined reference to `_symbol_tab_data'
+These errors mean that the lisp run time must be compiled into lisp.so,
+not lisp.a, and dynmod/lib-i18n.dll should be linked against it.
+So, this all goes in the same direction as embeddability
+and elimination of lisp.run in favor of a driver launching the right dll.
 Also, --with-dynamic-modules should _NOT_ make BASE_MODULES dynamic.
 
 
@@ -259,6 +263,7 @@ readlink("/proc/self/fd/0", "[0303]:39982", 12) = 12
 readlink("/proc", 0xbfffd498, 4094)     = -1 EINVAL (Invalid argument)
 readlink("/proc/self", "1108", 4094)    = 5
 lstat("/proc/1108/fd/[0303]:39982", 0x8138260) = -1 ENOENT (No such file or directory)
+
 
 Problem is the call to assure_dir_exists(TRUE,FALSE); where in fact not
 all links are resolved in the directory!
@@ -348,7 +353,7 @@ GC/Memory Management:
    <http://article.gmane.org/gmane.lisp.clisp.devel:13209>
    <http://article.gmane.org/gmane.lisp.clisp.devel:13212>
 4. Ability to "tenure" a specific object (with all its references!)
-   or the whole current heap.
+   or the whole current heap (also untenure the object).
 
 
 local function (LABEL/FLET) calls waste heap (COPY-CLOSURE).
@@ -404,6 +409,8 @@ Still have to think about these, whether they are good ideas or not.
 Try to increase the string size limit, to get rid of
 "*** - string too long: desired length 6553600 exceeds the supported maximum
        length" errors
+instead, the string size limit just went down!
+http://sourceforge.net/tracker/index.php?func=detail&aid=1308440&group_id=1355&atid=101355
 
 
 Add highlight/underline/etc. capability to the output side of *terminal-io*.
