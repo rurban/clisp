@@ -4565,9 +4565,10 @@ when being loaded, this is important as well.</para></section>
  <varlistentry><term>&echo-k;</term>
   <listitem><simpara>causes the input from the file to be echoed to
     &standard-output-var; (normally to the screen).  Should there be an
-    error in the file, you can see at one glance where it is.  The
-    default is <firstterm>&load-echo;</firstterm>, which is initially
-    &nil;.</simpara></listitem></varlistentry>
+    error in the file, you can see at one glance where it is.
+    The default is <firstterm>&load-echo;</firstterm>, which is
+    initially &nil;, but can be changed by the &opt-v; option.
+ </simpara></listitem></varlistentry>
  <varlistentry><term>&compiling-k;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
     The compiled code is executed at once and - in contrast to

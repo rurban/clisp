@@ -14,9 +14,12 @@ User visible changes
   It is a BASE module and is available when both FFI and readline are present.
 
 * New SETF-able functions POSIX:GETUID, POSIX:GETGID, POSIX:GETEUID,
-  POSIX:GETEGID.
+  POSIX:GETEGID.  See <http://clisp.cons.org/syscalls.html> for details.
 
 * New NEW-CLX demo: foch.lisp draws fractal snowflakes.
+
+* The command line option -v now affects *LOAD-ECHO* also.
+  See <http://clisp.cons.org/clisp.html#opt-v> for details.
 
 * Use MAP instead of ELT for sequence access in NEW-CLX.
 

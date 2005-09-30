@@ -1985,6 +1985,7 @@ LISPSYM(compile_file,"COMPILE-FILE",lisp) /* function for SPVW */
 LISPSYM(load_compiling,"*LOAD-COMPILING*",custom) /* variable for SPVW */
 LISPSYM(load_verbose,"*LOAD-VERBOSE*",lisp) /* variable for SPVW */
 LISPSYM(load_print,"*LOAD-PRINT*",lisp) /* variable for SPVW */
+LISPSYM(load_echo,"*LOAD-ECHO*",custom) /* variable for SPVW */
 LISPSYM(compile_print,"*COMPILE-PRINT*",lisp) /* variable for SPVW */
 LISPSYM(compile_verbose,"*COMPILE-VERBOSE*",lisp) /* variable for SPVW */
 LISPSYM(report_error_print_backtrace,"*REPORT-ERROR-PRINT-BACKTRACE*",custom) /* variable for SPVW */

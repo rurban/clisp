@@ -1470,7 +1470,7 @@
 (proclaim '(special *load-print*))
 (setq *load-print* nil)         ; defined in spvw.d
 (proclaim '(special *load-echo*))
-(setq *load-echo* nil)
+(setq *load-echo* nil)          ; defined in spvw.d
 (proclaim '(special *load-compiling*))
 (setq *load-compiling* nil)     ; defined in spvw.d
 (proclaim '(special *load-pathname*))
