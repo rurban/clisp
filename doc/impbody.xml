@@ -2938,7 +2938,7 @@ checks whether the &hash-table-t; is weak.</para>
 
 <table id="min-filename-syntax-table" frame="all">
   <title>The minimum filename syntax that may be used portably</title>
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
+ <tgroup cols="2" colsep="1" rowsep="1" align="left">
  <thead><row><entry>pathname</entry><entry>meaning</entry></row></thead><tbody>
  <row><entry><filename>"xxx"</filename></entry>
    <entry>for a file with name <replaceable>xxx</replaceable></entry></row>
@@ -4302,7 +4302,7 @@ warning, you need to fix the source code of the incriminated method.</para>
   be meaningfully read in:
 <table id="unreadable-objects-table" frame="all">
   <title>Unreadable objects</title>
-<tgroup cols="2" colsep="1" rowsep="1" align="center">
+<tgroup cols="2" colsep="1" rowsep="1" align="left">
 <thead><row><entry>format</entry><entry>meaning</entry></row></thead><tbody>
  <row><entry><literal>#&lt;&type-r; ...&gt;</literal></entry>
   <entry>all &structure-object-t;s lacking a keyword constructor</entry></row>
@@ -4462,8 +4462,9 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 <para>For each input file (default file type: &lisp-file;)
  the following files are generated:
-<informaltable id="compile-file-new-files-table" frame="all">
+<informaltable id="compile-file-new-fi les-table" frame="all">
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
+  <colspec colnum="4" align="left"/>
   <thead><row><entry>File</entry><entry>When</entry>
   <entry>Default file type</entry><entry>Contents</entry></row></thead><tbody>
  <row><entry>output file</entry>
@@ -4480,7 +4481,8 @@ warning, you need to fix the source code of the incriminated method.</para>
  <row><entry>&c-lang; output file</entry>
    <entry>only if &outfile-k; is not &nil;</entry>
    <entry><filename>#P".c"</filename></entry>
-   <entry>&ffi-pac;; this file is deleted if it is empty</entry></row>
+   <entry>&ffi-pac;; this file is created only if the source contains
+    &ffi-pac; forms</entry></row>
 </tbody></tgroup></informaltable></para>
 
 <warning id="c-file-overwrite"><para>If you have two files in the same
