@@ -1036,16 +1036,13 @@ FM
 #+win32 T
 
 #-BeOS ; FFI::FOREIGN-LIBRARY-FUNCTION not defined on BeOS
-(let ((libc #+(and unix (not cygwin)) :DEFAULT
-            #+cygwin "/bin/cygwin1.dll" ; RTLD_DEFAULT not implemented
-            #+win32 :DEFAULT))
-  (list
-   (def-call-out c-malloc (:arguments (l long))
-     (:name "malloc") (:language :stdc) (:return-type c-pointer)
-     (:library libc))    ; use allocate-shallow or allocate-deep instead!
-   (def-call-out c-free (:arguments (p c-pointer))
-     (:name "free") (:language :stdc) (:return-type nil)
-     (:library libc))))  ; use foreign-free instead!
+(list
+ (def-call-out c-malloc (:arguments (l long))
+   (:name "malloc") (:language :stdc) (:return-type c-pointer)
+   (:library :default)) ; use allocate-shallow or allocate-deep instead!
+ (def-call-out c-free (:arguments (p c-pointer))
+   (:name "free") (:language :stdc) (:return-type nil)
+   (:library :default))) ; use foreign-free instead!
 #-BeOS
 (c-malloc c-free)
 
