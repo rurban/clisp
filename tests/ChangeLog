@@ -1,3 +1,7 @@
+2005-09-30  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst (libc): removed variable, (:library :default) is always OK
+
 2005-09-23  Sam Steingold  <sds@gnu.org>
 
 	* hashtable.tst: added read/write consistency tests
