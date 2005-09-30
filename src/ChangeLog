@@ -1,3 +1,9 @@
+2005-09-30  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (open_library): quite a few platforms do not define
+	RTLD_DEFAULT, but accept NULL as a library handle to mean the
+	same (e.g., WIN32, FreeBSD, MacOSX), so we always accept :DEFAULT
+
 2005-09-29  Sam Steingold  <sds@gnu.org>
 
 	enable saving callbacks into memory images

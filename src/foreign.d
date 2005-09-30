@@ -3971,20 +3971,11 @@ local maygc void * open_library (gcv_object_t* name, uintL version)
   var void * handle;
  open_library_restart:
   if (eq(*name,S(Kdefault))) {
-    #if defined(RTLD_DEFAULT)
-      return RTLD_DEFAULT;
-    #elif defined(UNIX_FREEBSD)
-      return NULL;
-    #elif defined(WIN32_NATIVE)
-      return NULL;
-    #else
-      pushSTACK(NIL); /* no PLACE */
-      pushSTACK(S(Kdefault));
-      pushSTACK(S(foreign_library));
-      check_value(error,GETTEXT("~S: ~S is not supported on this platform."));
-      *name = value1;
-      goto open_library_restart;
-    #endif
+   #if defined(RTLD_DEFAULT)
+    return RTLD_DEFAULT;
+   #else  /* known to work on WIN32, FreeBSD, MacOSX */
+    return NULL;
+   #endif
   }
   if (eq(*name,S(Knext))) {
    #if defined(RTLD_NEXT)
