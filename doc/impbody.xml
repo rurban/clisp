@@ -4462,7 +4462,7 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 <para>For each input file (default file type: &lisp-file;)
  the following files are generated:
-<informaltable id="compile-file-new-fi les-table" frame="all">
+<informaltable id="compile-file-new-files-table" frame="all">
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
   <colspec colnum="4" align="left"/>
   <thead><row><entry>File</entry><entry>When</entry>
