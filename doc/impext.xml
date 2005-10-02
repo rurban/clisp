@@ -4366,7 +4366,7 @@ Compiled, it will have inlined the library function calls.
     &so-status; returns either due to a timeout or when this number is
     positive, i.e., if the timeout was &nil; and &so-status; did
     return, then the second value is positive.</simpara>
- </listitem></varlistentry>
+   &sost-raw-too;</listitem></varlistentry>
  <varlistentry id="sost-hopo">
   <term><code>(&sost-host; &sost-r;)</code></term>
   <term><code>(&sost-port; &sost-r;)</code></term>
@@ -4421,7 +4421,7 @@ Compiled, it will have inlined the library function calls.
    <listitem><simpara>a &stream-t; is an &in-s; (i.e., &input-stream-p;
      returns &t;)</simpara></listitem></itemizedlist>
    the &stream-t; can be read from (e.g., with &read-char; or &read-byte;).
- </para></listitem></varlistentry>
+   </para>&sost-raw-too;</listitem></varlistentry>
  <varlistentry id="so-opt"><term><code>(&so-opt; &sose-r; &rest-amp;
     {&option-r;}*)</code></term>
   <listitem><simpara>Query and, optionally, set socket options using
@@ -4435,7 +4435,7 @@ Compiled, it will have inlined the library function calls.
    :SO-LINGER 1 :SO-RCVLOWAT)</code> returns 2 values: &nil;, the old
    value of the <constant>:SO-LINGER</constant> option, and 1, the
    current value of the <constant>:SO-RCVLOWAT</constant> option.
-  </simpara></listitem></varlistentry>
+  </simpara>&sost-raw-too;</listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
 </section>
