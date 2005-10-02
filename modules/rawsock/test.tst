@@ -67,6 +67,8 @@ NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
+(ext:socket-status *sock*) :OUTPUT
+
 (let ((size (rawsock:recv *sock* *buffer*)))
   (show (setq *recv-ret* (list size (from-bytes *buffer* size))))
   T) T
@@ -92,6 +94,7 @@ T
              '(:sol-socket nil))
 #+unix (:SOL-SOCKET NIL)
 
+(ext:socket-status *sock*) :OUTPUT
 (ext:socket-stream-shutdown *sock* :io) NIL
 (rawsock:sock-close *sock*) 0
 
@@ -106,6 +109,8 @@ T
 NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
+
+(ext:socket-status *sock*) :OUTPUT
 
 #-:win32 ;; on win32, read() cannot be called on a socket!
 (let ((size (rawsock:sock-read *sock* *buffer*)))
@@ -127,6 +132,9 @@ NIL
   (rawsock:sock-write *sock1* (to-bytes message))
   (string= message (from-bytes *buffer* (rawsock:sock-read *sock2* *buffer*))))
 T
+
+#-:win32 (ext:socket-status *sock1*) :OUTPUT
+#-:win32 (ext:socket-status *sock2*) :OUTPUT
 
 #-:win32 (rawsock:sock-close *sock1*) 0
 #-:win32 (rawsock:sock-close *sock2*) 0
