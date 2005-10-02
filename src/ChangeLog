@@ -1,3 +1,9 @@
+2005-10-02  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (SOCKET-STREAM-SHUTDOWN): handle is uint, not uint32
+	(SOCKET-CONNECT, sock_opt_int, SOCKET-OPTIONS):
+	use check_uint() instead of fehler_uint()
+
 2005-09-30  Sam Steingold  <sds@gnu.org>
 
 	clisp -v -v sets *LOAD-ECHO* to T
