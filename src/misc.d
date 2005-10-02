@@ -544,22 +544,24 @@ LISPFUNN(address_of,1)
 #ifdef HAVE_DISASSEMBLER
 
 LISPFUNN(code_address_of,1)
-# (SYS::CODE-ADDRESS-OF object) liefert die Adresse des Maschinencodes von object
-  {
-    var object obj = popSTACK();
-    if (ulong_p(obj)) # Zahl im Bereich eines aint == ulong -> Zahl selbst
-      VALUES1(obj);
-    elif (subrp(obj)) # SUBR -> seine Adresse
-      VALUES1(ulong_to_I((aint)(TheSubr(obj)->function)));
-    elif (fsubrp(obj)) # FSUBR -> seine Adresse
-      VALUES1(ulong_to_I((aint)(TheFsubr(obj)->function)));
-    #ifdef DYNAMIC_FFI
-    elif (ffunctionp(obj))
-      VALUES1(ulong_to_I((uintP)Faddress_value(TheFfunction(obj)->ff_address)));
-    #endif
-    else
-      VALUES1(NIL);
+{ /* (SYS::CODE-ADDRESS-OF object) return the address of the machine codes
+     of the object */
+  var object obj = popSTACK();
+  if (ulong_p(obj)) /* Number within the range of aint == ulong ==> self */
+    VALUES1(obj);
+  else if (subrp(obj))          /* SUBR ->  its address */
+    VALUES1(ulong_to_I((aint)(TheSubr(obj)->function)));
+  else if (fsubrp(obj))         /* FSUBR -> its address */
+    VALUES1(ulong_to_I((aint)(TheFsubr(obj)->function)));
+ #ifdef DYNAMIC_FFI
+  else if (ffunctionp(obj)) {
+    object fa = check_faddress_valid(TheFfunction(obj)->ff_address);
+    VALUES1(ulong_to_I((uintP)Faddress_value(fa)));
   }
+ #endif
+  else
+    VALUES1(NIL);
+}
 
 /* (SYS::PROCESS-ID) returns the pid */
 LISPFUNN(process_id,0) {

@@ -1,3 +1,20 @@
+2005-10-01  Sam Steingold  <sds@gnu.org>
+
+	GC-safety bug: validate fpointers lazily, not eagerly
+	* foreign.d (foreign_address): fixed GCTRIGGER_IF statement
+	(free_foreign_callin): call free_callback() only on valid pointers
+	(check_faddress_valid): new function
+	(SET-FOREIGN-POINTER, FOREIGN-FUNCTION, convert_to_foreign)
+	(LOOKUP-FOREIGN-VARIABLE, FOREIGN-VARIABLE, FOREIGN-VALUE)
+	(SET-FOREIGN-VALUE, DEREF, READ-MEMORY-AS, WRITE-MEMORY-AS)
+	(FOREIGN-FREE, FOREIGN-CALL-OUT): call it
+	(validate_fpointer): local, maygc
+	* io.d (pr_orecord): use Faddress_value, not Fpointer_value_no_check
+	* lispbibl.d (Fpointer_value, Faddress_value):
+	do not validate the argument
+	(check_faddress_valid): declare
+	* misc.d (CODE-ADDRESS-OF): explicitly validate faddress
+
 2005-10-02  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (SOCKET-STREAM-SHUTDOWN): handle is uint, not uint32
