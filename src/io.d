@@ -9089,9 +9089,6 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       break;
 #endif
 #ifdef DYNAMIC_FFI
-  # see macro Faddress_value() in lispbibl.d:
-  #define Fpointer_value_no_check(obj) \
-    ((uintP)TheFpointer(TheFaddress(obj)->fa_base)->fp_pointer + TheFaddress(obj)->fa_offset)
     case Rectype_Faddress: # #<FOREIGN-ADDRESS #x...>
       CHECK_PRINT_READABLY(obj);
       LEVEL_CHECK;
@@ -9111,7 +9108,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           JUSTIFY_SPACE; # print Space
           JUSTIFY_LAST(true);
           # print Address:
-          pr_hex8(stream_,Fpointer_value_no_check(*obj_));
+          pr_hex8(stream_,(uintP)Faddress_value(*obj_));
           length++; # increase previous length
         }
       faddress_end:
@@ -9149,7 +9146,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           JUSTIFY_LAST(true);
           # print Address:
           var object faddress = TheFvariable(*obj_)->fv_address;
-          pr_hex8(stream_,Fpointer_value_no_check(faddress));
+          pr_hex8(stream_,(uintP)Faddress_value(faddress));
           length++; # increase previous length
         }
       fvariable_end:
@@ -9187,7 +9184,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           JUSTIFY_LAST(true);
           # print Address:
           var object faddress = TheFfunction(*obj_)->ff_address;
-          pr_hex8(stream_,Fpointer_value_no_check(faddress));
+          pr_hex8(stream_,(uintP)Faddress_value(faddress));
           length++; # increase previous length
         }
       ffunction_end:
@@ -9197,7 +9194,6 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       }
       LEVEL_END;
       break;
-  #undef Fpointer_value_no_check
 #endif
     case Rectype_Weakpointer: # #<WEAK-POINTER value> or #<BROKEN WEAK-POINTER>
       CHECK_PRINT_READABLY(obj);

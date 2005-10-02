@@ -38,7 +38,7 @@ local maygc object make_faddress (object base, uintP offset)
  can trigger GC -- only when allocate_p is TRUE */
 local /*maygc*/ object foreign_address (object obj, bool allocate_p)
 {
-  GCTRIGGER_IF(allocate_p,GCTRIGGER());
+  GCTRIGGER_IF(allocate_p,GCTRIGGER1(obj));
   if (orecordp(obj)) {
     switch (Record_type(obj)) {
       case Rectype_Fpointer:
@@ -126,7 +126,7 @@ LISPFUNNR(foreign_pointer,1)
 LISPFUNN(set_foreign_pointer,2)
 {
   /* TODO? restart that allows all of (OR (EQL :COPY) FOREIGN-xyz) */
-  var object address = foreign_address(STACK_1,false);
+  var object address = check_faddress_valid(foreign_address(STACK_1,false));
   var object new_fp = STACK_0;
   STACK_0 = address;
   /* Stack layout: f-entity f-entity-address. */
@@ -556,10 +556,13 @@ local void free_foreign_callin (void* address)
             }
           }
         }
-        /* free the trampoline: */
-        begin_system_call();
-        free_callback((__TR_function)Faddress_value(TheFfunction(ffun)->ff_address));
-        end_system_call();
+        var object faddress = TheFfunction(ffun)->ff_address;
+        if (fp_validp(TheFpointer(TheFaddress(faddress)->fa_base))) {
+          /* free the trampoline: */
+          begin_system_call();
+          free_callback((__TR_function)Faddress_value(faddress));
+          end_system_call();
+        }
       }
     }
   } else {
@@ -595,6 +598,18 @@ local object convert_function_from_foreign (void* address, object resulttype,
   return obj;
 }
 
+/* ensure that the Faddress is valid
+ < fa: foreign address
+ can trigger GC */
+local maygc void validate_fpointer (object obj);
+global maygc inline object check_faddress_valid (object fa) {
+  object fp = TheFaddress(fa)->fa_base;
+  if (!fp_validp(TheFpointer(fp))) {
+    pushSTACK(fa); validate_fpointer(fp); fa=popSTACK();
+  }
+  return fa;
+}
+
 /* (FFI:FOREIGN-FUNCTION address c-type &key name) constructor */
 LISPFUN(foreign_function,seclass_read,2,0,norest,key,1,(kw(name)) )
 {
@@ -617,6 +632,7 @@ LISPFUN(foreign_function,seclass_read,2,0,norest,key,1,(kw(name)) )
     STACK_2 = value1;
     goto foreign_function_restart;
   }
+  fa = check_faddress_valid(fa);
   var object fvd = STACK_1;
   if (simple_vector_p(fvd)
       && eq(TheSvector(fvd)->data[0],S(c_function))
@@ -1828,6 +1844,7 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
         obj = TheFvariable(obj)->fv_address;
       else if (nullp(obj)) { *(void**)data = NULL; return; }
       else if (!faddressp(obj)) goto bad_obj;
+      obj = check_faddress_valid(obj);
       *(void**)data = Faddress_value(obj);
       return;
     } else if (eq(fvd,S(c_string))) {
@@ -2193,6 +2210,7 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
                                         TheSvector(fvd)->data[1],
                                         TheSvector(fvd)->data[2],
                                         TheSvector(fvd)->data[3]);
+          /* known to be valid! */
           *(void**)data = Faddress_value(TheFfunction(ffun)->ff_address);
         }
         return;
@@ -2210,12 +2228,14 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
         return;
       } else if (eq(fvdtype,S(c_pointer)) && (fvdlen == 2)) {
         if (faddressp(obj)) {
+          obj = check_faddress_valid(obj);
           *(void**)data = Faddress_value(obj);
           return;
         } else if (fvariablep(obj)) {
           fvd = TheSvector(fvd)->data[1];
           if (equal_fvd(fvd,TheFvariable(obj)->fv_type)) {
             obj = TheFvariable(obj)->fv_address;
+            obj = check_faddress_valid(obj);
             *(void**)data = Faddress_value(obj);
             return;
           } else goto bad_obj;
@@ -2341,8 +2361,8 @@ nonreturning_function(local, fehler_variable_no_fvd, (object obj)) {
  looks up a foreign variable, given its Lisp name. */
 LISPFUNN(lookup_foreign_variable,2)
 {
-  var object fvd = popSTACK();
-  var object name = popSTACK();
+  var object fvd = STACK_0;
+  var object name = STACK_1;
   var object fvar = gethash(name,O(foreign_variable_table),false);
   if (eq(fvar,nullobj)) {
     pushSTACK(name);
@@ -2351,9 +2371,11 @@ LISPFUNN(lookup_foreign_variable,2)
   /* The first LOOKUP-FOREIGN-VARIABLE determines the variable's type. */
   if (nullp(TheFvariable(fvar)->fv_type)) {
     foreign_layout(fvd);
+    var object fa = TheFvariable(fvar)->fv_address;
+    pushSTACK(fvar); fa = check_faddress_valid(fa);
+    fvar = popSTACK(); fvd = STACK_0; /* restore after GC-unsafe call */
     if (!((posfixnum_to_V(TheFvariable(fvar)->fv_size) == data_size)
-          && (((long)Faddress_value(TheFvariable(fvar)->fv_address)
-               & (data_alignment-1)) == 0))) {
+          && (((long)Faddress_value(fa) & (data_alignment-1)) == 0))) {
       pushSTACK(fvar);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,GETTEXT("~S: foreign variable ~S does not have the required size or alignment"));
@@ -2384,7 +2406,7 @@ LISPFUNN(lookup_foreign_variable,2)
     TheFvariable(new_fvar)->fv_type    = popSTACK();
     fvar = new_fvar;
   }
-  VALUES1(fvar);
+  VALUES1(fvar); skipSTACK(2);
 }
 
 /* (FFI:FOREIGN-VARIABLE address c-type &key name) constructor */
@@ -2406,6 +2428,7 @@ LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
     STACK_2 = value1;
     goto foreign_variable_restart;
   }
+  fa = check_faddress_valid(fa);
   if (!missingp(STACK_0)) STACK_0 = coerce_ss(STACK_0);
   var object fvar = allocate_fvariable();
   var object fvd = STACK_1;
@@ -2439,47 +2462,46 @@ LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
  returns the value of the foreign variable as a Lisp data structure. */
 LISPFUNN(foreign_value,1)
 {
-  var object fvar = popSTACK();
-  if (!fvariablep(fvar))
-    fehler_foreign_variable(fvar);
-  var void* address = Faddress_value(TheFvariable(fvar)->fv_address);
+  var object fvar = STACK_0;
+  if (!fvariablep(fvar)) fehler_foreign_variable(fvar);
+  var object fa = TheFvariable(fvar)->fv_address;
+  fa = check_faddress_valid(fa); fvar = STACK_0;
+  var void* address = Faddress_value(fa);
   var object fvd = TheFvariable(fvar)->fv_type;
-  if (nullp(fvd))
-    fehler_variable_no_fvd(fvar);
-  value1 = convert_from_foreign(fvd,address);
-  mv_count=1;
+  if (nullp(fvd)) fehler_variable_no_fvd(fvar);
+  VALUES1(convert_from_foreign(fvd,address)); skipSTACK(1);
 }
 
 /* (FFI::SET-FOREIGN-VALUE foreign-variable new-value)
  sets the value of the foreign variable. */
 LISPFUNN(set_foreign_value,2)
-  {
-    var object fvar = STACK_1;
-    if (!fvariablep(fvar))
-      fehler_foreign_variable(fvar);
-    var void* address = Faddress_value(TheFvariable(fvar)->fv_address);
-    var object fvd = TheFvariable(fvar)->fv_type;
-    if (nullp(fvd))
-      fehler_variable_no_fvd(fvar);
-    if (record_flags(TheFvariable(fvar)) & fv_readonly) {
-      pushSTACK(fvar);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: foreign variable ~S may not be modified"));
-    }
-    if (record_flags(TheFvariable(fvar)) & fv_malloc) {
-      /* Protect this using a semaphore??
-         Free old value: */
-      free_foreign(fvd,address);
-      /* Put in new value: */
-      convert_to_foreign_mallocing(fvd,STACK_0,address);
-    } else {
-      /* Protect this using a semaphore??
-         Put in new value, reusing the old value's storage: */
-      convert_to_foreign_nomalloc(fvd,STACK_0,address);
-    }
-    VALUES1(STACK_0);
-    skipSTACK(2);
+{
+  var object fvar = STACK_1;
+  if (!fvariablep(fvar)) fehler_foreign_variable(fvar);
+  var object fa = TheFvariable(fvar)->fv_address;
+  fa = check_faddress_valid(fa); fvar = STACK_1;
+  var void* address = Faddress_value(fa);
+  var object fvd = TheFvariable(fvar)->fv_type;
+  if (nullp(fvd)) fehler_variable_no_fvd(fvar);
+  if (record_flags(TheFvariable(fvar)) & fv_readonly) {
+    pushSTACK(fvar);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: foreign variable ~S may not be modified"));
   }
+  if (record_flags(TheFvariable(fvar)) & fv_malloc) {
+    /* Protect this using a semaphore??
+       Free old value: */
+    free_foreign(fvd,address);
+    /* Put in new value: */
+    convert_to_foreign_mallocing(fvd,STACK_0,address);
+  } else {
+    /* Protect this using a semaphore??
+       Put in new value, reusing the old value's storage: */
+    convert_to_foreign_nomalloc(fvd,STACK_0,address);
+  }
+  VALUES1(STACK_0);
+  skipSTACK(2);
+}
 
 LISPFUNN(foreign_type,1)
 { /* (FFI::FOREIGN-TYPE foreign-variable) */
@@ -2575,8 +2597,7 @@ LISPFUNN(deref,1)
 {
   var object fvar = STACK_0;
   /* Check that fvar is a foreign variable: */
-  if (!fvariablep(fvar))
-    fehler_foreign_variable(fvar);
+  if (!fvariablep(fvar)) fehler_foreign_variable(fvar);
   /* Check that fvar is a foreign pointer: */
   var object fvd = TheFvariable(fvar)->fv_type;
   if (!(simple_vector_p(fvd)
@@ -2594,8 +2615,10 @@ LISPFUNN(deref,1)
   pushSTACK(fvd);
   foreign_layout(fvd);
   var uintL size = data_size; /* the target's size */
+  var object fa = TheFvariable(fvar)->fv_address;
+  fa = check_faddress_valid(fa);
   /* Actually dereference the pointer: */
-  var void* address = *(void**)Faddress_value(TheFvariable(fvar)->fv_address);
+  var void* address = *(void**)Faddress_value(fa);
   if (address == NULL) {
     /* Don't mess with NULL pointers, return NIL instead. */
     VALUES1(NIL); skipSTACK(2);
@@ -2787,7 +2810,7 @@ LISPFUN(read_memory_as,seclass_default,2,1,norest,nokey,0,NIL)
 {
   /* TODO accept foreign_pointer as well, without consing */
   /* TODO refuse foreign-function */
-  var object fp = foreign_address(STACK_2,false);
+  var object fp = check_faddress_valid(foreign_address(STACK_2,false));
   var void* address = Faddress_value(fp);
   if (!missingp(STACK_0)) {
     STACK_0 = check_sint32(STACK_0);
@@ -2803,7 +2826,7 @@ LISPFUN(read_memory_as,seclass_default,2,1,norest,nokey,0,NIL)
 /* (FFI::WRITE-MEMORY-AS value address type &optional byte-offset) */
 LISPFUN(write_memory_as,seclass_default,3,1,norest,nokey,0,NIL)
 {
-  var object fp = foreign_address(STACK_2,false);
+  var object fp = check_faddress_valid(foreign_address(STACK_2,false));
   var void* address = Faddress_value(fp);
   if (!missingp(STACK_0)) {
     STACK_0 = check_sint32(STACK_0);
@@ -3016,12 +3039,12 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
     switch (Record_type(obj)) {
       case Rectype_Ffunction: { /* Free callback object */
         var object addr_obj = TheFfunction(obj)->ff_address;
+        addr_obj = check_faddress_valid(addr_obj);
         address = Faddress_value(addr_obj);
         free_foreign_callin(address);
         /* make the function invalid */
         pushSTACK(addr_obj);
-        TheFaddress(STACK_0)->fa_base =
-          allocate_fpointer(Faddress_value(addr_obj));
+        TheFaddress(STACK_0)->fa_base = allocate_fpointer(address);
         TheFaddress(STACK_0)->fa_offset = 0;
         mark_fp_invalid(TheFpointer(TheFaddress(popSTACK())->fa_base));
         VALUES1(NIL);
@@ -3029,12 +3052,16 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
       }
       case Rectype_Fvariable: {
         var object addr_obj = TheFvariable(obj)->fv_address;
+        pushSTACK(obj);
+        addr_obj = check_faddress_valid(addr_obj);
+        obj = popSTACK();
         address = Faddress_value(addr_obj);
         if (full_recurse)
           free_foreign(TheFvariable(obj)->fv_type,address);
         goto free_address;
       }
       case Rectype_Faddress:
+        obj = check_faddress_valid(obj);
         address = Faddress_value(obj);
         if (full_recurse) {
           pushSTACK(obj);
@@ -3339,7 +3366,11 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
   }
   {
     var av_alist alist;
-    var void* address = Faddress_value(TheFfunction(ffun)->ff_address);
+    var object fa = TheFfunction(ffun)->ff_address;
+    fa = check_faddress_valid(fa);
+    ffun = Before(rest_args_pointer);
+    argfvds_top = TheFfunction(ffun)->ff_argtypes;
+    var void* address = Faddress_value(fa);
     var object result_fvd = TheFfunction(ffun)->ff_resulttype;
     /* Allocate space for the result and maybe the args: */
     foreign_layout(result_fvd);
@@ -4158,9 +4189,9 @@ LISPFUNN(close_foreign_library,1) {
 }
 
 /* Try to make a Foreign-Pointer valid again.
-   FIXME: update_library() is GC-unsafe, so this should be too?!
- validate_fpointer(obj); */
-global void validate_fpointer (object obj)
+ validate_fpointer(obj);
+ can trigger GC */
+local maygc void validate_fpointer (object obj)
 { /* If the foreign pointer belongs to a foreign library from a previous
      session, we reopen the library. */
   var object l = O(foreign_libraries);
@@ -4237,7 +4268,7 @@ LISPFUNN(foreign_library_variable,4)
   foreign_layout(STACK_0);
   var uintL size = data_size;
   var uintL alignment = data_alignment;
-  pushSTACK(object_address(STACK_2,&STACK_3,STACK_1));
+  pushSTACK(object_address(STACK_2,&STACK_3,STACK_1)); /* valid! */
   var object fvar = allocate_fvariable();
   TheFvariable(fvar)->fv_name = STACK_(3+1);
   TheFvariable(fvar)->fv_address = STACK_0;

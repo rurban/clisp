@@ -16514,16 +16514,17 @@ extern maygc object decimal_string (object x);
 #ifdef DYNAMIC_FFI
 %% #ifdef DYNAMIC_FFI
 
-# Return the pointer encoded by a Foreign-Pointer. obj a variable
-  #define Fpointer_value(obj)  \
-    ((void)(fp_validp(TheFpointer(obj)) ? 0 : (validate_fpointer(obj), 0)), \
-     TheFpointer(obj)->fp_pointer                                           \
-    )
-  extern void validate_fpointer (object obj);
+# Return the pointer encoded by a Foreign-Pointer.
+  #define Fpointer_value(obj) TheFpointer(obj)->fp_pointer
 
 # Return the pointer encoded by a Foreign-Address. obj a variable
   #define Faddress_value(obj)  \
-    ((void*)((uintP)Fpointer_value(TheFaddress(obj)->fa_base) + TheFaddress(obj)->fa_offset))
+   ((void*)((uintP)Fpointer_value(TheFaddress(obj)->fa_base) + TheFaddress(obj)->fa_offset))
+
+/* ensure that the Faddress is valid
+ < fa: foreign address (not checked!)
+ can trigger GC */
+extern maygc inline object check_faddress_valid (object fa);
 
 # Registers a foreign variable.
 # register_foreign_variable(address,name,flags,size);
