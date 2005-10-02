@@ -14019,8 +14019,7 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);
 
-  if (!uint16_p(STACK_4))
-    fehler_uint16(STACK_4);
+  STACK_4 = check_uint16(STACK_4);
 
   # Check and canonicalize the :BUFFERED argument:
   var signean buffered = test_buffered_arg(STACK_0);
@@ -14375,8 +14374,7 @@ local maygc void sock_opt_int (SOCKET handle, int option, object value)
   if (!(eq(value,nullobj)))
   #endif
   {
-    if (!uint_p(value)) fehler_uint(value);
-    val = I_to_uint(value);
+    val = I_to_uint(check_uint(value));
     if (-1 == setsockopt(handle,SOL_SOCKET,option,(char*)&val,len))
       OS_error();
   }
@@ -14474,15 +14472,14 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
       if (!(eq(arg,nullobj)))
       #endif
       { /* arg points to STACK so it is safe */
-        if (uint_p(arg)) {
-          val.l_onoff = 1;
-          val.l_linger = I_to_uint(arg);
-        } else if (eq(T,arg)) {
+        if (eq(T,arg)) {
           val.l_onoff = 1;
         } else if (nullp(arg)) {
           val.l_onoff = 0;
-        } else
-          fehler_uint(arg);
+        } else {
+          val.l_onoff = 1;
+          val.l_linger = I_to_uint(check_uint(arg));
+        }
         if (-1 == setsockopt(handle,SOL_SOCKET,SO_LINGER,(char*)&val,len))
           OS_error();
       }
@@ -14625,7 +14622,7 @@ LISPFUNN(socket_stream_shutdown,2) {
     rd_p = ((TheStream(STACK_0)->strmflags & strmflags_rd_B) != 0);
     wr_p = ((TheStream(STACK_0)->strmflags & strmflags_wr_B) != 0);
   } else /* raw socket */
-    handle = (SOCKET)(I_to_uint32(check_uint32(STACK_0)));
+    handle = (SOCKET)(I_to_uint(check_uint(STACK_0)));
   switch (dir) {
     case DIRECTION_PROBE:       /* INPUT/OUTPUT/IO */
       if (rd_p) {
