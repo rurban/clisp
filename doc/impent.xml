@@ -860,3 +860,5 @@
 <!ENTITY no-platform-only "<emphasis role='plat-dep'>No platform supports this currently</emphasis>">
 <!ENTITY advantages "<title>Advantages and Disadvantages</title>
  <?dbhtml list-presentation='table'?><?dbfo list-presentation='list'?>">
+<!ENTITY sost-raw-too "<simpara>The &sost-r; argument can also be a
+                       <link linkend='rawsock'>raw socket</link>.</simpara>">
