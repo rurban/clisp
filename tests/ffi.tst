@@ -1069,4 +1069,6 @@ FM
 (#A((unsigned-byte 8) (4) (0 0 0 0))
  #A((unsigned-byte 8) (4) (255 255 255 255)))
 
+(integerp (sys::code-address-of #'c-malloc)) T
+
 (progn (in-package "USER") (delete-package "FTEST") T) T
