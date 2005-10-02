@@ -1838,10 +1838,10 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           /* if string starts with 'x:', treat it as a device */
           var chart ch = down_case(schar(STACK_2,z.index));
           if ((as_cint(ch) >= 'a') && (as_cint(ch) <= 'z')) {
-            var object drive = allocate_string(1);
-            TheSnstring(drive)->data[0] = ch;
+            pushSTACK(allocate_string(1)); /* drive */
+            TheSnstring(STACK_0)->data[0] = ch;
             var object new_cons = allocate_cons();
-            Car(new_cons) = drive;
+            Car(new_cons) = popSTACK(); /* drive */
             ThePathname(STACK_1)->pathname_directory = new_cons;
             STACK_0 = new_cons;
             Z_SHIFT(z,2);
