@@ -28,6 +28,7 @@ User visible changes
 * Fixed re-exporting symbols from POSIX to EXT.
 
 * Fixed module rawsock on platforms with non-trivial struct sockaddr layout.
+  Functions that take a BUFFER argument, also take :START and :END arguments.
 
 * Fixed module postgresql logging behavior.
 
