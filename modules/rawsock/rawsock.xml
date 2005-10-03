@@ -51,17 +51,17 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   <member><code>(<function role="unix">ntohl</function> &n-r;)</code></member>
   <member><code>(<function role="unix">ntohs</function> &n-r;)</code></member>
   <member><code>(<function role="unix">recv</function>
-    &sock-r; &buf-r; &key-amp; peek oob waitall)</code></member>
-  <member><code>(<function role="unix">recvfrom</function>
-    &sock-r; &buf-r; &addr-r; &key-amp; peek oob waitall)</code></member>
+    &sock-r; &buf-r; &key-amp; start end peek oob waitall)</code></member>
+  <member><code>(<function role="unix">recvfrom</function> &sock-r;
+    &buf-r; &addr-r; &key-amp; start end peek oob waitall)</code></member>
   <member><code>(<function role="unix">recvmsg</function>
     &sock-r; &mesg-r; &key-amp; peek oob waitall)</code></member>
   <member><code>(<function role="unix">send</function>
-    &sock-r; &buf-r; &key-amp; oob eor)</code></member>
+    &sock-r; &buf-r; &key-amp; start end oob eor)</code></member>
   <member><code>(<function role="unix">sendmsg</function>
     &sock-r; &mesg-r; &key-amp; oob eor)</code></member>
   <member><code>(<function role="unix">sendto</function>
-    &sock-r; &buf-r; &addr-r; &key-amp; oob eor)</code></member>
+    &sock-r; &buf-r; &addr-r; &key-amp; start end oob eor)</code></member>
   <member><code>(<function role="unix">sockatmark</function>
     &sock-r;)</code></member>
   <member><code>(<function role="unix">socket</function>
@@ -73,10 +73,12 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  using same-named lisp functions in package
  <quote role="package">RAWSOCK</quote>.
  Additionally,<simplelist columns="1">
-  <member><code>(<function>RAWSOCK:SOCK-READ</function> &sock-r;
-    &buf-r;)</code> calls <function role="unix">read</function>;</member>
-  <member><code>(<function>RAWSOCK:SOCK-WRITE</function> &sock-r;
-    &buf-r;)</code> calls <function role="unix">write</function>;</member>
+  <member><code>(<function>RAWSOCK:SOCK-READ</function> &sock-r; &buf-r;
+    &key-amp; start end)</code> calls
+   <function role="unix">read</function>;</member>
+  <member><code>(<function>RAWSOCK:SOCK-WRITE</function> &sock-r; &buf-r;
+    &key-amp; start end)</code> calls
+   <function role="unix">write</function>;</member>
   <member><code>(<function>RAWSOCK:SOCK-CLOSE</function> &sock-r;)</code>
    calls <function role="unix">close</function>.</member>
 </simplelist></para>
@@ -85,9 +87,13 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <section id="rawsock-args"><title>Common arguments</title>
 <variablelist id="rawsock-args-list">
 <varlistentry><term><type>void*</type> &buf-r;</term>
- <listitem><simpara>A &unsigned-byte-vec;.  You do not need to supply its
-   length because Lisp can determine it itself.  The vector may be
-   adjustable and have a fill pointer.</simpara></listitem></varlistentry>
+ <listitem><simpara>A &unsigned-byte-vec;.  The vector may be adjustable
+   and have a fill pointer.  Whenever a function accepts a &buf-r;
+   argument, it also accepts &start-k; and &end-k; keyword arguments
+   with the usual meaning and defaults.  You do not have to supply the
+   vector length because Lisp can determine it itself, but, if you want
+   to, you can use &end-k; argument for that.
+</simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> &sock-r;</term>
  <listitem><simpara>An &integer-t; (returned by
    <function role="unix">socketpair</function> or
@@ -197,10 +203,14 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <function role="unix">recvmsg</function>.
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><code>(RAWSOCK:IPCSUM &buf-r;)</code> - &ip;</term>
- <term><code>(RAWSOCK:ICMPCSUM &buf-r;)</code> - &icmp;</term>
- <term><code>(RAWSOCK:TCPCSUM &buf-r;)</code> - &tcp;</term>
- <term><code>(RAWSOCK:UDPCSUM &buf-r;)</code> - &udp;</term>
+ <term><code>(RAWSOCK:IPCSUM &buf-r; &key-amp; start end)</code>
+  - &ip;</term>
+ <term><code>(RAWSOCK:ICMPCSUM &buf-r; &key-amp; start end)</code>
+  - &icmp;</term>
+ <term><code>(RAWSOCK:TCPCSUM &buf-r; &key-amp; start end)</code>
+  - &tcp;</term>
+ <term><code>(RAWSOCK:UDPCSUM &buf-r; &key-amp; start end)</code>
+  - &udp;</term>
  <listitem><simpara>Compute the appropriate protocol checksum and record
    it in the appropriate location.  &buf-r; is assumed to be a suitable
    packet for the protocol, with the appropriate header etc.
