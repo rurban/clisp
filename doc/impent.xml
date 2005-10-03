@@ -248,7 +248,7 @@
 <!ENTITY lfd-l "<code>(<link linkend='lfd'><function>EXT:LONG-FLOAT-DIGITS</function></link>)</code>">
 <!ENTITY line-term "<link linkend='newline'>line terminator</link>">
 <!ENTITY load-comp "<olink targetdoc='impnotes' targetptr='loadfile'><varname>CUSTOM:*LOAD-COMPILING*</varname></olink>">
-<!ENTITY load-echo "<link linkend='loadfile'><varname>CUSTOM:*LOAD-ECHO*</varname></link>">
+<!ENTITY load-echo "<olink targetdoc='impnotes' targetptr='loadfile'><varname>CUSTOM:*LOAD-ECHO*</varname></olink>">
 <!ENTITY load-lpt-db "<olink targetdoc='impnotes' targetptr='load-lpt'><varname>CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</varname></olink>">
 <!ENTITY load-obs "<link linkend='loadfile'><varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname></link>">
 <!ENTITY load-paths "<link linkend='load-paths'><varname>CUSTOM:*LOAD-PATHS*</varname></link>">
