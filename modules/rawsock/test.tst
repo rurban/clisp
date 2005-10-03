@@ -67,18 +67,14 @@ NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
-(ext:socket-status *sock*) :OUTPUT
+(ext:socket-status (list (cons *sock* :input))) (:INPUT)
 
 (let ((size (rawsock:recv *sock* *buffer*)))
   (show (setq *recv-ret* (list size (from-bytes *buffer* size))))
-  T) T
+  (ext:socket-status *sock*)) :OUTPUT
 
-#+unix
-(listp (show (rawsock:socket-option *sock* NIL) :pretty t))
-T
-#+unix
-(listp (show (rawsock:socket-option *sock* NIL :level :ALL) :pretty t))
-T
+#+unix (listp (show (rawsock:socket-option *sock* NIL) :pretty t)) T
+#+unix (listp (show (rawsock:socket-option *sock* NIL :level :ALL) :pretty t))T
 
 #+unix (setf (rawsock:socket-option *sock* NIL) '(:debug nil))
 #+unix (:DEBUG NIL)
@@ -110,12 +106,12 @@ NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
-(ext:socket-status *sock*) :OUTPUT
+(ext:socket-status (list (cons *sock* :input))) (:INPUT)
 
 #-:win32 ;; on win32, read() cannot be called on a socket!
 (let ((size (rawsock:sock-read *sock* *buffer*)))
   (show (setq *read-ret* (list size (from-bytes *buffer* size))))
-  T) T
+  (ext:socket-status *sock*)) :OUTPUT
 
 #-:win32 (equal *recv-ret* *read-ret*) T
 
