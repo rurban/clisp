@@ -1,5 +1,38 @@
 2005-10-02  Sam Steingold  <sds@gnu.org>
 
+	foreign.d data walkers is now reentrant (no static data)
+	* lispbibl.d (convert_to_foreign_mallocing, convert_to_foreign_nomalloc):
+	removed prototypes
+	(converter_malloc_t): typedef & export to clisp.h
+	(convert_to_foreign): prototype
+	* foreign.d (foreign_layout): new structure type
+	(data_size, data_alignment, data_splittable): removed statics
+	(foreign_layout, convert_to_foreign_needs):
+	accept a pointer to struct foreign_layout
+	(foreign_size): new inline
+	(%SIZEOF, %BITSIZEOF, convert_from_foreign, LOOKUP-FOREIGN-VARIABLE)
+	(FOREIGN-VARIABLE, SET-FOREIGN-VALUE, SLOT, DEREF, CAST, OFFSET)
+	(EXEC-ON-STACK, FOREIGN-ALLOCATE, FOREIGN-CALL-OUT, do_va_arg, callback)
+	(FOREIGN-LIBRARY-VARIABLE): updated for the new foreign_layout()
+	(walk_foreign): new structure type
+	(walk_foreign_null_terminates, walk_foreign_pre_hook)
+	(walk_foreign_post_hook, walk_foreign_function_hook): removed statics
+	(walk_foreign_pointers, free_walk_pre, free_walk_post)
+	(free_walk_function): accept a pointer to struct walk_foreign
+	(free_foreign): updated for the new walk_foreign_pointers()
+	(walk_lisp): new structure type
+	(walk_lisp_nil_terminates, walk_lisp_pre_hook, walk_lisp_post_hook)
+	(walk_lisp_function_hook, walk_counter, walk_alignment): removed statics
+	(walk_lisp_pointers, count_walk_pre, count_walk_post):
+	accept a pointer to struct walk_lisp
+	(converter_malloc): removed a static
+	(convert_to_foreign): accept a converter_malloc_t
+	(convert_to_foreign_allocaing, convert_to_foreign_mallocing)
+	(convert_to_foreign_nomalloc): removed
+	(libc_handle): removed old unused junk
+
+2005-10-02  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (PARSE-NAMESTRING) [cygwin]: fixed GC-safety bug
 
 2005-10-01  Sam Steingold  <sds@gnu.org>

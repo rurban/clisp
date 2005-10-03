@@ -16571,24 +16571,20 @@ extern maygc inline object check_faddress_valid (object fa);
 
 # Convert foreign data to Lisp data.
 # can trigger GC
-  extern maygc object convert_from_foreign (object fvd, const void* data);
-%%   puts("extern object convert_from_foreign (object fvd, const void* data);");
+extern maygc object convert_from_foreign (object fvd, const void* data);
+%% puts("extern object convert_from_foreign (object fvd, const void* data);");
 
-# Convert Lisp data to foreign data.
-# The foreign data is allocated through malloc() and has more than dynamic
-# extent. (Not exactly indefinite extent: It is deallocated the next time
-# free_foreign() is called on it.)
-# can trigger GC
-  extern void convert_to_foreign_mallocing (object fvd, object obj, void* data);
-%%   puts("extern void convert_to_foreign_mallocing (object fvd, object obj, void* data);");
-
-# Convert Lisp data to foreign data.
-# The foreign data storage is reused.
-# DANGEROUS, especially for type C-STRING !!
-# Also beware against NULL pointers! They are not treated specially.
-# can trigger GC
-  extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);
-%%   puts("extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);");
+/* Convert Lisp data to foreign data. */
+typedef void* (*converter_malloc_t) (void* old_data, uintL size, uintL alignment);
+%% puts("typedef void* (*converter_malloc_t) (void* old_data, uintL size, uintL alignment);");
+/* Convert Lisp data to foreign data.
+   Storage is allocated through converter_malloc().
+ Only the toplevel storage must already exist; its address is given.
+ can trigger GC  */
+extern void convert_to_foreign (object fvd, object obj, void* data, converter_malloc_t converter_malloc);
+%% #if notused
+%% puts("extern void convert_to_foreign_mallocing (object fvd, object obj, void* data, converter_malloc_t converter_malloc);");
+%% #endif
 
 # Initialize the FFI.
   extern maygc void init_ffi (void);
