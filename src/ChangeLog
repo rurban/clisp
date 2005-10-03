@@ -2,6 +2,7 @@
 
 	* configure.in: $ac_cv_use_readline is tested in CL_READLINE
 	already, do not test it here too
+	* m4/readline.m4 (CL_READLINE): check for rl_readline_name
 
 2005-10-02  Sam Steingold  <sds@gnu.org>
 

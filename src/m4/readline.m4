@@ -43,7 +43,7 @@ if test $ac_cv_search_tgetent != no ; then
       [extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);])
     AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF},[The readline built-in filename completion function, either rl_filename_completion_function() or filename_completion_function()])
     AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const,[declaration of filename_completion_function() needs const in the first argument])
-    AC_CHECK_DECLS(rl_already_prompted,,,[#include <stdio.h>
+    AC_CHECK_DECLS([rl_already_prompted rl_readline_name],,,[#include <stdio.h>
 #include <readline/readline.h>])
     if test "$ac_cv_have_decl_rl_already_prompted" = yes; then
       AC_DEFINE(HAVE_READLINE,,[have a working modern GNU readline])
