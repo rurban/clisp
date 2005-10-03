@@ -1,5 +1,13 @@
 2005-10-03  Sam Steingold  <sds@gnu.org>
 
+	functions that take a BUFFER, also take :START and :END
+	* modules/rawsock/rawsock.c (parse_buffer_arg):
+	check STACK_0, STACK_1: START & END
+	(RECV, RECVFROM, SOCK-READ, SEND, SENDTO, SOCK-WRITE)
+	(IPCSUM, ICMPCSUM, TCPCSUM, UDPCSUM): accept :START & :END
+
+2005-10-03  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: $ac_cv_use_readline is tested in CL_READLINE
 	already, do not test it here too
 	* m4/readline.m4 (CL_READLINE): check for rl_readline_name
