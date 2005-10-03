@@ -669,16 +669,19 @@ LISPFUN(foreign_function,seclass_read,2,0,norest,key,1,(kw(name)) )
   #define struct_sint64  sint64
 #endif
 
+/* Size, Alignment, Splittable -- layout of the foreign data */
+struct foreign_layout {
+  uintL size;                   /* size (in bytes) of the type */
+  uintL alignment;              /* alignment (in bytes) of the type */
+  bool splittable; /* splittable flag, if a struct/union/array type */
+};
+
+
 /* Compute the size and alignment of foreign data.
- foreign_layout(fvd);
+ foreign_layout(fvd, struct foreign_layout *data);
  > fvd: foreign value descriptor
- < data_size, data_alignment: size and alignment (in bytes) of the type
- < data_splittable: splittable flag of the type,
-        if a struct/union/array type */
-local void foreign_layout (object fvd);
-local var uintL data_size;
-local var uintL data_alignment;
-local var bool data_splittable;
+ < data: foreign layout */
+local void foreign_layout (object fvd, struct foreign_layout *data);
 /* `struct_alignment' is what gcc calls STRUCTURE_SIZE_BOUNDARY/8.
  It is = 1 on most machines, but = 2 on MC680X0 and = 4 on ARM. */
 #ifdef __cplusplus
@@ -687,86 +690,86 @@ static const uintL struct_alignment = sizeof(struct trivial_struct);
 #else
 #define struct_alignment  sizeof(struct { char slot1; })
 #endif
-local void foreign_layout (object fvd)
+local void foreign_layout (object fvd, struct foreign_layout *data)
 {
   check_SP();
   if (symbolp(fvd)) {
     if (eq(fvd,S(nil))) {
-      data_size = 0; data_alignment = 1;
-      data_splittable = true; return;
+      data->size = 0; data->alignment = 1;
+      data->splittable = true; return;
     } else if (eq(fvd,S(boolean))) {
-      data_size = sizeof(int); data_alignment = alignof(int);
-      data_splittable = true; return;
+      data->size = sizeof(int); data->alignment = alignof(int);
+      data->splittable = true; return;
     } else if (eq(fvd,S(character))) {
-      data_size = sizeof(unsigned char);
-      data_alignment = alignof(unsigned char);
-      data_splittable = true; return;
+      data->size = sizeof(unsigned char);
+      data->alignment = alignof(unsigned char);
+      data->splittable = true; return;
     } else if (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
-      data_size = sizeof(sint8); data_alignment = alignof(sint8);
-      data_splittable = true; return;
+      data->size = sizeof(sint8); data->alignment = alignof(sint8);
+      data->splittable = true; return;
     } else if (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
-      data_size = sizeof(uint8); data_alignment = alignof(uint8);
-      data_splittable = true; return;
+      data->size = sizeof(uint8); data->alignment = alignof(uint8);
+      data->splittable = true; return;
     } else if (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
-      data_size = sizeof(sint16); data_alignment = alignof(sint16);
-      data_splittable = true; return;
+      data->size = sizeof(sint16); data->alignment = alignof(sint16);
+      data->splittable = true; return;
     } else if (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
-      data_size = sizeof(uint16); data_alignment = alignof(uint16);
-      data_splittable = true; return;
+      data->size = sizeof(uint16); data->alignment = alignof(uint16);
+      data->splittable = true; return;
     } else if (eq(fvd,S(sint32))) {
-      data_size = sizeof(sint32); data_alignment = alignof(sint32);
-      data_splittable = true; return;
+      data->size = sizeof(sint32); data->alignment = alignof(sint32);
+      data->splittable = true; return;
     } else if (eq(fvd,S(uint32))) {
-      data_size = sizeof(uint32); data_alignment = alignof(uint32);
-      data_splittable = true; return;
+      data->size = sizeof(uint32); data->alignment = alignof(uint32);
+      data->splittable = true; return;
     } else if (eq(fvd,S(sint64))) {
      #ifdef HAVE_LONGLONG
-      data_size = sizeof(sint64); data_alignment = alignof(sint64);
-      data_splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32)
+      data->size = sizeof(sint64); data->alignment = alignof(sint64);
+      data->splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32)
                          : av_word_splittable_1(uint64)); /* always true */
      #else
-      data_size = sizeof(struct_sint64);
-      data_alignment = alignof(struct_sint64);
-      data_splittable = av_word_splittable_2(uint32,uint32); /* always true */
+      data->size = sizeof(struct_sint64);
+      data->alignment = alignof(struct_sint64);
+      data->splittable = av_word_splittable_2(uint32,uint32); /* always true */
      #endif
       return;
     } else if (eq(fvd,S(uint64))) {
      #ifdef HAVE_LONGLONG
-      data_size = sizeof(uint64); data_alignment = alignof(uint64);
-      data_splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32)
+      data->size = sizeof(uint64); data->alignment = alignof(uint64);
+      data->splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32)
                          : av_word_splittable_1(uint64)); /* always true */
      #else
-      data_size = sizeof(struct_uint64);
-      data_alignment = alignof(struct_uint64);
-      data_splittable = av_word_splittable_2(uint32,uint32); /* always true */
+      data->size = sizeof(struct_uint64);
+      data->alignment = alignof(struct_uint64);
+      data->splittable = av_word_splittable_2(uint32,uint32); /* always true */
      #endif
       return;
     } else if (eq(fvd,S(int))) {
-      data_size = sizeof(int); data_alignment = alignof(int);
-      data_splittable = true; return;
+      data->size = sizeof(int); data->alignment = alignof(int);
+      data->splittable = true; return;
     } else if (eq(fvd,S(uint))) {
-      data_size = sizeof(unsigned int);
-      data_alignment = alignof(unsigned int);
-      data_splittable = true; return;
+      data->size = sizeof(unsigned int);
+      data->alignment = alignof(unsigned int);
+      data->splittable = true; return;
     } else if (eq(fvd,S(long))) {
-      data_size = sizeof(long); data_alignment = alignof(long);
-      data_splittable = true; return;
+      data->size = sizeof(long); data->alignment = alignof(long);
+      data->splittable = true; return;
     } else if (eq(fvd,S(ulong))) {
-      data_size = sizeof(unsigned long);
-      data_alignment = alignof(unsigned long);
-      data_splittable = true; return;
+      data->size = sizeof(unsigned long);
+      data->alignment = alignof(unsigned long);
+      data->splittable = true; return;
     } else if (eq(fvd,S(single_float))) {
-      data_size = sizeof(float); data_alignment = alignof(float);
-      data_splittable = (sizeof(float) <= sizeof(long)); return;
+      data->size = sizeof(float); data->alignment = alignof(float);
+      data->splittable = (sizeof(float) <= sizeof(long)); return;
     } else if (eq(fvd,S(double_float))) {
-      data_size = sizeof(double); data_alignment = alignof(double);
-      data_splittable = (sizeof(double) <= sizeof(long)); return;
+      data->size = sizeof(double); data->alignment = alignof(double);
+      data->splittable = (sizeof(double) <= sizeof(long)); return;
     } else if (eq(fvd,S(c_pointer))) {
-      data_size = sizeof(void*); data_alignment = alignof(void*);
-      data_splittable = true; return;
+      data->size = sizeof(void*); data->alignment = alignof(void*);
+      data->splittable = true; return;
     } else if (eq(fvd,S(c_string))) {
-      data_size = sizeof(char*); data_alignment = alignof(char*);
-      data_splittable = true; return;
+      data->size = sizeof(char*); data->alignment = alignof(char*);
+      data->splittable = true; return;
     }
   } else if (simple_vector_p(fvd)) {
     var uintL fvdlen = Svector_length(fvd);
@@ -778,22 +781,22 @@ local void foreign_layout (object fvd)
         var bool cumul_splittable = true;
         var uintL i;
         for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
-          foreign_layout(TheSvector(fvd)->data[i]);
+          foreign_layout(TheSvector(fvd)->data[i],data);
           /* We assume all alignments are of the form 2^k. */
-          cumul_size += (-cumul_size) & (data_alignment-1);
+          cumul_size += (-cumul_size) & (data->alignment-1);
           /* cumul_splittable = cumul_splittable AND
-               (cumul_size..cumul_size+data_size-1) fits in a word; */
+               (cumul_size..cumul_size+data->size-1) fits in a word; */
           if (floor(cumul_size,sizeof(long)) <
-              floor(cumul_size+data_size-1,sizeof(long)))
+              floor(cumul_size+data->size-1,sizeof(long)))
             cumul_splittable = false;
-          cumul_size += data_size;
-          /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-          if (data_alignment > cumul_alignment)
-            cumul_alignment = data_alignment;
+          cumul_size += data->size;
+          /* cumul_alignment = lcm(cumul_alignment,data->alignment); */
+          if (data->alignment > cumul_alignment)
+            cumul_alignment = data->alignment;
         }
         cumul_size += (-cumul_size) & (cumul_alignment-1);
-        data_size = cumul_size; data_alignment = cumul_alignment;
-        data_splittable = cumul_splittable;
+        data->size = cumul_size; data->alignment = cumul_alignment;
+        data->splittable = cumul_splittable;
         return;
       } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
         var uintL cumul_size = 0;
@@ -801,61 +804,72 @@ local void foreign_layout (object fvd)
         var bool cumul_splittable = false;
         var uintL i;
         for (i = 2; i < fvdlen; i++) {
-          foreign_layout(TheSvector(fvd)->data[i]);
+          foreign_layout(TheSvector(fvd)->data[i],data);
           /* We assume all alignments are of the form 2^k.
-             cumul_size = max(cumul_size,data_size); */
-          if (data_size > cumul_size)
-            cumul_size = data_size;
-          /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-          if (data_alignment > cumul_alignment)
-            cumul_alignment = data_alignment;
-          /* cumul_splittable = cumul_splittable OR data_splittable; */
-          if (data_splittable)
+             cumul_size = max(cumul_size,data->size); */
+          if (data->size > cumul_size)
+            cumul_size = data->size;
+          /* cumul_alignment = lcm(cumul_alignment,data->alignment); */
+          if (data->alignment > cumul_alignment)
+            cumul_alignment = data->alignment;
+          /* cumul_splittable = cumul_splittable OR data->splittable; */
+          if (data->splittable)
             cumul_splittable = true;
         }
-        data_size = cumul_size; data_alignment = cumul_alignment;
-        data_splittable = cumul_splittable;
+        data->size = cumul_size; data->alignment = cumul_alignment;
+        data->splittable = cumul_splittable;
         return;
       } else if ((eq(fvdtype,S(c_array)) && (fvdlen > 1))
                  || (eq(fvdtype,S(c_array_max)) && (fvdlen == 3))) {
         var uintL i;
-        foreign_layout(TheSvector(fvd)->data[1]);
+        foreign_layout(TheSvector(fvd)->data[1],data);
         for (i = 2; i < fvdlen; i++) {
           var object dim = TheSvector(fvd)->data[i];
           if (!uint32_p(dim))
             fehler_foreign_type(fvd);
-          data_size = data_size * I_to_uint32(dim);
+          data->size = data->size * I_to_uint32(dim);
         }
-        data_splittable = (data_size <= sizeof(long));
+        data->splittable = (data->size <= sizeof(long));
         return;
       } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
-        data_size = sizeof(void*); data_alignment = alignof(void*);
-        data_splittable = true; return;
+        data->size = sizeof(void*); data->alignment = alignof(void*);
+        data->splittable = true; return;
       } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))
                   || eq(fvdtype,S(c_pointer)) || eq(fvdtype,S(c_array_ptr)))
                  && (fvdlen == 2)) {
-        data_size = sizeof(void*); data_alignment = alignof(void*);
-        data_splittable = true; return;
+        data->size = sizeof(void*); data->alignment = alignof(void*);
+        data->splittable = true; return;
       }
     }
   }
   fehler_foreign_type(fvd);
 }
 
+/* compute the size of the foreign data
+ < fvd:  foreign value descriptor
+ > size: the size of the foreign data */
+local inline uintL foreign_size (object fvd) {
+  var struct foreign_layout sas;
+  foreign_layout(fvd,&sas);
+  return sas.size;
+}
+
 LISPFUNN(sizeof,1)
 { /* (FFI::%SIZEOF c-type) returns the size and alignment of a C type,
  measured in bytes. */
   var object fvd = popSTACK();
-  foreign_layout(fvd);
-  value1 = UL_to_I(data_size); value2 = fixnum(data_alignment); mv_count=2;
+  var struct foreign_layout sas;
+  foreign_layout(fvd,&sas);
+  VALUES2(UL_to_I(sas.size),fixnum(sas.alignment));
 }
 
 LISPFUNN(bitsizeof,1)
 { /* (FFI::%BITSIZEOF c-type) returns the size and alignment of a C type,
  measured in bits. */
   var object fvd = popSTACK();
-  foreign_layout(fvd);
-  value1 = UL_to_I(8*data_size); value2 = fixnum(8*data_alignment); mv_count=2;
+  var struct foreign_layout sas;
+  foreign_layout(fvd,&sas);
+  VALUES2(UL_to_I(8*sas.size),fixnum(8*sas.alignment));
 }
 
 /* Zero a block of memory. */
@@ -1130,15 +1144,16 @@ global maygc object convert_from_foreign (object fvd, const void* data)
           var uintL i;
           for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
             var object fvdi = TheSvector(*fvd_)->data[i];
-            foreign_layout(fvdi);
+            var struct foreign_layout sas;
+            foreign_layout(fvdi,&sas);
             /* We assume all alignments are of the form 2^k. */
-            cumul_size += (-cumul_size) & (data_alignment-1);
+            cumul_size += (-cumul_size) & (sas.alignment-1);
             var const void* pdata = (const char*)data + cumul_size;
-            cumul_size += data_size;
-            /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-            if (data_alignment > cumul_alignment)
-              cumul_alignment = data_alignment;
-            /* Now we are finished with data_size and data_alignment.
+            cumul_size += sas.size;
+            /* cumul_alignment = lcm(cumul_alignment,sas.alignment); */
+            if (sas.alignment > cumul_alignment)
+              cumul_alignment = sas.alignment;
+            /* Now we are finished with sas.size and sas.alignment.
                Convert the structure slot: */
             fvdi = convert_from_foreign(fvdi,pdata);
             pushSTACK(fvdi);
@@ -1190,7 +1205,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
            elements in row-major order. */
         {
           var object eltype = TheSvector(STACK_0)->data[1];
-          var uintL eltype_size = (foreign_layout(eltype), data_size);
+          var uintL eltype_size = foreign_size(eltype);
           STACK_0 = eltype;
           var uintL size = array_total_size(array);
           pushSTACK(array);
@@ -1226,7 +1241,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
         return array;
       } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
         var object eltype = TheSvector(fvd)->data[1];
-        var uintL eltype_size = (foreign_layout(eltype), data_size);
+        var uintL eltype_size = foreign_size(eltype);
         if (eltype_size == 0) fehler_eltype_zero_size(fvd);
         /* Determine length of array: */
         var uintL len = 0;
@@ -1315,7 +1330,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
           TheFvariable(fvar)->fv_name    = NIL; /* no name known */
           TheFvariable(fvar)->fv_address = popSTACK();
           fvd = popSTACK();
-          TheFvariable(fvar)->fv_size    = (foreign_layout(fvd), fixnum(data_size));
+          TheFvariable(fvar)->fv_size    = fixnum(foreign_size(fvd));
           TheFvariable(fvar)->fv_type    = fvd;
           return fvar;
         }
@@ -1324,7 +1339,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
           return NIL;
         else {
           var object eltype = TheSvector(fvd)->data[1];
-          var uintL eltype_size = (foreign_layout(eltype), data_size);
+          var uintL eltype_size = foreign_size(eltype);
           if (eltype_size == 0) fehler_eltype_zero_size(fvd);
           /* Determine length of array: */
           var uintL len = 0;
@@ -1426,27 +1441,30 @@ local bool foreign_with_pointers_p (object fvd)
   fehler_foreign_type(fvd);
 }
 
+struct walk_foreign {
+  bool null_terminates;
+  /* what's the meaning of fvd here?? */
+  void (*pre_hook) (object fvd, void** pdata, struct walk_foreign *walk);
+  void (*post_hook) (object fvd, void** pdata, struct walk_foreign *walk);
+  void (*function_hook) (object fvd, void** pdata, struct walk_foreign *walk);
+};
+
 /* Walk foreign data, giving special attention to the pointers. */
-local void walk_foreign_pointers (object fvd, void* data);
-/* Some flags and hooks that direct the walk: */
-local var bool walk_foreign_null_terminates;
-local void (*walk_foreign_pre_hook) (object fvd, void** pdata); /* what's the meaning of fvd here?? */
-local void (*walk_foreign_post_hook) (object fvd, void** pdata); /* what's the meaning of fvd here?? */
-local void (*walk_foreign_function_hook) (object fvd, void** pdata);
-local void walk_foreign_pointers (object fvd, void* data)
+local void walk_foreign_pointers (object fvd, void* data,
+                                  struct walk_foreign *walk)
 {
   if (!foreign_with_pointers_p(fvd))
     return;
   check_SP();
   if (symbolp(fvd)) {
     if (eq(fvd,S(c_string))) {
-      if (walk_foreign_null_terminates) {
+      if (walk->null_terminates) {
         /* NULL pointers stop the recursion */
         if (*(void**)data == NULL)
           return;
       }
-      (*walk_foreign_pre_hook)(fvd,(void**)data);
-      (*walk_foreign_post_hook)(fvd,(void**)data);
+      (*walk->pre_hook)(fvd,(void**)data,walk);
+      (*walk->post_hook)(fvd,(void**)data,walk);
       return;
     }
   } else if (simple_vector_p(fvd)) {
@@ -1459,27 +1477,28 @@ local void walk_foreign_pointers (object fvd, void* data)
         var uintL i;
         for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
           var object fvdi = TheSvector(fvd)->data[i];
-          foreign_layout(fvdi);
+          var struct foreign_layout sas;
+          foreign_layout(fvdi,&sas);
           /* We assume all alignments are of the form 2^k. */
-          cumul_size += (-cumul_size) & (data_alignment-1);
+          cumul_size += (-cumul_size) & (sas.alignment-1);
           var void* pdata = (char*)data + cumul_size;
-          cumul_size += data_size;
-          /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-          if (data_alignment > cumul_alignment)
-            cumul_alignment = data_alignment;
-          /* Now we are finished with data_size and data_alignment.
+          cumul_size += sas.size;
+          /* cumul_alignment = lcm(cumul_alignment,sas.alignment); */
+          if (sas.alignment > cumul_alignment)
+            cumul_alignment = sas.alignment;
+          /* Now we are finished with sas.size and sas.alignment.
              Descend into the structure slot: */
-          walk_foreign_pointers(fvdi,pdata);
+          walk_foreign_pointers(fvdi,pdata,walk);
         }
         return;
       } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
         /* Use the union's first component. */
         if (fvdlen > 2)
-          walk_foreign_pointers(TheSvector(fvd)->data[2],data);
+          walk_foreign_pointers(TheSvector(fvd)->data[2],data,walk);
         return;
       } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
         var object eltype = TheSvector(fvd)->data[1];
-        var uintL eltype_size = (foreign_layout(eltype), data_size);
+        var uintL eltype_size = foreign_size(eltype);
         var uintL size = 1;
         {
           var uintL i;
@@ -1495,63 +1514,63 @@ local void walk_foreign_pointers (object fvd, void* data)
           var char* pdata = (char*)data;
           for (i = 0; i < size; i++, pdata += eltype_size) {
             /* pdata = (char*)data + i*eltype_size */
-            walk_foreign_pointers(eltype,pdata);
+            walk_foreign_pointers(eltype,pdata,walk);
           }
         }
         return;
       } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
         var object eltype = TheSvector(fvd)->data[1];
-        var uintL eltype_size = (foreign_layout(eltype), data_size);
+        var uintL eltype_size = foreign_size(eltype);
         if (eltype_size == 0) fehler_eltype_zero_size(fvd);
         {
           var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
           var uintL len = 0;
           var void* ptr = data;
           while (!((len == maxdim) || blockzerop(ptr,eltype_size))) {
-            walk_foreign_pointers(eltype,ptr);
+            walk_foreign_pointers(eltype,ptr,walk);
             ptr = (void*)((uintP)ptr + eltype_size);
             len++;
           }
         }
         return;
       } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
-        if (walk_foreign_null_terminates) {
+        if (walk->null_terminates) {
           /* NULL pointers stop the recursion */
           if (*(void**)data == NULL)
             return;
         }
-        (*walk_foreign_function_hook)(fvd,(void**)data);
+        (*walk->function_hook)(fvd,(void**)data,walk);
         return;
       } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
                  && (fvdlen == 2)) {
-        if (walk_foreign_null_terminates || eq(fvdtype,S(c_ptr_null))) {
+        if (walk->null_terminates || eq(fvdtype,S(c_ptr_null))) {
           /* NULL pointers stop the recursion */
           if (*(void**)data == NULL)
             return;
         }
         fvd = TheSvector(fvd)->data[1];
-        (*walk_foreign_pre_hook)(fvd,(void**)data);
-        walk_foreign_pointers(fvd,*(void**)data);
-        (*walk_foreign_post_hook)(fvd,(void**)data);
+        (*walk->pre_hook)(fvd,(void**)data,walk);
+        walk_foreign_pointers(fvd,*(void**)data,walk);
+        (*walk->post_hook)(fvd,(void**)data,walk);
         return;
       } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
-        if (walk_foreign_null_terminates) {
+        if (walk->null_terminates) {
           /* NULL pointers stop the recursion */
           if (*(void**)data == NULL)
             return;
         }
         var object elfvd = TheSvector(fvd)->data[1];
-        (*walk_foreign_pre_hook)(elfvd,(void**)data);
+        (*walk->pre_hook)(elfvd,(void**)data,walk);
         {
-          var uintL eltype_size = (foreign_layout(elfvd), data_size);
+          var uintL eltype_size = foreign_size(elfvd);
           if (eltype_size == 0) fehler_eltype_zero_size(fvd);
           var void* ptr = *(void**)data;
           while (!blockzerop(ptr,eltype_size)) {
-            walk_foreign_pointers(elfvd,ptr);
+            walk_foreign_pointers(elfvd,ptr,walk);
             ptr = (void*)((uintP)ptr + eltype_size);
           }
         }
-        (*walk_foreign_post_hook)(elfvd,(void**)data);
+        (*walk->post_hook)(elfvd,(void**)data,walk);
         return;
       }
     }
@@ -1561,54 +1580,57 @@ local void walk_foreign_pointers (object fvd, void* data)
 
 /* Free the storage used by foreign data. */
 global void free_foreign (object fvd, void* data);
-local void free_walk_pre (object fvd, void** pdata)
+local void free_walk_pre (object fvd, void** pdata, struct walk_foreign *walk)
 {
 }
-local void free_walk_post (object fvd, void** pdata)
+local void free_walk_post (object fvd, void** pdata, struct walk_foreign *walk)
 {
   begin_system_call();
   free(*pdata);
   end_system_call();
   *pdata = NULL; /* for safety */
 }
-local void free_walk_function (object fvd, void** pdata)
+local void free_walk_function (object fvd, void** pdata,
+                               struct walk_foreign *walk)
 {
   free_foreign_callin(*pdata);
   *pdata = NULL; /* for safety */
 }
 global void free_foreign (object fvd, void* data)
 {
-  walk_foreign_null_terminates = true;
-  walk_foreign_pre_hook = &free_walk_pre;
-  walk_foreign_post_hook = &free_walk_post;
-  walk_foreign_function_hook = &free_walk_function;
-  walk_foreign_pointers(fvd,data);
+  struct walk_foreign walk
+    = { true, &free_walk_pre, &free_walk_post, &free_walk_function };
+  walk_foreign_pointers(fvd,data,&walk);
 }
+
+/* Some flags and hooks that direct the walk: */
+struct walk_lisp {
+  uintL counter;
+  uintL alignment;
+  bool nil_terminates;
+  void (*pre_hook) (object fvd, object obj, struct walk_lisp *walk);
+  void (*post_hook) (object fvd, object obj, struct walk_lisp *walk);
+  void (*function_hook) (object fvd, object obj, struct walk_lisp *walk);
+};
 
 /* Walk Lisp data, giving special attention to the pointers.
  can trigger GC */
-/* Some flags and hooks that direct the walk: */
-local var bool walk_lisp_nil_terminates;
-local void (*walk_lisp_pre_hook) (object fvd, object obj);
-local void (*walk_lisp_post_hook) (object fvd, object obj);
-local void (*walk_lisp_function_hook) (object fvd, object obj);
-
-local maygc void walk_lisp_pointers (object fvd, object obj)
-{
+local maygc void walk_lisp_pointers (object fvd, object obj,
+                                     struct walk_lisp *walk) {
   if (!foreign_with_pointers_p(fvd))
     return;
   check_SP();
   check_STACK();
   if (symbolp(fvd)) {
     if (eq(fvd,S(c_string))) {
-      if (walk_lisp_nil_terminates) {
+      if (walk->nil_terminates) {
         /* NIL pointers stop the recursion */
         if (nullp(obj))
           return;
       }
       if (!stringp(obj)) goto bad_obj;
-      (*walk_lisp_pre_hook)(fvd,obj);
-      (*walk_lisp_post_hook)(fvd,obj);
+      (*walk->pre_hook)(fvd,obj,walk);
+      (*walk->post_hook)(fvd,obj,walk);
       return;
     }
   } else if (simple_vector_p(fvd)) {
@@ -1652,28 +1674,30 @@ local maygc void walk_lisp_pointers (object fvd, object obj)
             funcall(L(slot_value),2); obji = value1;
           }
           var object fvdi = TheSvector(STACK_1)->data[i];
-          foreign_layout(fvdi);
+          var struct foreign_layout sas;
+          foreign_layout(fvdi,&sas);
           /* We assume all alignments are of the form 2^k. */
-          cumul_size += (-cumul_size) & (data_alignment-1);
-          cumul_size += data_size;
-          /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-          if (data_alignment > cumul_alignment)
-            cumul_alignment = data_alignment;
-          /* Now we are finished with data_size and data_alignment.
+          cumul_size += (-cumul_size) & (sas.alignment-1);
+          cumul_size += sas.size;
+          /* cumul_alignment = lcm(cumul_alignment,sas.alignment); */
+          if (sas.alignment > cumul_alignment)
+            cumul_alignment = sas.alignment;
+          /* Now we are finished with sas.size and sas.alignment.
              Descend into the structure slot: */
-          walk_lisp_pointers(fvdi,obji);
+          walk_lisp_pointers(fvdi,obji,walk);
         }
         skipSTACK(4);
         return;
       } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
         /* Use the union's first component. */
         if (fvdlen > 2)
-          walk_lisp_pointers(TheSvector(fvd)->data[2],obj);
+          walk_lisp_pointers(TheSvector(fvd)->data[2],obj,walk);
         return;
       } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
         var object eltype = TheSvector(fvd)->data[1];
         var uintL size = 1;
-        foreign_layout(eltype);
+        var struct foreign_layout sas;
+        foreign_layout(eltype,&sas);
         {
           var uintL i;
           for (i = 2; i < fvdlen; i++) {
@@ -1692,7 +1716,7 @@ local maygc void walk_lisp_pointers (object fvd, object obj)
           for (i = 0; i < size; i++) {
             pushSTACK(STACK_0); pushSTACK(fixnum(i));
             funcall(L(row_major_aref),2);
-            walk_lisp_pointers(STACK_1,value1);
+            walk_lisp_pointers(STACK_1,value1,walk);
           }
         }
         skipSTACK(2);
@@ -1700,7 +1724,8 @@ local maygc void walk_lisp_pointers (object fvd, object obj)
       } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
         var object eltype = TheSvector(fvd)->data[1];
         var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
-        foreign_layout(eltype);
+        var struct foreign_layout data;
+        foreign_layout(eltype,&data);
         if (!vectorp(obj))
           goto bad_obj;
         var uintL len = vector_length(obj);
@@ -1713,35 +1738,35 @@ local maygc void walk_lisp_pointers (object fvd, object obj)
           for (i = 0; i < len; i++) {
             pushSTACK(STACK_0); pushSTACK(fixnum(i));
             funcall(L(aref),2);
-            walk_lisp_pointers(STACK_1,value1);
+            walk_lisp_pointers(STACK_1,value1,walk);
           }
         }
         skipSTACK(2);
         return;
       } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
-        (*walk_lisp_function_hook)(fvd,obj);
+        (*walk->function_hook)(fvd,obj,walk);
         return;
       } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
                  && (fvdlen == 2)) {
-        if (walk_lisp_nil_terminates || eq(fvdtype,S(c_ptr_null))) {
+        if (walk->nil_terminates || eq(fvdtype,S(c_ptr_null))) {
           /* NIL pointers stop the recursion */
           if (nullp(obj))
             return;
         }
-        (*walk_lisp_pre_hook)(fvd,obj);
+        (*walk->pre_hook)(fvd,obj,walk);
         pushSTACK(fvd);
-        walk_lisp_pointers(TheSvector(fvd)->data[1],obj);
+        walk_lisp_pointers(TheSvector(fvd)->data[1],obj,walk);
         fvd = popSTACK();
-        (*walk_lisp_post_hook)(fvd,obj);
+        (*walk->post_hook)(fvd,obj,walk);
         return;
       } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
-        if (walk_lisp_nil_terminates) {
+        if (walk->nil_terminates) {
           /* NIL pointers stop the recursion */
           if (nullp(obj))
             return;
         }
         if (!vectorp(obj)) goto bad_obj;
-        (*walk_lisp_pre_hook)(fvd,obj);
+        (*walk->pre_hook)(fvd,obj,walk);
         pushSTACK(fvd);
         pushSTACK(TheSvector(fvd)->data[1]); /* eltype */
         pushSTACK(obj);
@@ -1751,12 +1776,12 @@ local maygc void walk_lisp_pointers (object fvd, object obj)
           for (i = 0; i < size; i++) {
             pushSTACK(STACK_0); pushSTACK(fixnum(i));
             funcall(L(aref),2);
-            walk_lisp_pointers(STACK_1,value1);
+            walk_lisp_pointers(STACK_1,value1,walk);
           }
         }
         skipSTACK(2);
         fvd = popSTACK();
-        (*walk_lisp_post_hook)(fvd,obj);
+        (*walk->post_hook)(fvd,obj,walk);
         return;
       }
     }
@@ -1769,10 +1794,9 @@ local maygc void walk_lisp_pointers (object fvd, object obj)
 /* Determine amount of additional storage needed
  to convert Lisp data to foreign data.
  can trigger GC */
-local maygc void convert_to_foreign_needs (object fvd, object obj);
-local var uintL walk_counter;
-local var uintL walk_alignment;
-local void count_walk_pre (object fvd, object obj)
+local maygc void convert_to_foreign_needs (object fvd, object obj,
+                                           struct foreign_layout *sas);
+local void count_walk_pre (object fvd, object obj, struct walk_lisp *walk)
 {
   var uintL size;
   var uintL alignment;
@@ -1793,9 +1817,10 @@ local void count_walk_pre (object fvd, object obj)
   } else {
     /* fvd = #(c-ptr ...), #(c-ptr-null ...), #(c-array-ptr ...) */
     var object eltype = TheSvector(fvd)->data[1];
-    foreign_layout(eltype);
-    size = data_size;
-    alignment = data_alignment;
+    var struct foreign_layout sas;
+    foreign_layout(eltype,&sas);
+    size = sas.size;
+    alignment = sas.alignment;
     if (eq(TheSvector(fvd)->data[0],S(c_array_ptr))) {
       if (eq(eltype,S(character)) && stringp(obj)) {
         var uintL clen;
@@ -1810,31 +1835,29 @@ local void count_walk_pre (object fvd, object obj)
       }
     }
   }
-  walk_counter = ((walk_counter + alignment-1) & -alignment) + size;
-  /* walk_alignment = lcm(walk_alignment,alignment); */
-  if (alignment > walk_alignment)
-    walk_alignment = alignment;
+  walk->counter = ((walk->counter + alignment-1) & -alignment) + size;
+  /* walk->alignment = lcm(walk->alignment,alignment); */
+  if (alignment > walk->alignment)
+    walk->alignment = alignment;
 }
-local void count_walk_post (object fvd, object obj)
+local void count_walk_post (object fvd, object obj, struct walk_lisp *walk)
 {
 }
-local maygc void convert_to_foreign_needs (object fvd, object obj)
+local maygc void convert_to_foreign_needs (object fvd, object obj,
+                                           struct foreign_layout *sas)
 {
-  walk_lisp_nil_terminates = true;
-  walk_counter = 0; walk_alignment = 1;
-  walk_lisp_pre_hook = &count_walk_pre;
-  walk_lisp_post_hook = &count_walk_post;
-  walk_lisp_function_hook = &count_walk_post;
-  walk_lisp_pointers(fvd,obj);
-  data_size = walk_counter; data_alignment = walk_alignment;
+  struct walk_lisp walk
+    = { 0, 1, true, &count_walk_pre, &count_walk_post, &count_walk_post };
+  walk_lisp_pointers(fvd,obj,&walk);
+  sas->size = walk.counter; sas->alignment = walk.alignment;
 }
 
 /* Convert Lisp data to foreign data.
    Storage is allocated through converter_malloc().
  Only the toplevel storage must already exist; its address is given.
  can trigger GC */
-local void* (*converter_malloc) (void* old_data, uintL size, uintL alignment);
-local maygc void convert_to_foreign (object fvd, object obj, void* data)
+global maygc void convert_to_foreign (object fvd, object obj, void* data,
+                                      converter_malloc_t converter_malloc)
 {
   check_SP();
   check_STACK();
@@ -2017,24 +2040,25 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
             funcall(L(slot_value),2); obji = value1;
           }
           var object fvdi = TheSvector(STACK_1)->data[i];
-          foreign_layout(fvdi);
+          var struct foreign_layout sas;
+          foreign_layout(fvdi,&sas);
           /* We assume all alignments are of the form 2^k. */
-          cumul_size += (-cumul_size) & (data_alignment-1);
+          cumul_size += (-cumul_size) & (sas.alignment-1);
           var void* pdata = (char*)data + cumul_size;
-          cumul_size += data_size;
-          /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-          if (data_alignment > cumul_alignment)
-            cumul_alignment = data_alignment;
-          /* Now we are finished with data_size and data_alignment.
+          cumul_size += sas.size;
+          /* cumul_alignment = lcm(cumul_alignment,sas.alignment); */
+          if (sas.alignment > cumul_alignment)
+            cumul_alignment = sas.alignment;
+          /* Now we are finished with sas.size and sas.alignment.
              Descend into the structure slot: */
-          convert_to_foreign(fvdi,obji,pdata);
+          convert_to_foreign(fvdi,obji,pdata,converter_malloc);
         }
         skipSTACK(4);
         return;
       } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
         /* Use the union's first component. */
-        convert_to_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2]
-                           : NIL,obj,data);
+        convert_to_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL,
+                           obj,data,converter_malloc);
         return;
       } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
         var object eltype = TheSvector(fvd)->data[1];
@@ -2051,7 +2075,7 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
           cstombs(O(foreign_encoding),ptr1,clen,(uintB*)data,blen);
           return;
         }
-        var uintL eltype_size = (foreign_layout(eltype), data_size);
+        var uintL eltype_size = foreign_size(eltype);
         var uintL size = 1;
         {
           var uintL i;
@@ -2111,7 +2135,7 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
               /* pdata = (char*)data + i*eltype_size */
               pushSTACK(STACK_0); pushSTACK(fixnum(i));
               funcall(L(row_major_aref),2);
-              convert_to_foreign(STACK_1,value1,pdata);
+              convert_to_foreign(STACK_1,value1,pdata,converter_malloc);
             }
           }
           skipSTACK(2);
@@ -2142,7 +2166,7 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
             *ptr2 = '\0';
           return;
         }
-        var uintL eltype_size = (foreign_layout(eltype), data_size);
+        var uintL eltype_size = foreign_size(eltype);
         if (!vectorp(obj))
           goto bad_obj;
         var uintL len = vector_length(obj);
@@ -2193,7 +2217,7 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
               /* pdata = (char*)data + i*eltype_size */
               pushSTACK(STACK_0); pushSTACK(fixnum(i));
               funcall(L(aref),2);
-              convert_to_foreign(STACK_1,value1,pdata);
+              convert_to_foreign(STACK_1,value1,pdata,converter_malloc);
             }
             if (len < maxdim)
               blockzero(pdata,eltype_size);
@@ -2221,10 +2245,11 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
           return;
         }
         fvd = TheSvector(fvd)->data[1];
-        foreign_layout(fvd);
-        var void* p = converter_malloc(*(void**)data,data_size,data_alignment);
+        var struct foreign_layout sas;
+        foreign_layout(fvd,&sas);
+        var void* p = converter_malloc(*(void**)data,sas.size,sas.alignment);
         *(void**)data = p;
-        convert_to_foreign(fvd,obj,p);
+        convert_to_foreign(fvd,obj,p,converter_malloc);
         return;
       } else if (eq(fvdtype,S(c_pointer)) && (fvdlen == 2)) {
         if (faddressp(obj)) {
@@ -2263,10 +2288,11 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
         }
         if (!vectorp(obj)) goto bad_obj;
         var uintL len = vector_length(obj);
-        foreign_layout(eltype);
-        var uintL eltype_size = data_size;
+        var struct foreign_layout sas;
+        foreign_layout(eltype,&sas);
+        var uintL eltype_size = sas.size;
         var void* p = converter_malloc(*(void**)data,(len+1)*eltype_size,
-                                       data_alignment);
+                                       sas.alignment);
         *(void**)data = p;
         pushSTACK(eltype);
         pushSTACK(obj);
@@ -2275,7 +2301,7 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
           for (i = 0; i < len; i++, p = (void*)((char*)p + eltype_size)) {
             pushSTACK(STACK_0); pushSTACK(fixnum(i));
             funcall(L(aref),2);
-            convert_to_foreign(STACK_1,value1,p);
+            convert_to_foreign(STACK_1,value1,p,converter_malloc);
           }
         }
         skipSTACK(2);
@@ -2292,9 +2318,9 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
 /* Convert Lisp data to foreign data.
  The foreign data has dynamic extent.
  1. convert_to_foreign_need(fvd,obj);
- 2. make room according to data_size and data_alignment,
+ 2. make room according to sas.size and sas.alignment,
     set allocaing_room_pointer.
- 3. convert_to_foreign_allocaing(fvd,obj,data,room_pointer);
+ 3. convert_to_foreign(fvd,obj,data,room_pointer,&allocaing);
     can trigger GC */
 local var void* allocaing_room_pointer;
 local void* allocaing (void* old_data, uintL size, uintL alignment)
@@ -2304,11 +2330,6 @@ local void* allocaing (void* old_data, uintL size, uintL alignment)
   var void* result = allocaing_room_pointer;
   allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + size);
   return result;
-}
-local maygc void convert_to_foreign_allocaing (object fvd, object obj, void* data)
-{
-  converter_malloc = &allocaing;
-  convert_to_foreign(fvd,obj,data);
 }
 
 /* Convert Lisp data to foreign data.
@@ -2320,11 +2341,6 @@ local void* mallocing (void* old_data, uintL size, uintL alignment)
 {
   return my_malloc(size);
 }
-global maygc void convert_to_foreign_mallocing (object fvd, object obj, void* data)
-{
-  converter_malloc = &mallocing;
-  convert_to_foreign(fvd,obj,data);
-}
 
 /* Convert Lisp data to foreign data.
  The foreign data storage is reused.
@@ -2335,12 +2351,6 @@ local void* nomalloc (void* old_data, uintL size, uintL alignment)
 {
   return old_data;
 }
-global maygc void convert_to_foreign_nomalloc (object fvd, object obj, void* data)
-{
-  converter_malloc = &nomalloc;
-  convert_to_foreign(fvd,obj,data);
-}
-
 
 /* Error messages. */
 nonreturning_function(local, fehler_foreign_variable, (object obj)) {
@@ -2370,12 +2380,13 @@ LISPFUNN(lookup_foreign_variable,2)
   }
   /* The first LOOKUP-FOREIGN-VARIABLE determines the variable's type. */
   if (nullp(TheFvariable(fvar)->fv_type)) {
-    foreign_layout(fvd);
+    var struct foreign_layout sas;
+    foreign_layout(fvd,&sas);
     var object fa = TheFvariable(fvar)->fv_address;
     pushSTACK(fvar); fa = check_faddress_valid(fa);
     fvar = popSTACK(); fvd = STACK_0; /* restore after GC-unsafe call */
-    if (!((posfixnum_to_V(TheFvariable(fvar)->fv_size) == data_size)
-          && (((long)Faddress_value(fa) & (data_alignment-1)) == 0))) {
+    if (!((posfixnum_to_V(TheFvariable(fvar)->fv_size) == sas.size)
+          && (((long)Faddress_value(fa) & (sas.alignment-1)) == 0))) {
       pushSTACK(fvar);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,GETTEXT("~S: foreign variable ~S does not have the required size or alignment"));
@@ -2432,8 +2443,9 @@ LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
   if (!missingp(STACK_0)) STACK_0 = coerce_ss(STACK_0);
   var object fvar = allocate_fvariable();
   var object fvd = STACK_1;
-  foreign_layout(fvd);
-  TheFvariable(fvar)->fv_size      = fixnum(data_size);
+  var struct foreign_layout sas;
+  foreign_layout(fvd,&sas);
+  TheFvariable(fvar)->fv_size      = fixnum(sas.size);
   TheFvariable(fvar)->fv_type      = fvd;
   TheFvariable(fvar)->fv_name      = (boundp(STACK_0) ? (object)STACK_0 : NIL);
   if (fvariablep(STACK_2)) {
@@ -2450,7 +2462,7 @@ LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
     record_flags_replace(TheFvariable(fvar), 0);
   }
   if (((uintP)Faddress_value(TheFvariable(fvar)->fv_address)
-       & (data_alignment-1))) {
+       & (sas.alignment-1))) {
     pushSTACK(fvar);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
@@ -2493,11 +2505,11 @@ LISPFUNN(set_foreign_value,2)
        Free old value: */
     free_foreign(fvd,address);
     /* Put in new value: */
-    convert_to_foreign_mallocing(fvd,STACK_0,address);
+    convert_to_foreign(fvd,STACK_0,address,&mallocing);
   } else {
     /* Protect this using a semaphore??
        Put in new value, reusing the old value's storage: */
-    convert_to_foreign_nomalloc(fvd,STACK_0,address);
+    convert_to_foreign(fvd,STACK_0,address,&nomalloc);
   }
   VALUES1(STACK_0);
   skipSTACK(2);
@@ -2574,8 +2586,7 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
   set_args_end_pointer(rest_args_pointer);
   fvd = TheSvector(fvd)->data[1]; /* the element's foreign type */
   pushSTACK(fvd);
-  foreign_layout(fvd);
-  var uintL size = data_size; /* the element's size */
+  var uintL size = foreign_size(fvd); /* the element's size */
   pushSTACK(make_faddress(TheFaddress(TheFvariable(fvar)->fv_address)->fa_base,
                           TheFaddress(TheFvariable(fvar)->fv_address)->fa_offset
                           + row_major_index * size));
@@ -2613,8 +2624,7 @@ LISPFUNN(deref,1)
   }
   fvd = TheSvector(fvd)->data[1]; /* the target's foreign type */
   pushSTACK(fvd);
-  foreign_layout(fvd);
-  var uintL size = data_size; /* the target's size */
+  var uintL size = foreign_size(fvd); /* the target's size */
   var object fa = TheFvariable(fvar)->fv_address;
   fa = check_faddress_valid(fa);
   /* Actually dereference the pointer: */
@@ -2650,6 +2660,7 @@ LISPFUNN(slot,2)
   /* Check that fvar is a foreign struct or a foreign union: */
   var object fvd = TheFvariable(fvar)->fv_type;
   var uintL fvdlen;
+  var struct foreign_layout sas;
   if (simple_vector_p(fvd) && ((fvdlen = Svector_length(fvd)) > 0)) {
     if (eq(TheSvector(fvd)->data[0],S(c_struct))
         && (fvdlen >= C_STRUCT_C_TYPE_START)) {
@@ -2661,17 +2672,17 @@ LISPFUNN(slot,2)
       var uintL i;
       for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
         var object fvdi = TheSvector(fvd)->data[i];
-        foreign_layout(fvdi);
+        foreign_layout(fvdi,&sas);
         /* We assume all alignments are of the form 2^k. */
-        cumul_size += (-cumul_size) & (data_alignment-1);
+        cumul_size += (-cumul_size) & (sas.alignment-1);
         if (eq(TheSvector(slots)->data[i-C_STRUCT_C_TYPE_START],slot)) {
           pushSTACK(fvdi); goto found_struct_slot;
         }
-        cumul_size += data_size;
+        cumul_size += sas.size;
       }
       goto bad_slot;
      found_struct_slot: {
-        var uintL size = data_size;
+        var uintL size = sas.size;
         pushSTACK(make_faddress(TheFaddress(TheFvariable(fvar)->fv_address)->fa_base,
                                 TheFaddress(TheFvariable(fvar)->fv_address)->fa_offset
                                 + cumul_size));
@@ -2706,7 +2717,7 @@ LISPFUNN(slot,2)
                            record_flags(TheFvariable(fvar)));
       TheFvariable(new_fvar)->fv_name    = NIL; /* no name known */
       TheFvariable(new_fvar)->fv_address = TheFvariable(fvar)->fv_address;
-      TheFvariable(new_fvar)->fv_size    = (foreign_layout(fvd), fixnum(data_size));
+      TheFvariable(new_fvar)->fv_size    = fixnum(foreign_size(fvd));
       TheFvariable(new_fvar)->fv_type    = fvd;
       VALUES1(new_fvar);
       skipSTACK(2);
@@ -2739,8 +2750,7 @@ LISPFUNN(cast,2)
   if (nullp(fvd))
     fehler_variable_no_fvd(fvar);
   /* The old and the new type must have the same size. */
-  foreign_layout(STACK_0);
-  if (!eq(TheFvariable(fvar)->fv_size,fixnum(data_size)))
+  if (!eq(TheFvariable(fvar)->fv_size,fixnum(foreign_size(STACK_0))))
     fehler_convert(STACK_0,fvar);
   /* Allocate a new foreign variable. */
   var object new_fvar = allocate_fvariable();
@@ -2771,10 +2781,11 @@ LISPFUNN(offset,3) {
       fehler_variable_no_fvd(fvar);
   }
   STACK_1 = check_sint32(STACK_1);
-  foreign_layout(STACK_0);
+  var struct foreign_layout sas;
+  foreign_layout(STACK_0,&sas);
   fvar = STACK_2;
-  var uintL size = data_size;
-  var uintL alignment = data_alignment;
+  var uintL size = sas.size;
+  var uintL alignment = sas.alignment;
   { /* Allocate a new foreign address. */
     var object fvaddr = TheFvariable(fvar)->fv_address;
     fvaddr = make_faddress(TheFaddress(fvaddr)->fa_base,
@@ -2832,7 +2843,7 @@ LISPFUN(write_memory_as,seclass_default,3,1,norest,nokey,0,NIL)
     STACK_0 = check_sint32(STACK_0);
     address = (void*)((uintP)address + (sintP)I_to_sint32(STACK_0));
   }
-  convert_to_foreign_nomalloc(STACK_1,STACK_3,address);
+  convert_to_foreign(STACK_1,STACK_3,address,&nomalloc);
   VALUES1(STACK_3); skipSTACK(4);
 }
 
@@ -2847,30 +2858,31 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   STACK_2 = check_function(STACK_2);
   var bool init = boundp(STACK_0); /* Passing NIL is also an initialization */
   var object fvd = STACK_1;
-  foreign_layout(fvd);
+  var struct foreign_layout sas;
+  foreign_layout(fvd,&sas);
   /* Room for top-level structure: */
-  var uintL result_size = data_size;
-  var uintL result_alignment = data_alignment;
+  var uintL result_size = sas.size;
+  var uintL result_alignment = sas.alignment;
   var uintL cumul_size = result_size;
   var uintL cumul_alignment = result_alignment;
   cumul_size += (-cumul_size) & (cumul_alignment-1);
   if (init) {
     /* Room for pointers in argument: */
-    convert_to_foreign_needs(fvd,STACK_0);
+    convert_to_foreign_needs(fvd,STACK_0,&sas);
     fvd = STACK_1;
     /* We assume all alignments are of the form 2^k. */
-    cumul_size += (-cumul_size) & (data_alignment-1);
-    cumul_size += data_size;
-    /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-    if (data_alignment > cumul_alignment)
-      cumul_alignment = data_alignment;
+    cumul_size += (-cumul_size) & (sas.alignment-1);
+    cumul_size += sas.size;
+    /* cumul_alignment = lcm(cumul_alignment,sas.alignment); */
+    if (sas.alignment > cumul_alignment)
+      cumul_alignment = sas.alignment;
   }
   var DYNAMIC_ARRAY(total_room,char,cumul_size+cumul_alignment/*-1*/);
   var void* result_address = (void*)((uintP)(total_room+result_alignment-1)
                                      & -(long)result_alignment);
   if (init) {
     allocaing_room_pointer = (void*)((uintP)result_address + result_size);
-    convert_to_foreign_allocaing(fvd,STACK_0,result_address);
+    convert_to_foreign(fvd,STACK_0,result_address,&allocaing);
   } else {
     blockzero(result_address,result_size);
   }
@@ -2983,9 +2995,10 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
     TheSvector(array_fvd)->data[2] = STACK_1; /* count */
     STACK_3 = arg_fvd = array_fvd;
   }
-  foreign_layout(arg_fvd);
-  var uintL arg_size = data_size;
-  var uintL arg_alignment = data_alignment;
+  var struct foreign_layout sas;
+  foreign_layout(arg_fvd,&sas);
+  var uintL arg_size = sas.size;
+  var uintL arg_alignment = sas.alignment;
   if (arg_size == 0) { fehler_eltype_zero_size(arg_fvd); }
   /* Perform top-level allocation of sizeof(fvd), sublevel allocations follow */
   var void* arg_address = my_malloc(arg_size);
@@ -3013,7 +3026,7 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
     var object initarg = STACK_3;
     if (boundp(initarg)) {
       STACK_0 = fvar;
-      convert_to_foreign_mallocing(arg_fvd,initarg,arg_address);
+      convert_to_foreign(arg_fvd,initarg,arg_address,&mallocing);
       /* subr-self name is lost and GC may happen */
       fvar = STACK_0;
     }
@@ -3373,10 +3386,11 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     var void* address = Faddress_value(fa);
     var object result_fvd = TheFfunction(ffun)->ff_resulttype;
     /* Allocate space for the result and maybe the args: */
-    foreign_layout(result_fvd);
-    var uintL result_size = data_size;
-    var uintL result_alignment = data_alignment;
-    var bool result_splittable = data_splittable;
+    var struct foreign_layout sas;
+    foreign_layout(result_fvd,&sas);
+    var uintL result_size = sas.size;
+    var uintL result_alignment = sas.alignment;
+    var bool result_splittable = sas.splittable;
     var uintL result_totalsize = result_size+result_alignment; /* >= result_size+result_alignment-1, > 0 */
     var uintL cumul_alignment = result_alignment;
     var uintL cumul_size = result_totalsize;
@@ -3405,37 +3419,37 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
           outargcount++;
         }
         if (arg_flags & ff_alloca) {
-          { /* Room for arg itself: */
-            foreign_layout(arg_fvd);
-            /* We assume all alignments are of the form 2^k. */
-            cumul_size += (-cumul_size) & (data_alignment-1);
-            cumul_size += data_size;
-            /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-            if (data_alignment > cumul_alignment)
-              cumul_alignment = data_alignment;
-          }
+          var struct foreign_layout sas;
+          /* Room for arg itself: */
+          foreign_layout(arg_fvd,&sas);
+          /* We assume all alignments are of the form 2^k. */
+          cumul_size += (-cumul_size) & (sas.alignment-1);
+          cumul_size += sas.size;
+          /* cumul_alignment = lcm(cumul_alignment,sas.alignment); */
+          if (sas.alignment > cumul_alignment)
+            cumul_alignment = sas.alignment;
           if (arg_flags & ff_out) {
             /* Room for top-level pointer in arg: */
             var object argo_fvd = TheSvector(arg_fvd)->data[1];
-            foreign_layout(argo_fvd);
+            foreign_layout(argo_fvd,&sas);
             /* We assume all alignments are of the form 2^k. */
-            cumul_size += (-cumul_size) & (data_alignment-1);
-            cumul_size += data_size;
-            /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-            if (data_alignment > cumul_alignment)
-              cumul_alignment = data_alignment;
+            cumul_size += (-cumul_size) & (sas.alignment-1);
+            cumul_size += sas.size;
+            /* cumul_alignment = lcm(cumul_alignment,sas.alignment); */
+            if (sas.alignment > cumul_alignment)
+              cumul_alignment = sas.alignment;
           } else {
             /* Room for pointers in arg: */
             var object arg = Before(rest_args_pointer STACKop -inargcount);
             pushSTACK(result_fvd); pushSTACK(argfvds); /* save */
-            convert_to_foreign_needs(arg_fvd,arg);
+            convert_to_foreign_needs(arg_fvd,arg,&sas);
             argfvds = popSTACK(); result_fvd = popSTACK(); /* restore */
             /* We assume all alignments are of the form 2^k. */
-            cumul_size += (-cumul_size) & (data_alignment-1);
-            cumul_size += data_size;
-            /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
-            if (data_alignment > cumul_alignment)
-              cumul_alignment = data_alignment;
+            cumul_size += (-cumul_size) & (sas.alignment-1);
+            cumul_size += sas.size;
+            /* cumul_alignment = lcm(cumul_alignment,sas.alignment); */
+            if (sas.alignment > cumul_alignment)
+              cumul_alignment = sas.alignment;
           }
         }
       }
@@ -3473,9 +3487,10 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
           arg = Next(rest_args_pointer STACKop -j); j++;
         }
         /* Allocate temporary space for the argument: */
-        foreign_layout(arg_fvd);
-        var uintL arg_size = data_size;
-        var uintL arg_alignment = data_alignment;
+        var struct foreign_layout sas;
+        foreign_layout(arg_fvd,&sas);
+        var uintL arg_size = sas.size;
+        var uintL arg_alignment = sas.alignment;
         if (arg_flags & ff_alloca) {
           allocaing_room_pointer =
             (void*)(((uintP)allocaing_room_pointer + arg_alignment-1)
@@ -3486,22 +3501,22 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
           if (arg_flags & ff_out) {
             /* Pass top-level pointer only: */
             var object argo_fvd = TheSvector(arg_fvd)->data[1];
-            foreign_layout(argo_fvd);
+            foreign_layout(argo_fvd,&sas);
             allocaing_room_pointer =
-              (void*)(((uintP)allocaing_room_pointer + data_alignment-1)
-                      & -(long)data_alignment);
+              (void*)(((uintP)allocaing_room_pointer + sas.alignment-1)
+                      & -(long)sas.alignment);
             *(void**)arg_address = allocaing_room_pointer;
             pushSTACK(argo_fvd);
             results[result_count].address = allocaing_room_pointer;
             result_count++;
             /* zero-fill to avoid uninitialized result: */
-            blockzero(allocaing_room_pointer,data_size);
+            blockzero(allocaing_room_pointer,sas.size);
             allocaing_room_pointer =
-              (void*)((uintP)allocaing_room_pointer + data_size);
+              (void*)((uintP)allocaing_room_pointer + sas.size);
           } else {
             /* Convert argument: */
             pushSTACK(arg_fvd); /* save */
-            convert_to_foreign_allocaing(arg_fvd,arg,arg_address);
+            convert_to_foreign(arg_fvd,arg,arg_address,&allocaing);
             arg_fvd = popSTACK(); /* restore */
             if (arg_flags & ff_inout) {
               pushSTACK(TheSvector(arg_fvd)->data[1]);
@@ -3522,9 +3537,9 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
             /* Convert argument: */
             pushSTACK(arg_fvd); /* save */
             if (arg_flags & ff_malloc)
-              convert_to_foreign_mallocing(arg_fvd,arg,arg_address);
+              convert_to_foreign(arg_fvd,arg,arg_address,&mallocing);
             else
-              convert_to_foreign_nomalloc(arg_fvd,arg,arg_address);
+              convert_to_foreign(arg_fvd,arg,arg_address,&nomalloc);
             arg_fvd = popSTACK(); /* restore */
             if (arg_flags & ff_inout) {
               pushSTACK(TheSvector(arg_fvd)->data[1]);
@@ -3783,9 +3798,10 @@ local void* do_va_arg (uintWL flags, object arg_fvd, va_alist alist)
     var object arg_fvdtype = TheSvector(arg_fvd)->data[0];
     if (eq(arg_fvdtype,S(c_struct)) || eq(arg_fvdtype,S(c_union))
         || eq(arg_fvdtype,S(c_array)) || eq(arg_fvdtype,S(c_array_max))) {
-      foreign_layout(arg_fvd);
-      var uintL arg_size = data_size;
-      var uintL arg_alignment = data_alignment;
+      var struct foreign_layout sas;
+      foreign_layout(arg_fvd,&sas);
+      var uintL arg_size = sas.size;
+      var uintL arg_alignment = sas.alignment;
       return _va_arg_struct(alist,arg_size,arg_alignment);
     } else if (eq(arg_fvdtype,S(c_function))
                || eq(arg_fvdtype,S(c_ptr))
@@ -3926,10 +3942,11 @@ local void callback (void* data, va_alist alist)
     default:
       fehler_function_no_fvd(ffun,S(foreign_call_in));
   }
-  foreign_layout(result_fvd);
-  var uintL result_size = data_size;
-  var uintL result_alignment = data_alignment;
-  var bool result_splittable = data_splittable;
+  var struct foreign_layout sas;
+  foreign_layout(result_fvd,&sas);
+  var uintL result_size = sas.size;
+  var uintL result_alignment = sas.alignment;
+  var bool result_splittable = sas.splittable;
   /* Call va_start_xxx: */
   begin_system_call();
   do_va_start(flags,result_fvd,alist,result_size,result_alignment,
@@ -3957,10 +3974,8 @@ local void callback (void* data, va_alist alist)
   var void* result_address = (void*)((uintP)(result_room+result_alignment-1)
                                      & -(long)result_alignment);
   /* Convert the result: */
-  if (flags & ff_malloc)
-    convert_to_foreign_mallocing(STACK_2,value1,result_address);
-  else
-    convert_to_foreign_nomalloc(STACK_2,value1,result_address);
+  convert_to_foreign(STACK_2,value1,result_address,
+                     (flags & ff_malloc) ? &mallocing : &nomalloc);
   /* Call va_return_xxx: */
   begin_system_call();
   do_va_return(flags,STACK_2,alist,result_address,result_size,
@@ -4056,10 +4071,6 @@ local void close_library (object fp) {
   end_system_call();
   mark_fp_invalid(TheFpointer(fp));
 }
-
-#if defined(UNIX_FREEBSD) && !defined(RTLD_DEFAULT)
-local void* libc_handle;
-#endif
 
 /* FIXME: BETTER COMMENT! */
 /* return the handle of the object (string) in the library (name fpointer ...)
@@ -4265,9 +4276,10 @@ LISPFUNN(foreign_library_variable,4)
   STACK_3 = coerce_ss(STACK_3);
   STACK_2 = check_library(STACK_2);
   if (!nullp(STACK_1)) STACK_1 = check_sint32(STACK_1);
-  foreign_layout(STACK_0);
-  var uintL size = data_size;
-  var uintL alignment = data_alignment;
+  var struct foreign_layout sas;
+  foreign_layout(STACK_0,&sas);
+  var uintL size = sas.size;
+  var uintL alignment = sas.alignment;
   pushSTACK(object_address(STACK_2,&STACK_3,STACK_1)); /* valid! */
   var object fvar = allocate_fvariable();
   TheFvariable(fvar)->fv_name = STACK_(3+1);
