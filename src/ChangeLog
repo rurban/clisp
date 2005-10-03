@@ -1,5 +1,10 @@
 2005-10-02  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (handle_isset): do not call listen_byte() on raw sockets
+	Reported by Don Cohen
+
+2005-10-02  Sam Steingold  <sds@gnu.org>
+
 	foreign.d data walkers is now reentrant (no static data)
 	* lispbibl.d (convert_to_foreign_mallocing, convert_to_foreign_nomalloc):
 	removed prototypes
