@@ -11,11 +11,12 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <simpara>When this module is present, &features-var; contains the
  symbol <constant>:RAWSOCK</constant>.</simpara>
 
-<warning id="rawsock-use-sockets"><title>Use &socket-stream; instead!</title>
- <simpara>This interface is very low-level, and you probably do not need
- it - unless you are doing something <emphasis>very</emphasis> unusual.
- If you are interested in TCP/IP (Internet) stream sockets, you should use
- &socket-stream;s, &not-e; this package.</simpara></warning>
+<warning id="rawsock-use-sockets"><title>Try &socket-stream; first!</title>
+ <simpara>For most uses of sockets, the facilities described in
+  <xref linkend="socket"/> are adequate and much more convenient than these.
+  You are encouraged to consider &socket-stream;s and ensure that they
+  are not adequate for your purposes before you use raw sockets.
+</simpara></warning>
 
 <warning id="rawsock-not-streams"><title>Do &not-e; use &make-stream;!</title>
  <simpara>You can turn such a raw socket into a usual lisp &stream-t;
@@ -29,7 +30,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 </simpara></warning>
 </section>
 
-<section id="rawsock-func"><title>Functions</title>
+<section id="rawsock-func"><title>Single System Call Functions</title>
 
 <para>We implement access to
  <simplelist columns="1">
@@ -150,7 +151,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 </section>
 
 <section id="rawsock-high-level"><title>High-Level Functions</title>
-<variablelist id="rawsock-high-level-list">
+<variablelist id="rawsock-high-level-list"><title>Functions that do not
+  correspond to a single system call</title>
 <varlistentry><term><code>(RAWSOCK:SOCKET-OPTION &sock-r; &name-r;
    &key-amp; :LEVEL)</code></term>
  <term><code>(&setf; (RAWSOCK:SOCKET-OPTION &sock-r; &name-r;
@@ -195,11 +197,15 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <function role="unix">recvmsg</function>.
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><code>(RAWSOCK:IPCSUM &buf-r;)</code></term>
- <term><code>(RAWSOCK:ICMPCSUM &buf-r;)</code></term>
- <term><code>(RAWSOCK:TCPCSUM &buf-r;)</code></term>
- <term><code>(RAWSOCK:UDPCSUM &buf-r;)</code></term>
- <listitem><simpara>Compute the appropriate protocol checksum.
+ <term><code>(RAWSOCK:IPCSUM &buf-r;)</code> - &ip;</term>
+ <term><code>(RAWSOCK:ICMPCSUM &buf-r;)</code> - &icmp;</term>
+ <term><code>(RAWSOCK:TCPCSUM &buf-r;)</code> - &tcp;</term>
+ <term><code>(RAWSOCK:UDPCSUM &buf-r;)</code> - &udp;</term>
+ <listitem><simpara>Compute the appropriate protocol checksum and record
+   it in the appropriate location.  &buf-r; is assumed to be a suitable
+   packet for the protocol, with the appropriate header etc.
+   The typical packet you send is both &ip; and &tcp; and thus has two
+   checksums, so you would want to call <emphasis>two</emphasis> functions.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r; &name-r; &addr-r;
    &key-amp; <replaceable>promisc</replaceable>
