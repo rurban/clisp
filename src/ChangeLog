@@ -1,3 +1,8 @@
+2005-10-03  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: $ac_cv_use_readline is tested in CL_READLINE
+	already, do not test it here too
+
 2005-10-02  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (handle_isset): do not call listen_byte() on raw sockets
