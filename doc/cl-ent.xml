@@ -152,6 +152,11 @@
 
 <!-- *** etc *** -->
 <!ENTITY http "<ulink url='http://www.w3.org/Protocols/'><command>HTTP</command></ulink>">
+<!ENTITY rfc "http://www.ietf.org/rfc/">
+<!ENTITY ip "<ulink url='&rfc;/rfc791.txt'><command>IP</command></ulink>">
+<!ENTITY icmp "<ulink url='&rfc;/rfc792.txt'><command>ICMP</command></ulink>">
+<!ENTITY tcp "<ulink url='&rfc;/rfc793.txt'><command>TCP</command></ulink>">
+<!ENTITY udp "<ulink url='&rfc;/rfc768.txt'><command>UDP</command></ulink>">
 <!ENTITY gcc "<ulink url='http://gcc.gnu.org/'><command>gcc</command></ulink>">
 <!ENTITY gdb "<ulink url='http://sources.redhat.com/gdb/'><command>gdb</command></ulink>">
 <!ENTITY apache "<ulink url='http://www.apache.org/'>Apache</ulink>">
