@@ -14222,8 +14222,8 @@ local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
  either a socket-server, a socket-stream or a (socket . direction)
  see socket_status() for details
  can trigger GC */
-local maygc object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
-                                 fd_set *errorfds) {
+local maygc object handle_isset (object socket, fd_set *readfds,
+                                 fd_set *writefds, fd_set *errorfds) {
   var object sock, ret;
   var direction_t dir;
   var gcv_object_t *place = parse_sock_list(socket,&sock,&dir);
@@ -14241,8 +14241,10 @@ local maygc object handle_isset (object socket, fd_set *readfds, fd_set *writefd
       if (place) *place = ret;
       return ret;
     }
-    if (FD_ISSET(in_sock,readfds))
-      rd = (char_p ? listen_char(sock) : listen_byte(sock));
+    if (FD_ISSET(in_sock,readfds)) {
+      if (uint_p(sock)) rd = ls_avail;
+      else rd = (char_p ? listen_char(sock) : listen_byte(sock));
+    }
   }
   if (out_sock != INVALID_SOCKET) {
     if (FD_ISSET(out_sock,errorfds)) return S(Kerror);
