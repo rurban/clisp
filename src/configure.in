@@ -273,11 +273,8 @@ AC_MSG_NOTICE([* checks for libraries])
 dnl
 dnl set variable LIBTERMCAP
 CL_TERMCAP
-if test "$ac_cv_use_readline" = "no" ; then
-AC_MSG_NOTICE([not checking for readline])
-else dnl DEFS HAVE_READLINE
+dnl DEFS HAVE_READLINE
 CL_READLINE
-fi
 dnl
 AC_MSG_NOTICE([* checks for OS services])
 dnl
