@@ -92,8 +92,8 @@ static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size) {
   object data;
   *arg_ = check_byte_vector(*arg_);
   if (!missingp(STACK_1)) start = posfixnum_to_V(check_posfixnum(STACK_1));
-  if (!missingp(STACK_0)) *size = vector_length(*arg_);
-  else *size = posfixnum_to_V(check_posfixnum(STACK_0));
+  *size = missingp(STACK_0) ? vector_length(*arg_)
+    : posfixnum_to_V(check_posfixnum(STACK_0));
   data = array_displace_check(*arg_,*size,&start);
   return (void*)(TheSbvector(data)->data + start);
 }
