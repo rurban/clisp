@@ -9,6 +9,9 @@
 /* Define to 1 if you have the <postgres_ext.h> header file. */
 #undef HAVE_POSTGRES_EXT_H
 
+/* Define to 1 if you have the `PQinitSSL' function. */
+#undef HAVE_PQINITSSL
+
 /* Define to 1 if you have the `PQserverVersion' function. */
 #undef HAVE_PQSERVERVERSION
 
