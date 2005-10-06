@@ -11,13 +11,14 @@ User visible changes
   + makemake no longer checks with_module_* variables.
 
 * FFI modules can now take advantage of autoconf feature detection.
-  See <http://clisp.cons.org/dffi.html> for details.
+  See <http://clisp.cons.org/impnotes/dffi.html#ffi-guard> for details.
 
 * New module readline offers some advanced readline and history features.
   It is a BASE module and is available when both FFI and readline are present.
 
 * New SETF-able functions POSIX:GETUID, POSIX:GETGID, POSIX:GETEUID,
-  POSIX:GETEGID.  See <http://clisp.cons.org/syscalls.html> for details.
+  POSIX:GETEGID.
+  See <http://clisp.cons.org/impnotes/syscalls.html#getuid> for details.
 
 * New NEW-CLX demo: foch.lisp draws fractal snowflakes.
 
