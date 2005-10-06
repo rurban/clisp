@@ -3793,7 +3793,112 @@ echo "$as_me: error: cannot find PostgreSQL library" >&2;}
 fi
 
 
-for ac_func in PQserverVersion PQinitSSL
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+for ac_func in PQconnectStart PQconnectPoll PQconnectdb PQsetdbLogin PQfinish PQconndefaults PQconninfoFree PQresetStart PQresetPoll PQreset PQgetCancel PQfreeCancel PQcancel PQrequestCancel PQdb PQuser PQpass PQhost PQport PQtty PQoptions PQstatus PQtransactionStatus PQparameterStatus PQprotocolVersion PQserverVersion PQerrorMessage PQsocket PQbackendPID PQclientEncoding PQsetClientEncoding PQgetssl PQgetssl PQinitSSL PQsetErrorVerbosity PQtrace PQuntrace PQsetNoticeReceiver PQsetNoticeProcessor PQexec PQexecParams PQprepare PQexecPrepared PQsendQuery PQsendQueryParams PQsendPrepare PQsendQueryPrepared PQgetResult PQisBusy PQconsumeInput PQnotifies PQputCopyData PQputCopyEnd PQgetCopyData PQgetline PQputline PQgetlineAsync PQputnbytes PQendcopy PQsetnonblocking PQisnonblocking PQflush PQfn PQresultStatus PQresStatus PQresultErrorMessage PQresultErrorField PQntuples PQnfields PQbinaryTuples PQfname PQfnumber PQftable PQftablecol PQfformat PQftype PQfsize PQfmod PQcmdStatus PQoidStatus PQoidValue PQcmdTuples PQgetvalue PQgetlength PQgetisnull PQclear PQfreemem PQmakeEmptyPGresult PQescapeString PQescapeBytea PQunescapeBytea PQprint PQdisplayTuples PQprintTuples lo_open lo_close lo_read lo_write lo_lseek lo_creat lo_tell lo_unlink lo_import lo_export PQmblen PQdsplen PQenv2encoding
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -3894,11 +3999,6 @@ _ACEOF
 fi
 done
 
-if test "$ac_cv_func_PQserverVersion" = "no"; then
-  { { echo "$as_me:$LINENO: error: PostgreSQL version 8.0 or better is required" >&5
-echo "$as_me: error: PostgreSQL version 8.0 or better is required" >&2;}
-   { (exit 1); exit 1; }; }
-fi
 
 { echo "$as_me:$LINENO: * PostgreSQL (Output)" >&5
 echo "$as_me: * PostgreSQL (Output)" >&6;}
