@@ -3792,7 +3792,8 @@ echo "$as_me: error: cannot find PostgreSQL library" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-for ac_func in PQserverVersion
+
+for ac_func in PQserverVersion PQinitSSL
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5

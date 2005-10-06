@@ -2440,8 +2440,8 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-{ echo "$as_me:$LINENO:  * READLINE (Headers & Functions)" >&5
-echo "$as_me:  * READLINE (Headers & Functions)" >&6;}
+{ echo "$as_me:$LINENO:  * READLINE (Headers, Variables & Functions)" >&5
+echo "$as_me:  * READLINE (Headers, Variables & Functions)" >&6;}
 
 
 LIBTERMCAP="broken"
@@ -3281,6 +3281,78 @@ _ACEOF
 
 
 fi
+echo "$as_me:$LINENO: checking whether rl_readline_name is declared" >&5
+echo $ECHO_N "checking whether rl_readline_name is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_rl_readline_name+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <stdio.h>
+#include <readline/readline.h>
+
+int
+main ()
+{
+#ifndef rl_readline_name
+  char *p = (char *) rl_readline_name;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_rl_readline_name=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_have_decl_rl_readline_name=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_rl_readline_name" >&5
+echo "${ECHO_T}$ac_cv_have_decl_rl_readline_name" >&6
+if test $ac_cv_have_decl_rl_readline_name = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_READLINE_NAME 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_READLINE_NAME 0
+_ACEOF
+
+
+fi
 
 
     if test "$ac_cv_have_decl_rl_already_prompted" = yes; then
@@ -3297,6 +3369,427 @@ echo "${ECHO_T}readline is too old and will not be used" >&6
   fi
 fi
 fi
+
+if test "$ac_cv_have_decl_rl_already_prompted" = "no"; then
+  { { echo "$as_me:$LINENO: error: cannot find a modern gnu readline" >&5
+echo "$as_me: error: cannot find a modern gnu readline" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+echo "$as_me:$LINENO: checking whether rl_library_version is declared" >&5
+echo $ECHO_N "checking whether rl_library_version is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_rl_library_version+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <stdio.h>
+ #include <readline/readline.h>
+
+int
+main ()
+{
+#ifndef rl_library_version
+  char *p = (char *) rl_library_version;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_rl_library_version=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_have_decl_rl_library_version=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_rl_library_version" >&5
+echo "${ECHO_T}$ac_cv_have_decl_rl_library_version" >&6
+if test $ac_cv_have_decl_rl_library_version = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_LIBRARY_VERSION 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_LIBRARY_VERSION 0
+_ACEOF
+
+
+fi
+echo "$as_me:$LINENO: checking whether rl_readline_version is declared" >&5
+echo $ECHO_N "checking whether rl_readline_version is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_rl_readline_version+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <stdio.h>
+ #include <readline/readline.h>
+
+int
+main ()
+{
+#ifndef rl_readline_version
+  char *p = (char *) rl_readline_version;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_rl_readline_version=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_have_decl_rl_readline_version=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_rl_readline_version" >&5
+echo "${ECHO_T}$ac_cv_have_decl_rl_readline_version" >&6
+if test $ac_cv_have_decl_rl_readline_version = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_READLINE_VERSION 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_READLINE_VERSION 0
+_ACEOF
+
+
+fi
+echo "$as_me:$LINENO: checking whether rl_editing_mode is declared" >&5
+echo $ECHO_N "checking whether rl_editing_mode is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_rl_editing_mode+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <stdio.h>
+ #include <readline/readline.h>
+
+int
+main ()
+{
+#ifndef rl_editing_mode
+  char *p = (char *) rl_editing_mode;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_rl_editing_mode=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_have_decl_rl_editing_mode=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_rl_editing_mode" >&5
+echo "${ECHO_T}$ac_cv_have_decl_rl_editing_mode" >&6
+if test $ac_cv_have_decl_rl_editing_mode = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_EDITING_MODE 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_EDITING_MODE 0
+_ACEOF
+
+
+fi
+echo "$as_me:$LINENO: checking whether rl_insert_mode is declared" >&5
+echo $ECHO_N "checking whether rl_insert_mode is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_rl_insert_mode+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <stdio.h>
+ #include <readline/readline.h>
+
+int
+main ()
+{
+#ifndef rl_insert_mode
+  char *p = (char *) rl_insert_mode;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_rl_insert_mode=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_have_decl_rl_insert_mode=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_rl_insert_mode" >&5
+echo "${ECHO_T}$ac_cv_have_decl_rl_insert_mode" >&6
+if test $ac_cv_have_decl_rl_insert_mode = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_INSERT_MODE 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_INSERT_MODE 0
+_ACEOF
+
+
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+for ac_func in rl_set_prompt rl_initialize rl_add_defun rl_bind_key rl_unbind_key rl_variable_bind rl_named_function rl_redisplay using_history add_history clear_history stifle_history unstifle_history history_is_stifled where_history history_total_bytes history_set_pos history_search history_search_prefix history_search_pos read_history read_history_range write_history append_history history_truncate_file
+do
+as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $ac_func" >&5
+echo $ECHO_N "checking for $ac_func... $ECHO_C" >&6
+if eval "test \"\${$as_ac_var+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+/* Define $ac_func to an innocuous variant, in case <limits.h> declares $ac_func.
+   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
+#define $ac_func innocuous_$ac_func
+
+/* System header to define __stub macros and hopefully few prototypes,
+    which can conflict with char $ac_func (); below.
+    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
+    <limits.h> exists even on freestanding compilers.  */
+
+#ifdef __STDC__
+# include <limits.h>
+#else
+# include <assert.h>
+#endif
+
+#undef $ac_func
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char $ac_func ();
+/* The GNU C library defines this for functions which it implements
+    to always fail with ENOSYS.  Some functions are actually named
+    something starting with __ and the normal name is an alias.  */
+#if defined (__stub_$ac_func) || defined (__stub___$ac_func)
+choke me
+#else
+char (*f) () = $ac_func;
+#endif
+#ifdef __cplusplus
+}
+#endif
+
+int
+main ()
+{
+return f != $ac_func;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  eval "$as_ac_var=yes"
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+eval "$as_ac_var=no"
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_var'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_var'}'`" >&6
+if test `eval echo '${'$as_ac_var'}'` = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define `echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
 
 
 { echo "$as_me:$LINENO:  * READLINE (Output)" >&5
