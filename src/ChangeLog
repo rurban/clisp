@@ -1,5 +1,9 @@
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
+	* misc.d (MODULE-INFO): fixed a GC-safety bug
+
+2005-10-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (SOCK-LISTEN): renamed from LISTEN
 	* modules/rawsock/sock.lisp (LISTEN): do not shadow the CL symbol
 	(SOCK-LISTEN): export
