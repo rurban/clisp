@@ -14964,7 +14964,13 @@ local int previous_line_virtual (int count, int key) {
 global maygc void init_streamvars (bool batch_p) {
   #ifdef GNU_READLINE
   begin_call();
-  # rl_readline_name = "CLisp";
+ #if HAVE_DECL_RL_READLINE_NAME
+  { /* we could have used a string literal, but then readline:readline-name
+       would have to be read-only because one cannot free() a string literal */
+    var char* name = (char*)malloc(6); strcpy(name,"CLISP");
+    rl_readline_name = name;
+  }
+ #endif
   if (ilisp_mode) {
     # Simulate the following instruction in .inputrc:
     #   Control-i: self-insert
