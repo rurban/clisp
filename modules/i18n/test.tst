@@ -2,6 +2,8 @@
 ;; some tests for I18N
 ;; clisp -q -norc -i ../tests/tests -x '(run-test "i18n/test")'
 
+(listp (show (multiple-value-list (ext:module-info "i18n" t)) :pretty t)) T
+
 (i18n:gettext "foo") "foo"
 (i18n:ngettext "abazonk" "abazonk" 12) "abazonk"
 (typep (show (i18n:textdomain)) '(or null string)) T
