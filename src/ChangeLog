@@ -1,5 +1,10 @@
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (object_handle, object_address): name is an object
+	(update_library, validate_fpointer): reworked to avoid GC safety issues
+
+2005-10-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/postgresql/configure.in: check all functions interfaced to
 	do not abort when PQserverVersion() is not found
 	* modules/postgresql/postgresql.lisp: include <clisp.h> & <config.h>
