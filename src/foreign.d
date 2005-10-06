@@ -4088,9 +4088,9 @@ local void close_library (object fp) {
 /* FIXME: BETTER COMMENT! */
 /* return the handle of the object (string) in the library (name fpointer ...)
  can trigger GC */
-local maygc void* object_handle (object library, gcv_object_t *name) {
+local maygc void* object_handle (object library, object name) {
   var void * address;
-  with_string_0(*name,O(foreign_encoding),namez, {
+  with_string_0(name,O(foreign_encoding),namez, {
     begin_system_call();
     address = find_name(TheFpointer(Car(Cdr(library)))->fp_pointer, namez);
     end_system_call();
@@ -4100,7 +4100,7 @@ local maygc void* object_handle (object library, gcv_object_t *name) {
     pushSTACK(S(error));        /* 4 error type */
     pushSTACK(NIL);             /* 3 error-format-string */
     pushSTACK(TheSubr(subr_self)->name); /* 2 */
-    pushSTACK(*name);                    /* 1 */
+    pushSTACK(name);                     /* 1 */
     pushSTACK(Car(library));             /* 0 */
     STACK_3 = CLSTEXT("~S: no dynamic object named ~S in library ~S");
     STACK_5 = CLSTEXT("Skip foreign object creation");
@@ -4116,35 +4116,34 @@ local maygc void* object_handle (object library, gcv_object_t *name) {
  can trigger GC -- only on error in open_library() or object_handle() */
 local maygc void update_library (object acons, uintL version) {
   pushSTACK(acons);
-  pushSTACK(Car(acons)); /* lib_name */
-  var void *lib_handle = open_library(&STACK_0,version);
-  var object lib_name = popSTACK();
-  acons = popSTACK();
-  var object lib_addr = Car(Cdr(acons)); /* presumably invalid */
-  TheFpointer(lib_addr)->fp_pointer = lib_handle;
-  mark_fp_valid(TheFpointer(lib_addr));
-  pushSTACK(Cdr(acons));        /* library list */
+  var gcv_object_t *acons_ = &STACK_0;
+  var void *lib_handle = open_library(&Car(*acons_),version);
+  pushSTACK(Car(Cdr(*acons_))); /* library address - Fpointer */
+  var gcv_object_t *lib_addr_ = &STACK_0; /* presumably invalid */
+  TheFpointer(*lib_addr_)->fp_pointer = lib_handle;
+  mark_fp_valid(TheFpointer(*lib_addr_));
+  pushSTACK(NIL);
+  var gcv_object_t *fa_ = &STACK_0; /* place to keep foreign address */
+  pushSTACK(Cdr(*acons_));          /* library list */
   while (consp(Cdr(STACK_0))) {
     var object fo = Car(Cdr(STACK_0)); /* foreign object */
-    var object fa = foreign_address(fo,false); /* its foreign address */
-    var gcv_object_t *fn;                      /* its name */
+    *fa_ = foreign_address(fo,false);  /* its foreign address */
+    var object fn;                     /* its name */
     switch (Record_type(fo)) {
-      case Rectype_Fvariable: fn = &(TheFvariable(fo)->fv_name); break;
-      case Rectype_Ffunction: fn = &(TheFfunction(fo)->ff_name); break;
+      case Rectype_Fvariable: fn = (TheFvariable(fo)->fv_name); break;
+      case Rectype_Ffunction: fn = (TheFfunction(fo)->ff_name); break;
       default: NOTREACHED;
     }
-    ASSERT(eq(TheFaddress(fa)->fa_base,lib_addr));
-    pushSTACK(fa);              /* save */
-    var void* handle = object_handle(acons,fn);
-    fa = popSTACK();            /* restore */
+    ASSERT(eq(TheFaddress(*fa_)->fa_base,*lib_addr_));
+    var void* handle = object_handle(*acons_,fn);
     if (handle) {               /* found -- fix Faddress */
-      TheFaddress(fa)->fa_offset = (sintP)handle - (sintP)lib_handle;
+      TheFaddress(*fa_)->fa_offset = (sintP)handle - (sintP)lib_handle;
       STACK_0 = Cdr(STACK_0);
     } else {                    /* not found - drop object */
       Cdr(STACK_0) = Cdr(Cdr(STACK_0));
     }
   }
-  skipSTACK(1);                 /* drop library list */
+  skipSTACK(4);                /* drop acons, library list & lib_addr */
 }
 
 /* find the library in O(foreign_libraries):
@@ -4222,16 +4221,17 @@ LISPFUNN(close_foreign_library,1) {
 local maygc void validate_fpointer (object obj)
 { /* If the foreign pointer belongs to a foreign library from a previous
      session, we reopen the library. */
-  var object l = O(foreign_libraries);
-  while (consp(l)) {
-    var object acons = Car(l);
-    l = Cdr(l);
-    if (eq(Car(Cdr(acons)),obj)) {
+  pushSTACK(obj);
+  pushSTACK(O(foreign_libraries));
+  while (consp(STACK_0)) {
+    var object acons = Car(STACK_0); STACK_0 = Cdr(STACK_0);
+    if (eq(Car(Cdr(acons)),STACK_1)) {
       update_library(acons,0);  /*version??*/
-      return;
+      skipSTACK(2); return;
     }
   }
-  check_fpointer(obj,false);
+  skipSTACK(1);                 /* drop tail */
+  check_fpointer(popSTACK()/*obj*/,false);
 }
 
 /* FIXME: BETTER COMMENT! */
@@ -4259,8 +4259,7 @@ local maygc object check_library (object obj)
 /* FIXME: BETTER COMMENT! */
 /* return the foreign address of the foreign object named 'name'
  can trigger GC */
-local maygc object object_address (object library, gcv_object_t *name,
-                                   object offset)
+local maygc object object_address (object library, object name, object offset)
 { /* return the foreign address of the foreign object named `name' */
   var object lib_addr = Car(Cdr(library));
   var sintP result_offset;
@@ -4298,7 +4297,7 @@ LISPFUNN(foreign_library_variable,4)
   foreign_layout(STACK_0,&sas);
   var uintL size = sas.size;
   var uintL alignment = sas.alignment;
-  pushSTACK(object_address(STACK_2,&STACK_3,STACK_1)); /* valid! */
+  pushSTACK(object_address(STACK_2,STACK_3,STACK_1)); /* valid! */
   if (eq(nullobj,STACK_0)) {    /* not found and ignored  */
     skipSTACK(4+1); VALUES1(NIL); return;
   }
@@ -4336,7 +4335,7 @@ LISPFUNN(foreign_library_function,4)
       fehler(error,GETTEXT("~S: illegal foreign function type ~S"));
     }
   }
-  pushSTACK(object_address(STACK_2,&STACK_3,STACK_1));
+  pushSTACK(object_address(STACK_2,STACK_3,STACK_1));
   if (eq(nullobj,STACK_0)) {    /* not found and ignored  */
     skipSTACK(4+1); VALUES1(NIL); return;
   }
