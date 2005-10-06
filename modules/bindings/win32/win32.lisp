@@ -10,6 +10,7 @@
            #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
 (ffi:default-foreign-language :stdc-stdcall) ; WINAPI means __stdcall
+(eval-when (compile) (setq ffi:*foreign-guard* t))
 
 (in-package "W32")
 
@@ -52,19 +53,19 @@
   (:arguments (pid dword)) (:return-type dword))
 
 ;;; longhorn
-;; (def-call-out GetProcessId (:library kernel32)
-;;   (:arguments (hProcess handle)) (:return-type dword))
+(def-call-out GetProcessId (:library kernel32)
+  (:arguments (hProcess handle)) (:return-type dword))
 
 (def-call-out GetCurrentThreadId (:library kernel32)
   (:arguments) (:return-type dword))
 
 ;;; longhorn
-;; (def-call-out GetProcessIdOfThread (:library kernel32)
-;;   (:arguments (hThread handle)) (:return-type dword))
+(def-call-out GetProcessIdOfThread (:library kernel32)
+  (:arguments (hThread handle)) (:return-type dword))
 
 ;;; longhorn
-;; (def-call-out GetThreadId (:library kernel32)
-;;   (:arguments (hThread handle)) (:return-type dword))
+(def-call-out GetThreadId (:library kernel32)
+  (:arguments (hThread handle)) (:return-type dword))
 
 (def-call-out GetThreadPriority (:library kernel32)
   (:arguments (hThread handle)) (:return-type int))

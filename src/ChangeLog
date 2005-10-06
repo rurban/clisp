@@ -10,6 +10,9 @@
 	* modules/postgresql/configure.in: check for PQinitSSL()
 	* modules/postgresql/postgresql.lisp: interface to PQinitSSL()
 	(*foreign-guard*) [compilation]: set to T
+	* modules/bindings/win32/win32.lisp: interface to longhorn
+	functions GetProcessId(), GetProcessIdOfThread(), GetThreadId()
+	(*foreign-guard*) [compilation]: set to T
 
 2005-10-05  Sam Steingold  <sds@gnu.org>
 
