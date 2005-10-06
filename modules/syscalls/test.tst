@@ -192,6 +192,14 @@ T
       (= inode (show (posix:file-stat-ino (posix:file-stat new)))))))
 #-win32 NIL
 
+(let ((file "foo.bar") (dates '(3141592653 3279321753)))
+  (unwind-protect
+       (progn (with-open-file (s file :direction :output) (write s :stream s))
+              (loop :for d :in dates :do (posix:set-file-stat file :mtime d)
+                :collect (= d (with-open-file (s file) (file-write-date s)))))
+    (delete-file file)))
+(T T)
+
 (progn (proc-send *proc1* "(close s)~%(ext:quit)")
        (close (two-way-stream-input-stream *proc1*))
        (close (two-way-stream-output-stream *proc1*))
