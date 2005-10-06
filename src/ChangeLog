@@ -2,6 +2,7 @@
 
 	* modules/postgresql/configure.in: check all functions interfaced to
 	do not abort when PQserverVersion() is not found
+	* modules/postgresql/postgresql.lisp: include <clisp.h> & <config.h>
 
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
