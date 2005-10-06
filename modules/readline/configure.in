@@ -12,6 +12,9 @@ AC_PROG_CPP
 
 AC_MSG_NOTICE([ * READLINE (Headers, Variables & Functions)])
 CL_READLINE
+if test "$$ac_cv_have_decl_rl_already_prompted" = "no"; then
+  AC_MSG_ERROR([cannot find a modern gnu readline])
+fi
 AC_CHECK_DECLS([rl_library_version, rl_readline_version, rl_editing_mode, dnl
 rl_insert_mode],,,[#include <stdio.h>
  #include <readline/readline.h>])

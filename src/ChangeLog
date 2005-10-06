@@ -1,7 +1,7 @@
 2005-10-05  Sam Steingold  <sds@gnu.org>
 
-	* modules/readline/configure.in: test for all functions and
-	variables interfaced to
+	* modules/readline/configure.in: abort when readline is not used
+	test for all functions and variables interfaced to
 	* modules/readline/test.tst: new file
 	* modules/readline/readline.lisp: include config.h
 	(*foreign-guard*) [compilation]: set to T
