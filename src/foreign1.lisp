@@ -14,7 +14,7 @@
 (export '(def-c-type def-c-var parse-c-type deparse-c-type
           def-c-call-out def-call-out #+AFFI def-lib-call-out
           def-c-call-in def-call-in default-foreign-language
-          c-lines *output-c-functions* *output-c-variables*
+          c-lines *output-c-functions* *output-c-variables* *foreign-guard*
           nil boolean character char uchar short ushort int uint long ulong
           uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
           single-float double-float
@@ -668,6 +668,7 @@
 
 (defvar *output-c-functions* nil)
 (defvar *output-c-variables* nil)
+(defvar *foreign-guard* nil)
 
 (defun prepare-module ()
   (unless *ffi-module*
@@ -741,15 +742,23 @@
             *c-name* *c-name* *c-name*
             *c-name* *init-once* *c-name* *init-always*)
     (dolist (variable *variable-list*)
-      (format *coutput-stream*
-              "  register_foreign_variable((void*)&~A,~A,~D,sizeof(~A));~%"
-              (first variable) (to-c-string (first variable))
-              (third variable) (first variable)))
+      (let ((c-name (first variable)))
+        (when *foreign-guard*
+          (format *coutput-stream* "# if HAVE_DECL_~A~%"
+                  (string-upcase c-name)))
+        (format *coutput-stream*
+                "  register_foreign_variable((void*)&~A,~A,~D,sizeof(~A));~%"
+                c-name (to-c-string c-name) (third variable) (first variable))
+        (when *foreign-guard* (format *coutput-stream* "# endif~%"))))
     (dolist (function *function-list*)
-      (format *coutput-stream*
-              "  register_foreign_function((void*)&~A,~A,~D);~%"
-              (first function) (to-c-string (first function))
-              (svref (second function) 3)))
+      (let ((c-name (first function)))
+        (when *foreign-guard*
+          (format *coutput-stream* "# if defined(HAVE_~A)~%"
+                  (string-upcase c-name)))
+        (format *coutput-stream*
+                "  register_foreign_function((void*)&~A,~A,~D);~%"
+                c-name (to-c-string c-name) (svref (second function) 3))
+        (when *foreign-guard* (format *coutput-stream* "# endif~%"))))
     (format *coutput-stream*
             "}~2%void module__~A__fini_function (module_t* module)~%~
             {~{~%~A~}~%}~%"
@@ -827,10 +836,14 @@
          (getter-function-name (sys::symbol-suffix name "%GETTER%"))
          (setter-function-name (sys::symbol-suffix name "%SETTER%"))
          |#
-        )
-    `(PROGN
-       ,(unless library
-          `(EVAL-WHEN (COMPILE) (NOTE-C-VAR ',c-name ',type ',flags)))
+         (def (gensym "DEF-C-VAR-")))
+    `(LET ((,def (LOAD-TIME-VALUE
+                  ,(if library
+                       `(FFI::FOREIGN-LIBRARY-VARIABLE
+                         ',c-name (FFI::FOREIGN-LIBRARY ,library)
+                         nil (PARSE-C-TYPE ',type))
+                       `(LOOKUP-FOREIGN-VARIABLE
+                         ',c-name (PARSE-C-TYPE ',type))))))
        #|
        (LET ((FVAR (LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
          (DEFUN ,getter-function-name () (FOREIGN-VALUE FVAR))
@@ -841,16 +854,13 @@
        (DEFSETF ,getter-function-name ,setter-function-name)
        (DEFINE-SYMBOL-MACRO ,name (,getter-function-name))
        |#
-       (SYSTEM::%PUT ',name 'FOREIGN-VARIABLE
-         (LOAD-TIME-VALUE
-           ,(if library
-              `(FFI::FOREIGN-LIBRARY-VARIABLE
-                ',c-name (FFI::FOREIGN-LIBRARY ,library)
-                nil (PARSE-C-TYPE ',type))
-              `(LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type)))))
-       ,@(when doc `((SETF (DOCUMENTATION ',name 'VARIABLE) ',(second doc))))
-       (DEFINE-SYMBOL-MACRO ,name
-         (FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE))))
+       ,(unless library
+          `(EVAL-WHEN (COMPILE) (NOTE-C-VAR ',c-name ',type ',flags)))
+       (when ,def
+         (SYSTEM::%PUT ',name 'FOREIGN-VARIABLE ,def)
+         ,@(when doc `((SETF (DOCUMENTATION ',name 'VARIABLE) ',(second doc))))
+         (DEFINE-SYMBOL-MACRO ,name
+             (FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE)))))
        ',name)))
 
 (defun note-c-var (c-name type flags) ; ABI
@@ -945,8 +955,9 @@
   (setq name (check-symbol name (first whole-form)))
   (let* ((alist
           (parse-options options '(:name :arguments :return-type :language
-                                    :built-in :library :documentation)
-                          whole-form))
+                                   :built-in :library :documentation)
+                         whole-form))
+         (def (gensym "DEF-CALL-OUT-"))
          (doc (assoc ':documentation alist))
          (parsed-function (parse-c-function alist whole-form))
          (signature (argvector-to-signature (svref parsed-function 2)))
@@ -954,19 +965,18 @@
          (c-name (foreign-name name (assoc :name alist))))
     (setq alist (remove-if (lambda (el) (sys::memq (car el) '(:name :library)))
                            alist))
-    `(PROGN
+    `(LET ((,def ,(if library
+                      `(FFI::FOREIGN-LIBRARY-FUNCTION
+                        ',c-name (FFI::FOREIGN-LIBRARY ,library)
+                        nil ,parsed-function)
+                      `(LOOKUP-FOREIGN-FUNCTION ',c-name ,parsed-function))))
        ,(unless library
           `(EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ',alist ',whole-form)))
-       (LET ()
+       (when ,def
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
          (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
          ,@(when doc `((SETF (DOCUMENTATION ',name 'FUNCTION) ',(second doc))))
-         (SYSTEM::%PUTD ',name
-            ,(if library
-               `(FFI::FOREIGN-LIBRARY-FUNCTION
-                 ',c-name (FFI::FOREIGN-LIBRARY ,library)
-                 nil ,parsed-function)
-               `(LOOKUP-FOREIGN-FUNCTION ',c-name ,parsed-function))))
+         (SYSTEM::%PUTD ',name ,def))
        ',name)))
 
 (defun note-c-fun (c-name alist whole) ; ABI

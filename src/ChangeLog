@@ -1,3 +1,25 @@
+2005-10-05  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (init_streamvars) [HAVE_DECL_RL_READLINE_NAME]:
+	init rl_readline_name
+	* m4/readline.m4 (CL_READLINE): fixed the rl_readline_name test
+
+2005-10-05  Sam Steingold  <sds@gnu.org>
+
+	FFI modules can now take advantage of autoconf feature detection.
+	* foreign.d (LOOKUP-FOREIGN-VARIABLE, LOOKUP-FOREIGN-FUNCTION)
+	(object_handle): signal a continuable error when the foreign
+	object cannot be found
+	(update_library, object_address): updated for the changes in
+	object_handle()
+	(FOREIGN-LIBRARY-VARIABLE, FOREIGN-LIBRARY-FUNCTION): return NIL when
+	the foreign object cannot be found and the CONTINUE restart was invoked
+	* foreign1.lisp (*foreign-guard*): new variable
+	(finalize-coutput-file): when it is non-NIL, guard the forms with
+	CPP #if conditionals
+	(def-c-var, def-call-out): do nothing when the foreign object
+	cannot be found and the CONTINUE restart was invoked
+
 2005-10-03  Sam Steingold  <sds@gnu.org>
 
 	functions that take a BUFFER, also take :START and :END
