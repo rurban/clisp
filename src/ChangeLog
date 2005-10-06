@@ -7,6 +7,7 @@
 	(*foreign-guard*) [compilation]: set to T
 	(add-defun): fixed "name" argument allocation
 	(readline-name): fixed :ALLOC
+	* modules/postgresql/configure.in: check for PQinitSSL()
 
 2005-10-05  Sam Steingold  <sds@gnu.org>
 
