@@ -2375,8 +2375,15 @@ LISPFUNN(lookup_foreign_variable,2)
   var object name = STACK_1;
   var object fvar = gethash(name,O(foreign_variable_table),false);
   if (eq(fvar,nullobj)) {
-    pushSTACK(name);
-    fehler(error,GETTEXT("A foreign variable ~S does not exist"));
+    pushSTACK(NIL);             /* 4 continue-format-string */
+    pushSTACK(S(error));        /* 3 error type */
+    pushSTACK(NIL);             /* 2 error-format-string */
+    pushSTACK(S(lookup_foreign_variable)); /* 1 */
+    pushSTACK(name);            /* 0 */
+    STACK_2 = CLSTEXT("~S: A foreign variable ~S does not exist");
+    STACK_4 = CLSTEXT("Skip foreign variable creation");
+    funcall(L(cerror_of_type),5);
+    skipSTACK(2); VALUES1(NIL); return;
   }
   /* The first LOOKUP-FOREIGN-VARIABLE determines the variable's type. */
   if (nullp(TheFvariable(fvar)->fv_type)) {
@@ -3124,9 +3131,15 @@ LISPFUNN(lookup_foreign_function,2)
   }
   var object oldffun = gethash(name,O(foreign_function_table),false);
   if (eq(oldffun,nullobj)) {
-    pushSTACK(name);
-    pushSTACK(S(lookup_foreign_function));
-    fehler(error,GETTEXT("~S: A foreign function ~S does not exist"));
+    pushSTACK(NIL);             /* 4 continue-format-string */
+    pushSTACK(S(error));        /* 3 error type */
+    pushSTACK(NIL);             /* 2 error-format-string */
+    pushSTACK(S(lookup_foreign_function)); /* 1 */
+    pushSTACK(name);            /* 0 */
+    STACK_2 = CLSTEXT("~S: A foreign function ~S does not exist");
+    STACK_4 = CLSTEXT("Skip foreign function creation");
+    funcall(L(cerror_of_type),5);
+    VALUES1(NIL); return;
   }
   if (!eq(TheFfunction(oldffun)->ff_flags,TheSvector(fvd)->data[3])) {
     pushSTACK(oldffun);
@@ -4075,26 +4088,23 @@ local void close_library (object fp) {
 /* FIXME: BETTER COMMENT! */
 /* return the handle of the object (string) in the library (name fpointer ...)
  can trigger GC */
-local /*maygc*/ void* object_handle (object library, gcv_object_t *name,
-                                     bool retry_p) {
-  GCTRIGGER_IF(retry_p, GCTRIGGER1(library));
+local maygc void* object_handle (object library, gcv_object_t *name) {
   var void * address;
- object_handle_restart:
   with_string_0(*name,O(foreign_encoding),namez, {
     begin_system_call();
     address = find_name(TheFpointer(Car(Cdr(library)))->fp_pointer, namez);
     end_system_call();
   });
   if (address == NULL) {
-    pushSTACK(library);
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(Car(library)); pushSTACK(*name);
-    pushSTACK(TheSubr(subr_self)->name);
-    if (retry_p)
-      check_value(error,GETTEXT("~S: no dynamic object named ~S in library ~S"));
-    else fehler(error,GETTEXT("~S: no dynamic object named ~S in library ~S"));
-    *name = check_string(value1); library = popSTACK();
-    goto object_handle_restart;
+    pushSTACK(NIL);             /* 5 continue-format-string */
+    pushSTACK(S(error));        /* 4 error type */
+    pushSTACK(NIL);             /* 3 error-format-string */
+    pushSTACK(TheSubr(subr_self)->name); /* 2 */
+    pushSTACK(*name);                    /* 1 */
+    pushSTACK(Car(library));             /* 0 */
+    STACK_3 = CLSTEXT("~S: no dynamic object named ~S in library ~S");
+    STACK_5 = CLSTEXT("Skip foreign object creation");
+    funcall(L(cerror_of_type),6);
   }
   return address;
 }
@@ -4103,7 +4113,7 @@ local /*maygc*/ void* object_handle (object library, gcv_object_t *name,
  and update the base fp_pointer of fpointer-library-handle and all objects in
  acons = (library-name fpointer-library-handle object1 object2 ...)
  version = library version, not used (a holdover from Amiga?)
- can trigger GC -- only on error in open_library() */
+ can trigger GC -- only on error in open_library() or object_handle() */
 local maygc void update_library (object acons, uintL version) {
   pushSTACK(acons);
   pushSTACK(Car(acons)); /* lib_name */
@@ -4113,9 +4123,9 @@ local maygc void update_library (object acons, uintL version) {
   var object lib_addr = Car(Cdr(acons)); /* presumably invalid */
   TheFpointer(lib_addr)->fp_pointer = lib_handle;
   mark_fp_valid(TheFpointer(lib_addr));
-  var object lib_list = Cdr(Cdr(acons));
-  while (consp(lib_list)) {
-    var object fo = Car(lib_list); /* foreign object */
+  pushSTACK(Cdr(acons));        /* library list */
+  while (consp(Cdr(STACK_0))) {
+    var object fo = Car(Cdr(STACK_0)); /* foreign object */
     var object fa = foreign_address(fo,false); /* its foreign address */
     var gcv_object_t *fn;                      /* its name */
     switch (Record_type(fo)) {
@@ -4124,10 +4134,15 @@ local maygc void update_library (object acons, uintL version) {
       default: NOTREACHED;
     }
     ASSERT(eq(TheFaddress(fa)->fa_base,lib_addr));
-    TheFaddress(fa)->fa_offset =
-      (sintP)object_handle(acons,fn,false) - (sintP)lib_handle;
-    lib_list = Cdr(lib_list);
+    var void* handle = object_handle(acons,fn);
+    if (handle) {               /* found -- fix Faddress */
+      TheFaddress(fa)->fa_offset = (sintP)handle - (sintP)lib_handle;
+      STACK_0 = Cdr(STACK_0);
+    } else {                    /* not found - drop object */
+      Cdr(STACK_0) = Cdr(Cdr(STACK_0));
+    }
   }
+  skipSTACK(1);                 /* drop library list */
 }
 
 /* find the library in O(foreign_libraries):
@@ -4249,8 +4264,9 @@ local maygc object object_address (object library, gcv_object_t *name,
   var sintP result_offset;
   if (nullp(offset)) {
     pushSTACK(lib_addr);
-    var void* name_handle = object_handle(library,name,true);
+    var void* name_handle = object_handle(library,name);
     lib_addr = popSTACK();
+    if (NULL == name_handle) return nullobj;
     result_offset =
       (sintP)name_handle - (sintP)TheFpointer(lib_addr)->fp_pointer;
   } else {
@@ -4281,6 +4297,9 @@ LISPFUNN(foreign_library_variable,4)
   var uintL size = sas.size;
   var uintL alignment = sas.alignment;
   pushSTACK(object_address(STACK_2,&STACK_3,STACK_1)); /* valid! */
+  if (eq(nullobj,STACK_0)) {    /* not found and ignored  */
+    skipSTACK(4+1); VALUES1(NIL); return;
+  }
   var object fvar = allocate_fvariable();
   TheFvariable(fvar)->fv_name = STACK_(3+1);
   TheFvariable(fvar)->fv_address = STACK_0;
@@ -4316,6 +4335,9 @@ LISPFUNN(foreign_library_function,4)
     }
   }
   pushSTACK(object_address(STACK_2,&STACK_3,STACK_1));
+  if (eq(nullobj,STACK_0)) {    /* not found and ignored  */
+    skipSTACK(4+1); VALUES1(NIL); return;
+  }
   var object ffun = allocate_ffunction();
   var object fvd = STACK_(0+1);
   TheFfunction(ffun)->ff_name = STACK_(3+1);

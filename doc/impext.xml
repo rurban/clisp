@@ -2894,6 +2894,24 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
    Set these variables to non-&nil; if the headers are not available or
    not usable.</simpara></listitem></varlistentry>
 
+<varlistentry id="ffi-guard"><term>&ffi-guard;</term>
+<listitem><para>When this variable is non-&nil; at &compile-time;,
+  &clisp; will guard the &c-lang; statements in the output file with
+  &cpp; conditionals to take advantage of &autoconf; feature detection.
+  E.g., <programlisting language="lisp">
+(eval-when (compile) (setq *foreign-guard* t))
+(def-call-out some-function (:name "function_name") ...)
+</programlisting> will produce <programlisting language="C">
+# if defined(HAVE_FUNCTION_NAME)
+  register_foreign_function((void*)&amp;function_name,"function_name",1024);
+# endif
+</programlisting> and will compile and link on any system.</para>
+ <simpara>This is mostly useful for product delivery when you want you
+  module to build on any system even if some features will not be
+  available.</simpara>
+ <simpara>&ffi-guard; is initialized to &nil; for backwards compatibility.
+</simpara></listitem></varlistentry>
+
 </variablelist>
 
 <variablelist id="dffi-low"><title>Low-level &ffi-pac; forms</title>

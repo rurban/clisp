@@ -477,6 +477,7 @@
 <!ENTITY deparse-c-type "<link linkend='c-type-parse'><function>FFI:DEPARSE-C-TYPE</function></link>">
 <!ENTITY deref "<link linkend='deref'><function>FFI:DEREF</function></link>">
 <!ENTITY element "<link linkend='element'><function>FFI:ELEMENT</function></link>">
+<!ENTITY ffi-guard "<link linkend='ffi-guard'><varname>FFI:*FOREIGN-GUARD*</varname></link>">
 <!ENTITY ffi-out-fun "<link linkend='ffi-extern-output'><varname>FFI:*OUTPUT-C-FUNCTIONS*</varname></link>">
 <!ENTITY f-addr "<replaceable>foreign-address</replaceable>">
 <!ENTITY f-ent "<replaceable>foreign-entity</replaceable>">

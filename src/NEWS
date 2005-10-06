@@ -10,6 +10,9 @@ User visible changes
   + When --with-dynamic-ffi is supplied, but the FFI fails to build, abort.
   + makemake no longer checks with_module_* variables.
 
+* FFI modules can now take advantage of autoconf feature detection.
+  See <http://clisp.cons.org/dffi.html> for details.
+
 * New module readline offers some advanced readline and history features.
   It is a BASE module and is available when both FFI and readline are present.
 
