@@ -4134,7 +4134,9 @@ local maygc void update_library (object acons, uintL version) {
       default: NOTREACHED;
     }
     ASSERT(eq(TheFaddress(fa)->fa_base,lib_addr));
+    pushSTACK(fa);              /* save */
     var void* handle = object_handle(acons,fn);
+    fa = popSTACK();            /* restore */
     if (handle) {               /* found -- fix Faddress */
       TheFaddress(fa)->fa_offset = (sintP)handle - (sintP)lib_handle;
       STACK_0 = Cdr(STACK_0);
