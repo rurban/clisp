@@ -20,9 +20,9 @@
 2005-10-02  Sam Steingold  <sds@gnu.org>
 
 	foreign.d data walkers is now reentrant (no static data)
-	* lispbibl.d (convert_to_foreign_mallocing, convert_to_foreign_nomalloc):
+	* lispbibl.d (converter_malloc_t): typedef & export to clisp.h
+	(convert_to_foreign_mallocing, convert_to_foreign_nomalloc):
 	removed prototypes
-	(converter_malloc_t): typedef & export to clisp.h
 	(convert_to_foreign): prototype
 	* foreign.d (foreign_layout): new structure type
 	(data_size, data_alignment, data_splittable): removed statics
