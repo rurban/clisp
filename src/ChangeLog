@@ -1,5 +1,9 @@
 2005-10-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/i18n/i18n.lisp (locale-conv-p): export
+
+2005-10-05  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (init_streamvars) [HAVE_DECL_RL_READLINE_NAME]:
 	init rl_readline_name
 	* m4/readline.m4 (CL_READLINE): fixed the rl_readline_name test
