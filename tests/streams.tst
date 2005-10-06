@@ -956,7 +956,9 @@ WARNING: This form contains an error, a mistake, a bug, a
 (let ((f "foo.bar") fwd1 fwd2)
   (unwind-protect
        (progn ; FILE-WRITE-DATE should work on :PROBE streams
-         (with-open-file (s f :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+         (with-open-file (s f :direction :output
+                            #+(or CMU SBCL) :if-exists
+                            #+(or CMU SBCL) :supersede)
            (write f :stream s)
            (setq fwd1 (file-write-date s)))
          (with-open-file (s f :direction :probe)
@@ -966,6 +968,22 @@ WARNING: This form contains an error, a mistake, a bug, a
                  (open-stream-p s))))
     (delete-file f)))
 (T NIL)
+
+#+clisp
+(let ((f "foo.bar") fwd size dir)
+  (unwind-protect
+       (progn (with-open-file (s f :direction :output)
+                (write s :stream s)
+                (setq fwd (file-write-date s)
+                      size (file-length s)))
+              (setq dir (first (directory f :full t)))
+              (list (equal (third dir)
+                           (subseq (multiple-value-list
+                                    (decode-universal-time fwd))
+                                   0 6))
+                    (= (fourth dir) size)))
+    (delete-file f)))
+#+clisp (T T)
 
 (stringp (with-output-to-string (s)
            (describe (make-array nil) s)))
