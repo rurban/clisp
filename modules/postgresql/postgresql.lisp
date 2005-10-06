@@ -15,9 +15,9 @@
 (in-package "SQL")
 
 (ffi:default-foreign-language :stdc)
+(eval-when (compile) (setq *foreign-guard* t))
 
 (c-lines "#include <postgres_ext.h>~%")
-
 
 (def-c-type Oid uint)
 
@@ -205,7 +205,7 @@
 ;; (def-call-out PQgetssl (:arguments (conn PGconn)) (:return-type SSL))
 (def-call-out PQgetssl (:arguments (conn PGconn)) (:return-type c-pointer))
 ;; Tell libpq whether it needs to initialize OpenSSL (not in libpq 8.0)
-;(def-call-out PQinitSSL (:return-type nil) (:arguments (do_init int)))
+(def-call-out PQinitSSL (:return-type nil) (:arguments (do_init int)))
 
 (def-call-out PQsetErrorVerbosity (:return-type PGVerbosity)
   (:arguments (conn PGconn) (verbosity PGVerbosity)))
