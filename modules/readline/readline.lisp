@@ -18,7 +18,10 @@
 
 ;;; foreign function definitions
 (default-foreign-language :stdc)
+(eval-when (compile) (setq *foreign-guard* t))
 
+(c-lines "#include <clisp.h>~%") ; global clisp config
+(c-lines "#include <config.h>~%") ; local readline config
 (c-lines "#include <stdio.h>~%")
 
 ;;; ------ readline ------
@@ -39,7 +42,8 @@
   (:arguments) (:return-type int))
 
 (def-call-out add-defun (:name "rl_add_defun")
-  (:arguments (name c-string) (callback readline-command) (key int))
+  (:arguments (name c-string :in :malloc-free)
+              (callback readline-command) (key int))
   (:return-type int))
 
 ;;; Binding Keys
@@ -69,11 +73,18 @@
 
 ;;; variables
 
-(def-c-var library-version (:name "rl_library_version") (:type c-string))
-(def-c-var readline-version (:name "rl_readline_version") (:type int))
+(def-c-var library-version (:name "rl_library_version")
+  (:documentation
+   "The version of this incarnation of the readline library, e.g., \"4.2\".")
+  (:type c-string) (:read-only t))
+(def-c-var readline-version (:name "rl_readline_version")
+  (:type int) (:read-only t)
+  (:documentation
+   "The version of this incarnation of the readline library, e.g., 0x0402."))
 (def-c-var editing-mode (:name "rl_editing_mode") (:type int))
 (def-c-var insert-mode (:name "rl_insert_mode") (:type int))
-(def-c-var readline-name (:name "rl_readline_name") (:type c-string)) ;"CLISP"
+(def-c-var readline-name (:name "rl_readline_name")
+  (:type c-string) (:alloc :malloc-free))
 
 ;;; ------ history ------
 
