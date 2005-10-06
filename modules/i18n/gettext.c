@@ -181,13 +181,13 @@ DEFUN(I18N:TEXTDOMAINDIR, domain)
 
 DEFUN(I18N:SET-TEXTDOMAINDIR, domain directory)
 { /* sets the message catalog directory for the given domain. */
-  object domain = check_string(STACK_1);
+  object domain = (STACK_1=check_string(STACK_1));
  #ifdef GNU_GETTEXT
   /* Check and use default directory, because the bindtextdomain()
      documentation recommends that the argument be an absolute pathname,
      to protect against later chdir() calls. */
   object directory = pathname_to_OSdir(STACK_0,true);
-  with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
+  with_string_0(STACK_1/*domain*/,Symbol_value(S(ascii)),domain_asciz, {
     begin_system_call();
     bindtextdomain(domain_asciz,TheAsciz(directory));
     end_system_call();
@@ -309,11 +309,11 @@ DEFUN(I18N:LOCALE-CONV,)
   pushSTACK(int_char_lconv(lc->int_frac_digits));
   pushSTACK(int_char_lconv(lc->frac_digits));
   pushSTACK(bool_char_lconv(lc->p_cs_precedes));
-  pushSTACK(bool_char_lconv(lc->p_sep_by_space));
+  pushSTACK(int_char_lconv(lc->p_sep_by_space));
   pushSTACK(bool_char_lconv(lc->n_cs_precedes));
-  pushSTACK(bool_char_lconv(lc->n_sep_by_space));
-  pushSTACK(bool_char_lconv(lc->p_sign_posn));
-  pushSTACK(bool_char_lconv(lc->n_sign_posn));
+  pushSTACK(int_char_lconv(lc->n_sep_by_space));
+  pushSTACK(int_char_lconv(lc->p_sign_posn));
+  pushSTACK(int_char_lconv(lc->n_sign_posn));
 #if HAVE_STRUCT_LCONV_INT_P_CS_PRECEDES
   pushSTACK(bool_char_lconv(lc->int_p_cs_precedes));
 #else
@@ -325,22 +325,22 @@ DEFUN(I18N:LOCALE-CONV,)
   pushSTACK(S(Kunspecific));
 #endif
 #if HAVE_STRUCT_LCONV_INT_P_SEP_BY_SPACE
-  pushSTACK(bool_char_lconv(lc->int_p_sep_by_space));
+  pushSTACK(int_char_lconv(lc->int_p_sep_by_space));
 #else
   pushSTACK(S(Kunspecific));
 #endif
 #if HAVE_STRUCT_LCONV_INT_N_SEP_BY_SPACE
-  pushSTACK(bool_char_lconv(lc->int_n_sep_by_space));
+  pushSTACK(int_char_lconv(lc->int_n_sep_by_space));
 #else
   pushSTACK(S(Kunspecific));
 #endif
 #if HAVE_STRUCT_LCONV_INT_P_SIGN_POSN
-  pushSTACK(bool_char_lconv(lc->int_p_sign_posn));
+  pushSTACK(int_char_lconv(lc->int_p_sign_posn));
 #else
   pushSTACK(S(Kunspecific));
 #endif
 #if HAVE_STRUCT_LCONV_INT_N_SIGN_POSN
-  pushSTACK(bool_char_lconv(lc->int_n_sign_posn));
+  pushSTACK(int_char_lconv(lc->int_n_sign_posn));
 #else
   pushSTACK(S(Kunspecific));
 #endif

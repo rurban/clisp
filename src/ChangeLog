@@ -1,5 +1,12 @@
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/i18n/gettext.c (SET-TEXTDOMAINDIR): fixed a GC-safety bug
+	(LOCALE-CONV): p_sep_by_space, n_sep_by_space, p_sign_posn,
+	n_sign_posn, int_p_sep_by_space, int_n_sep_by_space,
+	int_p_sign_posn, int_n_sign_posn are integers, not booleans
+
+2005-10-06  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (update_library): fixed a GC-safety bug
 
 2005-10-06  Sam Steingold  <sds@gnu.org>
