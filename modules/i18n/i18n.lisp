@@ -21,7 +21,8 @@
 
 (export
  '(i18n::gettext i18n::ngettext i18n::textdomain i18n::textdomaindir
-   i18n::set-locale i18n::language-information i18n::locale-conv
+   i18n::set-locale i18n::language-information
+   i18n::locale-conv i18n::locale-conv-p
    i18n::locale-conv-decimal_point i18n::locale-conv-thousands_sep
    i18n::locale-conv-grouping  i18n::locale-conv-int_curr_symbol
    i18n::locale-conv-currency_symbol i18n::locale-conv-mon_decimal_point
