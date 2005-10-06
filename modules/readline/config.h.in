@@ -1,14 +1,109 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* Define to 1 if you have the `add_history' function. */
+#undef HAVE_ADD_HISTORY
+
+/* Define to 1 if you have the `append_history' function. */
+#undef HAVE_APPEND_HISTORY
+
+/* Define to 1 if you have the `clear_history' function. */
+#undef HAVE_CLEAR_HISTORY
+
 /* Define to 1 if you have the declaration of `rl_already_prompted', and to 0
    if you don't. */
 #undef HAVE_DECL_RL_ALREADY_PROMPTED
 
+/* Define to 1 if you have the declaration of `rl_editing_mode', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_EDITING_MODE
+
+/* Define to 1 if you have the declaration of `rl_insert_mode', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_INSERT_MODE
+
+/* Define to 1 if you have the declaration of `rl_library_version', and to 0
+   if you don't. */
+#undef HAVE_DECL_RL_LIBRARY_VERSION
+
+/* Define to 1 if you have the declaration of `rl_readline_name', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_READLINE_NAME
+
+/* Define to 1 if you have the declaration of `rl_readline_version', and to 0
+   if you don't. */
+#undef HAVE_DECL_RL_READLINE_VERSION
+
+/* Define to 1 if you have the `history_is_stifled' function. */
+#undef HAVE_HISTORY_IS_STIFLED
+
+/* Define to 1 if you have the `history_search' function. */
+#undef HAVE_HISTORY_SEARCH
+
+/* Define to 1 if you have the `history_search_pos' function. */
+#undef HAVE_HISTORY_SEARCH_POS
+
+/* Define to 1 if you have the `history_search_prefix' function. */
+#undef HAVE_HISTORY_SEARCH_PREFIX
+
+/* Define to 1 if you have the `history_set_pos' function. */
+#undef HAVE_HISTORY_SET_POS
+
+/* Define to 1 if you have the `history_total_bytes' function. */
+#undef HAVE_HISTORY_TOTAL_BYTES
+
+/* Define to 1 if you have the `history_truncate_file' function. */
+#undef HAVE_HISTORY_TRUNCATE_FILE
+
 /* have a working modern GNU readline */
 #undef HAVE_READLINE
 
+/* Define to 1 if you have the `read_history' function. */
+#undef HAVE_READ_HISTORY
+
+/* Define to 1 if you have the `read_history_range' function. */
+#undef HAVE_READ_HISTORY_RANGE
+
+/* Define to 1 if you have the `rl_add_defun' function. */
+#undef HAVE_RL_ADD_DEFUN
+
+/* Define to 1 if you have the `rl_bind_key' function. */
+#undef HAVE_RL_BIND_KEY
+
 /* Define to 1 if you have the `rl_filename_completion_function' function. */
 #undef HAVE_RL_FILENAME_COMPLETION_FUNCTION
+
+/* Define to 1 if you have the `rl_initialize' function. */
+#undef HAVE_RL_INITIALIZE
+
+/* Define to 1 if you have the `rl_named_function' function. */
+#undef HAVE_RL_NAMED_FUNCTION
+
+/* Define to 1 if you have the `rl_redisplay' function. */
+#undef HAVE_RL_REDISPLAY
+
+/* Define to 1 if you have the `rl_set_prompt' function. */
+#undef HAVE_RL_SET_PROMPT
+
+/* Define to 1 if you have the `rl_unbind_key' function. */
+#undef HAVE_RL_UNBIND_KEY
+
+/* Define to 1 if you have the `rl_variable_bind' function. */
+#undef HAVE_RL_VARIABLE_BIND
+
+/* Define to 1 if you have the `stifle_history' function. */
+#undef HAVE_STIFLE_HISTORY
+
+/* Define to 1 if you have the `unstifle_history' function. */
+#undef HAVE_UNSTIFLE_HISTORY
+
+/* Define to 1 if you have the `using_history' function. */
+#undef HAVE_USING_HISTORY
+
+/* Define to 1 if you have the `where_history' function. */
+#undef HAVE_WHERE_HISTORY
+
+/* Define to 1 if you have the `write_history' function. */
+#undef HAVE_WRITE_HISTORY
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
