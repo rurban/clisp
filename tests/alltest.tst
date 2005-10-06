@@ -2570,6 +2570,8 @@ T ;?
 ;call-arguments-limit, DEFUN, errset, *errset*, *macroexpand-hook*, *package*,
 ;*random-state*, *SAVE-OLD-DEFINITION-WHEN-REDEFINED*,
 
+#+clisp (ext:module-info "clisp" t)
+#+clisp "clisp"
 
 ; Clean up.
 (UNINTERN 'X)

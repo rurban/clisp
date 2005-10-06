@@ -650,14 +650,15 @@ LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
                   { mod = find_module(mod_namez); });
     if (mod == NULL) VALUES0;
     else if (verbosep) {
-      var uintC count = *(mod->stab_size);
       pushSTACK(arg);
+      var uintC count = *(mod->stab_size);
       while (count--) pushSTACK(mod->stab[count].name);
+      { var object tmp = listof(*mod->stab_size); pushSTACK(tmp); }
       count = *(mod->otab_size);
       while (count--) pushSTACK(mod->otab[count]);
       value5 = listof(*mod->otab_size);
       value4 = fixnum(*(mod->otab_size));
-      value3 = listof(*mod->stab_size);
+      value3 = popSTACK();
       value2 = fixnum(*(mod->stab_size));
       value1 = popSTACK();
       mv_count = 5;

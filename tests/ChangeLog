@@ -1,5 +1,9 @@
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
+	* alltest.tst [clisp]: test module-info
+
+2005-10-06  Sam Steingold  <sds@gnu.org>
+
 	* streams.tst: test FILE-WRITE-DATE and FILE-LENGTH
 	vs (DIRECTORY ... :FULL T)
 
