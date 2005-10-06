@@ -46,8 +46,6 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     &sock-r; &addr-r;)</code></member>
   <member><code>(<function role="unix">htonl</function> &n-r;)</code></member>
   <member><code>(<function role="unix">htons</function> &n-r;)</code></member>
-  <member><code>(<function role="unix">listen</function>
-    &sock-r; <replaceable>backlog</replaceable>)</code></member>
   <member><code>(<function role="unix">ntohl</function> &n-r;)</code></member>
   <member><code>(<function role="unix">ntohs</function> &n-r;)</code></member>
   <member><code>(<function role="unix">recv</function>
@@ -81,6 +79,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <function role="unix">write</function>;</member>
   <member><code>(<function>RAWSOCK:SOCK-CLOSE</function> &sock-r;)</code>
    calls <function role="unix">close</function>.</member>
+  <member><code>(<function>RAWSOCK:SOCK-LISTEN</function>
+    &sock-r; <replaceable>backlog</replaceable>)</code>
+   calls <function role="unix">listen</function>.</member>
 </simplelist></para>
 </section>
 
