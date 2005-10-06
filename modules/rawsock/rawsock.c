@@ -289,7 +289,7 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
 }
 
 /* ================== sys/socket.h interface ================== */
-DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,            \
+DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
            UNSPEC UNIX LOCAL INET AX25                                  \
            IPX APPLETALK NETROM BRIDGE ATMPVC X25 INET6                 \
            ROSE DECnet NETBEUI SECURITY KEY NETLINK                     \
