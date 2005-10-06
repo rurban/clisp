@@ -141,6 +141,16 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 </programlisting></para></section>
 </section>
 
+<section id="rawsock-return"><title>Return Values</title>
+<para>The return values of the functions described in section
+ <xref linkend="rawsock-func"/> are derived from the return values of
+ the underlying system call: if, say, the &addr-r; argument is modified
+ by the system call, two values are returned (in addition to the
+ possible values coming from the return value of the system call):
+ the (modified) &addr-r; structure and its new size.
+ If the system call fails, an &err-sig;.</para>
+</section>
+
 <section id="rawsock-not-implemented"><title>Not Implemented</title>
 
 <para>We do not interface to <function role="unix">select</function>
