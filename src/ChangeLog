@@ -2,6 +2,7 @@
 
 	* modules/readline/configure.in: test for all functions and
 	variables interfaced to
+	* modules/readline/test.tst: new file
 
 2005-10-05  Sam Steingold  <sds@gnu.org>
 
