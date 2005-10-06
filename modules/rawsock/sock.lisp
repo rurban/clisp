@@ -8,10 +8,9 @@
   (:documentation "Raw Socket access")
   (:use #:lisp)
   (:shadowing-import-from "EXPORTING" #:defun)
-  (:shadow #:listen)            ; an ANSI CL symbol
   (:export #:buffer #:resize-buffer #:accept #:bind #:connect
            #:getpeername #:getsockname
-           #:listen #:recv #:recvfrom #:recvmsg
+           #:sock-listen #:recv #:recvfrom #:recvmsg
            #:send #:sendmsg #:sendto #:socket-option
            #:socket #:socketpair #:sockatmark
            #:sock-read #:sock-write #:sock-close

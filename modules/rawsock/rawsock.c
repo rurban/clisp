@@ -404,7 +404,7 @@ DEFUN(RAWSOCK:GETSOCKNAME,socket sockaddr) {
   VALUES2(STACK_0,fixnum(sa_size)); skipSTACK(2);
 }
 
-DEFUN(RAWSOCK:LISTEN,socket backlog) {
+DEFUN(RAWSOCK:SOCK-LISTEN,socket backlog) {
   int backlog = I_to_uint(check_uint(popSTACK()));
   rawsock_t sock = I_to_uint(check_uint(popSTACK()));
   int retval;
