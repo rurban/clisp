@@ -1,6 +1,9 @@
 ;; -*- Lisp -*-
 ;; some tests for PCRE
 ;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "pcre/test")'
+
+(listp (show (multiple-value-list (ext:module-info "pcre" t)) :pretty t)) T
+
 (multiple-value-bind (ve ma mi) (pcre:pcre-version)
   (format t "~&Version: ~S (~D.~D)~%Options:~{~%  ~25@A  ~S~}~%" ve ma mi
           (and (fboundp 'pcre:pcre-config) (pcre:pcre-config))))

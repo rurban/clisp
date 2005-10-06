@@ -3,6 +3,8 @@
 ;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "rawsock/test")'
 ;; relies on some functions in the syscalls module
 
+(listp (show (multiple-value-list (ext:module-info "rawsock" t)) :pretty t)) T
+
 (progn
   (defun to-bytes (string) (ext:convert-string-to-bytes string charset:ascii))
   (defun from-bytes (vec &optional size)

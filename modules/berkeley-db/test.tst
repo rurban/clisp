@@ -2,6 +2,8 @@
 ;; some tests for Berkeley-DB
 ;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "berkeley-db/test")'
 
+(listp (show (multiple-value-list (ext:module-info "bdb" t)) :pretty t)) T
+
 (multiple-value-bind (ve ma mi pa subsystems) (bdb:db-version t)
   (format t "~&Version: ~S (~D.~D.~D) ~S~%" ve ma mi pa subsystems))
 NIL

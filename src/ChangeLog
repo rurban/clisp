@@ -18,6 +18,9 @@
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
 	* misc.d (MODULE-INFO): fixed a GC-safety bug
+	* modules/berkeley-db/test.tst, modules/i18n/test.tst:
+	* modules/pcre/test.tst, modules/rawsock/test.tst:
+        * modules/regexp/test.tst, modules/syscalls/test.tst: call MODULE-INFO
 
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
