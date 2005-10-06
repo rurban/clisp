@@ -10,8 +10,18 @@ AC_MSG_NOTICE([ * READLINE (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
-AC_MSG_NOTICE([ * READLINE (Headers & Functions)])
+AC_MSG_NOTICE([ * READLINE (Headers, Variables & Functions)])
 CL_READLINE
+AC_CHECK_DECLS([rl_library_version, rl_readline_version, rl_editing_mode, dnl
+rl_insert_mode],,,[#include <stdio.h>
+ #include <readline/readline.h>])
+AC_CHECK_FUNCS(rl_set_prompt rl_initialize rl_add_defun rl_bind_key dnl
+rl_unbind_key rl_variable_bind rl_named_function rl_redisplay dnl
+using_history add_history clear_history stifle_history unstifle_history dnl
+history_is_stifled where_history history_total_bytes history_set_pos dnl
+history_search history_search_prefix history_search_pos dnl
+read_history read_history_range write_history append_history dnl
+history_truncate_file)
 
 AC_MSG_NOTICE([ * READLINE (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
