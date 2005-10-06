@@ -1,3 +1,8 @@
+2005-10-06  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: test FILE-WRITE-DATE and FILE-LENGTH
+	vs (DIRECTORY ... :FULL T)
+
 2005-09-30  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst (libc): removed variable, (:library :default) is always OK
