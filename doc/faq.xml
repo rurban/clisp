@@ -141,14 +141,14 @@ further explanations of the issues could be provided).</para>
   <listitem><para>the only open list, so it is filtered it especially
     aggressively:<itemizedlist>
      <listitem><simpara>no &mime; mail (no &html; formatting, no
-       attachments)</simpara></listitem>
+       attachments - send the URL instead)</simpara></listitem>
      <listitem><simpara>the list address must be in <literal>CC</literal>
        or <literal>TO</literal>, not <literal>BCC</literal>.
      </simpara></listitem>
      <listitem><simpara>do not mention <quote>virgin</quote>,
        <quote>penis</quote> or <quote>viagra</quote> in
-       the <literal>Subject</literal> line.
- </simpara></listitem></itemizedlist></para></listitem></varlistentry>
+       the <literal>Subject</literal> line.</simpara></listitem>
+ </itemizedlist></para></listitem></varlistentry>
  </variablelist></para>
 
  <para>If you do not like this policy, please volunteer to maintain the
