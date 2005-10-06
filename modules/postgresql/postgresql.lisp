@@ -17,6 +17,9 @@
 (ffi:default-foreign-language :stdc)
 (eval-when (compile) (setq *foreign-guard* t))
 
+(c-lines "#include <clisp.h>~%") ; global clisp config
+(c-lines "#include <config.h>~%") ; local readline config
+
 (c-lines "#include <postgres_ext.h>~%")
 
 (def-c-type Oid uint)
