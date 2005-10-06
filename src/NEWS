@@ -33,6 +33,7 @@ User visible changes
 
 * Fixed module rawsock on platforms with non-trivial struct sockaddr layout.
   Functions that take a BUFFER argument, also take :START and :END arguments.
+  Renamed RAWSOCK:LISTEN to RAWSOCK:SOCK-LISTEN to avoid a conflict with CL.
 
 * Fixed module postgresql logging behavior.
 
