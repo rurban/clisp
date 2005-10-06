@@ -14,23 +14,26 @@
                      (ldb (byte 16 16) version)))))
 T
 
-;;; longhorn
-;; (win32:with-handle (thread (win32:GetCurrentThread))
-;;   (= (win32:GetProcessIdOfThread thread)
-;;      (win32:GetCurrentProcessId)))
-;; T
+(if (fboundp 'win32:GetProcessIdOfThread) ; longhorn
+    (win32:with-handle (thread (win32:GetCurrentThread))
+      (= (win32:GetProcessIdOfThread thread)
+         (win32:GetCurrentProcessId)))
+    t)
+T
 
-;;; longhorn
-;; (win32:with-handle (thread (win32:GetCurrentThread))
-;;   (= (win32:GetThreadId thread)
-;;      (win32:GetCurrentThreadId)))
-;; T
+(if (fboundp 'win32:GetThreadId) ; longhorn
+    (win32:with-handle (thread (win32:GetCurrentThread))
+      (= (win32:GetThreadId thread)
+         (win32:GetCurrentThreadId)))
+    t)
+T
 
-;;; longhorn
-;; (win32:with-handle (process (win32:GetCurrentProcess))
-;;   (= (win32:GetProcessId process)
-;;      (win32:GetCurrentProcessId)))
-;; T
+(if (fboundp 'win32:GetProcessId) ; longhorn
+    (win32:with-handle (process (win32:GetCurrentProcess))
+      (= (win32:GetProcessId process)
+         (win32:GetCurrentProcessId)))
+    t)
+T
 
 (win32:with-handle (thread (win32:GetCurrentThread))
   (show-mv (win32:GetThreadPriority thread)))
