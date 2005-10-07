@@ -92,6 +92,8 @@
   (blocks  nil :type (or null (unsigned-byte 32)) :read-only t)
   (atime     0 :type (integer 0) :read-only t)
   (mtime     0 :type (integer 0) :read-only t)
+  ;; win32: creation time
+  ;; unix: inode change time
   (ctime     0 :type (integer 0) :read-only t))
 
 ;;; ============================================================
