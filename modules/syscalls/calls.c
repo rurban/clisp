@@ -1455,6 +1455,8 @@ static void my_utime (char *path, bool utb_a, bool utb_m, struct a_m_time *tm) {
   CloseHandle(hfile);
   if (!success_p) OS_file_error(STACK_0);
 }
+#endif  /* WIN32_NATIVE */
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 /* get WIN32_FIND_DATA from the PATH
  < sh - search handle (optional)
  < wfd - file information
@@ -1477,7 +1479,7 @@ static void get_file_time (object path, FILETIME *atime, FILETIME *mtime) {
   if (atime) *atime = wfd.ftLastAccessTime;
   if (mtime) *mtime = wfd.ftLastWriteTime;
 }
-#endif  /* WIN32_NATIVE */
+#endif  /* WIN32_NATIVE | UNIX_CYGWIN32*/
 DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 { /* interface to chmod(2), chown(2), utime(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
