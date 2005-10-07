@@ -1365,6 +1365,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
 #else
   pushSTACK(NIL);
 #endif
+  /* cannot use convert_time_to_universal() because this is used on win32 */
   pushSTACK(UL_to_I(buf.st_atime+UNIX_LISP_TIME_DIFF));/*time of last access*/
   pushSTACK(UL_to_I(buf.st_mtime+UNIX_LISP_TIME_DIFF));/*last modification*/
   pushSTACK(UL_to_I(buf.st_ctime+UNIX_LISP_TIME_DIFF));/*time of last change*/
@@ -1413,6 +1414,7 @@ static void my_chown (char *path, uid_t uid, gid_t gid) {
 /* error-signalling replacement for utime()
    STACK_O is the path - for error reporting
  can trigger GC */
+#if !defined(WIN32_NATIVE)
 static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
   if (utb_a && !utb_m) {
     struct stat st;
@@ -1431,14 +1433,51 @@ static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
   pushSTACK(CLSTEXT("~S(~S ~S ~S ~S ~S): this platform lacks ~S"));
   pushSTACK(TheSubr(subr_self)->name); pushSTACK(STACK_2);
   pushSTACK(`:ATIME`);
-  pushSTACK(utb_a ? UL_to_I(utb->actime + UNIX_LISP_TIME_DIFF) : NIL);
+  pushSTACK(utb_a ? convert_time_to_universal(&(utb->actime)) : NIL);
   pushSTACK(`:MTIME`);
-  pushSTACK(utb_m ? UL_to_I(utb->modtime + UNIX_LISP_TIME_DIFF) : NIL);
+  pushSTACK(utb_m ? convert_time_to_universal(&(utb->modtime)) : NIL);
   pushSTACK(`"utime()"`);
   funcall(S(warn),7);
   begin_system_call();
 #endif
 }
+#else  /* WIN32_NATIVE */
+/* win32 implementation of utime() is severely broken:
+   http://www.codeproject.com/datetime/dstbugs.asp */
+struct a_m_time { FILETIME actime; FILETIME modtime; };
+static void my_utime (char *path, bool utb_a, bool utb_m, struct a_m_time *tm) {
+  HANDLE hfile = CreateFile(path, GENERIC_WRITE, 0 , NULL, OPEN_EXISTING,
+                            FILE_ATTRIBUTE_NORMAL, NULL);
+  BOOL success_p;
+  if (hfile == INVALID_HANDLE_VALUE) OS_file_error(STACK_0);
+  success_p = SetFileTime(hfile,NULL,utb_a ? &(tm->actime) : NULL,
+                          utb_m ? &(tm->modtime) : NULL);
+  CloseHandle(hfile);
+  if (!success_p) OS_file_error(STACK_0);
+}
+/* get WIN32_FIND_DATA from the PATH
+ < sh - search handle (optional)
+ < wfd - file information
+ < value1 - the actual path used
+ can trigger GC */
+static void find_first_file (object path, WIN32_FIND_DATA *wfd, HANDLE *sh) {
+  HANDLE s_h;
+  with_string_0(value1=physical_namestring(path),GLO(pathname_encoding),pathz,{
+      begin_system_call(); s_h = FindFirstFile(pathz,wfd); end_system_call();
+    });
+  if (s_h == INVALID_HANDLE_VALUE) OS_file_error(value1);
+  if (sh) *sh = s_h;
+  else { begin_system_call(); FindClose(s_h); begin_system_call(); }
+}
+/* get file times from an object (like stat_obj())
+ can trigger GC */
+static void get_file_time (object path, FILETIME *atime, FILETIME *mtime) {
+  WIN32_FIND_DATA wfd;
+  find_first_file(path,&wfd,NULL);
+  if (atime) *atime = wfd.ftLastAccessTime;
+  if (mtime) *mtime = wfd.ftLastWriteTime;
+}
+#endif  /* WIN32_NATIVE */
 DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 { /* interface to chmod(2), chown(2), utime(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
@@ -1455,29 +1494,44 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
                  : check_chmod_mode_from_list(popSTACK())
 #               endif
                  );
+# if defined(WIN32_NATIVE)
+  struct a_m_time utb;
+# else
   struct utimbuf utb;
+# endif
   bool utb_a = false, utb_m = false;
   if (!missingp(STACK_0)) {     /* mtime */
     if (integerp(STACK_0))
-      utb.modtime = I_to_UL(STACK_0) - UNIX_LISP_TIME_DIFF;
-    else if (eq(STACK_0,T)) utb.modtime = time(&utb.modtime);
-    else {
+      convert_time_from_universal(STACK_0,&(utb.modtime));
+    else if (eq(STACK_0,T)) {
+      funcall(L(get_universal_time),0);
+      convert_time_from_universal(value1,&(utb.modtime));
+    } else {                    /* set from another file */
+#    if defined(WIN32_NATIVE)
+      get_file_time(STACK_0,NULL,&(utb.modtime));
+#    else
       struct stat st;
       if (stat_obj(STACK_0,&st)) OS_file_error(value1);
       utb.modtime = st.st_mtime;
+#    endif
     }
     utb_m = true;
   }
   if (!missingp(STACK_1)) {     /* atime */
-    if (eq(STACK_0,STACK_1)) utb.actime = utb.modtime;
-    else if (integerp(STACK_1))
-      utb.actime = I_to_UL(STACK_0) - UNIX_LISP_TIME_DIFF;
-    else if (eq(STACK_1,T)) utb.actime = time(&utb.actime);
-    else {
+    if (integerp(STACK_1))
+      convert_time_from_universal(STACK_1,&(utb.actime));
+    else if (eq(STACK_1,T)) {
+      funcall(L(get_universal_time),0);
+      convert_time_from_universal(value1,&(utb.actime));
+    } else {                    /* set from another file */
+#    if defined(WIN32_NATIVE)
+      get_file_time(STACK_0,&(utb.actime),NULL);
+#    else
       struct stat st;
       if (stat_obj(STACK_1,&st)) OS_file_error(value1);
       utb.actime = st.st_atime;
-    }
+#    endif
+   }
     utb_a = true;
   }
   skipSTACK(2);                 /* drop atime & mtime */
@@ -2690,19 +2744,32 @@ static Values wfd_to_file_info (WIN32_FIND_DATA *wfd) {
   funcall(`POSIX::MAKE-FILE-INFO`,7);
 }
 
-DEFUN(POSIX::FILE-INFO, file)
+DEFUN(POSIX::FILE-INFO, file &optional all)
 {
   WIN32_FIND_DATA wfd;
-  HANDLE hf;
-  object file = physical_namestring(STACK_0);
-  with_string_0(file, GLO(pathname_encoding), pathz, {
-    begin_system_call();
-    hf = FindFirstFile(pathz, &wfd);
-    end_system_call();
-    if (hf == INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
-  });
-  wfd_to_file_info(&wfd); skipSTACK(1);
-  begin_system_call(); FindClose(hf); end_system_call();
+  if (missingp(STACK_0)) {
+    find_first_file(STACK_1,&wfd,NULL);
+    wfd_to_file_info(&wfd);
+  } else {
+    HANDLE sh;
+    gcv_object_t *phys = &STACK_0;
+    unsigned int count = 1;
+    find_first_file(STACK_1,&wfd,&sh); *phys = value1; /* physical name */
+    wfd_to_file_info(&wfd); pushSTACK(value1);
+    while (1) {
+      begin_system_call();
+      if (!FindNextFile(sh,&wfd)) {
+        if (GetLastError() == ERROR_NO_MORE_FILES) break;
+        end_system_call();
+        OS_file_error(*phys);
+      }
+      end_system_call();
+      wfd_to_file_info(&wfd); pushSTACK(value1); count++;
+    }
+    begin_system_call(); FindClose(sh); end_system_call();
+    VALUES1(listof(count));
+  }
+  skipSTACK(2);                 /* drop arguments */
 }
 
 DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
