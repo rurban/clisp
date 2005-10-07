@@ -1847,8 +1847,7 @@ here <function>WITH-FOO</function> does not receive the
 <section id="mod-overview"><title>Overview</title>
 
 <para>&clisp; has a facility for adding external modules (written in
- &c-lang;, for example).  It is invoked through
- <command>clisp-link</command>.</para>
+ &c-lang;, for example).  It is invoked through &clisp-link;.</para>
 
 <para>A <firstterm>module<indexterm id="module" significance="preferred">
    <primary id="module-i">module</primary></indexterm></firstterm> is a
@@ -1860,18 +1859,17 @@ here <function>WITH-FOO</function> does not receive the
  The module name <quote>clisp</quote> is reserved.
  Normally a module name is derived from the corresponding file name.</para>
 
-<para><command>clisp-link</command> needs a directory containing:
+<para>&clisp-link; needs a directory containing:
 <itemizedlist>
   <listitem><simpara><filename>"modules.d"</filename></simpara></listitem>
   <listitem><simpara><filename>"modules.c"</filename></simpara></listitem>
   <listitem><simpara>&clisp-h;</simpara></listitem>
 </itemizedlist>
-<command>clisp-link</command> expects to find these files in a
+&clisp-link; expects to find these files in a
 subdirectory <filename>linkkit/</filename> of the current directory.
 This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
-<para><command>clisp-link</command> operates on &clisp; &linkset;s and
- on &modset;s.</para>
+<para>&clisp-link; operates on &clisp; &linkset;s and on &modset;s.</para>
 
 <formalpara id="linkset"><title>&linkset;</title>
  <para>A <firstterm>&linkset;<indexterm id="linkseti" significance="preferred">
@@ -1976,20 +1974,22 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
     files.</simpara></warning></listitem></varlistentry>
 </variablelist>
 
-<para>The command <command>clisp-link create-module-set &mod-r;
- <replaceable>file1.c</replaceable> ...</command> creates a &modset;
- in &mod-r; directory which refers (via symbolic links)
- to <replaceable>file1.c</replaceable> etc.
+<para>The command <screen>
+<prompt>$</prompt> &clisp-link; create-module-set &mod-r; <replaceable>file1.c</replaceable> ...
+</screen> creates a &modset; in &mod-r; directory which refers
+ (via symbolic links) to <replaceable>file1.c</replaceable> etc.
  The files are expected to be modules of their own.</para>
 
-<para>The command <command>clisp-link add-module-set &mod-r; &source-r;
- &dest-r;</command> combines a &linkset; in directory &source-r; and a
+<para>The command <screen>
+<prompt>$</prompt> &clisp-link; add-module-set &mod-r; &source-r; &dest-r;
+</screen> combines a &linkset; in directory &source-r; and a
  &module; in directory &mod-r; to a new &linkset;, in the directory
  &dest-r; which is newly created.</para>
 
-<para>The command <command>clisp-link run &source-r; &mod-r; ...</command>
- runs the &linkset; in directory &source-r;, with the &module; in
- directory &mod-r; loaded.
+<para>The command <screen>
+<prompt>$</prompt> &clisp-link; run &source-r; &mod-r; ...
+</screen> runs the &linkset; in directory &source-r;, with the &module;
+ in directory &mod-r; loaded.
  More than one module can be specified.
  If &clisp; has been built with the configuration option
  <option>--with-dynamic-modules</option>, the loading will be performed
@@ -2100,7 +2100,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  executed in this order.)</para>
 
 <procedure><step><title>Create a new &modset;</title>
-<screen><prompt>$</prompt> clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></step>
+<screen><prompt>$</prompt> &clisp-link; create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></step>
 
 <step><title>Modify the newly created
   <filename>linux/&link-sh;</filename></title>
@@ -2116,7 +2116,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <screen><prompt>$</prompt> clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</screen></step>
 
 <step><title>Create a new &linkset;</title>
-<screen><prompt>$</prompt> clisp-link add-module-set linux base base+linux</screen></step>
+<screen><prompt>$</prompt> &clisp-link; add-module-set linux base base+linux</screen></step>
 
 <step><title>Run and try it</title>
 <screen><prompt>$</prompt> base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</screen></step>
@@ -2341,16 +2341,45 @@ addition to the 3 <link linkend="base-modules">base modules</link>.</para>
 <subtitle><emphasis role="plat-dep">Many &unix;, &win32; platforms
   only.</emphasis></subtitle>
 
-<para>A foreign function description is written as a Lisp file, and when
- compiled it produces a &c-file; file which is then compiled by the
- &c-lang; compiler and may be linked together with
- <filename>lisp.a</filename>.</para>
+<section id="dffi-intro"><title>Introduction</title>
+
+<para>This facility, also known as <quote>Foreign Language Interface</quote>,
+allows one to call a function implemented in &c-lang; from inside &clisp;
+and to do many related things, like inspect and modify foreign memory,
+define a <quote>callback</quote> (i.e., make a lisp function available
+to the &c-lang; world), etc.
+To use this facility, one writes a foreign function description into an
+ordinary Lisp file, which is then compiled and loaded as usual.</para>
+
+<para>There are two basic ways to do define a foreign function:<orderedlist>
+<listitem><simpara>Use <function role="unix">dlopen</function> and
+  <function role="unix">dlsym</function> to get to the location of the
+  function code in a dynamic library.
+  To access this facility, pass the &library-k; option to &def-call-out;
+  and &def-c-var;.
+  Unfortunately, this functionality is not available on some operating
+  systems, and, also, it offers only a part of the foreign functionality:
+  &cpp; macros and <literal>inline</literal> functions cannot be
+  accessed this way.</simpara></listitem>
+<listitem><simpara>Use a somewhat less direct way: when you do not use
+  the &library-k; argument, &compile-file; produces a &c-lang; file.
+  Then you compile (with a &c-lang; compiler) and link it into &clisp;
+  (statically, linking it into <filename>lisp.a</filename>, or
+  dynamically, loading it into a running &clisp; using
+  <function role="unix">dlopen</function> and
+  <function role="unix">dlsym</function>).
+  This way you can use any functionality your foreign library exports,
+  whether using ordinary functions, <literal>inline</literal> functions,
+  or &cpp; macros.</simpara></listitem></orderedlist>
+</para>
 
 <para>All symbols relating to the foreign function interface are
  exported from the package &ffi-pac;.  To use them,
  <code>(&use-package; &ffi-pac;)</code>.</para>
 
 <para>Special &ffi-pac; forms may appear anywhere in the Lisp file.</para>
+
+</section>
 
 <section id="dffi-overview"><title>Overview</title>
 
@@ -3180,8 +3209,11 @@ and possibly the calling convention.</para>
  i.e., a form which can also be used as argument to &setf;.
  (An "lvalue" in &c-lang; terminology.)
  The following operations are available on foreign places:
- &element;, &deref;, &slot;, &cast;, &offset;, &c-var-addr;,
- &c-var-object;, &typeof;, &sizeof;, &bitsizeof;.</para>
+ <simplelist columns="2"><member>&element;</member><member>&deref;</member>
+  <member>&slot;</member><member>&cast;</member><member>&offset;</member>
+  <member>&c-var-addr;</member><member>&c-var-object;</member>
+  <member>&typeof;</member><member>&sizeof;</member>
+  <member>&bitsizeof;</member></simplelist></para>
 
 </section>
 
@@ -3198,8 +3230,11 @@ and possibly the calling convention.</para>
  A <firstterm>call-in function</firstterm> is a Lisp function called
  from the foreign language: control flow temporary enters Lisp.</para>
 
-<para>The following operators define foreign functions: &def-call-in;,
- &def-call-out;, &def-c-call-in;, &def-c-call-out;, &foreign-function;.</para>
+<para>The following operators define foreign functions:
+ <simplelist columns="2"><member>&def-call-in;</member>
+  <member>&def-call-out;</member><member>&def-c-call-in;</member>
+  <member>&def-c-call-out;</member><member>&foreign-function;</member>
+</simplelist></para>
 
 </section>
 
@@ -3471,14 +3506,14 @@ It is possible to call this function from Lisp using the file
 Use the &module; facility:
 
 <screen>
-<prompt>$</prompt> clisp-link create-module-set cfun callcfun.c
+<prompt>$</prompt> &clisp-link; create-module-set cfun callcfun.c
 <prompt>$</prompt> cc -O -c cfun.c
 <prompt>$</prompt> cd cfun
 <prompt>$</prompt> ln -s ../cfun.o cfun.o
 Add cfun.o to NEW_LIBS and NEW_FILES in &link-sh;.
 <prompt>$</prompt> cd ..
 <prompt>$</prompt> base/lisp.run -M base/lispinit.mem -c callcfun.lisp
-<prompt>$</prompt> clisp-link add-module-set cfun base base+cfun
+<prompt>$</prompt> &clisp-link; add-module-set cfun base base+cfun
 <prompt>$</prompt> base+cfun/lisp.run -M base+cfun/lispinit.mem -i callcfun
 &gt; (test-c-call::call-cfun)
 i = 5
@@ -3520,6 +3555,26 @@ instead, in conjunction with
     (prog1 (&foreign-value; data)
       (&foreign-free; data :FULL nil))))
 </programlisting></para></example>
+
+<example id="dffi-ex-macro"><title>Accessing &cpp; macros</title>
+<para>To have the library version available from &clisp;, write these
+ into a lisp file <filename>foo.lisp</filename>:
+<programlisting language="lisp">
+(&c-lines; "#include &lt;lib-header.h&gt;
+static int my_var=LIBRARY_VERSION;~%")
+(&def-c-var; my-var (:name "my_var") (:type int))
+</programlisting></para>
+<para>Compiling this file will produce <filename>foo.c</filename>
+ and <filename>foo.fas</filename> and you have two options:
+ <orderedlist><listitem><simpara>Compile <filename>foo.c</filename>
+    into <filename>foo.o</filename> and use &clisp-link; to create a new
+    &clisp; &linkset;.</simpara></listitem>
+  <listitem><simpara>Add <code>(:library "foo.dll")</code> to the
+    &def-c-var; form, compile <filename>foo.c</filename>
+    into <filename>foo.so</filename> (or <filename>foo.dll</filename> on
+    &win32;) and load <filename>foo.fas</filename>.
+</simpara></listitem></orderedlist></para>
+</example>
 
 <example id="ex-call-in"><title>Calling Lisp from &c-lang;</title>
 
@@ -3578,7 +3633,7 @@ To test this, use the following test file <filename>sorttest.lisp</filename>:
 Now try
 
 <screen>
-<prompt>$</prompt> clisp-link create-module-set sort sort2.c sorttest.c
+<prompt>$</prompt> &clisp-link; create-module-set sort sort2.c sorttest.c
 <prompt>$</prompt> cc -O -c sort1.c
 <prompt>$</prompt> cd sort
 <prompt>$</prompt> ln -s ../sort1.o sort1.o
@@ -3595,7 +3650,7 @@ Proceed:
 <screen>
 <prompt>$</prompt> cd ..
 <prompt>$</prompt> base/lisp.run -M base/lispinit.mem -c sort2.lisp sorttest.lisp
-<prompt>$</prompt> clisp-link add-module-set sort base base+sort
+<prompt>$</prompt> &clisp-link; add-module-set sort base base+sort
 <prompt>$</prompt> base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
 &gt; (sort10 10 '#(0.501d0 0.528d0 0.615d0 0.550d0 0.711d0
                 0.523d0 0.585d0 0.670d0 0.271d0 0.063d0))
