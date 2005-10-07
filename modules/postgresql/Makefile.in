@@ -21,11 +21,20 @@ all : postgresql.o sql.fas
 postgresql.c : postgresql.lisp
 	$(CLISP) -c postgresql.lisp
 
-postgresql.o : postgresql.c $(INCLUDES)/clisp.h
+postgresql.o : postgresql.c $(INCLUDES)/clisp.h config.h
 	$(CC) $(CPPFLAGS) $(PQCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c postgresql.c
 
 sql.fas : sql.lisp
 	$(CLISP) -c sql.lisp
+
+config.status : configure
+	sh config.status --recheck
+
+config.h : config.status config.h.in
+	sh config.status --header=config.h
+
+Makefile : Makefile.in config.status
+	sh config.status --file=Makefile
 
 # Make a module
 clisp-module : all
