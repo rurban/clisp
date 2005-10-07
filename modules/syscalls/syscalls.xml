@@ -167,7 +167,7 @@
    All slots are read-only.
  </para></listitem></varlistentry>
  <varlistentry id="file-info"><term><code>(<function>OS:FILE-INFO</function>
-    &path-r;)</code></term>
+    &path-r; &optional-amp; all)</code></term>
   <listitem><para>Return the <type>FILE-INFO</type> structure.
     &path-r; should be a &path-des;. The 7 slots are<simplelist columns="1">
      <member><structfield>attributes</structfield></member>
@@ -177,7 +177,10 @@
      <member><structfield>size</structfield></member>
      <member><structfield>name</structfield></member>
      <member><structfield>name-short</structfield></member>
- </simplelist></para></listitem></varlistentry>
+    </simplelist>When &path-r; is wild, returns just the first match,
+    unless the second (optional) argument is non-&nil;, in which case a
+    &list-t; of objects is returned, one for each match.
+ </para></listitem></varlistentry>
  <varlistentry><term><code>(<function>POSIX:USER-DATA</function>
     &optional-amp; <replaceable>user</replaceable>)</code></term>
  <listitem><simpara>Return the <type>PASSWD</type> structure (name,
