@@ -2,9 +2,11 @@
 ;; some tests for READLINE
 ;; clisp -q -norc -i ../tests/tests -x '(run-test "readline/test")'
 
-(format t "~&readline version ~S (~D=0~O=x~X)~%" readline:library-version
-        readline:readline-version readline:readline-version
-        readline:readline-version)
+(let ((ver-num (and (boundp 'readline:readline-version)
+                    readline:readline-version)))
+  (format t "~&readline version ~S (~D=0~O=x~X)~%"
+          (and (boundp 'readline:library-version) readline:library-version)
+          ver-num ver-num ver-num))
 nil
 
 (if (boundp 'readline:editing-mode) readline:editing-mode 1) 1
@@ -16,7 +18,7 @@ readline:readline-name                  "abazonk"
 (readline:history-stifled-p)    0
 (readline:stifle-history 100) NIL
 (readline:history-stifled-p)    1
-(readline:unstifle-history)   100
+(abs (readline:unstifle-history)) 100 ; 5=>100, 4.2=>-100
 (readline:history-stifled-p)    0
 
 (readline:where-history)       0
