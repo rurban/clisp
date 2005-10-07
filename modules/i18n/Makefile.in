@@ -22,11 +22,20 @@ all : i18n.fas gettext.o
 i18n.fas : i18n.lisp
 	$(CLISP) -c i18n.lisp
 
-gettext.o : gettext.m.c $(INCLUDES)/clisp.h
+gettext.o : gettext.m.c $(INCLUDES)/clisp.h config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c gettext.m.c -o gettext.o
 
 gettext.m.c : gettext.c $(MODPREP)
 	$(CLISP) $(MODPREP) gettext.c
+
+config.status : configure
+	sh config.status --recheck
+
+config.h : config.status config.h.in
+	sh config.status --header=config.h
+
+Makefile : Makefile.in config.status
+	sh config.status --file=Makefile
 
 # Make a module
 clisp-module : all

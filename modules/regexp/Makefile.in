@@ -25,7 +25,7 @@ all : regexp.fas regexi.o $(REGEX_O) @ALLOCA@
 regexp.fas : regexp.lisp
 	$(CLISP) -c regexp.lisp
 
-regexi.o : regexi.m.c $(REGEX_H) $(INCLUDES)/clisp.h
+regexi.o : regexi.m.c $(REGEX_H) $(INCLUDES)/clisp.h config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c regexi.m.c -o regexi.o
 
 regexi.m.c : regexi.c $(MODPREP)
@@ -40,6 +40,15 @@ alloca.o : alloca.c $(ALLOCA_H)
 alloca.h : alloca_.h
 	cp alloca_.h alloca.h-t
 	mv alloca.h-t alloca.h
+
+config.status : configure
+	sh config.status --recheck
+
+config.h : config.status config.h.in
+	sh config.status --header=config.h
+
+Makefile : Makefile.in config.status
+	sh config.status --file=Makefile
 
 # Make a module
 clisp-module : all

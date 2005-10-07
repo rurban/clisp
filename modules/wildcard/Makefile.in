@@ -23,7 +23,7 @@ all : wildcard.o $(FNMATCH_O)
 wildcard.c : wildcard.lisp
 	$(CLISP) -c wildcard.lisp
 
-wildcard.o : wildcard.c $(FNMATCH_H) $(INCLUDES)/clisp.h
+wildcard.o : wildcard.c $(FNMATCH_H) $(INCLUDES)/clisp.h config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c wildcard.c
 
 fnmatch.o : fnmatch.c fnmatch_loop.c fnmatch.h
@@ -32,6 +32,15 @@ fnmatch.o : fnmatch.c fnmatch_loop.c fnmatch.h
 fnmatch.h : fnmatch_.h
 	cp fnmatch_.h fnmatch.h-t
 	mv fnmatch.h-t fnmatch.h
+
+config.status : configure
+	sh config.status --recheck
+
+config.h : config.status config.h.in
+	sh config.status --header=config.h
+
+Makefile : Makefile.in config.status
+	sh config.status --file=Makefile
 
 # Make a module
 clisp-module : all

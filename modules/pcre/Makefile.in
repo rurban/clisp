@@ -22,11 +22,20 @@ all : pcre.fas cpcre.o
 pcre.fas : pcre.lisp
 	$(CLISP) -c pcre.lisp
 
-cpcre.o : cpcre.m.c
+cpcre.o : cpcre.m.c $(INCLUDES)/clisp.h config.h
 	$(CC) $(CPPFLAGS) $(PCRECPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c cpcre.m.c -o cpcre.o
 
 cpcre.m.c : cpcre.c $(MODPREP)
 	$(CLISP) $(MODPREP) cpcre.c
+
+config.status : configure
+	sh config.status --recheck
+
+config.h : config.status config.h.in
+	sh config.status --header=config.h
+
+Makefile : Makefile.in config.status
+	sh config.status --file=Makefile
 
 # Make a module
 clisp-module : all

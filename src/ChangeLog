@@ -1,5 +1,15 @@
 2005-10-07  Sam Steingold  <sds@gnu.org>
 
+	* modules/dirkey/Makefile.in, modules/i18n/Makefile.in:
+	* modules/pari/Makefile.in, modules/pcre/Makefile.in:
+	* modules/postgresql/Makefile.in, modules/rawsock/Makefile.in:
+	* modules/readline/Makefile.in, modules/regexp/Makefile.in:
+	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in:
+	* modules/zlib/Makefile.in (config.status, config.h, Makefile):
+	new targets: no need to "rm -rf" module dir when configure changes
+
+2005-10-07  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (my_utime): use convert_time_to_universal()
 	(my_utime) [WIN32_NATIVE]: a separate implementation to avoid the
 	woe32 DST bugs (http://www.codeproject.com/datetime/dstbugs.asp)

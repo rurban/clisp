@@ -26,8 +26,17 @@ posix.fas : posix.lisp
 calls.m.c: calls.c $(MODPREP)
 	$(CLISP) $(MODPREP) calls.c
 
-calls.o : calls.m.c $(INCLUDES)/clisp.h
+calls.o : calls.m.c $(INCLUDES)/clisp.h config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c calls.m.c -o calls.o
+
+config.status : configure
+	sh config.status --recheck
+
+config.h : config.status config.h.in
+	sh config.status --header=config.h
+
+Makefile : Makefile.in config.status
+	sh config.status --file=Makefile
 
 # Make a module
 clisp-module : all
