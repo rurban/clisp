@@ -63,7 +63,6 @@ T
 
 (os:file-stat-p (show (os:file-stat *tmp1*))) T
 (os:file-stat-p (show (os:file-stat (pathname *tmp1*)))) T
-(os:set-file-stat *tmp2* :atime t :mtime t) NIL
 
 (os:convert-mode #o0666)
 #+unix (:RUSR :WUSR :RGRP :WGRP :ROTH :WOTH)
@@ -105,9 +104,13 @@ T
 (integerp (show (with-open-file (s *tmp2* :direction :input) (file-length s))))
 T
 
-#+win32                      ; win32 functions barf on cygwin pathnames
-(os:file-info-p (show (os:file-info *tmp2*)))
-#+win32 T
+;; win32 functions barf on cygwin pathnames
+#+win32 (os:file-info-p (show (os:file-info *tmp2*) :pretty t)) T
+#+win32 (listp (show (os:file-info (make-pathname :name "syscalls-tests-*"
+                                                  :defaults *tmp2*)
+                                   t)
+                     :pretty t))
+T
 
 #+(or win32 cygwin)
 (os:system-info-p (show (os:system-info)))

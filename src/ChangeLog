@@ -1,3 +1,13 @@
+2005-10-07  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (my_utime): use convert_time_to_universal()
+	(my_utime) [WIN32_NATIVE]: a separate implementation to avoid the
+	woe32 DST bugs (http://www.codeproject.com/datetime/dstbugs.asp)
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+	(find_first_file, get_file_time) [WIN32_NATIVE]: new functions
+	(SET-FILE-STAT): use get_file_time() and convert_time_to_universal()
+	(FILE-INFO): accept an optional argument ALL-P, use find_first_file()
+
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (object_handle, object_address): name is an object
