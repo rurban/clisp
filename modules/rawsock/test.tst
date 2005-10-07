@@ -113,9 +113,10 @@ NIL
 #-:win32 ;; on win32, read() cannot be called on a socket!
 (let ((size (rawsock:sock-read *sock* *buffer*)))
   (show (setq *read-ret* (list size (from-bytes *buffer* size))))
-  (ext:socket-status *sock*)) :OUTPUT
+  (ext:socket-status *sock*))
+#-:win32 :OUTPUT
 
-#-:win32 (equal *recv-ret* *read-ret*) T
+#-:win32 (equal *recv-ret* *read-ret*) #-:win32 T
 
 ;; no socketpair() on win32
 #-:win32 (progn
