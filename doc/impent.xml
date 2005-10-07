@@ -466,6 +466,7 @@
 <!ENTITY c-var-addr "<link linkend='c-var-addr'><function>FFI:C-VAR-ADDRESS</function></link>">
 <!ENTITY c-var-object "<link linkend='c-var-object'><function>FFI:C-VAR-OBJECT</function></link>">
 <!ENTITY cast "<link linkend='cast'><function>FFI:CAST</function></link>">
+<!ENTITY clisp-link "<link linkend='mod-overview'><command>clisp-link</command></link>">
 <!ENTITY def-c-call-in "<link linkend='def-c-call-in'><function>FFI:DEF-C-CALL-IN</function></link>">
 <!ENTITY def-c-call-out "<link linkend='def-c-call-out'><function>FFI:DEF-C-CALL-OUT</function></link>">
 <!ENTITY def-c-enum "<link linkend='def-c-enum'><function>FFI:DEF-C-ENUM</function></link>">
