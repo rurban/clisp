@@ -151,10 +151,11 @@ T
   ;;(show (posix:resolve-host-ipaddr
   ;;       (make-array 4 :element-type '(unsigned-byte 8)
   ;;                   :displaced-to (rawsock:sockaddr-data *sa-remote*))))
+  (fill *buffer* 0)
   (loop :for (x y) :in '((12 8)(14 #x45) (17 40)(22 #x40)(23 6)(26 10)(29 10))
     :do (setf (aref *buffer* x) y))
   (rawsock:ipcsum *buffer*))
-32133
+51056
 
 (rawsock:sendto *sock* *buffer* *sa-remote*)
 1024
