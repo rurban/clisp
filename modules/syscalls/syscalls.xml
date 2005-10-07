@@ -79,8 +79,8 @@
       <listitem><simpara>&uni-time; of last data modification.
      </simpara></listitem></varlistentry>
      <varlistentry><term><structfield>ctime</structfield></term>
-      <listitem><simpara>&uni-time; of last status change.
-     </simpara></listitem></varlistentry>
+      <listitem><simpara>&uni-time; of last status change
+        (on &win32; - creation time).</simpara></listitem></varlistentry>
      <varlistentry><term><structfield>blksize</structfield></term>
       <listitem><simpara>A file system-specific preferred I/O block size
         for this object.  In some file system types, this may vary from
