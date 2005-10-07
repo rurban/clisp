@@ -24,8 +24,17 @@ dirkey1.fas : dirkey1.lisp
 dirkey.m.c: dirkey.c $(MODPREP)
 	$(CLISP) $(MODPREP) dirkey.c
 
-dirkey.o : dirkey.m.c $(INCLUDES)/clisp.h
+dirkey.o : dirkey.m.c $(INCLUDES)/clisp.h config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c dirkey.m.c -o dirkey.o
+
+config.status : configure
+	sh config.status --recheck
+
+config.h : config.status config.h.in
+	sh config.status --header=config.h
+
+Makefile : Makefile.in config.status
+	sh config.status --file=Makefile
 
 # Make a module
 clisp-module : all

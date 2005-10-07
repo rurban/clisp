@@ -21,8 +21,17 @@ all : readline.o readline.fas
 readline.c readline.fas : readline.lisp
 	$(CLISP) -c readline.lisp
 
-readline.o : readline.c $(INCLUDES)/clisp.h
+readline.o : readline.c $(INCLUDES)/clisp.h config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c readline.c
+
+config.status : configure
+	sh config.status --recheck
+
+config.h : config.status config.h.in
+	sh config.status --header=config.h
+
+Makefile : Makefile.in config.status
+	sh config.status --file=Makefile
 
 # Make a module
 clisp-module : all
