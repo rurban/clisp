@@ -5,8 +5,9 @@
 	* modules/postgresql/Makefile.in, modules/rawsock/Makefile.in:
 	* modules/readline/Makefile.in, modules/regexp/Makefile.in:
 	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in:
-	* modules/zlib/Makefile.in (config.status, config.h, Makefile):
-	new targets: no need to "rm -rf" module dir when configure changes
+	* modules/zlib/Makefile.in,  modules/berkeley-db/Makefile.in:
+	(config.status, config.h, Makefile): new targets:
+	no need to "rm -rf" module dir when configure changes
 
 2005-10-07  Sam Steingold  <sds@gnu.org>
 
