@@ -4321,7 +4321,8 @@ Compiled, it will have inlined the library function calls.
 
 <para>Two main varieties of sockets are interfaced to:
  <itemizedlist><listitem><simpara><quote>active</quote> sockets
-    correspond to &socket-stream;s which are &bidir-s;s</simpara></listitem>
+    correspond to &socket-stream;s which are &bidir-s; &stream-t;s
+  </simpara></listitem>
   <listitem><simpara><quote>passive</quote> sockets correspond to
     &socket-server;s which are a special kind of objects that used to
     allow the other side to initiate interaction with lisp.
