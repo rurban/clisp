@@ -1743,10 +1743,10 @@ DEFUN(XLIB:DISPLAY-ERROR-HANDLER, display) /* OK */
   skipSTACK(1);
 }
 
-DEFUN(XLIB:SET-DISPLAY-ERROR-HANDLER, handler display) /* OK */
+DEFUN(XLIB:SET-DISPLAY-ERROR-HANDLER, display handler) /* OK */
 {
-  ensure_living_display (&(STACK_0));
-  VALUES1(TheStructure(STACK_0)->recdata[slot_DISPLAY_ERROR_HANDLER]=STACK_1);
+  ensure_living_display (&(STACK_1));
+  VALUES1(TheStructure(STACK_1)->recdata[slot_DISPLAY_ERROR_HANDLER]=STACK_0);
   skipSTACK(2);
 }
 
@@ -1929,7 +1929,7 @@ DEFUN(XLIB:DISPLAY-AFTER-FUNCTION, display) /* OK */
 }
 
 int xlib_after_function (Display *display);
-DEFUN(XLIB:SET-DISPLAY-AFTER-FUNCTION, arg1 arg2) /* OK */
+DEFUN(XLIB:SET-DISPLAY-AFTER-FUNCTION, display after-function) /* OK */
 { /* TODO - check for function type [Not very important since the
    xlib_after_function should get this error.] */
   object display = STACK_1;
@@ -1992,7 +1992,7 @@ DEFUN(XLIB:DISPLAY-PLIST, display)    /* OK */
   skipSTACK(1);
 }
 
-DEFUN(XLIB:SET-DISPLAY-PLIST, plist display) /* OK */
+DEFUN(XLIB:SET-DISPLAY-PLIST, display plist) /* OK */
 {
   ensure_living_display (&(STACK_1));
   VALUES1(TheStructure (STACK_1)->recdata[slot_DISPLAY_PLIST] = STACK_0);
