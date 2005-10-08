@@ -4317,7 +4317,7 @@ Compiled, it will have inlined the library function calls.
  The most common kind of sockets is Internet stream sockets, and a
  high-level interface to them is described here.
  A more low level interface that closely follows the &c-lang; system
- calls is also av available, see <xref linkend="rawsock"/>.</para>
+ calls is also available, see <xref linkend="rawsock"/>.</para>
 
 <para>Two main varieties of sockets are interfaced to:
  <itemizedlist><listitem><simpara><quote>active</quote> sockets
