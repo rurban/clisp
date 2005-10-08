@@ -4407,13 +4407,8 @@ Compiled, it will have inlined the library function calls.
                  <replaceable>socket-stream-or-list</replaceable>
                  &timeout-opt;)</code></term>
   <listitem><simpara>Checks whether it is possible to read from or write
-   to a &socket-stream; or whether a connection is available on a
-   &socket-server; without blocking.</simpara>
-   <simpara>For the cognoscenti: this is the interface
-    to <function role="unix">select</function>, so
-    it will work for any &clisp; &stream-t; which is based on a
-    &file-des;, e.g., &kbd-in; and &file-pipe-socket-s;, as well as
-    for <link linkend="rawsock">raw sockets</link>.</simpara>
+    to a &socket-stream; or whether a connection is available on a
+    &socket-server; without blocking.</simpara>
    <simpara>This is similar to &listen;, which checks only one
     &stream-t; and only for input, and &so-wait;, which works only with
     &socket-server;s.</simpara>
@@ -4490,7 +4485,12 @@ Compiled, it will have inlined the library function calls.
     &so-status; returns either due to a timeout or when this number is
     positive, i.e., if the timeout was &nil; and &so-status; did
     return, then the second value is positive.</simpara>
-   &sost-raw-too;</listitem></varlistentry>
+   <simpara>This is the interface to <function role="unix">select</function>
+    (on some platforms, <function role="unix">poll</function>),
+    so it will work on any &clisp; &stream-t; which is based on a
+    &file-des;, e.g., &kbd-in; and &file-pipe-socket-s;s, as well as
+    on <link linkend="rawsock">raw sockets</link>.</simpara>
+ </listitem></varlistentry>
  <varlistentry id="sost-hopo">
   <term><code>(&sost-host; &sost-r;)</code></term>
   <term><code>(&sost-port; &sost-r;)</code></term>
