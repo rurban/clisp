@@ -4309,6 +4309,53 @@ Compiled, it will have inlined the library function calls.
 <subtitle>&unix-w32-only;</subtitle>
 <!-- #ifdef SOCKET_STREAMS -->
 
+<section id="socket-intro"><title>Introduction</title>
+
+<para>Sockets are used for interprocess communications by processes
+ running on the same host as well as by processes running on different
+ hosts over a computer network.
+ The most common kind of sockets is Internet stream sockets, and a
+ high-level interface to them is described here.
+ A more low level interface that closely follows the &c-lang; system
+ calls is also av available, see <xref linkend="rawsock"/>.</para>
+
+<para>Two main varieties of sockets are interfaced to:
+ <itemizedlist><listitem><simpara><quote>active</quote> sockets
+    correspond to &socket-stream;s which are &bidir-s;s</simpara></listitem>
+  <listitem><simpara><quote>passive</quote> sockets correspond to
+    &socket-server;s which are a special kind of objects that used to
+    allow the other side to initiate interaction with lisp.
+</simpara></listitem></itemizedlist></para>
+
+<example id="socket-ex-server"><title>Lisp &repl; server</title>
+ <para>Here is a simple lisp &repl; server that waits for a remote
+ connection and evaluates the form read from it (repeated 10 times):
+<programlisting language="lisp">
+(let ((server (&sose;)))
+  (format t "~&amp;Waiting for a connection on ~S:~:D~%"
+          (&sose-host; server) (&sose-port; server))
+  (loop :repeat 10 :do
+     (&with-open-stream; (socket (&so-accept; server))
+       (print (eval (read socket)) socket)
+       (terpri socket)))
+  (&sose-close; server))
+</programlisting></para>
+</example>
+
+<example id="socket-ex-client"><title>Lisp &http; client</title>
+<para>Here is a simple lisp &http; client that fetches a web page:
+<programlisting language="lisp">
+(defun wget (host page file &optional-amp; (port 80))
+  (&with-open-stream; (socket (&so-connect; port host &extfmt; &dos-k;))
+     (with-open-file (out file :direction :output)
+       (format socket "GET ~A~2%" page)
+       (loop :for line = (read-line socket nil nil) :while line
+          :do (write-line line out)))))
+</programlisting></para></example>
+</section>
+
+<section id="socket-functions"><title>Socket Functions</title>
+
 <variablelist>
  <varlistentry id="sose"><term><code>(&sose; &optional-amp;
                  [<replaceable>port-or-socket</replaceable>])</code></term>
@@ -4512,7 +4559,7 @@ Compiled, it will have inlined the library function calls.
    value of the <constant>:SO-LINGER</constant> option, and 1, the
    current value of the <constant>:SO-RCVLOWAT</constant> option.
   </simpara>&sost-raw-too;</listitem></varlistentry>
-</variablelist>
+</variablelist></section>
 <!-- #endif -->
 </section>
 
