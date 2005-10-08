@@ -4333,7 +4333,7 @@ Compiled, it will have inlined the library function calls.
  connection and evaluates the form read from it (repeated 10 times):
 <programlisting language="lisp">
 (let ((server (&sose;)))
-  (format t "~&amp;Waiting for a connection on ~S:~:D~%"
+  (format t "~&amp;Waiting for a connection on ~S:~D~%"
           (&sose-host; server) (&sose-port; server))
   (loop :repeat 10 :do
      (&with-open-stream; (socket (&so-accept; server))
@@ -4355,7 +4355,7 @@ Compiled, it will have inlined the library function calls.
 </programlisting></para></example>
 </section>
 
-<section id="socket-functions"><title>Socket Functions</title>
+<section id="socket-api"><title>Socket API Reference</title>
 
 <variablelist>
  <varlistentry id="sose"><term><code>(&sose; &optional-amp;
@@ -4426,10 +4426,10 @@ Compiled, it will have inlined the library function calls.
    <para>Additionally, for a &socket-stream;, we define
     <quote>status</quote> in the given &direction-r; (one of &input-k;,
     &output-k;, and &io-k;) to be
-    <variablelist id="so-status-values">
+    <variablelist id="so-status-values">&varlist-table;
      <title>Possible status values for various directions:</title>
      <varlistentry><term>&input-k; status:</term>
-      <listitem><variablelist>
+      <listitem><variablelist>&varlist-table;
         <varlistentry><term>&nil;</term>
          <listitem><simpara>reading will block
         </simpara></listitem></varlistentry>
@@ -4441,7 +4441,7 @@ Compiled, it will have inlined the library function calls.
        </simpara></listitem></varlistentry></variablelist>
      </listitem></varlistentry>
      <varlistentry><term>&output-k; status:</term>
-      <listitem><variablelist>
+      <listitem><variablelist>&varlist-table;
         <varlistentry><term>&nil;</term>
          <listitem><simpara>writing will block
         </simpara></listitem></varlistentry>
