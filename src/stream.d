@@ -14191,20 +14191,26 @@ local gcv_object_t* parse_sock_list (object obj,object *sock,direction_t *dir)
 
 /* set the appropriate fd_sets for the socket,
  either a socket-server, a socket-stream or a (socket . direction)
+ if the socket is a buffered stream with non-empty input buffer,
+    reset non_empty_buffers_p to true
  see socket_status() for details
  return the number of handles set */
+local uintB stream_isbuffered_low (object stream, uintL *avail);
 local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
-                        fd_set *errorfds, bool *need_new_list) {
+                        fd_set *errorfds, bool *need_new_list,
+                        bool *non_empty_buffers_p) {
   var object sock;
   var direction_t dir;
   var SOCKET in_sock = INVALID_SOCKET;
   var SOCKET out_sock = INVALID_SOCKET;
-  var uintL ret = 0;
+  var uintL ret = 0, avail = 0;
   if (NULL==parse_sock_list(socket,&sock,&dir) && need_new_list)
     *need_new_list = true;
   stream_handles(sock,true,NULL,
                  READ_P(dir)  ? &in_sock  : NULL,
                  WRITE_P(dir) ? &out_sock : NULL);
+  if (READ_P(dir) && (bit(1) & stream_isbuffered_low(sock,&avail)) && avail)
+    *non_empty_buffers_p = true;
   if (in_sock != INVALID_SOCKET) {
     ret++;
     FD_SET(in_sock,errorfds);
@@ -14240,10 +14246,11 @@ local maygc object handle_isset (object socket, fd_set *readfds,
       ret = FD_ISSET(in_sock,readfds) ? T : NIL;
       if (place) *place = ret;
       return ret;
-    }
-    if (FD_ISSET(in_sock,readfds)) {
-      if (uint_p(sock)) rd = ls_avail;
-      else rd = (char_p ? listen_char(sock) : listen_byte(sock));
+    } else if (uint_p(sock)) {
+      if (FD_ISSET(in_sock,readfds)) rd = ls_avail;
+    } else {                    /* stream */
+      if (FD_ISSET(in_sock,readfds) || (stream_isbuffered(sock) & bit(1)))
+        rd = (char_p ? listen_char(sock) : listen_byte(sock));
     }
   }
   if (out_sock != INVALID_SOCKET) {
@@ -14289,6 +14296,7 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
   begin_system_call();
   { var fd_set readfds, writefds, errorfds;
     var object all = STACK_2;
+    var bool non_empty_buffers_p = false;
     FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&errorfds);
     var bool many_sockets_p =
       (consp(all) && !(symbolp(Cdr(all)) && keywordp(Cdr(all))));
@@ -14299,7 +14307,7 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
       for(; !nullp(list); list = Cdr(list)) {
         if (!listp(list)) fehler_list(list);
         index += handle_set(Car(list),&readfds,&writefds,&errorfds,
-                            &need_new_list);
+                            &need_new_list,&non_empty_buffers_p);
         if (index > FD_SETSIZE) {
           pushSTACK(fixnum(FD_SETSIZE));
           pushSTACK(all);
@@ -14308,7 +14316,14 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
         }
       }
     } else
-      handle_set(all,&readfds,&writefds,&errorfds,NULL);
+      handle_set(all,&readfds,&writefds,&errorfds,NULL,&non_empty_buffers_p);
+    if (non_empty_buffers_p) {
+      /* reset timeout to 0 because we should return immediately even if
+         the user specified waiting forever: the socket may not be ready
+         because the buffer contains everything it has got */
+      timeout_ptr = &timeout;
+      timeout.tv_sec = timeout.tv_usec = 0;
+    }
     if (select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr) < 0) {
       if (sock_errno_is(EINTR)) { end_system_call(); goto restart_select; }
       if (!sock_errno_is(EBADF)) { SOCK_error(); }
@@ -17464,12 +17479,13 @@ LISPFUNN(file_string_length,2)
   #undef bytes_per_char
 }
 
-# UP: Tells whether a stream is buffered.
-# stream_isbuffered(stream)
-# > stream: a channel or socket stream
-# < result: bit(1) set if input side is buffered,
-#           bit(0) set if output side is buffered
-global uintB stream_isbuffered (object stream) {
+/* UP: Tells whether a stream is buffered.
+ stream_isbuffered(stream)
+ > stream: a channel or socket stream
+ < avail: the number of bytes available in the input buffer
+ < result: bit(1) set if input side is buffered,
+           bit(0) set if output side is buffered */
+local uintB stream_isbuffered_low (object stream, uintL *avail) {
   switch (TheStream(stream)->strmtype) {
     case strmtype_file:
     #ifdef PIPES
@@ -17482,16 +17498,30 @@ global uintB stream_isbuffered (object stream) {
     #ifdef SOCKET_STREAMS
     case strmtype_socket:
     #endif
-      return (ChannelStream_buffered(stream) ? bit(1)|bit(0) : 0);
+      if (ChannelStream_buffered(stream)) {
+        if (avail) *avail = BufferedStream_endvalid(stream)
+          - BufferedStream_index(stream);
+        return bit(1)|bit(0);
+      } else return 0;
     #ifdef SOCKET_STREAMS
     case strmtype_twoway_socket:
-      return (ChannelStream_buffered(TheStream(stream)->strm_twoway_socket_input) ? bit(1) : 0)
-             | (ChannelStream_buffered(TheStream(stream)->strm_twoway_socket_output) ? bit(0) : 0);
     #endif
+    case strmtype_twoway: {
+      var object input = TheStream(stream)->strm_twoway_socket_input;
+      var uintB input_b = 0;
+      if (ChannelStream_buffered(input)) {
+        input_b = bit(1);
+        if (avail) *avail = BufferedStream_endvalid(input)
+          - BufferedStream_index(input);
+      }
+      return input_b | (ChannelStream_buffered(TheStream(stream)->strm_twoway_socket_output) ? bit(0) : 0);
+    }
     default:
       return 0;
   }
 }
+global uintB stream_isbuffered (object stream)
+{ return stream_isbuffered_low(stream,NULL); }
 
 # UP: Returns the current line number of a stream.
 # stream_line_number(stream)
