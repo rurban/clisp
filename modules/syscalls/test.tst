@@ -135,17 +135,23 @@ T
 ;; test file locking
 (let ((buf (make-array 100 :fill-pointer t :adjustable t
                        :element-type 'character)))
-  (defun flush-stream (s)
-    (setf (fill-pointer buf) 0)
-    (loop :for c = (read-char-no-hang s nil nil) :while c
-      :do (vector-push-extend c buf))
-    (show buf)))
-FLUSH-STREAM
+  (defun flush-clisp (stream)
+    (when (socket:socket-status (cons stream :input) 1)
+      ;; read from the clisp stream until the next prompt
+      (setf (fill-pointer buf) 0)
+      (loop :with pos-NL = 0 :for ch = (read-char stream)
+        :until (and (char= ch #\Space) (char= #\[ (char buf pos-NL))
+                    (let ((pos1 (position #\] buf :start pos-NL)))
+                      (and pos1 (char= #\> (char buf (1+ pos1))))))
+        :do (when (char= ch #\Newline) (setq pos-NL (1+ (length buf))))
+        (vector-push-extend ch buf))
+      (show buf))))
+FLUSH-CLISP
 
 (defun proc-send (proc fmt &rest args)
   (apply #'format proc fmt args)
-  (terpri proc) (force-output proc) (sleep 1)
-  (flush-stream proc))
+  (terpri proc) (force-output proc)
+  (flush-clisp proc))
 PROC-SEND
 
 (let* ((argv (ext:argv)) (run (aref argv 0))
@@ -155,9 +161,8 @@ PROC-SEND
                                          :input :stream :output :stream))
   (defparameter *proc2* (ext:run-program run :arguments args
                                          :input :stream :output :stream))
-  (sleep 1)
-  (flush-stream *proc1*)
-  (flush-stream *proc2*)
+  (flush-clisp *proc1*)
+  (flush-clisp *proc2*)
   t)
 T
 
@@ -171,10 +176,10 @@ T
 T
 
 (read-from-string (proc-send *proc1* "(stream-lock s t)")) T
-(proc-send *proc2* "(stream-lock s t)")  "" ; blocked
+(proc-send *proc2* "(stream-lock s t)")  NIL ; blocked
 
 (read-from-string (proc-send *proc1* "(stream-lock s nil)")) NIL ; released
-(read-from-string (flush-stream *proc2*)) T             ; acquired
+(read-from-string (flush-clisp *proc2*)) T             ; acquired
 
 (read-from-string (proc-send *proc1* "(stream-lock s t :block nil)")) NIL
 (read-from-string (proc-send *proc2* "(stream-lock s nil)")) NIL ; released
@@ -191,7 +196,6 @@ T
                                                 (format nil "--pid=~D"
                                                         (os:process-id)))
                         :output :stream))
-    (sleep 1) (flush-stream s)
     (with-open-file (new *tmp1* :direction :output
                          :if-exists :rename-and-delete)
       (= inode (show (posix:file-stat-ino (posix:file-stat new)))))))
@@ -215,7 +219,7 @@ T
        (close *proc2*) (makunbound '*proc2*) (unintern '*proc2*)
        (delete-file *tmp1*) (makunbound '*tmp1*) (unintern '*tmp1*)
        (delete-file *tmp2*) (makunbound '*tmp2*) (unintern '*tmp2*)
-       (fmakunbound 'flush-stream) (unintern 'flush-stream)
+       (fmakunbound 'flush-clisp) (unintern 'flush-clisp)
        (fmakunbound 'proc-send) (unintern 'proc-send)
        T)
 T
