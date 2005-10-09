@@ -13,6 +13,12 @@
 
 (listp (show (i18n:set-locale) :pretty t)) T
 
-(i18n:locale-conv-p (show (i18n:locale-conv) :pretty t)) T
+(if (fboundp 'i18n:locale-conv)
+    (i18n:locale-conv-p (show (i18n:locale-conv) :pretty t))
+    t)
+T
 
-(listp (show (i18n:language-information) :pretty t)) T
+(if (fboundp 'i18n:language-information)
+    (listp (show (i18n:language-information) :pretty t))
+    t)
+T
