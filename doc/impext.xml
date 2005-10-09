@@ -4329,18 +4329,37 @@ Compiled, it will have inlined the library function calls.
 </simpara></listitem></itemizedlist></para>
 
 <example id="socket-ex-server"><title>Lisp &repl; server</title>
- <para>Here is a simple lisp &repl; server that waits for a remote
- connection and evaluates the form read from it (repeated 10 times):
+<para>Here is a simple lisp &repl; server that waits for a remote
+ connection and evaluates forms read from it:
 <programlisting language="lisp">
 (let ((server (&sose;)))
   (format t "~&amp;Waiting for a connection on ~S:~D~%"
           (&sose-host; server) (&sose-port; server))
-  (loop :repeat 10 :do
-     (&with-open-stream; (socket (&so-accept; server))
-       (print (eval (read socket)) socket)
-       (terpri socket)))
-  (&sose-close; server))
-</programlisting></para>
+  (unwind-protect
+      ;; infinite loop, terminate with <keycombo>&ctrl;<keysym>C</keysym></keycombo>
+      (loop (&with-open-stream; (socket (&so-accept; server))
+              (multiple-value-bind (local-host local-port) (&sost-local; socket)
+                (multiple-value-bind (remote-host remote-port) (&sost-peer; socket)
+                  (format t "~&amp;Connection: ~S:~D -- ~S:~D~%"
+                          remote-host remote-port local-host local-port)))
+              ;; loop is terminated when the remote host closes the connection or on <link linkend="quit"><function>EXT:EXIT</function></link>
+              (loop (when (eq :eof (&so-status; (cons socket :input))) (return))
+                    (print (eval (read socket)) socket)
+                    ;; flush everything left in socket
+                    (loop :for c = (read-char-no-hang socket nil nil) :while c)
+                    (terpri socket))))
+    ;; make sure server is closed
+    (&sose-close; server)))
+</programlisting>
+<warning><title>This opens a gaping security hole!</title>
+ <simpara>Functions like &shell;, &exec;, &run-cmd; will allow the
+  remote host to execute arbitrary code with your permissions.
+  While functions defined in lisp (like &run-cmd;) can be removed
+  (using &fmakunbound;), the built-in functions (like &shell; and &exec;)
+  cannot be permanently removed from the run-time, and an experienced
+  hacker will be able to invoke then even if you &fmakunbound; their names.
+  You can limit the socket server to local connections by passing &sose;
+  a local socket as the optional argument.</simpara></warning></para>
 </example>
 
 <example id="socket-ex-client"><title>Lisp &http; client</title>
