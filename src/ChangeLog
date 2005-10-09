@@ -1,3 +1,15 @@
+2005-10-09  Sam Steingold  <sds@gnu.org>
+
+	make sure that SOCKET-STATUS handles buffered streams properly
+	* stream.d (handle_set): accept non_empty_buffers_p
+	(handle_isset): call listen_char() and listen_byte() on buffered
+	input streams even when FD_ISSET is false
+	(SOCKET-STATUS): pass non_empty_buffers_p to handle_set() and
+	reset timeout to 0 when non_empty_buffers_p is true
+	(stream_isbuffered_low): derived from stream_isbuffered() to
+	return the amount of data available in the input buffer
+	(stream_isbuffered): call stream_isbuffered_low()
+
 2005-10-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XLIB:SET-DISPLAY-ERROR-HANDLER):
