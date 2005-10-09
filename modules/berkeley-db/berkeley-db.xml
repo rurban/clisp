@@ -13,6 +13,9 @@
 <simpara>When this module is present, &features-var; contains the
  symbol <constant>:BERKELEY-DB</constant>.</simpara>
 
+<simpara>See <filename role="clisp-cvs">modules/berkeley-db/test.tst</filename>
+ for sample usage.</para>
+
 <section id="bdb-objects"><title>Berkeley-DB Objects</title>
 
 <para>Thie module exports the following opaque &structure-object-t; types:
