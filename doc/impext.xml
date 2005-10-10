@@ -47,14 +47,14 @@
 <para>&init-hooks; is run like this:<programlisting language="lisp">
 (&mapc; #'&funcall; &init-hooks;)
 </programlisting></para>
-<note><title>The difference between &init-hooks; and
-  <constant>:INIT-FUNCTION</constant></title>
+<section id="init-hooks-function"><title>The difference between
+  &init-hooks; and <constant>:INIT-FUNCTION</constant></title>
 <para>&init-hooks; are <emphasis>always</emphasis> run regardless of the
  command line options before even the banner is printed.
  The <link linkend="image"><constant>:INIT-FUNCTION</constant></link> is
  run <emphasis>only</emphasis> if the &repl; is ever entered and just
  before the first <link linkend="prompt">prompt</link> is printed.
-</para></note>
+</para></section>
 </section>
 
 <section id="fini-hooks"><title>Customizing Termination</title>
@@ -332,7 +332,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
   :always (equalp (ext:convert-string-to-bytes (string (code-char i))
                                                charset:iso-8859-1)
                   (vector i)))
-<returnvalue>T</returnvalue></programlisting>
+<computeroutput>T</computeroutput></programlisting>
    i.e., it is compatible with &clisp; &code-char;/&char-code;
    in its own domain.</para></listitem>
  <listitem id="charset-ISO-8859-2"><simpara><constant>ISO-8859-2</constant>,
@@ -674,22 +674,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  sometimes they also accept &unix-k; line terminators or produce
  &mac-k; line terminators.</para>
 
-<para>The &http; protocol also requires &dos-k; line terminators:
-<programlisting language="lisp">
-(&with-open-stream; (s (&so-connect; 80 &host-r; &extfmt; &dos-k;))
-  (&format; s "GET foo.jpeg HTTP/1.0~%")
-  (&sost-shut; s &output-k;)
-  (&loop; :with content-length :and marker = "Content-length: "
-    :for line = (&read-line; s nil nil)
-    :until (&zerop; (&length; line)) :do
-    (&when; (&string-eq; line "Content-length: " :end1 (&length; marker))
-      (&setq; content-length (&parse-integer; line :start (&length; marker)))
-    :finally (&return; (&let; ((data (&make-array; content-length
-                                             :element-type '&unsigned-byte-8;)))
-                       (&setf; (&stream-element-type; s) '&unsigned-byte-8;)
-                       (&rd-by-seq; data s)
-                       data)))))
-</programlisting></para>
+<para>The &http; protocol also requires &dos-k; line terminators.</para>
 
 <para>The line terminator mode is relevant only for output (writing to a
  &file-pipe-socket-s;).  During input, all three kinds of line terminators
@@ -1563,14 +1548,12 @@ is approximately equivalent to
  construct, except that it is looks more "Lispy" and can appear
  arbitrarily deep.  It defines local macros (with &macrolet;) which
  collect objects given to it into lists, which are then returned as
- &mul-val;.  E.g.,
-
-<programlisting language="lisp">
+ &mul-val;.  E.g., <programlisting language="lisp">
 (ext:with-collect (c0 c1)
   (dotimes (i 10) (if (oddp i) (c0 i) (c1 i))))
-</programlisting>
-
-returns two &list-t;s <returnvalue>(1 3 5 7 9)</returnvalue>
+<computeroutput>(1 3 5 7 9)</computeroutput> ;
+<computeroutput>(0 2 4 6 8)</computeroutput>
+</programlisting> returns two &list-t;s <returnvalue>(1 3 5 7 9)</returnvalue>
 and <returnvalue>(0 2 4 6 8)</returnvalue> as &mul-val;.
 </para></formalpara>
 
@@ -4363,14 +4346,35 @@ Compiled, it will have inlined the library function calls.
 </example>
 
 <example id="socket-ex-client"><title>Lisp &http; client</title>
-<para>Here is a simple lisp &http; client that fetches a web page:
+<para>Here are a couple of simple lisp &http; clients that fetch a web
+ page and a binary file:
 <programlisting language="lisp">
-(defun wget (host page file &optional-amp; (port 80))
+(&defun; wget-text (host page file &optional-amp; (port 80))
+  ;; &http; requires &dos-k; &line-term;
   (&with-open-stream; (socket (&so-connect; port host &extfmt; &dos-k;))
-     (with-open-file (out file :direction :output)
-       (format socket "GET ~A~2%" page)
-       (loop :for line = (read-line socket nil nil) :while line
-          :do (write-line line out)))))
+     (&format; socket "GET ~A HTTP/1.0~2%" page)
+     (&sost-shut; s &output-k;)
+     ;; dump the whole thing - header+data - into the output file
+     (&with-open-file; (out file :direction :output)
+       (&loop; :for line = (&read-line; socket nil nil) :while line
+          :do (&write-line; line out)))))
+(&defun; wget-binary (host page file &optional-amp; (port 80))
+  (&with-open-stream; (socket (&so-connect; port host &extfmt; &dos-k;))
+    (&format; socket "GET ~A HTTP/1.0~2%" page)
+    (&sost-shut; socket &output-k;)
+    (&loop; :with content-length :and marker = "Content-length: "
+      :for line = (&read-line; socket nil nil)
+      ;; header is separated from the data with a blank line
+      :until (&zerop; (&length; line)) :do
+      (&when; (&string-eq; line "Content-length: " :end1 (&length; marker))
+        (&setq; content-length (&parse-integer; line :start (&length; marker)))
+      :finally (&return; (&let; ((data (&make-array; content-length
+                                               :element-type '&unsigned-byte-8;)))
+                           (&setf; (&stream-element-type; socket) '&unsigned-byte-8;)
+                           (&rd-by-seq; data socket)
+                           (&with-open-file; (out file :direction :output)
+                             (&wr-by-seq; data out))
+                           data))))))
 </programlisting></para></example>
 </section>
 
