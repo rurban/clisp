@@ -10734,6 +10734,13 @@ extern struct object_tab_ {
 # handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable.
   extern bool handle_fault_range (int prot, aint start_address, aint end_address);
 #endif
+%% export_def(PROT_READ);
+%% export_def(PROT_READ_WRITE);
+%% #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+%% puts("extern bool handle_fault_range (int prot, aint start_address, aint end_address);");
+%% #else
+%% puts("#define handle_fault_range(p,s,e)");
+%% #endif
 
 
 # ###################### MODBIBL for MODULES.D ############################ #
