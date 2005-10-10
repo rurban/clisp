@@ -14,7 +14,7 @@
  symbol <constant>:BERKELEY-DB</constant>.</simpara>
 
 <simpara>See <filename role="clisp-cvs">modules/berkeley-db/test.tst</filename>
- for sample usage.</para>
+ for sample usage.</simpara>
 
 <section id="bdb-objects"><title>Berkeley-DB Objects</title>
 

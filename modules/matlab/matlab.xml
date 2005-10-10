@@ -7,7 +7,7 @@
  The package <quote role="package">MATLAB</quote> is
  <link linkend="package-case">case-sensitive</link>, so you would write
  <code>(matlab:engOpen ...)</code>
- when you need to call <function role="matlab">engOpen()</function></ulink>.
+ when you need to call <function role="matlab">engOpen()</function>.
 </para>
 
 <para>Additionally, some higher level functionality is available
