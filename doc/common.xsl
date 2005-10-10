@@ -1,3 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE xsl:stylesheet [
+          <!ENTITY lowercase "'abcdefghijklmnopqrstuvwxyz'">
+          <!ENTITY uppercase "'ABCDEFGHIJKLMNOPQRSTUVWXYZ'">
+]>
+
 <!-- common settings for CLISP Implementation Notes formatting -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0" xmlns="http://www.w3.org/1999/xhtml">
