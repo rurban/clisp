@@ -1,3 +1,7 @@
+2005-10-10  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (handle_set): do not call stream_isbuffered on non-streams
+
 2005-10-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/netica/wrap.lisp (*verbose*): init to NIL to avoid
