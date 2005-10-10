@@ -2196,6 +2196,67 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 
 </section>
 
+<section id="mod-ffi-vs-c"><title>Trade-offs: &ffi-pac; vs. &c-lang;
+  modules</title>
+<para>When deciding how to write a module: whether to use &ffi-pac;  or
+ to stick with &c-lang; and &modprep;, one has to take into account
+ several issues: <variablelist>
+  <varlistentry><term>Speed: &c-lang; wins</term>
+ <listitem><para>&ffi-pac; has a noticeable overhead:
+   compare <function>RAWSOCK:HTONS</function> (defined
+   in <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>)
+   with <programlisting language="lisp">
+(&def-call-out; htons (:name "htons") (:library :default)
+  (:arguments (s short)) (:return-type short) (:language :stdc))
+</programlisting> and observe that <function>RAWSOCK:HTONS</function> is
+   almost 3 times as fast (this really does compare the &ffi-pac;
+   overhead to the normal lisp funcall because
+   <function role="unix">htons</function> is computationally trivial).
+</para></listitem></varlistentry>
+<varlistentry><term>Portability: &c-lang; wins</term>
+ <listitem><simpara>First of all, &ffi-pac; is &not-e; as widely ported
+   as &clisp;, so it is possible that you will face a platform where
+   &clisp; runs but &ffi-pac; is not present.</simpara>
+  <simpara>Second, it is much easier to handle portability in &c-lang;:
+   observe the alternative implementations
+   of <function role="unix">htonl</function> et al
+   in <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>.
+   Also, if different platforms use a different numeric values for, a
+   &cpp; constant, &ffi-pac; becomes tricky (see
+   <xref linkend="dffi-ex-macro"/>).</simpara></listitem></varlistentry>
+<varlistentry><term>Code size: &ffi-pac; wins</term>
+ <listitem><simpara>You need to type much fewer characters with &ffi-pac;,
+   and, if you use the &library-k; argument to &def-call-out; and
+   &def-c-var;, you do not need to leave your &clisp; session to try
+   out your code.  This is a huge advantage for rapid prototyping.
+</simpara></listitem></varlistentry>
+<varlistentry><term>UI: &c-lang; wins</term>
+ <listitem><simpara>To produce a nice lispy UI (using optional and
+   keyword arguments etc), you will need to write wrappers to your
+   &ffi-pac; functions, while in &c-lang; you can do that directly.
+</simpara></listitem></varlistentry>
+<varlistentry><term>Learning curve: unclear</term>
+ <listitem><simpara>If you are comfortable with &c-lang;, you might
+   find the &clisp; &c-lang; module facilities (e.g., &modprep;) very
+   easy to use.</simpara>
+  <simpara>&clisp; &ffi-pac;, on the other hand, is quite high-level,
+   so, if you are more comfortable with high-level languages, you might
+   find it easier to write &ffi-pac; forms than &c-lang; code.
+</simpara></listitem></varlistentry>
+<varlistentry><term>Safety: unclear</term>
+ <listitem><simpara>One can get a segfault either way: if your
+   &def-call-out; form does not describe the function's expectations
+   with respect to the arguments and return values (including
+   &allocation;), you will probably learn that the hard way.
+   If the module is written in &c-lang;, all the opportunities to shoot
+   oneself in the foot (and other body parts) are wide open
+   (although well known to most &c-lang; users).
+   However, with &c-lang;, one has to watch
+   for <link linkend="gc-safety">GC-safety</link> too.
+</simpara></listitem></varlistentry>
+</variablelist></para>
+</section>
+
 <section id="included-modules">
    <title>Modules included in the source distribution</title>
 
