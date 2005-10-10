@@ -1985,22 +1985,28 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <section id="modinit"><title>Module initialization</title>
 
 <para>Each module has two initialization functions:
-<variablelist><varlistentry>
- <term><function>module__&name-r;__init_function_1</function></term>
+ <variablelist><varlistentry><term>void
+    <function>module__&name-r;__init_function_1</function>
+    (struct module_t* module)</term>
 <listitem><simpara>called only <emphasis>once</emphasis> when &clisp;
   discovers while loading a &mem-image; that there is a module present
   in the executable (&lisp-run;) which was not present at the time the
   image was saved.  It can be used to create Lisp objects,
   e.g. functions or keywords, and is indeed used for that purpose by
   &modprep;.</simpara>
+ <simpara>You do &not-e; have to defined this function yourself;
+  &modprep; and &ffi-pac; will do that for you.  If you do define this
+  function yourself, &modprep; will add whatever it needs to it.</simpara>
+ <simpara>If you use &ffi-pac;, <code>(&c-lines; :init-once ...)</code>
+  will add code to this function.</simpara>
  <warning><simpara>The &package-t;s must already exist and be unlocked,
    cf. &mod-preload;.</simpara></warning>
  <warning><simpara>If you are using &modprep; &and-e;
    defining your own <quote>init-once</quote> function, it must call the
    <function>module__&name-r;__init_function_1__modprep</function>
    function!</simpara></warning></listitem></varlistentry>
-<varlistentry>
- <term><function>module__&name-r;__init_function_2</function></term>
+<varlistentry><term>void <function>module__&name-r;__init_function_2</function>
+  (struct module_t* module)</term>
 <listitem><simpara>called <emphasis>every time</emphasis> &clisp; starts.
   It can be used to bind names to foreign addresses, since the address
   will be different in each invocation of &clisp;, and is indeed used
@@ -2008,7 +2014,11 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   It can also be used to set parameters of the libraries to which the
   module interfaces, e.g., the <link linkend="pcre">pcre</link> module
   sets <varname>pcre_malloc</varname> and <varname>pcre_free</varname>.
-</simpara></listitem></varlistentry></variablelist>
+ </simpara><simpara>You do &not-e; have to defined this function yourself;
+  &modprep; and &ffi-pac; will do that for you.</simpara>
+ <simpara>If you use &ffi-pac;, <code>(&c-lines; :init-always ...)</code>
+  will add code to this function.</simpara>
+</listitem></varlistentry></variablelist>
 &name-r; is the <link linkend="mod-overview">module name</link>.</para>
 <para>See also <xref linkend="custom-init-fini"/>.</para>
 </section>
@@ -2016,10 +2026,15 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <section id="modfini"><title>Module finalization</title>
 
 <para>Each module has a finalization function
-<variablelist><varlistentry>
- <term><function>module__&name-r;__fini_function</function></term>
-<listitem><simpara>called before exiting &clisp;.
-</simpara></listitem></varlistentry></variablelist>
+<variablelist><varlistentry><term>void
+   <function>module__&name-r;__fini_function</function>
+   (struct module_t* module)</term>
+<listitem><simpara>called before exiting &clisp;.</simpara>
+ <simpara>You do &not-e; have to defined this function yourself;
+  &modprep; and &ffi-pac; will do that for you.</simpara>
+ <simpara>If you use &ffi-pac;, <code>(&c-lines; :fini ...)</code> will
+  add code to this function.</simpara>
+</listitem></varlistentry></variablelist>
 &name-r; is the <link linkend="mod-overview">module name</link>.</para>
 <para>See also <xref linkend="custom-init-fini"/>.</para>
 </section>
@@ -3614,18 +3629,18 @@ static int my_var=LIBRARY_VERSION;~%")
 </programlisting></para>
 <para>Compiling this file will produce <filename>foo.c</filename>
  and <filename>foo.fas</filename> and you have two options:
- <orderedlist><listitem><simpara>Compile <filename>foo.c</filename>
+ <orderedlist><listitem><para>Compile <filename>foo.c</filename>
     into <filename>foo.o</filename> with <screen>
 <prompt>$</prompt> gcc -c foo.c -lmylib
 </screen> and use &clisp-link; to create a new
-    &clisp; &linkset;.</simpara></listitem>
-  <listitem><simpara>Add <code>(:library "foo.dll")</code> to the
+    &clisp; &linkset;.</para></listitem>
+  <listitem><para>Add <code>(:library "foo.dll")</code> to the
     &def-c-var; form, compile <filename>foo.c</filename>
     into <filename>foo.so</filename> (or <filename>foo.dll</filename> on
     &win32;) with <screen>
 <prompt>$</prompt> gcc -shared -o foo.so foo.c -lmylib
 </screen> and load <filename>foo.fas</filename>.
-</simpara></listitem></orderedlist></para>
+</para></listitem></orderedlist></para>
 </example>
 
 <example id="ex-call-in"><title>Calling Lisp from &c-lang;</title>
