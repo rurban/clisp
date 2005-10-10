@@ -417,15 +417,11 @@
 
 <!-- *** netica *** -->
 <!ENTITY netica-link "<ulink url='http://norsys.com/netica_c_api.htm'>Netica C API</ulink>">
-<!ENTITY netica-c-api "http://norsys.com/onLineAPIManual/functions/">
 
 <!-- *** oracle *** -->
 <!ENTITY oracle-link "<ulink url='http://www.oracle.com'>Oracle</ulink>">
 <!ENTITY oracle-oci "<ulink url='http://www.vivtek.com/oracle.html'>OCI</ulink>">
 <!ENTITY ora-connect "<link linkend='ora-connect'><function>ORACLE:CONNECT</function></link>">
-
-<!-- *** matlab *** -->
-<!ENTITY matlab-c-api "http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/">
 
 <!-- *** fastcgi *** -->
 <!ENTITY fastcgi-link "<ulink url='http://www.fastcgi.com'>FastCGI</ulink>">
