@@ -43,7 +43,7 @@
                      (netica::GetNodeType_bn <node>))))
 
 ;;; user interface variables
-(defvar *verbose* *standard-output* "the netica log stream")
+(defvar *verbose* nil "the netica log stream")
 (defvar *env* nil "the current netica environment")
 (defvar *license* "" "the netica license key - ask norsys")
 

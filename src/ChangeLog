@@ -1,5 +1,10 @@
 2005-10-09  Sam Steingold  <sds@gnu.org>
 
+	* modules/netica/wrap.lisp (*verbose*): init to NIL to avoid
+	saving a closed terminal stream into the image (like with *sql-log*)
+
+2005-10-09  Sam Steingold  <sds@gnu.org>
+
 	make sure that SOCKET-STATUS handles buffered streams properly
 	* stream.d (handle_set): accept non_empty_buffers_p
 	(handle_isset): call listen_char() and listen_byte() on buffered
