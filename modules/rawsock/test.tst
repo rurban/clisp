@@ -45,7 +45,7 @@
   (defvar *sa-remote*) (defvar *sa-local*)
   (defvar *buffer* (make-array 1024 :element-type '(unsigned-byte 8)))
   (defvar *sock*) (defvar *sock1*) (defvar *sock2*)
-  (defvar *recv-ret*) #-:win32 (defvar *read-ret*)
+  (defvar *recv-ret*) (defvar *recvfrom-ret*) #-:win32 (defvar *read-ret*)
   T) T
 
 (progn (setq *sa-remote* (host->sa "ftp.gnu.org" 21)) T) T
@@ -73,7 +73,8 @@ NIL
 
 (let ((size (rawsock:recv *sock* *buffer*)))
   (show (setq *recv-ret* (list size (from-bytes *buffer* size))))
-  (ext:socket-status *sock*)) :OUTPUT
+  (ext:socket-status *sock*))
+:OUTPUT
 
 #+unix (listp (show (rawsock:socket-option *sock* NIL) :pretty t)) T
 #+unix (listp (show (rawsock:socket-option *sock* NIL :level :ALL) :pretty t))T
@@ -96,6 +97,7 @@ NIL
 (ext:socket-stream-shutdown *sock* :io) NIL
 (rawsock:sock-close *sock*) 0
 
+;; re-create the socket after it has been closed
 (let ((so (rawsock:socket :INET :STREAM nil)))
   (show (list so *sock*))
   (= so *sock*))
@@ -117,6 +119,28 @@ NIL
 #-:win32 :OUTPUT
 
 #-:win32 (equal *recv-ret* *read-ret*) #-:win32 T
+
+(rawsock:sock-close *sock*) 0
+
+;; re-create the socket after it has been closed
+(let ((so (rawsock:socket :INET :STREAM nil)))
+  (show (list so *sock*))
+  (= so *sock*))
+T
+
+(rawsock:bind *sock* *sa-local*) NIL
+(rawsock:connect *sock* *sa-remote*) NIL
+
+(multiple-value-bind (size sa-size sa)
+    (rawsock:recvfrom *sock* *buffer* *sa-remote*)
+  (show (list sa-size sa))
+  (show (setq *recvfrom-ret* (list size (from-bytes *buffer* size))))
+  (list (eq sa *sa-remote*) (ext:socket-status *sock*)))
+(T :OUTPUT)
+
+(equal *recv-ret* *recvfrom-ret*) T
+
+(rawsock:sock-close *sock*) 0
 
 ;; no socketpair() on win32
 #-:win32 (progn
