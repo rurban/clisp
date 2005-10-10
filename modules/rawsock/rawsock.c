@@ -84,10 +84,11 @@ static object my_check_argument (object name, object datum) {
 /* DANGER: the return value is invalidated by GC!
  > *arg_: vector
  > STACK_0, STACK_1: START & END
+ > prot: PROT_READ or PROT_READ_WRITE
  < size: how many bytes to use
  < pointer to the buffer start
  can trigger GC */
-static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size) {
+static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size, int prot) {
   uintV start = 0;
   object data;
   *arg_ = check_byte_vector(*arg_);
@@ -95,23 +96,36 @@ static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size) {
   *size = missingp(STACK_0) ? vector_length(*arg_)
     : posfixnum_to_V(check_posfixnum(STACK_0));
   data = array_displace_check(*arg_,*size,&start);
-  return (void*)(TheSbvector(data)->data + start);
+  { void *start_address = (void*)(TheSbvector(data)->data + start);
+    handle_fault_range(prot,(aint)start_address,(aint)(start_address + *size));
+    return start_address;
+  }
 }
 /* DANGER: the return value is invalidated by GC!
+ > type: the expected type
+ > arg: the argument
+ < size: the data size
+ > prot: PROT_READ or PROT_READ_WRITE
+ < returns the address of the data area
  can trigger GC */
-static void* check_struct_data (object type, object arg, SOCKLEN_T *size) {
+static void* check_struct_data (object type, object arg, SOCKLEN_T *size,
+                                int prot) {
   object vec = TheStructure(check_classname(arg,type))->recdata[1];
   *size = Sbvector_length(vec);
-  return (void*)TheSbvector(vec)->data;
+  { void *start_address = (void*)(TheSbvector(vec)->data);
+    handle_fault_range(prot,(aint)start_address,(aint)(start_address + *size));
+    return start_address;
+  }
 }
 
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
   SOCKLEN_T size;
   struct sockaddr *sa =
-    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size);
+    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size,
+                                        PROT_READ);
   VALUES2(fixnum(sa->sa_family),fixnum(size));
 }
-DEFUN(RAWSOCK:SOCKADDR-SLOT,&optional slot) {
+DEFUN(RAWSOCK::SOCKADDR-SLOT,&optional slot) {
   /* return offset & size of the slo in SOCKADDR */
  restart_sockaddr_slot:
   if (missingp(STACK_0)) {
@@ -345,7 +359,8 @@ static void optional_sockaddr_argument (gcv_object_t *arg, struct sockaddr**sa,
   if (nullp(*arg)) *sa = NULL;
   else {
     if (eq(T,*arg)) *arg = make_sockaddr();
-    *sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,*arg,size);
+    *sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,*arg,size,
+                                              PROT_READ_WRITE);
   }
 }
 
@@ -365,7 +380,8 @@ DEFUN(RAWSOCK:BIND,socket sockaddr) {
   int retval;
   SOCKLEN_T size;
   struct sockaddr *sa =
-    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
+    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size,
+                                        PROT_READ);
   /* no GC after this point! */
   SYSCALL(retval,sock,bind(sock,sa,size));
   VALUES0; skipSTACK(2);
@@ -376,7 +392,8 @@ DEFUN(RAWSOCK:CONNECT,socket sockaddr) {
   int retval;
   SOCKLEN_T size;
   struct sockaddr *sa =
-    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
+    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size,
+                                        PROT_READ);
   /* no GC after this point! */
   SYSCALL(retval,sock,connect(sock,sa,size));
   VALUES0; skipSTACK(2);
@@ -428,7 +445,7 @@ DEFUN(RAWSOCK:RECV,socket buffer &key START END PEEK OOB WAITALL) {
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
   size_t buffer_len;
-  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len);
+  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len,PROT_READ_WRITE);
   SYSCALL(retval,sock,recv(sock,(BUF_TYPE_T)buffer,buffer_len,flags));
   VALUES1(fixnum(retval)); skipSTACK(4);
 }
@@ -446,7 +463,7 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address &key START END PEEK OOB WAITALL) {
   STACK_3 = check_byte_vector(STACK_3);
   optional_sockaddr_argument(&STACK_2,&sa,&sa_size);
   /* no GC after this point! - buffer, start, end have been checked already */
-  buffer = parse_buffer_arg(&STACK_3,&buffer_len);
+  buffer = parse_buffer_arg(&STACK_3,&buffer_len,PROT_READ_WRITE);
   SYSCALL(retval,sock,recvfrom(sock,(BUF_TYPE_T)buffer,
                                buffer_len,flags,sa,&sa_size));
   VALUES3(fixnum(retval),fixnum(sa_size),STACK_2); skipSTACK(5);
@@ -459,7 +476,8 @@ DEFUN(RAWSOCK:RECVMSG,socket message &key PEEK OOB WAITALL) {
   int retval;
   SOCKLEN_T size;
   struct msghdr *message =
-    (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size);
+    (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size,
+                                      PROT_READ_WRITE);
   SYSCALL(retval,sock,recvmsg(sock,message,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
@@ -469,7 +487,7 @@ DEFUN(RAWSOCK:SOCK-READ,socket buffer &key START END) {
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
   size_t buffer_len;
-  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len);
+  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len,PROT_READ_WRITE);
   SYSCALL(retval,sock,read(sock,buffer,buffer_len));
   VALUES1(fixnum(retval)); skipSTACK(4);
 }
@@ -484,7 +502,7 @@ DEFUN(RAWSOCK:SEND,socket buffer &key START END OOB EOR) {
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
   size_t buffer_len;
-  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len);
+  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len,PROT_READ);
   SYSCALL(retval,sock,send(sock,(const BUF_TYPE_T)buffer,buffer_len,flags));
   VALUES1(fixnum(retval)); skipSTACK(4);
 }
@@ -496,7 +514,8 @@ DEFUN(RAWSOCK:SENDMSG,socket message &key OOB EOR) {
   int retval;
   SOCKLEN_T size;
   struct msghdr *message =
-    (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size);
+    (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size,
+                                      PROT_READ);
   SYSCALL(retval,sock,sendmsg(sock,message,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
@@ -513,9 +532,10 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key START END OOB EOR) {
   if (!missingp(STACK_0)) STACK_0 = check_posfixnum(STACK_0);
   if (!missingp(STACK_1)) STACK_1 = check_posfixnum(STACK_1);
   STACK_3 = check_byte_vector(STACK_3);
-  sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_2,&size);
+  sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_2,&size,
+                                           PROT_READ);
   /* no GC after this point! - buffer, start, end have been checked already */
-  buffer = parse_buffer_arg(&STACK_3,&buffer_len);
+  buffer = parse_buffer_arg(&STACK_3,&buffer_len,PROT_READ);
   SYSCALL(retval,sock,sendto(sock,(const BUF_TYPE_T)buffer,
                              buffer_len,flags,sa,size));
   VALUES1(fixnum(retval)); skipSTACK(5);
@@ -525,7 +545,7 @@ DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key START END) {
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
   size_t buffer_len;
-  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len);
+  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len,PROT_READ);
   SYSCALL(retval,sock,write(sock,buffer,buffer_len));
   VALUES1(fixnum(retval)); skipSTACK(4);
 }
@@ -838,7 +858,8 @@ DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
 /* ================== CHECKSUM from Fred Cohen ================== */
 DEFUN(RAWSOCK:IPCSUM, buffer &key START END) { /* IP CHECKSUM */
   size_t length;
-  unsigned char* buffer = (unsigned char*)parse_buffer_arg(&STACK_2,&length);
+  unsigned char* buffer =
+    (unsigned char*)parse_buffer_arg(&STACK_2,&length,PROT_READ_WRITE);
   register long sum=0;           /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr=&(buffer[14]);
@@ -857,7 +878,8 @@ DEFUN(RAWSOCK:IPCSUM, buffer &key START END) { /* IP CHECKSUM */
 
 DEFUN(RAWSOCK:ICMPCSUM, buffer &key START END) { /* ICMP CHECKSUM */
   size_t length;
-  unsigned char* buffer = (unsigned char*)parse_buffer_arg(&STACK_2,&length);
+  unsigned char* buffer =
+    (unsigned char*)parse_buffer_arg(&STACK_2,&length,PROT_READ);
   register long sum=0;           /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr;
@@ -879,7 +901,8 @@ DEFUN(RAWSOCK:ICMPCSUM, buffer &key START END) { /* ICMP CHECKSUM */
 
 DEFUN(RAWSOCK:TCPCSUM, buffer &key START END) { /* TCP checksum */
   size_t length;
-  unsigned char* buffer = (unsigned char*)parse_buffer_arg(&STACK_2,&length);
+  unsigned char* buffer =
+    (unsigned char*)parse_buffer_arg(&STACK_2,&length,PROT_READ_WRITE);
   register unsigned long sum;  /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr;
@@ -907,7 +930,8 @@ DEFUN(RAWSOCK:TCPCSUM, buffer &key START END) { /* TCP checksum */
 
 DEFUN(RAWSOCK:UDPCSUM, buffer &key START END) { /* UDP checksum */
   size_t length;
-  unsigned char* buffer = (unsigned char*)parse_buffer_arg(&STACK_2,&length);
+  unsigned char* buffer =
+    (unsigned char*)parse_buffer_arg(&STACK_2,&length,PROT_READ_WRITE);
   register unsigned long sum = 0;  /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr;

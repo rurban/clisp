@@ -1213,11 +1213,15 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
     return DBT_STRING;
   } else if (bit_vector_p(Atype_8Bit,obj)) {
     uintL idx = 0;
+    void *data_start;
     key->ulen = key->size = vector_length(obj);
     obj = array_displace_check(obj,key->size,&idx);
+    data_start = TheSbvector(obj)->data + idx;
+    handle_fault_range(PROT_READ,(aint)data_start,
+                       (aint)(data_start + key->size));
     key->data = my_malloc(key->size);
     begin_system_call();
-    memcpy(key->data,TheSbvector(obj)->data + idx,key->size);
+    memcpy(key->data,data_start,key->size);
     end_system_call();
     return DBT_RAW;
   } else if (integerp(obj)) { /* known to be positive from check_dbt_object() */
@@ -1254,8 +1258,10 @@ static object dbt_to_object (DBT *p_dbt, dbt_o_t type, int key_type) {
   switch (type) {
     case DBT_RAW: {
       object vec = allocate_bit_vector(Atype_8Bit,p_dbt->size);
+      void* data = TheSbvector(vec)->data;
+      handle_fault_range(PROT_READ_WRITE,(aint)data,(aint)(data + dbt->size));
       begin_system_call();
-      memcpy(TheSbvector(vec)->data,p_dbt->data,p_dbt->size);
+      memcpy(data,p_dbt->data,p_dbt->size);
       free(p_dbt->data); p_dbt->data = NULL;
       end_system_call();
       return vec;

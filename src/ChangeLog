@@ -1,5 +1,14 @@
 2005-10-10  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (handle_fault_range, PROT_READ_WRITE, PROT_READ):
+	exported to clisp.h
+	* modules/berkeley-db/bdb.c (fill_dbt, dbt_to_object): call it
+	before memcpy() on lisp object data
+	* modules/pcre/cpcre.c (fullinfo_firsttable): ditto
+	* modules/rawsock/rawsock.c (parse_buffer_arg, check_struct_data): ditto
+
+2005-10-10  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (handle_set): do not call stream_isbuffered on non-streams
 
 2005-10-09  Sam Steingold  <sds@gnu.org>
