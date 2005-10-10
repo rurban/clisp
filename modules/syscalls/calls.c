@@ -3389,9 +3389,11 @@ static void PropSpecSetStr (object str, PROPSPEC * pspec) {
     unpack_sstring_alloca(str_string,str_len,str_offset, ptr1=);
     { uintL str_bytelen =
         cslen(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len);
-      pspec->lpwstr = (LPOLESTR) malloc(str_bytelen+2);
+      pspec->lpwstr = (LPOLESTR)my_malloc(str_bytelen+2);
+      begin_system_call();
       cstombs(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len,
               (uintB *)pspec->lpwstr,str_bytelen);
+      end_system_call();
       ((uintB *)pspec->lpwstr)[str_bytelen] = '\0';
       ((uintB *)pspec->lpwstr)[str_bytelen+1] = '\0';
     }
@@ -3494,7 +3496,8 @@ static const char * DecodeHRESULT (HRESULT hres) {
   }} while(0)
 
 /* there's no PropVariantInit in my cygwin headers */
-#define MyPropVariantInit(ppv) ZeroMemory(ppv,sizeof(PROPVARIANT))
+#define MyPropVariantInit(ppv)     begin_system_call(); \
+  ZeroMemory(ppv,sizeof(PROPVARIANT));end_system_call()
 
 /* (OS::FILE-PROPERTIES filename set [specifier value|:INITID init-id]*)
      Wrapper for Win32 IPropertyStorage functionality
@@ -3580,15 +3583,21 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     }
   }
   if (!StgOpenStorageExFunc) {
+    begin_system_call();
     SetLastError(ERROR_INVALID_FUNCTION);
+    end_system_call();
     OS_error();
   }
   STACK_(ifile) = physical_namestring(STACK_(ifile));
   with_string_0w(STACK_(ifile), filename, {
-    hres = StgOpenStorageExFunc(filename,
-      ((npropwr||use_wpn)?STGM_READWRITE:STGM_READ) | STGM_SHARE_EXCLUSIVE,
-      4 /* STGFMT_ANY */, 0, NULL /*&stgOp*/, 0, &IID_IPropertySetStorage,
-      (void **)&ppropsetstg);
+      begin_system_call();
+      hres = StgOpenStorageExFunc(filename,
+                                  ((npropwr||use_wpn)?STGM_READWRITE:STGM_READ)
+                                  | STGM_SHARE_EXCLUSIVE,
+                                  4 /* STGFMT_ANY */, 0, NULL /*&stgOp*/, 0,
+                                  &IID_IPropertySetStorage,
+                                  (void **)&ppropsetstg);
+      end_system_call();
   });
   if (FAILED(hres)) {
     pushSTACK(STACK_(ifile));
@@ -3611,9 +3620,11 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     pushSTACK(TheSubr(subr_self)->name);
     fehler(file_error,GETTEXT("~S: invalid property set specifier ~S"));
   }
+  begin_system_call();
   hres = ppropsetstg->lpVtbl->Open(ppropsetstg, fmtid,
                                    ((npropwr||use_wpn)?STGM_READWRITE:STGM_READ)
                                    | STGM_SHARE_EXCLUSIVE, &ppropstg);
+  end_system_call();
   if (FAILED(hres)) {
     pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
     pushSTACK(STACK_(ifile+1));
@@ -3622,22 +3633,13 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     fehler(file_error,GETTEXT("~S: unable to open ~S IPropertySetStorage of ~S: error ~S"));
   }
   /* fill the specifiers, init the variables */
-  pspecrd = (PROPSPEC *)malloc(sizeof(PROPSPEC) * nproprd);
-  pvarrd = (PROPVARIANT *)malloc(sizeof(PROPVARIANT) * nproprd);
-  pspecwr = (PROPSPEC *)malloc(sizeof(PROPSPEC) * npropwr);
-  pvarwr = (PROPVARIANT *)malloc(sizeof(PROPVARIANT) * npropwr);
+  pspecrd =   (PROPSPEC *)my_malloc(sizeof(PROPSPEC)    * nproprd);
+  pvarrd = (PROPVARIANT *)my_malloc(sizeof(PROPVARIANT) * nproprd);
+  pspecwr =   (PROPSPEC *)my_malloc(sizeof(PROPSPEC)    * npropwr);
+  pvarwr = (PROPVARIANT *)my_malloc(sizeof(PROPVARIANT) * npropwr);
   if (use_wpn) {
-    propidwpnvec = (PROPID *)malloc(sizeof(PROPID)*use_wpn);
-    lpwstrwpnvec = (LPWSTR *)malloc(sizeof(LPWSTR)*use_wpn);
-  }
-  if (pspecrd == NULL || pvarrd == NULL
-      || pspecwr == NULL || pvarwr == NULL
-      || use_wpn && (propidwpnvec == NULL || lpwstrwpnvec == NULL)) {
-    free(pspecrd); free(pvarrd);
-    free(pspecwr); free(pvarwr);
-    free(propidwpnvec);free(lpwstrwpnvec);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(storage_condition,GETTEXT("~S: no memory"));
+    propidwpnvec = (PROPID *)my_malloc(sizeof(PROPID)*use_wpn);
+    lpwstrwpnvec = (LPWSTR *)my_malloc(sizeof(LPWSTR)*use_wpn);
   }
   for(i=0;i<argcount;i+=2) {
     /* i+1 - specifier, i - value */
@@ -3671,7 +3673,10 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     fehler(error,GETTEXT("~S: ReadMultiple error: ~S"));
   }
   if (npropwr > 0) {
-    hres = ppropstg->lpVtbl->WriteMultiple(ppropstg,npropwr,pspecwr,pvarwr,initid);
+    begin_system_call();
+    hres = ppropstg->lpVtbl->WriteMultiple(ppropstg,npropwr,pspecwr,pvarwr,
+                                           initid);
+    end_system_call();
     if(FAILED(hres)) {
       pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
       pushSTACK(TheSubr(subr_self)->name);
@@ -3699,6 +3704,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   mv_count = nproprd;
   for (i=0;i<nproprd;i++) mv_space[nproprd-i-1] = popSTACK();
   skipSTACK(argcount+2); /* two first args */
+  begin_system_call();
   for (i=0;i<nproprd;i++) {
     PropVariantClear(pvarrd+i);
     if (pspecrd[i].ulKind == PRSPEC_LPWSTR) free(pspecrd[i].lpwstr);
@@ -3715,5 +3721,6 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   free(propidwpnvec); free(lpwstrwpnvec);
   ppropstg->lpVtbl->Release(ppropstg);
   ppropsetstg->lpVtbl->Release(ppropsetstg);
+  end_system_call();
 }
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
