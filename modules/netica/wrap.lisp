@@ -137,18 +137,18 @@ Sets netica:*env* to NIL when it was closed."
       (netica:check-errors))
     net))
 
-(defun net-info (net)
+(defun net-info (net &key (out *standard-output*))
   "Print information about the net."
-  (format t "~&net: ~s~%name: ~s~%" net (netica::GetNetName_bn net))
+  (format out "~&net: ~s~%name: ~s~%" net (netica::GetNetName_bn net))
   (let ((title (netica::GetNetTitle_bn net)))
     (unless (zerop (length title))
-      (format t "title: ~s~%" title)))
+      (format out "title: ~s~%" title)))
   (let ((comment (netica::GetNetComment_bn net)))
     (unless (zerop (length comment))
-      (format t "comment: ~s~%" comment)))
+      (format out "comment: ~s~%" comment)))
   (let ((file-name (netica::GetNetFileName_bn net)))
     (unless (zerop (length file-name))
-      (format t "file-name: ~s~%" file-name)))
+      (format out "file-name: ~s~%" file-name)))
   (let* ((nodes (netica::GetNetNodes_bn net))
          (count (netica::LengthNodeList_bn nodes)))
     (dotimes (ii count)
@@ -217,9 +217,9 @@ X & Y are coordinates; both or neither must be supplied."
     (netica:check-errors)
     node))
 
-(defun node-info (node &key header)
+(defun node-info (node &key header (out *standard-output*))
   "Print information about the node."
-  (format t "~&~@[ * [~s] ~]node: ~s (net: ~s)~%name: ~s   (~s ~s)~%"
+  (format out "~&~@[ * [~s] ~]node: ~s (net: ~s)~%name: ~s   (~s ~s)~%"
           header node (netica::GetNodeNet_bn node)
           (netica::GetNodeName_bn node)
           (ffi:enum-from-value 'netica::nodetype_bn
@@ -228,35 +228,35 @@ X & Y are coordinates; both or neither must be supplied."
                                (netica::GetNodeKind_bn node)))
   (let ((title (netica::GetNodeTitle_bn node)))
     (unless (zerop (length title))
-      (format t "title: ~s~%" title)))
+      (format out "title: ~s~%" title)))
   (multiple-value-bind (x y) (netica::GetNodeVisPosition_bn node nil)
-    (format t "position: (~s ~s)~%" x y))
+    (format out "position: (~s ~s)~%" x y))
   (let ((count (netica::GetNodeNumberStates_bn node)))
-    (format t "state count: ~:d~%" count)
+    (format out "state count: ~:d~%" count)
     (dotimes (state count)
       (let ((title (netica::GetNodeStateTitle_bn node state)))
-        (format t "[~:d] name: ~s~[~:;  title: ~s~]~%" state
+        (format out "[~:d] name: ~s~[~:;  title: ~s~]~%" state
                 (netica::GetNodeStateName_bn node state)
                 (length title) title))))
   (let* ((nodes (netica::GetNodeChildren_bn node))
          (count (netica::LengthNodeList_bn nodes)))
-    (if (zerop count) (format t "no children~%")
-        (loop :initially (format t "~:d ~:*~[~;child~:;children~]:~%" count)
+    (if (zerop count) (format out "no children~%")
+        (loop :initially (format out "~:d ~:*~[~;child~:;children~]:~%" count)
           :for ii :from 0 :to (1- count)
           :for child = (netica::NthNode_bn nodes ii)
-          :do (format t "[~:d] ~s (~s)~%" ii
+          :do (format out "[~:d] ~s (~s)~%" ii
                       (netica::GetNodeName_bn child) child))))
   (let* ((nodes (netica::GetNodeParents_bn node))
          (count (netica::LengthNodeList_bn nodes)))
-    (if (zerop count) (format t "no parents~%")
-        (loop :initially (format t "~:d parent~:p:~%" count)
+    (if (zerop count) (format out "no parents~%")
+        (loop :initially (format out "~:d parent~:p:~%" count)
           :for ii :from 0 :to (1- count)
           :for parent = (netica::NthNode_bn nodes ii)
-          :do (format t "[~:d] ~s (~s)~%" ii
+          :do (format out "[~:d] ~s (~s)~%" ii
                       (netica::GetNodeName_bn parent) parent))))
   (let ((levels (netica::GetNodeLevels node)))
     (dotimes (ii (length levels))
-      (format t "[~:d] level: ~s~%" ii (aref levels ii))))
+      (format out "[~:d] level: ~s~%" ii (aref levels ii))))
   (netica:check-errors))
 
 (defun get-beliefs (node
@@ -285,7 +285,7 @@ X & Y are coordinates; both or neither must be supplied."
       (format netica:*verbose* "~&;; ~s: set to ~s~%" node state))))
 
 (cl:defun open-dne-file (file &key ((:env netica:*env*) netica:*env*)
-                                   ((:verbose netica:*verbose*) netica:*verbose*))
+                         ((:verbose netica:*verbose*) netica:*verbose*))
   (let ((out (netica::NewStreamFile_ns
               (namestring (translate-logical-pathname
                            (merge-pathnames

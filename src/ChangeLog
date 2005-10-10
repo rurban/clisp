@@ -2,6 +2,7 @@
 
 	* modules/netica/wrap.lisp (*verbose*): init to NIL to avoid
 	saving a closed terminal stream into the image (like with *sql-log*)
+	(net-info, node-info): accept :OUT
 
 2005-10-09  Sam Steingold  <sds@gnu.org>
 

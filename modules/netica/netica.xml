@@ -49,7 +49,7 @@
    <function role="netica">SetNetTitle_bn</function> and
    <function role="netica">SetNetComment_bn</function>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><code>(netica:net-info net)</code></term>
+<varlistentry><term><code>(netica:net-info net &key-amp; :out)</code></term>
  <listitem><para>Print some information about the net:<simplelist>
     <member><function role="netica">GetNetName_bn</function></member>
     <member><function role="netica">GetNetTitle_bn</function></member>
@@ -64,7 +64,7 @@
    with the given name and many other parameters.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:node-info node
-   &key-amp; :header)</code></term>
+   &key-amp; :header :out)</code></term>
  <listitem><simpara>Print some information about the node, preceded by
    the header.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:get-beliefs node
