@@ -136,7 +136,9 @@ T
 (let ((buf (make-array 100 :fill-pointer t :adjustable t
                        :element-type 'character)))
   (defun flush-clisp (stream)
-    (when (socket:socket-status (cons stream :input) 1)
+    (when #-:win32 (socket:socket-status (cons stream :input) 1)
+          ;; select on win32 does not work with pipes
+          #+:win32 (progn (sleep 1) (listen stream))
       ;; read from the clisp stream until the next prompt
       (setf (fill-pointer buf) 0)
       (loop :with pos-NL = 0 :for ch = (read-char stream)
