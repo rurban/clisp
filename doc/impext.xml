@@ -2148,7 +2148,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 <para>See <filename role="clisp-cvs">modules/syscalls/</filename> and
  other included modules for more examples and file &modprep; for full
  documentation.</para>
-<warning><para>If you manipulate Lisp objects, you need to watch for
+<warning><para>If you manipulate Lisp objects, you need to watch out for
   <link linkend="gc-safety">GC-safety</link>.</para></warning>
 </section>
 
@@ -2207,7 +2207,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    in <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>)
    with <programlisting language="lisp">
 (&def-call-out; htons (:name "htons") (:library :default)
-  (:arguments (s short)) (:return-type short) (:language :stdc))
+  (:arguments (s ffi:short)) (:return-type ffi:short) (:language :stdc))
 </programlisting> and observe that <function>RAWSOCK:HTONS</function> is
    almost 3 times as fast (this really does compare the &ffi-pac;
    overhead to the normal lisp function call because
@@ -3603,22 +3603,28 @@ instead, in conjunction with
 </programlisting></para></example>
 
 <example id="dffi-ex-macro"><title>Accessing &cpp; macros</title>
-<para>To have the library version available from &clisp;, write these
+<para>Suppose you are interfacing to a library <filename>mylib.so</filename>
+ which defines its version in <filename>mylib.h</filename>.
+ To have the library version available from &clisp;, write these
  into a lisp file <filename>foo.lisp</filename>:
 <programlisting language="lisp">
-(&c-lines; "#include &lt;lib-header.h&gt;
+(&c-lines; "#include &lt;mylib.h&gt;
 static int my_var=LIBRARY_VERSION;~%")
 (&def-c-var; my-var (:name "my_var") (:type int))
 </programlisting></para>
 <para>Compiling this file will produce <filename>foo.c</filename>
  and <filename>foo.fas</filename> and you have two options:
  <orderedlist><listitem><simpara>Compile <filename>foo.c</filename>
-    into <filename>foo.o</filename> and use &clisp-link; to create a new
+    into <filename>foo.o</filename> with <screen>
+<prompt>$</prompt> gcc -c foo.c -lmylib
+</screen> and use &clisp-link; to create a new
     &clisp; &linkset;.</simpara></listitem>
   <listitem><simpara>Add <code>(:library "foo.dll")</code> to the
     &def-c-var; form, compile <filename>foo.c</filename>
     into <filename>foo.so</filename> (or <filename>foo.dll</filename> on
-    &win32;) and load <filename>foo.fas</filename>.
+    &win32;) with <screen>
+<prompt>$</prompt> gcc -shared -o foo.so foo.c -lmylib
+</screen> and load <filename>foo.fas</filename>.
 </simpara></listitem></orderedlist></para>
 </example>
 
