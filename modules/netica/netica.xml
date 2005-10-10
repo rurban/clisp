@@ -6,12 +6,13 @@
  Bayesian belief networks and influence diagrams.</para>
 
 <para>The package <quote role="package">NETICA</quote> is
- <link linkend="package-case">case-sensitive</link>, you would write
+ <link linkend="package-case">case-sensitive</link>, e.g., you would write
  <code>(netica:GetNodeExpectedUtils_bn ...)</code>
  when you need to call
  <function role="netica">GetNodeExpectedUtils_bn</function>.</para>
 
-<para>Additionally, some higher level functionality is available
+<para>An interface to all public &c-lang; functions is provided.
+ Additionally, some higher level functionality is available
  (see <filename role="clisp-cvs">modules/netica/demo.lisp</filename>
  for sample usage):</para>
 
@@ -19,8 +20,9 @@
 <varlistentry><term><code>(netica:start-netica &key-amp;
    :license :verbose)</code></term>
  <listitem><simpara>Call <function role="netica">NewNeticaEnviron_ns</function>
-   and <function>InitNetica_bn</function> and print some statistics; initialize
-   <varname>netica:*env*</varname>.</simpara></listitem></varlistentry>
+   and <function role="netica">InitNetica_bn</function> and print some
+   statistics; initialize <varname>netica:*env*</varname>.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:check-errors &key-amp;
    :env :clear :severity)</code></term>
  <listitem><simpara>Show and, optionally, clear
@@ -32,12 +34,12 @@
    so you do &not-e; need to call it after a call to a wrapper function.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:error-message error)</code></term>
- <listitem><simpara>Convert netica error to a &string-t; containing
-   <function role="netica">ErrorCategory_ns</function>,
-   <function role="netica">ErrorSeverity_ns</function>,
-   <function role="netica">ErrorNumber_ns</function>,
-   <function role="netica">ErrorMessage_ns</function>.
-</simpara></listitem></varlistentry>
+ <listitem><para>Convert netica error to a &string-t; containing<simplelist>
+    <member><function role="netica">ErrorCategory_ns</function></member>
+    <member><function role="netica">ErrorSeverity_ns</function></member>
+    <member><function role="netica">ErrorNumber_ns</function></member>
+    <member><function role="netica">ErrorMessage_ns</function></member>
+</simplelist></para></listitem></varlistentry>
 <varlistentry><term><code>(netica:close-netica &key-amp;
    :env :verbose)</code></term>
  <listitem><simpara>Terminate the netica session.
