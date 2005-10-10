@@ -9,9 +9,7 @@
  <link linkend="package-case">case-sensitive</link>, you would write
  <code>(netica:GetNodeExpectedUtils_bn ...)</code>
  when you need to call
- <ulink url="&netica-c-api;GetNodeExpectedUtils_bn.html"
-        ><function>GetNodeExpectedUtils_bn()</function></ulink>
-</para>
+ <function role="netica">GetNodeExpectedUtils_bn</function>.</para>
 
 <para>Additionally, some higher level functionality is available
  (see <filename role="clisp-cvs">modules/netica/demo.lisp</filename>
@@ -20,55 +18,50 @@
 <variablelist>
 <varlistentry><term><code>(netica:start-netica &key-amp;
    :license :verbose)</code></term>
- <listitem><simpara>Call
-   <ulink url="&netica-c-api;NewNeticaEnviron_ns.html"
-          ><function>NewNeticaEnviron_ns()</function></ulink> and
-   <ulink url="&netica-c-api;InitNetica_bn.html"
-          ><function>InitNetica_bn()</function></ulink>
-   and print some statistics; initialize
+ <listitem><simpara>Call <function role="netica">NewNeticaEnviron_ns</function>
+   and <function>InitNetica_bn</function> and print some statistics; initialize
    <varname>netica:*env*</varname>.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:check-errors &key-amp;
    :env :clear :severity)</code></term>
- <listitem><simpara>Show and, optionally,
-   <ulink url="&netica-c-api;ClearError_ns.html">clear</ulink>, the errors of
-   the given <ulink url="&netica-c-api;ErrorSeverity_ns.html">severity</ulink>
-   and above.  You should call this function
-   after <emphasis>every</emphasis> call to a Netica function.
-   Every wrapper function in this list calls it, so you do &not-e; need to
-   call it after a call to a wrapper function.
+ <listitem><simpara>Show and, optionally, clear
+   (<function role="netica">ClearError_ns</function>), the errors of the
+   given severity (<function role="netica">ErrorSeverity_ns</function>)
+   and above.
+   You should call this function after <emphasis>every</emphasis> call
+   to a Netica function.  Every wrapper function in this list calls it,
+   so you do &not-e; need to call it after a call to a wrapper function.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:error-message error)</code></term>
  <listitem><simpara>Convert netica error to a &string-t; containing
-   <ulink url="&netica-c-api;ErrorCategory_ns.html">error category</ulink>,
-   <ulink url="&netica-c-api;ErrorSeverity_ns.html">error severity</ulink>,
-   <ulink url="&netica-c-api;ErrorNumber_ns.html">error number</ulink>,
-   <ulink url="&netica-c-api;ErrorMessage_ns.html">error message</ulink>.
+   <function role="netica">ErrorCategory_ns</function>,
+   <function role="netica">ErrorSeverity_ns</function>,
+   <function role="netica">ErrorNumber_ns</function>,
+   <function role="netica">ErrorMessage_ns</function>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:close-netica &key-amp;
    :env :verbose)</code></term>
  <listitem><simpara>Terminate the netica session.
-   Sets <varname>netica:*env*</varname> to &nil; when it was closed.
+   Sets <varname>netica:*env*</varname> to &nil;.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:make-net &key-amp; :name
    :comment :title :env :verbose)</code></term>
- <listitem><simpara>Make a <ulink url="&netica-c-api;NewNet_bn.html">new
-    network</ulink> with a given name,
-   <ulink url="&netica-c-api;SetNetTitle_bn.html">title</ulink> and
-   <ulink url="&netica-c-api;SetNetComment_bn.html">comment</ulink>
-   and return it.</simpara></listitem></varlistentry>
-<varlistentry><term><code>(netica:net-info net)</code></term>
- <listitem><simpara>Print some information about the net
-   (<ulink url="&netica-c-api;GetNetName_bn.html">name</ulink>,
-    <ulink url="&netica-c-api;GetNetTitle_bn.html">title</ulink>,
-    <ulink url="&netica-c-api;GetNetComment_bn.html">comment</ulink>,
-    <ulink url="&netica-c-api;GetNetFileName_bn.html">file name</ulink> and
-    <ulink url="&netica-c-api;GetNetNodes_bn.html">nodes</ulink>).
+ <listitem><simpara>Call <function role="netica">NewNet_bn</function>,
+   <function role="netica">SetNetTitle_bn</function> and
+   <function role="netica">SetNetComment_bn</function>.
 </simpara></listitem></varlistentry>
+<varlistentry><term><code>(netica:net-info net)</code></term>
+ <listitem><para>Print some information about the net:<simplelist>
+    <member><function role="netica">GetNetName_bn</function></member>
+    <member><function role="netica">GetNetTitle_bn</function></member>
+    <member><function role="netica">GetNetComment_bn</function></member>
+    <member><function role="netica">GetNetFileName_bn</function></member>
+    <member><function role="netica">GetNetNodes_bn</function></member>
+</simplelist></para></listitem></varlistentry>
 <varlistentry><term><code>(netica:make-node &key-amp;
    :name :net :kind :levels :states :num-states :title :comment :parents
    :cpt :x :y :env :verbose)</code></term>
- <listitem><simpara>Make a <ulink url="&netica-c-api;NewNode_bn.html">new
-    node</ulink> with the given name and many other parameters.
+ <listitem><simpara>Call <function role="netica">NewNode_bn</function>
+   with the given name and many other parameters.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:node-info node
    &key-amp; :header)</code></term>
@@ -76,33 +69,31 @@
    the header.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:get-beliefs node
    &key-amp; :env :verbose)</code></term>
- <listitem><simpara><ulink url="&netica-c-api;GetNodeBeliefs_bn.html">Get
-    the belief vector</ulink> for the node.
-</simpara></listitem></varlistentry>
+ <listitem><simpara>Call <function role="netica">GetNodeBeliefs_bn</function>
+   on the node.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:enter-finding net node
    state &key-amp; :env :verbose)</code></term>
- <listitem><simpara><ulink url="&netica-c-api;EnterFinding_bn.html">Enter a
-    finding</ulink> by
-   <ulink url="&netica-c-api;NodeNamed_bn.html">node</ulink>
-   and <ulink url="&netica-c-api;StateNamed_bn.html">state</ulink>
-   names.</simpara></listitem></varlistentry>
+ <listitem><simpara>Call <function role="netica">EnterFinding_bn</function>
+   using <function role="netica">NodeNamed_bn</function>
+   and <function role="netica">StateNamed_bn</function>.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:save-net net &key-amp;
    :file :env :verbose)</code></term>
- <listitem><simpara><ulink url="&netica-c-api;WriteNet_bn.html">Write</ulink>
-   a network to a file.</simpara></listitem></varlistentry>
+ <listitem><simpara>Call <function role="netica">WriteNet_bn</function>.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:read-net file &key-amp;
    :env :verbose)</code></term>
- <listitem><simpara><ulink url="&netica-c-api;ReadNet_bn.html">Read</ulink>
-   a network from a file.</simpara></listitem></varlistentry>
+ <listitem><simpara>Call <function role="netica">ReadNet_bn</function>.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:with-open-dne-file (var
    file &rest-amp; opts) &body-amp; body)</code></term>
- <listitem><simpara><ulink url="&netica-c-api;NewStreamFile_ns.html">Open
-    a netica stream</ulink>, execute &body-r;,
-   <ulink url="&netica-c-api;DeleteStream_ns.html">close the stream</ulink>
-   - just like &with-open-file;.</simpara></listitem></varlistentry>
+ <listitem><simpara>Call <function role="netica">NewStreamFile_ns</function>,
+   execute &body-r;, then <function role="netica">DeleteStream_ns</function>
+   - just like &with-open-stream;.</simpara></listitem></varlistentry>
 <varlistentry><term><varname>netica:*verbose*</varname></term>
  <listitem><simpara>The log &stream-t; or &nil;; the default value for
-   the &verbose-k; argument.</simpara></listitem></varlistentry>
+   the &verbose-k; argument (initially set to &nil;).
+</simpara></listitem></varlistentry>
 <varlistentry><term><varname>netica:*license*</varname></term>
  <listitem><simpara>The license key provided by
    <ulink url="http://norsys.com/">Norsys</ulink>; the default value
