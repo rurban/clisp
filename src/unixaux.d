@@ -292,7 +292,7 @@ global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t pers
    - On SunOS4 a missing write permission causes the read() call to hang
      in an endless loop.
    - With Linux 2.2 the read call returns with errno=EFAULT, but with
-     unpredictable side side effects: If fd refers to a socket, some of
+     unpredictable side effects: If fd refers to a socket, some of
      the socket data gets lost.
    The SunOS4 behaviour is clearly a bug, but the Linux 2.2 behaviour is
    not. The POSIX spec says that read() returns with errno=EFAULT, but
