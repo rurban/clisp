@@ -103,7 +103,7 @@
 <!-- ========================== Matlab C API ========================== -->
 <xsl:param name="matlab.top" select="'http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/'"/>
 <xsl:template match="function[@role='matlab'] | varname[@role='matlab']">
- <a class="{@role}" href="{$matlab.top}/{translate(.,&uppercase;,&lowercase;)}.html"><xsl:apply-imports/></a>
+ <a class="{@role}" href="{$matlab.top}{translate(.,&uppercase;,&lowercase;)}.html"><xsl:apply-imports/></a>
 </xsl:template>
 <xsl:template match="ulink[@role='matlab']">
  <a class="{@role}" href="{$matlab.top}{@url}"><xsl:apply-templates/></a>
@@ -114,7 +114,7 @@
 <xsl:param name="netica.top"
            select="'http://norsys.com/onLineAPIManual/functions/'"/>
 <xsl:template match="function[@role='netica'] | varname[@role='netica']">
- <a class="{@role}" href="{$netica.top}/{.}.html"><xsl:apply-imports/></a>
+ <a class="{@role}" href="{$netica.top}{.}.html"><xsl:apply-imports/></a>
 </xsl:template>
 <!-- ========================= / Netica C API ========================= -->
 
