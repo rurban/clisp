@@ -435,7 +435,7 @@ DEFUN(RAWSOCK:RECV,socket buffer &key START END PEEK OOB WAITALL) {
 
 DEFUN(RAWSOCK:RECVFROM, socket buffer address &key START END PEEK OOB WAITALL) {
   int flags = recv_flags();
-  rawsock_t sock = I_to_uint(check_uint(STACK_2));
+  rawsock_t sock = I_to_uint(check_uint(STACK_4));
   int retval;
   struct sockaddr *sa = NULL;
   void *buffer;
