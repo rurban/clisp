@@ -14209,7 +14209,8 @@ local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
   stream_handles(sock,true,NULL,
                  READ_P(dir)  ? &in_sock  : NULL,
                  WRITE_P(dir) ? &out_sock : NULL);
-  if (READ_P(dir) && (bit(1) & stream_isbuffered_low(sock,&avail)) && avail)
+  if (READ_P(dir) && streamp(sock) /* read from stream - check buffer */
+      && (bit(1) & stream_isbuffered_low(sock,&avail)) && avail)
     *non_empty_buffers_p = true;
   if (in_sock != INVALID_SOCKET) {
     ret++;
