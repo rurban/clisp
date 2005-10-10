@@ -1,5 +1,10 @@
 2005-10-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (FILE-PROPERTIES): use my_malloc()
+	instead of malloc() and add begin_system_call()/end_system_call()
+
+2005-10-10  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (handle_fault_range, PROT_READ_WRITE, PROT_READ):
 	exported to clisp.h
 	* modules/berkeley-db/bdb.c (fill_dbt, dbt_to_object): call it
