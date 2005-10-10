@@ -2210,9 +2210,11 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   (:arguments (s short)) (:return-type short) (:language :stdc))
 </programlisting> and observe that <function>RAWSOCK:HTONS</function> is
    almost 3 times as fast (this really does compare the &ffi-pac;
-   overhead to the normal lisp funcall because
+   overhead to the normal lisp function call because
    <function role="unix">htons</function> is computationally trivial).
-</para></listitem></varlistentry>
+   This difference will matter only if you call a simple function very
+   many times, in which case it would make sense to put the loop itself
+   into &c-lang;.</para></listitem></varlistentry>
 <varlistentry><term>Portability: &c-lang; wins</term>
  <listitem><simpara>First of all, &ffi-pac; is &not-e; as widely ported
    as &clisp;, so it is possible that you will face a platform where
