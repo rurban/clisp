@@ -14491,6 +14491,20 @@ MAKE_CHECK(array)
 %% export_literal(MAKE_CHECK(array));
 %% puts("#endif");
 
+/* check_vector(obj)
+ > obj: an object
+ < result: an vector, either the same as obj or a replacement
+ can trigger GC */
+extern maygc object check_vector_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+MAKE_CHECK(vector)
+#endif
+/* used by ARRAY, ENCODING, modules */
+%% puts("extern object check_vector_replacement (object obj);");
+%% puts("#ifndef COMPILE_STANDALONE");
+%% export_literal(MAKE_CHECK(vector));
+%% puts("#endif");
+
 /* check_byte_vector_replacement(obj)
  > obj: not an (ARRAY (UNSIGNED-BYTE 8) (*))
  < result: an (ARRAY (UNSIGNED-BYTE 8) (*)), a replacement

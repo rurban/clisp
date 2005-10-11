@@ -982,6 +982,22 @@ global maygc object check_array_replacement (object obj) {
   return obj;
 }
 
+/* check_vector_replacement(obj)
+ > obj: not an vector
+ < result: an vector, a replacement
+ can trigger GC */
+global maygc object check_vector_replacement (object obj) {
+  do {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(vector));       /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: argument ~S is not a vector"));
+    obj = value1;
+  } while (!vectorp(obj));
+  return obj;
+}
+
 /* check_byte_vector_replacement(obj)
  > obj: not an (ARRAY (UNSIGNED-BYTE 8) (*))
  < result: an (ARRAY (UNSIGNED-BYTE 8) (*)), a replacement
