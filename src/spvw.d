@@ -548,6 +548,7 @@ nonreturning_function(global, STACK_ueber, (void)) {
 #include "spvw_sigpipe.c"
 #include "spvw_sigint.c"
 #include "spvw_sigwinch.c"
+#include "spvw_sigterm.c"
 
 # -----------------------------------------------------------------------------
 #                       Garbage-Collector
@@ -3289,6 +3290,7 @@ global int main (argc_t argc, char* argv[]) {
  #endif
  #ifdef HAVE_SIGNALS
   install_sigcld_handler();
+  install_sigterm_handler();    /* install SIGTERM &c handlers */
  #endif
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   install_sigpipe_handler();
