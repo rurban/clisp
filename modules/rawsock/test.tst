@@ -216,3 +216,25 @@ T
   nil)
 #+unix NIL
 
+;; http://article.gmane.org/gmane.lisp.clisp.devel:14865
+(progn
+  (show (list '*sa-local* (setq *sa-local* (host->sa :default 7777))) :pretty t)
+  (show (list '*sock* (setq *sock* (rawsock:socket :INET :DGRAM nil))))
+  (rawsock:bind *sock* *sa-local*)
+  (loop :for i :below 256 :do (setf (aref *buffer* i) i))
+  (rawsock:sendto *sock* *buffer* *sa-local* :end 256))
+256
+
+(ext:socket-status (list (cons *sock* :input))) (:INPUT)
+
+(let ((buf (make-array 256 :element-type '(unsigned-byte 8)))
+      (sa1 (rawsock:make-sockaddr 0)))
+  (multiple-value-bind (len sa-len sa) (rawsock:recvfrom *sock* buf sa1)
+    (show (list len sa-len sa))
+    (assert (eq sa sa1))
+    (assert (equalp sa1 *sa-local*))
+    (loop :for i :below 256 :do (assert (= (aref buf i) i)))
+    len))
+256
+
+(rawsock:sock-close *sock*) 0
