@@ -1,5 +1,11 @@
 2005-10-11  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/configure.in: check getnetent*
+	* modules/rawsock/rawsock.c (netent_to_network, NETWORK): added
+	* modules/rawsock/sock.lisp (network): new defstruct
+
+2005-10-11  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[1323941 ]: when killed, clisp does not execute cleanup forms
 	* spvw.d (main): call install_sigterm_handler(), include spvw_sigterm.c
 	* spvw_sigterm.c: new file

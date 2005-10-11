@@ -11,6 +11,8 @@
   (:export #:buffer #:resize-buffer #:accept #:bind #:connect
            #:getpeername #:getsockname #:protocol #:protocol-p
            #:protocol-name #:protocol-aliases #:protocol-proto
+           #:network #:network-p #:network-name #:network-aliases
+           #:network-type #:network-net
            #:sock-listen #:recv #:recvfrom #:recvmsg
            #:send #:sendmsg #:sendto #:socket-option
            #:socket #:socketpair #:sockatmark
@@ -35,6 +37,12 @@
   (name "" :type string)
   (aliases nil :type list)
   (proto 0 :type integer))
+
+(defstruct (network (:constructor make-network (name aliases type net)))
+  (name "" :type string)
+  (aliases nil :type list)
+  (type 0 :type integer)
+  (net 0 :type integer))
 
 (defsetf socket-option (&rest args) (value) `(set-socket-option ,value ,@args))
 
