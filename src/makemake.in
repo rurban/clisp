@@ -3301,7 +3301,7 @@ echotab "${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
 # srcdir has to be passed to ./configure because it must be able to find
 # src/build-aux/install-sh _AND_ also its own sources, thus we must
 # point it to modules/... in the original source tree
-echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
+echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; if test -f \$@/configure -a \$@/configure -nt \$@/config.status ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
 echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 

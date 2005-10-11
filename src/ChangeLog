@@ -1,5 +1,21 @@
 2005-10-11  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (anymodule): call configure not just when config.status
+	is not present, but also when configure is newer than config.status
+	* modules/dirkey/Makefile.in, modules/i18n/Makefile.in:
+	* modules/pari/Makefile.in, modules/pcre/Makefile.in:
+	* modules/postgresql/Makefile.in, modules/rawsock/Makefile.in:
+	* modules/readline/Makefile.in, modules/regexp/Makefile.in:
+	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in:
+	* modules/zlib/Makefile.in, modules/berkeley-db/Makefile.in:
+	(config.status, config.h, Makefile): removed targets:
+	config.status failed with
+	error: `CFLAGS' was not set in the previous run
+	This is a partial reversal of the 2005-10-07 patch (dependency of
+	C files on on config.h are kept).
+
+2005-10-11  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/configure.in: check getnetent*
 	* modules/rawsock/rawsock.c (netent_to_network, NETWORK): added
 	* modules/rawsock/sock.lisp (network): new defstruct
@@ -68,7 +84,7 @@
 	* modules/postgresql/Makefile.in, modules/rawsock/Makefile.in:
 	* modules/readline/Makefile.in, modules/regexp/Makefile.in:
 	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in:
-	* modules/zlib/Makefile.in,  modules/berkeley-db/Makefile.in:
+	* modules/zlib/Makefile.in, modules/berkeley-db/Makefile.in:
 	(config.status, config.h, Makefile): new targets:
 	no need to "rm -rf" module dir when configure changes
 
