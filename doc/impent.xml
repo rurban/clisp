@@ -641,6 +641,7 @@
 <!ENTITY place-r "<replaceable>place</replaceable>">
 <!ENTITY pred-r "<replaceable>predicate</replaceable>">
 <!ENTITY program-r "<replaceable>program</replaceable>">
+<!ENTITY proto-r "<replaceable>protocol</replaceable>">
 <!ENTITY real-r "<replaceable>real</replaceable>">
 <!ENTITY res-r "<replaceable>result</replaceable>">
 <!ENTITY restart-clause-r "<replaceable>restart-clause</replaceable>">

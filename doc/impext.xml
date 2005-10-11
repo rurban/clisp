@@ -4605,12 +4605,12 @@ Compiled, it will have inlined the library function calls.
     &socket-stream;.</simpara></listitem></varlistentry>
  <varlistentry id="service-port"><term><code>(&service-port;
                  &optional-amp; <replaceable>service-name</replaceable>
-                 (<replaceable>protocol</replaceable> "tcp"))</code></term>
+                 (&proto-r; "tcp"))</code></term>
   <listitem><simpara>A convenience function for looking up a port given
     the service name.  It returns the servent struct as &mul-val;
     (name, list of aliases, port, protocol) for the given
     <replaceable>service-name</replaceable> and
-    <replaceable>protocol</replaceable>, or all services as the list of
+    &proto-r;, or all services as the list of
     <literal role="type">(&simple-vector-t; 4)</literal>
     if <replaceable>service-name</replaceable> is not given or is
     &default-k; or &nil;.</simpara></listitem></varlistentry>
