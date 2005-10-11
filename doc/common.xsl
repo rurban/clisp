@@ -53,7 +53,7 @@
 </xsl:template>
 
 <xsl:template match="filename[@role='unix']">
- <a class="{@role}" href="{$unix.top}basedefs/{translate(.,'/','')}.html"
+ <a class="{@role}" href="{$unix.top}basedefs/{.}.html"
     >&lt;<xsl:apply-imports/>&gt;</a> <!-- formatting for &lt;/&gt;? -->
  <!-- xsl:call-template name="filename">&lt;<xsl:value-of select="."/>&gt;</xsl:call-template -->
 </xsl:template>
