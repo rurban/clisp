@@ -357,6 +357,61 @@ DEFUN(RAWSOCK:PROTOCOL, &optional protocol)
   if (pe) protoent_to_protocol(pe);
   else VALUES1(NIL);
 }
+/* --------------- */
+/* return RAWSOCK:NETWORK object in value1 */
+static Values netent_to_network (struct netent *ne) {
+  pushSTACK(asciz_to_string(ne->n_name,GLO(misc_encoding)));
+  { int count = 0;
+    char **alias = ne->n_aliases;
+    for (; *alias; count++, alias++)
+      pushSTACK(asciz_to_string(*alias,GLO(misc_encoding)));
+    value1 = listof(count); pushSTACK(value1);
+  }
+  pushSTACK(sint_to_I(ne->n_addrtype));
+  pushSTACK(sint_to_I(ne->n_net));
+  funcall(`RAWSOCK::MAKE-NETWORK`,4);
+}
+DEFUN(RAWSOCK:NETWORK, &optional network type)
+{ /* interface to getnetbyname() et al
+     http://www.opengroup.org/onlinepubs/009695399/functions/getnetent.html */
+  unsigned int type = check_uint_defaulted(popSTACK(),-1);
+  object net = popSTACK();
+  struct netent *ne = NULL;
+  if (missingp(net)) {          /* get all networks */
+    int count = 0;
+#  if defined(HAVE_SETNETENT) && defined(HAVE_GETNETENT) && defined(HAVE_ENDNETENT)
+    begin_system_call();
+    setnetent(1);
+    while ((ne = getnetent())) {
+      end_system_call();
+      if (type==-1 || type==ne->n_addrtype) {
+        netent_to_network(ne); pushSTACK(value1); count++;
+      }
+      begin_system_call();
+    }
+    endnetent();
+    end_system_call();
+#  endif
+    VALUES1(listof(count));
+    return;
+  } else if (uint_p(net)) {
+#  if defined(HAVE_GETNETBYNUMBER)
+    begin_system_call();
+    ne = getnetbynumber(I_to_uint(net),type);
+    end_system_call();
+#  endif
+  } else if (stringp(net)) {
+#  if defined(HAVE_GETNETBYNAME)
+    with_string_0(net,GLO(misc_encoding),netz, {
+        begin_system_call();
+        ne = getnetbyname(netz);
+        end_system_call();
+      });
+#  endif
+  } else fehler_string_integer(net);
+  if (ne) netent_to_network(ne);
+  else VALUES1(NIL);
+}
 #endif  /* HAVE_NETDB_H */
 /* ================== sys/socket.h interface ================== */
 DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
