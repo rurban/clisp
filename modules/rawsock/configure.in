@@ -14,7 +14,7 @@ AC_MSG_NOTICE([* RAWSOCK (Headers):])
 AC_HEADER_STDC
 AC_HEADER_TIME
 CL_TCPCONN
-AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h \
+AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h netdb.h \
    sys/ioctl.h errno.h stropts.h poll.h sys/un.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[
 #if HAVE_SYS_SOCKET_H
@@ -51,10 +51,11 @@ fi
 if test "$ac_cv_search_socket" = "no"; then
   AC_MSG_FAILURE([cannot find SOCKET library])
 fi
-AC_CHECK_FUNCS(socketpair sockatmark recvmsg sendmsg htonl htons ntohl ntohs)
+AC_CHECK_FUNCS(socketpair sockatmark recvmsg sendmsg htonl htons ntohl ntohs dnl
+endprotoent getprotobyname getprotobynumber getprotoent setprotoent)
 dnl AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr inet_ntoa)
-CL_POLL
-CL_SELECT
+dnl CL_POLL
+dnl CL_SELECT
 
 AC_MSG_NOTICE([* RAWSOCK (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
