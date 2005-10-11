@@ -1,5 +1,14 @@
 2005-10-11  Sam Steingold  <sds@gnu.org>
 
+	* error.d (check_vector_replacement): new function
+	* encoding.d (CONVERT-STRING-FROM-BYTES):
+	use it instead of fehler_vector()
+	* array.d (VECTOR-ENDTEST, VECTOR-FE-INIT, VECTOR-LENGTH)
+	(VECTOR-INIT-START, VECTOR-FE-INIT-END): ditto
+	* lispbibl.d (check_vector_replacement, check_vector): export
+
+2005-10-11  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (anymodule): call configure not just when config.status
 	is not present, but also when configure is newer than config.status
 	* modules/dirkey/Makefile.in, modules/i18n/Makefile.in:
