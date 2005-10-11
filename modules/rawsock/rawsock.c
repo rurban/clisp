@@ -69,6 +69,9 @@
 #if defined(HAVE_WS2TCPIP_H)
 # include <ws2tcpip.h>
 #endif
+#if defined(HAVE_NETDB_H)
+# include <netdb.h>
+#endif
 typedef SOCKET rawsock_t;
 
 DEFMODULE(rawsock,"RAWSOCK")
@@ -302,6 +305,59 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
   skipSTACK(2); mv_count = 1;
 }
 
+/* ================== netdb.h interface ================== */
+#if defined(HAVE_NETDB_H)
+/* return RAWSOCK:PROTOCOL object in value1 */
+static Values protoent_to_protocol (struct protoent *pe) {
+  pushSTACK(asciz_to_string(pe->p_name,GLO(misc_encoding)));
+  { int count = 0;
+    char **alias = pe->p_aliases;
+    for (; *alias; count++, alias++)
+      pushSTACK(asciz_to_string(*alias,GLO(misc_encoding)));
+    value1 = listof(count); pushSTACK(value1);
+  }
+  pushSTACK(sint_to_I(pe->p_proto));
+  funcall(`RAWSOCK::MAKE-PROTOCOL`,3);
+}
+DEFUN(RAWSOCK:PROTOCOL, &optional protocol)
+{ /* interface to getprotobyname() et al
+     http://www.opengroup.org/onlinepubs/009695399/functions/getprotoent.html */
+  object proto = popSTACK();
+  struct protoent *pe = NULL;
+  if (missingp(proto)) {        /* get all protocols */
+    int count = 0;
+#  if defined(HAVE_SETPROTOENT) && defined(HAVE_GETPROTOENT) && defined(HAVE_ENDPROTOENT)
+    begin_system_call();
+    setprotoent(1);
+    while ((pe = getprotoent())) {
+      end_system_call();
+      protoent_to_protocol(pe); pushSTACK(value1); count++;
+      begin_system_call();
+    }
+    endprotoent();
+    end_system_call();
+#  endif
+    VALUES1(listof(count));
+    return;
+  } else if (sint_p(proto)) {
+#  if defined(HAVE_GETPROTOBYNUMBER)
+    begin_system_call();
+    pe = getprotobynumber(I_to_sint(proto));
+    end_system_call();
+#  endif
+  } else if (stringp(proto)) {
+#  if defined(HAVE_GETPROTOBYNAME)
+    with_string_0(proto,GLO(misc_encoding),protoz, {
+        begin_system_call();
+        pe = getprotobyname(protoz);
+        end_system_call();
+      });
+#  endif
+  } else fehler_string_integer(proto);
+  if (pe) protoent_to_protocol(pe);
+  else VALUES1(NIL);
+}
+#endif  /* HAVE_NETDB_H */
 /* ================== sys/socket.h interface ================== */
 DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
            UNSPEC UNIX LOCAL INET AX25                                  \

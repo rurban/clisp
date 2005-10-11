@@ -185,6 +185,9 @@ T
 (rawsock:sendto *sock* *buffer* *sa-remote*)
 1024
 
+(rawsock:protocol-p (show (rawsock:protocol "IP") :pretty t)) T
+(listp (show (rawsock:protocol) :pretty t)) T
+
 ;;; linux only??
 ;(integerp (show (setq *sock* (rawsock:socket :INET :PACKET 3)))) T
 ;(rawsock:sockaddr-p (show (setq *sa-local* (rawsock:make-sockaddr :PACKET)))) T
