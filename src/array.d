@@ -5074,18 +5074,14 @@ LISPFUNN(vector_upd,2)
 
 LISPFUNN(vector_endtest,2)
 { /* #'(lambda (seq pointer) (= pointer (vector-length seq))) */
-  var object seq = STACK_1;
-  if (!vectorp(seq))
-    fehler_vector(seq);
+  var object seq = check_vector(STACK_1);
   VALUES_IF(eq(fixnum(vector_length(seq)),STACK_0));
   skipSTACK(2);
 }
 
 LISPFUNN(vector_fe_init,1)
 { /* #'(lambda (seq) (1- (vector-length seq))) */
-  var object seq = popSTACK();
-  if (!vectorp(seq))
-    fehler_vector(seq);
+  var object seq = check_vector(popSTACK());
   var uintL len = vector_length(seq);
   /* len = (vector-length seq) as Fixnum, and decrease by 1: */
   VALUES1(len==0 ? Fixnum_minus1 : fixnum(len-1));
@@ -5113,10 +5109,7 @@ LISPFUNN(vector_fe_endtest,2)
 
 LISPFUNN(vector_length,1)
 {
-  var object seq = popSTACK();
-  if (!vectorp(seq))
-    fehler_vector(seq);
-  VALUES1(fixnum(vector_length(seq)));
+  VALUES1(fixnum(vector_length(check_vector(popSTACK()))));
 }
 
 LISPFUNN(vector_init_start,2)
@@ -5124,9 +5117,7 @@ LISPFUNN(vector_init_start,2)
      (if (<= 0 index (vector-length seq))
        index
        (error "Illegal :START - Index : ~S" index))) */
-  var object seq = STACK_1;
-  if (!vectorp(seq))
-    fehler_vector(seq);
+  var object seq = check_vector(STACK_1);
   var uintL len = vector_length(seq);
   /* index should be a Fixnum between 0 and len (inclusive) : */
   if (posfixnump(STACK_0) && (posfixnum_to_V(STACK_0)<=len)) {
@@ -5150,9 +5141,7 @@ LISPFUNN(vector_fe_init_end,2)
      (if (<= 0 index (vector-length seq))
        (1- index)
        (error "Illegal :END - Index : ~S" index))) */
-  var object seq = STACK_1;
-  if (!vectorp(seq))
-    fehler_vector(seq);
+  var object seq = check_vector(STACK_1);
   var uintL len = vector_length(seq);
   /* index should be a Fixnum between 0 and len (inclusive) : */
   if (posfixnump(STACK_0) && (posfixnum_to_V(STACK_0)<=len)) {

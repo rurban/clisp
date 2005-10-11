@@ -2479,7 +2479,7 @@ LISPFUNN(set_misc_encoding,1) {
 LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
         (kw(start),kw(end)) ) {
   /* Stack layout: array, encoding, start, end. */
-  if (!vectorp(STACK_3)) fehler_vector(STACK_3); /* check array */
+  STACK_3 = check_vector(STACK_3); /* check array */
   STACK_2 = check_encoding(STACK_2,DEFAULT_ENC,false);
   var object array = STACK_3;
   STACK_3 = STACK_2; /* encoding */
