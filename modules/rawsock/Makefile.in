@@ -28,15 +28,6 @@ rawsock.o : rawsock.m.c $(INCLUDES)/clisp.h config.h
 rawsock.m.c : rawsock.c $(MODPREP)
 	$(CLISP) $(MODPREP) rawsock.c
 
-config.status : configure
-	sh config.status --recheck
-
-config.h : config.status config.h.in
-	sh config.status --header=config.h
-
-Makefile : Makefile.in config.status
-	sh config.status --file=Makefile
-
 # Make a module
 clisp-module : all
 
