@@ -1,5 +1,13 @@
 2005-10-11  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[1323941 ]: when killed, clisp does not execute cleanup forms
+	* spvw.d (main): call install_sigterm_handler(), include spvw_sigterm.c
+	* spvw_sigterm.c: new file
+	* makemake.in (SPVW_INCLUDES): added spvw_sigterm
+	* po/Makefile.devel (DSOURCES): ditto
+
+2005-10-11  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/configure.in: check <netdb.h> and getproto*
 	do not check poll() and select(), we already have SOCKET-STATUS
 	* modules/rawsock/rawsock.c (protoent_to_protocol, PROTOCOL): added
