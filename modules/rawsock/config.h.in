@@ -3,11 +3,23 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
+/* Define to 1 if you have the `endnetent' function. */
+#undef HAVE_ENDNETENT
+
 /* Define to 1 if you have the `endprotoent' function. */
 #undef HAVE_ENDPROTOENT
 
 /* Define to 1 if you have the <errno.h> header file. */
 #undef HAVE_ERRNO_H
+
+/* Define to 1 if you have the `getnetbyaddr' function. */
+#undef HAVE_GETNETBYADDR
+
+/* Define to 1 if you have the `getnetbyname' function. */
+#undef HAVE_GETNETBYNAME
+
+/* Define to 1 if you have the `getnetent' function. */
+#undef HAVE_GETNETENT
 
 /* Define to 1 if you have the `getprotobyname' function. */
 #undef HAVE_GETPROTOBYNAME
@@ -80,6 +92,9 @@
 
 /* Define to 1 if you have the `sendmsg' function. */
 #undef HAVE_SENDMSG
+
+/* Define to 1 if you have the `setnetent' function. */
+#undef HAVE_SETNETENT
 
 /* Define to 1 if you have the `setprotoent' function. */
 #undef HAVE_SETPROTOENT
