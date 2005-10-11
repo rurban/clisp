@@ -188,9 +188,26 @@ T
 (rawsock:protocol-p (show (rawsock:protocol "IP") :pretty t)) T
 (listp (show (rawsock:protocol) :pretty t)) T
 
-;;; linux only??
-;(integerp (show (setq *sock* (rawsock:socket :INET :PACKET 3)))) T
-;(rawsock:sockaddr-p (show (setq *sa-local* (rawsock:make-sockaddr :PACKET)))) T
-;(listp (multiple-value-list
-;        (show (rawsock:recvfrom *sock* *buffer* *sa-local*))))
-;T
+#+unix                          ; from Don Cohen
+(when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")
+           (zerop (posix:user-data-uid (posix:user-data :default)))) ; root?
+  (show (setq *sock* (rawsock:socket :INET :PACKET 3)))
+  (show (setq *sa-local* (rawsock:make-sockaddr :PACKET)))
+  (not (listp (multiple-value-list
+               (show (rawsock:recvfrom *sock* *buffer* *sa-local*))))))
+#+unix NIL
+
+#+unix           ; http://article.gmane.org/gmane.lisp.clisp.devel:14852
+(when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")
+           (zerop (posix:user-data-uid (posix:user-data :default)))) ; root?
+  (show (setq *sock* (rawsock:socket :INET :RAW "ICMP")))
+  (shell "ping -c 1 localhost") ; generate one icmp packet
+  (show (setq *sa-local* (rawsock:make-sockaddr :PACKET 20)))
+  (multiple-value-bind (len sa-len sa)
+      (rawsock:recvfrom *sock* *buffer* *sa-local*)
+    (show (list len sa-len sa))
+    (assert (eq sa *sa-local*))
+    (show (subseq *buffer* 0 len)))
+  nil)
+#+unix NIL
+
