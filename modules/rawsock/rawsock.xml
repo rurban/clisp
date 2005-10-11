@@ -180,6 +180,18 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <function role="unix">getprotoent</function>, and
    <function role="unix">endprotoent</function>.
 </simpara></listitem></varlistentry>
+<varlistentry><term><code>(RAWSOCK:NETWORK &optional-amp;
+   <replaceable>network</replaceable> &type-r;)</code></term>
+ <listitem><simpara>Call <function role="unix">getnetbyname</function>
+   when <replaceable>network</replaceable> is a &string-t;,
+   or call <function role="unix">getnetbynumber</function> when
+   <replaceable>network</replaceable> is an &integer-t;.
+   Return a <type>RAWSOCK:NETWORK</type> structure object.
+   When <replaceable>network</replaceable> is &nil;, return a &list-t;
+   of all known networks using <function role="unix">setnetent</function>,
+   <function role="unix">getnetent</function>, and
+   <function role="unix">endnetent</function>.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:SOCKET-OPTION &sock-r; &name-r;
    &key-amp; :LEVEL)</code></term>
  <term><code>(&setf; (RAWSOCK:SOCKET-OPTION &sock-r; &name-r;
