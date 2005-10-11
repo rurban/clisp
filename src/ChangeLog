@@ -1,3 +1,10 @@
+2005-10-11  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/configure.in: check <netdb.h> and getproto*
+	do not check poll() and select(), we already have SOCKET-STATUS
+	* modules/rawsock/rawsock.c (protoent_to_protocol, PROTOCOL): added
+	* modules/rawsock/sock.lisp (protocol): new defstruct
+
 2005-10-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (FILE-PROPERTIES): use my_malloc()
