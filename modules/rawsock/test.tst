@@ -46,6 +46,15 @@
   (defvar *buffer* (make-array 1024 :element-type '(unsigned-byte 8)))
   (defvar *sock*) (defvar *sock1*) (defvar *sock2*)
   (defvar *recv-ret*) (defvar *recvfrom-ret*) #-:win32 (defvar *read-ret*)
+  (defun my-recvfrom (so ve sa &optional (status :output) &aux size)
+    (when (socket:socket-status (cons so :input) 1)
+      (multiple-value-bind (len sa-len sa1) (rawsock:recvfrom so ve sa)
+        (assert (eq sa sa1))
+        (setq size len)
+        (show (list len sa-len sa (subseq ve 0 len)) :pretty t)))
+    (assert (eq status (show (socket:socket-status so))))
+    (rawsock:sock-close *sock*)
+    size)
   T) T
 
 (progn (setq *sa-remote* (host->sa "ftp.gnu.org" 21)) T) T
@@ -128,19 +137,16 @@ NIL
   (= so *sock*))
 T
 
-(rawsock:bind *sock* *sa-local*) NIL
+(unless (equalp #(127 0 0 1) (subseq (rawsock:sockaddr-data *sa-local*) 2 6))
+  (rawsock:bind *sock* *sa-local*)
+  (not (local-sa-check *sock* *sa-local*)))
+NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 
-(multiple-value-bind (size sa-size sa)
-    (rawsock:recvfrom *sock* *buffer* *sa-remote*)
-  (show (list sa-size sa))
+(let ((size (my-recvfrom *sock* *buffer* *sa-remote*)))
   (show (setq *recvfrom-ret* (list size (from-bytes *buffer* size))))
-  (list (eq sa *sa-remote*) (ext:socket-status *sock*)))
-(T :OUTPUT)
-
-(equal *recv-ret* *recvfrom-ret*) T
-
-(rawsock:sock-close *sock*) 0
+  (equal *recv-ret* *recvfrom-ret*))
+T
 
 ;; no socketpair() on win32
 #-:win32 (progn
@@ -191,28 +197,22 @@ T
 (listp (show (rawsock:protocol) :pretty t)) T
 (listp (show (rawsock:network) :pretty t)) T
 
-#+unix                          ; from Don Cohen
+#+unix                          ; for Don Cohen
 (when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")
-           (zerop (posix:user-data-uid (posix:user-data :default)))) ; root?
+           (zerop (posix:getuid))) ; root?
   (show (setq *sock* (rawsock:socket :INET :PACKET 3)))
   (show (setq *sa-local* (rawsock:make-sockaddr :PACKET)))
-  (show (multiple-value-list (rawsock:recvfrom *sock* *buffer* *sa-local*)))
-  (rawsock:sock-close *sock*)
+  (my-recvfrom *sock* *buffer* *sa-local*)
   nil)
 #+unix NIL
 
 #+unix           ; http://article.gmane.org/gmane.lisp.clisp.devel:14852
 (when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")
-           (zerop (posix:user-data-uid (posix:user-data :default)))) ; root?
-  (show (setq *sock* (rawsock:socket :INET :RAW "ICMP")))
+           (zerop (posix:getuid))) ; root?
+  (show (setq *sock* (rawsock:socket :INET :RAW 1 #|"ICMP"|#)))
   (shell "ping -c 1 localhost") ; generate one icmp packet
   (show (setq *sa-local* (rawsock:make-sockaddr :PACKET 20)))
-  (multiple-value-bind (len sa-len sa)
-      (rawsock:recvfrom *sock* *buffer* *sa-local*)
-    (show (list len sa-len sa))
-    (assert (eq sa *sa-local*))
-    (show (subseq *buffer* 0 len)))
-  (rawsock:sock-close *sock*)
+  (my-recvfrom *sock* *buffer* *sa-local* :IO)
   nil)
 #+unix NIL
 
@@ -227,14 +227,10 @@ T
 
 (ext:socket-status (list (cons *sock* :input))) (:INPUT)
 
-(let ((buf (make-array 256 :element-type '(unsigned-byte 8)))
-      (sa1 (rawsock:make-sockaddr 0)))
-  (multiple-value-bind (len sa-len sa) (rawsock:recvfrom *sock* buf sa1)
-    (show (list len sa-len sa))
-    (assert (eq sa sa1))
-    (assert (equalp sa1 *sa-local*))
-    (loop :for i :below 256 :do (assert (= (aref buf i) i)))
-    len))
+(let* ((buf (make-array 256 :element-type '(unsigned-byte 8)))
+       (sa1 (rawsock:make-sockaddr 0))
+       (len (my-recvfrom *sock* buf sa1)))
+  (assert (equalp sa1 *sa-local*))
+  (loop :for i :below 256 :do (assert (= (aref buf i) i)))
+  len)
 256
-
-(rawsock:sock-close *sock*) 0
