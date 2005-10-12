@@ -1,3 +1,7 @@
+2005-10-12  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (Atype_T): export to clisp.h
+
 2005-10-11  Sam Steingold  <sds@gnu.org>
 
 	* error.d (check_vector_replacement): new function
