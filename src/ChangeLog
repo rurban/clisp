@@ -1,3 +1,7 @@
+2005-10-12  T. Kurt Bond  <tkb@tkb.mpl.com>
+
+	* lispbibl.d (PC386): also define on FreeBSD, NetBSD, and OpenBSD
+
 2005-10-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c (check_socket_protocol): no prefix,
