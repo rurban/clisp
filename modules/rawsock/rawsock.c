@@ -480,16 +480,46 @@ DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
            PPPOX WANPIPE BLUETOOTH)
 DEFCHECKER(check_socket_type,prefix=SOCK,default=SOCK_STREAM,          \
            STREAM DGRAM RAW RDM SEQPACKET PACKET)
-DEFCHECKER(check_socket_protocol,prefix=ETH_P, default=0,              \
-           LOOP PUP PUPAT IP X25 ARP BPQ                                \
-           IEEEPUP IEEEPUPAT DEC DNA-DL DNA-RC DNA-RT LAT DIAG CUST SCA \
-           RARP ATALK AARP IPX IPV6 PPP-DISC PPP-SES ATMMPOA ATMFATE 802-3 \
-           AX25 ALL 802-2 SNAP DDCMP WAN-PPP PPP-MP LOCALTALK PPPTALK   \
-           TR-802-2 MOBITEX CONTROL IRDA ECONET)
+DEFCHECKER(check_socket_protocol,default=0,                             \
+           IPPROTO-IP IPPROTO-IPV6 IPPROTO-ICMP IPPROTO-RAW IPPROTO-TCP \
+           IPPROTO-UDP IPPROTO-IGMP IPPROTO-IPIP IPPROTO-EGP IPPROTO-PUP \
+           IPPROTO-IDP IPPROTO-GGP IPPROTO-ND IPPROTO-HOPOPTS           \
+           IPPROTO-ROUTING IPPROTO-FRAGMENT IPPROTO-ESP IPPROTO-AH      \
+           IPPROTO-ICMPV6 IPPROTO-DSTOPTS IPPROTO-NONE                  \
+           ETH-P-LOOP ETH-P-PUP ETH-P-PUPAT ETH-P-IP ETH-P-X25 ETH-P-ARP \
+           ETH-P-BPQ ETH-P-IEEEPUP ETH-P-IEEEPUPAT ETH-P-DEC ETH-P-DNA-DL \
+           ETH-P-DNA-RC ETH-P-DNA-RT ETH-P-LAT ETH-P-DIAG ETH-P-CUST    \
+           ETH-P-SCA ETH-P-RARP ETH-P-ATALK ETH-P-AARP ETH-P-IPX ETH-P-IPV6 \
+           ETH-P-PPP-DISC ETH-P-PPP-SES ETH-P-ATMMPOA ETH-P-ATMFATE     \
+           ETH-P-802-3 ETH-P-AX25 ETH-P-ALL ETH-P-802-2 ETH-P-SNAP      \
+           ETH-P-DDCMP ETH-P-WAN-PPP ETH-P-PPP-MP ETH-P-LOCALTALK       \
+           ETH-P-PPPTALK ETH-P-TR-802-2 ETH-P-MOBITEX ETH-P-CONTROL     \
+           ETH-P-IRDA ETH-P-ECONET)
+
+/* check the protocol - number, string, or constant from check_socket_protocol
+ can trigger GC */
+static int get_socket_protocol (object proto) {
+#if defined(HAVE_GETPROTOBYNAME)
+ get_socket_protocol_restart:
+  if (stringp(proto)) {
+    struct protoent *pe;
+    with_string_0(proto,GLO(misc_encoding),protoz, {
+        begin_system_call(); pe = getprotobyname(protoz); end_system_call();
+      });
+    if (pe) return pe->p_proto;
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(TheSubr(subr_self)->name); pushSTACK(proto);
+    check_value(error,GETTEXT("~S: invalid protocol name ~S"));
+    proto = value1;
+    goto get_socket_protocol_restart;
+  } else
+#endif
+    return check_socket_protocol(proto);
+}
 
 DEFUN(RAWSOCK:SOCKET,domain type protocol) {
   rawsock_t sock;
-  int protocol = check_socket_protocol(popSTACK());
+  int protocol = get_socket_protocol(popSTACK());
   int type = check_socket_type(popSTACK());
   int domain = check_socket_domain(popSTACK());
   SYSCALL(sock,-1,socket(domain,type,protocol));
@@ -500,7 +530,7 @@ DEFUN(RAWSOCK:SOCKET,domain type protocol) {
 DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
   rawsock_t sock[2];
   int retval;
-  int protocol = check_socket_protocol(popSTACK());
+  int protocol = get_socket_protocol(popSTACK());
   int type = check_socket_type(popSTACK());
   int domain = check_socket_domain(popSTACK());
   SYSCALL(retval,-1,socketpair(domain,type,protocol,sock));

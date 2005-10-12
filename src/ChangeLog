@@ -1,5 +1,13 @@
 2005-10-12  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (check_socket_protocol): no prefix,
+	accept IPPROTO-* in addition to ETH-P-*
+	(get_socket_protocol): new function, use getprotobyname() when it
+	is available in addition to check_socket_protocol()
+	(SOCKET, SOCKETPAIR): use get_socket_protocol()
+
+2005-10-12  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (Atype_T): export to clisp.h
 	* modules/rawsock/configure.in: check <sys/uio.h>, readv, writev,
 	sizeof ssize_t and size_t
