@@ -14,7 +14,7 @@ AC_MSG_NOTICE([* RAWSOCK (Headers):])
 AC_HEADER_STDC
 AC_HEADER_TIME
 CL_TCPCONN
-AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h netdb.h \
+AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h netdb.h sys/uio.h \
    sys/ioctl.h errno.h stropts.h poll.h sys/un.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[
 #if HAVE_SYS_SOCKET_H
@@ -32,6 +32,8 @@ AC_CHECK_HEADERS([netinet/if_ether.h],[],[],[
 if test "$ac_cv_header_sys_socket_h" = "no"; then
 AC_CHECK_HEADERS([winsock2.h ws2tcpip.h])dnl windows
 fi
+AC_CHECK_SIZEOF(ssize_t)
+AC_CHECK_SIZEOF(size_t)
 
 AC_MSG_NOTICE([* RAWSOCK (Functions):])
 if test "$ac_cv_header_winsock2_h" = "yes"; then
@@ -52,6 +54,7 @@ if test "$ac_cv_search_socket" = "no"; then
   AC_MSG_FAILURE([cannot find SOCKET library])
 fi
 AC_CHECK_FUNCS(socketpair sockatmark recvmsg sendmsg htonl htons ntohl ntohs dnl
+readv writev dnl
 endprotoent getprotobyname getprotobynumber getprotoent setprotoent dnl
 endnetent getnetbyaddr getnetbyname getnetent setnetent)
 dnl AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr inet_ntoa)
