@@ -1197,7 +1197,9 @@ There are no small objects in pages belonging to a big object.</para>
 </section>
 
 <section id="gc-safety">
-   <title>The burden of &gc;ion upon the rest of &clisp;</title>
+ <title>The burden of &gc;ion upon the rest of &clisp;</title>
+
+<section id="gc-moves-data"><title>&object-t; pointer invalidation</title>
 
 <para>Every subroutine marked with <emphasis>can trigger GC</emphasis>
 may invoke &gc;ion.
@@ -1235,6 +1237,20 @@ By playing with &gdb;, you should be able to figure out the precise spot
 where an allocation increments <varname>alloccount</varname>
 <emphasis>after</emphasis> the object has been retrieved from a
 GC-visible location.</para>
+</section>
+
+<section id="gc-mem-prot"><title>Memory protection</title>
+
+<para>Generational &gc;or uses memory protection, so when passing pointers
+ into the lisp heap to &c-lang; functions, you may encounter errors
+ (<varname>errno</varname>=<constant>EFAULT</constant>) unless you call
+ <function>handle_fault_range(protection,region_start,region_end)</function>
+ on the appropriate memory region.  See files <simplelist>
+<member><filename role="clisp-cvs">src/unixaux.d</filename></member>
+<member><filename role="clisp-cvs">src/win32aux.d</filename></member>
+<member><filename role="clisp-cvs">modules/syscalls/calls.c</filename></member>
+<member><filename role="clisp-cvs">modules/rawsock/rawsock.c</filename></member>
+</simplelist> for examples.</para></section>
 
 </section>
 
