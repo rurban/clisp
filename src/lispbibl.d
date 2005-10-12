@@ -5699,6 +5699,7 @@ typedef iarray_ *  Iarray;
 %% export_def(Atype_Bit);
 %% export_def(Atype_8Bit);
 %% export_def(Atype_32Bit);
+%% export_def(Atype_T);
 
 # array-types
 #ifdef TYPECODES
