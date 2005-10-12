@@ -69,12 +69,6 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  </simplelist>using same-named lisp functions in package
  <quote role="package">RAWSOCK</quote>.
  Additionally,<simplelist columns="1">
-  <member><code>(<function>RAWSOCK:SOCK-READ</function> &sock-r; &buf-r;
-    &key-amp; start end)</code> calls
-   <function role="unix">read</function>;</member>
-  <member><code>(<function>RAWSOCK:SOCK-WRITE</function> &sock-r; &buf-r;
-    &key-amp; start end)</code> calls
-   <function role="unix">write</function>;</member>
   <member><code>(<function>RAWSOCK:SOCK-CLOSE</function> &sock-r;)</code>
    calls <function role="unix">close</function>.</member>
   <member><code>(<function>RAWSOCK:SOCK-LISTEN</function>
@@ -168,6 +162,16 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <section id="rawsock-high-level"><title>High-Level Functions</title>
 <variablelist id="rawsock-high-level-list"><title>Functions that do not
   correspond to a single system call</title>
+<varlistentry><term><code>(<function>RAWSOCK:SOCK-READ</function>
+   &sock-r; &buf-r; &key-amp; start end)</code></term>
+ <term><code>(<function>RAWSOCK:SOCK-WRITE</function>
+   &sock-r; &buf-r; &key-amp; start end)</code></term>
+<listitem><simpara>Call one of
+ <function role="unix">read</function>/<function role="unix">readv</function> or
+ <function role="unix">write</function>/<function role="unix">writev</function>
+   (depending on whether &buf-r; is a &unsigned-byte-vec; or
+   a <literal role="type">(&vector-t; &unsigned-byte-vec;)</literal>).
+ Return the number of bytes read or written.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:PROTOCOL &optional-amp;
    &proto-r;)</code></term>
  <listitem><simpara>Call <function role="unix">getprotobyname</function>

@@ -1,6 +1,11 @@
 2005-10-12  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (Atype_T): export to clisp.h
+	* modules/rawsock/configure.in: check <sys/uio.h>, readv, writev,
+	sizeof ssize_t and size_t
+	* modules/rawsock/rawsock.c (SOCK-READ, SOCK-WRITE) [HAVE_SYS_UIO_H]:
+	call readv/writev when buffer is a vector of vectors
+	(check_iovec_arg, fill_iovec) [HAVE_SYS_UIO_H]: new functions
 
 2005-10-11  Sam Steingold  <sds@gnu.org>
 
