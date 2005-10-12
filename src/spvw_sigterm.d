@@ -1,4 +1,4 @@
-/* Handling of terminal signals. */
+/* Handling of terminating signals. */
 
 /* --------------------------- Specification ----------------------------- */
 
@@ -9,6 +9,7 @@ local void install_sigterm_handler (void);
 
 /* --------------------------- Implementation ---------------------------- */
 
+#if defined(HAVE_SIGNALS)
 /* print the "exiting" message and quit */
 local void quit_on_signal (int sig) {
   pushSTACK(Symbol_value(S(error_output))); fresh_line(&STACK_0);
@@ -22,7 +23,8 @@ local void quit_on_signal (int sig) {
 
 /* install error handlers for as many signals as possible */
 local void install_sigterm_handler (void) {
-#ifdef SIGHUP
+#ifdef SIGHUP 
+  /* maybe ignore? - use nohup instead */
   SIGNAL(SIGHUP,&quit_on_signal);
 #endif
 #ifdef SIGQUIT
@@ -41,3 +43,4 @@ local void install_sigterm_handler (void) {
   SIGNAL(SIGTERM,&quit_on_signal);
 #endif
 }
+#endif
