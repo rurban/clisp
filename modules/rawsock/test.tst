@@ -221,7 +221,7 @@ T
 #+unix           ; http://article.gmane.org/gmane.lisp.clisp.devel:14852
 (when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")
            (zerop (posix:getuid))) ; root?
-  (show (setq *sock* (rawsock:socket :INET :RAW 1 #|"ICMP"|#)))
+  (show (setq *sock* (rawsock:socket :INET :RAW :IPPROTO-ICMP)))
   (shell "ping -c 1 localhost") ; generate one icmp packet
   (show (setq *sa-local* (rawsock:make-sockaddr :PACKET 20)))
   (my-recvfrom *sock* *buffer* *sa-local* :IO)
