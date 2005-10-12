@@ -9,15 +9,15 @@
   (defun to-bytes (string) (ext:convert-string-to-bytes string charset:ascii))
   (defun from-bytes (vec &optional size)
     (ext:convert-string-from-bytes vec charset:ascii :end size))
+  (defun make-byte-vector (len)
+    (make-array len :element-type '(unsigned-byte 8) :initial-element 0))
   (defun host->sa (host &optional (port 0))
     (let* ((he (posix:resolve-host-ipaddr host)) sa
            (ip (first (posix:hostent-addr-list he)))
            (type (posix:hostent-addrtype he))
            (li (read-from-string
                 (concatenate 'string "(" (substitute #\Space #\. ip) ")")))
-           (ve (make-array (nth-value 1 (rawsock::sockaddr-slot :data))
-                           :element-type '(unsigned-byte 8)
-                           :initial-element 0)))
+           (ve (make-byte-vector (nth-value 1 (rawsock::sockaddr-slot :data)))))
       (show he :pretty t)
       (setf port (rawsock:htons port)
             (aref ve 0) (ldb #.(byte 8 0) port)
@@ -43,7 +43,7 @@
     (show (cons (list 'rawsock::sockaddr-slot what)
                 (multiple-value-list (rawsock::sockaddr-slot what)))))
   (defvar *sa-remote*) (defvar *sa-local*)
-  (defvar *buffer* (make-array 1024 :element-type '(unsigned-byte 8)))
+  (defvar *buffer* (make-byte-vector 1024))
   (defvar *sock*) (defvar *sock1*) (defvar *sock2*)
   (defvar *recv-ret*) (defvar *recvfrom-ret*) #-:win32 (defvar *read-ret*)
   (defun my-recvfrom (so ve sa &optional (status :output) &aux size)
@@ -162,6 +162,18 @@ T
   (string= message (from-bytes *buffer* (rawsock:sock-read *sock2* *buffer*))))
 T
 
+#-:win32
+(let* ((message '("I" "love" "you"))
+       (char-num (reduce #'+ message :key #'length))
+       (buf1 (map 'vector #'to-bytes message))
+       (buf2 (map 'vector (lambda (s) (make-byte-vector (length s))) message)))
+  (show (list buf1 buf2))
+  ;; assume ASCII-compatible encoding
+  (assert (= char-num (rawsock:sock-write *sock1* buf1)))
+  (assert (= char-num (rawsock:sock-read *sock2* buf2)))
+  (list (equalp buf1 buf2) (equalp message (map 'list #'from-bytes buf2))))
+#-:win32 (T T)
+
 #-:win32 (ext:socket-status *sock1*) :OUTPUT
 #-:win32 (ext:socket-status *sock2*) :OUTPUT
 
@@ -227,7 +239,7 @@ T
 
 (ext:socket-status (list (cons *sock* :input))) (:INPUT)
 
-(let* ((buf (make-array 256 :element-type '(unsigned-byte 8)))
+(let* ((buf (make-byte-vector 256))
        (sa1 (rawsock:make-sockaddr 0))
        (len (my-recvfrom *sock* buf sa1)))
   (assert (equalp sa1 *sa-local*))

@@ -72,7 +72,20 @@
 #if defined(HAVE_NETDB_H)
 # include <netdb.h>
 #endif
+#if defined(HAVE_SYS_UIO_H)
+# include <sys/uio.h>
+#endif
 typedef SOCKET rawsock_t;
+#if SIZEOF_SIZE_T == 8
+# define size_to_I  uint64_to_I
+#else
+# define size_to_I  uint32_to_I
+#endif
+#if SIZEOF_SSIZE_T == 8
+# define ssize_to_I  sint64_to_I
+#else
+# define ssize_to_I  sint32_to_I
+#endif
 
 DEFMODULE(rawsock,"RAWSOCK")
 
@@ -120,6 +133,51 @@ static void* check_struct_data (object type, object arg, SOCKLEN_T *size,
     return start_address;
   }
 }
+
+#if defined(HAVE_SYS_UIO_H)
+/* check the arg is a vector of byte vectors
+ > *arg_: vector
+ > STACK_0, STACK_1: START & END
+ < *arg_: may be modified (bad vector elements replaced with byte vectors)
+ < return: how many byte vectors arg contains
+ can trigger GC */
+static int check_iovec_arg (gcv_object_t *arg_, uintL *offset) {
+  int size, ii;
+  *arg_ = check_vector(*arg_);
+  if (array_atype(*arg_) != Atype_T) return -1; /* cannot contain vectors */
+  *offset = (missingp(STACK_1) ? 0 : posfixnum_to_V(check_posfixnum(STACK_1)));
+  size = (missingp(STACK_0) ? vector_length(*arg_)
+          : posfixnum_to_V(check_posfixnum(STACK_0)));
+  *arg_ = array_displace_check(*arg_,size,offset);
+  for (ii=*offset; ii<size; ii++)
+    TheSvector(*arg_)->data[ii] =
+      check_byte_vector(TheSvector(*arg_)->data[ii]);
+  return size;
+}
+/* DANGER: the return value is invalidated by GC!
+ this must be called _after_ check_iovec_arg()
+ fill the iovec array from the vector of byte vectors
+ < vect: (vector (byte-vector))
+ < offset: starting offset into vect
+ < veclen: number of vect elements to put into buffer
+ < buffer: array of struct iovec of length veclen
+ < prot: PROT_READ or PROT_READ_WRITE
+ > buffer: filled in with data pointers of elements of vect */
+static void fill_iovec (object vect, size_t offset, ssize_t veclen,
+                        struct iovec *buffer, int prot) {
+  gcv_object_t *vec = TheSvector(vect)->data + offset;
+  ssize_t pos = veclen;
+  for (;pos--; buffer++, vec++) {
+    size_t len = vector_length(*vec);
+    uintL index = 0;
+    object data_vec = array_displace_check(*vec,len,&index);
+    buffer->iov_len = len;
+    buffer->iov_base= TheSbvector(data_vec)->data + index;
+    handle_fault_range(prot,(aint)buffer->iov_base,
+                       (aint)(buffer->iov_base + len));
+  }
+}
+#endif  /* HAVE_SYS_UIO_H */
 
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
   SOCKLEN_T size;
@@ -594,13 +652,25 @@ DEFUN(RAWSOCK:RECVMSG,socket message &key PEEK OOB WAITALL) {
 }
 #endif
 
-DEFUN(RAWSOCK:SOCK-READ,socket buffer &key START END) {
+DEFUN(RAWSOCK:SOCK-READ,socket buffer &key START END)
+{ /* http://www.opengroup.org/onlinepubs/009695399/functions/read.html
+     http://www.opengroup.org/onlinepubs/009695399/functions/readv.html */
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
-  int retval;
-  size_t buffer_len;
-  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len,PROT_READ_WRITE);
-  SYSCALL(retval,sock,read(sock,buffer,buffer_len));
-  VALUES1(fixnum(retval)); skipSTACK(4);
+  ssize_t retval;
+  size_t len;
+  uintL offset;
+#if defined(HAVE_SYS_UIO_H) && defined(HAVE_READV)
+  if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* READV */
+    struct iovec *buffer = alloca(sizeof(struct iovec)*retval);
+    fill_iovec(STACK_2,offset,retval,buffer,PROT_READ_WRITE);
+    SYSCALL(retval,sock,readv(sock,buffer,retval));
+  } else
+#endif
+    {                      /* READ */
+      void *buffer = parse_buffer_arg(&STACK_2,&len,PROT_READ_WRITE);
+      SYSCALL(retval,sock,read(sock,buffer,len));
+    }
+  VALUES1(ssize_to_I(retval)); skipSTACK(4);
 }
 
 /* ================== SENDING ================== */
@@ -652,13 +722,25 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key START END OOB EOR) {
   VALUES1(fixnum(retval)); skipSTACK(5);
 }
 
-DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key START END) {
+DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key START END)
+{ /* http://www.opengroup.org/onlinepubs/009695399/functions/write.html
+     http://www.opengroup.org/onlinepubs/009695399/functions/writev.html */
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
-  int retval;
-  size_t buffer_len;
-  void *buffer = parse_buffer_arg(&STACK_2,&buffer_len,PROT_READ);
-  SYSCALL(retval,sock,write(sock,buffer,buffer_len));
-  VALUES1(fixnum(retval)); skipSTACK(4);
+  ssize_t retval;
+  size_t len;
+  uintL offset;
+#if defined(HAVE_SYS_UIO_H) && defined(HAVE_READV)
+  if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* WRITEW */
+    struct iovec *buffer = alloca(sizeof(struct iovec)*retval);
+    fill_iovec(STACK_2,offset,retval,buffer,PROT_READ);
+    SYSCALL(retval,sock,writev(sock,buffer,retval));
+  } else
+#endif
+    {                           /* WRITE */
+      void *buffer = parse_buffer_arg(&STACK_2,&len,PROT_READ);
+      SYSCALL(retval,sock,write(sock,buffer,len));
+    }
+  VALUES1(ssize_to_I(retval)); skipSTACK(4);
 }
 
 DEFUN(RAWSOCK:SOCK-CLOSE, socket) {
