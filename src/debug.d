@@ -603,7 +603,7 @@ LISPFUNN(load,1)
       eval_noenv(obj);          /* evaluate other form */
     }
   }
-  builtin_stream_close(&STACK_0); /* close stream */
+  builtin_stream_close(&STACK_0,0); /* close stream */
   skipSTACK(1); VALUES1(T);
 }
 

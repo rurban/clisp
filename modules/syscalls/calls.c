@@ -2367,8 +2367,8 @@ static void copy_attributes_and_close () {
 # if defined(HAVE_UTIME)
   /* we must close the streams now - before utime() -
      because close() modifies write and access times */
-  builtin_stream_close(&STACK_0);
-  builtin_stream_close(&STACK_1);
+  builtin_stream_close(&STACK_0,0);
+  builtin_stream_close(&STACK_1,0);
   { /*** access/mod times ***/
     struct utimbuf utb;
     int utime_ret;
@@ -2390,12 +2390,12 @@ static void copy_attributes_and_close () {
   return;
 # endif
  close_success:
-  builtin_stream_close(&STACK_0);
-  builtin_stream_close(&STACK_1);
+  builtin_stream_close(&STACK_0,0);
+  builtin_stream_close(&STACK_1,0);
   return;
  close_and_err:
-  builtin_stream_close(&STACK_1);
-  builtin_stream_close(&STACK_2);
+  builtin_stream_close(&STACK_1,0);
+  builtin_stream_close(&STACK_2,0);
   OS_file_error(STACK_0);
 }
 
@@ -2436,7 +2436,7 @@ static void copy_file_low (object source, object dest,
   pushSTACK(`:IF-EXISTS`); pushSTACK(if_exists_symbol(if_exists));
   funcall(L(open),7); dest = value1;
   if (nullp(dest)) {
-    builtin_stream_close(&STACK_0);
+    builtin_stream_close(&STACK_0,0);
     skipSTACK(1); /* drop source */
     return;
   }
@@ -2455,8 +2455,8 @@ static void copy_file_low (object source, object dest,
     }
   }
   if (!preserve_p) {
-    builtin_stream_close(&STACK_0);
-    builtin_stream_close(&STACK_1);
+    builtin_stream_close(&STACK_0,0);
+    builtin_stream_close(&STACK_1,0);
   } else
     copy_attributes_and_close();
   /* clean up the stack */
@@ -2550,7 +2550,7 @@ static void copy_one_file (object source, object src_path,
         pushSTACK(`:IF-EXISTS`); pushSTACK(if_exists_symbol(if_exists));
         pushSTACK(`:DIRECTION`); pushSTACK(`:OUTPUT`);
         funcall(L(open),5);
-        pushSTACK(value1); builtin_stream_close(&STACK_0);
+        pushSTACK(value1); builtin_stream_close(&STACK_0,0);
         funcall(L(delete_file),1);
         break;
       default: NOTREACHED;
