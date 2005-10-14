@@ -15489,14 +15489,15 @@ extern maygc void set_terminalstream_external_format (object stream, object enco
 extern bool interactive_stream_p (object stream);
 # is used by DEBUG
 
-# UP: Closes a stream.
-# builtin_stream_close(&stream);
-# > stream: Builtin-Stream
-# < stream: Builtin-Stream
-# can trigger GC
-extern maygc void builtin_stream_close (const gcv_object_t* stream_);
-# is used by PATHNAME, SPVW, DEBUG, MISC
-%% puts("extern void builtin_stream_close (const gcv_object_t* stream_);");
+/* UP: Closes a stream.
+ builtin_stream_close(&stream);
+ > stream: Builtin-Stream
+ > abort: flag: non-0 => ignore errors
+ < stream: Builtin-Stream
+ can trigger GC */
+extern maygc void builtin_stream_close (const gcv_object_t* stream_, uintB abort);
+/* is used by PATHNAME, SPVW, DEBUG, MISC */
+%% puts("extern void builtin_stream_close (const gcv_object_t* stream_, uintB abort);");
 
 # UP: Closes a list of open files.
 # close_some_files(list);

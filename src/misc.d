@@ -149,7 +149,7 @@ LISPFUNN(machinetype,0)
           pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);
           funcall(L(read_line),3); # (READ-LINE stream NIL NIL)
           pushSTACK(value1); # Ergebnis (kann auch NIL sein) retten
-          builtin_stream_close(&STACK_1); # Stream schließen
+          builtin_stream_close(&STACK_1,0); /* close stream */
           if (!nullp(STACK_0))
             erg = string_upcase(STACK_0); # in Großbuchstaben umwandeln
           else
@@ -205,7 +205,7 @@ LISPFUNN(machine_version,0)
           pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);
           funcall(L(read_line),3); # (READ-LINE stream NIL NIL)
           pushSTACK(value1); # Ergebnis (kann auch NIL sein) retten
-          builtin_stream_close(&STACK_1); # Stream schließen
+          builtin_stream_close(&STACK_1,0); /* close stream */
           funcall(L(string_upcase),1); skipSTACK(1); # in Großbuchstaben umwandeln
         #endif
         erg = value1;

@@ -1384,17 +1384,20 @@ local maygc void wr_ch_array_synonym (const gcv_object_t* stream_,
   # No need to update wr_ch_lpos here. (See get_line_position().)
 }
 
-# Closes a Synonym-Stream.
-# close_synonym(stream);
-# > stream : Synonym-Stream
+/* Closes a Synonym-Stream.
+ close_synonym(stream);
+ > stream : Synonym-Stream
+ > abort: flag: non-0 => ignore errors */
 #ifdef X3J13_014
-  #define close_synonym(stream)
+  #define close_synonym(stream,abort)
 #else
-  local maygc void close_synonym (object stream) {
+  local maygc void close_synonym (object stream, uintB abort) {
     check_SP(); check_STACK();
     var object symbol = TheStream(stream)->strm_synonym_symbol;
+    var int argcount = 1;
     pushSTACK(get_synonym_stream(symbol));
-    funcall(S(close),1);
+    if (abort) { pushSTACK(S(Kabort)); pushSTACK(T); argcount=3; }
+    funcall(S(close),argcount);
   }
 #endif
 
@@ -2409,10 +2412,11 @@ local maygc uintL rd_ch_array_str_in (const gcv_object_t* stream_,
   }
 }
 
-# Closes a String-Input-Stream.
-# close_str_in(stream);
-# > stream : String-Input-Stream
-local maygc void close_str_in (object stream) {
+/* Closes a String-Input-Stream.
+ close_str_in(stream);
+ > stream : String-Input-Stream
+ > abort: flag: non-0 => ignore errors */
+local maygc void close_str_in (object stream, uintB abort) {
   TheStream(stream)->strm_str_in_string = NIL; # String := NIL
 }
 
@@ -2829,10 +2833,11 @@ local maygc object rd_ch_buff_in (const gcv_object_t* stream_) {
   return ch;
 }
 
-# Closes a Buffered-Input-Stream.
-# close_buff_in(stream);
-# > stream : Buffered-Input-Stream
-local maygc void close_buff_in (object stream) {
+/* Closes a Buffered-Input-Stream.
+ close_buff_in(stream);
+ > stream : Buffered-Input-Stream
+ > abort: flag: non-0 => ignore errors */
+local maygc void close_buff_in (object stream, uintB abort) {
   TheStream(stream)->strm_buff_in_fun = NIL; # Function := NIL
   TheStream(stream)->strm_buff_in_mode = NIL; # Mode := NIL
   TheStream(stream)->strm_buff_in_string = NIL; # String := NIL
@@ -2979,11 +2984,12 @@ local maygc void wr_ch_buff_out (const gcv_object_t* stream_, object ch) {
     force_output_buff_out(*stream_);
 }
 
-# Closes a Buffered-Output-Stream.
-# close_buff_out(stream);
-# > stream : Buffered-Output-Stream
-# can trigger GC
-local maygc void close_buff_out (object stream) {
+/* Closes a Buffered-Output-Stream.
+ close_buff_out(stream);
+ > stream : Buffered-Output-Stream
+ > abort: flag: non-0 => ignore errors
+ can trigger GC */
+local maygc void close_buff_out (object stream, uintB abort) {
   pushSTACK(stream); # save stream
   finish_output_buff_out(stream);
   stream = popSTACK(); # restore stream
@@ -3157,7 +3163,7 @@ local maygc void wr_by_generic (object stream, object obj) {
 
 # (CLOSE s) ==
 # (GENERIC-STREAM-CLOSE c)
-local maygc void close_generic (object stream) {
+local maygc void close_generic (object stream, uintB abort) {
   pushSTACK(stream); funcall(L(generic_stream_controller),1);
   pushSTACK(value1); funcall(S(generic_stream_close),1);
 }
@@ -3798,7 +3804,7 @@ typedef struct strm_channel_extrafields_t {
                                        #   n = number of bits per unit,
                                        #   >0, <intDsize*uintWC_max.
                                        # If the element-type is CHARACTER: 0.
-  void (* low_close) (object stream, object handle);
+  void (* low_close) (object stream, object handle, uintB abort);
   # Fields used if the element-type is CHARACTER:
   uintL lineno;                        # line number during read, >0
   #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
@@ -4465,14 +4471,14 @@ local void ChannelStream_fini (object stream) {
 #endif
 
 # Closes a handle.
-local void low_close_handle (object stream, object handle) {
+local void low_close_handle (object stream, object handle, uintB abort) {
   begin_system_call();
  #ifdef UNIX
-  if (!( CLOSE(TheHandle(handle)) ==0))
+  if (!( CLOSE(TheHandle(handle)) ==0) && !abort)
     { end_system_call(); OS_filestream_error(stream); }
  #endif
  #ifdef WIN32_NATIVE
-  if (!CloseHandle(TheHandle(handle)))
+  if (!CloseHandle(TheHandle(handle)) && !abort)
     { end_system_call(); OS_filestream_error(stream); }
  #endif
   end_system_call();
@@ -5301,11 +5307,12 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
 #define UnbufferedHandleStream_input_init_data(stream)  \
     UnbufferedStream_status(stream) = 0;
 
-# Closes a Channel-Stream.
-# close_ichannel(stream);
-# > stream : Channel-Stream
-local void close_ichannel (object stream) {
-  ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ichannel);
+/* Closes a Channel-Stream.
+ close_ichannel(stream);
+ > stream : Channel-Stream
+ > abort: flag: non-0 => ignore errors */
+local void close_ichannel (object stream, uintB abort) {
+  ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ichannel,abort);
   ChannelStream_fini(stream);
   if (ChannelStream_bitsize(stream) > 0) {
     ChannelStream_bitsize(stream) = 0; # delete bitsize
@@ -5691,12 +5698,13 @@ local maygc void clear_output_unbuffered (object stream) {
         &low_clear_output_unbuffered_handle;                            \
     }
 
-# Closes a Channel-Stream.
-# close_ochannel(stream);
-# > stream : Channel-Stream
-local void close_ochannel (object stream) {
+/* Closes a Channel-Stream.
+ close_ochannel(stream);
+ > stream : Channel-Stream
+ > abort: flag: non-0 => ignore errors */
+local void close_ochannel (object stream, uintB abort) {
   oconv_unshift_output_unbuffered(stream);
-  ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel);
+  ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel,abort);
   ChannelStream_fini(stream);
   if (ChannelStream_bitsize(stream) > 0) {
     ChannelStream_bitsize(stream) = 0; # delete bitsize
@@ -6070,7 +6078,7 @@ local void low_flush_buffered_handle (object stream, uintL bufflen) {
     # In order to avoid inconsistencies, must close the file.
     BufferedStream_modified(stream) = false; # data is lost!
     pushSTACK(stream);
-    builtin_stream_close(&STACK_0); # file close
+    builtin_stream_close(&STACK_0,0); /* file close */
     clr_break_sem_4(); # no more UNIX operations are active
     # Report the error.
     pushSTACK(Truename_or_Self(STACK_0)); # FILE-ERROR slot PATHNAME
@@ -7638,7 +7646,7 @@ local maygc object make_buffered_stream (uintB type, direction_t direction,
     }
   }
   if (direction == DIRECTION_PROBE) { /* close stream right away */
-    STACK_0 = stream; builtin_stream_close(&STACK_0); stream = STACK_0;
+    STACK_0 = stream; builtin_stream_close(&STACK_0,0); stream = STACK_0;
   }
   skipSTACK(1);
   return stream;
@@ -7804,7 +7812,7 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
         # close File and report Error:
         TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # make Stream Read-Only
         pushSTACK(stream);
-        builtin_stream_close(&STACK_0);
+        builtin_stream_close(&STACK_0,0);
         pushSTACK(Truename_or_Self(STACK_0)); # STREAM-ERROR slot STREAM
         fehler(stream_error,GETTEXT("file ~S is not an integer file"));
       }
@@ -7958,11 +7966,12 @@ local void closed_buffered (object stream) {
   #endif
 }
 
-# UP: Closes a File-Stream.
-# close_buffered(stream);
-# > stream : File-Stream.
-# changed in stream: all Components except name and truename
-local void close_buffered (object stream) {
+/* UP: Closes a File-Stream.
+ close_buffered(stream);
+ > stream : File-Stream.
+ > abort: flag: non-0 => ignore errors
+ changed in stream: all Components except name and truename */
+local void close_buffered (object stream, uintB abort) {
   # Handle=NIL (Stream already closed) -> finished:
   if (nullp(BufferedStream_channel(stream)))
     return;
@@ -7972,7 +7981,7 @@ local void close_buffered (object stream) {
   buffered_flush_everything(stream);
   # Now the modified_flag is deleted.
   # close File:
-  ChannelStreamLow_close(stream)(stream,BufferedStream_channel(stream));
+  ChannelStreamLow_close(stream)(stream,BufferedStream_channel(stream),abort);
   ChannelStream_fini(stream);
   # make Components invalid (close_dummys comes later):
   closed_buffered(stream);
@@ -10399,10 +10408,10 @@ local maygc void wr_ch_window (const gcv_object_t* stream_, object ch) {
   ConsoleData(*stream_)->cursor_position = pos;
 }
 
-local void low_close_console (object stream, object handle) {
+local void low_close_console (object stream, object handle, uintB abort) {
   if (!ConsoleData(stream)->handle_reused) {
     begin_system_call();
-    if (!CloseHandle(TheHandle(handle)))
+    if (!CloseHandle(TheHandle(handle)) && !abort)
       { end_system_call(); OS_filestream_error(stream); }
     end_system_call();
   }
@@ -10470,8 +10479,8 @@ LISPFUNN(make_window,0) {
 }
 
 # close a window stream.
-local void close_window (object stream) {
-  close_ochannel(stream);
+local void close_window (object stream, uintB abort) {
+  close_ochannel(stream,abort);
 }
 
 LISPFUNN(window_size,1) {
@@ -12030,7 +12039,7 @@ local const char * init_term (void) {
 # the NL is converted to CR by the Terminal-Driver, before it
 # arrives at the Terminal.
   local void term_nlraw (void);
-  local void term_nlunraw (void);
+  local void term_nlunraw (uintB abort);
 #if defined(UNIX_TERM_TERMIOS)
   static unsigned long old_c_oflag = 0;
 local void term_nlraw() {
@@ -12044,15 +12053,15 @@ local void term_nlraw() {
     if (!(errno==ENOTTY)) { OS_error(); }
   }
 }
-local void term_nlunraw() {
+local void term_nlunraw (uintB abort) {
   if (old_c_oflag & ONLCR) {
     var struct termios oldtermio;
     if (!( tcgetattr(stdout_handle,&oldtermio) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
+      if (!abort && errno!=ENOTTY) { OS_error(); }
     }
     oldtermio.c_oflag |= ONLCR;
     if (!( TCSETATTR(stdout_handle,TCSAFLUSH,&oldtermio) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
+      if (!abort && errno!=ENOTTY) { OS_error(); }
     }
   }
 }
@@ -12069,15 +12078,15 @@ local void term_nlraw() {
     if (!(errno==ENOTTY)) { OS_error(); }
   }
 }
-local void term_nlunraw() {
+local void term_nlunraw (uintB abort) {
   if (old_c_oflag & ONLCR) {
     var struct termio oldtermio;
     if (!( ioctl(stdout_handle,TCGETA,&oldtermio) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
+      if (!abort && errno!=ENOTTY) { OS_error(); }
     }
     oldtermio.c_oflag |= ONLCR;
     if (!( ioctl(stdout_handle,TCSETAF,&oldtermio) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
+      if (!abort && errno!=ENOTTY) { OS_error(); }
     }
   }
 }
@@ -12094,15 +12103,15 @@ local void term_nlraw() {
     if (!(errno==ENOTTY)) { OS_error(); }
   }
 }
-local void term_nlunraw() {
+local void term_nlunraw (uintB abort) {
   if (old_sg_flags & CRMOD) {
     var struct sgttyb oldsgttyb;
     if (!( ioctl(stdout_handle,TIOCGETP,&oldsgttyb) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
+      if (!abort && errno!=ENOTTY) { OS_error(); }
     }
     oldsgttyb.sg_flags |= CRMOD;
     if (!( ioctl(stdout_handle,TIOCSETP,&oldsgttyb) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
+      if (!abort && errno!=ENOTTY) { OS_error(); }
     }
   }
 }
@@ -12121,7 +12130,7 @@ local void start_term (void) {
 }
 
 # End of Processing this Packet:
-local void end_term (void) {
+local void end_term (uintB abort) {
   out_capstring (TEcap);
   out_capstring (IScap);
  #if 0
@@ -12130,7 +12139,7 @@ local void end_term (void) {
  #endif
  #ifdef NL_HACK
   if (NLcap[0] == '\n')
-    term_nlunraw();
+    term_nlunraw(abort);
  #endif
 }
 
@@ -12235,9 +12244,9 @@ LISPFUNN(make_window,0) {
 }
 
 # Closes a Window-Stream.
-local void close_window (object stream) {
+local void close_window (object stream, uintB abort) {
   begin_system_call();
-  end_term();
+  end_term(abort);
   end_system_call();
 }
 
@@ -12451,7 +12460,7 @@ LISPFUNN(make_window,0) {
 }
 
 # Closes a Window-Stream.
-local void close_window (object stream) {
+local void close_window (object stream, uintB abort) {
   begin_system_call();
   nocbreak(); echo(); # Input is line-buffered again, with Echo
  #if defined(SUN3) || defined(SUN4)
@@ -13264,9 +13273,9 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
 
 # Closes a socket handle.
 #if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
-local void low_close_socket (object stream, object handle) {
+local void low_close_socket (object stream, object handle, uintB abort) {
   begin_system_call();
-  if (!( closesocket(TheSocket(handle)) ==0)) { SOCK_error(); }
+  if (!( closesocket(TheSocket(handle)) ==0) && !abort) { SOCK_error(); }
   end_system_call();
 }
 #else
@@ -13703,7 +13712,7 @@ local void low_flush_buffered_socket (object stream, uintL bufflen) {
   #define strm_twoway_socket_output  strm_twoway_output # output side, a socket stream
 
 # Hack for avoiding that the handle is closed twice.
-local void low_close_socket_nop (object stream, object handle) {}
+local void low_close_socket_nop (object stream, object handle, uintB abort) {}
 
 # Creates a socket stream.
 # > STACK_2: element-type
@@ -15768,12 +15777,14 @@ LISPFUNN(interactive_stream_p,1) {
   VALUES_IF(interactive_stream_p(arg));
 }
 
-# UP: Closes a Stream.
-# builtin_stream_close(&stream);
-# > stream: Builtin-Stream
-# < stream: Builtin-Stream
-# can trigger GC
-global maygc void builtin_stream_close (const gcv_object_t* stream_) {
+/* UP: Closes a Stream.
+ builtin_stream_close(&stream);
+ > stream: Builtin-Stream
+ > abort: flag: non-0 => ignore errors: may be called from GC & quit()
+ < stream: Builtin-Stream
+ can trigger GC */
+global maygc void builtin_stream_close (const gcv_object_t* stream_,
+                                        uintB abort) {
   if ((TheStream(*stream_)->strmflags & strmflags_open_B) == 0) # Stream already closed?
     return;
   harden_elastic_newline(stream_);
@@ -15781,19 +15792,19 @@ global maygc void builtin_stream_close (const gcv_object_t* stream_) {
   # call type-specific routine (can trigger GC):
   switch (TheStream(stream)->strmtype) {
     case strmtype_synonym:
-      close_synonym(stream); break; # X3J13_014 says: non-recursive
+      close_synonym(stream,abort); break; /* X3J13_014 says: non-recursive */
     case strmtype_broad:  break; # non-recursive
     case strmtype_concat: break; # non-recursive
     case strmtype_twoway: break; # non-recursive
     case strmtype_echo:   break; # non-recursive
-    case strmtype_str_in:  close_str_in(stream); break;
+    case strmtype_str_in:  close_str_in(stream,abort); break;
     case strmtype_str_out:  break;
     case strmtype_str_push: break;
     case strmtype_pphelp:   break;
-    case strmtype_buff_in:  close_buff_in(stream);  break;
-    case strmtype_buff_out: close_buff_out(stream); break;
+    case strmtype_buff_in:  close_buff_in(stream,abort);  break;
+    case strmtype_buff_out: close_buff_out(stream,abort); break;
     #ifdef GENERIC_STREAMS
-    case strmtype_generic: close_generic(stream); break;
+    case strmtype_generic: close_generic(stream,abort); break;
     #endif
     case strmtype_file:
     #ifdef PIPES
@@ -15807,12 +15818,12 @@ global maygc void builtin_stream_close (const gcv_object_t* stream_) {
     case strmtype_socket:
     #endif
       if (ChannelStream_buffered(stream)) {
-        close_buffered(stream);
+        close_buffered(stream,abort);
       } else {
         if (!nullp(TheStream(stream)->strm_ochannel))
-          close_ochannel(stream);
+          close_ochannel(stream,abort);
         else
-          close_ichannel(stream);
+          close_ichannel(stream,abort);
         # remove stream from the List of all open File-Streams:
         O(open_files) = deleteq(O(open_files),stream);
       }
@@ -15824,8 +15835,8 @@ global maygc void builtin_stream_close (const gcv_object_t* stream_) {
         &low_close_socket_nop;
       pushSTACK(TheStream(stream)->strm_twoway_socket_input);
       pushSTACK(TheStream(stream)->strm_twoway_socket_output);
-      builtin_stream_close(&STACK_1);
-      builtin_stream_close(&STACK_0);
+      builtin_stream_close(&STACK_1,abort);
+      builtin_stream_close(&STACK_0,abort);
       skipSTACK(2);
       break;
     #endif
@@ -15834,7 +15845,7 @@ global maygc void builtin_stream_close (const gcv_object_t* stream_) {
     #endif
     case strmtype_terminal: break;
     #ifdef SCREEN
-    case strmtype_window: close_window(stream); break;
+    case strmtype_window: close_window(stream,abort); break;
     #endif
     default: NOTREACHED;
   }
@@ -15842,10 +15853,10 @@ global maygc void builtin_stream_close (const gcv_object_t* stream_) {
   close_dummys(*stream_);
 }
 
-# UP: Closes a list of open files.
-# close_some_files(list);
-# > list: list of open Builtin-Streams
-# can trigger GC
+/* UP: Closes a list of open files - no errors!
+ close_some_files(list);
+ > list: list of open Builtin-Streams
+ can trigger GC */
 global maygc void close_some_files (object list) {
   pushSTACK(NIL); # dummy
   pushSTACK(list); # list
@@ -15853,7 +15864,7 @@ global maygc void close_some_files (object list) {
     var object streamlist = STACK_0;
     STACK_0 = Cdr(streamlist); # remaining streams
     STACK_1 = Car(streamlist); # a stream from the list
-    builtin_stream_close(&STACK_1); # close
+    builtin_stream_close(&STACK_1,1); /* close -- no errors! */
   }
   skipSTACK(2);
 }
@@ -15884,10 +15895,10 @@ global void closed_all_files (void) {
 
 # (SYS::BUILT-IN-STREAM-CLOSE stream :abort)
 LISPFUN(built_in_stream_close,seclass_default,1,0,norest,key,1, (kw(abort)) ) {
-  skipSTACK(1); # ignore the :ABORT argument
+  var uintB abort = !missingp(STACK_0); skipSTACK(1);
   var object stream = STACK_0; # Argument
   CHECK_builtin_stream(stream); # must be a Stream
-  builtin_stream_close(&STACK_0);
+  builtin_stream_close(&STACK_0,abort);
   skipSTACK(1);
   VALUES1(T); # T as result
 }
