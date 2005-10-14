@@ -4185,3 +4185,12 @@ ERROR
     (fun-145 inst)
     (nreverse ret)))
 (CLASS-FOO-145 CLASS-BAR-145-AFTER)
+
+(progn (load "listener")
+       (with-open-stream (s1 (make-string-input-stream "("))
+         (with-open-stream (s2 (make-string-input-stream "())"))
+           (with-open-stream (l (make-instance 'listener-input-stream
+                                               :stream s2))
+             (with-open-stream (c (make-concatenated-stream s1 l))
+               (read c))))))
+(NIL)
