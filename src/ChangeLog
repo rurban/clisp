@@ -1,3 +1,7 @@
+2005-10-10  Sam Steingold  <sds@gnu.org>
+
+	* m4/termcap.m4 (CL_TERMCAP): accept --with-termcap-prefix
+
 2005-10-14  Yaroslav Kavenchuk  <kavenchuk@jenty.by>
 	    Sam Steingold  <sds@gnu.org>
 
