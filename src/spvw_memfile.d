@@ -235,7 +235,7 @@ global maygc void savemem (object stream)
     { var ssize_t ergebnis = full_write(handle,(void*)buf,len);         \
       if (ergebnis != (ssize_t)(len)) {                                 \
         end_system_call();                                              \
-        builtin_stream_close(&STACK_0);                                 \
+        builtin_stream_close(&STACK_0,0);                               \
         if (ergebnis<0) /* error occurred? */                           \
           { OS_file_error(TheStream(STACK_0)->strm_file_truename); }    \
         /* FILE-ERROR slot PATHNAME */                                  \
@@ -403,7 +403,7 @@ global maygc void savemem (object stream)
     begin_system_call();
     var off_t ergebnis = lseek(handle,0,SEEK_CUR); /* fetch file-position */
     end_system_call();
-    if (ergebnis<0) { builtin_stream_close(&STACK_0); OS_file_error(TheStream(STACK_0)->strm_file_truename); } /* error? */
+    if (ergebnis<0) { builtin_stream_close(&STACK_0,0); OS_file_error(TheStream(STACK_0)->strm_file_truename); } /* error? */
     WRITE_page_alignment(ergebnis);
   }
    #endif
@@ -553,7 +553,7 @@ global maygc void savemem (object stream)
  #undef WRITE
   /* close stream (stream-buffer is unchanged, but thus also the
      handle at the operating system is closed): */
-  builtin_stream_close(&STACK_0);
+  builtin_stream_close(&STACK_0,0);
   skipSTACK(1);
 }
 

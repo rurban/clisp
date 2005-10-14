@@ -6066,7 +6066,7 @@ LISPFUNN(delete_file,1) {
     /* Streamtype file-stream.
      if file is opened, close file first: */
     if (TheStream(stream)->strmflags & strmflags_open_B) { /* file opened ? */
-      pushSTACK(stream); builtin_stream_close(&STACK_0); stream = popSTACK();
+      pushSTACK(stream); builtin_stream_close(&STACK_0,0); stream = popSTACK();
     }
     /* then take the truename as file to be deleted: */
     pathname = TheStream(stream)->strm_file_truename;

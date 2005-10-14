@@ -1,3 +1,24 @@
+2005-10-14  Sam Steingold  <sds@gnu.org>
+
+	C-level CLOSE functions accept abort argument to ensure that
+	auto-close (in GC and quit) cannot fail
+	* lispbibl.d (builtin_stream_close): accept abort
+	* stream.d (close_synonym, close_str_in, close_buff_in, close_buff_out)
+	(close_generic, strm_channel_extrafields_t.low_close, low_close_handle)
+	(close_ichannel, close_ochannel, close_buffered, low_close_console)
+	(close_window, term_nlunraw, end_term, low_close_socket)
+	(low_close_socket_nop, builtin_stream_close): ditto
+	(close_some_files): pass abort=1 to builtin_stream_close()
+	(BUILT-IN-STREAM-CLOSE): pass :ABORT to builtin_stream_close()
+	(low_flush_buffered_handle, make_buffered_stream, make_file_stream):
+	pass abort=0 to builtin_stream_close()
+	* debug.d (LOAD): ditto
+	* misc.d (MACHINE-TYPE, MACHINE-VERSION): ditto
+	* pathname.d (DELETE-FILE): ditto
+	* spvw_memfile.d (WRITE, savemem): ditto
+	* modules/syscalls/calls.c (copy_attributes_and_close, copy_file_low)
+	(copy_one_file): ditto
+
 2005-10-10  Sam Steingold  <sds@gnu.org>
 
 	* m4/termcap.m4 (CL_TERMCAP): accept --with-termcap-prefix
