@@ -2,7 +2,8 @@
 ;; some tests for WIN32
 ;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "bindings/win32/test")'
 
-(defmacro show-mv (form) `(listp (show (multiple-value-list ,form)))) SHOW-MV
+(defmacro show-mv (form) `(listp (show (multiple-value-list ,form) :pretty t)))
+SHOW-MV
 
 (stringp (show (win32:GetCommandLineA))) T
 (integerp (show (win32:GetLastError))) T
@@ -52,6 +53,9 @@ T
 T
 
 (show-mv (win32:GetConsoleTitleA win32:BUFSIZ)) T
+(show-mv (win32:GetConsoleScreenBufferInfo (win32:GetConsoleWindow))) T
+(show-mv (win32:GetConsoleScreenBufferInfo
+          (win32:GetStdHandle win32:STD_OUTPUT_HANDLE))) T
 (show-mv (win32:GetSystemDirectoryA win32:MAX_PATH)) T
 (show-mv (win32:GetWindowsDirectoryA win32:MAX_PATH)) T
 (show-mv (win32:GetCurrentDirectoryA win32:MAX_PATH)) T

@@ -1,3 +1,9 @@
+2005-10-14  Yaroslav Kavenchuk  <kavenchuk@jenty.by>
+	    Sam Steingold  <sds@gnu.org>
+
+	* modules/bindings/win32/win32.lisp (GetConsoleScreenBufferInfo)
+	(GetConsoleWindow): added
+
 2005-10-12  T. Kurt Bond  <tkb@tkb.mpl.com>
 
 	* lispbibl.d (PC386): also define on FreeBSD, NetBSD, and OpenBSD
