@@ -315,7 +315,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP RANLIB INSTALL INSTALL_PROGRAM INSTALL_DATA CP LN LN_S HLN GROFF DVIPDF COMPRESS CC_GCC GCC_X_NONE CC_CPLUSPLUS CC_NEED_CCPAUX CC_NEED_DEEMA AS_UNDERSCORE build build_cpu build_vendor build_os host host_cpu host_vendor host_os LIBICONV LTLIBICONV SET_MAKE INSTALL_SCRIPT MKINSTALLDIRS USE_NLS MSGFMT GMSGFMT XGETTEXT MSGMERGE INTL_MACOSX_LIBS INTLLIBS LIBINTL LTLIBINTL POSUB LIBSIGSEGV LTLIBSIGSEGV HAVE__BOOL STDBOOL_H HAVE_LONG_64BIT HAVE_LONG_LONG_64BIT STDINT_H HAVE_XMKMF X_INCLUDES X_LIBS GMALLOC ALLOCA LIBTERMCAP PACKAGE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP RANLIB INSTALL INSTALL_PROGRAM INSTALL_DATA CP LN LN_S HLN GROFF DVIPDF COMPRESS CC_GCC GCC_X_NONE CC_CPLUSPLUS CC_NEED_CCPAUX CC_NEED_DEEMA AS_UNDERSCORE build build_cpu build_vendor build_os host host_cpu host_vendor host_os LIBICONV LTLIBICONV SET_MAKE INSTALL_SCRIPT MKINSTALLDIRS USE_NLS MSGFMT GMSGFMT XGETTEXT MSGMERGE INTL_MACOSX_LIBS INTLLIBS LIBINTL LTLIBINTL POSUB LIBSIGSEGV LTLIBSIGSEGV HAVE__BOOL STDBOOL_H HAVE_LONG_64BIT HAVE_LONG_LONG_64BIT STDINT_H HAVE_XMKMF X_INCLUDES X_LIBS GMALLOC ALLOCA LIBTERMCAP INCTERMCAP PACKAGE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -871,6 +871,7 @@ Optional Packages:
   --with-libsigsegv-prefix[=DIR]  search for libsigsegv in DIR/include and DIR/lib
   --without-libsigsegv-prefix     don't search for libsigsegv in includedir and libdir
   --with-x                use the X Window System
+  --with-libtermcap-prefix=DIR  search for ncurses and termcap in DIR
   --with-readline         use readline (default is YES, if present)
   --with-libreadline-prefix[=DIR]  search for libreadline in DIR/include and DIR/lib
   --without-libreadline-prefix     don't search for libreadline in includedir and libdir
@@ -24707,7 +24708,19 @@ fi
 { echo "$as_me:$LINENO: * checks for libraries" >&5
 echo "$as_me: * checks for libraries" >&6;}
 
+termcap_prefix=""
+
+# Check whether --with-libtermcap-prefix or --without-libtermcap-prefix was given.
+if test "${with_libtermcap_prefix+set}" = set; then
+  withval="$with_libtermcap_prefix"
+  case "$withval" in (/*) termcap_prefix=$withval; ;; esac
+fi;
+if test x$termcap_prefix != x; then
+  LDFLAGS_save=$LDFLAGS
+  LDFLAGS=$LDFLAGS" -L$termcap_prefix/lib"
+fi
 LIBTERMCAP="broken"
+INCTERMCAP=""
 echo "$as_me:$LINENO: checking for library containing tgetent" >&5
 echo $ECHO_N "checking for library containing tgetent... $ECHO_C" >&6
 if test "${ac_cv_search_tgetent+set}" = set; then
@@ -24832,6 +24845,14 @@ echo "${ECHO_T}$ac_cv_search_tgetent" >&6
 if test "$ac_cv_search_tgetent" != no; then
   test "$ac_cv_search_tgetent" = "none required" || LIBS="$ac_cv_search_tgetent $LIBS"
   LIBTERMCAP=""
+fi
+
+if test x$termcap_prefix != x; then
+  LDFLAGS=$LDFLAGS_save
+  if test $LIBTERMCAP != broken; then
+    INCTERMCAP=-I$termcap_prefix/include
+    LIBTERMCAP=-L$termcap_prefix/lib
+  fi
 fi
 
 
@@ -35224,6 +35245,7 @@ s,@X_LIBS@,$X_LIBS,;t t
 s,@GMALLOC@,$GMALLOC,;t t
 s,@ALLOCA@,$ALLOCA,;t t
 s,@LIBTERMCAP@,$LIBTERMCAP,;t t
+s,@INCTERMCAP@,$INCTERMCAP,;t t
 s,@PACKAGE@,$PACKAGE,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
