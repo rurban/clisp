@@ -196,6 +196,22 @@
   (:arguments (title c-string))
   (:return-type boolean))
 
+(def-call-out GetConsoleWindow (:library kernel32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/dllproc/base/getconsolescreenbufferinfo.asp")
+  (:arguments) (:return-type handle))
+
+(def-c-struct SMALL_RECT (Left short) (Top short) (Right short) (Bottom short))
+(def-c-struct COORD (X short) (Y short))
+(def-c-struct CONSOLE_SCREEN_BUFFER_INFO
+  (dwSize COORD) (dwCursorPosition COORD)
+  (wAttributes word) (srWindow SMALL_RECT) (dwMaximumWindowSize COORD))
+
+(def-call-out GetConsoleScreenBufferInfo (:library kernel32)
+  (:documentation "http://msdn.microsoft.com/library/en-us/dllproc/base/getconsolescreenbufferinfo.asp")
+  (:arguments (StdHandle handle)
+              (csbiInfo (c-ptr CONSOLE_SCREEN_BUFFER_INFO) :out :alloca))
+  (:return-type boolean))
+
 ;; system information
 (def-call-out GetSystemDirectoryA (:library kernel32)
   (:arguments (buffer (c-ptr (c-array-max character #.MAX_PATH)) :out :alloca)
