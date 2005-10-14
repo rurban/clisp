@@ -685,18 +685,21 @@ global maygc object read_char (const gcv_object_t* stream_) {
       return newch;
     } else {
       # yes -> deleteFlagbit and fetch last character:
-      object ret = TheStream(stream)->strm_rd_ch_last;
-     read_char_restart_clear_flag:
+      var object ret = TheStream(stream)->strm_rd_ch_last; /* immediate */
       TheStream(stream)->strmflags &= ~strmflags_unread_B;
       switch (TheStream(stream)->strmtype) {
         case strmtype_concat:
           /* presence of rd_ch_last indicates that concat_list is non-NIL */
           stream = Car(TheStream(stream)->strm_concat_list);
-          goto read_char_restart_clear_flag;
+          goto read_char_recurse;
         case strmtype_echo:
         case strmtype_twoway:
           stream = TheStream(stream)->strm_twoway_input;
-          goto read_char_restart_clear_flag;
+        read_char_recurse:
+          pushSTACK(stream);
+          var object new_ch = read_char(&STACK_0);
+          ASSERT(eq(new_ch,ret));
+          skipSTACK(1);
       }
       return ret;
     }

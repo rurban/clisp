@@ -1,5 +1,11 @@
 2005-10-14  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 1310753 ]: Gray streams ==> stack overflow and segfault
+	* stream.d (read_char): fixed recursion: cannot assume that the
+	constituent streams of constructed streams are built-in
+
+2005-10-14  Sam Steingold  <sds@gnu.org>
+
 	C-level CLOSE functions accept abort argument to ensure that
 	auto-close (in GC and quit) cannot fail
 	* lispbibl.d (builtin_stream_close): accept abort
