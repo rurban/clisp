@@ -7438,9 +7438,26 @@ dnl because libtermcap is being phased out.
 dnl libcurses is useless: all platforms which have libcurses also have
 dnl libtermcap, also they were all different on the various Unix systems,
 dnl and often buggy
+termcap_prefix=""
+AC_ARG_WITH([libtermcap-prefix],
+[  --with-libtermcap-prefix[=DIR]  search for ncurses and termcap in DIR],
+[case "$withval" in (/*) termcap_prefix=$withval; ;; esac])
+if test x$termcap_prefix != x; then
+  LDFLAGS_save=$LDFLAGS
+  LDFLAGS=$LDFLAGS" -L$termcap_prefix/lib"
+fi
 LIBTERMCAP="broken"
+INCTERMCAP=""
 AC_SEARCH_LIBS(tgetent, ncurses termcap, LIBTERMCAP="")
+if test x$termcap_prefix != x; then
+  LDFLAGS=$LDFLAGS_save
+  if test $LIBTERMCAP != broken; then
+    INCTERMCAP=-I$termcap_prefix/include
+    LIBTERMCAP=-L$termcap_prefix/lib
+  fi
+fi
 AC_SUBST(LIBTERMCAP)
+AC_SUBST(INCTERMCAP)
 ])
 
 dnl -*- Autoconf -*-
