@@ -163,8 +163,7 @@ do
         exit 0 ;;
 
       --version | --versio | --versi | --vers | --ver | --ve | --v)
-        version="CLISP version "`. ./version.sh ; echo $VERSION_NUMBER`
-        echo $version
+        ./src/configure --version
         exit 0 ;;
 
       --list-modules | --list-module | --list-modul | --list-modu | --list-mod | --list-mo | --list-m | --list- | --list | --lis)
