@@ -1,3 +1,9 @@
+2005-10-16  Sam Steingold  <sds@gnu.org>
+
+	* configure (--version): call src/configure instead of sourcing
+	version.sh which is not included in the source distribution
+	Reported by "T. Kurt Bond" <tkb@tkb.mpl.com>
+
 2005-10-14  Sam Steingold  <sds@gnu.org>
 
 	* spvw_sigwinch.d (update_linelength) [HAVE_READLINE]:
