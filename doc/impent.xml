@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- *** Entities for impnotes.xml *** -->
-<!ENTITY clisp-announce "<email><ulink url='http://lists.sourceforge.net/lists/listinfo/clisp-announce'>clisp-announce/at/lists.sourceforge.net</ulink></email>">
-<!ENTITY clisp-list "<email><ulink url='http://lists.sourceforge.net/lists/listinfo/clisp-list'>clisp-list/at/lists.sourceforge.net</ulink></email>">
-<!ENTITY clisp-devel "<email><ulink url='http://lists.sourceforge.net/lists/listinfo/clisp-devel'>clisp-devel/at/lists.sourceforge.net</ulink></email>">
+<!ENTITY clisp-announce "<email>clisp-announce@lists.sourceforge.net</email> (<ulink url='http://lists.sourceforge.net/lists/listinfo/clisp-announce'/>)">
+<!ENTITY clisp-list "<email>clisp-list@lists.sourceforge.net</email> (<ulink url='http://lists.sourceforge.net/lists/listinfo/clisp-list'/>)">
+<!ENTITY clisp-devel "<email>clisp-devel@lists.sourceforge.net</email> (<ulink url='http://lists.sourceforge.net/lists/listinfo/clisp-devel'/>)">
 
 <!-- *** people *** -->
 <!ENTITY bruno "<author><firstname>Bruno</firstname><surname>Haible</surname><address><otheraddr><ulink url='http://www.haible.de/bruno/'/></otheraddr></address></author>">
