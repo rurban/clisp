@@ -19,6 +19,11 @@
 
 #ifdef HAVE_SIGNALS
 
+ #if defined(HAVE_READLINE)
+  /* for rl_resize_terminal() */
+  #include <readline/readline.h>
+ #endif
+
 # Adapts the value of SYS::*PRIN-LINELENGTH* to the current width of
 # the terminal-window.
 # update_linelength();
@@ -67,6 +72,9 @@ local void update_linelength (void) {
     # change value of SYS::*PRIN-LINELENGTH* :
     Symbol_value(S(prin_linelength)) = fixnum(nxterminal_line_length-1);
   }
+ #endif
+ #if defined(HAVE_READLINE)
+  rl_resize_terminal();
  #endif
 }
 
