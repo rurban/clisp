@@ -6641,10 +6641,37 @@ DEFUN(XLIB:BELL, display &optional percent)
   VALUES1(NIL);
 }
 
+DEFCHECKER(check_on_off,default=AutoRepeatModeDefault,OFF=AutoRepeatModeOff\
+           YES=AutoRepeatModeOn DEFAULT=AutoRepeatModeDefault)
 DEFUN(XLIB:CHANGE-KEYBOARD-CONTROL, display \
       &key KEY-CLICK-PERCENT BELL-PERCENT BELL-PITCH BELL-DURATION LED    \
       LED-MODE KEY AUTO-REPEAT-MODE)
-{UNDEFINED;}
+{  /* http://www.linuxmanpages.com/man3/XChangeKeyboardControl.3x.php */
+  unsigned long value_mask = 0;
+  XKeyboardControl xkbc;
+#define GETARG(mask,slot,checker)               \
+  if (!missingp(STACK_0)) {                     \
+    value_mask |= mask;                         \
+    xkbc.slot = checker(STACK_0);               \
+  }                                             \
+  skipSTACK(1)
+#define on_p(x) (eq(x,`:ON`))
+  GETARG(KBAutoRepeatMode,auto_repeat_mode,check_on_off); /* AUTO-REPEAT-MODE */
+  GETARG(KBKey,key,get_uint8);                            /* KEY */
+  GETARG(KBLedMode,led_mode,on_p);                        /* LED-MODE */
+  GETARG(KBLed,led,get_uint8);                            /* LED */
+  GETARG(KBBellDuration,bell_duration,get_uint16); /* BELL-DURATION */
+  GETARG(KBBellPitch,bell_pitch,get_uint16);       /* BELL-PITCH */
+  GETARG(KBBellPercent,bell_percent,get_uint8);    /* BELL-PERCENT */
+  GETARG(KBKeyClickPercent,key_click_percent,get_uint8); /* KEY-CLICK-PERCENT */
+#undef on_p
+#undef GETARG
+  {
+    Display *dpy = pop_display();
+    X_CALL(XChangeKeyboardControl(dpy,value_mask,&xkbc));
+  }
+  VALUES0;
+}
 
 DEFUN(XLIB:KEYBOARD-CONTROL, display)
 {

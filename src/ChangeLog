@@ -1,3 +1,7 @@
+2005-10-15  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (CHANGE-KEYBOARD-CONTROL): implemented
+
 2005-10-14  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 1310753 ]: Gray streams ==> stack overflow and segfault
