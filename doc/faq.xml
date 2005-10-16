@@ -74,15 +74,13 @@ further explanations of the issues could be provided).</para>
        do I access a character in a string?"</ulink></simpara>
    </listitem></varlistentry>
    <varlistentry><term>&clisp; User Mailing List &clisp-list;</term>
-    <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.general">
-      http://news.gmane.org/gmane.lisp.clisp.general</ulink></term>
-    <listitem><simpara>This is the right place to ask user-level
+    <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.general"/>
+    </term><listitem><simpara>This is the right place to ask user-level
       &clisp;-specific questions, such as
       <link linkend="image">"how do I save my &clisp; image?"</link>
    </simpara></listitem></varlistentry>
    <varlistentry><term>&clisp; Developer Mailing List &clisp-devel;</term>
-    <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.devel">
-      http://news.gmane.org/gmane.lisp.clisp.devel</ulink></term>
+    <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.devel"/></term>
     <listitem><simpara>This is the right place to discuss &clisp;
       internals, submit patches, offer help.  You must be subscribed to post.
       If you read this list on <ulink url="http://gmane.org">Gmane</ulink>
