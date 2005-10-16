@@ -2056,7 +2056,7 @@ DEFUN(XLIB:SET-DISPLAY-REPORT-ASYNCHRONOUS-ERRORS, display value)
 
 DEFUN(XLIB:DISPLAY-TRACE, &rest args)
 { /* I do not think I will support this function, since
-        - traceing seems not to be possible using the libX11
+        - tracing seems not to be possible using the libX11
         - It may even not be wanted by anybody...?!
       BTW in the source of MIT-CLX (trace.lisp) I found a mark
       that display-trace is an obsolete name. */
@@ -3801,7 +3801,7 @@ DEFUN(XLIB:DRAW-GLYPHS, drawable gcontext x y sequence \
   general_draw_text (0);
 }
 
-DEFUN(XLIB:DRAW-IMAGE-GLYPH, drawable gcontext x y sequence \
+DEFUN(XLIB:DRAW-IMAGE-GLYPH, drawable gcontext x y element \
       &key TRANSLATE WIDTH SIZE)
 {UNDEFINED;}
 /* XLIB:DRAW-IMAGE-GLPYHS drawable gcontext x y sequence &key (:start 0) :end
