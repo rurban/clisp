@@ -9,7 +9,7 @@
                 version="1.0" xmlns="http://www.w3.org/1999/xhtml">
 
 <xsl:param name="html.stylesheet" select="'impnotes.css'"/>
-<xsl:param name="link.mailto.url" select="'mailto:clisp-list@sf.net'"/>
+<xsl:param name="link.mailto.url" select="'mailto:clisp-list@lists.sourceforge.net'"/>
 <!-- xsl:param name="suppress.navigation" select="0"/-->
 <xsl:param name="inherit.keywords" select="0"/>
 <xsl:param name="variablelist.term.break.after" select="1"/>
