@@ -2,6 +2,8 @@
 
 	* modules/rawsock/configure.in: check for msghdr.msg_flags when
 	sys/socket.h is present
+	* modules/rawsock/rawsock.c (RECVMSG, SENDMSG): implement only
+	when the system implementation is POSIX, i.e., has msg_flags
 
 2005-10-17  Sam Steingold  <sds@gnu.org>
 
