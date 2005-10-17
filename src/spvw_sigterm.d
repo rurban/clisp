@@ -23,7 +23,7 @@ local void quit_on_signal (int sig) {
 
 /* install error handlers for as many signals as possible */
 local void install_sigterm_handler (void) {
-#ifdef SIGHUP 
+#ifdef SIGHUP
   /* maybe ignore? - use nohup instead */
   SIGNAL(SIGHUP,&quit_on_signal);
 #endif
@@ -41,6 +41,19 @@ local void install_sigterm_handler (void) {
 #endif
 #ifdef SIGTERM
   SIGNAL(SIGTERM,&quit_on_signal);
+#endif
+#ifdef SIGTTOU
+  /* we must ignore SIGTTOU to avoid the following issue:
+      - when CLISP is running in the background,
+      - and its i/o is not redirected,
+      - and CLISP receives a terminating signal,
+     then CLISP will be stopped instead of being terminated
+     when it will try to write the "exiting..." message:
+  <http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap11.html>
+         Attempts by a process in a background process group to write to
+         its controlling terminal shall cause the process group to be
+         sent a SIGTTOU signal */
+  SIGNAL(SIGTTOU,SIG_IGN);
 #endif
 }
 #endif
