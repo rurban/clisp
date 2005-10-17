@@ -5,6 +5,7 @@
 	converted from hostent_to_stack()
 	(RESOLVE-HOST-IPADDR): updated to use hostent_to_lisp()
 	* modules/clx/new-clx/configure.in: check for socket headers
+	* modules/clx/new-clx/clx.lisp (ACCESS-CONTROL): new defsetf
 
 2005-10-16  Sam Steingold  <sds@gnu.org>
 

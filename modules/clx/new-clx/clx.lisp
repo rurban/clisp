@@ -373,6 +373,7 @@
 ;;;; --------------------------------------------------------------------------
 ;;;;  Setf Methods
 ;;;; --------------------------------------------------------------------------
+(defsetf ACCESS-CONTROL               SET-ACCESS-CONTROL)
 (defsetf CLOSE-DOWN-MODE (display) (mode)
   `(SET-CLOSE-DOWN-MODE ,mode ,display))
 (defsetf DISPLAY-AFTER-FUNCTION       SET-DISPLAY-AFTER-FUNCTION)
