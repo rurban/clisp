@@ -371,6 +371,17 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
   (:arguments (cap c-string))
   (:return-type c-string))
 
+;;; Signal Handling
+(def-call-out resize-terminal (:name "rl_resize_terminal")
+  (:arguments) (:return-type nil))
+
+(def-call-out set-screen-size (:name "rl_set_screen_size")
+  (:arguments (rows int) (cols int)) (:return-type nil))
+
+(def-call-out get-screen-size (:name "rl_get_screen_size")
+  (:arguments (rows (c-ptr int) :out) (cols (c-ptr int) :out))
+  (:return-type nil))
+
 ;;; Alternate interface
 (def-call-out callback-handler-install (:name "rl_callback_handler_install")
   (:arguments (prompt c-string) (lhandler readline-vcpfunc)))
@@ -387,8 +398,6 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
            (:documentation "The offset of current position in line-buffer"))
 (def-c-var end (:name "rl_end") (:type int)
            (:documentation "The offset of current position in line-buffer"))
-(def-c-var end (:name "rl_end") (:type int)
-  (:documentation "The offset of current position in line-buffer"))
 (def-c-var mark (:name "rl_mark") (:type int)
   (:documentation "The MARK (saved position) in the current line."))
 (def-c-var done (:name "rl_done") (:type int)
@@ -436,6 +445,57 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 (def-c-var insert-mode (:name "rl_insert_mode") (:type int))
 (def-c-var readline-name (:name "rl_readline_name")
   (:type c-string) (:alloc :malloc-free))
+(def-c-var readline-state (:name "rl_readline_state") (:type int))
+
+;; get a hold of the RL state constants:
+(c-lines "static int get_rl_state_const (int num) {
+ switch (num) {
+  case  0: return RL_STATE_NONE;
+  case  1: return RL_STATE_INITIALIZING;
+  case  2: return RL_STATE_INITIALIZED;
+  case  3: return RL_STATE_TERMPREPPED;
+  case  4: return RL_STATE_READCMD;
+  case  5: return RL_STATE_METANEXT;
+  case  6: return RL_STATE_DISPATCHING;
+  case  7: return RL_STATE_MOREINPUT;
+  case  8: return RL_STATE_ISEARCH;
+  case  9: return RL_STATE_NSEARCH;
+  case 10: return RL_STATE_SEARCH;
+  case 11: return RL_STATE_NUMERICARG;
+  case 12: return RL_STATE_MACROINPUT;
+  case 13: return RL_STATE_MACRODEF;
+  case 14: return RL_STATE_OVERWRITE;
+  case 15: return RL_STATE_COMPLETING;
+  case 16: return RL_STATE_SIGHANDLER;
+  case 17: return RL_STATE_UNDOING;
+  case 18: return RL_STATE_INPUTPENDING;
+  case 19: return RL_STATE_TTYCSAVED;
+  case 20: return RL_STATE_DONE;
+  default: return -1;
+}}~%#define HAVE_GET_RL_STATE_CONST~%")
+;; package prefix to avoid exporting GET_RL_STATE_CONST
+(ffi:def-call-out get_rl_state_const (:arguments (num int)) (:return-type int))
+(defconstant STATE-NONE            (get_rl_state_const  0))
+(defconstant STATE-INITIALIZING    (get_rl_state_const  1))
+(defconstant STATE-INITIALIZED     (get_rl_state_const  2))
+(defconstant STATE-TERMPREPPED     (get_rl_state_const  3))
+(defconstant STATE-READCMD         (get_rl_state_const  4))
+(defconstant STATE-METANEXT        (get_rl_state_const  5))
+(defconstant STATE-DISPATCHING     (get_rl_state_const  6))
+(defconstant STATE-MOREINPUT       (get_rl_state_const  7))
+(defconstant STATE-ISEARCH         (get_rl_state_const  8))
+(defconstant STATE-NSEARCH         (get_rl_state_const  9))
+(defconstant STATE-SEARCH          (get_rl_state_const 10))
+(defconstant STATE-NUMERICARG      (get_rl_state_const 11))
+(defconstant STATE-MACROINPUT      (get_rl_state_const 12))
+(defconstant STATE-MACRODEF        (get_rl_state_const 13))
+(defconstant STATE-OVERWRITE       (get_rl_state_const 14))
+(defconstant STATE-COMPLETING      (get_rl_state_const 15))
+(defconstant STATE-SIGHANDLER      (get_rl_state_const 16))
+(defconstant STATE-UNDOING         (get_rl_state_const 17))
+(defconstant STATE-INPUTPENDING    (get_rl_state_const 18))
+(defconstant STATE-TTYCSAVED       (get_rl_state_const 19))
+(defconstant STATE-DONE            (get_rl_state_const 20))
 
 ;;; ------ history ------
 
