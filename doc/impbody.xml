@@ -3493,6 +3493,7 @@ pointing to non-existent files and can take the following values:
    In some exotic cases, e.g., when running under &gdb; in
    an <command>rxvt</command> window under &cygwin;, this may be
    determined incorrectly.</simpara></warning>
+ <para>See also <xref linkend="readline-mod"/>.</para>
 </section>
 <!-- #endif -->
 
