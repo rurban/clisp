@@ -2454,7 +2454,7 @@ if test "${with_libtermcap_prefix+set}" = set; then
 fi;
 if test x$termcap_prefix != x; then
   LDFLAGS_save=$LDFLAGS
-  LDFLAGS=$LDFLAGS" -L$termcap_prefix"
+  LDFLAGS=$LDFLAGS" -L$termcap_prefix/lib"
 fi
 LIBTERMCAP="broken"
 INCTERMCAP=""
