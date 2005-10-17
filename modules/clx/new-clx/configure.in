@@ -9,6 +9,7 @@ AC_CONFIG_HEADERS(config.h)
 
 AC_MSG_NOTICE([ * NEW CLX])
 AC_HEADER_TIME
+AC_CHECK_HEADERS([sys/socket.h netdb.h netinet/in.h])
 dnl find a path to X11 - set X_LIBS and X_INCLUDES
 CL_FIND_X
 
