@@ -31,3 +31,39 @@ readline:readline-name                  "abazonk"
 (readline:read-history-range *history-file* 0 -1)  0
 (readline:history-truncate-file *history-file* 10) 0
 (probe-file (delete-file *history-file*))          NIL
+
+;;; This tests readline-from-string, and indirectly getc-function
+(progn
+  (defun stuff-string (string)
+    "Stuff a string (with NewLine added) to readline buffer"
+    (assert (< (length string) 255)) ; stuff-char limit
+    (map 'nil (lambda (char) (readline:stuff-char (char-code char))) string)
+    (readline:stuff-char (char-code #\NewLine)))
+  (defun readline-from-string (string)
+    "Run readline:readline, with fake input."
+    (stuff-string string)
+    (readline:readline ""))
+  (readline-from-string "test")) "test"
+
+;;; Bind key and test that function works
+(let ((a 0))
+  (readline:bind-key (char-code #\t) (lambda (? ??) (incf a)))
+  (readline-from-string "test")
+  a) 2
+
+;;; Now key is  unbound, but still ignored
+(readline:unbind-key (char-code #\t)) 0
+(readline-from-string "test") "es"
+
+;;; Bind it back to insert-self
+(progn
+  (readline:parse-and-bind "\"t\": self-insert")
+  (readline-from-string "test"))
+"test"
+
+(progn
+  (stuff-string "(1 2")
+  (stuff-string "3 4) 5")
+  (read readline:*readline-input-stream*)) (1 2 3 4)
+
+(read readline:*readline-input-stream*) 5

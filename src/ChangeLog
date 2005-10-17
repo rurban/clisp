@@ -1,3 +1,11 @@
+2005-10-11  Tomas Zellerin  <zellerin@gmail.com>
+
+	* modules/readline/readline.lisp: more ffi functions and variables;
+	package, some functions and variables documented;
+	(*readline-input-stream*): new stream
+	* modules/readline/configure.in: all declared functions tested
+	* modules/readline/test.tst: added functionality tests
+
 2005-10-17  Sam Steingold  <sds@gnu.org>
 
 	* spvw_sigterm.d (install_sigterm_handler): ignore SIGTTOU to avoid
