@@ -126,6 +126,12 @@
 /* Define to 1 if you have the <stropts.h> header file. */
 #undef HAVE_STROPTS_H
 
+/* Define to 1 if `msg_control' is member of `struct msghdr'. */
+#undef HAVE_STRUCT_MSGHDR_MSG_CONTROL
+
+/* Define to 1 if `msg_flags' is member of `struct msghdr'. */
+#undef HAVE_STRUCT_MSGHDR_MSG_FLAGS
+
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #undef HAVE_SYS_IOCTL_H
 
