@@ -1,6 +1,9 @@
 2005-10-17  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (STACK_to_mv): export to clisp.h
+	* modules/syscalls/calls.c (hostent_to_lisp): new public function
+	converted from hostent_to_stack()
+	(RESOLVE-HOST-IPADDR): updated to use hostent_to_lisp()
 
 2005-10-16  Sam Steingold  <sds@gnu.org>
 

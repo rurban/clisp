@@ -1111,7 +1111,8 @@ void print_he (struct hostent *he) {
    list of h_addr_list
    addrtype
  can trigger GC */
-static void hostent_to_stack (struct hostent *he) {
+Values hostent_to_lisp (struct hostent *he);
+Values hostent_to_lisp (struct hostent *he) {
   object tmp;
   pushSTACK(ascii_to_string(he->h_name));
   ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),
@@ -1121,6 +1122,7 @@ static void hostent_to_stack (struct hostent *he) {
               addr_to_string(he->h_addrtype,he->h_addr_list[ii]));
   pushSTACK(tmp);
   pushSTACK(fixnum(he->h_addrtype));
+  funcall(`POSIX::MAKE-HOSTENT`,4);
 }
 
 DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
@@ -1135,8 +1137,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
     int count = 0;
     begin_system_call();
     for (; (he = gethostent()); count++) {
-      hostent_to_stack(he);
-      funcall(`POSIX::MAKE-HOSTENT`,4);
+      hostent_to_lisp(he);
       pushSTACK(value1);
     }
     endhostent();
@@ -1155,8 +1156,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
     fehler(os_error,"~S (~S): ~S");
   }
 
-  hostent_to_stack(he);
-  funcall(`POSIX::MAKE-HOSTENT`,4);
+  hostent_to_lisp(he);
 }
 
 #if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
