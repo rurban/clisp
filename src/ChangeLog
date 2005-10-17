@@ -1,3 +1,7 @@
+2005-10-17  Sam Steingold  <sds@gnu.org>
+
+	* complete.lisp (completion): define even when not on UNIX
+
 2005-10-11  Tomas Zellerin  <zellerin@gmail.com>
 
 	* modules/readline/readline.lisp: more ffi functions and variables;
