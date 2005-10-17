@@ -668,7 +668,11 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address &key START END PEEK OOB WAITALL) {
   VALUES3(fixnum(retval),fixnum(sa_size),STACK_2); skipSTACK(5);
 }
 
-#if defined(HAVE_RECVMSG)       /* not on win32 */
+#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_MSGHDR_MSG_FLAGS) && defined(HAVE_MSGHDR_MSG_CONTROL)
+DEFCHECKER(check_msg_flags,prefix=MSG,bitmasks=both,default=0,          \
+           OOB PEEK DONTROUTE TRYHARD CTRUNC PROXY TRUNC DONTWAIT EOR   \
+           WAITALL FIN SYN CONFIRM RST ERRQUEUE NOSIGNAL MORE)
+/* POSIX recvmsg() */
 DEFUN(RAWSOCK:RECVMSG,socket message &key PEEK OOB WAITALL) {
   int flags = recv_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
@@ -680,7 +684,7 @@ DEFUN(RAWSOCK:RECVMSG,socket message &key PEEK OOB WAITALL) {
   SYSCALL(retval,sock,recvmsg(sock,message,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
-#endif
+#endif  /* HAVE_RECVMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
 DEFUN(RAWSOCK:SOCK-READ,socket buffer &key START END)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/read.html
@@ -718,7 +722,8 @@ DEFUN(RAWSOCK:SEND,socket buffer &key START END OOB EOR) {
   VALUES1(fixnum(retval)); skipSTACK(4);
 }
 
-#if defined(HAVE_SENDMSG)       /* not on win32 */
+#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_MSGHDR_MSG_FLAGS) && defined(HAVE_MSGHDR_MSG_CONTROL)
+/* POSIX sendmsg() */
 DEFUN(RAWSOCK:SENDMSG,socket message &key OOB EOR) {
   int flags = send_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
@@ -730,7 +735,7 @@ DEFUN(RAWSOCK:SENDMSG,socket message &key OOB EOR) {
   SYSCALL(retval,sock,sendmsg(sock,message,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
-#endif
+#endif  /* HAVE_SENDMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
 DEFUN(RAWSOCK:SENDTO, socket buffer address &key START END OOB EOR) {
   int flags = send_flags();
