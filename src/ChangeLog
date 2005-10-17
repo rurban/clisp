@@ -1,3 +1,7 @@
+2005-10-17  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (STACK_to_mv): export to clisp.h
+
 2005-10-16  Sam Steingold  <sds@gnu.org>
 
 	* spvw_sigwinch.d: rl_resize_terminal() should be called only if
