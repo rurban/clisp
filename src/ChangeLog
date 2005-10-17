@@ -6,6 +6,12 @@
 	(RESOLVE-HOST-IPADDR): updated to use hostent_to_lisp()
 	* modules/clx/new-clx/configure.in: check for socket headers
 	* modules/clx/new-clx/clx.lisp (ACCESS-CONTROL): new defsetf
+	* modules/clx/new-clx/clx.f (POINTER-CONTROL): fixed STACK cleanup
+	(check_on_off): YES->ON
+	(MODIFIER-MAPPING): C arrays are base 0, not base 1
+	(SET-MODIFIER-MAPPING, KEYSYM->KEYCODES, ACCESS-HOSTS)
+	(ADD-ACCESS-HOST, REMOVE-ACCESS-HOST): implemented
+	(SET-ACCESS-CONTROL): fixed argument order
 
 2005-10-16  Sam Steingold  <sds@gnu.org>
 
