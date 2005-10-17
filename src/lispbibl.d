@@ -11552,6 +11552,7 @@ re-enters the corresponding top-level loop.
     }  } while(0)
 #endif
 # is used by EVAL, CONTROL
+%% export_def(STACK_to_mv(countx));
 
 # Puts all values onto the STACK.
 # mv_to_STACK()
