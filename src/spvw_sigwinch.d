@@ -73,9 +73,6 @@ local void update_linelength (void) {
     Symbol_value(S(prin_linelength)) = fixnum(nxterminal_line_length-1);
   }
  #endif
- #if defined(HAVE_READLINE)
-  rl_resize_terminal();
- #endif
 }
 
 #endif
@@ -87,6 +84,10 @@ local void sigwinch_handler (int sig) { # sig = SIGWINCH
   inc_break_sem_5();
   signal_acknowledge(SIGWINCH,&sigwinch_handler);
   update_linelength();
+ #if defined(HAVE_READLINE) && defined(RL_ISSTATE) && defined(RL_INITIALIZED)
+  if (RL_ISSTATE(RL_INITIALIZED))
+    rl_resize_terminal();
+ #endif
   dec_break_sem_5();
 }
 
