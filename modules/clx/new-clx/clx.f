@@ -421,6 +421,16 @@ For further for grepability I use the following tags in comments:
 #  include <time.h>
 # endif
 #endif
+#if defined(HAVE_SYS_SOCKET_H)
+# include <sys/socket.h>
+#endif
+#if defined(HAVE_NETDB_H)
+# include <netdb.h>
+#endif
+#if defined(HAVE_NETINET_IN_H)
+# include <netinet/in.h>
+#endif
+
 ##if WANT_XSHAPE
 /* must include this before DEFMODULE so that DEFCHECKER will work */
 #include <X11/extensions/shape.h>
@@ -6573,7 +6583,6 @@ DEFUN(XLIB:POINTER-CONTROL, display)
   funcall (L(durch), 2);
   value2 = popSTACK();
   mv_count = 2;
-  skipSTACK(1);
 }
 
 DEFUN(XLIB:POINTER-MAPPING, display &key RESULT-TYPE)
@@ -6642,7 +6651,7 @@ DEFUN(XLIB:BELL, display &optional percent)
 }
 
 DEFCHECKER(check_on_off,default=AutoRepeatModeDefault,OFF=AutoRepeatModeOff\
-           YES=AutoRepeatModeOn DEFAULT=AutoRepeatModeDefault)
+           ON=AutoRepeatModeOn DEFAULT=AutoRepeatModeDefault)
 DEFUN(XLIB:CHANGE-KEYBOARD-CONTROL, display \
       &key KEY-CLICK-PERCENT BELL-PERCENT BELL-PITCH BELL-DURATION LED    \
       LED-MODE KEY AUTO-REPEAT-MODE)
@@ -6702,7 +6711,7 @@ DEFUN(XLIB:MODIFIER-MAPPING, display)
 
   if (more_coffee) {
     for (i = 1; i <= 8*more_coffee->max_keypermod; i++) {
-      pushSTACK(fixnum(more_coffee->modifiermap[i]));
+      pushSTACK(fixnum(more_coffee->modifiermap[i-1]));
       if (i%more_coffee->max_keypermod == 0) {
         value1 = listof(more_coffee->max_keypermod);
         pushSTACK(value1);
@@ -6723,7 +6732,7 @@ DEFUN(XLIB:MODIFIER-MAPPING, display)
     VALUES1(NIL);
 }
 
-/* NOTE: Also this function is different to the manual.
+/* NOTE: this function is also different from the manual.
    The manual does not specify the optional argument. */
 DEFUN(XLIB:QUERY-KEYMAP, display &optional bit-vector)
 {
@@ -6745,16 +6754,41 @@ DEFUN(XLIB:QUERY-KEYMAP, display &optional bit-vector)
   skipSTACK(2);                /* all done */
 }
 
-DEFUN(XLIB:SET-MODIFIER-MAPPING, a1 &key SHIFT LOCK CONTROL \
+DEFCHECKER(check_set_mod_map,SUCCESS=MappingSuccess FAILED=MappingFailed\
+           DEVICE-BUSY=MappingBusy)
+DEFUN(XLIB:SET-MODIFIER-MAPPING, display &key SHIFT LOCK CONTROL \
       MOD1 MOD2 MOD3 MOD4 MOD5)
-{UNDEFINED;}
+{ /* http://www.linuxmanpages.com/man3/XModifierKeymap.3x.php */
+  XModifierKeymap *xmk;
+  int i, max_keys_per_mod=0;
+  for (i=0; i<8; i++) {
+    unsigned int len = get_uint32(funcall1(L(length),STACK_(i)));
+    if (len > max_keys_per_mod) max_keys_per_mod = len;
+  }
+  X_CALL(xmk = XNewModifiermap(max_keys_per_mod));
+  if (xmk == NULL) NOTREACHED;
+  for (i=0; i<8; i++) {
+    struct seq_uint8 su;
+    su.data = xmk->modifiermap + i*8;
+    map_sequence(STACK_(8-1-i),coerce_into_uint8,(void*)&su);
+  }
+  skipSTACK(8);                 /* drop modifier arguments */
+  {
+    Display *dpy = pop_display ();
+    begin_x_call();
+    i = XSetModifierMapping(dpy,xmk);
+    XFreeModifiermap(xmk);
+    end_x_call();
+  }
+  VALUES1(check_set_mod_map_reverse(i));
+}
 
 /* 14.4  Keyboard Encodings */
 DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, a1 a2 &key START END FIRST-KEYCODE)
 {UNDEFINED;}
 
 DEFUN(XLIB:KEYBOARD-MAPPING, arg &key FIRST-KEYCODE START END DATA)
-{ /*  XGetKeyboardMapping */
+{ /*  http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
   UNDEFINED;
 }
 
@@ -6842,8 +6876,26 @@ DEFUN(XLIB:KEYSYM->CHARACTER, display keysym &optional state)
  (xlib:keysym->keycode dpy #xFF52) --> 148 ; 98 ; 80 ; #xFF52 keysym for <up> */
 
 DEFUN(XLIB:KEYSYM->KEYCODES, display keysym) /* NIM */
-{
-  UNDEFINED;
+{ /* http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
+  uint32 keysym = get_uint32(popSTACK());
+  Display *dpy = pop_display();
+  int min_keycode, max_keycode, keysyms_per_keycode, retcount=0, kc = 0;
+  KeySym *map, *map1;
+  begin_x_call();
+  XDisplayKeycodes(dpy,&min_keycode,&max_keycode);
+  map = XGetKeyboardMapping(dpy,min_keycode,max_keycode-min_keycode+1,
+                            &keysyms_per_keycode);
+  end_x_call();
+  for (kc = min_keycode, map1 = map; kc <= max_keycode; kc++) {
+    int i = 0;
+    for (; i<keysyms_per_keycode; i++)
+      if (*map1++ == keysym) {
+        retcount++;
+        pushSTACK(fixnum(kc));
+      }
+  }
+  X_CALL(XFree(map));
+  STACK_to_mv(retcount);
 }
 
 DEFUN(XLIB:KEYSYM, keysym &rest bytes) { /* see mit-clx/translate.lisp */
@@ -6949,23 +7001,103 @@ DEFUN(XLIB:ACCESS-CONTROL, display)
   VALUES_IF(state);
 }
 
-DEFUN(XLIB:SET-ACCESS-CONTROL, state dpy)
+DEFUN(XLIB::SET-ACCESS-CONTROL, dpy state)
 {/* (SETF (XLIB:ACCESS-CONTROL dpy) state) */
-  Display *dpy = pop_display ();
-  Bool state = get_bool (STACK_0);
+  Bool state = get_bool(STACK_0);
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
 
   X_CALL(XSetAccessControl (dpy, state));
 
-  VALUES1(popSTACK());
+  VALUES1(popSTACK()); skipSTACK(1);
 }
 
-/* Maybe I drop code from xhost(1) in here ... */
-DEFUN(XLIB:ACCESS-HOSTS, a1 &optional a2)
-{UNDEFINED;}
-DEFUN(XLIB:ADD-ACCESS-HOST, a1 a2 &optional a3)
-{UNDEFINED;}
-DEFUN(XLIB:REMOVE-ACCESS-HOST, a1 a2 &optional a3)
-{UNDEFINED;}
+#if defined(HAVE_SYS_SOCKET_H) && defined(HAVE_NETDB_H) && defined(HAVE_NETINET_IN_H)
+/* see module syscalls */
+extern Values hostent_to_lisp (struct hostent *he);
+DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
+{ /* http://www.linuxmanpages.com/man3/XListHosts.3x.php */
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  gcv_object_t *res_type = &STACK_0;
+  XHostAddress *hosts;
+  Bool state;
+  int nhosts = 0;
+
+  X_CALL(hosts = XListHosts(dpy,&nhosts,&state));
+  if (hosts) {
+    int i = nhosts;
+    XHostAddress *ho = hosts;
+    while (i--) {
+      if (ho->length) {
+        int family;
+        switch (ho->family) {
+#        ifdef HAVE_IPV6
+          case FamilyInternet6: /* IPv6 */
+            ASSERT(ho->length == sizeof(struct in6_addr));
+            family = AF_INET6;
+            goto handle_ipv4;
+#        endif
+          case FamilyInternet:  /* IPv4 */
+            ASSERT(ho->length == sizeof(struct in_addr));
+            family = AF_INET;
+          handle_ipv4: {
+              struct hostent *he;
+              X_CALL(he = gethostbyaddr((char*)ho->address,ho->length,family));
+              hostent_to_lisp(he);
+            }
+            pushSTACK(value1);
+            break;
+          default:
+            pushSTACK(fixnum(ho->family));
+            pushSTACK(allocate_bit_vector(Atype_8Bit,ho->length));
+            X_CALL(memcpy(TheSbvector(STACK_0)->data,ho->address,ho->length));
+            value1 = listof(2); pushSTACK(value1);
+        }
+      } else pushSTACK(NIL);
+      ho++;
+    }
+    X_CALL(XFree(hosts));
+  }
+  VALUES2(coerce_result_type(nhosts,res_type), state ? T : NIL);
+  skipSTACK(2);
+}
+
+static void lisp_to_XHostAddress (object host, XHostAddress *xha) {
+  struct hostent *he;
+  if (typep_classname(host,`POSIX:HOSTENT`)) {
+    NOTREACHED;
+  } else he = resolve_host(host);
+  switch (he->h_addrtype) {
+    case AF_INET: xha->family = FamilyInternet;
+      xha->length = sizeof(struct in_addr); break;
+#  if defined(HAVE_IPV6)
+    case AF_INET6: xha->family = FamilyInternet6;
+      xha->length = sizeof(struct in6_addr); break;
+#  endif
+    default: pushSTACK(fixnum(he->h_addrtype));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,GETTEXT("~S: unknown address family ~S"));
+  }
+  xha->address = he->h_addr_list[0];
+}
+DEFUN(XLIB:ADD-ACCESS-HOST, display host)
+{
+  XHostAddress xha;
+  Display *dpy;
+  lisp_to_XHostAddress(popSTACK(),&xha);
+  dpy = pop_display();
+  X_CALL(XAddHost(dpy,&xha));
+  VALUES0;
+}
+DEFUN(XLIB:REMOVE-ACCESS-HOST, display host)
+{
+  XHostAddress xha;
+  Display *dpy;
+  lisp_to_XHostAddress(popSTACK(),&xha);
+  dpy = pop_display();
+  X_CALL(XRemoveHost(dpy,&xha));
+  VALUES0;
+}
+#endif  /* HAVE_SYS_SOCKET_H & HAVE_NETDB_H & HAVE_NETINET_IN_H */
 
 /* 14.7  Screen Saver */
 DEFUN(XLIB:ACTIVATE-SCREEN-SAVER, display)
