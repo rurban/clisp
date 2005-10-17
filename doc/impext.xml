@@ -2999,7 +2999,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
   register_foreign_function((void*)&amp;function_name,"function_name",1024);
 # endif
 </programlisting> and will compile and link on any system.</para>
- <simpara>This is mostly useful for product delivery when you want you
+ <simpara>This is mostly useful for product delivery when you want your
   module to build on any system even if some features will not be
   available.</simpara>
  <simpara>&ffi-guard; is initialized to &nil; for backwards compatibility.
@@ -3626,7 +3626,9 @@ instead, in conjunction with
 (&c-lines; "#include &lt;mylib.h&gt;
 static int my_var=LIBRARY_VERSION;~%")
 (&def-c-var; my-var (:name "my_var") (:type int))
-</programlisting></para>
+</programlisting> (For an alternative approach,
+see <function>get_rl_state_const</function> in
+<filename role="clisp-cvs">modules/readline/readline.lisp</filename>).</para>
 <para>Compiling this file will produce <filename>foo.c</filename>
  and <filename>foo.fas</filename> and you have two options:
  <orderedlist><listitem><para>Compile <filename>foo.c</filename>
