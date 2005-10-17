@@ -1,5 +1,12 @@
 2005-10-16  Sam Steingold  <sds@gnu.org>
 
+	* spvw_sigwinch.d: rl_resize_terminal() should be called only if
+	readline has been already initialized
+	(sigwinch_handler) [HAVE_READLINE]: call rl_resize_terminal()
+	(update_linelength) [HAVE_READLINE]: do not call rl_resize_terminal()
+
+2005-10-16  Sam Steingold  <sds@gnu.org>
+
 	* configure (--version): call src/configure instead of sourcing
 	version.sh which is not included in the source distribution
 	Reported by "T. Kurt Bond" <tkb@tkb.mpl.com>
