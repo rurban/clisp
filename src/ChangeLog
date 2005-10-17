@@ -12,6 +12,7 @@
 	(SET-MODIFIER-MAPPING, KEYSYM->KEYCODES, ACCESS-HOSTS)
 	(ADD-ACCESS-HOST, REMOVE-ACCESS-HOST): implemented
 	(SET-ACCESS-CONTROL): fixed argument order
+	* modules/clx/new-clx/test.tst: added
 
 2005-10-16  Sam Steingold  <sds@gnu.org>
 
