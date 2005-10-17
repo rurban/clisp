@@ -514,10 +514,10 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
                                              (sys::prompt-body)
                                              (sys::prompt-finish)))))
     (declare (type (or null string) string))
-    (cond ((or (not string) (= 0 (length string)))
-           (add-history string)
-           (ext:string-concat string #1=#.(string #\NewLine)))
-          (t #1#))))
+    (when string                ; string=NIL ==> EOF
+      (cond ((zerop (length string)) #1=#.(string #\NewLine))
+            (t (add-history string)
+               (ext:string-concat string #1#))))))
 
 (defvar *readline-input-stream*
   (make-buffered-input-stream #'readline-reader nil)
