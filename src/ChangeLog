@@ -4,6 +4,7 @@
 	* modules/syscalls/calls.c (hostent_to_lisp): new public function
 	converted from hostent_to_stack()
 	(RESOLVE-HOST-IPADDR): updated to use hostent_to_lisp()
+	* modules/clx/new-clx/configure.in: check for socket headers
 
 2005-10-16  Sam Steingold  <sds@gnu.org>
 
