@@ -32,6 +32,17 @@ readline:readline-name                  "abazonk"
 (readline:history-truncate-file *history-file* 10) 0
 (probe-file (delete-file *history-file*))          NIL
 
+(when (zerop (logand readline:readline-state readline:STATE-INITIALIZED))
+  (not (zerop (readline:initialize))))
+NIL
+
+(readline:resize-terminal) NIL
+
+(multiple-value-bind (rows cols) (readline:get-screen-size)
+  (show (list rows cols))
+  (readline:set-screen-size rows cols))
+NIL
+
 ;;; This tests readline-from-string, and indirectly getc-function
 (progn
   (defun stuff-string (string)

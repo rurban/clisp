@@ -1,6 +1,9 @@
 2005-10-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/readline/readline.lisp (readline-reader): return NIL on EOF
+	(resize-terminal, set-screen-size, get-screen-size): added
+	(readline-state): new variable together with its constants
+	* modules/readline/configure.in: check everything forgotten by Tom
 
 2005-10-17  Sam Steingold  <sds@gnu.org>
 

@@ -16,7 +16,11 @@ if test "$ac_cv_have_decl_rl_already_prompted" = "no"; then
   AC_MSG_ERROR([cannot find a modern gnu readline])
 fi
 AC_CHECK_DECLS([rl_library_version, rl_readline_version, rl_editing_mode, dnl
-rl_insert_mode],,,[#include <stdio.h>
+rl_insert_mode, rl_readline_state, rl_line_buffer, rl_point, rl_end, dnl
+rl_mark, rl_done, rl_num_chars_to_read, rl_pending_input, rl_dispatching, dnl
+rl_erase_empty_line, rl_prompt, rl_gnu_readline_p, rl_terminal_name, dnl
+rl_instream, rl_outstream, rl_last_func, rl_startup_hook, rl_pre_input_hook, dnl
+rl_event_hook, rl_getc_function],,,[#include <stdio.h>
  #include <readline/readline.h>])
 AC_CHECK_FUNCS(dnl do not check readline() - redefines global HAVE_READLINE
 dnl Basic behavior
@@ -106,6 +110,10 @@ rl_macro_dumper dnl
 rl_variable_dumper dnl
 rl_set_paren_blink_timeout dnl
 rl_get_termcap dnl
+dnl Signal Handling
+rl_resize_terminal dnl
+rl_set_screen_size dnl
+rl_get_screen_size dnl
 dnl Alternate interface
 rl_callback_handler_install dnl
 rl_callback_read_char dnl
