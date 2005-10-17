@@ -1,40 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V@DTDVER@//EN"
           "@DTD@" [
-  <!ENTITY % cl-entities SYSTEM "cl-ent.xml">
-  %cl-entities;
-  <!ENTITY % imp-entities SYSTEM "impent.xml">
-  %imp-entities;
-  <!ENTITY % unix-entities SYSTEM "unix-ent.xml">
-  %unix-entities;
-  <!ENTITY % mop-entities SYSTEM "mop-ent.xml">
-  %mop-entities;
-  <!ENTITY imp-body SYSTEM "impbody.xml">
-  <!ENTITY imp-issues SYSTEM "impissue.xml">
-  <!ENTITY gray-sec SYSTEM "gray.xml">
-  <!ENTITY mop-sec SYSTEM "mop.xml">
-  <!ENTITY imp-ext SYSTEM "impext.xml">
-  <!ENTITY imp-byte SYSTEM "impbyte.xml">
-  <!ENTITY faq SYSTEM "faq.xml">
-  <!ENTITY dirkey SYSTEM "../modules/dirkey/dirkey.xml">
-  <!ENTITY % ent-bdb SYSTEM "../modules/berkeley-db/ent-bdb.xml">
-  %ent-bdb;
-  <!ENTITY berkeley-db SYSTEM "../modules/berkeley-db/berkeley-db.xml">
-  <!ENTITY oracle SYSTEM "../modules/oracle/oracle.xml">
-  <!ENTITY fastcgi SYSTEM "../modules/fastcgi/fastcgi.xml">
-  <!ENTITY i18n SYSTEM "../modules/i18n/i18n.xml">
-  <!ENTITY netica SYSTEM "../modules/netica/netica.xml">
-  <!ENTITY matlab SYSTEM "../modules/matlab/matlab.xml">
-  <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
-  <!ENTITY pari SYSTEM "../modules/pari/pari.xml">
-  <!ENTITY pcre SYSTEM "../modules/pcre/pcre.xml">
-  <!ENTITY postgresql SYSTEM "../modules/postgresql/postgresql.xml">
-  <!ENTITY rawsock SYSTEM "../modules/rawsock/rawsock.xml">
-  <!ENTITY syscalls SYSTEM "../modules/syscalls/syscalls.xml">
-  <!ENTITY wildcard SYSTEM "../modules/wildcard/wildcard.xml">
-  <!ENTITY zlib SYSTEM "../modules/zlib/zlib.xml">
-  <!ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.xml">
-  <!ENTITY gpl-text SYSTEM "http://www.gnu.org/licenses/gpl.xml">
+  <!ENTITY % cl-entities-file SYSTEM "cl-ent.xml">
+  %cl-entities-file;
+  <!ENTITY % imp-entities-file SYSTEM "impent.xml">
+  %imp-entities-file;
+  <!ENTITY % unix-entities-file SYSTEM "unix-ent.xml">
+  %unix-entities-file;
+  <!ENTITY % mop-entities-file SYSTEM "mop-ent.xml">
+  %mop-entities-file;
+  <!ENTITY imp-body-file SYSTEM "impbody.xml">
+  <!ENTITY imp-issues-file SYSTEM "impissue.xml">
+  <!ENTITY gray-sec-file SYSTEM "gray.xml">
+  <!ENTITY mop-sec-file SYSTEM "mop.xml">
+  <!ENTITY imp-ext-file SYSTEM "impext.xml">
+  <!ENTITY imp-byte-file SYSTEM "impbyte.xml">
+  <!ENTITY faq-file SYSTEM "faq.xml">
+  <!ENTITY dirkey-file SYSTEM "../modules/dirkey/dirkey.xml">
+  <!ENTITY % ent-bdb-file SYSTEM "../modules/berkeley-db/ent-bdb.xml">
+  %ent-bdb-file;
+  <!ENTITY berkeley-db-file SYSTEM "../modules/berkeley-db/berkeley-db.xml">
+  <!ENTITY oracle-file SYSTEM "../modules/oracle/oracle.xml">
+  <!ENTITY fastcgi-file SYSTEM "../modules/fastcgi/fastcgi.xml">
+  <!ENTITY i18n-file SYSTEM "../modules/i18n/i18n.xml">
+  <!ENTITY netica-file SYSTEM "../modules/netica/netica.xml">
+  <!ENTITY matlab-file SYSTEM "../modules/matlab/matlab.xml">
+  <!ENTITY regexp-file SYSTEM "../modules/regexp/regexp.xml">
+  <!ENTITY pari-file SYSTEM "../modules/pari/pari.xml">
+  <!ENTITY pcre-file SYSTEM "../modules/pcre/pcre.xml">
+  <!ENTITY postgresql-file SYSTEM "../modules/postgresql/postgresql.xml">
+  <!ENTITY rawsock-file SYSTEM "../modules/rawsock/rawsock.xml">
+  <!ENTITY readline-file SYSTEM "../modules/readline/readline.xml">
+  <!ENTITY syscalls-file SYSTEM "../modules/syscalls/syscalls.xml">
+  <!ENTITY wildcard-file SYSTEM "../modules/wildcard/wildcard.xml">
+  <!ENTITY zlib-file SYSTEM "../modules/zlib/zlib.xml">
+  <!ENTITY gfdl-file SYSTEM "http://www.gnu.org/licenses/fdl.xml">
+  <!ENTITY gpl-file SYSTEM "http://www.gnu.org/licenses/gpl.xml">
 ]>
 
 <book id="impnotes-top"><title>Implementation Notes for &gnu; &clisp;</title>
@@ -149,48 +150,49 @@
 
 <part id="clhs-chapters"><title>Chapters or the &hyperspec;</title>
 
-&imp-body;
+&imp-body-file;
 
-&imp-issues;
+&imp-issues-file;
 
 </part>
 
 <part id="extensions"><title>Extensions</title>
 
 <chapter id="ext-standard"><title>Standard Widely Portable Extensions</title>
-&mop-sec;
-&gray-sec;
+&mop-sec-file;
+&gray-sec-file;
 </chapter>
 
-&imp-ext;
+&imp-ext-file;
 
 <chapter id="ext-modules"><title>Extensions Implemented as Modules</title>
-&matlab;
-&netica;
-&dirkey;
-&berkeley-db;
-&regexp;
-&pari;
-&pcre;
-&postgresql;
-&i18n;
-&syscalls;
-&oracle;
-&fastcgi;
-&rawsock;
-&wildcard;
-&zlib;
+&matlab-file;
+&netica-file;
+&dirkey-file;
+&berkeley-db-file;
+&regexp-file;
+&pari-file;
+&pcre-file;
+&postgresql-file;
+&i18n-file;
+&readline-file;
+&syscalls-file;
+&oracle-file;
+&fastcgi-file;
+&rawsock-file;
+&wildcard-file;
+&zlib-file;
 </chapter>
 
 </part>
 
-&imp-byte;
+&imp-byte-file;
 
 <part id="appendices"><title>Appendices</title>
 
-&faq;
-&gfdl-text;
-&gpl-text;
+&faq-file;
+&gfdl-file;
+&gpl-file;
 
 </part>
 
