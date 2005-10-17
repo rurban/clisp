@@ -31,6 +31,8 @@ AC_CHECK_HEADERS([netinet/if_ether.h],[],[],[
 ])
 if test "$ac_cv_header_sys_socket_h" = "no"; then
 AC_CHECK_HEADERS([winsock2.h ws2tcpip.h])dnl windows
+else AC_CHECK_MEMBERS([struct msghdr.msg_flags, struct msghdr.msg_control],,,
+[#include <sys/socket.h>])
 fi
 AC_CHECK_SIZEOF(ssize_t)
 AC_CHECK_SIZEOF(size_t)
