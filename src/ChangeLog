@@ -1,5 +1,10 @@
 2005-10-17  Sam Steingold  <sds@gnu.org>
 
+	* spvw_sigterm.d (install_sigterm_handler): ignore SIGTTOU to avoid
+	being stopped on a terminating signal when running in the background
+
+2005-10-17  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/configure.in: check for msghdr.msg_flags when
 	sys/socket.h is present
 	* modules/rawsock/rawsock.c (RECVMSG, SENDMSG): implement only
