@@ -21,8 +21,6 @@
    :KEY 80 :AUTO-REPEAT-MODE (if (plusp (aref arm 80)) :on :off)))
 NIL
 
-(xlib:bell *dpy* 50) NIL
-
 (let ((modifiers (show (multiple-value-list (xlib:modifier-mapping *dpy*)))))
   (apply #'xlib:set-modifier-mapping *dpy*
          (mapcan #'list '(:SHIFT :LOCK :CONTROL :MOD1 :MOD2 :MOD3 :MOD4 :MOD5)
@@ -30,8 +28,7 @@ NIL
 :SUCCESS
 
 (show (multiple-value-list (xlib:keysym->keycodes *dpy* 65))) (38)
-(show (multiple-value-list (xlib:keysym->keycodes *dpy* #xFF52))) (148 98 80) ; UP
-(show (xlib:keysym 80 98 148)) #xFF52
+(show (multiple-value-list (xlib:keysym->keycodes *dpy* #xFF52))) (98) ; Up
 (show (xlib:keysym "Up")) #xFF52
 
 (let ((access (show (xlib:access-control *dpy*))))
@@ -43,6 +40,8 @@ NIL
 (listp (show (xlib:access-hosts *dpy*) :pretty t)) T
 (xlib:remove-access-host *dpy* "localhost") NIL
 (listp (show (xlib:access-hosts *dpy*) :pretty t)) T
+
+(xlib:bell *dpy* 50) NIL        ; signal that we are almost done
 
 (xlib:display-force-output *dpy*) NIL
 (xlib:display-finish-output *dpy*) NIL
