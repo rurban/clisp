@@ -11,13 +11,13 @@ string-eq
    (gethash "FOO" h)))
 (10 NIL 10 NIL)
 
-(let ((h (make-hash-table :test '(string-equal . sxhash))))
+(let ((h (make-hash-table :test '(string= . sxhash))))
   (list
    (setf (gethash "foo" h) 10)
    (gethash "zot" h)
    (gethash "foo" h)
    (gethash "FOO" h)))
-(10 NIL 10 10)
+(10 NIL 10 NIL)
 
 (let ((h (make-hash-table
           :test `(,(lambda (a b) (print (list '= a b)) (= a b)) .
