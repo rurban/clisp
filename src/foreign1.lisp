@@ -573,8 +573,9 @@
                       (symbol-package name)
                       (package-case-inverted-p (symbol-package name)))
                (cs-cl:string name)
-               (string name)))
-  (unless (some #'lower-case-p name) (setq name (string-downcase name)))
+               (let ((nm (string name)))
+                 (if (some #'lower-case-p nm)
+                     nm (string-downcase name)))))
   (if (c-ident-p name)
     name
     (with-output-to-string (s)
@@ -719,8 +720,8 @@
                          c-decl c-decl)
                  (dotimes (num (length vec))
                    (let ((const (aref vec num)))
-                     (format *coutput-stream* "#if defined(~A)
-    case ~D: return ~A;~%#endif~%"
+                     (format *coutput-stream* "#  if defined(~A)
+    case ~D: return ~A;~%#  endif~%"
                              const num const)))
                  (format *coutput-stream* "    default: *definedp=0; return 0;
   }~%}~%#define HAVE_~A~%" (string-upcase (symbol-name fun)))))
@@ -834,8 +835,8 @@
   (setq name (check-symbol name (first whole-form)))
   (let* ((alist (parse-options options '(:name :type :documentation)
                                whole-form))
-         (doc (assoc ':documentation alist))
-         (c-type (or (assoc ':type alist) 'ffi:int))
+         (doc (cdr (assoc ':documentation alist))) ; ("doc string") or NIL
+         (c-type (or (second (assoc ':type alist)) 'ffi:int))
          (c-name (foreign-name name (assoc ':name alist)))
          (f-name (intern
                   (format nil "module__~A__constant_map_~A" *name*
@@ -853,8 +854,12 @@
        (defconstant ,name
          (multiple-value-bind (value value-p)
              (,f-name ,(NOTE-C-CONST c-name c-type))
-           (if value-p value (sys::%unbound)))
-         ,@(when doc `(,(second doc)))))))
+           (if value-p value
+               (progn
+                 (warn "~S(~S): CPP constant ~A is not defined"
+                       'def-c-const ',name ',c-name)
+                 (sys::%unbound))))
+         ,@doc))))
 
 (defun note-c-const (c-name type) ; ABI
   (when (compiler::prepare-coutput-file)
