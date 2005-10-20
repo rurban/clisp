@@ -697,7 +697,8 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
     memcpy(TheSbvector(STACK_1)->data,tmp->ai_addr,tmp->ai_addrlen);
     end_system_call();
     funcall(`RAWSOCK::MAKE-SA`,1); pushSTACK(value1);
-    pushSTACK(asciz_to_string(tmp->ai_canonname,GLO(misc_encoding)));
+    pushSTACK(tmp->ai_canonname == NULL ? NIL
+              : asciz_to_string(tmp->ai_canonname,GLO(misc_encoding)));
     funcall(`RAWSOCK::MAKE-ADDRINFO`,6); pushSTACK(value1);
   }
   if (ret) { begin_system_call(); freeaddrinfo(ret); end_system_call(); }
