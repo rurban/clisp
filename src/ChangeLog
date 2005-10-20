@@ -2,6 +2,7 @@
 
 	* modules/rawsock/rawsock.c (check_socket_type):
 	default=0 for the sake of getaddrinfo()
+	(RAWSOCK:GETADDRINFO): ai_canonname may be NULL
 
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
