@@ -12,6 +12,15 @@
 /* Define to 1 if you have the <errno.h> header file. */
 #undef HAVE_ERRNO_H
 
+/* Define to 1 if you have the `freeaddrinfo' function. */
+#undef HAVE_FREEADDRINFO
+
+/* Define to 1 if you have the `getaddrinfo' function. */
+#undef HAVE_GETADDRINFO
+
+/* Define to 1 if you have the `getnameinfo' function. */
+#undef HAVE_GETNAMEINFO
+
 /* Define to 1 if you have the `getnetbyaddr' function. */
 #undef HAVE_GETNETBYADDR
 
