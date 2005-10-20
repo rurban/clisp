@@ -1,3 +1,9 @@
+2005-10-19  Sam Steingold  <sds@gnu.org>
+
+	* m4/test.m4 (CL_TEST_NT): check that test(1) can serve as make(1)
+	* configure.in: call CL_TEST_NT
+	* makemake.in (anymodule): use "test -nt" only when supported
+
 2005-10-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.lisp (DRAW-GLYPH): undefined;
