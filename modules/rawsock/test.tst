@@ -196,11 +196,11 @@ T
     (show (list message1 message2) :pretty t)
     (assert (equalp (rawsock:message-iovec message1)
                     (rawsock:message-iovec message2)))
-    (when (fboundp 'rawsock:getaddrinfo)
+    (when (fboundp 'rawsock:getnameinfo)
       (show (list (multiple-value-list
-                   (rawsock:getaddrinfo (rawsock:message-addr message1)))
+                   (rawsock:getnameinfo (rawsock:message-addr message1)))
                   (multiple-value-list
-                   (rawsock:getaddrinfo (rawsock:message-addr message2)))))))
+                   (rawsock:getnameinfo (rawsock:message-addr message2)))))))
   nil)
 NIL
 
@@ -235,7 +235,14 @@ NIL
 (rawsock:protocol-p (show (rawsock:protocol "IP") :pretty t)) T
 (listp (show (rawsock:protocol) :pretty t)) T
 (listp (show (rawsock:network) :pretty t)) T
-(or (not (fboundp 'rawsock:getaddrinfo)) (listp (show (rawsock:getaddrinfo)))) T
+
+(or (not (fboundp 'rawsock:getaddrinfo))
+    (listp (show (rawsock:getaddrinfo :node "localhost")))) T
+(or (not (fboundp 'rawsock:getaddrinfo))
+    (listp (show (rawsock:getaddrinfo :service "21")))) T
+(or (not (fboundp 'rawsock:getaddrinfo))
+    (listp (show (rawsock:getaddrinfo :service "www")))) T
+
 (or (not (fboundp 'rawsock:getnameinfo))
     (listp (show (multiple-value-list (rawsock:getnameinfo *sa-remote*))))) T
 (or (not (fboundp 'rawsock:getnameinfo))
