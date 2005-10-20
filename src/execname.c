@@ -65,8 +65,7 @@ int find_executable (const char * program_name) {
       goto notfound;
     executable_name = (char*)malloc(strlen(execname)+1);
     strcpy(executable_name,execname);
-    return 0;
-  }
+    return 0;  }
 #elif defined(UNIX)
  #if defined(UNIX_LINUX) || defined(UNIX_CYGWIN32)
   { /* The executable is accessible as /proc/<pid>/exe. We try this first
@@ -127,6 +126,9 @@ int find_executable (const char * program_name) {
   if (maybe_executable(program_name)) {
    resolve:
     /* resolve program_name: */
+#  if !defined(MAXPATHLEN)
+#   define MAXPATHLEN 1024      /* see unix.d */
+#  endif
     executable_name = (char*) malloc(MAXPATHLEN);
     if (executable_name == NULL) { errno = ENOMEM; goto notfound; }
     if (realpath(program_name,executable_name) == NULL) {
