@@ -478,7 +478,7 @@ DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
            ROSE DECnet NETBEUI SECURITY KEY NETLINK                     \
            ROUTE PACKET ASH ECONET ATMSVC SNA IRDA                      \
            PPPOX WANPIPE BLUETOOTH)
-DEFCHECKER(check_socket_type,prefix=SOCK,default=SOCK_STREAM,          \
+DEFCHECKER(check_socket_type,prefix=SOCK,default=0,   \
            STREAM DGRAM RAW RDM SEQPACKET PACKET)
 DEFCHECKER(check_socket_protocol,default=0,                             \
            IPPROTO-IP IPPROTO-IPV6 IPPROTO-ICMP IPPROTO-RAW IPPROTO-TCP \
