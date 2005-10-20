@@ -2918,6 +2918,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 %%  export_def(oint_addr_len);
 %%  export_def(oint_addr_mask);
 %% #endif
+#ifndef oint_type_len
+#error "CLISP has not been ported to this platform - oint_type_len undefined"
+#endif
 
 # Generally we use all of the space of an address for the data of Fixnums etc.
 # Always     [oint_data_shift..oint_data_shift+oint_data_len-1] is subset of
