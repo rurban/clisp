@@ -10,7 +10,8 @@
   (:shadowing-import-from "EXPORTING"
            #:defconstant #:defun #:defmacro #:define-modify-macro
            #:define-symbol-macro #:defsetf
-           #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out)
+           #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var
+           #:def-c-const #:def-call-out)
   (:shadow read write random abort abs acos asin atan cos sin tan cosh sinh tanh
            acosh asinh atanh exp log sqrt floor truncate ftruncate open close
            remove sleep))
@@ -163,130 +164,130 @@
 
 ; ---------------------------- <asm/errno.h> ----------------------------------
 
-(defconstant    EPERM            1)     ; Operation not permitted
-(defconstant    ENOENT           2)     ; No such file or directory
-(defconstant    ESRCH            3)     ; No such process
-(defconstant    EINTR            4)     ; Interrupted system call
-(defconstant    EIO              5)     ; I/O error
-(defconstant    ENXIO            6)     ; No such device or address
-(defconstant    E2BIG            7)     ; Arg list too long
-(defconstant    ENOEXEC          8)     ; Exec format error
-(defconstant    EBADF            9)     ; Bad file number
-(defconstant    ECHILD          10)     ; No child processes
-(defconstant    EAGAIN          11)     ; Try again
-(defconstant    ENOMEM          12)     ; Out of memory
-(defconstant    EACCES          13)     ; Permission denied
-(defconstant    EFAULT          14)     ; Bad address
-(defconstant    ENOTBLK         15)     ; Block device required
-(defconstant    EBUSY           16)     ; Device or resource busy
-(defconstant    EEXIST          17)     ; File exists
-(defconstant    EXDEV           18)     ; Cross-device link
-(defconstant    ENODEV          19)     ; No such device
-(defconstant    ENOTDIR         20)     ; Not a directory
-(defconstant    EISDIR          21)     ; Is a directory
-(defconstant    EINVAL          22)     ; Invalid argument
-(defconstant    ENFILE          23)     ; File table overflow
-(defconstant    EMFILE          24)     ; Too many open files
-(defconstant    ENOTTY          25)     ; Not a typewriter
-(defconstant    ETXTBSY         26)     ; Text file busy
-(defconstant    EFBIG           27)     ; File too large
-(defconstant    ENOSPC          28)     ; No space left on device
-(defconstant    ESPIPE          29)     ; Illegal seek
-(defconstant    EROFS           30)     ; Read-only file system
-(defconstant    EMLINK          31)     ; Too many links
-(defconstant    EPIPE           32)     ; Broken pipe
-(defconstant    EDOM            33)     ; Math argument out of domain of func
-(defconstant    ERANGE          34)     ; Math result not representable
-(defconstant    EDEADLK         35)     ; Resource deadlock would occur
-(defconstant    ENAMETOOLONG    36)     ; File name too long
-(defconstant    ENOLCK          37)     ; No record locks available
-(defconstant    ENOSYS          38)     ; Function not implemented
-(defconstant    ENOTEMPTY       39)     ; Directory not empty
-(defconstant    ELOOP           40)     ; Too many symbolic links encountered
-(defconstant    EWOULDBLOCK     EAGAIN) ; Operation would block
-(defconstant    ENOMSG          42)     ; No message of desired type
-(defconstant    EIDRM           43)     ; Identifier removed
-(defconstant    ECHRNG          44)     ; Channel number out of range
-(defconstant    EL2NSYNC        45)     ; Level 2 not synchronized
-(defconstant    EL3HLT          46)     ; Level 3 halted
-(defconstant    EL3RST          47)     ; Level 3 reset
-(defconstant    ELNRNG          48)     ; Link number out of range
-(defconstant    EUNATCH         49)     ; Protocol driver not attached
-(defconstant    ENOCSI          50)     ; No CSI structure available
-(defconstant    EL2HLT          51)     ; Level 2 halted
-(defconstant    EBADE           52)     ; Invalid exchange
-(defconstant    EBADR           53)     ; Invalid request descriptor
-(defconstant    EXFULL          54)     ; Exchange full
-(defconstant    ENOANO          55)     ; No anode
-(defconstant    EBADRQC         56)     ; Invalid request code
-(defconstant    EBADSLT         57)     ; Invalid slot
-(defconstant    EDEADLOCK       EDEADLK); File locking deadlock error
-(defconstant    EBFONT          59)     ; Bad font file format
-(defconstant    ENOSTR          60)     ; Device not a stream
-(defconstant    ENODATA         61)     ; No data available
-(defconstant    ETIME           62)     ; Timer expired
-(defconstant    ENOSR           63)     ; Out of streams resources
-(defconstant    ENONET          64)     ; Machine is not on the network
-(defconstant    ENOPKG          65)     ; Package not installed
-(defconstant    EREMOTE         66)     ; Object is remote
-(defconstant    ENOLINK         67)     ; Link has been severed
-(defconstant    EADV            68)     ; Advertise error
-(defconstant    ESRMNT          69)     ; Srmount error
-(defconstant    ECOMM           70)     ; Communication error on send
-(defconstant    EPROTO          71)     ; Protocol error
-(defconstant    EMULTIHOP       72)     ; Multihop attempted
-(defconstant    EDOTDOT         73)     ; RFS specific error
-(defconstant    EBADMSG         74)     ; Not a data message
-(defconstant    EOVERFLOW       75)     ; Value too large for defined data type
-(defconstant    ENOTUNIQ        76)     ; Name not unique on network
-(defconstant    EBADFD          77)     ; File descriptor in bad state
-(defconstant    EREMCHG         78)     ; Remote address changed
-(defconstant    ELIBACC         79)     ; Can not access a needed shared library
-(defconstant    ELIBBAD         80)     ; Accessing a corrupted shared library
-(defconstant    ELIBSCN         81)     ; .lib section in a.out corrupted
-(defconstant    ELIBMAX         82)     ; Attempting to link in too many shared libraries
-(defconstant    ELIBEXEC        83)     ; Cannot exec a shared library directly
-(defconstant    EILSEQ          84)     ; Illegal byte sequence
-(defconstant    ERESTART        85)     ; Interrupted system call should be restarted
-(defconstant    ESTRPIPE        86)     ; Streams pipe error
-(defconstant    EUSERS          87)     ; Too many users
-(defconstant    ENOTSOCK        88)     ; Socket operation on non-socket
-(defconstant    EDESTADDRREQ    89)     ; Destination address required
-(defconstant    EMSGSIZE        90)     ; Message too long
-(defconstant    EPROTOTYPE      91)     ; Protocol wrong type for socket
-(defconstant    ENOPROTOOPT     92)     ; Protocol not available
-(defconstant    EPROTONOSUPPORT 93)     ; Protocol not supported
-(defconstant    ESOCKTNOSUPPORT 94)     ; Socket type not supported
-(defconstant    EOPNOTSUPP      95)     ; Operation not supported on transport endpoint
-(defconstant    EPFNOSUPPORT    96)     ; Protocol family not supported
-(defconstant    EAFNOSUPPORT    97)     ; Address family not supported by protocol
-(defconstant    EADDRINUSE      98)     ; Address already in use
-(defconstant    EADDRNOTAVAIL   99)     ; Cannot assign requested address
-(defconstant    ENETDOWN        100)    ; Network is down
-(defconstant    ENETUNREACH     101)    ; Network is unreachable
-(defconstant    ENETRESET       102)    ; Network dropped connection because of reset
-(defconstant    ECONNABORTED    103)    ; Software caused connection abort
-(defconstant    ECONNRESET      104)    ; Connection reset by peer
-(defconstant    ENOBUFS         105)    ; No buffer space available
-(defconstant    EISCONN         106)    ; Transport endpoint is already connected
-(defconstant    ENOTCONN        107)    ; Transport endpoint is not connected
-(defconstant    ESHUTDOWN       108)    ; Cannot send after transport endpoint shutdown
-(defconstant    ETOOMANYREFS    109)    ; Too many references: cannot splice
-(defconstant    ETIMEDOUT       110)    ; Connection timed out
-(defconstant    ECONNREFUSED    111)    ; Connection refused
-(defconstant    EHOSTDOWN       112)    ; Host is down
-(defconstant    EHOSTUNREACH    113)    ; No route to host
-(defconstant    EALREADY        114)    ; Operation already in progress
-(defconstant    EINPROGRESS     115)    ; Operation now in progress
-(defconstant    ESTALE          116)    ; Stale NFS file handle
-(defconstant    EUCLEAN         117)    ; Structure needs cleaning
-(defconstant    ENOTNAM         118)    ; Not a XENIX named type file
-(defconstant    ENAVAIL         119)    ; No XENIX semaphores available
-(defconstant    EISNAM          120)    ; Is a named type file
-(defconstant    EREMOTEIO       121)    ; Remote I/O error
-(defconstant    EDQUOT          122)    ; Quota exceeded
-(defconstant    ENOMEDIUM       123)    ; No medium found
-(defconstant    EMEDIUMTYPE     124)    ; Wrong medium type
+(def-c-const EPERM (:documentation "Operation not permitted"))
+(def-c-const ENOENT (:documentation "No such file or directory"))
+(def-c-const ESRCH (:documentation "No such process"))
+(def-c-const EINTR (:documentation "Interrupted system call"))
+(def-c-const EIO (:documentation "I/O error"))
+(def-c-const ENXIO (:documentation "No such device or address"))
+(def-c-const E2BIG (:documentation "Arg list too long"))
+(def-c-const ENOEXEC (:documentation "Exec format error"))
+(def-c-const EBADF (:documentation "Bad file number"))
+(def-c-const ECHILD (:documentation "No child processes"))
+(def-c-const EAGAIN (:documentation "Try again"))
+(def-c-const ENOMEM (:documentation "Out of memory"))
+(def-c-const EACCES (:documentation "Permission denied"))
+(def-c-const EFAULT (:documentation "Bad address"))
+(def-c-const ENOTBLK (:documentation "Block device required"))
+(def-c-const EBUSY (:documentation "Device or resource busy"))
+(def-c-const EEXIST (:documentation "File exists"))
+(def-c-const EXDEV (:documentation "Cross-device link"))
+(def-c-const ENODEV (:documentation "No such device"))
+(def-c-const ENOTDIR (:documentation "Not a directory"))
+(def-c-const EISDIR (:documentation "Is a directory"))
+(def-c-const EINVAL (:documentation "Invalid argument"))
+(def-c-const ENFILE (:documentation "File table overflow"))
+(def-c-const EMFILE (:documentation "Too many open files"))
+(def-c-const ENOTTY (:documentation "Not a typewriter"))
+(def-c-const ETXTBSY (:documentation "Text file busy"))
+(def-c-const EFBIG (:documentation "File too large"))
+(def-c-const ENOSPC (:documentation "No space left on device"))
+(def-c-const ESPIPE (:documentation "Illegal seek"))
+(def-c-const EROFS (:documentation "Read-only file system"))
+(def-c-const EMLINK (:documentation "Too many links"))
+(def-c-const EPIPE (:documentation "Broken pipe"))
+(def-c-const EDOM (:documentation "Math argument out of domain of func"))
+(def-c-const ERANGE (:documentation "Math result not representable"))
+(def-c-const EDEADLK (:documentation "Resource deadlock would occur"))
+(def-c-const ENAMETOOLONG (:documentation "File name too long"))
+(def-c-const ENOLCK (:documentation "No record locks available"))
+(def-c-const ENOSYS (:documentation "Function not implemented"))
+(def-c-const ENOTEMPTY (:documentation "Directory not empty"))
+(def-c-const ELOOP (:documentation "Too many symbolic links encountered"))
+(def-c-const EWOULDBLOCK (:documentation "Operation would block"))
+(def-c-const ENOMSG (:documentation "No message of desired type"))
+(def-c-const EIDRM (:documentation "Identifier removed"))
+(def-c-const ECHRNG (:documentation "Channel number out of range"))
+(def-c-const EL2NSYNC (:documentation "Level 2 not synchronized"))
+(def-c-const EL3HLT (:documentation "Level 3 halted"))
+(def-c-const EL3RST (:documentation "Level 3 reset"))
+(def-c-const ELNRNG (:documentation "Link number out of range"))
+(def-c-const EUNATCH (:documentation "Protocol driver not attached"))
+(def-c-const ENOCSI (:documentation "No CSI structure available"))
+(def-c-const EL2HLT (:documentation "Level 2 halted"))
+(def-c-const EBADE (:documentation "Invalid exchange"))
+(def-c-const EBADR (:documentation "Invalid request descriptor"))
+(def-c-const EXFULL (:documentation "Exchange full"))
+(def-c-const ENOANO (:documentation "No anode"))
+(def-c-const EBADRQC (:documentation "Invalid request code"))
+(def-c-const EBADSLT (:documentation "Invalid slot"))
+(def-c-const EDEADLOCK (:documentation "File locking deadlock error"))
+(def-c-const EBFONT (:documentation "Bad font file format"))
+(def-c-const ENOSTR (:documentation "Device not a stream"))
+(def-c-const ENODATA (:documentation "No data available"))
+(def-c-const ETIME (:documentation "Timer expired"))
+(def-c-const ENOSR (:documentation "Out of streams resources"))
+(def-c-const ENONET (:documentation "Machine is not on the network"))
+(def-c-const ENOPKG (:documentation "Package not installed"))
+(def-c-const EREMOTE (:documentation "Object is remote"))
+(def-c-const ENOLINK (:documentation "Link has been severed"))
+(def-c-const EADV (:documentation "Advertise error"))
+(def-c-const ESRMNT (:documentation "Srmount error"))
+(def-c-const ECOMM (:documentation "Communication error on send"))
+(def-c-const EPROTO (:documentation "Protocol error"))
+(def-c-const EMULTIHOP (:documentation "Multihop attempted"))
+(def-c-const EDOTDOT (:documentation "RFS specific error"))
+(def-c-const EBADMSG (:documentation "Not a data message"))
+(def-c-const EOVERFLOW (:documentation "Value too large for defined data type"))
+(def-c-const ENOTUNIQ (:documentation "Name not unique on network"))
+(def-c-const EBADFD (:documentation "File descriptor in bad state"))
+(def-c-const EREMCHG (:documentation "Remote address changed"))
+(def-c-const ELIBACC (:documentation "Can not access a needed shared library"))
+(def-c-const ELIBBAD (:documentation "Accessing a corrupted shared library"))
+(def-c-const ELIBSCN (:documentation ".lib section in a.out corrupted"))
+(def-c-const ELIBMAX (:documentation "Attempting to link in too many shared libraries"))
+(def-c-const ELIBEXEC (:documentation "Cannot exec a shared library directly"))
+(def-c-const EILSEQ (:documentation "Illegal byte sequence"))
+(def-c-const ERESTART (:documentation "Interrupted system call should be restarted"))
+(def-c-const ESTRPIPE (:documentation "Streams pipe error"))
+(def-c-const EUSERS (:documentation "Too many users"))
+(def-c-const ENOTSOCK (:documentation "Socket operation on non-socket"))
+(def-c-const EDESTADDRREQ (:documentation "Destination address required"))
+(def-c-const EMSGSIZE (:documentation "Message too long"))
+(def-c-const EPROTOTYPE (:documentation "Protocol wrong type for socket"))
+(def-c-const ENOPROTOOPT (:documentation "Protocol not available"))
+(def-c-const EPROTONOSUPPORT (:documentation "Protocol not supported"))
+(def-c-const ESOCKTNOSUPPORT (:documentation "Socket type not supported"))
+(def-c-const EOPNOTSUPP (:documentation "Operation not supported on transport endpoint"))
+(def-c-const EPFNOSUPPORT (:documentation "Protocol family not supported"))
+(def-c-const EAFNOSUPPORT (:documentation "Address family not supported by protocol"))
+(def-c-const EADDRINUSE (:documentation "Address already in use"))
+(def-c-const EADDRNOTAVAIL (:documentation "Cannot assign requested address"))
+(def-c-const ENETDOWN (:documentation "Network is down"))
+(def-c-const ENETUNREACH (:documentation "Network is unreachable"))
+(def-c-const ENETRESET (:documentation "Network dropped connection because of reset"))
+(def-c-const ECONNABORTED (:documentation "Software caused connection abort"))
+(def-c-const ECONNRESET (:documentation "Connection reset by peer"))
+(def-c-const ENOBUFS (:documentation "No buffer space available"))
+(def-c-const EISCONN (:documentation "Transport endpoint is already connected"))
+(def-c-const ENOTCONN (:documentation "Transport endpoint is not connected"))
+(def-c-const ESHUTDOWN (:documentation "Cannot send after transport endpoint shutdown"))
+(def-c-const ETOOMANYREFS (:documentation "Too many references: cannot splice"))
+(def-c-const ETIMEDOUT (:documentation "Connection timed out"))
+(def-c-const ECONNREFUSED (:documentation "Connection refused"))
+(def-c-const EHOSTDOWN (:documentation "Host is down"))
+(def-c-const EHOSTUNREACH (:documentation "No route to host"))
+(def-c-const EALREADY (:documentation "Operation already in progress"))
+(def-c-const EINPROGRESS (:documentation "Operation now in progress"))
+(def-c-const ESTALE (:documentation "Stale NFS file handle"))
+(def-c-const EUCLEAN (:documentation "Structure needs cleaning"))
+(def-c-const ENOTNAM (:documentation "Not a XENIX named type file"))
+(def-c-const ENAVAIL (:documentation "No XENIX semaphores available"))
+(def-c-const EISNAM (:documentation "Is a named type file"))
+(def-c-const EREMOTEIO (:documentation "Remote I/O error"))
+(def-c-const EDQUOT (:documentation "Quota exceeded"))
+(def-c-const ENOMEDIUM (:documentation "No medium found"))
+(def-c-const EMEDIUMTYPE (:documentation "Wrong medium type"))
 
 ; -------------------------- <bits/errno.h> -----------------------------------
 

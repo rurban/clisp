@@ -11,7 +11,7 @@
 (use-package '("COMMON-LISP" "EXT") "FFI")
 (in-package "FFI")
 
-(export '(def-c-type def-c-var parse-c-type deparse-c-type
+(export '(def-c-type def-c-var def-c-const parse-c-type deparse-c-type
           def-c-call-out def-call-out #+AFFI def-lib-call-out
           def-c-call-in def-call-in default-foreign-language
           c-lines *output-c-functions* *output-c-variables* *foreign-guard*
@@ -528,6 +528,10 @@
   (init-once '())
   (init-always '())
   (fini '())
+  ;; type -> (function-name . #(const1 const2 const3 ...))
+  (constant-table (make-hash-table :test 'stablehash-eq
+                                   :key-type 'symbol :value-type 'string
+                                   :warn-if-needs-rehash-after-gc t))
   (variable-list '())
   (function-list '()))
 (define-symbol-macro *name*
@@ -544,6 +548,8 @@
     (ffi-module-init-always *ffi-module*))
 (define-symbol-macro *fini*
     (ffi-module-fini *ffi-module*))
+(define-symbol-macro *constant-table*
+    (ffi-module-constant-table *ffi-module*))
 (define-symbol-macro *variable-list*
     (ffi-module-variable-list *ffi-module*))
 (define-symbol-macro *function-list*
@@ -704,6 +710,21 @@
       (format *coutput-stream* "uintC module__~A__object_tab_size = ~D;~%"
               *c-name* count))
     (format *coutput-stream* "~%")
+    (maphash (lambda (type fun-vec)
+               (let* ((fun (car fun-vec)) (vec (cdr fun-vec))
+                      (c-decl (to-c-typedecl type fun)))
+                 (format *coutput-stream* "~A (int number, int *definedp);~%~
+                                           ~A (int number, int *definedp) {
+  *definedp=1;~%  switch (number) {~%"
+                         c-decl c-decl)
+                 (dotimes (num (length vec))
+                   (let ((const (aref vec num)))
+                     (format *coutput-stream* "#if defined(~A)
+    case ~D: return ~A;~%#endif~%"
+                             const num const)))
+                 (format *coutput-stream* "    default: *definedp=0; return 0;
+  }~%}~%#define HAVE_~A~%" (string-upcase (symbol-name fun)))))
+             *constant-table*)
     (setq *variable-list*
           (nreverse (delete-duplicates
                      *variable-list* :key #'first :test #'equal)))
@@ -808,6 +829,37 @@
   (if name-option
     (parse-foreign-name (second name-option))
     (to-c-name lisp-name)))
+
+(defmacro DEF-C-CONST (&whole whole-form name &rest options)
+  (setq name (check-symbol name (first whole-form)))
+  (let* ((alist (parse-options options '(:name :type :documentation)
+                               whole-form))
+         (doc (assoc ':documentation alist))
+         (c-type (or (assoc ':type alist) 'ffi:int))
+         (c-name (foreign-name name (assoc ':name alist)))
+         (f-name (intern
+                  (format nil "module__~A__constant_map_~A" *name*
+                          (substitute #\_ #\- (symbol-name c-type))))))
+    (check-type c-type (member ffi:int ffi:c-string ffi:c-pointer)
+                "A constant must be either an integer, a string or a pointer")
+    `(PROGN
+       ,@(unless (gethash c-type *constant-table*)
+           (setf (gethash c-type *constant-table*)
+                 (cons f-name (make-array 10 :adjustable t :fill-pointer 0)))
+           `((ffi:def-call-out ,f-name
+                 (:arguments (number ffi:int)
+                             (defined-p (ffi:c-ptr ffi:int) :out))
+               (:return-type ,c-type))))
+       (defconstant ,name
+         (multiple-value-bind (value value-p)
+             (,f-name ,(NOTE-C-CONST c-name c-type))
+           (if value-p value (sys::%unbound)))
+         ,@(when doc `(,(second doc)))))))
+
+(defun note-c-const (c-name type) ; ABI
+  (when (compiler::prepare-coutput-file)
+    (prepare-module)
+    (vector-push-extend c-name (cdr (gethash type *constant-table*)))))
 
 (defmacro DEF-C-VAR (&whole whole-form
                      name &rest options)
