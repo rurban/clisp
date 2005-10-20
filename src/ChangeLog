@@ -1,5 +1,9 @@
 2005-10-19  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.lisp (undefined): do not use package prefix
+
+2005-10-19  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d: uniform use of articles in messages
 
 2005-10-19  Sam Steingold  <sds@gnu.org>
