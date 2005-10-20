@@ -1,5 +1,15 @@
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
+	* exporting.lisp (def-c-const): added
+	* foreign1.lisp (def-c-const, note-c-const): added
+	(ffi-module): added slot CONSTANT-TABLE
+	(finalize-coutput-file): output constant map functions
+	* modules/bindings/glibc/linux.lisp, modules/readline/readline.lisp:
+	* modules/wildcard/wildcard.lisp, modules/pari/pari.lisp:
+	use DEF-C-CONST instead of DEFCONSTANT with explicit values
+
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (oint_type_len): #error when undefined
 
 2005-10-19  Sam Steingold  <sds@gnu.org>

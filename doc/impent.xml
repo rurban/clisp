@@ -465,6 +465,7 @@
 <!ENTITY clisp-link "<link linkend='mod-overview'><command>clisp-link</command></link>">
 <!ENTITY def-c-call-in "<link linkend='def-c-call-in'><function>FFI:DEF-C-CALL-IN</function></link>">
 <!ENTITY def-c-call-out "<link linkend='def-c-call-out'><function>FFI:DEF-C-CALL-OUT</function></link>">
+<!ENTITY def-c-const "<link linkend='def-c-const'><function>FFI:DEF-C-CONST</function></link>">
 <!ENTITY def-c-enum "<link linkend='def-c-enum'><function>FFI:DEF-C-ENUM</function></link>">
 <!ENTITY def-c-struct "<link linkend='def-c-struct'><function>FFI:DEF-C-STRUCT</function></link>">
 <!ENTITY def-c-type "<link linkend='def-c-type'><function>FFI:DEF-C-TYPE</function></link>">

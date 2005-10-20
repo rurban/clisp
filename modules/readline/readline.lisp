@@ -9,8 +9,8 @@
 (defpackage "READLINE"
   (:use "CL" "EXT" "FFI")
   (:shadowing-import-from "EXPORTING"
-     #:defconstant #:defun #:defmacro #:defvar
-     #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out)
+     #:defconstant #:defun #:defmacro #:defvar #:def-c-type #:def-c-enum
+     #:def-c-struct #:def-c-var #:def-c-const #:def-call-out)
   (:documentation "
 Interface to the GNU readline and history library. It allows you to
 - use readline functionality for user input in your programs
@@ -208,10 +208,7 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 ;;; Allowing undoing
 
 ;;; constants used by add-undo.
-(defconstant +undo-delete+ 0)
-(defconstant +undo-insert+ 1)
-(defconstant +undo-begin+ 2)
-(defconstant +undo-end+ 3)
+(def-c-enum undo_code UNDO_DELETE UNDO_INSERT UNDO_BEGIN UNDO_END)
 
 (def-call-out begin-undo-group  (:name "rl_begin_undo_group") ; untested
   (:arguments) (:return-type int))
@@ -447,55 +444,27 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
   (:type c-string) (:alloc :malloc-free))
 (def-c-var readline-state (:name "rl_readline_state") (:type int))
 
-;; get a hold of the RL state constants:
-(c-lines "static int get_rl_state_const (int num) {
- switch (num) {
-  case  0: return RL_STATE_NONE;
-  case  1: return RL_STATE_INITIALIZING;
-  case  2: return RL_STATE_INITIALIZED;
-  case  3: return RL_STATE_TERMPREPPED;
-  case  4: return RL_STATE_READCMD;
-  case  5: return RL_STATE_METANEXT;
-  case  6: return RL_STATE_DISPATCHING;
-  case  7: return RL_STATE_MOREINPUT;
-  case  8: return RL_STATE_ISEARCH;
-  case  9: return RL_STATE_NSEARCH;
-  case 10: return RL_STATE_SEARCH;
-  case 11: return RL_STATE_NUMERICARG;
-  case 12: return RL_STATE_MACROINPUT;
-  case 13: return RL_STATE_MACRODEF;
-  case 14: return RL_STATE_OVERWRITE;
-  case 15: return RL_STATE_COMPLETING;
-  case 16: return RL_STATE_SIGHANDLER;
-  case 17: return RL_STATE_UNDOING;
-  case 18: return RL_STATE_INPUTPENDING;
-  case 19: return RL_STATE_TTYCSAVED;
-  case 20: return RL_STATE_DONE;
-  default: return -1;
-}}~%#define HAVE_GET_RL_STATE_CONST~%")
-;; package prefix to avoid exporting GET_RL_STATE_CONST
-(ffi:def-call-out get_rl_state_const (:arguments (num int)) (:return-type int))
-(defconstant STATE-NONE            (get_rl_state_const  0))
-(defconstant STATE-INITIALIZING    (get_rl_state_const  1))
-(defconstant STATE-INITIALIZED     (get_rl_state_const  2))
-(defconstant STATE-TERMPREPPED     (get_rl_state_const  3))
-(defconstant STATE-READCMD         (get_rl_state_const  4))
-(defconstant STATE-METANEXT        (get_rl_state_const  5))
-(defconstant STATE-DISPATCHING     (get_rl_state_const  6))
-(defconstant STATE-MOREINPUT       (get_rl_state_const  7))
-(defconstant STATE-ISEARCH         (get_rl_state_const  8))
-(defconstant STATE-NSEARCH         (get_rl_state_const  9))
-(defconstant STATE-SEARCH          (get_rl_state_const 10))
-(defconstant STATE-NUMERICARG      (get_rl_state_const 11))
-(defconstant STATE-MACROINPUT      (get_rl_state_const 12))
-(defconstant STATE-MACRODEF        (get_rl_state_const 13))
-(defconstant STATE-OVERWRITE       (get_rl_state_const 14))
-(defconstant STATE-COMPLETING      (get_rl_state_const 15))
-(defconstant STATE-SIGHANDLER      (get_rl_state_const 16))
-(defconstant STATE-UNDOING         (get_rl_state_const 17))
-(defconstant STATE-INPUTPENDING    (get_rl_state_const 18))
-(defconstant STATE-TTYCSAVED       (get_rl_state_const 19))
-(defconstant STATE-DONE            (get_rl_state_const 20))
+(def-c-const RL_STATE_NONE)
+(def-c-const RL_STATE_INITIALIZING)
+(def-c-const RL_STATE_INITIALIZED)
+(def-c-const RL_STATE_TERMPREPPED)
+(def-c-const RL_STATE_READCMD)
+(def-c-const RL_STATE_METANEXT)
+(def-c-const RL_STATE_DISPATCHING)
+(def-c-const RL_STATE_MOREINPUT)
+(def-c-const RL_STATE_ISEARCH)
+(def-c-const RL_STATE_NSEARCH)
+(def-c-const RL_STATE_SEARCH)
+(def-c-const RL_STATE_NUMERICARG)
+(def-c-const RL_STATE_MACROINPUT)
+(def-c-const RL_STATE_MACRODEF)
+(def-c-const RL_STATE_OVERWRITE)
+(def-c-const RL_STATE_COMPLETING)
+(def-c-const RL_STATE_SIGHANDLER)
+(def-c-const RL_STATE_UNDOING)
+(def-c-const RL_STATE_INPUTPENDING)
+(def-c-const RL_STATE_TTYCSAVED)
+(def-c-const RL_STATE_DONE)
 
 ;;; ------ history ------
 

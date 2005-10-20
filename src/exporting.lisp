@@ -10,7 +10,7 @@
                  deftype defstruct defclass define-condition
                  define-method-combination
                  #+FFI def-c-type #+FFI def-c-enum #+FFI def-c-struct
-                 #+FFI def-c-var
+                 #+FFI def-c-var #+FFI def-c-const
                  #+FFI def-c-call-out #+FFI def-call-out
                  #+AFFI def-lib-call-out))
   (:export . #1#))
@@ -164,6 +164,12 @@
   `(LET ((NAME (FFI:DEF-C-STRUCT ,name+options ,@slots)))
      (EXPORT-STRUCTURE-ACCESSORIES NAME)
      NAME))
+
+#+FFI
+(cl:defmacro def-c-const (name &rest options)
+  `(PROGN
+     (EXPORT ',(or name '(NIL)))
+     (FFI:DEF-C-CONST ,name ,@options)))
 
 #+FFI
 (cl:defmacro def-c-var (name &rest options)
