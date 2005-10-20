@@ -4,7 +4,8 @@
 	default=0 for the sake of getaddrinfo()
 	(RAWSOCK:GETADDRINFO): ai_canonname may be NULL
 	(RAWSOCK:RECVMSG, RAWSOCK:SENDMSG): fixed typo in the conditionals,
-	fixed some typos
+	fixed some typos;
+	accept :START and :END to conform with other SEND/RECV functions
 
 2005-10-20  Sam Steingold  <sds@gnu.org>
 

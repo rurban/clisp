@@ -756,6 +756,11 @@ DEFCHECKER(check_msg_flags,prefix=MSG,bitmasks=both,default=0,          \
 #define MSG_CONTROL  3
 #define MSG_FLAGS    4
 /* check message structure, return size/offset for iovec & flags
+ < STACK_0, STACK_1: START & END, passed to check_iovec_arg()
+ < mho -- MESSAGE structure object
+ > mho -- same, checked
+ > offset -- offset into the iovec
+ > mhp -- filled msg_iovlen, msg_flags
  can trigger GC */
 static void check_message (gcv_object_t *mho, uintL *offset, struct msghdr *mhp)
 {
@@ -770,6 +775,7 @@ static void check_message (gcv_object_t *mho, uintL *offset, struct msghdr *mhp)
   mhp->msg_flags =
     check_msg_flags_from_list(TheStructure(*mho)->recdata[MSG_FLAGS]);
 }
+/* fill msg_controllen, msg_control, msg_iov, msg_name from mho */
 static void fill_msghdr (gcv_object_t *mho, uintL offset, struct msghdr *mhp,
                          int prot) {
   mhp->msg_controllen =
@@ -786,20 +792,20 @@ static void fill_msghdr (gcv_object_t *mho, uintL offset, struct msghdr *mhp,
                       &(mhp->msg_namelen),prot);
 }
 /* POSIX recvmsg() */
-DEFUN(RAWSOCK:RECVMSG,socket message &key PEEK OOB WAITALL) {
+DEFUN(RAWSOCK:RECVMSG,socket message &key START END PEEK OOB WAITALL) {
   int flags = recv_flags();
-  rawsock_t sock = I_to_uint(check_uint(STACK_1));
+  rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
   struct msghdr message;
   uintL offset;
-  check_message(&STACK_0,&offset,&message);
+  check_message(&STACK_2,&offset,&message);
   message.msg_iov =
     (struct iovec*)alloca(message.msg_iovlen * sizeof(struct iovec));
-  fill_msghdr(&STACK_0,offset,&message,PROT_READ_WRITE);
+  fill_msghdr(&STACK_2,offset,&message,PROT_READ_WRITE);
   SYSCALL(retval,sock,recvmsg(sock,&message,flags));
-  TheStructure(STACK_0)->recdata[MSG_FLAGS] =
+  TheStructure(STACK_2)->recdata[MSG_FLAGS] =
     check_msg_flags_to_list(message.msg_flags);
-  VALUES2(fixnum(retval),fixnum(message.msg_namelen)); skipSTACK(2);
+  VALUES2(fixnum(retval),fixnum(message.msg_namelen)); skipSTACK(4);
 }
 #endif  /* HAVE_RECVMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
@@ -841,19 +847,19 @@ DEFUN(RAWSOCK:SEND,socket buffer &key START END OOB EOR) {
 
 #if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
 /* POSIX sendmsg() */
-DEFUN(RAWSOCK:SENDMSG,socket message &key OOB EOR) {
+DEFUN(RAWSOCK:SENDMSG,socket message &key START END OOB EOR) {
   int flags = send_flags();
-  rawsock_t sock = I_to_uint(check_uint(STACK_1));
+  rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
   struct msghdr message;
   uintL offset;
-  check_message(&STACK_0,&offset,&message);
+  check_message(&STACK_2,&offset,&message);
   message.msg_iov =
     (struct iovec*)alloca(message.msg_iovlen * sizeof(struct iovec));
   SYSCALL(retval,sock,sendmsg(sock,&message,flags));
-  TheStructure(STACK_0)->recdata[MSG_FLAGS] =
+  TheStructure(STACK_2)->recdata[MSG_FLAGS] =
     check_msg_flags_to_list(message.msg_flags);
-  VALUES1(fixnum(retval)); skipSTACK(2);
+  VALUES1(fixnum(retval)); skipSTACK(4);
 }
 #endif  /* HAVE_SENDMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
