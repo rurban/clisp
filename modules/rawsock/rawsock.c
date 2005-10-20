@@ -105,7 +105,7 @@ static object my_check_argument (object name, object datum) {
  < pointer to the buffer start
  can trigger GC */
 static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size, int prot) {
-  uintV start = 0;
+  uintL start = 0;
   object data;
   *arg_ = check_byte_vector(*arg_);
   if (!missingp(STACK_1)) start = posfixnum_to_V(check_posfixnum(STACK_1));
@@ -113,7 +113,7 @@ static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size, int prot) {
     : posfixnum_to_V(check_posfixnum(STACK_0));
   data = array_displace_check(*arg_,*size,&start);
   { void *start_address = (void*)(TheSbvector(data)->data + start);
-    handle_fault_range(prot,(aint)start_address,(aint)(start_address + *size));
+    handle_fault_range(prot,(aint)start_address,(aint)start_address + *size);
     return start_address;
   }
 }
@@ -129,7 +129,7 @@ static void* check_struct_data (object type, object arg, SOCKLEN_T *size,
   object vec = TheStructure(check_classname(arg,type))->recdata[1];
   *size = Sbvector_length(vec);
   { void *start_address = (void*)(TheSbvector(vec)->data);
-    handle_fault_range(prot,(aint)start_address,(aint)(start_address + *size));
+    handle_fault_range(prot,(aint)start_address,(aint)start_address + *size);
     return start_address;
   }
 }
@@ -174,7 +174,7 @@ static void fill_iovec (object vect, size_t offset, ssize_t veclen,
     buffer->iov_len = len;
     buffer->iov_base= TheSbvector(data_vec)->data + index;
     handle_fault_range(prot,(aint)buffer->iov_base,
-                       (aint)(buffer->iov_base + len));
+                       (aint)buffer->iov_base + len);
   }
 }
 #endif  /* HAVE_SYS_UIO_H */
@@ -649,7 +649,7 @@ DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
 #if defined(HAVE_GETADDRINFO) && defined(HAVE_FREEADDRINFO)
 DEFFLAGSET(addrinfo_flags,AI_PASSIVE AI_CANONNAME AI_NUMERICHOST \
            AI_NUMERICSERV AI_V4MAPPED AI_ALL AI_ADDRCONFIG)
-DEFCHECKER(check_addrinfo_flags,prefix=AI,default=0,                  \
+DEFCHECKER(check_addrinfo_flags,prefix=AI,default=0,bitmasks=both,    \
            PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED ALL ADDRCONFIG)
 DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
       PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED ALL ADDRCONFIG) {
@@ -696,9 +696,9 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
     begin_system_call();
     memcpy(TheSbvector(STACK_1)->data,tmp->ai_addr,tmp->ai_addrlen);
     end_system_call();
-    funcall(`RAWSOCK::MAKE-SA`,1); pushSTACK(values1);
+    funcall(`RAWSOCK::MAKE-SA`,1); pushSTACK(value1);
     pushSTACK(asciz_to_string(tmp->ai_canonname,GLO(misc_encoding)));
-    value1 = funcall(`RAWSOCK::MAKE-ADDRINFO`,6); pushSTACK(value1);
+    funcall(`RAWSOCK::MAKE-ADDRINFO`,6); pushSTACK(value1);
   }
   if (ret) { begin_system_call(); freeaddrinfo(ret); end_system_call(); }
   VALUES1(listof(valcount));
@@ -776,7 +776,7 @@ static void fill_msghdr (gcv_object_t *mho, uintL offset, struct msghdr *mhp,
   mhp->msg_control =
     TheSbvector(TheStructure(*mho)->recdata[MSG_CONTROL])->data;
   handle_fault_range(prot,(aint)mhp->msg_control,
-                     (aint)(mhp->msg_control + mhp->msg_controllen));
+                     (aint)mhp->msg_control + mhp->msg_controllen);
   fill_iovec(TheStructure(*mho)->recdata[MSG_IOVEC],offset,mhp->msg_iovlen,
              mhp->msg_iov,prot);
   mhp->msg_name = (struct sockaddr*)
