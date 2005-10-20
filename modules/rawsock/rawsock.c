@@ -763,8 +763,8 @@ static void check_message (gcv_object_t *mho, uintL *offset, struct msghdr *mhp)
   TheStructure(*mho)->recdata[MSG_SOCKADDR] =
     check_classname(TheStructure(*mho)->recdata[MSG_SOCKADDR],
                     `RAWSOCK::SOCKADDR`);
-   mhp->iovlen =
-     check_iovec_arg(&(TheStructure(*mho)->recdata[MSG_IOVEC]),offset);
+  mhp->msg_iovlen =
+    check_iovec_arg(&(TheStructure(*mho)->recdata[MSG_IOVEC]),offset);
   TheStructure(*mho)->recdata[MSG_CONTROL] =
     check_byte_vector(TheStructure(*mho)->recdata[MSG_CONTROL]);
   mhp->msg_flags =
@@ -798,7 +798,7 @@ DEFUN(RAWSOCK:RECVMSG,socket message &key PEEK OOB WAITALL) {
   fill_msghdr(&STACK_0,offset,&message,PROT_READ_WRITE);
   SYSCALL(retval,sock,recvmsg(sock,&message,flags));
   TheStructure(STACK_0)->recdata[MSG_FLAGS] =
-    check_msg_flags_to_list(mhp->msg_flags);
+    check_msg_flags_to_list(message.msg_flags);
   VALUES2(fixnum(retval),fixnum(message.msg_namelen)); skipSTACK(2);
 }
 #endif  /* HAVE_RECVMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
@@ -850,9 +850,9 @@ DEFUN(RAWSOCK:SENDMSG,socket message &key OOB EOR) {
   check_message(&STACK_0,&offset,&message);
   message.msg_iov =
     (struct iovec*)alloca(message.msg_iovlen * sizeof(struct iovec));
-  SYSCALL(retval,sock,sendmsg(sock,message,flags));
+  SYSCALL(retval,sock,sendmsg(sock,&message,flags));
   TheStructure(STACK_0)->recdata[MSG_FLAGS] =
-    check_msg_flags_to_list(mhp->msg_flags);
+    check_msg_flags_to_list(message.msg_flags);
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 #endif  /* HAVE_SENDMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
