@@ -2504,7 +2504,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
 <varlistentry id="def-c-const"><term><code>(&def-c-const; &name-r;
    {&option-r;}*)</code></term>
  <listitem><para>This form defines a Lisp &constant; &name-r; whose
-   value is determined at link time using an internal &foreign-function-t;
+   value is determined at link time using an internal &foreign-function-t;.
    When the &cpp; constant is not defined, &name-r; is unbound.</para>
   <variablelist id="def-c-const-opts"><title>Options for &def-c-const;</title>
    <varlistentry><term><code>(&name-k; &cname-r;)</code></term>
@@ -2518,8 +2518,8 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
    </simplelist></para></listitem></varlistentry>
    <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
     <listitem><simpara>Specifies the (optional) &variable-doc; documentation.
-   </simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
+  </simpara></listitem></varlistentry></variablelist>
+</listitem></varlistentry>
 
 <varlistentry id="def-call-out"><term><code>(&def-call-out;
               &name-r; {&option-r;}*)</code></term>
