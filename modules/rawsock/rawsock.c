@@ -759,7 +759,7 @@ DEFCHECKER(check_msg_flags,prefix=MSG,bitmasks=both,default=0,          \
  can trigger GC */
 static void check_message (gcv_object_t *mho, uintL *offset, struct msghdr *mhp)
 {
-  *mho = check_classname(*mho,`RAWSOCK::MSGHDR`);
+  *mho = check_classname(*mho,`RAWSOCK::MESSAGE`);
   TheStructure(*mho)->recdata[MSG_SOCKADDR] =
     check_classname(TheStructure(*mho)->recdata[MSG_SOCKADDR],
                     `RAWSOCK::SOCKADDR`);
