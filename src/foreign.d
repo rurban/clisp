@@ -177,7 +177,8 @@ LISPFUNNR(foreign_address,1)
  > flags: fv_readonly for read-only variables
  > size: its size in bytes
  can trigger GC */
-global maygc void register_foreign_variable (void* address, const char * name_asciz,
+global maygc void register_foreign_variable (void* address,
+                                             const char * name_asciz,
                                              uintBWL flags, uintL size)
 {
   var object name = asciz_to_string(name_asciz,O(internal_encoding));
@@ -187,7 +188,7 @@ global maygc void register_foreign_variable (void* address, const char * name_as
     obj = TheFaddress(obj)->fa_base;
     if (fp_validp(TheFpointer(obj))) {
       pushSTACK(name);
-      fehler(error,GETTEXT("A foreign variable ~S already exists"));
+      fehler(error,GETTEXT("Foreign variable ~S already exists"));
     } else {
       /* Variable already existed in a previous Lisp session.
          Update the address, and make it and any of its subvariables valid. */
@@ -212,7 +213,8 @@ global maygc void register_foreign_variable (void* address, const char * name_as
  > name: its name
  > flags: its language and parameter passing convention
  can trigger GC */
-global maygc void register_foreign_function (void* address, const char * name_asciz,
+global maygc void register_foreign_function (void* address,
+                                             const char * name_asciz,
                                              uintWL flags)
 {
   var object name = asciz_to_string(name_asciz,O(internal_encoding));
@@ -222,7 +224,7 @@ global maygc void register_foreign_function (void* address, const char * name_as
     obj = TheFaddress(obj)->fa_base;
     if (fp_validp(TheFpointer(obj))) {
       pushSTACK(name);
-      fehler(error,GETTEXT("A foreign function ~S already exists"));
+      fehler(error,GETTEXT("Foreign function ~S already exists"));
     } else {
       /* Function already existed in a previous Lisp session.
          Update the address, and make it valid. */
@@ -2380,7 +2382,7 @@ LISPFUNN(lookup_foreign_variable,2)
     pushSTACK(NIL);             /* 2 error-format-string */
     pushSTACK(S(lookup_foreign_variable)); /* 1 */
     pushSTACK(name);            /* 0 */
-    STACK_2 = CLSTEXT("~S: A foreign variable ~S does not exist");
+    STACK_2 = CLSTEXT("~S: foreign variable ~S does not exist");
     STACK_4 = CLSTEXT("Skip foreign variable creation");
     funcall(L(cerror_of_type),5);
     skipSTACK(2); VALUES1(NIL); return;
@@ -3136,7 +3138,7 @@ LISPFUNN(lookup_foreign_function,2)
     pushSTACK(NIL);             /* 2 error-format-string */
     pushSTACK(S(lookup_foreign_function)); /* 1 */
     pushSTACK(name);            /* 0 */
-    STACK_2 = CLSTEXT("~S: A foreign function ~S does not exist");
+    STACK_2 = CLSTEXT("~S: foreign function ~S does not exist");
     STACK_4 = CLSTEXT("Skip foreign function creation");
     funcall(L(cerror_of_type),5);
     VALUES1(NIL); return;
