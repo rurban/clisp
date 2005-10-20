@@ -1,5 +1,16 @@
 2005-10-19  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/configure.in (getnameinfo, getaddrinfo)
+	(freeaddrinfo): check
+	* modules/rawsock/sock.lisp (msghdr): removed
+	(getnameinfo, getaddrinfo): export
+	(message, addrinfo): added
+	(defstruct): import from EXPORFTING
+	* modules/rawsock/rawsock.c (GETNAMEINFO, GETADDRINFO): implemented
+	(RECVMSG, SENDMSG): use MESSAGE instead of MSGHDR
+
+2005-10-19  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.lisp (undefined): do not use package prefix
 
 2005-10-19  Sam Steingold  <sds@gnu.org>

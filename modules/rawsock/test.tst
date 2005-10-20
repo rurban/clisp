@@ -10,7 +10,10 @@
   (defun from-bytes (vec &optional size)
     (ext:convert-string-from-bytes vec charset:ascii :end size))
   (defun make-byte-vector (len)
-    (make-array len :element-type '(unsigned-byte 8) :initial-element 0))
+    (make-array (etypecase len
+                  (integer len)
+                  (sequence (length len)))
+                :element-type '(unsigned-byte 8) :initial-element 0))
   (defun host->sa (host &optional (port 0))
     (let* ((he (posix:resolve-host-ipaddr host)) sa
            (ip (first (posix:hostent-addr-list he)))
@@ -162,11 +165,11 @@ T
   (string= message (from-bytes *buffer* (rawsock:sock-read *sock2* *buffer*))))
 T
 
-#-:win32
+#-:win32                        ; readv/writev
 (let* ((message '("I" "love" "you"))
        (char-num (reduce #'+ message :key #'length))
        (buf1 (map 'vector #'to-bytes message))
-       (buf2 (map 'vector (lambda (s) (make-byte-vector (length s))) message)))
+       (buf2 (map 'vector #'make-byte-vector message)))
   (show (list buf1 buf2))
   ;; assume ASCII-compatible encoding
   (assert (= char-num (rawsock:sock-write *sock1* buf1)))
@@ -176,6 +179,30 @@ T
 
 #-:win32 (ext:socket-status *sock1*) :OUTPUT
 #-:win32 (ext:socket-status *sock2*) :OUTPUT
+
+(when (and (fboundp 'rawsock:sendmsg) (fboundp 'rawsock:recvmsg))
+  (let* ((message '("man" "bites" "dog"))
+         (message1
+          (show (rawsock:make-message :addr (rawsock:make-sockaddr :unix)
+                                      :iovec (map 'vector #'to-bytes message))
+                :pretty t))
+         (message2
+          (show (rawsock:make-message :addr (rawsock:make-sockaddr :unix)
+                                      :iovec (map 'vector #'make-byte-vector
+                                                  message))
+                :pretty t)))
+    (assert (= 11 (rawsock:sendmsg *sock1* message1)))
+    (assert (= 11 (rawsock:recvmsg *sock2* message2)))
+    (show (list message1 message2) :pretty t)
+    (assert (equalp (rawsock:message-iovec message1)
+                    (rawsock:message-iovec message2)))
+    (when (fboundp 'rawsock:getaddrinfo)
+      (show (list (multiple-value-list
+                   (rawsock:getaddrinfo (rawsock:message-addr message1)))
+                  (multiple-value-list
+                   (rawsock:getaddrinfo (rawsock:message-addr message2)))))))
+  nil)
+NIL
 
 #-:win32 (rawsock:sock-close *sock1*) 0
 #-:win32 (rawsock:sock-close *sock2*) 0
@@ -208,6 +235,11 @@ T
 (rawsock:protocol-p (show (rawsock:protocol "IP") :pretty t)) T
 (listp (show (rawsock:protocol) :pretty t)) T
 (listp (show (rawsock:network) :pretty t)) T
+(or (not (fboundp 'rawsock:getaddrinfo)) (listp (show (rawsock:getaddrinfo)))) T
+(or (not (fboundp 'rawsock:getnameinfo))
+    (listp (show (multiple-value-list (rawsock:getnameinfo *sa-remote*))))) T
+(or (not (fboundp 'rawsock:getnameinfo))
+    (listp (show (multiple-value-list (rawsock:getnameinfo *sa-local*))))) T
 
 #+unix                          ; for Don Cohen
 (when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")

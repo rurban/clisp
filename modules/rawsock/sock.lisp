@@ -7,18 +7,14 @@
 (defpackage #:rawsock
   (:documentation "Raw Socket access")
   (:use #:lisp)
-  (:shadowing-import-from "EXPORTING" #:defun)
+  (:shadowing-import-from "EXPORTING" #:defun #:defstruct)
   (:export #:buffer #:resize-buffer #:accept #:bind #:connect
-           #:getpeername #:getsockname #:protocol #:protocol-p
-           #:protocol-name #:protocol-aliases #:protocol-proto
-           #:network #:network-p #:network-name #:network-aliases
-           #:network-type #:network-net
+           #:getpeername #:getsockname #:protocol #:network #:message
            #:sock-listen #:recv #:recvfrom #:recvmsg
            #:send #:sendmsg #:sendto #:socket-option
-           #:socket #:socketpair #:sockatmark
+           #:socket #:socketpair #:sockatmark #:getnameinfo #:getaddrinfo
            #:sock-read #:sock-write #:sock-close
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-p
-           #:msghdr #:msghdr-p #:make-msghdr
            #:htonl #:htons #:ntohl #:ntohs #:convert-address
            #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum))
 
@@ -26,12 +22,23 @@
 (pushnew :rawsock *features*)
 (pushnew "RAWSOCK" custom:*system-package-list* :test #'string=)
 
-(macrolet ((missing (type) `(error "~S: missing ~S slot" ',type 'data)))
-(defstruct (sockaddr (:constructor make-sa (%data)))
-  (%data (missing sockaddr) :read-only t :type (vector (unsigned-byte 8))))
-(defstruct (msghdr (:constructor make-msghdr (%data)))
-  (%data (missing msghdr) :read-only t :type (vector (unsigned-byte 8))))
-)
+(cl:defstruct (sockaddr (:constructor make-sa (%data)))
+  (%data #() :read-only t :type (vector (unsigned-byte 8))))
+
+(defstruct (message)
+  (addr nil :type sockaddr) ; Optional address.
+  (iovec #() :type (vector (vector (unsigned-byte 8)))) ; Scatter/gather array.
+  (control #A((unsigned-byte 8) 0 nil) :type (vector (unsigned-byte 8)))
+  (flags () :type list))        ; Flags on received message.
+
+(defstruct (addinfo (:constructor make-addrinfo
+                                  (flags family type protocol address name)))
+  (flags nil :type list)
+  (family 0 :type integer)
+  (type 0 :type integer)
+  (protocol 0 :type integer)
+  (address nil :type (or null sockaddr))
+  (name nil :type (or null string)))
 
 (defstruct (protocol (:constructor make-protocol (name aliases proto)))
   (name "" :type string)

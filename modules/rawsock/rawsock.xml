@@ -40,6 +40,12 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     &sock-r; &addr-r;)</code></member>
   <member><code>(<function role="unix">connect</function>
     &sock-r; &addr-r;)</code></member>
+  <member><code>(<function role="unix">getaddrinfo</function> &key-amp;
+    node service protocol socktype family passive canonname numerichost
+    numericserv v4mapped all addrconfig)</code></member>
+  <member><code>(<function role="unix">getnameinfo</function> &addr-r;
+    &key-amp; nofqdn numerichost namereqd numericserv numericscope
+    dgram)</code></member>
   <member><code>(<function role="unix">getpeername</function>
     &sock-r; &addr-r;)</code></member>
   <member><code>(<function role="unix">getsockname</function>
@@ -118,6 +124,19 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <link linkend="make-sockaddr"><function>MAKE-SOCKADDR</function></link>.
    You do not need to supply its length because Lisp can determine it itself.
 </simpara></listitem></varlistentry>
+<varlistentry><term><type>struct msghdr</type> &mesg-r;</term>
+ <listitem><para>An &structure-object-t; with the following slots:
+   <variablelist><varlistentry><term>addr</term><listitem><simpara>
+       a <link linkend="make-sockaddr"><type>SOCKADDR</type></link>.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>iovec</term><listitem><simpara>
+       a <literal role="type">(&vector-t; &unsigned-byte-vec;)</literal>
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>control</term><listitem><simpara>
+       a &unsigned-byte-vec;</simpara></listitem></varlistentry>
+    <varlistentry><term>flags</term><listitem><simpara>
+       a &list-t;</simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
 </variablelist>
 
 <section id="rawsock-plat-dep-constants">
@@ -234,11 +253,6 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <varlistentry><term><code>(RAWSOCK:OPEN-UNIX-SOCKET
    &path-r; &optional-amp; &type-r;)</code></term>
  <listitem><simpara>Open a &unix; socket special file.
-</simpara></listitem></varlistentry>
-<varlistentry><term><code>(RAWSOCK:MAKE-MSGHDR &data-r;)</code></term>
- <listitem><simpara>Create a <type>RAWSOCK:MSGHDR</type> object for
-   <function role="unix">sendmsg</function> and
-   <function role="unix">recvmsg</function>.
 </simpara></listitem></varlistentry>
 <varlistentry>
  <term><code>(RAWSOCK:IPCSUM &buf-r; &key-amp; start end)</code>
