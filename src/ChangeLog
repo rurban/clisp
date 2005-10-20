@@ -4,6 +4,7 @@
 	be rehashed due to GC
 	(hash_prepare_store): fixed a GC-safety bug: hashcode_raw() may
 	trigger GC for user-defined hash tables
+	* spvw_debug (TheHashtable_) [DEBUG_SPVW]: added
 
 2005-10-20  Sam Steingold  <sds@gnu.org>
 

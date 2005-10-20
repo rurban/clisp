@@ -425,5 +425,6 @@ FUN(object,Stream,TheStream)
 FUN(object,object,Car)
 FUN(object,object,Cdr)
 FUN(object,Symbol,TheSymbol)
+FUN(object,Hashtable,TheHashtable)
 #undef FUN
 #endif
