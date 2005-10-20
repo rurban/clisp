@@ -34,7 +34,7 @@ PQfinish PQconndefaults PQconninfoFree PQresetStart PQresetPoll PQreset dnl
 PQgetCancel PQfreeCancel PQcancel PQrequestCancel PQdb PQuser PQpass PQhost dnl
 PQport PQtty PQoptions PQstatus PQtransactionStatus PQparameterStatus dnl
 PQprotocolVersion PQserverVersion PQerrorMessage PQsocket PQbackendPID dnl
-PQclientEncoding PQsetClientEncoding PQgetssl PQgetssl PQinitSSL dnl
+PQclientEncoding PQsetClientEncoding PQgetssl PQinitSSL dnl
 PQsetErrorVerbosity PQtrace PQuntrace PQsetNoticeReceiver dnl
 PQsetNoticeProcessor PQexec PQexecParams PQprepare PQexecPrepared dnl
 PQsendQuery PQsendQueryParams PQsendPrepare PQsendQueryPrepared PQgetResult dnl
