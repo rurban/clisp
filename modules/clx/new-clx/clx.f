@@ -7030,7 +7030,7 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
       if (ho->length) {
         int family;
         switch (ho->family) {
-#        ifdef HAVE_IPV6
+#        if defined(HAVE_IPV6) && defined(FamilyInternet6)
           case FamilyInternet6: /* IPv6 */
             ASSERT(ho->length == sizeof(struct in6_addr));
             family = AF_INET6;
@@ -7064,12 +7064,13 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
 static void lisp_to_XHostAddress (object host, XHostAddress *xha) {
   struct hostent *he;
   if (typep_classname(host,`POSIX:HOSTENT`)) {
-    NOTREACHED;
+    pushSTACK(host); funcall(`POSIX:HOSTENT-NAME`,1);
+    he = resolve_host(host);
   } else he = resolve_host(host);
   switch (he->h_addrtype) {
     case AF_INET: xha->family = FamilyInternet;
       xha->length = sizeof(struct in_addr); break;
-#  if defined(HAVE_IPV6)
+#  if defined(HAVE_IPV6) && defined(FamilyInternet6)
     case AF_INET6: xha->family = FamilyInternet6;
       xha->length = sizeof(struct in6_addr); break;
 #  endif

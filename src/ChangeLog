@@ -1,5 +1,10 @@
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (XLIB:ACCESS-HOSTS, lisp_to_XHostAddress):
+	check FamilyInternet6 in addition to HAVE_IPV6
+
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
 	* exporting.lisp (def-c-const): added
 	* foreign1.lisp (def-c-const, note-c-const): added
 	(ffi-module): added slot CONSTANT-TABLE
