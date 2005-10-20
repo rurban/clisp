@@ -4,7 +4,8 @@
 	case-insensitive packages so that (def-c-const ENOENT) will work
 	in modules/bindings/glibc/linux.lisp
 	(def-c-const): simplified :DOCUMENTATION handling, fixed :TYPE
-	handling, issue a warning when the constant cannot be defined
+	handling, issue a warning when the constant cannot be defined,
+	tweak f-name case
 
 2005-10-20  Sam Steingold  <sds@gnu.org>
 

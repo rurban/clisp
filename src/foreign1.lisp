@@ -840,7 +840,9 @@
          (c-name (foreign-name name (assoc ':name alist)))
          (f-name (intern
                   (format nil "module__~A__constant_map_~A" *name*
-                          (substitute #\_ #\- (symbol-name c-type))))))
+                          (nstring-downcase
+                           (nsubstitute #\_ #\-
+                                        (copy-seq (symbol-name c-type))))))))
     (check-type c-type (member ffi:int ffi:c-string ffi:c-pointer)
                 "A constant must be either an integer, a string or a pointer")
     `(PROGN
