@@ -21,6 +21,8 @@ User visible changes
   See <http://clisp.cons.org/impnotes/syscalls.html#getuid> for details.
 
 * New NEW-CLX demo: foch.lisp draws fractal snowflakes.
+  Implemented XLIB:SET-MODIFIER-MAPPING, XLIB:KEYSYM->KEYCODES,
+  XLIB:ACCESS-HOSTS, XLIB:ADD-ACCESS-HOST, XLIB:REMOVE-ACCESS-HOST.
 
 * The command line option -v now affects *LOAD-ECHO* also.
   See <http://clisp.cons.org/clisp.html#opt-v> for details.
@@ -34,7 +36,8 @@ User visible changes
 * Fixed module rawsock on platforms with non-trivial struct sockaddr layout.
   Functions that take a BUFFER argument, also take :START and :END arguments.
   Renamed RAWSOCK:LISTEN to RAWSOCK:SOCK-LISTEN to avoid a conflict with CL.
-  New functions RAWSOCK:PROTOCOL and RAWSOCK:NETWORK.
+  New functions RAWSOCK:PROTOCOL, RAWSOCK:NETWORK, RAWSOCK:GETADDRINFO,
+  RAWSOCK:GETNAMEINFO.
   See <http://clisp.cons.org/impnotes/rawsock.html> for details.
 
 * Fixed module postgresql logging behavior.
