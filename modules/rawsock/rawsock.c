@@ -135,7 +135,7 @@ static void* check_struct_data (object type, object arg, SOCKLEN_T *size,
 }
 
 #if defined(HAVE_SYS_UIO_H)
-/* check the arg is a vector of byte vectors
+/* check that the arg is a vector of byte vectors
  > *arg_: vector
  > STACK_0, STACK_1: START & END
  < *arg_: may be modified (bad vector elements replaced with byte vectors)
@@ -628,6 +628,83 @@ DEFUN(RAWSOCK:SOCK-LISTEN,socket backlog) {
   VALUES0;
 }
 
+#if defined(HAVE_GETNAMEINFO)
+DEFFLAGSET(getnameinfo_flags, NI_NOFQDN NI_NUMERICHOST NI_NAMEREQD \
+           NI_NUMERICSERV NI_NUMERICSCOPE NI_DGRAM)
+DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
+      NUMERICSERV NUMERICSCOPE DGRAM) {
+  int flags = getnameinfo_flags();
+  SOCKLEN_T size;
+  struct sockaddr *sa =
+    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size,
+                                        PROT_READ);
+  char node[BUFSIZ], service[BUFSIZ];
+  begin_system_call();
+  if (getnameinfo(sa,size,node,BUFSIZ,service,BUFSIZ,flags)) OS_error();
+  end_system_call();
+  pushSTACK(asciz_to_string(service,GLO(misc_encoding)));
+  VALUES2(asciz_to_string(node,GLO(misc_encoding)),popSTACK());
+}
+#endif
+#if defined(HAVE_GETADDRINFO) && defined(HAVE_FREEADDRINFO)
+DEFFLAGSET(addrinfo_flags,AI_PASSIVE AI_CANONNAME AI_NUMERICHOST \
+           AI_NUMERICSERV AI_V4MAPPED AI_ALL AI_ADDRCONFIG)
+DEFCHECKER(check_addrinfo_flags,prefix=AI,default=0,                  \
+           PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED ALL ADDRCONFIG)
+DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
+      PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED ALL ADDRCONFIG) {
+  struct addrinfo hints = {addrinfo_flags(),
+                           check_socket_domain(popSTACK()),
+                           check_socket_type(popSTACK()),
+                           get_socket_protocol(popSTACK()),
+                           0,NULL,NULL,NULL};
+  struct addrinfo *ret = NULL, *tmp;
+  int valcount = 0;
+  if (missingp(STACK_0)) {
+    if (missingp(STACK_1)) {
+      begin_system_call();
+      if (getaddrinfo(NULL,NULL,&hints,&ret)) OS_error();
+      end_system_call();
+    } else {
+      with_string_0(check_string(STACK_1),GLO(misc_encoding),service, {
+          begin_system_call();
+          if (getaddrinfo(NULL,service,&hints,&ret)) OS_error();
+          end_system_call();
+        });
+    }
+  } else {
+    with_string_0(check_string(STACK_0),GLO(misc_encoding),node, {
+        if (missingp(STACK_1)) {
+          begin_system_call();
+          if (getaddrinfo(node,NULL,&hints,&ret)) OS_error();
+          end_system_call();
+        } else {
+          with_string_0(check_string(STACK_1),GLO(misc_encoding),service, {
+              begin_system_call();
+              if (getaddrinfo(node,service,&hints,&ret)) OS_error();
+              end_system_call();
+            });
+        }
+      });
+  }
+  for (tmp = ret; tmp; tmp = tmp->ai_next, valcount++) {
+    pushSTACK(check_addrinfo_flags_to_list(tmp->ai_flags));
+    pushSTACK(check_socket_domain_reverse(tmp->ai_family));
+    pushSTACK(check_socket_type_reverse(tmp->ai_socktype));
+    pushSTACK(check_socket_protocol_reverse(tmp->ai_protocol));
+    pushSTACK(allocate_bit_vector(Atype_8Bit,tmp->ai_addrlen));
+    begin_system_call();
+    memcpy(TheSbvector(STACK_1)->data,tmp->ai_addr,tmp->ai_addrlen);
+    end_system_call();
+    funcall(`RAWSOCK::MAKE-SA`,1); pushSTACK(values1);
+    pushSTACK(asciz_to_string(tmp->ai_canonname,GLO(misc_encoding)));
+    value1 = funcall(`RAWSOCK::MAKE-ADDRINFO`,6); pushSTACK(value1);
+  }
+  if (ret) { begin_system_call(); freeaddrinfo(ret); end_system_call(); }
+  VALUES1(listof(valcount));
+}
+#endif
+
 /* ================== RECEIVING ================== */
 /* FIXME: replace this with a complete autoconf check using CL_PROTO() */
 #if defined(WIN32_NATIVE)
@@ -668,21 +745,60 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address &key START END PEEK OOB WAITALL) {
   VALUES3(fixnum(retval),fixnum(sa_size),STACK_2); skipSTACK(5);
 }
 
-#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_MSGHDR_MSG_FLAGS) && defined(HAVE_MSGHDR_MSG_CONTROL)
+#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_MSGHDR_MSG_FLAGS) && defined(HAVE_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
 DEFCHECKER(check_msg_flags,prefix=MSG,bitmasks=both,default=0,          \
            OOB PEEK DONTROUTE TRYHARD CTRUNC PROXY TRUNC DONTWAIT EOR   \
            WAITALL FIN SYN CONFIRM RST ERRQUEUE NOSIGNAL MORE)
+/* keep this in sync with sock.lisp */
+#define MSG_SOCKADDR 1
+#define MSG_IOVEC    2
+#define MSG_CONTROL  3
+#define MSG_FLAGS    4
+/* check message structure, return size/offset for iovec & flags
+ can trigger GC */
+static void check_message (gcv_object_t *mho, uintL *offset, struct msghdr *mhp)
+{
+  *mho = check_classname(*mho,`RAWSOCK::MSGHDR`);
+  TheStructure(*mho)->recdata[MSG_SOCKADDR] =
+    check_classname(TheStructure(*mho)->recdata[MSG_SOCKADDR],
+                    `RAWSOCK::SOCKADDR`);
+   mhp->iovlen =
+     check_iovec_arg(&(TheStructure(*mho)->recdata[MSG_IOVEC]),offset);
+  TheStructure(*mho)->recdata[MSG_CONTROL] =
+    check_byte_vector(TheStructure(*mho)->recdata[MSG_CONTROL]);
+  mhp->msg_flags =
+    check_msg_flags_from_list(TheStructure(*mho)->recdata[MSG_FLAGS]);
+}
+static void fill_msghdr (gcv_object_t *mho, uintL offset, struct msghdr *mhp,
+                         int prot) {
+  mhp->msg_controllen =
+    vector_length(TheStructure(*mho)->recdata[MSG_CONTROL]);
+  mhp->msg_control =
+    TheSbvector(TheStructure(*mho)->recdata[MSG_CONTROL])->data;
+  handle_fault_range(prot,(aint)mhp->msg_control,
+                     (aint)(mhp->msg_control + mhp->msg_controllen));
+  fill_iovec(TheStructure(*mho)->recdata[MSG_IOVEC],offset,mhp->msg_iovlen,
+             mhp->msg_iov,prot);
+  mhp->msg_name = (struct sockaddr*)
+    check_struct_data(`RAWSOCK::SOCKADDR`,
+                      TheStructure(*mho)->recdata[MSG_SOCKADDR],
+                      &(mhp->msg_namelen),prot);
+}
 /* POSIX recvmsg() */
 DEFUN(RAWSOCK:RECVMSG,socket message &key PEEK OOB WAITALL) {
   int flags = recv_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
-  SOCKLEN_T size;
-  struct msghdr *message =
-    (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size,
-                                      PROT_READ_WRITE);
-  SYSCALL(retval,sock,recvmsg(sock,message,flags));
-  VALUES1(fixnum(retval)); skipSTACK(2);
+  struct msghdr message;
+  uintL offset;
+  check_message(&STACK_0,&offset,&message);
+  message.msg_iov =
+    (struct iovec*)alloca(message.msg_iovlen * sizeof(struct iovec));
+  fill_msghdr(&STACK_0,offset,&message,PROT_READ_WRITE);
+  SYSCALL(retval,sock,recvmsg(sock,&message,flags));
+  TheStructure(STACK_0)->recdata[MSG_FLAGS] =
+    check_msg_flags_to_list(mhp->msg_flags);
+  VALUES2(fixnum(retval),fixnum(message.msg_namelen)); skipSTACK(2);
 }
 #endif  /* HAVE_RECVMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
@@ -722,17 +838,20 @@ DEFUN(RAWSOCK:SEND,socket buffer &key START END OOB EOR) {
   VALUES1(fixnum(retval)); skipSTACK(4);
 }
 
-#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_MSGHDR_MSG_FLAGS) && defined(HAVE_MSGHDR_MSG_CONTROL)
+#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_MSGHDR_MSG_FLAGS) && defined(HAVE_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
 /* POSIX sendmsg() */
 DEFUN(RAWSOCK:SENDMSG,socket message &key OOB EOR) {
   int flags = send_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
-  SOCKLEN_T size;
-  struct msghdr *message =
-    (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size,
-                                      PROT_READ);
+  struct msghdr message;
+  uintL offset;
+  check_message(&STACK_0,&offset,&message);
+  message.msg_iov =
+    (struct iovec*)alloca(message.msg_iovlen * sizeof(struct iovec));
   SYSCALL(retval,sock,sendmsg(sock,message,flags));
+  TheStructure(STACK_0)->recdata[MSG_FLAGS] =
+    check_msg_flags_to_list(mhp->msg_flags);
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 #endif  /* HAVE_SENDMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
