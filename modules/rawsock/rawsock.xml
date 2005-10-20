@@ -104,8 +104,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <constant>:INET</constant> stands for <constant>AF_INET</constant>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> &type-r;</term>
- <listitem><simpara>A &nil; (stands for <constant>SOCK_STREAM</constant>),
-   &integer-t;, or a platform-specific keyword, e.g.,
+ <listitem><simpara>A &nil; (stands for 0); &integer-t;; or a
+   platform-specific keyword, e.g.,
    <constant>:DGRAM</constant> stands for <constant>SOCK_DGRAM</constant>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> &proto-r;</term>
