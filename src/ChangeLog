@@ -1,3 +1,7 @@
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (oint_type_len): #error when undefined
+
 2005-10-19  Sam Steingold  <sds@gnu.org>
 
 	* execname.c (MAXPATHLEN): define when it is not defined
