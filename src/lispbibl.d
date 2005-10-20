@@ -2777,9 +2777,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_shift 0
     #define oint_addr_len 48
     #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-    #define oint_data_shift 0
-    #define oint_data_len 48
-    #define oint_data_mask 0x0000FFFFFFFFFFFFUL
+    #define oint_data_shift oint_addr_shift
+    #define oint_data_len oint_addr_len
+    #define oint_data_mask oint_addr_mask
   #endif
   #if defined(MIPS64)
     # Bits 63..48 = type code, bits 31..0 = address
@@ -2803,9 +2803,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_shift 0
     #define oint_addr_len 48
     #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-    #define oint_data_shift 0
-    #define oint_data_len 48
-    #define oint_data_mask 0x0000FFFFFFFFFFFFUL
+    #define oint_data_shift oint_addr_shift
+    #define oint_data_len oint_addr_len
+    #define oint_data_mask oint_addr_mask
   #endif
   #if defined(IA64) && defined(UNIX_LINUX)
     # Bits 63..61 = region code,
@@ -2838,9 +2838,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_shift 0
     #define oint_addr_len 48
     #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-    #define oint_data_shift 0
-    #define oint_data_len 48
-    #define oint_data_mask 0x0000FFFFFFFFFFFFUL
+    #define oint_data_shift oint_addr_shift
+    #define oint_data_len oint_addr_len
+    #define oint_data_mask oint_addr_mask
   #endif
 #elif defined(WIDE_SOFT)
   # separate one 32-bit word for typcode and address.
@@ -2905,8 +2905,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #define oint_addr_shift 0
   #define oint_addr_len 24
   #define oint_addr_mask 0x00FFFFFFUL
-#elif 0
-  #error "TYPECODES not supported any more on this platform. Use -DHEAPCODES."
 #else
   #error "TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DHEAPCODES."
 #endif

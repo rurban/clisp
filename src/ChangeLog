@@ -1,5 +1,10 @@
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (WIDE_HARD): define oint_data_* to oint_addr_* when
+	they are the same, for clarity
+
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (parse_buffer): start is uintL, not uintV
 	(parse_buffer_arg, check_struct_data, fill_iovec, fill_msghdr):
 	avoid void* pointer arithmetics
