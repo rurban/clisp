@@ -1,5 +1,13 @@
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (parse_buffer): start is uintL, not uintV
+	(parse_buffer_arg, check_struct_data, fill_iovec, fill_msghdr):
+	avoid void* pointer arithmetics
+	(check_addrinfo_flags): bitmasks=both
+	(GETADDRINFO): typo: value1, not values1
+
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (XLIB:ACCESS-HOSTS, lisp_to_XHostAddress):
 	check FamilyInternet6 in addition to HAVE_IPV6
 
