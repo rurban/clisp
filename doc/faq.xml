@@ -333,9 +333,9 @@ further explanations of the issues could be provided).</para>
      <ulink url="http://clisp.cons.org/resources.html#software">"Common
       Lisp software running in &clisp;"</ulink>.
   </simpara></listitem></varlistentry>
-  <varlistentry><term>DIY (Do It Yourself)</term>
-   <listitem><simpara>See <xref linkend="modules"/> for information on
-     how to interface with external &c-lang; libraries.
+  <varlistentry><term><acronym>DIY<alt>Do It Yourself</alt></acronym></term>
+   <listitem><simpara>See <xref linkend="modules"/> and <xref linkend="dffi"/>
+     for information on how to interface with external &c-lang; libraries.
   </simpara></listitem></varlistentry>
   <varlistentry><term>&http; (really Frequently Asked!)</term>
    <listitem><itemizedlist>
