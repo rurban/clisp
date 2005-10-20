@@ -1,5 +1,9 @@
 2005-10-19  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d: uniform use of articles in messages
+
+2005-10-19  Sam Steingold  <sds@gnu.org>
+
 	* m4/test.m4 (CL_TEST_NT): check that test(1) can serve as make(1)
 	* configure.in: call CL_TEST_NT
 	* makemake.in (anymodule): use "test -nt" only when supported
