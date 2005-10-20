@@ -1769,7 +1769,8 @@ local maygc void warn_key_forces_gc_rehash (object ht, object key) {
     *KVptr = *Iptr; *Iptr = freelist;                                   \
     { /* Set the htflags_gc_rehash_B bit if necessary. */               \
       var bool this_key_forces_gc_rehash = false;                       \
-      if (!(record_flags(TheHashtable(ht)) & htflags_gc_rehash_B))      \
+      var uintB flags = record_flags(TheHashtable(ht));                 \
+      if (!(flags & htflags_test_user_B) && !(flags & htflags_gc_rehash_B)) \
         if (!hashcode_gc_invariant_p(ht,key)) {                         \
           record_flags_set(TheHashtable(ht),htflags_gc_rehash_B);       \
           this_key_forces_gc_rehash = true;                             \
@@ -1974,9 +1975,9 @@ local maygc object resize (object ht, object maxcount) {
     freelist = TheHashedAlist(TheHashtable(ht)->ht_kvtable)->hal_freelist; \
     if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
       var uintB flags = record_flags(TheHashtable(ht));                 \
-      var uintL hc_raw = 0;                                             \
       var bool cacheable = ht_test_code_user_p(ht_test_code(flags)); /* not EQ|EQL|EQUAL|EQUALP */ \
-      if (cacheable) hc_raw = hashcode_raw(ht,STACK_(key_pos));         \
+      var uintL hc_raw = cacheable ? 0 : hashcode_raw(ht,STACK_(key_pos)); \
+      ht = STACK_(hash_pos);    /* hashcode_raw maygc */                \
       do { /* hash-table must still be enlarged: */                     \
         /* calculate new maxcount: */                                   \
         pushSTACK(TheHashtable(ht)->ht_maxcount);                       \
