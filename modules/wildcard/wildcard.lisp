@@ -22,12 +22,12 @@
   (:return-type int))
 
 ;; flags values
-(defconstant FNM_PATHNAME     1)
-(defconstant FNM_FILE_NAME    1)
-(defconstant FNM_NOESCAPE     2)
-(defconstant FNM_PERIOD       4)
-(defconstant FNM_LEADING_DIR  8)
-(defconstant FNM_CASEFOLD    16)
+(def-c-const FNM_PATHNAME)
+(def-c-const FNM_FILE_NAME)
+(def-c-const FNM_NOESCAPE)
+(def-c-const FNM_PERIOD)
+(def-c-const FNM_LEADING_DIR)
+(def-c-const FNM_CASEFOLD)
 
 (defun match (pattern string &key (start 0) (end nil) (case-insensitive nil))
   ;; Prepare the string.

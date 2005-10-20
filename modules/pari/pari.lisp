@@ -186,16 +186,15 @@
          (format nil "~A corresponds to the gp function ~A:~%~A"
                  name str doc))))
 
-(c-lines "char *pariversion=PARIVERSION;~%int pari_version_code=PARI_VERSION_CODE;~%int pari_version_shift=PARI_VERSION_SHIFT;~%")
-(def-c-var pariversion (:type c-string) (:read-only t))
-(def-c-var pari_version_code (:type int) (:read-only t))
-(def-c-var pari_version_shift (:type int) (:read-only t))
+(def-c-const PARIVERSION (:type c-string))
+(def-c-const PARI_VERSION_CODE)
+(def-c-const PARI_VERSION_SHIFT)
 (defconstant pari-version
-  (let ((code pari_version_code) (shift pari_version_shift))
-    (list pariversion
-          (ldb (byte shift (* 2 shift)) code)
-          (ldb (byte shift shift) code)
-          (ldb (byte shift 0) code))))
+  (list PARIVERSION
+        (ldb (byte PARI_VERSION_SHIFT (* 2 PARI_VERSION_SHIFT))
+             PARI_VERSION_CODE)
+        (ldb (byte PARI_VERSION_SHIFT PARI_VERSION_SHIFT) PARI_VERSION_CODE)
+        (ldb (byte PARI_VERSION_SHIFT 0) PARI_VERSION_CODE)))
 (export 'pari-version)
 
 ;;; /* init.c */

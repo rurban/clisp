@@ -13,6 +13,9 @@ User visible changes
 * FFI modules can now take advantage of autoconf feature detection.
   See <http://clisp.cons.org/impnotes/dffi.html#ffi-guard> for details.
 
+* New FFI macro FFI:DEF-C-CONST.
+  See <http://clisp.cons.org/impnotes/dffi.html#def-c-const> for details.
+
 * New module readline offers some advanced readline and history features.
   It is a BASE module and is available when both FFI and readline are present.
 
@@ -22,12 +25,12 @@ User visible changes
 
 * New NEW-CLX demo: foch.lisp draws fractal snowflakes.
   Implemented XLIB:SET-MODIFIER-MAPPING, XLIB:KEYSYM->KEYCODES,
-  XLIB:ACCESS-HOSTS, XLIB:ADD-ACCESS-HOST, XLIB:REMOVE-ACCESS-HOST.
+  XLIB:ACCESS-HOSTS, XLIB:ADD-ACCESS-HOST, XLIB:REMOVE-ACCESS-HOST,
+  XLIB:CHANGE-KEYBOARD-CONTROL.
+  Use MAP instead of ELT for sequence access in NEW-CLX.
 
 * The command line option -v now affects *LOAD-ECHO* also.
   See <http://clisp.cons.org/clisp.html#opt-v> for details.
-
-* Use MAP instead of ELT for sequence access in NEW-CLX.
 
 * Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled code.
 

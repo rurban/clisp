@@ -2238,9 +2238,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    observe the alternative implementations
    of <function role="unix">htonl</function> et al
    in <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>.
-   Also, if different platforms use a different numeric values for, a
-   &cpp; constant, &ffi-pac; becomes tricky (see
-   <xref linkend="dffi-ex-macro"/>).</simpara></listitem></varlistentry>
+</simpara></listitem></varlistentry>
 <varlistentry><term>Code size: &ffi-pac; wins</term>
  <listitem><simpara>You need to type much fewer characters with &ffi-pac;,
    and, if you use the &library-k; argument to &def-call-out; and
@@ -2469,7 +2467,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
  <variablelist id="def-c-var-opts"><title>Options for &def-c-var;</title>
 <varlistentry><term><code>(&name-k; &cname-r;)</code></term>
  <listitem><simpara>specifies the name as seen from &c-lang;, as a
-   string.  If not specified, it is derived from the print name of
+   &string-t;.  If not specified, it is derived from the print name of
    the Lisp name.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&type-k; &ctype-r;)</code></term>
  <listitem><simpara>specifies the variable's foreign type.
@@ -2501,6 +2499,26 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
  <listitem><simpara>Specifies the (optional) &variable-doc; documentation.
 </simpara></listitem></varlistentry>
+</variablelist></listitem></varlistentry>
+
+<varlistentry id="def-c-const"><term><code>(&def-c-const; &name-r;
+   {&option-r;}*)</code></term>
+ <listitem><para>This form defines a Lisp &constant; &name-r; whose
+   value is determined at link time using an internal &foreign-function-t;
+   When the &cpp; constant is not defined, &name-r; is unbound.</para>
+  <variablelist id="def-c-const-opts"><title>Options for &def-c-const;</title>
+   <varlistentry><term><code>(&name-k; &cname-r;)</code></term>
+    <listitem><simpara>specifies the name as seen from &c-lang;, as a
+      &string-t;.  If not specified, it is derived from the print name
+      of the Lisp name.</simpara></listitem></varlistentry>
+   <varlistentry><term><code>(&type-k; &ctype-r;)</code></term>
+    <listitem><para>specifies the constant's foreign type, one of
+      <simplelist><member><type>ffi:int</type></member>
+       <member>&c-string;</member><member>&c-pointer;</member>
+   </simplelist></para></listitem></varlistentry>
+   <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
+    <listitem><simpara>Specifies the (optional) &variable-doc; documentation.
+   </simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 
 <varlistentry id="def-call-out"><term><code>(&def-call-out;
@@ -3616,34 +3634,6 @@ instead, in conjunction with
     (prog1 (&foreign-value; data)
       (&foreign-free; data :FULL nil))))
 </programlisting></para></example>
-
-<example id="dffi-ex-macro"><title>Accessing &cpp; macros</title>
-<para>Suppose you are interfacing to a library <filename>mylib.so</filename>
- which defines its version in <filename>mylib.h</filename>.
- To have the library version available from &clisp;, write these
- into a lisp file <filename>foo.lisp</filename>:
-<programlisting language="lisp">
-(&c-lines; "#include &lt;mylib.h&gt;
-static int my_var=LIBRARY_VERSION;~%")
-(&def-c-var; my-var (:name "my_var") (:type int))
-</programlisting> (For an alternative approach,
-see <function>get_rl_state_const</function> in
-<filename role="clisp-cvs">modules/readline/readline.lisp</filename>).</para>
-<para>Compiling this file will produce <filename>foo.c</filename>
- and <filename>foo.fas</filename> and you have two options:
- <orderedlist><listitem><para>Compile <filename>foo.c</filename>
-    into <filename>foo.o</filename> with <screen>
-<prompt>$</prompt> gcc -c foo.c -lmylib
-</screen> and use &clisp-link; to create a new
-    &clisp; &linkset;.</para></listitem>
-  <listitem><para>Add <code>(:library "foo.dll")</code> to the
-    &def-c-var; form, compile <filename>foo.c</filename>
-    into <filename>foo.so</filename> (or <filename>foo.dll</filename> on
-    &win32;) with <screen>
-<prompt>$</prompt> gcc -shared -o foo.so foo.c -lmylib
-</screen> and load <filename>foo.fas</filename>.
-</para></listitem></orderedlist></para>
-</example>
 
 <example id="ex-call-in"><title>Calling Lisp from &c-lang;</title>
 
