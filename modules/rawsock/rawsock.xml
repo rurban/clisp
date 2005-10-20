@@ -109,9 +109,12 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <constant>:DGRAM</constant> stands for <constant>SOCK_DGRAM</constant>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> &proto-r;</term>
- <listitem><simpara>A &nil; (stands for 0), &integer-t;, or a
-   platform-specific keyword, e.g., <constant>:ARP</constant> stands
-   for <constant>ETH_P_ARP</constant>.</simpara></listitem></varlistentry>
+ <listitem><simpara>A &nil; (stands for 0); &integer-t;; a
+   platform-specific keyword, e.g., <constant>:ETH_P_ARP</constant> stands
+   for <constant>ETH_P_ARP</constant>, <constant>:IPPROTO-ICMP</constant>
+   stands for <constant>IPPROTO_ICMP</constant>; or a &string-t; (passed
+   to <function role="unix">getprotobyname</function>).
+</simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> <replaceable>flags</replaceable></term>
  <listitem><simpara>This &c-lang; argument corresponds to keyword
    arguments to the Lisp functions.  E.g., <function>rawsock:send</function>
@@ -120,13 +123,16 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <constant>OOB</constant> and <constant>WAITALL</constant>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><type>struct sockaddr</type> &addr-r;</term>
- <listitem><simpara>An object returned by
+ <listitem><simpara>A &structure-object-t; <type>RAWSOCK:SOCKADDR</type>
+   returned by
    <link linkend="make-sockaddr"><function>MAKE-SOCKADDR</function></link>.
    You do not need to supply its length because Lisp can determine it itself.
 </simpara></listitem></varlistentry>
 <varlistentry><term><type>struct msghdr</type> &mesg-r;</term>
- <listitem><para>An &structure-object-t; with the following slots:
-   <variablelist><varlistentry><term>addr</term><listitem><simpara>
+ <listitem><para>A &structure-object-t; <type>RAWSOCK:MESSAGE</type>
+   with the following slots:
+   <variablelist>&varlist-table;
+    <varlistentry><term>addr</term><listitem><simpara>
        a <link linkend="make-sockaddr"><type>SOCKADDR</type></link>.
     </simpara></listitem></varlistentry>
     <varlistentry><term>iovec</term><listitem><simpara>
@@ -142,7 +148,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <section id="rawsock-plat-dep-constants">
  <title>Platform-dependent Keywords</title>
 <para>One can extract the list of acceptable platform-dependent
- keywords for, e.g., socket domain using the following code:
+ keywords for, e.g., socket domain, using the following code:
 <programlisting language="lisp">
  (&block; &nil;
    (&handler-bind; ((&type-error-t;
@@ -166,15 +172,15 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <section id="rawsock-not-implemented"><title>Not Implemented</title>
 
 <para>We do not interface to <function role="unix">select</function>
- or <function role="unix">poll</function>,
- they are available through &so-status;.</para>
+ or <function role="unix">poll</function> in this module,
+ they are already available through &so-status;.</para>
 
-<para>We do not interface to <function role="unix">shutdown</function>,
- it is available through &sost-shut;.</para>
+<para>We do not interface to <function role="unix">shutdown</function>
+ in this module, it is already available through &sost-shut;.</para>
 
 <para>We do not interface to <function role="unix">gethostbyname</function>
- or <function role="unix">gethostbyaddr</function>,
- they are available through &resolve-host;.</para>
+ or <function role="unix">gethostbyaddr</function> in this module,
+ they are already available through &resolve-host;.</para>
 
 </section>
 
