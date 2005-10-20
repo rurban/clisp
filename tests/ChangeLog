@@ -1,3 +1,8 @@
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-all-tests): use disable-risky instead of
+	comments to disable bind/eval
+
 2005-10-14  Sam Steingold  <sds@gnu.org>
 
 	* listeners.lisp: do something extra while the system waits for input
