@@ -4186,7 +4186,7 @@ ERROR
     (nreverse ret)))
 (CLASS-FOO-145 CLASS-BAR-145-AFTER)
 
-(progn (load "listener")
+(progn (load "listeners")
        (with-open-stream (s1 (make-string-input-stream "("))
          (with-open-stream (s2 (make-string-input-stream "())"))
            (with-open-stream (l (make-instance 'listener-input-stream
