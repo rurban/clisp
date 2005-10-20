@@ -746,7 +746,7 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address &key START END PEEK OOB WAITALL) {
   VALUES3(fixnum(retval),fixnum(sa_size),STACK_2); skipSTACK(5);
 }
 
-#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_MSGHDR_MSG_FLAGS) && defined(HAVE_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
 DEFCHECKER(check_msg_flags,prefix=MSG,bitmasks=both,default=0,          \
            OOB PEEK DONTROUTE TRYHARD CTRUNC PROXY TRUNC DONTWAIT EOR   \
            WAITALL FIN SYN CONFIRM RST ERRQUEUE NOSIGNAL MORE)
@@ -839,7 +839,7 @@ DEFUN(RAWSOCK:SEND,socket buffer &key START END OOB EOR) {
   VALUES1(fixnum(retval)); skipSTACK(4);
 }
 
-#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_MSGHDR_MSG_FLAGS) && defined(HAVE_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
 /* POSIX sendmsg() */
 DEFUN(RAWSOCK:SENDMSG,socket message &key OOB EOR) {
   int flags = send_flags();
