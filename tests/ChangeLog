@@ -1,5 +1,9 @@
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
+	* defhash.tst: STRING-EQUAL is incompatible with SXHASH
+
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (run-all-tests): use disable-risky instead of
 	comments to disable bind/eval
 
