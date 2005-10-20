@@ -59,11 +59,11 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   <member><code>(<function role="unix">recvfrom</function> &sock-r;
     &buf-r; &addr-r; &key-amp; start end peek oob waitall)</code></member>
   <member><code>(<function role="unix">recvmsg</function>
-    &sock-r; &mesg-r; &key-amp; peek oob waitall)</code></member>
+    &sock-r; &mesg-r; &key-amp; start end peek oob waitall)</code></member>
   <member><code>(<function role="unix">send</function>
     &sock-r; &buf-r; &key-amp; start end oob eor)</code></member>
   <member><code>(<function role="unix">sendmsg</function>
-    &sock-r; &mesg-r; &key-amp; oob eor)</code></member>
+    &sock-r; &mesg-r; &key-amp; start end oob eor)</code></member>
   <member><code>(<function role="unix">sendto</function>
     &sock-r; &buf-r; &addr-r; &key-amp; start end oob eor)</code></member>
   <member><code>(<function role="unix">sockatmark</function>
@@ -137,6 +137,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     </simpara></listitem></varlistentry>
     <varlistentry><term>iovec</term><listitem><simpara>
        a <literal role="type">(&vector-t; &unsigned-byte-vec;)</literal>
+       (&start-k; and &end-k; arguments are applied to this vector)
     </simpara></listitem></varlistentry>
     <varlistentry><term>control</term><listitem><simpara>
        a &unsigned-byte-vec;</simpara></listitem></varlistentry>
