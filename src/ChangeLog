@@ -1,5 +1,10 @@
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
+	* modules/readline/readline.lisp: removed "RL_" prefix from the
+	Lisp names of the STATE-* constants
+
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (to-c-name): downcase all-upper-case names only in
 	case-insensitive packages so that (def-c-const ENOENT) will work
 	in modules/bindings/glibc/linux.lisp
