@@ -1,5 +1,10 @@
 2005-10-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (SOCK-LISTEN): backlog is optional
+	and defaults to SOMAXCONN
+
+2005-10-21  Sam Steingold  <sds@gnu.org>
+
 	fixed user-defined HT tests
 	* lispbibl.d (hashtable_length): fixed the wrong value
 	* hashtabl.d (rehash): fixed user-defined ht-test handling

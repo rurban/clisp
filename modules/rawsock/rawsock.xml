@@ -77,8 +77,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  Additionally,<simplelist columns="1">
   <member><code>(<function>RAWSOCK:SOCK-CLOSE</function> &sock-r;)</code>
    calls <function role="unix">close</function>.</member>
-  <member><code>(<function>RAWSOCK:SOCK-LISTEN</function>
-    &sock-r; <replaceable>backlog</replaceable>)</code>
+  <member><code>(<function>RAWSOCK:SOCK-LISTEN</function> &sock-r;
+    &optional-amp; (<replaceable>backlog</replaceable> SOMAXCONN))</code>
    calls <function role="unix">listen</function>.</member>
 </simplelist></para>
 </section>

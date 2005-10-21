@@ -620,8 +620,8 @@ DEFUN(RAWSOCK:GETSOCKNAME,socket sockaddr) {
   VALUES2(STACK_0,fixnum(sa_size)); skipSTACK(2);
 }
 
-DEFUN(RAWSOCK:SOCK-LISTEN,socket backlog) {
-  int backlog = I_to_uint(check_uint(popSTACK()));
+DEFUN(RAWSOCK:SOCK-LISTEN,socket &optional backlog) {
+  int backlog = check_uint_defaulted(popSTACK(),SOMAXCONN);
   rawsock_t sock = I_to_uint(check_uint(popSTACK()));
   int retval;
   SYSCALL(retval,sock,listen(sock,backlog));
