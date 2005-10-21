@@ -5833,9 +5833,9 @@ typedef struct {
   uintL ht_size;
 } *  Hashtable;
 #ifdef GENERATIONAL_GC
-  #define hashtable_length  11
+  #define hashtable_length  12
 #else
-  #define hashtable_length  10
+  #define hashtable_length  11
 #endif
 #define hashtable_xlength  (sizeof(*(Hashtable)0)-offsetofa(record_,recdata)-hashtable_length*sizeof(gcv_object_t))
 # Mark a Hash Table as now to reorganize
