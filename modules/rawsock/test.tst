@@ -194,7 +194,7 @@ T
         *sock2* (rawsock:socket :INET :STREAM nil))
   (setq *sa-local* (host->sa :default 7777))
   (rawsock:bind *sock2* *sa-local*)
-  (rawsock:sock-listen *sock2* 0)
+  (rawsock:sock-listen *sock2*)
   (let* ((message '("man" "bites" "dog"))
          (message1
           (show (rawsock:make-message :addr *sa-local*
