@@ -1521,11 +1521,10 @@ local /*maygc*/ object rehash (object ht) {
       if (user_defined_p) { /* restore - don't have to restore fixnums! */
         /* this implementation favors built-in ht-tests at the expense
            of the user-defined ones */
-        var uintL maxcount1 = posfixnum_to_V(index)+1;
         ht = popSTACK();
         kvtable = TheHashtable(ht)->ht_kvtable;
         Ivektor = TheHashedAlist(kvtable)->hal_itable;
-        KVptr = &TheHashedAlist(kvtable)->hal_data[3*maxcount1];
+        KVptr = &TheHashedAlist(kvtable)->hal_data[3*posfixnum_to_V(index)];
       }
       /* "list", that starts at entry hashindex, in order to extend index:
        copy entry from index-vector to the next-vector
@@ -1976,7 +1975,7 @@ local maygc object resize (object ht, object maxcount) {
     if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
       var uintB flags = record_flags(TheHashtable(ht));                 \
       var bool cacheable = ht_test_code_user_p(ht_test_code(flags)); /* not EQ|EQL|EQUAL|EQUALP */ \
-      var uintL hc_raw = cacheable ? 0 : hashcode_raw(ht,STACK_(key_pos)); \
+      var uintL hc_raw = cacheable ? hashcode_raw(ht,STACK_(key_pos)) : 0; \
       ht = STACK_(hash_pos);    /* hashcode_raw maygc */                \
       do { /* hash-table must still be enlarged: */                     \
         /* calculate new maxcount: */                                   \

@@ -266,13 +266,13 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
         #+CLISP (custom:*warn-on-floating-point-rational-contagion* nil)
         (*features* (if disable-risky *features*
                         (cons :enable-risky-tests *features*))))
-    (dolist (ff `(#-(or AKCL ECL)   "alltest"
+    (dolist (ff '(#-(or AKCL ECL)   "alltest"
                                     "array"
                   #-OpenMCL         "backquot"
                   #+CLISP           "bin-io"
                   #-(and AKCL (not GCL)) "characters"
                   #+(or CLISP ALLEGRO CMU OpenMCL LISPWORKS) "clos"
-                  #+CLISP ,@(unless disable-risky '("defhash"))
+                  #+CLISP           "defhash"
                   #+(and CLISP UNICODE) "encoding"
                                     "eval20"
                   #+(and CLISP FFI) "ffi"
