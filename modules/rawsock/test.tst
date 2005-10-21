@@ -151,43 +151,57 @@ NIL
   (equal *recv-ret* *recvfrom-ret*))
 T
 
-;; no socketpair() on win32
-#-:win32 (progn
+(when (fboundp 'rawsock:socketpair)
   (setf (values *sock1* *sock2*)
         ;; :INET works on cygwin but not on Linux
         (rawsock:socketpair :UNIX :STREAM nil))
   (show (list *sock1* *sock2*))
   T) T
 
-#-:win32
-(let ((message "abazonk"))
-  (rawsock:sock-write *sock1* (to-bytes message))
-  (string= message (from-bytes *buffer* (rawsock:sock-read *sock2* *buffer*))))
+(when (fboundp 'rawsock:socketpair)
+  (let ((message "abazonk"))
+    (rawsock:sock-write *sock1* (to-bytes message))
+    (string= message (from-bytes *buffer* (rawsock:sock-read
+                                           *sock2* *buffer*)))))
 T
 
-#-:win32                        ; readv/writev
-(let* ((message '("I" "love" "you"))
-       (char-num (reduce #'+ message :key #'length))
-       (buf1 (map 'vector #'to-bytes message))
-       (buf2 (map 'vector #'make-byte-vector message)))
-  (show (list buf1 buf2))
-  ;; assume ASCII-compatible encoding
-  (assert (= char-num (rawsock:sock-write *sock1* buf1)))
-  (assert (= char-num (rawsock:sock-read *sock2* buf2)))
-  (list (equalp buf1 buf2) (equalp message (map 'list #'from-bytes buf2))))
-#-:win32 (T T)
+(if (fboundp 'rawsock:socketpair) ; readv/writev
+    (let* ((message '("I" "love" "you"))
+           (char-num (reduce #'+ message :key #'length))
+           (buf1 (map 'vector #'to-bytes message))
+           (buf2 (map 'vector #'make-byte-vector message)))
+      (show (list buf1 buf2))
+      ;; assume ASCII-compatible encoding
+      (assert (= char-num (rawsock:sock-write *sock1* buf1)))
+      (assert (= char-num (rawsock:sock-read *sock2* buf2)))
+      (list (equalp buf1 buf2)
+            (equalp message (map 'list #'from-bytes buf2))))
+    '(T T))
+(T T)
 
-#-:win32 (ext:socket-status *sock1*) :OUTPUT
-#-:win32 (ext:socket-status *sock2*) :OUTPUT
+(if (fboundp 'rawsock:socketpair)
+    (list (ext:socket-status *sock1*) (ext:socket-status *sock2*))
+    '(:OUTPUT :OUTPUT))
+(:OUTPUT :OUTPUT)
+
+(if (fboundp 'rawsock:socketpair)
+    (list (rawsock:sock-close *sock1*) (rawsock:sock-close *sock2*))
+    '(0 0))
+(0 0)
 
 (when (and (fboundp 'rawsock:sendmsg) (fboundp 'rawsock:recvmsg))
+  (setq *sock1* (rawsock:socket :INET :STREAM nil)
+        *sock2* (rawsock:socket :INET :STREAM nil))
+  (setq *sa-local* (host->sa :default 7777))
+  (rawsock:bind *sock2* *sa-local*)
+  (rawsock:sock-listen *sock2* 0)
   (let* ((message '("man" "bites" "dog"))
          (message1
-          (show (rawsock:make-message :addr (rawsock:make-sockaddr :unix)
+          (show (rawsock:make-message :addr *sa-local*
                                       :iovec (map 'vector #'to-bytes message))
                 :pretty t))
          (message2
-          (show (rawsock:make-message :addr (rawsock:make-sockaddr :unix)
+          (show (rawsock:make-message :addr (rawsock:make-sockaddr :inet)
                                       :iovec (map 'vector #'make-byte-vector
                                                   message))
                 :pretty t)))
@@ -203,9 +217,6 @@ T
                    (rawsock:getnameinfo (rawsock:message-addr message2)))))))
   nil)
 NIL
-
-#-:win32 (rawsock:sock-close *sock1*) 0
-#-:win32 (rawsock:sock-close *sock2*) 0
 
 (rawsock:sock-write 1 (to-bytes "foo"))
 3
