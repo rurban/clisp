@@ -1,3 +1,7 @@
+2005-10-21  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-all-tests): enable defhash tests unconditionally
+
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
 	* defhash.tst: STRING-EQUAL is incompatible with SXHASH
