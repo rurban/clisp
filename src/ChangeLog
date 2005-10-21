@@ -1,6 +1,9 @@
 2005-10-21  Sam Steingold  <sds@gnu.org>
 
+	fixed user-defined HT tests
 	* lispbibl.d (hashtable_length): fixed the wrong value
+	* hashtabl.d (rehash): fixed user-defined ht-test handling
+	(hash_prepare_store): fixed `cacheable' logic
 
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
