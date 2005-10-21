@@ -432,7 +432,7 @@ static Values netent_to_network (struct netent *ne) {
 DEFUN(RAWSOCK:NETWORK, &optional network type)
 { /* interface to getnetbyname() et al
      http://www.opengroup.org/onlinepubs/009695399/functions/getnetent.html */
-  unsigned int type = check_uint_defaulted(popSTACK(),-1);
+  unsigned int type = check_uint_defaulted(popSTACK(),(unsigned int)-1);
   object net = popSTACK();
   struct netent *ne = NULL;
   if (missingp(net)) {          /* get all networks */
@@ -442,7 +442,7 @@ DEFUN(RAWSOCK:NETWORK, &optional network type)
     setnetent(1);
     while ((ne = getnetent())) {
       end_system_call();
-      if (type==-1 || type==ne->n_addrtype) {
+      if (type==(unsigned int)-1 || type==ne->n_addrtype) {
         netent_to_network(ne); pushSTACK(value1); count++;
       }
       begin_system_call();
@@ -666,20 +666,20 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
       if (getaddrinfo(NULL,NULL,&hints,&ret)) OS_error();
       end_system_call();
     } else {
-      with_string_0(check_string(STACK_1),GLO(misc_encoding),service, {
+      with_string_0(check_string(STACK_1),GLO(misc_encoding),node, {
           begin_system_call();
-          if (getaddrinfo(NULL,service,&hints,&ret)) OS_error();
+          if (getaddrinfo(node,NULL,&hints,&ret)) OS_error();
           end_system_call();
         });
     }
   } else {
-    with_string_0(check_string(STACK_0),GLO(misc_encoding),node, {
+    with_string_0(check_string(STACK_0),GLO(misc_encoding),service, {
         if (missingp(STACK_1)) {
           begin_system_call();
-          if (getaddrinfo(node,NULL,&hints,&ret)) OS_error();
+          if (getaddrinfo(NULL,service,&hints,&ret)) OS_error();
           end_system_call();
         } else {
-          with_string_0(check_string(STACK_1),GLO(misc_encoding),service, {
+          with_string_0(check_string(STACK_1),GLO(misc_encoding),node, {
               begin_system_call();
               if (getaddrinfo(node,service,&hints,&ret)) OS_error();
               end_system_call();
@@ -694,7 +694,7 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
     pushSTACK(check_socket_protocol_reverse(tmp->ai_protocol));
     pushSTACK(allocate_bit_vector(Atype_8Bit,tmp->ai_addrlen));
     begin_system_call();
-    memcpy(TheSbvector(STACK_1)->data,tmp->ai_addr,tmp->ai_addrlen);
+    memcpy(TheSbvector(STACK_0)->data,tmp->ai_addr,tmp->ai_addrlen);
     end_system_call();
     funcall(`RAWSOCK::MAKE-SA`,1); pushSTACK(value1);
     pushSTACK(tmp->ai_canonname == NULL ? NIL
@@ -702,7 +702,7 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
     funcall(`RAWSOCK::MAKE-ADDRINFO`,6); pushSTACK(value1);
   }
   if (ret) { begin_system_call(); freeaddrinfo(ret); end_system_call(); }
-  VALUES1(listof(valcount));
+  VALUES1(listof(valcount)); skipSTACK(2);
 }
 #endif
 
@@ -818,7 +818,7 @@ DEFUN(RAWSOCK:SOCK-READ,socket buffer &key START END)
   uintL offset;
 #if defined(HAVE_SYS_UIO_H) && defined(HAVE_READV)
   if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* READV */
-    struct iovec *buffer = alloca(sizeof(struct iovec)*retval);
+    struct iovec *buffer = (struct iovec*)alloca(sizeof(struct iovec)*retval);
     fill_iovec(STACK_2,offset,retval,buffer,PROT_READ_WRITE);
     SYSCALL(retval,sock,readv(sock,buffer,retval));
   } else
@@ -856,6 +856,7 @@ DEFUN(RAWSOCK:SENDMSG,socket message &key START END OOB EOR) {
   check_message(&STACK_2,&offset,&message);
   message.msg_iov =
     (struct iovec*)alloca(message.msg_iovlen * sizeof(struct iovec));
+  fill_msghdr(&STACK_2,offset,&message,PROT_READ);
   SYSCALL(retval,sock,sendmsg(sock,&message,flags));
   TheStructure(STACK_2)->recdata[MSG_FLAGS] =
     check_msg_flags_to_list(message.msg_flags);
@@ -892,7 +893,7 @@ DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key START END)
   uintL offset;
 #if defined(HAVE_SYS_UIO_H) && defined(HAVE_READV)
   if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* WRITEW */
-    struct iovec *buffer = alloca(sizeof(struct iovec)*retval);
+    struct iovec *buffer = (struct iovec*)alloca(sizeof(struct iovec)*retval);
     fill_iovec(STACK_2,offset,retval,buffer,PROT_READ);
     SYSCALL(retval,sock,writev(sock,buffer,retval));
   } else

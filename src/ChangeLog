@@ -1,5 +1,11 @@
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (RAWSOCK:SENDMSG): call fill_msghdr()
+	(NETWORK, SOCK-READ, SOCK-WRITE): added casts to pacify G++
+	(RAWSOCK:GETADDRINFO): fixed argument order and stack cleanup
+
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
 	* hashtabl.d (hash_store): user-defined hash tables do not have to
 	be rehashed due to GC
 	(hash_prepare_store): fixed a GC-safety bug: hashcode_raw() may
