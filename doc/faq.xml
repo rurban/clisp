@@ -26,6 +26,19 @@ further explanations of the issues could be provided).</para>
 <qandadiv id="faq-meta"><title>Meta Information</title>
 
 <qandadiv id="faq-meta-misc"><title>Miscellaneous</title>
+
+<qandaentry id="faq-doc"><question id="faq-doc-q"><simpara>The official &clisp;
+   documentation sucks - is anything better available?</simpara></question>
+ <answer><para>As with all generic complaints, the answer to this one is
+   <ulink url="http://www.cygwin.com/acronyms/#PTC"><acronym>PTC<alt>Patches
+      Thoughtfully Considered</alt></acronym></ulink>.</para>
+  <para>Additionally, the nightly builds of the &clisp; implementation
+   notes documenting the current CVS head are available at
+   <ulink url="http://www.podval.org/~sds/clisp/impnotes/"/>.
+   It contains both the documentation for the new features and the
+   general improvements in the documentation.</para>
+</answer></qandaentry>
+
 <qandaentry id="faq-gpl"><question id="faq-gpl-q"><simpara>License
    - why &gnu; &gpl;?</simpara></question>
 <answer><para><ulink role="clisp-cvs" url="doc/Why-CLISP-is-under-GPL">Because
