@@ -1,5 +1,9 @@
 2005-10-20  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c: avoid void* pointer arithmetics
+
+2005-10-20  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (RAWSOCK:SENDMSG): call fill_msghdr()
 	(NETWORK, SOCK-READ, SOCK-WRITE): added casts to pacify G++
 	(RAWSOCK:GETADDRINFO): fixed argument order and stack cleanup
