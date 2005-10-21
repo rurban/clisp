@@ -237,11 +237,11 @@ NIL
 (listp (show (rawsock:network) :pretty t)) T
 
 (or (not (fboundp 'rawsock:getaddrinfo))
-    (listp (show (rawsock:getaddrinfo :node "localhost")))) T
+    (listp (show (rawsock:getaddrinfo :node "localhost") :pretty t))) T
 (or (not (fboundp 'rawsock:getaddrinfo))
-    (listp (show (rawsock:getaddrinfo :service "21")))) T
+    (listp (show (rawsock:getaddrinfo :service "21") :pretty t))) T
 (or (not (fboundp 'rawsock:getaddrinfo))
-    (listp (show (rawsock:getaddrinfo :service "www")))) T
+    (listp (show (rawsock:getaddrinfo :service "www") :pretty t))) T
 
 (or (not (fboundp 'rawsock:getnameinfo))
     (listp (show (multiple-value-list (rawsock:getnameinfo *sa-remote*))))) T
