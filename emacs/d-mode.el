@@ -8,6 +8,7 @@
 ;;; (autoload 'd-mode "/usr/local/src/clisp/emacs/d-mode")
 
 (require 'cc-mode)
+(require 'cc-fonts)
 (require 'cl)                   ; `subst'
 
 (defun d-mode-translate-word (word)
