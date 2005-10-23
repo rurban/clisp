@@ -2178,10 +2178,12 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  <listitem><simpara>Lisp objects have type <type>object</type>.
  </simpara></listitem>
  <listitem><simpara>Variables of this type are invalidated by
-   <link linkend="gc-safety">memory allocation</link> and must be saved
-   on the &STACK; using macros <function>pushSTASK()</function>,
-   <function>popSTACK()</function> and <function>skipSTACK()</function>.
- </simpara></listitem>
+   <link linkend="gc-safety">lisp memory allocation</link>
+   (<function>allocate_*()</function> functions) - but &not-e; &c-lang;
+   allocations (<function role="unix">malloc</function> et al) -
+   and must be saved on the &STACK; using &cpp; macros
+   <function>pushSTASK()</function>, <function>popSTACK()</function>
+   and <function>skipSTACK()</function>.</simpara></listitem>
  <listitem><simpara>Access object slots using the
    appropriate <function>TheFoo()</function> macro, e.g.,
    <function>TheCons(my_cons)-&gt;Car</function>, but first check the
@@ -2246,9 +2248,12 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    out your code.  This is a huge advantage for rapid prototyping.
 </simpara></listitem></varlistentry>
 <varlistentry><term>UI: &c-lang; wins</term>
- <listitem><simpara>To produce a nice lispy UI (using optional and
-   keyword arguments etc), you will need to write wrappers to your
-   &ffi-pac; functions, while in &c-lang; you can do that directly.
+ <listitem><simpara>To produce a nice lispy UI (using &optional-amp; and
+   &key-amp;word arguments etc), you will need to write wrappers to your
+   &foreign-function-t;s, while in &c-lang; you can do that directly.
+   The same goes for <quote>polymorphism</quote>: accepting different
+   argument types (like, e.g., &resolve-host; does) would require a lisp
+   wrapper for &foreign-function-t;s.
 </simpara></listitem></varlistentry>
 <varlistentry><term>Learning curve: unclear</term>
  <listitem><simpara>If you are comfortable with &c-lang;, you might
@@ -2421,7 +2426,8 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
   &cpp; macros and <literal>inline</literal> functions cannot be
   accessed this way.</simpara></listitem>
 <listitem><simpara>Use a somewhat less direct way: when you do not use
-  the &library-k; argument, &compile-file; produces a &c-lang; file.
+  the &library-k; argument, &compile-file; produces a &c-file; file (in
+  addition to a &fasl-file; and a &lib-file;).
   Then you compile (with a &c-lang; compiler) and link it into &clisp;
   (statically, linking it into <filename>lisp.a</filename>, or
   dynamically, loading it into a running &clisp; using
@@ -2429,7 +2435,8 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
   <function role="unix">dlsym</function>).
   This way you can use any functionality your foreign library exports,
   whether using ordinary functions, <literal>inline</literal> functions,
-  or &cpp; macros.</simpara></listitem></orderedlist>
+  or &cpp; macros (see <xref linkend="dffi-ex-macro"/>).
+ </simpara></listitem></orderedlist>
 </para>
 
 <para>All symbols relating to the foreign function interface are
@@ -2519,6 +2526,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
    <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
     <listitem><simpara>Specifies the (optional) &variable-doc; documentation.
   </simpara></listitem></varlistentry></variablelist>
+  <simpara>See also <xref linkend="dffi-ex-macro"/>.</simpara>
 </listitem></varlistentry>
 
 <varlistentry id="def-call-out"><term><code>(&def-call-out;
@@ -3529,7 +3537,7 @@ This translates to
   (:return-type div_t))
 </programlisting>
 
-Sample call from within Lisp:
+Sample call from within Lisp (after running &clisp-link;):
 
 <programlisting language="lisp">
 (div 20 3)
@@ -3634,6 +3642,37 @@ instead, in conjunction with
     (prog1 (&foreign-value; data)
       (&foreign-free; data :FULL nil))))
 </programlisting></para></example>
+
+<example id="dffi-ex-macro"><title>Accessing &cpp; macros</title>
+<para>Suppose you are interfacing to a library <filename>mylib.so</filename>
+ which defines macros and <literal>inline</literal> functions
+ in <filename>mylib.h</filename>:<programlisting language="C">
+#define FOO(x)  .....
+inline int bar (int x) { ... }
+</programlisting>
+ To make them available from &clisp;, write these forms into the lisp
+ file <filename>my.lisp</filename>:<programlisting language="lisp">
+(&c-lines; "#include &lt;mylib.h&gt;
+int my_foo (int x) { return FOO(x); }
+int my_bar (int x) { return bar(x); }~%")
+(&def-call-out; my-foo (:name "my_foo") (:arguments (x int)) (:return-type int))
+(&def-call-out; my-bar (:name "my_bar") (:arguments (x int)) (:return-type int))
+</programlisting></para>
+<para>Compiling this file will produce <filename>my.c</filename>
+ and <filename>my.fas</filename> and you have two options:
+ <orderedlist><listitem><para>Compile <filename>my.c</filename>
+    into <filename>my.o</filename> with <screen>
+<prompt>$</prompt> gcc -c my.c -lmylib
+</screen> and use &clisp-link; to create a new &clisp; &linkset;.
+  </para></listitem>
+  <listitem><para>Add <code>(:library "my.dll")</code> to the
+    &def-call-out; forms, compile <filename>my.c</filename>
+    into <filename>my.so</filename> (or <filename>my.dll</filename> on
+    &win32;) with <screen>
+<prompt>$</prompt> gcc -shared -o my.so my.c -lmylib
+</screen> and load <filename>my.fas</filename>.
+</para></listitem></orderedlist></para>
+</example>
 
 <example id="ex-call-in"><title>Calling Lisp from &c-lang;</title>
 
