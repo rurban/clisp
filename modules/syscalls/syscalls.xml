@@ -29,7 +29,8 @@
    <filename>/etc/hosts</filename> file on a &unix; system or
    <filename>${windir}/system32/etc/hosts</filename> on a &win32; system).
   </para><simpara>This is an interface
-   to <function role="unix">gethostbyname</function>
+   to <function role="unix">gethostent</function>,
+   <function role="unix">gethostbyname</function>,
    and <function role="unix">gethostbyaddr</function>.
  </simpara></listitem></varlistentry>
  <varlistentry id="file-stat"><term><code>(<function>POSIX:FILE-STAT</function>
