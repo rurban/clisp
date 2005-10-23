@@ -37,12 +37,16 @@ int main()
 #endif
 EOF
 AC_TRY_EVAL(ac_link)
-cl_cv_decl_ELOOP=`./conftest`
-if test "$cl_cv_decl_ELOOP" = "ELOOP"; then
-  cl_cv_decl_eloop=yes
-else
-  cl_cv_decl_eloop="$cl_cv_decl_ELOOP"
-fi
+ if test -x conftest; then
+  cl_cv_decl_ELOOP=`./conftest`
+  if test "$cl_cv_decl_ELOOP" = "ELOOP"; then
+    cl_cv_decl_eloop=yes
+  else
+    cl_cv_decl_eloop="$cl_cv_decl_ELOOP"
+  fi
+ else cl_cv_decl_eloop=no
+     cl_cv_decl_ELOOP="ELOOP"
+ fi
 else
 AC_EGREP_CPP(yes,[
 #include <stdlib.h>
