@@ -1,5 +1,10 @@
 2005-10-22  Sam Steingold  <sds@gnu.org>
 
+	* screen.lisp (*new-window*, read-keyboard-char): removed
+	undocumented and unused symbols
+
+2005-10-22  Sam Steingold  <sds@gnu.org>
+
 	avoid configure errors on woe32
 	* m4/eloop.m4: check that conftest exists before running it
 	* m4/poll.m4: if AC_CHECK_FUNC does not find poll,
