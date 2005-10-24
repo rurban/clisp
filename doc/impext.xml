@@ -1944,17 +1944,22 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  </simpara></listitem></varlistentry>
 <varlistentry id="mod-preload"><term>&mod-preload; (optional)</term>
  <listitem><simpara>the space-separated list of Lisp files to load
-  into an intermediate &lispinit; file, before building the &lispinit;
-  belonging to a new &linkset;.
-  This variable is usually used to <link linkend="make-pack">create</link>
-  (or <link linkend="pack-lock">unlock</link>) the Lisp &package-t;s which
-  must be present when the new &c-file; files are initialized.
-  E.g., the &def-call-in; functions must reside in already defined packages;
-  see <xref linkend="ex-call-in"/>.</simpara>
+   into an intermediate &lispinit; file, before building the &lispinit;
+   belonging to a new &linkset;.
+   This variable is usually used to <link linkend="make-pack">create</link>
+   (or <link linkend="pack-lock">unlock</link>) the Lisp &package-t;s which
+   must be present when the new &c-file; files are initialized.
+   E.g., the &def-call-in; functions must reside in already defined packages;
+   see <xref linkend="ex-call-in"/>.  You can find a live example in
+   <filename role="clisp-cvs">modules/syscalls/preload.lisp</filename>
+   and <filename role="clisp-cvs">modules/syscalls/link.sh.in</filename>.
+  </simpara>
   <warning><simpara>If you are unlocking a package, you must also
-    &delete; it from &sys-pack-list; (see <xref linkend="image"/>)
-    here and re-add it to &sys-pack-list; in one of the &mod-load;
-    files.</simpara></warning></listitem></varlistentry>
+    &delete; it from &sys-pack-list; (see <xref linkend="image"/>) here
+    and re-add it to &sys-pack-list; in one of the &mod-load; files.
+    See, e.g., <filename role="clisp-cvs">modules/i18n/preload.lisp</filename>
+    and <filename role="clisp-cvs">modules/i18n/link.sh.in</filename>.
+</simpara></warning></listitem></varlistentry>
 </variablelist>
 
 <para>The command <screen>
