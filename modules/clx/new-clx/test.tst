@@ -21,6 +21,27 @@
    :KEY 80 :AUTO-REPEAT-MODE (if (plusp (aref arm 80)) :on :off)))
 NIL
 
+(listp (show (multiple-value-list (xlib:display-keycode-range *dpy*)))) T
+
+(integerp (show (xlib:display-max-request-length *dpy*))) T
+
+(integerp (show (xlib:display-motion-buffer-size *dpy*))) T
+
+(listp (show (xlib:display-pixmap-formats *dpy*) :pretty t)) T
+
+(symbolp (show (xlib:display-byte-order *dpy*))) T
+
+(listp (show (multiple-value-list (xlib:display-protocol-version *dpy*)))) T
+
+(listp (show (multiple-value-list (xlib:display-vendor *dpy*)))) T
+
+(let ((map (show (xlib:keyboard-mapping *dpy*) :pretty t)))
+  (show (array-dimensions map))
+  (list (eq map (xlib:keyboard-mapping *dpy* :data map))
+        (xlib:change-keyboard-mapping
+         *dpy* map :first-keycode (xlib:display-min-keycode *dpy*))))
+(T NIL)
+
 (let ((modifiers (show (multiple-value-list (xlib:modifier-mapping *dpy*)))))
   (apply #'xlib:set-modifier-mapping *dpy*
          (mapcan #'list '(:SHIFT :LOCK :CONTROL :MOD1 :MOD2 :MOD3 :MOD4 :MOD5)
@@ -30,6 +51,8 @@ NIL
 (show (multiple-value-list (xlib:keysym->keycodes *dpy* 65))) (38)
 (show (multiple-value-list (xlib:keysym->keycodes *dpy* #xFF52))) (98) ; Up
 (show (xlib:keysym "Up")) #xFF52
+
+(show (xlib:keysym-name (show (xlib:keysym "Down")))) "Down"
 
 (let ((access (show (xlib:access-control *dpy*))))
   (assert (eq access (setf (xlib:access-control *dpy*) access)))

@@ -140,9 +140,6 @@ Initial revision
 /* --- TODO ---
 - fake the REPORT-ASYNCHRONOUS-ERRORS slot on displays.
 
-- get DISPLAY-ERROR-HANDLER working.
-  define DEFAULT-ERROR-HANDLER in Lisp.
-
 - Garnet seems to loose exposure events from time to time, I do not know
   if it is my fault or a garnet bug? This thing is hard to trace, since
   it seems to depend on how fast the window gets mapped, or how fast the
@@ -6486,12 +6483,12 @@ DEFUN(XLIB:CHANGE-POINTER-CONTROL, display &key ACCELERATION THRESHOLD)
 
   if (!missingp(STACK_0)) {
     do_threshold = True;
-    threshold = eq (STACK_1, `:DEFAULT`) ? -1 : get_sint16 (STACK_0);
+    threshold = eq(STACK_1,S(Kdefault)) ? -1 : get_sint16 (STACK_0);
   }
 
   if (!missingp(STACK_1)) {
     do_accel = True;
-    if (eq (STACK_1, `:DEFAULT`))
+    if (eq(STACK_1,S(Kdefault)))
       accel_numerator = -1;
     else {
       /* This is basically a translation from this lisp code:
@@ -6766,7 +6763,7 @@ DEFUN(XLIB:SET-MODIFIER-MAPPING, display &key SHIFT LOCK CONTROL \
     if (len > max_keys_per_mod) max_keys_per_mod = len;
   }
   X_CALL(xmk = XNewModifiermap(max_keys_per_mod));
-  if (xmk == NULL) NOTREACHED;
+  if (xmk == NULL) { VALUES0; return; } /* no values */
   for (i=0; i<8; i++) {
     struct seq_uint8 su;
     su.data = xmk->modifiermap + i*8;
@@ -6775,32 +6772,81 @@ DEFUN(XLIB:SET-MODIFIER-MAPPING, display &key SHIFT LOCK CONTROL \
   skipSTACK(8);                 /* drop modifier arguments */
   {
     Display *dpy = pop_display ();
-    begin_x_call();
-    i = XSetModifierMapping(dpy,xmk);
-    XFreeModifiermap(xmk);
-    end_x_call();
+    X_CALL(i = XSetModifierMapping(dpy,xmk);
+           XFreeModifiermap(xmk));
   }
   VALUES1(check_set_mod_map_reverse(i));
 }
 
 /* 14.4  Keyboard Encodings */
-DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, a1 a2 &key START END FIRST-KEYCODE)
-{UNDEFINED;}
-
-DEFUN(XLIB:KEYBOARD-MAPPING, arg &key FIRST-KEYCODE START END DATA)
-{ /*  http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
-  UNDEFINED;
+static object check_uint32_mx (object data) {
+  while (array_atype(data = check_array(data)) != Atype_32Bit
+         || array_rank(data) != 2) {
+    pushSTACK(NIL);           /* no PLACE */
+    pushSTACK(STACK_1);       /* TYPE-ERROR slot DATUM */
+    pushSTACK(`(ARRAY (UNSIGNED-BYTE 32) (* *))`); /* EXPECTED-TYPE */
+    pushSTACK(STACK_0); pushSTACK(STACK_2);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: ~S is not an array of type ~S"));
+    data = value1;
+  }
+  return data;
 }
 
-DEFUN(XLIB:KEYCODE->KEYSYM, display keycode keysym-index)
-{ /* NOTE: In the Manual this function is called "keycode-keysym" */
-  int       index = get_uint8 (popSTACK());
-  KeyCode keycode = get_uint8 (popSTACK());
-  Display    *dpy = pop_display ();
+DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key END FIRST-KEYCODE START)
+{
+  int start = check_uint_defaulted(popSTACK(),0), end, num_codes;
+  int first_keycode = check_uint_defaulted(popSTACK(),start);
+  uintL offset = 0, dims[2];
+  Display *dpy = (pushSTACK(STACK_2), pop_display());
+  void * data_ptr;
+  STACK_1 = check_uint32_mx(STACK_1);
+  get_array_dimensions(STACK_1,2,dims);
+  end = check_uint_defaulted(popSTACK(),dims[0]);
+  num_codes = (end-start)*dims[1];
+  STACK_0 = array_displace_check(STACK_0,num_codes,&offset);
+  data_ptr = (uint32*)TheSbvector(STACK_0)->data + offset;
+  ASSERT(sizeof(uint32) == sizeof(KeySym));
+  X_CALL(XChangeKeyboardMapping(dpy,first_keycode,dims[1],data_ptr,num_codes));
+  VALUES0; skipSTACK(2);
+}
+
+DEFUN(XLIB:KEYBOARD-MAPPING, dpy &key FIRST-KEYCODE START END DATA)
+{ /*  http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
+  Display *dpy = (pushSTACK(STACK_4), pop_display());
+  int first_keycode, min_keycode, max_keycode, keysyms_per_keycode;
+  KeySym *map, *map1;
+  int start, end, num_codes;
+  object data_vector;
+  void * data_ptr;
+  uintL offset = 0;
+  X_CALL(XDisplayKeycodes(dpy,&min_keycode,&max_keycode));
+  first_keycode = check_uint_defaulted(STACK_3,min_keycode);
+  start = check_uint_defaulted(STACK_2,first_keycode);
+  end = check_uint_defaulted(STACK_1,1+max_keycode);
+  X_CALL(map = XGetKeyboardMapping(dpy,first_keycode,end-start,
+                                   &keysyms_per_keycode));
+  if (missingp(STACK_0)) {      /* return a fresh array */
+    pushSTACK(fixnum(end-start));
+    pushSTACK(fixnum(keysyms_per_keycode));
+    value1 = listof(2); pushSTACK(value1); /* dims */
+    pushSTACK(S(Kelement_type)); pushSTACK(GLO(type_uint32));
+    funcall(L(make_array),3); STACK_0 = value1;
+  } else {                /* ensure that DATA is a valid uint32 array */
+    STACK_0 = check_uint32_mx(STACK_0);
+  }
+  num_codes = (end-start)*keysyms_per_keycode;
+  data_vector = array_displace_check(STACK_0,num_codes,&offset);
+  data_ptr = (uint32*)TheSbvector(data_vector)->data + offset;
+  ASSERT(sizeof(uint32) == sizeof(KeySym));
+  X_CALL(memcpy(data_ptr,map,num_codes*sizeof(uint32)); XFree(map));
+  VALUES1(STACK_0);
+  skipSTACK(5);
+}
+
+static KeySym keycode2keysym (Display *dpy, KeyCode keycode, int index) {
   KeySym keysym;
-
-  X_CALL(keysym = XKeycodeToKeysym (dpy, keycode, index));
-
+  X_CALL(keysym = XKeycodeToKeysym (dpy, keycode, index);
   /* There is a comment in MIT-CLX, translate.lisp, which I want to quote here:
 
       The keysym-mapping is brain dammaged.
@@ -6818,9 +6864,18 @@ DEFUN(XLIB:KEYCODE->KEYSYM, display keycode keysym-index)
            (aref mapping keycode 0))
 
    .. so */
-  if (keysym == NoSymbol && index > 0)
-    X_CALL(keysym = XKeycodeToKeysym (dpy, keycode, 0));
-  /* I wanted to say
+         if (keysym == NoSymbol && index > 0)
+           keysym = XKeycodeToKeysym (dpy, keycode, 0));
+  return keysym;
+}
+
+DEFUN(XLIB:KEYCODE->KEYSYM, display keycode keysym-index)
+{ /* NOTE: In the Manual this function is called "keycode-keysym" */
+  int       index = get_uint8 (popSTACK());
+  KeyCode keycode = get_uint8 (popSTACK());
+  Display    *dpy = pop_display ();
+  KeySym keysym = keycode2keysym(dpy,keycode,index);
+   /* I wanted to say
           "value1 = (keysym == NoSymbol) ? NIL : make_uint32 (keysym);",
    but seeing the MIT-CLX code, I better say simply: */
   VALUES1(make_uint32 (keysym == NoSymbol ? 0 : keysym));
@@ -6867,6 +6922,14 @@ DEFUN(XLIB:KEYSYM->CHARACTER, display keysym &optional state)
   dpy = pop_display ();
   /* Too wired -- I have to browse some more in the manuals ... Back soon. */
   VALUES1(int_char(keysym)); /* how about just int_char ?! */
+}
+
+DEFUN(XLIB:KEYSYM-NAME, keysym)
+{ /* http://www.xfree86.org/current/XStringToKeysym.3.html */
+  KeySym keysym = get_uint32(popSTACK());
+  char *name;
+  X_CALL(name = XKeysymToString(keysym));
+  VALUES1(asciz_to_string(name,GLO(misc_encoding)));
 }
 
 /* Return keycodes for keysym, as multiple values
@@ -6922,8 +6985,23 @@ DEFUN(XLIB:KEYSYM, keysym &rest bytes) { /* see mit-clx/translate.lisp */
   }
 }
 
-/* And there also the undocumented function:
- DEFUN(XLIB:KEYCODE->CHARACTER, a1 a2 a3 &key KEYSYM-INDEX KEYSYM-INDEX-FUNCTION) {UNDEFINED;} */
+DEFUN(XLIB:KEYCODE->CHARACTER, display keycode state \
+      &key KEYSYM-INDEX KEYSYM-INDEX-FUNCTION) {
+  KeyCode keycode = get_uint8(STACK_3);
+  Display *dpy = (pushSTACK(STACK_4), pop_display());
+  int index;
+  if (missingp(STACK_1)) { /* no KEYSYM-INDEX => use KEYSYM-INDEX-FUNCTION */
+    object func = missingp(STACK_0) ? ``XLIB::DEFAULT-KEYSYM-INDEX`` : STACK_0;
+    skipSTACK(2);
+    funcall(STACK_0,3);
+    index = get_sint32(value1);
+  } else {
+    index = get_sint32(STACK_1);
+    skipSTACK(5);
+  }
+  /* state is ignored, just like in keysym->character */
+  VALUES1(int_char(keycode2keysym(dpy,keycode,index)));
+}
 
 /* 14.5  Client Termination */
 DEFUN(XLIB:ADD-TO-SAVE-SET, window)
@@ -7146,7 +7224,7 @@ DEFUN(XLIB:SET-SCREEN-SAVER, display timeout period blanking exposures)
   int exposures = check_yes_no(popSTACK());
   int blanking = check_yes_no(popSTACK());
   int period = get_uint32 (popSTACK());
-  int timeout = eq(STACK_0,`:DEFAULT`) ? (skipSTACK(1),-1)
+  int timeout = eq(STACK_0,S(Kdefault)) ? (skipSTACK(1),-1)
     : get_sint32(popSTACK());
   Display *dpy = pop_display();
 
@@ -7444,12 +7522,62 @@ DEFUN(XLIB:SHAPE-OFFSET, destination kind x-offset y-offset)
       x-bounding, y-bounding, x-clip, y-clip
       w-bounding, h-bounding, w-clip, h-clip */
 DEFUN(XLIB:SHAPE-EXTENTS, window)
-{UNDEFINED;}
+{
+  Display *dpy;
+  Window  window = get_window_and_display(popSTACK(),&dpy);
+  Bool bounding_shaped;
+  int x_bounding;
+  int y_bounding;
+  unsigned int w_bounding;
+  unsigned int h_bounding;
+  Bool clip_shaped;
+  int x_clip;
+  int y_clip;
+  unsigned int w_clip;
+  unsigned int h_clip;
+  Status status;
+  X_CALL(status = XShapeQueryExtents(dpy,window,&bounding_shaped,
+                                     &x_bounding,&y_bounding,
+                                     &w_bounding,&h_bounding,
+                                     &clip_shaped,&x_clip,&y_clip,
+                                     &w_clip,&h_clip));
+  if (status) VALUES0;
+  else {
+    value1 = bounding_shaped ? T : NIL;
+    value2 = clip_shaped ? T : NIL;
+    value3 = fixnum(x_bounding);
+    value4 = fixnum(y_bounding);
+    value5 = fixnum(x_clip);
+    value6 = fixnum(y_clip);
+    value7 = fixnum(w_bounding);
+    value8 = fixnum(h_bounding);
+    value9 = fixnum(w_clip);
+    mv_space[9] = fixnum(h_clip); /* 10th value */
+    mv_count = 10;
+  }
+}
 
 /* -> rectangles - (rep-seq (sint16 sint16 sint16 sint16))
       ordering   - (member :unsorted :y-sorted :yx-sorted :yx-banded) */
 DEFUN(XLIB:SHAPE-RECTANGLES, window kind)
-{UNDEFINED;}
+{
+  int kind = get_shape_kind(popSTACK());
+  Display *dpy;
+  Window  window = get_window_and_display(popSTACK(),&dpy);
+  XRectangle *rect;
+  int count, ordering, i;
+  X_CALL(rect = XShapeGetRectangles(dpy,window,kind,&count,&ordering));
+  for (i=count; i; i--, rect++) {
+    pushSTACK(fixnum(rect->x));
+    pushSTACK(fixnum(rect->y));
+    pushSTACK(fixnum(rect->width));
+    pushSTACK(fixnum(rect->height));
+  }
+  value1 = listof(4*count); pushSTACK(value1);
+  value2 = get_ordering_reverse(ordering);
+  value1 = popSTACK();
+  mv_count = 2;
+}
 ##endif
 
 
@@ -7489,7 +7617,12 @@ DEFUN(XLIB:WITHDRAW-WINDOW, window screen)
 
 DEFUN(XLIB:DEFAULT-KEYSYM-INDEX, display keycode state)
 { /* Returns a keysym-index for use with keycode->character */
-  UNDEFINED;
+  int state = get_uint32(popSTACK());
+  KeyCode keycode = get_uint8(popSTACK());
+  Display *dpy = pop_display();
+  /* see comment in keycode2keysym: looks like the only index that
+     makes any sense is 0 */
+  VALUES1(Fixnum_0);
 }
 
 ##if 0
@@ -7508,9 +7641,6 @@ DEFUN(XLIB:DECODE-CORE-ERROR, a1 a2 &optional a3) {UNDEFINED;}
 DEFUN(XLIB:ROOT-RESOURCES, arg &key DATABASE KEY TEST TEST-NOT) {UNDEFINED;}
 DEFUN(XLIB:RESOURCE-DATABASE-TIMESTAMP, arg) {UNDEFINED;}
 DEFUN(XLIB:RESOURCE-KEY, arg) {UNDEFINED;}
-
-/* This is actually specified and will be implemented in Lisp */
-DEFUN(XLIB:DEFAULT-ERROR-HANDLER, a1 a2 &key ASYNCHRONOUS &rest rest &allow-other-keys) {UNDEFINED;}
 
 /* These seem to handle keysym translations */
 DEFUN(XLIB:KEYSYM-IN-MAP-P, arg1 arg2 arg3) {UNDEFINED;}

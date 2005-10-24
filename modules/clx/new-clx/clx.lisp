@@ -163,7 +163,7 @@
    wm-size-hints-width-inc wm-size-hints-win-gravity wm-size-hints-x
    wm-size-hints-y wm-zoom-hints write-bitmap-file write-resources xatom
    x-error
-
+   keysym-name
    trace-display suspend-display-tracing resume-display-tracing
    untrace-display show-trace
    display-trace ; for backwards compatibility describe-request describe-event describe-reply
@@ -361,7 +361,7 @@
 (defclass pixmap      (drawable)              ())
 (defclass cursor      (xid-object)            ())
 (defclass colormap    (xid-object)            (#|(visual-info :initarg :visual-info :accessor colormap-visual-info)|#))
-(defclass gcontext    (ptr-object)            ((%dashes) (%clip-mask)))
+(defclass gcontext    (ptr-object)            ((%dashes) (%clip-mask) (%timestamp :accessor gcontext-internal-timestamp :initform 0)))
 (defclass screen      (ptr-object)            ())
 (defclass font        (xid-object)
   ((font-info :initform nil :initarg :font-info)
@@ -1483,13 +1483,15 @@
 
 ;;; Error handler, we probably want a proper condition hierarchy, but for a first approach this may be enough:
 
-(defun default-error-handler (display error-code &key current-sequence sequence major minor resource-id atom-id value)
-  (cerror "Just ignore this error and proceed."
-          "Asynchronous ~A on display ~S, sequence ~D.~%Opcode is ~D.~D. Current sequence is ~D. ~A"
+(defun default-error-handler (display error-code &key current-sequence sequence
+                              major minor resource-id atom-id value)
+  (cerror "Ignore this error and proceed."
+          "Asynchronous ~A on display ~S, sequence ~D. Opcode is ~D.~D. Current sequence is ~D.~A"
           error-code display sequence major minor current-sequence
-          (cond (resource-id (format nil "Resource ID is #x~8,'0x." resource-id))
-                (value (format nil "Bad value is ~D" value))
-                (atom-id (format nil "Bad atom ID is #x~8,'0x." atom-id))
+          ;; at most one of RESOURCE-ID, ATOM-ID, and VALUE is available
+          (cond (resource-id (format nil " Resource ID is #x~8,'0x." resource-id))
+                (value (format nil " Bad value is ~D." value))
+                (atom-id (format nil " Bad atom ID is #x~8,'0x." atom-id))
                 (t ""))))
 
 (define-condition x-error (error)
@@ -1550,7 +1552,4 @@
 (undefined QUEUE-EVENT)
 (undefined CHANGE-KEYBOARD-MAPPING)
 (undefined KEYBOARD-MAPPING)
-(undefined SHAPE-EXTENTS)
-(undefined SHAPE-RECTANGLES)
-(undefined DEFAULT-KEYSYM-INDEX)
 )
