@@ -1,5 +1,9 @@
 2005-10-25  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (NEED_RECONFIGURE) [!TEST_NT]: fixed a typo
+
+2005-10-25  Sam Steingold  <sds@gnu.org>
+
 	* .gdbinit (OS_error, OS_file_error, OS_filestream_error): break
 
 2005-10-25  Sam Steingold  <sds@gnu.org>
