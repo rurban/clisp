@@ -1,6 +1,13 @@
 2005-10-25  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/configure.in: check "struct iovec"
+	* modules/rawsock/rawsock.c (struct iovec) [!HAVE_STRUCT_IOVEC]: define
+	(read, write) [win32]: use recv/send instead
+	(readv) [!HAVE_READV]: implemented
+	(writev) [!HAVE_WRITEV]: implemented
+	(SOCKETPAIR) [!HAVE_SOCKETPAIR]: implemented
+	(SOCK-READ, SOCK-WRITE): use readv and writev even when the OS
+	does not offer them
 
 2005-10-24  Sam Steingold  <sds@gnu.org>
 

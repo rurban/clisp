@@ -197,7 +197,18 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <function role="unix">write</function>/<function role="unix">writev</function>
    (depending on whether &buf-r; is a &unsigned-byte-vec; or
    a <literal role="type">(&vector-t; &unsigned-byte-vec;)</literal>).
- Return the number of bytes read or written.</simpara></listitem></varlistentry>
+ Return the number of bytes read or written.</simpara>
+ <simpara>When <function role="unix">readv</function> and
+  <function role="unix">writev</function> and not available, they are
+  emulated by repeated calls to <function role="unix">read</function>
+  and <function role="unix">write</function>.</simpara>
+ <simpara>On &win32; we have to use <function role="unix">recv</function>
+  instead of <function role="unix">read</function>
+  and <function role="unix">send</function> instead of
+  <function role="unix">write</function> because &win32;
+  <function role="unix">read</function> and
+  <function role="unix">write</function> do not work on sockets, only
+  on regular files.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:PROTOCOL &optional-amp;
    &proto-r;)</code></term>
  <listitem><simpara>Call <function role="unix">getprotobyname</function>

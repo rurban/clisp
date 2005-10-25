@@ -31,8 +31,12 @@
       (assert (equalp ve (rawsock:sockaddr-data sa)))
       (show (list 'rawsock:sockaddr-family
                   (multiple-value-list (rawsock:sockaddr-family sa))))
-      (assert (string= ip (rawsock:convert-address
-                           type (show (rawsock:convert-address type ip)))))
+      (show (mapcar (lambda (addr)
+                      (let ((numeric (rawsock:convert-address type addr)))
+                        (show (list :address addr numeric))
+                        (assert (string= ip (rawsock:convert-address
+                                             type numeric)))))
+                    (posix:hostent-addr-list he)))
       sa))
   (defun local-sa-check (sock sa-local)
     (let* ((sa (rawsock:getsockname sock T))
@@ -82,6 +86,9 @@ NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
 (ext:socket-status (list (cons *sock* :input))) (:INPUT)
+
+(or (null (fboundp 'rawsock:sockatmark))
+    (zerop (rawsock:sockatmark *sock*))) T
 
 (let ((size (rawsock:recv *sock* *buffer*)))
   (show (setq *recv-ret* (list size (from-bytes *buffer* size))))
@@ -151,50 +158,77 @@ NIL
   (equal *recv-ret* *recvfrom-ret*))
 T
 
-(when (fboundp 'rawsock:socketpair)
+(progn
   (setf (values *sock1* *sock2*)
         ;; :INET works on cygwin but not on Linux
-        (rawsock:socketpair :UNIX :STREAM nil))
-  (show (list *sock1* *sock2*))
+        (rawsock:socketpair #+:win32 :INET #-:win32 :UNIX :STREAM nil))
+  (show `((,(rawsock:getpeername *sock1* T) ,(rawsock:getsockname *sock1* T)
+           ,*sock1*)
+          (,(rawsock:getpeername *sock2* T) ,(rawsock:getsockname *sock2* T)
+           ,*sock2*))
+        :pretty t)
   T) T
 
-(when (fboundp 'rawsock:socketpair)
-  (let ((message "abazonk"))
-    (rawsock:sock-write *sock1* (to-bytes message))
-    (string= message (from-bytes *buffer* (rawsock:sock-read
-                                           *sock2* *buffer*)))))
+(let ((message "abazonk"))
+  (rawsock:sock-write *sock1* (to-bytes message))
+  (string= message (from-bytes *buffer* (rawsock:sock-read
+                                         *sock2* *buffer*))))
 T
 
-(if (fboundp 'rawsock:socketpair) ; readv/writev
-    (let* ((message '("I" "love" "you"))
-           (char-num (reduce #'+ message :key #'length))
-           (buf1 (map 'vector #'to-bytes message))
-           (buf2 (map 'vector #'make-byte-vector message)))
-      (show (list buf1 buf2))
-      ;; assume ASCII-compatible encoding
-      (assert (= char-num (rawsock:sock-write *sock1* buf1)))
-      (assert (= char-num (rawsock:sock-read *sock2* buf2)))
-      (list (equalp buf1 buf2)
-            (equalp message (map 'list #'from-bytes buf2))))
-    '(T T))
-(T T)
+#-:win32 ;; on win32, read()/write() cannot be called on a socket!
+(let* ((message '("I" "love" "you"))
+       (char-num (reduce #'+ message :key #'length))
+       (buf1 (map 'vector #'to-bytes message))
+       (buf2 (map 'vector #'make-byte-vector message)))
+  (show (list buf1 buf2))
+  ;; assume ASCII-compatible encoding
+  (assert (= char-num (rawsock:sock-write *sock1* buf1)))
+  (assert (= char-num (rawsock:sock-read *sock2* buf2)))
+  (list (equalp buf1 buf2)
+        (equalp message (map 'list #'from-bytes buf2))))
+#-:win32 (T T)
 
-(if (fboundp 'rawsock:socketpair)
-    (list (ext:socket-status *sock1*) (ext:socket-status *sock2*))
-    '(:OUTPUT :OUTPUT))
+(list (ext:socket-status *sock1*) (ext:socket-status *sock2*))
 (:OUTPUT :OUTPUT)
 
-(if (fboundp 'rawsock:socketpair)
-    (list (rawsock:sock-close *sock1*) (rawsock:sock-close *sock2*))
-    '(0 0))
-(0 0)
+(list (rawsock:sock-close *sock1*) (rawsock:sock-close *sock2*)) (0 0)
 
+;; lisp implementation of socketpair
+(progn (setq *sock1* (rawsock:socket :INET :STREAM nil)
+             *sock2* (rawsock:socket :INET :STREAM nil)
+             *sa-local* (host->sa :default))
+       (rawsock:bind *sock2* *sa-local*)
+       (rawsock:sock-listen *sock2* 1)
+       ;; figure out what port was assigned:
+       (rawsock:getsockname *sock2* *sa-local*)
+       NIL)
+NIL
+
+(socket:socket-status *sock2* 0) NIL
+
+(rawsock:connect *sock1* *sa-local*) NIL
+
+(socket:socket-status *sock2*) :INPUT
+
+(progn (setq *sock* (rawsock:accept *sock2* *sa-local*))
+       (socket:socket-status *sock1*))
+:OUTPUT
+(socket:socket-status *sock*) :OUTPUT
+
+(rawsock:send *sock* (to-bytes "dog bites man")) 13
+(rawsock:recv *sock1* *buffer*) 13
+(from-bytes *buffer* 13) "dog bites man"
+
+(rawsock:send *sock1* (to-bytes "man bites dog")) 13
+(rawsock:recv *sock* *buffer*) 13
+(from-bytes *buffer* 13) "man bites dog"
+
+(rawsock:sock-close *sock*)  0
+(rawsock:sock-close *sock1*) 0
+(rawsock:sock-close *sock2*) 0
+
+;; message
 (when (and (fboundp 'rawsock:sendmsg) (fboundp 'rawsock:recvmsg))
-  (setq *sock1* (rawsock:socket :INET :STREAM nil)
-        *sock2* (rawsock:socket :INET :STREAM nil))
-  (setq *sa-local* (host->sa :default 7777))
-  (rawsock:bind *sock2* *sa-local*)
-  (rawsock:sock-listen *sock2*)
   (let* ((message '("man" "bites" "dog"))
          (message1
           (show (rawsock:make-message :addr *sa-local*
@@ -215,11 +249,12 @@ T
                    (rawsock:getnameinfo (rawsock:message-addr message1)))
                   (multiple-value-list
                    (rawsock:getnameinfo (rawsock:message-addr message2)))))))
+  (rawsock:sock-close *sock1*) (rawsock:sock-close *sock2*)
+  (rawsock:sock-close *sock*)
   nil)
 NIL
 
-(rawsock:sock-write 1 (to-bytes "foo"))
-3
+#-win32 (rawsock:sock-write 1 (to-bytes "foo")) #-win32 3
 
 ;;;; root only??
 (integerp (show (setq *sock* (rawsock:socket :INET :DGRAM 0)))) T
@@ -243,9 +278,12 @@ NIL
 
 (rawsock:sock-close *sock*) 0
 
-(rawsock:protocol-p (show (rawsock:protocol "IP") :pretty t)) T
-(listp (show (rawsock:protocol) :pretty t)) T
-(listp (show (rawsock:network) :pretty t)) T
+(or (not (fboundp 'rawsock:protocol))
+    (rawsock:protocol-p (show (rawsock:protocol "IP") :pretty t))) T
+(or (not (fboundp 'rawsock:protocol))
+    (listp (show (rawsock:protocol) :pretty t))) T
+(or (not (fboundp 'rawsock:network))
+    (listp (show (rawsock:network) :pretty t))) T
 
 (or (not (fboundp 'rawsock:getaddrinfo))
     (listp (show (rawsock:getaddrinfo :node "localhost") :pretty t))) T
