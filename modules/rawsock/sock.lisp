@@ -86,3 +86,9 @@ Passes :TYPE to SOCKET and all the other options to MAKE-STREAM."
   (declare (ignore abort))
   (sock-close sock))
 )
+
+(defmethod describe-object ((addr sockaddr) (out stream))
+  (call-next-method)
+  (when (fboundp 'rawsock:getnameinfo)
+    (multiple-value-bind (node service) (rawsock:getnameinfo addr)
+      (format out "sockaddr node: ~S, service: ~S~%" node service))))
