@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for RAWSOCK
-dnl Sam Steingold 2003-2004
+dnl Sam Steingold 2004-2005
 
 AC_PREREQ(2.57)
 AC_INIT(rawsock, 1.0, clisp-list)
@@ -36,6 +36,11 @@ else AC_CHECK_MEMBERS([struct msghdr.msg_flags, struct msghdr.msg_control],,,
 fi
 AC_CHECK_SIZEOF(ssize_t)
 AC_CHECK_SIZEOF(size_t)
+AC_CHECK_TYPES(struct iovec,,,[
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+])
 
 AC_MSG_NOTICE([* RAWSOCK (Functions):])
 if test "$ac_cv_header_winsock2_h" = "yes"; then
