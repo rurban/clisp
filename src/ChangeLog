@@ -1,3 +1,7 @@
+2005-10-25  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/configure.in: check "struct iovec"
+
 2005-10-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c (check_socket_protocol): added
