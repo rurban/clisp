@@ -63,8 +63,15 @@
 #if defined(HAVE_POLL_H)
 # include <poll.h>
 #endif
-#if defined(HAVE_WINSOCK2_H)
+#if defined(HAVE_WINSOCK2_H)    /* woe32 suckety sucks */
 # include <winsock2.h>
+# define CLOSESOCK  closesocket
+# define READ(s,b,l)  recv(s,b,l,0)
+# define WRITE(s,b,l)  send(s,b,l,0)
+#else
+# define CLOSESOCK  close
+# define READ  read
+# define WRITE  write
 #endif
 #if defined(HAVE_WS2TCPIP_H)
 # include <ws2tcpip.h>
@@ -134,7 +141,6 @@ static void* check_struct_data (object type, object arg, SOCKLEN_T *size,
   }
 }
 
-#if defined(HAVE_SYS_UIO_H)
 /* check that the arg is a vector of byte vectors
  > *arg_: vector
  > STACK_0, STACK_1: START & END
@@ -154,6 +160,25 @@ static int check_iovec_arg (gcv_object_t *arg_, uintL *offset) {
       check_byte_vector(TheSvector(*arg_)->data[ii]);
   return size;
 }
+#if !defined(HAVE_STRUCT_IOVEC)
+struct iovec { void *iov_base; size_t iov_len; };
+#endif  /* HAVE_STRUCT_IOVEC */
+#if !defined(HAVE_READV)        /* emulate readv using read */
+static ssize_t readv (rawsock_t sock, const struct iovec *iov, int len) {
+  ssize_t retval = 0;
+  for (; len--; iov++)
+    retval += READ(sock,iov->iov_base,iov->iov_len);
+  return retval;
+}
+#endif
+#if !defined(HAVE_WRITEV)       /* emulate writev using write */
+static ssize_t writev (rawsock_t sock, const struct iovec *iov, int len) {
+  ssize_t retval = 0;
+  for (; len--; iov++)
+    retval += WRITE(sock,iov->iov_base,iov->iov_len);
+  return retval;
+}
+#endif
 /* DANGER: the return value is invalidated by GC!
  this must be called _after_ check_iovec_arg()
  fill the iovec array from the vector of byte vectors
@@ -177,7 +202,6 @@ static void fill_iovec (object vect, size_t offset, ssize_t veclen,
                        (aint)buffer->iov_base + len);
   }
 }
-#endif  /* HAVE_SYS_UIO_H */
 
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
   SOCKLEN_T size;
@@ -527,17 +551,36 @@ DEFUN(RAWSOCK:SOCKET,domain type protocol) {
   VALUES1(fixnum(sock));
 }
 
-#if defined(HAVE_SOCKETPAIR)    /* not on win32 */
 DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
   rawsock_t sock[2];
   int retval;
   int protocol = get_socket_protocol(popSTACK());
   int type = check_socket_type(popSTACK());
   int domain = check_socket_domain(popSTACK());
+#if defined(HAVE_SOCKETPAIR)
   SYSCALL(retval,-1,socketpair(domain,type,protocol,sock));
+#else /* woe32 et al */
+  struct sockaddr_in addr;
+  SOCKLEN_T sa_size = sizeof(struct sockaddr_in);
+  rawsock_t newsock;
+  addr.sin_family = domain;
+  addr.sin_port = 0;            /* OS will assign an available port */
+  addr.sin_addr.s_addr = 16777343; /* 127.0.0.1 */
+  SYSCALL(sock[0],-1,socket(domain,type,protocol));
+  SYSCALL(sock[1],-1,socket(domain,type,protocol));
+  SYSCALL(retval,sock[1],bind(sock[1],(struct sockaddr*)&addr,
+                              sizeof(struct sockaddr_in)));
+  SYSCALL(retval,sock[1],listen(sock[1],1));
+  /* figure out what port was assigned: */
+  SYSCALL(retval,sock[1],getsockname(sock[1],(struct sockaddr*)&addr,&sa_size));
+  SYSCALL(retval,sock[0],connect(sock[0],(struct sockaddr*)&addr,sa_size));
+  SYSCALL(newsock,sock[1],accept(sock[1],(struct sockaddr*)&addr,&sa_size));
+  /* do not need the server anymore: */
+  SYSCALL(retval,sock[1],CLOSESOCK(sock[1]));
+  sock[1] = newsock;
+#endif
   VALUES2(fixnum(sock[0]),fixnum(sock[1]));
 }
-#endif
 
 #if defined(HAVE_SOCKATMARK)
 DEFUN(RAWSOCK:SOCKATMARK, sock) {
@@ -817,17 +860,14 @@ DEFUN(RAWSOCK:SOCK-READ,socket buffer &key START END)
   ssize_t retval;
   size_t len;
   uintL offset;
-#if defined(HAVE_SYS_UIO_H) && defined(HAVE_READV)
   if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* READV */
     struct iovec *buffer = (struct iovec*)alloca(sizeof(struct iovec)*retval);
     fill_iovec(STACK_2,offset,retval,buffer,PROT_READ_WRITE);
     SYSCALL(retval,sock,readv(sock,buffer,retval));
-  } else
-#endif
-    {                      /* READ */
-      void *buffer = parse_buffer_arg(&STACK_2,&len,PROT_READ_WRITE);
-      SYSCALL(retval,sock,read(sock,buffer,len));
-    }
+  } else {                      /* READ */
+    void *buffer = parse_buffer_arg(&STACK_2,&len,PROT_READ_WRITE);
+    SYSCALL(retval,sock,READ(sock,buffer,len));
+  }
   VALUES1(ssize_to_I(retval)); skipSTACK(4);
 }
 
@@ -892,28 +932,21 @@ DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key START END)
   ssize_t retval;
   size_t len;
   uintL offset;
-#if defined(HAVE_SYS_UIO_H) && defined(HAVE_READV)
   if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* WRITEW */
     struct iovec *buffer = (struct iovec*)alloca(sizeof(struct iovec)*retval);
     fill_iovec(STACK_2,offset,retval,buffer,PROT_READ);
     SYSCALL(retval,sock,writev(sock,buffer,retval));
-  } else
-#endif
-    {                           /* WRITE */
-      void *buffer = parse_buffer_arg(&STACK_2,&len,PROT_READ);
-      SYSCALL(retval,sock,write(sock,buffer,len));
-    }
+  } else {                      /* WRITE */
+    void *buffer = parse_buffer_arg(&STACK_2,&len,PROT_READ);
+    SYSCALL(retval,sock,WRITE(sock,buffer,len));
+  }
   VALUES1(ssize_to_I(retval)); skipSTACK(4);
 }
 
 DEFUN(RAWSOCK:SOCK-CLOSE, socket) {
   rawsock_t sock = I_to_uint(check_uint(popSTACK()));
   int retval;
-#if defined(HAVE_WINSOCK2_H)
-  SYSCALL(retval,sock,closesocket(sock));
-#else
-  SYSCALL(retval,sock,close(sock));
-#endif
+  SYSCALL(retval,sock,CLOSESOCK(sock));
   VALUES1(fixnum(retval));
 }
 
