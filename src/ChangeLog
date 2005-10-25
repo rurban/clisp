@@ -1,5 +1,9 @@
 2005-10-25  Sam Steingold  <sds@gnu.org>
 
+	* .gdbinit (OS_error, OS_file_error, OS_filestream_error): break
+
+2005-10-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/configure.in: check "struct iovec"
 	* modules/rawsock/rawsock.c (struct iovec) [!HAVE_STRUCT_IOVEC]: define
 	(read, write) [win32]: use recv/send instead
