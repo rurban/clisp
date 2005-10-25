@@ -3304,7 +3304,7 @@ echotab "${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
 # src/build-aux/install-sh _AND_ also its own sources, thus we must
 # point it to modules/... in the original source tree
 if [ "@TEST_NT@" = no ]; then # re-making a module requires rm -rf module
-  NEED_RECONFIGURE='test -f $@/configure -a '"'!'"' $@/config.status'
+  NEED_RECONFIGURE='test -f $@/configure -a '"'!'"' -f $@/config.status'
 else # re-making a module just works
   NEED_RECONFIGURE='test -f $@/configure -a $@/configure -nt $@/config.status'
 fi
