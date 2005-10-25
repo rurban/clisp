@@ -18303,12 +18303,16 @@ EOF
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }
-cl_cv_decl_ELOOP=`./conftest`
-if test "$cl_cv_decl_ELOOP" = "ELOOP"; then
-  cl_cv_decl_eloop=yes
-else
-  cl_cv_decl_eloop="$cl_cv_decl_ELOOP"
-fi
+ if test -x conftest; then
+  cl_cv_decl_ELOOP=`./conftest`
+  if test "$cl_cv_decl_ELOOP" = "ELOOP"; then
+    cl_cv_decl_eloop=yes
+  else
+    cl_cv_decl_eloop="$cl_cv_decl_ELOOP"
+  fi
+ else cl_cv_decl_eloop=no
+     cl_cv_decl_ELOOP="ELOOP"
+ fi
 else
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -19228,7 +19232,7 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_func_poll" >&5
 echo "${ECHO_T}$ac_cv_func_poll" >&6
 if test $ac_cv_func_poll = yes; then
-  # Check whether poll() works on special files (like /dev/null) and
+  # Check whether poll() works on special files (like /dev/null)
    # and ttys (like /dev/tty). On MacOS X 10.4.0, it doesn't.
    if test "$cross_compiling" = yes; then
   # When cross-compiling, assume that poll() works everywhere except on
@@ -19310,7 +19314,7 @@ rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftes
 fi
 fi
 
-if test $cl_cv_func_poll = yes; then
+if test x$cl_cv_func_poll = xyes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_POLL 1
