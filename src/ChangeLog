@@ -8,6 +8,8 @@
 	(SOCKETPAIR) [!HAVE_SOCKETPAIR]: implemented
 	(SOCK-READ, SOCK-WRITE): use readv and writev even when the OS
 	does not offer them
+	* modules/rawsock/sock.lisp (describe-object@sockaddr): new
+	method, calls getnameinfo
 
 2005-10-24  Sam Steingold  <sds@gnu.org>
 
