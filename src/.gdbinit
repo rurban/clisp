@@ -140,6 +140,9 @@ break STACK_ueber
 
 break fehler
 break prepare_error
+break OS_error
+break OS_file_error
+break OS_filestream_error
 
 info break
 
