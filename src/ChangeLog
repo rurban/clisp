@@ -1,4 +1,5 @@
-2005-10-25  Sam Steingold  <sds@gnu.org>
+2005-10-25  Yaroslav Kavenchuk  <kavenchuk@jenty.by>
+	    Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (NEED_RECONFIGURE) [!TEST_NT]: fixed a typo
 
