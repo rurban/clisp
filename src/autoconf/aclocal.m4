@@ -771,12 +771,16 @@ int main()
 #endif
 EOF
 AC_TRY_EVAL(ac_link)
-cl_cv_decl_ELOOP=`./conftest`
-if test "$cl_cv_decl_ELOOP" = "ELOOP"; then
-  cl_cv_decl_eloop=yes
-else
-  cl_cv_decl_eloop="$cl_cv_decl_ELOOP"
-fi
+ if test -x conftest; then
+  cl_cv_decl_ELOOP=`./conftest`
+  if test "$cl_cv_decl_ELOOP" = "ELOOP"; then
+    cl_cv_decl_eloop=yes
+  else
+    cl_cv_decl_eloop="$cl_cv_decl_ELOOP"
+  fi
+ else cl_cv_decl_eloop=no
+     cl_cv_decl_ELOOP="ELOOP"
+ fi
 else
 AC_EGREP_CPP(yes,[
 #include <stdlib.h>
@@ -5542,7 +5546,7 @@ AC_PREREQ(2.57)
 AC_DEFUN([CL_POLL],
 [AC_REQUIRE([CL_OPENFLAGS])dnl
 AC_CHECK_FUNC(poll,
-  [# Check whether poll() works on special files (like /dev/null) and
+  [# Check whether poll() works on special files (like /dev/null)
    # and ttys (like /dev/tty). On MacOS X 10.4.0, it doesn't.
    AC_TRY_RUN([
 #include <fcntl.h>
@@ -5578,7 +5582,8 @@ AC_CHECK_FUNC(poll,
 This is MacOSX
 #endif
 ], [cl_cv_func_poll=no], [cl_cv_func_poll=yes])])])
-if test $cl_cv_func_poll = yes; then
+dnl if AC_CHECK_FUNC does not find poll, cl_cv_func_poll will not be set
+if test x$cl_cv_func_poll = xyes; then
   AC_DEFINE([HAVE_POLL], 1,
     [Define to 1 if you have the 'poll' function and it works.])
 # Now check whether poll() works reliably on regular files, i.e. signals
