@@ -117,6 +117,10 @@ typedef NODE Page;
       # It is unlikely that more than 4 GB will be used.
       #define oint_addr_relevant_len  32
     #endif
+    #if !defined(oint_addr_relevant_len)
+      /* safe bet */
+      #define oint_addr_relevant_len 32
+    #endif
   #endif
   #define min_page_size_brutto  bit(oint_addr_relevant_len/2)
   #define std_page_size  round_down(min_page_size_brutto-sizeof_NODE-(varobject_alignment-1),sizeof(cons_))
