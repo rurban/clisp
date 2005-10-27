@@ -2827,11 +2827,18 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define oint_data_len 48
     #define oint_data_mask 0x0000FFFFFFFFFFFFUL
   #endif
-  #if defined(AMD64) && defined(UNIX_LINUX)
-    # Code address range:    0x000000004xxxxxxx
-    # Malloc address range:  0x000000004xxxxxxx
-    # Shared libraries:      0x0000002A95xxxxxx
-    # Bits 63..48 = type code, Bits 47..0 = address
+  #if defined(AMD64)
+   /* UNIX_LINUX:
+     CODE_ADDRESS_RANGE     0x0000000000000000UL
+     MALLOC_ADDRESS_RANGE   0x0000000000000000UL
+     SHLIB_ADDRESS_RANGE    0x00000034F5000000UL
+     STACK_ADDRESS_RANGE    0x0000007FBF000000UL
+   UNIX_FREEBSD
+     CODE_ADDRESS_RANGE     0x0000000000000000UL
+     MALLOC_ADDRESS_RANGE   0x0000000000000000UL
+     SHLIB_ADDRESS_RANGE    0x0000000800000000UL
+     STACK_ADDRESS_RANGE    0x00007FFFFF000000UL
+     Bits 63..48 = type code, Bits 47..0 = address */
     #define oint_type_shift 48
     #define oint_type_len 16
     #define oint_type_mask 0xFFFF000000000000UL
