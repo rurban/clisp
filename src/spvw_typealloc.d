@@ -226,7 +226,7 @@ global maygc object allocate_imm_s32string (uintL len) {
 global maygc object reallocate_small_string (object string, uintB newtype) {
   var uintL len = Sstring_length(string); # known to be > 0
  #ifdef DEBUG_SPVW
-  var uintL size = objsize(TheSstring(string));
+  var uintL size = varobject_bytelength(string);
  #endif
   pushSTACK(string);
   var object newstring =
@@ -278,7 +278,7 @@ global maygc object reallocate_small_string (object string, uintB newtype) {
   ptr->data = newstring;
   clr_break_sem_1(); # permit interrupts again
  #ifdef DEBUG_SPVW
-  if (size != objsize(TheSstring(string))) abort();
+  if (size != varobject_bytelength(string)) abort();
  #endif
   return string;
 }
