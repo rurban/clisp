@@ -1,3 +1,11 @@
+2005-10-28  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (publish_host_data): accept raw sockets
+	(STREAM-HANDLES): replaces SOCKET-STREAM-HANDLES, returns both
+	input and output handles as two values
+	* subr.d, constsym.d (stream_handles): ditto
+	* init.lisp (stream-handles): always export it
+
 2005-10-27  Sam Steingold  <sds@gnu.org>
 
 	* spvw_typealloc.d (reallocate_small_string) [DEBUG_SPVW]: use

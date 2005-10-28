@@ -999,9 +999,7 @@ LISPSYM(socket_options,"SOCKET-OPTIONS",socket)
 LISPSYM(socket_stream_shutdown,"SOCKET-STREAM-SHUTDOWN",socket)
 #endif
 LISPSYM(make_stream,"MAKE-STREAM",ext)
-#ifndef WIN32_NATIVE
-LISPSYM(socket_stream_handle,"SOCKET-STREAM-HANDLE",socket)
-#endif
+LISPSYM(stream_handles,"STREAM-HANDLES",socket)
 #endif
 LISPSYM(built_in_stream_open_p,"BUILT-IN-STREAM-OPEN-P",system)
 LISPSYM(input_stream_p,"INPUT-STREAM-P",lisp)
