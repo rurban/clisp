@@ -4642,7 +4642,8 @@ Compiled, it will have inlined the library function calls.
                  &optional-amp; <replaceable>service-name</replaceable>
                  (&proto-r; "tcp"))</code></term>
   <listitem><simpara>A convenience function for looking up a port given
-    the service name.  It returns the servent struct as &mul-val;
+    the service name, such as <quote>WWW</quote> or <quote>FTP</quote>.
+    It returns the servent struct as &mul-val;
     (name, list of aliases, port, protocol) for the given
     <replaceable>service-name</replaceable> and
     &proto-r;, or all services as the list of
@@ -4657,7 +4658,7 @@ Compiled, it will have inlined the library function calls.
    <simpara>When the optional second argument is non-&nil;, the hostname
     resolution is disabled and just the IP address is returned, without
     the <acronym>FQDN<alt>Fully Qualified Domain Name</alt></acronym>.
- </simpara></listitem></varlistentry>
+ </simpara>&sost-raw-too;</listitem></varlistentry>
  <varlistentry id="sost-local"><term><code>(&sost-local;
     &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</code></term>
   <listitem><simpara>The dual to &sost-peer; - same information,
@@ -4666,7 +4667,7 @@ Compiled, it will have inlined the library function calls.
    asks the OS (and thus returns the correct trusted values) while the
    other two are just accessors to the internal data structure, and
    basically return the arguments given to the function which created
-   the &sost-r;.</simpara></listitem></varlistentry>
+   the &sost-r;.</simpara>&sost-raw-too;</listitem></varlistentry>
  <varlistentry id="sost-shut"><term><code>(&sost-shut; &sost-r;
     &direction-r;)</code></term>
   <listitem><simpara>Some Internet protocols, such as &http;, provide for
@@ -4702,6 +4703,11 @@ Compiled, it will have inlined the library function calls.
    value of the <constant>:SO-LINGER</constant> option, and 1, the
    current value of the <constant>:SO-RCVLOWAT</constant> option.
   </simpara>&sost-raw-too;</listitem></varlistentry>
+ <varlistentry id="so-handles"><term><code>(&so-handles;
+    &stream-r;)</code></term>
+  <listitem><simpara>Return the input and output OS &file-des; of the
+    &stream-r; as &mul-val;.  See <xref linkend="rawsock"/>.
+ </simpara></listitem></varlistentry>
 </variablelist></section>
 <!-- #endif -->
 </section>
