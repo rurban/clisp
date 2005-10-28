@@ -1211,9 +1211,7 @@ LISPFUNN(socket_stream_shutdown,2)
 #endif
 LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
         (kw(direction),kw(element_type),kw(external_format),kw(buffered)) )
-#ifndef WIN32_NATIVE
-LISPFUNN(socket_stream_handle,1)
-#endif
+LISPFUNN(stream_handles,1)
 #endif
 LISPFUNNR(built_in_stream_open_p,1)
 LISPFUNNR(input_stream_p,1)

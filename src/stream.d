@@ -14584,28 +14584,27 @@ typedef host_data_t * host_data_fetcher_t (SOCKET, host_data_t *, bool);
 extern host_data_fetcher_t socket_getpeername, socket_getlocalname;
 
 local void publish_host_data (host_data_fetcher_t* func) {
-  var bool resolve_p = missingp(STACK_0);
-  skipSTACK(1);
-  var object stream = test_socket_stream(popSTACK(),true);
-  var SOCKET sk = SocketChannel(stream);
+  var bool resolve_p = missingp(STACK_0); skipSTACK(1);
+  var SOCKET sk = uint_p(STACK_0) ? I_to_uint(STACK_0)
+    : SocketChannel(test_socket_stream(popSTACK(),true));
   var host_data_t hd;
   var object hostname;
-    begin_system_call();
-    if ((*func)(sk,&hd,resolve_p) == NULL) { SOCK_error(); }
-    end_system_call();
-    if (hd.truename[0] == '\0') {
-      hostname = asciz_to_string(hd.hostname,O(misc_encoding));
-    } else {
-      var DYNAMIC_ARRAY(tmp_str,char,strlen(hd.truename)+2+strlen(hd.hostname)+1+1);
-      strcpy(tmp_str, hd.hostname);
-      strcat(tmp_str, " (");
-      strcat(tmp_str, hd.truename);
-      strcat(tmp_str, ")");
-      hostname = asciz_to_string(tmp_str,O(misc_encoding));
-      FREE_DYNAMIC_ARRAY(tmp_str);
-    }
-    VALUES2(hostname, fixnum(hd.port));
+  begin_system_call();
+  if ((*func)(sk,&hd,resolve_p) == NULL) { SOCK_error(); }
+  end_system_call();
+  if (hd.truename[0] == '\0') {
+    hostname = asciz_to_string(hd.hostname,O(misc_encoding));
+  } else {
+    var DYNAMIC_ARRAY(tmp_str,char,strlen(hd.truename)+2+strlen(hd.hostname)+1+1);
+    strcpy(tmp_str, hd.hostname);
+    strcat(tmp_str, " (");
+    strcat(tmp_str, hd.truename);
+    strcat(tmp_str, ")");
+    hostname = asciz_to_string(tmp_str,O(misc_encoding));
+    FREE_DYNAMIC_ARRAY(tmp_str);
   }
+  VALUES2(hostname, fixnum(hd.port));
+}
 
 LISPFUN(socket_stream_peer,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (SOCKET-STREAM-PEER socket-stream [do-not-resolve-p]) */
@@ -14617,16 +14616,13 @@ LISPFUN(socket_stream_local,seclass_default,1,1,norest,nokey,0,NIL)
   publish_host_data (&socket_getlocalname);
 }
 
-#ifndef WIN32_NATIVE
-
-LISPFUNN(socket_stream_handle,1)
-{ /* (SOCKET-STREAM-HANDLE socket-stream) */
-  var object stream = test_socket_stream(STACK_0,true);
-  VALUES1(fixnum(SocketChannel(stream)));
-  skipSTACK(1);
+LISPFUNN(stream_handles,1)
+{ /* (STREAM-HANDLES stream) */
+  var SOCKET in_sock=INVALID_SOCKET, out_sock=INVALID_SOCKET;
+  stream_handles(popSTACK(),false,NULL,&in_sock,&out_sock);
+  VALUES2(in_sock  == INVALID_SOCKET ? NIL : fixnum(in_sock),
+          out_sock == INVALID_SOCKET ? NIL : fixnum(out_sock));
 }
-
-#endif
 
 #ifdef HAVE_SHUTDOWN
 
