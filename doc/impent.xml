@@ -662,6 +662,7 @@
 <!ENTITY spec-lalist-r "<replaceable>specialized-lambda-list</replaceable>">
 <!ENTITY specializer-r "<replaceable>specializer</replaceable>">
 <!ENTITY start-r "<replaceable>start</replaceable>">
+<!ENTITY status-r "<replaceable>status</replaceable>">
 <!ENTITY stream-r "<replaceable>stream</replaceable>">
 <!ENTITY string-r "<replaceable>string</replaceable>">
 <!ENTITY sub-1 "<subscript>1</subscript>">

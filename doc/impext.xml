@@ -125,14 +125,15 @@ base/lisp.run: initialization file `lispinit.mem' was not created by this versio
 
 <section id="quit"><title>Quitting &clisp;</title>
 
-<para>The functions <code>(<function>EXT:EXIT</function>
- [<replaceable>errorp</replaceable>])</code>,
- <code>(<function>EXT:QUIT</function>
-  [<replaceable>errorp</replaceable>])</code> and
- <code>(<function>EXT:BYE</function>
-  [<replaceable>errorp</replaceable>])</code> - all synonymous -
- terminate &clisp;.  If <replaceable>errorp</replaceable> is non-&nil;,
- &clisp; aborts with the supplied numeric error status, i.e.,
+<para>The functions <simplelist>
+  <member><code>(<function>EXT:EXIT</function>
+    &optional-amp; &status-r;)</code></member>
+  <member><code>(<function>EXT:QUIT</function>
+    &optional-amp; &status-r;)</code></member>
+  <member><code>(<function>EXT:BYE</function>
+    &optional-amp; &status-r;)</code></member></simplelist>
+ - all synonymous - terminate &clisp;.  If &status-r; is non-&nil;,
+ &clisp; aborts with the supplied numeric error &status-r;, i.e.,
  the OS environment is informed that the &clisp; session did not
  succeed.</para>
 
@@ -4555,15 +4556,13 @@ Compiled, it will have inlined the library function calls.
    <simpara>This is similar to &listen;, which checks only one
     &stream-t; and only for input, and &so-wait;, which works only with
     &socket-server;s.</simpara>
-   <simpara>We define <quote>status</quote> for a &socket-server; or a
-    &socket-stream; to be &error-k; if any i/o operation will cause an
-    &error-t;.</simpara>
+   <simpara>We define &status-r; for a &socket-server; or a &socket-stream;
+    to be &error-k; if any i/o operation will cause an &error-t;.</simpara>
    <simpara>Additionally, for a &socket-server;, we define
-    <quote>status</quote> to be &t; if a connection is available, i.e.,
+    &status-r; to be &t; if a connection is available, i.e.,
     is &so-accept; will not block, and &nil; otherwise.</simpara>
-   <para>Additionally, for a &socket-stream;, we define
-    <quote>status</quote> in the given &direction-r; (one of &input-k;,
-    &output-k;, and &io-k;) to be
+   <para>Additionally, for a &socket-stream;, we define &status-r; in the
+    given &direction-r; (one of &input-k;, &output-k;, and &io-k;) to be
     <variablelist id="so-status-values">&varlist-table;
      <title>Possible status values for various directions:</title>
      <varlistentry><term>&input-k; status:</term>
