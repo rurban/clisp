@@ -339,6 +339,11 @@ cl-user::y
 (and (in-package "CL-USER") (package-name *package*))
 "COMMON-LISP-USER"
 
+(ext:appease-cerrors
+ (let ((*package* "not a package - just a string"))
+   (multiple-value-list (read-from-string "READ-FROM-STRING"))))
+(READ-FROM-STRING 16)
+
 ;; http://www.lisp.org/HyperSpec/Issues/iss194-writeup.html
 (let ((tmp-sym (make-symbol "FOO"))
       (old-sym (find-symbol "FOO" "CL-USER")))
