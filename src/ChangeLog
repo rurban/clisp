@@ -1,3 +1,11 @@
+2005-10-29  Sam Steingold  <sds@gnu.org>
+
+	* package.d (get_current_package): issue a CERROR when resetting
+	the package
+	* lispbibl.d (get_current_package): declare maygc
+	* io.d (write_sstring_case, pr_symbol, pr_like_symbol):
+	save objects around get_current_package()
+
 2005-10-28  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (publish_host_data): accept raw sockets
