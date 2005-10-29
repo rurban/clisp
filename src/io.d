@@ -5439,9 +5439,11 @@ local maygc void write_sstring_case_ext (const gcv_object_t* stream_, object str
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local maygc void write_sstring_case (const gcv_object_t* stream_, object string) {
+local maygc void write_sstring_case (const gcv_object_t* stream_, object string)
+{
+  pushSTACK(string);            /* save */
   var object curr_pack = get_current_package();
-  write_sstring_case_ext(stream_,string,
+  write_sstring_case_ext(stream_,popSTACK()/*string*/,
                          pack_casesensitivep(curr_pack),
                          pack_caseinvertedp(curr_pack));
 }
@@ -6984,13 +6986,14 @@ local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
     # with escape-characters and maybe package-name:
     var bool case_sensitive = false;
     var bool case_inverted = false;
-    var object curr_pack = get_current_package();
     if (keywordp(sym)) { # Keyword ?
       pushSTACK(sym); # save symbol
       write_ascii_char(stream_,':');
       sym = popSTACK(); # move sym back
     } else {
       pushSTACK(sym); # save symbol
+      var object curr_pack = get_current_package();
+      sym = STACK_0;           /* restore */
       var object home = Symbol_package(sym); # home-package of the symbol
       if (nullp(home)) { # print uninterned symbol
         # query *PRINT-GENSYM*:
@@ -7194,8 +7197,10 @@ local maygc void pr_like_symbol (const gcv_object_t* stream_, object string) {
   # query *PRINT-ESCAPE*:
   if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
     # print with escape-characters
+    pushSTACK(string);          /* save */
     var object pack = get_current_package();
-    pr_symbol_part(stream_,string,pack_casesensitivep(pack),pack_caseinvertedp(pack));
+    pr_symbol_part(stream_,popSTACK()/*string*/,
+                   pack_casesensitivep(pack),pack_caseinvertedp(pack));
   } else
     # print without escape-characters
     write_sstring_case(stream_,string);

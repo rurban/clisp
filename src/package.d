@@ -1706,19 +1706,34 @@ local maygc void unuse_package (object packlist, object pack) {
 
 /* UP: returns the current package
  get_current_package()
- < result: current package */
-global object get_current_package (void) {
+ < result: current package
+ can trigger GC */
+global maygc object get_current_package (void) {
   var object pack = Symbol_value(S(packagestern)); /* value of *PACKAGE* */
   if (packagep(pack) && !pack_deletedp(pack)) {
     return pack;
   } else {
     var object newpack = /* reset *PACKAGE* */
       Symbol_value(S(packagestern)) = O(default_package);
-    pushSTACK(pack); /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(package)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(newpack); pushSTACK(pack);
-    fehler(type_error,
-           GETTEXT("The value of *PACKAGE* was not a package. Old value ~S. New value ~S."));
+    /* get_current_package() is often called by the reader,
+       so we need to save and restore the read buffers */
+    pushSTACK(O(token_buff_1)); O(token_buff_1) = NIL;
+    pushSTACK(O(token_buff_2)); O(token_buff_2) = NIL;
+    pushSTACK(NIL);             /* 8: "Proceed with the new value." */
+    pushSTACK(S(type_error));   /* 7: error type */
+    pushSTACK(S(Kdatum));       /* 6: :DATUM */
+    pushSTACK(pack);            /* 5: TYPE-ERROR slot DATUM */
+    pushSTACK(S(Kexpected_type)); /* 4: :EXPECTED-TYPE */
+    pushSTACK(S(package));      /* 3: TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(NIL);             /* 2: "The value of ..." */
+    pushSTACK(pack);            /* 1: old name */
+    pushSTACK(newpack);         /* 0: new name */
+    STACK_2 = CLSTEXT("The value of *PACKAGE* was not a package and was reset. The old value was ~S. The new value is ~S.");
+    STACK_8 = CLSTEXT("Proceed with the new value.");
+    funcall(L(cerror_of_type),9);
+    O(token_buff_2) = popSTACK(); /* restore read buffers */
+    O(token_buff_1) = popSTACK();
+    return Symbol_value(S(packagestern));
   }
 }
 

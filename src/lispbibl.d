@@ -15007,11 +15007,12 @@ extern maygc void import (const gcv_object_t* sym_, const gcv_object_t* pack_);
 extern maygc void export (const gcv_object_t* sym_, const gcv_object_t* pack_);
 # is used by SPVW
 
-# UP: gets the current package
-# get_current_package()
-# < result: current Package
-extern object get_current_package (void);
-# is used by IO, EVAL
+/* UP: gets the current package
+ get_current_package()
+ < result: current Package
+ can trigger GC */
+extern maygc object get_current_package (void);
+/* is used by IO */
 
 /* check whether package lock prevents assignment to symbol
  can trigger GC */
