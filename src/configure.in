@@ -317,7 +317,8 @@ dnl
 dnl
 AC_CONFIG_FILES([makemake],[
   echo "#!$SHELL" > makemake.tmp
-  echo "# Generated from makemake.in by configure." >> makemake.tmp
+  echo "# Generated from makemake.in by configure using:" >> makemake.tmp
+  echo "CONFIG_SHELL=$SHELL" >> makemake.tmp
   cat makemake >> makemake.tmp
   mv makemake.tmp makemake
   chmod a+x makemake
