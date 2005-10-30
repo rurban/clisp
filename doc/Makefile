@@ -2,14 +2,25 @@
 # (c) 2000-2005 Sam Steingold
 
 DTDVER=4.3
-IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml \
+IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	impext.xml impissue.xml impbyte.xml unix-ent.xml mop-ent.xml faq.xml \
-	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
-	../modules/regexp/regexp.xml ../modules/netica/netica.xml       \
-	../modules/berkeley-db/berkeley-db.xml ../modules/pcre/pcre.xml \
-	../modules/rawsock/rawsock.xml ../modules/matlab/matlab.xml     \
-	../modules/postgresql/postgresql.xml				\
-	../modules/oracle/oracle.xml ../modules/fastcgi/fastcgi.xml
+	../modules/berkeley-db/ent-bdb.xml	\
+	../modules/berkeley-db/berkeley-db.xml	\
+	../modules/dirkey/dirkey.xml		\
+	../modules/fastcgi/fastcgi.xml		\
+	../modules/i18n/i18n.xml		\
+	../modules/matlab/matlab.xml		\
+	../modules/netica/netica.xml		\
+	../modules/oracle/oracle.xml		\
+	../modules/pari/pari.xml		\
+	../modules/pcre/pcre.xml		\
+	../modules/postgresql/postgresql.xml	\
+	../modules/rawsock/rawsock.xml		\
+	../modules/readline/readline.xml	\
+	../modules/regexp/regexp.xml		\
+	../modules/syscalls/syscalls.xml	\
+	../modules/wildcard/wildcard.xml	\
+	../modules/zlib/zlib.xml
 OLINK=tdb-man.xml tdb-pile.xml tdb-chunk.xml olink-pile.xml olink-chunk.xml
 RM=/bin/rm -f
 # DOC=$(shell pwd)
