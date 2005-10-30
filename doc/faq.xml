@@ -214,7 +214,11 @@ further explanations of the issues could be provided).</para>
  <para>If you must have some answer and you do not care whether it is
   correct or not, you may simply think that &cl; brings
   the <emphasis>Light</emphasis> to a programmer, and &clisp; is a
-  vehicle that carries the <emphasis>Light</emphasis>.</para></answer>
+  vehicle that carries the <emphasis>Light</emphasis>.</para>
+ <para>Accordingly, &clisp; enables you to <emphasis>see</emphasis> the
+  truth, thus you can pronounce it as <emphasis>see-lisp</emphasis>.
+  Alternatively, if you are a <emphasis>seasoned</emphasis> expert,
+  you might pronounce it as <emphasis>sea-lisp</emphasis>.</para></answer>
 <answer><label>Historical</label>
   <para>&clisp; has been using the menorah for the logo since the project was
    first started in the late 1980-ies by Bruno Haible and Michael Stoll.
