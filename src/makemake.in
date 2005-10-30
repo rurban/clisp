@@ -2134,7 +2134,7 @@ if [ $HOS = unix ] ; then
   # As a workaround, we use GNU bash instead.
   case "$host_os" in
     hpux*) echol "SHELL = bash" ;;
-    *)     echol "SHELL = /bin/sh" ;;
+    *)     echol "SHELL = ${CONFIG_SHELL-/bin/sh}" ;;
   esac
   echol
 fi
