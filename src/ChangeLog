@@ -1,3 +1,9 @@
+2005-10-30  Sam Steingold  <sds@gnu.org>
+
+	ensure that make uses the same shell that configure tests
+	* configure.in: write CONFIG_SHELL into makemake
+	* makemake.in: set SHELL to CONFIG_SHELL
+
 2005-10-29  Sam Steingold  <sds@gnu.org>
 
 	* package.d (get_current_package): issue a CERROR when resetting
