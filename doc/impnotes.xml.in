@@ -16,21 +16,21 @@
   <!ENTITY imp-ext-file SYSTEM "impext.xml">
   <!ENTITY imp-byte-file SYSTEM "impbyte.xml">
   <!ENTITY faq-file SYSTEM "faq.xml">
-  <!ENTITY dirkey-file SYSTEM "../modules/dirkey/dirkey.xml">
   <!ENTITY % ent-bdb-file SYSTEM "../modules/berkeley-db/ent-bdb.xml">
   %ent-bdb-file;
   <!ENTITY berkeley-db-file SYSTEM "../modules/berkeley-db/berkeley-db.xml">
-  <!ENTITY oracle-file SYSTEM "../modules/oracle/oracle.xml">
+  <!ENTITY dirkey-file SYSTEM "../modules/dirkey/dirkey.xml">
   <!ENTITY fastcgi-file SYSTEM "../modules/fastcgi/fastcgi.xml">
   <!ENTITY i18n-file SYSTEM "../modules/i18n/i18n.xml">
-  <!ENTITY netica-file SYSTEM "../modules/netica/netica.xml">
   <!ENTITY matlab-file SYSTEM "../modules/matlab/matlab.xml">
-  <!ENTITY regexp-file SYSTEM "../modules/regexp/regexp.xml">
+  <!ENTITY netica-file SYSTEM "../modules/netica/netica.xml">
+  <!ENTITY oracle-file SYSTEM "../modules/oracle/oracle.xml">
   <!ENTITY pari-file SYSTEM "../modules/pari/pari.xml">
   <!ENTITY pcre-file SYSTEM "../modules/pcre/pcre.xml">
   <!ENTITY postgresql-file SYSTEM "../modules/postgresql/postgresql.xml">
   <!ENTITY rawsock-file SYSTEM "../modules/rawsock/rawsock.xml">
   <!ENTITY readline-file SYSTEM "../modules/readline/readline.xml">
+  <!ENTITY regexp-file SYSTEM "../modules/regexp/regexp.xml">
   <!ENTITY syscalls-file SYSTEM "../modules/syscalls/syscalls.xml">
   <!ENTITY wildcard-file SYSTEM "../modules/wildcard/wildcard.xml">
   <!ENTITY zlib-file SYSTEM "../modules/zlib/zlib.xml">
