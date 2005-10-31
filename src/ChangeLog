@@ -35,7 +35,7 @@
 	* spvw_typealloc.d (reallocate_small_string) [DEBUG_SPVW]: use
 	varobject_bytelength() instead of objsize() to compile with SPVW_PURE
 	* spvw_page.d (oint_addr_relevant_len): define to 32 by default
-	* lispbibl.d (oint_type_* &c) [AMD64]: define the same way on
+	* lispbibl.d (oint_type_* &c) [AMD64]: define the same way on all
 	platforms: works on BSD* with -DNO_TRIVIALMAP -DNO_MULTIMAP_SHM
 	-DNO_MULTIMAP_FILE -DNO_SINGLEMAP
 
