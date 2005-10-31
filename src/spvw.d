@@ -3159,7 +3159,7 @@ local inline void main_actions (struct argv_actions *p) {
    #endif
     Symbol_value(S(load_verbose)) = NIL;
     if (asciz_equal(p->argv_execute_file,"-")) {
-      pushSTACK(S(standard_input)); /* *STANDARD-INPUT* */
+      pushSTACK(Symbol_value(S(standard_input))); /* *STANDARD-INPUT* */
     } else {
       pushSTACK(asciz_to_string(p->argv_execute_file,O(misc_encoding)));
     }
