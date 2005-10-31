@@ -2835,7 +2835,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
   <term><code>(&setf; (&validp; &f-ent;) &value-r;)</code></term>
 <listitem><simpara>This predicate returns &nil; if the &f-ent;
   (e.g. the Lisp equivalent of a &c-pointer;) refers to a pointer
-  which is invalid because it comes from a previous Lisp session.
+  which is invalid (e.g., because it comes from a previous Lisp session).
   It returns &t; if &f-ent; can be used within the current Lisp process
   (thus it returns &t; for all non-foreign arguments).</simpara>
  <simpara>You can invalidate a foreign object using
@@ -3925,8 +3925,9 @@ double test_dll(struct bar *ptr)
 </programlisting>
 <warning><para>Sharing &foreign-pointer; goes both ways: invalidating
   the dependent resource will invalidate the primary one.</para></warning>
-<note><para>An alternative approach to resource management is
-  implemented in the <link linkend="berkeley-db">berkeley-db</link>
+<note><para>An alternative approach to resource management,
+  more suitable to non-&ffi-pac; &module;s,
+  is implemented in the <link linkend="berkeley-db">berkeley-db</link>
   module, see <xref linkend="bdb-close"/>.</para></note></para></example>
 
 <example id="ex-dffi-float"><title>Float point array computations</title>
