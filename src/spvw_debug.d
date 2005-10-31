@@ -214,10 +214,6 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     if (!fp_validp(TheFpointer(obj))) string_out(out,O(printstring_invalid));
     string_out(out,O(printstring_fpointer));
     fprintf(out," 0x%lx>",TheFpointer(obj)->fp_pointer);
-  } else if (faddressp(obj)) {
-    fputs("#<",out); string_out(out,O(printstring_faddress)); fputs(" ",out);
-    XOUT(TheFaddress(obj)->fa_base);
-    fprintf(out," + 0x%lx>",TheFaddress(obj)->fa_offset);
   } else if (structurep(obj)) {
     var uintL ii;
     fputs("#<structure",out);
@@ -237,6 +233,13 @@ local void nobject_out1 (FILE* out, object obj, int level) {
   else if (eq(obj,specdecl))  string_out(out,O(printstring_special_reference));
   else if (eq(obj,eof_value)) string_out(out,O(printstring_eof));
   else if (eq(obj,dot_value)) string_out(out,O(printstring_dot));
+#if defined(DYNAMIC_FFI)
+  else if (faddressp(obj)) {
+    fputs("#<",out); string_out(out,O(printstring_faddress)); fputs(" ",out);
+    XOUT(TheFaddress(obj)->fa_base);
+    fprintf(out," + 0x%lx>",TheFaddress(obj)->fa_offset);
+  }
+#endif
   else if (as_oint(obj) & wbit(frame_bit_o)) {
     fputs("#<frame ",out);
     switch (framecode(obj)) {
