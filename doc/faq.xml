@@ -53,7 +53,7 @@ further explanations of the issues could be provided).</para>
 <answer><para>&clisp;
   <ulink url="&clhs;/Body/glo_p.html#purports_to_conform"><emphasis>purports
     to conform</emphasis></ulink> to the &ansi-cl; specification,
-  so all deviations in <screen><prompt>$</prompt> clisp &ansi-opt;</screen>
+  so all deviations in <screen>&sh-prompt; clisp &ansi-opt;</screen>
   from the &ansi-cl; standard are bugs and are not (yet) fixed only due
   to lack of resources.</para>
 
@@ -191,17 +191,17 @@ further explanations of the issues could be provided).</para>
 <qandaentry id="faq-debug"><question id="faq-debug-q"><simpara>How do I
    debug &clisp;?</simpara></question>
 <answer><para>When debugging the core:<screen>
-<prompt>$</prompt> ./configure --with-debug --build build-g
-<prompt>$</prompt> cd build-g
-<prompt>$</prompt> gdb lisp.run            ;; or lisp.exe on windows and cygwin
+&sh-prompt; ./configure --with-debug --build build-g
+&sh-prompt; cd build-g
+&sh-prompt; gdb lisp.run            ;; or lisp.exe on windows and cygwin
 <prompt>(gdb)</prompt> base
 <prompt>(gdb)</prompt> run
 </screen></para>
 
 <para>When debugging module <literal>foo</literal>:<screen>
-<prompt>$</prompt> ./configure --with-debug --with-module=foo --build build-g
-<prompt>$</prompt> cd build-g
-<prompt>$</prompt> gdb full/lisp.run       ;; or lisp.exe on windows and cygwin
+&sh-prompt; ./configure --with-debug --with-module=foo --build build-g
+&sh-prompt; cd build-g
+&sh-prompt; gdb full/lisp.run       ;; or lisp.exe on windows and cygwin
 <prompt>(gdb)</prompt> full
 <prompt>(gdb)</prompt> run
 </screen></para></answer></qandaentry>
@@ -382,9 +382,8 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-modules"><question id="faq-modules-q"><simpara>Where
    are the modules with which I built &clisp;?</simpara></question>
-<answer><para>In the &full; &linkset;. Run &clisp; like this:<screen>
-<prompt>$</prompt> clisp &opt-K; full
-</screen></para>
+<answer><para>In the &full; &linkset;. Run &clisp; like this:
+  <screen>&sh-prompt; clisp &opt-K; full</screen></para>
 
 <para>The reasons for &base; being the default are explained
  <ulink url="http://article.gmane.org/gmane.lisp.clisp.general:8691">here</ulink>.</para></answer></qandaentry>
@@ -577,9 +576,9 @@ trying to &nconc; a circular list).</para>
   tries to regenerate a <filename>configure</filename> script for you.
  <emphasis role="strong">This is never necessary!</emphasis>
  (and will not happen in an officially released source distribution).
- Please just <command role="unix">touch</command> the target, e.g.:<screen>
-<prompt>$</prompt> touch src/configure
-</screen>and re-<command role="unix">make</command>.</para>
+ Please just <command role="unix">touch</command> the target, e.g.:
+ <screen>&sh-prompt; touch src/configure</screen>
+ and re-run <command role="unix">make</command>.</para>
 <para>You can also pass <option>--disable-maintainer-mode</option>
  to top-level <filename>configure</filename> script (this is the default
  when you are &not-e; working from the CVS).</para>
@@ -610,9 +609,9 @@ trying to &nconc; a circular list).</para>
 
 <qandaentry id="faq-random">
  <blockinfo><title>Is &random; broken?</title></blockinfo>
- <question id="faq-random-q"><para>Why does <screen>
-<prompt>$</prompt> clisp -q -norc &opt-x; '(&random; 1s0)'
-</screen> always print the same number?</para></question>
+ <question id="faq-random-q"><para>Why does
+   <screen>&sh-prompt; clisp &opt-x; '(&random; 1s0)'</screen>
+   always print the same number?</para></question>
 <answer><para>Reproducibility is important.
   See <xref linkend="random-state"/>.</para></answer></qandaentry>
 

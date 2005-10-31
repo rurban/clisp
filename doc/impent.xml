@@ -121,6 +121,7 @@
 <!ENTITY writer-k "<constant>:WRITER</constant>">
 <!ENTITY writers-k "<constant>:WRITERS</constant>">
 <!ENTITY zero "<literal>0</literal>">
+<!ENTITY sh-prompt "<prompt>$</prompt>">
 
 <!ENTITY dos-k "<constant>:DOS</constant>">
 <!ENTITY mac-k "<constant>:MAC</constant>">
