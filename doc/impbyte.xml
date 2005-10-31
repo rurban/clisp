@@ -1222,7 +1222,7 @@ without calling unsafe routines, and without worrying about &gc;.</para>
 <para>Run-time GC-safety checking is available when you build &clisp;
  with a C++ compiler, e.g.:
 <screen id="clisp-config-gxx">
-<prompt>$</prompt> CC=g++ ./configure --with-debug build-g-gxx
+&sh-prompt; CC=g++ ./configure --with-debug build-g-gxx
 </screen>
 When built like this, &clisp; will <function role="unix">abort</function>
 when you reference GC-unsafe data after an allocation (which could have
