@@ -1,3 +1,8 @@
+2005-10-31  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main_actions): when argv_execute_file=="-", use the
+	value of *STANDARD-INPUT*, not the symbol itself (bug 1344222)
+
 2005-10-30  Sam Steingold  <sds@gnu.org>
 
 	ensure that make uses the same shell that configure tests
