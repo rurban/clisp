@@ -45,7 +45,7 @@
 </xsl:template>
 
 <xsl:template match="command[@role='unix']">
- <a class="{@role}" href="{$unix.top}utilities/{substring-before(normalize-space(.),' ')}.html"><xsl:apply-imports/></a>
+ <a class="{@role}" href="{$unix.top}utilities/{substring-before(concat(normalize-space(.),' '),' ')}.html"><xsl:apply-imports/></a>
 </xsl:template>
 
 <xsl:template match="ulink[@role='unix']">
