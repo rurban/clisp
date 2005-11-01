@@ -1,5 +1,10 @@
 2005-11-01  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (CHECK_DEPS): add check-script
+	(check-script): new target
+
+2005-11-01  Sam Steingold  <sds@gnu.org>
+
 	* m4/test.m4: stricter test to catch *BSD sh/test breakage
 
 2005-10-31  Sam Steingold  <sds@gnu.org>
