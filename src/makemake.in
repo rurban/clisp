@@ -3043,7 +3043,7 @@ fi
 CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${someflags}"
 
 if [ $CROSS = false ] ; then
-  CHECK_DEPS="check-recompile check-fresh-line check-tests"
+  CHECK_DEPS="check-recompile check-fresh-line check-script check-tests"
 
   echol "# check the sources:"
   echol "# 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up"
@@ -3156,6 +3156,10 @@ if [ $CROSS = false ] ; then
   echotab "if grep 'Line1.*Line2' fresh-line.out > /dev/null; then exit 1; fi"
   echotab "\$(RM) fresh-line.out"
   echol
+
+  # check that scripting works
+  echol "check-script : lisp${LEXE} lispinit.mem"
+  echotab "test \`echo '(print (+ 11 99))' | \$(RUN) -q -M lispinit.mem -\` = 110 || exit 1"
 
   echol "check-tests : ${TESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${TESTSDIR} && \$(MAKE) SHELL='\$(SHELL)' LEXE=${LEXE}"
