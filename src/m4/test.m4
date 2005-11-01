@@ -14,7 +14,8 @@ AC_DEFUN([CL_TEST_NT],[dnl check that test(1) can serve as make(1)
 AC_CACHE_CHECK(whether test -nt works, cl_cv_test_nt, [
 rm -f conftestfile1 conftestfile2
 touch conftestfile1
-if test conftestfile1 -nt conftestfile2 2>/dev/null;
+# see makemake.in, rule "anymodule":
+if test -f conftestfile1 -a conftestfile1 -nt conftestfile2 2>/dev/null;
 then cl_cv_test_nt=yes
 else cl_cv_test_nt=no
 fi

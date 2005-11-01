@@ -1,3 +1,7 @@
+2005-11-01  Sam Steingold  <sds@gnu.org>
+
+	* m4/test.m4: stricter test to catch *BSD sh/test breakage
+
 2005-10-31  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (nobject_out1): handle Foreign-Address only when
