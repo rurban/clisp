@@ -4262,7 +4262,8 @@ else
 
 rm -f conftestfile1 conftestfile2
 touch conftestfile1
-if test conftestfile1 -nt conftestfile2 2>/dev/null;
+# see makemake.in, rule "anymodule":
+if test -f conftestfile1 -a conftestfile1 -nt conftestfile2 2>/dev/null;
 then cl_cv_test_nt=yes
 else cl_cv_test_nt=no
 fi
