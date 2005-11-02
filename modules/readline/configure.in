@@ -18,7 +18,7 @@ fi
 AC_CHECK_DECLS([rl_library_version, rl_readline_version, rl_editing_mode, dnl
 rl_insert_mode, rl_readline_state, rl_line_buffer, rl_point, rl_end, dnl
 rl_mark, rl_done, rl_num_chars_to_read, rl_pending_input, rl_dispatching, dnl
-rl_erase_empty_line, rl_prompt, rl_gnu_readline_p, rl_terminal_name, dnl
+rl_erase_empty_line, rl_prompt, rl_terminal_name, dnl
 rl_instream, rl_outstream, rl_last_func, rl_startup_hook, rl_pre_input_hook, dnl
 rl_event_hook, rl_getc_function],,,[#include <stdio.h>
  #include <readline/readline.h>])
