@@ -1,5 +1,12 @@
 2005-11-01  Sam Steingold  <sds@gnu.org>
 
+	* m4/readline.m4 (CL_READLINE): check for rl_gnu_readline_p and
+	refuse to use readline if it is not defined - this should take
+	care of the OSX broken readline (see unix/PLATFORMS)
+	* modules/readline/configure.in: do not check rl_gnu_readline_p here
+
+2005-11-01  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (CHECK_DEPS): add check-script
 	(check-script): new target
 
