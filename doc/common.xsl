@@ -26,6 +26,10 @@
      apply-templates is mapc on children
      apply-imports is call-next-method -->
 
+<xsl:template match="ulink[@role='google']">
+ <a class="{@role}" href="http://www.google.com/search?q={.}"
+    ><xsl:apply-templates/></a></xsl:template>
+
 <!-- ============================ CLISP CVS ============================ -->
 <xsl:param name="clisp.cvs.top" select="'http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/'"/>
 <xsl:template match="ulink[@role='clisp-cvs']">
