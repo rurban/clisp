@@ -455,6 +455,14 @@ further explanations of the issues could be provided).</para>
 
 <qandadiv id="faq-trouble"><title>Troubles</title>
 
+<qandaentry id="faq-build"><question id="faq-build-q"><para>Why does not
+   &clisp; build on my platform?</para></question>
+<answer><para>Please see file
+  <filename role="clisp-cvs">unix/PLATFORMS</filename> in your source
+  distribution for information about some known troublesome platforms
+  as well as instructions on porting &clisp; to new platforms.</para>
+</answer></qandaentry>
+
 <qandaentry id="faq-enc-err">
  <blockinfo><title>What do charset errors mean?</title></blockinfo>
  <question id="faq-enc-err-q"><para>What do
