@@ -5899,9 +5899,11 @@ if test $ac_cv_search_tgetent != no ; then
       [extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);])
     AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF},[The readline built-in filename completion function, either rl_filename_completion_function() or filename_completion_function()])
     AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const,[declaration of filename_completion_function() needs const in the first argument])
-    AC_CHECK_DECLS([rl_already_prompted, rl_readline_name],,,[#include <stdio.h>
+    AC_CHECK_DECLS([rl_already_prompted, rl_readline_name, rl_gnu_readline_p],,,
+[#include <stdio.h>
 #include <readline/readline.h>])
-    if test "$ac_cv_have_decl_rl_already_prompted" = yes; then
+    if test "$ac_cv_have_decl_rl_already_prompted" = yes \
+         -a "$ac_cv_have_decl_rl_gnu_readline_p" = yes; then
       AC_DEFINE(HAVE_READLINE,,[have a working modern GNU readline])
       dnl LIBREADLINE has been added to LIBS.
     else
@@ -7579,7 +7581,8 @@ AC_DEFUN([CL_TEST_NT],[dnl check that test(1) can serve as make(1)
 AC_CACHE_CHECK(whether test -nt works, cl_cv_test_nt, [
 rm -f conftestfile1 conftestfile2
 touch conftestfile1
-if test conftestfile1 -nt conftestfile2 2>/dev/null;
+# see makemake.in, rule "anymodule":
+if test -f conftestfile1 -a conftestfile1 -nt conftestfile2 2>/dev/null;
 then cl_cv_test_nt=yes
 else cl_cv_test_nt=no
 fi
