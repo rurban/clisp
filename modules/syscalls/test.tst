@@ -34,8 +34,7 @@ T
 (os:stream-lock *tmp1* t) T
 (os:stream-lock *tmp1* nil) NIL
 
-(os:priority (os:process-id))
-:NORMAL
+(typep (show (os:priority (os:process-id))) '(or keyword (integer -20 20))) T
 
 #+unix (let ((id (show (getuid)))) (= id (setf (getuid) id))) T
 #+unix (let ((id (show (getgid)))) (= id (setf (getgid) id))) T
