@@ -687,7 +687,7 @@ is the same as
  read-only data.  This check is only performed for strings, not for
  conses, other kinds of arrays, and user-defined data types.</para>
 
-<para>See also the &letf; and &letf-star; macros.</para>
+<para>See also <xref linkend="letf"/>.</para>
 
 </section>
 
