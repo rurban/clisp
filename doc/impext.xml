@@ -2244,9 +2244,13 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    &clisp; runs but &ffi-pac; is not present.</simpara>
   <simpara>Second, it is much easier to handle portability in &c-lang;:
    observe the alternative implementations
-   of <function role="unix">htonl</function> et al
-   in <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>.
-</simpara></listitem></varlistentry>
+   of <function role="unix">htonl</function> et al in
+   <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>.</simpara>
+  <simpara>Third, certain &c-lang; structures have different layout on
+   different platforms, and functions may take 64-bit arguments on some
+   platforms and 32-bit arguments on others; so the &ffi-pac; code has
+   to track those differences.</simpara>
+</listitem></varlistentry>
 <varlistentry><term>Code size: &ffi-pac; wins</term>
  <listitem><simpara>You need to type much fewer characters with &ffi-pac;,
    and, if you use the &library-k; argument to &def-call-out; and
