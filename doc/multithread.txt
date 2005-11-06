@@ -133,3 +133,11 @@ Garbage Collector
 GC must stop all other threads while it is executing.
 CLISP has a copying GC, so anything else would require a write barrier
 during the scan phase and a read barrier during the move phase.
+
+C variables of type "object" are invalidated by GC, so the code that
+uses such variables must be surrounded with NO-GC locks.
+Actually, even gcv_object_t is not safe here:
+          ThePackage(STACK_0)->pack_name = ...
+When STACK_0 is already dereferenced and converted to a Package, but
+before the assignement occurs, GC should be banned.
+Looks like any C code that manipulates Lisp objects must lock GC.
