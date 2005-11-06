@@ -24,6 +24,8 @@ define full
   # -i clx/new-clx/demos/clx-demos.lisp -x '(clx-demos:qix)' -x '(clx-demos:koch)' -x '(clx-demos:sokoban)'
   break my_type_error
   break closed_display_error
+  break error_bdb
+  break pcre_error
 end
 document full
          debug the full linking set
@@ -143,6 +145,7 @@ break prepare_error
 break OS_error
 break OS_file_error
 break OS_filestream_error
+break errno_out_low
 
 info break
 
