@@ -33,6 +33,7 @@
 *print-gensym*
 (null *print-level*)
 (null *print-length*)
+#-clisp                        ; CLISP test harness binds *print-circle*
 (null *print-circle*)
 *print-escape*
 (null *print-readably*)
