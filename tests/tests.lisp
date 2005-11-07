@@ -111,12 +111,17 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
     (throw 'type-error-handler (typep da et))))
 
 (defvar *test-ignore-errors* t)
+(defvar *test-result-in-file* t
+  "T: CLISP-style: evaluation result in the file after the test form.
+NIL: sacla-style: forms should evaluate to non-NIL.")
 (defun do-test (stream log)
-  (let ((eof "EOF") (error-count 0) (total-count 0))
+  (let ((eof stream) (error-count 0) (total-count 0))
     (loop
-      (let ((form (read stream nil eof)) out err
-            (result (read stream nil eof)))
+      (let ((form (read stream nil eof)) out err (result nil))
         (when (or (eq form eof) (eq result eof)) (return))
+        (if *test-result-in-file*
+            (setq result (read stream))
+            (setq form `(not ,form)))
         (incf total-count)
         (show form)
         (multiple-value-bind (my-result error-message)
@@ -195,15 +200,18 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
     (values total-count error-count)))
 
 (defvar *run-test-tester* #'do-test)
+(defvar *run-test-type* "tst")
+(defvar *run-test-erg* "erg")
 (defun run-test (testname
                  &key ((:tester *run-test-tester*) *run-test-tester*)
                       ((:ignore-errors *test-ignore-errors*)
                         *test-ignore-errors*)
                       ((:eval-method *eval-method*) *eval-method*)
                       (logname testname)
-                 &aux (logfile (merge-extension "erg" logname))
+                 &aux (logfile (merge-extension *run-test-erg* logname))
                       error-count total-count)
-  (with-open-file (s (merge-extension "tst" testname) :direction :input)
+  (with-open-file (s (merge-extension *run-test-type* testname)
+                     :direction :input)
     (format t "~&~s: started ~s~%" 'run-test s)
     (with-open-file (log logfile :direction :output
                                  #+(or CMU SBCL) :if-exists
@@ -223,47 +231,34 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
   (if (zerop error-count)
       (delete-file logfile)
       (format t "~s: see ~a~%" 'run-test logfile))
-  (values total-count error-count))
+  (list testname total-count error-count))
 
-(defmacro with-accumulating-errors ((error-count total-count) &body body)
-  (let ((err (gensym)) (tot (gensym)))
-    `(multiple-value-bind (,tot ,err) (progn ,@body)
-       (incf ,error-count ,err)
-       (incf ,total-count ,tot))))
-
-(defun run-files (files)
-  (let* ((error-count 0) (total-count 0)
-         (here (truename "./"))
-         (res (mapcar (lambda (file)
-                        (multiple-value-bind (tot err) (run-test file)
-                          (incf error-count err)
-                          (incf total-count tot)
-                          (list file err tot)))
-                      files)))
+(defun report-results (res)
+  "res = list of RUN-TEST return values (testname total-count error-count)"
+  (let ((error-count (reduce #'+ res :key #'third)))
     (format
-     t "~&~s: finished ~3d file~:p:~31T ~3:d error~:p out of~50T ~5:d test~:p~%"
-     'run-files (length files) error-count total-count)
-    (loop :for rec :in res :for count :upfrom 1 :do
-      (format t "~&[~d] ~25@a:~31T ~3:d error~:p out of~50T ~5:d test~:p~%"
+     t "~&finished ~3d file~:p:~31T ~3:d error~:p out of~50T ~5:d test~:p~%"
+     (length res) error-count (reduce #'+ res :key #'second))
+    (loop :with here = (truename "./") :for rec :in res :for count :upfrom 1 :do
+      (format t "~&~3d ~25@a:~31T ~3:d error~:p out of~50T ~5:d test~:p~%"
               count (enough-namestring (first rec) here)
-              (second rec) (third rec)))
-    (values error-count total-count res)))
+              (third rec) (second rec)))
+    error-count))
 
 (defun run-some-tests (&key (dirlist '("./"))
                        ((:eval-method *eval-method*) *eval-method*))
   (let ((files (mapcan (lambda (dir)
-                         (directory (make-pathname :name :wild :type "tst"
+                         (directory (make-pathname :name :wild
+                                                   :type *run-test-type*
                                                    :defaults dir)))
                        dirlist)))
-    (if files (run-files files)
-        (warn "no TST files in directories ~S" dirlist))))
+    (if files (report-results (mapcar #'run-test files))
+        (warn "no ~S files in directories ~S" *run-test-type* dirlist))))
 
 (defun run-all-tests (&key (disable-risky t)
                       ((:eval-method *eval-method*) *eval-method*))
-  (let ((error-count 0) (total-count 0) (file-count 0)
+  (let ((res ())
         #+CLISP (custom:*load-paths* nil)
-        #+CLISP (custom:*warn-on-floating-point-contagion* nil)
-        #+CLISP (custom:*warn-on-floating-point-rational-contagion* nil)
         (*features* (if disable-risky *features*
                         (cons :enable-risky-tests *features*))))
     (dolist (ff '(#-(or AKCL ECL)   "alltest"
@@ -314,26 +309,20 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
                   #+CLISP           "weak"
                   #+(or CLISP ALLEGRO CMU19 OpenMCL LISPWORKS) "weakhash"
                   #+(or CLISP LISPWORKS) "weakhash2"))
-      (incf file-count)
-      (with-accumulating-errors (error-count total-count) (run-test ff)))
+      (push (run-test ff) res))
     (unless disable-risky ; fails on amd64 - disable for now...
-      (with-accumulating-errors (error-count total-count)
-        (run-test "bind" :eval-method :eval :logname "bind-eval")))
-    (with-accumulating-errors (error-count total-count)
-      (run-test "bind" :eval-method :compile :logname "bind-compile"))
+      (push (run-test "bind" :eval-method :eval :logname "bind-eval") res))
+    (push (run-test "bind" :eval-method :compile :logname "bind-compile") res)
     #+(or CLISP ALLEGRO CMU SBCL LISPWORKS)
-    (dotimes (i 20)
-      (with-accumulating-errors (error-count total-count)
-        (run-test "weakptr")))
+    (let ((tmp (list "weakptr" 0 0)))
+      (push tmp res)
+      (dotimes (i 20)
+        (let ((weak-res (run-test "weakptr")))
+          (incf (second tmp) (second weak-res))
+          (incf (third tmp) (third weak-res)))))
     #+(or CLISP ALLEGRO CMU LISPWORKS)
-    (with-accumulating-errors (error-count total-count)
-      (run-test "conditions" :ignore-errors nil))
+    (push (run-test "conditions" :ignore-errors nil) res)
     #+CLISP
-    (with-accumulating-errors (error-count total-count)
-      (run-test "restarts" :ignore-errors nil))
-    (with-accumulating-errors (error-count total-count)
-      (run-test "excepsit" :tester #'do-errcheck))
-    (format
-     t "~&~s: grand total: ~:d error~:p out of ~:d test~:p in ~:d file~:p~%"
-     'run-all-tests error-count total-count file-count)
-    (values total-count error-count)))
+    (push (run-test "restarts" :ignore-errors nil) res)
+    (push (run-test "excepsit" :tester #'do-errcheck) res)
+    (report-results (nreverse res))))

@@ -1,5 +1,16 @@
 2005-11-07  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (*test-result-in-file*): new variable
+	(do-test): respect it
+	(*run-test-type*, *run-test-erg*): new variables
+	(run-test): use them instead of literals; return (name tot# err#)
+	(with-accumulating-errors, run-files): removed
+	(report-results): new function
+	(run-some-tests): use it instead of RUN-FILES
+	(run-all-tests): use REPORT-RESULTS
+
+2005-11-07  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (run-all-tests): also report the number of test files
 
 2005-11-07  Sam Steingold  <sds@gnu.org>
