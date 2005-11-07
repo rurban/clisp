@@ -730,7 +730,7 @@
                for (a (b0 b1 b2 b3) (c0 c1 c2)) = (multiple-value-list (triple i))
                append `(,a ,b0 ,b1 ,b2 ,b3 ,c0 ,c1 ,c2))
          '(0 10 11 12 13 20 21 22 1 11 12 13 14 21 22 23 2 12 13 14 15 22 23 24)))
-         
+
 (flet ((triple (n) (values n
                            `(,(+ n 10) ,(+ n 11) ,(+ n 12) ,(+ n 13))
                            `(,(+ n 200)
@@ -743,7 +743,7 @@
          '(0 10 11 12 13 200 210 211 212 220
            1 11 12 13 14 201 211 212 213 221
            2 12 13 14 15 202 212 213 214 222)))
-  
+
 
 
 
@@ -2279,6 +2279,7 @@
                    never b
                    do (incf count)))
        (= count 4)))
+#-clisp                         ; ambiguous result
 (eq (loop for a in '(nil nil nil found-it! nil nil)
           for b from 10 downto 0
           never (< b 0)
@@ -2551,7 +2552,7 @@
   (program-error () t)
   (error () nil)
   (:no-error (&rest rest)
-    (declare (ignore rest))          
+    (declare (ignore rest))
     nil))
 (handler-case
     (macroexpand '(loop for a from 0 upto 10 collect t into a))
@@ -2633,7 +2634,7 @@
 (let ((it '0))
   (equal (loop for a in '(nil x y nil z) when a collect it and collect it)
          '(x 0 y 0 z 0)))
-  
+
 (let ((it '0))
   (equal (loop for a in '(x nil y nil z nil)
                if a collect it end
