@@ -1,3 +1,8 @@
+2005-11-07  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp: load ../tests/tests and use the functionality
+	defined there
+
 2004-10-24  Bruno Haible  <bruno@clisp.org>
 
 	* *.lisp: Upgrade to sacla version 2004-10-08.
