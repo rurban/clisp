@@ -281,9 +281,13 @@
                       :warn-if-needs-rehash-after-gc t
                       :test 'stablehash-eq
                       :initial-contents
-                      '((collect . list) (append . list) (nconc . list)
-                        (sum . sum-count) (count . sum-count)
-                        (maximize . max-min) (minimize . max-min)))))
+                      '((collect . list) (collecting . list)
+                        (append . list) (appending . list)
+                        (nconc . list) (nconcing . list)
+                        (sum . sum-count) (summing . sum-count)
+                        (count . sum-count) (counting . sum-count)
+                        (maximize . max-min) (maximizing . max-min)
+                        (minimize . max-min) (minimizing . max-min)))))
            (eq (gethash kw1 ht) (gethash kw2 ht))))
        (new-accu-var (var clause)
          (let ((others (gethash var accu-table)) bad)
