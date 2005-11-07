@@ -1,5 +1,9 @@
 2005-11-07  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (SACLA_CLISP): run in ANSI mode
+
+2005-11-07  Sam Steingold  <sds@gnu.org>
+
 	* loop.lisp (expand-loop/compatible-p): handle "ing" keyword variants
 
 2005-11-07  Sam Steingold  <sds@gnu.org>
