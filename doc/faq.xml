@@ -149,7 +149,7 @@ further explanations of the issues could be provided).</para>
     no exceptions (see <link linkend="faq-help">above</link>)
  </simpara></listitem></varlistentry>
  <varlistentry><term>&clisp-list;</term>
-  <listitem><para>the only open list, so it is filtered it especially
+  <listitem><para>the only open list, so it is filtered especially
     aggressively:<itemizedlist>
      <listitem><simpara>no &mime; mail (no &html; formatting, no
        attachments - send the URL instead)</simpara></listitem>
