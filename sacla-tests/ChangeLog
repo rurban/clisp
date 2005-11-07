@@ -2,6 +2,7 @@
 
 	* tests.lisp: load ../tests/tests and use the functionality
 	defined there
+	* must-loop.lisp: disable an "ambiguous result" test
 
 2004-10-24  Bruno Haible  <bruno@clisp.org>
 
