@@ -260,7 +260,7 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
 
 (defun run-all-tests (&key (disable-risky t)
                       ((:eval-method *eval-method*) *eval-method*))
-  (let ((error-count 0) (total-count 0)
+  (let ((error-count 0) (total-count 0) (file-count 0)
         #+CLISP (custom:*load-paths* nil)
         #+CLISP (custom:*warn-on-floating-point-contagion* nil)
         #+CLISP (custom:*warn-on-floating-point-rational-contagion* nil)
@@ -314,6 +314,7 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
                   #+CLISP           "weak"
                   #+(or CLISP ALLEGRO CMU19 OpenMCL LISPWORKS) "weakhash"
                   #+(or CLISP LISPWORKS) "weakhash2"))
+      (incf file-count)
       (with-accumulating-errors (error-count total-count) (run-test ff)))
     (unless disable-risky ; fails on amd64 - disable for now...
       (with-accumulating-errors (error-count total-count)
@@ -332,6 +333,7 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
       (run-test "restarts" :ignore-errors nil))
     (with-accumulating-errors (error-count total-count)
       (run-test "excepsit" :tester #'do-errcheck))
-    (format t "~&~s: grand total: ~:d error~:p out of ~:d test~:p~%"
-            'run-all-tests error-count total-count)
+    (format
+     t "~&~s: grand total: ~:d error~:p out of ~:d test~:p in ~:d file~p~%"
+     'run-all-tests error-count total-count file-count)
     (values total-count error-count)))

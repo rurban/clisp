@@ -1,5 +1,9 @@
 2005-11-07  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (run-all-tests): also report the number of test files
+
+2005-11-07  Sam Steingold  <sds@gnu.org>
+
 	* socket.tst: added some batch tests
 	* tests.lisp (run-all-tests) [CLISP & SOCKETS]: run "socket"
 
