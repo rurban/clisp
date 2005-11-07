@@ -17,18 +17,21 @@ all : clean tests compare
 clean : force
 	$(RM) *.erg
 
-tests : force
-	$(LISP) -C -i tests.lisp -x "(time (run-all-tests))"
+tests.fas: tests.lisp
+	$(LISP) -c tests
 
-complete : force
-	$(LISP) -C -i tests.lisp -x "(time (run-all-tests nil))"
+tests : force tests.fas
+	$(LISP) -i tests -x "(time (run-all-tests))"
+
+complete : force tests.fas
+	$(LISP) -i tests -x "(time (run-all-tests nil))"
 
 compare : force
 	(echo *.erg | grep '*' >/dev/null) || (echo "Test failed:" ; ls -l *erg; echo "To see which tests failed, type" ; echo "    cat "`pwd`"/*.erg" ; exit 1)
 	echo "Test passed."
 
 %.erg : %.tst
-	$(LISP) -i tests.lisp -x '(run-test "$<")'
+	$(LISP) -i tests -x '(run-test "$<")'
 
 force :
 
