@@ -1,5 +1,10 @@
 2005-11-07  Sam Steingold  <sds@gnu.org>
 
+	* Makefile (tests.fas): new target
+	(tests, complete): depend on it
+
+2005-11-07  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (*test-result-in-file*): new variable
 	(do-test): respect it
 	(*run-test-type*, *run-test-erg*): new variables
