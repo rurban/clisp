@@ -1,4 +1,4 @@
-#|
+#| -*- Lisp -*-
 ;;; Interactive tests for non-blocking I/O on various kinds of handles
 
 ;; On Linux or FreeBSD, use strace to see what system calls are performed.
@@ -392,3 +392,43 @@ FreeBSD 2004-10-31 OK
 BeOS    2004-10-31 OK
 
 |#
+
+(defparameter *server* (socket-server)) *server*
+(multiple-value-list (socket-status *server* 0)) (NIL 0)
+
+(defparameter *socket-1*
+  (socket-connect (socket-server-port *server*) "localhost" :timeout 0))
+*socket-1*
+
+(defparameter *status-arg* (list (list *server*) (list *socket-1* :io)))
+*status-arg*
+(eq (socket-status *status-arg* 0) *status-arg*) T
+(cdr (assoc *server* *status-arg*))    T
+(cddr (assoc *socket-1* *status-arg*)) :OUTPUT
+
+(defparameter *socket-2* (socket-accept *server*)) *socket-2*
+(progn (push (list *socket-2* :io) *status-arg*)
+       (eq *status-arg* (socket-status *status-arg* 0))) T
+(cdr (assoc *server* *status-arg*))    NIL
+(cddr (assoc *socket-1* *status-arg*)) :OUTPUT
+(cddr (assoc *socket-2* *status-arg*)) :OUTPUT
+
+(write-line "foo" *socket-1*) "foo"
+(finish-output *socket-1*) nil
+
+(eq (socket-status *status-arg* 0) *status-arg*) T
+(cdr (assoc *server* *status-arg*))    NIL
+(cddr (assoc *socket-1* *status-arg*)) :OUTPUT
+(cddr (assoc *socket-2* *status-arg*)) :IO
+
+(multiple-value-list (read-line *socket-2*)) ("foo" NIL)
+
+(close *socket-1*) T
+(close *socket-2*) T
+(socket-server-close *server*) NIL
+
+;; clean-up
+(progn (makunbound '*server*) (unintern '*server*)
+       (makunbound '*socket-1*) (unintern '*socket-1*)
+       (makunbound '*socket-2*) (unintern '*socket-2*))
+T
