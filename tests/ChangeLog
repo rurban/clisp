@@ -1,3 +1,8 @@
+2005-11-07  Sam Steingold  <sds@gnu.org>
+
+	* socket.tst: added some batch tests
+	* tests.lisp (run-all-tests) [CLISP & SOCKETS]: run "socket"
+
 2005-10-29  Sam Steingold  <sds@gnu.org>
 
 	* pack11.tst: test CONTINUEability of bad *PACKAGE* error
