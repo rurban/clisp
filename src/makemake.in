@@ -3178,9 +3178,9 @@ if [ $CROSS = false ] ; then
   # sacla-tests are not included in the source distribution
   if test -d "${SRCTOPDIR_}sacla-tests"; then
     CHECK_DEPS=${CHECK_DEPS}" check-sacla-tests"
-    SACLA_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -i tests.lisp"
+    SACLA_CLISP="../lisp${LEXE} -ansi -B .. -M ../lispinit.mem -N ../locale ${someflags} -i tests.lisp"
     echol "check-sacla-tests : ${SACLATESTSDIR} lisp${LEXE} lispinit.mem"
-    echotab "cd ${SACLATESTSDIR} && ${SACLA_CLISP} -x '(ext:exit (> (nth-value 1 (run-all-tests)) 0))'"
+    echotab "cd ${SACLATESTSDIR} && ${SACLA_CLISP} -x '(ext:exit (plusp (run-all-tests)))'"
     echol
     echol "${SACLATESTSDIR} :"
     echotab "-mkdir ${SACLATESTSDIR}"
