@@ -334,6 +334,6 @@ Usage: (handler-bind ((type-error #'type-error-handler)) ...)"
     (with-accumulating-errors (error-count total-count)
       (run-test "excepsit" :tester #'do-errcheck))
     (format
-     t "~&~s: grand total: ~:d error~:p out of ~:d test~:p in ~:d file~p~%"
+     t "~&~s: grand total: ~:d error~:p out of ~:d test~:p in ~:d file~:p~%"
      'run-all-tests error-count total-count file-count)
     (values total-count error-count)))
