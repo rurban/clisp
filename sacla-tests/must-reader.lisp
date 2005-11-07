@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: must-reader.lisp,v 1.11 2004/08/09 02:49:54 yuji Exp $
+;; $Id$
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -49,7 +49,7 @@
 (= 1 (eval (read-from-string "(length '(this-that))")))
 (= 3 (eval (read-from-string "(length '(this - that))")))
 (= 2 (eval (read-from-string "(length '(a
-        b))")))
+   	b))")))
 (= 34 (eval (read-from-string "(+ 34)")))
 (= 7 (eval (read-from-string "(+ 3 4)")))
 
@@ -59,7 +59,7 @@
   (when (find-package 'test-foo) (delete-package 'test-foo))
   (let ((*package* (make-package 'test-foo :use nil)))
     (and (not (find-symbol "BAR"))
-         (eq (read-from-string "bar") (find-symbol "BAR")))))
+	 (eq (read-from-string "bar") (find-symbol "BAR")))))
 
 
 
@@ -326,16 +326,16 @@
 (integerp (let ((*read-base* 16)) (read-from-string "10.")))
 
 (equal (let (stack)
-         (dotimes (i 6 stack)
-           (let ((*read-base* (+ 10. i)))
-             (let ((object (read-from-string "(\\DAD DAD |BEE| BEE 123. 123)")))
-               (push (list *read-base* object) stack)))))
+	 (dotimes (i 6 stack)
+	   (let ((*read-base* (+ 10. i)))
+	     (let ((object (read-from-string "(\\DAD DAD |BEE| BEE 123. 123)")))
+	       (push (list *read-base* object) stack)))))
        '((15 (DAD 3088 BEE 2699 123 258))
-         (14 (DAD 2701 BEE BEE 123 227))
-         (13 (DAD DAD BEE BEE 123 198))
-         (12 (DAD DAD BEE BEE 123 171))
-         (11 (DAD DAD BEE BEE 123 146))
-         (10 (DAD DAD BEE BEE 123 123))))
+	 (14 (DAD 2701 BEE BEE 123 227))
+	 (13 (DAD DAD BEE BEE 123 198))
+	 (12 (DAD DAD BEE BEE 123 171))
+	 (11 (DAD DAD BEE BEE 123 146))
+	 (10 (DAD DAD BEE BEE 123 123))))
 
 (loop for i from 2 upto 32
       always (zerop (let ((*read-base* i)) (read-from-string "0"))))
@@ -972,16 +972,16 @@
 (LET ((F (READ-FROM-STRING "+1L+10"))) (AND (FLOATP F) (= 1L10 F)))
 (LET ((F (READ-FROM-STRING "+1S+10"))) (AND (FLOATP F) (= 1S10 F)))
 
-(let ((f (read-from-string "+1d-10"))) (and (floatp f) (= 1d-10 f)))
-(let ((f (read-from-string "+1e-10"))) (and (floatp f) (= 1e-10 f)))
-(let ((f (read-from-string "+1f-10"))) (and (floatp f) (= 1f-10 f)))
-(let ((f (read-from-string "+1l-10"))) (and (floatp f) (= 1l-10 f)))
-(let ((f (read-from-string "+1s-10"))) (and (floatp f) (= 1s-10 f)))
-(LET ((F (READ-FROM-STRING "+1D-10"))) (AND (FLOATP F) (= 1D-10 F)))
-(LET ((F (READ-FROM-STRING "+1E-10"))) (AND (FLOATP F) (= 1E-10 F)))
-(LET ((F (READ-FROM-STRING "+1F-10"))) (AND (FLOATP F) (= 1F-10 F)))
-(LET ((F (READ-FROM-STRING "+1L-10"))) (AND (FLOATP F) (= 1L-10 F)))
-(LET ((F (READ-FROM-STRING "+1S-10"))) (AND (FLOATP F) (= 1S-10 F)))
+(let ((f (read-from-string "+1d-10"))) (and (floatp f) (= 1d-10	f)))
+(let ((f (read-from-string "+1e-10"))) (and (floatp f) (= 1e-10	f)))
+(let ((f (read-from-string "+1f-10"))) (and (floatp f) (= 1f-10	f)))
+(let ((f (read-from-string "+1l-10"))) (and (floatp f) (= 1l-10	f)))
+(let ((f (read-from-string "+1s-10"))) (and (floatp f) (= 1s-10	f)))
+(LET ((F (READ-FROM-STRING "+1D-10"))) (AND (FLOATP F) (= 1D-10	F)))
+(LET ((F (READ-FROM-STRING "+1E-10"))) (AND (FLOATP F) (= 1E-10	F)))
+(LET ((F (READ-FROM-STRING "+1F-10"))) (AND (FLOATP F) (= 1F-10	F)))
+(LET ((F (READ-FROM-STRING "+1L-10"))) (AND (FLOATP F) (= 1L-10	F)))
+(LET ((F (READ-FROM-STRING "+1S-10"))) (AND (FLOATP F) (= 1S-10	F)))
 
 
 (let ((f (read-from-string "-1d10"))) (and (floatp f) (= -1d10 f)))
@@ -995,16 +995,16 @@
 (LET ((F (READ-FROM-STRING "-1L10"))) (AND (FLOATP F) (= -1L10 F)))
 (LET ((F (READ-FROM-STRING "-1S10"))) (AND (FLOATP F) (= -1S10 F)))
 
-(let ((f (read-from-string "-1d+10"))) (and (floatp f) (= -1d10 f)))
-(let ((f (read-from-string "-1e+10"))) (and (floatp f) (= -1e10 f)))
-(let ((f (read-from-string "-1f+10"))) (and (floatp f) (= -1f10 f)))
-(let ((f (read-from-string "-1l+10"))) (and (floatp f) (= -1l10 f)))
-(let ((f (read-from-string "-1s+10"))) (and (floatp f) (= -1s10 f)))
-(LET ((F (READ-FROM-STRING "-1D+10"))) (AND (FLOATP F) (= -1D10 F)))
-(LET ((F (READ-FROM-STRING "-1E+10"))) (AND (FLOATP F) (= -1E10 F)))
-(LET ((F (READ-FROM-STRING "-1F+10"))) (AND (FLOATP F) (= -1F10 F)))
-(LET ((F (READ-FROM-STRING "-1L+10"))) (AND (FLOATP F) (= -1L10 F)))
-(LET ((F (READ-FROM-STRING "-1S+10"))) (AND (FLOATP F) (= -1S10 F)))
+(let ((f (read-from-string "-1d+10"))) (and (floatp f) (= -1d10	f)))
+(let ((f (read-from-string "-1e+10"))) (and (floatp f) (= -1e10	f)))
+(let ((f (read-from-string "-1f+10"))) (and (floatp f) (= -1f10	f)))
+(let ((f (read-from-string "-1l+10"))) (and (floatp f) (= -1l10	f)))
+(let ((f (read-from-string "-1s+10"))) (and (floatp f) (= -1s10	f)))
+(LET ((F (READ-FROM-STRING "-1D+10"))) (AND (FLOATP F) (= -1D10	F)))
+(LET ((F (READ-FROM-STRING "-1E+10"))) (AND (FLOATP F) (= -1E10	F)))
+(LET ((F (READ-FROM-STRING "-1F+10"))) (AND (FLOATP F) (= -1F10	F)))
+(LET ((F (READ-FROM-STRING "-1L+10"))) (AND (FLOATP F) (= -1L10	F)))
+(LET ((F (READ-FROM-STRING "-1S+10"))) (AND (FLOATP F) (= -1S10	F)))
 
 (let ((f (read-from-string "-1d-10"))) (and (floatp f) (= -1d-10 f)))
 (let ((f (read-from-string "-1e-10"))) (and (floatp f) (= -1e-10 f)))
@@ -1111,7 +1111,7 @@
 (string= "APL\\360" (symbol-name (read-from-string "apl\\\\360")))
 (string= "(B^2)-4*A*C" (symbol-name (read-from-string "\\(b^2\\)\\-\\4*a*c")))
 (string= "(b^2)-4*a*c"
-         (symbol-name (read-from-string "\\(\\b^2\\)\\-\\4*\\a*\\c")))
+	 (symbol-name (read-from-string "\\(\\b^2\\)\\-\\4*\\a*\\c")))
 (string= "\"" (symbol-name (read-from-string "|\"|")))
 (string= "(b^2) - 4*a*c" (symbol-name (read-from-string "|(b^2) - 4*a*c|")))
 (string= "frobboz" (symbol-name (read-from-string "|frobboz|")))
@@ -1127,7 +1127,7 @@
 
 (null (read-from-string "()"))
 (null (read-from-string "(        )"))
-(null (read-from-string "(               )"))
+(null (read-from-string "(	 	 )"))
 (equal (read-from-string "(a)") '(a))
 (equal (read-from-string "( a)") '(a))
 (equal (read-from-string "(a )") '(a))
@@ -1136,7 +1136,7 @@
 (equal (read-from-string "( a b)") '(a b))
 (equal (read-from-string "( a b )") '(a b))
 (equal (read-from-string "(  a  b  )") '(a b))
-(equal (read-from-string "(      a       b        )") '(a b))
+(equal (read-from-string "( 	 a 	 b	  )") '(a b))
 (equal (read-from-string "(a #| |# b)") '(a b))
 (equal (read-from-string "(a #| |# b #| |# )") '(a b))
 (equal (read-from-string "(a #| |# b
@@ -1235,7 +1235,7 @@ b)") '(a b))
 (equalp (eval (read-from-string "(let ((x #(b c))) `(a . ,x))")) '(a . #(b c)))
 (equalp (eval (read-from-string "(let ((x '(b c))) `#(a ,x))")) #(a (b c)))
 (equalp (eval (read-from-string "(let ((x 'b ) (y 'c)) `#(a ,x ,y))"))
-        #(a b c))
+	#(a b c))
 (equalp (eval (read-from-string "(let ((x '(b c))) `#(a ,@x))")) #(a b c))
 (equalp (eval (read-from-string "`\"abc\"")) "abc")
 (equalp (eval (read-from-string "(let ((x '(b c)) (y '(d e)) (z '(f g))) `(a ,@x ,@y ,@z))")) '(a b c d e f g))
@@ -1250,29 +1250,29 @@ b)") '(a b))
 (equalp (eval (read-from-string "(let ((x 1)) `(a ((#(,x)))))")) '(a ((#(1)))))
 (equalp (eval (read-from-string "(let ((x 1)) `(a #((#(,x)))))")) '(a #((#(1)))))
 (equalp (eval (read-from-string "(let ((x 1)) `#(a #((#(,x)))))"))
-        '#(a #((#(1)))))
+	'#(a #((#(1)))))
 (equal (eval (read-from-string "(let ((x 1) (y 2) (z 3)) `(,x (,y) ((,z))))"))
        '(1 (2) ((3))))
 (equal (eval (read-from-string
-              "(let ((x 1) (y 2) (z 3)) `((,x) ((,y)) (((,z)))))"))
+	      "(let ((x 1) (y 2) (z 3)) `((,x) ((,y)) (((,z)))))"))
        '((1) ((2)) (((3)))))
 (equal (eval (read-from-string
-              "(let ((x 1) (y 2) (z 3)) `(((,x)) (((,y))) ((((,z))))))"))
+	      "(let ((x 1) (y 2) (z 3)) `(((,x)) (((,y))) ((((,z))))))"))
        '(((1)) (((2))) ((((3))))))
 (equal (eval (read-from-string
-              "(let ((x 1) (y 2) (z 3)) `((((,x))) ((((,y)))) (((((,z)))))))"))
+	      "(let ((x 1) (y 2) (z 3)) `((((,x))) ((((,y)))) (((((,z)))))))"))
        '((((1))) ((((2)))) (((((3)))))))
 (equalp (eval (read-from-string "(let ((x 1) (y 2) (z 3)) `#(,x (,y) ((,z))))"))
-        '#(1 (2) ((3))))
+	'#(1 (2) ((3))))
 (equalp (eval (read-from-string
-              "(let ((x 1) (y 2) (z 3)) `#((,x) ((,y)) (((,z)))))"))
-        '#((1) ((2)) (((3)))))
+	      "(let ((x 1) (y 2) (z 3)) `#((,x) ((,y)) (((,z)))))"))
+	'#((1) ((2)) (((3)))))
 (equalp (eval (read-from-string
-              "(let ((x 1) (y 2) (z 3)) `#(((,x)) (((,y))) ((((,z))))))"))
-        '#(((1)) (((2))) ((((3))))))
+	      "(let ((x 1) (y 2) (z 3)) `#(((,x)) (((,y))) ((((,z))))))"))
+	'#(((1)) (((2))) ((((3))))))
 (equalp (eval (read-from-string
-              "(let ((x 1) (y 2) (z 3)) `#((((,x))) ((((,y)))) (((((,z)))))))"))
-        '#((((1))) ((((2)))) (((((3)))))))
+	      "(let ((x 1) (y 2) (z 3)) `#((((,x))) ((((,y)))) (((((,z)))))))"))
+	'#((((1))) ((((2)))) (((((3)))))))
 (equal (eval (read-from-string "(let ((x 1)) `'(,x))")) ''(1))
 (equal (eval (read-from-string "(let ((x 1)) `'(',x))")) ''('1))
 (equal (eval (read-from-string "`'(','x))")) ''('x))
@@ -1281,7 +1281,7 @@ b)") '(a b))
 (equal (eval (read-from-string "(let ((x 1)) `(a . (b . (,x))))")) '(a b 1))
 (equal (eval (read-from-string "(let ((x 1)) `(a ,x . z))")) '(a 1 . z))
 (equalp (eval (read-from-string "(let ((x 1)) `(a #(#(#(,x))) . z))"))
-        '(a #(#(#(1))) . z))
+	'(a #(#(#(1))) . z))
 
 (handler-case (read-from-string ",")
   (error () t)
@@ -1494,9 +1494,9 @@ b)") '(a b))
   (error () nil)
   (:no-error (&rest rest) (declare (ignore rest)) nil))
 (handler-case (read-from-string "#3*")
-  (reader-error () t)
-  (error () nil)
-  (:no-error (&rest rest) (declare (ignore rest)) nil))
+    (reader-error () t)
+    (error () nil)
+    (:no-error (&rest rest) (declare (ignore rest)) nil))
 (handler-case (read-from-string "#3*abc")
   (reader-error () t)
   (error () nil)
@@ -1580,11 +1580,9 @@ b)") '(a b))
 (= (read-from-string "#C(3.0s1 2.0s-1)") #C(3.0s1 2.0s-1))
 (= (read-from-string "#C(5 -3)") #c(5 -3))
 (= (read-from-string "#C(5/3 7.0)") #c(5/3 7.0))
-(progn
-  #-CLISP ; CLISP has complex numbers with unrelated realpart and imagpart
-  (let ((x (read-from-string "#C(5/3 7.0)")))
-    (and (floatp (realpart x)) (floatp (imagpart x))))
-  #+CLISP 'skipped)
+#-CLISP ; CLISP has complex numbers with unrelated realpart and imagpart
+(let ((x (read-from-string "#C(5/3 7.0)")))
+  (and (floatp (realpart x)) (floatp (imagpart x))))
 
 (= (read-from-string "#C(0 1)") #C(0 1))
 
@@ -1596,7 +1594,7 @@ b)") '(a b))
        (= 0 (aref x 0))
        (= 1 (aref x 1))))
 (equalp (read-from-string "#2A((0 1 5) (foo 2 (hot dog)))")
-        #2A((0 1 5) (foo 2 (hot dog))))
+	#2A((0 1 5) (foo 2 (hot dog))))
 (let ((x (read-from-string "#2A((0 1 5) (foo 2 (hot dog)))")))
   (and (arrayp x)
        (equal (array-dimensions x) '(2 3))
@@ -1809,312 +1807,310 @@ b)") '(a b))
        (eq 'i (aref x 2 2 1))))
 
 
-(progn
-  #-CLISP ;Bruno: ANSI CL 2.2. refers to the spec of READ, which says that
-          ; an error of type end-of-file is signalled.
-  (handler-case (null (let ((*features* '())) (read-from-string "#+test1 a")))
-    (error () nil))
-  #+CLISP 'skipped)
+#-CLISP ;Bruno: ANSI CL 2.2. refers to the spec of READ, which says that
+        ; an error of type end-of-file is signalled.
+(handler-case (null (let ((*features* '())) (read-from-string "#+test1 a")))
+  (error () nil))
 
 (let ((*features* '()))
   (equal (with-input-from-string (stream "#+test1 a #-test1 b")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(b)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(b)))
 (let ((*features* '(:test1)))
   (equal (with-input-from-string (stream "#+test1 a #-test1 b")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(a)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(a)))
 (let ((*features* '()))
   (equal (with-input-from-string (stream "#+(not test1) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1)))
   (equal (with-input-from-string (stream "#+(not test1) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1)))
   (equal (with-input-from-string (stream "#-(not test1) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '()))
   (equal (with-input-from-string (stream "#-(not test1) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 
 (let ((*features* '(:test1 :test2)))
   (equal (with-input-from-string (stream "#+(and test1 test2) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1)))
   (equal (with-input-from-string (stream "#+(and test1 test2) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '()))
   (equal (with-input-from-string (stream "#+(and test1 test2) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '()))
   (equal (with-input-from-string (stream "#+(or test1 test2) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1)))
   (equal (with-input-from-string (stream "#+(or test1 test2) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test2)))
   (equal (with-input-from-string (stream "#+(or test1 test2) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1 :test2)))
   (equal (with-input-from-string (stream "#+(or test1 test2) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1 :test2 :test3)))
   (equal (with-input-from-string (stream "#+(or test1 test2) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 
 (let ((*features* '(:test1 :test2)))
   (equal (with-input-from-string (stream "#+(and test1 (not test2)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '()))
   (equal (with-input-from-string (stream "#+(and test1 (not test2)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1)))
   (equal (with-input-from-string (stream "#+(and test1 (not test2)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '()))
   (equal (with-input-from-string
-             (stream "#+(or (and test1 (not test2)) test3) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#+(or (and test1 (not test2)) test3) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1)))
   (equal (with-input-from-string
-             (stream "#+(or (and test1 (not test2)) test3) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#+(or (and test1 (not test2)) test3) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1 :test2)))
   (equal (with-input-from-string
-             (stream "#+(or (and test1 (not test2)) test3) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#+(or (and test1 (not test2)) test3) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1 :test2 :test3)))
   (equal (with-input-from-string
-             (stream "#+(or (and test1 (not test2)) test3) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#+(or (and test1 (not test2)) test3) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1 :test3)))
   (equal (with-input-from-string
-             (stream "#+(or (and test1 (not test2)) test3) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#+(or (and test1 (not test2)) test3) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test2 :test3)))
   (equal (with-input-from-string
-             (stream "#+(or (and test1 (not test2)) test3) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#+(or (and test1 (not test2)) test3) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 
 (let ((*features* '()))
   (equal (with-input-from-string
-             (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1)))
   (equal (with-input-from-string
-             (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1 :test3)))
   (equal (with-input-from-string
-             (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1 :test4)))
   (equal (with-input-from-string
-             (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1 :test2)))
   (equal (with-input-from-string
-             (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1 :test2 :test3)))
   (equal (with-input-from-string
-             (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1 :test2 :test3 :test4)))
   (equal (with-input-from-string
-             (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1 :test3 :test4)))
   (equal (with-input-from-string
-             (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#+(and test1 (not test2) (or test3 test4)) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 
 (let ((*features* '()))
   (equal (with-input-from-string
-             (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1)))
   (equal (with-input-from-string
-             (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1 :test3)))
   (equal (with-input-from-string
-             (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1 :test4)))
   (equal (with-input-from-string
-             (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 (let ((*features* '(:test1 :test2)))
   (equal (with-input-from-string
-             (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1 :test2 :test3)))
   (equal (with-input-from-string
-             (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1 :test2 :test3 :test4)))
   (equal (with-input-from-string
-             (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '()))
+	     (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '()))
 (let ((*features* '(:test1 :test3 :test4)))
   (equal (with-input-from-string
-             (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
-           (loop
-            for x = (read stream nil 'end)
-            until (eq x 'end)
-            collecting x))
-         '(eat-this)))
+	     (stream "#-(not (and test1 (not test2) (or test3 test4))) eat-this")
+	   (loop
+	    for x = (read stream nil 'end)
+	    until (eq x 'end)
+	    collecting x))
+	 '(eat-this)))
 
 
 (eq (read-from-string "#| comment |# a") 'a)
@@ -2269,11 +2265,11 @@ comment
 
 (let ((x nil))
   (and (eq t (handler-case (with-input-from-string (stream "a")
-                             (setq x (read stream))
-                             (read stream))
-               (end-of-file () t)
-               (error () nil)
-               (:no-error (&rest rest) (declare (ignore rest)) nil)))
+			     (setq x (read stream))
+			     (read stream))
+	       (end-of-file () t)
+	       (error () nil)
+	       (:no-error (&rest rest) (declare (ignore rest)) nil)))
        (eq x 'a)))
 
 (progn
@@ -2281,28 +2277,28 @@ comment
     (set-macro-character
      #\/
      #'(lambda (stream char)
-         (declare (ignore char))
-         `(path . ,(loop for dir = (read-preserving-whitespace stream t)
-                         then (progn (read-char stream t nil t)
-                                     (read-preserving-whitespace stream t))
-                         collect dir
-                         while (eql (peek-char nil stream nil nil t) #\/)))))
+	 (declare (ignore char))
+	 `(path . ,(loop for dir = (read-preserving-whitespace stream t)
+			 then (progn (read-char stream t nil t)
+				     (read-preserving-whitespace stream t))
+			 collect dir
+			 while (eql (peek-char nil stream nil nil t) #\/)))))
     (equal (read-from-string "(zyedh /usr/games/zork /usr/games/boggle)")
-           '(zyedh (path usr games zork) (path usr games boggle)))))
+	   '(zyedh (path usr games zork) (path usr games boggle)))))
 
 (progn
   (let ((*readtable* (copy-readtable nil)))
     (set-macro-character
      #\/
      #'(lambda (stream char)
-         (declare (ignore char))
-         `(path . ,(loop for dir = (read stream t)
-                         then (progn (read-char stream t nil t)
-                                     (read stream t))
-                         collect dir
-                         while (eql (peek-char nil stream nil nil t) #\/)))))
+	 (declare (ignore char))
+	 `(path . ,(loop for dir = (read stream t)
+			 then (progn (read-char stream t nil t)
+				     (read stream t))
+			 collect dir
+			 while (eql (peek-char nil stream nil nil t) #\/)))))
     (equal (read-from-string "(zyedh /usr/games/zork /usr/games/boggle)")
-           '(zyedh (path usr games zork usr games boggle)))))
+	   '(zyedh (path usr games zork usr games boggle)))))
 
 
 (let ((*readtable* (copy-readtable nil)))
@@ -2328,11 +2324,11 @@ comment
        (set-syntax-from-char #\z #\' table2)
        (= zvar 123)
        (let ((*readtable* table2))
-         (and (equal '(quote var) (read-from-string "zvar"))
-              (setq *readtable* (copy-readtable))
-              (equal '(quote var) (read-from-string "zvar"))
-              (setq *readtable* (copy-readtable nil))
-              (= 123 (eval (read-from-string "zvar")))))))
+	 (and (equal '(quote var) (read-from-string "zvar"))
+	      (setq *readtable* (copy-readtable))
+	      (equal '(quote var) (read-from-string "zvar"))
+	      (setq *readtable* (copy-readtable nil))
+	      (= 123 (eval (read-from-string "zvar")))))))
 
 (not (eq (copy-readtable) *readtable*))
 (not (eq (copy-readtable) (copy-readtable)))
@@ -2389,7 +2385,7 @@ comment
   (and (eq :upcase (readtable-case table))
        (setf (readtable-case table) :invert)
        (let ((copy (copy-readtable table)))
-         (and (not (eq table copy)) (eq (readtable-case copy) :invert)))))
+	 (and (not (eq table copy)) (eq (readtable-case copy) :invert)))))
 
 (let ((table (copy-readtable nil))
       copy)
@@ -2487,22 +2483,22 @@ comment
 
 (let ((*readtable* (copy-readtable nil)))
   (and (eq t (set-dispatch-macro-character
-              #\# #\{                   ;dispatch on #{
-              #'(lambda(s c n)
-                  (declare (ignore c))
-                  (let ((list (read s nil (values) t))) ;list is object after #n{
-                    (when (consp list)  ;return nth element of list
-                      (unless (and n (< 0 n (length list))) (setq n 0))
-                      (setq list (nth n list)))
-                    list))))
+	      #\# #\{			;dispatch on #{
+	      #'(lambda(s c n)
+		  (declare (ignore c))
+		  (let ((list (read s nil (values) t))) ;list is object after #n{
+		    (when (consp list)	;return nth element of list
+		      (unless (and n (< 0 n (length list))) (setq n 0))
+		      (setq list (nth n list)))
+		    list))))
        (= 1 (read-from-string "#{(1 2 3 4)"))
        (= 3 (read-from-string "#3{(0 1 2 3)"))
        (= 123 (read-from-string "#{123"))))
 
 (let ((*readtable* (copy-readtable))
       (dollar #'(lambda (stream subchar arg)
-                  (declare (ignore subchar arg))
-                  (list 'dollars (read stream t nil t)))))
+		  (declare (ignore subchar arg))
+		  (list 'dollars (read stream t nil t)))))
   (and (eq t (set-dispatch-macro-character #\# #\$ dollar))
        (equal '(dollars foo) (read-from-string "#$foo"))))
 
@@ -2511,13 +2507,13 @@ comment
 
 (and (let ((*readtable* (copy-readtable)))
        (and (setf (readtable-case *readtable*) :invert)
-            (string= "ABC" (symbol-name (read-from-string "abc")))
-            (string= "abc" (symbol-name (read-from-string "ABC")))
-            (string= "AbC" (symbol-name (read-from-string "AbC")))
-            (setf (readtable-case *readtable*) :preserve)
-            (string= "abc" (symbol-name (read-from-string "abc")))
-            (string= "ABC" (symbol-name (read-from-string "ABC")))
-            (string= "AbC" (symbol-name (read-from-string "AbC")))))
+	    (string= "ABC" (symbol-name (read-from-string "abc")))
+	    (string= "abc" (symbol-name (read-from-string "ABC")))
+	    (string= "AbC" (symbol-name (read-from-string "AbC")))
+	    (setf (readtable-case *readtable*) :preserve)
+	    (string= "abc" (symbol-name (read-from-string "abc")))
+	    (string= "ABC" (symbol-name (read-from-string "ABC")))
+	    (string= "AbC" (symbol-name (read-from-string "AbC")))))
      (eq (readtable-case *readtable*) :upcase)
      (string= "ABC" (symbol-name (read-from-string "abc")))
      (string= "ABC" (symbol-name (read-from-string "ABC")))
@@ -2527,23 +2523,23 @@ comment
 (let ((*readtable* (copy-readtable)))
   (and (setf (readtable-case *readtable*) :invert)
        (set-macro-character #\< #'(lambda (stream c)
-                                    (declare (ignore c))
-                                    (read-delimited-list #\> stream t))
-                            t)
+				    (declare (ignore c))
+				    (read-delimited-list #\> stream t))
+			    t)
        (set-macro-character #\> (get-macro-character #\)))
        (equal '(a b) (read-from-string "<a b>"))))
 
 (let ((*readtable* (copy-readtable)))
   (and (setf (readtable-case *readtable*) :invert)
        (set-macro-character #\< #'(lambda (stream c)
-                                    (declare (ignore c))
-                                    (read-delimited-list #\> stream t)))
+				    (declare (ignore c))
+				    (read-delimited-list #\> stream t)))
        (set-macro-character #\> (get-macro-character #\)))
        (with-input-from-string (stream "xyz<A b>jKl")
-         (and (eq 'xyz (read stream))
-              (equal '(|a| b) (read stream))
-              (eq '|jKl| (read stream))
-              (eq 'end (read stream nil 'end))))))
+	 (and (eq 'xyz (read stream))
+	      (equal '(|a| b) (read stream))
+	      (eq '|jKl| (read stream))
+	      (eq 'end (read stream nil 'end))))))
 
 (let ((*readtable* (copy-readtable nil)))
   (and (equal (multiple-value-list (get-macro-character #\{)) '(nil nil))
@@ -2560,82 +2556,82 @@ comment
 
 (let ((*readtable* (copy-readtable nil)))
   (and (eq t (make-dispatch-macro-character #\{))
-       #-clispxxx (handler-case (read-from-string "{$a")
-                 (reader-error () t)
-                 (error () nil)
-                 (:no-error (&rest rest) (declare (ignore rest)) nil))
+       (handler-case (read-from-string "{$a")
+         (reader-error () t)
+         (error () nil)
+         (:no-error (&rest rest) (declare (ignore rest)) nil))
        (set-dispatch-macro-character #\{ #\$
-                                     #'(lambda (s c n)
-                                         (declare (ignore c n))
-                                         (read s t nil t)))
+				     #'(lambda (s c n)
+					 (declare (ignore c n))
+					 (read s t nil t)))
        (eq 'a (read-from-string "{$a"))))
 
 
 (let ((*readtable* (copy-readtable nil)))
   (and (eq t (make-dispatch-macro-character #\{))
-       #-clispxxx (handler-case (read-from-string "{$a")
-                 (reader-error () t)
-                 (error () nil)
-                 (:no-error (&rest rest) (declare (ignore rest)) nil))
+       (handler-case (read-from-string "{$a")
+         (reader-error () t)
+         (error () nil)
+         (:no-error (&rest rest) (declare (ignore rest)) nil))
        (set-dispatch-macro-character #\{ #\$
-                                     #'(lambda (s c n)
-                                         (declare (ignore c n))
-                                         (read s t nil t)))
+				     #'(lambda (s c n)
+					 (declare (ignore c n))
+					 (read s t nil t)))
        (with-input-from-string (stream "xyz{$a")
-         (and (eq 'xyz (read stream))
-              (eq 'a (read stream))
-              (eq 'end (read stream nil 'end))))))
+	 (and (eq 'xyz (read stream))
+	      (eq 'a (read stream))
+	      (eq 'end (read stream nil 'end))))))
 
 (let ((*readtable* (copy-readtable nil)))
   (and (eq t (make-dispatch-macro-character #\{ t))
-       #-clispxxx (handler-case (read-from-string "{$a")
-                 (reader-error () t)
-                 (error () nil)
-                 (:no-error (&rest rest) (declare (ignore rest)) nil))
+       (handler-case (read-from-string "{$a")
+         (reader-error () t)
+         (error () nil)
+         (:no-error (&rest rest) (declare (ignore rest)) nil))
        (set-dispatch-macro-character #\{ #\$
-                                     #'(lambda (s c n)
-                                         (declare (ignore c n))
-                                         (read s t nil t)))
+				     #'(lambda (s c n)
+					 (declare (ignore c n))
+					 (read s t nil t)))
        (with-input-from-string (stream "xyz{$a")
-         (and (eq '|XYZ{$A| (read stream))
-              (eq 'end (read stream nil 'end))))))
+	 (and (eq '|XYZ{$A| (read stream))
+	      (eq 'end (read stream nil 'end))))))
 
 
 (let ((table (copy-readtable nil)))
   (and (eq t (make-dispatch-macro-character #\{ nil table))
-       #-clispxxx (let ((*readtable* table))
-                 (handler-case (read-from-string "{$a")
-                   (reader-error () t)
-                   (error () nil)
-                   (:no-error (&rest rest) (declare (ignore rest)) nil)))
-       (set-dispatch-macro-character #\{ #\$
-                                     #'(lambda (s c n)
-                                         (declare (ignore c n))
-                                         (read s t nil t))
-                                     table)
        (let ((*readtable* table))
-         (with-input-from-string (stream "xyz{$a")
-           (and (eq 'xyz (read stream))
-                (eq 'a (read stream))
-                (eq 'end (read stream nil 'end)))))))
+         (handler-case (read-from-string "{$a")
+           (reader-error () t)
+           (error () nil)
+           (:no-error (&rest rest) (declare (ignore rest)) nil)))
+       (set-dispatch-macro-character #\{ #\$
+				     #'(lambda (s c n)
+					 (declare (ignore c n))
+					 (read s t nil t))
+				     table)
+       (let ((*readtable* table))
+	 (with-input-from-string (stream "xyz{$a")
+	   (and (eq 'xyz (read stream))
+		(eq 'a (read stream))
+		(eq 'end (read stream nil 'end)))))))
 
 
 (let ((table (copy-readtable nil)))
   (and (eq t (make-dispatch-macro-character #\{ t table))
-       #-clispxxx (let ((*readtable* table))
-                 (handler-case (read-from-string "{$a")
-                   (reader-error () t)
-                   (error () nil)
-                   (:no-error (&rest rest) (declare (ignore rest)) nil)))
-       (set-dispatch-macro-character #\{ #\$
-                                     #'(lambda (s c n)
-                                         (declare (ignore c n))
-                                         (read s t nil t))
-                                     table)
        (let ((*readtable* table))
-         (with-input-from-string (stream "xyz{$a")
-           (and (eq '|XYZ{$A| (read stream))
-                (eq 'end (read stream nil 'end)))))))
+         (handler-case (read-from-string "{$a")
+           (reader-error () t)
+           (error () nil)
+           (:no-error (&rest rest) (declare (ignore rest)) nil)))
+       (set-dispatch-macro-character #\{ #\$
+				     #'(lambda (s c n)
+					 (declare (ignore c n))
+					 (read s t nil t))
+				     table)
+       (let ((*readtable* table))
+	 (with-input-from-string (stream "xyz{$a")
+	   (and (eq '|XYZ{$A| (read stream))
+		(eq 'end (read stream nil 'end)))))))
 
 
 (with-input-from-string (stream "")
@@ -2672,14 +2668,14 @@ comment
 (with-input-from-string (stream "a  b")
   (and (eq 'a (read-preserving-whitespace stream t nil nil))
        (equal (loop for c = (read-char stream nil nil)
-                    while c collecting c)
-              '(#\space #\space #\b))))
+		    while c collecting c)
+	      '(#\space #\space #\b))))
 
 (with-input-from-string (stream "a  b")
   (and (eq 'a (read-preserving-whitespace stream t nil))
        (equal (loop for c = (read-char stream nil nil)
-                    while c collecting c)
-              '(#\space #\space #\b))))
+		    while c collecting c)
+	      '(#\space #\space #\b))))
 
 
 (with-input-from-string (stream "ok")
@@ -2780,16 +2776,16 @@ xyz")
 
 (with-input-from-string (*standard-input* "1 2 3 4 5 6 ]")
   (equal (read-delimited-list #\])
-         '(1 2 3 4 5 6)))
+	 '(1 2 3 4 5 6)))
 
 (get-macro-character #\) nil)
 
 (let ((*readtable* (copy-readtable nil))
       (f #'(lambda (stream char arg)
-             (declare (ignore char arg))
-             (mapcon #'(lambda (x)
-                         (mapcar #'(lambda (y) (list (car x) y)) (cdr x)))
-                     (read-delimited-list #\} stream t)))))
+	     (declare (ignore char arg))
+	     (mapcon #'(lambda (x)
+			 (mapcar #'(lambda (y) (list (car x) y)) (cdr x)))
+		     (read-delimited-list #\} stream t)))))
   (set-dispatch-macro-character #\# #\{ f)
   (get-macro-character #\) nil)
   (set-macro-character #\} (get-macro-character #\) nil))
@@ -2820,11 +2816,11 @@ xyz")
 (eq 'end (read-from-string "" nil 'end))
 
 (equal '(b 5) (multiple-value-list (read-from-string "(a b c)" t nil
-                                                     :start 2 :end 6)))
+						     :start 2 :end 6)))
 
 (equal '(b 4) (multiple-value-list (read-from-string "(a b  c)" t nil
-                                                     :start 2
-                                                     :preserve-whitespace t)))
+						     :start 2
+						     :preserve-whitespace t)))
 
 (null (read-from-string "" nil))
 
@@ -2838,12 +2834,12 @@ xyz")
 
 (equal '(ijk 3)
        (multiple-value-list (read-from-string "ijk  xyz" t nil
-                                              :preserve-whitespace t)))
+					      :preserve-whitespace t)))
 
 (equal '(def 7)
        (multiple-value-list (read-from-string "abc def ghi" t nil
-                                              :start 4 :end 9
-                                              :preserve-whitespace t)))
+					      :start 4 :end 9
+					      :preserve-whitespace t)))
 
 (= 3 (read-from-string " 1 3 5" t nil :start 2))
 (multiple-value-bind (thing pos) (read-from-string "(a b c)")
@@ -2857,11 +2853,10 @@ xyz")
 
 (let ((*readtable* (copy-readtable)))
   (and (progn
-         #-clispxxx (handler-case (read-from-string "#<abc")
-                   (reader-error () t)
-                   (error () nil)
-                   (:no-error (&rest rest) (declare (ignore rest)) nil))
-         #+clispxxx t)
+         (handler-case (read-from-string "#<abc")
+           (reader-error () t)
+           (error () nil)
+           (:no-error (&rest rest) (declare (ignore rest)) nil)))
        (set-dispatch-macro-character #\# #\<
                                      #'(lambda (s c n)
                                          (declare (ignore c n))
@@ -2878,21 +2873,18 @@ xyz")
                                          (read s t nil t)))
        (eq 'c (read-from-string "#<abc"))
        (setq *readtable* (copy-readtable nil))
-       (progn
-         #-clispxxx
-         (handler-case (read-from-string "#<abc")
-           (reader-error () t)
-           (error () nil)
-           (:no-error (&rest rest) (declare (ignore rest)) nil))
-         #+clispxxx t)))
+       (handler-case (read-from-string "#<abc")
+         (reader-error () t)
+         (error () nil)
+         (:no-error (&rest rest) (declare (ignore rest)) nil))))
 
 
 (let ((*readtable* (copy-readtable)))
   (and (eq t (make-dispatch-macro-character #\{))
        (eq t (set-dispatch-macro-character
-              #\{ #\s #'(lambda (s c n)
-                          (declare (ignore c n))
-                          `(section ,(read s t nil t)))))
+	      #\{ #\s #'(lambda (s c n)
+			  (declare (ignore c n))
+			  `(section ,(read s t nil t)))))
        (equal '(section (x y z)) (read-from-string "{s (x y z)"))
        (equal '(section (x y z)) (read-from-string "{S (x y z)"))))
 
@@ -2952,12 +2944,12 @@ xyz")
 
 (and (let ((*readtable* (copy-readtable)))
        (and (eq t (set-macro-character #\$
-                                       #'(lambda (s c)
-                                           (declare (ignore c))
-                                           `(dollars ,(read s t nil t)))))
-            (equal '(dollars 100) (read-from-string "$100"))
-            (eq '|$100| (read-from-string "\\$100"))
-            (eq '|$100| (read-from-string "|$|100"))))
+				       #'(lambda (s c)
+					   (declare (ignore c))
+					   `(dollars ,(read s t nil t)))))
+	    (equal '(dollars 100) (read-from-string "$100"))
+	    (eq '|$100| (read-from-string "\\$100"))
+	    (eq '|$100| (read-from-string "|$|100"))))
      (null (get-macro-character #\$))
      (eq '|$100| (read-from-string "$100")))
 
@@ -2970,86 +2962,86 @@ xyz")
       (table2 (copy-readtable nil)))
   (and (eq t (set-syntax-from-char #\[ #\( table1 table1))
        (equal '(0 1 2 3) (let ((*readtable* table1))
-                                 (read-from-string "[0 1 2 3)")))
+				 (read-from-string "[0 1 2 3)")))
        (eq t (set-syntax-from-char #\{ #\[ table2 table1))
        (equal '(0 1 2 3) (let ((*readtable* table2))
-                                 (read-from-string "{0 1 2 3)")))))
+				 (read-from-string "{0 1 2 3)")))))
 
 (let ((*readtable* (copy-readtable)))
   (and (eq t (set-syntax-from-char #\[ #\.))
        (eq '|3[0| (read-from-string "3[0"))))
 
 (let* ((str (concatenate 'string
-                         (loop repeat 100 collecting #\()
-                         "kernel"
-                         (loop repeat 100 collecting #\))))
+			 (loop repeat 100 collecting #\()
+			 "kernel"
+			 (loop repeat 100 collecting #\))))
        (thing (read-from-string str)))
   (and (= 1 (length thing))
        (eq 'kernel (loop repeat 101
-                         for x = thing then (car x)
-                         finally (return x)))))
+			 for x = thing then (car x)
+			 finally (return x)))))
 
 
 
 
 (null (let ((*read-suppress* t)) (read-from-string "abc")))
 (null (let ((*read-suppress* t))
-        (with-input-from-string (stream "abc")
-          (read stream))))
+	(with-input-from-string (stream "abc")
+	  (read stream))))
 (null (let ((*read-suppress* t))
-        (with-input-from-string (stream "abc")
-          (read-preserving-whitespace stream))))
+	(with-input-from-string (stream "abc")
+	  (read-preserving-whitespace stream))))
 (null (let ((*read-suppress* t))
         ;; http://www.lispworks.com/reference/HyperSpec/Body/v_rd_sup.htm
         ;; If the value of *read-suppress* is true, read,
         ;; read-preserving-whitespace, read-delimited-list,
         ;; and read-from-string all return a primary value of nil
         ;; when they complete successfully;
-        (with-input-from-string (stream "abc xyz)")
-          (read-delimited-list #\) stream))))
+	(with-input-from-string (stream "abc xyz)")
+	  (read-delimited-list #\) stream))))
 
 (flet ((num2str (n base)
-         (let* ((base-digits "0123456789ABCDEFGHIJKLMNOPQRSTUV")
-                (minus-p (< n 0))
-                (n (if minus-p (- n) n))
-                digits)
-           (loop with x = n
-                 do (multiple-value-bind (q r) (floor x base)
-                      (push (aref base-digits r) digits)
-                      (setq x q)
-                      (when (zerop q) (return))))
-           (when minus-p (push #\- digits))
-           (make-array (length digits)
-                       :element-type 'character :initial-contents digits))))
+	 (let* ((base-digits "0123456789ABCDEFGHIJKLMNOPQRSTUV")
+		(minus-p (< n 0))
+		(n (if minus-p (- n) n))
+		digits)
+	   (loop with x = n
+		 do (multiple-value-bind (q r) (floor x base)
+		      (push (aref base-digits r) digits)
+		      (setq x q)
+		      (when (zerop q) (return))))
+	   (when minus-p (push #\- digits))
+	   (make-array (length digits)
+		       :element-type 'character :initial-contents digits))))
   (loop for base from 2 upto 32
-        always (loop for n from -100 upto 100
-                     always (= n (let ((*read-base* base))
-                                   (read-from-string (num2str n base)))))))
+	always (loop for n from -100 upto 100
+		     always (= n (let ((*read-base* base))
+				   (read-from-string (num2str n base)))))))
 
 (labels ((int2str (n base)
-           (let* ((base-digits "0123456789ABCDEFGHIJKLMNOPQRSTUV")
-                  (minus-p (< n 0))
-                  (n (if minus-p (- n) n))
-                  digits)
-             (loop with x = n
-                   do (multiple-value-bind (q r) (floor x base)
-                        (push (aref base-digits r) digits)
-                        (setq x q)
-                        (when (zerop q) (return))))
-             (when minus-p (push #\- digits))
-             (make-array (length digits)
-                         :element-type 'character :initial-contents digits)))
-         (ratio2str (r base)
-           (concatenate 'string
-                        (int2str (numerator r) base)
-                        "/"
-                        (int2str (denominator r) base))))
+	   (let* ((base-digits "0123456789ABCDEFGHIJKLMNOPQRSTUV")
+		  (minus-p (< n 0))
+		  (n (if minus-p (- n) n))
+		  digits)
+	     (loop with x = n
+		   do (multiple-value-bind (q r) (floor x base)
+			(push (aref base-digits r) digits)
+			(setq x q)
+			(when (zerop q) (return))))
+	     (when minus-p (push #\- digits))
+	     (make-array (length digits)
+			 :element-type 'character :initial-contents digits)))
+	 (ratio2str (r base)
+	   (concatenate 'string
+			(int2str (numerator r) base)
+			"/"
+			(int2str (denominator r) base))))
   (loop for base from 2 upto 32
-        always (loop for numerator from -100 upto 100 by 23
-                     always (loop for denominator from 1 upto 300 by 51
-                                  always (= (/ numerator denominator)
-                                            (let ((*read-base* base))
-                                              (read-from-string
-                                               (ratio2str (/ numerator
-                                                             denominator)
-                                                          base))))))))
+	always (loop for numerator from -100 upto 100 by 23
+		     always (loop for denominator from 1 upto 300 by 51
+				  always (= (/ numerator denominator)
+					    (let ((*read-base* base))
+					      (read-from-string
+					       (ratio2str (/ numerator
+							     denominator)
+							  base))))))))
