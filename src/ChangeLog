@@ -1,3 +1,8 @@
+2005-11-07  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (parse_sock_list): handle socket servers as documented
+	Reported by Johan Liseborn <johan@liseborn.se>
+
 2005-11-01  Sam Steingold  <sds@gnu.org>
 
 	* m4/readline.m4 (CL_READLINE): check for rl_gnu_readline_p and

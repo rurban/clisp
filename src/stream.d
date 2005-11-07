@@ -14190,9 +14190,14 @@ local gcv_object_t* parse_sock_list (object obj,object *sock,direction_t *dir)
     } else if (consp(Cdr(obj))) { /* (sock dir . place) */
       *dir = check_direction(Car(Cdr(obj)));
       return &Cdr(Cdr(obj));
-    } else { /* (sock . dir) */
-      *dir = check_direction(Cdr(obj));
-      return NULL;
+    } else { /* (sock . dir) or (server . place) */
+      if (socket_server_p(*sock)) { /* (server . place) */
+        *dir = DIRECTION_INPUT;
+        return &Cdr(obj);
+      } else {                  /* (sock . dir) */
+        *dir = check_direction(Cdr(obj));
+        return NULL;
+      }
     }
   } else { /* sock */
     *sock = obj;
