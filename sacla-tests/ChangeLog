@@ -1,3 +1,8 @@
+2005-11-08  Sam Steingold  <sds@gnu.org>
+
+	* must-package.lisp: find-symbol and intern require strings, not
+	string designators
+
 2005-11-07  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp: load ../tests/tests and use the functionality

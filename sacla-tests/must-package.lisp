@@ -768,7 +768,7 @@
         (names '(a #\B "C" "BUZ")))
     (and (eq (shadow names) t)
          (every #'(lambda (name)
-                    (eq (cadr (multiple-value-list (find-symbol name)))
+                    (eq (cadr (multiple-value-list (find-symbol (string name))))
                         :internal))
                 names)
          (null (set-difference (mapcar #'find-symbol (mapcar #'string names))
@@ -1990,7 +1990,7 @@
     (delete-package "TB-FOO"))
   (let ((package (make-package "TB-FOO" :use nil)))
     (dolist (name '(a b c d e f g "S1" "S2" "ss"))
-      (intern name package))
+      (intern (string name) package))
     (with-package-iterator (get package :internal)
       (loop
        (multiple-value-bind (more symbol status pkg) (get)
@@ -2004,7 +2004,7 @@
     (delete-package #\a))
   (let ((package (make-package #\a :use nil)))
     (dolist (name '(a b c d e f g "S1" "S2" "ss"))
-      (intern name package))
+      (intern (string name) package))
     (with-package-iterator (get #\a :internal)
       (loop
        (multiple-value-bind (more symbol status pkg) (get)
@@ -2018,7 +2018,7 @@
     (delete-package #\a))
   (let ((package (make-package #\a :use nil)))
     (dolist (name '(a b c d e f g "S1" "S2" "ss"))
-      (intern name package))
+      (intern (string name) package))
     (with-package-iterator (get (list #\a) :internal)
       (loop
        (multiple-value-bind (more symbol status pkg) (get)
