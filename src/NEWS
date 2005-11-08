@@ -31,6 +31,10 @@ User visible changes
   XLIB:SHAPE-EXTENTS, XLIB:SHAPE-RECTANGLES, XLIB:DEFAULT-KEYSYM-INDEX.
   Use MAP instead of ELT for sequence access in NEW-CLX.
 
+* ANSI CL compliance issues:
+  + DEFPACKAGE options :SHADOWING-IMPORT-FROM, :USE, :IMPORT-FROM
+    accept package designators, not just package names.
+
 * The command line option -v now affects *LOAD-ECHO* also.
   See <http://clisp.cons.org/clisp.html#opt-v> for details.
 
