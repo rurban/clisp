@@ -4272,7 +4272,7 @@ rm -f conftestfile1
 fi
 echo "$as_me:$LINENO: result: $cl_cv_test_nt" >&5
 echo "${ECHO_T}$cl_cv_test_nt" >&6
-TEST_NT="$cl_cv_test_nt"
+TEST_NT=${cl_cv_test_nt-no}
 
 { echo "$as_me:$LINENO: * checks for system features" >&5
 echo "$as_me: * checks for system features" >&6;}
