@@ -683,14 +683,14 @@
                                        (find-restart 'my-restart c))))))
              (restart-case (error "error!")
                (my-restart ())))))
-(null (block tag
-        (handler-bind
-            ((error
-              #'(lambda (c)
-                  (return-from tag (restart-name
-                                    (find-restart 'yet-another-restart c))))))
-          (restart-case (error "error!")
-            (yet-another-restart ())))))
+(block tag
+  (handler-bind
+      ((error
+        #'(lambda (c)
+            (return-from tag (restart-name
+                              (find-restart 'yet-another-restart c))))))
+    (restart-case (error "error!")
+      (yet-another-restart ()))))
 
 
 ;; with-condition-restarts
