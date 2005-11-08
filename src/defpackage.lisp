@@ -1,6 +1,6 @@
 ;;; ANSI-compatible definitions
 ;;; Bruno Haible 21.7.1994
-;;; Sam Steingold 1999-2004
+;;; Sam Steingold 1999-2005
 
 ;; ============================================================================
 
@@ -57,7 +57,8 @@
                    (push name symname-list)))
                (modernize (name)
                  ;; MODERN: CL ==> CS-CL
-                 (let ((pack (sys::%find-package name)))
+                 (let ((pack (if (packagep name) name
+                                 (sys::%find-package (string name)))))
                    (ecase modern
                      ((t) (if (eq pack #.(find-package "COMMON-LISP"))
                               "CS-COMMON-LISP" (package-name pack)))
@@ -95,10 +96,10 @@
                        (push name shadow-list)
                        (record-symname name))))
                   (:SHADOWING-IMPORT-FROM
-                   (let ((pack (string (second option))))
+                   (let ((pack (modernize (second option))))
                      (dolist (name (cddr option))
                        (setq name (funcall to-string name))
-                       (let ((name+pack (cons name (modernize pack))))
+                       (let ((name+pack (cons name pack)))
                          (unless (member name+pack shadowing-list :test #'equal) ; #'string= on car and cdr
                            (push name+pack shadowing-list)
                            (record-symname name))))))
@@ -107,10 +108,10 @@
                      (push (modernize name) use-list))
                    (setq use-default nil))
                   (:IMPORT-FROM
-                   (let ((pack (string (second option))))
+                   (let ((pack (modernize (second option))))
                      (dolist (name (cddr option))
                        (setq name (funcall to-string name))
-                       (let ((name+pack (cons name (modernize pack))))
+                       (let ((name+pack (cons name pack)))
                          (unless (member name+pack import-list :test #'equal) ; #'string= on car and cdr
                            (push name+pack import-list)
                            (record-symname name))))))

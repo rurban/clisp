@@ -1,5 +1,10 @@
 2005-11-08  Sam Steingold  <sds@gnu.org>
 
+	* defpackage.lisp (defpackage): :SHADOWING-IMPORT-FROM, :USE,
+	:IMPORT-FROM accept package designators, not just package names
+
+2005-11-08  Sam Steingold  <sds@gnu.org>
+
 	* m4/test.m4 (CL_TEST_NT): TEST_NT defaults to "no"
 
 2005-11-07  Sam Steingold  <sds@gnu.org>
