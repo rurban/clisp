@@ -552,11 +552,11 @@
                 (declare (special *dynamic-var*))
                 (signal "testing simple-signal"))))))
 (block tag
-  (restart-bind ((nil #'(lambda (&rest rest)
-                               (declare (ignore rest))
-                               (return-from tag t))))
+  (restart-bind ((ignore-simple-signal #'(lambda (&rest rest)
+                                           (declare (ignore rest))
+                                           (return-from tag t))))
     (handler-case (signal "testing simple-signal")
-      (simple-condition () (invoke-restart 'nil)))))
+      (simple-condition () (invoke-restart 'ignore-simple-signal)))))
 
 
 
@@ -626,8 +626,8 @@
           (my-restart (&optional v) v)))))
     1)
 (eq 'ok
-    (restart-case (invoke-restart 'nil)
-      (nil (&rest rest) (declare (ignore rest)) 'ok)))
+    (restart-case (invoke-restart 'just-a-restart)
+      (just-a-restart (&rest rest) (declare (ignore rest)) 'ok)))
 
 
 
@@ -688,9 +688,9 @@
             ((error
               #'(lambda (c)
                   (return-from tag (restart-name
-                                    (find-restart 'nil c))))))
+                                    (find-restart 'yet-another-restart c))))))
           (restart-case (error "error!")
-            (nil ())))))
+            (yet-another-restart ())))))
 
 
 ;; with-condition-restarts
