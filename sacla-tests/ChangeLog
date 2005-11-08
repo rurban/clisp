@@ -2,6 +2,7 @@
 
 	* must-package.lisp: find-symbol and intern require strings, not
 	string designators
+	* must-condition.lisp: restarts cannot be named NIL
 
 2005-11-07  Sam Steingold  <sds@gnu.org>
 
