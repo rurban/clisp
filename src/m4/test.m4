@@ -21,6 +21,6 @@ else cl_cv_test_nt=no
 fi
 rm -f conftestfile1
 ])
-TEST_NT="$cl_cv_test_nt"
+TEST_NT=${cl_cv_test_nt-no}
 AC_SUBST(TEST_NT)dnl
 ])
