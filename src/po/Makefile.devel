@@ -61,7 +61,7 @@ LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               clos-genfun1 clos-genfun2a clos-genfun2b clos-genfun3 clos-genfun4 clos-genfun5 \
               clos-dependent clos-print clos-custom documentation \
               fill-out disassem condition loadform gstream xcharin keyboard \
-              screen beossock runprog query reploop dribble complete \
+              screen runprog query reploop dribble complete \
               describe room edit macros3 clhs inspect gray threads \
               case-sensitive foreign1 exporting \
               german french spanish russian dutch danish \
