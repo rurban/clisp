@@ -57,9 +57,11 @@ T
 
 #+unix
 (os:uname-p (show (os:uname))) T
-#+unix
-(os:user-data-p (show (os:user-data (ext:getenv "USER")))) T
-#+unix (listp (show (os:user-data))) T
+#+unix (os:user-info-p (show (os:user-info :default))) T
+#+unix (listp (show (os:user-info) :pretty t)) T
+#+unix (os:group-info-p (show (os:group-info (os:user-info-gid
+                                              (os:user-info :default))))) T
+#+unix (listp (show (os:group-info) :pretty t)) T
 
 (os:file-stat-p (show (os:file-stat *tmp1*))) T
 (os:file-stat-p (show (os:file-stat (pathname *tmp1*)))) T
