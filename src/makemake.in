@@ -2942,7 +2942,7 @@ else
   localeflags='-B .'
 fi
 if [ "${with_unicode}" != no ] ; then
-  encflags=' -Efile UTF-8 -Eterminal UTF-8'
+  encflags=' -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1'
 else
   encflags=''
 fi
@@ -2965,7 +2965,7 @@ if [ $CROSS = false ] ; then
     echotab "-\$(RM) interpreted.mem"
   fi
   if [ $HSYSOS = beos ] ; then
-    # Workaround BeOS 5 kernel bug which causes subsequent invocations
+    # Work around BeOS 5 kernel bug which causes subsequent invocations
     # of lisp${LEXE} to be incorrectly relocated. On BeOS, executables and
     # shared libraries are relocated page-by-page by a kernel routine.
     echotab "cp -p lisp${LEXE} lisp.tmp"
