@@ -35,6 +35,12 @@
 /* Define to 1 if you have the `encrypt' function. */
 #undef HAVE_ENCRYPT
 
+/* Define to 1 if you have the `endgrent' function. */
+#undef HAVE_ENDGRENT
+
+/* Define to 1 if you have the `endpwent' function. */
+#undef HAVE_ENDPWENT
+
 /* Define to 1 if you have the `endutxent' function. */
 #undef HAVE_ENDUTXENT
 
@@ -76,6 +82,12 @@
 
 /* Define to 1 if you have the `getgid' function. */
 #undef HAVE_GETGID
+
+/* Define to 1 if you have the `getgrent' function. */
+#undef HAVE_GETGRENT
+
+/* Define to 1 if you have the `getgrgid' function. */
+#undef HAVE_GETGRGID
 
 /* Define to 1 if you have the `gethostent' function. */
 #undef HAVE_GETHOSTENT
@@ -122,6 +134,9 @@
 
 /* Define to 1 if you have the `GlobalMemoryStatusEx' function. */
 #undef HAVE_GLOBALMEMORYSTATUSEX
+
+/* Define to 1 if you have the <grp.h> header file. */
+#undef HAVE_GRP_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -181,6 +196,9 @@
 /* Define to 1 if you have the `setgid' function. */
 #undef HAVE_SETGID
 
+/* Define to 1 if you have the `setgrent' function. */
+#undef HAVE_SETGRENT
+
 /* Define to 1 if you have the `setkey' function. */
 #undef HAVE_SETKEY
 
@@ -198,6 +216,9 @@
 
 /* Define to 1 if you have the `setpriority' function. */
 #undef HAVE_SETPRIORITY
+
+/* Define to 1 if you have the `setpwent' function. */
+#undef HAVE_SETPWENT
 
 /* Define to 1 if you have the `setrlimit' function. */
 #undef HAVE_SETRLIMIT
