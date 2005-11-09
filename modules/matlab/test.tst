@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 ;; some tests for Matlab
-;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "matlab/test")'
+;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "matlab/test")'
 
 (matlab:invert-matrix #2a((1 2) (0 2)))
 #2A((1d0 -1d0) (0d0 5d-1))

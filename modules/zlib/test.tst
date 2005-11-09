@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 ;; some tests for ZLIB
-;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "zlib/test")'
+;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "zlib/test")'
 
 (format t "~&zlib version: ~S~%" (zlib:z-version))
 NIL

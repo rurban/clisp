@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 ;; some tests for Berkeley-DB
-;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "berkeley-db/test")'
+;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "berkeley-db/test")'
 
 (listp (show (multiple-value-list (ext:module-info "bdb" t)) :pretty t)) T
 

@@ -1,5 +1,5 @@
 ;; -*- Lisp -*-
-;; clisp -E utf-8 -q -norc -i ../tests/tests -x '(run-test "regexp/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "regexp/test")'
 
 (listp (show (multiple-value-list (ext:module-info "regexp" t)) :pretty t)) T
 
