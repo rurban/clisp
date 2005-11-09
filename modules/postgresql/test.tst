@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 ;; tests for PostGreSQL
-;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "postgresql/test")'
+;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "postgresql/test")'
 
 ;;; Based on the examples distributed with PostgreSQL (man libpq)
 
