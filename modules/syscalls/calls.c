@@ -1157,7 +1157,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,&optional host)
   hostent_to_lisp(he);
 }
 
-#if defined(HAVE_GETSERVBYPORT) && defined(HAVE_GETSERVBYNAME)
+#if (defined(HAVE_GETSERVBYPORT) && defined(HAVE_GETSERVBYNAME)) || defined(WIN32_NATIVE)
 /* Lisp interface to getservbyport(3) and getservbyname(3) */
 
 /* C struct servent --> Lisp SERVENT structure
