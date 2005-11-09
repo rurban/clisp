@@ -184,12 +184,12 @@
  </para></listitem></varlistentry>
  <varlistentry><term><code>(<function>POSIX:USER-DATA</function>
     &optional-amp; <replaceable>user</replaceable>)</code></term>
- <listitem><simpara>Return the <type>PASSWD</type> structure (name,
+ <listitem><simpara>Return the <type>USER-DATA</type> structure (name,
    encoded password, UID, GID, full name, home directory, shell).
-   When <replaceable>user</replaceable> is &nil;, return all users.
-   When <replaceable>user</replaceable> is &default-k; or
-   not supplied, return the information about the current user.
-   If the system does not support a particular field (e.g., Win32 does
+   When <replaceable>user</replaceable> is missing or &nil;, return all users.
+   When <replaceable>user</replaceable> is &default-k;,
+   return the information about the current user.
+   If the system does not support a particular field (e.g., &win32; does
    not have a concept of a shell), &nil; (or the default, like
    <filename>c:\command.com</filename> for DOS) is returned.
    </simpara><simpara>&unix-only;</simpara></listitem></varlistentry>
