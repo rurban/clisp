@@ -4651,18 +4651,6 @@ Compiled, it will have inlined the library function calls.
   <term><code>(&sost-port; &sost-r;)</code></term>
   <listitem><simpara>These two functions return information about the
     &socket-stream;.</simpara></listitem></varlistentry>
- <varlistentry id="service-port"><term><code>(&service-port;
-                 &optional-amp; <replaceable>service-name</replaceable>
-                 (&proto-r; "tcp"))</code></term>
-  <listitem><simpara>A convenience function for looking up a port given
-    the service name, such as <quote>WWW</quote> or <quote>FTP</quote>.
-    It returns the servent struct as &mul-val;
-    (name, list of aliases, port, protocol) for the given
-    <replaceable>service-name</replaceable> and
-    &proto-r;, or all services as the list of
-    <literal role="type">(&simple-vector-t; 4)</literal>
-    if <replaceable>service-name</replaceable> is not given or is
-    &default-k; or &nil;.</simpara></listitem></varlistentry>
  <varlistentry id="sost-peer"><term><code>(&sost-peer;
     &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</code></term>
   <listitem><simpara>Given a &socket-stream;, this function returns the

@@ -19,6 +19,9 @@ User visible changes
 * New module readline offers some advanced readline and history features.
   It is a BASE module and is available when both FFI and readline are present.
 
+* SOCKET:SOCKET-SERVICE-PORT is now deprecated in favor of OS:SERVENT.
+  See <http://clisp.cons.org/impnotes/syscalls.html#servent> for details.
+
 * New SETF-able functions POSIX:GETUID, POSIX:GETGID, POSIX:GETEUID,
   POSIX:GETEGID.
   See <http://clisp.cons.org/impnotes/syscalls.html#getuid> for details.
