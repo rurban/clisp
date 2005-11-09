@@ -296,7 +296,7 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family &optional data) {
 DEFUN(RAWSOCK:HTONL, num) {
   uint32 arg = I_to_uint32(check_uint32(popSTACK()));
   uint32 result;
-#if defined(HAVE_HTONL)
+#if defined(HAVE_HTONL) || defined(WIN32_NATIVE)
   begin_system_call(); result = htonl(arg); end_system_call();
 #else
   union { struct { uint8 octet3; uint8 octet2; uint8 octet1; uint8 octet0; } o;
@@ -312,7 +312,7 @@ DEFUN(RAWSOCK:HTONL, num) {
 DEFUN(RAWSOCK:NTOHL, num) {
   uint32 arg = I_to_uint32(check_uint32(popSTACK()));
   uint32 result;
-#if defined(HAVE_NTOHL)
+#if defined(HAVE_NTOHL) || defined(WIN32_NATIVE)
   begin_system_call(); result = ntohl(arg); end_system_call();
 #else
   union { struct { uint8 octet3; uint8 octet2; uint8 octet1; uint8 octet0; } o;
@@ -330,7 +330,7 @@ DEFUN(RAWSOCK:NTOHL, num) {
 DEFUN(RAWSOCK:HTONS, num) {
   uint16 arg = I_to_uint16(check_uint16(popSTACK()));
   uint16 result;
-#if defined(HAVE_HTONS)
+#if defined(HAVE_HTONS) || defined(WIN32_NATIVE)
   begin_system_call(); result = htons(arg); end_system_call();
 #else
   union { struct { uint8 octet1; uint8 octet0; } o;
@@ -345,7 +345,7 @@ DEFUN(RAWSOCK:HTONS, num) {
 DEFUN(RAWSOCK:NTOHS, num) {
   uint16 arg = I_to_uint16(check_uint16(popSTACK()));
   uint16 result;
-#if defined(HAVE_NTOHS)
+#if defined(HAVE_NTOHS) || defined(WIN32_NATIVE)
   begin_system_call(); result = ntohs(arg); end_system_call();
 #else
   union { struct { uint8 octet1; uint8 octet0; } o;
@@ -408,8 +408,8 @@ DEFUN(RAWSOCK:PROTOCOL, &optional protocol)
   struct protoent *pe = NULL;
   if (missingp(proto)) {        /* get all protocols */
     int count = 0;
-#  if defined(HAVE_SETPROTOENT) && defined(HAVE_GETPROTOENT) && defined(HAVE_ENDPROTOENT)
     begin_system_call();
+#  if defined(HAVE_SETPROTOENT) && defined(HAVE_GETPROTOENT) && defined(HAVE_ENDPROTOENT)
     setprotoent(1);
     while ((pe = getprotoent())) {
       end_system_call();
@@ -417,18 +417,18 @@ DEFUN(RAWSOCK:PROTOCOL, &optional protocol)
       begin_system_call();
     }
     endprotoent();
-    end_system_call();
 #  endif
+    end_system_call();
     VALUES1(listof(count));
     return;
   } else if (sint_p(proto)) {
-#  if defined(HAVE_GETPROTOBYNUMBER)
+#  if defined(HAVE_GETPROTOBYNUMBER) || defined(WIN32_NATIVE)
     begin_system_call();
     pe = getprotobynumber(I_to_sint(proto));
     end_system_call();
 #  endif
   } else if (stringp(proto)) {
-#  if defined(HAVE_GETPROTOBYNAME)
+#  if defined(HAVE_GETPROTOBYNAME) || defined(WIN32_NATIVE)
     with_string_0(proto,GLO(misc_encoding),protoz, {
         begin_system_call();
         pe = getprotobyname(protoz);
@@ -690,7 +690,7 @@ DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
   VALUES2(asciz_to_string(node,GLO(misc_encoding)),popSTACK());
 }
 #endif
-#if defined(HAVE_GETADDRINFO) && defined(HAVE_FREEADDRINFO)
+#if (defined(HAVE_GETADDRINFO) && defined(HAVE_FREEADDRINFO)) || defined(WIN32_NATIVE)
 DEFFLAGSET(addrinfo_flags,AI_PASSIVE AI_CANONNAME AI_NUMERICHOST \
            AI_NUMERICSERV AI_V4MAPPED AI_ALL AI_ADDRCONFIG)
 DEFCHECKER(check_addrinfo_flags,prefix=AI,default=0,bitmasks=both,    \
@@ -997,7 +997,7 @@ DEFUN(RAWSOCK:CONFIGDEV, socket name ipaddress &key PROMISC NOARP) {
 #endif  /* HAVE_NET_IF_H */
 
 /* ================== socket options ================== */
-#if defined(HAVE_GETSOCKOPT) || defined(HAVE_SETSOCKOPT)
+#if defined(HAVE_GETSOCKOPT) || defined(HAVE_SETSOCKOPT) || defined(WIN32_NATIVE)
 DEFCHECKER(sockopt_level,default=SOL_SOCKET, ALL=-1 SOL-SOCKET          \
            SOL-IP SOL-IPX SOL-AX25 SOL-ATALK SOL-NETROM SOL-TCP SOL-UDP \
            IPPROTO-IP IPPROTO-IPV6 IPPROTO-ICMP IPPROTO-RAW IPPROTO-TCP \
@@ -1010,7 +1010,7 @@ DEFCHECKER(sockopt_name,default=-1,prefix=SO,                            \
            REUSEADDR KEEPALIVE LINGER OOBINLINE SNDBUF RCVBUF ERROR TYPE \
            DONTROUTE RCVLOWAT RCVTIMEO SNDLOWAT SNDTIMEO)
 #endif
-#if defined(HAVE_GETSOCKOPT)
+#if defined(HAVE_GETSOCKOPT) || defined(WIN32_NATIVE)
 #define GET_SOCK_OPT(opt_type,retform) do {                             \
     opt_type val;                                                       \
     SOCKLEN_T len = sizeof(val);                                        \
@@ -1124,7 +1124,7 @@ DEFUN(RAWSOCK:SOCKET-OPTION, sock name &key :LEVEL)
   }
 }
 #endif
-#if defined(HAVE_SETSOCKOPT)
+#if defined(HAVE_SETSOCKOPT) || defined(WIN32_NATIVE)
 #define SET_SOCK_OPT(opt_type,valform) do {                             \
     int status;                                                         \
     opt_type val; valform;                                              \
