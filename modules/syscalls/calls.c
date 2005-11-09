@@ -1210,7 +1210,7 @@ DEFUN(POSIX:SERVENT, &optional service-name protocol)
       se = getservbyport(port,proto);
       if (se != NULL) {
         end_system_call();
-        servent_to_lisp(se); pushSTACK(value1);
+        servent_to_lisp(se); pushSTACK(value1); count++;
         begin_system_call();
       }
     }
