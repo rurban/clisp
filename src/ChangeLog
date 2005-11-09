@@ -1,5 +1,16 @@
 2005-11-09  Sam Steingold  <sds@gnu.org>
 
+	SOCKET:SOCKET-SERVICE-PORT is now deprecated in favor of OS:SERVENT
+	* modules/syscalls/calls.c (POSIX:SERVENT): implemented
+	* modules/syscalls/posix.lisp (servent): new structure
+	* beossock.lisp: removed
+	* constsym.d, subr.d (socket_service_port): removed
+	* init.lisp (socket-service-port): removed; do not load beossock
+	* socket.d (socket-service-port): removed
+	* makemake.in (LPARTS): removed beossock
+
+2005-11-09  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/posix.lisp (group-info): new structure
 	* modules/syscalls/calls.c (group-info): implemented
 	(user-info): renamed from user-data

@@ -568,11 +568,6 @@ LISPSYM(text,"TEXT",system)
 #ifdef MACHINE_KNOWN
 LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #endif
-#ifdef HAVE_GETHOSTBYNAME
-#ifndef UNIX_BEOS
-LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",socket)
-#endif
-#endif
 /* ---------- TIME ---------- */
 LISPSYM(get_internal_real_time,"GET-INTERNAL-REAL-TIME",lisp)
 LISPSYM(get_internal_run_time,"GET-INTERNAL-RUN-TIME",lisp)

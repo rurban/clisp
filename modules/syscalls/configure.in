@@ -17,7 +17,7 @@ AC_HEADER_TIME
 CL_UTSNAME
 AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
 pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h dnl
-grp.h sys/statvfs.h crypt.h utmpx.h stdlib.h shlobj.h)
+grp.h sys/statvfs.h crypt.h utmpx.h stdlib.h shlobj.h arpa/inet.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
 fi
@@ -49,9 +49,10 @@ AC_MSG_NOTICE([ * System Calls (Functions)])
 CL_RLIMIT
 AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
 getlogin getpwent getpwnam getpwuid endpwent setpwent dnl
+getservbyport getservbyname getservent setservent endservent dnl
 openlog setlogmask syslog closelog dnl
 getpgid setpgrp getsid setpgid setsid kill dnl
-getgrgid getgrgid getgrent endgrent setgrent dnl
+getgrgid getgrnam getgrent endgrent setgrent dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
 mkfifo mkdir creat mkstemp tempnam mkdtemp dnl
 getegid geteuid getgid getuid setegid seteuid setgid setuid dnl

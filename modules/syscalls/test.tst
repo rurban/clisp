@@ -7,6 +7,11 @@
 (os:hostent-p (show (os:resolve-host-ipaddr "localhost")))
 T
 
+(listp (show (os:resolve-host-ipaddr) :pretty t)) T
+(os:servent-p (show (os:servent "www"))) T
+(os:servent-p (show (os:servent 80))) T
+(listp (show (os:servent) :pretty t)) T
+
 #+unix
 (when (fboundp 'os:getutxent)
   (not (integerp (show (length (loop :for utmpx = (os:getutxent) :while utmpx
@@ -55,8 +60,7 @@ T
                  (multiple-value-list (os:rlimit)) '(no os:rlimit))))
 T
 
-#+unix
-(os:uname-p (show (os:uname))) T
+#+unix (os:uname-p (show (os:uname))) #+unix T
 #+unix (os:user-info-p (show (os:user-info :default))) T
 #+unix (listp (show (os:user-info) :pretty t)) T
 #+unix (os:group-info-p (show (os:group-info (os:user-info-gid
