@@ -1104,14 +1104,9 @@ void print_he (struct hostent *he) {
 #define ARR_TO_LIST(val,test,expr)                      \
   { int ii; for (ii = 0; test; ii ++) { pushSTACK(expr); } val = listof(ii); }
 
-/* push the contents of HE onto the stack
- 4 values are pushed:
-   h_name
-   list of h_aliases
-   list of h_addr_list
-   addrtype
+/* C struct hostent --> Lisp HOSTENT structure
  can trigger GC */
-Values hostent_to_lisp (struct hostent *he);
+Values hostent_to_lisp (struct hostent *he); /* used by NEW-CLX => not static */
 Values hostent_to_lisp (struct hostent *he) {
   object tmp;
   pushSTACK(ascii_to_string(he->h_name));
@@ -1165,28 +1160,32 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
 # include <pwd.h>
 #endif
 
-#define PASSWD_TO_STACK(pwd)                                            \
-  pushSTACK(asciz_to_string(pwd->pw_name,GLO(misc_encoding)));          \
-  pushSTACK(asciz_to_string(pwd->pw_passwd,GLO(misc_encoding)));        \
-  pushSTACK(UL_to_I(pwd->pw_uid));                                      \
-  pushSTACK(UL_to_I(pwd->pw_gid));                                      \
-  pushSTACK(asciz_to_string(pwd->pw_gecos,GLO(misc_encoding)));         \
-  pushSTACK(asciz_to_string(pwd->pw_dir,GLO(misc_encoding)));           \
-  pushSTACK(asciz_to_string(pwd->pw_shell,GLO(misc_encoding)))
+/* C struct passwd --> Lisp USER-DATA structure
+ can trigger GC */
+static Values passwd_to_lisp (struct passwd *pwd) {
+  pushSTACK(asciz_to_string(pwd->pw_name,GLO(misc_encoding)));
+  pushSTACK(asciz_to_string(pwd->pw_passwd,GLO(misc_encoding)));
+  pushSTACK(UL_to_I(pwd->pw_uid));
+  pushSTACK(UL_to_I(pwd->pw_gid));
+  pushSTACK(asciz_to_string(pwd->pw_gecos,GLO(misc_encoding)));
+  pushSTACK(asciz_to_string(pwd->pw_dir,GLO(misc_encoding)));
+  pushSTACK(asciz_to_string(pwd->pw_shell,GLO(misc_encoding)));
+  funcall(`POSIX::MAKE-USER-DATA`,7);
+}
 
-DEFUN(POSIX::USER-DATA, user)
+DEFUN(POSIX::USER-DATA, &optional user)
 { /* return the USER-DATA for the user or a list thereof if user is NIL. */
   object user = popSTACK();
   struct passwd *pwd = NULL;
 
 # if defined(HAVE_GETPWENT)
-  if (nullp(user)) { /* all users as a list */
+  if (missingp(user)) { /* all users as a list */
     int count = 0;
     begin_system_call();
     for (; (pwd = getpwent()); count++) {
-      PASSWD_TO_STACK(pwd);
-      funcall(`POSIX::MAKE-USER-DATA`,7);
-      pushSTACK(value1);
+      end_system_call();
+      passwd_to_lisp(pwd); pushSTACK(value1);
+      begin_system_call();
     }
     endpwent();
     end_system_call();
@@ -1216,8 +1215,7 @@ DEFUN(POSIX::USER-DATA, user)
   end_system_call();
 
   if (NULL == pwd) { OS_error(); }
-  PASSWD_TO_STACK(pwd);
-  funcall(`POSIX::MAKE-USER-DATA`,7);
+  passwd_to_lisp(pwd);
 }
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
 
