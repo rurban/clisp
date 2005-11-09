@@ -188,11 +188,9 @@
    encoded password, UID, GID, full name, home directory, shell).
    When <replaceable>user</replaceable> is missing or &nil;, return all users.
    When <replaceable>user</replaceable> is &default-k;,
-   return the information about the current user.
-   If the system does not support a particular field (e.g., &win32; does
-   not have a concept of a shell), &nil; (or the default, like
-   <filename>c:\command.com</filename> for DOS) is returned.
-   </simpara><simpara>&unix-only;</simpara></listitem></varlistentry>
+   return the information about the current user.</simpara>
+  <simpara>This function calls </simpara>
+  <simpara>&unix-only;</simpara></listitem></varlistentry>
  <varlistentry><term><code>(<function>POSIX:UNAME</function>)</code></term>
   <listitem><simpara>Return a structure describing the OS, derived from
     <function role="unix">name</function>.</simpara></listitem></varlistentry>
