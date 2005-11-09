@@ -111,6 +111,10 @@
    if you don't. */
 #undef HAVE_DECL_RL_ALREADY_PROMPTED
 
+/* Define to 1 if you have the declaration of `rl_gnu_readline_p', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_GNU_READLINE_P
+
 /* Define to 1 if you have the declaration of `rl_readline_name', and to 0 if
    you don't. */
 #undef HAVE_DECL_RL_READLINE_NAME
