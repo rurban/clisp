@@ -1,5 +1,11 @@
 2005-11-09  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/posix.lisp (group-info): new structure
+	* modules/syscalls/calls.c (group-info): implemented
+	(user-info): renamed from user-data
+
+2005-11-09  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (encflags): add -Emisc 1:1 to avoid encoding errors
 
 2005-11-08  Sam Steingold  <sds@gnu.org>

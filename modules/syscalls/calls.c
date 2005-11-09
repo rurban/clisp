@@ -1156,11 +1156,69 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
 
 #if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
 
+#if defined(HAVE_GRP_H)
+# include <grp.h>
+#endif
+
+/* C struct group --> Lisp GROUP-INFO structure
+ can trigger GC */
+static Values grp_to_lisp (struct group *group) {
+  object tmp;
+  pushSTACK(asciz_to_string(group->gr_name,GLO(misc_encoding)));
+  pushSTACK(UL_to_I(group->gr_gid));
+  ARR_TO_LIST(tmp,(group->gr_mem[ii] != NULL),
+              asciz_to_string(group->gr_mem[ii],GLO(misc_encoding)));
+  pushSTACK(tmp);
+  funcall(`POSIX::MAKE-GROUP-INFO`,3);
+}
+
+DEFUN(POSIX::GROUP-INFO, &optional group)
+{ /* return the GROUP-INFO for the group or a list thereof if it is NIL. */
+  object group = popSTACK();
+  struct group *gr = NULL;
+
+# if defined(HAVE_GETGRENT) && defined(HAVE_SETGRENT) && defined(HAVE_ENDGRENT)
+  if (missingp(group)) { /* all groups as a list */
+    int count = 0;
+    begin_system_call();
+    setgrent();
+    for (; (gr = getgrent()); count++) {
+      end_system_call();
+      grp_to_lisp(gr); pushSTACK(value1);
+      begin_system_call();
+    }
+    endgrent();
+    end_system_call();
+    VALUES1(listof(count));
+    return;
+  }
+# endif  /* setgrent getgrent endgrent */
+
+  begin_system_call();
+  if (uint32_p(group))
+    gr = getgrgid(I_to_uint32(group));
+  else if (symbolp(group)) {
+    group = Symbol_name(group);
+    goto group_info_string;
+  } else if (stringp(group)) { group_info_string:
+    with_string_0(group,GLO(misc_encoding),groupz, { gr = getgrnam(groupz); });
+  } else {
+    end_system_call(); fehler_string_integer(group);
+  }
+  end_system_call();
+
+  if (NULL == gr) { OS_error(); }
+  grp_to_lisp(gr);
+}
+#endif  /* getlogin getgrent getpwnam getpwuid getuid */
+
+#if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
+
 #if defined(HAVE_PWD_H)
 # include <pwd.h>
 #endif
 
-/* C struct passwd --> Lisp USER-DATA structure
+/* C struct passwd --> Lisp USER-INFO structure
  can trigger GC */
 static Values passwd_to_lisp (struct passwd *pwd) {
   pushSTACK(asciz_to_string(pwd->pw_name,GLO(misc_encoding)));
@@ -1170,18 +1228,19 @@ static Values passwd_to_lisp (struct passwd *pwd) {
   pushSTACK(asciz_to_string(pwd->pw_gecos,GLO(misc_encoding)));
   pushSTACK(asciz_to_string(pwd->pw_dir,GLO(misc_encoding)));
   pushSTACK(asciz_to_string(pwd->pw_shell,GLO(misc_encoding)));
-  funcall(`POSIX::MAKE-USER-DATA`,7);
+  funcall(`POSIX::MAKE-USER-INFO`,7);
 }
 
-DEFUN(POSIX::USER-DATA, &optional user)
-{ /* return the USER-DATA for the user or a list thereof if user is NIL. */
+DEFUN(POSIX::USER-INFO, &optional user)
+{ /* return the USER-INFO for the user or a list thereof if user is NIL. */
   object user = popSTACK();
   struct passwd *pwd = NULL;
 
-# if defined(HAVE_GETPWENT)
+# if defined(HAVE_GETPWENT) && defined(HAVE_SETPWENT) && defined(HAVE_ENDPWENT)
   if (missingp(user)) { /* all users as a list */
     int count = 0;
     begin_system_call();
+    setpwent();
     for (; (pwd = getpwent()); count++) {
       end_system_call();
       passwd_to_lisp(pwd); pushSTACK(value1);
@@ -1192,7 +1251,7 @@ DEFUN(POSIX::USER-DATA, &optional user)
     VALUES1(listof(count));
     return;
   }
-#endif
+# endif  /* setpwent getpwent endpwent */
 
   begin_system_call();
   if (uint32_p(user))
@@ -1204,11 +1263,10 @@ DEFUN(POSIX::USER-DATA, &optional user)
     else
       pwd = getpwuid(getuid());
   } else if (symbolp(user)) {
-    with_string_0(Symbol_name(user),GLO(misc_encoding),userz,
-                  { pwd = getpwnam(userz); });
-  } else if (stringp(user)) {
-    with_string_0(user,GLO(misc_encoding),userz,
-                  { pwd = getpwnam(userz); });
+    user = Symbol_name(user);
+    goto user_info_string;
+  } else if (stringp(user)) { user_info_string:
+    with_string_0(user,GLO(misc_encoding),userz, { pwd = getpwnam(userz); });
   } else {
     end_system_call(); fehler_string_integer(user);
   }
@@ -1218,6 +1276,7 @@ DEFUN(POSIX::USER-DATA, &optional user)
   passwd_to_lisp(pwd);
 }
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
+
 
 #if SIZEOF_GID_T == 8
 # define gid_to_I(g)  uint64_to_I(g)

@@ -61,10 +61,10 @@
 #+unix (export '(crypt encrypt setkey mknod))
 
 #+unix
-(defstruct (user-data (:constructor
-                       make-user-data (login-id passwd uid gid full-name
+(defstruct (user-info (:constructor
+                       make-user-info (login-id passwd uid gid full-name
                                        home-dir shell)))
-  "see getwnam(2) for details"
+  "see <pwd.h> for details"
   (login-id  "" :type simple-string :read-only t)
   (passwd    "" :type simple-string :read-only t)
   (uid        0 :type (unsigned-byte 32) :read-only t)
@@ -72,6 +72,13 @@
   (full-name "" :type simple-string :read-only t)
   (home-dir  "" :type simple-string :read-only t)
   (shell     "" :type simple-string :read-only t))
+
+#+unix
+(defstruct (group-info (:constructor make-group-info (name gid members)))
+  "see <grp.h> for details"
+  (name    "" :type simple-string :read-only t)
+  (gid      0 :type (unsigned-byte 32) :read-only t)
+  (members () :type list :read-only t))
 ;;; ============================================================
 (export '(set-file-stat convert-mode umask))
 
