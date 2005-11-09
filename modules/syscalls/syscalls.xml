@@ -182,14 +182,21 @@
     unless the second (optional) argument is non-&nil;, in which case a
     &list-t; of objects is returned, one for each match.
  </para></listitem></varlistentry>
- <varlistentry><term><code>(<function>POSIX:USER-DATA</function>
+ <varlistentry id="user-info"><term><code>(<function>POSIX:USER-INFO</function>
     &optional-amp; <replaceable>user</replaceable>)</code></term>
- <listitem><simpara>Return the <type>USER-DATA</type> structure (name,
+ <listitem><simpara>Return the <type>USER-INFO</type> structure (name,
    encoded password, UID, GID, full name, home directory, shell).
+   <replaceable>user</replaceable> should be a &string-t; or a &number-t;.
    When <replaceable>user</replaceable> is missing or &nil;, return all users.
    When <replaceable>user</replaceable> is &default-k;,
    return the information about the current user.</simpara>
-  <simpara>This function calls </simpara>
+  <simpara>&unix-only;</simpara></listitem></varlistentry>
+<varlistentry id="group-info"><term><code>(<function>POSIX:GROUP-INFO</function>
+    &optional-amp; <replaceable>group</replaceable>)</code></term>
+ <listitem><simpara>Return the <type>GROUP-INFO</type> structure (name,
+   GID, member list). <replaceable>group</replaceable> should be a
+   &string-t; or a &number-t;. When <replaceable>group</replaceable> is
+   missing or &nil;, return all groups.</simpara>
   <simpara>&unix-only;</simpara></listitem></varlistentry>
  <varlistentry><term><code>(<function>POSIX:UNAME</function>)</code></term>
   <listitem><simpara>Return a structure describing the OS, derived from
