@@ -33,6 +33,16 @@
    <function role="unix">gethostbyname</function>,
    and <function role="unix">gethostbyaddr</function>.
  </simpara></listitem></varlistentry>
+ <varlistentry id="servent"><term><code>(<function>OS:SERVENT</function>
+    &optional-amp; <replaceable>service-name</replaceable>
+    &proto-r;)</code></term>
+ <listitem><simpara>A convenience function for looking up a port given
+   the service name, such as <quote>WWW</quote> or <quote>FTP</quote>.
+   It returns the <type>SERVENT</type> structure
+   (name, list of aliases, port, protocol) for the given
+   <replaceable>service-name</replaceable> and &proto-r;,
+   or all services as a &list-t; if <replaceable>service-name</replaceable>
+   is missing or &nil;.</simpara></listitem></varlistentry>
  <varlistentry id="file-stat"><term><code>(<function>POSIX:FILE-STAT</function>
     &path-r; &optional-amp; <replaceable>link-p</replaceable>)</code></term>
   <listitem><para>Return the <type>FILE-STAT</type> structure.

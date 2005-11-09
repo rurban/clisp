@@ -1073,6 +1073,9 @@ DEFUN(POSIX::SET-RLIMIT, what cur max)
 #if defined(HAVE_NETDB_H)
 # include <netdb.h>
 #endif
+#if defined(HAVE_ARPA_INET_H)
+# include <arpa/inet.h>
+#endif
 
 #define H_ERRMSG                                                           \
         (h_errno == HOST_NOT_FOUND ? "host not found" :                    \
@@ -1120,12 +1123,12 @@ Values hostent_to_lisp (struct hostent *he) {
   funcall(`POSIX::MAKE-HOSTENT`,4);
 }
 
-DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
+DEFUN(POSIX::RESOLVE-HOST-IPADDR,&optional host)
 { /* Lisp interface to gethostbyname(3) and gethostbyaddr(3) */
   object arg = popSTACK();
   struct hostent *he = NULL;
 
-  if (nullp(arg)) {
+  if (missingp(arg)) {
 #  if !defined(HAVE_GETHOSTENT)
     VALUES1(NIL);
 #  else
@@ -1154,7 +1157,90 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
   hostent_to_lisp(he);
 }
 
-#if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
+#if defined(HAVE_GETSERVBYPORT) && defined(HAVE_GETSERVBYNAME)
+/* Lisp interface to getservbyport(3) and getservbyname(3) */
+
+/* C struct servent --> Lisp SERVENT structure
+ can trigger GC */
+static Values servent_to_lisp (struct servent * se) {
+  object tmp;
+  pushSTACK(asciz_to_string(se->s_name,GLO(misc_encoding)));
+  ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),
+              asciz_to_string(se->s_aliases[ii],GLO(misc_encoding)));
+  pushSTACK(tmp);
+  pushSTACK(L_to_I(ntohs(se->s_port)));
+  pushSTACK(asciz_to_string(se->s_proto,GLO(misc_encoding)));
+  funcall(`POSIX::MAKE-SERVENT`,4);
+}
+
+DEFUN(POSIX:SERVENT, &optional service-name protocol)
+{
+  object protocol = popSTACK();
+  char *proto = NULL;
+  char proto_buf[16];
+  object serv;
+  struct servent * se;
+  if (!missingp(protocol)) {    /* check protocol */
+    with_string_0(check_string(protocol),Symbol_value(GLO(misc_encoding)),
+                  protocolz, {
+                    begin_system_call();
+                    strncpy(proto_buf,protocolz,15);
+                    end_system_call();
+                  });
+    proto = proto_buf;
+    proto_buf[15] = 0;
+  }
+  serv = popSTACK();
+  if (missingp(serv)) {
+    uintL count = 0;
+#  if defined(HAVE_SETSERVENT) && defined(HAVE_GETSERVENT) && defined(HAVE_ENDSERVENT)
+    begin_system_call();
+    setservent(1);
+    for (; (se = getservent()); count++) {
+      end_system_call();
+      servent_to_lisp(se); pushSTACK(value1);
+      begin_system_call();
+    }
+    endservent();
+    end_system_call();
+#  else /* no getservent - emulate */
+    uintL port;
+    begin_system_call();
+    for (port = 0; port < 0x10000; port++) {
+      se = getservbyport(port,proto);
+      if (se != NULL) {
+        end_system_call();
+        servent_to_lisp(se); pushSTACK(value1);
+        begin_system_call();
+      }
+    }
+    end_system_call();
+#  endif
+    VALUES1(listof(count));
+    return;
+  } else if (symbolp(serv)) {
+    serv = Symbol_name(serv);
+    goto servent_string;
+  } else if (stringp(serv)) { servent_string:
+    with_string_0(serv,GLO(misc_encoding),servz, {
+        begin_system_call();
+        se = getservbyname(servz,proto);
+        end_system_call();
+      });
+  } else if (integerp(serv)) {
+    uintL port = I_to_UL(serv);
+    begin_system_call();
+    se = getservbyport(htons(port),proto);
+    end_system_call();
+  } else
+    fehler_string_integer(serv);
+  if (se == NULL) OS_error();
+  servent_to_lisp(se);
+}
+
+#endif /* getservbyname getservbyport */
+
+#if defined(HAVE_GETGRGID) && defined(HAVE_GETGRNAM)
 
 #if defined(HAVE_GRP_H)
 # include <grp.h>
@@ -1210,7 +1296,7 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
   if (NULL == gr) { OS_error(); }
   grp_to_lisp(gr);
 }
-#endif  /* getlogin getgrent getpwnam getpwuid getuid */
+#endif  /* getgrgid getgrnam */
 
 #if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
 

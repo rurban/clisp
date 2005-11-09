@@ -721,11 +721,6 @@ LISPFUNNR(text,1)
 #ifdef MACHINE_KNOWN
 LISPFUNN(machine_instance,0)
 #endif
-#ifdef HAVE_GETHOSTBYNAME
-#ifndef UNIX_BEOS
-LISPFUN(socket_service_port,seclass_read,0,2,norest,nokey,0,NIL)
-#endif
-#endif
 /* ---------- TIME ---------- */
 LISPFUNNR(get_internal_real_time,0)
 LISPFUNNR(get_internal_run_time,0)

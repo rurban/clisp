@@ -2199,16 +2199,12 @@
  '(socket-server socket-server-close socket-server-port socket-server-host
    socket-accept socket-wait socket-status socket-connect socket-options
    socket-stream-host socket-stream-port socket-stream-peer socket-stream-local
-   stream-handles
-   socket-service-port)
+   stream-handles)
  "SOCKET")
 #+sockets
 (ext:re-export "SOCKET" "EXT")
 
 (common-lisp:in-package "SYSTEM")
-
-#+BEOS
-(LOAD "beossock")               ; sockets, optional
 
 (LOAD "runprog")                ; run-program and friends, optional
 

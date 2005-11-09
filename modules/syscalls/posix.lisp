@@ -265,6 +265,90 @@
             (values (memstat-total-physical mem-stat)
                     (memstat-avail-physical mem-stat))))
 
+;;;--------------------------------------------------------------------------
+;;; service / port map
+(defstruct (servent (:constructor make-servent (name aliases port proto)))
+  ;; see getservent(3)
+  (name     "" :type string)
+  (aliases  () :type list) ; list of strings
+  (port      0 :type integer)
+  (proto "tcp" :type string))
+
+(unless (fboundp 'servent)
+(defvar *servents*)
+(defvar *servent-file*
+  #+unix "/etc/services"
+  #+win32 (string-concat (getenv "WINDIR") "/system32/drivers/etc/services"))
+(defun servent (&optional service-name protocol)
+  (assert (typep protocol 'string))
+  (unless (boundp '*servents*)
+    (setq *servents*
+          (with-open-file (in *servent-file* :direction :input
+                           #+UNICODE :external-format #+UNICODE 'charset:UTF-8)
+            (loop :with ret :for line = (read-line in nil nil) :while line :do
+              ;; Remove trailing comments.
+              (let ((i (position #\# line)))
+                (when i (setq line (subseq line 0 i))))
+              ;; Split into whitespace separated fields.
+              (let ((fields '()))
+                (let ((i 0))
+                  (loop
+                    (let ((i1 (position-if-not #'sys::whitespacep
+                                               line :start i)))
+                      (unless i1 (return))
+                      (let ((i2 (or (position-if #'sys::whitespacep
+                                                 line :start i1)
+                                    (length line))))
+                        (push (subseq line i1 i2) fields)
+                        (setq i i2)))))
+                (setq fields (nreverse fields))
+                (when fields
+                  ;; Split second field, of the form "port/proto".
+                  (let* ((port+proto (second fields))
+                         (i (position #\/ port+proto)))
+                    (when i
+                      (push
+                       (make-servent (first fields)
+                                     (cddr fields)
+                                     (parse-integer (subseq port+proto 0 i))
+                                     (subseq port+proto (1+ i)))
+                       ret)))))
+              :finally (return (nreverse ret))))))
+  (etypecase service-name
+    (null (mapcar #'copy-servent *servents*))
+    (string
+     (or (find-if #'(lambda (se)
+                      (and (or (string-equal (servent-name se) service-name)
+                               (find service-name (servent-aliases se)
+                                     :test #'string-equal))
+                           (or (null protocol)
+                               (string-equal (servent-proto se) protocol))))
+                  *servents*)
+         (error (SYS::TEXT "service does not exist: ~A/~A")
+                service-name protocol)))
+    (integer
+     (or (find-if #'(lambda (se)
+                      (and (= (servent-port se) service-name)
+                           (or (null protocol)
+                               (string-equal (servent-proto se) protocol))))
+                  *servents*)
+         (error (SYS::TEXT "service does not exist: ~A/~A")
+                service-name protocol)))))
+)
+(without-package-lock ("SOCKET")
+  (sys::deprecate 'socket::socket-service-port 'servent
+                  (lambda (&optional sn pr)
+                    (let ((ret (servent sn pr)))
+                      (if (listp ret)
+                          (mapcar (lambda (se)
+                                    (vector (servent-name se)
+                                            (servent-aliases se)
+                                            (servent-port se)
+                                            (servent-proto se)))
+                                  ret)
+                          (values (servent-name ret) (servent-aliases ret)
+                                  (servent-port ret) (servent-proto ret)))))))
+(export 'socket::socket-service-port "EXT")
 
 ;;;--------------------------------------------------------------------------
 #+unix
