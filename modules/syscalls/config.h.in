@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* Define to 1 if you have the <arpa/inet.h> header file. */
+#undef HAVE_ARPA_INET_H
+
 /* Define to 1 if you have the `chmod' function. */
 #undef HAVE_CHMOD
 
@@ -40,6 +43,9 @@
 
 /* Define to 1 if you have the `endpwent' function. */
 #undef HAVE_ENDPWENT
+
+/* Define to 1 if you have the `endservent' function. */
+#undef HAVE_ENDSERVENT
 
 /* Define to 1 if you have the `endutxent' function. */
 #undef HAVE_ENDUTXENT
@@ -89,6 +95,9 @@
 /* Define to 1 if you have the `getgrgid' function. */
 #undef HAVE_GETGRGID
 
+/* Define to 1 if you have the `getgrnam' function. */
+#undef HAVE_GETGRNAM
+
 /* Define to 1 if you have the `gethostent' function. */
 #undef HAVE_GETHOSTENT
 
@@ -116,6 +125,15 @@
 /* have <sys/time.h>, the getrusage() function, the struct rusage type, and
    <sys/resource.h> defines RUSAGE_SELF */
 #undef HAVE_GETRUSAGE
+
+/* Define to 1 if you have the `getservbyname' function. */
+#undef HAVE_GETSERVBYNAME
+
+/* Define to 1 if you have the `getservbyport' function. */
+#undef HAVE_GETSERVBYPORT
+
+/* Define to 1 if you have the `getservent' function. */
+#undef HAVE_GETSERVENT
 
 /* Define to 1 if you have the `getsid' function. */
 #undef HAVE_GETSID
@@ -222,6 +240,9 @@
 
 /* Define to 1 if you have the `setrlimit' function. */
 #undef HAVE_SETRLIMIT
+
+/* Define to 1 if you have the `setservent' function. */
+#undef HAVE_SETSERVENT
 
 /* Define to 1 if you have the `setsid' function. */
 #undef HAVE_SETSID
