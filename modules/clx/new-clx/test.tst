@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 ;; some tests for clx/new-clx
-;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "clx/new-clx/test")'
+;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "clx/new-clx/test")'
 
 (defparameter *dpy* (show (xlib:open-display ""))) *dpy*
 

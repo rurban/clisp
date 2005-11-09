@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 ;; some tests for PCRE
-;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "pcre/test")'
+;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "pcre/test")'
 
 (listp (show (multiple-value-list (ext:module-info "pcre" t)) :pretty t)) T
 

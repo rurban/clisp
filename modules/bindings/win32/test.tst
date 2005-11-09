@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 ;; some tests for WIN32
-;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "bindings/win32/test")'
+;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "bindings/win32/test")'
 
 (defmacro show-mv (form) `(listp (show (multiple-value-list ,form) :pretty t)))
 SHOW-MV

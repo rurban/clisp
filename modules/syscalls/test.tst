@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 ;; some tests for SYSCALLS
-;; clisp -E utf-8 -q -norc -i ../tests/tests -x '(run-test "syscalls/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "syscalls/test")'
 
 (listp (show (multiple-value-list (ext:module-info "syscalls" t)) :pretty t)) T
 
