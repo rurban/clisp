@@ -1,5 +1,11 @@
 2005-11-08  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (passwd_to_lisp): replaces PASSWD_TO_STACK
+	(USER-DATA): use passwd_to_lisp() instead of PASSWD_TO_STACK()
+	user argument is now optional, as documented
+
+2005-11-08  Sam Steingold  <sds@gnu.org>
+
 	* defpackage.lisp (defpackage): :SHADOWING-IMPORT-FROM, :USE,
 	:IMPORT-FROM accept package designators, not just package names
 
