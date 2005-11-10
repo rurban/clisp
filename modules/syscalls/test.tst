@@ -8,9 +8,9 @@
 T
 
 (listp (show (os:resolve-host-ipaddr) :pretty t)) T
-(os:servent-p (show (os:servent "www"))) T
-(os:servent-p (show (os:servent 80))) T
-(listp (show (os:servent) :pretty t)) T
+(os:service-p (show (os:service "www"))) T
+(os:service-p (show (os:service 80))) T
+(listp (show (os:service) :pretty t)) T
 
 #+unix
 (when (fboundp 'os:getutxent)
@@ -61,6 +61,7 @@ T
 T
 
 #+unix (os:uname-p (show (os:uname))) #+unix T
+
 #+unix (os:user-info-p (show (os:user-info :default))) T
 #+unix (listp (show (os:user-info) :pretty t)) T
 #+unix (os:group-info-p (show (os:group-info (os:user-info-gid

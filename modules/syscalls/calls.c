@@ -1160,7 +1160,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,&optional host)
 #if (defined(HAVE_GETSERVBYPORT) && defined(HAVE_GETSERVBYNAME)) || defined(WIN32_NATIVE)
 /* Lisp interface to getservbyport(3) and getservbyname(3) */
 
-/* C struct servent --> Lisp SERVENT structure
+/* C struct servent --> Lisp SERVICE structure
  can trigger GC */
 static Values servent_to_lisp (struct servent * se) {
   object tmp;
@@ -1170,10 +1170,10 @@ static Values servent_to_lisp (struct servent * se) {
   pushSTACK(tmp);
   pushSTACK(L_to_I(ntohs(se->s_port)));
   pushSTACK(asciz_to_string(se->s_proto,GLO(misc_encoding)));
-  funcall(`POSIX::MAKE-SERVENT`,4);
+  funcall(`POSIX::MAKE-SERVICE`,4);
 }
 
-DEFUN(POSIX:SERVENT, &optional service-name protocol)
+DEFUN(POSIX:SERVICE, &optional service-name protocol)
 {
   object protocol = popSTACK();
   char *proto = NULL;
