@@ -1031,7 +1031,7 @@ T
 > (eq 'a 'b)
 NIL
 > (= 3 4)
-T
+NIL
 > (eq '(a b c) '(a b c))
 NIL
 > (equal '(a b c) '(a b c))
@@ -1041,7 +1041,18 @@ T
 > (eql 3 3)
 T
 
-The eql predicate is equivalent to eq for symbols and to = for numbers.
+The eql predicate is equivalent to eq for symbols and to = for numbers
+or the same type:
+> (eql 2.0 2)
+NIL
+> (= 2.0 2)
+T
+> (eq 12345678901234567890 12345678901234567890)
+NIL
+> (= 12345678901234567890 12345678901234567890)
+T
+> (eql 12345678901234567890 12345678901234567890)
+T
 
 The equal predicate is equivalent to eql for symbols and numbers. It is
 true for two conses if and only if their cars are equal and their cdrs
