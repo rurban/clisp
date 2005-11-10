@@ -86,7 +86,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <section id="rawsock-args"><title>Common arguments</title>
 <variablelist id="rawsock-args-list">
 <varlistentry><term><type>void*</type> &buf-r;</term>
- <listitem><simpara>A &unsigned-byte-vec;.  The vector may be adjustable
+ <listitem><simpara>A &ubyte-vec;.  The vector may be adjustable
    and have a fill pointer.  Whenever a function accepts a &buf-r;
    argument, it also accepts &start-k; and &end-k; keyword arguments
    with the usual meaning and defaults.  You do not have to supply the
@@ -136,11 +136,11 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
        a <link linkend="make-sockaddr"><type>SOCKADDR</type></link>.
     </simpara></listitem></varlistentry>
     <varlistentry><term>iovec</term><listitem><simpara>
-       a <literal role="type">(&vector-t; &unsigned-byte-vec;)</literal>
+       a <literal role="type">(&vector-t; &ubyte-vec;)</literal>
        (&start-k; and &end-k; arguments are applied to this vector)
     </simpara></listitem></varlistentry>
     <varlistentry><term>control</term><listitem><simpara>
-       a &unsigned-byte-vec;</simpara></listitem></varlistentry>
+       a &ubyte-vec;</simpara></listitem></varlistentry>
     <varlistentry><term>flags</term><listitem><simpara>
        a &list-t;</simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
@@ -195,8 +195,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <listitem><simpara>Call one of
  <function role="unix">read</function>/<function role="unix">readv</function> or
  <function role="unix">write</function>/<function role="unix">writev</function>
-   (depending on whether &buf-r; is a &unsigned-byte-vec; or
-   a <literal role="type">(&vector-t; &unsigned-byte-vec;)</literal>).
+   (depending on whether &buf-r; is a &ubyte-vec; or
+   a <literal role="type">(&vector-t; &ubyte-vec;)</literal>).
  Return the number of bytes read or written.</simpara>
  <simpara>When <function role="unix">readv</function> and
   <function role="unix">writev</function> and not available, they are
@@ -255,7 +255,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <varlistentry id="make-sockaddr"><term><code>(RAWSOCK:MAKE-SOCKADDR
    <replaceable>family</replaceable> &optional-amp; &data-r;)</code></term>
  <listitem><simpara>Create a <type>sockaddr</type> object.
-   &data-r; should be a sequence of &unsigned-byte-8; or an &integer-t;
+   &data-r; should be a sequence of &ubyte-8; or an &integer-t;
    (meaning <code>(&make-list; &data-r; :initial-element 0)</code>).
    When omitted, the standard platform-specific size is used.
 </simpara></listitem></varlistentry>

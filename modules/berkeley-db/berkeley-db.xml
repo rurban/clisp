@@ -272,7 +272,7 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:DB-XIDDATASIZE</constant></term>
      <listitem><simpara>the &length; of the globally unique
-       &unsigned-byte-vec; which must be passed to
+       &ubyte-vec; which must be passed to
        <function role="bdb">DB_TXN-&gt;prepare</function>.
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:HOME</constant></term>

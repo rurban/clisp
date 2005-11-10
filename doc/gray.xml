@@ -247,7 +247,7 @@ and is supported by most &cl; implementations currently in use.</para>
    &need-defmethod;</listitem></varlistentry>
  <varlistentry id="st-rbla"><term><code>(&st-rbla; &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
-   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
+   &stream-element-type; is &ubyte-8; or &sbyte-8;.
    Returns &t; if &st-rb; would return immediately with an
    &integer-t; result.  Returns &eof-k; if the &eos; is already
    known to be reached.  If &st-rb;'s value is not available
@@ -257,7 +257,7 @@ and is supported by most &cl; implementations currently in use.</para>
  <varlistentry><term><code>(<function>GRAY:STREAM-READ-BYTE-WILL-HANG-P</function>
                  &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
-   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
+   &stream-element-type; is &ubyte-8; or &sbyte-8;.
    Returns &nil; if &st-rb; will return immediately.
    Otherwise it returns true.</simpara>
    <simpara>The default method calls &st-rbla;; this is always sufficient.
@@ -266,7 +266,7 @@ and is supported by most &cl; implementations currently in use.</para>
  <varlistentry><term><code>(<function>GRAY:STREAM-READ-BYTE-NO-HANG</function>
                  &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
-   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
+   &stream-element-type; is &ubyte-8; or &sbyte-8;.
    Returns an &integer-t; or &eof-k;, like &st-rb;, if that would
    return immediately.  If &st-rb;'s value is not available immediately,
    returns &nil; instead of waiting.</simpara>

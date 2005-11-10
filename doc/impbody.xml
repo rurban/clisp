@@ -2527,13 +2527,11 @@ and the international alphabetic characters from the character set:
    <ulink url="&clhs;/Body/chap-15.html">[CLHS-15]</ulink></title>
 
 <formalpara><title>Function &make-array;</title>
-<para>&make-array; can return specialized arrays for the
- &array-element-type;s
+<para>&make-array; can return specialized arrays for the &array-element-type;s
  <literal role="type">(&unsigned-byte-t; 2)</literal>,
  <literal role="type">(&unsigned-byte-t; 4)</literal>,
- &unsigned-byte-8;, &unsigned-byte-16;, &unsigned-byte-32;,
- and, of course, the required specializations &nil-t;, &bit-t; and
- &character-t;.</para></formalpara>
+ &ubyte-8;, &ubyte-16;, &ubyte-32;, and, of course, the required
+ specializations &nil-t;, &bit-t; and &character-t;.</para></formalpara>
 
 <section id="array-elts"><title>Array Elements
    <ulink url="&clhs;/Body/sec_15-1-1.html">[CLHS-15.1.1]</ulink></title>
@@ -3598,12 +3596,10 @@ This keyboard input is not echoed on the screen.  During execution of a
   &stream-t;s created by the functions &open;, &mk-pipe-in;
   &mk-pipe-out;, &mk-pipe-io;, &so-accept;, &so-connect;
   can be modified, if the old and the new &stream-element-type;s are either
-<itemizedlist>
-  <listitem><simpara>both equivalent to &character-t; or
-      &unsigned-byte-8; or &signed-byte-8;; or</simpara></listitem>
-  <listitem><simpara>both equivalent to &unsigned-byte-n; or
-      &signed-byte-n;, with the same &n-r;.</simpara></listitem>
-</itemizedlist></para>
+ <itemizedlist><listitem><simpara>both equivalent to &character-t; or
+    &ubyte-8; or &sbyte-8;; or</simpara></listitem>
+  <listitem><simpara>both equivalent to &ubyte-n; or &sbyte-n;, with the
+    same &n-r;.</simpara></listitem></itemizedlist></para>
 
 <para>Functions &stream-element-type; and <code>(&setf;
  &stream-element-type;)</code> are &generic-function-t;s, see
@@ -3631,8 +3627,8 @@ This keyboard input is not echoed on the screen.  During execution of a
  you will need to open the standard input in the binary mode:
 <programlisting language="lisp">
 (let ((buf (&make-array; (&parse-integer; (&getenv; "CONTENT_LENGTH"))
-                       :element-type '&unsigned-byte-8;)))
-  (&with-open-stream; (in (&make-stream; &input-k; &eltype; '&unsigned-byte-8;))
+                       :element-type '&ubyte-8;)))
+  (&with-open-stream; (in (&make-stream; &input-k; &eltype; '&ubyte-8;))
     (&read-sequence; buf in))
   buf)
 </programlisting></para>
@@ -3678,8 +3674,8 @@ This keyboard input is not echoed on the screen.  During execution of a
 <para>The function <code>(&rd-integer; &stream-r;
     &eltype-r; &optional-amp; &endianness; &eof-ep; &eof-v;)</code>
  reads a multi-byte &integer-t; from &stream-r;, which should be a
- &stream-t; with &stream-element-type; &unsigned-byte-8;.
- &eltype-r; should be &type-eq; to &unsigned-byte-n;,
+ &stream-t; with &stream-element-type; &ubyte-8;.
+ &eltype-r; should be &type-eq; to &ubyte-n;,
  where &n-r; is a multiple of 8.</para>
 
 <para><code>(&rd-integer; &stream-r; &eltype-r;)</code> is like
@@ -3696,7 +3692,7 @@ This keyboard input is not echoed on the screen.  During execution of a
   &optional-amp; &endianness; &eof-ep; &eof-v;)</code> reads a
  floating-point number in &ieee-bfp; binary representation from
  &stream-r;, which should be a &stream-t; with
- &stream-element-type; &unsigned-byte-8;.  &eltype-r; should be
+ &stream-element-type; &ubyte-8;.  &eltype-r; should be
  &type-eq; to &single-float-t; or &double-float-t;.</para>
 
 <formalpara id="endianness"><title>Endianness</title>
@@ -3715,8 +3711,8 @@ This keyboard input is not echoed on the screen.  During execution of a
 <para>The function <code>(&wr-integer; &int-r; &stream-r; &eltype-r;
   &optional-amp; &endianness;)</code> writes a multi-byte &integer-t; to
  &stream-r;, which should be a &stream-t; with
- &stream-element-type; &unsigned-byte-8;.  &eltype-r; should be
- &type-eq; to &unsigned-byte-n;, where &n-r; is a multiple of 8.</para>
+ &stream-element-type; &ubyte-8;.  &eltype-r; should be
+ &type-eq; to &ubyte-n;, where &n-r; is a multiple of 8.</para>
 
 <para><code>(&wr-integer; &int-r; &stream-r; &eltype-r;)</code> is
  like <code>(&write-byte; &int-r; &stream-r;)</code> if &stream-r;'s
@@ -3732,7 +3728,7 @@ This keyboard input is not echoed on the screen.  During execution of a
   &stream-r; &eltype-r; &optional-amp; &endianness;)</code> writes a
  floating-point number in &ieee-bfp; binary representation to
  &stream-r;, which should be a &stream-t; with &stream-element-type;
- &unsigned-byte-8;.  &eltype-r; should be
+ &ubyte-8;.  &eltype-r; should be
  &type-eq; to &single-float-t; or &double-float-t;.</para>
 
 </section>
@@ -3756,8 +3752,8 @@ This keyboard input is not echoed on the screen.  During execution of a
    non-&nil;, it can block for reading the first byte but does not block
    for any further bytes.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-   &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket-s;
-   with &stream-element-type; &unsigned-byte-8;.
+   &ubyte-vec; and &stream-r; is a &file-pipe-socket-s;
+   with &stream-element-type; &ubyte-8;.
  </simpara></listitem></varlistentry>
  <varlistentry id="rd-ch-seq"><term>&rd-ch-seq;
    performs multiple &read-char; operations:</term>
@@ -3786,8 +3782,8 @@ functions are provided:
   block.  Returns two values: &sequence-r; and the index of the first
   byte that was not output.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-  &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket-s; with
-  &stream-element-type; &unsigned-byte-8;.</simpara></listitem></varlistentry>
+  &ubyte-vec; and &stream-r; is a &file-pipe-socket-s; with
+  &stream-element-type; &ubyte-8;.</simpara></listitem></varlistentry>
 <varlistentry id="wr-ch-seq"><term>&wr-ch-seq;
   performs multiple &write-char; operations:</term>
  <listitem><simpara><code>(&wr-ch-seq; &sequence-r; &stream-r; &key-amp;
@@ -3834,7 +3830,7 @@ functions are provided:
   more characters.</simpara></listitem></varlistentry>
  <varlistentry id="rbla"><term><code>(&rbla; &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
-   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
+   &stream-element-type; is &ubyte-8; or &sbyte-8;.
    Returns &t; if &read-byte; would return immediately with an
    &integer-t; result.
    Returns &eof-k; if the &eos; is already known to be reached.
@@ -3842,13 +3838,13 @@ functions are provided:
    instead of waiting.</simpara></listitem></varlistentry>
  <varlistentry id="rbwhp"><term><code>(&rbwhp; &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
-   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
+   &stream-element-type; is &ubyte-8; or &sbyte-8;.
    Returns &nil; if &read-byte; will return immediately.
    Otherwise it returns true.</simpara></listitem></varlistentry>
  <varlistentry id="rbnh"><term><code>(&rbnh; &stream-r; &optional-amp;
     &eof-ep; &eof-v;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
-   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
+   &stream-element-type; is &ubyte-8; or &sbyte-8;.
    Returns an &integer-t; or does &eos; handling, like &read-byte;,
    if that would return immediately.
    If &read-byte;'s value is not available immediately, returns &nil;
@@ -3903,7 +3899,7 @@ functions are provided:
    &file-pipe-socket-s; functions</title>
  <varlistentry id="eltype"><term>&eltype;</term>
   <listitem><simpara>types equivalent to &character-t; or
-    &unsigned-byte-n;, &signed-byte-n;; if the stream is to be
+    &ubyte-n;, &sbyte-n;; if the stream is to be
     un&buffered;, &n-r; must be a multiple of 8.</simpara>
    <simpara>If &n-r; is not a multiple of 8, &clisp; will use the
     specified number of bits for i/o, and write the file length

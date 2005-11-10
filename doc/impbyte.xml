@@ -1491,9 +1491,8 @@ vector does not need to be scanned for pointers).</para>
    It is used for printing the function and for error messages.
    This field is immutable.</simpara></listitem></varlistentry>
  <varlistentry id="func-codevec"><term>&codevec;</term>
-  <listitem><simpara>This is the byte-code vector, a <literal
-   role="type">(&simple-array-t; (&unsigned-byte-t; 8) (*))</literal>.
-   This field is immutable.</simpara></listitem></varlistentry>
+  <listitem><simpara>This is the byte-code vector, a &ubyte-vec;.
+    This field is immutable.</simpara></listitem></varlistentry>
  <varlistentry><term>&consts;[]</term>
   <listitem><simpara>The remaining fields in the function object are
    references to other &clisp; objects.  These references are immutable,
