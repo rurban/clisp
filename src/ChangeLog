@@ -3,6 +3,8 @@
 	* modules/rawsock/rawsock.c [win32]: include <ws2tcpip.h> for
 	getaddrinfo, freeaddrinfo, getnameinfo
 	(SETSOCKOPT_ARG_T) [win32]: define to char* (unix: from CL_TCPCONN)
+	* modules/rawsock/configure.in, modules/syscalls/configure.in:
+	use CL_SOCKET for solaris
 
 2005-11-09  Sam Steingold  <sds@gnu.org>
 
