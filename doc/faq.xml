@@ -319,7 +319,7 @@ further explanations of the issues could be provided).</para>
     <listitem><simpara><ulink url="http://cl-cookbook.sourceforge.net/windows.html">The Common Lisp Cookbook</ulink></simpara></listitem>
  </itemizedlist></para></formalpara>
  <formalpara><title>non-&emacs;-based</title><para><itemizedlist>
-    <listitem><simpara><ulink role="google">VisualCLisp</ulink></simpara></listitem>
+    <listitem><simpara><ulink url="google">VisualCLisp</ulink></simpara></listitem>
     <listitem><simpara><ulink url="http://jabberwocky.sourceforge.net/">Jabberwocky</ulink></simpara></listitem>
     <listitem><simpara><ulink url="http://gclisp.sourceforge.net/">GClisp</ulink></simpara></listitem>
     <listitem><simpara>&phemlock;</simpara></listitem>

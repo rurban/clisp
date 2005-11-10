@@ -26,7 +26,7 @@
      apply-templates is mapc on children
      apply-imports is call-next-method -->
 
-<xsl:template match="ulink[@role='google']">
+<xsl:template match="ulink[@url='google']">
  <a class="{@role}" href="http://www.google.com/search?q={.}"
     ><xsl:apply-templates/></a></xsl:template>
 
