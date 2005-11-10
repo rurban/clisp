@@ -267,23 +267,23 @@
 
 ;;;--------------------------------------------------------------------------
 ;;; service / port map
-(defstruct (servent (:constructor make-servent (name aliases port proto)))
+(defstruct (service (:constructor make-service (name aliases port proto)))
   ;; see getservent(3)
   (name     "" :type string)
   (aliases  () :type list) ; list of strings
   (port      0 :type integer)
   (proto "tcp" :type string))
 
-(unless (fboundp 'servent)
-(defvar *servents*)
-(defvar *servent-file*
+(unless (fboundp 'service)
+(defvar *services*)
+(defvar *services-file*
   #+unix "/etc/services"
   #+win32 (string-concat (getenv "WINDIR") "/system32/drivers/etc/services"))
-(defun servent (&optional service-name protocol)
+(defun service (&optional service-name protocol)
   (assert (typep protocol 'string))
-  (unless (boundp '*servents*)
-    (setq *servents*
-          (with-open-file (in *servent-file* :direction :input
+  (unless (boundp '*services*)
+    (setq *services*
+          (with-open-file (in *services-file* :direction :input
                            #+UNICODE :external-format #+UNICODE 'charset:UTF-8)
             (loop :with ret :for line = (read-line in nil nil) :while line :do
               ;; Remove trailing comments.
@@ -308,46 +308,46 @@
                          (i (position #\/ port+proto)))
                     (when i
                       (push
-                       (make-servent (first fields)
+                       (make-service (first fields)
                                      (cddr fields)
                                      (parse-integer (subseq port+proto 0 i))
                                      (subseq port+proto (1+ i)))
                        ret)))))
               :finally (return (nreverse ret))))))
   (etypecase service-name
-    (null (mapcar #'copy-servent *servents*))
+    (null (mapcar #'copy-service *services*))
     (string
      (or (find-if #'(lambda (se)
-                      (and (or (string-equal (servent-name se) service-name)
-                               (find service-name (servent-aliases se)
+                      (and (or (string-equal (service-name se) service-name)
+                               (find service-name (service-aliases se)
                                      :test #'string-equal))
                            (or (null protocol)
-                               (string-equal (servent-proto se) protocol))))
-                  *servents*)
+                               (string-equal (service-proto se) protocol))))
+                  *services*)
          (error (SYS::TEXT "service does not exist: ~A/~A")
                 service-name protocol)))
     (integer
      (or (find-if #'(lambda (se)
-                      (and (= (servent-port se) service-name)
+                      (and (= (service-port se) service-name)
                            (or (null protocol)
-                               (string-equal (servent-proto se) protocol))))
-                  *servents*)
+                               (string-equal (service-proto se) protocol))))
+                  *services*)
          (error (SYS::TEXT "service does not exist: ~A/~A")
                 service-name protocol)))))
 )
 (without-package-lock ("SOCKET")
-  (sys::deprecate 'socket::socket-service-port 'servent
+  (sys::deprecate 'socket::socket-service-port 'service
                   (lambda (&optional sn pr)
-                    (let ((ret (servent sn pr)))
+                    (let ((ret (service sn pr)))
                       (if (listp ret)
                           (mapcar (lambda (se)
-                                    (vector (servent-name se)
-                                            (servent-aliases se)
-                                            (servent-port se)
-                                            (servent-proto se)))
+                                    (vector (service-name se)
+                                            (service-aliases se)
+                                            (service-port se)
+                                            (service-proto se)))
                                   ret)
-                          (values (servent-name ret) (servent-aliases ret)
-                                  (servent-port ret) (servent-proto ret)))))))
+                          (values (service-name ret) (service-aliases ret)
+                                  (service-port ret) (service-proto ret)))))))
 (export 'socket::socket-service-port "EXT")
 
 ;;;--------------------------------------------------------------------------
