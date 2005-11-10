@@ -66,6 +66,7 @@
 #if defined(HAVE_WINSOCK2_H)    /* woe32 suckety sucks */
 # include <winsock2.h>
 # include <ws2tcpip.h>
+# define SETSOCKOPT_ARG_T char*
 # define CLOSESOCK  closesocket
 # define READ(s,b,l)  recv(s,b,l,0)
 # define WRITE(s,b,l)  send(s,b,l,0)
