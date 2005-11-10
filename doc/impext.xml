@@ -4441,30 +4441,30 @@ Compiled, it will have inlined the library function calls.
     correspond to &socket-stream;s which are &bidir-s; &stream-t;s
   </simpara></listitem>
   <listitem><simpara><quote>passive</quote> sockets correspond to
-    &socket-server;s which are a special kind of objects that used to
-    allow the other side to initiate interaction with lisp.
+    &socket-server;s which are a special kind of objects that are used
+    to allow the other side to initiate interaction with lisp.
 </simpara></listitem></itemizedlist></para>
 
 <example id="socket-ex-server"><title>Lisp &repl; server</title>
 <para>Here is a simple lisp &repl; server that waits for a remote
  connection and evaluates forms read from it:
 <programlisting language="lisp">
-(let ((server (&sose;)))
-  (format t "~&amp;Waiting for a connection on ~S:~D~%"
+(&let; ((server (&sose;)))
+  (&format; t "~&amp;Waiting for a connection on ~S:~D~%"
           (&sose-host; server) (&sose-port; server))
-  (unwind-protect
+  (&unwind-protect;
       ;; infinite loop, terminate with <keycombo>&ctrl;<keysym>C</keysym></keycombo>
-      (loop (&with-open-stream; (socket (&so-accept; server))
-              (multiple-value-bind (local-host local-port) (&sost-local; socket)
-                (multiple-value-bind (remote-host remote-port) (&sost-peer; socket)
-                  (format t "~&amp;Connection: ~S:~D -- ~S:~D~%"
+      (&loop; (&with-open-stream; (socket (&so-accept; server))
+              (&multiple-value-bind; (local-host local-port) (&sost-local; socket)
+                (&multiple-value-bind; (remote-host remote-port) (&sost-peer; socket)
+                  (&format; &t; "~&amp;Connection: ~S:~D -- ~S:~D~%"
                           remote-host remote-port local-host local-port)))
               ;; loop is terminated when the remote host closes the connection or on <link linkend="quit"><function>EXT:EXIT</function></link>
-              (loop (when (eq :eof (&so-status; (cons socket :input))) (return))
-                    (print (eval (read socket)) socket)
+              (&loop; (&when; (&eq; :eof (&so-status; (cons socket :input))) (&return;))
+                    (&print; (&eval; (&read; socket)) socket)
                     ;; flush everything left in socket
-                    (loop :for c = (read-char-no-hang socket nil nil) :while c)
-                    (terpri socket))))
+                    (&loop; :for c = (&read-char-no-hang; socket nil nil) :while c)
+                    (&terpri; socket))))
     ;; make sure server is closed
     (&sose-close; server)))
 </programlisting>
@@ -4707,7 +4707,7 @@ Compiled, it will have inlined the library function calls.
   </simpara>&sost-raw-too;</listitem></varlistentry>
  <varlistentry id="so-handles"><term><code>(&so-handles;
     &stream-r;)</code></term>
-  <listitem><simpara>Return the input and output OS &file-des; of the
+  <listitem><simpara>Return the input and output OS &file-des;s of the
     &stream-r; as &mul-val;.  See <xref linkend="rawsock"/>.
  </simpara></listitem></varlistentry>
 </variablelist></section>
