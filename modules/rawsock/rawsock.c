@@ -65,6 +65,7 @@
 #endif
 #if defined(HAVE_WINSOCK2_H)    /* woe32 suckety sucks */
 # include <winsock2.h>
+# include <ws2tcpip.h>
 # define CLOSESOCK  closesocket
 # define READ(s,b,l)  recv(s,b,l,0)
 # define WRITE(s,b,l)  send(s,b,l,0)
@@ -672,7 +673,7 @@ DEFUN(RAWSOCK:SOCK-LISTEN,socket &optional backlog) {
   VALUES0;
 }
 
-#if defined(HAVE_GETNAMEINFO)
+#if defined(HAVE_GETNAMEINFO) || defined(WIN32_NATIVE)
 DEFFLAGSET(getnameinfo_flags, NI_NOFQDN NI_NUMERICHOST NI_NAMEREQD \
            NI_NUMERICSERV NI_NUMERICSCOPE NI_DGRAM)
 DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
