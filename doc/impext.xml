@@ -797,9 +797,9 @@ their corresponding byte vector representation according to that encoding.
 <varlistentry><term><code>(<function>EXT:CONVERT-STRING-TO-BYTES</function>
       &string-r; &encoding-r; &key-amp; &start-k; &end-k;)</code></term>
  <listitem><simpara>converts the subsequence of &string-r; from
-  &start-r; to &end-r; to a &unsigned-byte-vec;,
-  according to the given &encoding-r;, and returns the resulting byte
-  vector.</simpara></listitem></varlistentry>
+  &start-r; to &end-r; to a &ubyte-vec;, according to the given
+  &encoding-r;, and returns the resulting byte vector.
+</simpara></listitem></varlistentry>
 
 </variablelist>
 
@@ -2921,8 +2921,8 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
    untyped &foreign-address-t; (as known from the &c-pointer; foreign
    type specification) pointing to the stack location, the number of
    &character-t;s of the Lisp &string-r; that were considered and the
-   number of &unsigned-byte-8; bytes that were allocated for it on the
-   &c-lang; stack.</simpara>
+   number of &ubyte-8; bytes that were allocated for it on the &c-lang;
+   stack.</simpara>
   <simpara>When <replaceable>null-terminated-p</replaceable> is true,
    which is the default, a variable number of zero bytes is appended,
    depending on the encoding, e.g. 2 for &utf-16;,
@@ -3094,19 +3094,19 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
    <entry><type>long</type></entry></row>
 <row><entry><type>ulong</type></entry><entry>&integer-t;</entry>
    <entry><type>unsigned long</type></entry></row>
-<row><entry><type>uint8</type></entry><entry>&unsigned-byte-8;</entry>
+<row><entry><type>uint8</type></entry><entry>&ubyte-8;</entry>
    <entry><type>uint8</type></entry><entry><type>BYTE</type></entry></row>
-<row><entry><type>sint8</type></entry><entry>&signed-byte-8;</entry>
+<row><entry><type>sint8</type></entry><entry>&sbyte-8;</entry>
    <entry><type>sint8</type></entry></row>
-<row><entry><type>uint16</type></entry><entry>&unsigned-byte-16;</entry>
+<row><entry><type>uint16</type></entry><entry>&ubyte-16;</entry>
    <entry><type>uint16</type></entry>
    <entry><type>SHORT CARDINAL</type></entry></row>
-<row><entry><type>sint16</type></entry><entry>&signed-byte-16;</entry>
+<row><entry><type>sint16</type></entry><entry>&sbyte-16;</entry>
    <entry><type>sint16</type></entry>
    <entry><type>SHORT INTEGER</type></entry></row>
-<row><entry><type>uint32</type></entry><entry>&unsigned-byte-32;</entry>
+<row><entry><type>uint32</type></entry><entry>&ubyte-32;</entry>
    <entry><type>uint32</type></entry><entry><type>CARDINAL</type></entry></row>
-<row><entry><type>sint32</type></entry><entry>&signed-byte-32;</entry>
+<row><entry><type>sint32</type></entry><entry>&sbyte-32;</entry>
    <entry><type>sint32</type></entry><entry><type>INTEGER</type></entry></row>
 <row><entry><type>uint64</type></entry>
    <entry><literal role="type">(&unsigned-byte-t; 64)</literal></entry>
@@ -4100,7 +4100,7 @@ offset for structure references) and returns the given type.</para>
 
 <para><function>mem-write</function> writes an arbitrary
 address. <function>mem-write-vector</function> copies the content of a
-Lisp &string-t; or &unsigned-byte-vec; into memory.</para>
+Lisp &string-t; or &ubyte-vec; into memory.</para>
 
 <para><function>nzero-pointer-p</function> tests for
 non-&c-NULL; pointers in all recognized representations
@@ -4141,17 +4141,17 @@ They are &not-e; regular &cl; types or &clos; classes.
  <entry>&c-lang; equivalent</entry><entry>Comment</entry></row></thead><tbody>
 <row><entry>&nil;</entry><entry>&nil;</entry><entry><type>void</type></entry>
   <entry>as a result type for functions only</entry></row>
-<row><entry><type>4</type></entry><entry>&unsigned-byte-32;</entry>
+<row><entry><type>4</type></entry><entry>&ubyte-32;</entry>
   <entry><type>unsigned long</type></entry><entry/></row>
-<row><entry><type>2</type></entry><entry>&unsigned-byte-16;</entry>
+<row><entry><type>2</type></entry><entry>&ubyte-16;</entry>
   <entry><type>unsigned short</type></entry><entry/></row>
-<row><entry><type>1</type></entry><entry>&unsigned-byte-8;</entry>
+<row><entry><type>1</type></entry><entry>&ubyte-8;</entry>
   <entry><type>unsigned char</type></entry><entry/></row>
-<row><entry><type>-4</type></entry><entry>&signed-byte-32;</entry>
+<row><entry><type>-4</type></entry><entry>&sbyte-32;</entry>
   <entry><type>long</type></entry><entry/></row>
-<row><entry><type>-2</type></entry><entry>&signed-byte-16;</entry>
+<row><entry><type>-2</type></entry><entry>&sbyte-16;</entry>
   <entry><type>short</type></entry><entry/></row>
-<row><entry><type>-1</type></entry><entry>&signed-byte-8;</entry>
+<row><entry><type>-1</type></entry><entry>&sbyte-8;</entry>
   <entry><type>signed char</type></entry><entry/></row>
 <row><entry><type>0</type></entry><entry>&boolean-t;</entry>
   <entry><type>BOOL</type></entry>
@@ -4212,7 +4212,7 @@ between <function>*</function> and &external-k; is the following:
 <function>*</function> uses integers, &external-k; uses
 &foreign-pointer-t; as function result-type (except from &nil; for a
 &c-NULL; pointer) and refuses objects of type &string-t; or
-&unsigned-byte-vec; as input.  Thus &external-k; provides some security
+&ubyte-vec; as input.  Thus &external-k; provides some security
 on the input and the ability to use &finalize; for resource-tracking on
 the output side.</para>
 
@@ -4254,7 +4254,7 @@ signed or unsigned integers (&affi-pac; types <type>-4</type>,
 <type>-2</type>, <type>-1</type>, <type>1</type>, <type>2</type>,
 <type>4</type>), a pointer (<type>*</type>), a &c-NULL;-terminated
 string (<type>string</type>) or, if the type argument is of type
-&string-t; or &unsigned-byte-vec;, it can fill this vector.
+&string-t; or &ubyte-vec;, it can fill this vector.
 &external-k; is not an acceptable type as no object can be created by
 using <function>affi:mem-read</function>.</para>
 
@@ -4266,7 +4266,7 @@ type <type>-4</type>, <type>-2</type>, <type>-1</type>, <type>1</type>,
 
 <para><code>(affi:mem-write-vector &addr-r;
   <replaceable>vector</replaceable> [&offset-r;])</code> can write
-memory from the given vector (of type &string-t; or &unsigned-byte-vec;).
+memory from the given vector (of type &string-t; or &ubyte-vec;).
 </para>
 
 </section>
@@ -4503,11 +4503,11 @@ Compiled, it will have inlined the library function calls.
       (&when; (&string-eq; line marker :end1 (&length; marker))
         (&setq; content-length (&parse-integer; line :start (&length; marker)))
       :finally (&return; (&let; ((data (&make-array; content-length
-                                               :element-type '&unsigned-byte-8;)))
-                           (&setf; (&stream-element-type; socket) '&unsigned-byte-8;)
+                                               :element-type '&ubyte-8;)))
+                           (&setf; (&stream-element-type; socket) '&ubyte-8;)
                            (&rd-by-seq; data socket)
                            (&with-open-file; (out file :direction :output
-                                                &eltype; '&unsigned-byte-8;)
+                                                &eltype; '&ubyte-8;)
                              (&wr-by-seq; data out))
                            data))))))
 </programlisting></para></example>
