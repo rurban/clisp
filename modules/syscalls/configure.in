@@ -47,6 +47,7 @@ fi
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
 CL_RLIMIT
+CL_SOCKET dnl for getservbyport et al
 AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
 getlogin getpwent getpwnam getpwuid endpwent setpwent dnl
 getservbyport getservbyname getservent setservent endservent dnl

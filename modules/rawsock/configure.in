@@ -55,7 +55,7 @@ if test "$ac_cv_header_winsock2_h" = "yes"; then
   [ac_cv_search_socket=no
   AC_MSG_RESULT(no)])
 else
-  AC_SEARCH_LIBS(socket, socket)
+  CL_SOCKET
 fi
 if test "$ac_cv_search_socket" = "no"; then
   AC_MSG_FAILURE([cannot find SOCKET library])
