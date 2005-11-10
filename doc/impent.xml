@@ -829,15 +829,15 @@
 <!ENTITY subrkw-d "<link linkend='subrkw-d'><filename>subrkw.d</filename></link>">
 
 <!-- *** shortcuts *** -->
-<!ENTITY signed-byte-16 "<literal role='type'>(&signed-byte-t; 16)</literal>">
-<!ENTITY signed-byte-32 "<literal role='type'>(&signed-byte-t; 32)</literal>">
-<!ENTITY signed-byte-8 "<literal role='type'>(&signed-byte-t; 8)</literal>">
-<!ENTITY signed-byte-n "<literal role='type'>(&signed-byte-t; &n-r;)</literal>">
-<!ENTITY unsigned-byte-16 "<literal role='type'>(&unsigned-byte-t; 16)</literal>">
-<!ENTITY unsigned-byte-32 "<literal role='type'>(&unsigned-byte-t; 32)</literal>">
-<!ENTITY unsigned-byte-8 "<literal role='type'>(&unsigned-byte-t; 8)</literal>">
-<!ENTITY unsigned-byte-n "<literal role='type'>(&unsigned-byte-t; &n-r;)</literal>">
-<!ENTITY unsigned-byte-vec "<literal role='type'>(&vector-t; (&unsigned-byte-t; 8))</literal>">
+<!ENTITY sbyte-16 "<literal role='type'>(&signed-byte-t; 16)</literal>">
+<!ENTITY sbyte-32 "<literal role='type'>(&signed-byte-t; 32)</literal>">
+<!ENTITY sbyte-8 "<literal role='type'>(&signed-byte-t; 8)</literal>">
+<!ENTITY sbyte-n "<literal role='type'>(&signed-byte-t; &n-r;)</literal>">
+<!ENTITY ubyte-16 "<literal role='type'>(&unsigned-byte-t; 16)</literal>">
+<!ENTITY ubyte-32 "<literal role='type'>(&unsigned-byte-t; 32)</literal>">
+<!ENTITY ubyte-8 "<literal role='type'>(&unsigned-byte-t; 8)</literal>">
+<!ENTITY ubyte-n "<literal role='type'>(&unsigned-byte-t; &n-r;)</literal>">
+<!ENTITY ubyte-vec "<literal role='type'>(&vector-t; (&unsigned-byte-t; 8))</literal>">
 <!ENTITY yes "<listitem><simpara>yes</simpara></listitem>">
 <!ENTITY no "<listitem><simpara>no</simpara></listitem>">
 <!ENTITY and-e "<emphasis role='strong'>and</emphasis>">
