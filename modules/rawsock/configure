@@ -5175,31 +5175,28 @@ fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 else
-  echo "$as_me:$LINENO: checking for library containing socket" >&5
-echo $ECHO_N "checking for library containing socket... $ECHO_C" >&6
-if test "${ac_cv_search_socket+set}" = set; then
+  echo "$as_me:$LINENO: checking whether gethostent requires -lnsl" >&5
+echo $ECHO_N "checking whether gethostent requires -lnsl... $ECHO_C" >&6
+if test "${cl_cv_lib_nsl+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  ac_func_search_save_LIBS=$LIBS
-ac_cv_search_socket=no
+
+cl_cv_lib_nsl=no
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
+extern
 #ifdef __cplusplus
-extern "C"
+"C"
 #endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char socket ();
+char gethostent();
 int
 main ()
 {
-socket ();
+gethostent();
   ;
   return 0;
 }
@@ -5226,7 +5223,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_search_socket="none required"
+  have_gethostent=1
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
@@ -5234,27 +5231,24 @@ sed 's/^/| /' conftest.$ac_ext >&5
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
-if test "$ac_cv_search_socket" = no; then
-  for ac_lib in socket; do
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-    cat >conftest.$ac_ext <<_ACEOF
+if test -z "$have_gethostent"; then
+cl_save_LIBS="$LIBS"
+LIBS="$LIBS -lnsl"
+cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
+extern
 #ifdef __cplusplus
-extern "C"
+"C"
 #endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char socket ();
+char gethostent();
 int
 main ()
 {
-socket ();
+gethostent();
   ;
   return 0;
 }
@@ -5281,8 +5275,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_search_socket="-l$ac_lib"
-break
+  cl_cv_lib_nsl=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
@@ -5290,15 +5283,131 @@ sed 's/^/| /' conftest.$ac_ext >&5
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
-  done
+LIBS="$cl_save_LIBS"
 fi
-LIBS=$ac_func_search_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_search_socket" >&5
-echo "${ECHO_T}$ac_cv_search_socket" >&6
-if test "$ac_cv_search_socket" != no; then
-  test "$ac_cv_search_socket" = "none required" || LIBS="$ac_cv_search_socket $LIBS"
 
+fi
+echo "$as_me:$LINENO: result: $cl_cv_lib_nsl" >&5
+echo "${ECHO_T}$cl_cv_lib_nsl" >&6
+if test $cl_cv_lib_nsl = yes; then
+  LIBS="$LIBS -lnsl"
+fi
+echo "$as_me:$LINENO: checking whether setsockopt requires -lsocket" >&5
+echo $ECHO_N "checking whether setsockopt requires -lsocket... $ECHO_C" >&6
+if test "${cl_cv_lib_socket+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cl_cv_lib_socket=no
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();
+int
+main ()
+{
+setsockopt();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  have_setsockopt=1
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+if test -z "$have_setsockopt"; then
+cl_save_LIBS="$LIBS"
+LIBS="$LIBS -lsocket"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();
+int
+main ()
+{
+setsockopt();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_lib_socket=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS="$cl_save_LIBS"
+fi
+
+fi
+echo "$as_me:$LINENO: result: $cl_cv_lib_socket" >&5
+echo "${ECHO_T}$cl_cv_lib_socket" >&6
+if test $cl_cv_lib_socket = yes; then
+  LIBS="$LIBS -lsocket"
 fi
 
 fi
