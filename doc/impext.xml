@@ -4506,7 +4506,8 @@ Compiled, it will have inlined the library function calls.
                                                :element-type '&unsigned-byte-8;)))
                            (&setf; (&stream-element-type; socket) '&unsigned-byte-8;)
                            (&rd-by-seq; data socket)
-                           (&with-open-file; (out file :direction :output)
+                           (&with-open-file; (out file :direction :output
+                                                &eltype; '&unsigned-byte-8;)
                              (&wr-by-seq; data out))
                            data))))))
 </programlisting></para></example>
