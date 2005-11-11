@@ -280,7 +280,6 @@
   #+unix "/etc/services"
   #+win32 (string-concat (getenv "WINDIR") "/system32/drivers/etc/services"))
 (defun service (&optional service-name protocol)
-  (assert (typep protocol 'string))
   (unless (boundp '*services*)
     (setq *services*
           (with-open-file (in *services-file* :direction :input
