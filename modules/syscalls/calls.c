@@ -2246,7 +2246,6 @@ typedef BOOL (WINAPI * BackupWriteFuncType)
    LPDWORD lpNumberOfBytesWritten, BOOL bAbort, BOOL bProcessSecurity,
    LPVOID *lpContext);
 static BackupWriteFuncType BackupWriteFunc = NULL;
-static HMODULE kernel32 = NULL;
 #endif
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
@@ -2254,13 +2253,12 @@ typedef HRESULT (WINAPI * StgOpenStorageExFuncType) (const WCHAR* pwcsName,
             DWORD grfMode, DWORD stgfmt, DWORD grfAttrs, void * reserved1,
             void * reserved2, REFIID riid, void ** ppObjectOpen);
 static StgOpenStorageExFuncType StgOpenStorageExFunc = NULL;
-static HMODULE ole32 = NULL;
 #endif
 
 void module__syscalls__init_function_2 (module_t* module);
 void module__syscalls__init_function_2 (module_t* module) {
 #if defined(WIN32_NATIVE)
-  kernel32 = LoadLibrary ("kernel32.dll");
+  HMODULE kernel32 = LoadLibrary ("kernel32.dll");
   if (kernel32 != NULL) {
     CreateHardLinkFunc = (CreateHardLinkFuncType)
       GetProcAddress (kernel32, "CreateHardLinkA");
@@ -2277,10 +2275,11 @@ void module__syscalls__init_function_2 (module_t* module) {
   }
 #endif
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
-  ole32 =  LoadLibrary ("ole32.dll");
-  if (ole32 != NULL)
-    StgOpenStorageExFunc = (StgOpenStorageExFuncType)
-      GetProcAddress (ole32, "StgOpenStorageEx");
+  { HMODULE ole32 = LoadLibrary ("ole32.dll");
+    if (ole32 != NULL)
+      StgOpenStorageExFunc = (StgOpenStorageExFuncType)
+        GetProcAddress (ole32, "StgOpenStorageEx");
+  }
 #endif
 }
 

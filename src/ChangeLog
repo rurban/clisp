@@ -1,5 +1,10 @@
 2005-11-11  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (module__syscalls__init_function_2):
+	moved ole32 and kernel32 here (not static anymore)
+
+2005-11-11  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/posix.lisp (service): do not check type of PROTOCOL
 
 2005-11-10  Sam Steingold  <sds@gnu.org>
