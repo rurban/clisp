@@ -4487,7 +4487,6 @@ Compiled, it will have inlined the library function calls.
   ;; &http; requires &dos-k; &line-term;
   (&with-open-stream; (socket (&so-connect; port host &extfmt; &dos-k;))
      (&format; socket "GET ~A HTTP/1.0~2%" page)
-     (&sost-shut; socket &output-k;)
      ;; dump the whole thing - header+data - into the output file
      (&with-open-file; (out file :direction :output)
        (&loop; :for line = (&read-line; socket nil nil) :while line
@@ -4495,7 +4494,6 @@ Compiled, it will have inlined the library function calls.
 (&defun; wget-binary (host page file &optional-amp; (port 80))
   (&with-open-stream; (socket (&so-connect; port host &extfmt; &dos-k;))
     (&format; socket "GET ~A HTTP/1.0~2%" page)
-    (&sost-shut; socket &output-k;)
     (&loop; :with content-length :and marker = "Content-length: "
       :for line = (&read-line; socket nil nil)
       ;; header is separated from the data with a blank line
@@ -4672,13 +4670,12 @@ Compiled, it will have inlined the library function calls.
    the &sost-r;.</simpara>&sost-raw-too;</listitem></varlistentry>
  <varlistentry id="sost-shut"><term><code>(&sost-shut; &sost-r;
     &direction-r;)</code></term>
-  <listitem><simpara>Some Internet protocols, such as &http;, provide for
-   closing the connection in one &direction-r;
-   using <function role="unix">shutdown</function>.
+  <listitem><simpara>Some protocols, provide for closing the connection
+   in one &direction-r; using <function role="unix">shutdown</function>.
    This function provides an interface to this &unix; system call.
-   &direction-r; should be &input-k; or &output-k;.
-   Note that you should still call &close; after you are done with your
-   &sost-r;; this is best accomplished by using &with-open-stream;.</simpara>
+   &direction-r; should be &input-k; or &output-k;.  Note that you
+   should still call &close; after you are done with your &sost-r;; this
+   is best accomplished by using &with-open-stream;.</simpara>
    <para>All &socket-stream;s are &bidi-s;s (i.e., both &input-stream-p;
    and &output-stream-p; return &t; for them).
    &sost-shut; <emphasis>breaks</emphasis> this and turns its argument
