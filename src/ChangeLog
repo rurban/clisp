@@ -1,5 +1,14 @@
 2005-11-11  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (GETNAMEINFO, GETADDRINFO): support woe32:
+	(error_missing): new function
+	(getnameinfo_t, getaddrinfo_t, freeaddrinfo_t): new types
+	(my_getnameinfo, my_getaddrinfo, my_freeaddrinfo): new functions
+	(getnameinfo_f, getaddrinfo_f, freeaddrinfo_f): new variables
+	(module__rawsock__init_function_2): init them
+
+2005-11-11  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (module__syscalls__init_function_2):
 	moved ole32 and kernel32 here (not static anymore)
 
