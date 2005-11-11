@@ -7,6 +7,10 @@
  * <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
  */
 
+#if defined(_WIN32)
+# undef UNICODE
+#endif
+
 #include "clisp.h"
 
 #include "config.h"
@@ -63,7 +67,8 @@
 #if defined(HAVE_POLL_H)
 # include <poll.h>
 #endif
-#if defined(HAVE_WINSOCK2_H)    /* woe32 suckety sucks */
+#if defined(HAVE_WINSOCK2_H) /* woe32 suckety sucks */
+# undef UNICODE
 # include <winsock2.h>
 # include <ws2tcpip.h>
 # define SETSOCKOPT_ARG_T char*
@@ -674,7 +679,24 @@ DEFUN(RAWSOCK:SOCK-LISTEN,socket &optional backlog) {
   VALUES0;
 }
 
+#if defined(WIN32_NATIVE)
+nonreturning_function(static, error_missing, (object function)) {
+  pushSTACK(function); pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~S: your ws2_32.dll does not implement ~S"));
+}
+#endif
+
 #if defined(HAVE_GETNAMEINFO) || defined(WIN32_NATIVE)
+#if defined(WIN32_NATIVE)
+typedef int (WSAAPI *getnameinfo_t) (const struct sockaddr*,socklen_t,char*,
+                                     DWORD,char*,DWORD,int);
+static int WSAAPI my_getnameinfo (const struct sockaddr* sa,socklen_t sl,
+                                  char* nd,DWORD ndl,char* sv,DWORD svl,int f)
+{ error_missing(`"getnameinfo"`); }
+static getnameinfo_t getnameinfo_f = &my_getnameinfo;
+#else
+# define getnameinfo_f getnameinfo
+#endif
 DEFFLAGSET(getnameinfo_flags, NI_NOFQDN NI_NUMERICHOST NI_NAMEREQD \
            NI_NUMERICSERV NI_NUMERICSCOPE NI_DGRAM)
 DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
@@ -686,13 +708,29 @@ DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
                                         PROT_READ);
   char node[BUFSIZ], service[BUFSIZ];
   begin_system_call();
-  if (getnameinfo(sa,size,node,BUFSIZ,service,BUFSIZ,flags)) OS_error();
+  if (getnameinfo_f(sa,size,node,BUFSIZ,service,BUFSIZ,flags)) OS_error();
   end_system_call();
   pushSTACK(asciz_to_string(service,GLO(misc_encoding)));
   VALUES2(asciz_to_string(node,GLO(misc_encoding)),popSTACK());
 }
 #endif
 #if (defined(HAVE_GETADDRINFO) && defined(HAVE_FREEADDRINFO)) || defined(WIN32_NATIVE)
+#if defined(WIN32_NATIVE)
+typedef void (WSAAPI *freeaddrinfo_t) (struct addrinfo*);
+static void WSAAPI my_freeaddrinfo (struct addrinfo* ai)
+{ error_missing(`"freeaddrinfo"`); }
+typedef int (WSAAPI *getaddrinfo_t)
+  (const char*,const char*, const struct addrinfo*, struct addrinfo**);
+static freeaddrinfo_t freeaddrinfo_f = &my_freeaddrinfo;
+static int WSAAPI my_getaddrinfo (const char* nd,const char* sv,
+                                  const struct addrinfo* hints,
+                                  struct addrinfo** ret)
+{ error_missing(`"getaddrinfo"`); }
+static getaddrinfo_t getaddrinfo_f = &my_getaddrinfo;
+#else
+# define getaddrinfo_f getaddrinfo
+# define freeaddrinfo_f freeaddrinfo
+#endif
 DEFFLAGSET(addrinfo_flags,AI_PASSIVE AI_CANONNAME AI_NUMERICHOST \
            AI_NUMERICSERV AI_V4MAPPED AI_ALL AI_ADDRCONFIG)
 DEFCHECKER(check_addrinfo_flags,prefix=AI,default=0,bitmasks=both,    \
@@ -709,12 +747,12 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
   if (missingp(STACK_0)) {
     if (missingp(STACK_1)) {
       begin_system_call();
-      if (getaddrinfo(NULL,NULL,&hints,&ret)) OS_error();
+      if (getaddrinfo_f(NULL,NULL,&hints,&ret)) OS_error();
       end_system_call();
     } else {
       with_string_0(check_string(STACK_1),GLO(misc_encoding),node, {
           begin_system_call();
-          if (getaddrinfo(node,NULL,&hints,&ret)) OS_error();
+          if (getaddrinfo_f(node,NULL,&hints,&ret)) OS_error();
           end_system_call();
         });
     }
@@ -722,12 +760,12 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
     with_string_0(check_string(STACK_0),GLO(misc_encoding),service, {
         if (missingp(STACK_1)) {
           begin_system_call();
-          if (getaddrinfo(NULL,service,&hints,&ret)) OS_error();
+          if (getaddrinfo_f(NULL,service,&hints,&ret)) OS_error();
           end_system_call();
         } else {
           with_string_0(check_string(STACK_1),GLO(misc_encoding),node, {
               begin_system_call();
-              if (getaddrinfo(node,service,&hints,&ret)) OS_error();
+              if (getaddrinfo_f(node,service,&hints,&ret)) OS_error();
               end_system_call();
             });
         }
@@ -747,7 +785,7 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
               : asciz_to_string(tmp->ai_canonname,GLO(misc_encoding)));
     funcall(`RAWSOCK::MAKE-ADDRINFO`,6); pushSTACK(value1);
   }
-  if (ret) { begin_system_call(); freeaddrinfo(ret); end_system_call(); }
+  if (ret) { begin_system_call(); freeaddrinfo_f(ret); end_system_call(); }
   VALUES1(listof(valcount)); skipSTACK(2);
 }
 #endif
@@ -1346,4 +1384,16 @@ DEFUN(RAWSOCK:UDPCSUM, buffer &key START END) { /* UDP checksum */
   buffer[offset+6+14]=((result >> 8) & 0xFF);
   VALUES1(fixnum(result));
   skipSTACK(3);
+}
+
+void module__rawsock__init_function_2 (module_t* module);
+void module__rawsock__init_function_2 (module_t* module) {
+#if defined(WIN32_NATIVE)
+  HMODULE ws2 = LoadLibrary("ws2_32.dll");
+  if (ws2 != NULL) {
+    freeaddrinfo_f = (freeaddrinfo_t) GetProcAddress(ws2,"freeaddrinfo");
+    getaddrinfo_f = (getaddrinfo_t) GetProcAddress(ws2,"getaddrinfo");
+    getnameinfo_f = (getnameinfo_t) GetProcAddress(ws2,"getnameinfo");
+  }
+#endif
 }
