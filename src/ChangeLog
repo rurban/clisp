@@ -1,3 +1,8 @@
+2005-11-12  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/configure.in: include <sys/types.h> before
+	<sys/uio.h> when checking for struct iovec so that size_t is defined
+
 2005-11-11  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c (GETNAMEINFO, GETADDRINFO): support woe32:
