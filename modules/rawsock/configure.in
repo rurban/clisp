@@ -15,7 +15,7 @@ AC_HEADER_STDC
 AC_HEADER_TIME
 CL_TCPCONN
 AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h netdb.h sys/uio.h \
-   sys/ioctl.h errno.h stropts.h poll.h sys/un.h])
+sys/types.h sys/ioctl.h errno.h stropts.h poll.h sys/un.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[
 #if HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -37,6 +37,9 @@ fi
 AC_CHECK_SIZEOF(ssize_t)
 AC_CHECK_SIZEOF(size_t)
 AC_CHECK_TYPES(struct iovec,,,[
+#if defined(HAVE_SYS_TYPES_H)
+#include <sys/types.h> /* for size_t */
+#endif
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
 #endif
