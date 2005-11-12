@@ -3561,8 +3561,9 @@ fi
 
 
 
+
 for ac_header in sys/socket.h linux/if_packet.h netdb.h sys/uio.h \
-   sys/ioctl.h errno.h stropts.h poll.h sys/un.h
+sys/types.h sys/ioctl.h errno.h stropts.h poll.h sys/un.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -5059,6 +5060,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#if defined(HAVE_SYS_TYPES_H)
+#include <sys/types.h> /* for size_t */
+#endif
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
 #endif
