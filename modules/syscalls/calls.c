@@ -1361,7 +1361,12 @@ DEFUN(POSIX::USER-INFO, &optional user)
   if (NULL == pwd) { OS_error(); }
   passwd_to_lisp(pwd);
 }
-#endif  /* getlogin getpwent getpwnam getpwuid getuid */
+#elif defined(WIN32_NATIVE)
+/* FIXME: use
+ http://msdn.microsoft.com/library/en-us/netmgmt/netmgmt/user_info_1_str.asp
+ http://msdn.microsoft.com/library/en-us/netmgmt/netmgmt/netusergetinfo.asp
+ http://msdn.microsoft.com/library/en-us/netmgmt/netmgmt/netuserenum.asp */
+#endif  /* user-info */
 
 
 #if SIZEOF_GID_T == 8
