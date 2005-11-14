@@ -12,7 +12,8 @@ and &emacs; info pages.</para>
 <simpara>When this module is present, &features-var;
  contains the symbol <constant>:REGEXP</constant>.</simpara>
 
-<variablelist id="re-api"><title>API</title>
+<section id="regexp-api"><title>Regular Expression API</title>
+<variablelist id="re-api">
 <varlistentry id="re-match"><term><code>(&re-match; &pattern-r;
    &string-r; &key-amp; (&start-k; 0) &end-k; &re-cflags-opts;
    &re-eflags-opts;)</code></term>
@@ -122,7 +123,7 @@ and &emacs; info pages.</para>
    <filename role="unix">regex.h</filename> to use the current &locale;.
 </simpara></listitem></varlistentry>
 
-</variablelist>
+</variablelist></section>
 
 <section id="re-example"><title>Example</title>
 
