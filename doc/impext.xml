@@ -4481,7 +4481,7 @@ Compiled, it will have inlined the library function calls.
 
 <example id="socket-ex-client"><title>Lisp &http; client</title>
 <para>Here are a couple of simple lisp &http; clients that fetch a web
- page and a binary file:
+ page and a binary file, and upload a file:
 <programlisting language="lisp">
 (&defun; wget-text (host page file &optional-amp; (port 80))
   ;; &http; requires &dos-k; &line-term;
@@ -4500,14 +4500,32 @@ Compiled, it will have inlined the library function calls.
       :until (&zerop; (&length; line)) :do
       (&when; (&string-eq; line marker :end1 (&length; marker))
         (&setq; content-length (&parse-integer; line :start (&length; marker)))
+      ;; this will not work if the server does not supply the content-length header
       :finally (&return; (&let; ((data (&make-array; content-length
                                                :element-type '&ubyte-8;)))
+                           ;; switch to binary i/o on socket
                            (&setf; (&stream-element-type; socket) '&ubyte-8;)
+                           ;; read the whole file in one system call
                            (&rd-by-seq; data socket)
                            (&with-open-file; (out file :direction :output
                                                 &eltype; '&ubyte-8;)
+                             ;; write the whole file in one system call
                              (&wr-by-seq; data out))
                            data))))))
+(&defun; wput (host page file &optional-amp; (port 80))
+  (&with-open-stream; (socket (&so-connect; port host &extfmt; &dos-k;))
+    (&with-open-file; (in file :direction :inptut &eltype; '&ubyte-8;)
+      (&let-star; ((length (&file-length; in))
+             (data (&make-array; length :element-type '&ubyte-8;)))
+        ;; some servers may not understand the "Content-length" header
+        (&format; socket "PUT ~A HTTP/1.0~%Content-length: ~D~2%" page length)
+        (&setf; (&stream-element-type; socket) '&ubyte-8;)
+        (&rd-by-seq; data in)
+        (&wr-by-seq; data socket)))
+    ;; not necessary if the server understands the "Content-length" header
+    (&sost-shut; socket :output)
+    ;; get the server response
+    (&loop; :for line = (&read-line; socket nil nil) :while line :collect line)))
 </programlisting></para></example>
 </section>
 
@@ -4670,7 +4688,7 @@ Compiled, it will have inlined the library function calls.
    the &sost-r;.</simpara>&sost-raw-too;</listitem></varlistentry>
  <varlistentry id="sost-shut"><term><code>(&sost-shut; &sost-r;
     &direction-r;)</code></term>
-  <listitem><simpara>Some protocols, provide for closing the connection
+  <listitem><simpara>Some protocols provide for closing the connection
    in one &direction-r; using <function role="unix">shutdown</function>.
    This function provides an interface to this &unix; system call.
    &direction-r; should be &input-k; or &output-k;.  Note that you
