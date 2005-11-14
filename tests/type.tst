@@ -719,6 +719,9 @@ nil
 #+CLISP (multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons (eql foo73) null)))))) 'foo74))
 #+CLISP (nil t)
 
+(multiple-value-list (subtypep '(and simple-error type-error) 'error)) (T T)
+(multiple-value-list (subtypep '(or simple-error type-error) 'condition)) (T T)
+
 (progn
   (defstruct (foo129a (:type list))
     slot1
