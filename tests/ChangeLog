@@ -1,5 +1,9 @@
 2005-11-14  Sam Steingold  <sds@gnu.org>
 
+	* array.tst: check adjust-array+initial-element on strings
+
+2005-11-14  Sam Steingold  <sds@gnu.org>
+
 	* iofkts.tst: check reference disentangling in array input
 
 2005-11-07  Sam Steingold  <sds@gnu.org>
