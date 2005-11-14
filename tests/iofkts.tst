@@ -814,6 +814,14 @@ T
 #+CMU "(A . (B C))"
 #-(or CLISP CMU) "(A B C)"
 
+(equalp (read-from-string
+         "#2A((\"first\" #1=\"second\" \"third\")
+              #2=(\"null\" #1# \"zero\") #2#)")
+        (read-from-string
+         "#A(t (3 3) ((\"first\" #1=\"second\" \"third\")
+             #2=(\"null\" #1# \"zero\") #2#))"))
+T
+
 ;; cleanup
 (progn
   (makunbound 'bs)
