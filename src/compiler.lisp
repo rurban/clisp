@@ -8395,13 +8395,13 @@ New Operations:
                  *current-vars* (list (new-const 'NIL))))
           (HANDLER-OPEN
            (setq item
-                 (let ((v (const-value-safe (second item)))
-                       (k (spdepth-difference (third item) *func*)))
+                 (let* ((v (const-value-safe (second item)))
+                        (k (spdepth-difference (third item) *func*))
+                        (l (length v)) (r (make-array (ash l 1)))) ; 2*l
                    ;; Out of v = #(type1 ... typem)
                    ;; make   v = #(type1 nil ... typem nil)
-                   (setq v (coerce (mapcap #'(lambda (x) (list x nil))
-                                           (coerce v 'list)) 'vector))
-                   `(HANDLER-OPEN ,(constvalue-index (cons v k)) ,v ,k
+                   (dotimes (i l) (setf (aref r (ash i 1)) (aref v i)))
+                   `(HANDLER-OPEN ,(constvalue-index (cons r k)) ,r ,k
                      ,@(cdddr item))))
            (push item *code-part*)
            (dolist (label (cddddr item)) (push item (symbol-value label))))

@@ -1,11 +1,11 @@
 2005-11-14  Sam Steingold  <sds@gnu.org>
 
-	* subtypep.lisp (STANDARD-OBJECT): fixed handling of (AND ...)
+	* compiler.lisp (traverse-anode): use make-array/dotimes instead
+	of coerce/mapcap/list/coerce (avoids some consing)
 
 2005-11-14  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (traverse-anode): use make-array/dotimes instead
-	of coerce/mapcap/list/coerce (avoids some consing)
+	* subtypep.lisp (STANDARD-OBJECT): fixed handling of (AND ...)
 
 2005-11-14  Sam Steingold  <sds@gnu.org>
 
