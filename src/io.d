@@ -3467,6 +3467,7 @@ LISPFUNN(array_reader,3) { # reads #A
     # distinguish #(...) vectors from #1A(...) vectors.
     dynamic_bind(S(reading_array),T);
     var object contents = read_recursive_no_dot(stream_);
+    contents = make_references(contents); /* disentangle references */
     dynamic_unbind(S(reading_array));
     pushSTACK(contents); pushSTACK(contents);
   }

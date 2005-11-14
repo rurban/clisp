@@ -1,3 +1,7 @@
+2005-11-14  Sam Steingold  <sds@gnu.org>
+
+	* iofkts.tst: check reference disentangling in array input
+
 2005-11-07  Sam Steingold  <sds@gnu.org>
 
 	* Makefile (tests.fas): new target
