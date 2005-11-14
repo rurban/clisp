@@ -1,5 +1,14 @@
 2005-11-14  Sam Steingold  <sds@gnu.org>
 
+	* subtypep.lisp (STANDARD-OBJECT): fixed handling of (AND ...)
+
+2005-11-14  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (traverse-anode): use make-array/dotimes instead
+	of coerce/mapcap/list/coerce (avoids some consing)
+
+2005-11-14  Sam Steingold  <sds@gnu.org>
+
 	* array.d (fill_initial_element): extracted from make_storagevector()
 	(ADJUST-ARRAY): call if for strings when the data vector is not
 	created using make_storagevector() to ensure that the

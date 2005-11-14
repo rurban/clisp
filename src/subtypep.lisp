@@ -1355,7 +1355,7 @@
            (when (intersection type2parts
                    (list (find-class 'FUNCTION) #+FFI 'FFI::FOREIGN-FUNCTION))
              (yes)))
-          ((consp type1) ; (FUNCTION ...)
+          ((and (consp type1) (eq (car type1) 'FUNCTION)) ; (FUNCTION ...)
            (when (member (find-class 'FUNCTION) type2parts)
              (yes))
            (when (member type1 type2parts :test #'canonicalized-types-equal-p)
