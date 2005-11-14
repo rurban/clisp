@@ -1,5 +1,5 @@
 ;;; 22.2 The Lisp Pretty Printer
-;;; Sam Steingold 2001-07-26
+;;; Sam Steingold 2001-07-26 - 2005
 
 (in-package "LISP")
 (export
@@ -12,14 +12,14 @@
 (in-package "EXT")
 
 ;; used here and in inspect.lisp
-(defmacro with-gensyms (syms &body body)
-  "Bind symbols to gensyms.  First sym is a string - the GENSYM prefix.
+(defmacro with-gensyms ((title &rest names) &body body)
+  "Bind symbols in NAMES to gensyms.  TITLE is a string - `gensym' prefix.
 Inspired by Paul Graham, <On Lisp>, p. 145."
   `(let (,@(mapcar (lambda (sy)
-                     `(,sy (gensym ,(concatenate 'string (car syms)
+                     `(,sy (gensym ,(concatenate 'string title
                                                  (symbol-name sy) "-"))))
-                   (cdr syms)))
-    ,@body))
+                   names))
+     ,@body))
 
 (export '(with-gensyms) "EXT")
 
