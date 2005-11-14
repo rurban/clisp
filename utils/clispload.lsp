@@ -253,12 +253,10 @@
   ;; CLISP extends DISASSEMBLE to accept STRINGs, METHODs, and forms
   DISASSEMBLE.ERROR.3
 
-  ;; MAKE-CONDITION must replace (OR PROGRAM-ERROR TYPE-ERROR) with ERROR
-  ;; before invoking MAKE-INSTANCE
-  MAKE-CONDITION.3
-
-  ;; (SUBTYPEP '(AND SIMPLE-ERROR TYPE-ERROR) 'CONDITION) must return T
-  MAKE-CONDITION.4
+  ;; ANSI specifies no exceptional situations for MAKE-CONDITION,
+  ;; but allows any subtype of CONDITION, like (OR PROGRAM-ERROR TYPE-ERROR)
+  ;; and (AND SIMPLE-ERROR TYPE-ERROR)
+  MAKE-CONDITION.3 MAKE-CONDITION.4
 
   ;; To be revisited:
 
