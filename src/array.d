@@ -4419,8 +4419,8 @@ typedef struct {
   uintL depth; /* recursion depth */
 } initial_contents_locals_t;
 local map_sequence_function_t initial_contents_aux;
-local maygc object initial_contents (object datenvektor, object dims, uintL rank,
-                                     object contents) {
+local maygc object initial_contents (object datenvektor, object dims,
+                                     uintL rank, object contents) {
   /* put all dimensions on the stack: */
   get_space_on_STACK(rank*sizeof(gcv_object_t));
   if (listp(dims)) {
