@@ -1,5 +1,12 @@
 2005-11-14  Sam Steingold  <sds@gnu.org>
 
+	* array.d (fill_initial_element): extracted from make_storagevector()
+	(ADJUST-ARRAY): call if for strings when the data vector is not
+	created using make_storagevector() to ensure that the
+	:INITIAL-ELEMENT argument is not ignored
+
+2005-11-14  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 1356695 ]: read labels are not resolved in #2A
 	* io.d (ARRAY-READER): disentangle references in generic arrays
 	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>

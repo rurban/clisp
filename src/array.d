@@ -4336,6 +4336,34 @@ local void test_otherkeys (void) {
 }
 
 /* auxiliary routine for MAKE-ARRAY and ADJUST-ARRAY:
+ fills the new data vector with initial-element, if supplied.
+ fill_initial_element(len,vector)
+ > len: length
+ > vector: data vector
+ > STACK_4: initial-element
+ < result: vector filled, if necessary
+ can trigger GC */
+local maygc object fill_initial_element (uintL len, object vector) {
+  if (boundp(STACK_4) /* initial-element supplied? */
+      && (len != 0)) { /* and length > 0 ? */
+    pushSTACK(vector);
+    if (elt_fill(vector,0,len,STACK_(4+1))) {
+      pushSTACK(STACK_(4+1)); /* TYPE-ERROR slot DATUM */
+      pushSTACK(STACK_(5+2)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(STACK_(5+3)); /* element-type */
+      pushSTACK(STACK_(4+4)); /* initial-element */
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,GETTEXT("~S: the initial-element ~S is not of type ~S"));
+    }
+    vector = popSTACK();
+   #ifdef HAVE_SMALL_SSTRING
+    ASSERT(!sarray_reallocstringp(vector));
+   #endif
+  }
+  return vector;
+}
+
+/* auxiliary routine for MAKE-ARRAY and ADJUST-ARRAY:
  creates a data vector of given length
  and fills it with initial-element, if supplied.
  make_storagevector(len,eltype)
@@ -4380,24 +4408,7 @@ local maygc object make_storagevector (uintL len, uintB eltype) {
       break;
     default: NOTREACHED;
   }
-  if (boundp(STACK_4)) /* initial-element supplied? */
-    if (len != 0) { /* and length > 0 ? */
-      /* Fill vector with initial-element: */
-      pushSTACK(vector);
-      if (elt_fill(vector,0,len,STACK_(4+1))) {
-        pushSTACK(STACK_(4+1)); /* TYPE-ERROR slot DATUM */
-        pushSTACK(STACK_(5+2)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        pushSTACK(STACK_(5+3)); /* element-type */
-        pushSTACK(STACK_(4+4)); /* initial-element */
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,GETTEXT("~S: the initial-element ~S is not of type ~S"));
-      }
-      vector = popSTACK();
-     #ifdef HAVE_SMALL_SSTRING
-      ASSERT(!sarray_reallocstringp(vector));
-     #endif
-    }
-  return vector;
+  return fill_initial_element(len,vector);
 }
 
 /* auxiliary routine for MAKE-ARRAY and ADJUST-ARRAY:
@@ -4943,6 +4954,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
        #else
         datenvektor = allocate_string(totalsize);
        #endif
+        datenvektor = fill_initial_element(totalsize,datenvektor);
       } else
         datenvektor = make_storagevector(totalsize,eltype);
       /* fill with the original content of array: */
