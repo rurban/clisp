@@ -15,11 +15,14 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="pcre-config">
   <term><code>(PCRE:PCRE-CONFIG &type-r;)</code></term>
-  <listitem><simpara>Return some information about the PCRE build
-    configuration (&type-r; is one of <literal>:UTF8</literal>
-    <literal>:NEWLINE</literal> <literal>:LINK-SIZE</literal>
-    <literal>:POSIX-MALLOC-THRESHOLD</literal>
-    <literal>:MATCH-LIMIT</literal>).</simpara></listitem></varlistentry>
+  <listitem><para>Return some information about the PCRE build
+    configuration.  &type-r; is one of <simplelist>
+     <member><literal>:UTF8</literal></member>
+     <member><literal>:NEWLINE</literal></member>
+     <member><literal>:LINK-SIZE</literal></member>
+     <member><literal>:POSIX-MALLOC-THRESHOLD</literal></member>
+     <member><literal>:MATCH-LIMIT</literal></member>
+ </simplelist></para></listitem></varlistentry>
  <varlistentry id="pcre-compile">
   <term><code>(PCRE:PCRE-COMPILE &string-r; &key-amp; :STUDY
     :IGNORE-CASE :MULTILINE :DOTALL :EXTENDED :ANCHORED :DOLLAR-ENDONLY
@@ -28,13 +31,19 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="pattern-info"><term>
    <code>(PCRE:PATTERN-INFO &pattern-r; &optional-amp; request)</code></term>
-  <listitem><simpara>Return some information about the &pattern-r;,
-    such as <literal>:OPTIONS</literal> <literal>:SIZE</literal>
-    <literal>:CAPTURECOUNT</literal> <literal>:BACKREFMAX</literal>
-    <literal>:FIRSTBYTE</literal> <literal>:FIRSTTABLE</literal>
-    <literal>:LASTLITERAL</literal> <literal>:NAMEENTRYSIZE</literal>
-    <literal>:NAMECOUNT</literal> <literal>:NAMETABLE</literal>
-    <literal>:STUDYSIZE</literal>.</simpara></listitem></varlistentry>
+  <listitem><para>Return some information about the &pattern-r;,
+    such as <simplelist><member><literal>:OPTIONS</literal></member>
+     <member><literal>:SIZE</literal></member>
+     <member><literal>:CAPTURECOUNT</literal></member>
+     <member><literal>:BACKREFMAX</literal></member>
+     <member><literal>:FIRSTBYTE</literal></member>
+     <member><literal>:FIRSTTABLE</literal></member>
+     <member><literal>:LASTLITERAL</literal></member>
+     <member><literal>:NAMEENTRYSIZE</literal></member>
+     <member><literal>:NAMECOUNT</literal></member>
+     <member><literal>:NAMETABLE</literal></member>
+     <member><literal>:STUDYSIZE</literal></member>
+ </simplelist></para></listitem></varlistentry>
  <varlistentry id="pcre-name-to-index">
   <term><code>(PCRE:PCRE-NAME-TO-INDEX &pattern-r; &name-r;)</code></term>
   <listitem><simpara>Convert the name of the sub-pattern to an index in
