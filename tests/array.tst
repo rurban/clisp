@@ -770,3 +770,16 @@ T
 #\d
 (setf (row-major-aref "abcd" 3) 17)
 ERROR
+
+;; from pfd's ansi tests
+(LET* ((A1 (MAKE-ARRAY 5 :INITIAL-CONTENTS "abcde" :FILL-POINTER 3
+                       :ADJUSTABLE T :ELEMENT-TYPE 'CHARACTER))
+       (A2 (ADJUST-ARRAY A1 8 :FILL-POINTER 5 :INITIAL-ELEMENT #\x
+                         :ELEMENT-TYPE 'CHARACTER)))
+  (ASSERT (OR (NOT (ADJUSTABLE-ARRAY-P A1)) (EQ A1 A2)))
+  (ASSERT (OR (ADJUSTABLE-ARRAY-P A1) (EQUAL (ARRAY-DIMENSIONS A1) '(5))))
+  (ASSERT (EQUAL (ARRAY-DIMENSIONS A2) '(8)))
+  (ASSERT (NOT (ARRAY-DISPLACEMENT A2)))
+  (ASSERT (EQUAL (LIST (AREF A2 5) (AREF A2 6) (AREF A2 7)) '(#\x #\x #\x)))
+  (list (FILL-POINTER A2) A2))
+(5 "abcde")
