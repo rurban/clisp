@@ -1,5 +1,9 @@
 2005-11-14  Sam Steingold  <sds@gnu.org>
 
+	* type.tst: check (subtypep '(or/and ...) ...) for standard-classes
+
+2005-11-14  Sam Steingold  <sds@gnu.org>
+
 	* array.tst: check adjust-array+initial-element on strings
 
 2005-11-14  Sam Steingold  <sds@gnu.org>
