@@ -6799,13 +6799,13 @@ DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key END FIRST-KEYCODE START)
   int first_keycode = check_uint_defaulted(popSTACK(),start);
   uintL offset = 0, dims[2];
   Display *dpy = (pushSTACK(STACK_2), pop_display());
-  void * data_ptr;
+  KeySym* data_ptr;
   STACK_1 = check_uint32_mx(STACK_1);
   get_array_dimensions(STACK_1,2,dims);
   end = check_uint_defaulted(popSTACK(),dims[0]);
   num_codes = (end-start)*dims[1];
   STACK_0 = array_displace_check(STACK_0,num_codes,&offset);
-  data_ptr = (uint32*)TheSbvector(STACK_0)->data + offset;
+  data_ptr = (KeySym*)TheSbvector(STACK_0)->data + offset;
   ASSERT(sizeof(uint32) == sizeof(KeySym));
   X_CALL(XChangeKeyboardMapping(dpy,first_keycode,dims[1],data_ptr,num_codes));
   VALUES0; skipSTACK(2);
@@ -6991,7 +6991,8 @@ DEFUN(XLIB:KEYCODE->CHARACTER, display keycode state \
   Display *dpy = (pushSTACK(STACK_4), pop_display());
   int index;
   if (missingp(STACK_1)) { /* no KEYSYM-INDEX => use KEYSYM-INDEX-FUNCTION */
-    object func = missingp(STACK_0) ? ``XLIB::DEFAULT-KEYSYM-INDEX`` : STACK_0;
+    object func = missingp(STACK_0) ? ``XLIB::DEFAULT-KEYSYM-INDEX``
+      : (object)STACK_0;
     skipSTACK(2);
     funcall(STACK_0,3);
     index = get_sint32(value1);
