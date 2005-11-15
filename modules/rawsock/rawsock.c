@@ -504,11 +504,11 @@ DEFUN(RAWSOCK:NETWORK, &optional network type)
 #endif  /* HAVE_NETDB_H */
 /* ================== sys/socket.h interface ================== */
 DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
-           UNSPEC UNIX LOCAL INET AX25                                  \
-           IPX APPLETALK NETROM BRIDGE ATMPVC X25 INET6                 \
-           ROSE DECnet NETBEUI SECURITY KEY NETLINK                     \
-           ROUTE PACKET ASH ECONET ATMSVC SNA IRDA                      \
-           PPPOX WANPIPE BLUETOOTH)
+           UNSPEC UNIX LOCAL INET IMPLINK PUP CHAOS AX25 DATAKIT CCITT  \
+           IPX NS ISO OSI ECMA APPLETALK NETROM BRIDGE ATMPVC X25 INET6 \
+           ROSE DECnet NETBEUI SECURITY KEY NETLINK DLI LAT HYLINK BAN  \
+           ROUTE PACKET ASH ECONET ATM ATMSVC SNA IRDA NETBIOS VOICEVIEW \
+           PPPOX WANPIPE BLUETOOTH FIREFOX CLUSTER 12844 NETDES)
 DEFCHECKER(check_socket_type,prefix=SOCK,default=0,   \
            STREAM DGRAM RAW RDM SEQPACKET PACKET)
 DEFCHECKER(check_socket_protocol,default=0,                             \
@@ -518,6 +518,7 @@ DEFCHECKER(check_socket_protocol,default=0,                             \
            IPPROTO-ROUTING IPPROTO-FRAGMENT IPPROTO-ESP IPPROTO-AH      \
            IPPROTO-ICMPV6 IPPROTO-DSTOPTS IPPROTO-NONE                  \
            IPPROTO-RSVP IPPROTO-GRE IPPROTO-PIM IPPROTO-COMP            \
+           NSPROTO-IPX NSPROTO-SPX NSPROTO-SPXII                        \
            ETH-P-LOOP ETH-P-PUP ETH-P-PUPAT ETH-P-IP ETH-P-X25 ETH-P-ARP \
            ETH-P-BPQ ETH-P-IEEEPUP ETH-P-IEEEPUPAT ETH-P-DEC ETH-P-DNA-DL \
            ETH-P-DNA-RC ETH-P-DNA-RT ETH-P-LAT ETH-P-DIAG ETH-P-CUST    \
