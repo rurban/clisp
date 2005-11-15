@@ -2949,7 +2949,7 @@ T
 
 
 (progn
-  (load "mop-aux.lisp")
+  (load (merge-pathnames "mop-aux.lisp" *run-test-truename*))
   t)
 t
 

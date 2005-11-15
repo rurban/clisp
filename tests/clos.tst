@@ -4186,7 +4186,8 @@ ERROR
     (nreverse ret)))
 (CLASS-FOO-145 CLASS-BAR-145-AFTER)
 
-(progn (load "listeners")
+(progn (load (make-pathname :name "listeners" :type nil
+                            :defaults *run-test-truename*))
        (with-open-stream (s1 (make-string-input-stream "("))
          (with-open-stream (s2 (make-string-input-stream "())"))
            (with-open-stream (l (make-instance 'listener-input-stream
