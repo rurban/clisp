@@ -1,3 +1,9 @@
+2005-11-15  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (*run-test-truename*): new variable
+	(run-test): bind it to the test file's truename
+	(macro8, mop, clos): use it to make tests directory-independent
+
 2005-11-14  Sam Steingold  <sds@gnu.org>
 
 	* type.tst: check (subtypep '(or/and ...) ...) for standard-classes
