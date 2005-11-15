@@ -860,9 +860,9 @@ NIL
 (T 0 0)
 
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=890138&group_id=1355&atid=101355>
-(progn (load "bug001.lisp") t)
+(progn (load (merge-pathnames "bug001.lisp" *run-test-truename*)) t)
 T
-(progn (load "bug002.lisp") t)
+(progn (load (merge-pathnames "bug002.lisp" *run-test-truename*)) t)
 T
 
 ;; <http://clisp.cons.org/impnotes.html#defun-accept-spelalist>
