@@ -139,5 +139,8 @@ uses such variables must be surrounded with NO-GC locks.
 Actually, even gcv_object_t is not safe here:
           ThePackage(STACK_0)->pack_name = ...
 When STACK_0 is already dereferenced and converted to a Package, but
-before the assignement occurs, GC should be banned.
+before the assignment occurs, GC should be banned.
 Looks like any C code that manipulates Lisp objects must lock GC.
+Also, begin_system_call() should release the lock and end_system_call()
+should re-acquire the lock (so that blocking system calls do not block
+other threads that need to GC), thus all system calls now "maygc".
