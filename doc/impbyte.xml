@@ -694,6 +694,10 @@
  <term><filename role="clisp-cvs">src/inspect.lisp</filename></term>
  <listitem><simpara>implements &inspect; (tty and &http; frontends)
 </simpara></listitem></varlistentry>
+<varlistentry id="clhs-lisp">
+ <term><filename role="clisp-cvs">src/clhs.lisp</filename></term>
+ <listitem><simpara>implements &open-http;, &browse-url;
+</simpara></listitem></varlistentry>
 <varlistentry id="exporting-lisp">
  <term><filename role="clisp-cvs">src/exporting.lisp</filename></term>
  <listitem><simpara>Macros that export their definienda,

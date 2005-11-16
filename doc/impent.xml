@@ -163,9 +163,13 @@
 <!ENTITY apropos-do-more "<link linkend='apropos'><varname>CUSTOM:*APROPOS-DO-MORE*</varname></link>">
 <!ENTITY apropos-matcher "<link linkend='apropos'><varname>CUSTOM:*APROPOS-MATCHER*</varname></link>">
 <!ENTITY appease-cerrors "<olink targetdoc='impnotes' targetptr='appease-cerrors'><function>EXT:APPEASE-CERRORS</function></olink>">
-<!ENTITY browser "<link linkend='browser'><constant>CUSTOM:*BROWSER*</constant></link>">
-<!ENTITY browser-k "<link linkend='browser'><constant>:BROWSER</constant></link>">
-<!ENTITY browsers "<link linkend='browser'><constant>CUSTOM:*BROWSERS*</constant></link>">
+<!ENTITY browse-url "<link linkend='browse-url'><function>EXT:BROWSE-URL</function></link>">
+<!ENTITY browser "<link linkend='browse-url'><varname>CUSTOM:*BROWSER*</varname></link>">
+<!ENTITY browser-k "<link linkend='browse-url'><constant>:BROWSER</constant></link>">
+<!ENTITY browsers "<link linkend='browse-url'><constant>CUSTOM:*BROWSERS*</constant></link>">
+<!ENTITY clhs-root "<olink targetdoc='impnotes' targetptr='clhs-root'><function>CL-USER:CLHS-ROOT</function></olink>">
+<!ENTITY clhs-root-default "<link linkend='clhs-root'><varname>CUSTOM:*CLHS-ROOT-DEFAULT*</varname></link>">
+<!ENTITY open-http "<link linkend='open-http'><function>EXT:OPEN-HTTP</function></link>">
 <!ENTITY buffered "<link linkend='buffered'><constant>:BUFFERED</constant></link>">
 <!ENTITY byte-t "<link linkend='byte-type'><type>BYTE</type></link>">
 <!ENTITY case-inverted-k "<link linkend='package-case'><constant>:CASE-INVERTED</constant></link>">

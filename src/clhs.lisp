@@ -4,11 +4,9 @@
 
 (in-package "EXT")
 
-(export '(clhs clhs-root read-from-file browse-url))
+(export '(clhs clhs-root read-from-file browse-url open-http with-http-input))
 
 (in-package "SYSTEM")
-
-(defvar *clhs-table* nil)       ; the hash table
 
 (defvar *browsers*
   '((:netscape "netscape" "~a")
@@ -22,6 +20,8 @@
     #+unix (:links-xterm "xterm" "-e" "links" "~a")
     (:w3m "w3m" "~a")
     #+unix (:w3m-xterm "xterm" "-e" "w3m" "~a")
+    #+cygwin (:default "cygstart" "~a")
+    #+macos (:default "open" "~a")
     (:mmm "mmm" "-external" "~a")
     (:mosaic "xmosaic" "~a")
     (:emacs-w3 "gnudoit" "-q" "(w3-fetch \"~a\")"))
@@ -60,16 +60,13 @@ The keyword argument REPEAT specifies how many objects to read:
 (defun browse-url (url &key (browser *browser*) (out *standard-output*))
   "Run the browser (a keyword in `*browsers*' or a list) on the URL."
   #+WIN32
-  (unless browser ;feed url to ShellExecute if no browser is specified
+  (when (eq browser :default) ; feed url to ShellExecute
     (when out
       (format out "~&;; starting the default system browser with url ~s..." url)
       (force-output (if (eq out t) *standard-output* out)))
     (ext::shell-execute "open" url nil nil) ;to start default browser
     (when out (format out "done~%"))
     (return-from browse-url))
-  #+MACOS
-  (unless browser ; use default browser if no browser is specified
-    (setq browser '("open" "~a")))
   (let* ((command
           (etypecase browser
             (list browser)
@@ -87,33 +84,99 @@ The keyword argument REPEAT specifies how many objects to read:
           ((format t "~s: no browser specified; please point your browser at
  --> <URL:~a>~%" 'browse-url url)))))
 
-(defun clhs (symbol-string &key (browser *browser*) (out *standard-output*))
+;;; see also clocc/cllib/net.lisp
+
+(defmacro with-http-input ((var url) &body body)
+  (if (symbolp var)
+      `(with-open-stream (,var (open-http ,url)) ,@body)
+      (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
+        `(multiple-value-bind ,var (open-http ,url)
+           (DECLARE (READ-ONLY ,@var) ,@declarations)
+           (UNWIND-PROTECT
+                (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest)
+                  (when ,(first var) (CLOSE ,(first var))))
+             (when ,(first var) (CLOSE ,(first var) :ABORT T)))))))
+(defun open-http (url &key (if-does-not-exist :error))
+  (unless (string-equal #1="http://" url
+                        :end2 (min (length url) #2=#.(length #1#)))
+    (error "~S: ~S is not an HTTP URL" 'open-http url))
+  (format t "~&;; connecting to ~S..." url) (force-output)
+  (let* ((host-end (position #\/ url :start #2#)) status code
+         (host (subseq url #2# host-end)) content-length
+         (path (if host-end (subseq url host-end) "/"))
+         (sock (socket:socket-connect 80 host :external-format :dos)))
+    (format t "connected...") (force-output)
+    (format sock "GET ~A HTTP/1.0~%User-agent: ~A~%Host: ~A~%Accept: */*~%Connection: close~2%" path (lisp-implementation-type) host) ; request
+    (write-string (setq status (read-line sock))) (force-output)
+    (let* ((pos1 (position #\Space status))
+           (pos2 (position #\Space status :start (1+ pos1))))
+      (setq code (parse-integer status :start pos1 :end pos2)))
+    (when (>= code 400)
+      (case if-does-not-exist
+        (:error (error "~S: error ~D: ~S" 'open-http code status))
+        (t (close sock)
+           (return-from open-http nil))))
+    (if (>= code 300)        ; redirection
+        (loop :for res = (read-line sock)
+          :until (string-equal #3="Location: " res
+                               :end2 (min (length res) #4=#.(length #3#)))
+          :finally (let ((new-url (subseq res #4#)))
+                     (format t " --> ~S~%" new-url)
+                     (unless (string-equal #1# new-url
+                                           :end2 (min (length new-url) #2#))
+                       (setq new-url (string-concat "http://" host new-url)))
+                     (return-from open-http (open-http new-url))))
+        ;; drop response headers
+        (loop :for line = (read-line sock) :while (plusp (length line)) :do
+          (when (string-equal #5="Content-Length: " line
+                              :end2 (min (length line) #6=#.(length #5#)))
+            (format t "...~:D bytes"
+                    (setq content-length (parse-integer line :start #6#))))
+          :finally (terpri)))
+    (values sock content-length)))
+(defun get-clhs-map (stream)
+  "Download and install the CLHS map."
+  (format t "~&;; ~S(~S)..." 'get-clhs-map stream) (force-output)
+  (loop :with good = 0 :for symbol-name = (read-line stream nil nil)
+    :and destination = (read-line stream nil nil)
+    :and total :upfrom 0
+    :while (and symbol-name destination) :do
+    (multiple-value-bind (symbol status) (find-symbol symbol-name "COMMON-LISP")
+      (cond (status
+             (incf good)
+             (setf (documentation symbol 'sys::clhs)
+                   (subseq destination #.(length "../"))))
+            (t (warn "~S is not found" symbol-name))))
+    :finally (format t "~:D/~:D symbol~:P" good total)))
+(let ((clhs-map-source nil))
+  (defun ensure-clhs-map ()
+    "make sure that the CLHS map is present"
+    (let ((clhs-root (clhs-root)) opener)
+      (when (and clhs-root (string/= clhs-map-source clhs-root))
+        (setq opener (if (string-equal #1="http://" clhs-root
+                                       :end2 (min (length clhs-root)
+                                                  #.(length #1#)))
+                         #'open-http #'open))
+        (with-open-stream (s (or (funcall opener (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
+                                 (funcall opener (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
+          (unless s
+            (warn (TEXT "~S returns invalid value ~S, adjust ~S or ~S, or fix your local definition of ~S in config.lisp and rebuild")
+                  'clhs-root clhs-root '(getenv "CLHSROOT")
+                  '*clhs-root-default* 'clhs-root)
+            (return-from ensure-clhs-map))
+          (get-clhs-map s))
+        (setq clhs-map-source clhs-root))
+      clhs-root)))
+
+(defmethod documentation ((obj symbol) (type (eql 'sys::clhs)))
+  (when (ensure-clhs-map)
+    (let ((doc (call-next-method)))
+      (when doc (string-concat (clhs-root) doc)))))
+
+(defun clhs (symbol &key (browser *browser*) (out *standard-output*))
   "Dump the CLHS doc for the symbol."
-  (unless *clhs-table*
-    ;; read in the COMMON-LISP package: the CLHS symbols are supposed to be
-    ;; there, but unlock it in case some symbols are still not implemented
-    (without-package-lock ("COMMON-LISP")
-      (setq *clhs-table* (read-from-file (clisp-data-file "clhs.txt")
-                                         :out out :package "COMMON-LISP"))))
-  (let* ((clhs-root (clhs-root))
-         (slash (if (and (> (length clhs-root) 0)
-                         (eql (char clhs-root (- (length clhs-root) 1)) #\/))
-                  ""
-                  "/")))
-    (do* ((symbol (etypecase symbol-string
-                    (symbol symbol-string)
-                    (string
-                      (let ((pack (find-package "COMMON-LISP")))
-                        (multiple-value-bind (symb found-p)
-                            (find-symbol (string-upcase symbol-string) pack)
-                          (unless (eq found-p ':external)
-                            (error "no symbol named ~s exported from ~s"
-                                   symbol-string pack))
-                          symb)))))
-          (path-list (or (gethash symbol *clhs-table*)
-                         (error "No HyperSpec doc for `~s'" symbol))
-                     (cdr path-list)))
-         ((endp path-list))
-      (browse-url
-       (concatenate 'string clhs-root slash "Body/" (car path-list))
-       :browser browser :out out))))
+  (warn "function ~S is deprecated, set ~S and use ~S instead"
+        'clhs '*browser* 'describe)
+  (browse-url (or (documentation symbol 'sys::clhs)
+                  (error "No HyperSpec doc for ~S" symbol))
+              :browser browser :out out))
