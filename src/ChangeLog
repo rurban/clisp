@@ -1,3 +1,7 @@
+2005-11-16  Sam Steingold  <sds@gnu.org>
+
+	* macros2.lisp (with-open-stream): close VAR only when it is not NIL
+
 2005-11-15  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XLIB:CHANGE-KEYBOARD-MAPPING)
