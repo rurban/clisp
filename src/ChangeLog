@@ -1,5 +1,21 @@
 2005-11-16  Sam Steingold  <sds@gnu.org>
 
+	New function EXT:OPEN-HTTP and macro EXT:WITH-HTTP-INPUT.
+	Function EXT:CLHS is now deprecated in favor of DESCRIBE.
+	* clhs.lisp (*browsers*) [cygwin macos]: added :DEFAULT browser
+	(*clhs-table*): removed
+	(browse-url): do not handle NIL browser specially; still need to
+	special-case :DEFAULT on woe32
+	(with-http-input): new macro
+	(open-http, get-clhs-map, ensure-clhs-map): new functions
+	(documentation@symbol/clhs): new method
+	(clhs): use them, deprecate
+	* describe.lisp (describe-object@symbol): when CLHS doc is
+	available, print it or launch the browser (depending on *browser*)
+	* makemake.in (DATA_FILES, DATA_FILES_TOP_PATH): removed clhs.txt
+
+2005-11-16  Sam Steingold  <sds@gnu.org>
+
 	* macros2.lisp (with-open-stream): close VAR only when it is not NIL
 
 2005-11-15  Sam Steingold  <sds@gnu.org>

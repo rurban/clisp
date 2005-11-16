@@ -10,6 +10,13 @@ User visible changes
   + When --with-dynamic-ffi is supplied, but the FFI fails to build, abort.
   + makemake no longer checks with_module_* variables.
 
+* New function EXT:OPEN-HTTP and macro EXT:WITH-HTTP-INPUT.
+  See <http://clisp.cons.org/impnotes/macros3.html#open-http> for details.
+
+* Function EXT:CLHS is now deprecated in favor of DESCRIBE.
+  See <http://clisp.cons.org/impnotes/environment-dict.html#describe>
+  for details.
+
 * FFI modules can now take advantage of autoconf feature detection.
   See <http://clisp.cons.org/impnotes/dffi.html#ffi-guard> for details.
 
