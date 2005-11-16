@@ -313,18 +313,17 @@
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     `(LET ((,stream (OPEN ,@options)))
        (DECLARE (READ-ONLY ,stream) ,@declarations)
-       (UNWIND-PROTECT
-         (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest)
-           (WHEN ,stream (CLOSE ,stream)))
+       (UNWIND-PROTECT (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest)
+                         (WHEN ,stream (CLOSE ,stream)))
          (WHEN ,stream (CLOSE ,stream :ABORT T))))))
 ;; ----------------------------------------------------------------------------
 (defmacro with-open-stream ((var stream) &body body)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     `(LET ((,var ,stream))
        (DECLARE (READ-ONLY ,var) ,@declarations)
-       (UNWIND-PROTECT
-         (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest) (CLOSE ,var))
-         (CLOSE ,var :ABORT T)))))
+       (UNWIND-PROTECT (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest)
+                         (when ,var (CLOSE ,var)))
+         (WHEN ,var (CLOSE ,var :ABORT T))))))
 ;; ----------------------------------------------------------------------------
 (defmacro with-output-to-string ((var &optional (string nil)
                                   &key (element-type ''CHARACTER))
