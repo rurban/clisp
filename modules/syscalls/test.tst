@@ -8,8 +8,8 @@
 T
 
 (listp (show (os:resolve-host-ipaddr) :pretty t)) T
-(os:service-p (show (os:service "www"))) T
-(os:service-p (show (os:service 80))) T
+(os:service-p (show (os:service "smtp"))) T
+(os:service-p (show (os:service 25))) T
 (listp (show (os:service) :pretty t)) T
 
 #+unix
