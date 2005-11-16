@@ -5024,14 +5024,22 @@ E.g.,
 <section id="documentation"><title>Function &documentation;</title>
 
 <para>No on-line documentation is available for the system functions
- (yet).</para>
+ (yet), but see <xref linkend="describe"/>.</para>
+</section>
 
-<formalpara id="browser"><title>Function <function>EXT:CLHS</function></title>
-<para>&hyperspec; access is provided via <code>(<function>EXT:CLHS</function>
-  &symbol-r; &key-amp; &browser-k;)</code> function, which uses your web
-  browser. <replaceable>browser</replaceable> (defaults to &browser;)
-  should be a valid keyword in the &browsers; &alist;.
-</para></formalpara>
+<section id="describe"><title>Function &describe;</title>
+
+<para>When &browser; is non-&nil;, and &clhs-root; returns a valid URL,
+ &describe; on a standard &cl; symbol will point your web browser to the
+ appropriate &hyperspec; page.</para>
+
+<formalpara id="clhs-root"><title>Function &clhs-root;</title>
+<para>Function &clhs-root; is defined in &config-lisp;.  By default it
+ looks at <code>(&getenv; "CLHSROOT")</code> and &clhs-root-default;.
+ The value should be a &string-t; terminated with a &file-slash;,
+ e.g., <literal>&clhs;/</literal>.  If the value is &nil;, no Internet
+ connection is made to retrieve the map between &ansi-cl; symbols and
+ &hyperspec; web pages.</para></formalpara>
 
 </section>
 

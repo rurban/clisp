@@ -317,6 +317,11 @@ to print the corresponding values, or T for all of them.")
             (format stream (TEXT "Documentation as a ~a:") ty)
             (terpri stream)
             (princ doc stream))))
+      (let ((doc (documentation obj 'ext::clhs))) ; change to sys::clhs when ext:clhs is finally removed
+        (when doc
+          (if *browser*
+              (ext::browse-url doc :out stream)
+              (format stream (TEXT "~%ANSI Documentation is at~% ~S") doc))))
       (when moree
         (terpri stream)
         (format stream (TEXT "For more information, evaluate ~{~S~^ or ~}.")

@@ -1597,10 +1597,32 @@ here <function>WITH-FOO</function> does not receive the
 </para></formalpara>
 
 <formalpara id="html-http-output">
-     <title>Macros <function>EXT:WITH-HTML-OUTPUT</function> and
-                   <function>EXT:WITH-HTTP-OUTPUT</function></title>
+ <title>Macros <function>EXT:WITH-HTML-OUTPUT</function> and
+  <function>EXT:WITH-HTTP-OUTPUT</function></title>
 <para>Defined in &inspect-lisp;, these macros are useful
  for the rudimentary &http; server defined there.</para></formalpara>
+
+<formalpara id="open-http"><title>Function &open-http; and
+  macro <function>EXT:WITH-HTTP-INPUT</function></title>
+<para>Defined in
+ <link linkend="clhs-lisp"><filename>clhs.lisp</filename></link>,
+ they allow downloading data over the Internet using the &http; protocol.
+ <code>(&open-http; url &key-amp; &if-does-not-exist;)</code> opens
+ a <link linkend="socket">socket</link> connection to the
+ <replaceable>url</replaceable> host, sends the <command>GET</command>
+ request, and returns two values: the &socket-stream; and content length.
+<code>(EXT:WITH-HTTP-INPUT (&var-r; url) &body-amp; body)</code> binds &var-r;
+to the &socket-stream; returned by &open-http; and executes the &body-r;.
+<code>(EXT:WITH-HTTP-INPUT ((&var-r; &cont-r;) url) &body-amp; body)</code>
+additionally binds &cont-r; to the content length.</para></formalpara>
+
+<formalpara id="browse-url"><title>Function &browse-url;</title>
+ <para>Function <code>(&browse-url; url &key-amp; &browser-k; &out-k;)</code>
+  calls a browser on the URL. <replaceable>browser</replaceable>
+  (defaults to &browser;) should be a valid keyword in the &browsers; &alist;.
+  &out-k; specifies the stream where the progress messages are printed
+  (defaults to &standard-output-var;).
+</para></formalpara>
 
 </section>
 
@@ -1617,7 +1639,7 @@ here <function>WITH-FOO</function> does not receive the
   <member><varname>CUSTOM:*BREAK-ON-WARNINGS*</varname></member>
   <member>&browser;</member>
   <member>&browsers;</member>
-  <member><varname>CUSTOM:*CLHS-ROOT-DEFAULT*</varname></member>
+  <member>&clhs-root-default;</member>
   <member>&fixnum-char-ansi;</member>
   <member>&compile-warn;</member>
   <member>&compiled-types;</member>
