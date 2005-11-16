@@ -81,7 +81,7 @@ The keyword argument REPEAT specifies how many objects to read:
            (#+WIN32 ext::launch #-WIN32 run-program (car command) :arguments args :wait nil)
            (when out
              (format out "done~%")))
-          ((format t "~s: no browser specified; please point your browser at
+          (t (format t "~s: no browser specified; please point your browser at
  --> <URL:~a>~%" 'browse-url url)))))
 
 ;;; see also clocc/cllib/net.lisp
