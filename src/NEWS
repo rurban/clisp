@@ -54,6 +54,8 @@ User visible changes
 * The command line option -v now affects *LOAD-ECHO* also.
   See <http://clisp.cons.org/clisp.html#opt-v> for details.
 
+* When a CLISP process is killed, clean-up is always executed.
+
 * Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled code.
 
 * Fixed re-exporting symbols from POSIX to EXT.
