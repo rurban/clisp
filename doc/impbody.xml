@@ -546,12 +546,12 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 (the name of the underlying &c-lang; function), not a lisp &funname;.
 </para></formalpara>
 
-<formalpara><title>Macro &destructuring-bind;</title>
+<formalpara id="des-bind"><title>Macro &destructuring-bind;</title>
 <para>This macro does not perform full error checking.</para></formalpara>
 
-<formalpara><title>Macros &prog1;, &prog2;, &and-m;, &or-m;, &psetq;,
- &when;, &unless;, &cond;, &case;, &multiple-value-list;,
- &multiple-value-bind;, &multiple-value-setq;</title>
+<formalpara id="macro-special"><title>Macros &prog1;, &prog2;, &and-m;,
+ &or-m;, &psetq;, &when;, &unless;, &cond;, &case;, &multiple-value-list;,
+  &multiple-value-bind;, &multiple-value-setq;</title>
 <para>These macros are implemented as special operators (as permitted by
  <ulink url="&clhs;/Body/sec_3-1-2-1-2-2.html">Section 3.1.2.1.2.2</ulink>)
  and, as such, are rather efficient.</para></formalpara>
@@ -1018,7 +1018,7 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 <section id="cond-dict"><title>The Conditions Dictionary
    <ulink url="&clhs;/Body/sec_the_condi_s_dictionary.html">[CLHS-9.2]</ulink></title>
 
-<formalpara><title>Macro &restart-case;</title>
+<formalpara id="restart-case"><title>Macro &restart-case;</title>
  <para>In <code>(&restart-case; &form-r; {&restart-clause-r;}*)</code>,
   the argument list can also be specified after the keyword/value pairs
   instead of before them, i.e., each &restart-clause-r; can be either
@@ -1028,7 +1028,7 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
    {<replaceable>keyword-value-pair</replaceable>}* &args; {&form-r;}*)</code>.
 </para></formalpara>
 
-<formalpara><title>Function &compute-restarts;</title>
+<formalpara id="compute-restarts"><title>Function &compute-restarts;</title>
 <para>&compute-restarts; and &find-restart; behave as specified in
  &ansi-cl;: If the optional &cond-r; argument is non-&nil;,
  only restarts associated with that condition
@@ -5027,13 +5027,30 @@ E.g.,
  &describe; on a standard &cl; symbol will point your web browser to the
  appropriate &hyperspec; page.</para>
 
+<para>Also, when &browser; is non-&nil;, and &impnotes-root; returns a
+ valid URL, &describe; on symbols and packages documented in these
+ implementation notes will point your web browser to the appropriate
+ page.</para>
+
 <formalpara id="clhs-root"><title>Function &clhs-root;</title>
 <para>Function &clhs-root; is defined in &config-lisp;.  By default it
- looks at <code>(&getenv; "CLHSROOT")</code> and &clhs-root-default;.
- The value should be a &string-t; terminated with a &file-slash;,
- e.g., <literal>&clhs;/</literal>.  If the value is &nil;, no Internet
- connection is made to retrieve the map between &ansi-cl; symbols and
- &hyperspec; web pages.</para></formalpara>
+ looks at <code>(&getenv; "CLHSROOT")</code> and &clhs-root-default;,
+ but you may redefine it in &config-lisp; or &RC-file;.
+ The return value should be a &string-t; terminated with a &file-slash;,
+ e.g., <ulink url="&clhs;/"/> or <filename>/usr/doc/HyperSpec/</filename>.
+ If the return value is &nil;, the feature is completely disabled.
+</para></formalpara>
+
+<formalpara id="impnotes-root"><title>Function &impnotes-root;</title>
+<para>Function &impnotes-root; is defined in &config-lisp;.  By default it
+ looks at <code>(&getenv; "IMPNOTES")</code> and &impnotes-root-default;,
+ but you may redefine it in &config-lisp; or &RC-file;.
+ The return value should be a &string-t; terminated with a &file-slash;,
+ e.g., <ulink url="http://clisp.cons.org/impnotes/"/>, or the path to
+ the monolithic page, e.g., <ulink url="http://clisp.cons.org/impnotes.html"/>
+ or <filename>/usr/doc/clisp/impnotes.html</filename>.
+ If the return value is &nil;, the feature is completely disabled.
+</para></formalpara>
 
 </section>
 

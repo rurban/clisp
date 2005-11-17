@@ -14,6 +14,8 @@
 
 (in-package "NETICA")
 
+(setf (documentation (find-package "NETICA") 'sys::impnotes) "netica")
+
 ;;; types and constants
 
 (def-c-type bool_ns uchar)

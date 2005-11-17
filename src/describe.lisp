@@ -105,6 +105,13 @@ to print the corresponding values, or T for all of them.")
         (terpri stream)
         (format stream (TEXT "No slots."))))))
 
+(defun lauch-doc (obj type stream name)
+  (let ((doc (documentation obj type)))
+    (when doc
+      (if *browser*
+          (ext::browse-url doc :out stream)
+          (format stream name doc)))))
+
 (clos:defgeneric describe-object (obj stream)
   (:method ((obj t) (stream stream))
     (ecase (type-of obj)
@@ -317,11 +324,10 @@ to print the corresponding values, or T for all of them.")
             (format stream (TEXT "Documentation as a ~a:") ty)
             (terpri stream)
             (princ doc stream))))
-      (let ((doc (documentation obj 'ext::clhs))) ; change to sys::clhs when ext:clhs is finally removed
-        (when doc
-          (if *browser*
-              (ext::browse-url doc :out stream)
-              (format stream (TEXT "~%ANSI Documentation is at~% ~S") doc))))
+      (lauch-doc obj 'ext::clhs ; change to sys::clhs when ext:clhs is finally removed
+                 stream (TEXT "~%ANSI Documentation is at~% ~S"))
+      (lauch-doc obj 'sys::impnotes stream
+                 (TEXT "~%CLISP Documentation is at~% ~S"))
       (when moree
         (terpri stream)
         (format stream (TEXT "For more information, evaluate ~{~S~^ or ~}.")
@@ -421,7 +427,9 @@ to print the corresponding values, or T for all of them.")
                      (if case-sensitive-p
                        (format stream (TEXT "It is case-sensitive, but not case-inverted!"))
                        (format stream (TEXT "It is a traditional ANSI CL compatible package, but uses the symbols from the modern ~S!")
-                               (find-package "CS-COMMON-LISP")))))))))
+                               (find-package "CS-COMMON-LISP"))))))))
+        (lauch-doc obj 'sys::impnotes stream
+                   (TEXT "~%CLISP Documentation is at~% ~S")))
       (format stream (TEXT "a deleted package."))))
   (:method ((obj hash-table) (stream stream))
     (let ((count (hash-table-count obj)))

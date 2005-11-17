@@ -91,9 +91,6 @@ LISTEN should work on all streams and READ-CHAR-WILL-HANG-P should be
 merged with READ-BYTE-WILL-HANG-P into WILL-HANG-P.
 
 
-add impnotes id-href.map lookup
-
-
 encode-universal-time is buggy around the DST switches
 <http://article.gmane.org/gmane.lisp.clisp.devel:14115>
 around each switch from/to DST, for 4 hours, we have a 1 hour

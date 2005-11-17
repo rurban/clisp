@@ -1628,8 +1628,8 @@ additionally binds &cont-r; to the content length.</para></formalpara>
 
 <section id="customize"><title>Customizing &clisp; behavior</title>
 
-<para>The user-customizable variables are located in the package
- &custom-pac; and thus can be listed using
+<para>The user-customizable variables and functions are located in the
+ package &custom-pac; and thus can be listed using
  <code>(&apropos; "" "CUSTOM")</code>:
  <simplelist type="horiz" columns="2">
   <member>&ansi;</member>
@@ -1639,6 +1639,7 @@ additionally binds &cont-r; to the content length.</para></formalpara>
   <member><varname>CUSTOM:*BREAK-ON-WARNINGS*</varname></member>
   <member>&browser;</member>
   <member>&browsers;</member>
+  <member>&clhs-root;</member>
   <member>&clhs-root-default;</member>
   <member>&fixnum-char-ansi;</member>
   <member>&compile-warn;</member>
@@ -1658,6 +1659,8 @@ additionally binds &cont-r; to the content length.</para></formalpara>
   <member>&flocont;</member>
   <member>&floratcont;</member>
   <member>&foreign-enc;</member>
+  <member>&impnotes-root;</member>
+  <member>&impnotes-root-default;</member>
   <member>&init-hooks;</member>
   <member><varname>CUSTOM:*INSPECT-BROWSER*</varname></member>
   <member><varname>CUSTOM:*INSPECT-FRONTEND*</varname></member>

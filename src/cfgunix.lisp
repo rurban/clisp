@@ -48,6 +48,13 @@
 ;; which browser do you use? (see `*browsers*' in clhs.lisp)
 ;; (setq *browser* :mozilla-remote)
 
+(defvar *impnotes-root-default* "http://clisp.cons.org/impnotes/")
+(defun impnotes-root ()
+  "This returns the root URL for the CLISP implementation notes.
+You can set the environment variable `IMPNOTES' or redefine this function
+in ~/.clisprc.  On win32 you can also use the Registry."
+  (or (getenv "IMPNOTES") *impnotes-root-default*))
+
 ;; Common Lisp HyperSpec access
 (defvar *clhs-root-default*)
 (defun clhs-root ()

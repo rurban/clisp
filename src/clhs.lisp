@@ -104,7 +104,12 @@ The keyword argument REPEAT specifies how many objects to read:
   (let* ((host-end (position #\/ url :start #2#)) status code
          (host (subseq url #2# host-end)) content-length
          (path (if host-end (subseq url host-end) "/"))
-         (sock (socket:socket-connect 80 host :external-format :dos)))
+         (sock (handler-bind ((error (lambda (c)
+                                       (unless (eq if-does-not-exist :error)
+                                         (format t "cannot connect to ~S: ~A~%"
+                                                 host c)
+                                         (return-from open-http nil)))))
+                 (socket:socket-connect 80 host :external-format :dos))))
     (format t "connected...") (force-output)
     (format sock "GET ~A HTTP/1.0~%User-agent: ~A~%Host: ~A~%Accept: */*~%Connection: close~2%" path (lisp-implementation-type) host) ; request
     (write-string (setq status (read-line sock))) (force-output)
@@ -113,7 +118,7 @@ The keyword argument REPEAT specifies how many objects to read:
       (setq code (parse-integer status :start pos1 :end pos2)))
     (when (>= code 400)
       (case if-does-not-exist
-        (:error (error "~S: error ~D: ~S" 'open-http code status))
+        (:error (error (TEXT "~S: error ~D: ~S") 'open-http code status))
         (t (close sock)
            (return-from open-http nil))))
     (if (>= code 300)        ; redirection
@@ -146,32 +151,128 @@ The keyword argument REPEAT specifies how many objects to read:
              (incf good)
              (setf (documentation symbol 'sys::clhs)
                    (subseq destination #.(length "../"))))
-            (t (warn "~S is not found" symbol-name))))
-    :finally (format t "~:D/~:D symbol~:P" good total)))
+            (t (warn (TEXT "~S is not found") symbol-name))))
+    :finally (format t "~:D/~:D symbol~:P~%" good total)))
 (let ((clhs-map-source nil))
+  ;; if clhs-map-source is the same as (clhs-root), do nothing and
+  ;; return (clhs-root); otherwise set clhs-map-source to (clhs-root)
+  ;; and try to get the clhs map from (clhs-root)
+  ;; nil return value means no map exists
   (defun ensure-clhs-map ()
     "make sure that the CLHS map is present"
     (let ((clhs-root (clhs-root)) opener)
       (when (and clhs-root (string/= clhs-map-source clhs-root))
-        (setq opener (if (string-equal #1="http://" clhs-root
+        (setq clhs-map-source clhs-root
+              opener (if (string-equal #1="http://" clhs-root
                                        :end2 (min (length clhs-root)
                                                   #.(length #1#)))
                          #'open-http #'open))
         (with-open-stream (s (or (funcall opener (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
                                  (funcall opener (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
           (unless s
-            (warn (TEXT "~S returns invalid value ~S, adjust ~S or ~S, or fix your local definition of ~S in config.lisp and rebuild")
+            (warn (TEXT "~S returns invalid value ~S, adjust ~S, ~S or ~S")
                   'clhs-root clhs-root '(getenv "CLHSROOT")
                   '*clhs-root-default* 'clhs-root)
             (return-from ensure-clhs-map))
-          (get-clhs-map s))
-        (setq clhs-map-source clhs-root))
+          (get-clhs-map s)))
       clhs-root)))
+(defun get-string-map (stream &aux (table (make-hash-table :test 'equal)))
+  (format t "~&;; ~S(~S)..." 'get-string-map stream) (force-output)
+  (loop :for total :upfrom 0 :and id = (read-line stream nil nil)
+    :and destination = (read-line stream nil nil)
+    :while (and id destination) :do
+    (when (or (find-if #'whitespacep id) (find-if #'whitespacep destination)
+              (zerop (length id)) (zerop (length destination)))
+      (warn "~S: invalid map ~S --> ~S" 'get-string-map id destination)
+      (return-from get-string-map nil))
+    (let ((old (gethash id table)))
+          (when old (warn "~S: remapping ~S: ~S --> ~S"
+                          'get-string-map id old destination)))
+    (setf (gethash id table) destination)
+    :finally (format t "~:D ID~:P~%" total))
+  table)
+(let ((impnotes-map-source nil))
+  ;; if impnotes-map-source is the same as (impnotes-root), do nothing
+  ;; and return (impnotes-root);
+  ;; otherwise set impnotes-map-source to (impnotes-root) and try to get
+  ;; the impnotes map from (impnotes-root)
+  ;; nil return value means no map exists
+  (defun ensure-impnotes-map ()
+    "make sure that the impnotes map is present"
+    (let ((impnotes-root (impnotes-root))
+          (dest (lambda (id) (string-concat "#" id))))
+      (when (and impnotes-root (string/= impnotes-map-source impnotes-root))
+        (setq impnotes-map-source impnotes-root)
+        (when (char= #\/ (char impnotes-root (1- (length impnotes-root))))
+          ;; chunked impnotes ==> get id-href
+          (let ((opener (if (string-equal #1="http://" impnotes-root
+                                          :end2 (min (length impnotes-root)
+                                                     #.(length #1#)))
+                            #'open-http #'open)))
+            (with-open-stream (s (funcall opener (string-concat impnotes-root
+                                                                "id-href.map")
+                                          :if-does-not-exist nil))
+              (unless s
+                #1=(warn (TEXT "~S returns invalid value ~S, fix it, ~S  or ~S")
+                         'impnotes-root impnotes-root '(getenv "IMPNOTES")
+                         '*impnotes-root-default*)
+                (return-from ensure-impnotes-map))
+              (let ((table (get-string-map s)))
+                (unless table   ; no table --> bail out
+                  #1# (return-from ensure-impnotes-map))
+                (setq dest (lambda (id) (gethash id table)))))))
+        (with-open-file (in (clisp-data-file "Symbol-Table.text"))
+          (format t "~&;; ~S(~S)..." 'ensure-impnotes-map (truename in))
+          (force-output)
+          (loop :for count :upfrom 0 :and sym = (read-line in nil nil)
+            :and id = (read-line in nil nil)
+            :while (and sym id) :do
+            (let ((destination (funcall dest id)))
+              (if destination
+                  (setf (documentation (read-from-string sym) 'sys::impnotes)
+                        destination)
+                  (warn (TEXT "~S: invalid id ~S for symbol ~S")
+                        'ensure-impnotes-map id sym)))
+            :finally (format t "~:D ID~:P~%" count))))
+      impnotes-root)))
 
 (defmethod documentation ((obj symbol) (type (eql 'sys::clhs)))
-  (when (ensure-clhs-map)
+  (when (and (eq (symbol-package obj) #,(find-package "CL")) (ensure-clhs-map))
     (let ((doc (call-next-method)))
       (when doc (string-concat (clhs-root) doc)))))
+
+(defmethod documentation ((obj symbol) (type (eql 'sys::impnotes)))
+  (when (ensure-impnotes-map)
+    (let ((doc (or (call-next-method)
+                   (documentation (symbol-package obj) 'sys::impnotes))))
+      (when doc (string-concat (impnotes-root) doc)))))
+
+(defmethod documentation ((obj package) (type (eql 'sys::impnotes)))
+  (let ((doc (sys::package-documentation obj)))
+    (and (consp doc) (second doc))))
+
+(defmethod (setf documentation) (new-value (obj package)
+                                 (type (eql 'sys::impnotes)))
+  (let ((doc (sys::package-documentation obj)))
+    (if (consp doc)
+        (setf (second doc) new-value)
+        (setf (sys::package-documentation obj)
+              (list "see the implementation notes" new-value)))))
+
+;; what is the right place for these?
+(setf (documentation (find-package "GRAY") 'sys::impnotes) "gray")
+(setf (documentation (find-package "CL-USER") 'sys::impnotes) "clupack")
+(setf (documentation (find-package "CS-CL-USER") 'sys::impnotes) "cs-clu")
+(setf (documentation (find-package "CS-CL") 'sys::impnotes) "package-case")
+#+screen (setf (documentation (find-package "SCREEN") 'sys::impnotes) "screen")
+(setf (documentation (find-package "SOCKET") 'sys::impnotes) "socket")
+#+generic-streams
+(setf (documentation (find-package "GSTREAM") 'sys::impnotes) "gstream")
+(setf (documentation (find-package "I18N") 'sys::impnotes) "i18n")
+(setf (documentation (find-package "FFI") 'sys::impnotes) "dffi")
+(setf (documentation (find-package "CUSTOM") 'sys::impnotes) "customize")
+(setf (documentation (find-package "CHARSET") 'sys::impnotes) "charset")
+(setf (documentation (find-package "EXPORTING") 'sys::impnotes) "exporting")
 
 (defun clhs (symbol &key (browser *browser*) (out *standard-output*))
   "Dump the CLHS doc for the symbol."

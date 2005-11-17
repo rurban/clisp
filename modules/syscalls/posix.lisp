@@ -18,6 +18,8 @@
 (pushnew :syscalls *features*)
 (in-package #:posix)
 
+(setf (documentation (find-package '#:posix) 'sys::impnotes) "syscalls")
+
 ;;; ============================================================
 #+unix (progn
 (export '(endutxent getutxent getutxid getutxline pututxline setutxent))

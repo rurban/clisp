@@ -22,6 +22,8 @@ Interface to the GNU readline and history library. It allows you to
 
 (in-package "READLINE")
 
+(setf (documentation (find-package "READLINE") 'sys::impnotes) "readline-mod")
+
 ;;; foreign function definitions
 (default-foreign-language :stdc)
 (eval-when (compile) (setq *foreign-guard* t))
