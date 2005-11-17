@@ -210,10 +210,30 @@ ignored by the interpreter.</para>
  <code>(&ftype-dec; &type-r; &func-r; ...)</code>,
    are ignored by both the interpreter and the compiler.</para>
 
+<section id="spec-decl"><title>Declaration &special-dec;</title>
+
+<formalpara id="not-spec-decl"><title>Declaration
+  <literal>EXT:NOT-SPECIAL</literal></title>
+<para>Declarations <code>(&proclaim; '(&special-dec; &var-r;))</code>
+ and &defconstant; are undone by the <code>(&proclaim; '(EXT:NOT-SPECIAL
+  &var-r;))</code> declaration.  This declaration can be used only in
+ global &proclaim; and &declaim; forms, not in local &declare; forms.
+</para></formalpara>
+
+<formalpara id="spe-var-p"><title>Function &spe-var-p;</title>
+<para>You can use the function <code>(&spe-var-p; &symbol-r;
+  &optional-amp; &env-r;)</code> to check whether the symbol is a
+ special variable.  &env-r; of &nil; or omitted means use the &glo-env;.
+ You can also obtain the current &lex-env; using the macro
+ &the-env; (interpreted code only).
+ This function will always return &t; for global special
+ variables and &constant;s.</para></formalpara>
+</section>
+
 <section id="safety-decl"><title>Declaration &safety-dec;</title>
 <para>Declaration <code>(&optimize-dec; (&safety-dec; 3))</code>
  results in <quote>safe</quote> compiled code: function calls are never
- eliminated. This guarantees the semantics described in
+ eliminated. This guarantees the semantics described in &ansi-cl;
  <ulink url="&clhs;/Body/sec_3-5.html">Section 3.5</ulink>.
 </para></section>
 
@@ -224,7 +244,7 @@ ignored by the interpreter.</para>
 <programlisting language="lisp">
 (&locally; (&declare; (compile)) &form-r;)
 </programlisting>
-executes a compiled version of form.</para>
+executes a compiled version of &form-r;.</para>
 
 <para><programlisting language="lisp">
 (&let; ((x 0))
@@ -257,37 +277,6 @@ executes a compiled version of form.</para>
 <section id="eval-comp"><title>The Evaluation and Compilation Dictionary
   <ulink url="&clhs;/Body/sec_the_evalu_n_dictionary.html"
          >[CLHS-3.8]</ulink></title>
-
-<section id="spec-decl"><title>Declaration &special-dec;</title>
-
-<para><code>(&proclaim; '(&special-dec; &var-r;))</code> declarations
- cannot be undone.  The same holds for &defvar;, &defparameter; and
- &defconstant; declarations.  The only way out is
- <programlisting language="lisp">
-(let ((name (&symbol-name; variable)) (package (&symbol-package; variable)))
-  (&unintern; variable)
-  (&intern; name package))
- </programlisting>
- but this will also lose any symbol properties (&symbol-plist;)
- as well as function and macro definitions (&symbol-function;).
- Of course, the new &var-r; is &not-e; &eq; to the old one.</para>
-
-<para>It is an error if a &defconstant; variable is bound at the moment
- the &defconstant; is executed, but &defconstant; does not check
- this.</para>
-
-<para>&constant;s may not be bound dynamically or lexically.</para>
-
-<formalpara id="spe-var-p"><title>Function &spe-var-p;</title>
-<para>You can use the function <code>(&spe-var-p; &symbol-r;
-  &optional-amp; &env-r;)</code> to check whether the symbol is a
- special variable.  &env-r; of &nil; or omitted means use the &glo-env;.
- You can also obtain the current &lex-env; using the macro
- &the-env; (interpreted code only).
- This function will always return &t; for global special
- variables and &constant;s.</para></formalpara>
-
-</section>
 
 <section id="constantp"><title>Function &constantp;</title>
 
@@ -567,10 +556,15 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  <ulink url="&clhs;/Body/sec_3-1-2-1-2-2.html">Section 3.1.2.1.2.2</ulink>)
  and, as such, are rather efficient.</para></formalpara>
 
-<formalpara><title>Macro &defconstant;</title>
+<section id="defconstant"><title>Macro &defconstant;</title>
 <para>The initial value is &not-e; evaluated at compile time,
  just like with &defvar; and &defparameter;.
- Use &eval-when; if you need the value at compile time.</para></formalpara>
+ Use &eval-when; if you need the value at compile time.</para>
+<para>It is an error if a &defconstant; variable is bound at the moment
+ the &defconstant; is executed, but &defconstant; does not check
+ this.</para>
+<para>&constant;s may not be bound dynamically or lexically.</para>
+</section>
 
 <section id="fcase"><title>Macro <function>EXT:FCASE</function></title>
 
