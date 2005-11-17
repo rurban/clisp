@@ -213,13 +213,13 @@ The keyword argument REPEAT specifies how many objects to read:
                                                                 "id-href.map")
                                           :if-does-not-exist nil))
               (unless s
-                #1=(warn (TEXT "~S returns invalid value ~S, fix it, ~S  or ~S")
+                #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S  or ~S")
                          'impnotes-root impnotes-root '(getenv "IMPNOTES")
                          '*impnotes-root-default*)
                 (return-from ensure-impnotes-map))
               (let ((table (get-string-map s)))
                 (unless table   ; no table --> bail out
-                  #1# (return-from ensure-impnotes-map))
+                  #2# (return-from ensure-impnotes-map))
                 (setq dest (lambda (id) (gethash id table)))))))
         (with-open-file (in (clisp-data-file "Symbol-Table.text"))
           (format t "~&;; ~S(~S)..." 'ensure-impnotes-map (truename in))
