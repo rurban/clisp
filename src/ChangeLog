@@ -1,3 +1,11 @@
+2005-11-17  Sam Steingold  <sds@gnu.org>
+
+	New declaration EXT:NOT-SPECIAL undoes the effects of DEFVAR et al
+	* compiler.lisp (c-PROCLAIM): handle NOT-SPECIAL declarations
+	* control.d (PROCLAIM): ditto
+	* constsym.d (EXT:NOT-SPECIAL): added
+	* init.lisp (EXT:NOT-SPECIAL): exported
+
 2005-11-16  Sam Steingold  <sds@gnu.org>
 
 	New function EXT:OPEN-HTTP and macro EXT:WITH-HTTP-INPUT.

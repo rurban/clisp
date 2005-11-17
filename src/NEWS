@@ -13,6 +13,10 @@ User visible changes
 * New function EXT:OPEN-HTTP and macro EXT:WITH-HTTP-INPUT.
   See <http://clisp.cons.org/impnotes/macros3.html#open-http> for details.
 
+* New declaration EXT:NOT-SPECIAL undoes the effects of DEFVAR and DEFCONSTANT.
+  See <http://clisp.cons.org/impnotes/declarations.html#not-spec-decl>
+  for details.
+
 * Function EXT:CLHS is now deprecated in favor of DESCRIBE.
   See <http://clisp.cons.org/impnotes/environment-dict.html#describe>
   for details.

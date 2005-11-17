@@ -3323,6 +3323,9 @@ for-value   NIL or T
       (SPECIAL
         (dolist (var (cdr declspec))
           (when (symbolp var) (pushnew var *known-special-vars* :test #'eq))))
+      (NOT-SPECIAL
+       (dolist (var (cdr declspec))
+         (when (symbolp var) (delete var *known-special-vars* :test #'eq))))
       (INLINE
         (dolist (var (cdr declspec))
           (when (function-name-p var)
