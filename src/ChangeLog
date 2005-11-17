@@ -1,5 +1,9 @@
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (.SHELL) [netbsd]: new target to ensure make uses $(SHELL)
+
+2005-11-17  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/configure.in: check for <netinet/in.h>
 	* modules/syscalls/calls.c: include <netinet/in.h> before
 	<arpa/inet.h> to avoid warnings on FreeBSD
