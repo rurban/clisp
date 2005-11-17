@@ -1,5 +1,11 @@
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/configure.in: check for <netinet/in.h>
+	* modules/syscalls/calls.c: include <netinet/in.h> before
+	<arpa/inet.h> to avoid warnings on FreeBSD
+
+2005-11-17  Sam Steingold  <sds@gnu.org>
+
 	New declaration EXT:NOT-SPECIAL undoes the effects of DEFVAR et al
 	* compiler.lisp (c-PROCLAIM): handle NOT-SPECIAL declarations
 	* control.d (PROCLAIM): ditto
