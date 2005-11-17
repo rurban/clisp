@@ -14,6 +14,8 @@
 
 (in-package "SQL")
 
+(setf (documentation (find-package "SQL") 'sys::impnotes) "postgresql")
+
 (ffi:default-foreign-language :stdc)
 (eval-when (compile) (setq *foreign-guard* t))
 

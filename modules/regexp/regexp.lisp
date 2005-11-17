@@ -14,6 +14,8 @@
 (pushnew "REGEXP" custom:*system-package-list* :test #'string=)
 (pushnew :regexp *features*)
 
+(setf (documentation (find-package "REGEXP") 'sys::impnotes) "regexp-mod")
+
 (defstruct (match (:constructor make-match-boa (start end))
                   (:constructor ))
   start end)

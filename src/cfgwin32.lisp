@@ -53,7 +53,18 @@ if device and directory are unspecified:")
 (setq *parse-namestring-dot-file* :name)
 
 ;; which browser do you use? (see `*browsers*' in clhs.lisp)
-;; (setq *browser* :mozilla-remote)
+;; (setq *browser* :default)
+
+(defvar *impnotes-root-default* "http://clisp.cons.org/impnotes/")
+(defun impnotes-root ()
+  "This returns the root URL for the CLISP implementation notes.
+You can set the environment variable `IMPNOTES' or redefine this function
+in ~/.clisprc.  On win32 you can also use the Registry."
+  (or (getenv "IMPNOTES")
+      (let ((s (sys::registry "SOFTWARE\\GNU\\CLISP" "IMPNOTES")))
+        (check-type s (or null string))
+        s)
+      *impnotes-root-default*))
 
 ;; Common Lisp HyperSpec access
 (defvar *clhs-root-default*)

@@ -341,7 +341,7 @@
    long-float-digits package-lock hash-table-weak-p weak-key-value-table
    the-environment arglist getenv special-variable-p
    list-length-dotted list-length-proper
-   *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
+   *driver* *break-driver* *args* *keyboard-input* shell execute
    fasthash-eq stablehash-eq fasthash-eql stablehash-eql fasthash-equal
    stablehash-equal define-hash-table-test package-case-sensitive-p
    package-case-inverted-p argv hash-table-warn-if-needs-rehash-after-gc
@@ -387,6 +387,7 @@
 
 (common-lisp:export
  '(*load-paths* *editor* *clhs-root-default* *browsers* *browser*
+   clhs-root *impnotes-root-default* impnotes-root
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
    *load-obsolete-action* *suppress-check-redefinition*
    ;; places.lisp

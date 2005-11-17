@@ -265,3 +265,8 @@ must pass all tests, the old and the new alike.
 
 Documentation changes do not need a ChangeLog entry.  Do not abbreviate
 function, variable and file names (e.g., using regular expressions).
+
+All functionality should be documented.
+When adding a new symbol, document it in the Implementation Notes and
+add an appropriate mapping from the symbol to its XML ID in the impnotes
+to the file doc/Symbol-Table.text (in the order of the impnotes' flow).

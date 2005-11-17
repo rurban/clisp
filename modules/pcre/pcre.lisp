@@ -14,6 +14,7 @@
 (in-package "PCRE")
 (pushnew :pcre *features*)
 (push "PCRE" custom:*system-package-list*)
+(setf (documentation (find-package "PCRE") 'sys::impnotes) "pcre")
 
 (defstruct (pattern (:constructor make-pat (compiled study)))
   (compiled nil :read-only t)

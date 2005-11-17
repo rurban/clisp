@@ -643,6 +643,9 @@ compiles the specified lisp files to a platform-independent
 <varlistentry><term><envar>CLHSROOT</envar></term>
  <listitem><simpara>for &clhs-root; in &config-lisp;.
 </simpara></listitem></varlistentry>
+<varlistentry><term><envar>IMPNOTES</envar></term>
+ <listitem><simpara>for &impnotes-root; in &config-lisp;.
+</simpara></listitem></varlistentry>
 <varlistentry><term><envar>EDITOR</envar></term>
  <listitem><simpara>for <function>editor-name</function> in
    &config-lisp;.</simpara></listitem></varlistentry>

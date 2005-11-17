@@ -10,6 +10,7 @@
 (in-package "ZLIB")
 (export '(compress uncompress compress-bound error-string z-version
           zerror zerror-caller zerror-errno))
+(setf (documentation (find-package "ZLIB") 'sys::impnotes) "zlib")
 
 ;;; types and constants
 

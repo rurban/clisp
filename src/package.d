@@ -1969,10 +1969,11 @@ LISPFUNNR(package_documentation,1) {
   VALUES1(ThePackage(pack)->pack_docstring);
 }
 
-/* ((SETF SYS::PACKAGE-DOCUMENTATION) new-value package) */
+/* ((SETF SYS::PACKAGE-DOCUMENTATION) new-value package)
+ documentation is either a doc-string or a list (doc-string impnotes-id) */
 LISPFUNN(set_package_documentation,2) {
   STACK_0 = test_package_arg(STACK_0);
-  if (!nullp(STACK_1)) STACK_1 = check_string(STACK_1);
+  if (!listp(STACK_1)) STACK_1 = check_string(STACK_1);
   VALUES1(ThePackage(STACK_0)->pack_docstring = STACK_1);
   skipSTACK(2);
 }

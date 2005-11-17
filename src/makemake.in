@@ -2861,8 +2861,8 @@ if [ $TOS = win32 ] ; then
   done
 fi
 
-DATA_FILES="UnicodeDataFull.txt"
-DATA_FILES_TOP_PATH="utils${NEXT_}unicode${NEXT_}UnicodeDataFull.txt"
+DATA_FILES="UnicodeDataFull.txt Symbol-Table.text"
+DATA_FILES_TOP_PATH="utils${NEXT_}unicode${NEXT_}UnicodeDataFull.txt doc${NEXT_}Symbol-Table.text"
 data_target="data :"
 for f in ${DATA_FILES_TOP_PATH}; do
   data_target="${data_target} ${SRCTOPDIR_}${f}"

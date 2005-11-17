@@ -19,6 +19,8 @@
 (pushnew :dirkey *features*)
 (in-package "LDAP")
 
+(setf (documentation (find-package "LDAP") 'sys::impnotes) "dir-key")
+
 ;;; data
 ;; fix dirkey.c when changing this!
 (defstruct (dir-key (:constructor mkdk (type direction path open-p handle)))

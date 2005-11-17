@@ -29,6 +29,8 @@
 (in-package "FASTCGI")
 (pushnew :fastcgi *features*)
 
+(setf (documentation (find-package "FASTCGI") 'sys::impnotes) "fastcgi")
+
 (FFI:default-foreign-language :STDC)
 
 ; Global: is request active?
