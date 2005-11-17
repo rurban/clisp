@@ -9,8 +9,7 @@
 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 ;; make sure that DESCRIBE does not try to look up CLHS documentation
-#+clisp (without-package-lock ("EXT") (defun ext:clhs-root () nil))
-#+clisp ext:clhs-root
+#+clisp (defun custom:clhs-root () nil) #+clisp ext:clhs-root
 
 ;; CLOSE should not delete information about
 ;; element type, direction, and external format
