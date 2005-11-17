@@ -1,3 +1,8 @@
+2005-11-17  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst (clhs-root): redefine to return NIL to make sure
+	that DESCRIBE does not try to look up CLHS documentation
+
 2005-11-15  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (*run-test-truename*): new variable
