@@ -1,5 +1,47 @@
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
+	DESCRIBE can now point the browser to impnotes
+	* package.d ((SETF PACKAGE-DOCUMENTATION)): package documentation
+	is either a doc-string or a list (doc-string impnotes-id)
+	* documentation.lisp (documentation): ditto
+	* makemake.in (DATA_FILES): added Symbol-Table.text
+	* init.lisp (clhs-root): moved from EXT to CUSTOM to avoid locking
+	(*impnotes-root-default*, impnotes-root): export from CUSTOM
+	* describe.lisp (lauch-doc): new function
+	(describe): use it for symbols and packages for CLHS and impnotes
+	* clhs.lisp (open-http): catch connection errors when
+	:IF-DOES-NOT-EXIST is not :ERROR
+	(ensure-clhs-map): reset clhs-map-source early to avoid re-running
+	again and again after a failure
+	(get-string-map, ensure-impnotes-map): added
+	(documentation@symbol/clhs): call ENSURE-CLHS-MAP only for symbols
+	in the COMMON-LISP package
+	(documentation@symbol/impnotes, documentation@package/impnotes): added
+	set package/impnotes documentation for packages GRAY, CL-USER, CS-CL,
+	CS-CL-USER, SCREEN, SOCKET, GSTREAM, I18N, FFI, CHARSET, EXPORFTING
+	* cfgunix.lisp, cfgsunux.lisp, cfgwin32.lisp
+	(*impnotes-root-default*): defvar
+	(impnotes-root): defun
+	* modules/berkeley-db/dbi.lisp: added impnotes doc for package BDB
+	* modules/dirkey/dirkey1.lisp: added impnotes doc for package LDAP
+	* modules/fastcgi/fastcgi.lisp: added impnotes doc for package FASTCGI
+	* modules/matlab/matlab.lisp: added impnotes doc for package MATLAB
+	* modules/netica/netica.lisp: added impnotes doc for package NETICA
+	* modules/oracle/oracle.lisp: added impnotes doc for package ORACLE
+	* modules/pari/pari.lisp: added impnotes doc for package PARI
+	* modules/pcre/pcre.lisp: added impnotes doc for package PCRE
+	* modules/postgresql/postgresql.lisp: added impnotes doc for package SQL
+	* modules/rawsock/sock.lisp: added impnotes doc for package RAWSOCK
+	* modules/readline/readline.lisp: added impnotes doc for package
+	READLINE
+	* modules/regexp/regexp.lisp: added impnotes doc for package REGEXP
+	* modules/syscalls/posix.lisp: added impnotes doc for package POSIX
+	* modules/wildcard/wildcard.lisp: added impnotes doc for package
+	WILDCARD
+	* modules/zlib/zlib.lisp: added impnotes doc for package ZLIB
+
+2005-11-17  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (.SHELL) [netbsd]: new target to ensure make uses $(SHELL)
 
 2005-11-17  Sam Steingold  <sds@gnu.org>

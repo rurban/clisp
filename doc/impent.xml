@@ -167,8 +167,10 @@
 <!ENTITY browser "<link linkend='browse-url'><varname>CUSTOM:*BROWSER*</varname></link>">
 <!ENTITY browser-k "<link linkend='browse-url'><constant>:BROWSER</constant></link>">
 <!ENTITY browsers "<link linkend='browse-url'><constant>CUSTOM:*BROWSERS*</constant></link>">
-<!ENTITY clhs-root "<olink targetdoc='impnotes' targetptr='clhs-root'><function>CL-USER:CLHS-ROOT</function></olink>">
+<!ENTITY clhs-root "<olink targetdoc='impnotes' targetptr='clhs-root'><function>CUSTOM:CLHS-ROOT</function></olink>">
 <!ENTITY clhs-root-default "<link linkend='clhs-root'><varname>CUSTOM:*CLHS-ROOT-DEFAULT*</varname></link>">
+<!ENTITY impnotes-root "<olink targetdoc='impnotes' targetptr='impnotes-root'><function>CUSTOM:IMPNOTES-ROOT</function></olink>">
+<!ENTITY impnotes-root-default "<link linkend='impnotes-root'><varname>CUSTOM:*IMPNOTES-ROOT-DEFAULT*</varname></link>">
 <!ENTITY open-http "<link linkend='open-http'><function>EXT:OPEN-HTTP</function></link>">
 <!ENTITY buffered "<link linkend='buffered'><constant>:BUFFERED</constant></link>">
 <!ENTITY byte-t "<link linkend='byte-type'><type>BYTE</type></link>">

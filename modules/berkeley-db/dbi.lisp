@@ -32,6 +32,8 @@
 (pushnew :berkeley-db *features*)
 (in-package "BDB")
 
+(setf (documentation (find-package "BDB") 'sys::impnotes) "berkeley-db")
+
 ;;; objects
 (cl:defstruct (bdb-handle (:constructor nil) (:copier nil))
   (handle nil :read-only t)

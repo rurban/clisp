@@ -9,6 +9,8 @@
 (in-package "PARI")
 (pushnew "PARI" custom:*system-package-list* :test #'string=)
 
+(setf (documentation (find-package "PARI") 'sys::impnotes) "pari")
+
 (default-foreign-language :stdc)
 
 (pushnew :pari *features*)

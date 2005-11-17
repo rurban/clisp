@@ -9,6 +9,7 @@
 (in-package "WILDCARD")
 (pushnew "WILDCARD" custom:*system-package-list* :test #'string=)
 (pushnew :wildcard *features*)
+(setf (documentation (find-package "WILDCARD") 'sys::impnotes) "wildcard")
 
 (default-foreign-language :stdc)
 

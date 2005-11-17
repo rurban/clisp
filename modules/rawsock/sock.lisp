@@ -22,6 +22,8 @@
 (pushnew :rawsock *features*)
 (pushnew "RAWSOCK" custom:*system-package-list* :test #'string=)
 
+(setf (documentation (find-package '#:rawsock) 'sys::impnotes) "rawsock")
+
 (cl:defstruct (sockaddr (:constructor make-sa (%data)))
   (%data #() :read-only t :type (vector (unsigned-byte 8))))
 

@@ -31,6 +31,8 @@
 (in-package "ORACLE")
 (pushnew :oracle *features*)
 
+(setf (documentation (find-package "ORACLE") 'sys::impnotes) "oracle")
+
 ; Use "C" as foreign language
 (default-foreign-language :stdc)
 

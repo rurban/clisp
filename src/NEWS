@@ -17,7 +17,8 @@ User visible changes
   See <http://clisp.cons.org/impnotes/declarations.html#not-spec-decl>
   for details.
 
-* Function EXT:CLHS is now deprecated in favor of DESCRIBE.
+* Function EXT:CLHS is now deprecated in favor of DESCRIBE, which can now
+  point your web browser to the ANSI CL and CLISP-specific documentation.
   See <http://clisp.cons.org/impnotes/environment-dict.html#describe>
   for details.
 
@@ -56,7 +57,7 @@ User visible changes
 
 * When a CLISP process is killed, clean-up is always executed.
 
-* Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled code.
+* Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled functions.
 
 * Fixed re-exporting symbols from POSIX to EXT.
 

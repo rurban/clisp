@@ -14,6 +14,8 @@
 
 (in-package "MATLAB")
 
+(setf (documentation (find-package "MATLAB") 'sys::impnotes) "matlab")
+
 ;;; types and constants
 
 
