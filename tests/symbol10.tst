@@ -1,3 +1,5 @@
+;; -*- Lisp -*-
+
 (progn (in-package "CL-USER") nil)
 NIL
 ;; Test der neuen Valuezelle
@@ -28,11 +30,11 @@ NIL
 testvar
 
 (defun clrvar (var)
+   #+CLISP (proclaim `(ext:not-special ,var)) ; constants cannot be makunbound
    #+XCL(subr 84 ;sys::%p-set-cdr-content
               var 0 (sys::%p-get-content 'sys::%void-value 0) 0)
    #-XCL (progn (makunbound var) (fmakunbound var)
-                (setf (symbol-plist var) '())
-         )
+                (setf (symbol-plist var) '()))
    #+ALLEGRO (setf (excl::symbol-bit var 'excl::.globally-special.) nil)
    #+CMU (setf (ext:info variable kind var) ':global)
    #+SBCL (setf (sb-int:info :variable :kind var) ':global)
@@ -163,6 +165,11 @@ val4
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   val4 nil   nil  t    t   nil  t     99  nil nil)
 
+(clrvar 'v1) v1
+(testvar 'v1)
+;geb val konst svar func mac spec plist i1  i2  i3
+(nil nil nil   nil  nil  nil nil  nil   nil nil nil)
+
 ;;; --- Ende Test1 -----
 
 (clrvar 'v2)
@@ -229,6 +236,11 @@ v2
 (testvar 'v2)
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   v2b  nil   t    t    nil nil  t     111 222 333 )
+
+(clrvar 'v2) v2
+(testvar 'v2)
+;geb val konst svar func mac spec plist i1  i2  i3
+(nil nil nil   nil  nil  nil nil  nil   nil nil nil)
 
 
 (clrvar 'v3)
@@ -325,6 +337,11 @@ var3
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   999  t     nil  t    nil nil  t     111 222 nil)
 
+(clrvar 'v3) v3
+(testvar 'v3)
+;geb val konst svar func mac spec plist i1  i2  i3
+(nil nil nil   nil  nil  nil nil  nil   nil nil nil)
+
 
 (clrvar 'v4)
 v4
@@ -397,6 +414,11 @@ v4
 (testvar 'v4)
 ;geb val     konst svar func mac spec plist i1  i2  i3
 (t  v4-value nil   t    t    nil nil  t     nil 222 333)
+
+(clrvar 'v4) v4
+(testvar 'v4)
+;geb val konst svar func mac spec plist i1  i2  i3
+(nil nil nil   nil  nil  nil nil  nil   nil nil nil)
 
 (clrvar 'v5)
 v5
@@ -479,6 +501,11 @@ v5
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   321  t     nil  t    nil nil  t     nil 222 333)
 
+(clrvar 'v5) v5
+(testvar 'v5)
+;geb val konst svar func mac spec plist i1  i2  i3
+(nil nil nil   nil  nil  nil nil  nil   nil nil nil)
+
 (clrvar 'v6)
 v6
 
@@ -507,6 +534,11 @@ v6
 (testvar 'v6)
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   234  t     nil  t    t   nil  t     1   nil 3)
+
+(clrvar 'v6) v6
+(testvar 'v6)
+;geb val konst svar func mac spec plist i1  i2  i3
+(nil nil nil   nil  nil  nil nil  nil   nil nil nil)
 
 
 ; Aufraeumen

@@ -1,5 +1,9 @@
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
+	* symbol10.tst (clrvar) [clisp]: use (proclaim `(ext:not-special var))
+
+2005-11-17  Sam Steingold  <sds@gnu.org>
+
 	* streams.tst (clhs-root): redefine to return NIL to make sure
 	that DESCRIBE does not try to look up CLHS documentation
 
