@@ -343,6 +343,81 @@ DEFUN(POSIX:CLOSELOG,) {
 #endif
 #endif  /* HAVE_SYSLOG */
 
+/* ========================== time conversion ========================== */
+#if defined(HAVE_STRFTIME) && defined(HAVE_STRPTIME) && defined(HAVE_MKTIME)
+DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
+{ /* http://www.opengroup.org/onlinepubs/009695399/functions/strptime.html
+     http://www.opengroup.org/onlinepubs/009695399/functions/strftime.html */
+  STACK_2 = check_string(STACK_2); /* format */
+  if (missingp(STACK_1)) { /* datum defaults to the current time */
+    funcall(L(get_universal_time),0);
+    STACK_1 = value1;
+  }
+  if (stringp(STACK_1)) {          /* parse: strptime */
+    struct tm tm;
+    unsigned int offset;
+   retry_strptime:
+    with_string_0(STACK_1,GLO(misc_encoding),buf, {
+        with_string_0(STACK_2,GLO(misc_encoding),format, {
+            char *ret;
+            begin_system_call();
+            if ((ret == strptime(buf,format,&tm))) offset = ret - buf;
+            else offset = 0;
+            end_system_call();
+          });
+      });
+    if (offset == 0) {
+      pushSTACK(NIL);           /* no PLACE */
+      pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2));
+      pushSTACK(TheSubr(subr_self)->name);
+      check_value(error,GETTEXT("~S: ~S does not match format ~S"));
+      STACK_1 = value1;
+      goto retry_strptime;
+    }
+    pushSTACK(fixnum(tm.tm_sec));
+    pushSTACK(fixnum(tm.tm_min));
+    pushSTACK(fixnum(tm.tm_hour));
+    pushSTACK(fixnum(tm.tm_mday));
+    pushSTACK(fixnum(1+tm.tm_mon));
+    pushSTACK(fixnum(1900+tm.tm_year));
+    pushSTACK(STACK_(0+6));     /* timezone */
+    funcall(S(encode_universal_time),7);
+    /* value1 from ENCODE-UNIVERSAL-TIME */
+    value2 = tm.tm_isdst > 0 ? T : NIL;
+    value3 = fixnum(offset);
+    mv_count = 3;
+    skipSTACK(3);
+  } else if (integerp(STACK_1)) { /* format: strftime */
+    struct tm tm;
+    funcall(`CL:DECODE-UNIVERSAL-TIME`,2);
+    tm.tm_sec = posfixnum_to_V(value1); /* Seconds [0,60]. */
+    tm.tm_min = posfixnum_to_V(value2); /* Minutes [0,59]. */
+    tm.tm_hour = posfixnum_to_V(value3); /* Hour [0,23]. */
+    tm.tm_mday = posfixnum_to_V(value4); /* Day of month [1,31]. */
+    tm.tm_mon = posfixnum_to_V(value5) - 1; /* Month of year [0,11]. */
+    tm.tm_year = posfixnum_to_V(value6) - 1900; /* Years since 1900. */
+    /* Day of week [0,6] (C: Sunday=0 <== CL: Monday=0 */
+    tm.tm_wday = (posfixnum_to_V(value7) + 1) % 7;
+    tm.tm_isdst = !nullp(value8); /* Daylight Savings flag. */
+    /* tm.tm_yday == Day of year [0,365]. -- use mkime() */
+    begin_system_call();
+    if (mktime(&tm) == (time_t)-1) OS_error();
+    end_system_call();
+    with_string_0(STACK_0,GLO(misc_encoding),format, {
+        /* at least 4 characters per each format char + safety */
+        size_t bufsize = 4 * format_bytelen + 64;
+        char* buf = (char*)alloca(bufsize);
+        size_t retval;
+        begin_system_call();
+        retval = strftime(buf,bufsize,format,&tm);
+        end_system_call();
+        VALUES1(n_char_to_string(buf,retval,GLO(misc_encoding)));
+      });
+    skipSTACK(1);
+  } else fehler_string_integer(STACK_1);
+}
+#endif  /* strftime strptime mktime */
+
 /* ========================== temporary files ========================== */
 #if defined(HAVE_MKSTEMP) || defined(HAVE_TEMPNAM) || defined(WIN32_NATIVE)
 #if defined(HAVE_TEMPNAM)
