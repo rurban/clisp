@@ -1,5 +1,10 @@
 2005-11-18  Sam Steingold  <sds@gnu.org>
 
+	* number2.tst (boole-n-vector): added a test from
+	http://www.lisp.org/HyperSpec/Body/fun_boole.html#boole
+
+2005-11-18  Sam Steingold  <sds@gnu.org>
+
 	* conditions.tst: test non-class-naming TYPE arguments to MAKE-CONDITION
 
 2005-11-17  Sam Steingold  <sds@gnu.org>

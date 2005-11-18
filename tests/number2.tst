@@ -431,3 +431,20 @@ NIL
  :except (nconc (loop :for x :from (/ pi 2) :by pi :to 10 :collect x)
                 (loop :for x :from (/ pi -2) :by pi :downto -10 :collect x)))
 NIL
+
+;; http://www.lisp.org/HyperSpec/Body/fun_boole.html#boole
+;; The order of the values in this `table' are such that
+;; (logand (boole (aref boole-n-vector n) #b0101 #b0011) #b1111) => n
+(let ((boole-n-vector
+       (vector boole-clr   boole-and  boole-andc1 boole-2
+               boole-andc2 boole-1    boole-xor   boole-ior
+               boole-nor   boole-eqv  boole-c1    boole-orc1
+               boole-c2    boole-orc2 boole-nand  boole-set)))
+  (list (loop :for n :from 0 :to 15
+          :unless (= n (logand (boole (aref boole-n-vector n) #b0101 #b0011)
+                               #b1111))
+          :collect n)
+        (flet ((boole-n (n integer &rest more-integers)
+                 (apply #'boole (elt boole-n-vector n) integer more-integers)))
+          (loop :for n :from #b0000 :to #b1111 :collect (boole-n n 5 3)))))
+(NIL (0 1 2 3 4 5 6 7 -8 -7 -6 -5 -4 -3 -2 -1))
