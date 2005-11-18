@@ -170,9 +170,9 @@ The keyword argument REPEAT specifies how many objects to read:
         (with-open-stream (s (or (funcall opener (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
                                  (funcall opener (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
           (unless s
-            (warn (TEXT "~S returns invalid value ~S, adjust ~S, ~S or ~S")
+            (warn (TEXT "~S returns invalid value ~S, fix it, ~S or ~S")
                   'clhs-root clhs-root '(getenv "CLHSROOT")
-                  '*clhs-root-default* 'clhs-root)
+                  '*clhs-root-default*)
             (return-from ensure-clhs-map))
           (get-clhs-map s)))
       clhs-root)))
@@ -213,7 +213,7 @@ The keyword argument REPEAT specifies how many objects to read:
                                                                 "id-href.map")
                                           :if-does-not-exist nil))
               (unless s
-                #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S  or ~S")
+                #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S or ~S")
                          'impnotes-root impnotes-root '(getenv "IMPNOTES")
                          '*impnotes-root-default*)
                 (return-from ensure-impnotes-map))
