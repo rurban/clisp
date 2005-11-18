@@ -13,7 +13,7 @@ T
 (listp (show (os:service) :pretty t)) T
 
 #+unix
-(let* ((fmt "%F %T") (string (show (os:string-time fmt))))
+(let* ((fmt "%Y-%m-%d %T") (string (show (os:string-time fmt))))
   (string= string (os:string-time fmt (show (os:string-time fmt string)))))
 #+unix T
 
