@@ -356,23 +356,19 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
   if (stringp(STACK_1)) {          /* parse: strptime */
     struct tm tm;
     unsigned int offset;
-   retry_strptime:
     with_string_0(STACK_1,GLO(misc_encoding),buf, {
         with_string_0(STACK_2,GLO(misc_encoding),format, {
             char *ret;
             begin_system_call();
-            if ((ret == strptime(buf,format,&tm))) offset = ret - buf;
+            if ((ret = strptime(buf,format,&tm))) offset = ret - buf;
             else offset = 0;
             end_system_call();
           });
       });
     if (offset == 0) {
-      pushSTACK(NIL);           /* no PLACE */
-      pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2));
+      pushSTACK(STACK_(1+1)); pushSTACK(STACK_(2+2));
       pushSTACK(TheSubr(subr_self)->name);
-      check_value(error,GETTEXT("~S: ~S does not match format ~S"));
-      STACK_1 = value1;
-      goto retry_strptime;
+      fehler(error,GETTEXT("~S: invalid format ~S or datum ~S"));
     }
     pushSTACK(fixnum(tm.tm_sec));
     pushSTACK(fixnum(tm.tm_min));
