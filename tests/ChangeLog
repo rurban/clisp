@@ -1,3 +1,7 @@
+2005-11-18  Sam Steingold  <sds@gnu.org>
+
+	* conditions.tst: test non-class-naming TYPE arguments to MAKE-CONDITION
+
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
 	* symbol10.tst (clrvar) [clisp]: use (proclaim `(ext:not-special var))

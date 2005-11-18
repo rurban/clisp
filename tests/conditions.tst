@@ -193,6 +193,14 @@ TEST6
 (with-output-to-string (s) (princ (make-condition 'test6 :foo 42) s))
 "TEST6 -- 42"
 
+(let ((type '(OR PROGRAM-ERROR TYPE-ERROR)))
+  (typep (make-condition type) type))
+T
+
+(let ((type '(AND SIMPLE-ERROR TYPE-ERROR)))
+  (typep (make-condition type) type))
+T
+
 ;;;
 ;;; HANDLER-BIND
 ;;;
