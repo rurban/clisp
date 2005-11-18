@@ -36,9 +36,9 @@ User visible changes
 
 * New SETF-able functions POSIX:GETUID, POSIX:GETGID, POSIX:GETEUID,
   POSIX:GETEGID.
-  See <http://clisp.cons.org/impnotes/syscalls.html#getuid> for details.
-  New function POSIX:GROUP-INFO.
+  New functions POSIX:GROUP-INFO and POSIX:STRING-TIME.
   Function POSIX:USER-DATA is renamed to POSIX:USER-INFO.
+  See <http://clisp.cons.org/impnotes/syscalls.html> for details.
 
 * New NEW-CLX demo: foch.lisp draws fractal snowflakes.
   Implemented XLIB:SET-MODIFIER-MAPPING, XLIB:KEYSYM->KEYCODES,

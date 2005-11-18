@@ -574,6 +574,14 @@
   <term><code>(&setf; (POSIX:GETEGID) &gid-r;)</code></term>
   <listitem><simpara>Call <function role="unix">getegid</function> and
    <function role="unix">setegid</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="strtime"><term><code>(OS:STRING-TIME &fmt-r;
+    &optional-amp; &object-r; timezone)</code></term>
+  <listitem><simpara>When &object-r; is a &string-t;, is is parsed
+    according to &fmt-r; by <function role="unix">strptime</function>.
+    When it is an &integer-t;, it is formatted according to &fmt-r;
+    by <function role="unix">strftime</function>.
+    &object-r; defaults to <code>(&get-universal-time;)</code>.
+ </simpara></listitem></varlistentry>
  <varlistentry id="mkstemp"><term><code>(POSIX:MKSTEMP &filename-r;
     &key-amp; &direction-k; &eltype; &extfmt; &buffered;)</code></term>
   <listitem><simpara>calls <function role="unix">mkstemp</function>,
