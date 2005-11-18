@@ -82,9 +82,11 @@
   (:arguments (handle handle)) (:return-type boolean))
 
 (defmacro with-handle ((handle form) &body forms)
-  `(let ((,handle ,form))
-     (unwind-protect (progn ,@forms)
-       (when ,handle (CloseHandle ,handle)))))
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
+    `(let ((,handle ,form))
+       (DECLARE (READ-ONLY ,handle) ,@declarations)
+       (unwind-protect (progn ,@forms)
+         (when ,handle (CloseHandle ,handle))))))
 
 ;; (c-lines "#include <winnt.h>~%")
 (eval-when (compile eval load)
@@ -169,6 +171,66 @@
  (setq icon (win32:LoadImageA nil "d:\\gnu\\clisp\\current\\doc\\clisp.ico"
                               win32:IMAGE_ICON 0 0 win32:LR_LOADFROMFILE))
  (win32:DestroyIcon icon)
+|#
+
+;; buttons
+(defconstant MB_OK 0)
+(defconstant MB_OKCANCEL 1)
+(defconstant MB_ABORTRETRYIGNORE 2)
+(defconstant MB_YESNOCANCEL 3)
+(defconstant MB_YESNO 4)
+(defconstant MB_RETRYCANCEL 5)
+(defconstant MB_CANCELTRYCONTINUE 6)
+;; f1?
+(defconstant MB_HELP #x4000)
+;; icons
+(defconstant MB_ICONEXCLAMATION #x30)
+(defconstant MB_ICONWARNING #x30)
+(defconstant MB_ICONINFORMATION 64)
+(defconstant MB_ICONASTERISK 64)
+(defconstant MB_ICONQUESTION 32)
+(defconstant MB_ICONSTOP 16)
+(defconstant MB_ICONERROR 16)
+(defconstant MB_ICONHAND 16)
+;; defaults
+(defconstant MB_DEFBUTTON1 0)
+(defconstant MB_DEFBUTTON2 256)
+(defconstant MB_DEFBUTTON3 512)
+(defconstant MB_DEFBUTTON4 #x300)
+;; modality
+(defconstant MB_APPLMODAL 0)
+(defconstant MB_SYSTEMMODAL 4096)
+(defconstant MB_TASKMODAL #x2000)
+
+;; desktop
+(defconstant MB_DEFAULT_DESKTOP_ONLY #x20000)
+
+;; text
+(defconstant MB_RIGHT #x80000)
+(defconstant MB_RTLREADING #x100000)
+(defconstant MB_SETFOREGROUND #x10000)
+(defconstant MB_TOPMOST #x40000)
+;; depends on windows version MB_SERVICE_NOTIFICATION
+;; MB_SERVICE_NOTIFICATION_NT3X
+
+(defconstant IDABORT 3 "Abort button was selected.")
+(defconstant IDCANCEL 2 "Cancel button was selected.")
+(defconstant IDCONTINUE 11 "Continue button was selected.")
+(defconstant IDIGNORE 5 "Ignore button was selected.")
+(defconstant IDNO 7 "No button was selected.")
+(defconstant IDOK 1 "OK button was selected.")
+(defconstant IDRETRY 4 "Retry button was selected.")
+(defconstant IDTRYAGAIN 10 "Try Again button was selected.")
+(defconstant IDYES 6 "Yes button was selected.")
+
+(def-call-out MessageBoxA (:library user32)
+  (:arguments (parent handle) (text c-string) (caption c-string) (type uint))
+  (:documentation "http://msdn.microsoft.com/library/en-us/winui/winui/windowsuserinterface/windowing/dialogboxes/dialogboxreference/dialogboxfunctions/messagebox.asp")
+  (:return-type int))
+#| examples:
+ (win32:MessageBoxA nil "welcome to clisp" "message from clisp" win32:MB_OK)
+ (win32:MessageBoxA nil "welcome to clisp" "message from clisp"
+                    (logior win32:MB_YESNOCANCEL win32:MB_ICONWARNING))
 |#
 
 (eval-when (compile eval load)
