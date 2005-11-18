@@ -1,3 +1,11 @@
+2005-11-18  Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (find-subclasses-of-type): added
+	(make-condition): use it to enable TYPE arguments that do not
+	name a specific class
+	* utils/clispload.lsp (*expected-failures*): removed
+	MAKE-CONDITION.3 and MAKE-CONDITION.4
+
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (*system-package-list*): remove "CUSTOM": the

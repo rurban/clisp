@@ -153,13 +153,42 @@
 
 ;;; 29.4.6. Creating Conditions
 
+(defun find-subclasses-of-type (type class)
+  "Find all subclasses of CLASS that are subtypes of the given TYPE."
+  (if (subtypep class type)
+      (list class)
+      (delete-duplicates
+       (loop :for c :in (clos:class-direct-subclasses class)
+         :nconc (find-subclasses-of-type type c)))))
+
+#+(or) ; not used
+(defun prune-subclasses (classes)
+  "Delete classes that are subclasses of other classes."
+  (do ((tail classes (cdr tail)) this)
+      ((endp tail) (delete nil classes))
+    (setq this (car tail))
+    (when (loop :for c :in classes
+            ;; when THIS is a subclass of C, remove THIS
+            :thereis (and c (not (eq this c)) (clos::subclassp this c)))
+      (setf (car tail) nil))))
+
 ;; MAKE-CONDITION, CLtL2 p. 901
 (defun make-condition (type &rest slot-initializations)
   (unless (subtypep type 'condition)
     (error-of-type 'error
       (TEXT "~S: type ~S is not a subtype of ~S")
       'make-condition type 'condition))
-  (apply #'clos:make-instance type slot-initializations))
+  (let ((class (or (and (symbolp type) (find-class type nil))
+                   ;; not a specific class - find a maximal subclass of
+                   ;; CONDITION that has the given TYPE
+                   (car (last (sort (find-subclasses-of-type
+                                     type (find-class 'condition))
+                                    #'clos::subclassp))))))
+    (if class
+        (apply #'clos:make-instance class slot-initializations)
+        (error-of-type 'error
+          (TEXT "~S: cannot find a ~S class that is a subtype of ~S")
+                'make-condition 'condition type))))
 
 ;; canonicalize a condition argument, CLtL2 p. 888
 
