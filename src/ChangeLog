@@ -1,5 +1,10 @@
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (*system-package-list*): remove "CUSTOM": the
+	variables and functions in this package are for the users to change
+
+2005-11-17  Sam Steingold  <sds@gnu.org>
+
 	DESCRIBE can now point the browser to impnotes
 	* package.d ((SETF PACKAGE-DOCUMENTATION)): package documentation
 	is either a doc-string or a list (doc-string impnotes-id)
