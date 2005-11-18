@@ -13,6 +13,11 @@ T
 (listp (show (os:service) :pretty t)) T
 
 #+unix
+(let* ((fmt "%F %T") (string (show (os:string-time fmt))))
+  (string= string (os:string-time fmt (show (os:string-time fmt string)))))
+#+unix T
+
+#+unix
 (when (fboundp 'os:getutxent)
   (not (integerp (show (length (loop :for utmpx = (os:getutxent) :while utmpx
                                  :collect (show utmpx :pretty t)))))))
