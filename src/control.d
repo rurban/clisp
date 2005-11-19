@@ -2109,7 +2109,7 @@ LISPFUNN(proclaim,1)
         clear_const_flag(TheSymbol(symbol));
       set_special_flag(TheSymbol(symbol));
     }
-  } else if (eq(decltype,S(not_special))) { /* NOT-SPECIAL */
+  } else if (eq(decltype,S(notspecial))) { /* NOTSPECIAL */
     while (!endp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
       var object symbol = check_symbol(Car(STACK_0/*declspec*/));
       if (!keywordp(symbol)) clear_const_flag(TheSymbol(symbol));

@@ -347,7 +347,7 @@
    package-case-inverted-p argv hash-table-warn-if-needs-rehash-after-gc
    package-shortest-name symbol-macro-expand
    ;; declarations
-   constant-inline constant-notinline not-special
+   constant-inline constant-notinline notspecial
    ;; pseudo-types:
    simple-2bit-vector 2bit-vector simple-4bit-vector 4bit-vector
    simple-8bit-vector 8bit-vector simple-16bit-vector 16bit-vector
