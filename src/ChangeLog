@@ -1,5 +1,9 @@
 2005-11-19  Sam Steingold  <sds@gnu.org>
 
+	* clhs.lisp (impnotes-map-source) [woe32]: #\\ is also a path separator
+
+2005-11-19  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (DEF-C-CONST): call PREPARE-MODULE before the
 	first reference to *name*; do not evaluate NOTE-C-CONST at
 	macroexpansion time

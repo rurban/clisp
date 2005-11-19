@@ -203,24 +203,24 @@ The keyword argument REPEAT specifies how many objects to read:
           (dest (lambda (id) (string-concat "#" id))))
       (when (and impnotes-root (string/= impnotes-map-source impnotes-root))
         (setq impnotes-map-source impnotes-root)
-        (when (char= #\/ (char impnotes-root (1- (length impnotes-root))))
-          ;; chunked impnotes ==> get id-href
-          (let ((opener (if (string-equal #1="http://" impnotes-root
-                                          :end2 (min (length impnotes-root)
-                                                     #.(length #1#)))
-                            #'open-http #'open)))
-            (with-open-stream (s (funcall opener (string-concat impnotes-root
-                                                                "id-href.map")
-                                          :if-does-not-exist nil))
-              (unless s
-                #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S or ~S")
-                         'impnotes-root impnotes-root '(getenv "IMPNOTES")
-                         '*impnotes-root-default*)
-                (return-from ensure-impnotes-map))
-              (let ((table (get-string-map s)))
-                (unless table   ; no table --> bail out
-                  #2# (return-from ensure-impnotes-map))
-                (setq dest (lambda (id) (gethash id table)))))))
+        (case (char impnotes-root (1- (length impnotes-root)))
+          ((#\/ #+win32 #\\) ; chunked impnotes ==> get id-href
+           (let ((opener (if (string-equal #1="http://" impnotes-root
+                                           :end2 (min (length impnotes-root)
+                                                      #.(length #1#)))
+                             #'open-http #'open)))
+             (with-open-stream (s (funcall opener (string-concat impnotes-root
+                                                                 "id-href.map")
+                                           :if-does-not-exist nil))
+               (unless s
+                 #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S or ~S")
+                          'impnotes-root impnotes-root '(getenv "IMPNOTES")
+                          '*impnotes-root-default*)
+                 (return-from ensure-impnotes-map))
+               (let ((table (get-string-map s)))
+                 (unless table   ; no table --> bail out
+                   #2# (return-from ensure-impnotes-map))
+                 (setq dest (lambda (id) (gethash id table))))))))
         (with-open-file (in (clisp-data-file "Symbol-Table.text"))
           (format t "~&;; ~S(~S)..." 'ensure-impnotes-map (truename in))
           (force-output)
