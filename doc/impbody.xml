@@ -212,10 +212,10 @@ ignored by the interpreter.</para>
 
 <section id="spec-decl"><title>Declaration &special-dec;</title>
 
-<formalpara id="not-spec-decl"><title>Declaration
-  <literal>EXT:NOT-SPECIAL</literal></title>
+<formalpara id="notspec-decl"><title>Declaration
+  <literal>EXT:NOTSPECIAL</literal></title>
 <para>Declarations <code>(&proclaim; '(&special-dec; &var-r;))</code>
- and &defconstant; are undone by the <code>(&proclaim; '(EXT:NOT-SPECIAL
+ and &defconstant; are undone by the <code>(&proclaim; '(EXT:NOTSPECIAL
   &var-r;))</code> declaration.  This declaration can be used only in
  global &proclaim; and &declaim; forms, not in local &declare; forms.
 </para></formalpara>
@@ -3160,7 +3160,7 @@ checks whether the &hash-table-t; is weak.</para>
    designator</ulink>, namely its &symbol-name; is converted to the
   operating system's preferred pathname case.</para></formalpara>
 
-<formalpara><title>Function &pathname-match-p;</title>
+<formalpara id="path-match"><title>Function &pathname-match-p;</title>
  <para>&pathname-match-p; does not interpret missing components as
   wild.</para></formalpara>
 
@@ -4192,10 +4192,10 @@ functions are provided:
 <section id="print-dict"><title>The Printer Dictionary
    <ulink url="&clhs;/Body/sec_the_printer_dictionary.html">[CLHS-22.4]</ulink></title>
 
-<formalpara><title>Functions &write; &amp; &write-to-string;</title>
+<section id="write"><title>Functions &write; &amp; &write-to-string;</title>
 <para>The functions &write; and &write-to-string; have an additional
  keyword argument <constant>:CLOSURE</constant> which is used to bind
- &pr-closure;.</para></formalpara>
+ &pr-closure;.</para></section>
 
 <!-- //Commented out from the source code.
 <section id="print-object"><title>Generic Function &print-object;</title>

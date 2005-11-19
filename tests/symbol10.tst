@@ -30,7 +30,7 @@ NIL
 testvar
 
 (defun clrvar (var)
-   #+CLISP (proclaim `(ext:not-special ,var)) ; constants cannot be makunbound
+   #+CLISP (proclaim `(ext:notspecial ,var)) ; constants cannot be makunbound
    #+XCL(subr 84 ;sys::%p-set-cdr-content
               var 0 (sys::%p-get-content 'sys::%void-value 0) 0)
    #-XCL (progn (makunbound var) (fmakunbound var)
