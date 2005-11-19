@@ -1,3 +1,7 @@
+2005-11-19  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst: test macroexpansion of def-c-var and def-c-const
+
 2005-11-18  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst (boole-n-vector): added a test from
