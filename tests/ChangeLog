@@ -9,7 +9,7 @@
 
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
-	* symbol10.tst (clrvar) [clisp]: use (proclaim `(ext:not-special var))
+	* symbol10.tst (clrvar) [clisp]: use (proclaim `(ext:notspecial var))
 
 2005-11-17  Sam Steingold  <sds@gnu.org>
 

@@ -77,11 +77,11 @@
 
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
-	New declaration EXT:NOT-SPECIAL undoes the effects of DEFVAR et al
-	* compiler.lisp (c-PROCLAIM): handle NOT-SPECIAL declarations
+	New declaration EXT:NOTSPECIAL undoes the effects of DEFVAR et al
+	* compiler.lisp (c-PROCLAIM): handle NOTSPECIAL declarations
 	* control.d (PROCLAIM): ditto
-	* constsym.d (EXT:NOT-SPECIAL): added
-	* init.lisp (EXT:NOT-SPECIAL): exported
+	* constsym.d (EXT:NOTSPECIAL): added
+	* init.lisp (EXT:NOTSPECIAL): exported
 
 2005-11-16  Sam Steingold  <sds@gnu.org>
 

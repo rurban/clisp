@@ -1649,7 +1649,7 @@ LISPSYM(LLaux,"&AUX",lisp) /* lambda list marker in EVAL */
 LISPSYM(LLbody,"&BODY",lisp) /* lambda list marker in EVAL */
 LISPSYM(macro,"MACRO",system) /* marker in EVAL, type in PREDTYPE */
 LISPSYM(special,"SPECIAL",lisp) /* declaration-specifier in EVAL */
-LISPSYM(not_special,"NOT-SPECIAL",ext) /* declaration-specifier in EVAL */
+LISPSYM(notspecial,"NOTSPECIAL",ext) /* declaration-specifier in EVAL */
 LISPSYM(source,"SOURCE",system) /* declaration-specifier in EVAL */
 LISPSYM(optimize,"OPTIMIZE",lisp) /* declaration-specifier in EVAL */
 LISPSYM(declaration,"DECLARATION",lisp) /* declaration-specifier in EVAL */
