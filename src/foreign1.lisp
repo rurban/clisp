@@ -833,6 +833,7 @@
 
 (defmacro DEF-C-CONST (&whole whole-form name &rest options)
   (setq name (check-symbol name (first whole-form)))
+  (prepare-module)
   (let* ((alist (parse-options options '(:name :type :documentation)
                                whole-form))
          (doc (cdr (assoc ':documentation alist))) ; ("doc string") or NIL
@@ -855,7 +856,7 @@
                (:return-type ,c-type))))
        (defconstant ,name
          (multiple-value-bind (value value-p)
-             (,f-name ,(NOTE-C-CONST c-name c-type))
+             (,f-name (NOTE-C-CONST ,c-name ',c-type))
            (if value-p value
                (progn
                  (warn "~S(~S): CPP constant ~A is not defined"
@@ -865,7 +866,6 @@
 
 (defun note-c-const (c-name type) ; ABI
   (when (compiler::prepare-coutput-file)
-    (prepare-module)
     (vector-push-extend c-name (cdr (gethash type *constant-table*)))))
 
 (defmacro DEF-C-VAR (&whole whole-form

@@ -1071,4 +1071,8 @@ FM
 
 (integerp (sys::code-address-of #'c-malloc)) T
 
+(listp (macroexpand '(def-c-var foo-var (:type int)))) T
+
+(listp (macroexpand '(def-c-const foo-const))) T
+
 (progn (in-package "USER") (delete-package "FTEST") T) T
