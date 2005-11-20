@@ -1,5 +1,9 @@
 2005-11-19  Sam Steingold  <sds@gnu.org>
 
+	* describe.lisp (lauch-doc): lauch the browser only on top-level
+
+2005-11-19  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp, exporting.lisp: document package EXPORTING in
 	exporting.lisp, not in clhs.lisp
 
