@@ -272,7 +272,6 @@ The keyword argument REPEAT specifies how many objects to read:
 (setf (documentation (find-package "FFI") 'sys::impnotes) "dffi")
 (setf (documentation (find-package "CUSTOM") 'sys::impnotes) "customize")
 (setf (documentation (find-package "CHARSET") 'sys::impnotes) "charset")
-(setf (documentation (find-package "EXPORTING") 'sys::impnotes) "exporting")
 
 (defun clhs (symbol &key (browser *browser*) (out *standard-output*))
   "Dump the CLHS doc for the symbol."

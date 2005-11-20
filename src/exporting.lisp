@@ -4,6 +4,7 @@
 
 (defpackage "EXPORTING"
   (:use "COMMON-LISP")
+  (:documentation "Replacements for the standard macros with the versions that export their definienda.")
   (:shadow . #1=(defconstant defparameter defvar define-symbol-macro
                  defun defgeneric defmethod define-compiler-macro defsetf
                  define-setf-expander defmacro define-modify-macro
@@ -16,6 +17,7 @@
   (:export . #1#))
 
 (in-package "EXPORTING")
+(setf (documentation (find-package "EXPORTING") 'sys::impnotes) "exporting")
 
 ;; Macros for the variable namespace.
 

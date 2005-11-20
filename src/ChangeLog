@@ -1,5 +1,10 @@
 2005-11-19  Sam Steingold  <sds@gnu.org>
 
+	* clhs.lisp, exporting.lisp: document package EXPORTING in
+	exporting.lisp, not in clhs.lisp
+
+2005-11-19  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp (impnotes-map-source) [woe32]: #\\ is also a path separator
 
 2005-11-19  Sam Steingold  <sds@gnu.org>
@@ -54,7 +59,7 @@
 	in the COMMON-LISP package
 	(documentation@symbol/impnotes, documentation@package/impnotes): added
 	set package/impnotes documentation for packages GRAY, CL-USER, CS-CL,
-	CS-CL-USER, SCREEN, SOCKET, GSTREAM, I18N, FFI, CHARSET, EXPORFTING
+	CS-CL-USER, SCREEN, SOCKET, GSTREAM, I18N, FFI, CHARSET, EXPORTING
 	* cfgunix.lisp, cfgsunux.lisp, cfgwin32.lisp
 	(*impnotes-root-default*): defvar
 	(impnotes-root): defun
@@ -433,7 +438,7 @@
 	* modules/rawsock/sock.lisp (msghdr): removed
 	(getnameinfo, getaddrinfo): export
 	(message, addrinfo): added
-	(defstruct): import from EXPORFTING
+	(defstruct): import from EXPORTING
 	* modules/rawsock/rawsock.c (GETNAMEINFO, GETADDRINFO): implemented
 	(RECVMSG, SENDMSG): use MESSAGE instead of MSGHDR
 
