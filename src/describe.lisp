@@ -106,11 +106,12 @@ to print the corresponding values, or T for all of them.")
         (format stream (TEXT "No slots."))))))
 
 (defun lauch-doc (obj type stream name)
-  (let ((doc (documentation obj type)))
-    (when doc
-      (if *browser*
-          (ext::browse-url doc :out stream)
-          (format stream name doc)))))
+  (when (zerop *describe-nesting*)
+    (let ((doc (documentation obj type)))
+      (when doc
+        (if *browser*
+            (ext::browse-url doc :out stream)
+            (format stream name doc))))))
 
 (clos:defgeneric describe-object (obj stream)
   (:method ((obj t) (stream stream))
