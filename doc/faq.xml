@@ -3,7 +3,7 @@
 <appendix id="faq"><title>Frequently Asked Questions (With Answers)
   about &clisp;</title>
 
-<abstract>
+<abstract id="faq-abstract">
 <para>This is a list of frequently asked questions about &clisp; on the
 <ulink url="http://sourceforge.net/mail/?group_id=1355">CLISP mailing
  lists</ulink>
@@ -21,7 +21,7 @@ further explanations of the issues could be provided).</para>
 <para>Please submit more questions (and answers!) to &clisp-list;.</para>
 </abstract>
 
-<qandaset><title>FAQ</title>
+<qandaset id="faq-set"><title>FAQ</title>
 
 <qandadiv id="faq-meta"><title>Meta Information</title>
 
