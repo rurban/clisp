@@ -3161,7 +3161,7 @@ restrictions.</para>
 </simpara></listitem></varlistentry></variablelist>
 </section><!-- ensure-gf-UC -->
 
-<section id="add-method"><title>Generic Function &add-method;</title>
+<section id="mop-add-method"><title>Generic Function &add-method;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
 <listitem><simpara><code>(&add-method; &gf-r; &method-r;)

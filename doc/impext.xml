@@ -2774,8 +2774,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
    &cplace-r;.  This is also an acceptable argument type to a &c-pointer;
    declaration.</simpara></listitem></varlistentry>
 
-<varlistentry id="typeof"><term><code>(&typeof;
-    &cplace-r;)</code></term>
+<varlistentry id="typeof"><term><code>(&typeof; &cplace-r;)</code></term>
  <listitem><simpara>returns the &ctype-r; corresponding to the &cplace-r;.
 </simpara></listitem></varlistentry>
 
