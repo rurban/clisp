@@ -1,6 +1,6 @@
 2005-11-19  Sam Steingold  <sds@gnu.org>
 
-	* describe.lisp (lauch-doc): lauch the browser only on top-level
+	* describe.lisp (launch-doc): launch the browser only on top-level
 
 2005-11-19  Sam Steingold  <sds@gnu.org>
 
@@ -52,7 +52,7 @@
 	* makemake.in (DATA_FILES): added Symbol-Table.text
 	* init.lisp (clhs-root): moved from EXT to CUSTOM to avoid locking
 	(*impnotes-root-default*, impnotes-root): export from CUSTOM
-	* describe.lisp (lauch-doc): new function
+	* describe.lisp (launch-doc): new function
 	(describe): use it for symbols and packages for CLHS and impnotes
 	* clhs.lisp (open-http): catch connection errors when
 	:IF-DOES-NOT-EXIST is not :ERROR
