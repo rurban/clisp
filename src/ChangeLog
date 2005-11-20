@@ -1,5 +1,10 @@
 2005-11-19  Sam Steingold  <sds@gnu.org>
 
+	* clhs.lisp (ensure-clhs-map, ensure-impnotes-map): use a separate
+	variable to record whether the map is good
+
+2005-11-19  Sam Steingold  <sds@gnu.org>
+
 	* describe.lisp (launch-doc): launch the browser only on top-level
 
 2005-11-19  Sam Steingold  <sds@gnu.org>
