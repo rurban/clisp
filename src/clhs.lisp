@@ -153,7 +153,7 @@ The keyword argument REPEAT specifies how many objects to read:
                    (subseq destination #.(length "../"))))
             (t (warn (TEXT "~S is not found") symbol-name))))
     :finally (format t "~:D/~:D symbol~:P~%" good total)))
-(let ((clhs-map-source nil))
+(let ((clhs-map-source nil) (clhs-map-good nil))
   ;; if clhs-map-source is the same as (clhs-root), do nothing and
   ;; return (clhs-root); otherwise set clhs-map-source to (clhs-root)
   ;; and try to get the clhs map from (clhs-root)
@@ -174,8 +174,9 @@ The keyword argument REPEAT specifies how many objects to read:
                   'clhs-root clhs-root '(getenv "CLHSROOT")
                   '*clhs-root-default*)
             (return-from ensure-clhs-map))
-          (get-clhs-map s)))
-      clhs-root)))
+          (get-clhs-map s))
+        (setq clhs-map-good t))
+      (and clhs-map-good clhs-root))))
 (defun get-string-map (stream &aux (table (make-hash-table :test 'equal)))
   (format t "~&;; ~S(~S)..." 'get-string-map stream) (force-output)
   (loop :for total :upfrom 0 :and id = (read-line stream nil nil)
@@ -191,9 +192,9 @@ The keyword argument REPEAT specifies how many objects to read:
     (setf (gethash id table) destination)
     :finally (format t "~:D ID~:P~%" total))
   table)
-(let ((impnotes-map-source nil))
+(let ((impnotes-map-source nil) (impnotes-map-good nil))
   ;; if impnotes-map-source is the same as (impnotes-root), do nothing
-  ;; and return (impnotes-root);
+  ;; and return (and impnotes-map-good (impnotes-root));
   ;; otherwise set impnotes-map-source to (impnotes-root) and try to get
   ;; the impnotes map from (impnotes-root)
   ;; nil return value means no map exists
@@ -233,8 +234,9 @@ The keyword argument REPEAT specifies how many objects to read:
                         destination)
                   (warn (TEXT "~S: invalid id ~S for symbol ~S")
                         'ensure-impnotes-map id sym)))
-            :finally (format t "~:D ID~:P~%" count))))
-      impnotes-root)))
+            :finally (format t "~:D ID~:P~%" count)))
+        (setq impnotes-map-good t)) ; success
+      (and impnotes-map-good impnotes-root))))
 
 (defmethod documentation ((obj symbol) (type (eql 'sys::clhs)))
   (when (and (eq (symbol-package obj) #,(find-package "CL")) (ensure-clhs-map))
