@@ -105,7 +105,7 @@ to print the corresponding values, or T for all of them.")
         (terpri stream)
         (format stream (TEXT "No slots."))))))
 
-(defun lauch-doc (obj type stream name)
+(defun launch-doc (obj type stream name)
   (when (zerop *describe-nesting*)
     (let ((doc (documentation obj type)))
       (when doc
@@ -325,10 +325,10 @@ to print the corresponding values, or T for all of them.")
             (format stream (TEXT "Documentation as a ~a:") ty)
             (terpri stream)
             (princ doc stream))))
-      (lauch-doc obj 'ext::clhs ; change to sys::clhs when ext:clhs is finally removed
-                 stream (TEXT "~%ANSI Documentation is at~% ~S"))
-      (lauch-doc obj 'sys::impnotes stream
-                 (TEXT "~%CLISP Documentation is at~% ~S"))
+      (launch-doc obj 'ext::clhs ; change to sys::clhs when ext:clhs is finally removed
+                  stream (TEXT "~%ANSI Documentation is at~% ~S"))
+      (launch-doc obj 'sys::impnotes stream
+                  (TEXT "~%CLISP Documentation is at~% ~S"))
       (when moree
         (terpri stream)
         (format stream (TEXT "For more information, evaluate ~{~S~^ or ~}.")
@@ -429,8 +429,8 @@ to print the corresponding values, or T for all of them.")
                        (format stream (TEXT "It is case-sensitive, but not case-inverted!"))
                        (format stream (TEXT "It is a traditional ANSI CL compatible package, but uses the symbols from the modern ~S!")
                                (find-package "CS-COMMON-LISP"))))))))
-        (lauch-doc obj 'sys::impnotes stream
-                   (TEXT "~%CLISP Documentation is at~% ~S")))
+        (launch-doc obj 'sys::impnotes stream
+                    (TEXT "~%CLISP Documentation is at~% ~S")))
       (format stream (TEXT "a deleted package."))))
   (:method ((obj hash-table) (stream stream))
     (let ((count (hash-table-count obj)))
