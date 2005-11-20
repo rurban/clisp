@@ -1,3 +1,8 @@
+2005-11-20  Sam Steingold  <sds@gnu.org>
+
+	* clhs.lisp: set package/impnotes documentation for packages
+	EXT, CLOS, AFFI
+
 2005-11-19  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp (ensure-clhs-map, ensure-impnotes-map): use a separate
