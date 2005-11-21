@@ -13,7 +13,6 @@
 <!ENTITY stoll "<author><firstname>Michael</firstname><surname>Stoll</surname><address><otheraddr><ulink url='http://www.math.iu-bremen.de/stoll/'/></otheraddr></address></author>">
 
 <!-- *** platforms *** -->
-<!ENTITY noreadline "<emphasis role='strong'><option>NO_READLINE</option></emphasis>">
 <!ENTITY with "<emphasis role='strong'>with</emphasis>">
 <!ENTITY without "<emphasis role='strong'>without</emphasis>">
 <!ENTITY typecodes "<link linkend='typecodes'><emphasis role='strong'><option>TYPECODES</option></emphasis></link>">
