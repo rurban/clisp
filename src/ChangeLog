@@ -1,3 +1,9 @@
+2005-11-21  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (DEF-C-CONST): rewrote
+	(note-c-const): removed
+	(c-const-value): added
+
 2005-11-20  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp: set package/impnotes documentation for packages

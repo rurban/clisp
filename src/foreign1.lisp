@@ -831,6 +831,12 @@
     (parse-foreign-name (second name-option))
     (to-c-name lisp-name)))
 
+;; CPP consts (#define'd in an *.h file):
+;; for each type (int, string, pointer) there is a C function (and a
+;;  foreign-function created when the first constant of this type is
+;;  encountered) mapping a number (assigned at _compile_ time) into the value
+;; when loading a compiled file, the C function has already been writted
+;;  into the C file and compiled, so the numbers have to be pre-assigned
 (defmacro DEF-C-CONST (&whole whole-form name &rest options)
   (setq name (check-symbol name (first whole-form)))
   (prepare-module)
@@ -839,34 +845,37 @@
          (doc (cdr (assoc ':documentation alist))) ; ("doc string") or NIL
          (c-type (or (second (assoc ':type alist)) 'ffi:int))
          (c-name (foreign-name name (assoc ':name alist)))
-         (f-name (intern
+         f-name c-number)
+    (check-type c-type (member ffi:int ffi:c-string ffi:c-pointer)
+                "A constant must be either an integer, a string or a pointer")
+    (setq f-name (intern
                   (format nil "module__~A__constant_map_~A" *name*
                           (nstring-downcase
                            (nsubstitute #\_ #\-
-                                        (copy-seq (symbol-name c-type))))))))
-    (check-type c-type (member ffi:int ffi:c-string ffi:c-pointer)
-                "A constant must be either an integer, a string or a pointer")
-    `(PROGN
-       ,@(unless (gethash c-type *constant-table*)
-           (setf (gethash c-type *constant-table*)
-                 (cons f-name (make-array 10 :adjustable t :fill-pointer 0)))
+                                        (copy-seq (symbol-name c-type))))))
+          c-number
+          (vector-push-extend
+           c-name (cdr (or (gethash c-type *constant-table*)
+                           (setf (gethash c-type *constant-table*)
+                                 (cons f-name (make-array 10 :adjustable t
+                                                          :fill-pointer 0)))))))
+    `(progn
+       ;; c-number == 0 ==> need to output the def-call-out form
+       ,@(when (zerop c-number)
            `((ffi:def-call-out ,f-name
                  (:arguments (number ffi:int)
                              (defined-p (ffi:c-ptr ffi:int) :out))
                (:return-type ,c-type))))
-       (defconstant ,name
-         (multiple-value-bind (value value-p)
-             (,f-name (NOTE-C-CONST ,c-name ',c-type))
-           (if value-p value
-               (progn
-                 (warn "~S(~S): CPP constant ~A is not defined"
-                       'def-c-const ',name ',c-name)
-                 (sys::%unbound))))
+       (defconstant ,name (c-const-value ',f-name ,c-number ',name ',c-name)
          ,@doc))))
 
-(defun note-c-const (c-name type) ; ABI
-  (when (compiler::prepare-coutput-file)
-    (vector-push-extend c-name (cdr (gethash type *constant-table*)))))
+(defun c-const-value (f-name c-number name c-name) ; ABI
+  (multiple-value-bind (value value-p) (funcall f-name c-number)
+    (if value-p value
+        (progn
+          (warn (TEXT "~S(~S): CPP constant ~A is not defined")
+                'def-c-const name c-name)
+          (sys::%unbound)))))
 
 (defmacro DEF-C-VAR (&whole whole-form
                      name &rest options)
