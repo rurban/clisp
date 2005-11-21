@@ -8,6 +8,7 @@ User visible changes
   + When libsigsegv is not found, print instructions on getting/building
     libsigsegv and bail out; override with --ignore-absence-of-libsigsegv.
   + When --with-dynamic-ffi is supplied, but the FFI fails to build, abort.
+  + When --with-readline is supplied, but GNU readline is not found, abort.
   + makemake no longer checks with_module_* variables.
 
 * New function EXT:OPEN-HTTP and macro EXT:WITH-HTTP-INPUT.
@@ -56,6 +57,8 @@ User visible changes
   See <http://clisp.cons.org/clisp.html#opt-v> for details.
 
 * When a CLISP process is killed, clean-up is always executed.
+
+* DEFCLASS now permits user-defined :ALLOCATION arguments.
 
 * Fixed (FUNCTION-LAMBDA-EXPRESSION #'(SETF FOO)) on compiled functions.
 
