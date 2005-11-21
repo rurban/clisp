@@ -5137,8 +5137,8 @@ exhaust the available line length.</para></formalpara>
 
 <para>The function &inspect; takes a keyword argument
  <constant>:FRONTEND</constant>, which specifies the way &clisp; will
- interact with the user.</para>
-
+ interact with the user, and defaults
+ to <varname>CUSTOM:*INSPECT-FRONTEND*</varname>.
 <variablelist><title>Available <constant>:FRONTEND</constant>s for
    &inspect; in &clisp;</title>
  <varlistentry><term><constant>:TTY</constant></term>
@@ -5157,8 +5157,29 @@ exhaust the available line length.</para></formalpara>
     session, all links in all &inspect; windows in your browser will become
     obsolete and using them in a new &inspect; session will result in
     unpredictable behavior.</simpara></listitem></varlistentry>
-</variablelist>
-</section>
+</variablelist></para>
+
+<para>The function &inspect; also takes a keyword argument &browser-k;,
+ which specifies the browser used by the <constant>:HTTP</constant>
+ front-end and defaults to <varname>CUSTOM:*INSPECT-BROWSER*</varname>.</para>
+
+<para>The function &inspect; binds some
+ <link linkend="clpp">pretty-printer</link> variables:
+ <informaltable id="inspect-vars" frame="all">
+  <tgroup cols="2" colsep="1" rowsep="1" align="left">
+   <thead><row><entry>Variable</entry><entry>Bound to</entry></row></thead>
+   <tbody><row><entry>&print-length-var;</entry>
+     <entry><varname>CUSTOM:*INSPECT-PRINT-LENGTH*</varname></entry></row>
+    <row><entry>&print-level-var;</entry>
+     <entry><varname>CUSTOM:*INSPECT-PRINT-LEVEL*</varname></entry></row>
+    <row><entry>&print-lines-var;</entry>
+     <entry><varname>CUSTOM:*INSPECT-PRINT-LINES*</varname></entry></row>
+ </tbody></tgroup></informaltable></para>
+
+<para>User variable
+ <firstterm><varname>CUSTOM:*INSPECT-LENGTH*</varname></firstterm>
+ specifies the number of sequence elements printed in detail when a
+ sequence is inspected.</para></section>
 
 <section id="room"><title>Function &room;</title>
 
