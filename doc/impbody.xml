@@ -486,8 +486,9 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   <ulink url="&clhs;/Body/sec_4-3-2.html">[CLHS-4.3.2]</ulink></title>
 
 <para>&defclass; supports the &metaclass-k; option.  Possible values are
- &standard-class; (the default) and &structure-class; (which creates
- structure classes, like &defstruct; does).</para>
+ &standard-class; (the default), &structure-class; (which creates
+ structure classes, like &defstruct; does), and user-defined
+ meta-classes (see <xref linkend="validate-superclass"/>).</para>
 
 <para>It is &not-e; required that the superclasses of a class are
  defined before the &defclass; form for the class is evaluated.
