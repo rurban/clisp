@@ -1,5 +1,10 @@
 2005-11-21  Sam Steingold  <sds@gnu.org>
 
+	* m4/readline.m4 (CL_READLINE): fail when --with-readline was
+	specified, but a modern readline cannot be found
+
+2005-11-21  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (DEF-C-CONST): rewrote
 	(note-c-const): removed
 	(c-const-value): added
