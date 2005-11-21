@@ -1,5 +1,12 @@
 2005-11-21  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1359066 ]: :ALLOCATION kind not extensible
+	* clos-class3.lisp (defclass): permit user-defined :allocation
+	(checked-compute-slots): require non-NIL location only from slots
+	with standard :ALLOCATION (:CLASS or :INSTANCE)
+
+2005-11-21  Sam Steingold  <sds@gnu.org>
+
 	* configure: suggest setting CC when printing libsigsegv building
 	recommendations
 

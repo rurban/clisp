@@ -2950,6 +2950,7 @@ T
 
 (progn
   (load (merge-pathnames "mop-aux.lisp" *run-test-truename*))
+  (load (merge-pathnames "hash-classes.lisp" *run-test-truename*))
   t)
 t
 
@@ -3211,3 +3212,23 @@ t
           (testgf30h instd 40))))
 #+(or CLISP CMU SBCL)
 ("f on A" "f on A" ("g on A" 10) ("g on D" 20) ("h on C" 30) ("h on D" 40))
+
+;;; user-defined :allocation :hash
+
+(progn
+  (defclass person ()
+    ((name :initarg :name :allocation :hash :accessor person-name)
+     (address :initarg :address :allocation :hash :accessor person-address))
+    (:metaclass hash-classes:hash-class))
+  (let ((dilbert (make-instance 'person :name "Dilbert")))
+    (list (string= (person-name dilbert) "Dilbert")
+          (slot-boundp dilbert 'name)
+          (slot-boundp dilbert 'address)
+          (slot-exists-p dilbert 'foo)
+          (string= (gethash 'name (slot-value dilbert
+                                              'hash-classes::hash-slots))
+                   "Dilbert")
+          (progn
+            (remhash 'name (slot-value dilbert 'hash-classes::hash-slots))
+            (slot-boundp dilbert 'name)))))
+(t t nil nil t nil)
