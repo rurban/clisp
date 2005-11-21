@@ -60,7 +60,7 @@ options: The following options are recognized:
                            the default is to support it when available
    --with-dynamic-modules  support Dynamic Modules
    --without-unicode       no UNICODE support: character=8bit
-   --without-readline      do not look for GNU readline
+   --without-readline      do not link with GNU readline
    --with-threads=FLAVOR   support multiple threads in one CLISP image
              via OS threads [highly experimental - use at your own risk]
              FLAVORs = POSIX_THREADS POSIXOLD_THREADS SOLARIS_THREADS
@@ -635,7 +635,7 @@ makemake_args="${makemake_args} ${subdir_srcdir_args} ${target} ${debug}";
 cat <<EOF
 Configure findings:
   FFI:        ${have_ffi} (user requested: ${do_ffi})
-  readline:   ${ac_cv_use_readline}
+  readline:   ${ac_cv_have_readline} (user requested: ${ac_cv_use_readline})
   libsigsegv: ${cl_cv_lib_sigsegv}
 EOF
 if [ "${cl_cv_lib_sigsegv}" != "yes" ]; then
@@ -649,6 +649,11 @@ $0: libsigsegv was not detected, thus some features, such as
   stack overflow detection in interpreted Lisp code
 cannot be provided.
 Please do this:
+EOF
+    if [ ${CC+set} = set ]; then
+      echo "  CC='$CC'; export CC" 1>&2
+    fi
+    cat <<EOF 1>&2
   mkdir tools; cd tools; prefix=\`pwd\`/${ac_cv_host}
   wget http://ftp.gnu.org/pub/gnu/libsigsegv/${SIGSEGV}.tar.gz
   tar xfz ${SIGSEGV}.tar.gz
