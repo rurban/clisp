@@ -1662,13 +1662,14 @@ additionally binds &cont-r; to the content length.</para></formalpara>
   <member>&impnotes-root;</member>
   <member>&impnotes-root-default;</member>
   <member>&init-hooks;</member>
-  <member><varname>CUSTOM:*INSPECT-BROWSER*</varname></member>
-  <member><varname>CUSTOM:*INSPECT-FRONTEND*</varname></member>
-  <member><varname>CUSTOM:*INSPECT-LENGTH*</varname></member>
-  <member><varname>CUSTOM:*INSPECT-PRINT-LENGTH*</varname></member>
-  <member><varname>CUSTOM:*INSPECT-PRINT-LEVEL*</varname></member>
-  <member><varname>CUSTOM:*INSPECT-PRINT-LINES*</varname></member>
-  <member><varname>CUSTOM:*LIB-DIRECTORY*</varname></member>
+  <member><link linkend="inspect"><varname>CUSTOM:*INSPECT-BROWSER*</varname></link></member>
+  <member><link linkend="inspect"><varname>CUSTOM:*INSPECT-FRONTEND*</varname></link></member>
+  <member><link linkend="inspect"><varname>CUSTOM:*INSPECT-LENGTH*</varname></link></member>
+  <member><link linkend="inspect"><varname>CUSTOM:*INSPECT-PRINT-LENGTH*</varname></link></member>
+  <member><link linkend="inspect"><varname>CUSTOM:*INSPECT-PRINT-LEVEL*</varname></link></member>
+  <member><link linkend="inspect"><varname>CUSTOM:*INSPECT-PRINT-LINES*</varname></link></member>
+  <member><olink targetdoc="man" targetptr="opt-libdir"
+                 ><varname>CUSTOM:*LIB-DIRECTORY*</varname></olink></member>
   <member>&load-comp;</member>
   <member>&load-echo;</member>
   <member>&load-lpt-db;</member>
