@@ -152,12 +152,11 @@
  <para>See <xref linkend='mop-dep-maint'/> for remarks about the
   use of this facility.</para></formalpara>">
 <!ENTITY class-mo-arg "<varlistentry><term>&class-r;</term>
-  <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>">
+  <listitem><simpara>a &c-mo;.</simpara></listitem></varlistentry>">
 <!ENTITY gf-mo-arg "<varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-   </simpara></listitem></varlistentry>">
+    <listitem><simpara>a &gfmo;.</simpara></listitem></varlistentry>">
 <!ENTITY method-mo-arg "<varlistentry><term>&method-r;</term>
- <listitem><simpara>a method metaobject.</simpara></listitem></varlistentry>">
+ <listitem><simpara>a &m-mo;.</simpara></listitem></varlistentry>">
 <!ENTITY specializer-mo-arg "<varlistentry><term>&specializer-r;</term>
     <listitem><simpara>a specializer metaobject.
    </simpara></listitem></varlistentry>">
