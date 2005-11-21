@@ -514,6 +514,11 @@ further explanations of the issues could be provided).</para>
  use <literal>TAB</literal>s in your code.</para></answer></qandaentry>
 
 
+<qandaentry id="faq-no-rl"><question id="faq-no-rl-q"><para>Why does
+   not command line editing work?</para></question>
+<answer><para>See <xref linkend="readline"/>.</para></answer></qandaentry>
+
+
 <qandaentry id="faq-stack"><question id="faq-stack-q"><simpara>How do I
    avoid stack overflow?</simpara></question>
 <answer><para>&clisp; has <link linkend="vm"><emphasis>two</emphasis>
