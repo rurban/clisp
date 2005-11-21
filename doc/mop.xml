@@ -4746,9 +4746,9 @@ allocation of slot locations.</para>
 <informalexample>
 <para>This example shows the use of this mechanism to implement a new
 &c-mo; class, <classname>ordered-class</classname> and class
-option <constant>:SLOT-ORDER-K</constant>.  This option provides control
+option <constant>:SLOT-ORDER</constant>.  This option provides control
 over the allocation of slot locations.  In this simple example
-implementation, the <constant>:SLOT-ORDER-K</constant> option is not
+implementation, the <constant>:SLOT-ORDER</constant> option is not
 inherited by subclasses; it controls only instances of the class
 itself.
 <programlisting language="lisp">
@@ -4767,7 +4767,7 @@ itself.
 
 Following is the source code the user of this extension would write.
 Note that because the code above does not implement inheritance of
-the <constant>:SLOT-ORDER-K</constant> option, the function
+the <constant>:SLOT-ORDER</constant> option, the function
 <function>distance</function> must not be called on instances of
 subclasses of <classname>point</classname>; it can only be called on
 instances of <classname>point</classname> itself.
