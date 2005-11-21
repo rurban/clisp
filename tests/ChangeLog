@@ -1,3 +1,8 @@
+2005-11-21  Sam Steingold  <sds@gnu.org>
+
+	* mop.tst: test user-defined :allocation :hash
+	* hash-classes.lisp: new file
+
 2005-11-19  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst: test macroexpansion of def-c-var and def-c-const

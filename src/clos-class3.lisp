@@ -157,13 +157,7 @@
                                         :detail slot-options
                                         (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':allocation slot-name))
-                                    (case argument
-                                      ((:INSTANCE :CLASS) (setq allocation argument))
-                                      (t (error-of-type 'ext:source-program-error
-                                           :form whole-form
-                                           :detail argument
-                                           (TEXT "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S")
-                                           'defclass name slot-name ':instance ':class argument))))
+                                    (setq allocation argument))
                                    (:INITARG
                                     (unless (symbolp argument)
                                       (error-of-type 'ext:source-program-error
@@ -245,7 +239,7 @@
                                 :NAME ',slot-name
                                 ,@(when readers `(:READERS ',readers))
                                 ,@(when writers `(:WRITERS ',writers))
-                                ,@(when (eq allocation ':class) `(:ALLOCATION :CLASS))
+                                ,@(when allocation `(:ALLOCATION ',allocation))
                                 ,@(when initargs `(:INITARGS ',(nreverse initargs)))
                                 ,@(when initform `(:INITFORM ,initform :INITFUNCTION ,initfunction))
                                 ,@(when types `(:TYPE ',(first types)))
@@ -1381,9 +1375,11 @@
       (error (TEXT "Wrong ~S result for class ~S: list contains duplicate slot names: ~S")
              'compute-slots (class-name class) slots))
     (dolist (slot slots)
-      (unless (slot-definition-location slot)
-        (error (TEXT "Wrong ~S result for class ~S: no slot location has been assigned to ~S")
-               'compute-slots (class-name class) slot)))
+      (case (slot-definition-allocation slot)
+        ((:INSTANCE :CLASS)
+         (unless (slot-definition-location slot)
+           (error (TEXT "Wrong ~S result for class ~S: no slot location has been assigned to ~S")
+                  'compute-slots (class-name class) slot)))))
     slots))
 
 ;; The MOP lacks a way to customize the instance size as a function of the
