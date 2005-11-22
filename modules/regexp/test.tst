@@ -529,3 +529,6 @@ yz")
 ;; kmp it is legal for a* to match nothing
 (re-test "(a*)+" "aaaa") ("aaaa" #-:regex-left "aaaa" #+:regex-left "")
 (re-test "(a+)*" "aaaa") ("aaaa" "aaaa")
+
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1364177&group_id=1355
+(regexp:regexp-split "|" "a|b" :extended t) error
