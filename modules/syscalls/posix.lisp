@@ -337,7 +337,7 @@
                 service-name protocol)))))
 )
 (without-package-lock ("SOCKET")
-  (sys::deprecate 'socket::socket-service-port 'service
+  (sys::deprecate (intern "SOCKET-SERVICE-PORT" "SOCKET") 'service
                   (lambda (&optional sn pr)
                     (let ((ret (service sn pr)))
                       (if (listp ret)
@@ -349,7 +349,8 @@
                                   ret)
                           (values (service-name ret) (service-aliases ret)
                                   (service-port ret) (service-proto ret)))))))
-(export 'socket::socket-service-port "EXT")
+(without-package-lock ("EXT")
+  (export (find-symbol "SOCKET-SERVICE-PORT" "SOCKET") "EXT"))
 
 ;;;--------------------------------------------------------------------------
 #+unix
