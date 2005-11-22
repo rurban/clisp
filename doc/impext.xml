@@ -2354,9 +2354,9 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
       <listitem><para>faster, with additional features, but not
         quite complete yet.  Please try it first and use mit-clx only
         if new-clx does not work for you. new-clx comes with several
-        demos, please try them: run <screen>
-&sh-prompt; clisp &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename>
-        </screen> and follow the intructions.</para></listitem></varlistentry>
+        demos, please try them: run
+        <screen>&sh-prompt; clisp &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename></screen>
+        and follow the intructions.</para></listitem></varlistentry>
  </variablelist></para></listitem></varlistentry>
  <varlistentry><term><link linkend="oracle">oracle</link></term>
   <listitem><simpara>Access
@@ -2379,7 +2379,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  <varlistentry><term>queens</term>
   <listitem><simpara>Compute the number of solutions to the &n-r;-queens
     problem on a &n-r;&times;&n-r; checkboard (a toy
-    example for the users to explore the &clisp; &module; system).
+    example for the users to explore the &clisp; &module; system,
+    see <filename role="clisp-cvs">modules/queens/</filename>).
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="dir-key">dirkey</link></term>
   <listitem><simpara>Directory Access (LDAP, &win32; registry etc).
