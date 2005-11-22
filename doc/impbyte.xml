@@ -11,21 +11,22 @@
 
 <variablelist>
 <varlistentry><term><filename>#P"*.d"</filename></term>
- <listitem><simpara>The source files for unpreprocessed &c-lang;
-   code.</simpara></listitem></varlistentry>
+ <listitem><simpara>The source files for unpreprocessed &c-lang; code.
+</simpara></listitem></varlistentry>
 <varlistentry><term>&c-file;</term>
  <listitem><simpara>The &c-lang; code after
-   <link linkend="src-preprocessing">preprocessing</link>.
+   <link linkend="src-preprocessing">preprocessing</link>;
+   also the result of compiling some &ffi-pac; forms (see &ffi-out-fun;).
 </simpara></listitem></varlistentry>
 <varlistentry><term>&lisp-file;</term>
- <listitem><simpara>The source files for Lisp
-   code.</simpara></listitem></varlistentry>
+ <listitem><simpara>The source files for Lisp code.
+</simpara></listitem></varlistentry>
 <varlistentry><term><filename>#P"*.fas"</filename></term>
- <listitem><simpara>Compiled lisp code (platform-independent).
+ <listitem><simpara>Compiled lisp code (platform-independent &bytecode;s).
 </simpara></listitem></varlistentry>
 <varlistentry><term>&lib-file;</term>
  <listitem><simpara>Lisp <quote>header</quote>, produced by
- &compile-file; and used by &require;</simpara></listitem></varlistentry>
+   &compile-file; and used by &require;</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
