@@ -4,7 +4,8 @@
 
 (in-package "EXT")
 
-(export '(clhs clhs-root read-from-file browse-url open-http with-http-input))
+(export '(clhs clhs-root read-from-file browse-url open-http with-http-input
+          proxy))
 
 (in-package "SYSTEM")
 
@@ -85,6 +86,31 @@ The keyword argument REPEAT specifies how many objects to read:
  --> <URL:~a>~%" 'browse-url url)))))
 
 ;;; see also clocc/cllib/net.lisp
+(defvar *proxy* nil
+  "A list of 4 elements (user password host port), parsed from $HTTP_PROXY
+proxy-user:proxy-password@proxy-host:proxy-port")
+(defconstant *http-port* 80)
+(defun proxy (&optional (proxy-string (getenv "HTTP_PROXY") proxy-p))
+  "When the argument is supplied or *PROXY* is NIL, parse the argument,
+set *PROXY*, and return it; otherwise just return *PROXY*."
+  (when (or proxy-p (and (null *proxy*) proxy-string))
+    (check-type proxy-string string)
+    (let* ((start (if (string-equal #1="http://" proxy-string
+                                    :end2 (min (length proxy-string)
+                                               #2=#.(length #1#)))
+                      #2# 0))
+           (at (position #\@ proxy-string :start start))
+           (colon1 (and at (position #\: proxy-string :start start :end at)))
+           (colon2 (position #\: proxy-string :start (or at 0))))
+      (setq *proxy*
+            (list (and at (subseq proxy-string start (or colon1 at)))
+                  (and at colon1 (subseq proxy-string (1+ colon1) at))
+                  (subseq proxy-string (if at (1+ at) start) colon2)
+                  (if colon2
+                      (parse-integer proxy-string :start (1+ colon2))
+                      *http-port*)))
+      (format t "~&;; ~S=~S~%" '*proxy* *proxy*)))
+  *proxy*)
 
 (defmacro with-http-input ((var url) &body body)
   (if (symbolp var)
@@ -101,15 +127,26 @@ The keyword argument REPEAT specifies how many objects to read:
                         :end2 (min (length url) #2=#.(length #1#)))
     (error "~S: ~S is not an HTTP URL" 'open-http url))
   (format t "~&;; connecting to ~S..." url) (force-output)
-  (let* ((host-end (position #\/ url :start #2#)) status code
-         (host (subseq url #2# host-end)) content-length
-         (path (if host-end (subseq url host-end) "/"))
+  (proxy)
+  (let* ((host-port-end (position #\/ url :start #2#))
+         (port-start (position #\: url :start #2# :end host-port-end))
+         (url-host (subseq url #2# (or port-start host-port-end)))
+         (host (if *proxy* (third *proxy*) url-host))
+         (url-port (if port-start
+                       (parse-integer url :start (1+ port-start)
+                                      :end host-port-end)
+                       *http-port*))
+         (port (if *proxy* (fourth *proxy*) url-port))
+         (path (if *proxy* url
+                   (if host-port-end (subseq url host-port-end) "/")))
          (sock (handler-bind ((error (lambda (c)
                                        (unless (eq if-does-not-exist :error)
-                                         (format t "cannot connect to ~S: ~A~%"
-                                                 host c)
+                                         (format
+                                          t "cannot connect to ~S:~D: ~A~%"
+                                          host port c)
                                          (return-from open-http nil)))))
-                 (socket:socket-connect 80 host :external-format :dos))))
+                 (socket:socket-connect port host :external-format :dos)))
+         status code content-length)
     (format t "connected...") (force-output)
     (format sock "GET ~A HTTP/1.0~%User-agent: ~A~%Host: ~A~%Accept: */*~%Connection: close~2%" path (lisp-implementation-type) host) ; request
     (write-string (setq status (read-line sock))) (force-output)
@@ -170,9 +207,9 @@ The keyword argument REPEAT specifies how many objects to read:
         (with-open-stream (s (or (funcall opener (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
                                  (funcall opener (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
           (unless s
-            (warn (TEXT "~S returns invalid value ~S, fix it, ~S or ~S")
+            (warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
                   'clhs-root clhs-root '(getenv "CLHSROOT")
-                  '*clhs-root-default*)
+                  '*clhs-root-default* '*proxy*)
             (return-from ensure-clhs-map))
           (get-clhs-map s))
         (setq clhs-map-good t))
@@ -214,9 +251,9 @@ The keyword argument REPEAT specifies how many objects to read:
                                                                  "id-href.map")
                                            :if-does-not-exist nil))
                (unless s
-                 #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S or ~S")
+                 #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
                           'impnotes-root impnotes-root '(getenv "IMPNOTES")
-                          '*impnotes-root-default*)
+                          '*impnotes-root-default* '*proxy*)
                  (return-from ensure-impnotes-map))
                (let ((table (get-string-map s)))
                  (unless table   ; no table --> bail out
@@ -225,15 +262,22 @@ The keyword argument REPEAT specifies how many objects to read:
         (with-open-file (in (clisp-data-file "Symbol-Table.text"))
           (format t "~&;; ~S(~S)..." 'ensure-impnotes-map (truename in))
           (force-output)
-          (loop :for count :upfrom 0 :and sym = (read-line in nil nil)
+          (loop :for count :upfrom 0
+            :and symbol-printname = (read-line in nil nil)
             :and id = (read-line in nil nil)
-            :while (and sym id) :do
+            :while (and symbol-printname id) :do
             (let ((destination (funcall dest id)))
               (if destination
-                  (setf (documentation (read-from-string sym) 'sys::impnotes)
-                        destination)
+                  (multiple-value-bind (symbol error)
+                      (ignore-errors (read-from-string symbol-printname))
+                    (if (integerp error)
+                        (setf (documentation symbol 'sys::impnotes)
+                              destination)
+                        #+(or)  ; *default-time-zone* sys::dynload-modules
+                        (warn (TEXT "~S: invalid symbol ~S with id ~S: ~A")
+                              'ensure-impnotes-map symbol-printname id error)))
                   (warn (TEXT "~S: invalid id ~S for symbol ~S")
-                        'ensure-impnotes-map id sym)))
+                        'ensure-impnotes-map id symbol-printname)))
             :finally (format t "~:D ID~:P~%" count)))
         (setq impnotes-map-good t)) ; success
       (and impnotes-map-good impnotes-root))))

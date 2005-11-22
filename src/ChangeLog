@@ -1,5 +1,13 @@
 2005-11-22  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (*proxy*): export
+	* clhs.lisp (*proxy*): new variable
+	(proxy): new function
+	(open-http): use it
+	(ensure-impnotes-map): handle errors in Symbol-Table.text
+
+2005-11-22  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/posix.lisp (SOCKET-SERVICE-PORT):
 	avoid package lock warnings
 

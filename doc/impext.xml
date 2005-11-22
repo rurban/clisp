@@ -1513,12 +1513,12 @@ In other words, each pair is:
  file &macros3-lisp; and loaded from the file &init-lisp; during
  <command role="unix">make</command>:</para>
 
-<formalpara id="ethe"><title>Macro &ethe;</title>
+<simplesect id="ethe"><title>Macro &ethe;</title>
 <para><code>(&ethe; &val-type-r; &form-r;)</code>
  enforces a type check in both interpreted and compiled code.
-</para></formalpara>
+</para></simplesect>
 
-<formalpara id="letf"><title>Macros &letf; &amp; &letf-star;</title>
+<simplesect id="letf"><title>Macros &letf; &amp; &letf-star;</title>
 <para>These macros are similar to &let; and &let-star;, respectively,
  except that they can bind &place;s, even &place;s with &mul-val;.
  Example:
@@ -1535,14 +1535,14 @@ is approximately equivalent to
  (&let-star; ((#:g1 l) (#:g2 (first #:g1)))
    (&unwind-protect; (&progn; (&setf; (first #:g1) 7) ...)
       (&setf; (first #:g1) #:g2)))
-</programlisting></para></formalpara>
+</programlisting></para></simplesect>
 
-<formalpara id="memoized"><title>Macro <function>EXT:MEMOIZED</function></title>
+<simplesect id="memoized"><title>Macro <function>EXT:MEMOIZED</function></title>
 <para><code>(<function>EXT:MEMOIZED</function> &form-r;)</code>
  memoizes the &pri-val; of &form-r; from its first evaluation.
-</para></formalpara>
+</para></simplesect>
 
-<formalpara id="with-collect">
+<simplesect id="with-collect">
      <title>Macro <function>EXT:WITH-COLLECT</function></title>
 <para>Similar to the &loop;'s
  <ulink url="&clhs;/Body/sec_6-1-3.html"><constant>collect</constant></ulink>
@@ -1556,9 +1556,9 @@ is approximately equivalent to
 <computeroutput>(0 2 4 6 8)</computeroutput>
 </programlisting> returns two &list-t;s <returnvalue>(1 3 5 7 9)</returnvalue>
 and <returnvalue>(0 2 4 6 8)</returnvalue> as &mul-val;.
-</para></formalpara>
+</para></simplesect>
 
-<formalpara id="with-gensyms">
+<simplesect id="with-gensyms">
      <title>Macro <function>EXT:WITH-GENSYMS</function></title>
 <para>Similar to its namesake from
  <ulink url="http://www.paulgraham.com/">Paul Graham</ulink>'s book
@@ -1574,9 +1574,9 @@ expands to
       (zot (gensym "FOO-ZOT-")))
   ...)
 </programlisting>
-</para></formalpara>
+</para></simplesect>
 
-<formalpara id="remove-plist">
+<simplesect id="remove-plist">
      <title>Function <function>EXT:REMOVE-PLIST</function></title>
 <para>Similar to &remove; and &remf;, this function removes some
  properties from a property list.  It is non-destructive and thus can be
@@ -1594,15 +1594,15 @@ expands to
 </programlisting>
 here <function>WITH-FOO</function> does not receive the
 <literal>:BAR1 1</literal> argument from <function>FOO-BAR</function>.
-</para></formalpara>
+</para></simplesect>
 
-<formalpara id="html-http-output">
+<simplesect id="html-http-output">
  <title>Macros <function>EXT:WITH-HTML-OUTPUT</function> and
   <function>EXT:WITH-HTTP-OUTPUT</function></title>
 <para>Defined in &inspect-lisp;, these macros are useful
- for the rudimentary &http; server defined there.</para></formalpara>
+ for the rudimentary &http; server defined there.</para></simplesect>
 
-<formalpara id="open-http"><title>Function &open-http; and
+<simplesect id="open-http"><title>Function &open-http; and
   macro <function>EXT:WITH-HTTP-INPUT</function></title>
 <para>Defined in
  <link linkend="clhs-lisp"><filename>clhs.lisp</filename></link>,
@@ -1614,15 +1614,28 @@ here <function>WITH-FOO</function> does not receive the
 <code>(EXT:WITH-HTTP-INPUT (&var-r; url) &body-amp; body)</code> binds &var-r;
 to the &socket-stream; returned by &open-http; and executes the &body-r;.
 <code>(EXT:WITH-HTTP-INPUT ((&var-r; &cont-r;) url) &body-amp; body)</code>
-additionally binds &cont-r; to the content length.</para></formalpara>
+additionally binds &cont-r; to the content length.</para>
+<para>&open-http; will check &proxy; on startup and parse the &env-var;
+ <envar>HTTP_PROXY</envar> if &proxy; is &nil;.</para></simplesect>
 
-<formalpara id="browse-url"><title>Function &browse-url;</title>
+<simplesect id="browse-url"><title>Function &browse-url;</title>
  <para>Function <code>(&browse-url; url &key-amp; &browser-k; &out-k;)</code>
   calls a browser on the URL. <replaceable>browser</replaceable>
   (defaults to &browser;) should be a valid keyword in the &browsers; &alist;.
   &out-k; specifies the stream where the progress messages are printed
   (defaults to &standard-output-var;).
-</para></formalpara>
+</para></simplesect>
+
+<simplesect id="proxy"><title>Variable &proxy;</title>
+<para>If you are behind a proxy server, you will need to set &proxy; to
+ a &list-t; <literal role="data">(name password host port)</literal>.
+ By default, the &env-var; <envar>HTTP_PROXY</envar> is used, the
+ expected format is <literal role="data">"name:password@host:port"</literal>.
+ If no <literal role="data">#\@</literal> is present,
+ &name-r; and &pass-r; are &nil;.
+ If no <literal role="data">#\:</literal> is present,
+ &pass-r; (or &port-r;)
+ are &nil;.</para></simplesect>
 
 </section>
 
@@ -1698,6 +1711,7 @@ additionally binds &cont-r; to the content length.</para></formalpara>
   <member>&prompt-finish;</member>
   <member>&prompt-start;</member>
   <member>&prompt-step;</member>
+  <member>&proxy;</member>
   <member>&err-pr-bt;</member>
   <member>&count-ansi;</member>
   <member>&source-types;</member>
@@ -2968,7 +2982,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
  <term><code>(&parse-c-type; &ctype-r;)</code></term>
  <term><code>(&deparse-c-type; &ctypei-r;)</code></term>
  <listitem><simpara>Convert between the external (&list-t;) and internal
-   (&vector-t;) &c-lang; type representations (used by &describe;).
+   (&vector-t;) &c-lang; type representations (used by &describe-my;).
 </simpara></listitem></varlistentry>
 
 <varlistentry id="foreign-heap"><term><code>(&allocate-shallow;
@@ -4593,14 +4607,14 @@ Compiled, it will have inlined the library function calls.
    &signal;s an &error-t; if no connection is made in that time.
   </simpara></listitem></varlistentry>
  <varlistentry id="so-connect"><term><code>(&so-connect;
-    <replaceable>port</replaceable> &optional-amp; [&host-r;] &key-amp;
+    &port-r; &optional-amp; [&host-r;] &key-amp;
     &eltype; &extfmt; &buffered; &timeout-k;)</code></term>
   <listitem><simpara>Attempts to create a client-side &bidir-s;
    &socket-stream;.  Blocks until the server accepts the connection, for
    no more than &timeout-k; &seconds;.  If it is 0, returns immediately
    and (probably) blocks on the next i/o operation (you can use
    &so-status; to check whether it will actually block).
-  </simpara></listitem></varlistentry>
+ </simpara></listitem></varlistentry>
  <varlistentry id="so-status"><term><code>(&so-status;
                  <replaceable>socket-stream-or-list</replaceable>
                  &timeout-opt;)</code></term>
