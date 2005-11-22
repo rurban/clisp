@@ -586,7 +586,11 @@ is the same as
         ((or (string= var "true") (string= var "yes")) t)
         (t nil)))
 </programlisting>
-</para>
+If you use a built-in &hash-table-t; test (see <xref linkend="ht-test"/>)
+as the test (e.g., &equal; instead of &string-eq; above, but not a test
+defined using &defhash;), the compiler will be able to optimize
+the <function>EXT:FCASE</function> form better than the corresponding
+&cond; form.</para>
 </section>
 
 <section id="xor"><title>Function <function>EXT:XOR</function></title>
