@@ -1,5 +1,10 @@
 2005-11-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/i18n/i18n.lisp (i18n:locale-conv, i18n:set-locale)
+	(i18n:language-information): added impnotes documentation
+
+2005-11-22  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (.SHELL): add on all *bsd* systems
 
 2005-11-21  Sam Steingold  <sds@gnu.org>
