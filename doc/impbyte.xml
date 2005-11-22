@@ -478,8 +478,8 @@
 </simpara></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">src/describe.lisp</filename></term>
- <listitem><simpara>implements functions &describe;, &apropos;, &apropos-list;
-</simpara></listitem></varlistentry>
+ <listitem><simpara>implements functions &describe-my;, &apropos-my;,
+   &apropos-list;</simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/trace.lisp</filename></term>
  <listitem><simpara><link linkend="trace">tracer</link>
 </simpara></listitem></varlistentry>
@@ -693,7 +693,7 @@
 </simpara></listitem></varlistentry>
 <varlistentry id="inspect-lisp">
  <term><filename role="clisp-cvs">src/inspect.lisp</filename></term>
- <listitem><simpara>implements &inspect; (tty and &http; frontends)
+ <listitem><simpara>implements &inspect-my; (tty and &http; frontends)
 </simpara></listitem></varlistentry>
 <varlistentry id="clhs-lisp">
  <term><filename role="clisp-cvs">src/clhs.lisp</filename></term>
@@ -804,6 +804,11 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><filename>modules/**/*.xml</filename></term>
      <listitem><simpara>individual external module documentation
+    </simpara></listitem></varlistentry>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/Symbol-Table.text</filename></term>
+     <listitem><simpara>the mapping between lisp symbols and element IDs
+       in these notes (see &describe-my;).
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 <varlistentry>
