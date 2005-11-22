@@ -38,6 +38,10 @@
  "I18N")
 (ext:re-export "I18N" "EXT")
 
+(setf (documentation 'i18n:locale-conv 'sys::impnotes) "locale-conv")
+(setf (documentation 'i18n:set-locale 'sys::impnotes) "set-locale")
+(setf (documentation 'i18n:language-information 'sys::impnotes) "lang-info")
+
 (defsetf i18n::textdomain i18n::set-textdomain)
 (defsetf i18n::textdomaindir i18n::set-textdomaindir)
 
