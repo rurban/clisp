@@ -1,3 +1,7 @@
+2005-11-22  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (.SHELL): add on all *bsd* systems
+
 2005-11-21  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1359066 ]: :ALLOCATION kind not extensible
