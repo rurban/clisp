@@ -189,6 +189,9 @@
 <!ENTITY meth-call-err "<link linkend='meth-call-err'><classname>CLOS:METHOD-CALL-ERROR</classname></link>">
 <!ENTITY meth-call-type-err "<link linkend='meth-call-type-err'><classname>CLOS:METHOD-CALL-TYPE-ERROR</classname></link>">
 <!ENTITY features-my "<olink targetdoc='impnotes' targetptr='features'><varname>*FEATURES*</varname></olink>">
+<!ENTITY inspect-my "<link linkend='inspect'><function>INSPECT</function></link>">
+<!ENTITY apropos-my "<olink targetdoc='impnotes' targetptr='apropos'><function>APROPOS</function></olink>">
+<!ENTITY describe-my "<olink targetdoc='impnotes' targetptr='describe'><function>DESCRIBE</function></olink>">
 <!ENTITY fill-indent-sexp "<olink targetdoc='impnotes' targetptr='fill-stream'><varname>CUSTOM:*FILL-INDENT-SEXP*</varname></olink>">
 <!ENTITY gen-flet "<link linkend='gen-flet'><function>CLOS:GENERIC-FLET</function></link>">
 <!ENTITY gen-labels "<link linkend='gen-labels'><function>CLOS:GENERIC-LABELS</function></link>">
@@ -413,6 +416,7 @@
 <!ENTITY structure-stablehash "<link linkend='make-hash'><classname>EXT:STRUCTURE-STABLEHASH</classname></link>">
 <!ENTITY warn-on-hashtable-needing-rehash-after-gc "<link linkend='hashtable-gc-rehash-warn'><varname>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname></link>">
 <!ENTITY err-pr-bt "<olink targetdoc='impnotes' targetptr='err-pr-bt'><varname>CUSTOM:*REPORT-ERROR-PRINT-BACKTRACE*</varname></olink>">
+<!ENTITY proxy '<link linkend="proxy"><varname>CUSTOM:*PROXY*</varname></link>'>
 <!-- *** pre-processors *** -->
 <!ENTITY modprep "<link linkend='modprep-file'><command>modprep</command></link>">
 
@@ -642,10 +646,12 @@
 <!ENTITY options-r "<replaceable>options</replaceable>">
 <!ENTITY os "<replaceable>operating system</replaceable>">
 <!ENTITY pack-r "<replaceable>package</replaceable>">
+<!ENTITY pass-r "<replaceable>password</replaceable>">
 <!ENTITY path-r "<replaceable>pathname</replaceable>">
 <!ENTITY pattern-r "<replaceable>pattern</replaceable>">
 <!ENTITY pid-r "<replaceable>pid</replaceable>">
 <!ENTITY place-r "<replaceable>place</replaceable>">
+<!ENTITY port-r "<replaceable>port</replaceable>">
 <!ENTITY pred-r "<replaceable>predicate</replaceable>">
 <!ENTITY program-r "<replaceable>program</replaceable>">
 <!ENTITY proto-r "<replaceable>protocol</replaceable>">
