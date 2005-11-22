@@ -6,6 +6,7 @@
   (:documentation
    "POSIX Regular Expressions - matching, compiling, executing.")
   (:use "COMMON-LISP")
+  (:import-from "SYS" #:text)
   (:export #:match #:match-start #:match-end #:match-string #:regexp-quote
            #:regexp-matcher
            #:regexp-compile #:regexp-exec #:regexp-split #:with-loop-split))
@@ -111,7 +112,11 @@ Return a list of substrings of STRINGS."
                   :displaced-to string
                   :displaced-index-offset start)
     :while match
-    :do (setq start (match-end match))))
+    :do (let ((new-start (match-end match)))
+          (when (= start new-start)
+            (error (TEXT "~S: ~S matches an empty string ~S at ~S:~D")
+                   'regexp-split pattern match string start))
+          (setq start new-start))))
 
 (defmacro with-loop-split ((var stream pattern
                             &key (start 0) end
