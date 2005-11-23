@@ -4446,9 +4446,9 @@ warning, you need to fix the source code of the incriminated method.</para>
  &bytecode;:
 <programlisting language="lisp">
 (&compile-file; &filename-r; &key-amp; &outfile-k; :LISTING &extfmt;
-                    ((&warnings-k; &compile-warn;) &compile-warn;)
-                    ((&verbose-k; &compile-verbose-var;) &compile-verbose-var;)
-                    ((&print-k; &compile-print-var;) &compile-print-var;))
+                            ((&warnings-k; &compile-warn;) &compile-warn;)
+                            ((&verbose-k; &compile-verbose-var;) &compile-verbose-var;)
+                            ((&print-k; &compile-print-var;) &compile-print-var;))
 </programlisting></para>
 
 <variablelist id="compile-file-arguments">
@@ -4570,10 +4570,10 @@ when being loaded, this is important as well.</para></section>
 
 <programlisting language="lisp">
 (&load; &filename-r; &key-amp; ((&verbose-k; &load-verbose-var;) &load-verbose-var;)
-                     ((&print-k; &load-print-var;) &load-print-var;)
-                     ((&echo-k; &load-echo;) &load-echo;) &if-does-not-exist;
-                     ((&compiling-k; &load-comp;) &load-comp;) &extra-file-types-k;
-                     ((&obsolete-action-k; &load-obs;) &load-obs;))
+                    ((&print-k; &load-print-var;) &load-print-var;)
+                    ((&echo-k; &load-echo;) &load-echo;) &if-does-not-exist;
+                    ((&compiling-k; &load-comp;) &load-comp;) &extra-file-types-k;
+                    ((&obsolete-action-k; &load-obs;) &load-obs;))
 </programlisting>
 
 <variablelist>
