@@ -1614,8 +1614,8 @@ here <function>WITH-FOO</function> does not receive the
 to the &socket-stream; returned by &open-http; and executes the &body-r;.
 <code>(EXT:WITH-HTTP-INPUT ((&var-r; &cont-r;) url) &body-amp; body)</code>
 additionally binds &cont-r; to the content length.</para>
-<para>&open-http; will check &proxy; on startup and parse the &env-var;
- <envar>HTTP_PROXY</envar> if &proxy; is &nil;.</para></section>
+<para>&open-http; will check &http-proxy; on startup and parse the &env-var;
+ <envar>HTTP_PROXY</envar> if &http-proxy; is &nil;.</para></section>
 
 <section id="browse-url"><title>Function &browse-url;</title>
  <para>Function <code>(&browse-url; url &key-amp; &browser-k; &out-k;)</code>
@@ -1625,16 +1625,17 @@ additionally binds &cont-r; to the content length.</para>
   (defaults to &standard-output-var;).
 </para></section>
 
-<section id="proxy"><title>Variable &proxy;</title>
-<para>If you are behind a proxy server, you will need to set &proxy; to
+<section id="http-proxy"><title>Variable &http-proxy;</title>
+<para>If you are behind a proxy server, you will need to set &http-proxy; to
  a &list-t; <literal role="data">(name:password host port)</literal>.
  By default, the &env-var; <envar>HTTP_PROXY</envar> is used, the
  expected format is <literal role="data">"name:password@host:port"</literal>.
  If no <literal role="data">#\@</literal> is present,
  &name-r; and &pass-r; are &nil;.
  If no <literal role="data">#\:</literal> is present,
- &pass-r; (or &port-r;)
- are &nil;.</para></section>
+ &pass-r; (or &port-r;) are &nil;.</para>
+<para>Use function <code>(EXT:HTTP-PROXY &optional-amp; (&string-t;
+  (&getenv; "HTTP_PROXY")))</code> to reset &http-proxy;.</para></section>
 
 <section id="base64"><title>Functions <function>EXT:BASE64-ENCODE</function>
   and <function>EXT:BASE64-DECODE</function></title>
@@ -1682,6 +1683,7 @@ additionally binds &cont-r; to the content length.</para>
   <member>&flocont;</member>
   <member>&floratcont;</member>
   <member>&foreign-enc;</member>
+  <member>&http-proxy;</member>
   <member>&impnotes-root;</member>
   <member>&impnotes-root-default;</member>
   <member>&init-hooks;</member>
@@ -1721,7 +1723,6 @@ additionally binds &cont-r; to the content length.</para>
   <member>&prompt-finish;</member>
   <member>&prompt-start;</member>
   <member>&prompt-step;</member>
-  <member>&proxy;</member>
   <member>&err-pr-bt;</member>
   <member>&count-ansi;</member>
   <member>&source-types;</member>
