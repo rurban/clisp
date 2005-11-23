@@ -3289,7 +3289,7 @@ is not a defined logical host yet, we proceed as follows:
   &logical-pathname-translations;)</code>.</simpara></listitem>
  <listitem><simpara>Variable &load-lpt-db; is consulted.
   Its value should be a list of files and/or directories,
-  which are searched for in the &load-paths;, just like for &load;.
+  which are searched for in the &load-paths;, just like for &load-my;.
   When the element is a file, it is &read; from,
   <ulink url="http://www.franz.com/support/documentation/6.0/doc/pathnames.htm#load-logical-pathname-translations-2">Allegro CL-style</ulink>,
   odd objects being host names and even object being their
@@ -4442,15 +4442,19 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 <section id="compilefile"><title>Function &compile-file;</title>
 
-<para><code>(&compile-file; <replaceable>input-file</replaceable>
-  &key-amp; &outfile-k; :LISTING &warnings-k; &verbose-k; &print-k;
-  &extfmt;)</code> compiles a file to a platform-independent
- &bytecode;.</para>
+<para>&compile-file; compiles a file to a platform-independent
+ &bytecode;:
+<programlisting language="lisp">
+(&compile-file; &filename-r; &key-amp; &outfile-k; :LISTING &extfmt;
+                    ((&warnings-k; &compile-warn;) &compile-warn;)
+                    ((&verbose-k; &compile-verbose-var;) &compile-verbose-var;)
+                    ((&print-k; &compile-print-var;) &compile-print-var;))
+</programlisting></para>
 
 <variablelist id="compile-file-arguments">
  <title>Options for &compile-file;</title>
-<varlistentry><term><replaceable>input-file</replaceable></term>
- <listitem><simpara>should be a &path-des;.
+<varlistentry><term>&filename-r;</term>
+ <listitem><simpara>the file to be compiled, should be a &path-des;.
  </simpara></listitem></varlistentry>
 <varlistentry><term>&outfile-k;</term>
  <listitem><simpara>should be &nil; or &t; or a &path-des; or an
@@ -4458,6 +4462,9 @@ warning, you need to fix the source code of the incriminated method.</para>
 <varlistentry><term><constant>:LISTING</constant></term>
  <listitem><simpara>should be &nil; or &t; or a &path-des; or an
    &out-s;.  The default is &nil;.</simpara></listitem></varlistentry>
+<varlistentry><term>&extfmt;</term>
+ <listitem><simpara>the &encoding; of the &filename-r;.
+</simpara></listitem></varlistentry>
 <varlistentry><term>&warnings-k;</term>
  <listitem><simpara>specifies whether warnings should also appear on the
    screen.</simpara></listitem></varlistentry>
@@ -4485,10 +4492,10 @@ warning, you need to fix the source code of the incriminated method.</para>
   <entry>Default file type</entry><entry>Contents</entry></row></thead><tbody>
  <row><entry>output file</entry>
    <entry>only if &outfile-k; is not &nil;</entry><entry>&fasl-file;</entry>
-   <entry>can be loaded using the &load; function</entry></row>
+   <entry>can be loaded using the &load-my; function</entry></row>
  <row><entry>auxiliary output file</entry>
    <entry>only if &outfile-k; is not &nil;</entry><entry>&lib-file;</entry>
-   <entry>used by &compile-file; when compiling a &require; form referring
+   <entry>used by &compile-file; when compiling a &require-my; form referring
     to the input file</entry></row>
  <row><entry>listing file</entry>
    <entry>only if <constant>:LISTING</constant> is not &nil;</entry>
@@ -4517,7 +4524,7 @@ the first one!</para></warning>
 <section id="require"><title>Function &require;</title>
 
 <para>The function &require; receives as the optional argument either
- a &pathname-t; or a &list-t; of &pathname-t;s: files to be &load;ed
+ a &pathname-t; or a &list-t; of &pathname-t;s: files to be &load-my;ed
  if the required module is not already present.</para>
 
 <para>At compile time, <code>(&require; &foo-f;)</code>
@@ -4549,8 +4556,8 @@ usually smaller and load faster that &fasl-file;s):
 bar.fas: bar.lisp foo.fas
         clisp -i foo -c bar
 </programlisting>
-Thus, you do not need to <code>(&load; &foo-f;)</code> in order
-to <code>(&compile-file; <filename>#P"bar.lisp"</filename>)</code>.
+Thus, you do not need to <code>(&load-my; &foo-f;)</code> in order
+to <code>(&compile-file-my; <filename>#P"bar.lisp"</filename>)</code>.
 If memory is tight, and if &foolisp-f; contains only a few inline
 functions, macros, constants or variables, this is a space and time
 saver.  If &foolisp-f; does a lot of initializations or side effects
@@ -4561,12 +4568,13 @@ when being loaded, this is important as well.</para></section>
 <para>&load; accepts four additional keyword arguments &echo-k;,
  &compiling-k;, &extra-file-types-k;, and &obsolete-action-k;.</para>
 
-<para><code>(&load; &filename-r; &key-amp;
-  ((&verbose-k; &load-verbose-var;) &load-verbose-var;)
-  ((&print-k; &load-print-var;) &load-print-var;)
-  ((&echo-k; &load-echo;) &load-echo;) &if-does-not-exist;
-  ((&compiling-k; &load-comp;) &load-comp;) &extra-file-types-k;
-  ((&obsolete-action-k; &load-obs;) &load-obs;))</code></para>
+<programlisting language="lisp">
+(&load; &filename-r; &key-amp; ((&verbose-k; &load-verbose-var;) &load-verbose-var;)
+                     ((&print-k; &load-print-var;) &load-print-var;)
+                     ((&echo-k; &load-echo;) &load-echo;) &if-does-not-exist;
+                     ((&compiling-k; &load-comp;) &load-comp;) &extra-file-types-k;
+                     ((&obsolete-action-k; &load-obs;) &load-obs;))
+</programlisting>
 
 <variablelist>
  <varlistentry><term>&verbose-k;</term>
@@ -4588,7 +4596,7 @@ when being loaded, this is important as well.</para></section>
  <varlistentry><term>&compiling-k;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
     The compiled code is executed at once and - in contrast to
-    &my-compile-file; - not written to a file.
+    &compile-file-my; - not written to a file.
     The default is <firstterm>&load-comp;</firstterm>, which is initially
     &nil;, but can be changed by the &opt-C; option.
  </simpara></listitem></varlistentry>
@@ -4631,7 +4639,7 @@ when being loaded, this is important as well.</para></section>
 receives a corresponding keyword argument (&verbose-k;, &print-k;,
 &obsolete-action-k;, &compiling-k;, and &echo-k;), i.e., these arguments
 are recursive, just like the arguments &warnings-k;, &verbose-k;, and
-&print-k; for &compile-file;.</para>
+&print-k; for &compile-file-my;.</para>
 
 <para>When evaluation of a read form &sig-err;, two restarts are
  available:<variablelist><varlistentry><term><literal>SKIP</literal></term>
@@ -4644,7 +4652,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <formalpara id="load-paths"><title>Variable &load-paths;</title>
 <para>The variable &load-paths; contains a list of directories where the
  files are looked for - in addition to the specified or current
- directory - by &load;, &require;, &compile-file; and
+ directory - by &load-my;, &require-my;, &compile-file-my; and
  &load-logical-pathname-translations;.</para></formalpara>
 
 </section>
@@ -4665,7 +4673,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <varlistentry><term><constant>:INTERPRETER</constant></term>
  <listitem><simpara>&eval; is implemented</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:COMPILER</constant></term>
- <listitem><simpara>&compile; and &compile-file; are implemented
+ <listitem><simpara>&compile; and &compile-file-my; are implemented
 </simpara></listitem></varlistentry>
 <!-- #ifdef SOCKET_STREAMS -->
 <varlistentry><term><constant>:SOCKETS</constant></term>
