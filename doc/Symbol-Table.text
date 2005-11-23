@@ -708,10 +708,10 @@ CUSTOM:*BROWSER*
 browse-url
 EXT:BROWSE-URL
 browse-url
-EXT:PROXY
-proxy
-CUSTOM:*PROXY*
-proxy
+EXT:HTTP-PROXY
+http-proxy
+CUSTOM:*HTTP-PROXY*
+http-proxy
 EXT:BASE64-ENCODE
 base64
 EXT:BASE64-DECODE
