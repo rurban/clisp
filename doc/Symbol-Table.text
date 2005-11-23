@@ -708,6 +708,10 @@ CUSTOM:*BROWSER*
 browse-url
 EXT:BROWSE-URL
 browse-url
+EXT:PROXY
+proxy
+CUSTOM:*PROXY*
+proxy
 EXT:EXPAND-FORM
 code-walk
 EXT:MODULE-INFO
