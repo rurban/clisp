@@ -3235,7 +3235,7 @@ if [ $CROSS = false ] ; then
   # benchmarks are not included in the source distribution
   if test -d "${SRCTOPDIR_}benchmarks"; then
     CHECK_DEPS=${CHECK_DEPS}" bench"
-    echol "bench : ${BENCHDIR}"
+   echol "bench : ${BENCHDIR}"
     echotab "CLISP=\"${CLISP_}\"; export CLISP; cd ${BENCHDIR}; \$(MAKE) CLISP=\"\$\$CLISP\" clisp"
     echol
     echol "${BENCHDIR} :"
@@ -3243,6 +3243,14 @@ if [ $CROSS = false ] ; then
     for f in Makefile '*.lisp'; do
       echotab "cd ${BENCHDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}benchmarks${NEXT_}${f} ."
     done
+    echol
+  fi
+
+  # have CVS ==> developer with a network connection
+  if test -d "${SRCTOPDIR_}CVS"; then
+    CHECK_DEPS=${CHECK_DEPS}" check-doc"
+    echol "check-doc: lisp${LEXE} lispinit.mem"
+    echotab "\$(RUN) -q -M lispinit.mem -x '(setq *impnotes-root-default* \"http://www.podval.org/~sds/clisp/impnotes/\")' -x '(sys::ensure-impnotes-map tsz)'"
     echol
   fi
 
