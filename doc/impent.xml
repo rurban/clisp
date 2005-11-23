@@ -418,7 +418,7 @@
 <!ENTITY structure-stablehash '<link linkend="make-hash"><classname>EXT:STRUCTURE-STABLEHASH</classname></link>'>
 <!ENTITY warn-on-hashtable-needing-rehash-after-gc '<link linkend="hashtable-gc-rehash-warn"><varname>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname></link>'>
 <!ENTITY err-pr-bt '<olink targetdoc="impnotes" targetptr="err-pr-bt"><varname>CUSTOM:*REPORT-ERROR-PRINT-BACKTRACE*</varname></olink>'>
-<!ENTITY proxy "<link linkend='proxy'><varname>CUSTOM:*PROXY*</varname></link>">
+<!ENTITY http-proxy "<link linkend='http-proxy'><varname>CUSTOM:*HTTP-PROXY*</varname></link>">
 <!-- *** pre-processors *** -->
 <!ENTITY modprep '<link linkend="modprep-file"><command>modprep</command></link>'>
 

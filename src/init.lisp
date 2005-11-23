@@ -386,7 +386,7 @@
 (common-lisp:in-package "CUSTOM")
 
 (common-lisp:export
- '(*load-paths* *editor* *clhs-root-default* *browsers* *browser* *proxy*
+ '(*load-paths* *editor* *clhs-root-default* *browsers* *browser* *http-proxy*
    clhs-root *impnotes-root-default* impnotes-root
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
    *load-obsolete-action* *suppress-check-redefinition*

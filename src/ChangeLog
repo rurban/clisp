@@ -5,7 +5,7 @@
 2005-11-23  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp (base64-encode, base64-decode): stolen from CLLIB
-	(proxy): do not separate username with password
+	(http-proxy): do not separate username with password
 	(open-http): send "Authorization" when proxy user:pass is specified
 
 2005-11-22  Sam Steingold  <sds@gnu.org>
@@ -16,9 +16,9 @@
 
 2005-11-22  Sam Steingold  <sds@gnu.org>
 
-	* init.lisp (*proxy*): export
-	* clhs.lisp (*proxy*): new variable
-	(proxy): new function
+	* init.lisp (*http-proxy*): export
+	* clhs.lisp (*http-proxy*): new variable
+	(http-proxy): new function
 	(open-http): use it
 	(ensure-impnotes-map): handle errors in Symbol-Table.text
 

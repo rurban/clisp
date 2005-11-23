@@ -5,7 +5,7 @@
 (in-package "EXT")
 
 (export '(clhs clhs-root read-from-file browse-url open-http with-http-input
-          proxy base64-encode base64-decode))
+          http-proxy base64-encode base64-decode))
 
 (in-package "SYSTEM")
 
@@ -177,14 +177,14 @@ The keyword argument REPEAT specifies how many objects to read:
  --> <URL:~a>~%" 'browse-url url)))))
 
 ;;; see also clocc/cllib/net.lisp
-(defvar *proxy* nil
+(defvar *http-proxy* nil
   "A list of 3 elements (user:password host port), parsed from $HTTP_PROXY
 proxy-user:proxy-password@proxy-host:proxy-port")
 (defconstant *http-port* 80)
-(defun proxy (&optional (proxy-string (getenv "HTTP_PROXY") proxy-p))
-  "When the argument is supplied or *PROXY* is NIL, parse the argument,
-set *PROXY*, and return it; otherwise just return *PROXY*."
-  (when (or proxy-p (and (null *proxy*) proxy-string))
+(defun http-proxy (&optional (proxy-string (getenv "HTTP_PROXY") proxy-p))
+  "When the argument is supplied or *HTTP-PROXY* is NIL, parse the argument,
+set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
+  (when (or proxy-p (and (null *http-proxy*) proxy-string))
     (check-type proxy-string string)
     (let* ((start (if (string-equal #1="http://" proxy-string
                                     :end2 (min (length proxy-string)
@@ -192,14 +192,14 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
                       #2# 0))
            (at (position #\@ proxy-string :start start))
            (colon (position #\: proxy-string :start (or at start))))
-      (setq *proxy*
+      (setq *http-proxy*
             (list (and at (subseq proxy-string start at))
                   (subseq proxy-string (if at (1+ at) start) colon)
                   (if colon
                       (parse-integer proxy-string :start (1+ colon))
                       *http-port*)))
-      (format t "~&;; ~S=~S~%" '*proxy* *proxy*)))
-  *proxy*)
+      (format t "~&;; ~S=~S~%" '*http-proxy* *http-proxy*)))
+  *http-proxy*)
 
 (defmacro with-http-input ((var url) &body body)
   (if (symbolp var)
@@ -216,17 +216,17 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
                         :end2 (min (length url) #2=#.(length #1#)))
     (error "~S: ~S is not an HTTP URL" 'open-http url))
   (format t "~&;; connecting to ~S..." url) (force-output)
-  (proxy)
+  (http-proxy)
   (let* ((host-port-end (position #\/ url :start #2#))
          (port-start (position #\: url :start #2# :end host-port-end))
          (url-host (subseq url #2# (or port-start host-port-end)))
-         (host (if *proxy* (second *proxy*) url-host))
+         (host (if *http-proxy* (second *http-proxy*) url-host))
          (url-port (if port-start
                        (parse-integer url :start (1+ port-start)
                                       :end host-port-end)
                        *http-port*))
-         (port (if *proxy* (third *proxy*) url-port))
-         (path (if *proxy* url
+         (port (if *http-proxy* (third *http-proxy*) url-port))
+         (path (if *http-proxy* url
                    (if host-port-end (subseq url host-port-end) "/")))
          (sock (handler-bind ((error (lambda (c)
                                        (unless (eq if-does-not-exist :error)
@@ -239,9 +239,9 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
     (format t "connected...") (force-output)
     (format sock "GET ~A HTTP/1.0~%User-agent: ~A~%Host: ~A~%"
             path (lisp-implementation-type) host) ; request
-    (when (first *proxy*)    ; auth: http://www.ietf.org/rfc/rfc1945.txt
+    (when (first *http-proxy*) ; auth: http://www.ietf.org/rfc/rfc1945.txt
       (format sock "Authorization: Basic ~A~%"
-              (base64-encode (convert-string-to-bytes (first *proxy*)
+              (base64-encode (convert-string-to-bytes (first *http-proxy*)
                                                       *http-encoding*))))
     (format sock "Accept: */*~%Connection: close~2%") ; finish request
     (write-string (setq status (read-line sock))) (force-output)
@@ -307,7 +307,7 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
           (unless s
             (warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
                   'clhs-root clhs-root '(getenv "CLHSROOT")
-                  '*clhs-root-default* '*proxy*)
+                  '*clhs-root-default* '*http-proxy*)
             (return-from ensure-clhs-map))
           (get-clhs-map s))
         (setq clhs-map-good t))
@@ -351,7 +351,7 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
                (unless s
                  #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
                           'impnotes-root impnotes-root '(getenv "IMPNOTES")
-                          '*impnotes-root-default* '*proxy*)
+                          '*impnotes-root-default* '*http-proxy*)
                  (return-from ensure-impnotes-map))
                (let ((table (get-string-map s)))
                  (unless table   ; no table --> bail out
