@@ -2477,7 +2477,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
   &cpp; macros and <literal>inline</literal> functions cannot be
   accessed this way.</simpara></listitem>
 <listitem><simpara>Use a somewhat less direct way: when you do not use
-  the &library-k; argument, &compile-file; produces a &c-file; file (in
+  the &library-k; argument, &compile-file-my; produces a &c-file; file (in
   addition to a &fasl-file; and a &lib-file;).
   Then you compile (with a &c-lang; compiler) and link it into &clisp;
   (statically, linking it into <filename>lisp.a</filename>, or
@@ -3055,7 +3055,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
  <listitem><simpara>&clisp; will write the <type>extern</type>
    declarations for foreign functions (defined with &def-call-out;) and
    foreign variables (defined with &def-c-var;) into the output &c-file;
-   (when the Lisp file is compiled with &compile-file;)
+   (when the Lisp file is compiled with &compile-file-my;)
    <emphasis>unless</emphasis> these variables are &nil;.
    They are &nil; by default, so the <type>extern</type>
    declarations are &not-e; written; you are encouraged to use
@@ -3619,7 +3619,7 @@ struct cfunr * cfun (int i,char *s,struct cfunr * r,int a[10]) {
 
 It is possible to call this function from Lisp using the file
 <filename>callcfun.lisp</filename> (do not call it
-<filename>cfun.lisp</filename> - &compile-file; will
+<filename>cfun.lisp</filename> - &compile-file-my; will
 <link linkend="c-file-overwrite">overwrite</link>
 <filename>cfun.c</filename>) whose contents is:
 
@@ -4313,7 +4313,7 @@ memory from the given vector (of type &string-t; or &ubyte-vec;).
 
 <section id="affi-func-def"><title>Function Definition Files</title>
 
-<para><function>affi:require-library-functions</function> will &require; a
+<para><function>affi:require-library-functions</function> will &require-my; a
 file of name derived from the library name and with type
 <filename>affi</filename>. It may be used to import all names into the
 current package or only a given subset identified by string names, using
@@ -4849,7 +4849,7 @@ Compiled, it will have inlined the library function calls.
 <para><itemizedlist><listitem><simpara>The script should contain Lisp
    forms, except in the <literal>#!</literal> line.</simpara></listitem>
   <listitem><simpara>The file is loaded normally, through the function
-   &load; (in particular, the name of the script file, which
+   &load-my; (in particular, the name of the script file, which
    is <envar>$0</envar> in &sh;, can be found in &load-truename-var; and
    &load-pathname-var;).</simpara></listitem>
   <listitem><simpara>Before it is loaded, the variable &args; is bound
