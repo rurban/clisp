@@ -787,18 +787,17 @@ their corresponding byte vector representation according to that encoding.
 <variablelist>
 
 <varlistentry><term><code>(<function>EXT:CONVERT-STRING-FROM-BYTES</function>
-      <replaceable>byte-vector</replaceable> &encoding-r;
-      &key-amp; &start-k; &end-k;)</code></term>
- <listitem><simpara>converts the subsequence of
-  <replaceable>byte-vector</replaceable> from &start-r; to &end-r; to a
-  &string-t;, according to the given &encoding-r;, and returns the
-  resulting string.</simpara></listitem></varlistentry>
+      &vec-r; &encoding-r; &key-amp; &start-k; &end-k;)</code></term>
+ <listitem><simpara>converts the subsequence of &vec-r; (a &ubyte-vec;)
+   from &start-r; to &end-r; to a &string-t;, according to the given
+   &encoding-r;, and returns the resulting string.
+</simpara></listitem></varlistentry>
 
 <varlistentry><term><code>(<function>EXT:CONVERT-STRING-TO-BYTES</function>
       &string-r; &encoding-r; &key-amp; &start-k; &end-k;)</code></term>
  <listitem><simpara>converts the subsequence of &string-r; from
-  &start-r; to &end-r; to a &ubyte-vec;, according to the given
-  &encoding-r;, and returns the resulting byte vector.
+   &start-r; to &end-r; to a &ubyte-vec;, according to the given
+   &encoding-r;, and returns the resulting byte vector.
 </simpara></listitem></varlistentry>
 
 </variablelist>
@@ -1513,12 +1512,12 @@ In other words, each pair is:
  file &macros3-lisp; and loaded from the file &init-lisp; during
  <command role="unix">make</command>:</para>
 
-<simplesect id="ethe"><title>Macro &ethe;</title>
+<section id="ethe"><title>Macro &ethe;</title>
 <para><code>(&ethe; &val-type-r; &form-r;)</code>
  enforces a type check in both interpreted and compiled code.
-</para></simplesect>
+</para></section>
 
-<simplesect id="letf"><title>Macros &letf; &amp; &letf-star;</title>
+<section id="letf"><title>Macros &letf; &amp; &letf-star;</title>
 <para>These macros are similar to &let; and &let-star;, respectively,
  except that they can bind &place;s, even &place;s with &mul-val;.
  Example:
@@ -1535,14 +1534,14 @@ is approximately equivalent to
  (&let-star; ((#:g1 l) (#:g2 (first #:g1)))
    (&unwind-protect; (&progn; (&setf; (first #:g1) 7) ...)
       (&setf; (first #:g1) #:g2)))
-</programlisting></para></simplesect>
+</programlisting></para></section>
 
-<simplesect id="memoized"><title>Macro <function>EXT:MEMOIZED</function></title>
+<section id="memoized"><title>Macro <function>EXT:MEMOIZED</function></title>
 <para><code>(<function>EXT:MEMOIZED</function> &form-r;)</code>
  memoizes the &pri-val; of &form-r; from its first evaluation.
-</para></simplesect>
+</para></section>
 
-<simplesect id="with-collect">
+<section id="with-collect">
      <title>Macro <function>EXT:WITH-COLLECT</function></title>
 <para>Similar to the &loop;'s
  <ulink url="&clhs;/Body/sec_6-1-3.html"><constant>collect</constant></ulink>
@@ -1556,9 +1555,9 @@ is approximately equivalent to
 <computeroutput>(0 2 4 6 8)</computeroutput>
 </programlisting> returns two &list-t;s <returnvalue>(1 3 5 7 9)</returnvalue>
 and <returnvalue>(0 2 4 6 8)</returnvalue> as &mul-val;.
-</para></simplesect>
+</para></section>
 
-<simplesect id="with-gensyms">
+<section id="with-gensyms">
      <title>Macro <function>EXT:WITH-GENSYMS</function></title>
 <para>Similar to its namesake from
  <ulink url="http://www.paulgraham.com/">Paul Graham</ulink>'s book
@@ -1574,9 +1573,9 @@ expands to
       (zot (gensym "FOO-ZOT-")))
   ...)
 </programlisting>
-</para></simplesect>
+</para></section>
 
-<simplesect id="remove-plist">
+<section id="remove-plist">
      <title>Function <function>EXT:REMOVE-PLIST</function></title>
 <para>Similar to &remove; and &remf;, this function removes some
  properties from a property list.  It is non-destructive and thus can be
@@ -1594,15 +1593,15 @@ expands to
 </programlisting>
 here <function>WITH-FOO</function> does not receive the
 <literal>:BAR1 1</literal> argument from <function>FOO-BAR</function>.
-</para></simplesect>
+</para></section>
 
-<simplesect id="html-http-output">
+<section id="html-http-output">
  <title>Macros <function>EXT:WITH-HTML-OUTPUT</function> and
   <function>EXT:WITH-HTTP-OUTPUT</function></title>
 <para>Defined in &inspect-lisp;, these macros are useful
- for the rudimentary &http; server defined there.</para></simplesect>
+ for the rudimentary &http; server defined there.</para></section>
 
-<simplesect id="open-http"><title>Function &open-http; and
+<section id="open-http"><title>Function &open-http; and
   macro <function>EXT:WITH-HTTP-INPUT</function></title>
 <para>Defined in
  <link linkend="clhs-lisp"><filename>clhs.lisp</filename></link>,
@@ -1616,26 +1615,37 @@ to the &socket-stream; returned by &open-http; and executes the &body-r;.
 <code>(EXT:WITH-HTTP-INPUT ((&var-r; &cont-r;) url) &body-amp; body)</code>
 additionally binds &cont-r; to the content length.</para>
 <para>&open-http; will check &proxy; on startup and parse the &env-var;
- <envar>HTTP_PROXY</envar> if &proxy; is &nil;.</para></simplesect>
+ <envar>HTTP_PROXY</envar> if &proxy; is &nil;.</para></section>
 
-<simplesect id="browse-url"><title>Function &browse-url;</title>
+<section id="browse-url"><title>Function &browse-url;</title>
  <para>Function <code>(&browse-url; url &key-amp; &browser-k; &out-k;)</code>
   calls a browser on the URL. <replaceable>browser</replaceable>
   (defaults to &browser;) should be a valid keyword in the &browsers; &alist;.
   &out-k; specifies the stream where the progress messages are printed
   (defaults to &standard-output-var;).
-</para></simplesect>
+</para></section>
 
-<simplesect id="proxy"><title>Variable &proxy;</title>
+<section id="proxy"><title>Variable &proxy;</title>
 <para>If you are behind a proxy server, you will need to set &proxy; to
- a &list-t; <literal role="data">(name password host port)</literal>.
+ a &list-t; <literal role="data">(name:password host port)</literal>.
  By default, the &env-var; <envar>HTTP_PROXY</envar> is used, the
  expected format is <literal role="data">"name:password@host:port"</literal>.
  If no <literal role="data">#\@</literal> is present,
  &name-r; and &pass-r; are &nil;.
  If no <literal role="data">#\:</literal> is present,
  &pass-r; (or &port-r;)
- are &nil;.</para></simplesect>
+ are &nil;.</para></section>
+
+<section id="base64"><title>Functions <function>EXT:BASE64-ENCODE</function>
+  and <function>EXT:BASE64-DECODE</function></title>
+ <para>These functions implement the &mime; convertion between &string-t;
+  and &ubyte-vec: <programlisting language="lisp">
+(EXT:BASE64-ENCODE &string-r; &optional-amp; &vec-r;)
+(EXT:BASE64-DECODE &vec-r; &optional-amp; &string-r;)
+</programlisting>
+  The optional second argument is the output buffer: when it is
+  specified, it will be written to and will be returned.</para>
+</section>
 
 </section>
 
@@ -4093,8 +4103,7 @@ separate.</para>
 <para><code>(mem-write &addr-r; &type-r; &value-r;
  [&offset-r;])</code></para>
 
-<para><code>(mem-write-vector &addr-r;
-  <replaceable>vector</replaceable> [&offset-r;])</code></para>
+<para><code>(mem-write-vector &addr-r; &vec-r; [&offset-r;])</code></para>
 
 <para><code>(nzero-pointer-p &value-r;)</code></para>
 
@@ -4304,9 +4313,8 @@ type <type>-4</type>, <type>-2</type>, <type>-1</type>, <type>1</type>,
 <type>2</type> and <type>4</type>) or pointer values (type
 <type>*</type>), but not vectors to the specified memory address.</para>
 
-<para><code>(affi:mem-write-vector &addr-r;
-  <replaceable>vector</replaceable> [&offset-r;])</code> can write
-memory from the given vector (of type &string-t; or &ubyte-vec;).
+<para><code>(affi:mem-write-vector &addr-r; &vec-r; [&offset-r;])</code>
+ can write memory from the given vector (of type &string-t; or &ubyte-vec;).
 </para>
 
 </section>

@@ -5,9 +5,100 @@
 (in-package "EXT")
 
 (export '(clhs clhs-root read-from-file browse-url open-http with-http-input
-          proxy))
+          proxy base64-encode base64-decode))
 
 (in-package "SYSTEM")
+
+;; lifted from clocc/cllib/base64.lisp
+(defconstant *base64-table*
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/")
+
+(defun base64-encode (vec &optional buffer)
+  "Encode the vector of bytes as a string in base64."
+  (let ((vec-len (length vec)) quotient remainder str full-top str-len)
+    (setf (values quotient remainder) (ceiling vec-len 3)
+          str-len (* 4 quotient)
+          str (or buffer (make-string str-len))
+          full-top (* 4 (if (zerop remainder) quotient (1- quotient))))
+    (loop :with triplet :for vec-pos :from 0 :by 3 :for str-pos :from 0 :by 4
+      :while (< str-pos full-top) :do
+      (setf triplet (+ (ash (aref vec vec-pos) 16)
+                       (ash (aref vec (+ 1 vec-pos)) 8)
+                       (aref vec (+ 2 vec-pos)))
+            (char str str-pos)
+            (char *base64-table* (ldb (byte 6 18) triplet))
+            (char str (+ 1 str-pos))
+            (char *base64-table* (ldb (byte 6 12) triplet))
+            (char str (+ 2 str-pos))
+            (char *base64-table* (ldb (byte 6 6) triplet))
+            (char str (+ 3 str-pos))
+            (char *base64-table* (ldb (byte 6 0) triplet))))
+    (ecase remainder
+      (-2 (let ((val (ash (aref vec (- vec-len 1)) 16)))
+            (setf (char str (- str-len 4))
+                  (char *base64-table* (ldb (byte 6 18) val))
+                  (char str (- str-len 3))
+                  (char *base64-table* (ldb (byte 6 12) val))
+                  (char str (- str-len 2)) #\=
+                  (char str (- str-len 1)) #\=)))
+      (-1 (let ((val (+ (ash (aref vec (- vec-len 2)) 16)
+                        (ash (aref vec (- vec-len 1)) 8))))
+            (setf (char str (- str-len 4))
+                  (char *base64-table* (ldb (byte 6 18) val))
+                  (char str (- str-len 3))
+                  (char *base64-table* (ldb (byte 6 12) val))
+                  (char str (- str-len 2))
+                  (char *base64-table* (ldb (byte 6 6) val))
+                  (char str (- str-len 1)) #\=)))
+      (0))                      ; golden!
+    str))
+
+(defconstant *table-base64*
+  (let ((vec (make-array 128)))
+    (loop :for pos :upfrom 0 :for ch :across *base64-table*
+      :do (setf (aref vec (char-code ch)) pos))
+    vec))
+
+(defun base64-decode (str &optional buffer)
+  "Decode the string into a vector of bytes."
+  (let* ((str-len (length str)) quotient remainder vec vec-len full-top
+         (=count
+          (if (and (> str-len 0) (char= #\= (char str (- str-len 1))))
+              (if (and (> str-len 1) (char= #\= (char str (- str-len 2))))
+                  2 1)
+              0)))
+    (setf (values quotient remainder) (floor str-len 4))
+    (unless (zerop remainder)
+      (error "~S: invalid base64 data length ~:D: ~S"
+             'base64-decode str-len str))
+    (setq full-top (* 3 quotient)
+          vec-len (- full-top =count)
+          vec (or buffer (make-array vec-len :element-type '(unsigned-byte 8))))
+    (unless (zerop =count) (decf full-top 3))
+    (macrolet ((get-byte (pos)
+                 `(or (svref *table-base64* (char-code (char str ,pos)))
+                      (error "~S: invalid base64 character ~@C at ~:D in ~S"
+                             'base64-decode (char str ,pos) ,pos str))))
+      (loop :with quad :for vec-pos :from 0 :by 3 :for str-pos :from 0 :by 4
+        :while (< vec-pos full-top) :do
+        (setf quad (+ (ash (get-byte str-pos) 18)
+                      (ash (get-byte (+ 1 str-pos)) 12)
+                      (ash (get-byte (+ 2 str-pos)) 6)
+                      (get-byte (+ 3 str-pos)))
+              (aref vec vec-pos) (ldb (byte 8 16) quad)
+              (aref vec (+ 1 vec-pos)) (ldb (byte 8 8) quad)
+              (aref vec (+ 2 vec-pos)) (ldb (byte 8 0) quad)))
+      (ecase =count
+        (2 (let ((val (+ (ash (get-byte (- str-len 4)) 18)
+                         (ash (get-byte (- str-len 3)) 12))))
+             (setf (aref vec (- vec-len 1)) (ldb (byte 8 16) val))))
+        (1 (let ((val (+ (ash (get-byte (- str-len 4)) 18)
+                         (ash (get-byte (- str-len 3)) 12)
+                         (ash (get-byte (- str-len 2)) 6))))
+             (setf (aref vec (- vec-len 2)) (ldb (byte 8 16) val)
+                   (aref vec (- vec-len 1)) (ldb (byte 8 8) val))))
+        (0))                    ; golden!
+      vec)))
 
 (defvar *browsers*
   '((:netscape "netscape" "~a")
@@ -87,7 +178,7 @@ The keyword argument REPEAT specifies how many objects to read:
 
 ;;; see also clocc/cllib/net.lisp
 (defvar *proxy* nil
-  "A list of 4 elements (user password host port), parsed from $HTTP_PROXY
+  "A list of 3 elements (user:password host port), parsed from $HTTP_PROXY
 proxy-user:proxy-password@proxy-host:proxy-port")
 (defconstant *http-port* 80)
 (defun proxy (&optional (proxy-string (getenv "HTTP_PROXY") proxy-p))
@@ -100,14 +191,12 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
                                                #2=#.(length #1#)))
                       #2# 0))
            (at (position #\@ proxy-string :start start))
-           (colon1 (and at (position #\: proxy-string :start start :end at)))
-           (colon2 (position #\: proxy-string :start (or at 0))))
+           (colon (position #\: proxy-string :start (or at start))))
       (setq *proxy*
-            (list (and at (subseq proxy-string start (or colon1 at)))
-                  (and at colon1 (subseq proxy-string (1+ colon1) at))
-                  (subseq proxy-string (if at (1+ at) start) colon2)
-                  (if colon2
-                      (parse-integer proxy-string :start (1+ colon2))
+            (list (and at (subseq proxy-string start at))
+                  (subseq proxy-string (if at (1+ at) start) colon)
+                  (if colon
+                      (parse-integer proxy-string :start (1+ colon))
                       *http-port*)))
       (format t "~&;; ~S=~S~%" '*proxy* *proxy*)))
   *proxy*)
@@ -131,12 +220,12 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
   (let* ((host-port-end (position #\/ url :start #2#))
          (port-start (position #\: url :start #2# :end host-port-end))
          (url-host (subseq url #2# (or port-start host-port-end)))
-         (host (if *proxy* (third *proxy*) url-host))
+         (host (if *proxy* (second *proxy*) url-host))
          (url-port (if port-start
                        (parse-integer url :start (1+ port-start)
                                       :end host-port-end)
                        *http-port*))
-         (port (if *proxy* (fourth *proxy*) url-port))
+         (port (if *proxy* (third *proxy*) url-port))
          (path (if *proxy* url
                    (if host-port-end (subseq url host-port-end) "/")))
          (sock (handler-bind ((error (lambda (c)
@@ -148,12 +237,21 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
                  (socket:socket-connect port host :external-format :dos)))
          status code content-length)
     (format t "connected...") (force-output)
-    (format sock "GET ~A HTTP/1.0~%User-agent: ~A~%Host: ~A~%Accept: */*~%Connection: close~2%" path (lisp-implementation-type) host) ; request
+    (format sock "GET ~A HTTP/1.0~%User-agent: ~A~%Host: ~A~%"
+            path (lisp-implementation-type) host) ; request
+    (when (first *proxy*)    ; auth: http://www.ietf.org/rfc/rfc1945.txt
+      (format sock "Authorization: Basic ~A~%"
+              (base64-encode (convert-string-to-bytes (first *proxy*)
+                                                      *http-encoding*))))
+    (format sock "Accept: */*~%Connection: close~2%") ; finish request
     (write-string (setq status (read-line sock))) (force-output)
     (let* ((pos1 (position #\Space status))
            (pos2 (position #\Space status :start (1+ pos1))))
       (setq code (parse-integer status :start pos1 :end pos2)))
     (when (>= code 400)
+      ;; dump headers
+      (loop :for line = (read-line sock nil nil) :while sock
+        :do (format t "~&;; ~S~%" line))
       (case if-does-not-exist
         (:error (error (TEXT "~S: error ~D: ~S") 'open-http code status))
         (t (close sock)
@@ -235,7 +333,7 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
   ;; otherwise set impnotes-map-source to (impnotes-root) and try to get
   ;; the impnotes map from (impnotes-root)
   ;; nil return value means no map exists
-  (defun ensure-impnotes-map ()
+  (defun ensure-impnotes-map (&optional check-symbol-map)
     "make sure that the impnotes map is present"
     (let ((impnotes-root (impnotes-root))
           (dest (lambda (id) (string-concat "#" id))))
@@ -273,9 +371,11 @@ set *PROXY*, and return it; otherwise just return *PROXY*."
                     (if (integerp error)
                         (setf (documentation symbol 'sys::impnotes)
                               destination)
-                        #+(or)  ; *default-time-zone* sys::dynload-modules
-                        (warn (TEXT "~S: invalid symbol ~S with id ~S: ~A")
-                              'ensure-impnotes-map symbol-printname id error)))
+                        (and check-symbol-map
+                             ;; *default-time-zone* sys::dynload-modules ...
+                             (warn (TEXT "~S: invalid symbol ~S with id ~S: ~A")
+                                   'ensure-impnotes-map symbol-printname
+                                   id error))))
                   (warn (TEXT "~S: invalid id ~S for symbol ~S")
                         'ensure-impnotes-map id symbol-printname)))
             :finally (format t "~:D ID~:P~%" count)))
