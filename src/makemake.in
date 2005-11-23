@@ -3250,7 +3250,7 @@ if [ $CROSS = false ] ; then
   if test -d "${SRCTOPDIR_}CVS"; then
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
     echol "check-doc: lisp${LEXE} lispinit.mem"
-    echotab "\$(RUN) -q -M lispinit.mem -x '(setq *impnotes-root-default* \"http://www.podval.org/~sds/clisp/impnotes/\")' -x '(sys::ensure-impnotes-map tsz)'"
+    echotab "\$(RUN) -q -M lispinit.mem -x '(setq *impnotes-root-default* \"http://www.podval.org/~sds/clisp/impnotes/\")' -x '(sys::ensure-impnotes-map t)'"
     echol
   fi
 
