@@ -240,9 +240,11 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
     (format sock "GET ~A HTTP/1.0~%User-agent: ~A~%Host: ~A~%"
             path (lisp-implementation-type) host) ; request
     (when (first *http-proxy*) ; auth: http://www.ietf.org/rfc/rfc1945.txt
-      (format sock "Authorization: Basic ~A~%"
-              (base64-encode (convert-string-to-bytes (first *http-proxy*)
-                                                      *http-encoding*))))
+      (format sock "Proxy-Authorization: Basic ~A~%"
+              (convert-string-from-bytes
+               (convert-string-to-bytes (first *http-proxy*)
+                                        *http-encoding*)
+               charset:base64)))
     (format sock "Accept: */*~%Connection: close~2%") ; finish request
     (write-string (setq status (read-line sock))) (force-output)
     (let* ((pos1 (position #\Space status))
@@ -250,7 +252,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
       (setq code (parse-integer status :start pos1 :end pos2)))
     (when (>= code 400)
       ;; dump headers
-      (loop :for line = (read-line sock nil nil) :while sock
+      (loop :for line = (read-line sock nil nil) :while line
         :do (format t "~&;; ~S~%" line))
       (case if-does-not-exist
         (:error (error (TEXT "~S: error ~D: ~S") 'open-http code status))
