@@ -1640,7 +1640,7 @@ additionally binds &cont-r; to the content length.</para>
 <section id="base64"><title>Functions <function>EXT:BASE64-ENCODE</function>
   and <function>EXT:BASE64-DECODE</function></title>
  <para>These functions implement the &mime; convertion between &string-t;
-  and &ubyte-vec: <programlisting language="lisp">
+  and &ubyte-vec; <programlisting language="lisp">
 (EXT:BASE64-ENCODE &string-r; &optional-amp; &vec-r;)
 (EXT:BASE64-DECODE &vec-r; &optional-amp; &string-r;)
 </programlisting>
