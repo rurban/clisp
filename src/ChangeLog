@@ -1,3 +1,8 @@
+2005-11-25  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/posix.lisp: set documentation sys::process-id
+	to point to impnotes#process-id
+
 2005-11-23  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-doc): new target to check Symbol-Table.text
