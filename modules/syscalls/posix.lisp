@@ -19,6 +19,7 @@
 (in-package #:posix)
 
 (setf (documentation (find-package '#:posix) 'sys::impnotes) "syscalls")
+(setf (documentation 'sys::process-id 'sys::impnotes) "process-id")
 
 ;;; ============================================================
 #+unix (progn
