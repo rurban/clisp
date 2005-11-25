@@ -920,7 +920,7 @@ else
   LN_HARD='ln'
 fi
 
-# LN = command for making hard links ($HOS = unix only)
+# HLN = command for making hard links ($HOS = unix only)
 if [ "$HLN" = hln ] ; then
   HLN="${HERE}hln"
 fi
