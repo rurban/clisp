@@ -1808,6 +1808,7 @@ LISPSYM(read_default_float_format,"*READ-DEFAULT-FLOAT-FORMAT*",lisp) /* variabl
 LISPSYM(write_float_decimal,"WRITE-FLOAT-DECIMAL",system) /* function for LISPARIT */
 LISPSYM(random_state_stern,"*RANDOM-STATE*",lisp) /* variable in LISPARIT */
 #ifdef UNICODE
+LISPSYM(base64,"BASE64",charset)
 LISPSYM(unicode_16,"UNICODE-16",charset)
 LISPSYM(unicode_16_big_endian,"UNICODE-16-BIG-ENDIAN",charset)
 LISPSYM(unicode_16_little_endian,"UNICODE-16-LITTLE-ENDIAN",charset)

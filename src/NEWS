@@ -29,6 +29,10 @@ User visible changes
 * New FFI macro FFI:DEF-C-CONST.
   See <http://clisp.cons.org/impnotes/dffi.html#def-c-const> for details.
 
+* New charset BASE64 encodes arbitrary byte sequences with strings of
+  printable ASCII characters (4 characters per 3 bytes).
+  See <http://clisp.cons.org/impnotes/encoding.html#base64> for details.
+
 * New module readline offers some advanced readline and history features.
   It is a BASE module and is available when both FFI and readline are present.
 
