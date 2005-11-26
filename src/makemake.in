@@ -501,6 +501,7 @@ case $# in
      # srcdir='@srcdir@'                 # either '.' or '../src', see above
      CP='@CP@'                           # either 'cp -p' or 'cp'
      LN_S='@LN_S@'                       # either 'ln -s' or 'ln'
+     LN='@LN@'                           # either 'ln' or ${CP}
      HLN='@HLN@'                         # either 'ln' or 'hln'
      CC="@CC@"                           # either 'gcc -O' or 'cc'
      CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
@@ -913,12 +914,7 @@ if [ $H_DOS = "true" ] ; then
 fi
 
 # LN_HARD = command for copying files, saving disk space if possible
-if [ "$HSYSOS" = beos ] ; then
-  # The BeOS 5 filesystem has only symbolic links, no hard links.
-  LN_HARD='cp -p'
-else
-  LN_HARD='ln'
-fi
+LN_HARD=${LN-ln}
 
 # HLN = command for making hard links ($HOS = unix only)
 if [ "$HLN" = hln ] ; then
@@ -2807,11 +2803,12 @@ fi
 
 if [ -n "$USE_GETTEXT" ] ; then
 
+  echol "LN_HARD=${LN_HARD}"
   echol "locale :"
   if [ $HOS = unix ] ; then
     echotab "if test -d locale; then rm -rf locale; fi"
     echotab "mkdir locale"
-    echotab "(cd po && \$(MAKE) && \$(MAKE) install datadir=.. localedir='\$\$(datadir)/locale' INSTALL_DATA='$LN_HARD') || (rm -rf locale ; exit 1)"
+    echotab "(cd po && \$(MAKE) && \$(MAKE) install datadir=.. localedir='\$\$(datadir)/locale' INSTALL_DATA='\$(LN_HARD)') || (rm -rf locale ; exit 1)"
   else
     echotab "mkdir locale"
     if test -f src/configure.in; then
