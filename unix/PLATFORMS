@@ -627,6 +627,12 @@ Add -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE -DNO_SINGLEMAP -DNO_TRIVIALMAP
 to the CFLAGS.
 
 
+On platforms using AFS:
+
+You may get an "Invalid cross-device link" error.
+If you do, try running make as "make LN_HARD='cp -p' LN='cp -p'".
+
+
 Hints for porting to new platforms:
 -----------------------------------
 

@@ -1,5 +1,10 @@
 2005-11-26  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (LN_HARD): set from @LN@, also set a Makefile variable
+	with the same name so that the AFS users can change it at run time
+
+2005-11-26  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (Snstring): export to clisp.h to make module i18n
 	build --without-unicode
 
