@@ -56,14 +56,14 @@ document xout
 end
 
 define run_test
-  run -B . -N locale -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(run-test \"suite/$arg0.tst\")"
+  run -B . -N locale -M lispinit.mem -q -norc -i tests/tests -x "(run-test \"tests/$arg0\")"
 end
 document run_test
          run the specified test in the test suite
 end
 
 define run_all_tests
-  run -B . -N locale -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(cd \"suite/\") (run-all-tests)"
+  run -B . -N locale -M lispinit.mem -q -norc -i tests/tests -x "(cd \"tests/\") (run-all-tests)"
 end
 document run_all_tests
          run the whole test suite
