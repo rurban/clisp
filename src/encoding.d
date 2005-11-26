@@ -1,7 +1,7 @@
 /*
  * Encodings (character sets and conversions) for CLISP
  * Bruno Haible 1998-2005
- * Sam Steingold 1998-2004
+ * Sam Steingold 1998-2005
  */
 
 #include "lispbibl.c"
@@ -30,6 +30,228 @@
  and so on: when the conversion succeeds for the first time, it will leave at
  most one byte in the buffer. stream.d (rd_ch_buffered, rd_ch_array_buffered)
  heavily depend on this. */
+
+/* --------------------------------------------------------------------------
+ * base64 http://rfc.net/rfc2045.html */
+
+global uintL base64_mblen (object encoding, const uintB* src,
+                           const uintB* srcend);
+global void base64_mbstowcs (object encoding, object stream,
+                             const uintB* *srcp, const uintB* srcend,
+                             chart* *destp, chart* destend);
+global uintL base64_wcslen (object encoding, const chart* src,
+                            const chart* srcend);
+global void base64_wcstombs (object encoding, object stream,
+                             const chart* *srcp, const chart* srcend,
+                             uintB* *destp, uintB* destend);
+global object base64_range (object encoding, uintL start, uintL end,
+                            uintL maxintervals);
+
+static const char base64_table[64] =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char table_base64[128] = {
+  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,      /*  -1-  9 */
+  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,      /*  10- 19 */
+  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,      /*  20- 29 */
+  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,      /*  30- 39 */
+  -1,  -1,  -1,  62,  -1,  -1,  -1,  63,  52,  53,      /*  40- 49 */
+  54,  55,  56,  57,  58,  59,  60,  61,  -1,  -1,      /*  50- 59 */
+  -1,  -1,  -1,  -1,  -1,   0,   1,   2,   3,   4,      /*  60- 69 */
+   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,      /*  70- 79 */
+  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,      /*  80- 89 */
+  25,  -1,  -1,  -1,  -1,  -1,  -1,  26,  27,  28,      /*  90- 99 */
+  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,      /* 100-109 */
+  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,      /* 110-119 */
+  49,  50,  51,  -1,  -1,  -1,  -1,  -1                 /* 120-127 */
+};
+/* alternatively:
+    var int pos = 0;
+    while (pos < sizeof(table_base64)) table_base64[pos++] = -1;
+    for (pos = 0; pos < sizeof(base64_table); pos++)
+      table_base64[base64_table[pos]] = pos;
+*/
+
+#define MIME_LINE_LENGTH  76
+
+typedef enum { le_unix, le_mac, le_dos } line_end_t;
+local line_end_t enc_eol_to_le (object enc_eol) {
+  if (eq(enc_eol,S(Kunix))) return le_unix;
+  if (eq(enc_eol,S(Kdos))) return le_dos;
+  if (eq(enc_eol,S(Kmac))) return le_mac;
+  NOTREACHED;
+}
+
+local uintL base64_to_chars (line_end_t le, const uintB* src,
+                             const uintB* srcend, chart *dest) {
+  var uintL pos = 0;
+  var uintL counter = 0;
+  var uintL num_chars = 0;
+  while (src < srcend) {
+    int c = *src++;
+    if (counter < MIME_LINE_LENGTH/4) counter++;
+    else { /* Wrap line every 76 characters. */
+      counter = 1;
+      switch (le) {
+        case le_unix:
+          if (dest) *dest++ = ascii(LF); num_chars++;
+          break;
+        case le_dos:
+          if (dest) { *dest++ = ascii(CR); *dest++ = ascii(LF); }
+          num_chars += 2;
+          break;
+        case le_mac:
+          if (dest) *dest++ = ascii(CR); num_chars++;
+          break;
+      }
+    }
+    /* Process first byte of a triplet.  */
+    if (dest) *dest++ = ascii(base64_table[0x3f & c >> 2]); num_chars++;
+    var int value = (0x03 & c) << 4;
+     /* Process second byte of a triplet.  */
+    if (src == srcend) {
+      if (dest) {
+        *dest++ = ascii(base64_table[value]);
+        *dest++ = ascii('=');
+        *dest++ = ascii('=');
+      }
+      num_chars += 3;
+      break;
+    }
+    c = *src++;
+    if (dest) *dest++ = ascii(base64_table[value | (0x0f & c >> 4)]);
+    num_chars++;
+    value = (0x0f & c) << 2;
+    /* Process third byte of a triplet.  */
+    if (src == srcend) {
+      if (dest) {
+        *dest++ = ascii(base64_table[value]);
+        *dest++ = ascii('=');
+      }
+      num_chars += 2;
+      break;
+    }
+    c = *src++;
+    if (dest) {
+      *dest++ = ascii(base64_table[value | (0x03 & c >> 6)]);
+      *dest++ = ascii(base64_table[0x3f & c]);
+    }
+    num_chars += 2;
+  }
+  return num_chars;
+}
+
+global uintL base64_mblen (object encoding, const uintB* src,
+                           const uintB* srcend) {
+  return base64_to_chars(enc_eol_to_le(TheEncoding(encoding)->enc_eol),
+                         src,srcend,NULL);
+}
+
+/* see emacs/src/fns.c */
+global void base64_mbstowcs (object encoding, object stream,
+                             const uintB* *srcp, const uintB* srcend,
+                             chart* *destp, chart* destend) {
+  *destp += base64_to_chars(enc_eol_to_le(TheEncoding(encoding)->enc_eol),
+                            *srcp,srcend,*destp);
+  *srcp = srcend;
+}
+
+#define BASE64_P(c) (c<sizeof(table_base64) && table_base64[c]!=-1)
+#define BASE64_IGNORABLE_P(ch)                                          \
+  (chareq(ch,ascii(' ')) || chareq(ch,ascii('\t')) || chareq(ch,ascii('\n')) \
+   || chareq(ch,ascii('\f')) || chareq(ch,ascii('\r')))
+
+/* see emacs/src/fns.c */
+#define READ_QUADRUPLET_BYTE(endform) do {                      \
+  if (src == srcend) { endform; }                               \
+  ch = *src++;                                                  \
+ } while (BASE64_IGNORABLE_P(ch));                              \
+  c = as_cint(ch)
+
+/* convert ascii src to bytes dest - when destp is given
+ return the number of bytes
+ the final bad characted position is retutned in error_p */
+local uintL base64_to_bytes (const chart *src, const chart* srcend,
+                             uintB* destp, const chart* *error_p) {
+  var unsigned char c;
+  var chart ch;
+  var unsigned long value;
+  var uintB *dest = destp;
+  var uintL num_bytes = 0;
+
+  while (1) {
+    /* Process first byte of a quadruplet. */
+    READ_QUADRUPLET_BYTE(return num_bytes);
+    if (!BASE64_P(c)) { *error_p = src-1; return num_bytes; }
+    value = table_base64[c] << 18;
+
+    /* Process second byte of a quadruplet.  */
+    READ_QUADRUPLET_BYTE(*error_p = src; return num_bytes);
+    if (!BASE64_P(c)) { *error_p = src-1; return num_bytes; }
+    value |= table_base64[c] << 12;
+
+    if (dest) *dest++ = (unsigned char) (value >> 16);
+    num_bytes++;
+
+    /* Process third byte of a quadruplet.  */
+    READ_QUADRUPLET_BYTE(*error_p = src; return num_bytes);
+    if (c == '=') {
+      READ_QUADRUPLET_BYTE(*error_p = src; return num_bytes);
+      if (c != '=') { *error_p = src-1; return num_bytes; }
+      continue;
+    }
+
+    if (!BASE64_P(c)) { *error_p = src-1; return num_bytes; }
+    value |= table_base64[c] << 6;
+
+    if (dest) *dest++ = (unsigned char) (0xff & value >> 8);
+    num_bytes++;
+
+    /* Process fourth byte of a quadruplet.  */
+    READ_QUADRUPLET_BYTE(*error_p = src-1; return num_bytes);
+    if (c == '=')
+      continue;
+    if (!BASE64_P(c)) { *error_p = src-1; return num_bytes; }
+    value |= table_base64[c];
+
+    if (dest) *dest++ = (unsigned char) (0xff & value);
+    num_bytes++;
+  }
+}
+
+global uintL base64_wcslen (object encoding, const chart* src,
+                            const chart* srcend) {
+  var const chart *error_p = NULL;
+  return base64_to_bytes(src,srcend,NULL,&error_p)
+    + (error_p ? 1 : 0);        /* space for errors */
+}
+
+global void base64_wcstombs (object encoding, object stream,
+                             const chart* *srcp, const chart* srcend,
+                             uintB* *destp, uintB* destend) {
+  var const chart *error_p = NULL;
+  *destp += base64_to_bytes(*srcp,srcend,*destp,&error_p);
+  if (error_p) {
+    pushSTACK(fixnum(srcend-*srcp));
+    pushSTACK(fixnum(error_p-*srcp));
+    pushSTACK(code_char(*error_p));
+    fehler(charset_type_error,GETTEXT("Invalid base64 encoding at ~S (character ~S of ~S)"));
+  }
+  *srcp = srcend;
+}
+
+global object base64_range (object encoding, uintL start, uintL end,
+                            uintL maxintervals) {
+  var uintL count = 0; /* number of intervals already on the STACK */
+  if (end >= sizeof(table_base64)) end = sizeof(table_base64) - 1;
+  while (start <= end) {
+    while (table_base64[start] == 0) start++;
+    pushSTACK(code_char(as_chart(start)));
+    while (table_base64[start]) start++;
+    pushSTACK(code_char(as_chart(--start)));
+    start++; count++;
+  }
+  return stringof(count << 1);
+}
 
 local char const hex_table[] = "0123456789ABCDEF";
 
@@ -2079,6 +2301,22 @@ global void init_encodings_1 (void) {
   /* Compile-time checks: */
   ASSERT(sizeof(chart) == sizeof(cint));
  #ifdef UNICODE
+  {
+    var object symbol = S(base64);
+    var object encoding = allocate_encoding();
+    TheEncoding(encoding)->enc_eol = S(Kunix);
+    TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+    TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+    TheEncoding(encoding)->enc_charset = symbol;
+    TheEncoding(encoding)->enc_mblen    = P(base64_mblen);
+    TheEncoding(encoding)->enc_mbstowcs = P(base64_mbstowcs);
+    TheEncoding(encoding)->enc_wcslen   = P(base64_wcslen);
+    TheEncoding(encoding)->enc_wcstombs = P(base64_wcstombs);
+    TheEncoding(encoding)->enc_range    = P(base64_range);
+    TheEncoding(encoding)->min_bytes_per_char = 2; /* ?? */
+    TheEncoding(encoding)->max_bytes_per_char = 2; /* ?? */
+    define_constant(symbol,encoding);
+  }
   {
     var object symbol = S(unicode_16_big_endian);
     var object encoding = allocate_encoding();

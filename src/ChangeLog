@@ -1,5 +1,17 @@
 2005-11-26  Sam Steingold  <sds@gnu.org>
 
+	New charset BASE64
+	* encoding.d (base64_mblen, base64_mbstowcs, base64_wcslen)
+	(base64_wcstombs, base64_range, base64_table, table_base64)
+	(base64_to_bytes, base64_to_chars): added
+	(init_encodings_1): unit BASE64
+	* constsym.d (BASE64): added
+	* clhs.lisp (*base64-table*, base64-encode, *table-base64*)
+	(base64-decode): removed
+	(open-http): use CHARSET:BASE64 instead of BASE64-ENCODE
+
+2005-11-26  Sam Steingold  <sds@gnu.org>
+
 	* .gdbinit (run_test, run_all_tests): suite --> tests (typo)
 
 2005-11-26  Sam Steingold  <sds@gnu.org>

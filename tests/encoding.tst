@@ -116,3 +116,30 @@ ERROR
   (setq list (sort list #'< :key #'second))
   (format t "~& ~:D encoding~:P:~%~:{~25@A: ~5:D~%~}" (length list) list))
 NIL
+
+;; base64
+(convert-string-from-bytes #(97) charset:base64)       "YQ=="
+(convert-string-to-bytes "YQ==" charset:base64)       #(97)
+(convert-string-from-bytes #(97 98) charset:base64)    "YWI="
+(convert-string-to-bytes "YWI=" charset:base64)    #(97 98)
+(convert-string-from-bytes #(97 98 99) charset:base64) "YWJj"
+(convert-string-to-bytes "YWJj" charset:base64) #(97 98 99)
+(convert-string-from-bytes #(108 105 115 112 32 115 116 114 105 110 103)
+                           charset:base64)             "bGlzcCBzdHJpbmc="
+(convert-string-to-bytes "bGlzcCBzdHJpbmc=" charset:base64)
+#(108 105 115 112 32 115 116 114 105 110 103)
+(convert-string-from-bytes #(108 105 115 112 32 115 116 114 105 110 103 115)
+                           charset:base64)             "bGlzcCBzdHJpbmdz"
+(convert-string-to-bytes "bGlzcCBzdHJpbmdz" charset:base64)
+#(108 105 115 112 32 115 116 114 105 110 103 115)
+(convert-string-from-bytes #(99 108 105 115 112 32 115 116 114 105 110 103 115)
+                           charset:base64)             "Y2xpc3Agc3RyaW5ncw=="
+(convert-string-to-bytes "Y2xpc3Agc3RyaW5ncw==" charset:base64)
+#(99 108 105 115 112 32 115 116 114 105 110 103 115)
+
+(loop :with s :and v2  :repeat 1000 :for v1 = (make-array (random 300)) :do
+  (loop :for i :from 0 :below (length v1) :do (setf (aref v1 i) (random 256)))
+  (setq s (convert-string-from-bytes v1 charset:base64)
+        v2 (convert-string-to-bytes s charset:base64))
+  :unless (equalp v1 v2) :collect (list v1 s v2))
+NIL

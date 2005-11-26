@@ -613,6 +613,16 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <listitem id="charset-TCVN"><simpara><constant>TCVN</constant>,
    &ascii-iso-ext; Vietnamese. &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
+<listitem id="base64"><para><constant>BASE64</constant>, encodes
+  arbitrary byte sequences with 64 &ascii; characters <literallayout>
+   ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+  </literallayout> as specifined by &mime;; 3 bytes are encoded with 4
+  characters, line breaks are inserted after every 76 characters.</para>
+ <simpara>While this is not a traditional character set (i.e., it does
+  not map a set of characters in a natural language into bytes), it
+  does define a map between arbitrary byte sequences and certain
+  character sequences, so it falls naturally into the &encoding; class.
+</simpara></listitem>
 </orderedlist>
 
 <!-- #ifdef /* HAVE_ICONV */ -->
@@ -633,10 +643,10 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  there is no portable way to get the list of all character sets
  supported by &iconv;.</simpara>
 
-<simpara>On &gnu; systems (such as &gnu;/&linux; and &gnu;/&hurd;)
- and on systems with &libiconv; you get this list by calling the
- <emphasis>program</emphasis>: <command role="unix">iconv -l</command>.
- </simpara>
+<simpara>On standard-compliant &unix; systems (e.g., &gnu; systems, such
+ as &gnu;/&linux; and &gnu;/&hurd;) and on systems with &libiconv; you
+ get this list by calling the <emphasis>program</emphasis>:
+ <command role="unix">iconv -l</command>.</simpara>
 
 <simpara>The reason we use only &glibc; 2.2 or &libiconv; is
  that the other &iconv; implementations are broken in various ways and
@@ -1636,18 +1646,6 @@ additionally binds &cont-r; to the content length.</para>
  &pass-r; (or &port-r;) are &nil;.</para>
 <para>Use function <code>(EXT:HTTP-PROXY &optional-amp; (&string-t;
   (&getenv; "HTTP_PROXY")))</code> to reset &http-proxy;.</para></section>
-
-<section id="base64"><title>Functions <function>EXT:BASE64-ENCODE</function>
-  and <function>EXT:BASE64-DECODE</function></title>
- <para>These functions implement the &mime; convertion between &string-t;
-  and &ubyte-vec; <programlisting language="lisp">
-(EXT:BASE64-ENCODE &string-r; &optional-amp; &vec-r;)
-(EXT:BASE64-DECODE &vec-r; &optional-amp; &string-r;)
-</programlisting>
-  The optional second argument is the output buffer: when it is
-  specified, it will be written to and will be returned.</para>
-</section>
-
 </section>
 
 <section id="customize"><title>Customizing &clisp; behavior</title>
