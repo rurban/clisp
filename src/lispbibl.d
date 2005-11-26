@@ -5623,6 +5623,7 @@ typedef sstring_ *  Sstring;
 %%   emit_typedef("s32string_ *","S32string");
 %% #endif
 %% emit_typedef("struct { SSTRING_HEADER chart data[unspecified]; }","snstring_");
+%% emit_typedef("snstring_*","Snstring");
 %% export_def(sstring_length(ptr));
 %% export_def(Sstring_length(obj));
 %% export_def(sstring_eltype(ptr));
