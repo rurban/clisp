@@ -1,5 +1,9 @@
 2005-11-26  Sam Steingold  <sds@gnu.org>
 
+	* .gdbinit (run_test, run_all_tests): suite --> tests (typo)
+
+2005-11-26  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (LN_HARD): set from @LN@, also set a Makefile variable
 	with the same name so that the AFS users can change it at run time
 
