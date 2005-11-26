@@ -1,3 +1,8 @@
+2005-11-26  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (Snstring): export to clisp.h to make module i18n
+	build --without-unicode
+
 2005-11-25  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/posix.lisp: set documentation sys::process-id
