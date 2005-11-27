@@ -1,5 +1,9 @@
 2005-11-26  Sam Steingold  <sds@gnu.org>
 
+	* socket.tst: check that EOF is detected when the other end is shutdown
+
+2005-11-26  Sam Steingold  <sds@gnu.org>
+
 	* encoding.tst: test CHARSET:BASE64
 
 2005-11-21  Sam Steingold  <sds@gnu.org>

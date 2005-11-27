@@ -427,6 +427,19 @@ BeOS    2004-10-31 OK
 (close *socket-2*) T
 (socket-server-close *server*) NIL
 
+(progn
+  (setq *server* (socket-server 9090)
+        *socket-1* (socket-connect 9090 "localhost" :timeout 0 :buffered nil)
+        *socket-2* (socket-accept *server* :buffered nil))
+  (write-char #\a *socket-1*))
+#\a
+
+(socket-status (cons *socket-2* :input) 0) :INPUT
+(read-char *socket-2*) #\a
+(socket-status (cons *socket-2* :input) 0) NIL
+(close *socket-1*) T
+(socket-status (cons *socket-2* :input) 0) :EOF
+
 ;; clean-up
 (progn (makunbound '*server*) (unintern '*server*)
        (makunbound '*socket-1*) (unintern '*socket-1*)
