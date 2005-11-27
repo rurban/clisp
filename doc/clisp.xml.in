@@ -671,8 +671,7 @@ compiles the specified lisp files to a platform-independent
 
 <refsection id="bugs"><title>Bugs</title>
 
-<para>When you encounter a bug in &clisp;, please report it to the
- &clisp; user mailing list &clisp-list; or the
+<para>When you encounter a bug in &clisp;, please report it to the &clisp;
  <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355">SourceForge bug tracker</ulink>.</para>
 
 <para><emphasis>Before</emphasis> submitting a bug report, please take
