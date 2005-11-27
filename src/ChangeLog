@@ -1,5 +1,14 @@
 2005-11-26  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (error_eof_p): new function; on woe32, WSAESHUTDOWN is
+	signalled when the other end is shutdown, so take it to mean EOF
+	(low_read_array_unbuffered_handle, low_fill_buffered_handle)
+	(low_read_unbuffered_socket, low_listen_unbuffered_socket)
+	(low_read_array_unbuffered_socket, low_fill_buffered_socket): use it
+	Reported by "Vasilis M." <vasilism@hotmail.com>
+
+2005-11-26  Sam Steingold  <sds@gnu.org>
+
 	* .gdbinit: use $common to ensure that all invocations get -E 1:1
 
 2005-11-26  Sam Steingold  <sds@gnu.org>
