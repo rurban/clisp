@@ -4933,6 +4933,22 @@ local bool low_clear_input_unbuffered_handle (object stream) {
   return true;
 }
 
+/* return true if the last error indicated an EOF */
+local bool error_eof_p (void) {
+  var bool ret = false;
+  begin_system_call();
+ #if defined(WIN32_NATIVE)
+  var DWORD err = GetLastError();
+  if (err==ERROR_HANDLE_EOF || err==WSAESHUTDOWN)
+    ret = true;
+ #else
+  if (errno==ENOENT) /* indicates EOF */
+    ret = true;
+ #endif
+  end_system_call();
+  return ret;
+}
+
 local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
                                                uintL len, perseverance_t persev)
 {
@@ -4967,18 +4983,8 @@ local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
    #endif
     OS_error();
   }
-  if (result==0) {
-    begin_system_call();
-   #if !defined(WIN32_NATIVE)
-    if (errno==ENOENT) /* indicates EOF */
-      UnbufferedStream_status(stream) = -1;
-   #endif
-   #ifdef WIN32_NATIVE
-    if (GetLastError()==ERROR_HANDLE_EOF)
-      UnbufferedStream_status(stream) = -1;
-   #endif
-    end_system_call();
-  }
+  if (result==0 && error_eof_p())
+    UnbufferedStream_status(stream) = -1;
   return byteptr+result;
 }
 
@@ -6024,18 +6030,8 @@ local uintL low_fill_buffered_handle (object stream, perseverance_t persev) {
   end_system_call();
   if (result<0)               /* error occurred? */
     OS_filestream_error(stream);
-  if (result==0) {
-    begin_system_call();
-   #if !defined(WIN32_NATIVE)
-    if (errno==ENOENT) /* indicates EOF */
-      BufferedStream_have_eof_p(stream) = true;
-   #endif
-   #ifdef WIN32_NATIVE
-    if (GetLastError()==ERROR_HANDLE_EOF)
-      BufferedStream_have_eof_p(stream) = true;
-   #endif
-    end_system_call();
-  }
+  if (result==0 && error_eof_p())
+    BufferedStream_have_eof_p(stream) = true;
   return result;
 }
 
@@ -13317,15 +13313,7 @@ local sintL low_read_unbuffered_socket (object stream) {
   var ssize_t result;
   SYSCALL(result,sock_read(handle,&b,1,persev_full)); # try to read a byte
   if (result==0) {
-    begin_system_call();
-    # no byte available -> must be EOF
-    #if !defined(WIN32_NATIVE)
-    ASSERT(errno==ENOENT);
-    #endif
-    #ifdef WIN32_NATIVE
-    ASSERT(GetLastError()==ERROR_HANDLE_EOF);
-    #endif
-    end_system_call();
+    ASSERT(error_eof_p()); /* no byte available -> must be EOF */
     UnbufferedStream_status(stream) = -1; return -1;
   } else {
     return b;
@@ -13370,17 +13358,11 @@ local signean low_listen_unbuffered_socket (object stream) {
       CHECK_INTERRUPT;
       SOCK_error();
     }
+    end_system_call();
     if (result==0) {
-      #if !defined(WIN32_NATIVE)
-      ASSERT(errno==ENOENT);
-      #endif
-      #ifdef WIN32_NATIVE
-      ASSERT(GetLastError()==ERROR_HANDLE_EOF);
-      #endif
-      end_system_call();
+      ASSERT(error_eof_p());
       UnbufferedStream_status(stream) = -1; return ls_eof;
     } else {
-      end_system_call();
       # Stuff the read byte into the buffer, for next low_read call.
       UnbufferedStreamLow_push_byte(stream,b);
       return ls_avail;
@@ -13403,18 +13385,8 @@ local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
   var ssize_t result;
   SYSCALL(result,sock_read(handle,byteptr,len,persev));
-  if (result==0) {
-    begin_system_call();
-   #if !defined(WIN32_NATIVE)
-    if (errno==ENOENT) /* indicates EOF */
-      UnbufferedStream_status(stream) = -1;
-   #endif
-   #ifdef WIN32_NATIVE
-    if (GetLastError()==ERROR_HANDLE_EOF)
-      UnbufferedStream_status(stream) = -1;
-   #endif
-    end_system_call();
-  }
+  if (result==0 && error_eof_p())
+    UnbufferedStream_status(stream) = -1;
   return byteptr+result;
 }
 
@@ -13645,18 +13617,8 @@ local uintL low_fill_buffered_socket (object stream, perseverance_t persev) {
                            BufferedStream_buffer_address(stream,0),
                            strm_buffered_bufflen,
                            persev));
-  if (result==0) {
-    begin_system_call();
-   #if !defined(WIN32_NATIVE)
-    if (errno==ENOENT) /* indicates EOF */
-      BufferedStream_have_eof_p(stream) = true;
-   #endif
-   #ifdef WIN32_NATIVE
-    if (GetLastError()==ERROR_HANDLE_EOF)
-      BufferedStream_have_eof_p(stream) = true;
-   #endif
-    end_system_call();
-  }
+  if (result==0 && error_eof_p())
+    BufferedStream_have_eof_p(stream) = true;
   return result;
 }
 
