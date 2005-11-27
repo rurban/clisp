@@ -3972,7 +3972,8 @@ functions are provided:
 <para>Function &close; is a &generic-function-t;, see
  <xref linkend="gray"/>.</para>
 
-<para>&close; ignores its &abort-k; argument.</para>
+<para>When the &abort-k; argument is non-&nil;, &close; will not
+ &sig-err; even when the underlying OS call fails.</para>
 
 <para>&get-output-stream-string; returns the same value after
  &close; as it would before it.</para>
