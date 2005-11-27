@@ -1,11 +1,9 @@
 # CLISP .gdbinit
 set language c
 
-set $common = -B . -N locale -E 1:1 -q -norc
-
 define boot
   file lisp.run
-  set args $common -M lispinit.mem
+  set args -B . -N locale -E 1:1 -q -norc -M lispinit.mem
 end
 document boot
          debug the boot linking set
@@ -13,7 +11,7 @@ end
 
 define base
   file base/lisp.run
-  set args $common -M base/lispinit.mem
+  set args -B . -N locale -E 1:1 -q -norc -M base/lispinit.mem
 end
 document base
          debug the base linking set
@@ -21,7 +19,7 @@ end
 
 define full
   file full/lisp.run
-  set args $common -M full/lispinit.mem
+  set args -B . -N locale -E 1:1 -q -norc -M full/lispinit.mem
   # -i ../tests/tests -x '(run-test "***/test")'
   # -i clx/new-clx/demos/clx-demos.lisp -x '(clx-demos:qix)' -x '(clx-demos:koch)' -x '(clx-demos:sokoban)'
   break my_type_error
@@ -35,7 +33,7 @@ end
 
 define interpreted
   file lisp.run
-  set args $common -M interpreted.mem
+  set args -B . -N locale -E 1:1 -q -norc -M interpreted.mem
 end
 document interpreted
          debug the boot linking set with the interpreted memory image
@@ -58,28 +56,28 @@ document xout
 end
 
 define run_test
-  run $common -M lispinit.mem -i tests/tests -x "(run-test \"tests/$arg0\")"
+  run -B . -N locale -E 1:1 -q -norc -M lispinit.mem -i tests/tests -x "(run-test \"tests/$arg0\")"
 end
 document run_test
          run the specified test in the test suite
 end
 
 define run_all_tests
-  run $common -M lispinit.mem -i tests/tests -x "(cd \"tests/\") (run-all-tests)"
+  run -B . -N locale -E 1:1 -q -norc -M lispinit.mem -i tests/tests -x "(cd \"tests/\") (run-all-tests)"
 end
 document run_all_tests
          run the whole test suite
 end
 
 define ansi_tests
-  run $common -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
+  run -B . -N locale -E 1:1 -q -norc -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
 end
 document ansi_tests
          run the gcl/ansi-test suite
 end
 
 define ansi_tests_compiled
-  run $common -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests))"
+  run -B . -N locale -E 1:1 -q -norc -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests))"
 end
 document ansi_tests
          run the gcl/ansi-test suite - compiled
