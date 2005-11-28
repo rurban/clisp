@@ -3259,7 +3259,7 @@ if [ $CROSS = false ] ; then
 fi
 
 if [ $XCC_GCC = true ] ; then
-  echol "lispbibl.h :${EVERY_INCLUDES_C}${EVERY_INCLUDES_H}"
+  echol "lispbibl.h :${EVERY_INCLUDES_C}${EVERY_INCLUDES_H} unixconf.h"
   echotab "((${XCPP} ${XCPPFLAGS} ${XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${XCPPFLAGS} ${XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
   echol
   echol "gc : lispbibl.h # show GC-related definitions"
