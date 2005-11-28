@@ -11,7 +11,7 @@
 
 	* clhs.lisp, clos-class1.lisp, clos-class3.lisp, clos-genfun2b.lisp:
 	* clos-genfun3.lisp, clos-methcomb2.lisp, compiler.lisp, defmacro.lisp:
-	* defs1.lisp, describe.lisp, format.lisp, type.lisp:
+	* defs1.lisp, describe.lisp, format.lisp, type.lisp, condition.lisp:
 	read-macro micro-optimizations
 
 2005-11-26  Sam Steingold  <sds@gnu.org>
