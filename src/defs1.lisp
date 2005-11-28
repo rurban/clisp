@@ -491,18 +491,18 @@
     (with-open-file (fi file :if-does-not-exist nil)
       (unless fi (return-from load-lpt-many nil))
       (when *load-verbose*
-        (fresh-line) (write-string ";; ")
+        (fresh-line) (write-string #1=";; ")
         (format t (TEXT "Loading logical hosts from file ~A ...") file)
         (terpri))
       (do* ((eof (gensym)) (host (read fi nil eof) (read fi nil eof)))
            ((eq host eof)
-            (write-string ";; ")
+            (write-string #1#)
             (format t (TEXT "Loaded file ~A") file)
             (terpri))
         (setq host (string-upcase host))
         (set-logical-pathname-translations host (eval (read fi)))
         (when *load-verbose*
-          (fresh-line) (write-string ";; ")
+          (fresh-line) (write-string #1#)
           (format t (TEXT "Defined logical host ~A") host)
           (terpri))))
     (gethash host *logical-pathname-translations*))
@@ -511,7 +511,7 @@
     (with-open-file (fi file :if-does-not-exist nil)
       (unless fi (return-from load-lpt-one nil))
       (when *load-verbose*
-        (fresh-line) (write-string ";; ")
+        (fresh-line) (write-string #1#)
         (format t (TEXT "Loading logical host ~S from file ~A ...") host file))
       (set-logical-pathname-translations host (read fi))
       (when *load-verbose*
@@ -521,9 +521,9 @@
   (defun load-logical-pathname-translations (host)
     (setq host (string-upcase host))
     (unless (gethash host *logical-pathname-translations*) ; :test #'equal !
-      (let ((from (string-concat "LOGICAL_HOST_" host "_FROM"))
-            (to (string-concat "LOGICAL_HOST_" host "_TO"))
-            (ho (string-concat "LOGICAL_HOST_" host)))
+      (let ((from (string-concat #2="LOGICAL_HOST_" host "_FROM"))
+            (to (string-concat #2# host "_TO"))
+            (ho (string-concat #2# host)))
         (cond ((and (fboundp 'getenv) (getenv from) (getenv to))
                (set-logical-pathname-translations host
                  (list (list (getenv from) (getenv to)))))
@@ -576,11 +576,11 @@
       (fresh-line stream)
       (write-string "Real time: " stream)
       (write (float (/ Real-Time internal-time-units-per-second)) :stream stream)
-      (write-string " sec." stream)
+      (write-string #1=" sec." stream)
       (terpri stream)
       (write-string "Run time: " stream)
       (write (float (/ Run-Time internal-time-units-per-second)) :stream stream)
-      (write-string " sec." stream)
+      (write-string #1# stream)
       (terpri stream)
       (write-string "Space: " stream)
       (write Space :stream stream)
@@ -590,7 +590,7 @@
         (write-string "GC: " stream) (write GC-Count :stream stream)
         (write-string ", GC time: " stream)
         (write (float (/ GC-Time internal-time-units-per-second)) :stream stream)
-        (write-string " sec." stream))
+        (write-string #1# stream))
       (elastic-newline stream))))
 
 ;; (sleep N) pause for N seconds. CLTL p. 447

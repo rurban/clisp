@@ -1895,13 +1895,13 @@ for-value   NIL or T
       ;; (to pass the right value to this function!)
       (format nil (if (and *compile-file-pathname*
                            (equalp file *compile-file-truename*))
-                    ""
+                    #1=""
                     (format nil (TEXT " in file ~S") file)))
       (format nil (if (= lineno1 lineno2)
                     (TEXT " in line ~D")
                     (TEXT " in lines ~D..~D"))
               lineno1 lineno2))
-    ""))
+    #1#))
 
 (defun c-source-point-location (point)
   (c-source-location (c-source-point-lineno1 point)
@@ -2662,11 +2662,10 @@ for-value   NIL or T
 (defun signature-to-list (req-num opt-num rest-p key-p keywords allow-p)
   (let ((args '()) (count -1))
     (dotimes (i req-num)
-      (push (make-symbol (format nil "ARG~D" (incf count))) args))
+      #1=(push (make-symbol (format nil "ARG~D" (incf count))) args))
     (when (plusp opt-num)
       (push '&OPTIONAL args)
-      (dotimes (i opt-num)
-        (push (make-symbol (format nil "ARG~D" (incf count))) args)))
+      (dotimes (i opt-num) #1#))
     (when rest-p
       (push '&REST args)
       (push 'other-args args))
@@ -7142,7 +7141,7 @@ for-value   NIL or T
   ; For the moment, we don't propagate types, therefore the user has to
   ; write THE explicitly.
   (and (consp form) (eq (first form) 'THE)
-       (consp (rest form)) (member (second form) '(LIST CONS))
+       (consp (rest form)) (memq (second form) '(LIST CONS))
        (consp (cddr form)) (null (cdddr form))))
 
 (defun c-MAP ()
@@ -7151,7 +7150,7 @@ for-value   NIL or T
         (fun-form (macroexpand-form (third *form*)))
         (forms (cdddr *form*)))
     (if (and (c-constantp restype-form)
-             (member (c-constant-value restype-form) '(NIL LIST)) ; restype is NIL or LIST
+             (memq (c-constant-value restype-form) '(NIL LIST)) ; restype is NIL or LIST
              (every #'declared-list-form-p forms) ; all sequences are lists
              (inline-callable-function-p fun-form (length forms)))
       (ecase (c-constant-value restype-form)
@@ -10777,8 +10776,7 @@ The function make-closure is required.
               (sys::untrace2 name))
             (setq trace-flag t)))
         (when (sys::%compiled-function-p definition)
-          (warn (TEXT "~S is already compiled.")
-                definition)
+          (warn #1=(TEXT "~S is already compiled.") definition)
           (when name
             (if trace-flag
               (setf (get symbol 'sys::traced-definition) definition)
@@ -10802,7 +10800,7 @@ The function make-closure is required.
           (setq macro-flag t)
           (setq definition (macro-expander definition)))
         (when (sys::%compiled-function-p definition)
-          (warn (TEXT "~S is already compiled.") name)
+          (warn #1# name)
           (return-from compile (values (or name definition) nil nil)))))
     (unless (or (and (consp definition) (eq (car definition) 'lambda))
                 (sys::closurep definition))
@@ -11227,7 +11225,7 @@ The function make-closure is required.
                                  (encoding 'charset:utf-8))
                              (setf (stream-external-format stream) encoding)
                              (write-string "#0Y " stream)
-                             (let ((*package* (find-package "CHARSET")))
+                             (let ((*package* #,(find-package "CHARSET")))
                                (write encoding :stream stream :readably t))
                              (terpri stream)))))
                   (when new-output-stream
@@ -11248,8 +11246,8 @@ The function make-closure is required.
                      form (symbol-suffix
                            (make-symbol
                             (string-concat
-                             (prin1-to-string *compile-file-lineno1*) " "
-                             (prin1-to-string *compile-file-lineno2*) " "
+                             (prin1-to-string *compile-file-lineno1*) #3=" "
+                             (prin1-to-string *compile-file-lineno2*) #3#
                              form-name))
                            (incf form-count)))))
                 (finalize-coutput-file)
@@ -11257,25 +11255,23 @@ The function make-closure is required.
                 (when verbose-out
                   (cond (compilation-successful
                          (fresh-line verbose-out)
-                         (format verbose-out (TEXT ";; Wrote file ~A")
+                         (format verbose-out #1=(TEXT ";; Wrote file ~A")
                                  output-file)
                          (when *coutput-stream*
                            (terpri verbose-out)
-                           (format verbose-out (TEXT ";; Wrote file ~A")
-                                   *coutput-file*))
+                           (format verbose-out #1# *coutput-file*))
                          (elastic-newline verbose-out))
                         (new-output-stream
                          (fresh-line verbose-out)
-                         (format verbose-out (TEXT ";; Deleted file ~A")
+                         (format verbose-out #2=(TEXT ";; Deleted file ~A")
                                  output-file)
                          (when *coutput-stream*
                            (terpri verbose-out)
-                           (format verbose-out (TEXT ";; Deleted file ~A")
-                                   *coutput-file*))
+                           (format verbose-out #2# *coutput-file*))
                          (elastic-newline verbose-out)))
                   (when new-listing-stream
                     (terpri verbose-out)
-                    (format verbose-out (TEXT ";; Wrote file ~A") listing)
+                    (format verbose-out #1# listing)
                     (elastic-newline verbose-out)))
                 (values (and compilation-successful output-file
                              (truename *fasoutput-stream*))

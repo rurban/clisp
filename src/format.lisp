@@ -913,12 +913,12 @@
           (when (or round-down-p round-up-p
                     (and last-pos (<= posn last-pos)))
             (return))
-          (vector-push-extend (schar "0123456789" digit) digit-string)
+          (vector-push-extend (schar #1="0123456789" digit) digit-string)
           (incf digit-count))
         ;; print last significant digit:
         (when (or (null last-pos) (>= posn last-pos))
           (vector-push-extend
-           (schar "0123456789"
+           (schar #1#
                   (cond ((and round-down-p (not round-up-p)) digit)
                         ((and round-up-p (not round-down-p)) (1+ digit))
                         ((<= (ash numerator 1) denominator) digit)
@@ -1141,11 +1141,11 @@
   (let ((*print-right-margin* (stream-start-s-expression stream)))
     (if (and (zerop mincol) (zerop minpad))
       (if (and colon-modifier (null arg))
-        (write-string "()" stream)
+        (write-string #1="()" stream)
         (prin1 arg stream))
       (format-padded-string mincol colinc minpad padchar
         atsign-modifier ; =: padleftflag
-        (if (and colon-modifier (null arg)) "()" (prin1-to-string arg))
+        (if (and colon-modifier (null arg)) #1# (prin1-to-string arg))
         stream)))
   (stream-end-s-expression stream))
 
