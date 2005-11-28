@@ -1168,14 +1168,13 @@
                          (eq slot-definition-class 'standard-effective-slot-definition)
                          (and (defined-class-p slot-definition-class)
                               (subclassp slot-definition-class <standard-effective-slot-definition>)))
-               (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+               (error #1=(TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                       'effective-slot-definition-class (class-name class)
                       'standard-effective-slot-definition slot-definition-class)))
             ((structure-class-p class)
              (unless (and (defined-class-p slot-definition-class)
                           (subclassp slot-definition-class <structure-effective-slot-definition>))
-               (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                      'effective-slot-definition-class (class-name class)
+               (error #1# 'effective-slot-definition-class (class-name class)
                       'structure-effective-slot-definition slot-definition-class))))
       (apply (cond ((eq slot-definition-class 'standard-effective-slot-definition)
                     #'make-instance-<standard-effective-slot-definition>)
@@ -1573,7 +1572,7 @@
                                       (apply #'reader-method-class class slot args)))
                                (unless (and (defined-class-p method-class)
                                             (subclassp method-class <standard-reader-method>))
-                                 (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                 (error #1=(TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                                         'reader-method-class (class-name class) 'standard-reader-method method-class))
                                (apply #'make-instance method-class
                                       (nconc (method-function-initargs method-class
@@ -1608,8 +1607,8 @@
                                       (apply #'writer-method-class class slot args)))
                                (unless (and (defined-class-p method-class)
                                             (subclassp method-class <standard-writer-method>))
-                                 (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                        'writer-method-class (class-name class) 'standard-writer-method method-class))
+                                 (error #1# 'writer-method-class (class-name class)
+                                        'standard-writer-method method-class))
                                (apply #'make-instance method-class
                                       (nconc (method-function-initargs method-class
                                                (eval

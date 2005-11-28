@@ -176,7 +176,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                      (format t " --> ~S~%" new-url)
                      (unless (string-equal #1# new-url
                                            :end2 (min (length new-url) #2#))
-                       (setq new-url (string-concat "http://" host new-url)))
+                       (setq new-url (string-concat #1# host new-url)))
                      (return-from open-http (open-http new-url))))
         ;; drop response headers
         (loop :for line = (read-line sock) :while (plusp (length line)) :do
