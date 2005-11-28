@@ -1,5 +1,10 @@
 2005-11-28  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp (convert-to-foreign-C): added
+	(note-c-call-in): use it
+
+2005-11-28  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (lispbibl.h): depend on unixconf.h
 
 2005-11-28  Sam Steingold  <sds@gnu.org>
