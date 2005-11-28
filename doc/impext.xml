@@ -29,8 +29,11 @@
   <olink targetdoc="man" targetptr="opt-exec-expr">form evaluation</olink>,
   <olink targetdoc="man" targetptr="opt-exec-file">script execution</olink>,
   &repl;.</para></step>
-<step><title>Finalization</title>
- <substeps><step><simpara>Run all functions in &fini-hooks;.</simpara></step>
+<step><title>Finalization (executed even on abnormal exit due
+  to <function role="unix">kill</function>)</title>
+ <substeps><step><simpara>Unwind the &STACK;, executing cleanup forms in
+    &unwind-protect;.</simpara></step>
+  <step><simpara>Run all functions in &fini-hooks;.</simpara></step>
   <step><simpara>Call &fresh-line; on the standard streams.</simpara></step>
   <step><simpara>Say <quote>bye</quote> unless suppressed by &opt-v;.
   </simpara></step>
