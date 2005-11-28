@@ -1762,7 +1762,7 @@ Returns the added or removed method(s)."
                       (when old-handler
                         (clos:add-method #'global-handler old-handler)))))
                 t))             ; wants-next-method-p == NIL
-             (list :qualifiers '(progn) :lambda-list '(condition)
+             (list :qualifiers #1='(progn) :lambda-list '(condition)
                    'clos::signature #(1 0 NIL NIL NIL NIL)
                    :specializers (list (find-class condition-name)))))
           ((consp condition-name) ; install all these handlers
@@ -1777,7 +1777,7 @@ Returns the added or removed method(s)."
                  (clos:remove-method #'global-handler method)))
              handlers))
           ((symbolp condition-name) ; remove handler for this condition
-           (let ((method (find-method #'global-handler '(progn)
+           (let ((method (find-method #'global-handler #1#
                                       (list (find-class condition-name)) nil)))
              (when method
                (clos:remove-method #'global-handler method)
