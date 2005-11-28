@@ -606,13 +606,12 @@
 (defun to-c-typedecl (c-type name)
   (case c-type
     ((nil) (format nil "void ~A" name))
-    (boolean (format nil "int ~A" name))
+    ((boolean int) (format nil "int ~A" name))
     (character (format nil "char ~A" name))
     ((char sint8) (format nil "sint8 ~A" name))
     ((uchar uint8) (format nil "uint8 ~A" name))
     ((short sint16) (format nil "sint16 ~A" name))
     ((ushort uint16) (format nil "uint16 ~A" name))
-    (int (format nil "int ~A" name))
     (uint (format nil "unsigned int ~A" name))
     (long (format nil "long ~A" name))
     (ulong (format nil "unsigned long ~A" name))
@@ -1092,6 +1091,11 @@
          (NOTE-C-CALL-IN ',name ',c-name ',alist ',whole-form))
        ',name)))
 
+(defun convert-to-foreign-C (flags)
+  (if (flag-set-p flags ff-flag-malloc-free)
+      "convert_to_foreign_mallocing"
+      "convert_to_foreign_nomalloc"))
+
 (defun note-c-call-in (name c-name alist whole) ; ABI
   (when (compiler::prepare-coutput-file)
     (prepare-module)
@@ -1142,9 +1146,7 @@
           (format *coutput-stream* " {~%  var ~A;~%~:
   ~A(~A,value1,&retval);~%"
                   (to-c-typedecl rettype "retval")
-                  (if (flag-set-p flags ff-flag-malloc-free)
-                    "convert_to_foreign_mallocing"
-                    "convert_to_foreign_nomalloc")
+                  (convert-to-foreign-C flags)
                   (object-to-c-value (pass-object rettype))))
         (let ((outargcount (if (eq rettype 'NIL) 0 1)))
           (mapc #'(lambda (argtype argflag argname)
@@ -1156,9 +1158,7 @@
                               (if (eql outargcount 0) ""
                                 (format nil "if (mv_count >= ~D) "
                                         (+ outargcount 1)))
-                              (if (flag-set-p argflag ff-flag-malloc-free)
-                                "convert_to_foreign_mallocing"
-                                "convert_to_foreign_nomalloc")
+                              (convert-to-foreign-C argflag)
                               (object-to-c-value
                                 (pass-object (svref argtype 1)))
                               (if (eql outargcount 0)
