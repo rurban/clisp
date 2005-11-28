@@ -183,12 +183,11 @@
                 (error-of-type 'ext:source-program-error
                   :form whole-form
                   :detail detail
-                  (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+                  #1=(TEXT "~S ~S: invalid ~S lambda-list: ~A")
                   caller name ':arguments
                   (apply #'format nil errorstring arguments))
                 (error-of-type 'program-error
-                  (TEXT "~S ~S: invalid ~S lambda-list: ~A")
-                  caller name ':arguments
+                  #1# caller name ':arguments
                   (apply #'format nil errorstring arguments)))))
       (declare (ignore optinits keyp keywords keyinits allowp auxinits))
       (values
@@ -204,11 +203,10 @@
       (error-of-type 'ext:source-program-error
         :form whole-form
         :detail option
-        (TEXT "~S ~S: Invalid syntax for ~S option: ~S")
+        #1=(TEXT "~S ~S: Invalid syntax for ~S option: ~S")
         caller name ':generic-function option)
       (error-of-type 'program-error
-        (TEXT "~S ~S: Invalid syntax for ~S option: ~S")
-        caller name ':generic-function option)))
+        #1# caller name ':generic-function option)))
   (cadr option))
 
 ; Check the effective-method option (:DUPLICATES ...).

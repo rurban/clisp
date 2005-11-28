@@ -404,7 +404,7 @@
                 (< (first low) x)
              )
              (t (error-of-type 'error
-                  (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                  #1=(TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                   'typep type type type low
        )     )  )
        (cond ((eq high '*))
@@ -413,8 +413,7 @@
                 (> (first high) x)
              )
              (t (error-of-type 'error
-                  (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
-                  'typep type type type high
+                  #1# 'typep type type type high
 ) )    )     )  )
 (defun c-typep-number (caller tester low high x)
   `(AND (,tester ,x)
@@ -423,7 +422,7 @@
                 ((and (consp low) (null (rest low)) (funcall tester (first low)))
                  `((< ,(first low) ,x))
                 )
-                (t (c-warn (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                (t (c-warn #1=(TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                            'typep caller caller caller low
                    )
                    (throw 'c-TYPEP nil)
@@ -433,9 +432,7 @@
                 ((and (consp high) (null (rest high)) (funcall tester (first high)))
                  `((> ,(first high) ,x))
                 )
-                (t (c-warn (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
-                           'typep caller caller caller high
-                   )
+                (t (c-warn #1# 'typep caller caller caller high)
                    (throw 'c-TYPEP nil)
           )     )
    )

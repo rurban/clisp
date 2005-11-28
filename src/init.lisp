@@ -610,8 +610,8 @@
          object)
         (when what ; when not yet defined, `what' is NIL
           (warn (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")
-                caller what object (or cur-file "top-level")
-                (or old-file "top-level"))))
+                caller what object (or cur-file #1="top-level")
+                (or old-file #1#))))
       (system::%set-documentation
        object 'sys::file
        ;; note that when CUR-FILE is "foo.fas",
@@ -1657,7 +1657,7 @@
            (eof-indicator input-stream))
       (when *load-verbose*
         (fresh-line)
-        (write-string ";;")
+        (write-string #1=";;")
         (write-string indent)
         (format t (TEXT "Loading file ~A ...") filename)
         (elastic-newline))
@@ -1696,7 +1696,7 @@
             (compiler::c-report-problems))))
       (when *load-verbose*
         (fresh-line)
-        (write-string ";;")
+        (write-string #1#)
         (write-string indent)
         (format t (TEXT "Loaded file ~A") filename)
         (elastic-newline))
