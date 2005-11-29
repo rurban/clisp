@@ -2647,18 +2647,6 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
  <listitem><simpara>See <xref linkend="c-flavor"/>.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
 
-<varlistentry id="def-c-call-out"><term><code>(&def-c-call-out;
-        &name-r; {&option-r;}*)</code></term>
-<listitem><simpara>This is equivalent to &def-call-out; with
-   &lang-k; &stdc-k;.  <emphasis>deprecated</emphasis>.
-   </simpara></listitem></varlistentry>
-
-<varlistentry id="def-c-call-in"><term><code>(&def-c-call-in;
-        &name-r; {&option-r;}*)</code></term>
-<listitem><simpara>This is equivalent to &def-call-in; with
-   &lang-k; &stdc-k;.  <emphasis>deprecated</emphasis>.
-   </simpara></listitem></varlistentry>
-
 <varlistentry id="dffi-close-lib"><term><code>(&close-foreign-library;
    &name-r;)</code></term>
  <listitem><simpara>Close (unload) a shared foreign library (opened by the
