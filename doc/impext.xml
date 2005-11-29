@@ -2661,11 +2661,13 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
 
 <varlistentry id="dffi-close-lib"><term><code>(&close-foreign-library;
    &name-r;)</code></term>
- <listitem><simpara>Close (unload) a foreign library (opened by the
+ <listitem><simpara>Close (unload) a shared foreign library (opened by the
    &library-k; argument to &def-call-out; or &def-c-var;).</simpara>
-  <simpara>When you try to use the &foreign-variable-t; or the
-   &foreign-function-t; which resides in the library &name-r;, it will
-   be re-opened automatically.</simpara></listitem></varlistentry>
+  <simpara>If you modify your shared library, you need to use close it
+   using &close-foreign-library; first.  When you try to use the
+   &foreign-variable-t; or the &foreign-function-t; which resides in the
+   library &name-r;, it will be re-opened automatically.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="def-c-struct"><term><code>(&def-c-struct;
    &name-r; (&symbol-r; &ctype-r;)*)</code></term>
