@@ -306,10 +306,17 @@ LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL) {
 local char * cat_env_var (char * buffer, const char * name, uintL namelen,
                           const char * value, uintL valuelen) {
   memcpy(buffer,name,namelen);
+#if defined(WIN32_NATIVE)
+  /* woe32: putenv("FOO=") removes FOO */
+  buffer[namelen++] = '=';
+#endif
   if (value != NULL) {
-    buffer[namelen] = '=';
-    memcpy(buffer+namelen+1,value,valuelen);
-    buffer[namelen+1+valuelen] = 0;
+   #if !defined(WIN32_NATIVE)
+    /* posix: putenv("FOO") removes FOO */
+    buffer[namelen++] = '=';
+   #endif
+    memcpy(buffer+namelen,value,valuelen);
+    buffer[namelen+valuelen] = 0;
   } else
     buffer[namelen] = 0;
   return buffer;
@@ -332,7 +339,8 @@ global int clisp_setenv (const char * name, const char * value) {
      <http://article.gmane.org/gmane.comp.gnu.mingw.user/8272>
      <http://article.gmane.org/gmane.comp.gnu.mingw.user/8273>
      <http://www.cygwin.com/ml/cygwin/1999-04/msg00478.html> */
-  if (!SetEnvironmentVariableA(name,value))
+  if (!SetEnvironmentVariableA(name,value)
+      && (value || GetLastError() != ERROR_ENVVAR_NOT_FOUND))
     return -1;
 #endif
 #if defined(HAVE_PUTENV)
