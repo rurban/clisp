@@ -973,18 +973,20 @@ WARNING: This form contains an error, a mistake, a bug, a
 (T NIL)
 
 #+clisp
-(let ((f "foo.bar") fwd size dir)
+(let ((f "foo.bar") fwd size dir decoded)
   (unwind-protect
        (progn (with-open-file (s f :direction :output)
                 (write s :stream s)
                 (setq fwd (file-write-date s)
                       size (file-length s)))
-              (setq dir (first (directory f :full t)))
-              (list (equal (third dir)
-                           (subseq (multiple-value-list
-                                    (decode-universal-time fwd))
-                                   0 6))
-                    (= (fourth dir) size)))
+              (setq dir (first (directory f :full t))
+                    decoded (subseq (multiple-value-list
+                                     (decode-universal-time fwd))
+                                    0 6))
+              (list (or (equal (third dir) decoded)
+                        (list dir fwd decoded))
+                    (or (= (fourth dir) size)
+                        (list dir size))))
     (delete-file f)))
 #+clisp (T T)
 
