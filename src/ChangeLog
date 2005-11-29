@@ -1,3 +1,10 @@
+2005-11-29  Sam Steingold  <sds@gnu.org>
+
+	* misc.d (cat_env_var) [woe32]: putenv("FOO=") removes FOO,
+	[posix]: putenv("FOO") removes FOO
+	(clisp_setenv) [WIN32_NATIVE]: ignore ERROR_ENVVAR_NOT_FOUND when
+	passing NULL value to SetEnvironmentVariableA()
+
 2005-11-28  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (loading-message): new function
