@@ -1612,6 +1612,14 @@
       (declare (ignore file))
       (eval-loaded-form-low obj)))))
 
+(defun loading-message (format argument)
+  (when *load-verbose*
+    (fresh-line)
+    (write-string ";;")
+    (write-spaces *load-level*)
+    (format t format argument)
+    (elastic-newline)))
+
 ;; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
 ;;                [:echo] [:compiling] [:extra-file-types] [:obsolete-action]),
 ;; CLTL p. 426
@@ -1639,9 +1647,6 @@
                (make-echo-stream stream *standard-output*)
                stream))
            (*load-level* (1+ *load-level*))
-           (indent (if (null *load-verbose*)
-                     ""
-                     (make-string *load-level* :initial-element #\Space)))
            (*load-input-stream* input-stream)
            (*load-pathname*
             (if (pathnamep filename) (merge-pathnames filename) nil))
@@ -1655,12 +1660,7 @@
            (*readtable* *readtable*) ; bind *READTABLE*
            (compiler::*c-error-output* *error-output*) ; for compiling
            (eof-indicator input-stream))
-      (when *load-verbose*
-        (fresh-line)
-        (write-string #1=";;")
-        (write-string indent)
-        (format t (TEXT "Loading file ~A ...") filename)
-        (elastic-newline))
+      (loading-message (TEXT "Loading file ~A ...") filename)
       (when *load-compiling* (compiler::c-reset-globals))
       (sys::allow-read-eval input-stream t)
       ;; see `with-compilation-unit' -- `:compiling' sets a compilation unit
@@ -1694,12 +1694,7 @@
               (sys::built-in-stream-close stream))
           (when (and *load-compiling* *load-verbose* *compile-verbose*)
             (compiler::c-report-problems))))
-      (when *load-verbose*
-        (fresh-line)
-        (write-string #1#)
-        (write-string indent)
-        (format t (TEXT "Loaded file ~A") filename)
-        (elastic-newline))
+      (loading-message (TEXT "Loaded file ~A") filename)
       t)))
 
 (sys::%putd 'defun              ; preliminary:

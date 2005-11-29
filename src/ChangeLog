@@ -1,5 +1,10 @@
 2005-11-28  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (loading-message): new function
+	(load): use it
+
+2005-11-28  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (convert-to-foreign-C): added
 	(note-c-call-in): use it
 
