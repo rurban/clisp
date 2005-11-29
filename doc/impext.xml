@@ -3371,8 +3371,7 @@ and possibly the calling convention.</para>
 
 <para>The following operators define foreign functions:
  <simplelist columns="2"><member>&def-call-in;</member>
-  <member>&def-call-out;</member><member>&def-c-call-in;</member>
-  <member>&def-c-call-out;</member><member>&foreign-function;</member>
+  <member>&def-call-out;</member><member>&foreign-function;</member>
 </simplelist></para>
 
 </section>
@@ -3872,10 +3871,11 @@ int CallInFunc(LispFunc f) {
  you would do in &c-lang;: stack-allocate a temporary.</para>
 
 <programlisting language="lisp">
-(&def-c-call-out; gethostname
+(&def-call-out; gethostname
   (:arguments (name (&c-ptr; (&c-array-max; ffi:char 256))
                     &out-k; &alloca-k;)
               (len ffi:int))
+  (:language :stdc)
   (:return-type ffi:int))
 
 (defun myhostname ()
