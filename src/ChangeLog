@@ -2,6 +2,8 @@
 
 	* init.lisp (loading-message): new function
 	(load): use it
+	* defs1.lisp (load-lpt-many, load-lpt-one): ditto
+	(load-logical-pathname-translations): use search-file exclusively
 
 2005-11-28  Sam Steingold  <sds@gnu.org>
 
@@ -30,7 +32,7 @@
 
 2005-11-26  Sam Steingold  <sds@gnu.org>
 
-	* .gdbinit: use $common to ensure that all invocations get -E 1:1
+	* .gdbinit: ensure that all invocations get -E 1:1
 
 2005-11-26  Sam Steingold  <sds@gnu.org>
 
