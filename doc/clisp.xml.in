@@ -147,7 +147,7 @@ compiles the specified lisp files to a platform-independent
    <link linkend="opt-libdir">&lld;</link>)
    containing at least a main executable (&rt;) and an initial &mem-image;.
    Possible values are
-   <variablelist><varlistentry><term>&base;</term>
+   <variablelist>&varlist-table;<varlistentry><term>&base;</term>
      <listitem><simpara>the core &clisp;</simpara></listitem></varlistentry>
     <varlistentry><term>&full;</term>
      <listitem><simpara>core plus all the modules with which this
@@ -257,7 +257,8 @@ compiles the specified lisp files to a platform-independent
    overriding the default which depends on the &env-var;s
    <envar>LC_ALL</envar>, <envar>LC_CTYPE</envar>, <envar>LANG</envar>.
    &dom; can be
-   <variablelist><varlistentry><term><constant>file</constant></term>
+   <variablelist>&varlist-table;
+    <varlistentry><term><constant>file</constant></term>
      <listitem><simpara>affecting &def-file-enc;
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>pathname</constant></term>
@@ -683,9 +684,10 @@ compiles the specified lisp files to a platform-independent
    before <command role="unix">make</command>).</simpara></listitem>
  <listitem><simpara>If you are reporting a <quote>hard crash</quote>
    (segmentation fault, bus error, core dump etc), please do
-   <command>./configure --with-debug --build build-g ; cd build-g; gdb lisp.run</command>,
-   then load the appropriate &linkset; by either &base; or &full; &gdb;
-   command, and report the backtrace.</simpara></listitem>
+   <command>./configure --with-debug --build build-g ; cd build-g; gdb
+    lisp.run</command>, then load the appropriate &linkset; by either
+   &base; or &full; &gdb; command, and report the backtrace (see also
+   <olink targetdoc="impnotes" targetptr="faq-debug"/>).</simpara></listitem>
  <listitem><simpara>If you are using pre-built binaries and experience a
    hard crash, the problem is likely to be in the incompatibilities
    between the platform on which the binary was built and yours; please
