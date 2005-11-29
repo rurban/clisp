@@ -44,6 +44,10 @@ img
 .epigraph
 { text-align: right; margin-left: 50%; }
 
+/* cmdsynopsis: indent first line */
+.cmdsynopsis
+{ text-indent: -40px; margin-left: 40px; }
+
 /* larger headings:
  (loop :for i :from 1 :to 6 :do
    (format t "h~d { font-size: ~d%; }~%"
