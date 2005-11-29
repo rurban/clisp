@@ -2986,7 +2986,11 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
  <term><code>(&deparse-c-type; &ctypei-r;)</code></term>
  <listitem><simpara>Convert between the external (&list-t;) and internal
    (&vector-t;) &c-lang; type representations (used by &describe-my;).
-</simpara></listitem></varlistentry>
+  </simpara><note><simpara>Although you can memoize a &ctypei-r; (see
+    <xref linkend="memoized"/> - but do not expect type redefinitions to
+    work across memoization!), you cannot serialize it (write to
+    disk) because deserialization loses object identity.</simpara></note>
+</listitem></varlistentry>
 
 <varlistentry id="foreign-heap"><term><code>(&allocate-shallow;
    &ctype-r; &key-amp; &count-k; &ro-k;)</code></term>
@@ -3087,11 +3091,24 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
 
 <variablelist id="dffi-low"><title>Low-level &ffi-pac; forms</title>
 <varlistentry id="memory-as">
- <term><code>(&memory-as; &addr-r; &type-r; &optional-amp;
+ <term><code>(&memory-as; &f-addr; &ctypei-r; &optional-amp;
    &offset-r;)</code></term>
- <term><code>(&setf; (&memory-as; &addr-r; &type-r; &optional-amp; &offset-r;)
-   &value-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <term><code>(&setf; (&memory-as; &f-addr; &ctypei-r; &optional-amp;
+   &offset-r;) &value-r;)</code></term>
+ <listitem><simpara>This accessor is useful when operating with untyped
+   foreign pointers (&foreign-address-t;) as opposed to typed ones
+   (represented by &foreign-variable-t;).  It allows to type and
+   dereference the given pointer without the need to create an object of
+   type &foreign-variable-t;.</simpara>
+  <simpara>Alternatively, one could use <code>(&foreign-value;
+    (&foreign-variable; &f-ent; &ctypei-r;))</code>
+   (also &setf;able).</simpara>
+  <simpara>Note that &ctypei-r; is the <emphasis>internal</emphasis>
+   representation of a foreign type, thus &parse-c-type; is required
+   with literal names or types, e.g. <code>(&memory-as; &f-addr;
+    (&parse-c-type; '(&c-array; uint8 3)))</code> or <code>(&setf;
+    (&memory-as; &f-addr; (&parse-c-type; 'uint32)) 0)</code>.</simpara>
+</listitem></varlistentry>
 </variablelist>
 
 </section>
