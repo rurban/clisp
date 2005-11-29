@@ -487,36 +487,23 @@
                                (rest rule)))
                      translations)))
   ;; load many hosts from a file, AllegroCL-style
-  (defun load-lpt-many (file host)
+  (defun load-lpt-many (file host &aux (*load-level* (1+ *load-level*)))
     (with-open-file (fi file :if-does-not-exist nil)
       (unless fi (return-from load-lpt-many nil))
-      (when *load-verbose*
-        (fresh-line) (write-string #1=";; ")
-        (format t (TEXT "Loading logical hosts from file ~A ...") file)
-        (terpri))
-      (do* ((eof (gensym)) (host (read fi nil eof) (read fi nil eof)))
-           ((eq host eof)
-            (write-string #1#)
-            (format t (TEXT "Loaded file ~A") file)
-            (terpri))
+      (loading-message (TEXT "Loading logical hosts from file ~A ...") file)
+      (do* ((eof fi) (host (read fi nil eof) (read fi nil eof)))
+           ((eq host eof) (loading-message (TEXT "Loaded file ~A") file))
         (setq host (string-upcase host))
         (set-logical-pathname-translations host (eval (read fi)))
-        (when *load-verbose*
-          (fresh-line) (write-string #1#)
-          (format t (TEXT "Defined logical host ~A") host)
-          (terpri))))
+        (loading-message (TEXT "Defined logical host ~A") host)))
     (gethash host *logical-pathname-translations*))
   ;; load a single host from a file, CMUCL-style
-  (defun load-lpt-one (file host)
+  (defun load-lpt-one (file host &aux (*load-level* (1+ *load-level*)))
     (with-open-file (fi file :if-does-not-exist nil)
       (unless fi (return-from load-lpt-one nil))
-      (when *load-verbose*
-        (fresh-line) (write-string #1#)
-        (format t (TEXT "Loading logical host ~S from file ~A ...") host file))
+      (loading-message (TEXT "Loading logical host from file ~A ...") file)
       (set-logical-pathname-translations host (read fi))
-      (when *load-verbose*
-        (write-string (TEXT " done"))
-        (terpri)))
+      (loading-message (TEXT "Defined logical host ~A") host))
     (gethash host *logical-pathname-translations*))
   (defun load-logical-pathname-translations (host)
     (setq host (string-upcase host))
@@ -525,29 +512,25 @@
             (to (string-concat #2# host "_TO"))
             (ho (string-concat #2# host)))
         (cond ((and (fboundp 'getenv) (getenv from) (getenv to))
-               (set-logical-pathname-translations host
-                 (list (list (getenv from) (getenv to)))))
+               (set-logical-pathname-translations
+                host (list (list (getenv from) (getenv to))))
+               (return-from load-logical-pathname-translations t))
               ((and (fboundp 'getenv) (getenv ho))
-               (set-logical-pathname-translations host
-                 (read-from-string (getenv ho))))
+               (set-logical-pathname-translations
+                host (read-from-string (getenv ho)))
+               (return-from load-logical-pathname-translations t))
               ((dolist (file *load-logical-pathname-translations-database*)
                  (if (pathname-name file)
-                   (progn       ; non-directory
-                     (when (load-lpt-many file host) ; successfully defined?
-                       (return-from load-logical-pathname-translations t))
-                     (dolist (ff (search-file file '("" "host")))
-                       (when (load-lpt-many ff host) ; successfully defined?
-                         (return-from load-logical-pathname-translations t))))
-                   (progn       ; directory
-                     (when (load-lpt-one (merge-pathnames
-                                          (string-downcase host) file)
-                                         host) ; successfully defined?
-                       (return-from load-logical-pathname-translations t))
-                     (dolist (ff (search-file file nil))
-                       (and (string-equal host (pathname-name ff))
-                            (load-lpt-one ff host) ; successfully defined?
-                            (return-from load-logical-pathname-translations
-                              t)))))))))
+                   (dolist (ff (search-file file '(nil "host")))
+                     (when (load-lpt-many ff host) ; successfully defined?
+                       (return-from load-logical-pathname-translations t)))
+                   (dolist (ff (search-file file nil))
+                     (and (string-equal host (pathname-name ff))
+                          (or (null (pathname-type ff))
+                              (string-equal "host" (pathname-type ff)))
+                          (load-lpt-one ff host) ; successfully defined?
+                          (return-from load-logical-pathname-translations
+                            t))))))))
       (error (TEXT "No translations for logical host ~S found") host)))
   (set-logical-pathname-translations "SYS"
     '((";*.LISP" "*.lisp") (";*" "*") ("*" "/*"))))

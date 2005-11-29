@@ -1028,3 +1028,54 @@ T
   (push (directory f1) r)
   (nreverse r))
 (NIL NIL T NIL NIL NIL)
+
+;; LOAD-LOGICAL-PATHNAME-TRANSLATIONS
+;; getenv #1
+(unwind-protect
+     (progn
+       (setf (logical-pathname-translations "FOO") nil
+             (getenv "LOGICAL_HOST_FOO")
+             (write-to-string '(("FOO:**;*" "/foo/**/*"))))
+       (and (load-logical-pathname-translations "FOO")
+            (cadar (logical-pathname-translations "FOO"))))
+  (setf (getenv "LOGICAL_HOST_FOO") nil)) "/foo/**/*"
+(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+
+;; getenv #2
+(unwind-protect
+     (progn
+       (setf (logical-pathname-translations "FOO") nil
+             (getenv "LOGICAL_HOST_FOO_FROM") "FOO:**;*"
+             (getenv "LOGICAL_HOST_FOO_TO") "/foo/**/*")
+       (and (load-logical-pathname-translations "FOO")
+            (cadar (logical-pathname-translations "FOO"))))
+  (setf (getenv "LOGICAL_HOST_FOO_FROM") nil
+        (getenv "LOGICAL_HOST_FOO_TO") nil)) "/foo/**/*"
+(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+
+;; one file - many hosts (Allegro style)
+(let ((file (first *load-logical-pathname-translations-database*)))
+  (unwind-protect
+       (let ((*load-paths* nil) (*load-verbose* t))
+         (setf (logical-pathname-translations "FOO") nil)
+         (with-open-file (f file :direction :output)
+           (format f "~S~%~S~%" "FOO" ''(("FOO:**;*" "/foo/**/*"))))
+         (and (load-logical-pathname-translations "FOO")
+              (cadar (logical-pathname-translations "FOO"))))
+    (delete-file file))) "/foo/**/*"
+(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+
+;; one file - one host (CMUCL style)
+(let* ((dir (second *load-logical-pathname-translations-database*))
+       (file (merge-pathnames "FOO" dir)))
+  (unwind-protect
+       (let ((*load-paths* nil) (*load-verbose* t))
+         (setf (logical-pathname-translations "FOO") nil)
+         (ext:make-dir dir)
+         (with-open-file (f file :direction :output)
+           (format f "~S~%" '(("FOO:**;*" "/foo/**/*"))))
+         (and (load-logical-pathname-translations "FOO")
+              (cadar (logical-pathname-translations "FOO"))))
+    (delete-file file)
+    (ext:delete-dir dir))) "/foo/**/*"
+(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"

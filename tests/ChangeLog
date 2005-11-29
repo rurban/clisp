@@ -1,3 +1,7 @@
+2005-11-29  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: test LOAD-LOGICAL-PATHNAME-TRANSLATIONS
+
 2005-11-26  Sam Steingold  <sds@gnu.org>
 
 	* socket.tst: check that EOF is detected when the other end is shutdown
