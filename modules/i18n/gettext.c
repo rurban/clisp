@@ -18,6 +18,9 @@
 #if defined(HAVE_LANGINFO_H)
 # include <langinfo.h>
 #endif
+#if defined(HAVE_LIMITS_T)
+# include <limits.h>            /* for CHAR_MAX */
+#endif
 
 #ifdef CLISP_UNICODE
 # define if_UNICODE(statement)  statement
