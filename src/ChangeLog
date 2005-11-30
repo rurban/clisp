@@ -1,3 +1,12 @@
+2005-11-30  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1369668 ]: invalid slot :ALLOCATION causes segfault
+	* record.d (ptr_to_slot): do not assume that slotinfo is valid,
+	signal an error if it is not, accept slotname for error reporting
+	(slot_using_class_up, SLOT-VALUE, SET-SLOT-VALUE, SLOT-BOUNDP)
+	(SLOT-MAKUNBOUND, %SHARED-INITIALIZE, %REINITIALIZE-INSTANCE)
+	(do_initialize_instance): pass slot to ptr_to_slot
+
 2005-11-29  Sam Steingold  <sds@gnu.org>
 
 	* misc.d (cat_env_var) [woe32]: putenv("FOO=") removes FOO,

@@ -1018,14 +1018,18 @@ local Values do_allocate_instance (object clas) {
 
 /* Derives the address of an existing slot in an instance of a standard-
  or structure-class from a slot-location-info. */
-local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo) {
+local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo,
+                                        object slotname) {
   instance_un_realloc(instance); /* by this time update_instance() is done */
-  return (atomp(slotinfo)
-          /* local slot, slotinfo is index */
-          ? &TheSrecord(instance)->recdata[posfixnum_to_V(slotinfo)]
-          /* shared slot, slotinfo is (class-version . index) */
-          : &TheSvector(TheClassVersion(Car(slotinfo))->cv_shared_slots)
-               ->data[posfixnum_to_V(Cdr(slotinfo))]);
+  if (posfixnump(slotinfo)) /* local slot, slotinfo is index */
+    return &TheSrecord(instance)->recdata[posfixnum_to_V(slotinfo)];
+  if (consp(slotinfo)) /* shared slot, slotinfo is (class-version . index) */
+    return &TheSvector(TheClassVersion(Car(slotinfo))->cv_shared_slots)
+      ->data[posfixnum_to_V(Cdr(slotinfo))];
+  /* invalid location, probably bad :allocation slot option */
+  pushSTACK(instance); pushSTACK(slotname);
+  pushSTACK(slotinfo); pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~S: Invalid location ~S of slot ~S in ~S"));
 }
 
 /* UP: visits a slot.
@@ -1045,7 +1049,7 @@ local gcv_object_t* slot_using_class_up (void) {
     fehler(error,GETTEXT("~S: invalid arguments: class argument ~S is not the class of ~S"));
   }
   var object slotinfo = TheSlotDefinition(STACK_0)->slotdef_location;
-  return ptr_to_slot(STACK_1,slotinfo);
+  return ptr_to_slot(STACK_1,slotinfo,STACK_0);
 }
 
 /* (CLOS::%SLOT-VALUE-USING-CLASS class instance slot) */
@@ -1103,7 +1107,7 @@ LISPFUNN(slot_value,2) {
       }
       slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
     }
-    var gcv_object_t* slot = ptr_to_slot(STACK_1,slotinfo);
+    var gcv_object_t* slot = ptr_to_slot(STACK_1,slotinfo,STACK_0);
     var object value = *slot;
     if (boundp(value)) {
       value1 = value;
@@ -1144,7 +1148,7 @@ LISPFUNN(set_slot_value,3) {
       }
       slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
     }
-    value1 = *ptr_to_slot(STACK_2,slotinfo) = STACK_0;
+    value1 = *ptr_to_slot(STACK_2,slotinfo,STACK_1) = STACK_0;
   } else {
     /* missing slot
        -> (SLOT-MISSING class instance slot-name 'setf new-value) */
@@ -1175,7 +1179,7 @@ LISPFUNN(slot_boundp,2) {
       }
       slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
     }
-    var gcv_object_t* slot = ptr_to_slot(STACK_1,slotinfo);
+    var gcv_object_t* slot = ptr_to_slot(STACK_1,slotinfo,STACK_0);
     VALUES_IF(boundp(*slot));
   } else {
     /* missing slot -> (SLOT-MISSING class instance slot-name 'slot-boundp) */
@@ -1205,7 +1209,7 @@ LISPFUNN(slot_makunbound,2) {
       }
       slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
     }
-    var gcv_object_t* slot = ptr_to_slot(STACK_1,slotinfo);
+    var gcv_object_t* slot = ptr_to_slot(STACK_1,slotinfo,STACK_0);
     *slot = unbound;
   } else {
     /* missing slot -> (SLOT-MISSING class instance slot-name 'slot-makunbound) */
@@ -1575,7 +1579,7 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
           }
           slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
         }
-        if (!eq(*ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo),
+        if (!eq(*ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo,slot),
                 unbound))
           goto slot_done;
       }
@@ -1620,7 +1624,8 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
           }
           slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
         }
-        *ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo) = value1;
+        *ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo,slot)
+          = value1;
       }
      slot_done: ;
     }
@@ -1721,7 +1726,7 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
             }
             slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
           }
-          *ptr_to_slot(Before(rest_args_pointer),slotinfo) = value;
+          *ptr_to_slot(Before(rest_args_pointer),slotinfo,slot) = value;
          slot_done: ;
         }
       }
@@ -1820,7 +1825,7 @@ local Values do_initialize_instance (object info,
           }
           slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
         }
-        if (!eq(*ptr_to_slot(Before(rest_args_pointer),slotinfo),unbound))
+        if (!eq(*ptr_to_slot(Before(rest_args_pointer),slotinfo,slot),unbound))
           goto slot_done;
       }
      slot_is_unbound:
@@ -1853,7 +1858,7 @@ local Values do_initialize_instance (object info,
           }
           slotinfo = TheSlotDefinition(slotinfo)->slotdef_location;
         }
-        *ptr_to_slot(Before(rest_args_pointer),slotinfo) = value1;
+        *ptr_to_slot(Before(rest_args_pointer),slotinfo,slot) = value1;
       }
      slot_done: ;
     }

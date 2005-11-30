@@ -3214,7 +3214,7 @@ t
 ("f on A" "f on A" ("g on A" 10) ("g on D" 20) ("h on C" 30) ("h on D" 40))
 
 ;;; user-defined :allocation :hash
-
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1359066&group_id=1355&atid=101355
 (progn
   (defclass person ()
     ((name :initarg :name :allocation :hash :accessor person-name)
@@ -3231,4 +3231,186 @@ t
           (progn
             (remhash 'name (slot-value dilbert 'hash-classes::hash-slots))
             (slot-boundp dilbert 'name)))))
-(t t nil nil t nil)
+(T T NIL NIL T NIL)
+
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1369668&group_id=1355&atid=101355
+;; but the allocation must be defined!
+(progn (defclass class-bad-slot () ((bad-slot :allocation :bad-allocation)))
+       (make-instance 'class-bad-slot))
+ERROR
+
+;; cleanup
+(setf (find-class 'class-bad-slot) nil
+      (find-class 'person) nil
+      (find-class 'counted1-class) nil
+      (find-class 'counted1-rectangle) nil
+      (find-class 'rectangle2) nil
+      (find-class 'counted2-class) nil
+      (find-class 'counted2-rectangle) nil
+      (find-class 'counter) nil
+      (find-class 'counted-object) nil
+      (find-class 'structure01) nil
+      (find-class 'structure02b) nil
+      (find-class 'structure03a) nil
+      (find-class 'structure03c) nil
+      (find-class 'foo135b) nil
+      (find-class 'foo135b) nil
+      (find-class 'foo133) nil
+      (find-class 'foo134) nil
+      (find-class 'my-gf-class) nil
+      (find-class 'option-class) nil
+      (find-class 'testclass02a) nil
+      (find-class 'testclass02b) nil
+      (find-class 'testclass02c) nil
+      (find-class 'option-slot-definition) nil
+      (find-class 'option-slot-class) nil
+      (find-class 'testclass03a) nil
+      (find-class 'testclass03b) nil
+      (find-class 'testclass03c) nil
+      (find-class 'testclass03d) nil
+      (find-class 'extended-slot-definition) nil
+      (find-class 'extended-slot-class) nil
+      (find-class 'testclass03e) nil
+      (find-class 'testclass03e) nil
+      (find-class 'testclass51) nil
+      (find-class 'testclass51a) nil
+      (find-class 'testclass51b) nil
+      (find-class 'testclass51c) nil
+      (find-class 'option-generic-function) nil
+      (find-class 'testmethod50) nil
+      (find-class 'testgenericfunction50) nil
+      (find-class 'testmethod51) nil
+      (find-class 'testgenericfunction51) nil
+      (find-class 'dependent05) nil
+      (find-class 'testclass05) nil
+      (find-class 'dependent06) nil
+      (find-class 'prioritized-dependent) nil
+      (find-class 'prioritized-dispatcher) nil
+      (find-class 'prioritized-class) nil
+      (find-class 'testclass07) nil
+      (find-class 'dependent07) nil
+      (find-class 'prioritized-generic-function) nil
+      (find-class 'dependent08) nil
+      (find-class 'volatile-class) nil
+      (find-class 'testclass10) nil
+      (find-class 'testclass10a) nil
+      (find-class 'testclass10b) nil
+      (find-class 'testclass10c) nil
+      (find-class 'testclass10d) nil
+      (find-class 'msl-generic-function) nil
+      (find-class 'nonumber-generic-function) nil
+      (find-class 'bfs-class) nil
+      (find-class 'testclass13a) nil
+      (find-class 'testclass13b) nil
+      (find-class 'testclass13c) nil
+      (find-class 'testclass13d) nil
+      (find-class 'testclass13e) nil
+      (find-class 'testclass13f) nil
+      (find-class 'custom-default-initargs-class) nil
+      (find-class 'testclass14) nil
+      (find-class 'auto-accessors-2-class) nil
+      (find-class 'testclass15) nil
+      (find-class 'traced-generic-function) nil
+      (find-class 'debuggable-generic-function) nil
+      (find-class 'testclass16a) nil
+      (find-class 'testclass16b) nil
+      (find-class 'testclass16c) nil
+      (find-class 'testclass16d) nil
+      (find-class 'auto-initargs-class) nil
+      (find-class 'testclass17) nil
+      (find-class 'auto-initargs-2-class) nil
+      (find-class 'testclass17-2) nil
+      (find-class 'testclass18b) nil
+      (find-class 'testclass18a) nil
+      (find-class 'testclass19b) nil
+      (find-class 'testclass19a) nil
+      (find-class 'auto-accessors-direct-slot-definition-class) nil
+      (find-class 'auto-accessors-class) nil
+      (find-class 'testclass20) nil
+      (find-class 'external-slot-definition) nil
+      (find-class 'external-slot-definition-class) nil
+      (find-class 'testclass22) nil
+      (find-class 'externally-documented-class) nil
+      (find-class 'testclass23) nil
+      (find-class 'externally-documented-generic-function) nil
+      (find-class 'typechecking-reader-method) nil
+      (find-class 'typechecking-reader-class) nil
+      (find-class 'testclass25) nil
+      (find-class 'typechecking-writer-method) nil
+      (find-class 'typechecking-writer-class) nil
+      (find-class 'testclass26) nil
+      (find-class 'uncallable-generic-function) nil
+      (find-class 'counted27-class) nil
+      (find-class 'testclass27a) nil
+      (find-class 'testclass27b) nil
+      (find-class 'testclass52a) nil
+      (find-class 'testclass52c) nil
+      (find-class 'testclass52d) nil
+      (find-class 'testclass52b) nil
+      (find-class 'sampclass01) nil
+      (find-class 'sampclass02) nil
+      (find-class 'sampclass03) nil
+      (find-class 'sampclass04) nil
+      (find-class 'sampclass05) nil
+      (find-class 'sampclass06) nil
+      (find-class 'sampclass07) nil
+      (find-class 'sampclass08) nil
+      (find-class 'sampclass09) nil
+      (find-class 'sampclass10) nil
+      (find-class 'sampclass11) nil
+      (find-class 'sampclass12) nil
+      (find-class 'sampclass13) nil
+      (find-class 'sampclass14) nil
+      (find-class 'sampclass15) nil
+      (find-class 'sampclass16) nil
+      (find-class 'sampclass17) nil
+      (find-class 'sampclass18) nil
+      (find-class 'sampclass19) nil
+      (find-class 'sampclass20) nil
+      (find-class 'sampclass21) nil
+      (find-class 'sampclass22) nil
+      (find-class 'sampclass23) nil
+      (find-class 'sampclass24) nil
+      (find-class 'sampclass25) nil
+      (find-class 'sampclass26) nil
+      (find-class 'sampclass27) nil
+      (find-class 'sampclass28) nil
+      (find-class 'sampclass29) nil
+      (find-class 'sampclass30) nil
+      (find-class 'sampclass31) nil
+      (find-class 'sampclass32) nil
+      (find-class 'sampclass33) nil
+      (find-class 'sampclass34) nil
+      (find-class 'sampclass35) nil
+      (find-class 'sampclass36) nil
+      (find-class 'sampclass37) nil
+      (find-class 'sampclass38) nil
+      (find-class 'sampclass39) nil
+      (find-class 'sampclass39) nil
+      (find-class 'testgenericfunction142) nil
+      (find-class 'testgenericfunction143) nil
+      (find-class 'custom-method) nil
+      (find-class 'customized5-generic-function) nil
+      (find-class 'customized6-generic-function) nil
+      (find-class 'customized1-generic-function) nil
+      (find-class 'customized2-generic-function) nil
+      (find-class 'customized3-generic-function) nil
+      (find-class 'typechecked-slot-definition) nil
+      (find-class 'typechecked-slot-definition-class) nil
+      (find-class 'testclass28) nil
+      (find-class 'class-supporting-classof-slots) nil
+      (find-class 'classof-direct-slot-definition-mixin) nil
+      (find-class 'classof-effective-slot-definition-mixin) nil
+      (find-class 'testclass29a) nil
+      (find-class 'testclass29b) nil
+      (find-class 'virtual-class) nil
+      (find-class 'virtual-base-class) nil
+      (find-class 'virtual-table-direct-slot-definition) nil
+      (find-class 'virtual-table-effective-slot-definition) nil
+      (find-class 'virtual-generic-function) nil
+      (find-class 'virtual-generic-function-updater) nil
+      (find-class 'testclass30a) nil
+      (find-class 'testclass30b) nil
+      (find-class 'testclass30c) nil
+      (find-class 'testclass30d) nil)
+NIL
