@@ -10,7 +10,7 @@ AC_MSG_NOTICE([ * I18N (Headers)])
 AC_HEADER_STDC
 
 AC_MSG_NOTICE([ * I18N (locale):])
-AC_CHECK_HEADERS(langinfo.h)
+AC_CHECK_HEADERS(langinfo.h limits.h)
 AC_CHECK_FUNCS(nl_langinfo localeconv)
 AC_CHECK_MEMBERS([struct lconv.int_p_cs_precedes,
 struct lconv.int_n_cs_precedes, struct lconv.int_p_sep_by_space,
