@@ -32,10 +32,10 @@
       (show (list 'rawsock:sockaddr-family
                   (multiple-value-list (rawsock:sockaddr-family sa))))
       (show (mapcar (lambda (addr)
-                      (let ((numeric (rawsock:convert-address type addr)))
-                        (show (list :address addr numeric))
-                        (assert (string= ip (rawsock:convert-address
-                                             type numeric)))))
+                      (let* ((numeric (rawsock:convert-address type addr))
+                             (dotted (rawsock:convert-address type numeric)))
+                        (show (list :address addr numeric dotted))
+                        (assert (string= addr dotted))))
                     (posix:hostent-addr-list he)))
       sa))
   (defun local-sa-check (sock sa-local)
