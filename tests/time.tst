@@ -41,13 +41,25 @@ TIME-LOOP
 (compile 'time-loop) TIME-LOOP
 (stringp (documentation 'time-loop 'function)) T
 
-;; default timezone: fails for all lisps around DST switch
-;; (time-loop 100000 10000000000 5000)  NIL
-;; (time-loop 4300066700 4300081201 10) NIL
+;; default timezone
+(time-loop 100000 5000000000 5000)  NIL
+(time-loop 4300066700 4300181201 10) NIL
+
+(check-universal-time 2879996399) NIL
+(check-universal-time 2879996400) NIL
 
 ;; specific timezone
-(time-loop 100000 10000000000 5000 0)  NIL
+(time-loop 100000 5000000000 5000 0)  NIL
 (time-loop 4300066700 4300081201 10 0) NIL
+
+;; random times, default timezone
+(let ((total 10000))
+  (loop :with bad = 0 :repeat total :for time = (random 10000000000)
+    :for check = (check-universal-time time)
+    :when check :collect (progn (incf bad) check)
+    :finally (format t "~&~:D out of ~:D bad: ~5F%~%"
+                     bad total (/ bad total 1d-2))))
+NIL
 
 ;; random times, specific timezone
 (let ((total 10000))

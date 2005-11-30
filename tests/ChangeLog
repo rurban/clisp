@@ -1,5 +1,9 @@
 2005-11-30  Sam Steingold  <sds@gnu.org>
 
+	* time.tst: enabled check-universal-time checks for default TZ
+
+2005-11-30  Sam Steingold  <sds@gnu.org>
+
 	* mop.tst: test that invalid slot :ALLOCATION does not cause segfault
 
 2005-11-29  Sam Steingold  <sds@gnu.org>

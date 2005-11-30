@@ -1,5 +1,17 @@
 2005-11-30  Sam Steingold  <sds@gnu.org>
 
+	Fixed a bug in ENCODE-UNIVERSAL-TIME that made it an imperfect
+	inverse for DECODE-UNIVERSAL-TIME because it passed non-UT hours
+	to DEFAULT-TIME-ZONE which required UT hours
+	* time.d (seconds_west): new function, extracted from...
+	(DEFAULT-TIME-ZONE): require 2 arguments: time in hours and UT-P
+	call seconds_west() and then again if UT-P is false
+	* subr.d (default_time_zone): requires 2 arguments
+	* defs1.lisp (decode-universal-time, encode-universal-time):
+	pass 2 arguments to DEFAULT-TIME-ZONE
+
+2005-11-30  Sam Steingold  <sds@gnu.org>
+
 	* modules/i18n/gettext.c: include <limits.h> to define CHAR_MAX
 	Reported by Magnus Henoch <mange@freemail.hu>
 
