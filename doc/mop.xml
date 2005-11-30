@@ -2186,7 +2186,7 @@ dependents of the &c-mo; will be updated by calling
    (&class-r; &standard-class;) &rest-amp; &initargs-r;)</literal></term>
  <term><literal role="method">(&esd-class; (&class-r;
    &funcallable-standard-class;) &rest-amp; &initargs-r;)</literal></term>
- <listitem><simpara>These methods return  the class &standard-esd-t;.
+ <listitem><simpara>These methods return the class &standard-esd-t;.
   </simpara>&overridables;</listitem></varlistentry></variablelist>
 </section><!-- esd-class -->
 
