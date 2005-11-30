@@ -603,71 +603,73 @@ global void init_time (void)
  *                        Other time related functions */
 
 #if defined(UNIX) || defined(WIN32)
-LISPFUN(default_time_zone,seclass_default,0,1,norest,nokey,0,NIL)
-{ /* (sys::default-time-zone) liefert die aktuelle Zeitzone.
- (sys::default-time-zone UTstunde) liefert die aktuelle Zeitzone zu einem
- bestimmten Zeitpunkt.
- 1. Wert: Zeitzone mit Sommerzeit-Berücksichtigung.
- 2. Wert: Sommerzeit-p.
- Da die Zeitzone oft per TZ-Environment-Variable einstellbar ist, wird
- sie häufig außerhalb des Kernels verwaltet. Man hat nur per localtime()
- und gmtime() Zugriff auf sie.
- Methode:
-   Zeitzone = (gmtime(t) - localtime(t))/3600.
-   Sommerzeit-p wird dem Ergebnis von localtime(t) entnommen. */
-  var object arg = popSTACK();
-  var time_t now;
-  if (integerp(arg)) {
-    /* bestimmter Zeitpunkt
-       Annahme: time_t ist die Anzahl der Sekunden seit 1.1.1970. ?? */
-   #ifdef WIN32
-    const uintL time_max = 1210131; /* Win32 crashes for values greater than that */
-   #else
-    const uintL time_max = 1314888; /* 1.1.2050, quite arbitrary */
-   #endif
-    if (posfixnump(arg)
-        && (posfixnum_to_V(arg) >= 613608)   /* arg >= 1.1.1970 */
-        && (posfixnum_to_V(arg) <= time_max)) { /* arg < time_max */
-      now = (uintL)(posfixnum_to_V(arg) - 613608) * 3600;
-    } else if (R_minusp(arg)
-               || (posfixnump(arg) && (posfixnum_to_V(arg) < 613608))) {
-      now = 0;                /* < 1.1.1970 -> treat like 1.1.1970 */
-    } else {
-      now = (uintL)(time_max - 613608) * 3600; /* > max -> treat like max */
-    }
-  } else { /* jetzt */
-    begin_system_call(); time(&now); end_system_call();
-  }
-  var struct tm now_local;
-  var struct tm now_gm;
+local sintL seconds_west (time_t *now, int *isdst) {
+  /* secondswest = mktime(now_gm) - mktime(now_local);
+     would be nice but mktime() is not common enough */
+  var struct tm *now_local;
+  var struct tm *now_gm;
   begin_system_call();
-  now_local = *(localtime(&now));
-  now_gm = *(gmtime(&now));
+  now_local = localtime(now);
+  now_gm = gmtime(now);
   end_system_call();
-  /* secondswest = mktime(now_gm) - mktime(now_local); wäre schön.
-     mktime() ist allerdings nicht weit verbreitet. Unter SunOS4 müsste man
-     timegm() nehmen. Daher tun wir's selber: */
-  var sintL dayswest = /* Tage-Differenz, kann als 0,1,-1 angenommen werden */
-    (now_gm.tm_year < now_local.tm_year ? -1 :
-     now_gm.tm_year > now_local.tm_year ? 1 :
-     (now_gm.tm_mon < now_local.tm_mon ? -1 :
-      now_gm.tm_mon > now_local.tm_mon ? 1 :
-      (now_gm.tm_mday < now_local.tm_mday ? -1 :
-       now_gm.tm_mday > now_local.tm_mday ? 1 :
+  *isdst = now_local->tm_isdst;
+  var sintL dayswest = /* day difference = 0,1,-1 */
+    (now_gm->tm_year < now_local->tm_year ? -1 :
+     now_gm->tm_year > now_local->tm_year ? 1 :
+     (now_gm->tm_mon < now_local->tm_mon ? -1 :
+      now_gm->tm_mon > now_local->tm_mon ? 1 :
+      (now_gm->tm_mday < now_local->tm_mday ? -1 :
+       now_gm->tm_mday > now_local->tm_mday ? 1 :
        0)));
   var sintL hourswest = 24*dayswest
-    + (sintL)(now_gm.tm_hour - now_local.tm_hour);
+    + (sintL)(now_gm->tm_hour - now_local->tm_hour);
   var sintL minuteswest = 60*hourswest
-    + (sintL)(now_gm.tm_min - now_local.tm_min);
+    + (sintL)(now_gm->tm_min - now_local->tm_min);
   var sintL secondswest = 60*minuteswest
-    + (sintL)(now_gm.tm_sec - now_local.tm_sec);
-  /* Zeitzone in Stunden = (Zeitzone in Sekunden / 3600) : */
+    + (sintL)(now_gm->tm_sec - now_local->tm_sec);
+  return secondswest;
+}
+
+LISPFUNNR(default_time_zone,2)
+{ /* (sys::default-time-zone hours ut-p) return TZ and DST-P for the
+ given time in HOURS since the epoch; UT-P specifies whether HOURS is in
+ Universal or Local time, i.e., the time that has elapsed since
+ 1900-01-01 0:0:0 GMT or since 1900-01-01 0:0:0 Local Time
+ TZ takes into account DST-P, i.e., it is just the wall clock
+ difference between local time and the UT
+ The only access to TZ is localtime() and gmtime():
+   TZ = (gmtime(t) - localtime(t))/3600.
+   DST-P = localtime(t)->tm_isdst. */
+  var bool ut_p = !nullp(popSTACK());
+  var object arg = check_integer(popSTACK());
+  var time_t now;
+ #ifdef WIN32
+  const uintL time_max = 1210131; /* Win32 crashes for values greater than that */
+ #else
+  const uintL time_max = 1314888; /* 1.1.2050, quite arbitrary */
+ #endif
+  if (posfixnump(arg)
+      && (posfixnum_to_V(arg) >= 613608)   /* arg >= 1.1.1970 */
+      && (posfixnum_to_V(arg) <= time_max)) { /* arg < time_max */
+    now = (uintL)(posfixnum_to_V(arg) - 613608) * 3600;
+  } else if (R_minusp(arg)
+               || (posfixnump(arg) && (posfixnum_to_V(arg) < 613608))) {
+    now = 0;                /* < 1.1.1970 -> treat like 1.1.1970 */
+  } else {
+    now = (uintL)(time_max - 613608) * 3600; /* > max -> treat like max */
+  }
+  var int isdst;
+  var sintL secondswest = seconds_west(&now,&isdst);
+  if (!ut_p) { /* convert now to UT and recompute isdst */
+    now += secondswest;
+    secondswest = seconds_west(&now,&isdst);
+  }
+  /* TZ in hours = (TZ in seconds / 3600) : */
   pushSTACK(L_to_I(secondswest));
   pushSTACK(fixnum(3600));
   funcall(L(durch),2);
-  /* Sommerzeit-p entnehmen:
-     tm_isdst < 0 bedeutet "unbekannt"; wir nehmen an, keine Sommerzeit. */
-  VALUES2(value1, now_local.tm_isdst > 0 ? T : NIL);
+  /* tm_isdst < 0 = "unknown"; assume no DST */
+  VALUES2(value1, isdst > 0 ? T : NIL);
 }
 #endif  /* UNIX || WIN32 */
 
