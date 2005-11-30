@@ -726,7 +726,7 @@ LISPFUNNR(get_internal_real_time,0)
 LISPFUNNR(get_internal_run_time,0)
 LISPFUNNR(get_universal_time,0)
 #if defined(UNIX) || defined(WIN32)
-LISPFUN(default_time_zone,seclass_default,0,1,norest,nokey,0,NIL)
+LISPFUNNR(default_time_zone,2)
 #endif
 LISPFUNN(sleep,2)
 LISPFUNNR(time,0)
