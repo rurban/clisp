@@ -1,5 +1,11 @@
 2005-11-30  Sam Steingold  <sds@gnu.org>
 
+	* modules/i18n/gettext.c: include <limits.h> to define CHAR_MAX
+	* modules/i18n/configure.in: check for <limits.h>
+	Reported by Magnus Henoch <mange@freemail.hu>
+
+2005-11-30  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1369668 ]: invalid slot :ALLOCATION causes segfault
 	* record.d (ptr_to_slot): do not assume that slotinfo is valid,
 	signal an error if it is not, accept slotname for error reporting
