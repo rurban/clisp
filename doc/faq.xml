@@ -77,7 +77,7 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-help"><question id="faq-help-q"><simpara>How do I
    ask for help?</simpara></question>
-<answer><para>Politely :-)</para>
+<answer><para>Politely - please refer to &netiquette;.</para>
  <para>If you have a question about &clisp;, you have the following options
   (listed in the order of decreasing audience size):
   <variablelist>
