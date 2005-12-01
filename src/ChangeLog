@@ -1,3 +1,7 @@
+2005-12-01  Sam Steingold  <sds@gnu.org>
+
+	* spvw_debug.d (nobject_out1): output more information for streams
+
 2005-11-30  Sam Steingold  <sds@gnu.org>
 
 	Fixed a bug in ENCODE-UNIVERSAL-TIME that made it an imperfect
