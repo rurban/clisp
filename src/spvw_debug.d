@@ -273,15 +273,30 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     }
     fprintf(out," 0x%lx>",as_oint(obj));
   } else if (builtin_stream_p(obj)) {
-    fputs("#<built-in-stream",out);
+    fprintf(out,"#<built-in-stream type=%d flags=%d len=%d xlen=%d slen=%d",
+            TheStream(obj)->strmtype,TheStream(obj)->strmflags,
+            Stream_length(obj),Stream_xlength(obj),strm_len);
     switch (TheStream(obj)->strmtype) {
       case strmtype_pphelp: fputs(" pretty-print-help",out);
         fputs(" modus=",out); XOUT(TheStream(obj)->strm_pphelp_modus);
         fputs(" lpos=",out); XOUT(TheStream(obj)->strm_pphelp_lpos);
         fputs(" strings=",out); XOUT(TheStream(obj)->strm_pphelp_strings);
         break;
-      default:
-        fprintf(out," type=%d",TheStream(obj)->strmtype);
+      case strmtype_file: fputs(" file",out);
+        fputs(" name=",out); XOUT(TheStream(obj)->strm_file_name);
+        fputs(" truename=",out); XOUT(TheStream(obj)->strm_file_truename);
+        fprintf(out," channel=%d",
+                TheHandle(TheStream(obj)->strm_buffered_channel));
+        fputs(" eltype=",out); XOUT(TheStream(obj)->strm_eltype);
+        fputs(" encoding=",out); XOUT(TheStream(obj)->strm_encoding);
+        break;
+      default: {
+        int ii=0;
+        for (; ii < Stream_length(obj) - strm_len; ii++) {
+          fprintf(out," %d=",ii);
+          XOUT(TheStream(obj)->strm_other[ii]);
+        }
+      }
     }
     fprintf(out," 0x%lx>",as_oint(obj));
   }
