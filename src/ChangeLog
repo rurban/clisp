@@ -2,6 +2,11 @@
 
 	* defs1.lisp (encode-universal-time): reverted part of the 2005-11-30
 	patch: no need to adjust the return value of DEFAULT-TIME-ZONE
+	* time.d (seconds_west): fixed a bug in the last patch:
+	now_gm and now_local must be structures, not pointers, because
+	gmtime and localtime return pointers to the same memory ares.
+	also note that seconds_west is NOT the same as (mktime(&now_gm) -
+	mktime(&now_local)) during DST
 
 2005-12-01  Sam Steingold  <sds@gnu.org>
 

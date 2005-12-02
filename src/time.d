@@ -604,29 +604,32 @@ global void init_time (void)
 
 #if defined(UNIX) || defined(WIN32)
 local sintL seconds_west (time_t *now, int *isdst) {
-  /* secondswest = mktime(now_gm) - mktime(now_local);
-     would be nice but mktime() is not common enough */
-  var struct tm *now_local;
-  var struct tm *now_gm;
+  /* localtime() and gmtime() may return the same location,
+     so we have to copy the rerned structure contents: */
+  var struct tm now_local;
+  var struct tm now_gm;
   begin_system_call();
-  now_local = localtime(now);
-  now_gm = gmtime(now);
+  now_local = *(localtime(now));
+  now_gm = *(gmtime(now));
   end_system_call();
-  *isdst = now_local->tm_isdst;
+  /* note that secondswest is NOT the same as
+          mktime(&now_gm) - mktime(&now_local);
+     during DST */
   var sintL dayswest = /* day difference = 0,1,-1 */
-    (now_gm->tm_year < now_local->tm_year ? -1 :
-     now_gm->tm_year > now_local->tm_year ? 1 :
-     (now_gm->tm_mon < now_local->tm_mon ? -1 :
-      now_gm->tm_mon > now_local->tm_mon ? 1 :
-      (now_gm->tm_mday < now_local->tm_mday ? -1 :
-       now_gm->tm_mday > now_local->tm_mday ? 1 :
+    (now_gm.tm_year < now_local.tm_year ? -1 :
+     now_gm.tm_year > now_local.tm_year ? 1 :
+     (now_gm.tm_mon < now_local.tm_mon ? -1 :
+      now_gm.tm_mon > now_local.tm_mon ? 1 :
+      (now_gm.tm_mday < now_local.tm_mday ? -1 :
+       now_gm.tm_mday > now_local.tm_mday ? 1 :
        0)));
   var sintL hourswest = 24*dayswest
-    + (sintL)(now_gm->tm_hour - now_local->tm_hour);
+    + (sintL)(now_gm.tm_hour - now_local.tm_hour);
   var sintL minuteswest = 60*hourswest
-    + (sintL)(now_gm->tm_min - now_local->tm_min);
+    + (sintL)(now_gm.tm_min - now_local.tm_min);
   var sintL secondswest = 60*minuteswest
-    + (sintL)(now_gm->tm_sec - now_local->tm_sec);
+    + (sintL)(now_gm.tm_sec - now_local.tm_sec);
+  *isdst = now_local.tm_isdst;
   return secondswest;
 }
 
