@@ -736,10 +736,8 @@
                                         (- *default-time-zone*
                                            (if (funcall *default-dst-check* Jahr3 Jahrtag Stunde) 1 0))
                                         #+(or UNIX WIN32)
-                                        (multiple-value-bind (tz dst)
-                                            (default-time-zone
-                                                (+ (* 24 UTTag) Stunde) nil)
-                                          (if dst (1- tz) tz))))
+                                        (default-time-zone
+                                            (+ (* 24 UTTag) Stunde) nil)))
                                     (when (floatp Zeitzone) (setq Zeitzone (rational Zeitzone)))
                                     (or (integerp Zeitzone)
                                         (and (rationalp Zeitzone) (integerp (* 3600 Zeitzone)))))
@@ -763,12 +761,12 @@
                        (multiple-value-bind (UTTag Stunde) (floor UT (* 3600 24))
                          (multiple-value-bind (Jahr Jahrtag) (Jahr&Tag UTTag)
                            (funcall *default-dst-check* Jahr Jahrtag Stunde))))
-          Zeitzone (- time-zone (if Sommerzeit 1 0)))
+          Zeitzone (if Sommerzeit (1- time-zone) time-zone))
     #+(or UNIX WIN32)
     (progn
       (multiple-value-setq (Zeitzone Sommerzeit)
         (default-time-zone (floor UT 3600) t))
-      (setq time-zone (+ Zeitzone (if Sommerzeit 1 0)))))
+      (setq time-zone (if Sommerzeit (1+ Zeitzone) Zeitzone))))
   ; time-zone = Zeitzone ohne Sommerzeitberücksichtigung,
   ; Zeitzone = Zeitzone mit Sommerzeitberücksichtigung.
   (let ((UTSekunden (- UT (round (* 3600 Zeitzone)))))
