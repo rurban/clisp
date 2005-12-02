@@ -11,9 +11,11 @@
 (defun check-universal-time (time &optional tz)
   "check that DECODE-UNIVERSAL-TIME is the inverse of ENCODE-UNIVERSAL-TIME"
   (multiple-value-bind (se mi ho da mo ye wk ds-p zone)
-      (apply #'decode-universal-time time (and tz (list tz)))
+      (decode-universal-time time tz)
+    ;; we must give encode-universal-time some DST information because
+    ;; otherwize it has no way to tell if 1995-10-27 01:30:00 is DST or not
     (let ((ut (encode-universal-time se mi ho da mo ye
-                                     (or tz (+ zone (if ds-p 1 0))))))
+                                     (or tz (if ds-p (1- zone) zone)))))
       (unless (= ut time)
         (list time (list se mi ho da mo ye wk ds-p zone tz) ut (- ut time))))))
 CHECK-UNIVERSAL-TIME
@@ -23,6 +25,9 @@ CHECK-UNIVERSAL-TIME
 (compile 'check-universal-time) CHECK-UNIVERSAL-TIME
 (stringp (documentation #'check-universal-time t)) T
 
+(check-universal-time 2879996399) NIL
+(check-universal-time 2879996400) NIL
+
 (defun time-loop (start end step &optional tz)
   "return the periods of badness"
   (time
@@ -31,7 +36,11 @@ CHECK-UNIVERSAL-TIME
      :for check = (check-universal-time tm tz) :do
      (case state
        ((:good) (when check (setq state :bad) (show check) (push check ret)))
-       ((:bad) (unless check (setq state :good) (show tm) (push tm (car ret))))
+       ((:bad) (unless check
+                 (push (show (list tm (multiple-value-list
+                                       (decode-universal-time tm tz))))
+                       (car ret))
+                 (setq state :good)))
        (t (setq state (if check :bad :good)) (show (list state tm check))))
      :finally (return (nreverse ret)))))
 TIME-LOOP
@@ -44,9 +53,6 @@ TIME-LOOP
 ;; default timezone
 (time-loop 100000 5000000000 5000)  NIL
 (time-loop 4300066700 4300181201 10) NIL
-
-(check-universal-time 2879996399) NIL
-(check-universal-time 2879996400) NIL
 
 ;; specific timezone
 (time-loop 100000 5000000000 5000 0)  NIL
