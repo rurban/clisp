@@ -1,3 +1,8 @@
+2005-12-02  Sam Steingold  <sds@gnu.org>
+
+	* time.tst (check-universal-time): simplified
+	(time-loop): more informative log
+
 2005-11-30  Sam Steingold  <sds@gnu.org>
 
 	* time.tst: enabled check-universal-time checks for default TZ
