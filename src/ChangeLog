@@ -1,3 +1,8 @@
+2005-12-02  Sam Steingold  <sds@gnu.org>
+
+	* defs1.lisp (encode-universal-time): reverted part of the 2005-11-30
+	patch: no need to adjust the return value of DEFAULT-TIME-ZONE
+
 2005-12-01  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (nobject_out1): output more information for streams
