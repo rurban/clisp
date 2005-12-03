@@ -243,12 +243,12 @@ global object base64_range (object encoding, uintL start, uintL end,
                             uintL maxintervals) {
   var uintL count = 0; /* number of intervals already on the STACK */
   if (end >= sizeof(table_base64)) end = sizeof(table_base64) - 1;
-  while (start <= end) {
-    while (table_base64[start] == 0) start++;
+  for (;start <= end && count < maxintervals; count++) {
+    while ((start <= end) && (table_base64[start] == -1)) start++;
+    if (start > end) break;
     pushSTACK(code_char(as_chart(start)));
-    while (table_base64[start]) start++;
-    pushSTACK(code_char(as_chart(--start)));
-    start++; count++;
+    while ((start <= end) && (table_base64[start] != -1)) start++;
+    pushSTACK(code_char(as_chart(start-1)));
   }
   return stringof(count << 1);
 }

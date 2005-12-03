@@ -1,3 +1,7 @@
+2005-12-03  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d (base64_range): fixed for "-1" in table_base64
+
 2005-12-02  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (encode-universal-time): reverted part of the 2005-11-30
