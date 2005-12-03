@@ -299,6 +299,12 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       }
     }
     fprintf(out," 0x%lx>",as_oint(obj));
+  } else if (encodingp(obj)) {
+    fputs("#<encoding eol=",out); XOUT(TheEncoding(obj)->enc_eol);
+    fputs(" wce=",out); XOUT(TheEncoding(obj)->enc_towcs_error);
+    fputs(" mbe=",out); XOUT(TheEncoding(obj)->enc_tombs_error);
+    fputs(" cs=",out); XOUT(TheEncoding(obj)->enc_charset);
+    fprintf(out," 0x%lx>",as_oint(obj));
   }
   #ifndef TYPECODES
   else if (varobjectp(obj))
