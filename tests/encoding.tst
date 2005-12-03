@@ -104,6 +104,12 @@ ERROR
   (ext:convert-string-from-bytes vec charset:utf-8))
 "Hello"
 
+(list (sys::charset-range charset:base64 #\+ #\+ 2)
+      (sys::charset-range charset:base64 #\+ #\/ 10)
+      (sys::charset-range charset:base64 #\A #\Z 2)
+      (sys::charset-range charset:base64 (code-char 0) (code-char 10000) 1000))
+("++" "++//" "AZ" "++/9AZaz")
+
 ;; Fill the cache, but cache only the results with small lists of intervals.
 ;; Some iconv based encodings have large lists of intervals (up to 5844
 ;; intervals for ISO-2022-JP-2) which are rarely used and not worth caching.
