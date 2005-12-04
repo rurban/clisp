@@ -1,5 +1,10 @@
 2005-12-03  Sam Steingold  <sds@gnu.org>
 
+	* pseudofun.d (base64_mblen, base64_mbstowcs, base64_wcslen)
+	(base64_wcstombs, base64_range): declare
+
+2005-12-03  Sam Steingold  <sds@gnu.org>
+
 	* spvw_debug.d (nobject_out1): print encodings
 
 2005-12-03  Sam Steingold  <sds@gnu.org>
