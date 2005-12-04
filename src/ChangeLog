@@ -1,3 +1,9 @@
+2005-12-04  Sam Steingold  <sds@gnu.org>
+
+	* spvw_circ.d (get_circ_mark, get_circ_unmark):
+	use the appropriate flavor of dotimes
+	Reported by Peter Van Eynde <pvaneynd@debian.org> [on m68k]
+
 2005-12-03  Sam Steingold  <sds@gnu.org>
 
 	* pseudofun.d (base64_mblen, base64_mbstowcs, base64_wcslen)
