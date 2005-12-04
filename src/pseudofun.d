@@ -1,18 +1,21 @@
-# List of all relocatable machine pointers
-# Bruno Haible 1990-2004
+/*
+ * List of all relocatable machine pointers
+ * Bruno Haible 1990-2004
+ * Sam Steingold 2005
+ */
 
-# There are three kinds of relocatable pointers:
-#   LPSEUDOCODE(fun)                    local C function defined in stream.d
-#   XPSEUDOCODE(rettype,name,arglist)   external C function
-#   XPSEUDODATA(type,name)              external C variable
+/* There are three kinds of relocatable pointers:
+   LPSEUDOCODE(fun)                    local C function defined in stream.d
+   XPSEUDOCODE(rettype,name,arglist)   external C function
+   XPSEUDODATA(type,name)              external C variable
 
-# The macro PSEUDO, defined in the including file, determines the macro
-# expansion for these macros.
-#   #define PSEUDO PSEUDO_A   for the declaration of the code table
-#   #define PSEUDO PSEUDO_B   for the declaration of the data table
-#   #define PSEUDO PSEUDO_C   for the declaration of both tables' elements
-#   #define PSEUDO PSEUDO_D   for the initialization of the code table
-#   #define PSEUDO PSEUDO_E   for the initialization of the data table
+ The macro PSEUDO, defined in the including file, determines the macro
+ expansion for these macros.
+   #define PSEUDO PSEUDO_A   for the declaration of the code table
+   #define PSEUDO PSEUDO_B   for the declaration of the data table
+   #define PSEUDO PSEUDO_C   for the declaration of both tables' elements
+   #define PSEUDO PSEUDO_D   for the initialization of the code table
+   #define PSEUDO PSEUDO_E   for the initialization of the data table */
 
 #define LPSEUDOCODE CONCAT(LCODE_,PSEUDO)
 #define XPSEUDOCODE CONCAT(XCODE_,PSEUDO)
@@ -113,8 +116,13 @@ LPSEUDOCODE(wr_ch_window)
 LPSEUDOCODE(wr_ch_printer)
 #endif
 
-# External definitions from ENCODING.D:
+/* External definitions from ENCODING.D: */
 #ifdef UNICODE
+XPSEUDOCODE(object, base64_range, (object encoding, uintL start, uintL end, uintL maxintervals))
+XPSEUDOCODE(uintL, base64_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDOCODE(void, base64_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDOCODE(uintL, base64_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDOCODE(void, base64_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
 XPSEUDOCODE(object, all_range, (object encoding, uintL start, uintL end, uintL maxintervals))
 XPSEUDOCODE(object, bmp_range, (object encoding, uintL start, uintL end, uintL maxintervals))
 XPSEUDOCODE(uintL, uni16_mblen, (object encoding, const uintB* src, const uintB* srcend))
