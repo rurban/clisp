@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.35\n"
+"Project-Id-Version: clisp 2.36\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-08-29 12:46:33-0400\n"
-"PO-Revision-Date: 2005-08-29 12:46:25-0400\n"
+"POT-Creation-Date: 2005-12-04 17:23:46-0500\n"
+"PO-Revision-Date: 2005-12-04 17:23:38-0500\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -22,27 +22,27 @@ msgstr "*** - Program stack overflow. RESET"
 msgid "*** - Lisp stack overflow. RESET"
 msgstr "*** - Lisp stack overflow. RESET"
 
-#: spvw.d:711
+#: spvw.d:712
 msgid "Unknown FSUBR signature: %d %d %d\n"
 msgstr "Unknown FSUBR signature: %d %d %d\n"
 
-#: spvw.d:819
+#: spvw.d:820
 msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Unknown SUBR signature: %d %d %d %d"
 
-#: spvw.d:1542
+#: spvw.d:1544
 msgid "module '%s' requires package %s.\n"
 msgstr "module '%s' requires package %s.\n"
 
-#: spvw.d:1552
+#: spvw.d:1554
 msgid "module '%s' redefines symbol "
 msgstr "module '%s' redefines symbol "
 
-#: spvw.d:1554
+#: spvw.d:1556
 msgid " in the locked package "
 msgstr " in the locked package "
 
-#: spvw.d:1556
+#: spvw.d:1558
 msgid ""
 "\n"
 "old definition: "
@@ -50,15 +50,15 @@ msgstr ""
 "\n"
 "old definition: "
 
-#: spvw.d:1593
+#: spvw.d:1595
 msgid "is an ANSI Common Lisp."
 msgstr "is an ANSI Common Lisp."
 
-#: spvw.d:1595
+#: spvw.d:1597
 msgid "Usage:  "
 msgstr "Usage:  "
 
-#: spvw.d:1597
+#: spvw.d:1599
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
@@ -70,67 +70,67 @@ msgstr ""
 " to the list of argument strings. Otherwise, an interactive\n"
 " read-eval-print loop is entered.\n"
 
-#: spvw.d:1601
+#: spvw.d:1603
 msgid "Informative output:\n"
 msgstr "Informative output:\n"
 
-#: spvw.d:1602
+#: spvw.d:1604
 msgid " -h, --help    - print this help and exit\n"
 msgstr " -h, --help    - print this help and exit\n"
 
-#: spvw.d:1603
+#: spvw.d:1605
 msgid " --version     - print the version information\n"
 msgstr " --version     - print the version information\n"
 
-#: spvw.d:1604
+#: spvw.d:1606
 msgid " --license     - print the licensing information\n"
 msgstr " --license     - print the licensing information\n"
 
-#: spvw.d:1605
+#: spvw.d:1607
 msgid "Memory image selection:\n"
 msgstr "Memory image selection:\n"
 
-#: spvw.d:1606
+#: spvw.d:1608
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr " -B lisplibdir - set the installation directory\n"
 
-#: spvw.d:1608
+#: spvw.d:1610
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr " -K linkingset - use this executable and memory image\n"
 
-#: spvw.d:1610
+#: spvw.d:1612
 msgid " -M memfile    - use this memory image\n"
 msgstr " -M memfile    - use this memory image\n"
 
-#: spvw.d:1611
+#: spvw.d:1613
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 
-#: spvw.d:1613
+#: spvw.d:1615
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr " -t tmpdir     - temporary directory for memmap\n"
 
-#: spvw.d:1615
+#: spvw.d:1617
 msgid "Internationalization:\n"
 msgstr "Internationalization:\n"
 
-#: spvw.d:1616
+#: spvw.d:1618
 msgid " -L language   - set user language\n"
 msgstr " -L language   - set user language\n"
 
-#: spvw.d:1617
+#: spvw.d:1619
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr " -N nlsdir     - NLS catalog directory\n"
 
-#: spvw.d:1618
+#: spvw.d:1620
 msgid " -Edomain encoding - set encoding\n"
 msgstr " -Edomain encoding - set encoding\n"
 
-#: spvw.d:1619
+#: spvw.d:1621
 msgid "Interoperability:\n"
 msgstr "Interoperability:\n"
 
-#: spvw.d:1620
+#: spvw.d:1622
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
@@ -140,139 +140,139 @@ msgstr ""
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 
-#: spvw.d:1623
+#: spvw.d:1625
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr " -w            - wait for a keypress after program termination\n"
 
-#: spvw.d:1624
+#: spvw.d:1626
 msgid " -I            - be ILISP-friendly\n"
 msgstr " -I            - be ILISP-friendly\n"
 
-#: spvw.d:1625
+#: spvw.d:1627
 msgid "Startup actions:\n"
 msgstr "Startup actions:\n"
 
-#: spvw.d:1626
+#: spvw.d:1628
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr " -ansi         - more ANSI CL compliance\n"
 
-#: spvw.d:1627
+#: spvw.d:1629
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr " -traditional  - traditional (undoes -ansi)\n"
 
-#: spvw.d:1628
+#: spvw.d:1630
 msgid " -modern       - start in a case-sensitive lowercase-preferring package\n"
 msgstr " -modern       - start in a case-sensitive lowercase-preferring package\n"
 
-#: spvw.d:1629
+#: spvw.d:1631
 msgid " -p package    - start in the package\n"
 msgstr " -p package    - start in the package\n"
 
-#: spvw.d:1630
+#: spvw.d:1632
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr " -C            - set *LOAD-COMPILING* to T\n"
 
-#: spvw.d:1631
+#: spvw.d:1633
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr " -norc         - do not load the user ~/.clisprc file\n"
 
-#: spvw.d:1632
+#: spvw.d:1634
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr " -i file       - load initfile (can be repeated)\n"
 
-#: spvw.d:1633
+#: spvw.d:1635
 msgid "Actions:\n"
 msgstr "Actions:\n"
 
-#: spvw.d:1634
+#: spvw.d:1636
 msgid " -c [-l] lispfile [-o outputfile] - compile lispfile\n"
 msgstr " -c [-l] lispfile [-o outputfile] - compile lispfile\n"
 
-#: spvw.d:1635
+#: spvw.d:1637
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr " -x expressions - execute the expressions, then exit\n"
 
-#: spvw.d:1636
+#: spvw.d:1638
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr " lispfile [argument ...] - load lispfile, then exit\n"
 
-#: spvw.d:1637
+#: spvw.d:1639
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr "These actions put CLISP into a batch mode, which is overridden by\n"
 
-#: spvw.d:1638
+#: spvw.d:1640
 msgid " -on-error action - action can be one of debug, exit, abort, appease\n"
 msgstr " -on-error action - action can be one of debug, exit, abort, appease\n"
 
-#: spvw.d:1639
+#: spvw.d:1641
 msgid " -repl            - enter the interactive read-eval-print loop when done\n"
 msgstr " -repl            - enter the interactive read-eval-print loop when done\n"
 
-#: spvw.d:1640
+#: spvw.d:1642
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr "Default action is an interactive read-eval-print loop.\n"
 
-#: spvw.d:1649
+#: spvw.d:1651
 msgid "%s: use '-h' for help"
 msgstr "%s: use '-h' for help"
 
-#: spvw.d:1652
+#: spvw.d:1654
 msgid "invalid argument"
 msgstr "invalid argument"
 
-#: spvw.d:2054
+#: spvw.d:2056
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 
-#: spvw.d:2059
+#: spvw.d:2061
 msgid "%s out of range"
 msgstr "%s out of range"
 
-#: spvw.d:2064
+#: spvw.d:2066
 msgid "warning: %s out of range, using %u instead"
 msgstr "warning: %s out of range, using %u instead"
 
-#: spvw.d:2080
+#: spvw.d:2082
 msgid "memory size"
 msgstr "memory size"
 
-#: spvw.d:2096
+#: spvw.d:2098
 msgid "multiple -t"
 msgstr "multiple -t"
 
-#: spvw.d:2116
+#: spvw.d:2118
 msgid "multiple -B"
 msgstr "multiple -B"
 
-#: spvw.d:2151
+#: spvw.d:2153
 msgid "-E requires an argument"
 msgstr "-E requires an argument"
 
-#: spvw.d:2421
+#: spvw.d:2423
 msgid "-l without -c is invalid"
 msgstr "-l without -c is invalid"
 
-#: spvw.d:2427
+#: spvw.d:2429
 msgid "-x with -c is invalid"
 msgstr "-x with -c is invalid"
 
-#: spvw.d:2432
+#: spvw.d:2434
 msgid "-x with lisp-file is invalid"
 msgstr "-x with lisp-file is invalid"
 
-#: spvw.d:2553
+#: spvw.d:2555
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Return value of malloc() = %lx is not compatible with type code distribution."
 
-#: spvw.d:2560
+#: spvw.d:2562
 msgid "Only %d bytes available."
 msgstr "Only %d bytes available."
 
-#: spvw.d:2810
+#: spvw.d:2812
 msgid "Could not determine the end of the SP stack!"
 msgstr "Could not determine the end of the SP stack!"
 
-#: spvw.d:3338
+#: spvw.d:3343
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Not enough memory for Lisp."
 
