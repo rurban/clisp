@@ -566,7 +566,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
                 var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
                 if (SP_overflow()) # check SP-depth
                   longjmp(env->abbruch_context,true); # abort
-                dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark elements (recursive)
+                dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # mark elements (recursive)
               }
             }
             goto m_end;
@@ -598,7 +598,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
               var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
               if (SP_overflow()) # check SP-depth
                 longjmp(env->abbruch_context,true); # abort
-              dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
+              dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
             }
             goto m_end;
           default: break;
@@ -927,7 +927,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
                 var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
                 if (SP_overflow()) # check SP-depth
                   longjmp(env->abbruch_context,true); # abort
-                dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark elements (recursive)
+                dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # mark elements (recursive)
               }
             }
             goto m_end;
@@ -959,7 +959,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
               var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
               if (SP_overflow()) # check SP-depth
                 longjmp(env->abbruch_context,true); # abort
-              dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
+              dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
             }
             goto m_end;
           default: break;
@@ -1164,7 +1164,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
               var uintL count = Lrecord_length(obj)-2;
               if (count > 0) {
                 var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
-                dotimespC(count,count, { get_circ_unmark(*ptr++,env); } ); # mark elements (recursive)
+                dotimespL(count,count, { get_circ_unmark(*ptr++,env); } ); # mark elements (recursive)
               }
             }
             goto u_end;
@@ -1193,7 +1193,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             {
               var uintL count = Lrecord_length(obj)-1;
               var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
-              dotimespC(count,count, { get_circ_unmark(*ptr++,env); } ); # unmark components (recursive)
+              dotimespL(count,count, { get_circ_unmark(*ptr++,env); } ); # unmark components (recursive)
             }
             goto u_end;
           default: break;
