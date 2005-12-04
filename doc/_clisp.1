@@ -1,8 +1,8 @@
 .\" ** You probably do not want to edit this file directly **
-.\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
+.\" It was generated using the DocBook XSL Stylesheets (version 2005\-10\-07_10:16_snapshot).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "CLISP" "1" "Last modified: 2005\-08\-29" "CLISP 2.35" "Platform: @PLATFORM@"
+.TH "CLISP" "1" "Last modified: 2005\-12\-04" "CLISP 2.36" "Platform: @PLATFORM@"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -34,10 +34,14 @@ from the standard input,
 bytecode
 which can be executed more efficiently.
 .SH "OPTIONS"
-.TP
-\fB\-h\fR, \fB\-\-help\fR
+.PP
+\fB\-h\fR, 
+.br
+\fB\-\-help\fR
+.RS
 Displays a help message on how to invoke
 [6]\&\fI\fBCLISP\fR\fR.
+.RE
 .TP
 \fB\-\-version\fR
 Displays the
@@ -103,12 +107,20 @@ tries to grab on startup. The amount may be given as
 .TP
 \fInnnnnnn\fR
 measured in bytes
-.TP
-\fInnnn\fR\fBK\fR, \fInnnn\fR\fBKB\fR
+.PP
+\fInnnn\fR\fBK\fR, 
+.br
+\fInnnn\fR\fBKB\fR
+.RS
 measured in kilobytes
-.TP
-\fIn\fR\fBM\fR, \fIn\fR\fBMB\fR
+.RE
+.PP
+\fIn\fR\fBM\fR, 
+.br
+\fIn\fR\fBMB\fR
+.RS
 measured in megabytes
+.RE
 .RE
 .IP
 The default is 2 megabytes.
@@ -216,8 +228,17 @@ RC file
 or
 init function
 to set them on startup.
-.TP
-\fB\-q\fR, \fB\-\-quiet\fR, \fB\-\-silent\fR, \fB\-v\fR, \fB\-\-verbose\fR
+.PP
+\fB\-q\fR, 
+.br
+\fB\-\-quiet\fR, 
+.br
+\fB\-\-silent\fR, 
+.br
+\fB\-v\fR, 
+.br
+\fB\-\-verbose\fR
+.RS
 Change verbosity level: by default,
 [6]\&\fI\fBCLISP\fR\fR
 displays a banner at startup and a good\-bye message when quitting, and initializes
@@ -238,13 +259,16 @@ removes the banner and the good\-bye message, the second sets variables
 and
 [14]\&\fI\fI*COMPILE\-VERBOSE*\fR\fR
 to
-[16]\&\fI\fBNIL\fR\fR.
+[16]\&\fI\fBNIL\fR\fR. The first
 \fB\-v\fR
 sets variables
 \fICUSTOM:*REPORT\-ERROR\-PRINT\-BACKTRACE*\fR,
 [13]\&\fI\fI*LOAD\-PRINT*\fR\fR
 and
 [14]\&\fI\fI*COMPILE\-PRINT*\fR\fR
+to
+[15]\&\fI\fBT\fR\fR, the second sets
+\fICUSTOM:*LOAD\-ECHO*\fR
 to
 [15]\&\fI\fBT\fR\fR. These settings affect the output produced by
 \fB\-i\fR
@@ -259,6 +283,7 @@ cancel each other, e.g.,
 \fB\-q \-q \-v \-v \-v\fR
 is equivalent to
 \fB\-v\fR.
+.RE
 .TP
 \fB\-on\-error\fR \fIaction\fR
 Override (or force) the batch mode imposed by
@@ -476,9 +501,15 @@ Chapter\ 25, Environment [CLHS\-25].
 list the symbols
 matching to
 \fIname\fR.
-.TP
-(exit), (quit), (bye)
+.PP
+(exit), 
+.br
+(quit), 
+.br
+(bye)
+.RS
 quit[6]\&\fI\fBCLISP\fR\fR.
+.RE
 .TP
 EOF 
 #if defined(UNIX)
@@ -539,13 +570,17 @@ startup driver (a script or an executable)
 \fBclisp.exe\fR
 startup driver (executable)
 #endif
-.TP
-\fIlisp.run\fR, \fIlisp.exe\fR
+.PP
+\fIlisp.run\fR, 
+.br
+\fIlisp.exe\fR
+.RS
 #if defined(UNIX) && !defined(UNIX_CYGWIN32)
 #endif
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #endif
 main executable (runtime)
+.RE
 .TP
 \fIlispinit.mem\fR
 initial
@@ -632,19 +667,27 @@ The value may begin with a two\-letter ISO 639 language code, for example
 \fBde\fR,
 \fBfr\fR.
 #ifdef UNIX
-.TP
-\fBHOME\fR, \fBUSER\fR
+.PP
+\fBHOME\fR, 
+.br
+\fBUSER\fR
+.RS
 are used for determining the value of the function
 [32]\&\fI\fBUSER\-HOMEDIR\-PATHNAME\fR\fR.
+.RE
 #endif
-.TP
-\fBSHELL\fR, \fBCOMSPEC\fR
+.PP
+\fBSHELL\fR, 
+.br
+\fBCOMSPEC\fR
+.RS
 #ifdef UNIX
 #endif
 #ifdef WIN32_NATIVE
 #endif
 is used to find the interactive command interpreter called by
 \fBEXT:SHELL\fR.
+.RE
 #ifdef UNIX
 .TP
 \fBTERM\fR
@@ -666,7 +709,13 @@ in
 .TP
 \fBCLHSROOT\fR
 for
-\fBclhs\-root\fR
+\fBCUSTOM:CLHS\-ROOT\fR
+in
+\fIconfig.lisp\fR.
+.TP
+\fBIMPNOTES\fR
+for
+\fBCUSTOM:IMPNOTES\-ROOT\fR
 in
 \fIconfig.lisp\fR.
 .TP
@@ -675,10 +724,16 @@ for
 \fBeditor\-name\fR
 in
 \fIconfig.lisp\fR.
-.TP
-\fBLOGICAL_HOST_\fR\fB\fIhost\fR\fR\fB_FROM\fR, \fBLOGICAL_HOST_\fR\fB\fIhost\fR\fR\fB_TO\fR, \fBLOGICAL_HOST_\fR\fB\fIhost\fR\fR
+.PP
+\fBLOGICAL_HOST_\fR\fB\fIhost\fR\fR\fB_FROM\fR, 
+.br
+\fBLOGICAL_HOST_\fR\fB\fIhost\fR\fR\fB_TO\fR, 
+.br
+\fBLOGICAL_HOST_\fR\fB\fIhost\fR\fR
+.RS
 for
 \fICUSTOM:*LOAD\-LOGICAL\-PATHNAME\-TRANSLATIONS\-DATABASE*\fR
+.RE
 #endif
 .SH "SEE ALSO"
 .PP
@@ -696,11 +751,7 @@ CLISP impnotes,
 .PP
 When you encounter a bug in
 [6]\&\fI\fBCLISP\fR\fR, please report it to the
-[6]\&\fI\fBCLISP\fR\fR
-user mailing list
-<[45]\&\fIclisp\-list/at/lists.sourceforge.net\fR>
-or the
-[46]\&\fISourceForge bug tracker\fR.
+[6]\&\fI\fBCLISP\fR\fR[45]\&\fISourceForge bug tracker\fR.
 .PP
 \fIBefore\fR
 submitting a bug report, please take the following basic steps to make the report more useful:
@@ -724,8 +775,9 @@ linking set
 by either
 \fBbase\fR
 or
-\fBfull\fR[47]\&\fI\fBgdb\fR\fR
-command, and report the backtrace.
+\fBfull\fR[46]\&\fI\fBgdb\fR\fR
+command, and report the backtrace (see also
+Q:\ A.1.1.9).
 .TP
 3.
 If you are using pre\-built binaries and experience a hard crash, the problem is likely to be in the incompatibilities between the platform on which the binary was built and yours; please try compiling the sources and report the problem if it persists.
@@ -738,9 +790,9 @@ What is your platform (\fBuname \-a\fR
 on a
 [36]\&\fI\fBUNIX\fR\fR
 system)? Compiler version?
-[8]\&\fIGNU\fR[48]\&\fIlibc\fR
+[8]\&\fIGNU\fR[47]\&\fIlibc\fR
 version (on
-[8]\&\fIGNU\fR/[49]\&\fI\fBLinux\fR\fR)?
+[8]\&\fIGNU\fR/[48]\&\fI\fBLinux\fR\fR)?
 .TP
 2.
 Where did you get the sources or binaries? When? (Absolute dates are preferred over the relative ones).
@@ -940,17 +992,14 @@ Bruno Haible, Sam Steingold.
 44.\ XEmacs
 \%http://www.xemacs.org
 .TP 4
-45.\ clisp\-list/at/lists.sourceforge.net
-\%http://lists.sourceforge.net/lists/listinfo/clisp\-list
-.TP 4
-46.\ SourceForge bug tracker
+45.\ SourceForge bug tracker
 \%http://sourceforge.net/tracker/?func=add&group_id=1355&atid=101355
 .TP 4
-47.\ gdb
+46.\ gdb
 \%http://sources.redhat.com/gdb/
 .TP 4
-48.\ libc
+47.\ libc
 \%http://www.gnu.org/software/libc/
 .TP 4
-49.\ Linux
+48.\ Linux
 \%http://www.linux.org/

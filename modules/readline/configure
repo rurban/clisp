@@ -2600,12 +2600,19 @@ if test "${with_readline+set}" = set; then
   withval="$with_readline"
   ac_cv_use_readline=$withval
 else
-  ac_cv_use_readline=yes
+  ac_cv_use_readline=default
 fi;
 if test "$ac_cv_use_readline" = "no" ; then
 { echo "$as_me:$LINENO: not checking for readline" >&5
 echo "$as_me: not checking for readline" >&6;}
 else
+echo "$as_me:$LINENO: checking for a working modern GNU readline" >&5
+echo $ECHO_N "checking for a working modern GNU readline... $ECHO_C" >&6
+if test "${ac_cv_have_readline+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+ac_cv_have_readline=no
 if test $ac_cv_search_tgetent != no ; then
 
 
@@ -3139,11 +3146,6 @@ _ACEOF
 fi
 done
 
-    if  test $ac_cv_func_rl_filename_completion_function = no ; then
-      RL_FCF=filename_completion_function
-    else
-      RL_FCF=rl_filename_completion_function
-    fi
         echo "$as_me:$LINENO: checking for rl_filename_completion_function declaration" >&5
 echo $ECHO_N "checking for rl_filename_completion_function declaration... $ECHO_C" >&6
 if test "${cl_cv_proto_rl_filename_completion_function+set}" = set; then
@@ -3219,16 +3221,6 @@ echo "$as_me:$LINENO: result: ${ac_t:-
          }$cl_cv_proto_rl_filename_completion_function" >&5
 echo "${ECHO_T}${ac_t:-
          }$cl_cv_proto_rl_filename_completion_function" >&6
-
-
-cat >>confdefs.h <<_ACEOF
-#define READLINE_FILE_COMPLETE ${RL_FCF}
-_ACEOF
-
-
-cat >>confdefs.h <<_ACEOF
-#define READLINE_CONST $cl_cv_proto_readline_const
-_ACEOF
 
     echo "$as_me:$LINENO: checking whether rl_already_prompted is declared" >&5
 echo $ECHO_N "checking whether rl_already_prompted is declared... $ECHO_C" >&6
@@ -3450,17 +3442,43 @@ fi
 
     if test "$ac_cv_have_decl_rl_already_prompted" = yes \
          -a "$ac_cv_have_decl_rl_gnu_readline_p" = yes; then
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_READLINE
-_ACEOF
-
+      ac_cv_have_readline=yes
           else
       echo "$as_me:$LINENO: result: readline is too old and will not be used" >&5
 echo "${ECHO_T}readline is too old and will not be used" >&6
       LIBS="$am_save_LIBS"
     fi
   fi
+fi
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_readline" >&5
+echo "${ECHO_T}$ac_cv_have_readline" >&6
+if test "$ac_cv_have_readline" = yes; then
+  if  test $ac_cv_func_rl_filename_completion_function = no ; then
+    RL_FCF=filename_completion_function
+  else RL_FCF=rl_filename_completion_function
+  fi
+
+cat >>confdefs.h <<_ACEOF
+#define READLINE_FILE_COMPLETE ${RL_FCF}
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define READLINE_CONST $cl_cv_proto_readline_const
+_ACEOF
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_READLINE
+_ACEOF
+
+elif test "$ac_cv_use_readline" = yes; then
+  { { echo "$as_me:$LINENO: error: despite --with-readline, GNU readline was not found (try --with-libreadline-prefix)
+See \`config.log' for more details." >&5
+echo "$as_me: error: despite --with-readline, GNU readline was not found (try --with-libreadline-prefix)
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
 fi
 fi
 
