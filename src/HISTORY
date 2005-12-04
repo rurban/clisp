@@ -1,5 +1,8 @@
 Version  Date            New features
 
+2.36     2005-12-04      OPEN-HTTP, NOTSPECIAL, DEF-C-CONST, BASE64,
+                         new-clx/demos/foch, spvw_sigterm.d
+
 2.35     2005-08-29      COMPILED-FILE-P, CHAR-INVERTCASE, STRING-INVERTCASE,
                          NSTRING-INVERTCASE, STREAM-OPTIONS;
                          close all FDs before exec()
