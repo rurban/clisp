@@ -32,15 +32,13 @@ lisplibdir = $(libdir)\clisp
 DESTDIR =
 
 # (partial) list of available add-on modules
-# (see directory modules/ for the full list):
-# queens               the queens function as a separate module
+# (see directory modules/ for the full list
+#  or pass --list-modules to top-level configure):
+# queens               the queens function (a toy example)
 # dirkey               the directory access (LDAP, win32 registry)
 # berkeley-db          the Berkeley DB access
-# syscalls             export some POSIX (and other) system calls
 # rawsock              raw socket access
-# regexp               POSIX regular expressions
 # pcre                 Perl-compatible regular expressions
-# i18n                 Lisp program internationalization
 # wildcard             wildcard matching
 # postgresql           interface to PostgreSQL ODBMS
 # fastcgi              FastCGI (http://www.fastcgi.com/) interface
@@ -49,7 +47,7 @@ DESTDIR =
 # pari                 PARI/gp (http://pari.math.u-bordeaux.fr/)
 # zlib                 ZLIB (http://www.zlib.org)
 # clx/mit-clx          classical X11 interface
-MODULES =  
+MODULES = 
 
 # Command line options passed to the configure files of add-on modules
 MODULE_CONFIGURE_FLAGS = --with-dynamic-ffi
@@ -106,10 +104,10 @@ DVIPDF = dvipdf
 # If you want an add-on module to be _built_ automatically with CLISP,
 # the following additional requirements have to be obeyed.
 #
-#   1. The module must be located in a subdirectory of clisp's source
+#   1. The module must be located in a subdirectory of clisp's build
 #      directory.
-#      Examples: clisp/src/ wildcard/
-#                clisp/src/ bindings/glibc/
+#      Examples: clisp/build/wildcard/
+#                clisp/build/bindings/glibc/
 #
 #   2. If the module contains a file called "configure", it is assumed
 #      to be a GNU autoconf generated configuration file, and is called
@@ -127,13 +125,11 @@ DVIPDF = dvipdf
 #             CPPFLAGS           the C compiler flags when compiling some source
 #             CFLAGS             the C compiler flags
 #             INCLUDES           a directory containing CLISP header files
-#             LISPBIBL_INCLUDES  if you #include "lispbibl.c", put this onto
-#                                the dependency line
 #             CLFLAGS            the C compiler flags when linking an executable
 #             LIBS               the libraries used when linking an executable
 #             RANLIB             the name of the "ranlib" command
 #             CLISP              a command which calls the already built
-#                                "base" clisp.
+#                                "boot" clisp.
 #           Typically, you will have rules like this in your Makefile:
 #               foo.o : foo.c
 #                       $(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c foo.c
@@ -159,11 +155,14 @@ DVIPDF = dvipdf
 # need to do is to add its name to the MODULES definition line above.
 #
 
-VERSION=2.35
+VERSION=2.36
 CLISP_VERSION=clisp-$(VERSION)
 
-# List of add-on modules that are already hardwired in the base linking set
-BASE_MODULES = i18n syscalls regexp
+# Add-on modules that are present in all linking sets (including base)
+# syscalls             export some POSIX (and other) system calls
+# regexp               POSIX regular expressions
+# i18n                 Lisp program internationalization
+BASE_MODULES = i18n syscalls regexp readline
 
 COMMENT5 = comment5
 GCTRIGGER = gctrigger
@@ -234,6 +233,7 @@ spvw_sigcld.d \
 spvw_sigpipe.d \
 spvw_sigint.d \
 spvw_sigwinch.d \
+spvw_sigterm.d \
 spvw_garcol.d \
 spvw_genera1.d \
 spvw_gcmark.d \
@@ -350,6 +350,7 @@ spvw_sigcld.c \
 spvw_sigpipe.c \
 spvw_sigint.c \
 spvw_sigwinch.c \
+spvw_sigterm.c \
 spvw_garcol.c \
 spvw_genera1.c \
 spvw_gcmark.c \
@@ -509,7 +510,6 @@ gstream.lisp \
 xcharin.lisp \
 keyboard.lisp \
 screen.lisp \
-beossock.lisp \
 runprog.lisp \
 query.lisp \
 reploop.lisp \
@@ -607,7 +607,6 @@ gstream.fas \
 xcharin.fas \
 keyboard.fas \
 screen.fas \
-beossock.fas \
 runprog.fas \
 query.fas \
 reploop.fas \
@@ -710,7 +709,6 @@ stage\gstream.lisp \
 stage\xcharin.lisp \
 stage\keyboard.lisp \
 stage\screen.lisp \
-stage\beossock.lisp \
 stage\runprog.lisp \
 stage\query.lisp \
 stage\reploop.lisp \
@@ -808,7 +806,6 @@ stage\gstream.fas \
 stage\xcharin.fas \
 stage\keyboard.fas \
 stage\screen.fas \
-stage\beossock.fas \
 stage\runprog.fas \
 stage\query.fas \
 stage\reploop.fas \
@@ -836,6 +833,22 @@ stage\config.fas
 
 
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual
+
+makemake : makemake.in config.status
+	sh config.status --file=makemake
+
+unixconf.h : unixconf.h.in config.status
+	sh config.status --header=unixconf.h
+	touch unixconf.h
+
+Makefile : makemake
+	./makemake --with-dynamic-ffi win32msvc msvc4 > Makefile.tmp
+	$(MV) Makefile Makefile~
+	$(MV) Makefile.tmp Makefile
+
+config.status : configure
+	$(RM) config.cache
+	sh config.status --recheck
 
 cflags.h : cflags.h.stamp
 
@@ -1088,6 +1101,9 @@ spvw_sigint.c : spvw_sigint.d comment5.exe gctrigger.exe varbrace.exe
 spvw_sigwinch.c : spvw_sigwinch.d comment5.exe gctrigger.exe varbrace.exe
 	$(COMMENT5) spvw_sigwinch.d | $(GCTRIGGER) | $(VARBRACE) > spvw_sigwinch.c
 
+spvw_sigterm.c : spvw_sigterm.d comment5.exe gctrigger.exe varbrace.exe
+	$(COMMENT5) spvw_sigterm.d | $(GCTRIGGER) | $(VARBRACE) > spvw_sigterm.c
+
 spvw_garcol.c : spvw_garcol.d comment5.exe gctrigger.exe varbrace.exe
 	$(COMMENT5) spvw_garcol.d | $(GCTRIGGER) | $(VARBRACE) > spvw_garcol.c
 
@@ -1251,16 +1267,16 @@ alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s 
 # Normally not used (just for debugging).
 alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i weak.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i i18n.i foreign.i win32aux.i built.i
 
-spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
+spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_sigterm.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) spvw.c > spvw.i
 
-spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
+spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_sigterm.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) spvw.c > spvw.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvw.i.c /FAs /Faspvw.s
 	$(RM) spvw.i.obj
 	$(RM) spvw.i.c
 
-spvw.obj : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
+spvw.obj : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_sigterm.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) spvw.c > spvw.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvw.i.c
 	$(RM) spvw.obj
@@ -1834,11 +1850,11 @@ localcharset.h : ..\libcharset\include\localcharset.h
 charset.lib : ..\libcharset\lib\charset.lib
 	-$(LN_S) ..\libcharset\lib\charset.lib charset.lib
 
-data : ..\utils\unicode\UnicodeDataFull.txt ..\src\clhs.txt
+data : ..\utils\unicode\UnicodeDataFull.txt ..\doc\Symbol-Table.text
 	$(RMRF) data
 	mkdir data
 	cd data && $(LN_S) ..\..\utils\unicode\UnicodeDataFull.txt .
-	cd data && $(LN_S) ..\..\src\clhs.txt .
+	cd data && $(LN_S) ..\..\doc\Symbol-Table.text .
 
 lisp.exe : $(OBJECTS) modules.obj avcall.lib callback.lib  charset.lib  data
 	$(RM) lisp.ilk
@@ -1850,7 +1866,7 @@ alllisp : $(LISPFILES)
 config.lisp : cfgwin32.lisp
 	$(CP) cfgwin32.lisp config.lisp
 
-RUN= lisp.exe -B . -Efile UTF-8 -Eterminal UTF-8 -norc
+RUN= lisp.exe -B . -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1 -norc
 
 modprep.fas : ..\utils\modprep.lisp lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -q -c ../utils/modprep.lisp -o modprep.fas
@@ -2077,9 +2093,6 @@ keyboard.fas : keyboard.lisp lisp.exe halfcompiled.mem
 
 screen.fas : screen.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c screen.lisp
-
-beossock.fas : beossock.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1800KW -M halfcompiled.mem -q -c beossock.lisp
 
 runprog.fas : runprog.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c runprog.lisp
@@ -2391,9 +2404,6 @@ stage\keyboard.lisp : keyboard.lisp
 stage\screen.lisp : screen.lisp
 	$(LN_S) screen.lisp stage
 
-stage\beossock.lisp : beossock.lisp
-	$(LN_S) beossock.lisp stage
-
 stage\runprog.lisp : runprog.lisp
 	$(LN_S) runprog.lisp stage
 
@@ -2682,9 +2692,6 @@ stage\keyboard.fas : stage\keyboard.lisp lisp.exe stage\testinit.mem
 stage\screen.fas : stage\screen.lisp lisp.exe stage\testinit.mem
 	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\screen.lisp
 
-stage\beossock.fas : stage\beossock.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\beossock.lisp
-
 stage\runprog.fas : stage\runprog.lisp lisp.exe stage\testinit.mem
 	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\runprog.lisp
 
@@ -2805,6 +2812,8 @@ check-fresh-line : lisp.exe lispinit.mem
 	if grep 'Line1.*Line2' fresh-line.out > /dev/null; then exit 1; fi
 	$(RM) fresh-line.out
 
+check-script : lisp.exe lispinit.mem
+	test `echo '(print (+ 11 99))' | $(RUN) -q -M lispinit.mem -` = 110 || exit 1
 check-tests : tests lisp.exe lispinit.mem
 	cd tests && $(MAKE) SHELL='$(SHELL)' LEXE=.exe
 
@@ -2818,7 +2827,7 @@ tests :
 	cd tests && $(LN_S) ..\..\tests\*.tst .
 
 # Perform self-tests.
-check : check-recompile check-fresh-line check-tests
+check : check-recompile check-fresh-line check-script check-tests
 
 
 clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
@@ -2832,6 +2841,7 @@ clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
 	clisp-test-clisp > clisp-test-clisp.out
 	clisp-test-lispbibl > clisp-test-lispbibl.out
 	comp clisp-test-clisp.out clisp-test-lispbibl.out
+	if grep lispbibl.d clisp.h; then false; else true; fi
 	$(RM) genclisph.exe clisp-test-clisp.exe clisp-test-lispbibl.exe clisp-test-clisp.out clisp-test-lispbibl.out
 
 linkkit : modules.d modules.c clisp.h modprep.lisp
@@ -2842,22 +2852,22 @@ linkkit : modules.d modules.c clisp.h modprep.lisp
 	cd linkkit && $(LN_S) ..\clisp.h clisp.h
 	cd linkkit && $(LN_S) ..\modprep.lisp modprep.lisp
 
-modular : lisp.a avcall.lib callback.lib  clisp-link linkkit modules.h modules.o makevars
+modular : lisp.a libnoreadline.a avcall.lib callback.lib  clisp-link linkkit modules.h modules.o makevars
 
 makevars : Makefile
-	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a avcall.lib callback.lib '"'") > makevars
+	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a libnoreadline.a avcall.lib callback.lib '"'") > makevars
 
 clisp-link : clisp-link.in
 	sed -e 's%%@with_dynamic_modules@%%no%%' -e 's%%@createsharedlib@%%%%' -e 's%%@LEXE@%%.exe%%' -e 's%%@SHREXT@%%.dll%%'< clisp-link.in > clisp-link
 	chmod a+x clisp-link
 
 boot : modular lispinit.mem
-	test -d boot || (mkdir boot && cd boot && for f in lisp.a avcall.lib callback.lib  modules.h modules.o makevars lisp.exe lispinit.mem; do $(LN_S) ..\$$f $$f; done) || ($(RMRF) boot ; exit 1)
+	test -d boot || (mkdir boot && cd boot && for f in lisp.a libnoreadline.a avcall.lib callback.lib  modules.h modules.o makevars lisp.exe lispinit.mem; do $(LN_S) ..\$$f $$f; done) || ($(RMRF) boot ; exit 1)
 
 anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas clisp.h
 	lndir ..\modules/$@ $@
-	m=`cd ..\modules\$@; pwd`; if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ( cache=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache; if test -f $${cache} ; then . $${cache}; if test "$${ac_cv_env_CC_set}" = set; then CC="$${ac_cv_env_CC_value}"; export CC; fi; ./configure --cache-file=$${cache} --srcdir=$$m $(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=$$m $(MODULE_CONFIGURE_FLAGS); fi ) ; fi
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}/lispbibl.c $${dots}/fsubr.c $${dots}/subr.c $${dots}/pseudofun.c $${dots}/constsym.c $${dots}/constobj.c $${dots}/win32.c $${dots}/xthread.c $${dots}/stdbool.h $${dots}/stdint.h $${dots}/libcharset.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
+	m=`cd ..\modules\$@; pwd`; if test -f $@/configure -a $@/configure -nt $@/config.status ; then cd $@ ; ( cache=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache; if test -f $${cache} ; then . $${cache}; if test "$${ac_cv_env_CC_set}" = set; then CC="$${ac_cv_env_CC_value}"; export CC; fi; ./configure --cache-file=$${cache} --srcdir=$$m $(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=$$m $(MODULE_CONFIGURE_FLAGS); fi ) ; fi
+	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 base : modular boot $(BASE_MODULES)
 	$(RMRF) base
@@ -2869,11 +2879,11 @@ full : modular base $(MODULES)
 
 base-mod-check : clisp.exe tests # base
 	for m in $(BASE_MODULES); do $(RM) $$m/*.erg; done
-	z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp  -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp  -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 mod-check : base-mod-check # full
 	for m in $(MODULES); do $(RM) $$m/*.erg; done
-	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full  -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full  -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 IMPNOTES = impnotes.html impnotes.css clisp.png clisp.ico
@@ -3008,7 +3018,7 @@ clisp.rc :
 	echo "MAINICON ICON \"clisp.ico\"" > clisp.rc
 
 clisp.exe : clisp.c clispres.obj w32shell.c execname.c
-	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.obj $(LIBS) /link /out:clisp.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.obj $(LIBS) /link /out:clisp.exe
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : install.lisp install.bat clisp.man clisp.html force
@@ -3025,7 +3035,7 @@ distrib : install.lisp install.bat clisp.man clisp.html force
 	done ; \
 	mkdir $$distdir/data ; \
 	cp -p data/UnicodeDataFull.txt $$distdir/data/UnicodeDataFull.txt ; \
-	cp -p data/clhs.txt $$distdir/data/clhs.txt ; \
+	cp -p data/Symbol-Table.text $$distdir/data/Symbol-Table.text ; \
 	mkdir $$distdir/doc ; \
 	for f in clisp.1 clisp.man clisp.html $(TXTFILES) $(IMPNOTES) ; do \
 	  if test -f $$f ; then cp -p $$f $$distdir/doc/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/doc/$$f ; fi ; \
@@ -3046,7 +3056,7 @@ distrib : install.lisp install.bat clisp.man clisp.html force
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core gctrigger.c varbrace.c fresh-line.out clisp-test.c genclisph.exe txt.c txt.exe txt.i.c
+	-$(RM) core Makefile~ gctrigger.c varbrace.c fresh-line.out clisp-test.c genclisph.exe txt.c txt.exe txt.i.c
 	-$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
