@@ -1,5 +1,10 @@
 2005-12-05  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (HSDEFAULT): drop trailing slash
+	(clisp-1.html): substitute @PLATFORM@
+
+2005-12-05  Sam Steingold  <sds@gnu.org>
+
 	* inspect.lisp (inspect-frontend@:http): use UNWIND-PROTECT to
 	ensure that SOCK and SERVER are closed
 	Suggested by Tomas Zellerin <zellerin@gmail.com>
