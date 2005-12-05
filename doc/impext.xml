@@ -2583,7 +2583,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
       of the Lisp name.</simpara></listitem></varlistentry>
    <varlistentry><term><code>(&type-k; &ctype-r;)</code></term>
     <listitem><para>specifies the constant's foreign type, one of
-      <simplelist><member><type>ffi:int</type></member>
+      <simplelist><member><type>FFI:INT</type></member>
        <member>&c-string;</member><member>&c-pointer;</member>
    </simplelist></para></listitem></varlistentry>
    <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
