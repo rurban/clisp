@@ -1,5 +1,9 @@
 2005-12-04  Sam Steingold  <sds@gnu.org>
 
+	* m4/putenv.m4 (CL_PUTENV): check for unsetenv
+
+2005-12-04  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (UNAME_R): strip everything after [^A-Za-z0-9.]
 
 2005-12-04  Sam Steingold  <sds@gnu.org>
