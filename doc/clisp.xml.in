@@ -223,9 +223,9 @@ compiles the specified lisp files to a platform-independent
 <!-- #endif -->
 
 <varlistentry id="opt-lang"><term><option>-L</option> &lang-r;</term>
- <listitem><para>Specifies the language &clisp;
-   uses to communicate with the user.
-   This may be
+ <listitem><para>Specifies the
+   <olink targetdoc="impnotes" targetptr="language">language</olink>
+   &clisp; uses to communicate with the user. This may be
 <!-- #ifndef GNU_GETTEXT -->
    only <command>english</command>.
 <!-- #else -->
