@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -19,7 +19,7 @@ ac_cv_func_putenv=yes, ac_cv_func_putenv=no)])
 if test $ac_cv_func_putenv = yes; then
   AC_DEFINE(HAVE_PUTENV, 1, [Define if you have the putenv() function.])
 fi
-AC_CHECK_FUNCS(setenv)dnl
+AC_CHECK_FUNCS(setenv unsetenv)dnl
 AC_CHECK_DECLS(environ,,,[#include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
