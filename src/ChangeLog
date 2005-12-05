@@ -1,5 +1,10 @@
 2005-12-04  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main_actions): remove the legacy warning about RC file
+	name (_clisprc -> .clisprc) transition
+
+2005-12-04  Sam Steingold  <sds@gnu.org>
+
 	* m4/putenv.m4 (CL_PUTENV): check for unsetenv
 
 2005-12-04  Sam Steingold  <sds@gnu.org>

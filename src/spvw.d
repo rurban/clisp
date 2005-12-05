@@ -3050,24 +3050,6 @@ local inline void main_actions (struct argv_actions *p) {
     pushSTACK(S(Kif_does_not_exist));
     pushSTACK(S(nil));
     funcall(S(load),3);
-   #ifdef PATHNAME_WIN32        /* transition, to be removed in 2.35 */
-    if (nullp(value1)) {        /* not found */
-      pushSTACK(S(Kname));
-      pushSTACK(ascii_to_string("_clisprc"));
-      pushSTACK(S(Kdefaults));
-      funcall(S(user_homedir_pathname),0);
-      pushSTACK(value1);
-      funcall(L(make_pathname),4);
-      pushSTACK(value1);
-      pushSTACK(S(Kif_does_not_exist));
-      pushSTACK(S(nil));
-      funcall(S(load),3);
-      if (!nullp(value1)) {     /* loaded the file */
-        pushSTACK(CLSTEXT("The name of the Run-Control file has changed from '_clisprc' to '.clisprc' on all platforms. Please rename your Run-Control file."));
-        funcall(S(warn),1);
-      }
-    }
-   #endif
   }
   # execute (LOAD initfile) for each initfile:
   if (p->argv_init_filecount > 0) {
