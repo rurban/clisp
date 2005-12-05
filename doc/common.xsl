@@ -30,6 +30,17 @@
  <a class="{@role}" href="http://www.google.com/search?q={.}"
     ><xsl:apply-templates/></a></xsl:template>
 
+<!-- =============================== RFC =============================== -->
+<xsl:param name="rfc.top" select="'http://rfc.net/rfc'"/>
+<xsl:template match="ulink[@role='rfc']">
+ <a class="{@role}" href="{$rfc.top}{@url}.html"><code>
+   <xsl:choose><xsl:when test=".=''"><xsl:text>RFC</xsl:text>
+     <xsl:value-of select="@url"/></xsl:when>
+    <xsl:otherwise><xsl:apply-templates/></xsl:otherwise></xsl:choose>
+ </code></a>
+</xsl:template>
+<!-- ============================== / RFC ============================== -->
+
 <!-- ============================ CLISP CVS ============================ -->
 <xsl:param name="clisp.cvs.top" select="'http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/'"/>
 <xsl:template match="ulink[@role='clisp-cvs']">
