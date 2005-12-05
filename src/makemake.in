@@ -1393,7 +1393,7 @@ if [ "$cpu" = i386 -a "$TSYSOS" = "sunos" ] ; then # Solaris 2
   XCFLAGS=$XCFLAGS'' # maybe add -DUSL
 fi
 
-UNAME_R=`uname -r | $tolower | sed 's/ .*//'`
+UNAME_R=`uname -r | $tolower | sed 's/[^A-Za-z0-9.].*//'`
 if [ "$cpu" = i386 -a "$TSYSOS" = linux -a $CROSS = false ] ; then # Linux
   # Generational GC requires Linux 1.1.52 or newer
   case "$UNAME_R" in
