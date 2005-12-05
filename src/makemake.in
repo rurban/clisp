@@ -6,7 +6,7 @@
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
 
-HSDEFAULT="http://www.lisp.org/HyperSpec/"
+HSDEFAULT="http://www.lisp.org/HyperSpec"
 hyperspec=${CLHSROOT:-${HSDEFAULT}}
 
 info_help () {
@@ -421,7 +421,7 @@ EOF
         */FrontMatter/index.html ) arg=`echo "$arg" | sed -e 's,/FrontMatter/index.html$,,'` ;;
         */FrontMatter/ )           arg=`echo "$arg" | sed -e 's,/FrontMatter/$,,'` ;;
         */FrontMatter )            arg=`echo "$arg" | sed -e 's,/FrontMatter$,,'` ;;
-        */ )                       arg=`echo "$arg" | sed -e 's,/$,,'` ;;
+        */ )                       arg=`echo "$arg" | sed -e 's,/*$,,'` ;;
         * ) ;;
       esac
       case "$arg" in
@@ -3429,8 +3429,13 @@ for f in $TXT_FILES ; do
   if [ $f = README ] ; then
     depends=$depends" ${SRCDIR}_${f}.de ${SRCDIR}_${f}.en"
   fi
+  platform_line=""
   case $f in
     clisp.html | clisp.1 | clisp-1.html)
+      if [ $HOS = win32 ];
+      then platform_line=" | sed -e \"s,@PLATFORM@,${TSYS},g\""
+      else platform_line=" | sed -e \"s,@PLATFORM@,${host},g\""
+      fi
       sourcedir=${SRCDOCDIR} ;;
     *) sourcedir=${SRCDIR} ;;
   esac
@@ -3450,18 +3455,14 @@ for f in $TXT_FILES ; do
   if [ $f = clisp.1 ] ; then
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
   fi
+  # clisp-1.html is for chunked impnotes and does not depend on user hyperspec
   if [ $f = clisp.html -a "${HSDEFAULT}" != "${hyperspec}" ] ; then
     line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
   fi
   if [ $f = distmakefile ] ; then
     line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\""
   fi
-  if [ $f = clisp.1 -o $f = clisp.html ]; then
-    if [ $HOS = win32 ]; then
-      line=$line" | sed -e \"s,@PLATFORM@,${TSYS},g\""
-    else line=$line" | sed -e \"s,@PLATFORM@,${host},g\""
-    fi
-  fi
+  line=$line$platform_line
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) txt.c"
   echotab "\$(RM) txt${HEXE}"
@@ -3930,7 +3931,7 @@ cat <<!!
 	-rmdir ${RECOMPILEDIR}
 	-rmdir ${TESTSDIR}
 	-rmdir ${ANSITESTSDIR}
-	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES)
+	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES)
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
 # is recompiled without changing the bytecode format.
