@@ -306,10 +306,10 @@ LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL) {
 local char * cat_env_var (char * buffer, const char * name, uintL namelen,
                           const char * value, uintL valuelen) {
   memcpy(buffer,name,namelen);
-#if defined(WIN32_NATIVE)
+ #if defined(WIN32_NATIVE)
   /* woe32: putenv("FOO=") removes FOO */
   buffer[namelen++] = '=';
-#endif
+ #endif
   if (value != NULL) {
    #if !defined(WIN32_NATIVE)
     /* posix: putenv("FOO") removes FOO */
@@ -342,6 +342,9 @@ global int clisp_setenv (const char * name, const char * value) {
   if (!SetEnvironmentVariableA(name,value)
       && (value || GetLastError() != ERROR_ENVVAR_NOT_FOUND))
     return -1;
+#endif
+#if defined(HAVE_UNSETENV)
+  if (value == NULL) return unsetenv(name);
 #endif
 #if defined(HAVE_PUTENV)
   var char* buffer = (char*)malloc(namelen+1+valuelen+1);
