@@ -12,26 +12,25 @@ AC_DEFUN([CL_READLINE],[dnl
 AC_ARG_WITH([readline],
 AC_HELP_STRING([--with-readline],[use readline (default is YES, if present)]),
 [ac_cv_use_readline=$withval], [ac_cv_use_readline=default])
+ac_cv_have_modern_readline=no
 if test "$ac_cv_use_readline" = "no" ; then
 AC_MSG_NOTICE([not checking for readline])
 else
-AC_CACHE_CHECK(for a working modern GNU readline, ac_cv_have_readline, [
 AC_REQUIRE([CL_TERMCAP])dnl
-ac_cv_have_readline=no
 if test $ac_cv_search_tgetent != no ; then
   AC_LIB_LINKFLAGS_BODY(readline)
-  am_save_LIBS="$LIBS"
+  ac_save_LIBS="$LIBS"
   LIBS="$LIBREADLINE $LIBS"
-  AC_TRY_LINK([#include <stdio.h>
-#include <readline/readline.h>], [readline((char*)0);],
-    cl_have_libreadline=yes)
-  LIBS="$am_save_LIBS"
-  if test "$cl_have_libreadline" = yes ; then
+  AC_CHECK_FUNCS(readline rl_filename_completion_function)
+  LIBS="$ac_save_LIBS"
+  if test "$ac_cv_func_readline" = yes ; then
     LIBS="$LIBREADLINE $LIBS"
-    # newer versions of readline prepend "rl_"
-    AC_CHECK_FUNCS(rl_filename_completion_function)
+    if test $ac_cv_func_rl_filename_completion_function = no ;
+    then RL_FCF=filename_completion_function
+    else RL_FCF=rl_filename_completion_function
+    fi
     dnl READLINE_CONST is necessary for C++ compilation of stream.d
-    CL_PROTO([rl_filename_completion_function], [
+    CL_PROTO([], [
       CL_PROTO_CONST([
 #include <stdio.h>
 #include <readline/readline.h>
@@ -41,21 +40,20 @@ if test $ac_cv_search_tgetent != no ; then
     AC_CHECK_DECLS([rl_already_prompted, rl_readline_name, rl_gnu_readline_p],,,
 [#include <stdio.h>
 #include <readline/readline.h>])
+    AC_MSG_CHECKING(for a modern readline)
     if test "$ac_cv_have_decl_rl_already_prompted" = yes \
          -a "$ac_cv_have_decl_rl_gnu_readline_p" = yes; then
-      ac_cv_have_readline=yes
       dnl LIBREADLINE has been added to LIBS.
+      AC_DEFINE(HAVE_READLINE,,[have a working modern GNU readline])
+      AC_MSG_RESULT([found a modern GNU readline])
+      ac_cv_have_modern_readline=yes
     else
       AC_MSG_RESULT([readline is too old and will not be used])
-      LIBS="$am_save_LIBS"
+      LIBS="$ac_save_LIBS"
     fi
   fi
-fi])
-if test "$ac_cv_have_readline" = yes; then
-  if [ test $ac_cv_func_rl_filename_completion_function = no ]; then
-    RL_FCF=filename_completion_function
-  else RL_FCF=rl_filename_completion_function
-  fi
+fi
+if test "$ac_cv_have_modern_readline" = yes; then
   AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF},[The readline built-in filename completion function, either rl_filename_completion_function() or filename_completion_function()])
   AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const,[declaration of filename_completion_function() needs const in the first argument])
   AC_DEFINE(HAVE_READLINE,,[have a working modern GNU readline])
