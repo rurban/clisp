@@ -1,5 +1,9 @@
 2005-12-04  Sam Steingold  <sds@gnu.org>
 
+	* m4/readline.m4: fixed last patch that was totally broken
+
+2005-12-04  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: clisp 2.36 release
 
 2005-12-04  Sam Steingold  <sds@gnu.org>
