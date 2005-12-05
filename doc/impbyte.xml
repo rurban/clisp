@@ -743,7 +743,8 @@
 </variablelist></para></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">doc/clisp.xml.in</filename></term>
- <listitem><simpara>&docbook;/&xml; sources for the &clisp; manual page
+ <listitem><simpara>&docbook;/&xml; sources for the &clisp;
+   <olink targetdoc="man" targetptr="clisp">manual page</olink>
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename><replaceable>build-dir</replaceable>/clisp.1</filename></term>
  <listitem><simpara>the platform-specific
