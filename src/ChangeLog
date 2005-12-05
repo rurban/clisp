@@ -1,5 +1,11 @@
 2005-12-05  Sam Steingold  <sds@gnu.org>
 
+	* inspect.lisp (inspect-frontend@:http): use UNWIND-PROTECT to
+	ensure that SOCK and SERVER are closed
+	Suggested by Tomas Zellerin <zellerin@gmail.com>
+
+2005-12-05  Sam Steingold  <sds@gnu.org>
+
 	* misc.d (clisp_setenv) [HAVE_UNSETENV]: use unsetenv
 
 2005-12-04  Sam Steingold  <sds@gnu.org>
