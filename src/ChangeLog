@@ -1,3 +1,7 @@
+2005-12-05  Sam Steingold  <sds@gnu.org>
+
+	* misc.d (clisp_setenv) [HAVE_UNSETENV]: use unsetenv
+
 2005-12-04  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main_actions): remove the legacy warning about RC file
