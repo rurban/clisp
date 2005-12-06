@@ -1,3 +1,8 @@
+2005-12-06  Sam Steingold  <sds@gnu.org>
+
+	* clhs.lisp (open-url): new function
+	(ensure-clhs-map, ensure-impnotes-map): use it
+
 2005-12-05  Sam Steingold  <sds@gnu.org>
 
 	* m4/putenv.m4 (CL_PUTENV): check unsetenv() declared return value

@@ -186,6 +186,14 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                     (setq content-length (parse-integer line :start #6#))))
           :finally (terpri)))
     (values sock content-length)))
+(defun open-url (path &rest options &aux (len (length path)))
+  (cond ((string-equal #1="http://" path :end2 (min len #.(length #1#)))
+         (apply #'open-http path options))
+        ((string-equal #2="file:/" path :end2 (min len #3=#.(length #2#)))
+         (apply #'open (subseq path (position #\/ path :test-not #'eql
+                                              :start #3#))
+                options))
+        (t (open path))))
 (defun get-clhs-map (stream)
   "Download and install the CLHS map."
   (format t "~&;; ~S(~S)..." 'get-clhs-map stream) (force-output)
@@ -207,15 +215,11 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   ;; nil return value means no map exists
   (defun ensure-clhs-map ()
     "make sure that the CLHS map is present"
-    (let ((clhs-root (clhs-root)) opener)
+    (let ((clhs-root (clhs-root)))
       (when (and clhs-root (string/= clhs-map-source clhs-root))
-        (setq clhs-map-source clhs-root
-              opener (if (string-equal #1="http://" clhs-root
-                                       :end2 (min (length clhs-root)
-                                                  #.(length #1#)))
-                         #'open-http #'open))
-        (with-open-stream (s (or (funcall opener (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
-                                 (funcall opener (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
+        (setq clhs-map-source clhs-root)
+        (with-open-stream (s (or (open-url (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
+                                 (open-url (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
           (unless s
             (warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
                   'clhs-root clhs-root '(getenv "CLHSROOT")
@@ -253,22 +257,18 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
         (setq impnotes-map-source impnotes-root)
         (case (char impnotes-root (1- (length impnotes-root)))
           ((#\/ #+win32 #\\) ; chunked impnotes ==> get id-href
-           (let ((opener (if (string-equal #1="http://" impnotes-root
-                                           :end2 (min (length impnotes-root)
-                                                      #.(length #1#)))
-                             #'open-http #'open)))
-             (with-open-stream (s (funcall opener (string-concat impnotes-root
-                                                                 "id-href.map")
-                                           :if-does-not-exist nil))
-               (unless s
-                 #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
-                          'impnotes-root impnotes-root '(getenv "IMPNOTES")
-                          '*impnotes-root-default* '*http-proxy*)
-                 (return-from ensure-impnotes-map))
-               (let ((table (get-string-map s)))
-                 (unless table   ; no table --> bail out
-                   #2# (return-from ensure-impnotes-map))
-                 (setq dest (lambda (id) (gethash id table))))))))
+           (with-open-stream (s (open-url (string-concat impnotes-root
+                                                         "id-href.map")
+                                          :if-does-not-exist nil))
+             (unless s
+               #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
+                        'impnotes-root impnotes-root '(getenv "IMPNOTES")
+                        '*impnotes-root-default* '*http-proxy*)
+               (return-from ensure-impnotes-map))
+             (let ((table (get-string-map s)))
+               (unless table   ; no table --> bail out
+                 #2# (return-from ensure-impnotes-map))
+               (setq dest (lambda (id) (gethash id table)))))))
         (with-open-file (in (clisp-data-file "Symbol-Table.text"))
           (format t "~&;; ~S(~S)..." 'ensure-impnotes-map (truename in))
           (force-output)
