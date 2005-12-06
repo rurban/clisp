@@ -1,6 +1,9 @@
 2005-12-05  Sam Steingold  <sds@gnu.org>
 
 	* m4/putenv.m4 (CL_PUTENV): check unsetenv() declared return value
+	* misc.d (cat_env_var): value must be non-NULL
+	(setenv_via_environ): extracted from clisp_setenv()
+	(clisp_setenv): use it to unset the variable
 
 2005-12-05  Sam Steingold  <sds@gnu.org>
 
