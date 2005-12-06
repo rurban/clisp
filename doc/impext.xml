@@ -752,8 +752,8 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
     <primary id="path-enc-i"><varname>*PATHNAME-ENCODING*</varname>
  </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding used for pathnames in the file
- system. Normally, this is a 1:1 encoding.  Its &line-term; mode is ignored.
- </simpara></listitem></varlistentry>
+   system. Normally, this should be a 1:1 encoding.
+   Its &line-term; mode is ignored.</simpara></listitem></varlistentry>
 <varlistentry><term><firstterm>&term-enc;
    <indexterm id="term-enc" significance="preferred">
     <primary id="term-enc-i"><varname>*TERMINAL-ENCODING*</varname>
