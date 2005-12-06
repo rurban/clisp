@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2003, 2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -11,8 +11,7 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.57)
 
 AC_DEFUN([CL_FIND_X],
-[AC_CHECKING(for X11)
-X_INCLUDES=''
+[X_INCLUDES=''
 X_LIBS=''
 dnl First check for xmkmf.
 AC_CHECK_PROG(HAVE_XMKMF, xmkmf, yes)dnl
@@ -34,6 +33,7 @@ else
   dnl From John Ousterhout <ouster@allspice.berkeley.edu>
   dnl There are some X11 installations around that don't have xmkmf.
   AC_MSG_CHECKING(for X11 header files)
+  X_INCLUDES=no
   AC_TRY_CPP([#include <X11/Intrinsic.h>], have_x_includes=1)
   if test -z "$have_x_includes"; then
     for dir in /usr/X11/include /usr/openwin/include /usr/include/X11R5 /usr/X11R5/include /usr/include/X11R4 /usr/X386/include /usr/x386/include /usr/local/include /usr/unsupported/include; do
@@ -49,8 +49,6 @@ else
     X_INCLUDES="-I$x_includes"
   fi
   AC_MSG_RESULT($X_INCLUDES)
-  AC_MSG_CHECKING(for X11 library)
-  CL_SILENT([
   AC_CHECK_LIB(X11,main, have_x_libraries=1)dnl
   if test -z "$have_x_libraries"; then
     for dir in /usr/X11/lib /usr/openwin/lib /usr/lib/X11R5 /usr/X11R5/lib /usr/lib/X11R4 /usr/X386/lib /usr/x386/lib /usr/local/lib /usr/unsupported/lib; do
@@ -70,8 +68,6 @@ else
   else
     AC_CHECK_LIB(Xwindow,main, X_LIBS='-lXwindow' have_x_libraries=1)dnl
   fi
-  ])
-  AC_MSG_RESULT($X_LIBS)
   dnl Don't use X if either the header files or the libraries were not found.
   if test -n "$have_x_includes" -a -n "$have_x_libraries"; then
     have_x11=1
