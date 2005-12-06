@@ -5274,7 +5274,7 @@ exhaust the available line length.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
-<para>The &TZ; in a &dec-time; must not necessarily be an
+<para>The &TZ; in a &dec-time; does not necessarily have be an
  &integer-t;, but (as &float-t; or &rational-t; number)
  it should be a multiple of <literal role="data">1/3600</literal>.</para>
 
