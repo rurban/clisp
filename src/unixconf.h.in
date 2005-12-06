@@ -678,6 +678,9 @@
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
 
+/* define to 1 if the return type of unsetenv is int */
+#undef UNSETENV_POSIX
+
 /* expression in ch which is true if ch is a valid character in filenames */
 #undef VALID_FILENAME_CHAR
 

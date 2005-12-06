@@ -2950,8 +2950,6 @@ fi
 
 done
 
-{ echo "$as_me:$LINENO: checking for X11..." >&5
-echo "$as_me: checking for X11..." >&6;}
 X_INCLUDES=''
 X_LIBS=''
 # Extract the first word of "xmkmf", so it can be a program name with args.
@@ -3241,6 +3239,7 @@ fi
 else
       echo "$as_me:$LINENO: checking for X11 header files" >&5
 echo $ECHO_N "checking for X11 header files... $ECHO_C" >&6
+  X_INCLUDES=no
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -3290,10 +3289,8 @@ rm -f conftest.err conftest.$ac_ext
   fi
   echo "$as_me:$LINENO: result: $X_INCLUDES" >&5
 echo "${ECHO_T}$X_INCLUDES" >&6
-  echo "$as_me:$LINENO: checking for X11 library" >&5
-echo $ECHO_N "checking for X11 library... $ECHO_C" >&6
-
-  :
+  echo "$as_me:$LINENO: checking for main in -lX11" >&5
+echo $ECHO_N "checking for main in -lX11... $ECHO_C" >&6
 if test "${ac_cv_lib_X11_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -3369,7 +3366,8 @@ fi
       X_LIBS="-L$x_libraries "$X_LIBS
     fi
   else
-    :
+    echo "$as_me:$LINENO: checking for main in -lXwindow" >&5
+echo $ECHO_N "checking for main in -lXwindow... $ECHO_C" >&6
 if test "${ac_cv_lib_Xwindow_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -3430,9 +3428,6 @@ if test $ac_cv_lib_Xwindow_main = yes; then
   X_LIBS='-lXwindow' have_x_libraries=1
 fi
   fi
-
-  echo "$as_me:$LINENO: result: $X_LIBS" >&5
-echo "${ECHO_T}$X_LIBS" >&6
     if test -n "$have_x_includes" -a -n "$have_x_libraries"; then
     have_x11=1
 
