@@ -1,5 +1,10 @@
 2005-12-06  Sam Steingold  <sds@gnu.org>
 
+	* m4/termcap.m4 (CL_TERMCAP): avoid "case x in (..) ;; esac"
+	1-line syntax as it is not understood by the Solaris /bin/sh
+
+2005-12-06  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp (open-url): new function
 	(ensure-clhs-map, ensure-impnotes-map): use it
 
