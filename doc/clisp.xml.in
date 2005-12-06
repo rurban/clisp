@@ -276,9 +276,15 @@ compiles the specified lisp files to a platform-independent
     <varlistentry><term><replaceable>blank</replaceable></term>
      <listitem><simpara>affecting all of the above.
    </simpara></listitem></varlistentry></variablelist></para>
-   <warning><para>Note that these values cannot be saved in a &mem-image;.
-     You have to use the &RC-file; or &init-function;
-     to set them on startup.</para></warning></listitem></varlistentry>
+   <warning><para>Note that the values of these &symbol-macro;s that
+     have been saved in a &mem-image; are ignored: these &symbol-macro;s
+     are reset based on the OS environment <emphasis>after</emphasis>
+     the &mem-image; is loaded.
+     You have to use the &RC-file;, &init-hooks; or &init-function; to
+     set them on startup, but it is best to set the aforementioned
+     &env-var;s appropriately for consistency with other programs.
+     See <olink targetdoc="impnotes" targetptr="custom-init-fini"/>.
+</para></warning></listitem></varlistentry>
 
 <varlistentry id="opt-verbose"><term><option>-q</option></term>
  <term><option>--quiet</option></term>
