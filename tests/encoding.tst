@@ -157,3 +157,24 @@ NIL
                        (string c) charset:iso-8859-1)
                       (vector i))))
 T
+
+;; http://clisp.cons.org/impnotes/clhs-newline.html
+(let ((file "foo"))
+  (unwind-protect
+       (progn
+         (with-open-file (out file :direction :output
+                              :element-type '(unsigned-byte 8))
+           (write-sequence
+            (ext:convert-string-to-bytes
+             (concatenate 'string "foo" (string #\Linefeed) "bar"
+                          (string #\Return) (string #\Linefeed))
+             charset:ascii)
+            out))
+         (with-open-file (in file :direction :input
+                             :element-type 'character
+                             :external-format :dos)
+           (list (read-line in nil :eof)
+                 (read-line in nil :eof)
+                 (read-line in nil :eof))))
+    (delete-file file)))
+("foo" "bar" :EOF)

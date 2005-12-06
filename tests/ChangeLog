@@ -2,6 +2,7 @@
 
 	* type.tst: test SUBTYPEP on ENCODINGs
 	* encoding.tst: check charset:iso-8859-1 == code-char/char-code
+	test from "Treatment of Newline during Input and Output"
 
 2005-12-03  Sam Steingold  <sds@gnu.org>
 
