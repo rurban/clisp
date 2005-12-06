@@ -3098,9 +3098,9 @@ done
     then RL_FCF=filename_completion_function
     else RL_FCF=rl_filename_completion_function
     fi
-        echo "$as_me:$LINENO: checking for  declaration" >&5
-echo $ECHO_N "checking for  declaration... $ECHO_C" >&6
-if test "${cl_cv_proto_+set}" = set; then
+        echo "$as_me:$LINENO: checking for filename_completion_function declaration" >&5
+echo $ECHO_N "checking for filename_completion_function declaration... $ECHO_C" >&6
+if test "${cl_cv_proto_filename_completion_function+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
@@ -3165,14 +3165,14 @@ fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
-cl_cv_proto_="extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);"
+cl_cv_proto_filename_completion_function="extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);"
 fi
 
-cl_cv_proto_=`echo "$cl_cv_proto_" | tr -s ' ' | sed -e 's/( /(/'`
+cl_cv_proto_filename_completion_function=`echo "$cl_cv_proto_filename_completion_function" | tr -s ' ' | sed -e 's/( /(/'`
 echo "$as_me:$LINENO: result: ${ac_t:-
-         }$cl_cv_proto_" >&5
+         }$cl_cv_proto_filename_completion_function" >&5
 echo "${ECHO_T}${ac_t:-
-         }$cl_cv_proto_" >&6
+         }$cl_cv_proto_filename_completion_function" >&6
 
     echo "$as_me:$LINENO: checking whether rl_already_prompted is declared" >&5
 echo $ECHO_N "checking whether rl_already_prompted is declared... $ECHO_C" >&6

@@ -68,18 +68,6 @@ ifelse([$6], , , [else
 fi
 ])
 
-dnl CL_SILENT(ACTION)
-dnl performs ACTION, with AC_MSG_CHECKING and AC_MSG_RESULT being defined away.
-AC_DEFUN([CL_SILENT],
-[pushdef([AC_MSG_CHECKING],[:])dnl
-pushdef([AC_CHECKING],[:])dnl
-pushdef([AC_MSG_RESULT],[:])dnl
-$1[]dnl
-popdef([AC_MSG_RESULT])dnl
-popdef([AC_CHECKING])dnl
-popdef([AC_MSG_CHECKING])dnl
-])
-
 dnl Expands to the "extern ..." prefix used for system declarations.
 dnl AC_LANG_EXTERN()
 AC_DEFUN([AC_LANG_EXTERN],
