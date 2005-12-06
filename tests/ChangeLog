@@ -1,3 +1,7 @@
+2005-12-06  Sam Steingold  <sds@gnu.org>
+
+	* type.tst: test SUBTYPEP on ENCODINGs
+
 2005-12-03  Sam Steingold  <sds@gnu.org>
 
 	* encoding.tst (sys::charset-range): test charset:base64
