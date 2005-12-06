@@ -785,8 +785,8 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 
 <para>The default encoding objects are initialized according to &opt-E;.</para>
 
-<note><para>Reminder: you have to use &letf;/&letf-star; for
-  &symbol-macro;s; &let;/&let-star; will &not-e; work!</para></note>
+<note><title>Reminder</title><para>You have to use &letf;/&letf-star;
+  for &symbol-macro;s; &let;/&let-star; will &not-e; work!</para></note>
 
 </section>
 
