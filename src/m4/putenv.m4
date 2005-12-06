@@ -24,4 +24,16 @@ AC_CHECK_DECLS(environ,,,[#include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif])
+if test "$ac_cv_func_unsetenv" = yes; then
+  AC_MSG_CHECKING(return value of unsetenv)
+  CL_PROTO_RET([#include <stdlib.h>],[int unsetenv(char*);],[int unsetenv();],
+cl_cv_proto_unsetenv_ret,int,void)
+  AC_MSG_RESULT($cl_cv_proto_unsetenv_ret)
+  if test "$cl_cv_proto_unsetenv_ret" = int;
+  then cl_cv_proto_unsetenv_posix=1
+  else cl_cv_proto_unsetenv_posix=0
+  fi
+  AC_DEFINE_UNQUOTED(UNSETENV_POSIX,$cl_cv_proto_unsetenv_posix,
+  [define to 1 if the return type of unsetenv is int])
+fi
 ])
