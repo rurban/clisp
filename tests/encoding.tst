@@ -149,3 +149,11 @@ NIL
         v2 (convert-string-to-bytes s charset:base64))
   :unless (equalp v1 v2) :collect (list v1 s v2))
 NIL
+
+;; charset:iso-8859-1 == code-char/char-code
+(loop :for i :from 0 :to char-code-limit :for c = (code-char i)
+  :always (or (not (typep c charset:iso-8859-1))
+              (equalp (ext:convert-string-to-bytes
+                       (string c) charset:iso-8859-1)
+                      (vector i))))
+T
