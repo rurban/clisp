@@ -7430,7 +7430,7 @@ fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2002, 2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -7452,7 +7452,9 @@ dnl and often buggy
 termcap_prefix=""
 AC_ARG_WITH([libtermcap-prefix],
 [  --with-libtermcap-prefix[=DIR]  search for ncurses and termcap in DIR],
-[case "$withval" in (/*) termcap_prefix=$withval; ;; esac])
+[case "$withval" in
+  /*) termcap_prefix=$withval; ;;
+esac])
 if test x$termcap_prefix != x; then
   LDFLAGS_save=$LDFLAGS
   LDFLAGS=$LDFLAGS" -L$termcap_prefix/lib"
