@@ -332,10 +332,10 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
    Latin, Luxemburgish, Norwegian, Portuguese, R&aelig;to-Romanic,
    Scottish, Spanish, and Swedish languages.</simpara>
   <para>This encoding has the nice property that<programlisting language="lisp">
-(loop :for i :from 0 :to 255
-  :always (equalp (ext:convert-string-to-bytes (string (code-char i))
-                                               charset:iso-8859-1)
-                  (vector i)))
+(&loop; :for i :from 0 :to &char-code-limit; :for c = (&code-char; i)
+  :always (&or-m; (&not-f; (&typep; c CHARSET:ISO-8859-1))
+              (&equalp; (EXT:CONVERT-STRING-TO-BYTES (&string; c) CHARSET:ISO-8859-1)
+                      (&vector; i))))
 <computeroutput>T</computeroutput></programlisting>
    i.e., it is compatible with &clisp; &code-char;/&char-code;
    in its own domain.</para></listitem>
