@@ -1,6 +1,7 @@
 2005-12-06  Sam Steingold  <sds@gnu.org>
 
 	* type.tst: test SUBTYPEP on ENCODINGs
+	* encoding.tst: check charset:iso-8859-1 == code-char/char-code
 
 2005-12-03  Sam Steingold  <sds@gnu.org>
 
