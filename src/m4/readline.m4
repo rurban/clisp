@@ -12,7 +12,7 @@ AC_DEFUN([CL_READLINE],[dnl
 AC_ARG_WITH([readline],
 AC_HELP_STRING([--with-readline],[use readline (default is YES, if present)]),
 [ac_cv_use_readline=$withval], [ac_cv_use_readline=default])
-ac_cv_have_modern_readline=no
+ac_cv_have_readline=no
 if test "$ac_cv_use_readline" = "no" ; then
 AC_MSG_NOTICE([not checking for readline])
 else
@@ -46,14 +46,14 @@ if test $ac_cv_search_tgetent != no ; then
       dnl LIBREADLINE has been added to LIBS.
       AC_DEFINE(HAVE_READLINE,,[have a working modern GNU readline])
       AC_MSG_RESULT([found a modern GNU readline])
-      ac_cv_have_modern_readline=yes
+      ac_cv_have_readline=yes
     else
       AC_MSG_RESULT([readline is too old and will not be used])
       LIBS="$ac_save_LIBS"
     fi
   fi
 fi
-if test "$ac_cv_have_modern_readline" = yes; then
+if test "$ac_cv_have_readline" = yes; then
   AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF},[The readline built-in filename completion function, either rl_filename_completion_function() or filename_completion_function()])
   AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const,[declaration of filename_completion_function() needs const in the first argument])
   AC_DEFINE(HAVE_READLINE,,[have a working modern GNU readline])
