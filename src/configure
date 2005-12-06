@@ -24805,7 +24805,9 @@ termcap_prefix=""
 # Check whether --with-libtermcap-prefix or --without-libtermcap-prefix was given.
 if test "${with_libtermcap_prefix+set}" = set; then
   withval="$with_libtermcap_prefix"
-  case "$withval" in (/*) termcap_prefix=$withval; ;; esac
+  case "$withval" in
+  /*) termcap_prefix=$withval; ;;
+esac
 fi;
 if test x$termcap_prefix != x; then
   LDFLAGS_save=$LDFLAGS
