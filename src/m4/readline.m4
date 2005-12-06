@@ -30,7 +30,7 @@ if test $ac_cv_search_tgetent != no ; then
     else RL_FCF=rl_filename_completion_function
     fi
     dnl READLINE_CONST is necessary for C++ compilation of stream.d
-    CL_PROTO([], [
+    CL_PROTO([filename_completion_function], [
       CL_PROTO_CONST([
 #include <stdio.h>
 #include <readline/readline.h>

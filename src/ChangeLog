@@ -1,5 +1,10 @@
 2005-12-05  Sam Steingold  <sds@gnu.org>
 
+	* m4/readline.m4 (CL_READLINE): pass filename_completion_function
+	to CL_PROTO to avoid ugly messages
+
+2005-12-05  Sam Steingold  <sds@gnu.org>
+
 	* m4/x11.m4: fix overlapping messages, do not use broken CL_SILENT
 	* m4/general.m4 (CL_SILENT): removed broken macro
 
