@@ -783,3 +783,6 @@ NIL
 
 (check-type-error (UNION NIL "A"))
 NIL
+
+#+clisp (multiple-value-list (subtypep charset:ucs-4 charset:utf-8)) (T T)
+#+clisp (multiple-value-list (subtypep charset:utf-8 charset:ucs-4)) (T T)
