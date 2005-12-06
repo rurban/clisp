@@ -1,5 +1,9 @@
 2005-12-05  Sam Steingold  <sds@gnu.org>
 
+	* m4/general.m4 (CL_SILENT): removed broken macro
+
+2005-12-05  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (HSDEFAULT): drop trailing slash
 	(clisp-1.html): substitute @PLATFORM@
 
