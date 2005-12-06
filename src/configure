@@ -24957,7 +24957,7 @@ if test "${with_readline+set}" = set; then
 else
   ac_cv_use_readline=default
 fi;
-ac_cv_have_modern_readline=no
+ac_cv_have_readline=no
 if test "$ac_cv_use_readline" = "no" ; then
 { echo "$as_me:$LINENO: not checking for readline" >&5
 echo "$as_me: not checking for readline" >&6;}
@@ -25758,7 +25758,7 @@ _ACEOF
 
       echo "$as_me:$LINENO: result: found a modern GNU readline" >&5
 echo "${ECHO_T}found a modern GNU readline" >&6
-      ac_cv_have_modern_readline=yes
+      ac_cv_have_readline=yes
     else
       echo "$as_me:$LINENO: result: readline is too old and will not be used" >&5
 echo "${ECHO_T}readline is too old and will not be used" >&6
@@ -25766,7 +25766,7 @@ echo "${ECHO_T}readline is too old and will not be used" >&6
     fi
   fi
 fi
-if test "$ac_cv_have_modern_readline" = yes; then
+if test "$ac_cv_have_readline" = yes; then
 
 cat >>confdefs.h <<_ACEOF
 #define READLINE_FILE_COMPLETE ${RL_FCF}
