@@ -11298,8 +11298,6 @@ fi
 fi
 fi
 
-{ echo "$as_me:$LINENO: checking for X11..." >&5
-echo "$as_me: checking for X11..." >&6;}
 X_INCLUDES=''
 X_LIBS=''
 # Extract the first word of "xmkmf", so it can be a program name with args.
@@ -11589,6 +11587,7 @@ fi
 else
       echo "$as_me:$LINENO: checking for X11 header files" >&5
 echo $ECHO_N "checking for X11 header files... $ECHO_C" >&6
+  X_INCLUDES=no
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -11638,10 +11637,8 @@ rm -f conftest.err conftest.$ac_ext
   fi
   echo "$as_me:$LINENO: result: $X_INCLUDES" >&5
 echo "${ECHO_T}$X_INCLUDES" >&6
-  echo "$as_me:$LINENO: checking for X11 library" >&5
-echo $ECHO_N "checking for X11 library... $ECHO_C" >&6
-
-  :
+  echo "$as_me:$LINENO: checking for main in -lX11" >&5
+echo $ECHO_N "checking for main in -lX11... $ECHO_C" >&6
 if test "${ac_cv_lib_X11_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -11717,7 +11714,8 @@ fi
       X_LIBS="-L$x_libraries "$X_LIBS
     fi
   else
-    :
+    echo "$as_me:$LINENO: checking for main in -lXwindow" >&5
+echo $ECHO_N "checking for main in -lXwindow... $ECHO_C" >&6
 if test "${ac_cv_lib_Xwindow_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -11778,9 +11776,6 @@ if test $ac_cv_lib_Xwindow_main = yes; then
   X_LIBS='-lXwindow' have_x_libraries=1
 fi
   fi
-
-  echo "$as_me:$LINENO: result: $X_LIBS" >&5
-echo "${ECHO_T}$X_LIBS" >&6
     if test -n "$have_x_includes" -a -n "$have_x_libraries"; then
     have_x11=1
 
@@ -16034,6 +16029,78 @@ _ACEOF
 fi
 
 
+if test "$ac_cv_func_unsetenv" = yes; then
+  echo "$as_me:$LINENO: checking return value of unsetenv" >&5
+echo $ECHO_N "checking return value of unsetenv... $ECHO_C" >&6
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <stdlib.h>
+extern
+#ifdef __cplusplus
+"C"
+#endif
+
+#if defined(__STDC__) || defined(__cplusplus)
+int unsetenv(char*);
+#else
+int unsetenv();
+#endif
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_proto_unsetenv_ret="int"
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+cl_cv_proto_unsetenv_ret="void"
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+  echo "$as_me:$LINENO: result: $cl_cv_proto_unsetenv_ret" >&5
+echo "${ECHO_T}$cl_cv_proto_unsetenv_ret" >&6
+  if test "$cl_cv_proto_unsetenv_ret" = int;
+  then cl_cv_proto_unsetenv_posix=1
+  else cl_cv_proto_unsetenv_posix=0
+  fi
+
+cat >>confdefs.h <<_ACEOF
+#define UNSETENV_POSIX $cl_cv_proto_unsetenv_posix
+_ACEOF
+
+fi
 
 
   echo "$as_me:$LINENO: checking for LC_MESSAGES" >&5
@@ -25386,9 +25453,9 @@ done
     then RL_FCF=filename_completion_function
     else RL_FCF=rl_filename_completion_function
     fi
-        echo "$as_me:$LINENO: checking for  declaration" >&5
-echo $ECHO_N "checking for  declaration... $ECHO_C" >&6
-if test "${cl_cv_proto_+set}" = set; then
+        echo "$as_me:$LINENO: checking for filename_completion_function declaration" >&5
+echo $ECHO_N "checking for filename_completion_function declaration... $ECHO_C" >&6
+if test "${cl_cv_proto_filename_completion_function+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
@@ -25453,14 +25520,14 @@ fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
-cl_cv_proto_="extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);"
+cl_cv_proto_filename_completion_function="extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);"
 fi
 
-cl_cv_proto_=`echo "$cl_cv_proto_" | tr -s ' ' | sed -e 's/( /(/'`
+cl_cv_proto_filename_completion_function=`echo "$cl_cv_proto_filename_completion_function" | tr -s ' ' | sed -e 's/( /(/'`
 echo "$as_me:$LINENO: result: ${ac_t:-
-         }$cl_cv_proto_" >&5
+         }$cl_cv_proto_filename_completion_function" >&5
 echo "${ECHO_T}${ac_t:-
-         }$cl_cv_proto_" >&6
+         }$cl_cv_proto_filename_completion_function" >&6
 
     echo "$as_me:$LINENO: checking whether rl_already_prompted is declared" >&5
 echo $ECHO_N "checking whether rl_already_prompted is declared... $ECHO_C" >&6
