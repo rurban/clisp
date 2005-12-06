@@ -1,5 +1,9 @@
 2005-12-05  Sam Steingold  <sds@gnu.org>
 
+	* m4/putenv.m4 (CL_PUTENV): check unsetenv() declared return value
+
+2005-12-05  Sam Steingold  <sds@gnu.org>
+
 	* m4/readline.m4 (CL_READLINE): pass filename_completion_function
 	to CL_PROTO to avoid ugly messages
 
