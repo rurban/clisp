@@ -4546,9 +4546,10 @@ Compiled, it will have inlined the library function calls.
   While functions defined in lisp (like &run-cmd;) can be removed
   (using &fmakunbound;), the built-in functions (like &shell; and &exec;)
   cannot be permanently removed from the run-time, and an experienced
-  hacker will be able to invoke then even if you &fmakunbound; their names.
-  You can limit the socket server to local connections by passing &sose;
-  a local socket as the optional argument.</simpara></warning></para>
+  hacker will be able to invoke them even if you &fmakunbound; their names.
+ </simpara><simpara>You should limit the socket server to local
+  connections by passing &sose; a local &socket-stream; as the optional
+  argument.</simpara></warning></para>
 </example>
 
 <example id="socket-ex-client"><title>Lisp &http; client</title>
@@ -4556,7 +4557,7 @@ Compiled, it will have inlined the library function calls.
  page and a binary file, and upload a file:
 <programlisting language="lisp">
 (&defun; wget-text (host page file &optional-amp; (port 80))
-  ;; &http; requires &dos-k; &line-term;
+  ;; &http; requires the &dos-k; &line-term;
   (&with-open-stream; (socket (&so-connect; port host &extfmt; &dos-k;))
      (&format; socket "GET ~A HTTP/1.0~2%" page)
      ;; dump the whole thing - header+data - into the output file
