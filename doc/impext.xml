@@ -69,10 +69,9 @@
 
 <section id="image"><title>Saving an Image</title>
 
-<para>The function <code>(<function>EXT:SAVEINITMEM</function>
-  &optional-amp; (&filename-r; "lispinit.mem") &key-amp;
-  :KEEP-GLOBAL-HANDLERS :QUIET :INIT-FUNCTION :LOCKED-PACKAGES
-  :START-PACKAGE)</code>
+<para>The function <code>(&savemem; &optional-amp;
+  (&filename-r; "lispinit.mem") &key-amp; :KEEP-GLOBAL-HANDLERS :QUIET
+  :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE)</code>
 saves the running &clisp;'s memory to the file &filename-r;;
 extension &mem-file; is recommended (when &filename-r; does not have an
 extension, &mem-file; extension is automatically added).
@@ -97,7 +96,7 @@ extension, &mem-file; extension is automatically added).
    saving the image; this is convenient for application delivery, when
    you do not want your users to mess up your product.
    This argument defaults to &sys-pack-list;.
-   </simpara></listitem></varlistentry>
+ </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:START-PACKAGE</constant></term>
   <listitem><simpara>This argument specifies the starting value of
    &package-var; in the image being saved, and defaults to the current
@@ -106,7 +105,7 @@ extension, &mem-file; extension is automatically added).
   <listitem><para>When non-&nil;, the currently established global
     handlers (either with &set-global-handler; or with &opt-on-error;)
     are inherited by the image.  Defaults to &nil;, so that
-    <screen>&sh-prompt; clisp -i myfile -x '(ext:saveinitmem)'</screen>
+    <screen>&sh-prompt; clisp -i myfile -x '(&savemem;)'</screen>
     will produce an image without any global handlers inherited
     from the batch mode of the above command.</para></listitem></varlistentry>
 </variablelist>
@@ -119,7 +118,7 @@ space.</para>
   (in contrast with platform-independent &fasl-file; files).
   They are &not-e; even portable across &linkset;s: image saved using
   the &full; &linkset; cannot be used with the &base; runtime:<screen>
-&sh-prompt; clisp -K full -x '(ext:saveinitmem)'
+&sh-prompt; clisp -K full -x '(&savemem;)'
 &sh-prompt; clisp -K base -M lispinit.mem
 base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime
 </screen></para></warning>

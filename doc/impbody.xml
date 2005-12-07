@@ -1107,6 +1107,13 @@ or
 <code>(&without-package-lock; () ...)</code>
 temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
 
+<formalpara><title>Variable &sys-pack-list;</title>
+<para>This variable specifies the default packages to be locked by &savemem;
+ and unlocked by &without-package-lock; as a list of package names.
+ You may add names to this list, e.g., a module will add its package,
+ but you should &not-e; remove &clisp; internal packages from this list.
+</para></formalpara>
+
 <formalpara><title>Discussion - see also
   <ulink url="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;selm=3C3E7F57.7F80395%40pacbell.net">the USENET posting</ulink> by
   <author><firstname>Steven M.</firstname> <surname>Haflich</surname>
@@ -1717,7 +1724,7 @@ can give problems:
  will always print the same number.</para>
 <para>If you want a new random state on each invocation, you can arrange
  for that by using &init-function;: <screen>
-&sh-prompt; clisp -norc &opt-x; '(saveinitmem "foo" :init-function (&lambda-m; () (&setq; &random-state-var; (&make-random-state; &t;))))'
+&sh-prompt; clisp -norc &opt-x; '(&savemem; "foo" :init-function (&lambda-m; () (&setq; &random-state-var; (&make-random-state; &t;))))'
 &sh-prompt; clisp -norc &opt-M; foo.mem &opt-x; '(&random; 1s0)'
 </screen> or by placing <code>(&setq; &random-state-var;
   (&make-random-state; &t;))</code> into your &RC-file;.</para></section>
