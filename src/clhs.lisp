@@ -243,7 +243,8 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
     (setf (gethash id table) destination)
     :finally (format t "~:D ID~:P~%" total))
   table)
-(let ((impnotes-map-source nil) (impnotes-map-good nil))
+(let ((impnotes-map-source nil) (impnotes-map-good nil)
+      (dest (lambda (id) (string-concat "#" id))))
   ;; if impnotes-map-source is the same as (impnotes-root), do nothing
   ;; and return (and impnotes-map-good (impnotes-root));
   ;; otherwise set impnotes-map-source to (impnotes-root) and try to get
@@ -251,8 +252,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   ;; nil return value means no map exists
   (defun ensure-impnotes-map (&optional check-symbol-map)
     "make sure that the impnotes map is present"
-    (let ((impnotes-root (impnotes-root))
-          (dest (lambda (id) (string-concat "#" id))))
+    (let ((impnotes-root (impnotes-root)))
       (when (and impnotes-root (string/= impnotes-map-source impnotes-root))
         (setq impnotes-map-source impnotes-root)
         (case (char impnotes-root (1- (length impnotes-root)))
@@ -292,7 +292,11 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                         'ensure-impnotes-map id symbol-printname)))
             :finally (format t "~:D ID~:P~%" count)))
         (setq impnotes-map-good t)) ; success
-      (and impnotes-map-good impnotes-root))))
+      (and impnotes-map-good impnotes-root)))
+  (defmethod documentation ((obj package) (type (eql 'sys::impnotes)))
+    (let ((doc (sys::package-documentation obj)))
+      (and (consp doc) (ensure-impnotes-map)
+           (string-concat (impnotes-root) (funcall dest (second doc)))))))
 
 (defmethod documentation ((obj symbol) (type (eql 'sys::clhs)))
   (when (and (eq (symbol-package obj) #,(find-package "CL")) (ensure-clhs-map))
@@ -300,14 +304,14 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
       (when doc (string-concat (clhs-root) doc)))))
 
 (defmethod documentation ((obj symbol) (type (eql 'sys::impnotes)))
-  (when (ensure-impnotes-map)
-    (let ((doc (or (call-next-method)
-                   (documentation (symbol-package obj) 'sys::impnotes))))
-      (when doc (string-concat (impnotes-root) doc)))))
-
-(defmethod documentation ((obj package) (type (eql 'sys::impnotes)))
-  (let ((doc (sys::package-documentation obj)))
-    (and (consp doc) (second doc))))
+  (let ((pack (symbol-package obj)))
+    ;; do not search impnotes for user symbols
+    (when (and (member (package-name pack) *system-package-list* :test #'equal)
+               (ensure-impnotes-map))
+      (let ((doc (call-next-method)))
+        (if doc
+          (string-concat (impnotes-root) doc)
+          (documentation pack 'sys::impnotes))))))
 
 (defmethod (setf documentation) (new-value (obj package)
                                  (type (eql 'sys::impnotes)))

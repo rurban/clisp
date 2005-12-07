@@ -1,5 +1,9 @@
 2005-12-07  Sam Steingold  <sds@gnu.org>
 
+	* clhs.lisp (documentation@package): prepend (impnotes-root) to the doc
+
+2005-12-07  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (*system-package-list*): use "COMMON-LISP"
 	instead of "LISP"
 
