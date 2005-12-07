@@ -121,12 +121,12 @@
                 (pop iterstates)))
             (return nil))))))
 
-;; The list of packages that will be locked by SAVEINITMEM.
-;; Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.
 (defvar *system-package-list*
-  '("SYSTEM" "LISP" "EXT" "I18N" "GRAY" "CHARSET" "CLOS"
+  '("SYSTEM" "COMMON-LISP" "EXT" "I18N" "GRAY" "CHARSET" "CLOS"
     #+sockets "SOCKET" #+generic-streams "GSTREAM" #+syscalls "POSIX"
-    #+ffi "FFI" #+(or) "AFFI" #+screen "SCREEN"))
+    #+ffi "FFI" #+(or) "AFFI" #+screen "SCREEN")
+  "The list of packages that will be locked by SAVEINITMEM.
+Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
 
 ;; Unlock the specified packages, execute the BODY, then lock them again.
 (defmacro with-no-package-lock-internal (packages &body body)
