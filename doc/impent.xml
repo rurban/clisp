@@ -267,6 +267,7 @@
 <!ENTITY maplap '<link linkend="mapcap"><function>EXT:MAPLAP</function></link>'>
 <!ENTITY match-t '<classname>REGEXP:MATCH</classname>'>
 <!ENTITY mem-image '<olink targetdoc="impnotes" targetptr="image">memory image</olink>'>
+<!ENTITY savemem '<olink targetdoc="impnotes" targetptr="image"><function>EXT:SAVEINITMEM</function></olink>'>
 <!ENTITY misc-enc '<olink targetdoc="impnotes" targetptr="misc-enc"><varname>CUSTOM:*MISC-ENCODING*</varname></olink>'>
 <!ENTITY mk-pipe-in '<link linkend="pipe"><function>EXT:MAKE-PIPE-INPUT-STREAM</function></link>'>
 <!ENTITY mk-pipe-io '<link linkend="pipe"><function>EXT:MAKE-PIPE-IO-STREAM</function></link>'>

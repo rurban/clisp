@@ -159,9 +159,8 @@ compiles the specified lisp files to a platform-independent
 
 <varlistentry id="opt-memfile"><term><option>-M</option>
   <replaceable>mem-file</replaceable></term>
- <listitem><simpara>Specifies the initial &mem-image;.
-   This must be a memory dump produced by the
-   <function>EXT:SAVEINITMEM</function> function by this &clisp-cmd; &rt;.
+ <listitem><simpara>Specifies the initial &mem-image;.  This must be a
+   memory dump produced by the &savemem; function by this &clisp-cmd; &rt;.
 <!-- #ifdef UNIX -->
    It may have been compressed using &gnu; &gzip;.
 <!-- #endif -->
@@ -444,7 +443,7 @@ compiles the specified lisp files to a platform-independent
    If &lf; is the empty string <command>""</command>
    or <command>"--"</command>, the normal &repl; is
    entered, and the rest of the arguments is still available in &args;,
-   for parsing by the &init-function; of the current image.
+   for parsing by the &init-function; of the current &mem-image;.
    This option must be the last one.
    No &RC-file; will be executed.
 </simpara></listitem></varlistentry>
