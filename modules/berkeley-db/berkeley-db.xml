@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<section id="berkeley-db"><title>Berkeley DB access.</title>
+<section id="berkeley-db"><title>Berkeley DB access</title>
 
 <para>This interface to <ulink role="bdb" url="index.html">Berkeley DB
   from Sleepycat Software</ulink> exports most
