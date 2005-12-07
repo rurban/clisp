@@ -1,3 +1,8 @@
+2005-12-07  Sam Steingold  <sds@gnu.org>
+
+	* defs1.lisp (*system-package-list*): use "COMMON-LISP"
+	instead of "LISP"
+
 2005-12-06  Sam Steingold  <sds@gnu.org>
 
 	* m4/termcap.m4 (CL_TERMCAP): avoid "case x in (..) ;; esac"
