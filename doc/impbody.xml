@@ -2361,7 +2361,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef WIN32_CHARNAMES -->
 <table id="dos-win32-chars-table" frame="all">
- <title>Additional characters (&win32-only;).</title>
+ <title>Additional characters (&win32-only;)</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><code>(&code-char; #x00)</code></entry>
@@ -2392,7 +2392,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef UNIX_CHARNAMES -->
 <table id="unix-chars-table" frame="all">
- <title>Additional characters (&unix-only;).</title>
+ <title>Additional characters (&unix-only;)</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><code>(&code-char; #x00)</code></entry>
@@ -5415,7 +5415,7 @@ exhaust the available line length.</para></formalpara>
     the &clisp; source tree.
 </simpara></listitem></varlistentry></variablelist>
 
-<section id="dribble-script"><title>Scripting and &dribble;.</title>
+<section id="dribble-script"><title>Scripting and &dribble;</title>
 
 <para>&dribble; works by operating on &terminal-io-var;,
  thus is does &not-e; work when &clisp; acts as a script interpreter

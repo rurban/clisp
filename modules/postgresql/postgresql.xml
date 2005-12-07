@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<section id="postgresql"><title>PostgreSQL Database Access.</title>
+<section id="postgresql"><title>PostgreSQL Database Access</title>
 
 <para>This package offers an &ffi-pac;-based interface to
  &postgresql-link;.</para>
