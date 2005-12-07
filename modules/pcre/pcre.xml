@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<section id="pcre"><title>Perl Compatible Regular Expressions.</title>
+<section id="pcre"><title>Perl Compatible Regular Expressions</title>
 
 <para>This is an interface to <ulink url="http://www.pcre.org/">Perl
   Compatible Regular Expressions</ulink>.</para>
