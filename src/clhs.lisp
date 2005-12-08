@@ -194,6 +194,16 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                                               :start #3#))
                 options))
         (t (open path))))
+
+;;; the CLHS & IMPNOTES documentation:
+;; * symbols (and packages for IMPNOTES) can have a doc string that points
+;;   to the position of the documentation text in the CLHS or IMPNOTES.
+;; * (documentation foo 'sys::clhs) and (documentation foo 'sys::impnotes)
+;;   return a valid URL that can be printed or passed to the browser
+;; * (setf (documentation foo 'sys::clhs) "bar") and
+;;   (setf (documentation foo 'sys::impnotes) "bar")
+;;   "bar" is the URL sans (clhs-root) and (impnotes-root)
+
 (defun get-clhs-map (stream)
   "Download and install the CLHS map."
   (format t "~&;; ~S(~S)..." 'get-clhs-map stream) (force-output)
