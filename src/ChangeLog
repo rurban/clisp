@@ -1,3 +1,8 @@
+2005-12-08  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d (base64_range): do not use string for initialization
+	because it allocates an extra element for 0
+
 2005-12-07  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp (documentation@package): prepend (impnotes-root) to the doc
