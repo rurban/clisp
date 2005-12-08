@@ -1,5 +1,9 @@
 2005-12-08  Sam Steingold  <sds@gnu.org>
 
+	* misc.d (clisp_setenv): added a cast for C++ compilation
+
+2005-12-08  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (base64_range): do not use string for initialization
 	because it allocates an extra element for 0
 
