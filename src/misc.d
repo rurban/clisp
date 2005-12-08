@@ -403,7 +403,7 @@ global int clisp_setenv (const char * name, const char * value) {
 #endif
 #if defined(HAVE_PUTENV)
   if (value == NULL) {
-    putenv(name);
+    putenv((char*)name);
     if (getenv(name) != NULL)
       /* putenv(name) may silently fail - as on *BSD (which have unsetenv)
          Solaris & woe32 do not have unsetenv
