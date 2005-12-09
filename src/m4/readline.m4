@@ -18,13 +18,21 @@ AC_MSG_NOTICE([not checking for readline])
 else
 AC_REQUIRE([CL_TERMCAP])dnl
 if test $ac_cv_search_tgetent != no ; then
-  AC_LIB_LINKFLAGS_BODY(readline)
+ AC_LIB_LINKFLAGS_BODY(readline)
+ ac_save_CPPFLAGS="$CPPFLAGS"
+ CPPFLAGS="$CPPFLAGS $INCREADLINE"
+ AC_CHECK_HEADERS(readline/readline.h)
+ if test "$ac_cv_header_readline_readline_h" != yes; then
+  CPPFLAGS="$ac_save_CPPFLAGS"
+ else # have <readline/readline.h> => check library
   ac_save_LIBS="$LIBS"
   LIBS="$LIBREADLINE $LIBS"
-  AC_CHECK_FUNCS(readline rl_filename_completion_function)
-  LIBS="$ac_save_LIBS"
-  if test "$ac_cv_func_readline" = yes ; then
-    LIBS="$LIBREADLINE $LIBS"
+  AC_CHECK_FUNC(readline)dnl do not define HAVE_READLINE
+  AC_CHECK_FUNCS(rl_filename_completion_function)
+  if test "$ac_cv_func_readline" != yes ; then
+    LIBS="$ac_save_LIBS"
+    CPPFLAGS="$ac_save_CPPFLAGS"
+  else # have readline => check modern features
     if test $ac_cv_func_rl_filename_completion_function = no ;
     then RL_FCF=filename_completion_function
     else RL_FCF=rl_filename_completion_function
@@ -44,14 +52,15 @@ if test $ac_cv_search_tgetent != no ; then
     if test "$ac_cv_have_decl_rl_already_prompted" = yes \
          -a "$ac_cv_have_decl_rl_gnu_readline_p" = yes; then
       dnl LIBREADLINE has been added to LIBS.
-      AC_DEFINE(HAVE_READLINE,,[have a working modern GNU readline])
       AC_MSG_RESULT([found a modern GNU readline])
       ac_cv_have_readline=yes
     else
       AC_MSG_RESULT([readline is too old and will not be used])
       LIBS="$ac_save_LIBS"
+      CPPFLAGS="$ac_save_CPPFLAGS"
     fi
   fi
+ fi
 fi
 if test "$ac_cv_have_readline" = yes; then
   AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF},[The readline built-in filename completion function, either rl_filename_completion_function() or filename_completion_function()])
