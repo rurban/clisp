@@ -1,5 +1,9 @@
 2005-12-09  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (init_object_tab): handle "." specially to save time
+
+2005-12-09  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (base64_range): declare "signed char" because we
 	store -1 (triggers a bug on PowerPC where "char" = "unsigned char")
 	Reported by Magnus Henoch <mange@freemail.hu>
