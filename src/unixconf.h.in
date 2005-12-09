@@ -298,6 +298,9 @@
 /* have a working modern GNU readline */
 #undef HAVE_READLINE
 
+/* Define to 1 if you have the <readline/readline.h> header file. */
+#undef HAVE_READLINE_READLINE_H
+
 /* Define to 1 if you have the `readlink' function. */
 #undef HAVE_READLINK
 
