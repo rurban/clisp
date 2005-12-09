@@ -60,7 +60,7 @@ further explanations of the issues could be provided).</para>
  <para>On the other hand, some decisions made by the ANSI X3J13 committee
   were not as justified from the <emphasis>technical</emphasis> point of
   view as were most of them, and some of those questionable decisions
-  were made <emphasis>after</emphasis> the alternative behavior have
+  were made <emphasis>after</emphasis> the alternative behavior has
   already been implemented in &clisp;.  The &clisp; developers took
   pains to modify &clisp; to unconditionally comply with the &ansi-cl;
   specification in all cases <link linkend="ansi">except for a handful
