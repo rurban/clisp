@@ -2124,7 +2124,7 @@ LISPFUNNR(charset_typep,2) {
    #ifdef UNICODE
     var uintL i = as_cint(char_code(obj));
     obj = Encoding_range(encoding)(encoding,i,i,1);
-    VALUES_IF(Svector_length(obj));
+    VALUES_IF(Sstring_length(obj));
    #else
     VALUES1(T);
    #endif
