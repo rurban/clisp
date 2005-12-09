@@ -1454,22 +1454,22 @@ local void init_object_tab (void) {
   { # read objects from the strings:
     var gcv_object_t* objptr = (gcv_object_t*)&object_tab; # traverse object_tab
     var const char * const * stringptr = &object_initstring_tab[0]; # traverse string table
-    var uintC count;
-    dotimesC(count,object_anz,{
+    var uintC count = object_anz;
+    while (count--) {
       var const char * string = *stringptr++;
       if (*string == '@') {
         # no READ-FROM-STRING for LISPOBJ_L && GNU_GETTEXT
         *objptr = asciz_to_string(&string[1],O(internal_encoding));
-      } else {
+      } else if (!(string[0] == '.' && string[1] == 0)) {
         pushSTACK(asciz_to_string(string,O(internal_encoding))); # string
         funcall(L(make_string_input_stream),1); # pack into stream
         pushSTACK(value1);
         var object obj = stream_read(&STACK_0,NIL,NIL); # read object
         skipSTACK(1);
-        if (!eq(obj,dot_value)) { *objptr = obj; } # and store (except ".")
+        *objptr = obj; /* store (except ".") */
       }
       objptr++;
-    });
+    }
   }
   /* initialize software_type */
   O(software_type) = built_flags();
