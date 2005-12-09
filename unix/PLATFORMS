@@ -20,6 +20,8 @@ This file presents
     DEC Alpha AXP running OSF/1 4.0b
     PC 386 under BeOS 5.0
     IA-64 running Linux, emulated by HP NUE
+    AMD64 (x86_64) running FreeBSD
+    AFS (Andrew File System)
 * hints for porting to new platforms.
 
 
