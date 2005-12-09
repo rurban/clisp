@@ -104,11 +104,12 @@ further explanations of the issues could be provided).</para>
     <listitem><simpara>This is <emphasis>never</emphasis> the right thing to
       do, unless you want to <emphasis>hire</emphasis> this developer to do
       &clisp; consulting (commercial support, custom enhancements etc).
-      This is actually for your own benefit: the &clisp; developers are so
-      busy, they might get weeks to answer your question;
+      This is actually for your own benefit: the &clisp; developers are very
+      busy, they might get weeks to answer your question,
+      and some other user may be able to help you in the meantine;
       as well as for the benefit of the other &clisp; users,
-      since the mailing lists are publicly archived
-      (you are encouraged to search them before asking).
+      since the mailing lists are publicly archived (you are encouraged
+      to <ulink url="http://clisp.cons.org">search</ulink> them before asking).
       Please do &not-e; copy your messages to the
       individual developers.</simpara></listitem></varlistentry>
 </variablelist></para></answer></qandaentry>
