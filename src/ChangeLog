@@ -1,3 +1,9 @@
+2005-12-09  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d (CHARSET-TYPEP): use Sstring_length instead of
+	Svector_length for the range string because Svector_length returns
+	non-0 value for "" on AMD64-Linux
+
 2005-12-08  Sam Steingold  <sds@gnu.org>
 
 	* misc.d (clisp_setenv): added a cast for C++ compilation
