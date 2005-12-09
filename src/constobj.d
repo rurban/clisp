@@ -382,7 +382,7 @@
   LISPOBJ(type_svector5,"(SIMPLE-VECTOR 5)")
   LISPOBJ(type_climb_mode,"(INTEGER 1 5)")
   LISPOBJ(type_hashtable_test,"(MEMBER EQ EQL EQUAL EQUALP #.#'EQ #.#'EQL #.#'EQUAL #.#'EQUALP)")
-  LISPOBJ(type_hashtable_size,"(INTEGER 0 #.(floor (- most-positive-fixnum 1) 2))")
+  LISPOBJ(type_hashtable_size,"(INTEGER 0 #.(ASH MOST-POSITIVE-FIXNUM -1))")
   LISPOBJ(type_hashtable_rehash_size,"(OR (INTEGER 1 *) (FLOAT (1.0) *))")
   LISPOBJ(type_hashtable_rehash_threshold,"(REAL 0 1)")
   LISPOBJ(type_boole,"(INTEGER 0 15)")

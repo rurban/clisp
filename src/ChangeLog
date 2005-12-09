@@ -1,5 +1,10 @@
 2005-12-09  Sam Steingold  <sds@gnu.org>
 
+	* constobj.d (type_hashtable_size): use ASH instead of FLOOR,
+	use upper case uniformly
+
+2005-12-09  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (init_object_tab): handle "." specially to save time
 
 2005-12-09  Sam Steingold  <sds@gnu.org>
