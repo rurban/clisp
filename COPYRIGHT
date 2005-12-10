@@ -1,6 +1,6 @@
                                                Hey Emacs! -*- coding: utf-8 -*-
 
-            Copyright (c) 1992-2004 Bruno Haible and Michael Stoll
+       Copyright (c) 1992-2005 Bruno Haible, Michael Stoll, Sam Steingold
                            All Rights Reserved
 
 
@@ -25,10 +25,12 @@ Note:
   This copyright does *not* cover user programs that run in CLISP and
   third-party packages not part of CLISP, if
     a) They only reference external symbols in CLISP's public packages
+       that define API also provided by many other Common Lisp implementations
        (namely the packages COMMON-LISP, COMMON-LISP-USER, KEYWORD, CLOS,
        GRAY, EXT), i.e. if they don't rely on CLISP internals and would as
        well run in any other Common Lisp implementation. Or
     b) They only reference external symbols in CLISP's public packages
+       that define API also provided by many other Common Lisp implementations
        (namely the packages COMMON-LISP, COMMON-LISP-USER, KEYWORD, CLOS,
        GRAY, EXT) and some external, not CLISP specific, symbols in
        third-party packages that are released with source code under a
