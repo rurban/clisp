@@ -100,7 +100,8 @@
 
 (defun print-object-<funcallable-standard-object> (object stream)
   (print-unreadable-object (object stream :type t)
-    (write (funcallable-name object) :stream stream)))
+    (when (slot-boundp object '$name)
+      (write (funcallable-name object) :stream stream))))
 
 ;; Preliminary.
 ;; Now we can at least print classes and generic-functions.
