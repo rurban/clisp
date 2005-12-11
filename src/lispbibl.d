@@ -16234,11 +16234,9 @@ extern sintL I_to_L (object obj);
 #else
   #define I_to_sint32(obj)  I_to_L(obj)
 #endif
-#if defined(HAVE_FFI) || defined(HAVE_AFFI)
-  #ifdef HAVE_LONGLONG
-    #define I_to_uint64(obj)  I_to_UQ(obj)
-    #define I_to_sint64(obj)  I_to_Q(obj)
-  #endif
+#ifdef HAVE_LONGLONG
+  #define I_to_uint64(obj)  I_to_UQ(obj)
+  #define I_to_sint64(obj)  I_to_Q(obj)
 #endif
 #if (int_bitsize==16)
   #define I_to_uint  I_to_uint16
@@ -16256,7 +16254,7 @@ extern sintL I_to_L (object obj);
     #define I_to_slong  I_to_sint64
   #endif
 #endif
-# is used by FFI
+/* used by FFI, STREAM, modules */
 %% export_def(I_to_uint8(obj));
 %% export_def(I_to_sint8(obj));
 %% export_def(I_to_uint16(obj));
