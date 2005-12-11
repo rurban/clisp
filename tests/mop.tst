@@ -3239,8 +3239,26 @@ t
        (make-instance 'class-bad-slot))
 ERROR
 
+;; mop.xml#mop-sa-funcallable
+(progn
+  (defclass constructor ()
+    ((name :initarg :name :accessor constructor-name)
+     (fields :initarg :fields :accessor constructor-fields))
+    (:metaclass funcallable-standard-class))
+  (defmethod initialize-instance :after ((c constructor) &key)
+    (with-slots (name fields) c
+      (set-funcallable-instance-function
+       c
+       #'(lambda ()
+           (let ((new (make-array (1+ (length fields)))))
+             (setf (aref new 0) name)
+             new)))))
+  (funcall (make-instance 'constructor :name 'position :fields '(x y))))
+#(POSITION NIL NIL)
+
 ;; cleanup
 (setf (find-class 'class-bad-slot) nil
+      (find-class 'constructor) nil
       (find-class 'person) nil
       (find-class 'counted1-class) nil
       (find-class 'counted1-rectangle) nil
