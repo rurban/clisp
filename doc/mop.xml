@@ -4827,7 +4827,7 @@ objects linked, for example, by hash tables.)
   ((name :initarg :name :accessor constructor-name)
    (fields :initarg :fields :accessor constructor-fields))
   (:metaclass funcallable-standard-class))
-
+<computeroutput>#&gt;FUNCALLABLE-STANDARD-CLASS CONSTRUCTOR&gt;</computeroutput>
 (defmethod initialize-instance :after ((c constructor) &key-amp;)
   (with-slots (name fields) c
     (set-funcallable-instance-function
@@ -4836,12 +4836,11 @@ objects linked, for example, by hash tables.)
           (let ((new (make-array (1+ (length fields)))))
             (setf (aref new 0) name)
             new)))))
-
-(setq c1 (make-instance 'constructor
-                        :name 'position :fields '(x y)))
-<computeroutput>#&lt;CONSTRUCTOR 262437&gt;</computeroutput>
+<computeroutput>#&lt;STANDARD-METHOD :AFTER (#&lt;FUNCALLABLE-STANDARD-CLASS CONSTRUCTOR&gt;)&gt;</computeroutput>
+(setq c1 (make-instance 'constructor :name 'position :fields '(x y)))
+<computeroutput>#&lt;CONSTRUCTOR &gt;</computeroutput>
 (setq p1 (funcall c1))
-<computeroutput>#&lt;ARRAY 3 263674&gt;</computeroutput>
+<computeroutput>#(POSITION NIL NIL)</computeroutput>
 </programlisting></para></informalexample>
 </section><!-- mop-sa-funcallable -->
 
