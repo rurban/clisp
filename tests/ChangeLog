@@ -1,3 +1,7 @@
+2005-12-11  Sam Steingold  <sds@gnu.org>
+
+	* mop.tst: added a test example from mop.xml#mop-sa-funcallable
+
 2005-12-06  Sam Steingold  <sds@gnu.org>
 
 	* type.tst: test SUBTYPEP on ENCODINGs
