@@ -1,5 +1,11 @@
 2005-12-12  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (defined_class_length): cast address to aint instead
+	of ULONG to avoid the g++ warning "cast from pointer to integer of
+	different size" on amd64
+
+2005-12-12  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d: use while instead of dotimes and do/while instead of
 	dotimesp to simplify debugging with gdb
 
