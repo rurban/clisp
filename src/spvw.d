@@ -889,20 +889,20 @@ local void init_subr_tab_1 (void) {
   }
   { # and initialize the GCself and keywords-slot temporarily:
     var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
-    var uintC count;
-    dotimesC(count,subr_anz, {
+    var uintC count = subr_anz;
+    while (count--) {
       ptr->GCself = subr_tab_ptr_as_object(ptr);
       ptr->keywords = NIL;
       ptr++;
-    });
+    }
   }
   #endif
   # Because of SPVWTABF all slots except keywords and argtype
   # are already initialized.
   { # now initialize the argtype-slot:
     var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
-    var uintC count;
-    dotimesC(count,subr_anz,{ SUBR_SET_ARGTYPE(ptr,NULL); ptr++; });
+    var uintC count = subr_anz;
+    while (count--) { SUBR_SET_ARGTYPE(ptr,NULL); ptr++; }
   }
  #else
   { # initialize all slots except keywords:
@@ -926,9 +926,9 @@ local void init_subr_tab_1 (void) {
     for_modules(all_other_modules,{
       if (*module->stab_size > 0) {
         var subr_t* oldptr = module->stab;
-        var uintC count;
+        var uintC count = *module->stab_size;
         module->stab = newptr;
-        dotimespC(count,*module->stab_size, { *newptr++ = *oldptr++; } );
+        do { *newptr++ = *oldptr++; } while (--count);
       }
     });
     ASSERT(newptr == (subr_t*)((char*)&subr_tab+varobjects_misaligned) + total_subr_anz);
@@ -1070,8 +1070,8 @@ local void init_symbol_tab_2 (void) {
     var object list = O(all_packages); # list of packages
     # shortly after the initialization:
     # (#<PACKAGE LISP> #<PACKAGE SYSTEM> #<PACKAGE KEYWORD> #<PACKAGE CHARSET> ...)
-    var uintC count;
-    dotimespC(count,package_anz, { pushSTACK(Car(list)); list = Cdr(list); });
+    var uintC count = package_anz;
+    do { pushSTACK(Car(list)); list = Cdr(list); } while (--count);
   }
   {
     var symbol_* ptr = (symbol_*)((char*)&symbol_tab+varobjects_misaligned); # traverse symbol_tab
@@ -1127,8 +1127,8 @@ local void init_symbol_functions (void) {
     #undef LISPSPECFORM
     var const fsubr_t* ptr1 = (const fsubr_t *)&fsubr_tab; # traverse fsubr_tab
     var const fsubr_data_t * ptr2 = &fsubr_data_tab[0]; # traverse fsubr_data_tab
-    var uintC count;
-    dotimesC(count,fsubr_anz,{
+    var uintC count = fsubr_anz;
+    while (count--) {
       var object sym = fsubr_name(ptr2);
       var object obj = allocate_fsubr();
       TheFsubr(obj)->name = sym;
@@ -1139,16 +1139,16 @@ local void init_symbol_functions (void) {
       Symbol_function(sym) = obj;
       verify_code_alignment(*ptr1,sym);
       ptr1++; ptr2++;
-    });
+    }
   }
   { # enter SUBRs:
     var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
-    var uintC count;
-    dotimesC(count,subr_anz,{
+    var uintC count = subr_anz;
+    while (count--) {
       Symbol_function(ptr->name) = subr_tab_ptr_as_object(ptr);
       verify_code_alignment(ptr->function,ptr->name);
       ptr++;
-    });
+    }
   }
 }
 # assign values to constants/variables:
@@ -1512,25 +1512,25 @@ local void init_module_2 (module_t* module) {
   # pre-initialize subr_tab, object_tab, so that GC becomes possible:
   if (*module->stab_size > 0) {
     var subr_t* ptr = module->stab; # traverse subr_tab
-    var uintC count;
-    dotimespC(count,*module->stab_size, {
+    var uintC count = *module->stab_size;
+    do {
       ptr->GCself = subr_tab_ptr_as_object(ptr);
       ptr->name = NIL; ptr->keywords = NIL;
       ptr++;
-    });
+    } while (--count);
   }
   if (*module->otab_size > 0) {
     var gcv_object_t* ptr = module->otab; # traverse object_tab
-    var uintC count;
-    dotimespC(count,*module->otab_size, { *ptr++ = NIL; });
+    var uintC count = *module->otab_size;
+    do { *ptr++ = NIL; } while(--count);
   }
   module->initialized = true; /* GC can see this subr_tab, object_tab */
   # enter Subr-symbols:
   if (*module->stab_size > 0) {
     var subr_t* subr_ptr = module->stab;
     var const subr_initdata_t* init_ptr = module->stab_initdata;
-    var uintC count;
-    dotimespC(count,*module->stab_size,{
+    var uintC count = *module->stab_size;
+    do {
       var const char* packname = init_ptr->packname;
       var object symname = asciz_to_string(init_ptr->symname,O(internal_encoding));
       var object symbol;
@@ -1562,21 +1562,21 @@ local void init_module_2 (module_t* module) {
       }
       Symbol_function(symbol) = subr_tab_ptr_as_object(subr_ptr); # define function
       init_ptr++; subr_ptr++;
-    });
+    } while (--count);
   }
   # enter objects:
   if (*module->otab_size > 0) {
     var gcv_object_t* object_ptr = module->otab;
     var const object_initdata_t* init_ptr = module->otab_initdata;
-    var uintC count;
-    dotimespC(count,*module->otab_size, {
+    var uintC count = *module->otab_size;
+    do {
       pushSTACK(asciz_to_string(init_ptr->initstring,O(internal_encoding))); # string
       funcall(L(make_string_input_stream),1); # pack into stream
       pushSTACK(value1);
       *object_ptr = stream_read(&STACK_0,NIL,NIL); # read object
       skipSTACK(1);
       object_ptr++; init_ptr++;
-    });
+    } while (--count);
   }
   # call initialization function:
   (*module->initfunction1)(module);
@@ -2453,14 +2453,12 @@ local inline int init_memory (const struct argv_initparams *p) {
   { # Initialize the table of relocatable pointers:
     var object* ptr2 = &pseudofun_tab.pointer[0];
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
-      var uintC count;
-      dotimesC(count,pseudocode_anz,
-        { *ptr2++ = make_machine_code(*ptr1); ptr1++; });
+      var uintC count = pseudocode_anz;
+      while (count--) { *ptr2++ = make_machine_code(*ptr1); ptr1++; }
     }
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudodata_tab;
-      var uintC count;
-      dotimesC(count,pseudodata_anz,
-        { *ptr2++ = make_machine(*ptr1); ptr1++; });
+      var uintC count = pseudodata_anz;
+      while(count--) { *ptr2++ = make_machine(*ptr1); ptr1++; }
     }
   }
   # fetch memory:
@@ -3068,8 +3066,8 @@ local inline void main_actions (struct argv_actions *p) {
      for each file: */
     if (p->argv_compile_filecount > 0) {
       var const argv_compile_file_t* fileptr = &p->argv_compile_files[0];
-      var uintL count;
-      dotimespL(count,p->argv_compile_filecount,{
+      var uintL count = p->argv_compile_filecount;
+      do {
         var uintC argcount = 1;
         var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
         pushSTACK(filename);
@@ -3104,7 +3102,7 @@ local inline void main_actions (struct argv_actions *p) {
         }
         funcall(S(compile_file),argcount);
         fileptr++;
-      });
+      } while (--count);
     }
     if (!p->argv_repl)
       return;
@@ -3549,12 +3547,12 @@ global void dynload_modules (const char * library, uintC modcount,
     begin_system_call();
     {
       var const char * const * modnameptr = modnames;
-      var uintC count;
-      dotimespC(count,modcount,{
+      var uintC count = modcount;
+      do {
         var uintL len = asciz_length(*modnameptr);
         total_modname_length += len+1;
         modnameptr++;
-      });
+      } while (--count);
     }
     { # Make room for the module descriptors.
       var module_t* modules = (module_t*) my_malloc(modcount*sizeof(module_t)+total_modname_length);
@@ -3562,8 +3560,8 @@ global void dynload_modules (const char * library, uintC modcount,
         var char* modnamebuf = (char*)(&modules[modcount]);
         var const char * const * modnameptr = modnames;
         var module_t* module = modules;
-        var uintC count;
-        dotimespC(count,modcount,{
+        var uintC count = modcount;
+        do {
           var const char * modname = *modnameptr;
           var uintL len = asciz_length(modname);
           var const char * err;
@@ -3587,7 +3585,7 @@ global void dynload_modules (const char * library, uintC modcount,
           module->finifunction = (void (*) (module_t*)) get_module_symbol("module__%s__fini_function",modname,libhandle);
           module->next = NULL;
           modnameptr++; module++;
-        });
+        } while (--count);
         FREE_DYNAMIC_ARRAY(symbolbuf);
       }
       end_system_call();
@@ -3614,12 +3612,12 @@ global void dynload_modules (const char * library, uintC modcount,
               {
                 var subr_t* oldptr = module->stab;
                 module->stab = newptr;
-                dotimespC(count,count, {
+                do {
                   *newptr = *oldptr++;
                   newptr->GCself = subr_tab_ptr_as_object(newptr);
                   newptr->name = NIL; newptr->keywords = NIL; # GC stays possible with it
                   newptr++;
-                });
+                } while (--count);
               }
               total_subr_anz += *module->stab_size;
             }
@@ -3645,13 +3643,12 @@ global void dynload_modules (const char * library, uintC modcount,
       }
       { # Now start the modules' life.
         var module_t* module = modules;
-        var uintC count;
-        dotimespC(count,modcount,{
-          if (module->initfunction2)
-            # call initialization function:
+        var uintC count = modcount;
+        do {
+          if (module->initfunction2) /* call initialization function: */
             (*module->initfunction2)(module);
           module++;
-        });
+        } while (--count);
       }
     }
   }
