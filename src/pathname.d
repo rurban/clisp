@@ -6289,14 +6289,13 @@ local inline bool open_input_file (char* pathstring, bool create_if_not_exists,
  > truncate_if_exists: if true, the file is truncated to zero size
  > STACK_0: pathname
  < result: open file handle */
-local inline Handle open_output_file (char* pathstring,
+local inline Handle open_output_file (char* pathstring, bool wronly,
                                       bool truncate_if_exists) {
  #ifdef UNIX
   begin_system_call();
   var int result =
-    OPEN(pathstring,
-         (truncate_if_exists ? O_RDWR | O_BINARY | O_CREAT | O_TRUNC
-          : O_RDWR | O_BINARY | O_CREAT),
+    OPEN(pathstring,((wronly ? O_WRONLY : O_RDWR) | O_BINARY | O_CREAT
+                     | (truncate_if_exists ? O_TRUNC : 0)),
          my_open_mask);
   end_system_call();
   if (result<0) { OS_file_error(STACK_0); } /* report error */
@@ -6304,12 +6303,15 @@ local inline Handle open_output_file (char* pathstring,
  #endif
  #ifdef WIN32_NATIVE
   begin_system_call();
-  var Handle handle = CreateFile(pathstring, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                 NULL, (truncate_if_exists ? CREATE_ALWAYS : OPEN_ALWAYS), FILE_ATTRIBUTE_NORMAL, NULL);
+  var Handle handle =
+    CreateFile(pathstring, (wronly ? 0 : GENERIC_READ) | GENERIC_WRITE,
+               FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+               (truncate_if_exists ? CREATE_ALWAYS : OPEN_ALWAYS),
+               FILE_ATTRIBUTE_NORMAL, NULL);
   end_system_call();
   if (handle==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
   return handle;
- #endif
+#endif
 }
 #endif
 
@@ -6478,6 +6480,7 @@ local maygc object open_file (object filename, direction_t direction,
    check filename and get the handle: */
   var object handle;
  {var bool append_flag = false;
+  var bool wronly_flag = false;
  {switch (direction) {
     case DIRECTION_PROBE:
       if (!file_exists(namestring)) { /* file does not exist */
@@ -6512,7 +6515,8 @@ local maygc object open_file (object filename, direction_t direction,
       handle = allocate_handle(handl);
     }
       break;
-    default: /* DIRECTION is :OUTPUT or :IO */
+    case DIRECTION_OUTPUT: wronly_flag = true; /*FALLTHROUGH*/
+    case DIRECTION_IO:
       /* default for if_not_exists depends on if_exists: */
       if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND) {
         if (if_exists!=IF_EXISTS_APPEND && if_exists!=IF_EXISTS_OVERWRITE)
@@ -6559,13 +6563,14 @@ local maygc object open_file (object filename, direction_t direction,
          othersise (with :APPEND, :OVERWRITE) preserve contents.
          if-not-exists: create new file. */
         var Handle handl =
-          open_output_file(namestring_asciz,/* if_exists<IF_EXISTS_APPEND */
+          open_output_file(namestring_asciz,wronly_flag,
                            (if_exists!=IF_EXISTS_APPEND
                             && if_exists!=IF_EXISTS_OVERWRITE));
         handle = allocate_handle(handl);
       });
       #endif
       break;
+    default: NOTREACHED;
       /* STACK_0 = Truename, FILE-ERROR slot PATHNAME */
   fehler_notfound: /* error: file not found */
       fehler_file_not_exists();

@@ -6025,6 +6025,8 @@ local uintL low_fill_buffered_handle (object stream, perseverance_t persev) {
   if ((persev == persev_immediate || persev == persev_bonus)
       && ChannelStream_regular(stream))
     persev = persev_partial;
+  if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
+    return 0;                   /* wronly stream */
   begin_system_call();
   var ssize_t result = fd_read(handle,buff,strm_buffered_bufflen,persev);
   end_system_call();
