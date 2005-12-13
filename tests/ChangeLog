@@ -1,3 +1,7 @@
+2005-12-13  Sam Steingold  <sds@gnu.org>
+
+	* socket.tst: make some interactive tests work in batch
+
 2005-12-11  Sam Steingold  <sds@gnu.org>
 
 	* mop.tst: added a test example from mop.xml#mop-sa-funcallable
