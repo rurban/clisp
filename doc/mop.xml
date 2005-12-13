@@ -4838,7 +4838,7 @@ objects linked, for example, by hash tables.)
             new)))))
 <computeroutput>#&lt;STANDARD-METHOD :AFTER (#&lt;FUNCALLABLE-STANDARD-CLASS CONSTRUCTOR&gt;)&gt;</computeroutput>
 (setq c1 (make-instance 'constructor :name 'position :fields '(x y)))
-<computeroutput>#&lt;CONSTRUCTOR &gt;</computeroutput>
+<computeroutput>#&lt;CONSTRUCTOR #&lt;UNBOUND&gt;&gt;</computeroutput>
 (setq p1 (funcall c1))
 <computeroutput>#(POSITION NIL NIL)</computeroutput>
 </programlisting></para></informalexample>
