@@ -20,11 +20,6 @@
 
 2005-12-11  Sam Steingold  <sds@gnu.org>
 
-	* clos-genfun1.lisp (print-object-<funcallable-standard-object>):
-	do not print #<UNBOUND>
-
-2005-12-11  Sam Steingold  <sds@gnu.org>
-
 	* lispbibl.d (I_to_uint64, I_to_sint64) [!HAVE_FFI]: define for STREAM
 	Reported by Lennart Staflin <lenst@lysator.liu.se> on MacOS X 10.3.9
 
