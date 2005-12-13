@@ -1,3 +1,12 @@
+2005-12-13  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 1379620 ]: OPEN :DIRECTION :OUTPUT now creates
+	write-only handles and handles named pipes correctly
+	* stream.d (low_fill_buffered_handle): when the stream is not
+	readable, do not try to read from it
+	* pathname.d (open_output_file): accept wronly argument
+	(open_file): pass wronly to open_output_file()
+
 2005-12-12  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (defined_class_length): cast address to aint instead
