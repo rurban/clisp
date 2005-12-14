@@ -1,3 +1,9 @@
+2005-12-14  Sam Steingold  <sds@gnu.org>
+
+	* spvw_objsize.d (objsize_iarray, objsize_s8string, objsize_s16string)
+	(objsize_s32string, objsize_sstring): return uintM instead of uintL
+	Reported by "Dr. Werner Fink" <werner@suse.de> on IA64 with g++
+
 2005-12-13  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 1379620 ]: OPEN :DIRECTION :OUTPUT now creates
