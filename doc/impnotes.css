@@ -4,49 +4,40 @@
  * Covered by the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
  */
 
-
 body { background-color: white; color: black; }
 
 /* reduce the whitespace (see also clisp.css) */
-li p { margin: 0pt; }
-td p { margin: 0pt; }
-dd p { margin: 0pt; }
+li, td, dd p { margin: 0pt; }
 
 /* mark code with color */
 .code, .programlisting, .screen
 { background-color: lightgray; color: darkblue; }
 
 /* mark methods with color - same background as type! */
-.method
-{ background-color: lightcyan; color: darkblue; }
+.method { background-color: lightcyan; color: darkblue; }
 
 /* literal data */
 .computeroutput, .returnvalue, .data
 { background-color: lightblue; color: darkred; }
 
 /* bytecode instructions */
-.byte
-{ background-color: lightgray; color: darkred; }
+.byte { background-color: lightgray; color: darkred; }
 
 /* mark types with color - same background as method! */
 .type, .classname, .superclass
 { background-color: lightcyan; color: darkgreen; }
 
 /* mark packages with color */
-.package
-{ background-color: lightgreen; color: navy; }
+.package { background-color: lightgreen; color: navy; }
 
 /* no border for images */
-img
-{ border-width: 0; }
+img { border-width: 0; }
 
 /* epigraph: flush right, large left margin */
-.epigraph
-{ text-align: right; margin-left: 50%; }
+.epigraph { text-align: right; margin-left: 50%; }
 
 /* cmdsynopsis: indent first line */
-.cmdsynopsis
-{ text-indent: -40px; margin-left: 40px; }
+.cmdsynopsis { text-indent: -40px; margin-left: 40px; }
 
 /* larger headings:
  (loop :for i :from 1 :to 6 :do
@@ -60,16 +51,13 @@ h5 { font-size: 121%; }
 h6 { font-size: 110%; }
 
 /* necessary when <programlisting> is in a centered table cell */
-.programlisting
-{ text-align: left; }
+.programlisting { text-align: left; }
 
 /* platform dependencies */
-.plat-dep
-{ background-color: lightcyan; color: darkred; }
+.plat-dep { background-color: lightcyan; color: darkred; }
 
 /* highlight the FAQ questions */
-.question
-{ background-color: lightyellow; }
+.question { background-color: lightyellow; }
 
 /* term in table */
-td span.term { font-weight: bold; }
+td, dt span.term { font-weight: bold; }
