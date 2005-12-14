@@ -14553,11 +14553,12 @@ typedef host_data_t * host_data_fetcher_t (SOCKET, host_data_t *, bool);
 extern host_data_fetcher_t socket_getpeername, socket_getlocalname;
 
 local void publish_host_data (host_data_fetcher_t* func) {
-  var bool resolve_p = missingp(STACK_0); skipSTACK(1);
-  var SOCKET sk = uint_p(STACK_0) ? I_to_uint(STACK_0)
-    : SocketChannel(test_socket_stream(popSTACK(),true));
+  var bool resolve_p = !nullp(STACK_0);
+  var SOCKET sk = uint_p(STACK_0) ? I_to_uint(STACK_1)
+    : SocketChannel(test_socket_stream(STACK_1,true));
   var host_data_t hd;
   var object hostname;
+  skipSTACK(2);                 /* drop the arguments */
   begin_system_call();
   if ((*func)(sk,&hd,resolve_p) == NULL) { SOCK_error(); }
   end_system_call();
