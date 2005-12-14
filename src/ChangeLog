@@ -1,5 +1,10 @@
 2005-12-14  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (publish_host_data): fixed STACK handling
+	Reported by Lennart Staflin <lenst@lysator.liu.se>
+
+2005-12-14  Sam Steingold  <sds@gnu.org>
+
 	* spvw_objsize.d (objsize_iarray, objsize_s8string, objsize_s16string)
 	(objsize_s32string, objsize_sstring): return uintM instead of uintL
 	Reported by "Dr. Werner Fink" <werner@suse.de> on IA64 with g++
