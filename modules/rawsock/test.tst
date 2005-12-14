@@ -165,7 +165,11 @@ T
   (show `((,(rawsock:getpeername *sock1* T) ,(rawsock:getsockname *sock1* T)
            ,*sock1*)
           (,(rawsock:getpeername *sock2* T) ,(rawsock:getsockname *sock2* T)
-           ,*sock2*))
+           ,*sock2*)
+          ,(multiple-value-list (socket:socket-stream-local *sock1*))
+          ,(multiple-value-list (socket:socket-stream-peer *sock1*))
+          ,(multiple-value-list (socket:socket-stream-local *sock2*))
+          ,(multiple-value-list (socket:socket-stream-peer *sock2*)))
         :pretty t)
   T) T
 

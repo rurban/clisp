@@ -454,11 +454,21 @@ NIL
   (write-char #\a *socket-1*))
 #\a
 
+(listp
+ (show
+  (list (multiple-value-list (socket:socket-stream-local *socket-1*))
+        (multiple-value-list (socket:socket-stream-peer *socket-1*))
+        (multiple-value-list (socket:socket-stream-local *socket-2*))
+        (multiple-value-list (socket:socket-stream-peer *socket-2*)))
+  :pretty t))
+T
+
 (socket-status (cons *socket-2* :input) 0) :INPUT
 (read-char *socket-2*) #\a
 (socket-status (cons *socket-2* :input) 0) NIL
 (close *socket-1*) T
 (socket-status (cons *socket-2* :input) 0) :EOF
+(close *socket-2*) T
 
 ;; clean-up
 (progn (makunbound '*server*) (unintern '*server*)
