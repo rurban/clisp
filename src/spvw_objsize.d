@@ -127,7 +127,7 @@
                              sizeof(uintD),(uintL)(length))
 
 # special functions for each type:
-inline local uintL objsize_iarray (void* addr) { # non-simple array
+inline local uintM objsize_iarray (void* addr) { /* non-simple array */
   var uintL size;
   size = (uintL)iarray_rank((Iarray)addr);
   if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
@@ -138,7 +138,7 @@ inline local uintL objsize_iarray (void* addr) { # non-simple array
   return size_iarray(size);
 }
 
-inline local uintL objsize_s8string (void* addr) { # mutable S8string
+inline local uintM objsize_s8string (void* addr) { /* mutable S8string */
   var uintL len = sstring_length((S8string)addr);
   var uintL size = size_s8string(len);
  #ifdef HAVE_SMALL_SSTRING
@@ -150,7 +150,7 @@ inline local uintL objsize_s8string (void* addr) { # mutable S8string
   return size;
 }
 
-inline local uintL objsize_s16string (void* addr) { # mutable S16string
+inline local uintM objsize_s16string (void* addr) { /* mutable S16string */
   var uintL len = sstring_length((S16string)addr);
   var uintL size = size_s16string(len);
  #ifdef HAVE_SMALL_SSTRING
@@ -162,11 +162,11 @@ inline local uintL objsize_s16string (void* addr) { # mutable S16string
   return size;
 }
 
-inline local uintL objsize_s32string (void* addr) { # S32string
+inline local uintM objsize_s32string (void* addr) { /* S32string */
   return size_s32string(sstring_length((S32string)addr));
 }
 
-inline local uintL objsize_sstring (void* addr) { # simple-string
+inline local uintM objsize_sstring (void* addr) { /* simple-string */
  #ifdef TYPECODES
   #ifdef HAVE_SMALL_SSTRING
   if (sstring_reallocatedp((Sstring)addr)) goto case_sistring;
