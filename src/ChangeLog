@@ -1,3 +1,7 @@
+2005-12-15  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (publish_host_data): do not invoke test_socket_stream twice
+
 2005-12-14  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (publish_host_data): fixed STACK handling
