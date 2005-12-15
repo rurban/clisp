@@ -130,3 +130,16 @@ nil
   l)
 #+CLISP
 (#\1 #\1)
+
+#+CLISP
+(let ((file "foo") s1 s2)
+  (with-open-file (out file :direction :output)
+    (write out :stream out) (terpri out)
+    (setq s1 (write-to-string out))
+    (force-output out)
+    (ext:appease-cerrors
+     (with-open-file (in file :direction :input)
+       (setq s2 (read-line in)))))
+  (delete-file file)
+  (string= s1 s2))
+#+CLISP T

@@ -1,5 +1,12 @@
 2005-12-15  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (direction_symbol, check_file_re_open): added
+	(open_file): use check_file_re_open() to ensure that we are not
+	opening a file twice
+	* constsym.d (file_error): added
+
+2005-12-15  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (socket_getlocalname_aux, socket_getpeername): assume
 	that unknown sa_family means local connection (AF_UNIX, AF_LOCAL)
 
