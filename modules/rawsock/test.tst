@@ -85,6 +85,10 @@ NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
+(listp (show (list (multiple-value-list (socket:socket-stream-local *sock*))
+                   (multiple-value-list (socket:socket-stream-peer *sock*)))))
+T
+
 (ext:socket-status (list (cons *sock* :input))) (:INPUT)
 
 (or (null (fboundp 'rawsock:sockatmark))
