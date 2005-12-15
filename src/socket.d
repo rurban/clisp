@@ -765,7 +765,10 @@ local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
       ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
       hd->port = ntohs(addr.inaddr.sin_port);
       break;
-    default: NOTREACHED;
+    default:                    /* AF_UNIX, AF_LOCAL &c */
+      strcpy(hd->hostname,"localhost");
+      hd->port = 0;
+      break;
   }
   return hd;
 }
@@ -819,7 +822,12 @@ global host_data_t * socket_getpeername (SOCKET socket_handle,
         hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,
                            sizeof(struct in_addr),AF_INET);
       break;
-    default: NOTREACHED;
+    default:                    /* AF_UNIX, AF_LOCAL &c */
+      strcpy(hd->hostname,"localhost");
+      hd->port = 0;
+      if (resolve_p)
+        hp = gethostbyname(hd->hostname);
+      break;
   }
   /* Fill in hd->truename. */
   if (hp) {
