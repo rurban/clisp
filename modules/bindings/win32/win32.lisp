@@ -82,10 +82,10 @@
   (:arguments (handle handle)) (:return-type boolean))
 
 (defmacro with-handle ((handle form) &body forms)
-  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY forms)
     `(let ((,handle ,form))
-       (DECLARE (READ-ONLY ,handle) ,@declarations)
-       (unwind-protect (progn ,@forms)
+       (declare (read-only ,handle) ,@declarations)
+       (unwind-protect (progn ,@body-rest)
          (when ,handle (CloseHandle ,handle))))))
 
 ;; (c-lines "#include <winnt.h>~%")
