@@ -6373,6 +6373,17 @@ global direction_t check_direction (object dir) {
   }
 }
 
+local object direction_symbol (direction_t direction) {
+  switch (direction) {
+    case DIRECTION_INPUT: return S(Kinput);
+    case DIRECTION_INPUT_IMMUTABLE: return S(Kinput_immutable);
+    case DIRECTION_OUTPUT: return S(Koutput);
+    case DIRECTION_IO: return S(Kio);
+    case DIRECTION_PROBE: return S(Kprobe);
+    default: NOTREACHED;
+  }
+}
+
 /* check the :IF-DOES-NOT-EXIST argument
    check_if_does_not_exist(argument) */
 global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
@@ -6448,6 +6459,46 @@ global object if_exists_symbol (if_exists_t if_exists) {
   NOTREACHED;
 }
 
+/* UP: check that the file we are about to open has not been opened yet
+ can trigger gc */
+local maygc void check_file_re_open (object truename, direction_t direction) {
+  var object tail = O(open_files);
+  var uintB flags;
+  switch (direction) {
+    case DIRECTION_INPUT_IMMUTABLE: case DIRECTION_INPUT:
+      flags = strmflags_wr_B;
+      break;
+    case DIRECTION_IO: case DIRECTION_OUTPUT:
+      flags = (strmflags_rd_B | strmflags_wr_B);
+      break;
+    default: return;            /* PROBE: nothing to check */
+  }
+  var object bad_stream = nullobj;
+  while (consp(tail)) {
+    var object stream = Car(tail); tail = Cdr(tail);
+    if (TheStream(stream)->strmtype == strmtype_file
+        && TheStream(stream)->strmflags & flags
+        && equal(truename,TheStream(stream)->strm_file_truename)) {
+      bad_stream = stream;
+      break;
+    }
+  }
+  if (!eq(bad_stream,nullobj)) { /* found an existing open stream */
+    pushSTACK(NIL);              /* 8: continue-format-string */
+    pushSTACK(S(file_error));    /* 7: error type */
+    pushSTACK(S(Kpathname));     /* 6: :PATHNAME */
+    pushSTACK(truename);         /* 5: the offending pathname */
+    pushSTACK(NIL);              /* 4: error-format-string */
+    pushSTACK(TheSubr(subr_self)->name);       /* 3: caller */
+    pushSTACK(bad_stream);                     /* 2: bad stream */
+    pushSTACK(truename);                       /* 1: truename */
+    pushSTACK(direction_symbol(direction));    /* 0: direction */
+    STACK_8 = CLSTEXT("Open the file anyway"); /* continue-format-string */
+    STACK_4 = CLSTEXT("~S: ~S already points to file ~S, opening the file again for ~S may produce unexpected results"); /* error-format-string */
+    funcall(L(cerror_of_type),9);
+  }
+}
+
 /* UP: create a file-stream
  open_file(filename,direction,if_exists,if_not_exists)
  > STACK_3: original filename (may be logical)
@@ -6478,6 +6529,9 @@ local maygc object open_file (object filename, direction_t direction,
     goto ergebnis_NIL;
   /* stack layout: Pathname, Truename.
    check filename and get the handle: */
+  pushSTACK(namestring);        /* save */
+  check_file_re_open(STACK_1,direction);
+  namestring = popSTACK();      /* restore */
   var object handle;
  {var bool append_flag = false;
   var bool wronly_flag = false;
