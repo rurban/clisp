@@ -6253,17 +6253,19 @@ local void position_file_buffered (object stream, uoff_t position) {
     BufferedStream_have_eof_p(stream) = false;
     var uintL newindex = position % strm_buffered_bufflen; # desired Index in the Sector
     if (newindex!=0) { # Position between Sectors -> nothing needs to be read
-      buffered_nextbyte(stream,persev_partial);
-      # Now index=0.
-      # set index to (position mod bufflen) , but check beforehand:
-      var uintL endvalid = BufferedStream_endvalid(stream);
-      # newindex must be in the valid range
-      if (newindex > endvalid) {
-        # Error. But first position back to the old Position:
-        check_SP();
-        position_file_buffered(stream,oldposition); # position back
-        fehler_position_beyond_EOF(stream);
-      }
+      if (TheStream(stream)->strmflags & strmflags_rd_B) {
+        buffered_nextbyte(stream,persev_partial);
+        /* Now index=0.
+           set index to (position mod bufflen) , but check beforehand: */
+        var uintL endvalid = BufferedStream_endvalid(stream);
+        # newindex must be in the valid range
+        if (newindex > endvalid) {
+          # Error. But first position back to the old Position:
+          check_SP();
+          position_file_buffered(stream,oldposition); # position back
+          fehler_position_beyond_EOF(stream);
+        }
+      } else BufferedStream_endvalid(stream) = newindex;
       BufferedStream_index(stream) = newindex;
     }
   }

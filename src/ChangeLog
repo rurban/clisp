@@ -1,5 +1,10 @@
 2005-12-15  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (position_file_buffered): when the file is not
+	readable, do not call buffered_nextbyte()
+
+2005-12-15  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (direction_symbol, check_file_re_open): added
 	(open_file): use check_file_re_open() to ensure that we are not
 	opening a file twice
