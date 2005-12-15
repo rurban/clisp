@@ -212,13 +212,14 @@ ignored by the interpreter.</para>
 
 <section id="spec-decl"><title>Declaration &special-dec;</title>
 
-<formalpara id="notspec-decl"><title>Declaration
-  <literal>EXT:NOTSPECIAL</literal></title>
+<formalpara id="notspec-decl"><title>Declaration &notspec;</title>
 <para>Declarations <code>(&proclaim; '(&special-dec; &var-r;))</code>
- and &defconstant; are undone by the <code>(&proclaim; '(EXT:NOTSPECIAL
+ and &defconstant; are undone by the <code>(&proclaim; '(&notspec;
   &var-r;))</code> declaration.  This declaration can be used only in
  global &proclaim; and &declaim; forms, not in local &declare; forms.
-</para></formalpara>
+ Of course, you cannot expect miracles: functions compiled before the
+ &notspec; proclamation was issued will still be treating &var-r; as
+ special even after the &notspec; proclamation.</para></formalpara>
 
 <formalpara id="spe-var-p"><title>Function &spe-var-p;</title>
 <para>You can use the function <code>(&spe-var-p; &symbol-r;
