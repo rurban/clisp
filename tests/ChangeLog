@@ -1,3 +1,7 @@
+2005-12-15  Sam Steingold  <sds@gnu.org>
+
+	* streamslong.tst: check opening the same file twice
+
 2005-12-14  Sam Steingold  <sds@gnu.org>
 
 	* socket.tst: test socket-stream-local & socket-stream-peer
