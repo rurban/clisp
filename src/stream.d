@@ -14557,7 +14557,7 @@ local void publish_host_data (host_data_fetcher_t* func) {
   var SOCKET sk;
   var host_data_t hd;
   var object hostname;
-  if (uint_p(STACK_0)) sk = I_to_uint(STACK_1);
+  if (uint_p(STACK_1)) sk = I_to_uint(STACK_1);
   else {
     STACK_1 = test_socket_stream(STACK_1,true);
     sk = SocketChannel(STACK_1);
