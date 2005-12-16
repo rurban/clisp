@@ -510,7 +510,7 @@ to print the corresponding values, or T for all of them.")
                             (clos:method-specializers meth)))))
         (format stream (TEXT "No methods.")))))
   (:method ((obj function) (stream stream))
-    (ecase (type-of obj)
+    (ecase (type-of obj)        ; not etypecase!
       #+FFI
       (FFI::FOREIGN-FUNCTION
        (format stream (TEXT "a foreign function of foreign type ~S.")
@@ -542,6 +542,8 @@ to print the corresponding values, or T for all of them.")
                            (TEXT "For more information, evaluate ~{~S~^ or ~}.")
                            `((DISASSEMBLE ,funform))))))))))
       (FUNCTION
+       ;; we do not use ETYPECASE here to ensure that if we do get here,
+       ;; we are dealing with an Iclosure object
        (format stream (TEXT "an interpreted function."))
        (let ((doc (sys::%record-ref obj 2)))
          (terpri stream)
