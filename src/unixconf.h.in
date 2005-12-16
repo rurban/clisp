@@ -319,6 +319,10 @@
 /* Define to 1 if you have the `rl_filename_completion_function' function. */
 #undef HAVE_RL_FILENAME_COMPLETION_FUNCTION
 
+/* Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.
+   */
+#undef HAVE_SCALAR_FSID
+
 /* Define if you have the select() function. */
 #undef HAVE_SELECT
 
@@ -387,6 +391,15 @@
 
 /* Define to 1 if `d_namlen' is member of `struct dirent'. */
 #undef HAVE_STRUCT_DIRENT_D_NAMLEN
+
+/* Define to 1 if `st_blksize' is member of `struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_BLKSIZE
+
+/* Define to 1 if `st_blocks' is member of `struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_BLOCKS
+
+/* Define to 1 if `st_rdev' is member of `struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_RDEV
 
 /* Define to 1 if you have the `sysconf' function. */
 #undef HAVE_SYSCONF
@@ -636,6 +649,15 @@
 
 /* declaration of the signal handler function type needs dots */
 #undef SIGTYPE_DOTS
+
+/* The size of a `dev_t', as computed by sizeof. */
+#undef SIZEOF_DEV_T
+
+/* The size of a `fsblkcnt_t', as computed by sizeof. */
+#undef SIZEOF_FSBLKCNT_T
+
+/* The size of a `fsfilcnt_t', as computed by sizeof. */
+#undef SIZEOF_FSFILCNT_T
 
 /* The size of a `ino_t', as computed by sizeof. */
 #undef SIZEOF_INO_T
