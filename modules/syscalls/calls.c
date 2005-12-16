@@ -1566,7 +1566,11 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
 
   pushSTACK(file);                    /* the object stat'ed */
   pushSTACK(L_to_I(buf.st_dev));      /* device */
-  pushSTACK(UL_to_I(buf.st_ino));     /* inode */
+#if defined(SIZEOF_INO_T) && SIZEOF_INO_T == 8
+  pushSTACK(uint64_to_I(buf.st_ino)); /* inode */
+#else
+  pushSTACK(uint32_to_I(buf.st_ino)); /* inode */
+#endif
   pushSTACK(check_chmod_mode_to_list(buf.st_mode)); /* protection */
   pushSTACK(UL_to_I(buf.st_nlink));   /* number of hard links */
   pushSTACK(UL_to_I(buf.st_uid));     /* user ID of owner */
