@@ -603,8 +603,8 @@ local object convert_function_from_foreign (void* address, object resulttype,
 /* ensure that the Faddress is valid
  < fa: foreign address
  can trigger GC */
-local maygc void validate_fpointer (object obj);
-global maygc inline object check_faddress_valid (object fa) {
+local inline maygc void validate_fpointer (object obj);
+global maygc object check_faddress_valid (object fa) {
   object fp = TheFaddress(fa)->fa_base;
   if (!fp_validp(TheFpointer(fp))) {
     pushSTACK(fa); validate_fpointer(fp); fa=popSTACK();
@@ -4357,7 +4357,7 @@ LISPFUNN(foreign_library_function,4)
 
 /* Try to make a Foreign-Pointer valid again.
  validate_fpointer(obj); */
-global void validate_fpointer (object obj)
+local inline void validate_fpointer (object obj)
 { /* Can't do anything. */
   check_fpointer(obj,false);
 }
