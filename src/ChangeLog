@@ -1,5 +1,12 @@
 2005-12-16  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: use CL_STAT instead of explicit checks
+	* modules/syscalls/configure.in: ditto
+	* m4/stat.m4 (CL_STAT): renamed from CL_LSTAT;
+	concentrate all sys/stat.h and sys/statvfs.h checks here
+
+2005-12-16  Sam Steingold  <sds@gnu.org>
+
 	* describe.lisp (describe-object@funcallable-standard-object):
 	added the method
 	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>

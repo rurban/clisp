@@ -115,7 +115,7 @@ dnl
 dnl DEFS STDC_HEADERS if exist stdlib.h, stdarg.h, ...
 CL_STDC_HEADERS
 dnl DEFS HAVE_SYS_INTTYPES_H -- needed for stdint.h.in
-AC_CHECK_HEADERS(sys/inttypes.h unistd.h sys/file.h sys/statvfs.h sys/statfs.h)
+AC_CHECK_HEADERS(sys/inttypes.h unistd.h sys/file.h)
 dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
 CL_OFFSETOF
 dnl DEFS HAVE_STDBOOL_H, sets variables STDBOOL_H, HAVE__BOOL
@@ -149,8 +149,6 @@ dnl DEFS SOCKLEN_T
 CL_SOCKLEN_T
 dnl DEFS SIZEOF_OFF_T
 AC_CHECK_SIZEOF([off_t])
-dnl DEFS SIZEOF_INO_T
-AC_CHECK_SIZEOF([ino_t])
 dnl DEFS SIZEOF_STRUCT_TIMEVAL
 AC_CHECK_SIZEOF(struct timeval,,[#include <stdio.h>
 #include <sys/time.h>])
@@ -214,8 +212,7 @@ CL_GETCWD
 dnl DEFS STAT_MACROS_BROKEN
 AC_HEADER_STAT
 AC_HEADER_TIME
-dnl DEFS HAVE_LSTAT
-CL_LSTAT
+CL_STAT dnl DEFS HAVE_LSTAT etc
 dnl DEFS HAVE_READLINK
 CL_READLINK
 dnl DEFS ELOOP_VALUE
