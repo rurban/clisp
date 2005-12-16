@@ -6460,7 +6460,9 @@ global object if_exists_symbol (if_exists_t if_exists) {
 }
 
 /* UP: check that the file we are about to open has not been opened yet
- can trigger gc */
+ > object truename - the name of the file that is being opened
+ > direction_t direction - the direction of the pending OPEN
+ can trigger GC - if CERROR is signaled */
 local maygc void check_file_re_open (object truename, direction_t direction) {
   var object tail = O(open_files);
   var uintB flags;

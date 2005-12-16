@@ -1,3 +1,10 @@
+User visible changes
+--------------------
+
+* Signal a continuable error when an already opened file is opened again,
+  unless both streams are read-only.
+
+
 2.36 (2005-12-04)
 =================
 
@@ -59,6 +66,7 @@ User visible changes
 * ANSI CL compliance issues:
   + DEFPACKAGE options :SHADOWING-IMPORT-FROM, :USE, :IMPORT-FROM
     accept package designators, not just package names.
+  + ENCODE-UNIVERSAL-TIME is now the perfect inverse for DECODE-UNIVERSAL-TIME.
 
 * The command line option -v now affects *LOAD-ECHO* also.
   See <http://clisp.cons.org/clisp.html#opt-v> for details.
