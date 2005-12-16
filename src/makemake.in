@@ -3477,17 +3477,17 @@ fi
 
 if test -n "$GROFF"; then
   echol "clisp.dvi : clisp.1"
-  echotab "\$(ROFF_DVI) clisp.1 > clisp.dvi"
+  echotab "-\$(ROFF_DVI) clisp.1 > clisp.dvi"
   echol
   echol "clisp.ps : clisp.1"
-  echotab "\$(ROFF_PS) clisp.1 > clisp.ps"
+  echotab "-\$(ROFF_PS) clisp.1 > clisp.ps"
   echol
   # Use dvipdf, not ps2pdf, to generate clisp.pdf, because ps2pdf generates
   # bad quality output: It puts an undesired space after "fi", such as in
   # "file".
   if test -n "$DVIPDF"; then
     echol "clisp.pdf : clisp.dvi"
-    echotab "\$(DVIPDF) clisp.dvi clisp.pdf"
+    echotab "-\$(DVIPDF) clisp.dvi clisp.pdf"
     echol
   fi
 fi
