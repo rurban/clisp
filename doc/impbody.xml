@@ -3973,6 +3973,11 @@ functions are provided:
 </para></listitem></varlistentry>
 </variablelist>
 
+<para>When an already opened file is opened again, a &cont-err; is
+ &signal;ed, unless both the existing and the new &stream-t;s are read-only
+ (i.e., &direction-k; is &input-k; or <constant>:INPUT-IMMUTABLE</constant>).
+</para>
+
 </section>
 
 <section id="close"><title>Function &close;</title>
