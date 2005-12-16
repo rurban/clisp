@@ -126,9 +126,7 @@ Return a list of substrings of STRINGS."
                            &body forms)
   "Read from STREAM one line at a time, binding VAR to the split line.
 The line is split with REGEXP-SPLIT using PATTERN."
-  (let ((compiled-pattern (gensym "WLS-")) (line (gensym "WLS-"))
-        (nb (gensym "WLS-")) (ne (gensym "WLS-")) (st (gensym "WLS-"))
-        (be (gensym "WLS-")) (en (gensym "WLS-")))
+  (ext:with-gensyms ("WLS-" compiled-pattern line nb ne st be en)
     `(LOOP
        :WITH ,compiled-pattern =
          (IF (STRINGP ,pattern)
