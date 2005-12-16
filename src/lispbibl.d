@@ -16556,7 +16556,8 @@ extern maygc object decimal_string (object x);
 /* ensure that the Faddress is valid
  < fa: foreign address (not checked!)
  can trigger GC */
-extern maygc inline object check_faddress_valid (object fa);
+extern maygc object check_faddress_valid (object fa);
+/* usd by FOREIGN, MISC */
 
 # Registers a foreign variable.
 # register_foreign_variable(address,name,flags,size);

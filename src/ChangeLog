@@ -1,3 +1,10 @@
+2005-12-16  Dr. Werner Fink  <werner@suse.de>
+	    Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (check_faddress_valid): do not declare inline, g++ 4
+	cannot link global inline on linux
+	* lispbibl.d (check_faddress_valid): ditto
+
 2005-12-15  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (position_file_buffered): when the file is not
