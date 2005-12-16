@@ -34,7 +34,10 @@ T
 T
 
 #+unix (find :rdwr (show (os:stream-options *tmp1* :fl))) #+unix :RDWR
-#+unix (with-open-file (s *tmp1*) (find :rdonly (show (os:stream-options s :fl)))) #+unix :RDONLY
+#+unix (ext:appease-cerrors
+        (with-open-file (s *tmp1*)
+          (find :rdonly (show (os:stream-options s :fl)))))
+#+unix :RDONLY
 #+unix (os:stream-options *tmp1* :fd) NIL
 #+unix (os:stream-options *tmp1* :fd '(:cloexec)) NIL
 #+unix (os:stream-options *tmp1* :fd) #+unix (:cloexec)
