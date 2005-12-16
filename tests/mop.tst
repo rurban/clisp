@@ -3240,7 +3240,7 @@ t
 ERROR
 
 ;; mop.xml#mop-sa-funcallable
-(progn
+(let (constructor)
   (defclass constructor ()
     ((name :initarg :name :accessor constructor-name)
      (fields :initarg :fields :accessor constructor-fields))
@@ -3253,8 +3253,11 @@ ERROR
            (let ((new (make-array (1+ (length fields)))))
              (setf (aref new 0) name)
              new)))))
-  (funcall (make-instance 'constructor :name 'position :fields '(x y))))
-#(POSITION NIL NIL)
+  (setq constructor (make-instance 'constructor :name 'position :fields '(x y)))
+  (list (stringp (with-output-to-string (*standard-output*)
+                   (describe constructor)))
+        (funcall constructor)))
+(T #(POSITION NIL NIL))
 
 ;; cleanup
 (setf (find-class 'class-bad-slot) nil

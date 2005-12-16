@@ -1,3 +1,8 @@
+2005-12-16  Sam Steingold  <sds@gnu.org>
+
+	* mop.tst (constructor): check that funcallable instances can be
+	described
+
 2005-12-15  Sam Steingold  <sds@gnu.org>
 
 	* streamslong.tst: check opening the same file twice
