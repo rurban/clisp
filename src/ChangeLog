@@ -1,5 +1,7 @@
 2005-12-16  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (POSIX::FILE-STAT): use SIZEOF_INO_T to
+	determine how to convert inode number to Lisp
 	* configure.in: use CL_STAT instead of explicit checks
 	* modules/syscalls/configure.in: ditto
 	* m4/stat.m4 (CL_STAT): renamed from CL_LSTAT;
