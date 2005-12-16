@@ -10,7 +10,7 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
 AC_PREREQ(2.57)
 
-AC_DEFUN([CL_LSTAT],
+AC_DEFUN([CL_STAT],
 [dnl Cannot use AC_CHECK_FUNCS(lstat) because Linux defines lstat() as an
 dnl inline function in <sys/stat.h>.
 CL_LINK_CHECK([lstat],cl_cv_func_lstat,[
@@ -18,4 +18,24 @@ CL_LINK_CHECK([lstat],cl_cv_func_lstat,[
 #include <sys/stat.h>
 ], [return lstat("",(struct stat *)0);],
 AC_DEFINE(HAVE_LSTAT,,[have lstat()?]))dnl
+AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/stat.h)
+if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
+ AC_MSG_CHECKING([whether f_fsid is scalar])
+ AC_TRY_COMPILE([#include <sys/statvfs.h>], [struct statvfs x; x.f_fsid = 0;],
+  ac_cv_struct_fsid_scalar=yes, ac_cv_struct_fsid_scalar=no)
+ AC_MSG_RESULT([$]ac_cv_struct_fsid_scalar)
+ if test "$ac_cv_struct_fsid_scalar" = yes; then
+  AC_DEFINE([HAVE_SCALAR_FSID], 1,
+    [Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.])
+ fi
+ AC_CHECK_SIZEOF(fsblkcnt_t,,[#include <stdio.h>
+#include <sys/statvfs.h>])
+ AC_CHECK_SIZEOF(fsfilcnt_t,,[#include <stdio.h>
+#include <sys/statvfs.h>])
+fi
+if test "$ac_cv_header_sys_stat_h" = "yes"; then
+ AC_CHECK_MEMBERS([struct stat.st_rdev, struct stat.st_blksize, struct stat.st_blocks],,,[#include <sys/stat.h>])
+fi
+AC_CHECK_SIZEOF(ino_t)
+AC_CHECK_SIZEOF(dev_t)
 ])
