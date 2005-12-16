@@ -1,5 +1,11 @@
 2005-12-16  Sam Steingold  <sds@gnu.org>
 
+	* describe.lisp (describe-object@funcallable-standard-object):
+	added the method
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
+2005-12-16  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (clisp.dvi, clisp.ps, clisp.pdf): I am sick of telling
 	people to ignore clisp.dvi errors, so now these errors are ignored
 
