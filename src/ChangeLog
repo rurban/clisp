@@ -1,3 +1,17 @@
+2005-12-18  Sam Steingold  <sds@gnu.org>
+
+	base check_file_re_open() on unique file ID, not truenames that
+	can be fooled by hard links
+	* win32.d, unix.d (file_id, with_file_id, errno_t, handle_file_id)
+	(file_id_eq): declare
+	* win32aux.d, unixaux.d (with_file_id, handle_file_id)
+	(file_id_eq): implemented
+	* pathname.d (check_file_re_open): use with_file_id & &find_open_file
+	* stream.d (strm_channel_extrafields_t): added fid field
+	(ChannelStream_file_id): new macro
+	(find_open_file): implemented
+	(make_file_stream): fill ChannelStream_file_id
+
 2005-12-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX::FILE-STAT): use SIZEOF_INO_T to

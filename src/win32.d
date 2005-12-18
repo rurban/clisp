@@ -168,6 +168,20 @@ extern_C char *setlocale (int category, const char *locale);
    extern BOOL GetFileInformationByHandle (HANDLE File, BY_HANDLE_FILE_INFORMATION* FileInformation);
  used by pathname.d, stream.d */
 
+struct file_id {        /* Unique ID for an open file on this machine */
+  DWORD nFileIndexHigh;
+  DWORD nFileIndexLow;
+};
+/* if file NAMESTRING exists, fill file_id and call function on it,
+   otherwise return NULL */
+extern void* with_file_id (char *namestring, void *data,
+                           void* (*func) (struct file_id *fid, void *data));
+/* fill FI for an existing file handle */
+typedef DWORD errno_t;
+extern errno_t handle_file_id (HANDLE fh, struct file_id *fi);
+/* if the file IDs are identical, return 1, otherwise return 0 */
+extern int file_id_eq (struct file_id *fi1, struct file_id *fi2);
+
 /* Delete a file
    extern BOOL DeleteFile (LPCTSTR FileName);
  used by pathname.d */

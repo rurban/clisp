@@ -6463,8 +6463,8 @@ global object if_exists_symbol (if_exists_t if_exists) {
  > object truename - the name of the file that is being opened
  > direction_t direction - the direction of the pending OPEN
  can trigger GC - if CERROR is signaled */
+extern void* find_open_file (struct file_id *fid, void* data);
 local maygc void check_file_re_open (object truename, direction_t direction) {
-  var object tail = O(open_files);
   var uintB flags;
   switch (direction) {
     case DIRECTION_INPUT_IMMUTABLE: case DIRECTION_INPUT:
@@ -6476,15 +6476,12 @@ local maygc void check_file_re_open (object truename, direction_t direction) {
     default: return;            /* PROBE: nothing to check */
   }
   var object bad_stream = nullobj;
-  while (consp(tail)) {
-    var object stream = Car(tail); tail = Cdr(tail);
-    if (TheStream(stream)->strmtype == strmtype_file
-        && TheStream(stream)->strmflags & flags
-        && equal(truename,TheStream(stream)->strm_file_truename)) {
-      bad_stream = stream;
-      break;
-    }
-  }
+  with_string_0(truename,O(pathname_encoding),namez, {
+    begin_system_call();
+    var void *ret = with_file_id(namez,(void*)&flags,&find_open_file);
+    end_system_call();
+    if (ret) bad_stream = popSTACK();
+  });
   if (!eq(bad_stream,nullobj)) { /* found an existing open stream */
     pushSTACK(NIL);              /* 8: continue-format-string */
     pushSTACK(S(file_error));    /* 7: error type */
@@ -6532,7 +6529,7 @@ local maygc object open_file (object filename, direction_t direction,
   /* stack layout: Pathname, Truename.
    check filename and get the handle: */
   pushSTACK(namestring);        /* save */
-  check_file_re_open(STACK_1,direction);
+  check_file_re_open(namestring,direction);
   namestring = popSTACK();      /* restore */
   var object handle;
  {var bool append_flag = false;
