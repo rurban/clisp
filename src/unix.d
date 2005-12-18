@@ -391,6 +391,27 @@ extern_C char* getwd (char* pathname); /* GETWD(3) */
   #define S_ISREG(m)  (((m)&S_IFMT) == S_IFREG)
 #endif
 /* used by PATHNAME, STREAM, SPVW */
+struct file_id {              /* Unique ID for a file on this machine */
+#if defined(SIZEOF_DEV_T)
+  dev_t device;
+#else
+  uintL device;
+#endif
+#if defined(SIZEOF_INO_T)
+  ino_t inode;
+#else
+  uintL inode;
+#endif
+};
+/* if file NAMESTRING exists, fill file_id and call function on it,
+   otherwise return NULL */
+extern void* with_file_id (char *namestring, void *data,
+                           void* (*func) (struct file_id *fid, void*data));
+/* fill FI for an existing file handle */
+typedef int errno_t;
+extern errno_t handle_file_id (int fd, struct file_id *fi);
+/* if the file IDs are identical, return 1, otherwise return 0 */
+extern int file_id_eq (struct file_id *fi1, struct file_id *fi2);
 
 /* unlink() - declared in <unistd.h>; used by PATHNAME, UNIXAUX */
 /* rename() - declared in <stdio.h>; used by PATHNAME, UNIXAUX */

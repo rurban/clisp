@@ -1078,3 +1078,32 @@ global void DumpProcessMemoryMap (void)
   }
   fputs("End of memory dump.\n",stderr);
 }
+
+/* file identification for check_file_re_open() */
+/* if file NAMESTRING exists, fill file_id and call function on it,
+   otherwise return NULL */
+global void* with_file_id (char * namestring, void *data,
+                           void* (*func) (struct file_id *, void *data)) {
+  var HANDLE fh = CreateFile(namestring,0,FILE_SHARE_READ | FILE_SHARE_WRITE,
+                             NULL,OPEN_EXISTING,OPEN_EXISTING,NULL);
+  if (fh == INVALID_HANDLE_VALUE) return NULL;
+  struct file_id fi;
+  var errno_t status = handle_file_id(fh,&fi);
+  var void* ret = status ? NULL : (*func)(&fi,data);
+  CloseHandle(fh);
+  return ret;
+}
+
+/* fill FI for an existing file handle */
+global errno_t handle_file_id (HANDLE fh, struct file_id *fi) {
+  var BY_HANDLE_FILE_INFORMATION info;
+  if (!GetFileInformationByHandle(fh,&info)) return GetLastError();
+  fi->nFileIndexLow = info.nFileIndexLow;
+  fi->nFileIndexHigh = info.nFileIndexHigh;
+  return 0;
+}
+
+/* if the file IDs are identical, return 1, otherwise return 0 */
+global int file_id_eq (struct file_id *fi1, struct file_id *fi2)
+{ return (fi1->nFileIndexLow == fi2->nFileIndexLow)
+    && (fi1->nFileIndexHigh == fi2->nFileIndexHigh); }
