@@ -3810,6 +3810,7 @@ typedef struct strm_channel_extrafields_t {
   void (* low_close) (object stream, object handle, uintB abort);
   # Fields used if the element-type is CHARACTER:
   uintL lineno;                        # line number during read, >0
+  struct file_id fid;                  /* unique file ID */
   #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
   iconv_t iconvdesc;                   # input conversion descriptor and state
   iconv_t oconvdesc;                   # output conversion descriptor and state
@@ -3826,6 +3827,7 @@ typedef struct strm_channel_extrafields_t {
 #define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->bitsize
 #define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_close
 #define ChannelStream_lineno(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->lineno
+#define ChannelStream_file_id(stream)  ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->fid
 #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
 #define ChannelStream_iconvdesc(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->iconvdesc
 #define ChannelStream_oconvdesc(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->oconvdesc
@@ -7668,6 +7670,25 @@ local maygc object add_to_open_streams (object stream) {
   return stream;
 }
 
+/* Find an open file that matches the given file ID
+ > struct file_id fid = file ID to match
+ > uintB* data = open flags to filter
+ < pointer to the stream saved on STACK or NULL
+   i.e., on success, addes 1 element to STACK */
+global void* find_open_file (struct file_id *fid, void* data);
+global void* find_open_file (struct file_id *fid, void* data) {
+  var object tail = O(open_files);
+  var uintB flags = *(uintB*)data;
+  while (consp(tail)) {
+    var object stream = Car(tail); tail = Cdr(tail);
+    if (TheStream(stream)->strmtype == strmtype_file
+        && TheStream(stream)->strmflags & flags
+        && file_id_eq(fid,&ChannelStream_file_id(stream)))
+      return (void*)&(pushSTACK(stream));
+  }
+  return NULL;
+}
+
 # UP: creates a File-Stream
 # make_file_stream(direction,append_flag,handle_fresh)
 # > STACK_5: Filename, a Pathname or NIL
@@ -7702,9 +7723,10 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
   # Stack Layout: filename, truename, buffered, encoding, eltype, handle.
   var object stream;
   var object handle = STACK_0;
+  var Handle file_des = INVALID_HANDLE;
   var bool handle_regular = true;
   if (!nullp(handle))
-    handle_regular = regular_handle_p(TheHandle(handle));
+    handle_regular = regular_handle_p(file_des = TheHandle(handle));
   # Check and canonicalize the :BUFFERED argument:
   # Default is T for regular files, NIL for non-regular files because they
   # probably don't support lseek().
@@ -7733,7 +7755,7 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
     if (READ_P(direction)) # only needed for input handles
       if (!handle_regular) { # regular files are certainly not ttys
         begin_system_call();
-        handle_tty = isatty(TheHandle(handle));
+        handle_tty = isatty(file_des);
         end_system_call();
       }
     stream = make_unbuffered_stream(strmtype_file,direction,&eltype,
@@ -7825,8 +7847,15 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
   }
   skipSTACK(3);
   # extend List of open File-Streams by stream:
-  if (direction != DIRECTION_PROBE)
+  if (direction != DIRECTION_PROBE) {
+    if (handle_regular) { /* init file id */
+      begin_system_call();
+      if (handle_file_id(file_des,&ChannelStream_file_id(stream)))
+        OS_filestream_error(stream);
+      end_system_call();
+    }
     stream = add_to_open_streams(stream);
+  }
   # treat Mode :APPEND:
   # CLHS says that :APPEND implies that "the file pointer is _initially_
   # positioned at the end of the file". Note that this is different from
