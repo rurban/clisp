@@ -7683,8 +7683,10 @@ global void* find_open_file (struct file_id *fid, void* data) {
     var object stream = Car(tail); tail = Cdr(tail);
     if (TheStream(stream)->strmtype == strmtype_file
         && TheStream(stream)->strmflags & flags
-        && file_id_eq(fid,&ChannelStream_file_id(stream)))
-      return (void*)&(pushSTACK(stream));
+        && file_id_eq(fid,&ChannelStream_file_id(stream))) {
+      pushSTACK(stream);
+      return (void*)&STACK_0;
+    }
   }
   return NULL;
 }
