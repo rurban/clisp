@@ -7657,10 +7657,10 @@ local maygc object make_buffered_stream (uintB type, direction_t direction,
   return stream;
 }
 
-# UP: add a stream to the list of open streams O(open_files)
-# add_to_open_streams()
-# <> stream
-# can trigger GC
+/* UP: add a stream to the list of open streams O(open_files)
+ add_to_open_streams()
+ <> stream
+ can trigger GC */
 local maygc object add_to_open_streams (object stream) {
   pushSTACK(stream);
   var object new_cons = allocate_cons();
@@ -7674,7 +7674,7 @@ local maygc object add_to_open_streams (object stream) {
  > struct file_id fid = file ID to match
  > uintB* data = open flags to filter
  < pointer to the stream saved on STACK or NULL
-   i.e., on success, addes 1 element to STACK */
+   i.e., on success, adds 1 element to STACK */
 global void* find_open_file (struct file_id *fid, void* data);
 global void* find_open_file (struct file_id *fid, void* data) {
   var object tail = O(open_files);
@@ -7691,28 +7691,27 @@ global void* find_open_file (struct file_id *fid, void* data) {
   return NULL;
 }
 
-# UP: creates a File-Stream
-# make_file_stream(direction,append_flag,handle_fresh)
-# > STACK_5: Filename, a Pathname or NIL
-# > STACK_4: Truename, a Pathname or NIL
-# > STACK_3: :BUFFERED argument
-# > STACK_2: :EXTERNAL-FORMAT argument
-# > STACK_1: :ELEMENT-TYPE argument
-# > STACK_0: Handle of the opened File
-# > direction: direction_t (see lispbibl.d)
-# > append_flag: true if the Stream is to be positioned to the End at the
-#         first go, else false
-# > handle_fresh: whether the handle is freshly created.
-#                 This means 1. that it is currently positioned at position 0,
-#                 2. if (direction & bit(2)), it is opened for read/write, not
-#                 only for write.
-#                 If the handle refers to a regular file, this together means
-#                 that it supports handle_lseek, reading/repositioning/writing
-#                 and close/reopen.
-# If direction==DIRECTION_IO(5), handle_fresh must be true.
-# < result: File-Stream (or poss. File-Handle-Stream)
-# < STACK: cleaned up
-# can trigger GC
+/* UP: creates a File-Stream
+ make_file_stream(direction,append_flag,handle_fresh)
+ > STACK_5: Filename, a Pathname or NIL
+ > STACK_4: Truename, a Pathname or NIL
+ > STACK_3: :BUFFERED argument
+ > STACK_2: :EXTERNAL-FORMAT argument
+ > STACK_1: :ELEMENT-TYPE argument
+ > STACK_0: Handle of the opened File
+ > direction: direction_t (see lispbibl.d)
+ > append_flag: true if the Stream is to be positioned to the End at the
+         first go, else false
+ > handle_fresh: whether the handle is freshly created.
+         This means 1. that it is currently positioned at position 0,
+                    2. if (direction & bit(2)), it is opened for read/write,
+                       not only for write.
+         If the handle refers to a regular file, this together means that it
+         supports handle_lseek, reading/repositioning/writing and close/reopen.
+   If direction==DIRECTION_IO(5), handle_fresh must be true.
+ < result: File-Stream (or poss. File-Handle-Stream)
+ < STACK: cleaned up
+ can trigger GC */
 global maygc object make_file_stream (direction_t direction, bool append_flag,
                                       bool handle_fresh) {
   var decoded_el_t eltype;
