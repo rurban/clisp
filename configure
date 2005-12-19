@@ -650,7 +650,7 @@ $0: libsigsegv was not detected, thus some features, such as
 cannot be provided.
 Please do this:
 EOF
-    if [ ${CC+set} = set ]; then
+    if [ "${CC+set}" = "set" ]; then
       echo "  CC='$CC'; export CC" 1>&2
     fi
     cat <<EOF 1>&2
