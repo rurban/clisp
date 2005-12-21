@@ -3253,11 +3253,13 @@ if [ $CROSS = false ] ; then
     echol
   fi
 
-  # have CVS ==> developer with a network connection
-  if test -d "${SRCTOPDIR_}CVS"; then
+  # have CVS + developer with a network connection => check id-href.map
+  MYIMPROOT=http://www.podval.org/~sds/clisp/impnotes/
+  if test -d "${SRCTOPDIR_}CVS" && wget -q ${MYIMPROOT}/id-href.map; then
+    rm -f id-href.map
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
     echol "check-doc: lisp${LEXE} lispinit.mem"
-    echotab "\$(RUN) -q -M lispinit.mem -x '(setq *impnotes-root-default* \"http://www.podval.org/~sds/clisp/impnotes/\")' -x '(sys::ensure-impnotes-map t)'"
+    echotab "\$(RUN) -q -M lispinit.mem -x '(setq *impnotes-root-default* \"${MYIMPROOT}\")' -x '(sys::ensure-impnotes-map t)'"
     echol
   fi
 
