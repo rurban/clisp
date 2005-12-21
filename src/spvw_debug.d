@@ -303,7 +303,9 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputs("#<encoding eol=",out); XOUT(TheEncoding(obj)->enc_eol);
     fputs(" wce=",out); XOUT(TheEncoding(obj)->enc_towcs_error);
     fputs(" mbe=",out); XOUT(TheEncoding(obj)->enc_tombs_error);
+   #ifdef UNICODE
     fputs(" cs=",out); XOUT(TheEncoding(obj)->enc_charset);
+   #endif
     fprintf(out," 0x%lx>",as_oint(obj));
   }
   #ifndef TYPECODES
