@@ -1,3 +1,9 @@
+2005-12-21  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: call CL_PROG_MAKE
+	* m4/make.m4: added
+	* makemake.in: benchmarks & --enable-maintainer-mode require GNU make
+
 2005-12-21  Dr. Werner Fink  <werner@suse.de>
 
 	fixed bug #[ 1376646 ]: factorial broken on 64bit cpu
