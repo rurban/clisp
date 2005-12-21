@@ -12,6 +12,7 @@ AC_PREREQ(2.13)
 
 dnl check for MAKE and figure out whether it is GNU make
 AC_DEFUN([CL_PROG_MAKE],[AC_CHECK_PROGS(MAKE,gmake make,make)
+AC_PROG_MAKE_SET
 AC_MSG_CHECKING(for GNU make)
 AC_CACHE_VAL(cl_cv_gnu_make,[
 if eval "${MAKE}"' -v | grep -i gnu 1>&5 2>&5';
