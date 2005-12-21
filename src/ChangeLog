@@ -1,5 +1,9 @@
 2005-12-21  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-doc): explicitly check for the internet connection
+
+2005-12-21  Sam Steingold  <sds@gnu.org>
+
 	* m4/test.m4: use eval to avoid errors
 
 2005-12-21  Sam Steingold  <sds@gnu.org>
