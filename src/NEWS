@@ -7,7 +7,11 @@ User visible changes
 * SOCKET-SERVER now accepts :BACKLOG and :INTERFACE arguments.
   The first (optional) arugument should be the port number or NIL.
   Use (SOCKET-SERVER NIL :INTERFACE SOCKET) instead of (SOCKET-SERVER SOCKET).
+  Thanks to Tomas Zellerin  <zellerin@gmail.com>.
   See <http://clisp.cons.org/impnotes/socket.html#sose> for details.
+
+* Fixed a bug in EXT:! on 64-bit platforms.
+  Thanks to Dr. Werner Fink <werner@suse.de>.
 
 
 2.36 (2005-12-04)
