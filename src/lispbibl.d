@@ -15922,7 +15922,12 @@ extern host_data_t * socket_getpeername (SOCKET socket_handle, host_data_t * hd,
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
 /* Creates a socket to which other processes can connect. */
-extern SOCKET create_server_socket (host_data_t *hd, SOCKET sock, unsigned int port);
+extern SOCKET create_server_socket_by_socket (host_data_t *hd, SOCKET sock,
+                                              unsigned int port, int backlog);
+
+extern SOCKET create_server_socket_by_string (host_data_t *hd,
+                                              const char *interface,
+                                              unsigned int port, int backlog);
 #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)

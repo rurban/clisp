@@ -4,6 +4,11 @@ User visible changes
 * Signal a continuable error when an already opened file is opened again,
   unless both streams are read-only.
 
+* SOCKET-SERVER now accepts :BACKLOG and :INTERFACE arguments.
+  The first (optional) arugument should be the port number or NIL.
+  Use (SOCKET-SERVER NIL :INTERFACE SOCKET) instead of (SOCKET-SERVER SOCKET).
+  See <http://clisp.cons.org/impnotes/socket.html#sose> for details.
+
 
 2.36 (2005-12-04)
 =================
