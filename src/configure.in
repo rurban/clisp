@@ -53,8 +53,8 @@ dnl sets variable DVIPDF
 AC_CHECK_PROG(DVIPDF,dvipdf,dvipdf)
 dnl
 AC_CHECK_PROGS(COMPRESS,gzip zip compress)
-dnl sets variable TEST_NT
-CL_TEST_NT
+CL_TEST_NT dnl sets variable TEST_NT
+CL_PROG_MAKE dnl sets variables MAKE GNU_MAKE
 dnl
 AC_MSG_NOTICE([* checks for system features])
 dnl DEFS _FILE_OFFSET_BITS, _LARGE_FILES

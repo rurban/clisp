@@ -530,6 +530,8 @@ case $# in
      host_cpu='@host_cpu@'               # something like 'sparc'
      host_vendor='@host_vendor@'         # something like 'sun'
      host_os='@host_os@'                 # something like 'sunos4'
+     MAKE='@MAKE@'                       # gmake or make
+     GNU_MAKE='@GNU_MAKE@'               # yes or no
      # Important: Don't rely on this host classification.
      # 1. GNU's database config.guess is not always up to date.
      # 2. New operating systems are emerging at every corner.
@@ -600,6 +602,7 @@ case $# in
      LIBSIGSEGV=''
      X_INCLUDES=''
      X_LIBS=''
+     GNU_MAKE='no'
      shift 2
      ;;
 esac
@@ -2261,6 +2264,11 @@ if [ -z "${enable_maintainer_mode}" ]; then # not supplied
   fi
 fi
 if [ "${enable_maintainer_mode}" = yes ]; then
+  if [ "${GNU_MAKE}" = no ]; then
+    echol 'makemake: --enable-maintainer-mode requires GNU make' >&2
+    echol 'makemake: set ${MAKE} and try again' >&2
+    exit 1
+  fi
   echol "${SRCDIR}configure : ${SRCDIR}configure.in"
   echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
   echol
@@ -3232,9 +3240,9 @@ if [ $CROSS = false ] ; then
   fi
 
   # benchmarks are not included in the source distribution
-  if test -d "${SRCTOPDIR_}benchmarks"; then
+  if [ -d "${SRCTOPDIR_}benchmarks" -a "${GNU_MAKE}" = yes ]; then
     CHECK_DEPS=${CHECK_DEPS}" bench"
-   echol "bench : ${BENCHDIR}"
+    echol "bench : ${BENCHDIR}"
     echotab "CLISP=\"${CLISP_}\"; export CLISP; cd ${BENCHDIR}; \$(MAKE) CLISP=\"\$\$CLISP\" clisp"
     echol
     echol "${BENCHDIR} :"
