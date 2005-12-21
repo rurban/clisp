@@ -201,6 +201,8 @@ s(socket_accept)
 s(socket_connect)
 v(4, (kw(direction),kw(element_type),kw(external_format),kw(buffered)) )
 s(make_stream)
+v(2, (kw(backlog),kw(interface)) )
+s(socket_server)
 #endif
 v(1, (kw(abort)) )
 s(built_in_stream_close)

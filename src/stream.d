@@ -13810,63 +13810,91 @@ LISPFUNN(socket_server_close,1) {
   VALUES1(NIL);
 }
 
-extern SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
-                                    unsigned int port);
+extern SOCKET create_server_socket_by_string
+(host_data_t *hd, const char *interface, unsigned int port, int backlog);
+extern SOCKET create_server_socket_by_socket
+(host_data_t *hd, SOCKET sock, unsigned int port, int backlog);
 
-# (SOCKET-SERVER [port-or-sock])
-LISPFUN(socket_server,seclass_default,0,1,norest,nokey,0,NIL) {
-  var SOCKET sock;        # a hint for create_server_socket
-  var unsigned int port;  # another hint for create_server_socket
-
-  if (missingp(STACK_0)) {
-    sock = INVALID_SOCKET; port = 0; goto doit;
-  }
-  if (uint16_p(STACK_0)) {
-    sock = INVALID_SOCKET; port = I_to_uint16(STACK_0); goto doit;
-  }
-  if (builtin_stream_p(STACK_0)) {
-    var object stream = STACK_0;
-    switch (TheStream(stream)->strmtype) {
+local object test_socket_stream (object obj, bool check_open) {
+  if (builtin_stream_p(obj)) {
+    switch (TheStream(obj)->strmtype) {
       case strmtype_twoway_socket:
-        stream = TheStream(stream)->strm_twoway_socket_input;
+        obj = TheStream(obj)->strm_twoway_socket_input;
         /*FALLTHROUGH*/
       case strmtype_socket:
-        if (TheStream(stream)->strmflags & strmflags_open_B) {
-          sock = SocketChannel(stream);
-          port = 0; goto doit;
+        if (check_open
+            && ((TheStream(obj)->strmflags & strmflags_open_B) == 0)) {
+          pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
+          pushSTACK(S(stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
+          pushSTACK(obj);
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(type_error,
+                 GETTEXT("~S: argument ~S is not an open SOCKET-STREAM"));
         }
-        break;
+        return obj;
       default:
         break;
     }
   }
-  pushSTACK(STACK_0);   # TYPE-ERROR slot DATUM
-  pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(STACK_(0+2));
+  pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(stream));         /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is neither an open SOCKET-STREAM nor a positive FIXNUM"));
+  fehler(type_error,GETTEXT("~S: argument ~S is not a SOCKET-STREAM"));
+}
 
- doit: {
+/* (SOCKET-SERVER &optional port &key backlog interface)
+ * old version (SOCKET-SERVER socket) allowed, but deprecated. */
+LISPFUN(socket_server,seclass_default,0,1,norest,key,2,
+         (kw(backlog),kw(interface)) ) {
+  var unsigned int port=0;              /* port to be used */
+  var int backlog=1;                    /* parameter for listen(2) */
+  var SOCKET sock = INVALID_SOCKET;     /* interface to be bound, as peer */
+  if (!missingp (STACK_1))
+    backlog = I_to_sint32(check_sint32(STACK_1));
+  if (!missingp(STACK_2)) {
+    if (builtin_stream_p(STACK_2)) {
+      pushSTACK(CLSTEXT("WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"));
+      funcall(S(warn),1);
+      stream_handles(test_socket_stream(STACK_2, true), true, NULL,
+                     &sock, NULL);
+    } else /* Leave this last, so that type error talks about integer */
+      port = I_to_uint16(check_uint16(STACK_2));
+  }
+  {
     var SOCKET sk;
     var host_data_t myname;
+    if (!missingp(STACK_0)) {
+      if (builtin_stream_p(STACK_0))
+        stream_handles(test_socket_stream(STACK_0, true), true, NULL,
+                       &sock, NULL);
+      else /* Leave this last, so that type error talks about string */
+        with_string_0(check_string(STACK_0),O(misc_encoding),interfacez, {
+          begin_system_call();
+          sk = create_server_socket_by_string(&myname,interfacez,port,backlog);
+          end_system_call();
+        });
+    }
     begin_system_call();
-    sk = create_server_socket(&myname, sock, port);
+    if (sock != INVALID_SOCKET)
+      sk = create_server_socket_by_socket(&myname, sock, port, backlog);
+    else
+      sk = create_server_socket_by_string(&myname,"127.0.0.1",port,backlog);
     end_system_call();
     if (sk == INVALID_SOCKET) { SOCK_error(); }
-
     pushSTACK(allocate_socket(sk));
     pushSTACK(allocate_socket_server());
     TheSocketServer(STACK_0)->socket_handle = STACK_1;
     TheSocketServer(STACK_0)->port = fixnum(myname.port);
-    {
-      var object host = asciz_to_string(myname.hostname,O(misc_encoding)); # for GC-safety
+    { /* for GC-safety: */
+      var object host = asciz_to_string(myname.hostname,O(misc_encoding));
       TheSocketServer(STACK_0)->host = host;
     }
-    pushSTACK(STACK_0);
+    pushSTACK(STACK_4);
     pushSTACK(L(socket_server_close));
-    funcall(L(finalize),2); # (FINALIZE socket-server #'socket-server-close)
+    funcall(L(finalize),2); /* (FINALIZE socket-server #'socket-server-close) */
     VALUES1(popSTACK());
-    skipSTACK(2);
+    skipSTACK(4);
   }
 }
 
@@ -14057,34 +14085,6 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
                               STACK_4);
   VALUES1(add_to_open_streams(value1));
   skipSTACK(5);
-}
-
-local object test_socket_stream (object obj, bool check_open) {
-  if (builtin_stream_p(obj)) {
-    switch (TheStream(obj)->strmtype) {
-      case strmtype_twoway_socket:
-        obj = TheStream(obj)->strm_twoway_socket_input;
-        /*FALLTHROUGH*/
-      case strmtype_socket:
-        if (check_open
-            && ((TheStream(obj)->strmflags & strmflags_open_B) == 0)) {
-          pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
-          pushSTACK(S(stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
-          pushSTACK(obj);
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(type_error,
-                 GETTEXT("~S: argument ~S is not an open SOCKET-STREAM"));
-        }
-        return obj;
-      default:
-        break;
-    }
-  }
-  pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(stream));         /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not a SOCKET-STREAM"));
 }
 
 /* check whether the object is a handle stream or a socket-server

@@ -4547,8 +4547,8 @@ Compiled, it will have inlined the library function calls.
   cannot be permanently removed from the run-time, and an experienced
   hacker will be able to invoke them even if you &fmakunbound; their names.
  </simpara><simpara>You should limit the socket server to local
-  connections by passing &sose; a local &socket-stream; as the optional
-  argument.</simpara></warning></para>
+  connections by passing string <literal role="data">"127.0.0.1"</literal>
+  as the <keyword>:INTERFACE</keyword> argument.</simpara></warning></para>
 </example>
 
 <example id="socket-ex-client"><title>Lisp &http; client</title>
@@ -4602,14 +4602,23 @@ Compiled, it will have inlined the library function calls.
 
 <section id="socket-api"><title>Socket API Reference</title>
 
-<variablelist>
- <varlistentry id="sose"><term><code>(&sose; &optional-amp;
-                 [<replaceable>port-or-socket</replaceable>])</code></term>
+ <variablelist>
+  <varlistentry id="sose"><term><code>(&sose; &optional-amp; &port-r;
+     &key-amp; <constant>:INTERFACE</constant>
+     <constant>:BACKLOG</constant>)</code></term>
   <listitem><simpara>This function creates a socket an binds a port to
     the socket.  The server exists to watch for client connect attempts.
-    The optional argument is either a port (positive &fixnum-t;) or a
-    &socket-stream; (from whose peer the connections will be made).
- </simpara></listitem></varlistentry>
+    The optional argument is the port to use (non-negative &fixnum-t;).
+    The <constant>:BACKLOG</constant> parameter defines maximum length
+    of queue of pending connections (see
+    <function role="unix">listen</function>) and defaults to 1.
+    The <constant>:INTERFACE</constant> is either a &string-t;,
+    interpreted as the IP address that will be bound, or a socket, from
+    whose peer the connections will be made.
+    Default is (for backward compatibility) to bind to all local
+    interfaces, but for security reasons it is advisable to bind to
+    loopback <literal role="data">"127.0.0.1"</literal> if you need only
+    local connections.</simpara></listitem></varlistentry>
  <varlistentry id="sose-close"><term><code>(&sose-close; &sose-r;)</code></term>
   <listitem><simpara>Closes down the server socket.
     <link linkend="close">Just like streams</link>,

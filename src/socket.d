@@ -840,17 +840,19 @@ global host_data_t * socket_getpeername (SOCKET socket_handle,
 }
 
 /* Creation of sockets on the server side:
- SOCKET socket_handle = create_server_socket (&host_data, sock, port);
-   creates a socket to which other processes can connect.
+ SOCKET socket_handle = create_server_socket_by_socket (&host_data, sock,
+                                                        port, backlog);
+ SOCKET socket_handle = create_server_socket_by_string (&host_data, interface,
+                                                        port, backlog);
+   both create a socket to which other processes can connect, one based on a
+   existing socket, the other based on interface string (e.g., "0.0.0.0").
  SOCKET fd = accept_connection(socket_handle);
    waits for a connection to another process.
    This can (and should) be done multiple times for the same
    socket_handle. */
-
 local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
-                                void* ignore) {
+                                void* backlog) {
   var SOCKET fd;
-  (void)(ignore); /* no options -- ignore */
   /* Get a socket. */
   if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
     return INVALID_SOCKET;
@@ -868,36 +870,48 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
   /* Bind it to the desired port. */
   if (bind(fd, addr, addrlen) >= 0)
     /* Start listening for client connections. */
-    if (listen(fd, 1) >= 0)
+    if (listen(fd, *(int *)backlog) >= 0)
       return fd;
   saving_sock_errno(CLOSESOCKET(fd));
   return INVALID_SOCKET;
 }
 
-global SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
-                                    unsigned int port) {
+global SOCKET create_server_socket_by_string (host_data_t *hd,
+                                              const char *interface,
+                                              unsigned int port,
+                                              int backlog) {
   var SOCKET fd;
-  if (sock == INVALID_SOCKET) {
-    /* "0.0.0.0" allows connections from any host to our server */
-    fd = with_host_port("0.0.0.0",(unsigned short)port,&bindlisten_via_ip,NULL);
-  } else {
-    var sockaddr_max_t addr;
-    var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
-    if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
-      return INVALID_SOCKET;
-    switch (((struct sockaddr *)&addr)->sa_family) {
-     #ifdef HAVE_IPV6
-      case AF_INET6:
-        addr.inaddr6.sin6_port = htons(0);
-        break;
-     #endif
-      case AF_INET:
-        addr.inaddr.sin_port = htons(0);
-        break;
-      default: NOTREACHED;
-    }
-    fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen,NULL);
+  fd = with_host_port(interface,(unsigned short)port,&bindlisten_via_ip,
+                        &backlog);
+  if (fd == INVALID_SOCKET)
+    return INVALID_SOCKET;
+  /* Retrieve the assigned port. */
+  if (socket_getlocalname_aux(fd,hd) != NULL)
+    return fd;
+  saving_sock_errno(CLOSESOCKET(fd));
+  return INVALID_SOCKET;
+}
+
+global SOCKET create_server_socket_by_socket (host_data_t *hd, SOCKET sock,
+                                    unsigned int port, int backlog) {
+  var SOCKET fd;
+  var sockaddr_max_t addr;
+  var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
+    return INVALID_SOCKET;
+  switch (((struct sockaddr *)&addr)->sa_family) {
+#ifdef HAVE_IPV6
+    case AF_INET6:
+      addr.inaddr6.sin6_port = htons(port);
+      break;
+#endif
+    case AF_INET:
+      addr.inaddr.sin_port = htons(port);
+      break;
+    default: NOTREACHED;
   }
+  fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen,&backlog);
+/* common part */
   if (fd == INVALID_SOCKET)
     return INVALID_SOCKET;
   /* Retrieve the assigned port. */

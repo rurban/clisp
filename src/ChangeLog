@@ -1,3 +1,12 @@
+2005-12-19  Tomas Zellerin  <zellerin@gmail.com>
+
+	* constsym.d: new keywords :INTERFACE, :BACKLOG
+	* lispbibl.d, socket.d: create_server_socket split to
+	create_server_socket_by_string and create_server_socket_by_socket
+	* socket.d (bindlisten_via_ip): accept pointer to backlog
+	* stream.d (SOCKET-SERVER): accept keywords :INTERFACE :BACKLOG
+	* subr.d, subrkw.d (SOCKET-SERVER): changed signature
+
 2005-12-19  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (find_open_file): fix compilation with gcc4

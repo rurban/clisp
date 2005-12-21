@@ -1317,6 +1317,8 @@ LISPSYM(Klow,"LOW",keyword)
 #endif
 #ifdef SOCKET_STREAMS
 LISPSYM(Ktimeout,"TIMEOUT",keyword)
+LISPSYM(Kinterface,"INTERFACE",keyword)
+LISPSYM(Kbacklog,"BACKLOG",keyword)
 LISPSYM(Kso_debug,"SO-DEBUG",keyword)
 LISPSYM(Kso_acceptconn,"SO-ACCEPTCONN",keyword)
 LISPSYM(Kso_broadcast,"SO-BROADCAST",keyword)
