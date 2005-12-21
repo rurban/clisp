@@ -1187,7 +1187,8 @@ LISPFUNN(write_n_bytes,4)
 #endif
 #ifdef SOCKET_STREAMS
 LISPFUNN(socket_server_close,1)
-LISPFUN(socket_server,seclass_default,0,1,norest,nokey,0,NIL)
+LISPFUN(socket_server,seclass_default,0,1,norest,key,2,
+        (kw(backlog),kw(interface)) )
 LISPFUNN(socket_server_port,1)
 LISPFUNN(socket_server_host,1)
 LISPFUN(socket_accept,seclass_default,1,0,norest,key,4,
