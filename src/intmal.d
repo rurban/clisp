@@ -921,7 +921,7 @@
       #endif
       };
     var uintV n_ = posfixnum_to_V(n);
-    if (n_ < sizeof(fakul_table)/sizeof(uintL)) {
+    if (n_ < sizeof(fakul_table)/sizeof(uintV)) {
       return fixnum(fakul_table[n_]);
     } else {
       pushSTACK(Fixnum_1); # bisheriges Produkt := 1

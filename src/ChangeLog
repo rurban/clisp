@@ -1,3 +1,8 @@
+2005-12-21  Dr. Werner Fink  <werner@suse.de>
+
+	fixed bug #[ 1376646 ]: factorial broken on 64bit cpu
+	* intmal.d (FN_fak_I): uintL is not uintV on 64-bit platforms
+
 2005-12-19  Tomas Zellerin  <zellerin@gmail.com>
 
 	* constsym.d: new keywords :INTERFACE, :BACKLOG
