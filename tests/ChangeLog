@@ -1,3 +1,7 @@
+2005-12-22  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst: sint64+uint64 testcases. Let's hear about the bugs
+
 2005-12-16  Sam Steingold  <sds@gnu.org>
 
 	* mop.tst (constructor): check that funcallable instances can be
