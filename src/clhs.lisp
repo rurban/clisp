@@ -87,10 +87,10 @@ The keyword argument REPEAT specifies how many objects to read:
 
 ;;; see also clocc/cllib/net.lisp
 (defvar *http-proxy* nil
-  "A list of 3 elements (user:password host port), parsed from $HTTP_PROXY
+  "A list of 3 elements (user:password host port), parsed from $http_proxy
 proxy-user:proxy-password@proxy-host:proxy-port")
 (defconstant *http-port* 80)
-(defun http-proxy (&optional (proxy-string (getenv "HTTP_PROXY") proxy-p))
+(defun http-proxy (&optional (proxy-string (getenv "http_proxy") proxy-p))
   "When the argument is supplied or *HTTP-PROXY* is NIL, parse the argument,
 set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   (when (or proxy-p (and (null *http-proxy*) proxy-string))
