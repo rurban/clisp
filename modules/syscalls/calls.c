@@ -325,7 +325,7 @@ DEFUN(POSIX::%SYSLOG, severity facility message) {
     check_syslog_severity(STACK_2) | check_syslog_facility(STACK_1);
   with_string_0(STACK_0 = check_string(STACK_0),GLO(misc_encoding),mesg, {
       begin_system_call();
-      syslog(priority,mesg);
+      syslog(priority,"%s",mesg);
       end_system_call();
     });
   VALUES0; skipSTACK(3);
