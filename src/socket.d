@@ -877,12 +877,11 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
 }
 
 global SOCKET create_server_socket_by_string (host_data_t *hd,
-                                              const char *interface,
+                                              const char *ip_interface,
                                               unsigned int port,
                                               int backlog) {
-  var SOCKET fd;
-  fd = with_host_port(interface,(unsigned short)port,&bindlisten_via_ip,
-                        &backlog);
+  var SOCKET fd = with_host_port(ip_interface,(unsigned short)port,
+                                 &bindlisten_via_ip,&backlog);
   if (fd == INVALID_SOCKET)
     return INVALID_SOCKET;
   /* Retrieve the assigned port. */
