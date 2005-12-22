@@ -116,7 +116,7 @@ ERROR
 
 (with-foreign-object (x 'single-float)
   (list (setf (memory-as x 'single-float) -28.23f-15)
-	(foreign-value x)))
+        (foreign-value x)))
 (-28.23f-15 -28.23f-15)
 
 (with-c-var (p '(c-ptr sint32) -823498)
@@ -133,7 +133,7 @@ nil
 (with-foreign-object (p '(c-ptr sint16))
   (with-foreign-object (i 'sint16 -32765)
     (list (eq (setf (memory-as p 'c-pointer) i) i)
-	  (foreign-value p))))
+          (foreign-value p))))
 (t -32765)
 
 (progn
@@ -645,6 +645,49 @@ FOREIGN-FUNCTION
 
 (funcall fpcallback -7.5d0)
 ERROR
+
+(with-c-var (x 'sint64) x)
+0
+
+(with-c-var (x 'sint64 #x1111111111111111) t)
+t
+
+(with-c-var (x 'uint64 #x1111111111111111) (offset x 0 'uint32))
+#x11111111
+(with-c-var (x 'uint64 #x2222222222222222) (offset x 4 'uint32))
+#x22222222
+
+(with-c-var (f '(c-function (:return-type uint64) (:language :stdc))
+               #'(lambda () #xAAAABBBB77773333))
+  ;; TODO? foreign-free such callbacks
+  (funcall f))
+#xAAAABBBB77773333
+
+(progn
+ (def-call-out c-self (:name "ffi_identity")
+   (:arguments (p (c-ptr-null sint64)))
+   (:return-type (c-ptr sint64)) (:language :stdc))
+ (c-self -1311768467284833366))
+-1311768467284833366
+
+(with-c-var (f '(c-function (:arguments (n sint64))
+                            (:return-type uint64) (:language :stdc))
+               #'(lambda (x) (- x)))
+  ;; TODO? foreign-free such callbacks
+  (funcall f #x-43219876fedcba98))
+#x43219876fedcba98
+
+(with-c-var (s '(c-struct list (c character) (d sint64))
+               '(#\a -7378753924192827255))
+            s)
+(#\a -7378753924192827255)
+
+(progn
+ (def-call-out c-self (:name "ffi_identity")
+   (:arguments (p sint64))
+   (:return-type nil) (:language :stdc))
+ (multiple-value-list (c-self -1311768467284833366)))
+nil
 
 (def-call-out foreign-as-string (:name "ffi_identity")
   (:arguments (obj c-pointer))
