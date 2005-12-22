@@ -13811,7 +13811,7 @@ LISPFUNN(socket_server_close,1) {
 }
 
 extern SOCKET create_server_socket_by_string
-(host_data_t *hd, const char *interface, unsigned int port, int backlog);
+(host_data_t *hd, const char *ip_interface, unsigned int port, int backlog);
 extern SOCKET create_server_socket_by_socket
 (host_data_t *hd, SOCKET sock, unsigned int port, int backlog);
 
