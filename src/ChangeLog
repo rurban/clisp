@@ -2,6 +2,10 @@
 
 	* lispbibl.d, socket.d, stream.d: "interface" is a win32 keyword
 
+2005-12-21  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* clhs.lisp (http-proxy): downcase environment variable http_proxy
+
 2005-12-21  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-doc): explicitly check for the internet connection
