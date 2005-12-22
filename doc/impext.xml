@@ -1655,14 +1655,14 @@ additionally binds &cont-r; to the content length.</para>
 <section id="http-proxy"><title>Variable &http-proxy;</title>
 <para>If you are behind a proxy server, you will need to set &http-proxy; to
  a &list-t; <literal role="data">(name:password host port)</literal>.
- By default, the &env-var; <envar>HTTP_PROXY</envar> is used, the
+ By default, the &env-var; <envar>http_proxy</envar> is used, the
  expected format is <literal role="data">"name:password@host:port"</literal>.
  If no <literal role="data">#\@</literal> is present,
  &name-r; and &pass-r; are &nil;.
  If no <literal role="data">#\:</literal> is present,
  &pass-r; (or &port-r;) are &nil;.</para>
 <para>Use function <code>(EXT:HTTP-PROXY &optional-amp; (&string-t;
-  (&getenv; "HTTP_PROXY")))</code> to reset &http-proxy;.</para></section>
+  (&getenv; "http_proxy")))</code> to reset &http-proxy;.</para></section>
 </section>
 
 <section id="customize"><title>Customizing &clisp; behavior</title>
