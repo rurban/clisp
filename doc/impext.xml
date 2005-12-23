@@ -2066,15 +2066,14 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   image was saved.  It can be used to create Lisp objects,
   e.g. functions or keywords, and is indeed used for that purpose by
   &modprep;.</simpara>
- <simpara>You do &not-e; have to defined this function yourself;
-  &modprep; and &ffi-pac; will do that for you.  If you do define this
-  function yourself, &modprep; will add whatever it needs to it.</simpara>
+ <simpara>You do &not-e; have to define this function yourself;
+  &modprep; and &ffi-pac; will do that for you.</simpara>
  <simpara>If you use &ffi-pac;, <code>(&c-lines; :init-once ...)</code>
   will add code to this function.</simpara>
  <warning><simpara>The &package-t;s must already exist and be unlocked,
    cf. &mod-preload;.</simpara></warning>
- <warning><simpara>If you are using &modprep; &and-e;
-   defining your own <quote>init-once</quote> function, it must call the
+ <warning><simpara>If you are using &modprep; &and-e; defining your
+   own <quote>init-once</quote> function, it must call the
    <function>module__&name-r;__init_function_1__modprep</function>
    function!</simpara></warning></listitem></varlistentry>
 <varlistentry><term>void <function>module__&name-r;__init_function_2</function>
