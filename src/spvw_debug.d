@@ -452,5 +452,6 @@ FUN(object,object,Car)
 FUN(object,object,Cdr)
 FUN(object,Symbol,TheSymbol)
 FUN(object,Hashtable,TheHashtable)
+FUN(object,Dfloat,TheDfloat)
 #undef FUN
 #endif
