@@ -434,7 +434,8 @@ static object temp_name (char *dir, char *prefix) {
   return asciz_to_string(path,GLO(pathname_encoding));
 }
 #endif
-DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT ELEMENT-TYPE) {
+DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT \
+      ELEMENT-TYPE) {
 #if defined(HAVE_MKSTEMP)
   /* http://www.opengroup.org/onlinepubs/009695399/functions/mkstemp.html */
   object fname = physical_namestring(STACK_4);
@@ -1067,28 +1068,31 @@ static /* maygc */ inline rlim_t I_to_rlim (object lim)
 #if defined(HAVE_GETRLIMIT)
 DEFUN(POSIX::RLIMIT, &optional what)
 { /* getrlimit(3) */
-#define RLIM(what)                                                      \
-  begin_system_call();                                                  \
-  if (getrlimit(what,&rl)) OS_error();                                  \
-  end_system_call();                                                    \
-  pushSTACK(rlim_to_I(rl.rlim_cur)); pushSTACK(rlim_to_I(rl.rlim_max))
-
   struct rlimit rl;
   object what = popSTACK();
   if (!missingp(what)) {
     int cmd = getrlimit_arg(what);
-    RLIM(cmd);
-    funcall(L(values),2);
+    begin_system_call();
+    if (getrlimit(cmd,&rl)) OS_error();
+    end_system_call();
+    pushSTACK(rlim_to_I(rl.rlim_cur)); pushSTACK(rlim_to_I(rl.rlim_max));
+    VALUES2(STACK_1,STACK_0); skipSTACK(2);
   } else {
     unsigned int pos;
     for (pos = 0; pos < getrlimit_arg_map.size; pos++) {
+      int status;
       pushSTACK(*getrlimit_arg_map.table[pos].l_const);
-      RLIM(getrlimit_arg_map.table[pos].c_const);
-      funcall(`POSIX::MAKE-RLIMIT`,2); pushSTACK(value1);
+      begin_system_call();
+      status = getrlimit(getrlimit_arg_map.table[pos].c_const,&rl);
+      end_system_call();
+      if (status) pushSTACK(S(Kerror));
+      else {
+        pushSTACK(rlim_to_I(rl.rlim_cur)); pushSTACK(rlim_to_I(rl.rlim_max));
+        funcall(`POSIX::MAKE-RLIMIT`,2); pushSTACK(value1);
+      }
     }
     VALUES1(listof(2*getrlimit_arg_map.size));
   }
-#undef RLIM
 }
 #endif /* HAVE_GETRLIMIT */
 #if defined(HAVE_SETRLIMIT)
