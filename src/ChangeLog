@@ -1,16 +1,11 @@
 2005-12-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (RLIMIT): never signal an error when
-	what is missing an the alist is returned
+	"what" is missing and the alist is returned
 
 2005-12-22  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d, socket.d, stream.d: "interface" is a win32 keyword
-
-2005-12-22  Jörg Höhle  <hoehle@users.sourceforge.net>
-
-	* modules/syscalls/calls.c (syslog): remove typical stack overflow
-	vulnerability. syslog() is varargs. Must use syslog("%s",string)
 
 2005-12-21  Jörg Höhle  <hoehle@users.sourceforge.net>
 
