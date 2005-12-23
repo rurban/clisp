@@ -1658,7 +1658,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
       case a_minus:
         attrptr++; index++; # skip sign of the exponent
       default:
-            break;
+        break;
     }
     for (; index<len; index++) { /* next character in exponent: */
       # from now on only digits are allowed:
