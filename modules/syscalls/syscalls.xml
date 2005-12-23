@@ -510,8 +510,13 @@
  <varlistentry id="syslog"><term><code>(POSIX:SYSLOG severity facility
     &fmt-r; &rest-amp; &args-r;)</code></term>
   <listitem><simpara>calls <function role="unix">syslog</function> on
-    <code>(&apply; &format; &nil; &fmt-r; &args-r;)</code>
- </simpara></listitem></varlistentry>
+    <code>(&apply; &format; &nil; &fmt-r; &args-r;)</code></simpara>
+   <warning><simpara>You can use the <literal role="data">%m</literal>
+     conversion specification which is converted to the
+     <varname role="unix">errno</varname> value, but you must quote all
+     other <literal>%</literal> characters: <code>(syslog :alert :user
+      "User Alert: errno=%m (~5f%% done)" progress)</code>
+ </simpara></warning></listitem></varlistentry>
  <varlistentry id="closelog"><term><code>(POSIX:CLOSELOG)</code></term>
   <listitem><simpara>calls <function role="unix">closelog</function>
  </simpara></listitem></varlistentry>
