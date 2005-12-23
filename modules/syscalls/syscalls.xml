@@ -223,7 +223,7 @@
  <varlistentry id="rlimit"><term><code>(&rlimit;
     &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the current and the maximal limits as two
-    values when &what-r; is specified or a &alist; of all available
+    values when &what-r; is specified or the &alist; of all available
     limits (as an <type>RLIMIT</type> structure) when &what-r; is
     missing or &nil;, by calling <function role="unix">getrlimit</function>.
  </simpara></listitem></varlistentry>
