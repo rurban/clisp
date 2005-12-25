@@ -1,3 +1,8 @@
+2005-12-25  Sam Steingold  <sds@gnu.org>
+
+	* alltest.tst: disabled the lambda-parameters-limit test on win32/g++
+	as a work-around for bug 1390134
+
 2005-12-22  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst: test EXT:!
