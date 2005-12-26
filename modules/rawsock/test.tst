@@ -91,8 +91,7 @@ T
 
 (ext:socket-status (list (cons *sock* :input))) (:INPUT)
 
-(or (null (fboundp 'rawsock:sockatmark))
-    (zerop (rawsock:sockatmark *sock*))) T
+(and (fboundp 'rawsock:sockatmark) (rawsock:sockatmark *sock*)) NIL
 
 (let ((size (rawsock:recv *sock* *buffer*)))
   (show (setq *recv-ret* (list size (from-bytes *buffer* size))))
