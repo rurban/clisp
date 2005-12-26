@@ -91,8 +91,6 @@ T
 
 (ext:socket-status (list (cons *sock* :input))) (:INPUT)
 
-(and (fboundp 'rawsock:sockatmark) (rawsock:sockatmark *sock*)) NIL
-
 (let ((size (rawsock:recv *sock* *buffer*)))
   (show (setq *recv-ret* (list size (from-bytes *buffer* size))))
   (ext:socket-status *sock*))
@@ -237,27 +235,36 @@ NIL
 ;; message
 (when (and (fboundp 'rawsock:sendmsg) (fboundp 'rawsock:recvmsg))
   (let* ((message '("man" "bites" "dog"))
+         (len (reduce #'+ message :key #'length))
          (message1
-          (show (rawsock:make-message :addr *sa-local*
-                                      :iovec (map 'vector #'to-bytes message))
-                :pretty t))
+          (rawsock:make-message :addr *sa-local*
+                                :iovec (map 'vector #'to-bytes message)))
          (message2
-          (show (rawsock:make-message :addr (rawsock:make-sockaddr :inet)
-                                      :iovec (map 'vector #'make-byte-vector
-                                                  message))
-                :pretty t)))
-    (assert (= 11 (rawsock:sendmsg *sock1* message1)))
-    (assert (= 11 (rawsock:recvmsg *sock2* message2)))
-    (show (list message1 message2) :pretty t)
+          (rawsock:make-message :addr (rawsock:make-sockaddr :inet)
+                                :iovec (map 'vector #'make-byte-vector
+                                            message))))
+    (show (list :before message1 message2) :pretty t)
+    ;; new connectionless-mode sockets
+    (setq *sock1* (rawsock:socket :INET :DGRAM nil)
+          *sock2* (rawsock:socket :INET :DGRAM nil))
+    (rawsock:bind *sock2* *sa-local*)
+    (assert (= len (rawsock:sendmsg *sock1* message1)))
+    (assert (= len (rawsock:recvmsg *sock2* message2)))
+    (show (list :after message1 message2) :pretty t)
     (assert (equalp (rawsock:message-iovec message1)
                     (rawsock:message-iovec message2)))
     (when (fboundp 'rawsock:getnameinfo)
-      (show (list (multiple-value-list
+      (show (list 'rawsock:getnameinfo 
+                  (multiple-value-list
                    (rawsock:getnameinfo (rawsock:message-addr message1)))
                   (multiple-value-list
-                   (rawsock:getnameinfo (rawsock:message-addr message2)))))))
-  (rawsock:sock-close *sock1*) (rawsock:sock-close *sock2*)
-  (rawsock:sock-close *sock*)
+                   (rawsock:getnameinfo (rawsock:message-addr message2))))))
+    ;; I get "(EFAULT): Bad address" on Linux 2.6.14-1.1637_FC4
+    ;; (when (fboundp 'rawsock:sockatmark) 
+    ;;   (show (list 'rawsock:sockatmark 
+    ;;               (rawsock:sockatmark *sock1*)
+    ;;               (rawsock:sockatmark *sock2*))))
+    (rawsock:sock-close *sock1*) (rawsock:sock-close *sock2*))
   nil)
 NIL
 
