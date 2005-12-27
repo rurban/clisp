@@ -4384,7 +4384,7 @@ AC_DEFUN([CL_PROG_MAKE],[AC_CHECK_PROGS(MAKE,gmake make,make)
 AC_PROG_MAKE_SET
 AC_MSG_CHECKING(for GNU make)
 AC_CACHE_VAL(cl_cv_gnu_make,[
-if eval "${MAKE}"' -v | grep -i gnu 1>&5 2>&5';
+if eval "${MAKE}"' -v 2>&5 | grep -i gnu 1>&5 2>&5';
 then cl_cv_gnu_make=yes
 else cl_cv_gnu_make=no
 fi

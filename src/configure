@@ -4349,7 +4349,7 @@ if test "${cl_cv_gnu_make+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
-if eval "${MAKE}"' -v | grep -i gnu 1>&5 2>&5';
+if eval "${MAKE}"' -v 2>&5 | grep -i gnu 1>&5 2>&5';
 then cl_cv_gnu_make=yes
 else cl_cv_gnu_make=no
 fi
