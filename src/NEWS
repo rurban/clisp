@@ -7,11 +7,16 @@ User visible changes
 * SOCKET-SERVER now accepts :BACKLOG and :INTERFACE arguments.
   The first (optional) arugument should be the port number or NIL.
   Use (SOCKET-SERVER NIL :INTERFACE SOCKET) instead of (SOCKET-SERVER SOCKET).
-  Thanks to Tomas Zellerin  <zellerin@gmail.com>.
+  Thanks to Tomas Zellerin <zellerin@gmail.com>.
   See <http://clisp.cons.org/impnotes/socket.html#sose> for details.
 
 * EXT:HTTP-PROXY now uses the environment variable "http_proxy", not
   "HTTP_PROXY", like curl does, to avoid confusing it with CGI arguments.
+
+* OPEN :DIRECTION :OUTPUT now creates write-only handles and treats
+  named pipes correctly.
+
+* Fixed EXT:SETENV on non-POSIX systems (woe32 and BSD derivatives).
 
 * Fixed a bug in EXT:! on 64-bit platforms.
   Thanks to Dr. Werner Fink <werner@suse.de>.
