@@ -1,3 +1,7 @@
+2005-12-27  Sam Steingold  <sds@gnu.org>
+
+	* m4/make.m4 (cl_cv_gnu_make): send make error output to 5
+
 2005-12-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (RLIMIT): never signal an error when
