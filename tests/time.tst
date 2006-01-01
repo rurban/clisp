@@ -76,6 +76,11 @@ NIL
                      bad total (/ bad total 1d-2))))
 NIL
 
+;; crash on woe32 in localtime
+(- (encode-universal-time 12 34 21 23 12 2208)
+   (encode-universal-time 12 34 20 23 12 2208))
+3600
+
 ;; clean up
 (unintern 'time-loop) T
 (unintern 'check-universal-time) T

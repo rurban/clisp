@@ -1,5 +1,10 @@
 2006-01-01  Sam Steingold  <sds@gnu.org>
 
+	* time.d (DEFAULT-TIME-ZONE) [WIN32]: decrease time_max by 24 so that
+	the second call to seconds_west() will receive an acceptable argument
+
+2006-01-01  Sam Steingold  <sds@gnu.org>
+
 	* configure: replaced --list-modules with --help-modules
 	and print more information
 

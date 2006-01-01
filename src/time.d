@@ -1,7 +1,7 @@
 /*
  * Time measuring functions for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2006
  */
 
 #include "lispbibl.c"
@@ -647,19 +647,19 @@ LISPFUNNR(default_time_zone,2)
   var object arg = check_integer(popSTACK());
   var time_t now;
  #ifdef WIN32
-  const uintL time_max = 1210131; /* Win32 crashes for values greater than that */
+  const uintL time_max = 1210107; /* Win32 crashes for greater values */
  #else
   const uintL time_max = 1314888; /* 1.1.2050, quite arbitrary */
  #endif
   if (posfixnump(arg)
       && (posfixnum_to_V(arg) >= 613608)   /* arg >= 1.1.1970 */
       && (posfixnum_to_V(arg) <= time_max)) { /* arg < time_max */
-    now = (uintL)(posfixnum_to_V(arg) - 613608) * 3600;
+    now = (time_t)(posfixnum_to_V(arg) - 613608) * 3600;
   } else if (R_minusp(arg)
-               || (posfixnump(arg) && (posfixnum_to_V(arg) < 613608))) {
+             || (posfixnump(arg) && (posfixnum_to_V(arg) < 613608))) {
     now = 0;                /* < 1.1.1970 -> treat like 1.1.1970 */
   } else {
-    now = (uintL)(time_max - 613608) * 3600; /* > max -> treat like max */
+    now = (time_t)(time_max - 613608) * 3600; /* > max -> treat like max */
   }
   var int isdst;
   var sintL secondswest = seconds_west(&now,&isdst);
