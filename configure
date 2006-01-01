@@ -68,7 +68,8 @@ options: The following options are recognized:
   --with-module=MODULE  build with add-on MODULE
                         some modules require dynamic FFI,
                         so FFI will be turned on if its checks pass
-  --list-modules        list the modules included in the distribution
+  --help-modules        list the modules included in the distribution
+                        and information on building them
   --hyperspec=URL       the path to the Common Lisp HyperSpec
                         (the default is http://www.lisp.org/HyperSpec/ or the
                         value of the environment variable CLHSROOT, if set)
@@ -90,6 +91,10 @@ Specifying the C compiler:
         setenv CC "gcc -ansi"                 if using csh
         export CC="gcc -ansi"                 if using bash or ksh
         CC="gcc -ansi"; export CC             if using sh
+If you have headers in a nonstandard directory <include dir>
+  set CPPFLAGS to "-I<include dir>"
+If you have libraries in a nonstandard directory <lib dir>
+  set LDFLAGS to "-L<lib dir>"
 Using GNU libiconv (only needed if you do not have GNU LIBC 2.2 or better):
   If you want to use GNU libiconv which is not installed system-wide,
   you may supply a --with-libiconv-prefix argument
@@ -166,10 +171,21 @@ do
         ./src/configure --version
         exit 0 ;;
 
-      --list-modules | --list-module | --list-modul | --list-modu | --list-mod | --list-mo | --list-m | --list- | --list | --lis)
-        cd modules;
-        echo "module sets found in the directory 'modules':"
-        find . -name link.sh -o -name link.sh.in | sed -e 's,^\./,  ,' -e 's,/[^/]*$,,'
+      --help-modules | --help-module | --help-modul | --help-modu | --help-mod | --help-mo | --help-m)
+        set +e
+        MODDIR=modules
+        echo "module sets found in the directory '${MODDIR}':"
+        MODLIST=`find ${MODDIR} -name link.sh -o -name link.sh.in | sed -e 's,^${MODDIR}/,,' -e 's,/[^/]*$,,'`
+        for m in ${MODLIST}; do echo " "${m}; done
+        echo "to specify the location of the external software:"
+        for m in src ${MODLIST}; do
+          CFG=./${m}/configure
+          if [ -x ${CFG} ]; then
+            echo " "${m}:
+            ${CFG} --help | grep '  --with-[a-zA-Z0-8]*-prefix'
+            echo "  run '${CFG} --help' for more information"
+          fi
+        done
         exit 0 ;;
 
       --srcdir=* | --srcdi=* | --srcd=* | --src=* | --sr=*)
