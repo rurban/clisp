@@ -4547,7 +4547,7 @@ Compiled, it will have inlined the library function calls.
   hacker will be able to invoke them even if you &fmakunbound; their names.
  </simpara><simpara>You should limit the socket server to local
   connections by passing string <literal role="data">"127.0.0.1"</literal>
-  as the <keyword>:INTERFACE</keyword> argument.</simpara></warning></para>
+  as the <constant>:INTERFACE</constant> argument.</simpara></warning></para>
 </example>
 
 <example id="socket-ex-client"><title>Lisp &http; client</title>
