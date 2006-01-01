@@ -731,6 +731,8 @@
 ;; arg = mantissa * 10^n (also 10^(n-1) <= arg < 10^n ).
 ;; (for arg=zero: 0.0 and n=0.)
 (defun format-scale-exponent (arg)
+  (format-scale-exponent-aux arg 0 1 10 1/10 (log 2 (float 10 arg)))
+  #+(or)
   (cond ((short-float-p arg)
          (format-scale-exponent-aux arg 0.0s0 1.0s0 10.0s0 0.1s0 0.30103s0))
         ((single-float-p arg)
@@ -909,7 +911,7 @@
             (setq round-up-p
                   (>= (ash numerator 1) (- (ash denominator 1) round-up-1)))
             (setq round-up-p
-                  (> (ash numerator 1) (- (ash denominator 1) round-up-1))))
+                  (>= (ash numerator 1) (- (ash denominator 1) round-up-1))))
           (when (or round-down-p round-up-p
                     (and last-pos (<= posn last-pos)))
             (return))
@@ -1289,7 +1291,7 @@
           (multiple-value-bind (digits digitslength)
               (format-float-to-string (abs arg) nil nil nil nil)
             (declare (ignore digits))
-            (max (max (1- digitslength) 1) (min n 7)))))
+            (max (1- digitslength) 1 (min n 7)))))
       (let* ((ee (if e (+ 2 e) 4))
              (dd (- d n)))
         (if (<= 0 dd d)

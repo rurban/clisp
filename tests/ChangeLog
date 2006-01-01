@@ -1,5 +1,9 @@
 2006-01-01  Sam Steingold  <sds@gnu.org>
 
+	* number2.tst: test 1d23 output
+
+2006-01-01  Sam Steingold  <sds@gnu.org>
+
 	* time.tst: added a test for a crash on woe32 in localtime
 
 2005-12-25  Sam Steingold  <sds@gnu.org>
