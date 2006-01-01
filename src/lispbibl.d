@@ -2,7 +2,7 @@
  * Main include-file for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 11.11.1994
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2006
  * German comments translated into English: Stefan Kain 2001-09-24
 
  Flags intended to be set through CFLAGS:
@@ -2212,10 +2212,6 @@ typedef enum {
   #define HAVE_AFFI # Amiga-minded FFI
 #endif
 # When changed: ??
-
-# Whether an external disassembler is provided:
-  #define HAVE_DISASSEMBLER
-# When changed: extend pathname.d
 
 # Now the ones that are only relevant internally:
 

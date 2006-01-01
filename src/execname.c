@@ -58,8 +58,7 @@ int find_executable (const char * program_name) {
   /* Do not need to execute this more than once. */
   if (executable_name != NULL) return 0;
 #if defined(WIN32_NATIVE)
-  { /* try WIN32 API - this is not used because HAVE_DISASSEMBLER is UNIX-only,
-       but this is an illustration that win32 API can be sometimes useful */
+  { /* an illustration that win32 API can be sometimes useful */
     char execname[MAX_PATH];
     if (!GetModuleFileName(NULL,execname,MAX_PATH))
       goto notfound;
@@ -77,10 +76,9 @@ int find_executable (const char * program_name) {
       executable_fd = fd;
   }
  #endif
-  /* Now we guess the executable's full path. We assume the executable
+  { /* Now we guess the executable's full path. We assume the executable
    has been called via execlp() or execvp() with properly set up argv[0].
    The login(1) convention to add a '-' prefix to argv[0] is not supported. */
-  {
     const char * p;
     for (p = program_name; *p; p++)
       if (*p == '/')
