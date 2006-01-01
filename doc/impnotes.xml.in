@@ -55,8 +55,8 @@
    implementation.</para>
   <para>Bugs both in these notes and in &clisp; itself should be
    reported to the mailing list &clisp-list;.</para></abstract>
- <copyright><year>1992-2005</year><holder>Bruno Haible</holder></copyright>
- <copyright><year>1998-2005</year><holder>Sam Steingold</holder></copyright>
+ <copyright><year>1992-2006</year><holder>Bruno Haible</holder></copyright>
+ <copyright><year>1998-2006</year><holder>Sam Steingold</holder></copyright>
 
  <legalnotice id="legalese"><title>Legal Status of the &clisp;
    Implementation Notes</title>
