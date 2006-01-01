@@ -41,13 +41,12 @@
 <varlistentry id="sql:with-sql-connection"><term><code>(sql:with-sql-connection
    (var &rest-amp; &option-r;s &key-amp; log &allow-other-keys-amp;)
    &body-amp; &body-r;)</code></term>
- <listitem><orderedlist><listitem><simpara>bind <varname>*sql-log*</varname>
-     to the <replaceable>log</replaceable> argument</simpara></listitem>
-   <listitem><simpara>call
-     <function>sql:sql-connect</function></simpara></listitem>
-   <listitem><simpara>execute &body-r;</simpara></listitem>
-   <listitem><simpara>call <function>sql:pq-finish</function>
-</simpara></listitem></orderedlist></listitem></varlistentry>
+ <listitem><procedure><step><simpara>bind <varname>*sql-log*</varname>
+     to the <replaceable>log</replaceable> argument</simpara></step>
+   <step><simpara>call <function>sql:sql-connect</function></simpara></step>
+   <step><simpara>execute &body-r;</simpara></step>
+   <step><simpara>call <function>sql:pq-finish</function></simpara></step>
+</procedure></listitem></varlistentry>
 <varlistentry><term><code>(sql:sql-transaction &conn-r; &command-r;
    status &optional-amp; (clear-p &t;))</code></term>
  <listitem><simpara>execute the &command-r; via &conn-r;;
@@ -63,12 +62,12 @@
 <varlistentry id="sql:sql-login"><term><code>sql:*sql-login*</code></term>
  <listitem><simpara>the default <replaceable>login</replaceable>
    argument to <function>sql:sql-connect</function>
-   (initially set to <quote>postgres</quote>)
+   (initially set to <literal role="data">"postgres"</literal>)
 </simpara></listitem></varlistentry>
 <varlistentry id="sql:sql-password"><term><code>sql:*sql-password*</code></term>
  <listitem><simpara>the default <replaceable>password</replaceable>
    argument to <function>sql:sql-connect</function>
-   (initially set to <quote>postgres</quote>)
+   (initially set to <literal role="data">"postgres"</literal>)
 </simpara></listitem></varlistentry>
 <varlistentry id="sql:sql-log"><term><code>sql:*sql-log*</code></term>
  <listitem><simpara>when non-&nil;, should be a &stream-t;;
