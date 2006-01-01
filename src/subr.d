@@ -705,10 +705,8 @@ LISPFUN(software_type,seclass_no_se,0,0,norest,nokey,0,NIL)
 LISPFUN(software_version,seclass_no_se,0,0,norest,nokey,0,NIL)
 LISPFUNNF(identity,1)
 LISPFUNN(address_of,1)
-#ifdef HAVE_DISASSEMBLER
 LISPFUNN(code_address_of,1)
 LISPFUNN(process_id,0)
-#endif
 LISPFUNNF(ansi,0)
 LISPFUNN(set_ansi,1)
 LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
@@ -854,9 +852,7 @@ LISPFUNN(savemem,1)
 #ifdef DYNAMIC_MODULES
 LISPFUNN(dynload_modules,2)
 #endif
-#ifdef HAVE_DISASSEMBLER
 LISPFUNN(program_name,0)
-#endif
 LISPFUNN(lib_directory,0)
 LISPFUNN(set_lib_directory,1)
 /* ---------- PREDTYPE ---------- */

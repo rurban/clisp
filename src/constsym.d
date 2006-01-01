@@ -549,10 +549,8 @@ LISPSYM(software_type,"SOFTWARE-TYPE",lisp)
 LISPSYM(software_version,"SOFTWARE-VERSION",lisp)
 LISPSYM(identity,"IDENTITY",lisp)
 LISPSYM(address_of,"ADDRESS-OF",system)
-#ifdef HAVE_DISASSEMBLER
 LISPSYM(code_address_of,"CODE-ADDRESS-OF",system)
 LISPSYM(process_id,"PROCESS-ID",system)
-#endif
 LISPSYM(ansi,"ANSI",system) /* ABI */
 LISPSYM(set_ansi,"SET-ANSI",system) /* ABI */
 LISPSYM(module_info,"MODULE-INFO",ext)
@@ -692,9 +690,7 @@ LISPSYM(device_prefix,"*DEVICE-PREFIX*",custom)
 #ifdef DYNAMIC_MODULES
 LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
 #endif
-#ifdef HAVE_DISASSEMBLER
 LISPSYM(program_name,"PROGRAM-NAME",system)
-#endif
 LISPSYM(lib_directory,"LIB-DIRECTORY",system) /* ABI */
 LISPSYM(set_lib_directory,"SET-LIB-DIRECTORY",system) /* ABI */
 /* ---------- PREDTYPE ---------- */
