@@ -1,3 +1,8 @@
+2006-01-01  Sam Steingold  <sds@gnu.org>
+
+	* configure: replaced --list-modules with --help-modules
+	and print more information
+
 2005-12-27  Sam Steingold  <sds@gnu.org>
 
 	* m4/make.m4 (cl_cv_gnu_make): send make error output to 5
