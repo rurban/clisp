@@ -2,7 +2,7 @@
  * Pathnames for CLISP
  * Bruno Haible 1990-2005
  * Logical Pathnames: Marcus Daniels 16.9.1994
- * ANSI compliance, bugs: Sam Steingold 1998-2005
+ * ANSI compliance, bugs: Sam Steingold 1998-2006
  * German comments translated into English: Stefan Kain 2002-01-03
  */
 
@@ -10,9 +10,7 @@
 #ifdef WIN32_NATIVE
 #include "w32shell.c"
 #endif
-#ifdef HAVE_DISASSEMBLER
-  #include <string.h> /* declares strlen() */
-#endif
+#include <string.h> /* declares strlen() */
 
 /* enable the following #define to debug pathname translations
  setting DEBUG_TRANSLATE_PATHNAME to a larger value results in more output
@@ -8837,14 +8835,11 @@ LISPFUNN(dynload_modules,2) {
 
 /* =================================================================== */
 
-#ifdef HAVE_DISASSEMBLER
 #include "execname.c"
-
 LISPFUNN(program_name,0)
 { /* (SYS::PROGRAM-NAME) returns the executable's name. */
   VALUES1(asciz_to_string(executable_name,O(pathname_encoding)));
 }
-#endif
 
 LISPFUNN(lib_directory,0)
 { /* (SYS::LIB-DIRECTORY) returns CLISP's private library directory

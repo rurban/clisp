@@ -1,5 +1,10 @@
 2006-01-01  Sam Steingold  <sds@gnu.org>
 
+	* constsym.d, execname.c, lispbibl.d, misc.d, pathname.d, spvw.d:
+	* subr.d: removed HAVE_DISASSEMBLER
+
+2006-01-01  Sam Steingold  <sds@gnu.org>
+
 	better handle numbers that are exactly the midpoint between their
 	possible binary approximations, like 1d23 (bug #[ 1389060 ])
 	* floatprint.lisp (decode-float-decimal): tweak a2

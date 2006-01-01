@@ -567,8 +567,6 @@ LISPFUNN(address_of,1)
   #endif
 }
 
-#ifdef HAVE_DISASSEMBLER
-
 LISPFUNN(code_address_of,1)
 { /* (SYS::CODE-ADDRESS-OF object) return the address of the machine codes
      of the object */
@@ -604,8 +602,6 @@ LISPFUNN(process_id,0) {
   #error "What is process-ID on your system?"
 #endif
 }
-
-#endif
 
 LISPFUNNF(ansi,0)
 { /* (SYS::ANSI) */
