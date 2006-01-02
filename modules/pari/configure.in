@@ -22,7 +22,7 @@ if test "$ac_cv_header_pari_pari_h" = "no";
 then AC_MSG_ERROR([cannot find PARI headers])
 fi
 
-AC_MSG_NOTICE([ * PARI (Functions):])
+AC_MSG_NOTICE([ * PARI (Functions)])
 AC_LIB_APPENDTOVAR([LIBS], [$LTLIBPARI])
 AC_SEARCH_LIBS(pari_kernel_init)
 if test "$ac_cv_search_pari_kernel_init" = "no";

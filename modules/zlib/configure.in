@@ -21,7 +21,7 @@ if test "$ac_cv_header_zlib_h" = "no" ;
 then AC_MSG_ERROR([cannot find ZLIB headers])
 fi
 
-AC_MSG_NOTICE([ * ZLIB (Functions):])
+AC_MSG_NOTICE([ * ZLIB (Functions)])
 AC_SEARCH_LIBS(compress2, z)
 if test "$ac_cv_search_compress2" = "no"; then
   AC_MSG_ERROR([cannot find ZLIB library])

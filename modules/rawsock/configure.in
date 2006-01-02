@@ -10,7 +10,7 @@ AC_MSG_NOTICE([* RAWSOCK (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
-AC_MSG_NOTICE([* RAWSOCK (Headers):])
+AC_MSG_NOTICE([* RAWSOCK (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
 CL_TCPCONN
@@ -45,7 +45,7 @@ AC_CHECK_TYPES(struct iovec,,,[
 #endif
 ])
 
-AC_MSG_NOTICE([* RAWSOCK (Functions):])
+AC_MSG_NOTICE([* RAWSOCK (Functions)])
 if test "$ac_cv_header_winsock2_h" = "yes"; then
   dnl this is windows, we know that socket() is in ws2_32
   dnl note that AC_SEARCH_LIBS will not work because linking with ws2_32

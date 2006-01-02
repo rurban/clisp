@@ -7,15 +7,15 @@ AC_INIT(dirkey, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(dirkey1.lisp)
 AC_CONFIG_HEADERS(config.h)
 
-AC_MSG_NOTICE([ * Dirkey (Tools):])
+AC_MSG_NOTICE([ * Dirkey (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
-AC_MSG_NOTICE([ * Dirkey (Headers):])
+AC_MSG_NOTICE([ * Dirkey (Headers)])
 AC_HEADER_STDC
 AC_CHECK_HEADERS(ldap.h gnome.h)
 
-AC_MSG_NOTICE([ * Dirkey (Output):])
+AC_MSG_NOTICE([ * Dirkey (Output)])
 AC_CONFIG_FILES(Makefile)
 AC_OUTPUT
 
