@@ -1,13 +1,13 @@
 # Template messages for CLISP
-# Copyright (C) 1992-2005 Bruno Haible, Michael Stoll, Marcus Daniels, Sam Steingold
+# Copyright (C) 1992-2006 Bruno Haible, Michael Stoll, Marcus Daniels, Sam Steingold
 # This file is distributed under the same license as the GNU CLISP package.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.36\n"
+"Project-Id-Version: clisp 2.37\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-12-04 17:23:46-0500\n"
-"PO-Revision-Date: 2005-12-04 17:23:46-0500\n"
+"POT-Creation-Date: 2006-01-02 12:00:54-0500\n"
+"PO-Revision-Date: 2006-01-02 12:00:54-0500\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -211,59 +211,59 @@ msgstr ""
 msgid "invalid argument"
 msgstr ""
 
-#: spvw.d:2056
+#: spvw.d:2054
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr ""
 
-#: spvw.d:2061
+#: spvw.d:2059
 msgid "%s out of range"
 msgstr ""
 
-#: spvw.d:2066
+#: spvw.d:2064
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:2082
+#: spvw.d:2080
 msgid "memory size"
 msgstr ""
 
-#: spvw.d:2098
+#: spvw.d:2096
 msgid "multiple -t"
 msgstr ""
 
-#: spvw.d:2118
+#: spvw.d:2116
 msgid "multiple -B"
 msgstr ""
 
-#: spvw.d:2153
+#: spvw.d:2151
 msgid "-E requires an argument"
 msgstr ""
 
-#: spvw.d:2423
+#: spvw.d:2421
 msgid "-l without -c is invalid"
 msgstr ""
 
-#: spvw.d:2429
+#: spvw.d:2427
 msgid "-x with -c is invalid"
 msgstr ""
 
-#: spvw.d:2434
+#: spvw.d:2432
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2555
+#: spvw.d:2551
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr ""
 
-#: spvw.d:2562
+#: spvw.d:2558
 msgid "Only %d bytes available."
 msgstr ""
 
-#: spvw.d:2812
+#: spvw.d:2808
 msgid "Could not determine the end of the SP stack!"
 msgstr ""
 
-#: spvw.d:3343
+#: spvw.d:3321
 msgid "%s: Not enough memory for Lisp."
 msgstr ""
 

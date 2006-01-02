@@ -155,7 +155,7 @@ DVIPDF = dvipdf
 # need to do is to add its name to the MODULES definition line above.
 #
 
-VERSION=2.36
+VERSION=2.37
 CLISP_VERSION=clisp-$(VERSION)
 
 # Add-on modules that are present in all linking sets (including base)
@@ -2963,7 +2963,7 @@ clisp.html : ../doc/_clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
-	txt | sed -e s,=\"http://www.lisp.org/HyperSpec//,=\"http://www.lisp.org/HyperSpec/, | sed -e "s,@PLATFORM@,win32msvc,g" > clisp.html
+	txt | sed -e "s,@PLATFORM@,win32msvc,g" > clisp.html
 	$(RM) txt.c
 	$(RM) txt.exe
 
@@ -2973,7 +2973,7 @@ clisp-1.html : ../doc/_clisp-1.html lispbibl.c fsubr.c subr.c pseudofun.c consts
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
-	txt > clisp-1.html
+	txt | sed -e "s,@PLATFORM@,win32msvc,g" > clisp-1.html
 	$(RM) txt.c
 	$(RM) txt.exe
 
@@ -2988,13 +2988,13 @@ clisp.c : _clisp.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c w
 	$(RM) txt.exe
 
 clisp.dvi : clisp.1
-	$(ROFF_DVI) clisp.1 > clisp.dvi
+	-$(ROFF_DVI) clisp.1 > clisp.dvi
 
 clisp.ps : clisp.1
-	$(ROFF_PS) clisp.1 > clisp.ps
+	-$(ROFF_PS) clisp.1 > clisp.ps
 
 clisp.pdf : clisp.dvi
-	$(DVIPDF) clisp.dvi clisp.pdf
+	-$(DVIPDF) clisp.dvi clisp.pdf
 
 clisp.man : clisp.1
 	$(ROFF_MAN) clisp.1 > clisp.man
@@ -3069,7 +3069,7 @@ clean1 : clean0
 	-rmdir stage
 	-rmdir tests
 	-rmdir ansi-tests
-	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html $(IMPNOTES) clisp.c distmakefile $(TXTFILES)
+	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html $(IMPNOTES) clisp.c distmakefile $(TXTFILES)
 
 # clean2 removes everything that becomes obsolete once lisp.exe
 # is recompiled without changing the bytecode format.
