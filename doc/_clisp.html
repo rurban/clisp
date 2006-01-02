@@ -58,9 +58,8 @@ compiles the specified lisp files to a platform-independent
    The default is <a href="impnotes.html#base-modules" class="olink"><span><strong class="command">base</strong></span></a>.</p></dd>
 #endif
 <dt><a id="opt-memfile"></a><span class="term"><code class="option">-M</code>
-  <em class="replaceable"><code>mem-file</code></em></span></dt><dd>Specifies the initial <a href="impnotes.html#image" class="olink">memory image</a>.
-   This must be a memory dump produced by the
-   <code class="function">EXT:SAVEINITMEM</code> function by this <span><strong class="command">clisp</strong></span> <a href="#runtime">runtime</a>.
+  <em class="replaceable"><code>mem-file</code></em></span></dt><dd>Specifies the initial <a href="impnotes.html#image" class="olink">memory image</a>.  This must be a
+   memory dump produced by the <a href="impnotes.html#image" class="olink"><code class="function">EXT:SAVEINITMEM</code></a> function by this <span><strong class="command">clisp</strong></span> <a href="#runtime">runtime</a>.
 
 #ifdef UNIX
 
@@ -131,9 +130,9 @@ compiles the specified lisp files to a platform-independent
    <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a> <code class="envar">TMPDIR</code>.
 </dd>
 #endif
-<dt><a id="opt-lang"></a><span class="term"><code class="option">-L</code> <em class="replaceable"><code>language</code></em></span></dt><dd><p>Specifies the language <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>
-   uses to communicate with the user.
-   This may be
+<dt><a id="opt-lang"></a><span class="term"><code class="option">-L</code> <em class="replaceable"><code>language</code></em></span></dt><dd><p>Specifies the
+   <a href="impnotes.html#language" class="olink">language</a>
+   <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> uses to communicate with the user. This may be
 
 #ifndef GNU_GETTEXT
 
@@ -163,9 +162,16 @@ compiles the specified lisp files to a platform-independent
     </td></tr><tr><td><span class="term"><code class="constant">foreign</code></span></td><td>affecting <a href="impnotes.html#foreign-enc" class="olink"><code class="varname">CUSTOM:*FOREIGN-ENCODING*</code></a>
     </td></tr><tr><td><span class="term"><code class="constant">misc</code></span></td><td>affecting <a href="impnotes.html#misc-enc" class="olink"><code class="varname">CUSTOM:*MISC-ENCODING*</code></a>
     </td></tr><tr><td><span class="term"><em class="replaceable"><code>blank</code></em></span></td><td>affecting all of the above.
-   </td></tr></tbody></table></div><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>Note that these values cannot be saved in a <a href="impnotes.html#image" class="olink">memory image</a>.
-     You have to use the <a href="clisp.html#opt-norc" class="olink">RC file</a> or <a href="impnotes.html#image" class="olink">init function</a>
-     to set them on startup.</p></div></dd><dt><a id="opt-verbose"></a><span class="term"><code class="option">-q</code><br /></span><span class="term"><code class="option">--quiet</code><br /></span><span class="term"><code class="option">--silent</code><br /></span><span class="term"><code class="option">-v</code><br /></span><span class="term"><code class="option">--verbose</code></span></dt><dd>Change verbosity level: by default, <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> displays a
+   </td></tr></tbody></table></div><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>Note that the values of these <a href="http://www.lisp.org/HyperSpec/Body/mac_define-symbol-macro.html" target="_top"><code class="classname">SYMBOL-MACRO</code></a>s that
+     have been saved in a <a href="impnotes.html#image" class="olink">memory image</a> are ignored: these <a href="http://www.lisp.org/HyperSpec/Body/mac_define-symbol-macro.html" target="_top"><code class="classname">SYMBOL-MACRO</code></a>s
+     are reset based on the OS environment <span class="emphasis"><em>after</em></span>
+     the <a href="impnotes.html#image" class="olink">memory image</a> is loaded.
+     You have to use the <a href="clisp.html#opt-norc" class="olink">RC file</a>, <a href="impnotes.html#init-hooks" class="olink"><code class="varname">CUSTOM:*INIT-HOOKS*</code></a> or <a href="impnotes.html#image" class="olink">init function</a> to
+     set them on startup, but it is best to set the aforementioned
+     <a class="unix" href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html">environment variable</a>s appropriately for consistency with other programs.
+     See <a href="impnotes.html#custom-init-fini" class="olink">Section 30.1, “Customizing CLISP Process
+  Initialization and Termination”</a>.
+</p></div></dd><dt><a id="opt-verbose"></a><span class="term"><code class="option">-q</code><br /></span><span class="term"><code class="option">--quiet</code><br /></span><span class="term"><code class="option">--silent</code><br /></span><span class="term"><code class="option">-v</code><br /></span><span class="term"><code class="option">--verbose</code></span></dt><dd>Change verbosity level: by default, <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> displays a
    banner at startup and a good-bye message when quitting, and initializes
    <a href="http://www.lisp.org/HyperSpec/Body/var_stload-pr_ad-verbosest.html" target="_top"><code class="varname">*LOAD-VERBOSE*</code></a> and <a href="http://www.lisp.org/HyperSpec/Body/var_stcompile_le-verbosest.html" target="_top"><code class="varname">*COMPILE-VERBOSE*</code></a> to <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html" target="_top"><code class="constant">T</code></a>, and
    <a href="http://www.lisp.org/HyperSpec/Body/var_stload-pr_ad-verbosest.html" target="_top"><code class="varname">*LOAD-PRINT*</code></a> and <a href="http://www.lisp.org/HyperSpec/Body/var_stcompile_le-verbosest.html" target="_top"><code class="varname">*COMPILE-PRINT*</code></a> to <a href="http://www.lisp.org/HyperSpec/Body/convar_nil.html" target="_top"><code class="constant">NIL</code></a>, as per [<span class="citation"><a href="#ansi-cl">ANSI CL standard</a></span>].
@@ -268,7 +274,7 @@ compiles the specified lisp files to a platform-independent
    If <em class="replaceable"><code>lisp-file</code></em> is the empty string <span><strong class="command">""</strong></span>
    or <span><strong class="command">"--"</strong></span>, the normal <a href="http://www.lisp.org/HyperSpec/Body/sec_25-1-1.html" target="_top">read-eval-print loop</a> is
    entered, and the rest of the arguments is still available in <a href="impnotes.html#script-exec" class="olink"><code class="varname">EXT:*ARGS*</code></a>,
-   for parsing by the <a href="impnotes.html#image" class="olink">init function</a> of the current image.
+   for parsing by the <a href="impnotes.html#image" class="olink">init function</a> of the current <a href="impnotes.html#image" class="olink">memory image</a>.
    This option must be the last one.
    No <a href="clisp.html#opt-norc" class="olink">RC file</a> will be executed.
 </dd></dl></div></div><div class="refsection" lang="en" xml:lang="en"><a id="reference"></a><h2>Language Reference</h2><p><a id="ansi-cl"></a>The language implemented is [<span class="citation"><a href="#ansi-cl">ANSI CL standard</a></span>].
@@ -436,4 +442,4 @@ following information:
    operations.</li><li>Add Multi-Threading capabilities, via OS
    threads.</li></ul></div></div><div class="refsection" lang="en" xml:lang="en"><a id="authors"></a><h2>CLISP Authors</h2><p><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> project was started in late 1980-ies by <span class="author"><span class="firstname">Bruno</span> <span class="surname">Haible</span></span> and
  <span class="author"><span class="firstname">Michael</span> <span class="surname">Stoll</span></span>, both in Germany.</p><p>See <a class="clisp-cvs" href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT"><code class="filename">COPYRIGHT</code></a>
- for the list of other contributors and the license.</p></div></div><div class="refentryinfo"><hr width="100%" /><table width="100%" summary="man page meta info"><th><td align="left"><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> version 2.36</td><td align="center">Platform: @PLATFORM@</td><td align="right">Last modified: 2005-12-04</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" border="0" alt="[Support This Project]" /></a></td><td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=clisp" /></a></td></tr></table></div></body></html>
+ for the list of other contributors and the license.</p></div></div><div class="refentryinfo"><hr width="100%" /><table width="100%" summary="man page meta info"><th><td align="left"><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> version 2.37</td><td align="center">Platform: @PLATFORM@</td><td align="right">Last modified: 2006-01-02</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" border="0" alt="[Support This Project]" /></a></td><td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=clisp" /></a></td></tr></table></div></body></html>
