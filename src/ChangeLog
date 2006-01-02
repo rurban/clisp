@@ -1,3 +1,7 @@
+2006-01-02  Sam Steingold  <sds@gnu.org>
+
+	* clhs.lisp (documentation@symbol): handle uninterned symbols
+
 2006-01-01  Sam Steingold  <sds@gnu.org>
 
 	* constsym.d, execname.c, lispbibl.d, misc.d, pathname.d, spvw.d:
