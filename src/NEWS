@@ -8,7 +8,7 @@ User visible changes
   unless both streams are read-only.
 
 * SOCKET-SERVER now accepts :BACKLOG and :INTERFACE arguments.
-  The first (optional) arugument should be the port number or NIL.
+  The first (optional) argument should be the port number or NIL.
   Use (SOCKET-SERVER NIL :INTERFACE SOCKET) instead of (SOCKET-SERVER SOCKET).
   Thanks to Tomas Zellerin <zellerin@gmail.com>.
   See <http://clisp.cons.org/impnotes/socket.html#sose> for details.
