@@ -39,18 +39,19 @@
  <listitem><simpara>call <function>PQsetdbLogin</function> and return
    the &conn-r;</simpara></listitem></varlistentry>
 <varlistentry id="sql:with-sql-connection"><term><code>(sql:with-sql-connection
-   (var &rest-amp; &option-r;s &key-amp; log &allow-other-keys-amp;)
+   (&var-r; &rest-amp; &option-r;s &key-amp; log &allow-other-keys-amp;)
    &body-amp; &body-r;)</code></term>
  <listitem><procedure><step><simpara>bind <varname>*sql-log*</varname>
      to the <replaceable>log</replaceable> argument</simpara></step>
-   <step><simpara>call <function>sql:sql-connect</function></simpara></step>
+   <step><simpara>call <function>sql:sql-connect</function> on
+     &option-r;s and bind &var-r; to the result</simpara></step>
    <step><simpara>execute &body-r;</simpara></step>
-   <step><simpara>call <function>sql:pq-finish</function></simpara></step>
-</procedure></listitem></varlistentry>
+   <step><simpara>call <function>sql:pq-finish</function> on
+     &var-r;</simpara></step></procedure></listitem></varlistentry>
 <varlistentry><term><code>(sql:sql-transaction &conn-r; &command-r;
-   status &optional-amp; (clear-p &t;))</code></term>
+   &status-r; &optional-amp; (clear-p &t;))</code></term>
  <listitem><simpara>execute the &command-r; via &conn-r;;
-   if the status does not match <replaceable>status</replaceable>, &err-sig;;
+   if the status does not match &status-r;, &err-sig;;
    if <replaceable>clear-p</replaceable> is
    non-&nil; <function>sql:pq-clear</function> the &res-r;;
    otherwise return it</simpara></listitem></varlistentry>
