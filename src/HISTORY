@@ -1,5 +1,7 @@
 Version  Date            New features
 
+2.37     2006-01-02      SOCKET-SERVER/:BACKLOG:INTERFACE, fixed SETENV
+
 2.36     2005-12-04      OPEN-HTTP, NOTSPECIAL, DEF-C-CONST, BASE64,
                          new-clx/demos/foch, spvw_sigterm.d
 
