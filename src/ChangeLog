@@ -1,5 +1,9 @@
 2006-01-02  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: clisp 2.37 release
+
+2006-01-02  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp (documentation@symbol): handle uninterned symbols
 
 2006-01-01  Sam Steingold  <sds@gnu.org>
