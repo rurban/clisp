@@ -316,7 +316,8 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
 (defmethod documentation ((obj symbol) (type (eql 'sys::impnotes)))
   (let ((pack (symbol-package obj)))
     ;; do not search impnotes for user symbols
-    (when (and (member (package-name pack) *system-package-list* :test #'equal)
+    (when (and pack
+               (member (package-name pack) *system-package-list* :test #'equal)
                (ensure-impnotes-map))
       (let ((doc (call-next-method)))
         (if doc
