@@ -7,7 +7,6 @@
 
 	better handle numbers that are exactly the midpoint between their
 	possible binary approximations, like 1d23 (bug #[ 1389060 ])
-	* floatprint.lisp (decode-float-decimal): tweak a2
 	* format.lisp (format-scale-exponent): use exact values as
 	arguments to FORMAT-SCALE-EXPONENT-AUX
 
