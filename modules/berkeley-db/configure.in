@@ -7,7 +7,7 @@ AC_INIT(Berkeley-DB, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(dbi.lisp)
 AC_CONFIG_HEADERS(config.h)
 
-AC_MSG_NOTICE([ * Berkeley-DB (Tools):])
+AC_MSG_NOTICE([ * Berkeley-DB (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
@@ -15,7 +15,7 @@ dnl Search for libdb and define LIBDB, LTLIBDB and INCDB.
 AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_LIB_LINKFLAGS([db])
 
-AC_MSG_NOTICE([ * Berkeley-DB (Headers):])
+AC_MSG_NOTICE([ * Berkeley-DB (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_CHECK_HEADERS(sys/time.h time.h)
@@ -24,7 +24,7 @@ if test "$ac_cv_header_db_h" = "no"; then
   AC_MSG_ERROR([cannot find Berkeley-DB headers])
 fi
 
-AC_MSG_NOTICE([ * Berkeley-DB (Functions):])
+AC_MSG_NOTICE([ * Berkeley-DB (Functions)])
 AC_LIB_APPENDTOVAR([LIBS], [$LTLIBDB])
 AC_SEARCH_LIBS(db_env_create, db)
 if test "$ac_cv_search_db_env_create" = "no"; then
@@ -74,7 +74,7 @@ AC_DEFINE(HAVE_DB_GET_TRANSACTIONAL_1ARG,1,
 [Define to 1 if DB->get_transactional() accepts just 1 argument])
 fi
 
-AC_MSG_NOTICE([ * Berkeley-DB (Output):])
+AC_MSG_NOTICE([ * Berkeley-DB (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
