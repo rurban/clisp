@@ -1506,6 +1506,7 @@ local void initmem (void) {
 }
 # loading of MEM-file:
 local void loadmem (const char* filename); # see below
+local int loadmem_from_executable (void);
 # initialization of the other, not yet initialized modules:
 local void init_other_modules_2 (void);
 local void init_module_2 (module_t* module) {
@@ -2444,10 +2445,13 @@ local inline void free_argv_actions (struct argv_actions *p) {
   free(p->argv_compile_files);
 }
 
+/* the size of the runtime executable for executable dumping */
+static size_t runtime_size = 0;
+
 # Initialize memory and load the specified memory image.
 # Returns 0 if successful, -1 upon error (after printing an error message
 # to stderr).
-local inline int init_memory (const struct argv_initparams *p) {
+local inline int init_memory (struct argv_initparams *p) {
   { # Initialize the table of relocatable pointers:
     var object* ptr2 = &pseudofun_tab.pointer[0];
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
@@ -2898,10 +2902,14 @@ local inline int init_memory (const struct argv_initparams *p) {
  #endif
   init_subr_tab_1(); # initialize subr_tab
   markwatchset = NULL; markwatchset_allocated = markwatchset_size = 0;
-  if (p->argv_memfile==NULL) # manual initialization:
-    initmem();
-  else # load memory file:
-    loadmem(p->argv_memfile);
+  var char marker[16] = "my magic marker";
+  /* for loadmem_from_executable and savemem_with_executable: */
+  runtime_size = atol(marker);
+  if (p->argv_memfile)
+    loadmem(p->argv_memfile);                     /* load memory file */
+  else if (runtime_size && !loadmem_from_executable())
+    p->argv_memfile = "self";
+  else initmem();                  /* manual initialization */
   # init O(current_language)
   O(current_language) = current_language_o(language);
   # set current evaluator-environments to the toplevel-value:
@@ -3228,6 +3236,10 @@ global int main (argc_t argc, char* argv[]) {
   if (!(setjmp(original_context) == 0)) goto end_of_main;
   # Initialize memory and load a memory image (if specified).
   if (init_memory(&argv1) < 0) goto no_mem;
+  /* if the image was read from the executable, argv1.argv_memfile was
+     set to "self" and now it has to be propagated to argv2.argv_memfile
+     to avoid the beginner warning */
+  argv2.argv_memfile = argv1.argv_memfile; /* propagate "self" */
   # Prepare for catching SP overflow.
   install_stackoverflow_handler(0x4000); # 16 KB reserve should be enough
   # everything completely initialized.

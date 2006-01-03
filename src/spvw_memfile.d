@@ -5,9 +5,10 @@
 /* UP: Saves a memory image on disk.
  savemem(stream);
  > object stream: open file output stream
+ > bool exec_p: should the result include runtime?
  As a side effect, the stream is closed.
  can trigger GC */
-global maygc void savemem (object stream);
+global maygc void savemem (object stream, bool exec_p);
 
 /* UP: Restores a memory image from disk.
  loadmem(filename);
@@ -203,13 +204,76 @@ typedef struct {
   #define READ_page_alignment(position)
 #endif
 
+#if defined(UNIX)
+  #define CLOSE_HANDLE CLOSE
+#elif defined(WIN32_NATIVE)
+  #define CLOSE_HANDLE CloseHandle
+#else
+  #define CLOSE_HANDLE(handle)
+#endif
+
+#define WRITE(buf,len)                                                  \
+  do {                                                                  \
+    begin_system_call();                                                \
+    { var ssize_t ergebnis = full_write(handle,(void*)buf,len);         \
+      if (ergebnis != (ssize_t)(len)) {                                 \
+        end_system_call();                                              \
+        builtin_stream_close(&STACK_0,0);                               \
+        if (ergebnis<0) /* error occurred? */                           \
+          { OS_file_error(TheStream(STACK_0)->strm_file_truename); }    \
+        /* FILE-ERROR slot PATHNAME */                                  \
+        pushSTACK(TheStream(STACK_0)->strm_file_truename);              \
+        fehler(file_error,GETTEXT("disk full"));                        \
+      }                                                                 \
+    }                                                                   \
+    end_system_call();                                                  \
+  } while(0)
+
+/* write the executable into the handle */
+extern char *get_executable_name (void);
+local Handle open_filename (const char* filename);
+static void savemem_with_runtime (Handle handle) {
+  var char *executable_name = get_executable_name();
+  var char buf[BUFSIZ];
+  begin_system_call();
+  var Handle runtime = open_filename(executable_name);
+  var uintL remains = runtime_size;
+  while (remains > 0) {
+    var ssize_t res = fd_read(runtime,(void*)buf,BUFSIZ,persev_full);
+    end_system_call();
+    if (res <= 0) {
+      builtin_stream_close(&STACK_0,0);
+      if (res < 0) /* error occurred? */
+        OS_file_error(TheStream(STACK_0)->strm_file_truename);
+      /* FILE-ERROR slot PATHNAME */
+      pushSTACK(asciz_to_string(executable_name,O(pathname_encoding)));
+      pushSTACK(fixnum(remains));
+      fehler(file_error,GETTEXT("runtime too small (~S bytes missing)"));
+    }
+    var uintL len = (remains > res ? res : remains);
+    remains -= len;
+    WRITE(buf,len);
+    begin_system_call();
+  }
+#if defined(UNIX) && defined(HAVE_FCHMOD)
+  { /* make the saved image executable */
+    var mode_t mode = 0;
+    var struct stat st;
+    if (fstat(handle,&st) == 0) mode = st.st_mode;
+    if (fstat(runtime,&st) == 0) mode |= st.st_mode;
+    fchmod(handle,mode);
+  }
+#endif
+  CLOSE_HANDLE(runtime); end_system_call();
+}
+
 /* UP, stores the memory image on disk
  savemem(stream);
  > object stream: open File-Output-Stream, will be closed
+ > bool exec_p: should the result include runtime?
  can trigger GC */
-global maygc void savemem (object stream)
-{
-  /* We need the stream only because of the handle provided by it.
+global maygc void savemem (object stream, bool exec_p)
+{ /* We need the stream only because of the handle provided by it.
      In case of an error we have to close it (the caller makes no
      WITH-OPEN-FILE, but only OPEN). Hence, the whole stream is passed
      to us, so that we can close it. */
@@ -229,22 +293,7 @@ global maygc void savemem (object stream)
   }
   /* execute one GC first: */
   gar_col();
-#define WRITE(buf,len)                                                  \
-  do {                                                                  \
-    begin_system_call();                                                \
-    { var ssize_t ergebnis = full_write(handle,(void*)buf,len);         \
-      if (ergebnis != (ssize_t)(len)) {                                 \
-        end_system_call();                                              \
-        builtin_stream_close(&STACK_0,0);                               \
-        if (ergebnis<0) /* error occurred? */                           \
-          { OS_file_error(TheStream(STACK_0)->strm_file_truename); }    \
-        /* FILE-ERROR slot PATHNAME */                                  \
-        pushSTACK(TheStream(STACK_0)->strm_file_truename);              \
-        fehler(file_error,GETTEXT("disk full"));                        \
-      }                                                                 \
-    }                                                                   \
-    end_system_call();                                                  \
-  } while(0)
+  if (exec_p) savemem_with_runtime(handle);
   /* write basic information: */
   var memdump_header_t header;
   var uintL module_names_size;
@@ -550,12 +599,12 @@ global maygc void savemem (object stream)
   }
   #endif
  #endif
- #undef WRITE
   /* close stream (stream-buffer is unchanged, but thus also the
      handle at the operating system is closed): */
   builtin_stream_close(&STACK_0,0);
   skipSTACK(1);
 }
+#undef WRITE
 
 /* UP, loads memory image from disk
  loadmem(filename);
@@ -837,16 +886,9 @@ local void loadmem (const char* filename)
  abort_quit:
   /* first close file, if it had been opened successfully.
      (Thus, now really all errors are ignored!) */
- #ifdef UNIX
-  if (handle >= 0) {
-    begin_system_call(); CLOSE(handle); end_system_call();
+  if (handle != INVALID_HANDLE) {
+    begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
   }
- #endif
- #ifdef WIN32_NATIVE
-  if (handle != INVALID_HANDLE_VALUE) {
-    begin_system_call(); CloseHandle(handle); end_system_call();
-  }
- #endif
   quit_sofort(1);
 }
 local void loadmem_from_handle (Handle handle, const char* filename)
@@ -1593,11 +1635,17 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   goto abort_quit;
  abort_quit:
   /* close the file beforehand. */
- #ifdef UNIX
-  begin_system_call(); CLOSE(handle); end_system_call();
- #endif
- #ifdef WIN32_NATIVE
-  begin_system_call(); CloseHandle(handle); end_system_call();
- #endif
+  begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
   quit_sofort(1);
+}
+local int loadmem_from_executable (void) {
+  var char* executable_name = get_executable_name();
+  var Handle handle = open_filename(executable_name);
+  lseek(handle,runtime_size,SEEK_SET);
+  var char buf;
+  if (read(handle,&buf,sizeof(buf))) { /* not EOF */
+    lseek(handle,runtime_size,SEEK_SET);
+    loadmem_from_handle(handle,executable_name);
+    return 0;
+  } else return 1;
 }

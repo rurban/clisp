@@ -10456,12 +10456,13 @@ extern uintM used_space (void);
 extern uintM free_space (void);
 # is used by DEBUG
 
-# UP: saves memory image to disc
-# savemem(stream);
-# > object stream: open File-Output-Stream, will be closed
-# can trigger GC
-extern maygc void savemem (object stream);
-# is used by PATHNAME
+/* UP: saves memory image to disc
+ savemem(stream);
+ > object stream: open File-Output-Stream, will be closed
+ > bool exec_p: should the result include runtime?
+ can trigger GC */
+extern maygc void savemem (object stream, bool exec_p);
+/* used by PATHNAME */
 
 #ifdef HAVE_SIGNALS
 # Temporarily do not ignore the status of subprocesses.

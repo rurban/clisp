@@ -848,7 +848,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,(kw(element_type),kw(external_fo
 #ifdef WIN32_NATIVE
 LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL)
 #endif
-LISPFUNN(savemem,1)
+LISPFUNN(savemem,2)
 #ifdef DYNAMIC_MODULES
 LISPFUNN(dynload_modules,2)
 #endif
