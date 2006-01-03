@@ -64,11 +64,13 @@ SHELL = /bin/sh
 all : base/lisp$(lexe) full/lisp$(lexe) clisp
 
 #ifndef UNIX_BINARY_DISTRIB
-base/lisp$(lexe) : @@BASE_FILES@@
+base/lisp$(lexe) : @@BASE_FILES@@ filesize
 	$(CC) $(CFLAGS) @@BASE_LIBS@@ -o base/lisp$(lexe)
+	./filesize base/lisp$(lexe)
 
-full/lisp$(lexe) : @@FULL_FILES@@
+full/lisp$(lexe) : @@FULL_FILES@@ filesize
 	$(CC) $(CFLAGS) @@FULL_LIBS@@ -o full/lisp$(lexe)
+	./filesize full/lisp$(lexe)
 
 #endif
 #ifdef UNIX_BINARY_DISTRIB
@@ -77,6 +79,9 @@ clisp: force
 #else /* new executable */
 clisp: src/clisp.c
 	$(CC) $(CFLAGS) -DLISPLIBDIR='"'`pwd`'"' -DLOCALEDIR='"'`pwd`/locale'"' src/clisp.c -o clisp
+
+filesize: src/filesize.c
+	$(CC) $(CFLAGS) src/filesize.c -o filesize
 #endif
 
 install : install-bin install-man install-doc

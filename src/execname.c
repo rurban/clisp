@@ -47,6 +47,10 @@ static int maybe_executable (const char * filename) {
 }
 #endif
 
+/* return the executable name */
+char *get_executable_name (void);
+char *get_executable_name (void) { return executable_name; }
+
 /* find_executable(program_name)
  is to be called immediately after the program starts,
  with program_name = argv[0],

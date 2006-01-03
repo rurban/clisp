@@ -20,7 +20,7 @@
             (clos::install-dispatch gf)
   ) ) ) ) )
   (setq - nil + nil ++ nil +++ nil * nil ** nil *** nil / nil // nil /// nil)
-  (savemem "lispimag.mem")
+  (savemem "lispimag.mem" nil)
   (room nil)
 )
 
@@ -29,10 +29,15 @@
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function verbose
                     keep-global-handlers (start-package *package*)
-                    (locked-packages *system-package-list*))
+                    (locked-packages *system-package-list*) executable)
   (let* ((old-driver *driver*) old-global-handlers
          (*package* (sys::%find-package start-package))
-         (fn (merge-pathnames filename #.(make-pathname :type "mem")))
+         (fn (if (not executable)
+               (merge-pathnames filename #.(make-pathname :type "mem"))
+               ;; win32 executables require "exe" extension
+               #+(or win32 cygwin)
+               (make-pathname :type "exe" :defaults filename)
+               #-(or win32 cygwin) filename))
          (*driver*
            #'(lambda ()
                ;(declare (special *command-index* *home-package*
@@ -64,7 +69,7 @@
       (setq old-global-handlers ; disable and save all global handlers
             (ext::set-global-handler nil nil)))
     (setf (package-lock locked-packages) t)
-    (savemem fn)
+    (savemem fn executable)
     (when old-global-handlers   ; re-install all global handlers
       (ext::set-global-handler old-global-handlers nil))
     (when verbose
