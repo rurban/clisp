@@ -1,5 +1,9 @@
 2006-01-03  Sam Steingold  <sds@gnu.org>
 
+	* utils/filesize.c (find_marker): fread() returns size_t, not ssize_t
+
+2006-01-03  Sam Steingold  <sds@gnu.org>
+
 	* spvw_memfile.d (loadmem_from_executable): use fd_read() instead
 	of read() to fix woe32
 
