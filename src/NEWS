@@ -1,3 +1,11 @@
+User visible changes
+--------------------
+
+* SAVEINITMEM can create standalone executables.
+  Thanks to Frank Buß <fb@frank-buss.de> for the idea.
+  See <http://clisp.cons.org/impnotes/image.html> for details.
+
+
 2.37 (2006-01-02)
 =================
 
