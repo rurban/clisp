@@ -134,6 +134,9 @@
 /* Define to 1 if you have the `dlsym' function. */
 #undef HAVE_DLSYM
 
+/* Define to 1 if you have the `fchmod' function. */
+#undef HAVE_FCHMOD
+
 /* have the FIONREAD ioctl() */
 #undef HAVE_FIONREAD
 
