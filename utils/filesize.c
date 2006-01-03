@@ -77,7 +77,7 @@ int main (int argc, char *argv[]) {
   printf("%s: found '%s' in '%s' at %ld\n",argv[0],marker,argv[1],pos);
   { /* check that marker is found only once */
     long pos1 = find_marker(file,marker);
-    if (pos != -1L) {
+    if (pos1 != -1L) {
       fprintf(stderr,"%s: found '%s' in '%s' twice: at %ld and %ld\n",
               argv[0],marker,argv[1],pos,pos1);
       fclose(file);
