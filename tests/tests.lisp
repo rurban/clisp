@@ -78,18 +78,23 @@
   (:method ((result sequence) (my-result sequence) (log stream))
     (let ((pos (mismatch result my-result :test #'equalp)))
       (let ((*print-length* 10))
-        (flet ((pretty-tail-10 (seq)
-                 (if (and (> (length seq) (+ pos 10))
-                          (typep seq 'string))
-                     (concatenate 'string (subseq seq pos (+ pos 10)) "...")
-                     (subseq seq pos))))
-          (format log "~&Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
-                  pos
-                  (if (< pos (length result)) (elt result pos) 'end-of-sequence)
-                  (if (< pos (length my-result)) (elt my-result pos) 'end-of-sequence)
-                  (pretty-tail-10 result)
-                  lisp-implementation
-                  (pretty-tail-10 my-result))))))
+        (if pos
+            (flet ((pretty-tail-10 (seq)
+                     (if (and (> (length seq) (+ pos 10))
+                              (typep seq 'string))
+                         (concatenate 'string (subseq seq pos (+ pos 10)) "...")
+                         (subseq seq pos))))
+              (format log "~&Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
+                      pos
+                      (if (< pos (length result))
+                          (elt result pos) 'end-of-sequence)
+                      (if (< pos (length my-result))
+                          (elt my-result pos) 'end-of-sequence)
+                      (pretty-tail-10 result)
+                      lisp-implementation
+                      (pretty-tail-10 my-result)))
+            (format log "~&Type mismatch: ~S should be ~S~%"
+                    (type-of my-result) (type-of result))))))
   (:method ((result pathname) (my-result pathname) (log stream))
     (dolist (slot '(pathname-host pathname-device pathname-directory
                     pathname-name pathname-type pathname-version))
