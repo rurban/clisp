@@ -409,10 +409,13 @@ global int clisp_setenv (const char * name, const char * value) {
          Solaris & woe32 do not have unsetenv
          _and_ putenv(name) does not work */
       setenv_via_environ(name,namelen,NULL,0);
-    /* putenv("FOO=") unsets FOO on woe32 - but why bother? */
     return 0;
-  } else {
-    var char* buffer = (char*)malloc(namelen+1+valuelen+1);
+  } else
+   #if defined(WIN32_NATIVE)
+    /* putenv("FOO=") unsets FOO on woe32!! */
+    if (valuelen == 0) return setenv_via_environ(name,namelen,"",0); else
+   #endif
+  { var char* buffer = (char*)malloc(namelen+1+valuelen+1);
     if (!buffer)
       return -1; /* no need to set errno = ENOMEM */
     return putenv(cat_env_var(buffer,name,namelen,value,valuelen));
