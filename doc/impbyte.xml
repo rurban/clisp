@@ -71,6 +71,17 @@
 </simpara></listitem></varlistentry>
 </variablelist></section>
 
+<section id="bin-postprocessing"><title>Binary Post-Processing</title>
+<variablelist><varlistentry>
+  <term><filename role="clisp-cvs">utils/filesize.c</filename></term>
+  <listitem><simpara>To enable the <constant>:EXECUTABLE</constant>
+    option of &savemem;, we write the size of the runtime (&lisp-run;)
+    into itself using this postprocessor.</simpara>
+   <simpara>If your OS keeps a checksum on executables, this will not
+    work, so you will have to edit the <filename>Makefile</filename> to
+    disable this postprocessor.</simpara>
+</listitem></varlistentry></variablelist></section>
+
 <section id="src-files"><title>Files</title>
 
 <section id="src-unpreproc-C"><title>Unpreprocessed &c-lang; code</title>
