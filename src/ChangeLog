@@ -1,5 +1,10 @@
 2006-01-03  Sam Steingold  <sds@gnu.org>
 
+	* spvw_language.d (init_language): pass NULL as the second
+	argument to clisp_setenv() to unset a variable
+
+2006-01-03  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/posix.lisp (make-xterm-io-stream): accept :title
 
 2006-01-03  Sam Steingold  <sds@gnu.org>

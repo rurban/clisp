@@ -176,10 +176,8 @@ global void init_language (const char* argv_language,
       case language_danish:   locale = "da_DA"; break;
       default:                locale = "";
     }
-    if (getenv("LANGUAGE"))
-      clisp_setenv("LANGUAGE","");
-    if (getenv("LC_ALL"))
-      clisp_setenv("LC_ALL","");
+    if (getenv("LANGUAGE")) clisp_setenv("LANGUAGE",NULL);
+    if (getenv("LC_ALL")) clisp_setenv("LC_ALL",NULL);
     clisp_setenv("LC_MESSAGES",locale);
     # Given the above, the following line is only needed for those
     # platforms for which gettext is compiled with HAVE_LOCALE_NULL
