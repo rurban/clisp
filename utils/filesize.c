@@ -60,7 +60,7 @@ int main (int argc, char *argv[]) {
     fclose(file);
     return 4;
   }
-  printf("%s: size of '%s' is %ld\n",argv[0],argv[1],size);
+  printf("%s: size of file '%s' is %ld bytes\n",argv[0],argv[1],size);
   /* rewind to start */
   if (fseek(file,0,SEEK_SET)) {
     sprintf(buf,"%s: cannot fseek '%s' to SET",argv[0],argv[1]);
@@ -70,45 +70,53 @@ int main (int argc, char *argv[]) {
   }
   /* find the marker */
   if ((pos = find_marker(file,marker)) == -1L) {
-    fprintf(stderr,"%s: cannot find '%s' in '%s'",argv[0],marker,argv[1]);
+    fprintf(stderr,"%s: cannot find '%s' in '%s'\n",argv[0],marker,argv[1]);
     fclose(file);
     return 6;
   }
   printf("%s: found '%s' in '%s' at %ld\n",argv[0],marker,argv[1],pos);
+  { /* check that marker is found only once */
+    long pos1 = find_marker(file,marker);
+    if (pos != -1L) {
+      fprintf(stderr,"%s: found '%s' in '%s' twice: at %ld and %ld\n",
+              argv[0],marker,argv[1],pos,pos1);
+      fclose(file);
+      return 7;
+    }
+  }
   /* move to the marker */
   if (fseek(file,pos,SEEK_SET)) {
     sprintf(buf,"%s: cannot fseek '%s' to SET %ld",argv[0],argv[1],pos);
     perror(buf);
     fclose(file);
-    return 7;
+    return 8;
   }
   /* make sure that we did indeed find the marker */
   if ((res = fread(buf,sizeof(char),BUFSIZ,file)) <= marker_len) {
     fprintf(stderr,"%s: fread returns %d (%s)\n",argv[0],res,buf);
     fclose(file);
-    return 8;
+    return 9;
   }
   if (strncmp(marker,buf,marker_len)) {
     fprintf(stderr,"%s: marker mismatch: %s\n",argv[0],buf);
     fclose(file);
-    return 8;
+    return 10;
   }
-  /* move to the marker */
+  /* move to the marker again - fread() changed the position */
   if (fseek(file,pos,SEEK_SET)) {
     sprintf(buf,"%s: cannot fseek '%s' to SET %ld",argv[0],argv[1],pos);
     perror(buf);
     fclose(file);
-    return 9;
+    return 11;
   }
-  /* rewrite the marker */
-  for (res = 0; res < marker_len; res++) buf[res] = 0;
-  sprintf(buf,"%ld",size);
-  if (fwrite(buf,sizeof(char),marker_len,file) <= 0) {
-    char buf1[BUFSIZ];
-    sprintf(buf1,"%s: cannot fwrite '%s' to '%s'",argv[0],buf,argv[1]);
-    perror(buf1);
+  /* overwrite the marker with the file size */
+  for (res = 0; res < marker_len; res++) marker[res] = 0;
+  sprintf(marker,"%ld",size);
+  if (fwrite(marker,sizeof(char),marker_len,file) <= 0) {
+    sprintf(buf,"%s: cannot fwrite '%s' to '%s'",argv[0],marker,argv[1]);
+    perror(buf);
     fclose(file);
-    return 10;
+    return 12;
   }
   fclose(file);
   return 0;

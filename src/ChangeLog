@@ -1,5 +1,9 @@
 2006-01-03  Sam Steingold  <sds@gnu.org>
 
+	* utils/filesize.c (main): check that the marker is found just once
+
+2006-01-03  Sam Steingold  <sds@gnu.org>
+
 	* misc.d (clisp_setenv) [WIN32_NATIVE]: use setenv_via_environ()
 	when value is "" because putenv("NAME=") unsets NAME instead of
 	setting it to ""
