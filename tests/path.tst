@@ -1029,6 +1029,15 @@ T
   (nreverse r))
 (NIL NIL T NIL NIL NIL)
 
+;; getenv
+(getenv "NO_SUCH_ENV_VAR")              NIL
+(setf (getenv "NO_SUCH_ENV_VAR") "FOO") "FOO"
+(getenv "NO_SUCH_ENV_VAR")              "FOO"
+(setf (getenv "NO_SUCH_ENV_VAR") "")    ""
+(getenv "NO_SUCH_ENV_VAR")              ""
+(setf (getenv "NO_SUCH_ENV_VAR") NIL)   NIL
+(getenv "NO_SUCH_ENV_VAR")              NIL
+
 ;; LOAD-LOGICAL-PATHNAME-TRANSLATIONS
 ;; getenv #1
 (unwind-protect
