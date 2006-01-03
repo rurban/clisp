@@ -193,7 +193,7 @@ dnl DEFS RETABORTTYPE, ABORT_VOLATILE
 CL_ABORT
 dnl DEFS HAVE_PERROR_DECL
 CL_PERROR
-AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid dnl
+AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
 fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath)
 dnl DEFS HAVE_PUTENV, HAVE_SETENV
 CL_PUTENV

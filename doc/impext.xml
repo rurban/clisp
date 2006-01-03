@@ -71,10 +71,11 @@
 
 <para>The function <code>(&savemem; &optional-amp;
   (&filename-r; "lispinit.mem") &key-amp; :KEEP-GLOBAL-HANDLERS :QUIET
-  :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE)</code>
-saves the running &clisp;'s memory to the file &filename-r;;
-extension &mem-file; is recommended (when &filename-r; does not have an
-extension, &mem-file; extension is automatically added).
+  :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE :EXECUTABLE)</code>
+ saves the running &clisp;'s memory to the file &filename-r;;
+ extension &mem-file; is recommended (when &filename-r; does not have an
+ extension, &mem-file; extension is automatically added unless the file
+ being created is an executable).
 <variablelist>
  <varlistentry><term><constant>:QUIET</constant></term>
   <listitem><simpara>If this argument is not &nil;, the startup
@@ -108,6 +109,12 @@ extension, &mem-file; extension is automatically added).
     <screen>&sh-prompt; clisp -i myfile -x '(&savemem;)'</screen>
     will produce an image without any global handlers inherited
     from the batch mode of the above command.</para></listitem></varlistentry>
+ <varlistentry><term><constant>:EXECUTABLE</constant></term>
+  <listitem><simpara>When non-&nil;, the saved file will be an
+    standalone executable.
+    In this case, the &mem-file; extension is not added.
+    On &win32; and &cygwin; the extension <filename>#P".exe"</filename>
+    is added instead.</simpara></listitem></varlistentry>
 </variablelist>
 You can use this memory image with the &opt-M; option.
 On &unix; systems, you may compress it with &gnu; &gzip; to save disk
@@ -4812,7 +4819,8 @@ Compiled, it will have inlined the library function calls.
 
 <para>This section describes three ways to turn &clisp; programs into
  executable programs, which can be started as quickly as executables
- written in other languages.</para>
+ written in other languages.
+ Note that &savemem; can also create standalone executables.</para>
 
 <section id="quickstart-summary"><title>Summary</title>
 <variablelist>

@@ -8761,8 +8761,9 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
 
 #endif
 
-/* (SAVEMEM pathname) stores the memory image at pathname. */
-LISPFUNN(savemem,1) {
+/* (SAVEMEM pathname exec-p) stores the memory image at pathname. */
+LISPFUNN(savemem,2) {
+  var bool exec_p = !nullp(popSTACK());
   /* execute (OPEN pathname :direction :output) :
    pathname as 1. argument */
   pushSTACK(S(Kdirection)); /* :DIRECTION as 2. Argument */
@@ -8790,7 +8791,7 @@ LISPFUNN(savemem,1) {
   /* write memory image into the file:
    (the stream has to be closed by function savemem(),
    also in case of an error.) */
-  savemem(value1);
+  savemem(value1,exec_p);
   VALUES1(T);
 }
 

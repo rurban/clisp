@@ -1,3 +1,27 @@
+2006-01-03  Sam Steingold  <sds@gnu.org>
+
+	SAVEINITMEM can create standalone executables
+	* spvw.d (runtime_size): new static
+	(init_memory): when runtime_size is non-0, try to load image from
+	the end of the executable, and set argv_memfile to "self"
+	* spvw_memfile.d (savemem): accept exec_p, call savemem_with_runtime
+	(savemem_with_runtime, loadmem_from_executable): new functions
+	(CLOSE_HANDLE): new macro
+	(loadmem, loadmem_from_handle): use it
+	* configure.in: check for fchmod
+	* execname.c (get_executable_name): new function,
+	returns executable_name
+	* lispbibl.d (savemem): updated the prototype
+	* makemake.in (UTILS): added filesize
+	(lisp.run): call filesize
+	(distrib) [!BINARY_DISTRIB]: distribute filesize.c
+	* _distmakefile [!UNIX_BINARY_DISTRIB]: call filesize on executables
+	* pathname.d, subr.d (SAVEMEM): accept EXEC-P
+	* savemem.lisp (%saveinitmem): pass NIL as EXEC-P to SAVEMEM
+	(saveinitmem): accept :EXECUTABLE
+	* utils/filesize.c: new file, replace "my magic marker"
+	with the file size in decimal
+
 2006-01-02  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (make_lisprun): new shortcut
