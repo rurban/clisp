@@ -1643,9 +1643,10 @@ local int loadmem_from_executable (void) {
   var Handle handle = open_filename(executable_name);
   lseek(handle,runtime_size,SEEK_SET);
   var char buf;
-  if (read(handle,&buf,sizeof(buf)) == sizeof(buf)) { /* not EOF */
+  if (fd_read(handle,&buf,sizeof(buf),persev_immediate) == sizeof(buf)) {
+    /* we are not at EOF, so assume that we do have an image in this runtime */
     lseek(handle,runtime_size,SEEK_SET);
     loadmem_from_handle(handle,executable_name);
     return 0;
-  } else return 1;
+  } else return 1;              /* EOF ==> no image in this runtime */
 }
