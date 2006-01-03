@@ -1,5 +1,10 @@
 2006-01-03  Sam Steingold  <sds@gnu.org>
 
+	* spvw_memfile.d (loadmem_from_executable): use fd_read() instead
+	of read() to fix woe32
+
+2006-01-03  Sam Steingold  <sds@gnu.org>
+
 	SAVEINITMEM can create standalone executables
 	* spvw.d (runtime_size): new static
 	(init_memory): when runtime_size is non-0, try to load image from
