@@ -403,7 +403,8 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-exec"><question id="faq-exec-q"><simpara>How do I
    create an executable file with all my code in it?</simpara></question>
-<answer><para>See <xref linkend="quickstart"/>.</para></answer></qandaentry>
+<answer><para>Use &savemem;, see also <xref linkend="quickstart"/>.
+</para></answer></qandaentry>
 
 <qandaentry id="faq-licensing"><question id="faq-licensing-q"><simpara>When
  I deliver my application with &clisp; does it have to be covered by
