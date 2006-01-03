@@ -77,6 +77,15 @@ verbose () {
   "$@" || fail "failed in `pwd`"
 }
 
+make_lisprun () {
+  # Generate new modules.o, compiled from modules.c, includes modules.h
+  link "$absolute_linkkitdir"/modules.c modules.c
+  verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c
+  rm -f modules.c
+  # Generate new ${LISPRUN}
+  verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN}
+}
+
 # func_tmpdir
 # creates a temporary directory.
 # Sets variable
@@ -187,12 +196,7 @@ case "$1" in
     vecho "$0: Entering directory \`$dir'"
     start_dir=`pwd`
     cd "$dir"
-    # Generate new modules.o, compiled from modules.c, includes modules.h
-    link "$absolute_linkkitdir"/modules.c modules.c
-    verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c
-    rm -f modules.c
-    # Generate new ${LISPRUN}
-    verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN}
+    make_lisprun
     cd "${start_dir}"
     vecho "$0: Leaving directory \`$dir'"
     # Done.
@@ -338,12 +342,7 @@ case "$1" in
     FILES=${FILES}' '${NEW_FILES}
     start_dir=`pwd`
     cd "$destinationdir"
-    # Generate new modules.o, compiled from modules.c, includes new modules.h
-    link "$absolute_linkkitdir"/modules.c modules.c
-    verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c
-    rm -f modules.c
-    # Generate new ${LISPRUN}
-    verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN}
+    make_lisprun
     cd "${start_dir}"
     if [ -n "$TO_PRELOAD" ] ; then
       # Generate new preliminary lispinit.mem
@@ -464,12 +463,7 @@ case "$1" in
       done
       start_dir=`pwd`
       cd "$destinationdir"
-      # Generate new modules.o, compiled from modules.c, includes new modules.h
-      link "$absolute_linkkitdir"/modules.c modules.c
-      verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c
-      rm -f modules.c
-      # Generate new ${LISPRUN}
-      verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN}
+      make_lisprun
       cd "${start_dir}"
       if [ -n "$PRELOAD" ] ; then
         # Generate new preliminary lispinit.mem
