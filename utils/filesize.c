@@ -13,7 +13,7 @@ static long find_marker (FILE* file, char *marker) {
   size_t marker_pos = 0;
   long pos = 0;
   while (1) {
-    ssize_t result = fread(buf,sizeof(char),BUFSIZ,file);
+    size_t result = fread(buf,sizeof(char),BUFSIZ,file);
     size_t i;
     if (result <= 0)
       return -1L;
