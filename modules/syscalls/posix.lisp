@@ -355,14 +355,14 @@
 
 ;;;--------------------------------------------------------------------------
 #+unix
-(defun make-xterm-io-stream ()
+(defun make-xterm-io-stream (&key (title "CLISP I/O"))
   (let* ((tmps (mkstemp "/tmp/clisp-x-io-XXXXXX"))
          (file (namestring tmps))
-         (title "CLISP I/O")
          xio
          (clos::*warn-if-gf-already-called* nil))
     (close tmps) (delete-file tmps)
     (mknod tmps :FIFO :RWXU)
+    (setq title (string title))
     (shell (format nil "xterm -n ~s -T ~s -e 'tty >> ~a; cat ~a' &"
                    title title file file))
     (setq xio (open file :direction :io))
