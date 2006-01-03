@@ -1,5 +1,10 @@
 2006-01-03  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (pretty-compare@sequence): handle the case when the
+	only difference between sequences is type (content is identical)
+
+2006-01-03  Sam Steingold  <sds@gnu.org>
+
 	* path.tst: test GETENV
 
 2006-01-01  Sam Steingold  <sds@gnu.org>
