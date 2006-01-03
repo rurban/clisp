@@ -1643,7 +1643,7 @@ local int loadmem_from_executable (void) {
   var Handle handle = open_filename(executable_name);
   lseek(handle,runtime_size,SEEK_SET);
   var char buf;
-  if (read(handle,&buf,sizeof(buf))) { /* not EOF */
+  if (read(handle,&buf,sizeof(buf)) == sizeof(buf)) { /* not EOF */
     lseek(handle,runtime_size,SEEK_SET);
     loadmem_from_handle(handle,executable_name);
     return 0;
