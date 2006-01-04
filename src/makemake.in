@@ -2883,6 +2883,16 @@ for f in ${DATA_FILES_TOP_PATH}; do
 done
 echol
 
+if [ ${HSYS} = win32gcc -a "${DEBUGGING}" != debug ]; then
+finish_runtime () {
+  # woe32 users do not have gcc, so they cannot disassemble CAR anyway
+  echotab "strip -s lisp${LEXE}"
+  echotab "./filesize${HEXE} $1"
+}
+else
+finish_runtime () { echotab "./filesize${HEXE} $1"; }
+fi
+
 echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${XCL_CHARSETLIB} ${SYSLIBS} data filesize${HEXE}"
 if [ $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
@@ -2892,10 +2902,6 @@ if [ $HOS != win32 ] ; then
   else
     echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${OUT}lisp${LEXE}"
   fi
-  if [ $HOS = unix ] ; then
-    echotab "-sync"
-  fi
-  echol
 else
   # MSVC's incremental linking is buggy, avoid it.
   if [ $HSYS = win32msvc ] ; then echotab "\$(RM) lisp.ilk"; fi
@@ -2908,7 +2914,7 @@ else
     echotab "editbin /stack:3145728 lisp${LEXE}"
   fi
 fi
-echotab "./filesize${HEXE} lisp${LEXE}"
+finish_runtime lisp${LEXE}
 
 echol
 
@@ -3352,13 +3358,13 @@ cygwin_check() {
 echol "base : modular boot \$(BASE_MODULES)"
 echotab "\$(RMRF) base"
 echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
-echotab "./filesize${HEXE} base/lisp${LEXE}"
+finish_runtime base/lisp${LEXE}
 cygwin_check base
 echol
 echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
 echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
-echotab "./filesize${HEXE} full/lisp${LEXE}"
+finish_runtime full/lisp${LEXE}
 cygwin_check full
 echol
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
@@ -3611,7 +3617,8 @@ if [ $CROSS = false ] ; then
       echotab "mkdir \$(DESTDIR)\$(lisplibdir)/dynmod"
       echotab "for f in dynmod/*; do \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f; done"
     fi
-    # Don't strip the executables, otherwise (disassemble #'cons) won't work.
+    # Don't strip the executables, otherwise (disassemble #'cons)
+    # and saveinitmem/:executable won't work.
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd po && \$(MAKE) install prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
@@ -3804,7 +3811,8 @@ for dir in base full; do
   echotab "${HLN} "'`'". ${dir}/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo ${dir}/\$\$f ; done"'`'" \$(TOPDIR)/${dir}"
   if test -n "$BINARY_DISTRIB"; then
     echotab "cp ${dir}/lisp${LEXE} \$(TOPDIR)/${dir}/lisp${LEXE}"
-    # Don't strip the executable, otherwise (disassemble #'cons) won't work.
+    # Don't strip the executable, otherwise (disassemble #'cons)
+    # and saveinitmem/:executable won't work.
     # echotab "strip \$(TOPDIR)/${dir}/lisp${LEXE}"
     echotab "chmod a+x \$(TOPDIR)/${dir}/lisp${LEXE}"
   fi
