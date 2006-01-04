@@ -1,3 +1,8 @@
+2006-01-04  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: strip runtime on no-debug woe32
+	because woe32 users do not have gdb anyway
+
 2006-01-03  Sam Steingold  <sds@gnu.org>
 
 	* utils/filesize.c (main): check that the marker is found just once
