@@ -5009,8 +5009,9 @@ EOF
 </screen></para>
 
 <para>Please read
- <filename>/usr/src/linux/Documentation/binfmt_misc.txt</filename> for
- details.</para>
+ <ulink url="http://www.linuxhq.com/kernel/file/Documentation/binfmt_misc.txt">
+  <filename>/usr/src/linux/Documentation/binfmt_misc.txt</filename></ulink>
+ for details.</para>
 </section>
 
 </section>
