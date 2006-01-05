@@ -4969,8 +4969,9 @@ input will be available.</para></formalpara>
  extension) will start &clisp; with the given &mem-image;.</para>
 
 <note><para>Note that &clisp; is distributed with a file
- <filename role="clisp-cvs">src/install.bat</filename>, which creates a file
- <filename>clisp.lnk</filename> on your desktop and also associates
+ <filename role="clisp-cvs">src/install.bat</filename>, which
+ runs <filename role="clisp-cvs">src/install.lisp</filename> to create a
+ file <filename>clisp.lnk</filename> on your desktop and also associates
  &fasl-file;, &lisp-file;, and &mem-file; files with &clisp;.</para></note>
 
 </section>
@@ -4984,7 +4985,7 @@ input will be available.</para></formalpara>
  <option>CONFIG_BINFMT_MISC=y</option> and
  <option>CONFIG_PROC_FS=y</option>.  Then you will have a
  <filename>/proc/sys/fs/binfmt_misc/</filename> directory and you will
- be able to do (as <literal>root</literal>; you might want to put
+ be able to do (as <literal role="login">root</literal>; you might want to put
  these lines into <filename>/etc/rc.d/rc.local</filename>):
 
 <screen>
