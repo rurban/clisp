@@ -321,13 +321,14 @@ DEFUN(POSIX:SETLOGMASK, maskpri) {
 }
 #endif
 DEFUN(POSIX::%SYSLOG, severity facility message) {
+
   int priority =
     check_syslog_severity(STACK_2) | check_syslog_facility(STACK_1);
   with_string_0(STACK_0 = check_string(STACK_0),GLO(misc_encoding),mesg, {
       begin_system_call();
-      /* NOTE: syslog(priority,"%s",mesg) is WRONG because it disables %m, see
+      /* disable %m but avoid surprises with % special handling
          http://www.opengroup.org/onlinepubs/009695399/functions/syslog.html */
-      syslog(priority,mesg);
+      syslog(priority,"%s",mesg);
       end_system_call();
     });
   VALUES0; skipSTACK(3);

@@ -511,12 +511,8 @@
     &fmt-r; &rest-amp; &args-r;)</code></term>
   <listitem><simpara>calls <function role="unix">syslog</function> on
     <code>(&apply; &format; &nil; &fmt-r; &args-r;)</code></simpara>
-   <warning><simpara>You can use the <literal role="data">%m</literal>
-     conversion specification which is converted to the
-     <varname role="unix">errno</varname> value, but you must quote all
-     other <literal>%</literal> characters: <code>(syslog :alert :user
-      "User Alert: errno=%m (~5f%% done)" progress)</code>
- </simpara></warning></listitem></varlistentry>
+   <simpara>No <literal role="data">%</literal> conversion is performed,
+    you must do all formatting in Lisp.</simpara></listitem></varlistentry>
  <varlistentry id="closelog"><term><code>(POSIX:CLOSELOG)</code></term>
   <listitem><simpara>calls <function role="unix">closelog</function>
  </simpara></listitem></varlistentry>
