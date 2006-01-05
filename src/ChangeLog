@@ -1,3 +1,8 @@
+2006-01-05  Sam Steingold  <sds@gnu.org>
+
+	* modules/i18n/i18n.lisp, modules/syscalls/posix.lisp: do not define
+	impnotes documentation in lisp, do it in libdir/Symbol-Table.text
+
 2006-01-04  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: strip runtime on no-debug woe32
