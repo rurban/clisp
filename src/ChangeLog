@@ -1,3 +1,8 @@
+2006-01-05  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 1395894 ]: bad read from make-xterm-io-stream
+	* modules/syscalls/posix.lisp (make-xterm-io-stream): fix bitrot
+
 2005-12-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* modules/syscalls/calls.c (POSIX:SYSLOG): use
