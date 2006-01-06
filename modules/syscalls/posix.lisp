@@ -356,23 +356,30 @@
 #+unix
 (defun make-xterm-io-stream (&key (title "CLISP I/O"))
   (let* ((tmps (mkstemp "/tmp/clisp-x-io-XXXXXX"))
-         (file (namestring tmps))
+         (pipe (namestring tmps))
          xio
          (clos::*warn-if-gf-already-called* nil))
     (close tmps) (delete-file tmps)
     (mknod tmps :FIFO :RWXU)
     (setq title (string title))
+    ;; - tty tells us what device to use for IO
+    ;; - cat holds xterm from quitting and prints the good-bye message
+    ;;   (actually, the xterm window disappears before you can read it...)
     (shell (format nil "xterm -n ~s -T ~s -e 'tty >> ~a; cat ~a' &"
-                   title title file file))
-    (setq xio (open file :direction :io))
-    ;; we cannot rely on GC closing files because we also need to remove
-    ;; the FIFO which is done by the :AFTER method below
+                   title title pipe pipe))
+    (with-open-file (s pipe :direction :input)
+      (setq xio (open (read-line s) :direction :io)))
+    ;; GC uses the internal non-generic builtin_stream_close() so
+    ;; we cannot rely on GC closing files because we also need to
+    ;;  - write something into the pipe to terminate cat and thus xterm and
+    ;;  - remove the pipe
+    ;; which is done by the :AFTER method below
     (ext:finalize xio #'close)
     (defmethod close :after ((x (eql xio)) &rest junk)
       (declare (ignore x junk))
-      (with-open-file (s file :direction :output)
+      (with-open-file (s pipe :direction :output)
         (write-line (SYS::TEXT "Bye.") s))
-      (delete-file file)
+      (delete-file pipe)
       (let ((clos::*warn-if-gf-already-called* nil))
         (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
     xio))
