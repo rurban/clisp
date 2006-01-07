@@ -620,19 +620,19 @@ with "-O", avoids this.
 On IA-64 running Linux, emulated by HP NUE:
 
 Add -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE -DNO_SINGLEMAP -DNO_TRIVIALMAP
-to the CFLAGS.
+to the CFLAGS, or, equivalently, pass "--disable-mmap" to ./configure.
 
 
 On AMD64 (x86_64) running FreeBSD:
 
 Add -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE -DNO_SINGLEMAP -DNO_TRIVIALMAP
-to the CFLAGS.
+to the CFLAGS, or, equivalently, pass "--disable-mmap" to ./configure.
 
 
 On DEC Alpha running Linux:
 
 Add -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE -DNO_SINGLEMAP -DNO_TRIVIALMAP
-to the CFLAGS.
+to the CFLAGS, or, equivalently, pass "--disable-mmap" to ./configure.
 
 
 On platforms using AFS:
