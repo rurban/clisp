@@ -704,21 +704,23 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
 ; CLTL p. 446
 (defun encode-universal-time
               (Sekunde Minute Stunde Tag Monat Jahr &optional (Zeitzone nil)
-               &aux Monat3 Jahr3 Jahrtag UTTag)
+               &aux Monat3 Jahr3 Jahrtag UTTag UT)
   (unless (and (and (integerp Jahr)
                     (progn
                       (when (<= 0 Jahr 99)
-                        (multiple-value-bind (i1 i2 i3 i4 i5 Jahrjetzt) (get-decoded-time)
+                        (multiple-value-bind (i1 i2 i3 i4 i5 Jahrjetzt)
+                            (get-decoded-time)
                           (declare (ignore i1 i2 i3 i4 i5))
                           (setq Jahr
-                            (+ Jahr (* 100 (ceiling (- Jahrjetzt Jahr 50) 100))))))
-                      (<= 1900 Jahr)))
+                                (+ Jahr (* 100 (ceiling (- Jahrjetzt Jahr 50)
+                                                        100))))))
+                      ;; 1900-01-01 GMT == 1899-12-31 EST
+                      (<= 1899 Jahr)))
                (and (integerp Monat) (<= 1 Monat 12))
                (progn
                  (if (< Monat 3)
-                   (setq Jahr3 (1- Jahr)  Monat3 (+ Monat 9)) ; Monat3 10..11
-                   (setq Jahr3 Jahr       Monat3 (- Monat 3)) ; Monat3 0..9
-                 )
+                   (setq Jahr3 (1- Jahr)  Monat3 (+ Monat 9))  ; Monat3 10..11
+                   (setq Jahr3 Jahr       Monat3 (- Monat 3))) ; Monat3 0..9
                  (and (and (integerp Tag) (<= 1 Tag))
                       (progn
                         (setq Jahrtag (+ (1- Tag) (Monat->Jahrtag Monat3)))
@@ -734,21 +736,26 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
                                       (setq Zeitzone
                                         #-(or UNIX WIN32)
                                         (- *default-time-zone*
-                                           (if (funcall *default-dst-check* Jahr3 Jahrtag Stunde) 1 0))
+                                           (if (funcall *default-dst-check*
+                                                        Jahr3 Jahrtag Stunde)
+                                               1 0))
                                         #+(or UNIX WIN32)
                                         (default-time-zone
                                             (+ (* 24 UTTag) Stunde) nil)))
-                                    (when (floatp Zeitzone) (setq Zeitzone (rational Zeitzone)))
+                                    (when (floatp Zeitzone)
+                                      (setq Zeitzone (rational Zeitzone)))
                                     (or (integerp Zeitzone)
-                                        (and (rationalp Zeitzone) (integerp (* 3600 Zeitzone)))))
-                                  (<= -24 Zeitzone 24)))))))
+                                        (and (rationalp Zeitzone)
+                                             (integerp (* 3600 Zeitzone)))))
+                                  (<= -24 Zeitzone 24))
+                             (<= 0 (setq UT (+ Sekunde
+                                               (* 60 (+ Minute
+                                                        (* 60 (+ Stunde Zeitzone
+                                                                 (* 24 UTTag)))))))))))))
     (error-of-type 'error
       (TEXT "incorrect date: ~S-~S-~S ~S:~S:~S, time zone ~S")
       Jahr Monat Tag Stunde Minute Sekunde Zeitzone))
-  (+ Sekunde
-     (* 60 (+ Minute
-              (* 60 (+ Stunde Zeitzone
-                       (* 24 UTTag)))))))
+  UT)
 
 ; (decode-universal-time universal-time [time-zone]), CLTL p. 445
 (defun decode-universal-time (UT &optional (time-zone nil)
@@ -780,7 +787,8 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
                 (setq Monat (+ Monat 3)) ; Monat 3..12
                 (setq Monat (- Monat 9) Jahr (+ Jahr 1))) ; Monat 1..2
               (values Sekunde Minute Stunde Tag Monat Jahr (mod UTTage 7)
-                      Sommerzeit time-zone))))))))) ; Ende von macrolet
+                      Sommerzeit time-zone))))))))
+) ; end of macrolet
 
 ; (get-decoded-time), CLTL p. 445
 (defun get-decoded-time ()

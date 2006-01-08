@@ -1,3 +1,8 @@
+2006-01-07  Sam Steingold  <sds@gnu.org>
+
+	* time.tst: check that early 1900-01-01 GMT (which is 1899-12-31
+	EST) is correctly handled by ENCODE-UNIVERSAL-TIME
+
 2006-01-03  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (pretty-compare@sequence): handle the case when the

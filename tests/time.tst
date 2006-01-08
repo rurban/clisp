@@ -28,6 +28,9 @@ CHECK-UNIVERSAL-TIME
 (check-universal-time 2879996399) NIL
 (check-universal-time 2879996400) NIL
 
+(check-universal-time 3)   NIL
+(check-universal-time 3 7) NIL
+
 (defun time-loop (start end step &optional tz)
   "return the periods of badness"
   (time
