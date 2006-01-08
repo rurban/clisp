@@ -2902,9 +2902,10 @@ local inline int init_memory (struct argv_initparams *p) {
  #endif
   init_subr_tab_1(); # initialize subr_tab
   markwatchset = NULL; markwatchset_allocated = markwatchset_size = 0;
-  var char marker[16] = "my magic marker";
+  /* must match utils/filesize.c */
+  var char marker[32] = "magic file size marker 0\0\0\0\0\0\0\0";
   /* for loadmem_from_executable and savemem_with_executable: */
-  runtime_size = atol(marker);
+  runtime_size = strtoul(marker+23,NULL,16);
   if (p->argv_memfile)
     loadmem(p->argv_memfile);                     /* load memory file */
   else if (runtime_size && !loadmem_from_executable())
