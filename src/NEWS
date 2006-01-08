@@ -5,6 +5,9 @@ User visible changes
   Thanks to Frank Buß <fb@frank-buss.de> for the idea.
   See <http://clisp.cons.org/impnotes/image.html> for details.
 
+* POSIX:SYSLOG no longer recognizes "%m" and other formatting instructions.
+  For your safety and security, please do all formatting in Lisp.
+
 
 2.37 (2006-01-02)
 =================
