@@ -32,12 +32,13 @@ static long find_marker (FILE* file, char *marker) {
 int main (int argc, char *argv[]) {
   FILE *file;
   char buf[BUFSIZ];
-  char marker[16] = "my magic marker";
+  /* must match src/spvw.d
+     positions:     0    5    10   15   20   25   30 */
+  char marker[24] = "magic file size marker ";
   size_t marker_len = strlen(marker);
   long size, pos;
-  size_t res;
   if (argc != 2) {              /* check arguments */
-    fprintf(stderr,"Usage: %s filename\nTo replace '%s' with file size\n",
+    fprintf(stderr,"Usage: %s filename\nTo append file size to '%s'\n",
             argv[0],marker);
     return 1;
   }
@@ -91,32 +92,39 @@ int main (int argc, char *argv[]) {
     fclose(file);
     return 8;
   }
-  /* make sure that we did indeed find the marker */
-  if ((res = fread(buf,sizeof(char),BUFSIZ,file)) <= marker_len) {
-    fprintf(stderr,"%s: fread returns %d (%s)\n",argv[0],res,buf);
-    fclose(file);
-    return 9;
+  { /* make sure that we did indeed find the marker */
+    size_t res;
+    if ((res = fread(buf,sizeof(char),BUFSIZ,file)) <= marker_len) {
+      fprintf(stderr,"%s: fread returns %d (%s)\n",argv[0],res,buf);
+      fclose(file);
+      return 9;
+    }
   }
   if (strncmp(marker,buf,marker_len)) {
     fprintf(stderr,"%s: marker mismatch: %s\n",argv[0],buf);
     fclose(file);
     return 10;
   }
+  printf("%s: replacing %s with %lx\n",argv[0],buf+marker_len,size);
   /* move to the marker again - fread() changed the position */
-  if (fseek(file,pos,SEEK_SET)) {
+  if (fseek(file,pos += marker_len,SEEK_SET)) {
     sprintf(buf,"%s: cannot fseek '%s' to SET %ld",argv[0],argv[1],pos);
     perror(buf);
     fclose(file);
     return 11;
   }
-  /* overwrite the marker with the file size */
-  for (res = 0; res < marker_len; res++) marker[res] = 0;
-  sprintf(marker,"%ld",size);
-  if (fwrite(marker,sizeof(char),marker_len,file) <= 0) {
-    sprintf(buf,"%s: cannot fwrite '%s' to '%s'",argv[0],marker,argv[1]);
-    perror(buf);
-    fclose(file);
-    return 12;
+  { /* append the file size to the marker */
+    int res;
+    for (res = 0; res < marker_len; res++) marker[res] = 0;
+    res = sprintf(marker,"%lx",size);
+    if (strncmp(marker,buf+marker_len,res) == 0) {
+      printf("%s: '%s' already contains correct file size\n",argv[0],argv[1]);
+    } else if (fwrite(marker,sizeof(char),res,file) <= 0) {
+      sprintf(buf,"%s: cannot fwrite '%s' to '%s'",argv[0],marker,argv[1]);
+      perror(buf);
+      fclose(file);
+      return 12;
+    }
   }
   fclose(file);
   return 0;
