@@ -12,7 +12,7 @@
 
 2006-01-07  Sam Steingold  <sds@gnu.org>
 
-	* makemake.in (CFLAGS) [disable-mmap]: add -DNO_MULTIMAP_SHM
+	* makemake.in (XCFLAGS) [disable-mmap]: add -DNO_MULTIMAP_SHM
 	-DNO_MULTIMAP_FILE -DNO_SINGLEMAP -DNO_TRIVIALMAP
 
 2006-01-05  Sam Steingold  <sds@gnu.org>

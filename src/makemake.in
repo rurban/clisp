@@ -632,10 +632,6 @@ XCC_UNUSABLE_CPP=false
 # DEBUGGING should be debug or nothing
 DEBUGGING=$1
 
-if [ "${enable_mmap}" = no ]; then
-  CFLAGS=${CFLAGS}" -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE -DNO_SINGLEMAP -DNO_TRIVIALMAP"
-fi
-
 # now set appropriate MSVC cflags
 if [ $TSYS = win32msvc ] ; then
   # -G5 means to optimize for i586.
@@ -1410,6 +1406,10 @@ if [ "$cpu" = i386 -a "$TSYSOS" = linux -a $CROSS = false ] ; then # Linux
       XCFLAGS=$XCFLAGS' -DNO_GENERATIONAL_GC' ;;
     *) ;;
   esac
+fi
+
+if [ "${enable_mmap}" = no ]; then
+  XCFLAGS=${XCFLAGS}" -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE -DNO_SINGLEMAP -DNO_TRIVIALMAP"
 fi
 
 if [ $TSYS = sun4 -a $CROSS = false ] ; then
