@@ -1,3 +1,8 @@
+2006-01-11  Sam Steingold  <sds@gnu.org>
+
+	fixed bug [ 1402338 ]: socket-status ignores microseconds in timeout
+	* stream.d (sec_usec): fixed a typo in TV_SEC
+
 2006-01-07  Sam Steingold  <sds@gnu.org>
 
 	make utils/filesize idempotent
