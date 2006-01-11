@@ -14284,7 +14284,9 @@ local maygc object handle_isset (object socket, fd_set *readfds,
    -- socket [socket-stream or socket-server]
    -- (socket . direction) [direction is :input or :output or :io (default)]
    -- (socket direction . ???) [??? is replaced with the status, no consing]
-   -- list of the above
+   -- non-empty list of the above
+ NIL signals an error because (SOCKET-STATUS X NIL) returning means that
+   some operation is available (the second value is non-0)
  returns either a single symbol :ERROR/:INPUT/:OUTPUT/:IO/:EOF/:APPEND/NIL
    (for streams) or T/NIL (for socket-servers) - when a single object was
    given - or a list of such symbols:
