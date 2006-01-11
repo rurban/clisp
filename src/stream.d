@@ -13934,9 +13934,9 @@ global maygc struct timeval * sec_usec (object sec, object usec,
     }
   }
 #if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
- #define TV_SEC(s)  I_to_uint64(check_uint64(sec))
+ #define TV_SEC(s)  I_to_uint64(check_uint64(s))
 #else
- #define TV_SEC(s)  I_to_uint32(check_uint32(sec))
+ #define TV_SEC(s)  I_to_uint32(check_uint32(s))
 #endif
   tv->tv_sec = TV_SEC(sec);
   tv->tv_usec = (missingp(usec) ? 0 : TV_SEC(usec));
