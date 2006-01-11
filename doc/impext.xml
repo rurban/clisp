@@ -4725,7 +4725,7 @@ Compiled, it will have inlined the library function calls.
     <varlistentry><term><code>(&socket-stream; . &direction-r;)</code></term>
      <listitem><simpara>Return the status in the specified direction
     </simpara></listitem></varlistentry>
-    <varlistentry><term>a list of the above</term>
+    <varlistentry><term>a non-empty list of the above</term>
      <listitem><simpara>Return a list of values, one for each element of the
        argument list (a la &mapcar;)</simpara></listitem></varlistentry>
    </variablelist>
@@ -4742,7 +4742,9 @@ Compiled, it will have inlined the library function calls.
     non-&nil; status, i.e., <quote>actionable</quote> objects.
     &so-status; returns either due to a timeout or when this number is
     positive, i.e., if the timeout was &nil; and &so-status; did
-    return, then the second value is positive.</simpara>
+    return, then the second value is positive (this is the reason &nil;
+    is &not-e; treated as an empty &list-t;, but as an invalid
+    argument).</simpara>
    <simpara>This is the interface to <function role="unix">select</function>
     (on some platforms, <function role="unix">poll</function>),
     so it will work on any &clisp; &stream-t; which is based on a
