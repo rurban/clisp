@@ -36,6 +36,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Define to 1 if you have the <postgresql/postgres_ext.h> header file. */
+#undef HAVE_POSTGRESQL_POSTGRES_EXT_H
+
 /* Define to 1 if you have the <postgres_ext.h> header file. */
 #undef HAVE_POSTGRES_EXT_H
 

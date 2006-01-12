@@ -3480,7 +3480,8 @@ done
 
 
 
-for ac_header in postgres_ext.h
+
+for ac_header in postgres_ext.h postgresql/postgres_ext.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -3629,7 +3630,7 @@ fi
 
 done
 
-if test "$ac_cv_header_postgres_ext_h" = "no"; then
+if test "$ac_cv_header_postgres_ext_h" = "no" -a "$ac_cv_header_postgresql_postgres_ext_h" = "no"; then
   { { echo "$as_me:$LINENO: error: cannot find PostgreSQL headers" >&5
 echo "$as_me: error: cannot find PostgreSQL headers" >&2;}
    { (exit 1); exit 1; }; }
