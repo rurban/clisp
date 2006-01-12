@@ -2445,9 +2445,6 @@ local inline void free_argv_actions (struct argv_actions *p) {
   free(p->argv_compile_files);
 }
 
-/* the size of the runtime executable for executable dumping */
-static size_t runtime_size = 0;
-
 # Initialize memory and load the specified memory image.
 # Returns 0 if successful, -1 upon error (after printing an error message
 # to stderr).
@@ -2902,15 +2899,11 @@ local inline int init_memory (struct argv_initparams *p) {
  #endif
   init_subr_tab_1(); # initialize subr_tab
   markwatchset = NULL; markwatchset_allocated = markwatchset_size = 0;
-  /* must match utils/filesize.c */
-  var char marker[32] = "magic file size marker 0\0\0\0\0\0\0\0";
-  /* for loadmem_from_executable and savemem_with_executable: */
-  runtime_size = strtoul(marker+23,NULL,16);
   if (p->argv_memfile)
-    loadmem(p->argv_memfile);                     /* load memory file */
-  else if (runtime_size && !loadmem_from_executable())
+    loadmem(p->argv_memfile);   /* load memory file */
+  else if (!loadmem_from_executable())
     p->argv_memfile = "self";
-  else initmem();                  /* manual initialization */
+  else initmem();               /* manual initialization */
   # init O(current_language)
   O(current_language) = current_language_o(language);
   # set current evaluator-environments to the toplevel-value:
