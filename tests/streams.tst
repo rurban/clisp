@@ -990,6 +990,25 @@ WARNING: This form contains an error, a mistake, a bug, a
     (delete-file f)))
 #+clisp (T T)
 
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1399709&group_id=1355&atid=101355
+;; test :if-exists :append
+(let ((f "foo.bar") pos)
+  (unwind-protect
+       (progn (with-open-file (s f :direction :output :if-exists :supersede
+                                 #+clisp :external-format #+clisp :unix)
+                (write-line "foo" s)
+                (push (file-position s) pos))
+              (with-open-file (s f :direction :output :if-exists :append
+                                 #+clisp :external-format #+clisp :unix)
+                (push (file-position s) pos)
+                (write-line "bar" s)
+                (push (file-position s) pos))
+              (list (nreverse pos)
+                    (with-open-file (s f :direction :input)
+                      (list (read-line s) (read-line s)))))
+    (delete-file f)))
+((4 4 8) ("foo" "bar"))
+
 (stringp (with-output-to-string (s)
            (describe (make-array nil) s)))
 T

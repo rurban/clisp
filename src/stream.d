@@ -6027,8 +6027,9 @@ local uintL low_fill_buffered_handle (object stream, perseverance_t persev) {
   if ((persev == persev_immediate || persev == persev_bonus)
       && ChannelStream_regular(stream))
     persev = persev_partial;
-  if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
-    return 0;                   /* wronly stream */
+  if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0
+      && !ChannelStream_regular(stream))
+    return 0; /* wronly stream to a special device, handle is O_WRONLY */
   begin_system_call();
   var ssize_t result = fd_read(handle,buff,strm_buffered_bufflen,persev);
   end_system_call();
@@ -6255,19 +6256,16 @@ local void position_file_buffered (object stream, uoff_t position) {
     BufferedStream_have_eof_p(stream) = false;
     var uintL newindex = position % strm_buffered_bufflen; # desired Index in the Sector
     if (newindex!=0) { # Position between Sectors -> nothing needs to be read
-      if (TheStream(stream)->strmflags & strmflags_rd_B) {
-        buffered_nextbyte(stream,persev_partial);
-        /* Now index=0.
-           set index to (position mod bufflen) , but check beforehand: */
-        var uintL endvalid = BufferedStream_endvalid(stream);
-        # newindex must be in the valid range
-        if (newindex > endvalid) {
-          # Error. But first position back to the old Position:
-          check_SP();
-          position_file_buffered(stream,oldposition); # position back
-          fehler_position_beyond_EOF(stream);
-        }
-      } else BufferedStream_endvalid(stream) = newindex;
+      buffered_nextbyte(stream,persev_partial);
+      /* index=0; set index to (position mod bufflen), but check first: */
+      var uintL endvalid = BufferedStream_endvalid(stream);
+      # newindex must be in the valid range
+      if (newindex > endvalid) {
+        # Error. But first position back to the old Position:
+        check_SP();
+        position_file_buffered(stream,oldposition); # position back
+        fehler_position_beyond_EOF(stream);
+      }
       BufferedStream_index(stream) = newindex;
     }
   }
