@@ -6291,18 +6291,27 @@ local inline Handle open_output_file (char* pathstring, bool wronly,
                                       bool truncate_if_exists) {
  #ifdef UNIX
   begin_system_call();
-  var int result =
-    OPEN(pathstring,((wronly ? O_WRONLY : O_RDWR) | O_BINARY | O_CREAT
-                     | (truncate_if_exists ? O_TRUNC : 0)),
-         my_open_mask);
+  var int flags = O_BINARY | O_CREAT | (truncate_if_exists ? O_TRUNC : 0);
+  /* regular file or !wronly => O_RDWR
+   i.e., for the handle to be O_WRONLY, it must be opened :DIRECTION :OUTPUT
+   AND the underlying file must be special (pipe &c)
+   see bug #[ 1379620 ]: open FIFOs with write-only access for IPC */
+  if (wronly) { /* regular (regular_handle_p) => ignore wronly for buffering */
+    var struct stat statbuf;
+    if (stat(pathstring,&statbuf) ||
+        S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode))
+      flags |= O_RDWR;         /* not exists or regular => read-write */
+    else flags |= O_WRONLY;     /* special => write-only */
+  } else flags |= O_RDWR;
+  var int result = OPEN(pathstring,flags,my_open_mask);
   end_system_call();
   if (result<0) { OS_file_error(STACK_0); } /* report error */
   return result;
  #endif
  #ifdef WIN32_NATIVE
   begin_system_call();
-  var Handle handle =
-    CreateFile(pathstring, (wronly ? 0 : GENERIC_READ) | GENERIC_WRITE,
+  var Handle handle = /* ignore wronly: no "special" files where it may hurt */
+    CreateFile(pathstring, GENERIC_READ | GENERIC_WRITE,
                FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                (truncate_if_exists ? CREATE_ALWAYS : OPEN_ALWAYS),
                FILE_ATTRIBUTE_NORMAL, NULL);
