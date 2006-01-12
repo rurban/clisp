@@ -2344,7 +2344,6 @@ fi
 UTILS=$UTILS' comment5'
 UTILS=$UTILS' gctrigger'
 UTILS=$UTILS' varbrace'
-UTILS=$UTILS' filesize'
 if [ $XCC_NEED_DEEMA = true -a $HOS != unix ] ; then
   UTILS=$UTILS' deema'
 fi
@@ -2416,7 +2415,7 @@ else echol "UTILCC=\$(CC)"
 fi
 for util in ${UTILS} ; do
   case ${util} in
-    filesize | ccpaux | deema | txt2c | ccmp2c )
+    ccpaux | deema | txt2c | ccmp2c )
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
       echotab_to_HEXE "\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
       echol ;;
@@ -2891,13 +2890,15 @@ if [ ${HSYS} = win32gcc -a "${DEBUGGING}" != debug ]; then
 finish_runtime () {
   # woe32 users do not have gcc, so they cannot disassemble CAR anyway
   echotab "strip -s lisp${LEXE}"
-  echotab "./filesize${HEXE} $1"
+  echol
 }
 else
-finish_runtime () { echotab "./filesize${HEXE} $1"; }
+finish_runtime () {
+  echol
+}
 fi
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${XCL_CHARSETLIB} ${SYSLIBS} data filesize${HEXE}"
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${XCL_CHARSETLIB} ${SYSLIBS} data"
 if [ $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
@@ -2919,8 +2920,6 @@ else
   fi
 fi
 finish_runtime lisp${LEXE}
-
-echol
 
 if [ $TSYS = win32msvc -a "$DEBUGGING" = debug ] ; then
   echol "${SRCDIR}lisp.bsc : lisp${LEXE}"
@@ -3352,25 +3351,24 @@ echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; if ${NEED_RECONFIGURE} ; then cd \$@ ;
 echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 
-# make sure no cygwin libraries crept into the mingw distribution
-cygwin_check() {
+cygwin_finish() {
+  # make sure no cygwin libraries crept into the mingw distribution
   if [ "$host_os" = cygwin -a "${TSYS}" = win32gcc ]; then
     echotab "if cygcheck $1/lisp.exe | grep cyg; then false; else true; fi"
   fi
+  finish_runtime $1/lisp${LEXE}
 }
 
 echol "base : modular boot \$(BASE_MODULES)"
 echotab "\$(RMRF) base"
 echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
-finish_runtime base/lisp${LEXE}
-cygwin_check base
-echol
+cygwin_finish base
+
 echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
 echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
-finish_runtime full/lisp${LEXE}
-cygwin_check full
-echol
+cygwin_finish full
+
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
 echotab 'for m in $(BASE_MODULES); do $(RM) $$m/*.erg; done'
 echotab 'z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
@@ -3859,7 +3857,6 @@ echo_dist_modules "\$(TOPDIR)" ${HLN} ""
 if test -z "$BINARY_DISTRIB"; then
   echotab "${HLN} clisp.c \$(TOPDIR)/src"
   echotab "${HLN} execname.c \$(TOPDIR)/src"
-  echotab "${HLN} ${UTILDIR_}filesize.c \$(TOPDIR)/src"
 else
   echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"'" clisp.c "\$(TOPDIR)/clisp"
   echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}hardcode.c" "\$(TOPDIR)/hardcode"

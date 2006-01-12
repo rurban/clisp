@@ -1,5 +1,19 @@
 2006-01-12  Sam Steingold  <sds@gnu.org>
 
+	use memdump_header as the marker instead of runtime_size
+	for creating executable images
+	* spvw.d (init_memory): remove marker and runtime_size
+	* spvw_memfile.d (mem_start): new static, replaces runtime_size
+	(savemem_with_runtime): when mem_start is 0, copy the whole executable
+	(fill_memdump_header): extracted from savemem()
+	(savemem): use it
+	(find_marker): moved here from utils/filesize.c
+	(loadmem_from_executable): use it instead of runtime_size
+	* makemake.in, _distmakefile: removed filesize
+	* utils/filesize.c: removed
+
+2006-01-12  Sam Steingold  <sds@gnu.org>
+
 	* modules/postgresql/configure.in: look for
 	<postgresql/postgres_ext.h> in addition to <postgres_ext.h>
 	* modules/postgresql/postgresql.lisp: include either

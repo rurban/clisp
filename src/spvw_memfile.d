@@ -232,28 +232,46 @@ typedef struct {
 /* write the executable into the handle */
 extern char *get_executable_name (void);
 local Handle open_filename (const char* filename);
+/* the size of the runtime executable for executable dumping
+   == the start of memory image in the executable */
+static size_t mem_start = 0;
 static void savemem_with_runtime (Handle handle) {
   var char *executable_name = get_executable_name();
   var char buf[BUFSIZ];
   begin_system_call();
   var Handle runtime = open_filename(executable_name);
-  var uintL remains = runtime_size;
-  while (remains > 0) {
-    var ssize_t res = fd_read(runtime,(void*)buf,BUFSIZ,persev_full);
-    end_system_call();
-    if (res <= 0) {
-      builtin_stream_close(&STACK_0,0);
-      if (res < 0) /* error occurred? */
-        OS_file_error(TheStream(STACK_0)->strm_file_truename);
-      /* FILE-ERROR slot PATHNAME */
-      pushSTACK(asciz_to_string(executable_name,O(pathname_encoding)));
-      pushSTACK(fixnum(remains));
-      fehler(file_error,GETTEXT("runtime too small (~S bytes missing)"));
+  if (mem_start) {
+    var uintL remains = mem_start;
+    while (remains > 0) {
+      var ssize_t res = full_read(runtime,(void*)buf,BUFSIZ);
+      end_system_call();
+      if (res <= 0) {
+        builtin_stream_close(&STACK_0,0);
+        if (res < 0) /* error occurred? */
+          OS_file_error(TheStream(STACK_0)->strm_file_truename);
+        /* FILE-ERROR slot PATHNAME */
+        pushSTACK(asciz_to_string(executable_name,O(pathname_encoding)));
+        pushSTACK(fixnum(remains));
+        fehler(file_error,GETTEXT("runtime too small (~S bytes missing)"));
+      }
+      var uintL len = (remains > res ? res : remains);
+      remains -= len;
+      WRITE(buf,len);
+      begin_system_call();
     }
-    var uintL len = (remains > res ? res : remains);
-    remains -= len;
-    WRITE(buf,len);
-    begin_system_call();
+  } else { /* mem_start == 0 ==> no memory image in the executable,
+              just copy everything */
+    while (1) {
+      var ssize_t res = full_read(runtime,(void*)buf,BUFSIZ);
+      if (res == 0) break;
+      end_system_call();
+      if (res < 0) {
+        builtin_stream_close(&STACK_0,0);
+        OS_file_error(TheStream(STACK_0)->strm_file_truename);
+      }
+      WRITE(buf,res);
+      begin_system_call();
+    }
   }
 #if defined(UNIX) && defined(HAVE_FCHMOD)
   { /* make the saved image executable */
@@ -265,6 +283,60 @@ static void savemem_with_runtime (Handle handle) {
   }
 #endif
   CLOSE_HANDLE(runtime); end_system_call();
+}
+
+/* fill the header's constant slots, excluding _dumptime & _dumphost
+ > memdump_header_t *header: filled
+ return the total size of all module names */
+local uintL fill_memdump_header (memdump_header_t *header) {
+  var uintL module_names_size;
+  header->_magic = memdump_magic;
+  header->_memflags = memflags;
+  header->_oint_type_mask = oint_type_mask;
+  header->_oint_addr_mask = oint_addr_mask;
+ #ifdef TYPECODES
+  header->_cons_type    = cons_type;
+  header->_complex_type = complex_type;
+  header->_symbol_type  = symbol_type;
+  header->_system_type  = system_type;
+ #endif
+  header->_varobject_alignment = varobject_alignment;
+  header->_hashtable_length = hashtable_length;
+  header->_pathname_length = pathname_length;
+  header->_intDsize = intDsize;
+  header->_module_count = module_count;
+  {
+    var module_t* module;
+    module_names_size = 0;
+    for_modules(all_modules, {
+      module_names_size += asciz_length(module->name)+1;
+    });
+    module_names_size = round_up(module_names_size,varobject_alignment);
+  }
+  header->_module_names_size = module_names_size;
+  header->_fsubr_anz     = fsubr_anz;
+  header->_pseudofun_anz = pseudofun_anz;
+  header->_symbol_anz    = symbol_anz;
+  header->_page_alignment = page_alignment;
+  header->_subr_tab_addr   = (aint)(&subr_tab);
+  header->_symbol_tab_addr = (aint)(&symbol_tab);
+ #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
+  #if !defined(GENERATIONAL_GC)
+  header->_mem_varobjects_start = mem.varobjects.heap_start;
+  header->_mem_varobjects_end   = mem.varobjects.heap_end;
+  header->_mem_conses_start     = mem.conses.heap_start;
+  header->_mem_conses_end       = mem.conses.heap_end;
+  #else /* defined(GENERATIONAL_GC) */
+  header->_mem_varobjects_start = mem.varobjects.heap_gen0_start;
+  header->_mem_varobjects_end   = mem.varobjects.heap_gen0_end;
+  header->_mem_conses_start     = mem.conses.heap_gen0_start;
+  header->_mem_conses_end       = mem.conses.heap_gen0_end;
+  #endif
+ #endif
+ #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
+  header->_heapcount = heapcount;
+ #endif
+  return module_names_size;
 }
 
 /* UP, stores the memory image on disk
@@ -296,53 +368,7 @@ global maygc void savemem (object stream, bool exec_p)
   if (exec_p) savemem_with_runtime(handle);
   /* write basic information: */
   var memdump_header_t header;
-  var uintL module_names_size;
-  header._magic = memdump_magic;
-  header._memflags = memflags;
-  header._oint_type_mask = oint_type_mask;
-  header._oint_addr_mask = oint_addr_mask;
- #ifdef TYPECODES
-  header._cons_type    = cons_type;
-  header._complex_type = complex_type;
-  header._symbol_type  = symbol_type;
-  header._system_type  = system_type;
- #endif
-  header._varobject_alignment = varobject_alignment;
-  header._hashtable_length = hashtable_length;
-  header._pathname_length = pathname_length;
-  header._intDsize = intDsize;
-  header._module_count = module_count;
-  {
-    var module_t* module;
-    module_names_size = 0;
-    for_modules(all_modules, {
-      module_names_size += asciz_length(module->name)+1;
-    });
-    module_names_size = round_up(module_names_size,varobject_alignment);
-  }
-  header._module_names_size = module_names_size;
-  header._fsubr_anz     = fsubr_anz;
-  header._pseudofun_anz = pseudofun_anz;
-  header._symbol_anz    = symbol_anz;
-  header._page_alignment = page_alignment;
-  header._subr_tab_addr   = (aint)(&subr_tab);
-  header._symbol_tab_addr = (aint)(&symbol_tab);
- #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-  #if !defined(GENERATIONAL_GC)
-  header._mem_varobjects_start = mem.varobjects.heap_start;
-  header._mem_varobjects_end   = mem.varobjects.heap_end;
-  header._mem_conses_start     = mem.conses.heap_start;
-  header._mem_conses_end       = mem.conses.heap_end;
-  #else /* defined(GENERATIONAL_GC) */
-  header._mem_varobjects_start = mem.varobjects.heap_gen0_start;
-  header._mem_varobjects_end   = mem.varobjects.heap_gen0_end;
-  header._mem_conses_start     = mem.conses.heap_gen0_start;
-  header._mem_conses_end       = mem.conses.heap_gen0_end;
-  #endif
- #endif
- #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
-  header._heapcount = heapcount;
- #endif
+  var uintL module_names_size = fill_memdump_header(&header);
   header._dumptime = universal_time;
   memcpy(&header._dumphost[0],&hostname[0],DUMPHOST_LEN+1);
   WRITE(&header,sizeof(header));
@@ -1638,15 +1664,42 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
   quit_sofort(1);
 }
+
+/* find the marker of given size in the open file handle */
+local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
+  char buf[BUFSIZ];
+  size_t marker_pos = 0;
+  size_t pos = 0;
+  while (1) {
+    size_t result = full_read(handle,(void*)buf,BUFSIZ);
+    size_t i;
+    if (result <= 0)
+      return (size_t)-1;
+    for (i = 0; i < result; i++) {
+      pos++;
+      if (buf[i] == marker[marker_pos]) {
+        if (++marker_pos == marker_len) /* found! */
+          return pos - marker_len;
+      } else
+        marker_pos = 0;
+    }
+  }
+  return (size_t)-1;
+}
+
+/* load the memory image from the currently running executable
+ return 0 on success
+    and 1 on error (when the executable does not contain a memory image) */
 local int loadmem_from_executable (void) {
   var char* executable_name = get_executable_name();
   var Handle handle = open_filename(executable_name);
-  lseek(handle,runtime_size,SEEK_SET);
-  var char buf;
-  if (fd_read(handle,&buf,sizeof(buf),persev_immediate) == sizeof(buf)) {
-    /* we are not at EOF, so assume that we do have an image in this runtime */
-    lseek(handle,runtime_size,SEEK_SET);
+  var memdump_header_t header;
+  fill_memdump_header(&header);
+  mem_start = find_marker(handle,(char*)&header,
+                          offsetof(memdump_header_t,_dumptime));
+  if (mem_start != (size_t)-1) { /* found! */
+    lseek(handle,mem_start,SEEK_SET);
     loadmem_from_handle(handle,executable_name);
     return 0;
-  } else return 1;              /* EOF ==> no image in this runtime */
+  } else return 1;          /* not found ==> no image in this runtime */
 }
