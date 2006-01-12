@@ -8,6 +8,8 @@ User visible changes
 * POSIX:SYSLOG no longer recognizes "%m" and other formatting instructions.
   For your safety and security, please do all formatting in Lisp.
 
+* Fixed the OPEN :IF-EXISTS :APPEND bug introduced in 2.37.
+
 
 2.37 (2006-01-02)
 =================
