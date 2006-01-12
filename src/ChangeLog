@@ -1,5 +1,13 @@
 2006-01-12  Sam Steingold  <sds@gnu.org>
 
+	* modules/postgresql/configure.in: look for
+	<postgresql/postgres_ext.h> in addition to <postgres_ext.h>
+	* modules/postgresql/postgresql.lisp: include either
+	Reported by Jeff Bowman <wolfjb@bigfoot.com> that debian unstable
+	installs all of the postgres include files in /usr/include/postgresql/
+
+2006-01-12  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 1399709 ]: cannot append to a file
 	the 2005-12-13 patch that fixed bug #[ 1379620 ] introduced this one
 	* pathname.d (open_output_file): open handle WRONLY only on UNIX

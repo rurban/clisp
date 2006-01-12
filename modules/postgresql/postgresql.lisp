@@ -1,5 +1,5 @@
 ;; CLISP interface to PostgreSQL <http://www.postgresql.org/>
-;; Copyright (C) 1999-2005 Sam Steingold
+;; Copyright (C) 1999-2006 Sam Steingold
 ;; This is free software, distributed under the GNU GPL 2
 
 (pushnew :PostgreSQL *features*)
@@ -21,7 +21,13 @@
 
 (c-lines "#include <config.h>~%") ; local PostgreSQL config
 
-(c-lines "#include <postgres_ext.h>~%")
+(c-lines "#if defined(HAVE_POSTGRES_EXT_H)
+#  include <postgres_ext.h>
+#elif defined(HAVE_POSTGRESQL_POSTGRES_EXT_H)
+#  include <postgresql/postgres_ext.h>
+#else
+#  error \"PostgreSQL is not found\"
+#endif")
 
 (def-c-type Oid uint)
 
@@ -30,7 +36,13 @@
   (defconstant MAX-PARAM 64)
   (defconstant BUFSIZ 1024))
 
-(c-lines "#include <libpq-fe.h>~%")
+(c-lines "#if defined(HAVE_POSTGRES_EXT_H)
+#  include <libpq-fe.h>
+#elif defined(HAVE_POSTGRESQL_POSTGRES_EXT_H)
+#  include <postgresql/libpq-fe.h>
+#else
+#  error \"PostgreSQL is not found\"
+#endif")
 
 (def-c-enum ConnStatusType
   CONNECTION_OK
