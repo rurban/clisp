@@ -1,3 +1,7 @@
+2006-01-08  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: test open :direction :output :if-exists :append
+
 2006-01-07  Sam Steingold  <sds@gnu.org>
 
 	* time.tst: check that early 1900-01-01 GMT (which is 1899-12-31
