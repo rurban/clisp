@@ -27,7 +27,7 @@
 #  include <postgresql/postgres_ext.h>
 #else
 #  error \"PostgreSQL is not found\"
-#endif")
+#endif~%")
 
 (def-c-type Oid uint)
 
@@ -42,7 +42,7 @@
 #  include <postgresql/libpq-fe.h>
 #else
 #  error \"PostgreSQL is not found\"
-#endif")
+#endif~%")
 
 (def-c-enum ConnStatusType
   CONNECTION_OK
