@@ -28,6 +28,7 @@
 ;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function verbose
+                    ((:norc *norc*) nil)
                     keep-global-handlers (start-package *package*)
                     (locked-packages *system-package-list*) executable)
   (let* ((old-driver *driver*) old-global-handlers

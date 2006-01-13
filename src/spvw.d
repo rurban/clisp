@@ -1338,6 +1338,7 @@ local void init_symbol_values (void) {
   define_variable(S(init_hooks),NIL);             # CUSTOM::*INIT-HOOKS* := NIL
   define_variable(S(fini_hooks),NIL);             # CUSTOM::*FINI-HOOKS* := NIL
   define_variable(S(quiet),NIL);                  # SYS::*QUIET* := NIL
+  define_variable(S(norc),NIL);                   # SYS::*NORC* := NIL
   define_variable(S(args),NIL);                   # EXT:*ARGS* := NIL
   define_variable(S(load_compiling),NIL); /* *LOAD-COMPILING* := NIL */
   define_variable(S(load_verbose),T); /* *LOAD-VERBOSE* := T */
@@ -3031,7 +3032,7 @@ local inline void main_actions (struct argv_actions *p) {
     }
   }
   /* load RC file ~/.clisprc */
-  if (!p->argv_norc && p->argv_memfile) {
+  if (nullpSv(norc) && !p->argv_norc && p->argv_memfile) {
     /* If no memfile is given, LOAD cannot be called with 3 arguments.
        (LOAD (MAKE-PATHNAME :NAME ".clisprc"
                             :DEFAULTS (USER-HOMEDIR-PATHNAME))
