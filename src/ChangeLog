@@ -1,5 +1,13 @@
 2006-01-13  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d: executable image should load RC-file by default
+	(parse_options): do not reset argv_norc when argv_memfile is NULL
+	(init_memory): set argv_memfile to executable_name, not "self"
+	(main_actions): check argv_memfile in addition to argv_norc when
+	loading the RC-file
+
+2006-01-13  Sam Steingold  <sds@gnu.org>
+
 	Ensure that the executable image contains just one memdump
 	* spvw_memfile.d (find_memdump): new function
 	(mem_searched): new variable
