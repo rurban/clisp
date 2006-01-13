@@ -16188,10 +16188,10 @@ extern uintL I_to_UL (object obj);
 # is used by TIME, ARRAY
 %% puts("extern uintL I_to_UL (object obj);");
 
-# Converts an Integer into a signed quadword
+# Converts an Integer into a signed longword
 # I_to_L(obj)
 # > obj: an object, should be an Integer >=-2^31, <2^31
-# < result: the Integer's value as signed quadword
+# < result: the Integer's value as signed longword
 extern sintL I_to_L (object obj);
 # is used by
 %% puts("extern sintL I_to_L (object obj);");

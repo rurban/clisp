@@ -2324,7 +2324,7 @@ local inline int parse_options (int argc, const char* const* argv,
                    Since the "--version" output is used for bug reporting,
                    we must make it as complete and accurate as possible,
                    so we prefer to err on the side of verbosity. */
-                "(PRINC \"C Modules: \") (PRINC (EXT:MODULE-INFO)) (TERPRI)"
+                "(PRINC \"C Modules: \") (PRINC (EXT::MODULE-INFO)) (TERPRI)"
                 "(PRINC \"Installation directory: \")"
                 "(PRINC (SYS::LIB-DIRECTORY)) (TERPRI)"
                 "(PRINC \"User language: \")"
