@@ -1,3 +1,13 @@
+2006-01-13  Sam Steingold  <sds@gnu.org>
+
+	Ensure that the executable image contains just one memdump
+	* spvw_memfile.d (find_memdump): new function
+	(mem_searched): new variable
+	(savemem_with_runtime): call find_memdump if it has not been
+	called already so that an image saved by an executable image
+	called with -M does not include 2 images
+	(loadmem_from_executable): call find_memdump(); close the handle
+
 2006-01-12  Sam Steingold  <sds@gnu.org>
 
 	use memdump_header as the marker instead of runtime_size

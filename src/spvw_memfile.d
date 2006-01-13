@@ -209,7 +209,7 @@ typedef struct {
 #elif defined(WIN32_NATIVE)
   #define CLOSE_HANDLE CloseHandle
 #else
-  #define CLOSE_HANDLE(handle)
+  #error define CLOSE_HANDLE for your platform
 #endif
 
 #define WRITE(buf,len)                                                  \
@@ -232,15 +232,30 @@ typedef struct {
 /* write the executable into the handle */
 extern char *get_executable_name (void);
 local Handle open_filename (const char* filename);
+local void find_memdump (Handle fd);
 /* the size of the runtime executable for executable dumping
    == the start of memory image in the executable */
 static size_t mem_start = 0;
+static bool mem_searched = false; /* have we looked for memdump already */
 static void savemem_with_runtime (Handle handle) {
   var char *executable_name = get_executable_name();
   var char buf[BUFSIZ];
   begin_system_call();
   var Handle runtime = open_filename(executable_name);
-  if (mem_start) {
+  /* if we did not look for memory image in the executable yet, do it now!
+     we want to avoid this scenario:
+     $ clisp -x '(saveinitmem "foo" :executable t)'
+     $ ./foo -M lispinit.mem -x '(saveinitmem "bar" :executable t)'
+     bar should not include 2 images, but foo received the -M option
+     and thus did not call loadmem_from_executable(),
+     so mem_searched is false and mem_start is 0,
+     so we need to call find_memdump() now
+     so that bar will get just one image */
+  if (!mem_searched) {
+    find_memdump(runtime);      /* search for memdump_header_t */
+    lseek(runtime,0,SEEK_SET);  /* reset position */
+  } /* now:  mem_searched == true */
+  if (mem_start != (size_t)-1) { /* ==> have an image - cut it off */
     var uintL remains = mem_start;
     while (remains > 0) {
       var ssize_t res = full_read(runtime,(void*)buf,BUFSIZ);
@@ -1687,19 +1702,29 @@ local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
   return (size_t)-1;
 }
 
+/* find the memory image in the file,
+ > set mem_start and mem_searched */
+local void find_memdump (Handle fd) {
+  var memdump_header_t header;
+  fill_memdump_header(&header);
+  mem_start = find_marker(fd,(char*)&header,
+                          offsetof(memdump_header_t,_dumptime));
+  mem_searched = true;
+}
+
 /* load the memory image from the currently running executable
  return 0 on success
     and 1 on error (when the executable does not contain a memory image) */
 local int loadmem_from_executable (void) {
   var char* executable_name = get_executable_name();
   var Handle handle = open_filename(executable_name);
-  var memdump_header_t header;
-  fill_memdump_header(&header);
-  mem_start = find_marker(handle,(char*)&header,
-                          offsetof(memdump_header_t,_dumptime));
+  var int success = 1;
+  find_memdump(handle);
   if (mem_start != (size_t)-1) { /* found! */
     lseek(handle,mem_start,SEEK_SET);
     loadmem_from_handle(handle,executable_name);
-    return 0;
-  } else return 1;          /* not found ==> no image in this runtime */
+    success = 0;
+  }
+  CLOSE_HANDLE(handle);
+  return success;
 }
