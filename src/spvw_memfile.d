@@ -230,7 +230,6 @@ typedef struct {
   } while(0)
 
 /* write the executable into the handle */
-extern char *get_executable_name (void);
 local Handle open_filename (const char* filename);
 local void find_memdump (Handle fd);
 /* the size of the runtime executable for executable dumping
