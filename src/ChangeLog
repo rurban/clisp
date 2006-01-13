@@ -137,6 +137,11 @@
 
 	* clhs.lisp (documentation@symbol): handle uninterned symbols
 
+2006-01-02  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* spvw.d (parse_options): have lisp.run --version print information
+	even without image file (no -M lispinit.mem).
+
 2006-01-01  Sam Steingold  <sds@gnu.org>
 
 	* constsym.d, execname.c, lispbibl.d, misc.d, pathname.d, spvw.d:
