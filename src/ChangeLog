@@ -1,5 +1,12 @@
 2006-01-13  Sam Steingold  <sds@gnu.org>
 
+	* savemem.lisp (saveinitmem): accept :norc
+	* constsym.d (*norc*): added
+	* spvw.d (init_symbol_values): init *norc*
+	(main_actions): do not load RC-file if *norc* is non-NIL
+
+2006-01-13  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d: executable image should load RC-file by default
 	(parse_options): do not reset argv_norc when argv_memfile is NULL
 	(init_memory): set argv_memfile to executable_name, not "self"
