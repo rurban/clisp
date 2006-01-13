@@ -2412,10 +2412,6 @@ local inline int parse_options (int argc, const char* const* argv,
       }
     }
    #endif
-    if (p2->argv_memfile == NULL)
-      # If no memfile is given, LOAD cannot be called with 3 arguments.
-      # So disable the loading of ~/.clisprc.
-      p2->argv_norc = true;
     if (!p2->argv_compile) {
       # Some options are useful only together with '-c' :
       if (p2->argv_compile_listing) {
@@ -2448,6 +2444,7 @@ local inline void free_argv_actions (struct argv_actions *p) {
 # Initialize memory and load the specified memory image.
 # Returns 0 if successful, -1 upon error (after printing an error message
 # to stderr).
+extern char *get_executable_name (void);
 local inline int init_memory (struct argv_initparams *p) {
   { # Initialize the table of relocatable pointers:
     var object* ptr2 = &pseudofun_tab.pointer[0];
@@ -2902,7 +2899,7 @@ local inline int init_memory (struct argv_initparams *p) {
   if (p->argv_memfile)
     loadmem(p->argv_memfile);   /* load memory file */
   else if (!loadmem_from_executable())
-    p->argv_memfile = "self";
+    p->argv_memfile = get_executable_name();
   else initmem();               /* manual initialization */
   # init O(current_language)
   O(current_language) = current_language_o(language);
@@ -3034,8 +3031,9 @@ local inline void main_actions (struct argv_actions *p) {
     }
   }
   /* load RC file ~/.clisprc */
-  if (!p->argv_norc) {
-    /* (LOAD (MAKE-PATHNAME :NAME ".clisprc"
+  if (!p->argv_norc && p->argv_memfile) {
+    /* If no memfile is given, LOAD cannot be called with 3 arguments.
+       (LOAD (MAKE-PATHNAME :NAME ".clisprc"
                             :DEFAULTS (USER-HOMEDIR-PATHNAME))
              :IF-DOES-NOT-EXIST NIL) */
     pushSTACK(S(Kname));
@@ -3231,9 +3229,9 @@ global int main (argc_t argc, char* argv[]) {
   # Initialize memory and load a memory image (if specified).
   if (init_memory(&argv1) < 0) goto no_mem;
   /* if the image was read from the executable, argv1.argv_memfile was
-     set to "self" and now it has to be propagated to argv2.argv_memfile
+     set to exec name and now it has to be propagated to argv2.argv_memfile
      to avoid the beginner warning */
-  argv2.argv_memfile = argv1.argv_memfile; /* propagate "self" */
+  argv2.argv_memfile = argv1.argv_memfile; /* propagate exec name */
   # Prepare for catching SP overflow.
   install_stackoverflow_handler(0x4000); # 16 KB reserve should be enough
   # everything completely initialized.
