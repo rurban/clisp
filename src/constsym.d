@@ -1973,6 +1973,7 @@ LISPSYM(russian," \320\240\320\243\320\241\320\241\320\232\320\230\320\231",i18n
 LISPSYM(init_hooks,"*INIT-HOOKS*",custom) /* variable for SPVW */
 LISPSYM(fini_hooks,"*FINI-HOOKS*",custom) /* variable for SPVW */
 LISPSYM(quiet,"*QUIET*",system) /* variable for SPVW */
+LISPSYM(norc,"*NORC*",system) /* variable for SPVW */
 LISPSYM(Klisting,"LISTING",keyword) /* argument for SPVW */
 LISPSYM(Koutput_file,"OUTPUT-FILE",keyword) /* argument for SPVW */
 LISPSYM(compile_file,"COMPILE-FILE",lisp) /* function for SPVW */

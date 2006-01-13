@@ -284,7 +284,9 @@
 <!ENTITY opt-L '<option><olink targetdoc="man" targetptr="opt-lang">-L</olink></option>'>
 <!ENTITY opt-M '<option><olink targetdoc="man" targetptr="opt-memfile">-M</olink></option>'>
 <!ENTITY opt-v '<option><olink targetdoc="man" targetptr="opt-verbose">-v</olink></option>'>
+<!ENTITY opt-q '<option><olink targetdoc="man" targetptr="opt-verbose">-q</olink></option>'>
 <!ENTITY opt-x '<option><olink targetdoc="man" targetptr="opt-exec-expr">-x</olink></option>'>
+<!ENTITY opt-norc '<option><olink targetdoc="man" targetptr="opt-norc">-norc</olink></option>'>
 <!ENTITY opt-modern '<option><olink targetdoc="man" targetptr="opt-modern">-modern</olink></option>'>
 <!ENTITY opt-on-error '<option><olink targetdoc="man" targetptr="opt-on-error">-on-error</olink></option>'>
 <!ENTITY pack-inverted '<link linkend="pack-inverted"><function>EXT:PACKAGE-CASE-INVERTED-P</function></link>'>
