@@ -2731,8 +2731,8 @@ and the international alphabetic characters from the character set:
 
 <para>When the symbol &eq; or the function <literal>#'eq</literal> is
 used as a &test-k; argument, the value of the variable
-<varname>EXT:*EQ-HASHFUNCTION*</varname> is used instead. This value must
-be one of &fasthash-eq;, &stablehash-eq;.</para>
+<varname>CUSTOM:*EQ-HASHFUNCTION*</varname> is used instead.
+This value must be one of &fasthash-eq;, &stablehash-eq;.</para>
 
 <para>Similarly, the &test-k; argument can also be one
  of the symbols <constant>EXT:FASTHASH-EQL</constant>,
@@ -2742,13 +2742,13 @@ be one of &fasthash-eq;, &stablehash-eq;.</para>
  The same remarks apply as for &fasthash-eq; and &stablehash-eq;.
  When the symbol &eql; or the function <literal>#'eql</literal> is used
  as a &test-k; argument, the value of the variable
- <varname>EXT:*EQL-HASHFUNCTION*</varname> is used instead; this value must
- be one of <constant>EXT:FASTHASH-EQL</constant>,
+ <varname>CUSTOM:*EQL-HASHFUNCTION*</varname> is used instead;
+ this value must be one of <constant>EXT:FASTHASH-EQL</constant>,
  <constant>EXT:STABLEHASH-EQL</constant>.
  Similarly, when the symbol &equal; or the function <literal>#'equal</literal>
  is used as a &test-k; argument, the value of the variable
- <varname>EXT:*EQUAL-HASHFUNCTION*</varname> is used instead; this value
- must be one of <constant>EXT:FASTHASH-EQUAL</constant>,
+ <varname>CUSTOM:*EQUAL-HASHFUNCTION*</varname> is used instead;
+ this value must be one of <constant>EXT:FASTHASH-EQUAL</constant>,
  <constant>EXT:STABLEHASH-EQUAL</constant>.</para>
 
 <para>The <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> argument,

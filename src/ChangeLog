@@ -1,3 +1,9 @@
+2006-01-16  Sam Steingold  <sds@gnu.org>
+
+	* constsym.d, init.lisp (*eq-hashfunction*, *eql-hashfunction*)
+	(*equal-hashfunction*): export from CUSTOM
+	Reported by Tomas Zellerin <zellerin@gmail.com>
+
 2006-01-13  Sam Steingold  <sds@gnu.org>
 
 	* savemem.lisp (saveinitmem): accept :norc

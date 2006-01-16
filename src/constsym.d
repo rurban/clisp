@@ -1378,13 +1378,13 @@ LISPSYM(class_version_compute_slotlists,"CLASS-VERSION-COMPUTE-SLOTLISTS",clos) 
 LISPSYM(constant_initfunction,"CONSTANT-INITFUNCTION",clos) /* marker in RECORD */
 LISPSYM(fasthash_eq,"FASTHASH-EQ",ext) /* test for HASHTABL */
 LISPSYM(stablehash_eq,"STABLEHASH-EQ",ext) /* test for HASHTABL */
-LISPSYM(eq_hashfunction,"*EQ-HASHFUNCTION*",ext) /* variable for HASHTABL */
+LISPSYM(eq_hashfunction,"*EQ-HASHFUNCTION*",custom) /* variable for HASHTABL */
 LISPSYM(fasthash_eql,"FASTHASH-EQL",ext) /* test for HASHTABL */
 LISPSYM(stablehash_eql,"STABLEHASH-EQL",ext) /* test for HASHTABL */
-LISPSYM(eql_hashfunction,"*EQL-HASHFUNCTION*",ext) /* variable for HASHTABL */
+LISPSYM(eql_hashfunction,"*EQL-HASHFUNCTION*",custom) /* variable for HASHTABL */
 LISPSYM(fasthash_equal,"FASTHASH-EQUAL",ext) /* test for HASHTABL */
 LISPSYM(stablehash_equal,"STABLEHASH-EQUAL",ext) /* test for HASHTABL */
-LISPSYM(equal_hashfunction,"*EQUAL-HASHFUNCTION*",ext) /* variable for HASHTABL */
+LISPSYM(equal_hashfunction,"*EQUAL-HASHFUNCTION*",custom) /* variable for HASHTABL */
 LISPSYM(structure_stablehash,"STRUCTURE-STABLEHASH",clos) /* class for HASHTABL */
 LISPSYM(warn_on_hashtable_needing_rehash_after_gc,"*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*",custom) /* variable for HASHTABL */
 LISPSYM(simple_vector,"SIMPLE-VECTOR",lisp) /* type in SEQUENCE, PREDTYPE */
