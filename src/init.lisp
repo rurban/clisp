@@ -390,6 +390,7 @@
    clhs-root *impnotes-root-default* impnotes-root
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
    *load-obsolete-action* *suppress-check-redefinition*
+   *eq-hashfunction* *eql-hashfunction* *equal-hashfunction*
    ;; places.lisp
    *ansi* *current-language* *lib-directory* *default-file-encoding*
    #+UNICODE *misc-encoding*
