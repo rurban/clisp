@@ -1701,6 +1701,9 @@ additionally binds &cont-r; to the content length.</para>
   <member>&defun-accept-spelalist;</member>
   <member>&dev-prefix;</member>
   <member>&editor;</member>
+  <member><link linkend="make-hash"><varname>CUSTOM:*EQ-HASHFUNCTION*</varname></link></member>
+  <member><link linkend="make-hash"><varname>CUSTOM:*EQL-HASHFUNCTION*</varname></link></member>
+  <member><link linkend="make-hash"><varname>CUSTOM:*EQUAL-HASHFUNCTION*</varname></link></member>
   <member><varname>CUSTOM:*ERROR-HANDLER*</varname></member>
   <member><varname>CUSTOM:*EVALHOOK*</varname></member>
   <member>&fill-indent-sexp;</member>
