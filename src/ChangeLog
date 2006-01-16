@@ -1,5 +1,11 @@
 2006-01-16  Sam Steingold  <sds@gnu.org>
 
+	* win32.d (HAVE_ICONV): Yaroslav Kavenchuk reports no problems
+	with clisp/libiconv/mingw, so do not unconditionally disable ICONV
+	here (reverts a part of the 2005-05-28 patch)
+
+2006-01-16  Sam Steingold  <sds@gnu.org>
+
 	* constsym.d, init.lisp (*eq-hashfunction*, *eql-hashfunction*)
 	(*equal-hashfunction*): export from CUSTOM
 	Reported by Tomas Zellerin <zellerin@gmail.com>
