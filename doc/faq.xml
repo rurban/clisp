@@ -631,6 +631,21 @@ trying to &nconc; a circular list).</para>
   See <xref linkend="random-state"/>.</para></answer></qandaentry>
 
 
+<qandaentry id="faq-warning">
+ <question id="faq-warning-q"><para>How do I disable this annoying
+   warning?</para></question>
+<answer><para>&clisp; often issues &warning-t;s when it encounters
+  suspicious behavior.  It is best to fix your code rather than to
+  suppress them.  To figure out where the warning is coming from, do
+<programlisting language="lisp">
+ (&setq; &break-on-signals-var; '&warning-t;)
+</programlisting> and examine the stack (see <xref linkend="debugger"/>)
+to see where the warning is coming from.</para>
+ <para>If everything else fails, read the
+ <link linkend="impnotes-top">manual</link>.</para></answer>
+</qandaentry>
+
+
 <qandaentry id="faq-other-problem"><question id="faq-other-problem-q">
   <simpara>Why is the function <function>FOO</function>
    broken?!</simpara></question>
