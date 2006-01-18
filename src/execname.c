@@ -136,6 +136,16 @@ int find_executable (const char * program_name) {
     if (realpath(program_name,executable_name) == NULL) {
       free(executable_name); goto notfound;
     }
+#if defined(UNIX_CYGWIN32)
+    { /* cygwin does not append ".exe" on its own */
+      int len = strlen(executable_name);
+      if (!(len > 4 && (executable_name[len-4] == '.') &&
+            (executable_name[len-1] == 'e' || executable_name[len-1] == 'E') &&
+            (executable_name[len-2] == 'x' || executable_name[len-2] == 'X') &&
+            (executable_name[len-3] == 'e' || executable_name[len-3] == 'E')))
+        strcat(executable_name,".exe");
+    }
+#endif
     return 0;
   }
   errno = ENOENT;
