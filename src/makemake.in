@@ -3721,7 +3721,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echol
   echol "# Makefile: \$(MODULES)"
   echol "# full/lisp.exe: dependencies"
-  echol "setup.hint : # Makefile full/lisp.exe"
+  echol "setup.hint : SUMMARY # Makefile full/lisp.exe"
   echotab "\$(RM) setup.hint"
   echol "# normally curr/prev/test are not needed"
   echol "# but if one is present, at least curr+prev are required"
