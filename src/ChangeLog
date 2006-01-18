@@ -1,3 +1,9 @@
+2006-01-18  Sam Steingold  <sds@gnu.org>
+
+	* modules/i18n/gettext.c (bool_char_lconv): WARN instead of
+	NOTREACHED when the value is invalid
+	(CHAR_MAX): defined in <limits.h>, do not redefine it here
+
 2006-01-16  Sam Steingold  <sds@gnu.org>
 
 	* win32.d (HAVE_ICONV): Yaroslav Kavenchuk reports no problems

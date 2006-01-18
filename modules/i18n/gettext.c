@@ -276,15 +276,18 @@ static void thousands_sep_to_STACK (char* sep1000) {
   for (ii=0; sep1000[ii]; ii++) pushSTACK(fixnum(sep1000[ii]));
   pushSTACK(Fixnum_0); value1 = vectorof(ii+1); pushSTACK(value1);
 }
-#if !defined(CHAR_MAX)
-# define CHAR_MAX 127
-#endif
-static object bool_char_lconv(char val) {
+static /*maygc*/ object bool_char_lconv(char val) {
   switch (val) {
     case 0: return NIL;
     case 1: return T;
     case CHAR_MAX: return S(Kunspecific);
-    default: NOTREACHED;
+    default:
+      pushSTACK(CLSTEXT("~S: localeconv() returned an invalid value ~S (should be one of ~S, ~S, CHAR_MAX=~S)"));
+      pushSTACK(TheSubr(subr_self)->name);
+      pushSTACK(fixnum(val));
+      pushSTACK(Fixnum_0); pushSTACK(Fixnum_1); pushSTACK(fixnum(CHAR_MAX));
+      funcall(S(warn),6);
+      return fixnum(val);
   }
 }
 static object int_char_lconv(char val) {
