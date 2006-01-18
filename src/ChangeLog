@@ -1,5 +1,10 @@
 2006-01-18  Sam Steingold  <sds@gnu.org>
 
+	* execname.c (find_executable) [UNIX_CYGWIN32]: cygwin's
+	realpath() does not append ".exe", so we have to do it here
+
+2006-01-18  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (setup.hint) [cygwin]: depend on SUMMARY
 
 2006-01-18  Sam Steingold  <sds@gnu.org>
