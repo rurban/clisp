@@ -950,13 +950,21 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #define set_file_offset(x)
     #define inc_file_offset(x)
    #endif
+   #if defined(DEBUG_SPVW)
+    #define FILE_LINE  fprintf(stderr,"[%s:%d] ",__FILE__,__LINE__)
+   #else
+    #define FILE_LINE  /*noop*/
+   #endif
+    #define ABORT_SYS do { FILE_LINE; goto abort_sys; } while(0)
+    #define ABORT_INI do { FILE_LINE; goto abort_ini; } while(0)
+    #define ABORT_MEM do { FILE_LINE; goto abort_mem; } while(0)
     #define READ(buf,len)                                               \
       do {                                                              \
         begin_system_call();                                            \
         { var ssize_t ergebnis = full_read(handle,(void*)buf,len);      \
           end_system_call();                                            \
-          if (ergebnis<0) goto abort1;                                  \
-          if (ergebnis != (ssize_t)(len)) goto abort2;                  \
+          if (ergebnis<0) ABORT_SYS;                                       \
+          if (ergebnis != (ssize_t)(len)) ABORT_INI;                       \
           inc_file_offset(len);                                         \
         }                                                               \
       } while(0)
@@ -972,7 +980,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         /* skip first text line */
         var char c;
         begin_system_call();
-        if ( lseek(handle,-(off_t)sizeof(header),SEEK_CUR) <0) goto abort1; /* in file, back to the start */
+        if ( lseek(handle,-(off_t)sizeof(header),SEEK_CUR) <0)
+          ABORT_SYS;               /* in file, back to the start */
         do { READ(&c,1); } while (c!='\n');
         end_system_call();
        #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && defined(HAVE_MMAP)
@@ -986,8 +995,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         var int child;
         begin_system_call();
         if ( lseek(handle,-(off_t)sizeof(header),SEEK_CUR) <0)
-          goto abort1; /* in file, back to the start */
-        if (pipe(handles) != 0) goto abort1;
+          ABORT_SYS;               /* in file, back to the start */
+        if (pipe(handles) != 0) ABORT_SYS;
         if ((child = vfork()) ==0) {
           if ( dup2(handles[1],stdout_handle) >=0)
             if ( CLOSE(handles[1]) ==0)
@@ -1004,10 +1013,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           _exit(-1);
         }
         if (child==-1) {
-          CLOSE(handles[1]); CLOSE(handles[0]); goto abort1;
+          CLOSE(handles[1]); CLOSE(handles[0]); ABORT_SYS;
         }
-        if (CLOSE(handles[1]) !=0) goto abort1;
-        if (CLOSE(handle) != 0) goto abort1;
+        if (CLOSE(handles[1]) !=0) ABORT_SYS;
+        if (CLOSE(handle) != 0) ABORT_SYS;
         end_system_call();
        #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && defined(HAVE_MMAP)
         use_mmap = false; /* mmap can not be done with a pipe! */
@@ -1019,27 +1028,27 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         return;
       }
      #endif  /* UNIX */
-      goto abort2;
+      ABORT_INI;
     }
-    if (header._memflags != memflags) goto abort2;
-    if (header._oint_type_mask != oint_type_mask) goto abort2;
-    if (header._oint_addr_mask != oint_addr_mask) goto abort2;
+    if (header._memflags != memflags) ABORT_INI;
+    if (header._oint_type_mask != oint_type_mask) ABORT_INI;
+    if (header._oint_addr_mask != oint_addr_mask) ABORT_INI;
    #ifdef TYPECODES
-    if (header._cons_type != cons_type) goto abort2;
-    if (header._complex_type != complex_type) goto abort2;
-    if (header._symbol_type != symbol_type) goto abort2;
-    if (header._system_type != system_type) goto abort2;
+    if (header._cons_type != cons_type) ABORT_INI;
+    if (header._complex_type != complex_type) ABORT_INI;
+    if (header._symbol_type != symbol_type) ABORT_INI;
+    if (header._system_type != system_type) ABORT_INI;
    #endif
-    if (header._varobject_alignment != varobject_alignment) goto abort2;
-    if (header._hashtable_length != hashtable_length) goto abort2;
-    if (header._pathname_length != pathname_length) goto abort2;
-    if (header._intDsize != intDsize) goto abort2;
-    if (header._fsubr_anz != fsubr_anz) goto abort2;
-    if (header._pseudofun_anz != pseudofun_anz) goto abort2;
-    if (header._symbol_anz != symbol_anz) goto abort2;
-    if (header._page_alignment != page_alignment) goto abort2;
+    if (header._varobject_alignment != varobject_alignment) ABORT_INI;
+    if (header._hashtable_length != hashtable_length) ABORT_INI;
+    if (header._pathname_length != pathname_length) ABORT_INI;
+    if (header._intDsize != intDsize) ABORT_INI;
+    if (header._fsubr_anz != fsubr_anz) ABORT_INI;
+    if (header._pseudofun_anz != pseudofun_anz) ABORT_INI;
+    if (header._symbol_anz != symbol_anz) ABORT_INI;
+    if (header._page_alignment != page_alignment) ABORT_INI;
    #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
-    if (header._heapcount != heapcount) goto abort2;
+    if (header._heapcount != heapcount) ABORT_INI;
    #endif
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
     { /* calculate offsets (offset = new address - old address): */
@@ -1062,19 +1071,19 @@ local void loadmem_from_handle (Handle handle, const char* filename)
          + mem.conses.heap_end-header._mem_conses_end  <==>
          mem.varobjects.heap_end <= mem.conses.heap_start */
       if ((saint)(mem.varobjects.heap_end) > (saint)(mem.conses.heap_start))
-        goto abort3;
+        ABORT_MEM;
       /* prepare update: */
       offset_varobjects_o = (oint)offset_varobjects << (oint_addr_shift-addr_shift);
       offset_conses_o = (oint)offset_conses << (oint_addr_shift-addr_shift);
     }
    #endif  /* SPVW_MIXED_BLOCKS_OPPOSITE */
    #ifdef SPVW_PURE_BLOCKS /* SINGLEMAP_MEMORY */
-    if ((aint)(&subr_tab) != header._subr_tab_addr) goto abort2;
-    if ((aint)(&symbol_tab) != header._symbol_tab_addr) goto abort2;
+    if ((aint)(&subr_tab) != header._subr_tab_addr) ABORT_INI;
+    if ((aint)(&symbol_tab) != header._symbol_tab_addr) ABORT_INI;
    #else
     offset_symbols_o = ((oint)(aint)(&symbol_tab) - (oint)header._symbol_tab_addr) << (oint_addr_shift-addr_shift);
     #ifdef MULTIMAP_MEMORY_SYMBOL_TAB
-    if (offset_symbols_o != 0) goto abort2;
+    if (offset_symbols_o != 0) ABORT_INI;
     #else
      #ifdef TYPECODES
     old_symbol_tab_o = as_oint(type_pointer_object(symbol_type,header._symbol_tab_addr));
@@ -1088,7 +1097,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     begin_system_call();
     offset_subrs = MALLOC(offset_subrs_anz,offset_subrs_t);
     end_system_call();
-    if (offset_subrs==NULL) goto abort3;
+    if (offset_subrs==NULL) ABORT_MEM;
     /* read module names and compare with the existing modules: */
     var DYNAMIC_ARRAY(old_modules,module_t*,1+header._module_count);
     {
@@ -1105,7 +1114,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
               goto found_module;
           });
           /* old_name not found */
-          goto abort2;
+          ABORT_INI;
          found_module:
           /* Reading the module data from file initializes the module. */
           module->initialized = true;
@@ -1131,8 +1140,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         READ(&old_subr_addr,sizeof(subr_t*));
         READ(&old_subr_anz,sizeof(uintC));
         READ(&old_object_anz,sizeof(uintC));
-        if (old_subr_anz != *(*old_module)->stab_size) goto abort2;
-        if (old_object_anz != *(*old_module)->otab_size) goto abort2;
+        if (old_subr_anz != *(*old_module)->stab_size) ABORT_INI;
+        if (old_object_anz != *(*old_module)->otab_size) ABORT_INI;
         offset_subrs_ptr->low_o = as_oint(subr_tab_ptr_as_object(old_subr_addr));
         offset_subrs_ptr->high_o = as_oint(subr_tab_ptr_as_object(old_subr_addr+old_subr_anz));
         offset_subrs_ptr->offset_o = as_oint(subr_tab_ptr_as_object((*old_module)->stab)) - offset_subrs_ptr->low_o;
@@ -1148,7 +1157,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
                   && (ptr1->rest_flag == ptr2->rest_flag)
                   && (ptr1->key_flag == ptr2->key_flag)
                   && (ptr1->key_anz == ptr2->key_anz)))
-              goto abort2;
+              ABORT_INI;
             ptr2->name = ptr1->name; ptr2->keywords = ptr1->keywords;
             ptr2->argtype = ptr1->argtype;
             ptr1++; ptr2++;
@@ -1175,7 +1184,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         var Heap* heapptr = &mem.heaps[heapnr];
         if (old_page->_page_end - old_page->_page_start
             > heapptr->heap_hardlimit - heapptr->heap_limit)
-          goto abort3;
+          ABORT_MEM;
         heapptr->heap_start = heapptr->heap_limit;
         heapptr->heap_end = heapptr->heap_limit + (old_page->_page_end - old_page->_page_start);
         offset_heaps_o[heapnr] = (oint)heapptr->heap_start - (oint)old_page->_page_start;
@@ -1269,7 +1278,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       begin_system_call();
       offset_pages = MALLOC(offset_pages_len,offset_pages_t);
       end_system_call();
-      if (offset_pages==NULL) goto abort3;
+      if (offset_pages==NULL) ABORT_MEM;
       {
         var uintL pagenr;
         for (pagenr=0; pagenr<offset_pages_len; pagenr++) {
@@ -1297,14 +1306,14 @@ local void loadmem_from_handle (Handle handle, const char* filename)
               var uintM size2 = size1 + sizeof_NODE + (varobject_alignment-1);
               var aint addr = (aint)mymalloc(size2);
               var Pages page;
-              if ((void*)addr == NULL) goto abort3;
+              if ((void*)addr == NULL) ABORT_MEM;
              #if !defined(AVL_SEPARATE)
               page = (Pages)addr;
              #else
               begin_system_call();
               page = (NODE*)malloc(sizeof(NODE));
               end_system_call();
-              if (page == NULL) goto abort3;
+              if (page == NULL) ABORT_MEM;
              #endif
               /* get page from operating system. */
               page->m_start = addr; page->m_length = size2;
@@ -1358,7 +1367,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         var uintM map_len = round_up(misaligned+len,map_pagesize);
         heapptr->heap_limit = (heapptr->heap_start-misaligned) + map_len;
         if (map_len > 0) {
-          if (heapptr->heap_limit-1 > heapptr->heap_hardlimit-1) goto abort3;
+          if (heapptr->heap_limit-1 > heapptr->heap_hardlimit-1) ABORT_MEM;
          #if defined(HAVE_MMAP)
           /* if possible, we put the initialization file into memory.
              This should accelerate the start and delay unnecessary
@@ -1372,7 +1381,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
                #if 0
                 /* unnecessary, because mmap() needs no lseek()
                    and only CLOSE(handle) follows afterwards. */
-                if ( lseek(handle,map_len,SEEK_CUR) <0) goto abort1;
+                if ( lseek(handle,map_len,SEEK_CUR) <0) ABORT_SYS;
                #endif
                 inc_file_offset(map_len);
                 goto block_done;
@@ -1382,11 +1391,12 @@ local void loadmem_from_handle (Handle handle, const char* filename)
                 use_mmap = false;
                 /* before continuing with READ(handle),
                    an lseek() is poss. necessary. */
-                if ( lseek(handle,file_offset,SEEK_SET) <0) goto abort1;
+                if ( lseek(handle,file_offset,SEEK_SET) <0) ABORT_SYS;
             }
           }
          #endif  /* HAVE_MMAP */
-          if (zeromap((void*)(heapptr->heap_start-misaligned),map_len) <0) goto abort3;
+          if (zeromap((void*)(heapptr->heap_start-misaligned),map_len) <0)
+            ABORT_MEM;
          #if varobjects_misaligned
           if (is_varobject_heap(heapnr)) {
             var uintB dummy[varobjects_misaligned];
@@ -1403,17 +1413,17 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     if (use_mmap) { /* check the length of the mmap-ed files: */
      #ifdef UNIX
       var struct stat statbuf;
-      if (fstat(handle,&statbuf) < 0) goto abort1;
+      if (fstat(handle,&statbuf) < 0) ABORT_SYS;
       /* executable size is appended to the image as size_t */
-      if (statbuf.st_size < file_offset + sizeof(size_t)) goto abort2;
+      if (statbuf.st_size < file_offset + sizeof(size_t)) ABORT_INI;
      #endif
      #ifdef WIN32_NATIVE
       var DWORD fsize_hi;
       var DWORD fsize_lo = GetFileSize(handle,&fsize_hi);
-      if (fsize_lo == (DWORD)(-1) && GetLastError() != NO_ERROR) goto abort1;
+      if (fsize_lo == (DWORD)(-1) && GetLastError() != NO_ERROR) ABORT_SYS;
       var off_t fsize = ((uint64)fsize_hi << 32) | fsize_lo;
       /* executable size is appended to the image as size_t */
-      if (fsize < file_offset + sizeof(size_t)) goto abort2;
+      if (fsize < file_offset + sizeof(size_t)) ABORT_INI;
      #endif
     }
     #endif  /* HAVE_MMAP */
@@ -1424,7 +1434,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
      #ifdef TRIVIALMAP_MEMORY
       var uintM map_len = round_up(len+varobjects_misaligned,map_pagesize);
       mem.varobjects.heap_limit = (mem.varobjects.heap_start-varobjects_misaligned) + map_len;
-      if (zeromap((void*)(mem.varobjects.heap_start-varobjects_misaligned),map_len) <0) goto abort3;
+      if (zeromap((void*)(mem.varobjects.heap_start-varobjects_misaligned),map_len) <0) ABORT_MEM;
      #endif
       READ(mem.varobjects.heap_start,len);
     }
@@ -1433,7 +1443,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
      #ifdef TRIVIALMAP_MEMORY
       var uintM map_len = round_up(len,map_pagesize);
       mem.conses.heap_limit = mem.conses.heap_end - map_len;
-      if (zeromap((void*)mem.conses.heap_limit,map_len) <0) goto abort3;
+      if (zeromap((void*)mem.conses.heap_limit,map_len) <0) ABORT_MEM;
      #endif
       READ(mem.conses.heap_start,len);
     }
@@ -1500,7 +1510,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
            they were listed when the memimage was stored. */
        #if defined(HAVE_MMAP)
         if (use_mmap) {
-          if ( lseek(handle,file_offset,SEEK_SET) <0) goto abort1;
+          if ( lseek(handle,file_offset,SEEK_SET) <0) ABORT_SYS;
         }
        #endif
         var memdump_reloc_header_t rheader;
@@ -1550,9 +1560,9 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #undef READ
     begin_system_call();
     #ifdef UNIX
-    if ( CLOSE(handle) <0) goto abort1;
+    if ( CLOSE(handle) <0) ABORT_SYS;
     #elif defined(WIN32_NATIVE)
-    if (!CloseHandle(handle)) { handle = INVALID_HANDLE_VALUE; goto abort1; }
+    if (!CloseHandle(handle)) { handle = INVALID_HANDLE_VALUE; ABORT_SYS; }
     #endif
     end_system_call();
    #ifdef SPVW_PAGES
@@ -1590,7 +1600,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       }
     }
     #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-    if (mem.varobjects.heap_end > mem.conses.heap_start) goto abort3;
+    if (mem.varobjects.heap_end > mem.conses.heap_start) ABORT_MEM;
     #endif
     /* now wee need the SIGSEGV-handler. */
     install_segv_handler();
@@ -1624,7 +1634,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       begin_system_call();
       markwatchset = (markwatch_t*)malloc(markwatchset_allocated*sizeof(markwatch_t));
       end_system_call();
-      if (markwatchset==NULL) goto abort3;
+      if (markwatchset==NULL) ABORT_MEM;
     }
   }
   /* Delete cache of standard file streams. */
@@ -1665,17 +1675,20 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   O(memory_image_host) = asciz_to_string(header._dumphost,
                                          Symbol_value(S(utf_8)));
   return;
- abort1: {
+#undef ABORT_SYS
+#undef ABORT_INI
+#undef ABORT_MEM
+ abort_sys: {
     var int abort_errno = OS_errno;
     fprintf(stderr,GETTEXTL("%s: operating system error during load of initialization file `%s'"),program_name,filename);
     errno_out(abort_errno);
   }
   goto abort_quit;
- abort2:
+ abort_ini:
   fprintf(stderr,GETTEXTL("%s: initialization file `%s' was not created by this version of CLISP runtime"),program_name,filename);
   fputs("\n",stderr);
   goto abort_quit;
- abort3:
+ abort_mem:
   fprintf(stderr,GETTEXTL("%s: not enough memory for initialization"),program_name);
   fputs("\n",stderr);
   goto abort_quit;
@@ -1710,7 +1723,6 @@ local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
 /* find the memory image in the file,
  > set mem_start and mem_searched */
 local void find_memdump (Handle fd) {
-  errno = 0;
   if (lseek(fd,-sizeof(size_t),SEEK_END) > 0 &&
       full_read(fd,(void*)&mem_start,sizeof(size_t)) == sizeof(size_t) &&
       lseek(fd,mem_start,SEEK_SET) > 0) {
