@@ -273,8 +273,9 @@ static void savemem_with_runtime (Handle handle) {
       WRITE(buf,len);
       begin_system_call();
     }
-  } else { /* mem_start == 0 ==> no memory image in the executable,
+  } else { /* mem_start == -1 ==> no memory image in the executable,
               just copy everything */
+    mem_start = 0;
     while (1) {
       var ssize_t res = full_read(runtime,(void*)buf,BUFSIZ);
       if (res == 0) break;
@@ -284,6 +285,7 @@ static void savemem_with_runtime (Handle handle) {
         OS_file_error(TheStream(STACK_0)->strm_file_truename);
       }
       WRITE(buf,res);
+      mem_start += res;
       begin_system_call();
     }
   }
@@ -639,6 +641,8 @@ global maygc void savemem (object stream, bool exec_p)
   }
   #endif
  #endif
+  if (exec_p) WRITE(&mem_start,sizeof(size_t));
+  else { size_t tmp = (size_t)-1; WRITE(&tmp,sizeof(size_t)); }
   /* close stream (stream-buffer is unchanged, but thus also the
      handle at the operating system is closed): */
   builtin_stream_close(&STACK_0,0);
@@ -1400,14 +1404,16 @@ local void loadmem_from_handle (Handle handle, const char* filename)
      #ifdef UNIX
       var struct stat statbuf;
       if (fstat(handle,&statbuf) < 0) goto abort1;
-      if (statbuf.st_size < file_offset) goto abort2;
+      /* executable size is appended to the image as size_t */
+      if (statbuf.st_size < file_offset + sizeof(size_t)) goto abort2;
      #endif
      #ifdef WIN32_NATIVE
       var DWORD fsize_hi;
       var DWORD fsize_lo = GetFileSize(handle,&fsize_hi);
       if (fsize_lo == (DWORD)(-1) && GetLastError() != NO_ERROR) goto abort1;
       var off_t fsize = ((uint64)fsize_hi << 32) | fsize_lo;
-      if (fsize < file_offset) goto abort2;
+      /* executable size is appended to the image as size_t */
+      if (fsize < file_offset + sizeof(size_t)) goto abort2;
      #endif
     }
     #endif  /* HAVE_MMAP */
@@ -1704,10 +1710,23 @@ local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
 /* find the memory image in the file,
  > set mem_start and mem_searched */
 local void find_memdump (Handle fd) {
-  var memdump_header_t header;
-  fill_memdump_header(&header);
-  mem_start = find_marker(fd,(char*)&header,
-                          offsetof(memdump_header_t,_dumptime));
+  errno = 0;
+  if (lseek(fd,-sizeof(size_t),SEEK_END) > 0 &&
+      full_read(fd,(void*)&mem_start,sizeof(size_t)) == sizeof(size_t) &&
+      lseek(fd,mem_start,SEEK_SET) > 0) {
+    var memdump_header_t header, header1;
+    fill_memdump_header(&header);
+    full_read(fd,(void*)&header1,offsetof(memdump_header_t,_dumptime));
+    if (memcmp((void*)&header,(void*)&header1,
+               offsetof(memdump_header_t,_dumptime)) != 0)
+      mem_start = (size_t)-1;   /* bad header => no image */
+  } else {                      /* lseek does not work ==> use marker */
+    var memdump_header_t header, header1;
+    fill_memdump_header(&header);
+    lseek(fd,0,SEEK_SET);
+    mem_start = find_marker(fd,(char*)&header,
+                            offsetof(memdump_header_t,_dumptime));
+  }
   mem_searched = true;
 }
 
