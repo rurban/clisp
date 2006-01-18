@@ -6,6 +6,7 @@
 2006-01-18  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (setup.hint) [cygwin]: depend on SUMMARY
+	remove duplicate entries in the "require:" line
 
 2006-01-18  Sam Steingold  <sds@gnu.org>
 
