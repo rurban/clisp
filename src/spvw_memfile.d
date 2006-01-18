@@ -1718,12 +1718,14 @@ local int loadmem_from_executable (void) {
   var char* executable_name = get_executable_name();
   var Handle handle = open_filename(executable_name);
   var int success = 1;
-  find_memdump(handle);
-  if (mem_start != (size_t)-1) { /* found! */
-    lseek(handle,mem_start,SEEK_SET);
-    loadmem_from_handle(handle,executable_name);
-    success = 0;
+  if (handle != INVALID_HANDLE) { /* just in case ... */
+    find_memdump(handle);
+    if (mem_start != (size_t)-1) { /* found! */
+      lseek(handle,mem_start,SEEK_SET);
+      loadmem_from_handle(handle,executable_name);
+      success = 0;
+    }
+    CLOSE_HANDLE(handle);
   }
-  CLOSE_HANDLE(handle);
   return success;
 }
