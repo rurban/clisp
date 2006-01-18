@@ -1,5 +1,14 @@
 2006-01-18  Sam Steingold  <sds@gnu.org>
 
+	speed-up image-in-executable loading
+	* spvw_memfile.d (savemem_with_runtime): set mem_start if it was -1
+	(savemem): append mem_start to the image
+	(loadmem_from_handle): assume that the image end with mem_start
+	(find_memdump): try to find mem_start at the end of the image first;
+	use the time-consuming (~1sec) find_marker() as a last resort
+
+2006-01-18  Sam Steingold  <sds@gnu.org>
+
 	* execname.c (find_executable) [UNIX_CYGWIN32]: cygwin's
 	realpath() does not append ".exe", so we have to do it here
 
