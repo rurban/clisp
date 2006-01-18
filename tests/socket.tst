@@ -469,6 +469,8 @@ T
 (close *socket-1*) T
 (socket-status (cons *socket-2* :input) 0) :EOF
 (close *socket-2*) T
+(multiple-value-list (socket-status *server* 0)) (NIL 0)
+(socket-server-close *server*) NIL
 
 ;; clean-up
 (progn (makunbound '*server*) (unintern '*server*)
