@@ -1,5 +1,9 @@
 2006-01-18  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (setup.hint) [cygwin]: depend on SUMMARY
+
+2006-01-18  Sam Steingold  <sds@gnu.org>
+
 	* spvw_memfile.d (loadmem_from_executable): check the return value
 	of open_filename(), just in case cygwin breaks find_executable again
 
