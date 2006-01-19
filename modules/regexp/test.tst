@@ -13,8 +13,9 @@
   (apropos-list "regexp.*r$"))
 (REGEXP:REGEXP-MATCHER)
 
+#+ffi
 (REGEXP:REGEXP-EXEC (ffi:foreign-pointer (ffi:unsigned-foreign-address 0)) "a")
-ERROR
+#+ffi ERROR
 
 ;;; SDS: WARNING: the following tests are checking the underlying regexp
 ;;; implementation rather than CLISP regexp interface.
