@@ -3068,7 +3068,7 @@ fi
 CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${someflags}"
 
 if [ $CROSS = false ] ; then
-  CHECK_DEPS="check-recompile check-fresh-line check-script check-tests"
+  CHECK_DEPS="check-recompile check-fresh-line check-script check-exec-image check-tests"
 
   echol "# check the sources:"
   echol "# 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up"
@@ -3185,6 +3185,19 @@ if [ $CROSS = false ] ; then
   # check that scripting works
   echol "check-script : lisp${LEXE} lispinit.mem"
   echotab "test \`echo '(print (+ 11 99))' | \$(RUN) -q -M lispinit.mem -\` = 110 || exit 1"
+  echol
+
+  # check that the executable images work
+  EXEIMG=foo
+  OBSOLETE="$OBSOLETE ${EXEIMG}${HEXE}"
+  echol "check-exec-image: lisp${LEXE} lispinit.mem"
+  echotab "\$(RUN) -M lispinit.mem -x '(saveinitmem \"${EXEIMG}\" :executable t :norc t)'"
+  echotab "./${EXEIMG}${HEXE} -x '(setq zz 10) (saveinitmem \"${EXEIMG}\")'"
+  # check that the executable image still honors -M
+  echotab "./${EXEIMG}${HEXE} -norc -M ${EXEIMG}.mem -x 'zz'"
+  echotab "-ls -l lisp${LEXE} lispinit.mem ${EXEIMG}${HEXE} ${EXEIMG}.mem"
+  echotab "\$(RM) ${EXEIMG}${HEXE} ${EXEIMG}.mem"
+  echol
 
   echol "check-tests : ${TESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${TESTSDIR} && \$(MAKE) SHELL='\$(SHELL)' LEXE=${LEXE}"
