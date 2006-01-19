@@ -1,5 +1,10 @@
 2006-01-19  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-exec-image): new target
+	(CHECK_DEPS): added check-exec-image
+
+2006-01-19  Sam Steingold  <sds@gnu.org>
+
 	* spvw_memfile.d (find_memdump): reduce the portion of
 	memdump_header_t used as marker to comply with loadmem_from_handle();
 	use an intermediate variable to ensure that the second argument to
