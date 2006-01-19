@@ -1724,19 +1724,22 @@ local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
  > set mem_start and mem_searched */
 local void find_memdump (Handle fd) {
   var memdump_header_t header;
+  var size_t header_size = offsetof(memdump_header_t,_symbol_tab_addr)
+    + sizeof(header._symbol_tab_addr);
   fill_memdump_header(&header);
-  if (lseek(fd,-sizeof(size_t),SEEK_END) > 0 &&
-      full_read(fd,(void*)&mem_start,sizeof(size_t)) == sizeof(size_t) &&
-      lseek(fd,mem_start,SEEK_SET) > 0) {
+  /* "sizeof(size_t)" is unsigned, so "-sizeof(size_t)" is also unsigned,
+     so we need "pos" to pass a negative number to lseek() */
+  var off_t pos = sizeof(size_t);
+  if (lseek(fd,-pos,SEEK_END) > 0
+      && full_read(fd,(void*)&mem_start,sizeof(size_t)) == sizeof(size_t)
+      && lseek(fd,mem_start,SEEK_SET) == mem_start) {
     var memdump_header_t header1;
-    full_read(fd,(void*)&header1,offsetof(memdump_header_t,_dumptime));
-    if (memcmp((void*)&header,(void*)&header1,
-               offsetof(memdump_header_t,_dumptime)) != 0)
+    full_read(fd,(void*)&header1,header_size);
+    if (memcmp((void*)&header,(void*)&header1,header_size) != 0)
       mem_start = (size_t)-1;   /* bad header => no image */
   } else {                      /* lseek does not work ==> use marker */
     lseek(fd,0,SEEK_SET);
-    mem_start = find_marker(fd,(char*)&header,
-                            offsetof(memdump_header_t,_dumptime));
+    mem_start = find_marker(fd,(char*)&header,header_size);
   }
   mem_searched = true;
 }
