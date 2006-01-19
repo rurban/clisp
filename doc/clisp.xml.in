@@ -336,18 +336,18 @@ compiles the specified lisp files to a platform-independent
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-ilisp"><term><option>-I</option></term>
- <listitem><simpara>Be &ilisp;-friendly.
-   &ilisp; is an alternative &emacs; interface to &cl; systems.
-   With this option, &clisp; interacts in a way that &ilisp; can deal with.
-   Currently the only effect of this is that unnecessary prompts are
-   not suppressed.
+ <listitem><para>Interact better with &emacs;
+   (useful when running &clisp; under &emacs; using &slime;, &ilisp; et al).
+   With this option, &clisp; interacts in a way that &emacs; can deal with:
+   <itemizedlist><listitem><simpara>unnecessary prompts are not suppressed.
+    </simpara></listitem>
 <!-- #ifdef GNU_READLINE -->
-   Furthermore, the &readline; library treats
-   <link linkend="completion">Tab</link> as a normal self-inserting
-   character, so you should always use this option when you invoke
-   &clisp; from &emacs;.
+    <listitem><simpara>The &readline; library treats &tab-c;
+      (see <xref linkend="completion"/>) as a normal self-inserting
+      character (see <olink targetdoc="impnotes" targetptr="faq-rl-tab"/>).
+    </simpara></listitem>
 <!-- #endif -->
-</simpara></listitem></varlistentry>
+</itemizedlist></para></listitem></varlistentry>
 
 <varlistentry id="opt-ansi"><term><option>-ansi</option></term>
  <listitem><simpara>Comply with the &ansi-cl; specification
@@ -491,7 +491,7 @@ compiles the specified lisp files to a platform-independent
  <listitem><simpara>for editing and viewing the input history, using the
    &readline; library.</simpara></listitem></varlistentry>
 
-<varlistentry id="completion"><term>Tab key</term>
+<varlistentry id="completion"><term>&tab-c; key</term>
  <listitem><para>Context sensitive:
   <itemizedlist><listitem><simpara>If you are in the <quote>function
      position</quote> (in the first symbol after an opening paren or in
