@@ -1,3 +1,10 @@
+2006-01-19  Sam Steingold  <sds@gnu.org>
+
+	* spvw_memfile.d (find_memdump): reduce the portion of
+	memdump_header_t used as marker to comply with loadmem_from_handle();
+	use an intermediate variable to ensure that the second argument to
+	lseek(SEEK_END) is indeed negative
+
 2006-01-18  Sam Steingold  <sds@gnu.org>
 
 	speed-up image-in-executable loading
