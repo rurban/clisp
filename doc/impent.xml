@@ -132,6 +132,7 @@
 <!ENTITY lf-s '<keysym>#\Linefeed</keysym>'>
 <!ENTITY cr-c '<keycode>CR</keycode>'>
 <!ENTITY lf-c '<keycode>LF</keycode>'>
+<!ENTITY tab-c '<keycode>TAB</keycode>'>
 
 <!-- *** packages *** -->
 <!ENTITY affi-pac '<link linkend="affi"><quote role="package">AFFI</quote></link>'>
