@@ -509,11 +509,11 @@ further explanations of the issues could be provided).</para>
    <olink targetdoc="man" targetptr="completion">completion</olink>.
    You get this <quote>Display all 1259 possibilities</quote> message
    (and sometimes many screens of symbols) when you
-   hit <literal>TAB</literal> too many times in an inappropriate place.
+   hit &tab-c; too many times in an inappropriate place.
  <olink targetdoc="man" targetptr="opt-ilisp">You can turn this feature
   off</olink> if you are using &emacs;.  It is a good idea
  <ulink url="http://www.w3.org/MarkUp/html3/literal.html">not</ulink> to
- use <literal>TAB</literal>s in your code.</para></answer></qandaentry>
+ use &tab-c;s in your code.</para></answer></qandaentry>
 
 
 <qandaentry id="faq-no-rl"><question id="faq-no-rl-q"><para>Why does
