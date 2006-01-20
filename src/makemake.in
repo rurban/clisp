@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script -*-
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 1991-2005
-# Sam Steingold 1999-2005
+# Sam Steingold 1999-2006
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile

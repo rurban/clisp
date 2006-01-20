@@ -1,7 +1,7 @@
 /*
  * Finding the full path of the executable.
  * Bruno Haible 20.12.1994
- * Sam Steingold 2004-2005
+ * Sam Steingold 2004-2006
  */
 
 /* This assumes that the executable is not removed or renamed while
