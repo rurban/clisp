@@ -89,5 +89,5 @@ global object built_flags (void) {
           RL_VERSION_MAJOR,RL_VERSION_MINOR);
   pushSTACK(ascii_to_string(libreadline_ver)); count++;
  #endif
-  return count == 1 ? popSTACK() : string_concat(count);
+  return count == 1 ? (object)popSTACK() : string_concat(count);
 }
