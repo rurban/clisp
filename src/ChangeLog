@@ -3,6 +3,7 @@
 	* Makefile.devel (distrib): also depend on doc-distrib
 	(SRC_DIST, SRC_DIST1): go to $(ARCHIVE)
 	(doc-distrib, doc--distrib): new targets
+	(upload): also upload $(DOC_DIST)
 	(src-distrib): do not depend on potfiles because they are already
 	created by "all" and thus should not be re-created by "src-distrib"
 

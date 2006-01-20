@@ -416,6 +416,7 @@ ARCHIVE=../archives/$(VER)
 SRC_DIST=$(ARCHIVE)/clisp-$(VER).tar.bz2
 SRC_DIST1=$(ARCHIVE)/clisp-$(VER).tar.gz
 DOC_DIST=$(ARCHIVE)/clisp-$(VER)-impnotes.zip
+UPLOAD=$(SRC_DIST) $(SRC_DIST1) $(DOC_DIST)
 SSHUP=podval:~/public_html/clisp/
 FTPUP=upload.sf.net:/incoming sunsite.unc.edu:/incoming/linux
 
@@ -424,10 +425,10 @@ $(SRC_DIST1) : $(SRC_DIST)
 
 upload : $(SRC_DIST1) force
 	for h in $(SSHUP) ; do \
-	  scp $(SRC_DIST) $(SRC_DIST1) $${h}/latest/; scp src/NEWS $${h}; \
+	  scp $(UPLOAD) $${h}/latest/; scp src/NEWS $${h}; \
 	done
 	for h in $(FTPUP) ; do \
-	  lftp $${h} -e "put clisp.lsm $(SRC_DIST) $(SRC_DIST1); quit"; \
+	  lftp $${h} -e "mput clisp.lsm $(UPLOAD); quit"; \
 	done
 
 src-distrib : force
