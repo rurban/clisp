@@ -1,3 +1,7 @@
+2006-01-20  Sam Steingold  <sds@gnu.org>
+
+	* built.d (built_flags): report readline version
+
 2006-01-19  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-exec-image): new target
