@@ -1728,16 +1728,15 @@ local void find_memdump (Handle fd) {
     + sizeof(header._symbol_tab_addr);
   fill_memdump_header(&header);
   /* "sizeof(size_t)" is unsigned, so "-sizeof(size_t)" is also unsigned,
-     so we need "pos" to pass a negative number to lseek() */
-  var off_t pos = sizeof(size_t);
-  if (lseek(fd,-pos,SEEK_END) > 0
+     so we need the "(off_t)" cast to pass a negative number to lseek() */
+  if (lseek(fd,-(off_t)sizeof(size_t),SEEK_END) > 0
       && full_read(fd,(void*)&mem_start,sizeof(size_t)) == sizeof(size_t)
       && lseek(fd,mem_start,SEEK_SET) == mem_start) {
     var memdump_header_t header1;
     full_read(fd,(void*)&header1,header_size);
     if (memcmp((void*)&header,(void*)&header1,header_size) != 0)
       mem_start = (size_t)-1;   /* bad header => no image */
-  } else {                      /* lseek does not work ==> use marker */
+  } else {                 /* lseek+read does not work ==> use marker */
     lseek(fd,0,SEEK_SET);
     mem_start = find_marker(fd,(char*)&header,header_size);
   }
