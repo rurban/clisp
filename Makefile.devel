@@ -387,7 +387,7 @@ install-gcc:
 	rm -rf gcc-$(GCC_VERSION)
 
 
-distrib : fixperms src-distrib
+distrib : fixperms src-distrib doc-distrib
 
 ## Pre-release TODO:
 # echo URL-tar.bz2| mail -s "clisp-`cat VERSION`" translation@IRO.UMontreal.CA
@@ -412,8 +412,10 @@ distrib : fixperms src-distrib
 # https://sourceforge.net/news/submit.php?group_id=1355
 
 VER=$(shell . version.sh ; echo $$VERSION_NUMBER)
-SRC_DIST=/tmp/clisp-$(VER).tar.bz2
-SRC_DIST1=/tmp/clisp-$(VER).tar.gz
+ARCHIVE=../archives/$(VER)
+SRC_DIST=$(ARCHIVE)/clisp-$(VER).tar.bz2
+SRC_DIST1=$(ARCHIVE)/clisp-$(VER).tar.gz
+DOC_DIST=$(ARCHIVE)/clisp-$(VER)-impnotes.zip
 SSHUP=podval:~/public_html/clisp/
 FTPUP=upload.sf.net:/incoming sunsite.unc.edu:/incoming/linux
 
@@ -428,12 +430,22 @@ upload : $(SRC_DIST1) force
 	  lftp $${h} -e "put clisp.lsm $(SRC_DIST) $(SRC_DIST1); quit"; \
 	done
 
-src-distrib : potfiles force
+src-distrib : force
 	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-$(VER)
 
 src--distrib : force
+	mkdir -p $(ARCHIVE)
 	ln -s . $(TOPDIR)
 	tar cvfhj $(SRC_DIST) $(EXCLUDE) $(SOURCES)
+	rm -f $(TOPDIR)
+
+doc-distrib : force
+	$(MAKE) -f Makefile.devel doc--distrib TOPDIR=clisp-$(VER)
+
+doc--distrib : force
+	mkdir -p $(ARCHIVE)
+	ln -s . $(TOPDIR)
+	zip -9vor $(DOC_DIST) $(TOPDIR)/doc/html -x \*.cvsignore -x \*.symlinks -x \*CVS\*
 	rm -f $(TOPDIR)
 
 force :
