@@ -1,3 +1,8 @@
+2006-01-22  Sam Steingold  <sds@gnu.org>
+
+	* spvw_memfile.d (find_memdump) [!LOADMEM_TRY_SEARCH]: disable
+	find_marker()
+
 2006-01-20  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (distrib): also depend on doc-distrib
