@@ -1,5 +1,10 @@
 2006-01-22  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 1412268 ]: buffer overflow in stream handling code
+	* w32shell.c (real_path): check length of namein
+
+2006-01-22  Sam Steingold  <sds@gnu.org>
+
 	* spvw_memfile.d (find_memdump) [!LOADMEM_TRY_SEARCH]: disable
 	find_marker()
 
