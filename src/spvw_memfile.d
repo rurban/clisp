@@ -641,7 +641,7 @@ global maygc void savemem (object stream, bool exec_p)
   }
   #endif
  #endif
-  if (exec_p) WRITE(&mem_start,sizeof(size_t));
+  if (exec_p) WRITE(&mem_start,sizeof(size_t)); /* see find_memdump() */
   else { size_t tmp = (size_t)-1; WRITE(&tmp,sizeof(size_t)); }
   /* close stream (stream-buffer is unchanged, but thus also the
      handle at the operating system is closed): */
@@ -1698,6 +1698,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   quit_sofort(1);
 }
 
+#if defined(LOADMEM_TRY_SEARCH)
 /* find the marker of given size in the open file handle */
 local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
   char buf[BUFSIZ];
@@ -1719,9 +1720,23 @@ local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
   }
   return (size_t)-1;
 }
+#endif
 
-/* find the memory image in the file,
- > set mem_start and mem_searched */
+/* find the memory image in the file
+ there are two methods:
+  - the last sizeof(size_t) bytes in the executable are mem_start
+    this method is fast, i.e., O(1): constant time
+ #if defined(LOADMEM_TRY_SEARCH)
+  - find the memdump_header_t inside the file as if by CL:SEARCH
+    this method is expensive, i.e., O(NM) where N is the size of the executable
+    (runtime+image) and M is the size of the header (header_size below);
+    and can increase the startup time by as much as a few seconds
+ #endif
+ Since we always record mem_start in every executable image we write,
+ there is no reason to do search.
+ If "image size" somehow fails, we want a bug report right away.
+ > fd : the open file descriptor (its position is changed)
+ < set mem_start and mem_searched */
 local void find_memdump (Handle fd) {
   var memdump_header_t header;
   var size_t header_size = offsetof(memdump_header_t,_symbol_tab_addr)
@@ -1736,10 +1751,16 @@ local void find_memdump (Handle fd) {
     full_read(fd,(void*)&header1,header_size);
     if (memcmp((void*)&header,(void*)&header1,header_size) != 0)
       mem_start = (size_t)-1;   /* bad header => no image */
-  } else {                 /* lseek+read does not work ==> use marker */
+  }
+ #if defined(LOADMEM_TRY_SEARCH)
+  else { /* lseek+read does not work ==> use marker */
     lseek(fd,0,SEEK_SET);
     mem_start = find_marker(fd,(char*)&header,header_size);
+    if (mem_start  != (size_t)-1)
+      /* image size failed, but header is found -- this is fishy! */
+      fprintf(stderr,GETTEXTL("%s: 'image size' method failed, but found image header at %d\n"),get_executable_name(),mem_start);
   }
+ #endif
   mem_searched = true;
 }
 
