@@ -1073,6 +1073,10 @@ T
         (typep #\a (array-element-type (get-output-stream-string s)))))
 (NIL NIL)
 
+;; [ 1412268 ] Buffer overflow in stream handling code
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1412268&group_id=1355
+(open (make-string 5000 :initial-element #\x)) ERROR
+
 ;; composite streams operate on their constituent streams, not themselves
 (let ((cs (make-concatenated-stream (make-string-input-stream "a"))))
   (unread-char (read-char cs) cs)

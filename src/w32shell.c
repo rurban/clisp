@@ -203,6 +203,7 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
   char saved_char;
   BOOL next_name = 0;/* if we found an lnk and need to start over */
   int try_counter = 33;
+  if (strlen(namein) >= MAX_PATH) return FALSE;
   strcpy(nameout,namein);
   do { /* whole file names */
     next_name = FALSE;

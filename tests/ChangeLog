@@ -1,3 +1,7 @@
+2006-01-22  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: test opening files with too long names
+
 2006-01-18  Sam Steingold  <sds@gnu.org>
 
 	* socket.tst (*server*): socket-server-close
