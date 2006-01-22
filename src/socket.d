@@ -341,7 +341,8 @@ local int with_host (const char* host, host_fn_t fn, void* opts) {
   return fn(host,0,0,opts);
 }
 
-local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret) {
+local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret)
+{
   *(object*)ret = (addrlen
                    ? LEbytes_to_UI(addrlen,(const uintB*)addr)
                    : asciz_to_string((const char*)addr,O(misc_encoding)));
@@ -502,9 +503,9 @@ local SOCKET with_host_port (const char* host, unsigned short port,
   /* if numeric host name then try to parse it as such; do the number check
      first because some systems return garbage instead of INVALID_INETADDR */
   if (all_digits_dots(host)) {
-    var struct sockaddr_in inaddr;
     var uint32 hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ;
     if (!(hostinetaddr == ((uint32) -1))) {
+      var struct sockaddr_in inaddr;
       inaddr.sin_family = AF_INET;
       inaddr.sin_addr.s_addr = hostinetaddr;
       inaddr.sin_port = htons(port);
@@ -892,25 +893,25 @@ global SOCKET create_server_socket_by_string (host_data_t *hd,
 }
 
 global SOCKET create_server_socket_by_socket (host_data_t *hd, SOCKET sock,
-                                    unsigned int port, int backlog) {
+                                              unsigned int port, int backlog) {
   var SOCKET fd;
   var sockaddr_max_t addr;
   var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
   if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
     return INVALID_SOCKET;
   switch (((struct sockaddr *)&addr)->sa_family) {
-#ifdef HAVE_IPV6
+   #ifdef HAVE_IPV6
     case AF_INET6:
       addr.inaddr6.sin6_port = htons(port);
       break;
-#endif
+   #endif
     case AF_INET:
       addr.inaddr.sin_port = htons(port);
       break;
     default: NOTREACHED;
   }
   fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen,&backlog);
-/* common part */
+  /* common part */
   if (fd == INVALID_SOCKET)
     return INVALID_SOCKET;
   /* Retrieve the assigned port. */
