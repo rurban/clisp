@@ -234,7 +234,7 @@ local Handle open_filename (const char* filename);
 local void find_memdump (Handle fd);
 /* the size of the runtime executable for executable dumping
    == the start of memory image in the executable */
-static size_t mem_start = 0;
+static size_t mem_start = (size_t)-1;
 static bool mem_searched = false; /* have we looked for memdump already */
 static void savemem_with_runtime (Handle handle) {
   var char *executable_name = get_executable_name();
@@ -1751,16 +1751,18 @@ local void find_memdump (Handle fd) {
     full_read(fd,(void*)&header1,header_size);
     if (memcmp((void*)&header,(void*)&header1,header_size) != 0)
       mem_start = (size_t)-1;   /* bad header => no image */
-  }
- #if defined(LOADMEM_TRY_SEARCH)
-  else { /* lseek+read does not work ==> use marker */
+  } else {
+   #if defined(LOADMEM_TRY_SEARCH)
+    /* lseek+read does not work ==> use marker */
     lseek(fd,0,SEEK_SET);
     mem_start = find_marker(fd,(char*)&header,header_size);
     if (mem_start  != (size_t)-1)
       /* image size failed, but header is found -- this is fishy! */
       fprintf(stderr,GETTEXTL("%s: 'image size' method failed, but found image header at %d\n"),get_executable_name(),mem_start);
+   #else
+    mem_start = (size_t)-1;
+   #endif
   }
- #endif
   mem_searched = true;
 }
 
