@@ -74,6 +74,13 @@ AC_DEFINE(HAVE_DB_GET_TRANSACTIONAL_1ARG,1,
 [Define to 1 if DB->get_transactional() accepts just 1 argument])
 fi
 
+dnl http://www.sleepycat.com/docs/ref/upgrade.4.4/lockstat.html
+AC_CHECK_MEMBERS([DB_LOCK_STAT.st_nconflicts, DB_LOCK_STAT.st_lock_wait,
+DB_LOCK_STAT.st_nnowaits, DB_LOCK_STAT.st_lock_nowait],,,[#include <db.h>])
+dnl http://www.sleepycat.com/docs/ref/upgrade.4.4/mutex.html
+AC_CHECK_MEMBERS([DB_ENV.mutex_set_tas_spins, DB_ENV.mutex_get_tas_spins,
+DB_ENV.mutex_set_align, DB_ENV.mutex_get_align],,,[#include <db.h>])
+
 AC_MSG_NOTICE([ * Berkeley-DB (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT

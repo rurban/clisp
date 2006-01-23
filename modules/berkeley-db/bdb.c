@@ -602,6 +602,16 @@ static object dbe_get_errpfx (DB_ENV *dbe) {
     return flags;                                       \
   }
 
+/* at 4.2, http://www.sleepycat.com/docs/ref/upgrade.4.4/mutex.html
+   get_tas_spins was renamed to mutex_get_tas_spins: */
+#if defined(HAVE_DB_ENV_MUTEX_GET_TAS_SPINS)
+# define get_tas_spins mutex_get_tas_spins
+#endif
+#if defined(HAVE_DB_ENV_MUTEX_SET_TAS_SPINS)
+# define set_tas_spins mutex_set_tas_spins
+#endif
+/* todo: support mutexes properly */
+
 static void set_flags (object arg, u_int32_t *flag_on, u_int32_t *flag_off,
                        u_int32_t values) {
   if (boundp(arg))
@@ -1350,10 +1360,11 @@ DEFUN(BDB:DB-FD, db)
 
 DEFCHECKER(db_get_action,prefix=DB, default=0, \
            CONSUME CONSUME-WAIT GET-BOTH SET-RECNO)
-DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_DEGREE_2 DB_DIRTY_READ \
-           DB_MULTIPLE DB_RMW)
-DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO-COMMIT :DEGREE-2 :DIRTY-READ \
-      :MULTIPLE :RMW :TRANSACTION :ERROR :TYPE :KEY-TYPE)
+DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_DEGREE_2 DB_READ_COMMITTED \
+           DB_DIRTY_READ DB_READ_UNCOMMITTED DB_MULTIPLE DB_RMW)
+DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO-COMMIT :DEGREE-2 :READ-COMMITTED \
+      :DIRTY-READ :READ-UNCOMMITTED :MULTIPLE :RMW :TRANSACTION :ERROR :TYPE \
+      :KEY-TYPE)
 { /* Get items from a database */
   dbt_o_t key_type = check_dbt_type(popSTACK());
   dbt_o_t out_type = check_dbt_type(popSTACK());
@@ -2061,8 +2072,10 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
 }
 
 /* ===== cursors ===== */
-DEFFLAGSET(make_dbc_flags, DB_DEGREE_2 DB_DIRTY_READ DB_WRITECURSOR)
-DEFUN(BDB:MAKE-DBC,db &key :TRANSACTION :DEGREE-2 :DIRTY-READ :WRITECURSOR)
+DEFFLAGSET(make_dbc_flags, DB_DEGREE_2 DB_READ_COMMITTED DB_DIRTY_READ \
+           DB_READ_UNCOMMITTED DB_WRITECURSOR)
+DEFUN(BDB:MAKE-DBC,db &key :TRANSACTION :DEGREE-2 :READ-COMMITTED :DIRTY-READ \
+      :READ-UNCOMMITTED :WRITECURSOR)
 { /* create a cursor */
   u_int32_t flags = make_dbc_flags();
   DB_TXN *txn = (DB_TXN*)bdb_handle(STACK_0,`BDB::TXN`,BH_NIL_IS_NULL);
@@ -2123,8 +2136,8 @@ static dbt_o_t fill_or_init (object datum, DBT *pdbt, int re_len) {
 DEFCHECKER(dbc_get_action,prefix=DB,default=DB_CURRENT,                 \
            CURRENT FIRST GET-BOTH GET-BOTH-RANGE GET-RECNO JOIN-ITEM LAST \
            NEXT NEXT-DUP NEXT-NODUP PREV PREV-NODUP SET SET-RANGE SET-RECNO)
-DEFFLAGSET(dbc_get_options, DB_DEGREE_2 DB_DIRTY_READ DB_MULTIPLE \
-           DB_MULTIPLE_KEY DB_RMW)
+DEFFLAGSET(dbc_get_options, DB_DEGREE_2 DB_READ_COMMITTED DB_DIRTY_READ \
+           DB_READ_UNCOMMITTED DB_MULTIPLE DB_MULTIPLE_KEY DB_RMW)
 DEFUN(BDB:DBC-GET, cursor key data action &key :DEGREE-2 :DIRTY-READ \
       :MULTIPLE :MULTIPLE-KEY :RMW :ERROR)
 { /* retrieve key/data pairs from the database */
@@ -2291,8 +2304,20 @@ DEFUN(BDB:LOCK-STAT,dbe &key :STAT-CLEAR)
   pushSTACK(uint32_to_I(ls->st_maxnobjects));
   pushSTACK(uint32_to_I(ls->st_nrequests));
   pushSTACK(uint32_to_I(ls->st_nreleases));
+#if defined(HAVE_DB_LOCK_STAT_ST_NNOWAITS)
   pushSTACK(uint32_to_I(ls->st_nnowaits));
+#elif defined(HAVE_DB_LOCK_STAT_ST_LOCK_NOWAIT)
+  pushSTACK(uint32_to_I(ls->st_lock_nowait));
+#else
+# error neither st_lock_nowait nor st_nnowaits is found in DB_LOCK_STAT
+#endif
+#if defined(HAVE_DB_LOCK_STAT_ST_NCONFLICTS)
   pushSTACK(uint32_to_I(ls->st_nconflicts));
+#elif defined(HAVE_DB_LOCK_STAT_ST_LOCK_WAIT)
+  pushSTACK(uint32_to_I(ls->st_lock_wait));
+#else
+# error neither st_lock_wait nor st_nconflicts is found in DB_LOCK_STAT
+#endif
   pushSTACK(uint32_to_I(ls->st_ndeadlocks));
   pushSTACK(uint32_to_I(ls->st_locktimeout));
   pushSTACK(uint32_to_I(ls->st_nlocktimeouts));
@@ -2472,10 +2497,10 @@ DEFUN(BDB:LOG-COMPARE, lsn1 lsn2)
 
 /* ===== transactions ===== */
 
-DEFFLAGSET(txn_begin_flags, DB_DEGREE_2 DB_DIRTY_READ DB_TXN_NOSYNC \
-           DB_TXN_NOWAIT DB_TXN_SYNC)
-DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DEGREE-2 :DIRTY-READ \
-      :NOSYNC :NOWAIT :SYNC)
+DEFFLAGSET(txn_begin_flags, DB_DEGREE_2 DB_READ_COMMITTED DB_DIRTY_READ \
+           DB_READ_UNCOMMITTED DB_TXN_NOSYNC DB_TXN_NOWAIT DB_TXN_SYNC)
+DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DEGREE-2 :READ-COMMITTED :DIRTY-READ \
+      :READ-UNCOMMITTED :NOSYNC :NOWAIT :SYNC)
 { /* create a transaction */
   u_int32_t flags = txn_begin_flags();
   DB_TXN *parent = (DB_TXN*)bdb_handle(STACK_0,`BDB::TXN`,BH_NIL_IS_NULL), *ret;

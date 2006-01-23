@@ -8,6 +8,7 @@
  Supported versions:<simplelist type="horiz" columns="1">
   <member><ulink role="bdb" url="ref/upgrade.4.2/toc.html">4.2</ulink></member>
   <member><ulink role="bdb" url="ref/upgrade.4.3/toc.html">4.3</ulink></member>
+  <member><ulink role="bdb" url="ref/upgrade.4.4/toc.html">4.4</ulink></member>
 </simplelist></para>
 
 <simpara>When this module is present, &features-var; contains the
