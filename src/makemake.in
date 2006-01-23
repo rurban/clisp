@@ -2278,6 +2278,9 @@ if [ "${enable_maintainer_mode}" = yes ]; then
   echol
 fi
 
+# in the toplevel Makefile.devel, makemake depends olso on version.sh.
+# we do not need that here because makemake depends on config.status -
+# depends on src/configure - depends on version.sh in Makefile.devel
 echol "makemake : makemake.in config.status"
 echotab "sh config.status --file=makemake"
 echol
