@@ -44,7 +44,13 @@ T
 #+unix (os:stream-options *tmp1* :fd nil) NIL
 #+unix (os:stream-options *tmp1* :fd) NIL
 
-(os:stream-lock *tmp1* t) T
+;; this may fail with ENOLCK - in which case we do not test locking
+(handler-case (os:stream-lock *tmp1* t)
+  (error (err)
+    (format t "~S: ~A" 'os:stream-lock err)
+    (pushnew :no-stream-lock *features*)
+    T))
+T
 (os:stream-lock *tmp1* nil) NIL
 
 (typep (show (os:priority (os:process-id))) '(or keyword (integer -20 20))) T
@@ -173,7 +179,9 @@ PROC-SEND
 
 (let* ((argv (ext:argv)) (run (aref argv 0))
        (args (list "-M" (aref argv (1+ (position "-M" argv :test #'string=)))
-                   "-norc" "-q")))
+                   "-B" (aref argv (1+ (position "-B" argv :test #'string=)))
+                   "-norc" "-q" "-on-error" "abort")))
+  (show (cons run args))
   (defparameter *proc1* (ext:run-program run :arguments args
                                          :input :stream :output :stream))
   (defparameter *proc2* (ext:run-program run :arguments args
@@ -192,16 +200,24 @@ T
             (truename *tmp1*)))
 T
 
-(read-from-string (proc-send *proc1* "(stream-lock s t)")) T
-(proc-send *proc2* "(stream-lock s t)")  NIL ; blocked
+#-:no-stream-lock (read-from-string (proc-send *proc1* "(stream-lock s t)"))
+#-:no-stream-lock T
+#-:no-stream-lock (proc-send *proc2* "(stream-lock s t)")
+#-:no-stream-lock NIL           ; blocked
 
-(read-from-string (proc-send *proc1* "(stream-lock s nil)")) NIL ; released
-(read-from-string (flush-clisp *proc2*)) T             ; acquired
+#-:no-stream-lock (read-from-string (proc-send *proc1* "(stream-lock s nil)"))
+#-:no-stream-lock NIL           ; released
+#-:no-stream-lock (read-from-string (flush-clisp *proc2*))
+#-:no-stream-lock T             ; acquired
 
-(read-from-string (proc-send *proc1* "(stream-lock s t :block nil)")) NIL
-(read-from-string (proc-send *proc2* "(stream-lock s nil)")) NIL ; released
-(read-from-string (proc-send *proc1* "(stream-lock s t :block nil)")) T
-(read-from-string (proc-send *proc1* "(stream-lock s nil)")) NIL ; released
+#-:no-stream-lock (read-from-string (proc-send *proc1* "(stream-lock s t :block nil)"))
+#-:no-stream-lock NIL
+#-:no-stream-lock (read-from-string (proc-send *proc2* "(stream-lock s nil)"))
+#-:no-stream-lock NIL           ; released
+#-:no-stream-lock (read-from-string (proc-send *proc1* "(stream-lock s t :block nil)"))
+#-:no-stream-lock T
+#-:no-stream-lock (read-from-string (proc-send *proc1* "(stream-lock s nil)"))
+#-:no-stream-lock NIL           ; released
 
 ;; check :rename-and-delete
 ;; woe32 signals ERROR_SHARING_VIOLATION
@@ -238,5 +254,6 @@ T
        (delete-file *tmp2*) (makunbound '*tmp2*) (unintern '*tmp2*)
        (fmakunbound 'flush-clisp) (unintern 'flush-clisp)
        (fmakunbound 'proc-send) (unintern 'proc-send)
+       (setq *features* (delete :no-stream-lock *features*))
        T)
 T
