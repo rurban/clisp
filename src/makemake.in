@@ -3951,7 +3951,7 @@ fi
 cat <<!!
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-\$(RM) core${OBSOLETE}
+	-\$(RM) core *.core *.stackdump${OBSOLETE}
 	-\$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp${LEXE} is recompiled
