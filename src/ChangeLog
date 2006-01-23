@@ -1,5 +1,9 @@
 2006-01-23  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (clean0): also remove *.core and *.stackdump
+
+2006-01-23  Sam Steingold  <sds@gnu.org>
+
 	* spvw_memfile.d (find_memdump): when 'image size' fails,
 	reset mem_start to -1
 
