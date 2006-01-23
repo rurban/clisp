@@ -6,6 +6,18 @@
 /* Define to 1 if `get_home' is member of `DB_ENV'. */
 #undef HAVE_DB_ENV_GET_HOME
 
+/* Define to 1 if `mutex_get_align' is member of `DB_ENV'. */
+#undef HAVE_DB_ENV_MUTEX_GET_ALIGN
+
+/* Define to 1 if `mutex_get_tas_spins' is member of `DB_ENV'. */
+#undef HAVE_DB_ENV_MUTEX_GET_TAS_SPINS
+
+/* Define to 1 if `mutex_set_align' is member of `DB_ENV'. */
+#undef HAVE_DB_ENV_MUTEX_SET_ALIGN
+
+/* Define to 1 if `mutex_set_tas_spins' is member of `DB_ENV'. */
+#undef HAVE_DB_ENV_MUTEX_SET_TAS_SPINS
+
 /* Define to 1 if `set_msgcall' is member of `DB_ENV'. */
 #undef HAVE_DB_ENV_SET_MSGCALL
 
@@ -14,6 +26,18 @@
 
 /* Define to 1 if you have the <db.h> header file. */
 #undef HAVE_DB_H
+
+/* Define to 1 if `st_lock_nowait' is member of `DB_LOCK_STAT'. */
+#undef HAVE_DB_LOCK_STAT_ST_LOCK_NOWAIT
+
+/* Define to 1 if `st_lock_wait' is member of `DB_LOCK_STAT'. */
+#undef HAVE_DB_LOCK_STAT_ST_LOCK_WAIT
+
+/* Define to 1 if `st_nconflicts' is member of `DB_LOCK_STAT'. */
+#undef HAVE_DB_LOCK_STAT_ST_NCONFLICTS
+
+/* Define to 1 if `st_nnowaits' is member of `DB_LOCK_STAT'. */
+#undef HAVE_DB_LOCK_STAT_ST_NNOWAITS
 
 /* Define to 1 if DB->stat() accepts TXNid */
 #undef HAVE_DB_STAT_ACCEPT_TXN
