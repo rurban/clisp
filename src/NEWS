@@ -13,6 +13,8 @@ User visible changes
 
 * Fixed a crash on woe32 in opening files with names longer than MAX_PATH.
 
+* Module berkeley-db now supports Berkeley DB 4.4.
+
 
 2.37 (2006-01-02)
 =================

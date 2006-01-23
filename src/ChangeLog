@@ -1,5 +1,10 @@
 2006-01-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c, modules/berkeley-db/configure.in:
+	support Berkeley DB 4.4
+
+2006-01-22  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 1412268 ]: buffer overflow in stream handling code
 	* w32shell.c (real_path): check length of namein
 
