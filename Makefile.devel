@@ -387,7 +387,7 @@ install-gcc:
 	rm -rf gcc-$(GCC_VERSION)
 
 
-distrib : fixperms src-distrib doc-distrib
+distrib : fixperms src-distrib doc-distrib gnu-distrib
 
 ## Pre-release TODO:
 # echo URL-tar.bz2| mail -s "clisp-`cat VERSION`" translation@IRO.UMontreal.CA
@@ -419,6 +419,9 @@ DOC_DIST=$(ARCHIVE)/clisp-$(VER)-impnotes.zip
 UPLOAD=$(SRC_DIST) $(SRC_DIST1) $(DOC_DIST)
 SSHUP=podval:~/public_html/clisp/
 FTPUP=upload.sf.net:/incoming sunsite.unc.edu:/incoming/linux
+GNU_TOP=$(ARCHIVE)/NEWS $(ARCHIVE)/SUMMARY
+GNU_SRC=$(SRC_DIST1) $(SRC_DIST)
+GNU_DIST=$(GNU_TOP) $(GNU_SRC)
 
 $(SRC_DIST1) : $(SRC_DIST)
 	bzcat -v $(SRC_DIST) | gzip -9 -v > $(SRC_DIST1)
@@ -430,6 +433,9 @@ upload : $(SRC_DIST1) force
 	for h in $(FTPUP) ; do \
 	  lftp $${h} -e "mput clisp.lsm $(UPLOAD); quit"; \
 	done
+	UP=""; for f in $(GNU_DIST); do \
+		UP=$${UP}" $$f $$f.sig $$f.directive.asc"; done; \
+	lftp ftp://ftp-upload.gnu.org/incoming/ftp -e "mput $${UP}; quit"
 
 src-distrib : force
 	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-$(VER)
@@ -448,5 +454,21 @@ doc--distrib : force
 	ln -s . $(TOPDIR)
 	zip -9vor $(DOC_DIST) $(TOPDIR)/doc/html -x \*.cvsignore -x \*.symlinks -x \*CVS\*
 	rm -f $(TOPDIR)
+
+# http://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
+gnu-distrib : $(SRC_DIST1) force
+	mkdir -p $(ARCHIVE)
+	cp -f src/NEWS SUMMARY $(ARCHIVE)
+	for f in $(GNU_DIST); do gpg -b $$f; done
+	for f in $(GNU_TOP); do \
+		rm -f $$f.directive; \
+		echo "directory: clisp" > $$f.directive; \
+		gpg --clearsign $$f.directive; \
+	done
+	for f in $(GNU_SRC); do \
+		rm -f $$f.directive; \
+		echo "directory: clisp/release/$(VER)" > $$f.directive; \
+		gpg --clearsign $$f.directive; \
+	done
 
 force :
