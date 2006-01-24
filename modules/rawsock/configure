@@ -2470,8 +2470,8 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-{ echo "$as_me:$LINENO: * RAWSOCK (Headers):" >&5
-echo "$as_me: * RAWSOCK (Headers):" >&6;}
+{ echo "$as_me:$LINENO: * RAWSOCK (Headers)" >&5
+echo "$as_me: * RAWSOCK (Headers)" >&6;}
 
 
 echo "$as_me:$LINENO: checking for egrep" >&5
@@ -5122,8 +5122,8 @@ _ACEOF
 fi
 
 
-{ echo "$as_me:$LINENO: * RAWSOCK (Functions):" >&5
-echo "$as_me: * RAWSOCK (Functions):" >&6;}
+{ echo "$as_me:$LINENO: * RAWSOCK (Functions)" >&5
+echo "$as_me: * RAWSOCK (Functions)" >&6;}
 if test "$ac_cv_header_winsock2_h" = "yes"; then
         echo "$as_me:$LINENO: checking for socket() in ws2_32" >&5
 echo $ECHO_N "checking for socket() in ws2_32... $ECHO_C" >&6

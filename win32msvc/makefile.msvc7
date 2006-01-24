@@ -155,7 +155,7 @@ DVIPDF = dvipdf
 # need to do is to add its name to the MODULES definition line above.
 #
 
-VERSION=2.37
+VERSION=2.38
 CLISP_VERSION=clisp-$(VERSION)
 
 # Add-on modules that are present in all linking sets (including base)
@@ -2813,6 +2813,14 @@ check-fresh-line : lisp.exe lispinit.mem
 
 check-script : lisp.exe lispinit.mem
 	test `echo '(print (+ 11 99))' | $(RUN) -q -M lispinit.mem -` = 110 || exit 1
+
+check-exec-image: lisp.exe lispinit.mem
+	$(RUN) -M lispinit.mem -x '(saveinitmem "foo" :executable t :norc t)'
+	./foo.exe -x '(setq zz 10) (saveinitmem "foo")'
+	./foo.exe -norc -M foo.mem -x 'zz'
+	-ls -l lisp.exe lispinit.mem foo.exe foo.mem
+	$(RM) foo.exe foo.mem
+
 check-tests : tests lisp.exe lispinit.mem
 	cd tests && $(MAKE) SHELL='$(SHELL)' LEXE=.exe
 
@@ -2826,7 +2834,7 @@ tests :
 	cd tests && $(LN_S) ..\..\tests\*.tst .
 
 # Perform self-tests.
-check : check-recompile check-fresh-line check-script check-tests
+check : check-recompile check-fresh-line check-script check-exec-image check-tests
 
 
 clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
@@ -3055,7 +3063,7 @@ distrib : install.lisp install.bat clisp.man clisp.html force
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core Makefile~ gctrigger.c varbrace.c fresh-line.out clisp-test.c genclisph.exe txt.c txt.exe txt.i.c
+	-$(RM) core *.core *.stackdump Makefile~ gctrigger.c varbrace.c fresh-line.out foo.exe clisp-test.c genclisph.exe txt.c txt.exe txt.i.c
 	-$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
