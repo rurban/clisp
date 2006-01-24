@@ -1,5 +1,11 @@
 2006-01-24  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (gnu-distrib): new target
+	(distrib): depend on gnu-distrib
+	(upload): also upload to gnu.org
+
+2006-01-24  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: clisp 2.38 release
 
 2006-01-23  Sam Steingold  <sds@gnu.org>
