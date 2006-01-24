@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.20  2006/01/02 17:09:36  sds
+# regenerated for 2.37 (2006-01-02)
+#
 # Revision 1.19  2005/12/04 22:37:32  sds
 # regenerated for clisp 2.36 release
 #
@@ -200,6 +203,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.20  2006/01/02 17:09:36  sds
+# regenerated for 2.37 (2006-01-02)
+#
 # Revision 1.19  2005/12/04 22:37:32  sds
 # regenerated for clisp 2.36 release
 #
@@ -310,7 +316,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-01-02 12:00:54-0500\n"
+"POT-Creation-Date: 2006-01-23 16:48:22-0500\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -438,7 +444,7 @@ msgstr "Tipo de argumento desconocido para SUBR\n"
 #
 # Pues si, tienes toda la razón del mundo - cll
 #
-#: spvw.d:1544
+#: spvw.d:1546
 #, fuzzy
 msgid "module '%s' requires package %s.\n"
 msgstr "el módulo `%s' necesita el paquete %s.\n"
@@ -451,12 +457,12 @@ msgstr "el módulo `%s' necesita el paquete %s.\n"
 #
 # Pues si, tienes toda la razón del mundo - cll
 #
-#: spvw.d:1554
+#: spvw.d:1556
 #, fuzzy
 msgid "module '%s' redefines symbol "
 msgstr "el módulo `%s' necesita el paquete %s.\n"
 
-#: spvw.d:1556
+#: spvw.d:1558
 #, fuzzy
 msgid " in the locked package "
 msgstr "un paquete borrado."
@@ -468,22 +474,22 @@ msgstr "un paquete borrado."
 # macro, tal y como tú propones, ..., pues vale, ¡sugerencia
 # completamente aceptada! cll
 #
-#: spvw.d:1558
+#: spvw.d:1560
 #, fuzzy
 msgid ""
 "\n"
 "old definition: "
 msgstr " con definición de macro"
 
-#: spvw.d:1595
+#: spvw.d:1597
 msgid "is an ANSI Common Lisp."
 msgstr ""
 
-#: spvw.d:1597
+#: spvw.d:1599
 msgid "Usage:  "
 msgstr ""
 
-#: spvw.d:1599
+#: spvw.d:1601
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
@@ -491,146 +497,146 @@ msgid ""
 " read-eval-print loop is entered.\n"
 msgstr ""
 
-#: spvw.d:1603
+#: spvw.d:1605
 msgid "Informative output:\n"
 msgstr ""
 
-#: spvw.d:1604
+#: spvw.d:1606
 msgid " -h, --help    - print this help and exit\n"
 msgstr ""
 
-#: spvw.d:1605
+#: spvw.d:1607
 msgid " --version     - print the version information\n"
 msgstr ""
 
-#: spvw.d:1606
+#: spvw.d:1608
 msgid " --license     - print the licensing information\n"
 msgstr ""
 
-#: spvw.d:1607
+#: spvw.d:1609
 msgid "Memory image selection:\n"
 msgstr ""
 
-#: spvw.d:1608
+#: spvw.d:1610
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr ""
 
-#: spvw.d:1610
+#: spvw.d:1612
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr ""
 
-#: spvw.d:1612
+#: spvw.d:1614
 msgid " -M memfile    - use this memory image\n"
 msgstr ""
 
-#: spvw.d:1613
+#: spvw.d:1615
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-#: spvw.d:1615
+#: spvw.d:1617
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr ""
 
-#: spvw.d:1617
+#: spvw.d:1619
 msgid "Internationalization:\n"
 msgstr ""
 
-#: spvw.d:1618
+#: spvw.d:1620
 msgid " -L language   - set user language\n"
 msgstr ""
 
-#: spvw.d:1619
+#: spvw.d:1621
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr ""
 
-#: spvw.d:1620
+#: spvw.d:1622
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 
-#: spvw.d:1621
+#: spvw.d:1623
 msgid "Interoperability:\n"
 msgstr ""
 
-#: spvw.d:1622
+#: spvw.d:1624
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 msgstr ""
 
-#: spvw.d:1625
+#: spvw.d:1627
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr ""
 
-#: spvw.d:1626
+#: spvw.d:1628
 msgid " -I            - be ILISP-friendly\n"
 msgstr ""
 
-#: spvw.d:1627
+#: spvw.d:1629
 msgid "Startup actions:\n"
 msgstr ""
 
-#: spvw.d:1628
+#: spvw.d:1630
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr ""
 
-#: spvw.d:1629
+#: spvw.d:1631
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr ""
 
-#: spvw.d:1630
+#: spvw.d:1632
 msgid " -modern       - start in a case-sensitive lowercase-preferring package\n"
 msgstr ""
 
-#: spvw.d:1631
+#: spvw.d:1633
 msgid " -p package    - start in the package\n"
 msgstr ""
 
-#: spvw.d:1632
+#: spvw.d:1634
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr ""
 
-#: spvw.d:1633
+#: spvw.d:1635
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr ""
 
-#: spvw.d:1634
+#: spvw.d:1636
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr ""
 
-#: spvw.d:1635
+#: spvw.d:1637
 msgid "Actions:\n"
 msgstr ""
 
-#: spvw.d:1636
+#: spvw.d:1638
 msgid " -c [-l] lispfile [-o outputfile] - compile lispfile\n"
 msgstr ""
 
-#: spvw.d:1637
+#: spvw.d:1639
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr ""
 
-#: spvw.d:1638
+#: spvw.d:1640
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr ""
 
-#: spvw.d:1639
+#: spvw.d:1641
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr ""
 
-#: spvw.d:1640
+#: spvw.d:1642
 msgid " -on-error action - action can be one of debug, exit, abort, appease\n"
 msgstr ""
 
-#: spvw.d:1641
+#: spvw.d:1643
 msgid " -repl            - enter the interactive read-eval-print loop when done\n"
 msgstr ""
 
-#: spvw.d:1642
+#: spvw.d:1644
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr ""
 
-#: spvw.d:1651
+#: spvw.d:1653
 msgid "%s: use '-h' for help"
 msgstr ""
 
@@ -647,12 +653,12 @@ msgstr ""
 #
 # A propósito del trozo de "1984", venga, ya estoy esperando :) - cll
 #
-#: spvw.d:1654
+#: spvw.d:1656
 #, fuzzy
 msgid "invalid argument"
 msgstr "Argumento inválido"
 
-#: spvw.d:2054
+#: spvw.d:2056
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB"
 
@@ -667,32 +673,32 @@ msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB"
 #
 # ¿No te mola más? - cll
 #
-#: spvw.d:2059
+#: spvw.d:2061
 msgid "%s out of range"
 msgstr "%s se ha salido del rango"
 
-#: spvw.d:2064
+#: spvw.d:2066
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:2080
+#: spvw.d:2082
 msgid "memory size"
 msgstr "tamaño de memoria"
 
-#: spvw.d:2096
+#: spvw.d:2098
 msgid "multiple -t"
 msgstr ""
 
-#: spvw.d:2116
+#: spvw.d:2118
 msgid "multiple -B"
 msgstr ""
 
-#: spvw.d:2151
+#: spvw.d:2153
 #, fuzzy
 msgid "-E requires an argument"
 msgstr "~S argumentos obligatorios"
 
-#: spvw.d:2421
+#: spvw.d:2419
 msgid "-l without -c is invalid"
 msgstr ""
 
@@ -704,16 +710,16 @@ msgstr ""
 #
 # ¿os gusta o lo encontrais raro?
 #
-#: spvw.d:2427
+#: spvw.d:2425
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S no es posible sobre el flujo ~S"
 
-#: spvw.d:2432
+#: spvw.d:2430
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2551
+#: spvw.d:2550
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución del código de tipo."
@@ -723,7 +729,7 @@ msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución
 #
 # aMadre mía!! Tienes toda la razón del mundo - cll :)
 #
-#: spvw.d:2558
+#: spvw.d:2557
 msgid "Only %d bytes available."
 msgstr "Sólo quedan %d bytes disponibles."
 
@@ -731,11 +737,11 @@ msgstr "Sólo quedan %d bytes disponibles."
 # viene decir "SP stack"? ¿Se referirán con ello a la pila del sistema?
 # - cll
 #
-#: spvw.d:2808
+#: spvw.d:2807
 msgid "Could not determine the end of the SP stack!"
 msgstr "No fue posible determinar el final de la pila SP!"
 
-#: spvw.d:3321
+#: spvw.d:3326
 #, fuzzy
 msgid "%s: Not enough memory for Lisp."
 msgstr "No hay memoria suficiente para Lisp."
@@ -984,25 +990,29 @@ msgstr "Intentando obtener más espacio a través de un GC ..."
 #
 # - cll
 #
-#: spvw_memfile.d:833 spvw_memfile.d:1582
+#: spvw_memfile.d:926 spvw_memfile.d:1683
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-#: spvw_memfile.d:1294
+#: spvw_memfile.d:1389
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
 
-#: spvw_memfile.d:1587
+#: spvw_memfile.d:1688
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP"
 
-#: spvw_memfile.d:1591
+#: spvw_memfile.d:1692
 #, fuzzy
 msgid "%s: not enough memory for initialization"
 msgstr "no hay memoria suficiente para la inicialización"
+
+#: spvw_memfile.d:1761
+msgid "%s: 'image size' method failed, but found image header at %d\n"
+msgstr ""
 
 #: errunix.d:58
 msgid "Invalid multibyte or wide character"

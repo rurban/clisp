@@ -3157,8 +3157,8 @@ echo "${ECHO_T}$ac_cv_libpcre_libs" >&6
 
 
 
-{ echo "$as_me:$LINENO:  * PCRE (Headers):" >&5
-echo "$as_me:  * PCRE (Headers):" >&6;}
+{ echo "$as_me:$LINENO:  * PCRE (Headers)" >&5
+echo "$as_me:  * PCRE (Headers)" >&6;}
 
 
 echo "$as_me:$LINENO: checking for egrep" >&5
@@ -3571,8 +3571,8 @@ echo "$as_me: error: cannot find PCRE headers" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-{ echo "$as_me:$LINENO:  * PCRE (Functions):" >&5
-echo "$as_me:  * PCRE (Functions):" >&6;}
+{ echo "$as_me:$LINENO:  * PCRE (Functions)" >&5
+echo "$as_me:  * PCRE (Functions)" >&6;}
 
   for element in $LTLIBPQ; do
     haveit=

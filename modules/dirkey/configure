@@ -1303,8 +1303,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
           ac_config_headers="$ac_config_headers config.h"
 
 
-{ echo "$as_me:$LINENO:  * Dirkey (Tools):" >&5
-echo "$as_me:  * Dirkey (Tools):" >&6;}
+{ echo "$as_me:$LINENO:  * Dirkey (Tools)" >&5
+echo "$as_me:  * Dirkey (Tools)" >&6;}
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2470,8 +2470,8 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-{ echo "$as_me:$LINENO:  * Dirkey (Headers):" >&5
-echo "$as_me:  * Dirkey (Headers):" >&6;}
+{ echo "$as_me:$LINENO:  * Dirkey (Headers)" >&5
+echo "$as_me:  * Dirkey (Headers)" >&6;}
 
 
 echo "$as_me:$LINENO: checking for egrep" >&5
@@ -2879,8 +2879,8 @@ fi
 done
 
 
-{ echo "$as_me:$LINENO:  * Dirkey (Output):" >&5
-echo "$as_me:  * Dirkey (Output):" >&6;}
+{ echo "$as_me:$LINENO:  * Dirkey (Output)" >&5
+echo "$as_me:  * Dirkey (Output)" >&6;}
           ac_config_files="$ac_config_files Makefile"
 
 cat >confcache <<\_ACEOF

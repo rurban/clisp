@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 2005\-10\-07_10:16_snapshot).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "CLISP" "1" "Last modified: 2006\-01\-02" "CLISP 2.37" "Platform: @PLATFORM@"
+.TH "CLISP" "1" "Last modified: 2006\-01\-23" "CLISP 2.38" "Platform: @PLATFORM@"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -346,28 +346,37 @@ options and on any
 Wait for a keypress after program termination.
 .TP
 \fB\-I\fR
-Be
-[23]\&\fIILISP\fR\-friendly.
-[23]\&\fIILISP\fR
-is an alternative
-[24]\&\fIEmacs\fR
-interface to
-[1]\&\fI\fBCommon Lisp\fR\fR
-systems. With this option,
+Interact better with
+[23]\&\fIEmacs\fR
+(useful when running
+[6]\&\fI\fBCLISP\fR\fR
+under
+[23]\&\fIEmacs\fR
+using
+[24]\&\fISLIME\fR,
+[25]\&\fIILISP\fR
+et al). With this option,
 [6]\&\fI\fBCLISP\fR\fR
 interacts in a way that
-[23]\&\fIILISP\fR
-can deal with. Currently the only effect of this is that unnecessary prompts are not suppressed.
+[23]\&\fIEmacs\fR
+can deal with:
+.RS
+.TP 3
+\(bu
+unnecessary prompts are not suppressed.
+.TP
 #ifdef GNU_READLINE
-Furthermore, the
-[8]\&\fIGNU\fR[25]\&\fIreadline\fR
+\(bu
+The
+[8]\&\fIGNU\fR[26]\&\fIreadline\fR
 library treats
-Tab
-as a normal self\-inserting character, so you should always use this option when you invoke
-[6]\&\fI\fBCLISP\fR\fR
-from
-[24]\&\fIEmacs\fR.
+TAB
+(see
+TAB key) as a normal self\-inserting character (see
+Q:\ A.4.3).
 #endif
+.RE
+
 .TP
 \fB\-ansi\fR
 Comply with the
@@ -387,37 +396,37 @@ memory image.
 .TP
 \fB\-modern\fR
 Provides a modern view of symbols: at startup the
-[26]\&\fI\fI*PACKAGE*\fR\fR
+[27]\&\fI\fI*PACKAGE*\fR\fR
 variable will be set to the
 \(lqCS\-COMMON\-LISP\-USER\(rq
 package, and the
-[27]\&\fI\fI*PRINT\-BASE*\fR\fR
+[28]\&\fI\fI*PRINT\-BASE*\fR\fR
 will be set to
 \fB:DOWNCASE\fR. This has the effect that symbol lookup is case\-sensitive (except for keywords and old\-style packages) and that keywords and uninterned symbols are printed with lower\-case preferrence.
 .TP
 \fB\-p\fR \fIpackage\fR
 At startup the value of the variable
-[26]\&\fI\fI*PACKAGE*\fR\fR
+[27]\&\fI\fI*PACKAGE*\fR\fR
 will be set to the package named
 \fIpackage\fR. The default is the value of
-[26]\&\fI\fI*PACKAGE*\fR\fR
+[27]\&\fI\fI*PACKAGE*\fR\fR
 when the image was
 saved, normally
-[28]\&\fI\(lqCOMMON\-LISP\-USER\(rq\fR.
+[29]\&\fI\(lqCOMMON\-LISP\-USER\(rq\fR.
 .TP
 \fB\-C\fR
 Compile when loading: at startup the value of the variable
 \fICUSTOM:*LOAD\-COMPILING*\fR
 will be set to
 [15]\&\fI\fBT\fR\fR. Code being
-[29]\&\fI\fBLOAD\fR\fRed will then be
-[30]\&\fI\fBCOMPILE\fR\fRd on the fly. This results in slower loading, but faster execution.
+[30]\&\fI\fBLOAD\fR\fRed will then be
+[31]\&\fI\fBCOMPILE\fR\fRd on the fly. This results in slower loading, but faster execution.
 .TP
 \fB\-norc\fR
 Normally
 [6]\&\fI\fBCLISP\fR\fR
 loads the user
-[31]\&\fI\(lqrun control\(rq (RC)\fR
+[32]\&\fI\(lqrun control\(rq (RC)\fR
 file on startup (this happens
 \fIafter\fR
 the
@@ -427,20 +436,20 @@ option is processed). The file loaded is
 or
 \fI.clisprc.fas\fR
 in the home directory
-[32]\&\fI\fBUSER\-HOMEDIR\-PATHNAME\fR\fR, whichever is newer. This option,
+[33]\&\fI\fBUSER\-HOMEDIR\-PATHNAME\fR\fR, whichever is newer. This option,
 \fB\-norc\fR, prevents loading of the
 RC file.
 .TP
 \fB\-i\fR \fIinit\-file\fR
 Specifies initialization files to be
-[29]\&\fI\fBLOAD\fR\fRed at startup. These should be lisp files (source or compiled). Several
+[30]\&\fI\fBLOAD\fR\fRed at startup. These should be lisp files (source or compiled). Several
 \fB\-i\fR
 options can be given; all the specified files will be loaded in order.
 .TP
 \fB\-c\fR \fIlisp\-file\fR
 Compiles the specified
 \fIlisp\-file\fRs to bytecode (\fI*.fas\fR). The compiled files can then be
-[29]\&\fI\fBLOAD\fR\fRed instead of the sources to gain efficiency.
+[30]\&\fI\fBLOAD\fR\fRed instead of the sources to gain efficiency.
 .TP
 \fB\-o\fR \fIoutputfile\fR
 Specifies the output file or directory for the compilation of the last specified
@@ -448,7 +457,7 @@ Specifies the output file or directory for the compilation of the last specified
 .TP
 \fB\-l\fR
 Produce a bytecode
-[33]\&\fI\fBDISASSEMBLE\fR\fR
+[34]\&\fI\fBDISASSEMBLE\fR\fR
 listing (\fI*.lis\fR) of the files being compiled. Useful only for debugging. See
 Section\ 24.1.1, \(lqFunction COMPILE\-FILE\(rq
 for details.
@@ -456,7 +465,7 @@ for details.
 \fB\-x\fR \fIexpressions\fR
 Executes a series of arbitrary expressions instead of a
 [2]\&\fIread\-eval\-print loop\fR. The values of the expressions will be output to
-[34]\&\fI\fI*STANDARD\-OUTPUT*\fR\fR. Due to the argument processing done by the shell, the
+[35]\&\fI\fI*STANDARD\-OUTPUT*\fR\fR. Due to the argument processing done by the shell, the
 \fIexpressions\fR
 must be enclosed in double quotes, and double quotes and backslashes must be escaped with backslashes.
 .TP
@@ -482,7 +491,7 @@ If
 \fIlisp\-file\fR
 is
 \fB\-\fR, the
-[34]\&\fI\fI*STANDARD\-INPUT*\fR\fR
+[35]\&\fI\fI*STANDARD\-INPUT*\fR\fR
 is used instead of a file. If
 \fIlisp\-file\fR
 is the empty string
@@ -508,7 +517,7 @@ help
 get context\-sensitive on\-line help, see
 Chapter\ 25, Environment [CLHS\-25].
 .TP
-([35]\&\fI\fBAPROPOS\fR\fR \fIname\fR)
+([36]\&\fI\fBAPROPOS\fR\fR \fIname\fR)
 list the symbols
 matching to
 \fIname\fR.
@@ -524,10 +533,10 @@ quit[6]\&\fI\fBCLISP\fR\fR.
 .TP
 EOF 
 #if defined(UNIX)
-(Control\-D on [36]\&\fI\fBUNIX\fR\fR) 
+(Control\-D on [37]\&\fI\fBUNIX\fR\fR) 
 #endif
 #if defined(WIN32_NATIVE)
-(Control\-Z on [37]\&\fI\fBWin32\fR\fR) 
+(Control\-Z on [38]\&\fI\fBWin32\fR\fR) 
 #endif
 leave the current level of the
 [2]\&\fIread\-eval\-print loop\fR
@@ -537,10 +546,10 @@ Section\ 1.1, \(lqSpecial Symbols [CLHS\-1.4.1.3]\(rq).
 .TP
 arrow keys
 for editing and viewing the input history, using the
-[8]\&\fIGNU\fR[25]\&\fIreadline\fR
+[8]\&\fIGNU\fR[26]\&\fIreadline\fR
 library.
 .TP
-Tab key
+TAB key
 Context sensitive:
 .RS
 .TP 3
@@ -548,12 +557,12 @@ Context sensitive:
 If you are in the
 \(lqfunction position\(rq
 (in the first symbol after an opening paren or in the first symbol after a
-[38]\&\fI#'\fR), the completion is limited to the symbols that name functions.
+[39]\&\fI#'\fR), the completion is limited to the symbols that name functions.
 .TP
 \(bu
 If you are in the "filename position" (inside a string after
-[39]\&\fI#P\fR), the completion is done across file names,
-[40]\&\fIbash\fR\-style.
+[40]\&\fI#P\fR), the completion is done across file names,
+[41]\&\fIbash\fR\-style.
 .TP
 \(bu
 If you have not typed anything yet, you will get a help message, as if by the
@@ -562,7 +571,7 @@ command.
 .TP
 \(bu
 If you have not started typing the next symbol (i.e., you are at a whitespace), the current function or macro is
-[41]\&\fI\fBDESCRIBE\fR\fRd.
+[42]\&\fI\fBDESCRIBE\fR\fRd.
 .TP
 \(bu
 Otherwise, the symbol you are currently typing is completed.
@@ -684,7 +693,7 @@ The value may begin with a two\-letter ISO 639 language code, for example
 \fBUSER\fR
 .RS
 are used for determining the value of the function
-[32]\&\fI\fBUSER\-HOMEDIR\-PATHNAME\fR\fR.
+[33]\&\fI\fBUSER\-HOMEDIR\-PATHNAME\fR\fR.
 .RE
 #endif
 .PP
@@ -712,9 +721,9 @@ specifies the directory where the temporary core file is to be held.
 .TP
 \fBORGANIZATION\fR
 for
-[42]\&\fI\fBSHORT\-SITE\-NAME\fR\fR
+[43]\&\fI\fBSHORT\-SITE\-NAME\fR\fR
 and
-[42]\&\fI\fBLONG\-SITE\-NAME\fR\fR
+[43]\&\fI\fBLONG\-SITE\-NAME\fR\fR
 in
 \fIconfig.lisp\fR.
 .TP
@@ -749,20 +758,20 @@ for
 .SH "SEE ALSO"
 .PP
 CLISP impnotes,
-[43]\&\fI\fBCMU CL\fR\fR
+[44]\&\fI\fBCMU CL\fR\fR
 \-
 \fBcmucl\fR(1),
-[24]\&\fIEmacs\fR
+[23]\&\fIEmacs\fR
 \-
 \fBemacs\fR(1),
-[44]\&\fIXEmacs\fR
+[45]\&\fIXEmacs\fR
 \-
 \fBxemacs\fR(1).
 .SH "BUGS"
 .PP
 When you encounter a bug in
 [6]\&\fI\fBCLISP\fR\fR, please report it to the
-[6]\&\fI\fBCLISP\fR\fR[45]\&\fISourceForge bug tracker\fR.
+[6]\&\fI\fBCLISP\fR\fR[46]\&\fISourceForge bug tracker\fR.
 .PP
 \fIBefore\fR
 submitting a bug report, please take the following basic steps to make the report more useful:
@@ -786,7 +795,7 @@ linking set
 by either
 \fBbase\fR
 or
-\fBfull\fR[46]\&\fI\fBgdb\fR\fR
+\fBfull\fR[47]\&\fI\fBgdb\fR\fR
 command, and report the backtrace (see also
 Q:\ A.1.1.9).
 .TP
@@ -799,14 +808,17 @@ When submitting a bug report, please specify the following information:
 1.
 What is your platform (\fBuname \-a\fR
 on a
-[36]\&\fI\fBUNIX\fR\fR
+[37]\&\fI\fBUNIX\fR\fR
 system)? Compiler version?
-[8]\&\fIGNU\fR[47]\&\fIlibc\fR
+[8]\&\fIGNU\fR[48]\&\fIlibc\fR
 version (on
-[8]\&\fIGNU\fR/[48]\&\fI\fBLinux\fR\fR)?
+[8]\&\fIGNU\fR/[49]\&\fI\fBLinux\fR\fR)?
 .TP
 2.
-Where did you get the sources or binaries? When? (Absolute dates are preferred over the relative ones).
+Where did you get the sources or binaries? When? (Absolute dates \- like
+\(lq2006\-01\-17\(rq
+\- are preferred over the relative ones \- like
+\(lq2 days ago\(rq).
 .TP
 3.
 How did you build
@@ -838,9 +850,9 @@ Control\-Q.
 #endif
 \(bu
 No on\-line documentation beyond
-[35]\&\fI\fBAPROPOS\fR\fR
+[36]\&\fI\fBAPROPOS\fR\fR
 and
-[41]\&\fI\fBDESCRIBE\fR\fR
+[42]\&\fI\fBDESCRIBE\fR\fR
 is available.
 
 .SH "PROJECTS"
@@ -937,80 +949,83 @@ Bruno Haible, Sam Steingold.
 22.\ SIGNAL
 \%http://www.lisp.org/HyperSpec/Body/fun_signal.html
 .TP 4
-23.\ ILISP
-\%http://sourceforge.net/projects/ilisp/
-.TP 4
-24.\ Emacs
+23.\ Emacs
 \%http://www.gnu.org/software/emacs/
 .TP 4
-25.\ readline
+24.\ SLIME
+\%http://common\-lisp.net/project/slime/
+.TP 4
+25.\ ILISP
+\%http://sourceforge.net/projects/ilisp/
+.TP 4
+26.\ readline
 \%http://cnswww.cns.cwru.edu/~chet/readline/rltop.html
 .TP 4
-26.\ *PACKAGE*
+27.\ *PACKAGE*
 \%http://www.lisp.org/HyperSpec/Body/var_stpackagest.html
 .TP 4
-27.\ *PRINT\-BASE*
+28.\ *PRINT\-BASE*
 \%http://www.lisp.org/HyperSpec/Body/var_stprint\-b_rint\-radixst.html
 .TP 4
-28.\ COMMON\-LISP\-USER
+29.\ COMMON\-LISP\-USER
 \%http://www.lisp.org/HyperSpec/Body/sec_11\-1\-2\-2.html
 .TP 4
-29.\ LOAD
+30.\ LOAD
 \%http://www.lisp.org/HyperSpec/Body/fun_load.html
 .TP 4
-30.\ COMPILE
+31.\ COMPILE
 \%http://www.lisp.org/HyperSpec/Body/fun_compile.html
 .TP 4
-31.\ run control (RC)
+32.\ run control (RC)
 \%http://www.faqs.org/docs/artu/ch10s03.html
 .TP 4
-32.\ USER\-HOMEDIR\-PATHNAME
+33.\ USER\-HOMEDIR\-PATHNAME
 \%http://www.lisp.org/HyperSpec/Body/fun_user\-homedir\-pathname.html
 .TP 4
-33.\ DISASSEMBLE
+34.\ DISASSEMBLE
 \%http://www.lisp.org/HyperSpec/Body/fun_disassemble.html
 .TP 4
-34.\ *STANDARD\-OUTPUT*
+35.\ *STANDARD\-OUTPUT*
 \%http://www.lisp.org/HyperSpec/Body/var_stdebug\-i_ace\-outputst.html
 .TP 4
-35.\ APROPOS
+36.\ APROPOS
 \%http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos\-list.html
 .TP 4
-36.\ UNIX
+37.\ UNIX
 \%http://www.UNIX\-systems.org/online.html
 .TP 4
-37.\ Win32
+38.\ Win32
 \%http://winehq.com/
 .TP 4
-38.\ #'
+39.\ #'
 \%http://www.lisp.org/HyperSpec/Body/sec_2\-4\-8\-2
 .TP 4
-39.\ #P
+40.\ #P
 \%http://www.lisp.org/HyperSpec/Body/sec_2\-4\-8\-14
 .TP 4
-40.\ bash
+41.\ bash
 \%http://www.gnu.org/software/bash/
 .TP 4
-41.\ DESCRIBE
+42.\ DESCRIBE
 \%http://www.lisp.org/HyperSpec/Body/fun_describe.html
 .TP 4
-42.\ SHORT\-SITE\-NAME
+43.\ SHORT\-SITE\-NAME
 \%http://www.lisp.org/HyperSpec/Body/fun_short\-sit_ng\-site\-name.html
 .TP 4
-43.\ CMU CL
+44.\ CMU CL
 \%http://www.cons.org/cmucl/
 .TP 4
-44.\ XEmacs
+45.\ XEmacs
 \%http://www.xemacs.org
 .TP 4
-45.\ SourceForge bug tracker
+46.\ SourceForge bug tracker
 \%http://sourceforge.net/tracker/?func=add&group_id=1355&atid=101355
 .TP 4
-46.\ gdb
+47.\ gdb
 \%http://sources.redhat.com/gdb/
 .TP 4
-47.\ libc
+48.\ libc
 \%http://www.gnu.org/software/libc/
 .TP 4
-48.\ Linux
+49.\ Linux
 \%http://www.linux.org/
