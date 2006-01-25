@@ -1,3 +1,7 @@
+2006-01-25  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (EVERY_INCLUDES_H) [unix|win32gcc]: add unixconf.h
+
 2006-01-24  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (gnu-distrib): new target
