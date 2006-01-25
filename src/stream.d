@@ -13848,9 +13848,9 @@ LISPFUN(socket_server,seclass_default,0,1,norest,key,2,
   var unsigned int port=0;              /* port to be used */
   var int backlog=1;                    /* parameter for listen(2) */
   var SOCKET sock = INVALID_SOCKET;     /* interface to be bound, as peer */
-  if (!missingp (STACK_1))
+  if (!missingp (STACK_1))              /* backlog */
     backlog = I_to_sint32(check_sint32(STACK_1));
-  if (!missingp(STACK_2)) {
+  if (!missingp(STACK_2)) {     /* port */
     if (builtin_stream_p(STACK_2)) {
       pushSTACK(CLSTEXT("WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"));
       funcall(S(warn),1);
@@ -13860,26 +13860,27 @@ LISPFUN(socket_server,seclass_default,0,1,norest,key,2,
       port = I_to_uint16(check_uint16(STACK_2));
   }
   {
-    var SOCKET sk;
+    var SOCKET sk = INVALID_SOCKET;
     var host_data_t myname;
-    if (!missingp(STACK_0)) {
-      if (builtin_stream_p(STACK_0))
-        stream_handles(test_socket_stream(STACK_0, true), true, NULL,
-                       &sock, NULL);
-      else /* Leave this last, so that type error talks about string */
+    if (!missingp(STACK_0)) {   /* interface */
+      if (builtin_stream_p(STACK_0)) {
+        stream_handles(test_socket_stream(STACK_0,true),true,NULL,&sock,NULL);
+      } else /* Leave this last, so that type error talks about string */
         with_string_0(check_string(STACK_0),O(misc_encoding),interfacez, {
           begin_system_call();
           sk = create_server_socket_by_string(&myname,interfacez,port,backlog);
           end_system_call();
         });
     }
-    begin_system_call();
-    if (sock != INVALID_SOCKET)
-      sk = create_server_socket_by_socket(&myname, sock, port, backlog);
-    else
-      sk = create_server_socket_by_string(&myname,"127.0.0.1",port,backlog);
-    end_system_call();
-    if (sk == INVALID_SOCKET) { SOCK_error(); }
+    if (sk == INVALID_SOCKET) {
+      begin_system_call();
+      if (sock != INVALID_SOCKET)
+        sk = create_server_socket_by_socket(&myname,sock,port,backlog);
+      else
+        sk = create_server_socket_by_string(&myname,"0.0.0.0",port,backlog);
+      end_system_call();
+      if (sk == INVALID_SOCKET) { SOCK_error(); }
+    }
     pushSTACK(allocate_socket(sk));
     pushSTACK(allocate_socket_server());
     TheSocketServer(STACK_0)->socket_handle = STACK_1;
