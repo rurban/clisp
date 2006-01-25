@@ -1,5 +1,11 @@
 2006-01-25  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (SOCKET-SERVER): avoid calling
+	create_server_socket_by_string() twice when interface is supplied;
+	restore the default interface to "0.0.0.0" for backwards compatibility
+
+2006-01-25  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (EVERY_INCLUDES_H) [unix|win32gcc]: add unixconf.h
 
 2006-01-24  Sam Steingold  <sds@gnu.org>
