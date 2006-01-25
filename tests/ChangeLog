@@ -1,3 +1,9 @@
+2006-01-25  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: avoid a race condition by calling file-write-date
+	on a closed stream
+	Reported by Lennart Staflin <lenst@lysator.liu.se>
+
 2006-01-22  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: test opening files with too long names
