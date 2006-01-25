@@ -977,8 +977,9 @@ WARNING: This form contains an error, a mistake, a bug, a
   (unwind-protect
        (progn (with-open-file (s f :direction :output)
                 (write s :stream s)
-                (setq fwd (file-write-date s)
-                      size (file-length s)))
+                (setq size (file-length s)))
+              (with-open-file (s f :direction :probe)
+                (setq fwd (file-write-date s)))
               (setq dir (first (directory f :full t))
                     decoded (subseq (multiple-value-list
                                      (decode-universal-time fwd))
