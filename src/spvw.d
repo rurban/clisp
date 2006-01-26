@@ -3173,17 +3173,18 @@ local inline void main_actions (struct argv_actions *p) {
     funcall(L(make_string_input_stream),1);
     # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
     # is undefined. Do not set an error handler in that case.
-    if (!nullpSv(driverstern)) {
+    var object main_loop_function = Symbol_function(S(main_loop));
+    if (closurep(main_loop_function)) {
       dynamic_bind(S(standard_input),value1);
       /* (PROGN
-           (FUNCALL *DRIVER*)
+           (MAIN-LOOP)
            ; Normally this will exit by itself once the string has reached EOF,
            ; but to be sure:
            (UNLESS argv_repl (EXIT))) */
-      funcall(Symbol_value(S(driverstern)),0);
+      funcall(main_loop_function,0);
+      dynamic_unbind(S(standard_input));
       if (!p->argv_repl)
         return;
-      dynamic_unbind(S(standard_input));
     } else /* no *DRIVER* => bootstrap, no -repl */
       Symbol_value(S(standard_input)) = value1;
   }
