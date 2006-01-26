@@ -79,9 +79,12 @@
  being created is an executable).
 <variablelist>
  <varlistentry><term><constant>:QUIET</constant></term>
-  <listitem><simpara>If this argument is not &nil;, the startup
-    banner and the good-bye message will be suppressed, as if by &opt-q;.
- </simpara></listitem></varlistentry>
+  <listitem><simpara>If this argument is not &nil;, the startup banner
+    and the good-bye message will be suppressed, as if by &opt-q;.</simpara>
+   <simpara>This is &not-e; recommended for interactive application
+    delivery, please <emphasis>append</emphasis> your banner to ours
+    instead of <emphasis>replacing</emphasis> it.</simpara>
+ </listitem></varlistentry>
  <varlistentry><term><constant>:NORC</constant></term>
   <listitem><simpara>If this argument is not &nil;, the &RC-file;
     loading will be suppressed, as if by &opt-norc;.
