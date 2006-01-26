@@ -29,6 +29,7 @@
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function verbose
                     ((:norc *norc*) nil)
+                    ((:script *script*) (null init-function))
                     keep-global-handlers (start-package *package*)
                     (locked-packages *system-package-list*) executable)
   (let* ((old-driver *driver*) old-global-handlers

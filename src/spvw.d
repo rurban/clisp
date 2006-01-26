@@ -1339,6 +1339,7 @@ local void init_symbol_values (void) {
   define_variable(S(fini_hooks),NIL);             # CUSTOM::*FINI-HOOKS* := NIL
   define_variable(S(quiet),NIL);                  # SYS::*QUIET* := NIL
   define_variable(S(norc),NIL);                   # SYS::*NORC* := NIL
+  define_variable(S(script),T);                   # SYS::*SCRIPT* := T
   define_variable(S(args),NIL);                   # EXT:*ARGS* := NIL
   define_variable(S(load_compiling),NIL); /* *LOAD-COMPILING* := NIL */
   define_variable(S(load_verbose),T); /* *LOAD-VERBOSE* := T */
@@ -3122,7 +3123,7 @@ local inline void main_actions (struct argv_actions *p) {
     }
     skipSTACK(1);
   }
-  if (p->argv_execute_file != NULL) {
+  if (p->argv_execute_file != NULL && !nullpSv(script)) {
     /*  execute:
      (PROGN
        #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
@@ -3151,6 +3152,12 @@ local inline void main_actions (struct argv_actions *p) {
    #endif
     if (!p->argv_repl)
       return;
+  } else if (p->argv_execute_file) { /* !scripting => (push exec-file *args) */
+    pushSTACK(asciz_to_string(p->argv_execute_file,O(misc_encoding)));
+    var object new_cons = allocate_cons();
+    Car(new_cons) = popSTACK();
+    Cdr(new_cons) = Symbol_value(S(args));
+    Symbol_value(S(args)) = new_cons;
   }
   if (p->argv_expr_count) {
     # set *STANDARD-INPUT* to a stream, that produces argv_exprs:
@@ -3371,7 +3378,7 @@ nonreturning_function(global, quit, (void)) {
         *error-output*    is /dev/fd/2
        and *terminal-io* is an #<IO TERMINAL-STREAM>,
        so they all need to be terminated individually */
-    funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
+    funcall(L(fresh_line),0);   /* (FRESH-LINE [*standard-output*]) */
     pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B));
     funcall(L(fresh_line),1);   /* (FRESH-LINE *error-output*) */
     pushSTACK(Symbol_value(S(terminal_io)));

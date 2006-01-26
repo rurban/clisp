@@ -50,13 +50,14 @@
 (&mapc; #'&funcall; &init-hooks;)
 </programlisting></para>
 <section id="init-hooks-function"><title>The difference between
-  &init-hooks; and <constant>:INIT-FUNCTION</constant></title>
-<para>&init-hooks; are <emphasis>always</emphasis> run regardless of the
- command line options before even the banner is printed.
- The <link linkend="image"><constant>:INIT-FUNCTION</constant></link> is
- run <emphasis>only</emphasis> if the &repl; is ever entered and just
- before the first <link linkend="prompt">prompt</link> is printed.
-</para></section>
+  &init-hooks; and &init-function;</title>
+<para><itemizedlist><listitem><simpara>&init-hooks; are
+    <emphasis>always</emphasis> run regardless of the command line
+    options before even the banner is printed.</simpara></listitem>
+  <listitem><simpara>The &init-function; is run <emphasis>only</emphasis>
+    if the &repl; is ever entered and just before the
+    first <link linkend="prompt">prompt</link> is printed.
+</simpara></listitem></itemizedlist></para></section>
 </section>
 
 <section id="fini-hooks"><title>Customizing Termination</title>
@@ -70,7 +71,8 @@
 
 <para>The function <code>(&savemem; &optional-amp;
   (&filename-r; "lispinit.mem") &key-amp; :KEEP-GLOBAL-HANDLERS :QUIET
-  :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE :EXECUTABLE :NORC)</code>
+  :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE :EXECUTABLE :NORC
+  :SCRIPT)</code>
  saves the running &clisp;'s memory to the file &filename-r;;
  extension &mem-file; is recommended (when &filename-r; does not have an
  extension, &mem-file; extension is automatically added unless the file
@@ -84,10 +86,10 @@
   <listitem><simpara>If this argument is not &nil;, the &RC-file;
     loading will be suppressed, as if by &opt-norc;.
  </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:INIT-FUNCTION</constant></term>
+ <varlistentry id="init-func"><term><constant>:INIT-FUNCTION</constant></term>
   <listitem><simpara>This argument specifies a function that will be
    executed at startup of the saved image, before entering the standard
-   &repl;; thus, if you want to avoid the &repl;, you have to call
+   &repl; (but after); thus, if you want to avoid the &repl;, you have to call
    <link linkend="quit"><function>EXT:EXIT</function></link> at the end
    of the init function yourself
    (this does not prevent &fini-hooks; from being run).</simpara>
@@ -95,6 +97,18 @@
      manual</olink> for passing command line arguments to this function.
  </simpara><simpara>See also &init-hooks; and &fini-hooks;.</simpara>
  </listitem></varlistentry>
+ <varlistentry><term><constant>:SCRIPT</constant></term>
+  <listitem><para>This options determines the handling of positional
+    arguments when the image is invoked.<itemizedlist>
+     <listitem><simpara>If it is &t;, then the first positional argument
+       is the script name and the rest is placed into &args;, as described
+       in <xref linkend="quickstart-unix"/>.</simpara></listitem>
+     <listitem><simpara>It it is &nil;, then all positional arguments
+       are placed into &args; to be handled by the &init-function;.
+     </simpara></listitem></itemizedlist>
+    This option defaults to &t; when &init-function; is &nil; and to
+    &nil; when &init-function; is non-&nil;.
+ </para></listitem></varlistentry>
  <varlistentry><term><constant>:LOCKED-PACKAGES</constant></term>
   <listitem><simpara>This argument specifies the packages to lock before
    saving the image; this is convenient for application delivery, when
@@ -4827,8 +4841,7 @@ Compiled, it will have inlined the library function calls.
 
 <para>This section describes three ways to turn &clisp; programs into
  executable programs, which can be started as quickly as executables
- written in other languages.
- Note that &savemem; can also create standalone executables.</para>
+ written in other languages.</para>
 
 <section id="quickstart-summary"><title>Summary</title>
 <variablelist>
@@ -4848,10 +4861,19 @@ Compiled, it will have inlined the library function calls.
  </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>These three techniques apply to a single &lisp-file; or &fasl-file; file.
- If your application is made up of several &lisp-file; or &fasl-file; files,
- you can simply concatenate them (using <command role="unix">cat</command>)
- into one file; the techniques then apply to that concatenated file.</para>
+<note id="quickstart-multifile"><title>Multi-file applications</title>
+ <para>These three techniques apply to a single &lisp-file; or
+  &fasl-file; file.  If your application is made up of several
+  &lisp-file; or &fasl-file; files, you can simply concatenate them
+  (using <command role="unix">cat</command>) into one file; the
+  techniques then apply to that concatenated file.</para></note>
+
+<note id="quickstart-lispless"><title>Lisp-less target</title>
+ <para>These three techniques assume that the target machine has &clisp;
+  pre-installed and thus you can deliver just your own application, not
+  &clisp; itself.  If you want to deliver applications without assuming
+  anything about your target box, you have to resort to creating
+  executable &mem-image;s.</para></note>
 </section>
 
 <!-- #ifdef UNIX -->
