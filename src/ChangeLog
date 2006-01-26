@@ -1,3 +1,8 @@
+2006-01-26  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (install) [cygwin]: clisp-<ver>.README goes to
+	/usr/share/doc/Cygwin/, not to /usr/share/doc/clisp-<ver>/Cygwin/
+
 2006-01-25  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (SOCKET-SERVER): avoid calling
