@@ -72,7 +72,7 @@
 <para>The function <code>(&savemem; &optional-amp;
   (&filename-r; "lispinit.mem") &key-amp; :KEEP-GLOBAL-HANDLERS :QUIET
   :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE :EXECUTABLE :NORC
-  :SCRIPT)</code>
+  :SCRIPT :DOCUMENTATION)</code>
  saves the running &clisp;'s memory to the file &filename-r;;
  extension &mem-file; is recommended (when &filename-r; does not have an
  extension, &mem-file; extension is automatically added unless the file
@@ -112,6 +112,12 @@
     This option defaults to &t; when &init-function; is &nil; and to
     &nil; when &init-function; is non-&nil;.
  </para></listitem></varlistentry>
+ <varlistentry id="image-doc"><term>&documentation-k;</term>
+  <listitem><simpara>The description of what this image does, printed
+    by the <option><olink targetdoc="man" targetptr="opt-help-image"
+                          >-help-image</olink></option> olption.</simpara>
+   <simpara>Defaults to <code>(&documentation; init-function
+     '&function-doc;)</code></simpara></listitem></varlistentry>
  <varlistentry><term><constant>:LOCKED-PACKAGES</constant></term>
   <listitem><simpara>This argument specifies the packages to lock before
    saving the image; this is convenient for application delivery, when

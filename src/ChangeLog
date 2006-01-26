@@ -1,5 +1,15 @@
 2006-01-26  Sam Steingold  <sds@gnu.org>
 
+	* savemem.lisp (saveinitmem): accept :DOCUMENTATION
+	* constsym.d (image_doc): added
+	* spvw.d (init_symbol_values): init it
+	(usage): document -help-image
+	(argv_actions): add argv_help_image
+	(parse_options): handle -help-image
+	(main_actions): ditto: print *IMAGE-DOC* and *SCRIPT*
+
+2006-01-26  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (main_actions): for "-x": use SYS::MAIN-LOOP instead of
 	SYS::*DRIVER* so that even user images offer full CLISP functionality
 	* constsym.d (main_loop): added

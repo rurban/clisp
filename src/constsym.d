@@ -1975,6 +1975,7 @@ LISPSYM(fini_hooks,"*FINI-HOOKS*",custom) /* variable for SPVW */
 LISPSYM(quiet,"*QUIET*",system) /* variable for SPVW */
 LISPSYM(norc,"*NORC*",system) /* variable for SPVW */
 LISPSYM(script,"*SCRIPT*",system) /* variable for SPVW */
+LISPSYM(image_doc,"*IMAGE-DOC*",system) /* variable for SPVW */
 LISPSYM(main_loop,"MAIN-LOOP",system) /* function in REPLOOP for SPVW */
 LISPSYM(Klisting,"LISTING",keyword) /* argument for SPVW */
 LISPSYM(Koutput_file,"OUTPUT-FILE",keyword) /* argument for SPVW */
