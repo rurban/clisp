@@ -3695,8 +3695,8 @@ if [ $CROSS = false ] ; then
         ;;
     esac
     if [ ${HSYSOS} = cygwin ]; then
-      echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)/Cygwin"
-      echotab "\$(INSTALL_DATA) cygwin.README \$(DESTDIR)\$(docdir)/Cygwin/clisp-\$(VERSION).README"
+      echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)/../Cygwin"
+      echotab "\$(INSTALL_DATA) cygwin.README \$(DESTDIR)\$(docdir)/../Cygwin/clisp-\$(VERSION).README"
     fi
     echol
     echol
