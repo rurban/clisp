@@ -1,5 +1,9 @@
 2006-01-26  Sam Steingold  <sds@gnu.org>
 
+	* build-aux/config.sub, build-aux/config.guess: upgrade to 2006-01-02
+
+2006-01-26  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (install) [cygwin]: clisp-<ver>.README goes to
 	/usr/share/doc/Cygwin/, not to /usr/share/doc/clisp-<ver>/Cygwin/
 
