@@ -1,3 +1,11 @@
+User visible changes
+--------------------
+
+* SAVEINITMEM now accepts :SCRIPT argument that disables interpreting the
+  first positional argument as the script name.
+  See <http://clisp.cons.org/impnotes/image.html> for details.
+
+
 2.38 (2006-01-24)
 =================
 
