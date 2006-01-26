@@ -1,5 +1,11 @@
 2006-01-26  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main_actions): for "-x": use SYS::MAIN-LOOP instead of
+	SYS::*DRIVER* so that even user images offer full CLISP functionality
+	* constsym.d (main_loop): added
+
+2006-01-26  Sam Steingold  <sds@gnu.org>
+
 	SAVEINITMEM now accepts :SCRIPT argument that disables
 	interpreting the first positional argument as the script name.
 	* savemem.lisp (saveinitmem): accept :SCRIPT
