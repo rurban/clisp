@@ -1,9 +1,11 @@
 User visible changes
 --------------------
 
-* SAVEINITMEM now accepts :SCRIPT argument that disables interpreting the
-  first positional argument as the script name.
-  See <http://clisp.cons.org/impnotes/image.html> for details.
+* SAVEINITMEM now accepts :SCRIPT argument that disables interpreting
+  the first positional argument as the script name; and :DOCUMENTATION
+  argument that is printed by the new -help-image command line option.
+  See <http://clisp.cons.org/impnotes/image.html> and
+  <http://clisp.cons.org/impnotes/clisp.html#opt-help-image> for details.
 
 
 2.38 (2006-01-24)

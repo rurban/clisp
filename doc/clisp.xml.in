@@ -51,6 +51,7 @@
  <arg><option><link linkend="opt-help">--help</link></option></arg></group>
 <arg><option><link linkend="opt-version">--version</link></option></arg>
 <arg><option><link linkend="opt-license">--license</link></option></arg>
+<arg><option><link linkend="opt-help-image">-help-image</link></option></arg>
 <arg><option><link linkend="opt-libdir">-B &lld;</link></option></arg>
 <!-- #ifdef UNIX -->
 <arg><option><link linkend="opt-link-set">-K
@@ -127,6 +128,11 @@ compiles the specified lisp files to a platform-independent
 <varlistentry id="opt-license"><term><option>--license</option></term>
  <listitem><simpara>Displays a summary of the licensing information,
    the &gnu; &gpl;.</simpara></listitem></varlistentry>
+
+<varlistentry id="opt-help-image"><term><option>-help-image</option></term>
+ <listitem><simpara>Displays information about the &mem-image; being invoked:
+   whether is it suitable for scripting as well as the &documentation-k;
+   supplied to &savemem;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-libdir"><term><option>-B</option> &lld;</term>
  <listitem><simpara>Specifies the installation directory.

@@ -1340,6 +1340,7 @@ local void init_symbol_values (void) {
   define_variable(S(quiet),NIL);                  # SYS::*QUIET* := NIL
   define_variable(S(norc),NIL);                   # SYS::*NORC* := NIL
   define_variable(S(script),T);                   # SYS::*SCRIPT* := T
+  define_variable(S(image_doc),NIL);              # SYS::*IMAGE-DOC* := NIL
   define_variable(S(args),NIL);                   # EXT:*ARGS* := NIL
   define_variable(S(load_compiling),NIL); /* *LOAD-COMPILING* := NIL */
   define_variable(S(load_verbose),T); /* *LOAD-VERBOSE* := T */
@@ -1607,6 +1608,7 @@ local void usage (void) {
   printf(GETTEXTL(" -h, --help    - print this help and exit\n"));
   printf(GETTEXTL(" --version     - print the version information\n"));
   printf(GETTEXTL(" --license     - print the licensing information\n"));
+  printf(GETTEXTL(" -help-image   - print image-specific help and exit\n"));
   printf(GETTEXTL("Memory image selection:\n"));
   printf(GETTEXTL(" -B lisplibdir - set the installation directory\n"));
  #if defined(UNIX) || defined(WIN32_NATIVE)
@@ -1638,7 +1640,10 @@ local void usage (void) {
   printf(GETTEXTL("Actions:\n"));
   printf(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile lispfile\n"));
   printf(GETTEXTL(" -x expressions - execute the expressions, then exit\n"));
-  printf(GETTEXTL(" lispfile [argument ...] - load lispfile, then exit\n"));
+  printf(GETTEXTL(" Depending on the image, positional arguments can mean:\n"));
+  printf(GETTEXTL("   lispscript [argument ...] - load script, then exit\n"));
+  printf(GETTEXTL("   [argument ...]            - run the init-function\n"));
+  printf(GETTEXTL("  arguments are placed in EXT:*ARGS* as strings.\n"));
   printf(GETTEXTL("These actions put CLISP into a batch mode, which is overridden by\n"));
   printf(GETTEXTL(" -on-error action - action can be one of debug, exit, abort, appease\n"));
   printf(GETTEXTL(" -repl            - enter the interactive read-eval-print loop when done\n"));
@@ -1915,6 +1920,7 @@ struct argv_actions {
   bool argv_batchmode_p;
   bool argv_license;
   bool argv_wait_keypress;
+  bool argv_help_image;
 };
 
 # Parse the command-line options.
@@ -1955,6 +1961,7 @@ local inline int parse_options (int argc, const char* const* argv,
   p2->argv_batchmode_p = false;
   p2->argv_license = false;
   p2->argv_wait_keypress = false;
+  p2->argv_help_image = false;
 
   /* process arguments argv[0..argc-1] :
      -h              Help
@@ -1989,6 +1996,8 @@ local inline int parse_options (int argc, const char* const* argv,
      --help          print usage and exit (should be the only option)
      --version       print version and exit (should be the only option)
      file [arg ...]  load LISP-file in batch-mode and execute, then leave LISP
+                     or put all positional arguments into *ARGS* and run DRIVER
+     -help-image     print what this image does
    -d -- developer mode -- undocumented, unsupported &c
       - unlock all packages.
 
@@ -1997,7 +2006,7 @@ local inline int parse_options (int argc, const char* const* argv,
    - in the usage-message here,
    - in the options parser,
    - in the options parser in _clisp.c,
-   - in the manual-pages _clisp.1 and _clisp.html. */
+   - in the manual page doc/clisp.xml.in. */
 
   program_name = argv[0]; # argv[0] is the program name
   {
@@ -2009,8 +2018,11 @@ local inline int parse_options (int argc, const char* const* argv,
       var const char* arg = *argptr++; # next argument
       if ((arg[0] == '-') && !(arg[1] == '\0')) {
         switch (arg[1]) {
-          case 'h': # help
-            if (arg[2] != 0) {
+          case 'h':             /* help */
+            if (asciz_equal(arg,"-help-image")) {
+              p2->argv_help_image = true;
+              break;
+            } else if (arg[2] != 0) {
               INVALID_ARG(arg);
               return 1;
             } else {
@@ -3032,6 +3044,22 @@ local inline void main_actions (struct argv_actions *p) {
       packlist = Cdr(packlist);
     }
   }
+  if (p->argv_help_image) { /* -help-image */
+    if (p->argv_memfile == NULL) return;
+    pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+    if (nullpSv(script))
+      write_sstring(&STACK_0,CLSTEXT("All positional arguments are put into "));
+    else
+      write_sstring(&STACK_0,CLSTEXT("The first positional argument is the script name,\nthe rest are put into "));
+    prin1(&STACK_0,S(args));
+    terpri(&STACK_0);
+    var object image_doc = Symbol_value(S(image_doc));
+    if (stringp(image_doc))
+      write_string(&STACK_0,image_doc);
+    fresh_line(&STACK_0);
+    skipSTACK(1);
+    return;
+  }
   /* load RC file ~/.clisprc */
   if (nullpSv(norc) && !p->argv_norc && p->argv_memfile) {
     /* If no memfile is given, LOAD cannot be called with 3 arguments.
@@ -3171,8 +3199,11 @@ local inline void main_actions (struct argv_actions *p) {
     } else
       pushSTACK(asciz_to_string(*exprs--,O(misc_encoding)));
     funcall(L(make_string_input_stream),1);
-    # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
-    # is undefined. Do not set an error handler in that case.
+    /* During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
+     is undefined. Do not set an error handler in that case.
+     we use SYS::MAIN-LOOP instead of the image-specific user-defined
+     SYS::*DRIVER* so that the users can always get to the repl using
+     -x '(saveinitmem ...)' */
     var object main_loop_function = Symbol_function(S(main_loop));
     if (closurep(main_loop_function)) {
       dynamic_bind(S(standard_input),value1);
