@@ -1,3 +1,13 @@
+2006-01-30  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	fixed bug #[ 1211847 ]: preserve object identity of FFI types
+	* foreign1.lisp (def-call-out): no side effects during macro-
+	expansion, minimize number of calls to parse-c-type (from Sam
+	Steingold's wishlist) and do not inline the value of
+	parse-c-function, to preserve EQ tests (cf. foreign.d:equal_fvd).
+	* foreign1.lisp (note-c-fun): changed API, but I argue it's not ABI
+	* foreign1.lisp (argvector-to-signature): removed
+
 2006-01-26  Sam Steingold  <sds@gnu.org>
 
 	* savemem.lisp (saveinitmem): accept :DOCUMENTATION
@@ -297,6 +307,11 @@
 	* utils/filesize.c: new file, replace "my magic marker"
 	with the file size in decimal
 
+2006-01-02  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* spvw.d (parse_options): have lisp.run --version print information
+	even without image file (no -M lispinit.mem).
+
 2006-01-02  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (make_lisprun): new shortcut
@@ -308,11 +323,6 @@
 2006-01-02  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp (documentation@symbol): handle uninterned symbols
-
-2006-01-02  Jörg Höhle  <hoehle@users.sourceforge.net>
-
-	* spvw.d (parse_options): have lisp.run --version print information
-	even without image file (no -M lispinit.mem).
 
 2006-01-01  Sam Steingold  <sds@gnu.org>
 
