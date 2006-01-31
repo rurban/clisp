@@ -321,7 +321,8 @@
         (error (TEXT "Only one ~S option is allowed: ~S")
               (first option) whole))
       (push option alist))
-    alist))
+    ;; maximize sharing: return accepted options, not alist
+    options))
 
 ;; check whether C-TYPE is a C type spec and return the type
 (defun ctype-type (c-type)
@@ -1026,31 +1027,32 @@
                          whole-form))
          (def (gensym "DEF-CALL-OUT-"))
          (doc (assoc ':documentation alist))
-         (parsed-function (parse-c-function alist whole-form))
-         (signature (argvector-to-signature (svref parsed-function 2)))
          (library (second (assoc :library alist)))
-         (c-name (foreign-name name (assoc :name alist))))
-    (setq alist (remove-if (lambda (el) (sys::memq (car el) '(:name :library)))
-                           alist))
+         (c-name (foreign-name name (assoc :name alist)))
+         (built-in (second (assoc :built-in alist)))
+         ;; Maximize sharing in .fas file, reuse options
+         ;; parse-c-function ignores unknown options, e.g. :name
+         (ctype `(PARSE-C-FUNCTION ',options ',whole-form)))
     `(LET ((,def ,(if library
                       `(FFI::FOREIGN-LIBRARY-FUNCTION
                         ',c-name (FFI::FOREIGN-LIBRARY ,library)
-                        nil ,parsed-function)
-                      `(LOOKUP-FOREIGN-FUNCTION ',c-name ,parsed-function))))
-       ,(unless library
-          `(EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ',alist ',whole-form)))
-       (when ,def
+                        NIL ,ctype)
+                      `(LOOKUP-FOREIGN-FUNCTION ',c-name ,ctype))))
+       (EXT:COMPILER-LET ((,def ,ctype))
+         ,(unless library
+            `(EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ,def ',built-in)))
+         (COMPILER::EVAL-WHEN-COMPILE
+           (COMPILER::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,def))))
+       (WHEN ,def                       ; found library function
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-         (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
          ,@(when doc `((SETF (DOCUMENTATION ',name 'FUNCTION) ',(second doc))))
          (SYSTEM::%PUTD ',name ,def))
        ',name)))
 
-(defun note-c-fun (c-name alist whole) ; ABI
+(defun note-c-fun (c-name ctype built-in) ; not ABI, compile-time only
   (when (compiler::prepare-coutput-file)
     (prepare-module)
-    (push (list c-name (parse-c-function alist whole)
-                (cadr (assoc :built-in alist)))
+    (push (list c-name ctype built-in)
           *function-list*)))
 
 #+AFFI
@@ -1059,20 +1061,34 @@
   (let* ((alist (parse-options options
                                '(:name :offset :arguments :return-type)
                                whole-form))
-         (parsed-function
-           (parse-c-function (remove (assoc ':name alist) alist) whole-form))
-         (signature (argvector-to-signature (svref parsed-function 2)))
          (c-name (foreign-name name (assoc ':name alist)))
-         (offset (second (assoc ':offset alist))))
+         (offset (second (assoc ':offset alist)))
+         (ctype `(PARSE-C-FUNCTION ',options ',whole-form)))
     `(LET ()
        (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-       (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
+       (COMPILER::EVAL-WHEN-COMPILE
+         (COMPILER::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,ctype)))
        (SYSTEM::%PUTD ',name
          (FOREIGN-LIBRARY-FUNCTION ',c-name
            (FOREIGN-LIBRARY ',library)
-           ',offset
-           (PARSE-C-FUNCTION ',(remove (assoc ':name alist) alist) ',whole-form)))
+           ',offset ,ctype))
        ',name)))
+
+(defun count-inarguments (arg-vector)
+  (do* ((l (length arg-vector))
+        (inargcount 0)
+        (i 1 (+ i 2)))
+       ((>= i l)
+        inargcount)
+    (unless (flag-set-p ff-flag-out (svref arg-vector i))
+      (incf inargcount))))
+
+(defun c-type-to-signature (ctype) ; not ABI, compile-time only
+  (sys::make-signature :req-num (count-inarguments (svref ctype 2))))
+
+; Called by SYS::FUNCTION-SIGNATURE.
+(defun foreign-function-in-arg-count (obj)
+  (count-inarguments (sys::%record-ref obj 3)))
 
 (defmacro DEF-C-CALL-IN (name &rest options)
   (warn (TEXT "~s is deprecated, use ~s instead")
@@ -1173,22 +1189,6 @@
       (format *coutput-stream* "}~%"))))
 
 ;; ===========================================================================
-
-(defun argvector-to-signature (argvector)
-  (sys::make-signature :req-num (count-inarguments argvector)))
-
-(defun count-inarguments (arg-vector)
-  (do* ((l (length arg-vector))
-        (inargcount 0)
-        (i 1 (+ i 2)))
-       ((>= i l)
-        inargcount)
-    (unless (flag-set-p ff-flag-out (svref arg-vector i))
-      (incf inargcount))))
-
-; Called by SYS::FUNCTION-SIGNATURE.
-(defun foreign-function-in-arg-count (obj)
-  (count-inarguments (sys::%record-ref obj 3)))
 
 (defmacro def-c-enum (&whole whole-form name &rest items)
   (setq name (check-symbol name (first whole-form)))
