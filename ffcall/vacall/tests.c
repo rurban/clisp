@@ -82,7 +82,7 @@ short s1=32767, s2=(short)32768, s3=3, s4=4, s5=5, s6=6, s7=7, s8=8, s9=9;
 int i1=1, i2=2, i3=3, i4=4, i5=5, i6=6, i7=7, i8=8, i9=9,
     i10=11, i11=12, i12=13, i13=14, i14=15, i15=16, i16=17;
 long l1=1, l2=2, l3=3, l4=4, l5=5, l6=6, l7=7, l8=8, l9=9;
-#ifdef HAVE_LONGLONG
+#ifdef HAVE_LONG_LONG
 long long ll1 = 3875056143130689530LL;
 #endif
 float f1=0.1, f2=0.2, f3=0.3, f4=0.4, f5=0.5, f6=0.6, f7=0.7, f8=0.8, f9=0.9,
@@ -279,7 +279,7 @@ ushort us_cdcd (char a, double b, char c, double d)
   return r;
 }
 
-#ifdef HAVE_LONGLONG
+#ifdef HAVE_LONG_LONG
 long long ll_flli (float a, long long b, int c)
 {
   long long r = (long long)(int)a + b + (long long)c;
@@ -656,7 +656,7 @@ void simulator (va_alist alist)
       fflush(out);
       va_return_ushort(alist, r);
     }}
-#ifdef HAVE_LONGLONG
+#ifdef HAVE_LONG_LONG
   else if (current_function == (void*)&ll_flli)
     {
       va_start_longlong(alist);
@@ -989,7 +989,7 @@ int main (void)
   { uchar ucr;
     ushort usr;
     double dr;
-#ifdef HAVE_LONGLONG
+#ifdef HAVE_LONG_LONG
     long long llr;
 #endif
 
@@ -1025,7 +1025,7 @@ int main (void)
     fprintf(out,"->%u\n",usr);
     fflush(out);
 
-#ifdef HAVE_LONGLONG
+#ifdef HAVE_LONG_LONG
     llr = ll_flli(f13,ll1,i13);
     fprintf(out,"->0x%lx%08lx\n",(long)(llr>>32),(long)(llr&0xffffffff));
     fflush(out);

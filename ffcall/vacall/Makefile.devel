@@ -3,7 +3,7 @@
 HOST = i486-linux
 CPU = i386
 GCC = gcc
-GCCFLAGS = -O2 -fomit-frame-pointer -DHAVE_LONGLONG
+GCCFLAGS = -O2 -fomit-frame-pointer -DHAVE_LONG_LONG
 LN = ln -s
 RM = rm -f
 SED = sed

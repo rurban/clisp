@@ -73,8 +73,8 @@
 
 /* CL_LONGLONG */
 /* Define if your compiler supports the `long long' type. */
-#ifndef HAVE_LONGLONG
-#undef HAVE_LONGLONG
+#ifndef HAVE_LONG_LONG
+#undef HAVE_LONG_LONG
 #endif
 
 /* AC_C_CHAR_UNSIGNED */
@@ -374,7 +374,7 @@ typedef struct
     unsigned int        _uint;
     long                _long;
     unsigned long       _ulong;
-#if !(defined(__mips64__) || defined(__alpha__)) && defined(HAVE_LONGLONG)
+#if !(defined(__mips64__) || defined(__alpha__)) && defined(HAVE_LONG_LONG)
     long long           _longlong;
     unsigned long long  _ulonglong;
 #endif
