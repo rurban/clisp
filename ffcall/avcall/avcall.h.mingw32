@@ -80,7 +80,7 @@
 
 /* CL_LONGLONG */
 /* Define if your compiler supports the `long long' type. */
-#undef HAVE_LONGLONG
+#undef HAVE_LONG_LONG
 
 /* End of definitions adjusted by `configure'. */
 
@@ -356,7 +356,7 @@ typedef struct
   /* temporary storage, used to split doubles into two words */
   union {
     double	_double;
-#if defined(__sparc__) && !defined(__sparc64__) && defined(HAVE_LONGLONG)
+#if defined(__sparc__) && !defined(__sparc64__) && defined(HAVE_LONG_LONG)
     long long	_longlong;
 #endif
     __avword	words[2];
