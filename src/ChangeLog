@@ -1,3 +1,17 @@
+2006-02-03  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign.d (foreign-address-unsigned, unsigned-foreign-address)
+	[WIDE]: uintP does not fit into 32 bits, use I_to_UQ/UQ_to_I().
+	Reported by James Bielman <jamesjb@jamesjb.com>
+
+2006-02-02  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffcall/avcall, ffcall/vacall [HAVE_LONG_LONG]: complete switch
+	from HAVE_LONGLONG to HAVE_LONG_LONG
+	* foreign.d [_MSC_VER]: Incidentally, this prevents
+	#undef HAVE_LONGLONG in avcall.h with MSVC, so the FFI now
+	provides FFI:UINT64/SINT64 conversions.
+
 2006-01-30  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	fixed bug #[ 1211847 ]: preserve object identity of FFI types
