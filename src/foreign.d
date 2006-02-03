@@ -144,10 +144,18 @@ LISPFUNN(set_foreign_pointer,2)
   VALUES1(STACK_1); skipSTACK(2);
 }
 
+#if defined(WIDE)
+  #define  I_to_UP(obj) I_to_UQ(obj)
+  #define  UP_to_I(arg) UQ_to_I(arg)
+#else
+  #define  I_to_UP(obj) I_to_UL(obj)
+  #define  UP_to_I(arg) UL_to_I(arg)
+#endif
+
 /* (FFI:UNSIGNED-FOREIGN-ADDRESS integer)
  makes a FOREIGN-ADDRESS object out of an unsigned integer */
 LISPFUNNR(unsigned_foreign_address,1) {
-  VALUES1(make_faddress(O(fp_zero),I_to_UL(popSTACK())));
+  VALUES1(make_faddress(O(fp_zero),I_to_UP(popSTACK())));
 }
 
 /* (FFI:FOREIGN-ADDRESS-UNSIGNED foreign-address)
@@ -158,8 +166,8 @@ LISPFUNNR(foreign_address_unsigned,1) {
   if (fvariablep(arg)) arg = TheFvariable(arg)->fv_address;
   else if (ffunctionp(arg)) arg = TheFfunction(arg)->ff_address;
   /* address --> integer */
-  if (faddressp(arg)) value1 = UL_to_I((uintP)Faddress_value(arg));
-  else if (fpointerp(arg)) value1 = UL_to_I((uintP)Fpointer_value(arg));
+  if (faddressp(arg)) value1 = UP_to_I((uintP)Faddress_value(arg));
+  else if (fpointerp(arg)) value1 = UP_to_I((uintP)Fpointer_value(arg));
   else fehler_foreign_object(arg);
   mv_count = 1;
 }
@@ -2821,6 +2829,7 @@ LISPFUNN(offset,3) {
   skipSTACK(3+1);
 }
 
+
 /* Low-level, little consing accessors */
 
 /* (FFI:MEMORY-AS address ffi-type &optional byte-offset)
@@ -4262,8 +4271,7 @@ local maygc object check_library (object obj)
 /* return the foreign address of the foreign object named 'name'
  can trigger GC */
 local maygc object object_address (object library, object name, object offset)
-{ /* return the foreign address of the foreign object named `name' */
-  var object lib_addr = Car(Cdr(library));
+{ var object lib_addr = Car(Cdr(library));
   var sintP result_offset;
   if (nullp(offset)) {
     pushSTACK(lib_addr);
