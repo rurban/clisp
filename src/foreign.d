@@ -144,18 +144,10 @@ LISPFUNN(set_foreign_pointer,2)
   VALUES1(STACK_1); skipSTACK(2);
 }
 
-#if defined(WIDE)
-  #define  I_to_UP(obj) I_to_UQ(obj)
-  #define  UP_to_I(arg) UQ_to_I(arg)
-#else
-  #define  I_to_UP(obj) I_to_UL(obj)
-  #define  UP_to_I(arg) UL_to_I(arg)
-#endif
-
 /* (FFI:UNSIGNED-FOREIGN-ADDRESS integer)
  makes a FOREIGN-ADDRESS object out of an unsigned integer */
 LISPFUNNR(unsigned_foreign_address,1) {
-  VALUES1(make_faddress(O(fp_zero),I_to_UP(popSTACK())));
+  VALUES1(make_faddress(O(fp_zero),I_to_ulong(popSTACK())));
 }
 
 /* (FFI:FOREIGN-ADDRESS-UNSIGNED foreign-address)
@@ -166,8 +158,8 @@ LISPFUNNR(foreign_address_unsigned,1) {
   if (fvariablep(arg)) arg = TheFvariable(arg)->fv_address;
   else if (ffunctionp(arg)) arg = TheFfunction(arg)->ff_address;
   /* address --> integer */
-  if (faddressp(arg)) value1 = UP_to_I((uintP)Faddress_value(arg));
-  else if (fpointerp(arg)) value1 = UP_to_I((uintP)Fpointer_value(arg));
+  if (faddressp(arg)) value1 = ulong_to_I((uintP)Faddress_value(arg));
+  else if (fpointerp(arg)) value1 = ulong_to_I((uintP)Fpointer_value(arg));
   else fehler_foreign_object(arg);
   mv_count = 1;
 }
