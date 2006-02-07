@@ -1,3 +1,10 @@
+2006-02-05  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	fixed bug #[ 1388897 ]: FFI:uint64 maps to long long when supported
+	* foreign.d [HAVE_LONG_LONG]: use av_start_longlong,
+	va_return_longlong etc..  Otherwise, continue to pass a struct of
+        two uint32: this is compatible with MSVC's __int64 handling.
+
 2006-02-04  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	fixed bug #[ 1421652 ]: CPP macros using "do{}while(0)" do not
