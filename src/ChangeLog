@@ -1,5 +1,12 @@
 2006-02-04  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	fixed bug #[ 1421652 ]: CPP macros using "do{}while(0)" do not
+	work with statement arguments containing break; or continue;
+	* lisparit.d (check_real_replacement, check_rational_replacement):
+	remove break; from calls to if_realp(), if_rationalp()
+
+2006-02-04  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	* foreign.d (foreign-address-unsigned: revisit last patch. Do not
 	yet introduce uintP_to_I abstraction, use ulong_to_I() for now.
 
