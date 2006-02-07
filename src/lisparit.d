@@ -363,9 +363,8 @@ global maygc object check_real_replacement (object obj) {
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a real number"));
     obj = value1;
-    if_realp(obj, break; , continue; );
+    if_realp(obj, return obj; , ; );
   }
-  return obj;
 }
 
 /* check_float(obj)
@@ -417,9 +416,8 @@ local maygc object check_rational_replacement (object obj) {
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a rational number"));
     obj = value1;
-    if_rationalp(obj, break; , continue; );
+    if_rationalp(obj, return obj; , ; );
   }
-  return obj;
 }
 
 /* UP: Returns the decimal string representation of an integer >= 0.
