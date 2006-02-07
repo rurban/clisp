@@ -42,6 +42,9 @@ nil
 (integerp (foreign-address-unsigned #'c-self))
 T
 
+(eql (foreign-address-unsigned #'c-self) (sys::code-address-of #'c-self))
+T
+
 (functionp (setq parse-c-type-optimizer
                  (compiler-macro-function 'parse-c-type)))
 T
@@ -818,7 +821,7 @@ FOREIGN-POINTER
 (eq (foreign-pointer fa) fp)
 T
 
-(eq (set-foreign-pointer fa :copy) fp)
+(eq (foreign-pointer (set-foreign-pointer fa :copy)) fp)
 NIL
 
 (eq (foreign-pointer fm) (foreign-pointer fp))
@@ -849,8 +852,27 @@ NIL
       (parse-c-type '(c-function (:language :stdc)))))))
 #.(foreign-address-unsigned #'c-self)
 
+(with-foreign-object (p 'opaque)
+  (equalp (set-foreign-pointer
+	   (unsigned-foreign-address
+	    (foreign-address-unsigned p))
+	   p) (foreign-address p)))
+T
+
+(equalp (set-foreign-pointer
+	 (unsigned-foreign-address
+	  (foreign-address-unsigned #'c-self))
+	 #'c-self) (foreign-address #'c-self))
+T
+
 (progn (setq fm (allocate-deep 'character "abc" :count 5)) (type-of fm))
 FOREIGN-VARIABLE
+
+(equalp (set-foreign-pointer
+	 (unsigned-foreign-address
+	  (foreign-address-unsigned fm))
+	 fm) (foreign-address fm))
+T
 
 (with-c-place (x fm) (identity (typeof x)))
 (C-ARRAY-MAX CHARACTER 5)
