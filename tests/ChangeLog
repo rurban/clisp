@@ -1,3 +1,7 @@
+2006-02-03  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst: foreign-address<->unsigned were broken on [WIDE]
+
 2006-01-25  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: avoid a race condition by calling file-write-date

@@ -1,3 +1,8 @@
+2006-02-04  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign.d (foreign-address-unsigned: revisit last patch. Do not
+	yet introduce uintP_to_I abstraction, use ulong_to_I() for now.
+
 2006-02-03  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign.d (foreign-address-unsigned, unsigned-foreign-address)
@@ -7,7 +12,7 @@
 2006-02-02  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* ffcall/avcall, ffcall/vacall [HAVE_LONG_LONG]: complete switch
-	from HAVE_LONGLONG to HAVE_LONG_LONG
+	from HAVE_LONGLONG to HAVE_LONG_LONG, bug #[ 1385013 ]
 	* foreign.d [_MSC_VER]: Incidentally, this prevents
 	#undef HAVE_LONGLONG in avcall.h with MSVC, so the FFI now
 	provides FFI:UINT64/SINT64 conversions.
