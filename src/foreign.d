@@ -657,8 +657,11 @@ LISPFUN(foreign_function,seclass_read,2,0,norest,key,1,(kw(name)) )
 }
 
 
-#if (long_bitsize<64)
-  /* 64-bit integers are passed as structs. */
+#if (long_bitsize<64) && !defined(HAVE_LONG_LONG)
+  /* use long long type with ffcall when possible, otherwise pass
+     64-bit integers as structs.  Note that long long is incompatible
+     with struct passing/returning with gcc/i386/Linux, whereas struct
+     passing was tested compatible with MSVC6' __int64 type. */
   #if BIG_ENDIAN_P
     typedef struct { uint32 hi; uint32 lo; } struct_uint64;
     typedef struct { sint32 hi; uint32 lo; } struct_sint64;
@@ -725,25 +728,23 @@ local void foreign_layout (object fvd, struct foreign_layout *data)
       data->size = sizeof(uint32); data->alignment = alignof(uint32);
       data->splittable = true; return;
     } else if (eq(fvd,S(sint64))) {
-     #ifdef HAVE_LONGLONG
-      data->size = sizeof(sint64); data->alignment = alignof(sint64);
-      data->splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32)
-                         : av_word_splittable_1(uint64)); /* always true */
-     #else
+     #if (long_bitsize<64) && !defined(HAVE_LONG_LONG)
       data->size = sizeof(struct_sint64);
       data->alignment = alignof(struct_sint64);
-      data->splittable = av_word_splittable_2(uint32,uint32); /* always true */
+      data->splittable = av_word_splittable_2(sint32,sint32); /* always true */
+     #else
+      data->size = sizeof(sint64); data->alignment = alignof(sint64);
+      data->splittable = av_word_splittable_1(sint64); /* always true */
      #endif
       return;
     } else if (eq(fvd,S(uint64))) {
-     #ifdef HAVE_LONGLONG
-      data->size = sizeof(uint64); data->alignment = alignof(uint64);
-      data->splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32)
-                         : av_word_splittable_1(uint64)); /* always true */
-     #else
+     #if (long_bitsize<64) && !defined(HAVE_LONG_LONG)
       data->size = sizeof(struct_uint64);
       data->alignment = alignof(struct_uint64);
       data->splittable = av_word_splittable_2(uint32,uint32); /* always true */
+     #else
+      data->size = sizeof(uint64); data->alignment = alignof(uint64);
+      data->splittable = av_word_splittable_1(uint64); /* always true */
      #endif
       return;
     } else if (eq(fvd,S(int))) {
@@ -1084,30 +1085,18 @@ global maygc object convert_from_foreign (object fvd, const void* data)
       return uint32_to_I(*pdata);
     } else if (eq(fvd,S(sint64))) {
       var const struct_sint64* pdata = (const struct_sint64*)data;
-    #ifdef HAVE_LONGLONG
-      var sint64 val;
-     #if (long_bitsize<64)
-      val = ((sint64)(pdata->hi)<<32) | (sint64)(pdata->lo);
-     #else
-      val = *pdata;
-     #endif
-      return sint64_to_I(val);
-    #else
+     #if (long_bitsize<64) && !defined(HAVE_LONG_LONG)
       return L2_to_I(pdata->hi,pdata->lo);
-    #endif
+     #else
+      return sint64_to_I(*pdata);
+     #endif
     } else if (eq(fvd,S(uint64))) {
       var const struct_uint64* pdata = (const struct_uint64*)data;
-    #ifdef HAVE_LONGLONG
-      var uint64 val;
-     #if (long_bitsize<64)
-      val = ((uint64)(pdata->hi)<<32) | (uint64)(pdata->lo);
-     #else
-      val = *pdata;
-     #endif
-      return uint64_to_I(val);
-    #else
+     #if (long_bitsize<64) && !defined(HAVE_LONG_LONG)
       return UL2_to_I(pdata->hi,pdata->lo);
-    #endif
+     #else
+      return uint64_to_I(*pdata);
+     #endif
     } else if (eq(fvd,S(int))) {
       var const int* pdata = (const int*)data;
       return sint_to_I(*pdata);
@@ -1926,7 +1915,7 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
       var struct_sint64* pdata = (struct_sint64*)data;
       if (!sint64_p(obj)) goto bad_obj;
       var sint64 val = I_to_sint64(obj);
-     #if (long_bitsize<64)
+     #if (long_bitsize<64) && !defined(HAVE_LONG_LONG)
       pdata->hi = (sint32)(val>>32); pdata->lo = (uint32)val;
      #else
       *pdata = val;
@@ -1936,7 +1925,7 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
       var struct_uint64* pdata = (struct_uint64*)data;
       if (!uint64_p(obj)) goto bad_obj;
       var uint64 val = I_to_uint64(obj);
-     #if (long_bitsize<64)
+     #if (long_bitsize<64) && !defined(HAVE_LONG_LONG)
       pdata->hi = (uint32)(val>>32); pdata->lo = (uint32)val;
      #else
       *pdata = val;
@@ -3226,13 +3215,21 @@ local void do_av_start (uintWL flags, object result_fvd, av_alist * alist,
       av_start_ulong(*alist,address,result_address);
     }
    #if (long_bitsize<64)
+    #if defined(HAVE_LONG_LONG)
+    else if (eq(result_fvd,S(sint64))) {
+      av_start_longlong(*alist,address,result_address);
+    } else if (eq(result_fvd,S(uint64))) {
+      av_start_ulonglong(*alist,address,result_address);
+    }
+    #else
     else if (eq(result_fvd,S(sint64))) {
       av_start_struct(*alist,address,struct_sint64,
-                      av_word_splittable_2(uint32,uint32),result_address);
+                      av_word_splittable_2(sint32,sint32),result_address);
     } else if (eq(result_fvd,S(uint64))) {
       av_start_struct(*alist,address,struct_uint64,
                       av_word_splittable_2(uint32,uint32),result_address);
     }
+    #endif
    #endif
     else if (eq(result_fvd,S(single_float))) {
       if (flags & ff_lang_ansi_c) {
@@ -3334,11 +3331,19 @@ local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist,
       av_ulong(*alist,*(unsigned long *)arg_address);
     }
    #if (long_bitsize<64)
+    #if defined(HAVE_LONG_LONG)
+    else if (eq(arg_fvd,S(sint64))) {
+      av_longlong(*alist,*(sint64*)arg_address);
+    } else if (eq(arg_fvd,S(uint64))) {
+      av_ulonglong(*alist,*(uint64*)arg_address);
+    }
+    #else
     else if (eq(arg_fvd,S(sint64))) {
       av_struct(*alist,struct_sint64,*(struct_sint64*)arg_address);
     } else if (eq(arg_fvd,S(uint64))) {
       av_struct(*alist,struct_uint64,*(struct_uint64*)arg_address);
     }
+    #endif
    #endif
     else if (eq(arg_fvd,S(single_float))) {
       if (flags & ff_lang_ansi_c) {
@@ -3675,11 +3680,19 @@ local void do_va_start (uintWL flags, object result_fvd, va_alist alist,
       va_start_ulong(alist);
     }
    #if (long_bitsize<64)
+    #if defined(HAVE_LONG_LONG)
     else if (eq(result_fvd,S(sint64))) {
-      va_start_struct(alist,struct_sint64,va_word_splittable_2(uint32,uint32));
+      va_start_longlong(alist);
+    } else if (eq(result_fvd,S(uint64))) {
+      va_start_ulonglong(alist);
+    }
+    #else
+    else if (eq(result_fvd,S(sint64))) {
+      va_start_struct(alist,struct_sint64,va_word_splittable_2(sint32,sint32));
     } else if (eq(result_fvd,S(uint64))) {
       va_start_struct(alist,struct_uint64,va_word_splittable_2(uint32,uint32));
     }
+    #endif
    #endif
     else if (eq(result_fvd,S(single_float))) {
       if (flags & ff_lang_ansi_c) {
@@ -3788,11 +3801,21 @@ local void* do_va_arg (uintWL flags, object arg_fvd, va_alist alist)
       return &alist->tmp._ulong;
     }
    #if (long_bitsize<64)
+    #if defined(HAVE_LONG_LONG)
+    else if (eq(arg_fvd,S(sint64))) {
+      alist->tmp._longlong = va_arg_longlong(alist);
+      return &alist->tmp._longlong;
+    } else if (eq(arg_fvd,S(uint64))) {
+      alist->tmp._ulonglong = va_arg_ulonglong(alist);
+      return &alist->tmp._ulonglong;
+    }
+    #else
     else if (eq(arg_fvd,S(sint64))) {
       return &va_arg_struct(alist,struct_sint64);
     } else if (eq(arg_fvd,S(uint64))) {
       return &va_arg_struct(alist,struct_uint64);
     }
+    #endif
    #endif
     else if (eq(arg_fvd,S(single_float))) {
       alist->tmp._float =
@@ -3898,11 +3921,19 @@ local void do_va_return (uintWL flags, object result_fvd, va_alist alist, void* 
       va_return_ulong(alist,*(unsigned long *)result_address);
     }
    #if (long_bitsize<64)
+    #if defined(HAVE_LONG_LONG)
+    else if (eq(result_fvd,S(sint64))) {
+      va_return_longlong(alist,*(sint64*)result_address);
+    } else if (eq(result_fvd,S(uint64))) {
+      va_return_ulonglong(alist,*(uint64*)result_address);
+    }
+    #else
     else if (eq(result_fvd,S(sint64))) {
       va_return_struct(alist,struct_sint64,*(struct_sint64*)result_address);
     } else if (eq(result_fvd,S(uint64))) {
       va_return_struct(alist,struct_uint64,*(struct_uint64*)result_address);
     }
+    #endif
    #endif
     else if (eq(result_fvd,S(single_float))) {
       if (flags & ff_lang_ansi_c) {
