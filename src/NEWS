@@ -7,6 +7,8 @@ User visible changes
   See <http://clisp.cons.org/impnotes/image.html> and
   <http://clisp.cons.org/impnotes/clisp.html#opt-help-image> for details.
 
+* FFI:UINT64 and FFI:SINT64 are now compatible with C's long long type.
+
 
 2.38 (2006-01-24)
 =================
