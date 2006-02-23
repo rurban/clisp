@@ -479,3 +479,6 @@ T
        (makunbound '*socket-1*) (unintern '*socket-1*)
        (makunbound '*socket-2*) (unintern '*socket-2*))
 T
+
+(socket-server 1240 :interface "[/]=")
+ERROR

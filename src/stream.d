@@ -13865,22 +13865,23 @@ LISPFUN(socket_server,seclass_default,0,1,norest,key,2,
     if (!missingp(STACK_0)) {   /* interface */
       if (builtin_stream_p(STACK_0)) {
         stream_handles(test_socket_stream(STACK_0,true),true,NULL,&sock,NULL);
-      } else /* Leave this last, so that type error talks about string */
+      } else { /* Leave this last, so that type error talks about string */
         with_string_0(check_string(STACK_0),O(misc_encoding),interfacez, {
           begin_system_call();
           sk = create_server_socket_by_string(&myname,interfacez,port,backlog);
           end_system_call();
         });
+        goto got_sk;
+      }
     }
-    if (sk == INVALID_SOCKET) {
-      begin_system_call();
-      if (sock != INVALID_SOCKET)
-        sk = create_server_socket_by_socket(&myname,sock,port,backlog);
-      else
-        sk = create_server_socket_by_string(&myname,"0.0.0.0",port,backlog);
-      end_system_call();
-      if (sk == INVALID_SOCKET) { SOCK_error(); }
-    }
+    begin_system_call();
+    if (sock != INVALID_SOCKET)
+      sk = create_server_socket_by_socket(&myname,sock,port,backlog);
+    else
+      sk = create_server_socket_by_string(&myname,"0.0.0.0",port,backlog);
+    end_system_call();
+   got_sk:
+    if (sk == INVALID_SOCKET) { SOCK_error(); }
     pushSTACK(allocate_socket(sk));
     pushSTACK(allocate_socket_server());
     TheSocketServer(STACK_0)->socket_handle = STACK_1;
