@@ -2,7 +2,7 @@
  * Setting up a connection to an X server, and other socket functions
  * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2003
  * Marcus Daniels 28.9.1995, 9.9.1997
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2006
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -52,7 +52,7 @@
 
 #include <errno.h>
 
-#include <string.h>  /* declares strcmp(), strlen(), strcpy() */
+#include <string.h> /* declares strcmp(), strlen(), strcpy(), memset() */
 
 /* ============ hostnames and IP addresses only (no sockets) ============ */
 
@@ -121,6 +121,28 @@
 #elif defined(HAVE_IPV6)
   #define in6_addr in_addr6
 #endif
+
+/* "Older BSDs" (specifically, Mac OS X 10.4.[34]) require that
+   sockaddr is filled with 0 before use (i.e., unused fields must be 0)
+   and this requirement _IS_ codified in
+   + the 1st ed of Stevens "UNIX Network Programming"
+   + "Networking and the BSD Sockets API"
+     http://www.macdevcenter.com/pub/a/mac/2002/12/26/cocoa.html?page=3
+   + tutorial "Socket programming"
+     http://micmacfr.homeunix.org/progsysdet/progsys12.shtml
+   + http://lists.apple.com/archives/Unix-porting/2006/Feb/msg00053.html
+     claims that "RFC 793, page 31, figure 8" means that
+     the "unused fields" are not really unused
+     see http://rfc.net/rfc793.html (figure 8 is actually on page 32)
+   but _NOT_ in
+   - the 3rd ed of Stevens "UNIX Network Programming"
+   - the 2nd ed of Rochkind "Advanced UNIX Programming"
+   - the Open Group Base Specifications Issue 6 IEEE Std 1003.1, 2004 Edition
+     http://www.opengroup.org/onlinepubs/009695399/
+   It is _NOT_ necessary on Linux, Cygwin, Win32, Solaris, NetBSD, FreeBSD &c.
+   It might be a good idea to add an autoconf test for this ...
+   see bug 1399376 http://sourceforge.net/tracker/index.php?func=detail&aid=1399376&group_id=1355&atid=101355 */
+#define FILL0(s)  memset((void*)&s,0,sizeof(s))
 
 /* Converts an AF_INET address to a printable, presentable format.
  ipv4_ntop(buffer,addr);
@@ -482,6 +504,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
  #ifdef HAVE_IPV6
   {
     var struct sockaddr_in6 inaddr;
+    FILL0(inaddr);
     if (inet_pton(AF_INET6,host,&inaddr.sin6_addr) > 0) {
       inaddr.sin6_family = AF_INET6;
       inaddr.sin6_port = htons(port);
@@ -492,6 +515,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
  #endif
   {
     var struct sockaddr_in inaddr;
+    FILL0(inaddr);
     if (inet_pton(AF_INET,host,&inaddr.sin_addr) > 0) {
       inaddr.sin_family = AF_INET;
       inaddr.sin_port = htons(port);
@@ -506,6 +530,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
     var uint32 hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ;
     if (!(hostinetaddr == ((uint32) -1))) {
       var struct sockaddr_in inaddr;
+      FILL0(inaddr);
       inaddr.sin_family = AF_INET;
       inaddr.sin_addr.s_addr = hostinetaddr;
       inaddr.sin_port = htons(port);
@@ -524,6 +549,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
     if (host_ptr->h_addrtype == AF_INET6) {
       /* Set up the socket data. */
       var struct sockaddr_in6 inaddr;
+      FILL0(inaddr);
       inaddr.sin6_family = AF_INET6;
       inaddr.sin6_addr = *(struct in6_addr *)host_ptr->h_addr;
       inaddr.sin6_port = htons(port);
@@ -534,6 +560,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
     if (host_ptr->h_addrtype == AF_INET) {
       /* Set up the socket data. */
       var struct sockaddr_in inaddr;
+      FILL0(inaddr);
       inaddr.sin_family = AF_INET;
       inaddr.sin_addr = *(struct in_addr *)host_ptr->h_addr;
       inaddr.sin_port = htons(port);
@@ -653,10 +680,12 @@ global SOCKET connect_to_x_server (const char* host, int display)
     var struct sockaddr_un unaddr;          /* UNIX socket data block */
     var struct sockaddr * addr;             /* generic socket pointer */
     var int addrlen;                        /* length of addr */
+    FILL0(unaddr);
    #ifdef hpux /* this is disgusting */
     var struct sockaddr_un ounaddr;         /* UNIX socket data block */
     var struct sockaddr * oaddr;            /* generic socket pointer */
     var int oaddrlen;                       /* length of addr */
+    FILL0(unaddr);
    #endif
 
     unaddr.sun_family = AF_UNIX;
@@ -752,6 +781,7 @@ local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
                                              host_data_t * hd) {
   var sockaddr_max_t addr;
   var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  FILL0(addr);
   if (getsockname(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
     return NULL;
   /* Fill in hd->hostname and hd->port. */
@@ -802,6 +832,7 @@ global host_data_t * socket_getpeername (SOCKET socket_handle,
   var sockaddr_max_t addr;
   var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
   var struct hostent* hp = NULL;
+  FILL0(addr);
   /* Get host's IP address. */
   if (getpeername(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
     return NULL;
@@ -897,6 +928,7 @@ global SOCKET create_server_socket_by_socket (host_data_t *hd, SOCKET sock,
   var SOCKET fd;
   var sockaddr_max_t addr;
   var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  FILL0(addr);
   if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
     return INVALID_SOCKET;
   switch (((struct sockaddr *)&addr)->sa_family) {
@@ -932,6 +964,7 @@ global SOCKET accept_connection (SOCKET socket_handle) {
  #endif
   var sockaddr_max_t addr;
   var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  FILL0(addr);
   return accept(socket_handle,(struct sockaddr *)&addr,&addrlen);
   /* We can ignore the contents of addr, because we can retrieve it again
      through socket_getpeername() later. */
