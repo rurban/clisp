@@ -1,3 +1,9 @@
+2006-02-23  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* stream.d (listen_byte_ia8_buffered): use persev_immediate as in
+	listen_char_buffered() to avoid hanging on sockets.
+	Reported by Don Cohen
+
 2006-02-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* stream.d (SOCKET-SERVER): revisit 2006-01-25, avoid calling
