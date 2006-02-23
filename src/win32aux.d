@@ -1087,7 +1087,7 @@ global void* with_file_id (char * namestring, void *data,
   var HANDLE fh = CreateFile(namestring,0,FILE_SHARE_READ | FILE_SHARE_WRITE,
                              NULL,OPEN_EXISTING,OPEN_EXISTING,NULL);
   if (fh == INVALID_HANDLE_VALUE) return NULL;
-  struct file_id fi;
+  var struct file_id fi;
   var errno_t status = handle_file_id(fh,&fi);
   var void* ret = status ? NULL : (*func)(&fi,data);
   CloseHandle(fh);
