@@ -509,6 +509,14 @@ T
 (multiple-value-list (socket-status *server* 0)) (NIL 0)
 (socket-server-close *server*) NIL
 
+(let ((interfaces '(nil "localhost" "0.0.0.0" "127.0.0.1")))
+  (mapcar (lambda (i)
+            (let ((s (socket-server 0 :interface i)))
+              (unwind-protect (socket-server-host (show s))
+                (socket-server-close s))))
+          interfaces))
+("0.0.0.0" "127.0.0.1" "0.0.0.0" "127.0.0.1")
+
 ;; clean-up
 (progn (makunbound '*server*) (unintern '*server*)
        (delete-file *file*) (makunbound '*file*) (unintern '*file*)
