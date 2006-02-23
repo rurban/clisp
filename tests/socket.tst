@@ -445,6 +445,42 @@ NIL
 
 (close *socket-1*) T
 (close *socket-2*) T
+
+(multiple-value-list (socket-status *server* 0)) (NIL 0)
+
+(defparameter *socket-3*
+  (socket-connect (socket-server-port *server*) "localhost" :timeout 0
+                  :element-type '(unsigned-byte 8)))
+*socket-3*
+
+(defparameter *status-arg* (list (list *server*) (list *socket-3* :io)))
+*status-arg*
+(eq (socket-status *status-arg* 0) *status-arg*) T
+(cdr (assoc *server* *status-arg*))    T
+(cddr (assoc *socket-3* *status-arg*)) :OUTPUT
+
+(defparameter *socket-4*
+  (socket-accept *server* :element-type '(unsigned-byte 8)))
+*socket-4*
+(progn (push (list *socket-4* :io) *status-arg*)
+       (eq *status-arg* (socket-status *status-arg* 0))) T
+(cdr (assoc *server* *status-arg*))    NIL
+(cddr (assoc *socket-3* *status-arg*)) :OUTPUT
+(cddr (assoc *socket-4* *status-arg*)) :OUTPUT
+
+(read-byte-no-hang *socket-3*) nil
+(write-byte 65 *socket-3*) 65
+(finish-output *socket-3*) nil
+
+(eq (socket-status *status-arg* 0) *status-arg*) T
+(cdr (assoc *server* *status-arg*))    NIL
+(cddr (assoc *socket-3* *status-arg*)) :OUTPUT
+(cddr (assoc *socket-4* *status-arg*)) :IO
+
+(read-byte *socket-4*) 65
+
+(close *socket-3*) T
+(close *socket-4*) T
 (socket-server-close *server*) NIL
 
 (progn
