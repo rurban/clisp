@@ -978,7 +978,7 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
     LIBS=$LIBS' -luser32 -lws2_32 -lole32 -loleaut32 -luuid '$LIBICONV' '$LIBSIGSEGV
   else
     if [ $TSYS = win32msvc ] ; then
-      LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib'
+      LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib '$LIBSIGSEGV
     fi
     LIBS=$LIBS' ole32.lib shell32.lib'
   fi
@@ -1976,6 +1976,7 @@ if [ $HSYS = win32msvc ] ; then
   echol "#MSVCDIR = d:/devstudio/vc"
   echol "#MSVCDIR = c:/msvs/vc98"
   echol "#MSVCDIR = \"C:/Program Files/Microsoft Visual Studio/VC98\""
+  echol '#MSVCDIR = "C:\Programme\Microsoft Visual Studio\VC98"'
 fi
 # echotab_to_HEXE command source target
 # outputs a `make' statement that executes "command source" and creates
@@ -3085,7 +3086,7 @@ if [ $CROSS = false ] ; then
   echol "# 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up"
   echol "# 2. no variables of type gcv_object_t - only pointers to it"
   echol "check-sources : # lisp${LEXE} lispinit.mem"
-  echotab "\$(RUN) -M lispinit.mem -C -i ${SRCDIR}check-lispfun.lisp -x '(check-lisp-defs \"${SRCDIR}\")'"
+  echotab '$(RUN) -M lispinit.mem -C -i '"${SRCDIR}"'check-lispfun.lisp -x "(check-lisp-defs \"'"${SRCDIR}"'\")"'
   echotab "if egrep ' var gcv_object_t *[^* ]' *.d; then false; else true; fi"
   echol
 
@@ -3200,12 +3201,12 @@ if [ $CROSS = false ] ; then
 
   # check that the executable images work
   EXEIMG=foo
-  OBSOLETE="$OBSOLETE ${EXEIMG}${HEXE}"
+  OBSOLETE="$OBSOLETE ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echol "check-exec-image: lisp${LEXE} lispinit.mem"
-  echotab "\$(RUN) -M lispinit.mem -x '(saveinitmem \"${EXEIMG}\" :executable t :norc t)'"
-  echotab "./${EXEIMG}${HEXE} -x '(setq zz 10) (saveinitmem \"${EXEIMG}\")'"
+  echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t)"'
+  echotab "${HERE}${EXEIMG}${HEXE}"' -x "(setq zz 10) (saveinitmem \"'"${EXEIMG}"'\")"'
   # check that the executable image still honors -M
-  echotab "./${EXEIMG}${HEXE} -norc -M ${EXEIMG}.mem -x 'zz'"
+  echotab "${HERE}${EXEIMG}${HEXE} -norc -M ${EXEIMG}.mem -x zz"
   echotab "-ls -l lisp${LEXE} lispinit.mem ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echotab "\$(RM) ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echol
@@ -3966,7 +3967,11 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${RECOMPILEDIR}${NEXT_}* ${TESTSDIR}${NEXT_}* ${SACLATESTSDIR}${NEXT_}* ${ANSITESTSDIR}${NEXT_}* ansi-tests-log
+	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ansi-tests-log
+	-\$(RMRF) ${RECOMPILEDIR}
+	-\$(RMRF) ${TESTSDIR}
+	-\$(RMRF) ${ANSITESTSDIR}
+	-\$(RMRF) ${SACLATESTSDIR}
 	-\$(RMRF) boot base full
 !!
 if [ ${LIB_TYPE} = "win32" ] ; then
@@ -3979,9 +3984,6 @@ cat <<!!
 !!
 fi
 cat <<!!
-	-rmdir ${RECOMPILEDIR}
-	-rmdir ${TESTSDIR}
-	-rmdir ${ANSITESTSDIR}
 	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES)
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
