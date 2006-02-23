@@ -7232,8 +7232,9 @@ local uintL rd_by_array_iau8_buffered (const gcv_object_t* stream_,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no byte is available, but not because of EOF
 local signean listen_byte_ia8_buffered (object stream) {
-  if (buffered_nextbyte(stream,persev_partial) == (uintB*)NULL)
-    return ls_eof; # EOF
+  uintB* buf = buffered_nextbyte(stream,persev_immediate);
+  if (buf == (uintB*)NULL) return ls_eof; /* EOF */
+  if (buf == (uintB*)-1)   return ls_wait; /* will hang */
   return ls_avail;
 }
 
