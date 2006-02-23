@@ -1,3 +1,11 @@
+2006-02-23  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 1399376 ]: Failure of socket tests on Mac OS X
+	* socket.d (FILL0): new macro
+	(with_host_port, connect_to_x_server, socket_getlocalname_aux)
+	(socket_getpeername, create_server_socket_by_socket)
+	(accept_connection): use it to zero-out sockaddr before use
+
 2006-02-23  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* stream.d (listen_byte_ia8_buffered): use persev_immediate as in
