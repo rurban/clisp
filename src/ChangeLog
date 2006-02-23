@@ -1,3 +1,9 @@
+2006-02-22  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* stream.d (SOCKET-SERVER): revisit 2006-01-25, avoid calling
+	create_server_socket_by_string() twice when interface is supplied.
+	Reported by Don Cohen
+
 2006-02-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	fixed bug #[ 1388897 ]: FFI:uint64 maps to long long when supported
