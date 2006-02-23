@@ -413,11 +413,11 @@ NIL
 
 ;;; * generic socket servers
 
-(defparameter *server* (socket-server)) *server*
+(defparameter *server* (show (socket-server))) *server*
 (multiple-value-list (socket-status *server* 0)) (NIL 0)
 
 (defparameter *socket-1*
-  (socket-connect (socket-server-port *server*) "localhost" :timeout 0))
+  (show (socket-connect (socket-server-port *server*) "localhost" :timeout 0)))
 *socket-1*
 
 (defparameter *status-arg* (list (list *server*) (list *socket-1* :io)))
@@ -426,7 +426,7 @@ NIL
 (cdr (assoc *server* *status-arg*))    T
 (cddr (assoc *socket-1* *status-arg*)) :OUTPUT
 
-(defparameter *socket-2* (socket-accept *server*)) *socket-2*
+(defparameter *socket-2* (show (socket-accept *server*))) *socket-2*
 (progn (push (list *socket-2* :io) *status-arg*)
        (eq *status-arg* (socket-status *status-arg* 0))) T
 (cdr (assoc *server* *status-arg*))    NIL
@@ -449,8 +449,8 @@ NIL
 (multiple-value-list (socket-status *server* 0)) (NIL 0)
 
 (defparameter *socket-3*
-  (socket-connect (socket-server-port *server*) "localhost" :timeout 0
-                  :element-type '(unsigned-byte 8)))
+  (show (socket-connect (socket-server-port *server*) "localhost" :timeout 0
+                        :element-type '(unsigned-byte 8))))
 *socket-3*
 
 (defparameter *status-arg* (list (list *server*) (list *socket-3* :io)))
@@ -460,7 +460,7 @@ NIL
 (cddr (assoc *socket-3* *status-arg*)) :OUTPUT
 
 (defparameter *socket-4*
-  (socket-accept *server* :element-type '(unsigned-byte 8)))
+  (show (socket-accept *server* :element-type '(unsigned-byte 8))))
 *socket-4*
 (progn (push (list *socket-4* :io) *status-arg*)
        (eq *status-arg* (socket-status *status-arg* 0))) T
@@ -484,9 +484,10 @@ NIL
 (socket-server-close *server*) NIL
 
 (progn
-  (setq *server* (socket-server 9090)
-        *socket-1* (socket-connect 9090 "localhost" :timeout 0 :buffered nil)
-        *socket-2* (socket-accept *server* :buffered nil))
+  (setq *server* (show (socket-server 9090))
+        *socket-1* (show (socket-connect 9090 "localhost" :timeout 0
+                                         :buffered nil))
+        *socket-2* (show (socket-accept *server* :buffered nil)))
   (write-char #\a *socket-1*))
 #\a
 
