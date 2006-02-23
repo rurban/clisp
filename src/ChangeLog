@@ -31,19 +31,19 @@
 
 	fixed bug #[ 1388897 ]: FFI:uint64 maps to long long when supported
 	* foreign.d [HAVE_LONG_LONG]: use av_start_longlong,
-	va_return_longlong etc..  Otherwise, continue to pass a struct of
+	va_return_longlong etc.  Otherwise, continue to pass a struct of
 	two uint32: this is compatible with MSVC's __int64 handling.
 
 2006-02-04  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	fixed bug #[ 1421652 ]: CPP macros using "do{}while(0)" do not
-	work with statement arguments containing break; or continue;
+	work with statement arguments containing break or continue
 	* lisparit.d (check_real_replacement, check_rational_replacement):
-	remove break; from calls to if_realp(), if_rationalp()
+	remove break from calls to if_realp(), if_rationalp()
 
 2006-02-04  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* foreign.d (foreign-address-unsigned: revisit last patch. Do not
+	* foreign.d (foreign-address-unsigned): revisit last patch. Do not
 	yet introduce uintP_to_I abstraction, use ulong_to_I() for now.
 
 2006-02-03  Jörg Höhle  <hoehle@users.sourceforge.net>
