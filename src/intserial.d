@@ -3,8 +3,9 @@
 # Converts a little-endian byte sequence to an unsigned integer.
 # > bytesize: number of given 8-bit bytes of the integer,
 #             < intDsize/8*uintWC_max
-# > bufferptr: address of bytesize bytes of memory
+# > bufferptr: address of bytesize bytes in GC-invariant memory
 # < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
+# can trigger GC
 global maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr) {
   var gcv_object_t fake; fake = FAKE_8BIT_VECTOR(bufferptr);
   return LESbvector_to_UI(bytesize,&fake);
@@ -16,6 +17,7 @@ global maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr) {
 # > *buffer_: address of a simple-8bit-vector (or of a fake)
 #             containing bytesize bytes of memory
 # < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
+# can trigger GC
 global maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer_) {
   # Normalize number in buffer:
   var uintB* bufferptr = &TheSbvector(*buffer_)->data[bytesize-1];
@@ -78,8 +80,9 @@ global maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer
 # Converts a little-endian byte sequence to an integer.
 # > bytesize: number of given 8-bit bytes of the integer, > 0,
 #             < intDsize/8*uintWC_max
-# > bufferptr: address of bytesize bytes of memory
+# > bufferptr: address of bytesize bytes in GC-invariant memory
 # < result: an integer with I_integer_length(result) < 8*bytesize
+# can trigger GC
 global maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr) {
   var gcv_object_t fake; fake = FAKE_8BIT_VECTOR(bufferptr);
   return LESbvector_to_I(bytesize,&fake);
@@ -91,6 +94,7 @@ global maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr) {
 # > *buffer_: address of a simple-8bit-vector (or of a fake)
 #             containing bytesize bytes of memory
 # < result: an integer with I_integer_length(result) < 8*bytesize
+# can trigger GC
 global maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_) {
   # Normalize number in buffer:
   var uintB* bufferptr = &TheSbvector(*buffer_)->data[bytesize-1];
