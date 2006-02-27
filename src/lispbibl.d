@@ -16345,8 +16345,9 @@ extern uintL I_integer_length (object x);
 # Converts a little-endian byte sequence to an unsigned integer.
 # > bytesize: number of given 8-bit bytes of the integer,
 #             < intDsize/8*uintWC_max
-# > bufferptr: address of bytesize bytes of memory
+# > bufferptr: address of bytesize bytes in GC-invariant memory
 # < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
+# can trigger GC
 extern maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);
 %% puts("extern object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);");
 
@@ -16356,14 +16357,16 @@ extern maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);
 # > *buffer_: address of a simple-8bit-vector (or of a fake)
 #             containing bytesize bytes of memory
 # < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
+# can trigger GC
 extern maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer_);
 # is used by STREAM
 
 # Converts a little-endian byte sequence to an integer.
 # > bytesize: number of given 8-bit bytes of the integer, > 0,
 #             < intDsize/8*uintWC_max
-# > bufferptr: address of bytesize bytes of memory
+# > bufferptr: address of bytesize bytes in GC-invariant memory
 # < result: an integer with I_integer_length(result) < 8*bytesize
+# can trigger GC
 extern maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);
 %% puts("extern object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);");
 
@@ -16373,6 +16376,7 @@ extern maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);
 # > *buffer_: address of a simple-8bit-vector (or of a fake)
 #             containing bytesize bytes of memory
 # < result: an integer with I_integer_length(result) < 8*bytesize
+# can trigger GC
 extern maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_);
 # is used by STREAM
 
