@@ -818,7 +818,7 @@ LISPFUNNR(time,0)
   /* nächste zwei Werte: Space
      tm.gcfreed = von der GC bisher wieder verfügbar gemachter Platz */
   {
-    var uintL used = used_space(); /* momentan belegter Platz */
+    var uintM used = used_space(); /* momentan belegter Platz */
     /* beides addieren: */
    #ifdef intQsize
     tm.gcfreed += used;
