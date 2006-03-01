@@ -29,13 +29,13 @@
   (multiple-value-bind (body-rest declarations) (system::parse-body body)
     (if declarations (setq declarations `((DECLARE ,@declarations))))
     (let ((%whole-form whole-form)
-          (%arg-count 0) (%min-args 0) (%restp nil) (%ignored nil)
+          (%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)
           (%let-list nil) (%keyword-tests nil) (%default-form nil))
       (analyze1 lambdalist '<DESTRUCTURING-FORM> 'destructuring-bind '<DESTRUCTURING-FORM>)
       (let ((lengthtest (make-length-test '<DESTRUCTURING-FORM> 0))
             (mainform `(LET* ,(nreverse %let-list)
                          ,@declarations
-                         ,@(if %ignored `((DECLARE (IGNORE ,%ignored))))
+                         ,@(nreverse %null-tests)
                          ,@(nreverse %keyword-tests)
                          ,@body-rest
            ))          )

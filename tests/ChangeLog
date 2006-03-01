@@ -1,3 +1,8 @@
+2006-03-01  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* macro8.tst [CLISP|CMUCL|SBCL]: destructuring-bind (() a b)
+	matches (NIL 2 3)
+
 2006-02-23  Sam Steingold  <sds@gnu.org>
 
 	* socket.tst: test that socket-server-host recovers the :interface
@@ -140,7 +145,7 @@
 
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
-	* symbol10.tst (clrvar) [clisp]: use (proclaim `(ext:notspecial var))
+	* symbol10.tst (clrvar) [CLISP]: use (proclaim `(ext:notspecial var))
 
 2005-11-17  Sam Steingold  <sds@gnu.org>
 
@@ -214,7 +219,7 @@
 
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
-	* alltest.tst [clisp]: test module-info
+	* alltest.tst [CLISP]: test module-info
 
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
@@ -313,7 +318,7 @@
 
 2005-06-26  Sam Steingold  <sds@gnu.org>
 
-	* macros8.tst: test (cond (t)) compilation
+	* macro8.tst: test (cond (t)) compilation
 
 2005-06-22  Sam Steingold  <sds@gnu.org>
 
