@@ -305,6 +305,10 @@ m
 (destructuring-bind (&whole (a  . b) c . d) '(1 . 2) (list a b c d))
 (1 2 1 2)
 
+#+(or CLISP CMU SBCL)
+(destructuring-bind (() a b) (list () 2 3) (+ a b))
+#+(or CLISP CMU SBCL) 5
+
 (macrolet ((%m (&whole (m a b) c d) `'(,m ,a ,b ,c ,d))) (%m 1 2))
 (%M 1 2 1 2)
 

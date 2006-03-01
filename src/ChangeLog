@@ -1,3 +1,11 @@
+2006-03-01  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* defs2.lisp (destructuring-bind): Forgotten by 2004-05-23
+	patch to allow () to match NIL in destructuring lambda lists.
+	%ignored is no more, %null-tests is there.
+	Reported by Rob Warnock <rpw3@rpw3.org> and
+	Kaz Kylheku <kkylheku@gmail.com>
+
 2006-02-23  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 1399376 ]: Failure of socket tests on Mac OS X
