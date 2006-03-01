@@ -522,7 +522,9 @@ T
        (delete-file *file*) (makunbound '*file*) (unintern '*file*)
        (makunbound '*s*) (unintern '*s*)
        (makunbound '*socket-1*) (unintern '*socket-1*)
-       (makunbound '*socket-2*) (unintern '*socket-2*))
+       (makunbound '*socket-2*) (unintern '*socket-2*)
+       (makunbound '*socket-3*) (unintern '*socket-3*)
+       (makunbound '*socket-4*) (unintern '*socket-4*))
 T
 
 (socket-server 1240 :interface "[/]=")
