@@ -6,6 +6,12 @@
 	Reported by Rob Warnock <rpw3@rpw3.org> and
 	Kaz Kylheku <kkylheku@gmail.com>
 
+2006-02-28  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* time.d (%%TIME): complete 2004-11-27, use uintM with used_space().
+	Reported by Don Cohen that TIME fails when allocated memory
+	crosses the 4GB boundary.
+
 2006-02-23  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 1399376 ]: Failure of socket tests on Mac OS X
