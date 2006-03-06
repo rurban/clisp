@@ -382,6 +382,9 @@ Apple iBook PPC G4    MacOS X 10.3.8  Bruno Haible  <bruno@clisp.org>
 2005-03               54.12 s user +  9.36 s system (without generational GC)
                       46.41 s user + 13.85 s system (with generational GC)
 
+Apple Macbook Intel   MacOS X 10.4.5  Gene Garbutt  <ggarbutt@mac.com>
+2006-03               19.13 s user +  6.59 s system
+
 
 When you install CLISP on a machine not mentioned here, please send us a short
 note containing the information mentioned above. If you didn't succeed in
