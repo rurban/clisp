@@ -1,3 +1,9 @@
+2006-03-06  Bruno Haible  <bruno@clisp.org>
+
+	* backquote.lisp (bq-append): Don't optimize if form1 has the
+	shape (QUOTE (SYS::UNQUOTE ...)). Fixes bug 1308444.
+	Based on proposed fix by Matthew Cross <mcross@irobot.com>.
+
 2006-03-01  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* defs2.lisp (destructuring-bind): Forgotten by 2004-05-23
