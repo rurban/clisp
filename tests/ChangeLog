@@ -1,3 +1,8 @@
+2006-03-06  Bruno Haible  <bruno@clisp.org>
+
+	* backquot.tst: Add test for bug 1308444.
+	Proposed by Matthew Cross <mcross@irobot.com>.
+
 2006-03-01  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* macro8.tst [CLISP|CMUCL|SBCL]: destructuring-bind (() a b)
