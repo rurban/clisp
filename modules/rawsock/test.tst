@@ -6,9 +6,10 @@
 (listp (show (multiple-value-list (ext:module-info "rawsock" t)) :pretty t)) T
 
 (progn
-  (defun to-bytes (string) (ext:convert-string-to-bytes string charset:ascii))
+  (defun to-bytes (string)
+    (ext:convert-string-to-bytes string #+UNICODE charset:ascii #-UNICODE :default))
   (defun from-bytes (vec &optional size)
-    (ext:convert-string-from-bytes vec charset:ascii :end size))
+    (ext:convert-string-from-bytes vec #+UNICODE charset:ascii #-UNICODE :default :end size))
   (defun make-byte-vector (len)
     (make-array (etypecase len
                   (integer len)
@@ -83,6 +84,7 @@ NIL
   (not (local-sa-check *sock* *sa-local*)))
 NIL
 (rawsock:connect *sock* *sa-remote*) NIL
+;; fails when proxied
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
 (listp (show (list (multiple-value-list (socket:socket-stream-local *sock*))
@@ -128,6 +130,7 @@ T
   (not (local-sa-check *sock* *sa-local*)))
 NIL
 (rawsock:connect *sock* *sa-remote*) NIL
+;; fails when proxied
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
 (ext:socket-status (list (cons *sock* :input))) (:INPUT)
