@@ -723,7 +723,7 @@ local maygc object I_logcount_I (object x)
 {
   if (I_fixnump(x)) {
     var uint16 x16; /* auxiliary variable */
-   {var uintV x32 = FN_to_V(x); /* x as intVsize-bit-number */
+    var uintV x32 = FN_to_V(x); /* x as intVsize-bit-number */
     if (FN_V_minusp(x,(sintV)x32))
       x32 = ~ x32; /* if <0, make 1-complement */
    #if (intVsize>32)
@@ -732,7 +732,7 @@ local maygc object I_logcount_I (object x)
     logcount_32(); /* count bits of x32 */
    #endif
     return fixnum((uintL)x16);
-  }} else {
+   } else {
     var uintD* MSDptr;
     var uintC len;
     BN_to_NDS_nocopy(x, MSDptr=,len=,); /* buil DS for x, len>0. */
@@ -758,11 +758,11 @@ local maygc object I_logcount_I (object x)
    #if (intDsize==32)
     dotimespC(len,len, {
       var uint16 x16; /* auxiliary variable */
-     {var uintD x32 = (*ptr++) ^ sign; /* next intDsize-bit-package, */
+      var uintD x32 = (*ptr++) ^ sign; /* next intDsize-bit-package, */
       /* negative numbers are complemented */
       /* count bits of x32, increase total counter: */
       bitcount += (uintL)(logcount_32(), x16);
-    }});
+    });
    #endif
     /* 0 <= bitcount < intDsize*2^intWCsize, fits poss. into a fixnum. */
     if (log2_intDsize+intWCsize<=oint_data_len) /* intDsize*2^intWCsize <= 2^oint_data_len ? */
