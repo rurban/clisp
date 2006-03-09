@@ -283,7 +283,15 @@ executes a compiled version of &form-r;.</para>
 
 <para>Function &constantp; fully complies with &ansi-cl;.
 Additionally, some non-trivial forms are identified as constants, e.g.,
-<code>(&constantp; '(&plus; 1 2 3))</code> returns &t;.</para></section>
+<code>(&constantp; '(&plus; 1 2 3))</code> returns &t;.</para>
+
+<warning><para>Since &defconstant; initial value forms are not
+evaluated at compile time, &constantp; will not report &t; of their
+name within the same &comp-unit; for the null &lex-env;.  This is
+consistent and matches questionable code using the pattern
+<code>(if (&constantp; &form-r;) (&eval; &form-r;))</code>.  Use
+&eval-when; if you need recognition and the value during
+compile-time.</para></warning></section>
 
 <section id="eval-when"><title>Macro &eval-when;</title>
 
@@ -610,7 +618,8 @@ the <function>EXT:FCASE</function> form better than the corresponding
  returns &t;, regardless of &y-r;.</para>
 
 <warning><para><code>(&eq; x x)</code> might not be
- &t; for a &foreign-variable-t; &x-r;.</para></warning>
+ &t; for a foreign-place, because a hidden &foreign-variable-t; is
+ dereferenced each time from the &symbol-macro; &x-r;.</para></warning>
 
 </section>
 
@@ -834,6 +843,11 @@ accepted in &clisp; but elicit a warning at macro-expansion time.
 When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 
 </section>
+<section id="iter-dict"><title>The Iteration Dictionary
+  <ulink url="&clhs;/Body/sec_6-2.html">[CLHS-6.2]</ulink></title>
+
+<para>The macros &dolist; and &dotimes; establish a single binding for
+the iteration variable and assign it on each iteration.</para></section>
 </chapter>
 
 <chapter id="objects"><title>Objects
