@@ -1,7 +1,7 @@
 2006-03-06  Bruno Haible  <bruno@clisp.org>
 
 	* backquote.lisp (bq-append): Don't optimize if form1 has the
-	shape (QUOTE (SYS::UNQUOTE ...)). Fixes bug 1308444.
+	shape (QUOTE (SYS::UNQUOTE ...)). Fixes bug #[ 1308444 ].
 	Based on proposed fix by Matthew Cross <mcross@irobot.com>.
 
 2006-03-03  Jörg Höhle  <hoehle@users.sourceforge.net>
@@ -304,7 +304,7 @@
 
 2006-01-11  Sam Steingold  <sds@gnu.org>
 
-	fixed bug [ 1402338 ]: socket-status ignores microseconds in timeout
+	fixed bug #[ 1402338 ]: socket-status ignores microseconds in timeout
 	* stream.d (sec_usec): fixed a typo in TV_SEC
 
 2006-01-07  Sam Steingold  <sds@gnu.org>
@@ -1157,7 +1157,7 @@
 2005-10-31  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main_actions): when argv_execute_file=="-", use the
-	value of *STANDARD-INPUT*, not the symbol itself (bug 1344222)
+	value of *STANDARD-INPUT*, not the symbol itself (bug #[ 1344222 ])
 
 2005-10-30  Sam Steingold  <sds@gnu.org>
 
@@ -1526,7 +1526,7 @@
 
 2005-10-11  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #[1323941 ]: when killed, clisp does not execute cleanup forms
+	fixed bug #[ 1323941 ]: when killed, clisp does not execute cleanup forms
 	* spvw.d (main): call install_sigterm_handler(), include spvw_sigterm.c
 	* spvw_sigterm.c: new file
 	* makemake.in (SPVW_INCLUDES): added spvw_sigterm
@@ -2121,7 +2121,7 @@
 2005-09-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/test.tst: check that OPEN :IF-EXISTS
-	:RENAME-AND-DELETE produces a file with a new INODE (bug 1239523)
+	:RENAME-AND-DELETE produces a file with a new INODE (bug #[ 1239523 ])
 
 2005-09-08  Sam Steingold  <sds@gnu.org>
 
@@ -2493,7 +2493,7 @@
 2005-08-12  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* src/w32shell.c (real_path): fixed a bug with root directory
-	checking on Win32 (1252861).
+	checking on Win32 (bug #[ 1252861 ]).
 
 2005-08-11  Sam Steingold  <sds@gnu.org>
 
@@ -5670,7 +5670,7 @@
 2005-02-27  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (link): rm $2 to avoid an error on Solaris
-	this fixes one of the problems reported in bug 1124425
+	this fixes one of the problems reported in bug #[ 1124425 ]
 
 2005-02-20  Bruno Haible  <bruno@clisp.org>
 
@@ -20363,7 +20363,7 @@
 
 	fixed bug #[ 864479 ]: GO from deep nesting does not work
 	* compiler.lisp (note-far-used-tagbody): propagate tagbody+tag
-	along the stack, just link in the 2002-05-03 patch (bug 550864),
+	along the stack, just link in the 2002-05-03 patch (bug #[ 550864 ]),
 	and use PUSHNEW instead of PUSH to avoid duplication
 	(c-TAGBODY): check that the index in tagbody+tag is valid
 
@@ -20463,12 +20463,12 @@
 
 2003-12-17  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (coalesce): fixed bug [ 842912 ]:
+	* compiler.lisp (coalesce): fixed bug #[ 842912 ]:
 	do not coalesce unless NEW-CODE is non-NIL
 
 2003-12-17  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (insert-combined-LAPs): fix bug [ 860052 ]: (RET)
+	* compiler.lisp (insert-combined-LAPs): fix bug #[ 860052 ]: (RET)
 	and (RETGF) can be preceded by a SKIPI instruction instead of a SKIP
 
 2003-12-16  Sam Steingold  <sds@gnu.org>
@@ -20578,7 +20578,7 @@
 2003-11-07  John Tang Boyland  <boyland@users.sf.net>
 	    Sam Steingold  <sds@gnu.org>
 
-	fixed bug [ 831387 ]: ~<...~:> format directive not implemented
+	fixed bug #[ 831387 ]: ~<...~:> format directive not implemented
 	for compiled code (using FORMATTER)
 	* format.lisp (format-parse-cs): ~:> ==> FORMAT-LOGICAL-BLOCK
 	(format-logical-block): added a stub
@@ -21223,7 +21223,7 @@
 
 2003-08-30  John Hinsdale  <hin@alma.com>
 
-	* intelem.d: Fix bug #726433: Floating point numbers
+	* intelem.d: Fix bug #[ 726433 ]: Floating point numbers
 	printed incorrectly - gcc -O/-g bug?
 
 2003-08-30  Arseny Slobodjuck  <ampy@ich.dvo.ru>
@@ -30388,7 +30388,7 @@
 
 2001-07-19  Sam Steingold  <sds@gnu.org>
 
-	* list.d (ldiff): handle dotted lists correctly [bug #442739]
+	* list.d (ldiff): handle dotted lists correctly, bug #[ 442739 ]
 
 2001-07-16  Sam Steingold  <sds@gnu.org>
 
@@ -31541,7 +31541,7 @@
 
 2001-03-06  Sam Steingold  <sds@gnu.org>
 
-	* stream.d (lisp_completion): [Bug #221956] check the return value
+	* stream.d (lisp_completion): Bug #[ 221956 ]: check the return value
 	of `sys::completion'.
 
 2001-03-06  Bruno Haible  <haible@clisp.cons.org>
