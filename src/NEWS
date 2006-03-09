@@ -9,6 +9,10 @@ User visible changes
 
 * FFI:UINT64 and FFI:SINT64 are now compatible with C's long long type.
 
+* Bug fixes:
+  + SOCKET:SOCKET-SERVER :INTERFACE now behaves as documented.
+  + EXT:READ-BYTE-NO-HANG and SOCKET:SOCKET-STATUS used to hang on
+    buffered binary sockets.
 
 2.38 (2006-01-24)
 =================
