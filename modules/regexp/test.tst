@@ -9,7 +9,7 @@
 (#S(REGEXP:MATCH :START 0 :END 1) NIL)
 
 (ext:letf ((*apropos-matcher* #'regexp:regexp-matcher)
-           (*misc-encoding* charset:utf-8)) ; handle non-ASCII symbols
+           #+UNICODE(*misc-encoding* charset:utf-8)) ; handle non-ASCII symbols
   (apropos-list "regexp.*r$"))
 (REGEXP:REGEXP-MATCHER)
 

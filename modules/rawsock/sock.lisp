@@ -67,7 +67,8 @@
          (address (make-sockaddr :AF_UNIX
                                  (ext:convert-string-to-bytes
                                   (namestring (ext:absolute-pathname pathname))
-                                  ext:*pathname-encoding*))))
+                                  #+UNICODE custom:*pathname-encoding*
+                                  #-UNICODE :default))))
     (connect socket address)
     (values socket address)))
 
