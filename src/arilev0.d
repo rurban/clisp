@@ -471,9 +471,9 @@
     #elif defined(SPARC)
       #define mulu32_64(x,y)  \
         ({ var register uint32 _lo = mulu32_(x,y); # extern in Assembler \
-          {var register uint32 _hi __asm__("%g1");                       \
+           var register uint32 _hi __asm__("%g1");                       \
            highlow64(_hi,_lo);                                           \
-         }})
+         })
     #endif
   #endif
   #ifndef mulu32_64
