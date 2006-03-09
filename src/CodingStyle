@@ -217,7 +217,7 @@ This helps 1. keeping the size of compiled .fas files small, 2. reducing
 the probability that O(version) needs to be bumped when you change the
 effect of the macro.
 
-Macros expansions can refer to documented symbols and functions from public
+Macro expansions can refer to documented symbols and functions from public
 packages (COMMON-LISP, CLOS, EXT, FFI), as well as undocumented, unexported
 functions. Both kinds of functions, together with their calling conventions,
 form the ABI (= Application Binary Interface) of .fas files. When the ABI
