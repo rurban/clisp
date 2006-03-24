@@ -1,3 +1,8 @@
+2006-03-22  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* misc.d (registry) [WIN32_NATIVE]: refix 2000-12-04,
+	do not goto outside `with_string_0'.
+
 2006-03-06  Bruno Haible  <bruno@clisp.org>
 
 	* backquote.lisp (bq-append): Don't optimize if form1 has the
@@ -12942,7 +12947,7 @@
 
 	* constsym.d (*loop-ansi*): new variable
 	* spvw.d (init_symbol_values): initialize *LOOP-ANSI* to NIL
-	* misc.d (ansi): reset *LOOP-ANSI*
+	* misc.d (SYS::SET-ANSI): reset *LOOP-ANSI*
 	* loop.lisp (expand-loop): given CLtL2 syntax removed by ANSI,
 	either warn or signal an error, depending on *LOOP-ANSI*
 
@@ -16115,7 +16120,7 @@
 
 	* io.d (pr_array): respect CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*
 	* constsym.d (print_empty_arrays_ansi): added
-	* misc.d (SET-ANSI): set CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*
+	* misc.d (SYS::SET-ANSI): set CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*
 	* spvw.d (init_symbol_values): defvar CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*
 	* places.lisp (*ansi*): mention in documentation
 
@@ -31911,7 +31916,7 @@
 
 2000-12-04  Sam Steingold  <sds@gnu.org>
 
-	* misc.d (registry): do not goto outsize `with_string_0'
+	* misc.d (registry): do not goto outside `with_string_0'
 	* dirkey.d (dir_key_value): ditto
 
 2000-12-04  Bruno Haible  <haible@clisp.cons.org>
