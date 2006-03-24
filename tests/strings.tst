@@ -1212,6 +1212,9 @@ X
   (char y 5))
 error
 
+(length (adjust-array (make-array 0 :element-type 'character :adjustable t) 1))
+1
+
 #+(and clisp unicode)
 (let ((s (make-array 10 :element-type 'character :initial-element #\a)))
   (list

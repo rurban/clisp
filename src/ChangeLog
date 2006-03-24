@@ -1,5 +1,11 @@
 2006-03-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	* array.d (ADJUST-ARRAY) [HAVE_SMALL_SSTRING]: Fix bug #[ 1445842 ]
+	ADJUST-ARRAY of 0-length adjustable string failed.
+	Reported by David Tolpin
+
+2006-03-22  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	* misc.d (registry) [WIN32_NATIVE]: refix 2000-12-04,
 	do not goto outside `with_string_0'.
 
