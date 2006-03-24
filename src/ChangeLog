@@ -3,9 +3,17 @@
 	* misc.d (registry) [WIN32_NATIVE]: refix 2000-12-04,
 	do not goto outside `with_string_0'.
 
+2006-03-22  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* lispbibl.d, eval.d, charstrg.d: Fix some comments.
+
 2006-03-10  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* spvw.d (init_memory) [DEBUG_SPVW]: fix stack depth reporting.
+
+2006-03-10  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* clhs.lisp: add #+ for documentation of optional packages.
 
 2006-03-06  Bruno Haible  <bruno@clisp.org>
 
