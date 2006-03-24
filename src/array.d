@@ -4941,21 +4941,20 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
       /* fill with the initial-contents argument: */
       datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3);
     } else { /* create data vector: */
+     #ifdef HAVE_SMALL_SSTRING
+      /* a special case to preserve Sstringtype_8/16/32bit */
       if (eltype == Atype_Char) {
         check_stringsize(totalsize);
-       #ifdef HAVE_SMALL_SSTRING
         var uintL oldoffset = 0;
-        var object olddatenvektor = iarray_displace(STACK_6,&oldoffset);
+        var object olddatenvektor = iarray_displace_check(STACK_6,0,&oldoffset);
         SstringCase(olddatenvektor,
           { datenvektor = allocate_s8string(totalsize); },
           { datenvektor = allocate_s16string(totalsize); },
           { datenvektor = allocate_s32string(totalsize); },
           { NOTREACHED; });
-       #else
-        datenvektor = allocate_string(totalsize);
-       #endif
         datenvektor = fill_initial_element(totalsize,datenvektor);
       } else
+     #endif
         datenvektor = make_storagevector(totalsize,eltype);
       /* fill with the original content of array: */
       var object oldarray = STACK_6; /* array */
