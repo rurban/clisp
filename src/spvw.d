@@ -2508,7 +2508,7 @@ local inline int init_memory (struct argv_initparams *p) {
  #endif
   { # partitioning of the total memory:
     #define teile             16  # 16/16
-    #define teile_STACK      2  # 2/16
+    #define teile_STACK        2  # 2/16
     #ifdef SPVW_MIXED_BLOCKS
       #define teile_objects    (teile - teile_STACK)  # rest
     #else
@@ -2895,11 +2895,18 @@ local inline int init_memory (struct argv_initparams *p) {
  #ifdef DEBUG_SPVW
   { /* STACK & SP are settled - check that we have enough STACK */
     var uintM stack_depth =
-      STACK_item_count((gcv_object_t*)STACK_bound,STACK)/sizeof(*STACK);
-    fprintf(stderr,"STACK depth: %d\n",stack_depth);
+      STACK_item_count((gcv_object_t*)STACK_bound,STACK);
+    fprintf(stderr,"STACK depth: %lu\n",stack_depth);
    #ifndef NO_SP_CHECK
-    fprintf(stderr,"SP depth: %d\n",
-            STACK_item_count((SPint*)SP_bound,(SPint*)SP())/sizeof(SPint));
+    if (SP_bound != 0) {
+      fprintf(stderr,"SP depth: %lu\n",(uintM)
+             #ifdef SP_UP
+              ((SPint*)SP_bound - (SPint*)SP())
+             #else
+              ((SPint*)SP() - (SPint*)SP_bound)
+             #endif
+             );
+    }
    #endif
     if (stack_depth < ca_limit_1) {
       fprintf(stderr,"STACK depth is less than CALL-ARGUMENTS-LIMIT (%d)\n",
