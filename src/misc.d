@@ -513,8 +513,8 @@ LISPFUNN(registry,2)
           fehler(error,GETTEXT("~S: type of attribute ~S is unsupported"));
         }
       }
-    });
      none:;
+    });
   });
   skipSTACK(2);
 }
