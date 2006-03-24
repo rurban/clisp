@@ -338,12 +338,14 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
 (setf (documentation (find-package "CS-CL-USER") 'sys::impnotes) "cs-clu")
 (setf (documentation (find-package "CS-CL") 'sys::impnotes) "package-case")
 #+screen (setf (documentation (find-package "SCREEN") 'sys::impnotes) "screen")
-(setf (documentation (find-package "SOCKET") 'sys::impnotes) "socket")
+#+sockets (setf (documentation (find-package "SOCKET") 'sys::impnotes) "socket")
 #+generic-streams
 (setf (documentation (find-package "GSTREAM") 'sys::impnotes) "gstream")
 (setf (documentation (find-package "I18N") 'sys::impnotes) "i18n")
+#+FFI
 (setf (documentation (find-package "FFI") 'sys::impnotes) "dffi")
 (setf (documentation (find-package "CUSTOM") 'sys::impnotes) "customize")
+#+UNICODE
 (setf (documentation (find-package "CHARSET") 'sys::impnotes) "charset")
 (setf (documentation (find-package "CLOS") 'sys::impnotes) "classes")
 (setf (documentation (find-package "EXT") 'sys::impnotes) "ext-pac")
