@@ -1,3 +1,7 @@
+2006-04-10  Bruno Haible  <bruno@clisp.org>
+
+	* Makefilel.devel (ANSITESTS_CVS_ROOT): Update after savannah reorg.
+
 2006-03-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* array.d (ADJUST-ARRAY) [HAVE_SMALL_SSTRING]: Fix bug #[ 1445842 ]
