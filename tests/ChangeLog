@@ -1,3 +1,8 @@
+2006-04-10  Bruno Haible  <bruno@clisp.org>
+
+	* mop.tst: Check ability to specify a default method-combination on the
+	generic-function class.
+
 2006-03-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* strings.tst: Fix bug 1445842,
