@@ -342,7 +342,7 @@
            (error-of-type 'ext:source-program-error
              :form whole-form
              :detail options
-             #1=(TEXT "~S ~S: ~S may only be specified once.")
+             (TEXT "~S ~S: ~S may only be specified once.")
              caller funname ':argument-precedence-order))
          (setq argorders option))
         (:DOCUMENTATION
@@ -364,7 +364,8 @@
            (error-of-type 'ext:source-program-error
              :form whole-form
              :detail options
-             #1# caller funname ':method-combination))
+             (TEXT "~S ~S: ~S may only be specified once.")
+             caller funname ':method-combination))
          ;; The syntax for this option is
          ;;   (method-combination-name method-combination-argument*)
          ;; CLHS writes "method-combination" here instead of
@@ -391,13 +392,13 @@
            (error-of-type 'ext:source-program-error
              :form whole-form
              :detail option
-             #2=(TEXT "~S ~S: A class name must be specified after ~S : ~S")
+             (TEXT "~S ~S: A class name must be specified after ~S : ~S")
              caller funname ':generic-function-class option))
          (when generic-function-classes
            (error-of-type 'ext:source-program-error
              :form whole-form
              :detail options
-             #3=(TEXT "~S ~S: Only one ~S option is allowed.")
+             (TEXT "~S ~S: Only one ~S option is allowed.")
              caller funname ':generic-function-class))
          (setq generic-function-classes (rest option)))
         (:METHOD-CLASS
@@ -405,12 +406,14 @@
            (error-of-type 'ext:source-program-error
              :form whole-form
              :detail option
-             #2# caller funname ':method-class option))
+             (TEXT "~S ~S: A class name must be specified after ~S : ~S")
+             caller funname ':method-class option))
          (when method-classes
            (error-of-type 'ext:source-program-error
              :form whole-form
              :detail options
-             #3# caller funname ':method-class))
+             (TEXT "~S ~S: Only one ~S option is allowed.")
+             caller funname ':method-class))
          (setq method-classes (rest option)))
         (:METHOD
          (multiple-value-bind (fast-function-factory-lambda method-initargs-forms)
@@ -430,7 +433,8 @@
                (error-of-type 'ext:source-program-error
                  :form whole-form
                  :detail options
-                 #3# caller funname optionkey)
+                 (TEXT "~S ~S: Only one ~S option is allowed.")
+                 caller funname optionkey)
                (push option user-defined-args))
              (error-of-type 'ext:source-program-error
                :form whole-form

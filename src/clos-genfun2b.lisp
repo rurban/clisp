@@ -582,11 +582,12 @@
       method (sig-opt-num m-sign) gf (sig-opt-num gf-sign)))
   (when (and (sig-rest-p m-sign) (not (sig-rest-p gf-sign)))
     (error-of-type 'error
-      #1=(TEXT "~S accepts &REST or &KEY, but ~S does not.")
+      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
       method gf))
   (when (and (sig-rest-p gf-sign) (not (sig-rest-p m-sign)))
     (error-of-type 'error
-      #1# gf method))
+      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
+      gf method))
   (when (sig-keys-p gf-sign)    ; gf has keywords?
     ;; yes ==> method must accept it
     (unless (if (sig-keys-p m-sign)
