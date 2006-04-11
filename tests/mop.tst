@@ -3213,6 +3213,7 @@ t
 #+(or CLISP CMU SBCL)
 ("f on A" "f on A" ("g on A" 10) ("g on D" 20) ("h on C" 30) ("h on D" 40))
 
+
 ;;; user-defined :allocation :hash
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1359066&group_id=1355&atid=101355
 (progn
@@ -3235,8 +3236,9 @@ t
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1369668&group_id=1355&atid=101355
 ;; but the allocation must be defined!
-(progn (defclass class-bad-slot () ((bad-slot :allocation :bad-allocation)))
-       (make-instance 'class-bad-slot))
+(progn
+  (defclass class-bad-slot () ((bad-slot :allocation :bad-allocation)))
+  (make-instance 'class-bad-slot))
 ERROR
 
 ;; mop.xml#mop-sa-funcallable
@@ -3258,6 +3260,23 @@ ERROR
                    (describe constructor)))
         (funcall constructor)))
 (T #(POSITION NIL NIL))
+
+;; Ability to specify a default method-combination on the generic-function
+;; class. See #[ 1415783 ].
+(progn
+  (defclass testgf37class (standard-generic-function)
+    ()
+    (:metaclass clos:funcallable-standard-class)
+    (:default-initargs
+      :method-combination
+      (clos:find-method-combination (clos:class-prototype (find-class 'testgf37class))
+                               '+ '())))
+  (defgeneric testgf37 (x)
+    (:generic-function-class testgf37class))
+  (defmethod testgf37 + (x) 0)
+  t)
+T
+
 
 ;; cleanup
 (setf (find-class 'class-bad-slot) nil
