@@ -1,5 +1,14 @@
 2006-04-10  Bruno Haible  <bruno@clisp.org>
 
+	* clos-class1.lisp: Undo read-macro hacks by Sam 2005-11-28.
+	* clos-class3.lisp: Likewise.
+	* clos-genfun2b.lisp: Likewise.
+	* clos-genfun3.lisp: Likewise.
+	Maintainability is more important than a few bytes of source code.
+	The right place for unifying immutable strings across a file is io.d.
+
+2006-04-10  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun3.lisp: Undo a de-internationalization by Sam 2005-11-28.
 	Needed for French.
 
