@@ -108,7 +108,7 @@
                              (push slot-name slot-names))
                            (let ((readers '())
                                  (writers '())
-                                 (allocation '())
+                                 (allocations '())
                                  (initargs '())
                                  (initform nil) (initfunction nil)
                                  (types '())
@@ -151,13 +151,19 @@
                                     (push argument readers)
                                     (push `(SETF ,argument) writers))
                                    (:ALLOCATION
-                                    (when allocation
+                                    (unless (symbolp argument)
+                                      (error-of-type 'ext:source-program-error
+                                        :form whole-form
+                                        :detail argument
+                                        (TEXT "~S ~S, slot option ~S for slot ~S: ~S is not a symbol")
+                                        'defclass name ':allocation slot-name argument))
+                                    (when allocations
                                       (error-of-type 'ext:source-program-error
                                         :form whole-form
                                         :detail slot-options
                                         (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':allocation slot-name))
-                                    (setq allocation argument))
+                                    (setq allocations (list argument)))
                                    (:INITARG
                                     (unless (symbolp argument)
                                       (error-of-type 'ext:source-program-error
@@ -239,7 +245,7 @@
                                 :NAME ',slot-name
                                 ,@(when readers `(:READERS ',readers))
                                 ,@(when writers `(:WRITERS ',writers))
-                                ,@(when allocation `(:ALLOCATION ',allocation))
+                                ,@(when allocations `(:ALLOCATION ',(first allocations)))
                                 ,@(when initargs `(:INITARGS ',(nreverse initargs)))
                                 ,@(when initform `(:INITFORM ,initform :INITFUNCTION ,initfunction))
                                 ,@(when types `(:TYPE ',(first types)))

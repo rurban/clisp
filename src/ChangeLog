@@ -1,5 +1,11 @@
 2006-04-10  Bruno Haible  <bruno@clisp.org>
 
+	Complete Sam's 2005-11-21 patch.
+	* clos-class3.lisp (defclass): Verify that a slot's :ALLOCATION value
+	is a symbol. Don't treat the symbol NIL specially.
+
+2006-04-10  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class1.lisp: Undo read-macro hacks by Sam 2005-11-28.
 	* clos-class3.lisp: Likewise.
 	* clos-genfun2b.lisp: Likewise.
