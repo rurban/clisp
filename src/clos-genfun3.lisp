@@ -330,7 +330,8 @@
          |#
          (check-gf-declspecs (rest option) 'declare
            #'(lambda (errorstring &rest arguments)
-               (error "~S ~S: ~A" caller funname
+               (error (TEXT "~S ~S: ~A")
+                      caller funname
                       (apply #'format nil errorstring arguments))))
          (setq declares
                (if declares

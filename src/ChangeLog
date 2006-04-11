@@ -1,6 +1,11 @@
 2006-04-10  Bruno Haible  <bruno@clisp.org>
 
-	* Makefilel.devel (ANSITESTS_CVS_ROOT): Update after savannah reorg.
+	* clos-genfun3.lisp: Undo a de-internationalization by Sam 2005-11-28.
+	Needed for French.
+
+2006-04-10  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel (ANSITESTS_CVS_ROOT): Update after savannah reorg.
 
 2006-03-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
@@ -582,7 +587,7 @@
 
 	* spvw_objsize.d (objsize_iarray, objsize_s8string, objsize_s16string)
 	(objsize_s32string, objsize_sstring): return uintM instead of uintL
-	Reported by "Dr. Werner Fink" <werner@suse.de> on IA64 with g++
+	Reported by Dr. Werner Fink <werner@suse.de> on IA64 with g++
 
 2005-12-13  Sam Steingold  <sds@gnu.org>
 
@@ -811,7 +816,7 @@
 	(low_read_array_unbuffered_handle, low_fill_buffered_handle)
 	(low_read_unbuffered_socket, low_listen_unbuffered_socket)
 	(low_read_array_unbuffered_socket, low_fill_buffered_socket): use it
-	Reported by "Vasilis M." <vasilism@hotmail.com>
+	Reported by Vasilis M. <vasilism@hotmail.com>
 
 2005-11-26  Sam Steingold  <sds@gnu.org>
 
@@ -1354,7 +1359,7 @@
 2005-10-19  Sam Steingold  <sds@gnu.org>
 
 	* execname.c (MAXPATHLEN): define when it is not defined
-	Reported by "Soeren D. Schulze" <soeren.d.schulze@gmx.de>
+	Reported by Soeren D. Schulze <soeren.d.schulze@gmx.de>
 
 2005-10-19  Sam Steingold  <sds@gnu.org>
 
@@ -1445,7 +1450,7 @@
 
 	* configure (--version): call src/configure instead of sourcing
 	version.sh which is not included in the source distribution
-	Reported by "T. Kurt Bond" <tkb@tkb.mpl.com>
+	Reported by T. Kurt Bond <tkb@tkb.mpl.com>
 
 2005-10-14  Sam Steingold  <sds@gnu.org>
 
@@ -2151,7 +2156,7 @@
 	* lispbibl.d (record_) [TYPECODES]: rectype and recflags should
 	come in the same order in lispbibl.d and clisp.h
 	same for SRECORD_HEADER and XRECORD_HEADER
-	Reported by "Dr. Werner Fink" <werner@suse.de>
+	Reported by Dr. Werner Fink <werner@suse.de>
 
 2005-09-07  Sam Steingold  <sds@gnu.org>
 
@@ -2705,7 +2710,7 @@
 2005-07-25  Sam Steingold  <sds@gnu.org>
 
 	* modules/queens/link.sh (INCLUDES): no need for '-I'
-	Reported by "Dr. Werner Fink" <werner@suse.de>
+	Reported by Dr. Werner Fink <werner@suse.de>
 
 2005-07-22  Sam Steingold  <sds@gnu.org>
 
@@ -11585,7 +11590,7 @@
 
 	* genclisph.d (main): define NULL differently for C & C++
 	depending on include environment, not file generation environment
-	Reported by "Goffioul Michael" <goffioul@imec.be>
+	Reported by Goffioul Michael <goffioul@imec.be>
 
 2004-08-01  Bruno Haible  <bruno@clisp.org>
 
@@ -12890,7 +12895,7 @@
 	* modules/fastcgi/Makefile.in, modules/matlab/Makefile:
 	* modules/netica/Makefile, modules/oracle/Makefile.in:
 	* modules/postgresql/Makefile.in: init CLISP and other make variables
-	Reported by "Steve Eichblatt" <steve@eichblatt.us>
+	Reported by Steve Eichblatt <steve@eichblatt.us>
 
 2004-08-11  Sam Steingold  <sds@gnu.org>
 
