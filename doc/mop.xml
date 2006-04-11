@@ -2799,7 +2799,12 @@ appear in the call to &ensure-gf;.</simpara>
   needed to make the generic function reflect the &defgeneric; form.
  </simpara></note></listitem>
 <listitem><simpara>The handling of the &method-combination-k; option is
-not specified.</simpara></listitem>
+not specified.</simpara>
+<note>&clisp-only;<simpara>If the &method-combination-k; option does not
+  appear in the macro form, the &method-combination-k; keyword argument
+  still appears in the resulting call to &ensure-gf;, but in a position
+  where it can be overridden by user-defined initargs and default initargs.
+ </simpara></note></listitem>
 <listitem><note>&clisp-only;<simpara>The &declare-k; keyword is
   recognized as equivalent to the &declarations-k; keyword, for
   compatibility with &ensure-gf; in &ansi-cl;.  If both &declare-k; and

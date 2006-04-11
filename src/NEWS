@@ -9,10 +9,16 @@ User visible changes
 
 * FFI:UINT64 and FFI:SINT64 are now compatible with C's long long type.
 
+* It is now possible to specify the default method-combination of a generic
+  function, to be used when the DEFGENERIC form does not specify the
+  :METHOD-COMBINATION explicitly, through a default initarg specification
+  for the :METHOD-COMBINATION keyword on the generic function class.
+
 * Bug fixes:
   + SOCKET:SOCKET-SERVER :INTERFACE now behaves as documented.
   + EXT:READ-BYTE-NO-HANG and SOCKET:SOCKET-STATUS used to hang on
     buffered binary sockets.
+
 
 2.38 (2006-01-24)
 =================
@@ -182,7 +188,6 @@ User visible changes
 
 * Danish translations of the user interface messages have been added.
   Thanks to Dennis Decker Jensen <dennisdjensen@tiscali.dk>.
-
 
 
 2.34 (2005-07-20)
@@ -602,7 +607,6 @@ Portability
 
 * On most 64-bit platforms, fixnums are now 49 bits wide (including the sign
   bit), instead of 33 bits wide.
-
 
 
 2.33.2 (2004-06-02)
