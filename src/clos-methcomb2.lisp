@@ -187,7 +187,8 @@
                   caller name ':arguments
                   (apply #'format nil errorstring arguments))
                 (error-of-type 'program-error
-                  #1# caller name ':arguments
+                  #1#
+                  caller name ':arguments
                   (apply #'format nil errorstring arguments)))))
       (declare (ignore optinits keyp keywords keyinits allowp auxinits))
       (values
@@ -206,7 +207,8 @@
         #1=(TEXT "~S ~S: Invalid syntax for ~S option: ~S")
         caller name ':generic-function option)
       (error-of-type 'program-error
-        #1# caller name ':generic-function option)))
+        #1#
+        caller name ':generic-function option)))
   (cadr option))
 
 ; Check the effective-method option (:DUPLICATES ...).
