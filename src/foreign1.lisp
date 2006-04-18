@@ -359,7 +359,7 @@
       ((>= ii (length args)) (nreverse res))
     (push (svref args ii) res)))
 
-(defun parse-c-function (alist whole)
+(defun parse-c-function (alist whole) ; ABI
   (vector
     'C-FUNCTION
     (parse-c-type (or (second (assoc ':return-type alist)) 'nil))
@@ -936,9 +936,9 @@
     (prepare-module)
     (push (list c-name (parse-c-type type) flags) *variable-list*)))
 
-(defsetf foreign-value set-foreign-value)
+(defsetf foreign-value set-foreign-value) ; ABI
 ;(defsetf foreign-pointer set-foreign-pointer) ; no, incompatible with SETF
-(defsetf validp set-validp)
+(defsetf validp set-validp) ; ABI
 
 (defmacro with-c-place ((var fvar) &body body)
   (let ((fv (gensym (symbol-name var))))
