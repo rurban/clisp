@@ -28,7 +28,7 @@
                               lambdalist form &body body)
   (multiple-value-bind (body-rest declarations) (system::parse-body body)
     (if declarations (setq declarations `((DECLARE ,@declarations))))
-    (let ((%whole-form whole-form)
+    (let ((%whole-form whole-form) (%proper-list-p nil)
           (%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)
           (%let-list nil) (%keyword-tests nil) (%default-form nil))
       (analyze1 lambdalist '<DESTRUCTURING-FORM> 'destructuring-bind '<DESTRUCTURING-FORM>)
@@ -53,10 +53,17 @@
 (defun destructuring-error (destructuring-form min.max) ; ABI
   (let ((min (car min.max))
         (max (cdr min.max)))
-    (error-of-type 'program-error
-      (TEXT "The object to be destructured should be a list with ~:[at least ~*~S~;~:[from ~S to ~S~;~S~]~] elements, not ~4@*~S.")
-      max (eql min max) min max destructuring-form
-) ) )
+    (multiple-value-bind (length tail) (sys::list-length-dotted destructuring-form)
+      (declare (ignore tail))
+      (if (null length)
+        (let ((*print-circle* t))
+          (error-of-type 'program-error
+            (TEXT "The object to be destructured should be a list with at most ~S elements, not the circular list ~S")
+            min destructuring-form))
+        (error-of-type 'program-error
+          (TEXT "The object to be destructured should be a list with ~:[at least ~*~S~;~:[from ~S to ~S~;~S~]~] elements, not ~4@*~S.")
+          max (eql min max) min max destructuring-form)
+) ) ) )
 
 ;; Like destructuring-bind, except that it works only with ordinary
 ;; lambda-lists and generates more efficient code.

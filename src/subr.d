@@ -1,6 +1,6 @@
 /*
  * list of all SUBRs
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2006
  * Sam Steingold 1998-2005
  */
 
@@ -614,6 +614,8 @@ LISPFUNNF(endp,1)
 LISPFUNNR(list_length,1)
 LISPFUNNR(list_length_dotted,1)
 LISPFUNNR(list_length_proper,1)
+LISPFUNNR(list_length_in_bounds_p,4)
+LISPFUN(proper_list_length_in_bounds_p,seclass_read,2,1,norest,nokey,0,NIL)
 LISPFUNNR(nth,2)
 LISPFUNNR(first,1)
 LISPFUNNR(second,1)
