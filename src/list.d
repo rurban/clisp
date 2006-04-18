@@ -589,20 +589,76 @@ LISPFUNNR(list_length_dotted,1)
        (when ll (values ll (cdr (last l)))))) */
   var object tail = NIL;
   var object len = list_length(popSTACK(),&tail);
-  if (nullp(len)) VALUES1(NIL);
-  else VALUES2(len,tail);
+  if (nullp(len))
+    VALUES1(NIL);
+  else
+    VALUES2(len,tail);
 }
 
 LISPFUNNR(list_length_proper,1)
 { /* traverses the list just once, otherwise equivalent to
    (defun list-length-proper (l)
-     (if (proper-list-p l) (length l)
-         (error ...))) */
+     (if (proper-list-p l)
+       (length l)
+       (error ...))) */
   var object tail = NIL;
   var object len = list_length(STACK_0,&tail);
-  if (!nullp(tail)) fehler_proper_list_dotted(TheSubr(subr_self)->name,tail);
-  if (nullp(len)) fehler_proper_list_circular(TheSubr(subr_self)->name,STACK_0);
+  if (!nullp(tail)) fehler_proper_list_dotted(S(list_length_proper),tail);
+  if (nullp(len)) fehler_proper_list_circular(S(list_length_proper),STACK_0);
   VALUES1(len); skipSTACK(1);
+}
+
+LISPFUNNR(list_length_in_bounds_p,4)
+{ /* (sys::list-length-in-bounds-p obj n m restp) tests whether obj, as a list,
+     starts with at least n conses and is either a proper list with < m conses
+     or (if restp) has at least m conses or (if not restp) is a proper list with
+     exactly m conses. */
+  if (!posfixnump(STACK_2)) fehler_posfixnum(STACK_2);
+  if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
+  var object obj = STACK_3;
+  var uintV n = posfixnum_to_V(STACK_2);
+  var uintV i;
+  for (i = n; i > 0; i--) {
+    if (!consp(obj)) goto no;
+    obj = Cdr(obj);
+  }
+  var uintV m = posfixnum_to_V(STACK_1);
+  if (m < n) goto no;
+  for (i = m-n; i > 0; i--) {
+    if (!consp(obj)) {
+      if (nullp(obj))
+        break;
+      else
+        goto no;
+    }
+    obj = Cdr(obj);
+  }
+  if (nullp(STACK_0) && !nullp(obj))
+    goto no;
+  VALUES1(T); skipSTACK(4); return;
+ no:
+  VALUES1(NIL); skipSTACK(4);
+}
+
+LISPFUN(proper_list_length_in_bounds_p,seclass_read,2,1,norest,nokey,0,NIL)
+{ /* (sys::proper-list-length-in-bounds-p obj n) tests whether obj is a
+     proper-list with at least n conses.
+     (sys::proper-list-length-in-bounds-p obj n m) tests whether obj is a
+     proper-list with at least n and at most m conses. */
+  if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
+  if (boundp(STACK_0) && !posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
+  var object tail = NIL;
+  var object len = list_length(STACK_2,&tail);
+  if (nullp(tail) && !nullp(len)) {
+    var uintL l = I_to_UL(len);
+    if ((posfixnum_to_V(STACK_1) <= l)
+        && (!boundp(STACK_0) || (l <= posfixnum_to_V(STACK_0))))
+      VALUES1(T);
+    else
+      VALUES1(NIL);
+  } else
+    VALUES1(NIL);
+  skipSTACK(3);
 }
 
 /* proper_list_p(obj)

@@ -1,3 +1,23 @@
+2006-04-15  Bruno Haible  <bruno@clisp.org>
+
+	Report circular and dotted lists in macro forms and type specifiers.
+	Allow circular and dotted lists in DESTRUCTURING-BIND.
+	* list.d (sys::list-length-in-bounds-p,
+	sys::proper-list-length-in-bounds-p): New functions.
+	* defmacro.lisp (macro-call-error): Provide different error messages
+	for the case of a circular or dotted list.
+	(%proper-list-p): New special variable.
+	(make-length-test): Remove accept-dotted optional argument. Use
+	%proper-list-p instead. If %proper-list-p is true, also emit a check
+	whether the form is a proper list. If %proper-list-p is false, emit
+	code that doesn't traverse the entire list.
+	(make-macro-expansion): Bind %proper-list-p to t.
+	* macros2.lisp (deftype): Bind %proper-list-p to t.
+	* places.lisp (define-setf-expander): Bind %proper-list-p to t.
+	* defs2.lisp (destructuring-bind): Bind %proper-list-p to nil.
+	(destructing-error): Provide different error message for the case of a
+	circular list.
+
 2006-04-14  Bruno Haible  <bruno@clisp.org>
 
 	Fix compiler macro handling.
