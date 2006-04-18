@@ -1,4 +1,8 @@
-2006-03-19  Joerg Hoehle  <hoehle@users.sourceforge.net>
+2006-03-31  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* debug.d (EXT:GC): use uintM_to_I(free_space()), not UL_to_I().
+
+2006-03-19  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* xcharin.lisp (fehler-char-arg): fix format string.
 
