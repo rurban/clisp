@@ -1570,7 +1570,7 @@ LISPFUNN(proom,0)
 LISPFUNN(gc,0)
 { /* execute a GC and return the free space for LISP-objects (in bytes) */
   gar_col();                  /* execute GC */
-  VALUES1(UL_to_I(free_space()));
+  VALUES1(uintM_to_I(free_space()));
 }
 
 /* rewrite read-form, in collaboration with the terminal-stream?? */
