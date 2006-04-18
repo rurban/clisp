@@ -2,13 +2,13 @@
 ;; Bernhard Degel, Bruno Haible 1989
 
 ;; "Stream" = NIL or List (x1 x2 ... xn . y),
-;; with n>0 and y either NIL or a a function,
+;; with n>0 and y either NIL or a function,
 ;; which returns a stream (xn+1 ...).
 
 ;; first element of a non-empty stream:
 (defun stream-head (s) (car s))
 
-;; reat of a non-empty stream:
+;; rest of a non-empty stream:
 (defun stream-tail (s)
   (if (listp (cdr s)) (cdr s) (setf (cdr s) (funcall (cdr s)))))
 
