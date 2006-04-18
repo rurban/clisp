@@ -1,3 +1,9 @@
+2006-04-16  Joerg Hoehle  <hoehle@users.sourceforge.net>
+
+	* describe.lisp (describe-object@global-symbol-macro):
+	complete 2005-01-05.  When adding internal types, please
+	update DESCRIBE for it uses ECASE (TYPE-OF x).
+
 2006-03-31  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* debug.d (EXT:GC): use uintM_to_I(free_space()), not UL_to_I().
