@@ -1,6 +1,6 @@
 /*
  * List of all symbols known to the C-program ("program constants")
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2006
  * Sam Steingold 1998-2006
  */
 
@@ -466,6 +466,8 @@ LISPSYM(endp,"ENDP",lisp)
 LISPSYM(list_length,"LIST-LENGTH",lisp)
 LISPSYM(list_length_dotted,"LIST-LENGTH-DOTTED",ext)
 LISPSYM(list_length_proper,"LIST-LENGTH-PROPER",ext)
+LISPSYM(list_length_in_bounds_p,"LIST-LENGTH-IN-BOUNDS-P",system)
+LISPSYM(proper_list_length_in_bounds_p,"PROPER-LIST-LENGTH-IN-BOUNDS-P",system)
 LISPSYM(nth,"NTH",lisp)
 LISPSYM(first,"FIRST",lisp)
 LISPSYM(second,"SECOND",lisp)

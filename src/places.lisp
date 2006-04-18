@@ -358,7 +358,8 @@
       (system::parse-body body t)
     (if (null body-rest) (setq body-rest '(NIL)))
     (let ((name (make-symbol (string-concat "SETF-" (symbol-name accessfn))))
-          (SYSTEM::%WHOLE-FORM whole-form))
+          (SYSTEM::%WHOLE-FORM whole-form)
+          (SYSTEM::%PROPER-LIST-P t))
       (multiple-value-bind (newlambdalist envvar)
           (remove-env-arg lambdalist name)
         (let ((SYSTEM::%ARG-COUNT 0)
@@ -375,7 +376,7 @@
           (if (null newlambdalist)
             (push `(IGNORE SYSTEM::%LAMBDA-LIST) declarations)
           )
-          (let ((lengthtest (sys::make-length-test 'SYSTEM::%LAMBDA-LIST 1 nil))
+          (let ((lengthtest (sys::make-length-test 'SYSTEM::%LAMBDA-LIST 1))
                 (mainform
                   `(LET* ,(nreverse SYSTEM::%LET-LIST)
                      ,@(if declarations `(,(cons 'DECLARE declarations)))

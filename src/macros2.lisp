@@ -184,7 +184,7 @@
   (multiple-value-bind (body-rest declarations docstring)
       (SYSTEM::PARSE-BODY body t)
     (if declarations (setq declarations (list (cons 'DECLARE declarations))))
-    (let ((%whole-form whole-form)
+    (let ((%whole-form whole-form) (%proper-list-p t)
           (%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)
           (%let-list nil) (%keyword-tests nil) (%default-form '(QUOTE *)))
       (analyze1 lambdalist '(CDR <DEFTYPE-FORM>) name '<DEFTYPE-FORM>)
