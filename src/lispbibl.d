@@ -1,6 +1,6 @@
 /*
  * Main include-file for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2006
  * Marcus Daniels 11.11.1994
  * Sam Steingold 1998-2006
  * German comments translated into English: Stefan Kain 2001-09-24
@@ -146,7 +146,7 @@
 # HPPA == all processors of the HP Precision Architecture
 # MIPS == all processors of the MIPS series
 # M88000 == all processors of the Motorola 88000 series
-# RS6000 == the IBM RS/6000 processor or the PowerPC variant.
+# POWERPC == the IBM RS/6000 and PowerPC processor family
 # I80386 == all processors of the Intel 8086 series, starting at 80386,
 #           nowadays called IA32
 # VAX == the VAX processor
@@ -199,7 +199,7 @@
     #define M88000
   #endif
   #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc) || defined(__ppc__) || defined(__powerpc__)
-    #define RS6000
+    #define POWERPC
   #endif
   #ifdef __alpha
     #define DECALPHA
@@ -515,7 +515,7 @@
   #define BIG_ENDIAN_P  0
 #endif
 #if defined(short_big_endian) || defined(int_big_endian) || defined(long_big_endian)
-  # MC680X0, SPARC, HPPA, MIPSEB, M88000, RS6000, S390, ...:
+  # MC680X0, SPARC, HPPA, MIPSEB, M88000, POWERPC, S390, ...:
   # High Byte is the lowest, Low Byte is a higher adress (easier to read)
   #if defined(BIG_ENDIAN_P)
     #error "Bogus BIG_ENDIAN_P -- set BIG_ENDIAN_P again"
@@ -537,7 +537,7 @@
   #define C_CODE_ALIGNMENT  8
   #define log2_C_CODE_ALIGNMENT  3
 #endif
-#if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(ARM) || defined(AMD64) || defined(S390)
+#if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(ARM) || defined(AMD64) || defined(S390)
   # When using gcc on i386, this assumes that -malign-functions has not been
   # used to specify an alignment smaller than 4 bytes.
   #define C_CODE_ALIGNMENT  4
@@ -1620,7 +1620,7 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
   #define intBWsize intBsize
   #define intWLsize intWsize
   #define intBWLsize intBsize
-#elif (defined(MC680X0) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(S390)
+#elif (defined(MC680X0) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(S390)
   # The Sparc-processor computes rather badly with uintB and uintW.
   # Other 32-Bit-processoren have similar weaknesses.
   #define intBWsize intWsize
@@ -1837,7 +1837,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
   #define intDsize 16
   #define intDDsize 32  # = 2*intDsize
   #define log2_intDsize  4  # = log2(intDsize)
-#elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390)
+#elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(VAX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390)
   #define intDsize 32
   #define intDDsize 64  # = 2*intDsize
   #define log2_intDsize  5  # = log2(intDsize)
@@ -2881,9 +2881,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #   (defined(SPARC) && !defined(SUN4_29))
 #   (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX))
 #   defined(M88000)
-#   (defined(RS6000) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
+#   (defined(POWERPC) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
 #   defined(VAX)
-#elif (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || (defined(RS6000) && defined(UNIX_DARWIN)) || defined(TRY_TYPECODES_1)
+#elif (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || (defined(POWERPC) && defined(UNIX_DARWIN)) || defined(TRY_TYPECODES_1)
   # You can add more platforms here provided that
   # 1. you need it,
   # 2. CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE has at most one bit set,
@@ -3626,7 +3626,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     #define varobject_alignment  2
   #endif
 #endif
-#if defined(I80386) || defined(RS6000) || defined(ARM) || defined(S390)
+#if defined(I80386) || defined(POWERPC) || defined(ARM) || defined(S390)
   #define varobject_alignment  4
 #endif
 #if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64)
@@ -3798,7 +3798,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   # But this doesn't mean we have to change the type code distribution.
 #endif
 
-#if (defined(MIPS) || defined(RS6000)) && defined(UNIX_LINUX)
+#if (defined(MIPS) || defined(POWERPC)) && defined(UNIX_LINUX)
   # At 0x2AAAB000 there are shared libraries located.
   # But this doesn't mean we have to change the type code distribution.
 #endif
@@ -8860,7 +8860,7 @@ All other long words on the LISP-Stack are LISP-objects.
   #ifdef M88000
     #define SP_register "%r31"  # %sp = %r31
   #endif
-  #ifdef RS6000
+  #ifdef POWERPC
     #define SP_register "r1"
   #endif
   #ifdef ARM
@@ -8913,7 +8913,7 @@ All other long words on the LISP-Stack are LISP-objects.
   #ifdef M88000
     #define ASM_get_SP_register(resultvar)  ("or %0,#r0,#r31" : "=r" (resultvar) : )
   #endif
-  #ifdef RS6000
+  #ifdef POWERPC
     #define ASM_get_SP_register(resultvar)  ("mr %0,1" : "=r" (resultvar) : )
   #endif
   #ifdef ARM

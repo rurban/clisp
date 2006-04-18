@@ -1,3 +1,8 @@
+2006-04-16  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (POWERPC): Renamed from RS6000.
+	* intlog.d: Update.
+
 2006-04-15  Bruno Haible  <bruno@clisp.org>
 
 	Report circular and dotted lists in macro forms and type specifiers.
