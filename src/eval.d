@@ -370,8 +370,8 @@ global /*maygc*/ void unwind (void)
  #else
   if (frame_info >= unwind_limit_t) /* anything to do? */
  #endif
-    { /* (no at APPLY, EVAL ungetrapped, CATCH, HANDLER,
-         IBLOCK and ITAGBODY unnested) */
+    { /* (not at APPLY, EVAL untrapped, CATCH, HANDLER,
+         IBLOCK or ITAGBODY unnested) */
       if ((frame_info & bit(skip2_bit_t)) == 0) { /* ENV- or DYNBIND-Frame? */
        #ifdef entrypoint_bit_t
         if (frame_info & bit(entrypoint_bit_t)) /* BLOCK, TAGBODY, CATCH etc. ? */
@@ -6363,9 +6363,9 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       # closure = compiled closure,
       # codeptr = pointer to its codevector,
       # byteptr = pointer to the next Byte in code.
-      # (byteptr is no LISP-object, but nevertheless endangered by GC! In order to
-      #  make it GC-invariant, CODEPTR must be subtraced from it.
-      #  If one adds to Fixnum_0 to it,
+      # (byteptr is no LISP-object, but nevertheless endangered by GC!
+      #  To make it GC-invariant, substract CODEPTR from it.
+      #  If one then adds Fixnum_0 to it,
       #  one receives the bytenumber as Fixnum.)
       #if 0
         #define CODEPTR  (&codeptr->data[0])
@@ -6374,7 +6374,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       #endif
       #
       # store context-information:
-      # If sth. is called, that can trigger a GC, this must be built into a
+      # If sth. is called, that can trigger a GC, this must be framed within
       # with_saved_context( ... ) .
         #define with_saved_context(statement)  \
           { var uintL index = byteptr - CODEPTR;                       \
@@ -7598,7 +7598,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         # execute Cleanup-Forms:
         goto next_byte;
       CASE cod_uwp_close:              # (UNWIND-PROTECT-CLOSE)
-        # jump to this labe takes place at the end of the Cleanup-Forms.
+        # jump to this label takes place at the end of the Cleanup-Forms.
         {
           var gcv_object_t* oldSTACK; # value of STACK before saveing the values
           popSP( oldSTACK = (gcv_object_t*) );

@@ -1150,7 +1150,7 @@ LISPSYM(log10,"LOG10",system)
 /* ---------- FOREIGN ---------- */
 #ifdef DYNAMIC_FFI
 LISPSYM(validp,"VALIDP",ffi)
-LISPSYM(set_validp,"SET-VALIDP",ffi)
+LISPSYM(set_validp,"SET-VALIDP",ffi) /* ABI */
 LISPSYM(set_foreign_pointer,"SET-FOREIGN-POINTER",ffi)
 LISPSYM(sizeof,"%SIZEOF",ffi) /* ABI */
 LISPSYM(bitsizeof,"%BITSIZEOF",ffi) /* ABI */
@@ -1158,7 +1158,7 @@ LISPSYM(lookup_foreign_variable,"LOOKUP-FOREIGN-VARIABLE",ffi) /* ABI */
 LISPSYM(unsigned_foreign_address,"UNSIGNED-FOREIGN-ADDRESS",ffi)
 LISPSYM(foreign_address_unsigned,"FOREIGN-ADDRESS-UNSIGNED",ffi)
 LISPSYM(foreign_value,"FOREIGN-VALUE",ffi)
-LISPSYM(set_foreign_value,"SET-FOREIGN-VALUE",ffi)
+LISPSYM(set_foreign_value,"SET-FOREIGN-VALUE",ffi) /* ABI */
 LISPSYM(foreign_type,"FOREIGN-TYPE",ffi) /* ABI */
 LISPSYM(element,"%ELEMENT",ffi) /* ABI */
 LISPSYM(deref,"%DEREF",ffi) /* ABI */
