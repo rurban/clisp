@@ -896,7 +896,7 @@ local maygc object I_logcount_I (object x)
       __asm__("bsch/1 %1,%0" : "=g" (zero_counter) : "g" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                 \
     }
-#elif defined(GNU) && defined(RS6000) && !defined(NO_ASM)
+#elif defined(GNU) && defined(POWERPC) && !defined(NO_ASM)
  #ifdef _AIX
   /* old assembler syntax */
   #define integerlength32(digit,size_zuweisung)                         \
