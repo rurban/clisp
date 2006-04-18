@@ -2253,19 +2253,26 @@ for-value   NIL or T
   (when (and (special-operator-p sym) (not (gethash sym c-form-table)))
     (compiler-error 'c-form-table sym)))
 
-;; expand (recursively) the compiler macro form
+;; Expand compiler macros at the outermost level of the given form.
+;; Return the replacement form, and as second value a boolean indicating
+;; whether some expansion was made.
 (defun expand-compiler-macro (form)
-  (let ((expanded-p nil) fun)
+  (let ((expanded-p nil))
     (tagbody
      reexpand
-       (when (and (consp form) (function-name-p (setq fun (car form))))
-         (let* ((env (env)) (cmf (compiler-macro-function fun env)))
-           (when (and cmf (not (declared-notinline fun)))
-             (let ((exp (mac-exp cmf form env)))
-               (unless (eq form exp)
-                 (setq form exp
-                       expanded-p t)
-                 (go reexpand)))))))
+       (when (consp form)
+         (let ((fun (car form)))
+           (when (and (function-name-p fun) (not (declared-notinline fun)))
+             (let* ((env (env))
+                    (cmf (compiler-macro-function fun env)))
+               (when cmf
+                 (let ((cmf-result (funcall cmf form env)))
+                   ;; ANSI CL, glossary of "compiler macro function", says
+                   ;; that a result of NIL means no replacement.
+                   (unless (or (eq cmf-result 'nil) (eq cmf-result form))
+                     (setq form cmf-result
+                           expanded-p t)
+                     (go reexpand)))))))))
     (values form expanded-p)))
 
 ;; check whether the form is a '(LAMBDA ...)
@@ -2293,37 +2300,36 @@ for-value   NIL or T
             (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
               (declare (ignore f2 f4))
               (if (null a)
-                ;; no local definition --> expand-compiler-macro
-                (let ((handler
-                        (gethash (setq *form* (expand-compiler-macro *form*)
-                                       fun (and (consp *form*) (car *form*)))
-                                 c-form-table)))
-                  (if handler ; found handler function?
-                    ;; ==> (symbolp fun) = T
-                    (if (or (and (special-operator-p fun)
-                                 (not (macro-function fun)))
-                            (not (declared-notinline fun)))
-                      (funcall handler) ; yes -> call
-                      (if (macro-function fun)
-                        (c-form (mac-exp (macro-function fun) *form*))
-                        ;; normal global function call
-                        (c-GLOBAL-FUNCTION-CALL fun)))
-                    ;; no -> not a special-form anyway
-                    ;; (all those are in the `c-form-table')
-                    (if (atom *form*)
-                      (c-form *form*)
-                      (if (and (symbolp (setq fun (first *form*)))
-                               (macro-function fun))
-                        ;; global macro
-                        (c-form (mac-exp (macro-function fun) *form*))
-                        ;; global function
-                        (if (and (in-defun-p fun)
-                                 (not (declared-notinline fun)))
-                          ;; recursive call of the current global function
-                          (c-LOCAL-FUNCTION-CALL fun (cons *func* nil)
-                                                 (cdr *form*))
-                          ;; normal call of the global function
-                          (c-GLOBAL-FUNCTION-CALL fun))))))
+                ;; no local definition
+                (multiple-value-bind (expansion expanded-p)
+                    (expand-compiler-macro *form*)
+                  (if expanded-p
+                    (c-form expansion) ; -> expand
+                    (let ((handler
+                            (and (symbolp fun) (gethash fun c-form-table))))
+                      (if handler ; found handler function?
+                        ;; ==> (symbolp fun) = T
+                        (if (or (and (special-operator-p fun)
+                                     (not (macro-function fun)))
+                                (not (declared-notinline fun)))
+                          (funcall handler) ; yes -> call
+                          (if (macro-function fun)
+                            (c-form (mac-exp (macro-function fun) *form*))
+                            ;; normal global function call
+                            (c-GLOBAL-FUNCTION-CALL fun)))
+                        ;; no -> not a special-form anyway
+                        ;; (all those are in the c-form-table)
+                        (if (and (symbolp fun) (macro-function fun))
+                          ;; global macro
+                          (c-form (mac-exp (macro-function fun) *form*))
+                          ;; global function
+                          (if (and (in-defun-p fun)
+                                   (not (declared-notinline fun)))
+                            ;; recursive call of the current global function
+                            (c-LOCAL-FUNCTION-CALL fun (cons *func* nil)
+                                                   (cdr *form*))
+                            ;; normal call of the global function
+                            (c-GLOBAL-FUNCTION-CALL fun)))))))
                 (if (and m (not (and f1 (declared-notinline fun))))
                   (c-form (mac-exp m *form*))
                   (case f1
@@ -10913,7 +10919,7 @@ The function make-closure is required.
                 (t (when (macro-function fun) ; global Macro ?
                      (return-from compile-toplevel-form
                        (compile-toplevel-form
-                        (mac-exp (macro-function fun) form))))))
+                         (mac-exp (macro-function fun) form))))))
               ;; defined locally
               (when (and m (null f1)) ; local Macro, but no local function
                 (return-from compile-toplevel-form

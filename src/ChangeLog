@@ -1,3 +1,14 @@
+2006-04-14  Bruno Haible  <bruno@clisp.org>
+
+	Fix compiler macro handling.
+	* cmacros.lisp (compiler-macro-function, (setf compiler-macro-function)):
+	Simplify by use of get-funname-symbol.
+	* compiler.lisp (expand-compiler-macro): Call the compiler-macro
+	function directly, not through *macroexpand-hook*. Recognize special
+	return value NIL.
+	(c-form): If expand-compiler-macro did something, just recurse. Fixes
+	bug #[ 1420585 ].
+
 2006-04-10  Bruno Haible  <bruno@clisp.org>
 
 	Implement feature request #[ 1415783 ].
