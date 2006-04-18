@@ -574,7 +574,7 @@ global object unpack_string_ro (object string, uintL* len, uintL* offset) {
 }
 
 /* UP: unpack a string
- unpack_string_rw(string,&len)  [for read-write access]
+ unpack_string_rw(string,&len,&offset)  [for read-write access]
  > object string: a string
  < uintL len: the fill-pointer length of the string
  < uintL offset: offset in the datastorage vector

@@ -1870,7 +1870,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
  Under the model WIDE sizeof(oint) is > sizeof(uintL).
  Model WIDE_HARD stands for sizeof(aint) > sizeof(uintL).
    This model is to be chosen if the following holds true:
-   sizeof(void*) > sizeof(uintL) = 32 bit ist. It also requires that
+   sizeof(void*) > sizeof(uintL) = 32 bit. It also requires that
    sizeof(long) = sizeof(void*) = 64 bit, because some 64-bit numbers
    appear as pre-processor constants.
  Model WIDE_SOFT stands for sizeof(oint) = 64 bit and sizeof(aint) = 32 bit.
@@ -11259,7 +11259,7 @@ Frame-Info is CATCH_FRAME_INFO.
 
 Unwind-Protect-Frames
 ---------------------
-They are created by the Special-Form UNWIND-PROTECT and all construcs
+They are created by the Special-Form UNWIND-PROTECT and all constructs
 that contain an implicit UNWIND-PROTECT (like WITH-OPEN-STREAM or
 WITH-OPEN-FILE). Their structure is as follows:
   Offset  Stack-contents
@@ -11267,7 +11267,7 @@ WITH-OPEN-FILE). Their structure is as follows:
    4        SP
    0        Frame-Info; pointer above frame
 SP is a pointer into the program stack. (SP).L a routine, that unwinds the
-Frame,saves the current values A0-A2/...  executes the cleanip,
+Frame,saves the current values A0-A2/...  executes the cleanup,
 writes the saved values back and finally jumps to the address
 (with RTS), that has been entered into the program stack in place of their own
 and leaves D6 unchanged.
