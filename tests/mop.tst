@@ -3264,16 +3264,16 @@ ERROR
 ;; Ability to specify a default method-combination on the generic-function
 ;; class. See #[ 1415783 ].
 (progn
-  (defclass testgf37class (standard-generic-function)
+  (defclass testgf38class (standard-generic-function)
     ()
     (:metaclass clos:funcallable-standard-class)
     (:default-initargs
       :method-combination
-      (clos:find-method-combination (clos:class-prototype (find-class 'testgf37class))
-                               '+ '())))
-  (defgeneric testgf37 (x)
-    (:generic-function-class testgf37class))
-  (defmethod testgf37 + (x) 0)
+      (clos:find-method-combination (clos:class-prototype (find-class 'testgf38class))
+                                    '+ '())))
+  (defgeneric testgf38 (x)
+    (:generic-function-class testgf38class))
+  (defmethod testgf38 + (x) 0)
   t)
 T
 
