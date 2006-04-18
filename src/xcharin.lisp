@@ -32,7 +32,7 @@
 (defun fehler-char-arg (arg caller)
   (error-of-type 'type-error
     :datum arg :expected-type 'character
-    (TEXT "~: argument ~S is not a character")
+    (TEXT "~S: argument ~S is not a character")
     caller arg
 ) )
 
