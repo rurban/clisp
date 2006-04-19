@@ -1,4 +1,4 @@
-	.file	"avcall-rs6000.c"
+	.file	"avcall-powerpc.c"
 gcc2_compiled.:
 	.section	".text"
 	.align 2
