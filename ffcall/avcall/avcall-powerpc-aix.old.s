@@ -1,4 +1,4 @@
-	.file	"avcall-rs6000.c"
+	.file	"avcall-powerpc.c"
 .toc
 .csect .text[PR]
 gcc2_compiled.:
