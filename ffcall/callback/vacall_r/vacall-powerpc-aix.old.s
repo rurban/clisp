@@ -1,4 +1,4 @@
-	.file	"vacall-rs6000.c"
+	.file	"vacall-powerpc.c"
 .toc
 .csect .text[PR]
 gcc2_compiled.:

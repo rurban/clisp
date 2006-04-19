@@ -31,7 +31,7 @@ Files in this package:
         trampoline.h.in  include file
         trampoline.c     implementation of the library functions
         tramp-hppa.s     the trampoline for hppa, in assembly language
-        tramp-rs6000.S   the trampoline for rs6000, in assembly language
+        tramp-powerpc.S  the trampoline for powerpc, in assembly language
         protexec.c       how to set memory protection to executable, now unused
         cache.c          how to flush the instruction cache, now unused
         test1.c          test program
