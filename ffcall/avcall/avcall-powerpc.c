@@ -2,7 +2,7 @@
 #define _avcall_powerpc_c
 /**
   Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
-  Copyright 1995-1999 Bruno Haible, <bruno@clisp.org>
+  Copyright 1995-2006 Bruno Haible, <bruno@clisp.org>
   Copyright 2000 Adam Fedor, <fedor@gnu.org>
   Copyright 2004 Paul Guyot, <pguyot@kallisys.net>
 
