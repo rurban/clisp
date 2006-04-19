@@ -1,4 +1,4 @@
-dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2006 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -20,7 +20,7 @@ case "$host_os" in
   *)
 case "$host_cpu_abi"-"$host_os" in
   # On host=rs6000-*-aix3.2.5 malloc'ed memory is indeed not executable.
-  rs6000-aix*) cl_cv_codeexec="guessing no" ;;
+  powerpc-aix*) cl_cv_codeexec="guessing no" ;;
   *)
 AC_TRY_RUN(GL_NOCRASH[
 #include <sys/types.h>
