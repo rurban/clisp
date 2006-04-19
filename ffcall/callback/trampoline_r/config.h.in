@@ -33,8 +33,8 @@
 #ifndef __arm__
 #undef __arm__
 #endif
-#ifndef __rs6000__
-#undef __rs6000__
+#ifndef __powerpc__
+#undef __powerpc__
 #endif
 #ifndef __m88k__
 #undef __m88k__
