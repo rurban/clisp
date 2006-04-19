@@ -116,7 +116,7 @@ avcall-arm.lo : avcall-arm.s
 avcall-arm.s : $(srcdir)/avcall-arm.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-arm.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//,@,g' -e 's,\$$,#,g' > avcall-arm.s
 
-avcall-rs6000.lo : $(srcdir)/avcall-rs6000-aix.old.s $(srcdir)/avcall-rs6000-aix.new.s $(srcdir)/avcall-rs6000-sysv4.s $(srcdir)/avcall-rs6000-macos.s
+avcall-powerpc.lo : $(srcdir)/avcall-powerpc-aix.old.s $(srcdir)/avcall-powerpc-aix.new.s $(srcdir)/avcall-powerpc-sysv4.s $(srcdir)/avcall-powerpc-macos.s
 	case "$(OS)" in \
 	  aix3*) syntax=aix.old;; \
 	  aix*) syntax=aix.new;; \
@@ -124,11 +124,11 @@ avcall-rs6000.lo : $(srcdir)/avcall-rs6000-aix.old.s $(srcdir)/avcall-rs6000-aix
 	  macos* | darwin*) syntax=macos;; \
 	  *) syntax=sysv4;; \
 	esac; \
-	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-rs6000-$${syntax}.s ; \
-	cp avcall-rs6000-$${syntax}.lo avcall-rs6000.lo ; rm -f avcall-rs6000-$${syntax}.lo ; \
-	if test -f avcall-rs6000-$${syntax}.o; then cp avcall-rs6000-$${syntax}.o avcall-rs6000.o; fi
-# Note that avcall-rs6000-${syntax}.o is kept in place, because in some cases
-# avcall-rs6000-${syntax}.lo contains a symbolic reference to it and therefore
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-powerpc-$${syntax}.s ; \
+	cp avcall-powerpc-$${syntax}.lo avcall-powerpc.lo ; rm -f avcall-powerpc-$${syntax}.lo ; \
+	if test -f avcall-powerpc-$${syntax}.o; then cp avcall-powerpc-$${syntax}.o avcall-powerpc.o; fi
+# Note that avcall-powerpc-${syntax}.o is kept in place, because in some cases
+# avcall-powerpc-${syntax}.lo contains a symbolic reference to it and therefore
 # libtool may want to access it.
 
 avcall-m88k.lo : $(srcdir)/avcall-m88k.s
