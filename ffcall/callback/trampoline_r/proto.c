@@ -1,7 +1,7 @@
 /* Sample prototype for a trampoline. */
 
 /*
- * Copyright 1995-1998 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2006 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -33,7 +33,7 @@ register void* env __asm__("%r29");
 #ifdef __arm__
 register void* env __asm__("r12");
 #endif
-#ifdef __rs6000__
+#ifdef __powerpc__
 register void* env __asm__("r11");
 #endif
 #ifdef __m88k__

@@ -8,8 +8,8 @@ ASPREFIX = /usr1/gnu/lib
 RM = rm -f
 ROFF_MAN = groff -Tascii -mandoc
 
-all : proto-i386.s proto-m68k.s proto-mips.s proto-mipsn32.s proto-mips64.s proto-sparc.s proto-sparc64.s proto-alpha.s proto-hppa.s proto-arm.s proto-rs6000-aix.old.s proto-rs6000-aix.new.s proto-rs6000-sysv4.s proto-rs6000-macos.s proto-m88k.s proto-convex.s proto-ia64.c proto-x86_64.c \
-      cache-sparc.S cache-alpha.s cache-hppa.s cache-rs6000-sysv4.s cache-rs6000-macos.s cache-convex.s \
+all : proto-i386.s proto-m68k.s proto-mips.s proto-mipsn32.s proto-mips64.s proto-sparc.s proto-sparc64.s proto-alpha.s proto-hppa.s proto-arm.s proto-powerpc-aix.old.s proto-powerpc-aix.new.s proto-powerpc-sysv4.s proto-powerpc-macos.s proto-m88k.s proto-convex.s proto-ia64.c proto-x86_64.c \
+      cache-sparc.S cache-alpha.s cache-hppa.s cache-powerpc-sysv4.s cache-powerpc-macos.s cache-convex.s \
       trampoline_r.man \
       config.h.msvc config.h.mingw32
 
@@ -43,17 +43,17 @@ proto-hppa.s : proto.c
 proto-arm.s : proto.c
 	$(GCC) -V 2.6.3 -b arm-acorn-riscix $(GCCFLAGS) -D__arm__ -S proto.c -o $@
 
-proto-rs6000-aix.old.s : proto.c
-	$(GCC) -V 2.95.2 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mold-mnemonics $(GCCFLAGS) -D__rs6000__ -S proto.c -o $@
+proto-powerpc-aix.old.s : proto.c
+	$(GCC) -V 2.95.2 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mold-mnemonics $(GCCFLAGS) -D__powerpc__ -S proto.c -o $@
 
-proto-rs6000-aix.new.s : proto.c
-	$(GCC) -V 2.95.2 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mnew-mnemonics $(GCCFLAGS) -D__rs6000__ -S proto.c -o $@
+proto-powerpc-aix.new.s : proto.c
+	$(GCC) -V 2.95.2 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mnew-mnemonics $(GCCFLAGS) -D__powerpc__ -S proto.c -o $@
 
-proto-rs6000-sysv4.s : proto.c
-	$(GCC) -V 2.95.2 -b ppc-linux -mno-power -mno-power2 -mno-powerpc $(GCCFLAGS) -D__rs6000__ -S proto.c -o $@
+proto-powerpc-sysv4.s : proto.c
+	$(GCC) -V 2.95.2 -b ppc-linux -mno-power -mno-power2 -mno-powerpc $(GCCFLAGS) -D__powerpc__ -S proto.c -o $@
 
-proto-rs6000-macos.s : proto.c
-	$(GCC) -V 3.3.2 -b powerpc-darwin $(GCCFLAGS) -D__rs6000__ -S proto.c -o $@
+proto-powerpc-macos.s : proto.c
+	$(GCC) -V 3.3.2 -b powerpc-darwin $(GCCFLAGS) -D__powerpc__ -S proto.c -o $@
 
 proto-m88k.s : proto.c
 	$(GCC) -V 2.95.2 -b m88k-dgux $(GCCFLAGS) -D__m88k__ -S proto.c -o $@
@@ -78,11 +78,11 @@ cache-alpha.s : cache-alpha.c
 cache-hppa.s : cache-hppa.c
 	$(GCC) -V 2.6.3 -b hppa1.0-hpux $(GCCFLAGS) -D__hppa__ -S $< -o $@
 
-cache-rs6000-sysv4.s : cache-rs6000.c
-	$(GCC) -V 2.95.2 -b ppc-linux -mno-power -mno-power2 -mno-powerpc $(GCCFLAGS) -D__rs6000__ -S $< -o $@
+cache-powerpc-sysv4.s : cache-powerpc.c
+	$(GCC) -V 2.95.2 -b ppc-linux -mno-power -mno-power2 -mno-powerpc $(GCCFLAGS) -D__powerpc__ -S $< -o $@
 
-cache-rs6000-macos.s : cache-rs6000.c
-	$(GCC) -V 3.3.2 -b powerpc-darwin $(GCCFLAGS) -D__rs6000__ -S $< -o $@
+cache-powerpc-macos.s : cache-powerpc.c
+	$(GCC) -V 3.3.2 -b powerpc-darwin $(GCCFLAGS) -D__powerpc__ -S $< -o $@
 
 cache-convex.s : cache-convex.c
 	$(GCC) -V 2.6.3 -b convex-c2 $(GCCFLAGS) -D__convex__ -S $< -o $@
@@ -123,11 +123,11 @@ tramp-hppa.o : tramp-hppa.s
 tramp-arm.o : tramp-arm.s
 	$(ASPREFIX)/arm-acorn-riscix/bin/as tramp-arm.s -o $@
 
-tramp-rs6000-old.o : tramp-rs6000-old.s
-	$(ASPREFIX)/rs6000/bin/as tramp-rs6000-old.s -o $@
+tramp-powerpc-old.o : tramp-powerpc-old.s
+	$(ASPREFIX)/rs6000/bin/as tramp-powerpc-old.s -o $@
 
-tramp-rs6000-sysv4.o : tramp-rs6000-sysv4.s
-	$(ASPREFIX)/ppc-linux/bin/as tramp-rs6000-sysv4.s -o $@
+tramp-powerpc-sysv4.o : tramp-powerpc-sysv4.s
+	$(ASPREFIX)/ppc-linux/bin/as tramp-powerpc-sysv4.s -o $@
 
 tramp-m88k.o : tramp-m88k.s
 	$(ASPREFIX)/m88k-coff/bin/as tramp-m88k.s -o $@

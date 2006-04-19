@@ -65,15 +65,15 @@ tramp-hppa.lo : $(srcdir)/tramp-hppa.s
 tramp-s390.lo : $(srcdir)/tramp-s390.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/tramp-s390.s
 
-tramp-rs6000.lo : tramp-rs6000.s
-	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c tramp-rs6000.s
+tramp-powerpc.lo : tramp-powerpc.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c tramp-powerpc.s
 
-tramp-rs6000.s : $(srcdir)/tramp-rs6000.old.S $(srcdir)/tramp-rs6000.new.S
+tramp-powerpc.s : $(srcdir)/tramp-powerpc.old.S $(srcdir)/tramp-powerpc.new.S
 	case "$(OS)" in \
 	  aix3*) syntax=old;; \
 	  *) syntax=new;; \
 	esac; \
-	$(CPP) $(srcdir)/tramp-rs6000.$${syntax}.S > tramp-rs6000.s
+	$(CPP) $(srcdir)/tramp-powerpc.$${syntax}.S > tramp-powerpc.s
 
 tramp-ia64.lo : $(srcdir)/tramp-ia64.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/tramp-ia64.s
@@ -96,16 +96,16 @@ cache-alpha.lo : $(srcdir)/cache-alpha.s
 cache-hppa.lo : $(srcdir)/cache-hppa.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-hppa.s
 
-cache-rs6000.lo : $(srcdir)/cache-rs6000-sysv4.s $(srcdir)/cache-rs6000-macos.s
+cache-powerpc.lo : $(srcdir)/cache-powerpc-sysv4.s $(srcdir)/cache-powerpc-macos.s
 	case "$(OS)" in \
 	  macos* | darwin*) syntax=macos;; \
 	  *) syntax=sysv4;; \
 	esac; \
-	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-$${syntax}.s ; \
-	cp cache-rs6000-$${syntax}.lo cache-rs6000.lo ; rm -f cache-rs6000-$${syntax}.lo ; \
-	if test -f cache-rs6000-$${syntax}.o; then cp cache-rs6000-$${syntax}.o cache-rs6000.o; fi
-# Note that cache-rs6000-${syntax}.o is kept in place, because in some cases
-# cache-rs6000-${syntax}.lo contains a symbolic reference to it and therefore
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-powerpc-$${syntax}.s ; \
+	cp cache-powerpc-$${syntax}.lo cache-powerpc.lo ; rm -f cache-powerpc-$${syntax}.lo ; \
+	if test -f cache-powerpc-$${syntax}.o; then cp cache-powerpc-$${syntax}.o cache-powerpc.o; fi
+# Note that cache-powerpc-${syntax}.o is kept in place, because in some cases
+# cache-powerpc-${syntax}.lo contains a symbolic reference to it and therefore
 # libtool may want to access it.
 
 cache-convex.lo : $(srcdir)/cache-convex.s
@@ -175,7 +175,7 @@ extracheck : check
 mostlyclean : clean
 
 clean : force
-	$(RM) $(OBJECTS) `echo $(OBJECTS) | sed -e 's/\.lo/.o/g'` tramp-rs6000.s cache-sparc.s cache-sparc64.s libtrampoline.* core
+	$(RM) $(OBJECTS) `echo $(OBJECTS) | sed -e 's/\.lo/.o/g'` tramp-powerpc.s cache-sparc.s cache-sparc64.s libtrampoline.* core
 	$(RM) -r .libs _libs
 	$(RM) test1.o test1 test2.o test2
 
