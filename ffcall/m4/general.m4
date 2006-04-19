@@ -1,4 +1,4 @@
-dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2006 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -128,8 +128,8 @@ changequote(,)dnl
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
     host_cpu_instructionset=hppa
     ;;
-  powerpc )
-    host_cpu_instructionset=rs6000
+  rs6000 )
+    host_cpu_instructionset=powerpc
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu_instructionset=convex
@@ -194,8 +194,8 @@ changequote(,)dnl
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
     host_cpu_abi=hppa
     ;;
-  powerpc )
-    host_cpu_abi=rs6000
+  rs6000 )
+    host_cpu_abi=powerpc
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu_abi=convex
