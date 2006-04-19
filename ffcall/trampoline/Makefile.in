@@ -57,15 +57,15 @@ tramp-hppa.o : $(srcdir)/tramp-hppa.s
 tramp-s390.o : $(srcdir)/tramp-s390.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/tramp-s390.s
 
-tramp-rs6000.o : tramp-rs6000.s
-	$(CC) @GCC_X_NONE@ -c tramp-rs6000.s
+tramp-powerpc.o : tramp-powerpc.s
+	$(CC) @GCC_X_NONE@ -c tramp-powerpc.s
 
-tramp-rs6000.s : $(srcdir)/tramp-rs6000.old.S $(srcdir)/tramp-rs6000.new.S
+tramp-powerpc.s : $(srcdir)/tramp-powerpc.old.S $(srcdir)/tramp-powerpc.new.S
 	case "$(OS)" in \
 	  aix3*) syntax=old;; \
 	  *) syntax=new;; \
 	esac; \
-	$(CPP) $(srcdir)/tramp-rs6000.$${syntax}.S > tramp-rs6000.s
+	$(CPP) $(srcdir)/tramp-powerpc.$${syntax}.S > tramp-powerpc.s
 
 tramp-ia64.o : $(srcdir)/tramp-ia64.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/tramp-ia64.s
@@ -88,12 +88,12 @@ cache-alpha.o : $(srcdir)/cache-alpha.s
 cache-hppa.o : $(srcdir)/cache-hppa.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-hppa.s
 
-cache-rs6000.o : $(srcdir)/cache-rs6000-sysv4.s $(srcdir)/cache-rs6000-macos.s
+cache-powerpc.o : $(srcdir)/cache-powerpc-sysv4.s $(srcdir)/cache-powerpc-macos.s
 	case "$(OS)" in \
 	  macos* | darwin*) syntax=macos;; \
 	  *) syntax=sysv4;; \
 	esac; \
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-$${syntax}.s ; mv cache-rs6000-$${syntax}.o cache-rs6000.o
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-powerpc-$${syntax}.s ; mv cache-powerpc-$${syntax}.o cache-powerpc.o
 
 cache-convex.o : $(srcdir)/cache-convex.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-convex.s
@@ -158,7 +158,7 @@ extracheck : check
 mostlyclean : clean
 
 clean : force
-	$(RM) $(OBJECTS) tramp-rs6000.s cache-sparc.s cache-sparc64.s libtrampoline.a core
+	$(RM) $(OBJECTS) tramp-powerpc.s cache-sparc.s cache-sparc64.s libtrampoline.a core
 	$(RM) test1.o test1 test2.o test2
 
 distclean : clean

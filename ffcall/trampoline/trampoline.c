@@ -1,7 +1,7 @@
 /* Trampoline construction */
 
 /*
- * Copyright 1995-1999, 2001-2005 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-1999, 2001-2006 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -20,11 +20,11 @@
 #define __hppanew__  /* New trampoline, just a closure. */
 #endif
 #endif
-#if defined(__rs6000__)
+#if defined(__powerpc__)
 #if !defined(_AIX)
-#define __rs6000sysv4__  /* SysV.4 ABI, real machine code. */
+#define __powerpcsysv4__  /* SysV.4 ABI, real machine code. */
 #else
-#define __rs6000aix__  /* AIX ABI, just a closure. */
+#define __powerpcaix__  /* AIX ABI, just a closure. */
 #endif
 #endif
 #if defined(__hppanew__)
@@ -40,7 +40,7 @@ extern void tramp (); /* trampoline prototype */
 #define CODE_EXECUTABLE
 #endif
 #endif
-#if defined(__rs6000aix__) || defined(__ia64__)
+#if defined(__powerpcaix__) || defined(__ia64__)
 /*
  * A function pointer is a pointer to a data area whose first word contains
  * the actual address of the function.
@@ -200,7 +200,7 @@ extern RETGETPAGESIZETYPE getpagesize (void);
 #include <sys/syslocal.h>
 #endif
 /* Inline assembly function for instruction cache flush. */
-#if defined(__sparc__) || defined(__sparc64__) || defined(__alpha__) || defined(__hppaold__) || defined(__rs6000sysv4__) || defined(__convex__)
+#if defined(__sparc__) || defined(__sparc64__) || defined(__alpha__) || defined(__hppaold__) || defined(__powerpcsysv4__) || defined(__convex__)
 #ifdef __GNUC__
 extern inline
 #if defined(__sparc__) || defined(__sparc64__)
@@ -212,8 +212,8 @@ extern inline
 #ifdef __hppa__
 #include "cache-hppa.c"
 #endif
-#ifdef __rs6000__
-#include "cache-rs6000.c"
+#ifdef __powerpc__
+#include "cache-powerpc.c"
 #endif
 #ifdef __convex__
 #include "cache-convex.c"
@@ -277,11 +277,11 @@ extern void __TR_clear_cache();
 #define TRAMP_LENGTH 44
 #define TRAMP_ALIGN 4
 #endif
-#ifdef __rs6000sysv4__
+#ifdef __powerpcsysv4__
 #define TRAMP_LENGTH 36
 #define TRAMP_ALIGN 4
 #endif
-#ifdef __rs6000aix__
+#ifdef __powerpcaix__
 #define TRAMP_LENGTH 24
 #define TRAMP_ALIGN 4
 #endif
@@ -888,7 +888,7 @@ __TR_function alloc_trampoline (__TR_function address, void* variable, void* dat
 #define tramp_data(function)  \
   ((long *) function)[8]
 #endif
-#ifdef __rs6000sysv4__
+#ifdef __powerpcsysv4__
   /* function:
    *    {liu|lis} 11,hi16(<variable>)		3D 60 hi16(<variable>)
    *    {oril|ori} 11,11,lo16(<variable>)	61 6B lo16(<variable>)
@@ -934,7 +934,7 @@ __TR_function alloc_trampoline (__TR_function address, void* variable, void* dat
 #define tramp_data(function)  \
   hilo(*(unsigned short *) (function +10), *(unsigned short *) (function +14))
 #endif
-#ifdef __rs6000aix__
+#ifdef __powerpcaix__
   /* function:
    *    .long .tramp
    *    .long .mytoc
@@ -1172,7 +1172,7 @@ __TR_function alloc_trampoline (__TR_function address, void* variable, void* dat
    * cache. The freshly built trampoline is visible to the data cache, but not
    * maybe not to the instruction cache. This is hairy.
    */
-#if !(defined(__hppanew__) || defined(__rs6000aix__) || defined(__ia64__))
+#if !(defined(__hppanew__) || defined(__powerpcaix__) || defined(__ia64__))
   /* Only needed if we really set up machine instructions. */
 #ifdef __i386__
 #if defined(_WIN32)
@@ -1255,7 +1255,7 @@ __TR_function alloc_trampoline (__TR_function address, void* variable, void* dat
 #ifdef __arm__
   /* This CPU does not have a separate instruction cache. (I think.) */
 #endif
-#ifdef __rs6000__
+#ifdef __powerpc__
   __TR_clear_cache(function);
 #endif
 #ifdef __m88k__

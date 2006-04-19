@@ -31,7 +31,7 @@ CPU_OBJECTS=''
 if test ${host_cpu_abi} = hppa -o ${host_cpu_abi} = ia64; then
   CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).o'
 fi
-if test ${host_cpu_abi} = rs6000; then
+if test ${host_cpu_abi} = powerpc; then
   case "${host_os}" in
     aix*) CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).o' ;;
     *) ;;
@@ -40,7 +40,7 @@ fi
 if test ${host_cpu_abi} = sparc -o ${host_cpu_abi} = sparc64 -o ${host_cpu_abi} = alpha -o ${host_cpu_abi} = hppa -o ${host_cpu_abi} = convex; then
   CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o'
 fi
-if test ${host_cpu_abi} = rs6000; then
+if test ${host_cpu_abi} = powerpc; then
   case "${host_os}" in
     aix*) ;;
     *) CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o' ;;

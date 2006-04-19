@@ -1,4 +1,4 @@
-	.file	"cache-rs6000.c"
+	.file	"cache-powerpc.c"
 gcc2_compiled.:
 	.section	".text"
 	.align 2
