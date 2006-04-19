@@ -107,7 +107,7 @@ vacall-arm.o : vacall-arm.s
 vacall-arm.s : $(srcdir)/vacall-arm.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-arm.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//,@,g' -e 's,\$$,#,g' > vacall-arm.s
 
-vacall-rs6000.o : $(srcdir)/vacall-rs6000-aix.old.s $(srcdir)/vacall-rs6000-aix.new.s $(srcdir)/vacall-rs6000-sysv4.s $(srcdir)/vacall-rs6000-linux.s $(srcdir)/vacall-rs6000-macos.s
+vacall-powerpc.o : $(srcdir)/vacall-powerpc-aix.old.s $(srcdir)/vacall-powerpc-aix.new.s $(srcdir)/vacall-powerpc-sysv4.s $(srcdir)/vacall-powerpc-linux.s $(srcdir)/vacall-powerpc-macos.s
 	case "$(OS)" in \
 	  aix3*) syntax=aix.old;; \
 	  aix*) syntax=aix.new;; \
@@ -115,8 +115,8 @@ vacall-rs6000.o : $(srcdir)/vacall-rs6000-aix.old.s $(srcdir)/vacall-rs6000-aix.
 	  macos* | darwin*) syntax=macos;; \
 	  *) syntax=sysv4;; \
 	esac; \
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-rs6000-$${syntax}.s ; \
-	mv vacall-rs6000-$${syntax}.o vacall-rs6000.o
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-powerpc-$${syntax}.s ; \
+	mv vacall-powerpc-$${syntax}.o vacall-powerpc.o
 
 vacall-m88k.o : $(srcdir)/vacall-m88k.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-m88k.s
