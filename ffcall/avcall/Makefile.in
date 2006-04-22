@@ -131,6 +131,9 @@ avcall-powerpc.lo : $(srcdir)/avcall-powerpc-aix.old.s $(srcdir)/avcall-powerpc-
 # avcall-powerpc-${syntax}.lo contains a symbolic reference to it and therefore
 # libtool may want to access it.
 
+avcall-powerpc64.lo : $(srcdir)/avcall-powerpc64.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-powerpc64.s
+
 avcall-m88k.lo : $(srcdir)/avcall-m88k.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-m88k.s
 
