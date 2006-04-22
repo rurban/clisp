@@ -2923,6 +2923,42 @@ if test $cl_cv_host_mipsn32 = yes; then
 fi
 fi
     ;;
+  powerpc64 )
+    echo "$as_me:$LINENO: checking for 64-bit PowerPC" >&5
+echo $ECHO_N "checking for 64-bit PowerPC... $ECHO_C" >&6
+if test "${cl_cv_host_powerpc64+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#if defined(__LP64__)
+  yes
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then
+  cl_cv_host_powerpc64=yes
+else
+  cl_cv_host_powerpc64=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$as_me:$LINENO: result: $cl_cv_host_powerpc64" >&5
+echo "${ECHO_T}$cl_cv_host_powerpc64" >&6
+if test $cl_cv_host_powerpc64 = yes; then
+  host_cpu_abi=powerpc64
+else
+  host_cpu_abi=powerpc
+fi
+    ;;
   sparc | sparc64 )
     echo "$as_me:$LINENO: checking for 64-bit SPARC" >&5
 echo $ECHO_N "checking for 64-bit SPARC... $ECHO_C" >&6
@@ -2957,6 +2993,42 @@ if test $cl_cv_host_sparc64 = yes; then
   host_cpu_abi=sparc64
 else
   host_cpu_abi=sparc
+fi
+    ;;
+  x86_64 )
+    echo "$as_me:$LINENO: checking for 64-bit x86_64" >&5
+echo $ECHO_N "checking for 64-bit x86_64... $ECHO_C" >&6
+if test "${cl_cv_host_x86_64+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#if defined(__LP64__)
+  yes
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then
+  cl_cv_host_x86_64=yes
+else
+  cl_cv_host_x86_64=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$as_me:$LINENO: result: $cl_cv_host_x86_64" >&5
+echo "${ECHO_T}$cl_cv_host_x86_64" >&6
+if test $cl_cv_host_x86_64 = yes; then
+  host_cpu_abi=x86_64
+else
+  host_cpu_abi=i386
 fi
     ;;
   *)
