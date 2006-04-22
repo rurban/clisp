@@ -1,3 +1,8 @@
+2006-04-21  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Add test against bug with make-instance cache after class
+	redefinition.
+
 2006-04-10  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Check ability to specify a default method-combination on the
