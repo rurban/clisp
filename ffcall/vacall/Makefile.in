@@ -118,6 +118,9 @@ vacall-powerpc.o : $(srcdir)/vacall-powerpc-aix.old.s $(srcdir)/vacall-powerpc-a
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-powerpc-$${syntax}.s ; \
 	mv vacall-powerpc-$${syntax}.o vacall-powerpc.o
 
+vacall-powerpc64.o : $(srcdir)/vacall-powerpc64.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-powerpc64.s
+
 vacall-m88k.o : $(srcdir)/vacall-m88k.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-m88k.s
 
