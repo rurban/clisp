@@ -3116,7 +3116,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#if defined(__LP64__)
+#if defined(__powerpc64__) || defined(_ARCH_PPC64)
   yes
 #endif
 
@@ -3188,7 +3188,7 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#if defined(__LP64__)
+#if defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
   yes
 #endif
 
