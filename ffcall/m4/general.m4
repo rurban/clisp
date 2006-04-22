@@ -157,7 +157,7 @@ dnl On powerpc64 systems, the C compiler may still be generating 32-bit code.
   powerpc64 )
     AC_CACHE_CHECK([for 64-bit PowerPC], cl_cv_host_powerpc64, [
 AC_EGREP_CPP(yes,
-[#if defined(__LP64__)
+[#if defined(__powerpc64__) || defined(_ARCH_PPC64)
   yes
 #endif
 ], cl_cv_host_powerpc64=yes, cl_cv_host_powerpc64=no)
@@ -188,7 +188,7 @@ dnl On x86_64 systems, the C compiler may still be generating 32-bit code.
   x86_64 )
     AC_CACHE_CHECK([for 64-bit x86_64], cl_cv_host_x86_64, [
 AC_EGREP_CPP(yes,
-[#if defined(__LP64__)
+[#if defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
   yes
 #endif
 ], cl_cv_host_x86_64=yes, cl_cv_host_x86_64=no)
@@ -267,7 +267,7 @@ dnl On powerpc64 systems, the C compiler may still be generating 32-bit code.
   powerpc64 )
     AC_CACHE_CHECK([for 64-bit PowerPC], cl_cv_host_powerpc64, [
 AC_EGREP_CPP(yes,
-[#if defined(__LP64__)
+[#if defined(__powerpc64__) || defined(_ARCH_PPC64)
   yes
 #endif
 ], cl_cv_host_powerpc64=yes, cl_cv_host_powerpc64=no)
@@ -298,7 +298,7 @@ dnl On x86_64 systems, the C compiler may still be generating 32-bit code.
   x86_64 )
     AC_CACHE_CHECK([for 64-bit x86_64], cl_cv_host_x86_64, [
 AC_EGREP_CPP(yes,
-[#if defined(__LP64__)
+[#if defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
   yes
 #endif
 ], cl_cv_host_x86_64=yes, cl_cv_host_x86_64=no)
