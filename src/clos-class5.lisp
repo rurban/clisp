@@ -48,7 +48,7 @@
   ;; Hash table, mapping a cons (old-class . new-class) to
   ;; - a list of valid keyword arguments.
 
-;; FIXME: These tables must also be cleaned when a classed is redefined
+;; FIXME: These tables must also be cleaned when a class is redefined
 ;; (because subclassp changes, and for *update-instance-for-redefined-class-table*
 ;; also because the class-slots change).
 
