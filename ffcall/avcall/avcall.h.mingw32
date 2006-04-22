@@ -54,6 +54,9 @@
 #ifndef __powerpc__
 #undef __powerpc__
 #endif
+#ifndef __powerpc64__
+#undef __powerpc64__
+#endif
 #ifndef __s390__
 #undef __s390__
 #endif
@@ -238,7 +241,7 @@ enum __AV_alist_flags
 #if defined(__mips__) || defined(__mipsn32__) || defined(__mips64__)
   __AV_SGICC_STRUCT_ARGS	= 1<<7,
 #endif
-#if defined(__powerpc__)
+#if defined(__powerpc__) && !defined(__powerpc64__)
   __AV_AIXCC_STRUCT_ARGS	= 1<<7,
 #endif
   /* the default way to pass floats */
@@ -253,7 +256,7 @@ enum __AV_alist_flags
 #if (defined(__mips__) || defined(__mipsn32__) || defined(__mips64__)) && !defined(__GNUC__) /* SGI mips cc */
   __AV_STRUCT_ARGS		= __AV_SGICC_STRUCT_ARGS,
 #else
-#if defined(__powerpc__) && defined(_AIX) && !defined(__GNUC__) /* AIX cc, xlc */
+#if defined(__powerpc__) && !defined(__powerpc64__) && defined(_AIX) && !defined(__GNUC__) /* AIX cc, xlc */
   __AV_STRUCT_ARGS		= __AV_AIXCC_STRUCT_ARGS,
 #else
   __AV_STRUCT_ARGS		= 0,
@@ -280,7 +283,7 @@ enum __AV_alist_flags
 #endif
 
   /* These are for internal use only */
-#if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__arm__) || defined(__powerpc__) || defined(__convex__) || defined(__ia64__) || defined(__x86_64__) || defined(__s390__)
+#if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__arm__) || (defined(__powerpc__) && !defined(__powerpc64__)) || defined(__convex__) || defined(__ia64__) || defined(__x86_64__) || defined(__s390__)
   __AV_REGISTER_STRUCT_RETURN	= 1<<9,
 #endif
 #if defined(__mips__) && !defined(__mipsn32__)
@@ -303,7 +306,7 @@ typedef struct
   unsigned long		rsize;
   /* current pointer into the args[] array */
   __avword*		aptr;
-#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__powerpc__) && !defined(_AIX) && !(defined(__MACH__) && defined(__APPLE__))) || defined(__s390__)
+#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__powerpc__) && !defined(__powerpc64__) && !defined(_AIX) && !(defined(__MACH__) && defined(__APPLE__))) || defined(__s390__)
   /* limit pointer into the args[] array */
   __avword*		eptr;
 #endif
@@ -312,7 +315,7 @@ typedef struct
   /* is odd (because on MSVC, alignof(double) = 8, normally = 4).            */
   __avword		filler1;
 #endif
-#if defined(__i386__) || defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || defined(__arm__) || defined(__powerpc__) || defined(__convex__) || defined(__s390__)
+#if defined(__i386__) || defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || defined(__arm__) || (defined(__powerpc__) && !defined(__powerpc64__)) || defined(__convex__) || defined(__s390__)
   /* temporary storage, used to split doubles into two words */
   union {
     double	_double;
@@ -351,7 +354,7 @@ typedef struct
   double		fargs[8];
 #endif
   __avword		args[__AV_ALIST_WORDS]; /* sizeof(double)-aligned */
-#if defined(__powerpc__)
+#if defined(__powerpc__) || defined(__powerpc64__)
   /* store the floating-point arguments in an extra array */
   double*		faptr;
   double		fargs[13];
@@ -375,7 +378,7 @@ typedef struct
 } av_alist;
 
 /* The limit for the pointer into the args[] array. */
-#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__powerpc__) && !defined(_AIX) && !(defined(__MACH__) && defined(__APPLE__))) || defined(__s390)
+#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__powerpc__) && !defined(__powerpc64__) && !defined(_AIX) && !(defined(__MACH__) && defined(__APPLE__))) || defined(__s390)
 #define __av_eptr(LIST)	((LIST).eptr)
 #else
 #define __av_eptr(LIST)	(&(LIST).args[__AV_ALIST_WORDS])
@@ -437,8 +440,8 @@ typedef struct
    (LIST).aptr = &(LIST).args[__AV_ALIST_WORDS],			\
    (LIST).eptr = &(LIST).args[0],
 #endif
-#if defined(__powerpc__)
-#if defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))
+#if defined(__powerpc__) || defined(__powerpc64__)
+#if defined(__powerpc64__) || defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))
 #define __av_start1(LIST)						\
    (LIST).aptr = &(LIST).args[0],					\
    (LIST).faptr = &(LIST).fargs[0],
@@ -532,7 +535,7 @@ typedef struct
 #define __av_start_struct3(LIST)  \
   ((LIST).flags |= __AV_REGISTER_STRUCT_RETURN, 0)
 #endif
-#if (defined(__i386__) && !defined(_WIN32)) || defined(__m68k__) || defined(__arm__) || defined(__powerpc__) || defined(__convex__) || defined(__s390__)
+#if (defined(__i386__) && !defined(_WIN32)) || defined(__m68k__) || defined(__arm__) || (defined(__powerpc__) && !defined(__powerpc64__)) || defined(__convex__) || defined(__s390__)
 #define __av_reg_struct_return(LIST,TYPE_SIZE,TYPE_SPLITTABLE)  \
   ((TYPE_SIZE) == 1 || (TYPE_SIZE) == 2 || (TYPE_SIZE) == 4		\
    || ((TYPE_SIZE) == 8 && (TYPE_SPLITTABLE)				\
@@ -585,6 +588,12 @@ typedef struct
 #define __av_start_struct3(LIST)  \
   ((LIST).flags |= __AV_REGISTER_STRUCT_RETURN, 0)
 #endif
+#if defined(__powerpc64__)
+#define __av_reg_struct_return(LIST,TYPE_SIZE,TYPE_SPLITTABLE)  \
+  0
+#define __av_start_struct3(LIST)  \
+  0
+#endif
 #if defined(__sparc64__) || defined(__ia64__)
 #define __av_reg_struct_return(LIST,TYPE_SIZE,TYPE_SPLITTABLE)  \
   ((TYPE_SIZE) <= 32)
@@ -618,7 +627,7 @@ typedef struct
 #endif
 /* Return structure pointer is passed as first arg.
  */
-#if defined(__alpha__) || defined(__arm__) || defined(__powerpc__) || defined(__convex__) || defined(__s390__)
+#if defined(__alpha__) || defined(__arm__) || defined(__powerpc__) || defined(__powerpc64__) || defined(__convex__) || defined(__s390__)
 #define __av_start_struct4(LIST,TYPE_SIZE)				\
    (*(LIST).aptr++ = (__avword)((LIST).raddr), 0)
 #endif
@@ -644,7 +653,7 @@ typedef struct
  * scalar argument types
  */
 
-#if defined(__i386__) || defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__alpha__) || defined(__arm__) || defined(__powerpc__) || defined(__m88k__) || defined(__convex__) || defined(__ia64__) || defined(__x86_64__) || defined(__s390__)
+#if defined(__i386__) || defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__alpha__) || defined(__arm__) || defined(__powerpc__) || defined(__powerpc64__) || defined(__m88k__) || defined(__convex__) || defined(__ia64__) || defined(__x86_64__) || defined(__s390__)
 /* Floats and all integer types are passed as words,
  * doubles as two words.
  */
@@ -720,7 +729,7 @@ typedef struct
 #define av_ushort		av_ulong
 #define av_uint			av_ulong
 
-#if defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__ia64__) || defined(__x86_64__)
+#if defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__powerpc64__) || defined(__ia64__) || defined(__x86_64__)
 /* `long long' and `long' are identical. */
 #define av_longlong		av_long
 #define av_ulonglong		av_ulong
@@ -761,7 +770,7 @@ typedef struct
   (((LIST).aptr = (__avword*)(((__avword)(LIST).aptr & -(long)__AV_alignof(TYPE)) - sizeof(TYPE))) < __av_eptr(LIST) \
    ? -1 : (*(TYPE*)(LIST).aptr = (TYPE)(VAL), 0))
 #endif
-#if (defined(__powerpc__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__m88k__)
+#if (defined(__powerpc__) && !defined(__powerpc64__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__m88k__)
 #define __av_longlong(LIST,TYPE,VAL)					\
   (((LIST).aptr = (__avword*)(((__avword)(LIST).aptr+sizeof(TYPE)+__AV_alignof(TYPE)-1) & -(long)__AV_alignof(TYPE))) > __av_eptr(LIST) \
    ? -1 : (((TYPE*)(LIST).aptr)[-1] = (TYPE)(VAL), 0))
@@ -911,7 +920,7 @@ typedef struct
 
 #endif
 
-#if defined(__powerpc__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))
+#if defined(__powerpc__) && !defined(__powerpc64__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))
 
 /* Up to 13 float or double non-varargs args can be passed in
  * float registers, but we also push them into the corresponding int
@@ -937,7 +946,7 @@ typedef struct
 
 #endif
 
-#if defined(__powerpc__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))
+#if defined(__powerpc__) && !defined(__powerpc64__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))
 
 /* Up to 8 float or double non-varargs args can be passed in
  * float registers, without occupying space in the general registers.
@@ -958,6 +967,29 @@ typedef struct
        (LIST).aptr[-2] = (LIST).tmp.words[0],				\
        (LIST).aptr[-1] = (LIST).tmp.words[1],				\
        0)))
+
+#endif
+
+#if defined(__powerpc64__)
+
+/* Up to 13 float or double non-varargs args can be passed in
+ * float registers, but we also push them into the corresponding int
+ * registers in case of varargs.
+ */
+
+#define av_float(LIST,VAL)						\
+  (++(LIST).aptr > __av_eptr(LIST)					\
+   ? -1 : (((float*)(LIST).aptr)[-1] = (float)(VAL),			\
+	   (LIST).faptr < &(LIST).fargs[13] &&				\
+		(*(LIST).faptr++ = (double)(float)(VAL)),		\
+	   0))
+
+#define av_double(LIST,VAL)						\
+  (++(LIST).aptr > __av_eptr(LIST)					\
+   ? -1 : (((double*)(LIST).aptr)[-1] = (double)(VAL),			\
+	   (LIST).faptr < &(LIST).fargs[13] &&				\
+		(*(LIST).faptr++ = (double)(VAL)),			\
+	   0))
 
 #endif
 
@@ -1073,7 +1105,7 @@ typedef struct
 #define __av_struct_alignment(TYPE_ALIGN)  \
   (TYPE_ALIGN)
 #endif
-#if defined(__i386__) || defined(__mips__) || defined(__mipsn32__) || defined(__mips64__) || defined(__alpha__) || (defined(__powerpc__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__m88k__) || defined(__ia64__) || defined(__s390__)
+#if defined(__i386__) || defined(__mips__) || defined(__mipsn32__) || defined(__mips64__) || defined(__alpha__) || (defined(__powerpc__) && !defined(__powerpc64__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__powerpc64__) || defined(__m88k__) || defined(__ia64__) || defined(__s390__)
 /* Structures are passed as fully aligned structures on the arg stack.
  * We align the aptr, store the structure, then fill to word alignment.
  * Single-small-integer structures are NOT promoted to integers and have
@@ -1163,7 +1195,7 @@ typedef struct
    : /* SGI MIPS gcc passes small structures right-adjusted. */		\
      __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL))
 #endif
-#if defined(__powerpc__)
+#if defined(__powerpc__) || defined(__powerpc64__)
 #define __av_struct_leftadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)\
   (((LIST).aptr =							\
     (__avword*)(((__avword)(LIST).aptr+(TYPE_SIZE)+(TYPE_ALIGN)-1) & -(long)(TYPE_ALIGN)))\
@@ -1178,12 +1210,18 @@ typedef struct
    > __av_eptr(LIST)							\
    ? -1 : (ASSIGN(TYPE,TYPE_SIZE,TYPE_ALIGN,(void*)((__avword)(LIST).aptr-(TYPE_SIZE)),VAL),\
 	   0))
+#if !defined(__powerpc64__)
 #define __av_struct(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)		\
   ((LIST).flags & __AV_AIXCC_STRUCT_ARGS				\
    ? /* AIX cc and xlc pass small structures left-adjusted, although big-endian! */\
      __av_struct_leftadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL) \
    : /* gcc passes small structures right-adjusted. */			\
      __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL))
+#endif
+#if defined(__powerpc64__)
+#define __av_struct(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)		\
+  __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)
+#endif
 #endif
 #if defined(__s390__)
 #define __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)\
@@ -1224,7 +1262,7 @@ typedef struct
     ? -1 : (ASSIGN(TYPE,TYPE_SIZE,TYPE_ALIGN,(void*)((__avword)(LIST).aptr-(TYPE_SIZE)),VAL),\
 	    0))
 #endif
-#if (defined(__sparc__) && !defined(__sparc64__)) || (defined(__powerpc__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))))
+#if (defined(__sparc__) && !defined(__sparc64__)) || (defined(__powerpc__) && !defined(__powerpc64__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))))
 /* Structures are passed as pointers to caller-made local copies. We
  * grab space for the copies from the end of the argument list space
  * and always use maximal (double) alignment.
