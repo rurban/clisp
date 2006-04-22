@@ -259,6 +259,15 @@
   (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*))
 (defun (setf class-valid-initargs-from-slots) (new-value class)
   (accessor-typecheck class 'slotted-class '(setf class-valid-initargs-from-slots))
+  ;; When the valid-initargs-from-slots change, the result of
+  ;; (valid-initarg-keywords class ...) changes, therefore we need to invalidate
+  ;; all the caches that use valid-initarg-keywords:
+  (when (or (eq (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*) (sys::%unbound))
+            (set-exclusive-or (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*) new-value))
+    (remhash class *make-instance-table*)
+    (remhash class *reinitialize-instance-table*)
+    (remhash class *update-instance-for-redefined-class-table*)
+    (remhash class *update-instance-for-different-class-table*))
   (setf (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*) new-value))
 
 ;; Not in MOP.

@@ -4186,6 +4186,28 @@ ERROR
     (nreverse ret)))
 (CLASS-FOO-145 CLASS-BAR-145-AFTER)
 
+;; Check that when redefining a class with different slot initargs, the
+;; new initargs are taken into account by make-instance.
+(progn
+  (defclass foo146 () (slot1))
+  (make-instance 'foo146)
+  (defclass foo146 () ((slot1 :initarg :foo)))
+  (make-instance 'foo146 :foo 'any)
+  t)
+T
+
+;; Check that when redefining a class with different slot initargs, the
+;; new initargs are taken into account by make-instance of subclasses.
+(progn
+  (defclass foo147 () (slot1))
+  (defclass foosub147 (foo147) (slot2))
+  (make-instance 'foosub147)
+  (defclass foo147 () ((slot1 :initarg :foo)))
+  (make-instance 'foosub147 :foo 'any)
+  t)
+T
+
+;; Check a particular use of Gray streams.
 (progn (load (make-pathname :name "listeners" :type nil
                             :defaults *run-test-truename*))
        (with-open-stream (s1 (make-string-input-stream "("))
