@@ -1388,7 +1388,7 @@ local maygc void wr_ch_array_synonym (const gcv_object_t* stream_,
 }
 
 /* Closes a Synonym-Stream.
- close_synonym(stream);
+ close_synonym(stream, abort);
  > stream : Synonym-Stream
  > abort: flag: non-0 => ignore errors */
 #ifdef X3J13_014
@@ -2416,7 +2416,7 @@ local maygc uintL rd_ch_array_str_in (const gcv_object_t* stream_,
 }
 
 /* Closes a String-Input-Stream.
- close_str_in(stream);
+ close_str_in(stream, abort);
  > stream : String-Input-Stream
  > abort: flag: non-0 => ignore errors */
 local maygc void close_str_in (object stream, uintB abort) {
@@ -2837,7 +2837,7 @@ local maygc object rd_ch_buff_in (const gcv_object_t* stream_) {
 }
 
 /* Closes a Buffered-Input-Stream.
- close_buff_in(stream);
+ close_buff_in(stream, abort);
  > stream : Buffered-Input-Stream
  > abort: flag: non-0 => ignore errors */
 local maygc void close_buff_in (object stream, uintB abort) {
@@ -2988,7 +2988,7 @@ local maygc void wr_ch_buff_out (const gcv_object_t* stream_, object ch) {
 }
 
 /* Closes a Buffered-Output-Stream.
- close_buff_out(stream);
+ close_buff_out(stream, abort);
  > stream : Buffered-Output-Stream
  > abort: flag: non-0 => ignore errors
  can trigger GC */
@@ -5319,7 +5319,7 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
     UnbufferedStream_status(stream) = 0;
 
 /* Closes a Channel-Stream.
- close_ichannel(stream);
+ close_ichannel(stream, abort);
  > stream : Channel-Stream
  > abort: flag: non-0 => ignore errors */
 local void close_ichannel (object stream, uintB abort) {
@@ -5710,7 +5710,7 @@ local maygc void clear_output_unbuffered (object stream) {
     }
 
 /* Closes a Channel-Stream.
- close_ochannel(stream);
+ close_ochannel(stream, abort);
  > stream : Channel-Stream
  > abort: flag: non-0 => ignore errors */
 local void close_ochannel (object stream, uintB abort) {
@@ -7999,7 +7999,7 @@ local void closed_buffered (object stream) {
 }
 
 /* UP: Closes a File-Stream.
- close_buffered(stream);
+ close_buffered(stream, abort);
  > stream : File-Stream.
  > abort: flag: non-0 => ignore errors
  changed in stream: all Components except name and truename */
@@ -12391,7 +12391,7 @@ LISPFUNN(make_window,0) {
   fehler_screen();
 }
 
-#define close_window(stream)  fehler_screen()
+#define close_window(stream,abort)  fehler_screen()
 
 LISPFUNN(window_size,1) {
   fehler_screen();
@@ -15786,7 +15786,7 @@ LISPFUNN(interactive_stream_p,1) {
 }
 
 /* UP: Closes a Stream.
- builtin_stream_close(&stream);
+ builtin_stream_close(&stream, abort);
  > stream: Builtin-Stream
  > abort: flag: non-0 => ignore errors: may be called from GC & quit()
  < stream: Builtin-Stream
