@@ -1,7 +1,7 @@
 /* vacall function for m68k CPU */
 
 /*
- * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2006 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -18,7 +18,12 @@
 #ifdef REENTRANT
 #define __vacall __vacall_r
 register struct { void (*vacall_function) (void*,va_alist); void* arg; }
-         *	env	__asm__("a0");
+         *	env
+#ifdef __NetBSD__
+			__asm__("a1");
+#else
+			__asm__("a0");
+#endif
 #endif
 register void*	sret	__asm__("a1");
 register int	iret	__asm__("d0");
