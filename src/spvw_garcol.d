@@ -1988,10 +1988,6 @@ local void gc_unmarkcheck (void) {
     #endif
     # add time used by this GC to the GC-total-time:
     gc_timer_off();
-    #ifdef GC_CLOSES_FILES
-    close_some_files(O(files_to_close)); # close previously unmarked files
-    O(files_to_close) = NIL;
-    #endif
     #ifdef GENERATIONAL_GC
     O(gc_count) = fixnum_inc(O(gc_count),1); # count GCs
     #endif
@@ -2003,6 +1999,10 @@ local void gc_unmarkcheck (void) {
 # can trigger GC!
   local maygc void gar_col_done (void)
   {
+    #ifdef GC_CLOSES_FILES
+    close_some_files(O(files_to_close)); # close previously unmarked files
+    O(files_to_close) = NIL;
+    #endif
     # perform finalizer-functions:
     until (eq(O(pending_finalizers),Fixnum_0)) {
       var object obj = O(pending_finalizers);
