@@ -9,7 +9,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : vacall-i386-macro.S vacall-i386-msvc.c vacall-i386-mingw32.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-powerpc-aix.old.s vacall-powerpc-aix.new.s vacall-powerpc-sysv4.s vacall-powerpc-macos.s vacall-powerpc64.s vacall-m88k.s vacall-convex.s vacall-ia64.s vacall-x86_64.s \
+all : vacall-i386-macro.S vacall-i386-msvc.c vacall-i386-mingw32.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-m68k-netbsd.S vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-powerpc-aix.old.s vacall-powerpc-aix.new.s vacall-powerpc-sysv4.s vacall-powerpc-macos.s vacall-powerpc64.s vacall-m88k.s vacall-convex.s vacall-ia64.s vacall-x86_64.s \
       vacall_r.h.msvc config.h.msvc vacall_r.h.mingw32 config.h.mingw32
 
 vacall-i386-macro.S : vacall-i386.c vacall_r.h.in asmi386.sh
@@ -30,6 +30,11 @@ vacall-m68k.mit.S : vacall-m68k.c vacall_r.h.in asmm68k.sh
 
 vacall-m68k.mot.s : vacall-m68k.c vacall_r.h.in
 	$(GCC) -V 2.95.2 -b m68k-linux $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.mot.s
+
+vacall-m68k-netbsd.S : vacall-m68k.c vacall_r.h.in
+	$(GCC) -V 2.95.2 -b m68k-sun $(GCCFLAGS) -D__m68k__ -D__NetBSD__ -S vacall-m68k.c -o vacall-m68k-netbsd.s
+	(echo '#include "asmm68k.h"' ; ./asmm68k.sh < vacall-m68k-netbsd.s) > vacall-m68k-netbsd.S
+	$(RM) vacall-m68k-netbsd.s
 
 vacall-mips.S : vacall-mips.c vacall_r.h.in asmmips.sh
 	$(GCC) -V 2.95.2 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S vacall-mips.c -o vacall-mips.s

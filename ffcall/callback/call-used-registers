@@ -17,7 +17,7 @@ grep STATIC_CHAIN_REGNUM and TRAMPOLINE_TEMPLATE in the machine description.
 
             Machine description         first two (a,b)     Lexical closure reg
 i386        eax,edx,ecx                 eax,edx                 ecx
-m68k        d0,d1,a0,a1                 d0,d1                   a0
+m68k        d0,d1,a0,a1                 d0,d1                   a0 (a1 in NetBSD)
 mips        r2-r15                      $2=v0,$3=v1,$8=t0       $2
 sparc       g1-g4                       g1-g3                   g2
 sparc64     g1-g5                       g1-g3                   g5
