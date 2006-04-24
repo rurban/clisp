@@ -15498,7 +15498,7 @@ extern bool interactive_stream_p (object stream);
 # is used by DEBUG
 
 /* UP: Closes a stream.
- builtin_stream_close(&stream);
+ builtin_stream_close(&stream,abort);
  > stream: Builtin-Stream
  > abort: flag: non-0 => ignore errors
  < stream: Builtin-Stream
