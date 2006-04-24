@@ -17,7 +17,12 @@
 	(CL_CANONICAL_HOST_CPU_FOR_FFCALL): Likewise.
 	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Update.
 
-2006-04-16  Joerg Hoehle  <hoehle@users.sourceforge.net>
+2006-04-21  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* spvw_garcol.d (gar_col_normal): delay close_some_files()
+	until within gar_col_done().
+
+2006-04-16  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* describe.lisp (describe-object@global-symbol-macro):
 	complete 2005-01-05.  When adding internal types, please
