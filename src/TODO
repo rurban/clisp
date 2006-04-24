@@ -99,6 +99,13 @@ Update PARI module: there is no global precision variable anymore.
 Many functions have been added since the module has been written.
 
 
+2000-12-04 did some changes to not goto outside `with_string_0', however
+pathname.d:open_file() still has such a case.
+Likewise, pathname.d:directory_search_hashcode `return's while in scope.
+Important only for those compilers that neither support alloca() nor
+{ var char x[foo(y)]; ...} variable-sized arrays?
+
+
 nested REQUIRE is broken
 <http://article.gmane.org/gmane.lisp.clisp.devel:13691>:
 suppose I have a library which consists of 10 files - which create
