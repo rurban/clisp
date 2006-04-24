@@ -423,6 +423,22 @@ __TR_function alloc_trampoline_r (__TR_function address, void* data0, void* data
   *(long *)  (function + 2)
 #endif
 #ifdef __m68k__
+#ifdef __NetBSD__
+  /* function:
+   *    movel #<data>,a1		22 7C <data>
+   *    jmp <address>			4E F9 <address>
+   *    nop				4E 71
+   */
+  *(short *) (function + 0) = 0x227C;
+  *(long *)  (function + 2) = (long) data;
+  *(short *) (function + 6) = 0x4EF9;
+  *(long *)  (function + 8) = (long) address;
+  *(short *) (function +12) = 0x4E71;
+#define is_tramp(function)  \
+  *(unsigned short *) (function + 0) == 0x227C && \
+  *(unsigned short *) (function + 6) == 0x4EF9 && \
+  *(unsigned short *) (function +12) == 0x4E71
+#else
   /* function:
    *    movel #<data>,a0		20 7C <data>
    *    jmp <address>			4E F9 <address>
@@ -437,6 +453,7 @@ __TR_function alloc_trampoline_r (__TR_function address, void* data0, void* data
   *(unsigned short *) (function + 0) == 0x207C && \
   *(unsigned short *) (function + 6) == 0x4EF9 && \
   *(unsigned short *) (function +12) == 0x4E71
+#endif
 #define tramp_address(function)  \
   *(long *)  (function + 8)
 #define tramp_data(function)  \

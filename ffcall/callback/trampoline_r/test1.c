@@ -35,7 +35,11 @@ int f (int x)
 {
 #ifdef __GNUC__
 #ifdef __m68k__
+#ifdef __NetBSD__
+register void* env __asm__("a1");
+#else
 register void* env __asm__("a0");
+#endif
 #endif
 #ifdef __mips__
 register void* env __asm__("$2");
