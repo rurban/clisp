@@ -24,4 +24,5 @@ Supported CPUs:  (Put the GNU config.guess values here.)
      convex   -- untested
      ia64     ia64-unknown-linux (gcc)
      x86_64   x86_64-suse-linux (gcc)
+     s390     -- untested
 
