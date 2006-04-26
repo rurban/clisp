@@ -1,3 +1,10 @@
+2006-04-26  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* charstrg.d (charname_table_codes) [WIN32_PATHNAMES]: Add #\Esc
+	as synonym to #\Escape for interoperability.
+	* constobj.d (charname_27bis) [WIN32_PATHNAMES]: added
+	Suggested by Frank Buss <fb@frank-buss.de>
+
 2006-04-26  Sam Steingold  <sds@podval.org>
 
 	* modules/pcre/configure.in: fixed a typo
