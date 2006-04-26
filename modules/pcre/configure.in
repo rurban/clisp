@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for PCRE
-dnl Sam Steingold 2003-2005
+dnl Sam Steingold 2003-2006
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -23,7 +23,7 @@ then AC_MSG_ERROR([cannot find PCRE headers])
 fi
 
 AC_MSG_NOTICE([ * PCRE (Functions)])
-AC_LIB_APPENDTOVAR([LIBS], [$LTLIBPQ])
+AC_LIB_APPENDTOVAR([LIBS], [$LTLIBPCRE])
 AC_SEARCH_LIBS(pcre_compile, pcre)
 if test "$ac_cv_search_pcre_compile" = "no"; then
   AC_MSG_ERROR([cannot find PCRE library])
