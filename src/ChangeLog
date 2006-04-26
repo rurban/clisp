@@ -1,5 +1,11 @@
 2006-04-26  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	(code-char #\Rubout) has value 127 since at least 1998.
+	* constobj.d (charname_127) [WIN32_PATHNAMES]: renamed from
+	charname_8bis, value unchanged.
+
+2006-04-26  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	* charstrg.d (charname_table_codes) [WIN32_PATHNAMES]: Add #\Esc
 	as synonym to #\Escape for interoperability.
 	* constobj.d (charname_27bis) [WIN32_PATHNAMES]: added
