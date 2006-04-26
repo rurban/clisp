@@ -1,3 +1,8 @@
+2006-04-26  Sam Steingold  <sds@podval.org>
+
+	* modules/pcre/configure.in: fixed a typo
+	Reported by Albert Chin <clisp-devel@mlists.thewrittenword.com>
+
 2006-04-26  Bruno Haible  <bruno@clisp.org>
 
 	* build-aux/config.guess, build-aux/config.sub: Update to GNU version
@@ -143,7 +148,7 @@
 	* intlog.d (I_logcount_I): remove superfluous second {} block.
 	* arilev0.d (mulu32_64) [SPARC]: ditto.
 	Reported by Magnus Henoch <mange@freemail.hu>
-	
+
 2006-03-01  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* defs2.lisp (destructuring-bind): Forgotten by 2004-05-23
