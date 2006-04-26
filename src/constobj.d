@@ -82,6 +82,7 @@
     LISPOBJ(charname_32,"\"Space\"")
     LISPOBJ(charname_8bis,"\"Rubout\"")
     LISPOBJ(charname_10bis,"\"Linefeed\"")
+    LISPOBJ(charname_27bis,"\"Esc\"")
   #endif
   #ifdef UNIX_CHARNAMES
     LISPOBJ(charname_0bis,"\"Null\"")
@@ -129,11 +130,11 @@
     LISPOBJ(charname_30,"\"Rs\"")
     LISPOBJ(charname_31,"\"Us\"")
     LISPOBJ(charname_32,"\"Sp\"")
+    LISPOBJ(charname_127,"\"Del\"")
     # The proposal to add:
     #  constobj.d (UNIX_CHARNAMES): #\Erik is a synonym for #\Null.
     #  LISPOBJ(charname_0tris,"\"Erik\"") # special "honour" for Mr. Nutgum
     # has been rejected because of a seriousness attack.
-    LISPOBJ(charname_127,"\"Del\"")
   #endif
 # for ARRAY.D:
   LISPOBJ(type_vector_with_fill_pointer,"(AND VECTOR (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # type for error message
