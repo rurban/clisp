@@ -574,7 +574,7 @@ global object unpack_string_ro (object string, uintL* len, uintL* offset) {
 }
 
 /* UP: unpack a string
- unpack_string_rw(string,&len,&offset)  [for read-write access]
+ unpack_string_rw(string,&len)  [for read-write access]
  > object string: a string
  < uintL len: the fill-pointer length of the string
  < uintL offset: offset in the datastorage vector
@@ -1273,7 +1273,7 @@ global object coerce_char (object obj) {
 /* table of character-names:
  defined in CONSTOBJ.D, */
 #ifdef WIN32_CHARNAMES
-  #define charname_table_length  13  /* length of the table */
+  #define charname_table_length  14  /* length of the table */
   #define charname_table  ((gcv_object_t*)(&object_tab.charname_0)) /* table starts with charname_0 */
 #endif
 #ifdef UNIX_CHARNAMES
@@ -1283,7 +1283,7 @@ global object coerce_char (object obj) {
 /* table of codes for this name: */
 local const uintB charname_table_codes [charname_table_length]
   #ifdef WIN32_CHARNAMES
-    = { 0,BEL,BS,TAB,NL,11,PG,CR,26,ESC,' ',RUBOUT,LF, };
+    = { 0,BEL,BS,TAB,NL,11,PG,CR,26,ESC,' ',RUBOUT,LF,27, };
   #endif
   #ifdef UNIX_CHARNAMES
     = { 0,7,BS,TAB,NL,LF,PG,CR,27,32,RUBOUT,127,

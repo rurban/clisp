@@ -2361,8 +2361,11 @@ and the international alphabetic characters from the character set:
 </section>
 
 <section id="base-char"><title>Type &base-char-t;</title>
-<para>The types <classname>EXT:STRING-CHAR</classname> (removed by
- &iss026;) and &base-char-t; are equivalent to &character-t;.</para>
+<para>The types <classname>EXT:STRING-CHAR</classname> and
+ &base-char-t; are equivalent to &character-t;.
+ <classname>EXT:STRING-CHAR</classname> used to be available as
+ <classname>STRING-CHAR</classname> prior to removal from &ansi-cl; by
+ &iss026;.</para>
 </section>
 
 <section id="char-width"><title>Function &char-width;</title>
@@ -2406,7 +2409,8 @@ and the international alphabetic characters from the character set:
  <row><entry><code>(&code-char; #x1A)</code></entry>
           <entry><keysym>#\Code26</keysym></entry></row>
  <row><entry><code>(&code-char; #x1B)</code></entry>
-          <entry><keysym>#\Escape</keysym></entry></row>
+          <entry><keysym>#\Escape</keysym></entry>
+          <entry><keysym>#\Esc</keysym></entry></row>
  <row><entry><code>(&code-char; #x20)</code></entry>
           <entry><keysym>#\Space</keysym></entry></row>
 </tbody></tgroup></table>
