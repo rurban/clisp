@@ -1,3 +1,13 @@
+2006-04-26  Bruno Haible  <bruno@clisp.org>
+
+	* build-aux/config.guess, build-aux/config.sub: Update to GNU version
+	2006-04-26.
+
+2006-04-21  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* spvw_garcol.d (gar_col_normal): delay close_some_files()
+	until within gar_col_done().
+
 2006-04-22  Bruno Haible  <bruno@clisp.org>
 
 	* m4/general.m4 (CL_CANONICAL_HOST_CPU): Recognize powerpc64 / powerpc
@@ -16,11 +26,6 @@
 	versa.
 	(CL_CANONICAL_HOST_CPU_FOR_FFCALL): Likewise.
 	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Update.
-
-2006-04-21  Jörg Höhle  <hoehle@users.sourceforge.net>
-
-	* spvw_garcol.d (gar_col_normal): delay close_some_files()
-	until within gar_col_done().
 
 2006-04-16  Jörg Höhle  <hoehle@users.sourceforge.net>
 
