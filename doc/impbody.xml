@@ -2394,8 +2394,7 @@ and the international alphabetic characters from the character set:
  <row><entry><code>(&code-char; #x07)</code></entry>
           <entry><keysym>#\Bell</keysym></entry></row>
  <row><entry><code>(&code-char; #x08)</code></entry>
-          <entry><keysym>#\Backspace</keysym></entry>
-          <entry><keysym>#\Rubout</keysym></entry></row>
+          <entry><keysym>#\Backspace</keysym></entry></row>
  <row><entry><code>(&code-char; #x09)</code></entry>
           <entry><keysym>#\Tab</keysym></entry></row>
  <row><entry><code>(&code-char; #x0A)</code></entry>
@@ -2413,6 +2412,8 @@ and the international alphabetic characters from the character set:
           <entry><keysym>#\Esc</keysym></entry></row>
  <row><entry><code>(&code-char; #x20)</code></entry>
           <entry><keysym>#\Space</keysym></entry></row>
+ <row><entry><code>(&code-char; #x7F)</code></entry>
+          <entry><keysym>#\Rubout</keysym></entry></row>
 </tbody></tgroup></table>
 <!-- #endif -->
 
