@@ -21,6 +21,7 @@ Supported CPUs:  (Put the GNU config.guess values here.)
      arm      -- untested
      powerpc  rs6000-ibm-aix3.2.5 (gcc, c89, xlc), powerpc-ibm-aix4.1.4.0 (cc),
               powerpc-unknown-linux (gcc), powerpc-apple-darwin6.8 (gcc)
+     powerpc64 -- untested
      m88k     -- untested
      convex   -- untested
      ia64     ia64-unknown-linux (gcc)

@@ -20,12 +20,16 @@
 #define __hppanew__  /* New trampoline, just a closure. */
 #endif
 #endif
-#if defined(__powerpc__)
+#if defined(__powerpc__) && !defined(__powerpc64__)
 #if !defined(_AIX)
 #define __powerpcsysv4__  /* SysV.4 ABI, real machine code. */
 #else
 #define __powerpcaix__  /* AIX ABI, just a closure. */
 #endif
+#endif
+#if defined(__powerpc64__)
+/* The only ABI on powerpc64 known so far is the AIX ABI. */
+#define __powerpc64aix__  /* AIX ABI, just a closure. */
 #endif
 #if defined(__hppanew__)
 /*
@@ -40,7 +44,7 @@ extern void tramp_r (); /* trampoline prototype */
 #define CODE_EXECUTABLE
 #endif
 #endif
-#if defined(__powerpcaix__) || defined(__ia64__)
+#if defined(__powerpcaix__) || defined(__powerpc64aix__) || defined(__ia64__)
 /*
  * A function pointer is a pointer to a data area whose first word contains
  * the actual address of the function.
@@ -212,7 +216,7 @@ extern inline
 #ifdef __hppa__
 #include "cache-hppa.c"
 #endif
-#ifdef __powerpc__
+#if defined(__powerpc__) && !defined(__powerpc64__)
 #include "cache-powerpc.c"
 #endif
 #ifdef __convex__
@@ -284,6 +288,10 @@ extern void __TR_clear_cache();
 #ifdef __powerpcaix__
 #define TRAMP_LENGTH 20
 #define TRAMP_ALIGN 4
+#endif
+#ifdef __powerpc64aix__
+#define TRAMP_LENGTH 40
+#define TRAMP_ALIGN 8
 #endif
 #ifdef __m88k__
 #define TRAMP_LENGTH 20
@@ -894,6 +902,27 @@ __TR_function alloc_trampoline_r (__TR_function address, void* data0, void* data
 #define tramp_data(function)  \
   ((long *) function)[3]
 #endif
+#ifdef __powerpc64aix__
+  /* function:
+   *    .quad .tramp_r
+   *    .quad .mytoc
+   *    .quad 0
+   * .mytoc:
+   *    .quad <data>
+   *    .quad <address>
+   */
+  *(long *)  (function + 0) = ((long *) &tramp_r)[0];
+  *(long *)  (function + 8) = (long) (function + 24);
+  *(long *)  (function +16) = 0;
+  *(long *)  (function +24) = (long) data;
+  *(long *)  (function +32) = (long) address;
+#define is_tramp(function)  \
+  ((long *) function)[0] == ((long *) &tramp_r)[0]
+#define tramp_address(function)  \
+  ((long *) function)[4]
+#define tramp_data(function)  \
+  ((long *) function)[3]
+#endif
 #ifdef __m88k__
   /* function:
    *    or.u    #r11,#r0,hi16(<data>)		5D 60 hi16(<data>)
@@ -1065,7 +1094,7 @@ __TR_function alloc_trampoline_r (__TR_function address, void* data0, void* data
    * cache. The freshly built trampoline is visible to the data cache, but not
    * maybe not to the instruction cache. This is hairy.
    */
-#if !(defined(__hppanew__) || defined(__powerpcaix__) || defined(__ia64__))
+#if !(defined(__hppanew__) || defined(__powerpcaix__) || defined(__powerpc64aix__) || defined(__ia64__))
   /* Only needed if we really set up machine instructions. */
 #ifdef __i386__
 #if defined(_WIN32)
@@ -1148,7 +1177,7 @@ __TR_function alloc_trampoline_r (__TR_function address, void* data0, void* data
 #ifdef __arm__
   /* This CPU does not have a separate instruction cache. (I think.) */
 #endif
-#ifdef __powerpc__
+#if defined(__powerpc__) && !defined(__powerpc64__)
   __TR_clear_cache(function);
 #endif
 #ifdef __m88k__
