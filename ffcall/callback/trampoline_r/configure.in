@@ -34,7 +34,7 @@ dnl CL_CANONICAL_HOST(../../build-aux)
 dnl CL_CANONICAL_HOST_CPU_FOR_FFCALL
 CL_CODEEXEC
 CPU_OBJECTS=''
-if test ${host_cpu_abi} = hppa -o ${host_cpu_abi} = ia64; then
+if test ${host_cpu_abi} = hppa -o ${host_cpu_abi} = powerpc64 -o ${host_cpu_abi} = ia64; then
   CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).lo'
 fi
 if test ${host_cpu_abi} = powerpc; then
