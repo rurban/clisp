@@ -6473,7 +6473,7 @@ _ACEOF
 esac
 
 CPU_OBJECTS=''
-if test ${host_cpu_abi} = hppa -o ${host_cpu_abi} = ia64; then
+if test ${host_cpu_abi} = hppa -o ${host_cpu_abi} = powerpc64 -o ${host_cpu_abi} = ia64; then
   CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).o'
 fi
 if test ${host_cpu_abi} = powerpc; then
