@@ -1,3 +1,11 @@
+2006-04-28  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/configure.in, modules/pari/configure.in:
+	* modules/pcre/configure.in, modules/postgresql/configure.in:
+	* modules/zlib/configure.in: add $LIB<mod> to $LIB (not $LTLIB<mod>)
+	Reported by Albert Chin <clisp-devel@mlists.thewrittenword.com>
+	in message <http://article.gmane.org/gmane.lisp.clisp.devel:15576>
+
 2006-04-26  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* spvw_sigsegv.d (stackoverflow_handler) [UNIX]: libsigsegv doc
@@ -23,7 +31,7 @@
 	* constobj.d (charname_27bis) [WIN32_PATHNAMES]: added
 	Suggested by Frank Buss <fb@frank-buss.de>
 
-2006-04-26  Sam Steingold  <sds@podval.org>
+2006-04-26  Sam Steingold  <sds@gnu.org>
 
 	* modules/pcre/configure.in: fixed a typo
 	Reported by Albert Chin <clisp-devel@mlists.thewrittenword.com>

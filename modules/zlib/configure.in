@@ -1,5 +1,6 @@
 dnl AUTOCONF configuration for libz
-dnl Sam Steingold 2004-2005
+dnl Copyright (C) 2004-2006  Sam Steingold <sds@gnu.org>
+dnl GNU GPL2
 
 AC_PREREQ(2.57)
 AC_INIT(zlib, 1.0, clisp-list)
@@ -22,6 +23,7 @@ then AC_MSG_ERROR([cannot find ZLIB headers])
 fi
 
 AC_MSG_NOTICE([ * ZLIB (Functions)])
+AC_LIB_APPENDTOVAR([LIBS], [$LIBZ])
 AC_SEARCH_LIBS(compress2, z)
 if test "$ac_cv_search_compress2" = "no"; then
   AC_MSG_ERROR([cannot find ZLIB library])
@@ -30,7 +32,6 @@ AC_CHECK_FUNCS(compressBound)
 if test "$ac_cv_func_compressBound" = "no"; then
   AC_MSG_ERROR([ZLIB version 1.2 or better is required])
 fi
-
 
 AC_MSG_NOTICE([ * ZLIB (Output)])
 AC_CONFIG_FILES(Makefile link.sh)

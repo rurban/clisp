@@ -24,7 +24,7 @@ if test "$ac_cv_header_postgres_ext_h" = "no" -a "$ac_cv_header_postgresql_postg
 fi
 
 AC_MSG_NOTICE([* PostgreSQL (Functions)])
-AC_LIB_APPENDTOVAR([LIBS], [$LTLIBPQ])
+AC_LIB_APPENDTOVAR([LIBS], [$LIBPQ])
 AC_SEARCH_LIBS(PQconnectdb, pq)
 if test "$ac_cv_search_PQconnectdb" = "no"; then
   AC_MSG_ERROR([cannot find PostgreSQL library])
