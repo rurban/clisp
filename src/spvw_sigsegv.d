@@ -77,6 +77,26 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
     fputs("\n",stderr);
     print_mem_stats();
   }
+  # Libsigsegv requires handlers to restore the normal signal mask
+  # prior to resuming the application from the stack overflow handler.
+ #ifdef UNIX
+  # Unblock signals blocked by libsigsegv/src/handler-unix.c:install_for()
+  # Alternatively unblock all signals
+  #if defined(SIGNALBLOCK_POSIX)
+  { var sigset_t sigblock_mask;
+    # sigemptyset(&sigblock_mask);
+    # sigaddset(&sigblock_mask,SIGSEGV);
+    # sigaddset(&sigblock_mask,SIGBUS);
+    # sigaddset(&sigblock_mask,SIGINT);
+    # sigaddset(&sigblock_mask,SIGHUP);
+    # and QUIT, TERM, PIPE, ALRM, IO and many more
+    sigfillset(&sigblock_mask);
+    sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
+  }
+  #elif defined(SIGNALBLOCK_BSD)
+  sigsetmask(0);
+  #endif
+ #endif
   sigsegv_leave_handler();
  #ifdef HAVE_SAVED_STACK
   # Assign a reasonable value to STACK:
