@@ -33,7 +33,7 @@ Supported CPUs:  (Put the GNU config.guess values here.)
             powerpc-ibm-aix4.1.4.0 (cc)
             powerpc-unknown-linux (gcc)              Apple PPC     LinuxPPC
             powerpc-apple-darwin6.8 (gcc)            Apple PPC     MacOS X
-   powerpc64 powerpc64-unknown-linux-gnu (gcc)
+   powerpc64 powerpc64-unknown-linux (gcc -m64)
    m88k     -- untested
    convex   -- untested
    ia64     ia64-unknown-linux (gcc)                 HP NUE/x86    Linux
