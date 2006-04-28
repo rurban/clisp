@@ -1,24 +1,19 @@
 	.file	"vacall-powerpc64.c"
 	.section	".toc","aw"
 	.section	".text"
-	.section	".toc","aw"
-.LC0:
-	.tc vacall_function[TC],vacall_function
-	.section	".text"
 	.align 2
 	.p2align 4,,15
-	.globl __vacall
+	.globl __vacall_r
 	.section	".opd","aw"
 	.align 3
-__vacall:
-	.quad	.L.__vacall,.TOC.@tocbase,0
+__vacall_r:
+	.quad	.L.__vacall_r,.TOC.@tocbase,0
 	.previous
-	.type	__vacall, @function
-.L.__vacall:
+	.type	__vacall_r, @function
+.L.__vacall_r:
 	mflr 0
 	std 29,-24(1)
 	li 29,0
-	ld 11,.LC0@toc(2)
 	std 0,16(1)
 	stdu 1,-400(1)
 	li 0,0
@@ -28,6 +23,7 @@ __vacall:
 	std 9,496(1)
 	std 3,448(1)
 	std 4,456(1)
+	std 29,128(1)
 	std 5,464(1)
 	std 6,472(1)
 	std 7,480(1)
@@ -35,14 +31,14 @@ __vacall:
 	std 10,504(1)
 	std 0,120(1)
 	stfd 1,176(1)
-	addi 9,1,176
 	stfd 2,184(1)
+	addi 9,1,176
 	stfd 3,192(1)
 	stfd 4,200(1)
 	stfd 5,208(1)
-	addi 3,1,112
-	std 9,168(1)
 	stfd 6,216(1)
+	addi 4,1,112
+	std 9,168(1)
 	stfd 7,224(1)
 	stfd 8,232(1)
 	stfd 9,240(1)
@@ -50,10 +46,8 @@ __vacall:
 	stfd 11,256(1)
 	stfd 12,264(1)
 	stfd 13,272(1)
-	std 29,128(1)
 	ld 9,0(11)
-	nop
-	nop
+	ld 3,8(11)
 	ld 0,0(9)
 	std 2,40(1)
 	mtctr 0
@@ -139,5 +133,5 @@ __vacall:
 	b .L31
 	.long 0
 	.byte 0,0,0,1,128,3,0,0
-	.size	__vacall,.-.L.__vacall
+	.size	__vacall_r,.-.L.__vacall_r
 	.ident	"GCC: (GNU) 4.0.2"
