@@ -1,5 +1,10 @@
 2006-04-26  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	* spvw_sigsegv.d (stackoverflow_handler) [UNIX]: libsigsegv doc
+	says to restore normal signal mask prior to leaving handler.
+
+2006-04-26  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	(code-char #\Rubout) has value 127 since at least 1998.
 	* constobj.d (charname_127) [WIN32_PATHNAMES]: renamed from
 	charname_8bis, value unchanged.
