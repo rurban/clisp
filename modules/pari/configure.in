@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for PARI
-dnl Copyright (C) 2004-2005 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2004-2006  Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -23,7 +23,7 @@ then AC_MSG_ERROR([cannot find PARI headers])
 fi
 
 AC_MSG_NOTICE([ * PARI (Functions)])
-AC_LIB_APPENDTOVAR([LIBS], [$LTLIBPARI])
+AC_LIB_APPENDTOVAR([LIBS], [$LIBPARI])
 AC_SEARCH_LIBS(pari_kernel_init)
 if test "$ac_cv_search_pari_kernel_init" = "no";
 then AC_MSG_ERROR([cannot find PARI library])
