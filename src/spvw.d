@@ -2415,7 +2415,7 @@ local inline int parse_options (int argc, const char* const* argv,
       p1->argv_memneed = 3584*1024*sizeof(gcv_object_t); # 3584 KW = 14 MB Default
      #else
       # normal
-      p1->argv_memneed = 512*1024*sizeof(gcv_object_t); # 512 KW = 2 MB Default
+      p1->argv_memneed = 768*1024*sizeof(gcv_object_t); # 768 KW = 3 MB Default
      #endif
     }
    #ifdef MULTIMAP_MEMORY_VIA_FILE

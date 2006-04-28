@@ -3,6 +3,13 @@
 	* spvw_sigsegv.d (stackoverflow_handler) [UNIX]: libsigsegv doc
 	says to restore normal signal mask prior to leaving handler.
 
+2006-04-25  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	Increase memory sizes for builds/tests with fixed memory size.
+	* spvw.d (parse_options): default -m 3MB
+	* makemake.in (interpreted.mem, halfcompiled.mem): Grant 1800 KW.
+	(stage/*.fas): Grant 1000 KW.
+
 2006-04-26  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	(code-char #\Rubout) has value 127 since at least 1998.
