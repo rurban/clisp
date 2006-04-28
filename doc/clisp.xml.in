@@ -190,7 +190,7 @@ compiles the specified lisp files to a platform-independent
      <term>&n-r;<command>MB</command></term>
      <listitem><simpara>measured in megabytes
    </simpara></listitem></varlistentry></variablelist>
-   The default is 2 megabytes.
+   The default is 3 megabytes.
 <!-- #if (oint_addr_len+addr_shift==24) -->
    The argument is constrained between 100 KB and 16 MB.
 <!-- #elif (oint_addr_len+addr_shift==26) -->

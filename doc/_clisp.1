@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 2005\-10\-07_10:16_snapshot).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "CLISP" "1" "Last modified: 2006\-01\-23" "CLISP 2.38" "Platform: @PLATFORM@"
+.TH "CLISP" "1" "Last modified: 2006\-04\-26" "CLISP 2.38" "Platform: @PLATFORM@"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -123,7 +123,7 @@ measured in megabytes
 .RE
 .RE
 .IP
-The default is 2 megabytes.
+The default is 3 megabytes.
 #if (oint_addr_len+addr_shift==24)
 The argument is constrained between 100 KB and 16 MB.
 #elif (oint_addr_len+addr_shift==26)
@@ -300,7 +300,8 @@ Override (or force) the batch mode imposed by
 \fB\-c\fR,
 \fB\-x\fR, and
 \fIlisp\-file\fR, depending on
-\fIaction\fR:.RS
+\fIaction\fR:
+.RS
 .TP
 appease
 [17]\&\fIcontinuable\fR[18]\&\fIERROR\fRs are turned into
