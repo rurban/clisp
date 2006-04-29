@@ -1,3 +1,16 @@
+2006-04-29  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	GREAT socket speedup on win32
+	* win32aux.d (interruptible_call_event, interruptible_return_event)
+	(interruptible_routine, interruptible_arg)
+	(interruptible_result): new static variables.
+	(DoInterruptible): do not start new thread each time DoInterruptible
+	is called. Use events to signal thread started once. Abort thread 
+	only when Ctrl-C or Ctrl-Break is pressed.
+	(temp_interrupt_handler): close event handles as well as thread ones.
+	(standbythreadf): "stand-by thread" function.
+	(done_win32): terminate thread, close events.
+
 2006-04-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/configure.in, modules/pari/configure.in:

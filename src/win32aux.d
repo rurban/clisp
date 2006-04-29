@@ -85,17 +85,6 @@ global void init_win32 (void)
   }
 }
 
-global void done_win32 (void) {
-  if (winsock_initialized && WSACleanup()) {
-    earlylate_asciz_error("\n*** - Failed to shutdown winsock library\n",0);
-  }
-  winsock_initialized = 0;
-  if (com_initialized) {
-    CoUninitialize();
-    com_initialized = false;
-  }
-}
-
 /* Ctrl-C-interruptibility.
  We treat Ctrl-C as under Unix: Enter a break loop, continuable if possible.
  We treat Ctrl-Break as usual under Windows: abort the application, as if
@@ -107,8 +96,30 @@ global void done_win32 (void) {
 local BOOL DoInterruptible (LPTHREAD_START_ROUTINE fn, LPVOID arg, BOOL socketp);
 local BOOL interruptible_active;
 local HANDLE interruptible_thread;
+local HANDLE interruptible_call_event;
+local HANDLE interruptible_return_event;
+local LPTHREAD_START_ROUTINE interruptible_routine;
+local LPVOID interruptible_arg;
+local DWORD  interruptible_result;
 local BOOL interruptible_socketp;
 local DWORD interruptible_abort_code;
+
+global void done_win32 (void) {
+  if (winsock_initialized && WSACleanup()) {
+    earlylate_asciz_error("\n*** - Failed to shutdown winsock library\n",0);
+  }
+  winsock_initialized = 0;
+  if (com_initialized) {
+    CoUninitialize();
+    com_initialized = false;
+  }
+  if (interruptible_thread) {
+    TerminateThread(interruptible_thread,0);
+    interruptible_thread = NULL;
+    CloseHandle(interruptible_call_event);
+    CloseHandle(interruptible_return_event);
+  }
+}
 
 local BOOL temp_interrupt_handler (DWORD CtrlType)
 {
@@ -125,12 +136,17 @@ local BOOL temp_interrupt_handler (DWORD CtrlType)
         WSACancelBlockingCall();
        #endif
       }
-      /* We treat error as nonexistent thread which shouldn't be closed */
+      /* We think error means thread doesn't exist */
       if (GetExitCodeThread(interruptible_thread,&thread_exit_code)
-          && thread_exit_code == STILL_ACTIVE)
+          && thread_exit_code == STILL_ACTIVE) {
         if (!TerminateThread(interruptible_thread,0)) {
           OS_error();
         }
+        interruptible_thread = NULL;
+      }
+      SetEvent(interruptible_return_event);
+      CloseHandle(interruptible_call_event);
+      CloseHandle(interruptible_return_event);
       interruptible_abort_code = 1+CtrlType;
     }
     /* Don't invoke the other handlers (in particular, the default handler) */
@@ -141,32 +157,59 @@ local BOOL temp_interrupt_handler (DWORD CtrlType)
   }
 }
 
+local DWORD WINAPI standbythreadf (LPVOID arg) {
+/* 
+"Plus I remember being impressed with Ada because you could write an
+ infinite loop without a faked up condition.  The idea being that in Ada
+ the typical infinite loop would normally be terminated by detonation."
+                                             -Larry Wall     
+*/
+  while (true) {
+    if (WaitForSingleObject(interruptible_call_event,
+        INFINITE)==WAIT_OBJECT_0) {
+      ResetEvent(interruptible_call_event);
+      interruptible_result = interruptible_routine(interruptible_arg);
+      SetEvent(interruptible_return_event);
+    }
+    if (!interruptible_thread) return 0;
+  }
+}
+
 local BOOL DoInterruptible(LPTHREAD_START_ROUTINE fn, LPVOID arg, BOOL socketp)
 {
-  var HANDLE thread;
   var DWORD thread_id;
-  thread = CreateThread(NULL,10000,fn,arg,0,&thread_id);
-  if (thread==NULL) {
-    OS_error();
+  if (!interruptible_thread) {
+    interruptible_call_event = CreateEvent(NULL,TRUE,FALSE,NULL);
+    if (!interruptible_call_event) OS_error();
+    interruptible_return_event = CreateEvent(NULL,TRUE,FALSE,NULL);
+    if (!interruptible_return_event) OS_error();
+    interruptible_thread = 
+      CreateThread(NULL,10000,&standbythreadf,NULL,0,&thread_id);
+    if (!interruptible_thread) OS_error();
   }
   interruptible_active = false;
-  interruptible_thread = thread;
   interruptible_abort_code = 0;
   interruptible_socketp = socketp;
   SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,true);
   interruptible_active = true;
-  WaitForSingleObject(interruptible_thread,INFINITE);
-  interruptible_active = false;
-  SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,false);
-  CloseHandle(interruptible_thread);
-  if (!interruptible_abort_code) {
-    return true;                /* successful termination */
-  } else {
-    if (interruptible_abort_code == 1+CTRL_BREAK_EVENT) {
-      final_exitcode = 130; quit(); /* aborted by Ctrl-Break */
+  interruptible_routine = fn;
+  interruptible_arg = arg;
+  if (!SetEvent(interruptible_call_event)) OS_error();
+  if (WaitForSingleObject(interruptible_return_event,INFINITE) 
+      == WAIT_OBJECT_0) 
+  {
+    ResetEvent(interruptible_return_event);
+    interruptible_active = false;
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,false);
+    if (!interruptible_abort_code) {
+      return true;                /* successful termination */
+    } else {
+      if (interruptible_abort_code == 1+CTRL_BREAK_EVENT) {
+        final_exitcode = 130; quit(); /* aborted by Ctrl-Break */
+      }
+      return false;               /* aborted by Ctrl-C */
     }
-    return false;               /* aborted by Ctrl-C */
-  }
+  } else OS_error();
 }
 
 
