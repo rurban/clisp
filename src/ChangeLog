@@ -1,5 +1,10 @@
 2006-04-29  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (XCFLAGS): Add -falign-functions=4 not only when
+	debugging. But add it only for i386 CPUs.
+
+2006-04-29  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (check-doc): Use lynx or curl as fallback when wget
 	doesn't exist.
 
