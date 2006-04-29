@@ -3288,8 +3288,16 @@ if [ $CROSS = false ] ; then
   fi
 
   # have CVS + developer with a network connection => check id-href.map
+  # Try wget, lynx, curl in order. wget is common, but MacOS X only has curl.
   MYIMPROOT=http://www.podval.org/~sds/clisp/impnotes/
-  if test -d "${SRCTOPDIR_}CVS" && wget --timeout=60 -q ${MYIMPROOT}id-href.map; then
+  MYTESTURL=${MYIMPROOT}id-href.map
+  if test -d "${SRCTOPDIR_}CVS" \
+     && { { wget --version >/dev/null 2>/dev/null \
+            && wget --timeout=60 -q ${MYTESTURL}; } \
+          || { lynx --version >/dev/null 2>/dev/null \
+               && lynx -source ${MYTESTURL} > id-href.map; } \
+          || { curl --version >/dev/null 2>/dev/null \
+               && curl --silent ${MYTESTURL} > id-href.map; }; }; then
     rm -f id-href.map
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
     echol "check-doc: lisp${LEXE} lispinit.mem"
