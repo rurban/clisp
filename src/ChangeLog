@@ -1,3 +1,8 @@
+2006-04-29  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (check-doc): Use lynx or curl as fallback when wget
+	doesn't exist.
+
 2006-04-29  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	GREAT socket speedup on win32
