@@ -1664,7 +1664,7 @@ CL_COMPILE_CHECK([__setfpucw], cl_cv_func_setfpucw,
 AC_DEFINE(HAVE_SETFPUCW,,[have <fpu_control.h> and it declares the __setfpucw() function]))
 ])
 
-dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2006 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -1794,8 +1794,8 @@ changequote(,)dnl
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
     host_cpu_instructionset=hppa
     ;;
-  powerpc )
-    host_cpu_instructionset=rs6000
+  rs6000 )
+    host_cpu_instructionset=powerpc
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu_instructionset=convex
@@ -1819,6 +1819,21 @@ if test $cl_cv_host_mips64 = yes; then
   host_cpu_instructionset=mips64
 fi
     ;;
+dnl On powerpc64 systems, the C compiler may still be generating 32-bit code.
+  powerpc64 )
+    AC_CACHE_CHECK([for 64-bit PowerPC], cl_cv_host_powerpc64, [
+AC_EGREP_CPP(yes,
+[#if defined(__powerpc64__) || defined(_ARCH_PPC64)
+  yes
+#endif
+], cl_cv_host_powerpc64=yes, cl_cv_host_powerpc64=no)
+])
+if test $cl_cv_host_powerpc64 = yes; then
+  host_cpu_instructionset=powerpc64
+else
+  host_cpu_instructionset=powerpc
+fi
+    ;;
 dnl UltraSPARCs running Linux have `uname -m` = "sparc64", but the C compiler
 dnl still generates 32-bit code.
   sparc | sparc64 )
@@ -1833,6 +1848,21 @@ if test $cl_cv_host_sparc64 = yes; then
   host_cpu_instructionset=sparc64
 else
   host_cpu_instructionset=sparc
+fi
+    ;;
+dnl On x86_64 systems, the C compiler may still be generating 32-bit code.
+  x86_64 )
+    AC_CACHE_CHECK([for 64-bit x86_64], cl_cv_host_x86_64, [
+AC_EGREP_CPP(yes,
+[#if defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
+  yes
+#endif
+], cl_cv_host_x86_64=yes, cl_cv_host_x86_64=no)
+])
+if test $cl_cv_host_x86_64 = yes; then
+  host_cpu_instructionset=x86_64
+else
+  host_cpu_instructionset=i386
 fi
     ;;
   *)
@@ -1860,8 +1890,8 @@ changequote(,)dnl
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
     host_cpu_abi=hppa
     ;;
-  powerpc )
-    host_cpu_abi=rs6000
+  rs6000 )
+    host_cpu_abi=powerpc
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu_abi=convex
@@ -1899,6 +1929,21 @@ if test $cl_cv_host_mipsn32 = yes; then
 fi
 fi
     ;;
+dnl On powerpc64 systems, the C compiler may still be generating 32-bit code.
+  powerpc64 )
+    AC_CACHE_CHECK([for 64-bit PowerPC], cl_cv_host_powerpc64, [
+AC_EGREP_CPP(yes,
+[#if defined(__powerpc64__) || defined(_ARCH_PPC64)
+  yes
+#endif
+], cl_cv_host_powerpc64=yes, cl_cv_host_powerpc64=no)
+])
+if test $cl_cv_host_powerpc64 = yes; then
+  host_cpu_abi=powerpc64
+else
+  host_cpu_abi=powerpc
+fi
+    ;;
 dnl UltraSPARCs running Linux have `uname -m` = "sparc64", but the C compiler
 dnl still generates 32-bit code.
   sparc | sparc64 )
@@ -1913,6 +1958,21 @@ if test $cl_cv_host_sparc64 = yes; then
   host_cpu_abi=sparc64
 else
   host_cpu_abi=sparc
+fi
+    ;;
+dnl On x86_64 systems, the C compiler may still be generating 32-bit code.
+  x86_64 )
+    AC_CACHE_CHECK([for 64-bit x86_64], cl_cv_host_x86_64, [
+AC_EGREP_CPP(yes,
+[#if defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
+  yes
+#endif
+], cl_cv_host_x86_64=yes, cl_cv_host_x86_64=no)
+])
+if test $cl_cv_host_x86_64 = yes; then
+  host_cpu_abi=x86_64
+else
+  host_cpu_abi=i386
 fi
     ;;
   *)

@@ -3572,6 +3572,29 @@ fi
 
 { echo "$as_me:$LINENO:  * ZLIB (Functions)" >&5
 echo "$as_me:  * ZLIB (Functions)" >&6;}
+
+  for element in $LIBZ; do
+    haveit=
+    for x in $LIBS; do
+
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  eval x=\"$x\"
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+
+      if test "X$x" = "X$element"; then
+        haveit=yes
+        break
+      fi
+    done
+    if test -z "$haveit"; then
+      LIBS="${LIBS}${LIBS:+ }$element"
+    fi
+  done
+
 echo "$as_me:$LINENO: checking for library containing compress2" >&5
 echo $ECHO_N "checking for library containing compress2... $ECHO_C" >&6
 if test "${ac_cv_search_compress2+set}" = set; then
@@ -3811,7 +3834,6 @@ echo "$as_me: error: ZLIB version 1.2 or better is required" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-
 { echo "$as_me:$LINENO:  * ZLIB (Output)" >&5
 echo "$as_me:  * ZLIB (Output)" >&6;}
                     ac_config_files="$ac_config_files Makefile link.sh"
@@ -3898,10 +3920,9 @@ for ac_i in : $LIBOBJS; do test "x$ac_i" = x: && continue
   # 1. Remove the extension, and $U if already installed.
   ac_i=`echo "$ac_i" |
 	 sed 's/\$U\././;s/\.o$//;s/\.obj$//'`
-  # 2. Prepend LIBOBJDIR.  When used with automake>=1.10 LIBOBJDIR
-  #    will be set to the directory where LIBOBJS objects are built.
-  ac_libobjs="$ac_libobjs \${LIBOBJDIR}$ac_i\$U.$ac_objext"
-  ac_ltlibobjs="$ac_ltlibobjs \${LIBOBJDIR}$ac_i"'$U.lo'
+  # 2. Add them.
+  ac_libobjs="$ac_libobjs $ac_i\$U.$ac_objext"
+  ac_ltlibobjs="$ac_ltlibobjs $ac_i"'$U.lo'
 done
 LIBOBJS=$ac_libobjs
 
