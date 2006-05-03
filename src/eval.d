@@ -5901,7 +5901,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
      else
        GCTRIGGER1(closure_in);
    });
-   #if defined(STACKCHECKC) || defined(DEBUG_BYTECODE)
+   #if STACKCHECKC || defined(DEBUG_BYTECODE)
     var const uintL byteptr_min = ((Codevec)codeptr)->ccv_flags & bit(7)
       ? CCV_START_KEY : CCV_START_NONKEY;
    #endif

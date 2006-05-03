@@ -9189,7 +9189,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
      - for interpreted closures:
          stack = top-of-frame
  */
-#if defined(STACKCHECKS) || defined(STACKCHECKC)
+#if STACKCHECKS || STACKCHECKC
 #define with_saved_back_trace(fun,stack,num_arg,statement)              \
   do {                                                                  \
     p_backtrace_t bt_save = back_trace;                                 \
@@ -13231,7 +13231,7 @@ extern maygc object allocate_bit_vector_0 (uintL len);
 # fill-pointer = 0.
 # make_ssstring(len)
 # > uintL len: desired length, must be >0
-# < fresh: fresh semi-simple-string of the given length
+# < result: fresh semi-simple-string of the given length
 # can trigger GC
 extern maygc object make_ssstring (uintL len);
 #define SEMI_SIMPLE_DEFAULT_SIZE 50
@@ -13279,7 +13279,7 @@ extern maygc object ssstring_append_extend (object ssstring, object srcstring, u
 # fill-pointer = 0.
 # make_ssbvector(len)
 # > uintL len: length (number of bytes!), must be >0
-# < result: fresh semi-simple byte-vector of the given length
+# < fresh: fresh semi-simple byte-vector of the given length
 # can trigger GC
 extern maygc object make_ssbvector (uintL len);
 # used by IO
