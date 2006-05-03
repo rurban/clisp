@@ -1691,7 +1691,7 @@ nonreturning_function (local, print_license, (void)) {
   while (count--)
     write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));
   skipSTACK(1);
-  quit_sofort (0);
+  quit_sofort(0);
 }
 
 #include "spvw_calendar.c"
@@ -3443,9 +3443,6 @@ nonreturning_function(global, quit, (void)) {
   }
  #ifdef DYNAMIC_FFI
   exit_ffi(); # close FFI
- #endif
- #ifdef WIN32_NATIVE
-  done_win32();
  #endif
  #ifdef NEXTAPP
   nxterminal_exit(); # cloase terminal-stream-communication
