@@ -1326,7 +1326,7 @@ global maygc object update_instance (object user_obj, object obj) {
      UPDATE-INSTANCE-FOR-REDEFINED-CLASS is processing, slot accesses to the
      instance being redefined must *not* invoke update_instance (otherwise we
      get an unwanted recursion; this slows down SLOT-VALUE. */
- #if defined(STACKCHECKS) || defined(STACKCHECKC)
+ #if STACKCHECKS || STACKCHECKC
   var gcv_object_t *saved_stack = STACK;
  #endif
   pushSTACK(user_obj);
@@ -1451,7 +1451,7 @@ global maygc object update_instance (object user_obj, object obj) {
   } while (!instance_valid_p(obj));
   record_flags_clr(TheInstance(obj),instflags_beingupdated_B);
   skipSTACK(1+2); /* unwind UNWIND-PROTECT frame, drop user-obj */
- #if defined(STACKCHECKS) || defined(STACKCHECKC)
+ #if STACKCHECKS || STACKCHECKC
   if (saved_stack != STACK) abort();
  #endif
   return obj;

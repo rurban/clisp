@@ -1,3 +1,10 @@
+2006-05-02  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	Must use #if STACKCHECKxyz, not #if defined(STACKCHECKxyz)
+	* eval.d (interpret_bytecode_): fix
+	* lispbibl.d (with_saved_backtrace): fix
+	* record.d (update_instance): fix
+
 2006-04-29  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (XCFLAGS): Add -falign-functions=4 not only when
