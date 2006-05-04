@@ -424,7 +424,7 @@ compile-time.</para></warning></section>
 (&defpackage; "MY-USER" (:use "CL-NO-CLOS"))
 (&in-package; "MY-USER")
 ;; your code which uses PCL goes here
-</programlisting>.</para>
+</programlisting></para>
 
 </section>
 
