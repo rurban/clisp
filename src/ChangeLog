@@ -1,3 +1,9 @@
+2006-05-05  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	* modules/calls.c: do not use IPropertyStorage related
+	constants not declared by modern mingw win32 headers.
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
 2006-05-03  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* spvw.d (quit): do not duplicate call to done_win32(), leave it
