@@ -3367,8 +3367,6 @@ DEFUN(POSIX::MEMORY-STATUS,)
 #define PIDSI_THUMBNAIL           0x00000011L
 #define PIDSI_APPNAME             0x00000012L
 #define PIDSI_DOC_SECURITY        0x00000013L
-#define PID_CODEPAGE	0x1
-#define PID_LOCALE	0x80000000
 #define PRSPEC_LPWSTR	( 0 )
 #define PRSPEC_PROPID	( 1 )
 #define STG_E_PROPSETMISMATCHED   0x800300F0L
@@ -3588,8 +3586,8 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
 WINOLEAPI PropVariantClear(PROPVARIANT* pvar);
 
 static PROPID kwtopropid (object kw) {
-  if (eq(kw,`:CODEPAGE`)) return PID_CODEPAGE;
-  if (eq(kw,`:LOCALE`)) return PID_LOCALE;
+  if (eq(kw,`:CODEPAGE`)) return 1 /* PID_CODEPAGE */;
+  if (eq(kw,`:LOCALE`)) return 0x80000000 /* PID_LOCALE */;
   if (eq(kw,`:TITLE`)) return PIDSI_TITLE;
   if (eq(kw,`:SUBJECT`)) return PIDSI_SUBJECT;
   if (eq(kw,`:AUTHOR`)) return PIDSI_AUTHOR;
