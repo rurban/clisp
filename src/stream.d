@@ -17220,9 +17220,10 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
         goto restart_file_position;
       case strmtype_broad:      /* Broadcast-Stream: */
         stream = broadcast_stream_last(stream);
-        if (eq(stream,nullobj)) /* empty BROADCAST-STREAM */
+        if (eq(stream,nullobj)) { /* empty BROADCAST-STREAM? */
           /* http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html */
           VALUES1(Fixnum_0); break;
+        }
         goto restart_file_position;
       case strmtype_str_in: {
         STACK_1 = stream;
