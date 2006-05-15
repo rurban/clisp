@@ -614,12 +614,10 @@ the <function>EXT:FCASE</function> form better than the corresponding
  Nevertheless, one should use &eql; as it is more portable across &cl;
  implementations.</para>
 
-<para><code>(&let; ((x y)) (&eq; x x))</code> always
+<para><code>(&let; ((&x-r; &y-r;)) (&eq; &x-r; &x-r;))</code> always
  returns &t;, regardless of &y-r;.</para>
 
-<warning><para><code>(&eq; x x)</code> might not be
- &t; for a foreign-place, because a hidden &foreign-variable-t; is
- dereferenced each time from the &symbol-macro; &x-r;.</para></warning>
+<para>See also <xref linkend="dffi-eq"/>.</para>
 
 </section>
 

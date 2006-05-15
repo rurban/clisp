@@ -2967,7 +2967,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
   they allocate space only for <code>(&sizeof;
   &ctype-r;)</code> bytes.  This space is filled with zeroes.  E.g.,
   using a &ctype-r; of &c-string; or even <literal role="type">(&c-ptr;
-  (&c-array; <type>uint8</type> 32))</literal> (!) both allocate place
+  (&c-array; <type>uint8</type> 32))</literal> (!) both allocate space
   for a single pointer, initialized to &c-NULL;.</simpara>
   <para>When <replaceable>initarg</replaceable> is supplied, they
   allocate space for an arbitrarily complex set of structures rooted in
@@ -3246,7 +3246,7 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
   &ctype-r;)</literal> (see below) in that no conversion to and from
   Lisp will occur (beyond the usual one of the &c-lang; &c-NULL; pointer
   to or from Lisp &nil;). Instead, an object of type &foreign-variable-t;
-  is used to represent the foreign place. It is assimilable to a typed
+  is used to represent the foreign &place;. It is assimilable to a typed
   pointer.</simpara></listitem></varlistentry>
 
 <varlistentry id="c-string"><term>&c-string;</term>
@@ -3395,13 +3395,14 @@ and possibly the calling convention.</para>
  just as normal variables can, except that the range of allowed values
  is limited according to the variable's foreign type.</para>
 
-<warning><para>For a foreign variable &x-r; the form <code>(&eql; &x-r;
+<warning id="dffi-eq"><title>Equality of foreign values.</title>
+ <simpara>For a foreign variable &x-r; the form <code>(&eql; &x-r;
    &x-r;)</code> is not necessarily true, since every time &x-r; is
   evaluated its foreign value is converted to a &fresh; Lisp value.
   Ergo, <code>(&setf; (&aref; &x-r; &n-r;) &y-r;)</code> modifies this
   &fresh; Lisp value (immediately discarded), &not-e; the foreign data.
-  Use &element; et al instead,
-  see <xref linkend="dffi-places"/>.</para></warning>
+  Use &element; et al instead, see <xref linkend="dffi-places"/>.
+</simpara></warning>
 
 <para>Foreign variables are defined using &def-c-var; and &with-c-var;.</para>
 
@@ -3412,7 +3413,7 @@ and possibly the calling convention.</para>
 <para>A &foreign-variable-t; &name-r; defined by &def-c-var;, &with-c-var;
  or &with-c-place; defines a &place;,
  i.e., a form which can also be used as argument to &setf;.
- (An "lvalue" in &c-lang; terminology.)
+ (An <quote>lvalue</quote> in &c-lang; terminology.)
  The following operations are available on foreign places:
  <simplelist columns="2"><member>&element;</member><member>&deref;</member>
   <member>&slot;</member><member>&cast;</member><member>&offset;</member>
