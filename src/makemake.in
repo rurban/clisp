@@ -506,6 +506,7 @@ case $# in
      CC="@CC@"                           # either 'gcc -O' or 'cc'
      CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
      CPPFLAGS='@CPPFLAGS@'               # additional options for $CC and $CPP
+     CFLAGS='@CFLAGS@'                   # additional options for $CC
      LDFLAGS='@LDFLAGS@'                 # additional options for linking
      CC_GCC='@CC_GCC@'                   # either true or false
      CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
@@ -567,6 +568,7 @@ case $# in
      fi
      CC_CPLUSPLUS=false
      CPPFLAGS=''
+     CFLAGS=''
      CLFLAGS=''
      if [ $TSYS = win32msvc ] ; then
        CC='cl'
@@ -612,6 +614,7 @@ if [ $CROSS = true ] ; then
   XCC="gcc-${TSYS}"
   XCPP="${XCC} -E"
   XCPPFLAGS=''
+  XCFLAGS=''
   XLDFLAGS=''
   XCC_GCC=true
   XCC_NEED_CCPAUX=false
@@ -622,6 +625,7 @@ else
   XCC="${CC}"
   XCPP="${CPP}"
   XCPPFLAGS="${CPPFLAGS}"
+  XCFLAGS="${CFLAGS}"
   XLDFLAGS="${LDFLAGS}"
   XCC_GCC="${CC_GCC}"
   XCC_NEED_CCPAUX="${CC_NEED_CCPAUX}"
@@ -1069,7 +1073,7 @@ fi
 
 if [ $XCC_GCC = true ] ; then
   XCC_GCC_VERSION=`LC_ALL=C $XCC -v 2>&1 | grep version | sed -n -e '$p' | sed -e 's/.*version //g' -e 's/gcc //'`
-  XCFLAGS='-W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type'
+  XCFLAGS=${XCFLAGS}' -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type'
   test ${CC_CPLUSPLUS} = false && XCFLAGS=${XCFLAGS}' -Wmissing-declarations'
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
@@ -1242,14 +1246,14 @@ else
   else
     if [ $TSYS = sun4 -a -n "$XCC_SUNPRO" ] ; then
       # SUNWspro cc flags:
-      XCFLAGS='-xO3 -xstrconst'
+      XCFLAGS=${XCFLAGS}' -xO3 -xstrconst'
     else
       if [ "$HSYSOS" = hp-ux -o $TSYS = sun4 ] ; then
         # HP's HPPA compilers crash when optimizing.
         # SUN's cc is buggy when optimizing spvw.d, even with only -O1.
         XCFLAGS=''
       else
-        XCFLAGS='-O'
+        XCFLAGS=${XCFLAGS}' -O'
       fi
     fi
   fi
@@ -3382,7 +3386,7 @@ fi
 # srcdir has to be passed to ./configure because it must be able to find
 # src/build-aux/install-sh _AND_ also its own sources, thus we must
 # point it to modules/... in the original source tree
-echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; if ${NEED_RECONFIGURE} ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
+echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; if ${NEED_RECONFIGURE} ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; if test \"\$\${ac_cv_env_CFLAGS_set}\" = set; then CFLAGS=\"\$\${ac_cv_env_CFLAGS_value}\"; export CFLAGS; fi; ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
 echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 
