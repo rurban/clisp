@@ -1,7 +1,7 @@
-2006-05-15  Jörg Höhle  <hoehle@users.sourceforge.net>
+2006-05-15  Petr Salinger  <Petr.Salinger@t-systems.cz>
+	    Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* makemake.in (XCC_CREATESHARED): Recognize k*bsd* OS type.
-	Suggested by Petr Salinger <Petr.Salinger@t-systems.cz>
 
 2006-05-07  Bruno Haible  <bruno@clisp.org>
 
@@ -43,7 +43,7 @@
 	(interruptible_routine, interruptible_arg)
 	(interruptible_result): new static variables.
 	(DoInterruptible): do not start new thread each time DoInterruptible
-	is called. Use events to signal thread started once. Abort thread 
+	is called. Use events to signal thread started once. Abort thread
 	only when Ctrl-C or Ctrl-Break is pressed.
 	(temp_interrupt_handler): close event handles as well as thread ones.
 	(standbythreadf): "stand-by thread" function.
