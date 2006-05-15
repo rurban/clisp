@@ -6,18 +6,61 @@
 
 <!-- common settings for CLISP Implementation Notes formatting -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="1.0" xmlns="http://www.w3.org/1999/xhtml">
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:date="http://exslt.org/dates-and-times"
+                exclude-result-prefixes="date"
+                version="1.0">
 
+<!-- http://www.sagehill.net/docbookxsl/HtmlHead.html -->
 <xsl:param name="html.stylesheet" select="'impnotes.css'"/>
-<xsl:param name="link.mailto.url" select="'mailto:clisp-list@lists.sourceforge.net'"/>
+<xsl:param name="link.mailto.url"
+           select="'mailto:clisp-list@lists.sourceforge.net'"/>
 <!-- xsl:param name="suppress.navigation" select="0"/-->
 <xsl:param name="inherit.keywords" select="0"/>
 <xsl:param name="variablelist.term.break.after" select="1"/>
 <xsl:param name="variablelist.term.separator" select="''"/>
+<xsl:param name="generate.meta.abstract" select="1"/>
 
-<!-- xsl:template name="user.header.content">
- <p>CLISP Implementation Notes [user.header.content]</p><hr width="100%"/>
-</xsl:template -->
+<!-- http://thread.gmane.org/gmane.text.docbook.apps/15071/ -->
+<!-- http://www.sagehill.net/docbookxsl/HtmlHead.html -->
+<xsl:variable name="processing.time">
+ <xsl:call-template name="datetime.format">
+  <xsl:with-param name="date" select="date:date-time()"/>
+  <xsl:with-param name="format" select="'Y-m-d X'"/>
+</xsl:call-template></xsl:variable>
+
+<xsl:variable name="faq.help.target" select="key('id','faq-help')"/>
+<xsl:variable name="help.href">
+ <xsl:call-template name="href.target">
+  <xsl:with-param name="object" select="$faq.help.target"/>
+</xsl:call-template></xsl:variable>
+<xsl:variable name="help.title">
+ <xsl:variable name="question.content">
+  <xsl:apply-templates select="$faq.help.target/question/node()"/>
+ </xsl:variable>
+ <xsl:value-of select="normalize-space($question.content)"/></xsl:variable>
+
+<xsl:variable name="glossary.target" select="key('id','glossary')"/>
+<xsl:variable name="glossary.href">
+ <xsl:call-template name="href.target">
+  <xsl:with-param name="object" select="$glossary.target"/>
+</xsl:call-template></xsl:variable>
+
+<xsl:variable name="authors.target" select="key('id','authors')"/>
+<xsl:variable name="authors.href">
+ <xsl:call-template name="href.target">
+  <xsl:with-param name="object" select="$authors.target"/>
+</xsl:call-template></xsl:variable>
+
+<xsl:template name="user.head.content">
+ <meta name="date" content="'generated: {$processing.time}'"/>
+ <link rel="author" title="Authors" href="{$authors.href}"/>
+ <link rel="contents" title="Table of Contents" href="index.html"/>
+ <link rel="glossary" href="{$glossary.href}"/>
+ <link rel="help" href="{$help.href}" title="{$help.title}"/>
+ <link rel="home" title="Home" href="http://clisp.cons.org"/>
+ <link rel="index" href="idx.html"/>
+</xsl:template>
 
 <!-- http://article.gmane.org/gmane.text.docbook.apps:9779 -->
 <xsl:preserve-space elements="entry"/>
