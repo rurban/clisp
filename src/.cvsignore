@@ -55,7 +55,10 @@ arilev1e.c
 arilev1i.c
 array.c
 avl.c
+built.c
 bytecode.c
+cflags.h
+cflags.h.stamp
 charstrg.c
 clisp.c
 compelem.c
@@ -93,11 +96,13 @@ intmal.c
 intplus.c
 intprint.c
 intread.c
+intserial.c
 intsqrt.c
 io.c
 lfloat.c
 lisparit.c
 lispbibl.c
+gen.lispbibl.c
 list.c
 misc.c
 modules.c
@@ -120,7 +125,6 @@ socket.c
 sort.c
 sp80386.c
 spvw*.c
-spvw_*.c
 stream.c
 subr.c
 subrkw.c
@@ -130,7 +134,9 @@ trampoline_r.h
 unix.c
 unixaux.c
 vacall_r.h
+weak.c
 win32.c
 win32aux.c
 xthread.c
 stdbool.h
+stdint.h
