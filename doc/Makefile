@@ -61,10 +61,13 @@ CATALOG_FILE=catalog.xml
 
 # Local path to DocBook XSL stylesheets on your system.
 # Make sure to use a trailing slash.
-STYLESHEETS_PATH=/usr/share/docbook-xsl-snapshot/
+STYLESHEETS_PATH=/usr/share/sgml/docbook/xsl-stylesheets/
+# STYLESHEETS_PATH=/home/sds/src/docbook-xsl-snapshot/
 
 # Stylesheets URI used in the CLISP project *.xsl files.
 STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/current/
+# STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/snapshot/
+# STYLESHEETS_URI=http://docbook.xml-doc.org/snapshots/xsl/
 
 # The xmlcatalog utility (from libxml2)
 XMLCATALOG=xmlcatalog
@@ -107,7 +110,7 @@ SGML_UNCOMMENT=-e 's/^<!--\#\(.*\)-->$$/\#\1/'
 
 ROFF_UNCOMMENT=-e 's/^\.\\"<!\\-\\-\#\(.*\)\\-\\->$$/\#\1/'
 
-all: check $(CATALOG_FILE) impnotes.html regexp.html man
+all: check impnotes.html regexp.html man
 
 ifneq (,$(CATALOG_FILE))
 # depends on Makefile because of $(STYLESHEETS_PATH)
@@ -126,13 +129,13 @@ endif
 MAKE_TDB=$(XSLTPROC) --timing --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
 
-tdb-man.xml: clisp.xml pile.xsl common.xsl
+tdb-man.xml: clisp.xml pile.xsl common.xsl $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" pile.xsl $<
 
-tdb-pile.xml: impnotes.xml $(IMPNOTES) pile.xsl common.xsl
+tdb-pile.xml: impnotes.xml $(IMPNOTES) pile.xsl common.xsl $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" pile.xsl $<
 
-tdb-chunk.xml: impnotes.xml $(IMPNOTES) chunk.xsl common.xsl
+tdb-chunk.xml: impnotes.xml $(IMPNOTES) chunk.xsl common.xsl $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" chunk.xsl $<
 
 clisp.xml: clisp.xml.in ../version.sh Makefile
