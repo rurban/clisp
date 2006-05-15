@@ -1578,9 +1578,9 @@ can give problems:
   is its actual accuracy, then the accuracy of the result cannot be
   smaller that that.  Therefore, since &cl; has no way of knowing the
   actual accuracy, &ansi-cl; (and all the other standard engineering
-  programming languages, like &c-lang;, FORTRAN etc) decides that
-  keeping the accuracy correct is the business of the programmer, while
-  the language should preserve what it can - the precision.
+  programming languages, like &c-lang;, <command role="dict">Fortran</command>
+  etc) decides that keeping the accuracy correct is the business of the
+  programmer, while the language should preserve what it can - the precision.
   </simpara></listitem></varlistentry>
 <varlistentry><term>Experience:</term>
   <listitem><simpara> Rounding errors accumulate, and if a computation
