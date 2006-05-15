@@ -176,6 +176,13 @@
 </xsl:template>
 <!-- ========================= / Netica C API ========================= -->
 
+<!-- ========================== dictionary ========================== -->
+<xsl:param name="dict.top" select="'http://foldoc.org/?query='"/>
+<xsl:template match="*[@role='dict']">
+ <a class="{@role}" href="{$dict.top}{.}"><xsl:apply-imports/></a>
+</xsl:template>
+<!-- ========================= / dictionary ========================= -->
+
 <xsl:template match="literal[@role = 'type'
       or @role = 'method' or @role = 'data' or @role = 'byte']">
  <span class="{@role}"><xsl:apply-imports/></span>
