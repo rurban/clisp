@@ -841,8 +841,8 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
 When <firstterm>&loop-ansi;</firstterm> is &nil;, such forms are still
 accepted in &clisp; but elicit a warning at macro-expansion time.
 When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
-
 </section>
+
 <section id="iter-dict"><title>The Iteration Dictionary
   <ulink url="&clhs;/Body/sec_6-2.html">[CLHS-6.2]</ulink></title>
 
