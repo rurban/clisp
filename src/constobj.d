@@ -80,7 +80,7 @@
     LISPOBJ(charname_26,"\"Code26\"")
     LISPOBJ(charname_27,"\"Escape\"")
     LISPOBJ(charname_32,"\"Space\"")
-    LISPOBJ(charname_8bis,"\"Rubout\"")
+    LISPOBJ(charname_127,"\"Rubout\"")
     LISPOBJ(charname_10bis,"\"Linefeed\"")
     LISPOBJ(charname_27bis,"\"Esc\"")
   #endif
