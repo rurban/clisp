@@ -1,3 +1,8 @@
+2006-05-15  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* makemake.in (XCC_CREATESHARED): Recognize k*bsd* OS type.
+	Suggested by Petr Salinger <Petr.Salinger@t-systems.cz>
+
 2006-05-07  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (FILE-POSITION): Fix handling of non-empty broadcast-streams
