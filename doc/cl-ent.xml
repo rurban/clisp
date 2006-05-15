@@ -133,22 +133,22 @@
 <!ENTITY phemlock '<ulink url="http://common-lisp.net/project/phemlock/">Portable Hemlock</ulink>'>
 
 <!-- *** platforms *** -->
-<!ENTITY acorn '<ulink url="http://www.acorn.com/"><emphasis role="strong">Acorn</emphasis></ulink>'>
-<!ENTITY amiga '<ulink url="http://www.amiga.org/"><emphasis role="strong">Amiga</emphasis></ulink>'>
-<!ENTITY ascii '<ulink url="http://www.cplusplus.com/doc/papers/ascii.html"><emphasis role="strong">ASCII</emphasis></ulink>'>
-<!ENTITY beos '<ulink url="http://www.bebits.com/app/2680"><emphasis role="strong">BeOS</emphasis></ulink>'>
-<!ENTITY cygwin '<ulink url="http://cygwin.com/"><emphasis role="strong">Cygwin</emphasis></ulink>'>
-<!ENTITY dos '<ulink url="http://www.freedos.org/"><emphasis role="strong">DOS</emphasis></ulink>'>
-<!ENTITY gnome '<ulink url="http://www.gnome.org/"><emphasis role="strong">Gnome</emphasis></ulink>'>
-<!ENTITY hurd '<ulink url="http://www.gnu.org/software/hurd/"><emphasis role="strong">Hurd</emphasis></ulink>'>
-<!ENTITY kde '<ulink url="http://www.kde.org/"><emphasis role="strong">KDE</emphasis></ulink>'>
-<!ENTITY linux '<ulink url="http://www.linux.org/"><emphasis role="strong">Linux</emphasis></ulink>'>
-<!ENTITY macosx '<ulink url="http://www.apple.com/macosx/"><emphasis role="strong">Mac OS X</emphasis></ulink>'>
-<!ENTITY mingw '<ulink url="http://www.mingw.org/"><emphasis role="strong">MinGW</emphasis></ulink>'>
-<!ENTITY nextstep '<ulink url="http://www.next.com/"><emphasis role="strong">NeXTstep</emphasis></ulink>'>
-<!ENTITY os2 '<ulink url="http://www.os2.org/"><emphasis role="strong">OS/2</emphasis></ulink>'>
-<!ENTITY unicode '<ulink url="http://www.unicode.org/"><emphasis role="strong">UNICODE</emphasis></ulink>'>
-<!ENTITY win32 '<ulink url="http://winehq.com/"><emphasis role="strong">Win32</emphasis></ulink>'>
+<!ENTITY acorn '<ulink url="http://www.acorn.com/"><emphasis role="platform">Acorn</emphasis></ulink>'>
+<!ENTITY amiga '<ulink url="http://www.amiga.org/"><emphasis role="platform">Amiga</emphasis></ulink>'>
+<!ENTITY ascii '<ulink url="http://www.cplusplus.com/doc/papers/ascii.html"><emphasis role="platform">ASCII</emphasis></ulink>'>
+<!ENTITY beos '<ulink url="http://www.bebits.com/app/2680"><emphasis role="platform">BeOS</emphasis></ulink>'>
+<!ENTITY cygwin '<ulink url="http://cygwin.com/"><emphasis role="platform">Cygwin</emphasis></ulink>'>
+<!ENTITY dos '<ulink url="http://www.freedos.org/"><emphasis role="platform">DOS</emphasis></ulink>'>
+<!ENTITY gnome '<ulink url="http://www.gnome.org/"><emphasis role="platform">Gnome</emphasis></ulink>'>
+<!ENTITY hurd '<ulink url="http://www.gnu.org/software/hurd/"><emphasis role="platform">Hurd</emphasis></ulink>'>
+<!ENTITY kde '<ulink url="http://www.kde.org/"><emphasis role="platform">KDE</emphasis></ulink>'>
+<!ENTITY linux '<ulink url="http://www.linux.org/"><emphasis role="platform">Linux</emphasis></ulink>'>
+<!ENTITY macosx '<ulink url="http://www.apple.com/macosx/"><emphasis role="platform">Mac OS X</emphasis></ulink>'>
+<!ENTITY mingw '<ulink url="http://www.mingw.org/"><emphasis role="platform">MinGW</emphasis></ulink>'>
+<!ENTITY nextstep '<ulink url="http://www.next.com/"><emphasis role="platform">NeXTstep</emphasis></ulink>'>
+<!ENTITY os2 '<ulink url="http://www.os2.org/"><emphasis role="platform">OS/2</emphasis></ulink>'>
+<!ENTITY unicode '<ulink url="http://www.unicode.org/"><emphasis role="platform">UNICODE</emphasis></ulink>'>
+<!ENTITY win32 '<ulink url="http://winehq.com/"><emphasis role="platform">Win32</emphasis></ulink>'>
 
 <!-- *** etc *** -->
 <!ENTITY http '<ulink url="http://www.w3.org/Protocols/"><command>HTTP</command></ulink>'>
