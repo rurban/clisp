@@ -222,6 +222,15 @@ to foreign.d, see
 http://sourceforge.net/tracker/index.php?func=detail&aid=654718&group_id=1355&atid=101355
 
 
+FFI: passing structs by value:
+http://clisp.cons.org/impnotes/dffi.html#ffi-struct-arg
+foreign.d should signal an error when a struct is passed by value
+foreign1.lisp should emit C code for a wrapper function
+ that passes the struct by pointer
+http://article.gmane.org/gmane.lisp.clisp.general:11075
+http://sourceforge.net/tracker/index.php?func=detail&aid=1486583&group_id=1355&atid=351355
+
+
 for Emacs: GC root macro, YETANOTHER macro
            [sds: what does this mean?]
 
