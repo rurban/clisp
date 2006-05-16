@@ -1,3 +1,8 @@
+2006-05-16  Bruno Haible  <bruno@clisp.org>
+
+	* unix.d [UNIX_CYGWIN]: Undefine WIN32 after including <windows.h>.
+	* lispbibl.d [UNIX_CYGWIN]: Likewise.
+
 2006-05-10  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in: Respect the value of the environment variable CFLAGS

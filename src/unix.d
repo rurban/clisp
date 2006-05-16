@@ -1,6 +1,6 @@
 /*
  * The include file for the UNIX version of CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2006
  * Sam Steingold 1998-2003
  */
 
@@ -852,6 +852,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 #ifdef UNIX_CYGWIN32
   #define WIN32_LEAN_AND_MEAN
   #include <windows.h>
+  #undef WIN32
   extern long time_t_from_filetime (const FILETIME * ptr);
   extern void time_t_to_filetime (time_t time_in, FILETIME * out);
 #endif
