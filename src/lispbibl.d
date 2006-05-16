@@ -1987,6 +1987,7 @@ typedef enum {
 %%   emit_typedef("int","SOCKET");
 %%   #ifdef UNIX_CYGWIN32
 %%     puts("#include <windows.h>");
+%%     puts("#undef WIN32");
 %%     puts("extern long time_t_from_filetime (const FILETIME * ptr);");
 %%     puts("extern void time_t_to_filetime (time_t time_in, FILETIME * out);");
 %%   #endif
