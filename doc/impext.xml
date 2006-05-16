@@ -2563,7 +2563,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
 
 <para>These are the special &ffi-pac; forms.  We have taken a pragmatic
  approach: the only foreign languages we support for now are &c-lang;
- and ANSI &c-lang;.</para>
+ and &the-ansi; &c-lang;.</para>
 
 <note><simpara>Unless specifically noted otherwise, type specification
   parameters are not evaluated, so that they can be compiled by
@@ -3372,10 +3372,10 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
 
 <para>&c-function;, &def-call-in;, &def-call-out; take a &lang-k; argument.
 The &lang-r; is either &c-k; (denotes K&amp;R &c-lang;) or &stdc-k;
-(denotes ANSI &c-lang;) or &stdc-sc-k; (denotes ANSI &c-lang;
+(denotes &the-ansi; &c-lang;) or &stdc-sc-k; (denotes &the-ansi; &c-lang;
 with the <quote role="dict">stdcall</quote> calling convention).
 It specifies whether the &c-lang; function (caller or callee) has been
-compiled by a K&amp;R &c-lang; compiler or by an ANSI &c-lang; compiler,
+compiled by a K&amp;R &c-lang; compiler or by an &the-ansi; &c-lang; compiler,
 and possibly the calling convention.</para>
 
 <para>The default language is set using the macro
@@ -3635,7 +3635,7 @@ or (setq my_struct (deref (slot my_struct 'n)))
 
 <example id="dffi-extern-func1"><title>Calling an external function</title>
 
-<para>On ANSI &c-lang; systems, <filename role="unix">stdlib.h</filename>
+<para>On &the-ansi; &c-lang; systems, <filename role="unix">stdlib.h</filename>
  contains the declarations:
 
 <programlisting language="C">
