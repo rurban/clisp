@@ -85,7 +85,8 @@
 <!-- ============================== / RFC ============================== -->
 
 <!-- ============================ CLISP CVS ============================ -->
-<xsl:param name="clisp.cvs.top" select="'http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/'"/>
+<xsl:param name="clisp.cvs.top"
+           select="'http://clisp.cvs.sourceforge.net/*checkout*/clisp/clisp/'"/>
 <xsl:template match="ulink[@role='clisp-cvs']">
  <a class="{@role}" href="{$clisp.cvs.top}{@url}"><xsl:apply-templates/></a>
 </xsl:template>
