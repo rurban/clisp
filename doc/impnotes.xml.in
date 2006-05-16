@@ -100,7 +100,7 @@
  and &stoll;. The current maintainers are &bruno; and &sds;.</para>
 
 <para>This implementation is mostly conforming to the &ansi-cl;
- available on-line as the &hyperspec; (but the printed ANSI document
+ available on-line as the &hyperspec; (but the printed &the-ansi; document
  remains the authoritative source of information).  &ansi-cl; supersedes
  the earlier specifications &cltl1; and &cltl2;.</para>
 
