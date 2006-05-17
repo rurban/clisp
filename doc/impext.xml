@@ -19,7 +19,7 @@
   <step><simpara><link linkend="modinit">Initialize
      modules</link>.</simpara></step>
   <step><simpara>Run all functions in &init-hooks;.</simpara></step>
-  <step><simpara>Say <quote>hi</quote>, unless suppressed by &opt-v;.
+  <step><simpara>Say <quote>hi</quote>, unless suppressed by &opt-q;.
   </simpara></step><step><simpara>Load &RC-file;, unless suppressed by
     &opt-norc;.</simpara></step></substeps></step>
 <step><title>The actual work</title><para>Handle command line options: file
@@ -34,7 +34,7 @@
     &unwind-protect;.</simpara></step>
   <step><simpara>Run all functions in &fini-hooks;.</simpara></step>
   <step><simpara>Call &fresh-line; on the standard streams.</simpara></step>
-  <step><simpara>Say <quote>bye</quote> unless suppressed by &opt-v;.
+  <step><simpara>Say <quote>bye</quote> unless suppressed by &opt-q;.
   </simpara></step>
   <step><simpara>Wait for a keypress if requested by
     <option><olink targetdoc="man" targetptr="opt-wait">-w</olink></option>.
@@ -2290,7 +2290,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    (<function>allocate_*()</function> functions) - but &not-e; &c-lang;
    allocations (<function role="unix">malloc</function> et al) -
    and must be saved on the &STACK; using &cpp; macros
-   <function>pushSTASK()</function>, <function>popSTACK()</function>
+   <function>pushSTACK()</function>, <function>popSTACK()</function>
    and <function>skipSTACK()</function>.</simpara></listitem>
  <listitem><simpara>Access object slots using the
    appropriate <function>TheFoo()</function> macro, e.g.,
@@ -4995,10 +4995,10 @@ input will be available.</para></formalpara>
 
 <orderedlist>
  <listitem><simpara>Associate the &mem-file; extension with
-   <command>c:\clisp\clisp.exe &opt-M; %s</command>.
+   <command>c:\clisp\clisp.exe &opt-M; "%s"</command>.
   </simpara></listitem>
  <listitem><simpara>Associate the &fasl-file; extension with
-   <command>c:\clisp\clisp.exe &opt-i; %s</command>
+   <command>c:\clisp\clisp.exe &opt-i; "%s"</command>
     Alternatively, you may want to have a function
     <function>main</function> in your &fasl-file; files and associate
     the &fasl-file; extension with <command>c:\clisp\clisp.exe &opt-i;
@@ -5011,7 +5011,7 @@ input will be available.</para></formalpara>
  file), while the clicking on a &clisp; &mem-image; (with &mem-file;
  extension) will start &clisp; with the given &mem-image;.</para>
 
-<note><para>Note that &clisp; is distributed with a file
+<note><para>On &win32;, &clisp; is distributed with a file
  <filename role="clisp-cvs">src/install.bat</filename>, which
  runs <filename role="clisp-cvs">src/install.lisp</filename> to create a
  file <filename>clisp.lnk</filename> on your desktop and also associates
