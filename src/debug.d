@@ -2,7 +2,7 @@
  * top level loop, aux functions for the debugger, stepper for CLISP
  * Bruno Haible 1990-2005
  * ILISP friendliness: Marcus Daniels 8.4.1994
- * Sam Steingold 2001-2004
+ * Sam Steingold 2001-2005
  * German comments translated into English: Stefan Kain 2004-08-30
  */
 

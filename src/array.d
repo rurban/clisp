@@ -1,7 +1,7 @@
 /*
  * Array functions
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2004
+ * Sam Steingold 1998-2005
  * German comments translated into English: Stefan Kain 2002-09-23
  */
 
