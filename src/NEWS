@@ -20,6 +20,8 @@ User visible changes
   :METHOD-COMBINATION explicitly, through a default initarg specification
   for the :METHOD-COMBINATION keyword on the generic function class.
 
+* Readline completion works with non 1:1 terminal encodings, e.g. UTF-8.
+
 * WITH-KEYBOARD works with a Unix tty even when SLIME hijacks *TERMINAL-IO*.
 
 * I/O operations on Win32 are now much faster.

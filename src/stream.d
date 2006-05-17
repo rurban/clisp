@@ -8941,9 +8941,17 @@ local void lisp_completion_ignore (void* sp, gcv_object_t* frame, object label,
 }
 # Completion of Lisp-Symbols
 local maygc char** lisp_completion (char* text, int start, int end) {
-  # text[0..end-start-1] = the_line[start..end-1]
+  # text[start..end-1] = thing to complete within line of text
   # This is a Callback-Function, we must set the Stack correctly again:
   begin_callback();
+ #ifdef UNICODE
+  { var object encoding = O(terminal_encoding);
+    start = Encoding_mblen(encoding)(encoding,
+                                     (const uintB*)text,(const uintB*)text+start);
+    end   = Encoding_mblen(encoding)(encoding,
+                                     (const uintB*)text,(const uintB*)text+end);
+  }
+ #endif
   # call (SYS::COMPLETION text start end) :
   pushSTACK(asciz_to_string(text,O(terminal_encoding)));
   pushSTACK(fixnum((uintL)start));
@@ -10062,8 +10070,9 @@ LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
          && !nullp(TheStream(stream)->strm_terminal_isatty)) # Terminal
    #ifdef KEYBOARD
         || ((TheStream(stream)->strmtype == strmtype_keyboard)  # Keyboard-Stream
-            && !nullp(TheStream(stream)->strm_keyboard_isatty))) {
+            && !nullp(TheStream(stream)->strm_keyboard_isatty)))
    #endif
+    {
       value1 = (terminal_raw ? T : NIL);
       begin_system_call();
       if (!nullp(flag)) { # switch to cbreak/noecho-Mode:
