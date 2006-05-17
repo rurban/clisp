@@ -2,7 +2,7 @@
 
 <section id="gray"><title>Gray streams</title>
 
-<section id="gray-overview"><title>Contents</title>
+<section id="gray-overview"><title>Overview</title>
 <para>This interface permits the definition of new classes of streams,
 and programming their behavior by defining methods for the elementary
 stream operations.

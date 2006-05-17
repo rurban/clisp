@@ -3823,7 +3823,7 @@ functions are provided:
   &key-amp; &start-k; &end-k; :NO-HANG :INTERACTIVE)</code> outputs
   the &integer-t;s of the subsequence of &sequence-r; specified by
   &start-k; and &end-k; to &stream-r;.
-  When <constant>:NO-HANG</constant> is non-&nil;, does not block.
+  When &no-hang; is non-&nil;, does not block.
   When &no-hang; is &nil; and &interactive-r; is non-&nil;, it can
   block for writing the first byte but does not block for any further
   bytes.  Returns two values: &sequence-r; and the index of the first
