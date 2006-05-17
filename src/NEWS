@@ -9,7 +9,7 @@ User visible changes
 
 * FFI:UINT64 and FFI:SINT64 are now compatible with C's long long type.
 
-* Stack overflow detection and recovery finally works fine on Unix.
+* Stack overflow detection and recovery finally work fine on Unix.
   Libsigsegv is required for this, on all platforms (including MS-Windows).
   CLISP should neither exit nor crash under infinite recursion.
   If your distribution has CLISP compiled without libsigsegv, report
@@ -19,6 +19,8 @@ User visible changes
   function, to be used when the DEFGENERIC form does not specify the
   :METHOD-COMBINATION explicitly, through a default initarg specification
   for the :METHOD-COMBINATION keyword on the generic function class.
+
+* WITH-KEYBOARD works with a Unix tty even when SLIME hijacks *TERMINAL-IO*.
 
 * Bug fixes:
   + SOCKET:SOCKET-SERVER :INTERFACE now behaves as documented.
@@ -567,6 +569,9 @@ User visible changes
 * Woe32 distribution now comes with a binary driver clisp.exe.
   Do not copy it anywhere - create a shortcut to it instead!
   Use install.bat to automate shortcut creation.
+
+* (SOFTWARE-TYPE) now returns memory model information,
+  valuable in bug reports.
 
 Modules
 -------

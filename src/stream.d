@@ -8877,6 +8877,7 @@ local maygc object make_keyboard_stream (void) {
   # build Console-Handle:
   # Maybe use CREATE_ALWAYS ?? Maybe use AllocConsole() ??
   {
+    begin_system_call();
     var Handle handle = CreateFile("CONIN$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (handle==INVALID_HANDLE_VALUE) {
       OS_error();
@@ -10056,9 +10057,13 @@ LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
   var object stream = check_stream(popSTACK());
   stream = resolve_synonym_stream(stream);
   value1 = NIL;
-  if (builtin_stream_p(stream)
-      && TheStream(stream)->strmtype == strmtype_terminal) { # Terminal-Stream
-    if (!nullp(TheStream(stream)->strm_terminal_isatty)) { # Terminal
+  if (builtin_stream_p(stream)) {
+    if (((TheStream(stream)->strmtype == strmtype_terminal)  # Terminal-Stream
+         && !nullp(TheStream(stream)->strm_terminal_isatty)) # Terminal
+   #ifdef KEYBOARD
+        || ((TheStream(stream)->strmtype == strmtype_keyboard)  # Keyboard-Stream
+            && !nullp(TheStream(stream)->strm_keyboard_isatty))) {
+   #endif
       value1 = (terminal_raw ? T : NIL);
       begin_system_call();
       if (!nullp(flag)) { # switch to cbreak/noecho-Mode:
