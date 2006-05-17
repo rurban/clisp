@@ -1,3 +1,8 @@
+2006-05-17  Sam Steingold  <sds@podval.org>
+
+	* list.d (LIST-LENGTH-IN-BOUNDS-P): fix g++ compilation,
+	error was "jump to label 'no' crosses initialization of uintV m"
+
 2006-05-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* keyboard.lisp (exec-with-keyboard): Do not rely

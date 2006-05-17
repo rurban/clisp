@@ -2,7 +2,7 @@
  * List functions for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1999-2005
+ * Sam Steingold 1999-2006
  */
 #include "lispbibl.c"
 
@@ -622,14 +622,15 @@ LISPFUNNR(list_length_in_bounds_p,4)
     if (!consp(obj)) goto no;
     obj = Cdr(obj);
   }
-  var uintV m = posfixnum_to_V(STACK_1);
-  if (m < n) goto no;
-  for (i = m-n; i > 0; i--) {
-    if (!consp(obj)) {
-      if (nullp(obj))
-        break;
-      else
-        goto no;
+  { var uintV m = posfixnum_to_V(STACK_1);
+    if (m < n) goto no;
+    for (i = m-n; i > 0; i--) {
+      if (!consp(obj)) {
+        if (nullp(obj))
+          break;
+        else
+          goto no;
+      }
     }
     obj = Cdr(obj);
   }
