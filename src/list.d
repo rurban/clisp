@@ -2,7 +2,7 @@
  * List functions for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1999-2004
+ * Sam Steingold 1999-2005
  */
 #include "lispbibl.c"
 

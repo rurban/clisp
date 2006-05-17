@@ -1,7 +1,7 @@
 /*
  * Auxiliary functions for CLISP on Win32
  * Bruno Haible 1997-2003
- * Sam Steingold 1999-2003
+ * Sam Steingold 1999-2005
  */
 
 #include "lispbibl.c"
@@ -158,11 +158,11 @@ local BOOL temp_interrupt_handler (DWORD CtrlType)
 }
 
 local DWORD WINAPI standbythreadf (LPVOID arg) {
-/* 
+/*
 "Plus I remember being impressed with Ada because you could write an
  infinite loop without a faked up condition.  The idea being that in Ada
  the typical infinite loop would normally be terminated by detonation."
-                                             -Larry Wall     
+                                             -Larry Wall
 */
   while (true) {
     if (WaitForSingleObject(interruptible_call_event,
@@ -183,7 +183,7 @@ local BOOL DoInterruptible(LPTHREAD_START_ROUTINE fn, LPVOID arg, BOOL socketp)
     if (!interruptible_call_event) OS_error();
     interruptible_return_event = CreateEvent(NULL,TRUE,FALSE,NULL);
     if (!interruptible_return_event) OS_error();
-    interruptible_thread = 
+    interruptible_thread =
       CreateThread(NULL,10000,&standbythreadf,NULL,0,&thread_id);
     if (!interruptible_thread) OS_error();
   }
@@ -195,8 +195,8 @@ local BOOL DoInterruptible(LPTHREAD_START_ROUTINE fn, LPVOID arg, BOOL socketp)
   interruptible_routine = fn;
   interruptible_arg = arg;
   if (!SetEvent(interruptible_call_event)) OS_error();
-  if (WaitForSingleObject(interruptible_return_event,INFINITE) 
-      == WAIT_OBJECT_0) 
+  if (WaitForSingleObject(interruptible_return_event,INFINITE)
+      == WAIT_OBJECT_0)
   {
     ResetEvent(interruptible_return_event);
     interruptible_active = false;
