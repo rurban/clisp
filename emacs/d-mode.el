@@ -1,4 +1,4 @@
-;;; Copyright (C) 2001-2004 by Sam Steingold
+;;; Copyright (C) 2001-2006 by Sam Steingold
 ;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
 ;;; as a part of CLISP <http://clisp.cons.org>
 ;;;
@@ -221,6 +221,31 @@ The point should be on the prototype and the definition should follow."
     (back-to-indentation)
     (vector (+ (current-column) c-basic-offset))))
 
+(defun d-mode-compile-command ()
+  "Compute a reasonable value for the buffer-local `compile-command'."
+  (let* ((target (if (eq window-system 'w32) "lisp.exe" "lisp.run"))
+         build-dir
+         (make (if (eq window-system 'w32) "nmake" "make"))
+         (makefile
+          (cond ((file-readable-p "Makefile") nil)
+                ((file-readable-p "makefile") nil)
+                ((file-readable-p "makefile-msvc") "makefile-msvc")
+                ((file-readable-p "makefile.msvc") "makefile.msvc")
+                ((file-readable-p "makefile.msvc5") "makefile.msvc5")
+                ((file-readable-p "Makefile.msvc5") "Makefile.msvc5")
+                ((file-readable-p "makefile-msvs") "makefile-msvs")
+                ((file-readable-p "makefile-gcc")
+                 (setq make "make") "makefile-gcc")
+                ((file-directory-p d-mode-build-dir)
+                 (setq build-dir d-mode-build-dir make "make")
+                 "Makefile")
+                (t nil))))
+    (if build-dir
+        (concat make " -C " build-dir " -f " makefile " " target)
+        (if makefile
+            (concat make " -f " makefile " " target)
+            (concat make " " target)))))
+
 (define-derived-mode d-mode c-mode "D"
   "Major mode for editing CLISP source code.
 Special commands:
@@ -230,29 +255,6 @@ if that value is non-nil.
 If you are using Emacs 20.2 or earlier (including XEmacs) and want to
 use fontifications, you have to (require 'font-lock) first.  Sorry.
 Beware - this will modify the original C-mode too!"
-  (set (make-local-variable 'compile-command)
-       (let* ((target (if (eq window-system 'w32) "lisp.exe" "lisp.run"))
-              build-dir
-              (make (if (eq window-system 'w32) "nmake" "make"))
-              (makefile
-               (cond ((file-readable-p "Makefile") nil)
-                     ((file-readable-p "makefile") nil)
-                     ((file-readable-p "makefile-msvc") "makefile-msvc")
-                     ((file-readable-p "makefile.msvc") "makefile.msvc")
-                     ((file-readable-p "makefile.msvc5") "makefile.msvc5")
-                     ((file-readable-p "Makefile.msvc5") "Makefile.msvc5")
-                     ((file-readable-p "makefile-msvs") "makefile-msvs")
-                     ((file-readable-p "makefile-gcc")
-                      (setq make "make") "makefile-gcc")
-                     ((file-directory-p d-mode-build-dir)
-                      (setq build-dir d-mode-build-dir make "make")
-                      "Makefile")
-                     (t nil))))
-         (if build-dir
-             (concat make " -C " build-dir " -f " makefile " " target)
-             (if makefile
-                 (concat make " -f " makefile " " target)
-                 (concat make " " target)))))
   (set (make-local-variable 'add-log-current-defun-function)
        'd-mode-current-defun-function)
   (c-set-offset 'cpp-macro 'd-mode-indent-sharp)
