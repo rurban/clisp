@@ -3,6 +3,13 @@
 	* list.d (LIST-LENGTH-IN-BOUNDS-P): fix g++ compilation,
 	error was "jump to label 'no' crosses initialization of uintV m"
 
+2006-05-17  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	Readline completion now works with UTF-8 terminal encoding.
+	* stream.d (lisp_completion) [UNICODE]: Convert byte index to
+	string index.
+	(make_keyboard_stream) [WIN32_NATIVE]: add missing begin_system_call()
+
 2006-05-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* keyboard.lisp (exec-with-keyboard): Do not rely
