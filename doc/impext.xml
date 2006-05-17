@@ -83,16 +83,17 @@
     and the good-bye message will be suppressed, as if by &opt-q;.</simpara>
    <simpara>This is &not-e; recommended for interactive application
     delivery, please <emphasis>append</emphasis> your banner to ours
-    instead of <emphasis>replacing</emphasis> it.</simpara>
- </listitem></varlistentry>
+    (using &init-function;) instead of <emphasis>replacing</emphasis> it.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:NORC</constant></term>
   <listitem><simpara>If this argument is not &nil;, the &RC-file;
     loading will be suppressed, as if by &opt-norc;.
  </simpara></listitem></varlistentry>
  <varlistentry id="init-func"><term><constant>:INIT-FUNCTION</constant></term>
   <listitem><simpara>This argument specifies a function that will be
-   executed at startup of the saved image, before entering the standard
-   &repl; (but after); thus, if you want to avoid the &repl;, you have to call
+   executed at startup of the saved image, before entering the standard &repl;
+   (but after all other initialization, see <xref linkend="cradle-grave"/>);
+   thus, if you want to avoid the &repl;, you have to call
    <link linkend="quit"><function>EXT:EXIT</function></link> at the end
    of the init function yourself
    (this does not prevent &fini-hooks; from being run).</simpara>
@@ -116,7 +117,7 @@
   <listitem><simpara>The description of what this image does, printed
     by the <option><olink targetdoc="man" targetptr="opt-help-image"
                           >-help-image</olink></option> olption.</simpara>
-   <simpara>Defaults to <code>(&documentation; init-function
+   <simpara>Defaults to <code>(&documentation; &init-function;
      '&function-doc;)</code></simpara></listitem></varlistentry>
  <varlistentry><term><constant>:LOCKED-PACKAGES</constant></term>
   <listitem><simpara>This argument specifies the packages to lock before
