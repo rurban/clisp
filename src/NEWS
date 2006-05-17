@@ -22,6 +22,8 @@ User visible changes
 
 * WITH-KEYBOARD works with a Unix tty even when SLIME hijacks *TERMINAL-IO*.
 
+* I/O operations on Win32 are now much faster.
+
 * Bug fixes:
   + SOCKET:SOCKET-SERVER :INTERFACE now behaves as documented.
   + EXT:READ-BYTE-NO-HANG and SOCKET:SOCKET-STATUS used to hang on
