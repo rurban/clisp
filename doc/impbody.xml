@@ -3819,11 +3819,14 @@ functions are provided:
 <variablelist>
  <varlistentry id="wr-by-seq"><term>&wr-by-seq;
    performs multiple &write-byte; operations:</term>
- <listitem><simpara><code>(&wr-by-seq; &sequence-r; &stream-r; &key-amp;
-  &start-k; &end-k; :NO-HANG)</code> outputs the &integer-t;s of the
-  subsequence of &sequence-r; specified by &start-k; and &end-k; to
-  &stream-r;.  When <constant>:NO-HANG</constant> is non-&nil;, does not
-  block.  Returns two values: &sequence-r; and the index of the first
+ <listitem><simpara><code>(&wr-by-seq; &sequence-r; &stream-r;
+  &key-amp; &start-k; &end-k; :NO-HANG :INTERACTIVE)</code> outputs
+  the &integer-t;s of the subsequence of &sequence-r; specified by
+  &start-k; and &end-k; to &stream-r;.
+  When <constant>:NO-HANG</constant> is non-&nil;, does not block.
+  When &no-hang; is &nil; and &interactive-r; is non-&nil;, it can
+  block for writing the first byte but does not block for any further
+  bytes.  Returns two values: &sequence-r; and the index of the first
   byte that was not output.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
   &ubyte-vec; and &stream-r; is a &file-pipe-socket-s; with
