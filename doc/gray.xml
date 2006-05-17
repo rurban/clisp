@@ -2,6 +2,7 @@
 
 <section id="gray"><title>Gray streams</title>
 
+<section id="gray-overview"><title>Contents</title>
 <para>This interface permits the definition of new classes of streams,
 and programming their behavior by defining methods for the elementary
 stream operations.
@@ -302,7 +303,7 @@ and is supported by most &cl; implementations currently in use.</para>
    &need-defmethod;</listitem></varlistentry>
  <varlistentry><term><code>(<function>GRAY:STREAM-WRITE-BYTE-SEQUENCE</function>
      &stream-r; &sequence-r; &optional-amp;
-      [&start-r; [&end-r; [&no-hang;]]])</code></term>
+      [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</code></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
     by &start-k; and &end-k; to &stream-r;</simpara>
    <simpara>&sequence-r; is an &array-t; of &integer-t;s.
@@ -319,6 +320,7 @@ and is supported by most &cl; implementations currently in use.</para>
    <simpara>This function is a &clisp; extension (see
     &wr-by-seq;).</simpara></listitem></varlistentry>
 </variablelist>
+</section>
 
 <section id="fill-stream"><title>Class &fill-stream;</title>
 <para>As an example of the use of &gray-pac; &stream-t;s, &clisp;
