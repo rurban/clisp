@@ -1,3 +1,7 @@
+2006-05-19  Sam Steingold  <sds@podval.org>
+
+	* macro8.tst: added a destructuring-bind test
+
 2006-04-21  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add test against bug with make-instance cache after class
