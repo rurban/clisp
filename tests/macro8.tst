@@ -299,9 +299,6 @@ m
 (destructuring-bind (&key (x x)) nil x)
 3
 
-(destructuring-bind (x . y) '(1 . 10) (list x y))
-(1 10)
-
 (destructuring-bind (&whole (a  . b) c . d) '(1 . 2) (list a b c d))
 (1 2 1 2)
 
