@@ -631,8 +631,8 @@ LISPFUNNR(list_length_in_bounds_p,4)
         else
           goto no;
       }
+      obj = Cdr(obj);
     }
-    obj = Cdr(obj);
   }
   if (nullp(STACK_0) && !nullp(obj))
     goto no;

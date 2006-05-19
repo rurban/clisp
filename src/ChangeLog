@@ -1,3 +1,7 @@
+2006-05-19  Sam Steingold  <sds@podval.org>
+
+	* list.d (LIST-LENGTH-IN-BOUNDS-P): fixed last fix
+
 2006-05-18  Sam Steingold  <sds@podval.org>
 
 	* stream.d (TERMINAL-RAW) [!KEYBOARD]: fixed compilation
