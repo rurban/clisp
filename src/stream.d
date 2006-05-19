@@ -10070,9 +10070,9 @@ LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
          && !nullp(TheStream(stream)->strm_terminal_isatty)) # Terminal
    #ifdef KEYBOARD
         || ((TheStream(stream)->strmtype == strmtype_keyboard)  # Keyboard-Stream
-            && !nullp(TheStream(stream)->strm_keyboard_isatty)))
+            && !nullp(TheStream(stream)->strm_keyboard_isatty))
    #endif
-    {
+        ) {
       value1 = (terminal_raw ? T : NIL);
       begin_system_call();
       if (!nullp(flag)) { # switch to cbreak/noecho-Mode:
