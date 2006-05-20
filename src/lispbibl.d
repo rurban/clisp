@@ -122,7 +122,7 @@
   #if (defined(sun) && defined(unix) && defined(sun386))
     #define SUN386
   #endif
-  #if (defined(unix) && (defined(linux) || defined(__CYGWIN32__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)) && (defined(i386) || defined(__i386__) || defined(__x86_64__) || defined(__amd64__)))
+  #if (defined(unix) && (defined(linux) || defined(__CYGWIN32__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)) && (defined(i386) || defined(__i386__) || defined(__x86_64__) || defined(__amd64__)))
     #define PC386
   #endif
   #if (defined(sun) && defined(unix) && defined(mc68020))
@@ -232,7 +232,8 @@
   #ifdef __NetBSD__
     #define UNIX_NETBSD
   #endif
-  #ifdef __FreeBSD__
+  #if defined(__FreeBSD__) || defined(__DragonFly__)
+    # FreeBSD or its fork called DragonFly BSD.
     #define UNIX_FREEBSD
   #endif
   #ifdef __OpenBSD__
