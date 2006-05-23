@@ -679,10 +679,6 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
   #else
     extern_C int gettimeofday (struct timeval * tp, GETTIMEOFDAY_TZP_T tzp); /* GETTIMEOFDAY(2) */
   #endif
-  #ifdef UNIX_CYGWIN32
-    /* gettimeofday() always returns 1. Let it return 0. */
-    #define gettimeofday(tv,tz)  ((gettimeofday)(tv,tz), 0)
-  #endif
 #elif defined(HAVE_FTIME)
   #include <sys/timeb.h>
   extern_C int ftime (struct timeb * tp); /* TIME(3V) */
