@@ -1,3 +1,7 @@
+2006-05-29  Sam Steingold  <sds@podval.org>
+
+	* modules/syscalls/configure.in: removed CL_LSTAT
+
 2006-05-23  Bruno Haible  <bruno@clisp.org>
 
 	* unix.d (gettimeofday): Remove workaround for Cygwin bug. It was
