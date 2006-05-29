@@ -1,6 +1,6 @@
 ;; CLISP interface to PARI <http://pari.math.u-bordeaux.fr/>
 ;; Copyright (C) 1995 Michael Stoll
-;; Copyright (C) 2004-2005 Sam Steingold
+;; Copyright (C) 2004-2006 Sam Steingold
 ;; This is free software, distributed under the GNU GPL
 
 (defpackage "PARI"
@@ -137,7 +137,7 @@
 (def-c-var pari-i    (:name "gi")    (:type pari-gen) (:read-only t))
 (def-c-var pari-0    (:name "gen_0") (:type pari-gen) (:read-only t))
 (def-c-var pari--1   (:name "gen_m1") (:type pari-gen) (:read-only t))
-(def-c-var pari-nil  (:name "gnil")  (:type pari-gen) (:read-only t))
+;;(def-c-var pari-nil  (:name "gnil")  (:type pari-gen) (:read-only t))
 
 ;; extern  GEN *polun,*polx;
 (def-c-var pari-poly-1 (:name "polun") (:type (c-ptr pari-gen)) (:read-only t))

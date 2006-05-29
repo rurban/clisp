@@ -1,5 +1,9 @@
 2006-05-29  Sam Steingold  <sds@podval.org>
 
+	* modules/pari/pari.lisp (pari-nil): removed, gnil not found in pari CVS
+
+2006-05-29  Sam Steingold  <sds@podval.org>
+
 	* modules/syscalls/configure.in: removed CL_LSTAT
 
 2006-05-23  Bruno Haible  <bruno@clisp.org>
