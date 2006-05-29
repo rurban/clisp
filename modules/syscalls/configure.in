@@ -27,7 +27,6 @@ AC_CHECK_SIZEOF(uid_t)
 if test "$ac_cv_header_utmpx_h" = "yes"; then
  AC_CHECK_MEMBERS([struct utmpx.ut_host],,,[#include <utmpx.h>])
 fi
-CL_STAT
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
 CL_RLIMIT
@@ -49,7 +48,7 @@ AC_CHECK_DECLS(lgamma_r,,,[#include <math.h>])
 AC_CHECK_DECLS(signgam,,,[#include <math.h>])
 AC_SEARCH_LIBS(crypt, crypt)
 AC_CHECK_FUNCS(crypt encrypt setkey GlobalMemoryStatusEx)
-CL_LSTAT
+CL_STAT
 CL_RUSAGE
 if test "$ac_cv_func_setpgrp" = "yes"; then
 dnl BSD versions of setpgrp() are identical to setpgid()
