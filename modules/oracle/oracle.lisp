@@ -784,7 +784,10 @@ Argument: none
 				   (setf *read-default-float-format* 'double-float)
 				   (read-from-string val))
 			   (setf *read-default-float-format* old-default-format))))
-          ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2" "LONG" "RAW" "LONG RAW" "CLOB" "ROWID DESC") :test #'equal)
+          ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2" "LONG" "RAW" "LONG RAW" "CLOB" "ROWID DESC"
+                         "ANSI DATE" "TIME" "TIME WITH TIME ZONE" "TIMESTAMP" "TIMESTAMP WITH TIME ZONE"
+                         "INTERVAL YEAR TO MONTH" "INTERVAL DAY TO SECOND" "TIMESTAMP WITH LOCAL TZ"
+                         ) :test #'equal)
            val)
           (t (db-error (cat "Unsupported data type '" dtype "'"))))))
 
