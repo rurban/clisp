@@ -1,3 +1,7 @@
+2006-05-30  John Hinsdale <hin@alma.com>
+
+	* modules/oracle/orafns.c: Support for Oracle 10g date/time types
+
 2006-05-29  Sam Steingold  <sds@podval.org>
 
 	* modules/pari/pari.lisp (pari-nil): removed, gnil not found in pari CVS
