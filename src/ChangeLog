@@ -1,5 +1,11 @@
 2006-06-14  Sam Steingold  <sds@podval.org>
 
+	* foreign1.lisp (ffi-module@constant-table): fixed :value declaration
+	(DEF-CALL-OUT): fixed a typo in the 2006-01-30 patch, this fixes
+	bug #[ 1483902 ]: build error in ffi modules
+
+2006-06-14  Sam Steingold  <sds@podval.org>
+
 	* modules/bindings/win32/win32.lisp: added clipboard access functions
 
 2006-05-30  John Hinsdale <hin@alma.com>
