@@ -525,7 +525,7 @@ case $# in
      INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
      LIBICONV='@LIBICONV@'               # either '-liconv' or ''
      LIBSIGSEGV='@LTLIBSIGSEGV@'         # '-lsigsegv -L/usr/local/lib' or ''
-     X_INCLUDES='@X_INCLUDES@'           # either '-I/usr/somewhere/include' or ''
+     X_CFLAGS='@X_CFLAGS@'               # either '-I/usr/somewhere/include' or ''
      X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
      host='@host@'                       # something like 'sparc-sun-sunos4'
      host_cpu='@host_cpu@'               # something like 'sparc'
@@ -602,7 +602,7 @@ case $# in
      LIBS=''
      LIBICONV=''
      LIBSIGSEGV=''
-     X_INCLUDES=''
+     X_CFLAGS=''
      X_LIBS=''
      GNU_MAKE='no'
      shift 2
