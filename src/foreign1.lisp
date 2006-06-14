@@ -530,8 +530,8 @@
   (init-always '())
   (fini '())
   ;; type -> (function-name . #(const1 const2 const3 ...))
-  (constant-table (make-hash-table :test 'stablehash-eq
-                                   :key-type 'symbol :value-type 'string
+  (constant-table (make-hash-table :test 'stablehash-eq :key-type 'symbol
+                                   :value-type '(cons string vector)
                                    :warn-if-needs-rehash-after-gc t))
   (variable-list '())
   (function-list '()))
@@ -1042,7 +1042,7 @@
          ,(unless library
             `(EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ,def ',built-in)))
          (COMPILER::EVAL-WHEN-COMPILE
-           (COMPILER::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,def))))
+           (COMPILER::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,ctype))))
        (WHEN ,def                       ; found library function
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
          ,@(when doc `((SETF (DOCUMENTATION ',name 'FUNCTION) ',(second doc))))
