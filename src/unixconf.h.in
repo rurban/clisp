@@ -502,9 +502,6 @@
 /* Define to 1 if `vfork' works. */
 #undef HAVE_WORKING_VFORK
 
-/* have the X11 Window System */
-#undef HAVE_X11
-
 /* have _setjmp() and _longjmp() */
 #undef HAVE__JMP
 
@@ -724,6 +721,9 @@
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #undef WORDS_BIGENDIAN
+
+/* Define to 1 if the X Window System is missing or not being used. */
+#undef X_DISPLAY_MISSING
 
 /* Define to 1 if on AIX 3.
    System headers sometimes define this.
