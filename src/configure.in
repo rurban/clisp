@@ -138,8 +138,8 @@ dnl DEFS HAVE_SYS_IPC_H, HAVE_SYS_SHM_H
 CL_SHM_H
 dnl DEFS HAVE_TERMIOS_H, HAVE_TERMIO_H, ..., HAVE_SGTTY_H
 CL_TERM
-dnl sets variables X_INCLUDES, X_LIBS, DEFS HAVE_X11
-CL_FIND_X
+dnl sets variables X_CFLAGS, X_LIBS
+AC_PATH_XTRA
 dnl
 AC_MSG_NOTICE([* checks for typedefs])
 dnl

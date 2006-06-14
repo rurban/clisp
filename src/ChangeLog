@@ -1,5 +1,14 @@
 2006-06-14  Sam Steingold  <sds@podval.org>
 
+	fixed bug #[ 1497226 ]: clisp/src/m4/x11.m4 fails to detect x11 on FC5
+	* m4/x11.m4: removed
+	* configure.in, makemake.in, modules/clx/new-clx/Makefile.in:
+	* modules/clx/new-clx/configure.in, modules/clx/new-clx/link.sh.in:
+	use AC_PATH_XTRA instead of CL_FIND_X
+	This reverts parts of the 2005-09-16 patch
+
+2006-06-14  Sam Steingold  <sds@podval.org>
+
 	* foreign1.lisp (ffi-module@constant-table): fixed :value declaration
 	(DEF-CALL-OUT): fixed a typo in the 2006-01-30 patch, this fixes
 	bug #[ 1483902 ]: build error in ffi modules
@@ -2286,7 +2295,7 @@
 	* modules/clx/new-clx/configure.in (XGetAtomNames): fixed the test
 	use CL_FIND_X instead of AC_PATH_XTRA
 	* modules/clx/new-clx/link.sh, modules/clx/new-clx/Makefile.in:
-	updated for to use CL_FIND_X instead of AC_PATH_XTRA
+	updated to use CL_FIND_X instead of AC_PATH_XTRA
 
 2005-09-15  Sam Steingold  <sds@gnu.org>
 
