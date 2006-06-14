@@ -42,10 +42,10 @@
     (message "C-name: %s; c-def: %s" c-name c-def)
     (tags-search (concat "^" c-def))))
 
-(defun d-mode-current-defun-function ()
-  "Return the name of the current function."
-  (save-excursion
-    (d-mode-beg-of-defun)
+(defun d-mode-extract-index-name-function ()
+  "Extract the index item name, given a position.
+A valid value for `imenu-extract-index-name-function'."
+  (save-match-data
     (cond ((looking-at "LISP")
            (search-forward "(")
            (let ((c-name (buffer-substring-no-properties
@@ -71,6 +71,12 @@
              ;;     (looking-at "typedef "))
            (let ((add-log-current-defun-function nil))
              (add-log-current-defun))))))
+
+(defun d-mode-current-defun-function ()
+  "Return the name of the current function."
+  (save-excursion
+    (d-mode-beg-of-defun)
+    (d-mode-extract-index-name-function)))
 
 (defun d-mode-beg-of-defun ()
   "A valid value for `beginning-of-defun-function' for `d-mode'."
@@ -257,6 +263,8 @@ use fontifications, you have to (require 'font-lock) first.  Sorry.
 Beware - this will modify the original C-mode too!"
   (set (make-local-variable 'add-log-current-defun-function)
        'd-mode-current-defun-function)
+  (set (make-local-variable 'imenu-extract-index-name-function)
+       'd-mode-extract-index-name-function)
   (c-set-offset 'cpp-macro 'd-mode-indent-sharp)
   (c-set-offset 'block-close 'd-indent-to-boi)
   (c-set-offset 'statement-block-intro 'd-indent-to-boi+offset)
