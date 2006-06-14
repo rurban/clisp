@@ -1,3 +1,7 @@
+2006-06-14  Sam Steingold  <sds@podval.org>
+
+	* modules/bindings/win32/win32.lisp: added clipboard access functions
+
 2006-05-30  John Hinsdale <hin@alma.com>
 
 	* modules/oracle/orafns.c: Support for Oracle 10g date/time types
