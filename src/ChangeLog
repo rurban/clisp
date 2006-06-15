@@ -1,8 +1,8 @@
 2006-06-15  Sam Steingold  <sds@podval.org>
 
+	fixed bug #[ 1407763 ]: (disassemble 'car) hangs on openpower-linux1
 	* spvw.d (init_symbol_values) [UNIX_LINUX & POWERPC]: set
-	SYS::*DISASSEMBLE-USE-LIVE-PROCESS* to NIL because otherwise clisp
-	hangs on sf cf openpower-linux1 until C-c on (DISASSEMBLE 'CAR)
+	SYS::*DISASSEMBLE-USE-LIVE-PROCESS* to NIL
 
 2006-06-14  Sam Steingold  <sds@podval.org>
 
@@ -74,8 +74,8 @@
 
 2006-05-16  Bruno Haible  <bruno@clisp.org>
 
-	* stream.d (finish_tty_output, force_tty_output) [UNIX_CYGWIN]: Ignore
-	error EBADRQC.
+	* stream.d (finish_tty_output, force_tty_output) [UNIX_CYGWIN]:
+	Ignore error EBADRQC.
 	Fixes: clisp -norc -x '(sys::exit nil)' > /dev/null
 
 2006-05-16  Bruno Haible  <bruno@clisp.org>
