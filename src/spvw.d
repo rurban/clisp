@@ -1366,12 +1366,13 @@ local void init_symbol_values (void) {
  #endif
   # for DISASSEM.LISP:
  #ifdef UNIX
-  # SYS::*DISASSEMBLE-USE-LIVE-PROCESS* is system dependent:
-  # We use it where possible, because it allows peeking into dynamically
-  # loaded shared libraries.
-  # On FreeBSD 4.0, if set to T, gdb stops the clisp process.
-  # On Woe32, the debugging APIs are flawed, the Cygwin developers say.
-  #if defined(UNIX_FREEBSD) || defined(UNIX_CYGWIN32)
+  /* SYS::*DISASSEMBLE-USE-LIVE-PROCESS* is system dependent:
+   We use it where possible, because it allows peeking into dynamically
+   loaded shared libraries.
+   On FreeBSD 4.0, if set to T, gdb stops the clisp process.
+   On Linux ppc64 (sf cf openpower-linux1), if set to T, clisp hangs until C-c.
+   On Woe32, the debugging APIs are flawed, the Cygwin developers say. */
+  #if defined(UNIX_FREEBSD) || defined(UNIX_CYGWIN32) || (defined(UNIX_LINUX) && defined(POWERPC))
   define_variable(S(disassemble_use_live_process),NIL);
   #else
   define_variable(S(disassemble_use_live_process),T);
