@@ -2174,6 +2174,7 @@ echol "# Add-on modules that are present in all linking sets (including base)"
 echol "# syscalls             export some POSIX (and other) system calls"
 echol "# regexp               POSIX regular expressions"
 echol "# i18n                 Lisp program internationalization"
+echol "# readline             extra fine REPL controls"
 echol "BASE_MODULES = ${BASE_MODULES}"
 echol
 echol "COMMENT5 = ${HERE}comment5"
