@@ -1,5 +1,9 @@
 2006-06-15  Sam Steingold  <sds@podval.org>
 
+	* m4/test.m4: redirect test output to log, not /dev/null
+
+2006-06-15  Sam Steingold  <sds@podval.org>
+
 	fixed bug #[ 1407763 ]: (disassemble 'car) hangs on openpower-linux1
 	* spvw.d (init_symbol_values) [UNIX_LINUX & POWERPC]: set
 	SYS::*DISASSEMBLE-USE-LIVE-PROCESS* to NIL
