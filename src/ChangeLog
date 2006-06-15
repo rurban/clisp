@@ -1,3 +1,9 @@
+2006-06-15  Sam Steingold  <sds@podval.org>
+
+	* spvw.d (init_symbol_values) [UNIX_LINUX & POWERPC]: set
+	SYS::*DISASSEMBLE-USE-LIVE-PROCESS* to NIL because otherwise clisp
+	hangs on sf cf openpower-linux1 until C-c on (DISASSEMBLE 'CAR)
+
 2006-06-14  Sam Steingold  <sds@podval.org>
 
 	fixed bug #[ 1497226 ]: clisp/src/m4/x11.m4 fails to detect x11 on FC5
