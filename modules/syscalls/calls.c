@@ -813,14 +813,6 @@ DEFUN(POSIX::CRYPT, key salt) {
 }
 #endif
 #if defined(HAVE_ENCRYPT) || defined(HAVE_SETKEY)
-/* (encrypt (encrypt X t) nil) == X:
-   (let ((v (make-array 8 :element-type (quote (unsigned-byte 8)))) u)
-     (dotimes (i 8) (setf (aref v i) (random 256)))
-     (setq u (copy-seq v))
-     (print v) (os:encrypt v nil)
-     (print v) (os:encrypt v t)
-     (print v) (equalp v u))
- the above should return T */
 /* move information from a bit vector to the char block
  can trigger GC */
 static void get_block (char block[64], object vector) {

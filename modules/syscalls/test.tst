@@ -12,6 +12,13 @@ T
 (os:service-p (show (os:service 25))) T
 (listp (show (os:service) :pretty t)) T
 
+#+unix ;; (encrypt (encrypt X t) nil) == X
+(let* ((v (make-array 8 :element-type '(unsigned-byte 8))) (u (copy-seq v)))
+  (loop :repeat 10 :do (dotimes (i 8) (setf (aref v i) (setf (aref u i) (random 256))))
+    (show (os:encrypt v nil)) (show (os:encrypt v t))
+    :never (if (equalp v u) nil (list v u))))
+#+unix T
+
 #+unix
 (let* ((fmt "%Y-%m-%d %T") (string (show (os:string-time fmt))))
   (string= string (os:string-time fmt (show (os:string-time fmt string)))))
