@@ -19,6 +19,8 @@ T
     :never (if (equalp v u) nil (list v u))))
 #+unix T
 
+#+unix (crypt "foo" "bar") #+unix "ba4TuD1iozTxw"
+
 #+unix
 (let* ((fmt "%Y-%m-%d %T") (string (show (os:string-time fmt))))
   (string= string (os:string-time fmt (show (os:string-time fmt string)))))
