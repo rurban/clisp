@@ -14,8 +14,9 @@ T
 
 #+unix ;; (encrypt (encrypt X t) nil) == X
 (let* ((v (make-array 8 :element-type '(unsigned-byte 8))) (u (copy-seq v)))
-  (loop :repeat 10 :do (dotimes (i 8) (setf (aref v i) (setf (aref u i) (random 256))))
-    (show (os:encrypt v nil)) (show (os:encrypt v t))
+  (loop :repeat 10 :do
+    (dotimes (i 8) (setf (aref v i) (setf (aref u i) (random 256))))
+    (os:setkey v) (show (os:encrypt v nil)) (show (os:encrypt v t))
     :never (if (equalp v u) nil (list v u))))
 #+unix T
 
