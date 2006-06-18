@@ -69,7 +69,14 @@
 # include <utmpx.h>
 #endif
 #if defined(HAVE_SIGNAL_H)
-# include <signal.h>
+/* bug #[ 1507628 ]: #define unused (void) breaks clisp 2.38 on arm */
+# undef unused
+# include <signal.h>            /* used unused */
+# ifdef GNU     /* see lispbibl.d */
+#  define unused  (void)
+# else
+#  define unused
+# endif
 #endif
 
 #include <stdio.h>              /* for BUFSIZ */
