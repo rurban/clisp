@@ -54,14 +54,14 @@ T
 #+unix (os:stream-options *tmp1* :fd nil) NIL
 #+unix (os:stream-options *tmp1* :fd) NIL
 
-;; this may fail with ENOLCK - in which case we do not test locking
+;; may fail with ENOLCK or EOPNOTSUPP - in which case we do not test locking
 (handler-case (os:stream-lock *tmp1* t)
   (error (err)
     (format t "~S: ~A" 'os:stream-lock err)
     (pushnew :no-stream-lock *features*)
     T))
 T
-(os:stream-lock *tmp1* nil) NIL
+#-:no-stream-lock (os:stream-lock *tmp1* nil) #-:no-stream-lock NIL
 
 (typep (show (os:priority (os:process-id))) '(or keyword (integer -20 20))) T
 
