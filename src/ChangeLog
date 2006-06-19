@@ -1,3 +1,8 @@
+2006-06-19  Sam Steingold  <sds@podval.org>
+
+	* makemake.in (CLISP_VERSION): removed, TOPDIR is used instead
+	(VERSION_SUFFIX): new user variable for custom distributions
+
 2006-06-19  John Hinsdale <hin@alma.com>
 
 	* modules/oracle/orafns.c: call OCILogoff so as to not leak connections
