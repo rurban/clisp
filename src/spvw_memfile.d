@@ -1756,7 +1756,7 @@ local void find_memdump (Handle fd) {
     /* lseek+read does not work ==> use marker */
     lseek(fd,0,SEEK_SET);
     mem_start = find_marker(fd,(char*)&header,header_size);
-    if (mem_start  != (size_t)-1)
+    if (mem_start != (size_t)-1)
       /* image size failed, but header is found -- this is fishy! */
       fprintf(stderr,GETTEXTL("%s: 'image size' method failed, but found image header at %d\n"),get_executable_name(),mem_start);
    #else
