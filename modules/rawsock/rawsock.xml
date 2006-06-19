@@ -69,9 +69,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   <member><code>(<function role="unix">sockatmark</function>
     &sock-r;)</code></member>
   <member><code>(<function role="unix">socket</function>
-    <replaceable>domain</replaceable> &type-r; &proto-r;)</code></member>
+    &dom-r; &type-r; &proto-r;)</code></member>
   <member><code>(<function role="unix">socketpair</function>
-    <replaceable>domain</replaceable> &type-r; &proto-r;)</code></member>
+    &dom-r; &type-r; &proto-r;)</code></member>
  </simplelist>using same-named lisp functions in package
  <quote role="package">RAWSOCK</quote>.
  Additionally,<simplelist columns="1">
@@ -98,7 +98,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <function role="unix">socketpair</function> or
    <function role="unix">socket</function>).</simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> <replaceable>family</replaceable></term>
- <term><type>int</type> <replaceable>domain</replaceable></term>
+ <term><type>int</type> &dom-r;</term>
  <listitem><simpara>A &nil; (stands for <constant>AF_UNSPEC</constant>),
    &integer-t;, or a platform-specific keyword, e.g.,
    <constant>:INET</constant> stands for <constant>AF_INET</constant>.
@@ -222,14 +222,14 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <function role="unix">endprotoent</function>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:NETWORK &optional-amp;
-   <replaceable>network</replaceable> &type-r;)</code></term>
+   &net-r; &type-r;)</code></term>
  <listitem><simpara>Call <function role="unix">getnetbyname</function>
-   when <replaceable>network</replaceable> is a &string-t;,
+   when &net-r; is a &string-t;,
    or call <function role="unix">getnetbynumber</function> when
-   <replaceable>network</replaceable> is an &integer-t;.
+   &net-r; is an &integer-t;.
    Return a <type>RAWSOCK:NETWORK</type> structure object.
-   When <replaceable>network</replaceable> is &nil;, return a &list-t;
-   of all known networks using <function role="unix">setnetent</function>,
+   When &net-r; is &nil;, return a &list-t; of all known networks
+   using <function role="unix">setnetent</function>,
    <function role="unix">getnetent</function>, and
    <function role="unix">endnetent</function>.
 </simpara></listitem></varlistentry>
