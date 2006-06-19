@@ -1,3 +1,8 @@
+2006-06-19  John Hinsdale <hin@alma.com>
+
+	* modules/oracle/orafns.c: call OCILogoff so as to not leak connections
+	Thanks to Feng Hou <houfen@gmail.com> for report and patch.
+
 2006-06-18  Peter Van Eynde  <pvaneynd@debian.org>
 	Sam Steingold  <sds@podval.org>
 

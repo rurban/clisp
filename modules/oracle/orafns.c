@@ -1245,6 +1245,10 @@ static int disconnect(struct db_conn * db)
 
   free_columns(db);
   
+  /* Tell the server we are disconnecting */
+  if ( db->svc )
+    OCILogoff(db->svc, db->err);
+
   /* This should cause Oracle to free up all other handles created under it */
   if ( db->env )
     OCIHandleFree(db->env, OCI_HTYPE_ENV);
