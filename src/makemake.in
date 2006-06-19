@@ -2167,8 +2167,15 @@ if [ $HOS = unix ] ; then
   esac
   echol
 fi
+echol "# The official version number"
 echol "VERSION="`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
-echol "CLISP_VERSION=clisp-\$(VERSION)"
+echol "# If you want to distribute a modified version of CLISP,"
+echol "# use this to distinguish your distribution from the official one."
+echol "# This can also be used for pre-test and post-release distributions:"
+echol "#   make distrib VERSION_SUFFIX=pre"
+echol "VERSION_SUFFIX="
+echol "# The distribution's top directory"
+echol 'TOPDIR=clisp-$(VERSION)$(VERSION_SUFFIX)'
 echol
 echol "# Add-on modules that are present in all linking sets (including base)"
 echol "# syscalls             export some POSIX (and other) system calls"
@@ -3791,9 +3798,9 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo '' >> cygwin.README"
   echotab "cat SUMMARY >> cygwin.README"
   echol
-  echol "CLISP_VR=\$(CLISP_VERSION)-1"
+  echol "CLISP_VR=\$(TOPDIR)-1"
   echol "CLISP_SCRIPT=\$(CLISP_VR).sh"
-  echol "CLISP_CYGWIN=\$(CLISP_VERSION)-cygwin-${UNAME_R}.tar.bz2"
+  echol "CLISP_CYGWIN=\$(TOPDIR)-cygwin-${UNAME_R}.tar.bz2"
   echol "DEST_TMP=/tmp/clisp-install"
   echol "distrib : setup.hint cygwin.README force"
   echotab "\$(RMRF) \$(DEST_TMP) \$(CLISP_VR).tar.bz2; mkdir -p \$(DEST_TMP)"
@@ -3802,7 +3809,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "ln \$(CLISP_CYGWIN) \$(CLISP_VR).tar.bz2"
   echotab "\$(RMRF) \$(DEST_TMP)"
   echol
-  echol "TAR_SRC=\"../../archives/\$(VERSION)/\$(CLISP_VERSION).tar.bz2\""
+  echol "TAR_SRC=\"../../archives/\$(VERSION)/\$(TOPDIR).tar.bz2\""
   echol "cygwin-src : setup.hint force"
   echotab "touch \$(CLISP_VR).patch"
   echotab "echo '#!/bin/sh' > \$(CLISP_SCRIPT)"
@@ -3810,8 +3817,8 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo 'cd build-cygwin' >> \$(CLISP_SCRIPT)"
   echotab "echo 'make distrib' >> \$(CLISP_SCRIPT)"
   echotab "ln -s \$(TAR_SRC) ."
-  echotab "tar cvfjh \$(CLISP_VR)-src.tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch setup.hint cygwin.README \$(CLISP_VERSION).tar.bz2"
-  echotab "\$(RMRF) \$(CLISP_VERSION).tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch"
+  echotab "tar cvfjh \$(CLISP_VR)-src.tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch setup.hint cygwin.README \$(TOPDIR).tar.bz2"
+  echotab "\$(RMRF) \$(TOPDIR).tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch"
   echol
 elif [ ${HOS} = unix ] ; then   # but not cygwin!
 COMPRESS=@COMPRESS@
@@ -3826,9 +3833,6 @@ fi
 echol
 echol "# Temporary directory for packing"
 echol "PACKDIR = ."
-echol
-echol "# The distribution's top directory"
-echol 'TOPDIR=clisp-$(VERSION)'
 echol
 echol "# Distribution file"
 echol "DISTFILE=\$(PACKDIR)/\$(TOPDIR)-${host}-${UNAME_R}\$(PACKEXT)"
