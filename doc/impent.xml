@@ -590,6 +590,7 @@
 <!ENTITY dimensions-r '<replaceable>dimensions</replaceable>'>
 <!ENTITY direction-r '<replaceable>direction</replaceable>'>
 <!ENTITY dkey-r '<replaceable>dkey</replaceable>'>
+<!ENTITY dom-r '<replaceable>domain</replaceable>'>
 <!ENTITY eltype-r '<replaceable>element-type</replaceable>'>
 <!ENTITY encoding-r '<replaceable>encoding</replaceable>'>
 <!ENTITY end-r '<replaceable>end</replaceable>'>
@@ -639,6 +640,7 @@
 <!ENTITY mode-r '<replaceable>mode</replaceable>'>
 <!ENTITY n-r '<replaceable>n</replaceable>'>
 <!ENTITY name-r '<replaceable>name</replaceable>'>
+<!ENTITY net-r '<replaceable>network</replaceable>'>
 <!ENTITY next-r '<replaceable>next</replaceable>'>
 <!ENTITY nname-r '<replaceable>new-name</replaceable>'>
 <!ENTITY no-hang '<replaceable>no-hang</replaceable>'>

@@ -9,7 +9,6 @@
   %imp-entities;
   <!ENTITY % unix-entities SYSTEM "unix-ent.xml">
   %unix-entities;
-  <!ENTITY dom "<replaceable>domain</replaceable>">
   <!ENTITY ld "<replaceable>locale-dir</replaceable>">
   <!ENTITY lf "<replaceable>lisp-file</replaceable>">
   <!ENTITY lld "<replaceable>lisp-lib-dir</replaceable>">
@@ -67,7 +66,7 @@
 <!-- #endif -->
 <arg><option><link linkend="opt-lang">-L &lang-r;</link></option></arg>
 <arg><option><link linkend="opt-locale">-N &ld;</link></option></arg>
-<arg><option><link linkend="opt-enc">-E&dom; &encoding-r;</link></option></arg>
+<arg><option><link linkend="opt-enc">-E&dom-r; &encoding-r;</link></option></arg>
 <group><arg><option><link linkend="opt-verbose">-q</link></option></arg>
  <arg><option><link linkend="opt-verbose">--quiet</link></option></arg>
  <arg><option><link linkend="opt-verbose">--silent</link></option></arg>
@@ -257,11 +256,11 @@ compiles the specified lisp files to a platform-independent
   &curr-lang;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-enc">
- <term><option>-E</option>&dom; &encoding-r;</term>
+ <term><option>-E</option>&dom-r; &encoding-r;</term>
  <listitem><para>Specifies the encoding used for the given domain,
    overriding the default which depends on the &env-var;s
    <envar>LC_ALL</envar>, <envar>LC_CTYPE</envar>, <envar>LANG</envar>.
-   &dom; can be
+   &dom-r; can be
    <variablelist>&varlist-table;
     <varlistentry><term><constant>file</constant></term>
      <listitem><simpara>affecting &def-file-enc;
