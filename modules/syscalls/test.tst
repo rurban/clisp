@@ -13,11 +13,17 @@ T
 (listp (show (os:service) :pretty t)) T
 
 #+unix ;; (encrypt (encrypt X t) nil) == X
-(let* ((v (make-array 8 :element-type '(unsigned-byte 8))) (u (copy-seq v)))
-  (loop :repeat 10 :do
-    (dotimes (i 8) (setf (aref v i) (setf (aref u i) (random 256))))
-    (os:setkey v) (show (os:encrypt v nil)) (show (os:encrypt v t))
-    :never (if (equalp v u) nil (list v u))))
+(handler-case
+    (let* ((v (make-array 8 :element-type '(unsigned-byte 8))) (u (copy-seq v)))
+      (loop :repeat 10 :do
+        (dotimes (i 8) (setf (aref v i) (setf (aref u i) (random 256))))
+        (os:setkey v) (show (os:encrypt v nil)) (show (os:encrypt v t))
+        :never (if (equalp v u) nil (list v u))))
+  (system::simple-os-error (err)
+    ;; Solaris (sf cf x86-solaris1 & sparc-solaris1) encrypt fails with
+    ;;  "UNIX error 89 (ENOSYS): Function not implemented"
+    (format t "~S: ~A" 'os:encrypt err)
+    T))
 #+unix T
 
 #+unix (crypt "foo" "bar") #+unix "ba4TuD1iozTxw"
@@ -56,7 +62,7 @@ T
 
 ;; may fail with ENOLCK or EOPNOTSUPP - in which case we do not test locking
 (handler-case (os:stream-lock *tmp1* t)
-  (error (err)
+  (system::simple-os-error (err)
     (format t "~S: ~A" 'os:stream-lock err)
     (pushnew :no-stream-lock *features*)
     T))
