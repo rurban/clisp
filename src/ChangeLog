@@ -1,3 +1,9 @@
+2006-06-20  Sam Steingold  <sds@podval.org>
+
+	fixed bug #[ 1491252 ]: i18n does not build on cf:alpha
+	* utils/modprep.lisp (*tag-length-limit*): new variable
+	(init-to-tag): use it to limit the size of C identifiers
+
 2006-06-19  Sam Steingold  <sds@podval.org>
 
 	* makemake.in (CLISP_VERSION): removed, TOPDIR is used instead
