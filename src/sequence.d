@@ -363,7 +363,8 @@ nonreturning_function(local, fehler_seqtype_length,
 #define SEQTYPE_LENGTH_MATCH(cl,stl)                            \
   (eq(cl,Fixnum_minus1) ? !eq(Fixnum_0,stl) : eql(cl,stl))
 
-/* error when the argument is not an integer >=0 */
+/* error when the argument is not an integer >=0
+   YES, we _CAN_ create lists longer than MOST-POSITIVE-FIXNUM! */
 nonreturning_function(local, fehler_posint, (object kw, object obj)) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
