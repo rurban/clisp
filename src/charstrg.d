@@ -2372,7 +2372,6 @@ LISPFUNN(store_schar,3)
 }
 
 /* UP: checks :START and :END limits for a vector argument
- > STACK_2: vector-argument
  > STACK_1: optional :start-argument
  > STACK_0: optional :end-argument
  > stringarg arg: arg.string its data vector,
@@ -2382,9 +2381,8 @@ LISPFUNN(store_schar,3)
                   [arg.offset+arg.index .. arg.offset+arg.index+arg.len-1] the
                   range within the data vector corresponding to the selected
                   vector slice
- < result: vector-argument
- increases STACK by 3 */
-global object test_vector_limits (stringarg* arg) {
+ removes 2 elements from STACK */
+global void test_vector_limits (stringarg* arg) {
   if (arg->len > 0 && simple_nilarray_p(arg->string))
     fehler_nilarray_retrieve();
   var uintV start;
@@ -2408,7 +2406,6 @@ global object test_vector_limits (stringarg* arg) {
   skipSTACK(2);
   /* fill results: */
   arg->index = start; arg->len = end-start;
-  return popSTACK();
 }
 
 /* UP: checks the limits for a string-argument
@@ -2424,7 +2421,8 @@ global maygc object test_string_limits_ro (stringarg* arg) {
   /* check string-argument: */
   STACK_2 = check_string(STACK_2);
   arg->string = unpack_string_ro(STACK_2,&arg->len,&arg->offset);
-  return test_vector_limits(arg);
+  test_vector_limits(arg);
+  return popSTACK();
 }
 
 /* UP: checks the limits for a string-argument

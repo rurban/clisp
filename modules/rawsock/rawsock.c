@@ -2,7 +2,7 @@
  * Module for Raw Sockets / CLISP
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
- * Sam Steingold 2004-2005
+ * Sam Steingold 2004-2006
  * Bruno Haible 2004-2005
  * <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
  */
@@ -113,21 +113,22 @@ static object my_check_argument (object name, object datum) {
 }
 /* DANGER: the return value is invalidated by GC!
  > *arg_: vector
- > STACK_0, STACK_1: START & END
+ > STACK_0, STACK_1: END & START -- removed
  > prot: PROT_READ or PROT_READ_WRITE
  < size: how many bytes to use
  < pointer to the buffer start
+ removes 2 elements from STACK
  can trigger GC */
 static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size, int prot) {
-  uintL start = 0;
-  object data;
+  stringarg sa;
   *arg_ = check_byte_vector(*arg_);
-  if (!missingp(STACK_1)) start = posfixnum_to_V(check_posfixnum(STACK_1));
-  *size = missingp(STACK_0) ? vector_length(*arg_)
-    : posfixnum_to_V(check_posfixnum(STACK_0));
-  data = array_displace_check(*arg_,*size,&start);
-  { void *start_address = (void*)(TheSbvector(data)->data + start);
-    handle_fault_range(prot,(aint)start_address,(aint)start_address + *size);
+  sa.offset = 0; sa.len = vector_length(*arg_);
+  sa.string = array_displace_check(*arg_,sa.len,&sa.offset);
+  test_vector_limits(&sa);
+  *size = sa.len;
+  { void *start_address =
+      (void*)(TheSbvector(sa.string)->data + sa.offset + sa.index);
+    handle_fault_range(prot,(aint)start_address,(aint)start_address + sa.len);
     return start_address;
   }
 }
@@ -150,22 +151,24 @@ static void* check_struct_data (object type, object arg, SOCKLEN_T *size,
 
 /* check that the arg is a vector of byte vectors
  > *arg_: vector
- > STACK_0, STACK_1: START & END
+ > STACK_0, STACK_1: START & END -- removed on success
  < *arg_: may be modified (bad vector elements replaced with byte vectors)
  < return: how many byte vectors arg contains
+ removes 2 elements from STACK if success (returns a positive value)
  can trigger GC */
 static int check_iovec_arg (gcv_object_t *arg_, uintL *offset) {
-  int size, ii;
+  int ii;
+  stringarg sa;
   *arg_ = check_vector(*arg_);
   if (array_atype(*arg_) != Atype_T) return -1; /* cannot contain vectors */
-  *offset = (missingp(STACK_1) ? 0 : posfixnum_to_V(check_posfixnum(STACK_1)));
-  size = (missingp(STACK_0) ? vector_length(*arg_)
-          : posfixnum_to_V(check_posfixnum(STACK_0)));
-  *arg_ = array_displace_check(*arg_,size,offset);
-  for (ii=*offset; ii<size; ii++)
+  sa.offset = 0; sa.len = vector_length(*arg_);
+  sa.string = array_displace_check(*arg_,sa.len,&sa.offset);
+  test_vector_limits(&sa);
+  *offset = sa.offset;
+  for (ii=*offset; ii<sa.len; ii++)
     TheSvector(*arg_)->data[ii] =
       check_byte_vector(TheSvector(*arg_)->data[ii]);
-  return size;
+  return sa.len;
 }
 #if !defined(HAVE_STRUCT_IOVEC)
 struct iovec { void *iov_base; size_t iov_len; };
@@ -809,7 +812,7 @@ DEFUN(RAWSOCK:RECV,socket buffer &key START END PEEK OOB WAITALL) {
   size_t buffer_len;
   void *buffer = parse_buffer_arg(&STACK_2,&buffer_len,PROT_READ_WRITE);
   SYSCALL(retval,sock,recv(sock,(BUF_TYPE_T)buffer,buffer_len,flags));
-  VALUES1(fixnum(retval)); skipSTACK(4);
+  VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
 DEFUN(RAWSOCK:RECVFROM, socket buffer address &key START END PEEK OOB WAITALL) {
@@ -828,7 +831,7 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address &key START END PEEK OOB WAITALL) {
   buffer = parse_buffer_arg(&STACK_3,&buffer_len,PROT_READ_WRITE);
   SYSCALL(retval,sock,recvfrom(sock,(BUF_TYPE_T)buffer,
                                buffer_len,flags,sa,&sa_size));
-  VALUES3(fixnum(retval),fixnum(sa_size),STACK_2); skipSTACK(5);
+  VALUES3(fixnum(retval),fixnum(sa_size),STACK_0); skipSTACK(3);
 }
 
 #if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
@@ -841,11 +844,12 @@ DEFCHECKER(check_msg_flags,prefix=MSG,bitmasks=both,default=0,          \
 #define MSG_CONTROL  3
 #define MSG_FLAGS    4
 /* check message structure, return size/offset for iovec & flags
- < STACK_0, STACK_1: START & END, passed to check_iovec_arg()
+ < STACK_0, STACK_1: START & END, passed to check_iovec_arg() & removed
  < mho -- MESSAGE structure object
  > mho -- same, checked
  > offset -- offset into the iovec
  > mhp -- filled msg_iovlen, msg_flags
+ removes 2 elements from STACK
  can trigger GC */
 static void check_message (gcv_object_t *mho, uintL *offset, struct msghdr *mhp)
 {
@@ -886,11 +890,11 @@ DEFUN(RAWSOCK:RECVMSG,socket message &key START END PEEK OOB WAITALL) {
   check_message(&STACK_2,&offset,&message);
   message.msg_iov =
     (struct iovec*)alloca(message.msg_iovlen * sizeof(struct iovec));
-  fill_msghdr(&STACK_2,offset,&message,PROT_READ_WRITE);
+  fill_msghdr(&STACK_0,offset,&message,PROT_READ_WRITE);
   SYSCALL(retval,sock,recvmsg(sock,&message,flags));
-  TheStructure(STACK_2)->recdata[MSG_FLAGS] =
+  TheStructure(STACK_0)->recdata[MSG_FLAGS] =
     check_msg_flags_to_list(message.msg_flags);
-  VALUES2(fixnum(retval),fixnum(message.msg_namelen)); skipSTACK(4);
+  VALUES2(fixnum(retval),fixnum(message.msg_namelen)); skipSTACK(2);
 }
 #endif  /* HAVE_RECVMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
@@ -903,13 +907,13 @@ DEFUN(RAWSOCK:SOCK-READ,socket buffer &key START END)
   uintL offset;
   if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* READV */
     struct iovec *buffer = (struct iovec*)alloca(sizeof(struct iovec)*retval);
-    fill_iovec(STACK_2,offset,retval,buffer,PROT_READ_WRITE);
+    fill_iovec(STACK_0,offset,retval,buffer,PROT_READ_WRITE);
     SYSCALL(retval,sock,readv(sock,buffer,retval));
   } else {                      /* READ */
     void *buffer = parse_buffer_arg(&STACK_2,&len,PROT_READ_WRITE);
     SYSCALL(retval,sock,READ(sock,buffer,len));
   }
-  VALUES1(ssize_to_I(retval)); skipSTACK(4);
+  VALUES1(ssize_to_I(retval)); skipSTACK(2);
 }
 
 /* ================== SENDING ================== */
@@ -924,7 +928,7 @@ DEFUN(RAWSOCK:SEND,socket buffer &key START END OOB EOR) {
   size_t buffer_len;
   void *buffer = parse_buffer_arg(&STACK_2,&buffer_len,PROT_READ);
   SYSCALL(retval,sock,send(sock,(const BUF_TYPE_T)buffer,buffer_len,flags));
-  VALUES1(fixnum(retval)); skipSTACK(4);
+  VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
 #if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
@@ -938,11 +942,11 @@ DEFUN(RAWSOCK:SENDMSG,socket message &key START END OOB EOR) {
   check_message(&STACK_2,&offset,&message);
   message.msg_iov =
     (struct iovec*)alloca(message.msg_iovlen * sizeof(struct iovec));
-  fill_msghdr(&STACK_2,offset,&message,PROT_READ);
+  fill_msghdr(&STACK_0,offset,&message,PROT_READ);
   SYSCALL(retval,sock,sendmsg(sock,&message,flags));
-  TheStructure(STACK_2)->recdata[MSG_FLAGS] =
+  TheStructure(STACK_0)->recdata[MSG_FLAGS] =
     check_msg_flags_to_list(message.msg_flags);
-  VALUES1(fixnum(retval)); skipSTACK(4);
+  VALUES1(fixnum(retval)); skipSTACK(2);
 }
 #endif  /* HAVE_SENDMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
@@ -963,7 +967,7 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key START END OOB EOR) {
   buffer = parse_buffer_arg(&STACK_3,&buffer_len,PROT_READ);
   SYSCALL(retval,sock,sendto(sock,(const BUF_TYPE_T)buffer,
                              buffer_len,flags,sa,size));
-  VALUES1(fixnum(retval)); skipSTACK(5);
+  VALUES1(fixnum(retval)); skipSTACK(3);
 }
 
 DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key START END)
@@ -975,13 +979,13 @@ DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key START END)
   uintL offset;
   if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* WRITEW */
     struct iovec *buffer = (struct iovec*)alloca(sizeof(struct iovec)*retval);
-    fill_iovec(STACK_2,offset,retval,buffer,PROT_READ);
+    fill_iovec(STACK_0,offset,retval,buffer,PROT_READ);
     SYSCALL(retval,sock,writev(sock,buffer,retval));
   } else {                      /* WRITE */
     void *buffer = parse_buffer_arg(&STACK_2,&len,PROT_READ);
     SYSCALL(retval,sock,WRITE(sock,buffer,len));
   }
-  VALUES1(ssize_to_I(retval)); skipSTACK(4);
+  VALUES1(ssize_to_I(retval)); skipSTACK(2);
 }
 
 DEFUN(RAWSOCK:SOCK-CLOSE, socket) {
@@ -1303,7 +1307,7 @@ DEFUN(RAWSOCK:IPCSUM, buffer &key START END) { /* IP CHECKSUM */
   buffer[24]=(result & 0xFF);
   buffer[25]=((result >> 8) & 0xFF);
   VALUES1(fixnum(result));
-  skipSTACK(3);
+  skipSTACK(1);
 }
 
 DEFUN(RAWSOCK:ICMPCSUM, buffer &key START END) { /* ICMP CHECKSUM */
@@ -1326,7 +1330,7 @@ DEFUN(RAWSOCK:ICMPCSUM, buffer &key START END) { /* ICMP CHECKSUM */
   buffer[offset+2]=(result & 0xFF);
   buffer[offset+3]=((result >> 8) & 0xFF);
   VALUES1(fixnum(result));
-  skipSTACK(3);
+  skipSTACK(1);
 }
 
 DEFUN(RAWSOCK:TCPCSUM, buffer &key START END) { /* TCP checksum */
@@ -1355,7 +1359,7 @@ DEFUN(RAWSOCK:TCPCSUM, buffer &key START END) { /* TCP checksum */
   buffer[offset+17+14]=(result & 0xFF);
   buffer[offset+16+14]=((result >> 8) & 0xFF);
   VALUES1(fixnum(result));
-  skipSTACK(3);
+  skipSTACK(1);
 }
 
 DEFUN(RAWSOCK:UDPCSUM, buffer &key START END) { /* UDP checksum */
@@ -1384,7 +1388,7 @@ DEFUN(RAWSOCK:UDPCSUM, buffer &key START END) { /* UDP checksum */
   buffer[offset+7+14]=(result & 0xFF);
   buffer[offset+6+14]=((result >> 8) & 0xFF);
   VALUES1(fixnum(result));
-  skipSTACK(3);
+  skipSTACK(1);
 }
 
 void module__rawsock__init_function_2 (module_t* module);
