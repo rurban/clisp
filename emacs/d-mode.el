@@ -276,6 +276,8 @@ Beware - this will modify the original C-mode too!"
     (set (make-local-variable 'font-lock-defaults)
          d-mode-font-lock-defaults)))
 
+(eval-after-load "add-log" '(add-to-list 'add-log-c-like-modes 'd-mode))
+
 (when window-system
   ;; enable font locking
   (if (boundp 'running-xemacs)
