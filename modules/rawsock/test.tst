@@ -8,8 +8,9 @@
 (progn
   (defun to-bytes (string)
     (ext:convert-string-to-bytes string #+UNICODE charset:ascii #-UNICODE :default))
-  (defun from-bytes (vec &optional size)
-    (ext:convert-string-from-bytes vec #+UNICODE charset:ascii #-UNICODE :default :end size))
+  (defun from-bytes (vec &key (start 0) end)
+    (ext:convert-string-from-bytes vec #+UNICODE charset:ascii #-UNICODE :default
+                                   :start start :end end))
   (defun make-byte-vector (len)
     (make-array (etypecase len
                   (integer len)
@@ -94,7 +95,7 @@ T
 (ext:socket-status (list (cons *sock* :input))) (:INPUT)
 
 (let ((size (rawsock:recv *sock* *buffer*)))
-  (show (setq *recv-ret* (list size (from-bytes *buffer* size))))
+  (show (setq *recv-ret* (list size (from-bytes *buffer* :end size))))
   (ext:socket-status *sock*))
 :OUTPUT
 
@@ -137,7 +138,7 @@ NIL
 
 #-:win32 ;; on win32, read() cannot be called on a socket!
 (let ((size (rawsock:sock-read *sock* *buffer*)))
-  (show (setq *read-ret* (list size (from-bytes *buffer* size))))
+  (show (setq *read-ret* (list size (from-bytes *buffer* :end size))))
   (ext:socket-status *sock*))
 #-:win32 :OUTPUT
 
@@ -158,7 +159,7 @@ NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 
 (let ((size (my-recvfrom *sock* *buffer* *sa-remote*)))
-  (show (setq *recvfrom-ret* (list size (from-bytes *buffer* size))))
+  (show (setq *recvfrom-ret* (list size (from-bytes *buffer* :end size))))
   (equal *recv-ret* *recvfrom-ret*))
 T
 
@@ -179,8 +180,8 @@ T
 
 (let ((message "abazonk"))
   (rawsock:sock-write *sock1* (to-bytes message))
-  (string= message (from-bytes *buffer* (rawsock:sock-read
-                                         *sock2* *buffer*))))
+  (string= message (from-bytes *buffer*
+                               :end (rawsock:sock-read *sock2* *buffer*))))
 T
 
 #-:win32 ;; on win32, read()/write() cannot be called on a socket!
@@ -224,12 +225,12 @@ NIL
 (socket:socket-status *sock*) :OUTPUT
 
 (rawsock:send *sock* (to-bytes "dog bites man")) 13
-(rawsock:recv *sock1* *buffer*) 13
-(from-bytes *buffer* 13) "dog bites man"
+(rawsock:recv *sock1* *buffer* :start 17 :end 30) 13
+(from-bytes *buffer* :start 17 :end 30) "dog bites man"
 
 (rawsock:send *sock1* (to-bytes "man bites dog")) 13
-(rawsock:recv *sock* *buffer*) 13
-(from-bytes *buffer* 13) "man bites dog"
+(rawsock:recv *sock* *buffer* :start 1000 :end 1013) 13
+(from-bytes *buffer* :start 1000 :end 1013) "man bites dog"
 
 (rawsock:sock-close *sock*)  0
 (rawsock:sock-close *sock1*) 0
@@ -257,14 +258,14 @@ NIL
     (assert (equalp (rawsock:message-iovec message1)
                     (rawsock:message-iovec message2)))
     (when (fboundp 'rawsock:getnameinfo)
-      (show (list 'rawsock:getnameinfo 
+      (show (list 'rawsock:getnameinfo
                   (multiple-value-list
                    (rawsock:getnameinfo (rawsock:message-addr message1)))
                   (multiple-value-list
                    (rawsock:getnameinfo (rawsock:message-addr message2))))))
     ;; I get "(EFAULT): Bad address" on Linux 2.6.14-1.1637_FC4
-    ;; (when (fboundp 'rawsock:sockatmark) 
-    ;;   (show (list 'rawsock:sockatmark 
+    ;; (when (fboundp 'rawsock:sockatmark)
+    ;;   (show (list 'rawsock:sockatmark
     ;;               (rawsock:sockatmark *sock1*)
     ;;               (rawsock:sockatmark *sock2*))))
     (rawsock:sock-close *sock1*) (rawsock:sock-close *sock2*))

@@ -13789,16 +13789,16 @@ extern object string_invertcase (object string);
  increases STACK by 3
  can trigger GC */
 typedef struct stringarg {
-  object string; # data vector, a not-reallocated simple-string
-  uintL offset;  # offset into this string
-  uintL index;   # :start index
-  uintL len;     # :end - :start
+  object string; /* data vector - not-reallocated simple-string or -array */
+  uintL offset;                 /* offset into this string */
+  uintL index;                  /* :start index */
+  uintL len;                    /* :end - :start */
 } stringarg;
+%% puts("typedef struct stringarg { object string; uintL offset; uintL index; uintL len; } stringarg;");
 extern maygc object test_string_limits_ro (stringarg* arg);
 /* used by STREAM, PATHNAME, IO, ENCODING */
 
 /* UP: checks :START and :END limits for a vector argument
- > STACK_2: vector-argument
  > STACK_1: optional :start-argument
  > STACK_0: optional :end-argument
  > stringarg arg: arg.string its data vector,
@@ -13808,10 +13808,11 @@ extern maygc object test_string_limits_ro (stringarg* arg);
                   [arg.offset+arg.index .. arg.offset+arg.index+arg.len-1] the
                   range within the data vector corresponding to the selected
                   vector slice
- < result: vector-argument
- increases STACK by 3 */
-extern object test_vector_limits (stringarg* arg);
+ removes 2 elements from STACK */
+extern void test_vector_limits (stringarg* arg);
 /* used by ENCODING */
+%% puts("extern void test_vector_limits (stringarg* arg);");
+/* used by RAWSOCK */
 
 /* UP: checks a string/symbol/character-argument
  test_stringsymchar_arg(obj,invert)
