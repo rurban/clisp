@@ -2750,8 +2750,7 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
   sa.offset = 0; sa.len = vector_length(array);
   sa.string = array_displace_check(array,sa.len,&sa.offset);
   test_vector_limits(&sa);
-  array = sa.string;
-  pushSTACK(array);
+  STACK_0 = array = sa.string;
   /* stack layout: encoding, array */
   var uintL start = sa.offset + sa.index;
   var uintL end = start + sa.len;

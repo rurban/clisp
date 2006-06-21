@@ -1,3 +1,17 @@
+2006-06-21  Sam Steingold  <sds@podval.org>
+
+	fixed bug #[ 1426388 ]: rawsock :end vs. :size confusion
+	* charstrg.d (test_vector_limits): no return value, remove just 2
+	STACK elements: :START and :END (not vector)
+	(test_string_limits_ro): adjusted the call to test_vector_limits()
+	* encoding.d (CONVERT-STRING-TO-BYTES): ditto
+	* lispbibl.d (test_vector_limits): updated prototype
+	(stringarg, test_vector_limits): export to clisp.h
+	* modules/rawsock/rawsock.c (parse_buffer_arg, check_iovec_arg):
+	use test_vector_limits()
+	updated their callers because now parse_buffer_arg() and
+	check_iovec_arg() remove :START and :END from STACK
+
 2006-06-20  Sam Steingold  <sds@podval.org>
 
 	fixed bug #[ 1491252 ]: i18n does not build on cf:alpha
