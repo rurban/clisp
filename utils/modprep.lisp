@@ -308,12 +308,12 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
               ((or (char= cc #\_) (char= cc #\-)) (write-char #\_ out))
               (t (format out "_~2,'0x" (char-code cc))))))
 
-(defvar *tag-length-limit* 1000
+(defvar *tag-length-limit* 2000
   "The approximate maximum length of a C name.
 This works around the failure on i18n on Alpha Linux:
 /tmp/ccYZBYCX.s: Assembler messages:
 /tmp/ccYZBYCX.s:401: Fatal error: string too big (8281 bytes)
-See bug [ 1491252 ]: i18n does not build on cf:alpha")
+See bug #[ 1491252 ]: i18n does not build on cf:alpha")
 (defun init-to-tag (init already-present-p &optional (prefix "object_"))
   (let ((base
          (with-output-to-string (s)
