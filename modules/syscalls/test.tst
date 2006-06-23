@@ -62,7 +62,7 @@ T
 
 ;; may fail with ENOLCK or EOPNOTSUPP - in which case we do not test locking
 (handler-case (os:stream-lock *tmp1* t)
-  (system::simple-os-error (err)
+  (system::simple-file-error (err)
     (format t "~S: ~A" 'os:stream-lock err)
     (pushnew :no-stream-lock *features*)
     T))
@@ -71,10 +71,12 @@ T
 
 (typep (show (os:priority (os:process-id))) '(or keyword (integer -20 20))) T
 
-#+unix (let ((id (show (getuid)))) (= id (setf (getuid) id))) T
-#+unix (let ((id (show (getgid)))) (= id (setf (getgid) id))) T
-#+unix (let ((id (show (geteuid)))) (= id (setf (geteuid) id))) T
-#+unix (let ((id (show (getegid)))) (= id (setf (getegid) id))) T
+#+unix (let ((id (show (os:getuid)))) (= id (setf (os:getuid) id))) T
+#+unix (let ((id (show (os:getgid)))) (= id (setf (os:getgid) id))) T
+#+unix (let ((id (show (os:geteuid)))) (= id (setf (os:geteuid) id))) T
+#+unix (let ((id (show (os:getegid)))) (= id (setf (os:getegid) id))) T
+#+unix (= (os:getuid) (os:geteuid)) T
+#+unix (= (os:getgid) (os:getegid)) T
 
 #+unix
 (listp (show (if (fboundp 'os:sysconf) (os:sysconf) '(no os:sysconf)))) T
@@ -97,6 +99,8 @@ T
 #+unix (os:group-info-p (show (os:group-info (os:user-info-gid
                                               (os:user-info :default))))) T
 #+unix (listp (show (os:group-info) :pretty t)) T
+#+unix (= (os:getuid) (os:user-info-uid (os:user-info :default))) T
+#+unix (= (os:getgid) (os:user-info-gid (os:user-info :default))) T
 
 (os:file-stat-p (show (os:file-stat *tmp1*))) T
 (os:file-stat-p (show (os:file-stat (pathname *tmp1*)))) T
