@@ -78,21 +78,26 @@ T
 #+unix (= (os:getuid) (os:geteuid)) T
 #+unix (= (os:getgid) (os:getegid)) T
 
-#+unix
-(listp (show (if (fboundp 'os:sysconf) (os:sysconf) '(no os:sysconf)))) T
-#+unix
-(listp (show (if (fboundp 'os:confstr) (os:confstr) '(no os:confstr)))) T
+#+unix (listp (show (if (fboundp 'os:sysconf)
+                        (os:sysconf) '(no os:sysconf)) :pretty t)) T
+#+unix (listp (show (if (fboundp 'os:confstr)
+                        (os:confstr) '(no os:confstr)) :pretty t)) T
+
+#+unix (listp (show (if (fboundp 'os:pathconf)
+                        (os:pathconf "/") '(no os:pathconf)) :pretty t)) T
+#+unix (listp (show (if (fboundp 'os:pathconf)
+                        (os:pathconf *tmp1*) '(no os:pathconf)) :pretty t)) T
 
 #+unix
 (listp (show (if (fboundp 'os:usage)
-                 (multiple-value-list (os:usage)) '(no os:usage))))
+                 (multiple-value-list (os:usage)) '(no os:usage)) :pretty t))
 T
 #+unix
 (listp (show (if (fboundp 'os:rlimit)
-                 (multiple-value-list (os:rlimit)) '(no os:rlimit))))
+                 (multiple-value-list (os:rlimit)) '(no os:rlimit)) :pretty t))
 T
 
-#+unix (os:uname-p (show (os:uname))) #+unix T
+#+unix (os:uname-p (show (os:uname) :pretty t)) #+unix T
 
 #+unix (os:user-info-p (show (os:user-info :default))) T
 #+unix (listp (show (os:user-info) :pretty t)) T
