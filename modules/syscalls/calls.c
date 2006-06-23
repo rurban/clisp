@@ -1,6 +1,6 @@
 /*
  * system calls
- * Copyright (C) 2003-2005 Sam Steingold
+ * Copyright (C) 2003-2006 Sam Steingold
  * Copyright (C) 2005 Bruno Haible
  * Copyright (C) 2005 Arseny Slobodyuk
  * GPL2
@@ -1012,6 +1012,70 @@ DEFUN(POSIX::CONFSTR, &optional what)
   }
 }
 #endif /* HAVE_CONFSTR */
+
+#if defined(HAVE_PATHCONF) && defined(HAVE_FPATHCONF)
+DEFCHECKER(pathconf_arg,prefix=_PC,default=,FILESIZEBITS LINK-MAX MAX-CANON \
+           MAX-INPUT NAME-MAX PATH-MAX PIPE-BUF 2-SYMLINKS ALLOC-SIZE-MIN \
+           REC-INCR-XFER-SIZE REC-MAX-XFER-SIZE REC-MIN-XFER-SIZE       \
+           REC-XFER-ALIGN SYMLINK-MAX CHOWN-RESTRICTED NO-TRUNC VDISABLE \
+           ASYNC-IO PRIO-IO SYNC-IO SOCK-MAXBUF)
+DEFUN(POSIX::PATHCONF, pathspec &optional what)
+{ /* http://www.opengroup.org/onlinepubs/009695399/functions/pathconf.html */
+  Handle fd;
+  if (builtin_stream_p(STACK_1)) {
+    pushSTACK(STACK_1); funcall(L(built_in_stream_open_p),1);
+    if (!nullp(value1)) { /* open stream ==> use FD */
+      fd = stream_get_handle(&STACK_1);
+     pathconf_fd:
+      if (missingp(STACK_0)) { /* all possible values */
+        unsigned int pos = 0;
+        for (; pos < pathconf_arg_map.size; pos++) {
+          long res;
+          begin_system_call();
+          res = fpathconf(fd,pathconf_arg_map.table[pos].c_const);
+          end_system_call();
+          pushSTACK(*pathconf_arg_map.table[pos].l_const);
+          pushSTACK(res == -1 ? S(Kerror) : L_to_I(res));
+        }
+        VALUES1(listof(2*pathconf_arg_map.size));
+      } else {
+        long res;
+        begin_system_call();
+        if ((res = fpathconf(fd,pathconf_arg(STACK_0))) == -1)
+          integerp(STACK_1) ? OS_error() : error_OS_stream(STACK_1);
+        end_system_call();
+        VALUES1(L_to_I(res));
+      }
+    } else goto pathconf_path; /* not an open stream ==> use truename */
+  } else if (integerp(STACK_1)) {
+    fd = I_to_L(STACK_1);
+    goto pathconf_fd;
+  } else pathconf_path:
+    with_string_0(STACK_1 = physical_namestring(STACK_1),
+                  GLO(pathname_encoding), namez, {
+      if (missingp(STACK_0)) { /* all possible values */
+        unsigned int pos = 0;
+        for (; pos < pathconf_arg_map.size; pos++) {
+          long res;
+          begin_system_call();
+          res = pathconf(namez,pathconf_arg_map.table[pos].c_const);
+          end_system_call();
+          pushSTACK(*pathconf_arg_map.table[pos].l_const);
+          pushSTACK(res == -1 ? S(Kerror) : L_to_I(res));
+        }
+        VALUES1(listof(2*pathconf_arg_map.size));
+      } else {
+        long res;
+        begin_system_call();
+        if ((res = pathconf(namez,pathconf_arg(STACK_0))) == -1) OS_error();
+        end_system_call();
+        VALUES1(L_to_I(res));
+      }
+    });
+  skipSTACK(2);
+}
+#endif  /* HAVE_PATHCONF && HAVE_FPATHCONF */
+
 
 #if defined(HAVE_GETRUSAGE)
 DEFUN(POSIX::USAGE,)

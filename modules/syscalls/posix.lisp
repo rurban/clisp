@@ -125,7 +125,7 @@
   (vol-name nil :type (or null string) :read-only t)
   (fs-type nil :type (or null string) :read-only t))
 ;;; ============================================================
-#+unix (export '(sysconf confstr))
+#+unix (export '(sysconf confstr pathconf))
 #+unix
 (defstruct (uname (:constructor make-uname (sysname nodename release
                                             version machine)))
