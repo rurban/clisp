@@ -71,6 +71,9 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
+/* Define to 1 if you have the `fpathconf' function. */
+#undef HAVE_FPATHCONF
+
 /* Define to 1 if you have the `fstat' function. */
 #undef HAVE_FSTAT
 
@@ -200,6 +203,9 @@
 
 /* Define to 1 if you have the `openlog' function. */
 #undef HAVE_OPENLOG
+
+/* Define to 1 if you have the `pathconf' function. */
+#undef HAVE_PATHCONF
 
 /* Define to 1 if you have the `pututxline' function. */
 #undef HAVE_PUTUTXLINE
