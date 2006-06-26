@@ -1637,9 +1637,9 @@ expands to
 </para></section>
 
 <section id="remove-plist">
-     <title>Function <function>EXT:REMOVE-PLIST</function></title>
+ <title>Function <function>EXT:REMOVE-PLIST</function></title>
 <para>Similar to &remove; and &remf;, this function removes some
- properties from a property list.  It is non-destructive and thus can be
+ properties from a &plist;.  It is non-destructive and thus can be
  used on &rest-amp; arguments to remove some keyword parameters, e.g.,
 <programlisting language="lisp">
 (defmacro with-foo ((&key-amp; foo1 foo2) &body-amp; body)

@@ -216,14 +216,14 @@
   <term><code>(<function>POSIX:CONFSTR</function>
     &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the specified configuration parameter or a
-    list of all available parameters (when &what-r; is missing or
+    &plist; of all available parameters (when &what-r; is missing or
     &nil;), by calling <function role="unix">sysconf</function>
     and <function role="unix">confstr</function> respectively.
  </simpara></listitem></varlistentry>
  <varlistentry><term><code>(<function>POSIX:PATHCONF</function>
-    &path; &optional-amp; &what-r;)</code></term>
+    &path-r; &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the specified configuration parameter or a
-    list of all available parameters (when &what-r; is missing or
+    &plist; of all available parameters (when &what-r; is missing or
     &nil;), by calling <function role="unix">fpathconf</function> on
     open file streams and <function role="unix">pathconf</function> on
     all other &path-des;s.</simpara></listitem></varlistentry>
