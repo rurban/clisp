@@ -23,7 +23,8 @@ GNU CLISP is distributed under the GNU GPL, see file COPYRIGHT])dnl
 AC_REVISION([$Id$])dnl
 AC_CONFIG_HEADERS(unixconf.h)
 dnl
-AC_MSG_NOTICE([* checks for UNIX variants that set DEFS])
+RSE_BOLD
+BOLD_MSG([checks for UNIX variants that set DEFS])
 dnl DEFS _ALL_SOURCE
 AC_AIX
 dnl DEFS _GNU_SOURCE
@@ -31,7 +32,7 @@ AC_GNU_SOURCE
 dnl DEFS __EXTENSIONS__
 gl_USE_SYSTEM_EXTENSIONS
 dnl
-AC_MSG_NOTICE([* checks for programs])
+BOLD_MSG([checks for programs])
 dnl
 dnl sets variable CC
 AC_PROG_CC
@@ -56,7 +57,7 @@ AC_CHECK_PROGS(COMPRESS,gzip zip compress)
 CL_TEST_NT dnl sets variable TEST_NT
 CL_PROG_MAKE dnl sets variables MAKE GNU_MAKE
 dnl
-AC_MSG_NOTICE([* checks for system features])
+BOLD_MSG([checks for system features])
 dnl DEFS _FILE_OFFSET_BITS, _LARGE_FILES
 AC_SYS_LARGEFILE
 dnl sets variables CC_GCC, GCC_X_NONE
@@ -78,13 +79,13 @@ CL_SOCKET
 dnl final CC check
 CL_CC_WORKS
 dnl
-AC_MSG_NOTICE([* check for host type])
+BOLD_MSG([check for host type])
 dnl
 CL_CANONICAL_HOST(build-aux)
 dnl sets variables host, host_cpu, host_vendor, host_os
 CL_CANONICAL_HOST_CPU
 dnl
-AC_MSG_NOTICE([* check for add-ons])
+BOLD_MSG([check for add-ons])
 dnl
 dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
 AM_ICONV
@@ -96,7 +97,7 @@ dnl
 dnl set variable LIBSIGSEGV
 CL_SIGSEGV
 dnl
-AC_MSG_NOTICE([* checks for fundamental compiler characteristics])
+BOLD_MSG([checks for fundamental compiler characteristics])
 dnl
 dnl DEFS inline
 AC_C_INLINE
@@ -110,7 +111,7 @@ if test $ac_cv_type_long_long = yes; then
   AC_DEFINE(HAVE_LONGLONG,,[Define if the compiler supports the 'long long' type])
 fi
 dnl
-AC_MSG_NOTICE([* checks for header files])
+BOLD_MSG([checks for header files])
 dnl
 dnl DEFS STDC_HEADERS if exist stdlib.h, stdarg.h, ...
 CL_STDC_HEADERS
@@ -141,7 +142,7 @@ CL_TERM
 dnl sets variables X_CFLAGS, X_LIBS
 AC_PATH_XTRA
 dnl
-AC_MSG_NOTICE([* checks for typedefs])
+BOLD_MSG([checks for typedefs])
 dnl
 dnl DEFS CADDR_T
 CL_CADDR_T
@@ -153,13 +154,13 @@ dnl DEFS SIZEOF_STRUCT_TIMEVAL
 AC_CHECK_SIZEOF(struct timeval,,[#include <stdio.h>
 #include <sys/time.h>])
 dnl
-AC_MSG_NOTICE([* checks for structure members])
+BOLD_MSG([checks for structure members])
 dnl
 AC_CHECK_MEMBERS([struct dirent.d_namlen],,,[#include <dirent.h>])
 dnl DEFS TM_IN_SYS_TIME
 AC_STRUCT_TM
 dnl
-AC_MSG_NOTICE([* checks for functions and declarations])
+BOLD_MSG([checks for functions and declarations])
 dnl
 dnl set variable GMALLOC
 CL_GMALLOC
@@ -268,19 +269,19 @@ CL_SHM_RMID
 dnl DEFS HAVE_DLOPEN
 CL_DYNLOAD
 dnl
-AC_MSG_NOTICE([* checks for libraries])
+BOLD_MSG([checks for libraries])
 dnl
 dnl set variable LIBTERMCAP
 CL_TERMCAP
 dnl DEFS HAVE_READLINE
 CL_READLINE
 dnl
-AC_MSG_NOTICE([* checks for OS services])
+BOLD_MSG([checks for OS services])
 dnl
 dnl DEFS VALID_FILENAME_CHAR
 CL_FILECHARSET
 dnl
-AC_MSG_NOTICE([* checks for compiler characteristics (arithmetic data types)])
+BOLD_MSG([checks for compiler characteristics (arithmetic data types)])
 dnl
 dnl DEFS __CHAR_UNSIGNED__ if char is unsigned
 AC_C_CHAR_UNSIGNED
@@ -303,7 +304,7 @@ dnl builds floatparam.h
 CL_MACHINE([floating-point types and behaviour],
 ${srcdir}/floatparam.c,[CL_FLOATPARAM_CROSS],floatparam.h,cl_cv_file_floatparam_h)
 dnl
-AC_MSG_NOTICE([* output file generation])
+BOLD_MSG([output file generation])
 dnl
 dnl gettext po files
 dnl

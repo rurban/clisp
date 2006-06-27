@@ -7,7 +7,8 @@ AC_INIT(postgresql, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(postgresql.lisp)
 AC_CONFIG_HEADERS(config.h)
 
-AC_MSG_NOTICE([* PostgreSQL (Tools)])
+RSE_BOLD
+BOLD_MSG([PostgreSQL (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
@@ -15,7 +16,7 @@ dnl Search for libpq and define LIBPQ, LTLIBPQ and INCPQ.
 AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_LIB_LINKFLAGS([pq])
 
-AC_MSG_NOTICE([* PostgreSQL (Headers)])
+BOLD_MSG([PostgreSQL (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_CHECK_HEADERS(postgres_ext.h postgresql/postgres_ext.h)
@@ -23,7 +24,7 @@ if test "$ac_cv_header_postgres_ext_h" = "no" -a "$ac_cv_header_postgresql_postg
   AC_MSG_ERROR([cannot find PostgreSQL headers])
 fi
 
-AC_MSG_NOTICE([* PostgreSQL (Functions)])
+BOLD_MSG([PostgreSQL (Functions)])
 AC_LIB_APPENDTOVAR([LIBS], [$LIBPQ])
 AC_SEARCH_LIBS(PQconnectdb, pq)
 if test "$ac_cv_search_PQconnectdb" = "no"; then
@@ -50,8 +51,8 @@ lo_open lo_close lo_read lo_write lo_lseek lo_creat lo_tell lo_unlink dnl
 lo_import lo_export dnl
 PQmblen PQdsplen PQenv2encoding)
 
-AC_MSG_NOTICE([* PostgreSQL (Output)])
+BOLD_MSG([PostgreSQL (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
-AC_MSG_NOTICE([* PostgreSQL (Done)])
+BOLD_MSG([PostgreSQL (Done)])

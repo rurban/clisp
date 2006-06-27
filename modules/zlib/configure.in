@@ -7,7 +7,8 @@ AC_INIT(zlib, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(zlib.lisp)
 AC_CONFIG_HEADERS(config.h)
 
-AC_MSG_NOTICE([ * ZLIB (Tools)])
+RSE_BOLD
+BOLD_MSG([Zlib (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
@@ -15,14 +16,14 @@ dnl Search for libz and define LIBZ, LTLIBZ and INCZ.
 AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_LIB_LINKFLAGS([z])
 
-AC_MSG_NOTICE([ * ZLIB (Headers)])
+BOLD_MSG([Zlib (Headers)])
 AC_HEADER_STDC
 AC_CHECK_HEADERS(zlib.h)
 if test "$ac_cv_header_zlib_h" = "no" ;
 then AC_MSG_ERROR([cannot find ZLIB headers])
 fi
 
-AC_MSG_NOTICE([ * ZLIB (Functions)])
+BOLD_MSG([Zlib (Functions)])
 AC_LIB_APPENDTOVAR([LIBS], [$LIBZ])
 AC_SEARCH_LIBS(compress2, z)
 if test "$ac_cv_search_compress2" = "no"; then
@@ -33,8 +34,8 @@ if test "$ac_cv_func_compressBound" = "no"; then
   AC_MSG_ERROR([ZLIB version 1.2 or better is required])
 fi
 
-AC_MSG_NOTICE([ * ZLIB (Output)])
+BOLD_MSG([Zlib (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
-AC_MSG_NOTICE([ * ZLIB (Done)])
+BOLD_MSG([Zlib (Done)])
