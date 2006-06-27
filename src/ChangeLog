@@ -1,5 +1,9 @@
 2006-06-27  Sam Steingold  <sds@podval.org>
 
+	* m4/test.m4: use sub-shell "()" instead of "eval" (needed on Solaris)
+
+2006-06-27  Sam Steingold  <sds@podval.org>
+
 	* m4/bold.m4: from libsigsegv
 	* configure.in, modules/berkeley-db/configure.in:
 	* modules/clx/new-clx/configure.in, modules/dirkey/configure.in:
