@@ -353,7 +353,7 @@ AC_DEFUN([RSE_BOLD],
   esac
 
 ])
-AC_DEFUN([BOLD_MSG],AC_MSG_NOTICE(${term_bold}[ * ]$1${term_norm}))
+AC_DEFUN([BOLD_MSG],AC_MSG_NOTICE(${term_bold}[** ]$1${term_norm}))
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
@@ -7766,7 +7766,7 @@ AC_CACHE_CHECK(whether test -nt works, cl_cv_test_nt, [
 rm -f conftestfile1 conftestfile2
 touch conftestfile1
 # see makemake.in, rule "anymodule":
-if eval 'test -f conftestfile1 -a conftestfile1 -nt conftestfile2 2>&5'
+if (test -f conftestfile1 -a conftestfile1 -nt conftestfile2) 1>&5 2>&5
 then cl_cv_test_nt=yes
 else cl_cv_test_nt=no
 fi
