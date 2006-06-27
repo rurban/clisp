@@ -1,3 +1,15 @@
+2006-06-27  Sam Steingold  <sds@podval.org>
+
+	* m4/bold.m4: from libsigsegv
+	* configure.in, modules/berkeley-db/configure.in:
+	* modules/clx/new-clx/configure.in, modules/dirkey/configure.in:
+	* modules/i18n/configure.in, modules/pari/configure.in:
+	* modules/pcre/configure.in, modules/postgresql/configure.in:
+	* modules/rawsock/configure.in, modules/readline/configure.in:
+	* modules/regexp/configure.in, modules/syscalls/configure.in:
+	* modules/wildcard/configure.in, modules/zlib/configure.in:
+	use BOLD_MSG instead of AC_MSG_NOTICE
+
 2006-06-23  Sam Steingold  <sds@podval.org>
 
 	* modules/syscalls/calls.c (POSIX::PATHCONF): new function

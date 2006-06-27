@@ -1,16 +1,17 @@
 dnl AUTOCONF configuration for readline
-dnl Sam Steingold 2005
+dnl Sam Steingold 2005-2006
 
 AC_PREREQ(2.57)
 AC_INIT(readline, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(readline.lisp)
 AC_CONFIG_HEADERS(config.h)
 
-AC_MSG_NOTICE([ * READLINE (Tools)])
+RSE_BOLD
+BOLD_MSG([Readline (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
-AC_MSG_NOTICE([ * READLINE (Headers, Variables & Functions)])
+BOLD_MSG([Readline (Headers, Variables & Functions)])
 CL_READLINE
 if test "$ac_cv_have_decl_rl_already_prompted" = "no"; then
   AC_MSG_ERROR([cannot find a modern gnu readline])
@@ -141,8 +142,8 @@ write_history dnl
 append_history dnl
 history_truncate_file)
 
-AC_MSG_NOTICE([ * READLINE (Output)])
+BOLD_MSG([Readline (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
-AC_MSG_NOTICE([ * READLINE (Done)])
+BOLD_MSG([Readline (Done)])

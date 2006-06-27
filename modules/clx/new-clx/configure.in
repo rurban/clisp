@@ -7,7 +7,8 @@ AC_INIT(clx/new-clx, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(clx.f)
 AC_CONFIG_HEADERS(config.h)
 
-AC_MSG_NOTICE([ * NEW CLX])
+RSE_BOLD
+BOLD_MSG([NEW CLX])
 AC_HEADER_TIME
 AC_CHECK_HEADERS([sys/socket.h netdb.h netinet/in.h])
 dnl find a path to X11 - set X_LIBS and X_CFLAGS
@@ -77,8 +78,8 @@ else
 fi
 
 dnl And dump what we found:
-AC_MSG_NOTICE([ * NEW CLX (output)])
+BOLD_MSG([NEW CLX (output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
-AC_MSG_NOTICE([ * NEW CLX (done)])
+BOLD_MSG([NEW CLX (done)])

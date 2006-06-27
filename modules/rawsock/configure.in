@@ -1,16 +1,17 @@
-dnl AUTOCONF configuration for RAWSOCK
-dnl Sam Steingold 2004-2005
+dnl AUTOCONF configuration for Rawsock
+dnl Sam Steingold 2004-2006
 
 AC_PREREQ(2.57)
 AC_INIT(rawsock, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(sock.lisp)
 AC_CONFIG_HEADERS(config.h)
 
-AC_MSG_NOTICE([* RAWSOCK (Tools)])
+RSE_BOLD
+BOLD_MSG([Rawsock (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
-AC_MSG_NOTICE([* RAWSOCK (Headers)])
+BOLD_MSG([Rawsock (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
 CL_TCPCONN
@@ -45,7 +46,7 @@ AC_CHECK_TYPES(struct iovec,,,[
 #endif
 ])
 
-AC_MSG_NOTICE([* RAWSOCK (Functions)])
+BOLD_MSG([Rawsock (Functions)])
 if test "$ac_cv_header_winsock2_h" = "yes"; then
   dnl this is windows, we know that socket() is in ws2_32
   dnl note that AC_SEARCH_LIBS will not work because linking with ws2_32
@@ -71,8 +72,8 @@ dnl AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr inet_ntoa)
 dnl CL_POLL
 dnl CL_SELECT
 
-AC_MSG_NOTICE([* RAWSOCK (Output)])
+BOLD_MSG([Rawsock (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
-AC_MSG_NOTICE([* RAWSOCK (Done)])
+BOLD_MSG([Rawsock (Done)])

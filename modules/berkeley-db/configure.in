@@ -7,7 +7,8 @@ AC_INIT(Berkeley-DB, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(dbi.lisp)
 AC_CONFIG_HEADERS(config.h)
 
-AC_MSG_NOTICE([ * Berkeley-DB (Tools)])
+RSE_BOLD
+BOLD_MSG([Berkeley-DB (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
@@ -15,7 +16,7 @@ dnl Search for libdb and define LIBDB, LTLIBDB and INCDB.
 AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_LIB_LINKFLAGS([db])
 
-AC_MSG_NOTICE([ * Berkeley-DB (Headers)])
+BOLD_MSG([Berkeley-DB (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_CHECK_HEADERS(sys/time.h time.h)
@@ -24,7 +25,7 @@ if test "$ac_cv_header_db_h" = "no"; then
   AC_MSG_ERROR([cannot find Berkeley-DB headers])
 fi
 
-AC_MSG_NOTICE([ * Berkeley-DB (Functions)])
+BOLD_MSG([Berkeley-DB (Functions)])
 AC_LIB_APPENDTOVAR([LIBS], [$LIBDB])
 AC_SEARCH_LIBS(db_env_create, db)
 if test "$ac_cv_search_db_env_create" = "no"; then
@@ -81,8 +82,8 @@ dnl http://www.sleepycat.com/docs/ref/upgrade.4.4/mutex.html
 AC_CHECK_MEMBERS([DB_ENV.mutex_set_tas_spins, DB_ENV.mutex_get_tas_spins,
 DB_ENV.mutex_set_align, DB_ENV.mutex_get_align],,,[#include <db.h>])
 
-AC_MSG_NOTICE([ * Berkeley-DB (Output)])
+BOLD_MSG([Berkeley-DB (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
-AC_MSG_NOTICE([ * Berkeley-DB (Done)])
+BOLD_MSG([Berkeley-DB (Done)])
