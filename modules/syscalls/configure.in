@@ -7,11 +7,12 @@ AC_INIT(syscalls, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(posix.lisp)
 AC_CONFIG_HEADERS(config.h)
 
-AC_MSG_NOTICE([ * System Calls (Tools)])
+RSE_BOLD
+BOLD_MSG([System Calls (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
-AC_MSG_NOTICE([ * System Calls (Headers)])
+BOLD_MSG([System Calls (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
 CL_UTSNAME
@@ -28,7 +29,7 @@ if test "$ac_cv_header_utmpx_h" = "yes"; then
  AC_CHECK_MEMBERS([struct utmpx.ut_host],,,[#include <utmpx.h>])
 fi
 
-AC_MSG_NOTICE([ * System Calls (Functions)])
+BOLD_MSG([System Calls (Functions)])
 CL_RLIMIT
 CL_SOCKET dnl for getservbyport et al
 AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
@@ -66,8 +67,8 @@ AC_DEFINE(HAVE_SETPGRP_POSIX,1,
 fi
 fi
 
-AC_MSG_NOTICE([ * System Calls (output)])
+BOLD_MSG([System Calls (output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
-AC_MSG_NOTICE([ * System Calls (done)])
+BOLD_MSG([System Calls (done)])
