@@ -33,6 +33,7 @@ User visible changes
   + Allow DESTRUCTURING-BIND (a . b) with circular and dotted lists.
   + ADJUST-ARRAY of zero length adjustable string now works.
   + TIME now reports correct results when the heap grows over 4GB.
+  + RAWSOCK functions now handle :START/:END arguments correctly.
 
 
 2.38 (2006-01-24)
