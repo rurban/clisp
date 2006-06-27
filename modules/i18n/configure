@@ -1303,8 +1303,52 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
           ac_config_headers="$ac_config_headers config.h"
 
 
-{ echo "$as_me:$LINENO:  * I18N (Headers)" >&5
-echo "$as_me:  * I18N (Headers)" >&6;}
+
+
+  case $TERM in
+    # for the most important terminal types we directly know the sequences
+    xterm*|vt220*)
+      term_bold=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c", 27, 91, 49, 109); }' </dev/null 2>/dev/null`
+      term_norm=`${AWK:-awk} 'BEGIN { printf("%c%c%c", 27, 91, 109); }' </dev/null 2>/dev/null`
+      ;;
+    vt100*)
+      term_bold=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c%c%c", 27, 91, 49, 109, 0, 0); }' </dev/null 2>/dev/null`
+      term_norm=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c%c", 27, 91, 109, 0, 0); }' </dev/null 2>/dev/null`
+      ;;
+    # for all others, we try to use a possibly existing `tput' or `tcout' utility
+    *)
+      paths=`echo "$PATH" | sed -e 's/:/ /g'`
+      for tool in tput tcout; do
+        for dir in $paths; do
+          if test -r "$dir/$tool"; then
+            for seq in bold md smso; do # 'smso' is last
+              bold="`$dir/$tool $seq 2>/dev/null`"
+              if test -n "$bold"; then
+                term_bold="$bold"
+                break
+              fi
+            done
+            if test -n "$term_bold"; then
+              for seq in sgr0 me rmso reset; do # 'reset' is last
+                norm="`$dir/$tool $seq 2>/dev/null`"
+                if test -n "$norm"; then
+                  term_norm="$norm"
+                  break
+                fi
+              done
+            fi
+            break
+          fi
+        done
+        if test -n "$term_bold" && test -n "$term_norm"; then
+          break
+        fi
+      done
+      ;;
+  esac
+
+
+echo "$as_me: ${term_bold}** I18N (Headers)${term_norm}" >&6
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2653,8 +2697,7 @@ _ACEOF
 fi
 
 
-{ echo "$as_me:$LINENO:  * I18N (locale)" >&5
-echo "$as_me:  * I18N (locale)" >&6;}
+echo "$as_me: ${term_bold}** I18N (locale)${term_norm}" >&6
 # On IRIX 5.3, sys/types and inttypes.h are conflicting.
 
 
@@ -3648,8 +3691,7 @@ _ACEOF
 fi
 
 
-{ echo "$as_me:$LINENO:  * I18N (Output)" >&5
-echo "$as_me:  * I18N (Output)" >&6;}
+echo "$as_me: ${term_bold}** I18N (Output)${term_norm}" >&6
                     ac_config_files="$ac_config_files Makefile link.sh"
 
 cat >confcache <<\_ACEOF
@@ -4761,5 +4803,4 @@ if test "$no_create" != yes; then
 fi
 
 
-{ echo "$as_me:$LINENO:  * I18N (Done)" >&5
-echo "$as_me:  * I18N (Done)" >&6;}
+echo "$as_me: ${term_bold}** I18N (Done)${term_norm}" >&6

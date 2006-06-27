@@ -1303,8 +1303,52 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
           ac_config_headers="$ac_config_headers config.h"
 
 
-{ echo "$as_me:$LINENO: * RAWSOCK (Tools)" >&5
-echo "$as_me: * RAWSOCK (Tools)" >&6;}
+
+
+  case $TERM in
+    # for the most important terminal types we directly know the sequences
+    xterm*|vt220*)
+      term_bold=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c", 27, 91, 49, 109); }' </dev/null 2>/dev/null`
+      term_norm=`${AWK:-awk} 'BEGIN { printf("%c%c%c", 27, 91, 109); }' </dev/null 2>/dev/null`
+      ;;
+    vt100*)
+      term_bold=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c%c%c", 27, 91, 49, 109, 0, 0); }' </dev/null 2>/dev/null`
+      term_norm=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c%c", 27, 91, 109, 0, 0); }' </dev/null 2>/dev/null`
+      ;;
+    # for all others, we try to use a possibly existing `tput' or `tcout' utility
+    *)
+      paths=`echo "$PATH" | sed -e 's/:/ /g'`
+      for tool in tput tcout; do
+        for dir in $paths; do
+          if test -r "$dir/$tool"; then
+            for seq in bold md smso; do # 'smso' is last
+              bold="`$dir/$tool $seq 2>/dev/null`"
+              if test -n "$bold"; then
+                term_bold="$bold"
+                break
+              fi
+            done
+            if test -n "$term_bold"; then
+              for seq in sgr0 me rmso reset; do # 'reset' is last
+                norm="`$dir/$tool $seq 2>/dev/null`"
+                if test -n "$norm"; then
+                  term_norm="$norm"
+                  break
+                fi
+              done
+            fi
+            break
+          fi
+        done
+        if test -n "$term_bold" && test -n "$term_norm"; then
+          break
+        fi
+      done
+      ;;
+  esac
+
+
+echo "$as_me: ${term_bold}** Rawsock (Tools)${term_norm}" >&6
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2470,8 +2514,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-{ echo "$as_me:$LINENO: * RAWSOCK (Headers)" >&5
-echo "$as_me: * RAWSOCK (Headers)" >&6;}
+echo "$as_me: ${term_bold}** Rawsock (Headers)${term_norm}" >&6
 
 
 echo "$as_me:$LINENO: checking for egrep" >&5
@@ -5122,8 +5165,7 @@ _ACEOF
 fi
 
 
-{ echo "$as_me:$LINENO: * RAWSOCK (Functions)" >&5
-echo "$as_me: * RAWSOCK (Functions)" >&6;}
+echo "$as_me: ${term_bold}** Rawsock (Functions)${term_norm}" >&6
 if test "$ac_cv_header_winsock2_h" = "yes"; then
         echo "$as_me:$LINENO: checking for socket() in ws2_32" >&5
 echo $ECHO_N "checking for socket() in ws2_32... $ECHO_C" >&6
@@ -5547,8 +5589,7 @@ fi
 done
 
 
-{ echo "$as_me:$LINENO: * RAWSOCK (Output)" >&5
-echo "$as_me: * RAWSOCK (Output)" >&6;}
+echo "$as_me: ${term_bold}** Rawsock (Output)${term_norm}" >&6
                     ac_config_files="$ac_config_files Makefile link.sh"
 
 cat >confcache <<\_ACEOF
@@ -6660,5 +6701,4 @@ if test "$no_create" != yes; then
 fi
 
 
-{ echo "$as_me:$LINENO: * RAWSOCK (Done)" >&5
-echo "$as_me: * RAWSOCK (Done)" >&6;}
+echo "$as_me: ${term_bold}** Rawsock (Done)${term_norm}" >&6

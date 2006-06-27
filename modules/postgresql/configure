@@ -1319,8 +1319,52 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
           ac_config_headers="$ac_config_headers config.h"
 
 
-{ echo "$as_me:$LINENO: * PostgreSQL (Tools)" >&5
-echo "$as_me: * PostgreSQL (Tools)" >&6;}
+
+
+  case $TERM in
+    # for the most important terminal types we directly know the sequences
+    xterm*|vt220*)
+      term_bold=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c", 27, 91, 49, 109); }' </dev/null 2>/dev/null`
+      term_norm=`${AWK:-awk} 'BEGIN { printf("%c%c%c", 27, 91, 109); }' </dev/null 2>/dev/null`
+      ;;
+    vt100*)
+      term_bold=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c%c%c", 27, 91, 49, 109, 0, 0); }' </dev/null 2>/dev/null`
+      term_norm=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c%c", 27, 91, 109, 0, 0); }' </dev/null 2>/dev/null`
+      ;;
+    # for all others, we try to use a possibly existing `tput' or `tcout' utility
+    *)
+      paths=`echo "$PATH" | sed -e 's/:/ /g'`
+      for tool in tput tcout; do
+        for dir in $paths; do
+          if test -r "$dir/$tool"; then
+            for seq in bold md smso; do # 'smso' is last
+              bold="`$dir/$tool $seq 2>/dev/null`"
+              if test -n "$bold"; then
+                term_bold="$bold"
+                break
+              fi
+            done
+            if test -n "$term_bold"; then
+              for seq in sgr0 me rmso reset; do # 'reset' is last
+                norm="`$dir/$tool $seq 2>/dev/null`"
+                if test -n "$norm"; then
+                  term_norm="$norm"
+                  break
+                fi
+              done
+            fi
+            break
+          fi
+        done
+        if test -n "$term_bold" && test -n "$term_norm"; then
+          break
+        fi
+      done
+      ;;
+  esac
+
+
+echo "$as_me: ${term_bold}** PostgreSQL (Tools)${term_norm}" >&6
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3157,8 +3201,7 @@ echo "${ECHO_T}$ac_cv_libpq_libs" >&6
 
 
 
-{ echo "$as_me:$LINENO: * PostgreSQL (Headers)" >&5
-echo "$as_me: * PostgreSQL (Headers)" >&6;}
+echo "$as_me: ${term_bold}** PostgreSQL (Headers)${term_norm}" >&6
 
 
 echo "$as_me:$LINENO: checking for egrep" >&5
@@ -3636,8 +3679,7 @@ echo "$as_me: error: cannot find PostgreSQL headers" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-{ echo "$as_me:$LINENO: * PostgreSQL (Functions)" >&5
-echo "$as_me: * PostgreSQL (Functions)" >&6;}
+echo "$as_me: ${term_bold}** PostgreSQL (Functions)${term_norm}" >&6
 
   for element in $LIBPQ; do
     haveit=
@@ -4000,8 +4042,7 @@ fi
 done
 
 
-{ echo "$as_me:$LINENO: * PostgreSQL (Output)" >&5
-echo "$as_me: * PostgreSQL (Output)" >&6;}
+echo "$as_me: ${term_bold}** PostgreSQL (Output)${term_norm}" >&6
                     ac_config_files="$ac_config_files Makefile link.sh"
 
 cat >confcache <<\_ACEOF
@@ -5123,5 +5164,4 @@ if test "$no_create" != yes; then
 fi
 
 
-{ echo "$as_me:$LINENO: * PostgreSQL (Done)" >&5
-echo "$as_me: * PostgreSQL (Done)" >&6;}
+echo "$as_me: ${term_bold}** PostgreSQL (Done)${term_norm}" >&6
