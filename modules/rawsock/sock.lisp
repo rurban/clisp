@@ -1,7 +1,7 @@
 ;; Module for Raw Sockets / CLISP
 ;; Fred Cohen, 2003-2004
 ;; Don Cohen, 2003-2004
-;; Sam Steingold 2004-2005
+;; Sam Steingold 2004-2006
 ;; <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
 
 (defpackage #:rawsock
@@ -13,6 +13,7 @@
            #:sock-listen #:recv #:recvfrom #:recvmsg
            #:send #:sendmsg #:sendto #:socket-option
            #:socket #:socketpair #:sockatmark #:getnameinfo #:getaddrinfo
+           #:eai #:eai-code #:eai-message
            #:sock-read #:sock-write #:sock-close
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-p
            #:htonl #:htons #:ntohl #:ntohs #:convert-address
@@ -95,3 +96,9 @@ Passes :TYPE to SOCKET and all the other options to MAKE-STREAM."
   (when (fboundp 'rawsock:getnameinfo)
     (multiple-value-bind (node service) (rawsock:getnameinfo addr)
       (format out "sockaddr node: ~S, service: ~S~%" node service))))
+
+(define-condition eai (error)
+  (($ecode :reader eai-code :initarg :code)
+   ($message :reader eai-message :initarg :message))
+  (:documentation "getaddrinfo()/getnameinfo() error, see <netdb.h>")
+  (:report (lambda (c out) (format out "[~S]: ~A" (eai-code c) (eai-message c)))))
