@@ -1,5 +1,9 @@
 2006-06-29  Sam Steingold  <sds@podval.org>
 
+	* modules/rawsock/sock.lisp: import EXPORTING:DEFINE-CONDITION
+
+2006-06-29  Sam Steingold  <sds@podval.org>
+
 	* modules/berkeley-db/bdb.c (BDB:DBC-GET): fixed last patch -
 	accept :READ-COMMITTED and :READ-UNCOMMITTED
 
