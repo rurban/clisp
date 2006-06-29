@@ -196,21 +196,28 @@
     &optional-amp; <replaceable>user</replaceable>)</code></term>
  <listitem><simpara>Return the <type>USER-INFO</type> structure (name,
    encoded password, UID, GID, full name, home directory, shell).
-   <replaceable>user</replaceable> should be a &string-t; or a &number-t;.
-   When <replaceable>user</replaceable> is missing or &nil;, return all users.
+   <replaceable>user</replaceable> should be a &string-t;
+   (<function role="unix">getpwnam</function> is used) or an &integer-t;
+   (<function role="unix">getpwuid</function> is used).
+   When <replaceable>user</replaceable> is missing or &nil;, return all
+   users (using <function role="unix">getpwent</function>).
    When <replaceable>user</replaceable> is &default-k;,
-   return the information about the current user.</simpara>
+   return the information about the current user
+   (using <function role="unix">getlogin</function>
+   or <function role="unix">getuid</function>).</simpara>
   <simpara>&unix-only;</simpara></listitem></varlistentry>
 <varlistentry id="group-info"><term><code>(<function>POSIX:GROUP-INFO</function>
     &optional-amp; <replaceable>group</replaceable>)</code></term>
  <listitem><simpara>Return the <type>GROUP-INFO</type> structure (name,
-   GID, member list). <replaceable>group</replaceable> should be a
-   &string-t; or a &number-t;. When <replaceable>group</replaceable> is
-   missing or &nil;, return all groups.</simpara>
+   GID, member &list-t;). <replaceable>group</replaceable> should be a
+   &string-t; (<function role="unix">getgrnam</function> is used) or an
+   &integer-t; (<function role="unix">getgrgid</function> is used).
+   When <replaceable>group</replaceable> is missing or &nil;, return all
+   groups (using <function role="unix">getgrent</function>).</simpara>
   <simpara>&unix-only;</simpara></listitem></varlistentry>
  <varlistentry><term><code>(<function>POSIX:UNAME</function>)</code></term>
   <listitem><simpara>Return a structure describing the OS, derived from
-    <function role="unix">name</function>.</simpara></listitem></varlistentry>
+    <function role="unix">uname</function>.</simpara></listitem></varlistentry>
  <varlistentry><term><code>(<function>POSIX:SYSCONF</function>
     &optional-amp; &what-r;)</code></term>
   <term><code>(<function>POSIX:CONFSTR</function>

@@ -1,3 +1,8 @@
+2006-06-29  Sam Steingold  <sds@podval.org>
+
+	* modules/syscalls/calls.c (POSIX::GROUP-INFO, POSIX::USER-INFO):
+	set errno to 0 before system calls to separate errors from "not found"
+
 2006-06-27  Sam Steingold  <sds@podval.org>
 
 	* m4/test.m4: use sub-shell "()" instead of "eval" (needed on Solaris)
