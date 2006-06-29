@@ -1,5 +1,11 @@
 2006-06-29  Sam Steingold  <sds@podval.org>
 
+	use symbolic error codes when possible
+	* modules/berkeley-db/bdb.c (bdb_errno): new checker
+	* modules/berkeley-db/dbi.lisp (bdb-error): renamed "number" to "code"
+
+2006-06-29  Sam Steingold  <sds@podval.org>
+
 	* modules/rawsock/sock.lisp: import EXPORTING:DEFINE-CONDITION
 
 2006-06-29  Sam Steingold  <sds@podval.org>
