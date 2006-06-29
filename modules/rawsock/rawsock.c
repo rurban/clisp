@@ -690,6 +690,36 @@ nonreturning_function(static, error_missing, (object function)) {
 }
 #endif
 
+#if defined(HAVE_GAI_STRERROR) || defined(WIN32_NATIVE)
+#if defined(WIN32_NATIVE)
+typedef char* (WSAAPI *gai_strerror_t) (int);
+static char* WSAAPI my_gai_strerror (int ecode)
+{ error_missing(`"gai_strerror"`); }
+static gai_strerror_t gai_strerror_f = &my_gai_strerror;
+#else
+# define gai_strerror_f gai_strerror
+#endif
+DEFCHECKER(check_gai_ecode,prefix=EAI,default=,AGAIN BADFLAGS FAIL FAMILY \
+           MEMORY NONAME OVERFLOW SERVICE SOCKTYPE SYSTEM NODATA ADDRFAMILY \
+           INPROGRESS CANCELED NOTCANCELED INTR IDN_ENCODE)
+#else
+# define check_gai_ecode_reverse L_to_I
+#endif
+nonreturning_function(static, error_eai, (int ecode)) {
+#if defined(HAVE_GAI_STRERROR) || defined(WIN32_NATIVE)
+  const char* msg = gai_strerror(ecode);
+#else
+  const char* msg = strerror(ecode);
+#endif
+  end_system_call();
+  pushSTACK(`RAWSOCK::EAI`);    /* error type */
+  pushSTACK(`:CODE`); pushSTACK(check_gai_ecode_reverse(ecode));
+  pushSTACK(`:MESSAGE`); pushSTACK(asciz_to_string(msg,GLO(misc_encoding)));
+  funcall(S(make_instance),5);
+  pushSTACK(value1); funcall(S(error),1);
+  NOTREACHED;
+}
+
 #if defined(HAVE_GETNAMEINFO) || defined(WIN32_NATIVE)
 #if defined(WIN32_NATIVE)
 typedef int (WSAAPI *getnameinfo_t) (const struct sockaddr*,socklen_t,char*,
@@ -711,8 +741,10 @@ DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size,
                                         PROT_READ);
   char node[BUFSIZ], service[BUFSIZ];
+  int status;
   begin_system_call();
-  if (getnameinfo_f(sa,size,node,BUFSIZ,service,BUFSIZ,flags)) OS_error();
+  if ((status = getnameinfo_f(sa,size,node,BUFSIZ,service,BUFSIZ,flags)))
+    error_eai(status);
   end_system_call();
   pushSTACK(asciz_to_string(service,GLO(misc_encoding)));
   VALUES2(asciz_to_string(node,GLO(misc_encoding)),popSTACK());
@@ -739,6 +771,14 @@ DEFFLAGSET(addrinfo_flags,AI_PASSIVE AI_CANONNAME AI_NUMERICHOST \
            AI_NUMERICSERV AI_V4MAPPED AI_ALL AI_ADDRCONFIG)
 DEFCHECKER(check_addrinfo_flags,prefix=AI,default=0,bitmasks=both,    \
            PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED ALL ADDRCONFIG)
+static void call_getaddrinfo (const char* nd,const char* sv,
+                              const struct addrinfo* hints,
+                              struct addrinfo** ret) {
+  int status;
+  begin_system_call();
+  if ((status = getaddrinfo_f(nd,sv,hints,ret))) error_eai(status);
+  end_system_call();
+}
 DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
       PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED ALL ADDRCONFIG) {
   struct addrinfo hints = {addrinfo_flags(),
@@ -749,30 +789,20 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
   struct addrinfo *ret = NULL, *tmp;
   int valcount = 0;
   if (missingp(STACK_0)) {
-    if (missingp(STACK_1)) {
-      begin_system_call();
-      if (getaddrinfo_f(NULL,NULL,&hints,&ret)) OS_error();
-      end_system_call();
-    } else {
+    if (missingp(STACK_1))
+      call_getaddrinfo(NULL,NULL,&hints,&ret);
+    else
       with_string_0(check_string(STACK_1),GLO(misc_encoding),node, {
-          begin_system_call();
-          if (getaddrinfo_f(node,NULL,&hints,&ret)) OS_error();
-          end_system_call();
+          call_getaddrinfo(node,NULL,&hints,&ret);
         });
-    }
   } else {
     with_string_0(check_string(STACK_0),GLO(misc_encoding),service, {
-        if (missingp(STACK_1)) {
-          begin_system_call();
-          if (getaddrinfo_f(NULL,service,&hints,&ret)) OS_error();
-          end_system_call();
-        } else {
+        if (missingp(STACK_1))
+          call_getaddrinfo(NULL,service,&hints,&ret);
+        else
           with_string_0(check_string(STACK_1),GLO(misc_encoding),node, {
-              begin_system_call();
-              if (getaddrinfo_f(node,service,&hints,&ret)) OS_error();
-              end_system_call();
+              call_getaddrinfo(node,service,&hints,&ret);
             });
-        }
       });
   }
   for (tmp = ret; tmp; tmp = tmp->ai_next, valcount++) {
@@ -1399,6 +1429,7 @@ void module__rawsock__init_function_2 (module_t* module) {
     freeaddrinfo_f = (freeaddrinfo_t) GetProcAddress(ws2,"freeaddrinfo");
     getaddrinfo_f = (getaddrinfo_t) GetProcAddress(ws2,"getaddrinfo");
     getnameinfo_f = (getnameinfo_t) GetProcAddress(ws2,"getnameinfo");
+    gai_strerror_f = (gai_strerror_t) GetProcAddress(ws2,"gai_strerror");
   }
 #endif
 }
