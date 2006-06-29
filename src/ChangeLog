@@ -1,5 +1,10 @@
 2006-06-29  Sam Steingold  <sds@podval.org>
 
+	* modules/berkeley-db/bdb.c (BDB:DBC-GET): fixed last patch -
+	accept :READ-COMMITTED and :READ-UNCOMMITTED
+
+2006-06-29  Sam Steingold  <sds@podval.org>
+
 	use gai_strerror() to signal errors in getaddrinfo() and getnameinfo()
 	* modules/rawsock/rawsock.c (error_eai): new function
 	(RAWSOCK::GETNAMEINFO, RAWSOCK::GETADDRINFO): use it

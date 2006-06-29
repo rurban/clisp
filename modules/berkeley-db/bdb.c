@@ -2138,8 +2138,8 @@ DEFCHECKER(dbc_get_action,prefix=DB,default=DB_CURRENT,                 \
            NEXT NEXT-DUP NEXT-NODUP PREV PREV-NODUP SET SET-RANGE SET-RECNO)
 DEFFLAGSET(dbc_get_options, DB_DEGREE_2 DB_READ_COMMITTED DB_DIRTY_READ \
            DB_READ_UNCOMMITTED DB_MULTIPLE DB_MULTIPLE_KEY DB_RMW)
-DEFUN(BDB:DBC-GET, cursor key data action &key :DEGREE-2 :DIRTY-READ \
-      :MULTIPLE :MULTIPLE-KEY :RMW :ERROR)
+DEFUN(BDB:DBC-GET, cursor key data action &key :DEGREE-2 :READ-COMMITTED \
+      :DIRTY-READ :READ-UNCOMMITTED :MULTIPLE :MULTIPLE-KEY :RMW :ERROR)
 { /* retrieve key/data pairs from the database */
   int no_error = nullp(popSTACK());
   u_int32_t flag = dbc_get_options();
