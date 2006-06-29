@@ -167,10 +167,19 @@ static void error_callback (const char *errpfx, char *msg)
 }
 #define FREE_RESET(x) if (x) { free(x); x = NULL; }
 static void error_message_reset (void) { FREE_RESET(error_message) }
+DEFCHECKER(bdb_errno,default=,prefix=DB,BUFFER_SMALL DONOTINDEX KEYEMPTY \
+           KEYEXIST LOCK_DEADLOCK LOCK_NOTGRANTED LOG_BUFFER_FULL NOSERVER \
+           NOSERVER_HOME NOSERVER_ID NOTFOUND OLD_VERSION PAGE_NOTFOUND \
+           REP_DUPMASTER REP_HANDLE_DEAD REP_HOLDELECTION REP_ISPERM    \
+           REP_NEWMASTER REP_NEWSITE REP_NOTPERM REP_STARTUPDONE REP_UNAVAIL \
+           RUNRECOVERY SECONDARY_BAD VERIFY_BAD VERSION_MISMATCH        \
+           ALREADY_ABORTED DELETED LOCK_NOTEXIST NEEDSPLIT REP_EGENCHG  \
+           REP_LOGREADY REP_PAGEDONE SURPRISE_KID SWAPBYTES TIMEOUT TXN_CKP \
+           VERIFY_FATAL)
 nonreturning_function(static, error_bdb, (int status, char *caller)) {
   end_system_call();
   pushSTACK(`BDB::BDB-ERROR`);  /* error type */
-  pushSTACK(`:ERRNO`); pushSTACK(fixnum(status));
+  pushSTACK(`:CODE`); pushSTACK(bdb_errno_reverse(status));
   if (error_message)
     pushSTACK(`"~S (~S): ~S: ~S"`);
   else pushSTACK(`"~S (~S): ~S"`);
@@ -1289,7 +1298,7 @@ static object dbt_to_object (DBT *p_dbt, dbt_o_t type, int key_type) {
           return db_recno_to_I(res);
         } else {
           pushSTACK(`BDB::BDB-ERROR`);  /* error type */
-          pushSTACK(`:ERRNO`); pushSTACK(Fixnum_0);
+          pushSTACK(`:CODE`); pushSTACK(NIL);
           pushSTACK(`"~S: bad logical record number size: ~S should be ~S"`);
           pushSTACK(TheSubr(subr_self)->name);
           pushSTACK(uint32_to_I(p_dbt->size));
@@ -2270,7 +2279,7 @@ DEFUN(BDB:LOCK-CLOSE, lock)
     DB_ENV *dbe = (DB_ENV*)bdb_handle(parent,`BDB::DBE`,BH_INVALID_IS_NULL);
     if (dbe == NULL) { /* the DBE has been closed */
       pushSTACK(`BDB::BDB-ERROR`);  /* error type */
-      pushSTACK(`:ERRNO`); pushSTACK(Fixnum_0);
+      pushSTACK(`:CODE`); pushSTACK(NIL);
       pushSTACK(CLSTEXT("~S (~S): cannot close a lock whose environment has been already closed; you must re-open the environment and call ~S"));
       pushSTACK(TheSubr(subr_self)->name);
       pushSTACK(STACK_5);       /* lock */

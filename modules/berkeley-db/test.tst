@@ -184,8 +184,9 @@ NIL
 (block nil
   (handler-bind ((bdb:bdb-error
                   (lambda (c)
-                    (format t "~&~A~%" c)
-                    (return (integerp (bdb:bdb-error-number c))))))
+                    (princ-error c)
+                    (return (typep (bdb:bdb-error-code c)
+                                   '(or integer symbol))))))
     (close *lock*)))
 T
 

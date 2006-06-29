@@ -347,7 +347,7 @@
 )
 
 (define-condition bdb-error (simple-error)
-  (($errno :initarg :errno :reader bdb-error-number)))
+  (($ecode :reader bdb-error-code :initarg :code)))
 
 ;;; restore locks
 (pushnew "BDB" custom:*system-package-list* :test #'string=)
