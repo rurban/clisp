@@ -7,13 +7,12 @@
 (defpackage #:rawsock
   (:documentation "Raw Socket access")
   (:use #:lisp)
-  (:shadowing-import-from "EXPORTING" #:defun #:defstruct)
+  (:shadowing-import-from "EXPORTING" #:defun #:defstruct #:define-condition)
   (:export #:buffer #:resize-buffer #:accept #:bind #:connect
            #:getpeername #:getsockname #:protocol #:network #:message
            #:sock-listen #:recv #:recvfrom #:recvmsg
            #:send #:sendmsg #:sendto #:socket-option
            #:socket #:socketpair #:sockatmark #:getnameinfo #:getaddrinfo
-           #:eai #:eai-code #:eai-message
            #:sock-read #:sock-write #:sock-close
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-p
            #:htonl #:htons #:ntohl #:ntohs #:convert-address
