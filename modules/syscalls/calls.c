@@ -1406,6 +1406,7 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
 { /* return the GROUP-INFO for the group or a list thereof if it is NIL. */
   object group = popSTACK();
   struct group *gr = NULL;
+ group_info_restart:
 
 # if defined(HAVE_GETGRENT) && defined(HAVE_SETGRENT) && defined(HAVE_ENDGRENT)
   if (missingp(group)) { /* all groups as a list */
@@ -1425,6 +1426,7 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
 # endif  /* setgrent getgrent endgrent */
 
   begin_system_call();
+  errno = 0;
   if (uint32_p(group))
     gr = getgrgid(I_to_uint32(group));
   else if (symbolp(group)) {
@@ -1437,7 +1439,15 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
   }
   end_system_call();
 
-  if (NULL == gr) { OS_error(); }
+  if (NULL == gr) {
+    if (errno == 0) {
+      pushSTACK(NIL);           /* no PLACE */
+      pushSTACK(group); pushSTACK(TheSubr(subr_self)->name);
+      check_value(error,GETTEXT("~S(~S): No such group"));
+      group = value1;
+      goto group_info_restart;
+    } else OS_error();
+  }
   grp_to_lisp(gr);
 }
 #endif  /* getgrgid getgrnam */
@@ -1465,6 +1475,7 @@ DEFUN(POSIX::USER-INFO, &optional user)
 { /* return the USER-INFO for the user or a list thereof if user is NIL. */
   object user = popSTACK();
   struct passwd *pwd = NULL;
+ user_info_restart:
 
 # if defined(HAVE_GETPWENT) && defined(HAVE_SETPWENT) && defined(HAVE_ENDPWENT)
   if (missingp(user)) { /* all users as a list */
@@ -1484,6 +1495,7 @@ DEFUN(POSIX::USER-INFO, &optional user)
 # endif  /* setpwent getpwent endpwent */
 
   begin_system_call();
+  errno = 0;
   if (uint32_p(user))
     pwd = getpwuid(I_to_uint32(user));
   else if (eq(user,`:DEFAULT`)) {
@@ -1502,7 +1514,15 @@ DEFUN(POSIX::USER-INFO, &optional user)
   }
   end_system_call();
 
-  if (NULL == pwd) { OS_error(); }
+  if (NULL == pwd) {
+    if (errno == 0) {
+      pushSTACK(NIL);           /* no PLACE */
+      pushSTACK(user); pushSTACK(TheSubr(subr_self)->name);
+      check_value(error,GETTEXT("~S(~S): No such user"));
+      user = value1;
+      goto user_info_restart;
+    } else OS_error();
+  }
   passwd_to_lisp(pwd);
 }
 #elif defined(WIN32_NATIVE)
