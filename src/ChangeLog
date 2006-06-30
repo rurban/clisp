@@ -1,3 +1,7 @@
+2006-06-30  Sam Steingold  <sds@podval.org>
+
+	* makemake.in (anymodule): use $(SHELL) to run sub-configure scripts
+
 2006-06-29  Sam Steingold  <sds@podval.org>
 
 	use symbolic error codes when possible
