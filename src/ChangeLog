@@ -1,5 +1,10 @@
 2006-06-30  Sam Steingold  <sds@podval.org>
 
+	* modules/syscalls/posix.lisp (ffs): added a Lisp implementation of
+	http://www.opengroup.org/onlinepubs/009695399/functions/ffs.html
+
+2006-06-30  Sam Steingold  <sds@podval.org>
+
 	* configure, makemake.in: accept --with-gmalloc
 	* configure.in: do not call CL_GMALLOC
 	* m4/gmalloc.m4: removed

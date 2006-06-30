@@ -626,7 +626,11 @@
   (&setq; &error-output-var;
         (&setq; &debug-io-var;
              (&mk-xterm-io; :title "clisp errors and debug")))
-</programlisting></para><simpara>&unix-only;</simpara></listitem>
-</varlistentry></variablelist>
+</programlisting></para><simpara>&unix-only;</simpara></listitem></varlistentry>
+ <varlistentry><term>(<function>POSIX:FFS</function> &n-r;)</term>
+  <listitem><simpara>Find the first bit set.
+    Like <function role="unix">ffs</function>, but implemented in Lisp and
+    supports &bignum-t;s.</simpara></listitem></varlistentry>
+</variablelist>
 
 </section>
