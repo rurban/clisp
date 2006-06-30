@@ -74,6 +74,8 @@ options: The following options are recognized:
                         (the default is http://www.lisp.org/HyperSpec/ or the
                         value of the environment variable CLHSROOT, if set)
   --with-debug          pass "debug" to makemake (CFLAGS+=g &c)
+  --with-gmalloc        use the GNU malloc instead of of the libc one
+                        (needed on HP-UX and OpenBSD)
   --edit-config         edit config.lisp with ${EDITOR:-vi} before make
                         (useful with --build and --install)
 Example:

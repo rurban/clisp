@@ -497,6 +497,11 @@ and you need to use GNU make instead of HP-UX make.
 With older versions of gcc, the testsuite causes a failure because of ISQRT.
 A workaround is to use gcc 2.95.2 or newer.
 
+HP-UX has two different malloc() implementations.  Both are broken.
+When used with CLISP, the one in the default libc.a leads to a SIGSEGV,
+the one in libmalloc.a leads to a SIGBUS.
+Pass "--with-gmalloc" to ./configure to work around this problem.
+
 
 On SINIX-N 5.43:
 
@@ -642,6 +647,13 @@ On platforms using AFS:
 
 You may get an "Invalid cross-device link" error.
 If you do, try running make as "make LN_HARD='cp -p' LN='cp -p'".
+
+
+On PC 386 running OpenBSD 3.8:
+
+If you get mmap errors on the first invocation of lisp.run, this is
+likely due to the new randomizing malloc.
+Pass "--with-gmalloc" to ./configure to work around this problem.
 
 
 Hints for porting to new platforms:
