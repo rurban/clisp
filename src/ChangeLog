@@ -1,5 +1,12 @@
 2006-06-30  Sam Steingold  <sds@podval.org>
 
+	* configure, makemake.in: accept --with-gmalloc
+	* configure.in: do not call CL_GMALLOC
+	* m4/gmalloc.m4: removed
+	* src/malloc/getpagesize.h, src/malloc/gmalloc.c: updated from Emacs
+
+2006-06-30  Sam Steingold  <sds@podval.org>
+
 	* makemake.in (anymodule): use $(SHELL) to run sub-configure scripts
 
 2006-06-29  Sam Steingold  <sds@podval.org>

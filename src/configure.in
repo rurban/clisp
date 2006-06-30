@@ -162,8 +162,6 @@ AC_STRUCT_TM
 dnl
 BOLD_MSG([checks for functions and declarations])
 dnl
-dnl set variable GMALLOC
-CL_GMALLOC
 dnl set variable ALLOCA, DEFS NO_ALLOCA
 AC_FUNC_ALLOCA
 dnl DEFS HAVE__JMP, LONGJMP_RETURNS
