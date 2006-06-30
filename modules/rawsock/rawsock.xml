@@ -81,6 +81,11 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     &optional-amp; (<replaceable>backlog</replaceable> SOMAXCONN))</code>
    calls <function role="unix">listen</function>.</member>
 </simplelist></para>
+<note><para>When the OS does not provide
+  <function role="unix">socketpair</function>, it is emulated
+  using <function role="unix">socket</function> +
+  <function role="unix">connect</function> +
+  <function role="unix">accept</function>.</para></note>
 </section>
 
 <section id="rawsock-args"><title>Common arguments</title>
