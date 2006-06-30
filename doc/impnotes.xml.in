@@ -55,8 +55,8 @@
      <filename role="clisp-cvs">COPYRIGHT</filename>
      for the list of other contributors.</simpara></authorblurb></othercredit>
  </authorgroup>
- <abstract><para>These notes describe the &gnu; &clisp; - an &ansi-cl;
-   implementation.</para>
+ <abstract><para>These notes describe the &gnu; &clisp; - an
+   implementation of the &ansi-cl;.</para>
   <para>See <olink targetdoc="man" targetptr="bugs"/> for instructions
    on how to report bugs (both in these notes and in &clisp; itself).</para>
   <para>See <xref linkend="faq-help"/> for information on &clisp;

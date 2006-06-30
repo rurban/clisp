@@ -190,7 +190,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  and <function role="unix">getnameinfo</function> are &signal;ed
  as &condition-t;s of type <type>RAWSOCK:EAI</type>
  using <function role="unix">gai_strerror</function>.</para>
-<para>Errors in other functions are reported as the usual OS errors.</para>
+<para>Errors in other functions are reported as the usual OS errors
+ (using <function role="unix">strerror</function>).</para>
 </section>
 
 <section id="rawsock-high-level"><title>High-Level Functions</title>
