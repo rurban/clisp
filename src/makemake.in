@@ -61,6 +61,8 @@ options:
        --with-threads=FLAVOR   MT [_experimental_!]
                                FLAVOR: POSIX_THREADS POSIXOLD_THREADS
                                        SOLARIS_THREADS C_THREADS WIN32_THREADS
+       --with-gmalloc          use the GNU malloc instead of of the libc one
+                               (needed on HP-UX and OpenBSD)
     See modules/ directory for available modules and add them to the full
     linking set using --with-module option, e.g.,
        --with-module=bindings/glibc
@@ -208,6 +210,7 @@ with_unicode=yes
 with_dynamic_ffi=no      # often set to yes by the toplevel configure
 with_dynamic_modules=no
 with_threads=no
+with_gmalloc=no
 # i18n: essential for internationalized programs
 # syscalls: very useful for scripting
 # regexp: useful for scripting and text processing
@@ -519,7 +522,6 @@ case $# in
      INSTALL_DATA='@INSTALL_DATA@'       # either 'install -c -m 644' or 'cp'
      GROFF='@GROFF@'                     # either 'groff' or ''
      DVIPDF='@DVIPDF@'                   # either 'dvipdf' or ''
-     GMALLOC='@GMALLOC@'                 # either 'gmalloc' or ''
      LIBS='@LIBS@'                       # list of system libraries
      LIBTERMCAP='@LIBTERMCAP@'           # '-L/usr/??/lib' or 'broken' or ''
      INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
@@ -598,7 +600,6 @@ case $# in
      fi
      GROFF='groff'
      DVIPDF='dvipdf'
-     GMALLOC=''
      LIBS=''
      LIBICONV=''
      LIBSIGSEGV=''
@@ -608,6 +609,8 @@ case $# in
      shift 2
      ;;
 esac
+
+if [ "${with_gmalloc}" = yes ]; then GMALLOC=gmalloc; else GMALLOC=""; fi
 
 if [ $CROSS = true ] ; then
   # We can cross-compile only with GCC 2
@@ -2744,7 +2747,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
 done
 
-if test -n "$GMALLOC"; then
+if [ "${with_gmalloc}" = yes ]; then
   for f in $GMALLOC ; do
     echol "${f}${TOBJ} : ${SRCDIR}malloc${NEXT_M}${f}.c"
     # gmalloc.c needs -DUSG on Solaris and then needs -DMEMMOVE_MISSING for SunOS 4.
