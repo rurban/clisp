@@ -13,7 +13,7 @@
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
    #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
    #:getpgid #:setpgrp #:getsid #:setsid #:setpgid #:kill #:sync
-   #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma))
+   #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma #:ffs))
 
 (pushnew :syscalls *features*)
 (in-package #:posix)
@@ -384,6 +384,13 @@
         (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
     xio))
 
+;;;--------------------------------------------------------------------------
+(defun ffs (n) (integer-length (logand n (- n))))
+;; http://www.opengroup.org/onlinepubs/009695399/functions/ffs.html
+;; this lisp implementation is about 10% faster than using FFI:
+;; (ffi:def-call-out ffs (:name "ffs") (:arguments (i ffi:int))
+;;   (:return-type ffi:int) (:language :stdc) (:library :default))
+;; and it also supports bignums.
 ;;;--------------------------------------------------------------------------
 (setf (package-lock "EXT") nil)
 (use-package '("POSIX") "EXT")
