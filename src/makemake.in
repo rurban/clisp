@@ -3394,7 +3394,18 @@ fi
 # srcdir has to be passed to ./configure because it must be able to find
 # src/build-aux/install-sh _AND_ also its own sources, thus we must
 # point it to modules/... in the original source tree
-echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; if ${NEED_RECONFIGURE} ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; if test \"\$\${ac_cv_env_CFLAGS_set}\" = set; then CFLAGS=\"\$\${ac_cv_env_CFLAGS_value}\"; export CFLAGS; fi; ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); else ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
+echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; \\"
+echotab "if ${NEED_RECONFIGURE} ; then cd \$@ ; \\"
+echotab "  ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
+echotab "    if test -f \$\${cache} ; then . \$\${cache}; \\"
+echotab "      if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; \\"
+echotab "      if test \"\$\${ac_cv_env_CFLAGS_set}\" = set; then CFLAGS=\"\$\${ac_cv_env_CFLAGS_value}\"; export CFLAGS; fi; \\"
+# we must use $(SHELL) for sub-configures because when the top CONFIG_SHELL
+# is bash, config.cache may be unparsable with sh on Solaris
+echotab "      $(SHELL) ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS);\\"
+echotab "    else $(SHELL) ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
+echotab "    fi ) ;\\"
+echotab "fi"
 echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 
