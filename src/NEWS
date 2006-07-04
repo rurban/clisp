@@ -26,6 +26,11 @@ User visible changes
 
 * I/O operations on Win32 are now much faster.
 
+* Top-level configure now accepts a new option --with-gmalloc to use the
+  GNU malloc implementation instead of the one supplied by libc.
+  You may need it on older HP-UX and newer OpenBSD systems.
+  See file unix/PLATFORMS for more information.
+
 * Bug fixes:
   + SOCKET:SOCKET-SERVER :INTERFACE now behaves as documented.
   + EXT:READ-BYTE-NO-HANG and SOCKET:SOCKET-STATUS used to hang on
