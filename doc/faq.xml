@@ -266,7 +266,7 @@ further explanations of the issues could be provided).</para>
   A note to that effect was kept in the file
   <filename role="clisp-cvs">src/timezone.lisp</filename>
   until 2002, when it was decided that is was not visible enough there
-  and moved it here.</para></answer></qandaentry>
+  and it was moved here.</para></answer></qandaentry>
 
 <qandaentry id="faq-menorah-users"><question id="faq-menorah-users-q">
   <simpara>Aren't you afraid of losing some users who are offended by
@@ -284,7 +284,7 @@ further explanations of the issues could be provided).</para>
   and the authors are proud to display it.
   If you are unlucky enough to have lost the freedom to express your
   opinion, due to the constraints of a government, society, religion,
-  or expectations of "professional relationships",
+  or expectations of <quote>professional relationships</quote>,
   the Free World condoles with you.
   The authors of &clisp; are not operating under such constraints.
   If you are unhappy about their artistic preferences, political views or
@@ -348,14 +348,14 @@ further explanations of the issues could be provided).</para>
   </simpara></listitem></varlistentry>
   <varlistentry><term>3rd party</term>
    <listitem><simpara>See the <emphasis>incomplete</emphasis> list of
-     <ulink url="http://clisp.cons.org/resources.html#software">"Common
-      Lisp software running in &clisp;"</ulink>.
+     <ulink url="http://clisp.cons.org/resources.html#software"><quote>Common
+      Lisp software running in &clisp;</quote></ulink>.
   </simpara></listitem></varlistentry>
   <varlistentry><term><acronym>DIY<alt>Do It Yourself</alt></acronym></term>
    <listitem><simpara>See <xref linkend="modules"/> and <xref linkend="dffi"/>
      for information on how to interface with external &c-lang; libraries.
   </simpara></listitem></varlistentry>
-  <varlistentry><term>&http; (really Frequently Asked!)</term>
+  <varlistentry><term>&http; (very Frequently Asked!)</term>
    <listitem><itemizedlist>
      <listitem><simpara>&clisp; comes with
        <filename role="clisp-cvs">src/inspect.lisp</filename>
