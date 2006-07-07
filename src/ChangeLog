@@ -311,8 +311,8 @@
 
 2006-04-19  Bruno Haible  <bruno@clisp.org>
 
-	* m4/general.m4 (CL_CANONICAL_HOST_CPU): Map rs6000 -> powerpc, not vice
-	versa.
+	* m4/general.m4 (CL_CANONICAL_HOST_CPU): Map rs6000 -> powerpc,
+	not vice versa.
 	(CL_CANONICAL_HOST_CPU_FOR_FFCALL): Likewise.
 	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Update.
 
