@@ -286,11 +286,11 @@ T
     (delete-file file)))
 (T T)
 
-(progn (proc-send *proc1* "(close s)~%(ext:quit)~%")
+(progn (proc-send *proc1* "(close s)(ext:quit)")
        (close (two-way-stream-input-stream *proc1*))
        (close (two-way-stream-output-stream *proc1*))
        (close *proc1*) (makunbound '*proc1*) (unintern '*proc1*)
-       (proc-send *proc2* "(close s)~%(ext:quit)~%" )
+       (proc-send *proc2* "(close s)(ext:quit)" )
        (close (two-way-stream-input-stream *proc2*))
        (close (two-way-stream-output-stream *proc2*))
        (close *proc2*) (makunbound '*proc2*) (unintern '*proc2*)
