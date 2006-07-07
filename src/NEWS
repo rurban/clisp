@@ -26,10 +26,14 @@ User visible changes
 
 * I/O operations on Win32 are now much faster.
 
-* Top-level configure now accepts a new option --with-gmalloc to use the
-  GNU malloc implementation instead of the one supplied by libc.
-  You may need it on older HP-UX and newer OpenBSD systems.
-  See file unix/PLATFORMS for more information.
+* New functions: POSIX:FFS, POSIX:PATHCONF.
+
+* Infrastructure:
+  + Top-level configure now accepts a new option --with-gmalloc to use the
+    GNU malloc implementation instead of the one supplied by libc.
+    You may need it on older HP-UX and newer OpenBSD systems.
+    See file unix/PLATFORMS for more information.
+  + The value of the environment variable CFLAGS is respected by configure.
 
 * Bug fixes:
   + SOCKET:SOCKET-SERVER :INTERFACE now behaves as documented.
@@ -39,6 +43,11 @@ User visible changes
   + ADJUST-ARRAY of zero length adjustable string now works.
   + TIME now reports correct results when the heap grows over 4GB.
   + RAWSOCK functions now handle :START/:END arguments correctly.
+  + BDB:DBC-GET now accepts :READ-COMMITTED and :READ-UNCOMMITTED.
+  + POSIX:GROUP-INFO and POSIX:USER-INFO now handle errors correctly.
+
+* Portability:
+  + Support DragonFly BSD.
 
 
 2.38 (2006-01-24)
@@ -49,7 +58,7 @@ User visible changes
 
 * SAVEINITMEM can create standalone executables.
   Thanks to Frank Buß <fb@frank-buss.de> for the idea.
-  SAVEINITMEM also accepts :NORC argument do disable RC-file loading.
+  SAVEINITMEM also accepts :NORC argument to disable RC-file loading.
   See <http://clisp.cons.org/impnotes/image.html> for details.
 
 * POSIX:SYSLOG no longer recognizes "%m" and other formatting instructions.
