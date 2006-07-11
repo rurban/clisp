@@ -2,8 +2,8 @@
 ;; (LOOP {loop-clause}*), CLtL2 p. 163,709-747
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1.html>
 ;; <http://www.lisp.org/HyperSpec/Body/mac_loop.html>
-;; Bruno Haible 1991-2002
-;; Sam Steingold 1999-2004
+;; Bruno Haible 1991-2004
+;; Sam Steingold 1999-2005
 
 (in-package "COMMON-LISP")
 (export '(loop loop-finish))
