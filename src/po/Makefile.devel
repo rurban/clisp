@@ -7,7 +7,7 @@
 SHELL = /bin/sh
 RM = rm -rf
 
-GMSGFMT = /cygdrive/d/gnu/gettext-0.15-pre1/gettext-tools/src/msgfmt.exe --statistics --check
+GMSGFMT = msgfmt --statistics --check
 
 all : tmp pot gmo
 
