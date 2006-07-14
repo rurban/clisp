@@ -2920,6 +2920,8 @@ echo "$as_me:$LINENO: result: $cl_cv_host_mipsn32" >&5
 echo "${ECHO_T}$cl_cv_host_mipsn32" >&6
 if test $cl_cv_host_mipsn32 = yes; then
   host_cpu_abi=mipsn32
+else
+  host_cpu_abi=mips
 fi
 fi
     ;;

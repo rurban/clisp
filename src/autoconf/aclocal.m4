@@ -1988,6 +1988,8 @@ AC_EGREP_CPP(yes,
 ])
 if test $cl_cv_host_mipsn32 = yes; then
   host_cpu_abi=mipsn32
+else
+  host_cpu_abi=mips
 fi
 fi
     ;;
