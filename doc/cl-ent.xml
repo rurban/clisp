@@ -21,7 +21,7 @@
 <!ENTITY ansi-cl '<citation><link linkend="ansi-cl">ANSI CL standard</link></citation>'>
 <!ENTITY ansi-cl-bib
   '<biblioentry id="ansi-cl">
-   <abbrev>ANSI CL</abbrev>
+   <abbrev>ANSI CL</abbrev><abbrev>ANSI CL standard</abbrev>
    <pubdate>1994</pubdate>
    <title>ANSI Common Lisp standard X3.226-1994 -
        <ulink url="http://www.ncits.org/tc_home/j13sd4.htm">Information
@@ -31,7 +31,7 @@
 <!ENTITY hyperspec '<citation><link linkend="CLHS">Common Lisp HyperSpec</link></citation>'>
 <!ENTITY hyperspec-bib
   '<biblioentry id="CLHS">
-   <abbrev>CLHS</abbrev>
+   <abbrev>CLHS</abbrev><abbrev>Common Lisp HyperSpec</abbrev>
    <title><ulink url="&clhs;/FrontMatter/">Common Lisp HyperSpec</ulink></title>
   </biblioentry>'>
 
