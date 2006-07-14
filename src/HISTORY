@@ -1,5 +1,7 @@
 Version  Date            New features
 
+2.39     2006-07-16      Reliable stack overflow detection and recovery.
+
 2.38     2006-01-24      SAVEINITMEM creates standalone executables.
 
 2.37     2006-01-02      SOCKET-SERVER/:BACKLOG:INTERFACE, fixed SETENV.
