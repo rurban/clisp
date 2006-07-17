@@ -1,5 +1,9 @@
 2006-07-17  Sam Steingold  <sds@podval.org>
 
+	* makemake.in (hln): use $(SHELL) and --cache-file=../config.cache
+
+2006-07-17  Sam Steingold  <sds@podval.org>
+
 	* Makefile.devel (REL, GNU_SYM): new variables
 	(upload): also upload symlink directive
 	(gnu-distrib): also create symlink directive
