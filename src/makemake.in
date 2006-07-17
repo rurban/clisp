@@ -3856,7 +3856,7 @@ if test "$HLN" != ln; then
   needs=$needs' hln'
   echol "hln :"
   echotab "mkdir -p buildhln"
-  echotab "cd buildhln && ${PARENT_SRCTOPDIR}utils/hln/configure --srcdir=${PARENT_SRCTOPDIR}utils/hln && \$(MAKE)"
+  echotab "cd buildhln && $(SHELL) ${PARENT_SRCTOPDIR}utils/hln/configure --srcdir=${PARENT_SRCTOPDIR}utils/hln --cache-file=../config.cache && \$(MAKE)"
   echotab "ln buildhln/hln${TEXE} hln${TEXE}"
   echol
 fi
