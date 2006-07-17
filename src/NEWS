@@ -17,6 +17,7 @@ User visible changes
   CLISP should neither exit nor crash under infinite recursion.
   If your distribution has CLISP compiled without libsigsegv, report
   the missing feature to its maintainer.
+  Note that libsigsegv 2.4 is required, there are bugs in libsigsegv 2.3!
 
 * It is now possible to specify the default method-combination of a generic
   function, to be used when the DEFGENERIC form does not specify the
