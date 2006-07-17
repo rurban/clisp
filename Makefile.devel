@@ -412,6 +412,7 @@ distrib : fixperms src-distrib doc-distrib gnu-distrib
 # https://sourceforge.net/news/submit.php?group_id=1355
 
 VER=$(shell . version.sh ; echo $$VERSION_NUMBER)
+REL=$(shell . version.sh ; echo $$RELEASE_DATE)
 ARCHIVE=../archives/$(VER)
 SRC_DIST=$(ARCHIVE)/clisp-$(VER).tar.bz2
 SRC_DIST1=$(ARCHIVE)/clisp-$(VER).tar.gz
@@ -422,6 +423,7 @@ FTPUP=upload.sf.net:/incoming sunsite.unc.edu:/incoming/linux
 GNU_TOP=$(ARCHIVE)/NEWS $(ARCHIVE)/SUMMARY
 GNU_SRC=$(SRC_DIST1) $(SRC_DIST)
 GNU_DIST=$(GNU_TOP) $(GNU_SRC)
+GNU_SYM=$(ARCHIVE)/clisp-$(VER).symlink
 
 $(SRC_DIST1) : $(SRC_DIST)
 	bzcat -v $(SRC_DIST) | gzip -9 -v > $(SRC_DIST1)
@@ -435,7 +437,7 @@ upload : $(SRC_DIST1) force
 	done
 	UP=""; for f in $(GNU_DIST); do \
 		UP=$${UP}" $$f $$f.sig $$f.directive.asc"; done; \
-	lftp ftp://ftp-upload.gnu.org/incoming/ftp -e "mput $${UP}; quit"
+	lftp ftp://ftp-upload.gnu.org/incoming/ftp -e "mput $${UP} $(GNU_SYM).asc; quit"
 
 src-distrib : force
 	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-$(VER)
@@ -462,13 +464,25 @@ gnu-distrib : $(SRC_DIST1) force
 	for f in $(GNU_DIST); do gpg -b $$f; done
 	for f in $(GNU_TOP); do \
 		rm -f $$f.directive; \
-		echo "directory: clisp" > $$f.directive; \
+		echo "version: 1.1" >> $$f.directive; \
+		echo "directory: clisp" >> $$f.directive; \
+		echo "filename: $$f" >> $$f.directive; \
 		gpg --clearsign $$f.directive; \
 	done
 	for f in $(GNU_SRC); do \
 		rm -f $$f.directive; \
-		echo "directory: clisp/release/$(VER)" > $$f.directive; \
+		echo "version: 1.1" >> $$f.directive; \
+		echo "directory: clisp/release/$(VER)" >> $$f.directive; \
+		echo "filename: $$f" >> $$f.directive; \
 		gpg --clearsign $$f.directive; \
 	done
+	echo "version: 1.1" > $(GNU_SYM)
+	echo "directory: clisp/release" >> $(GNU_SYM)
+	echo "rmsymlink: latest" >> $(GNU_SYM)
+	echo "symlink: latest $(VER)" >> $(GNU_SYM)
+	gpg --clearsign $(GNU_SYM)
+
+tag-release : force
+	cvs tag -FR clisp_$(subst .,_,$(VER))-$(REL)
 
 force :
