@@ -707,7 +707,7 @@ DEFCHECKER(check_gai_ecode,prefix=EAI,default=,AGAIN BADFLAGS FAIL FAMILY \
 #endif
 nonreturning_function(static, error_eai, (int ecode)) {
 #if defined(HAVE_GAI_STRERROR) || defined(WIN32_NATIVE)
-  const char* msg = gai_strerror(ecode);
+  const char* msg = gai_strerror_f(ecode);
 #else
   const char* msg = strerror(ecode);
 #endif
