@@ -632,6 +632,7 @@
 <!ENTITY match-r '<replaceable>match</replaceable>'>
 <!ENTITY maxdim-r '<replaceable>maxdimension</replaceable>'>
 <!ENTITY mc-r '<replaceable>method-combination</replaceable>'>
+<!ENTITY mems-r '<replaceable>memory-size</replaceable>'>
 <!ENTITY mesg-r '<replaceable>message</replaceable>'>
 <!ENTITY metaobject-r '<replaceable>metaobject</replaceable>'>
 <!ENTITY method-r '<replaceable>method</replaceable>'>
