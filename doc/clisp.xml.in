@@ -20,7 +20,7 @@
 
 <refentry id="clisp">
 
- <refentryinfo>
+<refentryinfo>
  <title>&clisp; version @VERSION@</title>
  <subtitle>Platform: @PLATFORM@</subtitle>
  <date>Last modified: @TODAY@</date>
@@ -58,8 +58,7 @@
 <!-- #endif -->
 <arg><option><link linkend="opt-memfile">-M
    <replaceable>mem-file</replaceable></link></option></arg>
-<arg><option><link linkend="opt-memsize">-m
-   <replaceable>mem-size</replaceable></link></option></arg>
+<arg><option><link linkend="opt-memsize">-m &mems-r;</link></option></arg>
 <!-- #ifdef MULTIMAP_MEMORY_VIA_FILE -->
 <arg><option><link linkend="opt-tempdir">-t
    <replaceable>temp-dir</replaceable></link></option></arg>
@@ -171,8 +170,7 @@ compiles the specified lisp files to a platform-independent
 <!-- #endif -->
 </simpara></listitem></varlistentry>
 
-<varlistentry id="opt-memsize"><term><option>-m</option>
-    <replaceable>mem-size</replaceable></term>
+<varlistentry id="opt-memsize"><term><option>-m</option> &mems-r;</term>
  <listitem><para>Sets the amount of memory &clisp;
    tries to grab on startup. The amount may be given as
    <variablelist>
@@ -202,17 +200,15 @@ compiles the specified lisp files to a platform-independent
    </para><simpara>This version of &clisp;
 <!-- #if defined(SPVW_MIXED) && defined(SPVW_BLOCKS) -->
 <!-- #ifdef GENERATIONAL_GC -->
-   is not likely to actually use the entire
-   <replaceable>mem-size</replaceable> since garbage collection will
+   is not likely to actually use the entire &mems-r; since &gc;ion will
    periodically reduce the amount of used memory.
    It is therefore common to specify 10 MB even if only 2 MB are going
    to be used.
 <!-- #else -->
-   eventually uses the entire <replaceable>mem-size</replaceable>.
+   eventually uses the entire &mems-r;.
 <!-- #endif -->
 <!-- #else -->
-   allocates memory dynamically.
-   <replaceable>mem-size</replaceable> is essentially ignored
+   allocates memory dynamically. &mems-r; is essentially ignored
    (except that it determines the Lisp &STACK; size).
 <!-- #endif -->
 </simpara></listitem></varlistentry>
