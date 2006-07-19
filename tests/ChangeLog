@@ -1,5 +1,9 @@
 2006-07-19  Sam Steingold  <sds@podval.org>
 
+	* streams.tst: avoid a race condition in a file-write-date test
+
+2006-07-19  Sam Steingold  <sds@podval.org>
+
 	* ffi.tst, type.tst: fixed tests for #-unicode
 
 2006-04-21  Bruno Haible  <bruno@clisp.org>
