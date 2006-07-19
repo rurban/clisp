@@ -962,8 +962,8 @@ WARNING: This form contains an error, a mistake, a bug, a
          (with-open-file (s f :direction :output
                             #+(or CMU SBCL) :if-exists
                             #+(or CMU SBCL) :supersede)
-           (write f :stream s)
-           (setq fwd1 (file-write-date s)))
+           (write f :stream s))
+         (with-open-file (s f) (setq fwd1 (file-write-date s)))
          (with-open-file (s f :direction :probe)
            (list (or (= fwd1 (setq fwd2 (file-write-date s)))
                      (list fwd1 fwd2))
