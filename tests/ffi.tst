@@ -418,7 +418,7 @@ T
     (:arguments (first uint8))
     (:return-type character) (:language :stdc))
   (c-self #x9E))
-ERROR
+#+unicode ERROR #-unicode #\code158
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -431,8 +431,8 @@ ERROR
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (first (c-array-ptr uint8)))
     (:return-type (c-ptr (c-array character (3 3)))) (:language :stdc))
-  (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)))
-ERROR
+  (array-dimensions (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E))))
+#+unicode ERROR #-unicode (3 3)
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -446,7 +446,7 @@ ERROR
     (:arguments (first (c-array-ptr uint8)))
     (:return-type (c-ptr character)) (:language :stdc))
   (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)))
-ERROR
+#+unicode ERROR #-unicode #\code230
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -460,7 +460,7 @@ ERROR
     (:arguments (first (c-array-ptr uint8)))
     (:return-type (c-ptr-null character)) (:language :stdc))
   (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)))
-ERROR
+#+unicode ERROR #-unicode #\code230
 
 ;; Test convert_to_foreign of UTF-8 strings.
 ;; C-STRING, C-ARRAY dim1, C-ARRAY-MAX, C-ARRAY-PTR use UTF-8 encoding,
@@ -508,12 +508,13 @@ ERROR
   (c-self #\a))
 #x61
 
+#+unicode
 (progn
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (first character))
     (:return-type uint8) (:language :stdc))
   (c-self #\ø))
-ERROR
+#+unicode ERROR
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -522,19 +523,21 @@ ERROR
   (c-self #2A("abc" "def" "ghi")))
 #(#x61 #x62 #x63  #x64 #x65 #x66  #x67 #x68 #x69)
 
+#+unicode
 (progn
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (first (c-ptr (c-array character (3 3)))))
     (:return-type (c-ptr (c-array uint8 9))) (:language :stdc))
   (c-self #2A("日本語" "Tür" "kçe")))
-ERROR
+#+unicode ERROR
 
+#+unicode
 (progn
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (first (c-ptr (c-array character (3 3)))))
     (:return-type (c-ptr (c-array uint8 9))) (:language :stdc))
   (c-self #2A("日" "本" "語")))
-ERROR
+#+unicode ERROR
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -543,12 +546,13 @@ ERROR
   (c-self #\a))
 #(#x61)
 
+#+unicode
 (progn
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (first (c-ptr character)))
     (:return-type (c-ptr (c-array uint8 1))) (:language :stdc))
   (c-self #\ø))
-ERROR
+#+unicode ERROR
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -557,12 +561,13 @@ ERROR
   (c-self #\a))
 #(#x61)
 
+#+unicode
 (progn
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (first (c-ptr-null character)))
     (:return-type (c-ptr (c-array uint8 1))) (:language :stdc))
   (c-self #\ø))
-ERROR
+#+unicode ERROR
 
 
 (progn

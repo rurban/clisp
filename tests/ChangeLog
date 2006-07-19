@@ -1,3 +1,7 @@
+2006-07-19  Sam Steingold  <sds@podval.org>
+
+	* ffi.tst, type.tst: fixed tests for #-unicode
+
 2006-04-21  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add test against bug with make-instance cache after class
