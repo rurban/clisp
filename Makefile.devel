@@ -423,7 +423,7 @@ FTPUP=upload.sf.net:/incoming sunsite.unc.edu:/incoming/linux
 GNU_TOP=$(ARCHIVE)/NEWS $(ARCHIVE)/SUMMARY
 GNU_SRC=$(SRC_DIST1) $(SRC_DIST)
 GNU_DIST=$(GNU_TOP) $(GNU_SRC)
-GNU_SYM=$(ARCHIVE)/clisp-$(VER).symlink
+GNU_SYM=$(ARCHIVE)/clisp-$(VER).symlink.directive
 
 $(SRC_DIST1) : $(SRC_DIST)
 	bzcat -v $(SRC_DIST) | gzip -9 -v > $(SRC_DIST1)
