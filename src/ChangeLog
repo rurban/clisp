@@ -1,5 +1,11 @@
 2006-07-19  Sam Steingold  <sds@podval.org>
 
+	* makemake.in (encflags): make -E 1:1 the first argument to ensure
+	that no encoding variable is ever left as ASCII (the default for
+	the C locale)
+
+2006-07-19  Sam Steingold  <sds@podval.org>
+
 	fixed bug #[ 1494059 ]: open-url fails to recognize file:/// (unix)
 	* clhs.lisp (open-url): restore the leading #\/ on unix
 	[win32|cygwin]: try the version without the leading #\/ first

@@ -2996,7 +2996,12 @@ else
   localeflags='-B .'
 fi
 if [ "${with_unicode}" != no ] ; then
-  encflags=' -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1'
+  # The first "-E" sets all encodings to iso-8859-1 which ensures that we can
+  # parse all pathnames etc. The others are just sugar, all that really matters
+  # here is that no encoding is left as ASCII (the C locale encoding):
+  # we only open CLISP source files here, and they are in UTF-8, thus -Efile;
+  # we want to be able to dump everything to the terminal, thus -Eterminal.
+  encflags=' -E 1:1 -Efile UTF-8 -Eterminal UTF-8'
 else
   encflags=''
 fi
