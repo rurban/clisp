@@ -1,3 +1,9 @@
+2006-07-19  Sam Steingold  <sds@podval.org>
+
+	fixed bug #[ 1494059 ]: open-url fails to recognize file:/// (unix)
+	* clhs.lisp (open-url): restore the leading #\/ on unix
+	[win32|cygwin]: try the version without the leading #\/ first
+
 2006-07-17  Sam Steingold  <sds@podval.org>
 
 	* makemake.in (hln): use $(SHELL) and --cache-file=../config.cache

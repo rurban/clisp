@@ -1,4 +1,4 @@
-;;; Copyright (C) 2000-2004 by Sam Steingold
+;;; Copyright (C) 2000-2006 by Sam Steingold
 ;;; This file is a part of CLISP (http://clisp.cons.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 
@@ -190,9 +190,19 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   (cond ((string-equal #1="http://" path :end2 (min len #.(length #1#)))
          (apply #'open-http path options))
         ((string-equal #2="file:/" path :end2 (min len #3=#.(length #2#)))
-         (apply #'open (subseq path (position #\/ path :test-not #'eql
-                                              :start #3#))
-                options))
+         ;; Tomas Zellerin writes in bug 1494059:
+         ;; I think that proper RFC compliant URL of this kind is
+         ;; file://<machine>/<path>, where machine may be the empty string
+         ;; for localhost and path should be an absolute path (including
+         ;; the leading slash on Unix), but browsers usually do not require
+         ;; four slashes in row.
+         (let ((path-beg (position #\/ path :test-not #'eql :start #3#)))
+           ;; we first try stripping all leading slashes to catch things like
+           ;; file:///c:/foo/bar and then resort to keeping one leading #\/
+           (apply #'open (or #+(or win32 cygwin)
+                             (probe-file (subseq path path-beg))
+                             (subseq path (1- path-beg)))
+                  options)))
         (t (open path))))
 
 ;;; the CLHS & IMPNOTES documentation:
