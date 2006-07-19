@@ -8,7 +8,10 @@
 <section id="cradle-grave"><title>Cradle to Grave</title>
 <subtitle>What is done when</subtitle>
 <procedure><step><title>Initialization</title>
- <substeps><step><simpara>Load the &mem-image;.</simpara></step>
+ <substeps><step><simpara>Parse command line arguments until the first
+    positional argument (see <constant>:SCRIPT</constant> in
+    <xref linkend="image"/>).</simpara></step>
+  <step><simpara>Load the &mem-image;.</simpara></step>
   <step><simpara>Install internal signal handlers.</simpara></step>
   <step><simpara>Initialize time variables.</simpara></step>
   <step><simpara>Initialize <link linkend="enc-dflt">locale-dependent
