@@ -1,3 +1,13 @@
+2006-07-20  Sam Steingold  <sds@podval.org>
+
+	fixed bug #[ 1516684 ]: initially not executed in loop
+	* loop.lisp (loop-initialization): new slot preamble
+	(revadd): new macro
+	(expand-loop): merge INITIALLY-CODE and STARTUP-CODE into a single
+	annotated list PREAMBLE (elements are marked on whether they come
+	from :INITIALLY or :START) - this ensures that the initialization
+	and :INITIALLY forms are evaluated in the right order
+
 2006-07-19  Sam Steingold  <sds@podval.org>
 
 	* makemake.in (encflags): make -E 1:1 the first argument to ensure
