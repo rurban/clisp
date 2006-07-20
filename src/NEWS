@@ -1,3 +1,13 @@
+User visible changes
+--------------------
+
+* Bug fixes:
+  + Make it possible to set *IMPNOTES-ROOT-DEFAULT* and *CLHS-ROOT-DEFAULT*
+    to local paths, as opposed to URLs. [ 1494059 ]
+  + Fix the evaluation order of initialization and :INITIALLY forms in
+    then extended LOOP. [ 1516684 ]
+
+
 2.39 (2006-07-16)
 =================
 
