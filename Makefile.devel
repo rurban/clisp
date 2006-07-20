@@ -479,7 +479,7 @@ gnu-distrib : $(SRC_DIST1) force
 	echo "version: 1.1" > $(GNU_SYM)
 	echo "directory: clisp/release" >> $(GNU_SYM)
 	echo "rmsymlink: latest" >> $(GNU_SYM)
-	echo "symlink: latest $(VER)" >> $(GNU_SYM)
+	echo "symlink: $(VER) latest" >> $(GNU_SYM)
 	gpg --clearsign $(GNU_SYM)
 
 tag-release : force
