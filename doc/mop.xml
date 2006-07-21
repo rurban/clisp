@@ -866,15 +866,15 @@ arguments received by the &ensure-class; function.  Examples of typical
    becomes the value of the first argument to &ensure-class;.  This is
    the only positional argument accepted by &ensure-class;; all other
    arguments are keyword arguments.</simpara></listitem>
-<listitem><simpara>The <replaceable>direct-superclasses</replaceable>
-  argument to &defclass; becomes the value of the &direct-superclasses-k;
-  keyword argument to &ensure-class;.</simpara></listitem>
-<listitem><simpara>The <replaceable>direct slots</replaceable> argument
-  to &defclass; becomes the value of the &direct-slots-k; keyword
-  argument to &ensure-class;.  Special processing of this value is done
-  to regularize the form of each slot specification and to properly
-  capture the lexical scope of the initialization forms.  This is done
-  by converting each slot specification to a property list called a
+<listitem><simpara>The &direct-superclasses-k; argument to &defclass;
+  becomes the value of the &direct-superclasses-k; keyword argument to
+  &ensure-class;.</simpara></listitem>
+<listitem><simpara>The &direct-slots-k; argument to &defclass; becomes
+  the value of the &direct-slots-k; keyword argument to &ensure-class;.
+  Special processing of this value is done to regularize the form of
+  each slot specification and to properly capture the lexical scope of
+  the initialization forms.  This is done by converting each slot
+  specification to a property list called a
   <firstterm>canonicalized slot specification</firstterm>.
   The resulting list of &canonicalized-slot-spec;s is the value
   of the &direct-slots-k; keyword argument.</simpara>
@@ -1076,8 +1076,8 @@ associated with the class during initialization or reinitialization.
 <section id="cpl"><title>Generic Function &cpl;</title>
  <subtitle><code>(&cpl; &class-r;)</code></subtitle>
 
-<para>Returns the class precedence list of &class-r;.  The elements of
-this list are &c-mo;s.</para>
+<para>Returns the class precedence list of &class-r;.
+ The elements of this list are &c-mo;s.</para>
 
 <para>During class finalization &finalize-inheritance; calls
 &compute-cpl; to compute the class precedence list of the class.  That
@@ -1119,10 +1119,10 @@ associated with the &c-mo; and is returned by &class-slots;.</para>
  <title>Generic Function &class-default-initargs;</title>
  <subtitle><code>(&class-default-initargs; &class-r;)</code></subtitle>
 
-<para>Returns a list of the default initialization arguments for
-&class-r;.  Each element of this list is a &canonicalized-default-initarg;.
-The empty list is returned if &class-r; has no
-default initialization arguments.</para>
+<para>Returns a list of the default initialization arguments for &class-r;.
+ Each element of this list is a &canonicalized-default-initarg;.
+ The empty list is returned if &class-r; has no
+ default initialization arguments.</para>
 
 <para>During finalization &finalize-inheritance; calls
 &compute-default-initargs; to compute the default initialization
@@ -1554,17 +1554,15 @@ arguments accepted by the &ensure-class; function.</para>
 <section id="mop-cl-reinit-mo">
  <title>Reinitialization of &c-mo;s</title>
 
-<para>Some &c-mo; classes allow their instances to be
-reinitialized.  This is done by calling &reinitialize-instance;.
-The initialization arguments have the same interpretation as in class
-initialization.</para>
+<para>Some &c-mo; classes allow their instances to be reinitialized.
+This is done by calling &reinitialize-instance;.  The initialization
+arguments have the same interpretation as in class initialization.</para>
 
-<para>If the &c-mo; was finalized before the call to
-&reinitialize-instance;, &finalize-inheritance; will be called again
-once all the initialization arguments have been processed and associated
-with the &c-mo;.  In addition, once finalization is complete, any
-dependents of the &c-mo; will be updated by calling
-&update-dependent;.</para>
+<para>If the &c-mo; was finalized before the call to &reinitialize-instance;,
+&finalize-inheritance; will be called again once all the initialization
+arguments have been processed and associated with the &c-mo;.
+In addition, once finalization is complete, any dependents of the
+&c-mo; will be updated by calling &update-dependent;.</para>
 
 </section><!-- mop-cl-reinit-mo -->
 </section><!-- mop-cl-init -->
