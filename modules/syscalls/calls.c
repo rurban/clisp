@@ -2022,7 +2022,7 @@ DEFUN(POSIX:MKDTEMP, template) {
 }
 #endif
 
-#if defined(WIN32_NATIVE) || defined(HAVE_STATVFS)
+#if defined(WIN32_NATIVE) || (defined(HAVE_STATVFS) && defined(HAVE_SYS_STATVFS_H))
 #if defined(WIN32_NATIVE)
 /* winsup/src/winsup/cygwin/syscalls.cc */
 typedef unsigned long fsblkcnt_t;
