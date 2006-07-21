@@ -136,6 +136,7 @@
      see http://rfc.net/rfc793.html (figure 8 is actually on page 32)
    but _NOT_ in
    - the 3rd ed of Stevens "UNIX Network Programming"
+   - the 2nd ed of Stevens "Advanced Programming in the UNIX Environment"
    - the 2nd ed of Rochkind "Advanced UNIX Programming"
    - the Open Group Base Specifications Issue 6 IEEE Std 1003.1, 2004 Edition
      http://www.opengroup.org/onlinepubs/009695399/
