@@ -1498,7 +1498,7 @@ DEFUN(POSIX::USER-INFO, &optional user)
   errno = 0;
   if (uint32_p(user))
     pwd = getpwuid(I_to_uint32(user));
-  else if (eq(user,`:DEFAULT`)) {
+  else if (eq(user,S(Kdefault))) {
     char *username = getlogin();
     if (username != NULL)
       pwd = getpwnam(username);
