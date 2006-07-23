@@ -1,3 +1,8 @@
+2006-07-23  Sam Steingold  <sds@podval.org>
+
+	* modules/syscalls/calls.c (POSIX::USER-INFO):
+	use S(Kdefault) instead of `:DEFAULT`
+
 2006-07-21  Sam Steingold  <sds@podval.org>
 
 	* modules/syscalls/calls.c (POSIX::STAT-VFS): require
