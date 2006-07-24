@@ -233,12 +233,12 @@ and is supported by most &cl; implementations currently in use.</para>
    not yet reached its destination.</simpara>
   <simpara>The default method does nothing.</simpara></listitem></varlistentry>
  <varlistentry><term><code>(<function>GRAY:STREAM-ADVANCE-TO-COLUMN</function>
-                 &stream-r; <replaceable>column</replaceable>)</code></term>
+    &stream-r; &col-r;)</code></term>
   <listitem><simpara>Ensures that the next character will be written at
-   <replaceable>column</replaceable> at least.</simpara>
+    least at &col-r;.</simpara>
   <simpara>The default method outputs an appropriate amount of space
    characters; this is sufficient for non-proportional output.</simpara>
-  </listitem></varlistentry>
+ </listitem></varlistentry>
 </variablelist>
 
 <variablelist><title>generic functions for binary input</title>

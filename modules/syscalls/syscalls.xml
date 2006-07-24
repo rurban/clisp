@@ -193,16 +193,15 @@
     &list-t; of objects is returned, one for each match.
  </para></listitem></varlistentry>
  <varlistentry id="user-info"><term><code>(<function>POSIX:USER-INFO</function>
-    &optional-amp; <replaceable>user</replaceable>)</code></term>
+    &optional-amp; &user-r;)</code></term>
  <listitem><simpara>Return the <type>USER-INFO</type> structure (name,
    encoded password, UID, GID, full name, home directory, shell).
-   <replaceable>user</replaceable> should be a &string-t;
+   &user-r; should be a &string-t;
    (<function role="unix">getpwnam</function> is used) or an &integer-t;
    (<function role="unix">getpwuid</function> is used).
-   When <replaceable>user</replaceable> is missing or &nil;, return all
+   When &user-r; is missing or &nil;, return all
    users (using <function role="unix">getpwent</function>).
-   When <replaceable>user</replaceable> is &default-k;,
-   return the information about the current user
+   When &user-r; is &default-k;, return the information about the current user
    (using <function role="unix">getlogin</function>
    or <function role="unix">getuid</function>).</simpara>
   <simpara>&unix-only;</simpara></listitem></varlistentry>
