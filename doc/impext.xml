@@ -1815,11 +1815,11 @@ additionally binds &cont-r; to the content length.</para>
                       (symbol-macrolet ((z 3))
                         (baz z)))))
 <computeroutput>(locally (print 3))</computeroutput> ; the expansion
-<computeroutput>&t;</computeroutput>               ; indicator: some expansion has actually been done
+<computeroutput>&t;</computeroutput>                   ; indicator: some expansion has actually been done
 </programlisting></para>
 
 <para>This is sometimes called a <quote>code walker</quote>,
- except that the code walker would probably leave the &macrolet; and
+ except that a code walker would probably leave the &macrolet; and
  &symbol-macrolet; forms intact and just do the expansion.</para>
 
 <warning><para>Function &expand-form; expands forms by assuming the
@@ -1873,8 +1873,7 @@ additionally binds &cont-r; to the content length.</para>
    (&ge;0, &le;x&sub-max;, 0 means left margin).
  </simpara></listitem></varlistentry>
  <varlistentry><term><code>(<function>SCREEN:SET-WINDOW-CURSOR-POSITION</function>
-    &ws-r; <replaceable>line</replaceable>
-      <replaceable>column</replaceable>)</code></term>
+    &ws-r; &line-r; &col-r;)</code></term>
   <listitem><simpara>sets the position of the cursor in the window.
   </simpara></listitem></varlistentry>
  <varlistentry><term><code>(<function>SCREEN:CLEAR-WINDOW</function>
@@ -4148,8 +4147,7 @@ separate.</para>
 
 <para><code>(defflibfun <replaceable>function-name</replaceable>
  <replaceable>base-symbol</replaceable>
- &offset-r; <replaceable>mask</replaceable>
- <replaceable>result-type</replaceable>
+ &offset-r; <replaceable>mask</replaceable> &res-type-r;
  {<replaceable>argument-type</replaceable>}*)</code></para>
 
 <para><code>(declare-library-function
@@ -4162,8 +4160,7 @@ separate.</para>
 <para><code>(mlibcall <replaceable>function-name</replaceable>
  {&arg-r;}*)</code></para>
 
-<para><code>(mem-read &addr-r;
-  <replaceable>result-type</replaceable> [&offset-r;])</code></para>
+<para><code>(mem-read &addr-r; &res-type-r; [&offset-r;])</code></para>
 
 <para><code>(mem-write &addr-r; &type-r; &value-r;
  [&offset-r;])</code></para>

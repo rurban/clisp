@@ -30,8 +30,7 @@ SQL query).</para>
 		<!-- CONNECT -->
 
 <varlistentry id="ora-connect"><term><code>(ORACLE:CONNECT
-<replaceable>user</replaceable>
-<replaceable>password</replaceable>
+&user-r; &pass-r;
 <replaceable>server</replaceable>
 &optional-amp;
 <replaceable>schema</replaceable>
@@ -47,7 +46,7 @@ this database until the next call to &ora-connect;.  A
 single program can access different &oracle-link; schemas concurrently by
 repeated calls to &ora-connect;.  Database connections
 are cached and re-used: if you call &ora-connect; again
-with the same <replaceable>user</replaceable>,
+with the same &user-r;,
 <replaceable>schema</replaceable>, and
 <replaceable>server</replaceable>, the previous &oracle-link; connection will
 be re-used.  &ora-connect; may not be called inside
@@ -59,11 +58,11 @@ connection was created (and cached).
 The meaning of the arguments is as follows:
 </simpara>
 <variablelist><title>Arguments for &ora-connect;</title>
-<varlistentry><term><replaceable>user</replaceable></term>
+<varlistentry><term>&user-r;</term>
  <listitem><simpara>&oracle-link; user ID</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>password</replaceable></term>
+<varlistentry><term>&pass-r;</term>
  <listitem><simpara>Password for user, or &nil; if
-   <replaceable>user</replaceable> has no password (!).
+   &user-r; has no password (!).
 </simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>server</replaceable></term>
  <listitem><simpara>&oracle-link; server ID (SID).
@@ -193,11 +192,11 @@ arguments is as follows: </simpara>
 
 		<!-- FETCH -->
 <varlistentry><term><code>(ORACLE:FETCH
-   &optional-amp; <replaceable>result-type</replaceable>)</code></term>
+   &optional-amp; &res-type-r;)</code></term>
  <listitem><para>Fetch a single row of data.  Returns a row of values
    corresponding to the columns of an active SELECT statment.  The row
    data is returned in one of three different forms, depending on the
-   value of the symbol <replaceable>result-type</replaceable>:
+   value of the symbol &res-type-r;:
 <variablelist><title>Return values for <function>FETCH</function></title>
  <varlistentry><term><classname>ARRAY</classname></term>
   <listitem><simpara>Values will be returned in an &array-t; with the
@@ -256,13 +255,13 @@ arguments is as follows: </simpara>
 <varlistentry><term><code>(ORACLE:FETCH-ALL
 &optional-amp;
 <replaceable>max-rows</replaceable>
-<replaceable>result-type</replaceable>
+&res-type-r;
 <replaceable>item-type</replaceable>)</code></term>
 <listitem><simpara>Fetch some or all the rows from a query and return
 result as a sequence of sequences.  Arguments are all optional:
 <replaceable>max-rows</replaceable> limits the result to
 that numbers of rows;
-<replaceable>result-type</replaceable> is the type of
+&res-type-r; is the type of
 sequence of the rows, either
 '<classname>ARRAY</classname> (the default) or
 '<classname>LIST</classname>;
@@ -283,10 +282,8 @@ over an entire SELECT result to construct a single Lisp value.
 
 		<!-- PEEK-->
 
-<varlistentry><term><code>(ORACLE:PEEK
-&optional-amp;
-<replaceable>result-type</replaceable>)</code></term>
-<listitem>
+<varlistentry><term><code>(ORACLE:PEEK &optional-amp;
+   &res-type-r;)</code></term><listitem>
 <simpara>
 
 Peek at next row of data (without fetching it).  Returns a row a la
@@ -295,7 +292,7 @@ Repeated calls to <function>PEEK</function> will thus return the same
 row of data.  Returns &nil; if at EOF.  If data is available, returns
 row data just as <function>FETCH</function> (see
 <function>FETCH</function> for data format and conversions done).
-Optional argument <replaceable>result-type</replaceable> is the type
+Optional argument &res-type-r; is the type
 of sequence of the column values for the returned row, either
 &array-t; (the default) or &list-t;.
 <function>PEEK</function> is a useful look-ahead
