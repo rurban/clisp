@@ -391,6 +391,7 @@ distrib : fixperms src-distrib doc-distrib gnu-distrib
 
 ## Pre-release TODO:
 # echo URL-tar.bz2| mail -s "clisp-`cat VERSION`" translation@IRO.UMontreal.CA
+# update src/build-aux, modules/regexp and modules/wildcard from gnulib
 ## RELEASE TODO:
 # Before doing a "make src-distrib":
 # * update version.sh, src/NEWS, src/HISTORY
