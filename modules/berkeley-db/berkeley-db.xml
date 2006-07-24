@@ -658,8 +658,8 @@
    environment with which it has been acquired.
    This is used to &finalize; <type>BDB:DBLOCK</type> objects.</simpara>
   <warning><simpara>If that environment has already been closed, you are
-    in big trouble (segfault), so you better release your locks or do not
-    drop them.</simpara></warning></listitem></varlistentry>
+    in a big trouble (segfault), so you better release your locks or do
+    not drop them.</simpara></warning></listitem></varlistentry>
 <varlistentry><term><code>(BDB:LOCK-STAT dbe &key-amp;
    STAT-CLEAR)</code></term>
  <listitem><simpara>Return lock subsystem statistics
