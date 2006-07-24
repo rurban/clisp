@@ -225,6 +225,26 @@ Special hints for some platforms can be found in file unix/PLATFORMS.
     You will need to become root to do the install.
 
 
+Additional Information for Maintainers of Binary Packages:
+----------------------------------------------------------
+
+1. CLISP build process respects the CFLAGS environment variable,
+   and, when GCC is used and CFLAGS is unset, "-g -O2" is used, see
+   <http://www.gnu.org/software/autoconf/manual/html_node/C-Compiler.html>.
+   This means that you should configure CLISP like this:
+        CFLAGS="" ./configure ...
+   The often used alternative - to strip the executables before packaging -
+   breaks DISASSEMBLE on functions written in C: (DISASSEMBLE #'CAR) prints
+   the disassembly of the whole executable instead of just a few lines
+   that constitute the function CAR.
+   See <https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=199887>.
+
+2. Despite whatever ldd may say to the contrary, CLISP is linked
+   statically against libsigsegv, so whenever you upgrade libsigsegv,
+   you MUST recompile CLISP.
+   See <https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=199525>.
+
+
 Authors:
 --------
 
