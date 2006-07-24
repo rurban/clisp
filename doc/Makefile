@@ -226,6 +226,6 @@ count: $(IMPNOTES)
 SEARCH=
 search: force
 	@if test -z "$(SEARCH)"; then echo "usage: make search SEARCH=string"; \
-	else grep '$(SEARCH)' $(IMPNOTES); fi
+	else grep -n '$(SEARCH)' $(IMPNOTES); fi
 
 force:
