@@ -2,7 +2,8 @@ These are auxiliary scripts used in building and installing CLISP.
 They are not maintained by us, but updated from an external source:
 
 file name      how to update
-config.dynamic ???
+config.dynamic not used
+               (Bruno wrote it based on libtool to replace -export-dynamic)
 config.guess   gnulib/build-aux/ or ftp://ftp.gnu.org/pub/gnu/config/
 config.rpath   gnulib/build-aux/
 config.sub     gnulib/build-aux/ or ftp://ftp.gnu.org/pub/gnu/config/
