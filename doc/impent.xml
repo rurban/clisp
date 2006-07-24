@@ -573,6 +573,7 @@
 <!ENTITY class-r '<replaceable>class</replaceable>'>
 <!ENTITY classes-r '<replaceable>classes</replaceable>'>
 <!ENTITY cname-r '<replaceable>c-name</replaceable>'>
+<!ENTITY col-r '<replaceable>column</replaceable>'>
 <!ENTITY command-r '<replaceable>command</replaceable>'>
 <!ENTITY cond-r '<replaceable>condition</replaceable>'>
 <!ENTITY conn-r '<replaceable>connection</replaceable>'>
@@ -626,6 +627,7 @@
 <!ENTITY lang-r '<replaceable>language</replaceable>'>
 <!ENTITY lc-r '<replaceable>lc</replaceable>'>
 <!ENTITY len-r '<replaceable>length</replaceable>'>
+<!ENTITY line-r '<replaceable>line</replaceable>'>
 <!ENTITY list-r '<replaceable>list</replaceable>'>
 <!ENTITY location-r '<replaceable>location</replaceable>'>
 <!ENTITY m-r '<replaceable>m</replaceable>'>
@@ -665,6 +667,7 @@
 <!ENTITY proto-r '<replaceable>protocol</replaceable>'>
 <!ENTITY real-r '<replaceable>real</replaceable>'>
 <!ENTITY res-r '<replaceable>result</replaceable>'>
+<!ENTITY res-type-r '<replaceable>result-type</replaceable>'>
 <!ENTITY restart-clause-r '<replaceable>restart-clause</replaceable>'>
 <!ENTITY sequence-r '<replaceable>sequence</replaceable>'>
 <!ENTITY size-r '<replaceable>size</replaceable>'>
@@ -700,6 +703,7 @@
 <!ENTITY type-r '<replaceable>type</replaceable>'>
 <!ENTITY uc-r '<replaceable>uc</replaceable>'>
 <!ENTITY uid-r '<replaceable>uid</replaceable>'>
+<!ENTITY user-r '<replaceable>user</replaceable>'>
 <!ENTITY v-r '<replaceable>v</replaceable>'>
 <!ENTITY val-type-r '<replaceable>value-type</replaceable>'>
 <!ENTITY value-r '<replaceable>value</replaceable>'>

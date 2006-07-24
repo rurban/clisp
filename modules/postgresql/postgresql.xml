@@ -66,7 +66,7 @@
    (initially set to <literal role="data">"postgres"</literal>)
 </simpara></listitem></varlistentry>
 <varlistentry id="sql:sql-password"><term><code>sql:*sql-password*</code></term>
- <listitem><simpara>the default <replaceable>password</replaceable>
+ <listitem><simpara>the default &pass-r;
    argument to <function>sql:sql-connect</function>
    (initially set to <literal role="data">"postgres"</literal>)
 </simpara></listitem></varlistentry>
