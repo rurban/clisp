@@ -61,8 +61,8 @@ CATALOG_FILE=catalog.xml
 
 # Local path to DocBook XSL stylesheets on your system.
 # Make sure to use a trailing slash.
-STYLESHEETS_PATH=/usr/share/sgml/docbook/xsl-stylesheets/
-# STYLESHEETS_PATH=/home/sds/src/docbook-xsl-snapshot/
+# STYLESHEETS_PATH=/usr/share/sgml/docbook/xsl-stylesheets/
+STYLESHEETS_PATH=/home/sds/src/docbook-xsl-snapshot/
 
 # Stylesheets URI used in the CLISP project *.xsl files.
 STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/current/
@@ -222,5 +222,10 @@ clean: force
 
 count: $(IMPNOTES)
 	wc $^
+
+SEARCH=
+search: force
+	@if test -z "$(SEARCH)"; then echo "usage: make search SEARCH=string"; \
+	else grep '$(SEARCH)' $(IMPNOTES); fi
 
 force:
