@@ -1,5 +1,14 @@
 2006-07-25  Sam Steingold  <sds@podval.org>
 
+	fixed bug #[ 1526448 ]: Reinitialization of class does not call
+	finalize-inheritance
+	* clos-class3.lisp (reinitialize-instance-<defined-class>): call
+	FINALIZE-INHERITANCE
+	* gray.lisp (fundamental-stream): bind CLOS::*ALLOW-MIXING-METACLASSES*
+	also with EXT:COMPILER-LET; remove EVAL-WHEN
+
+2006-07-25  Sam Steingold  <sds@podval.org>
+
 	fixed bug #[ 1528201 ]: sigsegv: make-instance of named anonymous class
 	* clos-package.lisp: import sys::check-symbol
 	* clos-class1.lisp (shared-initialize-<potential-class>): use it
