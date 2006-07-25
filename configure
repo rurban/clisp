@@ -7,6 +7,20 @@
 #   configure make.gcc gcc     (deprecated)
 #   configure make.cc cc       (deprecated)
 
+# we source config.cache, therefore this file must be executed by the
+# same shell as executes sub-configures.
+# this is a real problem on such systems as Solaris if CONFIG_SHELL is
+# bash whose config.cache cannot be loaded by /bin/sh
+if test -n "${CONFIG_SHELL}"; then
+  # ensure that CONFIG_SHELL is compatible with /bin/sh:
+  # if CONFIG_SHELL us bash, but /bin/sh is not, restart with bash
+  if test -n "`${CONFIG_SHELL} --version | grep bash 2>/dev/null`"; then
+    # CONFIG_SHELL is bash
+    test -n "${BASH_VERSION}" || exec ${CONFIG_SHELL} $0 $*
+  fi
+else CONFIG_SHELL=/bin/sh
+fi
+
 info_help () {
 cat << \EOP
 Usage: configure [options] [dirname]
@@ -449,7 +463,7 @@ maybe_link () { if [ -f "$1" ]; then link "$1" "$2"; fi; }
 conf_dir () {
   cd $1; shift;
   echo "executing `pwd`/configure $*"
-  ${CONFIG_SHELL-/bin/sh} configure $*;
+  ${CONFIG_SHELL} configure $*;
   cd ..;
 }
 

@@ -1,3 +1,8 @@
+2006-07-25  Sam Steingold  <sds@podval.org>
+
+	* configure: when CONFIG_SHELL is bash and /bin/sh is not, re-exec the
+	configure script with CONFIG_SHELL to enable sourcing of config.cache
+
 2006-07-25  Dr. Werner Fink  <werner@suse.de>
 	Sam Steingold  <sds@podval.org>
 
