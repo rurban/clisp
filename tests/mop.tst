@@ -1036,6 +1036,22 @@ T
  ((0 :name testgf08-renamed) (3 add-method (method (integer))))
  ((1 :name testgf08-renamed) (4 add-method (method (integer))) (6 add-method (method (real))) (8 remove-method (method (integer)))))
 
+;; check that reinitialize-instance calls finalize-inheritance [ 1526448 ]
+(progn
+  (defclass reinit-instance-class (standard-class) ())
+  (defmethod validate-superclass ((class reinit-instance-class)
+                                  (superclass standard-class))
+    t)
+  (defparameter *finalize-inheritance-count* 0)
+  (defmethod finalize-inheritance :before ((class reinit-instance-class))
+    (incf *finalize-inheritance-count*))
+  (defclass reinit-instance-object () ((a-slot))
+    (:metaclass reinit-instance-class))
+  (unless (class-finalized-p (find-class 'reinit-instance-object))
+    (finalize-inheritance (find-class 'reinit-instance-object)))
+  (reinitialize-instance (find-class 'reinit-instance-object))
+  *finalize-inheritance-count*)
+2
 
 ;;; Check the direct-methods protocol
 ;;;   add-direct-method remove-direct-method
@@ -3331,6 +3347,8 @@ T
       (find-class 'dependent07) nil
       (find-class 'prioritized-generic-function) nil
       (find-class 'dependent08) nil
+      (find-class 'reinit-instance-class) nil
+      (find-class 'reinit-instance-object) nil
       (find-class 'volatile-class) nil
       (find-class 'testclass10) nil
       (find-class 'testclass10a) nil
