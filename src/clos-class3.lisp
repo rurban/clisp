@@ -2,7 +2,7 @@
 ;;;; Class metaobjects
 ;;;; Part 3: Class definition and redefinition.
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2005
+;;;; Sam Steingold 1998 - 2006
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -588,6 +588,10 @@
 
 ;; ---------------------------- Class redefinition ----------------------------
 
+;; When this is true, all safety checks about the metaclasses
+;; of superclasses are omitted.
+(defparameter *allow-mixing-metaclasses* nil)
+
 (defun reinitialize-instance-<defined-class> (class &rest all-keys
                                               &key (name nil name-p)
                                                    (direct-superclasses '() direct-superclasses-p)
@@ -756,6 +760,10 @@
           ;; and <inheritable-slot-definition-doc>.
           ;; No need to call (install-class-direct-accessors class) here.
       ) )
+      ;; Try to finalize it (mop-cl-reinit-mo, bug [ 1526448 ])
+      (unless *allow-mixing-metaclasses* ; for gray.lisp
+        (when (finalizable-p class)
+          (finalize-inheritance class)))
       ;; Notification of listeners:
       (map-dependents class
         #'(lambda (dependent)
@@ -790,10 +798,6 @@
         ((typep class <funcallable-standard-class>) (list <funcallable-standard-object>))
         ((typep class <structure-class>) (list <structure-object>))
         (t '())))
-
-;; When this is true, all safety checks about the metaclasses
-;; of superclasses are omitted.
-(defparameter *allow-mixing-metaclasses* nil)
 
 (defun check-metaclass-mix (name direct-superclasses metaclass-test metaclass)
   (unless *allow-mixing-metaclasses*

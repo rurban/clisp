@@ -1,5 +1,10 @@
 2006-07-25  Sam Steingold  <sds@podval.org>
 
+	* mop.tst: check that REINITIALIZE-INSTANCE calls
+	FINALIZE-INHERITANCE [ 1526448 ]
+
+2006-07-25  Sam Steingold  <sds@podval.org>
+
 	* clos.tst: bug 1528201: (make-instance 'standard-class :name 3)
 
 2006-07-20  Sam Steingold  <sds@podval.org>
