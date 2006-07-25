@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2005
+;;;; Sam Steingold 1998 - 2006
 
 ;; to use it: (USE-PACKAGE "CLOS").
 
@@ -33,6 +33,7 @@
     sys::text                   ; for error messages (i18n.d)
     sys::error-of-type          ; defined in error.d
     sys::check-function-name    ; defined in control.d
+    sys::check-symbol           ; defined in control.d
     sys::function-name-p        ; defined in control.d
     sys::function-block-name    ; defined in eval.d
     sys::memq                   ; defined in list.d

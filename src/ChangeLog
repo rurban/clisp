@@ -1,3 +1,9 @@
+2006-07-25  Sam Steingold  <sds@podval.org>
+
+	fixed bug #[ 1528201 ]: sigsegv: make-instance of named anonymous class
+	* clos-package.lisp: import sys::check-symbol
+	* clos-class1.lisp (shared-initialize-<potential-class>): use it
+
 2006-07-24  Sam Steingold  <sds@podval.org>
 
 	* spvw.d (find_name) [!RTLD_DEFAULT]: emulate RTLD_DEFAULT

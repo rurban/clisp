@@ -4217,3 +4217,7 @@ T
              (with-open-stream (c (make-concatenated-stream s1 l))
                (read c))))))
 (NIL)
+
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1528201&group_id=1355
+(make-instance (make-instance 'standard-class :name 3))
+ERROR
