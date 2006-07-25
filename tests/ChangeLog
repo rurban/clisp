@@ -1,3 +1,7 @@
+2006-07-25  Sam Steingold  <sds@podval.org>
+
+	* clos.tst: bug 1528201: (make-instance 'standard-class :name 3)
+
 2006-07-20  Sam Steingold  <sds@podval.org>
 
 	* loop.tst: added tests for initially/across interaction

@@ -6,6 +6,7 @@ User visible changes
     to local paths, as opposed to URLs. [ 1494059 ]
   + Fix the evaluation order of initialization and :INITIALLY forms in
     then extended LOOP. [ 1516684 ]
+  + Do not allow non-symbols as names of anonymous classes. [ 1528201 ]
 
 
 2.39 (2006-07-16)
