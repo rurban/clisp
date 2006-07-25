@@ -3491,20 +3491,21 @@ static EnumProcessModules_t fEnumProcessModules = (EnumProcessModules_t)1;
 /* find the name in the dynamic library handle
  calls dlsym() or GetProcAddress()
  handle is an object returned by libopen()
-        or NULL, which means emulate RTLD_DEFAULT on UNIX_FREEBSD
+        or NULL, which means emulate RTLD_DEFAULT on older FreeBSD and AIX
         and WIN32_NATIVE by searching through all libraries
  name is the name of the function (or variable) in the library */
 global void* find_name (void *handle, const char *name)
 {
   var void *ret = NULL;
- #if defined(UNIX_FREEBSD) && !defined(RTLD_DEFAULT)
-  /* FreeBSD 4.0 doesn't support RTLD_DEFAULT, so we simulate it by
+ #if 1 || !defined(RTLD_DEFAULT)
+  /* FreeBSD 4.0 and AIX 5.1 do not support RTLD_DEFAULT, so we emulate it by
      searching the executable and the libc. */
   if (handle == NULL) {
     /* Search the executable. */
     ret = dlsym(NULL,name);
     if (ret == NULL) {
       /* Search the libc. */
+      static void* libc_handle;
       if (libc_handle == NULL)
         libc_handle = dlopen("libc.so",RTLD_LAZY);
       if (libc_handle != NULL)
