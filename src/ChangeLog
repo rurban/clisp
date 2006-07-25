@@ -1,3 +1,10 @@
+2006-07-24  Sam Steingold  <sds@podval.org>
+
+	* spvw.d (find_name) [!RTLD_DEFAULT]: emulate RTLD_DEFAULT
+	whenever it is not defined (e.g., on AIX in addition to FreeBSD)
+	(libc_handle): defined at static inside find_name()
+	Reported by Nirendra Maharaj <nirendram@fastmail.fm>
+
 2006-07-23  Sam Steingold  <sds@podval.org>
 
 	* modules/syscalls/calls.c (POSIX::USER-INFO):
