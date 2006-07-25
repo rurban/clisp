@@ -2,7 +2,7 @@
 ;;;; Class metaobjects
 ;;;; Part 1: Class definitions, preliminary accessors.
 ;;;; Bruno Haible 2004-05-25
-;;;; Sam Steingold 2005
+;;;; Sam Steingold 2005-2006
 
 (in-package "CLOS")
 
@@ -94,8 +94,7 @@
     (when (eq situation 't) ; called from initialize-instance?
       (setf (class-direct-subclasses-table class) nil)))
   (when (or (eq situation 't) name-p)
-    ; No need to check the name: any name is valid.
-    (setf (class-classname class) name))
+    (setf (class-classname class) (check-symbol name '(setf class-name))))
   class)
 
 ;;; ===========================================================================
