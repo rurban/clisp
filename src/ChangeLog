@@ -1,3 +1,10 @@
+2006-07-25  Dr. Werner Fink  <werner@suse.de>
+	Sam Steingold  <sds@podval.org>
+
+	fix executable images on ia64
+	* spvw_memfile.d (loadmem_from_handle): when mem_searched, call
+	set_file_offset(mem_start), not set_file_offset(0)
+
 2006-07-25  Sam Steingold  <sds@podval.org>
 
 	fixed bug #[ 1526448 ]: Reinitialization of class does not call
