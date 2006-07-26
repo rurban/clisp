@@ -419,9 +419,10 @@ global struct hostent* resolve_host (object arg) {
       end_system_call();
     });
   } else if (uint32_p(arg)) {
-    var uint32 ip = I_to_uint32(arg);
+    var struct in_addr addr;
+    UI_to_LEbytes(arg,8*sizeof(struct in_addr),(uintB*)&addr);
     begin_system_call();
-    he = gethostbyaddr((char*)&ip,sizeof(uint32),AF_INET);
+    he = gethostbyaddr((char*)&addr,sizeof(struct in_addr),AF_INET);
     end_system_call();
   } else if (vectorp(arg)) {
     /* bit vector: treat as raw IP address data */
