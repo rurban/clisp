@@ -1,3 +1,8 @@
+2006-07-26  Sam Steingold  <sds@podval.org>
+
+	* configure, makemake.in: accept --elispdir and install emacs
+	files there (datadir/emacs/site-lisp/ by default)
+
 2006-07-25  Sam Steingold  <sds@podval.org>
 
 	* configure: when CONFIG_SHELL is bash and /bin/sh is not, re-exec the

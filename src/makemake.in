@@ -47,6 +47,8 @@ options:
                                  documentation in PostScript format
        --pdfdir=DIR            sets the installation directory for
                                  documentation in PDF format
+       --elispdir=DIR          sets the installation directory for
+                                 Emacs Lisp files
        --hyperspec=URL         the path to the Common Lisp HyperSpec
            (the default is ${HSDEFAULT}
             or the value of the environment variable CLHSROOT, if set).
@@ -182,6 +184,7 @@ htmldir=''
 dvidir=''
 psdir=''
 pdfdir=''
+elispdir=''
 MODULES=''
 module_configure_flags=''
 CP='cp -p'
@@ -414,6 +417,14 @@ EOF
       shift
       if test -z "$pdfdir" ; then
         pdfdir=$1
+        shift
+      fi
+      ;;
+    -elispdir* | --elispdir*)
+      elispdir=`echol "$1" | sed 's/-*elispdir=*//'`
+      shift
+      if test -z "$elispdir" ; then
+        elispdir=$1
         shift
       fi
       ;;
@@ -867,6 +878,14 @@ if [ $HOS = unix ] ; then
 else
   pdfdir="\$(docdir)"
   PDFDIR="$pdfdir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$elispdir" ||
+    elispdir='${datadir}/emacs/site-lisp' # with autoconf-2.60: elispdir='@elispdir@' # usually '${datadir}/emacs/site-lisp' --- ???
+  ELISPDIR=`echo "$elispdir" | sed -e "$brace_to_paren"`
+else
+  elispdir="\$(datadir)/emacs/site-lisp"
+  ELISPDIR="$elispdir"
 fi
 
 if [ $H_DOS = "true" ] ; then
@@ -1889,11 +1908,12 @@ echol "htmldir = ${HTMLDIR}"
 echol "dvidir  = ${DVIDIR}"
 echol "psdir   = ${PSDIR}"
 echol "pdfdir  = ${PDFDIR}"
-echol "libdir = ${LIBDIR}"
+echol "libdir  = ${LIBDIR}"
 echol "lisplibdir = \$(libdir)${NEXT_}clisp"
 if [ -n "$USE_GETTEXT" ] ; then
   echol "localedir = ${LOCALEDIR}"
 fi
+echol "elispdir = ${ELISPDIR}"
 echol "# The value of following variable is prepended to all the paths for"
 echol "# installation. This is useful when preparing a binary distribution."
 echol "DESTDIR ="
@@ -3640,6 +3660,7 @@ if [ $CROSS = false ] ; then
       echotab "cd po && \$(MAKE) installdirs prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
     fi
     echotab_mkdir_maybe "\$(DESTDIR)\$(datadir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(elispdir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     case "$fsstnd" in
@@ -3693,6 +3714,10 @@ if [ $CROSS = false ] ; then
     fi
     echotab_mkdir_maybe "\$(DESTDIR)\$(bindir)"
     echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(elispdir)"
+    for f in ${EMACS_FILES}; do
+      echotab "\$(INSTALL_DATA) ${SRCTOPDIR}/emacs/$f \$(DESTDIR)\$(elispdir)/$f"
+    done
     echol
     echol "install-man : clisp.1 ${manual_dvi} clisp.html force"
     echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
@@ -3772,6 +3797,9 @@ if [ $CROSS = false ] ; then
         ;;
     esac
     echotab "\$(RMRF) \$(DESTDIR)\$(docdir)"
+    for f in ${EMACS_FILES}; do
+      echotab "\$(RMRF) \$(DESTDIR)\$(elispdir)/$f*"
+    done
     echol
     echol
   fi
