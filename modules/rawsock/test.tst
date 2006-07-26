@@ -36,7 +36,9 @@
       (show (mapcar (lambda (addr)
                       (let* ((numeric (rawsock:convert-address type addr))
                              (dotted (rawsock:convert-address type numeric)))
-                        (show (list :address addr numeric dotted))
+                        (show (list :address addr numeric dotted
+                                    (posix:resolve-host-ipaddr numeric))
+                              :pretty t)
                         (assert (string= addr dotted))))
                     (posix:hostent-addr-list he)))
       sa))
