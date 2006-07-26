@@ -377,12 +377,16 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
     switch (family) {
      #if defined(AF_INET6)
       case AF_INET6: {
-        uint64 ip_address = I_to_uint64(check_uint64(STACK_0));
+        uint64 ip_address;
+        UI_to_LEbytes(check_uint64(STACK_0),8*sizeof(uint64),
+                      (uintB*)&ip_address);
         value1 = addr_to_string(family,(char*)&ip_address);
       } break;
      #endif
       case AF_INET: {
-        uint32 ip_address = I_to_uint32(check_uint32(STACK_0));
+        uint32 ip_address;
+        UI_to_LEbytes(check_uint32(STACK_0),8*sizeof(uint32),
+                      (uintB*)&ip_address);
         value1 = addr_to_string(family,(char*)&ip_address);
       } break;
       default: value1 = NIL;
