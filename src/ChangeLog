@@ -1,5 +1,10 @@
 2006-07-26  Sam Steingold  <sds@podval.org>
 
+	* socket.d (resolve_host): use UI_to_LEbytes() instead of I_to_uint32()
+	for uint32 argument so that it will work on big-endian machines
+
+2006-07-26  Sam Steingold  <sds@podval.org>
+
 	* configure, makemake.in: accept --elispdir and install emacs
 	files there (datadir/emacs/site-lisp/ by default)
 
