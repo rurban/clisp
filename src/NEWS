@@ -5,6 +5,8 @@ User visible changes
   + Top-level configure now accepts a new option --elispdir which specifies
     the installation directory for the Emacs Lisp files (clhs.el et al).
     The default value is ${datadir}/emacs/site-lisp/.
+    Thus, clhs.el at al are now installed by "make install", and should
+    be included in the 3rd party distributions.
 
 * Bug fixes:
   + Make it possible to set *IMPNOTES-ROOT-DEFAULT* and *CLHS-ROOT-DEFAULT*
