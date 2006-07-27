@@ -16,6 +16,7 @@ User visible changes
   + Do not allow non-symbols as names of anonymous classes. [ 1528201 ]
   + REINITIALIZE-INSTANCE now calls FINALIZE-INHERITANCE. [ 1526448 ]
   + Fix the RAWSOCK module on big-endian platforms. [ 1529244 ]
+  + PRINT-OBJECT now works on built-in objects.  [ 1482533 ]
 
 
 2.39 (2006-07-16)

@@ -1,3 +1,7 @@
+2006-07-27  Sam Steingold  <sds@podval.org>
+
+	* iofkts.tst: check pprint-dispatch on built-in objects
+
 2006-07-25  Sam Steingold  <sds@podval.org>
 
 	* mop.tst: check that REINITIALIZE-INSTANCE calls

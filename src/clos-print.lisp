@@ -1,12 +1,23 @@
 ;;;; Common Lisp Object System for CLISP: Classes
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004
+;;;; Sam Steingold 1998 - 2006
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
 
 
 (defgeneric print-object (object stream)
+  (:method ((object t) stream)
+    (unless (eq (class-of (class-of object)) <built-in-class>)
+      ;; this method exists for things like (PRINT-OBJECT 2 *STANDARD-OUTPUT*)
+      ;; and thus this error should never be reached
+      (error-of-type 'ext::source-program-error
+        :form (list 'print-object object stream) :detail object
+        (TEXT "No ~S method for ~S (~S (~S))")
+        'print-object object (class-of object) (class-of (class-of object))))
+    ;; WRITE does not call PRINT-OBJECT for built-in objects
+    ;; thus there will be no infinite recursion
+    (write object :stream stream))
   (:method ((object standard-object) stream)
     (if *print-readably*
       (let ((form (make-init-form object)))

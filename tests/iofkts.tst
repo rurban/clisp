@@ -765,6 +765,16 @@ MY-PPRINT-LOGICAL
   (write-to-string '(bar foo :boo 1) :pretty t :escape t))
 "(?BAR? ?FOO? ?:BOO? ?1?)"
 
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1482533&group_id=1355&atid=101355
+;; http://www.lisp.org/HyperSpec/Body/fun_pprint-dispatch.html
+(with-output-to-string (s) (print-object 42 s)) "42"
+(string= (with-output-to-string (s)
+           (let ((*print-pretty* t))
+             (write 42 :stream s)))
+         (with-output-to-string (s)
+           (funcall (pprint-dispatch 42) s 42)))
+T
+
 (progn
  (defclass c1 () ((a :initarg a) (b :initarg b) (c :initarg c)))
  (defclass c2 (c1) ((aa :initarg aa) (bb :initarg bb) (cc :initarg cc)))
