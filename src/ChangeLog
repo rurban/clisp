@@ -1,5 +1,10 @@
+2006-07-27  Sam Steingold  <sds@podval.org>
+
+	* modules/rawsock/rawsock.c (RAWSOCK:CONVERT-ADDRESS): made restartable
+
 2006-07-26  Sam Steingold  <sds@podval.org>
 
+	fix bug #[ 1529244 ]: rawsock is broken on big-endian
 	* socket.d (resolve_host): use UI_to_LEbytes() instead of I_to_uint32()
 	for uint32 argument so that it will work on big-endian machines
 	* modules/rawsock/rawsock.c (RAWSOCK:CONVERT-ADDRESS): ditto
