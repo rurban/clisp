@@ -370,6 +370,7 @@ DEFUN(RAWSOCK:NTOHS, num) {
 }
 DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
   int family = check_socket_domain(STACK_1);
+ convert_address_restart:
   if (stringp(STACK_0)) {
     with_string_0(STACK_0,Symbol_value(S(utf_8)),ip_address,
                   { value1 = string_to_addr(ip_address); });
@@ -393,10 +394,13 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
     }
   } else fehler_string_integer(STACK_0);
   if (nullp(value1)) {
+    pushSTACK(NIL);             /* no PLACE */
     pushSTACK(STACK_1);         /* domain */
     pushSTACK(STACK_1);         /* address */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: invalid address ~S for family ~S"));
+    check_value(error,GETTEXT("~S: invalid address ~S for family ~S"));
+    STACK_0 = value1;
+    goto convert_address_restart;
   }
   skipSTACK(2); mv_count = 1;
 }
