@@ -3497,7 +3497,7 @@ static EnumProcessModules_t fEnumProcessModules = (EnumProcessModules_t)1;
 global void* find_name (void *handle, const char *name)
 {
   var void *ret = NULL;
- #if 1 || !defined(RTLD_DEFAULT)
+ #if !defined(RTLD_DEFAULT)
   /* FreeBSD 4.0 and AIX 5.1 do not support RTLD_DEFAULT, so we emulate it by
      searching the executable and the libc. */
   if (handle == NULL) {
