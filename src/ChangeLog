@@ -1,3 +1,8 @@
+2006-07-31  Sam Steingold  <sds@podval.org>
+
+	* spvw.d (find_name): reorder conditionals for WIN32_NATIVE
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
 2006-07-27  Sam Steingold  <sds@podval.org>
 
 	fix bug #[ 1482533 ]: print-object built-in object: no-applicable-method

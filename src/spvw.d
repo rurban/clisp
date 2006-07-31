@@ -3497,23 +3497,7 @@ static EnumProcessModules_t fEnumProcessModules = (EnumProcessModules_t)1;
 global void* find_name (void *handle, const char *name)
 {
   var void *ret = NULL;
- #if !defined(RTLD_DEFAULT)
-  /* FreeBSD 4.0 and AIX 5.1 do not support RTLD_DEFAULT, so we emulate it by
-     searching the executable and the libc. */
-  if (handle == NULL) {
-    /* Search the executable. */
-    ret = dlsym(NULL,name);
-    if (ret == NULL) {
-      /* Search the libc. */
-      static void* libc_handle;
-      if (libc_handle == NULL)
-        libc_handle = dlopen("libc.so",RTLD_LAZY);
-      if (libc_handle != NULL)
-        ret = dlsym(libc_handle,name);
-    }
-  } else
-    ret = dlsym(handle,name);
- #elif defined(WIN32_NATIVE)
+ #if defined(WIN32_NATIVE)
   if (handle == NULL) { /* RTLD_DEFAULT -- search all modules */
     HANDLE cur_proc;
     HMODULE *modules;
@@ -3535,6 +3519,22 @@ global void* find_name (void *handle, const char *name)
           break;
     } else ret = NULL;
   } else ret = (void*)GetProcAddress((HMODULE)handle,name);
+ #elif !defined(RTLD_DEFAULT)
+  /* FreeBSD 4.0 and AIX 5.1 do not support RTLD_DEFAULT, so we emulate it by
+     searching the executable and the libc. */
+  if (handle == NULL) {
+    /* Search the executable. */
+    ret = dlsym(NULL,name);
+    if (ret == NULL) {
+      /* Search the libc. */
+      static void* libc_handle;
+      if (libc_handle == NULL)
+        libc_handle = dlopen("libc.so",RTLD_LAZY);
+      if (libc_handle != NULL)
+        ret = dlsym(libc_handle,name);
+    }
+  } else
+    ret = dlsym(handle,name);
  #else
   ret = dlsym(handle,name);
  #endif
