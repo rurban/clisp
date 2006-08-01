@@ -1,3 +1,9 @@
+2006-08-01  John Hinsdale  <hin@alma.com>
+
+	* modules/oracle/oracle.lisp:  Fix incorrect loop termination and
+	premature advancing of database cursor in ORACLE:FETCH-ALL
+	Thanks to Feng Hou <houfen@gmail.com> for report, test case and fix.
+
 2006-07-31  Sam Steingold  <sds@podval.org>
 
 	* modules/berkeley-db/bdb.c (asciz_to_string0): turn into a CPP macro
