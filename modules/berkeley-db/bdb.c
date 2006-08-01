@@ -70,9 +70,10 @@ static void vecout (unsigned char* v, int l) {
 # define VECOUT(v,l)
 #endif
 
-/* convert C string to Lisp string; NULL --> NIL  */
-static inline object asciz_to_string0 (const char* a, object e)
-{ return a ? asciz_to_string(a,e) : NIL; }
+/* convert C string to Lisp string; NULL --> NIL
+   first argument is evaluated twice - must be a variable
+   this is a macro and not a function for NO_UNICODE */
+#define asciz_to_string0(a,e) (a ? asciz_to_string(a,e) : NIL)
 
 #include <db.h>
 

@@ -1,5 +1,11 @@
 2006-07-31  Sam Steingold  <sds@podval.org>
 
+	* modules/berkeley-db/bdb.c (asciz_to_string0): turn into a CPP macro
+	this fixes the NO_UNICODE build (the encoding argument is not evaluated)
+	Reported by Reini Urban <rurban@x-ray.at>
+
+2006-07-31  Sam Steingold  <sds@podval.org>
+
 	* spvw.d (find_name): reorder conditionals for WIN32_NATIVE
 	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
 
