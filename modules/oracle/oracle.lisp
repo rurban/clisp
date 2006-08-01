@@ -404,7 +404,7 @@ Arguments: none
 
 ; FETCH-ALL
 (defun fetch-all (&optional max-rows (result-type 'ARRAY) (item-type 'ARRAY))
-"(ORACLE:FETCH-ALL(&optional max-rows (result-type 'ARRAY) (item-type 'ARRAY))
+  "(ORACLE:FETCH-ALL(&optional max-rows (result-type 'ARRAY) (item-type 'ARRAY))
 
 Fetch all rows from a query and return result as a sequence of
 sequences.  Arguments (all optional) are:
@@ -419,14 +419,25 @@ sequences.  Arguments (all optional) are:
   (when (not (find item-type '(array list)))
 	(db-error (cat "Item type '" item-type "' should be 'ARRAY or 'LIST")))
 
-  (do ((result (make-array 100 :element-type item-type
-			   :fill-pointer 0 :adjustable t))
-       (count 0 (1+ count))
-       (row (oracle:fetch) (oracle:fetch)))
-      ((or (null row) (when max-rows (>= count max-rows)))
-       (coerce result result-type))
-      (vector-push-extend (coerce row item-type)
-				      result)))
+  (cond ((and max-rows (< max-rows 0))
+		 (db-error (cat "Negative count [" max-rows "] given")))
+		((and max-rows (= 0 max-rows))
+		 ;; Do nothing
+		 (coerce nil result-type))
+		(t
+		 ;; Want at least one row
+		 (do ((result (make-array 100 :element-type item-type :fill-pointer 0 :adjustable t))
+			  (count 1 (1+ count))
+			  (row nil)
+			  (at-eof nil))
+			 
+			 (at-eof (coerce result result-type))
+		   
+		   (setf row (oracle:fetch))
+		   (when row
+			 (vector-push-extend (coerce row item-type) result))
+		   (when (or (not row) (and max-rows (>= count max-rows)))
+			 (setf at-eof t))))))
 
 ;----------------------------------------------
 
@@ -746,7 +757,6 @@ Argument: none
 (defun row-to-result (row result-type)
   (cond ((null row) nil)
         ((eq result-type 'ARRAY) row)
-        ; ((eq result-type 'HASH) (pairs-to-hash (row-to-result row 'PAIRS)))
         ((eq result-type 'HASH) (array-to-hash (row-to-result row 'ARRAY)))
         ((eq result-type 'PAIRS)
          (let ((colinfo (oracle_column_info (curconn))))
@@ -758,7 +768,6 @@ Argument: none
                         (list (sqlcol-name col) rowval))
                     colinfo row)))))
         (t (db-error (cat "Invalid result type '" result-type "' given - should be 'ARRAY, 'PAIRS or 'HASH")))))
-
 
 ; CHECK-SUCCESS
 ; Check Oracle success code after calling a function.  Assumes (check-connection) was called!
