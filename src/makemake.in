@@ -1160,9 +1160,6 @@ if [ $XCC_GCC = true ] ; then
     elif [ "$cpu" = x86_64 ] ; then
       # gcc-3.2.2 produces incorrect code when -O2 is used.
       XCFLAGS=$XCFLAGS' -O'
-    elif [ "$cpu" = ia64 ] ; then
-      # gcc-2.96 and gcc-4.1 (bug 1506857) produce incorrect code with -O2
-      XCFLAGS=$XCFLAGS' -O0'
     else
       XCFLAGS=$XCFLAGS' -O2'
     fi

@@ -1,5 +1,11 @@
 2006-08-01  Sam Steingold  <sds@podval.org>
 
+	* makemake.in (XCFLAGS) [ia64]: no special treatment is necessary
+	anymore, according to Dr. Werner Fink <werner@suse.de> in
+	<http://article.gmane.org/gmane.lisp.clisp.general:11358>
+
+2006-08-01  Sam Steingold  <sds@podval.org>
+
 	* spvw_memfile.d (loadmem_from_handle): avoid a GCC warning
 
 2006-08-01  John Hinsdale  <hin@alma.com>
