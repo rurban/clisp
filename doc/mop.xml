@@ -3142,6 +3142,13 @@ restrictions.</para>
    function.  The newly created &gfmo; is returned.
   </simpara><simpara>If the class of the &gf-r; argument is not the same
    as the class specified by the &gf-class-k; argument, an &err-sig;.</simpara>
+  <note>&clisp-only;<simpara>The description of &ensure-gf; in &ansi-cl;
+   specifies that in this case, &change-class; is called if the class of the
+   &gf-r; argument and the class specified by the &gf-class-k; argument are
+   compatible. Given the description of &ensure-gf;, this also applies to the
+   &ensure-gf-UC; function. &clisp;'s implementation calls &change-class;
+   always, and leaves it to the &change-class; function to signal an error if
+   needed.</simpara></note>
   <simpara>Otherwise the generic function &gf-r; is redefined by calling
    the &reinitialize-instance; generic function with &gf-r; and the
    initialization arguments.  The &gf-r; argument is then returned.
