@@ -4132,7 +4132,7 @@ functions are provided:
 </section>
 
 <section id="spacecharprint"><title>Printing Characters
-  <ulink url="&clhs&/Body/sec_22-1-3-2.html">[CLHS-22.1.3.2]</ulink></title>
+  <ulink url="&clhs;/Body/sec_22-1-3-2.html">[CLHS-22.1.3.2]</ulink></title>
 
 <para>Characters are printed as specified in &ansi-cl; using
  &sharp-back;, with one exception: when &pri-esc; is in effect,
