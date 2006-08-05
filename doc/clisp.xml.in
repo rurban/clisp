@@ -454,7 +454,8 @@ compiles the specified lisp files to a platform-independent
 
 <para id="ansi-cl">The language implemented is &ansi-cl;.
  The implementation mostly conforms to the <olink targetdoc="impnotes"
- targetptr="ref-ansi">ANSI Common Lisp standard</olink>.</para>
+ targetptr="ref-ansi">ANSI Common Lisp standard</olink>,
+ see <olink targetdoc="impnotes" targetptr="ansi"/>,</para>
 
 </refsection>
 
