@@ -27,8 +27,6 @@
  <productnumber>@VERSION@</productnumber>
  <productname>CLISP</productname>
  &bruno; &sds;
- <authorblurb><para>Bugs in both this manual page and &clisp; itself
-   should be reported to the mailing list &clisp-list;.</para></authorblurb>
  <copyright><year>1992-2006</year><holder>Bruno Haible</holder></copyright>
  <copyright><year>1998-2006</year><holder>Sam Steingold</holder></copyright>
 </refentryinfo>
@@ -676,7 +674,9 @@ compiles the specified lisp files to a platform-independent
 
 <refsection id="bugs"><title>Bugs</title>
 
-<para>When you encounter a bug in &clisp;, please report it to the &clisp;
+<para>When you encounter a bug in &clisp; or in its documentation (this
+ manual page or <olink targetdoc="impnotes" targetptr="impnotes-top"/>),
+ please report it to the &clisp;
  <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355">SourceForge bug tracker</ulink>.</para>
 
 <para><emphasis>Before</emphasis> submitting a bug report, please take
