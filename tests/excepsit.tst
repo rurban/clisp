@@ -36,10 +36,11 @@ error
 #-CLISP
 error
 
-(let ((a (make-array 5 :adjustable t)))
-  (adjust-array a 4 :fill-pointer 1)
-)
-error
+(adjust-array (make-array 5 :adjustable t) 4 :fill-pointer 1)
+type-error
+
+(adjust-array "foo" 10 :fill-pointer t)
+type-error
 
 (adjustable-array-p '(x))
 type-error

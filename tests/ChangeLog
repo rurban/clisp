@@ -1,3 +1,8 @@
+2006-08-10  Sam Steingold  <sds@podval.org>
+
+	* excepsit.tst: test ADJUST-ARRAY on non-adjustable vectors
+	without a fill pointer
+
 2006-07-27  Sam Steingold  <sds@podval.org>
 
 	* iofkts.tst: check pprint-dispatch on built-in objects
