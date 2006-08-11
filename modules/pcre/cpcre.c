@@ -144,6 +144,7 @@ static void check_pattern (object pat, pcre** compiled_pattern,
 /* two objects should be on STACK for the error message */
 DEFCHECKER(pcre_error_code,prefix=PCRE_ERROR, NOMATCH NULL BADOPTION    \
            BADMAGIC UNKNOWN_NODE NOMEMORY NOSUBSTRING MATCHLIMIT CALLOUT \
+           DFA_UITEM DFA_UCOND DFA_UMLIMIT DFA_WSSIZE DFA_RECURSE       \
            BADUTF8 BADUTF8_OFFSET PARTIAL BADPARTIAL INTERNAL BADCOUNT)
 nonreturning_function(static, pcre_error, (int status)) {
   pushSTACK(pcre_error_code_reverse(status));
@@ -334,36 +335,53 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
 #endif
 }
 
-DEFFLAGSET(pcre_exec_flags, PCRE_ANCHORED PCRE_NOTBOL PCRE_NOTEOL PCRE_NOTEMPTY)
-DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
-      :OFFSET :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY)
+DEFFLAGSET(pcre_exec_flags, PCRE_ANCHORED PCRE_NOTBOL PCRE_NOTEOL \
+           PCRE_NOTEMPTY PCRE_PARTIAL PCRE_DFA_SHORTEST PCRE_DFA_RESTART)
+DEFUN(PCRE:PCRE-EXEC,pattern subject &key :WORK-SPACE :DFA :BOOLEAN :OFFSET \
+      :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY :PARTIAL :DFA-SHORTEST :DFA-RESTART)
 { /* match the SUBJECT string against a pre-compiled PATTERN;
      return a vector of MATCH structures or NIL if no matches */
   int options = pcre_exec_flags();
   int offset = check_uint_default0(popSTACK());
   bool bool_p = !missingp(STACK_0);
+  bool dfa_p = !missingp(STACK_1);
+  int workspace_size = check_uint_defaulted(STACK_2,20);
   int *ovector;
   int capture_count, ovector_size, ret;
   pcre *c_pat;
   pcre_extra *study;
-  skipSTACK(1); /* drop all options */
+  skipSTACK(3); /* drop all options */
   check_pattern(STACK_1,&c_pat,&study);
   begin_system_call();
   ret = pcre_fullinfo(c_pat,study,PCRE_INFO_CAPTURECOUNT,&capture_count);
   end_system_call();
   if (ret < 0) pcre_error(ret);
-  ovector_size = 3 * (capture_count + 1);
+  /* when DFA is enabled, the number of matches is not easily estimated */
+  ovector_size = 3 * (capture_count + (dfa_p ? workspace_size : 1));
+ pcre_exec_retry:
   ovector = (int*)alloca(sizeof(int)*ovector_size);
+# if !defined(HAVE_PCRE_DFA_EXEC)
+  /* use pcre_exec instead */
+#  define pcre_dfa_exec(re,st,su,sb,of,op,ov,os,ws,wz) \
+              pcre_exec(re,st,su,sb,of,op,ov,os)
+# endif
   with_string_0(check_string(STACK_0),Symbol_value(S(utf_8)),subject, {
       begin_system_call();
       /* subject_bytelen is the length of subject in bytes,
          defined in with_string_0 */
-      ret = pcre_exec(c_pat,study,subject,subject_bytelen,offset,options,
-                      ovector,ovector_size);
+      ret = dfa_p
+        ? pcre_dfa_exec(c_pat,study,subject,subject_bytelen,offset,options,
+                        ovector,ovector_size,
+                        alloca(sizeof(int)*workspace_size),workspace_size)
+        : pcre_exec(c_pat,study,subject,subject_bytelen,offset,options,
+                    ovector,ovector_size);
       end_system_call();
     });
   if (ret == PCRE_ERROR_NOMATCH) VALUES1(NIL);
-  else if (ret > 0) {
+  else if (ret == 0) {          /* not enough space in ovector */
+    ovector_size <<= 1;
+    goto pcre_exec_retry;
+  } else if (ret > 0) {
     if (bool_p) VALUES1(T); /* success indicator */
     else { /* return a vector */
       int pos, ov_pos;

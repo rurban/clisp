@@ -8,6 +8,9 @@ User visible changes
     Thus, clhs.el at al are now installed by "make install", and should
     be included in the 3rd party distributions.
 
+* Function PCRE:PCRE-EXEC accepts :DFA and calls pcre_dfa_exec() when
+  built against PCRE v6.  See <http://clisp.cons.org/impnotes/pcre.html>.
+
 * Bug fixes:
   + Make it possible to set *IMPNOTES-ROOT-DEFAULT* and *CLHS-ROOT-DEFAULT*
     to local paths, as opposed to URLs. [ 1494059 ]
