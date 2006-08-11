@@ -20,6 +20,8 @@ User visible changes
   + REINITIALIZE-INSTANCE now calls FINALIZE-INHERITANCE. [ 1526448 ]
   + Fix the RAWSOCK module on big-endian platforms. [ 1529244 ]
   + PRINT-OBJECT now works on built-in objects.  [ 1482533 ]
+  + ADJUST-ARRAY signals an error if :FILL-POINTER is supplied and non-NIL
+    but the non-adjustable array has no fill pointer, as per ANSI. [ 1538333 ]
 
 
 2.39 (2006-07-16)

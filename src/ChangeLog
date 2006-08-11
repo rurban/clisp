@@ -1,5 +1,14 @@
 2006-08-10  Sam Steingold  <sds@podval.org>
 
+	fixed bug #[ 1538333 ]: ADJUST-ARRAY on non-adjustable vectors
+	without a fill pointer
+	* array.d (fehler_no_fillp): new function
+	(get_fill_pointer): use it
+	(ADJUST-ARRAY): use it to signal an error instead of creating a new
+	array with fill pointer from an array without one
+
+2006-08-10  Sam Steingold  <sds@podval.org>
+
 	support PCREv6 pcre_dfa_exec()
 	* modules/pcre/cpcre.c (pcre_error): handle DFA errors
 	(pcre_exec_flags): handle DFA flags

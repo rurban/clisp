@@ -3741,6 +3741,14 @@ LISPFUNNR(array_has_fill_pointer_p,1)
   VALUES_IF(array_has_fill_pointer_p(array));
 }
 
+/* signal an error when the vector does not have a fill pointer */
+nonreturning_function(local,fehler_no_fillp,(object vec)) {
+  pushSTACK(vec); /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_vector_with_fill_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(vec); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~S: vector ~S has no fill pointer"));
+}
+
 /* check, if object is a vector with fill-pointer, and returns
  the address of the fill-pointer.
  *get_fill_pointer(obj) is the fill-pointer itself.
@@ -3749,22 +3757,13 @@ local uintL* get_fill_pointer (object obj) {
   /* obj must be a vector: */
   if (!vectorp(obj))
     fehler_vector(obj);
-  /* must not be simple: */
-  if (simplep(obj))
-    goto fehler_fillp;
-  /* must contain a fill-pointer: */
-  if (!(Iarray_flags(obj) & bit(arrayflags_fillp_bit)))
-    goto fehler_fillp;
+  /* must not be simple & must have a fill-pointer */
+  if (simplep(obj) || !(Iarray_flags(obj) & bit(arrayflags_fillp_bit)))
+    fehler_no_fillp(obj);
   /* where is the fill-pointer? */
   return ((Iarray_flags(obj) & bit(arrayflags_dispoffset_bit))
           ? &TheIarray(obj)->dims[2] /* behind displaced-offset and dimension 0 */
           : &TheIarray(obj)->dims[1]); /* behind dimension 0 */
- fehler_fillp:
-  /* error-message: */
-  pushSTACK(obj); /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_vector_with_fill_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: vector ~S has no fill pointer"));
 }
 
 LISPFUNNR(fill_pointer,1) { /* (FILL-POINTER vector), CLTL p. 296 */
@@ -4887,10 +4886,13 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
        if no :initial-contents and no :displaced-to, copy contents */
     var bool copy_p = !boundp(STACK_3) && missingp(STACK_1);
     var object array = STACK_6;
+    var bool has_fill_p = array_has_fill_pointer_p(array);
+    if (!has_fill_p && !missingp(STACK_2))
+      fehler_no_fillp(array);
     pushSTACK(STACK_1); pushSTACK(STACK_1);
     /* :FILL-POINTER NIL means keep it as it was */
-    STACK_2 = !missingp(STACK_4) ? (object)STACK_4 :
-      array_has_fill_pointer_p(array) ? fixnum(*get_fill_pointer(array)) : NIL;
+    STACK_2 = (!missingp(STACK_4) ? (object)STACK_4 :
+               has_fill_p ? fixnum(*get_fill_pointer(array)) : NIL);
     STACK_3 = STACK_5; STACK_4 = STACK_6; STACK_5 = STACK_7;
     STACK_6 = NIL; /* :ADJUSTABLE NIL */
     STACK_7 = STACK_9; /* dims */
@@ -5002,13 +5004,8 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
   /* modify the given array. */
   if (!nullp(STACK_2)) { /* fill-pointer supplied? */
     /* array must have fill-pointer: */
-    if (!(Iarray_flags(STACK_6) & bit(arrayflags_fillp_bit))) {
-      pushSTACK(STACK_6); /* TYPE-ERROR slot DATUM */
-      pushSTACK(O(type_vector_with_fill_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(STACK_(6+2));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~S: array ~S has no fill-pointer"));
-    }
+    if (!(Iarray_flags(STACK_6) & bit(arrayflags_fillp_bit)))
+      fehler_no_fillp(STACK_6);
     fillpointer = test_fillpointer(totalsize); /* fill-pointer-value */
   } else {
     /* If array has a fill-pointer, it must be <= the new total-size: */
