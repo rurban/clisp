@@ -1,3 +1,12 @@
+2006-08-10  Sam Steingold  <sds@podval.org>
+
+	support PCREv6 pcre_dfa_exec()
+	* modules/pcre/cpcre.c (pcre_error): handle DFA errors
+	(pcre_exec_flags): handle DFA flags
+	(PCRE-EXEC): accept :WORK-SPACE :DFA :PARTIAL :DFA-SHORTEST :DFA-RESTART
+	when pcre_exec returns 0, retry with doubled ovector_size
+	* modules/pcre/configure.in: check for pcre_dfa_exec
+
 2006-08-01  Sam Steingold  <sds@podval.org>
 
 	* makemake.in (XCFLAGS) [ia64]: no special treatment is necessary
