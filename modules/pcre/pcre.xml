@@ -58,12 +58,12 @@
     <literal>CAPTURECOUNT+1</literal> of <type>PCRE:MATCH</type> structures,
     unless <literal>:BOOLEAN</literal> was non-&nil;, in which case
     return &t; as an indicator of success, but do not allocate anything.
-  </simpara></listitem><listitem><simpara><constant>:DFA</constant>
-    argument determines whether <function>pcre_dfa_exec</function> is
-    used instead of <function>pcre_exec</function> (PCRE v6 and better).
-  </simpara></listitem><listitem><simpara><constant>:WORK-SPACE</constant>
-    is only used for <constant>:DFA</constant> and defaults to 20.
- </simpara></listitem></varlistentry>
+   </simpara><simpara><constant>:DFA</constant> argument determines
+    whether <function>pcre_dfa_exec</function> is used instead
+    of <function>pcre_exec</function> (PCRE v6 and better).</simpara>
+   <simpara><constant>:WORK-SPACE</constant> is only used
+    for <constant>:DFA</constant> and defaults to 20.</simpara>
+ </listitem></varlistentry>
  <varlistentry id="pcre-match-access">
   <term><code>(PCRE:MATCH-START &match-r;)</code></term>
   <term><code>(PCRE:MATCH-END &match-r;)</code></term>
