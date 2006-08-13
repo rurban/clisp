@@ -1,8 +1,8 @@
 <!-- CLISP man page driver -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl"/>
-<!-- "common.xsl" is far too HTML-specific, so we have to repeat some --
-  -- settings here explicitly: -->
+<!-- "common.xsl" is far too HTML-specific, so we cannot include it -->
+<!-- and have to repeat some settings here explicitly: -->
 <xsl:param name="variablelist.term.break.after" select="1"/>
 <xsl:param name="variablelist.term.separator" select="''"/>
 
