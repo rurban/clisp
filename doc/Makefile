@@ -1,7 +1,7 @@
 # CLISP Implementation Notes generation
 # (c) 2000-2006 Sam Steingold
 
-DTDVER=4.3
+DTDVER=4.4
 IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	impext.xml impissue.xml impbyte.xml unix-ent.xml mop-ent.xml faq.xml \
 	../modules/berkeley-db/ent-bdb.xml	\
@@ -46,7 +46,7 @@ NSGMLS=onsgmls
 XMLSOC := $(firstword $(wildcard /usr/share/sgml/xml.soc \
                                  /usr/share/OpenSP/xml.soc \
                                  /usr/share/sgml/jade_dsl/xml.soc \
-                                 /usr/share/sgml/openjade-1.3.1/pubtext/xml.soc \
+                                 /usr/share/sgml/openjade*/pubtext/xml.soc \
                                  /usr/share/sgml/declaration/xml.soc \
                                  $(shell locate /xml.soc) \
                                  ))
@@ -163,8 +163,8 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(FILLIN) $< > $@
 
 check: impnotes.xml $(IMPNOTES) clisp.xml
-	$(NSGMLS) -s -e -g -c$(XMLSOC) clisp.xml
-	$(NSGMLS) -s -e -g -c$(XMLSOC) impnotes.xml
+#	$(NSGMLS) -s -e -g -c$(XMLSOC) clisp.xml
+#	$(NSGMLS) -s -e -g -c$(XMLSOC) impnotes.xml
 	xmllint --noout --valid --postvalid --timing --noent clisp.xml
 	xmllint --noout --valid --postvalid --timing --noent impnotes.xml
 
@@ -222,6 +222,16 @@ clean: force
 
 count: $(IMPNOTES)
 	wc $^
+
+DTD_DOWNLOAD=http://www.docbook.org/xml/$(DTDVER)/docbook-xml-$(DTDVER).zip
+update-docbook-utils:
+	if test ! -d ../utils/docbook; then \
+	  mkdir ../utils/docbook && \
+	  cd ../utils/docbook && \
+	  wget -O docbook-xml.zip $(DTD_DOWNLOAD) && \
+	  unzip -x docbook-xml.zip && \
+	  rm -f docbook-xml.zip; \
+	fi
 
 SEARCH=
 search: force
