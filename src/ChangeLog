@@ -1,3 +1,11 @@
+2006-08-15  Sam Steingold  <sds@podval.org>
+
+	support case-sensitive packages
+	* modprep.lisp (*package-properties*): new parameter
+	(defmodule-p): accept module properties as the 3rd argument
+	(case-sensitive-package-p): new function
+	(string-upcase-verbose): use it
+
 2006-08-10  Sam Steingold  <sds@podval.org>
 
 	fixed bug #[ 1538333 ]: ADJUST-ARRAY on non-adjustable vectors
