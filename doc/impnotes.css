@@ -61,4 +61,4 @@ h6 { font-size: 110%; }
 .question { background-color: lightyellow; }
 
 /* term in table */
-td, dt span.term { font-weight: bold; }
+td span.term, dt span.term { font-weight: bold; }
