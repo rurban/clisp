@@ -51,7 +51,7 @@ ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c          \
 	ffcall/callback/vacall_r/vacall-i386-msvc.c
 
 htmldoc:
-	cd doc && make all && make html && cd ..;
+	make -C doc all html
 
 makefiles :                                                                \
 	win32msvc/makefile.msvc7                                           \
@@ -162,15 +162,8 @@ update-ansi-tests:
 	fi
 
 
-DOCBOOK_XML_DOWNLOAD = http://www.docbook.org/xml/4.3/docbook-xml-4.3.zip
 update-docbook-utils:
-	if test ! -d utils/docbook; then \
-	  mkdir utils/docbook && \
-	  cd utils/docbook && \
-	  wget -O docbook-xml.zip $(DOCBOOK_XML_DOWNLOAD) && \
-	  unzip -x docbook-xml.zip && \
-	  rm -f docbook-xml.zip; \
-	fi
+	make -C doc $@
 
 CLISP=$(CURDIR)/build/clisp
 potfiles :

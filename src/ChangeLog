@@ -1,5 +1,9 @@
 2006-08-15  Sam Steingold  <sds@podval.org>
 
+	* Makefile.devel (update-docbook-utils): delegate to doc/Makefile
+
+2006-08-15  Sam Steingold  <sds@podval.org>
+
 	support case-sensitive packages
 	* modprep.lisp (*package-properties*): new parameter
 	(defmodule-p): accept module properties as the 3rd argument
