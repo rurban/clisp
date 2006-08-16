@@ -223,6 +223,7 @@ The vector is freshly constructed, but the strings are shared"
 (defvar *module-name*)
 (defvar *module-line*)
 (defvar *module-package*)
+(defparameter *package-properties* (make-hash-table :test 'equal))
 (defvar *module-all-packages*)
 (defvar *init-1-name* nil "Did the module define its own init1?")
 (defvar *init-2-name* nil "Did the module define its own init2?")
@@ -280,7 +281,7 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
 (defun defmodule-p (line)
   (multiple-value-bind (name args) (split-command line)
     (unless (string= "DEFMODULE" name) (return-from defmodule-p nil))
-    (assert (= 2 (length args)) () "~S: requires 2 arguments, got ~S"
+    (assert (<= 2 (length args)) () "~S: requires at least 2 arguments, got ~S"
             name args)
     (setq *module-name* (first args)
           *init-1-name* (format nil "module__~A__init_function_1"
@@ -291,6 +292,10 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
                               *module-name*)
           *module-package* (extract-argument-string (second args))
           *module-all-packages* (list *module-package*))
+    (let ((properties (third args)))
+      (when properties
+        (setf (gethash *module-package* *package-properties*)
+              (read-from-string properties))))
     (values *module-name* *module-package*)))
 
 (defstruct objdef
@@ -337,8 +342,13 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
         :finally (setq base new)))
     base))
 
+(defun case-sensitive-package-p ()
+  (let ((properties (gethash *module-package* *package-properties*)))
+    (or (getf properties :modern) (getf properties :case-sensitive))))
+
 (defun string-upcase-verbose (string)
   (when (and (some #'lower-case-p string)    ; upcasing will modify
+             (not (case-sensitive-package-p))
              (not (string-object-p string))) ; this is not a string object
     (warn "~S:~D: fixed object case ~S" *input-file* *lineno* string)
     (setq string (string-upcase string)))
