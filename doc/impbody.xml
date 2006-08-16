@@ -803,7 +803,7 @@ associations to type declarations:
 <programlisting language="lisp">(defun f ((x list) (y integer)) ...)</programlisting>
 is equivalent to
 <programlisting language="lisp">(defun f (x y) (declare (type list x) (type integer y)) ...)</programlisting>
-This extension is disabled by &ansi-opt; and by setting &ansi; to &t;,
+This extension is disabled by &opt-ansi; and by setting &ansi; to &t;,
 but can be re-enabled by setting &defun-accept-spelalist; explicitly.
 </para></formalpara>
 

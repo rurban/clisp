@@ -53,7 +53,7 @@ further explanations of the issues could be provided).</para>
 <answer><para>&clisp;
   <ulink url="&clhs;/Body/glo_p.html#purports_to_conform"><emphasis>purports
     to conform</emphasis></ulink> to the &ansi-cl; specification,
-  so all deviations in <screen>&sh-prompt; clisp &ansi-opt;</screen>
+  so all deviations in <screen>&sh-prompt; clisp &opt-ansi;</screen>
   from the &ansi-cl; standard are bugs and are not (yet) fixed only due
   to lack of resources.</para>
 

@@ -15,7 +15,6 @@
   <!ENTITY rt "<link linkend='runtime'>runtime</link>">
   <!ENTITY exprs "<replaceable>expressions</replaceable>">
   <!ENTITY opt-c "<option><link linkend='opt-compile'>-c</link></option>">
-  <!ENTITY opt-x "<option><link linkend='opt-exec-expr'>-x</link></option>">
 ]>
 
 <refentry id="clisp">
@@ -64,7 +63,7 @@
 <arg><option><link linkend="opt-lang">-L &lang-r;</link></option></arg>
 <arg><option><link linkend="opt-locale">-N &ld;</link></option></arg>
 <arg><option><link linkend="opt-enc">-E&dom-r; &encoding-r;</link></option></arg>
-<group><arg><option><link linkend="opt-verbose">-q</link></option></arg>
+<group><arg>&opt-q;</arg>
  <arg><option><link linkend="opt-verbose">--quiet</link></option></arg>
  <arg><option><link linkend="opt-verbose">--silent</link></option></arg>
  <arg>&opt-v;</arg>
@@ -74,12 +73,11 @@
 <arg><option><link linkend="opt-repl">-repl</link></option></arg>
 <arg><option><link linkend="opt-wait">-w</link></option></arg>
 <arg><option><link linkend="opt-ilisp">-I</link></option></arg>
-<group><arg><option><link linkend="opt-ansi">-ansi</link></option></arg>
- <arg><option><link linkend="opt-traditional" >-traditional</link></option></arg></group>
-<arg><option><link linkend="opt-modern">-modern</link></option></arg>
+<group><arg>&opt-ansi;</arg><arg>&opt-traditional;</arg></group>
+<arg>&opt-modern;</arg>
 <arg><option><link linkend="opt-pack">-p &pack-r;</link></option></arg>
 <arg>&opt-C;</arg>
-<arg><option><link linkend="opt-norc">-norc</link></option></arg>
+<arg>&opt-norc;</arg>
 <arg rep="repeat"><option><link linkend="opt-init">-i
    <replaceable>init-file</replaceable></link></option></arg>
 <arg rep="repeat"><option><link linkend="opt-compile">-c</link></option>
@@ -250,7 +248,7 @@ compiles the specified lisp files to a platform-independent
   &curr-lang;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-enc">
- <term><option>-E</option>&dom-r; &encoding-r;</term>
+ <term><option>-E&dom-r; &encoding-r;</option></term>
  <listitem><para>Specifies the encoding used for the given domain,
    overriding the default which depends on the &env-var;s
    <envar>LC_ALL</envar>, <envar>LC_CTYPE</envar>, <envar>LANG</envar>.
@@ -356,7 +354,7 @@ compiles the specified lisp files to a platform-independent
 
 <varlistentry id="opt-traditional"><term><option>-traditional</option></term>
  <listitem><simpara>Traditional: reverses the residual effects of
-   &ansi-opt; in the saved &mem-image;.</simpara></listitem></varlistentry>
+   &opt-ansi; in the saved &mem-image;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-modern"><term><option>-modern</option></term>
  <listitem><simpara>Provides a modern view of symbols: at startup the
@@ -364,7 +362,9 @@ compiles the specified lisp files to a platform-independent
   &print-base-var; will be set to <constant>:DOWNCASE</constant>.
   This has the effect that symbol lookup is case-sensitive (except for
   keywords and old-style packages) and that keywords and uninterned symbols
-  are printed with lower-case preferrence.</simpara></listitem></varlistentry>
+  are printed with lower-case preferrence.
+   See <olink targetdoc="impnotes" targetptr="package-case"/>.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-pack"><term><option>-p</option> &pack-r;</term>
  <listitem><simpara>At startup the value of the variable &package-var;

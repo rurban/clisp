@@ -1542,13 +1542,13 @@ In other words, each pair is:
  <listitem><simpara>Setting &defun-accept-spelalist; to &nil;</simpara></listitem>
 </orderedlist>
 
-<note><para>If you run &clisp; with the &ansi-opt; switch or set
+<note><para>If you run &clisp; with the &opt-ansi; switch or set
  the &symbol-macro; &ansi; to &t; and then save &mem-image;,
  then all subsequent invocations of &clisp; with this image
- will be as if with &ansi-opt;
- (regardless whether you actually supply the &ansi-opt; switch).
+ will be as if with &opt-ansi;
+ (regardless whether you actually supply the &opt-ansi; switch).
  You can always set the &symbol-macro; &ansi; to &nil;, or invoke
- &clisp; with the &traditional-opt; switch, reversing the above
+ &clisp; with the &opt-traditional; switch, reversing the above
  settings, i.e.,</para></note>
 
 <orderedlist>
