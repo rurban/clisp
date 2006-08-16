@@ -35,12 +35,19 @@ else
 JAVAXML=/usr/local/src/xml
 JAVA=java
 SEP=:
-DTD=/usr/share/sgml/docbook/xml-dtd-$(DTDVER)/docbookx.dtd
+DTD=$(firstword $(wildcard \
+	/usr/share/sgml/docbook/xml-dtd-$(DTDVER)*/docbookx.dtd))
 FOP=fop
 endif
+DTD_TARGET=
+ifeq (,$(wildcard $(DTD))) # system DTD does not exist
+DTD_TARGET=update-docbook-utils
 DTD=../utils/docbook/docbookx.dtd
-NSGMLS=onsgmls
+endif
 
+# NSGMLS is disabled because DocBook 4.4 uses UCS4
+# and onsgmls only supports UCS2
+# NSGMLS=onsgmls
 # XMLSOC is found at wildly different locations. It's tedious to write down
 # all possible pathnames found so far, but we know no better solution.
 XMLSOC := $(firstword $(wildcard /usr/share/sgml/xml.soc \
@@ -162,7 +169,7 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
 
-check: impnotes.xml $(IMPNOTES) clisp.xml
+check: impnotes.xml $(IMPNOTES) clisp.xml $(DTD_TARGET)
 #	$(NSGMLS) -s -e -g -c$(XMLSOC) clisp.xml
 #	$(NSGMLS) -s -e -g -c$(XMLSOC) impnotes.xml
 	xmllint --noout --valid --postvalid --timing --noent clisp.xml
