@@ -66,14 +66,14 @@ CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxo
 # (if not specified, no local catalog created or used)
 CATALOG_FILE=catalog.xml
 
-# Local path to DocBook XSL stylesheets on your system.
+# Local path to DocBook XSL stylesheets on your system - or snapshot location
 # Make sure to use a trailing slash.
-STYLESHEETS_PATH=/usr/share/sgml/docbook/xsl-stylesheets/
+# STYLESHEETS_PATH=/usr/share/sgml/docbook/xsl-stylesheets/
+STYLESHEETS_PATH=http://docbook.sourceforge.net/release/xsl/snapshot/
+# STYLESHEETS_PATH=http://docbook.xml-doc.org/snapshots/xsl/
 
 # Stylesheets URI used in the CLISP project *.xsl files.
-# STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/current/
-STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/snapshot/
-# STYLESHEETS_URI=http://docbook.xml-doc.org/snapshots/xsl/
+STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/current/
 
 # The xmlcatalog utility (from libxml2)
 XMLCATALOG=xmlcatalog
