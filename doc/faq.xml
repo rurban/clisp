@@ -266,7 +266,10 @@ further explanations of the issues could be provided).</para>
   A note to that effect was kept in the file
   <filename role="clisp-cvs">src/timezone.lisp</filename>
   until 2002, when it was decided that is was not visible enough there
-  and it was moved here.</para></answer></qandaentry>
+  and it was moved here.</para>
+ <para>We also oppose <ulink url="http://swpat.ffii.org/">software
+   patents</ulink> and support other liberal (i.e., pro-liberty) causes.</para>
+</answer></qandaentry>
 
 <qandaentry id="faq-menorah-users"><question id="faq-menorah-users-q">
   <simpara>Aren't you afraid of losing some users who are offended by
