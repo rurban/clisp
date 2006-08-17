@@ -1960,14 +1960,14 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <para>&clisp-link; operates on &clisp; &linkset;s and on &modset;s.</para>
 
-<formalpara id="linkset"><title>&linkset;</title>
+<simplesect id="linkset"><title>&linkset;</title>
  <para>A <firstterm>&linkset;<indexterm id="linkseti" significance="preferred">
     <primary id="linkset-i">linking set</primary></indexterm></firstterm>
    is a directory containing:
 <variablelist>
 <varlistentry><term><filename>makevars</filename></term>
  <listitem><para>some &sh; commands, setting the variables
-<variablelist><varlistentry><term><envar>CC</envar></term>
+<variablelist>&varlist-table;<varlistentry><term><envar>CC</envar></term>
   <listitem><simpara>the &c-lang; compiler
  </simpara></listitem></varlistentry>
  <varlistentry><term><envar>CPPFLAGS</envar></term>
@@ -2005,13 +2005,14 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  <listitem><simpara>the executable</simpara></listitem></varlistentry>
 <varlistentry><term>&lispinit;</term>
  <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
-</variablelist></para></formalpara>
+</variablelist></para>
 
-<para>To run a &clisp; contained in some &linkset; &directory-r;, call
- <command>&directory-r;/lisp.run -M &directory-r;/lispinit.mem</command>
- or <command>clisp &opt-K; &directory-r;</command>.</para>
+<para>To run a &clisp; contained in some &linkset; &directory-r;, call<screen>
+&sh-prompt; &directory-r;/lisp.run &opt-M; &directory-r;/lispinit.mem</screen>
+ or <screen>&sh-prompt; clisp &opt-K; &directory-r;</screen>.</para>
+</simplesect>
 
-<formalpara id="modset"><title>&modset;</title>
+<simplesect id="modset"><title>&modset;</title>
  <para>A <firstterm>&modset;<indexterm id="modseti" significance="preferred">
     <primary id="modset-i">module set</primary></indexterm></firstterm>
    is a directory containing:
@@ -2024,11 +2025,13 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <varlistentry><term>and any other files</term>
  <listitem><simpara>needed by &link-sh;
  </simpara></listitem></varlistentry>
-</variablelist></para></formalpara>
+</variablelist></para>
 
-<para>In &link-sh; the &modset; directory
- is referred to as <varname>$modulename/</varname>.</para>
+<para>In &link-sh; the &modset; directory is referred to
+ as <varname>$modulename/</varname>.</para></simplesect>
 
+<simplesect id="mod-vars"><title>Module set variables</title>
+<para>The following variables should be defined in &link-sh;.</para>
 <variablelist>
 <varlistentry><term><envar>NEW_FILES</envar></term>
  <listitem><simpara>the space-separated list of files that
@@ -2066,8 +2069,9 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
     See, e.g., <filename role="clisp-cvs">modules/i18n/preload.lisp</filename>
     and <filename role="clisp-cvs">modules/i18n/link.sh.in</filename>.
 </simpara></warning></listitem></varlistentry>
-</variablelist>
+</variablelist></simplesect>
 
+<simplesect id="mod-create"><title>Creating &linkset;s</title>
 <para>The command <screen>
 &sh-prompt; &clisp-link; create-module-set &mod-r; <replaceable>file1.c</replaceable> ...
 </screen> creates a &modset; in &mod-r; directory which refers
@@ -2090,6 +2094,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  through <link linkend="mod-dynload">dynamic loading</link>.
  Otherwise - this is much slower - a temporary &linkset; will be created
  and deleted afterwards.</para>
+</simplesect>
 
 </section>
 
