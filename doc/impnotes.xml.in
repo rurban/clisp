@@ -50,7 +50,7 @@
  <corpauthor><inlinemediaobject><imageobject><imagedata fileref="clisp.png"/>
  </imageobject></inlinemediaobject></corpauthor>
  <date>Last modified: @TODAY@</date>
- <authorgroup id="authors">&bruno; &sds;
+ <authorgroup id="authors">&bruno; &stoll; &sds;
   <othercredit><authorblurb><simpara>See
      <filename role="clisp-cvs">COPYRIGHT</filename>
      for the list of other contributors.</simpara></authorblurb></othercredit>
