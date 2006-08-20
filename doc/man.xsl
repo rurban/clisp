@@ -6,6 +6,10 @@
 <xsl:param name="variablelist.term.break.after" select="1"/>
 <xsl:param name="variablelist.term.separator" select="''"/>
 
+<xsl:template match="filename[@role='clisp-cvs']">
+ <xsl:apply-imports/> (file in the CLISP sources)
+</xsl:template>
+
 <xsl:param name="man.string.subst.map">
  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
  <!-- From Michael Smith <xmldoc@users.sourceforge.net> -->
