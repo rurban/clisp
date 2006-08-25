@@ -25,9 +25,7 @@
  <date>Last modified: @TODAY@</date>
  <productnumber>@VERSION@</productnumber>
  <productname>CLISP</productname>
- &bruno; &sds;
- <copyright><year>1992-2006</year><holder>Bruno Haible</holder></copyright>
- <copyright><year>1998-2006</year><holder>Sam Steingold</holder></copyright>
+ &clisp-authors; &clisp-doc-copyright;
 </refentryinfo>
 
 <refmeta>
@@ -747,9 +745,9 @@ following information:
 </itemizedlist>
 </refsection>
 
-<refsection id="authors"><title>CLISP Authors</title>
+<refsection id="authors-sec"><title>CLISP Authors</title>
 
-<para>&clisp; project was started in late 1980-ies by &bruno; and
+<para>The &clisp; project was started in late 1980-ies by &bruno; and
  &stoll;, both in Germany.</para>
 
 <para>See <filename role="clisp-cvs">COPYRIGHT</filename>

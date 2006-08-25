@@ -11,6 +11,13 @@
 <!ENTITY hin '<author><firstname>John</firstname><surname>Hinsdale</surname><address><otheraddr><ulink url="http://www.alma.com/staff/hin"/></otheraddr></address><email>hin@alma.com</email></author>'>
 <!ENTITY sds '<author><firstname>Sam</firstname><surname>Steingold</surname><address><otheraddr><ulink url="http://www.podval.org/~sds/"/></otheraddr></address></author>'>
 <!ENTITY stoll '<author><firstname>Michael</firstname><surname>Stoll</surname><address><otheraddr><ulink url="http://www.faculty.iu-bremen.de/mstoll/"/></otheraddr></address></author>'>
+<!ENTITY clisp-authors '<authorgroup id="authors">&bruno; &stoll; &sds;
+ <othercredit><othername>See
+   <emphasis><filename role="clisp-cvs">COPYRIGHT</filename></emphasis>
+   for the list of other contributors.</othername></othercredit></authorgroup>'>
+<!ENTITY clisp-doc-copyright
+  '<copyright><year>1992-2006</year><holder>Bruno Haible</holder></copyright>
+   <copyright><year>1998-2006</year><holder>Sam Steingold</holder></copyright>'>
 
 <!-- *** platforms *** -->
 <!ENTITY with '<emphasis role="strong">with</emphasis>'>
