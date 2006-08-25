@@ -803,6 +803,10 @@
      <term><filename role="clisp-cvs">doc/impbyte.xml</filename></term>
      <listitem><simpara>this <xref linkend="internals"/>
     </simpara></listitem></varlistentry>
+    <varlistentry>
+     <term><filename role="clisp-cvs">doc/faq.xml</filename></term>
+     <listitem><simpara><xref linkend="faq"/>
+    </simpara></listitem></varlistentry>
     <varlistentry><term><filename>modules/**/*.xml</filename></term>
      <listitem><simpara>individual external module documentation
     </simpara></listitem></varlistentry>
