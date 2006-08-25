@@ -11,9 +11,14 @@
 
 (defvar *browsers*
   '((:netscape "netscape" "~a")
-    (:netscape-remote "netscape" "-remote" "openURL(~a,new-window)")
+    (:netscape-window "netscape" "-remote" "openURL(~a,new-window)")
+    (:netscape-tab "netscape" "-remote" "openURL(~a,new-tab)")
     (:mozilla "mozilla" "~a")
-    (:mozilla-remote "mozilla" "-remote" "openURL(~a,new-window)")
+    (:mozilla-window "mozilla" "-remote" "openURL(~a,new-window)")
+    (:mozilla-tab "mozilla" "-remote" "openURL(~a,new-tab)")
+    (:firefox "firefox" "~a")
+    (:firefox-window "firefox" "-remote" "openURL(~a,new-window)")
+    (:firefox-tab "firefox" "-remote" "openURL(~a,new-tab)")
     (:konqueror "kfmclient" "openURL" "~a")
     (:lynx "lynx" "~a")
     #+unix (:lynx-xterm "xterm" "-e" "lynx" "~a")
