@@ -50,19 +50,13 @@
  <corpauthor><inlinemediaobject><imageobject><imagedata fileref="clisp.png"/>
  </imageobject></inlinemediaobject></corpauthor>
  <date>Last modified: @TODAY@</date>
- <authorgroup id="authors">&bruno; &stoll; &sds;
-  <othercredit><authorblurb><simpara>See
-     <filename role="clisp-cvs">COPYRIGHT</filename>
-     for the list of other contributors.</simpara></authorblurb></othercredit>
- </authorgroup>
+ &clisp-authors; &clisp-doc-copyright;
  <abstract><para>These notes describe the &gnu; &clisp; - an
    implementation of the &ansi-cl;.</para>
   <para>See <olink targetdoc="man" targetptr="bugs"/> for instructions
    on how to report bugs (both in these notes and in &clisp; itself).</para>
   <para>See <xref linkend="faq-help"/> for information on &clisp;
    support.</para></abstract>
- <copyright><year>1992-2006</year><holder>Bruno Haible</holder></copyright>
- <copyright><year>1998-2006</year><holder>Sam Steingold</holder></copyright>
 
  <legalnotice id="legalese"><title>Legal Status of the &clisp;
    Implementation Notes</title>
