@@ -1,3 +1,9 @@
+2006-08-24  Sam Steingold  <sds@podval.org>
+
+	* clhs.lisp (*browsers*): added :FIREFOX, :FIREFOX-WINDOW, :FIREFOX-TAB,
+	:NETSCAPE-TAB, :MOZILLA-TAB; renamed :NETSCAPE-REMOTE and
+	:MOZILLA-REMOTE to :NETSCAPE-WINDOW and :MOZILLA-WINDOW respectively
+
 2006-08-15  Sam Steingold  <sds@podval.org>
 
 	* Makefile.devel (update-docbook-utils): delegate to doc/Makefile
