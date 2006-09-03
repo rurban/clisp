@@ -2703,7 +2703,7 @@ local maygc object merge_dirs (object p_directory, object d_directory, bool p_lo
   SDOUT("merge_dirs:",p_directory);
   SDOUT("merge_dirs:",d_directory);
   if (called_from_make_pathname) {
-    if (missingp(p_directory)) /* pathname-subdirs not given? */
+    if (!boundp(p_directory)) /* pathname-subdirs not given? */
       new_subdirs = d_directory; /* use defaults-subdirs */
   } else if (!wildp) {
     if (nullp(p_directory) /* is pathname-subdirs trivial? */
@@ -2876,7 +2876,7 @@ LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
     { /* directories do not match: new-directory := pathname-directory */
       var object dir = xpathname_directory(p_log,p);
       TheLogpathname(newp)->pathname_directory =
-        (missingp(dir) ? xpathname_directory(d_log,d) : dir);
+        (!SPECIFIED(dir) ? xpathname_directory(d_log,d) : dir);
       goto ldirectories_OK;
     }
   lmatch_directories:
