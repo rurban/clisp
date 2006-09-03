@@ -1,3 +1,5 @@
+* Added support for PowerPC NetBSD.
+
 New in 1.9:
 
 * Added support for x86_64 (AMD64) Linux.

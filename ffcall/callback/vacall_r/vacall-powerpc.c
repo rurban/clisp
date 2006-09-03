@@ -20,7 +20,11 @@
 #ifdef REENTRANT
 #define __vacall __vacall_r
 register struct { void (*vacall_function) (void*,va_alist); void* arg; }
+#ifdef __NetBSD__
+         *		env	__asm__("r13");
+#else
          *		env	__asm__("r11");
+#endif
 #endif
 register double		farg1	__asm__("fr1");
 register double		farg2	__asm__("fr2");
@@ -60,7 +64,7 @@ __vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
   (&firstword)[-2] = word7;
   (&firstword)[-1] = word8;
 #else
-  /* Move the arguments passed in registers to temp storage, since 
+  /* Move the arguments passed in registers to temp storage, since
      moving them to the stack would mess up the stack */
   list.regarg[0] = word1;
   list.regarg[1] = word2;
