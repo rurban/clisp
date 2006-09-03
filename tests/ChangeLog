@@ -1,3 +1,8 @@
+2006-09-03  Sam Steingold  <sds@podval.org>
+
+	* path.tst: check that make-pathname does not ignore explicit
+	:DIRECTORY NIL (bug #[ 1550803 ])
+
 2006-08-10  Sam Steingold  <sds@podval.org>
 
 	* excepsit.tst: test ADJUST-ARRAY on non-adjustable vectors

@@ -1088,3 +1088,10 @@ T
     (delete-file file)
     (ext:delete-dir dir))) "/foo/**/*"
 (translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1550803&group_id=1355
+(dolist (dflt (list #P"/home/" (logical-pathname "CLOCC:SRC;PORT;")))
+  (dolist (dir '(NIL (:absolute "foo")))
+    (assert (equal dir (pathname-directory (make-pathname :directory dir
+                                                          :defaults dflt))))))
+NIL
