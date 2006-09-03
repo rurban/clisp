@@ -1,3 +1,13 @@
+2006-09-03  Magnus Henoch  <mange@freemail.hu>
+	Sam Steingold  <sds@podval.org>
+
+	* ffcall/callback/trampoline_r/proto.c,
+	* ffcall/callback/vacall_r/vacall-powerpc.c (env) [__NetBSD__]:
+	use r13 instead of r11
+	* ffcall/callback/vacall_r/Makefile.in (vacall-powerpc.lo): depend
+	on vacall-powerpc-netbsd.s
+	* ffcall/callback/vacall_r/vacall-powerpc-netbsd.s: added
+
 2006-08-24  Sam Steingold  <sds@podval.org>
 
 	* clhs.lisp (*browsers*): added :FIREFOX, :FIREFOX-WINDOW, :FIREFOX-TAB,
