@@ -1,3 +1,7 @@
+2006-09-03  Sam Steingold  <sds@podval.org>
+
+	* configure: accept FOO=BAR argument to set the shell variable
+
 2006-09-03  Stephen Compall  <s11001001@users.sourceforge.net>
 	Sam Steingold  <sds@podval.org>
 

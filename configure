@@ -21,6 +21,8 @@ if test -n "${CONFIG_SHELL}"; then
 else CONFIG_SHELL=/bin/sh
 fi
 
+fail () { echo "$*" >&2; exit 1; }
+
 info_help () {
 cat << \EOP
 Usage: configure [options] [dirname]
@@ -412,10 +414,15 @@ do
       --ignore-absence-of-libsigsegv)
         ignore_absence_of_libsigsegv=yes ;;
 
-      --*)
-        echo "$0: invalid argument $arg" 1>&2
-        echo "$0: Try \`$0 --help'" 1>&2
-        exit 1 ;;
+      -*)
+        fail "$0: invalid argument $arg
+$0: Try \`$0 --help'" ;;
+
+      *=*) # set a variable
+        var=`echo $arg | sed 's/\([^=]*\)=.*/\1/'`
+        val=`echo $arg | sed 's/[^=]*=\(.*\)/\1/'`
+        eval "$var='$val'"
+        export $var ;;
 
       *) # Everything else counts as a positional argument
         argcount=`expr $argcount + 1`
@@ -425,11 +432,8 @@ do
 
   fi
 done
-if test -n "$prev"; then
-  echo "$0: missing argument to $prev" 1>&2
-  echo "$0: Try \`$0 --help'" 1>&2
-  exit 1
-fi
+test -n "$prev" && fail "$0: missing argument to $prev
+$0: Try \`$0 --help'"
 
 DIRNAME=$POSARG1
 COMPILER=$POSARG2 # deprecated
@@ -497,10 +501,7 @@ maybe_mkdir() { test -d "$1" || mkdir -p "$1"; }
 
 INPLACE=''
 if test -n "$srcdir" ; then
-  if test ! -d "$srcdir" ; then
-    echo "$0: srcdir: ($srcdir) nonexistent" 1>&2
-    exit 1
-  fi
+  test -d "$srcdir" || fail "$0: srcdir: ($srcdir) nonexistent"
   ABS_SRCDIR=`abs_pwd "$srcdir"`;
   if [ "$DIRNAME" = "" ] ; then
     DIRNAME='.'
@@ -515,15 +516,12 @@ else
       DIRNAME=src
     fi
   else
-    if test -f ../ANNOUNCE -a -f ../SUMMARY; then
-      srcdir='..'
-      ABS_SRCDIR=`abs_pwd "$srcdir"`
-      if [ "$DIRNAME" = "" ] ; then
-        DIRNAME='.'
-      fi
-    else
-      echo "$0: source directory not found, use --srcdir option" 1>&2
-      exit 1
+    test -f ../ANNOUNCE -a -f ../SUMMARY || \
+      fail "$0: source directory not found, use --srcdir option"
+    srcdir='..'
+    ABS_SRCDIR=`abs_pwd "$srcdir"`
+    if [ "$DIRNAME" = "" ] ; then
+      DIRNAME='.'
     fi
   fi
   maybe_mkdir "${DIRNAME}";
@@ -670,8 +668,7 @@ if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
     makemake_args="--with-dynamic-ffi $makemake_args"
     have_ffi=yes
   elif [ "$do_ffi" = "yes" ]; then
-    echo "$0: despite --with-dynamic-ffi, FFCALL could not be built" 1>&2
-    exit 1
+    fail "$0: despite --with-dynamic-ffi, FFCALL could not be built"
   fi
 fi
 
