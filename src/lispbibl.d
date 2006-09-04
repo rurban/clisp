@@ -6141,6 +6141,7 @@ typedef struct {
   gcv_object_t ff_resulttype _attribute_aligned_object_;
   gcv_object_t ff_argtypes   _attribute_aligned_object_;
   gcv_object_t ff_flags      _attribute_aligned_object_;
+  gcv_object_t ff_properties _attribute_aligned_object_;
 } * Ffunction;
 #define ffunction_length  ((sizeof(*(Ffunction)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
@@ -6641,21 +6642,24 @@ typedef struct {
    ? TheCclosure(obj)->clos_consts[1] \
    : TheClosure(obj)->clos_name_or_class_version)
 typedef struct {
-  VRECORD_HEADER # self-pointer for GC, length in bits
-  # Here: Content of the Bitvector.
-  uintW  ccv_spdepth_1;          # maximal SP-depth, 1-part
-  uintW  ccv_spdepth_jmpbufsize; # maximal SP-depth, jmpbufsize-part
-  uintW  ccv_numreq;    # number of required parameters
-  uintW  ccv_numopt;    # number of optional parameters
-  uintB  ccv_flags;     # Flags. Bit 0: &REST - parameter given?
-                        #        Bit 7: keyword-parameter given?
-                        #        Bit 6: &ALLOW-OTHER-KEYS-Flag
-                        #        Bit 4: generic function?
-                        #        Bit 3: generic function with call-inhibition?
-  uintB  ccv_signature; # abbreviated argument type, for faster FUNCALL
-  # If keyword-parameters are given:
-  uintW  ccv_numkey;    # Number of keyword-parameters
-  uintW  ccv_keyconsts; # Offset in FUNC of the keywords
+  VRECORD_HEADER               /* self-pointer for GC, length in bits */
+  /* Here: Content of the Bitvector. */
+  uintW  ccv_spdepth_1;          /* maximal SP-depth, 1-part */
+  uintW  ccv_spdepth_jmpbufsize; /* maximal SP-depth, jmpbufsize-part */
+  uintW  ccv_numreq;             /* number of required parameters */
+  uintW  ccv_numopt;             /* number of optional parameters */
+  uintB  ccv_flags; /* Flags: Bit 0: &REST - parameter given?
+                              Bit 1: full lambda list at the end of const vec
+                              Bit 2: docstring at the end of const vec
+                              Bit 3: generic function with call-inhibition?
+                              Bit 4: generic function?
+                              Bit 5: not used
+                              Bit 6: &ALLOW-OTHER-KEYS-Flag
+                              Bit 7: keyword-parameter given? */
+  uintB  ccv_signature; /* abbreviated argument type, for faster FUNCALL */
+  /* If keyword-parameters are given: */
+  uintW  ccv_numkey;    /* Number of keyword-parameters */
+  uintW  ccv_keyconsts; /* Offset in FUNC of the keywords */
 } *  Codevec;
 #define CCV_SPDEPTH_1           0
 #define CCV_SPDEPTH_JMPBUFSIZE  2
@@ -6667,11 +6671,17 @@ typedef struct {
 #define CCV_KEYCONSTS          12
 #define CCV_START_NONKEY       10
 #define CCV_START_KEY          14
-# Compiled closures, where Bit 4 has been set in the flags of clos_codevec
-# are generic functions.
+/* Compiled closures, where Bit 4 has been set in the flags of clos_codevec
+   are generic functions. */
 %% export_def(closure_flags(ptr));
 %% export_def(closure_instancep(ptr));
 %% export_def(Closure_instancep(obj));
+
+/* the position of the last const (or doc or lalist!) */
+#define Cclosure_last_const(obj)  (Cclosure_length(obj) - 1 -           \
+   (sizeof(*(Cclosure)0) - offsetofa(srecord_,recdata))/sizeof(gcv_object_t))
+#define ccv_flags_lambda_list_p(ccv_flags)    (((ccv_flags) & bit(1)) != 0)
+#define ccv_flags_documentation_p(ccv_flags)  (((ccv_flags) & bit(2)) != 0)
 
 # A compiled LISP-function gets its arguments on the STACK
 # and returns its values in MULTIPLE_VALUE_SPACE.

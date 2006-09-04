@@ -1,5 +1,62 @@
 2006-09-03  Sam Steingold  <sds@podval.org>
 
+	When the OPTIMIZE SPACE level is low enough, keep function
+	documentation and lambda list.
+	* compiler.lisp (make-closure): accept documentation and pass it
+	on to SYS::%MAKE-CLOSURE
+	(parse-optimize-quality): do not support interpreted code (reverses
+	the 2005-02-11 patch)
+	(fnode): added slots LAMBDA-LIST and DOCUMENTATION
+	(c-LAMBDABODY): fill them
+	(create-fun-obj): pass them to MAKE-CLOSURE when the OPTIMIZE
+	SPACE level is right, using...
+	(non-user-symbol-p, generatedp): new functions
+	... to avoid wasting space for gensyms and lambdas
+	* constobj.d (version): bump
+	* constsym.d (closure_documentation, closure_set_documentation)
+	(closure_lambda_list): added
+	* describe.lisp (describe-object@FUNCTION): use
+	DESCRIBE-ARGLIST and DESCRIBE-DOCUMENTATION
+	(arglist): use SYS::CLOSURE-LAMBDA-LIST
+	(describe-arglist, describe-documentation): added
+	(describe-signature): removed
+	* documentation.lisp (function-documentation): use
+	SYS::CLOSURE-DOCUMENTATION and Foreign-Function properties
+	(documentation@symbol): use it
+	(set-function-documentation): use SYS::CLOSURE-SET-DOCUMENTATION
+	and Foreign-Function properties
+	((setf documentation)@symbol): use it
+	* eval.d (parse_dd): do not call NOTE-OPTIMIZE (reverses the
+	2005-02-11 patch) because local DECLARE should not change the
+	global OPTIMIZE settings
+	* foreign.d (LOOKUP-FOREIGN-FUNCTION, FOREIGN-LIBRARY-FUNCTION):
+	accept an additional PROPERTIES argument
+	* foreign1.lisp (DEF-CALL-OUT): pass PROPERTIES to
+	LOOKUP-FOREIGN-FUNCTION and FOREIGN-LIBRARY-FUNCTION,
+	do not call (SETF DOCUMENTATION)
+	* init.lisp (defmacro, defun): do not call SYSTEM::%SET-DOCUMENTATION
+	* io.d (CLOSURE-READER): consts is a list, expect optional
+	LAMBDA-LIST and DOCUMENTATION
+	(pr_cclosure_lang): print consts as a list,
+	also print LAMBDA-LIST and DOCUMENTATION, if any
+	* lispbibl.d (Ffunction): added ff_properties slot
+	(Cclosure_last_const, ccv_flags_lambda_list_p)
+	(ccv_flags_documentation_p): new CPP macros: use bit(2) as an
+	indicator for DOCUMENTATION and bit(1) for LAMBDA-LIST
+	* record.d (CLOSURE-CONSTS): use them to keep DOCUMENTATION
+	and LAMBDA-LIST separate from consts
+	(%MAKE-CLOSURE): accept LAMBDA-LIST and DOCUMENTATION
+	(MAKE-CONSTANT-INITFUNCTION): pass 6 arguments to %MAKE-CLOSURE
+	(CLOSURE-DOCUMENTATION, CLOSURE-SET-DOCUMENTATION)
+	(CLOSURE-LAMBDA-LIST): implemented
+	* spvw_debug.d (TheCclosure_, Cclosure_length_): added
+	* subr.d (make_closure, lookup_foreign_function)
+	(foreign_library_function): updated
+	(closure_documentation, closure_set_documentation)
+	(closure_lambda_list): added
+
+2006-09-03  Sam Steingold  <sds@podval.org>
+
 	* configure: accept FOO=BAR argument to set the shell variable
 
 2006-09-03  Stephen Compall  <s11001001@users.sourceforge.net>

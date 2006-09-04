@@ -774,6 +774,9 @@ LISPSYM(make_closure,"%MAKE-CLOSURE",system)
 LISPSYM(make_constant_initfunction,"MAKE-CONSTANT-INITFUNCTION",system) /* ABI */
 LISPSYM(constant_initfunction_p,"CONSTANT-INITFUNCTION-P",system)
 LISPSYM(closure_set_seclass,"CLOSURE-SET-SECLASS",system)
+LISPSYM(closure_documentation,"CLOSURE-DOCUMENTATION",system)
+LISPSYM(closure_set_documentation,"CLOSURE-SET-DOCUMENTATION",system)
+LISPSYM(closure_lambda_list,"CLOSURE-LAMBDA-LIST",system)
 LISPSYM(set_funcallable_instance_function,"SET-FUNCALLABLE-INSTANCE-FUNCTION",clos)
 LISPSYM(copy_generic_function,"%COPY-GENERIC-FUNCTION",system) /* ABI */
 LISPSYM(generic_function_effective_method_function,"GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION",system)

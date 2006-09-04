@@ -521,39 +521,27 @@ to print the corresponding values, or T for all of them.")
                                             (sys::%record-ref obj 3)
                                             (sys::%record-ref obj 4)))))
       (COMPILED-FUNCTION
-       (multiple-value-bind (name req opt rest-p keywords other-keys)
-           (sys::subr-info obj)
-         (if (and name req)
-           (progn
-             (format stream (TEXT "a built-in system function."))
-             (sys::describe-signature stream req opt rest-p
-                                      keywords keywords other-keys))
-           (progn
-             (format stream (TEXT "a compiled function."))
-             (multiple-value-bind (req opt rest-p key-p keywords other-keys-p)
-                 (sys::signature obj)
-               (sys::describe-signature stream req opt rest-p key-p keywords
-                                        other-keys-p)
-               (let* ((name (sys::closure-name obj))
-                      (funform (cond ((and (symbolp name) (macro-function name))
-                                      `(MACRO-FUNCTION ',name))
-                                     ((fboundp name) `(FUNCTION ,name)))))
-                 (when funform
-                   (terpri stream)
-                   (format stream
-                           (TEXT "For more information, evaluate ~{~S~^ or ~}.")
-                           `((DISASSEMBLE ,funform))))))))))
+       (let ((subrp (sys::subr-info obj)))
+         (format stream (if subrp
+                            (TEXT "a built-in system function.")
+                            (TEXT "a compiled function.")))
+         (describe-arglist stream obj)
+         (describe-documentation stream obj)
+         (let* ((name (sys::function-name obj))
+                (funform (cond ((and (symbolp name) (macro-function name))
+                                `(MACRO-FUNCTION ',name))
+                               ((fboundp name) `(FUNCTION ,name)))))
+           (when funform
+             (terpri stream)
+             (format stream
+                     (TEXT "For more information, evaluate ~{~S~^ or ~}.")
+                     `((DISASSEMBLE ,funform)))))))
       (FUNCTION
        ;; we do not use ETYPECASE here to ensure that if we do get here,
        ;; we are dealing with an Iclosure object
        (format stream (TEXT "an interpreted function."))
-       (let ((doc (sys::%record-ref obj 2)))
-         (terpri stream)
-         (format stream (TEXT "Argument list: ~:S")
-                 (car (sys::%record-ref obj 1)))
-         (when doc
-           (terpri stream)
-           (format stream (TEXT "Documentation: ~A") doc)))))))
+       (describe-arglist stream obj)
+       (describe-documentation stream obj)))))
 
 (defun describe1 (obj stream)
   (let ((objstring (sys::write-to-short-string
@@ -607,19 +595,27 @@ to print the corresponding values, or T for all of them.")
 
 (defun arglist (func)
   (setq func (coerce func 'function))
-  (if (typep func 'generic-function)
-    ; Generic functions store the lambda-list. It has meaningful variable names.
-    (clos:generic-function-lambda-list func)
-    ; Normal functions store only the signature, no variable names.
-    (sig-to-list (get-signature func))))
+  (cond ((typep func 'generic-function)
+         ;; Generic functions store the original lambda-list.
+         (clos:generic-function-lambda-list func))
+        ((or (sys::subr-info func) ; built-in
+             #+FFI (eq (type-of func) 'FFI::FOREIGN-FUNCTION))
+         (sig-to-list (get-signature func)))
+        ((sys::%compiled-function-p func) ; compiled closure
+         (or (sys::closure-lambda-list func)
+             (sig-to-list (get-signature func))))
+        ((sys::closurep func) ; interpreted closure?
+         (car (sys::%record-ref func 1)))))
 
-(defun describe-signature (stream req-anz opt-anz rest-p keyword-p keywords
-                           allow-other-keys)
+(defun describe-arglist (stream function)
   (terpri stream)
-  (format stream (TEXT "Argument list: ~A.")
-          (format nil "(~{~A~^ ~})"
-                  (signature-to-list req-anz opt-anz rest-p keyword-p keywords
-                                     allow-other-keys))))
+  (format stream (TEXT "Argument list: ~:S") (arglist function)))
+
+(defun describe-documentation (stream function)
+  (let ((doc (clos::function-documentation function)))
+    (when doc
+      (terpri stream)
+      (format stream (TEXT "Documentation: ~A") doc))))
 
 ;;-----------------------------------------------------------------------------
 ;; auxiliary functions for CLISP metadata
