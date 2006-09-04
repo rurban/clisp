@@ -7,6 +7,8 @@ User visible changes
     The default value is ${datadir}/emacs/site-lisp/.
     Thus, clhs.el at al are now installed by "make install", and should
     be included in the 3rd party distributions.
+  + Top-level configure now accepts variables on command line, e.g.,
+    ./configure CC=g++ CFLAGS=-g
 
 * Function PCRE:PCRE-EXEC accepts :DFA and calls pcre_dfa_exec() when
   built against PCRE v6.  See <http://clisp.cons.org/impnotes/pcre.html>.
@@ -22,6 +24,10 @@ User visible changes
   + PRINT-OBJECT now works on built-in objects.  [ 1482533 ]
   + ADJUST-ARRAY signals an error if :FILL-POINTER is supplied and non-NIL
     but the non-adjustable array has no fill pointer, as per ANSI. [ 1538333 ]
+  + MAKE-PATHNAME no longer ignores explicit :DIRECTORY NIL (thanks to
+    Stephen Compall <s11001001@users.sourceforge.net>). [ 1550803 ]
+  + Executable images now work on ia64 (thanks to Dr. Werner Fink
+    <werner@suse.de>).
 
 
 2.39 (2006-07-16)
