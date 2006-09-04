@@ -1,3 +1,8 @@
+2006-09-04  Sam Steingold  <sds@podval.org>
+
+	* restarts.tst: do not use DOCUMENTATION 'FUNCTION on an
+	un-fboundp symbol
+
 2006-09-03  Sam Steingold  <sds@podval.org>
 
 	* path.tst: check that make-pathname does not ignore explicit

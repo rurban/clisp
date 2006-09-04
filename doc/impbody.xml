@@ -259,8 +259,20 @@ executes a compiled version of &form-r;.</para>
 <para>The type assertion <code>(&the; &val-type-r; &form-r;)</code>
  enforces a type check in interpreted code.
  No type check is done in compiled code.  See also the &ethe; macro.</para>
-
 </section>
+
+<section id="space-decl"><title>Declaration &space-dec;</title>
+<para>The declaration determines what metadata is recorded in the
+ function object:<variablelist>
+  <varlistentry><term>&space-dec; &geq; 2</term>
+   <listitem><simpara>documentation string is discarded
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&space-dec; &geq; 3</term>
+   <listitem><simpara>the original &lalist; is also discarded (most
+     information is still available, see &describe-my;, but the names of
+     the positional arguments are not).</simpara></listitem></varlistentry>
+</variablelist></para></section>
+
 </section>
 
 <section id="lalist"><title>Lambda Lists

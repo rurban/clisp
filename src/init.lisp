@@ -1856,9 +1856,6 @@
              (EVAL-WHEN ,(if preliminaryp '(LOAD EVAL) '(COMPILE LOAD EVAL))
                (SYSTEM::REMOVE-OLD-DEFINITIONS ',name
                  ,@(if preliminaryp '('T)))
-               ,@(if docstring
-                   `((SYSTEM::%SET-DOCUMENTATION ',name 'FUNCTION ',docstring))
-                   '())
                (SYSTEM::%PUTD ',name
                  (SYSTEM::MAKE-MACRO ,(if preliminaryp
                                         `(SYSTEM::MAKE-PRELIMINARY ,expansion)
@@ -1976,10 +1973,6 @@
                   `((COMPILER::EVAL-WHEN-COMPILE
                      (COMPILER::C-DEFUN
                       ',name (lambda-list-to-signature ',lambdalist)))))
-               ,@(if docstring
-                   `((SYSTEM::%SET-DOCUMENTATION ,symbolform
-                                                 'FUNCTION ',docstring))
-                   '())
                (SYSTEM::%PUTD ,symbolform
                  ,(if preliminaryp
                     `(SYSTEM::MAKE-PRELIMINARY (FUNCTION ,name (LAMBDA ,@lambdabody)))
