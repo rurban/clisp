@@ -2,7 +2,7 @@
  * Input/Output for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 11.3.1997
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2006
  * German comments translated into English: Stefan Kain 2001-06-12
  */
 
@@ -4298,12 +4298,20 @@ LISPFUNN(closure_reader,3) { # read #Y
              GETTEXT("~S from ~S: object #Y~S has not the syntax of a compiled closure"));
     }
     skipSTACK(3);
-    # execute (SYS::%MAKE-CLOSURE (first obj) (second obj) (cddr obj)):
+    /* (apply (function SYS::%MAKE-CLOSURE) obj): */
     pushSTACK(Car(obj)); obj = Cdr(obj); /* 1st argument (name) */
     pushSTACK(Car(obj)); obj = Cdr(obj); /* 2nd argument (codevec) */
-    pushSTACK(Cdr(obj)); /* 3rd argument (const list) */
-    pushSTACK(Car(obj)); /* 4th argument (side-effect class) */
-    funcall(L(make_closure),4);
+    pushSTACK(Car(obj)); obj = Cdr(obj); /* 3rd argument (side-effect class) */
+    pushSTACK(Car(obj)); obj = Cdr(obj); /* 4th argument (const list) */
+    if (consp(obj)) {
+      pushSTACK(Car(obj)); obj = Cdr(obj); /* 5th argument (lambda-list) */
+      if (consp(obj)) pushSTACK(Car(obj)); /* 6th argument (documentation) */
+      else pushSTACK(Fixnum_0); /* 6th argument (no documentation) */
+    } else {
+      pushSTACK(Fixnum_0);      /* 5th argument (no lambda-list) */
+      pushSTACK(Fixnum_0);      /* 6th argument (no documentation) */
+    }
+    funcall(L(make_closure),6);
     mv_count=1; # value1 as value
   } else {
     # n specified -> read Codevector:
@@ -8523,7 +8531,8 @@ local maygc void pr_framepointer (const gcv_object_t* stream_, object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local maygc void pr_record_ab (const gcv_object_t* stream_, const gcv_object_t* obj_,
+local maygc void pr_record_ab (const gcv_object_t* stream_,
+                               const gcv_object_t* obj_,
                                uintL index, uintL length) {
   var uintL len = Record_length(*obj_); # length of record
   var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
@@ -9793,10 +9802,39 @@ local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     prin_object(stream_,Closure_name(*obj_)); # print Name
     JUSTIFY_SPACE;
     # print Codevector bytewise, treat possible circularity:
-    pr_circle(stream_,TheClosure(*obj_)->clos_codevec,&pr_cclosure_codevector);
+    var object codevec = TheCclosure(*obj_)->clos_codevec;
+    var uintB ccv_flags = TheCodevec(codevec)->ccv_flags;
+    pr_circle(stream_,codevec,&pr_cclosure_codevector);
+    JUSTIFY_SPACE;
+    KLAMMER_AUF;                      /* ( */
+    INDENT_START(get_indent_lists()); /* ==> indent by 1 character */
+    JUSTIFY_START(1);
+    /* ignore *PRINT-LENGTH* & *PRINT-LINES* because of *PRINT-READABLE* */
+    var uintL last = Cclosure_last_const(*obj_);
+    var uintL pos = 0;
+    var bool lambda_list_p = ccv_flags_lambda_list_p(ccv_flags);
+    var bool documentation_p = ccv_flags_documentation_p(ccv_flags);
+    var uintL end = last - lambda_list_p - documentation_p;
+    if (end != (uintL)-1)
+      for (; true; pos++) {
+        prin_object(stream_,TheCclosure(*obj_)->clos_consts[pos]);
+        JUSTIFY_LAST(pos==end);
+        if (pos==end) break;
+        JUSTIFY_SPACE;            /* print one Space */
+      }
+    JUSTIFY_END_FILL;
+    INDENT_END;
+    KLAMMER_ZU;
     JUSTIFY_SPACE;
     prin_object(stream_,seclass_object((seclass_t)Cclosure_seclass(*obj_)));
-    pr_record_ab(stream_,obj_,2,2); # print remaining components
+    if (lambda_list_p) {        /* lambda-list is a list */
+      JUSTIFY_SPACE;
+      pr_list(stream_,TheCclosure(*obj_)->clos_consts[last-documentation_p]);
+      if (documentation_p) {    /* documentation is a string or NIL */
+        JUSTIFY_SPACE;
+        prin_object(stream_,TheCclosure(*obj_)->clos_consts[last]);
+      }
+    }
     JUSTIFY_END_FILL;
     INDENT_END;
     KLAMMER_ZU;

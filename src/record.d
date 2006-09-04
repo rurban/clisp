@@ -1,7 +1,7 @@
 /*
  * Functions for records and structures in CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2004
+ * Sam Steingold 1998-2006
  * German comments translated into English: Stefan Kain 2002-04-16
  */
 #include "lispbibl.c"
@@ -331,8 +331,11 @@ LISPFUNNR(closure_codevec,1) {
 LISPFUNNR(closure_consts,1) {
   var object closure = popSTACK();
   if (!(cclosurep(closure))) fehler_cclosure(closure);
-  /* comprise elements 2,3,... to a list: */
-  var uintC index = Cclosure_length(closure)-2; /* index := length */
+  /* put elements 2,3,... to a list: */
+  var uintB ccv_flags =
+    TheCodevec(TheCclosure(closure)->clos_codevec)->ccv_flags;
+  var uintC index = Cclosure_last_const(closure) + 1
+    - ccv_flags_documentation_p(ccv_flags) - ccv_flags_lambda_list_p(ccv_flags);
   /* step through closure from behind and push constants onto a list: */
   pushSTACK(closure); /* closure */
   pushSTACK(NIL); /* list := () */
@@ -389,39 +392,49 @@ local seclass_t parse_seclass (object sec, object closure)
           : (nullp(modifies) ? seclass_read : seclass_default));
 }
 
-/* (SYS::%MAKE-CLOSURE name codevec consts seclass) returns a closure
-   with given name (a symbol), given code-vector (a simple-bit-vector),
-   given constants, and given side-effect class. */
-LISPFUNNR(make_closure,4) {
-  var seclass_t seclass = parse_seclass(STACK_0,STACK_3); skipSTACK(1);
+/* (SYS::%MAKE-CLOSURE name codevec consts seclass lambda-list documentation)
+   returns a closure with given name (a symbol),
+   given code-vector (a simple-bit-vector), given constants,
+   given side-effect class, lambda-list and documentation. */
+LISPFUNNR(make_closure,6) {
+  var seclass_t seclass = parse_seclass(STACK_2,STACK_5);
   /* codevec must be a simple-bit-vector: */
-  if (!simple_bit_vector_p(Atype_8Bit,STACK_1)) {
-    /* STACK_1 = codevec */
-    pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
+  if (!simple_bit_vector_p(Atype_8Bit,STACK_4)) {
+    /* STACK_4 = codevec */
+    pushSTACK(STACK_4); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(simple_bit_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(STACK_(1+2));
+    pushSTACK(STACK_(4+2));
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,GETTEXT("~S: invalid code-vector ~S"));
   }
-  /* create a new closure of length (+ 2 (length consts)) : */
-  var uintL length = 2+llength(STACK_0);
+  /* create a new closure of length (+ 2 (length consts) lalist-p doc-p) : */
+  var uintL length = 2+llength(STACK_3)
+    +(listp(STACK_1) ? 1 : 0)+(nullp(STACK_0) || stringp(STACK_0) ? 1 : 0);
   if (!(length <= (uintL)(bitm(intWsize)-1))) { /* should fit into a uintW */
-    /* STACK_0 = consts */
-    pushSTACK(STACK_2); /* name */
+    pushSTACK(STACK_4/*consts */);
+    pushSTACK(STACK_6/* name */);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~S: function ~S is too big: ~S"));
   }
   var object closure = allocate_closure(length,seclass<<4);
-  TheCclosure(closure)->clos_name_or_class_version = STACK_2; /* fill name */
-  TheCclosure(closure)->clos_codevec = STACK_1; /* fill codevector */
-  { /* fill constants: */
-    var object constsr = popSTACK();
-    var gcv_object_t* ptr = &TheCclosure(closure)->clos_consts[0];
-    while (consp(constsr)) {
-      *ptr++ = Car(constsr); constsr = Cdr(constsr);
-    }
+  TheCclosure(closure)->clos_name_or_class_version = STACK_5; /* fill name */
+  TheCclosure(closure)->clos_codevec = STACK_4; /* fill codevector */
+  /* fill constants: */
+  var object constsr = STACK_3;
+  var gcv_object_t* ptr = &TheCclosure(closure)->clos_consts[0];
+  while (consp(constsr)) {
+    *ptr++ = Car(constsr); constsr = Cdr(constsr);
   }
-  VALUES1(closure); skipSTACK(2);
+  var uintB *ccv_flags = &(TheCodevec(STACK_4)->ccv_flags);
+  if (listp(STACK_1)) {
+    *ccv_flags |= bit(1);
+    *ptr++ = STACK_1;
+  } else *ccv_flags &= ~bit(1);
+  if (nullp(STACK_0) || stringp(STACK_0)) {
+    *ccv_flags |= bit(2);
+    *ptr++ = STACK_0;
+  } else *ccv_flags &= ~bit(2);
+  VALUES1(closure); skipSTACK(6);
 }
 
 /* (SYS::MAKE-CONSTANT-INITFUNCTION value) returns a closure that, when called
@@ -433,6 +446,8 @@ LISPFUNN(make_constant_initfunction,1)
   pushSTACK(O(constant_initfunction_code));
   pushSTACK(consts);
   pushSTACK(O(seclass_no_se));
+  pushSTACK(Fixnum_0);
+  pushSTACK(Fixnum_0);
   C_make_closure();
 }
 
@@ -455,6 +470,36 @@ LISPFUNN(closure_set_seclass,2)
   VALUES1(seclass_object((seclass_t)Cclosure_seclass(closure)));
   Cclosure_set_seclass(closure,new_seclass);
   skipSTACK(2);
+}
+
+LISPFUNNR(closure_documentation,1)
+{ /* return the doc string, if any */
+  var object closure = popSTACK();
+  if (!cclosurep(closure)) fehler_cclosure(closure);
+  VALUES1(TheCodevec(TheClosure(closure)->clos_codevec)->ccv_flags & bit(2)
+          ? TheCclosure(closure)->clos_consts[Cclosure_last_const(closure)]
+          : NIL);
+}
+LISPFUNN(closure_set_documentation,2)
+{ /* set the doc string, if anypossible*/
+  STACK_0 = check_string(STACK_0);
+  var object closure = STACK_1;
+  if (!cclosurep(closure)) fehler_cclosure(closure);
+  if (TheCodevec(TheClosure(closure)->clos_codevec)->ccv_flags & bit(2))
+    TheCclosure(closure)->clos_consts[Cclosure_last_const(closure)] = STACK_0;
+  VALUES1(STACK_0); skipSTACK(2);
+}
+LISPFUNNR(closure_lambda_list,1)
+{ /* return the lambda list, if any */
+  var object closure = popSTACK();
+  if (!cclosurep(closure)) fehler_cclosure(closure);
+  var uintB ccv_flags =
+    TheCodevec(TheCclosure(closure)->clos_codevec)->ccv_flags;
+  /* depending on bit(2), the ultimate or the penultimate constant */
+  VALUES1(ccv_flags & bit(1)
+          ? TheCclosure(closure)->clos_consts
+             [Cclosure_last_const(closure)-ccv_flags_documentation_p(ccv_flags)]
+          : NIL);
 }
 
 /* (CLOS:SET-FUNCALLABLE-INSTANCE-FUNCTION closure function) redirects closure

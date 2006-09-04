@@ -347,11 +347,17 @@ T
         (last '#1# 2)))
 ((9 8) (9 8) (7 6) (7 6))
 
-(handler-bind ((error (lambda (c) (princ c) (use-value 'doc-restart))))
-  (setf (documentation '(doc-restart) 'function)
-        "docstring for doc-restart")
-  (documentation 'doc-restart 'function))
-"docstring for doc-restart"
+(handler-bind ((error (lambda (c) (princ c) (use-value 'check-use-value))))
+  (setf (documentation '(check-use-value) 'function)
+        "docstring for check-use-value")
+  (documentation 'check-use-value 'function))
+"docstring for check-use-value"
 
-(unintern 'doc-restart)
-T
+(handler-bind ((error (lambda (c) (princ c) (use-value 'use-value-read))))
+  (setf (documentation '(use-value-read) 'function)
+        "docstring for use-value-read")
+  (documentation 'use-value-read 'function))
+"docstring for use-value-read"
+
+(unintern 'check-use-value) T
+(unintern 'use-value-read) T

@@ -1,6 +1,6 @@
 ;;; Foreign function interface for CLISP
 ;;; Bruno Haible 19.2.1995
-;;; Sam Steingold 1998-2005
+;;; Sam Steingold 1998-2006
 
 #+UNICODE
 (progn
@@ -1026,7 +1026,8 @@
                                    :built-in :library :documentation)
                          whole-form))
          (def (gensym "DEF-CALL-OUT-"))
-         (doc (assoc ':documentation alist))
+         (properties (and (>= 1 (compiler::declared-optimize 'space))
+                          (assoc ':documentation alist)))
          (library (second (assoc :library alist)))
          (c-name (foreign-name name (assoc :name alist)))
          (built-in (second (assoc :built-in alist)))
@@ -1036,8 +1037,8 @@
     `(LET ((,def ,(if library
                       `(FFI::FOREIGN-LIBRARY-FUNCTION
                         ',c-name (FFI::FOREIGN-LIBRARY ,library)
-                        NIL ,ctype)
-                      `(LOOKUP-FOREIGN-FUNCTION ',c-name ,ctype))))
+                        ',properties NIL ,ctype)
+                      `(LOOKUP-FOREIGN-FUNCTION ',c-name ,ctype ',properties))))
        (EXT:COMPILER-LET ((,def ,ctype))
          ,(unless library
             `(EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ,def ',built-in)))
@@ -1045,7 +1046,6 @@
            (COMPILER::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,ctype))))
        (WHEN ,def                       ; found library function
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-         ,@(when doc `((SETF (DOCUMENTATION ',name 'FUNCTION) ',(second doc))))
          (SYSTEM::%PUTD ',name ,def))
        ',name)))
 

@@ -1,7 +1,7 @@
 /*
  * list of all objects known to the C-program ("program-constants")
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2006
  * German comments translated into English: Stefan Kain 2002-02-20
 
  The symbols are already treated specially in CONSTSYM.
@@ -331,7 +331,7 @@
   LISPOBJ(memory_image_host,"NIL") # the host on which this image was dumped
   /* The date of the last change of the bytecode interpreter
      or the arglist of any built-in function in FUNTAB */
-  LISPOBJ(version,"(20050505)")
+  LISPOBJ(version,"(20060802)")
 #ifdef MACHINE_KNOWN
   LISPOBJ(machine_type_string,"NIL")
   LISPOBJ(machine_version_string,"NIL")

@@ -180,7 +180,7 @@
 
 #|
 The compiler's target is the virtual machine described in <doc/impbyte.xml>
-and <http://clisp.cons.org/impnotes.html#bytecode>.
+and <http://clisp.cons.org/impnotes/bytecode.html>.
 
 1. Pass of the Compiler:
    macro-expansion,
@@ -203,8 +203,9 @@ and <http://clisp.cons.org/impnotes.html#bytecode>.
     further constants)
 |#
 
-(defun make-closure (&key name codevec consts seclass)
-  (sys::%make-closure name (sys::make-code-vector codevec) consts seclass))
+(defun make-closure (&key name codevec consts seclass lambda-list documentation)
+  (sys::%make-closure name (sys::make-code-vector codevec) consts seclass
+                      lambda-list documentation))
 
 ;; The instruction list is in <doc/impbyte.xml>.
 
@@ -1391,8 +1392,8 @@ for-value   NIL or T
 ;; DEBUG >= 3 =>
 ;;       >= 2 => every function has an exit restart [not implemented yet]
 ;;       >= 1 =>
-;; SPACE >= 3 =>
-;;       >= 2 =>
+;; SPACE >= 3 => discard arglist
+;;       >= 2 => discard doc string
 ;;       >= 1 =>
 ;; SPEED >= 3 =>
 ;;       >= 2 =>
@@ -1418,7 +1419,7 @@ for-value   NIL or T
 (defun parse-optimize-quality (spec)
   (macrolet ((broken (&rest args)
                `(progn
-                  (funcall (if (boundp '*warning-count*) #'c-warn 'warn) ,@args)
+                  (c-warn 'warn ,@args)
                   (values))))
     (let ((quality spec) (value 3))
       (if (or (symbolp spec)
@@ -1598,7 +1599,9 @@ for-value   NIL or T
   (rest-flag nil) ; Flag, if &REST - Parameter is specified.
   (keyword-flag nil) ; Flag, if &KEY - Parameter is specified.
   (keywords nil)  ; List of Keyword-Constants (in the right order)
-  allow-other-keys-flag ; &ALLOW-OTHER-KEYS-Flag
+  allow-other-keys-flag         ; &ALLOW-OTHER-KEYS-Flag
+  lambda-list                   ; as passed to defun, discarded if SPACE >= 3
+  documentation                 ; discarded if SPACE >= 2
   Consts-Offset   ; number of local constants so far
   (consts nil)    ; List of other constants of this function
                   ; this list is built up foremost in the second pass.
@@ -3986,10 +3989,12 @@ for-value   NIL or T
             (fnode-rest-flag *func*) (not (eql restvar 0))
             (fnode-keyword-flag *func*) keyflag
             (fnode-keywords *func*) keyword
+            (fnode-lambda-list *func*) lalist
             (fnode-allow-other-keys-flag *func*) allow-other-keys)
       (when fenv-cons (setf (caar fenv-cons) *func*)) ; Fixup for c-LABELS
-      (multiple-value-bind (body-rest declarations)
+      (multiple-value-bind (body-rest declarations docstring)
           (parse-body (cdr lambdabody) t)
+        (setf (fnode-documentation *func*) docstring)
         (setq declarations (nreconc type-decls declarations))
         (let ((oldstackz *stackz*)
               (*stackz* *stackz*)
@@ -10567,11 +10572,24 @@ freshly rebuilt as list of bytes.
 
 The function make-closure is required.
 |#
+(defun non-user-symbol-p (sym)
+  (let ((package (symbol-package sym)))
+    (or (null package) (eq package #,(find-package "SYSTEM")))))
+(defun generatedp (fname lambda-list)
+  (or (null fname)              ; no name
+      (keywordp fname)          ; :lambda
+      (and (symbolp fname) (non-user-symbol-p fname)) ; gensym
+      (and (consp fname) (non-user-symbol-p (second fname))) ; (setf gensym)
+      (some #'(lambda (arg) (and (symbolp arg) (non-user-symbol-p arg)))
+            lambda-list)))      ; gensyms in lambda-list
 ;; enters a byte-list as Code into fnode.
-(defun create-fun-obj (fnode byte-list SPdepth)
+(defun create-fun-obj (fnode byte-list SPdepth
+                       &aux (fname (fnode-name fnode))
+                            (lambda-list (fnode-lambda-list fnode))
+                            (!generatedp (not (generatedp fname lambda-list))))
   (setf (fnode-code fnode)
     (make-closure
-      :name (fnode-name fnode)
+      :name fname
       :codevec
         (macrolet ((as-word (anz)
                      (if *big-endian*
@@ -10620,7 +10638,15 @@ The function make-closure is required.
           (if (fnode-gf-p fnode)
             (list (coerce l 'simple-vector))
             l))
-        :seclass (anode-seclass (fnode-code fnode))))
+      :seclass (anode-seclass (fnode-code fnode))
+      ;; no metadata for anonymous functions
+      ;; NB: :lambda-list 0 ==> :documentation 0
+      :lambda-list (if (and !generatedp (>= 2 (declared-optimize 'space)))
+                       lambda-list
+                       0)       ; discard
+      :documentation (if (and !generatedp (>= 1 (declared-optimize 'space)))
+                         (fnode-documentation fnode)
+                         0)))   ; discard
   fnode)
 
 ;; Return the signature of the byte-compiled function object

@@ -1,7 +1,7 @@
 /* Foreign language interface for CLISP
  * Marcus Daniels 8.4.1994
  * Bruno Haible 1995-2005
- * Sam Steingold 2000-2005
+ * Sam Steingold 2000-2006
  */
 
 #include "lispbibl.c"
@@ -3107,11 +3107,12 @@ nonreturning_function(local, fehler_function_no_fvd,
   fehler(error,GETTEXT("~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"));
 }
 
-/* (FFI::LOOKUP-FOREIGN-FUNCTION foreign-function-name foreign-type)
+/* (FFI::LOOKUP-FOREIGN-FUNCTION foreign-function-name foreign-type properties)
  looks up a foreign function, given its Lisp name. */
-LISPFUNN(lookup_foreign_function,2)
+LISPFUNN(lookup_foreign_function,3)
 {
   var object ffun = allocate_ffunction();
+  var object props = popSTACK();
   var object fvd = popSTACK();
   var object name = popSTACK();
   if (!(simple_vector_p(fvd) && (Svector_length(fvd) == 4)
@@ -3143,6 +3144,7 @@ LISPFUNN(lookup_foreign_function,2)
   TheFfunction(ffun)->ff_resulttype = TheSvector(fvd)->data[1];
   TheFfunction(ffun)->ff_argtypes = TheSvector(fvd)->data[2];
   TheFfunction(ffun)->ff_flags = TheSvector(fvd)->data[3];
+  TheFfunction(ffun)->ff_properties = props;
   VALUES1(ffun);
 }
 
@@ -4349,12 +4351,12 @@ LISPFUNN(foreign_library_variable,4)
   VALUES1(STACK_0/*fvar*/); skipSTACK(4+1);
 }
 
-/* (FFI::FOREIGN-LIBRARY-FUNCTION name library offset c-function-type)
- returns a foreign function. */
-LISPFUNN(foreign_library_function,4)
+/* (FFI::FOREIGN-LIBRARY-FUNCTION name library properties offset
+     c-function-type) returns a foreign function. */
+LISPFUNN(foreign_library_function,5)
 {
-  STACK_3 = coerce_ss(STACK_3);
-  STACK_2 = check_library(STACK_2);
+  STACK_4 = coerce_ss(STACK_4);
+  STACK_3 = check_library(STACK_3);
   if (!nullp(STACK_1)) STACK_1 = check_sint32(STACK_1);
   {
     var object fvd = STACK_0;
@@ -4368,9 +4370,9 @@ LISPFUNN(foreign_library_function,4)
       fehler(error,GETTEXT("~S: illegal foreign function type ~S"));
     }
   }
-  pushSTACK(object_address(STACK_2,STACK_3,STACK_1));
+  pushSTACK(object_address(STACK_3,STACK_4,STACK_1));
   if (eq(nullobj,STACK_0)) {    /* not found and ignored  */
-    skipSTACK(4+1); VALUES1(NIL); return;
+    skipSTACK(5+1); VALUES1(NIL); return;
   }
   var object ffun = allocate_ffunction();
   var object fvd = STACK_(0+1);
@@ -4379,9 +4381,10 @@ LISPFUNN(foreign_library_function,4)
   TheFfunction(ffun)->ff_resulttype = TheSvector(fvd)->data[1];
   TheFfunction(ffun)->ff_argtypes = TheSvector(fvd)->data[2];
   TheFfunction(ffun)->ff_flags = TheSvector(fvd)->data[3];
+  TheFfunction(ffun)->ff_properties = STACK_(2+1);
   STACK_0 = ffun; /* save */
-  push_foreign_object(ffun,STACK_(2+1));
-  VALUES1(STACK_0/*ffun*/); skipSTACK(4+1);
+  push_foreign_object(ffun,STACK_(3+1));
+  VALUES1(STACK_0/*ffun*/); skipSTACK(5+1);
 }
 
 #else /* not WIN32_NATIVE HAVE_DLOPEN */
