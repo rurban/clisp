@@ -1026,7 +1026,9 @@
                                    :built-in :library :documentation)
                          whole-form))
          (def (gensym "DEF-CALL-OUT-"))
-         (properties (and (>= 1 (compiler::declared-optimize 'space))
+         (properties (and (>= 1 (compiler::declared-optimize
+                                 'space (and (boundp 'system::*denv*)
+                                             system::*denv*)))
                           (assoc ':documentation alist)))
          (library (second (assoc :library alist)))
          (c-name (foreign-name name (assoc :name alist)))
