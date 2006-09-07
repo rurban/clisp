@@ -51,6 +51,18 @@
 /* Define to 1 if you have the `htons' function. */
 #undef HAVE_HTONS
 
+/* Define to 1 if you have the `if_freenameindex' function. */
+#undef HAVE_IF_FREENAMEINDEX
+
+/* Define to 1 if you have the `if_indextoname' function. */
+#undef HAVE_IF_INDEXTONAME
+
+/* Define to 1 if you have the `if_nameindex' function. */
+#undef HAVE_IF_NAMEINDEX
+
+/* Define to 1 if you have the `if_nametoindex' function. */
+#undef HAVE_IF_NAMETOINDEX
+
 /* Define to 1 if you have the `inet_addr' function. */
 #undef HAVE_INET_ADDR
 
@@ -137,6 +149,9 @@
 
 /* Define to 1 if you have the <stropts.h> header file. */
 #undef HAVE_STROPTS_H
+
+/* Define to 1 if the system has the type `struct if_nameindex'. */
+#undef HAVE_STRUCT_IF_NAMEINDEX
 
 /* Define to 1 if the system has the type `struct iovec'. */
 #undef HAVE_STRUCT_IOVEC
