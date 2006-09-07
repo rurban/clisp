@@ -513,6 +513,53 @@ DEFUN(RAWSOCK:NETWORK, &optional network type)
   else VALUES1(NIL);
 }
 #endif  /* HAVE_NETDB_H */
+/* ================== net/if.h interface ================== */
+/* http://www.opengroup.org/onlinepubs/009695399/basedefs/net/if.h.html */
+#if defined(HAVE_NET_IF_H)
+DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
+  if (missingp(STACK_0)) {
+    int count = 0;
+#  if defined(HAVE_IF_NAMEINDEX) && defined(HAVE_IF_FREENAMEINDEX)
+    struct if_nameindex *ifni;
+    begin_system_call();
+    if ((ifni = if_nameindex()) == NULL) OS_error();
+    end_system_call();
+    for (; ifni[count].if_index; count++) {
+      pushSTACK(allocate_cons());
+      Car(STACK_0) = uint_to_I(ifni[count].if_index);
+      Cdr(STACK_0) = asciz_to_string(ifni[count].if_name,GLO(misc_encoding));
+    }
+    begin_system_call(); if_freenameindex(ifni); end_system_call();
+#  endif
+    VALUES1(listof(count));
+  } else if (uint_p(STACK_0)) {
+#  if defined(HAVE_IF_INDEXTONAME)
+    char name[IF_NAMESIZE];
+    begin_system_call();
+    if (NULL == if_indextoname(I_to_uint(STACK_0),name)) OS_error();
+    end_system_call();
+    VALUES1(asciz_to_string(name,GLO(misc_encoding)));
+#  else
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: no if_indextoname() at configure time"));
+#  endif
+  } else if (stringp(STACK_0)) {
+#  if defined(HAVE_IF_INDEXTONAME)
+    unsigned int idx;
+    with_string_0(STACK_0,GLO(misc_encoding),namez, {
+        begin_system_call();
+        if (0 == (idx = if_nametoindex(namez))) OS_error();
+        end_system_call();
+      });
+    VALUES1(uint_to_I(idx));
+#  else
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: no if_nametoindex() at configure time"));
+#  endif
+  } else fehler_string_integer(STACK_0);
+  skipSTACK(1);
+}
+#endif  /* net/if.h */
 /* ================== sys/socket.h interface ================== */
 DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
            UNSPEC UNIX LOCAL INET IMPLINK PUP CHAOS AX25 DATAKIT CCITT  \
