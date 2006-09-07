@@ -247,6 +247,16 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    <function role="unix">getnetent</function>, and
    <function role="unix">endnetent</function>.
 </simpara></listitem></varlistentry>
+<varlistentry><term><code>(RAWSOCK:IF-NAME-INDEX &optional-amp;
+   &what-r;)</code></term>
+ <listitem><simpara>Call <function role="unix">if_nametoindex</function>
+   when &net-r; is a &string-t; and return an &integer-t;;
+   or call <function role="unix">if_indextoname</function> when
+   &net-r; is an &integer-t; and return a &string-t;.
+   When &what-r; is &nil;, return an &alist; of
+   pairs <literal role="data">(&index-r; . &name-r;)</literal>
+   using <function role="unix">if_nameindex</function>.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:SOCKET-OPTION &sock-r; &name-r;
    &key-amp; :LEVEL)</code></term>
  <term><code>(&setf; (RAWSOCK:SOCKET-OPTION &sock-r; &name-r;

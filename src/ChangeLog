@@ -1,3 +1,7 @@
+2006-09-05  Sam Steingold  <sds@podval.org>
+
+	* modules/rawsock/rawsock.c (RAWSOCK:IF-NAME-INDEX): new function
+
 2006-09-03  Sam Steingold  <sds@podval.org>
 
 	When the OPTIMIZE SPACE level is low enough, keep function
