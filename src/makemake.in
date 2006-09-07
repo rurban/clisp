@@ -3713,7 +3713,7 @@ if [ $CROSS = false ] ; then
     echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
     echotab_mkdir_maybe "\$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
-      echotab "\$(INSTALL_DATA) ${SRCTOPDIR}/emacs/$f \$(DESTDIR)\$(elispdir)/$f"
+      echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(elispdir)/$f"
     done
     echol
     echol "install-man : clisp.1 ${manual_dvi} clisp.html force"
@@ -3933,7 +3933,7 @@ echotab "mkdir \$(TOPDIR)/doc"
 echotab "${HLN} clisp.1 clisp.man ${manual_dvi} clisp.html \$(TXTFILES) \$(IMPNOTES) \$(TOPDIR)/doc"
 echotab "mkdir \$(TOPDIR)/emacs"
 for f in ${EMACS_FILES}; do
-  echotab "${HLN} ${SRCTOPDIR}/emacs/${f} \$(TOPDIR)/emacs/${f}"
+  echotab "${HLN} ${SRCTOPDIR}emacs/${f} \$(TOPDIR)/emacs/${f}"
 done
 echotab "mkdir \$(TOPDIR)/src"
 echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src"
