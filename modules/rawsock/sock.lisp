@@ -15,7 +15,7 @@
            #:socket #:socketpair #:sockatmark #:getnameinfo #:getaddrinfo
            #:sock-read #:sock-write #:sock-close
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-p
-           #:htonl #:htons #:ntohl #:ntohs #:convert-address
+           #:htonl #:htons #:ntohl #:ntohs #:convert-address #:if-name-index
            #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum))
 
 (in-package "RAWSOCK")

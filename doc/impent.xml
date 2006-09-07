@@ -595,6 +595,7 @@
 <!ENTITY dependent-r '<replaceable>dependent</replaceable>'>
 <!ENTITY dest-r '<replaceable>destination</replaceable>'>
 <!ENTITY digits-r '<replaceable>digits</replaceable>'>
+<!ENTITY dim-r '<replaceable>dim</replaceable>'>
 <!ENTITY dimensions-r '<replaceable>dimensions</replaceable>'>
 <!ENTITY direction-r '<replaceable>direction</replaceable>'>
 <!ENTITY dkey-r '<replaceable>dkey</replaceable>'>
@@ -616,6 +617,7 @@
 <!ENTITY host-r '<replaceable>host</replaceable>'>
 <!ENTITY hw '<replaceable>hardware</replaceable>'>
 <!ENTITY i-r '<replaceable>i</replaceable>'>
+<!ENTITY index-r '<replaceable>index</replaceable>'>
 <!ENTITY initargs-r '<replaceable>initargs</replaceable>'>
 <!ENTITY initform-r '<replaceable>initform</replaceable>'>
 <!ENTITY instance-r '<replaceable>instance</replaceable>'>

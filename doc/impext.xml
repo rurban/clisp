@@ -2792,11 +2792,9 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
   <varname>&cplace-r;[<replaceable>index&sub-1;</replaceable>]...[<replaceable>index&sub-n;</replaceable>]</varname>.
   It is a &place; of type &ctype-r;.
   If &cplace-r; is of foreign type <literal role="type">(&c-array-max;
-  &ctype-r; <replaceable>dim</replaceable>)</literal> and 0 &le;
-  <replaceable>index</replaceable> &lt; <replaceable>dim</replaceable>,
-  this will be the &place; corresponding to <code>(&aref;
-  &cplace-r; <replaceable>index</replaceable>)</code> or
-  <varname>&cplace-r;[<replaceable>index</replaceable>]</varname>.
+  &ctype-r; &dim-r;)</literal> and 0 &le; &index-r; &lt; &dim-r;,
+  this will be the &place; corresponding to <code>(&aref; &cplace-r;
+  &index-r;)</code> or <varname>&cplace-r;[&index-r;]</varname>.
   It is a &place; of type &ctype-r;.
 </simpara></listitem></varlistentry>
 

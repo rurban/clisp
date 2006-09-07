@@ -304,6 +304,14 @@ NIL
     (listp (show (rawsock:protocol) :pretty t))) T
 (or (not (fboundp 'rawsock:network))
     (listp (show (rawsock:network) :pretty t))) T
+(or (not (fboundp 'rawsock:if-name-index))
+    (listp (show (rawsock:if-name-index) :pretty t))) T
+
+(when (fboundp 'rawsock:if-name-index)
+  (dolist (i-n (rawsock:if-name-index))
+    (assert (= (rawsock:if-name-index (cdr i-n)) (car i-n)))
+    (assert (string= (rawsock:if-name-index (car i-n)) (cdr i-n)))))
+NIL
 
 (or (not (fboundp 'rawsock:getaddrinfo))
     (listp (show (rawsock:getaddrinfo :node "localhost") :pretty t))) T
