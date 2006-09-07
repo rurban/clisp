@@ -5164,6 +5164,76 @@ _ACEOF
 
 fi
 
+echo "$as_me:$LINENO: checking for struct if_nameindex" >&5
+echo $ECHO_N "checking for struct if_nameindex... $ECHO_C" >&6
+if test "${ac_cv_type_struct_if_nameindex+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#if HAVE_NET_IF_H
+# include <net/if.h>
+#endif
+
+
+int
+main ()
+{
+if ((struct if_nameindex *) 0)
+  return 0;
+if (sizeof (struct if_nameindex))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_struct_if_nameindex=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_struct_if_nameindex=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_struct_if_nameindex" >&5
+echo "${ECHO_T}$ac_cv_type_struct_if_nameindex" >&6
+if test $ac_cv_type_struct_if_nameindex = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_STRUCT_IF_NAMEINDEX 1
+_ACEOF
+
+
+fi
+
 
 echo "$as_me: ${term_bold}** Rawsock (Functions)${term_norm}" >&6
 if test "$ac_cv_header_winsock2_h" = "yes"; then
@@ -5488,7 +5558,11 @@ fi
 
 
 
-for ac_func in socketpair sockatmark recvmsg sendmsg htonl htons ntohl ntohs readv writev getnameinfo getaddrinfo freeaddrinfo gai_strerror endprotoent getprotobyname getprotobynumber getprotoent setprotoent endnetent getnetbyaddr getnetbyname getnetent setnetent
+
+
+
+
+for ac_func in socketpair sockatmark recvmsg sendmsg htonl htons ntohl ntohs readv writev getnameinfo getaddrinfo freeaddrinfo gai_strerror endprotoent getprotobyname getprotobynumber getprotoent setprotoent if_nametoindex if_indextoname if_nameindex if_freenameindex endnetent getnetbyaddr getnetbyname getnetent setnetent
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
