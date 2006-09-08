@@ -1,3 +1,7 @@
+2006-09-07  Sam Steingold  <sds@podval.org>
+
+	* ffi.tst: test FUNCTION-LAMBDA-EXPRESSION on a foreign function
+
 2006-09-04  Sam Steingold  <sds@podval.org>
 
 	* restarts.tst: do not use DOCUMENTATION 'FUNCTION on an
