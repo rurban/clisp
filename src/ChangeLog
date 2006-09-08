@@ -1,3 +1,8 @@
+2006-09-07  Sam Steingold  <sds@podval.org>
+
+	* foreign.d (FOREIGN-LIBRARY-FUNCTION): fixed last patch
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
 2006-09-05  Sam Steingold  <sds@podval.org>
 
 	* modules/rawsock/rawsock.c (RAWSOCK:IF-NAME-INDEX): new function
