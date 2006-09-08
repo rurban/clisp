@@ -4376,7 +4376,7 @@ LISPFUNN(foreign_library_function,5)
   }
   var object ffun = allocate_ffunction();
   var object fvd = STACK_(0+1);
-  TheFfunction(ffun)->ff_name = STACK_(3+1);
+  TheFfunction(ffun)->ff_name = STACK_(4+1);
   TheFfunction(ffun)->ff_address = STACK_0;
   TheFfunction(ffun)->ff_resulttype = TheSvector(fvd)->data[1];
   TheFfunction(ffun)->ff_argtypes = TheSvector(fvd)->data[2];
