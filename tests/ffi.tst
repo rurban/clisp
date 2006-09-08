@@ -1130,16 +1130,19 @@ FM
            (setq i (1- (ash 1 32)))
            (push v ret)
            (setq v #A((unsigned-byte 8) (4) (1 2 3 4)))
-           ;; I depends on endianness!
-           (assert (or (= i (+ (ash 4 24) (ash 3 16) (ash 2 8) 1))
-                       (= i (+ (ash 1 24) (ash 2 16) (ash 3 8) 4)))))
+           (assert (if sys::*big-endian* ; i depends on endianness!
+                       (= i (+ (ash 1 24) (ash 2 16) (ash 3 8) 4))
+                       (= i (+ (ash 4 24) (ash 3 16) (ash 2 8) 1)))))
          (nreverse ret))
     (c-free m)))
 #-BeOS
 (#A((unsigned-byte 8) (4) (0 0 0 0))
  #A((unsigned-byte 8) (4) (255 255 255 255)))
 
-(integerp (sys::code-address-of #'c-malloc)) T
+#-BeOS (integerp (sys::code-address-of #'c-malloc)) T
+#-BeOS (stringp (nth-value 2 (function-lambda-expression #'c-malloc))) T
+
+(type-of (ffi::foreign-library :default))  ffi:foreign-pointer
 
 (listp (macroexpand '(def-c-var foo-var (:type int)))) T
 
