@@ -292,9 +292,18 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    &c-lang; <type>struct sockaddr</type> object.</simpara>
   <warning><simpara>Modifying this &vector-t;'s content will modify the
     &addr-r; argument data!</simpara></warning></listitem></varlistentry>
-<varlistentry><term><code>(RAWSOCK:OPEN-UNIX-SOCKET
-   &path-r; &optional-amp; &type-r;)</code></term>
+<varlistentry><term><code>(RAWSOCK:OPEN-UNIX-SOCKET &path-r;
+   &optional-amp; (&type-r; &stream-k;))</code></term>
  <listitem><simpara>Open a &unix; socket special file.
+   Returns two values: &sock-r; and &addr-r;.
+</simpara></listitem></varlistentry>
+<varlistentry><term><code>(RAWSOCK:OPEN-UNIX-SOCKET-STREAM &path-r;
+   &rest-amp; &options-r; &key-amp; (&type-r; &stream-k;)
+   &allow-other-keys-amp;)</code></term>
+ <listitem><simpara>Open a &unix; socket special file.
+   Returns two values: &stream-r; and &addr-r;.  &type-r; is passed
+   to <function>RAWSOCK:OPEN-UNIX-SOCKET</function>, other &options-r;
+   to &make-stream; (but see <xref linkend="rawsock-not-streams"/>!).
 </simpara></listitem></varlistentry>
 <varlistentry>
  <term><code>(RAWSOCK:IPCSUM &buf-r; &key-amp; start end)</code>
