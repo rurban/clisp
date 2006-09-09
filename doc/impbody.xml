@@ -119,11 +119,108 @@
   <listitem><simpara>load-time evaluation, kept despite the &ansi-cl;
     issue &iss315;.</simpara></listitem></varlistentry>
  <varlistentry><term>#Y</term>
-  <listitem><simpara>function objects and file &encoding;s
+  <listitem><simpara>compiled &function-t; objects and &in-s;'s &encoding;s
  </simpara></listitem></varlistentry>
  <varlistentry><term>#&quot;&quot;</term>
-  <listitem><simpara>&pathname-t;</simpara></listitem></varlistentry>
+  <listitem><simpara>&pathname-t;: <filename>#"test.lisp"</filename>
+   is the value of <code>(&pathname; "test.lisp")</code></simpara>
+ </listitem></varlistentry>
 </variablelist></para>
+
+<section id="sharpsign-backslash"><title>Sharpsign Backslash
+  <ulink url="&clhs;/Body/sec_2-4-8-1.html">[CLHS-2.4.8.1]</ulink></title>
+
+<para><keysym>#\Code</keysym> allows input of characters of arbitrary code:
+ e.g., <keysym>#\Code231</keysym> reads as the character
+ <code>(&code-char; 231.)</code>.</para>
+
+</section>
+
+<section id="sharpsign-less-than"><title>Sharpsign Less-Than-Sign
+  <ulink url="&clhs;/Body/sec_2-4-8-20.html">[CLHS-2.4.8.20]</ulink></title>
+
+<para>This is the list of objects whose external representation cannot
+ be meaningfully read in:<variablelist id="unreadable-objects">
+  <title>Unreadable objects</title>
+<varlistentry><term><literal>#&lt;&type-r; ...&gt;</literal></term>
+ <listitem><simpara>all &structure-object-t;s lacking a keyword
+   constructor</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;ARRAY &type-r;
+   &dimensions-r;&gt;</literal></term>
+ <listitem><simpara>all &array-t;s except &string-t;s, if
+   &print-array-var; is &nil;</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;SYSTEM-FUNCTION &name-r;&gt;</literal></term>
+ <listitem><simpara>built-in function written in &c-lang;
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;ADD-ON-SYSTEM-FUNCTION
+   &name-r;&gt;</literal></term>
+ <listitem><simpara>&module; function written in &c-lang;
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;SPECIAL-OPERATOR &name-r;&gt;</literal></term>
+ <listitem><simpara>special operator handler</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;COMPILED-CLOSURE &name-r;&gt;</literal></term>
+ <listitem><simpara>compiled function, if &pr-closure; is &nil;
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;CLOSURE &name-r; ...&gt;</literal></term>
+ <listitem><simpara>interpreted function</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;FRAME-POINTER #x...&gt;</literal></term>
+ <listitem><simpara>pointer to a stack frame</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;DISABLED POINTER&gt;</literal></term>
+ <listitem><simpara>frame pointer which has become invalid on exit from the
+   corresponding &block; or &tagbody;</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;...STREAM...&gt;</literal></term>
+ <listitem><simpara>&stream-t;</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;PACKAGE &name-r;&gt;</literal></term>
+ <listitem><simpara>&package-t;</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;HASH-TABLE #x...&gt;</literal></term>
+ <listitem><simpara>&hash-table-t;, if &print-array-var; is &nil;
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;READTABLE #x...&gt;</literal></term>
+ <listitem><simpara>&readtable-t;</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;SYMBOL-MACRO &form-r;&gt;</literal></term>
+ <listitem><simpara>&symbol-macro; handler</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;MACRO &func-r;&gt;</literal></term>
+ <listitem><simpara>macro expander (defined by &defmacro; and friends)
+</simpara></listitem></varlistentry>
+<!-- #ifdef FOREIGN -->
+<varlistentry><term><literal>#&lt;&foreign-pointer-t; #x...&gt;</literal></term>
+ <listitem><simpara>foreign pointer (&unix-w32-only;)
+</simpara></listitem></varlistentry>
+<!-- #endif -->
+<!-- #ifdef DYNAMIC_FFI -->
+<varlistentry><term><literal>#&lt;&foreign-address-t; #x...&gt;</literal></term>
+ <listitem><simpara>foreign address (&unix-w32-only;)</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;&foreign-variable-t; &name-r;
+   #x...&gt;</literal></term>
+ <listitem><simpara>foreign variable (&unix-w32-only;)
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;&foreign-function-t; &name-r;
+   #x...&gt;</literal></term>
+ <listitem><simpara>foreign function (&unix-w32-only;)
+</simpara></listitem></varlistentry>
+<!-- #endif -->
+<varlistentry><term><literal>#&lt;UNBOUND&gt;</literal></term>
+ <listitem><simpara><quote>value</quote> of an unbound symbol, an unsupplied
+   optional or keyword argument</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;SPECIAL REFERENCE&gt;</literal></term>
+ <listitem><simpara>environment marker for variables declared &special-dec;
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;DOT&gt;</literal></term>
+ <listitem><simpara>internal &read; result for <quote>.</quote>
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;END OF FILE&gt;</literal></term>
+ <listitem><simpara>internal &read; result, when the &eos; is reached
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;READ-LABEL ...&gt;</literal></term>
+ <listitem><simpara>intermediate &read; result for &sharp-sharp;
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;ADDRESS #x...&gt;</literal></term>
+ <listitem><simpara>machine address, should not occur
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal>#&lt;SYSTEM-POINTER #x...&gt;</literal></term>
+ <listitem><simpara>should not occur</simpara></listitem></varlistentry>
+</variablelist></para>
+</section>
 
 </section>
 </chapter>
@@ -4366,108 +4463,8 @@ warning, you need to fix the source code of the incriminated method.</para>
 <chapter id="reader"><title>Reader
    <ulink url="&clhs;/Body/chap-23.html">[CLHS-23]</ulink></title>
 
-<para>This is the list of objects whose external representation cannot
-  be meaningfully read in:
-<table id="unreadable-objects-table" frame="all">
-  <title>Unreadable objects</title>
-<tgroup cols="2" colsep="1" rowsep="1" align="left">
-<thead><row><entry>format</entry><entry>meaning</entry></row></thead><tbody>
- <row><entry><literal>#&lt;&type-r; ...&gt;</literal></entry>
-  <entry>all &structure-object-t;s lacking a keyword constructor</entry></row>
- <row><entry><literal>#&lt;ARRAY &type-r; &dimensions-r;&gt;</literal></entry>
-  <entry>all &array-t;s except &string-t;s, if &print-array-var; is
-   &nil;</entry></row>
- <row><entry><literal>#&lt;SYSTEM-FUNCTION &name-r;&gt;</literal></entry>
-  <entry>built-in function written in &c-lang;</entry></row>
- <row><entry><literal>#&lt;ADD-ON-SYSTEM-FUNCTION
-    &name-r;&gt;</literal></entry>
-  <entry>&module; function written in &c-lang;</entry></row>
- <row><entry><literal>#&lt;SPECIAL-OPERATOR &name-r;&gt;</literal></entry>
-  <entry>special operator handler</entry></row>
- <row><entry><literal>#&lt;COMPILED-CLOSURE &name-r;&gt;</literal></entry>
-  <entry>compiled function, if &pr-closure; is &nil;</entry></row>
- <row><entry><literal>#&lt;CLOSURE &name-r; ...&gt;</literal></entry>
-  <entry>interpreted function</entry></row>
- <row><entry><literal>#&lt;FRAME-POINTER #x...&gt;</literal></entry>
-  <entry>pointer to a stack frame</entry></row>
- <row><entry><literal>#&lt;DISABLED POINTER&gt;</literal></entry>
-  <entry>frame pointer which has become invalid on exit from the
-   corresponding &block; or &tagbody;</entry></row>
- <row><entry><literal>#&lt;...STREAM...&gt;</literal></entry>
-  <entry>&stream-t;</entry></row>
- <row><entry><literal>#&lt;PACKAGE &name-r;&gt;</literal></entry>
-  <entry>&package-t;</entry></row>
- <row><entry><literal>#&lt;HASH-TABLE #x...&gt;</literal></entry>
-  <entry>&hash-table-t;, if &print-array-var; is &nil;</entry></row>
- <row><entry><literal>#&lt;READTABLE #x...&gt;</literal></entry>
-  <entry>&readtable-t;</entry></row>
- <row><entry><literal>#&lt;SYMBOL-MACRO &form-r;&gt;</literal></entry>
-  <entry>&symbol-macro; handler</entry></row>
- <row><entry><literal>#&lt;MACRO &func-r;&gt;</literal></entry>
-  <entry>macro expander (defined by &defmacro; and friends)</entry></row>
- <!-- #ifdef FOREIGN -->
- <row><entry><literal>#&lt;&foreign-pointer-t; #x...&gt;</literal></entry>
-  <entry>foreign pointer (&unix-w32-only;)</entry></row>
-<!-- #endif -->
-<!-- #ifdef DYNAMIC_FFI -->
- <row><entry><literal>#&lt;&foreign-address-t; #x...&gt;</literal></entry>
-  <entry>foreign address (&unix-w32-only;)</entry></row>
- <row><entry><literal>#&lt;&foreign-variable-t;
-    &name-r; #x...&gt;</literal></entry>
-  <entry>foreign variable (&unix-w32-only;)</entry></row>
- <row><entry><literal>#&lt;&foreign-function-t;
-    &name-r; #x...&gt;</literal></entry>
-  <entry>foreign function (&unix-w32-only;)</entry></row>
-<!-- #endif -->
- <row><entry><literal>#&lt;UNBOUND&gt;</literal></entry>
-  <entry><quote>value</quote> of an unbound symbol, an unsupplied
-   optional or keyword argument</entry></row>
- <row><entry><literal>#&lt;SPECIAL REFERENCE&gt;</literal></entry>
-  <entry>environment marker for variables declared &special-dec;
- </entry></row>
- <row><entry><literal>#&lt;DOT&gt;</literal></entry>
-  <entry>internal &read; result for <quote>.</quote></entry></row>
- <row><entry><literal>#&lt;END OF FILE&gt;</literal></entry>
-  <entry>internal &read; result, when the &eos; is reached
- </entry></row>
- <row><entry><literal>#&lt;READ-LABEL ...&gt;</literal></entry>
-  <entry>intermediate &read; result for &sharp-sharp;</entry></row>
- <row><entry><literal>#&lt;ADDRESS #x...&gt;</literal></entry>
-  <entry>machine address, should not occur</entry></row>
- <row><entry><literal>#&lt;SYSTEM-POINTER #x...&gt;</literal></entry>
-  <entry>should not occur</entry></row>
-</tbody></tgroup></table></para>
-
-<section id="chario"><title>Characters</title>
-
-<para><keysym>#\Code</keysym> allows input of characters of arbitrary code:
- e.g., <keysym>#\Code231</keysym> reads as the character
- <code>(&code-char; 231.)</code>.</para>
-
-</section>
-
-<section id="read-dispatch-ext"><title>Additional read dispatch macros</title>
-
-<itemizedlist>
-<listitem><simpara><keysym>#Y</keysym> is used to read compiled
-  functions and to set the current &in-s;'s &encoding;.
-  </simpara></listitem>
-<listitem><simpara><filename>#""</filename> is used to read pathnames:
-  <filename>#"test.lisp"</filename> is the value of <code>(&pathname;
-   "test.lisp")</code></simpara>
-<variablelist>
-<!-- #if defined(WIN32) -->
-<varlistentry><term>&win32-only;</term>
-<listitem><simpara>As in all strings, backslashes must be written twice
-  here: <filename>#"A:\\programs\\test.lisp"</filename>
-  </simpara></listitem></varlistentry>
-<!-- #endif -->
-</variablelist></listitem>
-</itemizedlist>
-
-</section>
-
-<section id="rt-case"><title>Function &readtable-case;</title>
+<section id="rt-case"><title>Effect of Readtable Case on the Lisp Reader
+  <ulink url="&clhs;/Body/sec_23-1-2.html">[CLHS-23.1.2]</ulink></title>
 
 <para>When the value of <code>(&readtable-case;
  <replaceable>readtable</replaceable>)</code> is
@@ -4475,6 +4472,14 @@ warning, you need to fix the source code of the incriminated method.</para>
  symbol name of a symbol separately (not to the entire token at once).
  An alternative to the use of &readtable-case; is the use of the
  &case-sensitive-k; option of &make-package; and &defpackage;.</para>
+
+</section>
+
+<section id="recursive-p"><title>The &rec-p; argument
+  <ulink url="&clhs;/Body/sec_23-1-3-2.html">[CLHS-23.1.3.2]</ulink></title>
+
+<para>When non-&nil; &rec-p; argument is passed to a top-level &read;
+ call, an &err-sig;.</para>
 
 </section>
 
