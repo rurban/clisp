@@ -2215,12 +2215,20 @@ local maygc object read_recursive_no_dot (const gcv_object_t* stream_) {
   return ergebnis;
 }
 
-# UP: disentangles #n# - References to #n= - markings in an Object.
-# > value of SYS::*READ-REFERENCE-TABLE*:
-#     Aliste of Pairs (marking . marked Object), where
-#     each marking is an object  #<READ-LABEL n>.
-# > obj: Object
-# < result: destructively  modified Object without References
+/* error-message due to an invalid value of an internal variable */
+nonreturning_function(local, fehler_invalid_value, (object symbol)) {
+  pushSTACK(Symbol_value(symbol)); pushSTACK(symbol);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,
+         GETTEXT("~S: the value of ~S has been arbitrarily altered to ~S"));
+}
+
+/* UP: disentangles #n# - References to #n= - markings in an Object.
+ > value of SYS::*READ-REFERENCE-TABLE*:
+     Alist of Pairs (marking . marked Object), where
+     each marking is an object #<READ-LABEL n>.
+ > obj: Object
+ < result: destructively modified Object without References */
 local object make_references (object obj) {
   var object alist = Symbol_value(S(read_reference_table));
   # SYS::*READ-REFERENCE-TABLE* = NIL -> nothing to do:
@@ -2234,13 +2242,8 @@ local object make_references (object obj) {
           goto fehler_badtable;
         alistr = Cdr(alistr);
       }
-      if (!nullp(alistr)) {
-      fehler_badtable:
-        pushSTACK(S(read_reference_table));
-        pushSTACK(S(read));
-        fehler(error,
-               GETTEXT("~S: the value of ~S has been arbitrarily altered"));
-      }
+      if (!nullp(alistr)) fehler_badtable:
+        fehler_invalid_value(S(read_reference_table));
     }
     /* Alist alist is OK */
     pushSTACK(obj);
@@ -3675,13 +3678,8 @@ local maygc object lookup_label (void) {
       return label;
     }
   }
- bad_reftab: # value of SYS::*READ-REFERENCE-TABLE* is no Alist
-  pushSTACK(Symbol_value(S(read_reference_table))); # value of SYS::*READ-REFERENCE-TABLE*
-  pushSTACK(S(read_reference_table)); # SYS::*READ-REFERENCE-TABLE*
-  pushSTACK(STACK_(2+2)); # Stream
-  pushSTACK(S(read));
-  fehler(error,
-         GETTEXT("~S from ~S: the value of ~S has been altered arbitrarily, it is not an alist: ~S"));
+ bad_reftab:      /* value of SYS::*READ-REFERENCE-TABLE* is no Alist */
+  fehler_invalid_value(S(read_reference_table));
 }
 
 LISPFUNN(label_definition_reader,3) { # reads #=
@@ -6372,13 +6370,10 @@ local bool circle_p (object obj,circle_info_t* ci) {
     var object table = Symbol_value(S(print_circle_table)); # SYS::*PRINT-CIRCLE-TABLE*
     if (nullp(table))     /* no circularities were detected in object */
       goto normal;
-    if (!simple_vector_p(table)) { # should be a simple-vector!
-    bad_table:
-      dynamic_bind(S(print_circle),NIL); # bind *PRINT-CIRCLE* to NIL
-      pushSTACK(S(print_circle_table)); # SYS::*PRINT-CIRCLE-TABLE*
-      pushSTACK(S(print));
-      fehler(error,
-             GETTEXT("~S: the value of ~S has been arbitrarily altered"));
+    if (!simple_vector_p(table)) { /* should be a simple-vector! */
+     bad_table:
+      dynamic_bind(S(print_circle),NIL); /* bind *PRINT-CIRCLE* to NIL */
+      fehler_invalid_value(S(print_circle_table));
     }
     # loop through the vector table = #(i ...) with m+1 (0<=i<=m) elements:
     # if obj is among the elements 1,...,i  -> case false, n:=Index.
