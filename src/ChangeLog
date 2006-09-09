@@ -1,3 +1,8 @@
+2006-09-09  Sam Steingold  <sds@podval.org>
+
+	* io.d (fehler_invalid_value): new function
+	(make_references, lookup_label, circle_p): use it
+
 2006-09-07  Sam Steingold  <sds@podval.org>
 
 	* modules/rawsock/sock.lisp (open-unix-socket, open-unix-socket-stream):
