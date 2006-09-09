@@ -1,5 +1,10 @@
 2006-09-07  Sam Steingold  <sds@podval.org>
 
+	* modules/rawsock/sock.lisp (open-unix-socket, open-unix-socket-stream):
+	export; fixed socket calls (:AF_UNIX -> :UNIX, :SOCK_STREAM -> :STREAM)
+
+2006-09-07  Sam Steingold  <sds@podval.org>
+
 	* foreign.d (FOREIGN-LIBRARY-FUNCTION): fixed last patch
 	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
 
