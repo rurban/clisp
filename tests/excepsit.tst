@@ -995,6 +995,11 @@ type-error
 (setf (readtable-case *readtable*) ':unknown)
 type-error
 
+;; recursive-p=T on top-level form
+;; http://clisp.cons.org/impnotes/recursive-p.html
+(with-input-from-string (s "#1=(#1#)") (read s nil nil t))
+error
+
 (realpart #\c)
 type-error
 
