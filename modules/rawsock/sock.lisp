@@ -16,7 +16,8 @@
            #:sock-read #:sock-write #:sock-close
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-p
            #:htonl #:htons #:ntohl #:ntohs #:convert-address #:if-name-index
-           #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum))
+           #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum
+           #:open-unix-socket #:open-unix-socket-stream))
 
 (in-package "RAWSOCK")
 (pushnew :rawsock *features*)
@@ -61,10 +62,10 @@
                 :displaced-index-offset offset
                 :element-type '(unsigned-byte 8))))
 
-(defun open-unix-socket (pathname &optional (type :SOCK_STREAM))
+(defun open-unix-socket (pathname &optional (type :STREAM))
   "Return the socket (fixnum) pointing to this UNIX socket special device."
-  (let* ((socket (socket :AF_UNIX type 0))
-         (address (make-sockaddr :AF_UNIX
+  (let* ((socket (socket :UNIX type 0))
+         (address (make-sockaddr :UNIX
                                  (ext:convert-string-to-bytes
                                   (namestring (ext:absolute-pathname pathname))
                                   #+UNICODE custom:*pathname-encoding*
@@ -72,7 +73,7 @@
     (connect socket address)
     (values socket address)))
 
-(defun open-unix-socket-stream (pathname &rest opts &key (type :SOCK_STREAM)
+(defun open-unix-socket-stream (pathname &rest opts &key (type :STREAM)
                                 &allow-other-keys)
   "Return the lisp STREAM pointing to this UNIX socket special device.
 The return value is already FINALIZEd by CLOSE.
