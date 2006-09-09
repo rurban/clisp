@@ -2227,10 +2227,9 @@ local object make_references (object obj) {
   if (nullp(alist)) {
     return obj;
   } else {
-    # Check if SYS::*READ-REFERENCE-TABLE* is an alist:
-    {
-      var object alistr = alist; # run through list
-      while (consp(alistr)) { # each List-Element must be a Cons:
+    { /* Check if SYS::*READ-REFERENCE-TABLE* is an alist: */
+      var object alistr = alist; /* run through list */
+      while (consp(alistr)) {    /* each List-Element must be a Cons: */
         if (!mconsp(Car(alistr)))
           goto fehler_badtable;
         alistr = Cdr(alistr);
@@ -2243,12 +2242,12 @@ local object make_references (object obj) {
                GETTEXT("~S: the value of ~S has been arbitrarily altered"));
       }
     }
-    # Alist alist is OK
+    /* Alist alist is OK */
     pushSTACK(obj);
     var object bad_reference =
-      subst_circ(&STACK_0,alist); # substitute References by Objects
+      subst_circ(&STACK_0,alist); /* substitute References by Objects */
     if (!eq(bad_reference,nullobj)) {
-      pushSTACK(unbound); # STREAM-ERROR slot STREAM
+      pushSTACK(unbound);       /* STREAM-ERROR slot STREAM */
       pushSTACK(Symbol_value(S(read_reference_table)));
       pushSTACK(S(read_reference_table));
       pushSTACK(obj);
