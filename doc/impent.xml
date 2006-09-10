@@ -606,6 +606,7 @@
 <!ENTITY eof-ep '<replaceable>eof-error-p</replaceable>'>
 <!ENTITY eof-v '<replaceable>eof-value</replaceable>'>
 <!ENTITY f-r '<replaceable>f</replaceable>'>
+<!ENTITY family-r '<replaceable>family</replaceable>'>
 <!ENTITY filename-r '<replaceable>filename</replaceable>'>
 <!ENTITY form-r '<replaceable>form</replaceable>'>
 <!ENTITY fmt-r '<replaceable>format-string</replaceable>'>
