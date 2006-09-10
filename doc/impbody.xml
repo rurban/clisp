@@ -2215,7 +2215,7 @@ can give problems:
               <entry><keycode>#x1F</keycode></entry></row>
 </tbody></tgroup></table>
 
-<para>See also <xref linkend="chario"/>.</para>
+<para>See also <xref linkend="sharpsign-bacbkslash"/>.</para>
 
 <section id="char-script"><title>Character Scripts
    <ulink url="&clhs;/Body/sec_13-1-2-1.html">[CLHS-13.1.2.1]</ulink></title>
