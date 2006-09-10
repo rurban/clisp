@@ -1,3 +1,8 @@
+2006-09-10  Sam Steingold  <sds@podval.org>
+
+	* path.tst: test bug [ 1555096 ]: cannot create pathnames with
+	:wild-inferiors
+
 2006-09-09  Sam Steingold  <sds@podval.org>
 
 	* excepsit.tst: check that top-level READ with recursive-p=T

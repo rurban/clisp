@@ -44,6 +44,8 @@ User visible changes
     Stephen Compall <s11001001@users.sourceforge.net>). [ 1550803 ]
   + Executable images now work on ia64 (thanks to Dr. Werner Fink
     <werner@suse.de>).
+  + MAKE-PATHNAME on win32 now handles correctly directories that start
+    with a non-string (e.g., :WILD). [ 1555096 ]
 
 
 2.39 (2006-07-16)
