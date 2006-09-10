@@ -313,6 +313,8 @@ NIL
     (assert (string= (rawsock:if-name-index (car i-n)) (cdr i-n)))))
 NIL
 
+(or (not (fboundp 'rawsock:ifaddrs))
+    (listp (show (rawsock:ifaddrs) :pretty t))) T
 (or (not (fboundp 'rawsock:getaddrinfo))
     (listp (show (rawsock:getaddrinfo :node "localhost") :pretty t))) T
 (or (not (fboundp 'rawsock:getaddrinfo))

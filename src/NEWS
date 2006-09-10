@@ -22,7 +22,7 @@ User visible changes
 * Function PCRE:PCRE-EXEC accepts :DFA and calls pcre_dfa_exec() when
   built against PCRE v6.  See <http://clisp.cons.org/impnotes/pcre.html>.
 
-* New function RAWSOCK:IF-NAME-INDEX.
+* New functions RAWSOCK:IF-NAME-INDEX, RAWSOCK:IFADDRS.
   See <http://clisp.cons.org/impnotes/rawsock.html>.
 
 * When the OPTIMIZE SPACE level is low enough, keep function
