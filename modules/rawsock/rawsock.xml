@@ -102,7 +102,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <listitem><simpara>An &integer-t; (returned by
    <function role="unix">socketpair</function> or
    <function role="unix">socket</function>).</simpara></listitem></varlistentry>
-<varlistentry><term><type>int</type> <replaceable>family</replaceable></term>
+<varlistentry><term><type>int</type> &family-r;</term>
  <term><type>int</type> &dom-r;</term>
  <listitem><simpara>A &nil; (stands for <constant>AF_UNSPEC</constant>),
    &integer-t;, or a platform-specific keyword, e.g.,
@@ -272,7 +272,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    &nil; and/or <replaceable>level</replaceable> is &all-k;) options.
    (See also &so-opt;.)</simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:CONVERT-ADDRESS
-   <replaceable>family</replaceable> &addr-r;)</code></term>
+   &family-r; &addr-r;)</code></term>
  <listitem><para>Convert between &string-t; and &integer-t; IP
    &addr-r; representations using<simplelist columns="2">
     <member><function role="unix">inet_addr</function></member>
@@ -281,14 +281,14 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     <member><function role="unix">inet_pton</function></member>
 </simplelist></para></listitem></varlistentry>
 <varlistentry id="make-sockaddr"><term><code>(RAWSOCK:MAKE-SOCKADDR
-   <replaceable>family</replaceable> &optional-amp; &data-r;)</code></term>
+   &family-r; &optional-amp; &data-r;)</code></term>
  <listitem><simpara>Create a <type>sockaddr</type> object.
    &data-r; should be a sequence of &ubyte-8; or an &integer-t;
    (meaning <code>(&make-list; &data-r; :initial-element 0)</code>).
    When omitted, the standard platform-specific size is used.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:SOCKADDR-FAMILY &addr-r;)</code></term>
- <listitem><simpara>Return the numeric family of the
+ <listitem><simpara>Return the numeric &family-r; of the
    <type>sockaddr</type> object.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:SOCKADDR-DATA &addr-r;)</code></term>
  <listitem><simpara>Return a &fresh; &vector-t; displaced to the
