@@ -1,5 +1,11 @@
 2006-09-09  Sam Steingold  <sds@podval.org>
 
+	* modules/rawsock/rawsock.c (sockaddr_to_lisp): added
+	(RAWSOCK:IFADDRS): implemented
+	* modules/rawsock/sock.lisp (ifaddrs): added defstruct
+
+2006-09-09  Sam Steingold  <sds@podval.org>
+
 	* io.d (fehler_invalid_value): new function
 	(make_references, lookup_label, circle_p): use it
 
