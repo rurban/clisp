@@ -89,6 +89,9 @@
 #if defined(HAVE_SYS_UIO_H)
 # include <sys/uio.h>
 #endif
+#if defined(HAVE_IFADDRS_H)
+# include <ifaddrs.h>
+#endif
 typedef SOCKET rawsock_t;
 #if SIZEOF_SIZE_T == 8
 # define size_to_I  uint64_to_I
@@ -247,11 +250,22 @@ DEFUN(RAWSOCK::SOCKADDR-SLOT,&optional slot) {
 }
 
 /* can trigger GC */
-static object make_sockaddr (void) {
-  pushSTACK(allocate_bit_vector(Atype_8Bit,sizeof(struct sockaddr)));
+static object make_sockaddr1 (uintL size) {
+  pushSTACK(allocate_bit_vector(Atype_8Bit,size));
   funcall(`RAWSOCK::MAKE-SA`,1);
   return value1;
 }
+#define make_sockaddr()  make_sockaddr1(sizeof(struct sockaddr))
+
+/* can trigger GC */
+static object sockaddr_to_lisp (struct sockaddr *sa, uintL size) {
+  pushSTACK(allocate_bit_vector(Atype_8Bit,size));
+  begin_system_call();
+  memcpy(TheSbvector(STACK_0)->data,sa,size);
+  end_system_call();
+  funcall(`RAWSOCK::MAKE-SA`,1); return value1;
+}
+#define sockaddr_to_lisp1(sa)  sockaddr_to_lisp(sa,sizeof(*sa))
 
 struct pos {
   gcv_object_t *vector;
@@ -560,6 +574,37 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
   skipSTACK(1);
 }
 #endif  /* net/if.h */
+/* ================== ifaddrs.h interface ================== */
+#if defined(HAVE_IFADDRS_H) && defined(HAVE_GETIFADDRS) && defined(HAVE_FREEIFADDRS)
+DEFCHECKER(check_iff,prefix=IFF,bitmasks=both,UP BROADCAST DEBUG LOOPBACK \
+           POINTOPOINT NOTRAILERS RUNNING NOARP PROMISC ALLMULTI MASTER \
+           SLAVE MULTICAST PORTSEL AUTOMEDIA DYNAMIC)
+DEFUN(RAWSOCK:IFADDRS,) {
+  struct ifaddrs *ifap;
+  int count;
+  begin_system_call(); if(-1==getifaddrs(&ifap)) OS_error(); end_system_call();
+  for (count=0; ifap; ifap=ifap->ifa_next, count++) {
+    pushSTACK(asciz_to_string(ifap->ifa_name,GLO(misc_encoding)));
+    pushSTACK(check_iff_to_list(ifap->ifa_flags));
+    pushSTACK(ifap->ifa_addr ? sockaddr_to_lisp1(ifap->ifa_addr) : NIL);
+    pushSTACK(ifap->ifa_netmask ? sockaddr_to_lisp1(ifap->ifa_netmask) : NIL);
+    if (ifap->ifa_flags & IFF_BROADCAST)
+      if (ifap->ifa_flags & IFF_POINTOPOINT) {
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,GETTEXT("~S: both IFF_BROADCAST and IFF_POINTOPOINT set"));
+      } else pushSTACK(ifap->ifa_broadaddr
+                       ? sockaddr_to_lisp1(ifap->ifa_broadaddr) : NIL);
+    else if (ifap->ifa_flags & IFF_POINTOPOINT)
+      pushSTACK(ifap->ifa_dstaddr ? sockaddr_to_lisp1(ifap->ifa_dstaddr) : NIL);
+    else pushSTACK(NIL);
+    pushSTACK(ifap->ifa_data ? allocate_fpointer(ifap->ifa_data) : NIL);
+    funcall(`RAWSOCK::MAKE-IFADDRS`,6);
+    pushSTACK(value1);
+  }
+  begin_system_call(); freeifaddrs(ifap); end_system_call();
+  VALUES1(listof(count));
+}
+#endif  /* ifaddrs.h */
 /* ================== sys/socket.h interface ================== */
 DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
            UNSPEC UNIX LOCAL INET IMPLINK PUP CHAOS AX25 DATAKIT CCITT  \
@@ -865,11 +910,7 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
     pushSTACK(check_socket_domain_reverse(tmp->ai_family));
     pushSTACK(check_socket_type_reverse(tmp->ai_socktype));
     pushSTACK(check_socket_protocol_reverse(tmp->ai_protocol));
-    pushSTACK(allocate_bit_vector(Atype_8Bit,tmp->ai_addrlen));
-    begin_system_call();
-    memcpy(TheSbvector(STACK_0)->data,tmp->ai_addr,tmp->ai_addrlen);
-    end_system_call();
-    funcall(`RAWSOCK::MAKE-SA`,1); pushSTACK(value1);
+    pushSTACK(sockaddr_to_lisp(tmp->ai_addr,tmp->ai_addrlen));
     pushSTACK(tmp->ai_canonname == NULL ? NIL
               : asciz_to_string(tmp->ai_canonname,GLO(misc_encoding)));
     funcall(`RAWSOCK::MAKE-ADDRINFO`,6); pushSTACK(value1);

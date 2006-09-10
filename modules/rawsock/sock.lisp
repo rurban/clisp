@@ -16,7 +16,7 @@
            #:sock-read #:sock-write #:sock-close
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-p
            #:htonl #:htons #:ntohl #:ntohs #:convert-address #:if-name-index
-           #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum
+           #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum #:ifaddrs
            #:open-unix-socket #:open-unix-socket-stream))
 
 (in-package "RAWSOCK")
@@ -34,8 +34,17 @@
   (control #A((unsigned-byte 8) 0 nil) :type (vector (unsigned-byte 8)))
   (flags () :type list))        ; Flags on received message.
 
-(defstruct (addinfo (:constructor make-addrinfo
-                                  (flags family type protocol address name)))
+(defstruct (ifaddrs (:constructor make-ifaddrs (name flags address netmask
+                                                destination data)))
+  (name "" :type string)
+  (flags nil :type list)
+  (address nil :type (or null sockaddr))
+  (netmask nil :type (or null sockaddr))
+  (destination nil :type (or null sockaddr))
+  (data nil :type (or null foreign-pointer)))
+
+(defstruct (addrinfo (:constructor make-addrinfo
+                                   (flags family type protocol address name)))
   (flags nil :type list)
   (family 0 :type integer)
   (type 0 :type integer)
