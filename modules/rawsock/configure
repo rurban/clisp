@@ -3772,6 +3772,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#if defined(HAVE_SYS_TYPES_H)
+# include <sys/types.h> /* for u_long on *BSD */
+#endif
 #if HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
@@ -5105,10 +5108,10 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
 #if defined(HAVE_SYS_TYPES_H)
-#include <sys/types.h> /* for size_t */
+# include <sys/types.h> /* for size_t */
 #endif
 #if defined(HAVE_SYS_UIO_H)
-#include <sys/uio.h>
+# include <sys/uio.h>
 #endif
 
 
