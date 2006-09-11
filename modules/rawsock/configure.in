@@ -18,6 +18,9 @@ CL_TCPCONN
 AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h netdb.h sys/uio.h \
 sys/types.h sys/ioctl.h errno.h stropts.h poll.h sys/un.h ifaddrs.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[
+#if defined(HAVE_SYS_TYPES_H)
+# include <sys/types.h> /* for u_long on *BSD */
+#endif
 #if HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
@@ -39,10 +42,10 @@ AC_CHECK_SIZEOF(ssize_t)
 AC_CHECK_SIZEOF(size_t)
 AC_CHECK_TYPES(struct iovec,,,[
 #if defined(HAVE_SYS_TYPES_H)
-#include <sys/types.h> /* for size_t */
+# include <sys/types.h> /* for size_t */
 #endif
 #if defined(HAVE_SYS_UIO_H)
-#include <sys/uio.h>
+# include <sys/uio.h>
 #endif
 ])
 AC_CHECK_TYPES(struct if_nameindex,,,[
