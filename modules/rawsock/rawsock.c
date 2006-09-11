@@ -575,10 +575,12 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
 }
 #endif  /* net/if.h */
 /* ================== ifaddrs.h interface ================== */
-#if defined(HAVE_IFADDRS_H) && defined(HAVE_GETIFADDRS) && defined(HAVE_FREEIFADDRS)
+#if defined(HAVE_NET_IF_H) && defined(HAVE_IFADDRS_H) && defined(HAVE_GETIFADDRS) && defined(HAVE_FREEIFADDRS)
 DEFCHECKER(check_iff,prefix=IFF,bitmasks=both,UP BROADCAST DEBUG LOOPBACK \
-           POINTOPOINT NOTRAILERS RUNNING NOARP PROMISC ALLMULTI MASTER \
-           SLAVE MULTICAST PORTSEL AUTOMEDIA DYNAMIC)
+           POINTOPOINT NOTRAILERS RUNNING NOARP PROMISC ALLMULTI        \
+           OACTIVE SIMPLEX LINK0 LINK1 LINK2 ALTPHYS POLLING PPROMISC MONITOR \
+           STATICARP NEEDSGIANT                                         \
+           MASTER SLAVE MULTICAST PORTSEL AUTOMEDIA DYNAMIC)
 DEFUN(RAWSOCK:IFADDRS,) {
   struct ifaddrs *ifap;
   int count;
