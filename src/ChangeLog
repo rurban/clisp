@@ -1,5 +1,11 @@
 2006-09-10  Sam Steingold  <sds@podval.org>
 
+	* modules/rawsock/configure.in (net/if.h): need <sys/types.h> on *BSD
+	* modules/rawsock/rawsock.c (RAWSOCK:IFADDRS): also require <net/if.h>
+	(check_iff): added *BSD macros
+
+2006-09-10  Sam Steingold  <sds@podval.org>
+
 	fixed bug #[ 1555096 ]: cannot create pathnames with :wild-inferiors
 	* pathname.d (PARSE-NAMESTRING) [WIN32_NATIVE]: when converting
 	/cygdrive/c to C: check that the first directory component is a string
