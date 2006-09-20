@@ -1,3 +1,8 @@
+2006-09-19  Sam Steingold  <sds@podval.org>
+
+	* foreign.d (convert_from_foreign, convert_to_foreign):
+	check data==NULL and issue an error instead of a segfault
+
 2006-09-15  Sam Steingold  <sds@podval.org>
 
 	more meaningful error message on top-level READ with a non-NIL
