@@ -1040,6 +1040,10 @@ nonreturning_function (local, fehler_eltype_zero_size, (object fvd)) {
 }
 global maygc object convert_from_foreign (object fvd, const void* data)
 {
+  if (NULL == data) {
+    pushSTACK(fvd); pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: trying to read an object of type ~S from NULL address"));
+  }
   check_SP();
   check_STACK();
   if (symbolp(fvd)) {
@@ -1850,6 +1854,10 @@ local maygc void convert_to_foreign_needs (object fvd, object obj,
 global maygc void convert_to_foreign (object fvd, object obj, void* data,
                                       converter_malloc_t converter_malloc)
 {
+  if (NULL == data) {
+    pushSTACK(fvd); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: trying to write object ~S of type ~S into NULL address"));
+  }
   check_SP();
   check_STACK();
   if (symbolp(fvd)) {
