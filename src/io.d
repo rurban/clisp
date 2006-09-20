@@ -2223,6 +2223,14 @@ nonreturning_function(local, fehler_invalid_value, (object symbol)) {
          GETTEXT("~S: the value of ~S has been arbitrarily altered to ~S"));
 }
 
+local object check_read_reference_table (void) {
+  var object val = Symbol_value(S(read_reference_table));
+  if (boundp(val)) return val;
+  pushSTACK(S(read)); pushSTACK(S(read_reference_table));
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~S: symbol ~S is not bound, it appears that top-level ~S was called with a non-NIL recursive-p argument"));
+}
+
 /* UP: disentangles #n# - References to #n= - markings in an Object.
  > value of SYS::*READ-REFERENCE-TABLE*:
      Alist of Pairs (marking . marked Object), where
@@ -2230,7 +2238,7 @@ nonreturning_function(local, fehler_invalid_value, (object symbol)) {
  > obj: Object
  < result: destructively modified Object without References */
 local object make_references (object obj) {
-  var object alist = Symbol_value(S(read_reference_table));
+  var object alist = check_read_reference_table();
   # SYS::*READ-REFERENCE-TABLE* = NIL -> nothing to do:
   if (nullp(alist)) {
     return obj;
@@ -3652,7 +3660,7 @@ local maygc object lookup_label (void) {
   }
   # n is an Integer >=0.
   var object alist = # value of SYS::*READ-REFERENCE-TABLE*
-    Symbol_value(S(read_reference_table));
+    check_read_reference_table();
   # Execute (assoc n alist :test #'read-label-equal):
   var bool smallp = small_read_label_integer_p(n);
   var object label = (smallp ? make_small_read_label(posfixnum_to_V(n)) : nullobj);

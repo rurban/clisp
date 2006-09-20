@@ -1,3 +1,10 @@
+2006-09-15  Sam Steingold  <sds@podval.org>
+
+	more meaningful error message on top-level READ with a non-NIL
+	recursive-p argument
+	* io.d (check_read_reference_table): new function
+	(make_references, lookup_label): use it
+
 2006-09-10  Sam Steingold  <sds@podval.org>
 
 	* modules/rawsock/configure.in (net/if.h): need <sys/types.h> on *BSD
