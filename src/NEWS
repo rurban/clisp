@@ -46,6 +46,8 @@ User visible changes
     <werner@suse.de>).
   + MAKE-PATHNAME on win32 now handles correctly directories that start
     with a non-string (e.g., :WILD). [ 1555096 ]
+  + SOCKET-STREAM-PEER and SOCKET-STREAM-LOCAL had do-not-resolved-p
+    inverted since 2.37.
 
 
 2.39 (2006-07-16)
@@ -76,7 +78,7 @@ User visible changes
 
 * Readline completion works with non 1:1 terminal encodings, e.g. UTF-8.
 
-* WITH-KEYBOARD works with a Unix tty even when SLIME hijacks *TERMINAL-IO*.
+* WITH-KEYBOARD works with the terminal even when SLIME hijacks *TERMINAL-IO*.
 
 * I/O operations on Win32 are now much faster.
 

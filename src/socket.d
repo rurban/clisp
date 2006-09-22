@@ -806,9 +806,9 @@ local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
   return hd;
 }
 
-/* socket_getlocalname(socket_handle,hd)
+/* socket_getlocalname(socket_handle,hd, truename_p)
  Return the IP name of the localhost for the given socket.
- Fills all of *hd.
+ Fills all of *hd, may even fetch truename.
  To be used inside begin/end_system_call() only. */
 global host_data_t * socket_getlocalname (SOCKET socket_handle,
                                           host_data_t * hd, bool resolve_p) {
@@ -825,9 +825,9 @@ global host_data_t * socket_getlocalname (SOCKET socket_handle,
   return hd;
 }
 
-/* socket_getpeername(socket_handle,hd)
+/* socket_getpeername(socket_handle,hd,truename_p)
  Returns the name of the host to which IP socket fd is connected.
- Fills all of *hd.
+ Fills all of *hd, may even fetch truename.
  To be used inside begin/end_system_call() only. */
 global host_data_t * socket_getpeername (SOCKET socket_handle,
                                          host_data_t * hd, bool resolve_p) {

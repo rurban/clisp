@@ -14602,7 +14602,7 @@ typedef host_data_t * host_data_fetcher_t (SOCKET, host_data_t *, bool);
 extern host_data_fetcher_t socket_getpeername, socket_getlocalname;
 
 local void publish_host_data (host_data_fetcher_t* func) {
-  var bool resolve_p = !nullp(STACK_0);
+  var bool resolve_p = missingp(STACK_0);
   var SOCKET sk;
   var host_data_t hd;
   var object hostname;
