@@ -1,3 +1,9 @@
+2006-09-22  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* stream.d (publish_host_data): do-not-resolve-p in
+	SOCKET-STREAM-PEER and SOCKET-STREAM-LOCAL behaves again as
+	documented, like prior to inversion introduced 2005-12-14.
+
 2006-09-19  Sam Steingold  <sds@podval.org>
 
 	* foreign.d (convert_from_foreign, convert_to_foreign):
