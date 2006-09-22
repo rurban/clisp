@@ -500,6 +500,9 @@ NIL
   :pretty t))
 T
 
+(search " (" (socket:socket-stream-local *socket-1* t)) NIL
+(search " (" (socket:socket-stream-peer *socket-1* t)) NIL
+
 (socket-status (cons *socket-2* :input) 0) :INPUT
 (read-char *socket-2*) #\a
 (socket-status (cons *socket-2* :input) 0) NIL
