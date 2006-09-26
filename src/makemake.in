@@ -3330,7 +3330,7 @@ if [ $CROSS = false ] ; then
 
   # have CVS + developer with a network connection => check id-href.map
   # Try wget, lynx, curl in order. wget is common, but MacOS X only has curl.
-  MYIMPROOT=http://www.podval.org/~sds/clisp/impnotes/
+  MYIMPROOT=http://clisp.cons.org/impnotes/
   MYTESTURL=${MYIMPROOT}id-href.map
   if test -d "${SRCTOPDIR_}CVS" \
      && { { wget --version >/dev/null 2>/dev/null \
