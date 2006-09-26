@@ -386,9 +386,8 @@ distrib : fixperms src-distrib doc-distrib gnu-distrib
 # echo URL-tar.bz2| mail -s "clisp-`cat VERSION`" translation@IRO.UMontreal.CA
 # update src/build-aux, modules/regexp and modules/wildcard from gnulib
 ## RELEASE TODO:
-# Before doing a "make src-distrib":
-# * update version.sh, src/NEWS, src/HISTORY
-# * update clisp.lsm, clisp.spec
+# Before doing a "make distrib":
+# * update version.sh, src/NEWS, src/HISTORY, clisp.lsm
 # * "make -f Makefile.devel all"
 # web pages to be updated:
 # * www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/

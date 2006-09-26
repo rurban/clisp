@@ -1,3 +1,7 @@
+2006-09-23  Sam Steingold  <sds@podval.org>
+
+	* version.sh: clisp 2.40 release
+
 2006-09-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* stream.d (publish_host_data): do-not-resolve-p in
