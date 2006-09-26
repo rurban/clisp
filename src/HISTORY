@@ -1,5 +1,7 @@
 Version  Date            New features
 
+2.40     2006-09-23      Keep doc string and lambda list in the closure object.
+
 2.39     2006-07-16      Reliable stack overflow detection and recovery.
 
 2.38     2006-01-24      SAVEINITMEM creates standalone executables.
