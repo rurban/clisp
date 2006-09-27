@@ -5146,7 +5146,11 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # A standalone character. Prefer `chart' to `cint' wherever possible because
 # it is typesafe. sizeof(chart) = sizeof(cint).
 #ifdef CHART_STRUCT
-  typedef struct { cint one_c; } chart;
+  #ifdef __cplusplus
+    struct chart { chart() {} chart(int c) : one_c(c) {} cint one_c; };
+  #else
+    typedef struct { cint one_c; } chart;
+  #endif
 #else
   typedef cint chart;
 #endif
@@ -5156,7 +5160,11 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 #ifdef CHART_STRUCT
   #define as_cint(ch)  ((ch).one_c)
   #if 1
-    #define as_chart(c)  ((chart){one_c:(c)})
+    #ifdef __cplusplus
+      inline chart as_chart(int c) { return chart(c); }
+    #else
+      #define as_chart(c)  ((chart){one_c:(c)})
+    #endif
   #else
     extern __inline__ chart as_chart (register cint c)
       { register chart ch; ch.one_c = c; return ch; }

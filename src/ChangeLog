@@ -15,6 +15,8 @@
 
 	* spvw.d (init_symbol_functions): fix g++ compilation
 	* record.d (CLOSURE-DOCUMENTATION, CLOSURE-LAMBDA-LIST): ditto
+	* lispbibl.d (chart, as_chart): ditto, as recommended by
+	http://groups.google.com/group/comp.lang.c++/msg/a81d13be2aa78176
 
 2006-09-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
