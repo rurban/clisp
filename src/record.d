@@ -477,7 +477,8 @@ LISPFUNNR(closure_documentation,1)
   var object closure = popSTACK();
   if (!cclosurep(closure)) fehler_cclosure(closure);
   VALUES1(TheCodevec(TheClosure(closure)->clos_codevec)->ccv_flags & bit(2)
-          ? TheCclosure(closure)->clos_consts[Cclosure_last_const(closure)]
+          ? (object)TheCclosure(closure)->clos_consts
+             [Cclosure_last_const(closure)]
           : NIL);
 }
 LISPFUNN(closure_set_documentation,2)
@@ -497,7 +498,7 @@ LISPFUNNR(closure_lambda_list,1)
     TheCodevec(TheCclosure(closure)->clos_codevec)->ccv_flags;
   /* depending on bit(2), the ultimate or the penultimate constant */
   VALUES1(ccv_flags & bit(1)
-          ? TheCclosure(closure)->clos_consts
+          ? (object)TheCclosure(closure)->clos_consts
              [Cclosure_last_const(closure)-ccv_flags_documentation_p(ccv_flags)]
           : NIL);
 }
