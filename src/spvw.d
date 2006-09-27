@@ -1110,7 +1110,7 @@ local void init_symbol_functions (void) {
     typedef struct {
       #if defined(INIT_SUBR_TAB) && NIL_IS_CONSTANT
         #define LISPSPECFORM LISPSPECFORM_F
-        object name;
+        gcv_object_t name;
         #define fsubr_name(p)  (p)->name
       #else
         #define LISPSPECFORM LISPSPECFORM_E
