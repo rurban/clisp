@@ -544,3 +544,24 @@ T
                                  (return (streamp (stream-error-stream c))))))
     (read-from-string ",1")))
 T
+
+;; process-declarations is not called in interpreted code
+(let (bad)
+  (declare (optimize safety))
+  (dolist (tp '(arithmetic-error cell-error condition
+                control-error division-by-zero end-of-file error
+                file-error floating-point-inexact
+                floating-point-invalid-operation
+                floating-point-underflow floating-point-overflow
+                package-error parse-error print-not-readable
+                  program-error reader-error serious-condition
+                simple-condition simple-error simple-type-error
+                simple-warning storage-condition stream-error
+                style-warning type-error unbound-slot
+                unbound-variable undefined-function warning)
+           bad)
+    (unless (typep (handler-case (make-condition tp) (error () nil))
+                   'condition)
+      (push tp bad))))
+NIL
+
