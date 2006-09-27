@@ -1407,11 +1407,16 @@ for-value   NIL or T
       (return-from declared-optimize (gethash quality *optimize* 1)))
     (let ((declspec (car denv)))
       (when (eq (car declspec) 'OPTIMIZE)
-        ;; We can use ASSOC here, because PROCESS-DECLARATIONS has
-        ;; canonicalized the syntax to (quality value).
-        (let ((spec (assoc quality (cdr declspec) :test #'eq)))
-          (when spec
-            (return-from declared-optimize (second spec))))))
+        ;; We cannot use ASSOC here (even though PROCESS-DECLARATIONS has
+        ;; canonicalized the syntax to (quality value) in compiled code)
+        ;; because a combination of interpreted and compiled code - e.g., via
+        ;; the (COMPILE) declaration - will break.
+        (dolist (spec (cdr declspec))
+          (if (consp spec)
+              (when (eq (first spec) quality)
+                (return-from declared-optimize (second spec)))
+              (when (eq spec quality)
+                (return-from declared-optimize 3))))))
     (setq denv (cdr denv))))
 
 ;; return 2 values: the quality and the value

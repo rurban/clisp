@@ -2,6 +2,15 @@
 
 	* version.sh: clisp 2.40 release
 
+2006-09-27  Sam Steingold  <sds@podval.org>
+
+	fixed bug #[ 1566466 ]: assoc error when combining compiled and
+	interpreted code
+	* compiler.lisp (declared-optimize): do not use ASSOC because a
+	combination of interpreted and compiled code - e.g., via
+	the (COMPILE) declaration - will break since the declarations in
+	the interpreted code are not canonicalized
+
 2006-09-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* stream.d (publish_host_data): do-not-resolve-p in
