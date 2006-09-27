@@ -11,6 +11,10 @@
 	the (COMPILE) declaration - will break since the declarations in
 	the interpreted code are not canonicalized
 
+2006-09-26  Sam Steingold  <sds@podval.org>
+
+	* spvw.d (init_symbol_functions): fix g++ compilation
+
 2006-09-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* stream.d (publish_host_data): do-not-resolve-p in
