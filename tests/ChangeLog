@@ -1,3 +1,8 @@
+2006-09-27  Sam Steingold  <sds@podval.org>
+
+	* conditions.tst: test bug [ 1566466 ]: assoc error when combining
+	compiled and interpreted code
+
 2006-09-10  Sam Steingold  <sds@podval.org>
 
 	* path.tst: test bug [ 1555096 ]: cannot create pathnames with
