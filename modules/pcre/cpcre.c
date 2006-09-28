@@ -372,7 +372,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :WORK-SPACE :DFA :BOOLEAN :OFFSET \
       ret = dfa_p
         ? pcre_dfa_exec(c_pat,study,subject,subject_bytelen,offset,options,
                         ovector,ovector_size,
-                        alloca(sizeof(int)*workspace_size),workspace_size)
+                        (int*)alloca(sizeof(int)*workspace_size),workspace_size)
         : pcre_exec(c_pat,study,subject,subject_bytelen,offset,options,
                     ovector,ovector_size);
       end_system_call();
