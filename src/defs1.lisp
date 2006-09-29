@@ -239,13 +239,13 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
         (n2 (list-length-proper list)))
     (unless test-not
       (let ((ht-test (case test
-                       (eq 'fasthash-eq)
-                       ((eql nil) 'fasthash-eql)
-                       (equal 'fasthash-equal)
-                       (equalp 'fasthash-equalp))))
-        (when ht-test
-          ;; --- boxers or briefs? ---
-          ;; when is it worthwhile to use HASH-TABLEs as opposed to LISTS?
+                      (eq 'fasthash-eq)
+                      ((eql nil) 'fasthash-eql)
+                      (equal 'fasthash-equal)
+                       (equalp 'equalp)))) ; no separate fasthash & stablehash
+       (when ht-test
+         ;; --- boxers or briefs? ---
+         ;; when is it worthwhile to use HASH-TABLEs as opposed to LISTS?
           ;; in sequence.d:seq_duplicates() we use a HASH-TABLE
           ;; when the list is longer than 10
           ;; here we use the following heuristic,

@@ -1,3 +1,7 @@
+2006-09-28  Sam Steingold  <sds@podval.org>
+
+	* list-set.tst: new file
+
 2006-09-27  Sam Steingold  <sds@podval.org>
 
 	* conditions.tst: test bug [ 1566466 ]: assoc error when combining
