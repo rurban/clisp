@@ -196,7 +196,7 @@ do
         set +e
         MODDIR=modules
         echo "module sets found in the directory '${MODDIR}':"
-        MODLIST=`find ${MODDIR} -name link.sh -o -name link.sh.in | sed -e 's,^${MODDIR}/,,' -e 's,/[^/]*$,,'`
+        MODLIST=`find ${MODDIR} -name link.sh -o -name link.sh.in | sed -e 's,^${MODDIR}/,,' -e 's,/[^/]*$,,' | sort`
         for m in ${MODLIST}; do echo " "${m}; done
         echo "to specify the location of the external software:"
         for m in src ${MODLIST}; do
