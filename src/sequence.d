@@ -2219,6 +2219,22 @@ nonreturning_function(global, fehler_both_tests, (void)) {
     # Now all arguments are checked.
   }
 
+/* UP: compute the bit vector length as end-start
+ > end   : pointer to the end argument
+ > start : pointer to the start argument
+ > seq   : pointer to the sequence (for error reporting)
+ < the length of the bit vector
+ can trigger GC */
+local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
+                                   gcv_object_t *seq) {
+  var object bvsize = I_I_minus_I(*end,*start);
+  /* bvsize = (- end start), Integer >=0 */
+  if (posfixnump(bvsize)) return posfixnum_to_V(bvsize);
+  pushSTACK(bvsize); pushSTACK(*seq);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~S: sequence ~S is too long: ~S is not a FIXNUM"));
+}
+
 # UP: Executes a sequence filtering operation.
 # It traverses a sequence and stores in a bit vector which elements satisfy
 # the test. Then a routine is called which does the rest.
@@ -2247,18 +2263,9 @@ nonreturning_function(global, fehler_both_tests, (void)) {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     pushSTACK(*(stackptr STACKop -4)); # key
     # (- end start) bestimmen und neuen Bitvektor allozieren:
-    var uintV bvl; # Bitvektor-Länge
+    var uintV bvl = end_minus_start(stackptr STACKop -3,stackptr STACKop -2,
+                                    stackptr STACKop 0); /* bitvector length */
     var uintV dl = 0; # Anzahl der im Bitvektor gesetzten Bits
-    {
-      var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
-      # bvsize = (- end start), ein Integer >=0
-      if (!(posfixnump(bvsize))) { # Fixnum?
-        pushSTACK(*(stackptr STACKop 0)); # sequence
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,GETTEXT("~S: sequence ~S is too long"));
-      }
-      bvl = posfixnum_to_V(bvsize); # Länge des Bitvektors als Longword
-    }
     pushSTACK(allocate_bit_vector_0(bvl)); # neuer Bitvektor bv
     # Stackaufbau: ... count, typdescr,
     #              l, sequence, key, bv [STACK].
@@ -2593,17 +2600,9 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       pushSTACK(STACK_(1+4)); # countdown := count
       # Stack layout: ..., count, typdescr,
       #               l, result1, result2, pointer, countdown [STACK].
-      var uintV bvl; # length of relevant portion
-      {
-        var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
-        # bvsize = (- end start), an integer >=0
-        if (!(posfixnump(bvsize))) { # fixnum?
-          pushSTACK(*(stackptr STACKop 0)); # sequence
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~S: sequence ~S is too long"));
-        }
-        bvl = posfixnum_to_V(bvsize);
-      }
+      /* length of the relevant portion */
+      var uintV bvl = end_minus_start(stackptr STACKop -3,stackptr STACKop -2,
+                                      stackptr STACKop 0);
       for (; bvl > 0; bvl--) {
         if (!nullp(STACK_(1+5)) && eq(STACK_0,Fixnum_0))
           # count/=NIL and countdown=0 -> can terminate loop
@@ -2672,17 +2671,9 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       pushSTACK(STACK_(1+4)); # countdown := count
       # Stack layout: ..., count, typdescr,
       #               l, result, pointer, last, countdown [STACK].
-      var uintV bvl; # length of relevant portion
-      {
-        var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
-        # bvsize = (- end start), an integer >=0
-        if (!(posfixnump(bvsize))) { # fixnum?
-          pushSTACK(*(stackptr STACKop 0)); # sequence
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~S: sequence ~S is too long"));
-        }
-        bvl = posfixnum_to_V(bvsize);
-      }
+      /* length of the relevant portion */
+      var uintV bvl = end_minus_start(stackptr STACKop -3,stackptr STACKop -2,
+                                      stackptr STACKop 0);
       for (; bvl > 0; bvl--) {
         if (!nullp(STACK_(1+5)) && eq(STACK_0,Fixnum_0))
           # count/=NIL and countdown=0 -> can terminate loop
@@ -3160,17 +3151,8 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
     }
     # Now all arguments are checked.
-    var uintV bvl; # Bitvektor-Länge
-    # (- end start) bestimmen:
-    {
-      var object size = I_I_minus_I(STACK_(3+2),STACK_(4+2));
-      # size = (- end start), ein Integer >=0
-      if (!(posfixnump(size))) {
-        pushSTACK(*(stackptr STACKop 0)); # sequence
-        fehler(error,GETTEXT("too long sequence ~S"));
-      }
-      bvl = posfixnum_to_V(size);
-    }
+    var uintV bvl = end_minus_start(stackptr STACKop -3,stackptr STACKop -2,
+                                    stackptr STACKop 0); /* bitvector length */
     var uintV dl = 0; # Anzahl der im Bitvektor gesetzten Bits
     # Bei :test #'eq/eql/equal und großer Länge verwende Hashtabelle:
     if (bvl < 10)
@@ -3634,22 +3616,14 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
       pushSTACK(STACK_(1+4)); # countdown := count
       # Stack layout: ..., count, typdescr,
       #               l, result1, result2, pointer, countdown [STACK].
-      var uintV bvl; # length of relevant portion
-      {
-        var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
-        # bvsize = (- end start), an integer >=0
-        if (!(posfixnump(bvsize))) { # fixnum?
-          pushSTACK(*(stackptr STACKop 0)); # sequence
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~S: sequence ~S is too long"));
-        }
-        bvl = posfixnum_to_V(bvsize);
-      }
+      /* length of the relevant portion */
+      var uintV bvl = end_minus_start(stackptr STACKop -3,stackptr STACKop -2,
+                                      stackptr STACKop 0);
       for (; bvl > 0; bvl--) {
         if (!nullp(STACK_(1+5)) && eq(STACK_0,Fixnum_0))
           # count/=NIL and countdown=0 -> can terminate loop
           break;
-        # Test next element:
+          # Test next element:
         pushSTACK(*(stackptr STACKop 0)); # sequence
         pushSTACK(STACK_(1+1)); # pointer
         funcall(seq_access(STACK_(0+5+2)),2); # (SEQ-ACCESS sequence pointer)
