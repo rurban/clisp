@@ -51,6 +51,7 @@ User visible changes
     with a non-string (e.g., :WILD). [ 1555096 ]
   + SOCKET-STREAM-PEER and SOCKET-STREAM-LOCAL had do-not-resolved-p
     inverted since 2.37.
+  + Set functions with :TEST 'EQUALP were broken on large lists. [ 1567186 ]
 
 
 2.39 (2006-07-16)

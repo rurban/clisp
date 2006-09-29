@@ -1,3 +1,9 @@
+2006-09-28  Sam Steingold  <sds@podval.org>
+
+	fixed bug #[ 1567186 ]: set-difference ... :test 'equalp
+	* defs1.lisp (list-to-ht): there is no separate fasthash &
+	stablehash for EQUALP
+
 2006-09-23  Sam Steingold  <sds@podval.org>
 
 	* version.sh: clisp 2.40 release

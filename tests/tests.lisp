@@ -292,6 +292,7 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                                     "lists154"
                                     "lists155"
                                     "lists156"
+                                    "list-set"
                   #+(or CLISP GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) "loop"
                                     "macro8"
                                     "map"
