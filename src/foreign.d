@@ -1042,12 +1042,12 @@ global maygc object convert_from_foreign (object fvd, const void* data)
 {
   check_SP();
   check_STACK();
- if (NULL == data) {
-   pushSTACK(fvd); pushSTACK(TheSubr(subr_self)->name);
-   fehler(error,GETTEXT("~S: trying to read an object of type ~S from NULL address"));
- }
- if (symbolp(fvd)) {
-   if (eq(fvd,S(nil)))
+  if (NULL == data) {
+    pushSTACK(fvd); pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: trying to read an object of type ~S from NULL address"));
+  }
+  if (symbolp(fvd)) {
+    if (eq(fvd,S(nil)))
      /* If we are presented the empty type, we take it as "ignore"
          and return NIL. */
       return NIL;
@@ -1856,13 +1856,13 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
 {
   check_SP();
   check_STACK();
- if (NULL == data) {
-   pushSTACK(fvd); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-   fehler(error,GETTEXT("~S: trying to write object ~S of type ~S into NULL address"));
- }
- if (symbolp(fvd)) {
-   if (eq(fvd,S(c_pointer))) {
-     if (fvariablep(obj))
+  if (NULL == data) {
+    pushSTACK(fvd); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: trying to write object ~S of type ~S into NULL address"));
+  }
+  if (symbolp(fvd)) {
+    if (eq(fvd,S(c_pointer))) {
+      if (fvariablep(obj))
         obj = TheFvariable(obj)->fv_address;
       else if (nullp(obj)) { *(void**)data = NULL; return; }
       else if (!faddressp(obj)) goto bad_obj;
