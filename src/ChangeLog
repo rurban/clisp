@@ -1,3 +1,8 @@
+2006-10-01  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (release): new target
+	(gnu-distrib): pass --use-agent to gpg
+
 2006-09-23  Sam Steingold  <sds@podval.org>
 
 	* version.sh: clisp 2.40 release
