@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-07-14 11:27:13-0400\n"
+"POT-Creation-Date: 2006-10-01 10:51:17-0400\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -452,24 +452,24 @@ msgstr "*** - Нет места для объектов Лиспа: СБРОС"
 msgid "Trying to make room through a GC..."
 msgstr "Освобождаем память - вызываем GC..."
 
-#: spvw_memfile.d:926 spvw_memfile.d:1683
+#: spvw_memfile.d:926 spvw_memfile.d:1684
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'"
 
-#: spvw_memfile.d:1389
+#: spvw_memfile.d:1390
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
 
-#: spvw_memfile.d:1688
+#: spvw_memfile.d:1689
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "%s: файл инициализации `%s' был создан не этой версией CLISP"
 
-#: spvw_memfile.d:1692
+#: spvw_memfile.d:1693
 msgid "%s: not enough memory for initialization"
 msgstr "%s: недостаточно памяти для инициализации"
 
-#: spvw_memfile.d:1761
+#: spvw_memfile.d:1762
 msgid "%s: 'image size' method failed, but found image header at %d\n"
 msgstr ""
 

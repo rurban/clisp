@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.22  2006/07/14 15:45:47  sds
+# regenerated for 2.39
+#
 # Revision 1.21  2006/01/24 15:55:42  sds
 # regenerated for clisp 2.38 release
 #
@@ -206,6 +209,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.22  2006/07/14 15:45:47  sds
+# regenerated for 2.39
+#
 # Revision 1.21  2006/01/24 15:55:42  sds
 # regenerated for clisp 2.38 release
 #
@@ -322,7 +328,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-07-14 11:27:13-0400\n"
+"POT-Creation-Date: 2006-10-01 10:51:17-0400\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -1012,27 +1018,27 @@ msgstr "Intentando obtener más espacio a través de un GC ..."
 #
 # - cll
 #
-#: spvw_memfile.d:926 spvw_memfile.d:1683
+#: spvw_memfile.d:926 spvw_memfile.d:1684
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-#: spvw_memfile.d:1389
+#: spvw_memfile.d:1390
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
 
-#: spvw_memfile.d:1688
+#: spvw_memfile.d:1689
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP"
 
-#: spvw_memfile.d:1692
+#: spvw_memfile.d:1693
 #, fuzzy
 msgid "%s: not enough memory for initialization"
 msgstr "no hay memoria suficiente para la inicialización"
 
-#: spvw_memfile.d:1761
+#: spvw_memfile.d:1762
 msgid "%s: 'image size' method failed, but found image header at %d\n"
 msgstr ""
 
