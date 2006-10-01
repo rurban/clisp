@@ -3886,7 +3886,10 @@ if test "$HLN" != ln; then
   needs=$needs' hln'
   echol "hln :"
   echotab "mkdir -p buildhln"
-  echotab "cd buildhln && \$(SHELL) ${PARENT_SRCTOPDIR}utils/hln/configure --srcdir=${PARENT_SRCTOPDIR}utils/hln --cache-file=../config.cache && \$(MAKE)"
+  # we do not pass \$(SHELL) and --cache-file=../config.cache to hln/configure
+  # because this would result in error: `CFLAGS' has changed since the previous
+  # run: former value: ""  current value: "-W -Wswitch -Wcomment ..."
+  echotab "cd buildhln && ${PARENT_SRCTOPDIR}utils/hln/configure --srcdir=${PARENT_SRCTOPDIR}utils/hln && \$(MAKE)"
   echotab "ln buildhln/hln${TEXE} hln${TEXE}"
   echol
 fi
