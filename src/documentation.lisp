@@ -11,9 +11,10 @@
          (sys::%record-ref x 2))
         #+FFI ((eq (type-of x) 'ffi::foreign-function)
                (getf (sys::%record-ref x 5) :documentation))
-        ((sys::subr-info x)     ; built-in
-         (get :documentation (sys::function-name x)))
-        (t (sys::closure-documentation x))))
+        ((sys::closurep x) (sys::closure-documentation x))
+        ((let ((name (sys::subr-info x))) ; subr
+           (and name (get :documentation name))))
+        (t (get :documentation (sys::%record-ref x 0)))))
 
 ;;; documentation
 (defgeneric documentation (x doc-type)
@@ -87,9 +88,11 @@
          (setf (sys::%record-ref x 2) new-value))
         #+FFI ((eq (type-of x) 'ffi::foreign-function)
                (setf (getf (sys::%record-ref x 5) :documentation) new-value))
-        ((sys::subr-info x)     ; built-in
-         (get :documentation (sys::function-name x)))
-        (t (sys::closure-set-documentation x new-value))))
+        ((sys::closurep x) (sys::closure-set-documentation x new-value))
+        ((let ((name (sys::subr-info x))) ; subr
+           (and name (setf (get :documentation name) new-value))))
+        (t                      ; fsubr
+         (setf (get :documentation (sys::%record-ref x 0)) new-value))))
 
 (defgeneric (setf documentation) (new-value x doc-type)
   (:argument-precedence-order doc-type x new-value)
