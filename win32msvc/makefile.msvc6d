@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host quant8 as the output of the command:
+# This file was created on host loiso as the output of the command:
 # ./makemake --with-dynamic-ffi win32msvc msvc6 debug
 
 # -------------- Start of configurable section --------------------
@@ -25,8 +25,9 @@ htmldir = $(docdir)
 dvidir  = $(docdir)
 psdir   = $(docdir)
 pdfdir  = $(docdir)
-libdir = $(exec_prefix)\lib
+libdir  = $(exec_prefix)\lib
 lisplibdir = $(libdir)\clisp
+elispdir = $(datadir)/emacs/site-lisp
 # The value of following variable is prepended to all the paths for
 # installation. This is useful when preparing a binary distribution.
 DESTDIR =
@@ -157,7 +158,7 @@ DVIPDF = dvipdf
 #
 
 # The official version number
-VERSION=2.39
+VERSION=2.40
 # If you want to distribute a modified version of CLISP,
 # use this to distinguish your distribution from the official one.
 # This can also be used for pre-test and post-release distributions:
@@ -1876,7 +1877,7 @@ alllisp : $(LISPFILES)
 config.lisp : cfgwin32.lisp
 	$(CP) cfgwin32.lisp config.lisp
 
-RUN= lisp.exe -B . -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1 -norc
+RUN= lisp.exe -B . -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc
 
 modprep.fas : ..\utils\modprep.lisp lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -q -c ../utils/modprep.lisp -o modprep.fas
@@ -2894,7 +2895,7 @@ anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas c
 	    else $(SHELL) ./configure --srcdir=$$m $(MODULE_CONFIGURE_FLAGS); \
 	    fi ) ;\
 	fi
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
+	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 base : modular boot $(BASE_MODULES)
 	$(RMRF) base
@@ -2906,11 +2907,11 @@ full : modular base $(MODULES)
 
 base-mod-check : clisp.exe tests # base
 	for m in $(BASE_MODULES); do $(RM) $$m/*.erg; done
-	z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp  -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp  -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 mod-check : base-mod-check # full
 	for m in $(MODULES); do $(RM) $$m/*.erg; done
-	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full  -Efile UTF-8 -Eterminal UTF-8 -Emisc 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full  -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 IMPNOTES = impnotes.html impnotes.css clisp.png clisp.ico

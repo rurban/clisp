@@ -422,9 +422,7 @@ $(SRC_DIST1) : $(SRC_DIST)
 	bzcat -v $(SRC_DIST) | gzip -9 -v > $(SRC_DIST1)
 
 upload : $(SRC_DIST1) force
-	for h in $(SSHUP) ; do \
-	  scp $(UPLOAD) $${h}/latest/; scp src/NEWS $${h}; \
-	done
+	for h in $(SSHUP) ; do scp $(UPLOAD) src/NEWS $${h}; done
 	for h in $(FTPUP) ; do \
 	  lftp $${h} -e "mput clisp.lsm $(UPLOAD); quit"; \
 	done

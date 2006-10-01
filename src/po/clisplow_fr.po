@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-07-14 11:27:13-0400\n"
+"POT-Creation-Date: 2006-10-01 10:51:17-0400\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -439,27 +439,27 @@ msgstr "*** - Il n'y a plus de place pour des objets LISP : RAZ"
 msgid "Trying to make room through a GC..."
 msgstr "Essayons de faire de la place par un GC..."
 
-#: spvw_memfile.d:926 spvw_memfile.d:1683
+#: spvw_memfile.d:926 spvw_memfile.d:1684
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'."
 
-#: spvw_memfile.d:1389
+#: spvw_memfile.d:1390
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "Ne peux placer le fichier d'initialisation en mémoire."
 
-#: spvw_memfile.d:1688
+#: spvw_memfile.d:1689
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "Le fichier d'initialisation ne provient pas de cette version de LISP."
 
-#: spvw_memfile.d:1692
+#: spvw_memfile.d:1693
 #, fuzzy
 msgid "%s: not enough memory for initialization"
 msgstr "Il n'y a pas assez de mémoire pour l'initialisation."
 
-#: spvw_memfile.d:1761
+#: spvw_memfile.d:1762
 msgid "%s: 'image size' method failed, but found image header at %d\n"
 msgstr ""
 
