@@ -247,6 +247,13 @@ Additional Information for Maintainers of Binary Packages:
    you MUST recompile CLISP.
    See <https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=199525>.
 
+3. Module selection: it is up to you which modules to build the distribution
+   with. The trade off is offering the users extra functionality but
+   increasing dependency on other packages, the CLISP executable size, and the
+   CLISP distribution size. We recommend keeping the base linking set (i18n,
+   regexp, syscalls, readline) intact and adding at least rawsock to the full
+   linking set. See <http://clisp.cons.org/impnotes/modules.html#base-modules>
+   and "./configure --help-modules".
 
 Authors:
 --------
