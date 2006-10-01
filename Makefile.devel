@@ -382,6 +382,8 @@ install-gcc:
 
 distrib : fixperms src-distrib doc-distrib gnu-distrib
 
+release : distrib upload tag-release
+
 ## Pre-release TODO:
 # echo URL-tar.bz2| mail -s "clisp-`cat VERSION`" translation@IRO.UMontreal.CA
 # update src/build-aux, modules/regexp and modules/wildcard from gnulib
@@ -449,29 +451,30 @@ doc--distrib : force
 	rm -f $(TOPDIR)
 
 # http://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
+GPG=gpg --use-agent
 gnu-distrib : $(SRC_DIST1) force
 	mkdir -p $(ARCHIVE)
 	cp -f src/NEWS SUMMARY $(ARCHIVE)
-	for f in $(GNU_DIST); do gpg -b $$f; done
+	for f in $(GNU_DIST); do $(GPG) -b $$f; done
 	for f in $(GNU_TOP); do \
 		rm -f $$f.directive; \
 		echo "version: 1.1" >> $$f.directive; \
 		echo "directory: clisp" >> $$f.directive; \
 		echo "filename: $$f" >> $$f.directive; \
-		gpg --clearsign $$f.directive; \
+		$(GPG) --clearsign $$f.directive; \
 	done
 	for f in $(GNU_SRC); do \
 		rm -f $$f.directive; \
 		echo "version: 1.1" >> $$f.directive; \
 		echo "directory: clisp/release/$(VER)" >> $$f.directive; \
 		echo "filename: $$f" >> $$f.directive; \
-		gpg --clearsign $$f.directive; \
+		$(GPG) --clearsign $$f.directive; \
 	done
 	echo "version: 1.1" > $(GNU_SYM)
 	echo "directory: clisp/release" >> $(GNU_SYM)
 	echo "rmsymlink: latest" >> $(GNU_SYM)
 	echo "symlink: $(VER) latest" >> $(GNU_SYM)
-	gpg --clearsign $(GNU_SYM)
+	$(GPG) --clearsign $(GNU_SYM)
 
 tag-release : force
 	cvs tag -FR clisp_$(subst .,_,$(VER))-$(REL)
