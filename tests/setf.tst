@@ -650,6 +650,14 @@ NIL
 ("macro doc" "new macro doc" "new macro doc"
  "macro doc" "replaced doc" "replaced doc")
 
+(let ((d (documentation 'when 'function))) ; WHEN is a special operator in CLISP
+  (and (or (null d) (stringp d))
+       (progn (setf (documentation 'when 'function) "when doc")
+              (string= "when doc" (documentation 'when 'function)))
+       (progn (setf (documentation 'when 'function) d)
+              (string= d (documentation 'when 'function)))))
+T
+
 ;; user may pass env=NIL to get-setf-expansion to mean null lexical environment
 (length (multiple-value-list (get-setf-expansion '(x) nil)))
 5
