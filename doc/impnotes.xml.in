@@ -24,6 +24,7 @@
   <!ENTITY berkeley-db-file SYSTEM "../modules/berkeley-db/berkeley-db.xml">
   <!ENTITY dirkey-file SYSTEM "../modules/dirkey/dirkey.xml">
   <!ENTITY fastcgi-file SYSTEM "../modules/fastcgi/fastcgi.xml">
+  <!ENTITY svm-file SYSTEM "../modules/libsvm/svm.xml">
   <!ENTITY i18n-file SYSTEM "../modules/i18n/i18n.xml">
   <!ENTITY matlab-file SYSTEM "../modules/matlab/matlab.xml">
   <!ENTITY netica-file SYSTEM "../modules/netica/netica.xml">
@@ -185,6 +186,7 @@
 &rawsock-file;
 &wildcard-file;
 &zlib-file;
+&svm-file;
 </chapter>
 
 </part>

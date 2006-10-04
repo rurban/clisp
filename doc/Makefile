@@ -9,6 +9,7 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	../modules/dirkey/dirkey.xml		\
 	../modules/fastcgi/fastcgi.xml		\
 	../modules/i18n/i18n.xml		\
+	../modules/libsvm/svm.xml		\
 	../modules/matlab/matlab.xml		\
 	../modules/netica/netica.xml		\
 	../modules/oracle/oracle.xml		\
