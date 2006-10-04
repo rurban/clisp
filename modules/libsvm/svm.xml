@@ -2,15 +2,19 @@
 
 <section id="libsvm"><title>LibSVM Interface</title>
 
-<para>This is an &ffi-pac;-based interface to the
- <ulink url="http://www.csie.ntu.edu.tw/~cjlin/libsvm">LibSVM</ulink>.</para>
+<para>This is an &ffi-pac;-based interface to the version 2.82 of
+ <ulink url="http://www.csie.ntu.edu.tw/~cjlin/libsvm">LibSVM</ulink>
+ (included in the sources, so you do not need to install it yourself).</para>
 
 <para>The package <quote role="package">LIBSVM</quote>
  is <link linkend="package-case">case-sensitive</link>, and you do not
- need the <function>svm_</function> prefix for the functions defined in
- <filename role="clisp-cvs">modules/libsvm/README</filename>.</para>
+ need the <function>svm_</function> prefix for the functions described
+ in <filename role="clisp-cvs">modules/libsvm/README</filename>.</para>
 
 <simpara>When this module is present, &features-var;
  contains the symbol <constant>:LIBSVM</constant>.</simpara>
+
+<para>See <filename role="clisp-cvs">modules/libsvm/test.tst</filename>
+ for sample usage.</para>
 
 </section>
