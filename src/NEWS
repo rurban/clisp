@@ -1,3 +1,11 @@
+User visible changes
+--------------------
+
+* Bug fixes:
+  + DOCUMENTATION on built-in functions was broken on some platforms.
+    [ 1569234 ]
+
+
 2.40 (2006-09-23)
 =================
 
