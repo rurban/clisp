@@ -1,6 +1,10 @@
 User visible changes
 --------------------
 
+* New module libsvm interfaces to <http://www.csie.ntu.edu.tw/~cjlin/libsvm>
+  and makes Support Vector Machines available in CLISP.
+  See <http://clisp.cons.org/libsvm.html> for details.
+
 * Bug fixes:
   + DOCUMENTATION on built-in functions was broken on some platforms.
     [ 1569234 ]
