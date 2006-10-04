@@ -1,7 +1,13 @@
+2006-10-03  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 1569234 ]: on some platforms SUBR is not a record
+	* documentation.lisp (function-documentation)
+	(set-function-documentation): do not fallthrough on subr
+
 2006-10-01  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (release): new target
-	(gnu-distrib): pass --use-agent to gpg
+	(gnu-distrib): pass --use-agent -yes to gpg
 
 2006-09-23  Sam Steingold  <sds@podval.org>
 
