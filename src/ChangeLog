@@ -1,5 +1,10 @@
 2006-10-03  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm: new module to interface to LibSVM
+	http://www.csie.ntu.edu.tw/~cjlin/libsvm
+
+2006-10-03  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 1569234 ]: on some platforms SUBR is not a record
 	* documentation.lisp (function-documentation)
 	(set-function-documentation): do not fallthrough on subr

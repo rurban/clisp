@@ -2437,6 +2437,10 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   <listitem><simpara>Access
     <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
     by &hin;.</simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="libsvm">libsvm</link></term>
+  <listitem><simpara>Access
+    <ulink url="http://www.csie.ntu.edu.tw/~cjlin/libsvm">LibSVM</ulink>
+    from &clisp;;.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="matlab">matlab</link></term>
   <listitem><simpara>Do matrix computations via
     <ulink url="http://www.mathworks.com/products/matlab/">MATLAB</ulink>.
