@@ -1,3 +1,40 @@
+2006-10-05  Sam Steingold  <sds@podval.org>
+
+	merged LOOKUP-FOREIGN-FUNCTION & FOREIGN-LIBRARY-FUNCTION into
+	FIND-FOREIGN-FUNCTION; LOOKUP-FOREIGN-VARIABLE &
+	FOREIGN-LIBRARY-VARIABLE into FIND-FOREIGN-VARIABLE
+	* foreign.d (check_foreign_function_type): new function
+	(FOREIGN-FUNCTION): use it
+	(lookup_foreign_variable): extracted from LOOKUP-FOREIGN-VARIABLE
+	(LOOKUP-FOREIGN-VARIABLE): use it (kept as legacy to avoid
+	changing O(version))
+	(FIND-FOREIGN-VARIABLE): new function, calls either
+	lookup_foreign_variable or foreign_library_variable
+	(lookup_foreign_function): extracted from LOOKUP-FOREIGN-FUNCTION
+	(LOOKUP-FOREIGN-FUNCTION): use it (kept as legacy to avoid
+	changing O(version))
+	(FIND-FOREIGN-FUNCTION): new function, calls either
+	lookup_foreign_function or foreign_library_function
+	(find_library_by_name): renamed from find_library
+	(find_library_by_address): new function
+	(check_library): rewrote to absorb most of FOREIGN-LIBRARY
+	(FOREIGN-LIBRARY): use it
+	(foreign_library_check, push_foreign_library_object): new helpers
+	(foreign_library_variable): extracted from FOREIGN-LIBRARY-VARIABLE,
+	signal an error on platforms without dlsym
+	(FOREIGN-LIBRARY-VARIABLE): use it (kept as legacy to avoid
+	changing O(version))
+	(foreign_library_function): extracted from FOREIGN-LIBRARY-FUNCTION,
+	signal an error on platforms without dlsym
+	(FOREIGN-LIBRARY-FUNCTION): use it (kept as legacy to avoid
+	changing O(version))
+	* foreign1.lisp (DEF-C-VAR): use FIND-FOREIGN-VARIABLE instead of
+	FOREIGN-LIBRARY-VARIABLE and LOOKUP-FOREIGN-VARIABLE
+	(DEF-CALL-OUT, DEF-LIB-CALL-OUT): use FIND-FOREIGN-FUNCTION
+	instead of FOREIGN-LIBRARY-FUNCTION and LOOKUP-FOREIGN-FUNCTION
+	* constsym.d, subr.d (find_foreign_variable)
+	(find_foreign_function): added
+
 2006-10-03  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm: new module to interface to LibSVM

@@ -1157,7 +1157,8 @@ LISPSYM(set_validp,"SET-VALIDP",ffi) /* ABI */
 LISPSYM(set_foreign_pointer,"SET-FOREIGN-POINTER",ffi)
 LISPSYM(sizeof,"%SIZEOF",ffi) /* ABI */
 LISPSYM(bitsizeof,"%BITSIZEOF",ffi) /* ABI */
-LISPSYM(lookup_foreign_variable,"LOOKUP-FOREIGN-VARIABLE",ffi) /* ABI */
+LISPSYM(lookup_foreign_variable,"LOOKUP-FOREIGN-VARIABLE",ffi) /* Legacy ABI */
+LISPSYM(find_foreign_variable,"FIND-FOREIGN-VARIABLE",ffi) /* ABI */
 LISPSYM(unsigned_foreign_address,"UNSIGNED-FOREIGN-ADDRESS",ffi)
 LISPSYM(foreign_address_unsigned,"FOREIGN-ADDRESS-UNSIGNED",ffi)
 LISPSYM(foreign_value,"FOREIGN-VALUE",ffi)
@@ -1174,13 +1175,14 @@ LISPSYM(exec_on_stack,"EXEC-ON-STACK",ffi) /* ABI */
 LISPSYM(call_with_foreign_string,"CALL-WITH-FOREIGN-STRING",ffi)
 LISPSYM(foreign_allocate,"FOREIGN-ALLOCATE",ffi)
 LISPSYM(foreign_free,"FOREIGN-FREE",ffi)
-LISPSYM(lookup_foreign_function,"LOOKUP-FOREIGN-FUNCTION",ffi) /* ABI */
+LISPSYM(lookup_foreign_function,"LOOKUP-FOREIGN-FUNCTION",ffi) /* Legacy ABI */
+LISPSYM(find_foreign_function,"FIND-FOREIGN-FUNCTION",ffi) /* ABI */
 LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
 #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
-LISPSYM(foreign_library,"FOREIGN-LIBRARY",ffi) /* ABI */
+LISPSYM(foreign_library,"FOREIGN-LIBRARY",ffi) /* Legacy ABI */
 LISPSYM(close_foreign_library,"CLOSE-FOREIGN-LIBRARY",ffi)
-LISPSYM(foreign_library_variable,"FOREIGN-LIBRARY-VARIABLE",ffi) /* ABI */
-LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi) /* ABI */
+LISPSYM(foreign_library_variable,"FOREIGN-LIBRARY-VARIABLE",ffi) /* Legacy ABI */
+LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi) /* Legacy ABI */
 #endif  /* WIN32_NATIVE || HAVE_DLOPEN */
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
