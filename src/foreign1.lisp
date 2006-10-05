@@ -906,12 +906,8 @@
          |#
          (def (gensym "DEF-C-VAR-")))
     `(LET ((,def (LOAD-TIME-VALUE
-                  ,(if library
-                       `(FFI::FOREIGN-LIBRARY-VARIABLE
-                         ',c-name (FFI::FOREIGN-LIBRARY ,library)
-                         nil (PARSE-C-TYPE ',type))
-                       `(LOOKUP-FOREIGN-VARIABLE
-                         ',c-name (PARSE-C-TYPE ',type))))))
+                  (FIND-FOREIGN-VARIABLE
+                   ',c-name (PARSE-C-TYPE ',type) ,library NIL))))
        #|
        (LET ((FVAR (LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
          (DEFUN ,getter-function-name () (FOREIGN-VALUE FVAR))
@@ -1036,11 +1032,8 @@
          ;; Maximize sharing in .fas file, reuse options
          ;; parse-c-function ignores unknown options, e.g. :name
          (ctype `(PARSE-C-FUNCTION ',options ',whole-form)))
-    `(LET ((,def ,(if library
-                      `(FFI::FOREIGN-LIBRARY-FUNCTION
-                        ',c-name (FFI::FOREIGN-LIBRARY ,library)
-                        ',properties NIL ,ctype)
-                      `(LOOKUP-FOREIGN-FUNCTION ',c-name ,ctype ',properties))))
+    `(LET ((,def (FIND-FOREIGN-FUNCTION
+                  ',c-name ,ctype ',properties ,library NIL)))
        (EXT:COMPILER-LET ((,def ,ctype))
          ,(unless library
             `(EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ,def ',built-in)))
@@ -1063,6 +1056,10 @@
   (let* ((alist (parse-options options
                                '(:name :offset :arguments :return-type)
                                whole-form))
+         (properties (and (>= 1 (compiler::declared-optimize
+                                 'space (and (boundp 'system::*denv*)
+                                             system::*denv*)))
+                          (assoc ':documentation alist)))
          (c-name (foreign-name name (assoc ':name alist)))
          (offset (second (assoc ':offset alist)))
          (ctype `(PARSE-C-FUNCTION ',options ',whole-form)))
@@ -1070,10 +1067,8 @@
        (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
        (COMPILER::EVAL-WHEN-COMPILE
          (COMPILER::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,ctype)))
-       (SYSTEM::%PUTD ',name
-         (FOREIGN-LIBRARY-FUNCTION ',c-name
-           (FOREIGN-LIBRARY ',library)
-           ',offset ,ctype))
+       (SYSTEM::%PUTD ',name (FIND-FOREIGN-FUNCTION
+                              ',c-name ,ctype ',properties ',library ',offset))
        ',name)))
 
 (defun count-inarguments (arg-vector)
