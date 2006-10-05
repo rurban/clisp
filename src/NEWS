@@ -5,6 +5,10 @@ User visible changes
   and makes Support Vector Machines available in CLISP.
   See <http://clisp.cons.org/libsvm.html> for details.
 
+* The same internal interface now handles FFI forms DEF-CALL-OUT and
+  DEF-C-VAR regardless of the presence of the :LIBRARY argument.
+  Now (:LIBRARY NIL) is identical to omitting the :LIBRARY argument.
+
 * Bug fixes:
   + DOCUMENTATION on built-in functions was broken on some platforms.
     [ 1569234 ]
