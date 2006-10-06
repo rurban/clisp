@@ -451,7 +451,7 @@ doc--distrib : force
 	rm -f $(TOPDIR)
 
 # http://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
-GPG=gpg --use-agent -yes
+GPG=gpg --use-agent --yes
 gnu-distrib : $(SRC_DIST1) force
 	mkdir -p $(ARCHIVE)
 	cp -f src/NEWS SUMMARY $(ARCHIVE)
@@ -460,14 +460,14 @@ gnu-distrib : $(SRC_DIST1) force
 		rm -f $$f.directive; \
 		echo "version: 1.1" >> $$f.directive; \
 		echo "directory: clisp" >> $$f.directive; \
-		echo "filename: $$f" >> $$f.directive; \
+		echo "filename: "`basename $$f` >> $$f.directive; \
 		$(GPG) --clearsign $$f.directive; \
 	done
 	for f in $(GNU_SRC); do \
 		rm -f $$f.directive; \
 		echo "version: 1.1" >> $$f.directive; \
 		echo "directory: clisp/release/$(VER)" >> $$f.directive; \
-		echo "filename: $$f" >> $$f.directive; \
+		echo "filename: "`basename $$f` >> $$f.directive; \
 		$(GPG) --clearsign $$f.directive; \
 	done
 	echo "version: 1.1" > $(GNU_SYM)
