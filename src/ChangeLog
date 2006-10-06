@@ -1,5 +1,15 @@
 2006-10-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm/libsvm.lisp: use C-POINTER instead of C-PTR to
+	avoid needless conversions between Lisp and C
+	(destroy-parameter, destroy-problem): pass :FULL T to FOREIGN-FREE
+	to match ALLOCATE-DEEP
+	(finalize-model): new function, use SET-FOREIGN-POINTER to avoid
+	the "invalidating session pointer" error
+	Suggested by Jörg Höhle
+
+2006-10-05  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (gnu-distrib): use basename to strip off ../archives/...
 	(GPG): --yes, not -yes
 

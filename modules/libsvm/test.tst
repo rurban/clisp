@@ -18,7 +18,7 @@ V-PARAMETER
 T
 
 ;; create an artificial problem:
-;; predict the remainder of dividion by k from n-digits
+;; predict the remainder of division by k from n-digits
 (defun task (num divisor base)
   (flet ((normalize (x d) (- (/ (* 2 x) (1- d)) 1d0)))
     (values (normalize (rem num divisor) divisor)
@@ -38,24 +38,23 @@ TASK
 PROBLEM
 
 (defparameter f-problem-2-7 (problem 1000 2 7)) F-PROBLEM-2-7
+(libsvm:problem-l f-problem-2-7) 1000
 (libsvm:save-problem "svm-problem" f-problem-2-7) NIL
-(defparameter l-problem-2-7 (ffi:foreign-value f-problem-2-7)) L-PROBLEM-2-7
 (multiple-value-bind (p maxindex) (libsvm:load-problem "svm-problem")
-  (setf (ffi:slot (ffi:foreign-value f-parameter) 'libsvm::gamma)
-        (float (/ maxindex) 0d0)
-        (ffi:slot (ffi:foreign-value f-parameter) 'libsvm::C) 1d0
-        (ffi:slot (ffi:foreign-value f-parameter) 'libsvm::kernel_type)
-        libsvm::LINEAR
-        v-parameter (ffi:foreign-value f-parameter))
+  (ffi:with-c-place (p-parameter f-parameter)
+    (setf (ffi:slot p-parameter 'libsvm::gamma) (float (/ maxindex) 0d0)
+          (ffi:slot p-parameter 'libsvm::C) 1d0
+          (ffi:slot p-parameter 'libsvm::kernel_type) libsvm::LINEAR))
+  (setf v-parameter (ffi:foreign-value f-parameter))
   (list (= maxindex (floor (log (1- 1000) 7)))
-        (equalp (ffi:foreign-value p) l-problem-2-7)))
+        (equalp (ffi:foreign-value p) (ffi:foreign-value f-problem-2-7))))
 (T T)
 
-(let ((vec (libsvm:cross-validation f-problem-2-7 v-parameter 3)))
+(let ((vec (libsvm:cross-validation f-problem-2-7 f-parameter 3)))
   (list (length vec) (count 1d0 vec) (count -1d0 vec)))
 (1000 543 457)
 
-(defparameter model (libsvm:train l-problem-2-7 v-parameter)) MODEL
+(defparameter model (libsvm:train f-problem-2-7 f-parameter)) MODEL
 
 (ffi:enum-from-value 'libsvm:svm_type (libsvm:get-svm-type model)) libsvm:C_SVC
 (libsvm:get-nr-class model) 2
@@ -69,24 +68,27 @@ PROBLEM
 
 (defparameter f-problem-3-7 (problem 1000 3 7)) F-PROBLEM-3-7
 (libsvm:save-problem "svm-problem" f-problem-3-7) NIL
-(defparameter l-problem-3-7 (ffi:foreign-value f-problem-3-7)) L-PROBLEM-3-7
 (progn
   (setf f-parameter (libsvm:make-parameter :v v-parameter 'LIBSVM::nu 5d-1
                                            'LIBSVM::svm_type libsvm:NU_SVR)
         v-parameter (ffi:foreign-value f-parameter))
   NIL) NIL
 
-(let ((vec (libsvm:cross-validation f-problem-3-7 v-parameter 3)))
-  (list (length vec) (count 1d0 vec) (count -1d0 vec))) NIL
+(let ((vec (libsvm:cross-validation f-problem-3-7 f-parameter 3))
+      (ht (make-hash-table)))
+  (loop :for x :across vec :do (incf (gethash x ht 0)))
+  (show ht :pretty t)
+  (list (length vec) (count 1d0 vec) (count -1d0 vec) (count 0d0 vec)))
+(1000 0 0 1000)
 
-(defparameter model (libsvm:train l-problem-3-7 v-parameter)) MODEL
+(defparameter model (libsvm:train f-problem-3-7 f-parameter)) MODEL
 (ffi:enum-from-value 'libsvm:svm_type (libsvm:get-svm-type model)) libsvm:NU_SVR
 (libsvm:get-nr-class model) 3
 (libsvm:get-labels model) #(1 -1)
 (libsvm:check-probability-model model) 1
 (libsvm:get-svr-probability model) 1d0
 
-(destructuring-bind (l y x) l-problem-3-7
+(destructuring-bind (l y x) (ffi:foreign-value f-problem-3-7)
   (dotimes (i l)
     (multiple-value-bind (v e)
         (ignore-errors (libsvm:predict-values model (aref x i)))
@@ -104,8 +106,8 @@ NIL
 
 (progn (makunbound 'f-parameter)
        (makunbound 'v-parameter)
-       (makunbound 'f-problem)
-       (makunbound 'l-problem)
+       (makunbound 'f-problem-2-7)
+       (makunbound 'f-problem-3-7)
        (makunbound 'model)
        (makunbound 'maxindex)
        (delete-file "svm-model")
