@@ -27,6 +27,10 @@
   (y (c-array-ptr double-float))        ; of length l (targets)
   (x (c-array-ptr (c-array-ptr node))))); of length l (predictors)
 
+(defun problem-l (problem)
+  ;; FIXME: horribly inefficient
+  (slot (foreign-value problem) 'l))
+
 (def-c-enum svm_type C_SVC NU_SVC ONE_CLASS EPSILON_SVR NU_SVR)
 
 (def-c-enum kernel_type LINEAR POLY RBF SIGMOID PRECOMPUTED)
@@ -55,33 +59,44 @@
 ;;; foreign functions and small wrappers
 ;;;
 
+(ffi:def-call-out svm_destroy_model (:library svm-so)
+  (:arguments (model model)) (:return-type nil))
+(defun destroy-model (model)
+  (when (validp model)
+    (svm_destroy_model model)
+    (setf (validp model) nil)))
+(cl:defun finalize-model (model)
+  (ext:finalize (set-foreign-pointer model :copy) #'destroy-model)
+  model)
+
 (def-call-out check-parameter (:library svm-so) (:name "svm_check_parameter")
-  (:arguments (problem (c-ptr problem)) (param (c-ptr parameter)))
+  (:arguments (problem (c-pointer problem)) (param (c-pointer parameter)))
   (:return-type c-string))
 (def-call-out svm_train (:library svm-so)
-  (:arguments (problem (c-ptr problem)) (param (c-ptr parameter)))
+  (:arguments (problem (c-pointer problem)) (param (c-pointer parameter)))
   (:return-type model))
 (defun train (problem parameter)
   (let ((check (check-parameter problem parameter)))
     (if check (error "~S: ~A" 'train check)
-        (svm_train problem parameter))))
+        (finalize-model (svm_train problem parameter)))))
 
 (ffi:def-call-out svm_cross_validation (:library svm-so)
-  (:arguments (problem (c-ptr problem)) (param (c-ptr parameter))
+  (:arguments (problem (c-pointer problem)) (param (c-pointer parameter))
               (nr_fold int) (target c-pointer))
   (:return-type nil))
 (defun cross-validation (problem param nr_fold)
-  (with-foreign-object (target `(c-array double-float
-                                         ,(slot (foreign-value problem) 'l)))
-    (svm_cross_validation (foreign-value problem) param nr_fold target)
+  (with-foreign-object (target `(c-array double-float ,(problem-l problem)))
+    (svm_cross_validation problem param nr_fold target)
     (foreign-value target)))
 
 (def-call-out save-model (:library svm-so) (:name "svm_save_model")
   (:arguments (model_file_name c-string) (model model))
   (:return-type int))
-(def-call-out load-model (:library svm-so) (:name "svm_load_model")
+(ffi:def-call-out svm_load_model (:library svm-so)
   (:arguments (model_file_name c-string))
   (:return-type model))
+(defun load-model (model_file_name)
+  (finalize-model (svm_load_model model_file_name)))
 
 (def-call-out get-svm-type (:library svm-so) (:name "svm_get_svm_type")
   (:arguments (model model))
@@ -131,14 +146,9 @@
     (values (svm_predict_probability model x prob_estimates)
             (foreign-value prob_estimates))))
 
-;; cannot use (setf (validp model) nil) because
-;;  must not invalidate the sole FFI session pointer
-(def-call-out destroy-model (:library svm-so) (:name "svm_destroy_model")
-  (:arguments (model model)) (:return-type nil))
-
 ;; not needed!
 ;; (def-call-out destroy-param (:library svm-so) (:name "svm_destroy_param")
-;;   (:arguments (param c-pointer #|(c-ptr parameter)|#)) (:return-type nil))
+;;   (:arguments (param (c-pointer parameter))) (:return-type nil))
 
 (def-call-out check-probability-model (:library svm-so)
   (:name "svm_check_probability_model")
@@ -152,7 +162,7 @@
 (defun destroy-parameter (parameter)
   (when (validp parameter)
     ;; (destroy-param parameter) -- not needed!
-    (foreign-free parameter)
+    (foreign-free parameter :full t)
     (setf (validp parameter) nil)))
 
 ;; the defaults are the same as those in svm_train (see README)
@@ -199,7 +209,7 @@
 
 (defun destroy-problem (problem)
   (when (validp problem)
-    (foreign-free problem)
+    (foreign-free problem :full t)
     (setf (validp problem) nil)))
 
 (defun load-problem (file &key (log *standard-output*))
