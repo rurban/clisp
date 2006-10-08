@@ -3,11 +3,11 @@ User visible changes
 
 * New module libsvm interfaces to <http://www.csie.ntu.edu.tw/~cjlin/libsvm>
   and makes Support Vector Machines available in CLISP.
-  See <http://clisp.cons.org/libsvm.html> for details.
+  See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
 * The same internal interface now handles FFI forms DEF-CALL-OUT and
   DEF-C-VAR regardless of the presence of the :LIBRARY argument.
-  Now (:LIBRARY NIL) is identical to omitting the :LIBRARY argument.
+  (:LIBRARY NIL) is now identical to omitting the :LIBRARY argument.
 
 * Bug fixes:
   + DOCUMENTATION on built-in functions was broken on some platforms.
@@ -24,7 +24,7 @@ Important notes
   must be recompiled.  This is because DOCUMENTATION and LAMBDA-LIST are
   now kept with the closures.
   Set CUSTOM:*LOAD-OBSOLETE-ACTION* to :COMPILE to automate this.
-  See <http://clisp.cons.org/impnotes.html#loadfile> for details.
+  See <http://clisp.cons.org/impnotes/system-dict.html#loadfile> for details.
 
 User visible changes
 --------------------
