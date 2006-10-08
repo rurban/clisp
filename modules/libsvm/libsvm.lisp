@@ -27,9 +27,29 @@
   (y (c-array-ptr double-float))        ; of length l (targets)
   (x (c-array-ptr (c-array-ptr node))))); of length l (predictors)
 
-(defun problem-l (problem)
-  ;; FIXME: horribly inefficient
-  (slot (foreign-value problem) 'l))
+;; converting a `problem' object from Lisp to C is easy, see `make-problem'
+;; converting a `problem' object from C to Lisp is tricky because
+;; a 0d0 in the `y' array is interpreted as an end of the array.
+;; thus we have to resort to a roundabout way:
+;; - convert `c-array-ptr' to a `c-pointer'
+;; - find out the array length
+;; - convert `c-pointer' to `c-array' with the known length
+(defun problem-slots (problem)
+  (with-c-place (p problem)
+    (cast p '(c-struct list (l int) (y c-pointer) (x c-pointer)))))
+
+;; FIXME: make these accessors non-consing
+(defun problem-l (problem) (first (problem-slots problem)))
+(defun problem-y (problem) (second (problem-slots problem)))
+(defun problem-x (problem) (third (problem-slots problem)))
+
+(defun problem-list (problem)
+  (destructuring-bind (l y x) (problem-slots problem)
+    (list l
+          (with-c-var (vy `(c-pointer (c-array double-float ,l)) y)
+            (foreign-value vy))
+          (with-c-var (vx `(c-pointer (c-array (c-array-ptr node) ,l)) x)
+            (foreign-value vx)))))
 
 (def-c-enum svm_type C_SVC NU_SVC ONE_CLASS EPSILON_SVR NU_SVR)
 
@@ -193,7 +213,7 @@
                                     gamma coef0 cache_size eps C
                                     nr_weight weight_label weight
                                     nu p shrinking probability))))
-    ;; you DO no have to call (destroy-parameter ret) yourself!
+    ;; you do NOT have to call (destroy-parameter ret) yourself!
     (ext:finalize ret #'destroy-parameter)
     ret))
 
@@ -247,16 +267,14 @@
 
 (defun save-problem (file problem &key (log *standard-output*))
   (with-open-file (out file :direction :output)
-    (destructuring-bind (size y x) (foreign-value problem)
+    (destructuring-bind (size y x) (problem-list problem)
       (when log
         (format log "~&;; ~S(~S): ~:D record~:P..." 'save-problem file size)
         (force-output log))
       (dotimes (i size)
         (format out "~G" (aref y i))
         (let ((nodes (aref x i)))
-          (loop :for j :upfrom 0 :for node = (aref nodes j)
-            :for index = (first node) :for value = (second node)
-            :while (/= index -1) :do
+          (loop :for (index value) :across nodes :while (/= index -1) :do
             (format out " ~D:~G" index value)))
         (terpri out)))
     (when log (format log "~:D byte~:P~%" (file-length out)))))

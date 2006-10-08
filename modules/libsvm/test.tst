@@ -88,7 +88,7 @@ PROBLEM
 (libsvm:check-probability-model model) 1
 (libsvm:get-svr-probability model) 1d0
 
-(destructuring-bind (l y x) (ffi:foreign-value f-problem-3-7)
+(destructuring-bind (l y x) (libsvm:problem-list f-problem-3-7)
   (dotimes (i l)
     (multiple-value-bind (v e)
         (ignore-errors (libsvm:predict-values model (aref x i)))
