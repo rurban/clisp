@@ -1086,7 +1086,7 @@ the iteration variable and assign it on each iteration.</para></section>
 <para>The macro <code>(&abort-on-error; {&form-r;}*)</code>
  executes the &form-r;s; when an &error-t; occurs,
  or when a <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupt occurs,
- the error message is printed and the &abort-s; restart is invoked.
+ the error message is printed and the &abort-s; &restart-t; is invoked.
 </para></formalpara>
 
 <formalpara id="exit-on-error"><title>Macro &exit-on-error;</title>
@@ -1112,7 +1112,7 @@ the iteration variable and assign it on each iteration.</para></section>
  &abort-on-error; are implemented by installing the following handler:
  <programlisting language="lisp">(defun sys::abortonerror (condition)
   (sys::report-error condition)
-  (invoke-restart (find-restart 'abort condition)))</programlisting>
+  (&invoke-restart; (&find-restart; '&abort; condition)))</programlisting>
  When <replaceable>handler</replaceable> is &nil;, the handler
  for &cond-r; is removed and returned.
  When &cond-r; is also &nil;, all global handlers are removed and returned
@@ -1159,8 +1159,8 @@ the iteration variable and assign it on each iteration.</para></section>
 <formalpara id="compute-restarts"><title>Function &compute-restarts;</title>
 <para>&compute-restarts; and &find-restart; behave as specified in
  &ansi-cl;: If the optional &cond-r; argument is non-&nil;,
- only restarts associated with that condition
- and restarts associated with no condition at all are considered.
+ only &restart-t;s associated with that &condition-t;
+ and &restart-t;s associated with no &condition-t; at all are considered.
  Therefore the effect of associating a restart to a condition is not to
  activate it, but to hide it from other conditions.
  This makes the syntax-dependent implicit association performed by
@@ -2215,7 +2215,7 @@ can give problems:
               <entry><keycode>#x1F</keycode></entry></row>
 </tbody></tgroup></table>
 
-<para>See also <xref linkend="sharpsign-bacbkslash"/>.</para>
+<para>See also <xref linkend="sharpsign-backslash"/>.</para>
 
 <section id="char-script"><title>Character Scripts
    <ulink url="&clhs;/Body/sec_13-1-2-1.html">[CLHS-13.1.2.1]</ulink></title>
@@ -4698,7 +4698,7 @@ receives a corresponding keyword argument (&verbose-k;, &print-k;,
 are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 &print-k; for &compile-file-my;.</para>
 
-<para>When evaluation of a read form &sig-err;, two restarts are
+<para>When evaluation of a read form &sig-err;, two &restart-t;-s are
  available:<variablelist><varlistentry><term><literal>SKIP</literal></term>
    <listitem><simpara>Skip this form and read the next one.
   </simpara></listitem></varlistentry>
