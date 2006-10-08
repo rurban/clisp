@@ -1,3 +1,9 @@
+2006-10-08  Sam Steingold  <sds@gnu.org>
+
+	* modules/libsvm/libsvm.lisp (problem-slots, problem-list): added
+	(problem-l, problem-y, problem-x): use `problem-slots'
+	(save-problem): use `problem-list'
+
 2006-10-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/libsvm.lisp: use C-POINTER instead of C-PTR to
