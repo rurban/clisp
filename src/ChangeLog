@@ -1,3 +1,9 @@
+2006-10-09  John Hinsdale  <hin@alma.com>
+
+	* modules/fastcgi/fastcgi.lisp, fastcgi_wrappers.c, fastcgi.h:
+	New function FASTCGI:ENV to return the entire environment
+	Useful enhancement, suggested by Don Cohen
+
 2006-10-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/libsvm.lisp (problem-slots, problem-list): added
