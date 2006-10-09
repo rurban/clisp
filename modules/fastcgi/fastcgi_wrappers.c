@@ -33,6 +33,7 @@ extern char **environ;
 #endif
 
 /* For strchr(), strncmp() and friends */
+#define _GNU_SOURCE
 #include <string.h> 
 
 #include "fcgi_stdio.h"
@@ -59,6 +60,45 @@ char * fcgi_getenv(char * var) {
   /* Variable not found in environment */
   return 0;
 }
+
+
+/* Return the entire enviroment as a null-terminated linearized string
+   array, e.g.: { "KEY0", "VAL0", "KEY1", "VAL1", NULL } */
+
+char ** fcgi_env() {
+  char **envp = environ, **result = 0;
+  int nvar = 0, i = 0;
+  
+  /* Count up # of vars.  Allocate space for array of twice that many
+     strings (key & value for each env var) plus a terminating NULL
+     pointer. */
+  for ( ; *envp != NULL; envp++ )
+    nvar++;
+  result = (char **) malloc(sizeof *result * (2 * nvar + 1));
+  
+  envp = environ;
+  i = 0;
+  for ( ; *envp != NULL; envp++, i+=2 ) {
+    char * equ = strchr(*envp, '=');
+    if ( ! equ ) {
+      /* Env. string is ot of form KEY=VAL.  Unclear if this ever
+         occurs.  If it does, treat the whole thing as the variable
+         and map it to NIL; this is distinct from "VAR=" which will
+         map to the empty string */
+      result[i] = strdup(*envp);
+      result[i+1] = 0;
+    }
+    else {
+      result[i] = strndup(*envp, equ - *envp);
+      result[i+1] = strdup(equ + 1);
+    }
+  }
+
+  /* Terminate string array */
+  result[i] = 0;
+  return result;
+}
+
 
 /* Read some bytes from stdin.  Return a null-terminated string.  This
    does NOT necessarily read up to end of file, but rather will read until

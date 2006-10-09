@@ -21,7 +21,7 @@
 (defpackage "FASTCGI"
   (:documentation "Minimal bindings for FastCGI use from CLISP")
   (:use "LISP" "FFI")
-  (:export "GETENV"
+  (:export "GETENV" "ENV"
 	   "SLURP-STDIN" "OUT" "WRITE-STDOUT" "WRITE-STDERR" "NL"
 	   "IS-CGI" "ACCEPT" "FINISH" "WITH-LISTENER")
 )
@@ -59,9 +59,24 @@
 
 ; GETENV
 (defun getenv (var)
-  "(FASTCGI::GETENV var)  Gets the value of an environment variable, which should be a string"
+  "(FASTCGI::GETENV var) - Gets the value of an environment variable, which should be a string"
   (check-active-request "GETENV")
   (fcgi_getenv (to-string var)))
+
+; ENV
+(defun env ()
+  "(FASTCGI::ENV) - Returns the entire set of environment variables as an array of two-element arrays, each of which is a pair #(VAR VAL)"
+  (check-active-request "ENV")
+  (do* ((kv (fcgi_env))
+		(nkv (length kv))
+		(result (make-array (/ nkv 2)))
+		(i 0 (+ i 2))
+		(ir 0 (1+ ir)))
+	  ((>= i nkv) result)
+	(let ((pair (make-array 2)))
+	  (setf (aref pair 0) (aref kv i))
+	  (setf (aref pair 1) (aref kv (1+ i)))
+	  (setf (aref result ir) pair))))
 
 ; WRITE-STDOUT
 (defun write-stdout (data)
@@ -141,6 +156,7 @@
 
 ; Our wrappers
 (def-call-out fcgi_getenv       (:arguments (var c-string))               (:return-type c-string))
+(def-call-out fcgi_env          (:arguments)                              (:return-type (c-array-ptr c-string)))
 (def-call-out fcgi_read_stdin   (:arguments)                              (:return-type c-string))
 (def-call-out fcgi_write_stdout (:arguments (data c-string) (length int)) (:return-type int))
 (def-call-out fcgi_write_stderr (:arguments (data c-string) (length int)) (:return-type int))
