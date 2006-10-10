@@ -17,4 +17,33 @@
 <para>See <filename role="clisp-cvs">modules/libsvm/test.tst</filename>
  for sample usage.</para>
 
+<section id="libsvm-types"><title>Types</title>
+<para>All data is kept on the &c-lang; side as much as possible, so
+ these foreign types do &not-e; have a &clos; counterpart.</para>
+<variablelist>
+ <varlistentry><term><type>node</type></term>
+  <listitem><simpara>Corresponds to <type>svm_node</type>, represented
+    as a &list-t; on the lisp side.</simpara></listitem></varlistentry>
+ <varlistentry><term><type>problem</type></term>
+  <listitem><simpara>Corresponds to <type>svm_problem</type>, represented
+    as a &list-t; on the lisp side.</simpara></listitem></varlistentry>
+ <varlistentry><term><type>parameter</type></term>
+  <listitem><simpara>Corresponds to <type>svm_parameter</type>, represented
+    as a &vector-t; on the lisp side.</simpara></listitem></varlistentry>
+ <varlistentry><term><type>model</type></term>
+  <listitem><simpara>Corresponds to <type>svm_model</type>, an opaque
+    pointer.</simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+<section id="libsvm-functions"><title>Functions</title>
+<variablelist>
+ <varlistentry><term><code>(<function>problem-l</function>
+    &problem-r;)</code></term>
+ <listitem><simpara>Return the number of rows in the &problem-r; (a
+   &foreign-variable-t;)</simpara></listitem></varlistentry>
+
+</variablelist>
+</section>
+
 </section>
