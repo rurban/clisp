@@ -4,6 +4,10 @@
 	New function FASTCGI:ENV to return the entire environment
 	Useful enhancement, suggested by Don Cohen
 
+	* modules/fastcgi/fastcgi.lisp:
+	Compatible behavior to EXT:GETENV, behaving appropriately
+	based on "true CGI" vs. "FastCGI" mode.
+
 2006-10-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/libsvm.lisp (problem-slots, problem-list): added
