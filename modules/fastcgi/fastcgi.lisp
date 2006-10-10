@@ -21,7 +21,7 @@
 (defpackage "FASTCGI"
   (:documentation "Minimal bindings for FastCGI use from CLISP")
   (:use "LISP" "FFI")
-  (:export "GETENV" "ENV"
+  (:export "GETENV"
 	   "SLURP-STDIN" "OUT" "WRITE-STDOUT" "WRITE-STDERR" "NL"
 	   "IS-CGI" "ACCEPT" "FINISH" "WITH-LISTENER")
 )
@@ -58,25 +58,19 @@
   nil)
 
 ; GETENV
-(defun getenv (var)
-  "(FASTCGI::GETENV var) - Gets the value of an environment variable, which should be a string"
+(defun getenv (&optional var)
+  "(FASTCGI::GETENV var) - Gets the value of an environment variable, which should be a string; if called with no argument, returns the entire environment as an alist"
   (check-active-request "GETENV")
-  (fcgi_getenv (to-string var)))
+  (if var (fcgi_getenv (to-string var)) (env)))
 
-; ENV
+; ENV -- Return entire environment as an alist
 (defun env ()
-  "(FASTCGI::ENV) - Returns the entire set of environment variables as an array of two-element arrays, each of which is a pair #(VAR VAL)"
-  (check-active-request "ENV")
+  "ENV - Returns the entire set of environment variables as an alist"
   (do* ((kv (fcgi_env))
-		(nkv (length kv))
-		(result (make-array (/ nkv 2)))
-		(i 0 (+ i 2))
-		(ir 0 (1+ ir)))
-	  ((>= i nkv) result)
-	(let ((pair (make-array 2)))
-	  (setf (aref pair 0) (aref kv i))
-	  (setf (aref pair 1) (aref kv (1+ i)))
-	  (setf (aref result ir) pair))))
+		(result nil)
+		(i (- (length kv) 2) (- i 2)))
+	  ((< i 0) result)
+	(push (cons (aref kv i) (aref kv (1+ i))) result)))
 
 ; WRITE-STDOUT
 (defun write-stdout (data)
