@@ -651,6 +651,7 @@
 <!ENTITY methods-r '<replaceable>methods</replaceable>'>
 <!ENTITY mod-r '<replaceable>module</replaceable>'>
 <!ENTITY mode-r '<replaceable>mode</replaceable>'>
+<!ENTITY model-r '<replaceable>model</replaceable>'>
 <!ENTITY n-r '<replaceable>n</replaceable>'>
 <!ENTITY name-r '<replaceable>name</replaceable>'>
 <!ENTITY net-r '<replaceable>network</replaceable>'>
@@ -666,6 +667,7 @@
 <!ENTITY options-r '<replaceable>options</replaceable>'>
 <!ENTITY os '<replaceable>operating system</replaceable>'>
 <!ENTITY pack-r '<replaceable>package</replaceable>'>
+<!ENTITY param-r '<replaceable>parameter</replaceable>'>
 <!ENTITY pass-r '<replaceable>password</replaceable>'>
 <!ENTITY path-r '<replaceable>pathname</replaceable>'>
 <!ENTITY pattern-r '<replaceable>pattern</replaceable>'>
@@ -673,6 +675,7 @@
 <!ENTITY place-r '<replaceable>place</replaceable>'>
 <!ENTITY port-r '<replaceable>port</replaceable>'>
 <!ENTITY pred-r '<replaceable>predicate</replaceable>'>
+<!ENTITY problem-r '<replaceable>problem</replaceable>'>
 <!ENTITY program-r '<replaceable>program</replaceable>'>
 <!ENTITY proto-r '<replaceable>protocol</replaceable>'>
 <!ENTITY real-r '<replaceable>real</replaceable>'>
