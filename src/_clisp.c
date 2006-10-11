@@ -246,8 +246,10 @@ int main (int argc, char* argv[])
           case 'n': /* -norc */
           case 'r': /* -repl */
           case 'v':
-          case '-':
             break;
+          case '-':
+            if (arg[2] == '\0') goto done_options; /* --: end of arguments */
+            else break;   /* GNU-style long options --help, --version */
           /* Skippable options with arguments. */
           case 'm':
           case 's':

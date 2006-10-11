@@ -444,6 +444,9 @@ compiles the specified lisp files to a platform-independent
 
 </variablelist>
 
+<para>As usual, <option>--</option> stops option processing and places
+ all remaining command line arguments into &args;.</para>
+
 </refsection>
 
 <refsection id="reference"><title>Language Reference</title>
