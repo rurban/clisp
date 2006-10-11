@@ -1,5 +1,10 @@
 2006-10-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm/libsvm.lisp (predict-probability): prob_estimates
+	is a DOUBLE-FLOAT vector, not an INT one
+
+2006-10-10  Sam Steingold  <sds@gnu.org>
+
 	* _clisp.c (main): fixed handling of "--" option terminator
 	Reported by François-René ÐVB Rideau <fahree@gmail.com>
 
