@@ -3470,20 +3470,10 @@ nonreturning_function(global, quit, (void)) {
 global void * libopen (const char* libname)
 {
  #if defined(WIN32_NATIVE)
-  var void *lib = (void*)LoadLibrary(libname);
-  if (NULL != lib || strlen(libname) > MAX_PATH-5) return lib;
-  var char buf[MAX_PATH];
-  strcpy(buf,libname);          /* we KNOW that libname fits into buf! */
-  strcat(buf,".dll");
-  return (void*)LoadLibrary(buf);
+  return (void*)LoadLibrary(libname);
  #else
-  var void *lib = dlopen(libname,RTLD_NOW|RTLD_GLOBAL);
-  if (NULL != lib || strlen(libname) > MAXPATHLEN-4) return lib;
-  var char buf[MAXPATHLEN];
-  strcpy(buf,libname);          /* we KNOW that libname fits into buf! */
-  strcat(buf,".so");
   /* FIXME: On UNIX_DARWIN, need to search for the library in /usr/lib */
-  return dlopen(buf,RTLD_NOW|RTLD_GLOBAL);
+  return dlopen(libname,RTLD_NOW|RTLD_GLOBAL);
  #endif
 }
 
