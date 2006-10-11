@@ -39,10 +39,10 @@
  <listitem><simpara>call <function>PQsetdbLogin</function> and return
    the &conn-r;</simpara></listitem></varlistentry>
 <varlistentry id="sql:with-sql-connection"><term><code>(sql:with-sql-connection
-   (&var-r; &rest-amp; &option-r;s &key-amp; log &allow-other-keys-amp;)
+   (&var-r; &rest-amp; &option-r;s &key-amp; &log-r; &allow-other-keys-amp;)
    &body-amp; &body-r;)</code></term>
  <listitem><procedure><step><simpara>bind <varname>*sql-log*</varname>
-     to the <replaceable>log</replaceable> argument</simpara></step>
+     to the &log-r; argument</simpara></step>
    <step><simpara>call <function>sql:sql-connect</function> on
      &option-r;s and bind &var-r; to the result</simpara></step>
    <step><simpara>execute &body-r;</simpara></step>
