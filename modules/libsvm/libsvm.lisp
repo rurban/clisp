@@ -168,7 +168,8 @@
               (prob_estimates c-pointer))
   (:return-type double-float))
 (defun predict-probability (model x)
-  (with-foreign-object (prob_estimates `(c-array int ,(get-nr-class model)))
+  (with-foreign-object
+      (prob_estimates `(c-array double-float ,(get-nr-class model)))
     (values (svm_predict_probability model x prob_estimates)
             (foreign-value prob_estimates))))
 
