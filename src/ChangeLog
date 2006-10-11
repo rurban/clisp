@@ -1,3 +1,9 @@
+2006-10-10  Sam Steingold  <sds@podval.org>
+
+	* clhs.lisp (start-mesasge): helper extracted from read-from-file
+	(read-from-file): use it
+	* modules/libsvm/libsvm.lisp (load-problem, save-problem): ditto
+
 2006-10-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/libsvm.lisp (problem-y-n, problem-x-n): added

@@ -251,7 +251,7 @@
   (let ((len 0) y x (maxindex 0)
         (*read-default-float-format* 'double-float))
     (with-open-file (in file)
-      (sys::start-mesasge log 'load-problem file (file-length in))
+      (sys::start-message log 'load-problem file (file-length in))
       (loop :for line = (read-line in nil nil) :while line
         :unless (or (zerop (length line)) (char= #\# (aref line 0))) :do
         (incf len)
@@ -279,7 +279,7 @@
   (with-open-file (out file :direction :output)
     (let* ((size (problem-l problem))
            (y (problem-y problem size)) (x (problem-x problem size)))
-      (sys::start-mesasge log 'save-problem file size "records")
+      (sys::start-message log 'save-problem file size "records")
       (dotimes (i size)
         (format out "~G" (aref y i))
         (let ((nodes (aref x i)))
