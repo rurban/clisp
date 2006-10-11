@@ -50,9 +50,14 @@ PROBLEM
         (equalp (ffi:foreign-value p) (ffi:foreign-value f-problem-2-7))))
 (T T)
 
-(let ((vec (libsvm:cross-validation f-problem-2-7 f-parameter 3)))
-  (list (length vec) (count 1d0 vec) (count -1d0 vec)))
-(1000 543 457)
+(let ((vec (libsvm:cross-validation f-problem-2-7 f-parameter 3))
+      (hit 0) (miss 0))
+  (show (libsvm:parameter-alist f-parameter) :pretty t)
+  (loop :for v :across vec :for o :across (libsvm:problem-y f-problem-2-7)
+    :when (= v o) :do (incf hit) :end
+    :when (= v (- o)) :do (incf miss) :end)
+  (list (length vec) (count 1d0 vec) (count -1d0 vec) hit miss))
+(1000 543 457 477 523)
 
 (defparameter model (libsvm:train f-problem-2-7 f-parameter)) MODEL
 
@@ -72,12 +77,15 @@ PROBLEM
   (setf f-parameter (libsvm:make-parameter :v v-parameter 'LIBSVM::nu 5d-1
                                            'LIBSVM::svm_type libsvm:NU_SVR)
         v-parameter (ffi:foreign-value f-parameter))
-  NIL) NIL
+  (show (libsvm:parameter-alist f-parameter) :pretty t)
+  (= (ffi:slot (ffi:foreign-value f-parameter) 'LIBSVM::svm_type)
+     libsvm:NU_SVR))
+T
 
 (let ((vec (libsvm:cross-validation f-problem-3-7 f-parameter 3))
       (ht (make-hash-table)))
   (loop :for x :across vec :do (incf (gethash x ht 0)))
-  (show ht :pretty t)
+  ;(show ht :pretty t)
   (list (length vec) (count 1d0 vec) (count -1d0 vec) (count 0d0 vec)))
 (1000 0 0 1000)
 
@@ -88,7 +96,9 @@ PROBLEM
 (libsvm:check-probability-model model) 1
 (libsvm:get-svr-probability model) 1d0
 
-(destructuring-bind (l y x) (libsvm:problem-list f-problem-3-7)
+(let* ((l (libsvm:problem-l f-problem-3-7))
+       (y (libsvm:problem-y f-problem-3-7 l))
+       (x (libsvm:problem-x f-problem-3-7 l)))
   (dotimes (i l)
     (multiple-value-bind (v e)
         (ignore-errors (libsvm:predict-values model (aref x i)))
