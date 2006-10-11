@@ -36,6 +36,11 @@
 (defvar *browser* nil
   "The default browser - a key in `*browsers*' or a list of strings.")
 
+(defun start-message (out caller file size &optional (units "bytes"))
+  (when out
+    (format out "~&;; ~S(~A): ~:D ~A..." caller file size units)
+    (force-output (if (eq out t) *standard-output* out))))
+
 (defun read-from-file (file &key (out *standard-output*) (package "KEYWORD")
                        repeat)
   "Read an object from a file.
@@ -47,10 +52,7 @@ The keyword argument REPEAT specifies how many objects to read:
  if T, read until end of file and return a list of objects read"
   (let ((beg-real (get-internal-real-time)))
     (prog1 (with-open-file (str file :direction :input)
-             (when out
-               (format out "~&;; Reading `~a' [~:d bytes]..."
-                       file (file-length str))
-               (force-output (if (eq out t) *standard-output* out)))
+             (start-message out 'read-from-file file (file-length str))
              (with-standard-io-syntax
                (let ((*package* (find-package package)))
                  (cond ((null repeat) (read str))
