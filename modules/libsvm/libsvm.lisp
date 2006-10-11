@@ -29,27 +29,30 @@
 
 ;; converting a `problem' object from Lisp to C is easy, see `make-problem'
 ;; converting a `problem' object from C to Lisp is tricky because
-;; a 0d0 in the `y' array is interpreted as an end of the array.
+;; a 0d0 in the `y' array is interpreted as the end of the array.
 ;; thus we have to resort to a roundabout way:
 ;; - convert `c-array-ptr' to a `c-pointer'
 ;; - find out the array length
 ;; - convert `c-pointer' to `c-array' with the known length
-(defun problem-slots (problem)
+(defun problem-l (problem) (slot (foreign-value problem) 'l))
+;; FIXME: `parse-c-type' is not optimized away in `(c-ptr ...)
+(defun problem-y (problem &optional (len (problem-l problem)))
   (with-c-place (p problem)
-    (cast p '(c-struct list (l int) (y c-pointer) (x c-pointer)))))
+    (cast (slot p 'y) `(c-ptr (c-array double-float ,len)))))
+(defun problem-x (problem &optional (len (problem-l problem)))
+  (with-c-place (p problem)
+    (cast (slot p 'x) `(c-ptr (c-array (c-array-ptr node) ,len)))))
 
-;; FIXME: make these accessors non-consing
-(defun problem-l (problem) (first (problem-slots problem)))
-(defun problem-y (problem) (second (problem-slots problem)))
-(defun problem-x (problem) (third (problem-slots problem)))
-
-(defun problem-list (problem)
-  (destructuring-bind (l y x) (problem-slots problem)
-    (list l
-          (with-c-var (vy `(c-pointer (c-array double-float ,l)) y)
-            (foreign-value vy))
-          (with-c-var (vx `(c-pointer (c-array (c-array-ptr node) ,l)) x)
-            (foreign-value vx)))))
+;; access the n-th element
+(defun problem-y-n (problem n &optional (len (problem-l problem)))
+  (with-c-place (p problem)
+    (element (deref (cast (slot p 'y) `(c-ptr (c-array double-float ,len))))
+             n)))
+(defun problem-x-n (problem n &optional (len (problem-l problem)))
+  (with-c-place (p problem)
+    (element (deref (cast (slot p 'x)
+                          `(c-ptr (c-array (c-array-ptr node) ,len))))
+             n)))
 
 (def-c-enum svm_type C_SVC NU_SVC ONE_CLASS EPSILON_SVR NU_SVR)
 
@@ -101,13 +104,16 @@
         (finalize-model (svm_train problem parameter)))))
 
 (ffi:def-call-out svm_cross_validation (:library svm-so)
-  (:arguments (problem (c-pointer problem)) (param (c-pointer parameter))
+  (:arguments (problem (c-pointer problem)) (parameter (c-pointer parameter))
               (nr_fold int) (target c-pointer))
   (:return-type nil))
-(defun cross-validation (problem param nr_fold)
-  (with-foreign-object (target `(c-array double-float ,(problem-l problem)))
-    (svm_cross_validation problem param nr_fold target)
-    (foreign-value target)))
+(defun cross-validation (problem parameter nr_fold)
+  (let ((check (check-parameter problem parameter)))
+    (if check (error "~S: ~A" 'cross-validation check)
+        (with-foreign-object (target `(c-array double-float
+                                               ,(problem-l problem)))
+          (svm_cross_validation problem parameter nr_fold target)
+          (foreign-value target)))))
 
 (def-call-out save-model (:library svm-so) (:name "svm_save_model")
   (:arguments (model_file_name c-string) (model model))
@@ -217,6 +223,13 @@
     (ext:finalize ret #'destroy-parameter)
     ret))
 
+(defun parameter-alist (parameter)
+  (mapcar (lambda (slot) (list slot (slot (foreign-value parameter) slot)))
+          '(svm_type kernel_type degree
+            gamma coef0 cache_size eps C
+            nr_weight weight_label weight
+            nu p shrinking probability)))
+
 (defun make-problem (&key (l 0) y x)
   (assert (= l (length y)) (l y)
           "~S: l=~:D /= ~:D=(length y)" 'make-problem l (length y))
@@ -238,10 +251,7 @@
   (let ((len 0) y x (maxindex 0)
         (*read-default-float-format* 'double-float))
     (with-open-file (in file)
-      (when log
-        (format log "~&;; ~S(~S): ~:D byte~:P..."
-                'load-problem file (file-length in))
-        (force-output log))
+      (sys::start-mesasge log 'load-problem file (file-length in))
       (loop :for line = (read-line in nil nil) :while line
         :unless (or (zerop (length line)) (char= #\# (aref line 0))) :do
         (incf len)
@@ -267,10 +277,9 @@
 
 (defun save-problem (file problem &key (log *standard-output*))
   (with-open-file (out file :direction :output)
-    (destructuring-bind (size y x) (problem-list problem)
-      (when log
-        (format log "~&;; ~S(~S): ~:D record~:P..." 'save-problem file size)
-        (force-output log))
+    (let* ((size (problem-l problem))
+           (y (problem-y problem size)) (x (problem-x problem size)))
+      (sys::start-mesasge log 'save-problem file size "records")
       (dotimes (i size)
         (format out "~G" (aref y i))
         (let ((nodes (aref x i)))

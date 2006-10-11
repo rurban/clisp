@@ -1,3 +1,9 @@
+2006-10-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/libsvm/libsvm.lisp (problem-y-n, problem-x-n): added
+	(problem-list, problem-slots): removed
+	(cross-validation): call `check-parameter'
+
 2006-10-09  John Hinsdale  <hin@alma.com>
 
 	* modules/fastcgi/fastcgi.lisp, fastcgi_wrappers.c, fastcgi.h:
