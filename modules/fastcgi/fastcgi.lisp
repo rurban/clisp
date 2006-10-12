@@ -22,8 +22,8 @@
   (:documentation "Minimal bindings for FastCGI use from CLISP")
   (:use "LISP" "FFI")
   (:export "GETENV"
-	   "SLURP-STDIN" "OUT" "WRITE-STDOUT" "WRITE-STDERR" "NL"
-	   "IS-CGI" "ACCEPT" "FINISH" "WITH-LISTENER")
+           "SLURP-STDIN" "OUT" "WRITE-STDOUT" "WRITE-STDERR" "NL"
+           "IS-CGI" "ACCEPT" "FINISH" "WITH-LISTENER")
 )
 
 (in-package "FASTCGI")
@@ -41,7 +41,7 @@
 ; IS-CGI
 (defun is-cgi ()
   "Return T iff this is an old-fashioned CGI request rather than FastCGI mode."
-  (not (= 0 (fcgi_is_cgi_wrapper))))
+  (fcgi_is_cgi_wrapper))
 
 ; ACCEPT
 (defun accept ()
@@ -67,22 +67,22 @@
 (defun env ()
   "ENV - Returns the entire set of environment variables as an alist"
   (do* ((kv (fcgi_env))
-		(result nil)
-		(i (- (length kv) 2) (- i 2)))
-	  ((< i 0) result)
-	(push (cons (aref kv i) (aref kv (1+ i))) result)))
+        (result nil)
+        (i (- (length kv) 2) (- i 2)))
+       ((< i 0) result)
+    (push (cons (aref kv i) (aref kv (1+ i))) result)))
 
 ; WRITE-STDOUT
 (defun write-stdout (data)
   "(FASTCGI::WRITE-STDOUT string) - Write a string to standard output"
   ;; Do it in chunks since there seems to be FFI problems with large buffers
   (do* ((chunksize 65536)
-		(s (to-string data))
-		(totlen (length s)))
-	   ((= 0 (length s)) totlen)
-	   (let ((to-write (min (length s) chunksize)))
-		 (fcgi_write_stdout (subseq s 0 to-write) to-write)
-		 (setf s (subseq s to-write)))))
+        (s (to-string data))
+        (totlen (length s)))
+       ((= 0 (length s)) totlen)
+    (let ((to-write (min (length s) chunksize)))
+      (fcgi_write_stdout (subseq s 0 to-write) to-write)
+      (setf s (subseq s to-write)))))
 
 ; WRITE-STDERR
 (defun write-stderr (data)
@@ -98,9 +98,9 @@
        (eof nil))
       (eof result)
       (let ((buf (fcgi_read_stdin)))
-	(if (= 0 (length buf))
-	    (setf eof t)
-	  (setf result (concatenate 'string result buf))))))
+        (if (= 0 (length buf))
+            (setf eof t)
+          (setf result (ext:string-concat result buf))))))
 
 ; Output functions
 
@@ -111,7 +111,7 @@
 
 ; NL
 ; Return newline
-(defun nl () "Return a newline" (format nil "~%"))
+(defun nl () "Return a newline" #\Newline)
 
 
 ; ----------------    Internal functions
@@ -119,7 +119,7 @@
 ; CAT
 ; Concatenate strings
 (defun cat (&rest args)
-  (apply #'concatenate 'string (mapcar #'to-string (flatten args))))
+  (apply #'ext:string-concat (mapcar #'to-string (flatten args))))
 
 ; FLATTEN
 ; Flatten list (lifted from Paul Graham)
@@ -136,21 +136,21 @@
   (cond ((null s) "")
         ((stringp s) s)
         ((symbolp s) (symbol-name s))
-        (t (format nil "~A" s))))
+        (t (princ-to-string s))))
 
 ; CHECK-ACTIVE-REQUEST - Sanity check on use of library function
 (defun check-active-request (func)
   (when (not *fastcgi-request-active*)
-	(error "You must call FASTCGI:ACCEPT before using any other FastCGI function")))
+    (error "You must call FASTCGI:ACCEPT before using any other FastCGI function")))
 
 
 
 ; --------------   "C" functions
-(c-lines "#include \"fastcgi.h\"~%")
+;(c-lines "#include \"fastcgi.h\"~%"); completely wrapped
 
 ; Our wrappers
 (def-call-out fcgi_getenv       (:arguments (var c-string))               (:return-type c-string))
-(def-call-out fcgi_env          (:arguments)                              (:return-type (c-array-ptr c-string)))
+(def-call-out fcgi_env          (:arguments)                              (:return-type (c-array-ptr c-string) :malloc-free))
 (def-call-out fcgi_read_stdin   (:arguments)                              (:return-type c-string))
 (def-call-out fcgi_write_stdout (:arguments (data c-string) (length int)) (:return-type int))
 (def-call-out fcgi_write_stderr (:arguments (data c-string) (length int)) (:return-type int))
@@ -158,6 +158,6 @@
 ; Direct passthroughs to FCGI library
 (def-call-out fcgi_accept_wrapper (:arguments) (:return-type int))
 (def-call-out fcgi_finish_wrapper (:arguments) (:return-type nil))
-(def-call-out fcgi_is_cgi_wrapper (:arguments) (:return-type int))
+(def-call-out fcgi_is_cgi_wrapper (:arguments) (:return-type boolean))
 
 ; End of fastcgi.lisp
