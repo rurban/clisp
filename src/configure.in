@@ -18,6 +18,7 @@ dnl
 AC_PREREQ(2.57)
 AC_INIT(GNU CLISP, m4_normalize(esyscmd([if test -f version.sh; then . ./version.sh; else . ../version.sh; fi; echo "${VERSION_NUMBER} (${RELEASE_DATE})"])), http://clisp.cons.org/, clisp)
 AC_CONFIG_SRCDIR(lispbibl.d)
+AC_CONFIG_AUX_DIR(build-aux)
 AC_COPYRIGHT([GNU CLISP Copyright 1989-2006 by Bruno Haible and others
 GNU CLISP is distributed under the GNU GPL, see file COPYRIGHT])dnl
 AC_REVISION([$Id$])dnl
@@ -48,6 +49,8 @@ dnl sets variable LN_S
 CL_PROG_LN_S
 dnl sets variable HLN
 CL_PROG_HLN
+AC_LIBTOOL_WIN32_DLL
+AC_PROG_LIBTOOL
 dnl sets variable GROFF
 AC_CHECK_PROG(GROFF,groff,groff)
 dnl sets variable DVIPDF
