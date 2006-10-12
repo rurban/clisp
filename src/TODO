@@ -170,7 +170,11 @@ and elimination of lisp.run in favor of a driver launching the right dll.
 Also, --with-dynamic-modules should _NOT_ make BASE_MODULES dynamic.
 
 
-CLISP_LANGUAGE=german LC_ALL=C clisp -q
+libopen should DWIM -- include libltdl and use lt_dlopenext().
+Note: including libltdl is non-trivial and libtoolize requires configure.ac
+
+
+CLISP_LANGUAGE=german LC_ALL=C clisp -q -norc
 > (/ 0)
 => endless loop
 *** - Character #\u00F6 cannot be represented in the character set
