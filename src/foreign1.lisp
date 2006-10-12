@@ -1105,9 +1105,7 @@
        ',name)))
 
 (defun convert-to-foreign-C (flags)
-  (if (flag-set-p flags ff-flag-malloc-free)
-      "convert_to_foreign_mallocing"
-      "convert_to_foreign_nomalloc"))
+  (if (flag-set-p flags ff-flag-malloc-free) "mallocing" "nomalloc"))
 
 (defun note-c-call-in (name c-name alist whole) ; ABI
   (when (compiler::prepare-coutput-file)
@@ -1156,28 +1154,28 @@
         (format *coutput-stream* "  funcall(~A,~D);~%"
                 (object-to-c-value (pass-object name)) inargcount)
         (unless (eq rettype 'NIL)
-          (format *coutput-stream* " {~%  var ~A;~%~:
-  ~A(~A,value1,&retval);~%"
+          (format *coutput-stream* " {~%  ~A;~%~:
+  convert_to_foreign(~A,value1,&retval,&~A);~%"
                   (to-c-typedecl rettype "retval")
-                  (convert-to-foreign-C flags)
-                  (object-to-c-value (pass-object rettype))))
+                  (object-to-c-value (pass-object rettype))
+                  (convert-to-foreign-C flags)))
         (let ((outargcount (if (eq rettype 'NIL) 0 1)))
           (mapc #'(lambda (argtype argflag argname)
                     (when (flag-set-p argflag flag-output)
                       (unless (eq (ctype-type argtype) 'C-PTR)
                         (error (TEXT "~S: :OUT argument is not a pointer: ~S")
                                'DEF-CALL-IN argtype))
-                      (format *coutput-stream* "  ~A~A(~A,~A,~A);~%"
+                      (format *coutput-stream*
+                              "  ~Aconvert_to_foreign(~A,~A,~A,&~A);~%"
                               (if (eql outargcount 0) ""
                                 (format nil "if (mv_count >= ~D) "
                                         (+ outargcount 1)))
-                              (convert-to-foreign-C argflag)
                               (object-to-c-value
                                 (pass-object (svref argtype 1)))
                               (if (eql outargcount 0)
                                 "value1"
                                 (format nil "mv_space[~D]" outargcount))
-                              argname)
+                              argname (convert-to-foreign-C argflag))
                       (incf outargcount)))
                 argtypes argflags argnames))
         (format *coutput-stream* "  end_callback();~%")
