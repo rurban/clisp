@@ -1,5 +1,10 @@
 2006-10-12  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: call AC_CONFIG_AUX_DIR, AC_PROG_LIBTOOL,
+	AC_LIBTOOL_WIN32_DLL
+
+2006-10-12  Sam Steingold  <sds@gnu.org>
+
 	* libcharset/build-aux/config.guess, libcharset/build-aux/config.sub:
 	* libcharset/build-aux/install-sh, libcharset/build-aux/ltmain.sh:
 	* ffcall/build-aux/config.guess, ffcall/build-aux/config.sub:
