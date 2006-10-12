@@ -1,3 +1,10 @@
+2006-10-12  Sam Steingold  <sds@gnu.org>
+
+	* libcharset/build-aux/config.guess, libcharset/build-aux/config.sub:
+	* libcharset/build-aux/install-sh, libcharset/build-aux/ltmain.sh:
+	* ffcall/build-aux/config.guess, ffcall/build-aux/config.sub:
+	* ffcall/build-aux/ltmain.sh, src/m4/libtool.m4: updated
+
 2006-10-11  Sam Steingold  <sds@podval.org>
 
 	fixed FFI callbacks, broken since the 2005-10-02 patch
