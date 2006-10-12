@@ -1,9 +1,9 @@
 # Makefile for CLISP module set libsvm
 
 CC = gcc
-C++ = g++
+CXX = g++
 CPPFLAGS =
-MYCFLAGS = -O3 -ffast-math -Wall
+CXXFLAGS = -O3 -ffast-math -Wall
 INCLUDES= ..
 
 CLISP = clisp -q -norc
@@ -20,7 +20,7 @@ distribdir =
 all : libsvm.fas svm.so
 
 svm.so : svm.cpp svm.h
-	$(C++) $(CPPFLAGS) $(MYCFLAGS) -I$(INCLUDES) \
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(INCLUDES) \
 		-shared -o svm.so svm.cpp -lm
 
 libsvm.fas : libsvm.lisp
