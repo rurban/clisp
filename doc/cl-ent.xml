@@ -103,6 +103,8 @@
 <!ENTITY fsf '<ulink url="http://www.fsf.org">Free Software Foundation (FSF)</ulink>'>
 <!ENTITY eff '<ulink url="http://www.eff.org">Electronic Frontier Foundation</ulink>'>
 <!ENTITY gnu '<ulink url="http://www.gnu.org">GNU</ulink>'>
+<!ENTITY sf '<ulink url="http://sourceforge.net">SourceForge</ulink>'>
+<!ENTITY sf-cf '&sf; <ulink url="http://sourceforge.net/docs/compile_farm">CompileFarm</ulink>'>
 <!ENTITY ggettext '&gnu; <ulink url="http://www.gnu.org/software/gettext/gettext.html">gettext</ulink>'>
 <!ENTITY glibc '&gnu; <ulink url="http://www.gnu.org/software/libc/">libc</ulink>'>
 <!ENTITY libiconv '&gnu; <ulink url="http://www.gnu.org/software/libiconv/">libiconv</ulink>'>
