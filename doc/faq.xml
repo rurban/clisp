@@ -462,6 +462,28 @@ further explanations of the issues could be provided).</para>
 
 <qandadiv id="faq-trouble"><title>Troubles</title>
 
+<qandaentry id="faq-bin-distrib"><question id="faq-bin-distrib-q"><para>Where
+   is the binary distribution for my platform?</para></question>
+<answer><para>The &clisp; maintainers can only build &clisp; binary
+  distributions on those &sf-cf; platforms that are up an running at
+  the time of the &clisp; release and also have a reasonably modern
+  &c-lang; compiler.</para>
+ <para>Note that &clisp; is included in many software distributions, see
+  the section <quote>Get CLISP</quote> on the &clisp;'s home page.</para>
+</answer></qandaentry>
+
+
+<qandaentry id="faq-bin-distrib-prev"><question id="faq-bin-distrib-prev-q">
+  <para>But a previous release <emphasis>had</emphasis> a binary
+   distribution for my platform, why does not the current one?</para></question>
+<answer><para>It was probably contributed by a user who did not (yet?)
+  contribute a binary distribution for the current release. You can
+  find out who contributed a specific binary distribution by looking at
+  the release notes in the &sf;
+  <ulink url="http://sourceforge.net/project/showfiles.php?group_id=1355"
+         >Files</ulink> section.</para></answer></qandaentry>
+
+
 <qandaentry id="faq-build"><question id="faq-build-q"><para>Why does not
    &clisp; build on my platform?</para></question>
 <answer><para>Please see file
@@ -469,6 +491,7 @@ further explanations of the issues could be provided).</para>
   distribution for information about some known troublesome platforms
   as well as instructions on porting &clisp; to new platforms.</para>
 </answer></qandaentry>
+
 
 <qandaentry id="faq-enc-err">
  <blockinfo><title>What do charset errors mean?</title></blockinfo>
