@@ -47,18 +47,19 @@ static int    write_stdio(FILE *, char *, int);
 
 /* Externally visible functions */
 
-/* Searh environment for variable */
+/* Search environment for variable */
 char * fcgi_getenv(char * var) {
   char **envp = environ;
   for ( ; *envp != NULL; envp++) {
-	char * equ = strchr(*envp, '=');
-	if ( ! equ )
-	  continue;
-	if ( 0 == strncmp(var, *envp, equ - *envp) )
-	  return equ + 1;
+    char * equ = strchr(*envp, '=');
+    if ( ! equ )
+      continue;
+    /* FIXME implement exact match, not prefix matching */
+    if ( 0 == strncmp(var, *envp, equ - *envp) )
+      return equ + 1;
   }
   /* Variable not found in environment */
-  return 0;
+  return NULL;
 }
 
 
@@ -66,15 +67,16 @@ char * fcgi_getenv(char * var) {
    array, e.g.: { "KEY0", "VAL0", "KEY1", "VAL1", NULL } */
 
 char ** fcgi_env() {
-  char **envp = environ, **result = 0;
-  int nvar = 0, i = 0;
+  char **envp = environ, **result = NULL;
+  int nvar = 0, i;
   
   /* Count up # of vars.  Allocate space for array of twice that many
      strings (key & value for each env var) plus a terminating NULL
      pointer. */
   for ( ; *envp != NULL; envp++ )
     nvar++;
-  result = (char **) malloc(sizeof *result * (2 * nvar + 1));
+  result = (char **) malloc(sizeof(*result) * (2 * nvar + 1));
+  if ( ! result ) return NULL;
   
   envp = environ;
   i = 0;
@@ -86,7 +88,7 @@ char ** fcgi_env() {
          and map it to NIL; this is distinct from "VAR=" which will
          map to the empty string */
       result[i] = strdup(*envp);
-      result[i+1] = 0;
+      result[i+1] = NULL;
     }
     else {
       result[i] = strndup(*envp, equ - *envp);
@@ -95,7 +97,7 @@ char ** fcgi_env() {
   }
 
   /* Terminate string array */
-  result[i] = 0;
+  result[i] = NULL;
   return result;
 }
 
@@ -116,13 +118,13 @@ char * fcgi_read_stdin() {
 }
 static char * read_stdio(FILE * f) {
 
-  static char 	buf[TEMPBUFSIZE + 1];
-  size_t 	  	nact = 0;
+  static char buf[TEMPBUFSIZE + 1];
+  size_t      nact = 0;
 
   if ( ! feof(f) )
-	nact = fread(buf, 1, TEMPBUFSIZE, f);
+    nact = fread(buf, 1, TEMPBUFSIZE, f);
   if ( ferror(f) )
-	nact = 0;
+    nact = 0;
   buf[nact] = '\0';
   return buf;
 }
@@ -138,8 +140,12 @@ int write_stdio(FILE * f, char * data, int len) {
   return fwrite(data, 1, len, f);
 }
 
-/* Wrappers. These are needed only due to the user of upper case (how
-   annoying) */
+/* Wrappers. Can protect from possible implementation of FastCGI
+   API as preprocessor macros.
+   Also useful to decouple prototypes as defined in fcgiapp.h and
+   fcgi_stdio.h from these declared on the Lisp side
+   (e.g. bool/int or short/long) -- rather hypothetical.
+ */
 int fcgi_is_cgi_wrapper() {
   return FCGX_IsCGI();
 }

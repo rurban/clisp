@@ -1,3 +1,9 @@
+2006-10-12  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* modules/fastcgi/fastcgi.lisp, fastcgi_wrappers.c (fcgi_env):
+	Fix memory leak via :malloc-free allocation, check malloc(),
+	untabify, reindent, small Lisp and C tweaks.
+
 2006-10-12  Sam Steingold  <sds@gnu.org>
 
 	* configure.in: call AC_CONFIG_AUX_DIR, AC_PROG_LIBTOOL,
