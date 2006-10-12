@@ -4,6 +4,8 @@
 	* libcharset/build-aux/install-sh, libcharset/build-aux/ltmain.sh:
 	* ffcall/build-aux/config.guess, ffcall/build-aux/config.sub:
 	* ffcall/build-aux/ltmain.sh, src/m4/libtool.m4: updated
+	* src/build-aux/config.dynamic: replaced with ...
+	* src/build-aux/ltmain.sh: added
 
 2006-10-11  Sam Steingold  <sds@podval.org>
 
