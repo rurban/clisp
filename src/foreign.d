@@ -1863,7 +1863,7 @@ local maygc void convert_to_foreign_needs (object fvd, object obj,
  Only the toplevel storage must already exist; its address is given.
  can trigger GC */
 global maygc void convert_to_foreign (object fvd, object obj, void* data,
-                                     converter_malloc_t converter_malloc)
+                                      converter_malloc_t *converter_malloc)
 {
   check_SP();
   check_STACK();
@@ -2347,20 +2347,16 @@ local void* allocaing (void* old_data, uintL size, uintL alignment)
  extent. (Not exactly indefinite extent: It is deallocated the next time
  free_foreign() is called on it.)
  can trigger GC */
-local void* mallocing (void* old_data, uintL size, uintL alignment)
-{
-  return my_malloc(size);
-}
+global void* mallocing (void* old_data, uintL size, uintL alignment)
+{ return my_malloc(size); }
 
 /* Convert Lisp data to foreign data.
  The foreign data storage is reused.
  DANGEROUS, especially for type C-STRING !!
  Also beware against NULL pointers! They are not treated specially.
  can trigger GC */
-local void* nomalloc (void* old_data, uintL size, uintL alignment)
-{
-  return old_data;
-}
+global void* nomalloc (void* old_data, uintL size, uintL alignment)
+{ return old_data; }
 
 /* Error messages. */
 nonreturning_function(local, fehler_foreign_variable, (object obj)) {

@@ -12,6 +12,8 @@ User visible changes
 * Bug fixes:
   + DOCUMENTATION on built-in functions was broken on some platforms.
     [ 1569234 ]
+  + Fixed FFI callbacks, broken since the 2.36 release.
+  + Fixed the way the top-level driver handles the "--" option terminator.
 
 
 2.40 (2006-09-23)
