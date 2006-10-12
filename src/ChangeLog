@@ -1,3 +1,12 @@
+2006-10-11  Sam Steingold  <sds@podval.org>
+
+	fixed FFI callbacks, broken since the 2005-10-02 patch
+	* lispbibl.d (mallocing, nomalloc): declare for clisp.h
+	* foreign.d (mallocing, nomalloc): declare global
+	(converter_malloc_t): remove one level of indirection
+	* foreign1.lisp (convert-to-foreign-C, note-c-call-in): output
+	convert_to_foreign() with the appropriate 4th argument
+
 2006-10-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/libsvm.lisp (predict-probability): prob_estimates
