@@ -863,6 +863,11 @@ NIL
  2212755 3154856)
 (T 0 0)
 
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1575946&group_id=1355&atid=101355
+(test-compiler
+ (lambda () (labels ((foo () (apply #'bar nil)) (bar ())))))
+(T NIL NIL)
+
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=890138&group_id=1355&atid=101355>
 (progn (load (merge-pathnames "bug001.lisp" *run-test-truename*)) t)
 T
@@ -988,5 +993,9 @@ NIL
 (progn
   (fmakunbound 'circularity-in-code)
   (unintern 'circularity-in-code)
+  (fmakunbound 'test-constant-folding)
+  (unintern 'test-constant-folding)
+  (fmakunbound 'test-compiler)
+  (unintern 'test-compiler)
   (unintern 'x))
 T
