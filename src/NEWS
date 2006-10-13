@@ -11,8 +11,8 @@ User visible changes
 * The same internal interface now handles FFI forms DEF-CALL-OUT and
   DEF-C-VAR regardless of the presence of the :LIBRARY argument.
   (:LIBRARY NIL) is now identical to omitting the :LIBRARY argument.
-  The default for the :LIBRARY argument is provided by
-  FFI:*DEFAULT-FOREIGN-LIBRARY* (bound in a compilation unit).
+  The default for the :LIBRARY argument is set by
+  FFI:DEFAULT-FOREIGN-LIBRARY per compilation unit.
   See <http://clisp.cons.org/impnotes/dffi.html#dffi-default-lib> for details.
 
 * Bug fixes:

@@ -13,8 +13,7 @@
 (setf (documentation (find-package "LIBSVM") 'sys::impnotes) "libsvm")
 
 (default-foreign-language :stdc)
-(setq *default-foreign-library*
-      (namestring (merge-pathnames "svm.so" *load-pathname*)))
+(default-foreign-library (namestring (merge-pathnames "svm.so" *load-pathname*)))
 
 ;;;
 ;;; types and constants

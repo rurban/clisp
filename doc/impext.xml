@@ -2624,7 +2624,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
    deprecated.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&library-k; &name-r;)</code></term>
  <listitem><simpara>Specifies the (optional) dynamic library
-   which contains the variable, the default is the value of the variable
+   which contains the variable, the default is set by
    &default-foreign-library;.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
  <listitem><simpara>Specifies the (optional) &variable-doc; documentation.
@@ -2677,7 +2677,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(&library-k; &name-r;)</code></term>
  <listitem><simpara>Specifies the (optional) dynamic library
-   which contains the function, the default is the value of the variable
+   which contains the function, the default is set by
    &default-foreign-library;</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
  <listitem><simpara>Specifies the (optional) &function-doc; documentation.
@@ -2714,17 +2714,18 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
    library &name-r;, it will be re-opened automatically.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="dffi-default-lib"><term>&default-foreign-library;</term>
- <listitem><simpara>This is the default &library-k; argument for
-   &def-call-out; and &def-c-var;.  This variable should be &nil;
+<varlistentry id="dffi-default-lib"><term><code>(&default-foreign-library;
+   &lib-name;)</code></term>
+ <listitem><simpara>This macro sets the default &library-k; argument for
+   &def-call-out; and &def-c-var;.  &lib-name; should be &nil;
    (meaning use the &c-lang; file produced by &compile-file-my;), a
    &string-t;, or, depending on the
    underlying <function role="unix">dlsym</function> implementation,
    &default-k; or <constant>:NEXT</constant>.</simpara>
-  <simpara>This variable is bound in each &comp-unit;, so, if you are
-   interfacing to a single library, you can set this variable in the
-   beginning of your lisp file and omit the &library-k;
-   argument throughout the file.</simpara></listitem></varlistentry>
+  <simpara>The default is set separately in each &comp-unit;, so, if you
+   are interfacing to a single library, you can set this variable in the
+   beginning of your lisp file and omit the &library-k; argument
+   throughout the file.</simpara></listitem></varlistentry>
 
 <varlistentry id="def-c-struct"><term><code>(&def-c-struct;
    &name-r; (&symbol-r; &ctype-r;)*)</code></term>

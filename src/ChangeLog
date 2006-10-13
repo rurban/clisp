@@ -1,5 +1,12 @@
 2006-10-13  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp, compiler.lisp: replaced
+	FFI::*DEFAULT-FOREIGN-LIBRARY* with FFI::*FOREIGN-LIBRARY*
+	* foreign1.lisp (DEFAULT-FOREIGN-LIBRARY): new macro, set
+	FFI::*FOREIGN-LIBRARY* inside EVAL-WHEN
+
+2006-10-13  Sam Steingold  <sds@gnu.org>
+
 	* modules/pcre/cpcre.c (fullinfo_firsttable): avoid a gcc warning
 
 2006-10-13  Sam Steingold  <sds@gnu.org>
