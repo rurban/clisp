@@ -158,7 +158,7 @@ DVIPDF = dvipdf
 #
 
 # The official version number
-VERSION=2.40
+VERSION=2.41
 # If you want to distribute a modified version of CLISP,
 # use this to distinguish your distribution from the official one.
 # This can also be used for pre-test and post-release distributions:
