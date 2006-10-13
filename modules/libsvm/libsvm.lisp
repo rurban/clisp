@@ -13,8 +13,8 @@
 (setf (documentation (find-package "LIBSVM") 'sys::impnotes) "libsvm")
 
 (default-foreign-language :stdc)
-(defconstant svm-so
-  (namestring (merge-pathnames "svm.so" *load-pathname*)))
+(setq *default-foreign-library*
+      (namestring (merge-pathnames "svm.so" *load-pathname*)))
 
 ;;;
 ;;; types and constants
@@ -82,7 +82,7 @@
 ;;; foreign functions and small wrappers
 ;;;
 
-(ffi:def-call-out svm_destroy_model (:library svm-so)
+(ffi:def-call-out svm_destroy_model
   (:arguments (model model)) (:return-type nil))
 (defun destroy-model (model)
   (when (validp model)
@@ -92,10 +92,10 @@
   (ext:finalize (set-foreign-pointer model :copy) #'destroy-model)
   model)
 
-(def-call-out check-parameter (:library svm-so) (:name "svm_check_parameter")
+(def-call-out check-parameter (:name "svm_check_parameter")
   (:arguments (problem (c-pointer problem)) (param (c-pointer parameter)))
   (:return-type c-string))
-(def-call-out svm_train (:library svm-so)
+(ffi:def-call-out svm_train
   (:arguments (problem (c-pointer problem)) (param (c-pointer parameter)))
   (:return-type model))
 (defun train (problem parameter)
@@ -103,7 +103,7 @@
     (if check (error "~S: ~A" 'train check)
         (finalize-model (svm_train problem parameter)))))
 
-(ffi:def-call-out svm_cross_validation (:library svm-so)
+(ffi:def-call-out svm_cross_validation
   (:arguments (problem (c-pointer problem)) (parameter (c-pointer parameter))
               (nr_fold int) (target c-pointer))
   (:return-type nil))
@@ -115,41 +115,38 @@
           (svm_cross_validation problem parameter nr_fold target)
           (foreign-value target)))))
 
-(def-call-out save-model (:library svm-so) (:name "svm_save_model")
+(def-call-out save-model (:name "svm_save_model")
   (:arguments (model_file_name c-string) (model model))
   (:return-type int))
-(ffi:def-call-out svm_load_model (:library svm-so)
-  (:arguments (model_file_name c-string))
+(ffi:def-call-out svm_load_model (:arguments (model_file_name c-string))
   (:return-type model))
 (defun load-model (model_file_name)
   (finalize-model (svm_load_model model_file_name)))
 
-(def-call-out get-svm-type (:library svm-so) (:name "svm_get_svm_type")
+(def-call-out get-svm-type (:name "svm_get_svm_type")
   (:arguments (model model))
   (:return-type int))
-(def-call-out get-nr-class (:library svm-so) (:name "svm_get_nr_class")
+(def-call-out get-nr-class (:name "svm_get_nr_class")
   (:arguments (model model))
   (:return-type int))
-(ffi:def-call-out svm_get_labels (:library svm-so)
-  (:arguments (model model) (label c-pointer))
+(ffi:def-call-out svm_get_labels (:arguments (model model) (label c-pointer))
   (:return-type nil))
 (defun get-labels (model)
   (with-foreign-object (label `(c-array int ,(get-nr-class model)))
     (svm_get_labels model label)
     (foreign-value label)))
-(def-call-out get-svr-probability (:library svm-so)
-  (:name "svm_get_svr_probability")
+(def-call-out get-svr-probability (:name "svm_get_svr_probability")
   (:arguments (model model))
   (:return-type double-float))
 
 (ffi:def-call-out svm_predict_values1 (:name "svm_predict_values")
   (:arguments (model model) (x (c-array-ptr node))
               (dec_values (c-ptr double-float) :out))
-  (:return-type nil) (:library svm-so))
+  (:return-type nil))
 (ffi:def-call-out svm_predict_values2 (:name "svm_predict_values")
   (:arguments (model model) (x (c-array-ptr node))
               (dec_values c-pointer))
-  (:return-type nil) (:library svm-so))
+  (:return-type nil))
 (defun predict-values (model x)
   (case (get-svm-type model)
     ((ONE_CLASS EPSILON_SVR NU_SVR)
@@ -160,10 +157,10 @@
            (svm_predict_values2 model x dec-values)
            (foreign-value dec-values))))))
 
-(def-call-out predict (:library svm-so) (:name "svm_predict")
+(def-call-out predict (:name "svm_predict")
   (:arguments (model model) (x (c-array-ptr node)))
   (:return-type double-float))
-(ffi:def-call-out svm_predict_probability (:library svm-so)
+(ffi:def-call-out svm_predict_probability
   (:arguments (model model) (x (c-array-ptr node))
               (prob_estimates c-pointer))
   (:return-type double-float))
@@ -174,11 +171,10 @@
             (foreign-value prob_estimates))))
 
 ;; not needed!
-;; (def-call-out destroy-param (:library svm-so) (:name "svm_destroy_param")
+;; (def-call-out destroy-param (:name "svm_destroy_param")
 ;;   (:arguments (param (c-pointer parameter))) (:return-type nil))
 
-(def-call-out check-probability-model (:library svm-so)
-  (:name "svm_check_probability_model")
+(def-call-out check-probability-model (:name "svm_check_probability_model")
   (:arguments (model model))
   (:return-type int))
 
@@ -209,6 +205,8 @@
                        ((p p) (if v-p (svref v 12) 1d-1))
                        ((shrinking shrinking) (if v-p (svref v 13) 1))
                        ((probability probability) (if v-p (svref v 14) 0)))
+  "Allocate a `parameter' object.
+You do NOT have to call (destroy-parameter ret) yourself!"
   (assert (= nr_weight (length weight_label)) (nr_weight weight_label)
           "~S: nr_weight=~:D /= ~:D=(length weight_label)"
           'make-parameter nr_weight (length weight_label))
@@ -220,7 +218,6 @@
                                     gamma coef0 cache_size eps C
                                     nr_weight weight_label weight
                                     nu p shrinking probability))))
-    ;; you do NOT have to call (destroy-parameter ret) yourself!
     (ext:finalize ret #'destroy-parameter)
     ret))
 
@@ -232,13 +229,14 @@
             nu p shrinking probability)))
 
 (defun make-problem (&key (l 0) y x)
+  "Create a `problem' object with the specified slots.
+You must call (destroy-problem ret) yourself!
+ -- but remember that `model' returned by `train' uses `problem',
+    so you cannot free `problem' until you free all `model's"
   (assert (= l (length y)) (l y)
           "~S: l=~:D /= ~:D=(length y)" 'make-problem l (length y))
   (assert (= l (length x)) (l x)
           "~S: l=~:D /= ~:D=(length x)" 'make-problem l (length x))
-  ;; you must call (destroy-problem ret) yourself!
-  ;; -- but remember that `model' returned by `train' uses `problem',
-  ;;    so you cannot free `problem' until you free all `model's
   (allocate-deep 'problem (list l (coerce y 'vector) (coerce x 'vector))))
 
 (defun destroy-problem (problem)
@@ -247,8 +245,8 @@
     (setf (validp problem) nil)))
 
 (defun load-problem (file &key (log *standard-output*))
-  ;; load the `problem' object from a standard libsvm/svmlight problem file:
-  ;; target index1:value1 index2:value2 ...
+  "Load the `problem' object from a standard libsvm/svmlight problem file:
+  target index1:value1 index2:value2 ..."
   (let ((len 0) y x (maxindex 0)
         (*read-default-float-format* 'double-float))
     (with-open-file (in file)
@@ -277,6 +275,8 @@
             maxindex)))
 
 (defun save-problem (file problem &key (log *standard-output*))
+  "Write the `problem' object into a standard libsvm/svmlight problem file:
+  target index1:value1 index2:value2 ..."
   (with-open-file (out file :direction :output)
     (let* ((size (problem-l problem))
            (y (problem-y problem size)) (x (problem-x problem size)))
