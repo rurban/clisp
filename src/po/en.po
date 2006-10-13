@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.40\n"
+"Project-Id-Version: clisp 2.41\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-10-01 10:51:08-0400\n"
-"PO-Revision-Date: 2006-10-01 10:51:08-0400\n"
+"POT-Creation-Date: 2006-10-12 23:35:42-0400\n"
+"PO-Revision-Date: 2006-10-12 23:35:43-0400\n"
 "Last-Translator: Automatically generated <sds@loiso>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -1926,17 +1926,17 @@ msgstr "index too large"
 msgid "An array has been shortened by adjusting it while another array was displaced to it."
 msgstr "An array has been shortened by adjusting it while another array was displaced to it."
 
-#: array.d:348 foreign.d:2561
+#: array.d:348 foreign.d:2586
 #, lisp-format
 msgid "~S: got ~S subscripts, but ~S has rank ~S"
 msgstr "~S: got ~S subscripts, but ~S has rank ~S"
 
-#: array.d:360 foreign.d:2576
+#: array.d:360 foreign.d:2601
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 msgstr "~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 
-#: array.d:382 foreign.d:2585
+#: array.d:382 foreign.d:2610
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are out of range"
 msgstr "~S: subscripts ~S for ~S are out of range"
@@ -2608,7 +2608,7 @@ msgstr "~S: the weight argument should be an integer, not ~S"
 msgid "~S: argument should be an integer, not ~S"
 msgstr "~S: argument should be an integer, not ~S"
 
-#: charstrg.d:2171 compiler.lisp:7128
+#: charstrg.d:2171 compiler.lisp:7139
 #, lisp-format
 msgid "~S: index should be an integer, not ~S"
 msgstr "~S: index should be an integer, not ~S"
@@ -2828,7 +2828,7 @@ msgstr "~S: User break"
 msgid "Continue execution"
 msgstr "Continue execution"
 
-#: error.d:795 foreign.d:633 foreign.d:2361 foreign.d:2444 foreign.d:3109
+#: error.d:795 foreign.d:650 foreign.d:2368 foreign.d:2469 foreign.d:3134
 #, lisp-format
 msgid "~S: ~S is not of type ~S"
 msgstr "~S: ~S is not of type ~S"
@@ -3735,157 +3735,157 @@ msgstr "Foreign variable ~S already exists"
 msgid "Foreign function ~S already exists"
 msgstr "Foreign function ~S already exists"
 
-#: foreign.d:271 foreign1.lisp:673
+#: foreign.d:271
 #, lisp-format
-msgid "illegal foreign data type ~S"
-msgstr "illegal foreign data type ~S"
+msgid "~S: Illegal foreign data type ~S"
+msgstr "~S: Illegal foreign data type ~S"
 
 #: foreign.d:279
 #, lisp-format
-msgid "~S cannot be converted to the foreign type ~S"
-msgstr "~S cannot be converted to the foreign type ~S"
+msgid "~S: ~S cannot be converted to the foreign type ~S"
+msgstr "~S: ~S cannot be converted to the foreign type ~S"
 
 #: foreign.d:287
 #, lisp-format
-msgid "64 bit integers are not supported on this platform and with this C compiler: ~S"
-msgstr "64 bit integers are not supported on this platform and with this C compiler: ~S"
+msgid "~S: 64 bit integers are not supported on this platform and with this C compiler: ~S"
+msgstr "~S: 64 bit integers are not supported on this platform and with this C compiler: ~S"
 
-#: foreign.d:415
-#, lisp-format
-msgid "~S cannot be converted to a foreign function with another calling convention."
-msgstr "~S cannot be converted to a foreign function with another calling convention."
-
-#: foreign.d:1039
-#, lisp-format
-msgid "~S: element type has size 0: ~S"
-msgstr "~S: element type has size 0: ~S"
-
-#: foreign.d:1047
-#, lisp-format
-msgid "~S: trying to read an object of type ~S from NULL address"
-msgstr "~S: trying to read an object of type ~S from NULL address"
-
-#: foreign.d:1861
-#, lisp-format
-msgid "~S: trying to write object ~S of type ~S into NULL address"
-msgstr "~S: trying to write object ~S of type ~S into NULL address"
-
-#: foreign.d:2366
-#, lisp-format
-msgid "~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"
-msgstr "~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"
-
-#: foreign.d:2382
-#, lisp-format
-msgid "~S: foreign variable ~S does not exist"
-msgstr "~S: foreign variable ~S does not exist"
-
-#: foreign.d:2383
-msgid "Skip foreign variable creation"
-msgstr "Skip foreign variable creation"
-
-#: foreign.d:2398
-#, lisp-format
-msgid "~S: foreign variable ~S does not have the required size or alignment"
-msgstr "~S: foreign variable ~S does not have the required size or alignment"
-
-#: foreign.d:2410
-#, lisp-format
-msgid "~S: type specifications for foreign variable ~S conflict: ~S and ~S"
-msgstr "~S: type specifications for foreign variable ~S conflict: ~S and ~S"
-
-#: foreign.d:2474 foreign.d:2815 foreign.d:3030 foreign.d:4355
-#, lisp-format
-msgid "~S: foreign variable ~S does not have the required alignment"
-msgstr "~S: foreign variable ~S does not have the required alignment"
-
-#: foreign.d:2507
-#, lisp-format
-msgid "~S: foreign variable ~S may not be modified"
-msgstr "~S: foreign variable ~S may not be modified"
-
-#: foreign.d:2553
-#, lisp-format
-msgid "~S: foreign variable ~S of type ~S is not an array"
-msgstr "~S: foreign variable ~S of type ~S is not an array"
-
-#: foreign.d:2629
-#, lisp-format
-msgid "~S: foreign variable ~S of type ~S is not a pointer"
-msgstr "~S: foreign variable ~S of type ~S is not a pointer"
-
-#: foreign.d:2737
-#, lisp-format
-msgid "~S: foreign variable ~S of type ~S is not a struct or union"
-msgstr "~S: foreign variable ~S of type ~S is not a struct or union"
-
-#: foreign.d:2744
-#, lisp-format
-msgid "~S: foreign variable ~S of type ~S has no component with name ~S"
-msgstr "~S: foreign variable ~S of type ~S has no component with name ~S"
-
-#: foreign.d:3089
-#, lisp-format
-msgid "~S: ~S has no type, :FULL is illegal"
-msgstr "~S: ~S has no type, :FULL is illegal"
-
-#: foreign.d:3115
-#, lisp-format
-msgid "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
-msgstr "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
-
-#: foreign.d:3131 foreign.d:4378
+#: foreign.d:301
 #, lisp-format
 msgid "~S: illegal foreign function type ~S"
 msgstr "~S: illegal foreign function type ~S"
 
+#: foreign.d:431
+#, lisp-format
+msgid "~S cannot be converted to a foreign function with another calling convention."
+msgstr "~S cannot be converted to a foreign function with another calling convention."
+
+#: foreign.d:1050
+#, lisp-format
+msgid "~S: element type has size 0: ~S"
+msgstr "~S: element type has size 0: ~S"
+
+#: foreign.d:1058
+#, lisp-format
+msgid "~S: trying to read an object of type ~S from NULL address"
+msgstr "~S: trying to read an object of type ~S from NULL address"
+
+#: foreign.d:1872
+#, lisp-format
+msgid "~S: trying to write object ~S of type ~S into NULL address"
+msgstr "~S: trying to write object ~S of type ~S into NULL address"
+
+#: foreign.d:2373
+#, lisp-format
+msgid "~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"
+msgstr "~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"
+
+#: foreign.d:2389
+#, lisp-format
+msgid "~S: foreign variable ~S does not exist"
+msgstr "~S: foreign variable ~S does not exist"
+
+#: foreign.d:2390
+msgid "Skip foreign variable creation"
+msgstr "Skip foreign variable creation"
+
+#: foreign.d:2404
+#, lisp-format
+msgid "~S: foreign variable ~S does not have the required size or alignment"
+msgstr "~S: foreign variable ~S does not have the required size or alignment"
+
+#: foreign.d:2415
+#, lisp-format
+msgid "~S: type specifications for foreign variable ~S conflict: ~S and ~S"
+msgstr "~S: type specifications for foreign variable ~S conflict: ~S and ~S"
+
+#: foreign.d:2499 foreign.d:2840 foreign.d:3055 foreign.d:4409
+#, lisp-format
+msgid "~S: foreign variable ~S does not have the required alignment"
+msgstr "~S: foreign variable ~S does not have the required alignment"
+
+#: foreign.d:2532
+#, lisp-format
+msgid "~S: foreign variable ~S may not be modified"
+msgstr "~S: foreign variable ~S may not be modified"
+
+#: foreign.d:2578
+#, lisp-format
+msgid "~S: foreign variable ~S of type ~S is not an array"
+msgstr "~S: foreign variable ~S of type ~S is not an array"
+
+#: foreign.d:2654
+#, lisp-format
+msgid "~S: foreign variable ~S of type ~S is not a pointer"
+msgstr "~S: foreign variable ~S of type ~S is not a pointer"
+
+#: foreign.d:2762
+#, lisp-format
+msgid "~S: foreign variable ~S of type ~S is not a struct or union"
+msgstr "~S: foreign variable ~S of type ~S is not a struct or union"
+
+#: foreign.d:2769
+#, lisp-format
+msgid "~S: foreign variable ~S of type ~S has no component with name ~S"
+msgstr "~S: foreign variable ~S of type ~S has no component with name ~S"
+
+#: foreign.d:3114
+#, lisp-format
+msgid "~S: ~S has no type, :FULL is illegal"
+msgstr "~S: ~S has no type, :FULL is illegal"
+
 #: foreign.d:3140
+#, lisp-format
+msgid "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
+msgstr "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
+
+#: foreign.d:3158
 #, lisp-format
 msgid "~S: foreign function ~S does not exist"
 msgstr "~S: foreign function ~S does not exist"
 
-#: foreign.d:3141
+#: foreign.d:3159
 msgid "Skip foreign function creation"
 msgstr "Skip foreign function creation"
 
-#: foreign.d:3148
+#: foreign.d:3166
 #, lisp-format
 msgid "~S: calling conventions for foreign function ~S conflict"
 msgstr "~S: calling conventions for foreign function ~S conflict"
 
-#: foreign.d:3448 foreign1.lisp:1173
+#: foreign.d:3491 foreign1.lisp:1173
 #, lisp-format
 msgid "~S: :OUT argument is not a pointer: ~S"
 msgstr "~S: :OUT argument is not a pointer: ~S"
 
-#: foreign.d:4090
+#: foreign.d:4131
 #, lisp-format
 msgid "~S: ~S is not supported on this platform."
 msgstr "~S: ~S is not supported on this platform."
 
-#: foreign.d:4109
+#: foreign.d:4150
 #, lisp-format
 msgid "~S: Cannot open library ~S: ~S"
 msgstr "~S: Cannot open library ~S: ~S"
 
-#: foreign.d:4111
+#: foreign.d:4152
 #, lisp-format
 msgid "~S: Cannot open library ~S"
 msgstr "~S: Cannot open library ~S"
 
-#: foreign.d:4149
+#: foreign.d:4192
 #, lisp-format
 msgid "~S: no dynamic object named ~S in library ~S"
 msgstr "~S: no dynamic object named ~S in library ~S"
 
-#: foreign.d:4150
+#: foreign.d:4193
 msgid "Skip foreign object creation"
 msgstr "Skip foreign object creation"
 
-#: foreign.d:4298
+#: foreign.d:4468
 #, lisp-format
-msgid "~S: ~S is not a library"
-msgstr "~S: ~S is not a library"
+msgid "~S: cannot find ~S in ~S due to lack of dlsym() on this platform"
+msgstr "~S: cannot find ~S in ~S due to lack of dlsym() on this platform"
 
 #: init.lisp:269 format.lisp:362
 #, lisp-format
@@ -3897,7 +3897,7 @@ msgstr "The destination argument ~S is invalid (not NIL or T or a stream or a st
 msgid "~S: The control-string must be a string, not ~S"
 msgstr "~S: The control-string must be a string, not ~S"
 
-#: init.lisp:312 init.lisp:2127 condition.lisp:1560 reploop.lisp:466
+#: init.lisp:312 init.lisp:2131 condition.lisp:1560 reploop.lisp:466
 msgid "Continuable Error"
 msgstr "Continuable Error"
 
@@ -4033,71 +4033,71 @@ msgstr "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S"
 msgid "illegal syntax in FUNCTION-MACRO-LET: ~S"
 msgstr "illegal syntax in FUNCTION-MACRO-LET: ~S"
 
-#: init.lisp:1495 condition.lisp:1597
+#: init.lisp:1498 condition.lisp:1597
 msgid "WARNING:"
 msgstr "WARNING:"
 
-#: init.lisp:1527
+#: init.lisp:1530
 #, lisp-format
 msgid "~S: compiled file ~A lacks a version marker"
 msgstr "~S: compiled file ~A lacks a version marker"
 
-#: init.lisp:1529
+#: init.lisp:1532
 #, lisp-format
 msgid "~S: compiled file ~A has a corrupt version marker ~S"
 msgstr "~S: compiled file ~A has a corrupt version marker ~S"
 
-#: init.lisp:1531
+#: init.lisp:1534
 #, lisp-format
 msgid "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"
 msgstr "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"
 
-#: init.lisp:1643
+#: init.lisp:1646
 #, lisp-format
 msgid "~S: A file with name ~A does not exist"
 msgstr "~S: A file with name ~A does not exist"
 
-#: init.lisp:1664
+#: init.lisp:1668
 #, lisp-format
 msgid "Loading file ~A ..."
 msgstr "Loading file ~A ..."
 
-#: init.lisp:1698 defs1.lisp:495
+#: init.lisp:1702 defs1.lisp:495
 #, lisp-format
 msgid "Loaded file ~A"
 msgstr "Loaded file ~A"
 
-#: init.lisp:1709
+#: init.lisp:1713
 #, lisp-format
 msgid "~S: missing function name and/or parameter list"
 msgstr "~S: missing function name and/or parameter list"
 
-#: init.lisp:1719
+#: init.lisp:1723
 #, lisp-format
 msgid "~S: special operator ~S cannot be redefined."
 msgstr "~S: special operator ~S cannot be redefined."
 
-#: init.lisp:1753 macros1.lisp:144
+#: init.lisp:1757 macros1.lisp:144
 #, lisp-format
 msgid "exit clause in ~S must be a list"
 msgstr "exit clause in ~S must be a list"
 
-#: init.lisp:1900
+#: init.lisp:1904
 #, lisp-format
 msgid "~S: cannot define a function from that: ~S"
 msgstr "~S: cannot define a function from that: ~S"
 
-#: init.lisp:1906 clos-genfun3.lisp:101 clos-genfun3.lisp:173
+#: init.lisp:1910 clos-genfun3.lisp:101 clos-genfun3.lisp:173
 #, lisp-format
 msgid "~S: the name of a function must be a symbol, not ~S"
 msgstr "~S: the name of a function must be a symbol, not ~S"
 
-#: init.lisp:1912
+#: init.lisp:1916
 #, lisp-format
 msgid "~S: function ~S is missing a lambda list"
 msgstr "~S: function ~S is missing a lambda list"
 
-#: init.lisp:2134 condition.lisp:1567 reploop.lisp:493
+#: init.lisp:2138 condition.lisp:1567 reploop.lisp:493
 msgid "If you continue (by typing 'continue'): "
 msgstr "If you continue (by typing 'continue'): "
 
@@ -4656,7 +4656,7 @@ msgstr "This symbol will be created."
 msgid "~S ~A: There is no symbol ~A::~A ."
 msgstr "~S ~A: There is no symbol ~A::~A ."
 
-#: type.lisp:63 compiler.lisp:7037
+#: type.lisp:63 compiler.lisp:7048
 #, lisp-format
 msgid "~S: argument to SATISFIES must be a symbol: ~S"
 msgstr "~S: argument to SATISFIES must be a symbol: ~S"
@@ -5793,147 +5793,147 @@ msgstr "Too many arguments to ~S"
 msgid "Too few arguments to ~S"
 msgstr "Too few arguments to ~S"
 
-#: compiler.lisp:6574
+#: compiler.lisp:6585
 #, lisp-format
 msgid "Arithmetic operand ~s must evaluate to a number, not ~s"
 msgstr "Arithmetic operand ~s must evaluate to a number, not ~s"
 
-#: compiler.lisp:7104
+#: compiler.lisp:7115
 #, lisp-format
 msgid "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S"
 msgstr "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S"
 
-#: compiler.lisp:10762
+#: compiler.lisp:10773
 #, lisp-format
 msgid "~S cannot be compiled"
 msgstr "~S cannot be compiled"
 
-#: compiler.lisp:10811
+#: compiler.lisp:10822
 #, lisp-format
 msgid "~S: redefining ~S; it was traced!"
 msgstr "~S: redefining ~S; it was traced!"
 
-#: compiler.lisp:10816
+#: compiler.lisp:10827
 #, lisp-format
 msgid "~S is already compiled."
 msgstr "~S is already compiled."
 
-#: compiler.lisp:10831 disassem.lisp:9
+#: compiler.lisp:10842 disassem.lisp:9
 #, lisp-format
 msgid "Undefined function ~S"
 msgstr "Undefined function ~S"
 
-#: compiler.lisp:10845
+#: compiler.lisp:10856
 #, lisp-format
 msgid "Not a lambda expression nor a function: ~S"
 msgstr "Not a lambda expression nor a function: ~S"
 
-#: compiler.lisp:10896
+#: compiler.lisp:10907
 msgid "A function compiled with errors cannot be executed."
 msgstr "A function compiled with errors cannot be executed."
 
-#: compiler.lisp:11025
+#: compiler.lisp:11036
 #, lisp-format
 msgid "[~s was defined~a]"
 msgstr "[~s was defined~a]"
 
-#: compiler.lisp:11032
+#: compiler.lisp:11043
 #, lisp-format
 msgid "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
 msgstr "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lisp:11038
+#: compiler.lisp:11049
 #, lisp-format
 msgid "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
 msgstr "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lisp:11046
+#: compiler.lisp:11057
 #, lisp-format
 msgid "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
 msgstr "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lisp:11049
+#: compiler.lisp:11060
 #, lisp-format
 msgid "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
 msgstr "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lisp:11052
+#: compiler.lisp:11063
 #, lisp-format
 msgid "The following functions were used but are deprecated:~%~:{~<~%~:; ~S - ~@?~>~^~}"
 msgstr "The following functions were used but are deprecated:~%~:{~<~%~:; ~S - ~@?~>~^~}"
 
-#: compiler.lisp:11057
+#: compiler.lisp:11068
 #, lisp-format
 msgid "~D error~:P, ~D warning~:P"
 msgstr "~D error~:P, ~D warning~:P"
 
-#: compiler.lisp:11208
+#: compiler.lisp:11220
 #, lisp-format
 msgid "Listing of compilation of file ~A~%on ~@? by ~A, version ~A"
 msgstr "Listing of compilation of file ~A~%on ~@? by ~A, version ~A"
 
-#: compiler.lisp:11243
+#: compiler.lisp:11255
 #, lisp-format
 msgid ";; Compiling file ~A ..."
 msgstr ";; Compiling file ~A ..."
 
-#: compiler.lisp:11295
+#: compiler.lisp:11307
 #, lisp-format
 msgid ";; Wrote file ~A"
 msgstr ";; Wrote file ~A"
 
-#: compiler.lisp:11303
+#: compiler.lisp:11315
 #, lisp-format
 msgid ";; Deleted file ~A"
 msgstr ";; Deleted file ~A"
 
-#: compiler.lisp:11350
+#: compiler.lisp:11362
 #, lisp-format
 msgid "Disassembly of function ~S"
 msgstr "Disassembly of function ~S"
 
-#: compiler.lisp:11360
+#: compiler.lisp:11372
 #, lisp-format
 msgid "~S required argument~:P"
 msgstr "~S required argument~:P"
 
-#: compiler.lisp:11362
+#: compiler.lisp:11374
 #, lisp-format
 msgid "~S optional argument~:P"
 msgstr "~S optional argument~:P"
 
-#: compiler.lisp:11365
+#: compiler.lisp:11377
 msgid "Rest parameter"
 msgstr "Rest parameter"
 
-#: compiler.lisp:11366
+#: compiler.lisp:11378
 msgid "No rest parameter"
 msgstr "No rest parameter"
 
-#: compiler.lisp:11370
+#: compiler.lisp:11382
 #, lisp-format
 msgid "~S keyword parameter~:P: "
 msgstr "~S keyword parameter~:P: "
 
-#: compiler.lisp:11377
+#: compiler.lisp:11389
 msgid "Other keywords are allowed."
 msgstr "Other keywords are allowed."
 
-#: compiler.lisp:11380
+#: compiler.lisp:11392
 msgid "No keyword parameters"
 msgstr "No keyword parameters"
 
-#: compiler.lisp:11396
+#: compiler.lisp:11408
 #, lisp-format
 msgid "reads special variable~P: ~{~S~^ ~}"
 msgstr "reads special variable~P: ~{~S~^ ~}"
 
-#: compiler.lisp:11400
+#: compiler.lisp:11412
 #, lisp-format
 msgid "writes special variable~P: ~{~S~^ ~}"
 msgstr "writes special variable~P: ~{~S~^ ~}"
 
-#: compiler.lisp:11403
+#: compiler.lisp:11415
 #, lisp-format
 msgid "~S byte-code instruction~:P:"
 msgstr "~S byte-code instruction~:P:"
@@ -7890,27 +7890,27 @@ msgstr "LETF code contains a dotted list, ending with ~S"
 msgid "illegal syntax in LETF binding: ~S"
 msgstr "illegal syntax in LETF binding: ~S"
 
-#: clhs.lisp:173
+#: clhs.lisp:175
 #, lisp-format
 msgid "~S: error ~D: ~S"
 msgstr "~S: error ~D: ~S"
 
-#: clhs.lisp:234
+#: clhs.lisp:236
 #, lisp-format
 msgid "~S is not found"
 msgstr "~S is not found"
 
-#: clhs.lisp:249 clhs.lisp:289
+#: clhs.lisp:251 clhs.lisp:291
 #, lisp-format
 msgid "~S returns invalid value ~S, fix it, ~S, ~S, or ~S"
 msgstr "~S returns invalid value ~S, fix it, ~S, ~S, or ~S"
 
-#: clhs.lisp:313
+#: clhs.lisp:315
 #, lisp-format
 msgid "~S: invalid symbol ~S with id ~S: ~A"
 msgstr "~S: invalid symbol ~S with id ~S: ~A"
 
-#: clhs.lisp:316
+#: clhs.lisp:318
 #, lisp-format
 msgid "~S: invalid id ~S for symbol ~S"
 msgstr "~S: invalid id ~S for symbol ~S"
@@ -7955,42 +7955,47 @@ msgstr "Invalid option in ~S: ~S"
 msgid "Only one ~S option is allowed: ~S"
 msgstr "Only one ~S option is allowed: ~S"
 
-#: foreign1.lisp:370
+#: foreign1.lisp:373
 #, lisp-format
 msgid "Invalid parameter specification in ~S: ~S"
 msgstr "Invalid parameter specification in ~S: ~S"
 
-#: foreign1.lisp:384
+#: foreign1.lisp:387
 #, lisp-format
 msgid "~s argument ~s is not a pointer in ~s"
 msgstr "~s argument ~s is not a pointer in ~s"
 
-#: foreign1.lisp:413
+#: foreign1.lisp:416
 #, lisp-format
 msgid "~s: No ~s argument and no ~s form in this compilation unit; ~s assumed now and for the rest of this unit"
 msgstr "~s: No ~s argument and no ~s form in this compilation unit; ~s assumed now and for the rest of this unit"
 
-#: foreign1.lisp:419
+#: foreign1.lisp:422
 #, lisp-format
 msgid "The name must be a string, not ~S"
 msgstr "The name must be a string, not ~S"
 
-#: foreign1.lisp:423
+#: foreign1.lisp:426
 #, lisp-format
 msgid "The name ~S is not a valid C identifier"
 msgstr "The name ~S is not a valid C identifier"
 
-#: foreign1.lisp:876
+#: foreign1.lisp:676
+#, lisp-format
+msgid "illegal foreign data type ~S"
+msgstr "illegal foreign data type ~S"
+
+#: foreign1.lisp:879
 #, lisp-format
 msgid "~S(~S): CPP constant ~A is not defined"
 msgstr "~S(~S): CPP constant ~A is not defined"
 
-#: foreign1.lisp:892
+#: foreign1.lisp:899
 #, lisp-format
 msgid "~S: ~S option missing in ~S"
 msgstr "~S: ~S option missing in ~S"
 
-#: foreign1.lisp:1018 foreign1.lisp:1096
+#: foreign1.lisp:1021 foreign1.lisp:1098
 #, lisp-format
 msgid "~s is deprecated, use ~s instead"
 msgstr "~s is deprecated, use ~s instead"
