@@ -6488,13 +6488,24 @@ for-value   NIL or T
           (multiple-value-bind (a m f1 f2 f3) (fenv-search fun)
             (declare (ignore m f1 f2))
             (if a           ; fun is local
-              (setq name fun
-                    req (fnode-req-anz (car f3))
-                    opt (fnode-opt-anz (car f3))
-                    rest-p (fnode-rest-flag (car f3))
-                    key-p (fnode-keyword-flag (car f3))
-                    keylist (fnode-keywords (car f3))
-                    allow-p (fnode-allow-other-keys-flag (car f3)))
+              (let ((fnode (car f3)))
+                (if fnode       ; valid entry
+                  (setq name fun
+                        req (fnode-req-anz fnode)
+                        opt (fnode-opt-anz fnode)
+                        rest-p (fnode-rest-flag fnode)
+                        key-p (fnode-keyword-flag fnode)
+                        keylist (fnode-keywords fnode)
+                        allow-p (fnode-allow-other-keys-flag fnode))
+                  (setq name fun ; labels: no fnode yet
+                        ;; (cddr f3) are the return values of
+                        ;; C-ANALYZE-LAMBDALIST, see c-LABELS
+                        req (length (third f3))
+                        opt (length (fourth f3))
+                        rest-p (symbolp (seventh f3))
+                        key-p (eighth f3)
+                        keylist (ninth f3)
+                        allow-p (nth 12 f3))))
               (multiple-value-setq (name req opt rest-p key-p keylist allow-p)
                 (function-signature fun t))) ; global functions only
             (if (and name (equal fun name))
