@@ -1,3 +1,15 @@
+2006-10-12  Sam Steingold  <sds@podval.org>
+
+	* foreign1.lisp (*default-foreign-library*): defvar and export
+	(get-assoc): new helper
+	(DEF-C-VAR, DEF-CALL-OUT): use *DEFAULT-FOREIGN-LIBRARY* as the
+	default :LIBRARY argument
+	* compiler.lisp (with-compilation-unit): bind *DEFAULT-FOREIGN-LIBRARY*
+	* init.lisp (*default-foreign-library*): init & proclaim special
+	(load): bind *DEFAULT-FOREIGN-LIBRARY*
+	* modules/libsvm/libsvm.lisp: set *DEFAULT-FOREIGN-LIBRARY* at top-level
+	instead of passing (:LIBRARY ...) to each DEF-CALL-OUT
+
 2006-10-12  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* modules/fastcgi/fastcgi.lisp, fastcgi_wrappers.c (fcgi_env):
