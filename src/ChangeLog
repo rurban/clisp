@@ -1,5 +1,10 @@
 2006-10-12  Sam Steingold  <sds@podval.org>
 
+	fixed bug #[ 1575946 ]: broken COMPILE of APPLY in LABELS
+	* compiler.lisp (c-APPLY): handle not-yet compiled local functions
+
+2006-10-12  Sam Steingold  <sds@podval.org>
+
 	* foreign1.lisp (*default-foreign-library*): defvar and export
 	(get-assoc): new helper
 	(DEF-C-VAR, DEF-CALL-OUT): use *DEFAULT-FOREIGN-LIBRARY* as the

@@ -17,6 +17,7 @@ User visible changes
     [ 1569234 ]
   + Fixed FFI callbacks, broken since the 2.36 release.
   + Fixed the way the top-level driver handles the "--" option terminator.
+  + Fixed COMPILE of APPLY in LABELS for local function. [ 1575946 ]
 
 
 2.40 (2006-09-23)
