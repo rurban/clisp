@@ -17,7 +17,7 @@
           c-lines *output-c-functions* *output-c-variables* *foreign-guard*
           nil boolean character char uchar short ushort int uint long ulong
           uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
-          single-float double-float *default-foreign-library*
+          single-float double-float default-foreign-library
           c-pointer c-string c-struct c-union c-array c-array-max
           c-function c-ptr c-ptr-null c-array-ptr
           def-c-enum def-c-struct element deref slot cast typeof
@@ -354,7 +354,11 @@
      (without-package-lock ("FFI") (setq *foreign-language* ',lang))))
 
 ;; the default foreign library for this compilation unit
-(defvar *default-foreign-library* nil)
+(defvar *foreign-library* nil) ; ABI
+
+(defmacro default-foreign-library (library)
+  `(eval-when (load compile eval)
+     (without-package-lock ("FFI") (setq *foreign-library* ',library))))
 
 ;; get the even (start=0) or odd (start=1) elements of the simple vector
 (defun split-c-fun-arglist (args start)
@@ -906,7 +910,7 @@
                          (:NONE 0)
                          (:MALLOC-FREE fv-flag-malloc-free))
                        0))))
-         (library (get-assoc :library alist '*default-foreign-library*))
+         (library (get-assoc :library alist '*foreign-library*))
          #|
          (getter-function-name (sys::symbol-suffix name "%GETTER%"))
          (setter-function-name (sys::symbol-suffix name "%SETTER%"))
@@ -1033,7 +1037,7 @@
                                  'space (and (boundp 'system::*denv*)
                                              system::*denv*)))
                           (assoc ':documentation alist)))
-         (library (get-assoc :library alist '*default-foreign-library*))
+         (library (get-assoc :library alist '*foreign-library*))
          (c-name (foreign-name name (assoc :name alist)))
          (built-in (second (assoc :built-in alist)))
          ;; Maximize sharing in .fas file, reuse options
