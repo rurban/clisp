@@ -200,7 +200,7 @@ static object fullinfo_firsttable (pcre *c_pat, pcre_extra *study) {
   object ret = allocate_bit_vector(Atype_Bit,256);
   int status;
   void *data = TheSbvector(ret)->data;
-  handle_fault_range(PROT_READ_WRITE,(aint)data,(aint)(data + sizeof(table)));
+  handle_fault_range(PROT_READ_WRITE,(aint)data,(aint)data + sizeof(table));
   begin_system_call();
   status = pcre_fullinfo(c_pat,study,PCRE_INFO_FIRSTTABLE,&table);
   if (status < 0) { end_system_call(); pcre_error(status); }
