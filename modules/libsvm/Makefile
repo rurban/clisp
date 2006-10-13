@@ -21,7 +21,7 @@ all : libsvm.fas svm.so
 
 svm.so : svm.cpp svm.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(INCLUDES) \
-		-shared -o svm.so svm.cpp -lm
+		-fPIC -shared -o svm.so svm.cpp -lm
 
 libsvm.fas : libsvm.lisp
 	$(CLISP) -c libsvm.lisp
