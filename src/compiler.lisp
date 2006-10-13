@@ -11068,6 +11068,7 @@ The function make-closure is required.
 (defmacro with-compilation-unit ((&key override) &body forms)
   `(let ((*c-top-call* (or ,override (not (boundp '*c-top-call*))))
          #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
+         #+ffi (ffi::*default-foreign-library* ffi::*default-foreign-library*)
          (*c-listing-output* nil)
          (*c-error-output* *error-output*))
      ;; clean up from the outer `with-compilation-unit':

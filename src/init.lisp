@@ -1486,6 +1486,9 @@
 #+ffi ; the default :language for DEF-CALL-* & C-FUNCTION -- see foreign1.lisp
 (proclaim '(special ffi::*foreign-language*))
 #+ffi (setq ffi::*foreign-language* nil)
+#+ffi ; default :LIBRARY argument for DEF-CALL-OUT and DEF-C-VAR
+(proclaim '(special ffi::*default-foreign-library*))
+#+ffi (setq ffi::*default-foreign-library* nil)
 
 ;; preliminary; needed here for open-for-load
 (sys::%putd 'warn
@@ -1657,6 +1660,7 @@
            (*current-source-line-1* nil)
            (*current-source-line-2* nil)
            #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
+           #+ffi (ffi::*default-foreign-library* ffi::*default-foreign-library*)
            (*package* *package*) ; bind *PACKAGE*
            (*readtable* *readtable*) ; bind *READTABLE*
            (compiler::*c-error-output* *error-output*) ; for compiling
