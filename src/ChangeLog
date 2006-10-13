@@ -1,3 +1,7 @@
+2006-10-13  Sam Steingold  <sds@gnu.org>
+
+	* version.sh: clisp 2.41 release (Friday the 13th!)
+
 2006-10-12  Sam Steingold  <sds@podval.org>
 
 	fixed bug #[ 1575946 ]: broken COMPILE of APPLY in LABELS

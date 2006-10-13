@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.40\n"
+"Project-Id-Version: clisp 2.41\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-10-01 10:51:17-0400\n"
-"PO-Revision-Date: 2006-10-01 10:51:17-0400\n"
+"POT-Creation-Date: 2006-10-12 23:35:57-0400\n"
+"PO-Revision-Date: 2006-10-12 23:35:57-0400\n"
 "Last-Translator: Automatically generated <sds@loiso>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"

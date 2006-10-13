@@ -1,11 +1,11 @@
 .\"     Title: clisp
 .\"    Author: Bruno Haible <\fI\%http://www.haible.de/bruno/\fR>
-.\" Generator: DocBook XSL Stylesheets vsnapshot_2006\-09\-29_1232 <http://docbook.sf.net/>
-.\"      Date: Last modified: 2006.09.29
+.\" Generator: DocBook XSL Stylesheets vsnapshot_2006\-10\-11_0449 <http://docbook.sf.net/>
+.\"      Date: Last modified: 2006.10.12
 .\"    Manual: Platform: @PLATFORM@
-.\"    Source: CLISP 2.40
+.\"    Source: CLISP 2.41
 .\"
-.TH "CLISP" "1" "Last modified: 2006\-09\-29" "CLISP 2.40" "Platform: @PLATFORM@"
+.TH "CLISP" "1" "Last modified: 2006\-10\-12" "CLISP 2.41" "Platform: @PLATFORM@"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -458,7 +458,7 @@ library treats
 TAB
 (see
 TAB key) as a normal self\-inserting character (see
-Q:\ A.4.3).
+Q:\ A.4.5).
 #endif
 .RE
 
@@ -626,6 +626,11 @@ No
 RC file
 will be executed.
 .RE
+.PP
+As usual,
+\fB\-\-\fR
+stops option processing and places all remaining command line arguments into
+\fIEXT:*ARGS*\fR.
 .SH "LANGUAGE REFERENCE"
 .PP
 The language implemented is
