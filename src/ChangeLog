@@ -1,5 +1,9 @@
 2006-10-13  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm/Makefile (svm.so): pass -fPIC to $(CXX)
+
+2006-10-13  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: clisp 2.41 release (Friday the 13th!)
 
 2006-10-12  Sam Steingold  <sds@podval.org>
