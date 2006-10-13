@@ -1,6 +1,6 @@
 Version  Date            New features
 
-2.41     2006-10-13      FFI:*DEFAULT-FOREIGN-LIBRARY*, libsvm module.
+2.41     2006-10-13      FFI:DEFAULT-FOREIGN-LIBRARY, libsvm module.
 
 2.40     2006-09-23      Keep doc string and lambda list in the closure object.
 
