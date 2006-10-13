@@ -1,5 +1,11 @@
 2006-10-13  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp (DEF-C-VAR, DEF-CALL-OUT): call NOTE-C-VAR and
+	NOTE-C-FUN depending on the value of library at run time, not
+	macroexpansion time
+
+2006-10-13  Sam Steingold  <sds@gnu.org>
+
 	* modules/libsvm/Makefile (svm.so): pass -fPIC to $(CXX)
 
 2006-10-13  Sam Steingold  <sds@gnu.org>
