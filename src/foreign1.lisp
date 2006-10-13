@@ -925,8 +925,8 @@
        (DEFSETF ,getter-function-name ,setter-function-name)
        (DEFINE-SYMBOL-MACRO ,name (,getter-function-name))
        |#
-       (unless ,library
-         (EVAL-WHEN (COMPILE) (NOTE-C-VAR ',c-name ',type ',flags)))
+       (EVAL-WHEN (COMPILE)
+         (UNLESS ,LIBRARY (NOTE-C-VAR ',c-name ',type ',flags)))
        (when ,def
          (SYSTEM::%PUT ',name 'FOREIGN-VARIABLE ,def)
          ,@(when doc `((SETF (DOCUMENTATION ',name 'VARIABLE) ',(second doc))))
@@ -1042,8 +1042,8 @@
     `(LET ((,def (FIND-FOREIGN-FUNCTION
                   ',c-name ,ctype ',properties ,library NIL)))
        (EXT:COMPILER-LET ((,def ,ctype))
-         (unless ,library
-           (EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ,def ',built-in)))
+         (EVAL-WHEN (COMPILE)
+           (UNLESS ,LIBRARY (NOTE-C-FUN ',c-name ,def ',built-in)))
          (COMPILER::EVAL-WHEN-COMPILE
            (COMPILER::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,ctype))))
        (WHEN ,def                       ; found library function
