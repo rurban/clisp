@@ -358,7 +358,7 @@
 
 (defmacro default-foreign-library (library)
   `(eval-when (load compile eval)
-     (without-package-lock ("FFI") (setq *foreign-library* ',library))))
+     (without-package-lock ("FFI") (setq *foreign-library* ,library))))
 
 ;; get the even (start=0) or odd (start=1) elements of the simple vector
 (defun split-c-fun-arglist (args start)
