@@ -302,7 +302,7 @@ msgstr ""
 #: spvw.d:2564
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
-msgstr "La valeur de malloc() = %x n'est pas compatible avec le codage des types."
+msgstr "La valeur de malloc() = %lx n'est pas compatible avec le codage des types."
 
 #: spvw.d:2571
 msgid "Only %d bytes available."
@@ -363,17 +363,17 @@ msgstr "*** - La mémoire est épuisée : RAZ"
 #: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
-msgstr "Ne peux pas placer de la mémoire à l'adresse 0x%x ."
+msgstr "Ne peux pas placer de la mémoire à l'adresse 0x%lx ."
 
 #: spvw_mmap.d:170
 #, fuzzy
 msgid "Cannot reserve address range at 0x%lx ."
-msgstr "Ne peux pas réserver les adresses à partir de 0x%x ."
+msgstr "Ne peux pas réserver les adresses à partir de 0x%lx ."
 
 #: spvw_mmap.d:180
 #, fuzzy
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
-msgstr "Ne peux pas réserver les adresses 0x%x-0x%x ."
+msgstr "Ne peux pas réserver les adresses 0x%lx-0x%lx ."
 
 #: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
@@ -403,7 +403,7 @@ msgstr "Ne peux pas ouvrir %s ."
 #: spvw_multimap.d:139
 #, fuzzy
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
-msgstr "msync(0x%x,0x%x,MS_INVALIDATE) - erreur."
+msgstr "msync(0x%lx,0x%x,MS_INVALIDATE) - erreur."
 
 #: spvw_multimap.d:199
 #, fuzzy
@@ -447,7 +447,7 @@ msgstr "Ne peux pas allouer de segment privé de mémoire partagée."
 #: spvw_multimap.d:357
 #, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
-msgstr "Ne peux pas placer de la mémoire partagée à l'adresse 0x%x."
+msgstr "Ne peux pas placer de la mémoire partagée à l'adresse 0x%lx."
 
 #: spvw_multimap.d:375 spvw_multimap.d:381
 #, fuzzy
@@ -461,7 +461,7 @@ msgstr "Ne peux pas retirer un segment de mémoire partagée."
 #: spvw_fault.d:277
 #, fuzzy
 msgid "mprotect(0x%lx,%d,%d) failed."
-msgstr "mprotect() ne fonctionne pas."
+msgstr "mprotect(0x%lx,%d,%d) n'a pas fonctionné."
 
 #: spvw_sigsegv.d:23
 msgid "Permanently allocated: %lu bytes."
@@ -478,7 +478,7 @@ msgstr ""
 #: spvw_sigsegv.d:40
 #, fuzzy
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
-msgstr "SIGSEGV ne peut être relevé. Adresse fautive = 0x%x."
+msgstr "SIGSEGV ne peut être relevé. Adresse fautive = 0x%lx."
 
 #: spvw_sigsegv.d:76
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
@@ -597,11 +597,6 @@ msgstr "FUNCTION: Spécification de variable incorrecte après &KEY : ~S"
 msgid "~S: ~S must be followed by ~S or end of list: ~S"
 msgstr "FUNCTION: &KEY, &AUX ou fin de liste doit suivre une variable &REST : ~S."
 
-#: eval.d:2097
-#, fuzzy, lisp-format
-msgid "~S: variable specification after ~S too long : ~S"
-msgstr "FUNCTION: Spécification de variable trop longue après &AUX : ~S"
-
 #: eval.d:2118
 #, fuzzy, lisp-format
 msgid "~S: badly placed lambda-list keyword ~S: ~S"
@@ -695,12 +690,12 @@ msgstr "APPLY: Trop peu d'arguments pour ~S."
 #: eval.d:6591 eval.d:6605
 #, fuzzy, lisp-format
 msgid "~S: symbol ~S has no value"
-msgstr "Le symbôle ~S n'a pas de valeur."
+msgstr "Le symbole ~S n'a pas de valeur."
 
 #: eval.d:6618
 #, fuzzy, lisp-format
 msgid "~S: assignment to constant symbol ~S is impossible"
-msgstr "Une assignation du symbôle constant ~S n'est pas possible."
+msgstr "Une assignation du symbole constant ~S n'est pas possible."
 
 #: eval.d:7250 control.d:2249
 #, lisp-format
@@ -809,7 +804,7 @@ msgstr "~S: ~S n'est pas une spécification de macro."
 #: control.d:1035
 #, lisp-format
 msgid "~S: macro name ~S should be a symbol"
-msgstr "~S: Le nom de macro ~S n'est pas un symbôle."
+msgstr "~S: Le nom de macro ~S n'est pas un symbole."
 
 #: control.d:1090
 #, fuzzy, lisp-format
@@ -819,7 +814,7 @@ msgstr "~S: ~S n'est pas une spécification de fonction."
 #: control.d:1097
 #, fuzzy, lisp-format
 msgid "~S: function and macro name ~S should be a symbol"
-msgstr "~S: Le nom de fonction ~S n'est pas un symbôle."
+msgstr "~S: Le nom de fonction ~S n'est pas un symbole."
 
 #: control.d:1212
 #, lisp-format
@@ -904,7 +899,7 @@ msgstr ""
 #: control.d:2366 error.d:901
 #, fuzzy, lisp-format
 msgid "~S: ~S is not a symbol"
-msgstr "~SS : ~SS n'est pas un symbole."
+msgstr "~S : ~S n'est pas un symbole."
 
 #: control.d:2399
 #, lisp-format
@@ -1424,7 +1419,7 @@ msgstr "~S : L'argument ~S devrait être de type ~S."
 #: stream.d:14785
 #, fuzzy, lisp-format
 msgid "Invalid direction ~S for accessing ~S"
-msgstr "Syntax invalide dans forme ~SS : ~SS."
+msgstr "Direction ~S invalide pour l'accès à ~S."
 
 #: stream.d:14815
 #, fuzzy, lisp-format
@@ -1488,7 +1483,7 @@ msgstr ""
 #: stream.d:16849
 #, fuzzy, lisp-format
 msgid "~S: ~S: stream of wrong direction"
-msgstr "~S: ~S n'est pas une fonction."
+msgstr ""
 
 #: stream.d:17109 stream.d:17119
 #, lisp-format
@@ -2208,7 +2203,7 @@ msgstr "~S: Une erreur interne s'est produite lors de la construction de ~S."
 #: hashtabl.d:2434
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is not a hash table"
-msgstr "~S : L'argument ~SS n'est pas un caractère."
+msgstr "~S : L'argument ~S n'est pas une table de hachage."
 
 #: list.d:820
 #, fuzzy, lisp-format
@@ -2882,7 +2877,7 @@ msgstr "FUNCTION: ~S est une constante et ne peut donc pas être utilisée comme v
 #: error.d:940
 #, fuzzy, lisp-format
 msgid "~S: ~S is not a symbol, cannot be declared ~S"
-msgstr "FUNCTION: ~S n'est pas un symbôle mais fut déclaré SPECIAL."
+msgstr "FUNCTION: ~S n'est pas un symbole mais fut déclaré SPECIAL."
 
 #: error.d:966
 #, fuzzy, lisp-format
@@ -2996,11 +2991,7 @@ msgstr "~S : ~S n'est pas un nom de fonction."
 #: error.d:1367 trace.lisp:161
 #, fuzzy, lisp-format
 msgid "~S: undefined function ~S"
-msgstr ""
-"#-#-#-#-#  fr1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S : La fonction ~S n'est pas définie.\n"
-"#-#-#-#-#  fr2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: La fonction ~S n'est pas définie."
+msgstr "~S : La fonction ~S n'est pas définie."
 
 #: error.d:1423
 #, fuzzy, lisp-format
@@ -3904,12 +3895,12 @@ msgstr "~S : ~S n'est pas un «stream» d'entrée bufferisé."
 #: foreign.d:4150
 #, fuzzy, lisp-format
 msgid "~S: Cannot open library ~S: ~S"
-msgstr "~S : Ne peux ouvrir bibliothèque ~S."
+msgstr "~S : Ne peux pas ouvrir la bibliothèque ~S : ~S"
 
 #: foreign.d:4152
 #, lisp-format
 msgid "~S: Cannot open library ~S"
-msgstr "~S : Ne peux ouvrir bibliothèque ~S."
+msgstr "~S : Ne peux pas ouvrir la bibliothèque ~S."
 
 #: foreign.d:4192
 #, fuzzy, lisp-format
@@ -5172,7 +5163,7 @@ msgstr ""
 #: defstruct.lisp:369
 #, fuzzy, lisp-format
 msgid "~S ~S: In ~S argument list: ~A"
-msgstr "~S%Liste des arguments : "
+msgstr "~S ~S : argument ~S : ~A"
 
 #: defstruct.lisp:537
 #, fuzzy, lisp-format
@@ -5576,7 +5567,7 @@ msgstr "Déclaration inconnue ~S.~%Toute la déclaration ~S est ignorée."
 #: compiler.lisp:1907
 #, fuzzy, lisp-format
 msgid " in file ~S"
-msgstr " dans la ligne ~D"
+msgstr " dans le fichier ~S"
 
 #: compiler.lisp:1909
 #, lisp-format
@@ -6438,7 +6429,7 @@ msgstr ""
 #: clos-methcomb2.lisp:1104
 #, fuzzy, lisp-format
 msgid "~S: method combination name ~S should be a symbol"
-msgstr "~S: Le nom de macro ~S n'est pas un symbôle."
+msgstr "~S: Le nom de macro ~S n'est pas un symbole."
 
 #: clos-methcomb2.lisp:1120 clos-methcomb2.lisp:1131
 #, fuzzy, lisp-format
@@ -7724,7 +7715,7 @@ msgstr "un paquetage éliminé."
 #: describe.lisp:439
 #, lisp-format
 msgid "an ~s hash table with ~[no entries~:;~:*~:d entr~:*~[~;y~:;ies~]~]."
-msgstr ""
+msgstr "une table de hachage de type ~S ~[vide~:;avec ~:*~D entrée~:*~[~;~:;s~]~]."
 
 #: describe.lisp:442
 #, lisp-format
@@ -7788,16 +7779,12 @@ msgstr ""
 #: describe.lisp:489
 #, fuzzy, lisp-format
 msgid "a generic function."
-msgstr ""
-"#-#-#-#-#  fr1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S n'est pas le nom d'une fonction générique.\n"
-"#-#-#-#-#  fr2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~SS n'est pas le nom d'une fonction générique."
+msgstr "une fonction générique."
 
 #: describe.lisp:492
 #, fuzzy, lisp-format
 msgid "Argument list: ~A"
-msgstr "~%Liste des arguments : "
+msgstr "Liste des arguments : "
 
 #: describe.lisp:497
 #, fuzzy, lisp-format
@@ -7826,20 +7813,12 @@ msgstr "une fonction prédéfinie du système."
 #: describe.lisp:527
 #, fuzzy
 msgid "a compiled function."
-msgstr ""
-"#-#-#-#-#  fr1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"une fonction ~:[interprét~;compil~]ée.\n"
-"#-#-#-#-#  fr2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"une fonction ~S:[interprét~S;compil~S]ée."
+msgstr "une fonction compilée."
 
 #: describe.lisp:542
 #, fuzzy, lisp-format
 msgid "an interpreted function."
-msgstr ""
-"#-#-#-#-#  fr1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"une fonction ~:[interprét~;compil~]ée.\n"
-"#-#-#-#-#  fr2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"une fonction ~S:[interprét~S;compil~S]ée."
+msgstr "une fonction interprétée."
 
 #: describe.lisp:552
 #, lisp-format
@@ -7854,21 +7833,17 @@ msgstr "~A est "
 #: describe.lisp:560
 #, fuzzy, lisp-format
 msgid "Documentation:"
-msgstr ""
-"#-#-#-#-#  fr1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"Documentation: ~A\n"
-"#-#-#-#-#  fr2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"Documentation: ~SA"
+msgstr "Documentation :"
 
 #: describe.lisp:612
 #, fuzzy, lisp-format
 msgid "Argument list: ~:S"
-msgstr "Liste des arguments: ~:S"
+msgstr "Liste des arguments : ~:S"
 
 #: describe.lisp:618
 #, fuzzy, lisp-format
 msgid "Documentation: ~A"
-msgstr "Documentation: ~A"
+msgstr "Documentation : ~A"
 
 #: room.lisp:17
 #, lisp-format
@@ -8134,10 +8109,6 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 #~ msgid "~S: array ~S has no fill-pointer"
 #~ msgstr "~S: La matrice ~S n'a pas de pointeur de remplissage."
 
-#, fuzzy
-#~ msgid "Argument list: ~A."
-#~ msgstr "~%Liste des arguments : "
-
 #~ msgid "~: argument ~S is not a character"
 #~ msgstr "~ : L'argument ~S n'est pas un caractère."
 
@@ -8146,10 +8117,6 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 
 #~ msgid "~S: argument ~S should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
 #~ msgstr "~S : l'argument ~S doit être un vecteur de type (ARRAY (UNSIGNED-BYTE 8) (*))."
-
-#, fuzzy
-#~ msgid "Loading logical host ~S from file ~A ..."
-#~ msgstr "Le fichier "
 
 #, fuzzy
 #~ msgid "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S"
@@ -8497,11 +8464,11 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 
 #, fuzzy
 #~ msgid "~: symbol ~ has no value"
-#~ msgstr "Le symbôle ~ n'a pas de valeur."
+#~ msgstr "Le symbole ~ n'a pas de valeur."
 
 #, fuzzy
 #~ msgid "~: assignment to constant symbol ~ is impossible"
-#~ msgstr "Une assignation du symbôle constant ~ n'est pas possible."
+#~ msgstr "Une assignation du symbole constant ~ n'est pas possible."
 
 #~ msgid "~: too many arguments given to ~"
 #~ msgstr "~: Trop d'arguments pour ~."
@@ -8551,7 +8518,7 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 #~ msgstr "~: ~ n'est pas une spécification de macro."
 
 #~ msgid "~: macro name ~ should be a symbol"
-#~ msgstr "~: Le nom de macro ~ n'est pas un symbôle."
+#~ msgstr "~: Le nom de macro ~ n'est pas un symbole."
 
 #, fuzzy
 #~ msgid "~: ~ is not a function and macro specification"
@@ -8559,7 +8526,7 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 
 #, fuzzy
 #~ msgid "~: function and macro name ~ should be a symbol"
-#~ msgstr "~: Le nom de fonction ~ n'est pas un symbôle."
+#~ msgstr "~: Le nom de fonction ~ n'est pas un symbole."
 
 #~ msgid "~: clause ~ should be a list"
 #~ msgstr "~: La clause ~ doit être une liste."
@@ -9310,9 +9277,6 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 #~ msgid "~: invalid bit-vector length ~"
 #~ msgstr "~: ~ n'est pas convenable comme longeur de vecteur bit."
 
-#~ msgid "Hash table size ~ too large"
-#~ msgstr "La taille ~ est trop grande pour une table de hachage."
-
 #~ msgid "internal error occured while resizing ~"
 #~ msgstr "Une erreur interne s'est produite au moment de la réorganisation de ~."
 
@@ -9334,10 +9298,6 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 
 #~ msgid "~: internal error while building ~"
 #~ msgstr "~: Une erreur interne s'est produite lors de la construction de ~."
-
-#, fuzzy
-#~ msgid "~: argument ~ is not a hash table"
-#~ msgstr "~ : L'argument ~S n'est pas un caractère."
 
 #~ msgid "~: ~ is not a pair"
 #~ msgstr "~ : ~ n'est pas une paire."
@@ -9586,7 +9546,7 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 
 #, fuzzy
 #~ msgid "~: ~ is not a symbol, cannot be declared ~"
-#~ msgstr "FUNCTION: ~ n'est pas un symbôle mais fut déclaré SPECIAL."
+#~ msgstr "FUNCTION: ~ n'est pas un symbole mais fut déclaré SPECIAL."
 
 #, fuzzy
 #~ msgid "~: ~ is not a vector"
@@ -9878,17 +9838,6 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 #~ msgid "~: calling conventions for foreign function ~ conflict"
 #~ msgstr "~ : conventions d'appel de fonction étrangère ~ se contredisent."
 
-#, fuzzy
-#~ msgid "~: Cannot open library ~: ~"
-#~ msgstr "~ : Ne peux ouvrir bibliothèque ~."
-
-#~ msgid "~: Cannot open library ~"
-#~ msgstr "~ : Ne peux ouvrir bibliothèque ~."
-
-#, fuzzy
-#~ msgid "~: no dynamic object named ~ in library ~"
-#~ msgstr "~ : Ne peux ouvrir bibliothèque ~."
-
 #~ msgid "~: ~ is not a library"
 #~ msgstr "~ : ~ n'est pas une bibliothèque."
 
@@ -10079,14 +10028,6 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 #, fuzzy
 #~ msgid "~S%No methods."
 #~ msgstr "~S%Aucun composant."
-
-#, fuzzy
-#~ msgid "Argument list: ~S:S"
-#~ msgstr "Liste des arguments: ~S:S"
-
-#, fuzzy
-#~ msgid "Documentation: ~SA"
-#~ msgstr "Documentation: ~SA"
 
 #~ msgid "~SA [see above]"
 #~ msgstr "~SA [voir en haut]"
