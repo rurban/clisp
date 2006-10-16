@@ -400,7 +400,7 @@ further explanations of the issues could be provided).</para>
    for my &clisp; program?</simpara></question>
  <answer><para>Use module <xref linkend="gtk"/>: use &glade; to
    create <filename>ui.glade</filename>, then do<screen>
-    &sh-prompt; ./configure --with-module=gtk build-gtk
+    &sh-prompt; ./configure --with-module=gtk --build build-gtk
     &sh-prompt; ./build-gtk/clisp -K full -x '(gtk:run-glade-file "ui.glade")'
   </screen></para>
   <para>There are many other options,
