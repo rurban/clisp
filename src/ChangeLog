@@ -1,3 +1,9 @@
+2006-10-16  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* eval.d (get_closure): regularize nearly duplicate gettext message
+	* po/de.po, po/fr.po: fixed several tilde format errors and
+	translations.  Many translations still erroneous or missing.
+
 2006-10-16  Sam Steingold  <sds@gnu.org>
 
 	module doc&interface unification
