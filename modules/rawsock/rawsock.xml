@@ -8,7 +8,7 @@
  <filename role="unix">sys/socket.h</filename>.
 Sockets are represented by their &fixnum-t; &file-des;s.</para>
 
-<simpara>When this module is present, &features-var; contains the
+<simpara>When this module is present, &features-my; contains the
  symbol <constant>:RAWSOCK</constant>.</simpara>
 
 <warning id="rawsock-use-sockets"><title>Try &socket-stream; first!</title>

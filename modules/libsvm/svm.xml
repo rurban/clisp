@@ -11,7 +11,7 @@
  need the <function>svm_</function> prefix for the functions described
  in <filename role="clisp-cvs">modules/libsvm/README</filename>.</para>
 
-<simpara>When this module is present, &features-var;
+<simpara>When this module is present, &features-my;
  contains the symbol <constant>:LIBSVM</constant>.</simpara>
 
 <para>See <filename role="clisp-cvs">modules/libsvm/test.tst</filename>

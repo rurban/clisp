@@ -1,7 +1,7 @@
 ;;; Netica API interface
 ;;; <http://norsys.com/netica_c_api.htm>
 ;;;
-;;; Copyright (C) 2003-2005 by Sam Steingold
+;;; Copyright (C) 2003-2006 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -131,7 +131,7 @@
 
 ;;; foreign function definitions
 
-(ffi:default-foreign-language :stdc)
+(default-foreign-language :stdc)
 
 (c-lines "#include <netica.h>~%")
 
@@ -701,4 +701,6 @@
   (:arguments (s sensv_bn_) (Fnode node_bn_))
   (:return-type double-float))
 
+(pushnew :netica *features*)
 (provide "netica")
+(pushnew "NETICA" custom:*system-package-list* :test #'string=)
