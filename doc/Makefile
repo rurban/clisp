@@ -8,6 +8,7 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	../modules/berkeley-db/berkeley-db.xml	\
 	../modules/dirkey/dirkey.xml		\
 	../modules/fastcgi/fastcgi.xml		\
+	../modules/gtk2/gtk.xml			\
 	../modules/i18n/i18n.xml		\
 	../modules/libsvm/svm.xml		\
 	../modules/matlab/matlab.xml		\

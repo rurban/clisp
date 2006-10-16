@@ -398,7 +398,12 @@ further explanations of the issues could be provided).</para>
 <qandaentry id="faq-gui"><question id="faq-gui-q"><simpara>How do I create
    a <acronym>GUI<alt>Graphical User Interface</alt></acronym>
    for my &clisp; program?</simpara></question>
- <answer><para>There are many options,
+ <answer><para>Use module <xref linkend="gtk"/>: use &glade; to
+   create <filename>ui.glade</filename>, then do<screen>
+    &sh-prompt; ./configure --with-module=gtk build-gtk
+    &sh-prompt; ./build-gtk/clisp -K full -x '(gtk:run-glade-file "ui.glade")'
+  </screen></para>
+  <para>There are many other options,
   see <ulink url="http://clisp.cons.org/resources.html#software">"Common
     Lisp software running in &clisp;"</ulink>.</para></answer></qandaentry>
 </qandadiv>

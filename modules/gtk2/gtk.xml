@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<section id="gtk"><title>GTK Interface</title>
+
+<para>This is an &ffi-pac;-based interface to &gtk; version 2.</para>
+
+<para>The package <quote role="package">GTK</quote>
+ is <link linkend="package-case">case-sensitive</link>.</para>
+
+<simpara>When this module is present, &features-var;
+ contains the symbol <constant>:GTK</constant>.</simpara>
+
+<section id="gtk-hi"><title>High-level functions</title>
+<variablelist>
+ <varlistentry><term><code>(run-glade-file &filename-r;)</code></term>
+  <listitem><simpara>Run the UI described in the &glade;-generated file
+    &filename-r;.</simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+</section>

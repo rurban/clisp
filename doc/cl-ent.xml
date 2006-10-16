@@ -174,6 +174,8 @@
 <!ENTITY html '<ulink url="http://www.w3.org/MarkUp/">HTML</ulink>'>
 <!ENTITY xml '<ulink url="http://www.w3.org/XML/">XML</ulink>'>
 <!ENTITY mime '<ulink url="2045" role="rfc">MIME</ulink>'>
+<!ENTITY gtk '<ulink url="http://www.gtk.org">GTK+</ulink>'>
+<!ENTITY glade '<ulink url="http://glade.gnome.org/">Glade</ulink>'>
 
 <!-- *** CLHS - Common Lisp HyperSpec *** -->
 
