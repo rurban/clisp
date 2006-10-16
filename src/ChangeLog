@@ -1,3 +1,8 @@
+2006-10-15  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (MODULES): added gtk2
+	* modules/gtk2: new module based on http://dgym.homeunix.net/clisp-gtk2/
+
 2006-10-13  Sam Steingold  <sds@gnu.org>
 
 	* version.sh: clisp 2.41 release (Friday the 13th!)

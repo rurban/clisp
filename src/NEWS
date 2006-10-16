@@ -1,3 +1,13 @@
+User visible changes
+--------------------
+
+* New module gtk2 interfaces to GTK+ v2 and makes it possible to build
+  GUI with Glade.
+  Thanks to James Bailey <dgym.bailey@gmail.com> for the original code.
+  See <http://clisp.cons.org/impnotes/gtk.html> for details.
+
+
+
 2.41 (2006-10-13)
 =================
 
