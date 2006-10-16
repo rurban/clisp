@@ -10,6 +10,9 @@
  when you need to call <function role="matlab">engOpen</function>.
 </para>
 
+<simpara>When this module is present, &features-my;
+ contains the symbol <constant>:MATLAB</constant>.</simpara>
+
 <para>Additionally, some higher level functionality is available
  (see <filename role="clisp-cvs">modules/matlab/test.tst</filename>
  for sample usage):</para>

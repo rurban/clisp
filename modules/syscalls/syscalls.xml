@@ -6,7 +6,7 @@
  Not all of these system calls are actually POSIX, so this package has a
  nickname <quote role="package">OS</quote>.</para>
 &base-module;
-<simpara>When this module is present, &features-var;
+<simpara>When this module is present, &features-my;
  contains the symbol <constant>:SYSCALLS</constant>.</simpara>
 
 <variablelist>

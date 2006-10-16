@@ -7,7 +7,7 @@
 <para>The package <quote role="package">GTK</quote>
  is <link linkend="package-case">case-sensitive</link>.</para>
 
-<simpara>When this module is present, &features-var;
+<simpara>When this module is present, &features-my;
  contains the symbol <constant>:GTK</constant>.</simpara>
 
 <section id="gtk-hi"><title>High-level functions</title>

@@ -1,3 +1,15 @@
+2006-10-16  Sam Steingold  <sds@gnu.org>
+
+	module doc&interface unification
+	* modules/i18n/i18n.lisp: do not lock
+	CUSTOM:*SYSTEM-PACKAGE-LIST*, it is done by EXT:SAVEINITMEM
+	* modules/matlab/matlab.lisp: add :MATLAB to *FEATURES*,
+	add "MATLAB" to CUSTOM:*SYSTEM-PACKAGE-LIST*
+	* modules/netica/netica.lisp: add :NETICA to *FEATURES*,
+	add "NETICA" to CUSTOM:*SYSTEM-PACKAGE-LIST*
+	* modules/zlib/zlib.lisp: do not lock "ZLIB",
+	it is done by EXT:SAVEINITMEM
+
 2006-10-15  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (MODULES): added gtk2

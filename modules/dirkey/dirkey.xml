@@ -3,8 +3,12 @@
 <section id="dir-key"><title>Directory Access</title>
 
 <para>This module provides some directory access from lisp,
- in package &ldap-pac;.  3 types of directory keys
- may exist, depending on the compilation environment.</para>
+ in package &ldap-pac;.</para>
+<simpara>When this module is present, &features-my;
+ contains the symbol <constant>:DIRKEY</constant>.</simpara>
+
+<para>3 types of directory keys may exist,
+ depending on the compilation environment.</para>
 
 <variablelist id="dir-key-type"><title>valid directory key types</title>
  <varlistentry><term>:win32</term>
