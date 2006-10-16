@@ -2437,6 +2437,9 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   <listitem><simpara>Access
     <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
     by &hin;.</simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="gtk">gtk2</link></term>
+  <listitem><simpara>Use &gtk; and &glade; to create GUI.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="libsvm">libsvm</link></term>
   <listitem><simpara>Access
     <ulink url="http://www.csie.ntu.edu.tw/~cjlin/libsvm">LibSVM</ulink>
