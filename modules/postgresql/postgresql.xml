@@ -13,7 +13,7 @@
  <ulink url="&postgresql-doc;/libpq.html#LIBPQ-CONNECT"
         ><function>PQconnectdb()</function></ulink>.</para>
 
-<simpara>When this module is present, &features-var;
+<simpara>When this module is present, &features-my;
  contains the symbol <constant>:POSTGRESQL</constant>.</simpara>
 
 <para>See <filename role="clisp-cvs">modules/postgresql/test.tst</filename>

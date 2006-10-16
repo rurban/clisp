@@ -6,7 +6,7 @@
 <para>The package <quote role="package">PARI</quote>
  is <link linkend="package-case">case-sensitive</link>.</para>
 
-<simpara>When this module is present, &features-var; contains the
+<simpara>When this module is present, &features-my; contains the
  symbol <constant>:PARI</constant>.</simpara>
 
 <para>PARI objects are printed and read using a

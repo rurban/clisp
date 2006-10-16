@@ -11,6 +11,9 @@
  when you need to call
  <function role="netica">GetNodeExpectedUtils_bn</function>.</para>
 
+<simpara>When this module is present, &features-my;
+ contains the symbol <constant>:NETICA</constant>.</simpara>
+
 <para>An interface to all public &c-lang; functions is provided.
  Additionally, some higher level functionality is available
  (see <filename role="clisp-cvs">modules/netica/demo.lisp</filename>
