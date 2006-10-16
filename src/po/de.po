@@ -319,7 +319,7 @@ msgstr ""
 #: spvw.d:2564
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
-msgstr "Ergebnis von malloc() = %x ist nicht mit der Typcodeverteilung kompatibel."
+msgstr "Ergebnis von malloc() = %lx ist nicht mit der Typcodeverteilung kompatibel."
 
 #: spvw.d:2571
 msgid "Only %d bytes available."
@@ -379,17 +379,17 @@ msgstr "*** - Speicher voll: RESET"
 #: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
-msgstr "Kann keinen Speicher an Adresse 0x%x legen."
+msgstr "Kann keinen Speicher an Adresse 0x%lx legen."
 
 #: spvw_mmap.d:170
 #, fuzzy
 msgid "Cannot reserve address range at 0x%lx ."
-msgstr "Kann Adressbereich ab 0x%x nicht reservieren."
+msgstr "Kann Adressbereich ab 0x%lx nicht reservieren."
 
 #: spvw_mmap.d:180
 #, fuzzy
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
-msgstr "Kann Adressbereich 0x%x-0x%x nicht reservieren."
+msgstr "Kann Adressbereich 0x%lx-0x%lx nicht reservieren."
 
 #: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
@@ -418,7 +418,7 @@ msgstr "Kann %s nicht öffnen."
 #: spvw_multimap.d:139
 #, fuzzy
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
-msgstr "msync(0x%x,0x%x,MS_INVALIDATE) scheitert."
+msgstr "msync(0x%lx,0x%x,MS_INVALIDATE) scheitert."
 
 #: spvw_multimap.d:199
 msgid "Cannot delete <%s>."
@@ -446,7 +446,7 @@ msgstr "Kann %s nicht schließen."
 
 #: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
-msgstr "Compilieren Sie Ihr Betriebssystem neu mit Unterstützung von SYSV IPC."
+msgstr "Kompilieren Sie Ihr Betriebssystem neu mit Unterstützung von SYSV IPC."
 
 #: spvw_multimap.d:340
 msgid "Cannot allocate private shared memory segment of size %d."
@@ -455,7 +455,7 @@ msgstr "Kann kein privates Shared-Memory-Segment der Größe %d aufmachen."
 #: spvw_multimap.d:357
 #, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
-msgstr "Kann kein Shared-Memory an Adresse 0x%x legen."
+msgstr "Kann kein Shared-Memory an Adresse 0x%lx legen."
 
 #: spvw_multimap.d:375 spvw_multimap.d:381
 msgid "%s: Cannot fill shared memory."
@@ -468,7 +468,7 @@ msgstr "Kann Shared-Memory-Segment nicht entfernen."
 #: spvw_fault.d:277
 #, fuzzy
 msgid "mprotect(0x%lx,%d,%d) failed."
-msgstr "mprotect(0x%x,%d,%d) scheitert."
+msgstr "mprotect(0x%lx,%d,%d) scheitert."
 
 #: spvw_sigsegv.d:23
 msgid "Permanently allocated: %lu bytes."
@@ -485,7 +485,7 @@ msgstr ""
 #: spvw_sigsegv.d:40
 #, fuzzy
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
-msgstr "SIGSEGV kann nicht behoben werden. Fehler-Adresse = 0x%x."
+msgstr "SIGSEGV kann nicht behoben werden. Fehler-Adresse = 0x%lx."
 
 #: spvw_sigsegv.d:76
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
@@ -599,11 +599,6 @@ msgstr "~S: Variablenspezifikation nach ~S ist nicht korrekt: ~S"
 #, lisp-format
 msgid "~S: ~S must be followed by ~S or end of list: ~S"
 msgstr "~S: Nach ~S var muss ~S oder Listenende folgen: ~S"
-
-#: eval.d:2097
-#, lisp-format
-msgid "~S: variable specification after ~S too long : ~S"
-msgstr "~S: Zu lange Variablenspezifikation nach ~S: ~S"
 
 #: eval.d:2118
 #, lisp-format
@@ -1868,7 +1863,7 @@ msgstr "~S von ~S: Falsche Syntax nach #~SY für Codevektor einer Closure"
 #: io.d:4303
 #, lisp-format
 msgid "~S from ~S: object #Y~S has not the syntax of a compiled closure"
-msgstr "~S von ~S: Objekt #Y~S hat nicht die Syntax einer compilierten Closure."
+msgstr "~S von ~S: Objekt #Y~S hat nicht die Syntax einer kompilierten Closure."
 
 #: io.d:4337
 #, fuzzy, lisp-format
@@ -2472,7 +2467,7 @@ msgstr "~S: ~S ist keine Closure."
 #: record.d:317
 #, lisp-format
 msgid "~S: This is not a compiled closure: ~S"
-msgstr "~S: Das ist keine compilierte Closure: ~S"
+msgstr "~S: Das ist keine kompilierte Closure: ~S"
 
 #: record.d:376
 #, lisp-format
@@ -2776,11 +2771,11 @@ msgstr "  Weiteres Environment: "
 
 #: debug.d:1318
 msgid "compiled tagbody frame for "
-msgstr "Tagbody-Frame (compiliert) für "
+msgstr "Tagbody-Frame (kompiliert) für "
 
 #: debug.d:1322
 msgid "compiled block frame for "
-msgstr "Block-Frame (compiliert) für "
+msgstr "Block-Frame (kompiliert) für "
 
 #: debug.d:1328
 msgid "block frame "
@@ -3486,7 +3481,7 @@ msgstr "Winsock-Fehler "
 
 #: misc.d:110
 msgid "This file was produced by another lisp version, must be recompiled."
-msgstr "Dieses File stammt von einer anderen Lisp-Version, muss neu compiliert werden."
+msgstr "Dieses File stammt von einer anderen Lisp-Version, muss neu kompiliert werden."
 
 #: misc.d:458
 #, lisp-format
@@ -3971,7 +3966,7 @@ msgstr "DEFUN/DEFMACRO: ~S war getraced und wird umdefiniert!"
 #: init.lisp:657
 #, lisp-format
 msgid "~S is impossible in compiled code"
-msgstr "~S ist in compiliertem Code unmöglich."
+msgstr "~S ist in kompiliertem Code unmöglich."
 
 #: init.lisp:739
 #, lisp-format
@@ -4080,17 +4075,17 @@ msgstr "WARNUNG:"
 #: init.lisp:1530
 #, fuzzy, lisp-format
 msgid "~S: compiled file ~A lacks a version marker"
-msgstr "~SS: Die compilierte Datei ~SS hat keine Versionsmarkierung."
+msgstr "~S: Die kompilierte Datei ~A hat keine Versionsmarkierung."
 
 #: init.lisp:1532
 #, fuzzy, lisp-format
 msgid "~S: compiled file ~A has a corrupt version marker ~S"
-msgstr "~SS: Die compilierte Datei ~SS hat eine kaputte Versionsmarkierung: ~SS"
+msgstr "~S: Die kompilierte Datei ~A hat eine kaputte Versionsmarkierung: ~S"
 
 #: init.lisp:1534
 #, fuzzy, lisp-format
 msgid "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"
-msgstr "~SS: Die compilierte Datei ~SS wurde von einer ältere CLISP-Version erstellt und muss neu compiliert werden."
+msgstr "~S: Die kompilierte Datei ~A wurde von einer älteren CLISP-Version erstellt und muss neu kompiliert werden."
 
 #: init.lisp:1646
 #, lisp-format
@@ -5659,7 +5654,7 @@ msgstr "Das Argument ~S zu Funktion ~S ist kein Symbol."
 #: compiler.lisp:2794
 #, lisp-format
 msgid "Run time error expected: ~@?"
-msgstr ""
+msgstr "Erwarte Laufzeitfehler: ~@?"
 
 #: compiler.lisp:2953
 #, lisp-format
@@ -5679,7 +5674,7 @@ msgstr "Die Funktion ~S ist undefiniert."
 #: compiler.lisp:3321
 #, fuzzy, lisp-format
 msgid "Function ~S is deprecated."
-msgstr "Die Funktion ~SS ist undefiniert."
+msgstr "Die Funktion ~S ist undefiniert."
 
 #: compiler.lisp:3397
 #, lisp-format
@@ -6284,12 +6279,12 @@ msgstr ""
 #: clos-methcomb2.lisp:123
 #, fuzzy, lisp-format
 msgid "For function ~S applied to argument list ~S:~%While computing the effective method through ~S:~%Invalid method: ~S~%~?"
-msgstr "Beim Anwenden von Funktion ~SS auf ~SS:~S%Während der Bestimmung der effektiven Methode durch ~SS:~S%Ungültige Methode ~SS~S%~S?"
+msgstr "Beim Anwenden von Funktion ~S auf ~S:~%Während der Bestimmung der effektiven Methode durch ~S:~%Ungültige Methode ~S~%~?"
 
 #: clos-methcomb2.lisp:137
 #, fuzzy, lisp-format
 msgid "For function ~S applied to argument list ~S:~%While computing the effective method through ~S:~%Impossible to combine the methods:~%~?"
-msgstr "Beim Anwenden von Funktion ~S auf ~S:~%Während der Bestimmung der effektiven Methode durch ~S:~%Ungültige Methode ~S~%~?"
+msgstr "Beim Anwenden von Funktion ~S auf ~S:~%Während der Bestimmung der effektiven Methode durch ~S:~%Methodenkombination unmöglich:~%~?"
 
 #: clos-methcomb2.lisp:144 clos-methcomb2.lisp:158
 #, lisp-format
@@ -6324,7 +6319,7 @@ msgstr ""
 #: clos-methcomb2.lisp:312
 #, fuzzy, lisp-format
 msgid "~S cannot be used here: ~S"
-msgstr "~S ist nicht editierbar."
+msgstr ""
 
 #: clos-methcomb2.lisp:324
 #, lisp-format
@@ -7749,7 +7744,7 @@ msgstr "eine gelöschte Package."
 #: describe.lisp:439
 #, lisp-format
 msgid "an ~s hash table with ~[no entries~:;~:*~:d entr~:*~[~;y~:;ies~]~]."
-msgstr "eine ~S-Hashtabelle ~[ohne Einträge~:;mit ~:*~D Eintr~[~;ag~;ägen~]~]."
+msgstr "eine ~S-Hashtabelle ~[ohne Einträge~:;mit ~:*~D Eintr~:*~[~;ag~:;ägen~]~]."
 
 #: describe.lisp:442
 #, lisp-format
@@ -8387,9 +8382,6 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 
 #~ msgid "Documentation as a ~a:~%~a"
 #~ msgstr "Dokumentation als ~:(~A~): ~A"
-
-#~ msgid "an ~s hash table with ~[no entries~:;~:*~:d entr~:[y~;ies~]~]."
-#~ msgstr "eine ~S-Hashtabelle ~[ohne Einträge~:;mit ~:*~D Eintr~:[ag~;ägen~]~]."
 
 #~ msgid "argument list: ~:S"
 #~ msgstr "Argumentliste: ~:S"
@@ -10770,21 +10762,6 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 #~ msgid "symbol ~SA from ~SA will become a shadowing symbol"
 #~ msgstr "Symbol ~SA aus ~SA wird als Shadowing deklariert."
 
-#~ msgid "frame binding variables (~S = dynamically):"
-#~ msgstr "Variablenbindungs-Frame bindet (~S = dynamisch):"
-
-#~ msgid " binds (~S = dynamically):"
-#~ msgstr " bindet (~S = dynamisch):"
-
-#~ msgid "~Sa: redefining ~Sa ~Ss in ~Sa, was defined in ~Sa"
-#~ msgstr "~SA: ~SA ~SS wird in ~SA umdefiniert, war schon in ~SA definiert."
-
-#~ msgid "Loading file ~SA ..."
-#~ msgstr "Datei ~SA wird geladen..."
-
-#~ msgid "Loaded file ~SA"
-#~ msgstr "Datei ~SA ist geladen."
-
 #~ msgid "READ: ~S@?"
 #~ msgstr "READ: ~S@?"
 
@@ -10890,9 +10867,6 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 #~ msgid "Last error is: >> ~SA <<"
 #~ msgstr "Letzter Fehler: >> ~SA <<"
 
-#~ msgid "a label used for resolving #~SD# references during READ."
-#~ msgstr "eine Markierung zur Auflösung von #~SD#-Verweisen bei READ."
-
 #~ msgid ", is accessible in ~S:d package~S:*~S[~S;~S:;s~S] ~S{~SA~S^, ~S}"
 #~ msgstr ", ist in ~S[~S;der Package~S:;den ~S:*~SD Packages~S] ~S{~SA~S^, ~S} accessible"
 
@@ -10943,9 +10917,6 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 
 #~ msgid " to ~S:d package~S:*~S[~S;~S:;s~S] ~S{~SA~S^, ~S}"
 #~ msgstr " an die ~S[~S;~S:;~S:*~SD ~S]Package~S:*~S[~S;~S:;s~S] ~S{~SA~S^, ~S}"
-
-#~ msgid "an ~Ss hash table with ~S[no entries~S:;~S:*~S:d entr~S:*~S[~S;y~S:;ies~S]~S]."
-#~ msgstr "eine ~SS-Hashtabelle ~S[ohne Einträge~S:;mit ~S:*~SD Eintr~S[~S;ag~S;ägen~S]~S]."
 
 #~ msgid "~S:[a~S;the Common Lisp~S] readtable."
 #~ msgstr "~S:[eine ~S;die Common-Lisp-~S]Readtable."
@@ -11024,9 +10995,6 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 
 #~ msgid " to ~S:d package~S:[~S;s~S] ~S{~SA~S^, ~S}"
 #~ msgstr " an die ~S[~S;~S:;~S:*~SD ~S]Package~S:[~S;s~S] ~S{~SA~S^, ~S}"
-
-#~ msgid "an ~Ss hash table with ~S[no entries~S:;~S:*~S:d entr~S:[y~S;ies~S]~S]."
-#~ msgstr "eine ~SS-Hashtabelle ~S[ohne Einträge~S:;mit ~S:*~SD Eintr~S:[ag~S;ägen~S]~S]."
 
 #~ msgid "argument list: ~S:S"
 #~ msgstr "Argumentliste: ~S:S"

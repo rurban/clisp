@@ -2094,7 +2094,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
           pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
           pushSTACK(S(LLaux)); pushSTACK(S(function));
           fehler(source_program_error,
-                 GETTEXT("~S: variable specification after ~S too long : ~S"));
+                 GETTEXT("~S: variable specification after ~S too long: ~S"));
         }
       } else
         init_form = NIL; /* Default-Init */
@@ -4958,7 +4958,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
     /* global definition (symbol-function (get-setf-symbol symbol)) applies. */
     var object symbol = get(Car(Cdr(fun)),S(setf_function)); /* (get ... 'SYS::SETF-FUNCTION) */
     if (!symbolp(symbol)) /* should be (uninterned) symbol */
-      goto undef; /* else undefed */
+      goto undef; /* else undefined */
     var object fdef = Symbol_function(symbol);
     if (closurep(fdef)) { /* Closure -> apply */
       return_Values funcall_closure(fdef,args_on_stack);
