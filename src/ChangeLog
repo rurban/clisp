@@ -6,6 +6,11 @@
 
 2006-10-16  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (src--distrib, doc--distrib): removed
+	(tp-mail): add target to send a note to translation@IRO.UMontreal.CA
+
+2006-10-16  Sam Steingold  <sds@gnu.org>
+
 	module doc&interface unification
 	* modules/i18n/i18n.lisp: do not lock
 	CUSTOM:*SYSTEM-PACKAGE-LIST*, it is done by EXT:SAVEINITMEM
