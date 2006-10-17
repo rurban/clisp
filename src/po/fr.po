@@ -68,14 +68,14 @@ msgstr "Pas de module «%s» sans le paquetage %s.\n"
 #: spvw.d:1561
 #, fuzzy
 msgid " in the locked package "
-msgstr "un paquetage éliminé."
+msgstr ""
 
 #: spvw.d:1563
 #, fuzzy
 msgid ""
 "\n"
 "old definition: "
-msgstr ", aussi d'un macro"
+msgstr ""
 
 #: spvw.d:1600
 msgid "is an ANSI Common Lisp."
@@ -318,12 +318,12 @@ msgstr "AVERTISSEMENT : Pas de fichier d'initialisation."
 
 #: spvw.d:2975 spvw.d:2987
 msgid "Please try: "
-msgstr "Essayez: "
+msgstr "Essayez : "
 
 #: spvw.d:2985
 #, fuzzy
 msgid "WARNING: No installation directory specified."
-msgstr "AVERTISSEMENT : Pas de fichier d'initialisation."
+msgstr "AVERTISSEMENT : Pas de répertoire d'initialisation."
 
 #: spvw.d:3028 spvw.d:3155
 msgid "WARNING: no such package: "
@@ -363,17 +363,17 @@ msgstr "*** - La mémoire est épuisée : RAZ"
 #: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
-msgstr "Ne peux pas placer de la mémoire à l'adresse 0x%lx ."
+msgstr "Impossible de placer de la mémoire à l'adresse 0x%lx ."
 
 #: spvw_mmap.d:170
 #, fuzzy
 msgid "Cannot reserve address range at 0x%lx ."
-msgstr "Ne peux pas réserver les adresses à partir de 0x%lx ."
+msgstr "Impossible de réserver les adresses à partir de 0x%lx ."
 
 #: spvw_mmap.d:180
 #, fuzzy
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
-msgstr "Ne peux pas réserver les adresses 0x%lx-0x%lx ."
+msgstr "Impossible de réserver les adresses 0x%lx-0x%lx ."
 
 #: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
@@ -398,7 +398,7 @@ msgstr "VirtualProtect() a échoué."
 #: spvw_mmap.d:337 spvw_multimap.d:115 spvw_multimap.d:190
 #, fuzzy
 msgid "Cannot open <%s>."
-msgstr "Ne peux pas ouvrir %s ."
+msgstr "Impossible d'ouvrir %s ."
 
 #: spvw_multimap.d:139
 #, fuzzy
@@ -408,7 +408,7 @@ msgstr "msync(0x%lx,0x%x,MS_INVALIDATE) - erreur."
 #: spvw_multimap.d:199
 #, fuzzy
 msgid "Cannot delete <%s>."
-msgstr "Ne peux pas effacer %s ."
+msgstr "Impossible d'effacer %s ."
 
 #: spvw_multimap.d:217
 #, fuzzy
@@ -423,17 +423,17 @@ msgstr "Prière de relancer LISP avec moins de mémoire (option -m)."
 #: spvw_multimap.d:228
 #, fuzzy
 msgid "Cannot make <%s> long enough."
-msgstr "Ne peux pas agrandir %s ."
+msgstr "Impossible d'agrandir %s ."
 
 #: spvw_multimap.d:242
 #, fuzzy
 msgid "Cannot fill <%s>."
-msgstr "Ne peux pas remplir %s ."
+msgstr "Impossible de remplir %s ."
 
 #: spvw_multimap.d:255 spvw_multimap.d:289
 #, fuzzy
 msgid "Cannot close <%s>."
-msgstr "Ne peux pas fermer %s ."
+msgstr "Impossible de fermer %s ."
 
 #: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
@@ -734,7 +734,7 @@ msgstr ""
 #: eval.d:8572
 #, fuzzy, lisp-format
 msgid "~S: too many return values"
-msgstr "Trop de valeurs VALUES."
+msgstr "~S : Trop de valeurs VALUES."
 
 #: eval.d:8577
 #, lisp-format
@@ -1503,22 +1503,22 @@ msgstr "~S : L'argument position doit être ~S, ~S ou un entier positif ou zéro, 
 #: socket.d:475
 #, fuzzy, lisp-format
 msgid "~S: IP address ~S must have length ~S or ~S"
-msgstr "~S : L'argument doit être de type STREAM et non pas ~S."
+msgstr ""
 
 #: socket.d:477
 #, fuzzy, lisp-format
 msgid "~S: IP address ~S must have length ~S"
-msgstr "~S: La matrice ~S n'as pas ~S comme type d'élément."
+msgstr ""
 
 #: io.d:480
 #, lisp-format
 msgid "The value of ~S was not a readtable. It has been reset."
-msgstr "La valeur de ~S n'était pas un «readtable» et fut remise à la valeur standard."
+msgstr "La valeur de ~S n'était pas un tableau de lecture et fut remise à la valeur standard."
 
 #: io.d:563 error.d:1140
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is not a ~S"
-msgstr "~S : L'argument ~S doit être un «stream» ouvert sur un fichier."
+msgstr ""
 
 #: io.d:716
 #, lisp-format
@@ -1533,7 +1533,7 @@ msgstr "~S : ~S n'est pas un caractère de «macro-dispatch»."
 #: io.d:792
 #, fuzzy, lisp-format
 msgid "~S: digit ~C not allowed as sub-char"
-msgstr "~S : Un chiffre $ n'est pas permis comme sous-caractère."
+msgstr "~S : Le chiffre ~C n'est pas permis comme sous-caractère."
 
 #: io.d:839
 #, lisp-format
@@ -2269,7 +2269,9 @@ msgstr "Le symbole ~A du paquetage #<PACKAGE ~A> sera déclaré «shadowing»."
 msgid ""
 "Uninterning ~S from ~S uncovers a name conflict.\n"
 "You may choose the symbol in favour of which to resolve the conflict."
-msgstr "Vous pouvez choisir, parmi les symboles homonymes, auquel donner priorité pour éviter le conflit de noms."
+msgstr ""
+"Un conflit de noms apparaît en retirant ~S de ~S.\n"
+"Vous pouvez choisir, parmi les symboles homonymes, auquel donner priorité pour éviter le conflit de noms."
 
 #: package.d:1026
 #, fuzzy
@@ -2289,12 +2291,12 @@ msgstr "((\"I\" \"Importer et cacher l'autre symbole\" T) (\"N\" \"Ne rien faire
 #: package.d:1040
 #, fuzzy, lisp-format
 msgid "Importing ~S into ~S produces a name conflict with ~S and other symbols."
-msgstr "Un conflit de noms apparaît par l'importation de ~SS dans ~SS avec ~SS et d'autres symboles."
+msgstr "Un conflit de noms apparaît par l'importation de ~S dans ~S avec ~S et d'autres symboles."
 
 #: package.d:1041
 #, fuzzy, lisp-format
 msgid "Importing ~S into ~S produces a name conflict with ~S."
-msgstr "Un conflit de noms apparaît par l'importation de ~SS dans ~SS avec ~SS."
+msgstr "Un conflit de noms apparaît par l'importation de ~S dans ~S avec ~S."
 
 #: package.d:1141
 #, lisp-format
@@ -2314,7 +2316,7 @@ msgstr "((\"I\" \"Tout d'abord importer le symbole\" NIL) (\"N\" \"Ne rien faire
 #: package.d:1211
 #, fuzzy, lisp-format
 msgid "~S: Symbol ~S should be imported into ~S before being exported."
-msgstr "Le symbole ~SS devrait d'abord être importé avant de pouvoir être exporté."
+msgstr "~S : Le symbole ~S devrait d'abord être importé avant de pouvoir être exporté."
 
 #: package.d:1245
 msgid "the symbol to export, "
@@ -2329,7 +2331,9 @@ msgstr "Le symbole original "
 msgid ""
 "Exporting ~S from ~S produces a name conflict with ~S from ~S.\n"
 "You may choose which symbol should be accessible in ~S."
-msgstr "Un conflit de noms apparaît par l'exportation de ~SS depuis ~SS avec ~SS de ~SS."
+msgstr ""
+"Un conflit de noms apparaît par l'exportation de ~S depuis ~S avec ~S de ~S.\n"
+"Vous pouvez choisir quel symbole utiliser dans ~S."
 
 #: package.d:1497
 #, fuzzy, lisp-format
@@ -4090,12 +4094,12 @@ msgstr "Il n'existe pas de fichier de nom ~A."
 #: init.lisp:1668
 #, fuzzy, lisp-format
 msgid "Loading file ~A ..."
-msgstr "Chargement du fichier "
+msgstr "Chargement du fichier ~A ..."
 
 #: init.lisp:1702 defs1.lisp:495
 #, fuzzy, lisp-format
 msgid "Loaded file ~A"
-msgstr "Chargement du fichier "
+msgstr "Chargement du fichier ~A terminé."
 
 #: init.lisp:1713
 #, lisp-format
@@ -6914,12 +6918,12 @@ msgstr ""
 #: condition.lisp:1194
 #, fuzzy, lisp-format
 msgid "Use instead of ~S [value ~D of ~D]: "
-msgstr "Nouveau ~S [valeur ~D de ~D]: "
+msgstr "Nouveau ~S [valeur ~D de ~D] : "
 
 #: condition.lisp:1195
 #, lisp-format
 msgid "New ~S [value ~D of ~D]: "
-msgstr "Nouveau ~S [valeur ~D de ~D]: "
+msgstr "Nouveau ~S [valeur ~D de ~D] : "
 
 #: condition.lisp:1361
 #, lisp-format
@@ -6929,17 +6933,17 @@ msgstr ""
 #: condition.lisp:1367
 #, fuzzy, lisp-format
 msgid "specify return values"
-msgstr "Trop de valeurs VALUES."
+msgstr ""
 
 #: condition.lisp:1383
 #, fuzzy, lisp-format
 msgid "skip "
-msgstr "Step "
+msgstr ""
 
 #: condition.lisp:1392
 #, fuzzy, lisp-format
 msgid "stop loading file ~A"
-msgstr "Chargement du fichier "
+msgstr "Arrêter le chargement du fichier ~A."
 
 #: condition.lisp:1524 condition.lisp:1623
 #, lisp-format
@@ -6949,7 +6953,7 @@ msgstr "Quitter le cycle de ~S."
 #: condition.lisp:1607
 #, lisp-format
 msgid "~S: This is more serious than a warning: ~A"
-msgstr "~S : C'est plus sérieux qu'un avertissement: ~A"
+msgstr "~S : C'est plus sérieux qu'un avertissement : ~A"
 
 #: condition.lisp:1613
 #, fuzzy
@@ -7150,7 +7154,7 @@ msgstr "condition d'arrêt : "
 #: dribble.lisp:34
 #, fuzzy, lisp-format
 msgid "~S: ~S should be a ~S"
-msgstr "~ : L'argument ~ devrait être de type ~."
+msgstr "~S : L'argument ~S devrait être de type ~S."
 
 #: dribble.lisp:45
 #, fuzzy, lisp-format
@@ -7160,12 +7164,12 @@ msgstr "Le protocole est déjà écrit sur ~S."
 #: dribble.lisp:48
 #, fuzzy, lisp-format
 msgid ";; Dribble of ~S finished "
-msgstr " est chargé."
+msgstr ""
 
 #: dribble.lisp:60
 #, fuzzy, lisp-format
 msgid ";; Dribble of ~S started "
-msgstr " est chargé."
+msgstr ""
 
 #: dribble.lisp:64
 #, fuzzy, lisp-format
@@ -7195,7 +7199,7 @@ msgstr "classe"
 #: describe.lisp:90
 #, lisp-format
 msgid "Slots:"
-msgstr "Composants:"
+msgstr "Composants :"
 
 #: describe.lisp:97
 #, lisp-format
@@ -8485,9 +8489,6 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 #~ msgid "undefined bytecode in ~ at byte ~"
 #~ msgstr "Code octet indéfinissable ~ à l'octet ~"
 
-#~ msgid "Corrupted STACK in ~ at byte ~"
-#~ msgstr "Pile STACK corrompue dans ~ à l'octet ~"
-
 #~ msgid "~: ~ has no dynamic value"
 #~ msgstr "~: ~ n'a pas de valeur dynamique."
 
@@ -8533,30 +8534,6 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 
 #~ msgid "~: missing key list: ~"
 #~ msgstr "~ : la liste d'objects-clé manque: ~"
-
-#~ msgid "~: the block named ~ has already been left"
-#~ msgstr "~: Le bloc de nom ~ a déjà été quitté."
-
-#~ msgid "~: no block named ~ is currently visible"
-#~ msgstr "~: Aucun bloc de nom ~ n'est visible."
-
-#~ msgid "~: ~ is neither tag nor form"
-#~ msgstr "~: ~ n'est ni un marqueur ni une forme à evaluer."
-
-#~ msgid "~: illegal tag ~"
-#~ msgstr "~: ~ n'est pas un marqueur permis."
-
-#~ msgid "~: tagbody for tag ~ has already been left"
-#~ msgstr "~: Le TAGBODY du marqueur ~ a déjà été quitté."
-
-#~ msgid "~: no tag named ~ is currently visible"
-#~ msgstr "~: Aucun marqueur de nom ~ n'est visible."
-
-#~ msgid "~: too many values"
-#~ msgstr "~: Trop de valeurs."
-
-#~ msgid "~: too many arguments to ~"
-#~ msgstr "~: Trop d'arguments pour ~."
 
 #~ msgid "Argument ~ is not a macroexpansion environment"
 #~ msgstr "L'argument ~ n'est pas un environnement pour macros"
@@ -8908,13 +8885,6 @@ msgstr "Mauvais nombre d'arguments pour ~S : ~S"
 
 #~ msgid "~: position argument should be ~ or ~ or a nonnegative integer, not ~"
 #~ msgstr "~ : L'argument position doit être ~, ~ ou un entier positif ou zéro, mais non ~."
-
-#~ msgid "The value of ~ was not a readtable. It has been reset."
-#~ msgstr "La valeur de ~ n'était pas un «readtable» et fut remise à la valeur standard."
-
-#, fuzzy
-#~ msgid "~: argument ~ is not a ~"
-#~ msgstr "~ : L'argument ~ doit être un «stream» ouvert sur un fichier."
 
 #~ msgid "~: ~ is a dispatch macro character"
 #~ msgstr "~ : ~ est un caractère de «macro-dispatch»."
