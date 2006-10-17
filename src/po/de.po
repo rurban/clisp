@@ -6924,17 +6924,17 @@ msgstr ""
 #: condition.lisp:1367
 #, fuzzy, lisp-format
 msgid "specify return values"
-msgstr "Zu viele Werte erzeugt."
+msgstr ""
 
 #: condition.lisp:1383
 #, fuzzy, lisp-format
 msgid "skip "
-msgstr "Step "
+msgstr "Überspringe "
 
 #: condition.lisp:1392
 #, fuzzy, lisp-format
 msgid "stop loading file ~A"
-msgstr "Datei "
+msgstr ""
 
 #: condition.lisp:1524 condition.lisp:1623
 #, lisp-format
