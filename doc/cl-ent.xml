@@ -152,6 +152,7 @@
 <!ENTITY os2 '<ulink url="http://www.os2.org/"><emphasis role="platform">OS/2</emphasis></ulink>'>
 <!ENTITY unicode '<ulink url="http://www.unicode.org/"><emphasis role="platform">UNICODE</emphasis></ulink>'>
 <!ENTITY win32 '<ulink url="http://winehq.com/"><emphasis role="platform">Win32</emphasis></ulink>'>
+<!ENTITY lfs '<ulink url="http://www.unix.org/version2/whatsnew/lfs.html"><emphasis role="platform">LFS</emphasis></ulink>'>
 
 <!-- *** etc *** -->
 <!ENTITY http '<ulink url="http://www.w3.org/Protocols/"><command>HTTP</command></ulink>'>

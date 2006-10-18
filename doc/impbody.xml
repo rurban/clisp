@@ -686,7 +686,7 @@ compile-time.</para></warning></section>
 <para>&constant;s may not be bound dynamically or lexically.</para>
 </section>
 
-<section id="fcase"><title>Macro <function>EXT:FCASE</function></title>
+<section id="fcase"><title>Macro &fcase;</title>
 
 <para>This macro allows specifying the test for &case;, e.g.,
 <programlisting language="lisp">
@@ -706,9 +706,8 @@ is the same as
 </programlisting>
 If you use a built-in &hash-table-t; test (see <xref linkend="ht-test"/>)
 as the test (e.g., &equal; instead of &string-eq; above, but not a test
-defined using &defhash;), the compiler will be able to optimize
-the <function>EXT:FCASE</function> form better than the corresponding
-&cond; form.</para>
+defined using &defhash;), the compiler will be able to optimize the
+&fcase; form better than the corresponding &cond; form.</para>
 </section>
 
 <section id="xor"><title>Function <function>EXT:XOR</function></title>
@@ -1873,9 +1872,8 @@ can give problems:
   = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
 </programlisting></para></formalpara>
 
-<formalpara id="mod-expt">
- <title>Function <function>EXT:MOD-EXPT</function></title>
-<para><code>(<function>EXT:MOD-EXPT</function> &k-r; &l-r; &m-r;)</code>
+<formalpara id="mod-expt"><title>Function &mod-expt;</title>
+<para><code>(&mod-expt; &k-r; &l-r; &m-r;)</code>
  is equivalent to <code>(&mod; (&expt; &k-r; &l-r;) &m-r;)</code>
  except it is more efficient for very large arguments.</para></formalpara>
 
@@ -4802,7 +4800,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 
 <para>Each &module; should add the appropriate keyword, e.g.,
  <link linkend="syscalls"><constant>:SYSCALLS</constant></link>,
- <link linkend="dir-key"><constant>:DIR-KEY</constant></link>,
+ <link linkend="dir-key"><constant>:DIRKEY</constant></link>,
  <link linkend="regexp-mod"><constant>:REGEXP</constant></link>,
  <link linkend="pcre"><constant>:PCRE</constant></link>, etc.</para>
 </section>
@@ -4814,10 +4812,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  &form-r; is a &feature-expr;.</para>
 </section>
 
-<section id="compiled-file-p"><title>Function
-  <function>EXT:COMPILED-FILE-P</function>
+<section id="compiled-file-p"><title>Function &compiled-file-p;
   <ulink url="&clrfi;/clrfi-2-compiled-file-p">[CLRFI-2]</ulink></title>
-<para><code>(EXT:COMPILED-FILE-P &filename-r;)</code> returns non-&nil;
+<para><code>(&compiled-file-p; &filename-r;)</code> returns non-&nil;
  when the file &filename-r; exists, is readable, and appears to be a
  &clisp;-compiled &fasl-file; file compatible with the currently used
  &bytecode; format.</para>
@@ -5510,7 +5507,7 @@ exhaust the available line length.</para></formalpara>
   of the machine on which it was built.</para>
 </section>
 
-<section id="argv"><title>Function <function>EXT:ARGV</function></title>
+<section id="argv"><title>Function &argv;</title>
 <para>This function will return a &fresh; &simple-vector-t; of
  &string-t; command line arguments passed to the runtime, including
  those already processed by &clisp;.

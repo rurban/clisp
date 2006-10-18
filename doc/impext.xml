@@ -385,7 +385,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
   <para>This encoding has the nice property that<programlisting language="lisp">
 (&loop; :for i :from 0 :to &char-code-limit; :for c = (&code-char; i)
   :always (&or-m; (&not-f; (&typep; c CHARSET:ISO-8859-1))
-              (&equalp; (EXT:CONVERT-STRING-TO-BYTES (&string; c) CHARSET:ISO-8859-1)
+              (&equalp; (&convert-string-to-bytes; (&string; c) CHARSET:ISO-8859-1)
                       (&vector; i))))
 <computeroutput>T</computeroutput></programlisting>
    i.e., it is compatible with &clisp; &code-char;/&char-code;
@@ -850,14 +850,14 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist>
 
-<varlistentry><term><code>(<function>EXT:CONVERT-STRING-FROM-BYTES</function>
+<varlistentry><term><code>(&convert-string-from-bytes;
       &vec-r; &encoding-r; &key-amp; &start-k; &end-k;)</code></term>
  <listitem><simpara>converts the subsequence of &vec-r; (a &ubyte-vec;)
    from &start-r; to &end-r; to a &string-t;, according to the given
    &encoding-r;, and returns the resulting string.
 </simpara></listitem></varlistentry>
 
-<varlistentry><term><code>(<function>EXT:CONVERT-STRING-TO-BYTES</function>
+<varlistentry><term><code>(&convert-string-to-bytes;
       &string-r; &encoding-r; &key-amp; &start-k; &end-k;)</code></term>
  <listitem><simpara>converts the subsequence of &string-r; from
    &start-r; to &end-r; to a &ubyte-vec;, according to the given

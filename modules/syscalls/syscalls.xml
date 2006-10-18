@@ -308,10 +308,9 @@
    <code>(<function>POSIX:WITH-STREAM-LOCK</function> (&stream-r;
     &rest-amp; &options-r;) &body-amp; &body-r;)</code></term>
   <listitem><simpara>Lock the &stream-r;, execute the &body-r;, unlock
-    the &stream-r;.  Pass &options-r; to
-    <link linkend="stream-lock"><function>POSIX:STREAM-LOCK</function></link>.
+    the &stream-r;.  Pass &options-r; to &stream-lock;.
  </simpara></listitem></varlistentry>
- <varlistentry id="fcntl"><term><code>(<function>POSIX:STREAM-OPTIONS</function>
+ <varlistentry id="fcntl"><term><code>(&stream-options;
     &stream-r; &command-r; &optional-amp; &value-r;)</code></term>
   <listitem><simpara>Call <function role="unix">fcntl</function>,
     &command-r; can be <constant>:FD</constant> or <constant>:FL</constant>.
@@ -333,8 +332,7 @@
  <listitem><simpara>Change process mask using
    <function role="unix">umask</function>.
  </simpara></listitem></varlistentry>
- <varlistentry id="copy-file"><term>
-   <code>(<function>POSIX:COPY-FILE</function> &source-r; &dest-r;
+ <varlistentry id="copy-file"><term><code>(&copy-file; &source-r; &dest-r;
     &key-amp; :METHOD :PRESERVE :IF-EXISTS :IF-DOES-NOT-EXIST)</code></term>
   <listitem><simpara>This is an interface to
     <function role="unix">symlink</function>
@@ -346,10 +344,9 @@
     you guessed it, a generic file copy utility (when &method-r; is &copy-k;).
    </simpara><simpara>Both &source-r; and &dest-r; may be wild, in which
     case &translate-pathname; is used.</simpara></listitem></varlistentry>
- <varlistentry id="dup-handle"><term>
-   <code>(<function>POSIX:DUPLICATE-HANDLE</function>
-    <replaceable>fd1</replaceable>
-    &optional-amp; <replaceable>fd2</replaceable>)</code></term>
+ <varlistentry id="dup-handle"><term><code>(&dup-handle;
+    <replaceable>fd1</replaceable> &optional-amp;
+    <replaceable>fd2</replaceable>)</code></term>
   <listitem><simpara>This is an interface to the
     <function role="unix">dup</function> system calls on
     &unix; systems and to <function role="win32">DuplicateHandle</function>
