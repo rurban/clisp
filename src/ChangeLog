@@ -1,3 +1,8 @@
+2006-10-17  Sam Steingold  <sds@gnu.org>
+
+	* configure (--install): when ${prefix} or ${exec_prefix} are not
+	writable, run "make install" using su
+
 2006-10-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp: use default-foreign-library

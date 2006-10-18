@@ -219,10 +219,11 @@ Special hints for some platforms can be found in file unix/PLATFORMS.
 12. If you are lazy and have too few spare neurons to remember this long
     process, just use the shortcut, like I do:
 
-         ./configure --with-module=rawsock --build build-dir
+         ./configure --with-module=rawsock --install build-dir
 
-    this covers the build process through step 8 (except mod-check).
-    You will need to become root to do the install.
+    this covers the build process through step 9 (except mod-check).
+    su(1) will prompt you for the root password if the installation
+    destination is not writable by you..
 
 
 Additional Information for Maintainers of Binary Packages:
