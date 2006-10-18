@@ -25,7 +25,7 @@
  <date>Last modified: @TODAY@</date>
  <productnumber>@VERSION@</productnumber>
  <productname>CLISP</productname>
- &clisp-authors; &clisp-doc-copyright;
+ &clisp-authors; &clisp-doc-copyright; &clisp-abstract;
 </refentryinfo>
 
 <refmeta>
@@ -668,10 +668,11 @@ compiles the specified lisp files to a platform-independent
 
 <refsection id="see-also"><title>See also</title>
 
-<para><olink targetdoc="impnotes" targetptr="impnotes-top"/>,
-&cmucl; - <command>cmucl</command>(1),
-&emacs; - <command>emacs</command>(1),
-&xemacs; - <command>xemacs</command>(1).</para>
+<para><simplelist>
+  <member><olink targetdoc="impnotes" targetptr="impnotes-top"/></member>
+  <member>&cmucl; - <command>cmucl</command>(1)</member>
+  <member>&emacs; - <command>emacs</command>(1)</member>
+  <member>&xemacs; - <command>xemacs</command>(1)</member></simplelist></para>
 
 </refsection>
 
@@ -741,21 +742,9 @@ following information:
  <listitem><simpara>Write on-line documentation.</simpara></listitem>
  <listitem><simpara>Enhance the compiler so that it can inline local
    functions.</simpara></listitem>
- <listitem><simpara>Specify a portable set of window and graphics
-   operations.</simpara></listitem>
  <listitem><simpara>Add Multi-Threading capabilities, via OS
    threads.</simpara></listitem>
 </itemizedlist>
-</refsection>
-
-<refsection id="authors-sec"><title>CLISP Authors</title>
-
-<para>The &clisp; project was started in late 1980-ies by &bruno; and
- &stoll;, both in Germany.</para>
-
-<para>See <filename role="clisp-cvs">COPYRIGHT</filename>
- for the list of other contributors and the license.</para>
-
 </refsection>
 
 </refentry>

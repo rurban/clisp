@@ -189,6 +189,14 @@
  <span class="{@role}"><xsl:apply-imports/></span>
 </xsl:template>
 
+<xsl:template match="revision/revnumber">
+ <span class="revnumber"><xsl:apply-imports/></span>
+</xsl:template>
+
+<xsl:template match="revision/date">
+ <span class="revdate"><xsl:apply-imports/></span>
+</xsl:template>
+
 <xsl:template match="emphasis[@role = 'plat-dep']">
  <span class="{@role}">
   <xsl:text>Platform Dependent: </xsl:text>
