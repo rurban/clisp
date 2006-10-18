@@ -145,6 +145,9 @@ do_ffi='default'
 target=''
 ignore_absence_of_libsigsegv=''
 
+prefix="/usr/local"
+exec_prefix=${prefix}
+
 getarg(){ echo "$1" | sed 's,^[-_a-zA-Z0-9]*=,,'; }
 
 for arg # in "$@"
@@ -218,7 +221,8 @@ do
 
       --prefix=* | --prefi=* | --pref=* | --pre=* | --pr=*)
         subdir_configure_args="$subdir_configure_args $arg"
-        makemake_args="$makemake_args --prefix="`getarg "$arg"` ;;
+        prefix=`getarg "$arg"`
+        makemake_args="$makemake_args --prefix=${prefix}" ;;
 
       --prefix | --prefi | --pref | --pre | --pr)
         subdir_configure_args="$subdir_configure_args $arg"
@@ -229,7 +233,8 @@ do
 
       --exec_prefix=* | --exec-prefix=* | --exec-prefi=* | --exec-pref=* | --exec-pre=* | --exec-pr=* | --exec-p=* | --exec-=* | -exec=* | --exe=* | --ex=*)
         subdir_configure_args="$subdir_configure_args $arg"
-        makemake_args="$makemake_args --exec-prefix="`getarg "$arg"` ;;
+        exec_prefix=`getarg "$arg"`
+        makemake_args="$makemake_args --exec-prefix="${exec_prefix} ;;
 
       --exec_prefix | --exec-prefix | --exec-prefi | --exec-pref | --exec-pre | --exec-pr | --exec-p | --exec- | -exec | --exe | --ex)
         subdir_configure_args="$subdir_configure_args $arg"
@@ -756,8 +761,19 @@ fi
 
 if test -n "$do_install"; then
 
+  # check if the destination is writable
+  su=""
+  if touch ${prefix}/abazonk 2>/dev/null ; then
+    rm -f ${prefix}/abazonk
+    if touch ${exec_prefix}/abazonk 2>/dev/null ; then
+      rm -f ${prefix}/abazonk
+    else su="su -c"
+    fi
+  else su="su -c"
+  fi
+
   cd $ABS_DIRNAME
-  make install
+  ${su} make install
   cd ..
 
 fi
