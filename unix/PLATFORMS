@@ -22,6 +22,7 @@ This file presents
     IA-64 running Linux, emulated by HP NUE
     AMD64 (x86_64) running FreeBSD
     AFS (Andrew File System)
+    PC 386 running OpenBSD 3.8
 * hints for porting to new platforms.
 
 
