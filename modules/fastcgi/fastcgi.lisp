@@ -20,7 +20,7 @@
 
 (defpackage "FASTCGI"
   (:documentation "Minimal bindings for FastCGI use from CLISP")
-  (:use "LISP" "FFI")
+  (:use "CL" "FFI")
   (:export "GETENV"
            "SLURP-STDIN" "OUT" "WRITE-STDOUT" "WRITE-STDERR" "NL"
            "IS-CGI" "ACCEPT" "FINISH" "WITH-LISTENER")
@@ -45,22 +45,21 @@
 
 ; ACCEPT
 (defun accept ()
-  "Place at the top of an explicit FastCGI server loop.  Returns T iff there is a request to do."
+  "Place at the top of an explicit FastCGI server loop.  Returns T iff there is a request to do, otherwise consider exiting the application."
   (setf *fastcgi-request-active* t)
   (= 0 (fcgi_accept_wrapper)))
 
 ; FINISH
 (defun finish ()
   "Place at the bottom of an explicit FastCGI server loop.  Always returns NIL."
-  (check-active-request "FINISH")
+  (check-active-request 'finish)
   (setf *fastcgi-request-active* nil)
   (fcgi_finish_wrapper)
   nil)
 
 ; GETENV
 (defun getenv (&optional var)
-  "(FASTCGI::GETENV var) - Gets the value of an environment variable, which should be a string; if called with no argument, returns the entire environment as an alist"
-  (check-active-request "GETENV")
+  "(FASTCGI:GETENV var) - Gets the value of an environment variable, which should be a string; if called with no argument, returns the entire environment as an alist"
   (if var (fcgi_getenv (to-string var)) (env)))
 
 ; ENV -- Return entire environment as an alist
@@ -74,7 +73,7 @@
 
 ; WRITE-STDOUT
 (defun write-stdout (data)
-  "(FASTCGI::WRITE-STDOUT string) - Write a string to standard output"
+  "(FASTCGI:WRITE-STDOUT string) - Write a string to standard output"
   ;; Do it in chunks since there seems to be FFI problems with large buffers
   (do* ((chunksize 65536)
         (s (to-string data))
@@ -86,14 +85,14 @@
 
 ; WRITE-STDERR
 (defun write-stderr (data)
-  "(FASTCGI::WRITE-STDERR string) - Write a string to standard error"
+  "(FASTCGI:WRITE-STDERR string) - Write a string to standard error"
   (let ((s (to-string data)))
     (fcgi_write_stderr s (length s))))
 
 ; SLURP-STDIN
 (defun slurp-stdin ()
-  "(FASTCGI::SLURP-STDIN)  Reads in the entirety of standard input and returns as a string"
-  (check-active-request "SLURP-STDIN")
+  "(FASTCGI:SLURP-STDIN)  Reads in the entirety of standard input and returns as a string"
+  (check-active-request 'slurp-stdin)
   (do ((result "")
        (eof nil))
       (eof result)
@@ -106,7 +105,7 @@
 
 ; OUT
 (defun out (&rest args)
-  "(FASTCGI::OUT args ...) Write arguments to standard output"
+  "(FASTCGI:OUT args ...) Write arguments to standard output"
   (write-stdout (cat args)))
 
 ; NL
@@ -141,12 +140,15 @@
 ; CHECK-ACTIVE-REQUEST - Sanity check on use of library function
 (defun check-active-request (func)
   (when (not *fastcgi-request-active*)
-    (error "You must call FASTCGI:ACCEPT before using any other FastCGI function")))
+    (error "Need to call FASTCGI:ACCEPT before using ~S" func)))
 
 
 
 ; --------------   "C" functions
 ;(c-lines "#include \"fastcgi.h\"~%"); completely wrapped
+(eval-when (compile)
+  ;;NB this global affects further compilations in this session
+  (setq ffi:*output-c-functions* t))
 
 ; Our wrappers
 (def-call-out fcgi_getenv       (:arguments (var c-string))               (:return-type c-string))
