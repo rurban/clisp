@@ -42166,7 +42166,7 @@
 	* os2/popenrw.c: Likewise.
 	* error.d (begin_error, tast_break): Remove support for EMX
 	  versions < 0.9c.
-	  * graph.d: Likewise.
+	* graph.d: Likewise.
 	* pathname.d: Likewise.
 	* time.d: Likewise.
 
