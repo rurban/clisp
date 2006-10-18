@@ -14,10 +14,18 @@
 <!ENTITY clisp-authors '<authorgroup id="authors">&bruno; &stoll; &sds;
  <othercredit><othername>See
    <emphasis><filename role="clisp-cvs">COPYRIGHT</filename></emphasis>
-   for the list of other contributors.</othername></othercredit></authorgroup>'>
+   for the list of other contributors and the license.
+ </othername></othercredit></authorgroup>'>
 <!ENTITY clisp-doc-copyright
   '<copyright><year>1992-2006</year><holder>Bruno Haible</holder></copyright>
    <copyright><year>1998-2006</year><holder>Sam Steingold</holder></copyright>'>
+<!ENTITY clisp-abstract
+  '<abstract id="clisp-abstract"><para>This document describes the
+   &gnu; &clisp; - an implementation of the &ansi-cl;.</para>
+   <para>See <olink targetdoc="man" targetptr="bugs"/> for instructions
+    on how to report bugs (both in these notes and in &clisp; itself).</para>
+   <para>See <olink targetdoc="impnotes" targetptr="faq-help"/> for
+    information on &clisp; support.</para></abstract>'>
 
 <!-- *** platforms *** -->
 <!ENTITY with '<emphasis role="strong">with</emphasis>'>
@@ -178,6 +186,7 @@
 <!ENTITY impnotes-root '<olink targetdoc="impnotes" targetptr="impnotes-root"><function>CUSTOM:IMPNOTES-ROOT</function></olink>'>
 <!ENTITY impnotes-root-default '<link linkend="impnotes-root"><varname>CUSTOM:*IMPNOTES-ROOT-DEFAULT*</varname></link>'>
 <!ENTITY open-http '<link linkend="open-http"><function>EXT:OPEN-HTTP</function></link>'>
+<!ENTITY fcase '<link linkend="fcase"><function>EXT:FCASE</function></link>'>
 <!ENTITY buffered '<link linkend="buffered"><constant>:BUFFERED</constant></link>'>
 <!ENTITY byte-t '<link linkend="byte-type"><type>BYTE</type></link>'>
 <!ENTITY case-inverted-k '<link linkend="package-case"><constant>:CASE-INVERTED</constant></link>'>
@@ -191,6 +200,8 @@
 <!ENTITY char-width '<link linkend="char-width"><function>EXT:CHAR-WIDTH</function></link>'>
 <!ENTITY char-invertcase '<link linkend="char-invertcase"><function>EXT:CHAR-INVERTCASE</function></link>'>
 <!ENTITY char-key '<link linkend="with-kbd"><function>EXT:CHAR-KEY</function></link>'>
+<!ENTITY convert-string-from-bytes '<link linkend="string-byte"><function>EXT:CONVERT-STRING-FROM-BYTES</function></link>'>
+<!ENTITY convert-string-to-bytes '<link linkend="string-byte"><function>EXT:CONVERT-STRING-TO-BYTES</function></link>'>
 <!ENTITY cur-frame '<link linkend="cur-frame">current stack frame</link>'>
 <!ENTITY no-prim '<link linkend="no-prim"><function>CLOS:NO-PRIMARY-METHOD</function></link>'>
 <!ENTITY meth-call-err '<link linkend="meth-call-err"><classname>CLOS:METHOD-CALL-ERROR</classname></link>'>
@@ -373,9 +384,12 @@
 <!ENTITY source-types '<link linkend="loadfile"><varname>CUSTOM:*SOURCE-FILE-TYPES*</varname></link>'>
 <!ENTITY spacecharprint '<link linkend="spacecharprint"><varname>CUSTOM:*PRINT-SPACE-CHAR-ANSI*</varname></link>'>
 <!ENTITY spe-var-p '<link linkend="spe-var-p"><function>EXT:SPECIAL-VARIABLE-P</function></link>'>
+<!ENTITY st-position '<link linkend="st-position"><function>GRAY:STREAM-POSITION</function></link>'>
 <!ENTITY st-lc '<link linkend="st-lc"><function>GRAY:STREAM-LINE-COLUMN</function></link>'>
 <!ENTITY st-rb '<link linkend="st-rb"><function>GRAY:STREAM-READ-BYTE</function></link>'>
 <!ENTITY st-rbla '<link linkend="st-rbla"><function>GRAY:STREAM-READ-BYTE-LOOKAHEAD</function></link>'>
+<!ENTITY st-rbnh '<link linkend="rbnh"><function>GRAY:STREAM-READ-BYTE-NO-HANG</function></link>'>
+<!ENTITY st-rbwhp '<link linkend="rbwhp"><function>GRAY:STREAM-READ-BYTE-WILL-HANG-P</function></link>'>
 <!ENTITY st-rc '<link linkend="st-rc"><function>GRAY:STREAM-READ-CHAR</function></link>'>
 <!ENTITY st-rcnh '<link linkend="st-rcnh"><function>GRAY:STREAM-READ-CHAR-NO-HANG</function></link>'>
 <!ENTITY st-uc '<link linkend="st-uc"><function>GRAY:STREAM-UNREAD-CHAR</function></link>'>
@@ -430,7 +444,11 @@
 <!ENTITY structure-stablehash '<link linkend="make-hash"><classname>EXT:STRUCTURE-STABLEHASH</classname></link>'>
 <!ENTITY warn-on-hashtable-needing-rehash-after-gc '<link linkend="hashtable-gc-rehash-warn"><varname>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname></link>'>
 <!ENTITY err-pr-bt '<olink targetdoc="impnotes" targetptr="err-pr-bt"><varname>CUSTOM:*REPORT-ERROR-PRINT-BACKTRACE*</varname></olink>'>
-<!ENTITY http-proxy "<link linkend='http-proxy'><varname>CUSTOM:*HTTP-PROXY*</varname></link>">
+<!ENTITY http-proxy '<link linkend="http-proxy"><varname>CUSTOM:*HTTP-PROXY*</varname></link>'>
+<!ENTITY argv '<link linkend="argv"><function>EXT:ARGV</function></link>'>
+<!ENTITY mod-expt '<link linkend="mod-expt"><function>EXT:MOD-EXPT</function></link>'>
+<!ENTITY compiled-file-p '<link linkend="compiled-file-p"><function>EXT:COMPILED-FILE-P</function></link>'>
+
 <!-- *** pre-processors *** -->
 <!ENTITY modprep '<link linkend="modprep-file"><command>modprep</command></link>'>
 
@@ -438,6 +456,10 @@
 <!ENTITY resolve-host '<link linkend="resolve-host"><function>POSIX:RESOLVE-HOST-IPADDR</function></link>'>
 <!ENTITY rlimit '<link linkend="rlimit"><function>POSIX:RLIMIT</function></link>'>
 <!ENTITY mk-xterm-io '<link linkend="mk-xterm-io"><function>POSIX:MAKE-XTERM-IO-STREAM</function></link>'>
+<!ENTITY stream-options '<link linkend="fcntl"><function>POSIX:STREAM-OPTIONS</function></link>'>
+<!ENTITY stream-lock '<link linkend="stream-lock"><function>POSIX:STREAM-LOCK</function></link>'>
+<!ENTITY copy-file '<link linkend="copy-file"><function>POSIX:COPY-FILE</function></link>'>
+<!ENTITY dup-handle '<link linkend="dup-handle"><function>POSIX:DUPLICATE-HANDLE</function></link>'>
 
 <!-- *** netica *** -->
 <!ENTITY netica-link '<ulink url="http://norsys.com/netica_c_api.htm">Netica C API</ulink>'>

@@ -84,7 +84,7 @@ and is supported by most &cl; implementations currently in use.</para>
     &nil; after the stream has been closed.</simpara>
    <simpara>You do not need to add methods to this function.</simpara>
    </listitem></varlistentry>
- <varlistentry><term><code>(<function>GRAY:STREAM-POSITION</function>
+ <varlistentry id="st-position"><term><code>(&st-position;
     &stream-r; <replaceable>position</replaceable>)</code></term>
   <listitem><simpara>Just like &file-position;, but &nil;
     <replaceable>position</replaceable> means inquire.</simpara>
@@ -255,8 +255,7 @@ and is supported by most &cl; implementations currently in use.</para>
    immediately, returns &nil; instead of waiting.</simpara>
    &need-defmethod;<simpara>This function is a &clisp; extension (see
    &rbla;).</simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>GRAY:STREAM-READ-BYTE-WILL-HANG-P</function>
-                 &stream-r;)</code></term>
+ <varlistentry id="st-rbwhp"><term><code>(&st-rbwhp; &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &ubyte-8; or &sbyte-8;.
    Returns &nil; if &st-rb; will return immediately.
@@ -264,8 +263,7 @@ and is supported by most &cl; implementations currently in use.</para>
    <simpara>The default method calls &st-rbla;; this is always sufficient.
    </simpara><simpara>This function is a &clisp; extension (see &rbwhp;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>GRAY:STREAM-READ-BYTE-NO-HANG</function>
-                 &stream-r;)</code></term>
+ <varlistentry id="st-rbnh"><term><code>(&st-rbnh; &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &ubyte-8; or &sbyte-8;.
    Returns an &integer-t; or &eof-k;, like &st-rb;, if that would
