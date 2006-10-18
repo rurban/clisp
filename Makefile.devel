@@ -390,14 +390,13 @@ release : distrib upload tag-release
 
 ## RELEASE TODO:
 # Before doing a "make distrib":
-# * update version.sh, src/NEWS, src/HISTORY, clisp.lsm
+# * update version.sh, src/NEWS, clisp.lsm, doc/history.xml
 # * "make -f Makefile.devel all"
 # web pages to be updated:
 # * www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
 # dates to be updated:
 # * banner in spvw.d
 # * COPYRIGHT
-# * doc/impnotes.xml.in, doc/clisp.xml.in
 
 ## CLISP release announcements go to:
 # clisp-announce@lists.sourceforge.net

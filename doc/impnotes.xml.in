@@ -19,6 +19,7 @@
   <!ENTITY imp-ext-file SYSTEM "impext.xml">
   <!ENTITY imp-byte-file SYSTEM "impbyte.xml">
   <!ENTITY faq-file SYSTEM "faq.xml">
+  <!ENTITY history-file SYSTEM "history.xml">
   <!ENTITY % ent-bdb-file SYSTEM "../modules/berkeley-db/ent-bdb.xml">
   %ent-bdb-file;
   <!ENTITY berkeley-db-file SYSTEM "../modules/berkeley-db/berkeley-db.xml">
@@ -52,14 +53,7 @@
  <corpauthor><inlinemediaobject><imageobject><imagedata fileref="clisp.png"/>
  </imageobject></inlinemediaobject></corpauthor>
  <date>Last modified: @TODAY@</date>
- &clisp-authors; &clisp-doc-copyright;
- <abstract><para>These notes describe the &gnu; &clisp; - an
-   implementation of the &ansi-cl;.</para>
-  <para>See <olink targetdoc="man" targetptr="bugs"/> for instructions
-   on how to report bugs (both in these notes and in &clisp; itself).</para>
-  <para>See <xref linkend="faq-help"/> for information on &clisp;
-   support.</para></abstract>
-
+ &clisp-authors; &clisp-doc-copyright; &clisp-abstract; &history-file;
  <legalnotice id="legalese"><title>Legal Status of the &clisp;
    Implementation Notes</title>
   <para>These notes are dually licensed under &gnu; &gfdl; and &gnu; &gpl;.
