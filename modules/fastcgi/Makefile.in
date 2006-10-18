@@ -23,10 +23,10 @@ fastcgi.c:       fastcgi.lisp
 	$(CLISP) -c fastcgi.lisp
 
 fastcgi.o:       fastcgi.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -I.. -c fastcgi.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c fastcgi.c
 
 fastcgi_wrappers.o:       fastcgi_wrappers.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -I.. -c fastcgi_wrappers.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c fastcgi_wrappers.c
 
 # Make a module
 clisp-module : all
