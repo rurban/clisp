@@ -6,6 +6,8 @@ User visible changes
   Thanks to James Bailey <dgym.bailey@gmail.com> for the original code.
   See <http://clisp.cons.org/impnotes/gtk.html> for details.
 
+* FASTCGI:GETENV is compatible with EXT:GETENV and can return the
+  entire environment as an alist.
 
 
 2.41 (2006-10-13)
@@ -84,7 +86,7 @@ User visible changes
     <werner@suse.de>).
   + MAKE-PATHNAME on win32 now handles correctly directories that start
     with a non-string (e.g., :WILD). [ 1555096 ]
-  + SOCKET-STREAM-PEER and SOCKET-STREAM-LOCAL had do-not-resolved-p
+  + SOCKET-STREAM-PEER and SOCKET-STREAM-LOCAL had do-not-resolve-p
     inverted since 2.37.
   + Set functions with :TEST 'EQUALP were broken on large lists. [ 1567186 ]
 
