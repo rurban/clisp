@@ -189,13 +189,21 @@
  <span class="{@role}"><xsl:apply-imports/></span>
 </xsl:template>
 
-<xsl:template match="revision/revnumber">
+<xsl:template match="revision/revnumber" mode="titlepage.mode">
  <span class="revnumber"><xsl:apply-imports/></span>
 </xsl:template>
 
-<xsl:template match="revision/date">
+<xsl:template match="revision/date" mode="titlepage.mode">
  <span class="revdate"><xsl:apply-imports/></span>
 </xsl:template>
+
+<xsl:param name="local.l10n.xml" select="document('')"/>
+<l:i18n xmlns:l="http://docbook.sourceforge.net/xmlns/l10n/1.0">
+ <l:l10n language="en">
+  <l:gentext key="RevHistory" text="CLISP Release History"/>
+  <l:gentext key="Revision" text="Release"/>
+ </l:l10n>
+</l:i18n>
 
 <xsl:template match="emphasis[@role = 'plat-dep']">
  <span class="{@role}">

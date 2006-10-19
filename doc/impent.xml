@@ -193,6 +193,7 @@
 <!ENTITY case-sensitive-k '<link linkend="package-case"><constant>:CASE-SENSITIVE</constant></link>'>
 <!ENTITY modern-k '<link linkend="package-case"><constant>:MODERN</constant></link>'>
 <!ENTITY cd '<link linkend="cd"><function>EXT:CD</function></link>'>
+<!ENTITY default-dir '<link linkend="default-dir"><function>EXT:DEFAULT-DIRECTORY</function></link>'>
 <!ENTITY ch-ctrl '<link linkend="char-bits"><constant>EXT:CHAR-CONTROL-BIT</constant></link>'>
 <!ENTITY ch-hyper '<link linkend="char-bits"><constant>EXT:CHAR-HYPER-BIT</constant></link>'>
 <!ENTITY ch-meta '<link linkend="char-bits"><constant>EXT:CHAR-META-BIT</constant></link>'>
