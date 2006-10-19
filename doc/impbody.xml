@@ -3759,7 +3759,7 @@ This keyboard input is not echoed on the screen.  During execution of a
  built-in streams, such as <link linkend="terminal">terminal streams</link>,
  which is normally the value of &terminal-io-var;.
  Since &standard-input-var; normally is a &synonym-stream-t; pointing
- to &terminal-io-var;, you cannot use &read-byte; in the it.</para>
+ to &terminal-io-var;, you cannot use &read-byte; on it.</para>
 
 <para>Since <ulink url="http://hoohoo.ncsa.uiuc.edu/cgi/">CGI</ulink>
  (Common Gateway Interface) provides the form data for
