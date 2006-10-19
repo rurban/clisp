@@ -64,5 +64,5 @@ h6 { font-size: 110%; }
 td span.term, dt span.term { font-weight: bold; }
 
 /* revhistory */
-.revnumber { background-color: lightcyan; color: darkred; font-weight: bold; }
-.revdate { background-color: lightyellow; color: darkred; font-weight: bold; }
+.revnumber { background-color: lightblue; color: darkred; font-weight: bold; }
+.revdate { background-color: lightgreen; color: darkred; font-weight: bold; }
