@@ -12,7 +12,7 @@
 
 <section id="gtk-hi"><title>High-level functions</title>
 <variablelist>
- <varlistentry><term><code>(run-glade-file &filename-r;)</code></term>
+ <varlistentry><term><code>(run-glade-file &filename-r; widget)</code></term>
   <listitem><simpara>Run the UI described in the &glade;-generated file
     &filename-r;.</simpara></listitem></varlistentry>
 </variablelist>

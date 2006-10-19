@@ -43,7 +43,7 @@
 ;; Boston, MA 02110-1301, USA.
 
 (defpackage "GTK"
-  (:use "CL" "FFI") (:modern t)
+  (:use "CL" "FFI" "EXT") (:modern t)
   (:shadowing-import-from
    "EXPORTING" #:def-c-struct #:def-call-out #:def-c-type #:defun))
 
@@ -481,13 +481,55 @@ signal specific parameters, but not a data parameter."
 ;;; High-level UI
 ;;;
 
-(defun run-glade-file (file)
+(defun run-glade-file (file widget-name)
   (gtk_init nil nil)
   (gtk_widget_show_all
    (glade_xml_get_widget
-    (glade_xml_new file nil nil)
-    "clisp-gui-main"))
+    (glade_xml_new (namestring (absolute-pathname file)) nil nil)
+    widget-name))
   (gtk_main))
+
+;;;
+;;; clisp gui
+;;;
+
+(defstruct gui main repl apropos status about-window about-text)
+(defvar *gui*)
+(defun gui-from-file (file)
+  (let ((xml (or (glade_xml_new (namestring (truename (absolute-pathname file)))
+                                nil nil)
+                 (error "~S(~S): ~S load failed" 'gui-from-file file
+                        'glade_xml_new))))
+    (flet ((widget (name)
+             (or (glade_xml_get_widget xml name)
+                 (error "~S(~S): not found ~S" 'gui-from-file file name))))
+      (make-gui :main (widget "clisp-gui-main")
+                :repl (widget "textview_repl")
+                :apropos (widget "entry1_apropos")
+                :status (widget "statusbar1")
+                :about-window (widget "dialog1_about")
+                :about-text (widget "textview_about")))))
+
+(defun gui-apropos-do (&optional (*gui* *gui*))
+  (apropos (gtk_entry_get_text (gui-apropos *gui*))))
+
+(defun gui-status-show (string &optional (*gui* *gui*))
+  (gtk_statusbar_push (gui-status *gui*) (length string) string))
+
+(defun gui-about-do (&optional (*gui* *gui*))
+  )
+
+(defun gui-quit (&optional (*gui* *gui*))
+  (gui-status-show (SYS::TEXT "Bye!"))
+  (gtk_main_quit)
+  (throw 'gui-quit 0))
+
+(defun gui (file)
+  (gtk_init nil nil)
+  (let ((*gui* (gui-from-file file)))
+    (gui-status-show (SYS::TEXT "Welcome to CLISP!"))
+    (gtk_widget_show_all (gui-main *gui*)))
+  (catch 'gui-quit (gtk_main)))
 
 ;;; done
 (pushnew :gtk *features*)
