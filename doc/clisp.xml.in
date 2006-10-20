@@ -468,9 +468,12 @@ compiles the specified lisp files to a platform-independent
    <olink targetdoc="impnotes" targetptr="environment"/>.
 </simpara></listitem></varlistentry>
 
-<varlistentry><term>(&apropos; &name-r;)</term>
- <listitem><simpara><olink targetdoc="impnotes" targetptr="apropos">list
-    the symbols</olink> matching to &name-r;.
+<varlistentry><term>(&apropos-my; &name-r;)</term>
+ <listitem><simpara>list the &symbol-t;s matching &name-r;.
+</simpara></listitem></varlistentry>
+
+<varlistentry><term>(&describe-my; &symbol-r;)</term>
+ <listitem><simpara>describe the &symbol-r;.
 </simpara></listitem></varlistentry>
 
 <varlistentry><term>(exit)</term><term>(quit)</term><term>(bye)</term>
@@ -510,7 +513,7 @@ compiles the specified lisp files to a platform-independent
      command.</simpara></listitem>
    <listitem><simpara>If you have not started typing the next symbol
      (i.e., you are at a whitespace), the current function or macro is
-     &describe;d.</simpara></listitem>
+     &describe-my;d.</simpara></listitem>
    <listitem><simpara>Otherwise, the symbol you are currently typing is
      completed.</simpara></listitem></itemizedlist>
 </para></listitem></varlistentry>
@@ -720,26 +723,9 @@ following information:
    all the error messages, as well as detailed instructions on how to
    reproduce them.</simpara></listitem></orderedlist></para>
 
-<para>Known bugs, some of which may be platform-dependent, include:
-<itemizedlist>
-<!-- #ifdef SPVW_MIXED_BLOCKS -->
-<listitem><simpara>The memory management scheme is not very flexible.
-</simpara></listitem>
-<!-- #endif -->
-<!-- #ifdef UNIX_COHERENT -->
-<listitem><simpara>&kbd-in; does not
-  recognize <keycombo>&ctrl;<keysym>S</keysym></keycombo>
-  and <keycombo>&ctrl;<keysym>Q</keysym></keycombo>.</simpara></listitem>
-<!-- #endif -->
-<listitem><simpara>No on-line documentation beyond &apropos;
-  and &describe; is available.</simpara></listitem>
-</itemizedlist></para>
-</refsection>
-
 <refsection id="projects"><title>Projects</title>
 
 <itemizedlist>
- <listitem><simpara>Write on-line documentation.</simpara></listitem>
  <listitem><simpara>Enhance the compiler so that it can inline local
    functions.</simpara></listitem>
  <listitem><simpara>Add Multi-Threading capabilities, via OS
