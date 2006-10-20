@@ -21,8 +21,8 @@
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
   <property name="urgency_hint">False</property>
-  <signal name="delete_event" handler="(gui-quit)" last_modification_time="Wed, 18 Oct 2006 20:13:05 GMT"/>
-  <signal name="destroy_event" handler="(gui-quit)" last_modification_time="Thu, 19 Oct 2006 04:52:39 GMT"/>
+  <signal name="delete_event" handler="(gtk:gui-quit)" last_modification_time="Wed, 18 Oct 2006 20:13:05 GMT"/>
+  <signal name="destroy_event" handler="(gtk:gui-quit)" last_modification_time="Thu, 19 Oct 2006 04:52:39 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox1">
@@ -92,8 +92,8 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-quit</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="(gui-quit)" last_modification_time="Wed, 18 Oct 2006 20:13:27 GMT"/>
-		      <signal name="activate_item" handler="(gui-quit)" last_modification_time="Thu, 19 Oct 2006 04:54:18 GMT"/>
+		      <signal name="activate" handler="(gtk:gui-quit)" last_modification_time="Wed, 18 Oct 2006 20:13:27 GMT"/>
+		      <signal name="activate_item" handler="(gtk:gui-quit)" last_modification_time="Thu, 19 Oct 2006 04:54:18 GMT"/>
 		    </widget>
 		  </child>
 		</widget>
