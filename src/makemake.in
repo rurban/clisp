@@ -828,7 +828,7 @@ if [ -z "$docdir" ] ; then
         docdir="\$(datadir)${NEXT_}doc${NEXT_}packages${NEXT_}clisp"
         ;;
       redhat)
-        docdir="\$(datadir)${NEXT_}doc${NEXT_}\$(CLISP_VERSION)"
+        docdir="\$(datadir)${NEXT_}doc${NEXT_}\$(TOPDIR)"
         ;;
       debian | gnu_ext | *bsd)
         docdir="\$(datadir)${NEXT_}doc${NEXT_}clisp"
@@ -1894,6 +1894,16 @@ if [ ${TSYS} = win32gcc ]; then
   echol
 fi
 
+echol "# The official version number"
+echol "VERSION="`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
+echol "# If you want to distribute a modified version of CLISP,"
+echol "# use this to distinguish your distribution from the official one."
+echol "# This can also be used for pre-test and post-release distributions:"
+echol "#   make distrib VERSION_SUFFIX=pre"
+echol "VERSION_SUFFIX="
+echol "# The distribution's top directory"
+echol 'TOPDIR=clisp-$(VERSION)$(VERSION_SUFFIX)'
+echol
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
@@ -1906,7 +1916,7 @@ echol "dvidir  = ${DVIDIR}"
 echol "psdir   = ${PSDIR}"
 echol "pdfdir  = ${PDFDIR}"
 echol "libdir  = ${LIBDIR}"
-echol "lisplibdir = \$(libdir)${NEXT_}clisp"
+echol "lisplibdir = \$(libdir)${NEXT_}\$(TOPDIR)"
 if [ -n "$USE_GETTEXT" ] ; then
   echol "localedir = ${LOCALEDIR}"
 fi
@@ -2187,16 +2197,6 @@ if [ $HOS = unix ] ; then
   esac
   echol
 fi
-echol "# The official version number"
-echol "VERSION="`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
-echol "# If you want to distribute a modified version of CLISP,"
-echol "# use this to distinguish your distribution from the official one."
-echol "# This can also be used for pre-test and post-release distributions:"
-echol "#   make distrib VERSION_SUFFIX=pre"
-echol "VERSION_SUFFIX="
-echol "# The distribution's top directory"
-echol 'TOPDIR=clisp-$(VERSION)$(VERSION_SUFFIX)'
-echol
 echol "# Add-on modules that are present in all linking sets (including base)"
 echol "# syscalls             export some POSIX (and other) system calls"
 echol "# regexp               POSIX regular expressions"
