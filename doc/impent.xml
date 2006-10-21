@@ -409,6 +409,7 @@
 <!ENTITY ts '<link linkend="time"><function>EXT:TIMES</function></link>'>
 <!ENTITY uncompile '<link linkend="uncompile"><function>EXT:UNCOMPILE</function></link>'>
 <!ENTITY user-commands '<link linkend="user-commands"><varname>CUSTOM:*USER-COMMANDS*</varname></link>'>
+<!ENTITY ucs-4 '<link linkend="charset-UCS-4"><constant>CHARSET:UCS-4</constant></link>'>
 <!ENTITY utf-8 '<link linkend="charset-UTF-8"><constant>CHARSET:UTF-8</constant></link>'>
 <!ENTITY utf-16 '<link linkend="charset-UTF-16"><constant>CHARSET:UTF-16</constant></link>'>
 <!ENTITY warn-fpc '<link linkend="warn-fpc"><varname>CUSTOM:*WARN-ON-FLOATING-POINT-CONTAGION*</varname></link>'>
