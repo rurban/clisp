@@ -215,7 +215,7 @@
 
 <revision><revnumber>2.21</revnumber><date>1998-09-09</date>
  <revdescription><itemizedlist>
-   <listitem><simpara>Removed module STDWIN</simpara></listitem>
+   <listitem><simpara>Removed module STDWIN.</simpara></listitem>
    <listitem><simpara>&warn-fpc;, &flocont;, &floating-point-inexact-t;,
      &floating-point-invalid-operation-t;</simpara></listitem>
    <listitem><simpara>&probe-dir;,
@@ -282,8 +282,8 @@
 </simpara></listitem></itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.27</revnumber><date>2001-07-17</date>
- <revdescription><itemizedlist><listitem><simpara>&setf;
-     &getenv;</simpara></listitem>
+ <revdescription><itemizedlist>
+   <listitem><simpara><code>(&setf; &getenv;)</code></simpara></listitem>
    <listitem><simpara><filename role="clisp-cvs">src/install.bat</filename></simpara></listitem>
 </itemizedlist></revdescription></revision>
 
@@ -304,8 +304,8 @@
 
 <revision><revnumber>2.30</revnumber><date>2002-09-15</date>
  <revdescription><itemizedlist><listitem><simpara>Do not bundle
-    libiconv, gettext, readline, libsigsegv</simpara></listitem>
-   <listitem><simpara>UCS-4</simpara></listitem>
+    &libiconv;, &ggettext;, &readline;, &libsigsegv;</simpara></listitem>
+   <listitem><simpara>&ucs-4;</simpara></listitem>
    <listitem><simpara>&parsedot;</simpara></listitem>
    <listitem><simpara>&sost-shut;</simpara></listitem>
    <listitem><simpara>&stream-lock;, &copy-file;,
@@ -352,12 +352,13 @@
    <listitem><simpara><xref linkend="mop-chap"/></simpara></listitem>
    <listitem><simpara><xref linkend="weak"/></simpara></listitem>
    <listitem><simpara><xref linkend="package-case"/></simpara></listitem>
-   <listitem><simpara>&set-global-handler;, &without-global-handlers;</simpara></listitem>
+   <listitem><simpara>&set-global-handler;,
+     &without-global-handlers;</simpara></listitem>
    <listitem><simpara>Portability: removed &dos; and &os2;
-     support</simpara></listitem>
+     support.</simpara></listitem>
    <listitem><simpara>New modules: <xref linkend="matlab"/>,
      <xref linkend="rawsock"/>, <xref linkend="zlib"/>,
-     <xref linkend="i18n"/>, <xref linkend="pari"/></simpara></listitem>
+     <xref linkend="i18n-mod"/>, <xref linkend="pari"/>.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.35</revnumber><date>2005-08-29</date>
@@ -396,7 +397,7 @@
 
 <revision><revnumber>2.40</revnumber><date>2006-09-23</date>
  <revdescription><itemizedlist><listitem><simpara>Keep doc string and
-     lambda list in the closure object.</simpara></listitem>
+     &lalist; in the closure object.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.41</revnumber><date>2006-10-13</date>
