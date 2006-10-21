@@ -281,8 +281,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
     these characters translate into raw bytes, i.e., the map between
     sequences of &character-t; and &ubyte-8; in the form of &string-t;s
     and &ubyte-vec; as well as character and byte &stream-t;s.
-    In this context, for example, &utf-8; and
-    <link linkend="charset-UCS-4"><constant>CHARSET:UCS-4</constant></link>
+    In this context, for example, &utf-8; and &ucs-4;
     are considered different, although they can represent the same set
     of characters.</simpara></listitem></varlistentry>
  <varlistentry><term>&line-term; mode</term>
