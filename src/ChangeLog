@@ -1,3 +1,10 @@
+2006-10-21  "José H. Espinosa"  <jose.h.espinosa@gmail.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (MODULE_CPPFLAGS) [with_dynamic_modules]:
+	remove a spurious space that caused
+	"error: `CPPFLAGS' has changed since the previous run"
+
 2006-10-19  Sam Steingold  <sds@podval.org>
 
 	* makemake.in (docdir) [redhat]: replaced CLISP_VERSION with TOPDIR
