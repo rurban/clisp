@@ -1994,7 +1994,7 @@ fi
 echol "X_LIBS = ${X_LIBS}"
 X_LIBS="\$(X_LIBS)"
 if [ "${with_dynamic_modules}" != no ]; then
-  echol 'MODULE_CPPFLAGS = $(CPPFLAGS) '
+  echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'
   echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
   echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${XCC_DLOPENABLE_EXE_FLAG}"
   MODULE_CPPFLAGS_VAR='MODULE_CPPFLAGS'
