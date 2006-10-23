@@ -2,6 +2,7 @@
 
 	* threads.lisp (process-unlock): fixed TEXT call
 	(yes-or-no-p-timeout): added
+	* xthread.d: "extern inline" --> "static inline"
 
 2006-10-21  "José H. Espinosa"  <jose.h.espinosa@gmail.com>
 	    Sam Steingold  <sds@gnu.org>
