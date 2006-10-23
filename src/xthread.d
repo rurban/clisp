@@ -1,103 +1,106 @@
-# Cross-platform thread support
-# Bruno Haible 1997-1999
+/*
+ * Cross-platform thread support
+ * Bruno Haible 1997-1999
+ */
 
-# =============================================================================
-# This part is heavily influenced by the file <X11/Xthreads.h> from X11R6,
-# which carries the following copyright:
-# -----------------------------------------------------------------------------
-# Copyright (c) 1993  X Consortium
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-# X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-# AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-# Except as contained in this notice, the name of the X Consortium shall not be
-# used in advertising or otherwise to promote the sale, use or other dealings
-# in this Software without prior written authorization from the X Consortium.
-# -----------------------------------------------------------------------------
+/* =============================================================================
+ This part is heavily influenced by the file <X11/Xthreads.h> from X11R6,
+ which carries the following copyright:
+ -----------------------------------------------------------------------------
+ Copyright (c) 1993  X Consortium
 
-# Upon entry to this file, one of these symbols shall be defined:
-# POSIX_THREADS       POSIX.1c            pthread_*
-# POSIXOLD_THREADS    POSIX.1c draft 4    pthread_*
-# SOLARIS_THREADS     Solaris 2.4, 2.5    thr_*
-# C_THREADS           Mach(?), AIX        cthread_*
-# WIN32_THREADS       Win32               *Thread
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-# This file defines the following types:
-#   xthread_t         Type of a thread
-#   xcondition_t      Type of a condition (wait queue with signalling)
-#   xmutex_t          Type of a mutex (mutually exclusive lock)
-#   xthread_key_t     Type of a key for accessing (limited) thread-local storage
-# and the following functions/macros:
-# # Threads in general:
-#   # Initialization of the thread subsystem.
-#   extern void           xthread_init (void);
-#   # Return the current thread.
-#   extern xthread_t      xthread_self (void);
-#   # Create a new thread.
-#   extern int            xthread_create (xthread_t* thread, void* (*startroutine) (void*), void* arg);
-#   # Terminate the current thread.
-#   extern void           xthread_exit (void* retvalue);
-#   # Give other threads a chance to run.
-#   extern void           xthread_yield (void);
-#   # Compare two threads for identity.
-#   extern bool        xthread_equal (xthread_t thread1, xthread_t thread2);
-# # Conditions:
-#   # Initialize a wait queue.
-#   extern int            xcondition_init (xcondition_t* c);
-#   # Destroy a wait queue. The wait queue must be empty (noone waiting).
-#   extern int            xcondition_destroy (xcondition_t* c);
-#   # Release a mutex and put the current thread into the wait queue.
-#   # When the wait ends, the mutex is acquired again.
-#   extern int            xcondition_wait (xcondition_t* c, xmutex_t* m);
-#   # Notify and unblock one thread in the wait queue.
-#   extern int            xcondition_signal (xcondition_t* c);
-#   # Notify and unblock all threads in the wait queue.
-#   extern int            xcondition_broadcast (xcondition_t* c);
-# # Mutexes:
-#   # Initialize a mutex.
-#   extern int            xmutex_init (xmutex_t* m);
-#   # Destroy a mutex.
-#   extern int            xmutex_destroy (xmutex_t* m);
-#   # Lock a mutex.
-#   extern int            xmutex_lock (xmutex_t* m);
-#   # Unlock a mutex.
-#   extern int            xmutex_unlock (xmutex_t* m);
-# # Thread-local storage:
-#   # (This is probably not useful at all. The number of thread-local storage
-#   # words is limited: 512 on Win32, 128 with LinuxThreads. And it's probably
-#   # much slower than my current_thread() function.)
-#   # Create a word of thread-local storage, and return a key to it.
-#   extern int            xthread_key_create (xthread_key_t* key);
-#   # Delete a word of thread-local storage.
-#   extern int            xthread_key_delete (xthread_key_t key);
-#   # Get the value of the thread-local storage word for the current thread.
-#   extern void*          xthread_key_get (xthread_key_t key);
-#   # Set the value of the thread-local storage word for the current thread.
-#   extern void           xthread_key_set (xthread_key_t key, void* value);
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+ AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ Except as contained in this notice, the name of the X Consortium shall not be
+ used in advertising or otherwise to promote the sale, use or other dealings
+ in this Software without prior written authorization from the X Consortium.
+ -----------------------------------------------------------------------------
+
+ Upon entry to this file, one of these symbols shall be defined:
+ POSIX_THREADS       POSIX.1c            pthread_*
+ POSIXOLD_THREADS    POSIX.1c draft 4    pthread_*
+ SOLARIS_THREADS     Solaris 2.4, 2.5    thr_*
+ C_THREADS           Mach(?), AIX        cthread_*
+ WIN32_THREADS       Win32               *Thread
+
+ This file defines the following types:
+   xthread_t         Type of a thread
+   xcondition_t      Type of a condition (wait queue with signalling)
+   xmutex_t          Type of a mutex (mutually exclusive lock)
+   xthread_key_t     Type of a key for accessing (limited) thread-local storage
+ and the following functions/macros:
+ # Threads in general:
+   # Initialization of the thread subsystem.
+   extern void           xthread_init (void);
+   # Return the current thread.
+   extern xthread_t      xthread_self (void);
+   # Create a new thread.
+   extern int            xthread_create (xthread_t* thread, void* (*startroutine) (void*), void* arg);
+   # Terminate the current thread.
+   extern void           xthread_exit (void* retvalue);
+   # Give other threads a chance to run.
+   extern void           xthread_yield (void);
+   # Compare two threads for identity.
+   extern bool        xthread_equal (xthread_t thread1, xthread_t thread2);
+ # Conditions:
+   # Initialize a wait queue.
+   extern int            xcondition_init (xcondition_t* c);
+   # Destroy a wait queue. The wait queue must be empty (noone waiting).
+   extern int            xcondition_destroy (xcondition_t* c);
+   # Release a mutex and put the current thread into the wait queue.
+   # When the wait ends, the mutex is acquired again.
+   extern int            xcondition_wait (xcondition_t* c, xmutex_t* m);
+   # Notify and unblock one thread in the wait queue.
+   extern int            xcondition_signal (xcondition_t* c);
+   # Notify and unblock all threads in the wait queue.
+   extern int            xcondition_broadcast (xcondition_t* c);
+ # Mutexes:
+   # Initialize a mutex.
+   extern int            xmutex_init (xmutex_t* m);
+   # Destroy a mutex.
+   extern int            xmutex_destroy (xmutex_t* m);
+   # Lock a mutex.
+   extern int            xmutex_lock (xmutex_t* m);
+   # Unlock a mutex.
+   extern int            xmutex_unlock (xmutex_t* m);
+ # Thread-local storage:
+   # (This is probably not useful at all. The number of thread-local storage
+   # words is limited: 512 on Win32, 128 with LinuxThreads. And it's probably
+   # much slower than my current_thread() function.)
+   # Create a word of thread-local storage, and return a key to it.
+   extern int            xthread_key_create (xthread_key_t* key);
+   # Delete a word of thread-local storage.
+   extern int            xthread_key_delete (xthread_key_t key);
+   # Get the value of the thread-local storage word for the current thread.
+   extern void*          xthread_key_get (xthread_key_t key);
+   # Set the value of the thread-local storage word for the current thread.
+   extern void           xthread_key_set (xthread_key_t key, void* value);
+*/
 
 
 #if !(defined(POSIX_THREADS) || defined(POSIXOLD_THREADS) || defined(SOLARIS_THREADS) || defined(C_THREADS) || defined(WIN32_THREADS))
   #error "Define your flavour of multithreading"
 #endif
 
-# NOTE: This file is not yet finished. The primary target is POSIX_THREADS.
-# For the other targets, the error checking needs to be improved.
+/* NOTE: This file is not yet finished. The primary target is POSIX_THREADS.
+ For the other targets, the error checking needs to be improved.
 
-# NOTE 2: Some of the macros in this file require gcc.
+ NOTE 2: Some of the macros in this file require gcc. */
 
 #if defined(POSIX_THREADS) || defined(POSIXOLD_THREADS)
 
@@ -159,7 +162,7 @@ typedef pthread_key_t     xthread_key_t;
 #endif
 #define xthread_key_set(key,val)  pthread_setspecific(key,val)
 
-#endif # POSIX*_THREADS
+#endif  /* POSIX*_THREADS */
 
 
 #if defined(SOLARIS_THREADS)
@@ -196,7 +199,7 @@ typedef thread_key_t      xthread_key_t;
   ({ void* _tmp; thr_getspecific(key,&_tmp); _tmp; })
 #define xthread_key_set(key,val)  thr_setspecific(key,val)
 
-#endif # SOLARIS_THREADS
+#endif  /* SOLARIS_THREADS */
 
 
 #if defined(C_THREADS)
@@ -206,7 +209,7 @@ typedef thread_key_t      xthread_key_t;
 typedef cthread_t         xthread_t;
 typedef struct condition  xcondition_t;
 typedef struct mutex      xmutex_t;
-# not available:          xthread_key_t;
+/* not available:          xthread_key_t; */
 
 #define xthread_init()  cthread_init()
 #define xthread_self()  cthread_self()
@@ -226,12 +229,12 @@ typedef struct mutex      xmutex_t;
 #define xmutex_lock(m)  mutex_lock(m)
 #define xmutex_unlock(m)  mutex_unlock(m)
 
-#endif # C_THREADS
+#endif  /* C_THREADS */
 
 
 #if defined(WIN32_THREADS)
 
-# include <windows.h>  # already included by win32.d
+/* include <windows.h>  -- already included by win32.d */
 
 typedef DWORD              xthread_t;
 struct _xthread_waiter {
@@ -251,7 +254,7 @@ typedef DWORD              xthread_key_t;
 #define xthread_create(thread,startroutine,arg)  \
   CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)startroutine,(LPVOID)arg,0,thread)
 #define xthread_exit(v)  ExitThread((DWORD)(v))
-#define xthread_yield()  Sleep(0)??
+#define xthread_yield()  Sleep(0)FIXME
 #define xthread_equal(t1,t2)  ((t1)==(t2))
 
 #define xcondition_init(c)                                              \
@@ -260,14 +263,14 @@ typedef DWORD              xthread_key_t;
   DeleteCriticalSection(&(c)->cs);
 #define xcondition_wait(c,m)                                        \
   do { struct _xthread_waiter self_waiting;                         \
-    InitializeSemaphore(self_waiting.sem,??);                       \
+    InitializeSemaphore(self_waiting.sem,FIXME);                    \
     EnterCriticalSection(&(c)->cs);                                 \
     self_waiting.next = (c)->waiters; (c)->waiters = &self_waiting; \
     LeaveCriticalSection(&(c)->cs);                                 \
     LeaveCriticalSection(m);                                        \
     WaitForSingleObject(self_waiting.sem,INFINITE);                 \
     EnterCriticalSection(m);                                        \
-    DeleteSemaphore(self_waiting.sem,??);                           \
+    DeleteSemaphore(self_waiting.sem,FIXME);                        \
   } while(0)
 #define xcondition_signal(c)                                           \
   do { EnterCriticalSection(&(c)->cs);                                 \
@@ -296,35 +299,35 @@ typedef DWORD              xthread_key_t;
 #define xthread_key_get(key)  TlsGetValue(key)
 #define xthread_key_set(key,val)  TlsSetValue(key,val)
 
-#endif # WIN32_THREADS
+#endif  /* WIN32_THREADS */
 
 
-# =============================================================================
+/* ==========================================================================
 
-# Spin-locks.
-# This is the most elementary kind of locks.
-# Acquiring and releasing of a spin-lock can be considered an atomic operation.
-# Differences between spin-locks and mutexes:
-# - Spin-locks have to be locked only for a short time; no blocking system
-#   calls must be performed with a spin-lock held; no other locks can be
-#   acquired while a spin-lock is held.
-# - Therefore spin-locks can be assumed to be unlocked "soon", without any
-#   particular action to be performed. When trying to acquire a spin-lock which
-#   is currently locked, all you can do is sit down and spin ("Däumchen drehen"
-#   in German).
-# - Acquiring a lock which is previously unlocked, and releasing a lock are
-#   fast operations.
+ Spin-locks.
+ This is the most elementary kind of locks.
+ Acquiring and releasing of a spin-lock can be considered an atomic operation.
+ Differences between spin-locks and mutexes:
+ - Spin-locks have to be locked only for a short time; no blocking system
+   calls must be performed with a spin-lock held; no other locks can be
+   acquired while a spin-lock is held.
+ - Therefore spin-locks can be assumed to be unlocked "soon", without any
+   particular action to be performed. When trying to acquire a spin-lock which
+   is currently locked, all you can do is sit down and spin ("Däumchen drehen"
+   in German).
+ - Acquiring a lock which is previously unlocked, and releasing a lock are
+   fast operations. */
 
 #if defined(GNU) && (defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386) || defined(DECALPHA))
 
-  typedef int spinlock_t;  # A value 0 means unlocked, != 0 means locked.
+  typedef int spinlock_t; /* A value 0 means unlocked, != 0 means locked. */
 
-  # The following atomic operations are borrowed from LinuxThreads-0.6
-  # and were mostly written by Richard Henderson <rth@tamu.edu>.
+  /* The following atomic operations are borrowed from LinuxThreads-0.6
+   and were mostly written by Richard Henderson <rth@tamu.edu>.
 
-  # testandset(spinlock) tries to acquire the spinlock. It returns
-  # 0 if it succeeded (i.e. the old value was 0, the new one is != 0).
-  # It returns != 0 if it failed (i.e. the old value was != 0).
+   testandset(spinlock) tries to acquire the spinlock. It returns
+   0 if it succeeded (i.e. the old value was 0, the new one is != 0).
+   It returns != 0 if it failed (i.e. the old value was != 0). */
 
   extern inline void spinlock_init (int* spinlock)
   { *spinlock = 0; }
@@ -421,14 +424,14 @@ typedef DWORD              xthread_key_t;
 
 #elif defined(GNU) && defined(HPPA)
 
-  # This is borrowed from glibc-2.0.4.
+  /* This is borrowed from glibc-2.0.4. */
 
   typedef int spinlock_t __attribute__((__aligned__(16)));
-  # A value -1 means unlocked, 0 means locked.
+  /* A value -1 means unlocked, 0 means locked. */
 
-  # testandset(spinlock) tries to acquire the spinlock. It returns
-  # 0 if it succeeded (i.e. the old value was -1, the new one is 0).
-  # It returns != 0 if it failed (i.e. the old value was 0).
+  /* testandset(spinlock) tries to acquire the spinlock. It returns
+   0 if it succeeded (i.e. the old value was -1, the new one is 0).
+   It returns != 0 if it failed (i.e. the old value was 0). */
 
   extern inline void spinlock_init (int* spinlock)
   { *spinlock = -1; }
@@ -449,7 +452,7 @@ typedef DWORD              xthread_key_t;
 
 #else
 
-  # Slow, but portable.
+  /* Slow, but portable. */
 
   typedef xmutex_t spinlock_t;
 
@@ -465,4 +468,4 @@ typedef DWORD              xthread_key_t;
 #endif
 
 
-# =============================================================================
+/* ====================================================================== */
