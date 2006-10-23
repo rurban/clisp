@@ -1,3 +1,8 @@
+2006-10-22  Sam Steingold  <sds@gnu.org>
+
+	* threads.lisp (process-unlock): fixed TEXT call
+	(yes-or-no-p-timeout): added
+
 2006-10-21  "José H. Espinosa"  <jose.h.espinosa@gmail.com>
 	    Sam Steingold  <sds@gnu.org>
 
