@@ -329,10 +329,10 @@ typedef DWORD              xthread_key_t;
    0 if it succeeded (i.e. the old value was 0, the new one is != 0).
    It returns != 0 if it failed (i.e. the old value was != 0). */
 
-  extern inline void spinlock_init (int* spinlock)
+  static inline void spinlock_init (int* spinlock)
   { *spinlock = 0; }
   #ifdef MC680X0
-    extern inline int testandset (int* spinlock)
+    static inline int testandset (int* spinlock)
     { char ret;
       __asm__ __volatile__("tas %1; sne %0"
                            : "=g" (ret), "=m" (*spinlock)
@@ -341,11 +341,11 @@ typedef DWORD              xthread_key_t;
                           );
       return ret;
     }
-    extern inline void spinlock_release (int* spinlock)
+    static inline void spinlock_release (int* spinlock)
     { *spinlock = 0; }
   #endif
   #ifdef SPARC
-    extern inline int testandset (int* spinlock)
+    static inline int testandset (int* spinlock)
     { int ret;
       __asm__ __volatile__("ldstub %1,%0"
                            : "=r" (ret), "=m" (*spinlock)
@@ -353,7 +353,7 @@ typedef DWORD              xthread_key_t;
                           );
       return ret;
     }
-    extern inline void spinlock_release (int* spinlock)
+    static inline void spinlock_release (int* spinlock)
     { __asm__ __volatile__("stbar; stb %1,%0"
                            : "=m" (*spinlock)
                            : "r" (0)
@@ -361,7 +361,7 @@ typedef DWORD              xthread_key_t;
     }
   #endif
   #ifdef MIPS
-    extern inline long testandset (int* spinlock)
+    static inline long testandset (int* spinlock)
     { long ret;
       long temp;
       __asm__ __volatile__("#Inline spinlock test & set"
@@ -381,11 +381,11 @@ typedef DWORD              xthread_key_t;
                           );
       return ret;
     }
-    extern inline void spinlock_release (int* spinlock)
+    static inline void spinlock_release (int* spinlock)
     { *spinlock = 0; }
   #endif
   #ifdef I80386
-    extern inline long testandset (int* spinlock)
+    static inline long testandset (int* spinlock)
     { int ret;
       __asm__ __volatile__("xchgl %0,%1"
                            : "=&r" (ret), "=m" (*spinlock)
@@ -393,11 +393,11 @@ typedef DWORD              xthread_key_t;
                           );
       return ret;
     }
-    extern inline void spinlock_release (int* spinlock)
+    static inline void spinlock_release (int* spinlock)
     { *spinlock = 0; }
   #endif
   #ifdef DECALPHA
-    extern inline long testandset (int* spinlock)
+    static inline long testandset (int* spinlock)
     { long ret;
       long temp;
       __asm__ __volatile__("/* Inline spinlock test & set */"
@@ -414,12 +414,12 @@ typedef DWORD              xthread_key_t;
                           );
       return ret;
     }
-    extern inline void spinlock_release (int* spinlock)
+    static inline void spinlock_release (int* spinlock)
     { __asm__ __volatile__("mb" : : : "memory"); *spinlock = 0; }
   #endif
-  extern inline void spinlock_acquire (int* spinlock)
+  static inline void spinlock_acquire (int* spinlock)
   { while (testandset(spinlock)) { xthread_yield(); } }
-  extern inline void spinlock_destroy (int* spinlock)
+  static inline void spinlock_destroy (int* spinlock)
   { unused spinlock; }
 
 #elif defined(GNU) && defined(HPPA)
@@ -433,9 +433,9 @@ typedef DWORD              xthread_key_t;
    0 if it succeeded (i.e. the old value was -1, the new one is 0).
    It returns != 0 if it failed (i.e. the old value was 0). */
 
-  extern inline void spinlock_init (int* spinlock)
+  static inline void spinlock_init (int* spinlock)
   { *spinlock = -1; }
-  extern inline int testandset (int* spinlock)
+  static inline int testandset (int* spinlock)
   { int ret;
     __asm__ __volatile__("ldcws %0,%1"
                          : "=m" (*spinlock), "=r" (ret)
@@ -443,11 +443,11 @@ typedef DWORD              xthread_key_t;
                         );
     return ret;
   }
-  extern inline void spinlock_acquire (int* spinlock)
+  static inline void spinlock_acquire (int* spinlock)
   { while (testandset(spinlock)) { xthread_yield(); } }
-  extern inline void spinlock_release (int* spinlock)
+  static inline void spinlock_release (int* spinlock)
   { *spinlock = -1; }
-  extern inline void spinlock_destroy (int* spinlock)
+  static inline void spinlock_destroy (int* spinlock)
   { unused spinlock; }
 
 #else
@@ -456,13 +456,13 @@ typedef DWORD              xthread_key_t;
 
   typedef xmutex_t spinlock_t;
 
-  extern inline void spinlock_init (spinlock_t* spinlock)
+  static inline void spinlock_init (spinlock_t* spinlock)
   { int err = xmutex_init(spinlock); if (err) OS_error(); }
-  extern inline void spinlock_acquire (spinlock_t* spinlock)
+  static inline void spinlock_acquire (spinlock_t* spinlock)
   { int err = xmutex_lock(spinlock); if (err) OS_error(); }
-  extern inline void spinlock_release (spinlock_t* spinlock)
+  static inline void spinlock_release (spinlock_t* spinlock)
   { int err = xmutex_unlock(spinlock); if (err) OS_error(); }
-  extern inline void spinlock_destroy (spinlock_t* spinlock)
+  static inline void spinlock_destroy (spinlock_t* spinlock)
   { int err = xmutex_destroy(spinlock); if (err) OS_error(); }
 
 #endif
