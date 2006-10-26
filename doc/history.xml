@@ -165,7 +165,7 @@
 <revision><revnumber>2.15</revnumber><date>1995-04-25</date>
  <revdescription><itemizedlist>
    <listitem><simpara>New modules: <xref linkend="wildcard"/>,
-     <xref linkend="regexp"/></simpara></listitem>
+     <xref linkend="regexp-mod"/></simpara></listitem>
    <listitem><simpara>&formatter;, &finalize;</simpara></listitem>
    <listitem><simpara>&file-stream-t;, &synonym-stream-t;,
      &broadcast-stream-t;, &concatenated-stream-t;, &two-way-stream-t;,
@@ -315,7 +315,7 @@
 
 <revision><revnumber>2.31</revnumber><date>2003-09-01</date>
  <revdescription><itemizedlist><listitem><simpara>New modules:
-     <xref linkend="fastcgi"/>, <xref linkend="dirkey"/>, bindings/win32,
+     <xref linkend="fastcgi"/>, <xref linkend="dir-key"/>, bindings/win32,
      <xref linkend="syscalls"/>, <xref linkend="netica"/></simpara></listitem>
    <listitem><simpara>Support modules on &win32;.</simpara></listitem>
    <listitem><simpara>&unicode; 3.2</simpara></listitem>
