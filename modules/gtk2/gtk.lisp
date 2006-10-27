@@ -349,16 +349,14 @@ signal specific parameters, but not a data parameter."
 (def-call-out glade_get_widget_tree (:return-type GladeXML*)
   (:arguments (widget GtkWidget*)))
 (def-c-type GladeXMLConnectFunc
-    (c-pointer
-     (c-function
-      (:return-type nil)
-      (:arguments (handler_name c-string)
-                  (object GObject*)
-                  (signal_name c-string)
-                  (signal_data c-string)
-                  (connect_object GObject*)
-                  (after boolean)
-                  (user_data c-pointer)))))
+    (c-function (:return-type nil)
+                (:arguments (handler_name c-string)
+                            (object GObject*)
+                            (signal_name c-string)
+                            (signal_data c-string)
+                            (connect_object GObject*)
+                            (after boolean)
+                            (user_data c-pointer))))
 (def-call-out glade_xml_signal_connect_full (:return-type nil)
   (:arguments (self GladeXML*)
               (handler_name c-string)
@@ -369,16 +367,15 @@ signal specific parameters, but not a data parameter."
               (func GladeXMLConnectFunc)
               (user_data c-pointer)))
 (def-c-type GladeXMLCustomWidgetHandler
-    (c-pointer
-     (c-function (:return-type GtkWidget*)
-                 (:arguments (xml GladeXML*)
-                             (func_name c-string)
-                             (name c-string)
-                             (string1 c-string)
-                             (string2 c-string)
-                             (int1 int)
-                             (int2 int)
-                             (user_data c-pointer)))))
+    (c-function (:return-type GtkWidget*)
+                (:arguments (xml GladeXML*)
+                            (func_name c-string)
+                            (name c-string)
+                            (string1 c-string)
+                            (string2 c-string)
+                            (int1 int)
+                            (int2 int)
+                            (user_data c-pointer))))
 (def-call-out glade_set_custom_handler (:return-type nil)
   (:arguments (handler GladeXMLCustomWidgetHandler)
               (user_data c-pointer)))
@@ -388,23 +385,20 @@ signal specific parameters, but not a data parameter."
 (def-c-type GladeWidgetInfo* c-pointer)
 
 (def-c-type GladeNewFunc
-    (c-pointer
-     (c-function (:return-type GtkWidget*)
-                 (:arguments (xml GladeXML*)
-                             (widget_type GType)
-                             (info c-pointer)))))
+    (c-function (:return-type GtkWidget*)
+                (:arguments (xml GladeXML*)
+                            (widget_type GType)
+                            (info c-pointer))))
 (def-c-type GladeBuildChildrenFunc
-    (c-pointer
-     (c-function (:return-type nil)
-                 (:arguments (xml GladeXML*)
-                             (parent GtkWidget*)
-                             (info c-pointer)))))
+    (c-function (:return-type nil)
+                (:arguments (xml GladeXML*)
+                            (parent GtkWidget*)
+                            (info c-pointer))))
 (def-c-type GladeFindInternalChildFunc
-    (c-pointer
-     (c-function (:return-type GtkWidget*)
-                 (:arguments (xml GladeXML*)
-                             (parent GtkWidget*)
-                             (childname c-string)))))
+    (c-function (:return-type GtkWidget*)
+                (:arguments (xml GladeXML*)
+                            (parent GtkWidget*)
+                            (childname c-string))))
 
 (def-c-type GladeChildInfo* c-pointer)
 
@@ -444,11 +438,11 @@ signal specific parameters, but not a data parameter."
               (name c-string)
               (value c-string)))
 (def-c-type GladeApplyCustomPropFunc
-    (c-pointer (c-function (:return-type nil)
-                           (:arguments (xml GladeXML*)
-                                       (widget GtkWidget*)
-                                       (propname c-string)
-                                       (value c-string)))))
+    (c-function (:return-type nil)
+                (:arguments (xml GladeXML*)
+                            (widget GtkWidget*)
+                            (propname c-string)
+                            (value c-string))))
 (def-call-out glade_register_custom_prop (:return-type nil)
   (:arguments (type GType)
               (prop_name c-string)
@@ -500,9 +494,26 @@ signal specific parameters, but not a data parameter."
                                 nil nil)
                  (error "~S(~S): ~S load failed" 'gui-from-file file
                         'glade_xml_new))))
+    (glade_xml_signal_autoconnect_full
+     xml
+     (lambda (handler_name object signal_name signal_data connect_object
+              after user_data)
+       (declare (ignore signal_data connect_object after user_data))
+       (gtk_connect object signal_name
+                    (let ((code (read-from-string handler_name)))
+                      (compile nil
+                        `(lambda (&rest args)
+                           (format t "~&calling ~S with arguments ~S~%"
+                                   ',code args)
+                           ,code
+                           0))))) ; return an integer
+     nil)
     (flet ((widget (name)
-             (or (glade_xml_get_widget xml name)
-                 (error "~S(~S): not found ~S" 'gui-from-file file name))))
+             (let ((w (or (glade_xml_get_widget xml name)
+                          (error "~S(~S): not found ~S" 'gui-from-file
+                                 file name))))
+               (format t "~&~A == ~S~%" name w)
+               w)))
       (make-gui :main (widget "clisp-gui-main")
                 :repl (widget "textview_repl")
                 :apropos (widget "entry1_apropos")
@@ -510,14 +521,34 @@ signal specific parameters, but not a data parameter."
                 :about-window (widget "dialog1_about")
                 :about-text (widget "textview_about")))))
 
-(defun gui-apropos-do (&optional (*gui* *gui*))
-  (apropos (gtk_entry_get_text (gui-apropos *gui*))))
-
 (defun gui-status-show (string &optional (*gui* *gui*))
   (gtk_statusbar_push (gui-status *gui*) (length string) string))
 
+(defun gui-apropos-do (&optional (*gui* *gui*))
+  (apropos (gtk_entry_get_text (gui-apropos *gui*))))
+
 (defun gui-about-do (&optional (*gui* *gui*))
-  )
+  (let ((about-text
+         (format nil "This is a gtk2 demo.~%~A ~A~%"
+                 (lisp-implementation-type) (lisp-implementation-version))))
+    (gtk_text_buffer_set_text
+     (gtk_text_view_get_buffer (gui-about-text *gui*))
+     about-text (length about-text)))
+  (gtk_widget_show (gui-about-window *gui*))
+  (gui-status-show (SYS::TEXT "Displaying ABOUT")))
+
+(defun gui-about-done (&optional (*gui* *gui*))
+  (gtk_widget_hide (gui-about-window *gui*))
+  (gui-status-show (SYS::TEXT "Closed ABOUT")))
+
+(defun gui-clear-do (&optional (*gui* *gui*))
+  (gui-status-show (SYS::TEXT "Clear CLISP output")))
+
+(defun gui-eval-do (&optional (*gui* *gui*))
+  (gui-status-show (SYS::TEXT "Call EVAL on the current selection")))
+
+(defun gui-describe-do (&optional (*gui* *gui*))
+  (gui-status-show (SYS::TEXT "Call DESCRIBE on the current selection")))
 
 (defun gui-quit (&optional (*gui* *gui*))
   (gui-status-show (SYS::TEXT "Bye!"))
@@ -528,8 +559,10 @@ signal specific parameters, but not a data parameter."
   (gtk_init nil nil)
   (let ((*gui* (gui-from-file file)))
     (gui-status-show (SYS::TEXT "Welcome to CLISP!"))
-    (gtk_widget_show_all (gui-main *gui*)))
-  (catch 'gui-quit (gtk_main)))
+    (gtk_widget_show (gui-main *gui*))
+    (gtk_widget_hide (gui-about-window *gui*))
+    (catch 'gui-quit (gtk_main))
+    (format t (SYS::TEXT "Exited gui~%"))))
 
 ;;; done
 (pushnew :gtk *features*)
