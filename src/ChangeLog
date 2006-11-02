@@ -1,3 +1,8 @@
+2006-11-01  Sam Steingold  <sds@gnu.org>
+
+	* modules/gtk2/gtk.lisp (glade-load): added
+	(run-glade-file, gui-from-file): use it
+
 2006-10-26  Sam Steingold  <sds@gnu.org>
 
 	* modules/gtk2/gtk.lisp (GladeXMLConnectFunc, GladeNewFunc)
