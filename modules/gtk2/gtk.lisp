@@ -475,12 +475,28 @@ signal specific parameters, but not a data parameter."
 ;;; High-level UI
 ;;;
 
+(defun glade-load (file)
+  (let ((xml (or (glade_xml_new (namestring (absolute-pathname file)) nil nil)
+                 (error "~S(~S): ~S failed" 'glade-load file 'glade_xml_new))))
+    (glade_xml_signal_autoconnect_full
+     xml
+     (lambda (handler_name object signal_name signal_data connect_object
+              after user_data)
+       (declare (ignore signal_data connect_object after user_data))
+       (gtk_connect object signal_name
+                    (let ((code (read-from-string handler_name)))
+                      (compile
+                       nil `(lambda (&rest args)
+                              (format t "~&calling ~S with arguments ~S~%"
+                                      ',code args)
+                              ,code
+                              0))))) ; return an integer
+     nil)
+    xml))
+
 (defun run-glade-file (file widget-name)
   (gtk_init nil nil)
-  (gtk_widget_show_all
-   (glade_xml_get_widget
-    (glade_xml_new (namestring (absolute-pathname file)) nil nil)
-    widget-name))
+  (gtk_widget_show_all (glade_xml_get_widget (glade-load file) widget-name))
   (gtk_main))
 
 ;;;
@@ -490,24 +506,7 @@ signal specific parameters, but not a data parameter."
 (defstruct gui main repl apropos status about-window about-text)
 (defvar *gui*)
 (defun gui-from-file (file)
-  (let ((xml (or (glade_xml_new (namestring (truename (absolute-pathname file)))
-                                nil nil)
-                 (error "~S(~S): ~S load failed" 'gui-from-file file
-                        'glade_xml_new))))
-    (glade_xml_signal_autoconnect_full
-     xml
-     (lambda (handler_name object signal_name signal_data connect_object
-              after user_data)
-       (declare (ignore signal_data connect_object after user_data))
-       (gtk_connect object signal_name
-                    (let ((code (read-from-string handler_name)))
-                      (compile nil
-                        `(lambda (&rest args)
-                           (format t "~&calling ~S with arguments ~S~%"
-                                   ',code args)
-                           ,code
-                           0))))) ; return an integer
-     nil)
+  (let ((xml (glade-load file)))
     (flet ((widget (name)
              (let ((w (or (glade_xml_get_widget xml name)
                           (error "~S(~S): not found ~S" 'gui-from-file
