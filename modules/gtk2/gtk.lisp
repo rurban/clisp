@@ -123,6 +123,8 @@
 (def-call-in gtk-cleanup (:arguments (data int)) (:return-type nil))
 
 (defun gtk-cleanup (data)
+  (format t "~S(~D): discarded ~S~%" 'gtk-cleanup data
+          (aref *callback-funcs* data))
   (setf (aref *callback-funcs* data) nil)
   nil)
 
@@ -231,7 +233,7 @@ signal specific parameters, but not a data parameter."
                                   :collect `(arg ,(convert-type arg))))))))
     `(progn
        ,@(with-open-file (cfg filename)
-            (format t "~&;; Reading ~S~%" (truename cfg))
+            (format t "~&;; Reading ~A~%" (truename cfg))
             (loop :with forms = nil
               :finally (format t "~&;; Defined ~:D function~:P~%"
                                (length forms))
@@ -486,11 +488,12 @@ signal specific parameters, but not a data parameter."
        (gtk_connect object signal_name
                     (let ((code (read-from-string handler_name)))
                       (compile
-                       nil `(lambda (&rest args)
-                              (format t "~&calling ~S with arguments ~S~%"
-                                      ',code args)
-                              ,code
-                              0))))) ; return an integer
+                       (make-symbol (princ-to-string code))
+                       `(lambda (&rest args)
+                          (format t "~&calling ~S with arguments ~S~%"
+                                  ',code args)
+                          ,code
+                          0))))) ; return an integer
      nil)
     xml))
 
