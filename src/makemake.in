@@ -1387,6 +1387,12 @@ if [ "${with_dynamic_modules}" != no ]; then
     sunos4*)
       XCC_CREATESHARED='ld -assert pure-text -Bstatic -o $lib $libs'
       ;;
+    darwin*)
+      XCC_CREATESHARED='$CC -bundle -flat_namespace -undefined suppress -o $lib $libs'
+      ;;
+    *)
+      echo "$0: how do you create a shared library on ${host_os}?" >&2;
+      ;;
   esac
 fi
 
