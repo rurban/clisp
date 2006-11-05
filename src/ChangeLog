@@ -1,3 +1,8 @@
+2006-11-04  José H. Espinosa  <jose.h.espinosa@gmail.com>
+	Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCC_CREATESHARED) [darwin]: define
+
 2006-11-01  Sam Steingold  <sds@gnu.org>
 
 	* modules/gtk2/gtk.lisp (glade-load): added
