@@ -3198,6 +3198,54 @@ LISPFUNN(uninterned_reader,3) { # reads #:
          GETTEXT("~S from ~S: token ~S after #: should contain no colon"));
 }
 
+/* UP: check that the (bit)vector length specified between #\# and #\( (or #\*)
+ is compatible with the token specifying the (bit)vector elements
+ > token_length - the number of elements in the content token
+ > type         - VECTOR or BIT-VECTOR
+ > stream_      - the input stream
+ > STACK_0      - the (bit)vector length specifier (integer)
+ < (bit)vector length to be returned by the reader */
+local uintV read_vector_length_check (uintV token_length,object type,
+                                      gcv_object_t *stream_) {
+  if (nullp(STACK_0)) {
+    return token_length;        /* default value is the token length */
+  } else { /* n specified, an Integer >=0. */
+    uintV n =
+      (posfixnump(STACK_0) ? posfixnum_to_V(STACK_0) /* Fixnum -> value */
+       : vbitm(oint_data_len)-1); /* Bignum -> big value */
+    if (n < token_length) {
+      pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
+      pushSTACK(STACK_(0+1));   /* n */
+      pushSTACK(type);          /* VECTOR or BIT-VECTOR */
+      pushSTACK(*stream_);      /* Stream */
+      pushSTACK(S(read));
+      fehler(reader_error, /* ANSI CL 2.4.8.4. wants a reader-error here */
+             GETTEXT("~S from ~S: ~S is longer than the explicitly given length ~S"));
+    }
+    if ((n>0) && (token_length==0)) {
+      pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
+      pushSTACK(STACK_(0+1));   /* n */
+      pushSTACK(type);          /* VECTOR or BIT-VECTOR */
+      pushSTACK(*stream_);      /* Stream */
+      pushSTACK(S(read));
+      fehler(reader_error, /* ANSI CL 2.4.8.4. wants a reader-error here */
+             GETTEXT("~S from ~S: must specify elements of ~S of length ~S"));
+    }
+   #if (intVsize>intLsize)
+    if (n >= vbit(intLsize)) {
+      /* STACK_0 = n, TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_array_length)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(STACK_1);              /* n */
+      pushSTACK(type);                 /* VECTOR or BIT-VECTOR */
+      pushSTACK(*stream_);             /* Stream */
+      pushSTACK(S(read));
+      fehler(type_error,GETTEXT("~S from ~S: invalid ~S length ~S"));
+    }
+   #endif
+    return n;
+  }
+}
+
 # (set-dispatch-macro-character #\# #\*
 #   #'(lambda (stream sub-char n)
 #       (declare (ignore sub-char))
@@ -3259,41 +3307,8 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
         goto fehler_nur01;
     });
   }
-  # check n:
-  var uintV n; # Length of Bitvector
-  if (nullp(STACK_0)) {
-    n = len; # Defaultvalue is the Tokenlength
-  } else {
-    # n specified, an Integer >=0.
-    n = (posfixnump(STACK_0) ? posfixnum_to_V(STACK_0) # Fixnum -> value
-         : vbitm(oint_data_len)-1); # Bignum -> big value
-    if (n<len) {
-      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(STACK_(0+1)); # n
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(reader_error, # ANSI CL 2.4.8.4. wants a reader-error here
-             GETTEXT("~S from ~S: bit vector is longer than the explicitly given length ~S"));
-    }
-    if ((n>0) && (len==0)) {
-      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(STACK_(0+1)); # n
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(reader_error, # ANSI CL 2.4.8.4. wants a reader-error here
-             GETTEXT("~S from ~S: must specify element of bit vector of length ~S"));
-    }
-   #if (intVsize>intLsize)
-    if (n >= vbit(intLsize)) {
-      /* STACK_0 = n, TYPE-ERROR slot DATUM */
-      pushSTACK(O(type_array_length)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(STACK_1); /* n */
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(type_error,GETTEXT("~S from ~S: invalid bit-vector length ~S"));
-    }
-   #endif
-  }
+  /* check n (the length of the bit-vector): */
+  var uintV n = read_vector_length_check(len,S(bit_vector),stream_);
   # create new Bit-Vector with length n:
   var object bv = allocate_bit_vector(Atype_Bit,n);
   # and fill the Bits into it:
@@ -3353,41 +3368,8 @@ LISPFUNN(vector_reader,3) { # reads #(
     return;
   }
   var uintL len = llength(elements); # Listlength
-  # check n:
-  var uintV n; # Length of Vector
-  if (nullp(STACK_0)) {
-    n = len; # Defaultvalue is the length of the Token
-  } else {
-    # specify n, an Integer >=0.
-    n = (posfixnump(STACK_0) ? posfixnum_to_V(STACK_0) # Fixnum -> value
-         : vbitm(oint_data_len)-1); # Bignum -> big value
-    if (n<len) {
-      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(STACK_(0+1)); # n
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(reader_error,
-             GETTEXT("~S from ~S: vector is longer than the explicitly given length ~S"));
-    }
-    if ((n>0) && (len==0)) {
-      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(STACK_(0+1)); # n
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(reader_error,
-             GETTEXT("~S from ~S: must specify element of vector of length ~S"));
-    }
-   #if (intVsize>intLsize)
-    if (n >= vbit(intLsize)) {
-      /* STACK_0 = n, TYPE-ERROR slot DATUM */
-      pushSTACK(O(type_array_length)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(STACK_1); /* n */
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(type_error,GETTEXT("~S from ~S: invalid vector length ~S"));
-    }
-   #endif
-  }
+  /* check n (the length of the vector): */
+  var uintV n = read_vector_length_check(len,S(vector),stream_);
   # create new Vector with Length n:
   pushSTACK(elements); # save List
   var object v = allocate_vector(n);
