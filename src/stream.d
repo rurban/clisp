@@ -12786,7 +12786,7 @@ LISPFUN(make_pipe_input_stream,seclass_default,1,0,norest,key,3,
   pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
   STACK_3 = value1;
   # Check and canonicalize the :BUFFERED argument:
-  buffered = test_buffered_arg(STACK_0); # default is NIL
+  buffered = test_buffered_arg(STACK_0);
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_2,&eltype);
   STACK_2 = canon_eltype(&eltype);
@@ -12996,7 +12996,7 @@ LISPFUN(make_pipe_output_stream,seclass_default,1,0,norest,key,3,
   pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
   STACK_3 = value1;
   # Check and canonicalize the :BUFFERED argument:
-  buffered = test_buffered_arg(STACK_0); # default is NIL
+  buffered = test_buffered_arg(STACK_0);
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_2,&eltype);
   STACK_2 = canon_eltype(&eltype);
@@ -13036,7 +13036,7 @@ global maygc void mkops_from_handles (Handle opipe, int process_id) {
   var decoded_el_t eltype;
   var signean buffered;
   # Check and canonicalize the :BUFFERED argument:
-  buffered = test_buffered_arg(STACK_0); # default is NIL
+  buffered = test_buffered_arg(STACK_0);
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_1,&eltype);
   STACK_1 = canon_eltype(&eltype);
@@ -13070,7 +13070,7 @@ global maygc void mkips_from_handles (Handle ipipe, int process_id) {
   var decoded_el_t eltype;
   var signean buffered;
   # Check and canonicalize the :BUFFERED argument:
-  buffered = test_buffered_arg(STACK_0); # default is NIL
+  buffered = test_buffered_arg(STACK_0);
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_1,&eltype);
   STACK_1 = canon_eltype(&eltype);
@@ -13244,7 +13244,7 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
   pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
   STACK_3 = value1;
   # Check and canonicalize the :BUFFERED argument:
-  buffered = test_buffered_arg(STACK_0); # default is NIL
+  buffered = test_buffered_arg(STACK_0);
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_2,&eltype);
   STACK_2 = canon_eltype(&eltype);
