@@ -1,3 +1,8 @@
+2006-11-08  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* stream.d (finish_tty_output): try fsync(), tcdrain() or ioctl()
+	until success, not all of them. Fixes bug #[ 1592343 ]
+
 2006-11-06  Sam Steingold  <sds@podval.org>
 
 	* io.d (read_vector_length_check): extracted the common part of
@@ -11985,7 +11990,7 @@
 
 	* misc.d (MODULE-INFO): return the DLL information for :FFI
 	argument (instead of 0); all info when VERBOSE, names only otherwise
-	* constsym (:FII) [DYNAMIC_FFI & (WIN32_NATIVE | HAVE_DLOPEN)]: added
+	* constsym (:FFI) [DYNAMIC_FFI & (WIN32_NATIVE | HAVE_DLOPEN)]: added
 	Suggested by Jörg Höhle
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>

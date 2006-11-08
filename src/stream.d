@@ -3447,10 +3447,10 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
 # UP: Move the pending Output of a Handle to the destination.
   local void finish_tty_output (Handle handle)
   {
-    # Method 1: fsync, see FSYNC(2)
-    # Method 2: tcdrain, see TERMIOS(3V)
+    # Method 1: fsync, see fsync(2)
+    # Method 2: tcdrain, see termios(3V)
     # Method 3: ioctl TCSBRK 1, see TERMIO(4)
-    # poss. Method 3: ioctl TCGETS/TCSETSW, see TERMIO(4)
+    # poss. Method 3: ioctl TCGETS/TCSETSW, see termio(4) or tty_ioctl(4)
     # or (almost equivalent) ioctl TIOCGETP/TIOCSETP, see TTCOMPAT(4)
     begin_system_call();
     #if !(defined(UNIX) && !defined(HAVE_FSYNC))
@@ -3468,7 +3468,7 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
           if (!(errno==EINVAL))
             { OS_error(); }
         #endif
-      }
+      } else
     #endif
     #ifdef UNIX_TERM_TERMIOS
       if (!( TCDRAIN(handle) ==0)) {
@@ -3477,12 +3477,12 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
         if (!((errno==EOPNOTSUPP)||(errno==ENODEV)))
         #endif
           { OS_error(); } # no TTY: OK, report other Error
-      }
+      } else
     #endif
     #ifdef UNIX_TERM_TERMIO
       if (!( ioctl(handle,TCSBRK,(CADDR_T)1) ==0)) {
         if (!(errno==ENOTTY)) { OS_error(); }
-      }
+      } else
     #endif
     #if defined(UNIX_TERM_TERMIOS) && defined(TCGETS) && defined(TCSETSW)
       {
@@ -3494,6 +3494,7 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
         }
       }
     #endif
+    ; # end else chain
     #if 0 # Caution: This should cause FINISH-OUTPUT and CLEAR-INPUT!
       {
         var struct sgttyb tty_parameters;
