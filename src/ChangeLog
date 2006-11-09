@@ -1,6 +1,7 @@
 2006-11-08  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (print_banner): print version and instructions on getting help
+	* reploop.lisp (commands0): tweak help message
 
 2006-11-08  Sam Steingold  <sds@podval.org>
 

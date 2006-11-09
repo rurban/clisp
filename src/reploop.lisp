@@ -255,7 +255,7 @@ or a pair (STRING . FUNCTION) so that typing STRING will call FUNCTION.")
 ;; extended commands
 (defun commands0 ()
   (list*
-   (TEXT "
+   (TEXT "You are in the top-level Read-Eval-Print loop.
 Help (abbreviated :h) = this list
 Use the usual editing capabilities.
 \(quit) or (exit) leaves CLISP.")
