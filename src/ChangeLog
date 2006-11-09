@@ -1,3 +1,8 @@
+2006-11-09  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* stream.d (finish_tty_output) [UNIX]: try fsync(), tcdrain() or
+	ioctl() until success, not all of them.
+
 2006-11-08  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (print_banner): print version and instructions on getting help
@@ -7,12 +12,6 @@
 
 	fixed bug # [ 1589311 ]: ROUND is broken for long floats [even+1/2]
 	* lfloat.d (LF_fround_LF): adjust mask when rounding to match comments
-
-2006-11-08  Jörg Höhle  <hoehle@users.sourceforge.net>
-
-	fixed bug #[ 1592343 ]: SSH (no tty) => UNIX error 14 bad address
-	* stream.d (finish_tty_output): try fsync(), tcdrain() or ioctl()
-	until success, not all of them
 
 2006-11-06  Sam Steingold  <sds@podval.org>
 
