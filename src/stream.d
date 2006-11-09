@@ -3468,7 +3468,7 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
           if (!(errno==EINVAL))
             { OS_error(); }
         #endif
-      } else
+      } else goto ok;
     #endif
     #ifdef UNIX_TERM_TERMIOS
       if (!( TCDRAIN(handle) ==0)) {
@@ -3477,12 +3477,12 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
         if (!((errno==EOPNOTSUPP)||(errno==ENODEV)))
         #endif
           { OS_error(); } # no TTY: OK, report other Error
-      } else
+      } else goto ok;
     #endif
     #ifdef UNIX_TERM_TERMIO
       if (!( ioctl(handle,TCSBRK,(CADDR_T)1) ==0)) {
         if (!(errno==ENOTTY)) { OS_error(); }
-      } else
+      } else goto ok;
     #endif
     #if defined(UNIX_TERM_TERMIOS) && defined(TCGETS) && defined(TCSETSW)
       {
@@ -3491,19 +3491,19 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
               && ( ioctl(handle,TCSETSW,&term_parameters) ==0))) {
           if (!((errno==ENOTTY)||(errno==EINVAL)))
             { OS_error(); } # no TTY: OK, report other Error
-        }
+        } else goto ok;
       }
     #endif
-    ; # end else chain
     #if 0 # Caution: This should cause FINISH-OUTPUT and CLEAR-INPUT!
       {
         var struct sgttyb tty_parameters;
         if (!(   ( ioctl(handle,TIOCGETP,&tty_parameters) ==0)
               && ( ioctl(handle,TIOCSETP,&tty_parameters) ==0))) {
           if (!(errno==ENOTTY)) { OS_error(); }
-        }
+        } else goto ok;
       }
     #endif
+   ok:
     end_system_call();
   }
 
