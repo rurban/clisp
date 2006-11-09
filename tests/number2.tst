@@ -477,3 +477,10 @@ NIL
 (format nil "~E" 1d22) "1.0d+22"
 (format nil "~E" 1d23) "1.0d+23"
 (format nil "~E" 1d24) "1.0d+24"
+
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1589311&group_id=1355
+(loop :repeat 6400 :for x = -1L2 :then (+ x 0.03125l0)
+  :for (x1 x2) = (multiple-value-list (round x))
+  :for (x3 x4) = (multiple-value-list (round (float x 1s0)))
+  :unless (and (= x1 x3) (= x2 x4)) :collect (list x x1 x2 x3 x4))
+NIL
