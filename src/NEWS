@@ -9,6 +9,10 @@ User visible changes
 * FASTCGI:GETENV is compatible with EXT:GETENV and can return the
   entire environment as an alist.
 
+* Bug fixes:
+  + Fixed rounding of long floats [even+1/2]. [ 1589311 ]
+  + Fixed stdio when running without a TTY, e.g., under SSH. [ 1592343 ]
+
 
 2.41 (2006-10-13)
 =================
