@@ -223,7 +223,7 @@ Special hints for some platforms can be found in file unix/PLATFORMS.
 
     this covers the build process through step 9 (except mod-check).
     su(1) will prompt you for the root password if the installation
-    destination is not writable by you..
+    destination is not writable by you.
 
 
 Additional Information for Maintainers of Binary Packages:
