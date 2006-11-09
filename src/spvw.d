@@ -1726,14 +1726,12 @@ local void print_banner (void)
   char banner0_line0[100];
   char banner0_line1[100];
   const char * const banner1[] = {
-   "\n",
    "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993\n",
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997\n",
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998\n",
    "Copyright (c) Bruno Haible, Sam Steingold 1999-2000\n",
    "Copyright (c) Sam Steingold, Bruno Haible 2001-2006\n",
   };
-  var const char * banner2 = "\n";
   var int candles = 0;
   var uintL offset = (posfixnum_to_V(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
   if (offset == 0) {
@@ -1801,10 +1799,15 @@ local void print_banner (void)
   }
   while (count--)
     write_sstring(&STACK_0,asciz_to_string((*ptr++)+offset,O(internal_encoding)));
+  terpri(&STACK_0);
+  write_sstring(&STACK_0,asciz_to_string(GETTEXT("Welcome to"),O(internal_encoding)));
+  write_sstring(&STACK_0,asciz_to_string(" " PACKAGE_STRING " <" PACKAGE_BUGREPORT ">\n\n",O(internal_encoding)));
   ptr = banner1; count = sizeof(banner1)/sizeof(banner1[0]);
   while (count--)
     write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));
-  write_sstring(&STACK_0,asciz_to_string(banner2,O(internal_encoding)));
+  terpri(&STACK_0);
+  write_sstring(&STACK_0,asciz_to_string(GETTEXT("Type :h and hit Enter for context help."),O(internal_encoding)));
+  terpri(&STACK_0); terpri(&STACK_0);
   skipSTACK(1);
 }
 
