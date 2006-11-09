@@ -1,6 +1,10 @@
+2006-11-08  Sam Steingold  <sds@podval.org>
+
+	* number2.tst: test for [ 1589311 ]: ROUND is broken for long floats
+
 2006-10-12  Sam Steingold  <sds@podval.org>
 
-	* macro8.tst: test for [ 1575946 ] broken COMPILE of APPLY in LABELS
+	* macro8.tst: test for [ 1575946 ]: broken COMPILE of APPLY in LABELS
 
 2006-10-01  Sam Steingold  <sds@gnu.org>
 

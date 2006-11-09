@@ -402,7 +402,7 @@ local maygc object LF_fround_LF (object x)
     var uintD* x_mantMSDptr = &TheLfloat(x)->data[0];
     var uintD* ptr =
       copy_loop_up(x_mantMSDptr,&TheLfloat(y)->data[0],count); /* copy count complete digits */
-    *ptr++ = x_mantMSDptr[count] & mask; /* then copy bitcount bits */
+    *ptr++ = x_mantMSDptr[count] & (mask<<1); /* then copy bitcount bits */
     clear_loop_up(ptr,len-count-1); /* fill rest with Nulls */
     return y;
   }
@@ -415,6 +415,7 @@ local maygc object LF_fround_LF (object x)
     var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
     var uintD* ptr = /* copy count complete digits */
       copy_loop_up(x_mantMSDptr,y_mantMSDptr,count);
+    mask<<=1;
     if ((ptr[0] = ((x_mantMSDptr[count] & mask) - mask)) == 0) /* then copy bitcount bits and increment */
       if (inc_loop_down(ptr,count)!=0) { /* poss. continue to increment */
         y_mantMSDptr[0] = bit(intDsize-1); (TheLfloat(y)->expo)++; /* poss. increase exponent */
