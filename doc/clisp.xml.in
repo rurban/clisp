@@ -687,8 +687,7 @@ compiles the specified lisp files to a platform-independent
  <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355">SourceForge bug tracker</ulink>.</para>
 
 <para><emphasis>Before</emphasis> submitting a bug report, please take
- the following basic steps to make the report more useful:
-<orderedlist>
+ the following basic steps to make the report more useful:<orderedlist>
  <listitem><simpara>Please do a clean build (remove your build directory
    and build &clisp; with <command>./configure --build build</command>
    or at least do a <command role="unix">make distclean</command>
@@ -705,9 +704,8 @@ compiles the specified lisp files to a platform-independent
    try compiling the sources and report the problem if it persists.
 </simpara></listitem></orderedlist></para>
 
-<para>When submitting a bug report, please specify the
-following information:
-<orderedlist>
+<para>When submitting a bug report, please specify the following
+ information:<orderedlist>
  <listitem><simpara>What is your platform (<command role="unix">uname
     -a</command> on a &unix; system)?  Compiler version?
    &glibc; version (on &gnu;/&linux;)?</simpara></listitem>
