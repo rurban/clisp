@@ -4172,7 +4172,8 @@ NIL
 (multiple-value-list (subtypep 'incomplete147 'number))
 (NIL T)
 (multiple-value-list (subtypep 'incomplete147 'standard-object))
-(NIL NIL)
+(NIL T) ; not (NIL NIL) because ANSI-CL says that SUBTYPEP on class names
+        ; must never return "unknown"
 
 ;; Check that methods that become active through a class redefinition
 ;; are actually invoked.
