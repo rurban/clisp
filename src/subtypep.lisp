@@ -1368,16 +1368,12 @@
                  (if (consp class1) ; (FUNCTION ...)
                    (when (member class1 type2parts :test #'canonicalized-types-equal-p)
                      (yes))
-                   (let ((all-no t))
-                     (dolist (class2 type2parts)
-                       (multiple-value-bind (is known)
-                           (indefinite-subclassp class1 class2)
-                         (when is
-                           (yes))
-                         (unless known
-                           (setq all-no nil))))
-                     (unless all-no ; some unknown?
-                       (unknown))))))))
+                   (dolist (class2 type2parts)
+                     (multiple-value-bind (is known)
+                         (indefinite-subclassp class1 class2)
+                       (declare (ignore known))
+                       (when is
+                         (yes)))))))))
     (when try-prove-no
       ;; For classes, all checks already done. Any common instance of type1
       ;; would be a testimony.
