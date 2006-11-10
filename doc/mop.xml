@@ -5498,7 +5498,7 @@ cache of the dependent when it is updated.</para>
 <listitem><para>The functions &funcallable-standard-instance-access; and
   &standard-instance-access; support non-updated obsolete instances and
   also support slots with allocation &class-k;.</para></listitem>
-<listitem><para>The existence of the &class-direct-subclasses; function
+<listitem><para>The existence of the function &class-direct-subclasses;
   does not prevent otherwise unreferenced classes from being &gc;ed.
 </para></listitem>
 </itemizedlist>
