@@ -4151,6 +4151,31 @@ ERROR
 (defmethod foo132b ((x forwardclass02)))
 ERROR
 
+;; Check that undefined classes yield an error in TYPEP and SUBTYPEP, but
+;; that incomplete classes do not.
+(progn
+  (defclass incomplete147 (undefined147) ())
+  t)
+T
+(find-class 'undefined147)
+ERROR
+(typep 42 'undefined147)
+ERROR
+(subtypep 'undefined147 'number)
+ERROR
+(subtypep 'undefined147 'standard-object)
+ERROR
+(null (find-class 'incomplete147))
+NIL
+(typep 42 'incomplete147)
+NIL
+(multiple-value-list (subtypep 'incomplete147 'number))
+(NIL T)
+(multiple-value-list (subtypep 'incomplete147 'standard-object))
+(NIL NIL)
+
+
+
 ;;; <http://article.gmane.org/gmane.lisp.clisp.general:9582>
 (let ((ret '()))
   (defclass mixin-foo-144 () ())
