@@ -1,3 +1,8 @@
+2006-11-10  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Add test for TYPEP and SUBTYPEP on incomplete and undefined
+	classes.
+
 2006-11-08  Sam Steingold  <sds@podval.org>
 
 	* number2.tst: test for [ 1589311 ]: ROUND is broken for long floats
