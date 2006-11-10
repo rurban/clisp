@@ -227,7 +227,7 @@ regexp.html: ../modules/regexp/regexp.texinfo
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
-		clisp.html clisp.1 tdb-*.xml $(CATALOG_FILE) impnotes.fo
+	  clisp.xml clisp.html clisp.1 tdb-*.xml $(CATALOG_FILE) impnotes.fo
 
 count: $(IMPNOTES)
 	wc $^
