@@ -4174,9 +4174,9 @@ NIL
 (multiple-value-list (subtypep 'incomplete147 'standard-object))
 (NIL NIL)
 
-
-
-;;; <http://article.gmane.org/gmane.lisp.clisp.general:9582>
+;; Check that methods that become active through a class redefinition
+;; are actually invoked.
+;; <http://article.gmane.org/gmane.lisp.clisp.general:9582>
 (let ((ret '()))
   (defclass mixin-foo-144 () ())
   (defclass class-foo-144 (mixin-foo-144) ())
