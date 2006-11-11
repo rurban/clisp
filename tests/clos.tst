@@ -4153,6 +4153,7 @@ ERROR
 
 ;; Check that undefined classes yield an error in TYPEP and SUBTYPEP, but
 ;; that incomplete classes do not.
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1591671&group_id=1355
 (progn
   (defclass incomplete147 (undefined147) ())
   t)
