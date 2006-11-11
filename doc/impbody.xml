@@ -4002,6 +4002,22 @@ functions are provided:
    instead of waiting.</simpara></listitem></varlistentry>
 </variablelist>
 
+<note id="listen-byte"><title>&listen; on binary streams</title>
+ <para>The &ansi-cl; specification for &listen; mentions <quote>character
+   availability</quote> as the criterion that determines the return value.
+  Since a &character-t; is <emphasis>never</emphasis> available on a
+  binary &stream-t; (i.e., a stream with &stream-element-type; being a
+  subtype of &integer-t;), &listen; returns &nil; for such streams.
+  (You can use &so-status; to check binary streams).
+  Any other behavior would be hard to make consistent: consider a bivalent
+  stream, i.e., a &stream-t; that can be operated upon by both
+  &read-char; and &read-byte;.
+  What should &listen; return on such a stream if what is actually available
+  on the stream at the moment is only a part of multi-byte character?
+  Right now one can use first &so-status; to check if anything at all is
+  available and then use &listen; to make sure that a full &character-t;
+  is actually there.</para></note>
+
 </section>
 
 <section id="file-pos"><title>Function &file-position;</title>
