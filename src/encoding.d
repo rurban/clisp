@@ -996,7 +996,7 @@ global uintL utf8_wcslen (object encoding, const chart* src,
   var uintL destlen = 0;
   while (src < srcend) {
     var cint ch = as_cint(*src++);
-    destlen += (ch < 0x80 ? 1 : ch < 0x800 ? 2 : 3);
+    destlen += (ch < 0x80 ? 1 : ch < 0x800 ? 2 : ch < 0x10000 ? 3 : 4);
   }
   return destlen;
 }
