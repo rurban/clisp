@@ -104,6 +104,20 @@ ERROR
   (ext:convert-string-from-bytes vec charset:utf-8))
 "Hello"
 
+(mapcar (lambda (s) (ext:convert-string-to-bytes
+                     (string (code-char s)) charset:utf-8))
+        '(#x80 #x07ff #x800 #xfffd #x10ffff))
+;;(#(C2 80) #(DF BF) #(E0 A0 80) #(EF BF BD) #(F4 8F BF BF))
+(#(194 128) #(223 191) #(224 160 128) #(239 191 189) #(244 143 191 191))
+
+(loop for i below char-code-limit
+      as c = (code-char i)
+      as s = (ext:convert-string-to-bytes (string c) charset:utf-8)
+      as lp = 1 then l
+      as l = (length s)
+      always (<= 1 lp l 4))
+T
+
 (list (sys::charset-range charset:base64 #\+ #\+ 2)
       (sys::charset-range charset:base64 #\+ #\/ 10)
       (sys::charset-range charset:base64 #\A #\Z 2)

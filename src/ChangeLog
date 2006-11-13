@@ -1,3 +1,8 @@
+2006-11-11  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	fixed bug #[ 1575569 ]: utf-8 conversion error
+	* encoding.d (utf8_wcslen): support up to 4 bytes/character.
+
 2006-11-12  Sam Steingold  <sds@gnu.org>
 
 	* io.d (pr_unreadably): new function (similar to old pr_other_obj)
