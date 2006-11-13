@@ -7666,6 +7666,61 @@ local maygc void pr_number (const gcv_object_t* stream_, object number) {
     write_ascii_char(stream_,'>'); \
   } while (0)
 
+/* UP: prints object #<BLABLA FOO> to stream.
+ pr_unreadably(&stream,obj,&string,printer);
+ > stream: stream
+ > obj: object
+ > string: simple-string "BLABLA"
+ > printer: function to print the object to the stream
+ < stream: stream
+ can trigger GC */
+local maygc void pr_unreadably (const gcv_object_t* stream_, object obj,
+                                gcv_object_t *string_, pr_routine_t printer) {
+  LEVEL_CHECK;
+  pushSTACK(obj);                    /* save object */
+  var gcv_object_t* obj_ = &STACK_0; /* and memorize, where it is */
+  UNREADABLE_START;
+  var uintL length_limit = get_print_length(); /* *PRINT-LENGTH* */
+  JUSTIFY_LAST(length_limit==0);
+  write_sstring_case(stream_,*string_); /* print string */
+  JUSTIFY_SPACE;
+  JUSTIFY_LAST(true);
+  printer(stream_,*obj_);       /* print obj as an address */
+  JUSTIFY_END_FILL;
+  UNREADABLE_END;
+  skipSTACK(1);
+  LEVEL_END;
+}
+
+ /* UP: prints object #<BLABLA (FOO . BAR)> to stream.
+ pr_unreadably_2(&stream,obj1,obj2,&string);
+ > stream: stream
+ > obj1, obj2: objects
+ > string: simple-string "BLABLA"
+ < stream: stream
+ can trigger GC */
+local maygc void pr_unreadably_2 (const gcv_object_t* stream_, object obj1,
+                                  object obj2, gcv_object_t *string_) {
+  LEVEL_CHECK;
+  pushSTACK(obj1);              /* save */
+  pushSTACK(obj2);              /* save */
+  var gcv_object_t* aux_ = &STACK_0; /* and memorize, where they are */
+  UNREADABLE_START;
+  var uintL length_limit = get_print_length(); /* *PRINT-LENGTH* */
+  JUSTIFY_LAST(length_limit==0);
+  write_sstring_case(stream_,*string_);
+  /* check for attaining of *PRINT-LENGTH*: */
+  if (length_limit == 0) goto pr_unreadably_2_end;
+  JUSTIFY_SPACE;              /* print Space */
+  JUSTIFY_LAST(true);
+  pr_pair(stream_,*(aux_ STACKop 0),*(aux_ STACKop 1)); /* output (obj1 . obj2) pair */
+ pr_unreadably_2_end:
+  JUSTIFY_END_FILL;
+  UNREADABLE_END;
+  skipSTACK(2);
+  LEVEL_END;
+}
+
 #            -------- Arrays when *PRINT-ARRAY*=NIL --------
 
 # UP: prints array in short form to stream.
@@ -8405,29 +8460,6 @@ LISPFUNN(print_structure,2) {
 
 #                 -------- machine pointer --------
 
-# UP: prints object #<BLABLA #x......> to stream.
-# pr_hex6_obj(&stream,obj,string);
-# > obj: object
-# > string: simple-string "BLABLA"
-# > stream: stream
-# < stream: stream
-# can trigger GC
-local maygc void pr_hex6_obj (const gcv_object_t* stream_, object obj, object string) {
-  pushSTACK(obj); # save object
-  var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
-  pushSTACK(string); # save string
-  var gcv_object_t* string_ = &STACK_0; # and memorize, where it is
-  UNREADABLE_START;
-  JUSTIFY_LAST(false);
-  write_sstring_case(stream_,*string_); # print string
-  JUSTIFY_SPACE;
-  JUSTIFY_LAST(true);
-  pr_hex6(stream_,*obj_); # print obj as an address
-  JUSTIFY_END_FILL;
-  UNREADABLE_END;
-  skipSTACK(2);
-}
-
 # UP: prints machine-pointer to stream.
 # pr_machine(&stream,obj);
 # > obj: machine-pointer
@@ -8437,7 +8469,7 @@ local maygc void pr_hex6_obj (const gcv_object_t* stream_, object obj, object st
 local maygc void pr_machine (const gcv_object_t* stream_, object obj) {
   # #<ADDRESS #x...>
   CHECK_PRINT_READABLY(obj);
-  pr_hex6_obj(stream_,obj,O(printstring_address));
+  pr_unreadably(stream_,obj,&O(printstring_address),pr_hex6);
 }
 
 #        -------- Frame-Pointer, Small-Read-Label, System --------
@@ -8461,7 +8493,7 @@ local maygc void pr_system (const gcv_object_t* stream_, object obj) {
     else if (eq(obj,eof_value)) # #<END OF FILE>
       write_sstring_case(stream_,O(printstring_eof));
     else # #<SYSTEM-POINTER #x...>
-      pr_hex6_obj(stream_,obj,O(printstring_system));
+      pr_unreadably(stream_,obj,&O(printstring_system),pr_hex6);
   } else {
     if (!boundp(obj))
       write_sstring_case(stream_,O(printstring_unbound_readably));
@@ -8501,7 +8533,7 @@ local maygc void pr_readlabel (const gcv_object_t* stream_, object obj) {
 local maygc void pr_framepointer (const gcv_object_t* stream_, object obj) {
   CHECK_PRINT_READABLY(obj);
   # #<FRAME-POINTER #x...>
-  pr_hex6_obj(stream_,obj,O(printstring_frame_pointer));
+  pr_unreadably(stream_,obj,&O(printstring_frame_pointer),pr_hex6);
 }
 
 #                        -------- Records --------
@@ -8532,6 +8564,18 @@ local maygc void pr_record_ab (const gcv_object_t* stream_,
     length++; # increase previous length
     index++; # next component
   }
+}
+
+/* a pr_routine_t version of pr_record_ab
+ pr_record_ab_00(&stream,obj)
+ > stream - output stream
+ > obj =record
+ < stream - same stream
+ can trigger GC */
+local maygc void pr_record_ab_00 (const gcv_object_t* stream_, object obj) {
+  pushSTACK(obj);
+  pr_record_ab(stream_,&STACK_0,0,0);
+  skipSTACK(1);
 }
 
 # UP: prints a list as the rest of a record.
@@ -8808,9 +8852,9 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         skipSTACK(1);
       }
       break;
-    case Rectype_Readtable: # #<READTABLE #x...>
+    case Rectype_Readtable:     /* #<READTABLE #x...> */
       CHECK_PRINT_READABLY(obj);
-      pr_hex6_obj(stream_,obj,O(printstring_readtable));
+      pr_unreadably(stream_,obj,&O(printstring_readtable),pr_hex6);
       break;
     case Rectype_Pathname:
      #ifdef IO_DEBUG
@@ -8909,23 +8953,11 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
 #endif
     case Rectype_Byte:
 #if 0
-      # #<BYTE size position>
+      /* #<BYTE size position> */
       CHECK_PRINT_READABLY(obj);
-      LEVEL_CHECK;
-      {
-        pushSTACK(obj); # save Byte
-        var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
-        UNREADABLE_START;
-        JUSTIFY_LAST(false);
-        write_sstring_case(stream_,O(printstring_byte)); # "BYTE"
-        pr_record_ab(stream_,obj_,0,0); # print component
-        JUSTIFY_END_FILL;
-        UNREADABLE_END;
-        skipSTACK(1);
-      }
-      LEVEL_END;
+      pr_unreadably(stream_,obj,&O(printstring_byte),pr_record_ab_00);
 #else
-      # #S(BYTE :SIZE size :POSITION position)
+      /* #S(BYTE :SIZE size :POSITION position) */
       pr_record_descr(stream_,obj,S(byte),true,O(byte_slotlist));
 #endif
       break;
@@ -8948,71 +8980,22 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         }
       pr_sharp_dot(stream_,TheLoadtimeeval(obj)->loadtimeeval_form);
       break;
-    case Rectype_Symbolmacro: # #<SYMBOL-MACRO expansion>
+    case Rectype_Symbolmacro:   /* #<SYMBOL-MACRO expansion> */
       CHECK_PRINT_READABLY(obj);
-      LEVEL_CHECK;
-      {
-        pushSTACK(obj); # save Symbol-Macro
-        var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
-        UNREADABLE_START;
-        JUSTIFY_LAST(false);
-        write_sstring_case(stream_,O(printstring_symbolmacro)); # SYMBOL-MACRO
-        pr_record_ab(stream_,obj_,0,0); # print component
-        JUSTIFY_END_FILL;
-        UNREADABLE_END;
-        skipSTACK(1);
-      }
-      LEVEL_END;
+      pr_unreadably(stream_,obj,&O(printstring_symbolmacro),pr_record_ab_00);
       break;
-    case Rectype_GlobalSymbolmacro: # #<GLOBAL SYMBOL-MACRO expansion>
+    case Rectype_GlobalSymbolmacro: /* #<GLOBAL SYMBOL-MACRO expansion> */
       CHECK_PRINT_READABLY(obj);
-      LEVEL_CHECK;
-      {
-        pushSTACK(obj); # save Global-Symbol-Macro
-        var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
-        UNREADABLE_START;
-        JUSTIFY_LAST(false);
-        write_sstring_case(stream_,O(printstring_globalsymbolmacro)); # GLOBAL SYMBOL-MACRO
-        JUSTIFY_SPACE; JUSTIFY_LAST(true);
-        # Print expansion:
-        prin_object(stream_,TheSymbolmacro(TheGlobalSymbolmacro(*obj_)->globalsymbolmacro_definition)->symbolmacro_expansion);
-        JUSTIFY_END_FILL;
-        UNREADABLE_END;
-        skipSTACK(1);
-      }
-      LEVEL_END;
+      pr_unreadably(stream_,TheSymbolmacro(TheGlobalSymbolmacro(obj)->globalsymbolmacro_definition)->symbolmacro_expansion,
+                    &O(printstring_globalsymbolmacro),prin_object);
       break;
-    case Rectype_Macro: # #<MACRO expansion>
+    case Rectype_Macro:         /* #<MACRO expansion> */
       CHECK_PRINT_READABLY(obj);
-      LEVEL_CHECK;
-      {
-        pushSTACK(obj); # save Macro
-        var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
-        UNREADABLE_START;
-        JUSTIFY_LAST(false);
-        write_sstring_case(stream_,O(printstring_macro)); # "MACRO"
-        pr_record_ab(stream_,obj_,0,0); # print component
-        JUSTIFY_END_FILL;
-        UNREADABLE_END;
-        skipSTACK(1);
-      }
-      LEVEL_END;
+      pr_unreadably(stream_,obj,&O(printstring_macro),pr_record_ab_00);
       break;
-    case Rectype_FunctionMacro: # #<FUNCTION-MACRO expansion>
+    case Rectype_FunctionMacro: /* #<FUNCTION-MACRO expansion> */
       CHECK_PRINT_READABLY(obj);
-      LEVEL_CHECK;
-      {
-        pushSTACK(obj); # save FunctionMacro
-        var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
-        UNREADABLE_START;
-        JUSTIFY_LAST(false);
-        write_sstring_case(stream_,O(printstring_functionmacro)); # FUNCTION-MACRO
-        pr_record_ab(stream_,obj_,0,0); # print component
-        JUSTIFY_END_FILL;
-        UNREADABLE_END;
-        skipSTACK(1);
-      }
-      LEVEL_END;
+      pr_unreadably(stream_,obj,&O(printstring_functionmacro),pr_record_ab_00);
       break;
     case Rectype_BigReadLabel: # #<READ-LABEL n>
       pr_readlabel(stream_,obj);
@@ -9194,33 +9177,12 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       LEVEL_END;
       break;
 #endif
-    case Rectype_Weakpointer: # #<WEAK-POINTER value> or #<BROKEN WEAK-POINTER>
+    case Rectype_Weakpointer: /* #<WEAK-POINTER value> or #<BROKEN WEAK-POINTER> */
       CHECK_PRINT_READABLY(obj);
-      if (!weakpointer_broken_p(obj)) {
-        LEVEL_CHECK;
-        {
-          pushSTACK(TheWeakpointer(obj)->wp_value); # save value
-          var gcv_object_t* value_ = &STACK_0; # and memorize, where it is
-          UNREADABLE_START;
-          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-          JUSTIFY_LAST(length_limit==0);
-          write_sstring_case(stream_,O(printstring_weakpointer)); # "WEAK-POINTER"
-          {
-            var uintL length = 0; # previous length := 0
-            # check for attaining of *PRINT-LENGTH*:
-            if (length >= length_limit) goto weakpointer_end;
-            JUSTIFY_SPACE; # print Space
-            JUSTIFY_LAST(true);
-            prin_object(stream_,*value_); # output value
-            length++; # increase previous length
-          }
-        weakpointer_end:
-          JUSTIFY_END_FILL;
-          UNREADABLE_END;
-          skipSTACK(1);
-        }
-        LEVEL_END;
-      } else
+      if (!weakpointer_broken_p(obj))
+        pr_unreadably(stream_,TheWeakpointer(obj)->wp_value,
+                      &O(printstring_weakpointer),prin_object);
+      else
         write_sstring_case(stream_,O(printstring_broken_weakpointer));
       break;
     case Rectype_MutableWeakList: # #<WEAK-LIST (element1 ...)>
@@ -9359,34 +9321,13 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       }
       LEVEL_END;
       break;
-    case Rectype_Weakmapping: # #<WEAK-MAPPING (key . value)> or #<BROKEN WEAK-MAPPING>
+    case Rectype_Weakmapping: /* #<WEAK-MAPPING (key . value)> or #<BROKEN WEAK-MAPPING> */
       CHECK_PRINT_READABLY(obj);
-      if (!eq(TheWeakmapping(obj)->wm_value,unbound)) {
-        LEVEL_CHECK;
-        {
-          pushSTACK(TheWeakmapping(obj)->wm_value); # save value
-          pushSTACK(TheWeakmapping(obj)->wm_key); # save key
-          var gcv_object_t* aux_ = &STACK_0; # and memorize, where they are
-          UNREADABLE_START;
-          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-          JUSTIFY_LAST(length_limit==0);
-          write_sstring_case(stream_,O(printstring_weakmapping)); # "WEAK-MAPPING"
-          {
-            var uintL length = 0; # previous length := 0
-            # check for attaining of *PRINT-LENGTH*:
-            if (length >= length_limit) goto weakmapping_end;
-            JUSTIFY_SPACE; # print Space
-            JUSTIFY_LAST(true);
-            pr_pair(stream_,*(aux_ STACKop 0),*(aux_ STACKop 1)); # output (key . value) pair
-            length++; # increase previous length
-          }
-        weakmapping_end:
-          JUSTIFY_END_FILL;
-          UNREADABLE_END;
-          skipSTACK(2);
-        }
-        LEVEL_END;
-      } else
+      if (!eq(TheWeakmapping(obj)->wm_value,unbound))
+        pr_unreadably_2(stream_,TheWeakmapping(obj)->wm_value,
+                        TheWeakmapping(obj)->wm_key,
+                        &O(printstring_weakmapping));
+      else
         write_sstring_case(stream_,O(printstring_broken_weakmapping));
       break;
     case Rectype_Finalizer: # #<FINALIZER>
@@ -9460,122 +9401,38 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       CHECK_PRINT_READABLY(obj);
       write_sstring_case(stream_,O(printstring_internal_weak_list));
       break;
-    case Rectype_WeakAnd: # #<WEAK-AND-RELATION keys-list> or #<BROKEN WEAK-AND-RELATION>
+    case Rectype_WeakAnd: /* #<WEAK-AND-RELATION keys-list> or #<BROKEN WEAK-AND-RELATION> */
       CHECK_PRINT_READABLY(obj);
-      if (!eq(TheWeakAnd(obj)->war_keys_list,unbound)) {
-        LEVEL_CHECK;
-        {
-          pushSTACK(TheWeakAnd(obj)->war_keys_list); # save keys list
-          var gcv_object_t* keys_list_ = &STACK_0; # and memorize, where it is
-          UNREADABLE_START;
-          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-          JUSTIFY_LAST(length_limit==0);
-          write_sstring_case(stream_,O(printstring_weak_and_relation)); # "WEAK-AND-RELATION"
-          {
-            var uintL length = 0; # previous length := 0
-            # check for attaining of *PRINT-LENGTH*:
-            if (length >= length_limit) goto weak_and_relation_end;
-            JUSTIFY_SPACE; # print Space
-            JUSTIFY_LAST(true);
-            prin_object(stream_,*keys_list_); # output keys-list
-            length++; # increase previous length
-          }
-        weak_and_relation_end:
-          JUSTIFY_END_FILL;
-          UNREADABLE_END;
-          skipSTACK(1);
-        }
-        LEVEL_END;
-      } else
+      if (!eq(TheWeakAnd(obj)->war_keys_list,unbound))
+        pr_unreadably(stream_,TheWeakAnd(obj)->war_keys_list,
+                      &O(printstring_weak_and_relation),prin_object);
+      else
         write_sstring_case(stream_,O(printstring_broken_weak_and_relation));
       break;
-    case Rectype_WeakOr: # #<WEAK-OR-RELATION keys-list> or #<BROKEN WEAK-OR-RELATION>
+    case Rectype_WeakOr: /* #<WEAK-OR-RELATION keys-list> or #<BROKEN WEAK-OR-RELATION> */
       CHECK_PRINT_READABLY(obj);
-      if (!eq(TheWeakOr(obj)->wor_keys_list,unbound)) {
-        LEVEL_CHECK;
-        {
-          pushSTACK(TheWeakOr(obj)->wor_keys_list); # save keys list
-          var gcv_object_t* keys_list_ = &STACK_0; # and memorize, where it is
-          UNREADABLE_START;
-          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-          JUSTIFY_LAST(length_limit==0);
-          write_sstring_case(stream_,O(printstring_weak_or_relation)); # "WEAK-OR-RELATION"
-          {
-            var uintL length = 0; # previous length := 0
-            # check for attaining of *PRINT-LENGTH*:
-            if (length >= length_limit) goto weak_or_relation_end;
-            JUSTIFY_SPACE; # print Space
-            JUSTIFY_LAST(true);
-            prin_object(stream_,*keys_list_); # output keys-list
-            length++; # increase previous length
-          }
-        weak_or_relation_end:
-          JUSTIFY_END_FILL;
-          UNREADABLE_END;
-          skipSTACK(1);
-        }
-        LEVEL_END;
-      } else
+      if (!eq(TheWeakOr(obj)->wor_keys_list,unbound))
+        pr_unreadably(stream_,TheWeakOr(obj)->wor_keys_list,
+                      &O(printstring_weak_or_relation),prin_object);
+      else
         write_sstring_case(stream_,O(printstring_broken_weak_or_relation));
       break;
-    case Rectype_WeakAndMapping: # #<WEAK-AND-MAPPING (keys-list . value)> or #<BROKEN WEAK-AND-MAPPING>
+    case Rectype_WeakAndMapping: /* #<WEAK-AND-MAPPING (keys-list . value)> or #<BROKEN WEAK-AND-MAPPING> */
       CHECK_PRINT_READABLY(obj);
-      if (!eq(TheWeakAndMapping(obj)->wam_keys_list,unbound)) {
-        LEVEL_CHECK;
-        {
-          pushSTACK(TheWeakAndMapping(obj)->wam_value); # save value
-          pushSTACK(TheWeakAndMapping(obj)->wam_keys_list); # save keys-list
-          var gcv_object_t* aux_ = &STACK_0; # and memorize, where they are
-          UNREADABLE_START;
-          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-          JUSTIFY_LAST(length_limit==0);
-          write_sstring_case(stream_,O(printstring_weak_and_mapping)); # "WEAK-AND-MAPPING"
-          {
-            var uintL length = 0; # previous length := 0
-            # check for attaining of *PRINT-LENGTH*:
-            if (length >= length_limit) goto weak_and_mapping_end;
-            JUSTIFY_SPACE; # print Space
-            JUSTIFY_LAST(true);
-            pr_pair(stream_,*(aux_ STACKop 0),*(aux_ STACKop 1)); # output (keys-list . value) pair
-            length++; # increase previous length
-          }
-        weak_and_mapping_end:
-          JUSTIFY_END_FILL;
-          UNREADABLE_END;
-          skipSTACK(2);
-        }
-        LEVEL_END;
-      } else
+      if (!eq(TheWeakAndMapping(obj)->wam_keys_list,unbound))
+        pr_unreadably_2(stream_,TheWeakAndMapping(obj)->wam_value,
+                        TheWeakAndMapping(obj)->wam_keys_list,
+                        &O(printstring_weak_and_mapping));
+      else
         write_sstring_case(stream_,O(printstring_broken_weak_and_mapping));
       break;
     case Rectype_WeakOrMapping: # #<WEAK-OR-MAPPING (keys-list . value)> or #<BROKEN WEAK-OR-MAPPING>
       CHECK_PRINT_READABLY(obj);
-      if (!eq(TheWeakOrMapping(obj)->wom_keys_list,unbound)) {
-        LEVEL_CHECK;
-        {
-          pushSTACK(TheWeakOrMapping(obj)->wom_value); # save value
-          pushSTACK(TheWeakOrMapping(obj)->wom_keys_list); # save keys-list
-          var gcv_object_t* aux_ = &STACK_0; # and memorize, where they are
-          UNREADABLE_START;
-          var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
-          JUSTIFY_LAST(length_limit==0);
-          write_sstring_case(stream_,O(printstring_weak_or_mapping)); # "WEAK-OR-MAPPING"
-          {
-            var uintL length = 0; # previous length := 0
-            # check for attaining of *PRINT-LENGTH*:
-            if (length >= length_limit) goto weak_or_mapping_end;
-            JUSTIFY_SPACE; # print Space
-            JUSTIFY_LAST(true);
-            pr_pair(stream_,*(aux_ STACKop 0),*(aux_ STACKop 1)); # output (keys-list . value) pair
-            length++; # increase previous length
-          }
-        weak_or_mapping_end:
-          JUSTIFY_END_FILL;
-          UNREADABLE_END;
-          skipSTACK(2);
-        }
-        LEVEL_END;
-      } else
+      if (!eq(TheWeakOrMapping(obj)->wom_keys_list,unbound))
+        pr_unreadably_2(stream_,TheWeakOrMapping(obj)->wom_value,
+                        TheWeakOrMapping(obj)->wom_keys_list,
+                        &O(printstring_weak_or_mapping));
+      else
         write_sstring_case(stream_,O(printstring_broken_weak_or_mapping));
       break;
     case Rectype_WeakAlist_Key:
@@ -9600,28 +9457,6 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
 }
 
 #                    -------- SUBRs, FSUBRs --------
-
-# UP: prints Object in the form #<BLABLA other> to stream.
-# pr_other_obj(&stream,other,string);
-# > other: object
-# > string: Simple-String "BLABLA"
-# > stream: stream
-# < stream: stream
-# can trigger GC
-local maygc void pr_other_obj (const gcv_object_t* stream_, object other, object string) {
-  pushSTACK(other); # save other
-  pushSTACK(string); # save String
-  var gcv_object_t* string_ = &STACK_0; # and memorize, where both are
-  UNREADABLE_START;
-  JUSTIFY_LAST(false);
-  write_sstring_case(stream_,*string_); # print String
-  JUSTIFY_SPACE;
-  JUSTIFY_LAST(true);
-  prin_object(stream_,*(string_ STACKop 1)); # print other
-  JUSTIFY_END_FILL;
-  UNREADABLE_END;
-  skipSTACK(2);
-}
 
 # UP: prints SUBR to Stream.
 # pr_subr(&stream,obj);
@@ -9656,14 +9491,14 @@ local maygc void pr_subr (const gcv_object_t* stream_, object obj) {
     INDENT_END;
     KLAMMER_ZU;
     skipSTACK(1);
-  } else {
-    pr_other_obj(stream_,TheSubr(obj)->name,
-                 ((as_oint(subr_tab_ptr_as_object(&subr_tab)) <=
-                   as_oint(obj))
-                  && (as_oint(obj) <
-                      as_oint(subr_tab_ptr_as_object(&subr_tab+1))))
-                 ? O(printstring_subr) : O(printstring_addon_subr));
-  }
+  } else
+    pr_unreadably(stream_,TheSubr(obj)->name,
+                  ((as_oint(subr_tab_ptr_as_object(&subr_tab)) <=
+                    as_oint(obj))
+                   && (as_oint(obj) <
+                       as_oint(subr_tab_ptr_as_object(&subr_tab+1))))
+                  ? &O(printstring_subr) : &O(printstring_addon_subr),
+                  prin_object);
 }
 
 # UP: prints FSUBR to Stream.
@@ -9675,7 +9510,7 @@ local maygc void pr_subr (const gcv_object_t* stream_, object obj) {
 local maygc void pr_fsubr (const gcv_object_t* stream_, object obj) {
   # #<SPECIAL-OPERATOR name>
   CHECK_PRINT_READABLY(obj);
-  pr_other_obj(stream_,TheFsubr(obj)->name,O(printstring_fsubr));
+  pr_unreadably(stream_,TheFsubr(obj)->name,&O(printstring_fsubr),prin_object);
 }
 
 #                       -------- Closures --------
@@ -9730,15 +9565,14 @@ local maygc void pr_closure (const gcv_object_t* stream_, object obj) {
 # < stream: Stream
 # can trigger GC
 local maygc void pr_cclosure (const gcv_object_t* stream_, object obj) {
-  # query *PRINT-CLOSURE* :
-  if (!nullpSv(print_closure) || !nullpSv(print_readably)) {
-    # *PRINT-CLOSURE /= NIL -> print in re-readable form #Y(...)
+  /* query *PRINT-CLOSURE* : */
+  if (!nullpSv(print_closure) || !nullpSv(print_readably))
+    /* *PRINT-CLOSURE /= NIL -> print in re-readable form #Y(...) */
     pr_cclosure_lang(stream_,obj);
-  } else {
-    # *PRINT-CLOSURE* = NIL ->
-    # only print #<COMPILED-FUNCTION name> :
-    pr_other_obj(stream_,Closure_name(obj),O(printstring_compiled_closure));
-  }
+  else
+    /* *PRINT-CLOSURE* = NIL -> only print #<COMPILED-FUNCTION name> : */
+    pr_unreadably(stream_,Closure_name(obj),&O(printstring_compiled_closure),
+                  prin_object);
 }
 
 # print compiled Closure in rereadable Form:
