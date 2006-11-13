@@ -1,3 +1,20 @@
+2006-11-12  Sam Steingold  <sds@gnu.org>
+
+	* io.d (pr_unreadably): new function (similar to old pr_other_obj)
+	(pr_unreadably_2, pr_record_ab_00): added
+	(pr_hex6_obj, pr_other_obj): removed
+	(pr_machine, pr_system): use pr_unreadably instead of pr_hex6_obj
+	(pr_orecord) [Rectype_Readtable]: use pr_unreadably instead of
+	pr_hex6_obj
+	[Rectype_Byte, Rectype_Symbolmacro, Rectype_GlobalSymbolmacro]:
+	[Rectype_Macro, Rectype_FunctionMacro, Rectype_Weakpointer]:
+	[Rectype_WeakAnd, Rectype_WeakOr]:
+	use pr_unreadably instead of inline code
+	[Rectype_Weakmapping, Rectype_WeakAndMapping, Rectype_WeakOrMapping]:
+	use pr_unreadably_2 instead of inline code
+	(pr_subr, pr_fsubr, pr_cclosure): use pr_unreadably instead of
+	pr_other_obj
+
 2006-11-09  Bruno Haible  <bruno@clisp.org>
 
 	fixed bug #[ 1591671 ]: typep and subtypep fail ...
