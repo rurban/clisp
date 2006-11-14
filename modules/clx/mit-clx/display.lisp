@@ -82,7 +82,7 @@
 	   family
 	   (ecase family
 	     (:local (map 'string #'code-char address))
-	     (:internet (coerce address 'list)))
+	     ((:internet :internet6) (coerce address 'list)))
 	   number name data))))))
 
 (defun get-best-authorization (host display protocol)

@@ -1,3 +1,9 @@
+2006-11-13  Magnus Henoch  <mange@freemail.hu>
+	    Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/clx.lisp (*protocol-families*): Add :internet6.
+	* modules/clx/mit-clx/display.lisp (read-xauth-entry): Likewise.
+
 2006-11-13  Sam Steingold  <sds@gnu.org>
 
 	* modules/fastcgi/fastcgi.h: removed unused file
