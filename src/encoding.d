@@ -235,10 +235,15 @@ global void base64_wcstombs (object encoding, object stream,
   var const chart *error_p = NULL;
   *destp += base64_to_bytes(*srcp,srcend,*destp,&error_p);
   if (error_p) {
-    pushSTACK(fixnum(srcend-*srcp));
-    pushSTACK(fixnum(error_p-*srcp));
-    pushSTACK(code_char(*error_p));
-    fehler(charset_type_error,GETTEXT("Invalid base64 encoding at ~S (character ~S of ~S)"));
+    if (error_p == srcend) {
+      pushSTACK(fixnum(error_p-*srcp));
+      fehler(charset_type_error,GETTEXT("Invalid base64 encoding termination at position ~S"));
+    } else {
+      pushSTACK(fixnum(srcend-*srcp));
+      pushSTACK(fixnum((error_p-*srcp)+1));
+      pushSTACK(code_char(*error_p));
+      fehler(charset_type_error,GETTEXT("Invalid base64 encoding at ~S (character ~S of ~S)"));
+    }
   }
   *srcp = srcend;
 }
