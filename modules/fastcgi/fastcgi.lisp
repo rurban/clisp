@@ -144,8 +144,7 @@
 
 
 
-; --------------   "C" functions
-;(c-lines "#include \"fastcgi.h\"~%"); completely wrapped
+;; --------------   "C" functions
 (eval-when (compile)
   ;;NB this global affects further compilations in this session
   (setq ffi:*output-c-functions* t))

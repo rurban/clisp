@@ -1,5 +1,9 @@
 2006-11-13  Sam Steingold  <sds@gnu.org>
 
+	* modules/fastcgi/fastcgi.h: removed unused file
+
+2006-11-13  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 1595700 ]: bad base64 error report
 	* encoding.d (base64_wcstombs): do not access invalid memory
 
@@ -22539,7 +22543,8 @@
 	(LAUNCH): take NIL stream as /dev/nul.
 
 2003-08-07  John Hinsdale <hin@alma.com>
-	* oracle.lisp, fastcgi.lisp, fastcgi.h, linux.lisp
+
+	* oracle.lisp, fastcgi.lisp, fastcgi.h, linux.lisp:
 	Take "C" prototypes from standard headers, not FFI
 
 2003-08-07  Sam Steingold  <sds@gnu.org>
