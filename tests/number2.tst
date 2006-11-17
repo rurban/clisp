@@ -484,3 +484,6 @@ NIL
   :for (x3 x4) = (multiple-value-list (round (float x 1s0)))
   :unless (and (= x1 x3) (= x2 x4)) :collect (list x x1 x2 x3 x4))
 NIL
+
+;; https://sourceforge.net/tracker/index.php?func=detail&aid=1246248&group_id=1355&atid=101355
+(numberp (log internal-time-units-per-second))
