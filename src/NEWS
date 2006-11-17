@@ -12,6 +12,8 @@ User visible changes
 * Bug fixes:
   + Fixed rounding of long floats [even+1/2]. [ 1589311 ]
   + Fixed stdio when running without a TTY, e.g., under SSH. [ 1592343 ]
+  + ANSI compliance: PPRINT dispatch is now respected for nested
+    objects, not just the top-level. [ 1483768, 1598053 ]
 
 
 2.41 (2006-10-13)
