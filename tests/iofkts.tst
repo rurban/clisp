@@ -775,6 +775,16 @@ MY-PPRINT-LOGICAL
            (funcall (pprint-dispatch 42) s 42)))
 T
 
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1598053&group_id=1355&atid=101355
+;; https://sourceforge.net/tracker/index.php?func=detail&aid=1483768&group_id=1355&atid=101355
+(flet ((my-symbol-pprint (stream obj)
+         (let ((*print-pretty* nil))
+           (princ "++" stream) (princ obj stream) (princ "++" stream))))
+  (let ((*print-pprint-dispatch* (copy-pprint-dispatch)))
+    (set-pprint-dispatch 'symbol #'my-symbol-pprint)
+    (princ-to-string '(a (b (c (d) e) f) g))))
+"(++A++ (++B++ (++C++ (++D++) ++E++) ++F++) ++G++)"
+
 (progn
  (defclass c1 () ((a :initarg a) (b :initarg b) (c :initarg c)))
  (defclass c2 (c1) ((aa :initarg aa) (bb :initarg bb) (cc :initarg cc)))

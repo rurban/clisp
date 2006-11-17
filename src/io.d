@@ -6452,28 +6452,6 @@ local maygc void pr_circle (const gcv_object_t* stream_, object obj, pr_routine_
 
 # ------------------------ Entering the printer -------------------------------
 
-# check whether the object is a valid Dispatch Table and contains some entries
-#define DISPATCH_TABLE_VALID_P(dt)  \
- (mconsp(dt) && eq(Car(dt),S(print_pprint_dispatch)) && !nullp(Cdr(dt)))
-# call the appropriate function
-local void pretty_print_call (const gcv_object_t* stream_, object obj, pr_routine_t* pr_xxx_default) {
-  var object ppp_disp = Symbol_value(S(print_pprint_dispatch));
-  if (!boundp(Symbol_value(S(prin_pprinter))) /* been here already! */
-      && DISPATCH_TABLE_VALID_P(ppp_disp)) {
-    /* Call (PPRINT-DISPATCH obj): */
-    pushSTACK(obj); /* save */
-    pushSTACK(obj); funcall(S(pprint_dispatch),1);
-    obj = popSTACK(); /* restore */
-    if (!nullp(value2)) {
-      pushSTACK(*stream_); pushSTACK(obj); funcall(value1,2);
-      return;
-    }
-  }
-  /* Default printing: */
-  (*pr_xxx_default)(stream_,obj);
-}
-#undef DISPATCH_TABLE_VALID_P
-
 /* UP: return the number of spaces available on the current line in this stream
  NIL means unlimited
  can trigger GC */
@@ -6564,7 +6542,7 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
       if (stream_get_read_eval(*stream_)) # adopt READ-EVAL-Bit
         TheStream(STACK_0)->strmflags |= bit(strmflags_reval_bit_B);
       # print object to the new stream:
-      pretty_print_call(&STACK_0,STACK_1,pr_xxx);
+      pr_xxx(&STACK_0,STACK_1);
       var bool skip_first_nl = false;
       var bool modus_single_p;
       { # print content of the new stream to the old stream:
@@ -6667,7 +6645,7 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
       dynamic_unbind(S(prin_lm));
       dynamic_unbind(S(prin_l1));
     } else { # already a PPHELP-stream
-      pretty_print_call(stream_,obj,pr_xxx);
+      pr_xxx(stream_,obj);
     }
   } else { # *PRINT-PRETTY* = NIL.
     # if *stream_ is a PPHELP-Stream, it must be replaced by a
@@ -6861,27 +6839,28 @@ local pr_routine_t pr_cclosure_lang;
 local pr_routine_t pr_cclosure_codevector;
 local pr_routine_t pr_stream;
 
-# UP: prints object to Stream.
-# prin_object(&stream,obj);
-# > obj: object
-# > stream: stream
-# < stream: stream
-# can trigger GC
-local maygc void prin_object (const gcv_object_t* stream_, object obj) {
+/* UP: prints object to Stream.
+ prin_object_ki(&stream,obj,pr_routine);
+ > obj: object
+ > stream: stream
+ > pr_routine: printer
+ < stream: stream
+ can trigger GC */
+local maygc void prin_object_ki (const gcv_object_t* stream_, object obj,
+                                 pr_routine_t *printer) {
  restart_it:
-  # test for keyboard-interrupt:
-  interruptp({
-    pushSTACK(obj); # save obj in the STACK; the stream is safe
-    pushSTACK(S(print)); tast_break(); # PRINT call break-loop
-    obj = popSTACK(); # move obj back
+  interruptp({ /* test for keyboard-interrupt: */
+    pushSTACK(obj);      /* save obj in the STACK; the stream is safe */
+    pushSTACK(S(print)); tast_break(); /* PRINT call break-loop */
+    obj = popSTACK();                  /* move obj back */
     goto restart_it;
   });
-  # test for stack overflow:
-  check_SP(); check_STACK();
-  # handle circularity:
-  pr_circle(stream_,obj,&prin_object_dispatch);
+  check_SP(); check_STACK(); /* test for stack overflow */
+  pr_circle(stream_,obj,printer); /* handle circularity */
 }
-local void prin_object_dispatch (const gcv_object_t* stream_, object obj) {
+local maygc void prin_object (const gcv_object_t* stream_, object obj)
+{ prin_object_ki(stream_,obj,&prin_object_dispatch); }
+local void prin_object_dispatch_low (const gcv_object_t* stream_, object obj) {
   # branch according to type-info:
 #ifdef TYPECODES
   switch (typecode(obj)) {
@@ -6961,7 +6940,29 @@ local void prin_object_dispatch (const gcv_object_t* stream_, object obj) {
     NOTREACHED;
 #endif
 }
-
+/* call the appropriate function */
+local void prin_object_dispatch_pretty (const gcv_object_t* stream_, object obj)
+{ var object ppp_disp = Symbol_value(S(print_pprint_dispatch));
+  if (!boundp(Symbol_value(S(prin_pprinter))) /* been here already! */
+      /* check whether ppp_disp is a valid non-empty Dispatch Table */
+      && mconsp(ppp_disp) && eq(Car(ppp_disp),S(print_pprint_dispatch))
+      && !nullp(Cdr(ppp_disp))) {
+    /* Call (PPRINT-DISPATCH obj): */
+    pushSTACK(obj); /* save */
+    pushSTACK(obj); funcall(S(pprint_dispatch),1);
+    obj = popSTACK(); /* restore */
+    if (!nullp(value2)) {
+      pushSTACK(*stream_); pushSTACK(obj); funcall(value1,2);
+      return;
+    }
+  }
+  prin_object_dispatch_low(stream_,obj);  /* default printing */
+}
+local void maygc prin_object_dispatch (const gcv_object_t* stream_, object obj)
+{ if (!nullpSv(print_pretty))
+    prin_object_dispatch_pretty(stream_,obj);
+  else prin_object_dispatch_low(stream_,obj);
+}
 
 # ------------- PRINT-Routines for various data-types --------------------
 
@@ -9449,6 +9450,23 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       CHECK_PRINT_READABLY(obj);
       write_sstring_case(stream_,O(printstring_internal_weak_hashed_alist));
       break;
+#ifdef MULTITHREAD
+    case Rectype_Thread:
+      CHECK_PRINT_READABLY(obj);
+      pr_unreadably(stream_,TheThread(obj)->xth_name,
+                    &O(printstring_thread),prin_object);
+      break;
+    case Rectype_Mutex:
+      CHECK_PRINT_READABLY(obj);
+      pr_unreadably(stream_,TheMutex(obj)->xmu_name,
+                    &O(printstring_mutex),prin_object);
+      break;
+    case Rectype_Exemption:
+      CHECK_PRINT_READABLY(obj);
+      pr_unreadably(stream_,TheExemption(obj)->xco_name,
+                    &O(printstring_exemption),prin_object);
+      break;
+#endif
     default:
       pushSTACK(S(print));
       fehler(serious_condition,
@@ -10066,20 +10084,8 @@ LISPFUN(pprint_newline,seclass_default,1,1,norest,nokey,0,NIL) {
 
 local pr_routine_t pprin_object;
 local pr_routine_t pprin_object_dispatch;
-local void pprin_object (const gcv_object_t* stream_,object obj) {
- restart_it:
-  # test for keyboard-interrupt:
-  interruptp({
-    pushSTACK(obj); # save obj in the STACK; the stream is safe
-    pushSTACK(S(print)); tast_break(); # PRINT call break-loop
-    obj = popSTACK(); # move obj back
-    goto restart_it;
-  });
-  # test for stack overflow:
-  check_SP(); check_STACK();
-  # handle circularity:
-  pr_circle(stream_,obj,&pprin_object_dispatch);
-}
+local void pprin_object (const gcv_object_t* stream_,object obj)
+{ prin_object_ki(stream_,obj,&pprin_object_dispatch); }
 # SYS::*PRIN-PPRINTER* == the lisp function
 local void pprin_object_dispatch (const gcv_object_t* stream_,object obj) {
   LEVEL_CHECK;
