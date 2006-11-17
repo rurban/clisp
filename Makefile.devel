@@ -448,7 +448,7 @@ doc-distrib : force
 	rm -f $(TOPNAME)
 
 # http://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
-GPG=gpg --use-agent --yes
+GPG=gpg2 --use-agent --yes
 gnu-distrib : $(SRC_DIST1) force
 	mkdir -p $(ARCHIVE)
 	cp -f src/NEWS SUMMARY $(ARCHIVE)
