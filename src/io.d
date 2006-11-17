@@ -9450,23 +9450,6 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       CHECK_PRINT_READABLY(obj);
       write_sstring_case(stream_,O(printstring_internal_weak_hashed_alist));
       break;
-#ifdef MULTITHREAD
-    case Rectype_Thread:
-      CHECK_PRINT_READABLY(obj);
-      pr_unreadably(stream_,TheThread(obj)->xth_name,
-                    &O(printstring_thread),prin_object);
-      break;
-    case Rectype_Mutex:
-      CHECK_PRINT_READABLY(obj);
-      pr_unreadably(stream_,TheMutex(obj)->xmu_name,
-                    &O(printstring_mutex),prin_object);
-      break;
-    case Rectype_Exemption:
-      CHECK_PRINT_READABLY(obj);
-      pr_unreadably(stream_,TheExemption(obj)->xco_name,
-                    &O(printstring_exemption),prin_object);
-      break;
-#endif
     default:
       pushSTACK(S(print));
       fehler(serious_condition,
