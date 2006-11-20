@@ -85,6 +85,8 @@ Changes to Unicode standard
 (Bruno and Jörg discussing issues Nov. 2006)
 Eliminate surrogates D800-DFFF from characters
 "Surrogates do not represent characters"
+"there are not and will never be *surrogate characters* (i.e. encoded
+characters represented with a single surrogate code point)"
 Change: (code-char #xD800) -> NIL, and #\uD800 becomes illegal
 This is to be consistent and avoid problems with embedded string constants
  in .fas files, e.g. (defvar foo #.(string (code-char #xD800))) ; error
