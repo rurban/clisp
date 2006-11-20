@@ -4257,15 +4257,81 @@ LISPFUNN(closure_reader,3) { # read #Y
   var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   # when n=0 read an Encoding:
   if (eq(STACK_0,Fixnum_0)) {
-    dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
-    dynamic_bind(S(packagestern),O(charset_package)); # bind *PACKAGE* to #<PACKAGE CHARSET>
-    var object expr = read_recursive_no_dot(stream_); # read expression
-    dynamic_unbind(S(packagestern));
-    dynamic_unbind(S(read_suppress));
-    expr = make_references(expr); # unentangle references
-    pushSTACK(*stream_); pushSTACK(expr); pushSTACK(S(Kinput));
-    funcall(L(set_stream_external_format),3); # (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr :input)
-    VALUES0; skipSTACK(3); return;
+    var object ch = read_char(stream_);
+    if (eq(ch,eof_value)) { fehler_eof(stream_); } # EOF -> Error
+    if (eq(ch,ascii_char('"'))) {
+      # Read a string with explicit newlines.
+      if (!nullpSv(read_suppress)) { /* *READ-SUPPRESS* /= NIL ? */
+        # yes -> only read ahead of string:
+        loop {
+          # read next character:
+          ch = read_char(stream_);
+          if (eq(ch,eof_value)) goto eof_in_string;
+          if (eq(ch,ascii_char('"')))
+            break;
+          if (eq(ch,ascii_char('\\'))) { # single-escape-character?
+            # yes -> read another character:
+            ch = read_char(stream_);
+            if (eq(ch,eof_value)) goto eof_in_string;
+          }
+        }
+        VALUES1(NIL);
+      } else {
+        # no -> really read string:
+        get_buffers(); # two empty Buffers on the Stack
+        # stack layout: stream, subchar, arg, Buffer, anotherBuffer.
+        loop {
+          # read next character:
+          ch = read_char(stream_);
+          if (eq(ch,eof_value)) goto eof_in_string;
+          if (eq(ch,ascii_char('"')))
+            break;
+          # ignore newlines
+          if (!(eq(ch,ascii_char(0x0A)) || eq(ch,ascii_char(0x0D)))) {
+            if (eq(ch,ascii_char('\\'))) { # single-escape-character?
+              # yes -> read another character:
+              ch = read_char(stream_);
+              if (eq(ch,eof_value)) goto eof_in_string;
+              if (eq(ch,ascii_char('n')))
+                ch = ascii_char(0x0A); # "\n" = #\Linefeed
+              else if (eq(ch,ascii_char('r')))
+                ch = ascii_char(0x0D); # "\r" = #\Return
+            }
+            # push character ch into Buffer:
+            ssstring_push_extend(STACK_1,char_code(ch));
+          }
+        }
+        # copy Buffer and convert it into Simple-String:
+        {
+          var object string;
+         #ifndef TYPECODES
+          if (TheStream(*stream_)->strmflags & bit(strmflags_immut_bit_B))
+            string = coerce_imm_ss(STACK_1);
+          else
+         #endif
+            string = copy_string(STACK_1);
+          VALUES1(string);
+        }
+        # free Buffer for reuse:
+        O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+      }
+      skipSTACK(3); return;
+     eof_in_string:
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(end_of_file,GETTEXT("~S: input stream ~S ends within a string"));
+    } else {
+      unread_char(stream_,ch);
+      dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
+      dynamic_bind(S(packagestern),O(charset_package)); # bind *PACKAGE* to #<PACKAGE CHARSET>
+      var object expr = read_recursive_no_dot(stream_); # read expression
+      dynamic_unbind(S(packagestern));
+      dynamic_unbind(S(read_suppress));
+      expr = make_references(expr); # unentangle references
+      pushSTACK(*stream_); pushSTACK(expr); pushSTACK(S(Kinput));
+      funcall(L(set_stream_external_format),3); # (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr :input)
+      VALUES0; skipSTACK(3); return;
+    }
   }
   # when *READ-SUPPRESS* /= NIL, only read one Object:
   if (!nullpSv(read_suppress)) {
@@ -7251,42 +7317,144 @@ local maygc void pr_sstring_ab (const gcv_object_t* stream_, object string,
   # query *PRINT-ESCAPE*:
   if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
     # with escape-character:
+    var bool must_escape_newlines = false; # special escaping of newlines needed...
+    if (!nullpSv(print_readably)) { # if *PRINT-READABLY* /= NIL ...
+      # and if it contains CR characters:
+      if (len > 0) {
+        var uintL restlen = len;
+        SstringDispatch(string,X, {
+          var const cintX* charptr = &((SstringX)TheVarobject(string))->data[start];
+          do {
+            var chart ch = as_chart(*charptr++);
+            if (chareq(ch,ascii(0x0D))) { # CR?
+              must_escape_newlines = true;
+              break;
+            }
+          } while (--restlen);
+        });
+      }
+    }
     var uintL index = start;
     pushSTACK(string); # save simple-string
-    write_ascii_char(stream_,'"'); # prepend a quotation mark
-    string = STACK_0;
-    if (len > 0) {
+    if (must_escape_newlines) {
+      # With the normal string syntax, CR characters can not be faithfully
+      # printed and read back in: CR and CR/LF are converted to LF on input.
+      # But LF characters can: they are converted to either CR or LF or CR/LF
+      # on output, depending on the stream's line terminator, which are all
+      # read back as LF.
+      # Use the #0Y"..." syntax. Transform LF to \n, CR to \r, and add
+      # newlines at these occasions, so that the line length stays small.
+      write_ascii_char(stream_,'#');
+      write_ascii_char(stream_,'0');
+      write_ascii_char(stream_,'Y');
+      write_ascii_char(stream_,'"'); # prepend a quotation mark
+      var bool pending_newline = false;
+      string = STACK_0;
       #if 0
       SstringDispatch(string,X, {
         dotimespL(len,len, {
           var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
-          # if c = #\" or c = #\\ first print a '\':
-          if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+          # if c = #\Linefeed or c = #\Return escape it:
+          if (chareq(c,ascii(0x0A))) {
             write_ascii_char(stream_,'\\');
-          write_code_char(stream_,c);
+            write_ascii_char(stream_,'n');
+            pending_newline = true;
+          } else if (chareq(c,ascii(0x0D))) {
+            write_ascii_char(stream_,'\\');
+            write_ascii_char(stream_,'r');
+            pending_newline = true;
+          } else {
+            if (pending_newline) {
+              write_ascii_char(stream_,NL);
+              pending_newline = false;
+            }
+            # if c = #\" or c = #\\ first print a '\':
+            if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+              write_ascii_char(stream_,'\\');
+            write_code_char(stream_,c);
+          }
           index++;
         });
       });
       #else # the same stuff, a little optimized
       SstringDispatch(string,X, {
         var uintL index0 = index;
-        loop { # search the next #\" or #\\ :
+        loop { # search the next #\Linefeed or #\Return or #\" or #\\ :
           string = STACK_0;
           while (len > 0) {
             var chart c = as_chart(((SstringX)TheVarobject(string))->data[index]);
-            if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+            if (chareq(c,ascii(0x0A)) || chareq(c,ascii(0x0D))
+                || chareq(c,ascii('"')) || chareq(c,ascii('\\')))
               break;
             index++; len--;
           }
-          if (!(index==index0))
-            write_sstring_ab(stream_,string,index0,index-index0);
+          if (!(index==index0)) {
+            if (pending_newline) {
+              write_ascii_char(stream_,NL);
+              pending_newline = false;
+            }
+            write_sstring_ab(stream_,STACK_0,index0,index-index0);
+          }
           if (len==0)
             break;
-          write_ascii_char(stream_,'\\');
-          index0 = index; index++; len--;
+          var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]);
+          if (chareq(c,ascii(0x0A))) {
+            write_ascii_char(stream_,'\\');
+            write_ascii_char(stream_,'n');
+            pending_newline = true;
+            index++; len--; index0 = index;
+          } else if (chareq(c,ascii(0x0D))) {
+            write_ascii_char(stream_,'\\');
+            write_ascii_char(stream_,'r');
+            pending_newline = true;
+            index++; len--; index0 = index;
+          } else {
+            if (pending_newline) {
+              write_ascii_char(stream_,NL);
+              pending_newline = false;
+            }
+            write_ascii_char(stream_,'\\');
+            index0 = index; index++; len--;
+          }
         }
       });
       #endif
+    } else {
+      write_ascii_char(stream_,'"'); # prepend a quotation mark
+      string = STACK_0;
+      if (len > 0) {
+        #if 0
+        SstringDispatch(string,X, {
+          dotimespL(len,len, {
+            var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
+            # if c = #\" or c = #\\ first print a '\':
+            if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+              write_ascii_char(stream_,'\\');
+            write_code_char(stream_,c);
+            index++;
+          });
+        });
+        #else # the same stuff, a little optimized
+        SstringDispatch(string,X, {
+          var uintL index0 = index;
+          loop { # search the next #\" or #\\ :
+            string = STACK_0;
+            while (len > 0) {
+              var chart c = as_chart(((SstringX)TheVarobject(string))->data[index]);
+              if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+                break;
+              index++; len--;
+            }
+            if (!(index==index0))
+              write_sstring_ab(stream_,string,index0,index-index0);
+            if (len==0)
+              break;
+            write_ascii_char(stream_,'\\');
+            index0 = index; index++; len--;
+          }
+        });
+        #endif
+      }
     }
     write_ascii_char(stream_,'"'); # append a quotation mark
     skipSTACK(1);
