@@ -81,6 +81,29 @@ LISTEN should work on all streams and READ-CHAR-WILL-HANG-P should be
 merged with READ-BYTE-WILL-HANG-P into WILL-HANG-P.
 
 
+Changes to Unicode standard
+(Bruno and Jörg discussing issues Nov. 2006)
+Eliminate surrogates D800-DFFF from characters
+"Surrogates do not represent characters"
+Change: (code-char #xD800) -> NIL, and #\uD800 becomes illegal
+This is to be consistent and avoid problems with embedded string constants
+ in .fas files, e.g. (defvar foo #.(string (code-char #xD800))) ; error
+Goal: CLISP shall never generate an illegal UTF sequence (unlike
+ versions <= 2.41). Similarly, CLISP shall not construct a
+ weird string e.g. by reading an illegal sequence.
+Conversion to and from binary signals error.
+Affects: UTF-8, UTF-7, UCS2, UCS4 and likely others.
+Unpaired surrogates shall signal error when reading (like iconv does).
+CODE-CHAR-LIMIT is preserved, but CODE-CHAR yields NIL for all
+surrogates because they don't stand on their own (they are considered
+an artefact of the days when 16 bit where hoped sufficient).
+Of course, valid sequences are not affected.  Code #x10400 is represented as
+F0 90 90 80 in UTF-8 and as 01 D8 00 DC or D8 01 DC 00 in UTF-16.
+
+Not adressed here: "The two values FFFE and FFFF as well as the 32
+values from FDD0 to FDEF represent noncharacters."
+
+
 Embeddability: additional API in spvw.d; example.
 <https://sourceforge.net/tracker/index.php?func=detail&aid=423264&group_id=1355&atid=351355>
 

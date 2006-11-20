@@ -113,6 +113,11 @@
 	installed on the same system simultaneously
 	Suggested by Nelson H. F. Beebe <beebe@math.utah.edu>
 
+2006-10-18  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* modules/fastcgi/fastcgi.lisp (FASTCGI:GETENV): can be called
+	outside server loop.
+
 2006-10-17  Sam Steingold  <sds@gnu.org>
 
 	* configure (--install): when ${prefix} or ${exec_prefix} are not
