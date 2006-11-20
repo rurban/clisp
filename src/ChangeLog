@@ -1,3 +1,11 @@
+2006-11-17  Bruno Haible  <bruno@clisp.org>
+
+	Fix print-read-consistency of strings containing #\Return characters,
+	bug #[ 1578179 ].
+	* io.d (closure_reader): Recognize #0Y"..." syntax.
+	(pr_sstring_ab): Write using #0Y"..." syntax if *print-readably* is
+	true and the string contains #\Return characters.
+
 2006-11-17  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 1483768 ]: automatic pretty-printing of symbols in conses
