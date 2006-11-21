@@ -486,7 +486,7 @@ NIL
 NIL
 
 ;; https://sourceforge.net/tracker/index.php?func=detail&aid=1246248&group_id=1355&atid=101355
-(numberp (log internal-time-units-per-second))
+(numberp (log internal-time-units-per-second)) T
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1436987&group_id=1355&atid=101355
 (loop :for x :in '(2s0 2f0 2d0 2l0 -2s0 -2f0 -2d0 -2l0)
