@@ -580,6 +580,7 @@ case "$1" in
       destinationdir="$tmp"
       # What to do if we abort.
       trap 'rm -rf "$tmp"' 0 1 2 15
+      rm -rf $destinationdir # must not exist for make_dest; bug #[ 1469663 ]
       "$0" add-module-sets "$sourcedir" "$destinationdir" "$@" && "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$destinationdir"/lispinit.mem
       rm -rf "$tmp"
       trap '' 0 1 2 15
