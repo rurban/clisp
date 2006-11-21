@@ -11,6 +11,10 @@ User visible changes
   + Fixed stdio when running without a TTY, e.g., under SSH. [ 1592343 ]
   + ANSI compliance: PPRINT dispatch is now respected for nested
     objects, not just the top-level. [ 1483768, 1598053 ]
+  + Fixed print-read-consistency of strings containing #\Return characters
+    (manifested by COMPILE-FILE). [ 1578179 ]
+  + Fixed "clisp-link run". [ 1469663 ]
+  + Fixed ATANH branch cut continuity. [ 1436987 ]
 
 
 2.41 (2006-10-13)

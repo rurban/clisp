@@ -1,5 +1,10 @@
 2006-11-20  Sam Steingold  <sds@podval.org>
 
+	fixed bug #[ 1436987 ]: atanh branch cut strangeness
+	* comptran.d (R_R_atanh_R_R): fixed branch cuts logic
+
+2006-11-20  Sam Steingold  <sds@podval.org>
+
 	fixed bug #[ 1469663 ]: clisp-link run does not work w/o dynamic modules
 	* clisp-link.in (run): remove $destinationdir before add-module-sets
 

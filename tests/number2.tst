@@ -317,7 +317,7 @@ check-sqrt
 (check-mult   LEAST-NEGATIVE-LONG-FLOAT) T
 (check-mult    MOST-NEGATIVE-LONG-FLOAT) T
 
-(loop :for x :in '(1.0s0 1.0f0 1.0d0 1.0l0) :for eps :in
+(loop :for x :in '(1s0 1f0 1d0 1l0) :for eps :in
   (list short-float-epsilon single-float-epsilon double-float-epsilon
         long-float-epsilon)
   :for eps2 = (* eps 9/10) :unless
@@ -487,3 +487,8 @@ NIL
 
 ;; https://sourceforge.net/tracker/index.php?func=detail&aid=1246248&group_id=1355&atid=101355
 (numberp (log internal-time-units-per-second))
+
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1436987&group_id=1355&atid=101355
+(loop :for x :in '(2s0 2f0 2d0 2l0 -2s0 -2f0 -2d0 -2l0)
+  :always (plusp (imagpart (atanh (complex x (float 0 x))))))
+T
