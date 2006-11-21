@@ -1,3 +1,7 @@
+2006-11-20  Sam Steingold  <sds@podval.org>
+
+	* number2.tst: test for [ 1436987 ]: ATANH branch cut continuity
+
 2006-11-17  Sam Steingold  <sds@gnu.org>
 
 	* iofkts.tst: test for [ 1483768, 1598053 ]: repect PPRINT
