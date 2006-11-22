@@ -1,7 +1,13 @@
 ;;; Sources for CLISP DEFSTRUCT macro
 ;;; Bruno Haible 1988-2005
-;;; Sam Steingold 1998-2005
+;;; Sam Steingold 1998-2006
 ;;; German comments translated into English: Stefan Kain 2003-01-14
+
+(in-package "CLOS")
+;; Meta-Object Protocol for structures
+(export '(structure-slots structure-direct-slots structure-instance-size
+          structure-kconstructor structure-boa-constructors structure-copier
+          structure-predicate))
 
 (in-package "SYSTEM")
 
@@ -1195,13 +1201,13 @@
         (setf (clos::class-instance-size class) new-value)))))
 |#
 
-(defun structure-kconstructor (name)
+(defun structure-keyword-constructor (name)
   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
     (if desc
       (svref desc *defstruct-description-kconstructor-location*)
       (clos::class-kconstructor (find-class name)))))
 #|
- (defun (setf structure-kconstructor) (new-value name)
+ (defun (setf structure-keyword-constructor) (new-value name)
   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
     (if desc
       (setf (svref desc *defstruct-description-kconstructor-location*) new-value)
@@ -1253,7 +1259,7 @@
     (macrolet ((fmakunbound-if-present (symbol-form)
                  `(let ((symbol ,symbol-form))
                     (when symbol (fmakunbound symbol)))))
-      (fmakunbound-if-present (structure-kconstructor name))
+      (fmakunbound-if-present (structure-keyword-constructor name))
       (mapc #'fmakunbound (structure-boa-constructors name))
       (fmakunbound-if-present (structure-copier name))
       (fmakunbound-if-present (structure-predicate name))
