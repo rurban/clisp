@@ -1003,6 +1003,11 @@ the iteration variable and assign it on each iteration.</para></section>
 <chapter id="structures"><title>Structures
    <ulink url="&clhs;/Body/chap-8.html">[CLHS-8]</ulink></title>
 
+<section id="defstruct-options"><title>The options for &defstruct;.</title>
+
+<section id="defstruct-print-function"><title>The &print-function-k;
+  option.</title>
+
 <para>The &print-function-k; option should contain a &lambda-expr;
  <code>(&lambda-m; (object stream depth) (declare (ignore depth)) ...)</code>
  This &lambda-expr; names a &function-t; whose task is to output the
@@ -1050,11 +1055,43 @@ the iteration variable and assign it on each iteration.</para></section>
   &print-gensym-var;, &print-array-var;, &pr-closure;,
   &pr-rpars;, &pr-indent;.</simpara></listitem>
 </itemizedlist>
+</section>
 
-<formalpara id="defstruct-inherit"><title>Option &inherit-k;</title>
+<section id="defstruct-inherit"><title>The &inherit-k; option</title>
 <para>The &inherit-k; option is exactly like &include-k; except that it
  does not create new accessors for the inherited slots (this is a
- &clisp; extension).</para></formalpara>
+ &clisp; extension).</para></section>
+
+</section>
+
+<section id="defstruct-mop"><title>The structure &mop;.</title>
+<para>The following functions accept a structure &name-r; as the only argument.
+ If &defstruct; was given the &type-k; option (i.e., &defstruct; did
+ &not-e; define a new type), then <code>(&fund-class; &name-r;)</code>
+ fails (and the regular &clos; &mop; is not applicable), but these
+ functions still work.</para>
+<variablelist>
+<varlistentry><term><function>EXT:STRUCTURE-SLOTS</function></term>
+ <listitem><simpara></simpara>Return the &list-t; of
+  &esdmo;s.</listitem></varlistentry>
+<varlistentry><term><function>EXT:STRUCTURE-DIRECT-SLOTS</function></term>
+ <listitem><simpara></simpara>Return the &list-t; of
+  &dsdmo;s.</listitem></varlistentry>
+<varlistentry><term><function>EXT:STRUCTURE-KEYWORD-CONSTRUCTOR</function></term>
+ <listitem><simpara></simpara>Return the name (a &symbol;) of the
+  keyword constructor function for the structure, of &nil; if the
+  structure has no keyword constructor.</listitem></varlistentry>
+<varlistentry><term><function>EXT:STRUCTURE-BOA-CONSTRUCTORS</function></term>
+ <listitem><simpara></simpara>Return the &list-t; of names (&symbol-t;s)
+  of BOA constructors for the structure.</listitem></varlistentry>
+<varlistentry><term><function>EXT:STRUCTURE-COPIER</function></term>
+ <listitem><simpara></simpara>Return the name (a &symbol-t;) of the
+  copier for the structure.</listitem></varlistentry>
+<varlistentry><term><function>EXT:STRUCTURE-PREDICATE</function></term>
+ <listitem><simpara></simpara>Return the name (a &symbol-t;) of the
+  predicate for the structure.</listitem></varlistentry>
+</variablelist>
+</section>
 
 </chapter>
 
@@ -3354,8 +3391,8 @@ checks whether the &hash-table-t; is weak.</para>
  (cf. <filename>"c:/autoexec.bat"</filename>,
  <filename>"home:.clisprc"</filename> and
  <filename>"prep:/pub/gnu"</filename>)
- and therefore is disabled by default. To enable the &ansi-cl; behavior,
- you should set &parsename; to non-&nil;.
+ and therefore is disabled by default.
+ To enable the &ansi-cl; behavior, you should set &parsename; to non-&nil;.
  Note that this also disables treating &symbol-t;s as &path-des;s.</para>
 </section>
 
@@ -4109,7 +4146,7 @@ functions are provided:
   appearance, special files, so you might need to supply an explicit
   &buffered; &nil; argument for them.  Actually, &clisp; detects that
   the file is a <filename>/proc</filename> file, so that one is covered,
-  but there are probably more strange beasts there!
+  but there are probably more strange beasts out there!
 </para></listitem></varlistentry>
 </variablelist>
 

@@ -112,11 +112,11 @@
 
 (cl:defun export-structure-accessories (name) ; ABI
   (export name)
-  (export (sys::structure-kconstructor name))
-  (export (sys::structure-boa-constructors name))
-  (export (sys::structure-copier name))
-  (export (sys::structure-predicate name))
-  (dolist (slot (sys::structure-direct-slots name))
+  (export (ext:structure-keyword-constructor name))
+  (export (ext:structure-boa-constructors name))
+  (export (ext:structure-copier name))
+  (export (ext:structure-predicate name))
+  (dolist (slot (ext:structure-direct-slots name))
     (export (slot-definition-accessor-symbols slot))))
 
 (cl:defmacro defstruct (name+options &rest slots)

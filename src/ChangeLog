@@ -1,3 +1,14 @@
+2006-11-21  Sam Steingold  <sds@podval.org>
+
+	export structure MOP
+	* defstruct.lisp (structure-keyword-constructor): renamed from
+	structure-kconstructor
+	* init.lisp (structure-slots, structure-direct-slots)
+	(structure-keyword-constructor, structure-boa-constructors)
+	(structure-copier, structure-predicate): export
+	* exporting.lisp (export-structure-accessories): the above are now
+	external in EXT, not internal in SYS
+
 2006-11-20  Sam Steingold  <sds@podval.org>
 
 	fixed bug #[ 1436987 ]: atanh branch cut strangeness
