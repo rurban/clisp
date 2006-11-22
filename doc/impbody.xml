@@ -1067,29 +1067,29 @@ the iteration variable and assign it on each iteration.</para></section>
 <section id="defstruct-mop"><title>The structure &mop;.</title>
 <para>The following functions accept a structure &name-r; as the only argument.
  If &defstruct; was given the &type-k; option (i.e., &defstruct; did
- &not-e; define a new type), then <code>(&fund-class; &name-r;)</code>
+ &not-e; define a new type), then <code>(&find-class; &name-r;)</code>
  fails (and the regular &clos; &mop; is not applicable), but these
  functions still work.</para>
 <variablelist>
 <varlistentry><term><function>EXT:STRUCTURE-SLOTS</function></term>
- <listitem><simpara></simpara>Return the &list-t; of
-  &esdmo;s.</listitem></varlistentry>
+ <listitem><simpara>Return the &list-t; of &esdmo;s.
+</simpara></listitem></varlistentry>
 <varlistentry><term><function>EXT:STRUCTURE-DIRECT-SLOTS</function></term>
- <listitem><simpara></simpara>Return the &list-t; of
-  &dsdmo;s.</listitem></varlistentry>
+ <listitem><simpara>Return the &list-t; of &dsdmo;s.
+</simpara></listitem></varlistentry>
 <varlistentry><term><function>EXT:STRUCTURE-KEYWORD-CONSTRUCTOR</function></term>
- <listitem><simpara></simpara>Return the name (a &symbol;) of the
-  keyword constructor function for the structure, of &nil; if the
-  structure has no keyword constructor.</listitem></varlistentry>
+ <listitem><simpara>Return the name (a &symbol-t;) of the keyword
+   constructor function for the structure, of &nil; if the structure has
+   no keyword constructor.</simpara></listitem></varlistentry>
 <varlistentry><term><function>EXT:STRUCTURE-BOA-CONSTRUCTORS</function></term>
- <listitem><simpara></simpara>Return the &list-t; of names (&symbol-t;s)
-  of BOA constructors for the structure.</listitem></varlistentry>
+ <listitem><simpara>Return the &list-t; of names (&symbol-t;s)
+  of BOA constructors for the structure.</simpara></listitem></varlistentry>
 <varlistentry><term><function>EXT:STRUCTURE-COPIER</function></term>
- <listitem><simpara></simpara>Return the name (a &symbol-t;) of the
-  copier for the structure.</listitem></varlistentry>
+ <listitem><simpara>Return the name (a &symbol-t;) of the copier for the
+   structure.</simpara></listitem></varlistentry>
 <varlistentry><term><function>EXT:STRUCTURE-PREDICATE</function></term>
- <listitem><simpara></simpara>Return the name (a &symbol-t;) of the
-  predicate for the structure.</listitem></varlistentry>
+ <listitem><simpara>Return the name (a &symbol-t;) of the predicate for
+   the structure.</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
