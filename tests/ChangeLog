@@ -1,3 +1,7 @@
+2006-11-27  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (post-compile-file-cleanup): added
+
 2006-11-27  Sam Steingold  <sds@podval.org>
 
 	* lambda.tst: test for [ 1603260 ]: Loading a compiled definition

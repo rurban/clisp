@@ -484,21 +484,18 @@ T
 T
 
 ;; make-load-form
-(defun mlf-tester (symbol &optional (lisp-file "make-load-form-demo.lisp")
-                   &aux (compiled-file (compile-file-pathname lisp-file)))
+(defun mlf-tester (symbol &optional (lisp-file "make-load-form-demo.lisp"))
   (unwind-protect
-       (progn
+       (let (compiled-file)
          (with-open-file (stream lisp-file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
            (format stream "(in-package ~s)~%(defparameter ~S '#.~S)~%"
                    (package-name (symbol-package symbol))
                    symbol symbol))
-         (compile-file lisp-file)
+         (setq compiled-file (compile-file lisp-file))
          (setf (symbol-value symbol) nil)
          (load compiled-file)
          (symbol-value symbol))
-    (delete-file compiled-file)
-    (delete-file lisp-file)
-    #+clisp (delete-file (make-pathname :type "lib" :defaults lisp-file))))
+    (post-compile-file-cleanup lisp-file)))
 MLF-TESTER
 
 (defun mlf-kill (type)
@@ -544,9 +541,7 @@ FOO
   (makunbound '*foo*)
   (defconstant bar-const 1)
   (unwind-protect (progn (load (compile-file *tmp-file*)) *foo*)
-    (delete-file *tmp-file*)
-    (delete-file (compile-file-pathname *tmp-file*))
-    #+clisp (delete-file (make-pathname :type "lib" :defaults *tmp-file*))
+    (post-compile-file-cleanup *tmp-file*)
     (mlf-kill 'foo)))
 #S(FOO :A BAR-CONST)
 
@@ -643,9 +638,7 @@ FOO
                       (defparameter *foo* #.(make-foo))~%"))
          (load (setq c (compile-file file)))
          *foo*)
-    (delete-file file)
-    (delete-file c)
-    #+clisp (delete-file (make-pathname :type "lib" :defaults file))))
+    (post-compile-file-cleanup file)))
 #+(or CLISP GCL LISPWORKS) #S(FOO :SLOT NIL)
 #+(or ALLEGRO CMU SBCL) ERROR
 #-(or CLISP GCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN

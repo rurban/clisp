@@ -2448,17 +2448,13 @@ T
 
 ;; check that there are no redefinition warnings
 (let* ((f "defstruct-test.lisp")
-       (c (compile-file-pathname f))
        #+CLISP (custom:*suppress-check-redefinition* nil)
-       #+CLISP (l (make-pathname :type "lib" :defaults c))
        (*break-on-signals* t))
   (with-open-file (s f :direction :output :if-exists :supersede)
     (write '(defstruct struct05 slot) :stream s) (terpri s)
     (write '(defstruct (struct05v (:type vector)) slotv) :stream s) (terpri s))
   (unwind-protect (progn (compile-file f) nil)
-    (delete-file f)
-    (delete-file c)
-    #+clisp (delete-file l)))
+    (post-compile-file-cleanup f)))
 NIL
 
 ;; Check slot-definition-writers.
