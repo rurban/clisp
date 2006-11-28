@@ -637,8 +637,7 @@
       (sys::check-redefinition symbol "DEFUN/DEFMACRO"
                                (sys::fbound-string symbol)))
     (fmakunbound symbol) ; discard function & macro definition
-    ;; Property sys::definition is not discarded, because it is
-    ;; soon reset, anyway.
+    (remprop symbol 'sys::definition) ; discard function lambda expression
     (remprop symbol 'sys::macro) ; discard macro definition
     (remprop symbol 'sys::defstruct-reader) ; discard DEFSTRUCT information
     (sys::%set-documentation symbol 'FUNCTION nil)

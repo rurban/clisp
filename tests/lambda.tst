@@ -263,6 +263,23 @@ UNKNOWN
 #-(or CLISP CMU SBCL OpenMCL LISPWORKS)
 UNKNOWN
 
+;;; http://sourceforge.net/tracker/index.php?func=detail&aid=1603260&group_id=1355&atid=101355
+(let ((file "function-lambda-expression-test.lisp")
+      (fle (function-lambda-expression #'foo))
+      (res ()))
+  (unwind-protect
+       (progn
+         (with-open-file (out file :direction :output)
+           (write '(defun foo (x) (car x)) :stream out :readably t)
+           (terpri out))
+         (load (compile-file file))
+         (push (foo '(3)) res)
+         (push (equalp fle (function-lambda-expression #'foo)) res))
+    (delete-file file)
+    (delete-file (compile-file-pathname file))
+    #+clisp (delete-file (make-pathname :type "lib" :defaults file))))
+(NIL 3)
+
 (fmakunbound 'foo) foo
 
 (defun (setf foo) (v a) (setf (car a) v)) (setf foo)
