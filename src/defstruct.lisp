@@ -3,12 +3,6 @@
 ;;; Sam Steingold 1998-2006
 ;;; German comments translated into English: Stefan Kain 2003-01-14
 
-(in-package "CLOS")
-;; Meta-Object Protocol for structures
-(export '(structure-slots structure-direct-slots structure-instance-size
-          structure-kconstructor structure-boa-constructors structure-copier
-          structure-predicate))
-
 (in-package "SYSTEM")
 
 #| Explanation of the appearing data types:
