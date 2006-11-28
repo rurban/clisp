@@ -921,7 +921,7 @@ local maygc void R_R_atanh_R_R (object x, object y)
     STACK_0 = R_R_minus_R(temp,STACK_1); /* (1+x)(1-x)-y^2, a float */
     temp = F_I_scale_float_F(STACK_5,Fixnum_1); /* 2y, a float */
     temp = R_R_atan_R(STACK_0,temp); /* atan(X=(1-x)(1+x)-y^2,Y=2y), a float */
-    if (R_minusp(STACK_0) && (x_sign<=0) && R_zerop(STACK_5)) /* X<0.0 and x>=0.0 and Y=0.0 ? */
+    if (R_minusp(STACK_0) && (x_sign<0) && R_zerop(STACK_5)) /* X<0.0 and x>=0.0 and Y=0.0 ? */
       temp = F_minus_F(temp); /* change sign */
     STACK_5 = F_I_scale_float_F(temp,Fixnum_minus1); /* .../2 =: v */
     STACK_5 = F_F_float_F(STACK_5,STACK_4); /* restore the precision */
