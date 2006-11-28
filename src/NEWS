@@ -18,6 +18,8 @@ User visible changes
     (manifested by COMPILE-FILE). [ 1578179 ]
   + Fixed "clisp-link run". [ 1469663 ]
   + Fixed ATANH branch cut continuity. [ 1436987 ]
+  + Reset the function lambda expression when loading a compiled file.
+    [ 1603260 ]
 
 
 2.41 (2006-10-13)

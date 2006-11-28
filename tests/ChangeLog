@@ -1,3 +1,8 @@
+2006-11-27  Sam Steingold  <sds@podval.org>
+
+	* lambda.tst: test for [ 1603260 ]: Loading a compiled definition
+	of functions does not reset the FUNCTION-LAMBDA-EXPRESSION
+
 2006-11-20  Sam Steingold  <sds@podval.org>
 
 	* number2.tst: test for [ 1436987 ]: ATANH branch cut continuity
