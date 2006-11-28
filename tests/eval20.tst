@@ -24,9 +24,8 @@ ERROR
     (format foo "~%(eval-when (compile eval)
   ;; note that LAMBDA is not externalizable
   (defvar *junk* #.(lambda (x) (+ 15 x))))~%"))
-  (delete-file (compile-file ff))
-  (delete-file ff)
-  #+clisp (delete-file (make-pathname :type "lib" :defaults ff))
+  (unwind-protect (compile-file ff)
+    (post-compile-file-cleanup ff))
   nil)
 nil
 
@@ -59,9 +58,7 @@ nil
   (let ((*collector* nil))
     (load (compile-file-pathname ff))
     (push (cons "load compiled" *collector*) all))
-  (delete-file ff)
-  (delete-file (compile-file-pathname ff))
-  #+clisp (delete-file (make-pathname :type "lib" :defaults ff))
+  (post-compile-file-cleanup ff)
   (nreverse all))
 (("load source"
   (:EXECUTE) (:LOAD-TOPLEVEL :EXECUTE) (:COMPILE-TOPLEVEL :EXECUTE)

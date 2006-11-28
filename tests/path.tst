@@ -947,18 +947,16 @@ T
 (T T T NIL)
 
 ;; check that we can compile files in ansi mode
-(let ((f "compile-file-ansi-pathname.lisp") c
+(let ((f "compile-file-ansi-pathname.lisp")
       (custom:*print-pathnames-ansi* t))
   (with-open-file (s f :direction :output :if-exists :supersede)
     (format s "(defparameter *pathname-var*
   #.(make-pathname :name \"foo.bar\" :type nil))~%"))
-  (unwind-protect (progn (load (setq c (compile-file f)))
+  (unwind-protect (progn (load (compile-file f))
                          (pathname-name *pathname-var*))
     (makunbound '*pathname-var*)
     (unintern '*pathname-var*)
-    (delete-file f)
-    (delete-file c)
-    #+clisp (delete-file (make-pathname :type "lib" :defaults c))))
+    (post-compile-file-cleanup f)))
 "foo.bar"
 
 (let ((f "compile-file-pathname.lisp") cf cfp)
@@ -970,9 +968,7 @@ T
   (unwind-protect
        (list (path= cf cfp)
              (path= (truename f) (cfp-test)))
-    (delete-file f)
-    (delete-file cf)
-    #+clisp (delete-file (make-pathname :type "lib" :defaults cf))))
+    (post-compile-file-cleanup f)))
 (T T)
 
 (let ((f (logical-pathname "FOO:compile-file-pathname.lisp")) cf cfp)
@@ -985,9 +981,7 @@ T
   (unwind-protect
        (list (path= cf cfp)
              (path= (truename f) (cfp-test)))
-    (delete-file f)
-    (delete-file cf)
-    #+clisp (delete-file (make-pathname :type "lib" :defaults cf))))
+    (post-compile-file-cleanup f)))
 (T T)
 
 (let ((f "compile-file-pathname.lisp"))
@@ -997,9 +991,7 @@ T
   (setq cf (compile-file f))
   (load (open cf :direction :probe :if-does-not-exist :error))
   (unwind-protect (path= (cfp-test) (merge-pathnames f))
-    (delete-file f)
-    (delete-file cf)
-    #+clisp (delete-file (make-pathname :type "lib" :defaults cf))))
+    (post-compile-file-cleanup f)))
 T
 
 (compile-file-pathname "foo" :OUTPUT-FILE (logical-pathname "SYS:foo.fas"))

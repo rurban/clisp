@@ -275,9 +275,7 @@ UNKNOWN
          (load (compile-file file))
          (push (foo '(3)) res)
          (push (equalp fle (function-lambda-expression #'foo)) res))
-    (delete-file file)
-    (delete-file (compile-file-pathname file))
-    #+clisp (delete-file (make-pathname :type "lib" :defaults file))))
+    (post-compile-file-cleanup file)))
 (NIL 3)
 
 (fmakunbound 'foo) foo
