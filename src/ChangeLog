@@ -1,3 +1,10 @@
+2006-11-27  Sam Steingold  <sds@podval.org>
+
+	fixed bug [ 1603260 ]: Loading a compiled file does not reset the
+	first value of FUNCTION-LAMBDA-EXPRESSION
+	* init.lisp (sys::remove-old-definitions): discard function lambda
+	expression too because loading a compiled file does not set it
+
 2006-11-21  Sam Steingold  <sds@podval.org>
 
 	export structure MOP
