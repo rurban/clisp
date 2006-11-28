@@ -646,9 +646,7 @@ dm2b
               120))
            :stream out))
   (unwind-protect (compile-file file)
-    (delete-file file)
-    (delete-file (compile-file-pathname file))
-    #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+    (post-compile-file-cleanup file))
   nil)
 nil
 
@@ -659,9 +657,7 @@ nil
     (write-string "(defun ltv1 () (eq #1=(load-time-value (cons nil nil)) #1#))" out))
   (unwind-protect
       (progn (compile-file file) (load (compile-file-pathname file)))
-    (delete-file file)
-    (delete-file (compile-file-pathname file))
-    #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+    (post-compile-file-cleanup file))
   (ltv1))
 #+CLISP T #+(or CMU SBCL OpenMCL LISPWORKS) NIL
 #-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
@@ -673,9 +669,7 @@ nil
     (write-string "(defun ltv2 () (eq (load-time-value #1=(cons nil nil)) (load-time-value #1#)))" out))
   (unwind-protect
       (progn (compile-file file) (load (compile-file-pathname file)))
-    (delete-file file)
-    (delete-file (compile-file-pathname file))
-    #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+    (post-compile-file-cleanup file))
   (ltv2))
 NIL
 
@@ -685,9 +679,7 @@ NIL
     (write-string "(defun ltv3 () (eq (load-time-value (cons nil nil)) (load-time-value (cons nil nil))))" out))
   (unwind-protect
       (progn (compile-file file) (load (compile-file-pathname file)))
-    (delete-file file)
-    (delete-file (compile-file-pathname file))
-    #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+    (post-compile-file-cleanup file))
   (ltv3))
 NIL
 
@@ -905,9 +897,7 @@ T
   (push *donc* results)
   (load compiled)
   (push *donc* results)
-  (delete-file fname)
-  (delete-file compiled)
-  #+clisp (delete-file (make-pathname :type "lib" :defaults fname))
+  (post-compile-file-cleanup fname)
   (nreverse results))
 (5 5 5)
 
@@ -932,9 +922,7 @@ T
   (load compiled)
   (push (bar) results)
   (push (foo) results)
-  (delete-file fname)
-  (delete-file compiled)
-  #+clisp (delete-file (make-pathname :type "lib" :defaults fname))
+  (post-compile-file-cleanup fname)
   (nreverse results))
 (5 4 5 4 5 4)
 
@@ -945,9 +933,7 @@ T
                      :if-does-not-exist :create)
     (format s "(defun foo (x) (1+ x))~%"))
   (unwind-protect (progn (compile-file f :output-file c) t)
-    (delete-file f)
-    (delete-file c)
-    #+clisp (delete-file (make-pathname :type "lib" :defaults c))))
+    (post-compile-file-cleanup f)))
 T
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel:13153>
@@ -983,9 +969,7 @@ NIL
         (multiple-value-list (ext:compiled-file-p f))
         (unwind-protect (multiple-value-list
                          (ext:compiled-file-p (setq c (compile-file f))))
-          (delete-file f)
-          (delete-file c)
-          #+clisp (delete-file (make-pathname :type "lib" :defaults c)))))
+          (post-compile-file-cleanup f))))
 #+clisp
 ((NIL) (NIL) (T))
 

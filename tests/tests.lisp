@@ -2,6 +2,11 @@
 
 (defun princ-error (c) (format t "~&[~A]: ~A~%" (type-of c) c))
 
+(defun post-compile-file-cleanup (file)
+  (delete-file file)
+  (delete-file (compile-file-pathname file))
+  #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+
 #+OLD-CLISP
 ;; Binding *ERROR-HANDLER* is a hammer technique for catching errors. It also
 ;; disables CLCS processing and thus breaks tests that rely on the condition
