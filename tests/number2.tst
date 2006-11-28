@@ -492,3 +492,6 @@ NIL
 (loop :for x :in '(2s0 2f0 2d0 2l0 -2s0 -2f0 -2d0 -2l0)
   :always (plusp (imagpart (atanh (complex x (float 0 x))))))
 T
+(loop :for x :in '(2s0 2f0 2d0 2l0 -2s0 -2f0 -2d0 -2l0)
+  :always (plusp (imagpart (atanh x))))
+T

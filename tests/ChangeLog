@@ -1,3 +1,7 @@
+2006-11-28  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst: added a test for IMAGPART ATANH sign on reals
+
 2006-11-27  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (post-compile-file-cleanup): added
