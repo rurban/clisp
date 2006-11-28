@@ -354,6 +354,7 @@
    simple-32bit-vector 32bit-vector special-form system-function
    function-macro foreign-pointer symbol-macro global-symbol-macro designator
    address special-operator finalize finalizer
+   ;; weak containers
    weak-pointer make-weak-pointer weak-pointer-p weak-pointer-value
    weak-list make-weak-list weak-list-p weak-list-list
    weak-and-relation make-weak-and-relation weak-and-relation-p
@@ -368,6 +369,11 @@
    weak-or-mapping-value
    weak-alist make-weak-alist weak-alist-p weak-alist-type weak-alist-contents
    weak-alist-assoc weak-alist-rassoc weak-alist-value
+   ;; structure MOP
+   structure-slots structure-direct-slots ; structure-instance-size
+   structure-keyword-constructor structure-boa-constructors
+   structure-copier structure-predicate
+   ;; i/o
    read-integer read-float write-integer write-float
    read-byte-lookahead read-byte-will-hang-p read-byte-no-hang
    read-char-will-hang-p
