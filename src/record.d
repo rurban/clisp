@@ -482,8 +482,8 @@ LISPFUNNR(closure_documentation,1)
           : NIL);
 }
 LISPFUNN(closure_set_documentation,2)
-{ /* set the doc string, if anypossible*/
-  STACK_0 = check_string(STACK_0);
+{ /* set the doc string, if possible*/
+  if (!nullp(STACK_0)) STACK_0 = check_string(STACK_0);
   var object closure = STACK_1;
   if (!cclosurep(closure)) fehler_cclosure(closure);
   if (TheCodevec(TheClosure(closure)->clos_codevec)->ccv_flags & bit(2))

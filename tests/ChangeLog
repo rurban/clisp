@@ -1,5 +1,9 @@
 2006-11-28  Sam Steingold  <sds@gnu.org>
 
+	* setf.tst: test for [ 1604579 ]: (SETF DOCUMENTATION) and COMPILE
+
+2006-11-28  Sam Steingold  <sds@gnu.org>
+
 	* number2.tst: added a test for IMAGPART ATANH sign on reals
 
 2006-11-27  Sam Steingold  <sds@gnu.org>

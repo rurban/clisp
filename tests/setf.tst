@@ -662,6 +662,21 @@ T
 (length (multiple-value-list (get-setf-expansion '(x) nil)))
 5
 
-; Clean up.
-(unintern 'x)
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1604579&group_id=1355&atid=101355
+(defun foo (z) "some doc" z) FOO
+(documentation 'foo 'function) "some doc"
+(setf (documentation 'foo 'function) nil) NIL
+(documentation 'foo 'function) NIL
+(compile 'foo) FOO
+(documentation 'foo 'function) NIL
+(setf (documentation 'foo 'function) "other doc") "other doc"
+(documentation 'foo 'function) "other doc"
+(setf (documentation 'foo 'function) nil) NIL
+(documentation 'foo 'function) NIL
+
+;; Clean up.
+(progn (unintern 'x)
+       (fmakunbound 'func01) (unintern 'func01)
+       (fmakunbound 'func03) (unintern 'func03)
+       (fmakunbound 'foo) (unintern 'foo))
 T
