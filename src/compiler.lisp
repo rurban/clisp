@@ -10881,6 +10881,11 @@ The function make-closure is required.
         (let ((lambdabody (or (closure-slot definition 1)
                               (cdr definition))))
           (let ((funobj (compile-lambdabody name lambdabody)))
+            ;; documentation in the closure might have been reset
+            ;; and may now be different from the one in lambdabody
+            (when funobj
+              (sys::closure-set-documentation
+               funobj (closure-slot definition 2)))
             (values
               (if (zerop *error-count*)
                 (if name
