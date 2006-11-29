@@ -664,6 +664,13 @@ trying to &nconc; a circular list).</para>
   See <xref linkend="random-state"/>.</para></answer></qandaentry>
 
 
+<qandaentry id="faq-pp-newline">
+ <question id="faq-pp-newline-q"><para>Why is an extra line break
+   inserted by the pretty printer?</para></question>
+<answer><para>See <xref linkend="ppr-first-newline"/>.
+</para></answer></qandaentry>
+
+
 <qandaentry id="faq-warning">
  <question id="faq-warning-q"><para>How do I disable this annoying
    warning?</para></question>
