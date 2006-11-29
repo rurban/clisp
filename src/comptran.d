@@ -865,7 +865,8 @@ local maygc void R_R_atanh_R_R (object x, object y)
       if (R_zerop(temp)) /* x = -1 -> Error */
         divide_0();
     } else { /* (1+x)/(1-x) < 0 -> negate, compute Im: */
-      STACK_0 = F_I_scale_float_F(pi(temp),Fixnum_minus1); /* (scale-float pi -1) = pi/2 */
+      STACK_1 = F_minus_F(temp);
+      STACK_0 = F_I_scale_float_F(pi(STACK_1),Fixnum_minus1); /* (scale-float pi -1) = pi/2 */
     }
     /* stack layout: |(1+x)/(1-x)| (>0), Im. */
     STACK_1 = F_I_scale_float_F(R_ln_R(STACK_1,&STACK_1),Fixnum_minus1); /* ln / 2 */
