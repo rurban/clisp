@@ -106,6 +106,20 @@ Not adressed here: "The two values FFFE and FFFF as well as the 32
 values from FDD0 to FDEF represent noncharacters."
 
 
+Reading illegal UTF byte sequences
+Markus Kuhn has some recommendations
+http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
+CLISP currently differs from these, c.f. bug #[ 1575569 ]
+Should we follow these more closely?
+http://sourceforge.net/tracker/index.php?func=detail&aid=1575569&group_id=1355&atid=101355
+(ext:convert-string-from-bytes #(65 #xB5 66)
+ (ext:make-encoding :charset "utf-8" :input-error-action #\Z))
+"AB" (clisp src/encoding.d)
+(ext:convert-string-from-bytes #(65 #xB5 66)
+ (ext:make-encoding :charset "\\utf-8" :input-error-action #\Z))
+"AZB" (iconv)
+
+
 Embeddability: additional API in spvw.d; example.
 <https://sourceforge.net/tracker/index.php?func=detail&aid=423264&group_id=1355&atid=351355>
 
