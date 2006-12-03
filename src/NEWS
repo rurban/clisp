@@ -21,6 +21,7 @@ User visible changes
   + Reset the function lambda expression when loading a compiled file.
     [ 1603260 ]
   + DOCUMENTATION set by SETF is now preserved by COMPILE. [ 1604579 ]
+  + LISTEN now calls STREAM-LISTEN as per the Gray proposal. [ 1607666 ]
 
 
 2.41 (2006-10-13)

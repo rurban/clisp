@@ -1,3 +1,10 @@
+2006-12-03  Anton Vodonosov  <avodonosov@users.sourceforge.net>
+	    Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 1607666 ]: LISTEN does not call STREAM-LISTEN
+	* io.d (LISTEN): call STREAM-LISTEN
+	* constsym.d (STREAM-LISTEN): added
+
 2006-11-28  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 1604579 ]: (SETF DOCUMENTATION) and COMPILE
