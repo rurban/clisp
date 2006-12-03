@@ -4739,7 +4739,9 @@ LISPFUN(peek_char,seclass_default,0,5,norest,nokey,0,NIL) {
 # (LISTEN [input-stream]), CLTL p. 380
 LISPFUN(listen,seclass_default,0,1,norest,nokey,0,NIL) {
   check_istream(&STACK_0);      /* check input-stream */
-  VALUES_IF(ls_avail_p(listen_char(popSTACK())));
+  if (builtin_stream_p(STACK_0))
+    VALUES_IF(ls_avail_p(listen_char(popSTACK())));
+  else funcall(S(stream_listen),1);
 }
 
 # (READ-CHAR-WILL-HANG-P input-stream)
