@@ -9,6 +9,9 @@ User visible changes
 * A kind of Meta-Object Protocol for structures is now available.
   See <http://clisp.cons.org/impnotes/defstruct-mop.html> for details.
 
+* Module libsvm has been upgraded to the upstream version 2.83.
+  See <http://clisp.cons.org/impnotes/libsvm.html> for details.
+
 * Bug fixes:
   + Fixed rounding of long floats [even+1/2]. [ 1589311 ]
   + Fixed stdio when running without a TTY, e.g., under SSH. [ 1592343 ]

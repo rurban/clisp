@@ -4,7 +4,7 @@ classification, one-class-SVM, epsilon-SVM regression, and nu-SVM
 regression. It also provides an automatic model selection tool for
 C-SVM classification. This document explains the use of libsvm.
 
-Libsvm is available at 
+Libsvm is available at
 http://www.csie.ntu.edu.tw/~cjlin/libsvm
 Please read the COPYRIGHT file before using libsvm.
 
@@ -16,7 +16,7 @@ Table of Contents
 - `svm-predict' Usage
 - Tips on practical use
 - Examples
-- Precomputed Kernels 
+- Precomputed Kernels
 - Library Usage
 - Java Version
 - Building Windows Binaries
@@ -27,8 +27,8 @@ Table of Contents
 Quick Start
 ===========
 
-If you are new to SVM and if the data is not large, please go to 
-`tools' directory and use easy.py after installation. It does 
+If you are new to SVM and if the data is not large, please go to
+`tools' directory and use easy.py after installation. It does
 everything automatic -- from data scaling to parameter selection.
 
 Usage: easy.py training_file [testing_file]
@@ -80,8 +80,8 @@ svm-scale:
 svm-toy:
 
 	This is a simple graphical interface which shows how SVM
-	separate data in a plane. You can click in the window to 
-	draw data points. Use "change" button to choose class 
+	separate data in a plane. You can click in the window to
+	draw data points. Use "change" button to choose class
 	1, 2 or 3 (i.e., up to three classes are supported), "load"
 	button to load data from a file, "save" button to save data to
 	a file, "run" button to obtain an SVM model, and "clear"
@@ -102,7 +102,7 @@ svm-toy:
 
 	You need GTK+ library to build the GTK version.
 	(available from http://www.gtk.org)
-	
+
 	We use Visual C++ to build the Windows version.
 	The pre-built Windows binaries are in the windows directory.
 
@@ -174,7 +174,7 @@ Scale each feature of the training data to be in [-1,1]. Scaling
 factors are stored in the file range and then used for scaling the
 test data.
 
-> svm-train -s 0 -c 1000 -t 2 -g 0.5 -e 0.00001 data_file 
+> svm-train -s 0 -c 1000 -t 2 -g 0.5 -e 0.00001 data_file
 
 Train a classifier with RBF kernel exp(-0.5|u-v|^2) and stopping
 tolerance 0.00001
@@ -201,25 +201,25 @@ Obtain a model with probability information and predict test data with
 probability estimates
 
 
-Precomputed Kernels 
+Precomputed Kernels
 ===================
 
 Users may precompute kernel values and input them as training and
 testing files.  Then libsvm does not need the original
 training/testing sets.
 
-Assume there are L training instances x1, ..., xL and. 
+Assume there are L training instances x1, ..., xL and.
 Let K(x, y) be the kernel
 value of two instances x and y. The input formats
 are:
 
 New training instance for xi:
 
-<label> 0:i 1:K(xi,x1) ... L:K(xi,xL) 
+<label> 0:i 1:K(xi,x1) ... L:K(xi,xL)
 
 New testing instance for any x:
 
-<label> 0:? 1:K(x,x1) ... L:K(x,xL) 
+<label> 0:? 1:K(x,x1) ... L:K(x,xL)
 
 That is, in the training file the first column must be the "ID" of
 xi. In testing, ? can be any value.
@@ -236,32 +236,32 @@ Examples:
 	Assume the original training data has three four-feature
 	instances and testing data has one instance:
 
-	1  1:1 2:1 3:1 4:1
-	3      2:3     4:3
-	2          3:1
+	15  1:1 2:1 3:1 4:1
+	45      2:3     4:3
+	25          3:1
 
-	1  1:1     3:1
+	15  1:1     3:1
 
 	If the linear kernel is used, we have the following new
 	training/testing sets:
 
-	1  0:1 1:4 2:6  3:1
-	3  0:2 1:6 2:18 3:0 
-	2  0:3 1:1 2:0  3:1
- 
-	1  0:? 1:2 2:0  3:1
+	15  0:1 1:4 2:6  3:1
+	45  0:2 1:6 2:18 3:0
+	25  0:3 1:1 2:0  3:1
+
+	15  0:? 1:2 2:0  3:1
 
 	? can be any value.
 
 	Any subset of the above training file is also valid. For example,
 
-	2  0:3 1:1 2:0  3:1
-	3  0:2 1:6 2:18 3:0 
+	25  0:3 1:1 2:0  3:1
+	45  0:2 1:6 2:18 3:0
 
 	implies that the kernel matrix is
 
-		0  1
-		18 0
+		[K(2,2) K(2,3)] = [18 0]
+		[K(3,2) K(3,3)] = [0  1]
 
 Library Usage
 =============
@@ -283,18 +283,18 @@ to classify new data.
     the given training data and parameters.
 
     struct svm_problem describes the problem:
-	
+
 	struct svm_problem
 	{
 		int l;
 		double *y;
 		struct svm_node **x;
 	};
- 
+
     where `l' is the number of training data, and `y' is an array containing
     their target values. (integers in classification, real numbers in
     regression) `x' is an array of pointers, each of which points to a sparse
-    representation (array of svm_node) of one training vector. 
+    representation (array of svm_node) of one training vector.
 
     For example, if we have the following training data:
 
@@ -327,7 +327,7 @@ to classify new data.
 	};
 
     index = -1 indicates the end of one vector.
- 
+
     struct svm_parameter describes the parameters of an SVM model:
 
 	struct svm_parameter
@@ -384,13 +384,16 @@ to classify new data.
     nr_weight is the number of elements in the array weight_label and
     weight. Each weight[i] corresponds to weight_label[i], meaning that
     the penalty of class weight_label[i] is scaled by a factor of weight[i].
-    
+
     If you do not want to change penalty for any of the classes,
     just set nr_weight to 0.
 
     *NOTE* Because svm_model contains pointers to svm_problem, you can
     not free the memory used by svm_problem if you are still using the
     svm_model produced by svm_train().
+
+    *NOTE* To avoid wrong parameters, svm_check_parameter() should be
+    called before svm_train().
 
 - Function: double svm_predict(const struct svm_model *model,
                                const struct svm_node *x);
@@ -412,7 +415,7 @@ to classify new data.
     labels in the validation process are stored in the array called
     target.
 
-    The format of svm_prob is same as that for svm_train(). 
+    The format of svm_prob is same as that for svm_train().
 
 - Function: int svm_get_svm_type(const struct svm_model *model);
 
@@ -425,7 +428,7 @@ to classify new data.
     classes. For a regression or an one-class model, 2 is returned.
 
 - Function: void svm_get_labels(const svm_model *model, int* label)
-    
+
     For a classification model, this function outputs the name of
     labels into an array called label. For regression and one-class
     models, label is unchanged.
@@ -440,7 +443,7 @@ to classify new data.
     If the model is not for svr or does not contain required
     information, 0 is returned.
 
-- Function: void svm_predict_values(const svm_model *model, 
+- Function: void svm_predict_values(const svm_model *model,
 				    const svm_node *x, double* dec_values)
 
     This function gives decision values on a test vector x given a
@@ -458,9 +461,9 @@ to classify new data.
     calculated using the model. For one-class model, label[0] is +1 or
     -1.
 
-- Function: double svm_predict_probability(const struct svm_model *model, 
+- Function: double svm_predict_probability(const struct svm_model *model,
 	    const struct svm_node *x, double* prob_estimates);
-    
+
     This function does classification or regression on a test vector x
     given a model with probability information.
 
@@ -468,8 +471,8 @@ to classify new data.
     function gives nr_class probability estimates in the array
     prob_estimates. nr_class can be obtained from the function
     svm_get_nr_class. The class with the highest probability is
-    returned. For all other situations, the array prob_estimates is
-    unchanged and the returned value is the same as that of
+    returned. For regression/one-class SVM, the array prob_estimates
+    is unchanged and the returned value is the same as that of
     svm_predict.
 
 - Function: const char *svm_check_parameter(const struct svm_problem *prob,
@@ -477,8 +480,8 @@ to classify new data.
 
     This function checks whether the parameters are within the feasible
     range of the problem. This function should be called before calling
-    svm_train(). It returns NULL if the parameters are feasible, 
-    otherwise an error message is returned. 
+    svm_train() and svm_cross_validation(). It returns NULL if the
+    parameters are feasible, otherwise an error message is returned.
 
 - Function: int svm_check_probability_model(const struct svm_model *model);
 
@@ -564,7 +567,7 @@ nmake -f Makefile.win clean all
 Edit Makefile.win and change PYTHON_INC and PYTHON_LIB to your python
 installation. Type
 
-nmake -f Makefile.win python 
+nmake -f Makefile.win python
 
 and then copy windows\python\svmc.dll to the python directory.
 
@@ -586,7 +589,7 @@ Additional Information
 
 If you find LIBSVM helpful, please cite it as
 
-Chih-Chung Chang and Chih-Jen Lin, LIBSVM: a library for 
+Chih-Chung Chang and Chih-Jen Lin, LIBSVM: a library for
 support vector machines, 2001.
 Software available at http://www.csie.ntu.edu.tw/~cjlin/libsvm
 
@@ -597,7 +600,7 @@ For any questions and comments, please send your email to
 cjlin@csie.ntu.edu.tw
 
 Acknowledgments:
-This work was supported in part by the National Science 
+This work was supported in part by the National Science
 Council of Taiwan via the grant NSC 89-2213-E-002-013.
 The authors thank their group members and users
 for many helpful discussions and comments. They are listed in
