@@ -3550,9 +3550,8 @@ and possibly the calling convention.</para>
   <emphasis role="platform">x86_64</emphasis> and &win32;)
   have problems with this.
   The recommended workaround is to pass pointers; this is fully supported.
-  See also this &clisp-list;
-  <ulink url="http://article.gmane.org/gmane.lisp.clisp.devel/10089"
-         >message</ulink>.</simpara></warning>
+  See also the &clisp-list; (<ulink role="sfmail" url="5513622"/>,
+  <ulink role="gmane" url="devel/10089"/>).</simpara></warning>
 
 </section>
 
@@ -4101,11 +4100,13 @@ Now you can sum doubles:
 
 <para>You can find more information and examples of the &clisp;
  &ffi-pac; in the following &clisp-list; messages:
- <itemizedlist>
-  <listitem><simpara><ulink url="http://article.gmane.org/gmane.lisp.clisp.general/7278">"variable size values"</ulink></simpara></listitem>
-  <listitem><simpara><ulink url="http://article.gmane.org/gmane.lisp.clisp.general/6626">"variable length arrays"</ulink></simpara></listitem>
- </itemizedlist>
-</para>
+ <variablelist><varlistentry><term>variable size values</term>
+   <listitem><simpara><ulink role="sfmail" url="5736140"/>,
+     <ulink role="gmane" url="general/7278"/></simpara></listitem></varlistentry>
+  <varlistentry><term>variable length arrays</term>
+   <listitem><simpara><ulink role="sfmail" url="4062459"/>,
+     <ulink role="gmane" url="general/6626"/></simpara></listitem>
+</varlistentry></variablelist></para>
 <para>Even more examples can be found in the file
  <filename role="clisp-cvs">tests/ffi.tst</filename>
  in the &clisp; source distribution.</para>
