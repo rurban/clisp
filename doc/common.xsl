@@ -84,6 +84,30 @@
 </xsl:template>
 <!-- ============================== / RFC ============================== -->
 
+<!-- =============================== Gmane =============================== -->
+<xsl:param name="gmane.top"
+           select="'http://article.gmane.org/gmane.lisp.clisp.'"/>
+<xsl:template match="ulink[@role='gmane']">
+ <a class="{@role}" href="{$gmane.top}{@url}"><code>
+   <xsl:choose><xsl:when test=".=''"><xsl:text>Gmane/</xsl:text>
+     <xsl:value-of select="@url"/></xsl:when>
+    <xsl:otherwise><xsl:apply-templates/></xsl:otherwise></xsl:choose>
+ </code></a>
+</xsl:template>
+<!-- ============================== / Gmane ============================== -->
+
+<!-- =============================== SF mail =============================== -->
+<xsl:param name="sfmail.top"
+           select="'http://sourceforge.net/mailarchive/message.php?msg_id='"/>
+<xsl:template match="ulink[@role='sfmail']">
+ <a class="{@role}" href="{$sfmail.top}{@url}"><code>
+   <xsl:choose><xsl:when test=".=''"><xsl:text>SFmail/</xsl:text>
+     <xsl:value-of select="@url"/></xsl:when>
+    <xsl:otherwise><xsl:apply-templates/></xsl:otherwise></xsl:choose>
+ </code></a>
+</xsl:template>
+<!-- ============================== / SF mail ============================== -->
+
 <!-- ============================ CLISP CVS ============================ -->
 <xsl:param name="clisp.cvs.top"
            select="'http://clisp.cvs.sourceforge.net/*checkout*/clisp/clisp/'"/>
