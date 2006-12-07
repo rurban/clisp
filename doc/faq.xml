@@ -195,7 +195,7 @@ further explanations of the issues could be provided).</para>
 &sh-prompt; ./configure --with-debug --build build-g
 &sh-prompt; cd build-g
 &sh-prompt; gdb lisp.run            ;; or lisp.exe on windows and cygwin
-<prompt>(gdb)</prompt> base
+<prompt>(gdb)</prompt> boot
 <prompt>(gdb)</prompt> run
 </screen></para>
 
@@ -205,7 +205,11 @@ further explanations of the issues could be provided).</para>
 &sh-prompt; gdb full/lisp.run       ;; or lisp.exe on windows and cygwin
 <prompt>(gdb)</prompt> full
 <prompt>(gdb)</prompt> run
-</screen></para></answer></qandaentry>
+</screen></para>
+
+<para>When debugging a &base; module, use <command>base</command>
+ instead of <command>full</command> and <command>boot</command> above.</para>
+</answer></qandaentry>
 </qandadiv>
 
 <qandadiv id="faq-menorah"><title>Logo</title>
@@ -391,8 +395,10 @@ further explanations of the issues could be provided).</para>
 <answer><para>In the &full; &linkset;. Run &clisp; like this:
   <screen>&sh-prompt; clisp &opt-K; full</screen></para>
 
-<para>The reasons for &base; being the default are explained
- <ulink url="http://article.gmane.org/gmane.lisp.clisp.general:8691">here</ulink>.</para></answer></qandaentry>
+<para>The reasons for &base; being the default are explained in
+ &clisp-list; (<ulink role="sfmail" url="9033507"/>,
+ <ulink role="gmane" url="general/8691"/>).</para>
+</answer></qandaentry>
 
 
 <qandaentry id="faq-gui"><question id="faq-gui-q"><simpara>How do I create
@@ -583,8 +589,12 @@ further explanations of the issues could be provided).</para>
 
 <variablelist><title>Avoiding stack overflow: Platform-specific</title>
  <varlistentry><term>&win32-only;</term>
-  <listitem><simpara><ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=1785942">modify SYSTEM.INI or change PIF that you use to invoke &clisp;</ulink> or
-    <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=1662294">set program stack using editbin</ulink> (answered on &clisp-list;)</simpara></listitem></varlistentry>
+  <listitem><simpara>modify SYSTEM.INI or change PIF that you use to
+    invoke &clisp; (<ulink role="sfmail" url="1785942"/>,
+    <ulink role="gmane" url="general/4656"/>) or set program stack using
+    editbin (<ulink role="sfmail" url="1662294"/>,
+    <ulink role="gmane" url="general/5523"/>)
+    (answered on &clisp-list;)</simpara></listitem></varlistentry>
  <varlistentry><term>&unix-only;</term>
   <listitem><simpara>Increase program stack with <command>ulimit
      -s</command> (or <command>limit stacksize</command> if you are using
@@ -646,7 +656,8 @@ trying to &nconc; a circular list).</para>
  <ulink url="http://docs.sun.com/source/806-3568/ncg_goldberg.html">What
  Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>.
  </para>
-<para>See also <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=12445006">this message</ulink> in &clisp-list;.</para>
+<para>See also &clisp-list; (<ulink role="sfmail" url="12445006"/>,
+ <ulink role="gmane" url="general/9850"/>).</para>
 
 <formalpara><title>PS</title><para>If you want <emphasis>exact</emphasis>
  calculations, use &rational-t;s:<programlisting language="lisp">
