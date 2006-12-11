@@ -93,15 +93,8 @@ LISPFUNN(proclaim_constant,2)
 # (SYS::%PROCLAIM-CONSTANT symbol value) erklärt ein Symbol zu einer Konstanten
 # und ihm einen Wert zu.
   {
-    var object symbol = check_symbol(STACK_1);
+    var object symbol = check_symbol_not_symbol_macro(STACK_1);
     var object val = STACK_0; skipSTACK(2);
-    if (symmacro_var_p(TheSymbol(symbol))) {
-      /* HyperSpec/Body/mac_define-symbol-macro.html says that making a
-         global symbol-macro special is undefined; likewise for constants. */
-      pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
-      fehler(program_error,
-             GETTEXT("~S: attempting to turn ~S into a constant, but it is already a global symbol-macro."));
-    }
     set_const_flag(TheSymbol(symbol)); # symbol zu einer Konstanten machen
     Symbol_value(symbol) = val; # ihren Wert setzen
     VALUES1(symbol); /* return symbol */
@@ -111,15 +104,9 @@ LISPFUNN(proclaim_constant,2)
    turns the symbol into a global symbol macro. */
 LISPFUNN(proclaim_symbol_macro,1)
 {
-  var object symbol = check_symbol(popSTACK());
-  if (special_var_p(TheSymbol(symbol))) {
-    /* HyperSpec/Body/mac_define-symbol-macro.html mandates a program-error. */
-    pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
-    fehler(program_error,
-           GETTEXT("~S: attempting to turn ~S into a global symbol-macro, but it is already declared SPECIAL."));
-  }
-  set_symmacro_flag(TheSymbol(symbol)); /* Change symbol to a symbol-macro. */
-  VALUES1(symbol); /* return symbol */
+  STACK_0 = check_symbol_not_global_special(STACK_0);
+  set_symmacro_flag(TheSymbol(STACK_0)); /* Change symbol to a symbol-macro. */
+  VALUES1(popSTACK()); /* return symbol */
 }
 
 LISPFUN(get,seclass_read,2,1,norest,nokey,0,NIL)

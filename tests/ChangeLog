@@ -1,3 +1,8 @@
+2006-12-10  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst, excepsit.tst: test for [ 1612859 ]: import into
+	KEYWORD should not change symbol-value
+
 2006-11-28  Sam Steingold  <sds@gnu.org>
 
 	* setf.tst: test for [ 1604579 ]: (SETF DOCUMENTATION) and COMPILE

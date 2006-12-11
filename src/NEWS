@@ -25,6 +25,8 @@ User visible changes
     [ 1603260 ]
   + DOCUMENTATION set by SETF is now preserved by COMPILE. [ 1604579 ]
   + LISTEN now calls STREAM-LISTEN as per the Gray proposal. [ 1607666 ]
+  + IMPORT into the KEYWORD package does not make a symbol a constant
+    variable. [ 1612859 ]
 
 
 2.41 (2006-10-13)
