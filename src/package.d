@@ -715,8 +715,8 @@ local maygc void cerror_package_locked (object func, object pack, object obj) {
        obj = popSTACK(); pack = popSTACK(); /* restore */       \
   } while(0)
 
-/* UP: Inserts a symbol into a package, that hasn't yet a a symbol
- of the same name. Does not check for conflicts.
+/* UP: Inserts a symbol into a package, that has no symbol of the same name yet.
+   Does not check for conflicts.
  make_present(sym,pack);
  > sym: symbol
  > pack: package
@@ -729,19 +729,14 @@ local maygc void make_present (object sym, object pack) {
     /* Insert symbol into the internal symbols: */
     symtab_insert(sym,ThePackage(pack)->pack_internal_symbols);
   } else {
-    if (symmacro_var_p(TheSymbol(sym))) {
-      /* HyperSpec/Body/mac_define-symbol-macro.html says that making a
-         global symbol-macro special is undefined; likewise for constants. */
-      pushSTACK(pack); pushSTACK(sym); pushSTACK(TheSubr(subr_self)->name);
-      fehler(program_error,
-             GETTEXT("~S: Importing ~S into ~S would turn it into a constant, but it is already a global symbol-macro."));
+    if (nullp(Symbol_package(sym))) {
+      pushSTACK(pack);          /* save */
+      sym = check_symbol_not_symbol_macro(sym);
+      Symbol_package(sym) = pack = popSTACK();
+      Symbol_value(sym) = sym; /* sym gets itself as value */
+      set_const_flag(TheSymbol(sym)); /* mark as constant */
     }
-    if (nullp(Symbol_package(sym)))
-      Symbol_package(sym) = pack;
-    /* Modify symbol and insert into the external symbols: */
-    Symbol_value(sym) = sym; /* sym gets itself as value */
-    /* Mark as constant: */
-    set_const_flag(TheSymbol(sym));
+    /* Insert symbol into the external symbols: */
     symtab_insert(sym,ThePackage(pack)->pack_external_symbols);
   }
 }
@@ -779,7 +774,6 @@ global maygc uintBWL intern (object string, bool invert, object pack, object* sy
   pack = popSTACK();
   /* enter this new symbol into the package: */
   set_break_sem_2(); /* protect against breaks */
-  Symbol_package(sym) = pack; /* enter home-package */
   pushSTACK(sym); /* save symbol */
   make_present(sym,pack); /* intern into this package */
   *sym_ = popSTACK();

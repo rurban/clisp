@@ -222,16 +222,11 @@
       'define-symbol-macro symbol))
   `(LET ()
      (EVAL-WHEN (COMPILE LOAD EVAL)
-       (CHECK-NOT-SPECIAL-VARIABLE-P ',symbol)
+       (SYSTEM::%PROCLAIM-SYMBOL-MACRO ',symbol)
        (SYSTEM::%PUT ',symbol 'SYSTEM::SYMBOLMACRO
-                     (SYSTEM::MAKE-GLOBAL-SYMBOL-MACRO ',expansion))
-       (SYSTEM::%PROCLAIM-SYMBOL-MACRO ',symbol))
+                     (SYSTEM::MAKE-GLOBAL-SYMBOL-MACRO ',expansion)))
      ',symbol))
-(defun check-not-special-variable-p (symbol) ; ABI
-  (when (special-variable-p symbol)
-    (error-of-type 'program-error
-      (TEXT "~S: the symbol ~S names a global variable")
-      'define-symbol-macro symbol)))
+(defun check-not-special-variable-p (symbol)) ; legacy ABI
 ;; ----------------------------------------------------------------------------
 ;; X3J13 vote <123>
 ;; Macro (nth-value n form) == (nth n (multiple-value-list form)), CLtL2 S. 184

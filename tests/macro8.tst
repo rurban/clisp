@@ -479,6 +479,36 @@ FEXPAND-1
   (dolist (x (symbol-plist 'foo138)) (atom x)))
 NIL
 
+#+clisp
+(progn (define-symbol-macro foo139 1)
+       (appease-cerrors (defvar foo139 t))
+       foo139)
+T
+
+#+clisp
+(progn (define-symbol-macro foo140 1)
+       (appease-cerrors (defconstant foo140 t))
+       foo140)
+T
+
+#+clisp
+(let ((s (make-symbol "FOO141")))
+  (eval `(define-symbol-macro ,s t))
+  (appease-cerrors (import s "KEYWORD"))
+  (eq s (symbol-value s)))
+T
+
+#+clisp
+(progn (defvar foo142 1)
+       (appease-cerrors (define-symbol-macro foo142 t))
+       foo142)
+T
+
+(let ((s (define-symbol-macro foo143 t)))
+  (import s "KEYWORD")
+  (eval s))
+T
+
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=678194&group_id=1355&atid=101355>
 (defparameter *my-typeof-counter* 0)
 *my-typeof-counter*

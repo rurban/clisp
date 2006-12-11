@@ -1,3 +1,22 @@
+2006-12-10  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 1612859 ]: IMPORT into the KEYWORD package does not
+	make a symbol a constant variable
+	* error.d (check_symbol_not_symbol_macro)
+	(check_symbol_not_global_special): implemented
+	* lispbibl.d (check_symbol_not_symbol_macro)
+	(check_symbol_not_global_special): declared
+	* control.d (PROCLAIM): use check_symbol_not_symbol_macro()
+	* macros2.lisp (define-symbol-macro): call
+	SYSTEM::%PROCLAIM-SYMBOL-MACRO before SYSTEM::%PUT,
+	do not call CHECK-NOT-SPECIAL-VARIABLE-P at all
+	(check-not-special-variable-p): obsolete
+	* symbol.d (SYS::%PROCLAIM-SYMBOL-MACRO): use
+	check_symbol_not_global_special()
+	(SYS::%PROCLAIM-CONSTANT): use check_symbol_not_symbol_macro()
+	* package.d (make_present): use check_symbol_not_symbol_macro(),
+	do not make symbol a constant unless it was uninterned
+
 2006-12-04  Sam Steingold  <sds@podval.org>
 
 	* modules/libsvm: upgraded to upstream 2.83
