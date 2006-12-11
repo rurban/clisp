@@ -944,6 +944,67 @@ global maygc object check_symbol_special (object obj, object caller)
   return obj;
 }
 
+/* UP: make sure that the symbol does not name a global symbol-macro
+ return the symbol
+ can trigger GC */
+global maygc object check_symbol_not_symbol_macro (object symbol) {
+  symbol = check_symbol(symbol);
+  if (symmacro_var_p(TheSymbol(symbol))) {
+    pushSTACK(symbol);                   /* save */
+    pushSTACK(NIL);                      /* 4 continue-format-string */
+    pushSTACK(S(simple_program_error));  /* 3 error-type */
+    pushSTACK(NIL);                      /* 2 error-format-string */
+    pushSTACK(TheSubr(subr_self)->name); /* 1 */
+    pushSTACK(symbol);                   /* 0 */
+    /* CLSTEXT "can trigger GC", so it cannot be called until
+       all the arguments have been already pushed on the STACK */
+    STACK_4 = CLSTEXT("Remove the global SYMBOL-MACRO definition");
+    if (eq(subr_self,L(proclaim)))
+      STACK_2 = CLSTEXT("~S: attempting to turn ~S into a SPECIAL variable, but it is already a global SYMBOL-MACRO.");
+    else if (eq(subr_self,L(proclaim_constant)))
+      STACK_2 = CLSTEXT("~S: attempting to turn ~S into a constant, but it is already a global SYMBOL-MACRO.");
+    else STACK_2 = CLSTEXT("~S: Interning ~S into the KEYWORD package would turn it into a constant, but it is already a global SYMBOL-MACRO.");
+    funcall(L(cerror_of_type),5);
+    /* continue restart ==> remove SYMBOL-MACRO definition */
+    pushSTACK(STACK_0);                  /* save symbol */
+    clear_symmacro_flag(TheSymbol(STACK_0/*symbol*/));
+    pushSTACK(S(symbolmacro)); funcall(L(remprop),2);
+    symbol = popSTACK();
+  }
+  return symbol;
+}
+
+/* UP: make sure that the symbol does not name a global special variable
+ return the symbol
+ can trigger GC */
+global maygc object check_symbol_not_global_special (object symbol) {
+  symbol = check_symbol(symbol);
+  if (keywordp(symbol)) {
+    pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
+    fehler(program_error,
+           GETTEXT("~S: the symbol ~S names a global special variable"));
+  }
+  if (special_var_p(TheSymbol(symbol))) {
+    pushSTACK(symbol);                   /* save */
+    pushSTACK(NIL);                      /* 4 continue-format-string */
+    pushSTACK(S(simple_program_error));  /* 3 error-type */
+    pushSTACK(NIL);                      /* 2 error-format-string */
+    pushSTACK(TheSubr(subr_self)->name); /* 1 */
+    pushSTACK(symbol);                   /* 0 */
+    /* CLSTEXT "can trigger GC", so it cannot be called until
+       all the arguments have been already pushed on the STACK */
+    STACK_4 = CLSTEXT("Remove the global SPECIAL variable binding");
+    STACK_2 = CLSTEXT("~S: the symbol ~S names a global SPECIAL variable");
+    funcall(L(cerror_of_type),5);
+    /* continue restart ==> remove the global SPECIAL binding */
+    symbol = popSTACK();
+    Symbol_value(symbol) = unbound;
+    clear_special_flag(TheSymbol(symbol));
+    clear_const_flag(TheSymbol(symbol));
+  }
+  return symbol;
+}
+
 /* error-message, if an object is not a simple-vector.
  fehler_kein_svector(caller,obj);
  > caller: caller (a symbol)

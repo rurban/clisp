@@ -2097,14 +2097,8 @@ LISPFUNN(proclaim,1)
   var object decltype = Car(STACK_0/*declspec*/); /* declaration type */
   if (eq(decltype,S(special))) { /* SPECIAL */
     while (!endp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
-      var object symbol = check_symbol(Car(STACK_0/*declspec*/));
-      if (symmacro_var_p(TheSymbol(symbol))) {
-        /* HyperSpec/Body/mac_define-symbol-macro.html says that making a
-           global symbol-macro special is undefined. */
-        pushSTACK(S(special)); pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
-        fehler(program_error,
-               GETTEXT("~S: attempting to turn ~S into a ~S variable, but it is already a global symbol-macro."));
-      }
+      var object symbol =
+        check_symbol_not_symbol_macro(Car(STACK_0/*declspec*/));
       if (!keywordp(symbol))
         clear_const_flag(TheSymbol(symbol));
       set_special_flag(TheSymbol(symbol));

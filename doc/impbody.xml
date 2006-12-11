@@ -798,7 +798,7 @@ defined using &defhash;), the compiler will be able to optimize the
  <function>EXT:GET-SETF-METHOD-MULTIPLE-VALUE</function>.  If this is
  done, even local macros will be interpreted as places correctly.</para>
 
-<para>Attempts to modify read-only data will &signal; an &error-t;.
+<para>An attempt to modify read-only data &sig-err;.
  Program text and quoted constants loaded from files are considered
  read-only data.  This check is only performed for strings, not for
  conses, other kinds of arrays, and user-defined data types.</para>
@@ -823,9 +823,7 @@ defined using &defhash;), the compiler will be able to optimize the
 
 <para>The macro &define-symbol-macro; establishes &symbol-macro;s with
  global scope (as opposed to &symbol-macro;s defined with
- &symbol-macrolet;, which have local scope):
- <code>(&define-symbol-macro; &symbol-r;
- <replaceable>expansion</replaceable>)</code>.</para>
+ &symbol-macrolet;, which have local scope).</para>
 
 <para>The function
  <firstterm>&symbol-mex;<indexterm id="symbol-mex" significance="preferred">
@@ -838,16 +836,6 @@ defined using &defhash;), the compiler will be able to optimize the
 <para>&symbol-mex; is a special case of &macroexpand-1;. &macroexpand-1;
  can also test whether a symbol is defined as a &symbol-macro; in &lex-env;s
  other than the &glo-env;.</para>
-
-<para>Calling &boundp; on a symbol defined as a &symbol-macro; returns
- &t;.</para>
-
-<para>Calling &symbol-value; on a symbol defined as a &symbol-macro;
- returns the value of the expansion.  Calling &set; on a symbol defined
- as a &symbol-macro; calls &setf; on the expansion.</para>
-
-<para>Calling &makunbound; on a symbol defined as a &symbol-macro;
- removes the &symbol-macro; definition.</para>
 
 </section>
 

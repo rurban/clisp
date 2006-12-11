@@ -330,8 +330,16 @@ program-error
 ; define-method-combination is too complicated
 
 (progn
-  (defvar foo16)
-  (define-symbol-macro foo16 t))
+  (defvar foo16-1)
+  (define-symbol-macro foo16-1 t))
+program-error
+
+(progn
+  (define-symbol-macro foo16-2 t)
+  (defvar foo16-2))
+program-error
+
+(define-symbol-macro :foo16-3 t)
 program-error
 
 (defmethod if (x) nil)

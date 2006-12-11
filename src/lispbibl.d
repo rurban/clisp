@@ -14487,6 +14487,18 @@ static inline maygc object check_symbol_non_constant (object obj, object caller)
 extern maygc object check_symbol_special (object obj, object caller);
 /* used by EVAL, CONTROL */
 
+/* UP: make sure that the symbol does not name a global symbol-macro
+ return the symbol
+ can trigger GC */
+global maygc object check_symbol_not_symbol_macro (object symbol);
+/* use by CONTROL, PACKAGE, SYMBOL */
+
+/* UP: make sure that the symbol does not name a global special variable
+ return the symbol
+ can trigger GC */
+global maygc object check_symbol_not_global_special (object symbol);
+/* used by SYMBOL */
+
 /* Error message, if an object isn't a Simple-Vector.
  fehler_kein_svector(caller,obj);
  > caller: caller (a Symbol)
