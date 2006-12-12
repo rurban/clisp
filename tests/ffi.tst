@@ -2,6 +2,11 @@
 ;; (ext:cd "../tests/") (load "tests") (run-test "ffi")
 ;; ./clisp -E utf-8 -norc -i tests/tests -x '(run-test "tests/ffi")'
 
+;; This file must stay encoded with UTF-8 for the tests to succeed!
+#+unicode
+(ext:encoding-charset *default-file-encoding*)
+#+unicode charset:utf-8
+
 (progn (defpackage "FTEST" (:use "FFI" "COMMON-LISP")) (in-package "FTEST") T)
 T
 
@@ -487,12 +492,13 @@ T
   (c-self "日本語"))
 #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)
 
+#+unicode ; 7 is not enough room without unicode
 (progn
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (first (c-ptr (c-array-max character 7))))
     (:return-type (c-array-ptr uint8)) (:language :stdc))
   (c-self "日本語"))
-#(#xE6 #x97 #xA5  #xE6 #x9C #xAC)
+#+unicode #(#xE6 #x97 #xA5  #xE6 #x9C #xAC)
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -508,6 +514,7 @@ T
   (c-self #\a))
 #x61
 
+; the #-unicode reader will skip over #\ø which it cannot read
 #+unicode
 (progn
   (def-call-out c-self (:name "ffi_identity")
