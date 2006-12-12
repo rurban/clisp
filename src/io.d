@@ -7845,6 +7845,7 @@ local maygc void pr_number (const gcv_object_t* stream_, object number) {
  > printer: function to print the object to the stream
  < stream: stream
  can trigger GC */
+local maygc void pr_record_ab_00 (const gcv_object_t* stream_, object obj);
 local maygc void pr_unreadably (const gcv_object_t* stream_, object obj,
                                 gcv_object_t *string_, pr_routine_t printer) {
   LEVEL_CHECK;
@@ -7854,8 +7855,10 @@ local maygc void pr_unreadably (const gcv_object_t* stream_, object obj,
   var uintL length_limit = get_print_length(); /* *PRINT-LENGTH* */
   JUSTIFY_LAST(length_limit==0);
   write_sstring_case(stream_,*string_); /* print string */
-  JUSTIFY_SPACE;
-  JUSTIFY_LAST(true);
+  if (printer != pr_record_ab_00) {
+    JUSTIFY_SPACE;
+    JUSTIFY_LAST(true);
+  }
   printer(stream_,*obj_);       /* print obj as an address */
   JUSTIFY_END_FILL;
   UNREADABLE_END;
@@ -9160,7 +9163,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       pr_unreadably(stream_,TheSymbolmacro(TheGlobalSymbolmacro(obj)->globalsymbolmacro_definition)->symbolmacro_expansion,
                     &O(printstring_globalsymbolmacro),prin_object);
       break;
-    case Rectype_Macro:         /* #<MACRO expansion> */
+    case Rectype_Macro:         /* #<MACRO expansion lambda-list> */
       CHECK_PRINT_READABLY(obj);
       pr_unreadably(stream_,obj,&O(printstring_macro),pr_record_ab_00);
       break;
