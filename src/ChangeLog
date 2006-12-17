@@ -1,3 +1,9 @@
+2006-12-17  Sam Steingold  <sds@gnu.org>
+
+	* dribble.lisp (dribble-toggle): open the target file with the
+	:EXTERNAL-FORMAT of the source stream
+	Reported by Pascal Bourguignon <pjb@informatimago.com>
+
 2006-12-11  Sam Steingold  <sds@podval.org>
 
 	fixed bug #[ 1613300 ]: extra space in unreadable output
