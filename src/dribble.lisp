@@ -23,7 +23,7 @@
 (defun dribble-stream-p (obj) (not (null (dribble-stream obj))))
 ;; should this be integrated into CLOS and the rest of CLISP?
 ;; right now DRIBBLE-STREAM is not a recognizable subtype of TWO-WAY-STREAM.
-;; should it be?  should is be printed specially?
+;; should it be?  should it be printed specially?
 (deftype dribble-stream () '(satisfies dribble-stream-p))
 (defun check-dribble-stream (obj caller)
   (loop
@@ -51,12 +51,13 @@
           (values source target)))
       (if file                    ; not dribbling
         (let ((target
-                (if (and (streamp target)
-                         (open-stream-p file) (output-stream-p file))
-                  file
-                  (open file :direction :output
-                             :if-exists :append
-                             :if-does-not-exist :create))))
+               (if (and (streamp file)
+                        (open-stream-p file) (output-stream-p file))
+                 file
+                 (open file :direction :output
+                            :external-format (stream-external-format stream)
+                            :if-exists :append
+                            :if-does-not-exist :create))))
           (format target (TEXT ";; Dribble of ~S started ") stream)
           (funcall (date-format) target (multiple-value-list (get-decoded-time)))
           (terpri target)
