@@ -65,7 +65,7 @@
           sys::closure-name sys::closure-codevec sys::closure-consts
           sys::fixnump sys::short-float-p sys::single-float-p
           sys::double-float-p sys::long-float-p
-          sys::search-file sys::date-format sys::line-number
+          sys::search-file sys::date-string sys::line-number
           sys::%funtabref sys::inlinable sys::constant-inlinable
           sys::module-name
           sys::*compiling* sys::*compiling-from-file* sys::*inline-functions*
@@ -11222,11 +11222,8 @@ The function make-closure is required.
               (when listing-stream
                 (fresh-line listing-stream)
                 (format listing-stream
-                  (TEXT "Listing of compilation of file ~A~%on ~@? by ~A, version ~A")
-                  input-file
-                  (date-format)
-                  (multiple-value-list (get-decoded-time))
-                  ;; List (sec min hour day month year ...)
+                  (TEXT "Listing of compilation of file ~A~%on ~A by ~A, version ~A")
+                  input-file (date-string)
                   (lisp-implementation-type) (lisp-implementation-version)))
               (let ((*compiling* t)
                     (*compiling-from-file* t)

@@ -1,5 +1,11 @@
 2006-12-17  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (date-string): added
+	* dribble.lisp (dribble-toggle): use it
+	* compiler.lisp (compile-file): ditto
+
+2006-12-17  Sam Steingold  <sds@gnu.org>
+
 	* dribble.lisp (dribble-toggle): open the target file with the
 	:EXTERNAL-FORMAT of the source stream
 	Reported by Pascal Bourguignon <pjb@informatimago.com>
