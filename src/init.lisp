@@ -2053,6 +2053,8 @@
    "~1{~5@*~D-~4@*~2,'0D-~3@*~2,'0D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}"))
 (defun date-format ()
   (localized 'date-format))
+(defun date-string ()
+  (funcall (date-format) nil (multiple-value-list (get-decoded-time))))
 
 ;; list a directory
 (defun dir (&optional (pathnames #+(or UNIX WIN32) '("*/" "*")))

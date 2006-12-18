@@ -44,10 +44,8 @@
       (if file                  ; already dribbling
         (warn (TEXT "Already dribbling ~S to ~S") source target)
         (progn
-          (fresh-line target)
-          (format target (TEXT ";; Dribble of ~S finished ") source)
-          (funcall (date-format) target (multiple-value-list (get-decoded-time)))
-          (terpri target)
+          (format target (TEXT "~&;; Dribble of ~S finished on ~A.~%")
+                  source (date-string))
           (values source target)))
       (if file                    ; not dribbling
         (let ((target
@@ -58,9 +56,8 @@
                             :external-format (stream-external-format stream)
                             :if-exists :append
                             :if-does-not-exist :create))))
-          (format target (TEXT ";; Dribble of ~S started ") stream)
-          (funcall (date-format) target (multiple-value-list (get-decoded-time)))
-          (terpri target)
+          (format target (TEXT ";; Dribble of ~S started on ~A.~%")
+                  stream (date-string))
           (values (make-dribble-stream stream target) target))
         (warn (TEXT "Currently not dribbling from ~S.") stream)))))
 
