@@ -5783,7 +5783,7 @@ for-value   NIL or T
           (push-*denv* other-decls)
           (dolist (symbol symbols)
             (if (or (constantp symbol) (proclaimed-special-p symbol))
-              (c-error-c (TEXT "~S: symbol ~S is declared special and must not be declared a macro")
+              (c-error-c (TEXT "~S: symbol ~S is declared SPECIAL and must not be declared a macro")
                          'symbol-macrolet symbol)
               (when (memq symbol *specials*)
                 (c-error-c (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
