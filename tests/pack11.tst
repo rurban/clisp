@@ -767,6 +767,26 @@ T
 #+CLISP
 T
 
+(let ((f "pack-test.lisp"))
+  (unwind-protect
+       (progn
+         (with-open-file (out f :direction :output)
+           (princ ";; test non-top-level defpackage compilation
+\(defmacro my-defpackage (name use)
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     (let ((pkg (defpackage ,name (:use))))
+       (use-package '(,use) pkg)
+       pkg)))
+\(my-defpackage #:bar #:cl)
+\(in-package #:bar)
+\(defun baz (x) x)
+" out))
+         (list (cdr (multiple-value-list (compile-file f)))
+               (equal (package-use-list '#:bar)
+                      (list (find-package '#:cl)))))
+    (delete-package '#:bar)
+    (post-compile-file-cleanup f)))
+((NIL NIL) T)
 
 ; Clean up.
 (unintern 'x)
