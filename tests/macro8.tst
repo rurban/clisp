@@ -220,6 +220,17 @@ test11
 (test11)
 2
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1420585&group_id=1355
+(progn
+  (defmacro test12 ()
+    `(let () (eval-when (compile) (print "compiling"))))
+  (define-compiler-macro test12 ()
+    (princ "Optimizing-")
+    '((lambda (x) (princ X)) 123))
+  (with-output-to-string (*standard-output*)
+    (funcall (lambda () (declare (compile)) (test12)))))
+"Optimizing-123"
+
 ;; check that declaration processing does not modify code
 (let* ((f '(locally (declare (optimize safety abazonk (debug 20))) (+ 3 4)))
        (c (copy-tree f)))
