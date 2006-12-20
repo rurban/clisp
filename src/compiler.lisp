@@ -1424,7 +1424,7 @@ for-value   NIL or T
 (defun parse-optimize-quality (spec)
   (macrolet ((broken (&rest args)
                `(progn
-                  (c-warn 'warn ,@args)
+                  (c-warn ,@args)
                   (values))))
     (let ((quality spec) (value 3))
       (if (or (symbolp spec)
@@ -1436,7 +1436,7 @@ for-value   NIL or T
             (values quality value)
             (broken (TEXT "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S")
                     quality value))
-          (broken (TEXT "~S is not a valid ~S quality.") 'optimize quality))
+          (broken (TEXT "~S is not a valid ~S quality.") quality 'optimize))
         (broken (TEXT "Not a valid ~S specifier: ~S") 'optimize spec)))))
 
 ;; (process-declarations declspeclist) analyzes the declarations (as they come
