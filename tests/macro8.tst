@@ -1003,6 +1003,10 @@ NIL
 #+clisp
 ((NIL) (NIL) (T))
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1618724&group_id=1355
+(funcall (compile nil '(lambda () (declare (optimize foo)))))
+NIL
+
 ; Clean up.
 (progn
   (fmakunbound 'circularity-in-code)
