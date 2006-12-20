@@ -767,6 +767,7 @@ T
 #+CLISP
 T
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1612313&group_id=1355
 (let ((f "pack-test.lisp"))
   (unwind-protect
        (progn
