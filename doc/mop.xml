@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<section id="mop-chap"><title>Meta-Object Protocol</title>
+<chapter id="mop-chap"><title>Meta-Object Protocol</title>
 <subtitle>Adapted from chapters 5 and 6 of &amop;</subtitle>
 
 <section id="mop-intro"><title>Introduction</title>
@@ -5506,4 +5506,4 @@ cache of the dependent when it is updated.</para>
 
 </section><!-- mop-clisp -->
 
-</section>
+</chapter>

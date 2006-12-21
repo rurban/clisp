@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<section id="gray"><title>Gray streams</title>
+<chapter id="gray"><title>Gray streams</title>
 
 <section id="gray-overview"><title>Overview</title>
 <para>This interface permits the definition of new classes of streams,
@@ -415,4 +415,4 @@ WITH-FILL-STREAM
 </example>
 </section>
 
-</section>
+</chapter>
