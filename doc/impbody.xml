@@ -4038,7 +4038,7 @@ functions are provided:
   stream, i.e., a &stream-t; that can be operated upon by both
   &read-char; and &read-byte;.
   What should &listen; return on such a stream if what is actually available
-  on the stream at the moment is only a part of multi-byte character?
+  on the stream at the moment is only a part of a multi-byte character?
   Right now one can use first &so-status; to check if anything at all is
   available and then use &listen; to make sure that a full &character-t;
   is actually there.</para></note>
