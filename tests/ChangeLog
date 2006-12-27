@@ -1,3 +1,7 @@
+2006-12-26  Sam Steingold  <sds@podval.org>
+
+	* streams.tst: test for [ 1622642 ]: DESCRIBE: confusing spacing
+
 2006-12-19  Sam Steingold  <sds@podval.org>
 
 	* macro8.tst: test for [ 1420585 ]: compiler-macro:
