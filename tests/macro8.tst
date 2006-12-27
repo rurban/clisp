@@ -1014,6 +1014,36 @@ NIL
 #+clisp
 ((NIL) (NIL) (T))
 
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1578179&group_id=1355&atid=101355
+(let ((f "test-crlf-print-read.lisp")
+      (s (coerce #(#\a #\return #\b) 'string)))
+  (unwind-protect
+       (progn
+         (with-open-file (out f :direction :output)
+           (let ((*print-readably* t))
+             (format out "(defvar *z* ~S)~%" s)))
+         (load (compile-file f))
+         (string= s *z*))
+    (post-compile-file-cleanup f)
+    (makunbound '*z*)
+    (unintern '*z*)))
+T
+
+(let* ((f "test-crlf-print-read.lisp")
+       (p (make-package (coerce #(#\p #\return #\k) 'string)))
+       (s (coerce #(#\s #\return #\m) 'string))
+       (y (intern s p)))
+  (unwind-protect
+       (progn
+         (with-open-file (out f :direction :output)
+           (let ((*print-readably* t))
+             (format out "(defvar ~S ~S)~%" y s)))
+         (load (compile-file f))
+         (string= (symbol-value y) s))
+    ;; (post-compile-file-cleanup f)
+    (delete-package p)))
+T
+
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1618724&group_id=1355
 (funcall (compile nil '(lambda () (declare (optimize foo)))))
 NIL
