@@ -1149,6 +1149,31 @@ T
 (clear-output *standard-output*) nil
 (clear-output *terminal-io*) nil
 
+;; https://sourceforge.net/tracker/index.php?func=detail&aid=1623179&group_id=1355&atid=101355
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1483762&group_id=1355
+#+clisp
+(let ((if "tmp-input=file") (of "tmp-output=file"))
+  (open if :direction :probe :if-does-not-exist :create)
+  (unwind-protect
+       (with-open-file (o of :direction :output)
+         (with-open-file (i if :direction :input)
+           (with-open-stream (2way (make-two-way-stream i o))
+             (list
+              (eq (stream-external-format i) (stream-external-format o))
+              (eq (stream-external-format i) (stream-external-format 2way))
+              (progn (setf (stream-external-format i) :dos
+                           (stream-external-format i) :mac)
+                     (cons
+                      (eq (stream-external-format i) (stream-external-format o))
+                      (stream-external-format 2way)))
+              (progn (setf (stream-external-format 2way :input) :unix
+                           (stream-external-format 2way :output) :unix)
+                     (encoding-line-terminator (stream-external-format 2way)))
+              (eq (stream-external-format i) (stream-external-format o))))))
+    (delete-file if)
+    (delete-file of)))
+#+clisp (T T (NIL . :DEFAULT) :UNIX T)
+
 (progn
 (makunbound 's)
 (makunbound 's1)
