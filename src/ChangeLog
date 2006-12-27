@@ -1,5 +1,10 @@
 2006-12-27  Sam Steingold  <sds@podval.org>
 
+	fix bug [ 1412454 ]: format/*print-pretty* interaction: extra newlines
+	* io.d (pr_enter_1): respect *PPRINT-FIRST-NEWLINE* in all cases
+
+2006-12-27  Sam Steingold  <sds@podval.org>
+
 	fix bug #[ 1482465 ]: confusing format error report, cause fill-stream
 	* format.lisp (format-error): use ~T for indentation and ~S to
 	print format string so thhat the spacing is preserved

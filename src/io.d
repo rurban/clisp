@@ -6629,6 +6629,8 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
         }
         if (eq(Symbol_value(S(prin_l1)),Fixnum_0)) # or at position 0 ?
           skip_first_nl = true;
+        if (nullpSv(pprint_first_newline)) /* use asked: no first newlines */
+          skip_first_nl = true;
         if (nullp(Cdr(Cdr(STACK_0)))) { # DEFINITELY a single-liner
           skip_first_nl = true;
         } else { # several lines, maybe still a single-liner?
@@ -6645,8 +6647,7 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
             fit_this_line = (pphs_len_i <= (prm_i - pos_i));
             if (pphs_len_i > prm_i)
               TheStream(ppstream)->strm_pphelp_modus = mehrzeiler;
-            if (fit_this_line
-                || nullpSv(pprint_first_newline))
+            if (fit_this_line)
               skip_first_nl = true;
           }
           if (skip_first_nl && !fit_this_line)
