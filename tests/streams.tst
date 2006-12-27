@@ -1025,6 +1025,11 @@ T
 (stringp (with-output-to-string (s) (describe nil s)))
 T
 
+;; https://sourceforge.net/tracker/index.php?func=detail&aid=1622642&group_id=1355&atid=101355
+(let ((s "a   b"))
+  (search s (with-output-to-string (*standard-output*) (describe s))))
+2
+
 (WITH-INPUT-FROM-STRING (*S* "abcde")
   (DECLARE (SPECIAL *S*))
   (LET ((SS (MAKE-SYNONYM-STREAM '*S*)))

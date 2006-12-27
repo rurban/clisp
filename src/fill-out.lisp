@@ -177,3 +177,8 @@ T (same indentation as the text, i.e., the same effect as #'IDENTITY).")
   (:method ((stream fill-stream))
     (fill-stream-flush-buffer stream nil)
     (setf (slot-value stream 'inside-sexp) nil)))
+
+(defmacro with-stream-s-expression ((stream) &body body)
+  `(let ((*print-right-margin* (stream-start-s-expression ,stream)))
+     ,@body
+     (stream-end-s-expression ,stream)))

@@ -1,3 +1,9 @@
+2006-12-26  Sam Steingold  <sds@podval.org>
+
+	fix bug #[ 1622642 ]: DESCRIBE: confusing spacing
+	* fill-out.lisp (with-stream-s-expression): new macro
+	* describe.lisp (describe1): use it
+
 2006-12-19  Sam Steingold  <sds@podval.org>
 
 	fixed bug #[ 1618724 ]: broken compiler warning for invalid
