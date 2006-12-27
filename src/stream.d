@@ -14472,7 +14472,7 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
     var object kwd = NEXT(arg_p);
     var object arg = Next(arg_p);
     if (count && !(symbolp(arg) && keywordp(arg))) {
-      NEXT(arg_p);
+      (void)NEXT(arg_p);
       count--;
     } else
       arg = nullobj;
@@ -15196,7 +15196,7 @@ local maygc object combine_stream_element_types (uintL numarg) {
       Car(tmp) = *arg_ptr;
       *arg_ptr = tmp;
     }
-    BEFORE(arg_ptr);
+    (void)BEFORE(arg_ptr);
   } while (--count);
   funcall(L(append),numarg);
   pushSTACK(value1); pushSTACK(S(Ktest));
@@ -15514,6 +15514,31 @@ LISPFUNNR(stream_external_format,1)
       case strmtype_synonym: # Synonym-Stream: follow further
         resolve_as_synonym(stream);
         goto start;
+     #ifdef SOCKET_STREAMS
+      case strmtype_twoway_socket:
+        pushSTACK(TheStream(stream)->strm_twoway_socket_input);
+        pushSTACK(TheStream(stream)->strm_twoway_socket_output);
+        goto stream_external_format_strmtype_twoway;
+     #endif
+      case strmtype_twoway:
+      case strmtype_echo:
+        pushSTACK(TheStream(stream)->strm_twoway_input);
+        pushSTACK(TheStream(stream)->strm_twoway_output);
+      stream_external_format_strmtype_twoway:
+        C_stream_external_format();
+        if (eq(value1,S(Kdefault))) {
+          skipSTACK(1);         /* drop input stream */
+          return;               /* return :DEFAULT */
+        }
+        pushSTACK(STACK_0);     /* input stream */
+        STACK_1 = value1;       /* save output external format */
+        C_stream_external_format();
+        { object output_ex_fmt = popSTACK();
+          if (eq(value1,output_ex_fmt)) /* same ex fmt for input & output */
+            return;                     /* return this same ex fmt */
+          VALUES1(S(Kdefault));
+        }
+        break;
       case strmtype_file:
      #ifdef PIPES
       case strmtype_pipe_in:
