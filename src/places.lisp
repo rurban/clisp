@@ -1223,7 +1223,8 @@
 #+LOGICAL-PATHNAMES
 (defsetf logical-pathname-translations set-logical-pathname-translations)
 ;;;----------------------------------------------------------------------------
-(defsetf stream-external-format system::set-stream-external-format)
+(defsetf stream-external-format (stream &optional direction) (encoding)
+  `(system::set-stream-external-format ,stream ,encoding ,direction))
 ;;;----------------------------------------------------------------------------
 ;;; Handhabung von (SETF (VALUES place1 ... placek) form)
 ;;; --> (MULTIPLE-VALUE-BIND (dummy1 ... dummyk) form
