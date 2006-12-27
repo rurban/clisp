@@ -28,6 +28,8 @@ User visible changes
   + IMPORT into the KEYWORD package does not make a symbol a constant
     variable. [ 1612859 ]
   + DEFPACKAGE code was executed during non top-level compilation. [ 1612313 ]
+  + Fixed format error message formatting. [ 1482465 ]
+  + Fixed *PPRINT-FIRST-NEWLINE* handling. [ 1412454 ]
 
 
 2.41 (2006-10-13)
