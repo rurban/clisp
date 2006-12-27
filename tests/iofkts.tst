@@ -843,6 +843,14 @@ T
              #2=(\"null\" #1# \"zero\") #2#))"))
 T
 
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1412454&group_id=1355&atid=101355
+(let (#+clisp (*pprint-first-newline* nil))
+  (format nil "~{~a~}" (list "string1" "string2"
+                             (concatenate 'string "string3"
+                                          (string #\newline)))))
+"string1string2string3
+"
+
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1613300&group_id=1355&atid=101355
 #+clisp (princ-to-string (fdefinition 'defun))
 #+clisp "#<MACRO #<COMPILED-FUNCTION DEFUN>>"
