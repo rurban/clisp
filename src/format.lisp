@@ -323,12 +323,12 @@
           (loop
             (setq pos2 (or (position #\Newline control-string :start pos1)
                            (length control-string)))
-            (setq errorstring (string-concat errorstring "~%  ~A"))
+            (setq errorstring (string-concat errorstring "~%~2T~S"))
             (setq arguments
               (nconc arguments (list (substring control-string pos1 pos2))))
             (when (<= pos1 errorpos pos2)
               (setq errorstring (string-concat errorstring "~%~VT" "|"))
-              (setq arguments (nconc arguments (list (+ (- errorpos pos1) 2)))))
+              (setq arguments (nconc arguments (list (+ (- errorpos pos1) 3)))))
             (when (= pos2 (length control-string)) (return))
             (setq pos1 (+ pos2 1)))))
       (apply #'error-of-type

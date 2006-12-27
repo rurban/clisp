@@ -1,3 +1,14 @@
+2006-12-27  Sam Steingold  <sds@podval.org>
+
+	fix bug #[ 1482465 ]: confusing format error report, cause fill-stream
+	* format.lisp (format-error): use ~T for indentation and ~S to
+	print format string so thhat the spacing is preserved
+	* constsym.d (stream_start_s_expression, stream_end_s_expression): added
+	* io.d (write_spaces): use check_posfixnum
+	(FORMAT-TABULATE): use check_posfixnum
+	call STREAM-START-S-EXPRESSION and STREAM-END-S-EXPRESSION around
+	spaces() to ensure that the spaces are preserved
+
 2006-12-26  Sam Steingold  <sds@podval.org>
 
 	fix bug #[ 1622642 ]: DESCRIBE: confusing spacing

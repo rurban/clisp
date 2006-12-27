@@ -955,6 +955,15 @@ WARNING: This form contains an error, a mistake, a bug, a
          month nor next year
 "
 
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1482465&group_id=1355&atid=101355
+#+clisp
+(let ((c (nth-value 1 (ignore-errors (format t " ~a ~a,~a~ ~a~%" 1 2 3 4)))))
+  (string= (princ-to-string c)
+           (with-output-to-string (s) (with-fill-stream (f s) (princ c f)))))
+#+clisp T
+
+#+clisp (with-output-to-string (s) (with-fill-stream (f s) (format f "~5T")))
+#+clisp "     "
 
 (let ((f "foo.bar") fwd1 fwd2)
   (unwind-protect
