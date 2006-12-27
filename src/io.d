@@ -10124,7 +10124,7 @@ LISPFUNN(whitespacep,1) { # (SYS::WHITESPACEP CHAR)
 # (SYS::WRITE-SPACES num &optional stream)
 LISPFUN(write_spaces,seclass_default,1,1,norest,nokey,0,NIL) {
   check_ostream(&STACK_0);
-  if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
+  STACK_1 = check_posfixnum(STACK_1);
   spaces(&STACK_0,STACK_1);
   VALUES1(NIL); skipSTACK(2);
 }
@@ -10289,12 +10289,8 @@ LISPFUNN(pcirclep,2) {
 # see format.lisp
 LISPFUN(format_tabulate,seclass_default,3,2,norest,nokey,0,NIL) {
   check_ostream(&STACK_4);
- #define COL_ARG(x) (missingp(x) ? Fixnum_1 : \
-                     (posfixnump(x) ? (object)x : \
-                     (fehler_posfixnum(x),nullobj)))
-  STACK_1 = COL_ARG(STACK_1);
-  STACK_0 = COL_ARG(STACK_0);
- #undef COL_ARG
+  STACK_1 = missingp(STACK_1) ? Fixnum_1 : check_posfixnum(STACK_1);
+  STACK_0 = missingp(STACK_0) ? Fixnum_1 : check_posfixnum(STACK_0);
   if (PPHELP_STREAM_P(STACK_0) && !nullpSv(print_pretty)) {
     var object tab_spec = allocate_vector(4);
     PPH_TAB_COLON(tab_spec) = STACK_3;
@@ -10316,9 +10312,27 @@ LISPFUN(format_tabulate,seclass_default,3,2,norest,nokey,0,NIL) {
       Cdr(Cdr(new_cons)) = TheStream(STACK_0)->strm_pphelp_strings;
       TheStream(STACK_0)->strm_pphelp_strings = new_cons;
     }
-  } else
-    spaces(&STACK_4,
-           fixnum(format_tab(STACK_4,STACK_3,STACK_2,STACK_1,STACK_0)));
+  } else {
+    var bool bind_margin = false; /* fill-out.lisp:with-stream-s-expression */
+    var gcv_object_t *stream_ = &STACK_4;
+    var object colp = STACK_3;
+    var object atp = STACK_2;
+    var object coln = STACK_1;
+    var object coli = STACK_0;
+    if (!builtin_stream_p(STACK_4)) {
+      object f = Symbol_function(S(stream_start_s_expression));
+      if (boundp(f)) {
+        pushSTACK(STACK_4); funcall(f,1);
+        dynamic_bind(S(print_right_margin),value1);
+        bind_margin = true;
+      }
+    }
+    spaces(stream_,fixnum(format_tab(*stream_,colp,atp,coln,coli)));
+    if (bind_margin) {
+      pushSTACK(*stream_); funcall(S(stream_end_s_expression),1);
+      dynamic_unbind(S(print_right_margin));
+    }
+  }
   VALUES1(NIL); skipSTACK(5);
 }
 
