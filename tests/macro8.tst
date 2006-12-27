@@ -1029,21 +1029,6 @@ NIL
     (unintern '*z*)))
 T
 
-(let* ((f "test-crlf-print-read.lisp")
-       (p (make-package (coerce #(#\p #\return #\k) 'string)))
-       (s (coerce #(#\s #\return #\m) 'string))
-       (y (intern s p)))
-  (unwind-protect
-       (progn
-         (with-open-file (out f :direction :output)
-           (let ((*print-readably* t))
-             (format out "(defvar ~S ~S)~%" y s)))
-         (load (compile-file f))
-         (string= (symbol-value y) s))
-    ;; (post-compile-file-cleanup f)
-    (delete-package p)))
-T
-
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1618724&group_id=1355
 (funcall (compile nil '(lambda () (declare (optimize foo)))))
 NIL
