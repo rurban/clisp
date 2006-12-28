@@ -33,7 +33,8 @@ User visible changes
   + DEFPACKAGE code was executed during non top-level compilation. [ 1612313 ]
   + Fixed format error message formatting. [ 1482465 ]
   + Fixed *PPRINT-FIRST-NEWLINE* handling. [ 1412454 ]
-  + Improved hash code generation for very large bignums. [ 1208124 ]
+  + Improved hash code generation for very large bignums and for long lists.
+    [ 948868, 1208124 ]
 
 
 2.41 (2006-10-13)
@@ -46,7 +47,7 @@ User visible changes
   and makes Support Vector Machines available in CLISP.
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
-* FASTCGI:GETENV is compatible with EXT:GETENV and can return the
+* FASTCGI:GETENV isa now compatible with EXT:GETENV and can return the
   entire environment as an alist.
 
 * The same internal interface now handles FFI forms DEF-CALL-OUT and
