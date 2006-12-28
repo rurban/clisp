@@ -494,3 +494,10 @@ T
 (loop :for x :in '(2s0 2f0 2d0 2l0 -2s0 -2f0 -2d0 -2l0)
   :always (plusp (imagpart (atanh x))))
 T
+
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1208124&group_id=1355&atid=101355
+(loop :with min = (ash 1 64) :with max = (- (ash 1 200) min) :repeat 100
+  :for b = (+ min (random max)) :for s = (sxhash b)
+  :for b1 = (logxor b (ash 1 (floor (integer-length b) 2))) :for s1 = (sxhash b1)
+  :when (= s s1) :collect (list b s b1 s1))
+NIL

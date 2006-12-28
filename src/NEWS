@@ -33,6 +33,7 @@ User visible changes
   + DEFPACKAGE code was executed during non top-level compilation. [ 1612313 ]
   + Fixed format error message formatting. [ 1482465 ]
   + Fixed *PPRINT-FIRST-NEWLINE* handling. [ 1412454 ]
+  + Improved hash code generation for very large bignums. [ 1208124 ]
 
 
 2.41 (2006-10-13)
