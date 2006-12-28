@@ -601,62 +601,55 @@ local uint32 hashcode3_atom (object obj) {
   return hashcode1(obj);
  #endif
 }
-/* cons -> look at content up to depth 4:
+/* tree -> look at content up to depth 4, more if some paths end early
  determine the hashcode of the CAR and the hashcode of the CDR at a time
- and combine them shifted. As shifts we can choose e.g. 16,7,5,3, because
+ and combine them shifted. As shifts we can choose, e.g. 16,7,5,3, because
  {0,16} + {0,7} + {0,5} + {0,3} = {0,3,5,7,8,10,12,15,16,19,21,23,24,26,28,31}
- consists of 16 different elements of {0,...,31} . */
-/* object, at cons only up to depth 0 */
-local inline uint32 hashcode3_cons0 (object obj) {
+ consists of 16 different elements of {0,...,31} .
+ > obj : the arbitrary object, tree(=cons) or leaf(=atom)
+ > need : how many objects are still needed
+ > level : the current distance from the root, to avoid circularity
+ > hashcode_atom : how to compute the hash code of a leaf */
+#define HASHCODE_TREE_MAX_LEVEL 16
+#define HASHCODE_TREE_NEED_LEAVES 16
+local inline uint32 hashcode_tree (object obj, int* need, int level,
+                                   uint32 (hashcode_leaf) (object)) {
   if (atomp(obj)) {
-    return hashcode3_atom(obj);
-  } else {                      /* cons -> hashcode := 1 */
+    (*need)--;
+    return hashcode_leaf(obj);
+  } else if (level > HASHCODE_TREE_MAX_LEVEL || *need == 0) {
     return 1;
-  }
-}
-/* object, at cons only up to depth 1 */
-local inline uint32 hashcode3_cons1 (object obj) {
-  if (atomp(obj)) {
-    return hashcode3_atom(obj);
   } else {
-    /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode3_cons0(Car(obj));
-    var uint32 code2 = hashcode3_cons0(Cdr(obj));
-    return rotate_left(3,code1) ^ code2;
+    var local const uint8 shifts[4] = { 16 , 7 , 5 , 3 };
+    var uint32 car_code = hashcode_tree(Car(obj),need,level+1,hashcode_leaf);
+    var uint32 cdr_code = (*need == 0 ? 1 :
+                           hashcode_tree(Cdr(obj),need,level+1,hashcode_leaf));
+    return rotate_left(shifts[level & 3],car_code) ^ cdr_code;
   }
 }
-/* object, at cons only up to depth 2 */
-local inline uint32 hashcode3_cons2 (object obj) {
+/* similar to hashcode_tree
+ NB: use the SAME top-level need initial value (e.g., HASHCODE_TREE_NEED_LEAVES)
+     for the corresponding hashcode_tree and gcinvariant_hashcode_tree_p calls */
+local inline bool gcinvariant_hashcode_tree_p
+(object obj, int* need, int level,
+ bool (gcinvariant_hashcode_leaf_p) (object)) {
   if (atomp(obj)) {
-    return hashcode3_atom(obj);
+    (*need)--;
+    return gcinvariant_hashcode_leaf_p(obj);
+  } else if (level > HASHCODE_TREE_MAX_LEVEL || *need == 0) {
+    return true;
   } else {
-    /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode3_cons1(Car(obj));
-    var uint32 code2 = hashcode3_cons1(Cdr(obj));
-    return rotate_left(5,code1) ^ code2;
+    return gcinvariant_hashcode_tree_p(Car(obj),need,level+1,
+                                        gcinvariant_hashcode_leaf_p)
+      && (*need == 0 ? true :
+          gcinvariant_hashcode_tree_p(Cdr(obj),need,level+1,
+                                      gcinvariant_hashcode_leaf_p));
   }
 }
-/* object, at cons only up to depth 3 */
-local inline uint32 hashcode3_cons3 (object obj) {
-  if (atomp(obj)) {
-    return hashcode3_atom(obj);
-  } else {
-    /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode3_cons2(Car(obj));
-    var uint32 code2 = hashcode3_cons2(Cdr(obj));
-    return rotate_left(7,code1) ^ code2;
-  }
-}
-/* object, at cons only up to depth 4 */
+
 global uint32 hashcode3 (object obj) {
-  if (atomp(obj)) {
-    return hashcode3_atom(obj);
-  } else {
-    /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode3_cons3(Car(obj));
-    var uint32 code2 = hashcode3_cons3(Cdr(obj));
-    return rotate_left(16,code1) ^ code2;
-  }
+  int need = HASHCODE_TREE_NEED_LEAVES;
+  return hashcode_tree(obj,&need,0,hashcode3_atom);
 }
 
 /* Tests whether hashcode3 of an object is guaranteed to be GC-invariant. */
@@ -694,39 +687,9 @@ local bool gcinvariant_hashcode3_atom_p (object obj) {
   #endif
   return false;
 }
-local inline bool gcinvariant_hashcode3_cons0_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3_atom_p(obj);
-  else
-    return true;
-}
-local inline bool gcinvariant_hashcode3_cons1_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3_atom_p(obj);
-  else
-    return gcinvariant_hashcode3_cons0_p(Car(obj))
-           && gcinvariant_hashcode3_cons0_p(Cdr(obj));
-}
-local inline bool gcinvariant_hashcode3_cons2_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3_atom_p(obj);
-  else
-    return gcinvariant_hashcode3_cons1_p(Car(obj))
-           && gcinvariant_hashcode3_cons1_p(Cdr(obj));
-}
-local inline bool gcinvariant_hashcode3_cons3_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3_atom_p(obj);
-  else
-    return gcinvariant_hashcode3_cons2_p(Car(obj))
-           && gcinvariant_hashcode3_cons2_p(Cdr(obj));
-}
 global bool gcinvariant_hashcode3_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3_atom_p(obj);
-  else
-    return gcinvariant_hashcode3_cons3_p(Car(obj))
-           && gcinvariant_hashcode3_cons3_p(Cdr(obj));
+  int need = HASHCODE_TREE_NEED_LEAVES;
+  return gcinvariant_hashcode_tree_p(obj,&need,0,gcinvariant_hashcode3_atom_p);
 }
 
 /* --------------------------- STABLEHASH EQUAL --------------------------- */
@@ -808,58 +771,10 @@ local uint32 hashcode3stable_atom (object obj) {
   return hashcode1stable(obj);
  #endif
 }
-/* cons -> look at content up to depth 4:
- determine the hashcode of the CAR and the hashcode of the CDR at a time
- and combine them shifted. As Shifts fit e.g. 16,7,5,3,
- because {0,16} + {0,7} + {0,5} + {0,3} = {0,3,5,7,8,10,12,15,16,19,21,23,24,26,28,31}
- consists of 16 different elements of {0,...,31} .
- object, at cons only up to depth 0 */
-local uint32 hashcode3stable_cons0 (object obj) {
-  if (atomp(obj)) {
-    return hashcode3stable_atom(obj);
-  } else {                      /* cons -> hashcode := 1 */
-    return 1;
-  }
-}
-/* object, at cons only up to depth 1 */
-local uint32 hashcode3stable_cons1 (object obj) {
-  if (atomp(obj)) {
-    return hashcode3stable_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode3stable_cons0(Car(obj));
-    var uint32 code2 = hashcode3stable_cons0(Cdr(obj));
-    return rotate_left(3,code1) ^ code2;
-  }
-}
-/* object, at cons only up to depth 2 */
-local uint32 hashcode3stable_cons2 (object obj) {
-  if (atomp(obj)) {
-    return hashcode3stable_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode3stable_cons1(Car(obj));
-    var uint32 code2 = hashcode3stable_cons1(Cdr(obj));
-    return rotate_left(5,code1) ^ code2;
-  }
-}
-/* object, at cons only up to depth 3 */
-local uint32 hashcode3stable_cons3 (object obj) {
-  if (atomp(obj)) {
-    return hashcode3stable_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode3stable_cons2(Car(obj));
-    var uint32 code2 = hashcode3stable_cons2(Cdr(obj));
-    return rotate_left(7,code1) ^ code2;
-  }
-}
-/* object, at cons only up to depth 4 */
+
 global uint32 hashcode3stable (object obj) {
-  if (atomp(obj)) {
-    return hashcode3stable_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode3stable_cons3(Car(obj));
-    var uint32 code2 = hashcode3stable_cons3(Cdr(obj));
-    return rotate_left(16,code1) ^ code2;
-  }
+  int need = HASHCODE_TREE_NEED_LEAVES;
+  return hashcode_tree(obj,&need,0,hashcode3stable_atom);
 }
 
 /* Tests whether hashcode3stable of an object is guaranteed to be
@@ -898,39 +813,10 @@ local bool gcinvariant_hashcode3stable_atom_p (object obj) {
   #endif
   return instance_of_stablehash_p(obj) || symbolp(obj);
 }
-local inline bool gcinvariant_hashcode3stable_cons0_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3stable_atom_p(obj);
-  else
-    return true;
-}
-local inline bool gcinvariant_hashcode3stable_cons1_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3stable_atom_p(obj);
-  else
-    return gcinvariant_hashcode3stable_cons0_p(Car(obj))
-           && gcinvariant_hashcode3stable_cons0_p(Cdr(obj));
-}
-local inline bool gcinvariant_hashcode3stable_cons2_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3stable_atom_p(obj);
-  else
-    return gcinvariant_hashcode3stable_cons1_p(Car(obj))
-           && gcinvariant_hashcode3stable_cons1_p(Cdr(obj));
-}
-local inline bool gcinvariant_hashcode3stable_cons3_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3stable_atom_p(obj);
-  else
-    return gcinvariant_hashcode3stable_cons2_p(Car(obj))
-           && gcinvariant_hashcode3stable_cons2_p(Cdr(obj));
-}
 global bool gcinvariant_hashcode3stable_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode3stable_atom_p(obj);
-  else
-    return gcinvariant_hashcode3stable_cons3_p(Car(obj))
-           && gcinvariant_hashcode3stable_cons3_p(Cdr(obj));
+  int need = HASHCODE_TREE_NEED_LEAVES;
+  return gcinvariant_hashcode_tree_p(obj,&need,0,
+                                     gcinvariant_hashcode3stable_atom_p);
 }
 
 /* ---------------------------- FASTHASH EQUALP ---------------------------- */
@@ -1240,59 +1126,10 @@ local uint32 hashcode4_atom (object obj) {
     default: NOTREACHED;
   }
 }
-/* cons -> look at content up to depth 4:
- determine hashcode of the CAR and hashcode of the CDR at a time
- and combine them shifted. As shifts fit e.g. 16,7,5,3,
- because {0,16} + {0,7} + {0,5} + {0,3} =
-         {0,3,5,7,8,10,12,15,16,19,21,23,24,26,28,31}
- consists of 16 different elements of {0,...,31} .
- object, at cons only up to depth 0 */
-local uint32 hashcode4_cons0 (object obj) {
-  if (atomp(obj)) {
-    return hashcode4_atom(obj);
-  } else {                      /* cons -> hashcode := 1 */
-    return 1;
-  }
-}
-/* object, at cons only up to depth 1 */
-local uint32 hashcode4_cons1 (object obj) {
-  if (atomp(obj)) {
-    return hashcode4_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode4_cons0(Car(obj));
-    var uint32 code2 = hashcode4_cons0(Cdr(obj));
-    return rotate_left(3,code1) ^ code2;
-  }
-}
-/* object, at cons only up to depth 2 */
-local uint32 hashcode4_cons2 (object obj) {
-  if (atomp(obj)) {
-    return hashcode4_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode4_cons1(Car(obj));
-    var uint32 code2 = hashcode4_cons1(Cdr(obj));
-    return rotate_left(5,code1) ^ code2;
-  }
-}
-/* object, at cons only up to depth 3 */
-local uint32 hashcode4_cons3 (object obj) {
-  if (atomp(obj)) {
-    return hashcode4_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode4_cons2(Car(obj));
-    var uint32 code2 = hashcode4_cons2(Cdr(obj));
-    return rotate_left(7,code1) ^ code2;
-  }
-}
-/* object, at cons only up to depth 4 */
+
 global uint32 hashcode4 (object obj) {
-  if (atomp(obj)) {
-    return hashcode4_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = hashcode4_cons3(Car(obj));
-    var uint32 code2 = hashcode4_cons3(Cdr(obj));
-    return rotate_left(16,code1) ^ code2;
-  }
+  int need = HASHCODE_TREE_NEED_LEAVES;
+  return hashcode_tree(obj,&need,0,hashcode4_atom);
 }
 
 /* Tests whether hashcode4 of an object is guaranteed to be GC-invariant. */
@@ -1330,39 +1167,9 @@ local bool gcinvariant_hashcode4_atom_p (object obj) {
   #endif
   return false;
 }
-local inline bool gcinvariant_hashcode4_cons0_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode4_atom_p(obj);
-  else
-    return true;
-}
-local inline bool gcinvariant_hashcode4_cons1_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode4_atom_p(obj);
-  else
-    return gcinvariant_hashcode4_cons0_p(Car(obj))
-           && gcinvariant_hashcode4_cons0_p(Cdr(obj));
-}
-local inline bool gcinvariant_hashcode4_cons2_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode4_atom_p(obj);
-  else
-    return gcinvariant_hashcode4_cons1_p(Car(obj))
-           && gcinvariant_hashcode4_cons1_p(Cdr(obj));
-}
-local inline bool gcinvariant_hashcode4_cons3_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode4_atom_p(obj);
-  else
-    return gcinvariant_hashcode4_cons2_p(Car(obj))
-           && gcinvariant_hashcode4_cons2_p(Cdr(obj));
-}
 global bool gcinvariant_hashcode4_p (object obj) {
-  if (atomp(obj))
-    return gcinvariant_hashcode4_atom_p(obj);
-  else
-    return gcinvariant_hashcode4_cons3_p(Car(obj))
-           && gcinvariant_hashcode4_cons3_p(Cdr(obj));
+  int need = HASHCODE_TREE_NEED_LEAVES;
+  return gcinvariant_hashcode_tree_p(obj,&need,0,gcinvariant_hashcode4_atom_p);
 }
 
 /* ----------------------------- USER DEFINED ----------------------------- */
@@ -3128,59 +2935,9 @@ local uint32 sxhash_atom (object obj) {
     }
   }
 }
-/* cons -> look at content up to depth 4:
- determine the hashcode of the CAR and the hashcode of the CDR at a time
- and combine them shifted. As shifts fit e.g. 16,7,5,3,
- because {0,16} + {0,7} + {0,5} + {0,3}
-       = {0,3,5,7,8,10,12,15,16,19,21,23,24,26,28,31}
- consists of 16 different elements of {0,...,31} .
- object, for cons only up to depth 0 */
-local uint32 sxhash_cons0 (object obj) {
-  if (atomp(obj)) {
-    return sxhash_atom(obj);
-  } else {                      /* cons -> hashcode := 1 */
-    return 1;
-  }
-}
-/* object, for cons only up to depth 1 */
-local uint32 sxhash_cons1 (object obj) {
-  if (atomp(obj)) {
-    return sxhash_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = sxhash_cons0(Car(obj));
-    var uint32 code2 = sxhash_cons0(Cdr(obj));
-    return rotate_left(3,code1) ^ code2;
-  }
-}
-/* object, for cons only up to depth 2 */
-local uint32 sxhash_cons2 (object obj) {
-  if (atomp(obj)) {
-    return sxhash_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = sxhash_cons1(Car(obj));
-    var uint32 code2 = sxhash_cons1(Cdr(obj));
-    return rotate_left(5,code1) ^ code2;
-  }
-}
-/* object, for cons only up to depth 3 */
-local uint32 sxhash_cons3 (object obj) {
-  if (atomp(obj)) {
-    return sxhash_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = sxhash_cons2(Car(obj));
-    var uint32 code2 = sxhash_cons2(Cdr(obj));
-    return rotate_left(7,code1) ^ code2;
-  }
-}
-/* object, for cons only up to depth 4 */
 local uint32 sxhash (object obj) {
-  if (atomp(obj)) {
-    return sxhash_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
-    var uint32 code1 = sxhash_cons3(Car(obj));
-    var uint32 code2 = sxhash_cons3(Cdr(obj));
-    return rotate_left(16,code1) ^ code2;
-  }
+  int need = HASHCODE_TREE_NEED_LEAVES;
+  return hashcode_tree(obj,&need,0,sxhash_atom);
 }
 
 LISPFUNN(sxhash,1)

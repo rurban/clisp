@@ -1,5 +1,9 @@
 2006-12-28  Sam Steingold  <sds@podval.org>
 
+	* hashlong.tst: tests for [ 948868 ]: hashcode[34]_cons weakness
+
+2006-12-28  Sam Steingold  <sds@podval.org>
+
 	* number2.tst: test for [ 1208124 ]: hashcode_bignum weakness
 
 2006-12-27  Sam Steingold  <sds@podval.org>
