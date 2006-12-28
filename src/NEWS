@@ -12,6 +12,9 @@ User visible changes
 * Module libsvm has been upgraded to the upstream version 2.83.
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
+* EXT:ARGLIST now works for macros too.
+  See <http://clisp.cons.org/impnotes/flow-dict.html#arglist> for details.
+
 * Bug fixes:
   + Fixed rounding of long floats [even+1/2]. [ 1589311 ]
   + Fixed stdio when running without a TTY, e.g., under SSH. [ 1592343 ]
