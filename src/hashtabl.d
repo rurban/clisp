@@ -203,23 +203,37 @@ local uint32 hashcode_fixnum(object obj) { return hashcode1(obj); }
 #else
 #define hashcode_fixnum(obj)  hashcode1(obj)
 #endif
-/* Bignum: length*2 + (MSD*2^16 + LSD) */
+/* Bignum: length*2 + all digits */
 local uint32 hashcode_bignum (object obj) {
   var uintL len = (uintL)Bignum_length(obj); /* number of Words */
-  return
-   #if (intDsize==32)
-    misch(TheBignum(obj)->data[0],     /* MSD */
-          TheBignum(obj)->data[len-1]) /* and LSD */
-   #elif (intDsize==16) || (bn_minlength<4)
-    highlow32(TheBignum(obj)->data[0],     /* MSD */
-              TheBignum(obj)->data[len-1]) /* and LSD */
-   #else  /* (intDsize==8) && (bn_minlength>=4) */
-    ( (((uint32)TheBignum(obj)->data[0]) << 24)
-      |(((uint32)TheBignum(obj)->data[1]) << 16)
-      |(((uint32)TheBignum(obj)->data[2]) << 8)
-      |((uint32)TheBignum(obj)->data[len-1]))
-   #endif
-    + 2*len;                    /* and length*2 */
+  var uint32 code = 2*len;
+  var uintL pos;
+ #if (intDsize==32)
+  for (pos=0; pos<len; pos++)
+    code = misch(code,TheBignum(obj)->data[pos]);
+ #elif (intDsize==16)
+  var uintL len1 = len & 1;     /* len mod 2 */
+  var uintL len2 = len - len1;  /* len div 2 */
+  for (pos=0; pos<len2; pos+=2)
+    code = misch(code,highlow32(TheBignum(obj)->data[pos],
+                                TheBignum(obj)->data[pos+1]));
+  if (len1 != 0) code = misch(code,TheBignum(obj)->data[len2]); /* LSD */
+ #else  /* (intDsize==8) */
+  var uintL len1 = len & 3;     /* len mod 4 */
+  var uintL len2 = len - len1;  /* len div 4 */
+  for (pos=0; pos<len2; pos+=4)
+    code = misch(code,( (((uint32)TheBignum(obj)->data[pos])   << 24)
+                       |(((uint32)TheBignum(obj)->data[pos+1]) << 16)
+                       |(((uint32)TheBignum(obj)->data[pos+2]) << 8)
+                       |(((uint32)TheBignum(obj)->data[pos+3]))));
+  if (len1 != 0) {
+    var uint32 lsd=0;
+    for (pos=0; pos<len1; pos++)
+      lsd |= ((uint32)TheBignum(obj)->data[len2+pos]) << (pos<<3);
+    code = misch(code,lsd);
+  }
+ #endif
+  return code;
 }
 /* Short-Float: internal representation */
 local uint32 hashcode_sfloat (object obj);
@@ -411,7 +425,7 @@ global bool gcinvariant_hashcode2stable_p (object obj) {
  < result: hashcode, a 32-Bit-number */
 global uint32 hashcode3 (object obj);
 /* auxiliary functions for known type:
- String -> length, first max. 31 characters, utilize last character */
+ String -> length + all characters */
 local uint32 hashcode_string (object obj) {
   var uintL len;
   var uintL offset;
