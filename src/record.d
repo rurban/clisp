@@ -731,11 +731,12 @@ LISPFUNN(global_symbol_macro_definition,1)
  (SYS::MACROP object) tests for a Macro.
  (SYS::MACRO-EXPANDER macro) returns the macro's expander function. */
 
-/* (SYS::MAKE-MACRO expander) returns a Macro object with the given expander
- function. */
-LISPFUNN(make_macro,1) {
-  STACK_0 = check_function(STACK_0);
+/* (SYS::MAKE-MACRO expander &optional lambdalist) [&optional is Legacy ABI]
+ returns a Macro object with the given expander function. */
+LISPFUN(make_macro,seclass_no_se,1,1,norest,nokey,0,NIL) {
+  STACK_1 = check_function(STACK_1);
   var object m = allocate_macro();
+  TheMacro(m)->macro_lambda_list = popSTACK();
   TheMacro(m)->macro_expander = popSTACK();
   VALUES1(m);
 }
@@ -746,19 +747,33 @@ LISPFUNN(macrop,1) {
   VALUES_IF(macrop(obj));
 }
 
-/* (SYS::MACRO-EXPANDER macro) returns the macro's expander function. */
-LISPFUNN(macro_expander,1) {
-  var object obj = popSTACK();
+/* UP: check that the argument is a macro
+ > mac: macro
+ < mac: same
+ can trigger GC */
+local maygc object check_macro (object obj) {
   while (!macrop(obj)) {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj); /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(macro)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(macro));        /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(macro)); pushSTACK(obj);
-    pushSTACK(S(macro_expander)); /* function name */
+    pushSTACK(TheSubr(subr_self)->name); /* function name */
     check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
   }
+  return obj;
+}
+
+/* (SYS::MACRO-EXPANDER macro) returns the macro's expander function. */
+LISPFUNN(macro_expander,1) {
+  var object obj = check_macro(popSTACK());
   VALUES1(TheMacro(obj)->macro_expander);
+}
+
+/* (SYS::MACRO-LAMBDA-LIST macro) returns the macro's lambda list. */
+LISPFUNN(macro_lambda_list,1) {
+  var object obj = check_macro(popSTACK());
+  VALUES1(TheMacro(obj)->macro_lambda_list);
 }
 
 /* ===========================================================================

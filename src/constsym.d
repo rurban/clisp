@@ -789,6 +789,7 @@ LISPSYM(global_symbol_macro_definition,"GLOBAL-SYMBOL-MACRO-DEFINITION",system)
 LISPSYM(make_macro,"MAKE-MACRO",system) /* ABI */
 LISPSYM(macrop,"MACROP",system)
 LISPSYM(macro_expander,"MACRO-EXPANDER",system)
+LISPSYM(macro_lambda_list,"MACRO-LAMBDA-LIST",system)
 LISPSYM(make_function_macro,"MAKE-FUNCTION-MACRO",system)
 LISPSYM(function_macro_p,"FUNCTION-MACRO-P",system)
 LISPSYM(function_macro_function,"FUNCTION-MACRO-FUNCTION",system) /* ABI */
