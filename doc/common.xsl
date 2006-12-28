@@ -313,7 +313,7 @@ set       toc,title
  <div class="custom-footer"><hr width="100%"/><table width="100%">
    <tr><td align="left"><a href="http://clisp.cons.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
-    <td align="center"><a href="http://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" border="0" alt="[Support This Project]"/></a></td>
+    <td align="center"><a href="http://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support This Project]"/></a></td>
     <td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page={@id}"/></a></td>
  </tr></table></div>
 </xsl:template>
