@@ -1,3 +1,8 @@
+2006-12-28  Sam Steingold  <sds@podval.org>
+
+	fix bug [ 1208124 ]: hashcode_bignum weakness
+	* hashtabl.d (hashcode_bignum): use all digits
+
 2006-12-27  Sam Steingold  <sds@podval.org>
 
 	ARGLIST now works for macros too
