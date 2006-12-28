@@ -176,6 +176,7 @@
 <!ENTITY ansi '<olink targetdoc="impnotes" targetptr="ansi"><varname>CUSTOM:*ANSI*</varname></olink>'>
 <!ENTITY apropos-do-more '<link linkend="apropos"><varname>CUSTOM:*APROPOS-DO-MORE*</varname></link>'>
 <!ENTITY apropos-matcher '<link linkend="apropos"><varname>CUSTOM:*APROPOS-MATCHER*</varname></link>'>
+<!ENTITY arglist '<link linkend="arglist"><function>EXT:ARGLIST</function></link>'>
 <!ENTITY appease-cerrors '<olink targetdoc="impnotes" targetptr="appease-cerrors"><function>EXT:APPEASE-CERRORS</function></olink>'>
 <!ENTITY browse-url '<link linkend="browse-url"><function>EXT:BROWSE-URL</function></link>'>
 <!ENTITY browser '<link linkend="browse-url"><varname>CUSTOM:*BROWSER*</varname></link>'>

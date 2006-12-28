@@ -545,7 +545,8 @@ the actual object #<MACRO expander> for the FENV.
                                            *denv*
                                            *toplevel-denv*))))
   (make-macro
-    (evalhook (make-macro-expansion macrodef whole-form) nil nil env)))
+    (evalhook (make-macro-expansion macrodef whole-form) nil nil env)
+    (second whole-form)))
 
 ;; Creates a macro expander for FUNCTION-MACRO-LET.
 ;; Unlike in MACROLET, the macro is defined in the null lexical environment.
@@ -558,4 +559,5 @@ the actual object #<MACRO expander> for the FENV.
 (defun make-funmacro-expander (name full-lambdabody)
   (make-macro
     (evalhook `(FUNCTION ,name (LAMBDA ,@full-lambdabody)) nil nil
-              *toplevel-environment*)))
+              *toplevel-environment*)
+    (first full-lambdabody)))

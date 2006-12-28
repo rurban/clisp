@@ -1,5 +1,23 @@
 2006-12-27  Sam Steingold  <sds@podval.org>
 
+	ARGLIST now works for macros too
+	* src/constsym.d (macro_lambda_list): added
+	* src/defmacro.lisp (make-macro-expander, make-funmacro-expander):
+	pass lambdalist to MAKE-MACRO
+	* init.lisp (defun, in-package, the-environment, do, dotimes)
+	(defmacro): ditto
+	* describe.lisp (describe-object@macro): suggest SYS::MACRO-LAMBDA-LIST
+	(arglist): handle macros
+	* lispbibl.d (Macro): added slot macro_lambda_list
+	* record.d (MAKE-MACRO): accept second argument
+	(check_macro): new function
+	(MACRO-EXPANDER): use it
+	(MACRO-LAMBDA-LIST): added
+	* subr.d (make_macro): updated
+	(macro_lambda_list): added
+
+2006-12-27  Sam Steingold  <sds@podval.org>
+
 	fixed bug [ 1483762 ]: socket's stream-external-format always :default
 	* stream.d (STREAM-EXTERNAL-FORMAT): return :DEFAULT for two-way
 	and echo streams only if the external formats of the constituent

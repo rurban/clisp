@@ -6008,6 +6008,7 @@ typedef struct {
 typedef struct {
   XRECORD_HEADER
   gcv_object_t macro_expander _attribute_aligned_object_;
+  gcv_object_t macro_lambda_list _attribute_aligned_object_;
 } *  Macro;
 #define macro_length  ((sizeof(*(Macro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 

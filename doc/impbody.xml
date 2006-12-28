@@ -883,6 +883,11 @@ defined using &defhash;), the compiler will be able to optimize the
       (incf gensym-count))))
 </programlisting>
 
+<formalpara id="arglist"><title>Function &arglist;</title>
+<para>Function <code>(&arglist; &name-r;)</code> returns the &lalist; of the
+ function or macro that &name-r; names and &sig-err; if &name-r; is not
+ &fboundp;.</para></formalpara>
+
 <formalpara id="suppress-check-redef">
  <title>Variable &suppress-check-redef;</title>
 <para>When <firstterm>&suppress-check-redef;</firstterm> is &nil;,

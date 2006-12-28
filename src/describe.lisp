@@ -139,10 +139,10 @@ to print the corresponding values, or T for all of them.")
       (SYS::MACRO
        (format stream (TEXT "a macro expander."))
        (terpri stream)
-       (format stream (TEXT "For more information, evaluate ~{~S~^ or ~}.")
-               `((DISASSEMBLE (MACRO-FUNCTION
-                               ',(sys::closure-name
-                                  (sys::macro-expander obj)))))))
+       (let ((name (sys::closure-name (sys::macro-expander obj))))
+         (format stream (TEXT "For more information, evaluate ~{~S~^ or ~}.")
+                 `((DISASSEMBLE (MACRO-FUNCTION ',name))
+                   (SYS::MACRO-LAMBDA-LIST (FDEFINITION ',name))))))
       (EXT:FUNCTION-MACRO
        (format stream (TEXT "a function with alternative macro expander.")))
       (EXT:ENCODING
@@ -596,8 +596,10 @@ to print the corresponding values, or T for all of them.")
 ;; auxiliary functions for DESCRIBE of FUNCTION
 
 (defun arglist (func)
-  (setq func (coerce func 'function))
-  (cond ((typep func 'generic-function)
+  (cond ((and (symbolp func) (fboundp func) 
+              (sys::macrop (symbol-function func)))
+         (sys::macro-lambda-list (symbol-function func)))
+        ((typep (setq func (coerce func 'function)) 'generic-function)
          ;; Generic functions store the original lambda-list.
          (clos:generic-function-lambda-list func))
         ((or (sys::subr-info func) ; built-in
