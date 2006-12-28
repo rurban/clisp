@@ -1072,7 +1072,7 @@ the iteration variable and assign it on each iteration.</para></section>
 </simpara></listitem></varlistentry>
 <varlistentry><term><function>EXT:STRUCTURE-KEYWORD-CONSTRUCTOR</function></term>
  <listitem><simpara>Return the name (a &symbol-t;) of the keyword
-   constructor function for the structure, of &nil; if the structure has
+   constructor function for the structure, or &nil; if the structure has
    no keyword constructor.</simpara></listitem></varlistentry>
 <varlistentry><term><function>EXT:STRUCTURE-BOA-CONSTRUCTORS</function></term>
  <listitem><simpara>Return the &list-t; of names (&symbol-t;s)
