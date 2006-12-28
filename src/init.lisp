@@ -236,14 +236,15 @@
       |#
       (let ((name (cadr form)))
         (list 'sys::%putd (list 'quote name)
-              (list 'function name (cons 'lambda (cddr form)))))))))
+              (list 'function name (cons 'lambda (cddr form)))))))
+    '(function-name lambda-list &body forms)))
 
 )
 
 (sys::%putd 'sys::make-preliminary
   (function sys::make-preliminary (lambda (closure) ; ABI
-    (sys::\(setf\ closure-name\) (list 'ext::preliminary (sys::closure-name closure))
-                                 closure)
+    (sys::\(setf\ closure-name\)
+     (list 'ext::preliminary (sys::closure-name closure)) closure)
     closure)))
 
 (sys::%putd 'in-package
@@ -253,7 +254,8 @@
       (let ((package-name (string (cadr form))))
         (list 'EVAL-WHEN '(:COMPILE-TOPLEVEL LOAD EVAL)
               (list 'SETQ 'COMMON-LISP::*PACKAGE*
-                    (list 'SYS::%FIND-PACKAGE package-name))))))))
+                    (list 'SYS::%FIND-PACKAGE package-name))))))
+    '(package-name)))
 
 ;; A preliminary definition that understands only ~S, ~A and ~C.
 (sys::%putd 'format
@@ -666,7 +668,8 @@
       (declare (ignore form env))
       '(progn
         (eval-when ((not eval)) (%uncompilable 'the-environment))
-        (let ((*evalhook* #'%the-environment)) 0))))))
+        (let ((*evalhook* #'%the-environment)) 0))))
+    '()))
 ;; The toplevel environment
 (proclaim '(special *toplevel-environment*))
 (setq *toplevel-environment* (eval '(the-environment)))
@@ -1746,7 +1749,8 @@
                                   (list* 'DECLARE (list 'SYS::IN-DEFUN name)
                                          declarations)
                                   (list* 'BLOCK name body-rest))))
-                (list 'quote name))))))))
+                (list 'quote name))))))
+    '(function-name lambda-list &body forms)))
 
 (sys::%putd 'do               ; preliminary definition of the macro DO
   (sys::make-macro
@@ -1814,7 +1818,10 @@
                                  (list* (third varclause)
                                         (first varclause)
                                         reinitlist)))))
-                (go 1))))))))))
+                (go 1))))))))
+    '((&body var-init-step-forms)
+      (end-test-form &body result-forms)
+      &body statements)))
 
 (sys::%putd 'dotimes       ; preliminary Definition of the Macro DOTIMES
   (sys::make-macro
@@ -1834,7 +1841,8 @@
             (list* 'do (list (list var '0 (list '1+ var)) (list g countform))
                    (list (list '>= var g) resultform)
                    (cons 'declare declarations)
-                   body-rest))))))))
+                   body-rest))))))
+    '((var count-form &optional result-form) &body statements)))
 
 (VALUES) )
 
@@ -1858,21 +1866,28 @@
     (function defmacro (lambda (form env)
       (declare (ignore env))
       (let ((preliminaryp (eq (car form) 'sys::predefmacro)))
-        (multiple-value-bind (expansion expansion-lambdabody name lambdalist docstring)
+        (multiple-value-bind
+              (expansion expansion-lambdabody name lambdalist docstring)
             (sys::make-macro-expansion (cdr form) form)
-          (declare (ignore expansion-lambdabody lambdalist))
+          (declare (ignore expansion-lambdabody docstring))
           `(LET ()
              (EVAL-WHEN ,(if preliminaryp '(LOAD EVAL) '(COMPILE LOAD EVAL))
                (SYSTEM::REMOVE-OLD-DEFINITIONS ',name
                  ,@(if preliminaryp '('T)))
                (SYSTEM::%PUTD ',name
-                 (SYSTEM::MAKE-MACRO ,(if preliminaryp
-                                        `(SYSTEM::MAKE-PRELIMINARY ,expansion)
-                                        expansion))))
+                 (SYSTEM::MAKE-MACRO
+                  ,(if preliminaryp
+                       `(SYSTEM::MAKE-PRELIMINARY ,expansion)
+                       expansion)
+                  ',(if compiler::*compiling*
+                        (and (>= 2 (compiler::declared-optimize 'space))
+                             lambdalist)
+                        lambdalist))))
              (EVAL-WHEN (EVAL)
                (SYSTEM::%PUT ',name 'SYSTEM::DEFINITION
                              (CONS ',form (THE-ENVIRONMENT))))
-             ',name))))))))
+             ',name)))))
+    '(macro-name macro-lambda-list &body forms))))
 
 #-compiler
 (predefmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
@@ -1989,7 +2004,8 @@
                (EVAL-WHEN (EVAL)
                  (SYSTEM::%PUT ,symbolform 'SYSTEM::DEFINITION
                                (CONS ',form (THE-ENVIRONMENT))))
-               ',name)))))))))
+               ',name))))))
+    '(function-name lambda-list &body forms))))
 
 (VALUES) )
 
