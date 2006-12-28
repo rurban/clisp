@@ -110,3 +110,13 @@ do-hash-test
          :sum (do-hash-test ht))
   :do (format t " done~%"))
 0                               ; there should have been 0 errors!
+
+(= (sxhash '(1 2 3 4 5 6 7 8))
+   (sxhash '(1 2 3 4 5 6 7 8 9)))
+NIL
+
+(typep (sxhash '#1=(1 #1# . #1#)) 'fixnum) T
+
+(= (sxhash '(1 (2 . 3) 4 (5 . 6) (7 (8))))
+   (sxhash '(1 (2 . 3) 4 (5 . 6) (8 (7)))))
+NIL
