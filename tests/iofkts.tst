@@ -852,8 +852,8 @@ T
 "
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1613300&group_id=1355&atid=101355
-#+clisp (princ-to-string (fdefinition 'defun))
-#+clisp "#<MACRO #<COMPILED-FUNCTION DEFUN>>"
+#+clisp (princ-to-string (fdefinition 'defun)) #+clisp
+"#<MACRO #<COMPILED-FUNCTION DEFUN> (FUNCTION-NAME LAMBDA-LIST &BODY FORMS)>"
 
 ;; cleanup
 (progn
