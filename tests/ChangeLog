@@ -1,3 +1,7 @@
+2006-12-29  Sam Steingold  <sds@podval.org>
+
+	* macro8.tst: check that we always pass a second argument to MAKE-MACRO
+
 2006-12-28  Sam Steingold  <sds@podval.org>
 
 	* hashlong.tst: tests for [ 948868 ]: hashcode[34]_cons weakness
