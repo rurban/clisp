@@ -10809,6 +10809,7 @@ The function make-closure is required.
 ;; Common-Lisp-Function COMPILE
 (defun compile (name &optional (definition nil svar)
                      &aux (macro-flag nil) (trace-flag nil) (save-flag nil)
+                          (macro-lambda-list nil)
                 #+clisp-debug (*form* definition))
   (setq name (check-function-name name 'compile))
   (let ((symbol (get-funname-symbol name)))
@@ -10845,8 +10846,9 @@ The function make-closure is required.
           (setq trace-flag t)
           (setq definition (symbol-function symbol)))
         (when (macrop definition)
-          (setq macro-flag t)
-          (setq definition (macro-expander definition)))
+          (setq macro-flag t
+                macro-lambda-list (macro-lambda-list definition)
+                definition (macro-expander definition)))
         (when (sys::%compiled-function-p definition)
           (warn #1# name)
           (return-from compile (values (or name definition) nil nil)))))
@@ -10890,7 +10892,8 @@ The function make-closure is required.
               (if (zerop *error-count*)
                 (if name
                   (progn
-                    (when macro-flag (setq funobj (make-macro funobj)))
+                    (when macro-flag
+                      (setq funobj (make-macro funobj macro-lambda-list)))
                     (if trace-flag
                       (setf (get symbol 'sys::traced-definition) funobj)
                       (setf (symbol-function symbol) funobj))

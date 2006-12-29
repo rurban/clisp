@@ -176,7 +176,8 @@
     (function BACKQUOTE
       (lambda (form env)
         (declare (ignore env))
-        (bq-expand (second form))))))
+        (bq-expand (second form))))
+    '(form)))
 
 ;;; ----------------------- Recursive Expansion Engine -----------------------
 

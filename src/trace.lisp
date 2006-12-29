@@ -241,7 +241,8 @@ This will not work with closures that use lexical variables!"
                                     (macro-expander
                                      (get-traced-definition
                                       ',(tracer-symb trr)))))
-                            ,@body))))
+                            ,@body))
+                      (macro-lambda-list (tracer-cur-def trr))))
                     ((tracer-local-p trr)
                      (f `(lambda ,sig
                            (let* ((*trace-args* (list ,@sig))

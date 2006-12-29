@@ -1033,8 +1033,30 @@ T
 (funcall (compile nil '(lambda () (declare (optimize foo)))))
 NIL
 
+#+clisp
+(let (ret)
+  (defmacro test-macro-arglist (a) a)
+  (push (arglist 'test-macro-arglist) ret)
+  (compile 'test-macro-arglist)
+  (push (arglist 'test-macro-arglist) ret)
+  ret)
+#+clisp ((A) (A))
+
+#+clisp
+(let (ret)
+  (defmacro test-macro-arglist (a) a)
+  (push (arglist 'test-macro-arglist) ret)
+  (trace test-macro-arglist)
+  (push (arglist 'test-macro-arglist) ret)
+  ret)
+#+clisp ((A) (A))
+
+#+clisp (listp (arglist 'sys::backquote)) #+clisp t
+
 ; Clean up.
 (progn
+  (fmakunbound 'test-macro-arglist)
+  (unintern 'test-macro-arglist)
   (fmakunbound 'circularity-in-code)
   (unintern 'circularity-in-code)
   (fmakunbound 'test-constant-folding)
