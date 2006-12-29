@@ -138,11 +138,11 @@ to print the corresponding values, or T for all of them.")
        (format stream (TEXT "a global symbol macro handler.")))
       (SYS::MACRO
        (format stream (TEXT "a macro expander."))
-       (terpri stream)
        (let ((name (sys::closure-name (sys::macro-expander obj))))
+         (describe-arglist stream name)
+         (terpri stream)
          (format stream (TEXT "For more information, evaluate ~{~S~^ or ~}.")
-                 `((DISASSEMBLE (MACRO-FUNCTION ',name))
-                   (SYS::MACRO-LAMBDA-LIST (FDEFINITION ',name))))))
+                 `((DISASSEMBLE (MACRO-FUNCTION ',name))))))
       (EXT:FUNCTION-MACRO
        (format stream (TEXT "a function with alternative macro expander.")))
       (EXT:ENCODING
@@ -613,7 +613,9 @@ to print the corresponding values, or T for all of them.")
 
 (defun describe-arglist (stream function)
   (terpri stream)
-  (format stream (TEXT "Argument list: ~:S") (arglist function)))
+  (format stream (TEXT "Argument list: ~:S")
+          (handler-case (arglist function)
+            (error (c) (princ-to-string c)))))
 
 (defun describe-documentation (stream function)
   (let ((doc (clos::function-documentation function)))

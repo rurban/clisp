@@ -1860,6 +1860,11 @@
 
 (PROGN
 
+(sys::%putd 'sys::maybe-arglist ; arglist if permitted by compiler optimizations
+  (function sys::maybe-arglist (lambda (arglist)
+    (if (and compiler::*compiling* (< 2 (compiler::declared-optimize 'space)))
+        0 arglist))))
+
 (sys::%putd 'defmacro
 (sys::%putd 'sys::predefmacro ; predefmacro means "preliminary defmacro"
   (sys::make-macro
@@ -1879,10 +1884,7 @@
                   ,(if preliminaryp
                        `(SYSTEM::MAKE-PRELIMINARY ,expansion)
                        expansion)
-                  ',(if compiler::*compiling*
-                        (and (>= 2 (compiler::declared-optimize 'space))
-                             lambdalist)
-                        lambdalist))))
+                  ',(sys::maybe-arglist lambdalist))))
              (EVAL-WHEN (EVAL)
                (SYSTEM::%PUT ',name 'SYSTEM::DEFINITION
                              (CONS ',form (THE-ENVIRONMENT))))

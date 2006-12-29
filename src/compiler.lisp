@@ -10893,7 +10893,8 @@ The function make-closure is required.
                 (if name
                   (progn
                     (when macro-flag
-                      (setq funobj (make-macro funobj macro-lambda-list)))
+                      (setq funobj (make-macro funobj (sys::maybe-arglist
+                                                       macro-lambda-list))))
                     (if trace-flag
                       (setf (get symbol 'sys::traced-definition) funobj)
                       (setf (symbol-function symbol) funobj))

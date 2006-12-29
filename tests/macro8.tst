@@ -1051,12 +1051,42 @@ NIL
   ret)
 #+clisp ((A) (A))
 
+#+clisp
+(locally (declare (optimize (space 2)))
+  (defmacro test-macro-arglist (a) a)
+  (compile 'test-macro-arglist)
+  (arglist 'test-macro-arglist))
+#+clisp (A)
+
+#+clisp
+(locally (declare (optimize (space 3)))
+  (defmacro test-macro-arglist (a) a)
+  (compile 'test-macro-arglist)
+  (stringp
+   (princ (with-output-to-string (*standard-output*)
+            (describe 'test-macro-arglist)))))
+#+clisp ERROR
+
+#+clisp
+(locally (declare (optimize (space 2)))
+  (defun test-fun-arglist (a) (declare (compile)) a)
+  (arglist 'test-fun-arglist))
+#+clisp (A)
+
+#+clisp
+(locally (declare (optimize (space 3)))
+  (defun test-fun-arglist (a) (declare (compile)) a)
+  (princ-to-string (arglist 'test-fun-arglist)))
+#+clisp "(ARG0)"
+
 #+clisp (listp (arglist 'sys::backquote)) #+clisp t
 
 ; Clean up.
 (progn
   (fmakunbound 'test-macro-arglist)
   (unintern 'test-macro-arglist)
+  (fmakunbound 'test-fun-arglist)
+  (unintern 'test-fun-arglist)
   (fmakunbound 'circularity-in-code)
   (unintern 'circularity-in-code)
   (fmakunbound 'test-constant-folding)
