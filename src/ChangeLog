@@ -1,5 +1,16 @@
 2006-12-29  Sam Steingold  <sds@podval.org>
 
+	discard macro lambda list when (OPTIMIZE SPACE) is 3
+	* init.lisp (sys::maybe-arglist): added
+	(defmacro): use it
+	* compiler.lisp (compile): ditto
+	* record.d (MACRO-LAMBDA-LIST): signal an error when the lambda
+	list is not available due to the compiler optimization settings
+	* describe.lisp (describe-object@MACRO): call DESCRIBE-ARGLIST
+	(describe-arglist): handle possible errors in ARGLIST
+
+2006-12-29  Sam Steingold  <sds@podval.org>
+
 	* backquote.lisp (BACKQUOTE): pass a 2nd argument to MAKE-MACRO
 	* compiler.lisp (compile): ditto
 	* places.lisp ((setf MACRO-FUNCTION)): ditto
