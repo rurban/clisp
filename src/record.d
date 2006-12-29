@@ -726,8 +726,8 @@ LISPFUNN(global_symbol_macro_definition,1)
 /* ===========================================================================
  * Macro:
 
- (SYS::MAKE-MACRO expander) returns a Macro object with the given expander
- function.
+ (SYS::MAKE-MACRO expander lambdalist) returns a Macro object with the given
+   expander function and macro lambda list.
  (SYS::MACROP object) tests for a Macro.
  (SYS::MACRO-EXPANDER macro) returns the macro's expander function. */
 
@@ -772,8 +772,11 @@ LISPFUNN(macro_expander,1) {
 
 /* (SYS::MACRO-LAMBDA-LIST macro) returns the macro's lambda list. */
 LISPFUNN(macro_lambda_list,1) {
-  var object obj = check_macro(popSTACK());
-  VALUES1(TheMacro(obj)->macro_lambda_list);
+  STACK_0 = check_macro(STACK_0);
+  var object lalist = TheMacro(STACK_0)->macro_lambda_list;
+  if (!listp(lalist))
+    fehler(error,GETTEXT("Due to the compiler optimization settings, lambda list for ~S is not available"));
+  VALUES1(lalist); skipSTACK(1);
 }
 
 /* ===========================================================================
