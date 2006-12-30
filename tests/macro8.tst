@@ -1063,9 +1063,8 @@ NIL
   (defmacro test-macro-arglist (a) a)
   (compile 'test-macro-arglist)
   (stringp
-   (princ (with-output-to-string (*standard-output*)
-            (describe 'test-macro-arglist)))))
-#+clisp ERROR
+   (princ (with-output-to-string (s) (describe 'test-macro-arglist s)))))
+#+clisp T
 
 #+clisp
 (locally (declare (optimize (space 2)))
