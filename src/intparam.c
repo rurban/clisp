@@ -110,16 +110,32 @@ static boolean_t longlong_ulonglong_same;
 #endif
 
 void main1(void) {
-#define get_integer_bitsize(type,where)  \
-  { type x = 1;                                 \
-    int bits = 0;                               \
-    while(1) {                                  \
-      if (x==0) break;                          \
-        x = x+x;                                \
-        bits++;                                 \
-        if (bits==1000) { bits = -1; break; }   \
-      }                                         \
-    where = bits;                               \
+#define get_unsigned_integer_bitsize(type,where)  \
+  { type x = 1;                               \
+    int bits = 0;                             \
+    while(1) {                                \
+      if (x==0) break;                        \
+      x = x+x;                                \
+      bits++;                                 \
+      if (bits==1000) { bits = -1; break; }   \
+    }                                         \
+    where = bits;                             \
+  }
+#define get_signed_integer_bitsize(type,unsigned_type,where)  \
+  { /* Signed integer overflow is "undefined behaviour" in C99, and gcc-4.3    \
+       (without -fwrapv option) actually does weird things when signed integer \
+       overflow occurs. Therefore perform the addition on the unsigned type.   \
+       Drawback: This will not detect cases where the signed type has more bits\
+       than the unsigned type but the same size according to sizeof. Blech. */ \
+    type x = 1;                               \
+    int bits = 0;                             \
+    while(1) {                                \
+      if (x==0) break;                        \
+      x = (unsigned_type)x + (unsigned_type)x;\
+      bits++;                                 \
+      if (bits==1000) { bits = -1; break; }   \
+    }                                         \
+    where = bits;                             \
   }
 #define print_integer_bitsize(type,typestr,where)  \
   { if (where >= 0) {                                                   \
@@ -132,28 +148,28 @@ void main1(void) {
     if (where != char_bitsize * sizeof(type))                           \
       printf("#error \"Formula BITSIZE(T) = SIZEOF(T) * BITSPERBYTE does not hold for t%spe %s!!\"\n","y",typestr); \
   }
-  get_integer_bitsize(schar,char_bitsize);
-  get_integer_bitsize(short,short_bitsize);
-  get_integer_bitsize(int,int_bitsize);
-  get_integer_bitsize(long,long_bitsize);
+  get_signed_integer_bitsize(schar,uchar,char_bitsize);
+  get_signed_integer_bitsize(short,ushort,short_bitsize);
+  get_signed_integer_bitsize(int,uint,int_bitsize);
+  get_signed_integer_bitsize(long,ulong,long_bitsize);
   print_integer_bitsize(schar,"char",char_bitsize);
   print_integer_bitsize(short,"short",short_bitsize);
   print_integer_bitsize(int,"int",int_bitsize);
   print_integer_bitsize(long,"long",long_bitsize);
 #ifdef HAVE_LONGLONG
-  get_integer_bitsize(longlong,longlong_bitsize);
+  get_signed_integer_bitsize(longlong,ulonglong,longlong_bitsize);
   print_integer_bitsize(longlong,"long long",longlong_bitsize);
 #endif
-  get_integer_bitsize(uchar,uchar_bitsize);
-  get_integer_bitsize(ushort,ushort_bitsize);
-  get_integer_bitsize(uint,uint_bitsize);
-  get_integer_bitsize(ulong,ulong_bitsize);
+  get_unsigned_integer_bitsize(uchar,uchar_bitsize);
+  get_unsigned_integer_bitsize(ushort,ushort_bitsize);
+  get_unsigned_integer_bitsize(uint,uint_bitsize);
+  get_unsigned_integer_bitsize(ulong,ulong_bitsize);
   print_integer_bitsize(uchar,"unsigned char",uchar_bitsize);
   print_integer_bitsize(ushort,"unsigned short",ushort_bitsize);
   print_integer_bitsize(uint,"unsigned int",uint_bitsize);
   print_integer_bitsize(ulong,"unsigned long",ulong_bitsize);
 #ifdef HAVE_LONGLONG
-  get_integer_bitsize(ulonglong,ulonglong_bitsize);
+  get_unsigned_integer_bitsize(ulonglong,ulonglong_bitsize);
   print_integer_bitsize(ulonglong,"unsigned long long",ulonglong_bitsize);
 #endif
 }
