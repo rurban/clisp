@@ -1,3 +1,11 @@
+2006-12-24  Bruno Haible  <bruno@clisp.org>
+
+	Make it work with gcc-4.3 snapshots.
+	* intparam.c (main1): Rename get_integer_bitsize to
+	get_unsigned_integer_bitsize. New macro get_signed_integer_bitsize.
+	* lispbibl.d (bit, bitm): Change return type to 'unsigned long' instead
+	of 'long'.
+
 2007-01-02  Sam Steingold  <sds@podval.org>
 
 	* hashtabl.d (hashcode_tree_rec): renamed from hashcode_tree
