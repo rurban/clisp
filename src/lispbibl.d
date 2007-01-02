@@ -1323,9 +1323,11 @@ typedef signed int  signean;
 %% export_def(pointerplus(pointer,offset));
 
 # Bit number n (0<=n<32)
-#define bit(n)  (1L<<(n))
+# This is an unsigned expression, in order to avoid signed integer overflow
+# in expressions like bit(31) or bit(31)-1.
+#define bit(n)  (1UL<<(n))
 # Bit number n (0<n<=32) mod 2^32
-#define bitm(n)  (2L<<((n)-1))
+#define bitm(n)  (2UL<<((n)-1))
 # Bit-test of bit n in x, n constant, x an oint:
 #if !defined(SPARC)
   #define bit_test(x,n)  ((x) & bit(n))
