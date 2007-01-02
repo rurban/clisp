@@ -2130,7 +2130,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   It can also be used to set parameters of the libraries to which the
   module interfaces, e.g., the <link linkend="pcre">pcre</link> module
   sets <varname>pcre_malloc</varname> and <varname>pcre_free</varname>.
- </simpara><simpara>You do &not-e; have to defined this function yourself;
+ </simpara><simpara>You do &not-e; have to define this function yourself;
   &modprep; and &ffi-pac; will do that for you.</simpara>
  <simpara>If you use &ffi-pac;, <code>(&c-lines; :init-always ...)</code>
   will add code to this function.</simpara>
@@ -2146,7 +2146,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
    <function>module__&name-r;__fini_function</function>
    (struct module_t* module)</term>
 <listitem><simpara>called before exiting &clisp;.</simpara>
- <simpara>You do &not-e; have to defined this function yourself;
+ <simpara>You do &not-e; have to define this function yourself;
   &modprep; and &ffi-pac; will do that for you.</simpara>
  <simpara>If you use &ffi-pac;, <code>(&c-lines; :fini ...)</code> will
   add code to this function.</simpara>
