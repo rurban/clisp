@@ -718,6 +718,17 @@ EOF
   fi
 fi
 
+# CLISP needs a lot of stack space for bootstrapping,
+# and insufficient stack space manifests itself via arbitrary GC errors.
+# it was believed that 8192 is enough until power5 came along:
+# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=166347
+STACK_LIMIT=16384
+stacksizelimit=`ulimit -s 2>/dev/null || :` # cygwin /bin/sh ulimit is broken
+# need 3 separate test calls because of "integer expression expected" errors
+# when $stacksizelimit is "" or "unlimited" (no short-circuiting!)
+test -z "$stacksizelimit" || { test "$stacksizelimit" != unlimited && test "$stacksizelimit" -lt ${STACK_LIMIT}; }
+STACK_TOO_SMALL=$?      # 0=true => need to reset; 1=false => big enough
+
 if test -z "$do_build"; then
 
   echo
@@ -729,13 +740,12 @@ if test -z "$do_build"; then
   echo "    ./makemake $makemake_args > Makefile"
   echo "    make config.lisp"
   echo "    ${EDITOR:-vi} config.lisp"
-  stacksizelimit=`ulimit -s 2>/dev/null || :` # cygwin /bin/sh ulimit is broken
-  if test -z "$stacksizelimit" || { test "$stacksizelimit" != unlimited && test "$stacksizelimit" -lt 8192; }; then
+  if [ "${STACK_TOO_SMALL}" = 0 ]; then
     cat <<EOF
 # The default stack size on your platform is insufficient
-# and must be increased to at least 8192.  You must do either
-#    'ulimit -s 8192' (for Bourne shell derivatives, e.g., bash and zsh) or
-#    'limit stacksize 8192' (for C shell derivarives, e.g., tcsh)
+# and must be increased to at least ${STACK_LIMIT}.  You must do either
+# 'ulimit -s ${STACK_LIMIT}' (for Bourne shell derivatives, e.g., bash and zsh)
+# or 'limit stacksize ${STACK_LIMIT}' (for C shell derivarives, e.g., tcsh)
 EOF
   fi
   echo "    make"
@@ -750,9 +760,9 @@ else
     make config.lisp;
     ${EDITOR:-vi} config.lisp;
   fi
-  # ulimit: just to make sure, should not hurt
-  #         cygwin /bin/sh ulimit is broken
-  set +e; ulimit -s 8192 2>/dev/null; set -e;
+  if [ "${STACK_TOO_SMALL}" = 0 ]; then
+    set +e; ulimit -s ${STACK_LIMIT} 2>/dev/null; set -e;
+  fi
   make
   make check
   cd ..
