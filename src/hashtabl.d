@@ -1,7 +1,7 @@
 /*
  * Hash-Tables in CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2007
  * German comments translated into English: Stefan Kain 2002-01-29
  */
 
@@ -612,8 +612,8 @@ local uint32 hashcode3_atom (object obj) {
  > hashcode_atom : how to compute the hash code of a leaf */
 #define HASHCODE_TREE_MAX_LEVEL 16
 #define HASHCODE_TREE_NEED_LEAVES 16
-local inline uint32 hashcode_tree (object obj, int* need, int level,
-                                   uint32 (hashcode_leaf) (object)) {
+local inline uint32 hashcode_tree_rec (object obj, int* need, int level,
+                                       uint32 (hashcode_leaf) (object)) {
   if (atomp(obj)) {
     (*need)--;
     return hashcode_leaf(obj);
@@ -621,16 +621,22 @@ local inline uint32 hashcode_tree (object obj, int* need, int level,
     return 1;
   } else {
     var local const uint8 shifts[4] = { 16 , 7 , 5 , 3 };
-    var uint32 car_code = hashcode_tree(Car(obj),need,level+1,hashcode_leaf);
-    var uint32 cdr_code = (*need == 0 ? 1 :
-                           hashcode_tree(Cdr(obj),need,level+1,hashcode_leaf));
+    var uint32 car_code = hashcode_tree_rec(Car(obj),need,level+1,hashcode_leaf);
+    var uint32 cdr_code = *need == 0 ? 1 :
+      hashcode_tree_rec(Cdr(obj),need,level+1,hashcode_leaf);
     return rotate_left(shifts[level & 3],car_code) ^ cdr_code;
   }
 }
+local inline uint32 hashcode_tree (object obj,  uint32 (hashcode_leaf) (object))
+{
+  int need = HASHCODE_TREE_NEED_LEAVES;
+  return hashcode_tree_rec(obj,&need,0,hashcode_leaf);
+}
+
 /* similar to hashcode_tree
  NB: use the SAME top-level need initial value (e.g., HASHCODE_TREE_NEED_LEAVES)
      for the corresponding hashcode_tree and gcinvariant_hashcode_tree_p calls */
-local inline bool gcinvariant_hashcode_tree_p
+local inline bool gcinvariant_hashcode_tree_p_rec
 (object obj, int* need, int level,
  bool (gcinvariant_hashcode_leaf_p) (object)) {
   if (atomp(obj)) {
@@ -639,18 +645,24 @@ local inline bool gcinvariant_hashcode_tree_p
   } else if (level > HASHCODE_TREE_MAX_LEVEL || *need == 0) {
     return true;
   } else {
-    return gcinvariant_hashcode_tree_p(Car(obj),need,level+1,
-                                        gcinvariant_hashcode_leaf_p)
+    return gcinvariant_hashcode_tree_p_rec(Car(obj),need,level+1,
+                                           gcinvariant_hashcode_leaf_p)
       && (*need == 0 ? true :
-          gcinvariant_hashcode_tree_p(Cdr(obj),need,level+1,
-                                      gcinvariant_hashcode_leaf_p));
+          gcinvariant_hashcode_tree_p_rec(Cdr(obj),need,level+1,
+                                          gcinvariant_hashcode_leaf_p));
   }
 }
-
-global uint32 hashcode3 (object obj) {
+local inline bool gcinvariant_hashcode_tree_p
+(object obj, bool (gcinvariant_hashcode_leaf_p) (object)) {
   int need = HASHCODE_TREE_NEED_LEAVES;
-  return hashcode_tree(obj,&need,0,hashcode3_atom);
+  return gcinvariant_hashcode_tree_p_rec(obj,&need,0,
+                                         gcinvariant_hashcode_leaf_p);
 }
+#undef HASHCODE_TREE_MAX_LEVEL
+#undef HASHCODE_TREE_NEED_LEAVES
+
+global uint32 hashcode3 (object obj)
+{ return hashcode_tree(obj,hashcode3_atom); }
 
 /* Tests whether hashcode3 of an object is guaranteed to be GC-invariant. */
 global bool gcinvariant_hashcode3_p (object obj);
@@ -687,10 +699,8 @@ local bool gcinvariant_hashcode3_atom_p (object obj) {
   #endif
   return false;
 }
-global bool gcinvariant_hashcode3_p (object obj) {
-  int need = HASHCODE_TREE_NEED_LEAVES;
-  return gcinvariant_hashcode_tree_p(obj,&need,0,gcinvariant_hashcode3_atom_p);
-}
+global bool gcinvariant_hashcode3_p (object obj)
+{ return gcinvariant_hashcode_tree_p(obj,gcinvariant_hashcode3_atom_p); }
 
 /* --------------------------- STABLEHASH EQUAL --------------------------- */
 
@@ -772,10 +782,8 @@ local uint32 hashcode3stable_atom (object obj) {
  #endif
 }
 
-global uint32 hashcode3stable (object obj) {
-  int need = HASHCODE_TREE_NEED_LEAVES;
-  return hashcode_tree(obj,&need,0,hashcode3stable_atom);
-}
+global uint32 hashcode3stable (object obj)
+{ return hashcode_tree(obj,hashcode3stable_atom); }
 
 /* Tests whether hashcode3stable of an object is guaranteed to be
    GC-invariant. */
@@ -813,11 +821,8 @@ local bool gcinvariant_hashcode3stable_atom_p (object obj) {
   #endif
   return instance_of_stablehash_p(obj) || symbolp(obj);
 }
-global bool gcinvariant_hashcode3stable_p (object obj) {
-  int need = HASHCODE_TREE_NEED_LEAVES;
-  return gcinvariant_hashcode_tree_p(obj,&need,0,
-                                     gcinvariant_hashcode3stable_atom_p);
-}
+global bool gcinvariant_hashcode3stable_p (object obj)
+{ return gcinvariant_hashcode_tree_p(obj,gcinvariant_hashcode3stable_atom_p); }
 
 /* ---------------------------- FASTHASH EQUALP ---------------------------- */
 
@@ -1127,10 +1132,8 @@ local uint32 hashcode4_atom (object obj) {
   }
 }
 
-global uint32 hashcode4 (object obj) {
-  int need = HASHCODE_TREE_NEED_LEAVES;
-  return hashcode_tree(obj,&need,0,hashcode4_atom);
-}
+global uint32 hashcode4 (object obj)
+{ return hashcode_tree(obj,hashcode4_atom); }
 
 /* Tests whether hashcode4 of an object is guaranteed to be GC-invariant. */
 global bool gcinvariant_hashcode4_p (object obj);
@@ -1167,10 +1170,8 @@ local bool gcinvariant_hashcode4_atom_p (object obj) {
   #endif
   return false;
 }
-global bool gcinvariant_hashcode4_p (object obj) {
-  int need = HASHCODE_TREE_NEED_LEAVES;
-  return gcinvariant_hashcode_tree_p(obj,&need,0,gcinvariant_hashcode4_atom_p);
-}
+global bool gcinvariant_hashcode4_p (object obj)
+{ return gcinvariant_hashcode_tree_p(obj,gcinvariant_hashcode4_atom_p); }
 
 /* ----------------------------- USER DEFINED ----------------------------- */
 
@@ -2935,10 +2936,8 @@ local uint32 sxhash_atom (object obj) {
     }
   }
 }
-local uint32 sxhash (object obj) {
-  int need = HASHCODE_TREE_NEED_LEAVES;
-  return hashcode_tree(obj,&need,0,sxhash_atom);
-}
+local uint32 sxhash (object obj)
+{ return hashcode_tree(obj,sxhash_atom); }
 
 LISPFUNN(sxhash,1)
 { /* (SXHASH object), CLTL p. 285 */
