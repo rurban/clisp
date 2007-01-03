@@ -312,8 +312,8 @@
   LISPOBJ(default_package,".")
   # default-use-list:
   LISPOBJ(use_default,"(\"COMMON-LISP\")")
-  # default-package for ANSI-CL-compliance:
-  LISPOBJ(ansi_user_package_name,"\"COMMON-LISP-USER\"")
+  /* default-package for -modern: */
+  LISPOBJ(modern_user_package,".")
 # for SYMBOL.D:
   LISPOBJ(gensym_prefix,"\"G\"") # prefix for gensym, a string
 # for MISC.D:
