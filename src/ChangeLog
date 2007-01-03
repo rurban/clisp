@@ -1,3 +1,10 @@
+2007-01-03  Sam Steingold  <sds@podval.org>
+
+	* constobj.d (ansi_user_package_name): removed unused object
+	(modern_user_package): added
+	* package.d (init_packages): set it to CS-COMMON-LISP-USER
+	* spvw.d (main_actions): use it for *PACKAGE* in -modern
+
 2007-01-02  Sam Steingold  <sds@podval.org>
 
 	* configure (STACK_LIMIT): set to 16384 because of power5, see
