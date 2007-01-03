@@ -482,8 +482,6 @@
   # During the GC: the list of file-streams to be closed after the GC:
   LISPOBJ(files_to_close,"NIL")
  #endif
-  # argumentlist for WRITE-TO-STRING :
-  LISPOBJ(base10_radixnil,"(:BASE 10 :RADIX NIL)")
   # defaults for COMPILE-FILE-call in SPVW:
   LISPOBJ(source_file_type,"#\".lisp\"")
   LISPOBJ(compiled_file_type,"#\".fas\"")
@@ -665,8 +663,6 @@
   LISPOBJ(top_decl_env,"(NIL)") # list of O(declaration_types) (is initialized later)
   # decl-spec with list of declaration-types to be recognized:
   LISPOBJ(declaration_types,"(DECLARATION OPTIMIZE DECLARATION)")
-  # name of the common-lisp-package:
-  LISPOBJ_S(common_lisp_string,"COMMON-LISP")
 # for DEBUG.D:
   LISPOBJ_S(newline_string,NLstring)
   # prompts:
