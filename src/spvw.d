@@ -3020,20 +3020,7 @@ local inline void main_actions (struct argv_actions *p) {
   }
   if (p->argv_modern) {
     # (IN-PACKAGE "CS-COMMON-LISP-USER")
-    var object packname = ascii_to_string("CS-COMMON-LISP-USER");
-    pushSTACK(packname);
-    var object package = find_package(packname);
-    if (!nullp(package)) {
-      Symbol_value(S(packagestern)) = package;
-    } else {
-      pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-      terpri(&STACK_0);
-      write_sstring(&STACK_0,CLSTEXT("WARNING: no such package: "));
-      write_sstring(&STACK_0,STACK_1);
-      terpri(&STACK_0);
-      skipSTACK(1);
-    }
-    skipSTACK(1);
+    Symbol_value(S(packagestern)) = O(modern_user_package);
     # (SETQ *PRINT-CASE* :DOWNCASE)
     Symbol_value(S(print_case)) = S(Kdowncase);
   }
