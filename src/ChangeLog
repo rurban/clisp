@@ -1,5 +1,9 @@
 2007-01-04  Sam Steingold  <sds@podval.org>
 
+	* stream.d (STREAM-EXTERNAL-FORMAT): compare encodings using EQUALP
+
+2007-01-04  Sam Steingold  <sds@podval.org>
+
 	* stream.d (SET-STREAM-EXTERNAL-FORMAT): use check_encoding()
 	instead of test_external_format_arg() because the encoding
 	is NOT an :EXTERNAL-FORMAT keyword argument
