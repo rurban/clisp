@@ -15534,8 +15534,8 @@ LISPFUNNR(stream_external_format,1)
         STACK_1 = value1;       /* save output external format */
         C_stream_external_format();
         { object output_ex_fmt = popSTACK();
-          if (eq(value1,output_ex_fmt)) /* same ex fmt for input & output */
-            return;                     /* return this same ex fmt */
+          if (equalp(value1,output_ex_fmt)) /* same ex fmt for input & output */
+            return;             /* return this same ex fmt */
           VALUES1(S(Kdefault));
         }
         break;
