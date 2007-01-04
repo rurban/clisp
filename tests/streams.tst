@@ -1163,9 +1163,9 @@ T
               (eq (stream-external-format i) (stream-external-format 2way))
               (progn (setf (stream-external-format i) :dos
                            (stream-external-format i) :mac)
-                     (cons
-                      (eq (stream-external-format i) (stream-external-format o))
-                      (stream-external-format 2way)))
+                     (cons (equalp (stream-external-format i)
+                                   (stream-external-format o))
+                           (stream-external-format 2way)))
               (progn (setf (stream-external-format 2way :input) :unix
                            (stream-external-format 2way :output) :unix)
                      (encoding-line-terminator (stream-external-format 2way)))
