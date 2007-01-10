@@ -200,3 +200,33 @@ T
                  (read-line in nil :eof))))
     (delete-file file)))
 ("foo" "bar" :EOF)
+
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1564818&group_id=1355&atid=101355
+(let* ((f "crlf-test-file") (l1 "line1") (l2 "line2") (all (list f l1 l2)))
+  (unwind-protect
+       (loop :for s :being :each :external-symbol :in "CHARSET"
+         :for e-dos = (ext:make-encoding :charset s :line-terminator :dos)
+         :for e-unix = (ext:make-encoding :charset s :line-terminator :unix)
+         :for e-mac = (ext:make-encoding :charset s :line-terminator :mac)
+         :when (ignore-errors
+                 (with-open-file (o f :direction :output :external-format e-dos)
+                   (write-line f o)
+                   (setf (stream-external-format o) e-mac)
+                   (write-line l1 o)
+                   (setf (stream-external-format o) e-unix)
+                   (write-line l2 o)))
+         :nconc
+         (loop :for b :in '(nil t) :nconc
+           (with-open-file (i f :direction :input :external-format e-dos
+                              :buffered b)
+             (dolist (ll all)
+               (handler-case (let ((l (read-line i)))
+                               (if (string= ll l) ()
+                                   (list (list s b 'read-line ll l))))
+                 (error (c)
+                   (list (list s b 'read-line ll (princ-to-string c))))))
+             (handler-case (let ((c (read-char i nil nil)))
+                             (and c (list (list s b 'read-char c))))
+               (error (c) (list (list s b 'read-char (princ-to-string c))))))))
+    (delete-file f)))
+()

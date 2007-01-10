@@ -1,3 +1,9 @@
+2007-01-08  Sam Steingold  <sds@podval.org>
+
+	* encoding.tst: test for
+	[ 1564818 ]: CRLF handling does not work for UNICODE-16
+	[ 1631760 ]: unicode-16 cannot be used with unbuffered streams
+
 2007-01-04  Sam Steingold  <sds@podval.org>
 
 	* streams.tst: must compare encoding with EQUALP, not EQ
