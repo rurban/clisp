@@ -230,3 +230,6 @@ T
                (error (c) (list (list s b 'read-char (princ-to-string c))))))))
     (delete-file f)))
 ()
+
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1632718&group_id=1355&atid=101355
+(convert-string-from-bytes #(195) charset:utf-8) ERROR
