@@ -1,3 +1,11 @@
+2007-01-10  Sam Steingold  <sds@podval.org>
+
+	fixed bug #[ 1631760 ]: unicode-16 et al cannot be used
+	with unbuffered streams
+	* encoding.d (uni16be_mbstowcs, uni16le_mbstowcs, uni32be_mbstowcs)
+	(uni32le_mbstowcs): signal an error only when at least one char
+	was found to enable single byte increments in rd_ch_unbuffered()
+
 2007-01-08  Mike McMahon  <mmcm@users.sourceforge.net>
 	Sam Steingold  <sds@podval.org>
 
