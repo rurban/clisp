@@ -1,3 +1,19 @@
+2007-01-08  Mike McMahon  <mmcm@users.sourceforge.net>
+	Sam Steingold  <sds@podval.org>
+
+	fixed bug #[ 1564818 ]: CRLF handling does not work for UNICODE-16
+	* stream.d (strm_channel_extrafields_t): moved ignore_next_LF from ...
+	(strm_unbuffered_extrafields_t): ... here
+	(ChannelStream_ignore_next_LF): added
+	(UnbufferedStream_ignore_next_LF): removed
+	(low_clear_input_unbuffered_handle, rd_ch_unbuffered)
+	(listen_char_unbuffered, rd_ch_array_unbuffered)
+	(make_unbuffered_stream, stream_reset_eltype)
+	(SYSTEM::BUILT-IN-STREAM-SET-ELEMENT-TYPE): use
+	ChannelStream_ignore_next_LF instead of UnbufferedStream_ignore_next_LF
+	(rd_ch_buffered, rd_ch_array_buffered):
+	set and test ChannelStream_ignore_next_LF
+
 2007-01-04  Sam Steingold  <sds@podval.org>
 
 	* stream.d (STREAM-EXTERNAL-FORMAT): compare encodings using EQUALP
