@@ -372,14 +372,14 @@ global void uni16be_mbstowcs (object encoding, object stream,
     } while (--count);
     *srcp = src;
     *destp = dest;
-  }
-  if (error_p) {
-    var object action = TheEncoding(encoding)->enc_towcs_error;
-    if (eq(action,S(Kignore))) {
-    } else if (eq(action,S(Kerror))) {
-      fehler_buffer_parity(encoding);
-    } else
-      *(*destp)++ = char_code(action);
+    if (error_p) {
+      var object action = TheEncoding(encoding)->enc_towcs_error;
+      if (eq(action,S(Kignore))) {
+      } else if (eq(action,S(Kerror))) {
+        fehler_buffer_parity(encoding);
+      } else
+        *(*destp)++ = char_code(action);
+    }
   }
 }
 
@@ -400,14 +400,14 @@ global void uni16le_mbstowcs (object encoding, object stream,
     } while (--count);
     *srcp = src;
     *destp = dest;
-  }
-  if (error_p) {
-    var object action = TheEncoding(encoding)->enc_towcs_error;
-    if (eq(action,S(Kignore))) {
-    } else if (eq(action,S(Kerror))) {
-      fehler_buffer_parity(encoding);
-    } else
-      *(*destp)++ = char_code(action);
+    if (error_p) {
+      var object action = TheEncoding(encoding)->enc_towcs_error;
+      if (eq(action,S(Kignore))) {
+      } else if (eq(action,S(Kerror))) {
+        fehler_buffer_parity(encoding);
+      } else
+        *(*destp)++ = char_code(action);
+    }
   }
 }
 
@@ -625,14 +625,14 @@ global void uni32be_mbstowcs (object encoding, object stream,
     } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
-  }
-  if (error_p) {
-    var object action = TheEncoding(encoding)->enc_towcs_error;
-    if (eq(action,S(Kignore))) {
-    } else if (eq(action,S(Kerror))) {
-      fehler_buffer_parity(encoding);
-    } else
-      *(*destp)++ = char_code(action);
+    if (error_p) {
+      var object action = TheEncoding(encoding)->enc_towcs_error;
+      if (eq(action,S(Kignore))) {
+      } else if (eq(action,S(Kerror))) {
+        fehler_buffer_parity(encoding);
+      } else
+        *(*destp)++ = char_code(action);
+    }
   }
 }
 
@@ -665,14 +665,14 @@ global void uni32le_mbstowcs (object encoding, object stream,
     } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
-  }
-  if (error_p) {
-    var object action = TheEncoding(encoding)->enc_towcs_error;
-    if (eq(action,S(Kignore))) {
-    } else if (eq(action,S(Kerror))) {
-      fehler_buffer_parity(encoding);
-    } else
-      *(*destp)++ = char_code(action);
+    if (error_p) {
+      var object action = TheEncoding(encoding)->enc_towcs_error;
+      if (eq(action,S(Kignore))) {
+      } else if (eq(action,S(Kerror))) {
+        fehler_buffer_parity(encoding);
+      } else
+        *(*destp)++ = char_code(action);
+    }
   }
 }
 
