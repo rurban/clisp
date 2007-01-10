@@ -1,7 +1,7 @@
 /*
  * Streams for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2006
+ * Sam Steingold 1998-2007
  * Generic Streams: Marcus Daniels 8.4.1994
  * SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
  * German comments translated into English: Stefan Kain 2001-11-02
@@ -3811,6 +3811,15 @@ typedef struct strm_channel_extrafields_t {
   void (* low_close) (object stream, object handle, uintB abort);
   # Fields used if the element-type is CHARACTER:
   uintL lineno;                        # line number during read, >0
+   /* For general interoperability with Win32 systems, we recognize all possible
+    line-terminators: LF, CR/LF and CR, independently of strm_encoding.
+    This is because, when confronted with Unix-style text files (eol = LF),
+    some Microsoft editors insert new lines with eol = CR/LF,
+    while other Microsoft editors insert new lines with eol = CR.
+    Java learned the lesson and understands all three line-terminators.
+    So do we, see http://clisp.cons.org/impnotes/clhs-newline.html
+    See also http://www.unicode.org/reports/tr13/tr13-9.html */
+  /*bool*/int  ignore_next_LF : 8;     /* true after reading a CR */
   struct file_id fid;                  /* unique file ID */
   #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
   iconv_t iconvdesc;                   # input conversion descriptor and state
@@ -3828,6 +3837,7 @@ typedef struct strm_channel_extrafields_t {
 #define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->bitsize
 #define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_close
 #define ChannelStream_lineno(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->lineno
+#define ChannelStream_ignore_next_LF(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->ignore_next_LF
 #define ChannelStream_file_id(stream)  ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->fid
 #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
 #define ChannelStream_iconvdesc(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->iconvdesc
@@ -3851,13 +3861,6 @@ typedef struct strm_unbuffered_extrafields_t {
                                        #    bytebuf, to be consumed
   uintB bytebuf[max_bytes_per_chart];  # the last bytes read
                                        # but not yet consumed
-   # For general interoperability with Win32 systems, we recognize all possible
-   # line-terminators: LF, CR/LF and CR, independently of strm_encoding. This
-   # is because, when confronted to Unix-style text files (eol = LF), some
-   # Microsoft editors insert new lines with eol = CR/LF, while other Microsoft
-   # editors insert new lines with eol = CR. Java learned the lesson and
-   # understands all three line-terminators. So do we.
-  /*bool*/int  ignore_next_LF : 8;     # true after reading a CR
   # Fields used for the output side only:
   void         (* low_write)         (object stream, uintB b);
   const uintB* (* low_write_array)   (object stream, const uintB* byteptr, uintL len, perseverance_t persev);
@@ -3873,7 +3876,6 @@ typedef struct strm_unbuffered_extrafields_t {
 #define UnbufferedStreamLow_read_array(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_read_array
 #define UnbufferedStream_status(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->status
 #define UnbufferedStream_bytebuf(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->bytebuf
-#define UnbufferedStream_ignore_next_LF(stream)   ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->ignore_next_LF
 #define UnbufferedStreamLow_write(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_write
 #define UnbufferedStreamLow_write_array(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_write_array
 #define UnbufferedStreamLow_finish_output(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_finish_output
@@ -4925,10 +4927,10 @@ local bool low_clear_input_unbuffered_handle (object stream) {
     # Our low_listen_unbuffered_handle function, when applied to a WinNT
     # console, cannot tell when there is an LF pending after the
     # preceding CR has been eaten. Therefore be careful to set
-    # UnbufferedStream_ignore_next_LF to true when we read a LF.
+    # ChannelStream_ignore_next_LF to true when we read a LF.
     var sintL c = low_read_unbuffered_handle(stream);
     if (c >= 0)
-      UnbufferedStream_ignore_next_LF(stream) = (c == CR);
+      ChannelStream_ignore_next_LF(stream) = (c == CR);
     #else
     low_read_unbuffered_handle(stream);
     #endif
@@ -5102,19 +5104,19 @@ local object rd_ch_unbuffered (const gcv_object_t* stream_) {
     }
    #endif
     if (chareq(c,ascii(NL))) {
-      if (UnbufferedStream_ignore_next_LF(stream)) {
-        UnbufferedStream_ignore_next_LF(stream) = false;
+      if (ChannelStream_ignore_next_LF(stream)) {
+        ChannelStream_ignore_next_LF(stream) = false;
         goto retry;
       }
       /* increment lineno: */
       ChannelStream_lineno(stream) += 1;
     } else if (chareq(c,ascii(CR))) {
-      UnbufferedStream_ignore_next_LF(stream) = true;
+      ChannelStream_ignore_next_LF(stream) = true;
       c = ascii(NL);
       /* increment lineno: */
       ChannelStream_lineno(stream) += 1;
     } else {
-      UnbufferedStream_ignore_next_LF(stream) = false;
+      ChannelStream_ignore_next_LF(stream) = false;
     }
     return code_char(c);
   }
@@ -5166,15 +5168,15 @@ local signean listen_char_unbuffered (object stream) {
       }
     } else {
       # Read a complete character.
-      if (UnbufferedStream_ignore_next_LF(stream) && chareq(c,ascii(NL))) {
+      if (ChannelStream_ignore_next_LF(stream) && chareq(c,ascii(NL))) {
         # Move the remainder of the buffer into bytebuf.
         UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
         buflen--; /* discard the NL from buf */
-        UnbufferedStream_ignore_next_LF(stream) = false;
+        ChannelStream_ignore_next_LF(stream) = false;
       } else {
         # Move the buffer into bytebuf.
         UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
-        UnbufferedStream_ignore_next_LF(stream) = false;
+        ChannelStream_ignore_next_LF(stream) = false;
         result = ls_avail;
         break;
       }
@@ -5183,11 +5185,11 @@ local signean listen_char_unbuffered (object stream) {
   #else
  retry:
   result = UnbufferedStreamLow_listen(stream)(stream);
-  if (ls_avail_p(result) && UnbufferedStream_ignore_next_LF(stream)) {
+  if (ls_avail_p(result) && ChannelStream_ignore_next_LF(stream)) {
     var sintL b = UnbufferedStreamLow_read(stream)(stream);
     if (b < 0)
       return ls_eof;
-    UnbufferedStream_ignore_next_LF(stream) = false;
+    ChannelStream_ignore_next_LF(stream) = false;
     if (b == NL)
       goto retry;
     UnbufferedStreamLow_pushfront_byte(stream,b);
@@ -5209,9 +5211,9 @@ local bool clear_input_unbuffered (object stream) {
   # Our low_listen_unbuffered_handle function, when applied to a WinNT
   # console, cannot tell when there is an LF pending after the
   # preceding CR has been eaten. Therefore be careful not to reset
-  # UnbufferedStream_ignore_next_LF.
+  # ChannelStream_ignore_next_LF.
   #else
-  UnbufferedStream_ignore_next_LF(stream) = false;
+  ChannelStream_ignore_next_LF(stream) = false;
   #endif
   UnbufferedStreamLow_clear_input(stream)(stream);
   return true;
@@ -5278,8 +5280,8 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
       var chart c = *tmpptr++;
       count--;
       if (chareq(c,ascii(NL))) {
-        if (UnbufferedStream_ignore_next_LF(stream)) {
-          UnbufferedStream_ignore_next_LF(stream) = false;
+        if (ChannelStream_ignore_next_LF(stream)) {
+          ChannelStream_ignore_next_LF(stream) = false;
         } else {
           ChannelStream_lineno(stream) += 1;
           sstring_store(*chararray_,currindex++,ascii(NL));
@@ -5289,14 +5291,14 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
           if (chareq(*tmpptr,ascii(NL))) {
             tmpptr++; count--;
           }
-          UnbufferedStream_ignore_next_LF(stream) = false;
+          ChannelStream_ignore_next_LF(stream) = false;
         } else {
-          UnbufferedStream_ignore_next_LF(stream) = true;
+          ChannelStream_ignore_next_LF(stream) = true;
         }
         ChannelStream_lineno(stream) += 1;
         sstring_store(*chararray_,currindex++,ascii(NL));
       } else {
-        UnbufferedStream_ignore_next_LF(stream) = false;
+        ChannelStream_ignore_next_LF(stream) = false;
         sstring_store(*chararray_,currindex++,c);
       }
     } while (count > 0);
@@ -5839,7 +5841,7 @@ local maygc object make_unbuffered_stream (uintB type, direction_t direction,
   # and fill:
   TheStream(stream)->strm_encoding = STACK_2;
   fill_pseudofuns_unbuffered(stream,eltype);
-  UnbufferedStream_ignore_next_LF(stream) = false;
+  ChannelStream_ignore_next_LF(stream) = false;
   TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
   {
     var object handle = popSTACK();
@@ -6437,6 +6439,7 @@ local const uintB* write_byte_array_buffered (object stream,
 
 # READ-CHAR - Pseudo-Function for File-Streams of Characters
 local object rd_ch_buffered (const gcv_object_t* stream_) {
+ rd_ch_buffered_retry:
   var object stream = *stream_;
   var uintB* bufferptr = buffered_nextbyte(stream,persev_partial);
   if (bufferptr == (uintB*)NULL) # EOF ?
@@ -6502,16 +6505,13 @@ local object rd_ch_buffered (const gcv_object_t* stream_) {
   BufferedStream_position(stream) += 1;
   #endif
   if (chareq(c,ascii(NL))) {
+    if (ChannelStream_ignore_next_LF(stream)) {
+      ChannelStream_ignore_next_LF(stream) = false;
+      goto rd_ch_buffered_retry;
+    }
     ChannelStream_lineno(stream) += 1;
   } else if (chareq(c,ascii(CR))) {
-    # check next character for LF
-    bufferptr = buffered_nextbyte(stream,persev_partial);
-    # FIXME: This is wrong. It assumes an ASCII compatible encoding.
-    if ((bufferptr != NULL) && chareq(as_chart(*bufferptr),ascii(LF))) {
-      # increment index and position
-      BufferedStream_index(stream) += 1;
-      BufferedStream_position(stream) += 1;
-    }
+    ChannelStream_ignore_next_LF(stream) = true;
     c = ascii(NL);
     ChannelStream_lineno(stream) += 1;
   }
@@ -6622,18 +6622,16 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
         do {
           cintX c = *ptr1++;
           if (chareq(as_chart(c),ascii(NL))) {
+            if (ChannelStream_ignore_next_LF(stream)) {
+              ChannelStream_ignore_next_LF(stream) = false;
+              if (ptr1 == currptr) break; else continue;
+            }
             ChannelStream_lineno(stream) += 1;
           } else if (chareq(as_chart(c),ascii(CR))) {
             # check next character for LF
             if (ptr1 == currptr) {
-              var uintB* bufferptr = buffered_nextbyte(stream,persev_partial);
-              if ((bufferptr != NULL)
-                  # FIXME: This is wrong. It assumes an ASCII compatible encoding.
-                  && chareq(as_chart(*bufferptr),ascii(LF))) {
-                # increment index and position
-                BufferedStream_index(stream) += 1;
-                BufferedStream_position(stream) += 1;
-              }
+              /* cannot check in this buffer; mark for next. */
+              ChannelStream_ignore_next_LF(stream) = true;
             } else {
               if (chareq(as_chart(*ptr1),ascii(LF)))
                 ptr1++;
@@ -15363,10 +15361,10 @@ local maygc object stream_reset_eltype (object stream, decoded_el_t* eltype_) {
   if (ChannelStream_buffered(stream)) {
     fill_pseudofuns_buffered(stream,eltype_);
   } else {
-    if (UnbufferedStream_ignore_next_LF(stream)
+    if (ChannelStream_ignore_next_LF(stream)
         && eq(TheStream(stream)->strm_eltype,S(character))) {
       pushSTACK(stream);
-      UnbufferedStream_ignore_next_LF(stream) = false; # do not skip LF!
+      ChannelStream_ignore_next_LF(stream) = false; /* do not skip LF! */
       var object ch = read_char(&STACK_0);
       if (!eq(ch,eof_value) && !chareq(char_code(ch),ascii(LF)))
         unread_char(&STACK_0,ch);
@@ -15456,7 +15454,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
                 } else {
                   if (UnbufferedStream_status(stream) == 0) {
                     UnbufferedStreamLow_push_byte(stream,b);
-                    UnbufferedStream_ignore_next_LF(stream) = false;
+                    ChannelStream_ignore_next_LF(stream) = false;
                     TheStream(stream)->strm_rd_ch_last = NIL;
                     TheStream(stream)->strmflags &= ~strmflags_unread_B;
                   }
