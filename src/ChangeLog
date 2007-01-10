@@ -1,5 +1,12 @@
 2007-01-10  Sam Steingold  <sds@podval.org>
 
+	fixed bug #[ 1632718 ]: CONVERT-STRING-FROM-BYTES does not check
+	incomplete byte sequences
+	* encoding.d (CONVERT-STRING-FROM-BYTES): signal an error when the
+	vector is not used completely
+
+2007-01-10  Sam Steingold  <sds@podval.org>
+
 	fixed bug #[ 1631760 ]: unicode-16 et al cannot be used
 	with unbuffered streams
 	* encoding.d (uni16be_mbstowcs, uni16le_mbstowcs, uni32be_mbstowcs)
