@@ -2778,10 +2778,14 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
     var chart* cendptr = cptr+clen;
     Encoding_mbstowcs(STACK_1)(STACK_1,nullobj,&bptr,bendptr,&cptr,cendptr);
     ASSERT(cptr == cendptr);
+    if ((bptr != bendptr)       /* some bytes were unused! */
+        && eq(TheEncoding(STACK_1)->enc_towcs_error,S(Kerror)))
+      fehler_buffer_parity(STACK_1);
    #else
     dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
    #endif
-  }
+  } else if (end != start) /* string is empty, but the vector is not! */
+    fehler_buffer_parity(STACK_1);
   VALUES1(string); skipSTACK(2);
 }
 
