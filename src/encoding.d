@@ -1,7 +1,7 @@
 /*
  * Encodings (character sets and conversions) for CLISP
  * Bruno Haible 1998-2005
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2007
  */
 
 #include "lispbibl.c"
@@ -286,11 +286,20 @@ nonreturning_function(global, fehler_unencodable,
   }
 }
 
-/* odd buffer for ucs-2 and such */
-nonreturning_function(local, fehler_buffer_parity, (object encoding)) {
+/* missing bytes at the end */
+nonreturning_function(local, fehler_incomplete, (object encoding)) {
   pushSTACK(TheEncoding(encoding)->enc_charset);
   fehler(error,GETTEXT("incomplete byte sequence at end of buffer for ~S"));
 }
+local void handle_incomplete (object encoding, chart* *destp) {
+  var object action = TheEncoding(encoding)->enc_towcs_error;
+  if (eq(action,S(Kignore))) {
+  } else if (eq(action,S(Kerror))) {
+    fehler_incomplete(encoding);
+  } else
+    *(*destp)++ = char_code(action);
+}
+
 
 /* The range function for an encoding covering all of Unicode. */
 global object all_range (object encoding, uintL start, uintL end,
@@ -372,14 +381,7 @@ global void uni16be_mbstowcs (object encoding, object stream,
     } while (--count);
     *srcp = src;
     *destp = dest;
-    if (error_p) {
-      var object action = TheEncoding(encoding)->enc_towcs_error;
-      if (eq(action,S(Kignore))) {
-      } else if (eq(action,S(Kerror))) {
-        fehler_buffer_parity(encoding);
-      } else
-        *(*destp)++ = char_code(action);
-    }
+    if (error_p) handle_incomplete(encoding,destp);
   }
 }
 
@@ -400,14 +402,7 @@ global void uni16le_mbstowcs (object encoding, object stream,
     } while (--count);
     *srcp = src;
     *destp = dest;
-    if (error_p) {
-      var object action = TheEncoding(encoding)->enc_towcs_error;
-      if (eq(action,S(Kignore))) {
-      } else if (eq(action,S(Kerror))) {
-        fehler_buffer_parity(encoding);
-      } else
-        *(*destp)++ = char_code(action);
-    }
+    if (error_p) handle_incomplete(encoding,destp);
   }
 }
 
@@ -625,14 +620,7 @@ global void uni32be_mbstowcs (object encoding, object stream,
     } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
-    if (error_p) {
-      var object action = TheEncoding(encoding)->enc_towcs_error;
-      if (eq(action,S(Kignore))) {
-      } else if (eq(action,S(Kerror))) {
-        fehler_buffer_parity(encoding);
-      } else
-        *(*destp)++ = char_code(action);
-    }
+    if (error_p) handle_incomplete(encoding,destp);
   }
 }
 
@@ -665,14 +653,7 @@ global void uni32le_mbstowcs (object encoding, object stream,
     } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
-    if (error_p) {
-      var object action = TheEncoding(encoding)->enc_towcs_error;
-      if (eq(action,S(Kignore))) {
-      } else if (eq(action,S(Kerror))) {
-        fehler_buffer_parity(encoding);
-      } else
-        *(*destp)++ = char_code(action);
-    }
+    if (error_p) handle_incomplete(encoding,destp);
   }
 }
 
@@ -2780,12 +2761,12 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
     ASSERT(cptr == cendptr);
     if ((bptr != bendptr)       /* some bytes were unused! */
         && eq(TheEncoding(STACK_1)->enc_towcs_error,S(Kerror)))
-      fehler_buffer_parity(STACK_1);
+      fehler_incomplete(STACK_1);
    #else
     dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
    #endif
   } else if (end != start) /* string is empty, but the vector is not! */
-    fehler_buffer_parity(STACK_1);
+    fehler_incomplete(STACK_1);
   VALUES1(string); skipSTACK(2);
 }
 
