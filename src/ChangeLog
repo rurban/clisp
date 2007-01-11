@@ -1,3 +1,10 @@
+2007-01-10  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d (fehler_buffer_parity): renamed to fehler_incomplete()
+	(handle_incomplete): new function
+	(uni16be_mbstowcs, uni16le_mbstowcs, uni32be_mbstowcs)
+	(uni32le_mbstowcs): use it
+
 2007-01-10  Sam Steingold  <sds@podval.org>
 
 	fixed bug #[ 1632718 ]: CONVERT-STRING-FROM-BYTES does not check
