@@ -1,3 +1,7 @@
+2007-01-01  Sam Steingold  <sds@gnu.org>
+
+	* spvw_debug.d (TheLfloat_) [DEBUG_SPVW]: added
+
 2007-01-10  Sam Steingold  <sds@gnu.org>
 
 	* encoding.d (fehler_buffer_parity): renamed to fehler_incomplete()
