@@ -453,6 +453,7 @@ FUN(object,object,Cdr)
 FUN(object,Symbol,TheSymbol)
 FUN(object,Hashtable,TheHashtable)
 FUN(object,Dfloat,TheDfloat)
+FUN(object,Lfloat,TheLfloat)
 FUN(object,Cclosure,TheCclosure)
 FUN(object,int,Cclosure_length)
 #undef FUN
