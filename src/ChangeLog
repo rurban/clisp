@@ -1,3 +1,22 @@
+2007-01-22  Shawn Betts  <sabetts@vcn.bc.ca>
+	Sam Steingold  <sds@gnu.org>
+
+	New-CLX supports stumpwm
+	* modules/clx/new-clx/clx.f (SET-SELECTION-OWNER): fix argument order
+	(encode_event): set the event type; fix STACK handling
+	:EVENT-WINDOW is sometimes just a synonym for :WINDOW, sometimes
+	not; correctly map :EVENT-WINDOW to the corresponding XEvent slot
+	(:REPARENT-NOTIFY): add :OVERRIDE-REDIRECT-P
+	(ungrab_X): fix STACK handling
+	(xlib_error_handler): pass :ASYNCHRONOUS up
+	(XLIB:MAPPING-NOTIFY): implemented
+	(travel_queque): used to peek the event and called the event
+	handler which meant calling PROCESS-EVENTS inside that event
+	handler got the same event (this doesn't happen in mit-clx or
+	portable-clx). So travel_queque now just calls XNextEvent()
+	* modules/clx/new-clx/clx.lisp (SET-SELECTION-OWNER): export
+	implement error conditions (copied from mit-clx)
+
 2007-01-01  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (TheLfloat_) [DEBUG_SPVW]: added
