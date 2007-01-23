@@ -44,6 +44,7 @@ extern char **environ;
 /* Local functions */
 static char * read_stdio(FILE *);
 static int    write_stdio(FILE *, char *, int);
+static void   hexify (unsigned char *, int) ;
 
 /* Externally visible functions */
 
@@ -102,15 +103,10 @@ char ** fcgi_env() {
 }
 
 
-/* Read some bytes from stdin.  Return a null-terminated string.  This
+/* Read some bytes from stdin.  Return a null-terminated hex string.  This
    does NOT necessarily read up to end of file, but rather will read until
    its buffer is full.  Therefore, if you want to slurp in the entire contents
    of STDIN (which you usually do) you have to call this repeatedly.
-
-   Furthermore, the result is returned to CLISP as a null-terminated
-   string, so that occurrences of NUL (binary 0) characters in the
-   data will cause Lisp to get a short string.  In web forms, however,
-   such data will usually be encoded.
 
 */
 char * fcgi_read_stdin() {
@@ -118,14 +114,14 @@ char * fcgi_read_stdin() {
 }
 static char * read_stdio(FILE * f) {
 
-  static char buf[TEMPBUFSIZE + 1];
+  static unsigned char buf[2 * TEMPBUFSIZE + 1];
   size_t      nact = 0;
 
   if ( ! feof(f) )
     nact = fread(buf, 1, TEMPBUFSIZE, f);
   if ( ferror(f) )
     nact = 0;
-  buf[nact] = '\0';
+  hexify(buf, nact);
   return buf;
 }
 
@@ -154,4 +150,22 @@ int fcgi_accept_wrapper() {
 }
 void fcgi_finish_wrapper() {
   FCGI_Finish();
+}
+
+/* Convert a binary buffer to null-terminated hex in place.  Actual
+   allocation of buf must be twice N plus 1.  Work from the end to the
+   start so we don't stomp on ourselves. */
+/* Convert int to hex */
+#define itoh(n)(((n) > 9) ? ((n) - 10 + 'A') : ((n) + '0'))
+static void hexify (unsigned char * buf, int n) 
+{
+  int i;
+  for ( i = n-1; i >= 0; i-- ) {
+	unsigned char c = buf[i];
+    buf[2*i] = itoh(c / 16);
+    buf[2*i + 1] = itoh(c & 0xF);
+  }
+
+  /* Null terminate */
+  buf[2*n] = '\0';
 }

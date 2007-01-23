@@ -1,3 +1,9 @@
+2007-01-22  John Hinsdale <hin@alma.com>
+
+	Allow binary file uploads via FastCGI
+	* modules/fastcgi/fastcgi.lisp, fastcgi_wrappers.c: handle binary
+	data via STDIN on POST request.  Reported by Mike.Halloran@gmail.com
+
 2007-01-22  Shawn Betts  <sabetts@vcn.bc.ca>
 	Sam Steingold  <sds@gnu.org>
 

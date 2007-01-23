@@ -96,7 +96,7 @@
   (do ((result "")
        (eof nil))
       (eof result)
-      (let ((buf (fcgi_read_stdin)))
+      (let ((buf (byte-array-to-string (hex-to-byte-array (fcgi_read_stdin)))))
         (if (= 0 (length buf))
             (setf eof t)
           (setf result (ext:string-concat result buf))))))
@@ -114,6 +114,38 @@
 
 
 ; ----------------    Internal functions
+
+;; HEX-VALUE -- Get integer value of single upper-case hex digit
+(defun hex-value (h)
+  (cond ((and (char>= h #\A) (char<= h #\F))
+         (+ 10 (- (char-code h) (char-code #\A))))
+        ((and (char>= h #\a) (char<= h #\f))
+         (+ 10 (- (char-code h) (char-code #\a))))
+        ((and (char>= h #\0) (char<= h #\9))
+         (- (char-code h) (char-code #\0)))
+        (t (error "Invalid hex digit"))))
+
+;; HEX-BYTE-VALUE -- Get byte value of pair of hex digits
+(defun hex-byte-value (hh)
+  (+ (* 16 (hex-value (elt hh 0)))
+     (hex-value (elt hh 1))))
+
+;; HEX-TO-BYTE-ARRAY -- Convert hex string to byte array
+(defun hex-to-byte-array (h)
+  (let* ((size (/ (length h) 2))
+         (result (make-array size :element-type '(unsigned-byte 8))))
+    (loop
+     for i from 0 to (1- size) do
+     (let ((offset (* 2 i)))
+       (setf (elt result i)
+             (coerce (hex-byte-value (subseq h offset (+ 2 offset)))
+                     '(unsigned-byte 8)))))
+    result))
+
+;; BYTE-ARRAY-TO-STRING -- Convert byte array to string
+(defun byte-array-to-string (b)
+  (coerce (map 'array #'(lambda (c) (code-char c)) b)
+          'string))
 
 ; CAT
 ; Concatenate strings
