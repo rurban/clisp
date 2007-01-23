@@ -12,6 +12,9 @@ User visible changes
 * Module libsvm has been upgraded to the upstream version 2.83.
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
+* NEW-CLX module now supports Sumpwm <http://www.nongnu.org/stumpwm/>.
+  Thanks to Shawn Betts <sabetts@vcn.bc.ca>.
+
 * EXT:ARGLIST now works on macros too.
   See <http://clisp.cons.org/impnotes/flow-dict.html#arglist> for details.
 

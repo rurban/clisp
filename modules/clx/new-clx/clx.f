@@ -1450,6 +1450,94 @@ static void get_key_vector (object obj, char key_vector [32])
   NOTIMPLEMENTED;
 }
 
+static object make_client_message_format (int format)
+{
+  switch (format) {
+    case 32: case 16: case 8: return make_uint32 (format);
+    default: my_type_error (`(MEMBER 8 16 32)`, make_uint32 (format));
+  }
+}
+
+static int get_client_message_format (object obj)
+{
+  int format = get_uint32 (obj);
+  switch (format) {
+    case 32: case 16: case 8: return format;
+    default: my_type_error (`(MEMBER 8 16 32)`, obj);
+  }
+}
+
+static object make_client_message_data (XClientMessageEvent *xclient)
+{
+  int i;
+  int cnt = 0;
+
+  switch (xclient->format) {
+    case 8:
+      for (i=0; i<20; i++)
+        pushSTACK (make_uint8 (xclient->data.b[i]));
+      cnt = 20;
+      break;
+    case 16:
+      for (i=0; i<10; i++)
+        pushSTACK (make_uint16 (xclient->data.s[i]));
+      cnt = 10;
+      break;
+    case 32:
+      for (i=0; i<5; i++)
+        pushSTACK (make_uint32 (xclient->data.l[i]));
+      cnt = 5;
+      break;
+    default:
+      my_type_error (`(MEMBER 8 16 32)`, make_uint32 (xclient->format));
+    }
+  return listof (cnt);
+}
+
+static int get_client_message_data (XClientMessageEvent *event, uint32 format,
+                                    object data)
+{
+  int i;
+  if (consp (data)) {
+    switch (format) {
+      case 8:
+        for (i=0; i<20; i++) {
+          if (nullp (data)) {
+            event->data.b[i] = 0;
+          } else {
+            event->data.b[i] = get_uint8 (Car(data));
+            data = Cdr(data);
+          }
+        }
+        break;
+      case 16:
+        for (i=0; i<10; i++) {
+          if (nullp (data)) {
+            event->data.s[i] = 0;
+          } else {
+            event->data.s[i] = get_uint16 (Car(data));
+            data = Cdr(data);
+          }
+        }
+        break;
+      case 32:
+        for (i=0; i<5; i++) {
+          if (nullp (data)) {
+            event->data.l[i] = 0;
+          } else {
+            event->data.l[i] = get_uint32 (Car(data));
+            data = Cdr(data);
+          }
+        }
+        break;
+      default:
+        my_type_error (`(MEMBER 8 16 32)`, make_uint32 (format));
+    }
+  }
+  else
+    my_type_error (S(cons), data);
+}
+
 static object make_visual_info (Visual *vis)
 {
   pushSTACK(`(XLIB::VISUAL-INFO)`); pushSTACK(fixnum(8));
@@ -5451,17 +5539,17 @@ DEFUN(XLIB:SELECTION-OWNER, arg1 arg2)
 }
 
 /*  (SETF (XLIB:SELECTION-OWNER display selection &optional time) owner)
-    == (XLIB:SET-SELECTION-OWNER owner display selection &optional time) */
-DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
+    == (XLIB:SET-SELECTION-OWNER display selection owner &optional time) */
+DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
 {
-  Window owner = get_window (STACK_3);
-  Display *dpy = (pushSTACK(STACK_2), pop_display ());
-  Atom selection = get_xatom (dpy, STACK_1);
+  Display *dpy = (pushSTACK(STACK_3), pop_display ());
+  Atom selection = get_xatom (dpy, STACK_2);
+  Window owner = get_window (STACK_1);
   Time time = get_timestamp (STACK_0);
 
   X_CALL(XSetSelectionOwner (dpy, selection, owner, time));
 
-  VALUES1(STACK_3);
+  VALUES1(STACK_1);
   skipSTACK(4);
 }
 
@@ -5493,11 +5581,14 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
     ESLOT4 is just used for the atom slot, since get_xatom requires an display
            argument
 
+    ESLOT5 is just for client-message's data slot.
+
  (If your preprocessor or your compiler can't eat this, hmm... get a new one.)
  */
 
 #define COMMON_INPUT_EVENT                                              \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
     ESLOT2(`:CHILD`,            window,                 subwindow)      \
     ESLOT2(`:ROOT`,             window,                 root)           \
     ESLOT (`:X`,                sint16,                 x)              \
@@ -5543,16 +5634,19 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
                                                                         \
   DEF_EVENT (`:FOCUS-IN`, FocusIn, XFocusChangeEvent, xfocus)           \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
     ESLOT (`:MODE`,             focus_mode,             mode)           \
     ESLOT (`:KIND`,             focus_detail,           detail)         \
                                                                         \
   DEF_EVENT (`:FOCUS-OUT`, FocusOut, XFocusChangeEvent, xfocus)         \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
     ESLOT (`:MODE`,             focus_mode,             mode)           \
     ESLOT (`:KIND`,             focus_detail,           detail)         \
                                                                         \
   DEF_EVENT (`:EXPOSURE`, Expose, XExposeEvent, xexpose)                \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
     ESLOT (`:X`,                sint16,                 x)              \
     ESLOT (`:Y`,                sint16,                 y)              \
     ESLOT (`:WIDTH`,            sint16,                 width)          \
@@ -5561,6 +5655,7 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
                                                                         \
   DEF_EVENT (`:GRAPHICS-EXPOSURE`, GraphicsExpose, XGraphicsExposeEvent, xgraphicsexpose) \
     ESLOT2(`:DRAWABLE`,         drawable,               drawable)       \
+    ESLOT2(`:EVENT-WINDOW`,     drawable,               drawable)       \
     ESLOT (`:X`,                sint16,                 x)              \
     ESLOT (`:Y`,                sint16,                 y)              \
     ESLOT (`:WIDTH`,            sint16,                 width)          \
@@ -5570,7 +5665,6 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
     ESLOT (`:MINOR`,            uint16,                 minor_code)     \
                                                                         \
   DEF_EVENT (`:KEYMAP-NOTIFY`, KeymapNotify, XKeymapEvent, xkeymap)     \
-    ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT3(`:KEYMAP`,           key_vector,             key_vector)     \
                                                                         \
   DEF_EVENT (`:MAPPING-NOTIFY`, MappingNotify, XMappingEvent, xmapping) \
@@ -5580,15 +5674,18 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
                                                                         \
   DEF_EVENT (`:NO-EXPOSURE`, NoExpose, XNoExposeEvent, xnoexpose)       \
     ESLOT2(`:DRAWABLE`,         drawable,               drawable)       \
+    ESLOT2(`:EVENT-WINDOW`,     drawable,               drawable)       \
     ESLOT (`:MAJOR`,            uint8,                  major_code)     \
     ESLOT (`:MINOR`,            uint16,                 minor_code)     \
                                                                         \
   DEF_EVENT (`:CIRCULATE-NOTIFY`, CirculateNotify, XCirculateEvent, xcirculate) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
     ESLOT (`:PLACE`,            top_or_bottom,          place)          \
                                                                         \
   DEF_EVENT (`:CONFIGURE-NOTIFY`, ConfigureNotify, XConfigureEvent, xconfigure) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
     ESLOT (`:X`,                uint16,                 x)              \
     ESLOT (`:Y`,                uint16,                 y)              \
     ESLOT (`:WIDTH`,            uint16,                 width)          \
@@ -5599,6 +5696,7 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
                                                                         \
   DEF_EVENT (`:CREATE-NOTIFY`, CreateNotify, XCreateWindowEvent, xcreatewindow) \
     ESLOT2(`:PARENT`,           window,                 parent)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 parent)         \
     ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT (`:X`,                uint16,                 x)              \
     ESLOT (`:Y`,                uint16,                 y)              \
@@ -5608,43 +5706,53 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
                                                                         \
   DEF_EVENT (`:DESTROY-NOTIFY`, DestroyNotify, XDestroyWindowEvent, xdestroywindow) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
                                                                         \
   DEF_EVENT (`:GRAVITY-NOTIFY`, GravityNotify, XGravityEvent, xgravity) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
     ESLOT (`:X`,                uint16,                 x)              \
     ESLOT (`:Y`,                uint16,                 y)              \
                                                                         \
   DEF_EVENT (`:MAP-NOTIFY`, MapNotify, XMapEvent, xmap)                 \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
     ESLOT (`:OVERRIDE-REDIRECT-P`,bool,                 override_redirect) \
                                                                         \
   DEF_EVENT (`:REPARENT-NOTIFY`, ReparentNotify, XReparentEvent, xreparent) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
     ESLOT2(`:PARENT`,           window,                 parent)         \
     ESLOT (`:X`,                uint16,                 x)              \
     ESLOT (`:Y`,                uint16,                 y)              \
+    ESLOT (`:OVERRIDE-REDIRECT-P`,bool,                 override_redirect) \
                                                                         \
   DEF_EVENT (`:UNMAP-NOTIFY`, UnmapNotify, XUnmapEvent, xunmap)         \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
     ESLOT (`:CONFIGURE-P`,      bool,                   from_configure) \
                                                                         \
   DEF_EVENT (`:VISIBILITY-NOTIFY`, VisibilityNotify, XVisibilityEvent, xvisibility) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
     ESLOT (`:STATE`,            visibility_state,       state)          \
                                                                         \
   DEF_EVENT (`:CIRCULATE-REQUEST`, CirculateRequest, XCirculateRequestEvent, xcirculaterequest) \
     ESLOT2(`:PARENT`,           window,                 parent)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 parent)         \
     ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT (`:PLACE`,            top_or_bottom,          place)          \
                                                                         \
   DEF_EVENT (`:COLORMAP-NOTIFY`, ColormapNotify, XColormapEvent, xcolormap) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
     ESLOT2(`:COLORMAP`,         colormap,               colormap)       \
     ESLOT (`:NEW-P`,            bool,                   c_new)          \
     ESLOT (`:INSTALLED-P`,      bool,                   state)          \
                                                                         \
   DEF_EVENT (`:CONFIGURE-REQUEST`, ConfigureRequest, XConfigureRequestEvent, xconfigurerequest) \
     ESLOT2(`:PARENT`,           window,                 parent)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 parent)         \
     ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT (`:X`,                uint16,                 x)              \
     ESLOT (`:Y`,                uint16,                 y)              \
@@ -5657,35 +5765,46 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
                                                                         \
   DEF_EVENT (`:MAP-REQUEST`, MapRequest, XMapRequestEvent, xmaprequest) \
     ESLOT2(`:PARENT`,           window,                 parent)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 parent)         \
     ESLOT2(`:WINDOW`,           window,                 window)         \
                                                                         \
   DEF_EVENT (`:RESIZE-REQUEST`, ResizeRequest, XResizeRequestEvent, xresizerequest) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
     ESLOT (`:WIDTH`,            uint16,                 width)          \
     ESLOT (`:HEIGHT`,           uint16,                 height)         \
                                                                         \
   DEF_EVENT (`:CLIENT-MESSAGE`, ClientMessage, XClientMessageEvent, xclient) \
-    /* FIXME missing... */                                              \
+    ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
+    ESLOT4(`:TYPE`,             xatom,                  message_type)   \
+    ESLOT (`:FORMAT`,           client_message_format,  format)         \
+    ESLOT5(`:DATA`,             client_message_data,    data)           \
                                                                         \
   DEF_EVENT (`:PROPERTY-NOTIFY`, PropertyNotify, XPropertyEvent, xproperty) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
     ESLOT4(`:ATOM`,             xatom,                  atom)           \
     ESLOT (`:STATE`,            new_value_or_deleted,   state)          \
     ESLOT (`:TIME`,             uint32,                 time)           \
                                                                         \
   DEF_EVENT (`:SELECTION-CLEAR`, SelectionClear, XSelectionClearEvent, xselectionclear) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
     ESLOT4(`:SELECTION`,        xatom,                  selection)      \
     ESLOT (`:TIME`,             uint32,                 time)           \
                                                                         \
   DEF_EVENT (`:SELECTION-NOTIFY`, SelectionNotify, XSelectionEvent, xselection) \
     ESLOT2(`:WINDOW`,           window,                 requestor)      \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 requestor)      \
     ESLOT4(`:SELECTION`,        xatom,                  selection)      \
     ESLOT4(`:TARGET`,           xatom,                  target)         \
     ESLOT4(`:PROPERTY`,         xatom,                  property)       \
     ESLOT (`:TIME`,             uint32,                 time)           \
                                                                         \
   DEF_EVENT (`:SELECTION-REQUEST`, SelectionRequest, XSelectionRequestEvent, xselectionrequest) \
+    ESLOT2(`:WINDOW`,           window,                 owner)          \
+    ESLOT2(`:EVENT-WINDOW`,     window,                 owner)          \
     ESLOT2(`:REQUESTOR`,        window,                 requestor)      \
     ESLOT4(`:SELECTION`,        xatom,                  selection)      \
     ESLOT4(`:TARGET`,           xatom,                  target)         \
@@ -5722,6 +5841,11 @@ static int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
         }                                                               \
         cnt += 2;
 
+#define ESLOT5(lispname,type,cslot)                                     \
+        pushSTACK((lispname));                                          \
+        pushSTACK(make_##type (container));                             \
+        cnt += 2;
+
 #define DEF_EVENT(lispname, cname, c_container_type, c_container)       \
    }                                                                    \
  break;                                                                 \
@@ -5737,7 +5861,7 @@ static int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
   pushSTACK(`:DISPLAY`); pushSTACK(STACK_6); cnt += 2;
   pushSTACK(`:EVENT-CODE`); pushSTACK(fixnum(ev->type)); cnt += 2;
   pushSTACK(`:SEND-EVENT-P`); pushSTACK(make_bool (ev->xany.send_event)); cnt += 2;
-  pushSTACK(`:EVENT-WINDOW`); pushSTACK(make_window (*dpy_objf, ev->xany.window)); cnt += 2;
+  pushSTACK(`:SEQUENCE`); pushSTACK(make_uint16 (ev->xany.serial)); cnt += 2;
 
   /* BTW I really hate it that the naming convention for events is not
    * consistent , while you have a name for the mask, the event type, the event
@@ -5763,6 +5887,7 @@ static int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
 #undef ESLOT2
 #undef ESLOT3
 #undef ESLOT4
+#undef ESLOT5
 }
 
 static void travel_queque (Display *dpy, int peek_p, int discard_p,
@@ -5812,18 +5937,13 @@ static void travel_queque (Display *dpy, int peek_p, int discard_p,
   }
 
   /* .. so there is either now an event in the queue or we should hang: */
-  X_CALL(XPeekEvent (dpy, &ev));
+  X_CALL(XNextEvent (dpy, &ev));
 
   cnt = disassemble_event_on_stack (&ev, &(STACK_5));
   /* Now invoke the handler function */
   funcall (STACK_(cnt+4), cnt); /* BUG: This may throw out of our control! */
   /*      We would need something like an unwind protect here
           But only if discard_p == NIL. */
-
-
-  /* FIXME: We should probably check here, if somebody has already
-     discarded this event? */
-  X_CALL(XNextEvent (dpy, &ev));
 
   /* Look what we got. */
   if (nullp(value1)) {
@@ -5880,7 +6000,8 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 
 #define DEF_EVENT(lnam, cnam, ctype, cslot)             \
   } else if (eq (STACK_0, lnam)) {                      \
-    ctype *event = &(ev->cslot);
+    ctype *event = &(ev->cslot);                        \
+    ev->type = cnam;
 
 #define ESLOT(lnam, type, cslot)                        \
     {                                                   \
@@ -5907,6 +6028,17 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
         event->cslot = 0;                               \
     }
 
+#define ESLOT5(lnam, type, cslot)			\
+    {							\
+      int format_ofs = grasp (`:FORMAT`, n);		\
+      if (format_ofs && (ofs = grasp (lnam, n)))	\
+        get_##type (event,                              \
+                    get_uint32 (STACK_(format_ofs)),    \
+		    STACK_(ofs));	                \
+      else						\
+        { /* ??? */ }					\
+  }
+
   if(0) {
     /* Same as above in disassemble_event_on_stack this looks strange, but is
      right, since the first thing DEF_EVENT gives is "} else" the last
@@ -5921,6 +6053,10 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 #undef ESLOT2
 #undef ESLOT3
 #undef ESLOT4
+#undef ESLOT5
+
+  /* pop event_key off the stack. */
+  popSTACK();
 }
 
 /* (queue-event display event-key &rest args &key append-p send-event-p
@@ -6036,6 +6172,7 @@ DEFUN(XLIB:SEND-EVENT, &rest args)
 
     encode_event (argcount-3, STACK_(argcount-2), dpy, &event);
     X_CALL(XSendEvent (dpy, window, propagate_p, event_mask, &event));
+
     /* XSendEvent returns also some Status, should we interpret it?
      If yes: How?! */
     skipSTACK(argcount);
@@ -6264,7 +6401,6 @@ static void ungrab_X (int (*X)(Display *dpy, Time time))
   Display *dpy = pop_display ();
   X_CALL(X (dpy, time));
   VALUES1(NIL);
-  skipSTACK(2);
 }
 
 static inline object grab_to_object (int gr) {
@@ -7316,7 +7452,7 @@ man XErrorEvent says:
  Lisp error handler here found in the ERROR-HANDLER slot in the display. */
 int xlib_error_handler (Display *display, XErrorEvent *event)
 {
-  int f = 11;
+  int f = 13;
 
   begin_callback ();
 
@@ -7343,6 +7479,7 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
     funcall (L(aref), 2);
   pushSTACK(value1);            /* error code */
 
+  pushSTACK(`:ASYNCHRONOUS`);     pushSTACK(make_bool(T));
   pushSTACK(`:CURRENT-SEQUENCE`); pushSTACK(make_uint16(NextRequest(display)));
   pushSTACK(`:SEQUENCE`);         pushSTACK(make_uint16(event->serial));
   pushSTACK(`:MAJOR`);            pushSTACK(make_uint8 (event->request_code));
@@ -7626,6 +7763,34 @@ DEFUN(XLIB:DEFAULT-KEYSYM-INDEX, display keycode state)
   VALUES1(Fixnum_0);
 }
 
+DEFUN(XLIB:MAPPING-NOTIFY, display request start count)
+{
+  int count = get_sint32 (popSTACK());
+  int first_keycode = get_sint32 (popSTACK());
+  object request_sym = popSTACK();
+  Display *dpy = pop_display();
+  XEvent ev;
+
+  ev.xmapping.type = MappingNotify;
+  /* No idea how to find out ev.serial. */
+  ev.xmapping.serial = 0;
+  ev.xmapping.send_event = False;
+  ev.xmapping.display = dpy;
+
+  if (eq (`:KEYBOARD`, request_sym))
+    ev.xmapping.request = MappingKeyboard;
+  else if (eq (`:MODIFIER`, request_sym))
+    ev.xmapping.request = MappingModifier;
+  else if (eq (`:POINTER`, request_sym))
+    ev.xmapping.request = MappingPointer;
+  else
+    my_type_error (`(MEMBER :KEYBOARD :MODIFIER :POINTER)`, request_sym);
+
+  ev.xmapping.first_keycode = first_keycode;
+  ev.xmapping.count = count;
+  X_CALL (XRefreshKeyboardMapping (&ev.xmapping));
+}
+
 ##if 0
 /* ??? */
 DEFUN(XLIB:DESCRIBE-ERROR, arg1 arg2) {UNDEFINED;}
@@ -7651,7 +7816,6 @@ DEFUN(XLIB:CHARACTER-IN-MAP-P, arg1 arg2 arg3) {UNDEFINED;}
 DEFUN(XLIB:DEFAULT-KEYSYM-TRANSLATE, arg1 arg2 arg3) {UNDEFINED;}
 DEFUN(XLIB:DEFINE-KEYSYM, a1 a2 &key LOWERCASE TRANSLATE MODIFIERS MASK DISPLAY) {UNDEFINED;}
 DEFUN(XLIB:DEFINE-KEYSYM-SET, arg1 arg2 arg3) {UNDEFINED;}
-DEFUN(XLIB:MAPPING-NOTIFY, a1 a2 a2 a4) {UNDEFINED;}
 DEFUN(XLIB:UNDEFINE-KEYSYM, a1 a2 &key DISPLAY MODIFIERS &allow-other-keys){UNDEFINED;}
 
 /* These seem to be some tracing feature */
