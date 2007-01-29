@@ -838,6 +838,41 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 <note><title>Reminder</title><para>You have to use &letf;/&letf-star;
   for &symbol-macro;s; &let;/&let-star; will &not-e; work!</para></note>
 
+<section id="line-term-default"><title>Default &line-term;</title>
+<para>The &line-term; facet of the above &encoding;s is determined by
+ the following logic: since &clisp; understands all possible
+ &line-term;s on <emphasis>input</emphasis> (see
+ <xref linkend="clhs-newline"/>), all that matters is what &line-term;
+ do most <emphasis>other</emphasis> programs expect?</para>
+
+<variablelist>
+<!-- #ifdef UNIX -->
+<varlistentry><term>&unix-only;</term>
+ <listitem><simpara>If a non-0 <literal>O_BINARY</literal> &cpp;
+   constant is defined, we assume that the OS distinguishes between text
+   and binary files, and, since the encodings are relevant only for text
+   files, we thus use &dos-k;; otherwise the default is &unix-k;.
+</simpara></listitem></varlistentry>
+<!-- #endif -->
+<!-- #ifdef WIN32 -->
+<varlistentry><term>&win32-only;</term>
+ <listitem><simpara>Since most &win32; programs expect CRLF, the default
+  &line-term; is &dos-k;.</simpara></listitem></varlistentry>
+<!-- #endif -->
+</variablelist>
+
+<para>This boils down to the following code
+ in <filename role="clisp-cvs">src/encoding.d</filename>:
+<programlisting language="C">
+ #if defined(WIN32) || (defined(UNIX) &amp;&amp; (O_BINARY != 0))
+</programlisting></para>
+
+<note id="cygwin-line-term-default"><title>Default &line-term; on
+  &cygwin;</title><para><emphasis>Both</emphasis> of the above tests
+  pass on &cygwin;, so the default &line-term; is &dos-k;.
+  If you so desire, you can change it in your &RC-file;.</para></note>
+</section>
+
 </section>
 
 <section id="string-byte">
