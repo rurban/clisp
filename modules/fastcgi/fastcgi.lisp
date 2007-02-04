@@ -143,9 +143,7 @@
     result))
 
 ;; BYTE-ARRAY-TO-STRING -- Convert byte array to string
-(defun byte-array-to-string (b)
-  (coerce (map 'array #'(lambda (c) (code-char c)) b)
-          'string))
+(defun byte-array-to-string (b) (map 'string #'code-char b))
 
 ; CAT
 ; Concatenate strings

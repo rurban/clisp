@@ -1,3 +1,7 @@
+2007-02-03  Sam Steingold  <sds@gnu.org>
+
+	* modules/fastcgi/fastcgi.lisp (byte-array-to-string): optimized
+
 2007-01-22  John Hinsdale <hin@alma.com>
 
 	Allow binary file uploads via FastCGI
