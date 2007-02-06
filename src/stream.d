@@ -8371,8 +8371,8 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
         Encoding_mbstowcs(encoding)
           (encoding,*stream_,&bptr,bptr+max_bytes_per_chart,&cptr,cptr+1);
        #else
-        var chart c = event.Event.KeyEvent.uAsciiChar;
-        var cint ci = as_cint(c);
+        var cint ci = event.Event.KeyEvent.uAsciiChar;
+        var chart c = as_chart(ci);
         OemToCharBuff((char *)&ci,(char *)&ci,1);
         c = as_chart(ci);
        #endif
@@ -10415,8 +10415,8 @@ local maygc void wr_ch_array_window (const gcv_object_t* stream_,
     free(mb_str);
   }
  #else
-  for (mbpos=0;chart_str[mbpos];mbpos++)
-    char_str[mbpos] = chart_str[mbpos];
+  for (mbpos=0; as_cint(chart_str[mbpos]); mbpos++)
+    char_str[mbpos] = as_cint(chart_str[mbpos]);
   char_str[mbpos] = 0;
   CharToOem(char_str,char_str);
   v_puts(handle,char_str,&pos,sz,attr);

@@ -286,11 +286,18 @@ nonreturning_function(global, fehler_unencodable,
   }
 }
 
+#endif  /* UNICODE */
+/* used in CONVERT-STRING-FROM-BYTES, so must not depend on UNICODE */
 /* missing bytes at the end */
 nonreturning_function(local, fehler_incomplete, (object encoding)) {
+#ifdef UNICODE
   pushSTACK(TheEncoding(encoding)->enc_charset);
+#else
+  pushSTACK(encoding);         /* no enc_charset slot without UNICODE */
+#endif
   fehler(error,GETTEXT("incomplete byte sequence at end of buffer for ~S"));
 }
+#ifdef UNICODE
 local void handle_incomplete (object encoding, chart* *destp) {
   var object action = TheEncoding(encoding)->enc_towcs_error;
   if (eq(action,S(Kignore))) {
@@ -299,7 +306,6 @@ local void handle_incomplete (object encoding, chart* *destp) {
   } else
     *(*destp)++ = char_code(action);
 }
-
 
 /* The range function for an encoding covering all of Unicode. */
 global object all_range (object encoding, uintL start, uintL end,
