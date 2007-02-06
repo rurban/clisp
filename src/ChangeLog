@@ -1,3 +1,12 @@
+2007-02-05  Sam Steingold  <sds@gnu.org>
+
+	fixed NO_UNICODE + WIN32_NATIVE (mingw) compilation
+	* encoding.d (fehler_incomplete) [!UNICODE]: made available for
+	CONVERT-STRING-FROM-BYTES
+	* stream.d (rd_ch_keyboard, wr_ch_array_window) [WIN32_NATIVE]:
+	fixed cint/chart conversion
+	Thanks to Michael Kappert <michael.kappert@gmx.net> for testing
+
 2007-02-03  Sam Steingold  <sds@gnu.org>
 
 	* modules/fastcgi/fastcgi.lisp (byte-array-to-string): optimized
