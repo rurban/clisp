@@ -1,5 +1,12 @@
 2007-02-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/oracle/oracle.lisp, modules/fastcgi/fastcgi.lisp:
+	(hex-value): better error reporting
+	(hex-byte-value): accept 2 arguments
+	(hex-to-byte-array): optimized (less consing, 60% faster)
+
+2007-02-05  Sam Steingold  <sds@gnu.org>
+
 	fixed NO_UNICODE + WIN32_NATIVE (mingw) compilation
 	* encoding.d (fehler_incomplete) [!UNICODE]: made available for
 	CONVERT-STRING-FROM-BYTES

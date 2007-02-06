@@ -430,9 +430,9 @@ sequences.  Arguments (all optional) are:
 			  (count 1 (1+ count))
 			  (row nil)
 			  (at-eof nil))
-			 
+
 			 (at-eof (coerce result result-type))
-		   
+
 		   (setf row (oracle:fetch))
 		   (when row
 			 (vector-push-extend (coerce row item-type) result))
@@ -869,15 +869,14 @@ Argument: none
                                                          "~%Consider using SELECT ... " key " AS <column alias>")))
               ; Check uniqueness
               (multiple-value-bind
-               (curval already-there) (gethash key result)
-               (when already-there (db-error (cat "Column or parameter '" key
+                    (curval already-there) (gethash key result)
+                (when already-there (db-error (cat "Column or parameter '" key
                                                "' appears twice in list of (name, value) pairs,~%first with value '"
                                                curval "' and again with value '" value "'.  Columns/parameters given were:~%"
                                                (join "~%" (map 'list #'car plist))
                                                (nl)))))
               (setf (gethash key result) value)))
       result)))
-
 
 ; CHECK-PAIRS
 ; Convert pairs to hash if needed
@@ -1089,23 +1088,25 @@ Argument: none
          (+ 10 (- (char-code h) (char-code #\a))))
         ((and (char>= h #\0) (char<= h #\9))
          (- (char-code h) (char-code #\0)))
-        (t (error "Invalid hex digit"))))
+        (t (error "~S: Invalid hex digit ~S" 'hex-value h))))
 
 ;; HEX-BYTE-VALUE -- Get byte value of pair of hex digits
-(defun hex-byte-value (hh)
-  (+ (* 16 (hex-value (elt hh 0)))
-     (hex-value (elt hh 1))))
+(defun hex-byte-value (h1 h2)
+  (+ (ash (hex-value h1) 4)
+     (hex-value h2)))
 
 ;; HEX-TO-BYTE-ARRAY -- Convert hex string to byte array
 (defun hex-to-byte-array (h)
-  (let* ((size (/ (length h) 2))
+  (let* ((len (length h))
+         (size (if (oddp len)
+                   (error "~S: odd hex string length: ~:D"
+                          'hex-to-byte-array len)
+                   (ash len -1)))
          (result (make-array size :element-type '(unsigned-byte 8))))
-    (loop
-     for i from 0 to (1- size) do
-     (let ((offset (* 2 i)))
-       (setf (elt result i)
-             (coerce (hex-byte-value (subseq h offset (+ 2 offset)))
-                     '(unsigned-byte 8)))))
+    (loop :for string-pos :from 0 :below len :by 2
+      :and vector-pos :from 0 :below size :do
+      (setf (aref result vector-pos)
+            (hex-byte-value (char h string-pos) (char h (1+ string-pos)))))
     result))
 
 ; FLATTEN
