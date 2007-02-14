@@ -70,20 +70,23 @@
 		 (dotimes (k length)
 		   (setf (aref vector k) (read-byte stream)))
 		 vector))))
-    (let ((family (read-short stream nil)))
-      (if (null family)
+    (let ((family-id (read-short stream nil)))
+      (if (null family-id)
 	(list nil nil nil nil nil)
 	(let* ((address (read-short-length-vector stream))
 	       (number (parse-integer (read-short-length-string stream)))
 	       (name (read-short-length-string stream))
 	       (data (read-short-length-vector stream))
-	       (family (or (car (rassoc family *protocol-families*)) family)))
-	  (list
-	   family
-	   (ecase family
-	     (:local (map 'string #'code-char address))
-	     ((:internet :internet6) (coerce address 'list)))
-	   number name data))))))
+	       (family (car (rassoc family-id *protocol-families*))))
+	  (unless family
+              (return-from read-xauth-entry
+                (list family-id nil nil nil nil)))
+	  (let ((address
+		 (case family
+		   (:local (map 'string #'code-char address))
+		   ((:internet :internet6) (coerce address 'list))
+		   (t nil))))
+	    (list family address number name data)))))))
 
 (defun get-best-authorization (host display protocol)
   ;; parse .Xauthority, extract the cookie for DISPLAY on HOST.
