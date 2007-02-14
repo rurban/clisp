@@ -373,7 +373,7 @@ further explanations of the issues could be provided).</para>
      <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/cllib/url.lisp">CLOCC/src/cllib/</ulink> handles URLs</simpara></listitem>
      <listitem><simpara><ulink url="http://www.fractalconcept.com/asp/mod_lisp">mod_lisp</ulink>
        hooks lisp into &apache;</simpara></listitem>
-     <listitem><simpara><ulink url="http://alvin.jpl.nasa.gov/gat/ftp/http.lsp"
+     <listitem><simpara><ulink url="http://www.cliki.net/HTTP%20dot%20LSP"
        >Object-Oriented HTTP server for &clisp;</ulink></simpara></listitem>
     </itemizedlist>
     <para>Both <ulink url="http://allegroserve.sourceforge.net/">AllegroServe</ulink>
