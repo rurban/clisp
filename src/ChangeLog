@@ -1,3 +1,9 @@
+2007-01-05  Evgeny Zubok  <zubok@users.sourceforge.net>
+	Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/display.lisp (read-xauth-entry): fixed for McCLIM
+	See patch #[ 1628499 ]: McCLIM/mit-clx: fail to connect to X server
+
 2007-02-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/oracle/oracle.lisp, modules/fastcgi/fastcgi.lisp:
