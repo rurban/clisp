@@ -1,4 +1,9 @@
-2007--2015  Mattias Nilsson  <mattiasn@bredband.net>
+2007-02-15  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/dependent.lisp (buffer-input-wait-default):
+	SOCKET-STATUS accepts non-integer timeout
+
+2007-02-15  Mattias Nilsson  <mattiasn@bredband.net>
 	Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/mit-clx/dependent.lisp (buffer-input-wait-default):
