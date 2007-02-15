@@ -1,3 +1,9 @@
+2007--2015  Mattias Nilsson  <mattiasn@bredband.net>
+	Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/dependent.lisp (buffer-input-wait-default):
+	only check the :input direction
+
 2007-01-05  Evgeny Zubok  <zubok@users.sourceforge.net>
 	Sam Steingold  <sds@gnu.org>
 
