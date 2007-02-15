@@ -704,7 +704,7 @@
           #-allegro
 	  (t
 	   (if #-clisp (port::wait-for-stream stream timeout)
-               #+clisp (ext:socket-status (cons stream :input) (or timeout 0))
+               #+clisp (ext:socket-status (cons stream :input) timeout)
 	       nil
 	       :timeout))
           #+allegro
