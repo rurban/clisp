@@ -2462,7 +2462,11 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
         demos, please try them: run
         <screen>&sh-prompt; clisp &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename></screen>
         and follow the intructions.</para></listitem></varlistentry>
- </variablelist></para></listitem></varlistentry>
+    </variablelist>This functionality is documented in the manual
+    <ulink url="http://www.stud.uni-karlsruhe.de/~unk6/clxman/"/>, also
+    available in the &clisp; source distribution as
+    <filename role="clisp-cvs">modules/clx/clx-manual.tar.gz</filename>.
+ </para></listitem></varlistentry>
  <varlistentry><term><link linkend="oracle">oracle</link></term>
   <listitem><simpara>Access
     <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;;
