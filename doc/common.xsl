@@ -316,8 +316,9 @@ set       toc,title
     <td align="center"><a href="http://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support This Project]"/></a></td>
     <td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page={@id}"/></a></td>
  </tr></table></div>
- <div class="google-ads"><hr width="100%"/>
-<script type="text/javascript"><xsl:comment>
+ <xsl:if test="$google.ads != 0">
+  <div class="google-ads"><hr width="100%"/>
+   <script type="text/javascript"><xsl:comment>
 google_ad_client = "pub-4445255502750357";
 google_ad_width = 728;
 google_ad_height = 90;
@@ -325,9 +326,10 @@ google_ad_format = "728x90_as";
 google_ad_type = "text";
 //2007-01-03: beta
 google_ad_channel = "5563845797";
-</xsl:comment></script>
-<script type="text/javascript"
-        src="http://pagead2.googlesyndication.com/pagead/show_ads.js"/></div>
+   </xsl:comment></script>
+   <script type="text/javascript"
+           src="http://pagead2.googlesyndication.com/pagead/show_ads.js"/>
+  </div></xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>

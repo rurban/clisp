@@ -134,6 +134,7 @@ XSLTPROC=XML_CATALOG_FILES="$(CATALOG_FILE) ${XML_CATALOG_FILES}" xsltproc
 else
 XSLTPROC=xsltproc
 endif
+GOOGLEADS=0
 
 MAKE_TDB=$(XSLTPROC) --timing --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
@@ -151,7 +152,8 @@ clisp.xml: clisp.xml.in ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
 
-XMLOUT=$(XSLTPROC) --timing --stringparam target.database.document
+XMLOUT=$(XSLTPROC) --timing --param google.ads $(GOOGLEADS) \
+	--stringparam target.database.document
 DOC_MAN=--stringparam current.docid "man"
 DOC_IMP=--stringparam current.docid "impnotes"
 
