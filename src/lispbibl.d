@@ -15762,27 +15762,27 @@ extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* i
 
 #ifdef PIPES
 /* mkops_from_handles(pipe,process_id)
-   Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
-   > STACK_0: buffered
-   > STACK_1: element-type
-   > STACK_2: encoding
-   < STACK_0: result - a PIPE-OUTPUT-STREAM
-   Used in LAUNCH
-   Can trigger GC */
-extern maygc void mkops_from_handles (Handle opipe, int process_id);
+ Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
+ > STACK_0: buffered
+ > STACK_1: element-type
+ > STACK_2: encoding
+ < result - a PIPE-OUTPUT-STREAM
+ Used in LAUNCH
+ can trigger GC */
+extern maygc object mkops_from_handles (Handle opipe, int process_id);
 # is used by PATHNAME
 #endif
 
 #ifdef PIPES
 /* mkips_from_handles(pipe,process_id)
-   Make a PIPE-INPUT-STREAM from pipe handle and a process-id
-   > STACK_0: buffered
-   > STACK_1: element-type
-   > STACK_2: encoding
-   < STACK_0: result - a PIPE-INPUT-STREAM
-   Used in LAUNCH
-   Can trigger GC */
-extern maygc void mkips_from_handles (Handle ipipe, int process_id);
+ Make a PIPE-INPUT-STREAM from pipe handle and a process-id
+ > STACK_0: buffered
+ > STACK_1: element-type
+ > STACK_2: encoding
+ < result - a PIPE-INPUT-STREAM
+ Used in LAUNCH
+ can trigger GC */
+extern maygc object mkips_from_handles (Handle ipipe, int process_id);
 # is used by PATHNAME
 #endif
 

@@ -8482,18 +8482,16 @@ local maygc bool init_launch_streamarg (int istack, bool child_inputp,
   return (*h != INVALID_HANDLE);
 }
 
-local maygc void make_launch_pipe (int istack, bool parent_inputp,
+local maygc void make_launch_pipe (gcv_object_t *ret, bool parent_inputp,
                                    Handle hparent_pipe, int childpid)
 {
   if (hparent_pipe != INVALID_HANDLE) {
     pushSTACK(STACK_7);     /* encoding */
     pushSTACK(STACK_(8+1)); /* element-type */
     pushSTACK(STACK_(6+2)); /* buffered */
-    (parent_inputp?mkips_from_handles:mkops_from_handles)
-      (hparent_pipe,childpid); /* pufff */
+    *ret = (parent_inputp?mkips_from_handles:mkops_from_handles)
+      (hparent_pipe,childpid); /* replace :PIPE with PIPE-x-STREAM */
     /* stack has been cleaned by callee */
-    STACK_(istack+1) = STACK_0;/* replace :pipe with PIPE-x-STREAM */
-    skipSTACK(1);
   }
 }
 
@@ -8740,15 +8738,15 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
 #endif
   /* make pipe-streams */
   /* child's input stream, pipe-output from our side */
-  make_launch_pipe (3, false, hparent_out, child_id);
+  make_launch_pipe (&(STACK_3), false, hparent_out, child_id);
   /* child's output stream, pipe-input from our side
      double analysis of buffered, eltype,encoding
      drawback: slow; advantage: simple iface with stream.d */
-  make_launch_pipe (2, true, hparent_in, child_id);
+  make_launch_pipe (&(STACK_2), true, hparent_in, child_id);
   /* child's error stream, pipe-input from our side */
-  make_launch_pipe (1, true, hparent_errin, child_id);
+  make_launch_pipe (&(STACK_1), true, hparent_errin, child_id);
 
-  value1 = wait_p ? fixnum(exit_code) : fixnum(child_id);
+  value1 = wait_p ? fixnum(exit_code) : L_to_I(child_id);
   value2 = (hparent_out   != INVALID_HANDLE) ? (object)STACK_3 : NIL; /* INPUT */
   value3 = (hparent_in    != INVALID_HANDLE) ? (object)STACK_2 : NIL; /* OUTPUT */
   value4 = (hparent_errin != INVALID_HANDLE) ? (object)STACK_1 : NIL; /* ERROR */

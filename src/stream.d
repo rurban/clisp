@@ -12774,6 +12774,28 @@ local inline void create_input_pipe (const char* command) {
   pushSTACK(allocate_handle(handles[0]));
 }
 
+/* make, init, and reguster pipe stream object
+ > buffered
+ > direction
+ > eltype
+ < stream object
+ can trigger GC */
+local maygc object make_pipe (signean buffered, direction_t direction,
+                              decoded_el_t *eltype) {
+  var object stream;
+  var uintB type = (direction == DIRECTION_INPUT
+                    ? strmtype_pipe_in : strmtype_pipe_out);
+  if (buffered < 0) {
+    stream = make_unbuffered_stream(type,direction,eltype,false,false);
+    UnbufferedPipeStream_input_init(stream);
+  } else {
+    stream = make_buffered_stream(type,direction,eltype,false,false);
+    BufferedPipeStream_init(stream);
+  }
+  ChannelStreamLow_close(stream) = &low_close_pipe;
+  return add_to_open_streams(stream);
+}
+
 # (MAKE-PIPE-INPUT-STREAM command [:element-type] [:external-format] [:buffered])
 # calls a shell, that executes command, whereby its Standard-Output
 # is directed into our pipe.
@@ -12797,20 +12819,10 @@ LISPFUN(make_pipe_input_stream,seclass_default,1,0,norest,key,3,
     create_input_pipe(command_asciz);
   });
   # allocate Stream:
-  var object stream;
-  if (buffered < 0) {
-    stream = make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
-                                    &eltype,false,false);
-    UnbufferedPipeStream_input_init(stream);
-  } else {
-    stream = make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
-                                  &eltype,false,false);
-    BufferedPipeStream_init(stream);
-  }
-  ChannelStreamLow_close(stream) = &low_close_pipe;
+  var object stream = make_pipe(buffered,DIRECTION_INPUT,&eltype);
   TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
   skipSTACK(4);
-  VALUES1(add_to_open_streams(stream)); /* return stream */
+  VALUES1(stream); /* return stream */
 }
 
 
@@ -13007,31 +13019,21 @@ LISPFUN(make_pipe_output_stream,seclass_default,1,0,norest,key,3,
     create_output_pipe(command_asciz);
   });
   # allocate Stream:
-  var object stream;
-  if (buffered <= 0) {
-    stream = make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
-                                    &eltype,false,false);
-    UnbufferedPipeStream_output_init(stream);
-  } else {
-    stream = make_buffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
-                                  &eltype,false,false);
-    BufferedPipeStream_init(stream);
-  }
-  ChannelStreamLow_close(stream) = &low_close_pipe;
+  var object stream = make_pipe(buffered,DIRECTION_OUTPUT,&eltype);
   TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
   skipSTACK(4);
-  VALUES1(add_to_open_streams(stream)); /* return stream */
+  VALUES1(stream); /* return stream */
 }
 
 /* mkops_from_handles(pipe,process_id)
-   Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
-   > STACK_0: buffered
-   > STACK_1: element-type
-   > STACK_2: encoding
-   < STACK_0: result - a PIPE-OUTPUT-STREAM
-   Used in LAUNCH
-   Can trigger GC */
-global maygc void mkops_from_handles (Handle opipe, int process_id) {
+ Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
+ > STACK_0: buffered
+ > STACK_1: element-type
+ > STACK_2: encoding
+ < result - a PIPE-OUTPUT-STREAM
+ Used in LAUNCH
+ can trigger GC */
+global maygc object mkops_from_handles (Handle opipe, int process_id) {
   var decoded_el_t eltype;
   var signean buffered;
   # Check and canonicalize the :BUFFERED argument:
@@ -13043,29 +13045,21 @@ global maygc void mkops_from_handles (Handle opipe, int process_id) {
   # Check and canonicalize the :EXTERNAL-FORMAT argument:
   STACK_2 = test_external_format_arg(STACK_2);
   STACK_0 = allocate_handle(opipe);
-  if (buffered > 0) {
-    pushSTACK(make_buffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
-                                  &eltype,false,false));
-    BufferedPipeStream_init(STACK_0);
-  } else {
-    pushSTACK(make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
-                                    &eltype,false,false));
-    UnbufferedPipeStream_output_init(STACK_0);
-  }
-  ChannelStreamLow_close(STACK_0) = &low_close_pipe;
+  var object stream = make_pipe(buffered,DIRECTION_OUTPUT,&eltype);
+  pushSTACK(stream);
   TheStream(STACK_0)->strm_pipe_pid = UL_to_I(process_id);
-  add_to_open_streams(STACK_0); /* return stream */
+  return popSTACK(); /* return stream */
 }
 
 /* mkips_from_handles(pipe,process_id)
-   Make a PIPE-INPUT-STREAM from pipe handle and a process-id
-   > STACK_0: buffered
-   > STACK_1: element-type
-   > STACK_2: encoding
-   < STACK_0: result - a PIPE-INPUT-STREAM
-   Used in LAUNCH
-   Can trigger GC */
-global maygc void mkips_from_handles (Handle ipipe, int process_id) {
+ Make a PIPE-INPUT-STREAM from pipe handle and a process-id
+ > STACK_0: buffered
+ > STACK_1: element-type
+ > STACK_2: encoding
+ < result - a PIPE-INPUT-STREAM
+ Used in LAUNCH
+ can trigger GC */
+global maygc object mkips_from_handles (Handle ipipe, int process_id) {
   var decoded_el_t eltype;
   var signean buffered;
   # Check and canonicalize the :BUFFERED argument:
@@ -13077,18 +13071,10 @@ global maygc void mkips_from_handles (Handle ipipe, int process_id) {
   # Check and canonicalize the :EXTERNAL-FORMAT argument:
   STACK_2 = test_external_format_arg(STACK_2);
   STACK_0 = allocate_handle(ipipe);
-  if (buffered >= 0) {
-    pushSTACK(make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
-                                  &eltype,false,false));
-    BufferedPipeStream_init(STACK_0);
-  } else {
-    pushSTACK(make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
-                                    &eltype,false,false));
-    UnbufferedPipeStream_input_init(STACK_0);
-  }
-  ChannelStreamLow_close(STACK_0) = &low_close_pipe;
+  var object stream = make_pipe(buffered,DIRECTION_INPUT,&eltype);
+  pushSTACK(stream);
   TheStream(STACK_0)->strm_pipe_pid = UL_to_I(process_id);
-  add_to_open_streams(STACK_0); /* return stream */
+  return popSTACK(); /* return stream */
 }
 
 
@@ -13259,38 +13245,18 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
     pushSTACK(STACK_(1+3)); # encoding
     pushSTACK(STACK_(2+3+1)); # eltype
     pushSTACK(STACK_(1+2));
-    var object stream;
-    if (buffered < 0) {
-      stream = make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
-                                      &eltype,false,false);
-      UnbufferedPipeStream_input_init(stream);
-    } else {
-      stream = make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
-                                    &eltype,false,false);
-      BufferedPipeStream_init(stream);
-    }
-    ChannelStreamLow_close(stream) = &low_close_pipe;
+    var object stream = make_pipe(buffered,DIRECTION_INPUT,&eltype);
     TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
-    STACK_1 = add_to_open_streams(stream);
+    STACK_1 = stream;
   }
   # allocate Output-Stream:
   {
     pushSTACK(STACK_(1+3)); # encoding
     pushSTACK(STACK_(2+3+1)); # eltype
     pushSTACK(STACK_(0+2));
-    var object stream;
-    if (buffered <= 0) {
-      stream = make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
-                                      &eltype,false,false);
-      UnbufferedPipeStream_output_init(stream);
-    } else {
-      stream = make_buffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
-                                    &eltype,false,false);
-      BufferedPipeStream_init(stream);
-    }
-    ChannelStreamLow_close(stream) = &low_close_pipe;
+    var object stream = make_pipe(buffered,DIRECTION_OUTPUT,&eltype);
     TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
-    STACK_0 = add_to_open_streams(stream);
+    STACK_0 = stream;
   }
   # 3 values:
   # (make-two-way-stream input-stream output-stream), input-stream, output-stream.
