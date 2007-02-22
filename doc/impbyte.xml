@@ -1218,8 +1218,8 @@ There are no small objects in pages belonging to a big object.</para>
 
 <para>Every subroutine marked with <emphasis>can trigger GC</emphasis>
 may invoke &gc;ion.
-&gc; moves all the &clisp; non-&immediate-o;s and updates the pointers.
-But the &gc; looks only on the &STACK; and not in the &c-lang;
+&gc;or moves all the &clisp; non-&immediate-o;s and updates the pointers.
+But the &gc;or looks only on the &STACK; and not in the &c-lang;
 variables. (Anything else would not be portable.)
 Therefore at every "unsafe" point, i.e. every call to such a subroutine,
 all the &c-lang; variables of type &object-t;
