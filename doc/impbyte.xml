@@ -1214,18 +1214,18 @@ There are no small objects in pages belonging to a big object.</para>
 <section id="gc-safety">
  <title>The burden of &gc;ion upon the rest of &clisp;</title>
 
-<section id="gc-moves-data"><title>&object-t; pointer invalidation</title>
+<section id="gc-moves-data"><title>Lisp &object-t; invalidation</title>
 
-<para>Every subroutine marked with <emphasis>can trigger GC</emphasis>
-may invoke &gc;ion.
+<para>Every subroutine marked with <quote>can trigger GC</quote>
+or <literal>maygc</literal> may invoke &gc;ion.
 &gc;or moves all the &clisp; non-&immediate-o;s and updates the pointers.
-But the &gc;or looks only on the &STACK; and not in the &c-lang;
+But the &gc;or looks only at the &STACK; and not in the &c-lang;
 variables. (Anything else would not be portable.)
 Therefore at every "unsafe" point, i.e. every call to such a subroutine,
 all the &c-lang; variables of type &object-t;
 <emphasis role="strong">MUST BE ASSUMED TO BECOME GARBAGE</emphasis>.
 (Except for &object-t;s that are known to be unmovable,
- e.g. immediate data or <type>Subr</type>s.)
+ e.g. &immediate-o;s or <type>Subr</type>s.)
 Pointers inside &clisp; data (e.g. to the characters of a &string-t;
 or to the elements of a &simple-vector-t;) become
 <emphasis role="strong">INVALID</emphasis> as well.</para>
@@ -1235,14 +1235,14 @@ or to the elements of a &simple-vector-t;) become
 
 <para>The workaround is usually to allocate all the needed &clisp; data
 first and do the rest of the computation with &c-lang; variables,
-without calling unsafe routines, and without worrying about &gc;.</para>
+without calling unsafe routines, and without worrying about &gc;ion.</para>
 
 <para>Alternatively, you can save a lisp &object-t; on the &STACK; using
 macros <function>pushSTACK()</function> and <function>popSTACK()</function>.
 </para>
 <warning><para>One should not mix these macros in one statement because &c-lang;
 may execute different parts of the statement out of order.
-E.g.,<programlisting language="C">pushSTACK(listof(4))</programlisting>
+E.g.,<programlisting language="C">pushSTACK(listof(4));</programlisting>
 is illegal.</para></warning>
 </section>
 
