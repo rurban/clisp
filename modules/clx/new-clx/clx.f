@@ -1494,8 +1494,8 @@ static object make_client_message_data (XClientMessageEvent *xclient)
   return listof (cnt);
 }
 
-static int get_client_message_data (XClientMessageEvent *event, uint32 format,
-                                    object data)
+static void get_client_message_data (XClientMessageEvent *event, uint32 format,
+                                     object data)
 {
   int i;
   if (consp (data)) {
@@ -6056,7 +6056,7 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 #undef ESLOT5
 
   /* pop event_key off the stack. */
-  popSTACK();
+  skipSTACK(1);
 }
 
 /* (queue-event display event-key &rest args &key append-p send-event-p
@@ -7479,7 +7479,7 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
     funcall (L(aref), 2);
   pushSTACK(value1);            /* error code */
 
-  pushSTACK(`:ASYNCHRONOUS`);     pushSTACK(make_bool(T));
+  pushSTACK(`:ASYNCHRONOUS`);     pushSTACK(T);
   pushSTACK(`:CURRENT-SEQUENCE`); pushSTACK(make_uint16(NextRequest(display)));
   pushSTACK(`:SEQUENCE`);         pushSTACK(make_uint16(event->serial));
   pushSTACK(`:MAJOR`);            pushSTACK(make_uint8 (event->request_code));
