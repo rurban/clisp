@@ -598,18 +598,22 @@ static uint32 get_aint32 (object obj)
 /* Objects of type DISPLAY are currently represented as structure; here are the
  slots: The actual defstruct definition in clx.lisp must match. There is a
  warning in the code. */
-#define slot_DISPLAY_FOREIGN_POINTER 1
-#define slot_DISPLAY_HASH_TABLE      2
-#define slot_DISPLAY_PLIST           3
-#define slot_DISPLAY_AFTER_FUNCTION  4
-#define slot_DISPLAY_ERROR_HANDLER   5
+enum {
+  slot_DISPLAY_FOREIGN_POINTER,
+  slot_DISPLAY_HASH_TABLE,
+  slot_DISPLAY_PLIST,
+  slot_DISPLAY_AFTER_FUNCTION,
+  slot_DISPLAY_ERROR_HANDLER,
+  slot_DISPLAY_DISPLAY,
+  display_structure_size
+};
 
 /* The display contains a hash table. All XID objects are entered there, so
  that two XID objects, with equal XID are actually eq. */
-static object make_display (Display *dpy)
+static object make_display (Display *dpy, int display_number)
 { /* Given the C representation of a display create the Lisp one and
  initialize it.  The newly created display is added to XLIB:*DISPLAYS*. */
-  pushSTACK(`(XLIB::DISPLAY)`); pushSTACK(fixnum(6));
+  pushSTACK(`(XLIB::DISPLAY)`); pushSTACK(fixnum(display_structure_size));
   funcall(L(make_structure),2); pushSTACK(value1);
   TheStructure(STACK_0)->recdata[slot_DISPLAY_FOREIGN_POINTER]
     = allocate_fpointer (dpy);
@@ -623,6 +627,8 @@ static object make_display (Display *dpy)
   TheStructure(STACK_0)->recdata[slot_DISPLAY_PLIST]          = NIL;
   TheStructure(STACK_0)->recdata[slot_DISPLAY_AFTER_FUNCTION] = NIL;
   TheStructure(STACK_0)->recdata[slot_DISPLAY_ERROR_HANDLER]  = NIL;
+  TheStructure(STACK_0)->recdata[slot_DISPLAY_DISPLAY]  =
+    make_uint8 (display_number);
 
   /* Now enter the display into the list of all displays: */
   pushSTACK(STACK_0);
@@ -1786,7 +1792,7 @@ DEFUN(XLIB:OPEN-DISPLAY, &rest args)
   disable_sigpipe();
 # endif
 
-  VALUES1(make_display(dpy));
+  VALUES1(make_display(dpy, display_number));
   skipSTACK(argcount);
 }
 
@@ -1822,13 +1828,10 @@ DEFUN(XLIB:DISPLAY-BYTE-ORDER, display) /* OK */
   VALUES1((BIG_ENDIAN_P) ? `:MSBFIRST` : `:LSBFIRST`);
 }
 
-DEFUN(XLIB:DISPLAY-DISPLAY, display)
-{ /* What should this function return?!
-     From manual: Returns the /display-number/ for the host
-     associated with /display/.
-     Not very informative, is it? */
+DEFUN(XLIB:DISPLAY-DISPLAY, display) { /* OK */
+  ensure_living_display (&(STACK_0));
+  VALUES1(TheStructure (STACK_0)->recdata[slot_DISPLAY_DISPLAY]);
   skipSTACK(1);
-  VALUES1(fixnum(0));
 }
 
 DEFUN(XLIB:DISPLAY-ERROR-HANDLER, display) /* OK */
