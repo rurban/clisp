@@ -1,3 +1,14 @@
+2007-02-27  Shawn Betts  <sabetts@vcn.bc.ca>
+	Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f:
+	use enum instead of #define for slot_DISPLAY_*
+	(slot_DISPLAY_DISPLAY, display_structure_size): added
+	(make_display): accept display_number
+	(OPEN-DISPLAY): pass it to make_display()
+	(DISPLAY-DISPLAY): return the new display slot
+	* modules/clx/new-clx/clx.lisp (display): added DISPLAY slot
+
 2007-02-22  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1666470 ]: EXT::LAUNCH crash

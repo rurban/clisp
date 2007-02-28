@@ -336,7 +336,8 @@
   hash-table      ;; .. so leave hands off here!
   plist
   after-function
-  error-handler)
+  error-handler
+  display)
 
 ;; ***************************************************************************
 ;; ... CAUTION ending here.
