@@ -599,7 +599,7 @@ static uint32 get_aint32 (object obj)
  slots: The actual defstruct definition in clx.lisp must match. There is a
  warning in the code. */
 enum {
-  slot_DISPLAY_FOREIGN_POINTER,
+  slot_DISPLAY_FOREIGN_POINTER=1,
   slot_DISPLAY_HASH_TABLE,
   slot_DISPLAY_PLIST,
   slot_DISPLAY_AFTER_FUNCTION,
