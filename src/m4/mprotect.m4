@@ -55,8 +55,7 @@ AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
   foo = *fault_address; /* this should cause an exception or signal */
-  exit(0); }],
-  no_mprotect=1, ,
+  exit(0); }], no_mprotect=1, ,
 : # When cross-compiling, don't assume anything.
 )
 fi
@@ -65,8 +64,7 @@ AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
   *fault_address = 'z'; /* this should cause an exception or signal */
-  exit(0); }],
-  no_mprotect=1, ,
+  exit(0); }], no_mprotect=1, ,
 : # When cross-compiling, don't assume anything.
 )
 fi
@@ -75,8 +73,7 @@ AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(0);
   *fault_address = 'z'; /* this should cause an exception or signal */
-  exit(0); }],
-  no_mprotect=1, ,
+  exit(0); }], no_mprotect=1, ,
 : # When cross-compiling, don't assume anything.
 )
 fi
