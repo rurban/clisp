@@ -346,7 +346,8 @@ installed software in a non-standard prefix.
 
 _PKG_TEXT
 ])],
-		[$4])
+		[AC_MSG_RESULT([no])
+                $4])
 elif test $pkg_failed = untried; then
 	ifelse([$4], , [AC_MSG_FAILURE(dnl
 [The pkg-config script could not be found or is too old.  Make sure it
@@ -11470,8 +11471,7 @@ AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
   foo = *fault_address; /* this should cause an exception or signal */
-  exit(0); }],
-  no_mprotect=1, ,
+  exit(0); }], no_mprotect=1, ,
 : # When cross-compiling, don't assume anything.
 )
 fi
@@ -11480,8 +11480,7 @@ AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
   *fault_address = 'z'; /* this should cause an exception or signal */
-  exit(0); }],
-  no_mprotect=1, ,
+  exit(0); }], no_mprotect=1, ,
 : # When cross-compiling, don't assume anything.
 )
 fi
@@ -11490,8 +11489,7 @@ AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(0);
   *fault_address = 'z'; /* this should cause an exception or signal */
-  exit(0); }],
-  no_mprotect=1, ,
+  exit(0); }], no_mprotect=1, ,
 : # When cross-compiling, don't assume anything.
 )
 fi
