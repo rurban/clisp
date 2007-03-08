@@ -27,6 +27,18 @@ further explanations of the issues could be provided).</para>
 
 <qandadiv id="faq-meta-misc"><title>Miscellaneous</title>
 
+<qandaentry id="faq-fine"><question id="faq-fine-q"><simpara>What is
+   <quote>FAQ fine</quote>?</simpara></question>
+ <answer><para>We assess a nominal fine of $10 for
+   <link linkend="faq-help">asking a question</link> that is answered
+   with a link to this <link linkend="faq">FAQ</link> document.
+   We further assess a fine of $1 for asking a question that is answered
+   with a link to the &clisp; <link linkend="impnotes-top">manual</link>.
+   If you consider these amounts to be exorbitant, please feel free to ignore
+   this blatant extortion and do not pay.</para>
+</answer></qandaentry>
+
+
 <qandaentry id="faq-doc"><question id="faq-doc-q"><simpara>The official &clisp;
    documentation sucks - is anything better available?</simpara></question>
  <answer><para>As with all generic complaints, the answer to this one is
@@ -113,6 +125,7 @@ further explanations of the issues could be provided).</para>
       Please do &not-e; copy your messages to the
       individual developers.</simpara></listitem></varlistentry>
 </variablelist></para></answer></qandaentry>
+
 
 <qandaentry id="faq-mailing-lists"><question id="faq-mailing-lists-q">
   <simpara>Which mailing lists should I subscribe to?</simpara></question>
