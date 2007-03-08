@@ -12,6 +12,9 @@
 /* what is your caddr_t type? */
 #undef CADDR_T
 
+/* socklen_t (if defined in <sys/socket.h>) or int otherwise */
+#undef CLISP_SOCKLEN_T
+
 /* address range of program code (text+data+bss) */
 #undef CODE_ADDRESS_RANGE
 
@@ -670,9 +673,6 @@
 
 /* The size of a `struct timeval', as computed by sizeof. */
 #undef SIZEOF_STRUCT_TIMEVAL
-
-/* socklen_t (if defined in <sys/socket.h>) or int otherwise) */
-#undef SOCKLEN_T
 
 /* address range of the C stack */
 #undef STACK_ADDRESS_RANGE
