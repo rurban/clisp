@@ -2,7 +2,7 @@
  * Setting up a connection to an X server, and other socket functions
  * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2003
  * Marcus Daniels 28.9.1995, 9.9.1997
- * Sam Steingold 1998-2006
+ * Sam Steingold 1998-2007
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -782,7 +782,7 @@ typedef union {
 local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
                                              host_data_t * hd) {
   var sockaddr_max_t addr;
-  var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  var CLISP_SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
   FILL0(addr);
   if (getsockname(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
     return NULL;
@@ -832,7 +832,7 @@ global host_data_t * socket_getlocalname (SOCKET socket_handle,
 global host_data_t * socket_getpeername (SOCKET socket_handle,
                                          host_data_t * hd, bool resolve_p) {
   var sockaddr_max_t addr;
-  var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  var CLISP_SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
   var struct hostent* hp = NULL;
   FILL0(addr);
   /* Get host's IP address. */
@@ -929,7 +929,7 @@ global SOCKET create_server_socket_by_socket (host_data_t *hd, SOCKET sock,
                                               unsigned int port, int backlog) {
   var SOCKET fd;
   var sockaddr_max_t addr;
-  var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  var CLISP_SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
   FILL0(addr);
   if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
     return INVALID_SOCKET;
@@ -965,7 +965,7 @@ global SOCKET accept_connection (SOCKET socket_handle) {
   }
  #endif
   var sockaddr_max_t addr;
-  var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  var CLISP_SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
   FILL0(addr);
   return accept(socket_handle,(struct sockaddr *)&addr,&addrlen);
   /* We can ignore the contents of addr, because we can retrieve it again
