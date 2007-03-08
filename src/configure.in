@@ -1,6 +1,6 @@
 dnl  -*- Autoconf -*- configuration for CLISP
 dnl  Bruno Haible 1992-2005
-dnl  Sam Steingold 2002-2006
+dnl  Sam Steingold 2002-2007
 dnl
 dnl  configure.in ---<autoconf>--->> configure
 dnl
@@ -149,7 +149,7 @@ BOLD_MSG([checks for typedefs])
 dnl
 dnl DEFS CADDR_T
 CL_CADDR_T
-dnl DEFS SOCKLEN_T
+dnl DEFS CLISP_SOCKLEN_T
 CL_SOCKLEN_T
 dnl DEFS SIZEOF_OFF_T
 AC_CHECK_SIZEOF([off_t])
