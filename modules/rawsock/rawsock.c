@@ -2,7 +2,7 @@
  * Module for Raw Sockets / CLISP
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
- * Sam Steingold 2004-2006
+ * Sam Steingold 2004-2007
  * Bruno Haible 2004-2005
  * <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
  */
@@ -142,7 +142,7 @@ static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size, int prot) {
  > prot: PROT_READ or PROT_READ_WRITE
  < returns the address of the data area
  can trigger GC */
-static void* check_struct_data (object type, object arg, SOCKLEN_T *size,
+static void* check_struct_data (object type, object arg, CLISP_SOCKLEN_T *size,
                                 int prot) {
   object vec = TheStructure(check_classname(arg,type))->recdata[1];
   *size = Sbvector_length(vec);
@@ -217,7 +217,7 @@ static void fill_iovec (object vect, size_t offset, ssize_t veclen,
 }
 
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
-  SOCKLEN_T size;
+  CLISP_SOCKLEN_T size;
   struct sockaddr *sa =
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size,
                                         PROT_READ);
@@ -674,7 +674,7 @@ DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
   SYSCALL(retval,-1,socketpair(domain,type,protocol,sock));
 #else /* woe32 et al */
   struct sockaddr_in addr;
-  SOCKLEN_T sa_size = sizeof(struct sockaddr_in);
+  CLISP_SOCKLEN_T sa_size = sizeof(struct sockaddr_in);
   rawsock_t newsock;
   addr.sin_family = domain;
   addr.sin_port = 0;            /* OS will assign an available port */
@@ -711,7 +711,7 @@ DEFUN(RAWSOCK:SOCKATMARK, sock) {
  DANGER: the return value is invalidated by GC!
  can trigger GC */
 static void optional_sockaddr_argument (gcv_object_t *arg, struct sockaddr**sa,
-                                        SOCKLEN_T *size) {
+                                        CLISP_SOCKLEN_T *size) {
   if (nullp(*arg)) *sa = NULL;
   else {
     if (eq(T,*arg)) *arg = make_sockaddr();
@@ -724,7 +724,7 @@ DEFUN(RAWSOCK:ACCEPT,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
   struct sockaddr *sa = NULL;
-  SOCKLEN_T sa_size;
+  CLISP_SOCKLEN_T sa_size;
   optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
   /* no GC after this point! */
   SYSCALL(retval,sock,accept(sock,sa,&sa_size));
@@ -734,7 +734,7 @@ DEFUN(RAWSOCK:ACCEPT,socket sockaddr) {
 DEFUN(RAWSOCK:BIND,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
-  SOCKLEN_T size;
+  CLISP_SOCKLEN_T size;
   struct sockaddr *sa =
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size,
                                         PROT_READ);
@@ -746,7 +746,7 @@ DEFUN(RAWSOCK:BIND,socket sockaddr) {
 DEFUN(RAWSOCK:CONNECT,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
-  SOCKLEN_T size;
+  CLISP_SOCKLEN_T size;
   struct sockaddr *sa =
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size,
                                         PROT_READ);
@@ -759,7 +759,7 @@ DEFUN(RAWSOCK:GETPEERNAME,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
   struct sockaddr *sa = NULL;
-  SOCKLEN_T sa_size;
+  CLISP_SOCKLEN_T sa_size;
   optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
   /* no GC after this point! */
   SYSCALL(retval,sock,getpeername(sock,sa,&sa_size));
@@ -770,7 +770,7 @@ DEFUN(RAWSOCK:GETSOCKNAME,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
   struct sockaddr *sa = NULL;
-  SOCKLEN_T sa_size;
+  CLISP_SOCKLEN_T sa_size;
   optional_sockaddr_argument(&STACK_0,&sa,&sa_size);
   /* no GC after this point! */
   SYSCALL(retval,sock,getsockname(sock,sa,&sa_size));
@@ -838,7 +838,7 @@ DEFFLAGSET(getnameinfo_flags, NI_NOFQDN NI_NUMERICHOST NI_NAMEREQD \
 DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
       NUMERICSERV NUMERICSCOPE DGRAM) {
   int flags = getnameinfo_flags();
-  SOCKLEN_T size;
+  CLISP_SOCKLEN_T size;
   struct sockaddr *sa =
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size,
                                         PROT_READ);
@@ -950,7 +950,7 @@ DEFUN(RAWSOCK:RECVFROM, socket buffer address &key START END PEEK OOB WAITALL) {
   struct sockaddr *sa = NULL;
   void *buffer;
   size_t buffer_len;
-  SOCKLEN_T sa_size;
+  CLISP_SOCKLEN_T sa_size;
   if (!missingp(STACK_0)) STACK_0 = check_posfixnum(STACK_0);
   if (!missingp(STACK_1)) STACK_1 = check_posfixnum(STACK_1);
   STACK_3 = check_byte_vector(STACK_3);
@@ -1085,7 +1085,7 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key START END OOB EOR) {
   struct sockaddr *sa;
   void *buffer;
   size_t buffer_len;
-  SOCKLEN_T size;
+  CLISP_SOCKLEN_T size;
   if (!missingp(STACK_0)) STACK_0 = check_posfixnum(STACK_0);
   if (!missingp(STACK_1)) STACK_1 = check_posfixnum(STACK_1);
   STACK_3 = check_byte_vector(STACK_3);
@@ -1186,7 +1186,7 @@ DEFCHECKER(sockopt_name,default=-1,prefix=SO,                            \
 #if defined(HAVE_GETSOCKOPT) || defined(WIN32_NATIVE)
 #define GET_SOCK_OPT(opt_type,retform) do {                             \
     opt_type val;                                                       \
-    SOCKLEN_T len = sizeof(val);                                        \
+    CLISP_SOCKLEN_T len = sizeof(val);                                  \
     int status;                                                         \
     begin_system_call();                                                \
     status = getsockopt(sock,level,name,(SETSOCKOPT_ARG_T)&val,&len);   \

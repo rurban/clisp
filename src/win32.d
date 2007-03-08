@@ -1,7 +1,7 @@
 /*
  * Include file for WIN32_NATIVE version of CLISP
  * Bruno Haible 1997-2005
- * Sam Steingold 1999-2006
+ * Sam Steingold 1999-2007
  */
 
 /* control characters constants */
@@ -283,7 +283,7 @@ extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
    extern int WSAGetLastError (void);
    extern void WSASetLastError (int Error);
    extern int WSACancelBlockingCall (void); */
-#define SOCKLEN_T  int
+#define CLISP_SOCKLEN_T  int
 /* extern SOCKET socket (int af, int type, int protocol);
    extern int bind (SOCKET s, const struct sockaddr * addr, int addrlen);
    extern int listen (SOCKET s, int backlog);
