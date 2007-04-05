@@ -83,7 +83,7 @@
  IBM-PC/386   any                EMX 0.9c (UNIXlike on OS/2)   GNU           [unix,] i386, __GNUC__, __EMX__
  IBM-PC/386   any                Cygwin32 on WinNT/Win95       GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, _X86_, i386, __GNUC__
  IBM-PC/386   any                Mingw32 on WinNT/Win95        GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
- IBM-PC/386   any                WinNT/Win95                   MSVC4.0,5.0   _WIN32, _M_IX86, _MSC_VER
+ IBM-PC/386   any                WinNT/Win95                   MSVC          _WIN32, _M_IX86, _MSC_VER
  IBM-PC/386   any                WinNT/Win95                   Borland 5.0   __WIN32__, _M_IX86, __TURBOC__, __BORLANDC__
  IBM-PC/386   any                WinNT/Win95 and Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, __i386__, _X86_, __GNUC__
  IBM-PC/586   any                BeOS 5                        GNU           __BEOS__, __INTEL__, __i386__, _X86_, __GNUC__
@@ -1298,7 +1298,7 @@ typedef signed int  signean;
 # Unspecified length of arrays in structures:
 # struct { ...; ...; type x[unspecified]; }
 # Instead of sizeof(..) you'll always have to use offsetof(..,x).
-#if defined(GNU) # GNU-C is able to work with arrays of length 0
+#if defined(GNU) || defined(MICROSOFT) /* GNU & MS C are able to work with arrays of length 0 */
   #define unspecified 0
 #elif 0
   # Usually one would omit the array's limit
