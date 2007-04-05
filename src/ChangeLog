@@ -1,3 +1,8 @@
+2007-04-04  Vadim Konovalov  <vadim@vkonovalov.ru>
+	Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (unspecified) [MICROSOFT]: define to 0, like for GCC
+
 2007-03-07  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 1666851 ]: [AIX 5.3] Problem finding connect
