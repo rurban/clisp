@@ -9,7 +9,7 @@ User visible changes
 * A kind of Meta-Object Protocol for structures is now available.
   See <http://clisp.cons.org/impnotes/defstruct-mop.html> for details.
 
-* Module libsvm has been upgraded to the upstream version 2.83.
+* Module libsvm has been upgraded to the upstream version 2.84.
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
 * NEW-CLX module now supports Stumpwm <http://www.nongnu.org/stumpwm/>.
