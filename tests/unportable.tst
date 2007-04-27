@@ -33,11 +33,11 @@
 
 #-(or clisp)
 (let ((vars '(1 2))) (loop for vars on vars collect (length vars)))
-#+(or cmu sbcl) (2 1)
+#+(or cmu sbcl cormanlisp) (2 1)
 
 #-(or clisp)
 (let ((vars '(1 2 3))) (loop for i from 0 below 5 for vars on vars collect (length vars)))
-#+(or cmu sbcl) (3 2 1)
+#+(or cmu sbcl cormanlisp) (3 2 1)
 
 ;; Whether the iteration constructs establish a new binding of var on
 ;; each iteration or whether it establishes a binding for var once at
@@ -50,7 +50,7 @@
 (let (a)
   (dotimes (i 3) (push (lambda () i) a))
   (loop for x in a collect (funcall x)))
-#+(or clisp cmu sbcl) (3 3 3)
+#+(or clisp cmu sbcl cormanlisp) (3 3 3)
 #+(or) (2 1 0)
 
 (let (a)
@@ -58,6 +58,7 @@
   (loop for x in a collect (funcall x)))
 #+(or clisp) (2 2 2)
 #+(or cmu sbcl) (2 1 0)
+#+(or cormanlisp) (nil nil nil)
 
 
 #|
@@ -70,7 +71,7 @@ add-some
 
 #-(or)
 (mapcar 'add-some '(1 2 3 4))
-#+(or clisp) (2 4 5 6)
+#+(or clisp cormanlisp) (2 4 5 6)
 |#
 
 #|
@@ -83,7 +84,7 @@ add-some
 ;; 5.1.1.2 setf expander vs. setf function of standardized accessors
 (fboundp '(setf car))
 #+(or clisp) NIL
-#+(or sbcl) T
+#+(or cmu sbcl cormanlisp) T
 
 
 ;;;;
@@ -93,7 +94,7 @@ add-some
 ;; 2.4.8.3
 #-(or) (read-from-string "#3()")
 #+(or CLISP) ERROR
-#+(or sbcl cmucl) #(nil nil nil)
+#+(or sbcl cmu cormanlisp) #(nil nil nil)
 
 ;; 5.2
 ;; "The consequences are undefined if an attempt is made to transfer
@@ -110,7 +111,8 @@ add-some
 ;; Note that notes in ANSI-CL are not a binding part of the standard.
 
 (block nil (prog ((x (return :outer-let))) (return :never)) (return :clhs))
-:clhs
+#-cormanlisp :clhs
+#+cormanlisp :outer-let
 
 (dolist (i '(1 2 . 3) i))
 ERROR
@@ -128,7 +130,7 @@ ERROR                                   ; 6.1.2.1.2 via ENDP
 ;; Iterate differs and uses ceiling instead.
 (loop repeat 3.5 count t)
 #+(or cmu) 3
-#+(or clisp sbcl) 4
+#+(or clisp sbcl cormanlisp) 4
 
 (loop for i downfrom (- 3.5 1) to 0 count t) ; for comparison, well-defined
 3
