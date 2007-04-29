@@ -659,7 +659,7 @@ nonreturning_function(global, fehler_notreached,
   pushSTACK(ascii_to_string(file));
   fehler(serious_condition,
          GETTEXT("Internal error: statement in file ~S, line ~S has been reached!!\n"
-                 "Please send the authors of the program a description how you produced this error!"));
+                 "Please see <http://clisp.cons.org/impnotes/faq.html#faq-bugs> for bug reporting instructions."));
 }
 
 #include "spvw_ctype.c"
