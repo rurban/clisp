@@ -6000,6 +6000,7 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
   int ofs;
 
   pushSTACK(event_key);
+  X_CALL(memset(ev, 0, sizeof(XEvent)));
 
 #define DEF_EVENT(lnam, cnam, ctype, cslot)             \
   } else if (eq (STACK_0, lnam)) {                      \
@@ -6010,8 +6011,6 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
     {                                                   \
       if ((ofs = grasp (lnam, n)))                      \
         event->cslot = get_##type (STACK_(ofs));        \
-      else                                              \
-        event->cslot = 0;                               \
     }
 
 #define ESLOT2(lnam, type, cslot) ESLOT(lnam,type,cslot)
@@ -6019,16 +6018,12 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
     {                                                   \
       if ((ofs = grasp (lnam, n)))                      \
         get_##type (STACK_(ofs), (event->cslot));       \
-      else                                              \
-        { /* ??? */ }                                   \
     }
 
 #define ESLOT4(lnam, type, cslot)                       \
     {                                                   \
       if ((ofs = grasp (lnam, n)))                      \
         event->cslot = get_##type (dpy, STACK_(ofs));   \
-      else                                              \
-        event->cslot = 0;                               \
     }
 
 #define ESLOT5(lnam, type, cslot)			\
@@ -6038,9 +6033,7 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
         get_##type (event,                              \
                     get_uint32 (STACK_(format_ofs)),    \
 		    STACK_(ofs));	                \
-      else						\
-        { /* ??? */ }					\
-  }
+    }
 
   if(0) {
     /* Same as above in disassemble_event_on_stack this looks strange, but is
