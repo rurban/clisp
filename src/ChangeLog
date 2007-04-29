@@ -1,3 +1,14 @@
+2007-04-28 Shawn Betts  <sabetts@vcn.bc.ca>
+	Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (encode_event): because some slots point
+	to the same C structure slot (:WINDOW and :EVENT-WINDOW mostly),
+	the way encode_event is written :EVENT-WINDOW will overwrite :WINDOW.
+	If :WINDOW is supplied and :EVENT-WINDOW is not, then the xevent
+	slot will be set to 0, instead of the proper value.
+	This patch memsets the whole structure to 0 and gets rid of the
+	else clauses.
+
 2007-04-28  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (fehler_notreached): refer to
