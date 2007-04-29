@@ -1,3 +1,9 @@
+2007-04-28  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (fehler_notreached): refer to
+	http://clisp.cons.org/impnotes/faq.html#faq-bugs
+	instead of asking for private e-mail
+
 2007-04-23  Sam Steingold  <sds@podval.org>
 
 	* modules/libsvm: upgraded to upstream 2.84
