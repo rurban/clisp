@@ -6930,63 +6930,63 @@ local maygc void prin_object_ki (const gcv_object_t* stream_, object obj,
 local maygc void prin_object (const gcv_object_t* stream_, object obj)
 { prin_object_ki(stream_,obj,&prin_object_dispatch); }
 local void prin_object_dispatch_low (const gcv_object_t* stream_, object obj) {
-  # branch according to type-info:
+  /* branch according to type-info: */
 #ifdef TYPECODES
   switch (typecode(obj)) {
-    case_machine: # machine pointer
+    case_machine:               /* machine pointer */
       pr_machine(stream_,obj); break;
-    case_string: # String
+    case_string:                /* String */
       pr_string(stream_,obj); break;
-    case_bvector: # Bit-Vector
+    case_bvector:               /* Bit-Vector */
       pr_bvector(stream_,obj); break;
     case_b2vector:
     case_b4vector:
     case_b8vector:
     case_b16vector:
     case_b32vector:
-    case_vector: # (vector t)
+    case_vector:                /* (vector t) */
       pr_vector(stream_,obj); break;
-    case_mdarray: # generic array
+    case_mdarray:               /* generic array */
       pr_array(stream_,obj); break;
-    case_closure: # Closure
+    case_closure:               /* Closure */
       pr_closure(stream_,obj); break;
-    case_instance: # CLOS-instance
+    case_instance:              /* CLOS-instance */
       pr_instance(stream_,obj); break;
 #ifdef case_structure
-    case_structure: # Structure
+    case_structure:             /* Structure */
       pr_structure(stream_,obj); break;
 #endif
 #ifdef case_stream
-    case_stream: # Stream
+    case_stream:                /* Stream */
       pr_stream(stream_,obj); break;
 #endif
-    case_orecord: # OtherRecord
-    case_lrecord: # LongRecord
+    case_orecord:               /* OtherRecord */
+    case_lrecord:               /* LongRecord */
       pr_orecord(stream_,obj); break;
-    case_char: # Character
+    case_char:                  /* Character */
       pr_character(stream_,obj); break;
-    case_subr: # SUBR
+    case_subr:                  /* SUBR */
       pr_subr(stream_,obj); break;
-    case_system: # Frame-Pointer, Small-Read-Label, System
+    case_system:           /* Frame-Pointer, Small-Read-Label, System */
       if (as_oint(obj) & wbit(0 + oint_addr_shift)) {
         if (as_oint(obj) & wbit(oint_data_len-1 + oint_addr_shift)) {
-          # System-Pointer
+          /* System-Pointer */
           pr_system(stream_,obj);
         } else {
-          # Small-Read-Label
+          /* Small-Read-Label */
           pr_readlabel(stream_,obj);
         }
-      } else { # Frame-Pointer
+      } else {                  /* Frame-Pointer */
         pr_framepointer(stream_,obj);
       }
       break;
-    case_number: # Number
+    case_number:                /* Number */
       pr_number(stream_,obj); break;
-    case_symbol: # Symbol
+    case_symbol:                /* Symbol */
       pr_symbol(stream_,obj); break;
-    case_cons: # Cons
+    case_cons:                  /* Cons */
       pr_cons(stream_,obj); break;
-      default: NOTREACHED;
+    default: NOTREACHED;
    }
 #else
   if (orecordp(obj))
