@@ -164,7 +164,7 @@
  <varlistentry><term><code>(destroy-parameter &param-r;)</code></term>
   <listitem><simpara>Release the memory taken by the <type>parameter</type>
     object and invalidate the &foreign-variable-t; &param-r;.</simpara>
-   <simpara>Does &not-e; calls <function>svm_destroy_param</function>.</simpara>
+   <simpara>Does &not-e; call <function>svm_destroy_param</function>.</simpara>
    <simpara>You do &not-e; have to call this function yourself, it is
     attached to the &param-r; by <function>make-parameter</function>
     via &finalize;.</simpara></listitem></varlistentry>
