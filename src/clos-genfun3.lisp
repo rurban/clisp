@@ -215,7 +215,7 @@
     `(LET ()
        (COMPILER::EVAL-WHEN-COMPILE
          (COMPILER::C-DEFUN ',funname ,signature nil 'DEFMETHOD))
-       (WHEN (GET ,(if (atom funname) `',funname `(SYS::GET-SETF-SYMBOL ',(second funname))) 'SYS::TRACED-DEFINITION)
+       (WHEN (GET ',(SYS::GET-FUNNAME-SYMBOL funname) 'SYS::TRACED-DEFINITION)
          (SYS::UNTRACE1 ',funname))
        (DO-DEFMETHOD ',funname (FUNCTION ,fast-function-factory-lambda)
                      (LIST ,@method-initargs-forms)))))
@@ -527,14 +527,17 @@
       (analyze-defgeneric 'defgeneric whole-form funname lambda-list options)
     (let* ((generic-function-class-var (gensym))
            (generic-function-class-keywords-var (gensym))
+           (funname-symbol (sys::get-funname-symbol funname))
            (method-combination-form `(,method-combination-lambda ,generic-function-class-var)))
       `(LET ()
          (DECLARE (SYS::IN-DEFUN ,funname))
          (COMPILER::EVAL-WHEN-COMPILE
            (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
-         (WHEN (GET ,(if (atom funname) `',funname `(SYS::GET-SETF-SYMBOL ',(second funname))) 'SYS::TRACED-DEFINITION)
+         (WHEN (GET ',funname-symbol 'SYS::TRACED-DEFINITION)
            (SYS::UNTRACE1 ',funname))
          ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
+         (sys::check-redefinition ',funname 'defgeneric
+                                  (sys::fbound-string ',funname-symbol))
          (LET* ((,generic-function-class-var ,generic-function-class-form)
                 ,@(if user-defined-args
                     `((,generic-function-class-keywords-var

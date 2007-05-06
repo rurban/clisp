@@ -1,3 +1,9 @@
+2007-05-06  Sam Steingold  <sds@gnu.org>
+
+	partial fix for bug #[ 1713130 ]: some CL symbols are not locked
+	* clos-genfun3.lisp (defgeneric): call SYS::CHECK-REDEFINITION
+	(defmethod, defgeneric): use SYS::GET-FUNNAME-SYMBOL
+
 2007-05-04  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (sys::check-redefinition): WHAT is a string,
