@@ -123,7 +123,7 @@
                  (not (safe-gf-undeterminedp (fdefinition funname)))
                  (eql (sig-req-num (safe-gf-signature (fdefinition funname))) (length spec-list))
                  (find-method (fdefinition funname) qualifiers spec-list nil)
-                 "method"))
+                 (TEXT "method")))
           (multiple-value-bind (reqvars optvars optinits optsvars rest
                                 keyp keywords keyvars keyinits keysvars
                                 allowp auxvars auxinits)
