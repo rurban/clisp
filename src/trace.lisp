@@ -174,7 +174,7 @@ This will not work with closures that use lexical variables!"
                    (get (tracer-symb trr) 'sys::untraced-name))))
           (t (setq funname (check-function-name funname caller))
              (go restart))))
-  (check-redefinition funname caller "function")
+  (check-redefinition funname caller (TEXT "function"))
   trr)
 
 (defun trace1 (trr) ; ABI

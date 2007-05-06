@@ -548,12 +548,14 @@
     (cond ((special-operator-p sym) (TEXT "special operator"))
           ((macro-function sym)
            (if (not (and (sys::closurep (macro-function sym))
-                         (sys::preliminary-p (sys::closure-name (macro-function sym)))))
+                         (sys::preliminary-p (sys::closure-name
+                                              (macro-function sym)))))
              (TEXT "macro")
              nil))
           ((fboundp sym)
            (if (not (and (sys::closurep (symbol-function sym))
-                         (sys::preliminary-p (sys::closure-name (symbol-function sym)))))
+                         (sys::preliminary-p (sys::closure-name
+                                              (symbol-function sym)))))
              (TEXT "function")
              nil))))))
 
@@ -597,7 +599,8 @@
   (function sys::check-redefinition (lambda (object caller what)
     (let ((cur-file *current-source-file*)
           (old-file ; distinguish between undefined and defined at top-level
-           (if (and (not (eq what 'SYSTEM::SETF-EXPANDER))
+           (if (and (not (or (eq caller 'define-setf-expander)
+                             (eq caller 'defsetf)))
                     (sys::subr-info object))
                "C" (getf (get (get-doc-entity-symbol object) 'sys::doc)
                          'sys::file))))

@@ -1106,7 +1106,7 @@ Long-form options are a list of method-group specifiers,
   (sys::check-redefinition
     name 'define-method-combination
     (and (get-method-combination name nil)
-         "method combination"))
+         (TEXT "method combination")))
   (cond ;; "The short form syntax ... is recognized when the second subform is
         ;;  a non-nil symbol or is not present."
         ((or (null options)
