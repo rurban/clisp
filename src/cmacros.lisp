@@ -78,7 +78,7 @@
     (declare (ignore expansion-lambdabody lambdalist))
     (sys::check-redefinition name 'define-compiler-macro
                              (and (compiler-macro-function name)
-                                  "compiler macro"))
+                                  (TEXT "compiler macro")))
     `(EVAL-WHEN (COMPILE LOAD EVAL)
        ,@(when docstring
            `((SYSTEM::%SET-DOCUMENTATION ',name 'COMPILER-MACRO ,docstring)))

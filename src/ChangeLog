@@ -1,3 +1,16 @@
+2007-05-04  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (sys::check-redefinition): WHAT is a string,
+	so use CALLER instead
+	* places.lisp (define-setf-expander, defsetf):
+	pass a string as WHAT to CHECK-REDEFINITION
+	* clos-class2.lisp ((setf find-class)):
+	call TEXT on WHAT in the CHECK-REDEFINITION call
+	* clos-methcomb2.lisp (define-method-combination): ditto
+	* clos-method2.lisp (analyze-method-description): ditto
+	* cmacros.lisp (define-compiler-macro): ditto
+	* trace.lisp (check-traceable): ditto
+
 2007-04-28 Shawn Betts  <sabetts@vcn.bc.ca>
 	Sam Steingold  <sds@gnu.org>
 
