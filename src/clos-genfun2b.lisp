@@ -2,7 +2,7 @@
 ;;;; Generic Functions
 ;;;; Part 2: Generic function dispatch and execution
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004
+;;;; Sam Steingold 1998 - 2004, 2007
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -133,7 +133,7 @@
 ;;   )        )
 
 ;; Preliminary.
-(defun compute-discriminating-function (gf)
+(predefun compute-discriminating-function (gf)
   (compute-discriminating-function-<generic-function> gf))
 
 (defun compute-discriminating-function-<generic-function> (gf)
@@ -865,7 +865,7 @@
   gf)
 
 ;; Preliminary.
-(defun add-method (gf method)
+(predefun add-method (gf method)
   (std-add-method gf method))
 
 ;; Remove a method from a generic function.
@@ -907,7 +907,7 @@
   gf)
 
 ;; Preliminary.
-(defun remove-method (gf method)
+(predefun remove-method (gf method)
   (std-remove-method gf method))
 
 ;; Find a method in a generic function.

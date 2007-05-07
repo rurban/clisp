@@ -1,3 +1,7 @@
+2007-05-06  Sam Steingold  <sds@gnu.org>
+
+	* symbols.tst: test for [ 1713130 ]: some CL symbols are not locked
+
 2007-01-10  Sam Steingold  <sds@podval.org>
 
 	* encoding.tst: test for [ 1632718 ]: CONVERT-STRING-FROM-BYTES

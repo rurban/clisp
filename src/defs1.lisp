@@ -2,7 +2,7 @@
 ;;;; 1.8.1989, 2.9.1989, 8.10.1989
 
 (in-package "EXT")
-(export '(doseq dohash without-package-lock memoized))
+(export '(expand-form doseq dohash without-package-lock memoized))
 
 (export '(#-(or UNIX WIN32) custom::*default-time-zone*
           custom::*system-package-list*)
@@ -10,6 +10,10 @@
 (ext:re-export "CUSTOM" "EXT")
 
 (in-package "SYSTEM")
+
+;;; code walker
+(defun expand-form (form &aux *fenv* *venv*)
+  (%expand-form form))
 
 ;;; functions for symbols (Chapter 10)
 

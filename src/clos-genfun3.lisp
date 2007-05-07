@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Generic Functions
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004
+;;;; Sam Steingold 1998 - 2004, 2007
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -137,17 +137,17 @@
                  all-keys))))
 
 ;; Preliminary.
-(defun ensure-generic-function-using-class (gf funname &rest args
-                                            &key generic-function-class
-                                                 lambda-list
-                                                 argument-precedence-order
-                                                 method-class
-                                                 method-combination
-                                                 documentation
-                                                 declarations
-                                                 declare
-                                                 environment
-                                            &allow-other-keys)
+(predefun ensure-generic-function-using-class (gf funname &rest args
+                                               &key generic-function-class
+                                                    lambda-list
+                                                    argument-precedence-order
+                                                    method-class
+                                                    method-combination
+                                                    documentation
+                                                    declarations
+                                                    declare
+                                                    environment
+                                               &allow-other-keys)
   (declare (ignore generic-function-class lambda-list argument-precedence-order
                    method-class method-combination documentation declarations
                    declare environment))
