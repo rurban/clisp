@@ -1564,12 +1564,11 @@
                         (assert (typep (slot-definition-location effective-slot) 'integer))
                         `(SYSTEM::%STRUCTURE-REF ',(class-name class) OBJECT ,(slot-definition-location effective-slot)))
                       `(SLOT-VALUE OBJECT ',slot-name))))))
-          ; Generic accessors are defined as methods and listed in the
-          ; direct-accessors list, so they can be removed upon class redefinition.
-          ; Non-generic accessors are defined as plain functions.
+          ;; Generic accessors are defined as methods and listed in the
+          ;; direct-accessors list, so they can be removed upon class redefinition.
+          ;; Non-generic accessors are defined as plain functions.
+          ;; Call CHECK-REDEFINITION only in the latter case.
           (dolist (funname readers)
-            (sys::check-redefinition
-             funname 'defclass (sys::fbound-string funname))
             (if generic-p
               (setf (class-direct-accessors class)
                     (list* funname
@@ -1597,17 +1596,16 @@
                                                       ,access-place))))
                                              args))))
                            (class-direct-accessors class)))
-              (setf (fdefinition funname)
-                    (eval `(FUNCTION ,funname
-                             (LAMBDA (OBJECT)
+              (progn
+                (sys::check-redefinition
+                 funname 'defclass (sys::fbound-string funname))
+                (setf (fdefinition funname)
+                      (eval `(FUNCTION ,funname (LAMBDA (OBJECT)
                                ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
                                (UNLESS (TYPEP OBJECT ',class)
                                  (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
-                               ,access-place))))))
+                               ,access-place)))))))
           (dolist (funname writers)
-            (sys::check-redefinition
-             funname 'defclass (sys::fbound-string
-                                (sys::get-funname-symbol funname)))
             (if generic-p
               (setf (class-direct-accessors class)
                     (list* funname
@@ -1636,13 +1634,16 @@
                                                       (SETF ,access-place NEW-VALUE)))))
                                              args))))
                            (class-direct-accessors class)))
-              (setf (fdefinition funname)
-                    (eval `(FUNCTION ,funname
-                             (LAMBDA (NEW-VALUE OBJECT)
+              (progn
+                (sys::check-redefinition
+                 funname 'defclass (sys::fbound-string
+                                    (sys::get-funname-symbol funname)))
+                (setf (fdefinition funname)
+                      (eval `(FUNCTION ,funname (LAMBDA (NEW-VALUE OBJECT)
                                ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
                                (UNLESS (TYPEP OBJECT ',class)
                                  (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
-                               (SETF ,access-place NEW-VALUE))))))))))))
+                               (SETF ,access-place NEW-VALUE)))))))))))))
 
 ;; Remove a set of accessor methods given as a plist.
 (defun remove-accessor-methods (plist)
