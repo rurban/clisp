@@ -39,6 +39,7 @@ User visible changes
   + Improved hash code generation for very large bignums and for long lists.
     [ 948868, 1208124 ]
   + Some bugs related to UNICODE-16 & UNICODE-32. [ 1564818, 1631760, 1632718 ]
+  + All exported defined symbols are now properly locked. [ 1713130 ]
 
 
 2.41 (2006-10-13)

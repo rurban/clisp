@@ -2,7 +2,7 @@
 ;;;; Class metaobjects
 ;;;; Part 3: Class definition and redefinition.
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2006
+;;;; Sam Steingold 1998 - 2007
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -543,14 +543,14 @@
     class))
 
 ;; Preliminary.
-(defun ensure-class-using-class (class name &rest args
-                                 &key (metaclass <standard-class>)
-                                      (direct-superclasses '())
-                                      (direct-slots '())
-                                      (direct-default-initargs '())
-                                      (documentation nil)
-                                      (fixed-slot-locations nil)
-                                 &allow-other-keys)
+(predefun ensure-class-using-class (class name &rest args
+                                    &key (metaclass <standard-class>)
+                                         (direct-superclasses '())
+                                         (direct-slots '())
+                                         (direct-default-initargs '())
+                                         (documentation nil)
+                                         (fixed-slot-locations nil)
+                                    &allow-other-keys)
   (declare (ignore metaclass direct-superclasses direct-slots
                    direct-default-initargs documentation fixed-slot-locations))
   (apply #'ensure-class-using-class-<t> class name args))
@@ -579,10 +579,10 @@
     result))
 
 ;; Preliminary.
-(defun reader-method-class (class direct-slot &rest initargs)
+(predefun reader-method-class (class direct-slot &rest initargs)
   (declare (ignore class direct-slot initargs))
   <standard-reader-method>)
-(defun writer-method-class (class direct-slot &rest initargs)
+(predefun writer-method-class (class direct-slot &rest initargs)
   (declare (ignore class direct-slot initargs))
   <standard-writer-method>)
 
@@ -789,7 +789,7 @@
 ;; ------------------- General routines for <defined-class> -------------------
 
 ;; Preliminary.
-(defun class-name (class)
+(predefun class-name (class)
   (class-classname class))
 
 ;; Returns the list of implicit direct superclasses when none was specified.
@@ -808,7 +808,7 @@
         metaclass))))
 
 ;; Preliminary.
-(defun validate-superclass (class superclass)
+(predefun validate-superclass (class superclass)
   (or ;; Green light if class and superclass belong to the same metaclass.
       (eq (sys::%record-ref class 0) (sys::%record-ref superclass 0))
       ;; Green light also if class is a funcallable-standard-class and
@@ -847,11 +847,11 @@
   list-direct-subclasses)
 
 ;; Preliminary.
-(defun add-direct-subclass (class subclass)
+(predefun add-direct-subclass (class subclass)
   (add-direct-subclass-internal class subclass))
-(defun remove-direct-subclass (class subclass)
+(predefun remove-direct-subclass (class subclass)
   (remove-direct-subclass-internal class subclass))
-(defun class-direct-subclasses (class)
+(predefun class-direct-subclasses (class)
   (list-direct-subclasses class))
 
 (defun checked-class-direct-subclasses (class)
@@ -1033,7 +1033,7 @@
   (std-compute-cpl class (class-direct-superclasses class)))
 
 ;; Preliminary.
-(defun compute-class-precedence-list (class)
+(predefun compute-class-precedence-list (class)
   (compute-class-precedence-list-<defined-class> class))
 
 (defun checked-compute-class-precedence-list (class)
@@ -1153,7 +1153,7 @@
      )))
 
 ;; Preliminary.
-(defun compute-effective-slot-definition-initargs (class direct-slot-definitions)
+(predefun compute-effective-slot-definition-initargs (class direct-slot-definitions)
   (compute-effective-slot-definition-initargs-<defined-class> class direct-slot-definitions))
 
 (defun compute-effective-slot-definition-<defined-class> (class name directslotdefs)
@@ -1193,7 +1193,7 @@
              slot-definition-class args))))
 
 ;; Preliminary.
-(defun compute-effective-slot-definition (class slotname direct-slot-definitions)
+(predefun compute-effective-slot-definition (class slotname direct-slot-definitions)
   (compute-effective-slot-definition-<defined-class> class slotname direct-slot-definitions))
 
 (defun compute-slots-<defined-class>-primary (class)
@@ -1365,7 +1365,7 @@
       slots)))
 
 ;; Preliminary.
-(defun compute-slots (class)
+(predefun compute-slots (class)
   (compute-slots-<slotted-class>-around class #'compute-slots-<defined-class>-primary))
 
 (defun checked-compute-slots (class)
@@ -1509,7 +1509,7 @@
     :from-end t))
 
 ;; Preliminary.
-(defun compute-default-initargs (class)
+(predefun compute-default-initargs (class)
   (compute-default-initargs-<defined-class> class))
 
 (defun checked-compute-default-initargs (class)
@@ -1568,6 +1568,8 @@
           ; direct-accessors list, so they can be removed upon class redefinition.
           ; Non-generic accessors are defined as plain functions.
           (dolist (funname readers)
+            (sys::check-redefinition
+             funname 'defclass (sys::fbound-string funname))
             (if generic-p
               (setf (class-direct-accessors class)
                     (list* funname
@@ -1603,6 +1605,9 @@
                                  (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
                                ,access-place))))))
           (dolist (funname writers)
+            (sys::check-redefinition
+             funname 'defclass (sys::fbound-string
+                                (sys::get-funname-symbol funname)))
             (if generic-p
               (setf (class-direct-accessors class)
                     (list* funname
@@ -1976,7 +1981,7 @@
   t)
 
 ;; Preliminary.
-(defun finalize-inheritance (class)
+(predefun finalize-inheritance (class)
   (finalize-inheritance-<semi-standard-class> class))
 
 (defun finalize-inheritance-<semi-standard-class> (class)
@@ -2044,7 +2049,7 @@
 ;; ------------- Redefining an instance of <semi-standard-class> -------------
 
 ;; Preliminary definition.
-(defun make-instances-obsolete (class)
+(predefun make-instances-obsolete (class)
   (make-instances-obsolete-<semi-standard-class> class))
 
 (defun make-instances-obsolete-<semi-standard-class> (class)

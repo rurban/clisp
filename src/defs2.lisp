@@ -1,6 +1,6 @@
-;;; ANSI-compatible definitions
-;;; Bruno Haible 21.7.1994
-;;; Sam Steingold 1999-2004
+;;; ANSI-compatible definitions + some extensions
+;;; Bruno Haible 21.7.1994 - 2006
+;;; Sam Steingold 1999-2004, 2007
 
 ;; ============================================================================
 
@@ -413,3 +413,38 @@
                       :format-arguments (list 'define-hash-table-test name)
                       :datum name :expected-type 'symbol))))
   `(progn (setf (get ',name 'hash-table-test) (cons #',test #',hash)) ',name))
+
+;; (default-directory) is a Synonym for (cd).
+(defun default-directory () (cd))
+
+;; (setf (default-directory) dir) is a Synonym for (cd dir).
+(defsetf default-directory () (value)
+  `(PROGN (CD ,value) ,value))
+
+;; FORMAT-Control-String for output of dates,
+;; applicable to a List (sec min hour day month year ...),
+;; occupies 17-19 characters
+(definternational date-format
+  (t ENGLISH))
+(deflocalized date-format ENGLISH
+  (formatter
+   "~1{~5@*~D-~4@*~2,'0D-~3@*~2,'0D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}"))
+(defun date-format ()
+  (localized 'date-format))
+(defun date-string ()
+  (funcall (date-format) nil (multiple-value-list (get-decoded-time))))
+
+;; list a directory
+(defun dir (&optional (pathnames #+(or UNIX WIN32) '("*/" "*")))
+  (flet ((onedir (pathname)
+           (let ((pathname-list (directory pathname :full t :circle t)))
+             (if (every #'atom pathname-list)
+               (format t "~{~&~A~.~}"
+                       (sort pathname-list #'string< :key #'namestring))
+               (let ((date-format (date-format)))
+                 (dolist (l (sort pathname-list #'string<
+                                  :key #'(lambda (l) (namestring (first l)))))
+                   (format t "~&~A~40T~7D~52T~21<~@?~>~."
+                           (first l) (fourth l) date-format (third l))))))))
+    (if (listp pathnames) (mapc #'onedir pathnames) (onedir pathnames)))
+  (values))

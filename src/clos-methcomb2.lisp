@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Method Combination
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2005
+;;;; Sam Steingold 1998 - 2005, 2007
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 ;;;; James Anderson 2003
 
@@ -604,7 +604,7 @@
            gf combination (method-combination-options combination) methods))
 
 ;; Preliminary.
-(defun compute-effective-method (gf combination methods)
+(predefun compute-effective-method (gf combination methods)
   (compute-effective-method-<generic-function> gf combination methods))
 
 (defun compute-effective-method-as-function-form (gf combination methods *method-combination-arguments*)
@@ -1302,5 +1302,5 @@ Long-form options are a list of method-group specifiers,
     (method-combination-with-options (sys::closure-name gf) combination options)))
 
 ;; Preliminary.
-(defun find-method-combination (gf name options)
+(predefun find-method-combination (gf name options)
   (find-method-combination-<generic-function>-<symbol> gf name options))
