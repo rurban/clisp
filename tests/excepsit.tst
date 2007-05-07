@@ -292,6 +292,9 @@ program-error
 (defgeneric if (x))
 program-error
 
+(defun if ())
+program-error
+
 (progn
   (defmacro foo11 (x) x)
   (defgeneric foo11 (x)))

@@ -595,8 +595,23 @@
       *current-source-line-2* nil
       *current-source-file* nil)
 
+(sys::%putd 'sys::check-special-operator
+  (function sys::check-special-operator (lambda (caller symbol)
+    (when (special-operator-p symbol)
+      (error-of-type 'source-program-error
+        ;; note that caller may be a string "DEFUN/DEFMACRO"!
+        :form (list caller symbol) :detail symbol
+        (TEXT "~A: ~S is a special operator and may not be redefined.")
+        caller symbol)))))
+
 (sys::%putd 'sys::check-redefinition
   (function sys::check-redefinition (lambda (object caller what)
+    (when (and (symbolp object)
+               (not (eq caller 'define-setf-expander))
+               (not (equal caller '(setf find-class))))
+      ;; see (define-setf-expander THE) in places.lisp
+      ;; and (def <t> <function>...) in clos-class3.lisp
+      (sys::check-special-operator caller object))
     (let ((cur-file *current-source-file*)
           (old-file ; distinguish between undefined and defined at top-level
            (if (and (not (or (eq caller 'define-setf-expander)
@@ -638,11 +653,8 @@
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions (lambda (symbol &optional (preliminary nil)) ; ABI
     ;; removes the old function-definitions of a symbol
-    (when (special-operator-p symbol)
-      (error-of-type 'error
-        (TEXT "~S is a special operator and may not be redefined.")
-        symbol))
-    (unless preliminary
+    (if preliminary
+      (sys::check-special-operator "DEFUN/DEFMACRO" symbol)
       (sys::check-redefinition symbol "DEFUN/DEFMACRO"
                                (sys::fbound-string symbol)))
     (fmakunbound symbol) ; discard function & macro definition
