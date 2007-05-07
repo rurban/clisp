@@ -1,17 +1,24 @@
 2007-05-06  Sam Steingold  <sds@gnu.org>
 
+	ensure that (DEFGENERIC IF) and (DEFUN IF) signal PROGRAM-ERROR
+	* init.lisp (check-special-operator): extract from
+	REMOVE-OLD-DEFINITIONS
+	(check-redefinition): call it
+	(remove-old-definitions): call either CHECK-REDEFINITION or
+	CHECK-SPECIAL-OPERATOR
+
+2007-05-06  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1713130 ]: some CL symbols are not locked
 	* clos-genfun3.lisp (defgeneric): call SYS::CHECK-REDEFINITION
 	(defmethod, defgeneric): use SYS::GET-FUNNAME-SYMBOL
 	(ensure-generic-function-using-class): use PREDEFUN instead of DEFUN
-	* clos-class3.lisp (install-class-direct-accessors):
-	call SYS::CHECK-REDEFINITION
-	(ensure-class-using-class, reader-method-class, writer-method-class)
+	* clos-class3.lisp (finalize-inheritance, make-instances-obsolete)
 	(class-name, validate-superclass, add-direct-subclass)
+	(ensure-class-using-class, reader-method-class, writer-method-class)
 	(remove-direct-subclass, class-direct-subclasses, compute-slots)
 	(compute-class-precedence-list, compute-effective-slot-definition)
-	(compute-effective-slot-definition-initargs, compute-default-initargs)
-	(finalize-inheritance, make-instances-obsolete):
+	(compute-effective-slot-definition-initargs, compute-default-initargs):
 	use PREDEFUN instead of DEFUN
 	* clos-genfun1.lisp (print-object, generic-function-methods)
 	(generic-function-method-class, generic-function-signature)
