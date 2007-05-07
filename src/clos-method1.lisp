@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Methods
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004
+;;;; Sam Steingold 1998 - 2004, 2007
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -231,19 +231,19 @@
 (defun make-method-instance (class &rest args ; ABI
                              &key &allow-other-keys)
   (apply #'make-instance-<standard-method> class args))
-(defun method-function (method)
+(predefun method-function (method)
   (std-method-function-or-substitute method))
-(defun method-qualifiers (method)
+(predefun method-qualifiers (method)
   (std-method-qualifiers method))
-(defun method-lambda-list (method)
+(predefun method-lambda-list (method)
   (std-method-lambda-list method))
-(defun method-signature (method)
+(predefun method-signature (method)
   (std-method-signature method))
-(defun method-specializers (method)
+(predefun method-specializers (method)
   (std-method-specializers method))
-(defun method-generic-function (method)
+(predefun method-generic-function (method)
   (std-method-generic-function method))
-(defun (setf method-generic-function) (new-gf method)
+(predefun (setf method-generic-function) (new-gf method)
   (setf (std-method-generic-function method) new-gf))
 
 ;;; ---------------------------------------------------------------------------

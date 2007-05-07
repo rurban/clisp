@@ -1,8 +1,38 @@
 2007-05-06  Sam Steingold  <sds@gnu.org>
 
-	partial fix for bug #[ 1713130 ]: some CL symbols are not locked
+	fix bug #[ 1713130 ]: some CL symbols are not locked
 	* clos-genfun3.lisp (defgeneric): call SYS::CHECK-REDEFINITION
 	(defmethod, defgeneric): use SYS::GET-FUNNAME-SYMBOL
+	(ensure-generic-function-using-class): use PREDEFUN instead of DEFUN
+	* clos-class3.lisp (install-class-direct-accessors):
+	call SYS::CHECK-REDEFINITION
+	(ensure-class-using-class, reader-method-class, writer-method-class)
+	(class-name, validate-superclass, add-direct-subclass)
+	(remove-direct-subclass, class-direct-subclasses, compute-slots)
+	(compute-class-precedence-list, compute-effective-slot-definition)
+	(compute-effective-slot-definition-initargs, compute-default-initargs)
+	(finalize-inheritance, make-instances-obsolete):
+	use PREDEFUN instead of DEFUN
+	* clos-genfun1.lisp (print-object, generic-function-methods)
+	(generic-function-method-class, generic-function-signature)
+	(generic-function-undeterminedp, generic-function-method-combination)
+	(generic-function-argorder, generic-function-declarations): ditto
+	* clos-genfun2a.lisp (compute-applicable-methods)
+	(compute-applicable-methods-using-classes): ditto
+	* clos-genfun2b.lisp (compute-discriminating-function)
+	(add-method, remove-method): ditto
+	* clos-methcomb2.lisp (compute-effective-method)
+	(find-method-combination): ditto
+	* clos-method1.lisp (method-function, method-qualifiers)
+	(method-lambda-list, method-signature, method-specializers)
+	(method-generic-function, (setf method-generic-function)): ditto
+	* defs1.lisp (expand-form): moved here from init.lisp
+	* defs2.lisp (default-directory, date-format, date-string, dir):
+	moved here from init.lisp
+	* init.lisp (in-package, the-environment, load, defmacro, defun):
+	call SYS::CHECK-REDEFINITION explicitly at top-level
+	(expand-form, default-directory, date-format, date-string, dir):
+	move to defs*.lisp so that they are defined with full DEFUN
 
 2007-05-04  Sam Steingold  <sds@gnu.org>
 
