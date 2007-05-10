@@ -1,3 +1,9 @@
+2007-05-09  Shawn Betts  <sabetts@vcn.bc.ca>
+	Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (XLIB:GET-PROPERTY): check
+	XGetWindowProperty return value
+
 2007-05-06  Sam Steingold  <sds@gnu.org>
 
 	ensure that (DEFGENERIC IF) and (DEFUN IF) signal PROGRAM-ERROR

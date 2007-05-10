@@ -5416,7 +5416,7 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
                                  &nitems_return, &bytes_after_return,
                                  &prop_return));
 
-  if (actual_type_return == None) {
+  if (r != Success || actual_type_return == None) {
     pushSTACK(NIL);
     pushSTACK(NIL);
     pushSTACK(fixnum(0));
