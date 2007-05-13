@@ -1,3 +1,11 @@
+2007-05-13  Shawn Betts  <sabetts@vcn.bc.ca>
+	Sam Steingold  <sds@gnu.org>
+
+	* clx.f: as per the CLX manual,
+	(:EXPOSURE, :GRAPHICS-EXPOSURE): :X, :Y, :WIDTH, :HEIGHT are uint16
+	(:CONFIGURE-NOTIFY, :CREATE-NOTIFY, :GRAVITY-NOTIFY)
+	(:REPARENT-NOTIFY, :CONFIGURE-REQUEST): :X, :Y are sint16
+
 2007-05-09  Shawn Betts  <sabetts@vcn.bc.ca>
 	Sam Steingold  <sds@gnu.org>
 

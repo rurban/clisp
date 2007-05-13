@@ -5650,19 +5650,19 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
   DEF_EVENT (`:EXPOSURE`, Expose, XExposeEvent, xexpose)                \
     ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
-    ESLOT (`:X`,                sint16,                 x)              \
-    ESLOT (`:Y`,                sint16,                 y)              \
-    ESLOT (`:WIDTH`,            sint16,                 width)          \
-    ESLOT (`:HEIGHT`,           sint16,                 height)         \
+    ESLOT (`:X`,                uint16,                 x)              \
+    ESLOT (`:Y`,                uint16,                 y)              \
+    ESLOT (`:WIDTH`,            uint16,                 width)          \
+    ESLOT (`:HEIGHT`,           uint16,                 height)         \
     ESLOT (`:COUNT`,            uint16,                 count)          \
                                                                         \
   DEF_EVENT (`:GRAPHICS-EXPOSURE`, GraphicsExpose, XGraphicsExposeEvent, xgraphicsexpose) \
     ESLOT2(`:DRAWABLE`,         drawable,               drawable)       \
     ESLOT2(`:EVENT-WINDOW`,     drawable,               drawable)       \
-    ESLOT (`:X`,                sint16,                 x)              \
-    ESLOT (`:Y`,                sint16,                 y)              \
-    ESLOT (`:WIDTH`,            sint16,                 width)          \
-    ESLOT (`:HEIGHT`,           sint16,                 height)         \
+    ESLOT (`:X`,                uint16,                 x)              \
+    ESLOT (`:Y`,                uint16,                 y)              \
+    ESLOT (`:WIDTH`,            uint16,                 width)          \
+    ESLOT (`:HEIGHT`,           uint16,                 height)         \
     ESLOT (`:COUNT`,            uint16,                 count)          \
     ESLOT (`:MAJOR`,            uint8,                  major_code)     \
     ESLOT (`:MINOR`,            uint16,                 minor_code)     \
@@ -5689,8 +5689,8 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
   DEF_EVENT (`:CONFIGURE-NOTIFY`, ConfigureNotify, XConfigureEvent, xconfigure) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
-    ESLOT (`:X`,                uint16,                 x)              \
-    ESLOT (`:Y`,                uint16,                 y)              \
+    ESLOT (`:X`,                sint16,                 x)              \
+    ESLOT (`:Y`,                sint16,                 y)              \
     ESLOT (`:WIDTH`,            uint16,                 width)          \
     ESLOT (`:HEIGHT`,           uint16,                 height)         \
     ESLOT (`:BORDER-WIDTH`,     uint16,                 border_width)   \
@@ -5701,8 +5701,8 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
     ESLOT2(`:PARENT`,           window,                 parent)         \
     ESLOT2(`:EVENT-WINDOW`,     window,                 parent)         \
     ESLOT2(`:WINDOW`,           window,                 window)         \
-    ESLOT (`:X`,                uint16,                 x)              \
-    ESLOT (`:Y`,                uint16,                 y)              \
+    ESLOT (`:X`,                sint16,                 x)              \
+    ESLOT (`:Y`,                sint16,                 y)              \
     ESLOT (`:WIDTH`,            uint16,                 width)          \
     ESLOT (`:HEIGHT`,           uint16,                 height)         \
     ESLOT (`:BORDER-WIDTH`,     uint16,                 border_width)   \
@@ -5714,8 +5714,8 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
   DEF_EVENT (`:GRAVITY-NOTIFY`, GravityNotify, XGravityEvent, xgravity) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
-    ESLOT (`:X`,                uint16,                 x)              \
-    ESLOT (`:Y`,                uint16,                 y)              \
+    ESLOT (`:X`,                sint16,                 x)              \
+    ESLOT (`:Y`,                sint16,                 y)              \
                                                                         \
   DEF_EVENT (`:MAP-NOTIFY`, MapNotify, XMapEvent, xmap)                 \
     ESLOT2(`:WINDOW`,           window,                 window)         \
@@ -5726,8 +5726,8 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
     ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT2(`:EVENT-WINDOW`,     window,                 event)          \
     ESLOT2(`:PARENT`,           window,                 parent)         \
-    ESLOT (`:X`,                uint16,                 x)              \
-    ESLOT (`:Y`,                uint16,                 y)              \
+    ESLOT (`:X`,                sint16,                 x)              \
+    ESLOT (`:Y`,                sint16,                 y)              \
     ESLOT (`:OVERRIDE-REDIRECT-P`,bool,                 override_redirect) \
                                                                         \
   DEF_EVENT (`:UNMAP-NOTIFY`, UnmapNotify, XUnmapEvent, xunmap)         \
@@ -5757,8 +5757,8 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
     ESLOT2(`:PARENT`,           window,                 parent)         \
     ESLOT2(`:EVENT-WINDOW`,     window,                 parent)         \
     ESLOT2(`:WINDOW`,           window,                 window)         \
-    ESLOT (`:X`,                uint16,                 x)              \
-    ESLOT (`:Y`,                uint16,                 y)              \
+    ESLOT (`:X`,                sint16,                 x)              \
+    ESLOT (`:Y`,                sint16,                 y)              \
     ESLOT (`:WIDTH`,            uint16,                 width)          \
     ESLOT (`:HEIGHT`,           uint16,                 height)         \
     ESLOT (`:BORDER-WIDTH`,     uint16,                 border_width)   \
