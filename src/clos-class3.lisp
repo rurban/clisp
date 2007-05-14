@@ -1534,6 +1534,18 @@
 ;; Flag to avoid bootstrapping issues with the compiler.
 (defvar *compile-accessor-functions* nil)
 
+(defun check-method-redefinition (funname qualifiers spec-list caller)
+  (sys::check-redefinition
+   (list* funname qualifiers spec-list) caller
+   ;; do not warn about redefinition when no method was defined
+   (and (fboundp 'find-method) (fboundp funname)
+        (typep-class (fdefinition funname) <generic-function>)
+        (not (safe-gf-undeterminedp (fdefinition funname)))
+        (eql (sig-req-num (safe-gf-signature (fdefinition funname)))
+             (length spec-list))
+        (find-method (fdefinition funname) qualifiers spec-list nil)
+        (TEXT "method"))))
+
 ;; Install the accessor methods corresponding to the direct slots of a class.
 (defun install-class-direct-accessors (class)
   (dolist (slot (class-direct-slots class))
@@ -1567,35 +1579,40 @@
           ;; Generic accessors are defined as methods and listed in the
           ;; direct-accessors list, so they can be removed upon class redefinition.
           ;; Non-generic accessors are defined as plain functions.
-          ;; Call CHECK-REDEFINITION only in the latter case.
+          ;; Call CHECK-REDEFINITION appropriately.
           (dolist (funname readers)
             (if generic-p
-              (setf (class-direct-accessors class)
-                    (list* funname
-                           (do-defmethod funname
-                             (let* ((args
-                                      (list
+              (progn
+                (check-method-redefinition funname nil (list class) 'defclass)
+                (setf (class-direct-accessors class)
+                      (list* funname
+                             (do-defmethod funname
+                               (let* ((args
+                                       (list
                                         :specializers (list class)
                                         :qualifiers nil
                                         :lambda-list '(OBJECT)
                                         'signature (sys::memoized (make-signature :req-num 1))
                                         :slot-definition slot))
-                                    (method-class
-                                      (apply #'reader-method-class class slot args)))
-                               (unless (and (defined-class-p method-class)
-                                            (subclassp method-class <standard-reader-method>))
-                                 (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                        'reader-method-class (class-name class) 'standard-reader-method method-class))
-                               (apply #'make-instance method-class
-                                      (nconc (method-function-initargs method-class
-                                               (eval
+                                      (method-class
+                                       (apply #'reader-method-class
+                                              class slot args)))
+                                 (unless (and (defined-class-p method-class)
+                                              (subclassp method-class <standard-reader-method>))
+                                   (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                          'reader-method-class (class-name class) 'standard-reader-method method-class))
+                                 (apply #'make-instance method-class
+                                        (nconc (method-function-initargs
+                                                method-class
+                                                (eval
                                                  `(LOCALLY
-                                                    (DECLARE (COMPILE))
-                                                    (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
                                                       (DECLARE (COMPILE))
-                                                      ,access-place))))
-                                             args))))
-                           (class-direct-accessors class)))
+                                                    (%OPTIMIZE-FUNCTION-LAMBDA
+                                                     (T) (#:CONTINUATION OBJECT)
+                                                     (DECLARE (COMPILE))
+                                                     ,access-place))))
+                                               args))))
+                             (class-direct-accessors class))))
               (progn
                 (sys::check-redefinition
                  funname 'defclass (sys::fbound-string funname))
@@ -1607,33 +1624,39 @@
                                ,access-place)))))))
           (dolist (funname writers)
             (if generic-p
-              (setf (class-direct-accessors class)
-                    (list* funname
-                           (do-defmethod funname
-                             (let* ((args
-                                      (list
+              (progn
+                (check-method-redefinition funname nil (list class) 'defclass)
+                (setf (class-direct-accessors class)
+                      (list* funname
+                             (do-defmethod funname
+                               (let* ((args
+                                       (list
                                         :specializers (list <t> class)
                                         :qualifiers nil
                                         :lambda-list '(NEW-VALUE OBJECT)
                                         'signature (sys::memoized (make-signature :req-num 2))
                                         :slot-definition slot))
-                                    (method-class
-                                      (apply #'writer-method-class class slot args)))
-                               (unless (and (defined-class-p method-class)
-                                            (subclassp method-class <standard-writer-method>))
-                                 (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                        'writer-method-class (class-name class)
-                                        'standard-writer-method method-class))
-                               (apply #'make-instance method-class
-                                      (nconc (method-function-initargs method-class
-                                               (eval
+                                      (method-class
+                                       (apply #'writer-method-class
+                                              class slot args)))
+                                 (unless (and (defined-class-p method-class)
+                                              (subclassp method-class <standard-writer-method>))
+                                   (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                          'writer-method-class
+                                          (class-name class)
+                                          'standard-writer-method method-class))
+                                 (apply #'make-instance method-class
+                                        (nconc (method-function-initargs
+                                                method-class
+                                                (eval
                                                  `(LOCALLY
-                                                    (DECLARE (COMPILE))
-                                                    (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
                                                       (DECLARE (COMPILE))
-                                                      (SETF ,access-place NEW-VALUE)))))
-                                             args))))
-                           (class-direct-accessors class)))
+                                                    (%OPTIMIZE-FUNCTION-LAMBDA
+                                                     (T) (#:CONTINUATION NEW-VALUE OBJECT)
+                                                     (DECLARE (COMPILE))
+                                                     (SETF ,access-place NEW-VALUE)))))
+                                               args))))
+                             (class-direct-accessors class))))
               (progn
                 (sys::check-redefinition
                  funname 'defclass (sys::fbound-string
