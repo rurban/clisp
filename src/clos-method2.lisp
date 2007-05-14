@@ -115,15 +115,7 @@
                                        (TEXT "~S ~S: Invalid specializer ~S in lambda list ~S")
                                        caller funname specializer-name specialized-lambda-list))))
                         spec-list)))
-          (sys::check-redefinition
-            (list* funname qualifiers spec-list) caller
-            ;; do not warn about redefinition when no method was defined
-            (and (fboundp 'find-method) (fboundp funname)
-                 (typep-class (fdefinition funname) <generic-function>)
-                 (not (safe-gf-undeterminedp (fdefinition funname)))
-                 (eql (sig-req-num (safe-gf-signature (fdefinition funname))) (length spec-list))
-                 (find-method (fdefinition funname) qualifiers spec-list nil)
-                 (TEXT "method")))
+          (check-method-redefinition funname qualifiers spec-list caller)
           (multiple-value-bind (reqvars optvars optinits optsvars rest
                                 keyp keywords keyvars keyinits keysvars
                                 allowp auxvars auxinits)
