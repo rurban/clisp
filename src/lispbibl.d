@@ -1,6 +1,6 @@
 /*
  * Main include-file for CLISP
- * Bruno Haible 1990-2006
+ * Bruno Haible 1990-2007
  * Marcus Daniels 11.11.1994
  * Sam Steingold 1998-2006
  * German comments translated into English: Stefan Kain 2001-09-24
@@ -375,9 +375,6 @@
 #endif
 #if defined(UNIX_MACOSX) && defined(HAVE_MSYNC)
   #define UNIX_DARWIN  # MacOS X, a.k.a. Darwin
-#endif
-#if (__GLIBC__ >= 2)
-  #define UNIX_GNU # glibc2 (may be UNIX_LINUX, UNIX_HURD or UNIX_FREEBSD)
 #endif
 
 
@@ -1266,6 +1263,12 @@ typedef signed int  signean;
 %% export_def(NULL);
 
 #include <stdio.h>    /* libc i/o */
+
+# A more precise classification of the operating system:
+# (This test works only after at least one system header has been included.)
+#if (__GLIBC__ >= 2)
+  #define UNIX_GNU # glibc2 (may be UNIX_LINUX, UNIX_HURD or UNIX_FREEBSD)
+#endif
 
 # Determine the offset of a component 'ident' in a struct of the type 'type':
 # See 0 as pointer to 'type', put a struct 'type' there and determine the
