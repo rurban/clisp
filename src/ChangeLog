@@ -1,6 +1,8 @@
 2007-05-20  Bruno Haible  <bruno@clisp.org>
 
 	* unix.d [UNIX_LINUX && UNIX_GNU]: Don't include <asm/page.h>.
+	* lispbibl.d (UNIX_GNU): Move definition down.
+	Reported by Ulrich Müller <ulm@gentoo.org>.
 
 2007-05-13  Sam Steingold  <sds@gnu.org>
 
