@@ -1,6 +1,6 @@
 /*
  * The include file for the UNIX version of CLISP
- * Bruno Haible 1990-2006
+ * Bruno Haible 1990-2007
  * Sam Steingold 1998-2005
  */
 
@@ -174,7 +174,7 @@ extern_C char* strerror (int errnum);
   #ifdef UNIX_AUX
     #include <sys/mmu.h> /* for SHMLBA */
   #endif
-  #ifdef UNIX_LINUX
+  #if defined(UNIX_LINUX) && !defined(UNIX_GNU)
     #include <asm/page.h> /* for SHMLBA on Linux 2.0 */
   #endif
   #if defined(UNIX_SUNOS4) || defined(UNIX_SUNOS5)
