@@ -1,3 +1,8 @@
+2007-05-23  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	fixed bug #[ 1721583 ]: *terminal-encoding* readline segfault
+	* encoding.d (sys::set-terminal-encoding): return normalized value.
+
 2007-05-20  Bruno Haible  <bruno@clisp.org>
 
 	* unix.d [UNIX_LINUX && UNIX_GNU]: Don't include <asm/page.h>.
