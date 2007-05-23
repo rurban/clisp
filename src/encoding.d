@@ -2667,6 +2667,7 @@ LISPFUNNR(terminal_encoding,0) {
 /* (SYSTEM::SET-TERMINAL-ENCODING encoding) */
 LISPFUNN(set_terminal_encoding,1) {
   var object encoding = check_encoding(STACK_0,&O(terminal_encoding),false);
+  STACK_0 = encoding;
   /* Ensure O(terminal_encoding) = (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*).
      But first modify (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*): */
   set_terminalstream_external_format(var_stream(S(terminal_io),0),encoding);
