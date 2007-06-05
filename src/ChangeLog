@@ -1,3 +1,19 @@
+2007-06-03  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	Use (gensym "NAME-") to enhance readability of CL macros.
+	* condition.lisp (IGNORE-ERRORS, HANDLER-CASE, ASSERT, CHECK-TYPE)
+	(ECASE, ETYPECASE, CCASE, CTYPECASE)
+	(WITH-SIMPLE-RESTART, expand-restart-case): Use (gensym "NAME").
+	* defs1.lisp (DO-SYMBOLS, DO-EXTERNAL-SYMBOLS)
+	(EXT:DOSEQ, EXT:DOHASH): ditto
+	* defs2.lisp (WITH-HASH-TABLE-ITERATOR): ditto
+	* macros1.lisp (PROG1, PROG2, do/do*-expand, DOLIST, DOTIMES)
+	(PSETQ, MULTIPLE-VALUE-BIND, MULTIPLE-VALUE-SETQ, COND): ditto
+	* macros2.lisp (TYPECASE, NTH-VALUE, EXT:TIMES)
+	(WITH-OUTPUT-TO-STRING): ditto
+	* macros3.lisp (THE): ditto
+	* loop.lisp (LOOP, expand-loop): ditto
+	
 2007-05-23  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	fixed bug #[ 1721583 ]: *terminal-encoding* readline segfault

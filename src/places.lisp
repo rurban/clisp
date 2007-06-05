@@ -43,8 +43,8 @@
           (when plist-info
             (return-from get-setf-expansion
               (if (symbolp plist-info) ; Symbol kommt von kurzem DEFSETF
-                (do* ((storevar (gensym))
-                      (tempvars nil (cons (gensym) tempvars))
+                (do* ((storevar (gensym "NEW-"))
+                      (tempvars nil (cons (gensym "TEMP-") tempvars))
                       (tempforms nil (cons (car formr) tempforms))
                       (formr (cdr form) (cdr formr)))
                      ((endp formr)
@@ -105,7 +105,7 @@
   ; 3. Schritt: Default-SETF-Methoden
   (cond ((symbolp form)
          (return-from get-setf-expansion
-           (let ((storevar (gensym)))
+           (let ((storevar (gensym "NEW-")))
              (values nil
                      nil
                      `(,storevar)
@@ -114,8 +114,8 @@
         )) ) )
         ((and (consp form) (symbolp (car form)))
          (return-from get-setf-expansion
-           (do* ((storevar (gensym))
-                 (tempvars nil (cons (gensym) tempvars))
+           (do* ((storevar (gensym "NEW-"))
+                 (tempvars nil (cons (gensym "TEMP-") tempvars))
                  (tempforms nil (cons (car formr) tempforms))
                  (formr (cdr form) (cdr formr)))
                 ((endp formr)
@@ -468,7 +468,7 @@
                                          keyinits keysvars allowp))
                         (setq arg-count (if keyp (+ (length reqvars) (length optvars)) -1))
                         (if (eql env 0)
-                          (setq env (gensym)
+                          (setq env (gensym "IG")
                                 declarations (cons `(IGNORE ,env) declarations))
                           (setq lambdalist
                                 (let ((lr (memq '&ENVIRONMENT lambdalist)))
@@ -680,7 +680,7 @@
 (defmacro remf (place indicator &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-method place env)
-    (let* ((indicatorvar (gensym))
+    (let* ((indicatorvar (gensym "INDICATOR-"))
            (oldtemps (gensym-list (length stores)))
            (bindlist
              ;; The order of the bindings is a not strictly left-to-right here,
@@ -943,9 +943,9 @@
 (define-setf-expander getf (place indicator &optional default &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-method place env)
-    (let* ((storevar (gensym))
-           (indicatorvar (gensym))
-           (defaultvar-list (if default (list (gensym)) `()))
+    (let* ((storevar (gensym "NEW-"))
+           (indicatorvar (gensym "INDICATOR-"))
+           (defaultvar-list (if default (list (gensym "IG")) `()))
           )
       (values
         `(,@temps    ,indicatorvar ,@defaultvar-list)
@@ -1003,7 +1003,7 @@
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-method char env)
     (let* ((namevar (gensym))
-           (storevar (gensym)))
+           (storevar (gensym "NEW-")))
       (values `(,@temps    ,namevar)
               `(,@subforms ,name)
               `(,storevar)
@@ -1017,8 +1017,8 @@
 (define-setf-expander LDB (bytespec integer &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-method integer env)
-    (let* ((bytespecvar (gensym))
-           (storevar (gensym)))
+    (let* ((bytespecvar (gensym "BYTESPEC-"))
+           (storevar (gensym "NEW-")))
       (values (cons bytespecvar temps)
               (cons bytespec subforms)
               `(,storevar)
@@ -1032,8 +1032,8 @@
 (define-setf-expander MASK-FIELD (bytespec integer &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-method integer env)
-    (let* ((bytespecvar (gensym))
-           (storevar (gensym)))
+    (let* ((bytespecvar (gensym "BYTESPEC-"))
+           (storevar (gensym "NEW-")))
       (values (cons bytespecvar temps)
               (cons bytespec subforms)
               `(,storevar)
@@ -1150,7 +1150,7 @@
         (get-setf-expansion (car last) env)
       (if (eq forms last)
         (values temps subforms stores setterform getterform)
-        (let ((dummyvar (gensym)))
+        (let ((dummyvar (gensym "IG")))
           (values
             `(,dummyvar                    ,@temps)
             `((PROGN ,@(ldiff forms last)) ,@subforms)
@@ -1180,7 +1180,7 @@
 ;;;----------------------------------------------------------------------------
 (define-setf-expander IF (&whole whole-form
                           condition t-form f-form &environment env)
-  (let ((conditionvar (gensym)))
+  (let ((conditionvar (gensym "COND-")))
     (multiple-value-bind (T-temps T-subforms T-stores T-setterform T-getterform)
         (get-setf-expansion t-form env)
       (multiple-value-bind (F-temps F-subforms F-stores F-setterform F-getterform)

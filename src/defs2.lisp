@@ -140,7 +140,7 @@
   (unless (symbolp macroname)
     (error (TEXT "~S: macro name should be a symbol, not ~S")
            'with-hash-table-iterator macroname))
-  (let ((var (gensym)))
+  (let ((var (gensym "WHTI-")))
     `(LET ((,var (SYS::HASH-TABLE-ITERATOR ,hashtable)))
        (MACROLET ((,macroname () '(SYS::HASH-TABLE-ITERATE ,var) ))
          ,@body))))

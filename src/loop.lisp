@@ -111,7 +111,7 @@
 (defun helpvar (n)
   ;; '*helpvars*' is extended if necessary.
   (when (= n (fill-pointer *helpvars*))
-    (vector-push-extend (gensym) *helpvars*))
+    (vector-push-extend (gensym "PATTERN-") *helpvars*))
   (aref *helpvars* n))
 
 ;; (destructure pattern form) returns a list of lists (variable_i form_i).
@@ -267,7 +267,7 @@
                                     (acons accuvar
                                            (gensym (symbol-name accuvar))
                                            accuvar-tailvar-alist))))))
-               (incrementvar (gensym)))
+               (incrementvar (gensym "ADDLIST-")))
            (push accuvar accu-vars-nil)
            (push tailvar accu-vars-nil)
            `(LET ((,incrementvar
@@ -476,7 +476,7 @@
                  ((IF WHEN UNLESS)
                   (pop body-rest)
                   (let* ((condition (parse-form kw))
-                         (it-var (gensym))
+                         (it-var (gensym "IT-"))
                          used-it
                          (true-form
                            (let ((*last-it* it-var) (*used-it* nil))
@@ -595,7 +595,7 @@
                              (new-result 'T (list kw form))
                              `(WHEN ,form (RETURN-FROM ,block-name 'NIL)))
                            (THEREIS
-                             (let ((dummy (gensym)))
+                             (let ((dummy (gensym "THEREIS-")))
                                (new-result 'NIL (list kw form))
                                `(BLOCK ,dummy
                                   (RETURN-FROM ,block-name
@@ -689,10 +689,10 @@
                                      (setq step-function-form (parse-form 'by))
                                      (unless (and (function-form-p step-function-form)
                                                   (function-name-p (second step-function-form)))
-                                       (setq step-function-var (gensym))))
+                                       (setq step-function-var (gensym "BY-"))))
                                    (let ((var (if (and pattern (symbolp pattern)
                                                        (eq preposition 'ON))
-                                                  pattern (gensym))))
+                                                  pattern (gensym "LIST-"))))
                                      (push `(,var ,start-form) bindings)
                                      (when step-function-var
                                        (push `(,step-function-var ,step-function-form)
@@ -743,8 +743,8 @@
                                 (ACROSS
                                  (pop body-rest)
                                  (let ((vector-form (parse-form preposition))
-                                       (vector-var (gensym))
-                                       (index-var (gensym)))
+                                       (vector-var (gensym "VECTOR-"))
+                                       (index-var (gensym "INDEX-")))
                                    (push `(,vector-var ,vector-form) bindings)
                                    (push `(,index-var 0) bindings)
                                    (note-initialization
@@ -802,10 +802,10 @@
                                                               ((HASH-KEY HASH-KEYS) t) (t nil)))))
                                               (loop-syntax-error 'using))
                                             (setq other-pattern (second (pop body-rest))))
-                                          (let ((state-var (gensym))
-                                                (nextp-var (gensym))
-                                                (nextkey-var (gensym))
-                                                (nextvalue-var (gensym)))
+                                          (let ((state-var (gensym "WHTI-"))
+                                                (nextp-var (gensym "MORE?"))
+                                                (nextkey-var (gensym "HASH-KEY-"))
+                                                (nextvalue-var (gensym "HASH-VALUE-")))
                                             (multiple-value-bind (nextmain-var nextother-var)
                                                 (case preposition
                                                   ((HASH-KEY HASH-KEYS) (values nextkey-var nextvalue-var))
@@ -845,9 +845,9 @@
                                                        ((PRESENT-SYMBOL PRESENT-SYMBOLS) '(:internal :external))
                                                        ((INTERNAL-SYMBOL INTERNAL-SYMBOLS) '(:internal))
                                                        ((EXTERNAL-SYMBOL EXTERNAL-SYMBOLS) '(:external))))
-                                              (state-var (gensym))
-                                              (nextp-var (gensym))
-                                              (nextsym-var (gensym))
+                                              (state-var (gensym "WPI-"))
+                                              (nextp-var (gensym "MORE?"))
+                                              (nextsym-var (gensym "SYMBOL-"))
                                               (form
                                                (case (next-kw)
                                                  ((IN OF) (pop body-rest)
@@ -875,7 +875,7 @@
                                             :requires-stepbefore seen-endtest))))))))
                                 (t
                                  (unless (symbolp pattern) (loop-syntax-error kw))
-                                 (unless pattern (setq pattern (gensym)))
+                                 (unless pattern (setq pattern (gensym "FOR-NUM-")))
                                  ;; ANSI CL 6.1.2.1.1 implies that the
                                  ;; start/end/by clauses can come in any
                                  ;; order, but only one of each kind.
@@ -909,7 +909,7 @@
                                             (pop body-rest)
                                             (setq step-end-form (parse-form preposition))
                                             (unless (constantp step-end-form)
-                                              (let ((step-end-var (gensym)))
+                                              (let ((step-end-var (gensym "LIMIT-")))
                                                 (push `(,step-end-var ,step-end-form) bindings)
                                                 (setq step-end-form step-end-var))))
                                            ((and (not step-by-p)
@@ -918,7 +918,7 @@
                                             (pop body-rest)
                                             (setq step-by-form (parse-form 'by))
                                             (unless (constantp step-by-form)
-                                              (let ((step-by-var (gensym)))
+                                              (let ((step-by-var (gensym "BY-")))
                                                 (push `(,step-by-var ,step-by-form) bindings)
                                                 (setq step-by-form step-by-var))))
                                            (t (return)))
@@ -989,7 +989,7 @@
                         (note-initialization initialization))))
                    ((REPEAT)
                     (let ((form (parse-form kw))
-                          (var (gensym)))
+                          (var (gensym "COUNT-")))
                       (note-initialization
                         (make-loop-init
                           :specform 'LET
@@ -1156,7 +1156,7 @@
     ;; "extended" loop form
     (expand-loop whole body)
     ;; "simple" loop form
-    (let ((tag (gensym)))
+    (let ((tag (gensym "LOOP-")))
       `(BLOCK NIL (TAGBODY ,tag ,@body (GO ,tag))))))
 (defmacro loop-finish (&whole whole)
   (error (TEXT "~S is possible only from within ~S")

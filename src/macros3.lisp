@@ -4,7 +4,7 @@
 ;;; ---------------------------------------------------------------------------
 ;;; Wie THE, nur dass auch im compilierten Code der Typtest durchgeführt wird.
 (defmacro ethe (typespec form)
-  (let ((g (gensym)))
+  (let ((g (gensym "VALUES-")))
     `(THE ,typespec
        (LET ((,g (MULTIPLE-VALUE-LIST ,form)))
          (IF (SYS::%THE ,g ',(type-for-discrimination typespec))
