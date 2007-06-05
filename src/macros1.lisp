@@ -111,11 +111,11 @@
              (cons 'COND L)))))
 
 (defmacro-special prog1 (form1 &rest moreforms)
-  (let ((g (gensym)))
+  (let ((g (gensym "PROG1-")))
     `(LET ((,g ,form1)) ,@moreforms ,g)))
 
 (defmacro-special prog2 (form1 form2 &rest moreforms)
-  (let ((g (gensym)))
+  (let ((g (gensym "PROG2-")))
     `(LET () (PROGN ,form1 (LET ((,g ,form2)) ,@moreforms ,g)))))
 
 (defmacro-special when (test &body forms)
@@ -150,8 +150,8 @@
              (TEXT "Invalid syntax in ~S form: ~S.") do formpiece)))
     (let ((bindlist nil)
           (reinitlist nil)
-          (testtag (gensym))
-          (exittag (gensym)))
+          (testtag (gensym "LOOP-"))
+          (exittag (gensym "END-")))
       (multiple-value-bind (body-rest declarations) (sys::parse-body body)
         (when declarations
           (setq declarations (list (cons 'DECLARE declarations))))
@@ -203,7 +203,7 @@
 
 (defmacro dolist ((var listform &optional resultform) &body body)
   (multiple-value-bind (body-rest declarations) (sys::parse-body body)
-    (let ((g (gensym)))
+    (let ((g (gensym "LIST-")))
       `(DO* ((,g ,listform (CDR ,g))
              (,var NIL))
             ((ENDP ,g)
@@ -228,7 +228,7 @@
            ((>= ,var ,countform) ,resultform)
          ,@declarations
          ,@body-rest)
-      (let ((g (gensym)))
+      (let ((g (gensym "COUNT-")))
         `(DO ((,var 0 (1+ ,var))
               (,g ,countform))
              ((>= ,var ,g) ,resultform)
@@ -249,7 +249,7 @@
         :detail whole-form
         (TEXT "~S called with an odd number of arguments: ~S")
         'psetq whole-form))
-    (let ((g (gensym)))
+    (let ((g (gensym "PSETQ-")))
       (setq setlist (cons `(SETQ ,(first arglist) ,g) setlist))
       (setq bindlist (cons `(,g ,(second arglist)) bindlist)))))
 
@@ -257,14 +257,14 @@
   `(MULTIPLE-VALUE-CALL #'LIST ,form))
 
 (defmacro-special multiple-value-bind (varlist form &body body)
-  (let ((g (gensym))
+  (let ((g (gensym "VALUES-"))
         (poplist nil))
     (dolist (var varlist) (setq poplist (cons `(,var (POP ,g)) poplist)))
     `(LET* ((,g (MULTIPLE-VALUE-LIST ,form)) ,@(nreverse poplist))
        ,@body)))
 
 (defmacro-special multiple-value-setq (varlist form)
-  (let ((g (gensym))
+  (let ((g (gensym "VALUES-"))
         (poplist nil))
     (dolist (var varlist) (setq poplist (cons `(SETQ ,var (POP ,g)) poplist)))
     `(LET* ((,g (MULTIPLE-VALUE-LIST ,form)))
@@ -401,7 +401,7 @@
 ;; Dieser hier reduziert COND etwas umständlicher auf IF-Folgen:
 (defmacro-special cond (&whole whole-form
                         &body clauses)
-  (let ((g (gensym)))
+  (let ((g (gensym "RESULT-")))
     (multiple-value-bind (ifif needed-g) (ifify whole-form clauses g)
       (if needed-g
         `(LET (,g) ,ifif)

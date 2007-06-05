@@ -621,7 +621,7 @@
 
 ;; IGNORE-ERRORS, CLtL2 p. 897
 (defmacro ignore-errors (&body body)
-  (let ((blockname (gensym)))
+  (let ((blockname (gensym "IGNORE-ERRORS-")))
     `(BLOCK ,blockname
        (HANDLER-BIND
          ((ERROR #'(LAMBDA (CONDITION)
@@ -659,10 +659,10 @@
                 :detail varlist
                 (TEXT "~S: too many variables ~S in clause ~S")
                 'handler-case varlist clause)))
-          (push (cons (gensym) clause) extended-clauses))))
+          (push (cons (gensym "HANDLER-") clause) extended-clauses))))
     (setq extended-clauses (nreverse extended-clauses))
-    (let ((blockname (gensym))
-          (tempvar (gensym)))
+    (let ((blockname (gensym "HANDLER-CASE-"))
+          (tempvar (gensym "CONDITION-")))
       `(BLOCK ,blockname
          (LET (,tempvar) ; tempvar is IGNORABLE since it is a gensym
            (TAGBODY
@@ -1021,8 +1021,8 @@
                     `(,(gensym) ,name ,test ,interactive ,report ,meaningfulp
                        ,arglist ,@clause))))
             restart-clauses))
-          (blockname (gensym))
-          (arglistvar (gensym))
+          (blockname (gensym "RESTART-"))
+          (arglistvar (gensym "ARGS-"))
           (associate
            ;; Yick.  As a pretty lame way of allowing for an association
            ;; between conditions and restarts, RESTART-CASE has to
@@ -1032,7 +1032,7 @@
                 (case (first form)
                   ((SIGNAL ERROR CERROR WARN ERROR-OF-TYPE) t)
                   (t nil))
-                (gensym))))
+                (gensym "RESTARTS-"))))
       `(BLOCK ,blockname
          (LET (,arglistvar) ; arglistvar is IGNORABLE since it is a gensym
            (TAGBODY
@@ -1126,8 +1126,8 @@
     ;; Here's an example of how we can easily optimize things. There is no
     ;; need to refer to anything in the lexical environment, so we can avoid
     ;; consing a restart at run time.
-    (let ((blockname (gensym))
-          (tag (gensym)))
+    (let ((blockname (gensym "RESTART-"))
+          (tag (gensym "SIMPLE-RESTART-")))
       `(BLOCK ,blockname
          (CATCH ',tag
            (LET ((*ACTIVE-RESTARTS*
@@ -1198,8 +1198,8 @@
 
 ;; CHECK-TYPE, CLtL2 p. 889
 (defmacro check-type (place typespec &optional (string nil) &environment env)
-  (let ((tag1 (gensym))
-        (tag2 (gensym))
+  (let ((tag1 (gensym "CHECK-TYPE-"))
+        (tag2 (gensym "OK-"))
         (var (gensym)))
     `(TAGBODY
        ,tag1
@@ -1229,8 +1229,8 @@
 ;; ASSERT, CLtL2 p. 891
 (defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args
                   &environment env)
-  (let ((tag1 (gensym))
-        (tag2 (gensym)))
+  (let ((tag1 (gensym "ASSERT-"))
+        (tag2 (gensym "OK-")))
     `(TAGBODY
        ,tag1
        (WHEN ,test-form (GO ,tag2))
@@ -1427,7 +1427,7 @@
                                       keyclause (list keyclause)))
                               keyclauselist)))
          (simply-error (casename form clauselist errorstring expected-type)
-           (let ((var (gensym)))
+           (let ((var (gensym (string-concat (symbol-name casename) "-KEY-"))))
              `(LET ((,var ,form))
                 (,casename ,var ,@(parenthesize-keys clauselist)
                   ;; if a clause contains an OTHERWISE or T key,
@@ -1435,8 +1435,8 @@
                   (OTHERWISE
                     (ETYPECASE-FAILED ,var ,errorstring ',expected-type))))))
          (retry-loop (casename place clauselist errorstring expected-type env)
-           (let ((g (gensym))
-                 (h (gensym)))
+           (let ((g (gensym (symbol-name casename)))
+                 (h (gensym "RETRY-")))
              `(BLOCK ,g
                 (TAGBODY
                   ,h

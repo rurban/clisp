@@ -48,7 +48,7 @@
 (defmacro do-symbols ((var &optional (packageform '*package*) (resultform nil))
                       &body body)
   (multiple-value-bind (body-rest declarations) (system::parse-body body)
-    (let ((packvar (gensym)))
+    (let ((packvar (gensym "PACKAGE-")))
       `(BLOCK NIL
          (LET ((,packvar ,packageform))
            (LET ((,var NIL))
@@ -64,7 +64,7 @@
                                     (resultform nil))
                                &body body)
   (multiple-value-bind (body-rest declarations) (system::parse-body body)
-    (let ((packvar (gensym)))
+    (let ((packvar (gensym "PACKAGE-")))
       `(BLOCK NIL
          (LET ((,packvar ,packageform))
            (LET ((,var NIL))
@@ -105,8 +105,8 @@
            (TEXT "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S")
            'with-package-iterator ':internal ':external ':inherited
            symboltype))))
-  (let ((iterfun (gensym "WPI")))
-    `(LET ((,iterfun (PACKAGE-ITERATOR-FUNCTION
+  (let ((iterfun (gensym "WPI-")))
+    `(LET ((,iterfun (SYS::PACKAGE-ITERATOR-FUNCTION
                        ,pack-list ',(remove-duplicates types))))
        (MACROLET ((,name () '(FUNCALL ,iterfun)))
          ,@body))))
@@ -222,7 +222,7 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
 
 (defmacro doseq ((var seqform &optional resultform) &body body)
   (multiple-value-bind (body-rest declarations) (system::parse-body body)
-    (let ((seqvar (gensym)))
+    (let ((seqvar (gensym "SEQ-")))
       `(BLOCK NIL
          (LET ((,seqvar ,seqform))
            (LET ((,var NIL))
@@ -426,7 +426,7 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
 
 (defmacro dohash ((keyvar valuevar HTform &optional resultform) &body body)
   (multiple-value-bind (body-rest declarations) (system::parse-body body)
-    (let ((HTvar (gensym)))
+    (let ((HTvar (gensym "HASH-TABLE-")))
       `(BLOCK NIL
          (LET ((,HTvar ,HTform))
            (LET ((,keyvar NIL) (,valuevar NIL))
