@@ -1,3 +1,8 @@
+2007-06-05  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ext-clisp.tst: new file
+	check clisp specific extensions not tested in alltest or other files.
+	
 2007-05-06  Sam Steingold  <sds@gnu.org>
 
 	* excepsit.tst: (defun if) signals a PROGRAM-ERROR
@@ -5,6 +10,11 @@
 2007-05-06  Sam Steingold  <sds@gnu.org>
 
 	* symbols.tst: test for [ 1713130 ]: some CL symbols are not locked
+
+2007-04-27  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* unportable.tst: new file
+	check behaviour ANSI CL says implementation-defined or -dependent
 
 2007-01-10  Sam Steingold  <sds@podval.org>
 
