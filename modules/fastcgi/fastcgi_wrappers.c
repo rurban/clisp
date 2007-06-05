@@ -138,6 +138,7 @@ int write_stdio(FILE * f, char * data, int len) {
 
 /* Wrappers. Can protect from possible implementation of FastCGI
    API as preprocessor macros.
+   Reduces potential for #include conflicts in the generated *.c file.
    Also useful to decouple prototypes as defined in fcgiapp.h and
    fcgi_stdio.h from these declared on the Lisp side
    (e.g. bool/int or short/long) -- rather hypothetical.
