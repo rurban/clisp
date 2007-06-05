@@ -115,15 +115,10 @@
 
 ; ----------------    Internal functions
 
-;; HEX-VALUE -- Get integer value of single upper-case hex digit
+;; HEX-VALUE -- Get integer value of single hex digit
 (defun hex-value (h)
-  (cond ((and (char>= h #\A) (char<= h #\F))
-         (+ 10 (- (char-code h) (char-code #\A))))
-        ((and (char>= h #\a) (char<= h #\f))
-         (+ 10 (- (char-code h) (char-code #\a))))
-        ((and (char>= h #\0) (char<= h #\9))
-         (- (char-code h) (char-code #\0)))
-        (t (error "~S: Invalid hex digit ~S" 'hex-value h))))
+  (or (digit-char-p h 16)
+      (error "~S: Invalid hex digit ~S" 'hex-value h)))
 
 ;; HEX-BYTE-VALUE -- Get byte value of pair of hex digits
 (defun hex-byte-value (h1 h2)

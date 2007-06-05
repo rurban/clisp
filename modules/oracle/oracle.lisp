@@ -43,7 +43,7 @@ check-connection check-pairs check-success check-unique-elements
 column-names columns comma-list-of-keys commit commit-nocheck connect
 connection-key convert-type c-truth curconn disconnect do-rows-col
 do-rows-index-of do-rows-var eof fetch flatten from-sqlval
-gethash-required hash-combine hash-to-sqlparam-array if-null
+gethash-required hash-combine hash-to-sqlparam-array
 insert-row is-select-query join lisp-truth nl out out-nl pairs-to-hash
 peek rollback rollback-nocheck row-count row-to-result rowval run-sql
 to-sqlval to-string update-row valid-symbol
@@ -70,9 +70,8 @@ to-sqlval to-string update-row valid-symbol
 
 ; Shorthand for current library handle
 (defun curconn ()
-  (if (null *oracle-connection*)
-      nil
-    (db-connection *oracle-connection*)))
+  (and *oracle-connection*
+       (db-connection *oracle-connection*)))
 
 ;  "C" DATA TYPES (oiface.h)
 
@@ -144,13 +143,13 @@ Returns: T if a cached connection was re-used (NIL if a new connection
   (when *oracle-in-transaction* (db-error "CONNECT not allowed inside WITH-TRANSACTION"))
 
   ; Default current schema
-  (if (null schema) (setf schema user))
-  (if (null long-len) (setf long-len -1))
-  (if (null prefetch-buffer-bytes) (setf prefetch-buffer-bytes 0))
+  (unless schema (setf schema user))
+  (unless long-len (setf long-len -1))
+  (unless prefetch-buffer-bytes (setf prefetch-buffer-bytes 0))
 
   ; Set up global connection cache
-  (if (null *oracle-connection-cache*)
-      (setf *oracle-connection-cache* (make-hash-table :test #'equal)))
+  (unless *oracle-connection-cache*
+    (setf *oracle-connection-cache* (make-hash-table :test #'equal)))
 
   ; Construct key for connection cache
   (let* ((hkey (connection-key user schema server connid))
@@ -803,9 +802,9 @@ Argument: none
 ; TO-SQLVAL
 ; Return a SQL val for LISP object, handling null case
 (defun to-sqlval (x)
-  (if (null x)
-      (make-sqlval :data "" :is_null 1)
-    (make-sqlval :data (to-string x) :is_null 0)))
+  (if x
+      (make-sqlval :data (to-string x) :is_null 0)
+      (make-sqlval :data "" :is_null 1)))
 
 ; FROM-SQLVAL
 ; Return Lisp Object (string or NIL) for SQL val, handling null case
@@ -824,7 +823,7 @@ Argument: none
 ; Convert a hash table map of name->value strings to an array of SQL
 ; bind params suitable for passing to ORACLE_EXEC_SQL
 (defun hash-to-sqlparam-array (h)
-  (if (null h) (setf h (make-hash-table :test #'equal)))
+  (unless h (setf h (make-hash-table :test #'equal)))
   (let* ((count (hash-table-count h))
          (result (make-array count))
          (i 0))
@@ -841,10 +840,10 @@ Argument: none
 ; CHECK-CONNECTION
 ; Check we are connected before doing an operation that requires a connection
 (defun check-connection (&optional action)
-  (if (null (curconn))
-      (db-error (cat "Attempt to "
-                  (if-null action "perform database operation")
-                  " when not connected to any database"))))
+  (unless (curconn)
+    (db-error (cat "Attempt to "
+                   (or action "perform database operation")
+                   " when not connected to any database"))))
 
 ; CONNECTION-KEY
 ; Construct key suitable for use in hash table keyed on
@@ -859,8 +858,7 @@ Argument: none
 ; PAIRS-TO-HASH
 ; Convert a list of pairs ((key1 val1) (key2 val2) ...) to hash, enforcing key uniqueness
 (defun pairs-to-hash (plist)
-  (if (null plist)
-      nil
+  (and plist
     (let ((result (make-hash-table :test #'equal)))
       (loop for p in plist do
             (let ((key (string-upcase (to-string (first p))))
@@ -978,15 +976,11 @@ Argument: none
                                 (:return-type c-string))
 
 
-; =-=-=-=-=-=-=-   LOW LEVEL UTILITY FUNCTIONS  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-; IF-NULL
-; Default a null value.  Is there a better Lisp built-in for this?
-(defun if-null (value default) (if (null value) default value))
+; =-=-=-=-=-=-=-   LOW LEVEL UTILITY FUNCTIONS  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 ; AREF-NULL
 ; Do an AREF, but allow array to be null, in which case return NIL
-(defun aref-null (a i) (if (null a) nil (aref a i)))
+(defun aref-null (a i) (and a (aref a i)))
 
 ; HASH-COMBINE
 ; Combine two hash table.  Keys of the second hash will overwrite.
@@ -1015,31 +1009,31 @@ Argument: none
 ; CAT
 ; Concatenate strings
 (defun cat (&rest args)
-  (apply #'concatenate 'string (mapcar #'to-string (flatten args))))
+  (apply #'ext:string-concat (mapcar #'to-string (flatten args))))
 
 ; ARRAY-TO-HASH
 ; Convert array of row values to hash using column info
 (defun array-to-hash (row)
-  (if (null row)
-      nil
-    (let* ((cols (columns))
-           (n (length row))
-           (result (make-hash-table :test #'equal :size n)))
-      (loop for i from 0 to (- n 1) do
-            (setf (gethash (to-string (sqlcol-name (aref cols i))) result) (aref row i)))
-      result)))
+  (and row
+       (let* ((cols (columns))
+              (n (length row))
+              (result (make-hash-table :test #'equal :size n)))
+         (loop for i from 0 to (- n 1) do
+             (setf (gethash (to-string (sqlcol-name (aref cols i))) result)
+                   (aref row i)))
+         result)))
 
 ; CHECK-UNIQUE-ELEMENTS
 ; Does list consist of unqiue, non-null elements
 (defun check-unique-elements (l)
   (let ((h (make-hash-table :test #'equal)))
     (dolist (elt l)
-            (when (null elt)
-                  (db-error "Null element in column/variable list"))
-            (when (gethash (to-string elt) h)
-                  (db-error (cat "DO-ROWS: Parameter/column '" elt "' occurs more than once in bound columns/variables:~%"
-                              (join "~%" l))))
-            (setf (gethash (to-string elt) h) t))
+      (when (null elt)
+        (db-error "Null element in column/variable list"))
+      (when (gethash (to-string elt) h)
+        (db-error (cat "DO-ROWS: Parameter/column '" elt "' occurs more than once in bound columns/variables:~%"
+                       (join "~%" l))))
+      (setf (gethash (to-string elt) h) t))
     t))
 
 ; JOIN
@@ -1048,9 +1042,9 @@ Argument: none
 (defun join (delimiter seq)
   (let ((result ""))
     (loop for i from 0 to (- (length seq) 1) do
-          (when (> i 0)
-                (setf result (cat result delimiter)))
-          (setf result (cat result (nth i seq))))
+        (when (> i 0)
+          (setf result (cat result delimiter)))
+        (setf result (cat result (nth i seq))))
     result))
 
 ; WHILE (macro)
@@ -1082,13 +1076,8 @@ Argument: none
 
 ;; HEX-VALUE -- Get integer value of single upper-case hex digit
 (defun hex-value (h)
-  (cond ((and (char>= h #\A) (char<= h #\F))
-         (+ 10 (- (char-code h) (char-code #\A))))
-        ((and (char>= h #\a) (char<= h #\f))
-         (+ 10 (- (char-code h) (char-code #\a))))
-        ((and (char>= h #\0) (char<= h #\9))
-         (- (char-code h) (char-code #\0)))
-        (t (error "~S: Invalid hex digit ~S" 'hex-value h))))
+  (or (digit-char-p h 16)
+      (error "~S: Invalid hex digit ~S" 'hex-value h)))
 
 ;; HEX-BYTE-VALUE -- Get byte value of pair of hex digits
 (defun hex-byte-value (h1 h2)
