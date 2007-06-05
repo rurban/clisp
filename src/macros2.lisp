@@ -2,7 +2,7 @@
 ;; ----------------------------------------------------------------------------
 (defmacro typecase (&whole whole-form
                     keyform &rest typeclauselist)
-  (let* ((tempvar (gensym))
+  (let* ((tempvar (gensym "TYPECASE-KEY-"))
          (condclauselist nil))
     (do ((typeclauselistr typeclauselist (cdr typeclauselistr)) spec)
         ((atom typeclauselistr))
@@ -35,8 +35,8 @@
 (defun prompt-for-new-value-string () ; ABI
   (concatenate 'string "~&" (TEXT "New ~S: ")))
 (predefmacro check-type (place typespec &optional (string nil))
-  (let ((tag1 (gensym))
-        (tag2 (gensym)))
+  (let ((tag1 (gensym "CHECK-TYPE-"))
+        (tag2 (gensym "OK-")))
     `(TAGBODY
        ,tag1
        (WHEN (TYPEP ,place ',typespec) (GO ,tag2))
@@ -58,8 +58,8 @@
     (TEXT "~S must evaluate to a non-NIL value.")
     test-form))
 (predefmacro assert (test-form &optional (place-list nil) (string nil) &rest args)
-  (let ((tag1 (gensym))
-        (tag2 (gensym)))
+  (let ((tag1 (gensym "ASSERT-"))
+        (tag2 (gensym "OK-")))
     `(TAGBODY
        ,tag1
        (WHEN ,test-form (GO ,tag2))
@@ -235,12 +235,12 @@
     (if (< n (1- multiple-values-limit))
       (if (= n 0)
         `(PROG1 ,form)
-        (let* ((resultvar (gensym))
+        (let* ((resultvar (gensym "RESULT-"))
                (vars (list resultvar))
                (ignores '()))
           (do ((i n (1- i)))
               ((zerop i))
-            (let ((g (gensym)))
+            (let ((g (gensym "IG")))
               (setq vars (cons g vars))
               (setq ignores (cons g ignores))
           ) )
@@ -265,10 +265,10 @@
       (UNWIND-PROTECT ,form (MULTIPLE-VALUE-CALL #'%TIME (%%TIME) ,@vars)))))
 ;; ----------------------------------------------------------------------------
 (defmacro times (form)
-  (let ((var1 (gensym))
-        (var2 (gensym))
-        (var3 (gensym))
-        (var4 (gensym))
+  (let ((var1 (gensym "HEAP1-"))
+        (var2 (gensym "GC-STAT1-"))
+        (var3 (gensym "VALUES-"))
+        (var4 (gensym "GC-STAT2-"))
         (timevars1 (gensym-list 9))
         (timevars2 (gensym-list 9)))
     (setq form
@@ -325,7 +325,7 @@
                                  &body body)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (if string
-      (let ((ignored-var (gensym)))
+      (let ((ignored-var (gensym "IG")))
         `(LET ((,var (SYS::MAKE-STRING-PUSH-STREAM ,string))
                (,ignored-var ,element-type))
            (DECLARE (READ-ONLY ,var) (IGNORE ,ignored-var) ,@declarations)
