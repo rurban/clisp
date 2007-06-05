@@ -198,7 +198,7 @@ signal specific parameters, but not a data parameter."
 ;; and defines lots of gtk functions in a simple-enough-to-parse form.
 ;;
 ;; the scanning is done in a macro, so it is performed at compile time.
-;; there is no need to ship gtk-server.cfg with you project.
+;; there is no need to ship gtk-server.cfg with your project.
 
 (defmacro read-gtk-server-cfg (filename)
   (labels ((convert-type (typ)

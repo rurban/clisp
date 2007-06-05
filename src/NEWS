@@ -218,8 +218,8 @@ User visible changes
   Thanks to Tomas Zellerin <zellerin@gmail.com>.
   See <http://clisp.cons.org/impnotes/socket.html#sose> for details.
 
-* EXT:HTTP-PROXY now uses the environment variable "http_proxy", not
-  "HTTP_PROXY", like curl does, to avoid confusing it with CGI arguments.
+* EXT:HTTP-PROXY now uses the environment variable "http_proxy", like
+  curl does, not "HTTP_PROXY", to avoid confusing it with CGI arguments.
 
 * OPEN :DIRECTION :OUTPUT now creates write-only handles and treats
   named pipes correctly.
