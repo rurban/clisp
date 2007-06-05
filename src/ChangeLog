@@ -1,3 +1,13 @@
+2007-06-05  Sam Steingold  <sds@gnu.org>
+
+	* modules/fastcgi/fastcgi.lisp (hex-value): use DIGIT-CHAR-P
+	* modules/oracle/oracle.lisp (hex-value): ditto
+	Suggested by Jörg Höhle.
+	(if-null): remove (use OR instead)
+	(curconn, connect, to-sqlval, hash-to-sqlparam-array, check-connection)
+	(pairs-to-hash, array-to-hash): use AND & UNLESS instead
+	(cat): use EXT:STRING-CONCAT
+
 2007-06-03  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	Use (gensym "NAME-") to enhance readability of CL macros.
@@ -13,7 +23,7 @@
 	(WITH-OUTPUT-TO-STRING): ditto
 	* macros3.lisp (THE): ditto
 	* loop.lisp (LOOP, expand-loop): ditto
-	
+
 2007-05-23  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	fixed bug #[ 1721583 ]: *terminal-encoding* readline segfault
