@@ -17,7 +17,7 @@
 (digit-char-p #\KHMER_DIGIT_ZERO) ; #\U17e0
 #+(and clisp unicode) 0
 
-;; In CLISP, there are unicode digits beside 0-9 a-z yet they form no numbers
+;; In CLISP, there are unicode digits beside 0-9 a-Z yet they form no numbers
 #+(and clisp unicode)
 (type-of (read-from-string (string #\KHMER_DIGIT_ZERO)))
 #+(and clisp unicode) SYMBOL
@@ -29,7 +29,7 @@
 
 ;; 6.1.1.4 Whether initial value forms of for/as variables include
 ;; lexical environment of all loop variables or only preceding ones.
-;; clisp changed its behaviour across versions
+;; CLISP changed its behaviour across versions
 
 #-(or clisp)
 (let ((vars '(1 2))) (loop for vars on vars collect (length vars)))
@@ -46,6 +46,7 @@
 ;; Actually, CLISP does not guarantee the (3 3 3) or (2 2 2) result,
 ;; it just guarantees that it won't be (2 1 0), but rather (x x x),
 ;; because a single binding is assigned on each iteration.
+;; CMUCL 19d switched dotimes behaviour from (3 3 3) to (2 1 0)
 
 (let (a)
   (dotimes (i 3) (push (lambda () i) a))
@@ -93,7 +94,7 @@ add-some
 
 ;; 2.4.8.3
 #-(or) (read-from-string "#3()")
-#+(or CLISP) ERROR
+#+(or clisp) ERROR
 #+(or sbcl cmu cormanlisp) #(nil nil nil)
 
 ;; 5.2
@@ -111,14 +112,25 @@ add-some
 ;; Note that notes in ANSI-CL are not a binding part of the standard.
 
 (block nil (prog ((x (return :outer-let))) (return :never)) (return :clhs))
-#-cormanlisp :clhs
-#+cormanlisp :outer-let
+#-(or cormanlisp) :clhs
+#+(or cormanlisp) :outer-let
 
 (dolist (i '(1 2 . 3) i))
 ERROR
 
 (loop for i in '(1 2 . 3) count t)      ; for comparison, well-defined
 ERROR                                   ; 6.1.2.1.2 via ENDP
+
+;; http://www.cliki.net/Issue%20BUTLAST-DOTTED-LIST
+(butlast '(1 2 . 3) 0)
+#+(or clisp cmu) (1 2)
+#+(or sbcl Emacs) (1 2 . 3)
+#+(or cormanlisp) ERROR
+
+(list 1 #.(values) 2)
+#+(or clisp) (1 nil 2)
+#+(or sbcl cmu cormanlisp) (1 2)
+
 
 ;;;;
 ;;;; Portable code, but care to depend on this?
