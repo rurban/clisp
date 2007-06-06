@@ -8,6 +8,12 @@
 (mapcar (lambda (x &aux a b) (list (setf (if x a b) 2) a b)) '(t nil))
 ((2 2 nil) (2 nil 2))
 
+(loop with a and b for x below 2
+      collect (multiple-value-list
+               (setf (if (zerop x) (values a b) (values b a)) (floor 7 5)))
+      collect (cons a b))
+((1 2) (1 . 2) (1 2) (2 . 1))
+
 ;(setf progn)
 
 ;(setf funcall)
@@ -31,9 +37,21 @@
 (multiple-value-list (ext:xor nil (block nil (return 'a)) nil))
 (a 2)
 
+;5.1.10 custom:*defun-accept-specialized-lambda-list*
+
 ;12. long-float-digits + setf long-float-digits
 
 ;12.3.2 ! (factorial)
+(ext:! 10)
+3628800
+(ext:! 11)
+39916800
+
+(ext:! 0)
+1
+
+(ext:! 3/2)
+ERROR
 
 ;17.1 ext:doseq
 
@@ -85,7 +103,7 @@ T
           skip) #'<))
 (100 200)
 
-;ext:letf 30.11
+;30.11 ext:letf
 (let ((x (list 1))) (list (ext:letf (((car x) 3)) (list x (copy-list x))) x))
 (((1) (3)) (1))
 
@@ -110,6 +128,20 @@ T
 
 (let (a b) (list (letf* (((values a b) (values 1 2))) (list a b)) (list a b)))
 ((1 2) (nil nil))
+
+(let ((x (list 1)))
+  (block nil (letf (((car x) 2)
+                    ((cdr (progn (return) x)) 3)) x))
+  x)
+(1)
+
+;letf ldb unsurprisingly restores bitfield bits, not the whole integer value
+(let ((x (list #xAAAAAA)))
+  (letf (((ldb (byte 5 9) (first x)) -1))
+    (setf (first x) 0)) x)
+(#x002a00)
+
+;letf values-list
 
 ;letf/* within macrolet
 
