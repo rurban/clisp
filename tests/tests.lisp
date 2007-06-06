@@ -282,6 +282,7 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                   #+CLISP           "defhash"
                   #+(and CLISP UNICODE) "encoding"
                                     "eval20"
+                  #+CLISP           "ext-clisp"
                   #+(and CLISP FFI) "ffi"
                                     "floeps"
                   #-OpenMCL         "format"
