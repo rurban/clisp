@@ -1,6 +1,5 @@
 This is the source distribution of CLISP, an ANSI Common Lisp implementation.
-Available from <ftp://cvs2.cons.org/pub/lisp/clisp/source/latest/> and
-<ftp://ftp.gnu.org/pub/gnu/clisp/latest/>.
+Available from <ftp://ftp.gnu.org/pub/gnu/clisp/latest/>.
 More information at <http://clisp.cons.org/>, <http://www.clisp.org/>,
 <http://clisp.sf.net/> and <http://www.gnu.org/software/clisp/>.
 
@@ -22,6 +21,7 @@ Source:
       src/FILES.1        source documentation
       src/_README        README master
       src/_clisp.1       manual page master
+      src/*.c            C source files
       src/*.d            C source files
       src/*.lisp         Lisp source files
       doc/*              documentation
@@ -52,8 +52,9 @@ Installation:
 -------------
 
 For instruction on how to install CLISP
-* on Unix: see file unix/INSTALL.
-* on Win32 (Windows NT/2000/XP, Windows 95/98/ME): see file win32msvc/INSTALL.
+* on Unix (including cygwin): see file unix/INSTALL.
+* on Win32 using mingw: see unix/INSTALL and pass --with-mingw to configure.
+* on Win32 using MSVC++: see file win32msvc/INSTALL.
 
 
 Authors:
