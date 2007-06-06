@@ -323,7 +323,8 @@
                 (values
                   `(,.(mapcar #'list SM-temps SM-subforms)
                     (,(first SM-stores) ,SM-getterform)
-                    (,g ,form))
+                    (,g ,form)
+                    . ,L1)
                   L2
                   ; We can use subst-in-form here, because g is just a variable reference.
                   (cons (subst-in-form g (first SM-stores) SM-setterform) L3)

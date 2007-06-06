@@ -1,3 +1,8 @@
+2007-06-06  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	fixed bug #[ 1731462 ]: EXT:LETF with more than one place
+	* macros3.lisp (expand-LETF): accumulate intermediates
+
 2007-06-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/fastcgi/fastcgi.lisp (hex-value): use DIGIT-CHAR-P
@@ -21,7 +26,7 @@
 	(PSETQ, MULTIPLE-VALUE-BIND, MULTIPLE-VALUE-SETQ, COND): ditto
 	* macros2.lisp (TYPECASE, NTH-VALUE, EXT:TIMES)
 	(WITH-OUTPUT-TO-STRING): ditto
-	* macros3.lisp (THE): ditto
+	* macros3.lisp (EXT:ETHE): ditto
 	* loop.lisp (LOOP, expand-loop): ditto
 
 2007-05-23  Jörg Höhle  <hoehle@users.sourceforge.net>
