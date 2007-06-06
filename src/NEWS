@@ -19,6 +19,7 @@ User visible changes
   See <http://clisp.cons.org/impnotes/flow-dict.html#arglist> for details.
 
 * Bug fixes:
+  + Fixed EXT:LETF to work with more than one place. [ 1731462 ]
   + Fixed rounding of long floats [even+1/2]. [ 1589311 ]
   + Fixed stdio when running without a TTY, e.g., under SSH. [ 1592343 ]
   + ANSI compliance: PPRINT dispatch is now respected for nested
