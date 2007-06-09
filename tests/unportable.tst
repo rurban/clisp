@@ -27,6 +27,15 @@
 ;;;;  Implementation-dependent
 ;;;;
 
+(proclaim '(inline some-function))
+#+cmu ext::%undefined%
+#+(or clisp) nil
+#+(or sbcl) () ; no values
+
+(declaim (inline some-function))
+#+(or clisp cmu) nil
+#+(or sbcl) () ; no values
+
 ;; 6.1.1.4 Whether initial value forms of for/as variables include
 ;; lexical environment of all loop variables or only preceding ones.
 ;; CLISP changed its behaviour across versions
@@ -101,9 +110,27 @@ add-some
 ;; "The consequences are undefined if an attempt is made to transfer
 ;; control to an exit point whose dynamic extent has ended."
 
+;; define-symbol-macro
+;; "If symbol is already defined as a global variable, an error of
+;; type program-error is signaled."  See excepsit.tst foo16-2
+(progn (proclaim '(special first-special-then-macro)) t)
+T
+
+(define-symbol-macro first-special-then-macro *print-case*)
+ERROR ; only excepsit can checks for PROGRAM-ERROR
+
+;; "The consequences are unspecified if a special declaration is made
+;; for symbol while in the scope of this definition" also in excepsit.tst
+(define-symbol-macro first-macro-then-special *print-case*)
+first-macro-then-special
+
+(progn (proclaim '(special first-macro-then-special)) t)
+#+(or clisp) ERROR
+#+(or sbcl cmu) t
+
 
 ;;;;
-;;;; Simply unspecified
+;;;; Simply unspecified (missing from the specification)
 ;;;;
 
 ;; CLHS has a note on PROG where it is "explained" as (BLOCK (LET (TAGBODY ...))
@@ -135,6 +162,17 @@ ERROR                                   ; 6.1.2.1.2 via ENDP
 ;;;;
 ;;;; Portable code, but care to depend on this?
 ;;;;
+
+;; 5.1.2.3 Values forms as places
+(let ((x (list 1)))
+  (multiple-value-list
+   (setf (values (car x) (cdr x)) (values 2 3 4))))
+(2 3)
+
+(let (a (b t) c)
+  (setf (values (values a b) c) (values 1 2 3 4))
+  (list a b c))
+(1 nil 2)
 
 ;; 6.1.9
 ;; "The clause repeat n is roughly equivalent to a clause such as
