@@ -9,6 +9,10 @@
 	fixed bug #[ 1731462 ]: EXT:LETF with more than one place
 	* macros3.lisp (expand-LETF): accumulate intermediates
 
+2007-06-06  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* loop.lisp (max-if, min-if): mark as ABI
+
 2007-06-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/fastcgi/fastcgi.lisp (hex-value): use DIGIT-CHAR-P
