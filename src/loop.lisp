@@ -1170,7 +1170,7 @@
 
 ;; Run-Time-Support:
 
-(defun max-if (x y)
+(defun max-if (x y) ; ABI
   (if y (max x y) x))
-(defun min-if (x y)
+(defun min-if (x y) ; ABI
   (if y (min x y) x))
