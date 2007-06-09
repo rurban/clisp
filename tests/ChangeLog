@@ -1,3 +1,9 @@
+2007-06-09  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* clos.tst [CLISP]: Added (declare (ext:unspecial a b c))
+	Better yet portably rename (defparameter a) to *a*
+	* setf.tst: Added rotatef example from CLHS
+
 2007-06-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* ext-clisp.tst: new file
