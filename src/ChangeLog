@@ -1,3 +1,9 @@
+2007-06-08  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* macros3.lisp (expand-LETF, expand-LETF*): use lexical environment
+	(EXT:LETF): always return nil with empty body
+	(LETF): fix a case with wrong order of parameters for (VALUES ...)
+
 2007-06-06  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	fixed bug #[ 1731462 ]: EXT:LETF with more than one place
