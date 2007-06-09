@@ -368,6 +368,10 @@ x
 (list y z w v u)
 (2 nil nil 8 9)
 
+(let ((i #x69)) (rotatef (ldb (byte 4 4) i)
+                         (ldb (byte 4 0) i)) i)
+#x96
+
 (progn
   (defsetf my-subseq (sequence start &optional end) (new-sequence)
     `(progn (replace ,sequence ,new-sequence :start1 ,start :end1 ,end)

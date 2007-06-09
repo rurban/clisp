@@ -299,6 +299,8 @@ ERROR
 (unintern '<C1>)
 T
 
+;; either #+clisp (declaim (ext:notspecial a b c)) here or at end of file
+
 (progn
 (defclass <C1> ()
   ((x :initform 0 :accessor x-val :initarg :x)
@@ -4241,3 +4243,6 @@ T
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1528201&group_id=1355
 (make-instance (make-instance 'standard-class :name 3))
 ERROR
+
+#+CLISP (declaim (ext:notspecial a b c))
+#+CLISP NIL
