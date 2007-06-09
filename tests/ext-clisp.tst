@@ -14,6 +14,9 @@
       collect (cons a b))
 ((1 2) (1 . 2) (1 2) (2 . 1))
 
+(let (x a b c) (setf (if (zerop x) (values a b) c) x))
+ERROR ; different number of values in if branches
+
 ;(setf progn)
 
 ;(setf funcall)
@@ -113,7 +116,7 @@ T
           (list x (copy-list x))) x))
 (((1) (3 1)) (1))
 
-(let (a b) (list (letf (((values a b) (values 1 2))) (list a b)) (list a b)))
+(let (a b) (list (letf  (((values a b) (values 1 2))) (list a b)) (list a b)))
 ((1 2) (nil nil))
 
 ;ext:letf*
@@ -141,9 +144,43 @@ T
     (setf (first x) 0)) x)
 (#x002a00)
 
-;letf values-list
+(let ((x (list 1))) (letf (((first x) 3))))
+nil
 
 ;letf/* within macrolet
+(let ((x (list 1)))
+  (macrolet ((frob () '(first x)))
+    (letf  (((frob) 2)) (copy-list x))))
+(2)
+
+(let ((x (list 1)))
+  (macrolet ((frob () '(first x)))
+    (letf* (((frob) 2)) (copy-list x))))
+(2)
+
+(symbol-macrolet ((a *print-base*)) (letf  ((a 36)) (princ-to-string 20)))
+"K"
+(symbol-macrolet ((a *print-base*)) (letf* ((a 36)) (princ-to-string 20)))
+"K"
+
+(let (a b c) (symbol-macrolet ((a *print-base*)) (letf  (((values a b c) 36)) (princ-to-string 20))))
+"K"
+
+(let (a b c) (symbol-macrolet ((a *print-base*)) (letf* (((values a b c) 36)) (princ-to-string 20))))
+"K"
+
+(let ((a (vector 0 0))) (letf  (((values (aref a 0) (aref a 1)) (floor 7 5))) (copy-seq a)))
+#(1 2)
+
+(let ((a (vector 0 0))) (letf* (((values (aref a 0) (aref a 1)) (floor 7 5))) (copy-seq a)))
+#(1 2)
+
+(letf  (((values) 1)) 2)
+2
+(letf* (((values) 1)) 2)
+2
+
+;letf values-list
 
 (makunbound 'xx)
 xx

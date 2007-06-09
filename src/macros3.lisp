@@ -90,7 +90,7 @@
       (multiple-value-bind (rest-expanded flag)
           (expand-LETF* (cdr bindlist) declare body whole-form env)
         (if (and (atom place)
-                 (not (and (symbolp place) (nth-value 1 (macroexpand-1 place))))
+                 (not (and (symbolp place) (nth-value 1 (macroexpand-1 place env))))
             )
           (values
             (if flag
@@ -104,7 +104,7 @@
           (if (and (consp place) (eq (car place) 'VALUES))
             (if (every #'(lambda (subplace)
                            (and (symbolp subplace)
-                                (not (nth-value 1 (macroexpand-1 subplace)))
+                                (not (nth-value 1 (macroexpand-1 subplace env)))
                          ) )
                        place)
               (values
@@ -127,12 +127,12 @@
                             ,@(nreverse stores2)
                     ) ) ) )
                   (multiple-value-bind (SM-temps SM-subforms SM-stores SM-setterform SM-getterform)
-                      (get-setf-method (pop subplacesr))
+                      (get-setf-method (pop subplacesr) env)
                     (setq bindlist
                       (cons (list (first SM-stores) SM-getterform)
                             (nreconc (mapcar #'list SM-temps SM-subforms) bindlist)
                     ) )
-                    (let ((storetemp (gensym)))
+                    (let ((storetemp (gensym "LETF*-")))
                       (setq storetemps (cons storetemp storetemps))
                       ; We can use subst-in-form here, because storetemp is just a variable reference.
                       (setq stores1 (cons (subst-in-form storetemp (first SM-stores) SM-setterform) stores1))
@@ -142,8 +142,8 @@
                 t
             ) )
             (multiple-value-bind (SM-temps SM-subforms SM-stores SM-setterform SM-getterform)
-                (get-setf-method place)
-              (let ((formvar (gensym)))
+                (get-setf-method place env)
+              (let ((formvar (gensym "LETF*-VALUE-")))
                 (values
                   `(LET* (,.(mapcar #'list SM-temps SM-subforms)
                           (,(first SM-stores) ,SM-getterform)
@@ -209,6 +209,7 @@
         (let ((body body-rest) ; eine Formenliste ohne Deklarationen
               (1form nil)) ; zeigt an, ob body aus einer einzigen Form besteht
           (when uwp-store1
+            (unless body (setq body '(nil)))
             (setq body `((UNWIND-PROTECT (PROGN ,@uwp-store1 ,@body) ,@uwp-store2))
                   1form t
           ) )
@@ -267,7 +268,7 @@
       ) ) )
       (multiple-value-bind (L1 L2 L3 L4) (expand-LETF (cdr bindlist) whole-form env)
         (if (and (atom place)
-                 (not (and (symbolp place) (nth-value 1 (macroexpand-1 place))))
+                 (not (and (symbolp place) (nth-value 1 (macroexpand-1 place env))))
             )
           (let ((g (gensym)))
             (values (cons (list g form) L1) (cons (list place g) L2) L3 L4)
@@ -275,12 +276,11 @@
           (if (and (consp place) (eq (car place) 'VALUES))
             (if (every #'(lambda (subplace)
                            (and (symbolp subplace)
-                                (not (nth-value 1 (macroexpand-1 subplace)))
+                                (not (nth-value 1 (macroexpand-1 subplace env)))
                          ) )
                        place)
               (let ((gs (mapcar #'(lambda (subplace)
-                                    (declare (ignore subplace))
-                                    (gensym)
+                                    (gensym (symbol-name subplace))
                                   )
                                 (cdr place)
                    ))   )
@@ -298,19 +298,19 @@
                   ((atom subplacesr)
                    (values
                      (nreconc bindlist
-                              (cons (list (cons 'VALUES storetemps) form) L1)
+                              (cons (list (cons 'VALUES (nreverse storetemps)) form) L1)
                      )
                      L2
                      (nreconc stores1 L3)
                      (nreconc stores2 L4)
                   ))
                 (multiple-value-bind (SM-temps SM-subforms SM-stores SM-setterform SM-getterform)
-                    (get-setf-method (pop subplacesr))
+                    (get-setf-method (pop subplacesr) env)
                   (setq bindlist
                     (cons (list (first SM-stores) SM-getterform)
                           (nreconc (mapcar #'list SM-temps SM-subforms) bindlist)
                   ) )
-                  (let ((storetemp (gensym)))
+                  (let ((storetemp (gensym "LETF-")))
                     (setq storetemps (cons storetemp storetemps))
                     ; We can use subst-in-form here, because storetemp is just a variable reference.
                     (setq stores1 (cons (subst-in-form storetemp (first SM-stores) SM-setterform) stores1))
@@ -318,8 +318,8 @@
                   (setq stores2 (cons SM-setterform stores2))
             ) ) )
             (multiple-value-bind (SM-temps SM-subforms SM-stores SM-setterform SM-getterform)
-                (get-setf-method place)
-              (let ((g (gensym)))
+                (get-setf-method place env)
+              (let ((g (gensym "LETF-VALUE-")))
                 (values
                   `(,.(mapcar #'list SM-temps SM-subforms)
                     (,(first SM-stores) ,SM-getterform)
