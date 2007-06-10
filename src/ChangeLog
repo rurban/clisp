@@ -1,3 +1,9 @@
+2007-06-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/postgresql/configure.in, modules/postgresql/postgresql.lisp:
+	search for PostgreSQL headers also in pgsql (for Mandriva)
+	Suggested by Frederik Himpe <fhimpe@telenet.be>
+
 2007-06-08  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* macros3.lisp (expand-LETF, expand-LETF*): use lexical environment
