@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for postgresql
-dnl Copyright (C) 2003-2006  Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2007  Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -19,8 +19,10 @@ AC_LIB_LINKFLAGS([pq])
 BOLD_MSG([PostgreSQL (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
-AC_CHECK_HEADERS(postgres_ext.h postgresql/postgres_ext.h)
-if test "$ac_cv_header_postgres_ext_h" = "no" -a "$ac_cv_header_postgresql_postgres_ext_h" = "no"; then
+AC_CHECK_HEADERS(postgres_ext.h postgresql/postgres_ext.h pgsql/postgres_ext.h)
+if test "$ac_cv_header_postgres_ext_h" = "no" \
+     -a "$ac_cv_header_postgresql_postgres_ext_h" = "no" \
+     -a "$ac_cv_header_pgsql_postgres_ext_h"; then
   AC_MSG_ERROR([cannot find PostgreSQL headers])
 fi
 

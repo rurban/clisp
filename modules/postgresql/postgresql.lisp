@@ -1,5 +1,5 @@
 ;; CLISP interface to PostgreSQL <http://www.postgresql.org/>
-;; Copyright (C) 1999-2006 Sam Steingold
+;; Copyright (C) 1999-2007 Sam Steingold
 ;; This is free software, distributed under the GNU GPL 2
 
 (pushnew :PostgreSQL *features*)
@@ -25,6 +25,8 @@
 #  include <postgres_ext.h>
 #elif defined(HAVE_POSTGRESQL_POSTGRES_EXT_H)
 #  include <postgresql/postgres_ext.h>
+#elif defined(HAVE_PGSQL_POSTGRES_EXT_H)
+#  include <pgsql/postgres_ext.h>
 #else
 #  error \"PostgreSQL is not found\"
 #endif~%")
@@ -40,6 +42,8 @@
 #  include <libpq-fe.h>
 #elif defined(HAVE_POSTGRESQL_POSTGRES_EXT_H)
 #  include <postgresql/libpq-fe.h>
+#elif defined(HAVE_PGSQL_POSTGRES_EXT_H)
+#  include <pgsql/libpq-fe.h>
 #else
 #  error \"PostgreSQL is not found\"
 #endif~%")
