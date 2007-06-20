@@ -1,5 +1,10 @@
 2007-06-20  Sam Steingold  <sds@gnu.org>
 
+	* m4/proto.m4 (CL_PROTO_MISSING): new macro
+	* m4/connect.m4, m4/ioctl.m4, m4/select.m4, m4/tcpconn.m4: use it
+
+2007-06-20  Sam Steingold  <sds@gnu.org>
+
 	* malloc/getpagesize.h, malloc/gmalloc.c: updated from Emacs:
 	LGPL->GPL; Pthreads; a prototype fix from CLISP bug #[ 1607416 ]
 

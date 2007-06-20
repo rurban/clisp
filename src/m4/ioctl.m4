@@ -85,10 +85,7 @@ fi
 done
 done
 if test -z "$have_ioctl"; then
-  echo "*** Missing autoconfiguration support for this platform." 1>&2
-  echo "*** Please report this as a bug to the CLISP developers." 1>&2
-  echo "*** When doing this, please also show your system's ioctl() declaration." 1>&2
-  exit 1
+CL_PROTO_MISSING(ioctl)
 fi
 ], [extern int ioctl ($cl_cv_proto_ioctl_args);])
 AC_DEFINE_UNQUOTED(IOCTL_REQUEST_T,$cl_cv_proto_ioctl_arg2,[type of `request' in ioctl() declaration])
