@@ -1,3 +1,8 @@
+2007-06-19  Sam Steingold  <sds@gnu.org>
+
+	* m4/ioctl.m4 (CL_IOCTL): "request" is an "unsigned int" on arm-wince-pe
+	Reported by Kamil Shakirov <kamils80@gmail.com>
+
 2007-06-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/postgresql/configure.in, modules/postgresql/postgresql.lisp:
