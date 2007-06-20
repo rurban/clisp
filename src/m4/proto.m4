@@ -1,3 +1,4 @@
+dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2002, 2007 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
@@ -48,5 +49,9 @@ AC_DEFUN([CL_PROTO_CONST],
 [CL_PROTO_TRY([$1], [$2], [$3], $4="", $4="const")]
 )
 
+dnl CL_PROTO_MISSING(function_name)
 AC_DEFUN([CL_PROTO_MISSING],
 [AC_MSG_FAILURE([please report the $1() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT])])
+
+m4_define([CONST_VARIANTS],['' 'const' '__const'])
+m4_define([SIZE_VARIANTS],['unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'])
