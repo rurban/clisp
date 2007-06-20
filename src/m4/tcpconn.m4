@@ -37,8 +37,8 @@ AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr setsockopt getsockopt)
 AC_CHECK_HEADERS(netinet/in.h arpa/inet.h)dnl
 if test $ac_cv_func_inet_addr = yes; then
 CL_PROTO([inet_addr], [
-for x in '' 'const'; do
-for y in 'struct in_addr' 'unsigned long' 'unsigned int'; do
+for x in CONST_VARIANTS; do
+for y in SIZE_VARIANTS; do
 if test -z "$have_inet_addr"; then
 CL_PROTO_TRY([
 #ifdef HAVE_UNISTD_H
@@ -80,9 +80,9 @@ dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
 ])
 if test $ac_cv_func_setsockopt = yes; then
 CL_PROTO([setsockopt], [
-for z in 'int' 'unsigned int' 'size_t' 'socklen_t'; do
+for z in SIZE_VARIANTS; do
 for y in 'char*' 'void*'; do
-for x in '' 'const'; do
+for x in CONST_VARIANTS; do
 if test -z "$have_setsockopt_decl"; then
 CL_PROTO_TRY([
 #include <sys/types.h>
