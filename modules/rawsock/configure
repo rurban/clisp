@@ -3303,8 +3303,8 @@ if test "${cl_cv_proto_inet_addr+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
-for x in '' 'const'; do
-for y in 'struct in_addr' 'unsigned long' 'unsigned int'; do
+for x in '' 'const' '__const'; do
+for y in 'unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'; do
 if test -z "$have_inet_addr"; then
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -3382,10 +3382,11 @@ fi
 done
 done
 if test -z "$have_inet_addr"; then
-  echo "*** Missing autoconfiguration support for this platform." 1>&2
-  echo "*** Please report this as a bug to the CLISP developers." 1>&2
-  echo "*** When doing this, please also show your system's inet_addr() declaration." 1>&2
-  exit 1
+{ { echo "$as_me:$LINENO: error: please report the inet_addr() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT
+See \`config.log' for more details." >&5
+echo "$as_me: error: please report the inet_addr() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 cl_cv_proto_inet_addr="extern $cl_cv_proto_inet_addr_ret inet_addr ($cl_cv_proto_inet_addr_arg1 char*);"
@@ -3491,9 +3492,9 @@ if test "${cl_cv_proto_setsockopt+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
-for z in 'int' 'unsigned int' 'size_t'; do
+for z in 'unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'; do
 for y in 'char*' 'void*'; do
-for x in '' 'const'; do
+for x in '' 'const' '__const'; do
 if test -z "$have_setsockopt_decl"; then
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -3563,10 +3564,11 @@ done
 done
 done
 if test -z "$have_setsockopt_decl"; then
-  echo "*** Missing autoconfiguration support for this platform." 1>&2
-  echo "*** Please report this as a bug to the CLISP developers." 1>&2
-  echo "*** When doing this, please also show your system's setsockopt() declaration." 1>&2
-  exit 1
+{ { echo "$as_me:$LINENO: error: please report the setsockopt() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT
+See \`config.log' for more details." >&5
+echo "$as_me: error: please report the setsockopt() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 cl_cv_proto_setsockopt="extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);"
