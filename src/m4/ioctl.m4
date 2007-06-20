@@ -64,7 +64,7 @@ ioctl_decl="$ioctl_decl1", ioctl_decl="$ioctl_decl2")
 fi
 dnl Then find out about the correct ioctl declaration:
 for y in 'caddr_t arg' 'void* arg' '...'; do
-for x in 'int' 'unsigned long' 'long'; do
+for x in 'unsigned int' 'int' 'unsigned long' 'long'; do
 if test -z "$have_ioctl"; then
 CL_PROTO_TRY($ioctl_decl[
 #ifdef INCLUDE_SYS_IOCTL_H
