@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -83,7 +83,7 @@ dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
 ])
 if test $ac_cv_func_setsockopt = yes; then
 CL_PROTO([setsockopt], [
-for z in 'int' 'unsigned int' 'size_t'; do
+for z in 'int' 'unsigned int' 'size_t' 'socklen_t'; do
 for y in 'char*' 'void*'; do
 for x in '' 'const'; do
 if test -z "$have_setsockopt_decl"; then
