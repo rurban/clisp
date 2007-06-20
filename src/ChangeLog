@@ -1,7 +1,8 @@
 2007-06-20  Sam Steingold  <sds@gnu.org>
 
-	* m4/proto.m4 (CL_PROTO_MISSING): new macro
-	* m4/connect.m4, m4/ioctl.m4, m4/select.m4, m4/tcpconn.m4: use it
+	* m4/proto.m4 (CL_PROTO_MISSING, CONST_VARIANTS, SIZE_VARIANTS):
+	new macros
+	* m4/connect.m4, m4/ioctl.m4, m4/select.m4, m4/tcpconn.m4: use them
 
 2007-06-20  Sam Steingold  <sds@gnu.org>
 

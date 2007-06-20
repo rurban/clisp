@@ -61,9 +61,9 @@ CL_COMPILE_CHECK([sys/select.h], cl_cv_header_sys_select_h,
 #include <sys/select.h>], ,
 AC_DEFINE(HAVE_SYS_SELECT_H,,[have <sys/select.h>?]))dnl
 CL_PROTO([select], [
-for z in '' 'const'; do
+for z in CONST_VARIANTS; do
 for y in 'fd_set' 'int' 'void' 'struct fd_set'; do
-for x in 'int' 'size_t'; do
+for x in SIZE_VARIANTS; do
 if test -z "$have_select"; then
 CL_PROTO_TRY([
 #include <stdlib.h>
