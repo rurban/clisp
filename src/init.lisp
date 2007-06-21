@@ -599,10 +599,38 @@
   (function sys::check-special-operator (lambda (caller symbol)
     (when (special-operator-p symbol)
       (error-of-type 'source-program-error
-        ;; note that caller may be a string "DEFUN/DEFMACRO"!
+        ;; note that caller may be SYS::DEFUN/DEFMACRO !
+        ;; maybe (SETF FDEFINITION) is better?
         :form (list caller symbol) :detail symbol
         (TEXT "~A: ~S is a special operator and may not be redefined.")
         caller symbol)))))
+
+;; sys::file doc is an alist ((caller . file-location) ...)
+(sys::%putd 'sys::get-file-doc
+  (function sys::get-file-doc (lambda (object caller)
+    (assoc caller (getf (get (get-doc-entity-symbol object) 'sys::doc)
+                        'sys::file)
+           ;; caller can be (list* funname qualifiers spec-list)
+           :test #'equal))))
+(sys::%putd 'sys::set-file-doc
+  (function sys::set-file-doc (lambda (object caller value)
+    (let* ((symbol (get-doc-entity-symbol object))
+           (doc-plist (get symbol 'sys::doc))
+           (file-alist (getf doc-plist 'sys::file))
+           (old-pair (assoc caller file-alist :test #'equal)))
+      (if old-pair
+        ;; In theory, we should remove the OLD-PAIR from FILE-ALIST
+        ;; and then maybe remove the SYS::FILE & SYS::DOC properties...
+        ;; Alas, DELETE does not work at this point yes, so it is not trivial.
+        ;; Note however that VALUE=NIL & OLD-PAIR/=NIL ==> top-level
+        ;; ==> performance non-critical
+        (rplacd old-pair value)
+        (when value             ; VALUE=NIL, OLD-PAIR=NIL => do nothing
+          (let ((new-doc-plist  ; nil if %PUTF worked in-place
+                 (sys::%putf doc-plist 'sys::file
+                             (acons caller value file-alist))))
+            (when new-doc-plist
+              (sys::%put symbol 'sys::doc new-doc-plist)))))))))
 
 (sys::%putd 'sys::check-redefinition
   (function sys::check-redefinition (lambda (object caller what)
@@ -617,8 +645,7 @@
            (if (and (not (or (eq caller 'define-setf-expander)
                              (eq caller 'defsetf)))
                     (sys::subr-info object))
-               "C" (getf (get (get-doc-entity-symbol object) 'sys::doc)
-                         'sys::file))))
+               "C" (cdr (get-file-doc (get-doc-entity-symbol object) caller)))))
       (when (consp old-file) (setq old-file (car old-file)))
       (unless (or custom:*suppress-check-redefinition*
                   (equalp old-file cur-file)
@@ -639,8 +666,8 @@
           (warn (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")
                 caller what object (or cur-file #1="top-level")
                 (or old-file #1#))))
-      (system::%set-documentation
-       object 'sys::file
+      (system::set-file-doc
+       object caller
        ;; note that when CUR-FILE is "foo.fas",
        ;; *current-source-line-[12]* point into "foo.lisp"!
        (and cur-file (list cur-file *current-source-line-1*
@@ -654,8 +681,8 @@
   (function sys::remove-old-definitions (lambda (symbol &optional (preliminary nil)) ; ABI
     ;; removes the old function-definitions of a symbol
     (if preliminary
-      (sys::check-special-operator "DEFUN/DEFMACRO" symbol)
-      (sys::check-redefinition symbol "DEFUN/DEFMACRO"
+      (sys::check-special-operator 'defun/defmacro symbol)
+      (sys::check-redefinition symbol 'defun/defmacro
                                (sys::fbound-string symbol)))
     (fmakunbound symbol) ; discard function & macro definition
     (remprop symbol 'sys::definition) ; discard function lambda expression
@@ -665,8 +692,7 @@
     (when (get symbol 'sys::inline-expansion)
       (sys::%put symbol 'sys::inline-expansion t))
     (when (get symbol 'sys::traced-definition) ; discard Trace
-      (warn (TEXT "DEFUN/DEFMACRO: redefining ~S; it was traced!")
-            symbol)
+      (warn (TEXT "~A: redefining ~S; it was traced!") 'defun/defmacro symbol)
       (untrace2 symbol)))))
 
 ;; THE-ENVIRONMENT as in SCHEME
