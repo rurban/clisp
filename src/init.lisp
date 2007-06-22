@@ -567,15 +567,24 @@
       funname
       (get-setf-symbol (second funname))))))
 
-;; return the symbol on whose plist the object's documentation will be kept
-(sys::%putd 'get-doc-entity-symbol
-  (function get-doc-entity-symbol (lambda (object)
-    ;; object can be a symbol, (setf symbol), or (func-name quals specs)
+;; return the SYMBOL on whose plist the object's documentation will be kept
+;; and the CALLER that indicates what the doc pertains to.
+;; OBJECT can be a symbol, (setf symbol), or (func-name quals specs)
+;; CALLER is a symbol
+;; the doc entity symbol is a symbol from object
+;; and doc entity caller is a symbol or list from caller
+;; e.g.: (defun foo ...) ==> (FOO DEFUN/DEFMACRO) -> (FOO DEFUN/DEFMACRO)
+;; (defmethod foo ...) ==> ((FOO ...) DEFMETHOD) -> (FOO (DEFMETHOD ...))
+(sys::%putd 'sys::get-doc-entity-symbol
+  (function sys::get-doc-entity-symbol (lambda (object)
     (get-funname-symbol (if (function-name-p object) object (first object))))))
+(sys::%putd 'sys::get-doc-entity-caller
+  (function sys::get-doc-entity-caller (lambda (object caller)
+    (if (function-name-p object) caller (cons caller (rest object))))))
 
 (sys::%putd 'sys::%set-documentation
   (function sys::%set-documentation (lambda (object doctype value) ; ABI
-    (let* ((symbol (get-doc-entity-symbol object))
+    (let* ((symbol (sys::get-doc-entity-symbol object))
            (rec (get symbol 'sys::doc)))
       (if value
         (let ((new-val (sys::%putf rec doctype value)))
@@ -608,20 +617,21 @@
 ;; sys::file doc is an alist ((caller . file-location) ...)
 (sys::%putd 'sys::get-file-doc
   (function sys::get-file-doc (lambda (object caller)
-    (assoc caller (getf (get (get-doc-entity-symbol object) 'sys::doc)
-                        'sys::file)
+    (assoc (sys::get-doc-entity-caller object caller)
+           (getf (get (sys::get-doc-entity-symbol object) 'sys::doc) 'sys::file)
            ;; caller can be (list* funname qualifiers spec-list)
            :test #'equal))))
 (sys::%putd 'sys::set-file-doc
   (function sys::set-file-doc (lambda (object caller value)
-    (let* ((symbol (get-doc-entity-symbol object))
+    (let* ((symbol (sys::get-doc-entity-symbol object))
+           (caller (sys::get-doc-entity-caller object caller))
            (doc-plist (get symbol 'sys::doc))
            (file-alist (getf doc-plist 'sys::file))
            (old-pair (assoc caller file-alist :test #'equal)))
       (if old-pair
         ;; In theory, we should remove the OLD-PAIR from FILE-ALIST
         ;; and then maybe remove the SYS::FILE & SYS::DOC properties...
-        ;; Alas, DELETE does not work at this point yes, so it is not trivial.
+        ;; Alas, DELETE does not work at this point yet, so it is not trivial.
         ;; Note however that VALUE=NIL & OLD-PAIR/=NIL ==> top-level
         ;; ==> performance non-critical
         (rplacd old-pair value)
@@ -645,7 +655,7 @@
            (if (and (not (or (eq caller 'define-setf-expander)
                              (eq caller 'defsetf)))
                     (sys::subr-info object))
-               "C" (cdr (get-file-doc (get-doc-entity-symbol object) caller)))))
+               "C" (cdr (sys::get-file-doc object caller)))))
       (when (consp old-file) (setq old-file (car old-file)))
       (unless (or custom:*suppress-check-redefinition*
                   (equalp old-file cur-file)
@@ -666,7 +676,7 @@
           (warn (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")
                 caller what object (or cur-file #1="top-level")
                 (or old-file #1#))))
-      (system::set-file-doc
+      (sys::set-file-doc
        object caller
        ;; note that when CUR-FILE is "foo.fas",
        ;; *current-source-line-[12]* point into "foo.lisp"!

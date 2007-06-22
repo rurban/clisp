@@ -1,3 +1,9 @@
+2007-06-22  Sam Steingold  <sds@gnu.org>
+
+	fix last patch
+	* init.lisp (sys::get-doc-entity-caller): add
+	(get-file-doc, set-file-doc): use it
+
 2007-06-21  Sam Steingold  <sds@gnu.org>
 
 	Keep separate file information for each caller (DEFUN, DEFSTRUCT &c)
