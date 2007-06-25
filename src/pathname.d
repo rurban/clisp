@@ -2,7 +2,7 @@
  * Pathnames for CLISP
  * Bruno Haible 1990-2005
  * Logical Pathnames: Marcus Daniels 16.9.1994
- * ANSI compliance, bugs: Sam Steingold 1998-2006
+ * ANSI compliance, bugs: Sam Steingold 1998-2007
  * German comments translated into English: Stefan Kain 2002-01-03
  */
 
@@ -8509,15 +8509,13 @@ local maygc void make_launch_pipe (gcv_object_t *ret, bool parent_inputp,
 /* paranoidal close */
 #define ParaClose(h) if (!CloseHandle(h)) { end_system_call(); OS_error(); }
 
-local maygc sintL interpret_launch_priority (void) {
-  var sintL pry = NORMAL_PRIORITY_CLASS;
-  if (!boundp(STACK_0)) return NORMAL_PRIORITY_CLASS;
-  var object priority_arg = STACK_0;
+local maygc sintL interpret_launch_priority (object priority_arg) {
+  if (!boundp(priority_arg)) return NORMAL_PRIORITY_CLASS;
  restart_priority:
   if (eq(priority_arg,S(Khigh))) return HIGH_PRIORITY_CLASS;
   else if (eq(priority_arg,S(Klow))) return IDLE_PRIORITY_CLASS;
   else if (eq(priority_arg,S(Knormal))) return NORMAL_PRIORITY_CLASS;
-  else if (integerp(STACK_0)) return I_to_L(STACK_0);
+  else if (integerp(priority_arg)) return I_to_L(priority_arg);
   pushSTACK(NIL);              /* no PLACE */
   pushSTACK(priority_arg);     /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_priority)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -8553,7 +8551,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   STACK_9 = check_string(STACK_9); /* command_arg */
   if (!boundp(STACK_5)) STACK_5 = NIL; /* arguments_arg */
   else STACK_5 = check_list(STACK_5);
-  var long priority = interpret_launch_priority();/* from STACK_0 */
+  var long priority = interpret_launch_priority(STACK_0);
   var bool wait_p = !nullp(STACK_4); /* default: do wait! */
   var Handle hnull = INVALID_HANDLE;
   var Handle hinput;
