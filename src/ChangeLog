@@ -1,3 +1,8 @@
+2007-06-25  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (interpret_launch_priority): do not access STACK,
+	accept an argument instead
+
 2007-06-22  Sam Steingold  <sds@gnu.org>
 
 	fix last patch
