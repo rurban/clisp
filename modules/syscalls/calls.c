@@ -79,6 +79,14 @@
 # endif
 #endif
 
+#if defined(_WIN32)
+#include <initguid.h>
+DEFINE_GUID(FMTID_SummaryInformation, 0xF29F85E0, 0x4FF9, 0x1068,
+            0xAB, 0x91, 0x08, 0x00, 0x2B, 0x27, 0xB3, 0xD9);
+DEFINE_GUID(FMTID_UserDefinedProperties, 0xD5CDD505, 0x2E9C, 0x101B,
+            0x93, 0x97, 0x08, 0x00, 0x2B, 0x2C, 0xF9, 0xAE);
+#endif
+
 #include <stdio.h>              /* for BUFSIZ */
 #include <stdlib.h>
 #include <string.h>             /* for strcpy(), strcat() */
@@ -3847,7 +3855,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   IPropertyStorage * ppropstg = NULL;
   IPropertySetStorage * ppropsetstg = NULL;
   HRESULT hres;
-  REFFMTID  fmtid = NULL;
+  FMTID*  fmtid = NULL;
   PROPSPEC * pspecrd = NULL;
   PROPSPEC * pspecwr = NULL;
   PROPVARIANT * pvarrd = NULL;

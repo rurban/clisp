@@ -1,3 +1,9 @@
+2007-06-25  Jack Unrue  <jdunrue@gmail.com>
+
+	* modules/syscalls/calls.c (FMTID_SummaryInformation)
+	(FMTID_UserDefinedProperties): provide local definitions
+	to support build using MinGW w32api 3.9
+
 2007-06-25  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (interpret_launch_priority): do not access STACK,
