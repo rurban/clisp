@@ -1,3 +1,8 @@
+2007-06-28  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (make_launch_pipe): do not access STACK, accept
+	pointers into it instead
+
 2007-06-25  Jack Unrue  <jdunrue@gmail.com>
 
 	* modules/syscalls/calls.c (FMTID_SummaryInformation)
