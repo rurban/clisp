@@ -2,6 +2,7 @@
 
 	* pathname.d (make_launch_pipe): do not access STACK, accept
 	pointers into it instead
+	(init_launch_streamarg): accept a pointer into STACK instead of an index
 
 2007-06-25  Jack Unrue  <jdunrue@gmail.com>
 
