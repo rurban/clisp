@@ -8448,21 +8448,20 @@ local void mkpipe (Handle * hin, bool dupinp, Handle * hout, bool dupoutp) {
 
 #endif
 
-local maygc bool init_launch_streamarg (int istack, bool child_inputp,
-                                        Handle stdhandle, Handle * h, Handle * ph,
-                                        Handle * hnull, bool * wait_p)
-{
+local maygc bool init_launch_streamarg
+(gcv_object_t *streamarg, bool child_inputp, Handle stdhandle,
+ Handle * h, Handle * ph, Handle * hnull, bool * wait_p) {
   var int handletype = 0;
   *h = INVALID_HANDLE;
   *ph = INVALID_HANDLE;
-  if (boundp(STACK_(istack)) && eq(STACK_(istack),S(Kterminal))
-      || !boundp(STACK_(istack)))
+  if (boundp(*streamarg) && eq(*streamarg,S(Kterminal))
+      || !boundp(*streamarg))
     *h = handle_dup(stdhandle);
-  else if (nullp(STACK_(istack))) {
+  else if (nullp(*streamarg)) {
     if (*hnull == INVALID_HANDLE)
       *hnull = nullfile();
     *h = handle_dup(*hnull);
-  } else if (eq(STACK_(istack),S(Kpipe))) {
+  } else if (eq(*streamarg,S(Kpipe))) {
     if (child_inputp)
       /* make an input pipe for child, ph = parent's handle */
       mkpipe(h,true,ph,false);
@@ -8473,9 +8472,8 @@ local maygc bool init_launch_streamarg (int istack, bool child_inputp,
       return false;
     *wait_p = false; /* TODO: error when wait_p */
   } else {
-    *h = handle_dup(stream_lend_handle(&(STACK_(istack)),
-                                       child_inputp,/* child i/o direction is the same as lisp user i/o direction */
-                                       &handletype));
+    /* child i/o direction is the same as lisp user i/o direction */
+    *h = handle_dup(stream_lend_handle(streamarg,child_inputp,&handletype));
     if (handletype != 1)
       return false;
   }
@@ -8557,13 +8555,13 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   var Handle hinput;
   var Handle hparent_out; /* in case of pipe */
   /* STACK_3 == input_stream_arg */
-  if (!init_launch_streamarg(3, true, stdin_handle, &hinput, &hparent_out,
-                             &hnull,&wait_p))
+  if (!init_launch_streamarg(&STACK_3, true, stdin_handle, &hinput,
+                             &hparent_out, &hnull, &wait_p))
     OS_error();
   var Handle houtput, hparent_in;
   /* STACK_2 == output_stream_arg */
-  if (!init_launch_streamarg(2, false, stdout_handle, &houtput, &hparent_in,
-                             &hnull,&wait_p)) {
+  if (!init_launch_streamarg(&STACK_2, false, stdout_handle, &houtput,
+                             &hparent_in, &hnull, &wait_p)) {
     begin_system_call();
     if (hinput != INVALID_HANDLE && hinput != stdin_handle)
       ParaClose(hinput);
@@ -8574,8 +8572,8 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   }
   var Handle herror, hparent_errin;
   /* STACK_1 == error_stream_arg */
-  if (!init_launch_streamarg(1, false, stderr_handle, &herror, &hparent_errin,
-                        &hnull,&wait_p)) {
+  if (!init_launch_streamarg(&STACK_1, false, stderr_handle, &herror,
+                             &hparent_errin, &hnull, &wait_p)) {
     begin_system_call();
     if (hinput != INVALID_HANDLE && hinput != stdin_handle)
       ParaClose(hinput);
