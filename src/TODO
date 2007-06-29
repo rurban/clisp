@@ -165,10 +165,6 @@ Review all macros and tighten the runtime interface of the macros.
   check-redefinition
 
 
-(format nil "~G" 1d23) => "099999999999999990000000.0    "
-http://sourceforge.net/tracker/index.php?func=detail&aid=1389060&group_id=1355&atid=101355
-
-
 contagion warnings: engineering vs portability
 <http://sourceforge.net/mailarchive/message.php?msg_id=10935288>
 <http://article.gmane.org/gmane.lisp.clisp.devel:13758>
