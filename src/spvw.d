@@ -285,7 +285,7 @@ local int exitcode;
 
   # During the execution of a SUBR, FSUBR: the current SUBR resp. FSUBR
   #if !defined(back_trace_register)
-    global p_backtrace_t back_trace = NULL;
+    global p_backtrace_t back_trace;
   #endif
   #ifdef HAVE_SAVED_back_trace
     global p_backtrace_t saved_back_trace;
@@ -2464,6 +2464,7 @@ local inline void free_argv_actions (struct argv_actions *p) {
 # to stderr).
 extern char *get_executable_name (void);
 local inline int init_memory (struct argv_initparams *p) {
+  back_trace = NULL;
   { # Initialize the table of relocatable pointers:
     var object* ptr2 = &pseudofun_tab.pointer[0];
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
