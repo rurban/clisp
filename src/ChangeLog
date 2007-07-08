@@ -1,3 +1,9 @@
+2007-07-08  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1607416 ]: back_trace is not initialized when it is a register
+	* spvw.d (back_trace): do not init to NULL at the declaration, instead...
+	(init_memory): init back_trace to NULL here
+
 2007-06-28  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (make_launch_pipe): do not access STACK, accept
