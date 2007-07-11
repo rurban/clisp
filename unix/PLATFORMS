@@ -386,6 +386,11 @@ Apple iBook PPC G4    MacOS X 10.3.8  Bruno Haible  <bruno@clisp.org>
 Apple Macbook Intel   MacOS X 10.4.5  Gene Garbutt  <ggarbutt@mac.com>
 2006-03               19.13 s user +  6.59 s system
 
+ARM 1136J-S, 128M RAM, gcc 3.4.4,     Jamie Craig <jamie@jamiecraig.com>
+2007-07-11            339 seconds (306 user, 12 sys)
+running from SD card instead of internal flash.
+CFLAGS='-DSAFETY=3 -mcpu=arm1136j-s'
+http://permalink.gmane.org/gmane.lisp.clisp.general/11881
 
 When you install CLISP on a machine not mentioned here, please send us a short
 note containing the information mentioned above. If you didn't succeed in
