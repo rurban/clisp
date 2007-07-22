@@ -266,5 +266,5 @@
                   (special-operator-p s)
                   (documentation s 'sys::file)
                   (not (eq s (sys::function-name (or (macro-function s) s)))))
-        (c s)))))
+        (c (list s (symbol-plist s) (fdefinition s)))))))
 #+clisp NIL
