@@ -1,6 +1,10 @@
 2007-07-24  Sam Steingold  <sds@gnu.org>
 
-	* makemake.in (XCC_CREATESHARED): treat dragonfly like all the other BSDs
+	merge some netbsd/pkgsrc patches
+	* makemake.in (XCC_CREATESHARED): treat DragonFly like all the other BSDs
+	* ffcall/avcall/asmi386.h, ffcall/callback/vacall_r/asmi386.h:
+	* ffcall/vacall/asmi386.h, src/asmi386.h, src/asmi386.hh:
+	DragonFly defines __DragonFly__, not __DragonFly
 
 2007-07-08  Sam Steingold  <sds@gnu.org>
 
