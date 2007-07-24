@@ -1,3 +1,7 @@
+2007-07-24  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCC_CREATESHARED): treat dragonfly like all the other BSDs
+
 2007-07-08  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1607416 ]: back_trace is not initialized when it is a register
