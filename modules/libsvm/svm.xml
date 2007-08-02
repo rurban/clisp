@@ -4,7 +4,7 @@
 
 <para>This is an &ffi-pac;-based interface to the version 2.84 of
  <ulink url="http://www.csie.ntu.edu.tw/~cjlin/libsvm">LibSVM</ulink>
- (included in the sources in the directory
+ (included in the source distribution in the directory
  <filename role="clisp-cvs">modules/libsvm/</filename>,
  so you do not need to install it yourself).</para>
 
