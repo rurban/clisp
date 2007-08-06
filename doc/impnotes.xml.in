@@ -41,7 +41,7 @@
   <!ENTITY wildcard-file SYSTEM "../modules/wildcard/wildcard.xml">
   <!ENTITY zlib-file SYSTEM "../modules/zlib/zlib.xml">
   <!ENTITY gfdl-file SYSTEM "http://www.gnu.org/licenses/fdl.xml">
-  <!ENTITY gpl-file SYSTEM "http://www.gnu.org/licenses/gpl.xml">
+  <!ENTITY gpl2-file SYSTEM "http://www.gnu.org/licenses/gpl2.xml">
 ]>
 
 <book id="impnotes-top"><title>Implementation Notes for &gnu; &clisp;</title>
@@ -196,7 +196,7 @@
 
 &faq-file;
 &gfdl-file;
-&gpl-file;
+&gpl2-file;
 
 </part>
 
