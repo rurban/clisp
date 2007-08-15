@@ -23,3 +23,6 @@
 <!ENTITY free '<function role="unix">free</function>'>
 <!ENTITY malloc '<function role="unix">malloc</function>'>
 <!ENTITY sh '<ulink role="unix" url="utilities/sh.html"><command>/bin/sh</command></ulink>'>
+<!ENTITY stdin '<varname role="unix">stdin</varname>'>
+<!ENTITY stdout '<varname role="unix">stdout</varname>'>
+<!ENTITY stderr '<varname role="unix">stderr</varname>'>
