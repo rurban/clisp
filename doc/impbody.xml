@@ -3640,15 +3640,15 @@ pointing to non-existent files and can take the following values:
 
  <para>Input through &terminal-io-var; uses the &readline; library.
   Arrow keys can be used to move within the input history.
-  The <keysym>#\Tab</keysym> key completes the &symbol-t; name or
+  The &tab-c; key completes the &symbol-t; name or
   &pathname-t; that is being typed.
   See <ulink url="http://cnswww.cns.cwru.edu/~chet/readline/rluserman.html"
              >readline user manual</ulink> for general details and
   <olink targetdoc="man" targetptr="completion"/> for &clisp;-specific
   extensions.</para>
  <warning><simpara>The &readline; library is &not-e; used (even when
-   &clisp; is linked against it) if the standard and standard output do
-   not both refer to the same terminal.
+   &clisp; is linked against it) if the &stdin; and &stdout; do not both
+   refer to the same terminal.
    This is determined by the function <function>stdio_same_tty_p</function>
    in file <filename role="clisp-cvs">src/stream.d</filename>.
    In some exotic cases, e.g., when running under &gdb; in
@@ -3795,12 +3795,12 @@ This keyboard input is not echoed on the screen.  During execution of a
 
 <para>Since <ulink url="http://hoohoo.ncsa.uiuc.edu/cgi/">CGI</ulink>
  (Common Gateway Interface) provides the form data for
- <command>METHOD="POST"</command> on the stdin,
+ <command>METHOD="POST"</command> on the &stdin;,
  and the server will &not-e; send you an &eos; on the end of the data,
  you will need to use
  <code>(&getenv; <envar>"CONTENT_LENGTH"</envar>)</code>
- to determine how much data you should read from stdin.
- &clisp; will detect that stdin is not a terminal and create a regular
+ to determine how much data you should read from &stdin;.
+ &clisp; will detect that &stdin; is not a terminal and create a regular
  &file-stream-t; which can be passed to <code>(&setf;
  &stream-element-type;)</code>.
  To test this functionality interactively,
