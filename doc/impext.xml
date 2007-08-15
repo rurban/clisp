@@ -5007,9 +5007,9 @@ Compiled, it will have inlined the library function calls.
      &args;)</code> etc).</simpara></listitem>
   <listitem><simpara>The standard &unix; i/o facilities
     (see <filename role="unix">stdio.h</filename>) are used:
-    &standard-input-var; is bound to <varname role="unix">stdin</varname>,
-    &standard-output-var; to <varname role="unix">stdout</varname>, and
-    &error-output-var; to <varname role="unix">stderr</varname>.
+    &standard-input-var; is bound to &stdin;,
+    &standard-output-var; to &stdout;, and
+    &error-output-var; to &stderr;.
     Note <xref linkend="dribble-script"/>.</simpara></listitem>
   <listitem><simpara>The &cont-err;s will be turned into &warning-t;s
    (using &appease-cerrors;).</simpara></listitem>
