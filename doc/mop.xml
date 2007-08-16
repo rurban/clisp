@@ -815,9 +815,9 @@ relationship between the arguments to the &defclass; macro and the
 arguments received by the &ensure-class; function.  Examples of typical
 &defclass; forms and sample expansions are shown in the following two
  examples:
-<informalexample><simpara>A &defclass; form with standard slot and class
-  options and an expansion of it that would result in the proper call
-  to &ensure-class;.</simpara>
+<informalexample id="mop-cl-defclass-ex-1"><simpara>A &defclass; form with
+  standard slot and class options and an expansion of it that would
+  result in the proper call to &ensure-class;.</simpara>
 <programlisting language="lisp">
 (defclass plane (moving-object graphics-object)
   ((altitude :initform 0 :accessor plane-altitude)
@@ -836,12 +836,12 @@ arguments received by the &ensure-class; function.  Examples of typical
                                         '*jet*
                                         #'(lambda () *jet*))))
 </programlisting></informalexample>
-<informalexample><simpara>A &defclass; form with non-standard class and
-  slot options, and an expansion of it which results in the proper call
-  to &ensure-class;.  Note that the order of the slot options has not
-  affected the order of the properties in the &canonicalized-slot-spec;,
-  but has affected the order of the elements in the lists
-  which are the values of those properties.</simpara>
+<informalexample id="mop-cl-defclass-ex-2"><simpara>A &defclass; form
+  with non-standard class and slot options, and an expansion of it which
+  results in the proper call to &ensure-class;.  Note that the order of
+  the slot options has not affected the order of the properties in the
+  &canonicalized-slot-spec;, but has affected the order of the elements
+  in the lists which are the values of those properties.</simpara>
 <programlisting language="lisp">
 (defclass sst (plane)
   ((mach mag-step 2
@@ -1155,8 +1155,8 @@ portable program modifies the binding of any slot of a prototype instance.
 <para>This generic function &sig-err; if &class-r; has not been finalized.
 </para>
 
-<informalexample><para>This allows non-&consing; access to slots with
-  allocation &class-k;:<programlisting language="lisp">
+<informalexample id="class-prototype-ex"><para>This allows non-&consing;
+  access to slots with allocation &class-k;:<programlisting language="lisp">
 (defclass counter ()
   ((count :allocation :class :initform 0 :reader how-many)))
 (defmethod initialize-instance :after ((obj counter) &amp;rest args)
@@ -1186,10 +1186,11 @@ portable program modifies the binding of any slot of a prototype instance.
 functions are presented below.</para>
 
 <para>Each entry in the table indicates a method on one of the reader
-generic functions, specialized to a specified class.  The number in each
-entry is a reference to the full description of the method.  The full
-descriptions appear after the table.<informaltable>
-<tgroup cols="4" colsep="1" rowsep="1" align="center">
+ generic functions, specialized to a specified class.
+ The number in each entry is a reference to the full description of the method.
+ The full descriptions appear after the table.
+<informaltable id="mop-cl-readers-methods-tab">
+ <tgroup cols="4" colsep="1" rowsep="1" align="center">
   <thead><row><entry>Generic Function</entry>
     <entry>&standard-class;, &funcallable-standard-class;</entry>
     <entry>&forward-referenced-class;</entry>
@@ -3571,8 +3572,7 @@ their own memoization scheme.</para></simplesect>
   second value are unspecified.</simpara>
   &overridable;</listitem></varlistentry></variablelist>
 
-<informalexample>
-
+<informalexample id="make-method-lambda-ex">
 <para>This example shows how to define a kind of method which, from
 within the body of the method, has access to the actual &m-mo; for the
 method.  This simplified code overrides whatever method combination is
@@ -4207,15 +4207,14 @@ restrictions.</para>
    where the specializers appear.
 </simpara></listitem></varlistentry></variablelist>
 
-<formalpara><title>Examples</title>
-<para><informalexample><programlisting language="lisp">
+<informalexample id="extract-lambda-list-ex"><programlisting language="lisp">
 (&extract-lambda-list; '((p position)))
 <computeroutput>(P)</computeroutput>
 (&extract-lambda-list; '((p position) x y))
 <computeroutput>(P X Y)</computeroutput>
 (&extract-lambda-list; '(a (b (eql x)) c &rest-amp; i))
 <computeroutput>(A B C &optional-amp; I)</computeroutput>
-</programlisting></informalexample></para></formalpara>
+</programlisting></informalexample>
 </section><!-- extract-lambda-list -->
 
 <section id="extract-specializer-names">
@@ -4246,15 +4245,15 @@ restrictions.</para>
    and where the specializers appear.
 </simpara></listitem></varlistentry></variablelist>
 
-<formalpara><title>Examples</title>
-<para><informalexample><programlisting language="lisp">
+<informalexample id="extract-specializer-names-ex">
+ <programlisting language="lisp">
 (&extract-specializer-names; '((p position)))
 <computeroutput>(POSITION)</computeroutput>
 (&extract-specializer-names; '((p position) x y))
 <computeroutput>(POSITION T T)</computeroutput>
 (&extract-specializer-names; '(a (b (eql x)) c &rest-amp; i))
 <computeroutput>(T (EQL X) T)</computeroutput>
-</programlisting></informalexample></para></formalpara>
+</programlisting></informalexample>
 </section><!-- extract-specializer-names -->
 
 <!-- end method advanced customization -->
@@ -4753,7 +4752,7 @@ directly accessible slots.  Portable programs may compile-in calls to
 low-level accessors which take advantage of the resulting predictable
 allocation of slot locations.</para>
 
-<informalexample>
+<informalexample id="mop-sa-instance-struct-ex">
 <para>This example shows the use of this mechanism to implement a new
 &c-mo; class, <classname>ordered-class</classname> and class
 option <constant>:SLOT-ORDER</constant>.  This option provides control
@@ -4824,7 +4823,7 @@ name.  Associated with each funcallable instance is the function which
 it runs when it is called.  This function can be changed with
 &set-funcallable-instance-function;.</para>
 
-<informalexample>
+<informalexample id="mop-sa-funcallable-ex">
 <para>The following simple example shows the use of funcallable
 instances to create a simple, &defstruct;-like facility.  (Funcallable
 instances are useful when a program needs to construct and maintain a
@@ -5181,7 +5180,7 @@ encapsulate that metaobject in some other kind of object, and record
 that object as the dependent.  The results are undefined if this
 restriction is violated.</para>
 
-<informalexample>
+<informalexample id="mop-dep-maint-ex">
 <para>This example shows a general facility for encapsulating
 metaobjects before recording them as dependents.  The facility defines a
 basic kind of encapsulating object: an updater.  Specializations of the
