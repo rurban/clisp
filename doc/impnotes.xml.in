@@ -114,7 +114,7 @@
 
 <preface id="conventions"><title>Conventions</title>
 <para>The following is the mark-up notations used in this document:
- <informaltable frame="all">
+ <informaltable id="conventions-tab" frame="all">
   <tgroup cols="2" colsep="1" rowsep="1" align="center">
    <thead><row><entry>Object Kind</entry><entry>Example</entry></row></thead>
    <tbody><row><entry>Function</entry><entry>&car;</entry></row>
