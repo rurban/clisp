@@ -5024,8 +5024,7 @@ Compiled, it will have inlined the library function calls.
 </para></formalpara>
 
 <formalpara id="script-bad"><title>If nothing works</title>
-<para>Another, quite inferior, alternative is to put the following into
- a file:
+<para>Another, quite inferior, alternative is to put the following into a file:
 <programlisting language="shell">
 #!/bin/sh
 exec clisp &lt;&lt;EOF
@@ -5035,8 +5034,8 @@ exec clisp &lt;&lt;EOF
 EOF
 </programlisting>
 The problem with this approach is that the return values of each form
-will be printed to the standard output.  Another problem is that no user
-input will be available.</para></formalpara>
+will be printed to &standard-output-var;.
+Another problem is that no user input will be available.</para></formalpara>
 </section>
 <!-- #endif -->
 
@@ -5189,13 +5188,13 @@ EOF
       to the program.</simpara></listitem></varlistentry>
    <varlistentry><term>&input-k;</term>
     <listitem><simpara>where the program's input is to come from: either
-     <constant>:TERMINAL</constant> (the standard input, default) or
+     <constant>:TERMINAL</constant> (&stdin;, the default) or
      &stream-k; (a Lisp &stream-t; to be created) or
      a &path-des; (an input file) or &nil; (no input at all).
    </simpara></listitem></varlistentry>
    <varlistentry><term>&output-k;</term>
     <listitem><simpara>where the program's output is to be sent to: either
-     <constant>:TERMINAL</constant> (the standard output, default) or
+     <constant>:TERMINAL</constant> (&stdout;, the default) or
      &stream-k; (a Lisp &stream-t; to be created) or
      a &path-des; (an output file) or &nil; (ignore the output).
    </simpara></listitem></varlistentry>
