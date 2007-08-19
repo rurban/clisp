@@ -53,7 +53,7 @@ User visible changes
   and makes Support Vector Machines available in CLISP.
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
-* FASTCGI:GETENV isa now compatible with EXT:GETENV and can return the
+* FASTCGI:GETENV is now compatible with EXT:GETENV and can return the
   entire environment as an alist.
 
 * The same internal interface now handles FFI forms DEF-CALL-OUT and
