@@ -3825,13 +3825,13 @@ This keyboard input is not echoed on the screen.  During execution of a
    <listitem><simpara>denotes the &file-des; of this value
   </simpara></listitem></varlistentry>
   <varlistentry><term>&input-k;</term>
-   <listitem><simpara>denotes &clisp; process standard input
+   <listitem><simpara>denotes &clisp; process &standard-input-var;
   </simpara></listitem></varlistentry>
   <varlistentry><term>&output-k;</term>
-   <listitem><simpara>denotes &clisp; process standard output
+   <listitem><simpara>denotes &clisp; process &standard-output-var;
   </simpara></listitem></varlistentry>
   <varlistentry><term>&error-k;</term>
-   <listitem><simpara>denotes &clisp; process standard error
+   <listitem><simpara>denotes &clisp; process &error-output-var;
   </simpara></listitem></varlistentry>
   <varlistentry><term>&stream-t;</term>
    <listitem><simpara>denotes the handle of this stream, which should be
