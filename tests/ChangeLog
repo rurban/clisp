@@ -1,3 +1,7 @@
+2007-08-23  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst (ffi_uintp, my-uintp): add one argument def-c-type test
+
 2007-06-09  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* clos.tst [CLISP]: Added (declare (ext:unspecial a b c))
@@ -8,7 +12,7 @@
 
 	* ext-clisp.tst: new file
 	check clisp specific extensions not tested in alltest or other files.
-	
+
 2007-05-06  Sam Steingold  <sds@gnu.org>
 
 	* excepsit.tst: (defun if) signals a PROGRAM-ERROR

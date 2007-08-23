@@ -1,7 +1,7 @@
 /* Foreign language interface for CLISP
  * Marcus Daniels 8.4.1994
  * Bruno Haible 1995-2005
- * Sam Steingold 2000-2006
+ * Sam Steingold 2000-2007
  */
 
 #include "lispbibl.c"
@@ -242,6 +242,36 @@ global maygc void register_foreign_function (void* address,
   }
 }
 
+/* determine the integer type that corresponds to the given type */
+local object parse_foreign_inttype (uintL size, bool signed_p) {
+  switch (size) {
+    case 1: return signed_p ? S(sint8) : S(uint8);
+    case 2: return signed_p ? S(sint16) : S(uint16);
+    case 4: return signed_p ? S(sint32) : S(uint32);
+    case 8: return signed_p ? S(sint64) : S(uint64);
+  }
+  pushSTACK(fixnum(size));
+  fehler(error,GETTEXT("No foreign int type of size ~S"));
+}
+
+/* Registers a foreign type.
+ register_foreign_type (const char * name_asciz, uintL size, uintL alignment)
+ > name_asciz: C type name
+ > size : sizeof(name_asciz)
+ > alignment : alignof(name_asciz)
+ can trigger GC */
+global maygc void register_foreign_inttype (const char * name_asciz,
+                                            uintL size, bool signed_p) {
+  object name = asciz_to_string(name_asciz,O(internal_encoding));
+  object obj = gethash(name,O(foreign_inttype_table),false);
+  object inttype = parse_foreign_inttype(size, signed_p);
+  if (!eq(obj,nullobj)) {
+    if (!eq(inttype,obj)) {
+      pushSTACK(inttype); pushSTACK(obj); pushSTACK(name);
+      fehler(error,GETTEXT("Cannot redefine foreign type ~S from ~S to ~S"));
+    }
+  } else shifthash(O(foreign_inttype_table),name,inttype,true);
+}
 
 /* A foreign value descriptor describes an item of foreign data.
  <c-type> ::=
@@ -855,6 +885,12 @@ local void foreign_layout (object fvd, struct foreign_layout *data)
         data->splittable = true; return;
       }
     }
+  } else {
+    object inttype = gethash(fvd,O(foreign_inttype_table),false);
+    if (!eq(inttype,nullobj)) {
+      foreign_layout(inttype,data);
+      return;
+    }
   }
   fehler_foreign_type(fvd);
 }
@@ -1402,6 +1438,10 @@ global maygc object convert_from_foreign (object fvd, const void* data)
         }
       }
     }
+  } else {
+    object inttype = gethash(fvd,O(foreign_inttype_table),false);
+    if (!eq(inttype,nullobj))
+      return convert_from_foreign(inttype,data);
   }
   fehler_foreign_type(fvd);
 }
@@ -2319,6 +2359,10 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
         return;
       }
     }
+  } else {
+    object inttype = gethash(fvd,O(foreign_inttype_table),false);
+    if (!eq(inttype,nullobj))
+      return convert_to_foreign(inttype,obj,data,converter_malloc);
   }
   fehler_foreign_type(fvd);
  bad_obj:
@@ -3313,7 +3357,11 @@ local void do_av_start (uintWL flags, object result_fvd, av_alist * alist,
       fehler_foreign_type(result_fvd);
     }
   } else {
-    fehler_foreign_type(result_fvd);
+    object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
+    if (!eq(inttype,nullobj))
+      do_av_start (flags, inttype, alist, address, result_address,
+                   result_size, result_splittable);
+    else fehler_foreign_type(result_fvd);
   }
   if (flags & ff_lang_stdcall)
     alist->flags |= __AV_STDCALL_CLEANUP;
@@ -3428,7 +3476,10 @@ local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist,
       fehler_foreign_type(arg_fvd);
     }
   } else {
-    fehler_foreign_type(arg_fvd);
+    object inttype = gethash(arg_fvd,O(foreign_inttype_table),false);
+    if (!eq(inttype,nullobj))
+      do_av_arg (flags, inttype, alist, arg_address, arg_size, arg_alignment);
+    else fehler_foreign_type(arg_fvd);
   }
 }
 
@@ -3775,7 +3826,11 @@ local void do_va_start (uintWL flags, object result_fvd, va_alist alist,
       fehler_foreign_type(result_fvd);
     }
   } else {
-    fehler_foreign_type(result_fvd);
+    object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
+    if (!eq(inttype,nullobj))
+      do_va_start (flags, inttype, alist, result_size, result_alignment,
+                   result_splittable);
+    else fehler_foreign_type(result_fvd);
   }
   if (flags & ff_lang_stdcall)
     alist->flags |= __VA_STDCALL_CLEANUP;
@@ -3906,7 +3961,10 @@ local void* do_va_arg (uintWL flags, object arg_fvd, va_alist alist)
       fehler_foreign_type(arg_fvd);
     }
   } else {
-    fehler_foreign_type(arg_fvd);
+    object inttype = gethash(arg_fvd,O(foreign_inttype_table),false);
+    if (!eq(inttype,nullobj))
+      return do_va_arg (flags, inttype, alist);
+    else fehler_foreign_type(arg_fvd);
   }
 }
 
@@ -4016,8 +4074,13 @@ local void do_va_return (uintWL flags, object result_fvd, va_alist alist, void* 
       va_return_ptr(alist,void*,*(void**)result_address);
     } else
       fehler_foreign_type(result_fvd);
-  } else
-    fehler_foreign_type(result_fvd);
+  } else {
+    object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
+    if (!eq(inttype,nullobj))
+      do_va_return (flags, inttype, alist, result_address,
+                    result_size, result_alignment);
+    else fehler_foreign_type(result_fvd);
+  }
 }
 
 /* This is the CALL-IN function called by the trampolines. */
@@ -4491,6 +4554,8 @@ global maygc void init_ffi (void) {
   /* Allocate a fresh zero foreign pointer: */
   O(fp_zero) = allocate_fpointer((void*)0);
   ffi_user_pointer = NULL;
+  register_foreign_inttype("ffi_sint32",4,true);
+  register_foreign_inttype("ffi_uintp",sizeof(uintP),false);
   register_foreign_variable(&ffi_user_pointer,"ffi_user_pointer",
                             0,sizeof(ffi_user_pointer));
   register_foreign_function((void*)&ffi_identity,"ffi_identity",

@@ -2628,11 +2628,14 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
 <variablelist><title>High-level &ffi-pac; forms; &name-r; is any Lisp
    &symbol-t;; &cname-r; is a &string-t;</title>
 <varlistentry id="def-c-type">
- <term><code>(&def-c-type; &name-r; &ctype-r;)</code></term>
+ <term><code>(&def-c-type; &name-r; &optional-amp; &ctype-r;)</code></term>
  <listitem><simpara>This form makes &name-r; a shortcut for &ctype-r;.
-   Note that &ctype-r; may already refer to name.
-   Forward declarations of types are not possible, however.
-</simpara></listitem></varlistentry>
+   Note that &ctype-r; may already refer to &name-r;.
+   Forward declarations of types are not possible, however.</simpara>
+  <simpara>When &ctype-r; is omitted, the type is assumed to be an
+   integer, and its size and signedness are determined at link time,
+   e.g., <code>(&def-c-type; size_t)</code>.</simpara>
+</listitem></varlistentry>
 
 <varlistentry id="def-c-var"><term><code>(&def-c-var; &name-r;
    {&option-r;}*)</code></term>

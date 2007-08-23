@@ -1,6 +1,6 @@
 ;;; Macros that export their definienda
 ;;; Bruno Haible 2004-12-15
-;;; Sam Steingold 2005
+;;; Sam Steingold 2005, 2007
 
 (defpackage "EXPORTING"
   (:use "COMMON-LISP")
@@ -148,10 +148,10 @@
 ;; FFI.
 
 #+FFI
-(cl:defmacro def-c-type (name typespec)
+(cl:defmacro def-c-type (name &rest options)
   `(PROGN
      (EXPORT ',(or name '(NIL)))
-     (FFI:DEF-C-TYPE ,name ,typespec)))
+     (FFI:DEF-C-TYPE ,name ,@options)))
 
 #+FFI
 (cl:defmacro def-c-enum (name &rest items)
