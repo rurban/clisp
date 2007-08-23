@@ -1,7 +1,7 @@
 ;; Foreign functions provided by the Linux C library version 6,
 ;; i.e. the GNU C library version 2.0.7.
 ;; Bruno Haible 10.4.1998, 19.4.1998
-;; Sam Steingold 2002-2005
+;; Sam Steingold 2002-2005, 2007
 
 (defpackage "LINUX"
   (:modern t)
@@ -31,11 +31,11 @@
 
 (c-lines "#include <stddef.h>~%")
 
-(def-c-type ptrdiff_t long)
+(def-c-type ptrdiff_t)          ; long
 
-(def-c-type size_t uint)  ; uint or ulong, doesn't matter
+(def-c-type size_t)             ; uint or ulong, doesn't matter
 
-(def-c-type wchar_t int)
+(def-c-type wchar_t)            ; int
 
 ; =========================== <sys/types.h> ===================================
 
@@ -51,25 +51,25 @@
 (def-c-type __quad_t sint64)
 (def-c-type __qaddr_t (c-ptr __quad_t))
 
-(def-c-type __dev_t __u_quad_t)
-(def-c-type __uid_t __u_int)
-(def-c-type __gid_t __u_int)
-(def-c-type __ino_t __u_long)
-(def-c-type __mode_t __u_int)
-(def-c-type __nlink_t __u_int)
-(def-c-type __off_t long)
-(def-c-type __loff_t __quad_t)
-(def-c-type __pid_t int)
-(def-c-type __ssize_t int)
+(def-c-type __dev_t)            ; __u_quad_t
+(def-c-type __uid_t)            ; __u_int
+(def-c-type __gid_t)            ; __u_int
+(def-c-type __ino_t)            ; __u_long
+(def-c-type __mode_t)           ; __u_int
+(def-c-type __nlink_t)          ; __u_int
+(def-c-type __off_t)            ; long
+(def-c-type __loff_t)           ; __quad_t
+(def-c-type __pid_t)            ; int
+(def-c-type __ssize_t)          ; int
 
 (def-c-struct __fsid_t
   (__val (c-array int 2))
 )
 
-(def-c-type __daddr_t int)
-(def-c-type __caddr_t c-pointer)
-(def-c-type __time_t long)
-(def-c-type __swblk_t long)
+(def-c-type __daddr_t)          ; int
+(def-c-type __caddr_t)          ; c-pointer
+(def-c-type __time_t)           ; long
+(def-c-type __swblk_t)          ; long
 
 (def-c-type __fd_mask ulong)
 (eval-when (load compile eval)
@@ -86,18 +86,21 @@
   (fds_bits (c-array __fd_mask #.(cl:/ __FD_SETSIZE __NFDBITS)))
 )
 
-(def-c-type __key_t int)
+(def-c-type __key_t)            ; int
 
-(def-c-type __ipc_pid_t ushort)
+(c-lines "#include <bits/ipctypes.h>~%")
+(def-c-type __ipc_pid_t)        ; ushort
 
 ; --------------------------- <sys/types.h> -----------------------------------
 
 (def-c-type dev_t __dev_t)
 (def-c-type gid_t __gid_t)
 (def-c-type ino_t __ino_t)
+(def-c-type ino64_t)
 (def-c-type mode_t __mode_t)
 (def-c-type nlink_t __nlink_t)
 (def-c-type off_t __off_t)
+(def-c-type off64_t)
 (def-c-type loff_t __loff_t)
 (def-c-type pid_t __pid_t)
 (def-c-type uid_t __uid_t)
@@ -1845,23 +1848,29 @@
 ;;; ----------------------------- <direntry.h> -------------------------------
 
 (def-c-struct dirent
-  (d_ino long)
+  (d_ino ino_t)
   (d_off off_t)
   (d_reclen ushort)
   (d_type uchar)
-  (d_name (c-array-max character #.(cl:+ NAME_MAX 1)))
-)
+  (d_name (c-array-max character #.(cl:+ NAME_MAX 1))))
+
+(def-c-struct dirent64
+  (d_ino ino64_t)
+  (d_off off64_t)
+  (d_reclen ushort)
+  (d_type uchar)
+  (d_name (c-array-max character #.(cl:+ NAME_MAX 1))))
 
 ;;; ------------------------------ <dirent.h> --------------------------------
 
-(defconstant DT_UNKNOWN 0)
-(defconstant DT_FIFO 1)
-(defconstant DT_CHR 2)
-(defconstant DT_DIR 4)
-(defconstant DT_BLK 6)
-(defconstant DT_REG 8)
-(defconstant DT_LNK 10)
-(defconstant DT_SOCK 12)
+(def-c-const DT_UNKNOWN)
+(def-c-const DT_FIFO)
+(def-c-const DT_CHR)
+(def-c-const DT_DIR)
+(def-c-const DT_BLK)
+(def-c-const DT_REG)
+(def-c-const DT_LNK)
+(def-c-const DT_SOCK)
 
 (defmacro IFTODT (mode) `(ash (logand ,mode #o170000) -12))
 (defmacro DTTOIF (dirtype) `(ash ,dirtype 12))
@@ -1873,21 +1882,27 @@
 (def-call-out closedir (:arguments (dirp c-pointer)) (:return-type int))
 (def-call-out readdir (:arguments (dirp c-pointer))
   (:return-type (c-ptr-null dirent)))
+(def-call-out readdir64 (:arguments (dirp c-pointer))
+  (:return-type (c-ptr-null dirent64)))
 (def-call-out readdir_r
     (:arguments (dirp c-pointer) (entry (c-ptr dirent) :out :alloca)
                 (result (c-ptr (c-ptr dirent)) :out :alloca)) ; ??
+  (:return-type int))
+(def-call-out readdir64_r
+    (:arguments (dirp c-pointer) (entry (c-ptr dirent64) :out :alloca)
+                (result (c-ptr (c-ptr dirent64)) :out :alloca)) ; ??
   (:return-type int))
 
 (def-call-out rewinddir (:arguments (dirp c-pointer)) (:return-type nil))
 
 (def-call-out dirfd (:arguments (dirp c-pointer)) (:return-type int))
 
-(defconstant MAXNAMLEN 255)
+(def-c-const MAXNAMLEN)
 
-(def-call-out seekdir (:arguments (dirp c-pointer) (pos off_t))
+(def-call-out seekdir (:arguments (dirp c-pointer) (pos long))
   (:return-type nil))
 
-(def-call-out telldir (:arguments (dirp c-pointer)) (:return-type off_t))
+(def-call-out telldir (:arguments (dirp c-pointer)) (:return-type long))
 
 (def-call-out scandir
     (:arguments (dir c-string)
@@ -1899,9 +1914,28 @@
                                                 (d2 (c-ptr (c-ptr dirent))))
                                     (:return-type int))))
   (:return-type int))
+(def-call-out scandir64
+    (:arguments (dir c-string)
+                (namelist (c-ptr (c-ptr (c-ptr dirent64))) :out)
+                ;; select may also be NULL/NIL, which c-function accepts
+                (select (c-function (:arguments (d c-string))
+                                    (:return-type boolean)))
+                (compar (c-function (:arguments (d1 (c-ptr (c-ptr dirent64)))
+                                                (d2 (c-ptr (c-ptr dirent64))))
+                                    (:return-type int))))
+  (:return-type int))
 
 (def-call-out alphasort
     (:arguments (d1 (c-ptr (c-ptr dirent))) (d2 (c-ptr (c-ptr dirent))))
+  (:return-type int))
+(def-call-out alphasort64
+    (:arguments (d1 (c-ptr (c-ptr dirent64))) (d2 (c-ptr (c-ptr dirent64))))
+  (:return-type int))
+(def-call-out versionsort
+    (:arguments (d1 (c-ptr (c-ptr dirent))) (d2 (c-ptr (c-ptr dirent))))
+  (:return-type int))
+(def-call-out versionsort64
+    (:arguments (d1 (c-ptr (c-ptr dirent64))) (d2 (c-ptr (c-ptr dirent64))))
   (:return-type int))
 
 ;(def-call-out getdirentries
@@ -2027,9 +2061,9 @@
 
 ;;; ----------------------------- <termbits.h> -------------------------------
 
-(def-c-type cc_t uchar)
-(def-c-type speed_t uint)
-(def-c-type tcflag_t uint)
+(def-c-type cc_t)               ; uchar
+(def-c-type speed_t)            ; uint
+(def-c-type tcflag_t)           ; uint
 
 (eval-when (load compile eval)
   (defconstant NCCS 32)

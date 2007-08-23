@@ -1,3 +1,24 @@
+2007-08-23  Sam Steingold  <sds@gnu.org>
+
+	* constobj.d (foreign_inttype_table): add
+	* lispbibl.d (register_foreign_inttype): declare and export to clisp.h
+	(mallocing, nomalloc): declare to avoid warnings
+	* exporting.lisp (def-c-type): only one argument is required
+	* foreign.d (parse_foreign_inttype, register_foreign_inttype): add
+	(foreign_layout, convert_from_foreign, convert_to_foreign, do_av_start)
+	(do_av_arg, do_va_start, do_va_arg, do_va_return): use
+	foreign_inttype_table for system int types
+	(init_ffi): register a couple of int types for the test suite
+	* foreign1.lisp (def-c-type): when typespec is missing, assume int
+	type and get size and sign at compile time
+	(finalize-coutput-file): output int types
+	* modules/bindings/glibc/linux.lisp: define most int types using
+	the new one argument def-c-type call
+	(dirent64, readdir64, readdir64_r, scandir64, alphasort64)
+	(versionsort, versionsort64): add
+	(seekdir, telldir): for some reason position is "long", not
+	"off_t", in my <dirent.h> (glibc-headers-2.4-11)
+
 2007-07-24  Sam Steingold  <sds@gnu.org>
 
 	merge some netbsd/pkgsrc patches

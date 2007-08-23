@@ -430,10 +430,14 @@
     (error (TEXT "The name ~S is not a valid C identifier")
            name)))
 
-(defmacro DEF-C-TYPE (&whole whole-form name typespec)
+(defmacro DEF-C-TYPE (&whole whole-form name &optional typespec)
   (setq name (check-symbol name (first whole-form)))
   `(EVAL-WHEN (LOAD COMPILE EVAL)
-     (PARSE-C-TYPE ',typespec ',name)
+     ,(if typespec
+          `(PARSE-C-TYPE ',typespec ',name)
+          `(SETF (GETHASH ',name FFI::*C-TYPE-TABLE*)
+                 ;; prefer lower case
+                 (CS-CL:symbol-name ',name)))
      ',name))
 
 ;; Convert back a C type from internal (vector) to external (list)
@@ -770,6 +774,17 @@
             {~{~%~A~}~%"
             *c-name* *c-name* *c-name*
             *c-name* *init-once* *c-name* *init-always*)
+    (let ((done (make-hash-table :test 'equal)))
+      (maphash (lambda (type spec)
+                 (declare (ignore type))
+                 (when (and (stringp spec) (not (gethash spec done)))
+                   (setf (gethash spec done) spec)
+                   (when *foreign-guard*
+                     (format *coutput-stream* "# if HAVE_~A~%"
+                             (string-upcase spec)))
+                   (format *coutput-stream* "  register_foreign_inttype(~S,sizeof(~A),(~A)-1<=(~A)0);~%" spec spec spec spec)
+                   (when *foreign-guard* (format *coutput-stream* "# endif~%"))))
+               *c-type-table*))
     (dolist (variable *variable-list*)
       (let ((c-name (first variable)))
         (when *foreign-guard*

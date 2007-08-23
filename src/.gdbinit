@@ -107,30 +107,37 @@ end
 
 break funcall
 commands
-        xout fun
+  xout fun
 end
 
 break apply
 commands
-        xout fun
+  xout fun
 end
 
 break eval
 commands
-        xout form
+  xout form
 end
 
 break interpret_bytecode_
 commands
-        xout closure
+  xout closure
 end
 
 break gar_col
 
 watch back_trace
 commands
-        zbacktrace
-        continue
+  zbacktrace
+  continue
+end
+
+break register_foreign_inttype
+commands
+  silent
+  printf "%30s: %d %d\n", name_asciz, size, signed_p
+  continue
 end
 
 # disable all the above breaks
@@ -162,6 +169,6 @@ break sigsegv_handler_failed
 # cut and paste when you stop in interpret_bytecode_()
 watch byteptr
 commands
-        output byteptr-byteptr_in
-        echo \n
+  output byteptr-byteptr_in
+  echo \n
 end

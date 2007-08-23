@@ -1155,4 +1155,11 @@ FM
 
 (listp (macroexpand '(def-c-const foo-const))) T
 
+(def-c-type ffi_uintp) FFI_UINTP
+(def-call-out my-uintp (:name "ffi_identity")
+  (:arguments (obj ffi_uintp))
+  (:return-type ffi_uintp) (:language :stdc))
+MY-UINTP
+(my-sint 123) 123
+
 (progn (in-package "USER") (delete-package "FTEST") T) T

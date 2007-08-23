@@ -16647,6 +16647,15 @@ extern maygc object check_faddress_valid (object fa);
 #define ff_inout          bit(5)
 %%   puts("extern void register_foreign_function (void* address, const char * name, uintWL flags);");
 
+/* Registers a foreign int type.
+ register_foreign_inttype (const char * name_asciz, uintL size, bool signed_p)
+ > name_asciz: C type name
+ > size : sizeof(name_asciz)
+ > signed_p : signed?
+ can trigger GC */
+extern maygc void register_foreign_inttype (const char * name_asciz, uintL size, bool signed_p);
+%%   puts("extern void register_foreign_inttype (const char * name_asciz, uintL size, bool signed_p);");
+
 # Convert foreign data to Lisp data.
 # can trigger GC
 extern maygc object convert_from_foreign (object fvd, const void* data);
@@ -16654,6 +16663,7 @@ extern maygc object convert_from_foreign (object fvd, const void* data);
 
 /* Convert Lisp data to foreign data. */
 typedef void* converter_malloc_t (void* old_data, uintL size, uintL alignment);
+global converter_malloc_t mallocing, nomalloc;
 %% puts("typedef void* converter_malloc_t (void* old_data, uintL size, uintL alignment);");
 %% puts("extern converter_malloc_t mallocing, nomalloc;");
 /* Convert Lisp data to foreign data.
