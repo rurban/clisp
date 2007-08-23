@@ -143,7 +143,8 @@
 <!-- ========== / The Open Group Base Specifications Issue 6 =========== -->
 
 <!-- =========================== Berkeley DB =========================== -->
-<xsl:param name="bdb.top" select="'http://www.sleepycat.com/docs/'"/>
+<!-- xsl:param name="bdb.top" select="'http://www.sleepycat.com/docs/'"/ -->
+<xsl:param name="bdb.top" select="'http://www.oracle.com/technology/documentation/berkeley-db/db/'"/>
 <xsl:template match="ulink[@role='bdb']">
  <a class="{@role}" href="{$bdb.top}{@url}"><xsl:apply-templates/></a>
 </xsl:template>
