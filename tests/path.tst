@@ -1091,3 +1091,7 @@ NIL
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1555096&group_id=1355&atid=101355
 (make-pathname :directory '(:absolute :wild-inferiors "subdir"))
 #P"/**/subdir/"
+
+(ext:make-dir "foo/") T
+(ext:rename-dir "foo/" "bar/") T
+(ext:delete-dir "bar/") T

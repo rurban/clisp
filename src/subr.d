@@ -831,6 +831,7 @@ LISPFUN(directory,seclass_read,1,0,norest,key,3,
 LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(make_dir,1)
 LISPFUNN(delete_dir,1)
+LISPFUNN(rename_dir,2)
 LISPFUN(ensure_directories_exist,seclass_default,1,0,norest,key,1,
         (kw(verbose)))
 LISPFUNNR(file_write_date,1)
