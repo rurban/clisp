@@ -7752,6 +7752,19 @@ LISPFUNN(delete_dir,1)
   VALUES1(T);
 }
 
+LISPFUNN(rename_dir,2)
+{ /* (RENAME-DIR dirname newname) removes the subdirectory pathname. */
+  var object newdir = shorter_directory(STACK_0,true); STACK_0 = newdir;
+  var object olddir = shorter_directory(STACK_2,true); STACK_2 = olddir;
+  with_sstring_0(STACK_2,O(pathname_encoding),oldnamestring_asciz, {
+    with_sstring_0(STACK_1,O(pathname_encoding),newnamestring_asciz, {
+      rename_existing_file(oldnamestring_asciz,newnamestring_asciz);
+    });
+  });
+  skipSTACK(4);
+  VALUES1(T);
+}
+
 /* (defun ensure-directories-exist (pathspec &key verbose)
    (let* ((dir (pathname-directory pathspec))
           (path (make-pathname :host (pathname-host pathspec)

@@ -3614,6 +3614,13 @@ pointing to non-existent files and can take the following values:
  <replaceable>directory-pathname</replaceable>)</code> removes an
  (empty) subdirectory.</para></simplesect>
 
+<simplesect id="rename-dir">
+ <title>Function <function>EXT:RENAME-DIR</function></title>
+<para><code>(<function>EXT:RENAME-DIR</function>
+ <replaceable>old-directory-pathname</replaceable>
+ <replaceable>new-directory-pathname</replaceable>)</code> renames a
+ subdirectory to a new name.</para></simplesect>
+
 </section>
 </chapter>
 
