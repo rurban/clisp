@@ -3486,6 +3486,16 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 <section id="file-dict"><title>The Files Dictionary
    <ulink url="&clhs;/Body/sec_the_files_dictionary.html">[CLHS-20.2]</ulink></title>
 
+<simplesect id="dir-is-not-file"><title>Directory is not a file</title>
+<para>&clisp; has traditionally taken the view that a directory is a
+ separate object and not a special kind of file, so whenever the
+ standard says that a function operates on <emphasis>files</emphasis>
+ without specifically mentioning that it also works on
+ <emphasis>directories</emphasis>, &clisp; &sig-err; when passed a
+ directory.</para>
+<para>&clisp; provides separate directory functions, such as
+ &delete-dir;, &rename-dir; et al.</para></simplesect>
+
 <simplesect id="probe-file"><title>Function &probe-file;</title>
 <para>&probe-file; cannot be used to check whether a directory exists.
  Use functions &probe-dir; or &directory; for this.</para></simplesect>
@@ -3499,9 +3509,10 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
  <emphasis>owner</emphasis> and <emphasis>author</emphasis> are not the
  same; in particular, authorship is preserved by copying, while
  ownership is not.</para>
-<para>Use
- <link linkend="file-owner"><function>OS:FILE-OWNER</function></link>
- to find the owner of the file.</para></simplesect>
+<para>Use <link linkend="file-owner"><function>OS:FILE-OWNER</function></link>
+ to find the owner of the file.  See also
+ <link linkend="file-properties"><function>OS:FILE-PROPERTIES</function></link>
+ (&win32-only;).</para></simplesect>
 
 <simplesect id="probe-dir"><title>Function &probe-dir;</title>
 <para><code>(&probe-dir; &path-r;)</code> tests whether &path-r; exists
@@ -3514,7 +3525,12 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
  &path-r;, not its &truename;, and returns the absolute pathname it
  actually removed or &nil; if &path-r; did not exist.
  When &path-r; points to a file which is currently open in &clisp;,
- an &err-sig;.</para></simplesect>
+ an &err-sig;.
+ To remove a directory, use &delete-dir; instead.</para></simplesect>
+
+<simplesect id="rename-file"><title>Function &rename-file;</title>
+ <para>This function cannot operate on directories,
+  use &rename-dir; to rename a directory.</para></simplesect>
 
 <simplesect id="directory"><title>Function &directory;</title>
 
@@ -3608,17 +3624,13 @@ pointing to non-existent files and can take the following values:
  <replaceable>directory-pathname</replaceable>)</code>
  creates a new subdirectory.</para></simplesect>
 
-<simplesect id="delete-dir">
- <title>Function <function>EXT:DELETE-DIR</function></title>
-<para><code>(<function>EXT:DELETE-DIR</function>
- <replaceable>directory-pathname</replaceable>)</code> removes an
- (empty) subdirectory.</para></simplesect>
+<simplesect id="delete-dir"><title>Function &delete-dir;</title>
+<para><code>(&delete-dir; <replaceable>directory-pathname</replaceable>)</code>
+ removes an (empty) subdirectory.</para></simplesect>
 
-<simplesect id="rename-dir">
- <title>Function <function>EXT:RENAME-DIR</function></title>
-<para><code>(<function>EXT:RENAME-DIR</function>
- <replaceable>old-directory-pathname</replaceable>
- <replaceable>new-directory-pathname</replaceable>)</code> renames a
+<simplesect id="rename-dir"><title>Function &rename-dir;</title>
+<para><code>(&rename-dir; <replaceable>old-directory-pathname</replaceable>
+  <replaceable>new-directory-pathname</replaceable>)</code> renames a
  subdirectory to a new name.</para></simplesect>
 
 </section>
