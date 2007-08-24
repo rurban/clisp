@@ -370,7 +370,7 @@
  <varlistentry><term><code>(OS:MEMORY-STATUS)</code></term>
   <listitem><simpara>Return &win32; memory status information in a
     <type>MEMORY-STATUS</type> structure.</simpara></listitem></varlistentry>
- <varlistentry><term><code>(OS:FILE-PROPERTIES filename set
+ <varlistentry id="file-properties"><term><code>(OS:FILE-PROPERTIES filename set
     &key-amp; :INITID &allow-other-keys-amp;)</code></term>
   <listitem><para>Wrapper for the &win32;
     <function role="win32">IPropertyStorage</function> functionality.
