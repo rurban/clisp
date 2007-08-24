@@ -1,3 +1,7 @@
+2007-08-24  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: test rename-dir
+
 2007-08-23  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst (ffi_uintp, my-uintp): add one argument def-c-type test

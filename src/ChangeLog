@@ -1,5 +1,12 @@
 2007-08-24  Sam Steingold  <sds@gnu.org>
 
+	implement RFE #[ 1779938 ]: RENAME-DIRECTORY
+	* pathname.d (RENAME-DIR): implement
+	* constsym.d, subr.d (rename_dir): add
+	* init.lisp (rename-dir): exoirt
+
+2007-08-24  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c: fix some error_bdb calls;
 	use db->get_env instead of a direct dbenv slot access;
 	avoid "DB->get_cachesize: method not permitted when environment
