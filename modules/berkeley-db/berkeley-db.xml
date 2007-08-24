@@ -122,11 +122,12 @@
 <varlistentry id="dbe-set-options"><term><code>(BDB:DBE-SET-OPTIONS dbe
    &key-amp; MSGFILE ERRFILE ERRPFX PASSWORD ENCRYPT LOCK-TIMEOUT TXN-TIMEOUT
    SHM-KEY TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR LG-BSIZE LG-DIR
-   LG-MAX LG-REGIONMAX LK-CONFLICTS LK-DETECT LK-MAX-LOCKERS LK-MAX-LOCKS
-   LK-MAX-OBJECTS AUTO-COMMIT CDB-ALLDB DIRECT-DB DSYNC-LOG LOG-AUTOREMOVE
-   LOG-INMEMORY DIRECT-LOG NOLOCKING NOMMAP NOPANIC OVERWRITE PANIC-ENVIRONMENT
-   REGION-INIT TXN-NOSYNC TXN-WRITE-NOSYNC YIELDCPU VERB-CHKPOINT VERB-DEADLOCK
-   VERB-RECOVERY VERB-REPLICATION VERB-WAITSFOR VERBOSE)</code></term>
+   LG-MAX LG-REGIONMAX NCACHE CACHESIZE CACHE LK-CONFLICTS LK-DETECT
+   LK-MAX-LOCKERS LK-MAX-LOCKS LK-MAX-OBJECTS AUTO-COMMIT CDB-ALLDB DIRECT-DB
+   DSYNC-LOG LOG-AUTOREMOVE LOG-INMEMORY DIRECT-LOG NOLOCKING NOMMAP NOPANIC
+   OVERWRITE PANIC-ENVIRONMENT REGION-INIT TXN-NOSYNC TXN-WRITE-NOSYNC YIELDCPU
+   VERB-CHKPOINT VERB-DEADLOCK VERB-RECOVERY VERB-REPLICATION VERB-WAITSFOR
+   VERBOSE)</code></term>
  <listitem><para>Set some environment options using <simplelist columns="3">
     <member><function role="bdb">DB_ENV-&gt;set_flags</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_verbose</function></member>
@@ -150,6 +151,7 @@
     <member><function role="bdb">DB_ENV-&gt;set_lk_max_lockers</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_lk_max_locks</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_lk_max_objects</function></member>
+    <member><function role="bdb">DB_ENV-&gt;set_cachesize</function></member>
 </simplelist></para></listitem></varlistentry>
 <varlistentry id="dbe-get-options"><term><code>(BDB:DBE-GET-OPTIONS dbe
    &optional-amp; &what-r;)</code></term>
@@ -221,6 +223,12 @@
      <listitem><simpara>logging region size
        (<function role="bdb">DB_ENV-&gt;get_lg_regionmax</function>).
     </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:NCACHE</constant></term>
+     <term><constant>:CACHESIZE</constant></term>
+     <term><constant>:CACHE</constant></term>
+     <listitem><simpara>cache parameters
+       (<function role="bdb">DB_ENV-&gt;get_cachesize</function>).
+    </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:LK-CONFLICTS</constant></term>
      <listitem><simpara>lock conflicts matrix
        (<function role="bdb">DB_ENV-&gt;get_lk_conflicts</function>).
@@ -283,6 +291,10 @@
     <varlistentry><term><constant>:OPEN</constant></term>
      <listitem><simpara>the &list-t; of flags passed to &dbe-open;
        (<function role="bdb">DB_ENV-&gt;get_open_flags</function>).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:CACHE</constant></term>
+     <listitem><simpara>database cache information
+       (<function role="bdb">DBE-&gt;get_cachesize</function>).
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 </variablelist></section>
@@ -473,7 +485,9 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:CACHE</constant></term>
      <listitem><simpara>database cache information
-       (<function role="bdb">DB-&gt;get_cachesize</function>).
+       (<function role="bdb">DB-&gt;get_cachesize</function> or
+       <function role="bdb">DBE-&gt;get_cachesize</function> if the
+       database was created within an environment).
     </simpara></listitem></varlistentry>
    <varlistentry><term><constant>:ENCRYPTION</constant></term>
      <listitem><simpara>encryption flags
