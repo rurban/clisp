@@ -1,6 +1,7 @@
 2007-08-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c: fix some error_bdb calls;
+	use db->get_env instead of a direct dbenv slot access;
 	avoid "DB->get_cachesize: method not permitted when environment
 	specified" error log messages
 	(BDB:DBE-SET-OPTIONS): accept :NCACHE :CACHESIZE :CACHE
@@ -8,6 +9,12 @@
 	(cache2lisp): extract from db_get_cache
 	(dbe_get_cache): add
 	(db_get_cache): call it when db is based on a dbe
+	(db_get_type): new function
+	fix bug #[ 1779416 ]: Berkeley-DB module outputs spurious errors
+	(record_length): do not call get_re_len on DB_BTREE & DB_HASH
+	(BDB:DB-GET-OPTIONS): do not call methods inappropriate for a DB
+	type, avoiding "call implies an access method which is
+	inconsistent with previous calls" error log messages
 
 2007-08-23  Sam Steingold  <sds@gnu.org>
 
