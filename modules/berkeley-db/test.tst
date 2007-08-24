@@ -43,16 +43,14 @@ show-db
                    (list :messages (bdb:dbe-messages dbe))))))
   nil)
 show-dbe
-(defun show-file (file)
+(defun show-file (file)         ; return line count
   (with-open-file (st file :direction :input)
     (format t "~&~S: ~:D byte~:P:~%" file (file-length st))
-    (loop :for l = (read-line st nil nil) :while l
+    (loop :for l = (read-line st nil nil) :while l :count t
       :do (format t "--> ~S~%" l))))
 show-file
 (defun finish-file (file)
-  (when (probe-file file) (show-file file))
-  (delete-file file)
-  (probe-file file))
+  (prog1 (show-file file) (delete-file file)))
 finish-file
 (progn
   (defmethod close :before ((h bdb:bdb-handle) &key abort)
@@ -92,6 +90,8 @@ NIL
 (show-dbe *dbe*) NIL
 
 (defvar *db* (let ((*print-pretty* t)) (show (bdb:db-create *dbe*)))) *db*
+
+(bdb:db-set-options *db*) NIL
 
 ;; the actual file goes to ./bdb-data/bazonk.db !
 (bdb:db-open *db* "bazonk.db" :type :BTREE :create t) NIL
@@ -192,8 +192,8 @@ T
 
 (ext:dir "bdb-home/**") NIL
 (ext:dir "bdb-data/**") NIL
-(finish-file "bdb-errors") NIL
-(finish-file "bdb-msg") NIL
+(finish-file "bdb-errors") 2    ; just the two "start" and "stop" messages
+(finish-file "bdb-msg") 2
 
 ;;; access
 
@@ -350,7 +350,7 @@ nil
 (close *dbe*)    T
 (bdb:dbe-remove (show (bdb:dbe-create)) :home "bdb-home/") NIL
 
-(finish-file "bdb-errors") NIL
-(finish-file "bdb-msg") NIL
+(finish-file "bdb-errors") 2    ; just the two start and stop messages
+(finish-file "bdb-msg") 2
 (rmrf "bdb-home/") T
 (rmrf "bdb-data/") T

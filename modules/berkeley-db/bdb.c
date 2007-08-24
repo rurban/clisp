@@ -1193,9 +1193,10 @@ DEFUN(BDB:DB-CLOSE, db &key :NOSYNC)
     bool orphan_p = nullp(Parents(STACK_1));
     pushSTACK(STACK_1); funcall(`BDB::KILL-HANDLE`,1);
     if (orphan_p) {
-      close_errfile(db->dbenv);
-      close_errpfx(db->dbenv);
-      close_msgfile(db->dbenv);
+      DB_ENV *dbe = db->get_env(db);
+      close_errfile(dbe);
+      close_errpfx(dbe);
+      close_msgfile(dbe);
     }
     SYSCALL(db->close,(db,flags));
     VALUES1(T);
@@ -1379,24 +1380,34 @@ static object dbt_to_object (DBT *p_dbt, dbt_o_t type, int key_type) {
   }
 }
 
+/* get the type of the DB */
+static inline DBTYPE db_get_type (DB *db) {
+  DBTYPE db_type;
+  SYSCALL(db->get_type,(db,&db_type));
+  return db_type;
+}
+
 /* extract record length, not errors */
 static u_int32_t record_length (DB *db) {
-  u_int32_t ret;
-  int status;
-  begin_system_call();
-  status = db->get_re_len(db,&ret);
-  end_system_call();
-  if (status) {
-    error_message_reset();
-    return 0;
-  } else return ret;
+  switch (db_get_type(db)) {
+    case DB_BTREE: case DB_HASH: return 0;
+    case DB_RECNO: case DB_QUEUE: {
+      u_int32_t ret;
+      int status;
+      begin_system_call();
+      status = db->get_re_len(db,&ret);
+      end_system_call();
+      if (status) {
+        error_message_reset();
+        return 0;
+      } else return ret;
+    }
+  }
 }
 /* check whether the DB uses logical record numbers, see
  <http://www.sleepycat.com/docs/ref/am_conf/logrec.html> */
 static inline int db_key_type (DB *db, u_int32_t action) {
-  DBTYPE db_type;
-  SYSCALL(db->get_type,(db,&db_type));
-  switch (db_type) {
+  switch (db_get_type(db)) {
     case DB_QUEUE: case DB_RECNO: return -1;
     case DB_BTREE: switch (action) {
       case DB_GET_RECNO: case DB_SET_RECNO: return -1;
@@ -1481,9 +1492,8 @@ DEFUN(BDB:DB-STAT, db &key :FAST-STAT :TRANSACTION)
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_FAST_STAT;
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
   int swapped_p;
-  DBTYPE db_type;
+  DBTYPE db_type = db_get_type(db);
   unsigned int count = 0;
-  SYSCALL(db->get_type,(db,&db_type));
   pushSTACK(check_dbtype_reverse(db_type)); count++;
   SYSCALL(db->get_byteswapped,(db,&swapped_p));
   pushSTACK(swapped_p ? T : NIL); count++;
@@ -1838,6 +1848,7 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :MSGFILE :ERRFILE :ERRPFX :PASSWORD \
       :REVSPLITOFF :SNAPSHOT :TXN-NOT-DURABLE)
 { /* set database options */
   DB *db = (DB*)bdb_handle(STACK_(28),`BDB::DB`,BH_VALID);
+  DB_ENV *dbe = db->get_env(db);
   { /* flags */
     u_int32_t flags_on = 0, flags_off = 0;
     set_flags(popSTACK(),&flags_on,&flags_off,DB_TXN_NOT_DURABLE);
@@ -1938,11 +1949,11 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :MSGFILE :ERRFILE :ERRPFX :PASSWORD \
   if (!missingp(STACK_1))       /* PASSWORD */
     db_set_encryption(db,&STACK_0,&STACK_1);
   skipSTACK(2);
-  if (!missingp(STACK_0)) reset_errpfx(db->dbenv);
+  if (!missingp(STACK_0)) reset_errpfx(dbe);
   skipSTACK(1);
-  if (!missingp(STACK_0)) reset_errfile(db->dbenv);
+  if (!missingp(STACK_0)) reset_errfile(dbe);
   skipSTACK(1);
-  if (!missingp(STACK_0)) reset_msgfile(db->dbenv);
+  if (!missingp(STACK_0)) reset_msgfile(dbe);
   skipSTACK(1);
   VALUES0; skipSTACK(1);        /* skip db */
 }
@@ -2025,28 +2036,41 @@ FLAG_EXTRACTOR(db_get_flags_num,DB*)
 DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
 { /* retrieve database options */
   DB *db = (DB*)bdb_handle(STACK_1,`BDB::DB`,BH_VALID);
+  DB_ENV *dbe = db->get_env(db);
   object what = STACK_0; skipSTACK(2);
  restart_DB_GET_OPTIONS:
   if (missingp(what)) {         /* get everything */
     uintL count = 0;
+    DBTYPE db_type = db_get_type(db);
     pushSTACK(`:CACHE`); db_get_cache(db,false);
     pushSTACK(value1); pushSTACK(value2); value1 = listof(2);
     pushSTACK(value1); count++;
-    pushSTACK(`:ERRPFX`); pushSTACK(dbe_get_errpfx(db->dbenv)); count++;
-    pushSTACK(`:ERRFILE`); pushSTACK(dbe_get_errfile(db->dbenv)); count++;
-    pushSTACK(`:MSGFILE`); pushSTACK(dbe_get_msgfile(db->dbenv)); count++;
+    pushSTACK(`:ERRPFX`); pushSTACK(dbe_get_errpfx(dbe)); count++;
+    pushSTACK(`:ERRFILE`); pushSTACK(dbe_get_errfile(dbe)); count++;
+    pushSTACK(`:MSGFILE`); pushSTACK(dbe_get_msgfile(dbe)); count++;
     pushSTACK(`:FLAGS`); value1 = db_get_flags_list(db);
     pushSTACK(value1); count++;
     pushSTACK(`:LORDER`); pushSTACK(db_get_lorder(db)); count++;
     pushSTACK(`:PAGESIZE`); pushSTACK(db_get_pagesize(db)); count++;
-    pushSTACK(`:BT-MINKEY`); pushSTACK(db_get_bt_minkey(db,false)); count++;
-    pushSTACK(`:H-FFACTOR`); pushSTACK(db_get_h_ffactor(db,false)); count++;
-    pushSTACK(`:H-NELEM`); pushSTACK(db_get_h_nelem(db,false)); count++;
-    pushSTACK(`:Q-EXTENTSIZE`);pushSTACK(db_get_q_extentsize(db,false));count++;
-    pushSTACK(`:RE-DELIM`); pushSTACK(db_get_re_delim(db,false)); count++;
-    pushSTACK(`:RE-LEN`); pushSTACK(db_get_re_len(db,false)); count++;
-    pushSTACK(`:RE-PAD`); pushSTACK(db_get_re_pad(db,false)); count++;
-    pushSTACK(`:RE-SOURCE`); pushSTACK(db_get_re_source(db,false)); count++;
+    if (db_type == DB_BTREE) {
+      pushSTACK(`:BT-MINKEY`); pushSTACK(db_get_bt_minkey(db,false)); count++;
+    }
+    if (db_type == DB_HASH) {
+      pushSTACK(`:H-FFACTOR`); pushSTACK(db_get_h_ffactor(db,false)); count++;
+      pushSTACK(`:H-NELEM`); pushSTACK(db_get_h_nelem(db,false)); count++;
+    }
+    if (db_type == DB_QUEUE) {
+      pushSTACK(`:Q-EXTENTSIZE`); pushSTACK(db_get_q_extentsize(db,false));
+      count++;
+    }
+    if (db_type == DB_RECNO || db_type == DB_QUEUE) {
+        pushSTACK(`:RE-LEN`); pushSTACK(db_get_re_len(db,false)); count++;
+        pushSTACK(`:RE-PAD`); pushSTACK(db_get_re_pad(db,false)); count++;
+    }
+    if (db_type == DB_RECNO) {
+      pushSTACK(`:RE-DELIM`); pushSTACK(db_get_re_delim(db,false)); count++;
+      pushSTACK(`:RE-SOURCE`); pushSTACK(db_get_re_source(db,false)); count++;
+    }
     pushSTACK(`:TRANSACTIONAL`); pushSTACK(db_get_transactional(db)); count++;
     pushSTACK(`:DBNAME`); db_get_dbname(db,false);
     pushSTACK(value1); pushSTACK(value2); value1 = listof(2);
@@ -2069,11 +2093,11 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
       default: NOTREACHED;
     }
   } else if (eq(what,`:ERRFILE`)) {
-    VALUES1(dbe_get_errfile(db->dbenv));
+    VALUES1(dbe_get_errfile(dbe));
   } else if (eq(what,`:MSGFILE`)) {
-    VALUES1(dbe_get_msgfile(db->dbenv));
+    VALUES1(dbe_get_msgfile(dbe));
   } else if (eq(what,`:ERRPFX`)) {
-    VALUES1(dbe_get_errpfx(db->dbenv));
+    VALUES1(dbe_get_errpfx(dbe));
   } else if (eq(what,`:PAGESIZE`)) {
     VALUES1(db_get_pagesize(db));
   } else if (eq(what,`:TRANSACTIONAL`)) {
