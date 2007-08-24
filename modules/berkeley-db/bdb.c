@@ -379,7 +379,7 @@ DEFUN(BDB:DBE-CREATE,&key :PASSWORD :ENCRYPT    \
       STACK_2 = value1;
       goto host_restart;
     }
-    if (status) error_bdb(status,"set_rpc_server");
+    if (status) error_bdb(status,"dbe->set_rpc_server");
   }
   if (!missingp(STACK_4))       /* :PASSWD */
     dbe_set_encryption(dbe,&STACK_3,&STACK_4);
@@ -1928,7 +1928,7 @@ static void db_get_dbname (DB* db, int errorp) {
   status = db->get_dbname(db,&fname,&dbname);
   end_system_call();
   if (status) {
-    if (errorp) error_bdb(status,"db->get_cachesize");
+    if (errorp) error_bdb(status,"db->get_dbname");
     error_message_reset();
     value1 = value2 = NIL;
   } else {
@@ -2485,7 +2485,7 @@ DEFUN(BDB:LOGC-GET, logc action &key :TYPE :ERROR)
         case DB_NOTFOUND: VALUES1(`:NOTFOUND`); error_message_reset(); return;
       }
     }
-    error_bdb(status,"dbc->c_get");
+    error_bdb(status,"logc->get");
   }
   if (action == DB_SET) {       /* STACK_0 is the LSN */
   } else STACK_0 = make_lsn(&lsn);
