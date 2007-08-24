@@ -321,6 +321,16 @@ static void wrap_finalize (void* pointer, object parents,
   pushSTACK(allocate_fpointer(pointer)); funcall(`BDB::MKHANDLE`,4);
 }
 
+/* convert a Lisp integer to a pair of (Giga-bytes bytes)
+ can trigger GC */
+DEFVAR(giga_byte,`#.(BYTE 30 0)`)
+static void size_to_giga_bytes (object size, u_int32_t *gb, u_int32_t *by) {
+  pushSTACK(size); pushSTACK(negfixnum(-30));
+  pushSTACK(O(giga_byte)); pushSTACK(size);
+  funcall(L(ldb),2); *by = I_to_uint32(value1);
+  funcall(L(ash),2); *gb = I_to_uint32(value1);
+}
+
 /* ===== Database Environment ===== */
 /* not exported:
  DB_ENV->err	Error message with error string
@@ -635,7 +645,7 @@ DEFCHECKER(check_lk_detect,prefix=DB_LOCK, default=DB_LOCK_DEFAULT, NORUN \
 DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       :ERRFILE :ERRPFX :PASSWORD :ENCRYPT :LOCK-TIMEOUT :TXN-TIMEOUT :TIMEOUT \
       :SHM-KEY :TAS-SPINS :TX-TIMESTAMP :TX-MAX :DATA-DIR :TMP-DIR      \
-      :LG-BSIZE :LG-DIR :LG-MAX :LG-REGIONMAX                           \
+      :LG-BSIZE :LG-DIR :LG-MAX :LG-REGIONMAX :NCACHE :CACHESIZE :CACHE \
       :LK-CONFLICTS :LK-DETECT :LK-MAX-LOCKERS :LK-MAX-LOCKS :LK-MAX-OBJECTS \
       :AUTO-COMMIT :CDB-ALLDB :DIRECT-DB :DSYNC-LOG :LOG-AUTOREMOVE \
       :LOG-INMEMORY :DIRECT-LOG :NOLOCKING                              \
@@ -644,7 +654,7 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       :VERB-CHKPOINT :VERB-DEADLOCK :VERB-RECOVERY :VERB-REPLICATION    \
       :VERB-WAITSFOR :VERBOSE :MSGFILE)
 { /* set many options */
-  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(45),`BDB::DBE`,BH_VALID);
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(48),`BDB::DBE`,BH_VALID);
   if (!missingp(STACK_0)) reset_msgfile(dbe);
   skipSTACK(1);                 /* drop :MSGFILE */
   { object arg = popSTACK();
@@ -731,6 +741,25 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
     }
   }
   skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* CACHE = (ncache cachesize) */
+    STACK_0 = check_list(STACK_0);
+    if (consp(STACK_0)) {
+      int ncache = I_to_uint(check_uint(Car(STACK_0)));
+      u_int32_t gbytes=0, bytes=0;
+      STACK_0 = check_list(Cdr(STACK_0));
+      if (consp(STACK_0))
+        size_to_giga_bytes(Car(STACK_0),&gbytes,&bytes);
+      SYSCALL(dbe->set_cachesize,(dbe,gbytes,bytes,ncache));
+    }
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* CACHESIZE & NCACHE */
+    int ncache = check_uint_default0(STACK_1);
+    u_int32_t gbytes, bytes;
+    size_to_giga_bytes(STACK_0,&gbytes,&bytes);
+    SYSCALL(dbe->set_cachesize,(dbe,gbytes,bytes,ncache));
+  }
+  skipSTACK(2);
   DBE_SET(lg_regionmax,u_int32_t,I_to_uint32(check_uint32(STACK_0)));
   DBE_SET(lg_max,u_int32_t,I_to_uint32(check_uint32(STACK_0)));
   if (!missingp(STACK_0)) {     /* LG_DIR */
@@ -790,6 +819,30 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
   VALUES0; skipSTACK(1);        /* skip dbe */
 #undef DBE_SET
 #undef DBE_SET1
+}
+
+/* value1 == cachesize, value2 = ncache
+ can trigger GC */
+static void cache2lisp (u_int32_t gbytes, u_int32_t bytes, int ncache) {
+  pushSTACK(UL_to_I(gbytes)); pushSTACK(fixnum(30)); funcall(L(ash),2);
+  pushSTACK(value1); pushSTACK(UL_to_I(bytes)); funcall(L(plus),2);
+  value2 = fixnum(ncache);
+}
+
+/* get cache size and number of caches
+   value1 == cachesize, value2 = ncache
+ can trigger GC */
+static void dbe_get_cache (DB_ENV* dbe, int errorp) {
+  u_int32_t gbytes, bytes;
+  int ncache, status;
+  begin_system_call();
+  status = dbe->get_cachesize(dbe,&gbytes,&bytes,&ncache);
+  end_system_call();
+  if (status) {
+    if (errorp) error_bdb(status,"dbe->get_cachesize");
+    error_message_reset();
+    value1 = value2 = NIL;
+  } else cache2lisp (gbytes, bytes, ncache);
 }
 
 /* get the list of verbosity options
@@ -952,6 +1005,9 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     uintL count = 0;
     pushSTACK(`:VERBOSE`); value1 = dbe_get_verbose(dbe);
     pushSTACK(value1); count++;
+    pushSTACK(`:CACHE`); dbe_get_cache(dbe,false);
+    pushSTACK(value1); pushSTACK(value2); value1 = listof(2);
+    pushSTACK(value1); count++;
     pushSTACK(`:FLAGS`); value1 = dbe_get_flags_list(dbe);
     pushSTACK(value1); count++;
     pushSTACK(`:TIMESTAMP`); pushSTACK(dbe_get_tx_timestamp(dbe)); count++;
@@ -981,6 +1037,8 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES1(listof(count*2));
   } else if (eq(what,S(Kverbose))) {
     VALUES1(dbe_get_verbose(dbe));
+  } else if (eq(what,`:CACHE`)) {
+    dbe_get_cache(dbe,true); mv_count = 2;
   } else if (eq(what,`:FLAGS`)) {
     VALUES1(dbe_get_flags_list(dbe));
   } else if (eq(what,`:VERB-WAITSFOR`)) {
@@ -1729,16 +1787,6 @@ Hash Configuration
  DB->set_h_hash	Set a hashing function
 */
 
-/* convert a Lisp integer to a pair of (Giga-bytes bytes)
- can trigger GC */
-DEFVAR(giga_byte,`#.(BYTE 30 0)`)
-static void size_to_giga_bytes (object size, u_int32_t *gb, u_int32_t *by) {
-  pushSTACK(size); pushSTACK(negfixnum(-30));
-  pushSTACK(O(giga_byte)); pushSTACK(size);
-  funcall(L(ldb),2); *by = I_to_uint32(value1);
-  funcall(L(ash),2); *gb = I_to_uint32(value1);
-}
-
 /* set the password to perform encryption and decryption.
  can trigger GC */
 static void db_set_encryption (DB *db, gcv_object_t *o_flags_,
@@ -1880,7 +1928,7 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :MSGFILE :ERRFILE :ERRPFX :PASSWORD \
     }
   }
   skipSTACK(1);
-  if (!missingp(STACK_0)) {     /* CACHESIZE */
+  if (!missingp(STACK_0)) {     /* CACHESIZE & NCACHE */
     int ncache = check_uint_default0(STACK_1);
     u_int32_t gbytes, bytes;
     size_to_giga_bytes(STACK_0,&gbytes,&bytes);
@@ -1899,23 +1947,23 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :MSGFILE :ERRFILE :ERRPFX :PASSWORD \
   VALUES0; skipSTACK(1);        /* skip db */
 }
 
-/* get cache size and number of cashes
-   value1 == cashesize, value2 = ncache
+/* get cache size and number of caches
+   value1 == cachesize, value2 = ncache
  can trigger GC */
 static void db_get_cache (DB* db, int errorp) {
-  u_int32_t gbytes, bytes;
-  int ncache, status;
-  begin_system_call();
-  status = db->get_cachesize(db,&gbytes,&bytes,&ncache);
-  end_system_call();
-  if (status) {
-    if (errorp) error_bdb(status,"db->get_cachesize");
-    error_message_reset();
-    value1 = value2 = NIL;
-  } else {
-    pushSTACK(UL_to_I(gbytes)); pushSTACK(fixnum(30)); funcall(L(ash),2);
-    pushSTACK(value1); pushSTACK(UL_to_I(bytes)); funcall(L(plus),2);
-    value2 = fixnum(ncache);
+  DB_ENV *dbe = db->get_env(db);
+  if (dbe) dbe_get_cache(dbe,errorp);
+  else {
+    u_int32_t gbytes, bytes;
+    int ncache, status;
+    begin_system_call();
+    status = db->get_cachesize(db,&gbytes,&bytes,&ncache);
+    end_system_call();
+    if (status) {
+      if (errorp) error_bdb(status,"db->get_cachesize");
+      error_message_reset();
+      value1 = value2 = NIL;
+    } else cache2lisp (gbytes, bytes, ncache);
   }
 }
 /* get file name and database name
