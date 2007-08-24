@@ -1,3 +1,14 @@
+2007-08-24  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c: fix some error_bdb calls;
+	avoid "DB->get_cachesize: method not permitted when environment
+	specified" error log messages
+	(BDB:DBE-SET-OPTIONS): accept :NCACHE :CACHESIZE :CACHE
+	(BDB:DBE-GET-OPTIONS): report :CACHE
+	(cache2lisp): extract from db_get_cache
+	(dbe_get_cache): add
+	(db_get_cache): call it when db is based on a dbe
+
 2007-08-23  Sam Steingold  <sds@gnu.org>
 
 	* constobj.d (foreign_inttype_table): add
