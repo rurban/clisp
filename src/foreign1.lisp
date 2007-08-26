@@ -769,11 +769,8 @@
             ~%void module__~A__init_function_2 (module_t* module);~%~
             ~%void module__~A__fini_function (module_t* module);~%~
             ~2%void module__~A__init_function_1 (module_t* module)~%~
-            {~{~%~A~}~%}~2%~
-            void module__~A__init_function_2 (module_t* module)~%~
             {~{~%~A~}~%"
-            *c-name* *c-name* *c-name*
-            *c-name* *init-once* *c-name* *init-always*)
+            *c-name* *c-name* *c-name* *c-name* *init-once*)
     (let ((done (make-hash-table :test 'equal)))
       (maphash (lambda (type spec)
                  (declare (ignore type))
@@ -785,6 +782,10 @@
                    (format *coutput-stream* "  register_foreign_inttype(~S,sizeof(~A),(~A)-1<=(~A)0);~%" spec spec spec spec)
                    (when *foreign-guard* (format *coutput-stream* "# endif~%"))))
                *c-type-table*))
+    (format *coutput-stream*
+            "}~2%void module__~A__init_function_2 (module_t* module)~%~
+            {~{~%~A~}~%"
+             *c-name* *init-always*)
     (dolist (variable *variable-list*)
       (let ((c-name (first variable)))
         (when *foreign-guard*
