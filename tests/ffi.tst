@@ -1160,6 +1160,6 @@ FM
   (:arguments (obj ffi_uintp))
   (:return-type ffi_uintp) (:language :stdc))
 MY-UINTP
-(my-sint 123) 123
+(my-uintp 123) 123
 
 (progn (in-package "USER") (delete-package "FTEST") T) T
