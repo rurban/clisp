@@ -1,3 +1,9 @@
+2007-08-26  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (finalize-coutput-file): write
+	register_foreign_inttype forms into init_function_2 ("init once")
+	instead of init_function_1 ("init-always")
+
 2007-08-24  Sam Steingold  <sds@gnu.org>
 
 	implement RFE #[ 1779938 ]: RENAME-DIRECTORY
