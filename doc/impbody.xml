@@ -3599,7 +3599,8 @@ pointing to non-existent files and can take the following values:
  shows the contents of the current directory.</para></simplesect>
 
 <simplesect id="cd"><title>Function &cd;</title>
-<para><code>(&cd; &path-r;)</code> sets it, <code>(&cd;)</code> returns it.
+<para><code>(&cd; &path-r;)</code> sets the current working directory,
+ <code>(&cd;)</code> returns it.
 <variablelist>
 <!-- #if defined(PATHNAME_UNIX) -->
 <varlistentry><term>&unix-only;</term>
