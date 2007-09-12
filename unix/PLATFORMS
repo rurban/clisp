@@ -667,7 +667,7 @@ and try "--with-gmalloc" again.
 
 On Nokia N800 (Arm) running Linux:
 
-If you get a crash during loading of the first few lisp file (first G),
+If you get a crash during loading of the first few lisp file (first GC),
 add "-DNO_GENERATIONAL_GC" to CFLAGS.
 If your modules do not work (clisp.h does not define "object" type),
 install GNU sed.
