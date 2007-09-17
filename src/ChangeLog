@@ -1,5 +1,9 @@
 2007-09-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/gdbm/gdbm.c (GDBM::GDBM-OPEN): finalize GDBM object
+
+2007-09-17  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (POSIX:LOADAVG): implement
 	* modules/syscalls/posix.lisp (POSIX:LOADAVG): export
 	* modules/syscalls/configure.in (getloadavg): check
@@ -9,10 +13,11 @@
 	* modules/gdbm/configure.in: check for <gdbm/gdbm.h> too
 	* modules/gdbm/gdbm.c: include <gdbm/gdbm.h> when it is available
 
-2007-09-17  Sam Steingold  <sds@gnu.org>
+2007-09-17  Masayuki Onjo  <masayuki.onjo@gmail.com>
+	Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (MODULES): added gtk2
-	* modules/gdbm: new module from Masayuki Onjo <masayuki.onjo@gmail.com>
+	* modules/gdbm: new module
 
 2007-08-26  Sam Steingold  <sds@gnu.org>
 
