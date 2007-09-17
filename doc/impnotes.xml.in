@@ -23,6 +23,7 @@
   <!ENTITY % ent-bdb-file SYSTEM "../modules/berkeley-db/ent-bdb.xml">
   %ent-bdb-file;
   <!ENTITY berkeley-db-file SYSTEM "../modules/berkeley-db/berkeley-db.xml">
+  <!ENTITY gdbm-file SYSTEM "../modules/gdbm/gdbm.xml">
   <!ENTITY dirkey-file SYSTEM "../modules/dirkey/dirkey.xml">
   <!ENTITY fastcgi-file SYSTEM "../modules/fastcgi/fastcgi.xml">
   <!ENTITY gtk-file SYSTEM "../modules/gtk2/gtk.xml">
@@ -171,6 +172,7 @@
 &matlab-file;
 &netica-file;
 &dirkey-file;
+&gdbm-file;
 &berkeley-db-file;
 &regexp-file;
 &pari-file;
