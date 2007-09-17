@@ -283,10 +283,12 @@
   <listitem><simpara>Compute the
     <ulink url="http://en.wikipedia.org/wiki/BogoMips">BogoMips</ulink>
     rating.</simpara></listitem></varlistentry>
- <varlistentry id="loadavg"><term><code>(POSIX:LOADAVG)</code></term>
+ <varlistentry id="loadavg"><term><code>(POSIX:LOADAVG &optional-amp;
+    percentp)</code></term>
   <listitem><simpara>Return 1, 5, and 15 minute system load averages,
     retrieved by <function role="bsd">getloadavg</function>.
- </simpara></listitem></varlistentry>
+    If the argument is specified and non-&nil;, the values are returned
+    as integer percentiles.</simpara></listitem></varlistentry>
  <varlistentry id="stream-lock"><term>
    <code>(<function>POSIX:STREAM-LOCK</function> &stream-r;
     <replaceable>lock-p</replaceable> &key-amp;

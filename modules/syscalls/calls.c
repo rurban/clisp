@@ -803,7 +803,7 @@ DEFUN(POSIX:BOGOMIPS,)
 #endif /* HAVE_CLOCK */
 
 #if defined(HAVE_GETLOADAVG)
-DEFUN(POSIX:LOADAVG,) {
+DEFUN(POSIX:LOADAVG, &optional percentp) {
   double loadavg[3];
   int ret;
   begin_system_call();
@@ -811,9 +811,16 @@ DEFUN(POSIX:LOADAVG,) {
   end_system_call();
   if (ret != 3) OS_error();
   mv_count=3;
-  N_D(loadavg[0],value1);
-  N_D(loadavg[1],value2);
-  N_D(loadavg[2],value3);
+  if (missingp(STACK_0)) {
+    N_D(loadavg[0],value1);
+    N_D(loadavg[1],value2);
+    N_D(loadavg[2],value3);
+  } else { /* return % as ints, to avoid consing */
+    value1 = fixnum((int)(loadavg[0]*100));
+    value2 = fixnum((int)(loadavg[1]*100));
+    value3 = fixnum((int)(loadavg[2]*100));
+  }
+  skipSTACK(1);
 }
 #endif  /* HAVE_GETLOADAVG */
 
