@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 ;; some tests for Berkeley-DB
-;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "test")'
+;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "gdbm/test")'
 
 (listp (show (multiple-value-list (ext:module-info "gdbm" t)) :pretty t)) T
 
@@ -15,15 +15,11 @@
 
 (gdbm:gdbm-setopt *db* :cachesize 1024) T
 
-(loop with key = (gdbm:gdbm-firstkey *db*)
-      while key
-      count key
-      do (setf key (gdbm:gdbm-nextkey *db* key))) 0
+(gdbm:do-db (key *db*) :count key) 0
 
-(handler-case
-    (gdbm:gdbm-setopt *db* :cachesize 1024)
+(handler-case (gdbm:gdbm-setopt *db* :cachesize 1024)
   (gdbm::gdbm-error (condition)
-    (gdbm::gdbm-error-message condition))) "Option already set"  
+    (gdbm::gdbm-error-message condition))) "Option already set"
 
 (gdbm:gdbm-store *db* "key1" "value1") T
 
@@ -59,37 +55,30 @@
 
 (gdbm::gdbm-p (setf *db* (gdbm:gdbm-open "test.db"))) T
 
-(loop with key = (gdbm:gdbm-firstkey *db*)
-      while key
-      count key
-      do (setf key (gdbm:gdbm-nextkey *db* key))) 4
+(gdbm:do-db (key *db*) :count key) 4
 
 (gdbm:gdbm-delete *db* "key1") T
 
-(loop with key = (gdbm:gdbm-firstkey *db*)
-      while key
-      count key
-      do (setf key (gdbm:gdbm-nextkey *db* key))) 3
+(gdbm:do-db (key *db*) :count key) 3
 
 (gdbm:gdbm-sync *db*) T
 
-(let ((bsize (with-open-file (s "test.db" :direction :input)
-	       (file-length s)))
+(let ((bsize (with-open-file (s "test.db" :direction :input) (file-length s)))
       (asize 0))
-  (loop for i from 0 to 1000 do (gdbm:gdbm-store *db* (format nil "key~A" i) (format nil "value~A" i)))
+  (loop :for i :from 0 :to 1000 :do
+    (gdbm:gdbm-store *db* (format nil "key~A" i) (format nil "value~A" i)))
   (gdbm:gdbm-sync *db*)
   (setf asize (with-open-file (s "test.db" :direction :input)
-	       (file-length s)))
+                (file-length s)))
   (> asize bsize)) T
 
-(let ((bsize (with-open-file (s "test.db" :direction :input)
-	       (file-length s)))
+(let ((bsize (with-open-file (s "test.db" :direction :input) (file-length s)))
       (asize 0))
   (loop for i from 0 to 500 do (gdbm:gdbm-delete *db* (format nil "key~A" i)))
   (gdbm:gdbm-sync *db*)
   (gdbm:gdbm-reorganize *db*)
   (setf asize (with-open-file (s "test.db" :direction :input)
-	       (file-length s)))
+                (file-length s)))
   (< asize bsize)) T
 
 (gdbm:gdbm-close *db*) T
