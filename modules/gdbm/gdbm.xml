@@ -2,70 +2,93 @@
 
 <section id="gdbm"><title>GDBM - The GNU database manager</title>
 
-<para>This is an interface to <ulink url="http://www.gnu.org/software/gdbm">GNU database manager</ulink>.</para>
+<para>This is an interface to the &gdbm;.</para>
 <simpara>When this module is present, &features-my; contains the
  symbol <constant>:GDBM</constant>.</simpara>
 
 <variablelist id="gdbm-api"><title>GDBM module API</title>
- <varlistentry id="gdbm-open">
-  <term><code>(GDBM:GDBM-OPEN &dbfile-r; &key-amp; :BLOCKSIZE :READ-WRITE :OPTION :MODE)</code></term>
-  <listitem><simpara>Open &dbfile-r; database file. The return value is GDBM structure. If the return value is NIL, GDBM-OPEN was not successful. :READ-WRITE can have one of following values:
-  <simplelist>
+ <varlistentry id="gdbm-open"><term><code>(GDBM:GDBM-OPEN &filename-r;
+    &key-amp; :BLOCKSIZE :READ-WRITE :OPTION :MODE)</code></term>
+  <listitem><para>Open &filename-r; database file.
+    The return value is a <type>GDBM</type> structure.
+    If the return value is &nil;, GDBM-OPEN was not successful.
+    <literal>:READ-WRITE</literal> can have one of following values:
+    <simplelist>
      <member><literal>:READER</literal></member>
      <member><literal>:WRITER</literal></member>
      <member><literal>:WRCREAT</literal></member>
      <member><literal>:NEWDB</literal></member>
-   </simplelist>
-   and :OPTION is one of
-   <simplelist>
+    </simplelist>
+    and <literal>:OPTION</literal> is one of
+    <simplelist>
      <member><literal>:SYNC</literal></member>
      <member><literal>:NOLOCK</literal></member>
      <member><literal>:FAST</literal></member>
-   </simplelist>
-   </simpara></listitem></varlistentry>
+    </simplelist>.
+ </para></listitem></varlistentry>
  <varlistentry id="gdbm-close">
-  <term><code>(GDBM:GDBM-CLOSE &gdbm-r;)</code></term>
-  <listitem><simpara>Close &gdbm-r; database. </simpara></listitem></varlistentry>
+  <term><code>(GDBM:GDBM-CLOSE gdbm)</code></term>
+  <listitem><simpara>Close the database.
+ </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-store">
-  <term><code>(GDBM:GDBM-STORE &gdbm-r; &key-r; &content-r; &key-amp; :FLAG)</code></term>
-  <listitem><simpara>&gdbm-r; is the GDBM structure returned by GDBM-OPEN. &key-r; is the key data. &content-r; is the data to be associated with the key. :FLAG can have one of following values:
-  <simplelist>
+  <term><code>(GDBM:GDBM-STORE &db-r; &key-r; &cont-r; &key-amp;
+    :FLAG)</code></term>
+  <listitem><para>&db-r; is the <type>GDBM</type> structure
+    returned by <function>GDBM-OPEN</function>.
+    &key-r; is the key data.
+    &cont-r; is the data to be associated with the key.
+    <literal>:FLAG</literal> can have one of following values:
+    <simplelist>
      <member><literal>:INSERT</literal></member>
      <member><literal>:REPLACE</literal></member>
-   </simplelist>
- </simpara></listitem></varlistentry>
+    </simplelist>.
+ </para></listitem></varlistentry>
  <varlistentry id="gdbm-fetch">
-  <term><code>(GDBM:GDBM-FETCH &gdbm-r; &key-r; &key-amp; :BINARY)</code></term>
-  <listitem><simpara>Search data. If :BINARY option is NIL return value is string type, otherwise the vector of (vector (unsigned-byte 8)).</simpara></listitem></varlistentry>
+  <term><code>(GDBM:GDBM-FETCH &db-r; &key-r; &key-amp; :BINARY)</code></term>
+  <listitem><simpara>Search data. If <literal>:BINARY</literal> option
+    is &nil; return value is a &string-t;, otherwise a &ubyte-vec;.
+ </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-delete">
-  <term><code>(GDBM:GDBM-DELETE &gdbm-r; &key-r;)</code></term>
-  <listitem><simpara>Delete &key-r; and content pair.</simpara></listitem></varlistentry>
+  <term><code>(GDBM:GDBM-DELETE &db-r; &key-r;)</code></term>
+  <listitem><simpara>Delete &key-r; and its contents.
+ </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-exists">
-  <term><code>(GDBM:GDBM-EXISTS &gdbm-r; &key-r;)</code></term>
-  <listitem><simpara>Search data without retriving it.</simpara></listitem></varlistentry>
+  <term><code>(GDBM:GDBM-EXISTS &db-r; &key-r;)</code></term>
+  <listitem><simpara>Search data without retrieving it.
+ </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-firstkey">
-  <term><code>(GDBM:GDBM-FIRSTKEY &gdbm-r;)</code></term>
-  <listitem><simpara>Return the key of the first entry. If the database has no entries, the return value is NIL.</simpara></listitem></varlistentry>
+  <term><code>(GDBM:GDBM-FIRSTKEY &db-r;)</code></term>
+  <listitem><simpara>Return the key of the first entry.
+    If the database has no entries, the return value is &nil;.
+ </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-nextkey">
-  <term><code>(GDBM:GDBM-NEXTKEY &gdbm-r; &key-r;)</code></term>
-  <listitem><simpara>Return the key that follows &key-r;.</simpara></listitem></varlistentry>
+  <term><code>(GDBM:GDBM-NEXTKEY &db-r; &key-r;)</code></term>
+  <listitem><simpara>Return the key that follows &key-r;.
+ </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-reorganize">
-  <term><code>(GDBM:GDBM-REORGANIZE &gdbm-r;)</code></term>
+  <term><code>(GDBM:GDBM-REORGANIZE &db-r;)</code></term>
   <listitem><simpara>Reorganize database.</simpara></listitem></varlistentry>
  <varlistentry id="gdbm-sync">
-  <term><code>(GDBM:GDBM-SYNC &gdbm-r;)</code></term>
-  <listitem><simpara>The in-memory state of the database syncronized to the disk file.</simpara></listitem></varlistentry>
-</variablelist>
+  <term><code>(GDBM:GDBM-SYNC &db-r;)</code></term>
+  <listitem><simpara>The in-memory state of the database syncronized to
+    the disk file.</simpara></listitem></varlistentry>
  <varlistentry id="gdbm-setopt">
-  <term><code>(GDBM:GDBM-SETOPT &gdbm-r; &option-r; &value-r;)</code></term>
-  <listitem><simpara>Set options on an already open database. &options-r; is one of following:
-   <simplelist>
-     <member><literal>:CACHESIZE</literal> set the size of the internal bucket cache. (default is 100)</member>
-     <member><literal>:FASTMODE</literal>T or NIL (obsolete)</member>
-     <member><literal>:SYNCMODE</literal>T or NIL</member>
-     <member><literal>:CENTFREE</literal>T or NIL</member>
-     <member><literal>:COALESCEBLKS</literal>T or NIL</member>
-   </simplelist>
-  </simpara></listitem></varlistentry>
+  <term><code>(GDBM:GDBM-SETOPT &db-r; &option-r; &value-r;)</code></term>
+  <listitem><para>Set options on an already open database.
+    &option-r; is one of following:
+    <variablelist>
+     <varlistentry><term><literal>:CACHESIZE</literal></term>
+      <listitem><simpara>set the size of the internal bucket cache.
+        (default is 100)</simpara></listitem></varlistentry>
+     <varlistentry><term><literal>:FASTMODE</literal></term>
+      <listitem><simpara>&t; or &nil; (obsolete)
+     </simpara></listitem></varlistentry>
+     <varlistentry><term><literal>:SYNCMODE</literal></term>
+      <listitem><simpara>&t; or &nil;</simpara></listitem></varlistentry>
+     <varlistentry><term><literal>:CENTFREE</literal></term>
+      <listitem><simpara>&t; or &nil;</simpara></listitem></varlistentry>
+     <varlistentry><term><literal>:COALESCEBLKS</literal></term>
+      <listitem><simpara>&t; or &nil;</simpara></listitem></varlistentry>
+ </variablelist></para></listitem></varlistentry>
 </variablelist>
 </section>
