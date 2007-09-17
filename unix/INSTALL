@@ -82,10 +82,10 @@ Special hints for some platforms can be found in file unix/PLATFORMS.
 
          ./configure /tmp/with-gcc-wall
 
-4. The previous step printed a recommendation how to continue. Follow
-   the recommendation: Go to this directory
+4. The previous step printed a recommendation how to continue.
+   Follow the recommendation: go to this directory
 
-         cd with-gcc-wall
+         cd build-with-gcc
 
    and build the makefile that controls compilation:
 
@@ -100,6 +100,8 @@ Special hints for some platforms can be found in file unix/PLATFORMS.
    To get a list of the supported options, try
 
          ./makemake --help
+
+   It is a good idea to keep the options recommended by configure.
 
 5. If you wish to build CLISP with add-on modules, edit Makefile and change
    the line defining the MODULES variable.
@@ -219,9 +221,13 @@ Special hints for some platforms can be found in file unix/PLATFORMS.
 12. If you are lazy and have too few spare neurons to remember this long
     process, just use the shortcut, like I do:
 
+         ./configure --with-module=rawsock --build build-dir
+
+    this covers the build process through step 8 (except mod-check).
+    If you want to instal too, do
+
          ./configure --with-module=rawsock --install build-dir
 
-    this covers the build process through step 9 (except mod-check).
     su(1) will prompt you for the root password if the installation
     destination is not writable by you.
 
