@@ -1,6 +1,6 @@
 /*
  * system calls
- * Copyright (C) 2003-2006 Sam Steingold
+ * Copyright (C) 2003-2007 Sam Steingold
  * Copyright (C) 2005 Bruno Haible
  * Copyright (C) 2005 Arseny Slobodyuk
  * GPL2
@@ -801,6 +801,21 @@ DEFUN(POSIX:BOGOMIPS,)
   N_D(-1.0,value1); mv_count=1;
 }
 #endif /* HAVE_CLOCK */
+
+#if defined(HAVE_GETLOADAVG)
+DEFUN(POSIX:LOADAVG,) {
+  double loadavg[3];
+  int ret;
+  begin_system_call();
+  ret = getloadavg(loadavg,3);
+  end_system_call();
+  if (ret != 3) OS_error();
+  mv_count=3;
+  N_D(loadavg[0],value1);
+  N_D(loadavg[1],value2);
+  N_D(loadavg[2],value3);
+}
+#endif  /* HAVE_GETLOADAVG */
 
 #undef D_S
 #undef I_S
