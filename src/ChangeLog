@@ -4,6 +4,7 @@
 	* modules/gdbm/gdbm.c (GDBM::GDBM-OPEN): finalize GDBM object
 	(datum_to_object): new function
 	(GDBM:GDBM-FIRSTKEY, GDBM:GDBM-NEXTKEY): use it
+	(GDBM:GDBM-SETOPT): simplify code
 
 2007-09-17  Sam Steingold  <sds@gnu.org>
 
