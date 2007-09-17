@@ -335,52 +335,15 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
   skipSTACK(3);
 
   if (dbf) {
-    int v = 0, ret = -1;
+    int v;
     switch (option) {
-    case GDBM_CACHESIZE:
-      if (fixnump(value)) {
-        v = I_to_uint(value);
-        ret = gdbm_setopt(dbf, GDBM_CACHESIZE, &v, sizeof(int));
-      }
-      break;
-    case GDBM_FASTMODE:
-      if (nullp(value)) {
-        v = 0;
-        ret = gdbm_setopt(dbf, GDBM_FASTMODE, &v, sizeof(int));
-      } else {
-        v = 1;
-        ret = gdbm_setopt(dbf, GDBM_FASTMODE, &v, sizeof(int));
-      }
-      break;
-    case GDBM_SYNCMODE:
-      if (nullp(value)) {
-        v = 0;
-        ret = gdbm_setopt(dbf, GDBM_SYNCMODE, &v, sizeof(int));
-      } else {
-        v = 1;
-        ret = gdbm_setopt(dbf, GDBM_SYNCMODE, &v, sizeof(int));
-      }
-      break;
-    case GDBM_CENTFREE:
-      if (nullp(value)) {
-        v = 0;
-        ret = gdbm_setopt(dbf, GDBM_CENTFREE, &v, sizeof(int));
-      } else {
-        v = 1;
-        ret = gdbm_setopt(dbf, GDBM_CENTFREE, &v, sizeof(int));
-      }
-      break;
-    case GDBM_COALESCEBLKS:
-      if (nullp(value)) {
-        v = 0;
-        ret = gdbm_setopt(dbf, GDBM_COALESCEBLKS, &v, sizeof(int));
-      } else {
-        v = 1;
-        ret = gdbm_setopt(dbf, GDBM_COALESCEBLKS, &v, sizeof(int));
-      }
-      break;
+      case GDBM_CACHESIZE: v = check_uint(value); break;
+      case GDBM_FASTMODE: case GDBM_SYNCMODE:
+      case GDBM_CENTFREE: case GDBM_COALESCEBLKS:
+        v = nullp(value) ? 0 : 1; break;
+      default: NOTREACHED;
     }
-    if (ret == -1) {
+    if (gdbm_setopt(dbf, option, &v, sizeof(int)) == -1) {
       error_gdbm();
     } else {
       VALUES1(T);
