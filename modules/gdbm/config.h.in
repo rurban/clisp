@@ -9,6 +9,9 @@
 /* Define to 1 if you have the `gdbm_fetch' function. */
 #undef HAVE_GDBM_FETCH
 
+/* Define to 1 if you have the <gdbm/gdbm.h> header file. */
+#undef HAVE_GDBM_GDBM_H
+
 /* Define to 1 if you have the <gdbm.h> header file. */
 #undef HAVE_GDBM_H
 
