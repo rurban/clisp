@@ -1,5 +1,6 @@
 2007-09-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/gdbm/gdbm.lisp (GDBM:DO-DB): new macro
 	* modules/gdbm/gdbm.c (GDBM::GDBM-OPEN): finalize GDBM object
 
 2007-09-17  Sam Steingold  <sds@gnu.org>
