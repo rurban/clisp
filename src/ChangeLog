@@ -5,6 +5,7 @@
 	(datum_to_object): new function
 	(GDBM:GDBM-FIRSTKEY, GDBM:GDBM-NEXTKEY): use it
 	(GDBM:GDBM-SETOPT): simplify code
+	(check_gdbm): return GDBM_FILE; update all callers; fix some GC-safety
 
 2007-09-17  Sam Steingold  <sds@gnu.org>
 
