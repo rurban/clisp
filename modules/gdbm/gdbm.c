@@ -217,6 +217,17 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
   }
 }
 
+/* convert datum to Lisp string and release memory in datum
+ can trigger GC */
+static object datum_to_object (datum d) {
+  if (d.dptr == NULL) return NIL;
+  else {
+    object o = n_char_to_string(d.dptr, d.dsize, GLO(foreign_encoding));
+    free(d.dptr);
+    return o;
+  }
+}
+
 DEFUN(GDBM:GDBM-FIRSTKEY, dbf)
 {
   GDBM_FILE dbf;
@@ -224,15 +235,9 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf)
   skipSTACK(1);
 
   if (dbf) {
-    datum ret = gdbm_firstkey(dbf);
-    if (ret.dptr == NULL) {
-      VALUES1(NIL);
-    } else {
-      VALUES1(n_char_to_string(ret.dptr, ret.dsize, GLO(foreign_encoding)));
-      free(ret.dptr);
-    }
+    VALUES1(datum_to_object(gdbm_firstkey(dbf)));
   } else {
-      VALUES1(NIL);
+    VALUES1(NIL);
   }
 }
 
@@ -249,13 +254,7 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key)
         key.dptr = ks;
         key.dsize = asciz_length(ks);
         if (dbf) {
-          datum ret = gdbm_nextkey(dbf, key);
-          if (ret.dptr == NULL) {
-            VALUES1(NIL);
-          } else {
-            VALUES1(n_char_to_string(ret.dptr, ret.dsize, GLO(foreign_encoding)));
-            free(ret.dptr);
-          }
+          VALUES1(datum_to_object(gdbm_nextkey(dbf, key)));
         } else {
           VALUES1(NIL);
         }
@@ -325,7 +324,8 @@ DEFUN(GDBM:GDBM-EXISTS, dbf key)
   }
 }
 
-DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE CENTFREE COALESCEBLKS)
+DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
+           CENTFREE COALESCEBLKS)
 DEFUN(GDBM:GDBM-SETOPT, dbf option value)
 {
   GDBM_FILE dbf;
