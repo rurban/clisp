@@ -279,6 +279,14 @@
     lisp-style error handling and precision, and do all the computations
     at the &double-float-t; level.</simpara></warning>
  </listitem></varlistentry>
+ <varlistentry id="bogomips"><term><code>(POSIX:BOGOMIPS)</code></term>
+  <listitem><simpara>Compute the
+    <ulink url="http://en.wikipedia.org/wiki/BogoMips">BogoMips</ulink>
+    rating.</simpara></listitem></varlistentry>
+ <varlistentry id="loadavg"><term><code>(POSIX:LOADAVG)</code></term>
+  <listitem><simpara>Return 1, 5, and 15 minute system load averages,
+    retrieved by <function role="bsd">getloadavg</function>.
+ </simpara></listitem></varlistentry>
  <varlistentry id="stream-lock"><term>
    <code>(<function>POSIX:STREAM-LOCK</function> &stream-r;
     <replaceable>lock-p</replaceable> &key-amp;
