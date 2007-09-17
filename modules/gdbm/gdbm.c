@@ -8,10 +8,16 @@
 #include "clisp.h"
 
 #ifdef HAVE_STRING_H
-#include <string.h>
+# include <string.h>
 #endif
 
-#include <gdbm.h>
+#if defined(HAVE_GDBM_H)
+# include <gdbm.h>
+#elif defined(HAVE_GDBM_GDBM_H)
+# include <gdbm/gdbm.h>
+#else
+# error No GDBM headers!
+#endif
 
 DEFMODULE(gdbm,"GDBM");
 
@@ -40,7 +46,7 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
   object path = STACK_4;
 
   skipSTACK(5);
-    
+
   if (!stringp(path)) {
     VALUES1(NIL);
   } else {
@@ -175,7 +181,7 @@ DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
       });
   } else {
     VALUES1(NIL);
-  }  
+  }
 }
 
 DEFUN(GDBM:GDBM-DELETE, dbf key)
@@ -202,7 +208,7 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
       });
   } else {
     VALUES1(NIL);
-  }  
+  }
 }
 
 DEFUN(GDBM:GDBM-FIRSTKEY, dbf)
@@ -216,12 +222,12 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf)
     if (ret.dptr == NULL) {
       VALUES1(NIL);
     } else {
-      VALUES1(n_char_to_string(ret.dptr, ret.dsize, GLO(foreign_encoding)));      
+      VALUES1(n_char_to_string(ret.dptr, ret.dsize, GLO(foreign_encoding)));
       free(ret.dptr);
     }
   } else {
       VALUES1(NIL);
-  }  
+  }
 }
 
 DEFUN(GDBM:GDBM-NEXTKEY, dbf key)
@@ -250,7 +256,7 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key)
       });
   } else {
     VALUES1(NIL);
-  }  
+  }
 }
 
 DEFUN(GDBM:GDBM-REORGANIZE, dbf)
@@ -309,7 +315,7 @@ DEFUN(GDBM:GDBM-EXISTS, dbf key)
       });
   } else {
     VALUES1(NIL);
-  }  
+  }
 }
 
 DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE CENTFREE COALESCEBLKS)
@@ -337,7 +343,7 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
       } else {
         v = 1;
         ret = gdbm_setopt(dbf, GDBM_FASTMODE, &v, sizeof(int));
-      } 
+      }
       break;
     case GDBM_SYNCMODE:
       if (nullp(value)) {
@@ -346,7 +352,7 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
       } else {
         v = 1;
         ret = gdbm_setopt(dbf, GDBM_SYNCMODE, &v, sizeof(int));
-      } 
+      }
       break;
     case GDBM_CENTFREE:
       if (nullp(value)) {
@@ -355,7 +361,7 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
       } else {
         v = 1;
         ret = gdbm_setopt(dbf, GDBM_CENTFREE, &v, sizeof(int));
-      } 
+      }
       break;
     case GDBM_COALESCEBLKS:
       if (nullp(value)) {
@@ -364,7 +370,7 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
       } else {
         v = 1;
         ret = gdbm_setopt(dbf, GDBM_COALESCEBLKS, &v, sizeof(int));
-      } 
+      }
       break;
     }
     if (ret == -1) {
@@ -374,5 +380,5 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
     }
   } else {
     VALUES1(NIL);
-  }  
+  }
 }
