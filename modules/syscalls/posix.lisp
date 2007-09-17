@@ -1,5 +1,5 @@
 ;;; handle the posix functions
-;;; Sam Steingold 1999-2006
+;;; Sam Steingold 1999-2007
 
 (defpackage #:posix
   (:use #:common-lisp #:ext)
@@ -7,7 +7,7 @@
   (:import-from "SYS" sys::process-id)
   (:shadowing-import-from "EXPORTING" #:defstruct)
   (:export
-   #:resolve-host-ipaddr #:bogomips #:mkstemp #:mkdtemp
+   #:resolve-host-ipaddr #:bogomips #:loadavg #:mkstemp #:mkdtemp
    #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
    #:file-owner #:physical-memory #:stream-options #+unix #:string-time
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream

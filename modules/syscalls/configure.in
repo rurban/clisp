@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for syscalls
-dnl Copyright (C) 2003-2006  Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2007 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -32,7 +32,7 @@ fi
 BOLD_MSG([System Calls (Functions)])
 CL_RLIMIT
 CL_SOCKET dnl for getservbyport et al
-AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
+AC_CHECK_FUNCS(clock getloadavg confstr fcntl gethostent sysconf uname dnl
 getlogin getpwent getpwnam getpwuid endpwent setpwent dnl
 getservbyport getservbyname getservent setservent endservent dnl
 openlog setlogmask syslog closelog strftime strptime mktime dnl
