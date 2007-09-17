@@ -619,6 +619,7 @@
 <!ENTITY ctype-r '<replaceable>c-type</replaceable>'>
 <!ENTITY ctypei-r '<replaceable>c-type-internal</replaceable>'>
 <!ENTITY data-r '<replaceable>data</replaceable>'>
+<!ENTITY db-r '<replaceable>db</replaceable>'>
 <!ENTITY declaration-r '<replaceable>declaration</replaceable>'>
 <!ENTITY dependent-r '<replaceable>dependent</replaceable>'>
 <!ENTITY dest-r '<replaceable>destination</replaceable>'>
