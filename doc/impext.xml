@@ -2476,7 +2476,9 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
     <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
     by &hin;.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="gtk">gtk2</link></term>
-  <listitem><simpara>Use &gtk; and &glade; to create GUI.
+  <listitem><simpara>Use &gtk; and &glade; to create GUI by
+    <author><firstname>James</firstname><surname>Bailey</surname>
+     <email>dgym.bailey@gmail.com</email></author>.
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="libsvm">libsvm</link></term>
   <listitem><simpara>Access
@@ -2500,6 +2502,11 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="dir-key">dirkey</link></term>
   <listitem><simpara>Directory Access (LDAP, &win32; registry etc).
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="gdbm">gdbm</link></term>
+  <listitem><simpara>Interface to &gdbm; by
+    <author><firstname>Masayuki</firstname><surname>Onjo</surname>
+     <email>masayuki.onjo@gmail.com</email></author>.
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="berkeley-db">berkeley-db</link></term>
   <listitem><simpara><ulink role="bdb" url="index.html">Berkeley DB

@@ -6,6 +6,10 @@ User visible changes
   Thanks to James Bailey <dgym.bailey@gmail.com> for the original code.
   See <http://clisp.cons.org/impnotes/gtk.html> for details.
 
+* New module gdbm interfaces to GNU DataBase Manager.
+  Thanks to Masayuki Onjo <masayuki.onjo@gmail.com>.
+  See <http://clisp.cons.org/impnotes/gdbm.html> for details.
+
 * A kind of Meta-Object Protocol for structures is now available.
   See <http://clisp.cons.org/impnotes/defstruct-mop.html> for details.
 
