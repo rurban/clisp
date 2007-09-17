@@ -142,6 +142,13 @@
 </xsl:template>
 <!-- ========== / The Open Group Base Specifications Issue 6 =========== -->
 
+<!-- =========== BSD functions ============ -->
+<xsl:template match="function[@role='bsd'] | varname[@role='bsd']">
+ <a class="{@role}" href="http://www.freebsd.org/cgi/man.cgi?query={.}"
+    ><xsl:apply-imports/></a>
+</xsl:template>
+<!-- =========== / BSD functions ============ -->
+
 <!-- =========================== Berkeley DB =========================== -->
 <!-- xsl:param name="bdb.top" select="'http://www.sleepycat.com/docs/'"/ -->
 <xsl:param name="bdb.top" select="'http://www.oracle.com/technology/documentation/berkeley-db/db/'"/>
