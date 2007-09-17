@@ -71,20 +71,17 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
   }
 }
 
-static void check_gdbm (object gdbm, GDBM_FILE* p_dbf)
+/* can trigger GC */
+static GDBM_FILE check_gdbm (object gdbm)
 {
   gdbm = check_classname(gdbm, `GDBM::GDBM`);
-  if (nullp(TheStructure(gdbm)->recdata[1])) {
-    *p_dbf = NULL;
-  } else {
-    *p_dbf = (GDBM_FILE)TheFpointer(TheStructure(gdbm)->recdata[1])->fp_pointer;
-  }
+  return nullp(TheStructure(gdbm)->recdata[1]) ? NULL
+    : (GDBM_FILE)TheFpointer(TheStructure(gdbm)->recdata[1])->fp_pointer;
 }
 
 DEFUN(GDBM:GDBM-CLOSE, dbf)
 {
-  GDBM_FILE dbf;
-  check_gdbm(STACK_0, &dbf);
+  GDBM_FILE dbf = check_gdbm(STACK_0);
   if (dbf) {
     gdbm_close(dbf);
     TheStructure(STACK_0)->recdata[1] = NIL;
@@ -98,14 +95,13 @@ DEFUN(GDBM:GDBM-CLOSE, dbf)
 DEFCHECKER(gdbm_store_flag, prefix=GDBM, REPLACE INSERT);
 DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
 {
+  GDBM_FILE dbf = check_gdbm(STACK_3);
   int flag = missingp(STACK_0) ? GDBM_REPLACE : gdbm_store_flag(STACK_0);
   object content_obj = STACK_1;
   object key_obj = STACK_2;
   object array = NIL;
   int binary_p=0, string_p = stringp(content_obj);
   datum key, content;
-  GDBM_FILE dbf;
-  check_gdbm(STACK_3, &dbf);
   skipSTACK(4);
 
   if (!string_p) {
@@ -127,8 +123,7 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
           content.dptr = (char*)&TheSbvector(array)->data[0];
           content.dsize = vector_length(array);
           if (dbf) {
-            int ret = gdbm_store(dbf, key, content, flag);
-            if (ret != 0) { VALUES1(NIL); } else { VALUES1(T); }
+            VALUES_IF(!gdbm_store(dbf, key, content, flag));
           } else {
             VALUES1(NIL);
           }
@@ -137,8 +132,7 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
               content.dptr = cs;
               content.dsize = asciz_length(cs);
               if (dbf) {
-                int ret = gdbm_store(dbf, key, content, flag);
-                if (ret != 0) { VALUES1(NIL); } else { VALUES1(T); }
+                VALUES_IF(!gdbm_store(dbf, key, content, flag));
               } else {
                 VALUES1(NIL);
               }
@@ -152,13 +146,12 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
 
 DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
 {
+  GDBM_FILE dbf = check_gdbm(STACK_2);
   object binary = popSTACK();
-  int binary_p = missingp(binary) ? 0 : !nullp(binary);
+  int binary_p = !missingp(binary);
   object key_obj = popSTACK();
   datum key;
-  GDBM_FILE dbf;
-  check_gdbm(STACK_0, &dbf);
-  skipSTACK(1);
+  skipSTACK(1);                 /* drop dbf */
 
   if (dbf && stringp(key_obj)) {
     with_string_0(key_obj, GLO(foreign_encoding), ks, {
@@ -170,13 +163,13 @@ DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
             VALUES1(NIL);
           } else {
             if (!binary_p) {
-              VALUES1(n_char_to_string(ret.dptr, ret.dsize, GLO(foreign_encoding)));
+              VALUES1(n_char_to_string(ret.dptr, ret.dsize,
+                                       GLO(foreign_encoding)));
             } else {
               object vector = allocate_bit_vector(Atype_8Bit,ret.dsize);
               int i = 0;
-              for (i=0;i<ret.dsize;i++) {
+              for (i=0;i<ret.dsize;i++)
                 TheSbvector(vector)->data[i] = ret.dptr[i];
-              }
               VALUES1(vector);
             }
             free(ret.dptr);
@@ -192,11 +185,10 @@ DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
 
 DEFUN(GDBM:GDBM-DELETE, dbf key)
 {
+  GDBM_FILE dbf = check_gdbm(STACK_1);
   object key_obj = popSTACK();
   datum key;
-  GDBM_FILE dbf;
-  check_gdbm(STACK_0, &dbf);
-  skipSTACK(1);
+  skipSTACK(1);                 /* drop dbf */
 
   if (dbf && stringp(key_obj)) {
     with_string_0(key_obj, GLO(foreign_encoding), ks, {
@@ -230,9 +222,7 @@ static object datum_to_object (datum d) {
 
 DEFUN(GDBM:GDBM-FIRSTKEY, dbf)
 {
-  GDBM_FILE dbf;
-  check_gdbm(STACK_0, &dbf);
-  skipSTACK(1);
+  GDBM_FILE dbf = check_gdbm(popSTACK());
 
   if (dbf) {
     VALUES1(datum_to_object(gdbm_firstkey(dbf)));
@@ -243,11 +233,10 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf)
 
 DEFUN(GDBM:GDBM-NEXTKEY, dbf key)
 {
+  GDBM_FILE dbf = check_gdbm(STACK_1);
   object key_obj = popSTACK();
   datum key;
-  GDBM_FILE dbf;
-  check_gdbm(STACK_0, &dbf);
-  skipSTACK(1);
+  skipSTACK(1);                 /* drop dbf */
 
   if (dbf && stringp(key_obj)) {
     with_string_0(key_obj, GLO(foreign_encoding), ks, {
@@ -266,9 +255,7 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key)
 
 DEFUN(GDBM:GDBM-REORGANIZE, dbf)
 {
-  GDBM_FILE dbf;
-  check_gdbm(STACK_0, &dbf);
-  skipSTACK(1);
+  GDBM_FILE dbf = check_gdbm(popSTACK());
 
   if (dbf) {
     int status = gdbm_reorganize(dbf);
@@ -285,9 +272,7 @@ DEFUN(GDBM:GDBM-REORGANIZE, dbf)
 
 DEFUN(GDBM:GDBM-SYNC, dbf)
 {
-  GDBM_FILE dbf;
-  check_gdbm(STACK_0, &dbf);
-  skipSTACK(1);
+  GDBM_FILE dbf = check_gdbm(popSTACK());
 
   if (dbf) {
       gdbm_sync(dbf);
@@ -299,11 +284,10 @@ DEFUN(GDBM:GDBM-SYNC, dbf)
 
 DEFUN(GDBM:GDBM-EXISTS, dbf key)
 {
+  GDBM_FILE dbf = check_gdbm(STACK_1);
   object key_obj = popSTACK();
   datum key;
-  GDBM_FILE dbf;
-  check_gdbm(STACK_0, &dbf);
-  skipSTACK(1);
+  skipSTACK(1);                 /* drop dbf */
 
   if (dbf && stringp(key_obj)) {
     with_string_0(key_obj, GLO(foreign_encoding), ks, {
@@ -328,16 +312,16 @@ DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
            CENTFREE COALESCEBLKS)
 DEFUN(GDBM:GDBM-SETOPT, dbf option value)
 {
-  GDBM_FILE dbf;
+  GDBM_FILE dbf = check_gdbm(STACK_2);
   object value = STACK_0;
   int option = gdbm_setopt_option(STACK_1);
-  check_gdbm(STACK_2, &dbf);
   skipSTACK(3);
 
   if (dbf) {
     int v;
     switch (option) {
-      case GDBM_CACHESIZE: v = check_uint(value); break;
+      case GDBM_CACHESIZE:
+        v = check_uint(value); break;
       case GDBM_FASTMODE: case GDBM_SYNCMODE:
       case GDBM_CENTFREE: case GDBM_COALESCEBLKS:
         v = nullp(value) ? 0 : 1; break;
