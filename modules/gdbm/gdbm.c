@@ -26,7 +26,7 @@ nonreturning_function(static, error_gdbm, (void)) {
   pushSTACK(`GDBM::GDBM-ERROR`);
   pushSTACK(`:MESSAGE`);
   pushSTACK(asciz_to_string(gdbm_strerror(gdbm_errno), GLO(foreign_encoding)));
-  pushSTACK(`"~A: ~A."`);
+  pushSTACK(`"~A: ~A"`);
   pushSTACK(TheSubr(subr_self)->name);
   pushSTACK(asciz_to_string(gdbm_strerror(gdbm_errno), GLO(foreign_encoding)));
   funcall(L(error_of_type), 6);
@@ -40,7 +40,8 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
   GDBM_FILE gdbm;
   int mode = check_uint_defaulted(STACK_0, 0644);
   int rw_opt1 = missingp(STACK_1) ? 0 : gdbm_open_option(STACK_1);
-  int rw_opt2 = missingp(STACK_2) ? GDBM_WRCREAT : gdbm_open_read_write(STACK_2);
+  int rw_opt2 = missingp(STACK_2) ? GDBM_WRCREAT
+    : gdbm_open_read_write(STACK_2);
   int rw = rw_opt1 | rw_opt2;
   int bsize = check_uint_defaulted(STACK_3, 512);
   void (*fatal)() = NULL;
@@ -51,7 +52,8 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
   if (!stringp(path)) {
     VALUES1(NIL);
   } else {
-    with_string_0(stringp(path) ? (object)path : physical_namestring(path), GLO(pathname_encoding), name, {
+    with_string_0(stringp(path) ? (object)path : physical_namestring(path),
+                  GLO(pathname_encoding), name, {
         begin_system_call();
         gdbm = gdbm_open(name, bsize, rw, mode, fatal);
         end_system_call();
@@ -59,7 +61,10 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
     if (gdbm != NULL) {
       pushSTACK(allocate_fpointer(gdbm));
       funcall(`GDBM::MAKE-GDBM`, 1);
-      VALUES1(value1);
+      pushSTACK(value1);        /* save */
+      pushSTACK(STACK_0); pushSTACK(``GDBM::GDBM-CLOSE``);
+      funcall(L(finalize),2);
+      VALUES1(popSTACK());      /* restore */
     } else {
       error_gdbm();
     }
