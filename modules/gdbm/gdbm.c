@@ -6,6 +6,7 @@
  */
 
 #include "clisp.h"
+#include "config.h"
 
 #ifdef HAVE_STRING_H
 # include <string.h>
@@ -277,6 +278,7 @@ DEFUN(GDBM:GDBM-REORGANIZE, dbf)
   }
 }
 
+
 DEFUN(GDBM:GDBM-SYNC, dbf)
 {
   GDBM_FILE dbf;
@@ -285,7 +287,7 @@ DEFUN(GDBM:GDBM-SYNC, dbf)
 
   if (dbf) {
       gdbm_sync(dbf);
-      VALUES1(T);
+    VALUES1(T);
   } else {
     VALUES1(NIL);
   }
