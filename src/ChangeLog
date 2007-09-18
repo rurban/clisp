@@ -1,3 +1,10 @@
+2007-09-18  Sam Steingold  <sds@gnu.org>
+
+	bug fix: pwd struct fields can be NULL which caused segfault
+	* modules/syscalls/calls.c (safe_to_string): new function
+	(utmpx_to_lisp, UNAME, servent_to_lisp, passwd_to_lisp, FILE-OWNER)
+	(VERSION, PropVariantToLisp, FILE-PROPERTIES): use it
+
 2007-09-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.lisp (GDBM:DO-DB): new macro
