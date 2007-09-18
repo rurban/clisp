@@ -14242,6 +14242,10 @@ global maygc long map_list_to_c (object obj, const c_lisp_map_t *map);
 %% puts("extern object map_c_to_lisp (long val, const c_lisp_map_t *map);");
 %% puts("extern object map_c_to_list (long val, const c_lisp_map_t *map);");
 %% puts("extern long map_list_to_c (object obj, const c_lisp_map_t *map);");
+global maygc void push_string_array (char **arr);
+%% puts("extern void push_string_array (char **arr);");
+global maygc object safe_to_string (const char *asciz);
+%% puts("extern object safe_to_string (const char *asciz);");
 
 # ####################### ERRBIBL for ERROR.D ############################## #
 
