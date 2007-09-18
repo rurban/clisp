@@ -56,8 +56,10 @@ PROBLEM
   (loop :for v :across vec :for o :across (libsvm:problem-y f-problem-2-7)
     :when (= v o) :do (incf hit) :end
     :when (= v (- o)) :do (incf miss) :end)
-  (list (length vec) (count 1d0 vec) (count -1d0 vec) hit miss))
-(1000 543 457 477 523)
+  (show (list :count+1 (count 1d0 vec) :count-1 (count -1d0 vec)
+              :hit hit :miss miss))
+  (length vec))
+1000
 
 (defparameter model (libsvm:train f-problem-2-7 f-parameter)) MODEL
 
@@ -90,8 +92,10 @@ PROBLEM
 T
 
 (let ((vec (libsvm:cross-validation f-problem-3-7 f-parameter 3)))
-  (list (length vec) (count 1d0 vec) (count -1d0 vec) (count 0d0 vec)))
-(1000 133 473 394)
+  (show (list :count+1 (count 1d0 vec) :count-1 (count -1d0 vec)
+              :count-0 (count 0d0 vec)))
+  (length vec))
+1000
 
 (defparameter model (libsvm:train f-problem-3-7 f-parameter)) MODEL
 (ffi:enum-from-value 'libsvm:svm_type (libsvm:get-svm-type model)) libsvm:NU_SVC
