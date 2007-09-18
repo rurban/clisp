@@ -424,12 +424,7 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
 /* return RAWSOCK:PROTOCOL object in value1 */
 static Values protoent_to_protocol (struct protoent *pe) {
   pushSTACK(asciz_to_string(pe->p_name,GLO(misc_encoding)));
-  { int count = 0;
-    char **alias = pe->p_aliases;
-    for (; *alias; count++, alias++)
-      pushSTACK(asciz_to_string(*alias,GLO(misc_encoding)));
-    value1 = listof(count); pushSTACK(value1);
-  }
+  push_string_array(pe->p_aliases);
   pushSTACK(sint_to_I(pe->p_proto));
   funcall(`RAWSOCK::MAKE-PROTOCOL`,3);
 }
@@ -475,12 +470,7 @@ DEFUN(RAWSOCK:PROTOCOL, &optional protocol)
 /* return RAWSOCK:NETWORK object in value1 */
 static Values netent_to_network (struct netent *ne) {
   pushSTACK(asciz_to_string(ne->n_name,GLO(misc_encoding)));
-  { int count = 0;
-    char **alias = ne->n_aliases;
-    for (; *alias; count++, alias++)
-      pushSTACK(asciz_to_string(*alias,GLO(misc_encoding)));
-    value1 = listof(count); pushSTACK(value1);
-  }
+  push_string_array(ne->n_aliases);
   pushSTACK(sint_to_I(ne->n_addrtype));
   pushSTACK(sint_to_I(ne->n_net));
   funcall(`RAWSOCK::MAKE-NETWORK`,4);
@@ -913,8 +903,7 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
     pushSTACK(check_socket_type_reverse(tmp->ai_socktype));
     pushSTACK(check_socket_protocol_reverse(tmp->ai_protocol));
     pushSTACK(sockaddr_to_lisp(tmp->ai_addr,tmp->ai_addrlen));
-    pushSTACK(tmp->ai_canonname == NULL ? NIL
-              : asciz_to_string(tmp->ai_canonname,GLO(misc_encoding)));
+    pushSTACK(safe_to_string(tmp->ai_canonname));
     funcall(`RAWSOCK::MAKE-ADDRINFO`,6); pushSTACK(value1);
   }
   if (ret) { begin_system_call(); freeaddrinfo_f(ret); end_system_call(); }

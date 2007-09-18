@@ -806,3 +806,20 @@ global maygc long map_list_to_c (object obj, const c_lisp_map_t *map) {
   } else
     return map_lisp_to_c(obj,map);
 }
+
+/* for modules: push a C array of strings into STACK as a Lisp list of strings
+ void push_string_array (char **arr)
+ > arr: C array of C strings, terminated by a NULL
+ < STACK_0: list of corresponding Lisp strings, encoded with *MISC-ENCODING*
+ can trigger GC, adds 1 element to STACK */
+global maygc void push_string_array (char **arr) {
+  int count = 0;
+  for (; *arr; count++, arr++)
+    pushSTACK(asciz_to_string(*arr,O(misc_encoding)));
+  { object tmp = listof(count); pushSTACK(tmp); }
+}
+
+/* for modules: convert a C string to a Lisp string, NULL->NIL
+ can trigger GC */
+global maygc object safe_to_string (const char *asciz)
+{ return asciz ? asciz_to_string(asciz,O(misc_encoding)) : NIL; }

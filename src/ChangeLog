@@ -1,9 +1,14 @@
 2007-09-18  Sam Steingold  <sds@gnu.org>
 
 	bug fix: pwd struct fields can be NULL which caused segfault
-	* modules/syscalls/calls.c (safe_to_string): new function
+	* misc.d, lispbibl.d (push_string_array, safe_to_string): add
+	* modules/syscalls/calls.c (ARR_TO_LIST): remove
+	(hostent_to_lisp, servent_to_lisp, grp_to_lisp):
+	use push_string_array instead of ARR_TO_LIST
 	(utmpx_to_lisp, UNAME, servent_to_lisp, passwd_to_lisp, FILE-OWNER)
-	(VERSION, PropVariantToLisp, FILE-PROPERTIES): use it
+	(VERSION, PropVariantToLisp, FILE-PROPERTIES): use safe_to_string
+	* modules/rawsock/rawsock.c (GETADDRINFO): use safe_to_string
+	(protoent_to_protocol, netent_to_network): use push_string_array
 
 2007-09-17  Sam Steingold  <sds@gnu.org>
 

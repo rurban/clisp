@@ -510,9 +510,6 @@ DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT \
 }
 #endif /* HAVE_MKSTEMP || HAVE_TEMPNAM || WIN32_NATIVE */
 
-static inline object safe_to_string (const char *asciz)
-{ return asciz ? asciz_to_string(asciz, GLO(misc_encoding)) : NIL; }
-
 /* ================= user accounting database functions ================= */
 #if defined(HAVE_UTMPX_H)
 DEFCHECKER(check_ut_type,default=,EMPTY RUN-LVL BOOT-TIME OLD-TIME NEW-TIME \
@@ -1277,23 +1274,13 @@ void print_he (struct hostent *he) {
 }
 #endif
 
-/* while TEST collect EXPR into VAL -- see src/socket.d
- can trigger GC */
-#define ARR_TO_LIST(val,test,expr)                      \
-  { int ii; for (ii = 0; test; ii ++) { pushSTACK(expr); } val = listof(ii); }
-
 /* C struct hostent --> Lisp HOSTENT structure
  can trigger GC */
 Values hostent_to_lisp (struct hostent *he); /* used by NEW-CLX => not static */
 Values hostent_to_lisp (struct hostent *he) {
-  object tmp;
   pushSTACK(ascii_to_string(he->h_name));
-  ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),
-              asciz_to_string(he->h_aliases[ii],GLO(misc_encoding)));
-  pushSTACK(tmp);
-  ARR_TO_LIST(tmp,(he->h_addr_list[ii] != NULL),
-              addr_to_string(he->h_addrtype,he->h_addr_list[ii]));
-  pushSTACK(tmp);
+  push_string_array(he->h_aliases);
+  push_string_array(he->h_addr_list);
   pushSTACK(fixnum(he->h_addrtype));
   funcall(`POSIX::MAKE-HOSTENT`,4);
 }
@@ -1338,11 +1325,8 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,&optional host)
 /* C struct servent --> Lisp SERVICE structure
  can trigger GC */
 static Values servent_to_lisp (struct servent * se) {
-  object tmp;
   pushSTACK(safe_to_string(se->s_name));
-  ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),
-              asciz_to_string(se->s_aliases[ii],GLO(misc_encoding)));
-  pushSTACK(tmp);
+  push_string_array(se->s_aliases);
   pushSTACK(L_to_I(ntohs(se->s_port)));
   pushSTACK(safe_to_string(se->s_proto));
   funcall(`POSIX::MAKE-SERVICE`,4);
@@ -1424,12 +1408,9 @@ DEFUN(POSIX:SERVICE, &optional service-name protocol)
 /* C struct group --> Lisp GROUP-INFO structure
  can trigger GC */
 static Values grp_to_lisp (struct group *group) {
-  object tmp;
   pushSTACK(safe_to_string(group->gr_name));
   pushSTACK(UL_to_I(group->gr_gid));
-  ARR_TO_LIST(tmp,(group->gr_mem[ii] != NULL),
-              asciz_to_string(group->gr_mem[ii],GLO(misc_encoding)));
-  pushSTACK(tmp);
+  push_string_array(group->gr_mem);
   funcall(`POSIX::MAKE-GROUP-INFO`,3);
 }
 
