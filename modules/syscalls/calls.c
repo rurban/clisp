@@ -510,6 +510,9 @@ DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT \
 }
 #endif /* HAVE_MKSTEMP || HAVE_TEMPNAM || WIN32_NATIVE */
 
+static inline object safe_to_string (const char *asciz)
+{ return asciz ? asciz_to_string(asciz, GLO(misc_encoding)) : NIL; }
+
 /* ================= user accounting database functions ================= */
 #if defined(HAVE_UTMPX_H)
 DEFCHECKER(check_ut_type,default=,EMPTY RUN-LVL BOOT-TIME OLD-TIME NEW-TIME \
@@ -518,12 +521,12 @@ DEFCHECKER(check_ut_type,default=,EMPTY RUN-LVL BOOT-TIME OLD-TIME NEW-TIME \
  can trigger GC */
 static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
   pushSTACK(check_ut_type_reverse(utmpx->ut_type));
-  pushSTACK(asciz_to_string(utmpx->ut_user,GLO(misc_encoding)));
-  pushSTACK(asciz_to_string(utmpx->ut_id,GLO(misc_encoding)));
-  pushSTACK(asciz_to_string(utmpx->ut_line,GLO(misc_encoding)));
+  pushSTACK(safe_to_string(utmpx->ut_user));
+  pushSTACK(safe_to_string(utmpx->ut_id));
+  pushSTACK(safe_to_string(utmpx->ut_line));
   pushSTACK(L_to_I(utmpx->ut_pid));
 #if defined(HAVE_UTMPX_UT_HOST)
-  pushSTACK(asciz_to_string(utmpx->ut_host,GLO(misc_encoding)));
+  pushSTACK(safe_to_string(utmpx->ut_host));
 #else
   pushSTACK(NIL);
 #endif
@@ -924,13 +927,11 @@ DEFUN(POSIX::UNAME,)
 { /* Lisp interface to uname(2) */
   struct utsname utsname;
   begin_system_call(); uname(&utsname); end_system_call();
-#define UN(str) pushSTACK(asciz_to_string(str,GLO(misc_encoding)));
-  UN(utsname.sysname);
-  UN(utsname.nodename);
-  UN(utsname.release);
-  UN(utsname.version);
-  UN(utsname.machine);
-#undef UN
+  pushSTACK(safe_to_string(utsname.sysname));
+  pushSTACK(safe_to_string(utsname.nodename));
+  pushSTACK(safe_to_string(utsname.release));
+  pushSTACK(safe_to_string(utsname.version));
+  pushSTACK(safe_to_string(utsname.machine));
   funcall(`POSIX::MAKE-UNAME`,5);
 }
 #endif /* HAVE_UNAME */
@@ -1338,12 +1339,12 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,&optional host)
  can trigger GC */
 static Values servent_to_lisp (struct servent * se) {
   object tmp;
-  pushSTACK(asciz_to_string(se->s_name,GLO(misc_encoding)));
+  pushSTACK(safe_to_string(se->s_name));
   ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),
               asciz_to_string(se->s_aliases[ii],GLO(misc_encoding)));
   pushSTACK(tmp);
   pushSTACK(L_to_I(ntohs(se->s_port)));
-  pushSTACK(asciz_to_string(se->s_proto,GLO(misc_encoding)));
+  pushSTACK(safe_to_string(se->s_proto));
   funcall(`POSIX::MAKE-SERVICE`,4);
 }
 
@@ -1424,7 +1425,7 @@ DEFUN(POSIX:SERVICE, &optional service-name protocol)
  can trigger GC */
 static Values grp_to_lisp (struct group *group) {
   object tmp;
-  pushSTACK(asciz_to_string(group->gr_name,GLO(misc_encoding)));
+  pushSTACK(safe_to_string(group->gr_name));
   pushSTACK(UL_to_I(group->gr_gid));
   ARR_TO_LIST(tmp,(group->gr_mem[ii] != NULL),
               asciz_to_string(group->gr_mem[ii],GLO(misc_encoding)));
@@ -1491,13 +1492,13 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
 /* C struct passwd --> Lisp USER-INFO structure
  can trigger GC */
 static Values passwd_to_lisp (struct passwd *pwd) {
-  pushSTACK(asciz_to_string(pwd->pw_name,GLO(misc_encoding)));
-  pushSTACK(asciz_to_string(pwd->pw_passwd,GLO(misc_encoding)));
+  pushSTACK(safe_to_string(pwd->pw_name));
+  pushSTACK(safe_to_string(pwd->pw_passwd));
   pushSTACK(UL_to_I(pwd->pw_uid));
   pushSTACK(UL_to_I(pwd->pw_gid));
-  pushSTACK(asciz_to_string(pwd->pw_gecos,GLO(misc_encoding)));
-  pushSTACK(asciz_to_string(pwd->pw_dir,GLO(misc_encoding)));
-  pushSTACK(asciz_to_string(pwd->pw_shell,GLO(misc_encoding)));
+  pushSTACK(safe_to_string(pwd->pw_gecos));
+  pushSTACK(safe_to_string(pwd->pw_dir));
+  pushSTACK(safe_to_string(pwd->pw_shell));
   funcall(`POSIX::MAKE-USER-INFO`,7);
 }
 
@@ -2429,7 +2430,7 @@ DEFUN(OS::FILE-OWNER, file)
     result = get_owner(filename);
     end_system_call();
   });
-  VALUES1(asciz_to_string(result,GLO(misc_encoding)));
+  VALUES1(safe_to_string(result));
   skipSTACK(1);
 }
 
@@ -3399,7 +3400,7 @@ DEFUN(POSIX::VERSION,)
     case VER_PLATFORM_WIN32_NT:      pushSTACK(`:NT`); break;
     default: pushSTACK(UL_to_I(vi.dwPlatformId));
   }
-  pushSTACK(asciz_to_string(vi.szCSDVersion,GLO(misc_encoding)));
+  pushSTACK(safe_to_string(vi.szCSDVersion));
   pushSTACK(UL_to_I(vi.wServicePackMajor));
   pushSTACK(UL_to_I(vi.wServicePackMinor));
   { /* wSuiteMask */
@@ -3524,7 +3525,7 @@ static int PropVariantToLisp (PROPVARIANT *pvar) {
                                  Symbol_value(S(unicode_16_little_endian))));
       break;
     case VT_LPSTR:
-      pushSTACK(asciz_to_string(pvar->pszVal,GLO(misc_encoding)));
+      pushSTACK(safe_to_string(pvar->pszVal));
       break;
     case VT_LPWSTR:
       pushSTACK(n_char_to_string((const char *)pvar->pwszVal,
@@ -3969,7 +3970,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
                                    | STGM_SHARE_EXCLUSIVE, &ppropstg);
   end_system_call();
   if (FAILED(hres)) {
-    pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
+    pushSTACK(safe_to_string(DecodeHRESULT(hres)));
     pushSTACK(STACK_(ifile+1));
     pushSTACK(STACK_(iset+2));
     pushSTACK(TheSubr(subr_self)->name);
@@ -4011,7 +4012,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   }
   hres = ppropstg->lpVtbl->ReadMultiple(ppropstg,nproprd, pspecrd, pvarrd);
   if(FAILED(hres)) {
-    pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
+    pushSTACK(safe_to_string(DecodeHRESULT(hres)));
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~S: ReadMultiple error: ~S"));
   }
@@ -4021,7 +4022,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
                                            initid);
     end_system_call();
     if(FAILED(hres)) {
-      pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
+      pushSTACK(safe_to_string(DecodeHRESULT(hres)));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,GETTEXT("~S: WriteMultiple error: ~S"));
     }
@@ -4035,7 +4036,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   if (use_wpn) {
     hres = ppropstg->lpVtbl->WritePropertyNames(ppropstg,use_wpn,propidwpnvec,lpwstrwpnvec);
     if (FAILED(hres)) {
-      pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
+      pushSTACK(safe_to_string(DecodeHRESULT(hres)));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,GETTEXT("~S: WritePropertyNames: ~S"));
     }
