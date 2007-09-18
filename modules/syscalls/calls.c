@@ -1280,7 +1280,10 @@ Values hostent_to_lisp (struct hostent *he); /* used by NEW-CLX => not static */
 Values hostent_to_lisp (struct hostent *he) {
   pushSTACK(ascii_to_string(he->h_name));
   push_string_array(he->h_aliases);
-  push_string_array(he->h_addr_list);
+  { int ii = 0;
+    for (; he->h_addr_list[ii]; ii++)
+      pushSTACK(addr_to_string(he->h_addrtype,he->h_addr_list[ii]));
+    { object tmp = listof(ii); pushSTACK(tmp); }}
   pushSTACK(fixnum(he->h_addrtype));
   funcall(`POSIX::MAKE-HOSTENT`,4);
 }
