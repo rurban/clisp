@@ -13,7 +13,9 @@
 2007-09-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.lisp (GDBM:DO-DB): new macro
-	* modules/gdbm/gdbm.c (GDBM::GDBM-OPEN): finalize GDBM object
+	* modules/gdbm/configure.in (<gdbm/gdbm.h>): check
+	* modules/gdbm/gdbm.c: #include <gdbm/gdbm.h> when it is available
+	(GDBM::GDBM-OPEN): finalize GDBM object
 	(datum_to_object): new function
 	(GDBM:GDBM-FIRSTKEY, GDBM:GDBM-NEXTKEY): use it
 	(GDBM:GDBM-SETOPT): simplify code
@@ -25,15 +27,10 @@
 	* modules/syscalls/posix.lisp (POSIX:LOADAVG): export
 	* modules/syscalls/configure.in (getloadavg): check
 
-2007-09-17  Sam Steingold  <sds@gnu.org>
-
-	* modules/gdbm/configure.in: check for <gdbm/gdbm.h> too
-	* modules/gdbm/gdbm.c: include <gdbm/gdbm.h> when it is available
-
 2007-09-17  Masayuki Onjo  <masayuki.onjo@gmail.com>
 	Sam Steingold  <sds@gnu.org>
 
-	* Makefile.devel (MODULES): added gtk2
+	* Makefile.devel (MODULES): added gdbm
 	* modules/gdbm: new module
 
 2007-08-26  Sam Steingold  <sds@gnu.org>
