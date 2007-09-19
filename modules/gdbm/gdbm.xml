@@ -24,8 +24,7 @@
      <member><literal>:SYNC</literal></member>
      <member><literal>:NOLOCK</literal></member>
      <member><literal>:FAST</literal></member>
-    </simplelist>.
- </para></listitem></varlistentry>
+ </simplelist></para></listitem></varlistentry>
  <varlistentry id="gdbm-close">
   <term><code>(GDBM:GDBM-CLOSE gdbm)</code></term>
   <listitem><simpara>Close the database.
@@ -41,8 +40,7 @@
     <simplelist>
      <member><literal>:INSERT</literal></member>
      <member><literal>:REPLACE</literal></member>
-    </simplelist>.
- </para></listitem></varlistentry>
+ </simplelist></para></listitem></varlistentry>
  <varlistentry id="gdbm-fetch">
   <term><code>(GDBM:GDBM-FETCH &db-r; &key-r; &key-amp; :BINARY)</code></term>
   <listitem><simpara>Search data. If <literal>:BINARY</literal> option
