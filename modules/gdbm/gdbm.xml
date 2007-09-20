@@ -7,6 +7,8 @@
  symbol <constant>:GDBM</constant>.</simpara>
 
 <variablelist id="gdbm-api"><title>GDBM module API</title>
+ <varlistentry id="gdbm-version"><term><code>(GDBM:GDBM-VERSION)</code></term>
+  <listitem><para>Return the version string.</para></listitem></varlistentry>
  <varlistentry id="gdbm-open"><term><code>(GDBM:GDBM-OPEN &filename-r;
     &key-amp; :BLOCKSIZE :READ-WRITE :OPTION :MODE)</code></term>
   <listitem><para>Open &filename-r; database file.
