@@ -123,7 +123,7 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
   if (dbf && stringp(key_obj) && (string_p || binary_p)) {
     with_string_0(key_obj, GLO(foreign_encoding), ks, {
         key.dptr = ks;
-        key.dsize = asciz_length(ks);
+        key.dsize = ks_len;
         if (binary_p) {
           content.dptr = (char*)&TheSbvector(array)->data[0];
           content.dsize = vector_length(array);
@@ -135,7 +135,7 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
         } else {
           with_string_0(content_obj, GLO(foreign_encoding), cs, {
               content.dptr = cs;
-              content.dsize = asciz_length(cs);
+              content.dsize = cs_len;
               if (dbf) {
                 VALUES_IF(!gdbm_store(dbf, key, content, flag));
               } else {
@@ -161,7 +161,7 @@ DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
   if (dbf && stringp(key_obj)) {
     with_string_0(key_obj, GLO(foreign_encoding), ks, {
         key.dptr = ks;
-        key.dsize = asciz_length(ks);
+        key.dsize = ks_len;
         if (dbf) {
           datum ret = gdbm_fetch(dbf, key);
           if (ret.dptr == NULL) {
@@ -198,7 +198,7 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
   if (dbf && stringp(key_obj)) {
     with_string_0(key_obj, GLO(foreign_encoding), ks, {
         key.dptr = ks;
-        key.dsize = asciz_length(ks);
+        key.dsize = ks_len;
         if (dbf) {
           if (gdbm_delete(dbf, key) == -1) {
             VALUES1(NIL);
@@ -246,7 +246,7 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key)
   if (dbf && stringp(key_obj)) {
     with_string_0(key_obj, GLO(foreign_encoding), ks, {
         key.dptr = ks;
-        key.dsize = asciz_length(ks);
+        key.dsize = ks_len;
         if (dbf) {
           VALUES1(datum_to_object(gdbm_nextkey(dbf, key)));
         } else {
@@ -297,7 +297,7 @@ DEFUN(GDBM:GDBM-EXISTS, dbf key)
   if (dbf && stringp(key_obj)) {
     with_string_0(key_obj, GLO(foreign_encoding), ks, {
         key.dptr = ks;
-        key.dsize = asciz_length(ks);
+        key.dsize = ks_len;
         if (dbf) {
           if (gdbm_exists(dbf, key)) {
             VALUES1(T);

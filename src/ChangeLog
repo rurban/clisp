@@ -1,7 +1,14 @@
 2007-09-20  Sam Steingold  <sds@gnu.org>
 
-	* modules/gdbm/gdbm.c (GDBM:GDBM-SETOPT): convert :CACHESIZE
-	argument properly
+	* modules/gdbm/gdbm.c (GDBM-STORE, GDBM-FETCH, GDBM-DELETE)
+	(GDBM-NEXTKEY, GDBM-EXISTS): use a variable from with_string_0
+	instead of calling asciz_length()
+	(GDBM:GDBM-SETOPT): convert :CACHESIZE argument properly
+
+2007-09-20  Masayuki Onjo  <masayuki.onjo@gmail.com>
+
+	* modules/gdbm/gdbm.c (GDBM:GDBM-VERSION): add
+	* modules/gdbm/gdbm.lisp (GDBM-VERSION): export
 
 2007-09-18  Sam Steingold  <sds@gnu.org>
 
