@@ -2430,6 +2430,14 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    for <link linkend="gc-safety">GC-safety</link> too.
 </simpara></listitem></varlistentry>
 </variablelist></para>
+<note id="mod-ffi-vs-c-granularity"><simpara>The granularity of the
+  choice is <emphasis>per function</emphasis>: the same module can use
+  both &modprep; and &ffi-pac;.</simpara></note>
+<note id="mod-ffi-vs-c-naming"><simpara>It is not a good idea to have
+  both <filename>foo.lisp</filename> and <filename>foo.c</filename>
+  files in a module, because if you ever add an &ffi-pac; form to the
+  former, &compile-file-my; will
+  <link linkend="c-file-overwrite">overwrite</link> the latter.</simpara></note>
 </section>
 
 <section id="included-modules">
