@@ -154,7 +154,8 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                              my-result error-message)
                  (pretty-compare result my-result log)
                  (format log "~[~*~:;OUT:~%~S~%~]~[~*~:;ERR:~%~S~]~2%"
-                         (length out) out (length err) err))))))
+                         (length out) out (length err) err)
+                 (force-output log))))))
     (values total-count error-count)))
 
 (defmacro check-ignore-errors (&body body)
@@ -206,7 +207,8 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                    (format log "~&Form: ~S~%CORRECT: ~S~%~7A: ~S~%~
                                 ~[~*~:;OUT:~%~S~%~]~[~*~:;ERR:~%~S~]~2%"
                                form errtype lisp-implementation my-result
-                               (length out) out (length err) err)))))))
+                               (length out) out (length err) err)
+                   (force-output log)))))))
     (values total-count error-count)))
 
 (defvar *run-test-tester* #'do-test)
