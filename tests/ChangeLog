@@ -1,3 +1,8 @@
+2007-09-20  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (do-test, do-errcheck): do (force-output log) so that
+	we have a non-empty log file in case of a hard crash
+
 2007-08-24  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: test rename-dir
