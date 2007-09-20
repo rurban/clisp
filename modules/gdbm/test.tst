@@ -6,7 +6,7 @@
 
 (defvar *db* nil) *DB*
 
-(stringp (gdbm:gdbm-version)) T
+(stringp (show (gdbm:gdbm-version))) T
 
 (handler-case
     (gdbm::gdbm-p (setf *db* (gdbm:gdbm-open "///" :read-write :newdb)))
