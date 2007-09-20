@@ -33,6 +33,11 @@ nonreturning_function(static, error_gdbm, (void)) {
   NOTREACHED;
 }
 
+DEFUN(GDBM::GDBM-VERSION,)
+{
+  VALUES1(asciz_to_string(gdbm_version, GLO(foreign_encoding)));
+}
+
 DEFCHECKER(gdbm_open_read_write, prefix=GDBM, READER WRITER WRCREAT NEWDB)
 DEFCHECKER(gdbm_open_option, prefix=GDBM, SYNC NOLOCK FAST)
 DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)

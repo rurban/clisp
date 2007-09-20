@@ -6,7 +6,7 @@
   (:documentation
    "GDBM - The GNU database manager - <http://www.gnu.org/software/gdbm/>")
   (:use #:lisp)
-  (:export #:gdbm
+  (:export #:gdbm #:gdbm-version
            #:gdbm-open #:gdbm-close #:do-db #:with-db
            #:gdbm-store #:gdbm-fetch #:gdbm-delete #:gdbm-exists
            #:gdbm-firstkey #:gdbm-nextkey

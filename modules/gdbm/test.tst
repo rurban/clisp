@@ -1,10 +1,12 @@
 ;; -*- Lisp -*-
-;; some tests for Berkeley-DB
+;; some tests for GDBM
 ;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "gdbm/test")'
 
 (listp (show (multiple-value-list (ext:module-info "gdbm" t)) :pretty t)) T
 
 (defvar *db* nil) *DB*
+
+(stringp (gdbm:gdbm-version)) T
 
 (handler-case
     (gdbm::gdbm-p (setf *db* (gdbm:gdbm-open "///" :read-write :newdb)))
