@@ -280,7 +280,7 @@ DEFUN(GDBM:GDBM-SYNC, dbf)
   GDBM_FILE dbf = check_gdbm(popSTACK());
 
   if (dbf) {
-      gdbm_sync(dbf);
+    gdbm_sync(dbf);
     VALUES1(T);
   } else {
     VALUES1(NIL);
@@ -318,15 +318,15 @@ DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
 DEFUN(GDBM:GDBM-SETOPT, dbf option value)
 {
   GDBM_FILE dbf = check_gdbm(STACK_2);
-  object value = STACK_0;
   int option = gdbm_setopt_option(STACK_1);
+  object value = STACK_0;
   skipSTACK(3);
 
   if (dbf) {
     int v;
     switch (option) {
       case GDBM_CACHESIZE:
-        v = check_uint(value); break;
+        v = I_to_sint(check_sint(value)); break;
       case GDBM_FASTMODE: case GDBM_SYNCMODE:
       case GDBM_CENTFREE: case GDBM_COALESCEBLKS:
         v = nullp(value) ? 0 : 1; break;
