@@ -2465,9 +2465,11 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
      </simpara></listitem></varlistentry>
      <varlistentry><term>new-clx, by &gilbert-baumann;</term>
       <listitem><para>faster, with additional features, but not
-        quite complete yet.  Please try it first and use mit-clx only
-        if new-clx does not work for you. new-clx comes with several
-        demos, please try them: run
+        quite complete yet.
+        Please try it first and use <literal>mit-clx</literal> only
+        if <literal>new-clx</literal> does not work for you.
+        <literal>new-clx</literal> comes with several demos, please try
+        them: run
         <screen>&sh-prompt; clisp &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename></screen>
         and follow the intructions.</para></listitem></varlistentry>
     </variablelist>This functionality is documented in the manual
@@ -2489,9 +2491,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
      <email>dgym.bailey@gmail.com</email></author>.
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="libsvm">libsvm</link></term>
-  <listitem><simpara>Access
-    <ulink url="http://www.csie.ntu.edu.tw/~cjlin/libsvm">LibSVM</ulink>
-    from &clisp;;.</simpara></listitem></varlistentry>
+  <listitem><simpara>Access &libsvm-link; from &clisp;;.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="matlab">matlab</link></term>
   <listitem><simpara>Do matrix computations via
     <ulink url="http://www.mathworks.com/products/matlab/">MATLAB</ulink>.
