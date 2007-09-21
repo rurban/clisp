@@ -29,14 +29,10 @@ RM=/bin/rm -f
 # DOC=$(shell pwd)
 
 ifneq (,$(filter Windows%,$(OS)))
-JAVAXML=c:/java
-JAVA=/cygdrive/c/java/bin/java.exe
 SEP=;
 DTD=/usr/share/docbook-xml$(DTDVER)/docbookx.dtd
 FOP=/cygdrive/c/java/fop-0.20.5/fop.bat
 else
-JAVAXML=/usr/local/src/xml
-JAVA=java
 SEP=:
 DTD=$(firstword $(wildcard \
 	/usr/share/sgml/docbook/xml-dtd-$(DTDVER)*/docbookx.dtd))
@@ -48,13 +44,15 @@ DTD_TARGET=update-docbook-utils
 DTD=../utils/docbook/docbookx.dtd
 endif
 
-XALAN=$(JAVAXML)/xalan-j_2_0_0
-SAXON=$(JAVAXML)/saxon
-CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxon.jar
-
 # name of XML catalog file to create
 # (if not specified, no local catalog created or used)
 CATALOG_FILE=catalog.xml
+
+# To generate HTML, you will need xsltproc & xmllint from the libxml2
+# (http://xmlsoft.org/) package in addition to the DocBook DTDs and XSL
+# stylesheets (http://www.docbook.org/)
+# When writing docbook documentation, you need the "DocBook Definitive Guide"
+# http://docbook.org/tdg/en/html/docbook-x.html
 
 # Local path to DocBook XSL stylesheets on your system - or snapshot location
 # Make sure to use a trailing slash.
@@ -75,9 +73,6 @@ TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 #DIST=cvs2.cons.org:/home/ftp/pub/lisp/clisp/snapshots
 DIST=podval:~/public_html/clisp
 
-# When writing docbook documentation, you need the "DocBook Definitive Guide"
-# http://docbook.org/tdg/en/html/docbook-x.html
-
 # this is the original DTD
 # when processing with a tool which can get the DTD from the net,
 # e.g., (open)jade, you can use this definition,
@@ -88,14 +83,6 @@ DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
 #DTD=http://www.docbook.org/xml/$(DTDVER)/docbookx.dtd
 endif
 
-# to generate HTML, you will need:
-# http://xml.apache.org/xalan-j
-# http://nwalsh.com/docbook/xsl/dbx129.zip
-#  or
-# http://users.iclway.co.uk/mhkay/saxon/
-#  or
-# http://openjade.sourceforge.net/
-# http://www.jclark.com/jade/
 
 FILLIN=. ../version.sh && sed -e 's,@DTD@,$(DTD),' \
 	    -e 's,@DTDVER@,$(DTDVER),' \
@@ -182,11 +169,7 @@ man: _clisp.html _clisp.1
 impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl
 	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ fo.xsl $<
 
-#impnotes.pdf: impnotes.fo
-#	$(FOP) -fo $< -pdf $@
-
 impnotes.pdf: impnotes.fo # impnotes.xml $(IMPNOTES) fo.xsl $(OLINK)
-#	./xep.bat -xml $< -xsl fo.xsl -out $@
 	./xep.bat -fo $< -out $@
 
 html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
@@ -199,8 +182,6 @@ html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 	cd ../build; make clisp-1.html;
 	mv -f ../build/clisp-1.html $@/clisp.html
 	rm -f _clisp-1.html
-#	time xmlto xhtml -o $@/ -m chunk.xsl $<
-#	time docbook2html --dsl impnotes.dsl -o $@ $<
 	egrep -Hnr 'id="id[0-9]*"' $@ || true
 	(test -n "$(DIST)" && scp -p html/*.html html/id-href.map impnotes.css \
 	 $(DIST)/impnotes/;) || true
