@@ -1,3 +1,11 @@
+2007-09-21  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c (dbe_get_data_dirs): declare a variable
+	in the block where it is actually used
+	(record_length): use default: to avoid a compiler warning about
+	enumeration values not handled in switch and control reaching end
+	of non-void function
+
 2007-09-20  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c [HAVE_SIGNALS]: use writing_to_subprocess
