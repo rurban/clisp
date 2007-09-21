@@ -151,6 +151,7 @@ static void* check_struct_data (object type, object arg, CLISP_SOCKLEN_T *size,
     return start_address;
   }
 }
+#define CHECK_SOCKADDR(a,s,p) (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,a,s,p)
 
 /* check that the arg is a vector of byte vectors
  > *arg_: vector
@@ -218,9 +219,7 @@ static void fill_iovec (object vect, size_t offset, ssize_t veclen,
 
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
   CLISP_SOCKLEN_T size;
-  struct sockaddr *sa =
-    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size,
-                                        PROT_READ);
+  struct sockaddr *sa = CHECK_SOCKADDR(popSTACK(),&size,PROT_READ);
   VALUES2(fixnum(sa->sa_family),fixnum(size));
 }
 DEFUN(RAWSOCK::SOCKADDR-SLOT,&optional slot) {
@@ -715,8 +714,7 @@ static void optional_sockaddr_argument (gcv_object_t *arg, struct sockaddr**sa,
   if (nullp(*arg)) *sa = NULL;
   else {
     if (eq(T,*arg)) *arg = make_sockaddr();
-    *sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,*arg,size,
-                                              PROT_READ_WRITE);
+    *sa = CHECK_SOCKADDR(*arg,size,PROT_READ_WRITE);
   }
 }
 
@@ -735,9 +733,7 @@ DEFUN(RAWSOCK:BIND,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
   CLISP_SOCKLEN_T size;
-  struct sockaddr *sa =
-    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size,
-                                        PROT_READ);
+  struct sockaddr *sa = CHECK_SOCKADDR(STACK_0,&size,PROT_READ);
   /* no GC after this point! */
   SYSCALL(retval,sock,bind(sock,sa,size));
   VALUES0; skipSTACK(2);
@@ -747,9 +743,7 @@ DEFUN(RAWSOCK:CONNECT,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
   CLISP_SOCKLEN_T size;
-  struct sockaddr *sa =
-    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size,
-                                        PROT_READ);
+  struct sockaddr *sa = CHECK_SOCKADDR(STACK_0,&size,PROT_READ);
   /* no GC after this point! */
   SYSCALL(retval,sock,connect(sock,sa,size));
   VALUES0; skipSTACK(2);
@@ -839,9 +833,7 @@ DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
       NUMERICSERV NUMERICSCOPE DGRAM) {
   int flags = getnameinfo_flags();
   CLISP_SOCKLEN_T size;
-  struct sockaddr *sa =
-    (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size,
-                                        PROT_READ);
+  struct sockaddr *sa = CHECK_SOCKADDR(popSTACK(),&size,PROT_READ);
   char node[BUFSIZ], service[BUFSIZ];
   int status;
   begin_system_call();
@@ -1002,10 +994,8 @@ static void fill_msghdr (gcv_object_t *mho, uintL offset, struct msghdr *mhp,
                      (aint)mhp->msg_control + mhp->msg_controllen);
   fill_iovec(TheStructure(*mho)->recdata[MSG_IOVEC],offset,mhp->msg_iovlen,
              mhp->msg_iov,prot);
-  mhp->msg_name = (struct sockaddr*)
-    check_struct_data(`RAWSOCK::SOCKADDR`,
-                      TheStructure(*mho)->recdata[MSG_SOCKADDR],
-                      &(mhp->msg_namelen),prot);
+  mhp->msg_name = CHECK_SOCKADDR(TheStructure(*mho)->recdata[MSG_SOCKADDR],
+                                 &(mhp->msg_namelen),prot);
 }
 /* POSIX recvmsg() */
 DEFUN(RAWSOCK:RECVMSG,socket message &key START END PEEK OOB WAITALL) {
@@ -1088,8 +1078,7 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key START END OOB EOR) {
   if (!missingp(STACK_0)) STACK_0 = check_posfixnum(STACK_0);
   if (!missingp(STACK_1)) STACK_1 = check_posfixnum(STACK_1);
   STACK_3 = check_byte_vector(STACK_3);
-  sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_2,&size,
-                                           PROT_READ);
+  sa = CHECK_SOCKADDR(STACK_2,&size,PROT_READ);
   /* no GC after this point! - buffer, start, end have been checked already */
   buffer = parse_buffer_arg(&STACK_3,&buffer_len,PROT_READ);
   SYSCALL(retval,sock,sendto(sock,(const BUF_TYPE_T)buffer,
