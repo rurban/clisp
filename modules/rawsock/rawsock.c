@@ -305,9 +305,19 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family &optional data) {
   skipSTACK(2);
 }
 
+/* ================== SIGPIPE handling ================== */
+#if defined(HAVE_SIGNALS)
+extern bool writing_to_subprocess;
+# define begin_sock_call()  writing_to_subprocess=true;  begin_system_call()
+# define end_sock_call()    writing_to_subprocess=false; end_system_call()
+#else
+# define begin_sock_call()  begin_system_call()
+# define end_sock_call()    end_system_call()
+#endif
+
 /* invoke system call C, place return value in R, report error on socket S */
 #define SYSCALL(r,s,c)                                  \
-  do { begin_system_call(); r = c; end_system_call();   \
+  do { begin_sock_call(); r = c; end_sock_call();       \
     if (r == -1) {                                      \
       if (s<=0) OS_error();                             \
       else OS_file_error(fixnum(s));                    \
@@ -1177,9 +1187,9 @@ DEFCHECKER(sockopt_name,default=-1,prefix=SO,                            \
     opt_type val;                                                       \
     CLISP_SOCKLEN_T len = sizeof(val);                                  \
     int status;                                                         \
-    begin_system_call();                                                \
+    begin_sock_call();                                                  \
     status = getsockopt(sock,level,name,(SETSOCKOPT_ARG_T)&val,&len);   \
-    end_system_call();                                                  \
+    end_sock_call();                                                    \
     if (status==0) return retform;                                      \
     else return (err_p ? OS_file_error(fixnum(sock)),NIL : S(Kerror));  \
   } while(0)
@@ -1290,9 +1300,9 @@ DEFUN(RAWSOCK:SOCKET-OPTION, sock name &key :LEVEL)
 #define SET_SOCK_OPT(opt_type,valform) do {                             \
     int status;                                                         \
     opt_type val; valform;                                              \
-    begin_system_call();                                                \
+    begin_sock_call();                                                  \
     status = setsockopt(sock,level,name,(SETSOCKOPT_ARG_T)&val,sizeof(val)); \
-    end_system_call();                                                  \
+    end_sock_call();                                                    \
     if (status) OS_file_error(fixnum(sock));                            \
     return;                                                             \
   } while(0)
