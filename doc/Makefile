@@ -48,19 +48,6 @@ DTD_TARGET=update-docbook-utils
 DTD=../utils/docbook/docbookx.dtd
 endif
 
-# NSGMLS is disabled because DocBook 4.4 uses UCS4
-# and onsgmls only supports UCS2
-# NSGMLS=onsgmls
-# XMLSOC is found at wildly different locations. It's tedious to write down
-# all possible pathnames found so far, but we know no better solution.
-XMLSOC := $(firstword $(wildcard /usr/share/sgml/xml.soc \
-                                 /usr/share/OpenSP/xml.soc \
-                                 /usr/share/sgml/jade_dsl/xml.soc \
-                                 /usr/share/sgml/openjade*/pubtext/xml.soc \
-                                 /usr/share/sgml/declaration/xml.soc \
-                                 $(shell locate /xml.soc) \
-                                 ))
-
 XALAN=$(JAVAXML)/xalan-j_2_0_0
 SAXON=$(JAVAXML)/saxon
 CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxon.jar
@@ -174,8 +161,6 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(FILLIN) $< > $@
 
 check: impnotes.xml $(IMPNOTES) clisp.xml $(DTD_TARGET)
-#	$(NSGMLS) -s -e -g -c$(XMLSOC) clisp.xml
-#	$(NSGMLS) -s -e -g -c$(XMLSOC) impnotes.xml
 	xmllint --noout --valid --postvalid --timing --noent clisp.xml
 	xmllint --noout --valid --postvalid --timing --noent impnotes.xml
 
