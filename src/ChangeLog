@@ -1,5 +1,11 @@
 2007-09-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (CHECK_SOCKADDR): new macro
+	(SOCKADDR-FAMILY, optional_sockaddr_argument, BIND, CONNECT)
+	(GETNAMEINFO, fill_msghdr, SENDTO): use it
+
+2007-09-21  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (dbe_get_data_dirs): declare a variable
 	in the block where it is actually used
 	(record_length): use default: to avoid a compiler warning about
