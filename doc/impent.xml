@@ -494,6 +494,9 @@
 <!ENTITY textdomain '<link linkend="textdomain"><function>I18N:TEXTDOMAIN</function></link>'>
 <!ENTITY textdomaindir '<link linkend="textdomaindir"><function>I18N:TEXTDOMAINDIR</function></link>'>
 
+<!-- *** libsvm *** -->
+<!ENTITY libsvm-link '<ulink url="http://www.csie.ntu.edu.tw/~cjlin/libsvm">LibSVM</ulink>'>
+
 <!-- *** FFI *** -->
 <!ENTITY allocate-deep '<link linkend="foreign-heap"><function>FFI:ALLOCATE-DEEP</function></link>'>
 <!ENTITY allocate-shallow '<link linkend="foreign-heap"><function>FFI:ALLOCATE-SHALLOW</function></link>'>
