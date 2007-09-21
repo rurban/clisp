@@ -866,11 +866,12 @@ static object dbe_get_verbose (DB_ENV *dbe) {
 /* get the data directory list
  can trigger GC */
 static object dbe_get_data_dirs (DB_ENV *dbe) {
-  const char **dirs; int ii;
+  const char **dirs;
   SYSCALL(dbe->get_data_dirs,(dbe,&dirs));
   if (dirs) {
-    for (ii=0; dirs[ii]; ii++)
-      pushSTACK(asciz_to_string(dirs[ii],GLO(pathname_encoding)));
+    int ii=0;
+    for (; *dirs; dirs++, ii++)
+      pushSTACK(asciz_to_string(*dirs,GLO(pathname_encoding)));
     return listof(ii);
   } else return NIL;
 }
@@ -1390,7 +1391,6 @@ static inline DBTYPE db_get_type (DB *db) {
 /* extract record length, not errors */
 static u_int32_t record_length (DB *db) {
   switch (db_get_type(db)) {
-    case DB_BTREE: case DB_HASH: return 0;
     case DB_RECNO: case DB_QUEUE: {
       u_int32_t ret;
       int status;
@@ -1402,6 +1402,7 @@ static u_int32_t record_length (DB *db) {
         return 0;
       } else return ret;
     }
+    default: return 0;
   }
 }
 /* check whether the DB uses logical record numbers, see
