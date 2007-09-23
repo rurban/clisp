@@ -1,4 +1,4 @@
-/* -*- C -*-
+/* -*- C -*- vim:filetype=c
 Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
 Bruno Haible  1998-2000
 Sam Steingold 2001-2005
