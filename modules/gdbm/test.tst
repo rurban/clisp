@@ -27,6 +27,8 @@
 
 (gdbm:gdbm-fetch *db* "key1") "value1"
 
+(gdbm:gdbm-fetch *db* "key1" :binary nil) "value1"
+
 (gdbm:gdbm-store *db* "key1" "value2" :flag :insert) NIL
 
 (gdbm:gdbm-fetch *db* "key1") "value1"
@@ -35,11 +37,21 @@
 
 (gdbm:gdbm-fetch *db* "key1") "value2"
 
+(gdbm:gdbm-exists *db* #(107 101 121 48)) NIL
+
+(gdbm:gdbm-exists *db* #(107 101 121 49)) T
+
+(gdbm:gdbm-fetch *db* #(107 101 121 49)) "value2"
+
 (gdbm:gdbm-store *db* "key1" "value3") T
 
 (gdbm:gdbm-fetch *db* "key1") "value3"
 
+(gdbm:gdbm-exists *db* #(107 101 121 50)) NIL
+
 (gdbm:gdbm-store *db* "key2" "test2") T
+
+(gdbm:gdbm-exists *db* #(107 101 121 50)) T
 
 (gdbm:gdbm-fetch *db* "key2") "test2"
 
@@ -84,5 +96,22 @@
   (< asize bsize)) T
 
 (gdbm:gdbm-close *db*) T
+
+(gdbm:gdbm-close *db*) NIL
+
+(gdbm:with-open-db (db "test.db" :read-write :reader)
+  (gdbm:do-db (key db)
+    :summing (length (gdbm:gdbm-fetch db key :binary t)))) 4001
+
+(gdbm:with-open-db (db "test.db" :read-write :writer)
+  (gdbm:gdbm-store db #(0 0 0 0) #(1 1 1 1))
+  (gdbm:do-db (key db :binary t)
+    :summing (length (gdbm:gdbm-fetch db key :binary t)))) 4005
+
+(gdbm:with-open-db (db "test.db" :read-write :reader)
+  (show (gdbm:gdbm-fetch db #(0 0 0 0) :binary t))) #(1 1 1 1)
+
+(gdbm:with-open-db (db "test.db" :read-write :reader)
+  (type-of (gdbm:gdbm-fetch db #(0 0 0 0) :binary t))) (simple-array (unsigned-byte 8) (4))
 
 (pathnamep (delete-file "test.db")) T
