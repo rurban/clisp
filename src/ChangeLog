@@ -1,6 +1,7 @@
 2007-09-22  Sam Steingold  <sds@gnu.org>
 
 	* moduler/berkeley-db/bdb.c (error_bdb): rename to bdb_error
+	* modules/gdbm/gdbm.c (error_gdbm): rename to gdbm_error
 
 2007-09-21  Sam Steingold  <sds@gnu.org>
 
