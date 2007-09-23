@@ -7,7 +7,7 @@
    "GDBM - The GNU database manager - <http://www.gnu.org/software/gdbm/>")
   (:use #:lisp)
   (:export #:gdbm #:gdbm-version
-           #:gdbm-open #:gdbm-close #:do-db #:with-db
+           #:gdbm-open #:gdbm-close #:do-db #:with-open-db
            #:gdbm-store #:gdbm-fetch #:gdbm-delete #:gdbm-exists
            #:gdbm-firstkey #:gdbm-nextkey
            #:gdbm-reorganize #:gdbm-sync #:gdbm-setopt))
@@ -26,10 +26,18 @@
 	     (format stream "~A."
 		     (gdbm-error-message condition)))))
 
-(defmacro do-db ((key-var gdbm) &body body)
+(defmacro do-db ((key-var gdbm &rest options) &body body)
   "Iterate over the GDBM keys in LOOP."
   (let ((db (gensym "DO-DB")))
     `(loop :with ,db = ,gdbm
-       :for ,key-var = (gdbm:gdbm-firstkey ,db)
-       :then (gdbm:gdbm-nextkey ,db ,key-var)
+       :for ,key-var = (gdbm:gdbm-firstkey ,db ,@options)
+       :then (gdbm:gdbm-nextkey ,db ,key-var ,@options)
        :while ,key-var ,@body)))
+
+(defmacro with-open-db ((db filename &rest options) &body body)
+  (multiple-value-bind (body-rest declarations) (system::parse-body body)
+    `(let ((,db (gdbm-open ,filename ,@options)))
+       (declare (read-only ,db) ,@declarations)
+       (unwind-protect (multiple-value-prog1 (progn ,@body-rest)
+                         (when ,db (gdbm-close ,db)))
+         (when ,db (gdbm-close ,db))))))
