@@ -23,10 +23,10 @@ define full
   # -i ../tests/tests -x '(run-test "***/test")'
   # -i clx/new-clx/demos/clx-demos.lisp -x '(clx-demos:qix)' -x '(clx-demos:koch)' -x '(clx-demos:sokoban)'
   break my_type_error
-  break closed_display_error
-  break bdb_error
-  break my_gdbm_error
-  break pcre_error
+  break error_closed_display
+  break error_bdb
+  break error_gdbm
+  break error_pcre
 end
 document full
          debug the full linking set
