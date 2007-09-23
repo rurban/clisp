@@ -142,12 +142,12 @@ static void check_pattern (object pat, pcre** compiled_pattern,
 }
 
 /* two objects should be on STACK for the error message */
-DEFCHECKER(pcre_error_code,prefix=PCRE_ERROR, NOMATCH NULL BADOPTION    \
+DEFCHECKER(error_pcre_code,prefix=PCRE_ERROR, NOMATCH NULL BADOPTION    \
            BADMAGIC UNKNOWN_NODE NOMEMORY NOSUBSTRING MATCHLIMIT CALLOUT \
            DFA_UITEM DFA_UCOND DFA_UMLIMIT DFA_WSSIZE DFA_RECURSE       \
            BADUTF8 BADUTF8_OFFSET PARTIAL BADPARTIAL INTERNAL BADCOUNT)
-nonreturning_function(static, pcre_error, (int status)) {
-  pushSTACK(pcre_error_code_reverse(status));
+nonreturning_function(static, error_pcre, (int status)) {
+  pushSTACK(error_pcre_code_reverse(status));
   pushSTACK(sfixnum(status)); pushSTACK(TheSubr(subr_self)->name);
   fehler(error,"~S/~S=~S: ~S ~S");
 }
@@ -157,7 +157,7 @@ nonreturning_function(static, pcre_error, (int status)) {
     begin_system_call();                                \
     status = pcre_fullinfo(c_pat,study,opt,val);        \
     end_system_call();                                  \
-    if (status < bad) pcre_error(status);               \
+    if (status < bad) error_pcre(status);               \
   } while(0)
 DEFCHECKER(fullinfo_arg,prefix=PCRE_INFO,OPTIONS SIZE CAPTURECOUNT      \
            BACKREFMAX FIRSTBYTE FIRSTTABLE LASTLITERAL                  \
@@ -203,7 +203,7 @@ static object fullinfo_firsttable (pcre *c_pat, pcre_extra *study) {
   handle_fault_range(PROT_READ_WRITE,(aint)data,(aint)data + sizeof(table));
   begin_system_call();
   status = pcre_fullinfo(c_pat,study,PCRE_INFO_FIRSTTABLE,&table);
-  if (status < 0) { end_system_call(); pcre_error(status); }
+  if (status < 0) { end_system_call(); error_pcre(status); }
   memcpy(data,table,sizeof(table));
   end_system_call();
   return ret;
@@ -220,12 +220,12 @@ static object fullinfo_nametable (pcre *c_pat, pcre_extra *study) {
   char *table;
   begin_system_call();
   status = pcre_fullinfo(c_pat,study,PCRE_INFO_NAMECOUNT,&count);
-  if (status < 0) { end_system_call(); pcre_error(status); }
+  if (status < 0) { end_system_call(); error_pcre(status); }
   status = pcre_fullinfo(c_pat,study,PCRE_INFO_NAMEENTRYSIZE,&size);
-  if (status < 0) { end_system_call(); pcre_error(status); }
+  if (status < 0) { end_system_call(); error_pcre(status); }
   status = pcre_fullinfo(c_pat,study,PCRE_INFO_NAMETABLE,&table);
   end_system_call();
-  if (status < 0) pcre_error(status);
+  if (status < 0) error_pcre(status);
   for (pos = 0; pos < count; pos++, table+=size) {
     pushSTACK(allocate_cons());
     Car(STACK_0) = asciz_to_string(table+2,GLO(misc_encoding));
@@ -355,7 +355,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :WORK-SPACE :DFA :BOOLEAN :OFFSET \
   begin_system_call();
   ret = pcre_fullinfo(c_pat,study,PCRE_INFO_CAPTURECOUNT,&capture_count);
   end_system_call();
-  if (ret < 0) pcre_error(ret);
+  if (ret < 0) error_pcre(ret);
   /* when DFA is enabled, the number of matches is not easily estimated */
   ovector_size = 3 * (capture_count + (dfa_p ? workspace_size : 1));
  pcre_exec_retry:
@@ -396,7 +396,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :WORK-SPACE :DFA :BOOLEAN :OFFSET \
         }
       VALUES1(popSTACK());
     }
-  } else pcre_error(ret);
+  } else error_pcre(ret);
   skipSTACK(2);                 /* drop pattern & subject */
 }
 
