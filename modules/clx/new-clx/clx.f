@@ -501,7 +501,7 @@ nonreturning_function(static,my_type_error,(object type, object datum))
   pushSTACK(type); pushSTACK(datum); pushSTACK(TheSubr(subr_self)->name);
   fehler (type_error, ("~S: ~S is not of type ~S"));
 }
-nonreturning_function (static, closed_display_error,
+nonreturning_function (static, error_closed_display,
                        (object caller, object dpy)) {
   pushSTACK(`XLIB::CLOSED-DISPLAY`);
   pushSTACK(`:DISPLAY`); pushSTACK(dpy);
@@ -682,7 +682,7 @@ static object display_hash_table (object dpy)
 {
   pushSTACK(dpy);
   if (!ensure_living_display(&(STACK_0)))
-    closed_display_error(TheSubr(subr_self)->name,STACK_0);
+    error_closed_display(TheSubr(subr_self)->name,STACK_0);
   return TheStructure (popSTACK())->recdata[slot_DISPLAY_HASH_TABLE];
 }
 
@@ -691,7 +691,7 @@ static object display_hash_table (object dpy)
 static Display *pop_display (void)
 {
   if (!ensure_living_display(&(STACK_0)))
-    closed_display_error(TheSubr(subr_self)->name,STACK_0);
+    error_closed_display(TheSubr(subr_self)->name,STACK_0);
   STACK_0 = TheStructure (STACK_0)->recdata[slot_DISPLAY_FOREIGN_POINTER];
   return (Display*) TheFpointer(popSTACK())->fp_pointer;
 }
@@ -1634,7 +1634,7 @@ static void general_lookup (object type)
 {
   XID xid = get_uint29 (STACK_0);
   if (!ensure_living_display (&(STACK_1)))
-    closed_display_error(TheSubr(subr_self)->name,STACK_1);
+    error_closed_display(TheSubr(subr_self)->name,STACK_1);
   VALUES1(make_xid_obj_2 (type, STACK_1, xid, NIL));
   skipSTACK(2);
 }

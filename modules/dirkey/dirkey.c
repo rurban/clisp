@@ -352,7 +352,7 @@ static void open_reg_key (HKEY hkey, char* path, direction_t dir,
 #endif
 
 #if defined(ACCESS_LDAP)
-nonreturning_function(static, fehler_ldap,
+nonreturning_function(static, error_ldap,
                       (object dk, object path, char* errmsg)) {
   end_system_call();
   pushSTACK(NIL); pushSTACK(path); pushSTACK(dk);
@@ -360,7 +360,7 @@ nonreturning_function(static, fehler_ldap,
   STACK_3 = CLSTEXT(errmsg);
   fehler(error,"~S(~S ~S): ~S");
 }
-#define LDAP_ERR2STR(d,p,status) fehler_ldap(d,p,ldap_err2string(status))
+#define LDAP_ERR2STR(d,p,status) error_ldap(d,p,ldap_err2string(status))
 #define LDAP_RES2STR(d,p,ld,res) LDAP_ERR2STR(d,p,ldap_result2error(ld,res,1))
 #endif
 

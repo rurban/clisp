@@ -1,6 +1,6 @@
 /*
  * CLISP: Berkeley-DB <http://www.sleepycat.com/docs/api_c/>
- * Copyright (C) 2003-2005 by Sam Steingold
+ * Copyright (C) 2003-2007 by Sam Steingold
  */
 
 /* have to undefing UNICODE _here_ because clisp.h will #include <windows.h> */
@@ -177,7 +177,7 @@ DEFCHECKER(bdb_errno,default=,prefix=DB,BUFFER_SMALL DONOTINDEX KEYEMPTY \
            ALREADY_ABORTED DELETED LOCK_NOTEXIST NEEDSPLIT REP_EGENCHG  \
            REP_LOGREADY REP_PAGEDONE SURPRISE_KID SWAPBYTES TIMEOUT TXN_CKP \
            VERIFY_FATAL)
-nonreturning_function(static, bdb_error, (int status, char *caller)) {
+nonreturning_function(static, error_bdb, (int status, char *caller)) {
   end_system_call();
   pushSTACK(`BDB::BDB-ERROR`);  /* error type */
   pushSTACK(`:CODE`); pushSTACK(bdb_errno_reverse(status));
@@ -266,7 +266,7 @@ static void message_callback (const DB_ENV* dbe, const char *msg) {
     int db_error_code;                                          \
     begin_system_call();                                        \
     db_error_code = caller args; cleanup                        \
-    if (db_error_code) bdb_error(db_error_code,#caller);        \
+    if (db_error_code) error_bdb(db_error_code,#caller);        \
     end_system_call();                                          \
   } while(0)
 #define SYSCALL(caller,args)     SYSCALL1(caller,args,)
@@ -389,7 +389,7 @@ DEFUN(BDB:DBE-CREATE,&key :PASSWORD :ENCRYPT    \
       STACK_2 = value1;
       goto host_restart;
     }
-    if (status) bdb_error(status,"dbe->set_rpc_server");
+    if (status) error_bdb(status,"dbe->set_rpc_server");
   }
   if (!missingp(STACK_4))       /* :PASSWD */
     dbe_set_encryption(dbe,&STACK_3,&STACK_4);
@@ -839,7 +839,7 @@ static void dbe_get_cache (DB_ENV* dbe, int errorp) {
   status = dbe->get_cachesize(dbe,&gbytes,&bytes,&ncache);
   end_system_call();
   if (status) {
-    if (errorp) bdb_error(status,"dbe->get_cachesize");
+    if (errorp) error_bdb(status,"dbe->get_cachesize");
     error_message_reset();
     value1 = value2 = NIL;
   } else cache2lisp (gbytes, bytes, ncache);
@@ -885,7 +885,7 @@ static object dbe_get_home_dir (DB_ENV *dbe, int errorp) {
   status = dbe->get_home(dbe,&home);
   end_system_call();
   if (status) {
-    if (errorp) bdb_error(status,"dbe->get_home");
+    if (errorp) error_bdb(status,"dbe->get_home");
     error_message_reset(); return T;
   }
   if (home == NULL) return NIL;
@@ -900,7 +900,7 @@ static object dbe_get_open_flags (DB_ENV *dbe, int errorp) {
   status = dbe->get_open_flags(dbe,&flags);
   end_system_call();
   if (status) {
-    if (errorp) bdb_error(status,"dbe->get_open_flags");
+    if (errorp) error_bdb(status,"dbe->get_open_flags");
     error_message_reset(); return T;
   }
   return check_dbe_open_flags_to_list(flags);
@@ -1469,7 +1469,7 @@ DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO-COMMIT :DEGREE-2 :READ-COMMITTED \
         case DB_KEYEMPTY: VALUES1(`:KEYEMPTY`); error_message_reset(); return;
       }
     }
-    bdb_error(status,"db->get");
+    error_bdb(status,"db->get");
   }
   if (action == DB_SET_RECNO) {
     pushSTACK(dbt_to_object(&key,key_type,0));
@@ -1679,7 +1679,7 @@ DEFUN(BDB:DB-PUT, db key val &key :AUTO-COMMIT :ACTION :TRANSACTION)
         switch (status) {
           case 0: VALUES0; break;
           case DB_KEYEXIST: VALUES1(`:KEYEXIST`); error_message_reset(); break;
-          default: bdb_error(status,"db->put");
+          default: error_bdb(status,"db->put");
         }
         break;
       }
@@ -1778,7 +1778,7 @@ DEFUN(BDB:DB-VERIFY, db file &key :DATABASE :SALVAGE :AGGRESSIVE :PRINTABLE \
         end_system_call();
       }
     });
-  if (status) bdb_error(status,"db->verify");
+  if (status) error_bdb(status,"db->verify");
   VALUES0; skipSTACK(3);
 }
 
@@ -1836,7 +1836,7 @@ static object db_get_open_flags (DB *db, int errorp) {
   status = db->get_open_flags(db,&flags);
   end_system_call();
   if (status) {
-    if (errorp) bdb_error(status,"db->get_open_flags");
+    if (errorp) error_bdb(status,"db->get_open_flags");
     error_message_reset(); return T;
   }
   return check_db_open_flags_to_list(flags);
@@ -1972,7 +1972,7 @@ static void db_get_cache (DB* db, int errorp) {
     status = db->get_cachesize(db,&gbytes,&bytes,&ncache);
     end_system_call();
     if (status) {
-      if (errorp) bdb_error(status,"db->get_cachesize");
+      if (errorp) error_bdb(status,"db->get_cachesize");
       error_message_reset();
       value1 = value2 = NIL;
     } else cache2lisp (gbytes, bytes, ncache);
@@ -1988,7 +1988,7 @@ static void db_get_dbname (DB* db, int errorp) {
   status = db->get_dbname(db,&fname,&dbname);
   end_system_call();
   if (status) {
-    if (errorp) bdb_error(status,"db->get_dbname");
+    if (errorp) error_bdb(status,"db->get_dbname");
     error_message_reset();
     value1 = value2 = NIL;
   } else {
@@ -2018,7 +2018,7 @@ DEFINE_DB_GETTER1(get_transactional,int,(value?T:NIL))
     status = db->getter(db,&value);                     \
     end_system_call();                                  \
     if (status) {                                       \
-      if (errorp) bdb_error(status,"db->" #getter);     \
+      if (errorp) error_bdb(status,"db->" #getter);     \
       error_message_reset();                            \
       return NIL;                                       \
     } else                                              \
@@ -2247,7 +2247,7 @@ DEFUN(BDB:DBC-GET, cursor key data action &key :DEGREE-2 :READ-COMMITTED \
         case DB_KEYEMPTY: VALUES1(`:KEYEMPTY`); error_message_reset(); return;
       }
     }
-    bdb_error(status,"dbc->c_get");
+    error_bdb(status,"dbc->c_get");
   }
   if (action == DB_GET_RECNO) { /* the only value is RECNO */
     VALUES1(dbt_to_object(&val,val_type,-1));
@@ -2313,7 +2313,7 @@ DEFUN(BDB:LOCK-GET, dbe object locker mode &key :NOWAIT)
   free(obj.data);
   if (status) {
     free(dblock);
-    bdb_error(status,"dbe->lock_get");
+    error_bdb(status,"dbe->lock_get");
   }
   end_system_call();
   pushSTACK(allocate_fpointer(dblock)); pushSTACK(STACK_2);
@@ -2558,7 +2558,7 @@ DEFUN(BDB:LOGC-GET, logc action &key :TYPE :ERROR)
         case DB_NOTFOUND: VALUES1(`:NOTFOUND`); error_message_reset(); return;
       }
     }
-    bdb_error(status,"logc->get");
+    error_bdb(status,"logc->get");
   }
   if (action == DB_SET) {       /* STACK_0 is the LSN */
   } else STACK_0 = make_lsn(&lsn);
@@ -2693,7 +2693,7 @@ DEFUN(BDB:TXN-RECOVER, dbe &key :FIRST :NEXT)
   status = dbe->txn_recover(dbe,preplist,tx_max,&retnum,flags);
   if (status) {
     free(preplist); end_system_call();
-    bdb_error(status,"dbe->txn_recover");
+    error_bdb(status,"dbe->txn_recover");
   }
   end_system_call();
   for (ii=0; ii<retnum; ii++) {

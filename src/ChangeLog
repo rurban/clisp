@@ -1,8 +1,10 @@
 2007-09-22  Sam Steingold  <sds@gnu.org>
 
-	* moduler/berkeley-db/bdb.c (error_bdb): rename to bdb_error
-	* modules/gdbm/gdbm.c (error_gdbm): rename to my_gdbm_error
-	* .gdbinit (full): break in my_gdbm_error
+	* modules/dirkey/dirkey.c (fehler_ldap): rename to error_ldap
+	* modules/pcre/cpcre.c (pcre_error): rename to error_pcre
+	* modules/clx/new-clx/clf.x (closed_display_error): rename to
+	error_closed_display
+	* .gdbinit (full): break in error_gdbm
 
 2007-09-21  Sam Steingold  <sds@gnu.org>
 
