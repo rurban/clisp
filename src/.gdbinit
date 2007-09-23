@@ -24,7 +24,8 @@ define full
   # -i clx/new-clx/demos/clx-demos.lisp -x '(clx-demos:qix)' -x '(clx-demos:koch)' -x '(clx-demos:sokoban)'
   break my_type_error
   break closed_display_error
-  break error_bdb
+  break bdb_error
+  break gdbm_error
   break pcre_error
 end
 document full
