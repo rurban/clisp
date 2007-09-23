@@ -22,7 +22,7 @@
 
 DEFMODULE(gdbm,"GDBM");
 
-nonreturning_function(static, gdbm_error, (void)) {
+nonreturning_function(static, my_gdbm_error, (void)) {
   pushSTACK(`GDBM::GDBM-ERROR`);
   pushSTACK(`:MESSAGE`);
   pushSTACK(asciz_to_string(gdbm_strerror(gdbm_errno), GLO(foreign_encoding)));
@@ -71,7 +71,7 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
       funcall(L(finalize),2);
       VALUES1(popSTACK());      /* restore */
     } else {
-      gdbm_error();
+      my_gdbm_error();
     }
   }
 }
@@ -265,7 +265,7 @@ DEFUN(GDBM:GDBM-REORGANIZE, dbf)
   if (dbf) {
     int status = gdbm_reorganize(dbf);
     if (status == -1) {
-      gdbm_error();
+      my_gdbm_error();
     } else {
       VALUES1(T);
     }
@@ -333,7 +333,7 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
       default: NOTREACHED;
     }
     if (gdbm_setopt(dbf, option, &v, sizeof(int)) == -1) {
-      gdbm_error();
+      my_gdbm_error();
     } else {
       VALUES1(T);
     }
