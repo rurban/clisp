@@ -25,7 +25,7 @@ define full
   break my_type_error
   break closed_display_error
   break bdb_error
-  break gdbm_error
+  break my_gdbm_error
   break pcre_error
 end
 document full

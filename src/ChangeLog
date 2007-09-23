@@ -1,8 +1,8 @@
 2007-09-22  Sam Steingold  <sds@gnu.org>
 
 	* moduler/berkeley-db/bdb.c (error_bdb): rename to bdb_error
-	* modules/gdbm/gdbm.c (error_gdbm): rename to gdbm_error
-	* .gdbinit (full): break in gdbm_error
+	* modules/gdbm/gdbm.c (error_gdbm): rename to my_gdbm_error
+	* .gdbinit (full): break in my_gdbm_error
 
 2007-09-21  Sam Steingold  <sds@gnu.org>
 
