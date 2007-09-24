@@ -97,20 +97,32 @@ DEFUN(GDBM:GDBM-CLOSE, dbf)
   skipSTACK(1);
 }
 
-#define with_gdbm_key(key_obj, var, statement) \
-  if (stringp(key_obj)) { \
-    with_string_0(key_obj, GLO(foreign_encoding), var, statement); \
-  } else if (vectorp(key_obj)) { \
-    char* var; int var##_len; \
-    if (!bit_vector_p(Atype_8Bit,key_obj)) { \
-      pushSTACK(key_obj); pushSTACK(GLO(type_uint8_vector)); \
-      funcall(L(coerce),2); \
-      if (!bit_vector_p(Atype_8Bit,value1)) { NOTREACHED; } \
-      key_obj = value1; \
-    } \
-    var = &TheSbvector(key_obj)->data[0]; var##_len = vector_length(key_obj); \
-    statement; \
-  } else NOTREACHED;
+static object coerce_bitvector (object arg) {
+  if (bit_vector_p(Atype_8Bit,arg)) return arg;
+  else {
+    pushSTACK(arg); pushSTACK(GLO(type_uint8_vector));
+    funcall(L(coerce),2);
+    if (!bit_vector_p(Atype_8Bit,value1)) { NOTREACHED; }
+    return value1;
+  }
+}
+
+#define with_datum(lisp_obj, datum_var, statement)  do {                \
+  if (stringp(lisp_obj)) {                                              \
+    with_string_0(lisp_obj, GLO(foreign_encoding), datum_var##string, { \
+      datum datum_var;                                                  \
+      datum_var.dptr = datum_var##string;                               \
+      datum_var.dsize = datum_var##string_len;                          \
+      statement;                                                        \
+    });                                                                 \
+  } else if (vectorp(lisp_obj)) {                                       \
+    datum datum_var;                                                    \
+    lisp_obj = coerce_bitvector(lisp_obj);                              \
+    datum_var.dptr = TheSbvector(lisp_obj)->data;                       \
+    datum_var.dsize = vector_length(lisp_obj);                          \
+    statement;                                                          \
+  } else NOTREACHED;                                                    \
+ } while(0)
 
 
 DEFCHECKER(gdbm_store_flag, prefix=GDBM, REPLACE INSERT);
@@ -120,98 +132,20 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
   int flag = missingp(STACK_0) ? GDBM_REPLACE : gdbm_store_flag(STACK_0);
   object content_obj = STACK_1;
   object key_obj = STACK_2;
-  object array = NIL;
   int binary_p=0, string_p = stringp(content_obj);
-  datum key, content;
   skipSTACK(4);
 
   if (!string_p) {
-    array = check_vector(content_obj);
-    if (!bit_vector_p(Atype_8Bit,array)) {
-      pushSTACK(array); pushSTACK(GLO(type_uint8_vector));
-      funcall(L(coerce),2);
-      if (!bit_vector_p(Atype_8Bit,value1)) { NOTREACHED; }
-      array = value1;
-    }
+    content_obj = coerce_bitvector(check_vector(content_obj));
     binary_p = 1;
   }
 
   if (dbf && (string_p || binary_p)) {
-    with_gdbm_key(key_obj, ks, {
-	key.dptr = ks;
-	key.dsize = ks_len;
-	if (binary_p) {
-	  content.dptr = (char*)&TheSbvector(array)->data[0];
-	  content.dsize = vector_length(array);
-	  VALUES_IF(!gdbm_store(dbf, key, content, flag));
-	} else {
-	  with_string_0(content_obj, GLO(foreign_encoding), cs, {
-	      content.dptr = cs;
-	      content.dsize = cs_len;
-	      VALUES_IF(!gdbm_store(dbf, key, content, flag));
-	    });
-	}
-      });
-  } else {
+    with_datum(key_obj, key,
+               with_datum(content_obj, content,
+                          VALUES_IF(!gdbm_store(dbf, key, content, flag))));
+  } else
     VALUES1(NIL);
-  }
-}
-
-DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
-{
-  GDBM_FILE dbf = check_gdbm(STACK_2);
-  object binary = popSTACK();
-  int binary_p = !missingp(binary);
-  object key_obj = popSTACK();
-  datum key, ret;
-  skipSTACK(1);                 /* drop dbf */
-
-  if (dbf) {
-    with_gdbm_key(key_obj, ks, {
-	key.dptr = ks;
-	key.dsize = ks_len;
-	ret = gdbm_fetch(dbf, key);
-	if (ret.dptr == NULL) {
-	  VALUES1(NIL);
-	} else {
-	  if (!binary_p) {
-	    VALUES1(n_char_to_string(ret.dptr, ret.dsize,
-				     GLO(foreign_encoding)));
-	  } else {
-	    object vector = allocate_bit_vector(Atype_8Bit,ret.dsize);
-	    int i = 0;
-	    for (i=0;i<ret.dsize;i++)
-	      TheSbvector(vector)->data[i] = ret.dptr[i];
-	    VALUES1(vector);
-	  }
-	  free(ret.dptr);
-	}
-      });
-  } else {
-    VALUES1(NIL);
-  }
-}
-
-DEFUN(GDBM:GDBM-DELETE, dbf key)
-{
-  GDBM_FILE dbf = check_gdbm(STACK_1);
-  object key_obj = popSTACK();
-  datum key;
-  skipSTACK(1);                 /* drop dbf */
-
-  if (dbf) {
-    with_gdbm_key(key_obj, ks, {
-	key.dptr = ks;
-	key.dsize = ks_len;
-	if (gdbm_delete(dbf, key) == -1) {
-	  VALUES1(NIL);
-	} else {
-	  VALUES1(T);
-	}
-      });
-  } else {
-    VALUES1(NIL);
-  }
 }
 
 /* convert datum to Lisp string and release memory in datum
@@ -232,6 +166,33 @@ static object datum_to_object (datum d, int binary) {
   }
 }
 
+DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
+{
+  GDBM_FILE dbf = check_gdbm(STACK_2);
+  object binary = popSTACK();
+  int binary_p = !missingp(binary);
+  object key_obj = popSTACK();
+  skipSTACK(1);                 /* drop dbf */
+
+  if (dbf) {
+    with_datum(key_obj, key,
+               VALUES1(datum_to_object(gdbm_fetch(dbf,key),binary_p)));
+  } else
+    VALUES1(NIL);
+}
+
+DEFUN(GDBM:GDBM-DELETE, dbf key)
+{
+  GDBM_FILE dbf = check_gdbm(STACK_1);
+  object key_obj = popSTACK();
+  skipSTACK(1);                 /* drop dbf */
+
+  if (dbf) {
+    with_datum(key_obj, key, VALUES_IF(gdbm_delete(dbf,key) != -1));
+  } else
+    VALUES1(NIL);
+}
+
 DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key BINARY)
 {
   int binary_p = !missingp(STACK_0);
@@ -241,9 +202,8 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key BINARY)
 
   if (dbf) {
     VALUES1(datum_to_object(gdbm_firstkey(dbf),binary_p));
-  } else {
+  } else
     VALUES1(NIL);
-  }
 }
 
 DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key BINARY)
@@ -251,18 +211,13 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key BINARY)
   int binary_p = !missingp(STACK_0);
   object key_obj = STACK_1;
   GDBM_FILE dbf = check_gdbm(STACK_2);
-  datum key;
   skipSTACK(3);                 /* drop dbf */
 
   if (dbf) {
-    with_gdbm_key(key_obj, ks, {
-        key.dptr = ks;
-        key.dsize = ks_len;
-	VALUES1(datum_to_object(gdbm_nextkey(dbf, key),binary_p));
-      });
-  } else {
+    with_datum(key_obj, key,
+               VALUES1(datum_to_object(gdbm_nextkey(dbf,key),binary_p)));
+  } else
     VALUES1(NIL);
-  }
 }
 
 DEFUN(GDBM:GDBM-REORGANIZE, dbf)
@@ -270,15 +225,12 @@ DEFUN(GDBM:GDBM-REORGANIZE, dbf)
   GDBM_FILE dbf = check_gdbm(popSTACK());
 
   if (dbf) {
-    int status = gdbm_reorganize(dbf);
-    if (status == -1) {
+    if (gdbm_reorganize(dbf) == -1)
       error_gdbm();
-    } else {
+    else
       VALUES1(T);
-    }
-  } else {
+  } else
     VALUES1(NIL);
-  }
 }
 
 
@@ -289,31 +241,20 @@ DEFUN(GDBM:GDBM-SYNC, dbf)
   if (dbf) {
     gdbm_sync(dbf);
     VALUES1(T);
-  } else {
+  } else
     VALUES1(NIL);
-  }
 }
 
 DEFUN(GDBM:GDBM-EXISTS, dbf key)
 {
   GDBM_FILE dbf = check_gdbm(STACK_1);
   object key_obj = popSTACK();
-  datum key;
   skipSTACK(1);                 /* drop dbf */
 
   if (dbf) {
-    with_gdbm_key(key_obj, ks, {
-	key.dptr = ks;
-	key.dsize = ks_len;
-	if (gdbm_exists(dbf, key)) {
-	  VALUES1(T);
-	} else {
-	  VALUES1(NIL);
-	}
-      });
-  } else {
+    with_datum(key_obj, key, VALUES_IF (gdbm_exists(dbf, key)));
+  } else
     VALUES1(NIL);
-  }
 }
 
 DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
@@ -335,12 +276,10 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
         v = nullp(value) ? 0 : 1; break;
       default: NOTREACHED;
     }
-    if (gdbm_setopt(dbf, option, &v, sizeof(int)) == -1) {
+    if (gdbm_setopt(dbf, option, &v, sizeof(int)) == -1)
       error_gdbm();
-    } else {
+    else
       VALUES1(T);
-    }
-  } else {
+  } else
     VALUES1(NIL);
-  }
 }
