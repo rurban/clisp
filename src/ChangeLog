@@ -1,6 +1,8 @@
 2007-09-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.c (with_datum): replacement for with_gdbm_key
+	* modules/gdbm/gdbm.lisp (define-condition): 
+	do not terminate the message with "."
 
 2007-09-23  Masayuki Onjo  <masayuki.onjo@gmail.com>
 
