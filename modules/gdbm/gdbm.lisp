@@ -1,6 +1,7 @@
 ;; Module for GDBM / CLISP
 ;; <http://www.gnu.org/gdbm/>
-;; Masayuki Onjo 2007
+;; (C) 2007 Masayuki Onjo
+;; Released under GNU GPL2
 
 (defpackage #:gdbm
   (:documentation
@@ -23,8 +24,7 @@
 (define-condition gdbm-error (simple-error)
   ((message :reader gdbm-error-message :initarg :message))
   (:report (lambda (condition stream)
-	     (format stream "~A."
-		     (gdbm-error-message condition)))))
+	     (princ (gdbm-error-message condition) stream))))
 
 (defmacro do-db ((key-var gdbm &rest options) &body body)
   "Iterate over the GDBM keys in LOOP."
@@ -35,6 +35,7 @@
        :while ,key-var ,@body)))
 
 (defmacro with-open-db ((db filename &rest options) &body body)
+  "Open a GDBM database, execute BODY, ensure that the DB is closed."
   (multiple-value-bind (body-rest declarations) (system::parse-body body)
     `(let ((,db (gdbm-open ,filename ,@options)))
        (declare (read-only ,db) ,@declarations)
