@@ -1,3 +1,10 @@
+2007-09-23  Masayuki Onjo  <masayuki.onjo@gmail.com>
+
+	* modules/gdbm/gdbm.lisp (GDBM:WITH-OPEN-DB): add macro
+	* modules/gdbm/gdbm.c (with_gdbm_key): add macro
+	(GDBM-FETCH, GDBM-DELETE, GDBM-EXISTS): add vector support
+	(GDBM-FIRSTKEY, GDBM-NEXTKEY): new keyword argument :BINARY
+
 2007-09-22  Sam Steingold  <sds@gnu.org>
 
 	* modules/dirkey/dirkey.c (fehler_ldap): rename to error_ldap
