@@ -78,6 +78,22 @@
                (error "eval: ~S; compile: ~S" e-value c-value))
              e-value))))
 
+;; compare 2 sequences:
+;; list of (pos first second);
+;; last 3 elements can be smaller length, tail1, tail2
+(defun diff-seq (s1 s2 &key (test #'eql))
+  (let ((pos 0))
+    (nconc
+     (delete nil
+             (map 'list (lambda (e1 e2)
+                          (prog1 (unless (funcall test e1 e2)
+                                   (list pos e1 e2))
+                            (incf pos)))
+                  s1 s2))
+     (let ((l1 (length s1)) (l2 (length s2)))
+       (cond ((< l1 l2) (list l1 nil (subseq s2 l1)))
+             ((< l2 l1) (list l2 (subseq s1 l2) nil)))))))
+
 (defgeneric pretty-compare (result my-result log)
   (:documentation "print a pretty comparison of two results")
   (:method ((result sequence) (my-result sequence) (log stream))

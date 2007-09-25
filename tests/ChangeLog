@@ -1,3 +1,7 @@
+2007-09-25  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (diff-seq): add
+
 2007-09-20  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (do-test, do-errcheck): do (force-output log) so that
