@@ -5,6 +5,9 @@
 (defparameter *dpy* (show (xlib:open-display ""))) *dpy*
 
 (xlib:closed-display-p *dpy*) NIL
+(stringp (show (xlib:display-authorization-data *dpy*))) T
+(stringp (show (xlib:display-authorization-name *dpy*))) T
+(listp (show (multiple-value-list (xlib:display-authorization *dpy*)))) T
 (integerp (show (xlib:display-protocol-major-version *dpy*))) T
 (integerp (show (xlib:display-protocol-minor-version *dpy*))) T
 (listp (show (multiple-value-list (xlib:display-protocol-version *dpy*)))) T
@@ -30,6 +33,7 @@ NIL
 (integerp (show (xlib:display-max-request-length *dpy*))) T
 (integerp (show (xlib:display-motion-buffer-size *dpy*))) T
 (listp (show (xlib:display-pixmap-formats *dpy*) :pretty t)) T
+(xlib:bitmap-format-p (show (xlib:display-bitmap-format *dpy*))) T
 (symbolp (show (xlib:display-byte-order *dpy*))) T
 (listp (show (multiple-value-list (xlib:display-protocol-version *dpy*)))) T
 (listp (show (multiple-value-list (xlib:display-vendor *dpy*)))) T
