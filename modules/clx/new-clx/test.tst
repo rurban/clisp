@@ -5,12 +5,16 @@
 (defparameter *dpy* (show (xlib:open-display ""))) *dpy*
 
 (xlib:closed-display-p *dpy*) NIL
-
+(integerp (show (xlib:display-protocol-major-version *dpy*))) T
+(integerp (show (xlib:display-protocol-minor-version *dpy*))) T
+(listp (show (multiple-value-list (xlib:display-protocol-version *dpy*)))) T
+(listp (show (xlib:display-roots *dpy*))) T
+(listp (show (multiple-value-list (xlib:display-vendor *dpy*)))) T
+(stringp (show (xlib:display-vendor-name *dpy*))) T
+(integerp (show (xlib:display-release-number *dpy*))) T
 (listp (show (xlib:display-plist *dpy*))) T
-
 (stringp (show (xlib:display-host *dpy*))) T
-
-;(listp (show (multiple-value-list (xlib:pointer-control *dpy*)))) T
+(listp (show (multiple-value-list (xlib:pointer-control *dpy*)))) T
 (listp (show (xlib:pointer-mapping *dpy*))) T
 
 (multiple-value-bind (kc% b% bp bd lm gar arm) (xlib:keyboard-control *dpy*)
@@ -21,36 +25,98 @@
    :KEY 80 :AUTO-REPEAT-MODE (if (plusp (aref arm 80)) :on :off)))
 NIL
 
+(vectorp (show (xlib:query-keymap *dpy*))) T
 (listp (show (multiple-value-list (xlib:display-keycode-range *dpy*)))) T
-
 (integerp (show (xlib:display-max-request-length *dpy*))) T
-
 (integerp (show (xlib:display-motion-buffer-size *dpy*))) T
-
 (listp (show (xlib:display-pixmap-formats *dpy*) :pretty t)) T
-
 (symbolp (show (xlib:display-byte-order *dpy*))) T
-
 (listp (show (multiple-value-list (xlib:display-protocol-version *dpy*)))) T
-
 (listp (show (multiple-value-list (xlib:display-vendor *dpy*)))) T
+(listp (show (multiple-value-list (xlib:global-pointer-position *dpy*)))) T
+(integerp (show (xlib:display-nscreens *dpy*))) T
 
-(let ((map (show (xlib:keyboard-mapping *dpy*) :pretty t)))
-  (show (array-dimensions map))
-  (list (eq map (xlib:keyboard-mapping *dpy* :data map))
-        (xlib:change-keyboard-mapping
-         *dpy* map :first-keycode (xlib:display-min-keycode *dpy*))))
-(T NIL)
+(defparameter *screen* (show (xlib:display-default-screen *dpy*))) *SCREEN*
 
-(let ((modifiers (show (multiple-value-list (xlib:modifier-mapping *dpy*)))))
-  (apply #'xlib:set-modifier-mapping *dpy*
-         (mapcan #'list '(:SHIFT :LOCK :CONTROL :MOD1 :MOD2 :MOD3 :MOD4 :MOD5)
-                 modifiers)))
-:SUCCESS
+(integerp (show (xlib:screen-black-pixel *screen*))) T
+(integerp (show (xlib:screen-white-pixel *screen*))) T
+(integerp (show (xlib:screen-event-mask-at-open *screen*))) T
+(integerp (show (xlib:screen-height *screen*))) T
+(integerp (show (xlib:screen-height-in-millimeters *screen*))) T
+(integerp (show (xlib:screen-width *screen*))) T
+(integerp (show (xlib:screen-width-in-millimeters *screen*))) T
+(integerp (show (xlib:screen-max-installed-maps *screen*))) T
+(integerp (show (xlib:screen-min-installed-maps *screen*))) T
+(integerp (show (xlib:screen-root-depth *screen*))) T
+(xlib:visual-info-p (show (xlib:screen-root-visual-info *screen*) :pretty t)) T
+(typep (show (xlib:screen-save-unders-p *screen*)) 'boolean) T
+(symbolp (show (xlib:screen-backing-stores *screen*))) T
+(listp (show (xlib:screen-depths *screen*) :pretty t)) T
 
-(show (multiple-value-list (xlib:keysym->keycodes *dpy* 65))) (38)
-(show (multiple-value-list (xlib:keysym->keycodes *dpy* #xFF52))) (98) ; Up
-(show (xlib:keysym "Up")) #xFF52
+(defparameter *visual* (show (xlib:screen-root-visual *screen*))) *VISUAL*
+
+(listp (show (xlib:screen-plist *screen*))) T
+(xlib:visual-info-p (show (xlib:visual-info *dpy* *visual*) :pretty t)) T
+
+(defparameter *root* (show (xlib:screen-root *screen*))) *ROOT*
+
+(defparameter *colormap* (show (xlib:screen-default-colormap *screen*)))
+*COLORMAP*
+
+(defparameter *window*
+  (multiple-value-bind (window revert) (xlib:input-focus *dpy*)
+    (show (list :window window :revert revert) :pretty t)
+    window))
+*WINDOW*
+
+(xlib:window-p (show (xlib:drawable-root *window*))) T
+(listp (show (multiple-value-list (xlib:query-tree *window*)) :pretty t)) T
+(listp (show (multiple-value-list (xlib:query-pointer *window*)) :pretty t)) T
+(listp (show (multiple-value-list (xlib:motion-events *window*)))) T
+(xlib:warp-pointer *window* 10 10) NIL
+(xlib:warp-pointer-relative *dpy* 10 10) NIL
+
+;; (let ((map (show (xlib:keyboard-mapping *dpy*) :pretty t)))
+;;   (show (array-dimensions map))
+;;   (list (eq map (xlib:keyboard-mapping *dpy* :data map))
+;;         (xlib:change-keyboard-mapping
+;;          *dpy* map :first-keycode (xlib:display-min-keycode *dpy*))))
+;; (T NIL)
+
+;; (let ((modifiers (show (multiple-value-list (xlib:modifier-mapping *dpy*)))))
+;;   (apply #'xlib:set-modifier-mapping *dpy*
+;;          (mapcan #'list '(:SHIFT :LOCK :CONTROL :MOD1 :MOD2 :MOD3 :MOD4 :MOD5)
+;;                  modifiers)))
+;; :SUCCESS
+
+(multiple-value-list (xlib:keysym->keycodes *dpy* 65)) (38)
+(multiple-value-list (xlib:keysym->keycodes *dpy* #xFF52)) (98) ; Up
+(xlib:keysym "Up") #xFF52
+
+(xlib:keysym->character *dpy* 97)    #\a
+(xlib:keysym->character *dpy* 97 4)  #\a ; 4 is <ctrl>
+(xlib:keysym->character *dpy* 97 8)  #\a ; 8 is <meta>
+(xlib:keysym->character *dpy* 65)    #\A
+(xlib:keysym->character *dpy* 65 4)  #\A
+(xlib:keysym->character *dpy* 65 8)  #\A
+(xlib:keysym->character *dpy* #xFF52) ; #xFF52 is <up>
+#+unicode #\FULLWIDTH_LATIN_SMALL_LETTER_R #-unicode NIL
+
+(listp (show (loop :for i :from 0 :to 255
+               :collect (xlib:keycode->character *dpy* i 0))
+             :pretty t))
+T
+
+(defun c2s (index)
+  (loop :for keycode :from 0 :to 255
+    :collect (xlib:keycode->keysym *dpy* keycode index)))
+C2S
+
+(let ((l-255 (show (c2s 255) :pretty t)))
+  (loop :for index :from 0 :to 254 :for l = (c2s index)
+    :unless (equal l-255 l)
+    :do (show (list index (diff-seq l-255 l)) :pretty t)))
+NIL
 
 (show (xlib:keysym-name (show (xlib:keysym "Down")))) "Down"
 
