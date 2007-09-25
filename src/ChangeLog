@@ -13,6 +13,12 @@
 	(XLIB:GRAB-KEY): fix XGrabKey call
 	(XLIB:QUERY-KEYMAP): use check_bitvec_256
 	(XLIB:KEYCODE->CHARACTER): fix KEYSYM-INDEX-FUNCTION handling
+	(X11/Xauth.h): #include
+	(my_xau_get_auth_by_name): add (fixme?)
+	(XLIB:DISPLAY-AUTHORIZATION-DATA, XLIB:DISPLAY-AUTHORIZATION-NAME):
+	use it or return constant ""
+	(XLIB:DISPLAY-AUTHORIZATION): add
+	* modules/clx/new-clx/clx.lisp (XLIB:DISPLAY-AUTHORIZATION): export
 
 2007-09-23  Sam Steingold  <sds@gnu.org>
 

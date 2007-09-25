@@ -405,6 +405,7 @@ For further for grepability I use the following tags in comments:
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>          /* XGetVisualInfo */
 #include <X11/Xcms.h>   /* forXcmsCCCOfColormap() & XcmsVisualOfCCC() */
+#include <X11/Xauth.h>
 #include <stdio.h>              /* sprintf() */
 #include <string.h>             /* memcpy(), strchr(), strcpy() */
 #include "config.h"
@@ -1797,16 +1798,53 @@ DEFUN(XLIB:OPEN-DISPLAY, &rest args)
   skipSTACK(argcount);
 }
 
+static Xauth * my_xau_get_auth_by_name (char *dpy_name) {
+  char *s = dpy_name;
+  int len = strlen(dpy_name);
+  while (*s && *s != ':') s++;
+  if (*s == ':') {
+    int addr_len = s-dpy_name;
+    return XauGetAuthByAddr(AF_INET,addr_len,dpy_name,
+                            len-addr_len-1,s+1,len,dpy_name);
+  } else return XauGetAuthByAddr(AF_INET,0,"",len,dpy_name,len,dpy_name);
+}
+
+DEFUN(XLIB:DISPLAY-AUTHORIZATION, display) /* OK */
+{
+  Display *dpy = pop_display ();
+  Xauth *auth;
+  X_CALL(auth = my_xau_get_auth_by_name(DisplayString(dpy)));
+  if (auth) {
+    pushSTACK(fixnum(auth->family));
+#  define PUSH(n) pushSTACK(n_char_to_string(auth->n,auth->n##_length,  \
+                                             GLO(misc_encoding)))
+    PUSH(address); PUSH(number); PUSH(name); PUSH(data);
+#  undef PUSH
+    STACK_to_mv(5);
+    X_CALL(XauDisposeAuth(auth));
+  } else VALUES0;
+}
+
 DEFUN(XLIB:DISPLAY-AUTHORIZATION-DATA, display) /* OK */
 {
-  skipSTACK(1);
-  VALUES1(allocate_string(0));
+  Display *dpy = pop_display ();
+  Xauth *auth;
+  X_CALL(auth = my_xau_get_auth_by_name(DisplayString(dpy)));
+  if (auth) {
+    VALUES1(n_char_to_string(auth->data,auth->data_length,GLO(misc_encoding)));
+    X_CALL(XauDisposeAuth(auth));
+  } else VALUES1(`""`);
 }
 
 DEFUN(XLIB:DISPLAY-AUTHORIZATION-NAME, display) /* OK */
 {
-  skipSTACK(1);
-  VALUES1(allocate_string(0));
+  Display *dpy = pop_display ();
+  Xauth *auth;
+  X_CALL(auth = my_xau_get_auth_by_name(DisplayString(dpy)));
+  if (auth) {
+    VALUES1(n_char_to_string(auth->name,auth->name_length,GLO(misc_encoding)));
+    X_CALL(XauDisposeAuth(auth));
+  } else VALUES1(`""`);
 }
 
 DEFUN(XLIB:DISPLAY-BITMAP-FORMAT, display) /* OK */

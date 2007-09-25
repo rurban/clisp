@@ -48,6 +48,7 @@
    define-keysym-set delete-property delete-resource destroy-subwindows
    destroy-window device-busy device-event-mask device-event-mask-class
    discard-current-event discard-font-info display display-after-function
+   display-authorization        ; extension
    display-authorization-data display-authorization-name
    display-bitmap-format display-byte-order display-default-screen
    display-display display-error-handler display-finish-output
