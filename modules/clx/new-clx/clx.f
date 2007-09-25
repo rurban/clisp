@@ -1,7 +1,7 @@
 /* -*- C -*- vim:filetype=c
 Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
 Bruno Haible  1998-2000
-Sam Steingold 2001-2005
+Sam Steingold 2001-2005, 2007
 ----------------------------------------------------------------------------
 
    Title:       C implementation of CLX utilizing the Xlib
@@ -1446,14 +1446,20 @@ static sint32 get_angle (object ang)
 
 static object make_key_vector (char key_vector[32])
 {
-  value1= allocate_bit_vector (Atype_Bit, 256);
-  X_CALL(memcpy (TheSbvector(value1)->data, key_vector, 32));
-  return value1;
+  object ret = allocate_bit_vector (Atype_Bit, 256);
+  X_CALL(memcpy (TheSbvector(ret)->data, key_vector, 32));
+  return ret;
 }
+
+#define check_bitvec_256(obj)                           \
+  if (!(simple_bit_vector_p (Atype_Bit, obj)            \
+        && Sbvector_length (obj) == 256))               \
+    my_type_error(`(SIMPLE-BIT-VECTOR 256)`,STACK_0)
 
 static void get_key_vector (object obj, char key_vector [32])
 {
-  NOTIMPLEMENTED;
+  check_bitvec_256(obj);
+  X_CALL(memcpy (key_vector, TheSbvector(obj)->data, 32));
 }
 
 static object make_client_message_format (int format)
@@ -1758,7 +1764,6 @@ static Display *x_open_display (char* display_name, int display_number) {
 
 DEFUN(XLIB:OPEN-DISPLAY, &rest args)
 { /* (XLIB:OPEN-DISPLAY host &key :display &allow-other-keys) */
-  char *display_name = NULL;    /* the host to connect to */
   int  display_number = 0;      /* the display number */
   Display *dpy;
   gcv_object_t *display_arg = NULL;
@@ -1787,10 +1792,6 @@ DEFUN(XLIB:OPEN-DISPLAY, &rest args)
     with_string_0(*display_arg,GLO(misc_encoding),displayz,
                   { dpy = x_open_display(displayz,display_number); });
   } else dpy = x_open_display(NULL,display_number);
-
-# if !defined(RELY_ON_WRITING_TO_SUBPROCESS)
-  disable_sigpipe();
-# endif
 
   VALUES1(make_display(dpy, display_number));
   skipSTACK(argcount);
@@ -3105,33 +3106,30 @@ DEFUN(XLIB::SET-GCONTEXT-DASHES, gcontext dashes)
       pushSTACK(TheSubr(subr_self)->name);
       fehler (error, "~S: The dash list should be non-empty.");
     }
-    { /* FIXME: For efficiency reasons, we should look
+    /* FIXME: For efficiency reasons, we should look
               if user gave already a byte vector.
               [probably via with-gcontext]. */
-      uintC i;
+    /* Allocate a simple vector of uint8's: */
+    pushSTACK(allocate_bit_vector (/* eltype: */ Atype_8Bit, /* len: */ n));
 
-      /* Allocate a simple vector of uint8's: */
-      pushSTACK(allocate_bit_vector (/* eltype: */ Atype_8Bit, /* len: */ n));
-
-      /* Copy the values from the dash-list argument into the
+    /* Copy the values from the dash-list argument into the
        newly created byte-vector representation */
-      pushSTACK(STACK_0); pushSTACK(STACK_2); funcall(L(replace),2);
+    pushSTACK(STACK_0); pushSTACK(STACK_2); funcall(L(replace),2);
 
-      /* The XSetDashes routine requires also the dash_offset,
+    /* The XSetDashes routine requires also the dash_offset,
        so retrieve it first. */
-      begin_x_call();
-      XGetGCValues (dpy, gcon, GCDashOffset, &values);
-      XSetDashes (dpy, gcon, values.dash_offset,
-                  (char*)(TheSbvector(STACK_1)->data), n);
-      end_x_call();
+    begin_x_call();
+    XGetGCValues (dpy, gcon, GCDashOffset, &values);
+    XSetDashes (dpy, gcon, values.dash_offset,
+                (char*)(TheSbvector(STACK_1)->data), n);
+    end_x_call();
 
-      /* Now install the byte-vector into the %dashes slot: */
-      pushSTACK(STACK_2);      /* The instance, hence the gcontext */
-      pushSTACK(`XLIB::%DASHES`); /* slot */
-      pushSTACK(STACK_2);      /* value, the byte-vector */
-      funcall (L(set_slot_value), 3);
-      skipSTACK(1);            /* clean up; pop the byte-vector */
-    }
+    /* Now install the byte-vector into the %dashes slot: */
+    pushSTACK(STACK_2);      /* The instance, hence the gcontext */
+    pushSTACK(`XLIB::%DASHES`); /* slot */
+    pushSTACK(STACK_2);      /* value, the byte-vector */
+    funcall (L(set_slot_value), 3);
+    skipSTACK(1);            /* clean up; pop the byte-vector */
   }
 
   VALUES1(STACK_0);
@@ -3782,10 +3780,9 @@ static int to_XChar2b (object font, XFontStruct* font_info, const chart* src,
 static void general_draw_text (int image_p)
 { /* General text drawing routine to not to have to duplicate code for
      DRAW-GLYPHS and DRAW-IMAGE-GLYPHS. */
-  int size = 0;            /* 8 or 16, 0="have to look into the font" */
-
   /* First of all fetch the arguments */
 #if 0
+  int size = 0;            /* 8 or 16, 0="have to look into the font" */
 
   STACK_9= drawable;
   STACK_8= gcontext;
@@ -4073,7 +4070,6 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
   int width;
   int height;
   int depth;
-  char *data;
   int bytes_per_line;
   int ix, iy;
   unsigned long v;
@@ -4180,10 +4176,8 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
     handle_image_x (src_x, src_y, x, y, w, h, gcontext, drawable, bitmap_p, dpy);
 #  endif
     /* image-x stuff
-     It seems that images of type image-x are already in the format
-     needed by XPutImage. */
-    int bytes_per_line, bitmap_pad;
-    char *data;
+       It seems that images of type image-x are already in the format
+       needed by XPutImage. */
     XImage im;
 
     /* Now fill in the XImage structure from the slots */
@@ -4226,7 +4220,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
     /* handle_image_z (src_x, src_y, x, y, w, h, gcontext, drawable,
      bitmap_p, dpy); image-z or image-xy stuff */
     XImage *im;
-    int width, height, depth, format;
+    int width, height, depth;
     unsigned long fg,bg;
 
     width  = get_sint32(funcall1(`XLIB::IMAGE-WIDTH`,STACK_7));
@@ -4244,7 +4238,6 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
     }
 
     {
-      char *data;
       int bytes_per_line;
       int ix, iy;
       unsigned long v;
@@ -4571,10 +4564,8 @@ static XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
 
   if (fs->min_byte1 == 0 && fs->max_byte1 == 0) { /* Linear indexing ... */
     if (index >= fs->min_char_or_byte2 && index <= fs->max_char_or_byte2)
-      if (fs->per_char)
-        return fs->per_char+(index-fs->min_char_or_byte2);
-      else
-        return &(fs->min_bounds);
+      return fs->per_char ? fs->per_char+(index-fs->min_char_or_byte2)
+        : &(fs->min_bounds);
   } else {                      /* Nonlinear indexing .. */
     unsigned char byte1 = (index >> 8) &0xFF; /* Is this right?! */
     unsigned char byte2 = index & 0xFF;
@@ -4583,11 +4574,7 @@ static XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
     if (byte1 >= fs->min_byte1 && byte1 <= fs->max_byte1 &&
         byte2 >= fs->min_char_or_byte2 && byte2 <= fs->max_char_or_byte2) {
       index = (byte1 - fs->min_byte1)*d + (byte2 - fs->min_char_or_byte2);
-
-      if (fs->per_char)
-        return fs->per_char+index;
-      else
-        return &(fs->min_bounds);
+      return fs->per_char ? fs->per_char+index : &(fs->min_bounds);
     }
   }
   /* BTW these two cases could be handled in one, but I leave it here
@@ -4715,7 +4702,7 @@ DEFUN(XLIB:TEXT-WIDTH, font sequence &key START END TRANSLATE)
     int end   = missingp(STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
     VALUES2(make_sint32(0),NIL);
   } else
-    my_type_error(`SEQUENCE`,STACK_3);
+    my_type_error(S(sequence),STACK_3);
 
   skipSTACK(5);
 }
@@ -5328,7 +5315,6 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   int     start = get_uint32_0 (STACK_2);
   int       end;
   int       len;
-  unsigned char *data;
 
   if (format != 8 && format != 16 && format != 32)
     my_type_error(`(MEMBER 8 16 32)`,STACK_4);
@@ -6227,7 +6213,6 @@ DEFUN(XLIB:QUERY-POINTER, window)
 DEFUN(XLIB:GLOBAL-POINTER-POSITION, display)
 {
   Display *dpy = (pushSTACK(STACK_0), pop_display());
-  Window   win;
 
   Window root, child;
   int root_x, root_y;
@@ -6383,12 +6368,10 @@ DEFUN(XLIB:INPUT-FOCUS, display)
     default:          pushSTACK(make_window (STACK_0, focus));
   }
 
-  /* value2 (= revert) */
-  pushSTACK(check_revert_focus_reverse(revert));
-
-  value2 = popSTACK();
+  value2 = check_revert_focus_reverse(revert);
   value1 = popSTACK();
   mv_count = 2;
+  skipSTACK(1);                 /* drop dpy */
 }
 
 static void ungrab_X (int (*X)(Display *dpy, Time time))
@@ -6519,7 +6502,7 @@ DEFUN(XLIB:GRAB-KEY, window key &key MODIFIERS OWNER-P SYNC-POINTER-P \
   Bool   sync_keyboard_p = missingp(STACK_0) ? GrabModeAsync : GrabModeSync;
 
   X_CALL(XGrabKey (dpy, keycode, modifiers, win, owner_p,
-                   sync_keyboard_p, sync_keyboard_p));
+                   sync_pointer_p, sync_keyboard_p));
 
   VALUES1(NIL);
   skipSTACK(6);
@@ -6868,9 +6851,7 @@ DEFUN(XLIB:QUERY-KEYMAP, display &optional bit-vector)
   Display *dpy = (pushSTACK(STACK_1), pop_display());
 
   if (boundp(STACK_0)) {
-    if (!(simple_bit_vector_p (Atype_Bit, STACK_0)
-          && Sbvector_length (STACK_0) == 256))
-      my_type_error(`(SIMPLE-BIT-VECTOR 256)`,STACK_0);
+    check_bitvec_256(STACK_0);
   } else
     STACK_0 = allocate_bit_vector (Atype_Bit, 256);
 
@@ -6947,7 +6928,7 @@ DEFUN(XLIB:KEYBOARD-MAPPING, dpy &key FIRST-KEYCODE START END DATA)
 { /*  http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
   Display *dpy = (pushSTACK(STACK_4), pop_display());
   int first_keycode, min_keycode, max_keycode, keysyms_per_keycode;
-  KeySym *map, *map1;
+  KeySym *map;
   int start, end, num_codes;
   object data_vector;
   void * data_ptr;
@@ -7126,7 +7107,7 @@ DEFUN(XLIB:KEYCODE->CHARACTER, display keycode state \
     object func = missingp(STACK_0) ? ``XLIB::DEFAULT-KEYSYM-INDEX``
       : (object)STACK_0;
     skipSTACK(2);
-    funcall(STACK_0,3);
+    funcall(func,3);
     index = get_sint32(value1);
   } else {
     index = get_sint32(STACK_1);
@@ -8018,7 +7999,7 @@ DEFUN(XPM:READ-FILE-TO-PIXMAP, drawable filename &key SHAPE-MASK-P PIXMAP-P)
 void module__clx__init_function_2 (module_t *module);
 void module__clx__init_function_2 (module_t *module)
 {  /* setze doch `XLIB::*DISPLAYS*` auf NIL ! */
-#if 0
+# if 0
   uintC i;
 
   for (i = 0 ; i < module__clx__object_tab_size; i++) {
@@ -8027,5 +8008,8 @@ void module__clx__init_function_2 (module_t *module)
     pushSTACK(((gcv_object_t *)( & module__clx__object_tab))[i]);
     funcall (L(princ),1);
   }
-#endif
+# endif
+# if !defined(RELY_ON_WRITING_TO_SUBPROCESS)
+  disable_sigpipe();
+# endif
 }

@@ -1,7 +1,23 @@
+2007-09-25  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (make_key_vector): do not clobber value1
+	(check_bitvec_256): new macro
+	(get_key_vector): implemented
+	(XLIB:OPEN-DISPLAY): call disable_sigpipe() not here, but ...
+	(module__clx__init_function_2): ... here
+	(XLIB::SET-GCONTEXT-DASHES, handle_image_z, XLIB:PUT-IMAGE)
+	(XLIB:CHANGE-PROPERTY, XLIB:GLOBAL-POINTER-POSITION)
+	(XLIB:KEYBOARD-MAPPING, XLIB:OPEN-DISPLAY): remove unused variable
+	(font_char_info): simplify to avoid a gcc warning
+	(XLIB:INPUT-FOCUS): fix STACK handling
+	(XLIB:GRAB-KEY): fix XGrabKey call
+	(XLIB:QUERY-KEYMAP): use check_bitvec_256
+	(XLIB:KEYCODE->CHARACTER): fix KEYSYM-INDEX-FUNCTION handling
+
 2007-09-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.c (with_datum): replacement for with_gdbm_key
-	* modules/gdbm/gdbm.lisp (define-condition): 
+	* modules/gdbm/gdbm.lisp (define-condition):
 	do not terminate the message with "."
 
 2007-09-23  Masayuki Onjo  <masayuki.onjo@gmail.com>
