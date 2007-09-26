@@ -12,6 +12,7 @@
 
 2007-09-26  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1797132 ]: assertion failure in new-clx
 	support 64-bit KeySym in KEYBOARD-MAPPING using an extra dimension
 	* modules/clx/new-clx/configure.in : AC_CHECK_SIZEOF(KeySym)
 	* modules/clx/new-clx/clx.f (KBD_MAP_RANK, check_dim)
