@@ -781,7 +781,7 @@ static object make_xid_obj_low (gcv_object_t *prealloc, gcv_object_t *type,
 }
 
 #if oint_data_len<29
-DEFVAR(xlib_a_cons,`(NIL . NIL)`);
+DEFVAR(xlib_a_cons,allocate_cons());
 /* return the XID object for lookup (old) */
 static inline object XID_to_object_old (XID xid) {
   Car (O(xlib_a_cons)) = make_uint16 (xid & 0xFFFF); /* lower halfword */
@@ -7486,6 +7486,7 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
     funcall (L(elt), 2);
     pushSTACK(value1);
   }
+
 
   /* Build the argument list for the error handler: */
   pushSTACK(STACK_1);          /* display */
