@@ -122,20 +122,33 @@ C2S
     :do (show (list index (diff-seq l-255 l)) :pretty t)))
 NIL
 
-(show (xlib:keysym-name (show (xlib:keysym "Down")))) "Down"
+(xlib:keysym-name (show (xlib:keysym "Down"))) "Down"
 
 (let ((access (show (xlib:access-control *dpy*))))
   (assert (eq access (setf (xlib:access-control *dpy*) access)))
   t) T
 
-(listp (show (xlib:access-hosts *dpy*) :pretty t)) T
+(defparameter *access-hosts* (show (xlib:access-hosts *dpy*) :pretty t))
+*ACCESS-HOSTS*
 (xlib:add-access-host *dpy* "localhost") NIL
-(listp (show (xlib:access-hosts *dpy*) :pretty t)) T
+(every #'posix:hostent-p (show (xlib:access-hosts *dpy*) :pretty t)) T
 (xlib:remove-access-host *dpy* "localhost") NIL
-(listp (show (xlib:access-hosts *dpy*) :pretty t)) T
+(equalp *access-hosts* (show (xlib:access-hosts *dpy*) :pretty t)) T
 
 (xlib:bell *dpy* 50) NIL        ; signal that we are almost done
 
 (xlib:display-force-output *dpy*) NIL
 (xlib:display-finish-output *dpy*) NIL
 (xlib:display-p (show (xlib:close-display *dpy*))) T
+
+;; cleanup
+(flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
+  (del '*dpy*)
+  (del '*screen*)
+  (del '*visual*)
+  (del '*root*)
+  (del '*colormap*)
+  (del '*window*)
+  (del 'c2s)
+  (del '*access-hosts*))
+T
