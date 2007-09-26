@@ -7,6 +7,8 @@
 	(make_key_vector, XLIB:%SAVE-GCONTEXT-COMPONENTS)
 	(XLIB:KEYBOARD-CONTROL): use it
 	(XLIB:SET-MODIFIER-MAPPING): fix memory corruption in xmk construction
+	(XLIB:CHANGE-KEYBOARD-MAPPING): fix memory corruption in
+	XChangeKeyboardMapping call (num_codes = #keysyms, not #keycodes)
 
 2007-09-26  Sam Steingold  <sds@gnu.org>
 

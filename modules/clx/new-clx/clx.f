@@ -6960,7 +6960,7 @@ static object check_kbdmap_mx (object data) {
 
 DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key END FIRST-KEYCODE START)
 {
-  int start = check_uint_defaulted(popSTACK(),0), end, num_codes;
+  int start = check_uint_defaulted(popSTACK(),0), end;
   int first_keycode = check_uint_defaulted(popSTACK(),start);
   uintL offset = 0, dims[KBD_MAP_RANK];
   Display *dpy = (pushSTACK(STACK_2), pop_display());
@@ -6968,10 +6968,9 @@ DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key END FIRST-KEYCODE START)
   STACK_1 = check_kbdmap_mx(STACK_1);
   get_array_dimensions(STACK_1,KBD_MAP_RANK,dims);
   end = check_uint_defaulted(popSTACK(),dims[0]);
-  num_codes = (end-start)*dims[1];
-  STACK_0 = array_displace_check(STACK_0,num_codes,&offset);
+  STACK_0 = array_displace_check(STACK_0,(end-start)*dims[1],&offset);
   data_ptr = (KeySym*)TheSbvector(STACK_0)->data + offset;
-  X_CALL(XChangeKeyboardMapping(dpy,first_keycode,dims[1],data_ptr,num_codes));
+  X_CALL(XChangeKeyboardMapping(dpy,first_keycode,dims[1],data_ptr,end-start));
   VALUES0; skipSTACK(2);
 }
 
