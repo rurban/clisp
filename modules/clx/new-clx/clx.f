@@ -6295,9 +6295,8 @@ DEFUN(XLIB:MOTION-EVENTS, window &key START STOP RESULT-TYPE)
       pushSTACK(make_sint16 (events[i].y));
       pushSTACK(make_uint32 (events[i].time));
     }
-    /* XXX RTFS: Should I XFree on events? */
-  } else
-    value1 = NIL;
+    X_CALL(XFree(events));
+  }
 
   VALUES1(coerce_result_type(3*nevents,res_type));
   skipSTACK(4);
@@ -6855,31 +6854,22 @@ DEFUN(XLIB:MODIFIER-MAPPING, display)
 {
   Display *dpy = pop_display ();
   XModifierKeymap *more_coffee;
-  int i;
 
   X_CALL(more_coffee = XGetModifierMapping (dpy));
 
   if (more_coffee) {
+    int i;
     for (i = 1; i <= 8*more_coffee->max_keypermod; i++) {
       pushSTACK(fixnum(more_coffee->modifiermap[i-1]));
-      if (i%more_coffee->max_keypermod == 0) {
+      if (i % more_coffee->max_keypermod == 0) {
         value1 = listof(more_coffee->max_keypermod);
         pushSTACK(value1);
       }
     }
     X_CALL(XFreeModifiermap (more_coffee));
-
-    value8 = popSTACK();
-    value7 = popSTACK();
-    value6 = popSTACK();
-    value5 = popSTACK();
-    value4 = popSTACK();
-    value3 = popSTACK();
-    value2 = popSTACK();
-    value1 = popSTACK();
-    mv_count = 8;
+    STACK_to_mv(8);
   } else
-    VALUES1(NIL);
+    VALUES0;
 }
 
 /* NOTE: this function is also different from the manual.
@@ -6914,7 +6904,7 @@ DEFUN(XLIB:SET-MODIFIER-MAPPING, display &key SHIFT LOCK CONTROL \
     if (len > max_keys_per_mod) max_keys_per_mod = len;
   }
   X_CALL(xmk = XNewModifiermap(max_keys_per_mod));
-  if (xmk == NULL) { VALUES0; return; } /* no values */
+  if (xmk == NULL) { skipSTACK(9); VALUES0; return; } /* no values */
   for (i=0; i<8; i++) {
     struct seq_uint8 su;
     su.data = xmk->modifiermap + i*8;
