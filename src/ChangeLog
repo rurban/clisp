@@ -1,5 +1,11 @@
 2007-09-26  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (check_error_code): add DEFCHECKER
+	(xlib_error_handler): use check_error_code_reverse instead of a
+	literal vector lookup for robustness and readability
+
+2007-09-26  Sam Steingold  <sds@gnu.org>
+
 	support non-keyword symbols in DEFCHECKER
 	* utils/modprep.lisp (maybe-prepend-colon): add
 	(new-checker): use it

@@ -7462,6 +7462,18 @@ man XErrorEvent says:
    defined in <X11/Xproto.h>.
 #endif
 
+DEFCHECKER(check_error_code, default=Success,                           \
+           XLIB::UNKNOWN-ERROR=Success XLIB::REQUEST-ERROR=BadRequest   \
+           XLIB::VALUE-ERROR=BadValue XLIB::WINDOW-ERROR=BadWindow      \
+           XLIB::PIXMAP-ERROR=BadPixmap XLIB::ATOM-ERROR=BadAtom        \
+           XLIB::CURSOR-ERROR=BadCursor XLIB::FONT-ERROR=BadFont        \
+           XLIB::MATCH-ERROR=BadMatch XLIB::DRAWABLE-ERROR=BadDrawable  \
+           XLIB::ACCESS-ERROR=BadAccess XLIB::ALLOC-ERROR=BadAlloc      \
+           XLIB::COLORMAP-ERROR=BadColor XLIB::GCONTEXT-ERROR=BadGC     \
+           XLIB::ID-CHOICE-ERROR=BadIDChoice XLIB::NAME-ERROR=BadName   \
+           XLIB::LENGTH-ERROR=BadLength                                 \
+           XLIB::IMPLEMENTATION-ERROR=BadImplementation)
+
 /* Error handler for errors occured on the display.
  This error handler is installed on all open displays, we simply call up the
  Lisp error handler here found in the ERROR-HANDLER slot in the display. */
@@ -7487,14 +7499,9 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
     pushSTACK(value1);
   }
 
-
   /* Build the argument list for the error handler: */
-  pushSTACK(STACK_1);          /* display */
-    pushSTACK(`#(XLIB::UNKNOWN-ERROR XLIB::REQUEST-ERROR XLIB::VALUE-ERROR XLIB::WINDOW-ERROR XLIB::PIXMAP-ERROR XLIB::ATOM-ERROR XLIB::CURSOR-ERROR XLIB::FONT-ERROR XLIB::MATCH-ERROR XLIB::DRAWABLE-ERROR XLIB::ACCESS-ERROR XLIB::ALLOC-ERROR XLIB::COLORMAP-ERROR XLIB::GCONTEXT-ERROR XLIB::ID-CHOICE-ERROR XLIB::NAME-ERROR XLIB::LENGTH-ERROR XLIB::IMPLEMENTATION-ERROR)`);
-    pushSTACK(fixnum(event->error_code));
-    funcall (L(aref), 2);
-  pushSTACK(value1);            /* error code */
-
+  pushSTACK(STACK_1);                                     /* display */
+  pushSTACK(check_error_code_reverse(event->error_code)); /* error code */
   pushSTACK(`:ASYNCHRONOUS`);     pushSTACK(T);
   pushSTACK(`:CURRENT-SEQUENCE`); pushSTACK(make_uint16(NextRequest(display)));
   pushSTACK(`:SEQUENCE`);         pushSTACK(make_uint16(event->serial));
