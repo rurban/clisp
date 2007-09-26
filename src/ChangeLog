@@ -1,5 +1,14 @@
 2007-09-26  Sam Steingold  <sds@gnu.org>
 
+	support 64-bit KeySym in KEYBOARD-MAPPING using an extra dimension
+	* modules/clx/new-clx/configure.in : AC_CHECK_SIZEOF(KeySym)
+	* modules/clx/new-clx/clx.f (KBD_MAP_RANK, check_dim)
+	(KBD_MAP_TYPE, extra_dim_push): define based on SIZEOF_KEYSYM
+	(check_kbdmap_mx): replaces check_uint32_mx
+	(XLIB:CHANGE-KEYBOARD-MAPPING, XLIB:KEYBOARD-MAPPING): use them
+
+2007-09-26  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (check_error_code): add DEFCHECKER
 	(xlib_error_handler): use check_error_code_reverse instead of a
 	literal vector lookup for robustness and readability

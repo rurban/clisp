@@ -80,18 +80,21 @@ NIL
 (xlib:warp-pointer *window* 10 10) NIL
 (xlib:warp-pointer-relative *dpy* 10 10) NIL
 
-;; (let ((map (show (xlib:keyboard-mapping *dpy*) :pretty t)))
-;;   (show (array-dimensions map))
-;;   (list (eq map (xlib:keyboard-mapping *dpy* :data map))
-;;         (xlib:change-keyboard-mapping
-;;          *dpy* map :first-keycode (xlib:display-min-keycode *dpy*))))
-;; (T NIL)
+(let ((modifiers (multiple-value-list (xlib:modifier-mapping *dpy*))))
+  (apply #'xlib:set-modifier-mapping *dpy*
+         (show (mapcan #'list '(:SHIFT :LOCK :CONTROL
+                                :MOD1 :MOD2 :MOD3 :MOD4 :MOD5)
+                       modifiers)
+               :pretty t)))
+:SUCCESS
 
-;; (let ((modifiers (show (multiple-value-list (xlib:modifier-mapping *dpy*)))))
-;;   (apply #'xlib:set-modifier-mapping *dpy*
-;;          (mapcan #'list '(:SHIFT :LOCK :CONTROL :MOD1 :MOD2 :MOD3 :MOD4 :MOD5)
-;;                  modifiers)))
-;; :SUCCESS
+(let ((map (show (xlib:keyboard-mapping *dpy*) :pretty t)))
+  (show (array-dimensions map))
+  (list (eq map (xlib:keyboard-mapping *dpy* :data map))
+        (xlib:change-keyboard-mapping
+         *dpy* map :first-keycode (xlib:display-min-keycode *dpy*))
+        (equalp map (xlib:keyboard-mapping *dpy*))))
+(T NIL T)
 
 (multiple-value-list (xlib:keysym->keycodes *dpy* 65)) (38)
 (multiple-value-list (xlib:keysym->keycodes *dpy* #xFF52)) (98) ; Up

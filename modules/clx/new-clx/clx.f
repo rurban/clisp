@@ -6930,12 +6930,34 @@ DEFUN(XLIB:SET-MODIFIER-MAPPING, display &key SHIFT LOCK CONTROL \
 }
 
 /* 14.4  Keyboard Encodings */
-static object check_uint32_mx (object data) {
+#if SIZEOF_KEYSYM == 4
+# define KBD_MAP_RANK  2
+# define check_dim(a)  (array_rank(a)==KBD_MAP_RANK)
+# define KBD_MAP_TYPE  `(ARRAY (UNSIGNED-BYTE 32) (* *))`
+# define extra_dim_push()
+#elif SIZEOF_KEYSYM == 8
+# define KBD_MAP_RANK  3
+static inline bool check_dim (object a) {
+  uintL rank = array_rank(a);
+  if (rank != KBD_MAP_RANK) return false;
+  else {
+    uintL dims[KBD_MAP_RANK];
+    get_array_dimensions(a,KBD_MAP_RANK,dims);
+    return dims[KBD_MAP_RANK-1] == 2;
+  }
+}
+# define KBD_MAP_TYPE  `(ARRAY (UNSIGNED-BYTE 32) (* * 2))`
+# define extra_dim_push()  pushSTACK(fixnum(2))
+#else
+# error Unexpected sizeof(KeySym)
+#endif
+
+static object check_kbdmap_mx (object data) {
   while (array_atype(data = check_array(data)) != Atype_32Bit
-         || array_rank(data) != 2) {
+         || !check_dim(data)) {
     pushSTACK(NIL);           /* no PLACE */
     pushSTACK(STACK_1);       /* TYPE-ERROR slot DATUM */
-    pushSTACK(`(ARRAY (UNSIGNED-BYTE 32) (* *))`); /* EXPECTED-TYPE */
+    pushSTACK(KBD_MAP_TYPE);  /* EXPECTED-TYPE */
     pushSTACK(STACK_0); pushSTACK(STACK_2);
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an array of type ~S"));
@@ -6948,16 +6970,15 @@ DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key END FIRST-KEYCODE START)
 {
   int start = check_uint_defaulted(popSTACK(),0), end, num_codes;
   int first_keycode = check_uint_defaulted(popSTACK(),start);
-  uintL offset = 0, dims[2];
+  uintL offset = 0, dims[KBD_MAP_RANK];
   Display *dpy = (pushSTACK(STACK_2), pop_display());
   KeySym* data_ptr;
-  STACK_1 = check_uint32_mx(STACK_1);
-  get_array_dimensions(STACK_1,2,dims);
+  STACK_1 = check_kbdmap_mx(STACK_1);
+  get_array_dimensions(STACK_1,KBD_MAP_RANK,dims);
   end = check_uint_defaulted(popSTACK(),dims[0]);
   num_codes = (end-start)*dims[1];
   STACK_0 = array_displace_check(STACK_0,num_codes,&offset);
   data_ptr = (KeySym*)TheSbvector(STACK_0)->data + offset;
-  ASSERT(sizeof(uint32) == sizeof(KeySym));
   X_CALL(XChangeKeyboardMapping(dpy,first_keycode,dims[1],data_ptr,num_codes));
   VALUES0; skipSTACK(2);
 }
@@ -6967,7 +6988,7 @@ DEFUN(XLIB:KEYBOARD-MAPPING, dpy &key FIRST-KEYCODE START END DATA)
   Display *dpy = (pushSTACK(STACK_4), pop_display());
   int first_keycode, min_keycode, max_keycode, keysyms_per_keycode;
   KeySym *map;
-  int start, end, num_codes;
+  int start, end, num_codes, keycode_count;
   object data_vector;
   void * data_ptr;
   uintL offset = 0;
@@ -6975,21 +6996,22 @@ DEFUN(XLIB:KEYBOARD-MAPPING, dpy &key FIRST-KEYCODE START END DATA)
   first_keycode = check_uint_defaulted(STACK_3,min_keycode);
   start = check_uint_defaulted(STACK_2,first_keycode);
   end = check_uint_defaulted(STACK_1,1+max_keycode);
-  X_CALL(map = XGetKeyboardMapping(dpy,first_keycode,end-start,
+  keycode_count = end-start;
+  X_CALL(map = XGetKeyboardMapping(dpy,first_keycode,keycode_count,
                                    &keysyms_per_keycode));
   if (missingp(STACK_0)) {      /* return a fresh array */
-    pushSTACK(fixnum(end-start));
+    pushSTACK(fixnum(keycode_count));
     pushSTACK(fixnum(keysyms_per_keycode));
-    value1 = listof(2); pushSTACK(value1); /* dims */
+    extra_dim_push();
+    value1 = listof(KBD_MAP_RANK); pushSTACK(value1); /* dims */
     pushSTACK(S(Kelement_type)); pushSTACK(GLO(type_uint32));
     funcall(L(make_array),3); STACK_0 = value1;
   } else {                /* ensure that DATA is a valid uint32 array */
-    STACK_0 = check_uint32_mx(STACK_0);
+    STACK_0 = check_kbdmap_mx(STACK_0);
   }
-  num_codes = (end-start)*keysyms_per_keycode;
+  num_codes = keycode_count*keysyms_per_keycode*sizeof(KeySym)/sizeof(uint32);
   data_vector = array_displace_check(STACK_0,num_codes,&offset);
   data_ptr = (uint32*)TheSbvector(data_vector)->data + offset;
-  ASSERT(sizeof(uint32) == sizeof(KeySym));
   X_CALL(memcpy(data_ptr,map,num_codes*sizeof(uint32)); XFree(map));
   VALUES1(STACK_0);
   skipSTACK(5);
