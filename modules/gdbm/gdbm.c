@@ -34,9 +34,9 @@ nonreturning_function(static, error_gdbm, (void)) {
 }
 
 DEFUN(GDBM::GDBM-VERSION,)
-{
-  VALUES1(asciz_to_string(gdbm_version, GLO(foreign_encoding)));
-}
+{ VALUES1(asciz_to_string(gdbm_version, GLO(foreign_encoding))); }
+
+#define SYSCALL(statement) begin_system_call(); statement; end_system_call()
 
 DEFCHECKER(gdbm_open_read_write, prefix=GDBM, READER WRITER WRCREAT NEWDB)
 DEFCHECKER(gdbm_open_option, prefix=GDBM, SYNC NOLOCK FAST)
@@ -59,9 +59,7 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
   } else {
     with_string_0(stringp(path) ? (object)path : physical_namestring(path),
                   GLO(pathname_encoding), name, {
-        begin_system_call();
-        gdbm = gdbm_open(name, bsize, rw, mode, fatal);
-        end_system_call();
+        SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode, fatal));
       });
     if (gdbm != NULL) {
       pushSTACK(allocate_fpointer(gdbm));
@@ -88,7 +86,7 @@ DEFUN(GDBM:GDBM-CLOSE, dbf)
 {
   GDBM_FILE dbf = check_gdbm(STACK_0);
   if (dbf) {
-    gdbm_close(dbf);
+    SYSCALL(gdbm_close(dbf));
     TheStructure(STACK_0)->recdata[1] = NIL;
     VALUES1(T);
   } else {
@@ -113,14 +111,14 @@ static object coerce_bitvector (object arg) {
       datum datum_var;                                                  \
       datum_var.dptr = datum_var##string;                               \
       datum_var.dsize = datum_var##string_len;                          \
-      statement;                                                        \
+      SYSCALL(statement);                                               \
     });                                                                 \
   } else if (vectorp(lisp_obj)) {                                       \
     datum datum_var;                                                    \
     lisp_obj = coerce_bitvector(lisp_obj);                              \
-    datum_var.dptr = TheSbvector(lisp_obj)->data;                       \
+    datum_var.dptr = (char*)TheSbvector(lisp_obj)->data;                \
     datum_var.dsize = vector_length(lisp_obj);                          \
-    statement;                                                          \
+    SYSCALL(statement);                                                 \
   } else NOTREACHED;                                                    \
  } while(0)
 
@@ -141,9 +139,11 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
   }
 
   if (dbf && (string_p || binary_p)) {
+    int status;
     with_datum(key_obj, key,
                with_datum(content_obj, content,
-                          VALUES_IF(!gdbm_store(dbf, key, content, flag))));
+                          status = gdbm_store(dbf, key, content, flag)));
+    VALUES_IF(!status);
   } else
     VALUES1(NIL);
 }
@@ -175,8 +175,9 @@ DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
   skipSTACK(1);                 /* drop dbf */
 
   if (dbf) {
-    with_datum(key_obj, key,
-               VALUES1(datum_to_object(gdbm_fetch(dbf,key),binary_p)));
+    datum res;
+    with_datum(key_obj, key, res = gdbm_fetch(dbf,key));
+    VALUES1(datum_to_object(res,binary_p));
   } else
     VALUES1(NIL);
 }
@@ -188,7 +189,9 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
   skipSTACK(1);                 /* drop dbf */
 
   if (dbf) {
-    with_datum(key_obj, key, VALUES_IF(gdbm_delete(dbf,key) != -1));
+    int status;
+    with_datum(key_obj, key, status = gdbm_delete(dbf,key));
+    VALUES_IF(status != -1);
   } else
     VALUES1(NIL);
 }
@@ -201,7 +204,9 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key BINARY)
   skipSTACK(2);
 
   if (dbf) {
-    VALUES1(datum_to_object(gdbm_firstkey(dbf),binary_p));
+    datum res;
+    SYSCALL(res = gdbm_firstkey(dbf));
+    VALUES1(datum_to_object(res,binary_p));
   } else
     VALUES1(NIL);
 }
@@ -214,21 +219,26 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key BINARY)
   skipSTACK(3);                 /* drop dbf */
 
   if (dbf) {
-    with_datum(key_obj, key,
-               VALUES1(datum_to_object(gdbm_nextkey(dbf,key),binary_p)));
+    datum res;
+    with_datum(key_obj, key, res = gdbm_nextkey(dbf,key));
+    VALUES1(datum_to_object(res,binary_p));
   } else
     VALUES1(NIL);
 }
+
+#define CHECK_RUN(statement)  do {              \
+    int status;                                 \
+    SYSCALL(status = statement);                \
+    if (status == -1) error_gdbm();             \
+    else VALUES1(T);                            \
+  } while(0)
 
 DEFUN(GDBM:GDBM-REORGANIZE, dbf)
 {
   GDBM_FILE dbf = check_gdbm(popSTACK());
 
   if (dbf) {
-    if (gdbm_reorganize(dbf) == -1)
-      error_gdbm();
-    else
-      VALUES1(T);
+    CHECK_RUN(gdbm_reorganize(dbf));
   } else
     VALUES1(NIL);
 }
@@ -239,7 +249,7 @@ DEFUN(GDBM:GDBM-SYNC, dbf)
   GDBM_FILE dbf = check_gdbm(popSTACK());
 
   if (dbf) {
-    gdbm_sync(dbf);
+    SYSCALL(gdbm_sync(dbf));
     VALUES1(T);
   } else
     VALUES1(NIL);
@@ -252,7 +262,9 @@ DEFUN(GDBM:GDBM-EXISTS, dbf key)
   skipSTACK(1);                 /* drop dbf */
 
   if (dbf) {
-    with_datum(key_obj, key, VALUES_IF (gdbm_exists(dbf, key)));
+    int status;
+    with_datum(key_obj, key, status = gdbm_exists(dbf, key));
+    VALUES_IF(status);
   } else
     VALUES1(NIL);
 }
@@ -276,10 +288,7 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
         v = nullp(value) ? 0 : 1; break;
       default: NOTREACHED;
     }
-    if (gdbm_setopt(dbf, option, &v, sizeof(int)) == -1)
-      error_gdbm();
-    else
-      VALUES1(T);
+    CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(int)));
   } else
     VALUES1(NIL);
 }

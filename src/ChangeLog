@@ -1,5 +1,15 @@
 2007-09-26  Sam Steingold  <sds@gnu.org>
 
+	wrap all library calls in begin_system_call/end_system_call
+	* modules/gdbm/gdbm.c (SYSCALL): add
+	(GDBM-OPEN, GDBM-CLOSE, with_datum, GDBM-SYNC): use it
+	(GDBM-STORE, GDBM-FETCH, GDBM-DELETE, GDBM-FIRSTKEY, GDBM-NEXTKEY)
+	(GDBM-EXISTS): set values outside of with_datum()
+	(CHECK_RUN): add a convenience wrapper
+	(GDBM-REORGANIZE, GDBM-SETOPT): use it
+
+2007-09-26  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (XLIB:MOTION-EVENTS): XFree(events)
 	(XLIB:MODIFIER-MAPPING): use STACK_to_mv, return no values on failure
 	(XLIB:SET-MODIFIER-MAPPING): clean-up stack on failure
