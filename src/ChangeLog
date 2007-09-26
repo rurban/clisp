@@ -6,6 +6,7 @@
 	(make_fill_bit_vector): add
 	(make_key_vector, XLIB:%SAVE-GCONTEXT-COMPONENTS)
 	(XLIB:KEYBOARD-CONTROL): use it
+	(XLIB:SET-MODIFIER-MAPPING): fix memory corruption in xmk construction
 
 2007-09-26  Sam Steingold  <sds@gnu.org>
 

@@ -6909,7 +6909,7 @@ DEFUN(XLIB:SET-MODIFIER-MAPPING, display &key SHIFT LOCK CONTROL \
   if (xmk == NULL) { skipSTACK(9); VALUES0; return; } /* no values */
   for (i=0; i<8; i++) {
     struct seq_uint8 su;
-    su.data = xmk->modifiermap + i*8;
+    su.data = xmk->modifiermap + i * max_keys_per_mod;
     map_sequence(STACK_(8-1-i),coerce_into_uint8,(void*)&su);
   }
   skipSTACK(8);                 /* drop modifier arguments */
