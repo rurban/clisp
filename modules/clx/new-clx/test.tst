@@ -75,10 +75,18 @@ NIL
 
 (xlib:window-p (show (xlib:drawable-root *window*))) T
 (listp (show (multiple-value-list (xlib:query-tree *window*)) :pretty t)) T
-(listp (show (multiple-value-list (xlib:query-pointer *window*)) :pretty t)) T
-(listp (show (multiple-value-list (xlib:motion-events *window*)))) T
+(length (show (multiple-value-list (xlib:query-pointer *window*)) :pretty t)) 8
+(listp (show (xlib:motion-events *window*))) T
+(defparameter *window-position*
+  (show (multiple-value-list (xlib:pointer-position *window*))))
+*WINDOW-POSITION*
 (xlib:warp-pointer *window* 10 10) NIL
 (xlib:warp-pointer-relative *dpy* 10 10) NIL
+(xlib:warp-pointer *window* (first *window-position*)
+                   (second *window-position*))
+NIL
+(equal *window-position* (multiple-value-list (xlib:pointer-position *window*)))
+T
 
 (let ((modifiers (multiple-value-list (xlib:modifier-mapping *dpy*))))
   (apply #'xlib:set-modifier-mapping *dpy*
@@ -138,6 +146,11 @@ NIL
 (xlib:remove-access-host *dpy* "localhost") NIL
 (equalp *access-hosts* (show (xlib:access-hosts *dpy*) :pretty t)) T
 
+(xlib:activate-screen-saver *dpy*) NIL
+(xlib:reset-screen-saver *dpy*) NIL
+(listp (show (multiple-value-list (xlib:screen-saver *dpy*)))) T
+(listp (show (xlib:list-extensions *dpy*) :pretty t)) T
+
 (xlib:bell *dpy* 50) NIL        ; signal that we are almost done
 
 (xlib:display-force-output *dpy*) NIL
@@ -152,6 +165,7 @@ NIL
   (del '*root*)
   (del '*colormap*)
   (del '*window*)
+  (del '*window-position*)
   (del 'c2s)
   (del '*access-hosts*))
 T
