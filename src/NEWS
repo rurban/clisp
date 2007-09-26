@@ -53,6 +53,7 @@ User visible changes
   + Some bugs related to UNICODE-16 & UNICODE-32. [ 1564818, 1631760, 1632718 ]
   + All exported defined symbols are now properly locked. [ 1713130 ]
   + Berkeley-DB module no longer fills up error log file. [ 1779416 ]
+  + New-clx now supports 64-bit KeySym. [ 1797132 ]
 
 
 2.41 (2006-10-13)
