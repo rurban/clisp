@@ -1445,12 +1445,15 @@ static sint32 get_angle (object ang)
   return get_sint32(funcall1(L(round),value1));
 }
 
-static object make_key_vector (char key_vector[32])
+static object make_fill_bit_vector (char *data, int len)
 {
-  object ret = allocate_bit_vector (Atype_Bit, 256);
-  X_CALL(memcpy (TheSbvector(ret)->data, key_vector, 32));
+  object ret = allocate_bit_vector (Atype_Bit, len * 8);
+  X_CALL(memcpy (TheSbvector(ret)->data, data, len));
   return ret;
 }
+
+static object make_key_vector (char key_vector[32])
+{ return make_fill_bit_vector(key_vector,32); }
 
 #define check_bitvec_256(obj)                           \
   if (!(simple_bit_vector_p (Atype_Bit, obj)            \
@@ -3445,11 +3448,10 @@ DEFUN(XLIB:%SAVE-GCONTEXT-COMPONENTS, gcontext components)
   }
 
   X_CALL(XGetGCValues (dpy, gcontext, values.mask, &values.values));
-  /* TODO: What to todo on failure of xgetgcvalues? */
+  /* TODO: What to do on failure of XGetGCValues? */
 
   /* Allocate a new bit vector, which should hold the requested components */
-  VALUES1(allocate_bit_vector (Atype_Bit, 8 * sizeof (values)));
-  X_CALL(memcpy (TheSbvector (value1)->data, &values, sizeof (values))); /* memcpy considered harmful */
+  VALUES1(make_fill_bit_vector((char*)&values, sizeof(values)));
   skipSTACK(2);
 }
 
@@ -6839,8 +6841,8 @@ DEFUN(XLIB:KEYBOARD-CONTROL, display)
   X_CALL(XGetKeyboardControl (dpy, &coffee));
 
   pushSTACK(make_uint32 (coffee.led_mask));
-  value7 = allocate_bit_vector (Atype_Bit, 256);
-  X_CALL(memcpy (TheSbvector(value7)->data, coffee.auto_repeats, 32));
+  value7 = make_fill_bit_vector(coffee.auto_repeats,
+                                sizeof(coffee.auto_repeats));
   value1 = make_uint8 (coffee.key_click_percent);
   value2 = make_uint8 (coffee.bell_percent);
   value3 = make_uint16 (coffee.bell_pitch);
