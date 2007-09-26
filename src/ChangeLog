@@ -1,5 +1,12 @@
 2007-09-26  Sam Steingold  <sds@gnu.org>
 
+	support non-keyword symbols in DEFCHECKER
+	* utils/modprep.lisp (maybe-prepend-colon): add
+	(new-checker): use it
+	(print-tables-1): separate objects with spaces
+
+2007-09-26  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (xlib_a_cons): use allocate_cons()
 	instead of `(NIL . NIL)` for initialization
 

@@ -533,6 +533,9 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
 (defun tag-to-fundef (tag)
   (find tag *fundefs* :test #'string= :key #'fundef-tag))
 
+(defun maybe-prepend-colon (name)
+  (if (find #\: name) name (ext:string-concat ":" name)))
+
 (defun new-fundef (name pack)
   (let ((fd (make-fundef :pack pack :name name :tag
                          (init-to-tag (ext:string-concat pack ":" name)
@@ -683,9 +686,9 @@ CPP-NAMES is the list of possible values, either strings or
     (stack-push-optimize (checker-cond-stack ch) condition)
     (cond (enum
            (dolist (name cpp-names)
-             (push (init-to-objdef (ext:string-concat ":" name) condition)
-                   cpp-odefs)
-             (setq type-odef (ext:string-concat type-odef " :" name)))
+             (let ((name-c (maybe-prepend-colon name)))
+               (push (init-to-objdef name-c condition) cpp-odefs)
+               (setq type-odef (ext:string-concat type-odef " " name-c))))
            (setf (checker-type-odef ch)
                  (init-to-objdef (ext:string-concat type-odef "))"))))
           (t
@@ -696,16 +699,16 @@ CPP-NAMES is the list of possible values, either strings or
                 (let ((co (ext:string-concat
                            "defined(" (to-C-name name prefix suffix delim)
                            ")")))
-                  (push (init-to-objdef (ext:string-concat ":" name)
+                  (push (init-to-objdef (maybe-prepend-colon name)
                                         (concatenate 'vector condition
                                                      (list co)))
                         cpp-odefs)
-                  (push (cons co (ext:string-concat " :" name)) type-odef)))
+                  (push (cons co (maybe-prepend-colon name)) type-odef)))
                (cons
                 (let ((nm (symbol-name (car name))))
-                  (push (init-to-objdef (ext:string-concat ":" nm) condition)
+                  (push (init-to-objdef (maybe-prepend-colon nm) condition)
                         cpp-odefs)
-                  (push (ext:string-concat " :" nm) type-odef)))))
+                  (push (maybe-prepend-colon nm) type-odef)))))
            (setf (checker-type-odef ch)
                  (init-to-objdef (nreconc type-odef (list "))"))))))
     (setf (checker-cpp-odefs ch) (nreverse cpp-odefs))
@@ -997,12 +1000,12 @@ commas and parentheses."
             (let ((init (objdef-init od)))
               (etypecase init
                 (string (format out "  { ~S }," init))
-                (cons (format out "  {")
+                (cons (format out "  {~%")
                       (dolist (el init)
                         (etypecase el
-                          (string (formatln out " ~S" el))
+                          (string (formatln out "    \" \" ~S" el))
                           (cons (formatln out "#  if ~A" (car el))
-                                (formatln out "    ~S" (cdr el))
+                                (formatln out "    \" \" ~S" (cdr el))
                                 (formatln out "#  endif") )))
                       (format out "  },"))))))
     (loop :for vd :across *vardefs*
