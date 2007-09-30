@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; Test unportable code of which some implementations specify the behaviour
 ;; These fall into 3 categories in ANSI-CL:
 ;; - "implementation defined",

@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for READLINE
 ;; clisp -q -norc -i ../tests/tests -x '(run-test "readline/test")'
 

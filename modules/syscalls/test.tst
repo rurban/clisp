@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for SYSCALLS
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "syscalls/test")'
 

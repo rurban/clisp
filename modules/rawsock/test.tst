@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for RAWSOCK
 ;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "rawsock/test")'
 ;; relies on some functions in the syscalls module

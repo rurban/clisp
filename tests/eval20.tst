@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; CLtL2 20; ANSI CL 3.1
 
 ;; eval

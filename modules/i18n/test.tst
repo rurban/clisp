@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for I18N
 ;; clisp -q -norc -i ../tests/tests -x '(run-test "i18n/test")'
 

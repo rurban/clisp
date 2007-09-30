@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; Test :warn-if-needs-rehash-after-gc.
 
 (block nil

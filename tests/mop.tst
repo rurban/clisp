@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; Test some MOP-like CLOS features
 
 ; Make the MOP symbols accessible from package CLOS.

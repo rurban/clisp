@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; restarts
 (defmacro check-use-value (fun good bad &key (type 'type-error) (test 'eql))
   `(handler-bind ((,type (lambda (c) (princ-error c) (use-value ',good))))

@@ -1,4 +1,4 @@
-;;; -*- Lisp -*-
+;;; -*- Lisp -*- vim:filetype=lisp
 ;;; Test "Exceptional situations" as specified by CLHS
 
 ;; NB: CLHS section 1.4.2 implies that we have to verify only those

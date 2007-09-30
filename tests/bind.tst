@@ -1,4 +1,4 @@
-;;; -*- Lisp -*-
+;;; -*- Lisp -*- vim:filetype=lisp
 ;; test non-global special bindings
 
 ;; variable being declared special is bound - a "bound" declaration
