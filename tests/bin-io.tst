@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; CLISP-specific tests of binary i/o
 ;; READ-FLOAT, WRITE-FLOAT
 ;; READ-INTEGER, WRITE-INTEGER

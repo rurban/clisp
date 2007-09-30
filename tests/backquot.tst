@@ -1,4 +1,4 @@
-;;; -*- Lisp -*-
+;;; -*- Lisp -*- vim:filetype=lisp
 ;;; tests for backquote
 
 (setf x '(a b c))

@@ -1,4 +1,4 @@
-;;; -*- Lisp -*-
+;;; -*- Lisp -*- vim:filetype=lisp
 ;;; Interactive tests for non-blocking I/O on various kinds of handles
 
 ;; On Linux or FreeBSD, use strace to see what system calls are performed.

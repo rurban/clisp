@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 (SYMBOL-NAME (QUOTE XYZ))
 "XYZ"

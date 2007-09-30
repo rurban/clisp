@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; tests for PostGreSQL
 ;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "postgresql/test")'
 

@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 (TYPEP (QUOTE A) (QUOTE SYMBOL))
 T

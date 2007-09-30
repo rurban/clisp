@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; test the macro functions; chapter 8
 ;; -----------------------------------
 
