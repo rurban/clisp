@@ -21,7 +21,8 @@ define full
   file full/lisp.run
   set args -B . -N locale -E 1:1 -q -norc -M full/lispinit.mem
   # -i ../tests/tests -x '(run-test "***/test")'
-  # -i clx/new-clx/demos/clx-demos.lisp -x '(clx-demos:qix)' -x '(clx-demos:koch)' -x '(clx-demos:sokoban)'
+  # -i clx/new-clx/demos/clx-demos.lisp -x '(clx-demos:run-all-demos)'
+  break xlib_error_handler
   break my_type_error
   break error_closed_display
   break error_bdb

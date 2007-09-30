@@ -2469,8 +2469,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
         Please try it first and use <literal>mit-clx</literal> only
         if <literal>new-clx</literal> does not work for you.
         <literal>new-clx</literal> comes with several demos, please try
-        them: run
-        <screen>&sh-prompt; clisp &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename></screen>
+        them using
+        <screen>&sh-prompt; clisp &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename> &opt-x; '(clx-demos:run-all-demos)'</screen>
         and follow the intructions.</para></listitem></varlistentry>
     </variablelist>This functionality is documented in the manual
     <ulink url="http://www.stud.uni-karlsruhe.de/~unk6/clxman/"/>, also
