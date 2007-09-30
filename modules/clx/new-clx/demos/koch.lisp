@@ -1,6 +1,6 @@
 ;;; Draw Koch snowflake
 ;;;
-;;; Copyright (C) 2005 by Sam Steingold
+;;; Copyright (C) 2005, 2007 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 ;;;
@@ -71,9 +71,10 @@ Returns the new list and an indicator of whether we are done or not."
               :exposure x y width height count))))
 
 (defun koch (&key (width 1000) (height 1000) (delay 1) (x 10) (y 10)
-             (scale 0.8) (font "fixed"))
+             (scale 0.8) (font "fixed") (event-loop t))
+  "Koch snowflake."
   (let* ((dpy (x-open-display))
-         (screen (car (xlib:display-roots dpy)))
+         (screen (xlib:display-default-screen dpy))
          (root (xlib:screen-root screen))
          (white-pixel (xlib:screen-white-pixel screen))
          (black-pixel (xlib:screen-black-pixel screen))
@@ -111,14 +112,11 @@ Returns the new list and an indicator of whether we are done or not."
       (xlib:draw-lines win gc points)
       (xlib:display-finish-output dpy)
       (sleep delay))
-    (koch-events dpy)
+    (when event-loop (koch-events dpy))
+    (xlib:free-gcontext gc)
     (xlib:close-font fnt)
     (xlib:unmap-window win)
     (xlib:display-finish-output dpy)
     (xlib:close-display dpy)))
-
-(format t "~& Koch snoflake:~%
-  (clx-demos:koch :width :height :delay :x :y :scale :font)
-~% Call (clx-demos:koch).~%")
 
 (provide :koch)
