@@ -1,5 +1,10 @@
 2007-09-30  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: accept --vimdir and install the new file lisp.vim
+	there (defaults to ${datadir}/vim/vimfiles/after)
+
+2007-09-30  Sam Steingold  <sds@gnu.org>
+
 	* .gdbinit (full): also break in xlib_error_handler
 	* modules/clx/new-clx/demos/bball.lisp:
 	* modules/clx/new-clx/demos/bwindow.lisp:
