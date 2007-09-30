@@ -75,4 +75,4 @@
     (print 'close)
     (xlib:close-display dpy)))
 
-(provide :greynetic)
+(provide "greynetic")

@@ -262,4 +262,4 @@
     (xlib:display-finish-output *hanoi-display*)
     (xlib:close-display *hanoi-display*)))
 
-(provide :hanoi)
+(provide "hanoi")
