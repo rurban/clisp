@@ -14,6 +14,7 @@
 	(run-all-demos): new function
 	* modules/clx/new-clx/demos/qix.lisp (qix): use
 	XLIB:DISPLAY-DEFAULT-SCREEN instead of (FIRST XLIB:DISPLAY-ROOTS)
+	* modules/clx/new-clx/demos/koch.lisp (koch): ditto
 
 2007-09-29  Sam Steingold  <sds@gnu.org>
 
