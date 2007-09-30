@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 (progn (in-package "CL-USER") nil)
 NIL

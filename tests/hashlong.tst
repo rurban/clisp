@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 #+clisp (progn (setf (symbol-function 'setf-gethash)
                      (symbol-function 'sys::puthash)) t)

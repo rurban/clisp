@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; Test CLISP specific extensions (typically in package EXT)
 ;; Many tests already in alltest.tst, map.tst etc., but
 ;; here we avoid using #+clisp all over the place.

@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 ;;(with-open-file (f "ucs" :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede :element-type '(unsigned-byte 8))
 ;;  (write-byte-sequence #(0 65 0) f))

@@ -1,4 +1,4 @@
-;;;; -*- Lisp -*-
+;;;; -*- Lisp -*- vim:filetype=lisp
 ;;;; Test suite for the Common Lisp condition system
 ;;;; Written by David Gadbois <gadbois@cs.utexas.edu> 30.11.1993
 

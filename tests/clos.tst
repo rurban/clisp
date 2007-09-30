@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 #-(or GCL CMU SBCL OpenMCL LISPWORKS)
 (use-package "CLOS")

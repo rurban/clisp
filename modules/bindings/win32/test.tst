@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for WIN32
 ;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "bindings/win32/test")'
 

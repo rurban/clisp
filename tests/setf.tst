@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 (SETf LI1 '(A (B) ((C) (D)) )  VEC1 '#(0 1 2 3))
 #(0 1 2 3)
