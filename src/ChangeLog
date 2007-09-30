@@ -12,6 +12,8 @@
 	* modules/clx/new-clx/demos/clx-demos.lisp (*demos*): new variable
 	which lists all demos
 	(run-all-demos): new function
+	* modules/clx/new-clx/demos/qix.lisp (qix): use
+	XLIB:DISPLAY-DEFAULT-SCREEN instead of (FIRST XLIB:DISPLAY-ROOTS)
 
 2007-09-29  Sam Steingold  <sds@gnu.org>
 
