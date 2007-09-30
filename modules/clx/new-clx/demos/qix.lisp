@@ -92,4 +92,4 @@
     ;;clean-up
     (unless dpy (xlib:close-display dp1))))
 
-(provide :qix)
+(provide "qix")
