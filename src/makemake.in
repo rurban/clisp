@@ -49,6 +49,7 @@ options:
                                  documentation in PDF format
        --elispdir=DIR          sets the installation directory for
                                  Emacs Lisp files
+       --vimdir=DIR            sets the installation directory for VIM files
        --hyperspec=URL         the path to the Common Lisp HyperSpec
            (the default is ${HSDEFAULT}
             or the value of the environment variable CLHSROOT, if set).
@@ -184,8 +185,9 @@ htmldir=''
 dvidir=''
 psdir=''
 pdfdir=''
-elispdir=''
 MODULES=''
+elispdir=''
+vimdir=''
 module_configure_flags=''
 CP='cp -p'
 LN_S='ln -s'
@@ -425,6 +427,14 @@ EOF
       shift
       if test -z "$elispdir" ; then
         elispdir=$1
+        shift
+      fi
+      ;;
+    -vimdir* | --vimdir*)
+      vimdir=`echol "$1" | sed 's/-*vimdir=*//'`
+      shift
+      if test -z "$vimdir" ; then
+        vimdir=$1
         shift
       fi
       ;;
@@ -886,6 +896,13 @@ if [ $HOS = unix ] ; then
 else
   elispdir="\$(datadir)/emacs/site-lisp"
   ELISPDIR="$elispdir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$vimdir" || vimdir='${datadir}/vim/vimfiles/after'
+  VIMDIR=`echo "$vimdir" | sed -e "$brace_to_paren"`
+else
+  vimdir="\$(datadir)/vim/vimfiles/after"
+  VIMDIR="$vimdir"
 fi
 
 if [ $H_DOS = "true" ] ; then
@@ -1927,6 +1944,7 @@ if [ -n "$USE_GETTEXT" ] ; then
   echol "localedir = ${LOCALEDIR}"
 fi
 echol "elispdir = ${ELISPDIR}"
+echol "vimdir = ${VIMDIR}"
 echol "# The value of following variable is prepended to all the paths for"
 echol "# installation. This is useful when preparing a binary distribution."
 echol "DESTDIR ="
@@ -3492,6 +3510,7 @@ for f in ${IMPNOTES_FILES} ; do
   echol
 done
 EMACS_FILES="clhs.el clisp-coding.el clisp-indent.el clisp-indent.lisp clisp-ffi.el"
+VIM_FILES="lisp.vim"
 
 # On Unix, clisp.dvi, clisp.ps, clisp.pdf must be built by "make all",
 # because "make install" needs it and "make install" must not create files in
@@ -3666,6 +3685,7 @@ if [ $CROSS = false ] ; then
     fi
     echotab_mkdir_maybe "\$(DESTDIR)\$(datadir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(elispdir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(vimdir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     case "$fsstnd" in
@@ -3722,6 +3742,10 @@ if [ $CROSS = false ] ; then
     echotab_mkdir_maybe "\$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
       echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(elispdir)/$f"
+    done
+    echotab_mkdir_maybe "\$(DESTDIR)\$(vimdir)"
+    for f in ${VIM_FILES}; do
+      echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(vimdir)/$f"
     done
     echol
     echol "install-man : clisp.1 ${manual_dvi} clisp.html force"
@@ -3804,6 +3828,9 @@ if [ $CROSS = false ] ; then
     echotab "\$(RMRF) \$(DESTDIR)\$(docdir)"
     for f in ${EMACS_FILES}; do
       echotab "\$(RMRF) \$(DESTDIR)\$(elispdir)/$f*"
+    done
+    for f in ${VIM_FILES}; do
+      echotab "\$(RMRF) \$(DESTDIR)\$(vimdir)/$f*"
     done
     echol
     echol
@@ -3943,7 +3970,7 @@ echotab "${HLN} data/* \$(TOPDIR)/data"
 echotab "mkdir \$(TOPDIR)/doc"
 echotab "${HLN} clisp.1 clisp.man ${manual_dvi} clisp.html \$(TXTFILES) \$(IMPNOTES) \$(TOPDIR)/doc"
 echotab "mkdir \$(TOPDIR)/emacs"
-for f in ${EMACS_FILES}; do
+for f in ${EMACS_FILES} ${VIM_FILES}; do
   echotab "${HLN} ${SRCTOPDIR}emacs/${f} \$(TOPDIR)/emacs/${f}"
 done
 echotab "mkdir \$(TOPDIR)/src"
@@ -4018,7 +4045,7 @@ elif [ $HOS = win32 ] ; then
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/doc/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/doc/\$\$f ; fi ; \\"
   echotab "done ; \\"
   echotab "mkdir \$\$distdir/emacs; \\"
-  for f in ${EMACS_FILES}; do
+  for f in ${EMACS_FILES} ${VIM_FILES}; do
     echotab "cp -p ${SRCTOPDIR}emacs/${f} \$\$distdir/emacs/${f} ; \\"
   done
   echotab "mkdir \$\$distdir/src ; \\"
