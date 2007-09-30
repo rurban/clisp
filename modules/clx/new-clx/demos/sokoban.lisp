@@ -98,6 +98,7 @@
 
 (defun field (x y)
   "Retrieves the field x/y"
+  (declare (compile))
   (cond ((and (<= 0 x 19) (<= y 19)) (aref *field* x y))
         (t %floor)))                    ;fake entry
 
@@ -115,6 +116,7 @@
 
 (defun find-outers ()
   "Goes thru' the board and finds all fields which are outside and sets the shape mask accordingly"
+  (declare (compile))
   (let ((map (make-array '(20 20)))
         (maxx 0)
         (maxy 0))
@@ -137,6 +139,7 @@
 
 (defun init-field (&optional (level *level*))
   "Does all initialisation work needed when going to a different level."
+  (declare (compile))
   (let ((screen (load-screen level)))
     (format T "~%;This is the ~:R level." level)
     (setf (xlib:wm-name *window*) (format nil "Sokoban - ~:(~:R~) Level" *level*))
@@ -172,7 +175,7 @@
 (defun init-sokoban ()
   "Initialized the whole beast, opens display, creates window ..."
   (setq *display* (x-open-display))
-  (let* ((root-window (xlib:screen-root (car (xlib:display-roots *display*))))
+  (let* ((root-window (xlib:screen-root (xlib:display-default-screen *display*)))
          (make-pixmap (lambda (name)
                         (xpm::read-file-to-pixmap root-window
                           (make-pathname :name name :type "xpm"
@@ -205,6 +208,7 @@
           (aref *pixmaps* %saveman) (aref *man-pixmaps* (1+ (* di 2))))))
 
 (defun ready-p ()
+  (declare (compile))
   (zerop *n-objects*))
 
 (defun move (dx dy)
@@ -281,6 +285,7 @@
 (defun valid-p (x y) (<= 0 x 19) (<= 0 y 19))
 
 (defun find-target (x y pathlen)
+  (declare (compile))
   (cond ((not (valid-p x y)))   ; we escaped into space
         ((< (field x y) %floor)) ; we could not walk here
         ((<= (aref *findmap* x y) pathlen)) ; there is already some better way
@@ -293,7 +298,20 @@
                 (find-target x (1- y) (1+ pathlen))
                 (find-target x (1+ y) (1+ pathlen))))) ))
 
+(defun update (&optional all-p)
+  (declare (compile))
+  (dotimes (x 20)
+    (dotimes (y 20)
+      (let ((changed-p (aref *changes* x y))
+            (value (aref *field* x y)))
+        (when (and (or all-p changed-p)
+                   (or (/= value %floor) changed-p))
+          (setf (aref *changes* x y) nil)
+          (xlib:copy-area (aref *pixmaps* value)
+                          *gcontext* 0 0 40 40 *window* (* x 40) (* y 40)))))))
+
 (defun walk-to (sx sy)
+  (declare (compile))
   (let ((x (floor sx 40))
         (y (floor sy 40)))
     (setq *findmap* (make-array '(20 20) :initial-element %badmove))
@@ -363,7 +381,8 @@ If you quit sokoban using 'q' the current state will be saved in
 
 (defvar *sokoban-debug* t)
 
-(defun sokoban ()
+(defun sokoban (&key ((:debug *sokoban-debug*) *sokoban-debug*))
+  "Play the game of sokoban, pushing objects around."
   (when (or (null *display*) (closed-display-p *display*))
     (init-sokoban)
     (sokoban-usage))
@@ -422,20 +441,11 @@ If you quit sokoban using 'q' the current state will be saved in
         (when (= count 0) (update t))
         nil)))
   (save-state)
+  (xlib:free-gcontext *gcontext*)
   (xlib:unmap-window *window*)
   (xlib:display-finish-output *display*)
   (xlib:close-display *display*))
 
-(defun update (&optional all-p)
-  (dotimes (x 20)
-    (dotimes (y 20)
-      (let ((changed-p (aref *changes* x y))
-            (value (aref *field* x y)))
-        (when (and (or all-p changed-p)
-                   (or (/= value %floor) changed-p))
-          (setf (aref *changes* x y) nil)
-          (xlib:copy-area (aref *pixmaps* value)
-                          *gcontext* 0 0 40 40 *window* (* x 40) (* y 40)))))))
 
 (defun save-state ()
   (with-open-file (o *sokoban-state-file* :direction :output)
@@ -459,9 +469,4 @@ If you quit sokoban using 'q' the current state will be saved in
          (setq *level* 1)
          (init-field))) )
 
-;; These functions should realy been compiled:
-;; '(mapcar #'compile '(init-field ready-p update find-outers field find-target walk-to))
-
-(format t "~& Call (clx-demos:sokoban).~%")
-
-(provide "sokoban")
+(provide :sokoban)
