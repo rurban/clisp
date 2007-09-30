@@ -2261,8 +2261,6 @@
 
 (LOAD "dribble")                ; dribble
 
-(LOAD "complete")               ; completion
-
 (load "pprint")                 ; pretty printer
 
 (LOAD "describe")               ; apropos, describe
@@ -2276,6 +2274,8 @@
 ;; Random extensions:
 
 (LOAD "macros3")                ; more macros, optional
+
+(LOAD "complete")               ; gnu readline completion (requires macros3)
 
 (LOAD "case-sensitive")         ; case-sensitive packages
 

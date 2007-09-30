@@ -20,6 +20,7 @@
 
 	* complete.lisp (completion): when no symbols are found and no package
 	separator #\: has been entered, search for completion among packages
+	* init.lisp: load complete after macros3 because of WITH-COLLECT
 
 2007-09-26  Sam Steingold  <sds@gnu.org>
 
