@@ -5,7 +5,7 @@
 (defparameter f-parameter (libsvm:make-parameter))
 F-PARAMETER
 
-(defparameter v-parameter (ffi:foreign-value f-parameter))
+(defparameter v-parameter (show (ffi:foreign-value f-parameter)))
 V-PARAMETER
 
 (ffi:validp f-parameter) T
@@ -46,6 +46,7 @@ PROBLEM
           (ffi:slot p-parameter 'libsvm::C) 1d0
           (ffi:slot p-parameter 'libsvm::kernel_type) libsvm::LINEAR))
   (setf v-parameter (ffi:foreign-value f-parameter))
+  (show (libsvm:parameter-alist f-parameter) :pretty t)
   (list (= maxindex (floor (log (1- 1000) 7)))
         (equalp (ffi:foreign-value p) (ffi:foreign-value f-problem-2-7))))
 (T T)
@@ -85,7 +86,7 @@ PROBLEM
   (setf f-parameter (libsvm:make-parameter :v v-parameter 'LIBSVM::nu 5d-1
                                            'LIBSVM::svm_type libsvm:NU_SVC
                                            'LIBSVM::probability 1)
-        v-parameter (ffi:foreign-value f-parameter))
+        v-parameter (show (ffi:foreign-value f-parameter)))
   (show (libsvm:parameter-alist f-parameter) :pretty t)
   (= (ffi:slot (ffi:foreign-value f-parameter) 'LIBSVM::svm_type)
      libsvm:NU_SVC))
