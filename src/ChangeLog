@@ -1,5 +1,10 @@
 2007-09-30  Sam Steingold  <sds@gnu.org>
 
+	* utils/fix-perms.sh: report what is been done;
+	make link.sh not executable
+
+2007-09-30  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: accept --vimdir and install the new file lisp.vim
 	there (defaults to ${datadir}/vim/vimfiles/after)
 
