@@ -469,4 +469,4 @@ If you quit sokoban using 'q' the current state will be saved in
          (setq *level* 1)
          (init-field))) )
 
-(provide :sokoban)
+(provide "sokoban")

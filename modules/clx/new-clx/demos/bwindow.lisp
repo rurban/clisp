@@ -85,4 +85,4 @@ screen border elasticity, and gravity value."
     (xlib:display-finish-output dpy)
     (xlib:close-display dpy)))
 
-(provide :bwindow)
+(provide "bwindow")

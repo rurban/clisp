@@ -156,4 +156,4 @@
     (xlib:display-finish-output dpy)
     (xlib:close-display dpy)))
 
-(provide :petal)
+(provide "petal")

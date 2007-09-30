@@ -58,4 +58,4 @@ As described in a ?? 1983 issue of the Mathematical Intelligencer."
     (xlib:display-finish-output dpy)
     (xlib:close-display dpy)))
 
-(provide :recurrence)
+(provide "recurrence")

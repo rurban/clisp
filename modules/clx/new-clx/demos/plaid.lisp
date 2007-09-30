@@ -69,4 +69,4 @@
     (xlib:display-finish-output dpy)
     (xlib:close-display dpy)))
 
-(provide :plaid)
+(provide "plaid")
