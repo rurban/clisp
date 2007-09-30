@@ -16,10 +16,11 @@ find . -type f -follow -perm +111 '(' \
   -o -name '*.lisp' \
   -o -name '*.tst' \
   -o -name '*.bat' \
+  -o -name 'link.sh' \
   -o -name '.cvsignore' \
   -o -name 'Makefile' \
   -o -name 'README' \
   ')' \
-  -exec chmod a-x '{}' ';'
+  -exec chmod -c a-x '{}' ';'
 
-find . -name configure -exec chmod +x '{}' ';'
+find . -name configure -exec chmod -c +x '{}' ';'
