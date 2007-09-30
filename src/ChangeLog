@@ -1,3 +1,8 @@
+2007-09-29  Sam Steingold  <sds@gnu.org>
+
+	* complete.lisp (completion): when no symbols are found and no package
+	separator #\: has been entered, search for completion among packages
+
 2007-09-26  Sam Steingold  <sds@gnu.org>
 
 	wrap all library calls in begin_system_call/end_system_call
