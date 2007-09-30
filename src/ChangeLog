@@ -1,3 +1,18 @@
+2007-09-30  Sam Steingold  <sds@gnu.org>
+
+	* .gdbinit (full): also break in xlib_error_handler
+	* modules/clx/new-clx/demos/bball.lisp:
+	* modules/clx/new-clx/demos/bwindow.lisp:
+	* modules/clx/new-clx/demos/greynetic.lisp:
+	* modules/clx/new-clx/demos/hanoi.lisp:
+	* modules/clx/new-clx/demos/petal.lisp:
+	* modules/clx/new-clx/demos/plaid.lisp:
+	* modules/clx/new-clx/demos/recurrence.lisp: adapted from
+	http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/gui/clx/clx_demo.cl
+	* modules/clx/new-clx/demos/clx-demos.lisp (*demos*): new variable
+	which lists all demos
+	(run-all-demos): new function
+
 2007-09-29  Sam Steingold  <sds@gnu.org>
 
 	* complete.lisp (completion): when no symbols are found and no package

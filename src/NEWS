@@ -18,6 +18,8 @@ User visible changes
 
 * NEW-CLX module now supports Stumpwm <http://www.nongnu.org/stumpwm/>.
   Thanks to Shawn Betts <sabetts@vcn.bc.ca>.
+  New NEW-CLX demos: bball bwindow greynetic hanoi petal plaid recurrence from
+  <http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/gui/clx/clx_demo.cl>.
 
 * Function EXT:ARGLIST now works on macros too.
   See <http://clisp.cons.org/impnotes/flow-dict.html#arglist> for details.
@@ -294,7 +296,7 @@ User visible changes
   Function POSIX:USER-DATA is renamed to POSIX:USER-INFO.
   See <http://clisp.cons.org/impnotes/syscalls.html> for details.
 
-* New NEW-CLX demo: foch.lisp draws fractal snowflakes.
+* New NEW-CLX demo: koch.lisp draws fractal snowflakes.
   Implemented XLIB:SET-MODIFIER-MAPPING, XLIB:KEYSYM->KEYCODES,
   XLIB:ACCESS-HOSTS, XLIB:ADD-ACCESS-HOST, XLIB:REMOVE-ACCESS-HOST,
   XLIB:CHANGE-KEYBOARD-CONTROL, XLIB:CHANGE-KEYBOARD-MAPPING,
