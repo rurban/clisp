@@ -35,7 +35,7 @@
 
 (let* ((p (pcre:pcre-compile "(a|(z))(bc)"))
        (r (pcre:pcre-exec p "abc")))
-  (format t "~&~S~%" (pcre:pattern-info p))
+  (show (pcre:pattern-info p) :pretty t)
   (list r (pcre:match-strings r "abc")
         (pcre:pattern-info p :options)))
 (#(#S(PCRE::MATCH :START 0 :END 3) #S(PCRE::MATCH :START 0 :END 1) NIL
