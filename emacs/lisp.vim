@@ -6,7 +6,10 @@ syn keyword lispDecl def-c-var def-c-const def-c-enum def-c-type def-c-struct
 syn keyword lispDecl def-call-out def-call-in
 syn keyword lispDecl c-function c-struct c-pointer c-ptr c-ptr-null
 syn keyword lispDecl c-array c-array-ptr c-array-max c-string
-syn keyword lispDecl int short long uint ushort ulong size_t off_t time_t
+syn keyword lispDecl char short int long uchar ushort uint ulong
+syn keyword lispDecl size_t off_t time_t handle
+syn match lispDecl "d\?word"
+syn match lispDecl "\([us]_\?\)\?int\(8\|16\|32\|64\)\(_t\)\?"
 syn keyword lispFunc with-c-place with-c-var
 syn keyword lispFunc with-foreign-object with-foreign-string
 syn keyword lispFunc default-foreign-language default-foreign-library
