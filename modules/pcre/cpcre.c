@@ -169,7 +169,7 @@ DEFCHECKER(fullinfo_arg,prefix=PCRE_INFO,OPTIONS SIZE CAPTURECOUNT      \
        tion.  External  callers  can  cause PCRE to use its internal tables by
        passing a NULL table pointer. */
 static object fullinfo_options (pcre *c_pat, pcre_extra *study) {
-  unsigned long int options, nn = 0;
+  unsigned long int options;
   int status;
   PCRE_INFO(PCRE_INFO_OPTIONS,&options,0);
   return pcre_options_to_list(options);
