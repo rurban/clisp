@@ -1,3 +1,13 @@
+2007-10-01  Sam Steingold  <sds@gnu.org>
+
+	* modules/pcre/cpcre.c (PCRE-VERSION, PCRE-COMPILE): use
+	safe_to_string()
+	(fullinfo_size): accept option argument;
+	use size_t instead of unsigned long int
+	(fullinfo_nametable): fix combining 2 bytes into an int
+	(PATTERN-INFO): do not report PCRE_INFO_BACKREFMAX twice;
+	use fullinfo_size instead of fullinfo_int for PCRE_INFO_STUDYSIZE
+
 2007-09-30  Sam Steingold  <sds@gnu.org>
 
 	* utils/fix-perms.sh: report what is been done;
