@@ -30,7 +30,7 @@
 DEFMODULE(pcre,"PCRE")
 
 DEFUN(PCRE::PCRE-VERSION,)
-{ VALUES3(asciz_to_string(pcre_version(),GLO(misc_encoding)),
+{ VALUES3(safe_to_string(pcre_version()),
           fixnum(PCRE_MAJOR),fixnum(PCRE_MINOR)); }
 #if defined(HAVE_PCRE_CONFIG)
 DEFCHECKER(pcre_config_option, prefix=PCRE_CONFIG, UTF8 NEWLINE LINK-SIZE \
@@ -99,7 +99,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
     });
   if (compiled_pattern == NULL) { /* error */
     pushSTACK(NIL);               /* no PLACE */
-    pushSTACK(asciz_to_string(error_message,GLO(misc_encoding)));
+    pushSTACK(safe_to_string(error_message));
     pushSTACK(fixnum(error_offset));
     pushSTACK(*string); pushSTACK(TheSubr(subr_self)->name);
     check_value(error,GETTEXT("~S(~S) at ~S: ~S"));
@@ -174,10 +174,10 @@ static object fullinfo_options (pcre *c_pat, pcre_extra *study) {
   PCRE_INFO(PCRE_INFO_OPTIONS,&options,0);
   return pcre_options_to_list(options);
 }
-static object fullinfo_size (pcre *c_pat, pcre_extra *study) {
-  unsigned long int length;
+static object fullinfo_size (pcre *c_pat, pcre_extra *study, int opt) {
+  size_t length;
   int status;
-  PCRE_INFO(PCRE_INFO_SIZE,&length,0);
+  PCRE_INFO(opt,&length,0);
   return UL_to_I(length);
 }
 static object fullinfo_int (pcre *c_pat, pcre_extra *study, int opt) {
@@ -229,7 +229,7 @@ static object fullinfo_nametable (pcre *c_pat, pcre_extra *study) {
   for (pos = 0; pos < count; pos++, table+=size) {
     pushSTACK(allocate_cons());
     Car(STACK_0) = asciz_to_string(table+2,GLO(misc_encoding));
-    Cdr(STACK_0) = fixnum((table[0]<<1) + table[1]);
+    Cdr(STACK_0) = fixnum((table[0]<<8) + table[1]);
   }
   return listof(count);
 }
@@ -242,11 +242,10 @@ DEFUN(PCRE:PATTERN-INFO,pattern &optional request)
   if (missingp(STACK_0)) {
     int count = 0;
     pushSTACK(`:OPTIONS`); pushSTACK(fullinfo_options(c_pat,study)); count+=2;
-    pushSTACK(`:SIZE`); pushSTACK(fullinfo_size(c_pat,study)); count+=2;
+    pushSTACK(`:SIZE`);
+    pushSTACK(fullinfo_size(c_pat,study,PCRE_INFO_SIZE)); count+=2;
     pushSTACK(`:CAPTURECOUNT`);
     pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_CAPTURECOUNT)); count+=2;
-    pushSTACK(`:BACKREFMAX`);
-    pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_BACKREFMAX)); count+=2;
 #  if defined(PCRE_INFO_FIRSTBYTE)
     pushSTACK(`:FIRSTBYTE`);pushSTACK(fullinfo_firstbyte(c_pat,study));count+=2;
 #  endif
@@ -268,7 +267,7 @@ DEFUN(PCRE:PATTERN-INFO,pattern &optional request)
 #  endif
 #  if defined(PCRE_INFO_STUDYSIZE)
     pushSTACK(`:STUDYSIZE`);
-    pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_STUDYSIZE)); count+=2;
+    pushSTACK(fullinfo_size(c_pat,study,PCRE_INFO_STUDYSIZE)); count+=2;
 #  endif
 #  if defined(PCRE_INFO_NAMECOUNT) && defined(PCRE_INFO_NAMEENTRYSIZE) && defined(PCRE_INFO_NAMETABLE)
     pushSTACK(`:NAMETABLE`);
@@ -279,7 +278,8 @@ DEFUN(PCRE:PATTERN-INFO,pattern &optional request)
     int arg = fullinfo_arg(STACK_0);
     switch (arg) {
       case PCRE_INFO_OPTIONS: VALUES1(fullinfo_options(c_pat,study)); break;
-      case PCRE_INFO_SIZE: VALUES1(fullinfo_size(c_pat,study)); break;
+      case PCRE_INFO_SIZE:
+        VALUES1(fullinfo_size(c_pat,study,PCRE_INFO_SIZE)); break;
       case PCRE_INFO_CAPTURECOUNT: case PCRE_INFO_BACKREFMAX:
 #    if defined(PCRE_INFO_NAMEENTRYSIZE)
       case PCRE_INFO_NAMEENTRYSIZE:
