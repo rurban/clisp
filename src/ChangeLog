@@ -1,6 +1,7 @@
 2007-10-01  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d: emit size_to_I & ssize_to_I
+	* modules/rawsock/rawsock.c (size_to_I, ssize_to_I): remove
 
 2007-10-01  Sam Steingold  <sds@gnu.org>
 

@@ -93,16 +93,6 @@
 # include <ifaddrs.h>
 #endif
 typedef SOCKET rawsock_t;
-#if SIZEOF_SIZE_T == 8
-# define size_to_I  uint64_to_I
-#else
-# define size_to_I  uint32_to_I
-#endif
-#if SIZEOF_SSIZE_T == 8
-# define ssize_to_I  sint64_to_I
-#else
-# define ssize_to_I  sint32_to_I
-#endif
 
 DEFMODULE(rawsock,"RAWSOCK")
 
