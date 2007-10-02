@@ -94,5 +94,20 @@
   <term><code>(GDBM:GDBM-FILE-SIZE &db-r;)</code></term>
   <listitem><simpara>Return the underlying file size using
     <function role="unix">lseek</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="gdbm-do-db">
+  <term><code>(GDBM:DO-DB (&key-r; &db-r; &rest-amp; &options-r;)
+    &body-amp; &body-r;)</code></term>
+  <listitem><simpara>Iterate over the database keys, &options-r; are
+    passed to <function>GDBM-FIRSTKEY</function>
+    and <function>GDBM-NEXTKEY</function>.
+    &body-r; is passed to &loop;, so you can use all the standard loop
+    contructs, e.g., <code>(do-db (k db) :collect (list k (gdbm-fetch
+     k)))</code> will convert the database to an &alist;.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="gdbm-with-open-db">
+  <term><code>(GDBM:WITH-OPEN-DB (&db-r; &filename-r; &rest-amp; &options-r;)
+    &body-amp; &body-r;)</code></term>
+  <listitem><simpara>Open the &filename-r;, execute the &body-r;, close
+    the database.</simpara></listitem></varlistentry>
 </variablelist>
 </section>
