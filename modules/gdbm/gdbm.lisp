@@ -1,7 +1,7 @@
 ;; Module for GDBM / CLISP
 ;; <http://www.gnu.org/gdbm/>
-;; Copyright (C) 2007 Masayuki Onjo
-;; Copyright (C) 2007 Sam Steingold
+;; Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
+;; Copyright (C) 2007  Sam Steingold <sds@gnu.org>
 ;; Released under GNU GPL2
 
 (defpackage #:gdbm
