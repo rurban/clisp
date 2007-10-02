@@ -1,17 +1,18 @@
 /*
  * GDBM - The GNU database manager
  * <http://www.gnu.org/software/gdbm/>
- * Copyright (C) 2007 Masayuki Onjo
+ * Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
+ * Copyright (C) 2007  Sam Steingold <sds@gnu.org>
  * GPL2
  */
 
 #include "clisp.h"
 #include "config.h"
 
-#ifdef HAVE_STRING_H
+#if defined(HAVE_STRING_H)
 # include <string.h>
 #endif
-#ifdef HAVE_UNISTD_H
+#if defined(HAVE_UNISTD_H)
 # include <unistd.h>            /* for lseek */
 #endif
 
@@ -43,6 +44,7 @@ DEFUN(GDBM::GDBM-VERSION,)
 
 DEFCHECKER(gdbm_open_read_write, prefix=GDBM, READER WRITER WRCREAT NEWDB)
 DEFCHECKER(gdbm_open_option, prefix=GDBM, SYNC NOLOCK FAST)
+#if defined(HAVE_GDBM_OPEN)
 DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
 {
   GDBM_FILE gdbm;
@@ -76,6 +78,7 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
     }
   }
 }
+#endif  /* HAVE_GDBM_OPEN */
 
 /* can trigger GC */
 static GDBM_FILE check_gdbm (object gdbm)
@@ -85,6 +88,7 @@ static GDBM_FILE check_gdbm (object gdbm)
     : (GDBM_FILE)TheFpointer(TheStructure(gdbm)->recdata[1])->fp_pointer;
 }
 
+#if defined(HAVE_GDBM_CLOSE)
 DEFUN(GDBM:GDBM-CLOSE, dbf)
 {
   GDBM_FILE dbf = check_gdbm(STACK_0);
@@ -97,7 +101,9 @@ DEFUN(GDBM:GDBM-CLOSE, dbf)
   }
   skipSTACK(1);
 }
+#endif  /* HAVE_GDBM_CLOSE */
 
+#if defined(HAVE_GDBM_FDESC)
 DEFUN(GDBM:GDBM-FILE-SIZE, dbf)
 {
   GDBM_FILE dbf = check_gdbm(popSTACK());
@@ -114,6 +120,7 @@ DEFUN(GDBM:GDBM-FILE-SIZE, dbf)
   end_system_call();
   VALUES1(size_to_I(ret));
 }
+#endif  /* HAVE_GDBM_FDESC */
 
 static object coerce_bitvector (object arg) {
   if (bit_vector_p(Atype_8Bit,arg)) return arg;
@@ -144,6 +151,7 @@ static object coerce_bitvector (object arg) {
 
 
 DEFCHECKER(gdbm_store_flag, prefix=GDBM, REPLACE INSERT);
+#if defined(HAVE_GDBM_STORE)
 DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
 {
   GDBM_FILE dbf = check_gdbm(STACK_3);
@@ -167,6 +175,7 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
   } else
     VALUES1(NIL);
 }
+#endif  /* HAVE_GDBM_STORE */
 
 /* convert datum to Lisp string and release memory in datum
  can trigger GC */
@@ -186,6 +195,7 @@ static object datum_to_object (datum d, int binary) {
   }
 }
 
+#if defined(HAVE_GDBM_FETCH)
 DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
 {
   GDBM_FILE dbf = check_gdbm(STACK_2);
@@ -201,7 +211,9 @@ DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
   } else
     VALUES1(NIL);
 }
+#endif  /* HAVE_GDBM_FETCH */
 
+#if defined(HAVE_GDBM_DELETE)
 DEFUN(GDBM:GDBM-DELETE, dbf key)
 {
   GDBM_FILE dbf = check_gdbm(STACK_1);
@@ -215,7 +227,9 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
   } else
     VALUES1(NIL);
 }
+#endif  /* HAVE_GDBM_DELETE */
 
+#if defined(HAVE_GDBM_FIRSTKEY)
 DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key BINARY)
 {
   int binary_p = !missingp(STACK_0);
@@ -230,7 +244,9 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key BINARY)
   } else
     VALUES1(NIL);
 }
+#endif  /* HAVE_GDBM_FIRSTKEY */
 
+#if defined(HAVE_GDBM_NEXTKEY)
 DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key BINARY)
 {
   int binary_p = !missingp(STACK_0);
@@ -245,6 +261,7 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key BINARY)
   } else
     VALUES1(NIL);
 }
+#endif  /* HAVE_GDBM_NEXTKEY */
 
 #define CHECK_RUN(statement)  do {              \
     int status;                                 \
@@ -253,6 +270,7 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key BINARY)
     else VALUES1(T);                            \
   } while(0)
 
+#if defined(HAVE_GDBM_REORGANIZE)
 DEFUN(GDBM:GDBM-REORGANIZE, dbf)
 {
   GDBM_FILE dbf = check_gdbm(popSTACK());
@@ -262,8 +280,9 @@ DEFUN(GDBM:GDBM-REORGANIZE, dbf)
   } else
     VALUES1(NIL);
 }
+#endif  /* HAVE_GDBM_REORGANIZE */
 
-
+#if defined(HAVE_GDBM_SYNC)
 DEFUN(GDBM:GDBM-SYNC, dbf)
 {
   GDBM_FILE dbf = check_gdbm(popSTACK());
@@ -274,7 +293,9 @@ DEFUN(GDBM:GDBM-SYNC, dbf)
   } else
     VALUES1(NIL);
 }
+#endif  /* HAVE_GDBM_SYNC */
 
+#if defined(HAVE_GDBM_EXISTS)
 DEFUN(GDBM:GDBM-EXISTS, dbf key)
 {
   GDBM_FILE dbf = check_gdbm(STACK_1);
@@ -288,9 +309,11 @@ DEFUN(GDBM:GDBM-EXISTS, dbf key)
   } else
     VALUES1(NIL);
 }
+#endif  /* HAVE_GDBM_EXISTS */
 
 DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
            CENTFREE COALESCEBLKS)
+#if defined(HAVE_GDBM_SETOPT)
 DEFUN(GDBM:GDBM-SETOPT, dbf option value)
 {
   GDBM_FILE dbf = check_gdbm(STACK_2);
@@ -312,3 +335,4 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
   } else
     VALUES1(NIL);
 }
+#endif  /* HAVE_GDBM_SETOPT */
