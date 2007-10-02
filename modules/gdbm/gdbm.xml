@@ -90,5 +90,9 @@
      <varlistentry><term><literal>:COALESCEBLKS</literal></term>
       <listitem><simpara>&t; or &nil;</simpara></listitem></varlistentry>
  </variablelist></para></listitem></varlistentry>
+ <varlistentry id="gdbm-file-size">
+  <term><code>(GDBM:GDBM-FILE-SIZE &db-r;)</code></term>
+  <listitem><simpara>Return the underlying file size using
+    <function role="unix">lseek</function>.</simpara></listitem></varlistentry>
 </variablelist>
 </section>
