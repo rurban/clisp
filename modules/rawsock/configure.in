@@ -38,8 +38,6 @@ AC_CHECK_HEADERS([winsock2.h ws2tcpip.h])dnl windows
 else AC_CHECK_MEMBERS([struct msghdr.msg_flags, struct msghdr.msg_control],,,
 [#include <sys/socket.h>])
 fi
-AC_CHECK_SIZEOF(ssize_t)
-AC_CHECK_SIZEOF(size_t)
 AC_CHECK_TYPES(struct iovec,,,[
 #if defined(HAVE_SYS_TYPES_H)
 # include <sys/types.h> /* for size_t */
