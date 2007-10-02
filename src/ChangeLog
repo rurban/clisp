@@ -8,6 +8,7 @@
 	* lispbibl.d (handle_length): add declaration
 	* stream.d (handle_length): implement
 	(FILE-LENGTH): use it to handle unbuffered streams
+	* modules/gdbm/gdbm.c (GDBM:GDBM-FILE-SIZE): use handle_length
 
 2007-10-02  Sam Steingold  <sds@gnu.org>
 
