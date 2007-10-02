@@ -1,3 +1,7 @@
+2007-10-02  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: test file-length on unbuffered streams
+
 2007-09-25  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (diff-seq): add

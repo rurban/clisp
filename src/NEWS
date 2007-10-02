@@ -31,6 +31,8 @@ User visible changes
 * New function EXT:RENAME-DIR can be used to rename directories.
   See <http://clisp.cons.org/impnotes/file-dict.html#rename-dir> for details.
 
+* Function FILE-LENGTH now works on unbuffered streams too.
+
 * Bug fixes:
   + Fixed EXT:LETF to work with more than one place. [ 1731462 ]
   + Fixed rounding of long floats [even+1/2]. [ 1589311 ]
