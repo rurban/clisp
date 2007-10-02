@@ -11,6 +11,9 @@
 #ifdef HAVE_STRING_H
 # include <string.h>
 #endif
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>            /* for lseek */
+#endif
 
 #if defined(HAVE_GDBM_H)
 # include <gdbm.h>
@@ -93,6 +96,23 @@ DEFUN(GDBM:GDBM-CLOSE, dbf)
     VALUES1(NIL);
   }
   skipSTACK(1);
+}
+
+DEFUN(GDBM:GDBM-FILE-SIZE, dbf)
+{
+  GDBM_FILE dbf = check_gdbm(popSTACK());
+  size_t ret, pos;
+  int status, fd;
+  begin_system_call();
+  fd = gdbm_fdesc(dbf);
+  pos = lseek(fd,0,SEEK_CUR);   /* save current location */
+  if (pos == (off_t)-1) OS_error();
+  ret = lseek(fd,0,SEEK_END);   /* get EOF location */
+  if (ret == (off_t)-1) OS_error();
+  pos = lseek(fd,pos,SEEK_SET); /* restore the original location */
+  if (pos == (off_t)-1) OS_error();
+  end_system_call();
+  VALUES1(size_to_I(ret));
 }
 
 static object coerce_bitvector (object arg) {
