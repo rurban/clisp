@@ -6,8 +6,17 @@
 /* Define to 1 if you have the `gdbm_delete' function. */
 #undef HAVE_GDBM_DELETE
 
+/* Define to 1 if you have the `gdbm_exists' function. */
+#undef HAVE_GDBM_EXISTS
+
+/* Define to 1 if you have the `gdbm_fdesc' function. */
+#undef HAVE_GDBM_FDESC
+
 /* Define to 1 if you have the `gdbm_fetch' function. */
 #undef HAVE_GDBM_FETCH
+
+/* Define to 1 if you have the `gdbm_firstkey' function. */
+#undef HAVE_GDBM_FIRSTKEY
 
 /* Define to 1 if you have the <gdbm/gdbm.h> header file. */
 #undef HAVE_GDBM_GDBM_H
@@ -15,8 +24,17 @@
 /* Define to 1 if you have the <gdbm.h> header file. */
 #undef HAVE_GDBM_H
 
+/* Define to 1 if you have the `gdbm_nextkey' function. */
+#undef HAVE_GDBM_NEXTKEY
+
 /* Define to 1 if you have the `gdbm_open' function. */
 #undef HAVE_GDBM_OPEN
+
+/* Define to 1 if you have the `gdbm_reorganize' function. */
+#undef HAVE_GDBM_REORGANIZE
+
+/* Define to 1 if you have the `gdbm_setopt' function. */
+#undef HAVE_GDBM_SETOPT
 
 /* Define to 1 if you have the `gdbm_store' function. */
 #undef HAVE_GDBM_STORE
