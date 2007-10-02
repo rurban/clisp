@@ -10,7 +10,7 @@
   (:export #:gdbm #:gdbm-version
            #:gdbm-open #:gdbm-close #:do-db #:with-open-db
            #:gdbm-store #:gdbm-fetch #:gdbm-delete #:gdbm-exists
-           #:gdbm-firstkey #:gdbm-nextkey
+           #:gdbm-firstkey #:gdbm-nextkey #:gdbm-file-size
            #:gdbm-reorganize #:gdbm-sync #:gdbm-setopt))
 (in-package "GDBM")
 
