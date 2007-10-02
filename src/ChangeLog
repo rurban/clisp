@@ -1,5 +1,12 @@
 2007-10-02  Sam Steingold  <sds@gnu.org>
 
+	* error.d (OS_filestream_error): check that the stream argument is
+	actually a stream object (this is needed becuase OS_filestream_error
+	is called by handle_lseek which is called by handle_length which
+	is used by the gdbm module which does not have Lisp streams)
+
+2007-10-02  Sam Steingold  <sds@gnu.org>
+
 	* modules/gdbm/gdbm.c (GDBM:GDBM-FILE-SIZE): implement
 	* modules/gdbm/gdbm.lisp (GDBM:GDBM-FILE-SIZE): export
 	(gdbm-p, gdbm-error, gdbm-error-message): export

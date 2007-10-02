@@ -422,7 +422,7 @@ global maygc void correctable_error (condition_t errortype, const char* errorstr
  > stream: a channel stream
  > end_system_call() already called */
 nonreturning_function(global, OS_filestream_error, (object stream)) {
-  if (TheStream(stream)->strmtype == strmtype_file
+  if (streamp(stream) && TheStream(stream)->strmtype == strmtype_file
       && !nullp(TheStream(stream)->strm_file_truename)) {
     OS_file_error(TheStream(stream)->strm_file_truename);
   } else {
