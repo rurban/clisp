@@ -1,5 +1,9 @@
 2007-10-01  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d: emit size_to_I & ssize_to_I
+
+2007-10-01  Sam Steingold  <sds@gnu.org>
+
 	* modules/pcre/cpcre.c (PCRE-VERSION, PCRE-COMPILE): use
 	safe_to_string()
 	(fullinfo_size): accept option argument;

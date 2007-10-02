@@ -1,7 +1,7 @@
 /*
  * Export CLISP internals for modules
  * Bruno Haible 1994-2005
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2005, 2007
  */
 
 #include "lispbibl.c"
@@ -251,6 +251,16 @@ int main(int argc, char* argv[])
          "}\n");
   printf("#endif\n");
   printf("#define check_uint_default0(obj) check_uint_defaulted(obj,0)\n");
+  switch (sizeof(size_t)) {
+    case sizeof(uint32): printf("#define size_to_I  uint32_to_I\n"); break;
+    case sizeof(uint64): printf("#define size_to_I  uint64_to_I\n"); break;
+    default: abort();
+  }
+  switch (sizeof(ssize_t)) {
+    case sizeof(sint32): printf("#define ssize_to_I sint32_to_I\n"); break;
+    case sizeof(sint64): printf("#define ssize_to_I sint64_to_I\n"); break;
+    default: abort();
+  }
 
 #if defined(UNIX_CYGWIN32)
   printf("#ifndef COMPILE_STANDALONE\n");
