@@ -1,13 +1,14 @@
 ;; Module for GDBM / CLISP
 ;; <http://www.gnu.org/gdbm/>
-;; (C) 2007 Masayuki Onjo
+;; Copyright (C) 2007 Masayuki Onjo
+;; Copyright (C) 2007 Sam Steingold
 ;; Released under GNU GPL2
 
 (defpackage #:gdbm
   (:documentation
    "GDBM - The GNU database manager - <http://www.gnu.org/software/gdbm/>")
   (:use #:lisp)
-  (:export #:gdbm #:gdbm-version
+  (:export #:gdbm #:gdbm-p #:gdbm-error #:gdbm-error-message #:gdbm-version
            #:gdbm-open #:gdbm-close #:do-db #:with-open-db
            #:gdbm-store #:gdbm-fetch #:gdbm-delete #:gdbm-exists
            #:gdbm-firstkey #:gdbm-nextkey #:gdbm-file-size

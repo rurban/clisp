@@ -12,11 +12,11 @@ FILE-SIZE
 (stringp (show (gdbm:gdbm-version))) T
 
 (handler-case
-    (gdbm::gdbm-p (setf *db* (gdbm:gdbm-open "///" :read-write :newdb)))
-  (gdbm::gdbm-error (condition)
-    (gdbm::gdbm-error-message condition))) "File open error"
+    (gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "///" :read-write :newdb)))
+  (gdbm:gdbm-error (condition)
+    (gdbm:gdbm-error-message condition))) "File open error"
 
-(gdbm::gdbm-p (setf *db* (gdbm:gdbm-open "test.db" :read-write :newdb))) T
+(gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "test.db" :read-write :newdb))) T
 
 (integerp (show (gdbm:gdbm-file-size *db*))) T
 
@@ -25,8 +25,8 @@ FILE-SIZE
 (gdbm:do-db (key *db*) :count key) 0
 
 (handler-case (gdbm:gdbm-setopt *db* :cachesize 1024)
-  (gdbm::gdbm-error (condition)
-    (gdbm::gdbm-error-message condition))) "Option already set"
+  (gdbm:gdbm-error (condition)
+    (gdbm:gdbm-error-message condition))) "Option already set"
 
 (gdbm:gdbm-store *db* "key1" "value1") T
 
@@ -72,7 +72,7 @@ FILE-SIZE
 
 (gdbm:gdbm-close *db*) NIL
 
-(gdbm::gdbm-p (setf *db* (gdbm:gdbm-open "test.db"))) T
+(gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "test.db"))) T
 
 (gdbm:do-db (key *db*) :count key) 4
 
