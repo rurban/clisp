@@ -3,6 +3,8 @@
 	* modules/gdbm/gdbm.c (GDBM:GDBM-FILE-SIZE): implement
 	* modules/gdbm/gdbm.lisp (GDBM:GDBM-FILE-SIZE): export
 	(gdbm-p, gdbm-error, gdbm-error-message): export
+	* modules/gdbm/configure.in: check for all functions
+	* modules/gdbm/gdbm.c: use the configure checks
 
 2007-10-01  Sam Steingold  <sds@gnu.org>
 
