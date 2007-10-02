@@ -178,7 +178,7 @@ static object fullinfo_size (pcre *c_pat, pcre_extra *study, int opt) {
   size_t length;
   int status;
   PCRE_INFO(opt,&length,0);
-  return UL_to_I(length);
+  return size_to_I(length);
 }
 static object fullinfo_int (pcre *c_pat, pcre_extra *study, int opt) {
   int ret, status;

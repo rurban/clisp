@@ -3,6 +3,7 @@
 	* genclisph.d: emit size_to_I & ssize_to_I
 	* modules/rawsock/rawsock.c (size_to_I, ssize_to_I): remove
 	* modules/rawsock/configure.in: do not check for sizeof(size_t)
+	* modules/pcre/cpcre.c (fullinfo_size): use size_to_I
 
 2007-10-01  Sam Steingold  <sds@gnu.org>
 
