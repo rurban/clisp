@@ -1,5 +1,5 @@
 ;; Foreign functions provided by the win32 system libraries
-;; Sam Steingold 2003-2006
+;; Copyright (C) 2003-2007 Sam Steingold
 
 (defpackage "WIN32"
   (:nicknames "WOE32" "W32")
@@ -9,17 +9,17 @@
            #:defconstant #:defun #:defmacro
            #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
-(ffi:default-foreign-language :stdc-stdcall) ; WINAPI means __stdcall
-(eval-when (compile) (setq ffi:*foreign-guard* t))
-
 (in-package "W32")
 
+(default-foreign-language :stdc-stdcall) ; WINAPI means __stdcall
+(eval-when (compile) (setq *foreign-guard* t))
 
 (def-c-type handle c-pointer)
 (def-c-type dword uint32)
 (def-c-type word uint16)
 
 ;; this is not necessary: we are not creating a C file anyway
+;; (and thus cannot use def-c-const instead of defconstant below!)
 ;;(c-lines "#define WINVER 0x0500~%#include <windows.h>~%")
 
 ;;; ==================================== "kernel32.dll"
