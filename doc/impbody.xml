@@ -4074,7 +4074,7 @@ functions are provided:
 
 <section id="file-pos"><title>Function &file-position;</title>
 
-<para>&file-position; works on any &buffered; &file-stream-t;.</para>
+<para>&file-position; works on any &file-stream-t;.</para>
 
 <!-- #if defined(WIN32) || (defined(UNIX) && (O_BINARY!= 0)) -->
 <variablelist>

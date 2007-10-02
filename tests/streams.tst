@@ -1190,6 +1190,21 @@ T
         '(nil t))
 (T T)
 
+;; file-position on unbuffered streams
+(mapcar (lambda (buf)
+          (let ((f "tmp-file"))
+            (unwind-protect
+                 (progn (with-open-file (s f :direction :output
+                                           #+clisp :buffered #+clisp buf)
+                          (write-line "12345" s)
+                          (file-position s 2)
+                          (write-line "12345" s))
+                        (with-open-file (s f :direction :input)
+                          (read-line s)))
+              (delete-file f))))
+        '(t nil))
+("1212345" "1212345")
+
 (progn
 (makunbound 's)
 (makunbound 's1)
