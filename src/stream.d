@@ -17345,8 +17345,33 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
       case strmtype_file:
         stream = check_open_file_stream(stream,false); /* check open */
         if (!ChannelStream_buffered(stream)) {
-          /* cannot deal with the file position on unbuffered streams. */
-          VALUES1(NIL);
+          object fd = TheStream(stream)->strmflags & strmflags_wr_B
+            ? ChannelStream_ochannel(stream)
+            : ChannelStream_ichannel(stream);
+          switch (pos_type) {
+            case POS_SET_END:   /* :END */
+              begin_system_call();
+              handle_lseek(stream,fd,0,SEEK_END,pos_off=);
+              end_system_call();
+              goto get_position_pos_off;
+            case POS_SET_START: /* :START */
+              begin_system_call();
+              handle_lseek(stream,fd,0,SEEK_SET,pos_off=);
+              end_system_call();
+              goto get_position_pos_off;
+            case POS_SET_OFF:   /* OFFSET */
+              begin_system_call();
+              handle_lseek(stream,fd,pos_off,SEEK_SET,pos_off=);
+              end_system_call();
+            get_position_pos_off:
+              VALUES1(uoff_to_I(pos_off)); break;
+            case POS_QUERY:
+              begin_system_call();
+              handle_lseek(stream,fd,0,SEEK_CUR,pos_off=);
+              end_system_call();
+              goto get_position_common;
+            default: NOTREACHED;
+          }
         } else {
           switch (pos_type) {
             case POS_SET_END:   /* :END */
@@ -17368,7 +17393,7 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
           }
         }
         break;
-      default: file_position_failed: /* do not know what to do ==> NIL */
+      default: /* do not know what to do ==> NIL */
         VALUES1(NIL); break;
     }
     skipSTACK(2);
