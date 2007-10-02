@@ -201,6 +201,10 @@ static void emit_define (const char* form, const char* definition) {
 #define export_def(x)  puts("#define " #x "  " STRING(x))
 #define export_literal(x)  puts(STRING(x))
 
+static void emit_to_I (const char* name, int signedp, int size)
+{ printf("#define %s_to_I %cint%d_to_I\n",name,(signedp ? 's' : 'u'),size*8); }
+#define EMIT_TO_I(name,type)  emit_to_I(name,(type)-1<(type)0,sizeof(type))
+
 int main(int argc, char* argv[])
 {
   char buf[BUFSIZ];
@@ -251,16 +255,9 @@ int main(int argc, char* argv[])
          "}\n");
   printf("#endif\n");
   printf("#define check_uint_default0(obj) check_uint_defaulted(obj,0)\n");
-  switch (sizeof(size_t)) {
-    case sizeof(uint32): printf("#define size_to_I  uint32_to_I\n"); break;
-    case sizeof(uint64): printf("#define size_to_I  uint64_to_I\n"); break;
-    default: abort();
-  }
-  switch (sizeof(ssize_t)) {
-    case sizeof(sint32): printf("#define ssize_to_I sint32_to_I\n"); break;
-    case sizeof(sint64): printf("#define ssize_to_I sint64_to_I\n"); break;
-    default: abort();
-  }
+  EMIT_TO_I("size",size_t);
+  EMIT_TO_I("ssize",ssize_t);
+  EMIT_TO_I("off",off_t);
 
 #if defined(UNIX_CYGWIN32)
   printf("#ifndef COMPILE_STANDALONE\n");
