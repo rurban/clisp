@@ -15673,6 +15673,15 @@ extern maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int 
 extern maygc object open_file_stream_handle (object stream, Handle *fd);
 %% puts("extern object open_file_stream_handle (object stream, Handle *fd);");
 
+/* return the OS's idea of the stream length for the file stream
+ > stream: for error reporting
+ > fd: OS file handle
+ < result: the length of the stream
+ should be wrapped in begin_system_call()/end_system_call()
+ for gdbm module */
+global off_t handle_length (object stream, Handle fd);
+%% puts("extern off_t handle_length (object stream, Handle fd);");
+
 /* Function: Reads several bytes from a stream.
  read_byte_array(&stream,&bytearray,start,len,persev)
  > stream: stream (on the STACK)

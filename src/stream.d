@@ -33,8 +33,10 @@
 # can trigger GC
 #if SIZEOF_OFF_T > 4
   #define uoff_to_I UQ_to_I
+  #define off_to_I  Q_to_I
 #else
   #define uoff_to_I UL_to_I
+  #define off_to_I L_to_I
 #endif
 
 # Converts an Integer >=0 into an uoff_t value.
@@ -17194,6 +17196,25 @@ global maygc object open_file_stream_handle (object stream, Handle *fd) {
   return stream;
 }
 
+/* return the OS's idea of the stream length for the file stream
+ > stream: for error reporting
+ > fd: OS file handle
+ < result: the length of the stream
+ should be wrapped in begin_system_call()/end_system_call()
+ for gdbm module */
+global off_t handle_length (object stream, Handle fd) {
+  off_t len, pos;
+  handle_lseek(stream,fd,0,SEEK_CUR,pos=); /* save current location */
+  handle_lseek(stream,fd,0,SEEK_END,len=); /* get EOF location */
+  /* if the above call fails, we may be screwed now:
+     the file position was modified but not restored.
+     However, this would indicate a bug in the underlying lseek()
+     implementation, see the list of ERRORS in
+     http://www.opengroup.org/onlinepubs/009695399/functions/lseek.html */
+  handle_lseek(stream,fd,pos,SEEK_SET,); /* restore the original location */
+  return len;
+}
+
 typedef enum { POS_QUERY, POS_SET_START, POS_SET_END, POS_SET_OFF } pos_arg_t;
 LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (FILE-POSITION stream [position]), CLTL p. 425 */
@@ -17366,8 +17387,11 @@ LISPFUNNR(file_length,1)
     VALUES1(Fixnum_0); return;
   }
   if (!ChannelStream_buffered(stream)) {
-    # Don't know how to deal with the file position on unbuffered streams.
-    VALUES1(NIL);
+    off_t len;
+    begin_system_call();
+    len = handle_length(stream,ChannelStream_ihandle(stream));
+    end_system_call();
+    VALUES1(off_to_I(len));
   } else {
     # memorize Position:
     var uoff_t position = BufferedStream_position(stream);

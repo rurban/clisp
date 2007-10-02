@@ -1175,6 +1175,21 @@ T
     (delete-file of)))
 #+clisp (T T (NIL . :DEFAULT) :UNIX ENCODING T)
 
+;; file-length on unbuffered streams
+(mapcar (lambda (buf)
+          (let ((f "tmp-file"))
+            (unwind-protect
+                 (let ((len (with-open-file (s f :direction :output)
+                              (write-line f s)
+                              (file-length s))))
+                   (= len
+                      (with-open-file (s f :direction :input
+                                         #+clisp :buffered #+clisp buf)
+                        (file-length s))))
+              (delete-file f))))
+        '(nil t))
+(T T)
+
 (progn
 (makunbound 's)
 (makunbound 's1)
