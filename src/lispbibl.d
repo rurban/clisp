@@ -16177,7 +16177,7 @@ extern maygc object L_to_I (sint32 wert);
 #if defined(intQsize) || (intVsize>32)
   #define uint64_to_I(val)  UQ_to_I((uint64)(val))
   #define sint64_to_I(val)  Q_to_I((sint64)(val))
-#elif defined(HAVE_FFI)
+#else
   #define uint64_to_I(val)  UL2_to_I((uint32)((val)>>32),(uint32)(val))
   #define sint64_to_I(val)  L2_to_I((sint32)((val)>>32),(uint32)(val))
 #endif
@@ -16227,9 +16227,9 @@ extern maygc object L_to_I (sint32 wert);
 #if defined(WIN32_NATIVE)
   #define off_to_I(val)  L2_to_I((sint32)((val)>>32),(uint32)(val))
 #elif SIZEOF_OFF_T > 4
-  #define off_to_I  Q_to_I
+  #define off_to_I  sint64_to_I
 #else
-  #define off_to_I  L_to_I
+  #define off_to_I  sint32_to_I
 #endif
 
 # Converts an Integer >=0 into an unsigned longword.
