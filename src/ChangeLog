@@ -6,6 +6,9 @@
 	is used by the gdbm module which does not have Lisp streams)
 	* genclisph.d (emit_to_I): add and use it for size, ssize and off
 	* lispbibl.d (handle_length): add declaration
+	(off_to_I): define using sint??_to_I instead of [QL]_to_I because
+	Q_to_I may not be defined on a 32-bit platform
+	(uint64_to_I, sint64_to_I): always define
 	* stream.d (handle_length): implement
 	(FILE-LENGTH): use it to handle unbuffered streams
 	(FILE-POSITION): use handle_lseek on unbuffered streams
