@@ -33,10 +33,8 @@
 # can trigger GC
 #if SIZEOF_OFF_T > 4
   #define uoff_to_I UQ_to_I
-  #define off_to_I  Q_to_I
 #else
   #define uoff_to_I UL_to_I
-  #define off_to_I L_to_I
 #endif
 
 # Converts an Integer >=0 into an uoff_t value.
