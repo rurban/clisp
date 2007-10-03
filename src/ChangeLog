@@ -10,6 +10,8 @@
 	Q_to_I may not be defined on a 32-bit platform
 	(uint64_to_I, sint64_to_I): always define
 	* stream.d (handle_length): implement
+	(fd_lseek): extract from handle_lseek
+	(handle_lseek): use it
 	(FILE-LENGTH): use it to handle unbuffered streams
 	(FILE-POSITION): use handle_lseek on unbuffered streams
 	* modules/gdbm/gdbm.c (GDBM:GDBM-FILE-SIZE): use handle_length

@@ -6007,12 +6007,14 @@ global object file_stream_truename (object s)
 #         SEEK_END  "at the end"
 # < result: new Position
 #if defined(UNIX) || defined(WIN32_NATIVE)
-  #define handle_lseek(stream,handle,offset,mode,result_assignment)     \
-    { var off_t result = lseek(TheHandle(handle),offset,mode);          \
-      if (result<0) /* error occurred? */                               \
-        { end_system_call(); OS_filestream_error(stream); }             \
-      unused (result_assignment result);                                \
+  #define fd_lseek(stream,fd,offset,mode,result_assignment)    \
+    { var off_t result = lseek(fd,offset,mode);                \
+      if (result<0) /* error occurred? */                      \
+        { end_system_call(); OS_filestream_error(stream); }    \
+      unused (result_assignment result);                       \
     }
+  #define handle_lseek(stream,handle,offset,mode,result_assignment) \
+    fd_lseek(stream,TheHandle(handle),offset,mode,result_assignment)
 #endif
 
 /* UP: Fills the buffer, up to strm_buffered_bufflen bytes.
@@ -17202,14 +17204,14 @@ global maygc object open_file_stream_handle (object stream, Handle *fd) {
  for gdbm module */
 global off_t handle_length (object stream, Handle fd) {
   off_t len, pos;
-  handle_lseek(stream,fd,0,SEEK_CUR,pos=); /* save current location */
-  handle_lseek(stream,fd,0,SEEK_END,len=); /* get EOF location */
+  fd_lseek(stream,fd,0,SEEK_CUR,pos=); /* save current location */
+  fd_lseek(stream,fd,0,SEEK_END,len=); /* get EOF location */
   /* if the above call fails, we may be screwed now:
      the file position was modified but not restored.
      However, this would indicate a bug in the underlying lseek()
      implementation, see the list of ERRORS in
      http://www.opengroup.org/onlinepubs/009695399/functions/lseek.html */
-  handle_lseek(stream,fd,pos,SEEK_SET,); /* restore the original location */
+  fd_lseek(stream,fd,pos,SEEK_SET,); /* restore the original location */
   return len;
 }
 
