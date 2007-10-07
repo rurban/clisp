@@ -5,16 +5,18 @@
 runtime! syntax/c.vim
 unlet b:current_syntax
 
+set enc=utf-8
+
+syn keyword dObject true false NIL T nullobj unbound
 syn keyword dType local global maygc var inline object
-syn match dType "[us]int[LW]"
-syn match dType "[a-zA-Z0-9_]*_t"
+syn match dType "\<[us]int[LW]\>"
+syn match dType "\<[a-zA-Z0-9_]*_t\>"
 syn keyword dOperator popSTACK pushSTACK skipSTACK skipSTACKop STACKop loop
-syn match dOperator "dotimesp?[CLW]"
-syn keyword dObject true false NIL T nullobj
-syn keyword dOperator nonreturning_function return_Values DEFUN O S
-syn match dOperator "LISPFUN[NR]*"
-syn match dOperator "VALUES[0-9]"
-syn keyword dOperator SstringDispatch SstringCase
+syn keyword dOperator nonreturning_function return_Values DEFUN O S funcall
+syn keyword dOperator SstringDispatch SstringCase NOTREACHED GETTEXT until
+syn match dOperator "\<dotimesp?[CLW]\>"
+syn match dOperator "\<LISPFUN[NR]*\>"
+syn match dOperator "\<VALUES[0-9]\>"
 syn region dCommentL start="# " skip="\\$" end="$" keepend contains=@cCommentGroup,cComment2String,cCharacter,cNumbersCom,cSpaceError,@Spell
 
 hi def link dType Type
