@@ -1,4 +1,4 @@
-;; -*- lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 ;; (ext:cd "../tests/") (load "tests") (run-test "ffi")
 ;; ./clisp -E utf-8 -norc -i tests/tests -x '(run-test "tests/ffi")'
 
