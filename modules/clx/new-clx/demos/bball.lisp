@@ -87,9 +87,10 @@
     (setf (ball-dy ball) dy)
     (xor-ball pixmap window gcontext x y)))
 
-(defun bball (&key (balls 5) (duration 500) (x 10) (y 10)
+(defun bball (&key (nballs 5) (duration 500) (x 10) (y 10) (sleep 0.01)
               ((:gravity *bball-gravity*) *bball-gravity*)
-              ((:maximum-x-drift *bball-maximum-x-drift*) *bball-maximum-x-drift*)
+              ((:maximum-x-drift *bball-maximum-x-drift*)
+               *bball-maximum-x-drift*)
               ((:width *bball-max-x*) *bball-max-x*)
               ((:height *bball-max-y*) *bball-max-y*))
   "Bouncing balls."
@@ -103,7 +104,6 @@
                   :event-mask '(:exposure :button-press :button-release
                                 :key-press :key-release)
                   :x x :y y :background white-pixel))
-         (balls (loop :repeat balls :collect (make-ball)))
          (gcontext (xlib:create-gcontext :drawable window
                                          :foreground white-pixel
                                          :background black-pixel
@@ -114,7 +114,8 @@
                          :drawable window))
          (pixmap-gc (xlib:create-gcontext :drawable bounce-pixmap
                                           :foreground white-pixel
-                                          :background black-pixel)))
+                                          :background black-pixel))
+         (balls (loop :repeat nballs :collect (make-ball))))
     (print 'map)
     (xlib:map-window window)
     (print 'finish)
@@ -131,7 +132,8 @@
     (dotimes (i duration)
       (dolist (ball balls)
         (bounce-1-ball bounce-pixmap window gcontext ball))
-        (xlib:display-force-output dpy))
+      (xlib:display-force-output dpy)
+      (sleep sleep))
     (xlib:free-pixmap bounce-pixmap)
     (xlib:free-gcontext gcontext)
     (xlib:unmap-window window)
