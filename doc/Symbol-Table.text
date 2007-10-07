@@ -356,6 +356,8 @@ EXT:MAKE-DIR
 make-dir
 EXT:DELETE-DIR
 delete-dir
+EXT:RENAME-DIR
+rename-dir
 EXT:CHAR-KEY
 with-kbd
 EXT:WITH-KEYBOARD
