@@ -1,3 +1,8 @@
+2007-10-06  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (vimdir): install in ${datadir}/vim/vimfiles/after/syntax
+	* clisp.spec: add %{prefix}/share/vim/vimfiles/after/syntax/lisp.vim
+
 2007-10-02  Sam Steingold  <sds@gnu.org>
 
 	* error.d (OS_filestream_error): check that the stream argument is
