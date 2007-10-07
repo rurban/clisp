@@ -1,5 +1,9 @@
 2007-10-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c: use safe_to_string when appropriate
+
+2007-10-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/gdbm/gdbm.c: use *misc-encoding* for string conversion
 	(error_gdbm): accept fatal_message
 	(GDBM-OPEN): pass it as the 5th arg to gdbm_open()
