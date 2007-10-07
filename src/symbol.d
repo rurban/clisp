@@ -348,7 +348,7 @@ LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
       # x angegeben
       if (stringp(x)) {
         prefix = x; # prefix setzen
-      } elif (integerp(x)) {
+      } else if (integerp(x)) {
         if (R_minusp(x)) {
           pushSTACK(x); # TYPE-ERROR slot DATUM
           pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE

@@ -263,7 +263,7 @@ local BOOL normal_interrupt_handler (DWORD CtrlType)
       if (!PulseEvent(sigint_event)) {
         OS_error();
       }
-    } elif (CtrlType == CTRL_BREAK_EVENT) {
+    } else if (CtrlType == CTRL_BREAK_EVENT) {
       if (!PulseEvent(sigbreak_event)) {
         OS_error();
       }
