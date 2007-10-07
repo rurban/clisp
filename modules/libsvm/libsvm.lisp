@@ -1,7 +1,7 @@
 ;;; LIBSVM interface
 ;;; <http://www.csie.ntu.edu.tw/~cjlin/libsvm/>
 ;;;
-;;; Copyright (C) 2006 by Sam Steingold
+;;; Copyright (C) 2006, 2007 Sam Steingold <sds@gnu.org>
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -13,7 +13,8 @@
 (setf (documentation (find-package "LIBSVM") 'sys::impnotes) "libsvm")
 
 (default-foreign-language :stdc)
-(default-foreign-library (namestring (merge-pathnames "svm.so" *load-pathname*)))
+(default-foreign-library
+ (namestring (merge-pathnames "svm.so" *load-pathname*)))
 
 ;;;
 ;;; types and constants
