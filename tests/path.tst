@@ -1,4 +1,4 @@
-;; -*- lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 (setf string "test-pathname.abc" symbol 'test-pathname.abc)
 test-pathname.abc
