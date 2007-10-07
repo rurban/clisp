@@ -168,7 +168,7 @@ static void error_callback (const char *errpfx, char *msg)
 }
 #define FREE_RESET(x) if (x) { free(x); x = NULL; }
 static void error_message_reset (void) { FREE_RESET(error_message) }
-DEFCHECKER(bdb-errno,default=,prefix=DB,BUFFER-SMALL DONOTINDEX KEYEMPTY \
+DEFCHECKER(bdb_errno,default=,prefix=DB,BUFFER-SMALL DONOTINDEX KEYEMPTY \
            KEYEXIST LOCK-DEADLOCK LOCK-NOTGRANTED LOG-BUFFER-FULL NOSERVER \
            NOSERVER-HOME NOSERVER-ID NOTFOUND OLD-VERSION PAGE-NOTFOUND \
            REP-DUPMASTER REP-HANDLE-DEAD REP-HOLDELECTION REP-ISPERM    \
