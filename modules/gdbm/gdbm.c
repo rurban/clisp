@@ -26,19 +26,33 @@
 
 DEFMODULE(gdbm,"GDBM");
 
-nonreturning_function(static, error_gdbm, (void)) {
+DEFCHECKER(check-gdbm-errno, prefix=GDBM, NO-ERROR MALLOC-ERROR              \
+           BLOCK-SIZE-ERROR FILE-OPEN-ERROR FILE-WRITE-ERROR FILE-SEEK-ERROR \
+           FILE-READ-ERROR BAD-MAGIC-NUMBER EMPTY-DATABASE CANT-BE-READER    \
+           CANT-BE-WRITER READER-CANT-DELETE READER-CANT-STORE               \
+           READER-CANT-REORGANIZE UNKNOWN-UPDATE ITEM-NOT-FOUND              \
+           REORGANIZE-FAILED CANNOT-REPLACE ILLEGAL-DATA OPT-ALREADY-SET     \
+           OPT-ILLEGAL)
+nonreturning_function(static, error_gdbm, (char *fatal_message)) {
+  end_system_call(); /* in case we are called from _gdbm_fatal() */
   pushSTACK(`GDBM::GDBM-ERROR`);
   pushSTACK(`:MESSAGE`);
-  pushSTACK(asciz_to_string(gdbm_strerror(gdbm_errno), GLO(foreign_encoding)));
+  if (fatal_message) {
+    pushSTACK(asciz_to_string(fatal_message, GLO(misc_encoding)));
+    pushSTACK(`:CODE`); pushSTACK(`:FATAL`);
+  } else {
+    pushSTACK(safe_to_string(gdbm_strerror(gdbm_errno)));
+    pushSTACK(`:CODE`); pushSTACK(check_gdbm_errno_reverse(gdbm_errno));
+  }
   pushSTACK(`"~A: ~A"`);
   pushSTACK(TheSubr(subr_self)->name);
-  pushSTACK(asciz_to_string(gdbm_strerror(gdbm_errno), GLO(foreign_encoding)));
-  funcall(L(error_of_type), 6);
+  pushSTACK(STACK_4); /* message */
+  funcall(L(error_of_type), 8);
   NOTREACHED;
 }
 
 DEFUN(GDBM::GDBM-VERSION,)
-{ VALUES1(asciz_to_string(gdbm_version, GLO(foreign_encoding))); }
+{ VALUES1(safe_to_string(gdbm_version)); }
 
 #define SYSCALL(statement) begin_system_call(); statement; end_system_call()
 
@@ -54,7 +68,6 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
     : gdbm_open_read_write(STACK_2);
   int rw = rw_opt1 | rw_opt2;
   int bsize = check_uint_defaulted(STACK_3, 512);
-  void (*fatal)() = NULL;
   object path = STACK_4;
 
   skipSTACK(5);
@@ -64,7 +77,7 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
   } else {
     with_string_0(stringp(path) ? (object)path : physical_namestring(path),
                   GLO(pathname_encoding), name, {
-        SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode, fatal));
+        SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode, error_gdbm));
       });
     if (gdbm != NULL) {
       pushSTACK(allocate_fpointer(gdbm));
@@ -73,9 +86,8 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
       pushSTACK(STACK_0); pushSTACK(``GDBM::GDBM-CLOSE``);
       funcall(L(finalize),2);
       VALUES1(popSTACK());      /* restore */
-    } else {
-      error_gdbm();
-    }
+    } else
+      error_gdbm(NULL);
   }
 }
 #endif  /* HAVE_GDBM_OPEN */
@@ -127,7 +139,7 @@ static object coerce_bitvector (object arg) {
 
 #define with_datum(lisp_obj, datum_var, statement)  do {                \
   if (stringp(lisp_obj)) {                                              \
-    with_string_0(lisp_obj, GLO(foreign_encoding), datum_var##string, { \
+    with_string_0(lisp_obj, GLO(misc_encoding), datum_var##string, {    \
       datum datum_var;                                                  \
       datum_var.dptr = datum_var##string;                               \
       datum_var.dsize = datum_var##string_len;                          \
@@ -175,7 +187,7 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
 static object datum_to_object (datum d, int binary) {
   if (d.dptr == NULL) return NIL;
   else if (binary==0) {
-    object o = n_char_to_string(d.dptr, d.dsize, GLO(foreign_encoding));
+    object o = n_char_to_string(d.dptr, d.dsize, GLO(misc_encoding));
     free(d.dptr);
     return o;
   } else {
@@ -259,7 +271,7 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key BINARY)
 #define CHECK_RUN(statement)  do {              \
     int status;                                 \
     SYSCALL(status = statement);                \
-    if (status == -1) error_gdbm();             \
+    if (status == -1) error_gdbm(NULL);         \
     else VALUES1(T);                            \
   } while(0)
 
