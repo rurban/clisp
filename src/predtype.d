@@ -1588,7 +1588,7 @@ LISPFUNNR(type_of,1)
       }
       break;
     case_stream: /* Stream -> STREAM or according to Stream-type */
-      switchu (TheStream(arg)->strmtype) {
+      switch (TheStream(arg)->strmtype) {
         case strmtype_file:     value1 = S(file_stream); break;
         case strmtype_synonym:  value1 = S(synonym_stream); break;
         case strmtype_broad:    value1 = S(broadcast_stream); break;
@@ -1906,7 +1906,7 @@ LISPFUNNR(class_of,1)
     case_subr: /* SUBR -> <function> */
       value1 = O(class_function); break;
     case_stream: /* Stream -> <stream> or according to Stream-type */
-      switchu (TheStream(arg)->strmtype) {
+      switch (TheStream(arg)->strmtype) {
         case strmtype_file:     value1 = O(class_file_stream); break;
         case strmtype_synonym:  value1 = O(class_synonym_stream); break;
         case strmtype_broad:    value1 = O(class_broadcast_stream); break;
@@ -2867,7 +2867,7 @@ local void heap_statistics_mapper (void* arg, object obj, uintM bytelen)
       pighole = &locals->builtins[(int)enum_hs_function];
       break;
     case_stream: /* Stream */
-      switchu (TheStream(obj)->strmtype) {
+      switch (TheStream(obj)->strmtype) {
         case strmtype_file:
           pighole = &locals->builtins[(int)enum_hs_file_stream]; break;
         case strmtype_synonym:

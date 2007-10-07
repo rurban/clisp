@@ -1,5 +1,12 @@
 2007-10-06  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (switchu): remove: was used 3 times for strmtype in ...
+	* predtype.d (TYPE-OF, CLASS-OF, heap_statistics_mapper): 
+	use switch instead of switchu.
+	switch is already used with strmtype in stream.d and spvw_circ.d
+
+2007-10-06  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (vimdir): install in ${datadir}/vim/vimfiles/after/syntax
 	* clisp.spec: add %{prefix}/share/vim/vimfiles/after/syntax/lisp.vim
 

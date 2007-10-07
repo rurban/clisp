@@ -1068,14 +1068,6 @@
  _deprecated_, please use standard C */
 #define until(expression)  while(!(expression))
 
-# Case-statement for a value >=0
-# switchu (expression) ...
-#ifdef GNU # for better optimization
-  #define switchu(expression)  switch ((unsigned int)(expression))
-#else
-  #define switchu  switch
-#endif
-
 # Ignore C++ keyword.
 #define export export_sym
 
