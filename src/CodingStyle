@@ -43,7 +43,7 @@ harder to read and understand. And also, because some editors on Windows have
 a default tab width of 4, whereas on Unix, the common consensus is a tab width
 of 8. If you are using Emacs and want to contribute to CLISP, the best way to
 ensure that you don't send us tabs by mistake is to add the following lines
-to your $HOME/.emacs file:
+to your <$HOME/.emacs> file:
 
     ;; Tabs are anachronistic.
     (setq-default indent-tabs-mode nil)
@@ -54,6 +54,7 @@ to your $HOME/.emacs file:
 We try to keep things in 79 columns, because that's the default width of
 Emacs windows.  We urge you to use the Emacs 21 lisp-mode to indent
 your lisp code, see file <clisp/emacs/clisp-indent.el>.
+VIM users should put <clisp/emacs/lisp.vim> into <$HOME/.vim/after/syntax/>.
 
 Parentheses should be set in the mainstream style (used in CLtL1, CLtL2
 and the ANSI CL spec), with the closing parens at the end of the last
@@ -98,10 +99,10 @@ column of a line.
 These 'var' symbols that you encounter in every function introduce variable
 declarations. We use one variable per declaration; the C syntax rules make
 declarations of multiple variables on the same line hard to read and hard
-to edit. 'var' is a preprocessor symbol which expands to nothing. Writing
-'var' not only makes it human reader to understand the code; it also allows
-you to mix declarations and statements freely, without the need for
-additional braces.
+to edit. 'var' is a preprocessor symbol which expands to nothing.
+Writing 'var' not only makes it easier for a human reader to understand
+the code; it also allows you to mix declarations and statements freely,
+without the need for additional braces.
 
 We have a few macros defined in lispbibl.d: 'elif' means 'else if',
 'until' means 'while not' (both are now deprecated).
@@ -127,7 +128,8 @@ is what the GNU standards recommend:
             if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))
                 && string_equal(line,Car(Car(alist)))) {
 
-Use <clisp/emacs/d-mode.el> to make Emacs indent and fontify your *.d files.
+Use <clisp/emacs/d-mode.el> to make Emacs indent and fontify the *.d files.
+VIM users should put <clisp/emacs/d.vim> into <$HOME/.vim/syntax/>.
 
                                 Comments
                                 --------
