@@ -168,16 +168,16 @@ static void error_callback (const char *errpfx, char *msg)
 }
 #define FREE_RESET(x) if (x) { free(x); x = NULL; }
 static void error_message_reset (void) { FREE_RESET(error_message) }
-DEFCHECKER(bdb_errno,default=,prefix=DB,BUFFER_SMALL DONOTINDEX KEYEMPTY \
-           KEYEXIST LOCK_DEADLOCK LOCK_NOTGRANTED LOG_BUFFER_FULL NOSERVER \
-           NOSERVER_HOME NOSERVER_ID NOTFOUND OLD_VERSION PAGE_NOTFOUND \
-           REP_DUPMASTER REP_HANDLE_DEAD REP_HOLDELECTION REP_ISPERM    \
-           REP_NEWMASTER REP_NEWSITE REP_NOTPERM REP_STARTUPDONE REP_UNAVAIL \
-           RUNRECOVERY SECONDARY_BAD VERIFY_BAD VERSION_MISMATCH        \
-           ALREADY_ABORTED DELETED LOCK_NOTEXIST NEEDSPLIT REP_EGENCHG  \
-           REP_LOGREADY REP_PAGEDONE SURPRISE_KID SWAPBYTES TIMEOUT TXN_CKP \
-           VERIFY_FATAL)
-nonreturning_function(static, error_bdb, (int status, char *caller)) {
+DEFCHECKER(bdb-errno,default=,prefix=DB,BUFFER-SMALL DONOTINDEX KEYEMPTY \
+           KEYEXIST LOCK-DEADLOCK LOCK-NOTGRANTED LOG-BUFFER-FULL NOSERVER \
+           NOSERVER-HOME NOSERVER-ID NOTFOUND OLD-VERSION PAGE-NOTFOUND \
+           REP-DUPMASTER REP-HANDLE-DEAD REP-HOLDELECTION REP-ISPERM    \
+           REP-NEWMASTER REP-NEWSITE REP-NOTPERM REP-STARTUPDONE REP-UNAVAIL \
+           RUNRECOVERY SECONDARY-BAD VERIFY-BAD VERSION-MISMATCH        \
+           ALREADY-ABORTED DELETED LOCK-NOTEXIST NEEDSPLIT REP-EGENCHG  \
+           REP-LOGREADY REP-PAGEDONE SURPRISE-KID SWAPBYTES TIMEOUT TXN-CKP \
+           VERIFY-FATAL)
+nonreturning_function(static, error_bdb, (int status, const char *caller)) {
   end_system_call();
   pushSTACK(`BDB::BDB-ERROR`);  /* error type */
   pushSTACK(`:CODE`); pushSTACK(bdb_errno_reverse(status));
@@ -185,8 +185,8 @@ nonreturning_function(static, error_bdb, (int status, char *caller)) {
     pushSTACK(`"~S (~S): ~S: ~S"`);
   else pushSTACK(`"~S (~S): ~S"`);
   pushSTACK(TheSubr(subr_self)->name);
-  pushSTACK(asciz_to_string(caller,GLO(misc_encoding)));
-  pushSTACK(asciz_to_string(db_strerror(status),GLO(misc_encoding)));
+  pushSTACK(safe_to_string(caller));
+  pushSTACK(safe_to_string(db_strerror(status)));
   if (error_message) {
     pushSTACK(asciz_to_string(error_message,GLO(misc_encoding)));
     free(error_message); error_message = NULL;
@@ -612,7 +612,7 @@ static object dbe_get_errpfx (DB_ENV *dbe) {
   begin_system_call();
   dbe->get_errpfx(dbe,&errpfx);
   end_system_call();
-  return asciz_to_string0(errpfx,GLO(misc_encoding));
+  return safe_to_string(errpfx);
 }
 /* define a flag checker */
 #define FLAG_EXTRACTOR(name,type)                       \
@@ -1993,7 +1993,7 @@ static void db_get_dbname (DB* db, int errorp) {
     value1 = value2 = NIL;
   } else {
     pushSTACK(asciz_to_string0(fname,GLO(pathname_encoding)));
-    value2 = asciz_to_string0(dbname,GLO(misc_encoding));
+    value2 = safe_to_string(dbname);
     value1 = popSTACK();
   }
 }
