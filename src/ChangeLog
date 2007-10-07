@@ -1,3 +1,8 @@
+2007-09-30  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/image.lisp (image-pixmap): pass the required
+	arguments :width & :height to put-image
+
 2007-10-06  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c: use safe_to_string when appropriate
