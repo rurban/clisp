@@ -14,7 +14,9 @@ FILE-SIZE
 (handler-case
     (gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "///" :read-write :newdb)))
   (gdbm:gdbm-error (condition)
-    (gdbm:gdbm-error-message condition))) "File open error"
+    (list (gdbm:gdbm-error-code condition)
+          (gdbm:gdbm-error-message condition))))
+(:FILE-OPEN-ERROR "File open error")
 
 (gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "test.db" :read-write :newdb))) T
 
@@ -26,7 +28,9 @@ FILE-SIZE
 
 (handler-case (gdbm:gdbm-setopt *db* :cachesize 1024)
   (gdbm:gdbm-error (condition)
-    (gdbm:gdbm-error-message condition))) "Option already set"
+    (list (gdbm:gdbm-error-code condition)
+          (gdbm:gdbm-error-message condition))))
+(:OPT-ALREADY-SET "Option already set")
 
 (gdbm:gdbm-store *db* "key1" "value1") T
 

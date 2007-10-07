@@ -8,7 +8,8 @@
   (:documentation
    "GDBM - The GNU database manager - <http://www.gnu.org/software/gdbm/>")
   (:use #:lisp)
-  (:export #:gdbm #:gdbm-p #:gdbm-error #:gdbm-error-message #:gdbm-version
+  (:export #:gdbm #:gdbm-p #:gdbm-error #:gdbm-version
+           #:gdbm-error-message #:gdbm-error-code
            #:gdbm-open #:gdbm-close #:do-db #:with-open-db
            #:gdbm-store #:gdbm-fetch #:gdbm-delete #:gdbm-exists
            #:gdbm-firstkey #:gdbm-nextkey #:gdbm-file-size
@@ -23,7 +24,8 @@
   (dbf nil))
 
 (define-condition gdbm-error (simple-error)
-  ((message :reader gdbm-error-message :initarg :message))
+  ((code :reader gdbm-error-code :initarg :code)
+   (message :reader gdbm-error-message :initarg :message))
   (:report (lambda (condition stream)
 	     (princ (gdbm-error-message condition) stream))))
 

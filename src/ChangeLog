@@ -1,5 +1,12 @@
 2007-10-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/gdbm/gdbm.c: use *misc-encoding* for string conversion
+	(error_gdbm): accept fatal_message
+	(GDBM-OPEN): pass it as the 5th arg to gdbm_open()
+	* modules/gdbm/gdbm.lisp (gdbm-error): add :CODE slot
+
+2007-10-06  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (switchu): remove: was used 3 times for strmtype in ...
 	* predtype.d (TYPE-OF, CLASS-OF, heap_statistics_mapper): 
 	use switch instead of switchu.
