@@ -1,4 +1,4 @@
-;; -*- lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 (READ-FROM-STRING "123") 123
 

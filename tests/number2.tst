@@ -1,4 +1,4 @@
-;; -*- lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 (defun check-xgcd (a b)
   (multiple-value-bind (g u v) (xgcd a b)

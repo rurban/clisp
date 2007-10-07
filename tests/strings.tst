@@ -1,4 +1,4 @@
-;; -*- lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 (CHAR  "abcdef-dg1ndh" 0)
 #\a

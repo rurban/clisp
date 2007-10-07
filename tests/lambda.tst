@@ -1,4 +1,4 @@
-;; -*-Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 (makunbound 'b) B
 (makunbound 'e) E
 
