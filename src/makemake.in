@@ -1,7 +1,7 @@
-# -*- coding: utf-8; mode: shell-script -*-
+# -*- coding: utf-8; mode: shell-script -*- vim:filetype=sh
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 1991-2005
-# Sam Steingold 1999-2006
+# Sam Steingold 1999-2007
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
@@ -897,11 +897,12 @@ else
   elispdir="\$(datadir)/emacs/site-lisp"
   ELISPDIR="$elispdir"
 fi
+vimdir_default='vim/vimfiles/after/syntax'
 if [ $HOS = unix ] ; then
-  test -n "$vimdir" || vimdir='${datadir}/vim/vimfiles/after'
+  test -n "$vimdir" || vimdir='${datadir}/'${vimdir_default}
   VIMDIR=`echo "$vimdir" | sed -e "$brace_to_paren"`
 else
-  vimdir="\$(datadir)/vim/vimfiles/after"
+  vimdir="\$(datadir)/${vimdir_default}"
   VIMDIR="$vimdir"
 fi
 

@@ -1,4 +1,4 @@
-# Copyright (C) 1998-2006 by Sam Steingold
+# Copyright (C) 1998-2007 by Sam Steingold
 # Distributed under the terms of the GNU General Public License.
 # See <http://www.gnu.org/copyleft/gpl.html>.
 
@@ -82,6 +82,7 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}/share/emacs/site-lisp/clisp-indent.el
 %{prefix}/share/emacs/site-lisp/clisp-indent.lisp
 %{prefix}/share/emacs/site-lisp/clisp-ffi.el
+%{prefix}/share/vim/vimfiles/after/syntax/lisp.vim
 %{prefix}/share/doc/%{name}-%{version}/
 %{prefix}/share/man/man1/clisp.1.gz
 %{prefix}/share/locale/de/LC_MESSAGES/clisp.mo
