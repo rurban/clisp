@@ -45,6 +45,9 @@ NIL
 (vectorp (show (xlib:query-keymap *dpy*))) T
 (listp (show (multiple-value-list (xlib:display-keycode-range *dpy*)))) T
 (integerp (show (xlib:display-max-request-length *dpy*))) T
+(integerp (show (xlib::display-extended-max-request-length *dpy*))) T
+(let ((r (show (xlib::display-resource-manager-string *dpy*))))
+  (or (null r) (stringp r))) T
 (integerp (show (xlib:display-motion-buffer-size *dpy*))) T
 (listp (show (xlib:display-pixmap-formats *dpy*) :pretty t)) T
 (xlib:bitmap-format-p (show (xlib:display-bitmap-format *dpy*))) T
@@ -63,6 +66,8 @@ NIL
         (equalp (slot-value *screen* 'xlib::ptr)
                 (slot-value (nth n (xlib:display-roots *dpy*)) 'xlib::ptr))))
 (T T T)
+(let ((r (show (xlib::screen-resource-string *screen*))))
+  (or (null r) (stringp r))) T
 (integerp (show (xlib:screen-black-pixel *screen*))) T
 (integerp (show (xlib:screen-white-pixel *screen*))) T
 (integerp (show (xlib:screen-event-mask-at-open *screen*))) T
