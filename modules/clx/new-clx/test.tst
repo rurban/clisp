@@ -172,7 +172,10 @@ NIL
 (defparameter *access-hosts* (show (xlib:access-hosts *dpy*) :pretty t))
 *ACCESS-HOSTS*
 (xlib:add-access-host *dpy* "localhost") NIL
-(every #'posix:hostent-p (show (xlib:access-hosts *dpy*) :pretty t)) T
+(every (lambda (x)
+         (or (posix:hostent-p x)
+             (and (listp x) (eq (car x) :SERVER-INTERPRETED))))
+       (show (xlib:access-hosts *dpy*) :pretty t)) T
 (xlib:remove-access-host *dpy* "localhost") NIL
 (equalp *access-hosts* (show (xlib:access-hosts *dpy*) :pretty t)) T
 

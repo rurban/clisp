@@ -2146,7 +2146,7 @@ DEFUN(XLIB:DISPLAY-DEFAULT-SCREEN, display) /* NIM / OK */
   skipSTACK(1);
 }
 
-DEFUN(XLIB:SET-DISPLAY-DEFAULT-SCREEN, display screen) 
+DEFUN(XLIB:SET-DISPLAY-DEFAULT-SCREEN, display screen)
 { /* accept integer (index) as well as object as screen */
   Display *dpy = (pushSTACK(STACK_1),pop_display());
   int ns = ScreenCount(dpy), s=-1;
@@ -7327,6 +7327,16 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
             }
             pushSTACK(value1);
             break;
+          case FamilyServerInterpreted: {
+            XServerInterpretedAddress *sia =
+              (XServerInterpretedAddress*)ho->address;
+            pushSTACK(`:SERVER-INTERPRETED`);
+            pushSTACK(n_char_to_string(sia->type,sia->typelength,
+                                       GLO(misc_encoding)));
+            pushSTACK(n_char_to_string(sia->value,sia->valuelength,
+                                       GLO(misc_encoding)));
+            value1 = listof(3); pushSTACK(value1);
+          } break;
           default:
             pushSTACK(fixnum(ho->family));
             pushSTACK(allocate_bit_vector(Atype_8Bit,ho->length));
