@@ -18,7 +18,7 @@
 (defun plaid (&key (num-iterations 10000) (num-rectangles 10) (sleep 0.1)
               (x 10) (y 10) (width 101) (height 201))
   "Translated from the X11 Plaid Demo written in C by Christopher Hoover."
-  (let* ((dpy (x-open-display))
+  (let* ((dpy (xlib:open-default-display))
          (screen (xlib:display-default-screen dpy))
          (root (xlib:screen-root screen))
          (white-pixel (xlib:screen-white-pixel screen))

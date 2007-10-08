@@ -94,7 +94,7 @@
               ((:width *bball-max-x*) *bball-max-x*)
               ((:height *bball-max-y*) *bball-max-y*))
   "Bouncing balls."
-  (let* ((dpy (x-open-display))
+  (let* ((dpy (xlib:open-default-display))
          (screen (xlib:display-default-screen dpy))
          (root (xlib:screen-root screen))
          (white-pixel (xlib:screen-white-pixel screen))

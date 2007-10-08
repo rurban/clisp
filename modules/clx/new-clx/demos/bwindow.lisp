@@ -27,7 +27,7 @@ screen border elasticity, and gravity value."
           "Elasticity must be between 0 and 1, got ~S" elasticity)
   (assert (plusp gravity) (gravity)
           "Gravity must be positive, got ~S" gravity)
-  (let* ((dpy (x-open-display))
+  (let* ((dpy (xlib:open-default-display))
          (screen (xlib:display-default-screen dpy))
          (root (xlib:screen-root screen))
          (white-pixel (xlib:screen-white-pixel screen))

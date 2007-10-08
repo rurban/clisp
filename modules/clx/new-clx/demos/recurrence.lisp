@@ -36,7 +36,7 @@
       x <- y(1+sin(0.7x)) - 1.2(|x|)^.5
       y <- .21 - x
 As described in a ?? 1983 issue of the Mathematical Intelligencer."
-  (let* ((dpy (x-open-display))
+  (let* ((dpy (xlib:open-default-display))
          (screen (xlib:display-default-screen dpy))
          (root (xlib:screen-root screen))
          (white-pixel (xlib:screen-white-pixel screen))

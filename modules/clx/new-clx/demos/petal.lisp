@@ -91,7 +91,7 @@
               (scalfac-fac 8192) (sleep 0.1)
               (how-many 100) (style 0) (petal 0) (styinc 2) (petinc 1))
   "Draw petals."
-  (let* ((dpy (x-open-display))
+  (let* ((dpy (xlib:open-default-display))
          (screen (xlib:display-default-screen dpy))
          (root (xlib:screen-root screen))
          (white-pixel (xlib:screen-white-pixel screen))
