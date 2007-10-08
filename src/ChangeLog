@@ -1,6 +1,7 @@
 2007-10-07  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XLIB:SET-DISPLAY-DEFAULT-SCREEN): add
+	(XLIB:LIST-FONTS): use XLoadFont instead of passing NULL font
 	* modules/clx/new-clx/clx.lisp (DISPLAY-DEFAULT-SCREEN): add a DEFSETF
 	(get-default-display, open-default-display): add from clx
 	(cut-buffer, (setf cut-buffer), rotate-cut-buffers):
