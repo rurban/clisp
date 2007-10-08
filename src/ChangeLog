@@ -17,6 +17,9 @@
 	* modules/clx/new-clx/demos/recurrence.lisp:
 	* modules/clx/new-clx/demos/sokoban.lisp:
 	use XLIB:DISPLAY-DEFAULT-SCREEN instead of CLX-DEMOS:X-OPEN-DISPLAY
+	* modules/clx/new-clx/demos/clclock.lisp:
+	new demo based on http://common-lisp.net/~crhodes/clx
+	* modules/clx/new-clx/demos/clx-demos.lisp (*demos*): add clclock
 
 2007-09-30  Sam Steingold  <sds@gnu.org>
 

@@ -11,7 +11,7 @@
 
 (defparameter *demos*
   '((koch) (qix) (sokoban #:xpm) (greynetic) (petal) (hanoi) (recurrence)
-    (plaid) (bball) (bwindow)))
+    (plaid) (clclock) (bball) (bwindow)))
 
 (defmacro do-demos ((fun-var) &body body)
   (let ((demo (gensym "DO-DEMOS-DEMO-")) (reqs (gensym "DO-DEMOS-REQS-")))
