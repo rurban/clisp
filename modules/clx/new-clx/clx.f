@@ -1425,9 +1425,12 @@ static object make_xatom (Display *dpy, Atom atom)
 {
   char *atom_name;
   X_CALL(atom_name = XGetAtomName (dpy, atom));
-  value1 = intern_keyword(asciz_to_string(atom_name,GLO(misc_encoding)));
-  X_CALL(XFree(atom_name));
-  return value1;
+  if (atom_name == NULL) return NIL;
+  else {
+    object kwd = intern_keyword(asciz_to_string(atom_name,GLO(misc_encoding)));
+    X_CALL(XFree(atom_name));
+    return kwd;
+  }
 }
 
 static Time get_timestamp (object obj)
@@ -1993,7 +1996,7 @@ DEFUN(XLIB:DISPLAY-VENDOR, display)   /* OK */
 {
   Display *dpy = pop_display ();
   char *s = ServerVendor (dpy);
-  pushSTACK(asciz_to_string (s, GLO(misc_encoding)));
+  pushSTACK(safe_to_string(s));
   pushSTACK(make_uint32 (VendorRelease (dpy)));
   value2 = popSTACK();
   value1 = popSTACK();
@@ -5593,8 +5596,8 @@ DEFUN(XLIB:CONVERT-SELECTION, selection type requestor &optional property time)
   skipSTACK(5);         /* all done */
 }
 
-DEFUN(XLIB:SELECTION-OWNER, arg1 arg2)
-{ /*  XLIB:SELECTION-OWNER display selection */
+DEFUN(XLIB:SELECTION-OWNER, display selection)
+{
   Display *dpy = (pushSTACK(STACK_1), pop_display ());
   Atom selection = get_xatom (dpy, STACK_0);
   Window owner;
@@ -6797,10 +6800,8 @@ void coerce_into_uint8 (void *arg, object element);
 void coerce_into_uint8 (void *arg, object element)
 { *(((struct seq_uint8 *)arg)->data++) = get_uint8(element); }
 
-/*  (SETF (XLIB:POINTER-MAPPING display) mapping)
- == (XLIB:SET-POINTER-MAPPING display mapping) */
-DEFUN(XLIB:SET-POINTER-MAPPING, arg1 arg2)
-{
+DEFUN(XLIB:SET-POINTER-MAPPING, display mapping)
+{ /* (SETF (XLIB:POINTER-MAPPING display) mapping) */
   Display *dpy = (pushSTACK(STACK_1), pop_display());
   int nmap = get_uint32(funcall1(L(length),STACK_0));
   int result;
@@ -7131,7 +7132,7 @@ DEFUN(XLIB:KEYSYM-NAME, keysym)
   KeySym keysym = get_uint32(popSTACK());
   char *name;
   X_CALL(name = XKeysymToString(keysym));
-  VALUES1(asciz_to_string(name,GLO(misc_encoding)));
+  VALUES1(safe_to_string(name));
 }
 
 /* Return keycodes for keysym, as multiple values
@@ -7472,7 +7473,7 @@ DEFUN(XLIB:LIST-EXTENSIONS, display &key RESULT-TYPE)
   skipSTACK(2);
 }
 
-DEFUN(XLIB:QUERY-EXTENSION, arg1 arg2)
+DEFUN(XLIB:QUERY-EXTENSION, display extension)
 {
   int opcode, event, error;
   Display *dpy = (pushSTACK(STACK_1), pop_display());
