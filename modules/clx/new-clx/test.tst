@@ -42,6 +42,13 @@ NIL
 
 (defparameter *screen* (show (xlib:display-default-screen *dpy*))) *SCREEN*
 
+(let ((n (show (setf (xlib:display-default-screen *dpy*) *screen*))))
+  (list (equalp (slot-value *screen* 'xlib::ptr)
+                (slot-value (nth n (xlib:display-roots *dpy*)) 'xlib::ptr))
+        (= (setf (xlib:display-default-screen *dpy*) n) n)
+        (equalp (slot-value *screen* 'xlib::ptr)
+                (slot-value (nth n (xlib:display-roots *dpy*)) 'xlib::ptr))))
+(T T T)
 (integerp (show (xlib:screen-black-pixel *screen*))) T
 (integerp (show (xlib:screen-white-pixel *screen*))) T
 (integerp (show (xlib:screen-event-mask-at-open *screen*))) T

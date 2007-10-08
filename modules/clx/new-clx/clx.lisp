@@ -1,11 +1,11 @@
-;;;; Copyright: (c) copyright 1996 by Gilbert Baumann, distributed under GPL.
+;;;; Copyright (C) 1996 by Gilbert Baumann
+;;;; Copyright (C) 2001-2007 by Sam Steingold
+;;;; Distributed under GPL.
 ;;;; Some parts are from the MIT-CLX Distribution, copyrighted by
 ;;;; Texas Instruments Incorporated, but freely distributable
 ;;;; for details see image.lisp or the MIT-CLX distribution.
 
-(defpackage "XLIB"
-  ;; (:use "COMMON-LISP" "CLOS")
-  (:import-from "SYS" "STRING-CONCAT"))
+(defpackage #:xlib)
 
 (provide "clx")
 
@@ -169,6 +169,7 @@
    untrace-display show-trace
    display-trace ; for backwards compatibility describe-request describe-event describe-reply
    closed-display-p
+   open-default-display ; extension
    describe-error describe-trace))
 
 ;;; SHAPE extension
@@ -381,6 +382,7 @@
 (defsetf DISPLAY-AFTER-FUNCTION       SET-DISPLAY-AFTER-FUNCTION)
 (defsetf DISPLAY-ERROR-HANDLER        SET-DISPLAY-ERROR-HANDLER)
 (defsetf DISPLAY-PLIST                SET-DISPLAY-PLIST)
+(defsetf DISPLAY-DEFAULT-SCREEN       SET-DISPLAY-DEFAULT-SCREEN)
 (defsetf DRAWABLE-BORDER-WIDTH        SET-DRAWABLE-BORDER-WIDTH)
 (defsetf DRAWABLE-HEIGHT              SET-DRAWABLE-HEIGHT)
 (defsetf DRAWABLE-PLIST               SET-DRAWABLE-PLIST)
@@ -748,7 +750,7 @@
 
 ;; XXX
 
-;; This code is buggy. My interpretation of chnage-property and get-property is
+;; This code is buggy. My interpretation of change-property and get-property is
 ;; that they only deal with unsigned data, but the as obsolete marked fields x
 ;; and y are signed, and the code below does not take care.  Running it
 ;; interpreted, hence with type checks gets errors.
@@ -1305,6 +1307,59 @@
 ;;;; --------------------------------------------------------------------------
 ;;;;  Misc
 ;;;; --------------------------------------------------------------------------
+
+;;; from dependent.lisp in http://common-lisp.net/~crhodes/clx
+;;; this particular defaulting behaviour is typical to most Unices, I think
+(defun get-default-display (&optional display-name)
+  "Parse the argument DISPLAY-NAME, or the environment variable $DISPLAY
+if it is NIL.  Display names have the format
+
+  [protocol/] [hostname] : [:] displaynumber [.screennumber]
+
+There are two special cases in parsing, to match that done in the Xlib
+C language bindings
+
+ - If the hostname is ``unix'' or the empty string, any supplied
+   protocol is ignored and a connection is made using the :local
+   transport.
+
+ - If a double colon separates hostname from displaynumber, the
+   protocol is assumed to be decnet.
+
+Returns a list of (host display-number screen protocol)."
+  (let* ((name (or display-name
+                   (getenv "DISPLAY")
+                   (error "DISPLAY environment variable is not set")))
+         (slash-i (or (position #\/ name) -1))
+         (colon-i (position #\: name :start (1+ slash-i)))
+         (decnet-colon-p (eql (elt name (1+ colon-i)) #\:))
+         (host (subseq name (1+ slash-i) colon-i))
+         (dot-i (and colon-i (position #\. name :start colon-i)))
+         (display (when colon-i
+                    (parse-integer name
+                                   :start (if decnet-colon-p
+                                              (+ colon-i 2)
+                                              (1+ colon-i))
+                                   :end dot-i)))
+         (screen (when dot-i
+                   (parse-integer name :start (1+ dot-i))))
+         (protocol
+          (cond ((or (string= host "") (string-equal host "unix")) :local)
+                (decnet-colon-p :decnet)
+                ((> slash-i -1) (intern
+                                 (string-upcase (subseq name 0 slash-i))
+                                 :keyword))
+                (t :internet))))
+    (list host (or display 0) (or screen 0) protocol)))
+
+(defun open-default-display (&optional display-name)
+  "Open a connection to DISPLAY-NAME if supplied, or to the appropriate
+default display as given by GET-DEFAULT-DISPLAY otherwise."
+  (destructuring-bind (host display screen protocol)
+      (get-default-display display-name)
+    (let ((dpy (open-display host :display display :protocol protocol)))
+       (setf (display-default-screen dpy) screen)
+       dpy)))
 
 
 ;;;; --------------------------------------------------------------------------
