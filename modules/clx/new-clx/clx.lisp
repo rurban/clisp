@@ -1806,8 +1806,6 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
                 (declare (ignore args))
                 (progn (warn "~S is not implemented: ~S" ',name form)
                        form))))
-(undefined DISPLAY-RESOURCE-ID-BASE)
-(undefined DISPLAY-RESOURCE-ID-MASK)
 (undefined DISPLAY-TRACE)
 (undefined DRAW-GLYPH)
 (undefined DRAW-IMAGE-GLYPH)
