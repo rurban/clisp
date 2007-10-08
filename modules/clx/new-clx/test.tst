@@ -2,7 +2,7 @@
 ;; some tests for clx/new-clx
 ;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "clx/new-clx/test")'
 
-(defparameter *dpy* (show (xlib:open-display ""))) *dpy*
+(defparameter *dpy* (show (xlib:open-default-display))) *dpy*
 
 (xlib:closed-display-p *dpy*) NIL
 (stringp (show (xlib:display-authorization-data *dpy*))) T
@@ -19,6 +19,9 @@
 (stringp (show (xlib:display-host *dpy*))) T
 (listp (show (multiple-value-list (xlib:pointer-control *dpy*)))) T
 (listp (show (xlib:pointer-mapping *dpy*))) T
+(listp (show (xlib:font-path *dpy*) :pretty t)) T
+(integerp (show (length (xlib:list-font-names *dpy* "*")))) T
+(integerp (show (length (xlib:list-fonts *dpy* "*")))) T
 
 (multiple-value-bind (kc% b% bp bd lm gar arm) (xlib:keyboard-control *dpy*)
   (show (list kc% b% bp bd lm gar arm) :pretty t)
@@ -70,9 +73,21 @@ NIL
 (xlib:visual-info-p (show (xlib:visual-info *dpy* *visual*) :pretty t)) T
 
 (defparameter *root* (show (xlib:screen-root *screen*))) *ROOT*
+(listp (show (xlib:list-properties *root*) :pretty t)) T
 
 (defparameter *colormap* (show (xlib:screen-default-colormap *screen*)))
 *COLORMAP*
+(defparameter *color*
+  (show (multiple-value-list (xlib:lookup-color *colormap* "red"))))
+*COLOR*
+(multiple-value-bind (pixel screen-color exact-color)
+    (xlib:alloc-color *colormap* (first *color*))
+  (show (list pixel screen-color exact-color))
+  (xlib:free-colors *colormap* (list pixel)))
+NIL
+
+(defparameter *font* (show (xlib:open-font *dpy* "fixed"))) *FONT*
+(listp (show (multiple-value-list (xlib:text-extents *font* "abcd")))) T
 
 (defparameter *window*
   (multiple-value-bind (window revert) (xlib:input-focus *dpy*)
@@ -94,6 +109,14 @@ NIL
 NIL
 (equal *window-position* (multiple-value-list (xlib:pointer-position *window*)))
 T
+
+(defparameter *gcontext*
+  (xlib:create-gcontext :drawable *window* :font *font*))
+*GCONTEXT*
+(integerp (show (xlib:text-width *gcontext* "abazonk"))) T
+
+(xlib:free-gcontext *gcontext*) NIL
+(xlib:close-font *font*) NIL
 
 (let ((modifiers (multiple-value-list (xlib:modifier-mapping *dpy*))))
   (apply #'xlib:set-modifier-mapping *dpy*
@@ -171,8 +194,11 @@ NIL
   (del '*visual*)
   (del '*root*)
   (del '*colormap*)
+  (del '*color*)
+  (del '*font*)
   (del '*window*)
   (del '*window-position*)
+  (del '*gcontext*)
   (del 'c2s)
   (del '*access-hosts*))
 T
