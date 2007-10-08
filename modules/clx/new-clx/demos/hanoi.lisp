@@ -232,7 +232,7 @@
               ((:vertical-velocity *vertical-velocity*) *vertical-velocity*)
               ((:height *hanoi-window-height*) 300))
   "Towers of Hanoi."
-  (let* ((*hanoi-display* (x-open-display))
+  (let* ((*hanoi-display* (xlib:open-default-display))
          (screen (xlib:display-default-screen *hanoi-display*))
          (root (xlib:screen-root screen))
          (white-pixel (xlib:screen-white-pixel screen))

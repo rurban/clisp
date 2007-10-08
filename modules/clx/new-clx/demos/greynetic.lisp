@@ -32,7 +32,7 @@
 
 (defun greynetic (&key (duration 100) (width 600) (height 600) (x 10) (y 10))
   "Display random sized and shaded boxes in a window."
-  (let* ((dpy (x-open-display))
+  (let* ((dpy (xlib:open-default-display))
          (screen (xlib:display-default-screen dpy))
          (root (xlib:screen-root screen))
          (white-pixel (xlib:screen-white-pixel screen))

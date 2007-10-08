@@ -73,7 +73,7 @@ Returns the new list and an indicator of whether we are done or not."
 (defun koch (&key (width 1000) (height 1000) (delay 1) (x 10) (y 10)
              (scale 0.8) (font "fixed") (event-loop t))
   "Koch snowflake."
-  (let* ((dpy (x-open-display))
+  (let* ((dpy (xlib:open-default-display))
          (screen (xlib:display-default-screen dpy))
          (root (xlib:screen-root screen))
          (white-pixel (xlib:screen-white-pixel screen))

@@ -174,7 +174,7 @@
 
 (defun init-sokoban ()
   "Initialized the whole beast, opens display, creates window ..."
-  (setq *display* (x-open-display))
+  (setq *display* (xlib:open-default-display))
   (let* ((root-window (xlib:screen-root (xlib:display-default-screen *display*)))
          (make-pixmap (lambda (name)
                         (xpm::read-file-to-pixmap root-window
