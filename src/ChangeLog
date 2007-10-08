@@ -1,3 +1,9 @@
+2007-10-07  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (XLIB:SET-DISPLAY-DEFAULT-SCREEN): add
+	* modules/clx/new-clx/clx.lisp (DISPLAY-DEFAULT-SCREEN): add a DEFSETF
+	(get-default-display, open-default-display): add from clx
+
 2007-09-30  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/image.lisp (image-pixmap): pass the required

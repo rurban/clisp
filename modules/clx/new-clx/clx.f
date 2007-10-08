@@ -729,7 +729,7 @@ static void* foreign_slot (object obj, object slot) {
 
 static void *get_ptr_object_and_display (object type, object obj,
                                          Display **dpyf)
-{ /* 'obj'  is the lisp object, whose C representation is returned.
+{ /* 'obj' is the lisp object, whose C representation is returned.
  When 'dpyf' is non-0, the display of 'obj' is also returned and it is
  ensured that it lives. [Otherwise an error is signaled.]
  If 'obj' is not of type 'type', a symbol naming the desired class,
@@ -1987,7 +1987,7 @@ DEFUN(XLIB:DISPLAY-ROOTS, display)    /* OK */
 
   VALUES1(listof(cnt));         /* cons`em together */
   skipSTACK(1);                 /* cleanup and all done */
- }
+}
 
 DEFUN(XLIB:DISPLAY-VENDOR, display)   /* OK */
 {
@@ -2144,6 +2144,42 @@ DEFUN(XLIB:DISPLAY-DEFAULT-SCREEN, display) /* NIM / OK */
   Display *dpy = (pushSTACK(STACK_0),pop_display());
   VALUES1(make_screen(STACK_0,DefaultScreenOfDisplay(dpy)));
   skipSTACK(1);
+}
+
+DEFUN(XLIB:SET-DISPLAY-DEFAULT-SCREEN, display screen) 
+{ /* accept integer (index) as well as object as screen */
+  Display *dpy = (pushSTACK(STACK_1),pop_display());
+  int ns = ScreenCount(dpy), s=-1;
+  if (posfixnump(STACK_0)) { /* index */
+    s = fixnum_to_V(STACK_0);
+    if (s < 0 || s >= ns) {
+      pushSTACK(fixnum(s)); pushSTACK(fixnum(ns));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,"~S: ~S out of range [0;~S)");
+    }
+  } else {
+    Display *dpy1;
+    Screen *scr = get_screen_and_display (STACK_0, &dpy1);
+    int i;
+    if (dpy != dpy1) {
+      pushSTACK(STACK_1); /*dpy*/
+      pushSTACK(find_display(dpy1));
+      pushSTACK(STACK_2); /*scr*/
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,"~S: ~S belongs to ~S, not to ~S");
+    }
+    for (i = 0; i < ns; i++)
+      if (scr = ScreenOfDisplay(dpy,i)) { s = i; break; }
+    if (s == -1) {
+      pushSTACK(STACK_1); /*dpy*/
+      pushSTACK(STACK_1); /*scr*/
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,"~S: ~S is not found in ~S");
+    }
+  }
+  DefaultScreen(dpy) = s;
+  VALUES1(fixnum(s));
+  skipSTACK(2);
 }
 
 DEFUN(XLIB:DISPLAY-NSCREENS, display) /* NIM */
