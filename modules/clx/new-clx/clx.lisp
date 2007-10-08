@@ -1813,6 +1813,4 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
 (undefined DRAW-IMAGE-GLYPH)
 (undefined TRANSLATE-DEFAULT)
 (undefined QUEUE-EVENT)
-(undefined CHANGE-KEYBOARD-MAPPING)
-(undefined KEYBOARD-MAPPING)
 )

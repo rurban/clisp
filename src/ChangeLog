@@ -5,6 +5,8 @@
 	(make_xatom): check XGetAtomName return value
 	(DISPLAY-VENDOR): check ServerVendor return value
 	(KEYSYM-NAME): check XKeysymToString return value
+	* modules/clx/new-clx/clx.lisp (CHANGE-KEYBOARD-MAPPING)
+	(KEYBOARD-MAPPING): do not mark as UNDEFINED
 
 2007-10-07  Sam Steingold  <sds@gnu.org>
 
