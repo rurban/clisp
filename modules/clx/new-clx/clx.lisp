@@ -180,7 +180,7 @@
 ;;;;  Types
 ;;;; --------------------------------------------------------------------------
 ;;;;
-;;;; Lots of deftypes randomly gathers from MIT-CLX implementation
+;;;; Lots of deftypes randomly gathered from MIT-CLX implementation
 ;;;;
 
 (deftype card4 ()       '(unsigned-byte 4))    ;not exported
@@ -325,8 +325,9 @@
   red-mask green-mask blue-mask
   bits-per-rgb
   colormap-entries
-  ;; There appears also a plist and a display slot in the MIT-CLX, but not in the manual
-  ;; To what should we be compatible?!
+  ;; There appears also a plist and a display slot in the MIT-CLX,
+  ;; but not in the manual!
+  ;; With what should we be compatible?!
   ;; plist display
   )
 
@@ -335,14 +336,14 @@
                     (:copier nil)
                     (:conc-name %display-))
   foreign-pointer ;; these two slots are for use in clx.d only.
-  hash-table      ;; .. so leave hands off here!
+  hash-table      ;; .. so keep hands off here!
   plist
   after-function
   error-handler
   display)
 
 ;; ***************************************************************************
-;; ... CAUTION ending here.
+;; ... CAUTION ending here (resume careless coding)
 ;; ***************************************************************************
 
 (defun make-color (&key (red 1.0s0) (green 1.0s0) (blue 1.0s0)
@@ -1196,7 +1197,7 @@
                   :start start :end end :transform transform)))
 
 (defun (setf cut-buffer) (data display &key (buffer 0) (type :STRING) (format 8)
-                               (start 0) end (transform #'char->card8))
+                          (start 0) end (transform #'char->card8))
   (let* ((root (screen-root (display-default-screen display)))
          (property (aref '#(:CUT_BUFFER0 :CUT_BUFFER1 :CUT_BUFFER2 :CUT_BUFFER3
                             :CUT_BUFFER4 :CUT_BUFFER5 :CUT_BUFFER6 :CUT_BUFFER7)
