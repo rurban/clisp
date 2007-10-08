@@ -4524,9 +4524,11 @@ DEFUN(XLIB:LIST-FONTS, display pattern &key MAX-FONTS RESULT-TYPE)
                                            &count, &infos));
 
         if (count) {
-          for (i = 0; i < count; i++)
-            pushSTACK(make_font_with_info (*dpyf, 0, asciz_to_string (names[i], GLO(misc_encoding)), infos+i));
-
+          for (i = 0; i < count; i++) {
+            Font fn;
+	    X_CALL(fn = XLoadFont(dpy,names[i]));
+            pushSTACK(make_font_with_info(*dpyf,fn,asciz_to_string(names[i],GLO(misc_encoding)),infos+i));
+	  }
           X_CALL(XFreeFontNames (names));
         }
       });
@@ -4912,7 +4914,7 @@ nonreturning_function(static, error_no_such_color,
 DEFUN(XLIB:ALLOC-COLOR, arg1 arg2)
 {
   Display *dpy;
-  Colormap  cm = get_colormap_and_display (STACK_1, &dpy);
+  Colormap cm = get_colormap_and_display (STACK_1, &dpy);
   XColor color;
   int status;
 
