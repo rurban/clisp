@@ -3,6 +3,20 @@
 	* modules/clx/new-clx/clx.f (XLIB:SET-DISPLAY-DEFAULT-SCREEN): add
 	* modules/clx/new-clx/clx.lisp (DISPLAY-DEFAULT-SCREEN): add a DEFSETF
 	(get-default-display, open-default-display): add from clx
+	(cut-buffer, (setf cut-buffer), rotate-cut-buffers):
+	use DISPLAY-DEFAULT-SCREEN instead of (FIRST DISPLAY-ROOTS)
+	* modules/clx/new-clx/demos/clx-demos.lisp (x-host-display)
+	(x-open-display): drop
+	* modules/clx/new-clx/demos/bball.lisp:
+	* modules/clx/new-clx/demos/bwindow.lisp:
+	* modules/clx/new-clx/demos/greynetic.lisp:
+	* modules/clx/new-clx/demos/hanoi.lisp:
+	* modules/clx/new-clx/demos/koch.lisp:
+	* modules/clx/new-clx/demos/petal.lisp:
+	* modules/clx/new-clx/demos/plaid.lisp:
+	* modules/clx/new-clx/demos/recurrence.lisp:
+	* modules/clx/new-clx/demos/sokoban.lisp:
+	use XLIB:DISPLAY-DEFAULT-SCREEN instead of CLX-DEMOS:X-OPEN-DISPLAY
 
 2007-09-30  Sam Steingold  <sds@gnu.org>
 

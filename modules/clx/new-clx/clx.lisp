@@ -1188,7 +1188,7 @@
 (defun cut-buffer (display &key (buffer 0) (type :STRING) (result-type 'string)
                    (transform #'card8->char) (start 0) end)
   ;; Return the contents of cut-buffer BUFFER
-  (let* ((root (screen-root (first (display-roots display))))
+  (let* ((root (screen-root (display-default-screen display)))
          (property (aref '#(:CUT_BUFFER0 :CUT_BUFFER1 :CUT_BUFFER2 :CUT_BUFFER3
                             :CUT_BUFFER4 :CUT_BUFFER5 :CUT_BUFFER6 :CUT_BUFFER7)
                          buffer)))
@@ -1197,19 +1197,22 @@
 
 (defun (setf cut-buffer) (data display &key (buffer 0) (type :STRING) (format 8)
                                (start 0) end (transform #'char->card8))
-  (let* ((root (screen-root (first (display-roots display))))
+  (let* ((root (screen-root (display-default-screen display)))
          (property (aref '#(:CUT_BUFFER0 :CUT_BUFFER1 :CUT_BUFFER2 :CUT_BUFFER3
-                                         :CUT_BUFFER4 :CUT_BUFFER5 :CUT_BUFFER6 :CUT_BUFFER7)
+                            :CUT_BUFFER4 :CUT_BUFFER5 :CUT_BUFFER6 :CUT_BUFFER7)
                          buffer)))
-    (change-property root property data type format :transform transform :start start :end end)
+    (change-property root property data type format
+                     :start start :end end :transform transform)
     data))
 
 (defun rotate-cut-buffers (display &optional (delta 1) (careful-p t))
-  ;; Positive rotates left, negative rotates right (opposite of actual protocol request).
-  ;; When careful-p, ensure all cut-buffer properties are defined, to prevent errors.
-  (let* ((root (screen-root (first (display-roots display))))
-         (buffers '#(:cut_buffer0 :cut_buffer1 :cut_buffer2 :cut_buffer3
-                     :cut_buffer4 :cut_buffer5 :cut_buffer6 :cut_buffer7)))
+  ;; Positive rotates left, negative rotates right
+  ;; (opposite of actual protocol request).
+  ;; When careful-p, ensure all cut-buffer properties are defined,
+  ;; to prevent errors.
+  (let* ((root (screen-root (display-default-screen display)))
+         (buffers '#(:CUT_BUFFER0 :CUT_BUFFER1 :CUT_BUFFER2 :CUT_BUFFER3
+                     :CUT_BUFFER4 :CUT_BUFFER5 :CUT_BUFFER6 :CUT_BUFFER7)))
     (when careful-p
       (let ((props (list-properties root)))
         (dotimes (i 8)
@@ -1223,8 +1226,10 @@
 ;;;; --------------------------------------------------------------------------
 
 ;;; NOTE:
-;;;   I used here a (funcall #,#'fun ..) klugde, but by clisp-1996-07-22 this now considered
-;;;   illegal, so I save the untraced functions by copying them. This allows me to trace all or arbitrary
+;;;   I used here a (funcall #,#'fun ..) klugde,
+;;;   but by clisp-1996-07-22 this now considered illegal,
+;;;   so I save the untraced functions by copying them.
+;;;   This allows me to trace all or arbitrary
 ;;;   xlib functions without getting into infinite recursion.
 
 (setf (fdefinition '%untraced-color-blue) #'color-blue
