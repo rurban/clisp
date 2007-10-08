@@ -23,6 +23,17 @@
 (integerp (show (length (xlib:list-font-names *dpy* "*")))) T
 (integerp (show (length (xlib:list-fonts *dpy* "*")))) T
 
+(dotimes (i 8) (show (xlib:cut-buffer *dpy* :buffer i))) NIL
+(loop :for i :from 1 :to 1000
+  :always (= i (xlib:find-atom *dpy* (xlib:atom-name *dpy* i))))
+T
+(block xlib:atom-name
+  (handler-bind ((error (lambda (c)
+                          (princ-error c)
+                          (return-from xlib:atom-name 42))))
+    (xlib:atom-name *dpy* 0)))
+42                              ; no atom 0!
+
 (multiple-value-bind (kc% b% bp bd lm gar arm) (xlib:keyboard-control *dpy*)
   (show (list kc% b% bp bd lm gar arm) :pretty t)
   (xlib:change-keyboard-control
@@ -88,12 +99,15 @@ NIL
 
 (defparameter *font* (show (xlib:open-font *dpy* "fixed"))) *FONT*
 (listp (show (multiple-value-list (xlib:text-extents *font* "abcd")))) T
+(listp (show (xlib:font-properties *font*))) T
+(xlib:font-name *font*) "fixed"
 
 (defparameter *window*
   (multiple-value-bind (window revert) (xlib:input-focus *dpy*)
     (show (list :window window :revert revert) :pretty t)
     window))
 *WINDOW*
+(listp (show (xlib:list-properties *window*) :pretty t)) T
 
 (xlib:window-p (show (xlib:drawable-root *window*))) T
 (listp (show (multiple-value-list (xlib:query-tree *window*)) :pretty t)) T
@@ -109,6 +123,10 @@ NIL
 NIL
 (equal *window-position* (multiple-value-list (xlib:pointer-position *window*)))
 T
+(dolist (selection '("PRIMARY" "SECONDARY" "CLIPBOARD"))
+  (let ((w (xlib:selection-owner *dpy* selection)))
+    (or (null w) (xlib:window-p w) (error "~S is not a window" w))))
+NIL
 
 (defparameter *gcontext*
   (xlib:create-gcontext :drawable *window* :font *font*))
@@ -182,7 +200,9 @@ NIL
 (xlib:activate-screen-saver *dpy*) NIL
 (xlib:reset-screen-saver *dpy*) NIL
 (listp (show (multiple-value-list (xlib:screen-saver *dpy*)))) T
-(listp (show (xlib:list-extensions *dpy*) :pretty t)) T
+(dolist (ext (xlib:list-extensions *dpy*))
+  (show (cons ext (multiple-value-list (xlib:query-extension *dpy* ext)))))
+NIL
 
 (xlib:bell *dpy* 50) NIL        ; signal that we are almost done
 

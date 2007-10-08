@@ -2,6 +2,9 @@
 
 	* modules/clx/new-clx/clx.f (XLIB:ACCESS-HOSTS):
 	handle FamilyServerInterpreted
+	(make_xatom): check XGetAtomName return value
+	(DISPLAY-VENDOR): check ServerVendor return value
+	(KEYSYM-NAME): check XKeysymToString return value
 
 2007-10-07  Sam Steingold  <sds@gnu.org>
 
@@ -22996,4 +22999,5 @@
 2003-10-02  Bruno Haible  <bruno@clisp.org>
 
 	* utils/comment5.c: Use '
-CCL: Invalid command 1f (ccl_code = 4c03f) at 195.／
+CCL: Invalid command 1f (ccl_code = 4c03f) at 195.
+CCL: Invalid command 1f (ccl_code = 4c03f) at 195.
