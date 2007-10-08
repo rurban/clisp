@@ -5,6 +5,9 @@
 	(make_xatom): check XGetAtomName return value
 	(DISPLAY-VENDOR): check ServerVendor return value
 	(KEYSYM-NAME): check XKeysymToString return value
+	(XLIB::DISPLAY-EXTENDED-MAX-REQUEST-LENGTH)
+	(XLIB::DISPLAY-RESOURCE-MANAGER-STRING)
+	(XLIB::SCREEN-RESOURCE-STRING): add, but do not export
 	* modules/clx/new-clx/clx.lisp (CHANGE-KEYBOARD-MAPPING)
 	(KEYBOARD-MAPPING): do not mark as UNDEFINED
 

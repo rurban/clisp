@@ -1912,6 +1912,12 @@ DEFUN(XLIB:DISPLAY-MAX-KEYCODE, display) /* OK */
   value1 = value2; mv_count = 1;
 }
 
+DEFUN(XLIB:DISPLAY-MIN-KEYCODE, display) /* OK */
+{
+  funcall(``XLIB:DISPLAY-KEYCODE-RANGE``,1);
+  mv_count = 1;
+}
+
 DEFUN(XLIB:DISPLAY-MAX-REQUEST-LENGTH, display) /* OK */
 {
   Display *dpy = pop_display ();
@@ -1920,10 +1926,18 @@ DEFUN(XLIB:DISPLAY-MAX-REQUEST-LENGTH, display) /* OK */
   VALUES1(make_uint32(n));
 }
 
-DEFUN(XLIB:DISPLAY-MIN-KEYCODE, display) /* OK */
-{
-  funcall(``XLIB:DISPLAY-KEYCODE-RANGE``,1);
-  mv_count = 1;
+DEFUN(XLIB::DISPLAY-EXTENDED-MAX-REQUEST-LENGTH, display) {
+  Display *dpy = pop_display ();
+  long n;
+  X_CALL(n = XExtendedMaxRequestSize (dpy));
+  VALUES1(make_uint32(n));
+}
+
+DEFUN(XLIB::DISPLAY-RESOURCE-MANAGER-STRING, display) {
+  Display *dpy = pop_display ();
+  char *s;
+  X_CALL(s = XResourceManagerString (dpy));
+  VALUES1(safe_to_string(s));
 }
 
 DEFUN(XLIB:DISPLAY-MOTION-BUFFER-SIZE, display) /* OK */
@@ -2348,6 +2362,13 @@ DEFUN(XLIB:SCREEN-ROOT, screen) /* OK */
   VALUES1(make_window(get_display_obj(STACK_0),
                       RootWindowOfScreen(get_screen(STACK_0))));
   skipSTACK(1);
+}
+
+DEFUN(XLIB::SCREEN-RESOURCE-STRING, screen) {
+  Screen *screen = get_screen(popSTACK());
+  char *s;
+  X_CALL(s = XScreenResourceString(screen));
+  VALUES1(safe_to_string(s));
 }
 
 DEFUN(XLIB:VISUAL-INFO, display visual-id)      /* NIM / OK */
