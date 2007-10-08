@@ -20,6 +20,8 @@ User visible changes
   Thanks to Shawn Betts <sabetts@vcn.bc.ca>.
   New NEW-CLX demos: bball bwindow greynetic hanoi petal plaid recurrence from
   <http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/gui/clx/clx_demo.cl>.
+  New NEW-CLX demo: clclock based on <http://common-lisp.net/~crhodes/clx>.
+  New function XLIB:OPEN-DEFAULT-DISPLAY from portable CLX.
 
 * Function EXT:ARGLIST now works on macros too.
   See <http://clisp.cons.org/impnotes/flow-dict.html#arglist> for details.
