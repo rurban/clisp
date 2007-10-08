@@ -5,25 +5,9 @@
 (defpackage "CLX-DEMOS"
   (:use "COMMON-LISP" "XLIB" "EXT")
   (:shadowing-import-from "XLIB" "CHAR-WIDTH") ; EXT has CHAR-WIDTH
-  (:export #:x-open-display #:run-all-demos #:*demos*))
+  (:export #:run-all-demos #:*demos*))
 
 (in-package :clx-demos)
-
-(defun x-host-display (&optional (disp (getenv "DISPLAY")))
-  "Parse the DISPLAY environment variable.
-Return 3 values: host, server, screen."
-  (if disp
-      (let* ((pos1 (position #\: disp))
-             (pos2 (and pos1 (position #\. disp :start pos1))))
-        (values (subseq disp 0 pos1)
-                (if pos1 (parse-integer (subseq disp (1+ pos1) pos2)) 0)
-                (if pos2 (parse-integer (subseq disp (1+ pos2))) 0)))
-      (values "" 0 0)))
-
-(defun x-open-display ()
-  "Open the appropriate X display."
-  (multiple-value-bind (host di) (x-host-display)
-    (xlib:open-display host :display di)))
 
 (defparameter *demos*
   '((koch) (qix) (sokoban #:xpm) (greynetic) (petal) (hanoi) (recurrence)
