@@ -1328,7 +1328,7 @@ C language bindings
 
 Returns a list of (host display-number screen protocol)."
   (let* ((name (or display-name
-                   (getenv "DISPLAY")
+                   (ext:getenv "DISPLAY")
                    (error "DISPLAY environment variable is not set")))
          (slash-i (or (position #\/ name) -1))
          (colon-i (position #\: name :start (1+ slash-i)))
