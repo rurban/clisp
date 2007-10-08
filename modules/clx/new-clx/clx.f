@@ -1984,10 +1984,18 @@ DEFUN(XLIB:DISPLAY-PROTOCOL-VERSION, display) /* OK */
           fixnum(ProtocolRevision(dpy)));
 }
 
+static XID display_resource_base (Display *dpy);
 DEFUN(XLIB:DISPLAY-RESOURCE-ID-BASE, display)
-{UNDEFINED;} /* ??? */
+{
+  Display *dpy = pop_display();
+  VALUES1(make_uint29(display_resource_base(dpy)));
+}
+static XID display_resource_mask (Display *dpy);
 DEFUN(XLIB:DISPLAY-RESOURCE-ID-MASK, display)
-{UNDEFINED;} /* ??? */
+{
+  Display *dpy = pop_display();
+  VALUES1(make_uint29(display_resource_mask(dpy)));
+}
 
 DEFUN(XLIB:DISPLAY-ROOTS, display)    /* OK */
 {
@@ -8142,3 +8150,10 @@ void module__clx__init_function_2 (module_t *module)
   disable_sigpipe();
 # endif
 }
+
+#include <X11/Xlibint.h>
+static XID display_resource_base (Display *dpy)
+{ return ((struct _XDisplay*)dpy)->resource_base; }
+static XID display_resource_mask (Display *dpy)
+{ return ((struct _XDisplay*)dpy)->resource_mask; }
+

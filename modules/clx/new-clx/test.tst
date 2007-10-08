@@ -11,6 +11,8 @@
 (integerp (show (xlib:display-protocol-major-version *dpy*))) T
 (integerp (show (xlib:display-protocol-minor-version *dpy*))) T
 (listp (show (multiple-value-list (xlib:display-protocol-version *dpy*)))) T
+(format t "~29b" (xlib:display-resource-id-base *dpy*)) NIL
+(format t "~29b" (xlib:display-resource-id-mask *dpy*)) NIL
 (listp (show (xlib:display-roots *dpy*))) T
 (listp (show (multiple-value-list (xlib:display-vendor *dpy*)))) T
 (stringp (show (xlib:display-vendor-name *dpy*))) T
