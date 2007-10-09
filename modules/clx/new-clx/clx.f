@@ -2171,7 +2171,7 @@ DEFUN(XLIB:DISPLAY-DEFAULT-SCREEN, display) /* NIM / OK */
   skipSTACK(1);
 }
 
-DEFUN(XLIB:SET-DISPLAY-DEFAULT-SCREEN, display screen)
+DEFUN(XLIB::SET-DISPLAY-DEFAULT-SCREEN, display screen)
 { /* accept integer (index) as well as object as screen */
   Display *dpy = (pushSTACK(STACK_1),pop_display());
   int ns = ScreenCount(dpy), s=-1;
@@ -2185,7 +2185,6 @@ DEFUN(XLIB:SET-DISPLAY-DEFAULT-SCREEN, display screen)
   } else {
     Display *dpy1;
     Screen *scr = get_screen_and_display (STACK_0, &dpy1);
-    int i;
     if (dpy != dpy1) {
       pushSTACK(STACK_1); /*dpy*/
       pushSTACK(find_display(dpy1));
@@ -2193,8 +2192,7 @@ DEFUN(XLIB:SET-DISPLAY-DEFAULT-SCREEN, display screen)
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,"~S: ~S belongs to ~S, not to ~S");
     }
-    for (i = 0; i < ns; i++)
-      if (scr = ScreenOfDisplay(dpy,i)) { s = i; break; }
+    s = XScreenNo(dpy,scr);
     if (s == -1) {
       pushSTACK(STACK_1); /*dpy*/
       pushSTACK(STACK_1); /*scr*/
@@ -2311,12 +2309,10 @@ DEFUN(XLIB:SCREEN-DEPTHS, screen)
   int *depths;
   int ndepths = 0;
   int i;
-  int screen_number;
+  int screen_number = XScreenNo(dpy,scr);
 
-  begin_x_call();
-  screen_number = XScreenNo (dpy, scr);
-  depths = XListDepths (dpy, screen_number, &ndepths);
-  end_x_call();
+  ASSERT(screen_number >= 0); /* we know that scr belongs to dpy */
+  X_CALL(depths = XListDepths (dpy, screen_number, &ndepths));
 
   for (i = 0; i < ndepths; i++) {
     XVisualInfo templeight, *visual_infos;
@@ -8054,14 +8050,11 @@ static Visual *XVisualIDToVisual (Display *dpy, VisualID vid)
 
 static int XScreenNo (Display *dpy, Screen *screen)
 { /* Find the screen number of an screen */
-  int i;
-  for (i = 0; ScreenCount (dpy); i++)
-    if (ScreenOfDisplay (dpy,i) == screen)
+  int i, cnt = ScreenCount(dpy);
+  for (i = 0; i < cnt; i++)
+    if (ScreenOfDisplay(dpy,i) == screen)
       return i;
-
-  /* not found, what should we return?! */
-  return 0;                     /* Hier kann nichs schief gehen. */
-            /* Und wenn Gilbert sagt, nichs, dann meint er, nix! */
+  return -1; /* should really raise an exception... */
 }
 
 /* So, now we could expose this to the compiler. */

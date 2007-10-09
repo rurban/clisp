@@ -10,6 +10,8 @@
 	(XLIB::SCREEN-RESOURCE-STRING): add, but do not export
 	(DISPLAY-RESOURCE-ID-BASE, DISPLAY-RESOURCE-ID-MASK): implement
 	using <X11/Xlibint.h>
+	(XScreenNo): return -1 on failure
+	(XLIB::SET-DISPLAY-DEFAULT-SCREEN): use it
 	* modules/clx/new-clx/clx.lisp (CHANGE-KEYBOARD-MAPPING)
 	(KEYBOARD-MAPPING, DISPLAY-RESOURCE-ID-BASE)
 	(DISPLAY-RESOURCE-ID-MASK): do not mark as UNDEFINED
