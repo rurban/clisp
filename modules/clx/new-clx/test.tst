@@ -106,7 +106,7 @@ NIL
 
 (defparameter *font* (show (xlib:open-font *dpy* "fixed"))) *FONT*
 (listp (show (multiple-value-list (xlib:text-extents *font* "abcd")))) T
-(listp (show (xlib:font-properties *font*))) T
+(listp (show (xlib:font-properties *font*) :pretty t)) T
 (xlib:font-name *font*) "fixed"
 
 (defparameter *window*
