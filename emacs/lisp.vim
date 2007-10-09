@@ -3,6 +3,8 @@
 
 set enc=utf-8
 set iskeyword+=&
+set ignorecase
+set smartcase
 
 " CLISP FFI:
 syn match lispDecl "\<\(ffi:\)\?def-c-\(var\|const\|enum\|type\|struct\)\>"
