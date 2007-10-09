@@ -36,7 +36,7 @@ FILE-SIZE
 
 (gdbm:gdbm-fetch *db* "key1") "value1"
 
-(gdbm:gdbm-fetch *db* "key1" :binary nil) "value1"
+(gdbm:gdbm-fetch *db* "key1" :type :string) "value1"
 
 (gdbm:gdbm-store *db* "key1" "value2" :flag :insert) NIL
 
@@ -64,13 +64,13 @@ FILE-SIZE
 
 (gdbm:gdbm-fetch *db* "key2") "test2"
 
-(gdbm:gdbm-fetch *db* "key2" :binary T) #(116 101 115 116 50)
+(gdbm:gdbm-fetch *db* "key2" :type :binary) #(116 101 115 116 50)
 
 (gdbm:gdbm-store *db* "key3" "test3") T
 
 (gdbm:gdbm-store *db* "key4" #(0 0 0 0 0)) T
 
-(gdbm:gdbm-fetch *db* "key4" :binary T) #(0 0 0 0 0)
+(gdbm:gdbm-fetch *db* "key4" :type :binary) #(0 0 0 0 0)
 
 (gdbm:gdbm-close *db*) T
 
@@ -114,18 +114,38 @@ FILE-SIZE
 
 (gdbm:with-open-db (db "test.db" :read-write :reader)
   (gdbm:do-db (key db)
-    :sum (length (gdbm:gdbm-fetch db key :binary t)))) 4001
+    :sum (length (gdbm:gdbm-fetch db key :type :binary)))) 4001
 
 (gdbm:with-open-db (db "test.db" :read-write :writer)
   (gdbm:gdbm-store db #(0 0 0 0) #(1 1 1 1))
-  (gdbm:do-db (key db :binary t)
-    :sum (length (gdbm:gdbm-fetch db key :binary t)))) 4005
+  (gdbm:do-db (key db :type :binary)
+    :sum (length (gdbm:gdbm-fetch db key :type :binary)))) 4005
 
 (gdbm:with-open-db (db "test.db" :read-write :reader)
-  (show (gdbm:gdbm-fetch db #(0 0 0 0) :binary t))) #(1 1 1 1)
+  (show (gdbm:gdbm-fetch db #(0 0 0 0) :type :binary))) #(1 1 1 1)
 
 (gdbm:with-open-db (db "test.db" :read-write :reader)
-  (type-of (gdbm:gdbm-fetch db #(0 0 0 0) :binary t)))
+  (type-of (gdbm:gdbm-fetch db #(0 0 0 0) :type :binary)))
 (simple-array (unsigned-byte 8) (4))
+
+(gdbm:with-open-db (db "test.db" :read-write :writer)
+  (gdbm:gdbm-store db 1 17)
+  (= (gdbm:gdbm-fetch db 1 :type :fixnum) 17)) T
+
+(gdbm:with-open-db (db "test.db" :read-write :writer)
+  (gdbm:gdbm-store db 2 2.0f0)
+  (= (gdbm:gdbm-fetch db 2 :type :single-float) 2.0f0)) T
+
+(gdbm:with-open-db (db "test.db" :read-write :writer)
+  (gdbm:gdbm-store db 3 4.0d0)
+  (= (gdbm:gdbm-fetch db 3 :type :double-float) 4.0d0)) T
+
+(gdbm:with-open-db (db "test.db" :read-write :writer)
+  (gdbm:gdbm-store db 1.0f0 2.0f0)
+  (= (gdbm:gdbm-fetch db 1.0f0 :type :single-float) 2.0f0)) T
+
+(gdbm:with-open-db (db "test.db" :read-write :writer)
+  (gdbm:gdbm-store db 2.5d0 4.0d0)
+  (= (gdbm:gdbm-fetch db 2.5d0 :type :double-float) 4.0d0)) T
 
 (pathnamep (delete-file "test.db")) T
