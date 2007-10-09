@@ -1,3 +1,13 @@
+2007-10-09  Sam Steingold  <sds@gnu.org>
+
+	implement RFE #[ 1808029 ]: trace with call counters
+	* trace.lisp (make-local-call-counter): add
+	(tracer): add GLOBAL-CALL-COUNTER & LOCAL-CALL-COUNTER slots
+	(trace1): incf GLOBAL-CALL-COUNTER & bind LOCAL-CALL-COUNTER
+	(trace-output): abstracted from ...
+	(trace-pre-output, trace-post-output): accept LOCAL-CALL-COUNTER
+	(untrace2): make LOCAL-CALL-COUNTER notspecial
+
 2007-10-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XLIB:ACCESS-HOSTS):

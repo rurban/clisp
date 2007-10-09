@@ -127,11 +127,19 @@ This will not work with closures that use lexical variables!"
 (defun local-function-name-p (obj)
   (and (consp obj) (eq 'local (car obj))))
 
+(defun make-local-call-counter ()
+  (let ((s (gensym "TRACER-CALL-COUNTER-")))
+    (proclaim (list 'special s))
+    ;; (setf (symbol-value s) 0)   ; not needed
+    s))
+
 ;; Structure containing all trace options for a given function.
 ;; make-tracer is ABI
 (defstruct (tracer (:type vector))
   name symb cur-def local-p
   suppress-if max-depth step-if pre post pre-break-if post-break-if
+  (global-call-counter 0)       ; how many times called so far
+  (local-call-counter (make-local-call-counter)) ; ... for this invocation
   pre-print post-print print)
 
 ;; install the new function definition
@@ -180,6 +188,7 @@ This will not work with closures that use lexical variables!"
 (defun trace1 (trr) ; ABI
   (check-traceable (tracer-name trr) trr 'trace)
   (let ((macro-flag (macrop (tracer-cur-def trr)))
+        (local-call-counter (tracer-local-call-counter trr))
         (sig (when (tracer-local-p trr)
                (sig-to-list (get-signature (tracer-cur-def trr))))))
     (unless (eq (tracer-cur-def trr) ; already traced?
@@ -195,11 +204,13 @@ This will not work with closures that use lexical variables!"
           (let ((newname (concat-pnames "TRACED-" (tracer-symb trr)))
                 (body
                  `((declare (inline car cdr cons apply values-list))
-                   (let ((*trace-level* (1+ *trace-level*)))
+                   (let ((*trace-level* (1+ *trace-level*))
+                         (,local-call-counter
+                          (incf (tracer-global-call-counter ,trr))))
                      (block nil
                        (unless (or ,(tracer-suppress-if trr)
                                    ,(if (tracer-max-depth trr) `(> *trace-level* ,(tracer-max-depth trr)) 'nil))
-                         (trace-pre-output))
+                         (trace-pre-output ,local-call-counter))
                        ,@(when (tracer-pre-print trr)
                            `((trace-print (multiple-value-list
                                            ,(tracer-pre-print trr)))))
@@ -229,7 +240,7 @@ This will not work with closures that use lexical variables!"
                                              ,(tracer-post-print trr)))))
                          (unless (or ,(tracer-suppress-if trr)
                                      ,(if (tracer-max-depth trr) `(> *trace-level* ,(tracer-max-depth trr)) 'nil))
-                               (trace-post-output))
+                               (trace-post-output ,local-call-counter))
                              (values-list *trace-values*)))))))
             (setf (get newname 'sys::untraced-name) (tracer-symb trr))
             (macrolet ((f (def) `(fdefinition (compile newname ,def))))
@@ -281,22 +292,22 @@ This will not work with closures that use lexical variables!"
                     (cons 'quote (cons arg nil)))
                 args)))
 ;; Output before call, uses *trace-level* and *trace-form*
-(defun trace-pre-output ()
+(defun trace-output (local-call-count) ; common for pre & post
   (fresh-line *trace-output*)
   (when *trace-indent*
     (write-spaces *trace-level* *trace-output*))
   (write *trace-level* :stream *trace-output* :base 10 :radix t)
-  (write-string " Trace: " *trace-output*)
+  (write-string " Trace(" *trace-output*)
+  (prin1 local-call-count *trace-output*)
+  (write-string "): " *trace-output*))
+(defun trace-pre-output (local-call-count)
+  (trace-output local-call-count)
   (prin1 *trace-form* *trace-output*)
   (elastic-newline *trace-output*))
 ;; Output after call, uses *trace-level*, *trace-form* and *trace-values*
-(defun trace-post-output ()
+(defun trace-post-output (local-call-count)
   (declare (inline car cdr consp atom))
-  (fresh-line *trace-output*)
-  (when *trace-indent*
-    (write-spaces *trace-level* *trace-output*))
-  (write *trace-level* :stream *trace-output* :base 10 :radix t)
-  (write-string " Trace: " *trace-output*)
+  (trace-output local-call-count)
   (write (car *trace-form*) :stream *trace-output*)
   (write-string " ==> " *trace-output*)
   (trace-print *trace-values* nil))
@@ -339,6 +350,8 @@ This will not work with closures that use lexical variables!"
                     (get-funname-symbol funname))))
     (remprop symbol 'sys::traced-definition)
     (remprop symbol 'sys::tracing-definition))
+  (when (vectorp funname)       ; not really necessary
+    (proclaim (list 'notspecial (tracer-local-call-counter funname))))
   (setq *traced-functions*
         (delete (if (vectorp funname) (tracer-name funname) funname)
                 *traced-functions* :test #'equal)))
