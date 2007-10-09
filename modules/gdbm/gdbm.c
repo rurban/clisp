@@ -24,8 +24,18 @@
 # error No GDBM headers!
 #endif
 
+typedef enum {
+  GDBM_DATA_NOTYPE=-1,
+  GDBM_DATA_STRING,
+  GDBM_DATA_BINARY,
+  GDBM_DATA_FIXNUM,
+  GDBM_DATA_SINGLE_FLOAT,
+  GDBM_DATA_DOUBLE_FLOAT
+} gdbm_data_t;
+
 DEFMODULE(gdbm,"GDBM");
 
+DEFCHECKER(check_data_type, enum=gdbm_data_t, prefix=GDBM_DATA, STRING BINARY FIXNUM SINGLE-FLOAT DOUBLE-FLOAT)
 DEFCHECKER(check_gdbm_errno, prefix=GDBM, NO-ERROR MALLOC-ERROR              \
            BLOCK-SIZE-ERROR FILE-OPEN-ERROR FILE-WRITE-ERROR FILE-SEEK-ERROR \
            FILE-READ-ERROR BAD-MAGIC-NUMBER EMPTY-DATABASE CANT-BE-READER    \
@@ -151,7 +161,27 @@ static object coerce_bitvector (object arg) {
     datum_var.dptr = (char*)TheSbvector(lisp_obj)->data;                \
     datum_var.dsize = vector_length(lisp_obj);                          \
     SYSCALL(statement);                                                 \
-  } else NOTREACHED;                                                    \
+  } else if (fixnump(lisp_obj)) {					\
+    datum datum_var;                                                    \
+    int datum_var##fixnum = I_to_L(lisp_obj);                           \
+    datum_var.dptr = (char*)&datum_var##fixnum;				\
+    datum_var.dsize = 4;                                                \
+    SYSCALL(statement);                                                 \
+  } else if (single_float_p(lisp_obj)) {			       	\
+    datum datum_var;                                                    \
+    ffloatjanus datum_var##ffloat;                                      \
+    FF_to_c_float(lisp_obj, &datum_var##ffloat);                        \
+    datum_var.dptr = (char*)&datum_var##ffloat;				\
+    datum_var.dsize = sizeof(ffloat);					\
+    SYSCALL(statement);                                                 \
+  } else if (double_float_p(lisp_obj)) {				\
+    datum datum_var;                                                    \
+    dfloatjanus datum_var##dfloat;                                      \
+    DF_to_c_double(lisp_obj, &datum_var##dfloat);                       \
+    datum_var.dptr = (char*)&datum_var##dfloat;				\
+    datum_var.dsize = sizeof(dfloat);					\
+    SYSCALL(statement);                                                 \
+  } else NOTREACHED;			                         	\
  } while(0)
 
 
@@ -163,15 +193,9 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
   int flag = missingp(STACK_0) ? GDBM_REPLACE : gdbm_store_flag(STACK_0);
   object content_obj = STACK_1;
   object key_obj = STACK_2;
-  int binary_p=0, string_p = stringp(content_obj);
   skipSTACK(4);
 
-  if (!string_p) {
-    content_obj = coerce_bitvector(check_vector(content_obj));
-    binary_p = 1;
-  }
-
-  if (dbf && (string_p || binary_p)) {
+  if (dbf) {
     int status;
     with_datum(key_obj, key,
                with_datum(content_obj, content,
@@ -184,35 +208,49 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
 
 /* convert datum to Lisp string and release memory in datum
  can trigger GC */
-static object datum_to_object (datum d, int binary) {
+static object datum_to_object (datum d, int data_type) {
   if (d.dptr == NULL) return NIL;
-  else if (binary==0) {
+  else if (data_type == GDBM_DATA_STRING) {
     object o = n_char_to_string(d.dptr, d.dsize, GLO(misc_encoding));
     free(d.dptr);
     return o;
-  } else {
+  } else if (data_type == GDBM_DATA_BINARY) {
     object o = allocate_bit_vector(Atype_8Bit,d.dsize);
     int i = 0;
     for (i=0;i<d.dsize;i++)
       TheSbvector(o)->data[i] = d.dptr[i];
     free(d.dptr);
     return o;
+  } else if (data_type == GDBM_DATA_FIXNUM) {
+    object o = L_to_I(*((int*)d.dptr));
+    free(d.dptr);
+    return o;
+  } else if (data_type == GDBM_DATA_SINGLE_FLOAT) {
+    object o = c_float_to_FF((ffloatjanus*)d.dptr);
+    free(d.dptr);
+    return o;
+  } else if (data_type == GDBM_DATA_DOUBLE_FLOAT) {
+    object o = c_double_to_DF((dfloatjanus*)d.dptr);
+    free(d.dptr);
+    return o;
+  } else {
+    return NIL;
   }
 }
 
 #if defined(HAVE_GDBM_FETCH)
-DEFUN(GDBM:GDBM-FETCH, dbf key &key BINARY)
+DEFUN(GDBM:GDBM-FETCH, dbf key &key TYPE)
 {
   GDBM_FILE dbf = check_gdbm(STACK_2);
-  object binary = popSTACK();
-  int binary_p = !missingp(binary);
+  object dtype = popSTACK();
+  int data_type = missingp(dtype) ? GDBM_DATA_STRING : check_data_type(dtype);
   object key_obj = popSTACK();
   skipSTACK(1);                 /* drop dbf */
 
   if (dbf) {
     datum res;
     with_datum(key_obj, key, res = gdbm_fetch(dbf,key));
-    VALUES1(datum_to_object(res,binary_p));
+    VALUES1(datum_to_object(res,data_type));
   } else
     VALUES1(NIL);
 }
@@ -235,9 +273,9 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
 #endif  /* HAVE_GDBM_DELETE */
 
 #if defined(HAVE_GDBM_FIRSTKEY)
-DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key BINARY)
+DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key TYPE)
 {
-  int binary_p = !missingp(STACK_0);
+  int data_type = missingp(STACK_0) ? GDBM_DATA_STRING : check_data_type(STACK_0);
   GDBM_FILE dbf = check_gdbm(STACK_1);
 
   skipSTACK(2);
@@ -245,16 +283,16 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key BINARY)
   if (dbf) {
     datum res;
     SYSCALL(res = gdbm_firstkey(dbf));
-    VALUES1(datum_to_object(res,binary_p));
+    VALUES1(datum_to_object(res,data_type));
   } else
     VALUES1(NIL);
 }
 #endif  /* HAVE_GDBM_FIRSTKEY */
 
 #if defined(HAVE_GDBM_NEXTKEY)
-DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key BINARY)
+DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key TYPE)
 {
-  int binary_p = !missingp(STACK_0);
+  int data_type = missingp(STACK_0) ? GDBM_DATA_STRING : check_data_type(STACK_0);
   object key_obj = STACK_1;
   GDBM_FILE dbf = check_gdbm(STACK_2);
   skipSTACK(3);                 /* drop dbf */
@@ -262,7 +300,7 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key BINARY)
   if (dbf) {
     datum res;
     with_datum(key_obj, key, res = gdbm_nextkey(dbf,key));
-    VALUES1(datum_to_object(res,binary_p));
+    VALUES1(datum_to_object(res,data_type));
   } else
     VALUES1(NIL);
 }
