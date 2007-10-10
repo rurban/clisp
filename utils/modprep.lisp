@@ -656,6 +656,10 @@ and turn it into DEFUN(funname,lambdalist,signature)."
   (etypecase name
     (string
      (setq name (substitute #\_ #\- name))
+     (let ((pos (position #\: name)))
+       (when pos
+         (setq name (subseq name (position #\: name :start pos
+                                           :test #'char/=)))))
      (when prefix (setq name (ext:string-concat prefix delim name)))
      (when suffix (setq name (ext:string-concat name delim suffix))))
     (cons (setq name (second name))))
