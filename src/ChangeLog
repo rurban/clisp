@@ -1,3 +1,23 @@
+2007-10-10  Sam Steingold  <sds@gnu.org>
+
+	* modules/gdbm/gdbm.c (gdbm_data_t): replace GDBM_DATA_BINARY with
+	GDBM_DATA_VECTOR and GDBM_DATA_BIT_VECTOR; and GDBM_DATA_FIXNUM
+	with GDBM_DATA_INTEGER
+	(check_data_type): use CL symbols for types
+	(gdbm_open_read_write, gdbm_open_option, gdbm_store_flag):
+	use the "default=" DEFCHECKER option
+	(GDBM-OPEN): accept :DEFAULT-KEY-TYPE and :DEFAULT-VALUE-TYPE
+	(check_gdbm): also extract the default types
+	(GDBM-DEFAULT-KEY-TYPE, GDBM-DEFAULT-VALUE-TYPE): add
+	(error_bad_type): add
+	(with_datum): use it; replace fixnum with integer, using I_to_LEbytes
+	(datum_to_object): use switch; signal an error on GDBM_DATA_NOTYPE,
+	handle integers (with LEbytes_to_I) and bit vectors
+	(gdbm_setopt_option): accept :DEFAULT-VALUE-TYPE and :DEFAULT-KEY-TYPE
+	(GDBM-SETOPT): set the default types
+	* modules/gdbm/gdbm.lisp (gdbm): add slots PATH, KEY-TYPE, VALUE-TYPE
+	(gdbm-path, gdbm-default-key-type, gdbm-default-value-type): export
+
 2007-10-09  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (to-C-name): drop package prefix to support
