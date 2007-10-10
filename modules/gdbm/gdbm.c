@@ -416,13 +416,13 @@ DEFUN(GDBM:GDBM-EXISTS, dbf key)
 
 DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
            CENTFREE COALESCEBLKS DEFAULT-VALUE-TYPE DEFAULT-KEY-TYPE)
-#if defined(HAVE_GDBM_SETOPT)
 DEFUN(GDBM:GDBM-SETOPT, dbf option value)
 {
   GDBM_FILE dbf = check_gdbm(STACK_2,NULL,NULL,true);
   int option = gdbm_setopt_option(STACK_1);
   int v;
   switch (option) {
+#  if defined(HAVE_GDBM_SETOPT)
     case GDBM_CACHESIZE:
       v = I_to_sint(check_sint(STACK_0));
       goto gdbm_setopt_common;
@@ -432,6 +432,7 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
     gdbm_setopt_common:
       CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(int)));
       break;
+#  endif  /* HAVE_GDBM_SETOPT */
     case GDBM_DEFAULT_VALUE_TYPE: v = GDBM_SLOT_VAL; goto gdbm_setopt_slot;
     case GDBM_DEFAULT_KEY_TYPE: v = GDBM_SLOT_KEY; gdbm_setopt_slot:
       TheStructure(STACK_2)->recdata[v] = fixnum(check_data_type(STACK_0));
@@ -441,4 +442,3 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
   }
   skipSTACK(3);
 }
-#endif  /* HAVE_GDBM_SETOPT */
