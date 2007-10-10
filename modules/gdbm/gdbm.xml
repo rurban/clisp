@@ -10,10 +10,10 @@
  <varlistentry id="gdbm-version"><term><code>(GDBM:GDBM-VERSION)</code></term>
   <listitem><para>Return the version string.</para></listitem></varlistentry>
  <varlistentry id="gdbm-open"><term><code>(GDBM:GDBM-OPEN &filename-r;
-    &key-amp; :BLOCKSIZE :READ-WRITE :OPTION :MODE)</code></term>
+    &key-amp; :BLOCKSIZE :READ-WRITE :OPTION :MODE :DEFAULT-KEY-TYPE
+    :DEFAULT-VALUE-TYPE)</code></term>
   <listitem><para>Open &filename-r; database file.
     The return value is a <type>GDBM</type> structure.
-    If the return value is &nil;, GDBM-OPEN was not successful.
     <literal>:READ-WRITE</literal> can have one of following values:
     <simplelist>
      <member><literal>:READER</literal></member>
@@ -26,11 +26,33 @@
      <member><literal>:SYNC</literal></member>
      <member><literal>:NOLOCK</literal></member>
      <member><literal>:FAST</literal></member>
- </simplelist></para></listitem></varlistentry>
+   </simplelist></para><para>&clisp; can store and retrieve values of the
+    following types:<simplelist><member>&string-t;</member>
+     <member>&vector-t;</member><member>&bit-vector-t;</member>
+     <member>&integer-t;</member><member>&single-float-t;</member>
+     <member>&double-float-t;</member></simplelist>
+    and <literal>:DEFAULT-KEY-TYPE</literal>
+    and <literal>:DEFAULT-VALUE-TYPE-TYPE</literal> should be one of
+    those.  If not specified (or &nil;), the <literal>:TYPE</literal>
+    argument is required in the access functions below.</para>
+   <para>The return value is &finalize;d with
+    <link linkend="gdbm-close"><function>GDBM-CLOSE</function></link>.</para>
+ </listitem></varlistentry>
+ <varlistentry id="gdbm-default-types">
+  <term><code>(GDBM:GDBM-DEFAULT-KEY-TYPE &db-r;)</code></term>
+  <term><code>(GDBM:GDBM-DEFAULT-VALUE-TYPE &db-r;)</code></term>
+  <listitem><para>Return the default data conversion types.</para>
+ </listitem></varlistentry>
  <varlistentry id="gdbm-close">
-  <term><code>(GDBM:GDBM-CLOSE gdbm)</code></term>
+  <term><code>(GDBM:GDBM-CLOSE &db-r;)</code></term>
   <listitem><simpara>Close the database.
  </simpara></listitem></varlistentry>
+ <varlistentry id="gdbm-open-p">
+  <term><code>(GDBM:GDBM-OPEN-P &db-r;)</code></term>
+  <listitem><simpara>Check whether &db-r; has been already closed.
+   </simpara><warning><simpara>Only the above functions accept closed
+     databases, the following functions &sig-err; when passed a closed
+     database.</simpara></warning></listitem></varlistentry>
  <varlistentry id="gdbm-store">
   <term><code>(GDBM:GDBM-STORE &db-r; &key-r; &cont-r; &key-amp;
     :FLAG)</code></term>
@@ -44,9 +66,10 @@
      <member><literal>:REPLACE</literal></member>
  </simplelist></para></listitem></varlistentry>
  <varlistentry id="gdbm-fetch">
-  <term><code>(GDBM:GDBM-FETCH &db-r; &key-r; &key-amp; :BINARY)</code></term>
-  <listitem><simpara>Search data. If <literal>:BINARY</literal> option
-    is &nil; return value is a &string-t;, otherwise a &ubyte-vec;.
+  <term><code>(GDBM:GDBM-FETCH &db-r; &key-r; &key-amp;
+    (TYPE (GDBM:GDBM-DEFAULT-VALUE-TYPE &db-r;)))</code></term>
+  <listitem><simpara>Search the database.
+    The <literal>:TYPE</literal> argument specifies the return type.
  </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-delete">
   <term><code>(GDBM:GDBM-DELETE &db-r; &key-r;)</code></term>
@@ -57,12 +80,14 @@
   <listitem><simpara>Search data without retrieving it.
  </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-firstkey">
-  <term><code>(GDBM:GDBM-FIRSTKEY &db-r;)</code></term>
+  <term><code>(GDBM:GDBM-FIRSTKEY &db-r; &key-amp;
+    (TYPE (GDBM:GDBM-DEFAULT-KEY-TYPE &db-r;)))</code></term>
   <listitem><simpara>Return the key of the first entry.
     If the database has no entries, the return value is &nil;.
  </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-nextkey">
-  <term><code>(GDBM:GDBM-NEXTKEY &db-r; &key-r;)</code></term>
+  <term><code>(GDBM:GDBM-NEXTKEY &db-r; &key-r; &key-amp;
+    (TYPE (GDBM:GDBM-DEFAULT-KEY-TYPE &db-r;)))</code></term>
   <listitem><simpara>Return the key that follows &key-r;.
  </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-reorganize">
@@ -89,6 +114,11 @@
       <listitem><simpara>&t; or &nil;</simpara></listitem></varlistentry>
      <varlistentry><term><literal>:COALESCEBLKS</literal></term>
       <listitem><simpara>&t; or &nil;</simpara></listitem></varlistentry>
+     <varlistentry><term><literal>:DEFAULT-VALUE-TYPE</literal></term>
+      <term><literal>:DEFAULT-KEY-TYPE</literal></term>
+      <listitem><simpara>see
+        <link linkend="gdbm-open"><function>GDBM-OPEN</function></link>
+     </simpara></listitem></varlistentry>
  </variablelist></para></listitem></varlistentry>
  <varlistentry id="gdbm-file-size">
   <term><code>(GDBM:GDBM-FILE-SIZE &db-r;)</code></term>
@@ -110,4 +140,7 @@
   <listitem><simpara>Open the &filename-r;, execute the &body-r;, close
     the database.</simpara></listitem></varlistentry>
 </variablelist>
+
+
+
 </section>
