@@ -142,37 +142,43 @@ FILE-SIZE
 (simple-array (unsigned-byte 8) (4))
 
 (gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :reader
-                       :default-value-type 'bit-vector)
+                       :default-value-type '32bit-vector)
   (gdbm:gdbm-fetch db #(0 0 0 0)))
-#*00000001000000010000000100000001
+#(16843009)
 
 (gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 1 17)
-  (= (gdbm:gdbm-fetch db 1 :type 'integer) 17)) T
+  (gdbm:gdbm-fetch db 1 :type 'integer)) 17
 
 (gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
-  (let ((big (! 50)))
-    (gdbm:gdbm-store db 1 big)
-    (show (list big (integer-length big)
-                (gdbm:gdbm-fetch db 1 :type 'vector)
-                (gdbm:gdbm-fetch db 1 :type 'bit-vector))
-          :pretty t)
-    (= (gdbm:gdbm-fetch db 1 :type 'integer) big))) T
+  (loop :for i :from 1 :to 100 :for i! = (! i) :for l = (integer-length i!)
+    :do (gdbm:gdbm-store db i i!)
+    (when (zerop (mod (1+ l) 32)) ; 32bit-vector conversion possible
+      (show (list i i! l (gdbm:gdbm-fetch db i :type 'vector)
+                  (gdbm:gdbm-fetch db i :type '32bit-vector))
+            :pretty t))
+    :always (= (gdbm:gdbm-fetch db i :type 'integer) i!))) T
 
 (gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 2 2.0f0)
-  (= (gdbm:gdbm-fetch db 2 :type 'single-float) 2.0f0)) T
+  (gdbm:gdbm-fetch db 2 :type 'single-float)) 2.0f0
 
 (gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 3 4.0d0)
-  (= (gdbm:gdbm-fetch db 3 :type 'double-float) 4.0d0)) T
+  (gdbm:gdbm-fetch db 3 :type 'double-float)) 4.0d0
 
 (gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 1.0f0 2.0f0)
-  (= (gdbm:gdbm-fetch db 1.0f0 :type 'single-float) 2.0f0)) T
+  (gdbm:gdbm-fetch db 1.0f0 :type 'single-float)) 2.0f0
 
 (gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 2.5d0 4.0d0)
-  (= (gdbm:gdbm-fetch db 2.5d0 :type 'double-float) 4.0d0)) T
+  (gdbm:gdbm-fetch db 2.5d0 :type 'double-float)) 4.0d0
+
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
+  (let ((v (make-array 3 :element-type '(unsigned-byte 32)
+                       :initial-contents '(123 456 789))))
+    (gdbm:gdbm-store db v v)
+    (gdbm:gdbm-fetch db v :type '32bit-vector))) #(123 456 789)
 
 (pathnamep (delete-file (gdbm:gdbm-path *db*))) T

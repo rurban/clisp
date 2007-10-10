@@ -1,5 +1,13 @@
 2007-10-10  Sam Steingold  <sds@gnu.org>
 
+	drop sub-byte bit vectors because we need to keep vector length
+	together with the data (similar to binary stream i/o)
+	* modules/gdbm/gdbm.c (gdbm_data_t, check_data_type, with_datum)
+	(datum_to_object): drop GDBM_DATA_BIT_VECTOR, add
+	GDBM_DATA_32BIT_VECTOR & GDBM_DATA_8BIT_VECTOR
+
+2007-10-10  Sam Steingold  <sds@gnu.org>
+
 	closed GDBM is no longer accepted by functions requiring DB access
 	* modules/gdbm/gdbm.c (check_gdbm): accept require_valid_handle arg
 	(GDBM-FILE-SIZE, GDBM-STORE, GDBM-FETCH, GDBM-DELETE, GDBM-FIRSTKEY)
