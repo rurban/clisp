@@ -1,5 +1,13 @@
 2007-10-10  Sam Steingold  <sds@gnu.org>
 
+	closed GDBM is no longer accepted by functions requiring DB access
+	* modules/gdbm/gdbm.c (check_gdbm): accept require_valid_handle arg
+	(GDBM-FILE-SIZE, GDBM-STORE, GDBM-FETCH, GDBM-DELETE, GDBM-FIRSTKEY)
+	(GDBM-NEXTKEY, GDBM-REORGANIZE, GDBM-SYNC, GDBM-EXISTS, GDBM-SETOPT):
+	require an open GDBM
+
+2007-10-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/gdbm/gdbm.c (gdbm_data_t): replace GDBM_DATA_BINARY with
 	GDBM_DATA_VECTOR and GDBM_DATA_BIT_VECTOR; and GDBM_DATA_FIXNUM
 	with GDBM_DATA_INTEGER
