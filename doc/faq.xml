@@ -411,8 +411,8 @@ further explanations of the issues could be provided).</para>
 <answer><para>In the &full; &linkset;. Run &clisp; like this:
   <screen>&sh-prompt; clisp &opt-K; full</screen></para>
 
-<para>The reasons for &base; being the default are explained in
- &clisp-list; (<ulink role="sfmail" url="9033507"/>,
+<para>The reasons for &base; being the default are explained in &clisp-list;
+ (<ulink role="sfmail" url="200407212204.44395.bruno%40clisp.org"/>,
  <ulink role="gmane" url="general/8691"/>).</para>
 </answer></qandaentry>
 
@@ -606,9 +606,9 @@ further explanations of the issues could be provided).</para>
 <variablelist><title>Avoiding stack overflow: Platform-specific</title>
  <varlistentry><term>&win32-only;</term>
   <listitem><simpara>modify SYSTEM.INI or change PIF that you use to
-    invoke &clisp; (<ulink role="sfmail" url="1785942"/>,
-    <ulink role="gmane" url="general/4656"/>) or set program stack using
-    editbin (<ulink role="sfmail" url="1662294"/>,
+    invoke &clisp; (<ulink role="gmane" url="general/4656"/>)
+    or set program stack using editbin
+    (<ulink role="sfmail" url="sa0ptz4o4e3.fsf%40glip.premonitia.com"/>,
     <ulink role="gmane" url="general/5523"/>)
     (answered on &clisp-list;)</simpara></listitem></varlistentry>
  <varlistentry><term>&unix-only;</term>
@@ -672,7 +672,8 @@ trying to &nconc; a circular list).</para>
  <ulink url="http://docs.sun.com/source/806-3568/ncg_goldberg.html">What
  Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>.
  </para>
-<para>See also &clisp-list; (<ulink role="sfmail" url="12445006"/>,
+<para>See also &clisp-list;
+ (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>,
  <ulink role="gmane" url="general/9850"/>).</para>
 
 <formalpara><title>PS</title><para>If you want <emphasis>exact</emphasis>
