@@ -1,5 +1,17 @@
 2007-10-09  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (to-C-name): drop package prefix to support
+	non-keyword symbols in DEFCHECKER which are not followed by "="
+
+2007-10-09  Masayuki Onjo  <masayuki.onjo@gmail.com>
+
+	change keyword argument :binary -> :type
+	* modules/gdbm/gdbm.c (gdbm_data_t, check_data_type): add
+	(with_datum, datum_to_object): also handle fixnums and floats
+	(GDBM-FETCH, GDBM-FIRSTKEY, GDBM-NEXTKEY): take :TYPE instead of :BINARY
+
+2007-10-09  Sam Steingold  <sds@gnu.org>
+
 	implement RFE #[ 1808029 ]: trace with call counters
 	* trace.lisp (make-local-call-counter): add
 	(tracer): add GLOBAL-CALL-COUNTER & LOCAL-CALL-COUNTER slots
