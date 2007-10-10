@@ -661,11 +661,11 @@ trying to &nconc; a circular list).</para>
 
 <qandaentry id="faq-fp">
  <blockinfo><title>Is floating point arithmetics broken?</title></blockinfo>
- <question id="faq-fp-q"><para>Why don't floating
-   point arithmetics return what I want?<programlisting language="lisp">
+ <question id="faq-fp-q"><para>Why don't floating point arithmetics
+   return what I want?</para><programlisting language="lisp">
 (- 1.1 0.9)
 <computeroutput>0.20000005</computeroutput>
-</programlisting></para></question>
+</programlisting></question>
 <answer><para>This not a bug, at least not a bug in &clisp;.
  You may argue that this is a bug in &ieee-bfp;,
  but first make sure that you do know
@@ -728,7 +728,7 @@ to see where the warning is coming from.</para>
 <computeroutput>12</computeroutput> ; why not 10?!
 </programlisting></question>
 <answer><label>Brief</label>
- <para>The above code is not conforming &ansi-cl;, therefore &clisp;
+ <para>The above code does not conform to &ansi-cl;, therefore &clisp;
   can produce arbitrary results.</para></answer>
 <answer><label>Detailed</label>
 <para>Because of <ulink url="&clhs;/Body/sec_3-2-2-3.html">Section
@@ -740,17 +740,20 @@ to see where the warning is coming from.</para>
  The code shown above has a &special-dec; proclamation for the variable
  <varname>VAL</varname> in the execution environment (before the
  &funcall;) but not in the compilation environment: at the moment
- the <function>ADDER</function> function is defined, is it not known as
- a &special-dec; variable. Therefore the code is not conforming.</para>
+ the <function>ADDER</function> function is defined,
+ <varname>VAL</varname> is not known to be a &special-dec; variable.
+ Therefore the code is not conforming.</para>
 <para>The same holds also for macros. Before defining a function that
  uses a macro, that macro must have been defined.</para></answer>
 <answer><label>Rationale</label>
  <para>This is <emphasis>interpreted</emphasis> code.
-  When <function>ADD-10</function> is executed
-  and <varname>VAL</varname> is evaluated (after &defvar;!), we
-  see a globally special symbol <varname>VAL</varname> which can have
-  only a global &symbol-value; (not a local binding), and thus we are
-  compelled to evaluate it to 12.</para>
+  When <function>ADD-10</function> is executed,
+  its definition is interpreted (it was &not-e; compiled when &defun;
+  was processed, merely recorded),
+  and <varname>VAL</varname> is evaluated (after &defvar;!),
+  we see a globally special symbol <varname>VAL</varname> which can have
+  only a global &symbol-value; (not a local binding),
+  and thus we are compelled to evaluate it to 12.</para>
  <para>This is an artifact of interaction between global &special-dec;
   declarations and code <emphasis>interpretation</emphasis>.
   The <emphasis>compiled</emphasis> code does not exhibit this behavior
