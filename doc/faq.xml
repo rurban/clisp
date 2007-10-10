@@ -714,7 +714,6 @@ to see where the warning is coming from.</para>
 
 
 <qandaentry id="faq-scope"><question id="faq-scope-q">
-  <label>Is scoping broken?</label>
   <para>Why does &defvar; affect previously defined lexical closures?</para>
   <programlisting language="lisp">
 (defun adder (val) (lambda (x) (+ x val)))
@@ -729,7 +728,7 @@ to see where the warning is coming from.</para>
 <computeroutput>12</computeroutput> ; why not 10?!
 </programlisting></question>
 <answer><label>Brief</label>
- <para>The above code is not conforming &ansi; &cl;, therefore &clisp;
+ <para>The above code is not conforming &ansi-cl;, therefore &clisp;
   can produce arbitrary results.</para></answer>
 <answer><label>Detailed</label>
 <para>Because of <ulink url="&clhs;/Body/sec_3-2-2-3.html">Section
@@ -767,7 +766,7 @@ to see where the warning is coming from.</para>
   But in interpreted code, when the user changes the state of a variable,
   or redefines a macro, he does &not-e; want to re-evaluate all &defun;s
   that use the variable or macro.</para>
- <para>&ansi; &cl; gives the implementation freedom regarding
+ <para>&ansi-cl; gives the implementation freedom regarding
   interpreted evaluation, how much it wants to remember / cache, and how
   much it wants to evaluate according the current environment, if the
   environment has changed. &clisp; implements <emphasis>ad-hoc
