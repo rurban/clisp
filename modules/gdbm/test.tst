@@ -87,7 +87,8 @@ FILE-SIZE
 
 (gdbm:gdbm-close *db*) NIL
 
-(gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "test.db" :default-key-type 'string))) T
+(gdbm:gdbm-p (setf *db* (gdbm:gdbm-open (gdbm:gdbm-path *db*)
+                                        :default-key-type 'string))) T
 
 (gdbm:do-db (key *db*) :count key) 4
 
@@ -99,56 +100,57 @@ FILE-SIZE
 
 (listp (show (gdbm:do-db (key *db*) :collect (gdbm:gdbm-file-size *db*)))) T
 
-(let ((bsize (file-size "test.db")) (asize 0))
+(let ((bsize (file-size (gdbm:gdbm-path *db*))) (asize 0))
   (loop :for i :from 0 :to 1000 :do
     (gdbm:gdbm-store *db* (format nil "key~A" i) (format nil "value~A" i)))
   (gdbm:gdbm-sync *db*)
-  (setf asize (file-size "test.db"))
+  (setf asize (file-size (gdbm:gdbm-path *db*)))
   (format t "~&File size: ~:D --> ~:D~%" bsize asize)
   (> asize bsize)) T
 
-(= (gdbm:gdbm-file-size *db*) (file-size "test.db")) T
+(= (gdbm:gdbm-file-size *db*) (file-size (gdbm:gdbm-path *db*))) T
 
-(let ((bsize (file-size "test.db")) (asize 0))
+(let ((bsize (file-size (gdbm:gdbm-path *db*))) (asize 0))
   (loop for i from 0 to 500 do (gdbm:gdbm-delete *db* (format nil "key~A" i)))
   (gdbm:gdbm-sync *db*)
   (gdbm:gdbm-reorganize *db*)
-  (setf asize (file-size "test.db"))
+  (setf asize (file-size (gdbm:gdbm-path *db*)))
   (format t "~&~:D --> ~:D~%" bsize asize)
   (< asize bsize)) T
 
-(= (gdbm:gdbm-file-size *db*) (file-size "test.db")) T
+(= (gdbm:gdbm-file-size *db*) (file-size (gdbm:gdbm-path *db*))) T
 
 (gdbm:gdbm-close *db*) T
 
 (gdbm:gdbm-close *db*) NIL
 
-(gdbm:with-open-db (db "test.db" :read-write :reader :default-key-type 'string)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :reader
+                       :default-key-type 'string)
   (gdbm:do-db (key db)
     :sum (length (gdbm:gdbm-fetch db key :type 'vector)))) 4001
 
-(gdbm:with-open-db (db "test.db" :read-write :writer)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db #(0 0 0 0) #(1 1 1 1))
   (gdbm:do-db (key db :type 'vector)
     :sum (length (gdbm:gdbm-fetch db key :type 'vector)))) 4005
 
-(gdbm:with-open-db (db "test.db" :read-write :reader)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :reader)
   (gdbm:gdbm-fetch db #(0 0 0 0) :type 'vector)) #(1 1 1 1)
 
-(gdbm:with-open-db (db "test.db" :read-write :reader)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :reader)
   (type-of (gdbm:gdbm-fetch db #(0 0 0 0) :type 'vector)))
 (simple-array (unsigned-byte 8) (4))
 
-(gdbm:with-open-db (db "test.db" :read-write :reader
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :reader
                        :default-value-type 'bit-vector)
   (gdbm:gdbm-fetch db #(0 0 0 0)))
 #*00000001000000010000000100000001
 
-(gdbm:with-open-db (db "test.db" :read-write :writer)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 1 17)
   (= (gdbm:gdbm-fetch db 1 :type 'integer) 17)) T
 
-(gdbm:with-open-db (db "test.db" :read-write :writer)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (let ((big (! 50)))
     (gdbm:gdbm-store db 1 big)
     (show (list big (integer-length big)
@@ -157,20 +159,20 @@ FILE-SIZE
           :pretty t)
     (= (gdbm:gdbm-fetch db 1 :type 'integer) big))) T
 
-(gdbm:with-open-db (db "test.db" :read-write :writer)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 2 2.0f0)
   (= (gdbm:gdbm-fetch db 2 :type 'single-float) 2.0f0)) T
 
-(gdbm:with-open-db (db "test.db" :read-write :writer)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 3 4.0d0)
   (= (gdbm:gdbm-fetch db 3 :type 'double-float) 4.0d0)) T
 
-(gdbm:with-open-db (db "test.db" :read-write :writer)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 1.0f0 2.0f0)
   (= (gdbm:gdbm-fetch db 1.0f0 :type 'single-float) 2.0f0)) T
 
-(gdbm:with-open-db (db "test.db" :read-write :writer)
+(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
   (gdbm:gdbm-store db 2.5d0 4.0d0)
   (= (gdbm:gdbm-fetch db 2.5d0 :type 'double-float) 4.0d0)) T
 
-(pathnamep (delete-file "test.db")) T
+(pathnamep (delete-file (gdbm:gdbm-path *db*))) T
