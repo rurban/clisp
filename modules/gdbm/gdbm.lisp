@@ -11,7 +11,7 @@
   (:export #:gdbm #:gdbm-p #:gdbm-error #:gdbm-version
            #:gdbm-path #:gdbm-default-key-type #:gdbm-default-value-type
            #:gdbm-error-message #:gdbm-error-code
-           #:gdbm-open #:gdbm-close #:do-db #:with-open-db
+           #:gdbm-open #:gdbm-open-p #:gdbm-close #:do-db #:with-open-db
            #:gdbm-store #:gdbm-fetch #:gdbm-delete #:gdbm-exists
            #:gdbm-firstkey #:gdbm-nextkey #:gdbm-file-size
            #:gdbm-reorganize #:gdbm-sync #:gdbm-setopt))
@@ -27,6 +27,8 @@
   path
   key-type
   value-type)
+
+(defun gdbm-open-p (gdbm) (not (null (gdbm-dbf gdbm))))
 
 (define-condition gdbm-error (simple-error)
   ((code :reader gdbm-error-code :initarg :code)

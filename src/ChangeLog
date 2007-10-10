@@ -17,6 +17,7 @@
 	(GDBM-SETOPT): set the default types
 	* modules/gdbm/gdbm.lisp (gdbm): add slots PATH, KEY-TYPE, VALUE-TYPE
 	(gdbm-path, gdbm-default-key-type, gdbm-default-value-type): export
+	(gdbm-open-p): add
 
 2007-10-09  Sam Steingold  <sds@gnu.org>
 
