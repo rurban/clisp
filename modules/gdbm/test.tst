@@ -18,7 +18,10 @@ FILE-SIZE
           (gdbm:gdbm-error-message condition))))
 (:FILE-OPEN-ERROR "File open error")
 
-(gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "test.db" :read-write :newdb))) T
+(gdbm:gdbm-p (setf *db* (show (gdbm:gdbm-open "test.db" :read-write :newdb)
+                              :pretty t))) T
+
+(stringp (gdbm:gdbm-path *db*)) T
 
 (integerp (show (gdbm:gdbm-file-size *db*))) T
 
@@ -34,9 +37,13 @@ FILE-SIZE
 
 (gdbm:gdbm-store *db* "key1" "value1") T
 
+(gdbm:gdbm-setopt *db* :default-value-type 'string) T
+(gdbm:gdbm-default-value-type *db*) STRING
+(gdbm:gdbm-default-key-type *db*) NIL
+
 (gdbm:gdbm-fetch *db* "key1") "value1"
 
-(gdbm:gdbm-fetch *db* "key1" :type :string) "value1"
+(gdbm:gdbm-fetch *db* "key1" :type 'string) "value1"
 
 (gdbm:gdbm-store *db* "key1" "value2" :flag :insert) NIL
 
@@ -64,19 +71,19 @@ FILE-SIZE
 
 (gdbm:gdbm-fetch *db* "key2") "test2"
 
-(gdbm:gdbm-fetch *db* "key2" :type :binary) #(116 101 115 116 50)
+(gdbm:gdbm-fetch *db* "key2" :type 'vector) #(116 101 115 116 50)
 
 (gdbm:gdbm-store *db* "key3" "test3") T
 
 (gdbm:gdbm-store *db* "key4" #(0 0 0 0 0)) T
 
-(gdbm:gdbm-fetch *db* "key4" :type :binary) #(0 0 0 0 0)
+(gdbm:gdbm-fetch *db* "key4" :type 'vector) #(0 0 0 0 0)
 
 (gdbm:gdbm-close *db*) T
 
 (gdbm:gdbm-close *db*) NIL
 
-(gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "test.db"))) T
+(gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "test.db" :default-key-type 'string))) T
 
 (gdbm:do-db (key *db*) :count key) 4
 
@@ -112,40 +119,50 @@ FILE-SIZE
 
 (gdbm:gdbm-close *db*) NIL
 
-(gdbm:with-open-db (db "test.db" :read-write :reader)
+(gdbm:with-open-db (db "test.db" :read-write :reader :default-key-type 'string)
   (gdbm:do-db (key db)
-    :sum (length (gdbm:gdbm-fetch db key :type :binary)))) 4001
+    :sum (length (gdbm:gdbm-fetch db key :type 'vector)))) 4001
 
 (gdbm:with-open-db (db "test.db" :read-write :writer)
   (gdbm:gdbm-store db #(0 0 0 0) #(1 1 1 1))
-  (gdbm:do-db (key db :type :binary)
-    :sum (length (gdbm:gdbm-fetch db key :type :binary)))) 4005
+  (gdbm:do-db (key db :type 'vector)
+    :sum (length (gdbm:gdbm-fetch db key :type 'vector)))) 4005
 
 (gdbm:with-open-db (db "test.db" :read-write :reader)
-  (show (gdbm:gdbm-fetch db #(0 0 0 0) :type :binary))) #(1 1 1 1)
+  (gdbm:gdbm-fetch db #(0 0 0 0) :type 'vector)) #(1 1 1 1)
 
 (gdbm:with-open-db (db "test.db" :read-write :reader)
-  (type-of (gdbm:gdbm-fetch db #(0 0 0 0) :type :binary)))
+  (type-of (gdbm:gdbm-fetch db #(0 0 0 0) :type 'vector)))
 (simple-array (unsigned-byte 8) (4))
+
+(gdbm:with-open-db (db "test.db" :read-write :reader
+                       :default-value-type 'bit-vector)
+  (gdbm:gdbm-fetch db #(0 0 0 0)))
+#*00000001000000010000000100000001
 
 (gdbm:with-open-db (db "test.db" :read-write :writer)
   (gdbm:gdbm-store db 1 17)
-  (= (gdbm:gdbm-fetch db 1 :type :fixnum) 17)) T
+  (= (gdbm:gdbm-fetch db 1 :type 'integer) 17)) T
+
+(gdbm:with-open-db (db "test.db" :read-write :writer)
+  (let ((!17 (! 17)))
+    (gdbm:gdbm-store db 1 !17)
+    (= (gdbm:gdbm-fetch db 1 :type 'integer) !17))) T
 
 (gdbm:with-open-db (db "test.db" :read-write :writer)
   (gdbm:gdbm-store db 2 2.0f0)
-  (= (gdbm:gdbm-fetch db 2 :type :single-float) 2.0f0)) T
+  (= (gdbm:gdbm-fetch db 2 :type 'single-float) 2.0f0)) T
 
 (gdbm:with-open-db (db "test.db" :read-write :writer)
   (gdbm:gdbm-store db 3 4.0d0)
-  (= (gdbm:gdbm-fetch db 3 :type :double-float) 4.0d0)) T
+  (= (gdbm:gdbm-fetch db 3 :type 'double-float) 4.0d0)) T
 
 (gdbm:with-open-db (db "test.db" :read-write :writer)
   (gdbm:gdbm-store db 1.0f0 2.0f0)
-  (= (gdbm:gdbm-fetch db 1.0f0 :type :single-float) 2.0f0)) T
+  (= (gdbm:gdbm-fetch db 1.0f0 :type 'single-float) 2.0f0)) T
 
 (gdbm:with-open-db (db "test.db" :read-write :writer)
   (gdbm:gdbm-store db 2.5d0 4.0d0)
-  (= (gdbm:gdbm-fetch db 2.5d0 :type :double-float) 4.0d0)) T
+  (= (gdbm:gdbm-fetch db 2.5d0 :type 'double-float) 4.0d0)) T
 
 (pathnamep (delete-file "test.db")) T

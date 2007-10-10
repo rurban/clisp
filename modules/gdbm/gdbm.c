@@ -24,18 +24,32 @@
 # error No GDBM headers!
 #endif
 
+/* gotta do it before DEFMODULE */
 typedef enum {
-  GDBM_DATA_NOTYPE=-1,
   GDBM_DATA_STRING,
-  GDBM_DATA_BINARY,
-  GDBM_DATA_FIXNUM,
+  GDBM_DATA_VECTOR,
+  GDBM_DATA_BIT_VECTOR,
+  GDBM_DATA_INTEGER,
   GDBM_DATA_SINGLE_FLOAT,
-  GDBM_DATA_DOUBLE_FLOAT
+  GDBM_DATA_DOUBLE_FLOAT,
+  GDBM_DATA_NOTYPE              /* raise an error on conversion */
 } gdbm_data_t;
+
+/* must be distinct from all gdbm_setopt options */
+#ifdef GDBM_COALESCEBLKS
+# define GDBM_SETOPT_MAX_OPT  GDBM_COALESCEBLKS
+#else
+# define GDBM_SETOPT_MAX_OPT  10
+#endif
+#define GDBM_DEFAULT_VALUE_TYPE (GDBM_SETOPT_MAX_OPT+1)
+#define GDBM_DEFAULT_KEY_TYPE   (GDBM_SETOPT_MAX_OPT+2)
 
 DEFMODULE(gdbm,"GDBM");
 
-DEFCHECKER(check_data_type, enum=gdbm_data_t, prefix=GDBM_DATA, STRING BINARY FIXNUM SINGLE-FLOAT DOUBLE-FLOAT)
+DEFCHECKER(check_data_type, default=GDBM_DATA_NOTYPE, enum=gdbm_data_t, \
+           prefix=GDBM_DATA,                                            \
+           CL::STRING CL::VECTOR CL::BIT-VECTOR CL::INTEGER             \
+           CL::SINGLE-FLOAT CL::DOUBLE-FLOAT)
 DEFCHECKER(check_gdbm_errno, prefix=GDBM, NO-ERROR MALLOC-ERROR              \
            BLOCK-SIZE-ERROR FILE-OPEN-ERROR FILE-WRITE-ERROR FILE-SEEK-ERROR \
            FILE-READ-ERROR BAD-MAGIC-NUMBER EMPTY-DATABASE CANT-BE-READER    \
@@ -54,7 +68,7 @@ nonreturning_function(static, error_gdbm, (char *fatal_message)) {
     pushSTACK(safe_to_string(gdbm_strerror(gdbm_errno)));
     pushSTACK(`:CODE`); pushSTACK(check_gdbm_errno_reverse(gdbm_errno));
   }
-  pushSTACK(`"~A: ~A"`);
+  pushSTACK(`"~S: ~A"`);
   pushSTACK(TheSubr(subr_self)->name);
   pushSTACK(STACK_4); /* message */
   funcall(L(error_of_type), 8);
@@ -66,57 +80,75 @@ DEFUN(GDBM::GDBM-VERSION,)
 
 #define SYSCALL(statement) begin_system_call(); statement; end_system_call()
 
-DEFCHECKER(gdbm_open_read_write, prefix=GDBM, READER WRITER WRCREAT NEWDB)
-DEFCHECKER(gdbm_open_option, prefix=GDBM, SYNC NOLOCK FAST)
+DEFCHECKER(gdbm_open_read_write, default=GDBM_WRCREAT, prefix=GDBM,     \
+           READER WRITER WRCREAT NEWDB)
+DEFCHECKER(gdbm_open_option, default=0, prefix=GDBM, SYNC NOLOCK FAST)
 #if defined(HAVE_GDBM_OPEN)
-DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE)
+DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE   \
+      :DEFAULT-KEY-TYPE :DEFAULT-VALUE-TYPE)
 {
   GDBM_FILE gdbm;
-  int mode = check_uint_defaulted(STACK_0, 0644);
-  int rw_opt1 = missingp(STACK_1) ? 0 : gdbm_open_option(STACK_1);
-  int rw_opt2 = missingp(STACK_2) ? GDBM_WRCREAT
-    : gdbm_open_read_write(STACK_2);
+  gdbm_data_t default_value_type = check_data_type(popSTACK());
+  gdbm_data_t default_key_type = check_data_type(popSTACK());
+  int mode = check_uint_defaulted(popSTACK(), 0644);
+  int rw_opt1 = gdbm_open_option(popSTACK());
+  int rw_opt2 = gdbm_open_read_write(popSTACK());
   int rw = rw_opt1 | rw_opt2;
-  int bsize = check_uint_defaulted(STACK_3, 512);
-  object path = STACK_4;
+  int bsize = check_uint_defaulted(popSTACK(), 512);
+  STACK_0 = physical_namestring(STACK_0);
 
-  skipSTACK(5);
-
-  if (!stringp(path)) {
-    VALUES1(NIL);
-  } else {
-    with_string_0(stringp(path) ? (object)path : physical_namestring(path),
-                  GLO(pathname_encoding), name, {
-        SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode, error_gdbm));
-      });
-    if (gdbm != NULL) {
-      pushSTACK(allocate_fpointer(gdbm));
-      funcall(`GDBM::MAKE-GDBM`, 1);
-      pushSTACK(value1);        /* save */
-      pushSTACK(STACK_0); pushSTACK(``GDBM::GDBM-CLOSE``);
-      funcall(L(finalize),2);
-      VALUES1(popSTACK());      /* restore */
-    } else
-      error_gdbm(NULL);
-  }
+  with_string_0(STACK_0, GLO(pathname_encoding), name, {
+      SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode, error_gdbm));
+    });
+  if (gdbm != NULL) {
+    pushSTACK(allocate_fpointer(gdbm));
+    pushSTACK(STACK_1);         /* path */
+    pushSTACK(fixnum(default_key_type));
+    pushSTACK(fixnum(default_value_type));
+    funcall(`GDBM::MAKE-GDBM`,4);
+    STACK_0 = value1;        /* save GDBM object, drop path */
+    pushSTACK(STACK_0); pushSTACK(``GDBM::GDBM-CLOSE``);
+    funcall(L(finalize),2);
+    VALUES1(popSTACK());      /* restore */
+  } else
+    error_gdbm(NULL);
 }
 #endif  /* HAVE_GDBM_OPEN */
 
 /* can trigger GC */
-static GDBM_FILE check_gdbm (object gdbm)
+#define GDBM_SLOT_FILE  1
+#define GDBM_SLOT_PATH  2
+#define GDBM_SLOT_KEY   3
+#define GDBM_SLOT_VAL   4
+static GDBM_FILE check_gdbm (object gdbm, gdbm_data_t *key, gdbm_data_t *val)
 {
   gdbm = check_classname(gdbm, `GDBM::GDBM`);
-  return nullp(TheStructure(gdbm)->recdata[1]) ? NULL
-    : (GDBM_FILE)TheFpointer(TheStructure(gdbm)->recdata[1])->fp_pointer;
+  if (key && *key == GDBM_DATA_NOTYPE)
+    *key = posfixnum_to_V(TheStructure(gdbm)->recdata[GDBM_SLOT_KEY]);
+  if (val && *val == GDBM_DATA_NOTYPE)
+    *val = posfixnum_to_V(TheStructure(gdbm)->recdata[GDBM_SLOT_VAL]);
+  return nullp(TheStructure(gdbm)->recdata[GDBM_SLOT_FILE]) ? NULL
+    : (GDBM_FILE)TheFpointer(TheStructure(gdbm)->recdata[GDBM_SLOT_FILE])->fp_pointer;
+}
+
+DEFUN(GDBM:GDBM-DEFAULT-KEY-TYPE, dbf) {
+  gdbm_data_t key = GDBM_DATA_NOTYPE;
+  (void)check_gdbm(popSTACK(),&key,NULL);
+  VALUES1(check_data_type_reverse(key));
+}
+DEFUN(GDBM:GDBM-DEFAULT-VALUE-TYPE, dbf) {
+  gdbm_data_t val = GDBM_DATA_NOTYPE;
+  (void)check_gdbm(popSTACK(),NULL,&val);
+  VALUES1(check_data_type_reverse(val));
 }
 
 #if defined(HAVE_GDBM_CLOSE)
 DEFUN(GDBM:GDBM-CLOSE, dbf)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_0);
+  GDBM_FILE dbf = check_gdbm(STACK_0,NULL,NULL);
   if (dbf) {
     SYSCALL(gdbm_close(dbf));
-    TheStructure(STACK_0)->recdata[1] = NIL;
+    TheStructure(STACK_0)->recdata[GDBM_SLOT_FILE] = NIL;
     VALUES1(T);
   } else {
     VALUES1(NIL);
@@ -128,7 +160,7 @@ DEFUN(GDBM:GDBM-CLOSE, dbf)
 #if defined(HAVE_GDBM_FDESC)
 DEFUN(GDBM:GDBM-FILE-SIZE, dbf)
 {
-  GDBM_FILE dbf = check_gdbm(popSTACK());
+  GDBM_FILE dbf = check_gdbm(popSTACK(),NULL,NULL);
   off_t ret;
   begin_system_call();
   ret = handle_length(NIL,gdbm_fdesc(dbf));
@@ -147,50 +179,63 @@ static object coerce_bitvector (object arg) {
   }
 }
 
+nonreturning_function(static, error_bad_type, (object lisp_obj)) {
+  pushSTACK(`GDBM::GDBM-ERROR`);
+  pushSTACK(`:MESSAGE`);
+  pushSTACK(`"invalid lisp object type: "`);
+  pushSTACK(lisp_obj); funcall(L(prin1_to_string),1);
+  pushSTACK(value1); value1 = string_concat(2); pushSTACK(value1);
+  pushSTACK(`:CODE`); pushSTACK(`:LISP-TYPE`);
+  pushSTACK(`"~S: ~A"`);
+  pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(STACK_4); /* message */
+  funcall(L(error_of_type), 8);
+  NOTREACHED;
+}
+
 #define with_datum(lisp_obj, datum_var, statement)  do {                \
+  datum datum_var;                                                      \
   if (stringp(lisp_obj)) {                                              \
     with_string_0(lisp_obj, GLO(misc_encoding), datum_var##string, {    \
-      datum datum_var;                                                  \
       datum_var.dptr = datum_var##string;                               \
       datum_var.dsize = datum_var##string_len;                          \
       SYSCALL(statement);                                               \
     });                                                                 \
   } else if (vectorp(lisp_obj)) {                                       \
-    datum datum_var;                                                    \
     lisp_obj = coerce_bitvector(lisp_obj);                              \
     datum_var.dptr = (char*)TheSbvector(lisp_obj)->data;                \
     datum_var.dsize = vector_length(lisp_obj);                          \
     SYSCALL(statement);                                                 \
-  } else if (fixnump(lisp_obj)) {					\
-    datum datum_var;                                                    \
-    int datum_var##fixnum = I_to_L(lisp_obj);                           \
-    datum_var.dptr = (char*)&datum_var##fixnum;				\
-    datum_var.dsize = 4;                                                \
+  } else if (integerp(lisp_obj)) {                                      \
+    unsigned long datum_var##bitsize =                                  \
+      1 + I_integer_length(lisp_obj); /* an extra bit for the sign */   \
+    datum_var.dsize = ceiling(datum_var##bitsize,8);                    \
+    datum_var.dptr = (char*)alloca(datum_var.dsize);                    \
+    if (I_to_LEbytes(lisp_obj,8*datum_var.dsize,(uintB*)datum_var.dptr)) \
+      NOTREACHED; /* there must not be an overflow! */                  \
     SYSCALL(statement);                                                 \
-  } else if (single_float_p(lisp_obj)) {			       	\
-    datum datum_var;                                                    \
+  } else if (single_float_p(lisp_obj)) {                                \
     ffloatjanus datum_var##ffloat;                                      \
     FF_to_c_float(lisp_obj, &datum_var##ffloat);                        \
-    datum_var.dptr = (char*)&datum_var##ffloat;				\
-    datum_var.dsize = sizeof(ffloat);					\
+    datum_var.dptr = (char*)&datum_var##ffloat;                         \
+    datum_var.dsize = sizeof(ffloat);                                   \
     SYSCALL(statement);                                                 \
-  } else if (double_float_p(lisp_obj)) {				\
-    datum datum_var;                                                    \
+  } else if (double_float_p(lisp_obj)) {                                \
     dfloatjanus datum_var##dfloat;                                      \
     DF_to_c_double(lisp_obj, &datum_var##dfloat);                       \
-    datum_var.dptr = (char*)&datum_var##dfloat;				\
-    datum_var.dsize = sizeof(dfloat);					\
+    datum_var.dptr = (char*)&datum_var##dfloat;                         \
+    datum_var.dsize = sizeof(dfloat);                                   \
     SYSCALL(statement);                                                 \
-  } else NOTREACHED;			                         	\
+  } else error_bad_type(lisp_obj);                                      \
  } while(0)
 
 
-DEFCHECKER(gdbm_store_flag, prefix=GDBM, REPLACE INSERT);
+DEFCHECKER(gdbm_store_flag, default=GDBM_REPLACE, prefix=GDBM, REPLACE INSERT)
 #if defined(HAVE_GDBM_STORE)
 DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_3);
-  int flag = missingp(STACK_0) ? GDBM_REPLACE : gdbm_store_flag(STACK_0);
+  GDBM_FILE dbf = check_gdbm(STACK_3,NULL,NULL);
+  int flag = gdbm_store_flag(STACK_0);
   object content_obj = STACK_1;
   object key_obj = STACK_2;
   skipSTACK(4);
@@ -208,42 +253,60 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
 
 /* convert datum to Lisp string and release memory in datum
  can trigger GC */
-static object datum_to_object (datum d, int data_type) {
+static object datum_to_object (datum d, gdbm_data_t data_type) {
   if (d.dptr == NULL) return NIL;
-  else if (data_type == GDBM_DATA_STRING) {
-    object o = n_char_to_string(d.dptr, d.dsize, GLO(misc_encoding));
-    free(d.dptr);
-    return o;
-  } else if (data_type == GDBM_DATA_BINARY) {
-    object o = allocate_bit_vector(Atype_8Bit,d.dsize);
-    int i = 0;
-    for (i=0;i<d.dsize;i++)
-      TheSbvector(o)->data[i] = d.dptr[i];
-    free(d.dptr);
-    return o;
-  } else if (data_type == GDBM_DATA_FIXNUM) {
-    object o = L_to_I(*((int*)d.dptr));
-    free(d.dptr);
-    return o;
-  } else if (data_type == GDBM_DATA_SINGLE_FLOAT) {
-    object o = c_float_to_FF((ffloatjanus*)d.dptr);
-    free(d.dptr);
-    return o;
-  } else if (data_type == GDBM_DATA_DOUBLE_FLOAT) {
-    object o = c_double_to_DF((dfloatjanus*)d.dptr);
-    free(d.dptr);
-    return o;
-  } else {
-    return NIL;
+  switch (data_type) {
+    case GDBM_DATA_STRING: {
+      object o = n_char_to_string(d.dptr, d.dsize, GLO(misc_encoding));
+      free(d.dptr);
+      return o;
+    }
+    case GDBM_DATA_VECTOR: {
+      object o = allocate_bit_vector(Atype_8Bit,d.dsize);
+      SYSCALL(memcpy(TheSbvector(o)->data,d.dptr,d.dsize));
+      free(d.dptr);
+      return o;
+    }
+    case GDBM_DATA_BIT_VECTOR: {
+      object o = allocate_bit_vector(Atype_Bit,8*d.dsize);
+      SYSCALL(memcpy(TheSbvector(o)->data,d.dptr,d.dsize));
+      free(d.dptr);
+      return o;
+    }
+    case GDBM_DATA_INTEGER: {
+      object o = LEbytes_to_I(d.dsize,(uintB*)d.dptr);
+      free(d.dptr);
+      return o;
+    }
+    case GDBM_DATA_SINGLE_FLOAT: {
+      object o = c_float_to_FF((ffloatjanus*)d.dptr);
+      free(d.dptr);
+      return o;
+    }
+    case GDBM_DATA_DOUBLE_FLOAT: {
+      object o = c_double_to_DF((dfloatjanus*)d.dptr);
+      free(d.dptr);
+      return o;
+    }
+    case GDBM_DATA_NOTYPE:
+      pushSTACK(`GDBM::GDBM-ERROR`);
+      pushSTACK(`:MESSAGE`);
+      pushSTACK(`"desired lisp type not specified"`);
+      pushSTACK(`:CODE`); pushSTACK(`:DATUM-TYPE`);
+      pushSTACK(`"~S: ~A"`);
+      pushSTACK(TheSubr(subr_self)->name);
+      pushSTACK(STACK_4); /* message */
+      funcall(L(error_of_type), 8);
+      NOTREACHED;
+    default: NOTREACHED;        /* pacify the compiler */
   }
 }
 
 #if defined(HAVE_GDBM_FETCH)
 DEFUN(GDBM:GDBM-FETCH, dbf key &key TYPE)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_2);
-  object dtype = popSTACK();
-  int data_type = missingp(dtype) ? GDBM_DATA_STRING : check_data_type(dtype);
+  gdbm_data_t data_type = check_data_type(popSTACK());
+  GDBM_FILE dbf = check_gdbm(STACK_1,NULL,&data_type);
   object key_obj = popSTACK();
   skipSTACK(1);                 /* drop dbf */
 
@@ -259,7 +322,7 @@ DEFUN(GDBM:GDBM-FETCH, dbf key &key TYPE)
 #if defined(HAVE_GDBM_DELETE)
 DEFUN(GDBM:GDBM-DELETE, dbf key)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_1);
+  GDBM_FILE dbf = check_gdbm(STACK_1,NULL,NULL);
   object key_obj = popSTACK();
   skipSTACK(1);                 /* drop dbf */
 
@@ -275,10 +338,8 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
 #if defined(HAVE_GDBM_FIRSTKEY)
 DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key TYPE)
 {
-  int data_type = missingp(STACK_0) ? GDBM_DATA_STRING : check_data_type(STACK_0);
-  GDBM_FILE dbf = check_gdbm(STACK_1);
-
-  skipSTACK(2);
+  gdbm_data_t data_type = check_data_type(popSTACK());
+  GDBM_FILE dbf = check_gdbm(popSTACK(),&data_type,NULL);
 
   if (dbf) {
     datum res;
@@ -292,9 +353,9 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key TYPE)
 #if defined(HAVE_GDBM_NEXTKEY)
 DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key TYPE)
 {
-  int data_type = missingp(STACK_0) ? GDBM_DATA_STRING : check_data_type(STACK_0);
+  gdbm_data_t data_type = check_data_type(STACK_0);
   object key_obj = STACK_1;
-  GDBM_FILE dbf = check_gdbm(STACK_2);
+  GDBM_FILE dbf = check_gdbm(STACK_2,&data_type,NULL);
   skipSTACK(3);                 /* drop dbf */
 
   if (dbf) {
@@ -316,7 +377,7 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key TYPE)
 #if defined(HAVE_GDBM_REORGANIZE)
 DEFUN(GDBM:GDBM-REORGANIZE, dbf)
 {
-  GDBM_FILE dbf = check_gdbm(popSTACK());
+  GDBM_FILE dbf = check_gdbm(popSTACK(),NULL,NULL);
 
   if (dbf) {
     CHECK_RUN(gdbm_reorganize(dbf));
@@ -328,7 +389,7 @@ DEFUN(GDBM:GDBM-REORGANIZE, dbf)
 #if defined(HAVE_GDBM_SYNC)
 DEFUN(GDBM:GDBM-SYNC, dbf)
 {
-  GDBM_FILE dbf = check_gdbm(popSTACK());
+  GDBM_FILE dbf = check_gdbm(popSTACK(),NULL,NULL);
 
   if (dbf) {
     SYSCALL(gdbm_sync(dbf));
@@ -341,7 +402,7 @@ DEFUN(GDBM:GDBM-SYNC, dbf)
 #if defined(HAVE_GDBM_EXISTS)
 DEFUN(GDBM:GDBM-EXISTS, dbf key)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_1);
+  GDBM_FILE dbf = check_gdbm(STACK_1,NULL,NULL);
   object key_obj = popSTACK();
   skipSTACK(1);                 /* drop dbf */
 
@@ -355,26 +416,34 @@ DEFUN(GDBM:GDBM-EXISTS, dbf key)
 #endif  /* HAVE_GDBM_EXISTS */
 
 DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
-           CENTFREE COALESCEBLKS)
+           CENTFREE COALESCEBLKS DEFAULT-VALUE-TYPE DEFAULT-KEY-TYPE)
 #if defined(HAVE_GDBM_SETOPT)
 DEFUN(GDBM:GDBM-SETOPT, dbf option value)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_2);
+  GDBM_FILE dbf = check_gdbm(STACK_2,NULL,NULL);
   int option = gdbm_setopt_option(STACK_1);
   object value = STACK_0;
-  skipSTACK(3);
 
   if (dbf) {
     int v;
     switch (option) {
       case GDBM_CACHESIZE:
-        v = I_to_sint(check_sint(value)); break;
+        v = I_to_sint(check_sint(value));
+        goto gdbm_setopt_common;
       case GDBM_FASTMODE: case GDBM_SYNCMODE:
       case GDBM_CENTFREE: case GDBM_COALESCEBLKS:
         v = nullp(value) ? 0 : 1; break;
+      gdbm_setopt_common:
+        CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(int)));
+        break;
+      case GDBM_DEFAULT_VALUE_TYPE: v = GDBM_SLOT_VAL; goto gdbm_setopt_slot;
+      case GDBM_DEFAULT_KEY_TYPE: v = GDBM_SLOT_KEY; gdbm_setopt_slot:
+        TheStructure(STACK_2)->recdata[v] = fixnum(check_data_type(STACK_0));
+        VALUES1(T);
+        break;
       default: NOTREACHED;
     }
-    CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(int)));
+    skipSTACK(3);
   } else
     VALUES1(NIL);
 }
