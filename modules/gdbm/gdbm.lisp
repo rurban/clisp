@@ -9,6 +9,7 @@
    "GDBM - The GNU database manager - <http://www.gnu.org/software/gdbm/>")
   (:use #:lisp)
   (:export #:gdbm #:gdbm-p #:gdbm-error #:gdbm-version
+           #:gdbm-path #:gdbm-default-key-type #:gdbm-default-value-type
            #:gdbm-error-message #:gdbm-error-code
            #:gdbm-open #:gdbm-close #:do-db #:with-open-db
            #:gdbm-store #:gdbm-fetch #:gdbm-delete #:gdbm-exists
@@ -20,8 +21,12 @@
 (pushnew "GDBM" custom:*system-package-list* :test #'string=)
 (setf (documentation (find-package "GDBM") 'sys::impnotes) "gdbm")
 
-(defstruct (gdbm (:constructor make-gdbm (dbf)))
-  (dbf nil))
+;; keep this definition in sync with check_gdbm in gdbm.c
+(defstruct (gdbm (:constructor make-gdbm (dbf path key-type value-type)))
+  dbf
+  path
+  key-type
+  value-type)
 
 (define-condition gdbm-error (simple-error)
   ((code :reader gdbm-error-code :initarg :code)
