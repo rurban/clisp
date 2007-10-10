@@ -31,6 +31,7 @@
 	handle integers (with LEbytes_to_I) and bit vectors
 	(gdbm_setopt_option): accept :DEFAULT-VALUE-TYPE and :DEFAULT-KEY-TYPE
 	(GDBM-SETOPT): set the default types
+	make availabe even without HAVE_GDBM_SETOPT
 	* modules/gdbm/gdbm.lisp (gdbm): add slots PATH, KEY-TYPE, VALUE-TYPE
 	(gdbm-path, gdbm-default-key-type, gdbm-default-value-type): export
 	(gdbm-open-p): add
