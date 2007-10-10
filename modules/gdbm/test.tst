@@ -25,7 +25,7 @@ FILE-SIZE
 
 (integerp (show (gdbm:gdbm-file-size *db*))) T
 
-(gdbm:gdbm-setopt *db* :cachesize 1024) T
+(gdbm:gdbm-setopt *db* :cachesize 1024) NIL
 
 (gdbm:do-db (key *db*) :count key) 0
 
@@ -37,7 +37,7 @@ FILE-SIZE
 
 (gdbm:gdbm-store *db* "key1" "value1") T
 
-(gdbm:gdbm-setopt *db* :default-value-type 'string) T
+(gdbm:gdbm-setopt *db* :default-value-type 'string) NIL
 (gdbm:gdbm-default-value-type *db*) STRING
 (gdbm:gdbm-default-key-type *db*) NIL
 
@@ -95,7 +95,7 @@ FILE-SIZE
 
 (gdbm:do-db (key *db*) :count key) 3
 
-(gdbm:gdbm-sync *db*) T
+(gdbm:gdbm-sync *db*) NIL
 
 (listp (show (gdbm:do-db (key *db*) :collect (gdbm:gdbm-file-size *db*)))) T
 
@@ -149,9 +149,13 @@ FILE-SIZE
   (= (gdbm:gdbm-fetch db 1 :type 'integer) 17)) T
 
 (gdbm:with-open-db (db "test.db" :read-write :writer)
-  (let ((!17 (! 17)))
-    (gdbm:gdbm-store db 1 !17)
-    (= (gdbm:gdbm-fetch db 1 :type 'integer) !17))) T
+  (let ((big (! 50)))
+    (gdbm:gdbm-store db 1 big)
+    (show (list big (integer-length big)
+                (gdbm:gdbm-fetch db 1 :type 'vector)
+                (gdbm:gdbm-fetch db 1 :type 'bit-vector))
+          :pretty t)
+    (= (gdbm:gdbm-fetch db 1 :type 'integer) big))) T
 
 (gdbm:with-open-db (db "test.db" :read-write :writer)
   (gdbm:gdbm-store db 2 2.0f0)
