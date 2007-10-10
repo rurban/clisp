@@ -79,7 +79,11 @@ FILE-SIZE
 
 (gdbm:gdbm-fetch *db* "key4" :type 'vector) #(0 0 0 0 0)
 
+(gdbm:gdbm-open-p *db*) T
+
 (gdbm:gdbm-close *db*) T
+
+(gdbm:gdbm-open-p *db*) NIL
 
 (gdbm:gdbm-close *db*) NIL
 
