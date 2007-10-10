@@ -10,7 +10,7 @@
 #include "config.h"
 
 #if defined(HAVE_STRING_H)
-# include <string.h>
+# include <string.h>            /* memcpy */
 #endif
 #if defined(HAVE_UNISTD_H)
 # include <unistd.h>            /* for lseek */
@@ -28,7 +28,17 @@
 typedef enum {
   GDBM_DATA_STRING,
   GDBM_DATA_VECTOR,
-  GDBM_DATA_BIT_VECTOR,
+  /* No support for sub-byte bit vectors because if we do, we have to
+   * keep the vector length in the datum too (to avoid having #*10100000
+   * retrieved when #*101 was stored), and the length would take a full
+   * word which would nix any potential saving from using bits instead
+   * of full bytes. Also, Atype_16Bit is not exported from lispbibl.
+   *     GDBM_DATA_BIT_VECTOR,
+   *     GDBM_DATA_2BIT_VECTOR,
+   *     GDBM_DATA_4BIT_VECTOR, */
+  GDBM_DATA_8BIT_VECTOR,
+  /*     GDBM_DATA_16BIT_VECTOR, */
+  GDBM_DATA_32BIT_VECTOR,
   GDBM_DATA_INTEGER,
   GDBM_DATA_SINGLE_FLOAT,
   GDBM_DATA_DOUBLE_FLOAT,
@@ -46,10 +56,11 @@ typedef enum {
 
 DEFMODULE(gdbm,"GDBM");
 
+/* CL::BIT-VECTOR EXT::2BIT-VECTOR EXT::4BIT-VECTOR EXT::16BIT-VECTOR */
 DEFCHECKER(check_data_type, default=GDBM_DATA_NOTYPE, enum=gdbm_data_t, \
-           prefix=GDBM_DATA,                                            \
-           CL::STRING CL::VECTOR CL::BIT-VECTOR CL::INTEGER             \
-           CL::SINGLE-FLOAT CL::DOUBLE-FLOAT)
+           prefix=GDBM_DATA, CL::STRING CL::VECTOR                      \
+           EXT::8BIT-VECTOR EXT::32BIT-VECTOR                           \
+           CL::INTEGER CL::SINGLE-FLOAT CL::DOUBLE-FLOAT)
 DEFCHECKER(check_gdbm_errno, prefix=GDBM, NO-ERROR MALLOC-ERROR              \
            BLOCK-SIZE-ERROR FILE-OPEN-ERROR FILE-WRITE-ERROR FILE-SEEK-ERROR \
            FILE-READ-ERROR BAD-MAGIC-NUMBER EMPTY-DATABASE CANT-BE-READER    \
@@ -213,10 +224,14 @@ nonreturning_function(static, error_bad_type, (object lisp_obj)) {
       datum_var.dsize = datum_var##string_len;                          \
       SYSCALL(statement);                                               \
     });                                                                 \
-  } else if (vectorp(lisp_obj)) {                                       \
-    lisp_obj = coerce_bitvector(lisp_obj);                              \
+  } else if (bit_vector_p(Atype_32Bit,lisp_obj)) {                      \
+    datum_var.dsize = 4 * vector_length(lisp_obj);                      \
     datum_var.dptr = (char*)TheSbvector(lisp_obj)->data;                \
+    SYSCALL(statement);                                                 \
+  } else if (vectorp(lisp_obj)) { /* assume Atype_8Bit */               \
+    lisp_obj = coerce_bitvector(lisp_obj);                              \
     datum_var.dsize = vector_length(lisp_obj);                          \
+    datum_var.dptr = (char*)TheSbvector(lisp_obj)->data;                \
     SYSCALL(statement);                                                 \
   } else if (integerp(lisp_obj)) {                                      \
     unsigned long datum_var##bitsize =                                  \
@@ -248,13 +263,11 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
 {
   GDBM_FILE dbf = check_gdbm(STACK_3,NULL,NULL,true);
   int flag = gdbm_store_flag(STACK_0), status;
-  object content_obj = STACK_1;
-  object key_obj = STACK_2;
-  skipSTACK(4);
-  with_datum(key_obj, key,
-             with_datum(content_obj, content,
+  with_datum(STACK_2, key,
+             with_datum(STACK_1, content,
                         status = gdbm_store(dbf, key, content, flag)));
   VALUES_IF(!status);
+  skipSTACK(4);
 }
 #endif  /* HAVE_GDBM_STORE */
 
@@ -268,18 +281,29 @@ static object datum_to_object (datum d, gdbm_data_t data_type) {
       free(d.dptr);
       return o;
     }
-    case GDBM_DATA_VECTOR: {
+    case GDBM_DATA_VECTOR: case GDBM_DATA_8BIT_VECTOR: {
       object o = allocate_bit_vector(Atype_8Bit,d.dsize);
       SYSCALL(memcpy(TheSbvector(o)->data,d.dptr,d.dsize));
       free(d.dptr);
       return o;
     }
-    case GDBM_DATA_BIT_VECTOR: {
-      object o = allocate_bit_vector(Atype_Bit,8*d.dsize);
-      SYSCALL(memcpy(TheSbvector(o)->data,d.dptr,d.dsize));
-      free(d.dptr);
-      return o;
-    }
+    case GDBM_DATA_32BIT_VECTOR:
+      if (d.dsize % 4) {
+        pushSTACK(`GDBM::GDBM-ERROR`);
+        pushSTACK(`:MESSAGE`);
+        pushSTACK(`"32BIT-VECTOR conversion requires a datum length divisible by 4"`);
+        pushSTACK(`:CODE`); pushSTACK(`:DATUM-TYPE`);
+        pushSTACK(`"~S: ~A"`);
+        pushSTACK(TheSubr(subr_self)->name);
+        pushSTACK(STACK_4); /* message */
+        funcall(L(error_of_type), 8);
+        NOTREACHED;
+      } else {
+        object o = allocate_bit_vector(Atype_32Bit,d.dsize/4);
+        SYSCALL(memcpy(TheSbvector(o)->data,d.dptr,d.dsize));
+        free(d.dptr);
+        return o;
+      }
     case GDBM_DATA_INTEGER: {
       object o = LEbytes_to_I(d.dsize,(uintB*)d.dptr);
       free(d.dptr);
@@ -397,15 +421,14 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
 {
   GDBM_FILE dbf = check_gdbm(STACK_2,NULL,NULL,true);
   int option = gdbm_setopt_option(STACK_1);
-  object value = STACK_0;
   int v;
   switch (option) {
     case GDBM_CACHESIZE:
-      v = I_to_sint(check_sint(value));
+      v = I_to_sint(check_sint(STACK_0));
       goto gdbm_setopt_common;
     case GDBM_FASTMODE: case GDBM_SYNCMODE:
     case GDBM_CENTFREE: case GDBM_COALESCEBLKS:
-      v = nullp(value) ? 0 : 1; break;
+      v = nullp(STACK_0) ? 0 : 1; break;
     gdbm_setopt_common:
       CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(int)));
       break;
