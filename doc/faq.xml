@@ -605,9 +605,10 @@ further explanations of the issues could be provided).</para>
 
 <variablelist><title>Avoiding stack overflow: Platform-specific</title>
  <varlistentry><term>&win32-only;</term>
-  <listitem><simpara>modify SYSTEM.INI or change PIF that you use to
+  <listitem><simpara>modify <filename>SYSTEM.INI</filename> or change
+    the <filename>PIF</filename> that you use to
     invoke &clisp; (<ulink role="gmane" url="general/4656"/>)
-    or set program stack using editbin
+    or set program stack using <command>editbin</command>
     (<ulink role="sfmail" url="sa0ptz4o4e3.fsf%40glip.premonitia.com"/>,
     <ulink role="gmane" url="general/5523"/>)
     (answered on &clisp-list;)</simpara></listitem></varlistentry>
@@ -626,7 +627,7 @@ further explanations of the issues could be provided).</para>
   (nconc var '(1 2 3)))</programlisting>
 and will not work as one would naively expect.
 (on the first invocation, it will return
-<literal role="data">(a b c 1 2 3)</literal>,
+<returnvalue>(a b c 1 2 3)</returnvalue>,
 the second invocation will produce a circular list, the third will hang
 trying to &nconc; a circular list).</para>
 
@@ -647,15 +648,15 @@ trying to &nconc; a circular list).</para>
    is autoconf invoked during build?</simpara></question>
 <answer><para>When building from the CVS HEAD development sources, you
   will sometimes get errors when <command role="unix">make</command>
-  tries to regenerate a <filename>configure</filename> script for you.
+  tries to regenerate some <filename>configure</filename> scripts for you.
  <emphasis role="strong">This is never necessary!</emphasis>
  (and will not happen in an officially released source distribution).
  Please just <command role="unix">touch</command> the target, e.g.:
  <screen>&sh-prompt; touch src/configure</screen>
  and re-run <command role="unix">make</command>.</para>
 <para>You can also pass <option>--disable-maintainer-mode</option>
- to the top-level <filename>configure</filename> script (this is the
- default when you are &not-e; working from the CVS).</para>
+ to the top-level <filename role="clisp-cvs">configure</filename> script
+ (this is the default when you are &not-e; working from the CVS).</para>
 </answer></qandaentry>
 
 
