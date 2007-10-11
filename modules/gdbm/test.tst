@@ -87,8 +87,7 @@ FILE-SIZE
 
 (gdbm:gdbm-close *db*) NIL
 
-(gdbm:gdbm-p (setf *db* (gdbm:gdbm-open (gdbm:gdbm-path *db*)
-                                        :default-key-type 'string))) T
+(gdbm:gdbm-p (setf *db* (gdbm:gdbm-open *db* :default-key-type 'string))) T
 
 (gdbm:do-db (key *db*) :count key) 4
 
@@ -124,33 +123,32 @@ FILE-SIZE
 
 (gdbm:gdbm-close *db*) NIL
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :reader
-                       :default-key-type 'string)
+(gdbm:with-open-db (db *db* :read-write :reader :default-key-type 'string)
   (gdbm:do-db (key db)
     :sum (length (gdbm:gdbm-fetch db key :type 'vector)))) 4001
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
+(gdbm:with-open-db (db *db* :read-write :writer)
   (gdbm:gdbm-store db #(0 0 0 0) #(1 1 1 1))
   (gdbm:do-db (key db :type 'vector)
     :sum (length (gdbm:gdbm-fetch db key :type 'vector)))) 4005
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :reader)
+(gdbm:with-open-db (db *db* :read-write :reader)
   (gdbm:gdbm-fetch db #(0 0 0 0) :type 'vector)) #(1 1 1 1)
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :reader)
+(gdbm:with-open-db (db *db* :read-write :reader)
   (type-of (gdbm:gdbm-fetch db #(0 0 0 0) :type 'vector)))
 (simple-array (unsigned-byte 8) (4))
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :reader
+(gdbm:with-open-db (db *db* :read-write :reader
                        :default-value-type '32bit-vector)
   (gdbm:gdbm-fetch db #(0 0 0 0)))
 #(16843009)
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
+(gdbm:with-open-db (db *db* :read-write :writer)
   (gdbm:gdbm-store db 1 17)
   (gdbm:gdbm-fetch db 1 :type 'integer)) 17
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
+(gdbm:with-open-db (db *db* :read-write :writer)
   (loop :for i :from 1 :to 100 :for i! = (! i) :for l = (integer-length i!)
     :do (gdbm:gdbm-store db i i!)
     (when (zerop (mod (1+ l) 32)) ; 32bit-vector conversion possible
@@ -159,23 +157,23 @@ FILE-SIZE
             :pretty t))
     :always (= (gdbm:gdbm-fetch db i :type 'integer) i!))) T
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
+(gdbm:with-open-db (db *db* :read-write :writer)
   (gdbm:gdbm-store db 2 2.0f0)
   (gdbm:gdbm-fetch db 2 :type 'single-float)) 2.0f0
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
+(gdbm:with-open-db (db *db* :read-write :writer)
   (gdbm:gdbm-store db 3 4.0d0)
   (gdbm:gdbm-fetch db 3 :type 'double-float)) 4.0d0
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
+(gdbm:with-open-db (db *db* :read-write :writer)
   (gdbm:gdbm-store db 1.0f0 2.0f0)
   (gdbm:gdbm-fetch db 1.0f0 :type 'single-float)) 2.0f0
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
+(gdbm:with-open-db (db *db* :read-write :writer)
   (gdbm:gdbm-store db 2.5d0 4.0d0)
   (gdbm:gdbm-fetch db 2.5d0 :type 'double-float)) 4.0d0
 
-(gdbm:with-open-db (db (gdbm:gdbm-path *db*) :read-write :writer)
+(gdbm:with-open-db (db *db* :read-write :writer)
   (let ((v (make-array 3 :element-type '(unsigned-byte 32)
                        :initial-contents '(123 456 789))))
     (gdbm:gdbm-store db v v)

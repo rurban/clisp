@@ -39,6 +39,8 @@
     and <constant>:DEFAULT-VALUE-TYPE-TYPE</constant> should be one of
     those.  If not specified (or &nil;), the &type-k;
     argument is required in the access functions below.</para>
+   <para>If &filename-r; is actually an existing <type>GDBM</type> structure,
+    then it is re-opened (if it has been closed), and returned as is.</para>
    <para>The return value is &finalize;d with
     <link linkend="gdbm-close"><function>GDBM-CLOSE</function></link>.</para>
  </listitem></varlistentry>
@@ -53,10 +55,10 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-open-p">
   <term><code>(GDBM:GDBM-OPEN-P &db-r;)</code></term>
-  <listitem><simpara>Check whether &db-r; has been already closed.
-   </simpara><warning><simpara>Only the above functions accept closed
-     databases, the following functions &sig-err; when passed a closed
-     database.</simpara></warning></listitem></varlistentry>
+  <listitem><simpara>Check whether &db-r; has been already closed.</simpara>
+   <warning><simpara>Only the above functions accept closed databases,
+     the following functions &sig-err; when passed a closed database.
+ </simpara></warning></listitem></varlistentry>
  <varlistentry id="gdbm-store">
   <term><code>(GDBM:GDBM-STORE &db-r; &key-r; &cont-r; &key-amp;
     :FLAG)</code></term>
