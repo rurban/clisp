@@ -301,6 +301,7 @@ set       toc,title
 <xsl:param name="section.autolabel" select="1"/>
 <xsl:param name="section.label.includes.component.label" select="1"/>
 
+<xsl:param name="google.ads" select="0"/>
 <xsl:template name="user.footer.content">
  <xsl:if test="/refentry/refentryinfo"><div class="refentryinfo">
    <hr width="100%"/><table width="100%" summary="man page meta info">
