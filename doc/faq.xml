@@ -733,8 +733,8 @@ to see where the warning is coming from.</para>
  <para>The above code does not conform to &ansi-cl;, therefore &clisp;
   can produce arbitrary results.</para></answer>
 <answer><label>Detailed</label>
-<para>Because of <ulink url="&clhs;/Body/sec_3-2-2-3.html">Section
-  3.2.2.3 Semantic Constraints</ulink>:
+<para><ulink url="&clhs;/Body/sec_3-2-2-3.html">Section 3.2.2.3 Semantic
+  Constraints</ulink> says:
  <blockquote><para>
    Special proclamations for dynamic variables must be made in the
    compilation environment.
@@ -748,15 +748,15 @@ to see where the warning is coming from.</para>
 <para>The same holds also for macros. Before defining a function that
  uses a macro, that macro must have been defined.</para></answer>
 <answer><label>Rationale</label>
- <para>This is an artifact of interaction between global &special-dec;
-  declarations and code <emphasis>interpretation</emphasis>.
-  If function <function>ADD-10</function> were
-  compiled &before-e; <varname>VAL</varname> was
-  declared &special-dec;, the symbol <varname>VAL</varname> would have
-  been eliminated from the code for <function>ADD-10</function> and the
-  &special-dec; declaration would not have affected the return value
-  (i.e., the last <code>(funcall add-10 0)</code> would have
-  returned <returnvalue>10</returnvalue>).</para>
+ <para>When the aforementioned semantic constraints are not followed,
+  there are observable differences between <emphasis>compiled</emphasis>
+  and <emphasis>interpreted</emphasis> programs.
+  If function <function>ADD-10</function> were compiled &before-e;
+  <varname>VAL</varname> was declared &special-dec;, the symbol
+  <varname>VAL</varname> would have been eliminated from the code for
+  <function>ADD-10</function> and the &special-dec; declaration would
+  not have affected the return value (i.e., the last <code>(funcall
+  add-10 0)</code> would have returned <returnvalue>10</returnvalue>).</para>
  <para>Alas, you did not compile <function>ADDER</function>,
   so <function>ADD-10</function> was <emphasis>interpreted</emphasis>!
   When <function>ADD-10</function> is executed, its definition is interpreted
