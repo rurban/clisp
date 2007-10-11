@@ -5,6 +5,7 @@ This file describes the standard installation procedure.
 Please do read this entire file before starting
 - or, if you are impatient, start with step 2 and then skip to step 12.
 Special hints for some platforms can be found in file unix/PLATFORMS.
+Despite this file's location, it is applicable to cygwin and mingw as well.
 
 1. (Optional)
    Choose which C compiler to use for building CLISP.
