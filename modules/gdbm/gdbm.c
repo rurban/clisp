@@ -89,43 +89,6 @@ nonreturning_function(static, error_gdbm, (char *fatal_message)) {
 DEFUN(GDBM::GDBM-VERSION,)
 { VALUES1(safe_to_string(gdbm_version)); }
 
-#define SYSCALL(statement) begin_system_call(); statement; end_system_call()
-
-DEFCHECKER(gdbm_open_read_write, default=GDBM_WRCREAT, prefix=GDBM,     \
-           READER WRITER WRCREAT NEWDB)
-DEFCHECKER(gdbm_open_option, default=0, prefix=GDBM, SYNC NOLOCK FAST)
-#if defined(HAVE_GDBM_OPEN)
-DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE   \
-      :DEFAULT-KEY-TYPE :DEFAULT-VALUE-TYPE)
-{
-  GDBM_FILE gdbm;
-  gdbm_data_t default_value_type = check_data_type(popSTACK());
-  gdbm_data_t default_key_type = check_data_type(popSTACK());
-  int mode = check_uint_defaulted(popSTACK(), 0644);
-  int rw_opt1 = gdbm_open_option(popSTACK());
-  int rw_opt2 = gdbm_open_read_write(popSTACK());
-  int rw = rw_opt1 | rw_opt2;
-  int bsize = check_uint_defaulted(popSTACK(), 512);
-  STACK_0 = physical_namestring(STACK_0);
-
-  with_string_0(STACK_0, GLO(pathname_encoding), name, {
-      SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode, error_gdbm));
-    });
-  if (gdbm != NULL) {
-    pushSTACK(allocate_fpointer(gdbm));
-    pushSTACK(STACK_1);         /* path */
-    pushSTACK(fixnum(default_key_type));
-    pushSTACK(fixnum(default_value_type));
-    funcall(`GDBM::MAKE-GDBM`,4);
-    STACK_0 = value1;        /* save GDBM object, drop path */
-    pushSTACK(STACK_0); pushSTACK(``GDBM::GDBM-CLOSE``);
-    funcall(L(finalize),2);
-    VALUES1(popSTACK());      /* restore */
-  } else
-    error_gdbm(NULL);
-}
-#endif  /* HAVE_GDBM_OPEN */
-
 /* can trigger GC */
 #define GDBM_SLOT_FILE  1
 #define GDBM_SLOT_PATH  2
@@ -134,7 +97,7 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE   \
 static GDBM_FILE check_gdbm (object gdbm, gdbm_data_t *key, gdbm_data_t *val,
                              bool require_valid_handle)
 {
-  gdbm = check_classname(gdbm, `GDBM::GDBM`);
+  gdbm = check_classname(gdbm,`GDBM::GDBM`);
   if (key && *key == GDBM_DATA_NOTYPE)
     *key = posfixnum_to_V(TheStructure(gdbm)->recdata[GDBM_SLOT_KEY]);
   if (val && *val == GDBM_DATA_NOTYPE)
@@ -154,6 +117,53 @@ static GDBM_FILE check_gdbm (object gdbm, gdbm_data_t *key, gdbm_data_t *val,
     } else return NULL;
   }
 }
+
+#define SYSCALL(statement) begin_system_call(); statement; end_system_call()
+
+static object open_gdbm (object path, int bsize, int rw, int mode) {
+  GDBM_FILE gdbm;
+  with_string_0(path, GLO(pathname_encoding), name, {
+      SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode, error_gdbm));
+    });
+  if (gdbm == NULL) error_gdbm(NULL);
+  return allocate_fpointer(gdbm);
+}
+
+DEFCHECKER(gdbm_open_read_write, default=GDBM_WRCREAT, prefix=GDBM,     \
+           READER WRITER WRCREAT NEWDB)
+DEFCHECKER(gdbm_open_option, default=0, prefix=GDBM, SYNC NOLOCK FAST)
+#if defined(HAVE_GDBM_OPEN)
+DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE   \
+      :DEFAULT-KEY-TYPE :DEFAULT-VALUE-TYPE)
+{
+  gdbm_data_t default_value_type = check_data_type(popSTACK());
+  gdbm_data_t default_key_type = check_data_type(popSTACK());
+  int mode = check_uint_defaulted(popSTACK(), 0644);
+  int rw_opt1 = gdbm_open_option(popSTACK());
+  int rw_opt2 = gdbm_open_read_write(popSTACK());
+  int rw = rw_opt1 | rw_opt2;
+  int bsize = check_uint_defaulted(popSTACK(), 512);
+  if (typep_classname(STACK_0,`GDBM::GDBM`)) { /* reuse */
+    if (!check_gdbm(STACK_0,&default_key_type,&default_value_type,false))
+      TheStructure(STACK_0)->recdata[GDBM_SLOT_FILE] = /* reopen */
+        open_gdbm(TheStructure(STACK_0)->recdata[GDBM_SLOT_PATH],
+                  bsize, rw, mode);
+    TheStructure(STACK_0)->recdata[GDBM_SLOT_KEY]=fixnum(default_key_type);
+    TheStructure(STACK_0)->recdata[GDBM_SLOT_VAL]=fixnum(default_value_type);
+    VALUES1(popSTACK());        /* return the argument */
+    return;
+  }
+  pushSTACK(open_gdbm(physical_namestring(STACK_0), bsize, rw, mode));
+  pushSTACK(STACK_1);         /* path */
+  pushSTACK(fixnum(default_key_type));
+  pushSTACK(fixnum(default_value_type));
+  funcall(`GDBM::MAKE-GDBM`,4);
+  STACK_0 = value1;        /* save GDBM object, drop path */
+  pushSTACK(STACK_0); pushSTACK(``GDBM::GDBM-CLOSE``);
+  funcall(L(finalize),2);
+  VALUES1(popSTACK());      /* restore */
+}
+#endif  /* HAVE_GDBM_OPEN */
 
 DEFUN(GDBM:GDBM-DEFAULT-KEY-TYPE, dbf) {
   gdbm_data_t key = GDBM_DATA_NOTYPE;
