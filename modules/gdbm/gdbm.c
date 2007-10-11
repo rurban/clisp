@@ -134,25 +134,25 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE   \
 static GDBM_FILE check_gdbm (object gdbm, gdbm_data_t *key, gdbm_data_t *val,
                              bool require_valid_handle)
 {
-  object fp;
   gdbm = check_classname(gdbm, `GDBM::GDBM`);
   if (key && *key == GDBM_DATA_NOTYPE)
     *key = posfixnum_to_V(TheStructure(gdbm)->recdata[GDBM_SLOT_KEY]);
   if (val && *val == GDBM_DATA_NOTYPE)
     *val = posfixnum_to_V(TheStructure(gdbm)->recdata[GDBM_SLOT_VAL]);
-  fp = TheStructure(gdbm)->recdata[GDBM_SLOT_FILE];
-  if (fpointerp(fp)) return (GDBM_FILE)TheFpointer(fp)->fp_pointer;
-  else if (require_valid_handle) {
-    pushSTACK(`GDBM::GDBM-ERROR`);
-    pushSTACK(`:MESSAGE`);
-    pushSTACK(`"open GDBM file required"`);
-    pushSTACK(`:CODE`); pushSTACK(`:CLOSED-FILE`);
-    pushSTACK(`"~S: ~A"`);
-    pushSTACK(TheSubr(subr_self)->name);
-    pushSTACK(STACK_4); /* message */
-    funcall(L(error_of_type), 8);
-    NOTREACHED;
-  } else return NULL;
+  { object fp = TheStructure(gdbm)->recdata[GDBM_SLOT_FILE];
+    if (fpointerp(fp)) return (GDBM_FILE)TheFpointer(fp)->fp_pointer;
+    else if (require_valid_handle) {
+      pushSTACK(`GDBM::GDBM-ERROR`);
+      pushSTACK(`:MESSAGE`);
+      pushSTACK(`"open GDBM file required"`);
+      pushSTACK(`:CODE`); pushSTACK(`:CLOSED-FILE`);
+      pushSTACK(`"~S: ~A"`);
+      pushSTACK(TheSubr(subr_self)->name);
+      pushSTACK(STACK_4); /* message */
+      funcall(L(error_of_type), 8);
+      NOTREACHED;
+    } else return NULL;
+  }
 }
 
 DEFUN(GDBM:GDBM-DEFAULT-KEY-TYPE, dbf) {
