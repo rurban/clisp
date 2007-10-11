@@ -236,7 +236,7 @@ This will not work with closures that use lexical variables!"
                              `((trace-print (multiple-value-list
                                              ,(tracer-print trr)))))
                          ,@(when (tracer-post-print trr)
-                                `((trace-print (multiple-value-list
+                             `((trace-print (multiple-value-list
                                              ,(tracer-post-print trr)))))
                          (unless (or ,(tracer-suppress-if trr)
                                      ,(if (tracer-max-depth trr) `(> *trace-level* ,(tracer-max-depth trr)) 'nil))
