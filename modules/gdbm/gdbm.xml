@@ -99,7 +99,7 @@
   <listitem><simpara>Reorganize database.</simpara></listitem></varlistentry>
  <varlistentry id="gdbm-sync">
   <term><code>(GDBM:GDBM-SYNC &db-r;)</code></term>
-  <listitem><simpara>The in-memory state of the database syncronized to
+  <listitem><simpara>Syncronize the in-memory state of the database to
     the disk file.</simpara></listitem></varlistentry>
  <varlistentry id="gdbm-setopt">
   <term><code>(GDBM:GDBM-SETOPT &db-r; &option-r; &value-r;)</code></term>
