@@ -240,8 +240,8 @@ This will not work with closures that use lexical variables!"
                                              ,(tracer-post-print trr)))))
                          (unless (or ,(tracer-suppress-if trr)
                                      ,(if (tracer-max-depth trr) `(> *trace-level* ,(tracer-max-depth trr)) 'nil))
-                               (trace-post-output ,local-call-counter))
-                             (values-list *trace-values*)))))))
+                           (trace-post-output ,local-call-counter))
+                         (values-list *trace-values*)))))))
             (setf (get newname 'sys::untraced-name) (tracer-symb trr))
             (macrolet ((f (def) `(fdefinition (compile newname ,def))))
               (cond (macro-flag
