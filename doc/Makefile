@@ -57,8 +57,10 @@ CATALOG_FILE=catalog.xml
 # Local path to DocBook XSL stylesheets on your system - or snapshot location
 # Make sure to use a trailing slash.
 # STYLESHEETS_PATH=/usr/share/sgml/docbook/xsl-stylesheets/
-STYLESHEETS_PATH=http://docbook.sourceforge.net/release/xsl/snapshot/
-# STYLESHEETS_PATH=http://docbook.xml-doc.org/snapshots/xsl/
+STYLESHEETS_PATH=http://docbook.xml-doc.org/snapshots/xsl/
+# STYLESHEETS_PATH=http://docbook.sourceforge.net/release/xsl/snapshot/
+# STYLESHEETS_PATH=http://docbook.sourceforge.net/release/xsl/current/
+# STYLESHEETS_PATH=$(HOME)/src/xml-doc/docbook-xsl/
 
 # Stylesheets URI used in the CLISP project *.xsl files.
 STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/current/
