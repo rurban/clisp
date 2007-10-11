@@ -62,8 +62,8 @@
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">utils/ccmp2c.c</filename></term>
 <listitem><simpara>For the <literal>new-clx</literal> module only.
-  Allows &cpp;-style preprocessing <emphasis>before</emphasis> &modprep;
-  processing.  Should be merged into &modprep; eventually.
+  Allows &cpp;-style preprocessing &before-e; &modprep; processing.
+  Should be merged into &modprep; eventually.
 </simpara></listitem></varlistentry>
 <varlistentry id="modprep-file">
  <term><filename role="clisp-cvs">utils/modprep.lisp</filename></term>
@@ -1264,8 +1264,7 @@ structure contains an integer <structfield>allocstamp</structfield>
 slot. If these two integers are not the same, the &object-t; is invalid.
 By playing with &gdb;, you should be able to figure out the precise spot
 where an allocation increments <varname>alloccount</varname>
-<emphasis>after</emphasis> the object has been retrieved from a
-GC-visible location.</para>
+&after-e; the object has been retrieved from a GC-visible location.</para>
 </section>
 
 <section id="gc-mem-prot"><title>Memory protection</title>
