@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.24  2006/10/13 04:10:53  sds
+# clisp 2.41 release (Friday the 13th!)
+#
 # Revision 1.23  2006/10/01 16:13:06  sds
 # 2.40 (2006-09-23)
 #
@@ -212,6 +215,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.24  2006/10/13 04:10:53  sds
+# clisp 2.41 release (Friday the 13th!)
+#
 # Revision 1.23  2006/10/01 16:13:06  sds
 # 2.40 (2006-09-23)
 #
@@ -334,7 +340,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-10-12 23:35:57-0400\n"
+"POT-Creation-Date: 2007-10-12 15:14:32-0400\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -692,7 +698,7 @@ msgstr ""
 msgid "invalid argument"
 msgstr "Argumento inválido"
 
-#: spvw.d:2070
+#: spvw.d:2073
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB"
 
@@ -707,32 +713,32 @@ msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB"
 #
 # ¿No te mola más? - cll
 #
-#: spvw.d:2075
+#: spvw.d:2078
 msgid "%s out of range"
 msgstr "%s se ha salido del rango"
 
-#: spvw.d:2080
+#: spvw.d:2083
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:2096
+#: spvw.d:2099
 msgid "memory size"
 msgstr "tamaño de memoria"
 
-#: spvw.d:2112
+#: spvw.d:2115
 msgid "multiple -t"
 msgstr ""
 
-#: spvw.d:2132
+#: spvw.d:2135
 msgid "multiple -B"
 msgstr ""
 
-#: spvw.d:2167
+#: spvw.d:2170
 #, fuzzy
 msgid "-E requires an argument"
 msgstr "~S argumentos obligatorios"
 
-#: spvw.d:2433
+#: spvw.d:2436
 msgid "-l without -c is invalid"
 msgstr ""
 
@@ -744,16 +750,16 @@ msgstr ""
 #
 # ¿os gusta o lo encontrais raro?
 #
-#: spvw.d:2439
+#: spvw.d:2442
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S no es posible sobre el flujo ~S"
 
-#: spvw.d:2444
+#: spvw.d:2447
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2564
+#: spvw.d:2568
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución del código de tipo."
@@ -763,7 +769,7 @@ msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución
 #
 # aMadre mía!! Tienes toda la razón del mundo - cll :)
 #
-#: spvw.d:2571
+#: spvw.d:2575
 msgid "Only %d bytes available."
 msgstr "Sólo quedan %d bytes disponibles."
 
@@ -771,11 +777,11 @@ msgstr "Sólo quedan %d bytes disponibles."
 # viene decir "SP stack"? ¿Se referirán con ello a la pila del sistema?
 # - cll
 #
-#: spvw.d:2821
+#: spvw.d:2825
 msgid "Could not determine the end of the SP stack!"
 msgstr "No fue posible determinar el final de la pila SP!"
 
-#: spvw.d:3373
+#: spvw.d:3364
 #, fuzzy
 msgid "%s: Not enough memory for Lisp."
 msgstr "No hay memoria suficiente para Lisp."

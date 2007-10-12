@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.32.91\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-10-12 23:35:57-0400\n"
+"POT-Creation-Date: 2007-10-12 15:14:32-0400\n"
 "PO-Revision-Date: 2004-09-08 23:56:00 GMT\n"
 "Last-Translator: Dennis Decker Jensen <dennisdjensen@tiscali.dk>\n"
 "Language-Team: Danish <dansk@klid.dk>\n"
@@ -258,59 +258,59 @@ msgstr "%s: brug '-h' for at få hjælp"
 msgid "invalid argument"
 msgstr "ugyldigt argument"
 
-#: spvw.d:2070
+#: spvw.d:2073
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Syntaks for %s: nnnnnnn eller nnnnKB eller nMB"
 
-#: spvw.d:2075
+#: spvw.d:2078
 msgid "%s out of range"
 msgstr "%s ude af rækkevidde"
 
-#: spvw.d:2080
+#: spvw.d:2083
 msgid "warning: %s out of range, using %u instead"
 msgstr "advarsel: %s er uden for interval, brug %u istedet"
 
-#: spvw.d:2096
+#: spvw.d:2099
 msgid "memory size"
 msgstr "hukommelsesstørrelse"
 
-#: spvw.d:2112
+#: spvw.d:2115
 msgid "multiple -t"
 msgstr "multibel -t"
 
-#: spvw.d:2132
+#: spvw.d:2135
 msgid "multiple -B"
 msgstr "multibel -B"
 
-#: spvw.d:2167
+#: spvw.d:2170
 msgid "-E requires an argument"
 msgstr "-E kræver et argument"
 
-#: spvw.d:2433
+#: spvw.d:2436
 msgid "-l without -c is invalid"
 msgstr "-l uden -c er ugyldigt"
 
-#: spvw.d:2439
+#: spvw.d:2442
 msgid "-x with -c is invalid"
 msgstr "-x med -c er ugyldigt"
 
-#: spvw.d:2444
+#: spvw.d:2447
 msgid "-x with lisp-file is invalid"
 msgstr "-x med lispfil er ugyldigt"
 
-#: spvw.d:2564
+#: spvw.d:2568
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Returværdien af malloc() = %lx er ikke kompatibel med typekode-distributionen."
 
-#: spvw.d:2571
+#: spvw.d:2575
 msgid "Only %d bytes available."
 msgstr "Kun %d byte ledig."
 
-#: spvw.d:2821
+#: spvw.d:2825
 msgid "Could not determine the end of the SP stack!"
 msgstr "Kunne ikke afgøre, hvad slutningen på programstakken var!"
 
-#: spvw.d:3373
+#: spvw.d:3364
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Ikke nok hukommelse til Lisp."
 

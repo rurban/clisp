@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-10-12 23:35:57-0400\n"
+"POT-Creation-Date: 2007-10-12 15:14:32-0400\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -43,16 +43,14 @@ msgid "module '%s' redefines symbol "
 msgstr "Pas de module «%s» sans le paquetage %s.\n"
 
 #: spvw.d:1561
-#, fuzzy
 msgid " in the locked package "
-msgstr "un paquetage éliminé."
+msgstr ""
 
 #: spvw.d:1563
-#, fuzzy
 msgid ""
 "\n"
 "old definition: "
-msgstr ", aussi d'un macro"
+msgstr ""
 
 #: spvw.d:1600
 msgid "is an ANSI Common Lisp."
@@ -234,62 +232,62 @@ msgstr ""
 msgid "invalid argument"
 msgstr "Paramètre illicite"
 
-#: spvw.d:2070
+#: spvw.d:2073
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB"
 
-#: spvw.d:2075
+#: spvw.d:2078
 msgid "%s out of range"
 msgstr "%s n'est pas entre les bornes"
 
-#: spvw.d:2080
+#: spvw.d:2083
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:2096
+#: spvw.d:2099
 msgid "memory size"
 msgstr "taille mémoire"
 
-#: spvw.d:2112
+#: spvw.d:2115
 msgid "multiple -t"
 msgstr ""
 
-#: spvw.d:2132
+#: spvw.d:2135
 msgid "multiple -B"
 msgstr ""
 
-#: spvw.d:2167
+#: spvw.d:2170
 #, fuzzy
 msgid "-E requires an argument"
 msgstr "~S arguments nécessaires"
 
-#: spvw.d:2433
+#: spvw.d:2436
 msgid "-l without -c is invalid"
 msgstr ""
 
-#: spvw.d:2439
+#: spvw.d:2442
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S de/sur ~S est impossible."
 
-#: spvw.d:2444
+#: spvw.d:2447
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2564
+#: spvw.d:2568
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
-msgstr "La valeur de malloc() = %x n'est pas compatible avec le codage des types."
+msgstr "La valeur de malloc() = %lx n'est pas compatible avec le codage des types."
 
-#: spvw.d:2571
+#: spvw.d:2575
 msgid "Only %d bytes available."
 msgstr "Seuls %d octets libres."
 
-#: spvw.d:2821
+#: spvw.d:2825
 msgid "Could not determine the end of the SP stack!"
 msgstr "Impossible de savoir où se termine la pile SP!"
 
-#: spvw.d:3373
+#: spvw.d:3364
 #, fuzzy
 msgid "%s: Not enough memory for Lisp."
 msgstr "Il n'y a pas assez de mémoire pour LISP."
@@ -305,17 +303,17 @@ msgstr "*** - La mémoire est épuisée : RAZ"
 #: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
-msgstr "Ne peux pas placer de la mémoire à l'adresse 0x%x ."
+msgstr "Impossible de placer de la mémoire à l'adresse 0x%lx ."
 
 #: spvw_mmap.d:170
 #, fuzzy
 msgid "Cannot reserve address range at 0x%lx ."
-msgstr "Ne peux pas réserver les adresses à partir de 0x%x ."
+msgstr "Impossible de réserver les adresses à partir de 0x%lx ."
 
 #: spvw_mmap.d:180
 #, fuzzy
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
-msgstr "Ne peux pas réserver les adresses 0x%x-0x%x ."
+msgstr "Impossible de réserver les adresses 0x%lx-0x%lx ."
 
 #: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
@@ -340,17 +338,17 @@ msgstr "VirtualProtect() a échoué."
 #: spvw_mmap.d:337 spvw_multimap.d:115 spvw_multimap.d:190
 #, fuzzy
 msgid "Cannot open <%s>."
-msgstr "Ne peux pas ouvrir %s ."
+msgstr "Impossible d'ouvrir %s ."
 
 #: spvw_multimap.d:139
 #, fuzzy
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
-msgstr "msync(0x%x,0x%x,MS_INVALIDATE) - erreur."
+msgstr "msync(0x%lx,0x%x,MS_INVALIDATE) - erreur."
 
 #: spvw_multimap.d:199
 #, fuzzy
 msgid "Cannot delete <%s>."
-msgstr "Ne peux pas effacer %s ."
+msgstr "Impossible d'effacer %s ."
 
 #: spvw_multimap.d:217
 #, fuzzy
@@ -365,17 +363,17 @@ msgstr "Prière de relancer LISP avec moins de mémoire (option -m)."
 #: spvw_multimap.d:228
 #, fuzzy
 msgid "Cannot make <%s> long enough."
-msgstr "Ne peux pas agrandir %s ."
+msgstr "Impossible d'agrandir %s ."
 
 #: spvw_multimap.d:242
 #, fuzzy
 msgid "Cannot fill <%s>."
-msgstr "Ne peux pas remplir %s ."
+msgstr "Impossible de remplir %s ."
 
 #: spvw_multimap.d:255 spvw_multimap.d:289
 #, fuzzy
 msgid "Cannot close <%s>."
-msgstr "Ne peux pas fermer %s ."
+msgstr "Impossible de fermer %s ."
 
 #: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
@@ -389,7 +387,7 @@ msgstr "Ne peux pas allouer de segment privé de mémoire partagée."
 #: spvw_multimap.d:357
 #, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
-msgstr "Ne peux pas placer de la mémoire partagée à l'adresse 0x%x."
+msgstr "Ne peux pas placer de la mémoire partagée à l'adresse 0x%lx."
 
 #: spvw_multimap.d:375 spvw_multimap.d:381
 #, fuzzy
@@ -403,7 +401,7 @@ msgstr "Ne peux pas retirer un segment de mémoire partagée."
 #: spvw_fault.d:277
 #, fuzzy
 msgid "mprotect(0x%lx,%d,%d) failed."
-msgstr "mprotect() ne fonctionne pas."
+msgstr "mprotect(0x%lx,%d,%d) n'a pas fonctionné."
 
 #: spvw_sigsegv.d:23
 msgid "Permanently allocated: %lu bytes."
@@ -420,7 +418,7 @@ msgstr ""
 #: spvw_sigsegv.d:40
 #, fuzzy
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
-msgstr "SIGSEGV ne peut être relevé. Adresse fautive = 0x%x."
+msgstr "SIGSEGV ne peut être relevé. Adresse fautive = 0x%lx."
 
 #: spvw_sigsegv.d:76
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"

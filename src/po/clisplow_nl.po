@@ -23,7 +23,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-10-12 23:35:57-0400\n"
+"POT-Creation-Date: 2007-10-12 15:14:32-0400\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -251,62 +251,62 @@ msgstr ""
 msgid "invalid argument"
 msgstr "Ongeldig argument"
 
-#: spvw.d:2070
+#: spvw.d:2073
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Syntaxis voor %s: nnnnnnn of nnnnKB of nMB"
 
-#: spvw.d:2075
+#: spvw.d:2078
 msgid "%s out of range"
 msgstr "%s is buiten bereik"
 
-#: spvw.d:2080
+#: spvw.d:2083
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:2096
+#: spvw.d:2099
 msgid "memory size"
 msgstr "grootte geheugen"
 
-#: spvw.d:2112
+#: spvw.d:2115
 msgid "multiple -t"
 msgstr ""
 
-#: spvw.d:2132
+#: spvw.d:2135
 msgid "multiple -B"
 msgstr ""
 
-#: spvw.d:2167
+#: spvw.d:2170
 #, fuzzy
 msgid "-E requires an argument"
 msgstr "~S vereiste argumenten"
 
-#: spvw.d:2433
+#: spvw.d:2436
 msgid "-l without -c is invalid"
 msgstr ""
 
-#: spvw.d:2439
+#: spvw.d:2442
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S op ~S is ongeldig"
 
-#: spvw.d:2444
+#: spvw.d:2447
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2564
+#: spvw.d:2568
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Waarde van malloc() = %x stemt niet overeen met de typecodes."
 
-#: spvw.d:2571
+#: spvw.d:2575
 msgid "Only %d bytes available."
 msgstr "Nog maar %d bytes beschikbaar."
 
-#: spvw.d:2821
+#: spvw.d:2825
 msgid "Could not determine the end of the SP stack!"
 msgstr "Kan het einde van de SP stack niet bepalen!"
 
-#: spvw.d:3373
+#: spvw.d:3364
 #, fuzzy
 msgid "%s: Not enough memory for Lisp."
 msgstr "Niet genoeg geheugen voor Lisp."
