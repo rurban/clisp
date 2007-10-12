@@ -1,7 +1,7 @@
 /*
  * Export CLISP internals for modules
  * Bruno Haible 1994-2005
- * Sam Steingold 1998-2005, 2007
+ * Sam Steingold 1998-2007
  */
 
 #include "lispbibl.c"

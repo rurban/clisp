@@ -1,7 +1,7 @@
 /*
  * Predicates for equality and type tests, types, classes in CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2004
+ * Sam Steingold 1998-2007
  * German comments translated into English: Stefan Kain 2002-09-15
  */
 
