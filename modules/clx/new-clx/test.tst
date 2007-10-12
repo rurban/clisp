@@ -118,6 +118,8 @@ NIL
 (listp (show (xlib:window-plist *window*) :pretty t)) T
 (xlib:window-equal *window* *window*) T
 (xlib:window-equal *window* *root*) NIL
+(typep (show (xlib:window-bit-gravity *window*)) 'xlib:bit-gravity) T
+(typep (show (xlib:window-gravity *window*)) 'xlib:win-gravity) T
 (integerp (show (xlib:window-id *window*))) T
 (xlib:window-p (show (xlib:drawable-root *window*))) T
 (listp (show (multiple-value-list (xlib:query-tree *window*)) :pretty t)) T
