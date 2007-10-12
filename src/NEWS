@@ -26,6 +26,10 @@ User visible changes
 * Function EXT:ARGLIST now works on macros too.
   See <http://clisp.cons.org/impnotes/flow-dict.html#arglist> for details.
 
+* Macro TRACE has a new option :BINDINGS, which is useful to share data
+  between PRE-* and POST-* forms.
+  See <http://clisp.cons.org/environment-dict.html#trace> for details.
+
 * Macro FFI:DEF-C-TYPE can now be called with one argument to define an
   integer type.
   See <http://clisp.cons.org/impnotes/dffi.html#def-c-type> for details.
