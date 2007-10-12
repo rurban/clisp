@@ -1,6 +1,7 @@
 2007-10-12  Sam Steingold  <sds@gnu.org>
 
 	* version.sh, spvw.d: pretest 2.41.1 (2007-10-12)
+	* Makefile.devel: coalesce TOPNAME & TOPDIR; fix tp-mail
 
 2007-10-12  Sam Steingold  <sds@gnu.org>
 
