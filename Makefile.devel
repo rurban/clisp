@@ -10,30 +10,6 @@ PERL = perl
 GROFF = nroff -man
 # GROFF = groff -mandoc
 
-# Assume tar/bzip2/gzip are present
-# set this if you are using GNU tar
-EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
-        --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
-        --exclude .cvsignore --exclude \*~ --exclude .\#\*                 \
-        --exclude $(AUTOCONF_CACHE) --exclude tmp --exclude queued         \
-        `sed "s/^/--exclude /" doc/.cvsignore`                             \
-        --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
-
-# The distribution's top directory is called TOPDIR here.
-# Use clisp-YYYY-MM-DD where DD.MM.YYYY is the date.
-TOPDIR = clisp
-T = $(TOPDIR)
-
-SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure
-SOURCES2 = $T/src
-SOURCES4 = $T/ffcall $T/libcharset $T/utils
-SOURCES5 = $T/unix $T/win32msvc $T/nextapp
-SOURCES6 = $T/modules
-# for developers only: $T/benchmarks $T/sacla-tests $T/ansi-tests
-SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
-
-SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7)
-
 all : makefiles check-configures update-ansi-tests update-docbook-utils     \
 	fixperms                                                            \
 	potfiles                                                            \
@@ -410,17 +386,39 @@ VER=$(shell . version.sh ; echo $$VERSION_NUMBER)
 REL=$(shell . version.sh ; echo $$RELEASE_DATE)
 ARCHIVE=../archives/$(VER)
 SUFFIX=
-TOPNAME=clisp-$(VER)$(SUFFIX)
-SRC_DIST=$(ARCHIVE)/$(TOPNAME).tar.bz2
-SRC_DIST1=$(ARCHIVE)/$(TOPNAME).tar.gz
-DOC_DIST=$(ARCHIVE)/$(TOPNAME)-impnotes.zip
+# The distribution's top directory is called TOPDIR here.
+TOPDIR=clisp-$(VER)$(SUFFIX)
+SRC_DIST=$(ARCHIVE)/$(TOPDIR).tar.bz2
+SRC_DIST1=$(ARCHIVE)/$(TOPDIR).tar.gz
+DOC_DIST=$(ARCHIVE)/$(TOPDIR)-impnotes.zip
 UPLOAD=$(SRC_DIST) $(SRC_DIST1) $(DOC_DIST)
 SSHUP=podval:~/public_html/clisp/
 FTPUP=upload.sf.net:/incoming sunsite.unc.edu:/incoming/linux
 GNU_TOP=$(ARCHIVE)/NEWS $(ARCHIVE)/SUMMARY
 GNU_SRC=$(SRC_DIST1) $(SRC_DIST)
 GNU_DIST=$(GNU_TOP) $(GNU_SRC)
-GNU_SYM=$(ARCHIVE)/$(TOPNAME).symlink.directive
+GNU_SYM=$(ARCHIVE)/$(TOPDIR).symlink.directive
+
+# Assume tar/bzip2/gzip are present
+# set this if you are using GNU tar
+EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
+        --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
+        --exclude .cvsignore --exclude \*~ --exclude .\#\*                 \
+        --exclude $(AUTOCONF_CACHE) --exclude tmp --exclude queued         \
+        `sed "s/^/--exclude /" doc/.cvsignore`                             \
+        --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
+
+T = $(TOPDIR)
+SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure
+SOURCES2 = $T/src
+SOURCES4 = $T/ffcall $T/libcharset $T/utils
+SOURCES5 = $T/unix $T/win32msvc $T/nextapp
+SOURCES6 = $T/modules
+# for developers only: $T/benchmarks $T/sacla-tests $T/ansi-tests
+SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
+
+SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7)
+
 
 $(SRC_DIST1) : $(SRC_DIST)
 	bzcat -v $(SRC_DIST) | gzip -9 -v > $(SRC_DIST1)
@@ -436,16 +434,16 @@ upload : $(SRC_DIST1) force
 
 src-distrib : force
 	mkdir -p $(ARCHIVE)
-	ln -s . $(TOPNAME)
+	ln -s . $(TOPDIR)
 	tar cvfhj $(SRC_DIST) $(EXCLUDE) $(SOURCES)
-	rm -f $(TOPNAME)
+	rm -f $(TOPDIR)
 	echo $(SRC_DIST)
 
 doc-distrib : force
 	mkdir -p $(ARCHIVE)
-	ln -s . $(TOPNAME)
+	ln -s . $(TOPDIR)
 	zip -9vor $(DOC_DIST) $(TOPDIR)/doc/html -x \*.cvsignore -x \*.symlinks -x \*CVS\*
-	rm -f $(TOPNAME)
+	rm -f $(TOPDIR)
 
 # http://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
 GPG=gpg2 --use-agent --yes
@@ -482,10 +480,11 @@ TP_SUFFIX=-pre1
 tp-mail : force
 	echo "Domain: clisp" > $(MESSAGE_FILE)
 	if test -n "$(TP_SUFFIX)"; then \
-	  f=`make -f Makefile.devel src-distrib SUFFIX=$(TP_SUFFIX) | tail -1`; \
-	  scp $$f $(SSHUP); \
-	else f=`basename $(SRC_DIST)`; fi; \
-	echo "Location: http://clisp.podval.org/$$f" >> $(MESSAGE_FILE); \
+	  f=`make -f Makefile.devel src-distrib SUFFIX=$(TP_SUFFIX) | tail -n 2 | head -n 1`; \
+	  for h in $(SSHUP) ; do scp $$f $${h}; done \
+	else f=$(SRC_DIST); fi; \
+	echo "Location: http://clisp.podval.org/`basename $$f`" >> $(MESSAGE_FILE); \
+	cat $(MESSAGE_FILE); \
 	mail -s "$$f" $(TP_EMAIL) < $(MESSAGE_FILE)
 	rm -f $(MESSAGE_FILE)
 
