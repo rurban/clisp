@@ -115,7 +115,10 @@ NIL
     window))
 *WINDOW*
 (listp (show (xlib:list-properties *window*) :pretty t)) T
-
+(listp (show (xlib:window-plist *window*) :pretty t)) T
+(xlib:window-equal *window* *window*) T
+(xlib:window-equal *window* *root*) NIL
+(integerp (show (xlib:window-id *window*))) T
 (xlib:window-p (show (xlib:drawable-root *window*))) T
 (listp (show (multiple-value-list (xlib:query-tree *window*)) :pretty t)) T
 (length (show (multiple-value-list (xlib:query-pointer *window*)) :pretty t)) 8
