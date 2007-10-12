@@ -5231,6 +5231,11 @@ E.g.,
  <varlistentry><term><constant>:STEP-IF</constant> &form-r;</term>
   <listitem><simpara>invokes the stepper as soon as &form-r; is true
   </simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:BINDINGS</constant>
+   ((&var-r; &form-r;)...)</term>
+  <listitem><simpara>binds &var-r;s to the result of evaluation of
+    &form-r;s around evaluation of all of the following forms
+  </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:PRE</constant> &form-r;</term>
   <listitem><simpara>evaluates &form-r; before calling the function
   </simpara></listitem></varlistentry>
@@ -5278,12 +5283,15 @@ and you can leave the function call with specified values by using
 
 <simplesect id="trace-out"><title>Trace output</title>
 <para>&trace; prints this line before evaluating the form:
-<computeroutput><replaceable>trace level</replaceable>. Trace(<replaceable>call count</replaceable>): &form-r;</computeroutput>
+<computeroutput><replaceable>trace level</replaceable>. Trace: &form-r;</computeroutput>
 and after evaluating the form it prints:
-<computeroutput><replaceable>trace level</replaceable>. Trace(<replaceable>call count</replaceable>): &funcname-r; ==&gt; &res-r;</computeroutput>
-where <quote>trace level</quote> is the total nesting level
-and <quote>call count</quote> is the number of times the specific
-function has been trace called. E.g.,
+<computeroutput><replaceable>trace level</replaceable>. Trace: &funcname-r; ==&gt; &res-r;</computeroutput>
+where <quote>trace level</quote> is the total nesting level.
+</para></simplesect>
+
+<simplesect id="trace-eg"><title>Example</title>
+<para>Suppose the trace level above is not enough for you to identify
+ individual calls.  You can give each call a unique id and print it:
 <programlisting language="lisp">
 (defun f0 (x)
   (cond ((zerop x) 1)
@@ -5295,38 +5303,80 @@ function has been trace called. E.g.,
         ((zerop (random 2)) (* x (f0 (1- x))))
         (t (* x (f1 (1- x))))))
 <computeroutput>F1</computeroutput>
-(trace f0 f1)
+(defvar *f0-call-count* 0)
+<computeroutput>*F0-CALL-COUNT*</computeroutput>
+(defvar *id0*)
+<computeroutput>*ID0*</computeroutput>
+(defvar *cc0*)
+<computeroutput>*CC0*</computeroutput>
+(defvar *f1-call-count* 0)
+<computeroutput>*F1-CALL-COUNT*</computeroutput>
+(defvar *id1*)
+<computeroutput>*ID1*</computeroutput>
+(defvar *cc1*)
+<computeroutput>*CC1*</computeroutput>
+(trace (f0 :bindings ((*cc0* (incf *f0-call-count*))
+                      (*id0* (gensym "F0-")))
+           :pre-print (list 'enter *id0* *cc0*)
+           :post-print (list 'exit *id0* *cc0*))
+       (f1 :bindings ((*cc1* (incf *f1-call-count*))
+                      (*id1* (gensym "F1-")))
+           :pre-print (list 'enter *id1* *cc1*)
+           :post-print (list 'exit *id1* *cc1*)))
 ;; Tracing function F0.
 ;; Tracing function F1.
 <computeroutput>(F0 F1)</computeroutput>
 (f0 10)
-1. Trace(1): (F0 '10)
-2. Trace(1): (F1 '9)
-3. Trace(2): (F0 '8)
-4. Trace(2): (F1 '7)
-5. Trace(3): (F0 '6)
-6. Trace(4): (F0 '5)
-7. Trace(5): (F0 '4)
-8. Trace(3): (F1 '3)
-9. Trace(4): (F1 '2)
-10. Trace(6): (F0 '1)
-11. Trace(7): (F0 '0)
-11. Trace(7): F0 ==> 1
-10. Trace(6): F0 ==> 1
-9. Trace(4): F1 ==> 2
-8. Trace(3): F1 ==> 6
-7. Trace(5): F0 ==> 24
-6. Trace(4): F0 ==> 120
-5. Trace(3): F0 ==> 720
-4. Trace(2): F1 ==> 5040
-3. Trace(2): F0 ==> 40320
-2. Trace(1): F1 ==> 362880
-1. Trace(1): F0 ==> 3628800
+1. Trace: (F0 '10)
+(ENTER #:F0-2926 1)
+2. Trace: (F1 '9)
+(ENTER #:F1-2927 1)
+3. Trace: (F0 '8)
+(ENTER #:F0-2928 2)
+4. Trace: (F1 '7)
+(ENTER #:F1-2929 2)
+5. Trace: (F1 '6)
+(ENTER #:F1-2930 3)
+6. Trace: (F1 '5)
+(ENTER #:F1-2931 4)
+7. Trace: (F1 '4)
+(ENTER #:F1-2932 5)
+8. Trace: (F0 '3)
+(ENTER #:F0-2933 3)
+9. Trace: (F1 '2)
+(ENTER #:F1-2934 6)
+10. Trace: (F0 '1)
+(ENTER #:F0-2935 4)
+11. Trace: (F1 '0)
+(ENTER #:F1-2936 7)
+(EXIT #:F1-2936 7)
+11. Trace: F1 ==> 1
+(EXIT #:F0-2935 4)
+10. Trace: F0 ==> 1
+(EXIT #:F1-2934 6)
+9. Trace: F1 ==> 2
+(EXIT #:F0-2933 3)
+8. Trace: F0 ==> 6
+(EXIT #:F1-2932 5)
+7. Trace: F1 ==> 24
+(EXIT #:F1-2931 4)
+6. Trace: F1 ==> 120
+(EXIT #:F1-2930 3)
+5. Trace: F1 ==> 720
+(EXIT #:F1-2929 2)
+4. Trace: F1 ==> 5040
+(EXIT #:F0-2928 2)
+3. Trace: F0 ==> 40320
+(EXIT #:F1-2927 1)
+2. Trace: F1 ==> 362880
+(EXIT #:F0-2926 1)
+1. Trace: F0 ==> 3628800
 <computeroutput>3628800</computeroutput>
-</programlisting>
-Here you can match <computeroutput>Trace(5): (F0 '4)</computeroutput>
-with <computeroutput>Trace(5): F0 ==> 24</computeroutput>.
-</para></simplesect>
+*f0-call-count*
+<computeroutput>4</computeroutput>
+*f1-call-count*
+<computeroutput>7</computeroutput>
+</programlisting></para></simplesect>
 
 <simplesect id="trace-indent"><title>Variable &trace-indent;</title>
 <para>If you want the &trace; level to be indicated by the indentation

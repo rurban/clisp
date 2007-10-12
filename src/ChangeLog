@@ -1,3 +1,13 @@
+2007-10-12  Sam Steingold  <sds@gnu.org>
+
+	modify the last patch to be more general and less cluttered by default
+	* trace.lisp (tracer): replace GLOBAL-CALL-COUNTER and
+	LOCAL-CALL-COUNTER with BINDINGS
+	(trace1): use BINDINGS in the trace body
+	(trace-output, trace-pre-output, trace-post-output): do not accept
+	LOCAL-CALL-COUNT
+	(untrace2): remove the PROCLAIM call
+
 2007-10-11  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.c (open_gdbm): extracted from GDBM-OPEN
