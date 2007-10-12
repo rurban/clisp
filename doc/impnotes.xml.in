@@ -23,12 +23,12 @@
   <!ENTITY % ent-bdb-file SYSTEM "../modules/berkeley-db/ent-bdb.xml">
   %ent-bdb-file;
   <!ENTITY berkeley-db-file SYSTEM "../modules/berkeley-db/berkeley-db.xml">
-  <!ENTITY gdbm-file SYSTEM "../modules/gdbm/gdbm.xml">
   <!ENTITY dirkey-file SYSTEM "../modules/dirkey/dirkey.xml">
   <!ENTITY fastcgi-file SYSTEM "../modules/fastcgi/fastcgi.xml">
+  <!ENTITY gdbm-file SYSTEM "../modules/gdbm/gdbm.xml">
   <!ENTITY gtk-file SYSTEM "../modules/gtk2/gtk.xml">
-  <!ENTITY svm-file SYSTEM "../modules/libsvm/svm.xml">
   <!ENTITY i18n-file SYSTEM "../modules/i18n/i18n.xml">
+  <!ENTITY libsvm-file SYSTEM "../modules/libsvm/svm.xml">
   <!ENTITY matlab-file SYSTEM "../modules/matlab/matlab.xml">
   <!ENTITY netica-file SYSTEM "../modules/netica/netica.xml">
   <!ENTITY oracle-file SYSTEM "../modules/oracle/oracle.xml">
@@ -169,25 +169,38 @@
 &imp-ext-file;
 
 <chapter id="ext-modules"><title>Extensions Implemented as Modules</title>
-&matlab-file;
-&netica-file;
-&dirkey-file;
+
+<!-- base modules -->
+&syscalls-file;
+&i18n-file;
+&regexp-file;
+&readline-file;
+
+<!-- database, directory -->
 &gdbm-file;
 &berkeley-db-file;
-&regexp-file;
-&pari-file;
-&pcre-file;
+&dirkey-file;
 &postgresql-file;
-&i18n-file;
-&readline-file;
-&syscalls-file;
 &oracle-file;
-&fastcgi-file;
-&rawsock-file;
+
+<!-- math -->
+&matlab-file;
+&netica-file;
+&pari-file;
+&libsvm-file;
+
+<!-- matching, file processing -->
+&pcre-file;
 &wildcard-file;
 &zlib-file;
-&svm-file;
+
+<!-- networking -->
+&rawsock-file;
+&fastcgi-file;
+
+<!-- gui -->
 &gtk-file;
+
 </chapter>
 
 </part>
