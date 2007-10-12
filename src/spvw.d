@@ -1730,7 +1730,7 @@ local void print_banner (void)
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997\n",
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998\n",
    "Copyright (c) Bruno Haible, Sam Steingold 1999-2000\n",
-   "Copyright (c) Sam Steingold, Bruno Haible 2001-2006\n",
+   "Copyright (c) Sam Steingold, Bruno Haible 2001-2007\n",
   };
   var int candles = 0;
   var uintL offset = (posfixnum_to_V(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);

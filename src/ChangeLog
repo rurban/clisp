@@ -1,5 +1,9 @@
 2007-10-12  Sam Steingold  <sds@gnu.org>
 
+	* version.sh, spvw.d: pretest 2.41.1 (2007-10-12)
+
+2007-10-12  Sam Steingold  <sds@gnu.org>
+
 	modify the last patch to be more general and less cluttered by default
 	* trace.lisp (tracer): replace GLOBAL-CALL-COUNTER and
 	LOCAL-CALL-COUNTER with BINDINGS
