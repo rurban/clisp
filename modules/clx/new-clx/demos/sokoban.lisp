@@ -3,6 +3,7 @@
 ;;;;   Created: Tue Feb 27 15:43:28 1996
 ;;;;    Author: Gilbert Baumann <unk6@rz.uni-karlsruhe.de>
 ;;;; Copyright: (c) copyright 1996 by Gilbert Baumann, distributed under GPL.
+;;;; some hacking by Sam Steingold 2002-2007
 
 ;;;; History
 ;;;;
@@ -16,13 +17,14 @@
 ;;;; applications in LISP and to bypass the long recompilation times of CLISP
 ;;;; (30-45 mins on my system).
 ;;;;
-;;;; The pixmaps and screens are from the original X11 sokoban. But I found the
-;;;; same screens on many other implementations. Also some ancient PC implementation,
-;;;; which uses CGA graphics (The first one -- perhaps not, the idea of sokoban
-;;;; is too good to be invented on an PC) The pixmaps seem to be unique to the
-;;;; X11 sokoban I talked about. Could anybody please help me out to find the
-;;;; source to be able to acknowledge the author of the pixmaps? Also if anybody
-;;;; has some information on the history of this game please tell me.
+;;;; The pixmaps and screens are from the original X11 sokoban. But I
+;;;; found the same screens on many other implementations. Also some
+;;;; ancient PC implementation, which uses CGA graphics (The first one
+;;;; -- perhaps not, the idea of sokoban is too good to be invented on
+;;;; an PC) The pixmaps seem to be unique to the X11 sokoban I talked
+;;;; about. Could anybody please help me out to find the source to be
+;;;; able to acknowledge the author of the pixmaps? Also if anybody has
+;;;; some information on the history of this game please tell me.
 ;;;;
 ;;;; BTW -- The numerical notation of field values is indeed just copied from
 ;;;; the Windows version, as far as I could recall the original sokoban

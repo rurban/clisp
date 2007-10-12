@@ -1,7 +1,7 @@
 ;; Tracer
 ;; Bruno Haible 13.2.1990, 15.3.1991, 4.4.1991
 ;; German comments translated into English: Stefan Kain 2001-12-26
-;; Sam Steingold 2001-2002
+;; Sam Steingold 2001-2007
 
 ;; (TRACE) returns a list of traced functions
 ;; (TRACE fun ...) additionally traces the functions fun, ... .

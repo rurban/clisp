@@ -1,6 +1,6 @@
 ;;; Macros that export their definienda
 ;;; Bruno Haible 2004-12-15
-;;; Sam Steingold 2005, 2007
+;;; Sam Steingold 2005-2007
 
 (defpackage "EXPORTING"
   (:use "COMMON-LISP")

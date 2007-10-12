@@ -21,6 +21,7 @@
 ;;;; Hacked by me (Gilbert Baumann) to fit to my re-implementation of
 ;;;; CLX but most parts left unmodified (sans stripping some annoying
 ;;;; declares), so I leave the original copyright here.
+;;;; also hacked by Sam Steingold
 
 (require "clx")
 
