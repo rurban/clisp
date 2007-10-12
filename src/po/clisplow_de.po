@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2006-10-12 23:35:57-0400\n"
+"POT-Creation-Date: 2007-10-12 15:14:32-0400\n"
 "PO-Revision-Date: 2004-04-12 00:45+0200\n"
 "Last-Translator: Bruno Haible <bruno@clisp.org>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -251,62 +251,62 @@ msgstr ""
 msgid "invalid argument"
 msgstr "Ungültiger Parameter"
 
-#: spvw.d:2070
+#: spvw.d:2073
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Syntax für %s: nnnnnnn oder nnnnKB oder nMB"
 
-#: spvw.d:2075
+#: spvw.d:2078
 msgid "%s out of range"
 msgstr "%s ist nicht im gültigen Bereich."
 
-#: spvw.d:2080
+#: spvw.d:2083
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:2096
+#: spvw.d:2099
 msgid "memory size"
 msgstr "Speichervorrat"
 
-#: spvw.d:2112
+#: spvw.d:2115
 msgid "multiple -t"
 msgstr ""
 
-#: spvw.d:2132
+#: spvw.d:2135
 msgid "multiple -B"
 msgstr ""
 
-#: spvw.d:2167
+#: spvw.d:2170
 #, fuzzy
 msgid "-E requires an argument"
 msgstr " notwendige Argumente"
 
-#: spvw.d:2433
+#: spvw.d:2436
 msgid "-l without -c is invalid"
 msgstr ""
 
-#: spvw.d:2439
+#: spvw.d:2442
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S auf ~S ist unzulässig."
 
-#: spvw.d:2444
+#: spvw.d:2447
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2564
+#: spvw.d:2568
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
-msgstr "Ergebnis von malloc() = %x ist nicht mit der Typcodeverteilung kompatibel."
+msgstr "Ergebnis von malloc() = %lx ist nicht mit der Typcodeverteilung kompatibel."
 
-#: spvw.d:2571
+#: spvw.d:2575
 msgid "Only %d bytes available."
 msgstr "Nur %d Bytes verfügbar."
 
-#: spvw.d:2821
+#: spvw.d:2825
 msgid "Could not determine the end of the SP stack!"
 msgstr "Konnte das Ende des SP-Stacks nicht herausfinden!"
 
-#: spvw.d:3373
+#: spvw.d:3364
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Nicht genug Speicher für Lisp."
 
@@ -321,17 +321,17 @@ msgstr "*** - Speicher voll: RESET"
 #: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
-msgstr "Kann keinen Speicher an Adresse 0x%x legen."
+msgstr "Kann keinen Speicher an Adresse 0x%lx legen."
 
 #: spvw_mmap.d:170
 #, fuzzy
 msgid "Cannot reserve address range at 0x%lx ."
-msgstr "Kann Adressbereich ab 0x%x nicht reservieren."
+msgstr "Kann Adressbereich ab 0x%lx nicht reservieren."
 
 #: spvw_mmap.d:180
 #, fuzzy
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
-msgstr "Kann Adressbereich 0x%x-0x%x nicht reservieren."
+msgstr "Kann Adressbereich 0x%lx-0x%lx nicht reservieren."
 
 #: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
@@ -360,7 +360,7 @@ msgstr "Kann %s nicht öffnen."
 #: spvw_multimap.d:139
 #, fuzzy
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
-msgstr "msync(0x%x,0x%x,MS_INVALIDATE) scheitert."
+msgstr "msync(0x%lx,0x%x,MS_INVALIDATE) scheitert."
 
 #: spvw_multimap.d:199
 msgid "Cannot delete <%s>."
@@ -388,7 +388,7 @@ msgstr "Kann %s nicht schließen."
 
 #: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
-msgstr "Compilieren Sie Ihr Betriebssystem neu mit Unterstützung von SYSV IPC."
+msgstr "Kompilieren Sie Ihr Betriebssystem neu mit Unterstützung von SYSV IPC."
 
 #: spvw_multimap.d:340
 msgid "Cannot allocate private shared memory segment of size %d."
@@ -397,7 +397,7 @@ msgstr "Kann kein privates Shared-Memory-Segment der Größe %d aufmachen."
 #: spvw_multimap.d:357
 #, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
-msgstr "Kann kein Shared-Memory an Adresse 0x%x legen."
+msgstr "Kann kein Shared-Memory an Adresse 0x%lx legen."
 
 #: spvw_multimap.d:375 spvw_multimap.d:381
 msgid "%s: Cannot fill shared memory."
@@ -410,7 +410,7 @@ msgstr "Kann Shared-Memory-Segment nicht entfernen."
 #: spvw_fault.d:277
 #, fuzzy
 msgid "mprotect(0x%lx,%d,%d) failed."
-msgstr "mprotect(0x%x,%d,%d) scheitert."
+msgstr "mprotect(0x%lx,%d,%d) scheitert."
 
 #: spvw_sigsegv.d:23
 msgid "Permanently allocated: %lu bytes."
@@ -427,7 +427,7 @@ msgstr ""
 #: spvw_sigsegv.d:40
 #, fuzzy
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
-msgstr "SIGSEGV kann nicht behoben werden. Fehler-Adresse = 0x%x."
+msgstr "SIGSEGV kann nicht behoben werden. Fehler-Adresse = 0x%lx."
 
 #: spvw_sigsegv.d:76
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"

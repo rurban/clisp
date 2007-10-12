@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host loiso as the output of the command:
+# This file was created on host nyc-qws-005 as the output of the command:
 # ./makemake --with-dynamic-ffi win32msvc msvc6
 
 # -------------- Start of configurable section --------------------
@@ -14,6 +14,16 @@
 MFLAGS=
 !endif
 
+# The official version number
+VERSION=2.41.1
+# If you want to distribute a modified version of CLISP,
+# use this to distinguish your distribution from the official one.
+# This can also be used for pre-test and post-release distributions:
+#   make distrib VERSION_SUFFIX=pre
+VERSION_SUFFIX=
+# The distribution's top directory
+TOPDIR=clisp-$(VERSION)$(VERSION_SUFFIX)
+
 # Directories used by "make install":
 prefix = 
 exec_prefix = $(prefix)
@@ -26,8 +36,9 @@ dvidir  = $(docdir)
 psdir   = $(docdir)
 pdfdir  = $(docdir)
 libdir  = $(exec_prefix)\lib
-lisplibdir = $(libdir)\clisp
+lisplibdir = $(libdir)\$(TOPDIR)
 elispdir = $(datadir)/emacs/site-lisp
+vimdir = $(datadir)/vim/vimfiles/after/syntax
 # The value of following variable is prepended to all the paths for
 # installation. This is useful when preparing a binary distribution.
 DESTDIR =
@@ -38,7 +49,9 @@ DESTDIR =
 # queens               the queens function (a toy example)
 # dirkey               the directory access (LDAP, win32 registry)
 # berkeley-db          the Berkeley DB access
+# gdbm                 the GNU DataBase manager
 # rawsock              raw socket access
+# libsvm               build Support Vector Machine models
 # pcre                 Perl-compatible regular expressions
 # wildcard             wildcard matching
 # postgresql           interface to PostgreSQL ODBMS
@@ -156,16 +169,6 @@ DVIPDF = dvipdf
 # the add-on module and make it part of the "full" distribution -- all you
 # need to do is to add its name to the MODULES definition line above.
 #
-
-# The official version number
-VERSION=2.41
-# If you want to distribute a modified version of CLISP,
-# use this to distinguish your distribution from the official one.
-# This can also be used for pre-test and post-release distributions:
-#   make distrib VERSION_SUFFIX=pre
-VERSION_SUFFIX=
-# The distribution's top directory
-TOPDIR=clisp-$(VERSION)$(VERSION_SUFFIX)
 
 # Add-on modules that are present in all linking sets (including base)
 # syscalls             export some POSIX (and other) system calls
@@ -3071,6 +3074,7 @@ distrib : install.lisp install.bat clisp.man clisp.html force
 	cp -p ../emacs/clisp-indent.el $$distdir/emacs/clisp-indent.el ; \
 	cp -p ../emacs/clisp-indent.lisp $$distdir/emacs/clisp-indent.lisp ; \
 	cp -p ../emacs/clisp-ffi.el $$distdir/emacs/clisp-ffi.el ; \
+	cp -p ../emacs/lisp.vim $$distdir/emacs/lisp.vim ; \
 	mkdir $$distdir/src ; \
 	cp -p $(LISPFILES) install.lisp $$distdir/src/ ; \
 	chmod 755 $$distdir/. $$distdir/*/. ; \
