@@ -184,10 +184,10 @@
 &oracle-file;
 
 <!-- math -->
+&libsvm-file;
+&pari-file;
 &matlab-file;
 &netica-file;
-&pari-file;
-&libsvm-file;
 
 <!-- matching, file processing -->
 &pcre-file;

@@ -2443,77 +2443,56 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 <section id="included-modules">
    <title>Modules included in the source distribution</title>
 
-<para>The following modules come with the <emphasis>source</emphasis>
+<para>A few modules come with the <emphasis>source</emphasis>
  distribution of &clisp; (but are not necessarily built in a
- particular <emphasis>binary</emphasis> distribution):</para>
+ particular <emphasis>binary</emphasis> distribution).</para>
 
-<variablelist>
- <varlistentry><term>bindings</term>
-  <listitem><para>Call the operating system functions from &clisp;.
-    The following platforms are supported:
-   <itemizedlist>
-    <listitem><simpara>&linux;/&glibc;</simpara></listitem>
-    <listitem><simpara>&win32;</simpara></listitem>
-   </itemizedlist></para></listitem></varlistentry>
- <varlistentry><term>&clx;</term>
-  <listitem><para>Call
-    <ulink url="http://www.the-labs.com/X11/XLib-Manual/">Xlib</ulink>
-    functions from &clisp;.  Two implementations are supplied:
-    <variablelist><varlistentry><term>mit-clx, from MIT
-       <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"/></term>
-      <listitem><simpara>the standard implementation
-     </simpara></listitem></varlistentry>
-     <varlistentry><term>new-clx, by &gilbert-baumann;</term>
-      <listitem><para>faster, with additional features, but not
-        quite complete yet.
-        Please try it first and use <literal>mit-clx</literal> only
-        if <literal>new-clx</literal> does not work for you.
-        <literal>new-clx</literal> comes with several demos, please try
-        them using
-        <screen>&sh-prompt; clisp &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename> &opt-x; '(clx-demos:run-all-demos)'</screen>
-        and follow the intructions.</para></listitem></varlistentry>
-    </variablelist>This functionality is documented in the manual
-    <ulink url="http://www.stud.uni-karlsruhe.de/~unk6/clxman/"/>, also
-    available in the &clisp; source distribution as
-    <filename role="clisp-cvs">modules/clx/clx-manual.tar.gz</filename>.
- </para></listitem></varlistentry>
- <varlistentry><term><link linkend="oracle">oracle</link></term>
-  <listitem><simpara>Access
-    <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;;
-    by &hin;.</simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="fastcgi">fastcgi</link></term>
-  <listitem><simpara>Access
-    <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
-    by &hin;.</simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="gtk">gtk2</link></term>
-  <listitem><simpara>Use &gtk; and &glade; to create GUI by
-    <author><firstname>James</firstname><surname>Bailey</surname>
-     <email>dgym.bailey@gmail.com</email></author>.
+<para>To use modules, read <filename role="clisp-cvs">unix/INSTALL</filename>
+ and build &clisp; in directory <filename>build-dir</filename> with,
+ e.g.,<screen>
+&sh-prompt; ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
+</screen>then run it with
+<screen>&sh-prompt; ./build-dir/clisp &opt-K; full</screen>
+This will create a &base; &linkset; with modules <literal>i18n</literal>,
+<literal>regexp</literal> and <literal>syscalls</literal>
+(and maybe <literal>readline</literal>);
+and a &full; &linkset; with modules <literal>pcre</literal> and
+<literal>clx/new-clx</literal> in addition to the 
+3 (or 4) <link linkend="base-modules">base modules</link>.</para>
+
+<para>Here we list the included modules by their general theme.
+ See <xref linkend="ext-modules"/> for individual module documentation.</para>
+
+<section id="base-modules"><title>Base Modules</title>
+ <para>The default build process includes the following modules
+  in <emphasis>both</emphasis> &base; &and-e; &full; &linkset;s.
+  <simplelist columns="1">
+   <member><link linkend="i18n-mod">i18n</link></member>
+   <member><link linkend="regexp-mod">regexp</link></member>
+   <member><link linkend="syscalls">syscalls</link></member>
+   <member><link linkend="readline-mod">readline</link> (only when both
+    &readline; and &ffi-pac; are available)</member></simplelist></para>
+ <para>The composition of the &full; &linkset; depends on the platform
+  and on the vendor preferences.</para>
+  
+<variablelist><varlistentry><term><link linkend="i18n-mod">i18n</link></term>
+  <listitem><simpara>Internationalization of User Programs.
  </simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="libsvm">libsvm</link></term>
-  <listitem><simpara>Build <ulink url="http://www.kernel-machines.org/">Support
-     Vector Machine</ulink> models using &libsvm-link; inside &clisp;.
+ <varlistentry><term><link linkend="regexp-mod">regexp</link></term>
+  <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
+     Expressions</ulink> matching, compiling, executing.
  </simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="matlab">matlab</link></term>
-  <listitem><simpara>Do matrix computations via
-    <ulink url="http://www.mathworks.com/products/matlab/">MATLAB</ulink>.
+ <varlistentry><term><link linkend="syscalls">syscalls</link></term>
+  <listitem><simpara>Use some system calls in a platform-independent way.
  </simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="netica">netica</link></term>
-  <listitem><simpara>Work with Bayesian belief networks and influence
-    diagrams using &netica-link;.</simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="postgresql">postgresql</link></term>
-  <listitem><simpara>Access &postgresql-link; from &clisp;.
-  </simpara></listitem></varlistentry>
- <varlistentry><term>queens</term>
-  <listitem><simpara>Compute the number of solutions to the &n-r;-queens
-    problem on a &n-r;&times;&n-r; checkboard (a toy
-    example for the users to explore the &clisp; &module; system,
-    see <filename role="clisp-cvs">modules/queens/</filename>).
+ <varlistentry><term><link linkend="readline-mod">readline</link></term>
+  <listitem><simpara>When &readline; and &ffi-pac; are available, some
+   advanced readline and history features are exported using this module.
  </simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="dir-key">dirkey</link></term>
-  <listitem><simpara>Directory Access (LDAP, &win32; registry etc).
- </simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="gdbm">gdbm</link></term>
+</variablelist></section>
+
+<section id="incmod-db"><title>Database, Directory et al</title>
+<variablelist><varlistentry><term><link linkend="gdbm">gdbm</link></term>
   <listitem><simpara>Interface to &gdbm; by
     <author><firstname>Masayuki</firstname><surname>Onjo</surname>
      <email>masayuki.onjo@gmail.com</email></author>.
@@ -2522,62 +2501,103 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   <listitem><simpara><ulink role="bdb" url="index.html">Berkeley DB
      from Sleepycat Software</ulink> interface.
  </simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="regexp-mod">regexp</link></term>
-  <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
-     Expressions</ulink> matching, compiling, executing.
-    See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="dir-key">dirkey</link></term>
+  <listitem><simpara>Directory Access (LDAP, &win32; registry etc).
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="postgresql">postgresql</link></term>
+  <listitem><simpara>Access &postgresql-link; from &clisp;.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="oracle">oracle</link></term>
+  <listitem><simpara>Access
+    <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;;
+    by &hin;.</simpara></listitem></varlistentry>
+</variablelist></section>
+
+<section id="incmod-kdml"><title>Mathematics, Data Mining et al</title>
+<variablelist><varlistentry><term><link linkend="libsvm">libsvm</link></term>
+  <listitem><simpara>Build <ulink url="http://www.kernel-machines.org/">Support
+     Vector Machine</ulink> models using &libsvm-link; inside &clisp;.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="pari">pari</link></term>
   <listitem><simpara>Interface to the computer algebra system &pari-link;.
  </simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="pcre">pcre</link></term>
+ <varlistentry><term><link linkend="matlab">matlab</link></term>
+  <listitem><simpara>Do matrix computations via
+    <ulink url="http://www.mathworks.com/products/matlab/">MATLAB</ulink>.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="netica">netica</link></term>
+  <listitem><simpara>Work with Bayesian belief networks and influence
+    diagrams using &netica-link;.</simpara></listitem></varlistentry>
+</variablelist></section>
+
+<section id="incmod-match"><title>Matching, File Processing et al</title>
+<variablelist><varlistentry><term><link linkend="pcre">pcre</link></term>
   <listitem><simpara>The <ulink url="http://www.pcre.org/">Perl
      Compatible Regular Expressions</ulink> matching, compiling,
     executing.</simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="i18n-mod">i18n</link></term>
-  <listitem><simpara>Internationalization of User Programs.
-    See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="syscalls">syscalls</link></term>
-  <listitem><simpara>Use some system calls in a platform-independent way.
-    See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="readline-mod">readline</link></term>
-  <listitem><simpara>When &readline; and &ffi-pac; are available,
-    some advanced readline and history features are exported using this module.
-    See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="wildcard">wildcard</link></term>
   <listitem><simpara>Shell (&sh;) globbing (&path-match;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="rawsock">rawsock</link></term>
-  <listitem><simpara>Raw socket access.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="zlib">zlib</link></term>
   <listitem><simpara>Compress &vector-t;s using
     <ulink url="http://www.zlib.org">ZLIB</ulink>.
  </simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></section>
 
-<para>To use modules, read <filename role="clisp-cvs">unix/INSTALL</filename>
- and build &clisp; in directory <filename>build-dir</filename> with,
- e.g.,<screen>
-&sh-prompt; ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
-</screen>then run it with
-<screen>&sh-prompt; ./build-dir/clisp &opt-K; full</screen>
-This will create a &base; &linkset; with modules i18n, regexp and
-syscalls; and a &full; &linkset; with modules pcre and new/clx in
-addition to the 3 <link linkend="base-modules">base modules</link>.</para>
+<section id="incmod-net"><title>Networking</title>
+<variablelist><varlistentry><term><link linkend="rawsock">rawsock</link></term>
+  <listitem><simpara>Raw socket access.</simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="fastcgi">fastcgi</link></term>
+  <listitem><simpara>Access
+    <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
+    by &hin;.</simpara></listitem></varlistentry>
+</variablelist></section>
 
-<para>See <xref linkend="ext-modules"/>
- for individual module documentation.</para>
+<section id="incmod-gui"><title>Graphics</title>
+<variablelist><varlistentry><term>&clx;</term>
+ <listitem><para>Call
+  <ulink url="http://www.the-labs.com/X11/XLib-Manual/">Xlib</ulink>
+  functions from &clisp;.  Two implementations are supplied:
+  <variablelist><varlistentry><term>mit-clx, from MIT
+   <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"/></term>
+   <listitem><simpara>the standard implementation
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>new-clx, by &gilbert-baumann;</term>
+   <listitem><para>faster, with additional features, but not quite complete yet.
+    Please try it first and use <literal>mit-clx</literal> only
+    if <literal>new-clx</literal> does not work for you.
+    <literal>new-clx</literal> comes with several demos, please try them using
+    <screen>&sh-prompt; clisp &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename> &opt-x; '(clx-demos:run-all-demos)'</screen>
+     and follow the intructions.</para></listitem></varlistentry>
+ </variablelist>This functionality is documented in the manual
+  <ulink url="http://www.stud.uni-karlsruhe.de/~unk6/clxman/"/>, also
+  available in the &clisp; source distribution as
+  <filename role="clisp-cvs">modules/clx/clx-manual.tar.gz</filename>.
+ </para></listitem></varlistentry>
+ <varlistentry><term><link linkend="gtk">gtk2</link></term>
+  <listitem><simpara>Use &gtk; and &glade; to create GUI by
+    <author><firstname>James</firstname><surname>Bailey</surname>
+     <email>dgym.bailey@gmail.com</email></author>.
+ </simpara></listitem></varlistentry>
+</variablelist></section>
 
-<section id="base-modules"><title>Base and Full Modules</title>
- <para>Note that the default build process includes the following
-  modules in <emphasis>both</emphasis> &base; &and-e; &full; &linkset;s:
-  <simplelist columns="1">
-   <member><link linkend="i18n-mod">i18n</link></member>
-   <member><link linkend="regexp-mod">regexp</link></member>
-   <member><link linkend="syscalls">syscalls</link></member>
-   <member><link linkend="readline-mod">readline</link> (only when both
-    &readline; and &ffi-pac; are available)</member></simplelist></para>
- <para>The composition of the &full; &linkset; depends on the platform
-  and on the vendor preferences.</para></section>
+<section id="incmod-bind"><title>Bindings</title>
+ <para>Call the operating system functions from &clisp;.
+  The following platforms are supported:<itemizedlist>
+  <listitem><simpara>&linux;/&glibc;</simpara></listitem>
+  <listitem><simpara>&win32;</simpara></listitem>
+</itemizedlist></para></section>
+
+<section id="incmod-toys"><title>Toys and Games</title>
+<variablelist><varlistentry><term>queens</term>
+  <listitem><simpara>Compute the number of solutions to the &n-r;-queens
+    problem on a &n-r;&times;&n-r; checkboard (a toy
+    example for the users to explore the &clisp; &module; system,
+    see <filename role="clisp-cvs">modules/queens/</filename>).
+ </simpara></listitem></varlistentry>
+ <varlistentry><term>sokoban</term>
+  <listitem><simpara>a demo which comes with <literal>clx/new-clx</literal>
+</simpara></listitem></varlistentry></variablelist></section>
 
 </section>
 
