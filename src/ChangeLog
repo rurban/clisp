@@ -1,5 +1,9 @@
 2007-10-15  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (TP_EMAIL): coordinator@translationproject.org
+
+2007-10-15  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (XCFLAGS) [debug & cpu=x86_64]: omit -DDEBUG_SPVW to
 	work around bug #[ 1413016 ]: amd64 debug build broken (gc aborts)
 
