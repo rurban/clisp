@@ -1,3 +1,11 @@
+2007-10-13  Sam Steingold  <sds@gnu.org>
+
+	* modules/gdbm/gdbm.c (check_gdbm): gdbm arg is a gcv_object_t*
+	(GDBM-OPEN, GDBM-DEFAULT-KEY-TYPE, GDBM-DEFAULT-VALUE-TYPE, GDBM-CLOSE)
+	(GDBM-FILE-SIZE, GDBM-STORE, GDBM-FETCH, GDBM-DELETE, GDBM-FIRSTKEY)
+	(GDBM-NEXTKEY, GDBM-REORGANIZE, GDBM-SYNC, GDBM-SETOPT):
+	update all callers
+
 2007-10-12  Sam Steingold  <sds@gnu.org>
 
 	* version.sh, spvw.d: pretest 2.41.1 (2007-10-12)

@@ -94,15 +94,15 @@ DEFUN(GDBM::GDBM-VERSION,)
 #define GDBM_SLOT_PATH  2
 #define GDBM_SLOT_KEY   3
 #define GDBM_SLOT_VAL   4
-static GDBM_FILE check_gdbm (object gdbm, gdbm_data_t *key, gdbm_data_t *val,
-                             bool require_valid_handle)
-{
-  gdbm = check_classname(gdbm,`GDBM::GDBM`);
+static GDBM_FILE check_gdbm (gcv_object_t *gdbm, gdbm_data_t *key,
+                             gdbm_data_t *val, bool require_valid_handle)
+{ /* gdbm is modified, so it has to be a pointer */
+  *gdbm = check_classname(*gdbm,`GDBM::GDBM`);
   if (key && *key == GDBM_DATA_NOTYPE)
-    *key = posfixnum_to_V(TheStructure(gdbm)->recdata[GDBM_SLOT_KEY]);
+    *key = posfixnum_to_V(TheStructure(*gdbm)->recdata[GDBM_SLOT_KEY]);
   if (val && *val == GDBM_DATA_NOTYPE)
-    *val = posfixnum_to_V(TheStructure(gdbm)->recdata[GDBM_SLOT_VAL]);
-  { object fp = TheStructure(gdbm)->recdata[GDBM_SLOT_FILE];
+    *val = posfixnum_to_V(TheStructure(*gdbm)->recdata[GDBM_SLOT_VAL]);
+  { object fp = TheStructure(*gdbm)->recdata[GDBM_SLOT_FILE];
     if (fpointerp(fp)) return (GDBM_FILE)TheFpointer(fp)->fp_pointer;
     else if (require_valid_handle) {
       pushSTACK(`GDBM::GDBM-ERROR`);
@@ -144,7 +144,7 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE   \
   int rw = rw_opt1 | rw_opt2;
   int bsize = check_uint_defaulted(popSTACK(), 512);
   if (typep_classname(STACK_0,`GDBM::GDBM`)) { /* reuse */
-    if (!check_gdbm(STACK_0,&default_key_type,&default_value_type,false))
+    if (!check_gdbm(&STACK_0,&default_key_type,&default_value_type,false))
       TheStructure(STACK_0)->recdata[GDBM_SLOT_FILE] = /* reopen */
         open_gdbm(TheStructure(STACK_0)->recdata[GDBM_SLOT_PATH],
                   bsize, rw, mode);
@@ -167,19 +167,19 @@ DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE   \
 
 DEFUN(GDBM:GDBM-DEFAULT-KEY-TYPE, dbf) {
   gdbm_data_t key = GDBM_DATA_NOTYPE;
-  (void)check_gdbm(popSTACK(),&key,NULL,false);
+  (void)check_gdbm(&STACK_0,&key,NULL,false); skipSTACK(1);
   VALUES1(check_data_type_reverse(key));
 }
 DEFUN(GDBM:GDBM-DEFAULT-VALUE-TYPE, dbf) {
   gdbm_data_t val = GDBM_DATA_NOTYPE;
-  (void)check_gdbm(popSTACK(),NULL,&val,false);
+  (void)check_gdbm(&STACK_0,NULL,&val,false); skipSTACK(1);
   VALUES1(check_data_type_reverse(val));
 }
 
 #if defined(HAVE_GDBM_CLOSE)
 DEFUN(GDBM:GDBM-CLOSE, dbf)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_0,NULL,NULL,false);
+  GDBM_FILE dbf = check_gdbm(&STACK_0,NULL,NULL,false);
   if (dbf) {
     SYSCALL(gdbm_close(dbf));
     TheStructure(STACK_0)->recdata[GDBM_SLOT_FILE] = NIL;
@@ -193,12 +193,12 @@ DEFUN(GDBM:GDBM-CLOSE, dbf)
 #if defined(HAVE_GDBM_FDESC)
 DEFUN(GDBM:GDBM-FILE-SIZE, dbf)
 {
-  GDBM_FILE dbf = check_gdbm(popSTACK(),NULL,NULL,true);
+  GDBM_FILE dbf = check_gdbm(&STACK_0,NULL,NULL,true);
   off_t ret;
   begin_system_call();
   ret = handle_length(NIL,gdbm_fdesc(dbf));
   end_system_call();
-  VALUES1(off_to_I(ret));
+  VALUES1(off_to_I(ret)); skipSTACK(1);
 }
 #endif  /* HAVE_GDBM_FDESC */
 
@@ -271,7 +271,7 @@ DEFCHECKER(gdbm_store_flag, default=GDBM_REPLACE, prefix=GDBM, REPLACE INSERT)
 #if defined(HAVE_GDBM_STORE)
 DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_3,NULL,NULL,true);
+  GDBM_FILE dbf = check_gdbm(&STACK_3,NULL,NULL,true);
   int flag = gdbm_store_flag(STACK_0), status;
   with_datum(STACK_2, key,
              with_datum(STACK_1, content,
@@ -347,7 +347,7 @@ static object datum_to_object (datum d, gdbm_data_t data_type) {
 DEFUN(GDBM:GDBM-FETCH, dbf key &key TYPE)
 {
   gdbm_data_t data_type = check_data_type(popSTACK());
-  GDBM_FILE dbf = check_gdbm(STACK_1,NULL,&data_type,true);
+  GDBM_FILE dbf = check_gdbm(&STACK_1,NULL,&data_type,true);
   datum res;
   with_datum(STACK_0, key, res = gdbm_fetch(dbf,key));
   VALUES1(datum_to_object(res,data_type));
@@ -358,7 +358,7 @@ DEFUN(GDBM:GDBM-FETCH, dbf key &key TYPE)
 #if defined(HAVE_GDBM_DELETE)
 DEFUN(GDBM:GDBM-DELETE, dbf key)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_1,NULL,NULL,true);
+  GDBM_FILE dbf = check_gdbm(&STACK_1,NULL,NULL,true);
   int status;
   with_datum(STACK_0, key, status = gdbm_delete(dbf,key));
   VALUES_IF(status != -1);
@@ -370,10 +370,10 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
 DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key TYPE)
 {
   gdbm_data_t data_type = check_data_type(popSTACK());
-  GDBM_FILE dbf = check_gdbm(popSTACK(),&data_type,NULL,true);
+  GDBM_FILE dbf = check_gdbm(&STACK_0,&data_type,NULL,true);
   datum res;
   SYSCALL(res = gdbm_firstkey(dbf));
-  VALUES1(datum_to_object(res,data_type));
+  VALUES1(datum_to_object(res,data_type)); skipSTACK(1);
 }
 #endif  /* HAVE_GDBM_FIRSTKEY */
 
@@ -381,7 +381,7 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key TYPE)
 DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key TYPE)
 {
   gdbm_data_t data_type = check_data_type(STACK_0);
-  GDBM_FILE dbf = check_gdbm(STACK_2,&data_type,NULL,true);
+  GDBM_FILE dbf = check_gdbm(&STACK_2,&data_type,NULL,true);
   datum res;
   with_datum(STACK_1, key, res = gdbm_nextkey(dbf,key));
   VALUES1(datum_to_object(res,data_type));
@@ -399,17 +399,17 @@ DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key TYPE)
 #if defined(HAVE_GDBM_REORGANIZE)
 DEFUN(GDBM:GDBM-REORGANIZE, dbf)
 {
-  GDBM_FILE dbf = check_gdbm(popSTACK(),NULL,NULL,true);
-  CHECK_RUN(gdbm_reorganize(dbf));
+  GDBM_FILE dbf = check_gdbm(&STACK_0,NULL,NULL,true);
+  CHECK_RUN(gdbm_reorganize(dbf)); skipSTACK(1);
 }
 #endif  /* HAVE_GDBM_REORGANIZE */
 
 #if defined(HAVE_GDBM_SYNC)
 DEFUN(GDBM:GDBM-SYNC, dbf)
 {
-  GDBM_FILE dbf = check_gdbm(popSTACK(),NULL,NULL,true);
+  GDBM_FILE dbf = check_gdbm(&STACK_0,NULL,NULL,true);
   SYSCALL(gdbm_sync(dbf));
-  VALUES0;
+  VALUES0; skipSTACK(1);
 }
 #endif  /* HAVE_GDBM_SYNC */
 
@@ -428,7 +428,7 @@ DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
            CENTFREE COALESCEBLKS DEFAULT-VALUE-TYPE DEFAULT-KEY-TYPE)
 DEFUN(GDBM:GDBM-SETOPT, dbf option value)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_2,NULL,NULL,true);
+  GDBM_FILE dbf = check_gdbm(&STACK_2,NULL,NULL,true);
   int option = gdbm_setopt_option(STACK_1);
   int v;
   switch (option) {
