@@ -2,9 +2,6 @@
 ;; some tests for GDBM
 ;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "gdbm/test")'
 
-(defun file-size (f) (with-open-file (s f :direction :input) (file-length s)))
-FILE-SIZE
-
 (listp (show (multiple-value-list (ext:module-info "gdbm" t)) :pretty t)) T
 
 (defvar *db* nil) *DB*
@@ -102,25 +99,21 @@ FILE-SIZE
 
 (listp (show (gdbm:do-db (key *db*) :collect (gdbm:gdbm-file-size *db*)))) T
 
-(let ((bsize (file-size (gdbm:gdbm-path *db*))) (asize 0))
+(let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0))
   (loop :for i :from 0 :to 1000 :do
     (gdbm:gdbm-store *db* (format nil "key~A" i) (format nil "value~A" i)))
   (gdbm:gdbm-sync *db*)
-  (setf asize (file-size (gdbm:gdbm-path *db*)))
+  (setf asize (gdbm:gdbm-file-size *db*))
   (format t "~&File size: ~:D --> ~:D~%" bsize asize)
   (> asize bsize)) T
 
-(= (gdbm:gdbm-file-size *db*) (file-size (gdbm:gdbm-path *db*))) T
-
-(let ((bsize (file-size (gdbm:gdbm-path *db*))) (asize 0))
+(let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0))
   (loop for i from 0 to 500 do (gdbm:gdbm-delete *db* (format nil "key~A" i)))
   (gdbm:gdbm-sync *db*)
   (gdbm:gdbm-reorganize *db*)
-  (setf asize (file-size (gdbm:gdbm-path *db*)))
+  (setf asize (gdbm:gdbm-file-size *db*))
   (format t "~&~:D --> ~:D~%" bsize asize)
   (< asize bsize)) T
-
-(= (gdbm:gdbm-file-size *db*) (file-size (gdbm:gdbm-path *db*))) T
 
 (gdbm:gdbm-close *db*) T
 
