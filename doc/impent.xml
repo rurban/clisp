@@ -481,8 +481,8 @@
 <!ENTITY gtk2-mod '<filename role="module" path="gtk">gtk2</filename>'>
 <!ENTITY glibc-mod '<filename role="module">bindings/glibc</filename>'>
 <!ENTITY win32-mod '<filename role="module">bindings/win32</filename>'>
-<!ENTITY queens-mod '<filename role="module" path="queens">queens</filename>'>
- 
+<!ENTITY queens-mod '<filename role="module">queens</filename>'>
+
 <!-- *** syscalls *** -->
 <!ENTITY resolve-host '<link linkend="resolve-host"><function>POSIX:RESOLVE-HOST-IPADDR</function></link>'>
 <!ENTITY rlimit '<link linkend="rlimit"><function>POSIX:RLIMIT</function></link>'>
