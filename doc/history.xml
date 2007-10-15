@@ -164,8 +164,8 @@
 
 <revision><revnumber>2.15</revnumber><date>1995-04-25</date>
  <revdescription><itemizedlist>
-   <listitem><simpara>New modules: <xref linkend="wildcard"/>,
-     <xref linkend="regexp-mod"/></simpara></listitem>
+   <listitem><simpara>New modules: &wildcard-mod;,
+     &regexp-mod;</simpara></listitem>
    <listitem><simpara>&formatter;, &finalize;</simpara></listitem>
    <listitem><simpara>&file-stream-t;, &synonym-stream-t;,
      &broadcast-stream-t;, &concatenated-stream-t;, &two-way-stream-t;,
@@ -240,7 +240,7 @@
 
 <revision><revnumber>2.23</revnumber><date>1999-07-22</date>
  <revdescription><itemizedlist><listitem><simpara>New module:
-     <xref linkend="postgresql"/></simpara></listitem>
+     &postgresql-mod;</simpara></listitem>
    <listitem><simpara>&unicode;, &charset-pac;, &def-file-enc;, &path-enc;,
      &term-enc;, &misc-enc; &foreign-enc;,
      <varname>AFFI:*FOREIGN-ENCODING*</varname></simpara></listitem>
@@ -310,13 +310,13 @@
    <listitem><simpara>&sost-shut;</simpara></listitem>
    <listitem><simpara>&stream-lock;, &copy-file;,
      &dup-handle;</simpara></listitem>
-   <listitem><simpara>New module: <xref linkend="oracle"/></simpara></listitem>
+   <listitem><simpara>New module: &oracle-mod;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.31</revnumber><date>2003-09-01</date>
  <revdescription><itemizedlist><listitem><simpara>New modules:
-     <xref linkend="fastcgi"/>, <xref linkend="dir-key"/>, bindings/win32,
-     <xref linkend="syscalls"/>, <xref linkend="netica"/></simpara></listitem>
+     &fastcgi-mod;, &dirkey-mod;, &win32-mod;,
+     &syscalls-mod;, &netica-mod;</simpara></listitem>
    <listitem><simpara>Support modules on &win32;.</simpara></listitem>
    <listitem><simpara>&unicode; 3.2</simpara></listitem>
    <listitem><simpara>New backquote implementation.</simpara></listitem>
@@ -327,8 +327,8 @@
 <revision><revnumber>2.32</revnumber><date>2003-12-29</date>
  <revdescription><itemizedlist><listitem><simpara>support
      &lfs;</simpara></listitem>
-   <listitem><simpara>New modules: <xref linkend="berkeley-db"/>,
-     <xref linkend="pcre"/></simpara></listitem></itemizedlist>
+   <listitem><simpara>New modules: &berkeley-db-mod;,
+     &pcre-mod;</simpara></listitem></itemizedlist>
 </revdescription></revision>
 
 <revision><revnumber>2.33</revnumber><date>2004-03-17</date>
@@ -356,9 +356,8 @@
      &without-global-handlers;</simpara></listitem>
    <listitem><simpara>Portability: removed &dos; and &os2;
      support.</simpara></listitem>
-   <listitem><simpara>New modules: <xref linkend="matlab"/>,
-     <xref linkend="rawsock"/>, <xref linkend="zlib"/>,
-     <xref linkend="i18n-mod"/>, <xref linkend="pari"/>.</simpara></listitem>
+   <listitem><simpara>New modules: &matlab-mod;, &rawsock-mod;, &zlib-mod;,
+     &i18n-mod;, &pari-mod;.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.35</revnumber><date>2005-08-29</date>
@@ -403,7 +402,7 @@
 <revision><revnumber>2.41</revnumber><date>2006-10-13</date>
  <revdescription><itemizedlist>
    <listitem><simpara>&default-foreign-library;</simpara></listitem>
-   <listitem><simpara>New module: <xref linkend="libsvm"/></simpara></listitem>
+   <listitem><simpara>New module: &libsvm-mod;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 </revhistory>

@@ -457,6 +457,32 @@
 <!-- *** pre-processors *** -->
 <!ENTITY modprep '<link linkend="modprep-file"><command>modprep</command></link>'>
 
+<!-- *** base modules *** -->
+<!ENTITY i18n-mod '<filename role="module" path="i18n-mod">i18n</filename>'>
+<!ENTITY regexp-mod '<filename role="module" path="regexp-mod">regexp</filename>'>
+<!ENTITY syscalls-mod '<filename role="module" path="syscalls">syscalls</filename>'>
+<!ENTITY readline-mod '<filename role="module" path="readline-mod">readline</filename>'>
+<!ENTITY gdbm-mod '<filename role="module" path="gdbm">gdbm</filename>'>
+<!ENTITY berkeley-db-mod '<filename role="module" path="berkeley-db">berkeley-db</filename>'>
+<!ENTITY dirkey-mod '<filename role="module" path="dir-key">dirkey</filename>'>
+<!ENTITY postgresql-mod '<filename role="module" path="postgresql">postgresql</filename>'>
+<!ENTITY oracle-mod '<filename role="module" path="oracle">oracle</filename>'>
+<!ENTITY libsvm-mod '<filename role="module" path="libsvm">libsvm</filename>'>
+<!ENTITY pari-mod '<filename role="module" path="pari">pari</filename>'>
+<!ENTITY matlab-mod '<filename role="module" path="matlab">matlab</filename>'>
+<!ENTITY netica-mod '<filename role="module" path="netica">netica</filename>'>
+<!ENTITY pcre-mod '<filename role="module" path="pcre">pcre</filename>'>
+<!ENTITY wildcard-mod '<filename role="module" path="wildcard">wildcard</filename>'>
+<!ENTITY zlib-mod '<filename role="module" path="zlib">zlib</filename>'>
+<!ENTITY rawsock-mod '<filename role="module" path="rawsock">rawsock</filename>'>
+<!ENTITY fastcgi-mod '<filename role="module" path="fastcgi">fastcgi</filename>'>
+<!ENTITY mit-clx '<filename role="module">clx/mit-clx</filename>'>
+<!ENTITY new-clx '<filename role="module">clx/new-clx</filename>'>
+<!ENTITY gtk2-mod '<filename role="module" path="gtk">gtk2</filename>'>
+<!ENTITY glibc-mod '<filename role="module">bindings/glibc</filename>'>
+<!ENTITY win32-mod '<filename role="module">bindings/win32</filename>'>
+<!ENTITY queens-mod '<filename role="module" path="queens">queens</filename>'>
+ 
 <!-- *** syscalls *** -->
 <!ENTITY resolve-host '<link linkend="resolve-host"><function>POSIX:RESOLVE-HOST-IPADDR</function></link>'>
 <!ENTITY rlimit '<link linkend="rlimit"><function>POSIX:RLIMIT</function></link>'>
