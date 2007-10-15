@@ -416,7 +416,7 @@ DEFUN(GDBM:GDBM-SYNC, dbf)
 #if defined(HAVE_GDBM_EXISTS)
 DEFUN(GDBM:GDBM-EXISTS, dbf key)
 {
-  GDBM_FILE dbf = check_gdbm(STACK_1,NULL,NULL,true);
+  GDBM_FILE dbf = check_gdbm(&STACK_1,NULL,NULL,true);
   int status;
   with_datum(STACK_0, key, status = gdbm_exists(dbf, key));
   VALUES_IF(status);
