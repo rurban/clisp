@@ -1,3 +1,9 @@
 This directory contains a CLISP add-on module for wildcard matching.
-The library routines fnmatch.[ch] come from the GNU glibc-2.0.2.
+The library routines fnmatch.[ch] come from the GNU gnulib.
 
+To use it, add "wildcard" to MODULES in Makefile in your build directory
+and type
+    $ make wildcard && make full
+there.
+Try it with
+    $ ./clisp -K full
