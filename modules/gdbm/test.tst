@@ -37,6 +37,9 @@ FILE-SIZE
 
 (gdbm:gdbm-store *db* "key1" "value1") T
 
+(handler-bind ((type-error (lambda (c) (princ-error c) (use-value *db*))))
+  (gdbm:gdbm-setopt nil :default-value-type 'integer)) NIL
+(gdbm:gdbm-default-value-type *db*) INTEGER
 (gdbm:gdbm-setopt *db* :default-value-type 'string) NIL
 (gdbm:gdbm-default-value-type *db*) STRING
 (gdbm:gdbm-default-key-type *db*) NIL
