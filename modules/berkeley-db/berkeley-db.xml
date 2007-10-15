@@ -294,7 +294,7 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:CACHE</constant></term>
      <listitem><simpara>database cache information
-       (<function role="bdb">DBE-&gt;get_cachesize</function>).
+       (<function role="bdb">DB_ENV-&gt;get_cachesize</function>).
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 </variablelist></section>
@@ -486,7 +486,7 @@
     <varlistentry><term><constant>:CACHE</constant></term>
      <listitem><simpara>database cache information
        (<function role="bdb">DB-&gt;get_cachesize</function> or
-       <function role="bdb">DBE-&gt;get_cachesize</function> if the
+       <function role="bdb">DB_ENV-&gt;get_cachesize</function> if the
        database was created within an environment).
     </simpara></listitem></varlistentry>
    <varlistentry><term><constant>:ENCRYPTION</constant></term>
