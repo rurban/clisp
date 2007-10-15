@@ -374,7 +374,7 @@
  <revdescription><itemizedlist><listitem><simpara>&open-http;, &notspec;,
      &def-c-const;, <link linkend="base64"><constant>BASE64</constant></link>
    </simpara></listitem>
-   <listitem><simpara><filename role="clisp-cvs">modules/new-clx/demos/foch.lisp</filename></simpara></listitem>
+   <listitem><simpara><filename role="clisp-cvs">modules/new-clx/demos/koch.lisp</filename></simpara></listitem>
    <listitem><simpara><filename role="clisp-cvs">src/spvw_sigterm.d</filename></simpara></listitem></itemizedlist>
 </revdescription></revision>
 
