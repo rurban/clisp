@@ -1,3 +1,8 @@
+2007-10-15  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS) [debug & cpu=x86_64]: omit -DDEBUG_SPVW to
+	work around bug #[ 1413016 ]: amd64 debug build broken (gc aborts)
+
 2007-10-13  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.c (check_gdbm): gdbm arg is a gcv_object_t*
