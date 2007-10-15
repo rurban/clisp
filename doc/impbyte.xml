@@ -61,7 +61,7 @@
   insert <literal>_EMA_</literal> instead.
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">utils/ccmp2c.c</filename></term>
-<listitem><simpara>For the <literal>new-clx</literal> module only.
+<listitem><simpara>For the &new-clx; module only.
   Allows &cpp;-style preprocessing &before-e; &modprep; processing.
   Should be merged into &modprep; eventually.
 </simpara></listitem></varlistentry>
