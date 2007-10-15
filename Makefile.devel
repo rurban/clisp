@@ -474,7 +474,7 @@ gnu-distrib : $(SRC_DIST1) force
 tag-release : force
 	cvs tag -FR clisp_$(subst .,_,$(VER))-$(REL)
 
-TP_EMAIL=translation@IRO.UMontreal.CA
+TP_EMAIL=coordinator@translationproject.org
 MESSAGE_FILE=tp_message
 TP_SUFFIX=-pre1
 tp-mail : force
@@ -485,7 +485,7 @@ tp-mail : force
 	else f=$(SRC_DIST); fi; \
 	echo "Location: http://clisp.podval.org/`basename $$f`" >> $(MESSAGE_FILE); \
 	cat $(MESSAGE_FILE); \
-	mail -s "$$f" $(TP_EMAIL) < $(MESSAGE_FILE)
+	mail -s "New CLISP pre-release is available" $(TP_EMAIL) < $(MESSAGE_FILE)
 	rm -f $(MESSAGE_FILE)
 
 force :
