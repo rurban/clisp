@@ -10,8 +10,9 @@
 (in-package :clx-demos)
 
 (defparameter *demos*
-  '((koch) (qix) (sokoban #:xpm) (greynetic) (petal) (hanoi) (recurrence)
-    (plaid) (clclock) (bball) (bwindow)))
+  ;; (demo-name [package requirements])
+  '((koch) (qix) (sokoban #:xpm) (greynetic #:broken!) (petal) (hanoi)
+    (recurrence) (plaid) (clclock) (bball #:broken!) (bwindow)))
 
 (defmacro do-demos ((fun-var) &body body)
   (let ((demo (gensym "DO-DEMOS-DEMO-")) (reqs (gensym "DO-DEMOS-REQS-")))
