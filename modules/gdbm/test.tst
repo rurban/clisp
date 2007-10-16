@@ -110,7 +110,7 @@
 (let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0))
   (loop for i from 0 to 500 do (gdbm:gdbm-delete *db* (format nil "key~A" i)))
   (gdbm:gdbm-sync *db*)
-  (gdbm:gdbm-reorganize *db*)
+  #-:CYGWIN (gdbm:gdbm-reorganize *db*)
   (setf asize (gdbm:gdbm-file-size *db*))
   (format t "~&~:D --> ~:D~%" bsize asize)
   (< asize bsize)) T
@@ -175,4 +175,8 @@
     (gdbm:gdbm-store db v v)
     (gdbm:gdbm-fetch db v :type '32bit-vector))) #(123 456 789)
 
+(gdbm:gdbm-close *db*) NIL
+
 (pathnamep (delete-file (gdbm:gdbm-path *db*))) T
+
+(unintern '*db*) T
