@@ -1,11 +1,11 @@
 .\"     Title: clisp
 .\"    Author: Bruno Haible <\fI\%http://www.haible.de/bruno/\fR>
-.\" Generator: DocBook XSL Stylesheets vsnapshot_2006\-10\-11_0449 <http://docbook.sf.net/>
-.\"      Date: Last modified: 2006.10.12
+.\" Generator: DocBook XSL Stylesheets vsnapshot_7530 <http://docbook.sf.net/>
+.\"      Date: Last modified: 2007\-10\-16
 .\"    Manual: Platform: @PLATFORM@
-.\"    Source: CLISP 2.41
+.\"    Source: CLISP 2.42
 .\"
-.TH "CLISP" "1" "Last modified: 2006\-10\-12" "CLISP 2.41" "Platform: @PLATFORM@"
+.TH "CLISP" "1" "Last modified: 2007\\\-10\\\-16" "CLISP 2.42" "Platform: @PLATFORM@"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -14,89 +14,87 @@
 clisp \- ANSI Common Lisp compiler, interpreter and debugger.
 .SH "SYNOPSIS"
 .HP 6
-\fBclisp\fR [[\fB\-h\fR] | [\fB\-\-help\fR]] [\fB\-\-version\fR] [\fB\-\-license\fR] [\fB\-help\-image\fR] [\fB\-B\ \fIlisp\-lib\-dir\fR\fR]
+\fBclisp\fR [[\fB\\\-h\fR] | [\fB\\\-\\\-help\fR]] [\fB\\\-\\\-version\fR] [\fB\\\-\\\-license\fR] [\fB\\\-help\\\-image\fR] [\fB\\\-B▀\fIlisp\\\-lib\\\-dir\fR\fR]
 #ifdef UNIX
-[\fB\-K\ \fIlinking\-set\fR\fR]
+[\fB\\\-K▀\fIlinking\\\-set\fR\fR]
 #endif
-[\fB\-M\ \fImem\-file\fR\fR] [\fB\-m\ \fImemory\-size\fR\fR]
+[\fB\\\-M▀\fImem\\\-file\fR\fR] [\fB\\\-m▀\fImemory\\\-size\fR\fR]
 #ifdef MULTIMAP_MEMORY_VIA_FILE
-[\fB\-t\ \fItemp\-dir\fR\fR]
+[\fB\\\-t▀\fItemp\\\-dir\fR\fR]
 #endif
-[\fB\-L\ \fIlanguage\fR\fR] [\fB\-N\ \fIlocale\-dir\fR\fR] [\fB\-E\fIdomain\fR\ \fIencoding\fR\fR] [[\fB\-q\fR] | [\fB\-\-quiet\fR] | [\fB\-\-silent\fR] | [\fB\-v\fR] | [\fB\-\-verbose\fR]] [\fB\-on\-error\ \fIaction\fR\fR] [\fB\-repl\fR] [\fB\-w\fR] [\fB\-I\fR] [[\fB\-ansi\fR] | [\fB\-traditional\fR]] [\fB\-modern\fR] [\fB\-p\ \fIpackage\fR\fR] [\fB\-C\fR] [\fB\-norc\fR] [\fB\-i\ \fIinit\-file\fR\fR...] [\fB\-c\fR\ [\fB\-l\fR]\ \fIlisp\-file\fR\ [\fB\-o\fR\fB\ \fR\fB\fIoutput\-file\fR\fR]...] [\fB\-x\ \fIexpressions\fR\fR...] [\fB\fIlisp\-file\fR\fR\ [\fB\fIargument\fR\fR...]]
+[\fB\\\-L▀\fIlanguage\fR\fR] [\fB\\\-N▀\fIlocale\\\-dir\fR\fR] [\fB\\\-E\fIdomain\fR▀\fIencoding\fR\fR] [[\fB\\\-q\fR] | [\fB\\\-\\\-quiet\fR] | [\fB\\\-\\\-silent\fR] | [\fB\\\-v\fR] | [\fB\\\-\\\-verbose\fR]] [\fB\\\-on\\\-error▀\fIaction\fR\fR] [\fB\\\-repl\fR] [\fB\\\-w\fR] [\fB\\\-I\fR] [[\fB\\\-ansi\fR] | [\fB\\\-traditional\fR]] [\fB\\\-modern\fR] [\fB\\\-p▀\fIpackage\fR\fR] [\fB\\\-C\fR] [\fB\\\-norc\fR] [\fB\\\-i▀\fIinit\\\-file\fR\fR...] [\fB\\\-c\fR▀[\fB\\\-l\fR]▀\fIlisp\\\-file\fR▀[\fB\\\-o\fR\fB▀\fR\fB\fIoutput\\\-file\fR\fR]...] [\fB\\\-x▀\fIexpressions\fR\fR...] [\fB\fIlisp\\\-file\fR\fR▀[\fB\fIargument\fR\fR...]]
 .SH "DESCRIPTION"
 .PP
 Invokes the
 \fI\fBCommon Lisp\fR\fR\&[1]
-interpreter and compiler. When called without arguments, executes the
-\fIread\-eval\-print loop\fR\&[2], in which expressions are in turn
+interpreter and compiler\\. When called without arguments, executes the
+\fIread\\\-eval\\\-print loop\fR\&[2], in which expressions are in turn
 \fI\fBREAD\fR\fR\&[3]
 from the standard input,
 \fI\fBEVAL\fR\fR\&[4]uated by the lisp interpreter, and their results are
-\fI\fBPRINT\fR\fR\&[5]ed to the standard output. Invoked with
-\fB\-c\fR, compiles the specified lisp files to a platform\-independent
+\fI\fBPRINT\fR\fR\&[5]ed to the standard output\\. Invoked with
+\fB\\\-c\fR, compiles the specified lisp files to a platform\\\-independent
 bytecode
-which can be executed more efficiently.
+which can be executed more efficiently\\.
 .SH "OPTIONS"
 .PP
-\fB\-h\fR
+\fB\\\-h\fR
 .br
-\fB\-\-help\fR
+\fB\\\-\\\-help\fR
 .RS 4
 Displays a help message on how to invoke
-\fI\fBCLISP\fR\fR\&[6].
+\fI\fBCLISP\fR\fR\&[6]\\.
 .RE
 .PP
-\fB\-\-version\fR
+\fB\\\-\\\-version\fR
 .RS 4
 Displays the
 \fI\fBCLISP\fR\fR\&[6]
 version number, as given by the function
-\fI\fBLISP\-IMPLEMENTATION\-VERSION\fR\fR\&[7], the value of the variable
-\fI*FEATURES*\fR, as well some other information.
+\fI\fBLISP\\\-IMPLEMENTATION\\\-VERSION\fR\fR\&[7], the value of the variable
+\fI*FEATURES*\fR, as well some other information\\.
 .RE
 .PP
-\fB\-\-license\fR
+\fB\\\-\\\-license\fR
 .RS 4
 Displays a summary of the licensing information, the
 \fIGNU\fR\&[8]
-\fIGPL\fR\&[9].
+\fIGPL\fR\&[9]\\.
 .RE
 .PP
-\fB\-help\-image\fR
+\fB\\\-help\\\-image\fR
 .RS 4
 Displays information about the
 memory image
 being invoked: whether is it suitable for scripting as well as the
 \fB:DOCUMENTATION\fR
 supplied to
-\fBEXT:SAVEINITMEM\fR.
+\fBEXT:SAVEINITMEM\fR\\.
 .RE
 .PP
-\fB\-B\fR \fIlisp\-lib\-dir\fR
+\fB\\\-B\fR \fIlisp\\\-lib\\\-dir\fR
 .RS 4
-Specifies the installation directory. This is the directory containing the linking sets and other data files.
+Specifies the installation directory\\. This is the directory containing the linking sets and other data files\\.
 #ifdef UNIX
-This option is normally not necessary, because the installation directory is already built\-in into the
+This option is normally not necessary, because the installation directory is already built\\\-in into the
 \fBclisp\fR
-executable.
+executable\\.
 #endif
 Directory
-\fIlisp\-lib\-dir\fR
+\fIlisp\\\-lib\\\-dir\fR
 can be changed dynamically using the
-\fISYMBOL\-MACRO\fR\&[10]
-\fI*LIB\-DIRECTORY*\fR.
+\fISYMBOL\\\-MACRO\fR\&[10]
+\fI*LIB\\\-DIRECTORY*\fR\\.
 .RE
 #ifdef UNIX
 .PP
-\fB\-K\fR \fIlinking\-set\fR
+\fB\\\-K\fR \fIlinking\\\-set\fR
 .RS 4
 Specifies the
 linking set
-to be run. This is a directory (relative to the
-\fIlisp\-lib\-dir\fR) containing at least a main executable (runtime) and an initial
-memory image. Possible values are
-
-.RS 4
+to be run\\. This is a directory (relative to the
+\fIlisp\\\-lib\\\-dir\fR) containing at least a main executable (runtime) and an initial
+memory image\\. Possible values are
 .PP
 \fBbase\fR
 .RS 4
@@ -107,37 +105,34 @@ the core
 \fBfull\fR
 .RS 4
 core plus all the modules with which this installation was built, see
-Section\ 31.2, \(lqExternal Modules\(rq.
+Section\ 32.2, \(lqExternal Modules\(rq\\.
 .RE
-.RE
-.IP "" 4
+.sp
 The default is
-\fBbase\fR.
+\fBbase\fR\\.
 .RE
 #endif
 .PP
-\fB\-M\fR \fImem\-file\fR
+\fB\\\-M\fR \fImem\\\-file\fR
 .RS 4
 Specifies the initial
-memory image. This must be a memory dump produced by the
+memory image\\. This must be a memory dump produced by the
 \fBEXT:SAVEINITMEM\fR
 function by this
 \fBclisp\fR
-runtime.
+runtime\\.
 #ifdef UNIX
 It may have been compressed using
 \fIGNU\fR\&[8]
-\fI\fBgzip\fR\fR\&[11].
+\fI\fBgzip\fR\fR\&[11]\\.
 #endif
 .RE
 .PP
-\fB\-m\fR \fImemory\-size\fR
+\fB\\\-m\fR \fImemory\\\-size\fR
 .RS 4
 Sets the amount of memory
 \fI\fBCLISP\fR\fR\&[6]
-tries to grab on startup. The amount may be given as
-
-.RS 4
+tries to grab on startup\\. The amount may be given as
 .PP
 \fInnnnnnn\fR
 .RS 4
@@ -157,17 +152,16 @@ measured in kilobytes
 .RS 4
 measured in megabytes
 .RE
-.RE
-.IP "" 4
-The default is 3 megabytes.
+.sp
+The default is 3 megabytes\\.
 #if (oint_addr_len+addr_shift==24)
-The argument is constrained between 100 KB and 16 MB.
+The argument is constrained between 100 KB and 16 MB\\.
 #elif (oint_addr_len+addr_shift==26)
-The argument is constrained between 100 KB and 64 MB.
+The argument is constrained between 100 KB and 64 MB\\.
 #elif (oint_addr_len+addr_shift==28)
-The argument is constrained between 100 KB and 256 MB.
+The argument is constrained between 100 KB and 256 MB\\.
 #else
-The argument is constrained above 100 KB.
+The argument is constrained above 100 KB\\.
 #endif
 .sp
 This version of
@@ -175,214 +169,210 @@ This version of
 #if defined(SPVW_MIXED) && defined(SPVW_BLOCKS)
 #ifdef GENERATIONAL_GC
 is not likely to actually use the entire
-\fImemory\-size\fR
+\fImemory\\\-size\fR
 since
-garbage\-collection will periodically reduce the amount of used memory. It is therefore common to specify 10 MB even if only 2 MB are going to be used.
+garbage\\\-collection will periodically reduce the amount of used memory\\. It is therefore common to specify 10 MB even if only 2 MB are going to be used\\.
 #else
 eventually uses the entire
-\fImemory\-size\fR.
+\fImemory\\\-size\fR\\.
 #endif
 #else
-allocates memory dynamically.
-\fImemory\-size\fR
+allocates memory dynamically\\.
+\fImemory\\\-size\fR
 is essentially ignored (except that it determines the Lisp
 STACK
-size).
+size)\\.
 #endif
 .RE
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 .PP
-\fB\-t\fR \fItemp\-dir\fR
+\fB\\\-t\fR \fItemp\\\-dir\fR
 .RS 4
-Specifies the directory where the temporary core file is to be held. This option takes precedence over the
+Specifies the directory where the temporary core file is to be held\\. This option takes precedence over the
 \fIenvironment variable\fR\&[12]
-\fBTMPDIR\fR.
+\fBTMPDIR\fR\\.
 .RE
 #endif
 .PP
-\fB\-L\fR \fIlanguage\fR
+\fB\\\-L\fR \fIlanguage\fR
 .RS 4
 Specifies the
 language
 \fI\fBCLISP\fR\fR\&[6]
-uses to communicate with the user. This may be
+uses to communicate with the user\\. This may be
 #ifndef GNU_GETTEXT
 only
-\fBenglish\fR.
+\fBenglish\fR\\.
 #else
 one of
-\fBenglish\fR, \fBgerman\fR, \fBfrench\fR, \fBspanish\fR, \fBdutch\fR, \fBrussian\fR, \fBdanish\fR. Other languages may be specified through the
+\fBenglish\fR, \fBgerman\fR, \fBfrench\fR, \fBspanish\fR, \fBdutch\fR, \fBrussian\fR, \fBdanish\fR\\. Other languages may be specified through the
 \fIenvironment variable\fR\&[12]
-\fBLANG\fR, provided the corresponding message catalog is installed.
+\fBLANG\fR, provided the corresponding message catalog is installed\\.
 #endif
 The language may be changed dynamically using the
-\fISYMBOL\-MACRO\fR\&[10]
-\fICUSTOM:*CURRENT\-LANGUAGE*\fR.
+\fISYMBOL\\\-MACRO\fR\&[10]
+\fICUSTOM:*CURRENT\\\-LANGUAGE*\fR\\.
 .RE
 .PP
-\fB\-N\fR \fIlocale\-dir\fR
+\fB\\\-N\fR \fIlocale\\\-dir\fR
 .RS 4
-Specifies the base directory of locale files.
+Specifies the base directory of locale files\\.
 \fI\fBCLISP\fR\fR\&[6]
 will search its message catalogs in
-\fI\fIlocale\-dir\fR\fR\fI/\fR\fI\fIlanguage\fR\fR\fI/LC_MESSAGES/clisp.mo\fR. This directory may be changed dynamically using the
-\fISYMBOL\-MACRO\fR\&[10]
-\fICUSTOM:*CURRENT\-LANGUAGE*\fR.
+\fI\fIlocale\\\-dir\fR\fR\fI/\fR\fI\fIlanguage\fR\fR\fI/LC_MESSAGES/clisp\\.mo\fR\\. This directory may be changed dynamically using the
+\fISYMBOL\\\-MACRO\fR\&[10]
+\fICUSTOM:*CURRENT\\\-LANGUAGE*\fR\\.
 .RE
 .PP
-\fB\-E\fR\fB\fIdomain\fR\fR\fB \fR\fB\fIencoding\fR\fR
+\fB\\\-E\fR\fB\fIdomain\fR\fR\fB \fR\fB\fIencoding\fR\fR
 .RS 4
 Specifies the encoding used for the given domain, overriding the default which depends on the
 \fIenvironment variable\fR\&[12]s
 \fBLC_ALL\fR,
 \fBLC_CTYPE\fR,
-\fBLANG\fR.
+\fBLANG\fR\\.
 \fIdomain\fR
 can be
-
-.RS 4
 .PP
 \fBfile\fR
 .RS 4
 affecting
-\fICUSTOM:*DEFAULT\-FILE\-ENCODING*\fR
+\fICUSTOM:*DEFAULT\\\-FILE\\\-ENCODING*\fR
 .RE
 .PP
 \fBpathname\fR
 .RS 4
 affecting
-\fICUSTOM:*PATHNAME\-ENCODING*\fR
+\fICUSTOM:*PATHNAME\\\-ENCODING*\fR
 .RE
 .PP
 \fBterminal\fR
 .RS 4
 affecting
-\fICUSTOM:*TERMINAL\-ENCODING*\fR
+\fICUSTOM:*TERMINAL\\\-ENCODING*\fR
 .RE
 .PP
 \fBforeign\fR
 .RS 4
 affecting
-\fICUSTOM:*FOREIGN\-ENCODING*\fR
+\fICUSTOM:*FOREIGN\\\-ENCODING*\fR
 .RE
 .PP
 \fBmisc\fR
 .RS 4
 affecting
-\fICUSTOM:*MISC\-ENCODING*\fR
+\fICUSTOM:*MISC\\\-ENCODING*\fR
 .RE
 .PP
 \fIblank\fR
 .RS 4
-affecting all of the above.
+affecting all of the above\\.
 .RE
-.RE
-.IP "" 4
+.sp
 
 .sp
 .it 1 an-trap
 .nr an-no-space-flag 1
 .nr an-break-flag 1
 .br
-\fBWarning\fR
+Warning
 Note that the values of these
-\fISYMBOL\-MACRO\fR\&[10]s that have been saved in a
+\fISYMBOL\\\-MACRO\fR\&[10]s that have been saved in a
 memory image
 are ignored: these
-\fISYMBOL\-MACRO\fR\&[10]s are reset based on the OS environment
-\fIafter\fR
+\fISYMBOL\\\-MACRO\fR\&[10]s are reset based on the OS environment
+\fBafter\fR
 the
 memory image
-is loaded. You have to use the
+is loaded\\. You have to use the
 RC file,
-\fICUSTOM:*INIT\-HOOKS*\fR
+\fICUSTOM:*INIT\\\-HOOKS*\fR
 or
 init function
 to set them on startup, but it is best to set the aforementioned
-\fIenvironment variable\fR\&[12]s appropriately for consistency with other programs. See
-Section\ 30.1, \(lqCustomizing CLISP Process Initialization and Termination\(rq.
+\fIenvironment variable\fR\&[12]s appropriately for consistency with other programs\\. See
+Section\ 31.1, \(lqCustomizing CLISP Process Initialization and Termination\(rq\\.
+
 .RE
 .PP
-\fB\-q\fR
+\fB\\\-q\fR
 .br
-\fB\-\-quiet\fR
+\fB\\\-\\\-quiet\fR
 .br
-\fB\-\-silent\fR
+\fB\\\-\\\-silent\fR
 .br
-\fB\-v\fR
+\fB\\\-v\fR
 .br
-\fB\-\-verbose\fR
+\fB\\\-\\\-verbose\fR
 .RS 4
 Change verbosity level: by default,
 \fI\fBCLISP\fR\fR\&[6]
-displays a banner at startup and a good\-bye message when quitting, and initializes
-\fI\fI*LOAD\-VERBOSE*\fR\fR\&[13]
+displays a banner at startup and a good\\\-bye message when quitting, and initializes
+\fI\fI*LOAD\\\-VERBOSE*\fR\fR\&[13]
 and
-\fI\fI*COMPILE\-VERBOSE*\fR\fR\&[14]
+\fI\fI*COMPILE\\\-VERBOSE*\fR\fR\&[14]
 to
 \fI\fBT\fR\fR\&[15], and
-\fI\fI*LOAD\-PRINT*\fR\fR\&[13]
+\fI\fI*LOAD\\\-PRINT*\fR\fR\&[13]
 and
-\fI\fI*COMPILE\-PRINT*\fR\fR\&[14]
+\fI\fI*COMPILE\\\-PRINT*\fR\fR\&[14]
 to
 \fI\fBNIL\fR\fR\&[16], as per
-[ANSI CL]. The first
-\fB\-q\fR
-removes the banner and the good\-bye message, the second sets variables
-\fI\fI*LOAD\-VERBOSE*\fR\fR\&[13]
+[ANSI CL standard]\\. The first
+\fB\\\-q\fR
+removes the banner and the good\\\-bye message, the second sets variables
+\fI\fI*LOAD\\\-VERBOSE*\fR\fR\&[13]
 and
-\fI\fI*COMPILE\-VERBOSE*\fR\fR\&[14]
+\fI\fI*COMPILE\\\-VERBOSE*\fR\fR\&[14]
 to
-\fI\fBNIL\fR\fR\&[16]. The first
-\fB\-v\fR
+\fI\fBNIL\fR\fR\&[16]\\. The first
+\fB\\\-v\fR
 sets variables
-\fICUSTOM:*REPORT\-ERROR\-PRINT\-BACKTRACE*\fR,
-\fI\fI*LOAD\-PRINT*\fR\fR\&[13]
+\fICUSTOM:*REPORT\\\-ERROR\\\-PRINT\\\-BACKTRACE*\fR,
+\fI\fI*LOAD\\\-PRINT*\fR\fR\&[13]
 and
-\fI\fI*COMPILE\-PRINT*\fR\fR\&[14]
+\fI\fI*COMPILE\\\-PRINT*\fR\fR\&[14]
 to
 \fI\fBT\fR\fR\&[15], the second sets
-\fICUSTOM:*LOAD\-ECHO*\fR
+\fICUSTOM:*LOAD\\\-ECHO*\fR
 to
-\fI\fBT\fR\fR\&[15]. These settings affect the output produced by
-\fB\-i\fR
+\fI\fBT\fR\fR\&[15]\\. These settings affect the output produced by
+\fB\\\-i\fR
 and
-\fB\-c\fR
-options. Note that these settings persist into the
-\fIread\-eval\-print loop\fR\&[2]. Repeated
-\fB\-q\fR
+\fB\\\-c\fR
+options\\. Note that these settings persist into the
+\fIread\\\-eval\\\-print loop\fR\&[2]\\. Repeated
+\fB\\\-q\fR
 and
-\fB\-v\fR
-cancel each other, e.g.,
-\fB\-q \-q \-v \-v \-v\fR
+\fB\\\-v\fR
+cancel each other, e\\.g\\.,
+\fB\\\-q \\\-q \\\-v \\\-v \\\-v\fR
 is equivalent to
-\fB\-v\fR.
+\fB\\\-v\fR\\.
 .RE
 .PP
-\fB\-on\-error\fR \fIaction\fR
+\fB\\\-on\\\-error\fR \fIaction\fR
 .RS 4
 Override (or force) the batch mode imposed by
-\fB\-c\fR,
-\fB\-x\fR, and
-\fIlisp\-file\fR, depending on
-\fIaction\fR:
-.RS 4
-.PP
+\fB\\\-c\fR,
+\fB\\\-x\fR, and
+\fIlisp\\\-file\fR, depending on
+\fIaction\fR:.PP
 appease
 .RS 4
 \fIcontinuable\fR\&[17]
 \fIERROR\fR\&[18]s are turned into
 \fIWARNING\fR\&[19]s (with
-\fBEXT:APPEASE\-CERRORS\fR) other
+\fBEXT:APPEASE\\\-CERRORS\fR) other
 \fIERROR\fR\&[18]s are handled in the default way
 .RE
 .PP
 debug
 .RS 4
 \fIERROR\fR\&[18]s
-\fI\fBINVOKE\-DEBUGGER\fR\fR\&[20]
+\fI\fBINVOKE\\\-DEBUGGER\fR\fR\&[20]
 (the normal
-\fIread\-eval\-print loop\fR\&[2]
+\fIread\\\-eval\\\-print loop\fR\&[2]
 behavior)
 .RE
 .PP
@@ -392,7 +382,7 @@ abort
 \fIERROR\fR\&[18]s are appeased, other
 \fIERROR\fR\&[18]s are
 \fI\fBABORT\fR\fR\&[21]ed with
-\fBEXT:ABORT\-ON\-ERROR\fR
+\fBEXT:ABORT\\\-ON\\\-ERROR\fR
 .RE
 .PP
 exit
@@ -402,33 +392,32 @@ exit
 \fIERROR\fR\&[18]s terminate
 \fI\fBCLISP\fR\fR\&[6]
 with
-\fBEXT:EXIT\-ON\-ERROR\fR
+\fBEXT:EXIT\\\-ON\\\-ERROR\fR
 .RE
-.RE
-.IP "" 4
+.sp
 See also
-\fBEXT:SET\-GLOBAL\-HANDLER\fR.
+\fBEXT:SET\\\-GLOBAL\\\-HANDLER\fR\\.
 .RE
 .PP
-\fB\-repl\fR
+\fB\\\-repl\fR
 .RS 4
 Start an interactive
-\fIread\-eval\-print loop\fR\&[2]
+\fIread\\\-eval\\\-print loop\fR\&[2]
 after processing the
-\fB\-c\fR,
-\fB\-x\fR, and
-\fIlisp\-file\fR
+\fB\\\-c\fR,
+\fB\\\-x\fR, and
+\fIlisp\\\-file\fR
 options and on any
 \fIERROR\fR\&[18]
-\fI\fBSIGNAL\fR\fR\&[22]ed during that processing.
+\fI\fBSIGNAL\fR\fR\&[22]ed during that processing\\.
 .RE
 .PP
-\fB\-w\fR
+\fB\\\-w\fR
 .RS 4
-Wait for a keypress after program termination.
+Wait for a keypress after program termination\\.
 .RE
 .PP
-\fB\-I\fR
+\fB\\\-I\fR
 .RS 4
 Interact better with
 \fIEmacs\fR\&[23]
@@ -439,171 +428,171 @@ under
 using
 \fISLIME\fR\&[24],
 \fIILISP\fR\&[25]
-et al). With this option,
+et al)\\. With this option,
 \fI\fBCLISP\fR\fR\&[6]
 interacts in a way that
 \fIEmacs\fR\&[23]
 can deal with:
+
+.sp
 .RS 4
-.TP 4
-\(bu
-unnecessary prompts are not suppressed.
-.TP 4
+\\h'\-04'\(bu\\h'+03'unnecessary prompts are not suppressed\\.
+.RE
 #ifdef GNU_READLINE
-\(bu
-The
+.sp
+.RS 4
+\\h'\-04'\(bu\\h'+03'The
 \fIGNU\fR\&[8]
 \fIreadline\fR\&[26]
 library treats
 TAB
 (see
-TAB key) as a normal self\-inserting character (see
-Q:\ A.4.5).
+TAB key) as a normal self\\\-inserting character (see
+Q:\ A.4.5)\\.
+.RE
 #endif
 .RE
-
-.RE
 .PP
-\fB\-ansi\fR
+\fB\\\-ansi\fR
 .RS 4
 Comply with the
-[ANSI CL]
+[ANSI CL standard]
 specification even where
 \fI\fBCLISP\fR\fR\&[6]
-has been traditionally different. It sets the
-\fISYMBOL\-MACRO\fR\&[10]
+has been traditionally different\\. It sets the
+\fISYMBOL\\\-MACRO\fR\&[10]
 \fICUSTOM:*ANSI*\fR
 to
-\fI\fBT\fR\fR\&[15].
+\fI\fBT\fR\fR\&[15]\\.
 .RE
 .PP
-\fB\-traditional\fR
+\fB\\\-traditional\fR
 .RS 4
 Traditional: reverses the residual effects of
-\fB\-ansi\fR
+\fB\\\-ansi\fR
 in the saved
-memory image.
+memory image\\.
 .RE
 .PP
-\fB\-modern\fR
+\fB\\\-modern\fR
 .RS 4
 Provides a modern view of symbols: at startup the
 \fI\fI*PACKAGE*\fR\fR\&[27]
 variable will be set to the
-\(lqCS\-COMMON\-LISP\-USER\(rq
+\(lqCS\\\-COMMON\\\-LISP\\\-USER\(rq
 package, and the
-\fI\fI*PRINT\-BASE*\fR\fR\&[28]
+\fI\fI*PRINT\\\-CASE*\fR\fR\&[28]
 will be set to
-\fB:DOWNCASE\fR. This has the effect that symbol lookup is case\-sensitive (except for keywords and old\-style packages) and that keywords and uninterned symbols are printed with lower\-case preferrence. See
-Section\ 11.4, \(lqPackage Case\-Sensitivity\(rq.
+\fB:DOWNCASE\fR\\. This has the effect that symbol lookup is case\\\-sensitive (except for keywords and old\\\-style packages) and that keywords and uninterned symbols are printed with lower\\\-case preferrence\\. See
+Section\ 11.4, \(lqPackage Case\-Sensitivity\(rq\\.
 .RE
 .PP
-\fB\-p\fR \fIpackage\fR
+\fB\\\-p\fR \fIpackage\fR
 .RS 4
 At startup the value of the variable
 \fI\fI*PACKAGE*\fR\fR\&[27]
 will be set to the package named
-\fIpackage\fR. The default is the value of
+\fIpackage\fR\\. The default is the value of
 \fI\fI*PACKAGE*\fR\fR\&[27]
 when the image was
 saved, normally
-\fI\(lqCOMMON\-LISP\-USER\(rq\fR\&[29].
+\fI\(lqCOMMON\\\-LISP\\\-USER\(rq\fR\&[29]\\.
 .RE
 .PP
-\fB\-C\fR
+\fB\\\-C\fR
 .RS 4
 Compile when loading: at startup the value of the variable
-\fICUSTOM:*LOAD\-COMPILING*\fR
+\fICUSTOM:*LOAD\\\-COMPILING*\fR
 will be set to
-\fI\fBT\fR\fR\&[15]. Code being
+\fI\fBT\fR\fR\&[15]\\. Code being
 \fI\fBLOAD\fR\fR\&[30]ed will then be
-\fI\fBCOMPILE\fR\fR\&[31]d on the fly. This results in slower loading, but faster execution.
+\fI\fBCOMPILE\fR\fR\&[31]d on the fly\\. This results in slower loading, but faster execution\\.
 .RE
 .PP
-\fB\-norc\fR
+\fB\\\-norc\fR
 .RS 4
 Normally
 \fI\fBCLISP\fR\fR\&[6]
 loads the user
 \fI\(lqrun control\(rq (RC)\fR\&[32]
 file on startup (this happens
-\fIafter\fR
+\fBafter\fR
 the
-\fB\-C\fR
-option is processed). The file loaded is
-\fI.clisprc.lisp\fR
+\fB\\\-C\fR
+option is processed)\\. The file loaded is
+\fI\\.clisprc\\.lisp\fR
 or
-\fI.clisprc.fas\fR
+\fI\\.clisprc\\.fas\fR
 in the home directory
-\fI\fBUSER\-HOMEDIR\-PATHNAME\fR\fR\&[33], whichever is newer. This option,
-\fB\-norc\fR, prevents loading of the
-RC file.
+\fI\fBUSER\\\-HOMEDIR\\\-PATHNAME\fR\fR\&[33], whichever is newer\\. This option,
+\fB\\\-norc\fR, prevents loading of the
+RC file\\.
 .RE
 .PP
-\fB\-i\fR \fIinit\-file\fR
+\fB\\\-i\fR \fIinit\\\-file\fR
 .RS 4
 Specifies initialization files to be
-\fI\fBLOAD\fR\fR\&[30]ed at startup. These should be lisp files (source or compiled). Several
-\fB\-i\fR
-options can be given; all the specified files will be loaded in order.
+\fI\fBLOAD\fR\fR\&[30]ed at startup\\. These should be lisp files (source or compiled)\\. Several
+\fB\\\-i\fR
+options can be given; all the specified files will be loaded in order\\.
 .RE
 .PP
-\fB\-c\fR \fIlisp\-file\fR
+\fB\\\-c\fR \fIlisp\\\-file\fR
 .RS 4
 Compiles the specified
-\fIlisp\-file\fRs to bytecode (\fI*.fas\fR). The compiled files can then be
-\fI\fBLOAD\fR\fR\&[30]ed instead of the sources to gain efficiency.
+\fIlisp\\\-file\fRs to bytecode (\fI*\\.fas\fR)\\. The compiled files can then be
+\fI\fBLOAD\fR\fR\&[30]ed instead of the sources to gain efficiency\\.
 .RE
 .PP
-\fB\-o\fR \fIoutputfile\fR
+\fB\\\-o\fR \fIoutputfile\fR
 .RS 4
 Specifies the output file or directory for the compilation of the last specified
-\fIlisp\-file\fR.
+\fIlisp\\\-file\fR\\.
 .RE
 .PP
-\fB\-l\fR
+\fB\\\-l\fR
 .RS 4
 Produce a bytecode
 \fI\fBDISASSEMBLE\fR\fR\&[34]
-listing (\fI*.lis\fR) of the files being compiled. Useful only for debugging. See
+listing (\fI*\\.lis\fR) of the files being compiled\\. Useful only for debugging\\. See
 Section\ 24.1.1, \(lqFunction COMPILE\-FILE\(rq
-for details.
+for details\\.
 .RE
 .PP
-\fB\-x\fR \fIexpressions\fR
+\fB\\\-x\fR \fIexpressions\fR
 .RS 4
 Executes a series of arbitrary expressions instead of a
-\fIread\-eval\-print loop\fR\&[2]. The values of the expressions will be output to
-\fI\fI*STANDARD\-OUTPUT*\fR\fR\&[35]. Due to the argument processing done by the shell, the
+\fIread\\\-eval\\\-print loop\fR\&[2]\\. The values of the expressions will be output to
+\fI\fI*STANDARD\\\-OUTPUT*\fR\fR\&[35]\\. Due to the argument processing done by the shell, the
 \fIexpressions\fR
-must be enclosed in double quotes, and double quotes and backslashes must be escaped with backslashes.
+must be enclosed in double quotes, and double quotes and backslashes must be escaped with backslashes\\.
 .RE
 .PP
-\fIlisp\-file\fR [ \fIargument\fR ... ]
+\fIlisp\\\-file\fR [ \fIargument\fR \\.\\.\\. ]
 .RS 4
 Loads and executes a
-\fIlisp\-file\fR, as described in
-Script execution. There will be no
-\fIread\-eval\-print loop\fR\&[2]. Before
-\fIlisp\-file\fR
+\fIlisp\\\-file\fR, as described in
+Script execution\\. There will be no
+\fIread\\\-eval\\\-print loop\fR\&[2]\\. Before
+\fIlisp\\\-file\fR
 is loaded, the variable
 \fIEXT:*ARGS*\fR
 will be bound to a list of strings, representing the
-\fIargument\fRs.
+\fIargument\fRs\\.
 #ifdef UNIX
 The first line of
-\fIlisp\-file\fR
+\fIlisp\\\-file\fR
 may start with
 \fB#!\fR, thus permitting
 \fI\fBCLISP\fR\fR\&[6]
-to be used as a script interpreter.
+to be used as a script interpreter\\.
 #endif
 If
-\fIlisp\-file\fR
+\fIlisp\\\-file\fR
 is
-\fB\-\fR, the
-\fI\fI*STANDARD\-INPUT*\fR\fR\&[35]
-is used instead of a file.
+\fB\\\-\fR, the
+\fI\fI*STANDARD\\\-INPUT*\fR\fR\&[35]
+is used instead of a file\\.
 .sp
 This option is
 \fIdisabled\fR
@@ -614,44 +603,50 @@ was created by
 with
 \fI\fBNIL\fR\fR\&[16]
 \fB:SCRIPT\fR
-argument. In that case the
+argument\\. In that case the
 \fILIST\fR\&[36]
 \fIEXT:*ARGS*\fR
 starts with
-\fIlisp\-file\fR.
+\fIlisp\\\-file\fR\\.
 .sp
-This option must be the last one.
+This option must be the last one\\.
 .sp
 No
 RC file
-will be executed.
+will be executed\\.
 .RE
 .PP
 As usual,
-\fB\-\-\fR
+\fB\\\-\\\-\fR
 stops option processing and places all remaining command line arguments into
-\fIEXT:*ARGS*\fR.
+\fIEXT:*ARGS*\fR\\.
 .SH "LANGUAGE REFERENCE"
 .PP
 The language implemented is
-[ANSI CL]. The implementation mostly conforms to the
+[ANSI CL standard]\\. The implementation mostly conforms to the
 ANSI Common Lisp standard, see
-Section\ 30.10, \(lqMaximum ANSI CL compliance\(rq.
+Section\ 31.10, \(lqMaximum ANSI CL compliance\(rq\\.
 [ANSI CL] ANSI CL standard1994. ANSI Common Lisp standard X3.226\-1994 \-
        \fIInformation
-       Technology \- Programming Language \- Common Lisp\fR\&[37]. .SH "USAGE"
+       Technology \\\- Programming Language \\\- Common Lisp\fR\&[37]. .SH "USAGE"
 .PP
 help
 .RS 4
-get context\-sensitive on\-line help, see
-Chapter\ 25, Environment [CLHS\-25].
+get context\\\-sensitive on\\\-line help, see
+Chapter\ 25, Environment [CLHS\-25]\\.
 .RE
 .PP
-(\fI\fBAPROPOS\fR\fR\&[38] \fIname\fR)
+(\fBAPROPOS\fR \fIname\fR)
 .RS 4
-list the symbols
-matching to
-\fIname\fR.
+list the
+\fISYMBOL\fR\&[38]s matching
+\fIname\fR\\.
+.RE
+.PP
+(\fBDESCRIBE\fR \fIsymbol\fR)
+.RS 4
+describe the
+\fIsymbol\fR\\.
 .RE
 .PP
 (exit)
@@ -661,21 +656,21 @@ matching to
 (bye)
 .RS 4
 quit
-\fI\fBCLISP\fR\fR\&[6].
+\fI\fBCLISP\fR\fR\&[6]\\.
 .RE
 .PP
 EOF 
 #if defined(UNIX)
-(Control\-D on \fI\fBUNIX\fR\fR\&[39]) 
+(Control+D on \fI\fBUNIX\fR\fR\&[39]) 
 #endif
 #if defined(WIN32_NATIVE)
-(Control\-Z on \fI\fIWin32\fR\fR\&[40]) 
+(Control+Z on \fI\fIWin32\fR\fR\&[40]) 
 #endif
 .RS 4
 leave the current level of the
-\fIread\-eval\-print loop\fR\&[2]
+\fIread\\\-eval\\\-print loop\fR\&[2]
 (see also
-Section\ 1.1, \(lqSpecial Symbols [CLHS\-1.4.1.3]\(rq).
+Section\ 1.1, \(lqSpecial Symbols [CLHS\-1.4.1.3]\(rq)\\.
 .RE
 #ifdef GNU_READLINE
 .PP
@@ -684,36 +679,44 @@ arrow keys
 for editing and viewing the input history, using the
 \fIGNU\fR\&[8]
 \fIreadline\fR\&[26]
-library.
+library\\.
 .RE
 .PP
 TAB key
 .RS 4
 Context sensitive:
+
+.sp
 .RS 4
-.TP 4
-\(bu
-If you are in the
+\\h'\-04'\(bu\\h'+03'If you are in the
 \(lqfunction position\(rq
 (in the first symbol after an opening paren or in the first symbol after a
-\fI#'\fR\&[41]), the completion is limited to the symbols that name functions.
-.TP 4
-\(bu
-If you are in the "filename position" (inside a string after
+\fI#\\'\fR\&[41]), the completion is limited to the symbols that name functions\\.
+.RE
+
+.sp
+.RS 4
+\\h'\-04'\(bu\\h'+03'If you are in the "filename position" (inside a string after
 \fI#P\fR\&[42]), the completion is done across file names,
-\fIbash\fR\&[43]\-style.
-.TP 4
-\(bu
-If you have not typed anything yet, you will get a help message, as if by the
+\fIbash\fR\&[43]\\\-style\\.
+.RE
+
+.sp
+.RS 4
+\\h'\-04'\(bu\\h'+03'If you have not typed anything yet, you will get a help message, as if by the
 \fBHelp\fR
-command.
-.TP 4
-\(bu
-If you have not started typing the next symbol (i.e., you are at a whitespace), the current function or macro is
-\fI\fBDESCRIBE\fR\fR\&[44]d.
-.TP 4
-\(bu
-Otherwise, the symbol you are currently typing is completed.
+command\\.
+.RE
+
+.sp
+.RS 4
+\\h'\-04'\(bu\\h'+03'If you have not started typing the next symbol (i\\.e\\., you are at a whitespace), the current function or macro is
+\fBDESCRIBE\fRd\\.
+.RE
+
+.sp
+.RS 4
+\\h'\-04'\(bu\\h'+03'Otherwise, the symbol you are currently typing is completed\\.
 .RE
 .IP "" 4
 
@@ -729,15 +732,15 @@ startup driver (a script or an executable)
 #endif
 #if defined(WIN32_NATIVE)
 .PP
-\fBclisp.exe\fR
+\fBclisp\\.exe\fR
 .RS 4
 startup driver (executable)
 .RE
 #endif
 .PP
-\fIlisp.run\fR
+\fIlisp\\.run\fR
 .br
-\fIlisp.exe\fR
+\fIlisp\\.exe\fR
 .RS 4
 #if defined(UNIX) && !defined(UNIX_CYGWIN32)
 #endif
@@ -746,87 +749,87 @@ startup driver (executable)
 main executable (runtime)
 .RE
 .PP
-\fIlispinit.mem\fR
+\fIlispinit\\.mem\fR
 .RS 4
 initial
 memory image
 .RE
 .PP
-\fIconfig.lisp\fR
+\fIconfig\\.lisp\fR
 .RS 4
-site\-dependent configuration (should have been customized before
+site\\\-dependent configuration (should have been customized before
 \fI\fBCLISP\fR\fR\&[6]
 was built); see
-Section\ 30.12, \(lqCustomizing CLISP behavior\(rq
+Section\ 31.12, \(lqCustomizing CLISP behavior\(rq
 .RE
 .PP
-\fI*.lisp\fR
+\fI*\\.lisp\fR
 .RS 4
 lisp source
 .RE
 .PP
-\fI*.fas\fR
+\fI*\\.fas\fR
 .RS 4
 lisp code, compiled by
 \fI\fBCLISP\fR\fR\&[6]
 .RE
 .PP
-\fI*.lib\fR
+\fI*\\.lib\fR
 .RS 4
 lisp source library information, generated by
-\fBCOMPILE\-FILE\fR, see
-Section\ 24.1.3, \(lqFunction REQUIRE\(rq.
+\fBCOMPILE\\\-FILE\fR, see
+Section\ 24.1.3, \(lqFunction REQUIRE\(rq\\.
 .RE
 .PP
-\fI*.c\fR
+\fI*\\.c\fR
 .RS 4
 C code, compiled from lisp source by
 \fI\fBCLISP\fR\fR\&[6]
 (see
-Section\ 31.3, \(lqThe Foreign Function Call Facility\(rq)
+Section\ 32.3, \(lqThe Foreign Function Call Facility\(rq)
 .RE
 .PP
 For the
 \fI\fBCLISP\fR\fR\&[6]
 source files, see
-Chapter\ 33, The source files of CLISP.
+Chapter\ 34, The source files of CLISP\\.
 #ifdef HAVE_ENVIRONMENT
 .SH "ENVIRONMENT"
 .PP
 All
 \fIenvironment variable\fR\&[12]s that
 \fI\fBCLISP\fR\fR\&[6]
-uses are read at most once.
+uses are read at most once\\.
 .PP
 \fBCLISP_LANGUAGE\fR
 .RS 4
 specifies the language
 \fI\fBCLISP\fR\fR\&[6]
-uses to communicate with the user. The legal values are identical to those of the
-\fB\-L\fR
+uses to communicate with the user\\. The legal values are identical to those of the
+\fB\\\-L\fR
 option which can be used to override this
-\fIenvironment variable\fR\&[12].
+\fIenvironment variable\fR\&[12]\\.
 .RE
 #ifdef UNICODE
 .PP
 \fBLC_CTYPE\fR
 .RS 4
-specifies the locale which determines the character set in use. The value can be of the form
+specifies the locale which determines the character set in use\\. The value can be of the form
 \fB\fIlanguage\fR\fR
 or
 \fB\fIlanguage\fR\fR\fB_\fR\fB\fIcountry\fR\fR
 or
-\fB\fIlanguage\fR\fR\fB_\fR\fB\fIcountry\fR\fR\fB.\fR\fB\fIcharset\fR\fR, where
+\fB\fIlanguage\fR\fR\fB_\fR\fB\fIcountry\fR\fR\fB\\.\fR\fB\fIcharset\fR\fR, where
 \fIlanguage\fR
-is a two\-letter ISO 639 language code (lower case),
+is a two\\\-letter ISO 639 language code (lower case),
 \fIcountry\fR
-is a two\-letter ISO 3166 country code (upper case).
+is a two\\\-letter ISO 3166 country code (upper case)\\.
 \fIcharset\fR
-is an optional character set specification, and needs normally not be given because the character set can be inferred from the language and country. This
+is an optional character set specification, and needs normally not be given because the character set can be inferred from the language and country\\. This
 \fIenvironment variable\fR\&[12]
 can be overridden with the
-\fB \-Edomain encoding \fR
-option.
+\fB\-Edomain encoding\fR
+option\\.
 .RE
 #endif
 .PP
@@ -838,17 +841,17 @@ uses to communicate with the user, unless it is already specified through the
 \fIenvironment variable\fR\&[12]
 \fBCLISP_LANGUAGE\fR
 or the
-\fB\-L\fR
-option.
+\fB\\\-L\fR
+option\\.
 #ifdef UNICODE
 It also specifies the locale determining the character set in use, unless already specified through the
 \fIenvironment variable\fR\&[12]
-\fBLC_CTYPE\fR.
+\fBLC_CTYPE\fR\\.
 #endif
-The value may begin with a two\-letter ISO 639 language code, for example
+The value may begin with a two\\\-letter ISO 639 language code, for example
 \fBen\fR,
 \fBde\fR,
-\fBfr\fR.
+\fBfr\fR\\.
 .RE
 #ifdef UNIX
 .PP
@@ -857,7 +860,7 @@ The value may begin with a two\-letter ISO 639 language code, for example
 \fBUSER\fR
 .RS 4
 are used for determining the value of the function
-\fI\fBUSER\-HOMEDIR\-PATHNAME\fR\fR\&[33].
+\fI\fBUSER\\\-HOMEDIR\\\-PATHNAME\fR\fR\&[33]\\.
 .RE
 #endif
 .PP
@@ -870,55 +873,55 @@ are used for determining the value of the function
 #ifdef WIN32_NATIVE
 #endif
 is used to find the interactive command interpreter called by
-\fBEXT:SHELL\fR.
+\fBEXT:SHELL\fR\\.
 .RE
 #ifdef UNIX
 .PP
 \fBTERM\fR
 .RS 4
-determines the screen size recognized by the pretty printer.
+determines the screen size recognized by the pretty printer\\.
 .RE
 #endif
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 .PP
 \fBTMPDIR\fR
 .RS 4
-specifies the directory where the temporary core file is to be held.
+specifies the directory where the temporary core file is to be held\\.
 .RE
 #endif
 .PP
 \fBORGANIZATION\fR
 .RS 4
 for
-\fI\fBSHORT\-SITE\-NAME\fR\fR\&[45]
+\fI\fBSHORT\\\-SITE\\\-NAME\fR\fR\&[44]
 and
-\fI\fBLONG\-SITE\-NAME\fR\fR\&[45]
+\fI\fBLONG\\\-SITE\\\-NAME\fR\fR\&[44]
 in
-\fIconfig.lisp\fR.
+\fIconfig\\.lisp\fR\\.
 .RE
 .PP
 \fBCLHSROOT\fR
 .RS 4
 for
-\fBCUSTOM:CLHS\-ROOT\fR
+\fBCUSTOM:CLHS\\\-ROOT\fR
 in
-\fIconfig.lisp\fR.
+\fIconfig\\.lisp\fR\\.
 .RE
 .PP
 \fBIMPNOTES\fR
 .RS 4
 for
-\fBCUSTOM:IMPNOTES\-ROOT\fR
+\fBCUSTOM:IMPNOTES\\\-ROOT\fR
 in
-\fIconfig.lisp\fR.
+\fIconfig\\.lisp\fR\\.
 .RE
 .PP
 \fBEDITOR\fR
 .RS 4
 for
-\fBeditor\-name\fR
+\fBeditor\\\-name\fR
 in
-\fIconfig.lisp\fR.
+\fIconfig\\.lisp\fR\\.
 .RE
 .PP
 \fBLOGICAL_HOST_\fR\fB\fIhost\fR\fR\fB_FROM\fR
@@ -928,21 +931,20 @@ in
 \fBLOGICAL_HOST_\fR\fB\fIhost\fR\fR
 .RS 4
 for
-\fICUSTOM:*LOAD\-LOGICAL\-PATHNAME\-TRANSLATIONS\-DATABASE*\fR
+\fICUSTOM:*LOAD\\\-LOGICAL\\\-PATHNAME\\\-TRANSLATIONS\\\-DATABASE*\fR
 .RE
 #endif
 .SH "SEE ALSO"
 .PP
-CLISP impnotes,
-\fI\fBCMU CL\fR\fR\&[46]
-\-
-\fBcmucl\fR(1),
-\fIEmacs\fR\&[23]
-\-
-\fBemacs\fR(1),
-\fIXEmacs\fR\&[47]
-\-
-\fBxemacs\fR(1).
+.IP "" 4
+CLISP impnotes
+.IP "" 4
+\fI\fBCMU CL\fR\fR\&[45] \\\- \fBcmucl\fR(1)
+.IP "" 4
+\fIEmacs\fR\&[23] \\\- \fBemacs\fR(1)
+.IP "" 4
+\fIXEmacs\fR\&[46] \\\- \fBxemacs\fR(1)
+
 .SH "BUGS"
 .PP
 When you encounter a bug in
@@ -950,141 +952,128 @@ When you encounter a bug in
 or in its documentation (this manual page or
 CLISP impnotes), please report it to the
 \fI\fBCLISP\fR\fR\&[6]
-\fISourceForge bug tracker\fR\&[48].
+\fISourceForge bug tracker\fR\&[47]\\.
 .PP
 \fIBefore\fR
 submitting a bug report, please take the following basic steps to make the report more useful:
-.TP 4
-1.
-Please do a clean build (remove your build directory and build
+.sp
+.RS 4
+\\h'\-04' 1.\\h'+02'Please do a clean build (remove your build directory and build
 \fI\fBCLISP\fR\fR\&[6]
 with
-\fB./configure \-\-build build\fR
+\fB\\./configure \\\-\\\-build build\fR
 or at least do a
 \fBmake distclean\fR
 before
-\fBmake\fR).
-.TP 4
-2.
-If you are reporting a
+\fBmake\fR)\\.
+.RE
+
+
+.sp
+.RS 4
+\\h'\-04' 2.\\h'+02'If you are reporting a
 \(lqhard crash\(rq
 (segmentation fault, bus error, core dump etc), please do
-\fB./configure \-\-with\-debug \-\-build build\-g ; cd build\-g; gdb lisp.run\fR, then load the appropriate
+\fB\\./configure \\\-\\\-with\\\-debug \\\-\\\-build build\\\-g ; cd build\\\-g; gdb lisp\\.run\fR, then load the appropriate
 linking set
 by either
 \fBbase\fR
 or
 \fBfull\fR
-\fI\fBgdb\fR\fR\&[49]
+\fI\fBgdb\fR\fR\&[48]
 command, and report the backtrace (see also
-Q:\ A.1.1.9).
-.TP 4
-3.
-If you are using pre\-built binaries and experience a hard crash, the problem is likely to be in the incompatibilities between the platform on which the binary was built and yours; please try compiling the sources and report the problem if it persists.
+Q:\ A.1.1.10)\\.
+.RE
+
+
+.sp
+.RS 4
+\\h'\-04' 3.\\h'+02'If you are using pre\\\-built binaries and experience a hard crash, the problem is likely to be in the incompatibilities between the platform on which the binary was built and yours; please try compiling the sources and report the problem if it persists\\.
+.RE
+
 
 .PP
 When submitting a bug report, please specify the following information:
-.TP 4
-1.
-What is your platform (\fBuname \-a\fR
+.sp
+.RS 4
+\\h'\-04' 1.\\h'+02'What is your platform (\fBuname \\\-a\fR
 on a
 \fI\fBUNIX\fR\fR\&[39]
 system)? Compiler version?
 \fIGNU\fR\&[8]
-\fIlibc\fR\&[50]
+\fIlibc\fR\&[49]
 version (on
-\fIGNU\fR\&[8]/\fI\fILinux\fR\fR\&[51])?
-.TP 4
-2.
-Where did you get the sources or binaries? When? (Absolute dates \- like
-\(lq2006\-01\-17\(rq
-\- are preferred over the relative ones \- like
-\(lq2 days ago\(rq).
-.TP 4
-3.
-How did you build
-\fI\fBCLISP\fR\fR\&[6]? (What command, options &c.)
-.TP 4
-4.
-What is the output of
-\fBclisp \-\-version\fR?
-.TP 4
-5.
-Please supply the full output (copy and paste) of all the error messages, as well as detailed instructions on how to reproduce them.
+\fIGNU\fR\&[8]/\fI\fILinux\fR\fR\&[50])?
+.RE
 
-.PP
-Known bugs, some of which may be platform\-dependent, include:
-.TP 4
-\(bu
-The memory management scheme is not very flexible.
-.TP 4
-\(bu
-\fIEXT:*KEYBOARD\-INPUT*\fR
-does not recognize
-Control\-S
-and
-Control\-Q.
-.TP 4
-\(bu
-No on\-line documentation beyond
-\fI\fBAPROPOS\fR\fR\&[38]
-and
-\fI\fBDESCRIBE\fR\fR\&[44]
-is available.
+
+.sp
+.RS 4
+\\h'\-04' 2.\\h'+02'Where did you get the sources or binaries? When? (Absolute dates \\\- like
+\(lq2006\\\-01\\\-17\(rq
+\\\- are preferred over the relative ones \\\- like
+\(lq2 days ago\(rq)\\.
+.RE
+
+
+.sp
+.RS 4
+\\h'\-04' 3.\\h'+02'How did you build
+\fI\fBCLISP\fR\fR\&[6]? (What command, options &c\\.)
+.RE
+
+
+.sp
+.RS 4
+\\h'\-04' 4.\\h'+02'What is the output of
+\fBclisp \\\-\\\-version\fR?
+.RE
+
+
+.sp
+.RS 4
+\\h'\-04' 5.\\h'+02'Please supply the full output (copy and paste) of all the error messages, as well as detailed instructions on how to reproduce them\\.
+.RE
+
 
 .SH "PROJECTS"
-.TP 4
-\(bu
-Write on\-line documentation.
-.TP 4
-\(bu
-Enhance the compiler so that it can inline local functions.
-.TP 4
-\(bu
-Specify a portable set of window and graphics operations.
-.TP 4
-\(bu
-Add Multi\-Threading capabilities, via OS threads.
-.SH "CLISP AUTHORS"
-.PP
-The
-\fI\fBCLISP\fR\fR\&[6]
-project was started in late 1980\-ies by
-Bruno Haible
-and
-Michael Stoll, both in Germany.
-.PP
-See
-\fICOPYRIGHT\fR (file in the CLISP sources)
-for the list of other contributors and the license.
+
+.sp
+.RS 4
+\\h'\-04'\(bu\\h'+03'Enhance the compiler so that it can inline local functions\\.
+.RE
+
+.sp
+.RS 4
+\\h'\-04'\(bu\\h'+03'Add Multi\\\-Threading capabilities, via OS threads\\.
+.RE
 .SH "AUTHORS"
 .PP
 \fBBruno Haible\fR <\&\fI\%http://www.haible.de/bruno/\fR\&>
 
-.sp -1n
+.sp \-1n
 .IP "" 4
 Author.
 .PP
 \fBMichael Stoll\fR <\&\fI\%http://www.faculty.iu\-bremen.de/mstoll/\fR\&>
 
-.sp -1n
+.sp \-1n
 .IP "" 4
 Author.
 .PP
-\fBSam Steingold\fR <\&\fI\%http://www.podval.org/~sds/\fR\&>
+\fBSam Steingold\fR <\&\fI\%http://sds.podval.org/\fR\&>
 
-.sp -1n
+.sp \-1n
 .IP "" 4
 Author.
 .PP
-\fBSee \fI\fICOPYRIGHT\fR (file in the CLISP sources) \fR for the list of other contributors.\fR
+\fBSee \fI\fICOPYRIGHT\fR (file in the CLISP sources) \fR for the list of other contributors and the license\\.\fR
 .SH "COPYRIGHT"
 Copyright \(co 1992\-2006 Bruno Haible
 .br
 Copyright \(co 1998\-2006 Sam Steingold
 .br
-
-.SH "REFERENCES"
+.SH "NOTES"
 .IP " 1." 4
 \fBCommon Lisp\fR
 .RS 4
@@ -1221,9 +1210,9 @@ readline
 \%http://www.lisp.org/HyperSpec/Body/var_stpackagest.html
 .RE
 .IP "28." 4
-\fI*PRINT\-BASE*\fR
+\fI*PRINT\-CASE*\fR
 .RS 4
-\%http://www.lisp.org/HyperSpec/Body/var_stprint\-b_rint\-radixst.html
+\%http://www.lisp.org/HyperSpec/Body/var_stprint\-casest.html
 .RE
 .IP "29." 4
 \(lqCOMMON\-LISP\-USER\(rq
@@ -1241,7 +1230,8 @@ readline
 \%http://www.lisp.org/HyperSpec/Body/fun_compile.html
 .RE
 .IP "32." 4
-\(lqrun control\(rq (RC)
+\(lqrun
+     control\(rq (RC)
 .RS 4
 \%http://www.faqs.org/docs/artu/ch10s03.html
 .RE
@@ -1271,9 +1261,9 @@ Information Technology \- Programming Language \- Common Lisp
 \%http://www.ncits.org/tc_home/j13sd4.htm
 .RE
 .IP "38." 4
-\fBAPROPOS\fR
+SYMBOL
 .RS 4
-\%http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos\-list.html
+\%http://www.lisp.org/HyperSpec/Body/syscla_symbol.html
 .RE
 .IP "39." 4
 \fBUNIX\fR
@@ -1301,41 +1291,36 @@ bash
 \%http://www.gnu.org/software/bash/
 .RE
 .IP "44." 4
-\fBDESCRIBE\fR
-.RS 4
-\%http://www.lisp.org/HyperSpec/Body/fun_describe.html
-.RE
-.IP "45." 4
 \fBSHORT\-SITE\-NAME\fR
 .RS 4
 \%http://www.lisp.org/HyperSpec/Body/fun_short\-sit_ng\-site\-name.html
 .RE
-.IP "46." 4
+.IP "45." 4
 \fBCMU CL\fR
 .RS 4
 \%http://www.cons.org/cmucl/
 .RE
-.IP "47." 4
+.IP "46." 4
 XEmacs
 .RS 4
 \%http://www.xemacs.org
 .RE
-.IP "48." 4
+.IP "47." 4
 SourceForge bug tracker
 .RS 4
 \%http://sourceforge.net/tracker/?func=add&group_id=1355&atid=101355
 .RE
-.IP "49." 4
+.IP "48." 4
 \fBgdb\fR
 .RS 4
 \%http://sources.redhat.com/gdb/
 .RE
-.IP "50." 4
+.IP "49." 4
 libc
 .RS 4
 \%http://www.gnu.org/software/libc/
 .RE
-.IP "51." 4
+.IP "50." 4
 \fILinux\fR
 .RS 4
 \%http://www.linux.org/
