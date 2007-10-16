@@ -1,16 +1,12 @@
-file_list=''
-mod_list=''
-if test -r wildcard.c; then
-  file_list="$file_list"' wildcard.o'
-  mod_list="$mod_list"' wildcard'
-fi
-if test -z "@FNMATCH_O@"; then
-  rm -f fnmatch.*; # use system-wide fnmatch implementation
+file_list='wildcard.o'
+mod_list='wildcard'
+if test -z "@FNMATCH_O@"; then # use included gllib fnmatch implementation
+  file_list="$file_list ../gllib/@FNMATCH_O@";
 fi
 make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
      INCLUDES="$absolute_linkkitdir"
-NEW_FILES="$file_list @FNMATCH_O@ wildcard.dvi"
-NEW_LIBS="$file_list @FNMATCH_O@"
+NEW_FILES="$file_list wildcard.dvi"
+NEW_LIBS="$file_list"
 NEW_MODULES="$mod_list"
 TO_LOAD='wildcard'

@@ -1,13 +1,13 @@
 file_list='regexi.o'
 mod_list='regexp'
-if test -z "@REGEX_O@"; then
-  rm -f regex*; # use system-wide regex implementation
+if test -n "@REGEX_O@"; then # use included gllib regex implementation
+  file_list="$file_list ../gllib/@REGEX_O@ ../gllib/@ALLOCA@";
 fi
 make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
      INCLUDES="$absolute_linkkitdir"
-NEW_FILES="$file_list @REGEX_O@ @ALLOCA@ regexp.dvi"
-NEW_LIBS="$file_list @REGEX_O@ @ALLOCA@"
+NEW_FILES="$file_list regexp.dvi"
+NEW_LIBS="$file_list"
 NEW_MODULES="$mod_list"
 TO_LOAD='regexp'
 TO_PRELOAD='preload.lisp'
