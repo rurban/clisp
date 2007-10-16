@@ -128,6 +128,13 @@
   (gdbm:do-db (key db :type 'vector)
     :sum (length (gdbm:gdbm-fetch db key :type 'vector)))) 4005
 
+(handler-case (gdbm:with-open-db (db *db* :read-write :reader)
+		(gdbm:gdbm-store db #(0 0 0 0) #(1 1 1 1)))
+  (gdbm:gdbm-error (condition)
+    (list (gdbm:gdbm-error-code condition)
+          (gdbm:gdbm-error-message condition))))
+(:READER-CANT-STORE "Reader can't store")
+
 (gdbm:with-open-db (db *db* :read-write :reader)
   (gdbm:gdbm-fetch db #(0 0 0 0) :type 'vector)) #(1 1 1 1)
 
