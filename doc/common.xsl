@@ -109,13 +109,41 @@
 <!-- ============================== / SF mail ============================== -->
 
 <!-- ============================ CLISP CVS ============================ -->
-<xsl:param name="clisp.cvs.top"
+<xsl:param name="clisp.cvs.file"
            select="'http://clisp.cvs.sourceforge.net/*checkout*/clisp/clisp/'"/>
+<xsl:param name="clisp.cvs.dir"
+           select="'http://clisp.cvs.sourceforge.net/clisp/clisp/'"/>
+<xsl:template name="clisp.cvs"> <!-- prepend the correct clisp cvs url -->
+ <xsl:param name="path"/>
+ <xsl:choose><xsl:when test="substring($path,string-length($path)) = '/'">
+   <xsl:value-of select="$clisp.cvs.dir"/></xsl:when>
+  <xsl:otherwise><xsl:value-of select="$clisp.cvs.file"/>
+ </xsl:otherwise></xsl:choose><xsl:value-of select="$path"/>
+</xsl:template>
 <xsl:template match="ulink[@role='clisp-cvs']">
- <a class="{@role}" href="{$clisp.cvs.top}{@url}"><xsl:apply-templates/></a>
+ <a class="{@role}">
+  <xsl:attribute name="href"><xsl:call-template name="clisp.cvs">
+    <xsl:with-param name="path" select="@url"/>
+  </xsl:call-template></xsl:attribute>
+  <xsl:apply-templates/></a>
 </xsl:template>
 <xsl:template match="filename[@role='clisp-cvs']">
- <a class="{@role}" href="{$clisp.cvs.top}{.}"><xsl:apply-imports/></a>
+ <a class="{@role}">
+  <xsl:attribute name="href"><xsl:call-template name="clisp.cvs">
+    <xsl:with-param name="path" select="."/>
+  </xsl:call-template></xsl:attribute>
+  <xsl:apply-imports/></a>
+</xsl:template>
+<xsl:template match="filename[@role='module']">
+ <span class="{@role}">
+  <xsl:choose><xsl:when test="@path"><xsl:call-template name="simple.xlink">
+     <xsl:with-param name="linkend" select="@path"/>
+     <xsl:with-param name="node" select="."/>
+     <xsl:with-param name="content"><xsl:apply-imports/></xsl:with-param>
+   </xsl:call-template></xsl:when>
+   <xsl:otherwise><a href="{$clisp.cvs.dir}modules/{.}/">
+     <xsl:apply-imports/></a></xsl:otherwise>
+ </xsl:choose></span>
 </xsl:template>
 <!-- =========================== / CLISP CVS =========================== -->
 
