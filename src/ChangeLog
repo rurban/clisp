@@ -1,7 +1,8 @@
 2007-10-16  Masayuki Onjo  <masayuki.onjo@gmail.com>
+	Sam Steingold  <sds@gnu.org>
 
-	* modules/gdbm/gdbm.c (GDBM-STORE): signal an error on failure
-	instead of returning a boolean
+	* modules/gdbm/gdbm.c (GDBM-STORE, GDBM-DELETE): signal an error
+	on failure instead of returning a boolean
 
 2007-10-16  Sam Steingold  <sds@gnu.org>
 
