@@ -274,6 +274,7 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
   with_datum(STACK_2, key,
              with_datum(STACK_1, content,
                         status = gdbm_store(dbf, key, content, flag)));
+  if (status == -1) error_gdbm(NULL); /* reader call */
   VALUES_IF(!status);
   skipSTACK(4);
 }
