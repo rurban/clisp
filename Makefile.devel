@@ -70,19 +70,19 @@ CURDIR=$(shell pwd)
 
 MODULES=berkeley-db clx/new-clx dirkey fastcgi i18n oracle pari pcre \
 	postgresql rawsock readline regexp syscalls wildcard zlib gtk2 gdbm
-MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
-MOD_CONFIG_H_IN=$(patsubst %,modules/%/config.h.in,$(MODULES))
-CLISP_CONFIGURES=src/configure $(MOD_CONFIGURES)
+CONFIG_H_IN = src/config.h.in $(patsubst %,modules/%/config.h.in,$(MODULES))
+CLISP_CONFIGURES=src/configure $(patsubst %,modules/%/configure,$(MODULES))
 FFCALL=avcall vacall trampoline callback callback/vacall_r callback/trampoline_r
 FFCALL_CONFIGURES=ffcall/configure $(patsubst %,ffcall/%/configure,$(FFCALL))
 CONFIGURES = $(CLISP_CONFIGURES) utils/hln/configure libcharset/configure \
 	${FFCALL_CONFIGURES}
 
-CONFIG_H_IN = $(MOD_CONFIG_H_IN) src/unixconf.h.in
+src/gllib/Makefile.in : src/gllib/Makefile.am
+	cd src; ln -sv configure.in configure.am; automake gllib/Makefile; rm -fv configure.am
 
-configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
+configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
-src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4) \
+src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 			$(addsuffix .in,$(CLISP_CONFIGURES))
 	egrep '(AC_INIT|AC_PREREQ)' src/configure.in > configure.ac
 	echo AC_GNU_SOURCE >> configure.ac
@@ -90,7 +90,8 @@ src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4) \
 	egrep -v -e 'AC_(INIT|PREREQ|CANONICAL_|GNU_SOURCE|CONFIG_HEADER|OUTPUT)' \
 		-e 'AC_CONFIG_FILE.*(Makefile|link\.sh)' >> configure.ac
 	echo AC_OUTPUT >> configure.ac
-	aclocal -I `pwd`/src/m4 --output=src/autoconf/aclocal.m4
+	aclocal -I `pwd`/src/m4 -I `pwd`/src/glm4 \
+		--output=src/autoconf/aclocal.m4
 	$(RM) configure.ac
 
 AUTOCONF_FILES = src/autoconf/aclocal.m4
@@ -102,11 +103,8 @@ $(CLISP_CONFIGURES) utils/hln/configure: %/configure : \
 			%/configure.in $(AUTOCONF_FILES) version.sh
 	cd $*; $(AUTOCONF) --include=$(CURDIR)/src/autoconf --include=$(CURDIR)
 
-$(MOD_CONFIG_H_IN) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
+$(CONFIG_H_IN) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
 	cd $*; $(AUTOHEADER) --include=$(CURDIR)/src/autoconf
-
-src/unixconf.h.in : src/configure.in $(AUTOCONF_FILES)
-	cd src ; $(AUTOHEADER) --include=autoconf
 
 ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
@@ -355,14 +353,22 @@ install-gcc:
 	rm -rf gcc-$(GCC_VERSION)-build
 	rm -rf gcc-$(GCC_VERSION)
 
+GNULIB_HOME=../../gnulib/gnulib
+AUX_REQ=config.guess config.rpath config.sub depcomp install-sh missing
+gnulib-update : force
+	for f in $(AUX_REQ); do cp -afv $(GNULIB_HOME)/build-aux/$$f src/build-aux; done
+	ln -sv src/configure.in configure.ac
+	$(GNULIB_HOME)/gnulib-tool --import --source-base=src/gllib \
+		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
+		stdint stdbool regex fnmatch-gnu
+	rm -fv configure.ac
 
 distrib : fixperms src-distrib doc-distrib gnu-distrib
 
 release : distrib upload tag-release
 
-## Pre-release TODO:
-# make -f Makefile.devel tp-mail
-# update src/build-aux, modules/regexp and modules/wildcard from gnulib
+# 2-3 weeks before a release
+pre-release : gnulib-update tp-mail
 
 ## RELEASE TODO:
 # Before doing a "make distrib":

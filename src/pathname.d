@@ -786,7 +786,7 @@ local object test_optional_host (object host) {
  > uintB: byte
  < return: true if valid, else false */
 local inline bool legal_namebyte (uintB ch) {
-  #ifdef VALID_FILENAME_CHAR # defined in unixconf.h
+  #ifdef VALID_FILENAME_CHAR # defined in config.h
     return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
   #else
     #ifdef PATHNAME_UNIX
