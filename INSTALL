@@ -33,7 +33,7 @@ Installation:
       src/machine.*      auxiliary program
       src/*.in           auxiliary files
       utils/*            auxiliary programs
-      unix/              installing on Unix (including Mac OS/X)
+      unix/              installing on Unix (including Mac OS/X & mingw)
       win32msvc/         installing on Win32, using MSVC
 
 Other:
