@@ -405,4 +405,11 @@
    <listitem><simpara>New module: &libsvm-mod;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
+<revision><revnumber>2.42</revnumber><date>2007-10-16</date>
+ <revdescription><itemizedlist>
+   <listitem><simpara><link linkend="defstruct-mop"/></simpara></listitem>
+   <listitem><simpara>&rename-dir;</simpara></listitem>
+   <listitem><simpara>New modules: &gtk2-mod;, &gdbm-mod;</simpara></listitem>
+</itemizedlist></revdescription></revision>
+
 </revhistory>
