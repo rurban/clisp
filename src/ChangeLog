@@ -3,6 +3,9 @@
 	* modules/clx/new-clx/demos/qix.lisp (qix): use uniform UI
 	* modules/clx/new-clx/demos/clx-demos.lisp (*demos*): greynetic &
 	bball are broken
+2007-10-16  Sam Steingold  <sds@gnu.org>
+
+	* version.sh: clisp 2.42 release
 
 2007-10-15  Sam Steingold  <sds@gnu.org>
 
