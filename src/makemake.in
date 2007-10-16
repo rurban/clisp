@@ -1600,7 +1600,7 @@ if [ "${with_readline}" = no ]; then
   XCFLAGS=$XCFLAGS' -DNO_READLINE'
 else
   FILES='libnoreadline.a '$FILES
-  if grep "#undef HAVE_READLINE" unixconf.h >/dev/null 2>&1; then
+  if grep "#undef HAVE_READLINE" config.h >/dev/null 2>&1; then
     if [ "${with_readline}" != ifpossible ]; then
       # --with-readline was supplied ==> barf when readline is missing
       echol "makemake: configure failed to detect readline" >&2
@@ -1667,16 +1667,18 @@ if [ $TOS = unix ] ; then
 else
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' stdbool.h stdint.h'
 fi
-# on UNIX and MINGW PACKAGE_* (and OS capabilities!) is in unixconf.h,
+# on UNIX and MINGW PACKAGE_* (and OS capabilities!) is in config.h,
 # otherwise PACKAGE_* is in version.h and OS capabilities are in win32.c
 if [ ${TSYS} = unix -o ${TSYS} = win32gcc ]; then
-  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' unixconf.h'
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' config.h'
   SPVW_VERSION=''
 else
   SPVW_VERSION=version.h
 fi
-# ./ contains libcharset.h, localcharset.h, stdbool.h, stdint.h
+# ./ contains libcharset.h, localcharset.h
 XCFLAGS=${XCFLAGS}' -I.'
+# ./gllib contains stdbool.h, stdint.h
+XCFLAGS=${XCFLAGS}' -Igllib'
 if [ -n "$USE_LIBCHARSET" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libcharset.h'
 fi
@@ -2076,7 +2078,8 @@ if [ $HOS = win32 -a $HSYS != win32gcc ] ; then
   echol "RMRF = -${RMRF}"
   echol "TOUCH = -${TOUCH}"
 else
-  echol "MAKE = ${MAKE:-make}"
+  SET_MAKE="@SET_MAKE@"
+  test -n "${SET_MAKE}" && echol "${SET_MAKE}"
   echol "RM = ${RM}"
   echol "RMRF = ${RMRF}"
   echol "TOUCH = ${TOUCH}"
@@ -2325,7 +2328,8 @@ echol
 
 echol
 
-needs="init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem lispinit.mem manual"
+SUBDIRS=gllib
+needs="${SUBDIRS} init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem lispinit.mem manual"
 if [ \( $HOS = unix -o ${HSYS} = win32gcc \) -a $CROSS = false ] ; then
   needs=".gdbinit "$needs' modular $(BASE_MODULES) $(MODULES) '"clisp${TEXE} boot base full"
 fi
@@ -2334,6 +2338,12 @@ if [ $TSYS = win32msvc -a "$DEBUGGING" = debug ] ; then
 fi
 echol "all : $needs"
 echodummyrule all
+echol
+echol "SUBDIRS = ${SUBDIRS}"
+echol '.PHONY: subdirs $(SUBDIRS)'
+echol 'subdirs: $(SUBDIRS)'
+echol '$(SUBDIRS):'
+echotab '$(MAKE) -C $@'
 echol
 
 # developer targets
@@ -2360,12 +2370,12 @@ fi
 echol "makemake : makemake.in config.status"
 echotab "sh config.status --file=makemake"
 echol
-echol "unixconf.h : unixconf.h.in config.status"
-echotab "sh config.status --header=unixconf.h"
-# when config.status detects that it did not change unixconf.h, it
-# will not touch it, and on the next make unixconf.h will be remade
+echol "config.h : config.h.in config.status"
+echotab "sh config.status --header=config.h"
+# when config.status detects that it did not change config.h, it
+# will not touch it, and on the next make config.h will be remade
 # again and again ... - avoid it
-echotab "touch unixconf.h"
+echotab "touch config.h"
 echol
 echol "Makefile : makemake"
 echotab "$0$makemake_args > Makefile.tmp"
@@ -2377,8 +2387,9 @@ echol "config.status : configure"
 echotab "\$(RM) config.cache"
 echotab "sh config.status --recheck"
 echol
+echol "am--refresh : config.status Makefile config.h"
 if [ -n "${SRCDIR}" ] ; then
-  for f in makemake.in unixconf.h.in configure version.h; do
+  for f in makemake.in config.h.in configure version.h; do
     link_dep "${f}" "${SRCDIR}${f}"
   done
 fi
@@ -2447,7 +2458,7 @@ if [ $XCC_UNUSABLE_CPP = true ] ; then
   line=$line" ${SRCTOPDIR}utils/gcc-cccp/cccp${HEXE}"
 fi
 if [ $CROSS = true ] ; then
-  line=$line" unixconf.h"
+  line=$line" config.h"
 fi
 for util in ${UTILS} ; do line=$line" ${util}${HEXE}"; done
 line=$line" \$(DFILES) modules.h"
@@ -2461,8 +2472,8 @@ echol $line
 echodummyrule init
 echol
 for parf in ${PARAMS}; do
-  echol "${parf}.h : ${SRCDIR}${parf}.c unixconf.h"
-  echotab "echo '#include \"unixconf.h\"' > tmp.c"
+  echol "${parf}.h : ${SRCDIR}${parf}.c config.h"
+  echotab "echo '#include \"config.h\"' > tmp.c"
   echotab "cat '${SRCDIR}${parf}.c' >> tmp.c"
   echotab_to_HEXE "\$(CC)" "tmp.c" "${parf}"
   echotab "${HERE}${parf}${HEXE} > ${parf}.h"
@@ -2481,8 +2492,8 @@ if [ $XCC_UNUSABLE_CPP = true ] ; then
   echol
 fi
 if [ $CROSS = true ] ; then
-  echol "unixconf.h :"
-  echotab "if [ ! -f unixconf.h ] ; then \$(TOUCH) unixconf.h ; fi"
+  echol "config.h :"
+  echotab "if [ ! -f config.h ] ; then \$(TOUCH) config.h ; fi"
   echol
 fi
 if [ ${HSYS} = "win32gcc" ]; then
@@ -2522,22 +2533,6 @@ for util in ${UTILS} ; do
   esac
 done
 
-echol
-
-echol "stdbool.h : ${SRCDIR}stdbool.h.in"
-if [ $TOS = unix ] ; then
-  echotab "sed -e 's/@''HAVE__BOOL''@/@HAVE__BOOL@/g' < ${SRCDIR}stdbool.h.in > stdbool.h"
-else
-  echotab "sed -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE__BOOL${ARGQ}${ARGQ}@/0/g${ARGQ} < ${SRCDIR}stdbool.h.in > stdbool.h"
-fi
-echol
-
-echol "stdint.h : ${SRCDIR}stdint_.h"
-if [ $TOS = unix ] ; then
-  echotab "sed -e 's/@''HAVE_LONG_64BIT''@/@HAVE_LONG_64BIT@/g' -e 's/@''HAVE_LONG_LONG_64BIT''@/@HAVE_LONG_LONG_64BIT@/g' < ${SRCDIR}stdint_.h > stdint.h"
-else
-  echotab "sed -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE_LONG_64BIT${ARGQ}${ARGQ}@/0/g${ARGQ} -e ${ARGQ}s/@${ARGQ}${ARGQ}HAVE_LONG_LONG_64BIT${ARGQ}${ARGQ}@/0/g${ARGQ} < ${SRCDIR}stdint_.h > stdint.h"
-fi
 echol
 
 if [ -n "${SRCDIR}" ] ; then
@@ -3395,9 +3390,9 @@ if [ $XCC_GCC = true ] ; then
 fi
 
 
-echol "clisp.h clisp-test.c : genclisph.o unixconf.h ${PARAMS_H}"
+echol "clisp.h clisp-test.c : genclisph.o config.h ${PARAMS_H}"
 echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
-echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* unixconf */' ; grep '^#' unixconf.h ) > clisp.h"
+echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* config.h */' ; grep '^#' config.h ) > clisp.h"
 for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done
@@ -4133,12 +4128,8 @@ cat <<!!
 	-\$(RM) charset.alias
 !!
 fi
-cat <<!!
-	-\$(RM) stdbool.h
-	-\$(RM) stdint.h
 
-# clean5 even undoes "make init".
-!!
+echol '# clean5 even undoes "make init".'
 echol "clean5 : clean4"
 echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
 if [ -n "${SRCDIR}" ] ; then
@@ -4174,7 +4165,7 @@ clean6 : clean5
 
 # clean7 lets us go back to the main "configure".
 clean7 : clean6
-	-\$(RM) config.status config.log config.cache ${PARAMS_H} unixconf.h makemake
+	-\$(RM) config.status config.log config.cache ${PARAMS_H} config.h makemake
 !!
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
@@ -4195,7 +4186,7 @@ cat <<!!
 if [ -n "${SRCDIR}" ] ; then
 cat <<!!
 	-\$(RMRF) po
-	-\$(RM) configure unixconf.h.in makemake.in version.h
+	-\$(RM) configure config.h.in makemake.in version.h
 !!
 fi
 cat <<!!

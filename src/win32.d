@@ -247,7 +247,7 @@ extern ssize_t fd_write (HANDLE fd, const void* buf, size_t nbyte, perseverance_
 /* Changing the position within a file. */
 /* _off_t is sint32, but the Win32 APIs support 64-bit file offsets. */
 #define off_t  sint64
-#undef SIZEOF_OFF_T  /* on mingw, it was defined in unixconf.h */
+#undef SIZEOF_OFF_T  /* on mingw, it was defined in config.h */
 #define SIZEOF_OFF_T  8
 #ifdef __MINGW32__
   #include <io.h>

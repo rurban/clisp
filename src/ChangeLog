@@ -1,3 +1,21 @@
+2007-10-16  Sam Steingold  <sds@gnu.org>
+
+	use gnulib-tool to synchronize with gnulib
+	* unixconf.h.in: renamed to config.h.in
+	* Makefile.devel (CONFIG_H_IN): updated
+	(gnulib-update): new target
+	* configure.in: generate gllib/Makefile; call gl_EARLY, gl_INIT
+	* makemake.in: unixconf.h -> config.h
+	(MAKE): use @SET_MAKE@
+	(SUBDIRS): add, start with building gllib
+	(am--refresh): new target, required by automake
+	* lispbibl.d, win32.d: unixconf.h -> config.h
+	* stdbool.h.in, stdint_.h: remove gnulib files
+	* modules/regexp/: remove gnulib files
+	* modules/regexp/link.sh.in, modules/regexp/Makefile.in: updated
+	* modules/wildcard/: remove gnulib files
+	* modules/wildcard/link.sh.in, modules/wildcard/Makefile.in: updated
+
 2007-10-16  Masayuki Onjo  <masayuki.onjo@gmail.com>
 	Sam Steingold  <sds@gnu.org>
 

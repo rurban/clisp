@@ -3150,9 +3150,7 @@ fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$LIBGLADE_PKG_ERRORS" >&5
 
-	echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-                { { echo "$as_me:$LINENO: error: cannot find LIBGLADE" >&5
+	{ { echo "$as_me:$LINENO: error: cannot find LIBGLADE" >&5
 echo "$as_me: error: cannot find LIBGLADE" >&2;}
    { (exit 1); exit 1; }; }
 elif test $pkg_failed = untried; then
@@ -4254,6 +4252,28 @@ echo "$as_me: error: cannot create directory \"$ac_dir\"" >&2;}
     cat $tmp/config.h
     rm -f $tmp/config.h
   fi
+# Compute $ac_file's index in $config_headers.
+_am_stamp_count=1
+for _am_header in $config_headers :; do
+  case $_am_header in
+    $ac_file | $ac_file:* )
+      break ;;
+    * )
+      _am_stamp_count=`expr $_am_stamp_count + 1` ;;
+  esac
+done
+echo "timestamp for $ac_file" >`(dirname $ac_file) 2>/dev/null ||
+$as_expr X$ac_file : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X$ac_file : 'X\(//\)[^/]' \| \
+	 X$ac_file : 'X\(//\)$' \| \
+	 X$ac_file : 'X\(/\)' \| \
+	 .     : '\(.\)' 2>/dev/null ||
+echo X$ac_file |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
+  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
+  	  /^X\(\/\/\)$/{ s//\1/; q; }
+  	  /^X\(\/\).*/{ s//\1/; q; }
+  	  s/.*/./; q'`/stamp-h$_am_stamp_count
 done
 _ACEOF
 
