@@ -275,8 +275,7 @@ DEFUN(GDBM:GDBM-STORE, dbf key content &key FLAG)
              with_datum(STACK_1, content,
                         status = gdbm_store(dbf, key, content, flag)));
   if (status == -1) error_gdbm(NULL); /* reader call */
-  VALUES0;
-  skipSTACK(4);
+  VALUES0; skipSTACK(4);
 }
 #endif  /* HAVE_GDBM_STORE */
 
@@ -360,8 +359,8 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
   GDBM_FILE dbf = check_gdbm(&STACK_1,NULL,NULL,true);
   int status;
   with_datum(STACK_0, key, status = gdbm_delete(dbf,key));
-  VALUES_IF(status != -1);
-  skipSTACK(2);                 /* drop dbf */
+  if (status == -1) error_gdbm(NULL); /* reader call */
+  VALUES0; skipSTACK(2);              /* cleanup */
 }
 #endif  /* HAVE_GDBM_DELETE */
 
