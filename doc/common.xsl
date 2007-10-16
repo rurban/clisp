@@ -114,7 +114,8 @@
 <xsl:param name="clisp.cvs.dir"
            select="'http://clisp.cvs.sourceforge.net/clisp/clisp/'"/>
 <xsl:template name="clisp.cvs"> <!-- prepend the correct clisp cvs url -->
- <xsl:param name="path"/>       <!-- xsltproc does not support ends-with! -->
+ <xsl:param name="path"/>
+ <!-- xsltproc does not support ends-with - see http://www.w3.org/TR/xpath -->
  <xsl:choose><xsl:when test="substring($path,string-length($path)) = '/'">
    <xsl:value-of select="$clisp.cvs.dir"/></xsl:when>
   <xsl:otherwise><xsl:value-of select="$clisp.cvs.file"/>
