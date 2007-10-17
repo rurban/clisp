@@ -30,6 +30,14 @@ ln -s "$absolute_dirname"/"$basename" "$2" 2>/dev/null ||
   cp -p "$1" "$2"
 }
 
+link_some () {
+  src_dir=$1; shift
+  destdir=$1; shift
+  for f in $*; do
+    link "${src_dir}"/$f "${destdir}"/`basename $f`
+  done
+}
+
 echotab () {
 cat <<!!
 	$1
@@ -330,13 +338,9 @@ case "$1" in
        echo 'MODULE('"$mod"')'
      done) > "$destinationdir"/modules.h
     # Generate new lisp.a
-    for f in ${FILES}; do
-      link "$sourcedir"/$f "$destinationdir"/$f
-    done
+    link_some "$sourcedir" "$destinationdir" ${FILES}
     # Generate other libraries
-    for f in ${NEW_FILES}; do
-      link "$moduledir"/$f "$destinationdir"/$f
-    done
+    link_some "$moduledir" "$destinationdir" ${NEW_FILES}
     # Update the LIBS and FILES variables
     LIBS=${NEW_LIBS}' '${LIBS}
     FILES=${FILES}' '${NEW_FILES}
@@ -400,9 +404,7 @@ case "$1" in
     . "$sourcedir"/makevars
     if [ -z "$moduledirs" ] ; then
       # Just make links from $destinationdir to $sourcedir
-      for f in ${LISPRUN} lispinit.mem modules.h modules.o makevars ${FILES}; do
-        link "$sourcedir"/$f "$destinationdir"/$f
-      done
+      link_some "$sourcedir" "$destinationdir" ${LISPRUN} lispinit.mem modules.h modules.o makevars ${FILES};
     else
       # Prepare the module directories and read their variables
       allmodulevars=''
@@ -438,9 +440,7 @@ case "$1" in
          done
        done) > "$destinationdir"/modules.h
       # Generate new lisp.a
-      for f in ${FILES}; do
-        link "$sourcedir"/$f "$destinationdir"/$f
-      done
+      link_some "$sourcedir" "$destinationdir" ${FILES}
       PRELOAD=''
       LOAD=''
       for modulevars in `echo $allmodulevars | sed -e 's,@@SEP1@@, ,g'`; do
@@ -448,9 +448,7 @@ case "$1" in
           eval `echo $assignment | sed -e 's,@@SEP3@@, ,g'`
         done
         # Generate other libraries
-        for f in ${NEW_FILES}; do
-          link "$moduledir"/$f "$destinationdir"/$f
-        done
+        link_some "$moduledir" "$destinationdir" ${NEW_FILES}
         # Update the LIBS and FILES variables
         LIBS=${NEW_LIBS}' '${LIBS}
         FILES=${FILES}' '${NEW_FILES}

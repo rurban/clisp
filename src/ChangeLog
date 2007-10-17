@@ -9,6 +9,9 @@
 	* modules/wildcard/link.sh.in (file_list): fix adding @FNMATCH_O@
 	* Makefile.devel (src/gllib/Makefile.in): do not force
 	(src/autoconf/aclocal.m4): simplify (use src/configure.in as is)
+	* clisp-link.in (link_some): new function; use it to avoid
+	accidental creation of circular links because now some module
+	files may reside in ../gllib instead of the module directory
 
 2007-10-16  Sam Steingold  <sds@gnu.org>
 
