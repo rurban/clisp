@@ -4,6 +4,7 @@
 	re-create gllib/.deps/
 	* configure.in: use gl_STDBOOL_H instead of gt_STDBOOL_H
 	* modules/regexp/Makefile.in: drop REGEX_O
+	* modules/wildcard/Makefile.in: drop FNMATCH_O
 
 2007-10-16  Sam Steingold  <sds@gnu.org>
 

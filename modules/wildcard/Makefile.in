@@ -4,7 +4,6 @@ CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 INCLUDES= ..
-FNMATCH_O = ../gllib/@FNMATCH_O@
 
 CLISP = clisp -q -norc
 
@@ -14,10 +13,10 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = wildcard.o $(FNMATCH_O) link.sh Makefile README wildcard.lisp wildcard.xml wildcard.dvi
+DISTRIBFILES = wildcard.o link.sh Makefile README wildcard.lisp wildcard.xml wildcard.dvi
 distribdir =
 
-all : wildcard.o $(FNMATCH_O)
+all : wildcard.o
 
 wildcard.c : wildcard.lisp
 	$(CLISP) -c wildcard.lisp
