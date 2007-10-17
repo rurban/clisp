@@ -3,6 +3,7 @@
 	* makemake.in (SUBDIRS): pass depfiles to config.status to
 	re-create gllib/.deps/
 	* configure.in: use gl_STDBOOL_H instead of gt_STDBOOL_H
+	* modules/regexp/Makefile.in: drop REGEX_O
 
 2007-10-16  Sam Steingold  <sds@gnu.org>
 
