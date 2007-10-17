@@ -2341,8 +2341,12 @@ echodummyrule all
 echol
 echol "SUBDIRS = ${SUBDIRS}"
 echol '.PHONY: subdirs $(SUBDIRS)'
+echol
 echol 'subdirs: $(SUBDIRS)'
+echol
 echol '$(SUBDIRS):'
+echotab 'mkdir -p $@'
+echotab 'if test ! -f $@/Makefile; then sh config.status --file=$@/Makefile; fi'
 echotab '$(MAKE) -C $@'
 echol
 
