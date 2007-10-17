@@ -7,7 +7,8 @@
 	* modules/regexp/link.sh.in (file_list): fix adding @ALLOCA@ & @REGEX_O@
 	* modules/wildcard/Makefile.in: drop FNMATCH_O
 	* modules/wildcard/link.sh.in (file_list): fix adding @FNMATCH_O@
-	* Makefile.devel (src/gllib/Makefile.in): do not force
+	* Makefile.devel (src/gllib/Makefile.in): do not force;
+	do not create src/configure.ac
 	(src/autoconf/aclocal.m4): simplify (use src/configure.in as is)
 	* clisp-link.in (link_some): new function; use it to avoid
 	accidental creation of circular links because now some module
