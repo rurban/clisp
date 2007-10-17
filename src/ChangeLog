@@ -11,6 +11,11 @@
 	(am--refresh): new target, required by automake
 	* lispbibl.d, win32.d: unixconf.h -> config.h
 	* stdbool.h.in, stdint_.h: remove gnulib files
+	* gllib, glm4: add directories (created by gnulib-update)
+	* m4/alloca.m4, m4/codeset.m4, m4/extensions.m4, m4/fnmatch.m4:
+	* m4/glibc21.m4, m4/longlong.m4, m4/mbstate_t.m4, m4/regex.m4:
+	* m4/stdbool.m4, m4/stdint.m4, m4/ulonglong.m4, m4/wint_t.m4:
+	remove files, they are now in glm4
 	* modules/regexp/: remove gnulib files
 	* modules/regexp/link.sh.in, modules/regexp/Makefile.in: updated
 	* modules/wildcard/: remove gnulib files
