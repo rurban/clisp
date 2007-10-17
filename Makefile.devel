@@ -79,8 +79,7 @@ CONFIGURES = $(CLISP_CONFIGURES) utils/hln/configure libcharset/configure \
 	${FFCALL_CONFIGURES}
 
 src/gllib/Makefile.in : src/gllib/Makefile.am
-	cd src; ln -sv configure.in configure.ac; \
-	automake gllib/Makefile; rm -fv configure.ac
+	cd src; automake gllib/Makefile
 
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
