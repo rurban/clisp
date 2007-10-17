@@ -1,3 +1,8 @@
+2007-10-17  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (SUBDIRS): pass depfiles to config.status to
+	re-create gllib/.deps/
+
 2007-10-16  Sam Steingold  <sds@gnu.org>
 
 	use gnulib-tool to synchronize with gnulib
