@@ -410,10 +410,22 @@ further explanations of the issues could be provided).</para>
    are the modules with which I built &clisp;?</simpara></question>
 <answer><para>In the &full; &linkset;. Run &clisp; like this:
   <screen>&sh-prompt; clisp &opt-K; full</screen></para>
-
-<para>The reasons for &base; being the default are explained in &clisp-list;
- (<ulink role="sfmail" url="200407212204.44395.bruno%40clisp.org"/>,
- <ulink role="gmane" url="general/8691"/>).</para>
+ <para>Making &base; the default &linkset; has some advantages:<variablelist>
+   <varlistentry><term>Shared Library Hell</term>
+    <listitem><simpara>Avoid problems when a module requires a shared
+      library, and that shared library is not present (or is present but
+      with wrong version) on your system.</simpara></listitem></varlistentry>
+   <varlistentry><term>Smaller Images Are Faster</term>
+    <listitem><simpara>Adding things to the heap increases working
+      set size causing a slowdown, which is especially important for
+      small to medium applications.</simpara></listitem> </varlistentry>
+   <varlistentry><term>Uniform User Experience</term>
+    <listitem><simpara>Composition of the &full; &linkset; is up to the
+      packager, while &base; is the same on all platforms.
+ </simpara></listitem></varlistentry></variablelist></para>
+ <para>See &clisp-list; for more information
+  (<ulink role="sfmail" url="200407212204.44395.bruno%40clisp.org"/>,
+  <ulink role="gmane" url="general/8691"/>).</para>
 </answer></qandaentry>
 
 
