@@ -5,6 +5,8 @@
 	* configure.in: use gl_STDBOOL_H instead of gt_STDBOOL_H
 	* modules/regexp/Makefile.in: drop REGEX_O
 	* modules/wildcard/Makefile.in: drop FNMATCH_O
+	* Makefile.devel (src/gllib/Makefile.in): do not force
+	(src/autoconf/aclocal.m4): simplify (use src/configure.in as is)
 
 2007-10-16  Sam Steingold  <sds@gnu.org>
 
