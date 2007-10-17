@@ -27,19 +27,14 @@ AC_CONFIG_HEADERS(config.h)
 dnl
 RSE_BOLD
 BOLD_MSG([checks for UNIX variants that set DEFS])
-dnl DEFS _ALL_SOURCE
-AC_AIX
-dnl DEFS _GNU_SOURCE
-AC_GNU_SOURCE
-dnl DEFS __EXTENSIONS__
-gl_USE_SYSTEM_EXTENSIONS
+AC_AIX                   dnl DEFS _ALL_SOURCE
+AC_GNU_SOURCE            dnl DEFS _GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS dnl DEFS __EXTENSIONS__
 dnl
 BOLD_MSG([checks for programs])
 dnl
-dnl sets variable CC
-AC_PROG_CC
-dnl sets variable CPP
-AC_PROG_CPP
+AC_PROG_CC  dnl sets variable CC
+AC_PROG_CPP dnl sets variable CPP
 gl_EARLY
 gl_INIT
 dnl sets variable RANLIB
@@ -126,7 +121,7 @@ AC_CHECK_HEADERS(sys/inttypes.h unistd.h sys/file.h)
 dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
 CL_OFFSETOF
 dnl DEFS HAVE_STDBOOL_H, sets variables STDBOOL_H, HAVE__BOOL
-gt_STDBOOL_H
+gl_STDBOOL_H
 dnl DEFS HAVE_STDINT_H, sets variables STDINT_H, HAVE_LONG_64BIT, HAVE_LONG_LONG_64BIT
 gl_STDINT_H
 dnl DEFS ACCESS_NEEDS_SYS_FILE_H if sys/file.h is needed for the access() flags

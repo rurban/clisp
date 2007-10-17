@@ -2,6 +2,7 @@
 
 	* makemake.in (SUBDIRS): pass depfiles to config.status to
 	re-create gllib/.deps/
+	* configure.in: use gl_STDBOOL_H instead of gt_STDBOOL_H
 
 2007-10-16  Sam Steingold  <sds@gnu.org>
 
