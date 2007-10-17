@@ -1,8 +1,8 @@
 file_list='regexi.o'
 mod_list='regexp'
-if test -n "@REGEX_O@"; then # use included gllib regex implementation
-  file_list="$file_list ../gllib/@REGEX_O@ ../gllib/@ALLOCA@";
-fi
+for extra in @ALLOCA@ @REGEX_O@; do
+  file_list="${file_list} ../gllib/${extra}";
+done
 make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
      INCLUDES="$absolute_linkkitdir"
