@@ -2346,7 +2346,7 @@ echol 'subdirs: $(SUBDIRS)'
 echol
 echol '$(SUBDIRS):'
 echotab 'mkdir -p $@'
-echotab 'if test ! -f $@/Makefile; then sh config.status --file=$@/Makefile; fi'
+echotab 'if test ! -f $@/Makefile; then sh config.status --file=$@/Makefile depfiles; fi'
 echotab '$(MAKE) -C $@'
 echol
 
