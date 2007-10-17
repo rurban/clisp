@@ -77,8 +77,9 @@ FFCALL_CONFIGURES=ffcall/configure $(patsubst %,ffcall/%/configure,$(FFCALL))
 CONFIGURES = $(CLISP_CONFIGURES) utils/hln/configure libcharset/configure \
 	${FFCALL_CONFIGURES}
 
-src/gllib/Makefile.in : src/gllib/Makefile.am
-	cd src; ln -sv configure.in configure.am; automake gllib/Makefile; rm -fv configure.am
+src/gllib/Makefile.in : force src/gllib/Makefile.am
+	cd src; ln -sv configure.in configure.am; \
+	automake gllib/Makefile; rm -fv configure.am
 
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
@@ -356,8 +357,8 @@ install-gcc:
 GNULIB_HOME=../../gnulib/gnulib
 AUX_REQ=config.guess config.rpath config.sub depcomp install-sh missing
 gnulib-update : force
-	for f in $(AUX_REQ); do cp -afv $(GNULIB_HOME)/build-aux/$$f src/build-aux; done
-	ln -sv src/configure.in configure.ac
+	for f in $(AUX_REQ); do cp -afuv $(GNULIB_HOME)/build-aux/$$f src/build-aux; done
+	rm -fv configure.ac; ln -sv src/configure.in configure.ac
 	$(GNULIB_HOME)/gnulib-tool --import --source-base=src/gllib \
 		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
 		stdint stdbool regex fnmatch-gnu
