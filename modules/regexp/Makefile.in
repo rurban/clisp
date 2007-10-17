@@ -5,7 +5,6 @@ CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 INCLUDES= ..
 MODPREP = ../modprep.fas
-REGEX_O = ../gllib/@REGEX_O@
 
 CLISP = clisp -q -norc
 
@@ -15,10 +14,10 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = regexi.o $(REGEX_O) link.sh Makefile README regexp.lisp regexp.texinfo regexp.dvi preload.lisp
+DISTRIBFILES = regexi.o link.sh Makefile README regexp.lisp regexp.texinfo regexp.dvi preload.lisp
 distribdir =
 
-all : regexp.fas regexi.o $(REGEX_O)
+all : regexp.fas regexi.o
 
 regexp.fas : regexp.lisp
 	$(CLISP) -c regexp.lisp
