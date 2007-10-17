@@ -1,8 +1,8 @@
 file_list='wildcard.o'
 mod_list='wildcard'
-if test -z "@FNMATCH_O@"; then # use included gllib fnmatch implementation
-  file_list="$file_list ../gllib/@FNMATCH_O@";
-fi
+for extra in @FNMATCH_O@; do
+  file_list="${file_list} ../gllib/${extra}";
+done
 make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
      INCLUDES="$absolute_linkkitdir"
