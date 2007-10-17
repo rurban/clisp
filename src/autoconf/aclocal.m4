@@ -1202,6 +1202,321 @@ AC_SUBST([am__tar])
 AC_SUBST([am__untar])
 ]) # _AM_PROG_TAR
 
+# alloca.m4 serial 7
+dnl Copyright (C) 2002-2004, 2006 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_ALLOCA],
+[
+  dnl Work around a bug of AC_EGREP_CPP in autoconf-2.57.
+  AC_REQUIRE([AC_PROG_CPP])
+  AC_REQUIRE([AC_PROG_EGREP])
+
+  AC_REQUIRE([AC_FUNC_ALLOCA])
+  if test $ac_cv_func_alloca_works = no; then
+    gl_PREREQ_ALLOCA
+  fi
+
+  # Define an additional variable used in the Makefile substitution.
+  if test $ac_cv_working_alloca_h = yes; then
+    AC_CACHE_CHECK([for alloca as a compiler built-in], [gl_cv_rpl_alloca], [
+      AC_EGREP_CPP([Need own alloca], [
+#if defined __GNUC__ || defined _AIX || defined _MSC_VER
+        Need own alloca
+#endif
+        ], [gl_cv_rpl_alloca=yes], [gl_cv_rpl_alloca=no])
+    ])
+    if test $gl_cv_rpl_alloca = yes; then
+      dnl OK, alloca can be implemented through a compiler built-in.
+      AC_DEFINE([HAVE_ALLOCA], 1,
+        [Define to 1 if you have 'alloca' after including <alloca.h>,
+         a header that may be supplied by this distribution.])
+      ALLOCA_H=alloca.h
+    else
+      dnl alloca exists as a library function, i.e. it is slow and probably
+      dnl a memory leak. Don't define HAVE_ALLOCA in this case.
+      ALLOCA_H=
+    fi
+  else
+    ALLOCA_H=alloca.h
+  fi
+  AC_SUBST([ALLOCA_H])
+
+  AC_DEFINE(HAVE_ALLOCA_H, 1,
+    [Define HAVE_ALLOCA_H for backward compatibility with older code
+     that includes <alloca.h> only if HAVE_ALLOCA_H is defined.])
+])
+
+# Prerequisites of lib/alloca.c.
+# STACK_DIRECTION is already handled by AC_FUNC_ALLOCA.
+AC_DEFUN([gl_PREREQ_ALLOCA], [:])
+
+# codeset.m4 serial 2 (gettext-0.16)
+dnl Copyright (C) 2000-2002, 2006 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Bruno Haible.
+
+AC_DEFUN([AM_LANGINFO_CODESET],
+[
+  AC_CACHE_CHECK([for nl_langinfo and CODESET], am_cv_langinfo_codeset,
+    [AC_TRY_LINK([#include <langinfo.h>],
+      [char* cs = nl_langinfo(CODESET); return !cs;],
+      am_cv_langinfo_codeset=yes,
+      am_cv_langinfo_codeset=no)
+    ])
+  if test $am_cv_langinfo_codeset = yes; then
+    AC_DEFINE(HAVE_LANGINFO_CODESET, 1,
+      [Define if you have <langinfo.h> and nl_langinfo(CODESET).])
+  fi
+])
+
+# serial 5  -*- Autoconf -*-
+# Enable extensions on systems that normally disable them.
+
+# Copyright (C) 2003, 2006, 2007 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This definition of AC_USE_SYSTEM_EXTENSIONS is stolen from CVS
+# Autoconf.  Perhaps we can remove this once we can assume Autoconf
+# 2.62 or later everywhere, but since CVS Autoconf mutates rapidly
+# enough in this area it's likely we'll need to redefine
+# AC_USE_SYSTEM_EXTENSIONS for quite some time.
+
+# AC_USE_SYSTEM_EXTENSIONS
+# ------------------------
+# Enable extensions on systems that normally disable them,
+# typically due to standards-conformance issues.
+# Remember that #undef in AH_VERBATIM gets replaced with #define by
+# AC_DEFINE.  The goal here is to define all known feature-enabling
+# macros, then, if reports of conflicts are made, disable macros that
+# cause problems on some platforms (such as __EXTENSIONS__).
+AC_DEFUN([AC_USE_SYSTEM_EXTENSIONS],
+[AC_BEFORE([$0], [AC_COMPILE_IFELSE])dnl
+AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
+
+  AC_CHECK_HEADER([minix/config.h], [MINIX=yes], [MINIX=])
+  if test "$MINIX" = yes; then
+    AC_DEFINE([_POSIX_SOURCE], [1],
+      [Define to 1 if you need to in order for `stat' and other
+       things to work.])
+    AC_DEFINE([_POSIX_1_SOURCE], [2],
+      [Define to 2 if the system does not provide POSIX.1 features
+       except with this defined.])
+    AC_DEFINE([_MINIX], [1],
+      [Define to 1 if on MINIX.])
+  fi
+
+  AH_VERBATIM([__EXTENSIONS__],
+[/* Enable extensions on AIX 3, Interix.  */
+#ifndef _ALL_SOURCE
+# undef _ALL_SOURCE
+#endif
+/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+# undef _GNU_SOURCE
+#endif
+/* Enable threading extensions on Solaris.  */
+#ifndef _POSIX_PTHREAD_SEMANTICS
+# undef _POSIX_PTHREAD_SEMANTICS
+#endif
+/* Enable extensions on HP NonStop.  */
+#ifndef _TANDEM_SOURCE
+# undef _TANDEM_SOURCE
+#endif
+/* Enable general extensions on Solaris.  */
+#ifndef __EXTENSIONS__
+# undef __EXTENSIONS__
+#endif
+])
+  AC_CACHE_CHECK([whether it is safe to define __EXTENSIONS__],
+    [ac_cv_safe_to_define___extensions__],
+    [AC_COMPILE_IFELSE(
+       [AC_LANG_PROGRAM([
+#	  define __EXTENSIONS__ 1
+	  AC_INCLUDES_DEFAULT])],
+       [ac_cv_safe_to_define___extensions__=yes],
+       [ac_cv_safe_to_define___extensions__=no])])
+  test $ac_cv_safe_to_define___extensions__ = yes &&
+    AC_DEFINE([__EXTENSIONS__])
+  AC_DEFINE([_ALL_SOURCE])
+  AC_DEFINE([_GNU_SOURCE])
+  AC_DEFINE([_POSIX_PTHREAD_SEMANTICS])
+  AC_DEFINE([_TANDEM_SOURCE])
+])# AC_USE_SYSTEM_EXTENSIONS
+
+# gl_USE_SYSTEM_EXTENSIONS
+# ------------------------
+# Enable extensions on systems that normally disable them,
+# typically due to standards-conformance issues.
+AC_DEFUN([gl_USE_SYSTEM_EXTENSIONS],
+  [AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])])
+
+# Check for fnmatch - serial 2.
+
+# Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Free Software
+# Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# Autoconf defines AC_FUNC_FNMATCH, but that is obsolescent.
+# New applications should use the macros below instead.
+
+# _AC_FUNC_FNMATCH_IF(STANDARD = GNU | POSIX, CACHE_VAR, IF-TRUE, IF-FALSE)
+# -------------------------------------------------------------------------
+# If a STANDARD compliant fnmatch is found, run IF-TRUE, otherwise
+# IF-FALSE.  Use CACHE_VAR.
+AC_DEFUN([_AC_FUNC_FNMATCH_IF],
+[AC_CACHE_CHECK(
+   [for working $1 fnmatch],
+   [$2],
+  [dnl Some versions of Solaris, SCO, and the GNU C Library
+   dnl have a broken or incompatible fnmatch.
+   dnl So we run a test program.  If we are cross-compiling, take no chance.
+   dnl Thanks to John Oleynick, François Pinard, and Paul Eggert for this test.
+   AC_RUN_IFELSE(
+      [AC_LANG_PROGRAM(
+	 [[#include <fnmatch.h>
+	   static int
+	   y (char const *pattern, char const *string, int flags)
+	   {
+	     return fnmatch (pattern, string, flags) == 0;
+	   }
+	   static int
+	   n (char const *pattern, char const *string, int flags)
+	   {
+	     return fnmatch (pattern, string, flags) == FNM_NOMATCH;
+	   }
+	 ]],
+	 [[char const *Apat = 'A' < '\\\\' ? "[A-\\\\\\\\]" : "[\\\\\\\\-A]";
+	   char const *apat = 'a' < '\\\\' ? "[a-\\\\\\\\]" : "[\\\\\\\\-a]";
+	   static char const A_1[] = { 'A' - 1, 0 };
+	   static char const A01[] = { 'A' + 1, 0 };
+	   static char const a_1[] = { 'a' - 1, 0 };
+	   static char const a01[] = { 'a' + 1, 0 };
+	   static char const bs_1[] = { '\\\\' - 1, 0 };
+	   static char const bs01[] = { '\\\\' + 1, 0 };
+	   return
+	    !(n ("a*", "", 0)
+	      && y ("a*", "abc", 0)
+	      && n ("d*/*1", "d/s/1", FNM_PATHNAME)
+	      && y ("a\\\\bc", "abc", 0)
+	      && n ("a\\\\bc", "abc", FNM_NOESCAPE)
+	      && y ("*x", ".x", 0)
+	      && n ("*x", ".x", FNM_PERIOD)
+	      && y (Apat, "\\\\", 0) && y (Apat, "A", 0)
+	      && y (apat, "\\\\", 0) && y (apat, "a", 0)
+	      && n (Apat, A_1, 0) == ('A' < '\\\\')
+	      && n (apat, a_1, 0) == ('a' < '\\\\')
+	      && y (Apat, A01, 0) == ('A' < '\\\\')
+	      && y (apat, a01, 0) == ('a' < '\\\\')
+	      && y (Apat, bs_1, 0) == ('A' < '\\\\')
+	      && y (apat, bs_1, 0) == ('a' < '\\\\')
+	      && n (Apat, bs01, 0) == ('A' < '\\\\')
+	      && n (apat, bs01, 0) == ('a' < '\\\\')
+	      && ]m4_if([$1], [GNU],
+		   [y ("xxXX", "xXxX", FNM_CASEFOLD)
+		    && y ("a++(x|yy)b", "a+xyyyyxb", FNM_EXTMATCH)
+		    && n ("d*/*1", "d/s/1", FNM_FILE_NAME)
+		    && y ("*", "x", FNM_FILE_NAME | FNM_LEADING_DIR)
+		    && y ("x*", "x/y/z", FNM_FILE_NAME | FNM_LEADING_DIR)
+		    && y ("*c*", "c/x", FNM_FILE_NAME | FNM_LEADING_DIR)],
+		   1))[;]])],
+      [$2=yes],
+      [$2=no],
+      [$2=cross])])
+AS_IF([test $$2 = yes], [$3], [$4])
+])# _AC_FUNC_FNMATCH_IF
+
+
+# _AC_LIBOBJ_FNMATCH
+# ------------------
+# Prepare the replacement of fnmatch.
+AC_DEFUN([_AC_LIBOBJ_FNMATCH],
+[AC_REQUIRE([AC_FUNC_ALLOCA])dnl
+AC_REQUIRE([AC_TYPE_MBSTATE_T])dnl
+AC_CHECK_DECLS([isblank], [], [], [#include <ctype.h>])
+AC_CHECK_FUNCS_ONCE([btowc isblank iswctype mbsrtowcs mempcpy wmemchr wmemcpy wmempcpy])
+AC_CHECK_HEADERS_ONCE([wctype.h])
+AC_LIBOBJ([fnmatch])
+FNMATCH_H=fnmatch.h
+])# _AC_LIBOBJ_FNMATCH
+
+
+AC_DEFUN([gl_FUNC_FNMATCH_POSIX],
+[
+  FNMATCH_H=
+  _AC_FUNC_FNMATCH_IF([POSIX], [ac_cv_func_fnmatch_posix],
+		      [rm -f lib/fnmatch.h],
+		      [_AC_LIBOBJ_FNMATCH])
+  if test $ac_cv_func_fnmatch_posix != yes; then
+    dnl We must choose a different name for our function, since on ELF systems
+    dnl a broken fnmatch() in libc.so would override our fnmatch() if it is
+    dnl compiled into a shared library.
+    AC_DEFINE([fnmatch], [posix_fnmatch],
+      [Define to a replacement function name for fnmatch().])
+  fi
+  AC_SUBST([FNMATCH_H])
+])
+
+
+AC_DEFUN([gl_FUNC_FNMATCH_GNU],
+[
+  dnl Persuade glibc <fnmatch.h> to declare FNM_CASEFOLD etc.
+  AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
+
+  FNMATCH_H=
+  _AC_FUNC_FNMATCH_IF([GNU], [ac_cv_func_fnmatch_gnu],
+		      [rm -f lib/fnmatch.h],
+		      [_AC_LIBOBJ_FNMATCH])
+  if test $ac_cv_func_fnmatch_gnu != yes; then
+    dnl We must choose a different name for our function, since on ELF systems
+    dnl a broken fnmatch() in libc.so would override our fnmatch() if it is
+    dnl compiled into a shared library.
+    AC_DEFINE([fnmatch], [gnu_fnmatch],
+      [Define to a replacement function name for fnmatch().])
+  fi
+  AC_SUBST([FNMATCH_H])
+])
+
+# glibc21.m4 serial 3
+dnl Copyright (C) 2000-2002, 2004 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+# Test for the GNU C Library, version 2.1 or newer.
+# From Bruno Haible.
+
+AC_DEFUN([gl_GLIBC21],
+  [
+    AC_CACHE_CHECK(whether we are using the GNU C Library 2.1 or newer,
+      ac_cv_gnu_library_2_1,
+      [AC_EGREP_CPP([Lucky GNU user],
+	[
+#include <features.h>
+#ifdef __GNU_LIBRARY__
+ #if (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 1) || (__GLIBC__ > 2)
+  Lucky GNU user
+ #endif
+#endif
+	],
+	ac_cv_gnu_library_2_1=yes,
+	ac_cv_gnu_library_2_1=no)
+      ]
+    )
+    AC_SUBST(GLIBC21)
+    GLIBC21="$ac_cv_gnu_library_2_1"
+  ]
+)
+
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
 # Copyright (C) 2004-2007 Free Software Foundation, Inc.
 #
@@ -1475,6 +1790,79 @@ AC_DEFUN([gl_LOCALCHARSET],
   AC_REQUIRE([gl_GLIBC21])
 ])
 
+# longlong.m4 serial 10
+dnl Copyright (C) 1999-2006 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Paul Eggert.
+
+# Define HAVE_LONG_LONG_INT if 'long long int' works.
+# This fixes a bug in Autoconf 2.60, but can be removed once we
+# assume 2.61 everywhere.
+
+# Note: If the type 'long long int' exists but is only 32 bits large
+# (as on some very old compilers), HAVE_LONG_LONG_INT will not be
+# defined. In this case you can treat 'long long int' like 'long int'.
+
+AC_DEFUN([AC_TYPE_LONG_LONG_INT],
+[
+  AC_CACHE_CHECK([for long long int], [ac_cv_type_long_long_int],
+    [AC_LINK_IFELSE(
+       [AC_LANG_PROGRAM(
+	  [[long long int ll = 9223372036854775807ll;
+	    long long int nll = -9223372036854775807LL;
+	    typedef int a[((-9223372036854775807LL < 0
+			    && 0 < 9223372036854775807ll)
+			   ? 1 : -1)];
+	    int i = 63;]],
+	  [[long long int llmax = 9223372036854775807ll;
+	    return ((ll << 63) | (ll >> 63) | (ll < i) | (ll > i)
+		    | (llmax / ll) | (llmax % ll));]])],
+       [dnl This catches a bug in Tandem NonStop Kernel (OSS) cc -O circa 2004.
+	dnl If cross compiling, assume the bug isn't important, since
+	dnl nobody cross compiles for this platform as far as we know.
+        AC_RUN_IFELSE(
+	  [AC_LANG_PROGRAM(
+	     [[@%:@include <limits.h>
+	       @%:@ifndef LLONG_MAX
+	       @%:@ define HALF \
+			(1LL << (sizeof (long long int) * CHAR_BIT - 2))
+	       @%:@ define LLONG_MAX (HALF - 1 + HALF)
+	       @%:@endif]],
+	     [[long long int n = 1;
+	       int i;
+	       for (i = 0; ; i++)
+		 {
+		   long long int m = n << i;
+		   if (m >> i != n)
+		     return 1;
+		   if (LLONG_MAX / 2 < m)
+		     break;
+		 }
+	       return 0;]])],
+	  [ac_cv_type_long_long_int=yes],
+	  [ac_cv_type_long_long_int=no],
+	  [ac_cv_type_long_long_int=yes])],
+       [ac_cv_type_long_long_int=no])])
+  if test $ac_cv_type_long_long_int = yes; then
+    AC_DEFINE([HAVE_LONG_LONG_INT], 1,
+      [Define to 1 if the system has the type `long long int'.])
+  fi
+])
+
+# This macro is obsolescent and should go away soon.
+AC_DEFUN([gl_AC_TYPE_LONG_LONG],
+[
+  AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
+  ac_cv_type_long_long=$ac_cv_type_long_long_int
+  if test $ac_cv_type_long_long = yes; then
+    AC_DEFINE(HAVE_LONG_LONG, 1,
+      [Define if you have the 'long long' type.])
+  fi
+])
+
 # malloc.m4 serial 8
 dnl Copyright (C) 2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -1515,6 +1903,260 @@ AC_DEFUN([gl_CHECK_MALLOC_POSIX],
          #endif
         ], [gl_cv_func_malloc_posix=yes], [gl_cv_func_malloc_posix=no])
     ])
+])
+
+# mbstate_t.m4 serial 9
+dnl Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+# From Paul Eggert.
+
+# BeOS 5 has <wchar.h> but does not define mbstate_t,
+# so you can't declare an object of that type.
+# Check for this incompatibility with Standard C.
+
+# AC_TYPE_MBSTATE_T
+# -----------------
+AC_DEFUN([AC_TYPE_MBSTATE_T],
+  [AC_CACHE_CHECK([for mbstate_t], ac_cv_type_mbstate_t,
+     [AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM(
+	   [AC_INCLUDES_DEFAULT
+#	    include <wchar.h>],
+	   [mbstate_t x; return sizeof x;])],
+	[ac_cv_type_mbstate_t=yes],
+	[ac_cv_type_mbstate_t=no])])
+   if test $ac_cv_type_mbstate_t = yes; then
+     AC_DEFINE([HAVE_MBSTATE_T], 1,
+	       [Define to 1 if <wchar.h> declares mbstate_t.])
+   else
+     AC_DEFINE([mbstate_t], int,
+	       [Define to a type if <wchar.h> does not define.])
+   fi])
+
+#serial 48
+
+# Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005,
+# 2006, 2007 Free Software Foundation, Inc.
+#
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+dnl Initially derived from code in GNU grep.
+dnl Mostly written by Jim Meyering.
+
+AC_PREREQ([2.50])
+
+AC_DEFUN([gl_REGEX],
+[
+  AC_CHECK_HEADERS_ONCE([locale.h])
+
+  AC_ARG_WITH([included-regex],
+    [AC_HELP_STRING([--without-included-regex],
+		    [don't compile regex; this is the default on 32-bit
+		     systems with recent-enough versions of the GNU C
+		     Library (use with caution on other systems).
+		     On systems with 64-bit ptrdiff_t and 32-bit int,
+		     --with-included-regex is the default, in case
+		     regex functions operate on very long strings (>2GB)])])
+
+  case $with_included_regex in #(
+  yes|no) ac_use_included_regex=$with_included_regex
+	;;
+  '')
+    # If the system regex support is good enough that it passes the
+    # following run test, then default to *not* using the included regex.c.
+    # If cross compiling, assume the test would fail and use the included
+    # regex.c.
+    AC_CACHE_CHECK([for working re_compile_pattern],
+		   [gl_cv_func_re_compile_pattern_working],
+      [AC_RUN_IFELSE(
+	[AC_LANG_PROGRAM(
+	  [AC_INCLUDES_DEFAULT
+	   #if HAVE_LOCALE_H
+	    #include <locale.h>
+	   #endif
+	   #include <limits.h>
+	   #include <regex.h>
+	   ],
+	  [[static struct re_pattern_buffer regex;
+	    unsigned char folded_chars[UCHAR_MAX + 1];
+	    int i;
+	    const char *s;
+	    struct re_registers regs;
+
+	    #if HAVE_LOCALE_H
+	      /* http://sourceware.org/ml/libc-hacker/2006-09/msg00008.html
+		 This test needs valgrind to catch the bug on Debian
+		 GNU/Linux 3.1 x86, but it might catch the bug better
+		 on other platforms and it shouldn't hurt to try the
+		 test here.  */
+	      if (setlocale (LC_ALL, "en_US.UTF-8"))
+		{
+		  static char const pat[] = "insert into";
+		  static char const data[] =
+		    "\xFF\0\x12\xA2\xAA\xC4\xB1,K\x12\xC4\xB1*\xACK";
+		  re_set_syntax (RE_SYNTAX_GREP | RE_HAT_LISTS_NOT_NEWLINE
+				 | RE_ICASE);
+		  memset (&regex, 0, sizeof regex);
+		  s = re_compile_pattern (pat, sizeof pat - 1, &regex);
+		  if (s)
+		    return 1;
+		  if (re_search (&regex, data, sizeof data - 1,
+				 0, sizeof data - 1, &regs)
+		      != -1)
+		    return 1;
+		  if (! setlocale (LC_ALL, "C"))
+		    return 1;
+		}
+	    #endif
+
+	    /* This test is from glibc bug 3957, reported by Andrew Mackey.  */
+	    re_set_syntax (RE_SYNTAX_EGREP | RE_HAT_LISTS_NOT_NEWLINE);
+	    memset (&regex, 0, sizeof regex);
+	    s = re_compile_pattern ("a[^x]b", 6, &regex);
+	    if (s)
+	      return 1;
+
+	    /* This should fail, but succeeds for glibc-2.5.  */
+	    if (re_search (&regex, "a\nb", 3, 0, 3, &regs) != -1)
+	      return 1;
+
+	    /* This regular expression is from Spencer ere test number 75
+	       in grep-2.3.  */
+	    re_set_syntax (RE_SYNTAX_POSIX_EGREP);
+	    memset (&regex, 0, sizeof regex);
+	    for (i = 0; i <= UCHAR_MAX; i++)
+	      folded_chars[i] = i;
+	    regex.translate = folded_chars;
+	    s = re_compile_pattern ("a[[:@:>@:]]b\n", 11, &regex);
+	    /* This should fail with _Invalid character class name_ error.  */
+	    if (!s)
+	      return 1;
+
+	    /* This should succeed, but does not for glibc-2.1.3.  */
+	    memset (&regex, 0, sizeof regex);
+	    s = re_compile_pattern ("{1", 2, &regex);
+
+	    if (s)
+	      return 1;
+
+	    /* The following example is derived from a problem report
+	       against gawk from Jorge Stolfi <stolfi@ic.unicamp.br>.  */
+	    memset (&regex, 0, sizeof regex);
+	    s = re_compile_pattern ("[an\371]*n", 7, &regex);
+	    if (s)
+	      return 1;
+
+	    /* This should match, but does not for glibc-2.2.1.  */
+	    if (re_match (&regex, "an", 2, 0, &regs) != 2)
+	      return 1;
+
+	    memset (&regex, 0, sizeof regex);
+	    s = re_compile_pattern ("x", 1, &regex);
+	    if (s)
+	      return 1;
+
+	    /* glibc-2.2.93 does not work with a negative RANGE argument.  */
+	    if (re_search (&regex, "wxy", 3, 2, -2, &regs) != 1)
+	      return 1;
+
+	    /* The version of regex.c in older versions of gnulib
+	       ignored RE_ICASE.  Detect that problem too.  */
+	    re_set_syntax (RE_SYNTAX_EMACS | RE_ICASE);
+	    memset (&regex, 0, sizeof regex);
+	    s = re_compile_pattern ("x", 1, &regex);
+	    if (s)
+	      return 1;
+
+	    if (re_search (&regex, "WXY", 3, 0, 3, &regs) < 0)
+	      return 1;
+
+	    /* Catch a bug reported by Vin Shelton in
+	       http://lists.gnu.org/archive/html/bug-coreutils/2007-06/msg00089.html
+	       */
+	    re_set_syntax (RE_SYNTAX_POSIX_BASIC
+			   & ~RE_CONTEXT_INVALID_DUP
+			   & ~RE_NO_EMPTY_RANGES);
+	    memset (&regex, 0, sizeof regex);
+	    s = re_compile_pattern ("[[:alnum:]_-]\\\\+$", 16, &regex);
+	    if (s)
+	      return 1;
+
+	    /* REG_STARTEND was added to glibc on 2004-01-15.
+	       Reject older versions.  */
+	    if (! REG_STARTEND)
+	      return 1;
+
+	    /* Reject hosts whose regoff_t values are too narrow.
+	       These include glibc 2.3.5 on hosts with 64-bit ptrdiff_t
+	       and 32-bit int.  */
+	    if (sizeof (regoff_t) < sizeof (ptrdiff_t)
+		|| sizeof (regoff_t) < sizeof (ssize_t))
+	      return 1;
+
+	    return 0;]])],
+       [gl_cv_func_re_compile_pattern_working=yes],
+       [gl_cv_func_re_compile_pattern_working=no],
+       dnl When crosscompiling, assume it is not working.
+       [gl_cv_func_re_compile_pattern_working=no])])
+    case $gl_cv_func_re_compile_pattern_working in #(
+    yes) ac_use_included_regex=no;; #(
+    no) ac_use_included_regex=yes;;
+    esac
+    ;;
+  *) AC_MSG_ERROR([Invalid value for --with-included-regex: $with_included_regex])
+    ;;
+  esac
+
+  if test $ac_use_included_regex = yes; then
+    AC_DEFINE([_REGEX_LARGE_OFFSETS], 1,
+      [Define if you want regoff_t to be at least as wide POSIX requires.])
+    AC_DEFINE([re_syntax_options], [rpl_re_syntax_options],
+      [Define to rpl_re_syntax_options if the replacement should be used.])
+    AC_DEFINE([re_set_syntax], [rpl_re_set_syntax],
+      [Define to rpl_re_set_syntax if the replacement should be used.])
+    AC_DEFINE([re_compile_pattern], [rpl_re_compile_pattern],
+      [Define to rpl_re_compile_pattern if the replacement should be used.])
+    AC_DEFINE([re_compile_fastmap], [rpl_re_compile_fastmap],
+      [Define to rpl_re_compile_fastmap if the replacement should be used.])
+    AC_DEFINE([re_search], [rpl_re_search],
+      [Define to rpl_re_search if the replacement should be used.])
+    AC_DEFINE([re_search_2], [rpl_re_search_2],
+      [Define to rpl_re_search_2 if the replacement should be used.])
+    AC_DEFINE([re_match], [rpl_re_match],
+      [Define to rpl_re_match if the replacement should be used.])
+    AC_DEFINE([re_match_2], [rpl_re_match_2],
+      [Define to rpl_re_match_2 if the replacement should be used.])
+    AC_DEFINE([re_set_registers], [rpl_re_set_registers],
+      [Define to rpl_re_set_registers if the replacement should be used.])
+    AC_DEFINE([re_comp], [rpl_re_comp],
+      [Define to rpl_re_comp if the replacement should be used.])
+    AC_DEFINE([re_exec], [rpl_re_exec],
+      [Define to rpl_re_exec if the replacement should be used.])
+    AC_DEFINE([regcomp], [rpl_regcomp],
+      [Define to rpl_regcomp if the replacement should be used.])
+    AC_DEFINE([regexec], [rpl_regexec],
+      [Define to rpl_regexec if the replacement should be used.])
+    AC_DEFINE([regerror], [rpl_regerror],
+      [Define to rpl_regerror if the replacement should be used.])
+    AC_DEFINE([regfree], [rpl_regfree],
+      [Define to rpl_regfree if the replacement should be used.])
+    AC_LIBOBJ([regex])
+    gl_PREREQ_REGEX
+  fi
+])
+
+# Prerequisites of lib/regex.c and lib/regex_internal.c.
+AC_DEFUN([gl_PREREQ_REGEX],
+[
+  AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
+  AC_REQUIRE([AC_C_RESTRICT])
+  AC_CHECK_FUNCS_ONCE([isblank iswctype mbrtowc wcrtomb wcscoll])
+  AC_CHECK_DECLS([isblank], [], [], [#include <ctype.h>])
 ])
 
 # ssize_t.m4 serial 4 (gettext-0.15)
@@ -1655,6 +2297,402 @@ AC_DEFUN([AC_HEADER_STDBOOL],
      AC_DEFINE(HAVE_STDBOOL_H, 1, [Define to 1 if stdbool.h conforms to C99.])
    fi])
 
+# stdint.m4 serial 28
+dnl Copyright (C) 2001-2007 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Paul Eggert and Bruno Haible.
+dnl Test whether <stdint.h> is supported or must be substituted.
+
+AC_DEFUN([gl_STDINT_H],
+[
+  AC_PREREQ(2.59)dnl
+
+  dnl Check for long long int and unsigned long long int.
+  AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
+  if test $ac_cv_type_long_long_int = yes; then
+    HAVE_LONG_LONG_INT=1
+  else
+    HAVE_LONG_LONG_INT=0
+  fi
+  AC_SUBST([HAVE_LONG_LONG_INT])
+  AC_REQUIRE([AC_TYPE_UNSIGNED_LONG_LONG_INT])
+  if test $ac_cv_type_unsigned_long_long_int = yes; then
+    HAVE_UNSIGNED_LONG_LONG_INT=1
+  else
+    HAVE_UNSIGNED_LONG_LONG_INT=0
+  fi
+  AC_SUBST([HAVE_UNSIGNED_LONG_LONG_INT])
+
+  dnl Check for <inttypes.h>.
+  dnl AC_INCLUDES_DEFAULT defines $ac_cv_header_inttypes_h.
+  if test $ac_cv_header_inttypes_h = yes; then
+    HAVE_INTTYPES_H=1
+  else
+    HAVE_INTTYPES_H=0
+  fi
+  AC_SUBST([HAVE_INTTYPES_H])
+
+  dnl Check for <sys/types.h>.
+  dnl AC_INCLUDES_DEFAULT defines $ac_cv_header_sys_types_h.
+  if test $ac_cv_header_sys_types_h = yes; then
+    HAVE_SYS_TYPES_H=1
+  else
+    HAVE_SYS_TYPES_H=0
+  fi
+  AC_SUBST([HAVE_SYS_TYPES_H])
+
+  gl_CHECK_NEXT_HEADERS([stdint.h])
+  if test $ac_cv_header_stdint_h = yes; then
+    HAVE_STDINT_H=1
+  else
+    HAVE_STDINT_H=0
+  fi
+  AC_SUBST([HAVE_STDINT_H])
+
+  dnl Now see whether we need a substitute <stdint.h>.
+  if test $ac_cv_header_stdint_h = yes; then
+    AC_CACHE_CHECK([whether stdint.h conforms to C99],
+      [gl_cv_header_working_stdint_h],
+      [gl_cv_header_working_stdint_h=no
+       AC_COMPILE_IFELSE([
+         AC_LANG_PROGRAM([[
+#define __STDC_LIMIT_MACROS 1 /* to make it work also in C++ mode */
+#define __STDC_CONSTANT_MACROS 1 /* to make it work also in C++ mode */
+#define _GL_JUST_INCLUDE_SYSTEM_STDINT_H 1 /* work if build isn't clean */
+#include <stdint.h>
+/* Dragonfly defines WCHAR_MIN, WCHAR_MAX only in <wchar.h>.  */
+#if !(defined WCHAR_MIN && defined WCHAR_MAX)
+#error "WCHAR_MIN, WCHAR_MAX not defined in <stdint.h>"
+#endif
+]
+gl_STDINT_INCLUDES
+[
+#ifdef INT8_MAX
+int8_t a1 = INT8_MAX;
+int8_t a1min = INT8_MIN;
+#endif
+#ifdef INT16_MAX
+int16_t a2 = INT16_MAX;
+int16_t a2min = INT16_MIN;
+#endif
+#ifdef INT32_MAX
+int32_t a3 = INT32_MAX;
+int32_t a3min = INT32_MIN;
+#endif
+#ifdef INT64_MAX
+int64_t a4 = INT64_MAX;
+int64_t a4min = INT64_MIN;
+#endif
+#ifdef UINT8_MAX
+uint8_t b1 = UINT8_MAX;
+#else
+typedef int b1[(unsigned char) -1 != 255 ? 1 : -1];
+#endif
+#ifdef UINT16_MAX
+uint16_t b2 = UINT16_MAX;
+#endif
+#ifdef UINT32_MAX
+uint32_t b3 = UINT32_MAX;
+#endif
+#ifdef UINT64_MAX
+uint64_t b4 = UINT64_MAX;
+#endif
+int_least8_t c1 = INT8_C (0x7f);
+int_least8_t c1max = INT_LEAST8_MAX;
+int_least8_t c1min = INT_LEAST8_MIN;
+int_least16_t c2 = INT16_C (0x7fff);
+int_least16_t c2max = INT_LEAST16_MAX;
+int_least16_t c2min = INT_LEAST16_MIN;
+int_least32_t c3 = INT32_C (0x7fffffff);
+int_least32_t c3max = INT_LEAST32_MAX;
+int_least32_t c3min = INT_LEAST32_MIN;
+int_least64_t c4 = INT64_C (0x7fffffffffffffff);
+int_least64_t c4max = INT_LEAST64_MAX;
+int_least64_t c4min = INT_LEAST64_MIN;
+uint_least8_t d1 = UINT8_C (0xff);
+uint_least8_t d1max = UINT_LEAST8_MAX;
+uint_least16_t d2 = UINT16_C (0xffff);
+uint_least16_t d2max = UINT_LEAST16_MAX;
+uint_least32_t d3 = UINT32_C (0xffffffff);
+uint_least32_t d3max = UINT_LEAST32_MAX;
+uint_least64_t d4 = UINT64_C (0xffffffffffffffff);
+uint_least64_t d4max = UINT_LEAST64_MAX;
+int_fast8_t e1 = INT_FAST8_MAX;
+int_fast8_t e1min = INT_FAST8_MIN;
+int_fast16_t e2 = INT_FAST16_MAX;
+int_fast16_t e2min = INT_FAST16_MIN;
+int_fast32_t e3 = INT_FAST32_MAX;
+int_fast32_t e3min = INT_FAST32_MIN;
+int_fast64_t e4 = INT_FAST64_MAX;
+int_fast64_t e4min = INT_FAST64_MIN;
+uint_fast8_t f1 = UINT_FAST8_MAX;
+uint_fast16_t f2 = UINT_FAST16_MAX;
+uint_fast32_t f3 = UINT_FAST32_MAX;
+uint_fast64_t f4 = UINT_FAST64_MAX;
+#ifdef INTPTR_MAX
+intptr_t g = INTPTR_MAX;
+intptr_t gmin = INTPTR_MIN;
+#endif
+#ifdef UINTPTR_MAX
+uintptr_t h = UINTPTR_MAX;
+#endif
+intmax_t i = INTMAX_MAX;
+uintmax_t j = UINTMAX_MAX;
+
+#include <limits.h> /* for CHAR_BIT */
+#define TYPE_MINIMUM(t) \
+  ((t) ((t) 0 < (t) -1 ? (t) 0 : ~ (t) 0 << (sizeof (t) * CHAR_BIT - 1)))
+#define TYPE_MAXIMUM(t) \
+  ((t) ((t) 0 < (t) -1 ? (t) -1 : ~ (~ (t) 0 << (sizeof (t) * CHAR_BIT - 1))))
+struct s {
+  int check_PTRDIFF:
+      PTRDIFF_MIN == TYPE_MINIMUM (ptrdiff_t)
+      && PTRDIFF_MAX == TYPE_MAXIMUM (ptrdiff_t)
+      ? 1 : -1;
+  /* Detect bug in FreeBSD 6.0 / ia64.  */
+  int check_SIG_ATOMIC:
+      SIG_ATOMIC_MIN == TYPE_MINIMUM (sig_atomic_t)
+      && SIG_ATOMIC_MAX == TYPE_MAXIMUM (sig_atomic_t)
+      ? 1 : -1;
+  int check_SIZE: SIZE_MAX == TYPE_MAXIMUM (size_t) ? 1 : -1;
+  int check_WCHAR:
+      WCHAR_MIN == TYPE_MINIMUM (wchar_t)
+      && WCHAR_MAX == TYPE_MAXIMUM (wchar_t)
+      ? 1 : -1;
+  /* Detect bug in mingw.  */
+  int check_WINT:
+      WINT_MIN == TYPE_MINIMUM (wint_t)
+      && WINT_MAX == TYPE_MAXIMUM (wint_t)
+      ? 1 : -1;
+
+  /* Detect bugs in glibc 2.4 and Solaris 10 stdint.h, among others.  */
+  int check_UINT8_C:
+        (-1 < UINT8_C (0)) == (-1 < (uint_least8_t) 0) ? 1 : -1;
+  int check_UINT16_C:
+        (-1 < UINT16_C (0)) == (-1 < (uint_least16_t) 0) ? 1 : -1;
+
+  /* Detect bugs in OpenBSD 3.9 stdint.h.  */
+#ifdef UINT8_MAX
+  int check_uint8: (uint8_t) -1 == UINT8_MAX ? 1 : -1;
+#endif
+#ifdef UINT16_MAX
+  int check_uint16: (uint16_t) -1 == UINT16_MAX ? 1 : -1;
+#endif
+#ifdef UINT32_MAX
+  int check_uint32: (uint32_t) -1 == UINT32_MAX ? 1 : -1;
+#endif
+#ifdef UINT64_MAX
+  int check_uint64: (uint64_t) -1 == UINT64_MAX ? 1 : -1;
+#endif
+  int check_uint_least8: (uint_least8_t) -1 == UINT_LEAST8_MAX ? 1 : -1;
+  int check_uint_least16: (uint_least16_t) -1 == UINT_LEAST16_MAX ? 1 : -1;
+  int check_uint_least32: (uint_least32_t) -1 == UINT_LEAST32_MAX ? 1 : -1;
+  int check_uint_least64: (uint_least64_t) -1 == UINT_LEAST64_MAX ? 1 : -1;
+  int check_uint_fast8: (uint_fast8_t) -1 == UINT_FAST8_MAX ? 1 : -1;
+  int check_uint_fast16: (uint_fast16_t) -1 == UINT_FAST16_MAX ? 1 : -1;
+  int check_uint_fast32: (uint_fast32_t) -1 == UINT_FAST32_MAX ? 1 : -1;
+  int check_uint_fast64: (uint_fast64_t) -1 == UINT_FAST64_MAX ? 1 : -1;
+  int check_uintptr: (uintptr_t) -1 == UINTPTR_MAX ? 1 : -1;
+  int check_uintmax: (uintmax_t) -1 == UINTMAX_MAX ? 1 : -1;
+  int check_size: (size_t) -1 == SIZE_MAX ? 1 : -1;
+};
+         ]])],
+         [gl_cv_header_working_stdint_h=yes])])
+  fi
+  if test "$gl_cv_header_working_stdint_h" = yes; then
+    STDINT_H=
+  else
+    dnl Check for <sys/inttypes.h>, and for
+    dnl <sys/bitypes.h> (used in Linux libc4 >= 4.6.7 and libc5).
+    AC_CHECK_HEADERS([sys/inttypes.h sys/bitypes.h])
+    if test $ac_cv_header_sys_inttypes_h = yes; then
+      HAVE_SYS_INTTYPES_H=1
+    else
+      HAVE_SYS_INTTYPES_H=0
+    fi
+    AC_SUBST([HAVE_SYS_INTTYPES_H])
+    if test $ac_cv_header_sys_bitypes_h = yes; then
+      HAVE_SYS_BITYPES_H=1
+    else
+      HAVE_SYS_BITYPES_H=0
+    fi
+    AC_SUBST([HAVE_SYS_BITYPES_H])
+
+    dnl Check for <wchar.h> (missing in Linux uClibc when built without wide
+    dnl character support).
+    AC_CHECK_HEADERS_ONCE([wchar.h])
+
+    gl_STDINT_TYPE_PROPERTIES
+    STDINT_H=stdint.h
+  fi
+  AC_SUBST(STDINT_H)
+])
+
+dnl gl_STDINT_BITSIZEOF(TYPES, INCLUDES)
+dnl Determine the size of each of the given types in bits.
+AC_DEFUN([gl_STDINT_BITSIZEOF],
+[
+  dnl Use a shell loop, to avoid bloating configure, and
+  dnl - extra AH_TEMPLATE calls, so that autoheader knows what to put into
+  dnl   config.h.in,
+  dnl - extra AC_SUBST calls, so that the right substitutions are made.
+  AC_FOREACH([gltype], [$1],
+    [AH_TEMPLATE([BITSIZEOF_]translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]),
+       [Define to the number of bits in type ']gltype['.])])
+  for gltype in $1 ; do
+    AC_CACHE_CHECK([for bit size of $gltype], [gl_cv_bitsizeof_${gltype}],
+      [AC_COMPUTE_INT([result], [sizeof ($gltype) * CHAR_BIT],
+         [$2
+#include <limits.h>], [result=unknown])
+       eval gl_cv_bitsizeof_${gltype}=\$result
+      ])
+    eval result=\$gl_cv_bitsizeof_${gltype}
+    if test $result = unknown; then
+      dnl Use a nonempty default, because some compilers, such as IRIX 5 cc,
+      dnl do a syntax check even on unused #if conditions and give an error
+      dnl on valid C code like this:
+      dnl   #if 0
+      dnl   # if  > 32
+      dnl   # endif
+      dnl   #endif
+      result=0
+    fi
+    GLTYPE=`echo "$gltype" | tr 'abcdefghijklmnopqrstuvwxyz ' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'`
+    AC_DEFINE_UNQUOTED([BITSIZEOF_${GLTYPE}], [$result])
+    eval BITSIZEOF_${GLTYPE}=\$result
+  done
+  AC_FOREACH([gltype], [$1],
+    [AC_SUBST([BITSIZEOF_]translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]))])
+])
+
+dnl gl_CHECK_TYPES_SIGNED(TYPES, INCLUDES)
+dnl Determine the signedness of each of the given types.
+dnl Define HAVE_SIGNED_TYPE if type is signed.
+AC_DEFUN([gl_CHECK_TYPES_SIGNED],
+[
+  dnl Use a shell loop, to avoid bloating configure, and
+  dnl - extra AH_TEMPLATE calls, so that autoheader knows what to put into
+  dnl   config.h.in,
+  dnl - extra AC_SUBST calls, so that the right substitutions are made.
+  AC_FOREACH([gltype], [$1],
+    [AH_TEMPLATE([HAVE_SIGNED_]translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]),
+       [Define to 1 if ']gltype[' is a signed integer type.])])
+  for gltype in $1 ; do
+    AC_CACHE_CHECK([whether $gltype is signed], [gl_cv_type_${gltype}_signed],
+      [AC_COMPILE_IFELSE(
+         [AC_LANG_PROGRAM([$2[
+            int verify[2 * (($gltype) -1 < ($gltype) 0) - 1];]])],
+         result=yes, result=no)
+       eval gl_cv_type_${gltype}_signed=\$result
+      ])
+    eval result=\$gl_cv_type_${gltype}_signed
+    GLTYPE=`echo $gltype | tr 'abcdefghijklmnopqrstuvwxyz ' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'`
+    if test "$result" = yes; then
+      AC_DEFINE_UNQUOTED([HAVE_SIGNED_${GLTYPE}], 1)
+      eval HAVE_SIGNED_${GLTYPE}=1
+    else
+      eval HAVE_SIGNED_${GLTYPE}=0
+    fi
+  done
+  AC_FOREACH([gltype], [$1],
+    [AC_SUBST([HAVE_SIGNED_]translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]))])
+])
+
+dnl gl_INTEGER_TYPE_SUFFIX(TYPES, INCLUDES)
+dnl Determine the suffix to use for integer constants of the given types.
+dnl Define t_SUFFIX for each such type.
+AC_DEFUN([gl_INTEGER_TYPE_SUFFIX],
+[
+  dnl Use a shell loop, to avoid bloating configure, and
+  dnl - extra AH_TEMPLATE calls, so that autoheader knows what to put into
+  dnl   config.h.in,
+  dnl - extra AC_SUBST calls, so that the right substitutions are made.
+  AC_FOREACH([gltype], [$1],
+    [AH_TEMPLATE(translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_])[_SUFFIX],
+       [Define to l, ll, u, ul, ull, etc., as suitable for
+        constants of type ']gltype['.])])
+  for gltype in $1 ; do
+    AC_CACHE_CHECK([for $gltype integer literal suffix],
+      [gl_cv_type_${gltype}_suffix],
+      [eval gl_cv_type_${gltype}_suffix=no
+       eval result=\$gl_cv_type_${gltype}_signed
+       if test "$result" = yes; then
+         glsufu=
+       else
+         glsufu=u
+       fi
+       for glsuf in "$glsufu" ${glsufu}l ${glsufu}ll ${glsufu}i64; do
+         case $glsuf in
+           '')  gltype1='int';;
+           l)	gltype1='long int';;
+           ll)	gltype1='long long int';;
+           i64)	gltype1='__int64';;
+           u)	gltype1='unsigned int';;
+           ul)	gltype1='unsigned long int';;
+           ull)	gltype1='unsigned long long int';;
+           ui64)gltype1='unsigned __int64';;
+         esac
+         AC_COMPILE_IFELSE(
+           [AC_LANG_PROGRAM([$2
+              extern $gltype foo;
+              extern $gltype1 foo;])],
+           [eval gl_cv_type_${gltype}_suffix=\$glsuf])
+         eval result=\$gl_cv_type_${gltype}_suffix
+         test "$result" != no && break
+       done])
+    GLTYPE=`echo $gltype | tr 'abcdefghijklmnopqrstuvwxyz ' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'`
+    eval result=\$gl_cv_type_${gltype}_suffix
+    test "$result" = no && result=
+    eval ${GLTYPE}_SUFFIX=\$result
+    AC_DEFINE_UNQUOTED([${GLTYPE}_SUFFIX], $result)
+  done
+  AC_FOREACH([gltype], [$1],
+    [AC_SUBST(translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_])[_SUFFIX])])
+])
+
+dnl gl_STDINT_INCLUDES
+AC_DEFUN([gl_STDINT_INCLUDES],
+[[
+  /* BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+     included before <wchar.h>.  */
+  #include <stddef.h>
+  #include <signal.h>
+  #if HAVE_WCHAR_H
+  # include <stdio.h>
+  # include <time.h>
+  # include <wchar.h>
+  #endif
+]])
+
+dnl gl_STDINT_TYPE_PROPERTIES
+dnl Compute HAVE_SIGNED_t, BITSIZEOF_t and t_SUFFIX, for all the types t
+dnl of interest to stdint_.h.
+AC_DEFUN([gl_STDINT_TYPE_PROPERTIES],
+[
+  gl_STDINT_BITSIZEOF([ptrdiff_t sig_atomic_t size_t wchar_t wint_t],
+    [gl_STDINT_INCLUDES])
+  gl_CHECK_TYPES_SIGNED([sig_atomic_t wchar_t wint_t],
+    [gl_STDINT_INCLUDES])
+  gl_cv_type_ptrdiff_t_signed=yes
+  gl_cv_type_size_t_signed=no
+  gl_INTEGER_TYPE_SUFFIX([ptrdiff_t sig_atomic_t size_t wchar_t wint_t],
+    [gl_STDINT_INCLUDES])
+])
+
+dnl Autoconf >= 2.61 has AC_COMPUTE_INT built-in.
+dnl Remove this when we can assume autoconf >= 2.61.
+m4_ifdef([AC_COMPUTE_INT], [], [
+  AC_DEFUN([AC_COMPUTE_INT], [_AC_COMPUTE_INT([$2],[$1],[$3],[$4])])
+])
+
+# Hey Emacs!
+# Local Variables:
+# indent-tabs-mode: nil
+# End:
+
 # stdlib_h.m4 serial 3
 dnl Copyright (C) 2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -1689,6 +2727,55 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   HAVE_MKDTEMP=1;         AC_SUBST([HAVE_MKDTEMP])
   HAVE_REALLOC_POSIX=1;   AC_SUBST([HAVE_REALLOC_POSIX])
   REPLACE_MKSTEMP=0;      AC_SUBST([REPLACE_MKSTEMP])
+])
+
+# ulonglong.m4 serial 6
+dnl Copyright (C) 1999-2006 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Paul Eggert.
+
+# Define HAVE_UNSIGNED_LONG_LONG_INT if 'unsigned long long int' works.
+# This fixes a bug in Autoconf 2.60, but can be removed once we
+# assume 2.61 everywhere.
+
+# Note: If the type 'unsigned long long int' exists but is only 32 bits
+# large (as on some very old compilers), AC_TYPE_UNSIGNED_LONG_LONG_INT
+# will not be defined. In this case you can treat 'unsigned long long int'
+# like 'unsigned long int'.
+
+AC_DEFUN([AC_TYPE_UNSIGNED_LONG_LONG_INT],
+[
+  AC_CACHE_CHECK([for unsigned long long int],
+    [ac_cv_type_unsigned_long_long_int],
+    [AC_LINK_IFELSE(
+       [AC_LANG_PROGRAM(
+	  [[unsigned long long int ull = 18446744073709551615ULL;
+	    typedef int a[(18446744073709551615ULL <= (unsigned long long int) -1
+			   ? 1 : -1)];
+	   int i = 63;]],
+	  [[unsigned long long int ullmax = 18446744073709551615ull;
+	    return (ull << 63 | ull >> 63 | ull << i | ull >> i
+		    | ullmax / ull | ullmax % ull);]])],
+       [ac_cv_type_unsigned_long_long_int=yes],
+       [ac_cv_type_unsigned_long_long_int=no])])
+  if test $ac_cv_type_unsigned_long_long_int = yes; then
+    AC_DEFINE([HAVE_UNSIGNED_LONG_LONG_INT], 1,
+      [Define to 1 if the system has the type `unsigned long long int'.])
+  fi
+])
+
+# This macro is obsolescent and should go away soon.
+AC_DEFUN([gl_AC_TYPE_UNSIGNED_LONG_LONG],
+[
+  AC_REQUIRE([AC_TYPE_UNSIGNED_LONG_LONG_INT])
+  ac_cv_type_unsigned_long_long=$ac_cv_type_unsigned_long_long_int
+  if test $ac_cv_type_unsigned_long_long = yes; then
+    AC_DEFINE(HAVE_UNSIGNED_LONG_LONG, 1,
+      [Define if you have the 'unsigned long long' type.])
+  fi
 ])
 
 # unistd_h.m4 serial 9
@@ -1846,6 +2933,35 @@ AC_DEFUN([gl_WCTYPE_H],
   fi
   AC_SUBST([HAVE_WCTYPE_H])
   AC_SUBST([WCTYPE_H])
+])
+
+# wint_t.m4 serial 2 (gettext-0.16.2)
+dnl Copyright (C) 2003, 2007 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Bruno Haible.
+dnl Test whether <wchar.h> has the 'wint_t' type.
+dnl Prerequisite: AC_PROG_CC
+
+AC_DEFUN([gt_TYPE_WINT_T],
+[
+  AC_CACHE_CHECK([for wint_t], gt_cv_c_wint_t,
+    [AC_TRY_COMPILE([
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
+   <wchar.h>.
+   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be included
+   before <wchar.h>.  */
+#include <stddef.h>
+#include <stdio.h>
+#include <time.h>
+#include <wchar.h>
+       wint_t foo = (wchar_t)'\0';], ,
+       gt_cv_c_wint_t=yes, gt_cv_c_wint_t=no)])
+  if test $gt_cv_c_wint_t = yes; then
+    AC_DEFINE(HAVE_WINT_T, 1, [Define if you have the 'wint_t' type.])
+  fi
 ])
 
 dnl -*- Autoconf -*-
@@ -2046,49 +3162,6 @@ fi
 x=`echo "$cl_cv_address_stack" | sed -e 's,^guessing ,,'`"UL"
 AC_DEFINE_UNQUOTED(STACK_ADDRESS_RANGE,$x,[address range of the C stack])
 ])
-
-# alloca.m4 serial 5
-dnl Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-AC_DEFUN([gl_FUNC_ALLOCA],
-[
-  dnl Work around a bug of AC_EGREP_CPP in autoconf-2.57.
-  AC_REQUIRE([AC_PROG_CPP])
-  AC_REQUIRE([AC_PROG_EGREP])
-
-  AC_REQUIRE([AC_FUNC_ALLOCA])
-  if test $ac_cv_func_alloca_works = no; then
-    gl_PREREQ_ALLOCA
-  fi
-
-  # Define an additional variable used in the Makefile substitution.
-  if test $ac_cv_working_alloca_h = yes; then
-    AC_EGREP_CPP([Need own alloca], [
-#if defined __GNUC__ || defined _AIX || defined _MSC_VER
-	Need own alloca
-#endif
-      ],
-      [AC_DEFINE(HAVE_ALLOCA, 1,
-	    [Define to 1 if you have `alloca' after including <alloca.h>,
-	     a header that may be supplied by this distribution.])
-       ALLOCA_H=alloca.h],
-      [ALLOCA_H=])
-  else
-    ALLOCA_H=alloca.h
-  fi
-  AC_SUBST([ALLOCA_H])
-
-  AC_DEFINE(HAVE_ALLOCA_H, 1,
-    [Define HAVE_ALLOCA_H for backward compatibility with older code
-     that includes <alloca.h> only if HAVE_ALLOCA_H is defined.])
-])
-
-# Prerequisites of lib/alloca.c.
-# STACK_DIRECTION is already handled by AC_FUNC_ALLOCA.
-AC_DEFUN([gl_PREREQ_ALLOCA], [:])
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
@@ -2468,28 +3541,6 @@ esac
 fi
 ])
 
-# codeset.m4 serial AM1 (gettext-0.10.40)
-dnl Copyright (C) 2000-2002 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl From Bruno Haible.
-
-AC_DEFUN([AM_LANGINFO_CODESET],
-[
-  AC_CACHE_CHECK([for nl_langinfo and CODESET], am_cv_langinfo_codeset,
-    [AC_TRY_LINK([#include <langinfo.h>],
-      [char* cs = nl_langinfo(CODESET);],
-      am_cv_langinfo_codeset=yes,
-      am_cv_langinfo_codeset=no)
-    ])
-  if test $am_cv_langinfo_codeset = yes; then
-    AC_DEFINE(HAVE_LANGINFO_CODESET, 1,
-      [Define if you have <langinfo.h> and nl_langinfo(CODESET).])
-  fi
-])
-
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2004, 2007 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
@@ -2696,37 +3747,6 @@ fi
 rm -f conftest*
 ])
 AC_DEFINE_UNQUOTED(ELOOP_VALUE,$cl_cv_decl_ELOOP,[the real value of ELOOP even if it is hidden in <errno.h>])
-])
-
-# Enable extensions on systems that normally disable them.
-
-# Copyright (C) 2003 Free Software Foundation, Inc.
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
-
-# gl_USE_SYSTEM_EXTENSIONS
-# ------------------------
-# Enable extensions on systems that normally disable them,
-# typically due to standards-conformance issues.
-AC_DEFUN([gl_USE_SYSTEM_EXTENSIONS], [
-  AC_BEFORE([$0], [AC_COMPILE_IFELSE])
-  AC_BEFORE([$0], [AC_RUN_IFELSE])
-
-  AC_REQUIRE([AC_GNU_SOURCE])
-  AC_REQUIRE([AC_AIX])
-  AC_REQUIRE([AC_MINIX])
-
-  AH_VERBATIM([__EXTENSIONS__],
-[/* Enable extensions on Solaris.  */
-#ifndef __EXTENSIONS__
-# undef __EXTENSIONS__
-#endif
-#ifndef _POSIX_PTHREAD_SEMANTICS
-# undef _POSIX_PTHREAD_SEMANTICS
-#endif])
-  AC_DEFINE([__EXTENSIONS__])
-  AC_DEFINE([_POSIX_PTHREAD_SEMANTICS])
 ])
 
 dnl -*- Autoconf -*-
@@ -3418,121 +4438,6 @@ AC_DEFUN([CL_FLOATPARAM_CROSS],
     fi
     echo
   } > "$cl_machine_file_h"
-])
-
-# Check for fnmatch.
-
-# This is a modified version of autoconf's AC_FUNC_FNMATCH.
-# This file should be simplified after Autoconf 2.57 is required.
-
-# Copyright (C) 2000-2003 Free Software Foundation, Inc.
-
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
-# USA.
-
-# _AC_FUNC_FNMATCH_IF(STANDARD = GNU | POSIX, CACHE_VAR, IF-TRUE, IF-FALSE)
-# -------------------------------------------------------------------------
-# If a STANDARD compliant fnmatch is found, run IF-TRUE, otherwise
-# IF-FALSE.  Use CACHE_VAR.
-AC_DEFUN([_AC_FUNC_FNMATCH_IF],
-[AC_CACHE_CHECK(
-   [for working $1 fnmatch],
-   [$2],
-  [# Some versions of Solaris, SCO, and the GNU C Library
-   # have a broken or incompatible fnmatch.
-   # So we run a test program.  If we are cross-compiling, take no chance.
-   # Thanks to John Oleynick, Franc,ois Pinard, and Paul Eggert for this test.
-   AC_RUN_IFELSE(
-      [AC_LANG_PROGRAM(
-	 [
-#	   include <stdlib.h>
-#	   include <fnmatch.h>
-#	   define y(a, b, c) (fnmatch (a, b, c) == 0)
-#	   define n(a, b, c) (fnmatch (a, b, c) == FNM_NOMATCH)
-         ],
-	 [exit
-	   (!(y ("a*", "abc", 0)
-	      && n ("d*/*1", "d/s/1", FNM_PATHNAME)
-	      && y ("a\\\\bc", "abc", 0)
-	      && n ("a\\\\bc", "abc", FNM_NOESCAPE)
-	      && y ("*x", ".x", 0)
-	      && n ("*x", ".x", FNM_PERIOD)
-	      && m4_if([$1], [GNU],
-		   [y ("xxXX", "xXxX", FNM_CASEFOLD)
-		    && y ("a++(x|yy)b", "a+xyyyyxb", FNM_EXTMATCH)
-		    && n ("d*/*1", "d/s/1", FNM_FILE_NAME)
-		    && y ("*", "x", FNM_FILE_NAME | FNM_LEADING_DIR)
-		    && y ("x*", "x/y/z", FNM_FILE_NAME | FNM_LEADING_DIR)
-		    && y ("*c*", "c/x", FNM_FILE_NAME | FNM_LEADING_DIR)],
-		   1)));])],
-      [$2=yes],
-      [$2=no],
-      [$2=cross])])
-AS_IF([test $$2 = yes], [$3], [$4])
-])# _AC_FUNC_FNMATCH_IF
-
-
-# _AC_LIBOBJ_FNMATCH
-# ------------------
-# Prepare the replacement of fnmatch.
-AC_DEFUN([_AC_LIBOBJ_FNMATCH],
-[AC_REQUIRE([AC_C_CONST])dnl
-AC_REQUIRE([AC_FUNC_ALLOCA])dnl
-AC_REQUIRE([AC_TYPE_MBSTATE_T])dnl
-AC_CHECK_DECLS([getenv])
-AC_CHECK_FUNCS([btowc mbsrtowcs mempcpy wmempcpy])
-AC_CHECK_HEADERS([wchar.h wctype.h])
-AC_LIBOBJ([fnmatch])
-FNMATCH_H=fnmatch.h
-])# _AC_LIBOBJ_FNMATCH
-
-
-AC_DEFUN([gl_FUNC_FNMATCH_POSIX],
-[
-  FNMATCH_H=
-  _AC_FUNC_FNMATCH_IF([POSIX], [ac_cv_func_fnmatch_posix],
-                      [rm -f lib/fnmatch.h],
-                      [_AC_LIBOBJ_FNMATCH])
-  if test $ac_cv_func_fnmatch_posix != yes; then
-    dnl We must choose a different name for our function, since on ELF systems
-    dnl a broken fnmatch() in libc.so would override our fnmatch() if it is
-    dnl compiled into a shared library.
-    AC_DEFINE([fnmatch], [posix_fnmatch],
-      [Define to a replacement function name for fnmatch().])
-  fi
-  AC_SUBST([FNMATCH_H])
-])
-
-
-AC_DEFUN([gl_FUNC_FNMATCH_GNU],
-[
-  dnl Persuade glibc <fnmatch.h> to declare FNM_CASEFOLD etc.
-  AC_REQUIRE([AC_GNU_SOURCE])
-
-  FNMATCH_H=
-  _AC_FUNC_FNMATCH_IF([GNU], [ac_cv_func_fnmatch_gnu],
-                      [rm -f lib/fnmatch.h],
-                      [_AC_LIBOBJ_FNMATCH])
-  if test $ac_cv_func_fnmatch_gnu != yes; then
-    dnl We must choose a different name for our function, since on ELF systems
-    dnl a broken fnmatch() in libc.so would override our fnmatch() if it is
-    dnl compiled into a shared library.
-    AC_DEFINE([fnmatch], [gnu_fnmatch],
-      [Define to a replacement function name for fnmatch().])
-  fi
-  AC_SUBST([FNMATCH_H])
 ])
 
 dnl -*- Autoconf -*-
@@ -4592,37 +5497,6 @@ fi
 fi
 ])
 
-# glibc21.m4 serial 3
-dnl Copyright (C) 2000-2002, 2004 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-# Test for the GNU C Library, version 2.1 or newer.
-# From Bruno Haible.
-
-AC_DEFUN([gl_GLIBC21],
-  [
-    AC_CACHE_CHECK(whether we are using the GNU C Library 2.1 or newer,
-      ac_cv_gnu_library_2_1,
-      [AC_EGREP_CPP([Lucky GNU user],
-	[
-#include <features.h>
-#ifdef __GNU_LIBRARY__
- #if (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 1) || (__GLIBC__ > 2)
-  Lucky GNU user
- #endif
-#endif
-	],
-	ac_cv_gnu_library_2_1=yes,
-	ac_cv_gnu_library_2_1=no)
-      ]
-    )
-    AC_SUBST(GLIBC21)
-    GLIBC21="$ac_cv_gnu_library_2_1"
-  ]
-)
-
 # iconv.m4 serial AM4 (gettext-0.11.3)
 dnl Copyright (C) 2000-2002 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -5105,32 +5979,6 @@ AC_DEFUN([CL_INTPARAM_ALIGNOF],
       [if test $n = 0; then $2=; break; fi])
     n=`expr $n '*' 2`
   done
-])
-
-# inttypes.m4 serial 1 (gettext-0.11.4)
-dnl Copyright (C) 1997-2002 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl From Paul Eggert.
-
-# Define HAVE_INTTYPES_H if <inttypes.h> exists and doesn't clash with
-# <sys/types.h>.
-
-AC_DEFUN([gt_HEADER_INTTYPES_H],
-[
-  AC_CACHE_CHECK([for inttypes.h], gt_cv_header_inttypes_h,
-  [
-    AC_TRY_COMPILE(
-      [#include <sys/types.h>
-#include <inttypes.h>],
-      [], gt_cv_header_inttypes_h=yes, gt_cv_header_inttypes_h=no)
-  ])
-  if test $gt_cv_header_inttypes_h = yes; then
-    AC_DEFINE_UNQUOTED(HAVE_INTTYPES_H, 1,
-      [Define if <inttypes.h> exists and doesn't clash with <sys/types.h>.])
-  fi
 ])
 
 dnl -*- Autoconf -*-
@@ -12670,30 +13518,6 @@ AC_DEFUN([gt_TYPE_LONGDOUBLE],
   fi
 ])
 
-# longlong.m4 serial 5
-dnl Copyright (C) 1999-2004 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl From Paul Eggert.
-
-# Define HAVE_LONG_LONG if 'long long' works.
-
-AC_DEFUN([gl_AC_TYPE_LONG_LONG],
-[
-  AC_CACHE_CHECK([for long long], ac_cv_type_long_long,
-  [AC_TRY_LINK([long long ll = 1LL; int i = 63;],
-    [long long llmax = (long long) -1;
-     return ll << i | ll >> i | llmax / ll | llmax % ll;],
-    ac_cv_type_long_long=yes,
-    ac_cv_type_long_long=no)])
-  if test $ac_cv_type_long_long = yes; then
-    AC_DEFINE(HAVE_LONG_LONG, 1,
-      [Define if you have the 'long long' type.])
-  fi
-])
-
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
@@ -12738,39 +13562,6 @@ AC_MSG_RESULT($cl_cv_gnu_make)
 GNU_MAKE="$cl_cv_gnu_make"
 AC_SUBST(GNU_MAKE)dnl
 ])
-
-# mbstate_t.m4 serial 9
-dnl Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-# From Paul Eggert.
-
-# BeOS 5 has <wchar.h> but does not define mbstate_t,
-# so you can't declare an object of that type.
-# Check for this incompatibility with Standard C.
-
-# AC_TYPE_MBSTATE_T
-# -----------------
-AC_DEFUN([AC_TYPE_MBSTATE_T],
-  [AC_CACHE_CHECK([for mbstate_t], ac_cv_type_mbstate_t,
-     [AC_COMPILE_IFELSE(
-	[AC_LANG_PROGRAM(
-	   [AC_INCLUDES_DEFAULT
-#	    include <wchar.h>],
-	   [mbstate_t x; return sizeof x;])],
-	[ac_cv_type_mbstate_t=yes],
-	[ac_cv_type_mbstate_t=no])])
-   if test $ac_cv_type_mbstate_t = yes; then
-     AC_DEFINE([HAVE_MBSTATE_T], 1,
-	       [Define to 1 if <wchar.h> declares mbstate_t.])
-   else
-     AC_DEFINE([mbstate_t], int,
-	       [Define to a type if <wchar.h> does not define.])
-   fi])
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
@@ -14321,132 +15112,6 @@ AC_DEFUN([CL_READLINK],
 [AC_CHECK_FUNCS(readlink)dnl
 ])
 
-#serial 28
-
-# Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005 Free
-# Software Foundation, Inc.
-#
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
-
-dnl Initially derived from code in GNU grep.
-dnl Mostly written by Jim Meyering.
-
-AC_PREREQ([2.50])
-
-AC_DEFUN([gl_REGEX],
-[
-  AC_LIBSOURCES(
-    [regcomp.c, regex.c, regex.h,
-     regex_internal.c, regex_internal.h, regexec.c])
-
-  AC_ARG_WITH([included-regex],
-    [AC_HELP_STRING([--without-included-regex],
-		    [don't compile regex; this is the default on
-		     systems with recent-enough versions of the GNU C
-		     Library (use with caution on other systems)])])
-
-  case $with_included_regex in
-  yes|no) ac_use_included_regex=$with_included_regex
-	;;
-  '')
-    # If the system regex support is good enough that it passes the the
-    # following run test, then default to *not* using the included regex.c.
-    # If cross compiling, assume the test would fail and use the included
-    # regex.c.  The first failing regular expression is from `Spencer ere
-    # test #75' in grep-2.3.
-    AC_CACHE_CHECK([for working re_compile_pattern],
-		   [gl_cv_func_re_compile_pattern_broken],
-      [AC_RUN_IFELSE(
-	[AC_LANG_PROGRAM(
-	  [AC_INCLUDES_DEFAULT
-	   #include <regex.h>],
-	  [[static struct re_pattern_buffer regex;
-	    const char *s;
-	    struct re_registers regs;
-	    /* Use the POSIX-compliant spelling with leading REG_,
-	       rather than the traditional GNU spelling with leading RE_,
-	       so that we reject older libc implementations.  */
-	    re_set_syntax (REG_SYNTAX_POSIX_EGREP);
-	    memset (&regex, 0, sizeof (regex));
-	    s = re_compile_pattern ("a[:@:>@:]b\n", 9, &regex);
-	    /* This should fail with _Invalid character class name_ error.  */
-	    if (!s)
-	      exit (1);
-
-	    /* This should succeed, but does not for e.g. glibc-2.1.3.  */
-	    memset (&regex, 0, sizeof (regex));
-	    s = re_compile_pattern ("{1", 2, &regex);
-
-	    if (s)
-	      exit (1);
-
-	    /* The following example is derived from a problem report
-	       against gawk from Jorge Stolfi <stolfi@ic.unicamp.br>.  */
-	    memset (&regex, 0, sizeof (regex));
-	    s = re_compile_pattern ("[an\371]*n", 7, &regex);
-	    if (s)
-	      exit (1);
-
-	    /* This should match, but does not for e.g. glibc-2.2.1.  */
-	    if (re_match (&regex, "an", 2, 0, &regs) != 2)
-	      exit (1);
-
-	    memset (&regex, 0, sizeof (regex));
-	    s = re_compile_pattern ("x", 1, &regex);
-	    if (s)
-	      exit (1);
-
-	    /* The version of regex.c in e.g. GNU libc-2.2.93 did not
-	       work with a negative RANGE argument.  */
-	    if (re_search (&regex, "wxy", 3, 2, -2, &regs) != 1)
-	      exit (1);
-
-	    /* The version of regex.c in older versions of gnulib
-	       ignored REG_IGNORE_CASE (which was then called RE_ICASE).
-	       Detect that problem too.  */
-	    memset (&regex, 0, sizeof (regex));
-	    re_set_syntax (REG_SYNTAX_EMACS | REG_IGNORE_CASE);
-	    s = re_compile_pattern ("x", 1, &regex);
-	    if (s)
-	      exit (1);
-
-	    if (re_search (&regex, "WXY", 3, 0, 3, &regs) < 0)
-	      exit (1);
-
-	    /* REG_STARTEND was added to glibc on 2004-01-15.
-	       Reject older versions.  */
-	    if (! REG_STARTEND)
-	      exit (1);
-
-	    exit (0);]])],
-       [gl_cv_func_re_compile_pattern_broken=no],
-       [gl_cv_func_re_compile_pattern_broken=yes],
-       dnl When crosscompiling, assume it is broken.
-       [gl_cv_func_re_compile_pattern_broken=yes])])
-    ac_use_included_regex=$gl_cv_func_re_compile_pattern_broken
-    ;;
-  *) AC_MSG_ERROR([Invalid value for --with-included-regex: $with_included_regex])
-    ;;
-  esac
-
-  if test $ac_use_included_regex = yes; then
-    AC_LIBOBJ([regex])
-    gl_PREREQ_REGEX
-  fi
-])
-
-# Prerequisites of lib/regex.c and lib/regex_internal.c.
-AC_DEFUN([gl_PREREQ_REGEX],
-[
-  AC_REQUIRE([AC_GNU_SOURCE])
-  AC_REQUIRE([gl_C_RESTRICT])
-  AC_REQUIRE([AM_LANGINFO_CODESET])
-  AC_CHECK_HEADERS_ONCE([locale.h wchar.h wctype.h])
-  AC_CHECK_FUNCS_ONCE([isblank mbrtowc mempcpy wcrtomb wcscoll])
-])
-
 #serial 1003
 dnl Copyright (C) 2003 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -15541,56 +16206,6 @@ AC_CHECK_SIZEOF(ino_t)
 AC_CHECK_SIZEOF(dev_t)
 ])
 
-# stdbool.m4 serial 2.1
-dnl Copyright (C) 2001-2004 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Bruno Haible.
-dnl Test whether <stdbool.h> is supported or must be substituted.
-
-AC_DEFUN([gt_STDBOOL_H],
-[dnl gcc 2.95.2 has an <stdbool.h> for which both 'true' and 'false' evaluate
-dnl to 0 in preprocessor expressions.
-AC_MSG_CHECKING([for stdbool.h])
-AC_CACHE_VAL(gt_cv_header_stdbool_h, [
-  AC_TRY_COMPILE([#include <stdbool.h>
-#if false
-int A[-1];
-#endif
-#define b -1
-#if true
-#undef b
-#define b 1
-#endif
-int B[b];
-bool c;
-], [], gt_cv_header_stdbool_h=yes, gt_cv_header_stdbool_h=no)])
-AC_MSG_RESULT([$gt_cv_header_stdbool_h])
-if test $gt_cv_header_stdbool_h = yes; then
-  AC_DEFINE(HAVE_STDBOOL_H, 1,
-            [Define if you have a working <stdbool.h> header file.])
-  STDBOOL_H=''
-else
-  STDBOOL_H='stdbool.h'
-  AC_MSG_CHECKING([for _Bool type])
-  AC_CACHE_VAL(gt_cv_type_Bool, [
-    AC_TRY_COMPILE([_Bool x = sizeof (_Bool);], [],
-      gt_cv_type_Bool=yes, gt_cv_type_Bool=no)])
-  AC_MSG_RESULT([$gt_cv_type_Bool])
-  if test $gt_cv_type_Bool = yes; then
-    HAVE__BOOL=1
-  else
-    HAVE__BOOL=0
-  fi
-  AC_SUBST(HAVE__BOOL)
-fi
-AC_SUBST(STDBOOL_H)
-])
-
 dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
@@ -15614,65 +16229,6 @@ dnl The same holds for the mem* functions in <string.h> and SunOS.
 #include <string.h>
 #include <float.h>
 #include <limits.h>], AC_DEFINE(STDC_HEADERS))
-])
-
-# stdint.m4 serial 4
-dnl Copyright (C) 2001-2002, 2004-2005 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl From Bruno Haible.
-dnl Test whether <stdint.h> is supported or must be substituted.
-
-AC_DEFUN([gl_STDINT_H],
-[dnl Check for <inttypes.h>.
-AC_REQUIRE([gt_HEADER_INTTYPES_H])
-dnl Check for <sys/inttypes.h>.
-AC_CHECK_HEADERS([sys/inttypes.h])
-
-AC_MSG_CHECKING([for stdint.h])
-AC_CACHE_VAL(gl_cv_header_stdint_h, [
-  AC_TRY_COMPILE([#include <stdint.h>], [],
-    gl_cv_header_stdint_h=yes, gl_cv_header_stdint_h=no)])
-AC_MSG_RESULT([$gl_cv_header_stdint_h])
-if test $gl_cv_header_stdint_h = yes; then
-  AC_DEFINE(HAVE_STDINT_H, 1,
-            [Define if you have a working <stdint.h> header file.])
-  STDINT_H=''
-else
-  STDINT_H='stdint.h'
-
-  dnl Is long == int64_t ?
-  AC_CACHE_CHECK([whether 'long' is 64 bit wide], gl_cv_long_bitsize_64, [
-    AC_TRY_COMPILE([
-#define POW63  ((((((long) 1 << 15) << 15) << 15) << 15) << 3)
-#define POW64  ((((((long) 1 << 15) << 15) << 15) << 15) << 4)
-typedef int array [2 * (POW63 != 0 && POW64 == 0) - 1];
-], , gl_cv_long_bitsize_64=yes, gl_cv_long_bitsize_64=no)])
-  if test $gl_cv_long_bitsize_64 = yes; then
-    HAVE_LONG_64BIT=1
-  else
-    HAVE_LONG_64BIT=0
-  fi
-  AC_SUBST(HAVE_LONG_64BIT)
-
-  dnl Is long long == int64_t ?
-  AC_CACHE_CHECK([whether 'long long' is 64 bit wide], gl_cv_longlong_bitsize_64, [
-    AC_TRY_COMPILE([
-#define POW63  ((((((long long) 1 << 15) << 15) << 15) << 15) << 3)
-#define POW64  ((((((long long) 1 << 15) << 15) << 15) << 15) << 4)
-typedef int array [2 * (POW63 != 0 && POW64 == 0) - 1];
-], , gl_cv_longlong_bitsize_64=yes, gl_cv_longlong_bitsize_64=no)])
-  if test $gl_cv_longlong_bitsize_64 = yes; then
-    HAVE_LONG_LONG_64BIT=1
-  else
-    HAVE_LONG_LONG_64BIT=0
-  fi
-  AC_SUBST(HAVE_LONG_LONG_64BIT)
-
-fi
-AC_SUBST(STDINT_H)
 ])
 
 dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
@@ -16128,26 +16684,5 @@ CL_PROTO_TRY([
 cl_cv_proto_waitpid_arg1="pid_t", cl_cv_proto_waitpid_arg1="int")
 ], [extern pid_t waitpid ($cl_cv_proto_waitpid_arg1, int*, int);])
 AC_DEFINE_UNQUOTED(PID_T,$cl_cv_proto_waitpid_arg1,[type of `pid' in waitpid() declaration])
-])
-
-# wint_t.m4 serial 1 (gettext-0.12)
-dnl Copyright (C) 2003 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl From Bruno Haible.
-dnl Test whether <wchar.h> has the 'wint_t' type.
-dnl Prerequisite: AC_PROG_CC
-
-AC_DEFUN([gt_TYPE_WINT_T],
-[
-  AC_CACHE_CHECK([for wint_t], gt_cv_c_wint_t,
-    [AC_TRY_COMPILE([#include <wchar.h>
-       wint_t foo = (wchar_t)'\0';], ,
-       gt_cv_c_wint_t=yes, gt_cv_c_wint_t=no)])
-  if test $gt_cv_c_wint_t = yes; then
-    AC_DEFINE(HAVE_WINT_T, 1, [Define if you have the 'wint_t' type.])
-  fi
 ])
 
