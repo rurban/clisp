@@ -1660,7 +1660,7 @@ for f in $EVERY_INCLUDES ; do
 done
 
 EVERY_INCLUDES_H=''
-if [ ${TOS} = "unix" || ${HSYS} != "win32gcc" ] ; then
+if [ ${TOS} = "unix" -o ${HSYS} = "win32gcc" ] ; then
   for h in @STDBOOL_H@ @STDINT_H@; do
     EVERY_INCLUDES_H=${EVERY_INCLUDES_H}" gllib/${h}"
   done
