@@ -1660,12 +1660,12 @@ for f in $EVERY_INCLUDES ; do
 done
 
 EVERY_INCLUDES_H=''
-if [ $TOS = unix ] ; then
-  if [ -n '@STDBOOL_H@' -o -n '@STDINT_H@' ]; then
-    EVERY_INCLUDES_H=${EVERY_INCLUDES_H}' @STDBOOL_H@ @STDINT_H@'
-  fi
+if [ ${TOS} = "unix" || ${HSYS} != "win32gcc" ] ; then
+  for h in @STDBOOL_H@ @STDINT_H@; do
+    EVERY_INCLUDES_H=${EVERY_INCLUDES_H}" gllib/${h}"
+  done
 else
-  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' stdbool.h stdint.h'
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' gllib/stdbool.h gllib/stdint.h'
 fi
 # on UNIX and MINGW PACKAGE_* (and OS capabilities!) is in config.h,
 # otherwise PACKAGE_* is in version.h and OS capabilities are in win32.c
@@ -2368,7 +2368,7 @@ if [ "${enable_maintainer_mode}" = yes ]; then
   echol
 fi
 
-# in the toplevel Makefile.devel, makemake depends olso on version.sh.
+# in the toplevel Makefile.devel, makemake depends also on version.sh.
 # we do not need that here because makemake depends on config.status -
 # depends on src/configure - depends on version.sh in Makefile.devel
 echol "makemake : makemake.in config.status"
