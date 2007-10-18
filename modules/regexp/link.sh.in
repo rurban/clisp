@@ -1,5 +1,4 @@
 file_list='regexi.o'
-mod_list='regexp'
 for extra in @ALLOCA@ @REGEX_O@; do
   file_list="${file_list} ../gllib/${extra}";
 done
@@ -8,6 +7,6 @@ make clisp-module \
      INCLUDES="$absolute_linkkitdir"
 NEW_FILES="$file_list regexp.dvi"
 NEW_LIBS="$file_list"
-NEW_MODULES="$mod_list"
+NEW_MODULES="regexp"
 TO_LOAD='regexp'
 TO_PRELOAD='preload.lisp'
