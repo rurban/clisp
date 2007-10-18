@@ -2,6 +2,7 @@
 
 	* makemake.in (EVERY_INCLUDES_H): stdbool.h & stdint.h are in gllib
 	* configure: accept --vimdir and pass it on to makemake
+	always run makemake, it is no longer a user-level command
 
 2007-10-17  Sam Steingold  <sds@gnu.org>
 
