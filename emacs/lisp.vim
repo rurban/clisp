@@ -63,7 +63,7 @@ syn match lispFunc "\<\(ext:\)\?\(read\|write\)-\(integer\|float\)\>"
 syn match lispFunc "\<\(ext:\)\?\(read\|write\)-\(char\|byte\)-sequence\>"
 syn match lispFunc "\<\(custom:\)\?\*system-package-list\*\>"
 syn match lispFunc "\<\(custom:\)\?\*ansi\*\>"
-syn keyword lispKey :unix :mac :dos :little :big :external-format :buffered 
+syn keyword lispKey :unix :mac :dos :little :big :external-format :buffered
 
 " General Lisp:
 " +constant+
@@ -72,7 +72,7 @@ syn match lispSpecial "\<+[a-zA-Z_][a-zA-Z_0-9-]*+\>"
 syn keyword lispKey :documentation :shadowing-import-from :modern :export
 syn keyword lispKey :case-sensitive :case-inverted :shadow :import-from :intern
 " lambda list keywords
-syn keyword lispKey &allow-other-keys &aux &body 
+syn keyword lispKey &allow-other-keys &aux &body
 syn keyword lispKey &environment &key &optional &rest &whole
 " make-array argument
 syn keyword lispKey :fill-pointer
@@ -80,3 +80,5 @@ syn keyword lispKey :fill-pointer
 syn keyword lispKey :upcase :downcase :preserve :invert
 " eval-when situations
 syn keyword lispKey :load-toplevel :compile-toplevel :execute
+" '(#\") should not start a string
+syn region  lispAtomList  contained matchgroup=Special start="(" skip="|.\{-}|" matchgroup=Special end=")" contains=@lispAtomCluster,lispString,lispSpecial
