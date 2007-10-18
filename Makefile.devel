@@ -361,7 +361,7 @@ gnulib-update : force
 	rm -fv configure.ac; ln -sv src/configure.in configure.ac
 	$(GNULIB_HOME)/gnulib-tool --import --source-base=src/gllib \
 		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
-		stdint stdbool regex fnmatch-gnu
+		stdint stdbool regex fnmatch-gnu havelib gettext
 	rm -fv configure.ac
 
 distrib : fixperms src-distrib doc-distrib gnu-distrib
