@@ -78,3 +78,5 @@ syn keyword lispKey &environment &key &optional &rest &whole
 syn keyword lispKey :fill-pointer
 " readtable-case values
 syn keyword lispKey :upcase :downcase :preserve :invert
+" eval-when situations
+syn keyword lispKey :load-toplevel :compile-toplevel :execute
