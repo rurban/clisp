@@ -1,3 +1,7 @@
+2007-10-18  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (EVERY_INCLUDES_H): stdbool.h & stdint.h are in gllib
+
 2007-10-17  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (SUBDIRS): pass depfiles to config.status to
