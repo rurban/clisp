@@ -7,7 +7,8 @@ User visible changes
     The default value is ${datadir}/vim/vimfiles/after/syntax/.
     Thus, lisp.vim is now installed by "make install", and should
     be included in the 3rd party distributions.
-
+  + Top-level configure now always run makemake, and makemake no longer is
+    a "user-level" command; do not run it unless you know what you are doing.
 
 
 2.42 (2007-10-16)
