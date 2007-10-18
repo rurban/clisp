@@ -741,16 +741,18 @@ stacksizelimit=`ulimit -s 2>/dev/null || :` # cygwin /bin/sh ulimit is broken
 test -z "$stacksizelimit" || { test "$stacksizelimit" != unlimited && test "$stacksizelimit" -lt ${STACK_LIMIT}; }
 STACK_TOO_SMALL=$?      # 0=true => need to reset; 1=false => big enough
 
-if test -z "$do_build"; then
+cd $ABS_DIRNAME
+echo "./makemake $makemake_args > Makefile"
+./makemake $makemake_args > Makefile
+make config.lisp
 
+if test -z "$do_build"; then
   echo
   echo "To continue building CLISP, the following commands are recommended"
-  echo "  (cf. unix/INSTALL step 4):"
+  echo "  (cf. unix/INSTALL step 4 ff):"
   if test "$DIRNAME" != "."; then
     echo "    cd $DIRNAME"
   fi
-  echo "    ./makemake $makemake_args > Makefile"
-  echo "    make config.lisp"
   echo "    ${EDITOR:-vi} config.lisp"
   if [ "${STACK_TOO_SMALL}" = 0 ]; then
     cat <<EOF
@@ -762,12 +764,7 @@ EOF
   fi
   echo "    make"
   echo "    make check"
-
 else
-
-  cd $ABS_DIRNAME
-  echo "./makemake $makemake_args > Makefile"
-  ./makemake $makemake_args > Makefile
   if [ -n "${edit_config}" ]; then
     make config.lisp;
     ${EDITOR:-vi} config.lisp;
@@ -777,13 +774,10 @@ else
   fi
   make
   make check
-  cd ..
-
 fi
 
 if test -n "$do_install"; then
-
-  # check if the destination is writable
+  # check whether the destination is writable
   su=""
   if touch ${prefix}/abazonk 2>/dev/null ; then
     rm -f ${prefix}/abazonk
@@ -793,10 +787,6 @@ if test -n "$do_install"; then
     fi
   else su="su -c"
   fi
-
   cd $ABS_DIRNAME
   ${su} make install
-  cd ..
-
 fi
-
