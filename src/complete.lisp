@@ -53,9 +53,9 @@
           (if colon
             (let ((packname (subseq string start colon))) ; fresh!
               (case (readtable-case *readtable*)
-                (:UPCASE (nstring-upcase packname))
-                (:DOWNCASE (nstring-downcase packname))
-                (:INVERT (nstring-invertcase packname)))
+                (:upcase (nstring-upcase packname))
+                (:downcase (nstring-downcase packname))
+                (:invert (nstring-invertcase packname)))
               (when (equal packname "") (setq packname "KEYWORD"))
               (setq package (find-package packname))
               (unless package
