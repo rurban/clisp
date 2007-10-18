@@ -407,7 +407,7 @@
 
 <revision><revnumber>2.42</revnumber><date>2007-10-16</date>
  <revdescription><itemizedlist>
-   <listitem><simpara><link linkend="defstruct-mop"/></simpara></listitem>
+   <listitem><simpara><xref linkend="defstruct-mop"/></simpara></listitem>
    <listitem><simpara>&rename-dir;</simpara></listitem>
    <listitem><simpara>Many additions to
      <filename role="clisp-cvs">modules/new-clx/demos/</filename>
