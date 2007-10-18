@@ -99,9 +99,11 @@ static GDBM_FILE check_gdbm (gcv_object_t *gdbm, gdbm_data_t *key,
 { /* gdbm is modified, so it has to be a pointer */
   *gdbm = check_classname(*gdbm,`GDBM::GDBM`);
   if (key && *key == GDBM_DATA_NOTYPE)
-    *key = posfixnum_to_V(TheStructure(*gdbm)->recdata[GDBM_SLOT_KEY]);
+    *key = (gdbm_data_t)
+      posfixnum_to_V(TheStructure(*gdbm)->recdata[GDBM_SLOT_KEY]);
   if (val && *val == GDBM_DATA_NOTYPE)
-    *val = posfixnum_to_V(TheStructure(*gdbm)->recdata[GDBM_SLOT_VAL]);
+    *val = (gdbm_data_t)
+      posfixnum_to_V(TheStructure(*gdbm)->recdata[GDBM_SLOT_VAL]);
   { object fp = TheStructure(*gdbm)->recdata[GDBM_SLOT_FILE];
     if (fpointerp(fp)) return (GDBM_FILE)TheFpointer(fp)->fp_pointer;
     else if (require_valid_handle) {
@@ -123,7 +125,8 @@ static GDBM_FILE check_gdbm (gcv_object_t *gdbm, gdbm_data_t *key,
 static object open_gdbm (object path, int bsize, int rw, int mode) {
   GDBM_FILE gdbm;
   with_string_0(path, GLO(pathname_encoding), name, {
-      SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode, error_gdbm));
+      SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode,
+                               (void (*)(void))error_gdbm));
     });
   if (gdbm == NULL) error_gdbm(NULL);
   return allocate_fpointer(gdbm);
