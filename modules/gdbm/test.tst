@@ -32,7 +32,7 @@
           (gdbm:gdbm-error-message condition))))
 (:OPT-ALREADY-SET "Option already set")
 
-(gdbm:gdbm-store *db* "key1" "value1") T
+(multiple-value-list (gdbm:gdbm-store *db* "key1" "value1")) NIL
 
 (handler-bind ((type-error (lambda (c) (princ-error c) (use-value *db*))))
   (gdbm:gdbm-setopt nil :default-value-type 'integer)) NIL
@@ -45,11 +45,15 @@
 
 (gdbm:gdbm-fetch *db* "key1" :type 'string) "value1"
 
-(gdbm:gdbm-store *db* "key1" "value2" :flag :insert) NIL
+(handler-case (gdbm:gdbm-store *db* "key1" "value2" :flag :insert)
+  (gdbm:gdbm-error (condition)
+    (list (gdbm:gdbm-error-code condition)
+          (gdbm:gdbm-error-message condition))))
+(:CANNOT-REPLACE "Cannot replace")
 
 (gdbm:gdbm-fetch *db* "key1") "value1"
 
-(gdbm:gdbm-store *db* "key1" "value2" :flag :replace) T
+(multiple-value-list (gdbm:gdbm-store *db* "key1" "value2" :flag :replace)) NIL
 
 (gdbm:gdbm-fetch *db* "key1") "value2"
 
@@ -59,13 +63,13 @@
 
 (gdbm:gdbm-fetch *db* #(107 101 121 49)) "value2"
 
-(gdbm:gdbm-store *db* "key1" "value3") T
+(multiple-value-list (gdbm:gdbm-store *db* "key1" "value3")) NIL
 
 (gdbm:gdbm-fetch *db* "key1") "value3"
 
 (gdbm:gdbm-exists *db* #(107 101 121 50)) NIL
 
-(gdbm:gdbm-store *db* "key2" "test2") T
+(multiple-value-list (gdbm:gdbm-store *db* "key2" "test2")) NIL
 
 (gdbm:gdbm-exists *db* #(107 101 121 50)) T
 
@@ -73,9 +77,9 @@
 
 (gdbm:gdbm-fetch *db* "key2" :type 'vector) #(116 101 115 116 50)
 
-(gdbm:gdbm-store *db* "key3" "test3") T
+(multiple-value-list (gdbm:gdbm-store *db* "key3" "test3")) NIL
 
-(gdbm:gdbm-store *db* "key4" #(0 0 0 0 0)) T
+(multiple-value-list (gdbm:gdbm-store *db* "key4" #(0 0 0 0 0))) NIL
 
 (gdbm:gdbm-fetch *db* "key4" :type 'vector) #(0 0 0 0 0)
 
@@ -91,7 +95,7 @@
 
 (gdbm:do-db (key *db*) :count key) 4
 
-(gdbm:gdbm-delete *db* "key1") T
+(multiple-value-list (gdbm:gdbm-delete *db* "key1")) NIL
 
 (gdbm:do-db (key *db*) :count key) 3
 
@@ -108,7 +112,8 @@
   (> asize bsize)) T
 
 (let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0))
-  (loop for i from 0 to 500 do (gdbm:gdbm-delete *db* (format nil "key~A" i)))
+  (loop :for i :from 0 :to 500 :do
+      (gdbm:gdbm-delete *db* (format nil "key~A" i)))
   (gdbm:gdbm-sync *db*)
   #-:CYGWIN (gdbm:gdbm-reorganize *db*)
   (setf asize (gdbm:gdbm-file-size *db*))
