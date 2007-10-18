@@ -1,5 +1,9 @@
 2007-10-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/gdbm/gdbm.c (check_gdbm, open_gdbm): support g++ compilation
+
+2007-10-18  Sam Steingold  <sds@gnu.org>
+
 	* gettext.m4, iconv.m4, intdiv0.m4, intmax.m4, inttypes-pri.m4:
 	* inttypes.m4, inttypes_h.m4, nls.m4, po.m4, size_max.m4:
 	* printf-posix.m4, stdint_h.m4, lib-link.m4, lib-prefix.m4:
