@@ -311,6 +311,8 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
+gl_func_list=
+gl_header_list=
 ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP ALLOCA LIBOBJS FNMATCH_H FNMATCH_O LTLIBOBJS'
 ac_subst_files=''
 
@@ -1274,6 +1276,15 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+gl_func_list="$gl_func_list btowc"
+gl_func_list="$gl_func_list isblank"
+gl_func_list="$gl_func_list iswctype"
+gl_func_list="$gl_func_list mbsrtowcs"
+gl_func_list="$gl_func_list mempcpy"
+gl_func_list="$gl_func_list wmemchr"
+gl_func_list="$gl_func_list wmemcpy"
+gl_func_list="$gl_func_list wmempcpy"
+gl_header_list="$gl_header_list wctype.h"
 
 
 
@@ -2696,113 +2707,6 @@ _ACEOF
 
 fi
 
-echo "$as_me:$LINENO: checking for an ANSI C-conforming const" >&5
-echo $ECHO_N "checking for an ANSI C-conforming const... $ECHO_C" >&6
-if test "${ac_cv_c_const+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-int
-main ()
-{
-/* FIXME: Include the comments suggested by Paul. */
-#ifndef __cplusplus
-  /* Ultrix mips cc rejects this.  */
-  typedef int charset[2];
-  const charset x;
-  /* SunOS 4.1.1 cc rejects this.  */
-  char const *const *ccp;
-  char **p;
-  /* NEC SVR4.0.2 mips cc rejects this.  */
-  struct point {int x, y;};
-  static struct point const zero = {0,0};
-  /* AIX XL C 1.02.0.0 rejects this.
-     It does not let you subtract one const X* pointer from another in
-     an arm of an if-expression whose if-part is not a constant
-     expression */
-  const char *g = "string";
-  ccp = &g + (g ? g-g : 0);
-  /* HPUX 7.0 cc rejects these. */
-  ++ccp;
-  p = (char**) ccp;
-  ccp = (char const *const *) p;
-  { /* SCO 3.2v4 cc rejects this.  */
-    char *t;
-    char const *s = 0 ? (char *) 0 : (char const *) 0;
-
-    *t++ = 0;
-  }
-  { /* Someone thinks the Sun supposedly-ANSI compiler will reject this.  */
-    int x[] = {25, 17};
-    const int *foo = &x[0];
-    ++foo;
-  }
-  { /* Sun SC1.0 ANSI compiler rejects this -- but not the above. */
-    typedef const int *iptr;
-    iptr p = 0;
-    ++p;
-  }
-  { /* AIX XL C 1.02.0.0 rejects this saying
-       "k.c", line 2.27: 1506-025 (S) Operand must be a modifiable lvalue. */
-    struct s { int j; const int *ap[3]; };
-    struct s *b; b->j = 5;
-  }
-  { /* ULTRIX-32 V3.1 (Rev 9) vcc rejects this */
-    const int foo = 10;
-  }
-#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_c_const=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_c_const=no
-fi
-rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_c_const" >&5
-echo "${ECHO_T}$ac_cv_c_const" >&6
-if test $ac_cv_c_const = no; then
-
-cat >>confdefs.h <<\_ACEOF
-#define const
-_ACEOF
-
-fi
-
 # The Ultrix 4.2 mips builtin alloca declared by alloca.h only works
 # for constant arguments.  Useless!
 echo "$as_me:$LINENO: checking for working alloca.h" >&5
@@ -3302,151 +3206,11 @@ _ACEOF
 
    fi
 
-  FNMATCH_H=
-  echo "$as_me:$LINENO: checking for working POSIX fnmatch" >&5
-echo $ECHO_N "checking for working POSIX fnmatch... $ECHO_C" >&6
-if test "${ac_cv_func_fnmatch_posix+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  # Some versions of Solaris, SCO, and the GNU C Library
-   # have a broken or incompatible fnmatch.
-   # So we run a test program.  If we are cross-compiling, take no chance.
-   # Thanks to John Oleynick, Franc,ois Pinard, and Paul Eggert for this test.
-   if test "$cross_compiling" = yes; then
-  ac_cv_func_fnmatch_posix=cross
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-#	   include <stdlib.h>
-#	   include <fnmatch.h>
-#	   define y(a, b, c) (fnmatch (a, b, c) == 0)
-#	   define n(a, b, c) (fnmatch (a, b, c) == FNM_NOMATCH)
-
-int
-main ()
-{
-exit
-	   (!(y ("a*", "abc", 0)
-	      && n ("d*/*1", "d/s/1", FNM_PATHNAME)
-	      && y ("a\\\\bc", "abc", 0)
-	      && n ("a\\\\bc", "abc", FNM_NOESCAPE)
-	      && y ("*x", ".x", 0)
-	      && n ("*x", ".x", FNM_PERIOD)
-	      && 1));
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_func_fnmatch_posix=yes
-else
-  echo "$as_me: program exited with status $ac_status" >&5
-echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-( exit $ac_status )
-ac_cv_func_fnmatch_posix=no
-fi
-rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
-fi
-fi
-echo "$as_me:$LINENO: result: $ac_cv_func_fnmatch_posix" >&5
-echo "${ECHO_T}$ac_cv_func_fnmatch_posix" >&6
-if test $ac_cv_func_fnmatch_posix = yes; then
-  rm -f lib/fnmatch.h
-else
-  echo "$as_me:$LINENO: checking whether getenv is declared" >&5
-echo $ECHO_N "checking whether getenv is declared... $ECHO_C" >&6
-if test "${ac_cv_have_decl_getenv+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-$ac_includes_default
-int
-main ()
-{
-#ifndef getenv
-  char *p = (char *) getenv;
-#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_have_decl_getenv=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_have_decl_getenv=no
-fi
-rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_have_decl_getenv" >&5
-echo "${ECHO_T}$ac_cv_have_decl_getenv" >&6
-if test $ac_cv_have_decl_getenv = yes; then
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_GETENV 1
-_ACEOF
-
-
-else
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_GETENV 0
-_ACEOF
-
-
-fi
 
 
 
 
-
-
-for ac_func in btowc mbsrtowcs mempcpy wmempcpy
+for ac_func in $gl_func_list
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -3549,7 +3313,57 @@ done
 
 
 
-for ac_header in wchar.h wctype.h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+for ac_header in $gl_header_list
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -3697,6 +3511,209 @@ _ACEOF
 fi
 
 done
+
+
+
+
+
+
+
+  FNMATCH_H=
+  echo "$as_me:$LINENO: checking for working POSIX fnmatch" >&5
+echo $ECHO_N "checking for working POSIX fnmatch... $ECHO_C" >&6
+if test "${ac_cv_func_fnmatch_posix+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+              if test "$cross_compiling" = yes; then
+  ac_cv_func_fnmatch_posix=cross
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <fnmatch.h>
+	   static int
+	   y (char const *pattern, char const *string, int flags)
+	   {
+	     return fnmatch (pattern, string, flags) == 0;
+	   }
+	   static int
+	   n (char const *pattern, char const *string, int flags)
+	   {
+	     return fnmatch (pattern, string, flags) == FNM_NOMATCH;
+	   }
+
+int
+main ()
+{
+char const *Apat = 'A' < '\\\\' ? "[A-\\\\\\\\]" : "[\\\\\\\\-A]";
+	   char const *apat = 'a' < '\\\\' ? "[a-\\\\\\\\]" : "[\\\\\\\\-a]";
+	   static char const A_1[] = { 'A' - 1, 0 };
+	   static char const A01[] = { 'A' + 1, 0 };
+	   static char const a_1[] = { 'a' - 1, 0 };
+	   static char const a01[] = { 'a' + 1, 0 };
+	   static char const bs_1[] = { '\\\\' - 1, 0 };
+	   static char const bs01[] = { '\\\\' + 1, 0 };
+	   return
+	    !(n ("a*", "", 0)
+	      && y ("a*", "abc", 0)
+	      && n ("d*/*1", "d/s/1", FNM_PATHNAME)
+	      && y ("a\\\\bc", "abc", 0)
+	      && n ("a\\\\bc", "abc", FNM_NOESCAPE)
+	      && y ("*x", ".x", 0)
+	      && n ("*x", ".x", FNM_PERIOD)
+	      && y (Apat, "\\\\", 0) && y (Apat, "A", 0)
+	      && y (apat, "\\\\", 0) && y (apat, "a", 0)
+	      && n (Apat, A_1, 0) == ('A' < '\\\\')
+	      && n (apat, a_1, 0) == ('a' < '\\\\')
+	      && y (Apat, A01, 0) == ('A' < '\\\\')
+	      && y (apat, a01, 0) == ('a' < '\\\\')
+	      && y (Apat, bs_1, 0) == ('A' < '\\\\')
+	      && y (apat, bs_1, 0) == ('a' < '\\\\')
+	      && n (Apat, bs01, 0) == ('A' < '\\\\')
+	      && n (apat, bs01, 0) == ('a' < '\\\\')
+	      && 1);
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_func_fnmatch_posix=yes
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+ac_cv_func_fnmatch_posix=no
+fi
+rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+echo "$as_me:$LINENO: result: $ac_cv_func_fnmatch_posix" >&5
+echo "${ECHO_T}$ac_cv_func_fnmatch_posix" >&6
+if test $ac_cv_func_fnmatch_posix = yes; then
+  rm -f lib/fnmatch.h
+else
+  echo "$as_me:$LINENO: checking whether isblank is declared" >&5
+echo $ECHO_N "checking whether isblank is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_isblank+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <ctype.h>
+
+int
+main ()
+{
+#ifndef isblank
+  char *p = (char *) isblank;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_isblank=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_have_decl_isblank=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_isblank" >&5
+echo "${ECHO_T}$ac_cv_have_decl_isblank" >&6
+if test $ac_cv_have_decl_isblank = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_ISBLANK 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_ISBLANK 0
+_ACEOF
+
+
+fi
+
+
+
+  :
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  :
+
+
+
+
 
 case $LIBOBJS in
     "fnmatch.$ac_objext"   | \

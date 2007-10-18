@@ -23,7 +23,7 @@ m4/nocrash.m4 : $(CLISP_DIR)/src/m4/nocrash.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/ffcall-pccstruct.m4 : $(CLISP_DIR)/src/m4/ffcall-pccstruct.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/ffcall-smallstruct.m4 : $(CLISP_DIR)/src/m4/ffcall-smallstruct.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/ffcall-ireg.m4 : $(CLISP_DIR)/src/m4/ffcall-ireg.m4 ; cp -p $< $@-t && mv $@-t $@
-m4/longlong.m4 : $(CLISP_DIR)/src/m4/longlong.m4 ; cp -p $< $@-t && mv $@-t $@
+m4/longlong.m4 : $(CLISP_DIR)/src/glm4/longlong.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/cc-void.m4 : $(CLISP_DIR)/src/m4/cc-void.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/stdc-headers.m4 : $(CLISP_DIR)/src/m4/stdc-headers.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/getpagesize.m4 : $(CLISP_DIR)/src/m4/getpagesize.m4 ; cp -p $< $@-t && mv $@-t $@
