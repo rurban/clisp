@@ -115,7 +115,7 @@
 
 <preface id="conventions"><title>Conventions</title>
 <para>The following is the mark-up notations used in this document:
- <informaltable id="conventions-tab" frame="all">
+ <table id="conventions-tab" frame="all"><title>Mark-up conventions</title>
   <tgroup cols="2" colsep="1" rowsep="1" align="center">
    <thead><row><entry>Object Kind</entry><entry>Example</entry></row></thead>
    <tbody><row><entry>Function</entry><entry>&car;</entry></row>
@@ -126,7 +126,7 @@
     <row><entry>Character</entry><entry>&nl-s;</entry></row>
     <row><entry>Class, type</entry><entry>&match-t;</entry></row>
     <row><entry>Format instruction</entry><entry>&format-a;</entry></row>
-    <row><entry>&lalist; keyword</entry><entry>&key-amp;</entry></row>
+    <row><entry>Standard &lalist; keyword</entry><entry>&key-amp;</entry></row>
     <row><entry>Declaration</entry><entry>&ftype-dec;</entry></row>
     <row><entry>Package</entry><entry>&clu-pac;</entry></row>
     <row><entry>Real file</entry><entry>&config-lisp;</entry></row>
@@ -144,9 +144,11 @@
     </programlisting></entry></row>
     <row><entry>Bytecode instruction</entry><entry><literal
       role="byte">(STOREV &k-r; &m-r;)</literal></entry></row>
-    <row><entry>first mention of an entity</entry>
+    <row><entry>First mention of an entity</entry>
      <entry><firstterm>firstterm</firstterm></entry></row>
-</tbody></tgroup></informaltable></para></preface>
+    <row><entry>External &module;</entry>
+     <entry>&libsvm-mod;, &glibc-mod;</entry></row>
+</tbody></tgroup></table></para></preface>
 
 <part id="clhs-chapters"><title>Chapters or the &hyperspec;</title>
 
