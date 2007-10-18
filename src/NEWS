@@ -1,3 +1,15 @@
+User visible changes
+--------------------
+
+* Infrastructure
+  + Top-level configure now accepts a new option --vimdir which specifies
+    the installation directory for the VIM files (lisp.vim).
+    The default value is ${datadir}/vim/vimfiles/after/syntax/.
+    Thus, lisp.vim is now installed by "make install", and should
+    be included in the 3rd party distributions.
+
+
+
 2.42 (2007-10-16)
 =================
 

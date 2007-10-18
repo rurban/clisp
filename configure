@@ -63,6 +63,7 @@ options: The following options are recognized:
   --pdfdir=DIR          sets the installation directory for
                         documentation in PDF format
   --elispdir=DIR        sets the installation directory for Emacs Lisp files
+  --vimdir=DIR          sets the installation directory for VIM files
   --host=HOST           specify host in CPU-VENDOR-OS format (just
                         in case config.guess guesses wrong)
   --enable-maintainer-mode   enable make rules and dependencies not useful
@@ -375,6 +376,17 @@ do
         #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
         makemake_args="$makemake_args --elispdir="
         prev=elispdir
+        passnext=yes
+        passnextm=yes ;;
+
+      --vimdir=* | --vimdi=* | --vimd=* | --vim=* | --vi=*)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --vimdir="`getarg "$arg"` ;;
+
+      --vimdir | --vimdi | --vimd | --vim | --vi)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --vimdir="
+        prev=vimdir
         passnext=yes
         passnextm=yes ;;
 
