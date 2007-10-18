@@ -15,11 +15,11 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --aux-dir=src/build-aux --libtool --macro-prefix=gl fnmatch-gnu regex stdbool stdint
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --aux-dir=src/build-aux --libtool --macro-prefix=gl fnmatch-gnu gettext havelib regex stdbool stdint
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
-gl_MODULES([fnmatch-gnu regex stdbool stdint])
+gl_MODULES([fnmatch-gnu gettext havelib regex stdbool stdint])
 gl_AVOID([])
 gl_SOURCE_BASE([src/gllib])
 gl_M4_BASE([src/glm4])

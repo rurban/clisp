@@ -311,7 +311,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP build build_cpu build_vendor build_os host host_cpu host_vendor host_os LIBPCRE LTLIBPCRE EGREP LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP build build_cpu build_vendor build_os host host_cpu host_vendor host_os LIBPCRE LTLIBPCRE LIBPCRE_PREFIX EGREP LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -2758,12 +2758,14 @@ fi
 echo "$as_me:$LINENO: result: $acl_cv_rpath" >&5
 echo "${ECHO_T}$acl_cv_rpath" >&6
   wl="$acl_cv_wl"
-  libext="$acl_cv_libext"
-  shlibext="$acl_cv_shlibext"
-  hardcode_libdir_flag_spec="$acl_cv_hardcode_libdir_flag_spec"
-  hardcode_libdir_separator="$acl_cv_hardcode_libdir_separator"
-  hardcode_direct="$acl_cv_hardcode_direct"
-  hardcode_minus_L="$acl_cv_hardcode_minus_L"
+  acl_libext="$acl_cv_libext"
+  acl_shlibext="$acl_cv_shlibext"
+  acl_libname_spec="$acl_cv_libname_spec"
+  acl_library_names_spec="$acl_cv_library_names_spec"
+  acl_hardcode_libdir_flag_spec="$acl_cv_hardcode_libdir_flag_spec"
+  acl_hardcode_libdir_separator="$acl_cv_hardcode_libdir_separator"
+  acl_hardcode_direct="$acl_cv_hardcode_direct"
+  acl_hardcode_minus_L="$acl_cv_hardcode_minus_L"
     # Check whether --enable-rpath or --disable-rpath was given.
 if test "${enable_rpath+set}" = set; then
   enableval="$enable_rpath"
@@ -2771,6 +2773,25 @@ if test "${enable_rpath+set}" = set; then
 else
   enable_rpath=yes
 fi;
+
+
+                  acl_libdirstem=lib
+  searchpath=`(LC_ALL=C $CC -print-search-dirs) 2>/dev/null | sed -n -e 's,^libraries: ,,p' | sed -e 's,^=,,'`
+  if test -n "$searchpath"; then
+    acl_save_IFS="${IFS= 	}"; IFS=":"
+    for searchdir in $searchpath; do
+      if test -d "$searchdir"; then
+        case "$searchdir" in
+          */lib64/ | */lib64 ) acl_libdirstem=lib64 ;;
+          *) searchdir=`cd "$searchdir" && pwd`
+             case "$searchdir" in
+               */lib64 ) acl_libdirstem=lib64 ;;
+             esac ;;
+        esac
+      fi
+    done
+    IFS="$acl_save_IFS"
+  fi
 
 
 
@@ -2782,6 +2803,8 @@ echo $ECHO_N "checking how to link with libpcre... $ECHO_C" >&6
 if test "${ac_cv_libpcre_libs+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
+
+
 
 
 
@@ -2821,7 +2844,7 @@ if test "${with_libpcre_prefix+set}" = set; then
 
       else
         additional_includedir="$withval/include"
-        additional_libdir="$withval/lib"
+        additional_libdir="$withval/$acl_libdirstem"
       fi
     fi
 
@@ -2829,6 +2852,7 @@ fi;
       LIBPCRE=
   LTLIBPCRE=
   INCPCRE=
+  LIBPCRE_PREFIX=
   rpathdirs=
   ltrpathdirs=
   names_already_handled=
@@ -2862,20 +2886,50 @@ fi;
           found_la=
           found_so=
           found_a=
+          eval libname=\"$acl_libname_spec\"    # typically: libname=lib$name
+          if test -n "$acl_shlibext"; then
+            shrext=".$acl_shlibext"             # typically: shrext=.so
+          else
+            shrext=
+          fi
           if test $use_additional = yes; then
-            if test -n "$shlibext" && test -f "$additional_libdir/lib$name.$shlibext"; then
-              found_dir="$additional_libdir"
-              found_so="$additional_libdir/lib$name.$shlibext"
-              if test -f "$additional_libdir/lib$name.la"; then
-                found_la="$additional_libdir/lib$name.la"
-              fi
-            else
-              if test -f "$additional_libdir/lib$name.$libext"; then
-                found_dir="$additional_libdir"
-                found_a="$additional_libdir/lib$name.$libext"
-                if test -f "$additional_libdir/lib$name.la"; then
-                  found_la="$additional_libdir/lib$name.la"
+            dir="$additional_libdir"
+                                    if test -n "$acl_shlibext"; then
+              if test -f "$dir/$libname$shrext"; then
+                found_dir="$dir"
+                found_so="$dir/$libname$shrext"
+              else
+                if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
+                  ver=`(cd "$dir" && \
+                        for f in "$libname$shrext".*; do echo "$f"; done \
+                        | sed -e "s,^$libname$shrext\\\\.,," \
+                        | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
+                        | sed 1q ) 2>/dev/null`
+                  if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
+                    found_dir="$dir"
+                    found_so="$dir/$libname$shrext.$ver"
+                  fi
+                else
+                  eval library_names=\"$acl_library_names_spec\"
+                  for f in $library_names; do
+                    if test -f "$dir/$f"; then
+                      found_dir="$dir"
+                      found_so="$dir/$f"
+                      break
+                    fi
+                  done
                 fi
+              fi
+            fi
+                        if test "X$found_dir" = "X"; then
+              if test -f "$dir/$libname.$acl_libext"; then
+                found_dir="$dir"
+                found_a="$dir/$libname.$acl_libext"
+              fi
+            fi
+            if test "X$found_dir" != "X"; then
+              if test -f "$dir/$libname.la"; then
+                found_la="$dir/$libname.la"
               fi
             fi
           fi
@@ -2893,19 +2947,42 @@ fi;
               case "$x" in
                 -L*)
                   dir=`echo "X$x" | sed -e 's/^X-L//'`
-                  if test -n "$shlibext" && test -f "$dir/lib$name.$shlibext"; then
-                    found_dir="$dir"
-                    found_so="$dir/lib$name.$shlibext"
-                    if test -f "$dir/lib$name.la"; then
-                      found_la="$dir/lib$name.la"
-                    fi
-                  else
-                    if test -f "$dir/lib$name.$libext"; then
+                                    if test -n "$acl_shlibext"; then
+                    if test -f "$dir/$libname$shrext"; then
                       found_dir="$dir"
-                      found_a="$dir/lib$name.$libext"
-                      if test -f "$dir/lib$name.la"; then
-                        found_la="$dir/lib$name.la"
+                      found_so="$dir/$libname$shrext"
+                    else
+                      if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
+                        ver=`(cd "$dir" && \
+                              for f in "$libname$shrext".*; do echo "$f"; done \
+                              | sed -e "s,^$libname$shrext\\\\.,," \
+                              | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
+                              | sed 1q ) 2>/dev/null`
+                        if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
+                          found_dir="$dir"
+                          found_so="$dir/$libname$shrext.$ver"
+                        fi
+                      else
+                        eval library_names=\"$acl_library_names_spec\"
+                        for f in $library_names; do
+                          if test -f "$dir/$f"; then
+                            found_dir="$dir"
+                            found_so="$dir/$f"
+                            break
+                          fi
+                        done
                       fi
+                    fi
+                  fi
+                                    if test "X$found_dir" = "X"; then
+                    if test -f "$dir/$libname.$acl_libext"; then
+                      found_dir="$dir"
+                      found_a="$dir/$libname.$acl_libext"
+                    fi
+                  fi
+                  if test "X$found_dir" != "X"; then
+                    if test -f "$dir/$libname.la"; then
+                      found_la="$dir/$libname.la"
                     fi
                   fi
                   ;;
@@ -2918,7 +2995,7 @@ fi;
           if test "X$found_dir" != "X"; then
                         LTLIBPCRE="${LTLIBPCRE}${LTLIBPCRE:+ }-L$found_dir -l$name"
             if test "X$found_so" != "X"; then
-                                                        if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/lib"; then
+                                                        if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
                                 LIBPCRE="${LIBPCRE}${LIBPCRE:+ }$found_so"
               else
                                                                                 haveit=
@@ -2931,10 +3008,10 @@ fi;
                 if test -z "$haveit"; then
                   ltrpathdirs="$ltrpathdirs $found_dir"
                 fi
-                                if test "$hardcode_direct" = yes; then
+                                if test "$acl_hardcode_direct" = yes; then
                                                       LIBPCRE="${LIBPCRE}${LIBPCRE:+ }$found_so"
                 else
-                  if test -n "$hardcode_libdir_flag_spec" && test "$hardcode_minus_L" = no; then
+                  if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
                                                             LIBPCRE="${LIBPCRE}${LIBPCRE:+ }$found_so"
                                                             haveit=
                     for x in $rpathdirs; do
@@ -2966,7 +3043,7 @@ fi;
                     if test -z "$haveit"; then
                       LIBPCRE="${LIBPCRE}${LIBPCRE:+ }-L$found_dir"
                     fi
-                    if test "$hardcode_minus_L" != no; then
+                    if test "$acl_hardcode_minus_L" != no; then
                                                                                         LIBPCRE="${LIBPCRE}${LIBPCRE:+ }$found_so"
                     else
                                                                                                                                                                                 LIBPCRE="${LIBPCRE}${LIBPCRE:+ }-l$name"
@@ -2983,8 +3060,9 @@ fi;
             fi
                         additional_includedir=
             case "$found_dir" in
-              */lib | */lib/)
-                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e 's,/lib/*$,,'`
+              */$acl_libdirstem | */$acl_libdirstem/)
+                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
+                LIBPCRE_PREFIX="$basedir"
                 additional_includedir="$basedir/include"
                 ;;
             esac
@@ -3033,9 +3111,9 @@ fi;
                 case "$dep" in
                   -L*)
                     additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
-                                                                                                                                                                if test "X$additional_libdir" != "X/usr/lib"; then
+                                                                                                                                                                if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
                       haveit=
-                      if test "X$additional_libdir" = "X/usr/local/lib"; then
+                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
                         if test -n "$GCC"; then
                           case $host_os in
                             linux* | gnu* | k*bsd*-gnu) haveit=yes;;
@@ -3135,21 +3213,21 @@ fi;
     done
   done
   if test "X$rpathdirs" != "X"; then
-    if test -n "$hardcode_libdir_separator"; then
+    if test -n "$acl_hardcode_libdir_separator"; then
                         alldirs=
       for found_dir in $rpathdirs; do
-        alldirs="${alldirs}${alldirs:+$hardcode_libdir_separator}$found_dir"
+        alldirs="${alldirs}${alldirs:+$acl_hardcode_libdir_separator}$found_dir"
       done
             acl_save_libdir="$libdir"
       libdir="$alldirs"
-      eval flag=\"$hardcode_libdir_flag_spec\"
+      eval flag=\"$acl_hardcode_libdir_flag_spec\"
       libdir="$acl_save_libdir"
       LIBPCRE="${LIBPCRE}${LIBPCRE:+ }$flag"
     else
             for found_dir in $rpathdirs; do
         acl_save_libdir="$libdir"
         libdir="$found_dir"
-        eval flag=\"$hardcode_libdir_flag_spec\"
+        eval flag=\"$acl_hardcode_libdir_flag_spec\"
         libdir="$acl_save_libdir"
         LIBPCRE="${LIBPCRE}${LIBPCRE:+ }$flag"
       done
@@ -3164,6 +3242,7 @@ fi;
     ac_cv_libpcre_libs="$LIBPCRE"
     ac_cv_libpcre_ltlibs="$LTLIBPCRE"
     ac_cv_libpcre_cppflags="$INCPCRE"
+    ac_cv_libpcre_prefix="$LIBPCRE_PREFIX"
 
 fi
 echo "$as_me:$LINENO: result: $ac_cv_libpcre_libs" >&5
@@ -3171,6 +3250,7 @@ echo "${ECHO_T}$ac_cv_libpcre_libs" >&6
   LIBPCRE="$ac_cv_libpcre_libs"
   LTLIBPCRE="$ac_cv_libpcre_ltlibs"
   INCPCRE="$ac_cv_libpcre_cppflags"
+  LIBPCRE_PREFIX="$ac_cv_libpcre_prefix"
 
   for element in $INCPCRE; do
     haveit=
@@ -3193,6 +3273,7 @@ echo "${ECHO_T}$ac_cv_libpcre_libs" >&6
       CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
     fi
   done
+
 
 
 
@@ -4506,6 +4587,7 @@ s,@host_vendor@,$host_vendor,;t t
 s,@host_os@,$host_os,;t t
 s,@LIBPCRE@,$LIBPCRE,;t t
 s,@LTLIBPCRE@,$LTLIBPCRE,;t t
+s,@LIBPCRE_PREFIX@,$LIBPCRE_PREFIX,;t t
 s,@EGREP@,$EGREP,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
