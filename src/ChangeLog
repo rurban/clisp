@@ -1,5 +1,9 @@
 2007-10-18  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (view-html): use BROWSERS
+
+2007-10-18  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (EVERY_INCLUDES_H): stdbool.h & stdint.h are in gllib
 	* configure: accept --vimdir and pass it on to makemake
 	always run makemake, it is no longer a user-level command
