@@ -149,10 +149,12 @@ fixperms :
 view-man :
 	grep -v '^#[ie]' doc/_clisp.1 | $(GROFF) -Tascii | less
 
+# all possible browsers, some might not be present, but we do not care
+# list GUI first because they put themselves into background
+BROWSERS=firefox mozilla netscape opera links lynx
 view-html :
 	grep -v '^#[ie]' doc/_clisp.html > /tmp/clisp.html
-	netscape /tmp/clisp.html &
-	lynx /tmp/clisp.html
+	for b in $(BROWSERS); do $$b /tmp/clisp.html; done
 
 
 src/version.h: version.sh
