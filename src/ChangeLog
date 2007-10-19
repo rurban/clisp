@@ -1,5 +1,10 @@
 2007-10-19  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (GL_LIBOBJS): init from @gl_LIBOBJS@
+	(LIBOBJS): link utils using it
+
+2007-10-19  Sam Steingold  <sds@gnu.org>
+
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): added
 	* modules/berkeley-db/configure.in, modules/dirkey/configure.in:
         * modules/gdbm/configure.in, modules/gtk2/configure.in:
