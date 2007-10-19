@@ -98,25 +98,8 @@ AC_PROVIDE([AC_CONFIG_AUX_DIR_DEFAULT])
 AC_CONFIG_SUBDIRS([$1])dnl
 ])
 
-AC_DEFUN([CL_CANONICAL_HOST],
-[AC_REQUIRE([AC_PROG_CC]) dnl Actually: AC_REQUIRE([CL_CC_WORKS])
-dnl Set ac_aux_dir before the cache check, because AM_PROG_LIBTOOL needs it.
-ac_aux_dir=${srcdir}/$1
-dnl A substitute for AC_CONFIG_AUX_DIR_DEFAULT, so we don't need install.sh.
-ac_config_guess="$SHELL $ac_aux_dir/config.guess"
-ac_config_sub="$SHELL $ac_aux_dir/config.sub"
-dnl We have defined $ac_aux_dir.
-AC_PROVIDE([AC_CONFIG_AUX_DIR_DEFAULT])dnl
-dnl In autoconf-2.52, a single AC_CANONICAL_HOST has the effect of inserting
-dnl the code of AC_CANONICAL_BUILD *before* CL_CANONICAL_HOST, i.e. before
-dnl ac_aux_dir has been set. To work around this, we list AC_CANONICAL_BUILD
-dnl explicitly.
-AC_CANONICAL_BUILD
-AC_CANONICAL_HOST
-])
-
 AC_DEFUN([CL_CANONICAL_HOST_CPU],
-[AC_REQUIRE([CL_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
+[AC_REQUIRE([AC_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
 case "$host_cpu" in
 changequote(,)dnl
   i[4567]86 )
@@ -212,7 +195,7 @@ EOF
 ])
 
 AC_DEFUN([CL_CANONICAL_HOST_CPU_FOR_FFCALL],
-[AC_REQUIRE([CL_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
+[AC_REQUIRE([AC_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
 case "$host_cpu" in
 changequote(,)dnl
   i[4567]86 )
