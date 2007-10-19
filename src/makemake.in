@@ -544,6 +544,7 @@ case $# in
      GROFF='@GROFF@'                     # either 'groff' or ''
      DVIPDF='@DVIPDF@'                   # either 'dvipdf' or ''
      LIBS='@LIBS@'                       # list of system libraries
+     GL_LIBOBJS='@gl_LIBOBJS@'           # list of objects from gnulib
      LIBTERMCAP='@LIBTERMCAP@'           # '-L/usr/??/lib' or 'broken' or ''
      INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
      LIBICONV='@LIBICONV@'               # either '-liconv' or ''
@@ -577,7 +578,7 @@ case $# in
      # COMPILER should be gcc or cc
      case ${TSYS} in
        win32msvc ) TOS='win32' ;;
-       *)         TOS='unix' ;;
+       *)          TOS='unix' ;;
      esac
      TSYSOS=$TSYS
      if [ $CROSS = true ] ; then
@@ -622,6 +623,7 @@ case $# in
      GROFF='groff'
      DVIPDF='dvipdf'
      LIBS=''
+     GL_LIBOBJS=''
      LIBICONV=''
      LIBSIGSEGV=''
      X_CFLAGS=''
@@ -2025,6 +2027,11 @@ else
   LIBS="\$(LIBS)"
 fi
 echol "X_LIBS = ${X_LIBS}"
+LIBOBJS=""
+for o in ${GL_LIBOBJS}; do
+   LIBOBJS=${LIBOBJS}" "gllib/$o
+done
+echol "LIBOBJS = ${LIBOBJS}"
 X_LIBS="\$(X_LIBS)"
 if [ "${with_dynamic_modules}" != no ]; then
   echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'
@@ -2507,30 +2514,31 @@ UTILCC=gcc
 EOF
 else echol "UTILCC=\$(CC)"
 fi
+UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) \$(LIBOBJS)"
 for util in ${UTILS} ; do
   case ${util} in
     ccpaux | deema | txt2c | ccmp2c )
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      echotab_to_HEXE "\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
       echol ;;
     comment5 )
       if [ $CC_NEED_CCPAUX = true ] ; then
         echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${CCPAUX}"
         echotab "${HERE}ccpaux${HEXE} < ${UTILDIR_}${util}.c > ${util}.c"
-        echotab_to_HEXE "\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
+        echotab_to_HEXE "${UTILCOMPILE}" "${util}.c" "${util}"
         echotab "\$(RM) ${util}.c"
         echol
         OBSOLETE=$OBSOLETE" ${util}.c"
       else
         echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-        echotab_to_HEXE "\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+        echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
         echol
       fi
       ;;
     gctrigger | varbrace )
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
       echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d > ${util}.c"
-      echotab_to_HEXE "\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
+      echotab_to_HEXE "${UTILCOMPILE}" "${util}.c" "${util}"
       echotab "\$(RM) ${util}.c"
       echol
       OBSOLETE=$OBSOLETE" ${util}.c" ;;
