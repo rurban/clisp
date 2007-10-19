@@ -9,16 +9,14 @@ AC_CONFIG_SRCDIR(gdbm.lisp)
 AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
-BOLD_MSG([Gdbm (Tools)])
-AC_PROG_CC
-AC_PROG_CPP
+BOLD_MSG([Gdbm (Common)])
+CL_MODULE_COMMON_CHECKS
 
 dnl Search for libgdbm and define LIBGDBM, INCGDBM.
 AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_LIB_LINKFLAGS([gdbm])
 
 BOLD_MSG([Gdbm (Headers)])
-AC_HEADER_STDC
 AC_CHECK_HEADERS(gdbm.h gdbm/gdbm.h, break)
 if test "$ac_cv_header_gdbm_h" = "no" -a "$ac_cv_header_gdbm_gdbm_h" = "no";
 then AC_MSG_ERROR([cannot find Gdbm headers])

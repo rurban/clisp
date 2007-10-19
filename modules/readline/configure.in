@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for readline
-dnl Sam Steingold 2005-2006
+dnl Sam Steingold 2005-2007
 
 AC_PREREQ(2.57)
 AC_INIT(readline, 1.0, clisp-list)
@@ -7,9 +7,8 @@ AC_CONFIG_SRCDIR(readline.lisp)
 AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
-BOLD_MSG([Readline (Tools)])
-AC_PROG_CC
-AC_PROG_CPP
+BOLD_MSG([Readline (Common)])
+CL_MODULE_COMMON_CHECKS
 
 BOLD_MSG([Readline (Headers, Variables & Functions)])
 CL_READLINE

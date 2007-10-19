@@ -1,6 +1,6 @@
 dnl AUTOCONF configuration for regex
 dnl Bruno Haible 18.4.1995
-dnl Sam Steingold 2003-2006
+dnl Sam Steingold 2003-2007
 
 AC_PREREQ(2.57)
 AC_INIT(regexp, 1.0, clisp-list)
@@ -9,11 +9,8 @@ AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
-BOLD_MSG([Regexp (Checks)])
-AC_PROG_CC
-AC_PROG_CPP
-AC_GNU_SOURCE
-AC_HEADER_STDC
+BOLD_MSG([Regexp (Common)])
+CL_MODULE_COMMON_CHECKS
 AC_CHECK_HEADERS(string.h sys/types.h)
 AM_GNU_GETTEXT([external])
 gl_C_RESTRICT

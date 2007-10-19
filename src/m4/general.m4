@@ -1,4 +1,4 @@
-dnl Copyright (C) 1993-2006 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2007 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -25,6 +25,15 @@ dnl            ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
 dnl CL_xxx_CHECK(ECHO-TEXT, CACHE-ID,
 dnl              INCLUDES, FUNCTION-BODY,
 dnl              ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
+
+AC_DEFUN([CL_MODULE_COMMON_CHECKS],
+[AC_REQUIRE([AC_PROG_CC])dnl
+AC_REQUIRE([AC_PROG_CPP])dnl
+AC_REQUIRE([AC_GNU_SOURCE])dnl
+AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])dnl
+AC_REQUIRE([AC_HEADER_STDC])dnl
+AC_REQUIRE([AC_HEADER_TIME])dnl
+])
 
 AC_DEFUN([CL_CPP_CHECK],
 [AC_MSG_CHECKING(for $1)
