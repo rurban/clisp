@@ -3,9 +3,9 @@ dnl  Bruno Haible 1992-2005
 dnl  Sam Steingold 2002-2007
 dnl
 dnl  configure.in ---<autoconf>--->> configure
-dnl
+dnl               ---<autoheader>->> config.h.in
 dnl  configure    ---<sh>--->> config.status
-dnl                      --->> config.h
+dnl          config.h.in --->> config.h
 dnl          intparam.c  --->> intparam.h
 dnl          floatparam.c--->> floatparam.h
 dnl          makemake.in --->> makemake
@@ -26,6 +26,11 @@ AC_REVISION([$Id$])dnl
 AC_CONFIG_HEADERS(config.h)
 dnl
 RSE_BOLD
+BOLD_MSG([check for host type])
+AC_CANONICAL_HOST
+dnl sets variables host, host_cpu, host_vendor, host_os
+CL_CANONICAL_HOST_CPU
+dnl
 BOLD_MSG([checks for UNIX variants that set DEFS])
 AC_AIX                   dnl DEFS _ALL_SOURCE
 AC_GNU_SOURCE            dnl DEFS _GNU_SOURCE
@@ -40,7 +45,7 @@ gl_INIT
 dnl sets variable RANLIB
 CL_PROG_RANLIB
 dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
-CL_PROG_INSTALL
+AC_PROG_INSTALL
 dnl sets variable CP
 CL_PROG_CP
 dnl sets variable LN_S
@@ -79,12 +84,6 @@ dnl LIBS -lsocket
 CL_SOCKET
 dnl final CC check
 CL_CC_WORKS
-dnl
-BOLD_MSG([check for host type])
-dnl
-CL_CANONICAL_HOST(build-aux)
-dnl sets variables host, host_cpu, host_vendor, host_os
-CL_CANONICAL_HOST_CPU
 dnl
 BOLD_MSG([check for add-ons])
 dnl
