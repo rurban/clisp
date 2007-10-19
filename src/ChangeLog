@@ -1,3 +1,23 @@
+2007-10-19  Sam Steingold  <sds@gnu.org>
+
+	autoconf cleanup
+	* ffcall/Makefile.devel (m4/install.m4): drop
+	(m4/libtool.m4): do not generate from clisp
+	* ffcall/m4/libtool.m4: use AC_CANONICAL_HOST
+	instead of CL_CANONICAL_HOST
+	* ffcall/autoconf/aclocal.m4 (m4/install.m4): drop
+	* ffcall/avcall/configure.in, ffcall/callback/configure.in:
+	* ffcall/callback/trampoline_r/configure.in:
+	* ffcall/callback/vacall_r/configure.in:
+	use AC_PROG_INSTALL instead of CL_PROG_INSTALL and
+	AC_CONFIG_AUX_DIR instead of CL_CANONICAL_HOST
+	* src/m4/general.m4: drop CL_CANONICAL_HOST, use AC_CANONICAL_HOST
+	instead; we have build-aux/install-sh anyway, so no need for the trick
+	* src/m4/install.m4, src/m4/lib-ld.m4, src/m4/libtool.m4: drop unused
+	* src/configure.in: use AC_CANONICAL_HOST & CL_CANONICAL_HOST_CPU
+	instead of CL_CANONICAL_HOST;
+	and AC_PROG_INSTALL instead of CL_PROG_INSTALL
+
 2007-10-18  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.c (check_gdbm, open_gdbm): support g++ compilation
