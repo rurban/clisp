@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for Rawsock
-dnl Sam Steingold 2004-2006
+dnl Sam Steingold 2004-2007
 
 AC_PREREQ(2.57)
 AC_INIT(rawsock, 1.0, clisp-list)
@@ -7,13 +7,10 @@ AC_CONFIG_SRCDIR(sock.lisp)
 AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
-BOLD_MSG([Rawsock (Tools)])
-AC_PROG_CC
-AC_PROG_CPP
+BOLD_MSG([Rawsock (Common)])
+CL_MODULE_COMMON_CHECKS
 
 BOLD_MSG([Rawsock (Headers)])
-AC_HEADER_STDC
-AC_HEADER_TIME
 CL_TCPCONN
 AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h netdb.h sys/uio.h \
 sys/types.h sys/ioctl.h errno.h stropts.h poll.h sys/un.h ifaddrs.h])
