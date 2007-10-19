@@ -8,13 +8,10 @@ AC_CONFIG_SRCDIR(posix.lisp)
 AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
-BOLD_MSG([System Calls (Tools)])
-AC_PROG_CC
-AC_PROG_CPP
+BOLD_MSG([System Calls (Common checks)])
+CL_MODULE_COMMON_CHECKS
 
 BOLD_MSG([System Calls (Headers)])
-AC_HEADER_STDC
-AC_HEADER_TIME
 CL_UTSNAME
 AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
 pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h dnl

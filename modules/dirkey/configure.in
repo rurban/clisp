@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for dirkey
-dnl Copyright (C) 2003-2006  Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2007 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -8,13 +8,11 @@ AC_CONFIG_SRCDIR(dirkey1.lisp)
 AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
-BOLD_MSG([Dirkey (Tools)])
-AC_PROG_CC
-AC_PROG_CPP
+BOLD_MSG([Dirkey (Common)])
+CL_MODULE_COMMON_CHECKS
 
 BOLD_MSG([Dirkey (Headers)])
-AC_HEADER_STDC
-AC_CHECK_HEADERS(ldap.h gnome.h)
+AC_CHECK_HEADERS([ldap.h gnome.h])
 
 BOLD_MSG([Dirkey (Output)])
 AC_CONFIG_FILES(Makefile)

@@ -1,5 +1,17 @@
 2007-10-19  Sam Steingold  <sds@gnu.org>
 
+	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): added
+	* modules/berkeley-db/configure.in, modules/dirkey/configure.in:
+        * modules/gdbm/configure.in, modules/gtk2/configure.in:
+        * modules/i18n/configure.in, modules/pari/configure.in:
+        * modules/pcre/configure.in, modules/postgresql/configure.in:
+        * modules/rawsock/configure.in, modules/readline/configure.in
+        * modules/regexp/configure.in, modules/syscalls/configure.in
+        * modules/wildcard/configure.in, modules/zlib/configure.in: use it
+
+
+2007-10-19  Sam Steingold  <sds@gnu.org>
+
 	autoconf cleanup
 	* ffcall/Makefile.devel (m4/install.m4): drop
 	(m4/libtool.m4): do not generate from clisp

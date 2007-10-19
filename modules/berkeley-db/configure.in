@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for Berkeley-DB
-dnl Copyright (C) 2003-2006  Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2007 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -8,17 +8,14 @@ AC_CONFIG_SRCDIR(dbi.lisp)
 AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
-BOLD_MSG([Berkeley-DB (Tools)])
-AC_PROG_CC
-AC_PROG_CPP
+BOLD_MSG([Berkeley-DB (Common)])
+CL_MODULE_COMMON_CHECKS
 
 dnl Search for libdb and define LIBDB, LTLIBDB and INCDB.
 AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_LIB_LINKFLAGS([db])
 
 BOLD_MSG([Berkeley-DB (Headers)])
-AC_HEADER_STDC
-AC_HEADER_TIME
 AC_CHECK_HEADERS(sys/time.h time.h)
 AC_CHECK_HEADERS(db.h)
 if test "$ac_cv_header_db_h" = "no"; then
