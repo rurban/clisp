@@ -18455,6 +18455,7 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 
+
 echo "$as_me:$LINENO: checking for pcc non-reentrant struct return convention" >&5
 echo $ECHO_N "checking for pcc non-reentrant struct return convention... $ECHO_C" >&6
 if test "${cl_cv_c_struct_return_static+set}" = set; then

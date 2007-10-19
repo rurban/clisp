@@ -2834,200 +2834,295 @@ echo "${ECHO_T}no" >&6
 fi
 LN_S="$cl_cv_prog_LN_S"
 
-echo "$as_me:$LINENO: checking for working void" >&5
-echo $ECHO_N "checking for working void... $ECHO_C" >&6
-if test "${cl_cv_c_void+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-int
-main ()
-{
-void f();
-typedef void x; x g();
-typedef void* y; y a;
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  cl_cv_c_void=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-cl_cv_c_void=no
-fi
-rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
-
-fi
-
-echo "$as_me:$LINENO: result: $cl_cv_c_void" >&5
-echo "${ECHO_T}$cl_cv_c_void" >&6
-if test $cl_cv_c_void = yes; then
-  have_void=1
-else
-
-cat >>confdefs.h <<\_ACEOF
-#define void char
-_ACEOF
-
-fi
-if test -n "$have_void"; then
-echo "$as_me:$LINENO: checking for working \"return void\"" >&5
-echo $ECHO_N "checking for working \"return void\"... $ECHO_C" >&6
-if test "${cl_cv_c_return_void+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-void f() {} typedef void x; x g() { return f(); }
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  cl_cv_c_return_void=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-cl_cv_c_return_void=no
-fi
-rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
-
-fi
-
-echo "$as_me:$LINENO: result: $cl_cv_c_return_void" >&5
-echo "${ECHO_T}$cl_cv_c_return_void" >&6
-if test $cl_cv_c_return_void = yes; then
-  cl_cv_c_return_void_form=return
-else
-  cl_cv_c_return_void_form=""
-fi
-
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define return_void $cl_cv_c_return_void_form
-_ACEOF
-
-
-echo "$as_me:$LINENO: checking for ANSI C header files" >&5
-echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6
-if test "${cl_cv_header_stdc+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <float.h>
-#include <limits.h>
-_ACEOF
-if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
-  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } >/dev/null; then
-  if test -s conftest.err; then
-    ac_cpp_err=$ac_c_preproc_warn_flag
-    ac_cpp_err=$ac_cpp_err$ac_c_werror_flag
-  else
-    ac_cpp_err=
+ac_aux_dir=
+for ac_dir in ../build-aux $srcdir/../build-aux; do
+  if test -f $ac_dir/install-sh; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/install-sh -c"
+    break
+  elif test -f $ac_dir/install.sh; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/install.sh -c"
+    break
+  elif test -f $ac_dir/shtool; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/shtool install -c"
+    break
   fi
+done
+if test -z "$ac_aux_dir"; then
+  { { echo "$as_me:$LINENO: error: cannot find install-sh or install.sh in ../build-aux $srcdir/../build-aux" >&5
+echo "$as_me: error: cannot find install-sh or install.sh in ../build-aux $srcdir/../build-aux" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+ac_config_guess="$SHELL $ac_aux_dir/config.guess"
+ac_config_sub="$SHELL $ac_aux_dir/config.sub"
+ac_configure="$SHELL $ac_aux_dir/configure" # This should be Cygnus configure.
+
+# Make sure we can run config.sub.
+$ac_config_sub sun4 >/dev/null 2>&1 ||
+  { { echo "$as_me:$LINENO: error: cannot run $ac_config_sub" >&5
+echo "$as_me: error: cannot run $ac_config_sub" >&2;}
+   { (exit 1); exit 1; }; }
+
+echo "$as_me:$LINENO: checking build system type" >&5
+echo $ECHO_N "checking build system type... $ECHO_C" >&6
+if test "${ac_cv_build+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  ac_cpp_err=yes
+  ac_cv_build_alias=$build_alias
+test -z "$ac_cv_build_alias" &&
+  ac_cv_build_alias=`$ac_config_guess`
+test -z "$ac_cv_build_alias" &&
+  { { echo "$as_me:$LINENO: error: cannot guess build type; you must specify one" >&5
+echo "$as_me: error: cannot guess build type; you must specify one" >&2;}
+   { (exit 1); exit 1; }; }
+ac_cv_build=`$ac_config_sub $ac_cv_build_alias` ||
+  { { echo "$as_me:$LINENO: error: $ac_config_sub $ac_cv_build_alias failed" >&5
+echo "$as_me: error: $ac_config_sub $ac_cv_build_alias failed" >&2;}
+   { (exit 1); exit 1; }; }
+
 fi
-if test -z "$ac_cpp_err"; then
-  cl_cv_header_stdc=yes
+echo "$as_me:$LINENO: result: $ac_cv_build" >&5
+echo "${ECHO_T}$ac_cv_build" >&6
+build=$ac_cv_build
+build_cpu=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+build_vendor=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
+build_os=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
+
+
+echo "$as_me:$LINENO: checking host system type" >&5
+echo $ECHO_N "checking host system type... $ECHO_C" >&6
+if test "${ac_cv_host+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
+  ac_cv_host_alias=$host_alias
+test -z "$ac_cv_host_alias" &&
+  ac_cv_host_alias=$ac_cv_build_alias
+ac_cv_host=`$ac_config_sub $ac_cv_host_alias` ||
+  { { echo "$as_me:$LINENO: error: $ac_config_sub $ac_cv_host_alias failed" >&5
+echo "$as_me: error: $ac_config_sub $ac_cv_host_alias failed" >&2;}
+   { (exit 1); exit 1; }; }
 
-  cl_cv_header_stdc=no
 fi
-rm -f conftest.err conftest.$ac_ext
+echo "$as_me:$LINENO: result: $ac_cv_host" >&5
+echo "${ECHO_T}$ac_cv_host" >&6
+host=$ac_cv_host
+host_cpu=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+host_vendor=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
+host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
-fi
 
-echo "$as_me:$LINENO: result: $cl_cv_header_stdc" >&5
-echo "${ECHO_T}$cl_cv_header_stdc" >&6
-if test $cl_cv_header_stdc = yes; then
-  cat >>confdefs.h <<\_ACEOF
-#define STDC_HEADERS 1
+
+case "$host_cpu" in
+  i[4567]86 )
+    host_cpu_abi=i386
+    ;;
+  alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
+    host_cpu_abi=alpha
+    ;;
+  hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
+    host_cpu_abi=hppa
+    ;;
+  rs6000 )
+    host_cpu_abi=powerpc
+    ;;
+  c1 | c2 | c32 | c34 | c38 | c4 )
+    host_cpu_abi=convex
+    ;;
+  arm* )
+    host_cpu_abi=arm
+    ;;
+  mips )
+    echo "$as_me:$LINENO: checking for 64-bit MIPS" >&5
+echo $ECHO_N "checking for 64-bit MIPS... $ECHO_C" >&6
+if test "${cl_cv_host_mips64+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
 _ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#if defined(_MIPS_SZLONG)
+#if (_MIPS_SZLONG == 64)
+/* We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32. */
+  yes
+#endif
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then
+  cl_cv_host_mips64=yes
+else
+  cl_cv_host_mips64=no
+fi
+rm -f conftest*
+
 
 fi
+echo "$as_me:$LINENO: result: $cl_cv_host_mips64" >&5
+echo "${ECHO_T}$cl_cv_host_mips64" >&6
+if test $cl_cv_host_mips64 = yes; then
+  host_cpu_abi=mips64
+else
+  echo "$as_me:$LINENO: checking for MIPS with n32 ABI" >&5
+echo $ECHO_N "checking for MIPS with n32 ABI... $ECHO_C" >&6
+if test "${cl_cv_host_mipsn32+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
 
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#if __mips >= 3
+  yes
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then
+  cl_cv_host_mipsn32=yes
+else
+  cl_cv_host_mipsn32=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$as_me:$LINENO: result: $cl_cv_host_mipsn32" >&5
+echo "${ECHO_T}$cl_cv_host_mipsn32" >&6
+if test $cl_cv_host_mipsn32 = yes; then
+  host_cpu_abi=mipsn32
+else
+  host_cpu_abi=mips
+fi
+fi
+    ;;
+  powerpc64 )
+    echo "$as_me:$LINENO: checking for 64-bit PowerPC" >&5
+echo $ECHO_N "checking for 64-bit PowerPC... $ECHO_C" >&6
+if test "${cl_cv_host_powerpc64+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#if defined(__powerpc64__) || defined(_ARCH_PPC64)
+  yes
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then
+  cl_cv_host_powerpc64=yes
+else
+  cl_cv_host_powerpc64=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$as_me:$LINENO: result: $cl_cv_host_powerpc64" >&5
+echo "${ECHO_T}$cl_cv_host_powerpc64" >&6
+if test $cl_cv_host_powerpc64 = yes; then
+  host_cpu_abi=powerpc64
+else
+  host_cpu_abi=powerpc
+fi
+    ;;
+  sparc | sparc64 )
+    echo "$as_me:$LINENO: checking for 64-bit SPARC" >&5
+echo $ECHO_N "checking for 64-bit SPARC... $ECHO_C" >&6
+if test "${cl_cv_host_sparc64+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#if defined(__sparcv9) || defined(__arch64__)
+  yes
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then
+  cl_cv_host_sparc64=yes
+else
+  cl_cv_host_sparc64=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$as_me:$LINENO: result: $cl_cv_host_sparc64" >&5
+echo "${ECHO_T}$cl_cv_host_sparc64" >&6
+if test $cl_cv_host_sparc64 = yes; then
+  host_cpu_abi=sparc64
+else
+  host_cpu_abi=sparc
+fi
+    ;;
+  x86_64 )
+    echo "$as_me:$LINENO: checking for 64-bit x86_64" >&5
+echo $ECHO_N "checking for 64-bit x86_64... $ECHO_C" >&6
+if test "${cl_cv_host_x86_64+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#if defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
+  yes
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then
+  cl_cv_host_x86_64=yes
+else
+  cl_cv_host_x86_64=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$as_me:$LINENO: result: $cl_cv_host_x86_64" >&5
+echo "${ECHO_T}$cl_cv_host_x86_64" >&6
+if test $cl_cv_host_x86_64 = yes; then
+  host_cpu_abi=x86_64
+else
+  host_cpu_abi=i386
+fi
+    ;;
+  *)
+    host_cpu_abi=$host_cpu
+    ;;
+esac
+
+cat >> confdefs.h <<EOF
+#ifndef __${host_cpu_abi}__
+#define __${host_cpu_abi}__ 1
+#endif
+EOF
 
 echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6
@@ -3416,6 +3511,201 @@ _ACEOF
 fi
 
 done
+
+echo "$as_me:$LINENO: checking for working void" >&5
+echo $ECHO_N "checking for working void... $ECHO_C" >&6
+if test "${cl_cv_c_void+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+int
+main ()
+{
+void f();
+typedef void x; x g();
+typedef void* y; y a;
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_c_void=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+cl_cv_c_void=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+
+echo "$as_me:$LINENO: result: $cl_cv_c_void" >&5
+echo "${ECHO_T}$cl_cv_c_void" >&6
+if test $cl_cv_c_void = yes; then
+  have_void=1
+else
+
+cat >>confdefs.h <<\_ACEOF
+#define void char
+_ACEOF
+
+fi
+if test -n "$have_void"; then
+echo "$as_me:$LINENO: checking for working \"return void\"" >&5
+echo $ECHO_N "checking for working \"return void\"... $ECHO_C" >&6
+if test "${cl_cv_c_return_void+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+void f() {} typedef void x; x g() { return f(); }
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_c_return_void=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+cl_cv_c_return_void=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+
+echo "$as_me:$LINENO: result: $cl_cv_c_return_void" >&5
+echo "${ECHO_T}$cl_cv_c_return_void" >&6
+if test $cl_cv_c_return_void = yes; then
+  cl_cv_c_return_void_form=return
+else
+  cl_cv_c_return_void_form=""
+fi
+
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define return_void $cl_cv_c_return_void_form
+_ACEOF
+
+
+echo "$as_me:$LINENO: checking for ANSI C header files" >&5
+echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6
+if test "${cl_cv_header_stdc+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <float.h>
+#include <limits.h>
+_ACEOF
+if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+    ac_cpp_err=$ac_cpp_err$ac_c_werror_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  cl_cv_header_stdc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  cl_cv_header_stdc=no
+fi
+rm -f conftest.err conftest.$ac_ext
+
+fi
+
+echo "$as_me:$LINENO: result: $cl_cv_header_stdc" >&5
+echo "${ECHO_T}$cl_cv_header_stdc" >&6
+if test $cl_cv_header_stdc = yes; then
+  cat >>confdefs.h <<\_ACEOF
+#define STDC_HEADERS 1
+_ACEOF
+
+fi
+
 
 
 echo "$as_me:$LINENO: checking for getpagesize" >&5
@@ -6082,296 +6372,6 @@ done
   *) ;;
 esac
 
-ac_aux_dir=
-for ac_dir in ../build-aux $srcdir/../build-aux; do
-  if test -f $ac_dir/install-sh; then
-    ac_aux_dir=$ac_dir
-    ac_install_sh="$ac_aux_dir/install-sh -c"
-    break
-  elif test -f $ac_dir/install.sh; then
-    ac_aux_dir=$ac_dir
-    ac_install_sh="$ac_aux_dir/install.sh -c"
-    break
-  elif test -f $ac_dir/shtool; then
-    ac_aux_dir=$ac_dir
-    ac_install_sh="$ac_aux_dir/shtool install -c"
-    break
-  fi
-done
-if test -z "$ac_aux_dir"; then
-  { { echo "$as_me:$LINENO: error: cannot find install-sh or install.sh in ../build-aux $srcdir/../build-aux" >&5
-echo "$as_me: error: cannot find install-sh or install.sh in ../build-aux $srcdir/../build-aux" >&2;}
-   { (exit 1); exit 1; }; }
-fi
-ac_config_guess="$SHELL $ac_aux_dir/config.guess"
-ac_config_sub="$SHELL $ac_aux_dir/config.sub"
-ac_configure="$SHELL $ac_aux_dir/configure" # This should be Cygnus configure.
-
-# Make sure we can run config.sub.
-$ac_config_sub sun4 >/dev/null 2>&1 ||
-  { { echo "$as_me:$LINENO: error: cannot run $ac_config_sub" >&5
-echo "$as_me: error: cannot run $ac_config_sub" >&2;}
-   { (exit 1); exit 1; }; }
-
-echo "$as_me:$LINENO: checking build system type" >&5
-echo $ECHO_N "checking build system type... $ECHO_C" >&6
-if test "${ac_cv_build+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_cv_build_alias=$build_alias
-test -z "$ac_cv_build_alias" &&
-  ac_cv_build_alias=`$ac_config_guess`
-test -z "$ac_cv_build_alias" &&
-  { { echo "$as_me:$LINENO: error: cannot guess build type; you must specify one" >&5
-echo "$as_me: error: cannot guess build type; you must specify one" >&2;}
-   { (exit 1); exit 1; }; }
-ac_cv_build=`$ac_config_sub $ac_cv_build_alias` ||
-  { { echo "$as_me:$LINENO: error: $ac_config_sub $ac_cv_build_alias failed" >&5
-echo "$as_me: error: $ac_config_sub $ac_cv_build_alias failed" >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-echo "$as_me:$LINENO: result: $ac_cv_build" >&5
-echo "${ECHO_T}$ac_cv_build" >&6
-build=$ac_cv_build
-build_cpu=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
-build_vendor=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
-build_os=`echo $ac_cv_build | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
-
-
-echo "$as_me:$LINENO: checking host system type" >&5
-echo $ECHO_N "checking host system type... $ECHO_C" >&6
-if test "${ac_cv_host+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_cv_host_alias=$host_alias
-test -z "$ac_cv_host_alias" &&
-  ac_cv_host_alias=$ac_cv_build_alias
-ac_cv_host=`$ac_config_sub $ac_cv_host_alias` ||
-  { { echo "$as_me:$LINENO: error: $ac_config_sub $ac_cv_host_alias failed" >&5
-echo "$as_me: error: $ac_config_sub $ac_cv_host_alias failed" >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-echo "$as_me:$LINENO: result: $ac_cv_host" >&5
-echo "${ECHO_T}$ac_cv_host" >&6
-host=$ac_cv_host
-host_cpu=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
-host_vendor=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
-host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
-
-
-
-case "$host_cpu" in
-  i[4567]86 )
-    host_cpu_abi=i386
-    ;;
-  alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
-    host_cpu_abi=alpha
-    ;;
-  hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
-    host_cpu_abi=hppa
-    ;;
-  rs6000 )
-    host_cpu_abi=powerpc
-    ;;
-  c1 | c2 | c32 | c34 | c38 | c4 )
-    host_cpu_abi=convex
-    ;;
-  arm* )
-    host_cpu_abi=arm
-    ;;
-  mips )
-    echo "$as_me:$LINENO: checking for 64-bit MIPS" >&5
-echo $ECHO_N "checking for 64-bit MIPS... $ECHO_C" >&6
-if test "${cl_cv_host_mips64+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#if defined(_MIPS_SZLONG)
-#if (_MIPS_SZLONG == 64)
-/* We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32. */
-  yes
-#endif
-#endif
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "yes" >/dev/null 2>&1; then
-  cl_cv_host_mips64=yes
-else
-  cl_cv_host_mips64=no
-fi
-rm -f conftest*
-
-
-fi
-echo "$as_me:$LINENO: result: $cl_cv_host_mips64" >&5
-echo "${ECHO_T}$cl_cv_host_mips64" >&6
-if test $cl_cv_host_mips64 = yes; then
-  host_cpu_abi=mips64
-else
-  echo "$as_me:$LINENO: checking for MIPS with n32 ABI" >&5
-echo $ECHO_N "checking for MIPS with n32 ABI... $ECHO_C" >&6
-if test "${cl_cv_host_mipsn32+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#if __mips >= 3
-  yes
-#endif
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "yes" >/dev/null 2>&1; then
-  cl_cv_host_mipsn32=yes
-else
-  cl_cv_host_mipsn32=no
-fi
-rm -f conftest*
-
-
-fi
-echo "$as_me:$LINENO: result: $cl_cv_host_mipsn32" >&5
-echo "${ECHO_T}$cl_cv_host_mipsn32" >&6
-if test $cl_cv_host_mipsn32 = yes; then
-  host_cpu_abi=mipsn32
-else
-  host_cpu_abi=mips
-fi
-fi
-    ;;
-  powerpc64 )
-    echo "$as_me:$LINENO: checking for 64-bit PowerPC" >&5
-echo $ECHO_N "checking for 64-bit PowerPC... $ECHO_C" >&6
-if test "${cl_cv_host_powerpc64+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#if defined(__powerpc64__) || defined(_ARCH_PPC64)
-  yes
-#endif
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "yes" >/dev/null 2>&1; then
-  cl_cv_host_powerpc64=yes
-else
-  cl_cv_host_powerpc64=no
-fi
-rm -f conftest*
-
-
-fi
-echo "$as_me:$LINENO: result: $cl_cv_host_powerpc64" >&5
-echo "${ECHO_T}$cl_cv_host_powerpc64" >&6
-if test $cl_cv_host_powerpc64 = yes; then
-  host_cpu_abi=powerpc64
-else
-  host_cpu_abi=powerpc
-fi
-    ;;
-  sparc | sparc64 )
-    echo "$as_me:$LINENO: checking for 64-bit SPARC" >&5
-echo $ECHO_N "checking for 64-bit SPARC... $ECHO_C" >&6
-if test "${cl_cv_host_sparc64+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#if defined(__sparcv9) || defined(__arch64__)
-  yes
-#endif
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "yes" >/dev/null 2>&1; then
-  cl_cv_host_sparc64=yes
-else
-  cl_cv_host_sparc64=no
-fi
-rm -f conftest*
-
-
-fi
-echo "$as_me:$LINENO: result: $cl_cv_host_sparc64" >&5
-echo "${ECHO_T}$cl_cv_host_sparc64" >&6
-if test $cl_cv_host_sparc64 = yes; then
-  host_cpu_abi=sparc64
-else
-  host_cpu_abi=sparc
-fi
-    ;;
-  x86_64 )
-    echo "$as_me:$LINENO: checking for 64-bit x86_64" >&5
-echo $ECHO_N "checking for 64-bit x86_64... $ECHO_C" >&6
-if test "${cl_cv_host_x86_64+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#if defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
-  yes
-#endif
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "yes" >/dev/null 2>&1; then
-  cl_cv_host_x86_64=yes
-else
-  cl_cv_host_x86_64=no
-fi
-rm -f conftest*
-
-
-fi
-echo "$as_me:$LINENO: result: $cl_cv_host_x86_64" >&5
-echo "${ECHO_T}$cl_cv_host_x86_64" >&6
-if test $cl_cv_host_x86_64 = yes; then
-  host_cpu_abi=x86_64
-else
-  host_cpu_abi=i386
-fi
-    ;;
-  *)
-    host_cpu_abi=$host_cpu
-    ;;
-esac
-
-cat >> confdefs.h <<EOF
-#ifndef __${host_cpu_abi}__
-#define __${host_cpu_abi}__ 1
-#endif
-EOF
-
 echo "$as_me:$LINENO: checking whether code in malloc'ed memory is executable" >&5
 echo $ECHO_N "checking whether code in malloc'ed memory is executable... $ECHO_C" >&6
 if test "${cl_cv_codeexec+set}" = set; then
@@ -6529,6 +6529,7 @@ _ACEOF
  ;;
   *no)  ;;
 esac
+
 
 CPU_OBJECTS=''
 if test ${host_cpu_abi} = hppa -o ${host_cpu_abi} = powerpc64 -o ${host_cpu_abi} = ia64; then
