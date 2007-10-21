@@ -9,12 +9,18 @@
 #include <stdlib.h>             /* declare malloc(), free() */
 #include <stdio.h>              /* BUFSIZ */
 #include <regex.h>
+#if defined(HAVE_ALLOCA_H)
+# include <alloca.h>
+#endif
 
 #ifndef FOREIGN
 #error FOREIGN is not defined.
 #error REGEXP needs a CLISP built with the foreign pointer datatype support.
 #error Go into the main CLISP makefile and add a -DFOREIGN=void*
 #error to CFLAGS make variable and rebuild CLISP before coming back here.
+#endif
+#ifndef HAVE_ALLOCA
+/* clisp.h probably defines alloca... */
 #endif
 
 DEFMODULE(regexp,"REGEXP")

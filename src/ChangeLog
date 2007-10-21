@@ -2,6 +2,7 @@
 
 	* modules/regexp/configure.in (REGEX_H, ALLOCA): drop unused variables
 	* modules/regexp/link.sh.in (ALLOCA): drop useless variable
+	* modules/regexp/regexi.c [HAVE_ALLOCA_H]: include <alloca.h>
 
 2007-10-19  Sam Steingold  <sds@gnu.org>
 
