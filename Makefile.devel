@@ -9,6 +9,7 @@ MAKE = make
 PERL = perl
 GROFF = nroff -man
 # GROFF = groff -mandoc
+RM = rm -f
 
 all : makefiles check-configures update-ansi-tests update-docbook-utils     \
 	fixperms                                                            \
@@ -85,6 +86,7 @@ configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN) src/gllib/M
 
 src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 			$(addsuffix .in,$(CLISP_CONFIGURES))
+	$(RM) configure.ac
 	cp src/configure.in configure.ac
 	cat $(addsuffix .in,$(MOD_CONFIGURES)) | \
 	egrep -v -e 'AC_(INIT|PREREQ|CANONICAL_|GNU_SOURCE|CONFIG_HEADER|OUTPUT)' \
@@ -358,11 +360,11 @@ GNULIB_HOME=../../gnulib/gnulib
 AUX_REQ=config.guess config.rpath config.sub depcomp install-sh missing
 gnulib-update : force
 	for f in $(AUX_REQ); do cp -afuv $(GNULIB_HOME)/build-aux/$$f src/build-aux; done
-	rm -fv configure.ac; ln -sv src/configure.in configure.ac
+	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(GNULIB_HOME)/gnulib-tool --import --source-base=src/gllib \
 		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
 		stdint stdbool regex fnmatch-gnu havelib gettext
-	rm -fv configure.ac
+	$(RM) configure.ac
 
 distrib : fixperms src-distrib doc-distrib gnu-distrib
 
@@ -445,14 +447,14 @@ src-distrib : force
 	mkdir -p $(ARCHIVE)
 	ln -s . $(TOPDIR)
 	tar cvfhj $(SRC_DIST) $(EXCLUDE) $(SOURCES)
-	rm -f $(TOPDIR)
+	$(RM) $(TOPDIR)
 	echo $(SRC_DIST)
 
 doc-distrib : force
 	mkdir -p $(ARCHIVE)
 	ln -s . $(TOPDIR)
 	zip -9vor $(DOC_DIST) $(TOPDIR)/doc/html -x \*.cvsignore -x \*.symlinks -x \*CVS\*
-	rm -f $(TOPDIR)
+	$(RM) $(TOPDIR)
 
 # http://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
 GPG=gpg --use-agent --yes
@@ -461,14 +463,14 @@ gnu-distrib : $(SRC_DIST1) force
 	cp -f src/NEWS SUMMARY $(ARCHIVE)
 	for f in $(GNU_DIST); do $(GPG) -b $$f; done
 	for f in $(GNU_TOP); do \
-		rm -f $$f.directive; \
+		$(RM) $$f.directive; \
 		echo "version: 1.1" >> $$f.directive; \
 		echo "directory: clisp" >> $$f.directive; \
 		echo "filename: "`basename $$f` >> $$f.directive; \
 		$(GPG) --clearsign $$f.directive; \
 	done
 	for f in $(GNU_SRC); do \
-		rm -f $$f.directive; \
+		$(RM) $$f.directive; \
 		echo "version: 1.1" >> $$f.directive; \
 		echo "directory: clisp/release/$(VER)" >> $$f.directive; \
 		echo "filename: "`basename $$f` >> $$f.directive; \
@@ -495,6 +497,6 @@ tp-mail : force
 	echo "Location: http://clisp.podval.org/`basename $$f`" >> $(MESSAGE_FILE); \
 	cat $(MESSAGE_FILE); \
 	mail -s "New CLISP pre-release is available" $(TP_EMAIL) < $(MESSAGE_FILE)
-	rm -f $(MESSAGE_FILE)
+	$(RM) $(MESSAGE_FILE)
 
 force :
