@@ -4,12 +4,28 @@
 SHELL = /bin/sh
 MAKE = make
 
-all : autoconf/aclocal.m4 configures avcall/avcall.h.msvc avcall/avcall.h.mingw32 avcall/avcall-i386-msvc.c avcall/avcall-i386-mingw32.c vacall/config.h.msvc vacall/config.h.mingw32 vacall/vacall.h.msvc vacall/vacall.h.mingw32 vacall/vacall-i386-msvc.c vacall/vacall-i386-mingw32.c trampoline/config.h.msvc trampoline/config.h.mingw32 callback/vacall_r/config.h.msvc callback/vacall_r/config.h.mingw32 callback/vacall_r/vacall_r.h.msvc callback/vacall_r/vacall_r.h.mingw32 callback/vacall_r/vacall-i386-msvc.c callback/trampoline_r/config.h.msvc callback/trampoline_r/config.h.mingw32
+all : autoconf/aclocal.m4 configures \
+	avcall/avcall.h.msvc avcall/avcall.h.mingw32 \
+	avcall/avcall-i386-msvc.c avcall/avcall-i386-mingw32.c \
+	vacall/config.h.msvc vacall/config.h.mingw32 vacall/vacall.h.msvc \
+	vacall/vacall.h.mingw32 vacall/vacall-i386-msvc.c \
+	vacall/vacall-i386-mingw32.c \
+	trampoline/config.h.msvc trampoline/config.h.mingw32 \
+	callback/vacall_r/config.h.msvc callback/vacall_r/config.h.mingw32 \
+	callback/vacall_r/vacall_r.h.msvc \
+	callback/vacall_r/vacall_r.h.mingw32 \
+	callback/vacall_r/vacall-i386-msvc.c \
+	callback/trampoline_r/config.h.msvc \
+	callback/trampoline_r/config.h.mingw32 \
+	build-aux/config.guess build-aux/config.sub build-aux/ltmain.sh \
+	build-aux/install-sh
 
 CONFIGURES = configure avcall/configure vacall/configure trampoline/configure callback/configure callback/vacall_r/configure callback/trampoline_r/configure
 CONFIGURES_IN = configure.in avcall/configure.in vacall/configure.in trampoline/configure.in callback/configure.in callback/vacall_r/configure.in callback/trampoline_r/configure.in
 
 CLISP_DIR = ..
+
+build-aux/% : $(CLISP_DIR)/src/build-aux/% ; cp -p $< $@-t && mv $@-t $@
 
 m4/general.m4 : $(CLISP_DIR)/src/m4/general.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/proto.m4 : $(CLISP_DIR)/src/m4/proto.m4 ; cp -p $< $@-t && mv $@-t $@
