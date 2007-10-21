@@ -5,6 +5,7 @@
 	(make_font_with_info): renamed to make_font; do not accept info
 	(LIST-FONTS): do not fill XFontStruct (FONT-INFO) because it
 	introduces a memory leak
+	(CLOSE-FONT): call DISCARD-FONT-INFO
 
 2007-10-20  Sam Steingold  <sds@gnu.org>
 
