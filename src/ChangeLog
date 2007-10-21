@@ -1,6 +1,7 @@
 2007-10-19  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/configure.in (REGEX_H, ALLOCA): drop unused variables
+	* modules/regexp/link.sh.in (ALLOCA): drop useless variable
 
 2007-10-19  Sam Steingold  <sds@gnu.org>
 
