@@ -992,12 +992,12 @@ static Font get_font (object obj);
 static XFontStruct *get_font_info_and_display (object obj, object* fontf,
                                                Display **dpyf)
 { /* Fetches the font information from a font, if it isn't there
-      already, query the server for it.
-      Further more if a gcontext is passed in, fetch its font slot instead.
-      Does type checking and raises error if unappropriate object passed in.
-      If 'fontf' is non-0, also the font as a Lisp object is returned.
-      If 'dpyf' is non-0, also the display of the font is returned and it is
-      ensured that the display actually lives. */
+     already, query the server for it.
+     Further more if a gcontext is passed in, fetch its font slot instead.
+     Does type checking and raises error if unappropriate object passed in.
+     If 'fontf' is non-0, also the font as a Lisp object is returned.
+     If 'dpyf' is non-0, also the display of the font is returned and it is
+     ensured that the display actually lives. */
   XFontStruct *info;
   Display *dpy;
   Font font;
@@ -3958,7 +3958,7 @@ static void general_draw_text (int image_p)
 
   {
     object font;
-    XFontStruct* font_info = get_font_info_and_display(STACK_8,&font,0);
+    XFontStruct* font_info = get_font_info_and_display(STACK_8,&font,NULL);
     uintL len, offset;
     object s_string = unpack_string_ro(STACK_5,&len,&offset);
     const chart* charptr;
@@ -4413,25 +4413,17 @@ DEFUN(XLIB:OPEN-FONT, display font)
 DEFUN(XLIB:CLOSE-FONT, font)
 { /* FIXME: The manual says something about that fonts are reference
     counted..? */
-
   Display *dpy;
   Font    font = get_font_and_display (STACK_0, &dpy);
-
   X_CALL(XUnloadFont (dpy, font));
-
-  VALUES1(NIL);
-  skipSTACK(1);
+  funcall(``XLIB:DISCARD-FONT-INFO``,1);
 }
 
 DEFUN(XLIB:DISCARD-FONT-INFO, font)
 {
-  XFontStruct *info;
-
-  info = (XFontStruct*) foreign_slot(STACK_0,`XLIB::FONT-INFO`);
+  XFontStruct *info = (XFontStruct*) foreign_slot(STACK_0,`XLIB::FONT-INFO`);
   TheFpointer(value1)->fp_pointer = NULL; /* No longer valid */
-
   if (info) X_CALL(XFreeFontInfo (NULL, info, 1));
-
   skipSTACK(1);
   VALUES1(NIL);
 }
@@ -4473,8 +4465,8 @@ void coerce_into_path (void *arg, object element) {
   }
 }
 
-/*  (SETF (XLIB:FONT-PATH display) new-path)
-   == (XLIB:SET-FONT-PATH display  new-path)
+/* (SETF (XLIB:FONT-PATH display) new-path)
+  == (XLIB:SET-FONT-PATH display  new-path)
 
   NOTE  - The CLX manual says that pathnames are also o.k. as arguments.
           But I consider it dirty, since the X server may live on an
@@ -4555,11 +4547,11 @@ DEFUN(XLIB:LIST-FONTS, display pattern &key MAX-FONTS RESULT-TYPE)
 
 /* 8.4  Font Attributes */
 
-##define DEF_FONT_ATTR(lspnam, type, cnam)                              \
-      DEFUN(XLIB:##lspnam, font) {                                      \
-        XFontStruct *info = get_font_info_and_display (STACK_0, 0, 0);  \
-        VALUES1(make_##type(info->cnam));                               \
-        skipSTACK(1);                                                   \
+##define DEF_FONT_ATTR(lspnam, type, cnam)                                \
+      DEFUN(XLIB:##lspnam, font) {                                        \
+        XFontStruct *info = get_font_info_and_display(STACK_0,NULL,NULL); \
+        VALUES1(make_##type(info->cnam));                                 \
+        skipSTACK(1);                                                     \
       }
 
 /* ------------------------------------------------------------------------
@@ -4600,7 +4592,7 @@ DEFUN(XLIB:FONT-NAME, font)
 DEFUN(XLIB:FONT-PROPERTIES, font)
 {
   Display *dpy;
-  XFontStruct *font_struct = get_font_info_and_display (STACK_0, 0, &dpy);
+  XFontStruct *font_struct = get_font_info_and_display (STACK_0, NULL, &dpy);
   int i;
 
   for (i = 0; i < font_struct->n_properties; i++) {
@@ -4615,7 +4607,7 @@ DEFUN(XLIB:FONT-PROPERTIES, font)
 DEFUN(XLIB:FONT-PROPERTY, font name)
 {
   Display *dpy;
-  XFontStruct *font_struct = get_font_info_and_display (STACK_1, 0, &dpy);
+  XFontStruct *font_struct = get_font_info_and_display (STACK_1, NULL, &dpy);
   Atom atom                = get_xatom (dpy, STACK_0);
   unsigned long value, status;
 
@@ -4674,7 +4666,7 @@ static XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
 
 ##define DEF_CHAR_ATTR(lspnam, type, cnam)                              \
     DEFUN(lspnam, font code) {                                          \
-      XFontStruct *font_info = get_font_info_and_display (STACK_1, 0, 0); \
+      XFontStruct *font_info = get_font_info_and_display(STACK_1,NULL,NULL);\
       unsigned int index = get_uint16 (STACK_0);                        \
       XCharStruct *char_info = font_char_info (font_info, index);       \
       if (char_info)                                                    \
@@ -4705,7 +4697,7 @@ DEFUN(XLIB:TEXT-EXTENTS, font obj &key START END TRANSLATE)
 { /* FIXME: Could font be a graphics context?!
      -- yes! This is handled by get_font_info_and_display already */
   object font;
-  XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, 0);
+  XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, NULL);
   int start = get_uint16_0 (STACK_2);
   int dir;
   int font_ascent, font_descent;
@@ -4757,7 +4749,7 @@ DEFUN(XLIB:TEXT-EXTENTS, font obj &key START END TRANSLATE)
 DEFUN(XLIB:TEXT-WIDTH, font sequence &key START END TRANSLATE)
 {
   object font;
-  XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, 0);
+  XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, NULL);
 
   if (stringp(STACK_3)) {
     int start = get_uint16_0 (STACK_2);
