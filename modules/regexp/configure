@@ -314,7 +314,7 @@ ac_includes_default="\
 gt_needs=
 gl_header_list=
 gl_func_list=
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA mkdir_p USE_NLS MSGFMT GMSGFMT MSGFMT_015 GMSGFMT_015 XGETTEXT XGETTEXT_015 MSGMERGE localedir build build_cpu build_vendor build_os host host_cpu host_vendor host_os INTL_MACOSX_LIBS LIBICONV LTLIBICONV INTLLIBS LIBINTL LTLIBINTL POSUB ALLOCA ALLOCA_H LIBOBJS REGEX_O REGEX_H LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA mkdir_p USE_NLS MSGFMT GMSGFMT MSGFMT_015 GMSGFMT_015 XGETTEXT XGETTEXT_015 MSGMERGE localedir build build_cpu build_vendor build_os host host_cpu host_vendor host_os INTL_MACOSX_LIBS LIBICONV LTLIBICONV INTLLIBS LIBINTL LTLIBINTL POSUB ALLOCA ALLOCA_H LIBOBJS REGEX_O LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -6850,15 +6850,11 @@ fi
 
 
 # can we use the system-wide regex implementation?
-if test "$ac_use_included_regex" = no -a "$cl_cv_regexp" = yes; then
-  REGEX_H=""
+if test "$ac_use_included_regex" = no; then
   REGEX_O=""
-  ALLOCA=""
 else
-  REGEX_H="regex.h"
-  REGEX_O="regex.o"
+  REGEX_O="regex.$ac_cv_objext"
 fi
-
 
 echo "$as_me: ${term_bold}** Regexp (Output)${term_norm}" >&6
                     ac_config_files="$ac_config_files Makefile link.sh"
@@ -7535,7 +7531,6 @@ s,@ALLOCA@,$ALLOCA,;t t
 s,@ALLOCA_H@,$ALLOCA_H,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@REGEX_O@,$REGEX_O,;t t
-s,@REGEX_H@,$REGEX_H,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
 
