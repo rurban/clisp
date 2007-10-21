@@ -1,5 +1,13 @@
 2007-10-19  Sam Steingold  <sds@gnu.org>
 
+	* ffcall/avcall/configure.in, ffcall/callback/configure.in:
+	* ffcall/callback/trampoline_r/configure.in:
+	* ffcall/callback/vacall_r/configure.in:
+	* ffcall/trampoline/configure.in, ffcall/vacall/configure.in:
+	call AC_CONFIG_AUX_DIR before AC_PROG_INSTALL
+
+2007-10-19  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/configure.in (REGEX_H, ALLOCA): drop unused variables
 	* modules/regexp/link.sh.in (ALLOCA): drop useless variable
 	* modules/regexp/regexi.c [HAVE_ALLOCA_H]: include <alloca.h>
