@@ -384,6 +384,7 @@ pre-release : gnulib-update tp-mail
 # dates to be updated:
 # * banner in spvw.d
 # * COPYRIGHT
+# * clisp-doc-copyright in impent.xml
 
 ## CLISP release announcements go to:
 # clisp-announce@lists.sourceforge.net
