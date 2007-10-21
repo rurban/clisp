@@ -952,15 +952,13 @@ static object get_display_obj (object obj)
 #define make_colormap(dpy,cm)  (make_xid_obj (`XLIB::COLORMAP`, dpy, cm))
 #define make_gcontext(dpy,gc)  (make_ptr_obj (`XLIB::GCONTEXT`, dpy, gc))
 #define make_screen(dpy, srcn) (make_ptr_obj (`XLIB::SCREEN`, dpy, srcn))
-#define make_font(dpy,fn)      (make_font_with_info (dpy, fn, NIL, NULL))
 
 /* Makers with prealloc */
 #define make_window_2(dpy, win, prealloc) (make_xid_obj_2 (`XLIB::WINDOW`, dpy, win, prealloc))
 #define make_pixmap_2(dpy, pm, prealloc)  (make_xid_obj_2 (`XLIB::PIXMAP`, dpy, pm, prealloc))
 
 
-static object make_font_with_info (object dpy, Font fn, object name,
-                                   XFontStruct *info)
+static object make_font (object dpy, Font fn, object name)
 { /* This looks much more like assembler, doesn't it? */
   pushSTACK(name);                                 /* save the name */
   pushSTACK(make_xid_obj (`XLIB::FONT`, dpy, fn)); /* make the xid-object and save it */
@@ -969,13 +967,11 @@ static object make_font_with_info (object dpy, Font fn, object name,
   pushSTACK(STACK_0);                           /* xid-object */
   pushSTACK(`XLIB::FONT-INFO`);                 /* slot */
   funcall(L(slot_value), 2); /* (slot-value new-xid-object `font-info) */
-
   /* do not overwrite any already fetched font info */
-  if (!fpointerp (value1)) {
-    /* o.k allocate a new fpointer */
+  if (!fpointerp (value1)) {   /* allocate a new fpointer */
     pushSTACK(STACK_0);        /* the new xid-object */
     pushSTACK(`XLIB::FONT-INFO`);                       /* the slot */
-    pushSTACK(allocate_fpointer (info));                /* new value */
+    pushSTACK(allocate_fpointer (NULL));                /* new value */
     funcall (L(set_slot_value), 3); /* update the :font-info slot */
   }
 
@@ -1034,9 +1030,9 @@ static XFontStruct *get_font_info_and_display (object obj, object* fontf,
 
     if (dpyf) *dpyf = dpy;
 
-    ASSERT (fpointerp (STACK_0));
-
-    TheFpointer(STACK_0)->fp_pointer = info; /* Store it in the foreign pointer */
+    /* Store it in the foreign pointer
+       (foreign_slot ensures that STACK_0 is a foreign pointer) */
+    TheFpointer(STACK_0)->fp_pointer = info;
     skipSTACK(1);
 
 #  ifdef UNICODE
@@ -3347,7 +3343,7 @@ DEFUN(XLIB:GCONTEXT-FONT, context &optional pseudo-p)
   X_CALL(XGetGCValues (dpy, gc, GCFont, &values));
 
   VALUES1(invalid_xid_p (values.font) ? NIL
-          : make_font (get_display_obj (STACK_1), values.font));
+          : make_font (get_display_obj (STACK_1), values.font, NIL));
   skipSTACK(2);
 }
 
@@ -4404,9 +4400,9 @@ DEFUN(XLIB:OPEN-FONT, display font)
   /* XXX Maybe a symbol should be o.k. here too? */
   with_string_0 (check_string(STACK_0), GLO(misc_encoding), font_name, {
       X_CALL(font = XLoadFont (dpy, font_name));      /* Load the font */
-    });
+  });
   /* make up the LISP representation: */
-  VALUES1(make_font_with_info (STACK_1, font, STACK_0, NULL));
+  VALUES1(make_font (STACK_1, font, STACK_0));
   skipSTACK(2);
 }
 
@@ -4434,7 +4430,7 @@ DEFUN(XLIB:DISCARD-FONT-INFO, font)
   info = (XFontStruct*) foreign_slot(STACK_0,`XLIB::FONT-INFO`);
   TheFpointer(value1)->fp_pointer = NULL; /* No longer valid */
 
-  X_CALL(if (info) XFreeFontInfo (NULL, info, 1));
+  if (info) X_CALL(XFreeFontInfo (NULL, info, 1));
 
   skipSTACK(1);
   VALUES1(NIL);
@@ -4536,30 +4532,25 @@ DEFUN(XLIB:LIST-FONTS, display pattern &key MAX-FONTS RESULT-TYPE)
   int max_fonts = check_uint_defaulted(STACK_1, 65535);
   int count = 0, i;
   char **names;
-  XFontStruct *infos;
   gcv_object_t *res_type = &STACK_0;
 
   with_string_0 (check_string(STACK_2), GLO(misc_encoding), pattern, {
-      X_CALL(names = XListFontsWithInfo (dpy, pattern, max_fonts,
-                                         &count, &infos));
+      /* we could use XListFontsWithInfo instead, but this would make 
+         memory management impossible because the XFontStruct block
+         has to be released by XFreeFontInfo en mass and not piecewise */
+      X_CALL(names = XListFonts (dpy, pattern, max_fonts, &count));
     });
-
   if (count) {
     for (i = 0; i < count; i++) {
       Font fn;
       X_CALL(fn = XLoadFont(dpy,names[i]));
-      pushSTACK(make_font_with_info(*dpyf,fn,asciz_to_string(names[i],GLO(misc_encoding)),infos+i));
+      pushSTACK(make_font(*dpyf,fn,asciz_to_string(names[i],
+                                                   GLO(misc_encoding))));
     }
     X_CALL(XFreeFontNames (names));
   }
   VALUES1(coerce_result_type(count,res_type));
   skipSTACK(4);
-
-  /* Hmm ... several question araise here ...
-    XListFontsWithInfo(display, pattern, maxnames, count_return, info_return)
-   But this function does not return the per character information.
-   Should we introduce a new function get_font_per_char_info ?!
- */
 }
 
 /* 8.4  Font Attributes */
