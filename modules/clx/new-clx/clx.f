@@ -4401,16 +4401,12 @@ DEFUN(XLIB:OPEN-FONT, display font)
 {
   Display *dpy = (pushSTACK(STACK_1),pop_display());
   Font font;
-
   /* XXX Maybe a symbol should be o.k. here too? */
-
-  if (stringp (STACK_0)) {
-    with_string_0 (STACK_0, GLO(misc_encoding), font_name, {
-        X_CALL(font = XLoadFont (dpy, font_name));      /* Load the font */
-      });
-    /* make up the LISP representation: */
-    VALUES1(make_font_with_info (STACK_1, font, STACK_0, NULL));
-  } else my_type_error(S(string),STACK_0);
+  with_string_0 (check_string(STACK_0), GLO(misc_encoding), font_name, {
+      X_CALL(font = XLoadFont (dpy, font_name));      /* Load the font */
+    });
+  /* make up the LISP representation: */
+  VALUES1(make_font_with_info (STACK_1, font, STACK_0, NULL));
   skipSTACK(2);
 }
 
@@ -4513,24 +4509,21 @@ DEFUN(XLIB:SET-FONT-PATH, display new-path)
 DEFUN(XLIB:LIST-FONT-NAMES, display pattern &key MAX-FONTS RESULT-TYPE)
 { /* OK */
   Display *dpy  = (pushSTACK(STACK_3), pop_display ());
-  int max_fonts = boundp(STACK_1) ? get_fixnum(STACK_1) : 65535;
+  int max_fonts = check_uint_defaulted(STACK_1, 65535);
   int count = 0, i;
   char **names;
   gcv_object_t *res_type = &STACK_0;
 
-  if (stringp (STACK_2)) {
-    with_string_0 (STACK_2, GLO(misc_encoding), pattern, {
-        X_CALL(names = XListFonts (dpy, pattern, max_fonts, &count));
-
-        if (count) {
-          for (i = 0; i < count; i++)
-            pushSTACK(asciz_to_string (names[i], GLO(misc_encoding)));
-          X_CALL(XFreeFontNames (names));
-        }
-        VALUES1(coerce_result_type(count,res_type));
-        skipSTACK(4);
-      });
-  } else my_type_error(S(string),STACK_2);
+  with_string_0 (check_string(STACK_2), GLO(misc_encoding), pattern, {
+      X_CALL(names = XListFonts (dpy, pattern, max_fonts, &count));
+    });
+  if (count) {
+    for (i = 0; i < count; i++)
+      pushSTACK(asciz_to_string (names[i], GLO(misc_encoding)));
+    X_CALL(XFreeFontNames (names));
+  }
+  VALUES1(coerce_result_type(count,res_type));
+  skipSTACK(4);
 }
 
 /*   XLIB:LIST-FONTS display pattern &key (:max-fonts 65535)
@@ -4540,29 +4533,27 @@ DEFUN(XLIB:LIST-FONTS, display pattern &key MAX-FONTS RESULT-TYPE)
 {
   Display *dpy  = (pushSTACK(STACK_3), pop_display ());
   gcv_object_t *dpyf  = &(STACK_3);
-  int max_fonts = boundp(STACK_1) ? get_fixnum(STACK_1) : 65535;
+  int max_fonts = check_uint_defaulted(STACK_1, 65535);
   int count = 0, i;
   char **names;
   XFontStruct *infos;
   gcv_object_t *res_type = &STACK_0;
 
-  if (stringp (STACK_2)) {
-    with_string_0 (STACK_2, GLO(misc_encoding), pattern, {
-        X_CALL(names = XListFontsWithInfo (dpy, pattern, max_fonts,
-                                           &count, &infos));
+  with_string_0 (check_string(STACK_2), GLO(misc_encoding), pattern, {
+      X_CALL(names = XListFontsWithInfo (dpy, pattern, max_fonts,
+                                         &count, &infos));
+    });
 
-        if (count) {
-          for (i = 0; i < count; i++) {
-            Font fn;
-	    X_CALL(fn = XLoadFont(dpy,names[i]));
-            pushSTACK(make_font_with_info(*dpyf,fn,asciz_to_string(names[i],GLO(misc_encoding)),infos+i));
-	  }
-          X_CALL(XFreeFontNames (names));
-        }
-      });
-    VALUES1(coerce_result_type(count,res_type));
-    skipSTACK(4);
-  } else my_type_error(S(string),STACK_2);
+  if (count) {
+    for (i = 0; i < count; i++) {
+      Font fn;
+      X_CALL(fn = XLoadFont(dpy,names[i]));
+      pushSTACK(make_font_with_info(*dpyf,fn,asciz_to_string(names[i],GLO(misc_encoding)),infos+i));
+    }
+    X_CALL(XFreeFontNames (names));
+  }
+  VALUES1(coerce_result_type(count,res_type));
+  skipSTACK(4);
 
   /* Hmm ... several question araise here ...
     XListFontsWithInfo(display, pattern, maxnames, count_return, info_return)
