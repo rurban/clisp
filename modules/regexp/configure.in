@@ -18,16 +18,12 @@ gl_FUNC_ALLOCA
 gl_REGEX
 
 # can we use the system-wide regex implementation?
-if test "$ac_use_included_regex" = no -a "$cl_cv_regexp" = yes; then
-  REGEX_H=""
+if test "$ac_use_included_regex" = no; then
   REGEX_O=""
-  ALLOCA=""
 else
-  REGEX_H="regex.h"
-  REGEX_O="regex.o"
+  REGEX_O="regex.$ac_cv_objext"
 fi
 AC_SUBST(REGEX_O)
-AC_SUBST(REGEX_H)
 BOLD_MSG([Regexp (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
