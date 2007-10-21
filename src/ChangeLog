@@ -1,5 +1,18 @@
 2007-10-19  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/configure.in (REGEX_H, ALLOCA): drop unused variables
+
+2007-10-19  Sam Steingold  <sds@gnu.org>
+
+	* ffcall/Makefile.devel (build-aux/config.guess, build-aux/config.sub)
+	(build-aux/ltmain.sh, build-aux/install-sh): new targets (copy
+	from CLISP which copies from gnulib)
+	(ffcall/build-aux/install-sh): add
+	(ffcall/build-aux/config.guess, ffcall/build-aux/config.sub)
+	(ffcall/build-aux/ltmain.sh): update
+
+2007-10-19  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (GL_LIBOBJS): init from @gl_LIBOBJS@
 	(LIBOBJS): link utils using it
 
@@ -7,17 +20,17 @@
 
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): added
 	* modules/berkeley-db/configure.in, modules/dirkey/configure.in:
-        * modules/gdbm/configure.in, modules/gtk2/configure.in:
-        * modules/i18n/configure.in, modules/pari/configure.in:
-        * modules/pcre/configure.in, modules/postgresql/configure.in:
-        * modules/rawsock/configure.in, modules/readline/configure.in
-        * modules/regexp/configure.in, modules/syscalls/configure.in
-        * modules/wildcard/configure.in, modules/zlib/configure.in: use it
+	* modules/gdbm/configure.in, modules/gtk2/configure.in:
+	* modules/i18n/configure.in, modules/pari/configure.in:
+	* modules/pcre/configure.in, modules/postgresql/configure.in:
+	* modules/rawsock/configure.in, modules/readline/configure.in
+	* modules/regexp/configure.in, modules/syscalls/configure.in
+	* modules/wildcard/configure.in, modules/zlib/configure.in: use it
 	* m4/general.m4 (CL_FFCALL_COMMON_LIBTOOL)
 	(CL_FFCALL_COMMON_TRAMPOLINE): add
 	* ffcall/avcall/configure.in, ffcall/callback/configure.in:
-        * ffcall/callback/vacall_r/configure.in: use CL_FFCALL_COMMON_LIBTOOL
-        * ffcall/callback/trampoline_r/configure.in:
+	* ffcall/callback/vacall_r/configure.in: use CL_FFCALL_COMMON_LIBTOOL
+	* ffcall/callback/trampoline_r/configure.in:
 	* ffcall/trampoline/configure.in: use CL_FFCALL_COMMON_LIBTOOL
 	and CL_FFCALL_COMMON_TRAMPOLINE
 
@@ -3959,7 +3972,7 @@
 	* misc.d (MODULE-INFO): fixed a GC-safety bug
 	* modules/berkeley-db/test.tst, modules/i18n/test.tst:
 	* modules/pcre/test.tst, modules/rawsock/test.tst:
-        * modules/regexp/test.tst, modules/syscalls/test.tst: call MODULE-INFO
+	* modules/regexp/test.tst, modules/syscalls/test.tst: call MODULE-INFO
 
 2005-10-06  Sam Steingold  <sds@gnu.org>
 
