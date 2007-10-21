@@ -1,5 +1,10 @@
 2007-10-20  Sam Steingold  <sds@gnu.org>
 
+	* src/lispbibl.d (malloc) [UNIX | __MINGW32__]: undef after
+	#include "config.h" because it could be defined as rpl_malloc by gnulib
+
+2007-10-20  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (OPEN-FONT, LIST-FONTS, LIST-FONT-NAMES):
 	use check_string & check_uint_defaulted
 	(make_font_with_info): renamed to make_font; do not accept info
