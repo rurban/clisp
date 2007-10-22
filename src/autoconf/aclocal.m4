@@ -1794,7 +1794,7 @@ linux*)
 
   # Append ld.so.conf contents to the search path
   if test -f /etc/ld.so.conf; then
-    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \[$]2)); skip = 1; } { if (!skip) print \[$]0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \[$]2)); skip = 1; } { if (!skip) print \[$]0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
     sys_lib_dlsearch_path_spec="/lib${libsuff} /usr/lib${libsuff} $lt_ld_extra"
   fi
 
@@ -4502,9 +4502,6 @@ CC=$lt_[]_LT_AC_TAGVAR(compiler, $1)
 # Is the compiler the GNU C compiler?
 with_gcc=$_LT_AC_TAGVAR(GCC, $1)
 
-gcc_dir=\`gcc -print-file-name=. | $SED 's,/\.$,,'\`
-gcc_ver=\`gcc -dumpversion\`
-
 # An ERE matcher.
 EGREP=$lt_EGREP
 
@@ -4638,11 +4635,11 @@ striplib=$lt_striplib
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
-predep_objects=\`echo $lt_[]_LT_AC_TAGVAR(predep_objects, $1) | \$SED -e "s@\${gcc_dir}@\\\${gcc_dir}@g;s@\${gcc_ver}@\\\${gcc_ver}@g"\`
+predep_objects=$lt_[]_LT_AC_TAGVAR(predep_objects, $1)
 
 # Dependencies to place after the objects being linked to create a
 # shared library.
-postdep_objects=\`echo $lt_[]_LT_AC_TAGVAR(postdep_objects, $1) | \$SED -e "s@\${gcc_dir}@\\\${gcc_dir}@g;s@\${gcc_ver}@\\\${gcc_ver}@g"\`
+postdep_objects=$lt_[]_LT_AC_TAGVAR(postdep_objects, $1)
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
@@ -4654,7 +4651,7 @@ postdeps=$lt_[]_LT_AC_TAGVAR(postdeps, $1)
 
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path=\`echo $lt_[]_LT_AC_TAGVAR(compiler_lib_search_path, $1) | \$SED -e "s@\${gcc_dir}@\\\${gcc_dir}@g;s@\${gcc_ver}@\\\${gcc_ver}@g"\`
+compiler_lib_search_path=$lt_[]_LT_AC_TAGVAR(compiler_lib_search_path, $1)
 
 # Method to check whether dependent libraries are shared objects.
 deplibs_check_method=$lt_deplibs_check_method
@@ -4734,7 +4731,7 @@ variables_saved_for_relink="$variables_saved_for_relink"
 link_all_deplibs=$_LT_AC_TAGVAR(link_all_deplibs, $1)
 
 # Compile-time system search path for libraries
-sys_lib_search_path_spec=\`echo $lt_sys_lib_search_path_spec | \$SED -e "s@\${gcc_dir}@\\\${gcc_dir}@g;s@\${gcc_ver}@\\\${gcc_ver}@g"\`
+sys_lib_search_path_spec=$lt_sys_lib_search_path_spec
 
 # Run-time system search path for libraries
 sys_lib_dlsearch_path_spec=$lt_sys_lib_dlsearch_path_spec
@@ -6570,7 +6567,6 @@ do
     done
   done
 done
-IFS=$as_save_IFS
 lt_ac_max=0
 lt_ac_count=0
 # Add /usr/xpg4/bin/sed as it is typically found on Solaris
@@ -6603,7 +6599,6 @@ for lt_ac_sed in $lt_ac_sed_list /usr/xpg4/bin/sed; do
 done
 ])
 SED=$lt_cv_path_SED
-AC_SUBST([SED])
 AC_MSG_RESULT([$SED])
 ])
 
@@ -6745,8 +6740,7 @@ installed software in a non-standard prefix.
 
 _PKG_TEXT
 ])],
-		[AC_MSG_RESULT([no])
-                $4])
+		[$4])
 elif test $pkg_failed = untried; then
 	ifelse([$4], , [AC_MSG_FAILURE(dnl
 [The pkg-config script could not be found or is too old.  Make sure it
@@ -8817,6 +8811,37 @@ AC_DEFUN([gt_INTL_MACOSX],
   AC_SUBST([INTL_MACOSX_LIBS])
 ])
 
+# lcmessage.m4 serial 4 (gettext-0.14.2)
+dnl Copyright (C) 1995-2002, 2004-2005 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+dnl
+dnl This file can can be used in projects which are not available under
+dnl the GNU General Public License or the GNU Library General Public
+dnl License but which still want to provide support for the GNU gettext
+dnl functionality.
+dnl Please note that the actual code of the GNU gettext library is covered
+dnl by the GNU Library General Public License, and the rest of the GNU
+dnl gettext package package is covered by the GNU General Public License.
+dnl They are *not* in the public domain.
+
+dnl Authors:
+dnl   Ulrich Drepper <drepper@cygnus.com>, 1995.
+
+# Check whether LC_MESSAGES is available in <locale.h>.
+
+AC_DEFUN([gt_LC_MESSAGES],
+[
+  AC_CACHE_CHECK([for LC_MESSAGES], gt_cv_val_LC_MESSAGES,
+    [AC_TRY_LINK([#include <locale.h>], [return LC_MESSAGES],
+       gt_cv_val_LC_MESSAGES=yes, gt_cv_val_LC_MESSAGES=no)])
+  if test $gt_cv_val_LC_MESSAGES = yes; then
+    AC_DEFINE(HAVE_LC_MESSAGES, 1,
+      [Define if your <locale.h> file defines LC_MESSAGES.])
+  fi
+])
+
 # lib-ld.m4 serial 3 (gettext-0.13)
 dnl Copyright (C) 1996-2003 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -10533,6 +10558,99 @@ Makefile: $POMAKEFILEDEPS
 EOF
   fi
   mv "$ac_file.tmp" "$ac_file"
+])
+
+# progtest.m4 serial 4 (gettext-0.14.2)
+dnl Copyright (C) 1996-2003, 2005 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+dnl
+dnl This file can can be used in projects which are not available under
+dnl the GNU General Public License or the GNU Library General Public
+dnl License but which still want to provide support for the GNU gettext
+dnl functionality.
+dnl Please note that the actual code of the GNU gettext library is covered
+dnl by the GNU Library General Public License, and the rest of the GNU
+dnl gettext package package is covered by the GNU General Public License.
+dnl They are *not* in the public domain.
+
+dnl Authors:
+dnl   Ulrich Drepper <drepper@cygnus.com>, 1996.
+
+AC_PREREQ(2.50)
+
+# Search path for a program which passes the given test.
+
+dnl AM_PATH_PROG_WITH_TEST(VARIABLE, PROG-TO-CHECK-FOR,
+dnl   TEST-PERFORMED-ON-FOUND_PROGRAM [, VALUE-IF-NOT-FOUND [, PATH]])
+AC_DEFUN([AM_PATH_PROG_WITH_TEST],
+[
+# Prepare PATH_SEPARATOR.
+# The user is always right.
+if test "${PATH_SEPARATOR+set}" != set; then
+  echo "#! /bin/sh" >conf$$.sh
+  echo  "exit 0"   >>conf$$.sh
+  chmod +x conf$$.sh
+  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
+    PATH_SEPARATOR=';'
+  else
+    PATH_SEPARATOR=:
+  fi
+  rm -f conf$$.sh
+fi
+
+# Find out how to test for executable files. Don't use a zero-byte file,
+# as systems may use methods other than mode bits to determine executability.
+cat >conf$$.file <<_ASEOF
+#! /bin/sh
+exit 0
+_ASEOF
+chmod +x conf$$.file
+if test -x conf$$.file >/dev/null 2>&1; then
+  ac_executable_p="test -x"
+else
+  ac_executable_p="test -f"
+fi
+rm -f conf$$.file
+
+# Extract the first word of "$2", so it can be a program name with args.
+set dummy $2; ac_word=[$]2
+AC_MSG_CHECKING([for $ac_word])
+AC_CACHE_VAL(ac_cv_path_$1,
+[case "[$]$1" in
+  [[\\/]]* | ?:[[\\/]]*)
+    ac_cv_path_$1="[$]$1" # Let the user override the test with a path.
+    ;;
+  *)
+    ac_save_IFS="$IFS"; IFS=$PATH_SEPARATOR
+    for ac_dir in ifelse([$5], , $PATH, [$5]); do
+      IFS="$ac_save_IFS"
+      test -z "$ac_dir" && ac_dir=.
+      for ac_exec_ext in '' $ac_executable_extensions; do
+        if $ac_executable_p "$ac_dir/$ac_word$ac_exec_ext"; then
+          echo "$as_me: trying $ac_dir/$ac_word..." >&AS_MESSAGE_LOG_FD
+          if [$3]; then
+            ac_cv_path_$1="$ac_dir/$ac_word$ac_exec_ext"
+            break 2
+          fi
+        fi
+      done
+    done
+    IFS="$ac_save_IFS"
+dnl If no 4th arg is given, leave the cache variable unset,
+dnl so AC_PATH_PROGS will keep looking.
+ifelse([$4], , , [  test -z "[$]ac_cv_path_$1" && ac_cv_path_$1="$4"
+])dnl
+    ;;
+esac])dnl
+$1="$ac_cv_path_$1"
+if test ifelse([$4], , [-n "[$]$1"], ["[$]$1" != "$4"]); then
+  AC_MSG_RESULT([$]$1)
+else
+  AC_MSG_RESULT(no)
+fi
+AC_SUBST($1)dnl
 ])
 
 #serial 48
@@ -14011,37 +14129,6 @@ fi
 fi
 ])
 
-# lcmessage.m4 serial 4 (gettext-0.14.2)
-dnl Copyright (C) 1995-2002, 2004-2005 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-dnl
-dnl This file can can be used in projects which are not available under
-dnl the GNU General Public License or the GNU Library General Public
-dnl License but which still want to provide support for the GNU gettext
-dnl functionality.
-dnl Please note that the actual code of the GNU gettext library is covered
-dnl by the GNU Library General Public License, and the rest of the GNU
-dnl gettext package package is covered by the GNU General Public License.
-dnl They are *not* in the public domain.
-
-dnl Authors:
-dnl   Ulrich Drepper <drepper@cygnus.com>, 1995.
-
-# Check whether LC_MESSAGES is available in <locale.h>.
-
-AC_DEFUN([gt_LC_MESSAGES],
-[
-  AC_CACHE_CHECK([for LC_MESSAGES], gt_cv_val_LC_MESSAGES,
-    [AC_TRY_LINK([#include <locale.h>], [return LC_MESSAGES],
-       gt_cv_val_LC_MESSAGES=yes, gt_cv_val_LC_MESSAGES=no)])
-  if test $gt_cv_val_LC_MESSAGES = yes; then
-    AC_DEFINE(HAVE_LC_MESSAGES, 1,
-      [Define if your <locale.h> file defines LC_MESSAGES.])
-  fi
-])
-
 dnl Copyright (C) 2002 Sam Steingold
 dnl -*- Autoconf -*-
 dnl This file is free software, distributed under the terms of the GNU
@@ -14889,99 +14976,6 @@ case "$cl_cv_func_poll_reliable" in
   *no) ;;
 esac
 fi
-])
-
-# progtest.m4 serial 4 (gettext-0.14.2)
-dnl Copyright (C) 1996-2003, 2005 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-dnl
-dnl This file can can be used in projects which are not available under
-dnl the GNU General Public License or the GNU Library General Public
-dnl License but which still want to provide support for the GNU gettext
-dnl functionality.
-dnl Please note that the actual code of the GNU gettext library is covered
-dnl by the GNU Library General Public License, and the rest of the GNU
-dnl gettext package package is covered by the GNU General Public License.
-dnl They are *not* in the public domain.
-
-dnl Authors:
-dnl   Ulrich Drepper <drepper@cygnus.com>, 1996.
-
-AC_PREREQ(2.50)
-
-# Search path for a program which passes the given test.
-
-dnl AM_PATH_PROG_WITH_TEST(VARIABLE, PROG-TO-CHECK-FOR,
-dnl   TEST-PERFORMED-ON-FOUND_PROGRAM [, VALUE-IF-NOT-FOUND [, PATH]])
-AC_DEFUN([AM_PATH_PROG_WITH_TEST],
-[
-# Prepare PATH_SEPARATOR.
-# The user is always right.
-if test "${PATH_SEPARATOR+set}" != set; then
-  echo "#! /bin/sh" >conf$$.sh
-  echo  "exit 0"   >>conf$$.sh
-  chmod +x conf$$.sh
-  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
-    PATH_SEPARATOR=';'
-  else
-    PATH_SEPARATOR=:
-  fi
-  rm -f conf$$.sh
-fi
-
-# Find out how to test for executable files. Don't use a zero-byte file,
-# as systems may use methods other than mode bits to determine executability.
-cat >conf$$.file <<_ASEOF
-#! /bin/sh
-exit 0
-_ASEOF
-chmod +x conf$$.file
-if test -x conf$$.file >/dev/null 2>&1; then
-  ac_executable_p="test -x"
-else
-  ac_executable_p="test -f"
-fi
-rm -f conf$$.file
-
-# Extract the first word of "$2", so it can be a program name with args.
-set dummy $2; ac_word=[$]2
-AC_MSG_CHECKING([for $ac_word])
-AC_CACHE_VAL(ac_cv_path_$1,
-[case "[$]$1" in
-  [[\\/]]* | ?:[[\\/]]*)
-    ac_cv_path_$1="[$]$1" # Let the user override the test with a path.
-    ;;
-  *)
-    ac_save_IFS="$IFS"; IFS=$PATH_SEPARATOR
-    for ac_dir in ifelse([$5], , $PATH, [$5]); do
-      IFS="$ac_save_IFS"
-      test -z "$ac_dir" && ac_dir=.
-      for ac_exec_ext in '' $ac_executable_extensions; do
-        if $ac_executable_p "$ac_dir/$ac_word$ac_exec_ext"; then
-          echo "$as_me: trying $ac_dir/$ac_word..." >&AS_MESSAGE_LOG_FD
-          if [$3]; then
-            ac_cv_path_$1="$ac_dir/$ac_word$ac_exec_ext"
-            break 2
-          fi
-        fi
-      done
-    done
-    IFS="$ac_save_IFS"
-dnl If no 4th arg is given, leave the cache variable unset,
-dnl so AC_PATH_PROGS will keep looking.
-ifelse([$4], , , [  test -z "[$]ac_cv_path_$1" && ac_cv_path_$1="$4"
-])dnl
-    ;;
-esac])dnl
-$1="$ac_cv_path_$1"
-if test ifelse([$4], , [-n "[$]$1"], ["[$]$1" != "$4"]); then
-  AC_MSG_RESULT([$]$1)
-else
-  AC_MSG_RESULT(no)
-fi
-AC_SUBST($1)dnl
 ])
 
 dnl -*- Autoconf -*-
