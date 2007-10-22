@@ -1,5 +1,16 @@
 2007-10-22  Sam Steingold  <sds@gnu.org>
 
+	remove libcharset; use gnulib/localcharset
+	* Makefile.devel (CONFIGURES): remove libcharset/configure
+	(libcharset/configure): remove target
+	(gnulib-update): add localcharset
+	(SOURCES4): drop libcharset
+	* configure: do not configure libcharset
+	* encoding.d: include "localcharset.h" instead of "libcharset.h"
+	* makemake.in: use gnulib/localcharset instead of libcharset
+
+2007-10-22  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (gnulib-update): cvs up gnulib;
 	check for duplicate m4 files
 	declare phony targets as such

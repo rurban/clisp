@@ -83,8 +83,7 @@ MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 CLISP_CONFIGURES=src/configure $(MOD_CONFIGURES)
 FFCALL=avcall vacall trampoline callback callback/vacall_r callback/trampoline_r
 FFCALL_CONFIGURES=ffcall/configure $(patsubst %,ffcall/%/configure,$(FFCALL))
-CONFIGURES = $(CLISP_CONFIGURES) utils/hln/configure libcharset/configure \
-	${FFCALL_CONFIGURES}
+CONFIGURES = $(CLISP_CONFIGURES) utils/hln/configure ${FFCALL_CONFIGURES}
 
 src/gllib/Makefile.in : src/gllib/Makefile.am
 	cd src; automake gllib/Makefile
@@ -120,10 +119,6 @@ ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 $(FFCALL_CONFIGURES) : %/configure : %/configure.in \
 			ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
 	cd ffcall ; $(MAKE) -f Makefile.devel $(patsubst ffcall/%,%,$@)
-
-libcharset/configure : libcharset/configure.in libcharset/autoconf/aclocal.m4 $(AUTOCONF_FILES)
-	cd libcharset ; $(MAKE) -f Makefile.devel configure
-
 
 # syntax check
 check-configures : $(CONFIGURES) $(CONFIG_H_IN)
@@ -390,7 +385,7 @@ gnulib-update : force
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(GNULIB_HOME)/gnulib-tool --import --source-base=src/gllib \
 		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
-		stdint stdbool regex fnmatch-gnu havelib gettext
+		stdint stdbool regex fnmatch-gnu havelib gettext localcharset
 	$(RM) configure.ac
 	cd src/glm4; \
 	for f in *.m4; do \
@@ -459,7 +454,7 @@ EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
 T = $(TOPDIR)
 SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure
 SOURCES2 = $T/src
-SOURCES4 = $T/ffcall $T/libcharset $T/utils
+SOURCES4 = $T/ffcall $T/utils
 SOURCES5 = $T/unix $T/win32msvc $T/nextapp
 SOURCES6 = $T/modules
 # for developers only: $T/benchmarks $T/sacla-tests $T/ansi-tests
