@@ -630,19 +630,9 @@ if test -n "$do_config"; then
       maybe_link ffcall/$f $ABS_DIRNAME/$f
     done
   fi # do_ffi
-  # Similarly for libcharset.
-  for subdir in libcharset; do
-    if [ -d $subdir ] ; then
-      maybe_mkdir "${ABS_DIRNAME}/${subdir}";
-    fi
-  done
-  for subdir in libcharset; do
-    f=$subdir/configure
-    maybe_link $f $ABS_DIRNAME/$f
-  done
   # Prepare the configure files.
   chmod a+x $ABS_DIRNAME/configure
-  for subdir in ${FFI_DIRS} libcharset; do
+  for subdir in ${FFI_DIRS}; do
     if test -d $ABS_DIRNAME/$subdir; then
       chmod a+x $ABS_DIRNAME/$subdir/configure
     fi
@@ -664,15 +654,6 @@ if test -n "$do_config"; then
       fi
     done
   fi # do_ffi
-  for subdir in libcharset; do
-    if test -d $subdir; then
-      # We use --disable-shared because libtool support for shared libraries is
-      # flaky: On HP-UX 10 with gcc-2.95.2, libtool fails to pass -fPIC to gcc,
-      # and on cygwin and mingw it causes a link error regarding _WinMain@16.
-      conf_dir $subdir --srcdir="$RREL_SRCDIR/$subdir" --disable-shared \
-        $subdir_configure_args --cache-file=../config.cache
-    fi
-  done
   cd ..
 fi
 

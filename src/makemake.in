@@ -1581,19 +1581,7 @@ if [ "${with_dynamic_modules}" != no ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 fi
 
-USE_LIBCHARSET=''
-if [ $HOS = unix -o $HOS = win32 ] ; then
-  USE_LIBCHARSET=yes
-  if [ ${LIB_TYPE} = "unix" ] ; then
-    # use symbolic link
-    XCL_CHARSETLIB='libcharset.a'
-    FILES='libcharset.a '$FILES
-  fi
-  if [ ${LIB_TYPE} = "win32" ] ; then
-    XCL_CHARSETLIB='charset.lib'
-  fi
-  LIBS=$XCL_CHARSETLIB' '$LIBS
-fi
+FILES=localcharset${TOBJ}' '${FILES}
 
 if [ "${with_readline}" = no ]; then
   # --without-readline was supplied
@@ -1675,11 +1663,9 @@ if [ ${TSYS} = unix -o ${TSYS} = win32gcc ]; then
 else
   SPVW_VERSION=version.h
 fi
-# ./ contains libcharset.h, localcharset.h
+# ./ contains localcharset.[ho]
 XCFLAGS=${XCFLAGS}' -I.'
-if [ -n "$USE_LIBCHARSET" ] ; then
-  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libcharset.h'
-fi
+EVERY_INCLUDES_H=$EVERY_INCLUDES_H' localcharset.h'
 
 OTHER_INCLUDES=' constpack avl sort subrkw bytecode'
 
@@ -2307,7 +2293,7 @@ echol
 echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD gen.lispbibl" ".c"
 echol
 
-echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
+echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC localcharset" "${TOBJ}"
 echol
 
 echolist "LISPFILES =" "$LPARTS" ".lisp"
@@ -2718,7 +2704,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     dependsc=$dependsc' '${SPVW_VERSION}
   fi
   if [ $f = encoding ] ; then
-    dependsc=$dependsc' libcharset.h'
+    dependsc=$dependsc' localcharset.h'
   fi
   if [ $f = foreign ] ; then
     dependsc=$dependsc' avcall.h callback.h'
@@ -2928,22 +2914,12 @@ if [ -n "$USE_GETTEXT" ] ; then
 
 fi
 
-for f in libcharset; do
-  if [ ${LIB_TYPE} = "unix" ] ; then
-    echol "libcharset.h libcharset.a localcharset.h :"
-    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
-    echol
-  fi
-  if [ ${LIB_TYPE} = "win32" ] ; then
-    echol "libcharset.h : ${SRCTOPDIR_M}$f${NEXT_M}include${NEXT_M}libcharset.h"
-    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}libcharset.h libcharset.h"
-    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}localcharset.h localcharset.h"
-    echol
-    echol "charset.lib : ${SRCTOPDIR_M}$f${NEXT_M}lib${NEXT_M}charset.lib"
-    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}lib${NEXT_}charset.lib charset.lib"
-    echol
-  fi
-done
+echol "localcharset.h : ${SRCDIR}gllib/localcharset.h"
+echotab "-\$(LN_S) ${SRCDIR}gllib/localcharset.h ."
+echol
+echol "localcharset${TOBJ} : gllib/localcharset${TOBJ}"
+echotab "-\$(LN_S) gllib/localcharset${TOBJ} ."
+echol
 
 if [ $TOS = win32 ] ; then
   for f in $SYSLIBS ; do
@@ -2979,7 +2955,7 @@ finish_runtime () {
 }
 fi
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${XCL_CHARSETLIB} ${SYSLIBS} data"
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${SYSLIBS} data"
 if [ $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
@@ -4090,7 +4066,7 @@ cat <<!!
 !!
 else
 cat <<!!
-	-\$(RM) libcharset.* libavcall.* libcallback.*
+	-\$(RM) libavcall.* libcallback.*
 !!
 fi
 cat <<!!
@@ -4129,12 +4105,6 @@ if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
 	cd po && \$(MAKE) clean
 	-\$(RMRF) locale
-!!
-fi
-if [ -n "$USE_LIBCHARSET" ] ; then
-cat <<!!
-	-\$(RM) libcharset.h localcharset.h
-	-\$(RM) charset.alias
 !!
 fi
 
@@ -4190,7 +4160,6 @@ fi
 cat <<!!
 	-\$(RMRF) avcall
 	-\$(RMRF) callback
-	-\$(RMRF) libcharset
 !!
 if [ -n "${SRCDIR}" ] ; then
 cat <<!!

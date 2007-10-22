@@ -10,7 +10,7 @@
 #include <stdio.h>              /* declares fprintf() */
 
 #ifdef UNICODE
-#include "libcharset.h"
+#include "localcharset.h"
 #endif
 
 /* =========================================================================
