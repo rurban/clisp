@@ -10,7 +10,7 @@ avcall.h
 callback
 callback.h
 libcharset.h
-unixconf.h
+config.h
 makefile*
 makemake
 comment5
