@@ -1,5 +1,10 @@
 2007-10-22  Sam Steingold  <sds@gnu.org>
 
+	* configure: disable "exit on error" (set +x) around 'test -z
+	"$stacksizelimit"' to access exit status instead of exiting configure
+
+2007-10-22  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in [CC_CPLUSPLUS]: build gnulib with gcc because of
 	http://sources.redhat.com/bugzilla/show_bug.cgi?id=5200
 	(version.h): always use ${SPVW_VERSION}
