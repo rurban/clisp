@@ -2514,6 +2514,10 @@ UTILCC=gcc
 EOF
 else echol "UTILCC=\$(CC)"
 fi
+# why is libobj (which comes from gnulib) is needed here?
+# because gnulib/stdlib.h may define malloc to rpl_malloc and it shadows the
+# system include file.
+# an alternative is, of course, to remove -Igllib from UTILCOMPILE.
 UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) \$(LIBOBJS)"
 for util in ${UTILS} ; do
   case ${util} in
