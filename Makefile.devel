@@ -377,7 +377,7 @@ pre-release : gnulib-update tp-mail
 # Before doing a "make distrib":
 # * update version.sh, src/NEWS, clisp.lsm, doc/history.xml
 # * "make -f Makefile.devel all"
-# === Note that for clisp to report its version correctly,
+# === Note that for clisp to report its version correctly, src/version.h and
 # === src/configure must be regenerated after version.sh is updated
 # web pages to be updated:
 # * www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
