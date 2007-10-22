@@ -2,6 +2,7 @@
 
 	* Makefile.devel (gnulib-update): cvs up gnulib;
 	check for duplicate m4 files
+	declare phony targets as such
 
 2007-10-22  Sam Steingold  <sds@gnu.org>
 
