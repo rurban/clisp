@@ -863,10 +863,10 @@
  <listitem><simpara>figures out some floating point arithmetics parameters
    (rounding, epsilons etc.)</simpara></listitem></varlistentry>
 <varlistentry>
- <term><filename role="clisp-cvs">src/unixconf.h.in</filename></term>
+ <term><filename role="clisp-cvs">src/config.h.in</filename></term>
  <listitem><simpara>header file master, generated
    from <filename role="clisp-cvs">src/configure.in</filename>.
-   <filename><replaceable>build-dir</replaceable>/unixconf.h</filename>
+   <filename><replaceable>build-dir</replaceable>/config.h</filename>
    contains the values of the features
    discovered by <filename role="clisp-cvs">src/configure</filename>.
 </simpara></listitem></varlistentry>

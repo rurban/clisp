@@ -30,14 +30,14 @@
  */
 
 
-#if 1
-/* Put your pathname to unixconf.h here if you have already run configure. */
-#include "unixconf.h"
+#if HAVE_CONFIG_H
+/* Put your pathname to config.h here if you have already run configure. */
+#include "config.h"
 #endif
 
-#ifndef UNIXCONF
+#ifndef HAVE_CONFIG_H
 
-/* The following bits of information can be copied from unixconf.h. */
+/* The following bits of information can be copied from config.h. */
 
 /* CL_STDC_HEADERS */
 /* Define if you have the ANSI C header files
@@ -300,9 +300,9 @@ void do_nothing() { }
 /* Test the database entry. */
 
 
-#ifndef UNIXCONF
+#ifndef HAVE_CONFIG_H
 
-/* More information from unixconf.h */
+/* More information from config.h */
 
 /* CL_CADDR_T */
 #undef CADDR_T
