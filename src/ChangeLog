@@ -3,6 +3,8 @@
 	* Makefile.devel (gnulib-update): cvs up gnulib;
 	check for duplicate m4 files
 	declare phony targets as such
+	(multibuild-linux-x86, multibuild-darwin-powerpc): use descriptive
+	directory names
 
 2007-10-22  Sam Steingold  <sds@gnu.org>
 
