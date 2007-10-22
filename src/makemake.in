@@ -544,7 +544,6 @@ case $# in
      GROFF='@GROFF@'                     # either 'groff' or ''
      DVIPDF='@DVIPDF@'                   # either 'dvipdf' or ''
      LIBS='@LIBS@'                       # list of system libraries
-     GL_LIBOBJS='@gl_LIBOBJS@'           # list of objects from gnulib
      LIBTERMCAP='@LIBTERMCAP@'           # '-L/usr/??/lib' or 'broken' or ''
      INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
      LIBICONV='@LIBICONV@'               # either '-liconv' or ''
@@ -623,7 +622,6 @@ case $# in
      GROFF='groff'
      DVIPDF='dvipdf'
      LIBS=''
-     GL_LIBOBJS=''
      LIBICONV=''
      LIBSIGSEGV=''
      X_CFLAGS=''
@@ -1679,8 +1677,6 @@ else
 fi
 # ./ contains libcharset.h, localcharset.h
 XCFLAGS=${XCFLAGS}' -I.'
-# ./gllib contains stdbool.h, stdint.h
-XCFLAGS=${XCFLAGS}' -Igllib'
 if [ -n "$USE_LIBCHARSET" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libcharset.h'
 fi
@@ -2027,15 +2023,10 @@ else
   LIBS="\$(LIBS)"
 fi
 echol "X_LIBS = ${X_LIBS}"
-LIBOBJS=""
-for o in ${GL_LIBOBJS}; do
-   LIBOBJS=${LIBOBJS}" "gllib/$o
-done
-echol "LIBOBJS = ${LIBOBJS}"
 X_LIBS="\$(X_LIBS)"
 if [ "${with_dynamic_modules}" != no ]; then
   echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'
-  echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
+  echol 'MODULE_CFLAGS = $(CFLAGS) -Igllib '"${XCC_PICFLAG}"
   echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${XCC_DLOPENABLE_EXE_FLAG}"
   MODULE_CPPFLAGS_VAR='MODULE_CPPFLAGS'
   MODULE_CFLAGS_VAR='MODULE_CFLAGS'
@@ -2520,11 +2511,7 @@ UTILCC=gcc
 EOF
 else echol "UTILCC=\$(CC)"
 fi
-# why is libobj (which comes from gnulib) is needed here?
-# because gllib/stdlib.h may define malloc to rpl_malloc and it shadows the
-# system include file.
-# an alternative is, of course, to remove -Igllib from UTILCOMPILE.
-UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) \$(LIBOBJS)"
+UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)"
 for util in ${UTILS} ; do
   case ${util} in
     ccpaux | deema | txt2c | ccmp2c )
