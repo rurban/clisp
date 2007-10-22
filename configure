@@ -738,8 +738,10 @@ STACK_LIMIT=16384
 stacksizelimit=`ulimit -s 2>/dev/null || :` # cygwin /bin/sh ulimit is broken
 # need 3 separate test calls because of "integer expression expected" errors
 # when $stacksizelimit is "" or "unlimited" (no short-circuiting!)
+set +e;
 test -z "$stacksizelimit" || { test "$stacksizelimit" != unlimited && test "$stacksizelimit" -lt ${STACK_LIMIT}; }
 STACK_TOO_SMALL=$?      # 0=true => need to reset; 1=false => big enough
+set -e
 
 cd $ABS_DIRNAME
 echo "./makemake $makemake_args > Makefile"
