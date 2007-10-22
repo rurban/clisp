@@ -4527,7 +4527,7 @@ DEFUN(XLIB:LIST-FONTS, display pattern &key MAX-FONTS RESULT-TYPE)
   gcv_object_t *res_type = &STACK_0;
 
   with_string_0 (check_string(STACK_2), GLO(misc_encoding), pattern, {
-      /* we could use XListFontsWithInfo instead, but this would make 
+      /* we could use XListFontsWithInfo instead, but this would make
          memory management impossible because the XFontStruct block
          has to be released by XFreeFontInfo en mass and not piecewise */
       X_CALL(names = XListFonts (dpy, pattern, max_fonts, &count));
@@ -5464,7 +5464,7 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
   unsigned long nitems_return;
   unsigned long bytes_after_return;
   unsigned char *prop_return = NULL;
-  int r;
+  Status r;
 
   w = get_xid_object_and_display (`XLIB::WINDOW`, STACK_7, &display);
   property = get_xatom (display, STACK_6);
@@ -7564,10 +7564,10 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
   pushSTACK(STACK_1);                                     /* display */
   pushSTACK(check_error_code_reverse(event->error_code)); /* error code */
   pushSTACK(`:ASYNCHRONOUS`);     pushSTACK(T);
-  pushSTACK(`:CURRENT-SEQUENCE`); pushSTACK(make_uint16(NextRequest(display)));
-  pushSTACK(`:SEQUENCE`);         pushSTACK(make_uint16(event->serial));
+  pushSTACK(`:CURRENT-SEQUENCE`); pushSTACK(UL_to_I(NextRequest(display)));
+  pushSTACK(`:SEQUENCE`);         pushSTACK(UL_to_I(event->serial));
   pushSTACK(`:MAJOR`);            pushSTACK(make_uint8 (event->request_code));
-  pushSTACK(`:MINOR`);            pushSTACK(make_uint16(event->minor_code));
+  pushSTACK(`:MINOR`);            pushSTACK(make_uint8(event->minor_code));
 
   switch (event->error_code) {
     case BadColor:              /* colormap-error */
