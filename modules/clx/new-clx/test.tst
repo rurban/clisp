@@ -22,8 +22,15 @@
 (listp (show (multiple-value-list (xlib:pointer-control *dpy*)))) T
 (listp (show (xlib:pointer-mapping *dpy*))) T
 (listp (show (xlib:font-path *dpy*) :pretty t)) T
-(integerp (show (length (xlib:list-font-names *dpy* "*")))) T
-(integerp (show (length (xlib:list-fonts *dpy* "*")))) T
+(defparameter *font-count*
+  (let ((font-names (xlib:list-font-names *dpy* "*")))
+    (ext:times (map-into font-names (lambda (n) (xlib:open-font *dpy* n))
+                         font-names))
+    (mapc #'xlib:close-font font-names)
+    (show (length font-names)))) *FONT-COUNT*
+(let ((fonts (ext:times (xlib:list-fonts *dpy* "*"))))
+  (mapc #'xlib:close-font fonts)
+  (= *font-count* (length fonts))) T
 
 (dotimes (i 8) (show (xlib:cut-buffer *dpy* :buffer i))) NIL
 (loop :for i :from 1 :to 1000
@@ -108,6 +115,10 @@ NIL
 (listp (show (multiple-value-list (xlib:text-extents *font* "abcd")))) T
 (listp (show (xlib:font-properties *font*) :pretty t)) T
 (xlib:font-name *font*) "fixed"
+(xlib:font-direction *font*) :LEFT-TO-RIGHT
+(xlib:font-all-chars-exist-p *font*) NIL
+(integerp (show (xlib:min-char-width *font*))) T
+(integerp (show (xlib:max-char-width *font*))) T
 
 (defparameter *window*
   (multiple-value-bind (window revert) (xlib:input-focus *dpy*)
@@ -225,6 +236,7 @@ NIL
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
   (del '*dpy*)
+  (del '*font-count*)
   (del '*screen*)
   (del '*visual*)
   (del '*root*)
