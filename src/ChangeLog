@@ -1,5 +1,10 @@
 2007-10-22  Sam Steingold  <sds@gnu.org>
 
+	* m4/glibc2.m4, m4/lcmessage.m4, m4/progtest.m4, m4/uintmax_t.m4:
+        * m4/wchar_t.m4, m4/xsize.m4: remove files, they are now in glm4
+
+2007-10-22  Sam Steingold  <sds@gnu.org>
+
 	* configure: disable "exit on error" (set +x) around 'test -z
 	"$stacksizelimit"' to access exit status instead of exiting configure
 
