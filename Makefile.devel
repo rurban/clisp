@@ -11,6 +11,13 @@ GROFF = nroff -man
 # GROFF = groff -mandoc
 RM = rm -f
 
+.PHONY : all ffcall-i386 htmldoc makefiles configures check-configures \
+	update-ansi-tests update-docbook-utils potfiles fixperms \
+	view-man view-html check-sbcl install-gcc \
+	multibuild-linux-x86 multibuild-darwin-powerpc \
+	gnulib-update distrib release pre-release upload \
+	src-distrib doc-distrib gnu-distrib tag-release tp-mail
+
 all : makefiles check-configures update-ansi-tests update-docbook-utils     \
 	fixperms                                                            \
 	potfiles                                                            \
