@@ -2406,7 +2406,7 @@ echotab "sh config.status --recheck"
 echol
 echol "am--refresh : config.status Makefile config.h"
 if [ -n "${SRCDIR}" ] ; then
-  for f in makemake.in config.h.in configure version.h; do
+  for f in makemake.in config.h.in configure ${SPVW_VERSION}; do
     link_dep "${f}" "${SRCDIR}${f}"
   done
 fi
@@ -4208,7 +4208,7 @@ cat <<!!
 if [ -n "${SRCDIR}" ] ; then
 cat <<!!
 	-\$(RMRF) po
-	-\$(RM) configure config.h.in makemake.in version.h
+	-\$(RM) configure config.h.in makemake.in ${SPVW_VERSION}
 !!
 fi
 cat <<!!
