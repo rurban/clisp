@@ -1,5 +1,10 @@
 2007-10-22  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (gnulib-update): cvs up gnulib;
+	check for duplicate m4 files
+
+2007-10-22  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (LIBOBJS): undo the 2007-10-19 patch; completely remove
 	(XCFLAGS): do not add -Igllib
 	(MODULE_CFLAGS): add -Igllib
