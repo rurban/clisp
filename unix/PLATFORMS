@@ -431,7 +431,7 @@ attached).
 
 Choose "gcc -D__USE_GNU" as compiler.
 
-After configuring, change unixconf.h to contain the line
+After configuring, change build-dir/config.h to contain the line
   #undef HAVE_GETRUSAGE
 
 For executing "makemake", the default shell (bash-2.0) cannot be used (buggy).
@@ -440,7 +440,7 @@ Install bash-2.01 or newer.
 
 On a Sun4 (Sparc) under Linux:
 
-After configuring, change unixconf.h to contain the lines
+After configuring, change build-dir/config.h to contain the lines
   #undef HAVE_MMAP_DEVZERO
   #undef HAVE_MMAP_DEVZERO_SUN4_29
 Otherwise, the poor Sparc1 will freeze up about half way through the compile

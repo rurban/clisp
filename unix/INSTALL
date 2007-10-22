@@ -125,7 +125,7 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
                                   if --with-dynamic-ffi was specified)
 
    If something goes wrong, check and optionally modify the contents of
-   the file unixconf.h and retry this step. Yes, there are many warnings,
+   the file config.h and retry this step. Yes, there are many warnings,
    we know. Most of them are harmless.
 
    If you need to switch to a different compiler, execute a

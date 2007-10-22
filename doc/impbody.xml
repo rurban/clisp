@@ -3690,7 +3690,7 @@ pointing to non-existent files and can take the following values:
      it is found and link &clisp; without it otherwise.
   </simpara></listitem></itemizedlist>
   You can find out whether &readline; has been detected by running
-  <screen>&sh-prompt; grep HAVE_READLINE unixconf.h</screen>
+  <screen>&sh-prompt; grep HAVE_READLINE config.h</screen>
   in your build directory.</para></formalpara>
 </section>
 <!-- #endif -->
