@@ -2,6 +2,7 @@
 
 	* makemake.in [CC_CPLUSPLUS]: build gnulib with gcc because of
 	http://sources.redhat.com/bugzilla/show_bug.cgi?id=5200
+	(version.h): always use ${SPVW_VERSION}
 
 2007-10-20  Sam Steingold  <sds@gnu.org>
 
