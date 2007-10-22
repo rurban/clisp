@@ -1,5 +1,11 @@
 2007-10-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (xlib_error_handler): fix converter types:
+	NextRequest and serial are unsigned long, while minor_code is uint8
+	(XLIB:GET-PROPERTY): fix type of r (int->Status)
+
+2007-10-22  Sam Steingold  <sds@gnu.org>
+
 	remove libcharset; use gnulib/localcharset
 	* Makefile.devel (CONFIGURES): remove libcharset/configure
 	(libcharset/configure): remove target
