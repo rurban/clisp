@@ -1,3 +1,8 @@
+2007-10-22  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in [CC_CPLUSPLUS]: build gnulib with gcc because of
+	http://sources.redhat.com/bugzilla/show_bug.cgi?id=5200
+
 2007-10-20  Sam Steingold  <sds@gnu.org>
 
 	* src/lispbibl.d (malloc) [UNIX | __MINGW32__]: undef after
