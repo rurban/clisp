@@ -59,6 +59,7 @@ dnl Cygwin (1.3.12) is even worse: it makes hard links to the symbolic link,
 dnl   instead of resolving the symbolic link.
 dnl Good behavior means creating a hard link to the symbolic link's target.
 dnl To avoid this, use the "hln" program.
+dnl cf gl_AC_FUNC_LINK_FOLLOWS_SYMLINK in gnulib/m4/link-follow.m4
 AC_CACHE_CHECK(how to make hard links to symlinks, cl_cv_prog_hln, [
 cl_cv_prog_hln="ln"
 if test "$cl_cv_prog_LN_S" = "ln -s"; then
