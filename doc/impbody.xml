@@ -299,6 +299,77 @@ ignored by the interpreter.</para>
 
 </section>
 
+
+<section id="semantic-constraints"><title>Semantic Constraints
+  <ulink url="&clhs;/Body/sec_3-2-2-3.html">[CLHS-3.2.2.3]</ulink></title>
+
+<para>Non-conforming code that does not follow the rule
+ <blockquote><simpara><quote>Special proclamations for dynamic variables must
+    be made in the compilation environment.</quote></simpara></blockquote>
+ can produce quite unexpected results, e.g., observable differences
+ between <emphasis>compiled</emphasis> and <emphasis>interpreted</emphasis>
+ programs:<programlisting language="lisp">
+(defun adder-c (value) (declare (&compile-decl;)) (lambda (x) (+ x value)))
+<computeroutput>ADDER-C</computeroutput>  ; compiled function; &value-r; is lexical
+(defun adder-i (value) (lambda (x) (+ x value)))
+<computeroutput>ADDER-I</computeroutput>  ; interpreted function; &value-r; is lexical
+(setq add-c-10 (adder-c 10))
+<computeroutput>ADD-C-10</computeroutput> ; compiled function
+(setq add-i-10 (adder-i 10))
+<computeroutput>ADD-I-10</computeroutput> ; interpreted function
+(funcall add-c-10 32)
+<computeroutput>42</computeroutput> ; as expected
+(funcall add-i-10 32)
+<computeroutput>42</computeroutput> ; as expected
+(defvar value 12)
+<computeroutput>VALUE</computeroutput> ; affects <function>ADDER-I</function> and <function>ADD-I-10</function> but not <function>ADDER-C</function> and <function>ADD-C-10</function>
+(funcall add-c-10 32)
+<computeroutput>42</computeroutput> ; as before
+(funcall add-i-10 32)
+<computeroutput>44</computeroutput> ; &value-r; is now dynamic!
+</programlisting></para>
+
+<formalpara id="semantic-constraints-non-conf"><title>Non-conformance</title>
+<para>The code shown above has a &special-dec; proclamation for the
+ variable &value-r; in the execution environment (before the &funcall;)
+ but not in the compilation environment: at the moment
+ the <function>ADDER-I</function> function is defined,
+ &value-r; is not known to be a &special-dec; variable.
+ Therefore the code is not conforming.</para></formalpara>
+
+<simplesect id="semantic-constraints-rationale"><title>Rationale</title>
+<para>The function <function>ADD-C-10</function> was compiled &before-e;
+ &value-r; was declared &special-dec;, so the symbol &value-r; was
+ eliminated from its code and the &special-dec; declaration did
+ not affect the return value (i.e., <code>(funcall
+  add-c-10 32)</code> always returned <returnvalue>42</returnvalue>).</para>
+<para>On the opposite, function <function>ADDER-I</function> was &not-e;
+ compiled, so <function>ADD-I-10</function>
+ was <emphasis>interpreted</emphasis>.
+ Whenever <function>ADD-I-10</function> is executed, its definition is
+ interpreted all over again.  Before &defvar;, &value-r; is evaluated as
+ a lexical (because is is &not-e; declared &special-dec; yet), but after
+ &defvar;, we see a globally &special-dec; symbol &value-r; which
+ can have only a global &symbol-value; (not a local binding), and thus
+ we are compelled to evaluate it to <returnvalue>12</returnvalue>.</para>
+<para>This behavior was implemented intentionally to ease interactive
+ development, because <emphasis>usually</emphasis>
+ the <function>ADDER-I</function> above would be followed by a
+ (forgotten) &defvar;.</para>
+<para>When a user compiles a program, the compiler is allowed to
+ remember the information whether a variable was &special-dec; or not,
+ because that allows the compiler to generate more efficient code,
+ but in interpreted code, when the user changes the state of a variable,
+ he does &not-e; want to re-evaluate all &defun;s that use the variable.</para>
+<para>&ansi-cl; gives the implementation freedom regarding
+ interpreted evaluation, how much it wants to remember / cache, and how
+ much it wants to evaluate according the current environment, if the
+ environment has changed. &clisp; implements <emphasis>ad-hoc
+  look-up</emphasis> for variables, but not for macros.</para>
+</simplesect>
+
+</section>
+
 <section id="similarity"><title>Definition of Similarity
   <ulink url="&clhs;/Body/sec_3-2-4-2-2.html">[CLHS-3.2.4.2.2]</ulink></title>
 
