@@ -69,10 +69,6 @@ If you still want to use the MS C compiler, here are the steps:
         nmake -f Makefile.msvc check
         cd ..
 
-        cd libcharset
-        nmake -f Makefile.msvc check
-        cd ..
-
    Copy the appropriate makefile to src\makefile:
 
      for MSVC4.0:
