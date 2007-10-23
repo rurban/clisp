@@ -142,82 +142,89 @@
 <para>This is the list of objects whose external representation cannot
  be meaningfully read in:<variablelist id="unreadable-objects">
   <title>Unreadable objects</title>
-<varlistentry><term><literal>#&lt;&type-r; ...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;&type-r; ...&gt;</literal></term>
  <listitem><simpara>all &structure-object-t;s lacking a keyword
    constructor</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;ARRAY &type-r;
+<varlistentry><term><literal>&sharp-lt;ARRAY &type-r;
    &dimensions-r;&gt;</literal></term>
  <listitem><simpara>all &array-t;s except &string-t;s, if
    &print-array-var; is &nil;</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;SYSTEM-FUNCTION &name-r;&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;SYSTEM-FUNCTION
+   &name-r;&gt;</literal></term>
  <listitem><simpara>built-in function written in &c-lang;
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;ADD-ON-SYSTEM-FUNCTION
+<varlistentry><term><literal>&sharp-lt;ADD-ON-SYSTEM-FUNCTION
    &name-r;&gt;</literal></term>
  <listitem><simpara>&module; function written in &c-lang;
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;SPECIAL-OPERATOR &name-r;&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;SPECIAL-OPERATOR
+   &name-r;&gt;</literal></term>
  <listitem><simpara>special operator handler</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;COMPILED-CLOSURE &name-r;&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;COMPILED-CLOSURE
+   &name-r;&gt;</literal></term>
  <listitem><simpara>compiled function, if &pr-closure; is &nil;
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;CLOSURE &name-r; ...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;CLOSURE &name-r; ...&gt;</literal></term>
  <listitem><simpara>interpreted function</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;FRAME-POINTER #x...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;FRAME-POINTER #x...&gt;</literal></term>
  <listitem><simpara>pointer to a stack frame</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;DISABLED POINTER&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;DISABLED POINTER&gt;</literal></term>
  <listitem><simpara>frame pointer which has become invalid on exit from the
    corresponding &block; or &tagbody;</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;...STREAM...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;...STREAM...&gt;</literal></term>
  <listitem><simpara>&stream-t;</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;PACKAGE &name-r;&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;PACKAGE &name-r;&gt;</literal></term>
  <listitem><simpara>&package-t;</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;HASH-TABLE #x...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;HASH-TABLE #x...&gt;</literal></term>
  <listitem><simpara>&hash-table-t;, if &print-array-var; is &nil;
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;READTABLE #x...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;READTABLE #x...&gt;</literal></term>
  <listitem><simpara>&readtable-t;</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;SYMBOL-MACRO &form-r;&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;SYMBOL-MACRO
+   &form-r;&gt;</literal></term>
  <listitem><simpara>&symbol-macro; handler</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;MACRO &func-r;&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;MACRO &func-r;&gt;</literal></term>
  <listitem><simpara>macro expander (defined by &defmacro; and friends)
 </simpara></listitem></varlistentry>
 <!-- #ifdef FOREIGN -->
-<varlistentry><term><literal>#&lt;&foreign-pointer-t; #x...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;&foreign-pointer-t;
+   #x...&gt;</literal></term>
  <listitem><simpara>foreign pointer (&unix-w32-only;)
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
-<varlistentry><term><literal>#&lt;&foreign-address-t; #x...&gt;</literal></term>
- <listitem><simpara>foreign address (&unix-w32-only;)</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;&foreign-variable-t; &name-r;
+<varlistentry><term><literal>&sharp-lt;&foreign-address-t;
+   #x...&gt;</literal></term>
+ <listitem><simpara>foreign address
+   (&unix-w32-only;)</simpara></listitem></varlistentry>
+<varlistentry><term><literal>&sharp-lt;&foreign-variable-t; &name-r;
    #x...&gt;</literal></term>
  <listitem><simpara>foreign variable (&unix-w32-only;)
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;&foreign-function-t; &name-r;
+<varlistentry><term><literal>&sharp-lt;&foreign-function-t; &name-r;
    #x...&gt;</literal></term>
  <listitem><simpara>foreign function (&unix-w32-only;)
 </simpara></listitem></varlistentry>
 <!-- #endif -->
-<varlistentry><term><literal>#&lt;UNBOUND&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;UNBOUND&gt;</literal></term>
  <listitem><simpara><quote>value</quote> of an unbound symbol, an unsupplied
    optional or keyword argument</simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;SPECIAL REFERENCE&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;SPECIAL REFERENCE&gt;</literal></term>
  <listitem><simpara>environment marker for variables declared &special-dec;
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;DOT&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;DOT&gt;</literal></term>
  <listitem><simpara>internal &read; result for <quote>.</quote>
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;END OF FILE&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;END OF FILE&gt;</literal></term>
  <listitem><simpara>internal &read; result, when the &eos; is reached
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;READ-LABEL ...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;READ-LABEL ...&gt;</literal></term>
  <listitem><simpara>intermediate &read; result for &sharp-sharp;
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;ADDRESS #x...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;ADDRESS #x...&gt;</literal></term>
  <listitem><simpara>machine address, should not occur
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal>#&lt;SYSTEM-POINTER #x...&gt;</literal></term>
+<varlistentry><term><literal>&sharp-lt;SYSTEM-POINTER #x...&gt;</literal></term>
  <listitem><simpara>should not occur</simpara></listitem></varlistentry>
 </variablelist></para>
 </section>
@@ -457,41 +464,44 @@ compile-time.</para></warning></section>
  <listitem><simpara>&symbol-t;, &null-t;, &boolean-t;,
   &keyword-t;</simpara></listitem>
  <listitem><simpara>&bit-t;, <literal role="type">(&integer-t; 0
-  #.&most-positive-fixnum;)</literal>, <literal role="type">(&integer-t;
-  #.&most-negative-fixnum; (0))</literal>, <literal role="type">(&integer-t;
-  (#.&most-positive-fixnum;))</literal>, <literal role="type">(&integer-t; *
-  (#.&most-negative-fixnum;))</literal></simpara></listitem>
+    &sharp-dot;&most-positive-fixnum;)</literal>,
+   <literal role="type">(&integer-t;
+    &sharp-dot;&most-negative-fixnum; (0))</literal>,
+   <literal role="type">(&integer-t;
+    (&sharp-dot;&most-positive-fixnum;))</literal>,
+   <literal role="type">(&integer-t; *
+    (&sharp-dot;&most-negative-fixnum;))</literal></simpara></listitem>
  <listitem><simpara>&rational-t;, &short-float-t;, &single-float-t;,
-  &double-float-t;, &long-float-t;, &complex-t;</simpara></listitem>
+   &double-float-t;, &long-float-t;, &complex-t;</simpara></listitem>
  <listitem><simpara>&character-t;, &base-char-t;,
    &standard-char-t;</simpara></listitem>
  <listitem><simpara><literal role="type">(&array-t; &eltype-r;
-  &dimensions-r;)</literal>, <literal role="type">(&simple-array-t;
-  &eltype-r; &dimensions-r;)</literal></simpara></listitem>
+    &dimensions-r;)</literal>, <literal role="type">(&simple-array-t;
+    &eltype-r; &dimensions-r;)</literal></simpara></listitem>
  <listitem><simpara><literal role="type">(&vector-t; &t;
-  &size-r;)</literal>, <literal role="type">(&simple-vector-t;
-  &size-r;)</literal></simpara></listitem>
+    &size-r;)</literal>, <literal role="type">(&simple-vector-t;
+    &size-r;)</literal></simpara></listitem>
  <listitem><simpara><literal role="type">(&string-t;
-  &size-r;)</literal>, <literal role="type">(&simple-string-t;
-  &size-r;)</literal></simpara></listitem>
+    &size-r;)</literal>, <literal role="type">(&simple-string-t;
+    &size-r;)</literal></simpara></listitem>
  <listitem><simpara><literal role="type">(&base-string-t;
-  &size-r;)</literal>, <literal role="type">(&simple-base-string-t;
-  &size-r;)</literal></simpara></listitem>
+    &size-r;)</literal>, <literal role="type">(&simple-base-string-t;
+    &size-r;)</literal></simpara></listitem>
  <listitem><simpara><literal role="type">(&bit-vector-t;
-  &size-r;)</literal>, <literal role="type">(&simple-bit-vector-t;
-  &size-r;)</literal></simpara></listitem>
+    &size-r;)</literal>, <literal role="type">(&simple-bit-vector-t;
+    &size-r;)</literal></simpara></listitem>
  <listitem><simpara>&function-t;, &compiled-function-t;,
    &standard-generic-function-t;</simpara></listitem>
  <listitem><simpara>&stream-t;, &file-stream-t;, &synonym-stream-t;,
-  &broadcast-stream-t;, &concatenated-stream-t;, &two-way-stream-t;,
-  &echo-stream-t;, &string-stream-t;</simpara></listitem>
+   &broadcast-stream-t;, &concatenated-stream-t;, &two-way-stream-t;,
+   &echo-stream-t;, &string-stream-t;</simpara></listitem>
  <listitem><simpara>&package-t;, &hash-table-t;, &readtable-t;, &pathname-t;,
-  &logical-pathname-t;, &random-state-t;, &byte-t;</simpara></listitem>
+   &logical-pathname-t;, &random-state-t;, &byte-t;</simpara></listitem>
  <listitem><simpara><classname>SPECIAL-OPERATOR</classname>,
-  <classname>LOAD-TIME-EVAL</classname>, &symbol-macro;,
-  <classname>GLOBAL-SYMBOL-MACRO</classname>, &encoding;,
-  &foreign-pointer-t;, &foreign-address-t;, &foreign-variable-t;,
-  &foreign-function-t;</simpara></listitem>
+   <classname>LOAD-TIME-EVAL</classname>, &symbol-macro;,
+   <classname>GLOBAL-SYMBOL-MACRO</classname>, &encoding;,
+   &foreign-pointer-t;, &foreign-address-t;, &foreign-variable-t;,
+   &foreign-function-t;</simpara></listitem>
  <listitem><simpara>&weak-pointer;, &weak-list;, &weak-and-relation;,
    &weak-or-relation;, &weak-mapping;, &weak-and-mapping;,
    &weak-or-mapping;, &weak-alist;,
@@ -1831,7 +1841,7 @@ can give problems:
 
 <para>Complex numbers can have a real part and an imaginary part of
  different types. For example, <code>(&sqrt; -9.0)</code> evaluates to
- the number <literal role="data">#C(0 3.0)</literal>,
+ the number <literal role="data">&sharp-C;(0 3.0)</literal>,
  which has a real part of exactly &zero;,
  not only <literal role="data">0.0</literal>
  (which would mean <quote>approximately 0</quote>).</para>
@@ -1858,11 +1868,11 @@ can give problems:
 
 <para>This has the advantage that
  <code>(&let; ((x (&sqrt; -9.0))) (* x x))</code> - instead of
- evaluating to <literal role="data">#C(-9.0 0.0)</literal>, with &x-r;
- = <literal role="data">#C(0.0 3.0)</literal> - evaluates to
- <literal role="data">#C(-9.0 0)</literal> =
+ evaluating to <literal role="data">&sharp-C;(-9.0 0.0)</literal>,
+ with &x-r; = <literal role="data">&sharp-C;(0.0 3.0)</literal> -
+ evaluates to <literal role="data">&sharp-C;(-9.0 0)</literal> =
  <literal role="data">-9.0</literal>,
- with &x-r; = <literal role="data">#C(0 3.0)</literal>.</para>
+ with &x-r; = <literal role="data">&sharp-C;(0 3.0)</literal>.</para>
 
 </section>
 </section>
