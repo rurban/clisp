@@ -40,11 +40,11 @@ local void begin_error (void)
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   writing_to_subprocess = false;
  #endif
+  if (!posfixnump(Symbol_value(S(recursive_error_count)))) /* should be a fixnum >=0 */
+    Symbol_value(S(recursive_error_count)) = Fixnum_0; /* otherwise emergency correction */
   /* increase error-count, if >3 abort output: */
   dynamic_bind(S(recursive_error_count),
                fixnum_inc(Symbol_value(S(recursive_error_count)),1));
-  if (!posfixnump(Symbol_value(S(recursive_error_count)))) /* should be a fixnum >=0 */
-    Symbol_value(S(recursive_error_count)) = Fixnum_0; /* otherwise emergency correction */
   if (posfixnum_to_V(Symbol_value(S(recursive_error_count))) > 3) {
     /* multiple nested error message. */
     Symbol_value(S(recursive_error_count)) = Fixnum_0; /* delete error count */
