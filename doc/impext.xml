@@ -4698,7 +4698,7 @@ Compiled, it will have inlined the library function calls.
     (&loop; :with content-length :for line = (&read-line; socket nil nil)
       ;; header is separated from the data with a blank line
       :until (&zerop; (&length; line)) :do
-      (&when; (&string-eq; line #1="Content-length: " :end1 #2=#.(&length; #1#))
+      (&when; (&string-eq; line #1="Content-length: " :end1 #2=&sharp-dot;(&length; #1#))
         (&setq; content-length (&parse-integer; line :start #2#))
       ;; this will not work if the server does not supply the content-length header
       :finally (&return; (&let; ((data (&make-array; content-length
