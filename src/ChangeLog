@@ -1,3 +1,8 @@
+2007-10-23  Sam Steingold  <sds@gnu.org>
+
+	* error.d (begin_error): check *RECURSIVE-ERROR-COUNT* before
+	accessing it, not after
+
 2007-10-22  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (upload): split into
