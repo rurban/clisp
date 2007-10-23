@@ -487,7 +487,7 @@ compile-time.</para></warning></section>
 
 <warning><para>The situations <constant>EVAL</constant>,
  <constant>LOAD</constant> and <constant>COMPILE</constant> are
- deprecated by the spec, and they are &not-e; equivalent to the new
+ deprecated by the &ansi-cl;, and they are &not-e; equivalent to the new
  standard situations <constant>:EXECUTE</constant>,
  <constant>:LOAD-TOPLEVEL</constant>
  and <constant>:COMPILE-TOPLEVEL</constant> in that they ignore the
@@ -3505,7 +3505,7 @@ checks whether the &hash-table-t; is weak.</para>
 <para>Now, <code>(&merge-pathnames; (&merge-pathnames; #P"x/" #P"y/")
   #P"y/")</code> and <code>(&merge-pathnames; #P"x/" #P"y/")</code> are
  &equal; in &clisp; (when &pathmerge; is &nil;), but not in
- implementations that strictly follow the &ansi-cl; spec.
+ implementations that strictly follow the &ansi-cl;.
  In fact, the above <emphasis>twice-default = once-default</emphasis>
  rule holds for all pathnames in &clisp;.</para>
 
