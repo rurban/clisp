@@ -37,7 +37,7 @@ else
 SEP=:
 DTD=$(firstword $(wildcard \
 	/usr/share/sgml/docbook/xml-dtd-$(DTDVER)*/docbookx.dtd))
-FOP=fop
+FOP=../../../fop/fop
 endif
 DTD_TARGET=
 ifeq (,$(wildcard $(DTD))) # system DTD does not exist
@@ -172,8 +172,9 @@ man: _clisp.html _clisp.1
 impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl
 	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ fo.xsl $<
 
-impnotes.pdf: impnotes.fo # impnotes.xml $(IMPNOTES) fo.xsl $(OLINK)
-	./xep.bat -fo $< -out $@
+# http://xmlgraphics.apache.org/fop/
+impnotes.pdf: impnotes.fo
+	${FOP} $< $@
 
 html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
