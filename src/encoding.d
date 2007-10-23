@@ -2597,7 +2597,7 @@ global void init_dependent_encodings(void) {
     (argv_encoding_pathname == NULL ? (object)STACK_0
      : encoding_from_name(argv_encoding_pathname,"*PATHNAME-ENCODING*"));
  #if defined(WIN32_NATIVE)
-  /* cf libiconv/libcharset/lib/localcharset.c locale_charset() */
+  /* cf src/glllib/localcharset.c locale_charset() */
   if (argv_encoding_terminal == NULL) {
     var char buf[2+10+1];
     sprintf(buf,"CP%u",GetOEMCP());
