@@ -741,58 +741,10 @@ to see where the warning is coming from.</para>
 (funcall add-10 0)
 <computeroutput>12</computeroutput> ; why not 10?!
 </programlisting></question>
-<answer><label>Brief</label>
+<answer><label>Explanation</label>
  <para>The above code does not conform to &ansi-cl;, therefore &clisp;
-  can produce arbitrary results.</para></answer>
-<answer><label>Detailed</label>
-<para><ulink url="&clhs;/Body/sec_3-2-2-3.html">Section 3.2.2.3 Semantic
-  Constraints</ulink> says:
- <blockquote><para>
-   Special proclamations for dynamic variables must be made in the
-   compilation environment.
- </para></blockquote>
- The code shown above has a &special-dec; proclamation for the variable
- <varname>VAL</varname> in the execution environment (before the
- &funcall;) but not in the compilation environment: at the moment
- the <function>ADDER</function> function is defined,
- <varname>VAL</varname> is not known to be a &special-dec; variable.
- Therefore the code is not conforming.</para>
-<para>The same holds also for macros. Before defining a function that
- uses a macro, that macro must have been defined.</para></answer>
-<answer><label>Rationale</label>
- <para>When the aforementioned semantic constraints are not followed,
-  there are observable differences between <emphasis>compiled</emphasis>
-  and <emphasis>interpreted</emphasis> programs.
-  If function <function>ADD-10</function> were compiled &before-e;
-  <varname>VAL</varname> was declared &special-dec;, the symbol
-  <varname>VAL</varname> would have been eliminated from the code for
-  <function>ADD-10</function> and the &special-dec; declaration would
-  not have affected the return value (i.e., the last <code>(funcall
-  add-10 0)</code> would have returned <returnvalue>10</returnvalue>).</para>
- <para>Alas, you did not compile <function>ADDER</function>,
-  so <function>ADD-10</function> was <emphasis>interpreted</emphasis>!
-  When <function>ADD-10</function> is executed, its definition is interpreted
-  (it was &not-e; compiled when &defun; and &lambda-m; were processed,
-  merely recorded), and <varname>VAL</varname> is evaluated (after &defvar;!),
-  we see a globally &special-dec; symbol <varname>VAL</varname> which
-  can have only a global &symbol-value; (not a local binding),
-  and thus we are compelled to evaluate it
-  to <returnvalue>12</returnvalue>.</para>
- <para>This behavior was implemented intentionally to ease interactive
-  development, because <emphasis>usually</emphasis>
-  the <function>ADDER</function> above would be followed by a
-  (forgotten) &defvar;.</para>
- <para>When a user compiles a program, the compiler is allowed to
-  remember the information whether a variable was &special-dec; or not,
-  because that allows the compiler to generate more efficient code.
-  But in interpreted code, when the user changes the state of a variable,
-  or redefines a macro, he does &not-e; want to re-evaluate all &defun;s
-  that use the variable or macro.</para>
- <para>&ansi-cl; gives the implementation freedom regarding
-  interpreted evaluation, how much it wants to remember / cache, and how
-  much it wants to evaluate according the current environment, if the
-  environment has changed. &clisp; implements <emphasis>ad-hoc
-   look-up</emphasis> for variables, but not for macros.</para></answer>
+  can produce arbitrary results.
+  See <xref linkend="semantic-constraints"/>.</para></answer>
 <answer><label>Remedy</label>
  <para>Always follow the naming convention for global special variables
   defined by &defvar; and &defparameter; (e.g., <varname>*FOO*</varname>)
