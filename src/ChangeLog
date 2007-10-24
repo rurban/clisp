@@ -1,5 +1,20 @@
 2007-10-24  Sam Steingold  <sds@gnu.org>
 
+	support post-4.4.20 berkeley-db; more uniform option handling
+	* modules/berkeley-db/configure.in (DB_LOCK_READ_UNCOMMITTED)
+	(DB_READ_UNCOMMITTED, DB_READ_COMMITTED): check for declarations
+	* modules/berkeley-db/bdb.c (DB_LOCK_READ_UNCOMMITTED)
+	[!HAVE_DECL_DB_LOCK_READ_UNCOMMITTED]: define to DB_LOCK_DIRTY
+	(DB_READ_UNCOMMITTED) [!HAVE_DECL_DB_READ_UNCOMMITTED]:
+	define to DB_DIRTY_READ
+	(DB_READ_COMMITTED) [!HAVE_DECL_DB_READ_COMMITTED]:
+	define to DB_DEGREE_2
+	(DB-GET, DB-OPEN, MAKE-DBC, DBC-GET, LOCK-GET, TXN-BEGIN): accept
+	only :READ-UNCOMMITTED and READ-COMMITTED, not :DEGREE-2 & DIRTY-READ
+	Reported by Reini Urban <rurban@x-ray.at>
+
+2007-10-24  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (build-aux-update): new .PHONY target, extracted
 	from gnulib-update; also updates ltmain.sh and compile
 	(gnulib-update): depend on build-aux-update
