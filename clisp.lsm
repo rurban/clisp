@@ -10,7 +10,7 @@ Description:    GNU CLISP is an ANSI Common Lisp implementation.
                 CLX, Garnet, CLUE/CLIO.
 Keywords:       Lisp, Common Lisp, CLISP, computer algebra, compiler.
 Author:         bruno@clisp.org (Bruno Haible),
-                michael@rhein.iam.uni-bonn.de (Michael Stoll),
+                m.stoll@jacobs-university.de (Michael Stoll),
                 sds@gnu.org (Sam Steingold)
 Maintained-by:  sds@gnu.org (Sam Steingold)
 Primary-site:   ftp://sunsite.unc.edu/pub/Linux/devel/lang/lisp/
