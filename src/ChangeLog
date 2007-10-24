@@ -1,5 +1,11 @@
 2007-10-24  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (build-aux-update): new .PHONY target, extracted
+	from gnulib-update; also updates ltmain.sh and compile
+	(gnulib-update): depend on build-aux-update
+
+2007-10-24  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (gnulib-update): also get
 	uniwidth/width streq uniname/uniname unitypes
 	* cjk.h, streq.h, uniname.c, uniname.h, uninames.h, unitypes.h,
