@@ -1,5 +1,13 @@
 2007-10-24  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (gnulib-update): also get
+	uniwidth/width streq uniname/uniname unitypes
+	* cjk.h, streq.h, uniname.c, uniname.h, uninames.h, unitypes.h,
+	* uniwidth.h, width.c: remove; get them from gnulib
+	* makemake.in: find these files in gllib
+
+2007-10-24  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (AUTOCONF_FILES): src/aclocal.m4
 	(autoconf/aclocal.m4): move to aclocal.m4
 	(autoconf/autoconf.m4): remove

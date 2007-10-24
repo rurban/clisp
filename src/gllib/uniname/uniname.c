@@ -1,49 +1,52 @@
 /* Association between Unicode characters and their names.
-   Copyright (C) 2000-2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2002, 2005-2007 Free Software Foundation, Inc.
 
-   This program is free software; you can redistribute it and/or modify it
-   under the terms of the GNU Library General Public License as published
-   by the Free Software Foundation; either version 2, or (at your option)
-   any later version.
+   This program is free software: you can redistribute it and/or modify it
+   under the terms of the GNU Lesser General Public License as published
+   by the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public
-   License along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
-   USA.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 /* Specification.  */
 #include "uniname.h"
 
 #include <assert.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
 #define SIZEOF(a) (sizeof(a) / sizeof(a[0]))
 
 
-/* Table of Unicode character names, derived from UnicodeData.txt.  */
+/* Table of Unicode character names, derived from UnicodeData.txt.
+   This table is generated in a way to minimize the memory footprint:
+     1. its compiled size is small (less than 350 KB),
+     2. it resides entirely in the text or read-only data segment of the
+        executable or shared library: the table contains only immediate
+        integers, no pointers, and the functions don't do heap allocation.
+ */
 #include "uninames.h"
 /* It contains:
-  static const char unicode_name_words[26496] = ...;
-  #define UNICODE_CHARNAME_NUM_WORDS 4725
+  static const char unicode_name_words[36303] = ...;
+  #define UNICODE_CHARNAME_NUM_WORDS 6260
   static const struct { uint16_t extra_offset; uint16_t ind_offset; } unicode_name_by_length[26] = ...;
-  #define UNICODE_CHARNAME_WORD_HANGUL 3030
-  #define UNICODE_CHARNAME_WORD_SYLLABLE 3891
-  #define UNICODE_CHARNAME_WORD_CJK 367
-  #define UNICODE_CHARNAME_WORD_COMPATIBILITY 4585
-  static const uint16_t unicode_names[53315] = ...;
-  static const struct { uint16_t code; uint16_t name; } unicode_name_to_code[12886] = ...;
-  static const struct { uint16_t code; uint16_t name; } unicode_code_to_name[12886] = ...;
+  #define UNICODE_CHARNAME_WORD_HANGUL 3902
+  #define UNICODE_CHARNAME_WORD_SYLLABLE 4978
+  #define UNICODE_CHARNAME_WORD_CJK 417
+  #define UNICODE_CHARNAME_WORD_COMPATIBILITY 6107
+  static const uint16_t unicode_names[68940] = ...;
+  static const struct { uint16_t code; uint32_t name:24; } unicode_name_to_code[16626] = ...;
+  static const struct { uint16_t code; uint32_t name:24; } unicode_code_to_name[16626] = ...;
   #define UNICODE_CHARNAME_MAX_LENGTH 83
   #define UNICODE_CHARNAME_MAX_WORDS 13
 */
@@ -179,7 +182,7 @@ unicode_character_name (ucs4_t c, char *buf)
       return buf;
     }
   else if ((c >= 0xF900 && c <= 0xFA2D) || (c >= 0xFA30 && c <= 0xFA6A)
-	   || (c >= 0x2F800 && c <= 0x2FA1D))
+	   || (c >= 0xFA70 && c <= 0xFAD9) || (c >= 0x2F800 && c <= 0x2FA1D))
     {
       /* Special case for CJK compatibility ideographs. Keeps the tables
 	 small.  */
@@ -205,25 +208,28 @@ unicode_character_name (ucs4_t c, char *buf)
       /* Transform the code so that it fits in 16 bits.  */
       switch (c >> 12)
 	{
-	case 0x00: case 0x01: case 0x02: case 0x03:
+	case 0x00: case 0x01: case 0x02: case 0x03: case 0x04:
 	  break;
 	case 0x0A:
-	  c -= 0x06000;
+	  c -= 0x05000;
 	  break;
 	case 0x0F:
-	  c -= 0x0A000;
+	  c -= 0x09000;
 	  break;
 	case 0x10:
+	  c -= 0x09000;
+	  break;
+	case 0x12:
 	  c -= 0x0A000;
 	  break;
 	case 0x1D:
-	  c -= 0x16000;
+	  c -= 0x14000;
 	  break;
 	case 0x2F:
-	  c -= 0x27000;
+	  c -= 0x25000;
 	  break;
 	case 0xE0:
-	  c -= 0xD7000;
+	  c -= 0xD5000;
 	  break;
 	default:
 	  return NULL;
@@ -431,6 +437,7 @@ unicode_name_character (const char *name)
 			      {
 				if ((c >= 0xF900 && c <= 0xFA2D)
 				    || (c >= 0xFA30 && c <= 0xFA6A)
+				    || (c >= 0xFA70 && c <= 0xFAD9)
 				    || (c >= 0x2F800 && c <= 0x2FA1D))
 				  return c;
 				else
@@ -487,10 +494,11 @@ unicode_name_character (const char *name)
 			    unsigned int c = unicode_name_to_code[i].code;
 
 			    /* Undo the transformation to 16-bit space.  */
-			    static const unsigned int offset[10] =
+			    static const unsigned int offset[12] =
 			      {
-				0x00000, 0x00000, 0x00000, 0x00000, 0x06000,
-				0x0A000, 0x0A000, 0x16000, 0x27000, 0xD7000
+				0x00000, 0x00000, 0x00000, 0x00000, 0x00000,
+				0x05000, 0x09000, 0x09000, 0x0A000, 0x14000,
+				0x25000, 0xD5000
 			      };
 			    return c + offset[c >> 12];
 			  }
