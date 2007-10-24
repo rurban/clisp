@@ -18881,7 +18881,10 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-long long int ll = 9223372036854775807ll;
+#if ! (-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
+	      error in preprocessor;
+	    #endif
+	    long long int ll = 9223372036854775807ll;
 	    long long int nll = -9223372036854775807LL;
 	    typedef int a[((-9223372036854775807LL < 0
 			    && 0 < 9223372036854775807ll)
