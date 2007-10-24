@@ -193,7 +193,8 @@ CL_ABORT
 dnl DEFS HAVE_PERROR_DECL
 CL_PERROR
 AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
-fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath)
+fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath dnl
+gethostname)
 dnl DEFS HAVE_PUTENV, HAVE_SETENV
 CL_PUTENV
 dnl DEFS HAVE_LC_MESSAGES
@@ -229,8 +230,6 @@ dnl DEFS HAVE_GETTIMEOFDAY, GETTIMEOFDAY_DOTS, GETTIMEOFDAY_TZP_T
 CL_GETTIMEOFDAY
 dnl DEFS HAVE_TIMES_CLOCK (only if no ftime())
 CL_TIMES_CLOCK
-dnl DEFS HAVE_GETHOSTNAME
-CL_GETHOSTNAME
 dnl DEFS HAVE_GETHOSTBYNAME
 CL_GETHOSTBYNAME
 dnl DEFS HAVE_CONNECT CONNECT_NAME_T, CONNECT_CONST, CONNECT_ADDRLEN_T
