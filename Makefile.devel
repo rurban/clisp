@@ -15,7 +15,7 @@ RM = rm -f
 	update-ansi-tests update-docbook-utils potfiles fixperms \
 	view-man view-html check-sbcl install-gcc \
 	multibuild-linux-x86 multibuild-darwin-powerpc \
-	gnulib-update distrib release pre-release \
+	build-aux-update gnulib-update distrib release pre-release \
 	upload upload-ssh upload-sf upload-sunsite upload-gnu \
 	src-distrib doc-distrib gnu-distrib tag-release tp-mail
 
@@ -379,10 +379,14 @@ install-gcc:
 	rm -rf gcc-$(GCC_VERSION)
 
 GNULIB_HOME=../../gnulib
-AUX_REQ=config.guess config.rpath config.sub depcomp install-sh missing
-gnulib-update : force
+GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
+build-aux-update : force
 	cd $(GNULIB_HOME); cvs up; cd -
-	for f in $(AUX_REQ); do cp -afuv $(GNULIB_HOME)/build-aux/$$f src/build-aux; done
+	for f in $(GNULIB_AUX); do cp -afuv $(GNULIB_HOME)/build-aux/$$f src/build-aux; done
+	cp -afuv /usr/share/libtool/ltmain.sh src/build-aux
+	cp -afuv /usr/share/automake*/compile src/build-aux
+
+gnulib-update : build-aux-update
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(GNULIB_HOME)/gnulib-tool --import --source-base=src/gllib \
 		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
