@@ -7289,6 +7289,34 @@ AC_MSG_RESULT([$_am_result])
 rm -f confinc confmf
 ])
 
+# Copyright (C) 1999, 2000, 2001, 2003, 2005  Free Software Foundation, Inc.
+#
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# serial 3
+
+# AM_PROG_CC_C_O
+# --------------
+# Like AC_PROG_CC_C_O, but changed for automake.
+AC_DEFUN([AM_PROG_CC_C_O],
+[AC_REQUIRE([AC_PROG_CC_C_O])dnl
+AC_REQUIRE([AM_AUX_DIR_EXPAND])dnl
+# FIXME: we rely on the cache variable name because
+# there is no other way.
+set dummy $CC
+ac_cc=`echo $[2] | sed ['s/[^a-zA-Z0-9_]/_/g;s/^[0-9]/_/']`
+if eval "test \"`echo '$ac_cv_prog_cc_'${ac_cc}_c_o`\" != yes"; then
+   # Losing compiler, so override with the script.
+   # FIXME: It is wrong to rewrite CC.
+   # But if we don't then we get into trouble of one sort or another.
+   # A longer-term fix would be to have automake use am__CC in this case,
+   # and then we could set am__CC="\$(top_srcdir)/compile \$(CC)"
+   CC="$am_aux_dir/compile $CC"
+fi
+])
+
 # Fake the existence of programs that GNU maintainers use.  -*- Autoconf -*-
 
 # Copyright (C) 1997, 1999, 2000, 2001, 2003, 2005
@@ -8320,6 +8348,7 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
+  AC_REQUIRE([AM_PROG_CC_C_O])
   AC_REQUIRE([AC_GNU_SOURCE])
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
 ])
@@ -8378,18 +8407,31 @@ AC_SUBST([LTALLOCA])
 
 # Like AC_LIBOBJ, except that the module name goes
 # into gl_LIBOBJS instead of into LIBOBJS.
-AC_DEFUN([gl_LIBOBJ],
-  [gl_LIBOBJS="$gl_LIBOBJS $1.$ac_objext"])
+AC_DEFUN([gl_LIBOBJ], [
+  AS_LITERAL_IF([$1], [gl_LIBSOURCES([$1.c])])dnl
+  gl_LIBOBJS="$gl_LIBOBJS $1.$ac_objext"
+])
 
 # Like AC_REPLACE_FUNCS, except that the module name goes
 # into gl_LIBOBJS instead of into LIBOBJS.
-AC_DEFUN([gl_REPLACE_FUNCS],
-  [AC_CHECK_FUNCS([$1], , [gl_LIBOBJ($ac_func)])])
+AC_DEFUN([gl_REPLACE_FUNCS], [
+  m4_foreach_w([gl_NAME], [$1], [AC_LIBSOURCES(gl_NAME[.c])])dnl
+  AC_CHECK_FUNCS([$1], , [gl_LIBOBJ($ac_func)])
+])
 
-# Like AC_LIBSOURCES, except that it does nothing.
-# We rely on EXTRA_lib..._SOURCES instead.
-AC_DEFUN([gl_LIBSOURCES],
-  [])
+# Like AC_LIBSOURCES, except the directory where the source file is
+# expected is derived from the gnulib-tool parametrization,
+# and alloca is special cased (for the alloca-opt module).
+# We could also entirely rely on EXTRA_lib..._SOURCES.
+AC_DEFUN([gl_LIBSOURCES], [
+  m4_foreach([_gl_NAME], [$1], [
+    m4_if(_gl_NAME, [alloca.c], [], [
+      m4_syscmd([test -r src/gllib/]_gl_NAME[ || test ! -d src/gllib])dnl
+      m4_if(m4_sysval, [0], [],
+        [AC_FATAL([missing src/gllib/]_gl_NAME)])
+    ])
+  ])
+])
 
 # This macro records the list of files which have been installed by
 # gnulib-tool and may be removed by future gnulib-tool invocations.
@@ -8397,10 +8439,10 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/config.rpath
   build-aux/link-warning.h
   lib/alloca.c
-  lib/alloca_.h
+  lib/alloca.in.h
   lib/config.charset
   lib/fnmatch.c
-  lib/fnmatch_.h
+  lib/fnmatch.in.h
   lib/fnmatch_loop.c
   lib/gettext.h
   lib/localcharset.c
@@ -8414,12 +8456,21 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/regex_internal.c
   lib/regex_internal.h
   lib/regexec.c
-  lib/stdbool_.h
-  lib/stdint_.h
-  lib/stdlib_.h
-  lib/unistd_.h
-  lib/wchar_.h
-  lib/wctype_.h
+  lib/stdbool.in.h
+  lib/stdint.in.h
+  lib/stdlib.in.h
+  lib/streq.h
+  lib/uniname.h
+  lib/uniname/gen-uninames.lisp
+  lib/uniname/uniname.c
+  lib/uniname/uninames.h
+  lib/unistd.in.h
+  lib/unitypes.h
+  lib/uniwidth.h
+  lib/uniwidth/cjk.h
+  lib/uniwidth/width.c
+  lib/wchar.in.h
+  lib/wctype.in.h
   m4/absolute-header.m4
   m4/alloca.m4
   m4/codeset.m4
@@ -9866,8 +9917,8 @@ AC_DEFUN([gl_LOCALCHARSET],
   AC_REQUIRE([gl_GLIBC21])
 ])
 
-# longlong.m4 serial 10
-dnl Copyright (C) 1999-2006 Free Software Foundation, Inc.
+# longlong.m4 serial 11
+dnl Copyright (C) 1999-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -9875,8 +9926,8 @@ dnl with or without modifications, as long as this notice is preserved.
 dnl From Paul Eggert.
 
 # Define HAVE_LONG_LONG_INT if 'long long int' works.
-# This fixes a bug in Autoconf 2.60, but can be removed once we
-# assume 2.61 everywhere.
+# This fixes a bug in Autoconf 2.61, but can be removed once we
+# assume 2.62 everywhere.
 
 # Note: If the type 'long long int' exists but is only 32 bits large
 # (as on some very old compilers), HAVE_LONG_LONG_INT will not be
@@ -9887,7 +9938,10 @@ AC_DEFUN([AC_TYPE_LONG_LONG_INT],
   AC_CACHE_CHECK([for long long int], [ac_cv_type_long_long_int],
     [AC_LINK_IFELSE(
        [AC_LANG_PROGRAM(
-	  [[long long int ll = 9223372036854775807ll;
+	  [[#if ! (-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
+	      error in preprocessor;
+	    #endif
+	    long long int ll = 9223372036854775807ll;
 	    long long int nll = -9223372036854775807LL;
 	    typedef int a[((-9223372036854775807LL < 0
 			    && 0 < 9223372036854775807ll)
@@ -11014,7 +11068,7 @@ AC_DEFUN([AC_HEADER_STDBOOL],
      AC_DEFINE(HAVE_STDBOOL_H, 1, [Define to 1 if stdbool.h conforms to C99.])
    fi])
 
-# stdint.m4 serial 28
+# stdint.m4 serial 29
 dnl Copyright (C) 2001-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -11386,7 +11440,7 @@ AC_DEFUN([gl_STDINT_INCLUDES],
 
 dnl gl_STDINT_TYPE_PROPERTIES
 dnl Compute HAVE_SIGNED_t, BITSIZEOF_t and t_SUFFIX, for all the types t
-dnl of interest to stdint_.h.
+dnl of interest to stdint.in.h.
 AC_DEFUN([gl_STDINT_TYPE_PROPERTIES],
 [
   gl_STDINT_BITSIZEOF([ptrdiff_t sig_atomic_t size_t wchar_t wint_t],
@@ -11446,8 +11500,8 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   REPLACE_MKSTEMP=0;      AC_SUBST([REPLACE_MKSTEMP])
 ])
 
-# ulonglong.m4 serial 6
-dnl Copyright (C) 1999-2006 Free Software Foundation, Inc.
+# ulonglong.m4 serial 8
+dnl Copyright (C) 1999-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -11455,8 +11509,8 @@ dnl with or without modifications, as long as this notice is preserved.
 dnl From Paul Eggert.
 
 # Define HAVE_UNSIGNED_LONG_LONG_INT if 'unsigned long long int' works.
-# This fixes a bug in Autoconf 2.60, but can be removed once we
-# assume 2.61 everywhere.
+# This fixes a bug in Autoconf 2.61, but can be removed once we
+# assume 2.62 everywhere.
 
 # Note: If the type 'unsigned long long int' exists but is only 32 bits
 # large (as on some very old compilers), AC_TYPE_UNSIGNED_LONG_LONG_INT
@@ -11469,7 +11523,10 @@ AC_DEFUN([AC_TYPE_UNSIGNED_LONG_LONG_INT],
     [ac_cv_type_unsigned_long_long_int],
     [AC_LINK_IFELSE(
        [AC_LANG_PROGRAM(
-	  [[unsigned long long int ull = 18446744073709551615ULL;
+	  [[#if ! (18446744073709551615ULL <= -1ull)
+	      error in preprocessor;
+	    #endif
+	    unsigned long long int ull = 18446744073709551615ULL;
 	    typedef int a[(18446744073709551615ULL <= (unsigned long long int) -1
 			   ? 1 : -1)];
 	   int i = 63;]],
@@ -13588,22 +13645,6 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
 AC_PREREQ(2.57)
 
-AC_DEFUN([CL_GETHOSTNAME],
-[AC_CHECK_FUNCS(gethostname)dnl
-])
-
-dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
-
-AC_PREREQ(2.57)
-
 AC_DEFUN([CL_GETPAGESIZE],
 [AC_BEFORE([$0], [CL_MPROTECT])
 CL_LINK_CHECK([getpagesize], cl_cv_func_getpagesize, [
@@ -14211,6 +14252,7 @@ dnl Cygwin (1.3.12) is even worse: it makes hard links to the symbolic link,
 dnl   instead of resolving the symbolic link.
 dnl Good behavior means creating a hard link to the symbolic link's target.
 dnl To avoid this, use the "hln" program.
+dnl cf gl_AC_FUNC_LINK_FOLLOWS_SYMLINK in gnulib/m4/link-follow.m4
 AC_CACHE_CHECK(how to make hard links to symlinks, cl_cv_prog_hln, [
 cl_cv_prog_hln="ln"
 if test "$cl_cv_prog_LN_S" = "ln -s"; then
@@ -15181,22 +15223,6 @@ elif test "$ac_cv_use_readline" = yes; then
   AC_MSG_FAILURE([despite --with-readline, GNU readline was not found (try --with-libreadline-prefix)])
 fi
 fi
-])
-
-dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
-
-AC_PREREQ(2.57)
-
-AC_DEFUN([CL_READLINK],
-[AC_CHECK_FUNCS(readlink)dnl
 ])
 
 #serial 1003

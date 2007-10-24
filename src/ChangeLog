@@ -1,5 +1,13 @@
 2007-10-24  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (AUTOCONF_FILES): src/aclocal.m4
+	(autoconf/aclocal.m4): move to aclocal.m4
+	(autoconf/autoconf.m4): remove
+	this move is necessary for automake which expects aclocal.m4 in
+	the current directory, just like configure.in
+
+2007-10-24  Sam Steingold  <sds@gnu.org>
+
 	* m4/gethostname.m4, m4/readlink.m4: remove trivial files
 	* configure.in: use AC_CHECK_FUNCS instead of
 	CL_GETHOSTNAME & CL_READLINK
