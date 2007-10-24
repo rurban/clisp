@@ -194,7 +194,7 @@ dnl DEFS HAVE_PERROR_DECL
 CL_PERROR
 AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
 fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath dnl
-gethostname)
+gethostname readlink)
 dnl DEFS HAVE_PUTENV, HAVE_SETENV
 CL_PUTENV
 dnl DEFS HAVE_LC_MESSAGES
@@ -213,8 +213,6 @@ dnl DEFS STAT_MACROS_BROKEN
 AC_HEADER_STAT
 AC_HEADER_TIME
 CL_STAT dnl DEFS HAVE_LSTAT etc
-dnl DEFS HAVE_READLINK
-CL_READLINK
 dnl DEFS ELOOP_VALUE
 CL_ELOOP
 dnl DEFS RETCLOSEDIRTYPE, VOID_CLOSEDIR
