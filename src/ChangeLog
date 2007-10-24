@@ -1,3 +1,8 @@
+2007-10-24  Sam Steingold  <sds@gnu.org>
+
+	* m4/gethostname.m4: remove trivial file
+	* configure.in: use AC_CHECK_FUNCS instead of CL_GETHOSTNAME
+
 2007-10-23  Sam Steingold  <sds@gnu.org>
 
 	* error.d (begin_error): check *RECURSIVE-ERROR-COUNT* before
