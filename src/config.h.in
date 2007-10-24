@@ -653,6 +653,9 @@
 /* need <sys/ioctl.h> for using ioctl() FIONREAD */
 #undef NEED_SYS_IOCTL_H
 
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+#undef NO_MINUS_C_MINUS_O
+
 /* need <sys/file.h> for using open() flags like O_RDWR */
 #undef OPEN_NEEDS_SYS_FILE_H
 
