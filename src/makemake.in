@@ -1674,8 +1674,8 @@ SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_
 UNICODE_INCLUDES=''
 UNICODE_EXTRA=''
 if [ "${with_unicode}" != no ] ; then
-  UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute uniname'
-  UNICODE_EXTRA=${UNICODE_EXTRA}' streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h'
+  UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute'
+  UNICODE_EXTRA=${UNICODE_EXTRA}' streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h uniname.c'
 fi
 
 NLS_INCLUDES=''
@@ -2538,9 +2538,7 @@ if [ -n "${SRCDIR}" ] ; then
     for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname; do
       link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
-    for f in ${UNICODE_EXTRA} modules.h ; do
-      link_dep "${f}" "${SRCDIR}${f}"
-    done
+    link_dep modules.h "${SRCDIR}modules.h"
     echol
   fi
   if [ ${HSYS} = win32gcc ] ; then
@@ -2914,12 +2912,10 @@ if [ -n "$USE_GETTEXT" ] ; then
 
 fi
 
-echol "localcharset.h : ${SRCDIR}gllib/localcharset.h"
-echotab "-\$(LN_S) ${SRCDIR}gllib/localcharset.h ."
-echol
-echol "localcharset${TOBJ} : gllib/localcharset${TOBJ}"
-echotab "-\$(LN_S) gllib/localcharset${TOBJ} ."
-echol
+for f in localcharset.h ${UNICODE_EXTRA}; do
+  link_dep "${f}" `find ${SRCDIR}gllib -name ${f}`
+done
+link_dep "localcharset${TOBJ}" "gllib/localcharset${TOBJ}"
 
 if [ $TOS = win32 ] ; then
   for f in $SYSLIBS ; do
