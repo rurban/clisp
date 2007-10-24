@@ -77,6 +77,18 @@ static void vecout (unsigned char* v, int l) {
 
 #include <db.h>
 
+/* http://www.oracle.com/technology/products/berkeley-db/db/update/4.4.20/if.4.4.20.html
+ * DIRTY -> DB_READ_UNCOMMITTED; DEGREE_2 -> DB_READ_COMMITTED */
+#if !HAVE_DECL_DB_LOCK_READ_UNCOMMITTED
+# define DB_LOCK_READ_UNCOMMITTED DB_LOCK_DIRTY
+#endif
+#if !HAVE_DECL_DB_READ_UNCOMMITTED
+# define DB_READ_UNCOMMITTED DB_DIRTY_READ
+#endif
+#if !HAVE_DECL_DB_READ_COMMITTED
+# define DB_READ_COMMITTED DB_DEGREE_2
+#endif
+
 /* this has to be before DEFCHECKERs */
 typedef enum { DBT_RAW, DBT_STRING, DBT_INTEGER } dbt_o_t;
 
@@ -1440,11 +1452,10 @@ DEFUN(BDB:DB-FD, db)
 
 DEFCHECKER(db_get_action,prefix=DB, default=0, \
            CONSUME CONSUME-WAIT GET-BOTH SET-RECNO)
-DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_DEGREE_2 DB_READ_COMMITTED \
-           DB_DIRTY_READ DB_READ_UNCOMMITTED DB_MULTIPLE DB_RMW)
-DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO-COMMIT :DEGREE-2 :READ-COMMITTED \
-      :DIRTY-READ :READ-UNCOMMITTED :MULTIPLE :RMW :TRANSACTION :ERROR :TYPE \
-      :KEY-TYPE)
+DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_READ_COMMITTED \
+           DB_READ_UNCOMMITTED DB_MULTIPLE DB_RMW)
+DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO-COMMIT :READ-COMMITTED \
+      :READ-UNCOMMITTED :MULTIPLE :RMW :TRANSACTION :ERROR :TYPE :KEY-TYPE)
 { /* Get items from a database */
   dbt_o_t key_type = check_dbt_type(popSTACK());
   dbt_o_t out_type = check_dbt_type(popSTACK());
@@ -1572,12 +1583,13 @@ DEFUN(BDB:DB-STAT, db &key :FAST-STAT :TRANSACTION)
   skipSTACK(2);
 }
 
-DEFFLAGSET(db_open_flags, DB_CREATE DB_DIRTY_READ DB_EXCL DB_NOMMAP \
+DEFFLAGSET(db_open_flags, DB_CREATE DB_READ_UNCOMMITTED DB_EXCL DB_NOMMAP \
            DB_RDONLY DB_THREAD DB_TRUNCATE DB_AUTO_COMMIT)
 DEFCHECKER(check_db_open_flags,prefix=DB,default=0,bitmasks=both,type=uint32_t,\
-           CREATE DIRTY-READ EXCL NOMMAP RDONLY THREAD TRUNCATE AUTO-COMMIT)
-DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :FLAGS      \
-      :CREATE :DIRTY-READ :EXCL :NOMMAP :RDONLY :THREAD :TRUNCATE \
+           CREATE READ-UNCOMMITTED EXCL NOMMAP RDONLY THREAD TRUNCATE \
+           AUTO-COMMIT)
+DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :FLAGS            \
+      :CREATE :READ-UNCOMMITTED :EXCL :NOMMAP :RDONLY :THREAD :TRUNCATE \
       :AUTO-COMMIT :TRANSACTION)
 { /* Open a database */
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
@@ -2155,9 +2167,8 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
 }
 
 /* ===== cursors ===== */
-DEFFLAGSET(make_dbc_flags, DB_DEGREE_2 DB_READ_COMMITTED DB_DIRTY_READ \
-           DB_READ_UNCOMMITTED DB_WRITECURSOR)
-DEFUN(BDB:MAKE-DBC,db &key :TRANSACTION :DEGREE-2 :READ-COMMITTED :DIRTY-READ \
+DEFFLAGSET(make_dbc_flags, DB_READ_COMMITTED DB_READ_UNCOMMITTED DB_WRITECURSOR)
+DEFUN(BDB:MAKE-DBC,db &key :TRANSACTION :READ-COMMITTED \
       :READ-UNCOMMITTED :WRITECURSOR)
 { /* create a cursor */
   u_int32_t flags = make_dbc_flags();
@@ -2219,10 +2230,10 @@ static dbt_o_t fill_or_init (object datum, DBT *pdbt, int re_len) {
 DEFCHECKER(dbc_get_action,prefix=DB,default=DB_CURRENT,                 \
            CURRENT FIRST GET-BOTH GET-BOTH-RANGE GET-RECNO JOIN-ITEM LAST \
            NEXT NEXT-DUP NEXT-NODUP PREV PREV-NODUP SET SET-RANGE SET-RECNO)
-DEFFLAGSET(dbc_get_options, DB_DEGREE_2 DB_READ_COMMITTED DB_DIRTY_READ \
+DEFFLAGSET(dbc_get_options, DB_READ_COMMITTED \
            DB_READ_UNCOMMITTED DB_MULTIPLE DB_MULTIPLE_KEY DB_RMW)
-DEFUN(BDB:DBC-GET, cursor key data action &key :DEGREE-2 :READ-COMMITTED \
-      :DIRTY-READ :READ-UNCOMMITTED :MULTIPLE :MULTIPLE-KEY :RMW :ERROR)
+DEFUN(BDB:DBC-GET, cursor key data action &key :READ-COMMITTED \
+      :READ-UNCOMMITTED :MULTIPLE :MULTIPLE-KEY :RMW :ERROR)
 { /* retrieve key/data pairs from the database */
   int no_error = nullp(popSTACK());
   u_int32_t flag = dbc_get_options();
@@ -2293,7 +2304,7 @@ DEFUN(BDB:LOCK-DETECT, dbe action)
 }
 
 DEFCHECKER(check_lockmode, enum=db_lockmode_t, prefix=DB_LOCK, default=, \
-           NG READ WRITE WAIT IWRITE IREAD IWR DIRTY WWRITE)
+           NG READ WRITE WAIT IWRITE IREAD IWR READ-UNCOMMITTED WWRITE)
 DEFFLAGSET(lock_get_flags, DB_LOCK_NOWAIT)
 DEFUN(BDB:LOCK-GET, dbe object locker mode &key :NOWAIT)
 { /* Acquire a lock */
@@ -2580,9 +2591,9 @@ DEFUN(BDB:LOG-COMPARE, lsn1 lsn2)
 
 /* ===== transactions ===== */
 
-DEFFLAGSET(txn_begin_flags, DB_DEGREE_2 DB_READ_COMMITTED DB_DIRTY_READ \
+DEFFLAGSET(txn_begin_flags, DB_READ_COMMITTED                           \
            DB_READ_UNCOMMITTED DB_TXN_NOSYNC DB_TXN_NOWAIT DB_TXN_SYNC)
-DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DEGREE-2 :READ-COMMITTED :DIRTY-READ \
+DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :READ-COMMITTED   \
       :READ-UNCOMMITTED :NOSYNC :NOWAIT :SYNC)
 { /* create a transaction */
   u_int32_t flags = txn_begin_flags();
