@@ -2288,11 +2288,11 @@
 
 (LOAD "exporting")              ; auto-exporting defining macros
 
-#+(and GETTEXT UNICODE) (LOAD "danish") ; Danish messages
-#+GETTEXT (LOAD "german")       ; German messages
-#+(and GETTEXT UNICODE) (LOAD "french") ; French messages
+#+(and GETTEXT UNICODE) (LOAD "danish")  ; Danish messages
+#+(and GETTEXT UNICODE) (LOAD "german")  ; German messages
+#+(and GETTEXT UNICODE) (LOAD "french")  ; French messages
 #+(and GETTEXT UNICODE) (LOAD "spanish") ; Spanish messages
-#+GETTEXT (LOAD "dutch")        ; Dutch messages
+#+(and GETTEXT UNICODE) (LOAD "dutch")   ; Dutch messages
 #+(and GETTEXT UNICODE) (LOAD "russian") ; Russian messages
 
 (load "deprecated")             ; the deprecated functionality -- optional

@@ -1,3 +1,8 @@
+2007-10-25  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp: all foreign messages require UNICODE because they use
+	non-ASCII characters (including german too!)
+
 2007-10-24  Sam Steingold  <sds@gnu.org>
 
 	support post-4.4.20 berkeley-db; more uniform option handling
