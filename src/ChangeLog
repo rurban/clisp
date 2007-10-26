@@ -2,6 +2,7 @@
 
 	* Makefile.devel (win32msvc/makefile.msvc*): generate from src to
 	enable search in gllib
+	* clisp.spec (modules): add libsvm
 
 2007-10-26  Sam Steingold  <sds@gnu.org>
 
