@@ -22,6 +22,8 @@ if test "$ac_use_included_regex" = no; then
   REGEX_O=""
 else
   REGEX_O="regex.$ac_cv_objext"
+  # must link gnulib regex.h into the build directory
+  ln -s $srcdir/../../src/gllib/regex.h .
 fi
 AC_SUBST(REGEX_O)
 BOLD_MSG([Regexp (Output)])
