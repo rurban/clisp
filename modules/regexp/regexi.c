@@ -8,10 +8,7 @@
 #include <sys/types.h>          /* regex.h needs this */
 #include <stdlib.h>             /* declare malloc(), free() */
 #include <stdio.h>              /* BUFSIZ */
-#include <regex.h>
-#if defined(HAVE_ALLOCA_H)
-# include <alloca.h>
-#endif
+#include "regex.h"
 
 #ifndef FOREIGN
 #error FOREIGN is not defined.
