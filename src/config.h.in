@@ -638,6 +638,9 @@
 /* need <linux/in6.h> for the in6_addr and sockaddr_in6 types */
 #undef IPV6_NEED_LINUX_IN6_H
 
+/* Define if `link(2)' dereferences symbolic links. */
+#undef LINK_FOLLOWS_SYMLINKS
+
 /* longjmp() may return */
 #undef LONGJMP_RETURNS
 

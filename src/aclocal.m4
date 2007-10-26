@@ -1794,7 +1794,7 @@ linux*)
 
   # Append ld.so.conf contents to the search path
   if test -f /etc/ld.so.conf; then
-    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \[$]2)); skip = 1; } { if (!skip) print \[$]0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \[$]2)); skip = 1; } { if (!skip) print \[$]0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
     sys_lib_dlsearch_path_spec="/lib${libsuff} /usr/lib${libsuff} $lt_ld_extra"
   fi
 
@@ -4502,9 +4502,6 @@ CC=$lt_[]_LT_AC_TAGVAR(compiler, $1)
 # Is the compiler the GNU C compiler?
 with_gcc=$_LT_AC_TAGVAR(GCC, $1)
 
-gcc_dir=\`gcc -print-file-name=. | $SED 's,/\.$,,'\`
-gcc_ver=\`gcc -dumpversion\`
-
 # An ERE matcher.
 EGREP=$lt_EGREP
 
@@ -4638,11 +4635,11 @@ striplib=$lt_striplib
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
-predep_objects=\`echo $lt_[]_LT_AC_TAGVAR(predep_objects, $1) | \$SED -e "s@\${gcc_dir}@\\\${gcc_dir}@g;s@\${gcc_ver}@\\\${gcc_ver}@g"\`
+predep_objects=$lt_[]_LT_AC_TAGVAR(predep_objects, $1)
 
 # Dependencies to place after the objects being linked to create a
 # shared library.
-postdep_objects=\`echo $lt_[]_LT_AC_TAGVAR(postdep_objects, $1) | \$SED -e "s@\${gcc_dir}@\\\${gcc_dir}@g;s@\${gcc_ver}@\\\${gcc_ver}@g"\`
+postdep_objects=$lt_[]_LT_AC_TAGVAR(postdep_objects, $1)
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
@@ -4654,7 +4651,7 @@ postdeps=$lt_[]_LT_AC_TAGVAR(postdeps, $1)
 
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path=\`echo $lt_[]_LT_AC_TAGVAR(compiler_lib_search_path, $1) | \$SED -e "s@\${gcc_dir}@\\\${gcc_dir}@g;s@\${gcc_ver}@\\\${gcc_ver}@g"\`
+compiler_lib_search_path=$lt_[]_LT_AC_TAGVAR(compiler_lib_search_path, $1)
 
 # Method to check whether dependent libraries are shared objects.
 deplibs_check_method=$lt_deplibs_check_method
@@ -4734,7 +4731,7 @@ variables_saved_for_relink="$variables_saved_for_relink"
 link_all_deplibs=$_LT_AC_TAGVAR(link_all_deplibs, $1)
 
 # Compile-time system search path for libraries
-sys_lib_search_path_spec=\`echo $lt_sys_lib_search_path_spec | \$SED -e "s@\${gcc_dir}@\\\${gcc_dir}@g;s@\${gcc_ver}@\\\${gcc_ver}@g"\`
+sys_lib_search_path_spec=$lt_sys_lib_search_path_spec
 
 # Run-time system search path for libraries
 sys_lib_dlsearch_path_spec=$lt_sys_lib_dlsearch_path_spec
@@ -6570,7 +6567,6 @@ do
     done
   done
 done
-IFS=$as_save_IFS
 lt_ac_max=0
 lt_ac_count=0
 # Add /usr/xpg4/bin/sed as it is typically found on Solaris
@@ -6603,7 +6599,6 @@ for lt_ac_sed in $lt_ac_sed_list /usr/xpg4/bin/sed; do
 done
 ])
 SED=$lt_cv_path_SED
-AC_SUBST([SED])
 AC_MSG_RESULT([$SED])
 ])
 
@@ -6745,8 +6740,7 @@ installed software in a non-standard prefix.
 
 _PKG_TEXT
 ])],
-		[AC_MSG_RESULT([no])
-                $4])
+		[$4])
 elif test $pkg_failed = untried; then
 	ifelse([$4], , [AC_MSG_FAILURE(dnl
 [The pkg-config script could not be found or is too old.  Make sure it
@@ -8380,6 +8374,7 @@ AC_SUBST([LTALLOCA])
   AM_GNU_GETTEXT_VERSION([0.16.1])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
   gl_LOCALCHARSET
   AC_FUNC_MALLOC
   gl_FUNC_MALLOC_POSIX
@@ -8499,6 +8494,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lib-ld.m4
   m4/lib-link.m4
   m4/lib-prefix.m4
+  m4/link-follow.m4
   m4/localcharset.m4
   m4/lock.m4
   m4/longlong.m4
@@ -9903,6 +9899,71 @@ AC_DEFUN([AC_LIB_PREPARE_MULTILIB],
       fi
     done
     IFS="$acl_save_IFS"
+  fi
+])
+
+#serial 9
+dnl Run a program to determine whether link(2) follows symlinks.
+dnl Set LINK_FOLLOWS_SYMLINKS accordingly.
+
+# Copyright (C) 1999, 2000, 2001, 2004, 2005, 2006 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_AC_FUNC_LINK_FOLLOWS_SYMLINK],
+[dnl
+  AC_CACHE_CHECK(
+    [whether link(2) dereferences a symlink specified with a trailing slash],
+		 jm_ac_cv_func_link_follows_symlink,
+  [
+    # Create a regular file.
+    echo > conftest.file
+    AC_TRY_RUN(
+      [
+#       include <sys/types.h>
+#       include <sys/stat.h>
+#       include <unistd.h>
+#       include <stdlib.h>
+
+#       define SAME_INODE(Stat_buf_1, Stat_buf_2) \
+	  ((Stat_buf_1).st_ino == (Stat_buf_2).st_ino \
+	   && (Stat_buf_1).st_dev == (Stat_buf_2).st_dev)
+
+	int
+	main ()
+	{
+	  const char *file = "conftest.file";
+	  const char *sym = "conftest.sym";
+	  const char *hard = "conftest.hard";
+	  struct stat sb_file, sb_hard;
+
+	  /* Create a symlink to the regular file. */
+	  if (symlink (file, sym))
+	    abort ();
+
+	  /* Create a hard link to that symlink.  */
+	  if (link (sym, hard))
+	    abort ();
+
+	  if (lstat (hard, &sb_hard))
+	    abort ();
+	  if (lstat (file, &sb_file))
+	    abort ();
+
+	  /* If the dev/inode of hard and file are the same, then
+	     the link call followed the symlink.  */
+	  return SAME_INODE (sb_hard, sb_file) ? 0 : 1;
+	}
+      ],
+      jm_ac_cv_func_link_follows_symlink=yes,
+      jm_ac_cv_func_link_follows_symlink=no,
+      jm_ac_cv_func_link_follows_symlink=yes dnl We're cross compiling.
+    )
+  ])
+  if test $jm_ac_cv_func_link_follows_symlink = yes; then
+    AC_DEFINE(LINK_FOLLOWS_SYMLINKS, 1,
+      [Define if `link(2)' dereferences symbolic links.])
   fi
 ])
 

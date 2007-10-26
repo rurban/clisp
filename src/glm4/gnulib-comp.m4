@@ -51,6 +51,7 @@ AC_SUBST([LTALLOCA])
   AM_GNU_GETTEXT_VERSION([0.16.1])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
   gl_LOCALCHARSET
   AC_FUNC_MALLOC
   gl_FUNC_MALLOC_POSIX
@@ -170,6 +171,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lib-ld.m4
   m4/lib-link.m4
   m4/lib-prefix.m4
+  m4/link-follow.m4
   m4/localcharset.m4
   m4/lock.m4
   m4/longlong.m4
