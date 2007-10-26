@@ -1,5 +1,11 @@
 2007-10-26  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (hln): use utils/hln.lisp instead of utils/hln/
+	* utils/hln/: remove
+	* utils/hln.lisp: add
+
+2007-10-26  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (gnulib-update): also get link-follow
 	* glm4/link-follow.m4: add
 	* modules/syscalls/configure.in: call gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
