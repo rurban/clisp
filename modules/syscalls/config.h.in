@@ -27,13 +27,9 @@
 /* Define to 1 if you have the <crypt.h> header file. */
 #undef HAVE_CRYPT_H
 
-/* Define to 1 if you have the declaration of `lgamma_r', and to 0 if you
-   don't. */
-#undef HAVE_DECL_LGAMMA_R
-
-/* Define to 1 if you have the declaration of `signgam', and to 0 if you
-   don't. */
-#undef HAVE_DECL_SIGNGAM
+/* Define to 1 if you have the declaration of `lgamma_r signgam', and to 0 if
+   you don't. */
+#undef HAVE_DECL_LGAMMA_R_SIGNGAM
 
 /* Define to 1 if you have the `encrypt' function. */
 #undef HAVE_ENCRYPT
@@ -216,6 +212,9 @@
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
+/* Define to 1 if you have the `realpath' function. */
+#undef HAVE_REALPATH
+
 /* Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.
    */
 #undef HAVE_SCALAR_FSID
@@ -378,6 +377,9 @@
 
 /* Define to 1 if you have the <wchar.h> header file. */
 #undef HAVE_WCHAR_H
+
+/* Define if `link(2)' dereferences symbolic links. */
+#undef LINK_FOLLOWS_SYMLINKS
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
