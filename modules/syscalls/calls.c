@@ -2567,15 +2567,26 @@ static inline int MkHardLink (char* old_pathstring, char* new_pathstring) {
  > STACK_1: new pathname */
 #if defined(WIN32_NATIVE)
 # define HAVE_LINK
+#elif !defined(LINK_FOLLOWS_SYMLINKS) && defined(HAVE_REALPATH)
+static inline int my_link (const char* source, const char* destination) {
+# ifndef MAXPATHLEN             /* see unix.d */
+#  define MAXPATHLEN  1024      /* <sys/param.h> */
+# endif
+  char path_buffer[MAXPATHLEN];
+  if (NULL == realpath(source,path_buffer)) OS_file_error(STACK_3);
+  return link(path_buffer,destination);
+}
+#else
+# define my_link link
 #endif
 #if defined(HAVE_LINK)
-static inline void hardlink_file (char* old_pathstring, char* new_pathstring) {
+static void hardlink_file (char* old_pathstring, char* new_pathstring) {
   begin_system_call();
 # if defined(WIN32_NATIVE)
   if (MkHardLink(old_pathstring,new_pathstring) == FALSE)
     if (GetLastError() == ERROR_FILE_NOT_FOUND)
 # else
-  if (link(old_pathstring,new_pathstring) < 0)
+  if (my_link(old_pathstring,new_pathstring) < 0)
     if (errno==ENOENT)
 # endif
       OS_file_error(STACK_3);
