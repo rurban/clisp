@@ -29,25 +29,25 @@ fi
 BOLD_MSG([System Calls (Functions)])
 CL_RLIMIT
 CL_SOCKET dnl for getservbyport et al
+AC_SEARCH_LIBS(crypt, crypt)
+AC_SEARCH_LIBS(erf, m)
 AC_CHECK_FUNCS(clock getloadavg confstr fcntl gethostent sysconf uname dnl
 getlogin getpwent getpwnam getpwuid endpwent setpwent dnl
 getservbyport getservbyname getservent setservent endservent dnl
 openlog setlogmask syslog closelog strftime strptime mktime dnl
-getpgid setpgrp getsid setpgid setsid kill pathconf fpathconf dnl
+getpgid setpgrp getsid setpgid setsid kill pathconf fpathconf realpath dnl
 getgrgid getgrnam getgrent endgrent setgrent dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
 mkfifo mkdir creat mkstemp tempnam mkdtemp dnl
 getegid geteuid getgid getuid setegid seteuid setgid setuid dnl
-fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync)
+fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl
+erf erfc lgamma fstatvfs statvfs getpriority setpriority dnl
+crypt encrypt setkey GlobalMemoryStatusEx)
 AC_FUNC_CHOWN
-AC_SEARCH_LIBS(erf, m)
-AC_CHECK_FUNCS(erf erfc lgamma fstatvfs statvfs getpriority setpriority)
-AC_CHECK_DECLS(lgamma_r,,,[#include <math.h>])
-AC_CHECK_DECLS(signgam,,,[#include <math.h>])
-AC_SEARCH_LIBS(crypt, crypt)
-AC_CHECK_FUNCS(crypt encrypt setkey GlobalMemoryStatusEx)
+AC_CHECK_DECLS([lgamma_r signgam],,,[#include <math.h>])
 CL_STAT
 CL_RUSAGE
+gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
 if test "$ac_cv_func_setpgrp" = "yes"; then
 dnl BSD versions of setpgrp() are identical to setpgid()
 AC_CACHE_CHECK([whether setpgrp() is POSIX],ac_cv_func_setpgrp_posix,[
