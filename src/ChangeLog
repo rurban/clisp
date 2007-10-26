@@ -3,6 +3,7 @@
 	* makemake.in (hln): use utils/hln.lisp instead of utils/hln/
 	* utils/hln/: remove
 	* utils/hln.lisp: add
+	* Makefile.devel (CONFIGURES): drop hln
 
 2007-10-26  Sam Steingold  <sds@gnu.org>
 

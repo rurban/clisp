@@ -84,7 +84,7 @@ MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 CLISP_CONFIGURES=src/configure $(MOD_CONFIGURES)
 FFCALL=avcall vacall trampoline callback callback/vacall_r callback/trampoline_r
 FFCALL_CONFIGURES=ffcall/configure $(patsubst %,ffcall/%/configure,$(FFCALL))
-CONFIGURES = $(CLISP_CONFIGURES) utils/hln/configure ${FFCALL_CONFIGURES}
+CONFIGURES = $(CLISP_CONFIGURES) ${FFCALL_CONFIGURES}
 
 src/gllib/Makefile.in : src/gllib/Makefile.am
 	cd src; automake gllib/Makefile #  --add-missing ??
@@ -107,8 +107,7 @@ AUTOCONF = autoconf
 AUTOCONF_CACHE = autom4te.cache
 AUTOHEADER = autoheader
 
-$(CLISP_CONFIGURES) utils/hln/configure: %/configure : \
-			%/configure.in $(AUTOCONF_FILES) version.sh
+$(CLISP_CONFIGURES) : %/configure : %/configure.in $(AUTOCONF_FILES) version.sh
 	cd $*; $(AUTOCONF) --include=$(CURDIR)/src
 
 $(CONFIG_H_IN) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
