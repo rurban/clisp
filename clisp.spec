@@ -24,7 +24,7 @@
 #%define release %(test -f .release || echo 0 >> .release; echo "1 + " `cat .release` | bc > .,release; mv -fv .,release .release; cat .release)
 #%define release %(cat .release)
 %define release 1
-%define modules rawsock berkeley-db pcre bindings/glibc clx/new-clx zlib
+%define modules libsvm rawsock berkeley-db pcre bindings/glibc clx/new-clx zlib
 
 Summary:      Common Lisp (ANSI CL) implementation
 Name:         %{name}
@@ -38,16 +38,17 @@ Source:       ftp://ftp.gnu.org/pub/gnu/clisp/latest/
 URL:          http://clisp.cons.org/
 Packager:     Sam Steingold <sds@gnu.org>
 Provides:     clisp, ansi-cl
-Distribution: Fedora Core GNU/Linux
+Distribution: Fedora GNU/Linux
 BuildRoot:    %{_tmppath}/%{name}-root
 %description
 %(cat SUMMARY)
 
 This binary distribution was built with the following modules:
- base: i18n regexp syscalls (run "clisp" or "clisp -K base" to use them)
+ base: i18n regexp syscalls readline
+  (run "clisp" or "clisp -K base" to use them)
  full: in addition to the above, also
    %{modules}
- (run "clisp -K full" to use them)
+  (run "clisp -K full" to use them)
 
 %prep
 cat <<EOF
