@@ -1,5 +1,10 @@
 2007-10-26  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (win32msvc/makefile.msvc*): generate from src to
+	enable search in gllib
+
+2007-10-26  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (hln): use utils/hln.lisp instead of utils/hln/
 	* utils/hln/: remove
 	* utils/hln.lisp: add
