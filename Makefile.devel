@@ -391,7 +391,7 @@ gnulib-update : build-aux-update
 	$(GNULIB_HOME)/gnulib-tool --import --source-base=src/gllib \
 		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
 		stdint stdbool regex fnmatch-gnu havelib gettext localcharset \
-		uniwidth/width streq uniname/uniname unitypes
+		uniwidth/width streq uniname/uniname unitypes link-follow
 	$(RM) configure.ac
 	cd src/glm4; \
 	for f in *.m4; do \

@@ -1,3 +1,12 @@
+2007-10-26  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (gnulib-update): also get link-follow
+	* glm4/link-follow.m4: add
+	* modules/syscalls/configure.in: call gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
+	* modules/syscalls/calls.c (my_link)
+	[!LINK_FOLLOWS_SYMLINKS && HAVE_REALPATH]: work around link(2) bug
+	(hardlink_file) [UNIX]: use my_link()
+
 2007-10-25  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp: all foreign messages require UNICODE because they use
