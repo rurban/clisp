@@ -13,6 +13,8 @@ CL_MODULE_COMMON_CHECKS
 gl_FUNC_FNMATCH_POSIX
 if test -n "$FNMATCH_H"; then
   FNMATCH_O=fnmatch.o
+  # must link gnulib fnmatch.h into the build directory
+  $as_ln_s $srcdir/../../src/gllib/fnmatch.h .
 else
   FNMATCH_O=
 fi

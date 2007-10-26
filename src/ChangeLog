@@ -4,6 +4,10 @@
 	defined, if necessary, in <clisp.h>; include "regex.h", not <>
 	* modules/regexp/configure.in [ac_use_included_regex=yes]: link
 	src/gllib/regex.h into the build directory
+	* modules/wildcard/wildcard.lisp: include the local "config.h",
+	not the global <> one
+	* modules/wildcard/configure.in [FNMATCH_H]: link
+	src/gllib/fnmatch.h into the build directory
 	Reported by Yaroslav Kavenchuk <kavenchuk@tut.by>
 
 2007-10-26  Sam Steingold  <sds@gnu.org>
