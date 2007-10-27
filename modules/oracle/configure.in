@@ -11,22 +11,22 @@ AC_INIT(oracle-clisp, 0.1, hin@alma.com)
 AC_CONFIG_SRCDIR(oracle.lisp)
 AC_CONFIG_HEADERS(config.h)
 
-# Checks for programs.
-AC_PROG_CC
+RSE_BOLD
+BOLD_MSG([Oracle (Common)])
+CL_MODULE_COMMON_CHECKS
+
+BOLD_MSG([Oracle (Programs)])
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
-# Checks for libraries.
-
-# Checks for header files.
-AC_HEADER_STDC
+BOLD_MSG([Oracle (Headers)])
 AC_CHECK_HEADERS([stdlib.h string.h])
 
-# Checks for typedefs, structures, and compiler characteristics.
-
-# Checks for library functions.
+BOLD_MSG([Oracle (Functions)])
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([strdup])
 
+BOLD_MSG([Oracle (Output)])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
+BOLD_MSG([Oracle (Done)])
