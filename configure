@@ -47,8 +47,8 @@ options: The following options are recognized:
   --bindir=DIR          sets the installation directory for executables
   --libdir=DIR          sets the installation directory for libraries
   --includedir=DIR      sets the installation directory for C header files
-  --datadir=DIR         sets the installation directory for
-                        read-only architecture-independent data
+  --datarootdir=DIR     sets the installation directory for ...
+  --datadir=DIR         read-only architecture-independent data
   --localedir=DIR       sets the installation directory for
                         locale-dependent architecture-independent data
   --docdir=DIR          sets the installation directory for documentation
@@ -277,6 +277,17 @@ do
         subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --includedir="
         prev=includedir
+        passnext=yes
+        passnextm=yes ;;
+
+      --datarootdir=* | --datarootdi=* | --datarootd=* | --dataroot=* | --dataroo=* | --dataro=* | --datar=*)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --datarootdir="`getarg "$arg"` ;;
+
+      --datarootdir | --datarootdi | --datarootd | --dataroot | --dataroo | --dataro | --datar)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --datarootdir="
+        prev=datarootdir
         passnext=yes
         passnextm=yes ;;
 
