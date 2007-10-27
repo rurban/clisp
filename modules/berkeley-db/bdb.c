@@ -82,10 +82,10 @@ static void vecout (unsigned char* v, int l) {
 #if !HAVE_DECL_DB_LOCK_READ_UNCOMMITTED
 # define DB_LOCK_READ_UNCOMMITTED DB_LOCK_DIRTY
 #endif
-#if !HAVE_DECL_DB_READ_UNCOMMITTED
+#if !defined(DB_READ_UNCOMMITTED)
 # define DB_READ_UNCOMMITTED DB_DIRTY_READ
 #endif
-#if !HAVE_DECL_DB_READ_COMMITTED
+#if !defined(DB_READ_COMMITTED)
 # define DB_READ_COMMITTED DB_DEGREE_2
 #endif
 
@@ -638,9 +638,11 @@ static object dbe_get_errpfx (DB_ENV *dbe) {
    get_tas_spins was renamed to mutex_get_tas_spins: */
 #if defined(HAVE_DB_ENV_MUTEX_GET_TAS_SPINS)
 # define get_tas_spins mutex_get_tas_spins
+# define dbe_get_tas_spins dbe_mutex_get_tas_spins
 #endif
 #if defined(HAVE_DB_ENV_MUTEX_SET_TAS_SPINS)
 # define set_tas_spins mutex_set_tas_spins
+# define dbe_set_tas_spins dbe_mutex_set_tas_spins
 #endif
 /* todo: support mutexes properly */
 
