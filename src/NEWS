@@ -10,6 +10,8 @@ User visible changes
   + Top-level configure now always run makemake, and makemake no longer is
     a "user-level" command; do not run it unless you know what you are doing.
 
+* Module berkeley-db now supports Berkeley DB 4.5.
+
 
 2.42 (2007-10-16)
 =================
