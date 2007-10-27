@@ -1,5 +1,9 @@
 2007-10-27  Sam Steingold  <sds@gnu.org>
 
+	* utils/fix-perms.sh: all Makefile* are non-executable
+
+2007-10-27  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in, configure, po/Makefile.in.in: use datarootdir
 	instead of datadir, as per autoconf 2.60
 

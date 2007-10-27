@@ -18,7 +18,7 @@ find . -type f -follow -perm +111 '(' \
   -o -name '*.bat' \
   -o -name 'link.sh' \
   -o -name '.cvsignore' \
-  -o -name 'Makefile' \
+  -o -name 'Makefile*' \
   -o -name 'README' \
   ')' \
   -exec chmod -c a-x '{}' ';'
