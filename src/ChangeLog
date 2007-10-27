@@ -1,3 +1,12 @@
+2007-10-27  Sam Steingold  <sds@gnu.org>
+
+	Berkeley-DB 4.5.20 now works
+	* modules/berkeley-db/configure.in (DB_READ_UNCOMMITTED)
+	(DB_READ_COMMITTED): do not check, they are #defined
+	* modules/berkeley-db/bdb.c: ditto
+	(dbe_get_tas_spins) [HAVE_DB_ENV_MUTEX_GET_TAS_SPINS]: define
+	(dbe_set_tas_spins) [HAVE_DB_ENV_MUTEX_SET_TAS_SPINS]: define
+
 2007-10-26  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regexi.c: do not include <alloca.h>: it is
