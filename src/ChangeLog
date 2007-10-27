@@ -1,5 +1,10 @@
 2007-10-27  Sam Steingold  <sds@gnu.org>
 
+	* modules/oracle/configure.in, modules/fastcgi/configure.in: use
+	CL_MODULE_COMMON_CHECKS to avoid errors when generating aclocal.m4
+
+2007-10-27  Sam Steingold  <sds@gnu.org>
+
 	Berkeley-DB 4.5.20 now works
 	* modules/berkeley-db/configure.in (DB_READ_UNCOMMITTED)
 	(DB_READ_COMMITTED): do not check, they are #defined
