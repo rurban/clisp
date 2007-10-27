@@ -1,5 +1,10 @@
 2007-10-27  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in, configure, po/Makefile.in.in: use datarootdir
+	instead of datadir, as per autoconf 2.60
+
+2007-10-27  Sam Steingold  <sds@gnu.org>
+
 	* modules/oracle/configure.in, modules/fastcgi/configure.in: use
 	CL_MODULE_COMMON_CHECKS to avoid errors when generating aclocal.m4
 

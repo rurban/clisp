@@ -31,7 +31,7 @@ options:
        --libdir=DIR            sets the installation directory for libraries
        --includedir=DIR        sets the installation directory for C header
                                  files
-       --datadir=DIR           sets the installation directory for
+       --datarootdir=DIR       sets the installation directory for
                                  read-only architecture-independent data
        --localedir=DIR         sets the installation directory for
                                  locale-dependent architecture-independent data
@@ -177,7 +177,7 @@ fsstnd='' # supported styles: gnu, gnu_ext, suse, redhat, debian, *bsd
 bindir=''
 libdir=''
 includedir=''
-datadir=''
+datarootdir=''
 localedir=''
 docdir=''
 mandir=''
@@ -358,11 +358,11 @@ EOF
         shift
       fi
       ;;
-    -datadir* | --datadir*)
-      datadir=`echol "$1" | sed 's/-*datadir=*//'`
+    -datarootdir* | --datarootdir*)
+      datarootdir=`echol "$1" | sed 's/-*datarootdir=*//'`
       shift
-      if test -z "$datadir" ; then
-        datadir=$1
+      if test -z "$datarootdir" ; then
+        datarootdir=$1
         shift
       fi
       ;;
@@ -775,43 +775,38 @@ HERE_='`pwd`'"${NEXT_}"
 
 # Various other installation directories.
 if [ $HOS = unix ] ; then
-  test -n "$bindir" ||
-    bindir='@bindir@' # usually '${exec_prefix}/bin'
+  test -n "$bindir" || bindir='@bindir@' # usually '${exec_prefix}/bin'
   BINDIR=`echo "$bindir" | sed -e "$brace_to_paren"`
 else
   bindir="\$(exec_prefix)${NEXT_}bin"
   BINDIR="$bindir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$libdir" ||
-    libdir='@libdir@' # usually '${exec_prefix}/lib'
+  test -n "$libdir" || libdir='@libdir@' # usually '${exec_prefix}/lib'
   LIBDIR=`echo "$libdir" | sed -e "$brace_to_paren"`
 else
   libdir="\$(exec_prefix)${NEXT_}lib"
   LIBDIR="$libdir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$includedir" ||
-    includedir='@includedir@' # usually '${prefix}/include'
+  test -n "$includedir" || includedir='@includedir@' # '${prefix}/include'
   INCLUDEDIR=`echo "$includedir" | sed -e "$brace_to_paren"`
 else
   includedir="\$(prefix)${NEXT_}include"
   INCLUDEDIR="$includedir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$datadir" ||
-    datadir='@datadir@' # usually '${prefix}/share'
-  DATADIR=`echo "$datadir" | sed -e "$brace_to_paren"`
+  test -n "$datarootdir" || datarootdir='@datarootdir@' # '${prefix}/share'
+  DATAROOTDIR=`echo "$datarootdir" | sed -e "$brace_to_paren"`
 else
-  datadir="\$(prefix)${NEXT_}share"
-  DATADIR="$datadir"
+  datarootdir="\$(prefix)${NEXT_}share"
+  DATAROOTDIR="$datarootdir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$localedir" ||
-    localedir='${datadir}/locale' # with autoconf-2.60: localedir='@localedir@' # usually '${datadir}/locale'
+  test -n "$localedir" || localedir='@localedir@' # '${datarootdir}/locale'
   LOCALEDIR=`echo "$localedir" | sed -e "$brace_to_paren"`
 else
-  localedir="\$(datadir)${NEXT_}locale"
+  localedir="\$(datarootdir)${NEXT_}locale"
   LOCALEDIR="$localedir"
 fi
 if [ -z "$fsstnd" ]; then       # default fsstnd depends on the OS
@@ -824,8 +819,8 @@ fi
 # and the implied value from fsstnd overrides the default.
 if [ -z "$docdir" ] ; then
   if [ $HOS = unix ] ; then
-    docdir='${datadir}/doc/${PACKAGE}' # with autoconf-2.60: docdir='@docdir@' # usually '${datadir}/doc/${PACKAGE}'
-    if [ "$docdir" = '${datadir}/doc/${PACKAGE}' ] ; then
+    docdir='@docdir@' # usually '${datarootdir}/doc/${PACKAGE}'
+    if [ "$docdir" = '${datarootdir}/doc/${PACKAGE}' ] ; then
       docdir=
     else
       PACKAGE=clisp ; eval docdir=\"$docdir\"
@@ -835,13 +830,13 @@ if [ -z "$docdir" ] ; then
   if [ -z "$docdir" ] ; then
     case "$fsstnd" in
       suse)
-        docdir="\$(datadir)${NEXT_}doc${NEXT_}packages${NEXT_}clisp"
+        docdir="\$(datarootdir)${NEXT_}doc${NEXT_}packages${NEXT_}clisp"
         ;;
       redhat)
-        docdir="\$(datadir)${NEXT_}doc${NEXT_}\$(TOPDIR)"
+        docdir="\$(datarootdir)${NEXT_}doc${NEXT_}\$(TOPDIR)"
         ;;
       debian | gnu_ext | *bsd)
-        docdir="\$(datadir)${NEXT_}doc${NEXT_}clisp"
+        docdir="\$(datarootdir)${NEXT_}doc${NEXT_}clisp"
         ;;
     esac
     DOCDIR="$docdir"
@@ -850,59 +845,53 @@ else
   DOCDIR="$docdir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$mandir" ||
-    mandir='${datadir}/man' # with autoconf-2.60: mandir='@mandir@' # usually '${datadir}/man'
+  test -n "$mandir" || mandir='@mandir@' # usually '${datarootdir}/man'
   MANDIR=`echo "$mandir" | sed -e "$brace_to_paren"`
 else
-  mandir="\$(datadir)${NEXT_}man"
+  mandir="\$(datarootdir)${NEXT_}man"
   MANDIR="$mandir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$htmldir" ||
-    htmldir='${docdir}' # with autoconf-2.60: htmldir='@htmldir@' # usually '${docdir}'
+  test -n "$htmldir" || htmldir='@htmldir@' # usually '${docdir}'
   HTMLDIR=`echo "$htmldir" | sed -e "$brace_to_paren"`
 else
   htmldir="\$(docdir)"
   HTMLDIR="$htmldir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$dvidir" ||
-    dvidir='${docdir}'
+  test -n "$dvidir" || dvidir='@dvidir@'
   DVIDIR=`echo "$dvidir" | sed -e "$brace_to_paren"`
 else
   dvidir="\$(docdir)"
   DVIDIR="$dvidir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$psdir" ||
-    psdir='${docdir}' # with autoconf-2.60: psdir='@psdir@' # usually '${docdir}'
+  test -n "$psdir" || psdir='@psdir@' # usually '${docdir}'
   PSDIR=`echo "$psdir" | sed -e "$brace_to_paren"`
 else
   psdir="\$(docdir)"
   PSDIR="$psdir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$pdfdir" ||
-    pdfdir='${docdir}' # with autoconf-2.60: pdfdir='@pdfdir@' # usually '${docdir}'
+  test -n "$pdfdir" || pdfdir='@pdfdir@' # usually '${docdir}'
   PDFDIR=`echo "$pdfdir" | sed -e "$brace_to_paren"`
 else
   pdfdir="\$(docdir)"
   PDFDIR="$pdfdir"
 fi
 if [ $HOS = unix ] ; then
-  test -n "$elispdir" ||
-    elispdir='${datadir}/emacs/site-lisp' # with autoconf-2.60: elispdir='@elispdir@' # usually '${datadir}/emacs/site-lisp' --- ???
+  test -n "$elispdir" || elispdir='${datarootdir}/emacs/site-lisp'
   ELISPDIR=`echo "$elispdir" | sed -e "$brace_to_paren"`
 else
-  elispdir="\$(datadir)/emacs/site-lisp"
+  elispdir="\$(datarootdir)/emacs/site-lisp"
   ELISPDIR="$elispdir"
 fi
 vimdir_default='vim/vimfiles/after/syntax'
 if [ $HOS = unix ] ; then
-  test -n "$vimdir" || vimdir='${datadir}/'${vimdir_default}
+  test -n "$vimdir" || vimdir='${datarootdir}/'${vimdir_default}
   VIMDIR=`echo "$vimdir" | sed -e "$brace_to_paren"`
 else
-  vimdir="\$(datadir)/${vimdir_default}"
+  vimdir="\$(datarootdir)/${vimdir_default}"
   VIMDIR="$vimdir"
 fi
 
@@ -1922,7 +1911,7 @@ echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
 echol "bindir  = ${BINDIR}"
-echol "datadir = ${DATADIR}"
+echol "datarootdir = ${DATAROOTDIR}"
 echol "mandir  = ${MANDIR}"
 echol "docdir  = ${DOCDIR}"
 echol "htmldir = ${HTMLDIR}"
@@ -2889,7 +2878,7 @@ if [ -n "$USE_GETTEXT" ] ; then
   if [ $HOS = unix ] ; then
     echotab "if test -d locale; then rm -rf locale; fi"
     echotab "mkdir locale"
-    echotab "(cd po && \$(MAKE) && \$(MAKE) install datadir=.. localedir='\$\$(datadir)/locale' INSTALL_DATA='\$(LN_HARD)') || (rm -rf locale ; exit 1)"
+    echotab "(cd po && \$(MAKE) && \$(MAKE) install datarootdir=.. localedir='\$\$(datarootdir)/locale' INSTALL_DATA='\$(LN_HARD)') || (rm -rf locale ; exit 1)"
   else
     echotab "mkdir locale"
     if test -f src/configure.in; then
@@ -3664,7 +3653,7 @@ if [ $CROSS = false ] ; then
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd po && \$(MAKE) installdirs prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
     fi
-    echotab_mkdir_maybe "\$(DESTDIR)\$(datadir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(datarootdir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(elispdir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(vimdir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
@@ -3732,7 +3721,7 @@ if [ $CROSS = false ] ; then
     echol "install-man : clisp.1 ${manual_dvi} clisp.html force"
     echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)"
-    echotab_mkdir_maybe "\$(DESTDIR)\$(datadir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(datarootdir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     echotab "\$(INSTALL_DATA) clisp.1 \$(DESTDIR)\$(mandir)/man1/clisp.1"

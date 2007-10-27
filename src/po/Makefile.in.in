@@ -3,6 +3,7 @@
 # Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 # Copyright (C) 1996 Marcus Daniels.
 # Copyright (C) 1997 Bruno Haible.
+# Copyright (C) 2007 Sam Steingold
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,8 +31,8 @@ top_srcdir = @top_srcdir@
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-datadir = @datadir@
-localedir = $(datadir)/locale
+datarootdir = @datarootdir@
+localedir = @localedir@
 
 # Programs used by "make":
 
@@ -82,8 +83,8 @@ install-data-yes: all force
 	  destdir=$(localedir); \
 	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
-	  datadir=`echo "$$destdir" | sed -e 's,/[^/]*$$,,'`; \
-	  test -d "$$datadir" || mkdir "$$datadir" ; \
+	  datarootdir=`echo "$$destdir" | sed -e 's,/[^/]*$$,,'`; \
+	  test -d "$$datarootdir" || mkdir "$$datarootdir" ; \
 	  test -d "$$destdir" || mkdir "$$destdir" ; \
 	  test -d "$$destdir/$$lang" || mkdir "$$destdir/$$lang" ; \
 	  test -d "$$dir" || mkdir "$$dir" ; \
@@ -110,8 +111,8 @@ installdirs: force
 	  destdir=$(localedir); \
 	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
-	  datadir=`echo "$$destdir" | sed -e 's,/[^/]*,,'`; \
-	  test -d "$$datadir" || mkdir "$$datadir" ; \
+	  datarootdir=`echo "$$destdir" | sed -e 's,/[^/]*,,'`; \
+	  test -d "$$datarootdir" || mkdir "$$datarootdir" ; \
 	  test -d "$$destdir" || mkdir "$$destdir" ; \
 	  test -d "$$destdir/$$lang" || mkdir "$$destdir/$$lang" ; \
 	  test -d "$$dir" || mkdir "$$dir" ; \
