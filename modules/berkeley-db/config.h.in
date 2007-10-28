@@ -42,9 +42,9 @@
 /* Define to 1 if DB->stat() accepts TXNid */
 #undef HAVE_DB_STAT_ACCEPT_TXN
 
-/* Define to 1 if you have the declaration of `DB_LOCK_READ_UNCOMMITTED
-   DB_READ_UNCOMMITTED DB_READ_COMMITTED', and to 0 if you don't. */
-#undef HAVE_DECL_DB_LOCK_READ_UNCOMMITTED_DB_READ_UNCOMMITTED_DB_READ_COMMITTED
+/* Define to 1 if you have the declaration of `DB_LOCK_READ_UNCOMMITTED', and
+   to 0 if you don't. */
+#undef HAVE_DECL_DB_LOCK_READ_UNCOMMITTED
 
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
@@ -103,7 +103,7 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* The size of a `db_recno_t', as computed by sizeof. */
+/* The size of `db_recno_t', as computed by sizeof. */
 #undef SIZEOF_DB_RECNO_T
 
 /* Define to 1 if you have the ANSI C header files. */

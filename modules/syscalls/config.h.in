@@ -405,28 +405,28 @@
 /* declaration of setrlimit() needs const */
 #undef SETRLIMIT_CONST
 
-/* The size of a `dev_t', as computed by sizeof. */
+/* The size of `dev_t', as computed by sizeof. */
 #undef SIZEOF_DEV_T
 
-/* The size of a `fsblkcnt_t', as computed by sizeof. */
+/* The size of `fsblkcnt_t', as computed by sizeof. */
 #undef SIZEOF_FSBLKCNT_T
 
-/* The size of a `fsfilcnt_t', as computed by sizeof. */
+/* The size of `fsfilcnt_t', as computed by sizeof. */
 #undef SIZEOF_FSFILCNT_T
 
-/* The size of a `gid_t', as computed by sizeof. */
+/* The size of `gid_t', as computed by sizeof. */
 #undef SIZEOF_GID_T
 
-/* The size of a `ino_t', as computed by sizeof. */
+/* The size of `ino_t', as computed by sizeof. */
 #undef SIZEOF_INO_T
 
-/* The size of a `off_t', as computed by sizeof. */
+/* The size of `off_t', as computed by sizeof. */
 #undef SIZEOF_OFF_T
 
-/* The size of a `rlim_t', as computed by sizeof. */
+/* The size of `rlim_t', as computed by sizeof. */
 #undef SIZEOF_RLIM_T
 
-/* The size of a `uid_t', as computed by sizeof. */
+/* The size of `uid_t', as computed by sizeof. */
 #undef SIZEOF_UID_T
 
 /* Define to 1 if you have the ANSI C header files. */

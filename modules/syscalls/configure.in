@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR(posix.lisp)
 AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
-BOLD_MSG([System Calls (Common checks)])
+BOLD_MSG([System Calls (Common)])
 CL_MODULE_COMMON_CHECKS
 
 BOLD_MSG([System Calls (Headers)])
