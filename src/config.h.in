@@ -778,25 +778,25 @@
    'sig_atomic_t'. */
 #undef SIG_ATOMIC_T_SUFFIX
 
-/* The size of a `dev_t', as computed by sizeof. */
+/* The size of `dev_t', as computed by sizeof. */
 #undef SIZEOF_DEV_T
 
-/* The size of a `fsblkcnt_t', as computed by sizeof. */
+/* The size of `fsblkcnt_t', as computed by sizeof. */
 #undef SIZEOF_FSBLKCNT_T
 
-/* The size of a `fsfilcnt_t', as computed by sizeof. */
+/* The size of `fsfilcnt_t', as computed by sizeof. */
 #undef SIZEOF_FSFILCNT_T
 
-/* The size of a `ino_t', as computed by sizeof. */
+/* The size of `ino_t', as computed by sizeof. */
 #undef SIZEOF_INO_T
 
-/* The size of a `off_t', as computed by sizeof. */
+/* The size of `off_t', as computed by sizeof. */
 #undef SIZEOF_OFF_T
 
-/* The size of a `rlim_t', as computed by sizeof. */
+/* The size of `rlim_t', as computed by sizeof. */
 #undef SIZEOF_RLIM_T
 
-/* The size of a `struct timeval', as computed by sizeof. */
+/* The size of `struct timeval', as computed by sizeof. */
 #undef SIZEOF_STRUCT_TIMEVAL
 
 /* Define to l, ll, u, ul, ull, etc., as suitable for constants of type
@@ -808,7 +808,7 @@
 
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
-   automatically deduced at run-time.
+   automatically deduced at runtime.
 	STACK_DIRECTION > 0 => grows toward higher addresses
 	STACK_DIRECTION < 0 => grows toward lower addresses
 	STACK_DIRECTION = 0 => direction of growth unknown */

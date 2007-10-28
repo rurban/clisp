@@ -51,7 +51,7 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* The size of a `KeySym', as computed by sizeof. */
+/* The size of `KeySym', as computed by sizeof. */
 #undef SIZEOF_KEYSYM
 
 /* Define to 1 if you have the ANSI C header files. */
