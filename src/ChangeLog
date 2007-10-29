@@ -1,3 +1,10 @@
+2007-10-29  Vadim Konovalov  <vkonovalov@alcatel-lucent.com>
+	Sam Steingold  <sds@gnu.org>
+
+	* makemake.in [win32msvc]: drop support for msvc4 & msvc5, thus
+	drop gcc-cccp and use deema instead
+	* Makefile.devel: do not generate makefiles for msvc[45] and debug
+
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
 	* utils/deema.c: extend to fully support the makemake equivalent
