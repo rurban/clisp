@@ -1,8 +1,9 @@
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
-	* m4/ldap.m4: remove trivial file
+	* m4/ldap.m4, m4/netdb.m4: remove trivial files
 	* configure.in: do not call CL_LDAP
 	* modules/dirkey/configure.in: check for headers explicitly
+	* m4/gethostbyname.m4 (CL_GETHOSTBYNAME): check for <netdb.h> here
 
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
