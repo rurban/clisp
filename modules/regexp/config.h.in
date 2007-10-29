@@ -1,24 +1,8 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
-   systems. This function is required for `alloca.c' support on those systems.
-   */
-#undef CRAY_STACKSEG_END
-
-/* Define to 1 if using `alloca.c'. */
-#undef C_ALLOCA
-
 /* Define to 1 if translation of program messages to the user's native
    language is requested. */
 #undef ENABLE_NLS
-
-/* Define to 1 if you have 'alloca' after including <alloca.h>, a header that
-   may be supplied by this distribution. */
-#undef HAVE_ALLOCA
-
-/* Define HAVE_ALLOCA_H for backward compatibility with older code that
-   includes <alloca.h> only if HAVE_ALLOCA_H is defined. */
-#undef HAVE_ALLOCA_H
 
 /* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
    CoreFoundation framework. */
@@ -32,10 +16,6 @@
    */
 #undef HAVE_DCGETTEXT
 
-/* Define to 1 if you have the declaration of `isblank', and to 0 if you
-   don't. */
-#undef HAVE_DECL_ISBLANK
-
 /* Define if the GNU gettext() function is already present or preinstalled. */
 #undef HAVE_GETTEXT
 
@@ -44,18 +24,6 @@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the `isblank' function. */
-#undef HAVE_ISBLANK
-
-/* Define to 1 if you have the `iswctype' function. */
-#undef HAVE_ISWCTYPE
-
-/* Define to 1 if you have the <locale.h> header file. */
-#undef HAVE_LOCALE_H
-
-/* Define to 1 if you have the `mbrtowc' function. */
-#undef HAVE_MBRTOWC
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -81,12 +49,6 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the `wcrtomb' function. */
-#undef HAVE_WCRTOMB
-
-/* Define to 1 if you have the `wcscoll' function. */
-#undef HAVE_WCSCOLL
-
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
@@ -101,14 +63,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* If using the C implementation of alloca, define if you know the
-   direction of stack growth for your system; otherwise it will be
-   automatically deduced at runtime.
-	STACK_DIRECTION > 0 => grows toward higher addresses
-	STACK_DIRECTION < 0 => grows toward lower addresses
-	STACK_DIRECTION = 0 => direction of growth unknown */
-#undef STACK_DIRECTION
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
@@ -131,9 +85,6 @@
 /* Define to 1 if you need to in order for `stat' and other things to work. */
 #undef _POSIX_SOURCE
 
-/* Define if you want regoff_t to be at least as wide POSIX requires. */
-#undef _REGEX_LARGE_OFFSETS
-
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
 # undef _ALL_SOURCE
@@ -155,51 +106,6 @@
 # undef __EXTENSIONS__
 #endif
 
-
-/* Define to rpl_re_comp if the replacement should be used. */
-#undef re_comp
-
-/* Define to rpl_re_compile_fastmap if the replacement should be used. */
-#undef re_compile_fastmap
-
-/* Define to rpl_re_compile_pattern if the replacement should be used. */
-#undef re_compile_pattern
-
-/* Define to rpl_re_exec if the replacement should be used. */
-#undef re_exec
-
-/* Define to rpl_re_match if the replacement should be used. */
-#undef re_match
-
-/* Define to rpl_re_match_2 if the replacement should be used. */
-#undef re_match_2
-
-/* Define to rpl_re_search if the replacement should be used. */
-#undef re_search
-
-/* Define to rpl_re_search_2 if the replacement should be used. */
-#undef re_search_2
-
-/* Define to rpl_re_set_registers if the replacement should be used. */
-#undef re_set_registers
-
-/* Define to rpl_re_set_syntax if the replacement should be used. */
-#undef re_set_syntax
-
-/* Define to rpl_re_syntax_options if the replacement should be used. */
-#undef re_syntax_options
-
-/* Define to rpl_regcomp if the replacement should be used. */
-#undef regcomp
-
-/* Define to rpl_regerror if the replacement should be used. */
-#undef regerror
-
-/* Define to rpl_regexec if the replacement should be used. */
-#undef regexec
-
-/* Define to rpl_regfree if the replacement should be used. */
-#undef regfree
 
 /* Define to equivalent of C99 restrict keyword, or to nothing if this is not
    supported. Do not define if restrict is supported directly. */

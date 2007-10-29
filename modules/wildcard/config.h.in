@@ -1,47 +1,10 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
-   systems. This function is required for `alloca.c' support on those systems.
-   */
-#undef CRAY_STACKSEG_END
-
-/* Define to 1 if using `alloca.c'. */
-#undef C_ALLOCA
-
-/* Define to 1 if you have `alloca', as a function or macro. */
-#undef HAVE_ALLOCA
-
-/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
-   */
-#undef HAVE_ALLOCA_H
-
-/* Define to 1 if you have the `btowc' function. */
-#undef HAVE_BTOWC
-
-/* Define to 1 if you have the declaration of `isblank', and to 0 if you
-   don't. */
-#undef HAVE_DECL_ISBLANK
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `isblank' function. */
-#undef HAVE_ISBLANK
-
-/* Define to 1 if you have the `iswctype' function. */
-#undef HAVE_ISWCTYPE
-
-/* Define to 1 if you have the `mbsrtowcs' function. */
-#undef HAVE_MBSRTOWCS
-
-/* Define to 1 if <wchar.h> declares mbstate_t. */
-#undef HAVE_MBSTATE_T
-
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
-
-/* Define to 1 if you have the `mempcpy' function. */
-#undef HAVE_MEMPCPY
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -64,18 +27,6 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the <wctype.h> header file. */
-#undef HAVE_WCTYPE_H
-
-/* Define to 1 if you have the `wmemchr' function. */
-#undef HAVE_WMEMCHR
-
-/* Define to 1 if you have the `wmemcpy' function. */
-#undef HAVE_WMEMCPY
-
-/* Define to 1 if you have the `wmempcpy' function. */
-#undef HAVE_WMEMPCPY
-
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
@@ -90,14 +41,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* If using the C implementation of alloca, define if you know the
-   direction of stack growth for your system; otherwise it will be
-   automatically deduced at runtime.
-	STACK_DIRECTION > 0 => grows toward higher addresses
-	STACK_DIRECTION < 0 => grows toward lower addresses
-	STACK_DIRECTION = 0 => direction of growth unknown */
-#undef STACK_DIRECTION
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
@@ -141,9 +84,3 @@
 # undef __EXTENSIONS__
 #endif
 
-
-/* Define to a replacement function name for fnmatch(). */
-#undef fnmatch
-
-/* Define to a type if <wchar.h> does not define. */
-#undef mbstate_t
