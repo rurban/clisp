@@ -1,5 +1,11 @@
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
+	* m4/ldap.m4: remove trivial file
+	* configure.in: do not call CL_LDAP
+	* modules/dirkey/configure.in: check for headers explicitly
+
+2007-10-29  Sam Steingold  <sds@gnu.org>
+
 	* configure.in (AC_COPYRIGHT): update year
 	(AC_PREREQ): require 2.61 (datarootdir et al, see below 2007-10-27)
 
