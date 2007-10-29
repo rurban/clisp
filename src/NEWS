@@ -1,7 +1,7 @@
 User visible changes
 --------------------
 
-* Infrastructure
+* Infrastructure:
   + Top-level configure now accepts a new option --vimdir which specifies
     the installation directory for the VIM files (lisp.vim).
     The default value is ${datadir}/vim/vimfiles/after/syntax/.
@@ -10,7 +10,7 @@ User visible changes
   + Top-level configure now always run makemake, and makemake no longer is
     a "user-level" command; do not run it unless you know what you are doing.
 
-* Portability
+* Portability:
   + Support for ancient systems with broken CPP have been dropped.
     This includes AIX 4.2, Coherent386, Ultrix, MSVC4, MSVC5.
 
