@@ -399,9 +399,10 @@ pre-release : gnulib-update tp-mail
 # web pages to be updated:
 # * www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
 # dates to be updated:
-# * banner in spvw.d
+# * banner in src/spvw.d
 # * COPYRIGHT
-# * clisp-doc-copyright in impent.xml
+# * clisp-doc-copyright in doc/impent.xml
+# * AC_COPYRIGHT in src/configure.in
 
 ## CLISP release announcements go to:
 # clisp-announce@lists.sourceforge.net
