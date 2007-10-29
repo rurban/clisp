@@ -29,7 +29,7 @@
 
 2007-10-28  Sam Steingold  <sds@gnu.org>
 
-	* Makefile.devel (update-docbook-utils): remove from all beacause
+	* Makefile.devel (update-docbook-utils): remove from all because
 	it downloads 23MB data
 	* doc/Makefile (docbook-dtd, docbook-xsl): replaces update-docbook-utils
 
