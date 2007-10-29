@@ -84,9 +84,6 @@
 /* Define to 1 if 'float' underflow raises an exception. */
 #undef FLOAT_UNDERFLOW_EXCEPTION
 
-/* the type of `bufsize' in getcwd() */
-#undef GETCWD_SIZE_T
-
 /* declaration of gettimeofday() needs dots */
 #undef GETTIMEOFDAY_DOTS
 
@@ -184,7 +181,7 @@
 /* Define to 1 if you have the `ftime' function. */
 #undef HAVE_FTIME
 
-/* have getcwd() */
+/* Define to 1 if you have the `getcwd' function. */
 #undef HAVE_GETCWD
 
 /* Define to 1 if you have the `getdtablesize' function. */
@@ -257,14 +254,8 @@
 /* Define if you have <langinfo.h> and nl_langinfo(CODESET). */
 #undef HAVE_LANGINFO_CODESET
 
-/* Define to 1 if you have the <lber.h> header file. */
-#undef HAVE_LBER_H
-
 /* Define if your <locale.h> file defines LC_MESSAGES. */
 #undef HAVE_LC_MESSAGES
-
-/* Define to 1 if you have the <ldap.h> header file. */
-#undef HAVE_LDAP_H
 
 /* Define to 1 if you have the `sun' library (-lsun). */
 #undef HAVE_LIBSUN
@@ -478,6 +469,9 @@
 
 /* Define to 1 if `st_rdev' is member of `struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_RDEV
+
+/* Define to 1 if you have the <sun/netdb.h> header file. */
+#undef HAVE_SUN_NETDB_H
 
 /* Define to 1 if you have the `sysconf' function. */
 #undef HAVE_SYSCONF
