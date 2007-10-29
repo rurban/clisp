@@ -1,10 +1,13 @@
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
-	* m4/ldap.m4, m4/netdb.m4: remove trivial files
+	* m4/ldap.m4, m4/netdb.m4, m4/getcwd.m4: remove trivial files
 	* m4/signed.m4: remove unused file
-	* configure.in: do not call CL_LDAP & CL_NETDB
+	* configure.in: do not call CL_GETWD, CL_LDAP & CL_NETDB
 	* modules/dirkey/configure.in: check for headers explicitly
 	* m4/gethostbyname.m4 (CL_GETHOSTBYNAME): check for <netdb.h> here
+	* unix.d (MAXPATHLEN): use PATH_MAX (when defined)
+	or else 4096 (instead of 1024 previously)
+	(getwd, getcwd): drop prototypes
 
 2007-10-29  Sam Steingold  <sds@gnu.org>
 

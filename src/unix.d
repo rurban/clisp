@@ -344,13 +344,17 @@ extern_C int raise (int sig);
 #include <sys/param.h>
 /* maximum path length (incl. terminating NULL), returned by getwd(): */
 #ifndef MAXPATHLEN
-  #define MAXPATHLEN  1024  /* <sys/param.h> */
+  #ifdef PATH_MAX
+    #define MAXPATHLEN  PATH_MAX  /* <sys/param.h> */
+  #else
+    #define MAXPATHLEN  4096
+  #endif
 #endif
 #ifdef HAVE_GETCWD
-extern_C char* getcwd (char* buf, GETCWD_SIZE_T bufsize);
+/* getcwd(3) - declared in <unistd.h> */
 #define getwd(buf)  getcwd(buf,MAXPATHLEN)
 #else
-extern_C char* getwd (char* pathname); /* GETWD(3) */
+/* getwd(3) - declared in <unistd.h> */
 #endif
 /* used by PATHNAME */
 
