@@ -1,3 +1,9 @@
+2007-10-28  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (update-docbook-utils): remove from all beacause
+	it downloads 23MB data
+	* doc/Makefile (docbook-dtd, docbook-xsl): replaces update-docbook-utils
+
 2007-10-27  Sam Steingold  <sds@gnu.org>
 
 	* utils/fix-perms.sh: all Makefile* are non-executable
