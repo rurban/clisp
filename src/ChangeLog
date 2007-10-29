@@ -22,7 +22,7 @@
 
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
-	Work around wildcard build error reported in
+	Work around the wildcard build error reported in
 	<http://permalink.gmane.org/gmane.lisp.clisp.devel/16815>
 	and <http://permalink.gmane.org/gmane.lisp.clisp.devel/16824>.
 	The problem is that all gnulib autoconf macros are called from
