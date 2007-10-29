@@ -41,7 +41,6 @@ dnl
 AC_PROG_CC  dnl sets variable CC
 AC_PROG_CPP dnl sets variable CPP
 gl_EARLY
-gl_INIT
 dnl sets variable RANLIB
 CL_PROG_RANLIB
 dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
@@ -86,9 +85,8 @@ dnl final CC check
 CL_CC_WORKS
 dnl
 BOLD_MSG([check for add-ons])
-dnl
-dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
-AM_ICONV
+gl_INIT
+AM_ICONV dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
 dnl USE_NLS CPPFLAGS LIBINTL
 dnl Set of all available languages [this is also a /bin/sh/ command!]
 ALL_LINGUAS="en da de fr es nl ru"
@@ -119,10 +117,6 @@ dnl DEFS HAVE_SYS_INTTYPES_H -- needed for stdint.h.in
 AC_CHECK_HEADERS(sys/inttypes.h unistd.h sys/file.h)
 dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
 CL_OFFSETOF
-dnl DEFS HAVE_STDBOOL_H, sets variables STDBOOL_H, HAVE__BOOL
-gl_STDBOOL_H
-dnl DEFS HAVE_STDINT_H, sets variables STDINT_H, HAVE_LONG_64BIT, HAVE_LONG_LONG_64BIT
-gl_STDINT_H
 dnl DEFS ACCESS_NEEDS_SYS_FILE_H if sys/file.h is needed for the access() flags
 CL_ACCESSFLAGS
 dnl DEFS OPEN_NEEDS_SYS_FILE_H if sys/file.h is needed for the open() flags

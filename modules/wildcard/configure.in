@@ -10,7 +10,8 @@ AC_CONFIG_HEADERS(config.h)
 RSE_BOLD
 BOLD_MSG([Wildcard (Common)])
 CL_MODULE_COMMON_CHECKS
-gl_FUNC_FNMATCH_POSIX
+dnl called from top-level configure.in:gl_INIT [gl_FUNC_FNMATCH_POSIX]
+dnl FNMATCH_H comes from ../config.cache
 if test -n "$FNMATCH_H"; then
   FNMATCH_O=fnmatch.o
   # must link gnulib fnmatch.h into the build directory

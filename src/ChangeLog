@@ -1,3 +1,18 @@
+2007-10-29  Sam Steingold  <sds@gnu.org>
+
+	Work around wildcard build error reported in
+	<http://permalink.gmane.org/gmane.lisp.clisp.devel/16815>
+	and <http://permalink.gmane.org/gmane.lisp.clisp.devel/16824>.
+	The problem is that all gnulib autoconf macros are called from
+	src/glm4/gnulib-comp.m4:gl_INIT, so they should not be called from
+	module configures; we can rely on sourcing config.cache.
+	* configure.in: do not call gl_STDBOOL_H & gl_STDINT_H since they
+	are already called from gl_INIT
+	* modules/regexp/configure.in: do not call gl_FUNC_ALLOCA &
+	gl_REGEX: they are already called from the top-level configure.in
+	* modules/wildcard/configure.in: do not call gl_FUNC_FNMATCH_POSIX,
+	rely on gl_INIT in top-level configure.in
+
 2007-10-29  Vadim Konovalov  <vkonovalov@alcatel-lucent.com>
 	Sam Steingold  <sds@gnu.org>
 

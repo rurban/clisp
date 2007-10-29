@@ -14,8 +14,9 @@ CL_MODULE_COMMON_CHECKS
 AC_CHECK_HEADERS(string.h sys/types.h)
 AM_GNU_GETTEXT([external])
 gl_C_RESTRICT
-gl_FUNC_ALLOCA
-gl_REGEX
+
+dnl called from top-level configure.in:gl_INIT [gl_FUNC_ALLOCA gl_REGEX]
+dnl ac_use_included_regex comes from ../config.cache
 
 # can we use the system-wide regex implementation?
 if test "$ac_use_included_regex" = no; then
