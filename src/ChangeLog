@@ -1,3 +1,9 @@
+2007-10-29  Sam Steingold  <sds@gnu.org>
+
+	* utils/deema.c: extend to fully support the makemake equivalent
+	sed -e 's/, *)/,_EMA_)/g' -e 's/, *,/,_EMA_,/g'
+	Reported by Vadim Konovalov <vkonovalov@alcatel-lucent.com>
+
 2007-10-28  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (update-docbook-utils): remove from all beacause
