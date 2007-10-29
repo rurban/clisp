@@ -1,5 +1,11 @@
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: use AC_TYPE_LONG_LONG_INT instead of the obsolescent
+	gl_AC_TYPE_LONG_LONG
+	* lispbibl.d, foreign.d: use HAVE_LONG_LONG_INT instead of HAVE_LONGLONG
+
+2007-10-29  Sam Steingold  <sds@gnu.org>
+
 	Work around wildcard build error reported in
 	<http://permalink.gmane.org/gmane.lisp.clisp.devel/16815>
 	and <http://permalink.gmane.org/gmane.lisp.clisp.devel/16824>.

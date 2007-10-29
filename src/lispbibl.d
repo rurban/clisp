@@ -334,12 +334,6 @@
   #elif defined(DECALPHA)
     #define long_bitsize 64
   #endif
-  #ifdef __GNUC__
-    #if (__GNUC__ >= 2) # GCC 2 got a working 'long long' type meanwhile.
-      #define HAVE_LONGLONG
-      #define long_long_bitsize 64
-    #endif
-  #endif
   #if defined(I80386)
     #define pointer_bitsize 32
   #elif defined(DECALPHA)
@@ -1136,14 +1130,14 @@
 # Literal constants of 64-bit integer types
 # LL(nnnn)  = nnnn parsed as a sint64
 # ULL(nnnn) = nnnn parsed as a uint64
-#if defined(HAVE_LONGLONG)
+#if defined(HAVE_LONG_LONG_INT)
   #define LL(nnnn) nnnn##LL
   #define ULL(nnnn) nnnn##ULL
 #elif defined(MICROSOFT)
   #define LL(nnnn) nnnn##i64
   #define ULL(nnnn) nnnn##ui64
 #endif
-%% #if defined(HAVE_LONGLONG)
+%% #if defined(HAVE_LONG_LONG_INT)
 %%   puts("#define LL(nnnn) nnnn##LL");
 %%   puts("#define ULL(nnnn) nnnn##ULL");
 %% #elif defined(MICROSOFT)
@@ -1189,21 +1183,21 @@
 #if (long_bitsize==64)
   typedef long           SLONGLONG;
   typedef unsigned long  ULONGLONG;
-  #undef HAVE_LONGLONG
-  #define HAVE_LONGLONG
+  #undef HAVE_LONG_LONG_INT
+  #define HAVE_LONG_LONG_INT
 #elif defined(MICROSOFT)
   typedef __int64           SLONGLONG;
   typedef unsigned __int64  ULONGLONG;
-  #define HAVE_LONGLONG
-#elif defined(HAVE_LONGLONG)
+  #define HAVE_LONG_LONG_INT
+#elif defined(HAVE_LONG_LONG_INT)
  #if defined(long_long_bitsize) && (long_long_bitsize==64)
   typedef long long           SLONGLONG;
   typedef unsigned long long  ULONGLONG;
  #else # useless type
-  #undef HAVE_LONGLONG
+  #undef HAVE_LONG_LONG_INT
  #endif
 #endif
-#if defined(WIDE) && !defined(HAVE_LONGLONG)
+#if defined(WIDE) && !defined(HAVE_LONG_LONG_INT)
   #error "No 64 bit integer type? -- Which Integer-type has 64 Bit?"
 #endif
 %% #ifdef __CHAR_UNSIGNED__
@@ -1227,7 +1221,7 @@
 %% #elif defined(MICROSOFT)
 %%   emit_typedef("__int64","SLONGLONG");
 %%   emit_typedef("unsigned __int64","ULONGLONG");
-%% #elif defined(HAVE_LONGLONG)
+%% #elif defined(HAVE_LONG_LONG_INT)
 %%   emit_typedef("long long","SLONGLONG");
 %%   emit_typedef("unsigned long long","ULONGLONG");
 %% #endif
@@ -1525,7 +1519,7 @@ typedef ULONG   uint31;  # unsigned 31 bit Integer
 typedef SLONG   sint31;  # signed 31 bit Integer
 typedef ULONG   uint32;  # unsigned 32 bit Integer
 typedef SLONG   sint32;  # signed 32 bit Integer
-#ifdef HAVE_LONGLONG
+#ifdef HAVE_LONG_LONG_INT
   typedef ULONGLONG  uint33;  # unsigned 33 bit Integer
   typedef SLONGLONG  sint33;  # signed 33 bit Integer
   typedef ULONGLONG  uint48;  # unsigned 48 bit Integer
@@ -1552,7 +1546,7 @@ typedef SLONG   sint32;  # signed 32 bit Integer
 %%     sprintf(buf,"uint%d",i); emit_typedef("ULONG",buf);
 %%     sprintf(buf,"sint%d",i); emit_typedef("SLONG",buf);
 %%   }
-%%   #ifdef HAVE_LONGLONG
+%%   #ifdef HAVE_LONG_LONG_INT
 %%     for (i=33; i<=64; i++)
 %%       if ((i==33) || (i==48) || (i==64)) {
 %%         sprintf(buf,"uint%d",i); emit_typedef("ULONGLONG",buf);
@@ -16241,7 +16235,7 @@ extern sintL I_to_L (object obj);
 # is used by
 %% puts("extern sintL I_to_L (object obj);");
 
-#if defined(HAVE_LONGLONG)
+#if defined(HAVE_LONG_LONG_INT)
   # Converts an Integer >=0 into an unsigned quadword.
   # I_to_UQ(obj)
   # > obj: an object, should be an Integer >=0, <2^64
@@ -16249,11 +16243,11 @@ extern sintL I_to_L (object obj);
   extern uint64 I_to_UQ (object obj);
   /* used by FOREIGN, for FFI, and by modules */
 #endif
-%% #ifdef HAVE_LONGLONG
+%% #ifdef HAVE_LONG_LONG_INT
 %%   puts("extern uint64 I_to_UQ (object obj);");
 %% #endif
 
-#if defined(HAVE_LONGLONG)
+#if defined(HAVE_LONG_LONG_INT)
   # Converts an Integer into a signed quadword.
   # I_to_Q(obj)
   # > obj: an object, should be an Integer >=-2^63, <2^63
@@ -16261,7 +16255,7 @@ extern sintL I_to_L (object obj);
   extern sint64 I_to_Q (object obj);
   /* used by FOREIGN, for FFI, and by modules */
 #endif
-%% #ifdef HAVE_LONGLONG
+%% #ifdef HAVE_LONG_LONG_INT
 %%   puts("extern sint64 I_to_Q (object obj);");
 %% #endif
 
@@ -16281,7 +16275,7 @@ extern sintL I_to_L (object obj);
 #else
   #define I_to_sint32(obj)  I_to_L(obj)
 #endif
-#ifdef HAVE_LONGLONG
+#ifdef HAVE_LONG_LONG_INT
   #define I_to_uint64(obj)  I_to_UQ(obj)
   #define I_to_sint64(obj)  I_to_Q(obj)
 #endif
