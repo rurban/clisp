@@ -1,5 +1,10 @@
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
+	* configure.in (AC_COPYRIGHT): update year
+	(AC_PREREQ): require 2.61 (datarootdir et al, see below 2007-10-27)
+
+2007-10-29  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: use AC_TYPE_LONG_LONG_INT instead of the obsolescent
 	gl_AC_TYPE_LONG_LONG
 	* lispbibl.d, foreign.d: use HAVE_LONG_LONG_INT instead of HAVE_LONGLONG
