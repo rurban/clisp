@@ -1,7 +1,16 @@
 # CLISP Implementation Notes generation
 # (c) 2000-2007 Sam Steingold
 
-DTDVER=4.4
+# To generate HTML, you will need xsltproc & xmllint from the libxml2
+# (http://xmlsoft.org/) package in addition to the DocBook DTDs and XSL
+# stylesheets (http://www.docbook.org/)
+# When writing docbook documentation, you need the "DocBook Definitive Guide"
+# http://docbook.org/tdg/en/html/docbook-x.html
+
+# which DTD to validate against
+DTDVER=4.5
+
+# all included XML files
 IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	impext.xml impissue.xml impbyte.xml unix-ent.xml mop-ent.xml faq.xml \
 	history.xml \
@@ -25,46 +34,51 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	../modules/syscalls/syscalls.xml	\
 	../modules/wildcard/wildcard.xml	\
 	../modules/zlib/zlib.xml
+# targets for <olink> resolution
 OLINK=tdb-man.xml tdb-pile.xml tdb-chunk.xml olink-pile.xml olink-chunk.xml
+
 RM=/bin/rm -f
-# DOC=$(shell pwd)
+
+# what to do when there is no local system-wide DTD & XSL?
+DOWNLOAD=yes
 
 ifneq (,$(filter Windows%,$(OS)))
-SEP=;
-DTD=/usr/share/docbook-xml$(DTDVER)/docbookx.dtd
+DTD_PATH=/usr/share/docbook-xml$(DTDVER)/docbookx.dtd
+# Make sure to use a trailing slash.
+XSL_PATH=$(firstword $(wildcard /usr/share/docbook-xsl*/))
 FOP=/cygdrive/c/java/fop-0.20.5/fop.bat
 else
-SEP=:
-DTD=$(firstword $(wildcard \
+DTD_PATH=$(firstword $(wildcard \
 	/usr/share/sgml/docbook/xml-dtd-$(DTDVER)*/docbookx.dtd))
+XSL_PATH=$(firstword $(wildcard /usr/share/sgml/docbook/xsl-stylesheets1*/))
 FOP=../../../fop/fop
 endif
-DTD_TARGET=
-ifeq (,$(wildcard $(DTD))) # system DTD does not exist
-DTD_TARGET=update-docbook-utils
-DTD=../utils/docbook/docbookx.dtd
+
+# common dependencies for all checkers
+CHECK_DEPS = impnotes.xml clisp.xml
+ifeq (,$(wildcard $(DTD_PATH))) # system DTD does not exist
+ifeq (yes,$(DOWNLOAD))		# download once
+CHECK_DEPS += docbook-dtd
+DTD_PATH=./docbook-dtd/docbookx.dtd
+else # download on each check (you need network-aware tools to use it)
+# this is the original DTD
+DTD_PATH=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
+#DTD_PATH=http://www.docbook.org/xml/$(DTDVER)/docbookx.dtd
+endif
 endif
 
-# name of XML catalog file to create
-# (if not specified, no local catalog created or used)
-CATALOG_FILE=catalog.xml
-
-# To generate HTML, you will need xsltproc & xmllint from the libxml2
-# (http://xmlsoft.org/) package in addition to the DocBook DTDs and XSL
-# stylesheets (http://www.docbook.org/)
-# When writing docbook documentation, you need the "DocBook Definitive Guide"
-# http://docbook.org/tdg/en/html/docbook-x.html
-
-# Local path to DocBook XSL stylesheets on your system - or snapshot location
-# Make sure to use a trailing slash.
-# STYLESHEETS_PATH=/usr/share/sgml/docbook/xsl-stylesheets/
-STYLESHEETS_PATH=http://docbook.xml-doc.org/snapshots/xsl/
-# STYLESHEETS_PATH=http://docbook.sourceforge.net/release/xsl/snapshot/
-# STYLESHEETS_PATH=http://docbook.sourceforge.net/release/xsl/current/
-# STYLESHEETS_PATH=$(HOME)/src/xml-doc/docbook-xsl/
-
-# Stylesheets URI used in the CLISP project *.xsl files.
-STYLESHEETS_URI=http://docbook.sourceforge.net/release/xsl/current/
+# common dependencies for all generators
+GEN_DEPS = common.xsl
+ifeq (,$(wildcard $(XSL_PATH))) # system stylesheets do not exist
+ifeq (yes,$(DOWNLOAD))	       # download once
+GEN_DEPS += docbook-xsl
+XSL_PATH=./docbook-xsl/
+else # download on each build (you need network-aware tools to use it)
+XSL_PATH=http://docbook.xml-doc.org/snapshots/xsl/
+# XSL_PATH=http://docbook.sourceforge.net/release/xsl/snapshot/
+# XSL_PATH=http://docbook.sourceforge.net/release/xsl/current/
+endif
+endif
 
 # The xmlcatalog utility (from libxml2)
 XMLCATALOG=xmlcatalog
@@ -73,21 +87,18 @@ XMLCATALOG=xmlcatalog
 #TEXI2HTML=texi2html -monolithic -verbose $< -out_file $@
 TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 
-#DIST=cvs2.cons.org:/home/ftp/pub/lisp/clisp/snapshots
 DIST=podval:~/public_html/clisp
 
-# this is the original DTD
-# when processing with a tool which can get the DTD from the net,
-# e.g., (open)jade, you can use this definition,
-# otherwise you have to stick with the local DTDs
-# we allow the use of a local DTD to avoid fetching it from the net each time
-ifeq (,$(wildcard $(DTD)))
-DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
-#DTD=http://www.docbook.org/xml/$(DTDVER)/docbookx.dtd
-endif
+##### nothing user-serviceable below #####
 
+# name of XML catalog file to create
+# (if not specified, no local catalog created or used)
+CATALOG_FILE=catalog.xml
 
-FILLIN=. ../version.sh && sed -e 's,@DTD@,$(DTD),' \
+# Stylesheets URI used internally in the CLISP project *.xsl files.
+XSL_URI=http://docbook.sourceforge.net/release/xsl/current/
+
+FILLIN=. ../version.sh && sed -e 's,@DTD@,$(DTD_PATH),' \
 	    -e 's,@DTDVER@,$(DTDVER),' \
 	    -e 's,@VERSION@,'$${VERSION_NUMBER}',' \
 	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`','
@@ -99,14 +110,14 @@ ROFF_UNCOMMENT=-e 's/^\.\\"<!\\-\\-\#\(.*\)\\-\\->$$/\#\1/'
 all: check impnotes.html regexp.html man
 
 ifneq (,$(CATALOG_FILE))
-# depends on Makefile because of $(STYLESHEETS_PATH)
+# depends on Makefile because of $(XSL_PATH)
 $(CATALOG_FILE): Makefile
 	$(RM) $(CATALOG_FILE)
 	$(XMLCATALOG) --create > $(CATALOG_FILE)
 	$(XMLCATALOG) --noout --add "rewriteURI" \
-		$(STYLESHEETS_URI) $(STYLESHEETS_PATH) $(CATALOG_FILE)
+		$(XSL_URI) $(XSL_PATH) $(CATALOG_FILE)
 	$(XMLCATALOG) --noout --add "rewriteSystem" \
-		$(STYLESHEETS_URI) $(STYLESHEETS_PATH) $(CATALOG_FILE)
+		$(XSL_URI) $(XSL_PATH) $(CATALOG_FILE)
 XSLTPROC=XML_CATALOG_FILES="$(CATALOG_FILE) ${XML_CATALOG_FILES}" xsltproc
 else
 XSLTPROC=xsltproc
@@ -116,13 +127,13 @@ GOOGLEADS=0
 MAKE_TDB=$(XSLTPROC) --timing --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
 
-tdb-man.xml: clisp.xml pile.xsl common.xsl $(CATALOG_FILE)
+tdb-man.xml: clisp.xml pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" pile.xsl $<
 
-tdb-pile.xml: impnotes.xml $(IMPNOTES) pile.xsl common.xsl $(CATALOG_FILE)
+tdb-pile.xml: impnotes.xml $(IMPNOTES) pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" pile.xsl $<
 
-tdb-chunk.xml: impnotes.xml $(IMPNOTES) chunk.xsl common.xsl $(CATALOG_FILE)
+tdb-chunk.xml: impnotes.xml $(IMPNOTES) chunk.xsl $(GEN_DEPS) $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" chunk.xsl $<
 
 clisp.xml: clisp.xml.in ../version.sh Makefile
@@ -134,13 +145,13 @@ XMLOUT=$(XSLTPROC) --timing --param google.ads $(GOOGLEADS) \
 DOC_MAN=--stringparam current.docid "man"
 DOC_IMP=--stringparam current.docid "impnotes"
 
-clisp.html: clisp.xml common.xsl pile.xsl $(OLINK)
+clisp.html: clisp.xml $(GEN_DEPS) pile.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ pile.xsl $<
 
 _clisp.html: clisp.html
 	sed $(SGML_UNCOMMENT) $< > $@
 
-clisp.1: clisp.xml common.xsl man.xsl $(OLINK)
+clisp.1: clisp.xml $(GEN_DEPS) man.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ man.xsl $<
 
 _clisp.1: clisp.1
@@ -150,14 +161,14 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
 
-check: impnotes.xml $(IMPNOTES) clisp.xml $(DTD_TARGET)
+check: $(IMPNOTES) $(CHECK_DEPS)
 	xmllint --noout --valid --postvalid --timing --noent clisp.xml
 	xmllint --noout --valid --postvalid --timing --noent impnotes.xml
 
 impnotes.texi: impnotes.xml $(IMPNOTES)
 	time docbook2texi $<
 
-impnotes.html: impnotes.xml $(IMPNOTES) common.xsl pile.xsl $(OLINK)
+impnotes.html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) pile.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ pile.xsl $<
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
@@ -169,14 +180,14 @@ man: _clisp.html _clisp.1
 	(cd ../build && make clisp.html clisp.1 && \
 	 test -n "$(DIST)" && scp -p clisp.1 clisp.html $(DIST)/) || true
 
-impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl
+impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl $(XSL_TARGET)
 	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ fo.xsl $<
 
 # http://xmlgraphics.apache.org/fop/
 impnotes.pdf: impnotes.fo
 	${FOP} $< $@
 
-html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
+html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
 	cd html && grep -v -e "^#" .symlinks | sed 's/^/ln -vf /' | sh -
 	$(XMLOUT) "olink-chunk.xml" $(DOC_IMP) -o $@/ chunk.xsl $<
@@ -205,14 +216,13 @@ count: $(IMPNOTES)
 	wc $^
 
 DTD_DOWNLOAD=http://www.docbook.org/xml/$(DTDVER)/docbook-xml-$(DTDVER).zip
-update-docbook-utils:
-	if test ! -d ../utils/docbook; then \
-	  mkdir ../utils/docbook && \
-	  cd ../utils/docbook && \
+docbook-dtd :
+	mkdir docbook-dtd && cd docbook-dtd && \
 	  wget -O docbook-xml.zip $(DTD_DOWNLOAD) && \
-	  unzip -x docbook-xml.zip && \
-	  rm -f docbook-xml.zip; \
-	fi
+	  unzip docbook-xml.zip && $(RM) docbook-xml.zip
+
+docbook-xsl :
+	rsync -av --port=5873 docbook.xml-doc.org::xsl docbook-xsl
 
 SEARCH=
 search: force

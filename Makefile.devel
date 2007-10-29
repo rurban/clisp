@@ -12,14 +12,14 @@ GROFF = nroff -man
 RM = rm -f
 
 .PHONY : all ffcall-i386 htmldoc makefiles configures check-configures \
-	update-ansi-tests update-docbook-utils potfiles fixperms \
+	update-ansi-tests potfiles fixperms \
 	view-man view-html check-sbcl install-gcc \
 	multibuild-linux-x86 multibuild-darwin-powerpc \
 	build-aux-update gnulib-update distrib release pre-release \
 	upload upload-ssh upload-sf upload-sunsite upload-gnu \
 	src-distrib doc-distrib gnu-distrib tag-release tp-mail
 
-all : makefiles check-configures update-ansi-tests update-docbook-utils     \
+all : makefiles check-configures update-ansi-tests  			    \
 	fixperms                                                            \
 	potfiles                                                            \
 	src/version.h                                                       \
@@ -139,9 +139,9 @@ update-ansi-tests:
 	  rm -rf `echo $(ANSITESTS_CVS_REPOSITORY) | sed -e 's,/.*,,'`; \
 	fi
 
-
-update-docbook-utils:
-	make -C doc $@
+# this must not be in "all" because this downloads 23MB XSL + 500kB DTD
+update-docbook-utils :
+	make -C doc docbook-xsl docbook-dtd
 
 CLISP=$(CURDIR)/build/clisp
 potfiles :
