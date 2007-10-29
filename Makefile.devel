@@ -39,32 +39,12 @@ htmldoc:
 	make -C doc all html
 
 MAKEMAKE_TMP=src/makemake
-makefiles :                                                                \
-	win32msvc/makefile.msvc7                                           \
-	win32msvc/makefile.msvc6 win32msvc/makefile.msvc6d                 \
-	win32msvc/makefile.msvc5 win32msvc/makefile.msvc5d                 \
-	win32msvc/makefile.msvc4
+makefiles : win32msvc/makefile.msvc7 win32msvc/makefile.msvc6
 	$(RM) $(MAKEMAKE_TMP)
-
-win32msvc/makefile.msvc4 : $(MAKEMAKE_TMP)
-	cd src; ./makemake --with-dynamic-ffi \
-		win32msvc msvc4 > ../win32msvc/makefile.msvc4
-
-win32msvc/makefile.msvc5 : $(MAKEMAKE_TMP)
-	cd src; ./makemake --with-dynamic-ffi \
-		win32msvc msvc5 > ../win32msvc/makefile.msvc5
-
-win32msvc/makefile.msvc5d : $(MAKEMAKE_TMP)
-	cd src; ./makemake --with-dynamic-ffi \
-		win32msvc msvc5 debug > ../win32msvc/makefile.msvc5d
 
 win32msvc/makefile.msvc6 : $(MAKEMAKE_TMP)
 	cd src; ./makemake --with-dynamic-ffi \
 		win32msvc msvc6 > ../win32msvc/makefile.msvc6
-
-win32msvc/makefile.msvc6d : $(MAKEMAKE_TMP)
-	cd src; ./makemake --with-dynamic-ffi \
-		win32msvc msvc6 debug > ../win32msvc/makefile.msvc6d
 
 win32msvc/makefile.msvc7 : $(MAKEMAKE_TMP)
 	cd src; ./makemake --with-dynamic-ffi \

@@ -1,7 +1,7 @@
-Installation on Win32 (WinNT, Win95) using the MSVC4.0 or MSVC5.0 or MSVC6.0
-============================================================================
-or MSVC7.0 development environment, using native system calls
-=============================================================
+Installation on Win32 (WinNT, Win95) using the MSVC6.0 or MSVC7.0
+=================================================================
+development environment, using native system calls
+==================================================
 
 ** Note! Binaries created with MSVC 7.0 with MFLAGS=-MD should not be
    distributed: They depend on a closed-source library 'msvcr70.dll' which is
@@ -14,7 +14,7 @@ or MSVC7.0 development environment, using native system calls
 
 ** Note! The easiest way to get a native win32 version of CLISP is to use
    -- cygwin <http://cywgin.com> or
-   -- mingw/msys <http://gnuwin32.sourceforge.net/>.
+   -- mingw/msys <http://www.mingw.org/>.
    Either way, read ../unix/INSTALL, get libsigsegv, and do
    $ ./configure --with-mingw --build build-mingw --with-module=...
    $ cd build-mingw
@@ -31,8 +31,8 @@ If you still want to use the MS C compiler, here are the steps:
    - GNU libiconv (for more character set conversions).
 
 2. Unpack the source, start a console with a shell.
-   Make sure that the MSVC4.0 or MSVC5.0 or MSVC6.0 utilities ("cl" etc.)
-   are found in PATH. For example, I use the following settings:
+   Make sure that the MSVC utilities ("cl" etc.) are found in PATH.
+   For example, I use the following settings:
 
         set MSDEVDIR=C:\Program Files\Microsoft Visual Studio
         set MSVCDIR=%MSDEVDIR%\VC98
@@ -59,38 +59,11 @@ If you still want to use the MS C compiler, here are the steps:
 
 4. Then build a few tools and libraries:
 
-        cd utils
-        cd gcc-cccp
-        nmake -f Makefile.msvc
-        cd ..
-        cd ..
-
         cd ffcall
         nmake -f Makefile.msvc check
         cd ..
 
-   Copy the appropriate makefile to src\makefile:
-
-     for MSVC4.0:
-
-        copy win32msvc\makefile.msvc4 src\makefile
-
-     for MSVC5.0:
-
-        copy win32msvc\makefile.msvc5 src\makefile
-
-     for MSVC6.0:
-
-        copy win32msvc\makefile.msvc6 src\makefile
-
-     for MSVC7.0:
-
-        copy win32msvc\makefile.msvc7 src\makefile
-
-     same, debug versions:
-
-        copy win32msvc\makefile.msvc5d src\makefile
-        copy win32msvc\makefile.msvc6d src\makefile
+   Copy the appropriate makefile from win32msvc to src\makefile:
 
    Check that environment variable MSVCDIR points to VC98 directory
    or uncomment and modify the value of MSVCDIR in src\makefile to
