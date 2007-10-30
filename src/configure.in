@@ -31,11 +31,6 @@ AC_CANONICAL_HOST
 dnl sets variables host, host_cpu, host_vendor, host_os
 CL_CANONICAL_HOST_CPU
 dnl
-BOLD_MSG([checks for UNIX variants that set DEFS])
-AC_AIX                   dnl DEFS _ALL_SOURCE
-AC_GNU_SOURCE            dnl DEFS _GNU_SOURCE
-AC_USE_SYSTEM_EXTENSIONS dnl DEFS __EXTENSIONS__
-dnl
 BOLD_MSG([checks for programs])
 dnl
 AC_PROG_CC  dnl sets variable CC

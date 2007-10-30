@@ -3,6 +3,8 @@
 	* lispbibl.d (HAVE_LONG_LONG_INT) [long_bitsize==64]: define only
 	if not already defined (avoid a redefinition warning)
 	(_GNU_SOURCE): do not define here, it comes from AC_GNU_SOURCE
+	* configure.in: do not call AC_AIX, AC_GNU_SOURCE,
+	AC_USE_SYSTEM_EXTENSIONS, they are covered in gl_EARLY
 
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
