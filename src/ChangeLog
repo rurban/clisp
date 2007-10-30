@@ -1,5 +1,11 @@
 2007-10-30  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in, modules/regexp/link.sh.in, modules/wildcard/link.sh.in:
+	work around the 'unexpected token `;' in  for h in  ; do' bug
+	http://www.opengroup.org/onlinepubs/009695399/utilities/xcu_chap02.html#tag_02_09_04_03
+
+2007-10-30  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (HAVE_LONG_LONG_INT) [long_bitsize==64]: define only
 	if not already defined (avoid a redefinition warning)
 	(_GNU_SOURCE): do not define here, it comes from AC_GNU_SOURCE
