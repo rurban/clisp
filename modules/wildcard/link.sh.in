@@ -1,6 +1,6 @@
 file_list='wildcard.o'
-for extra in @FNMATCH_O@; do
-  file_list="${file_list} ../gllib/${extra}";
+for extra in '' @FNMATCH_O@; do
+  test -n "${extra}" && file_list="${file_list} ../gllib/${extra}";
 done
 make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \

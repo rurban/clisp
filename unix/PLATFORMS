@@ -25,7 +25,6 @@ This file presents
     AFS (Andrew File System)
     PC 386 running OpenBSD 3.8
     Nokia N800 (Arm) running Linux
-    PC 386 running Win32 with Msys/MinGW
 * hints for porting to new platforms.
 
 
@@ -674,17 +673,6 @@ If you get a crash during loading of the first few lisp file (first GC),
 add "-DNO_GENERATIONAL_GC" to CFLAGS.
 If your modules do not work (clisp.h does not define "object" type),
 install GNU sed.
-
-
-* On PC 386 running Win32 with Msys/MinGW
-
-Bash 2.04.0(1)-release does not support empty lists in for loops:
-./makemake: line 1655: syntax error near unexpected token `;'
-./makemake: line 1655: `  for h in  ; do'
-(in case you wonder, this form is valid according to
-http://www.opengroup.org/onlinepubs/009695399/utilities/xcu_chap02.html#tag_02_09_04_03)
-Upgrade your bash.
-
 
 
 Hints for porting to new platforms:

@@ -976,8 +976,7 @@ TOUCH='touch'
 GREP='grep'
 
 # RANLIB = command for finishing libraries
-if [ -z "${RANLIB}" ] ; then RANLIB='ranlib';
-fi
+if [ -z "${RANLIB}" ] ; then RANLIB='ranlib'; fi
 
 # INSTALL = command for installing binaries/data
 if [ -z "$INSTALL" ] ; then
@@ -1591,8 +1590,8 @@ done
 
 EVERY_INCLUDES_H=''
 if [ ${TOS} = "unix" -o ${HSYS} = "win32gcc" ] ; then
-  for h in @STDBOOL_H@ @STDINT_H@; do
-    EVERY_INCLUDES_H=${EVERY_INCLUDES_H}" gllib/${h}"
+  for h in '' @STDBOOL_H@ @STDINT_H@; do
+    test -n "$h" && EVERY_INCLUDES_H=${EVERY_INCLUDES_H}" gllib/${h}"
   done
 else
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' gllib/stdbool.h gllib/stdint.h'
@@ -3402,12 +3401,12 @@ echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES)
 cygwin_finish full
 
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
-echotab 'for m in $(BASE_MODULES); do $(RM) $$m/*.erg; done'
-echotab 'z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
+echotab 'for m in "" $(BASE_MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done'
+echotab 'z=""; for m in "" $(BASE_MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
 echol
 echol "mod-check : base-mod-check # full"
-echotab 'for m in $(MODULES); do $(RM) $$m/*.erg; done'
-echotab 'z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
+echotab 'for m in "" $(MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done'
+echotab 'z=""; for m in "" $(MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp -K full '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
 echol
 OBSOLETE=$OBSOLETE" genclisph${HEXE}"
 
@@ -4020,7 +4019,7 @@ clean3 : clean2
 line="-\$(RM)"
 for f in ${LUTILS}; do line=$line" ${f}.fas"; done
 echotab "$line"
-echotab 'for m in $(BASE_MODULES) $(MODULES); do $(RM) $$m/*.fas $$m/*.lib; done'
+echotab 'for m in "" $(BASE_MODULES) $(MODULES); do test -n "$$m" && $(RM) $$m/*.fas $$m/*.lib $$m/*.erg; done'
 cat <<!!
 
 # clean4 removes everything that becomes obsolete
