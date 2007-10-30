@@ -343,7 +343,7 @@
           {var register uint32 _hi __asm__("%g1");          \
            hi_zuweisung _hi;                                \
          }})
-    #elif defined(HAVE_LONGLONG) && !defined(ARM)
+    #elif defined(HAVE_LONG_LONG_INT) && !defined(ARM)
       #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
         ({ var register uint64 _prod = (uint64)(x) * (uint64)(y); \
            hi_zuweisung (uint32)(_prod>>32);                      \
@@ -916,7 +916,7 @@
          })
       #define divu_6432_3232_(xhi,xlo,y) \
         ({var uint32 ___q; divu_6432_3232(xhi,xlo,y,___q=,); ___q; })
-    #elif defined(HAVE_LONGLONG) && !defined(ARM) && !defined(HPPA_DIV_WORKS)
+    #elif defined(HAVE_LONG_LONG_INT) && !defined(ARM) && !defined(HPPA_DIV_WORKS)
       #define divu_6432_3232(xhi,xlo,y,q_zuweisung,r_zuweisung) \
         ({var uint32 __xhi = (xhi);                           \
           var uint32 __xlo = (xlo);                           \
