@@ -13677,10 +13677,9 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.57)
 
 AC_DEFUN([CL_GETHOSTBYNAME],
-[AC_CHECK_HEADERS(netdb.h sun/netdb.h, break)
-if test $ac_cv_header_netdb_h = yes -o $ac_cv_header_sun_netdb_h = yes; then
-  AC_DEFINE(HAVE_GETHOSTBYNAME,,[have gethostbyname()])
-fi])
+[AC_CHECK_HEADERS(netdb.h sun/netdb.h,
+[AC_DEFINE(HAVE_GETHOSTBYNAME,,[have gethostbyname()])dnl
+break])])
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
