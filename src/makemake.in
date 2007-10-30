@@ -537,7 +537,7 @@ case $# in
      CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
      CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
      AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
-     RANLIB='@RANLIB@'                   # either 'ranlib' or 'true'
+     RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
      INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
      INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
      INSTALL_DATA='@INSTALL_DATA@'       # either 'install -c -m 644' or 'cp'
@@ -976,8 +976,8 @@ TOUCH='touch'
 GREP='grep'
 
 # RANLIB = command for finishing libraries
-if [ -z "$RANLIB" ] ; then
-  RANLIB='ranlib'
+if [ -z "${RANLIB}" ] ; then RANLIB='ranlib';
+elif [ "${RANLIB}" = ":" ]; then RANLIB='true';
 fi
 
 # INSTALL = command for installing binaries/data

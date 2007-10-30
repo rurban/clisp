@@ -36,8 +36,6 @@ dnl
 AC_PROG_CC  dnl sets variable CC
 AC_PROG_CPP dnl sets variable CPP
 gl_EARLY
-dnl sets variable RANLIB
-CL_PROG_RANLIB
 dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
 AC_PROG_INSTALL
 dnl sets variable CP
