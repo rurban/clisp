@@ -20,13 +20,13 @@ typedef struct {
     uint8 val8;
     uint16 val16;
     uint32 val32;
-    #ifdef HAVE_LONGLONG
+    #ifdef HAVE_LONG_LONG_INT
     uint64 val64;
     #endif
   } value;
 } printf_arg;
 
-#ifdef HAVE_LONGLONG
+#ifdef HAVE_LONG_LONG_INT
   #define fill_printf_arg(where,expr)  \
     where.size = sizeof(expr); \
     if (sizeof(expr) == sizeof(uint8)) { where.value.val8 = (uint8)(expr); } \
@@ -45,7 +45,7 @@ typedef struct {
 
 static const char* Lsuffix = "L";
 static const char* ULsuffix = "UL";
-#ifdef HAVE_LONGLONG
+#ifdef HAVE_LONG_LONG_INT
 static const char* ULLsuffix = "ULL";
 #endif
 
@@ -61,7 +61,7 @@ static void print_printf_arg (const printf_arg* arg)
     case sizeof(uint32):
       printf(arg->base=='d' ? "%lu%s" : "0x%lX%s", (unsigned long)(arg->value.val32), ULsuffix);
       break;
-   #ifdef HAVE_LONGLONG
+   #ifdef HAVE_LONG_LONG_INT
     case sizeof(uint64):
      #if (long_bitsize == 64)
       if (!(sizeof(uint64) == sizeof(unsigned long))) abort();

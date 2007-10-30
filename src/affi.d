@@ -144,7 +144,7 @@ local aint convert_address(obj, offset)
   }
 
 
-#if defined(HAVE_LONGLONG) && 1 # benötigt Funktionen aus INTELEM.D und LISPBIBL.D
+#if defined(HAVE_LONG_LONG_INT) && 1 # benötigt Funktionen aus INTELEM.D und LISPBIBL.D
 #define uintbig  uint64
 #define uintbig_p(obj)  uint64_p(obj) # reicht für reg_num <= 16 (AmigaOS)
 #define I_to_Ubig(obj)  I_to_UQ(obj)

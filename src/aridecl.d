@@ -337,7 +337,7 @@
 # Returns the same value as bit(n), is however undefined if n<0 or n>=32.
   #define bitc(n)  (1UL << (((n) >= 0 && (n) < intLsize) ? (n) : 0))
 
-#if defined(HAVE_LONGLONG) || defined(MICROSOFT)
+#if defined(HAVE_LONG_LONG_INT) || defined(MICROSOFT)
 # Returns 2^n, n being a constant expression.
 # Returns the same value as wbit(n), is however undefined if n<0 or n>=64.
   #define wbitc(n)  (ULL(1) << (((n) >= 0 && (n) < 2*intLsize) ? (n) : 0))
