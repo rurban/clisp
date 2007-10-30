@@ -18,7 +18,9 @@
 
 	* configure.in: use AC_TYPE_LONG_LONG_INT instead of the obsolescent
 	gl_AC_TYPE_LONG_LONG
-	* lispbibl.d, foreign.d: use HAVE_LONG_LONG_INT instead of HAVE_LONGLONG
+	* lispbibl.d, foreign.d, affi.d, aridecl.d, arilev0.d, arilev1.d:
+	* foreign.d, genclisph.d, intelem.d, intparam.c, time.d:
+	use HAVE_LONG_LONG_INT instead of HAVE_LONGLONG
 
 2007-10-29  Sam Steingold  <sds@gnu.org>
 

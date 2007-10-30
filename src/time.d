@@ -431,7 +431,7 @@ global maygc object convert_time_to_universal (const FILETIME* time) {
   /* Since we get the timezone from the OS (sys::defaul-time-zone),
      we can assume that the OS's timezone and CLISP's timezone agree. */
   var internal_time_t offset = /* difference between 1.1.1601 and 1.1.1900 */
-   #ifdef HAVE_LONGLONG
+   #ifdef HAVE_LONG_LONG_INT
     { (ULONG)((ULONGLONG)109207 * (ULONGLONG)86400
               * (ULONGLONG)ticks_per_second),
       (ULONG)(((ULONGLONG)109207 * (ULONGLONG)86400
@@ -485,7 +485,7 @@ local uintL real_time_sec (void)
   #endif
   #ifdef TIME_WIN32
   var internal_time_t offset = /* difference between 1.1.1601 and 1.1.1900 */
-   #ifdef HAVE_LONGLONG
+   #ifdef HAVE_LONG_LONG_INT
     { (ULONG)((ULONGLONG)109207 *
               (ULONGLONG)86400 * (ULONGLONG)ticks_per_second),
       (ULONG)(((ULONGLONG)109207 *

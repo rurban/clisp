@@ -318,7 +318,7 @@ global sint32 I_to_L (object obj)
   }
 }
 
-#if defined(HAVE_LONGLONG)
+#if defined(HAVE_LONG_LONG_INT)
 
 /* converts integer >=0 into unsigned quadword.
  I_to_UQ(obj)
@@ -404,7 +404,7 @@ global uint64 I_to_UQ (object obj)
 
 #endif
 
-#if defined(HAVE_LONGLONG)
+#if defined(HAVE_LONG_LONG_INT)
 
 /* converts integer into signed quadword.
  I_to_Q(obj)

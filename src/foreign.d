@@ -309,7 +309,7 @@ nonreturning_function(local, fehler_convert, (object fvd, object obj)) {
   fehler(error,GETTEXT("~S: ~S cannot be converted to the foreign type ~S"));
 }
 
-#if !defined(HAVE_LONGLONG)
+#if !defined(HAVE_LONG_LONG_INT)
 /* Error message. */
 nonreturning_function(local, fehler_64bit, (object fvd)) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
@@ -1969,7 +1969,7 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
       *pdata = I_to_uint32(obj);
       return;
     }
-   #ifdef HAVE_LONGLONG
+   #ifdef HAVE_LONG_LONG_INT
     else if (eq(fvd,S(sint64))) {
       var struct_sint64* pdata = (struct_sint64*)data;
       if (!sint64_p(obj)) goto bad_obj;
