@@ -43766,18 +43766,15 @@ if test `eval echo '${'$as_ac_Header'}'` = yes; then
   cat >>confdefs.h <<_ACEOF
 #define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
- break
-fi
-
-done
-
-if test $ac_cv_header_netdb_h = yes -o $ac_cv_header_sun_netdb_h = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_GETHOSTBYNAME
 _ACEOF
-
+break
 fi
+
+done
+
 for ac_func in connect
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
