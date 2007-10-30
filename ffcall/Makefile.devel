@@ -39,7 +39,6 @@ m4/ffcall-smallstruct.m4 : $(CLISP_DIR)/src/m4/ffcall-smallstruct.m4 ; cp -p $< 
 m4/ffcall-ireg.m4 : $(CLISP_DIR)/src/m4/ffcall-ireg.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/longlong.m4 : $(CLISP_DIR)/src/glm4/longlong.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/cc-void.m4 : $(CLISP_DIR)/src/m4/cc-void.m4 ; cp -p $< $@-t && mv $@-t $@
-m4/stdc-headers.m4 : $(CLISP_DIR)/src/m4/stdc-headers.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/getpagesize.m4 : $(CLISP_DIR)/src/m4/getpagesize.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/mach-vm.m4 : $(CLISP_DIR)/src/m4/mach-vm.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/openflags.m4 : $(CLISP_DIR)/src/m4/openflags.m4 ; cp -p $< $@-t && mv $@-t $@
@@ -48,7 +47,7 @@ m4/mprotect.m4 : $(CLISP_DIR)/src/m4/mprotect.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/shm.m4 : $(CLISP_DIR)/src/m4/shm.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/ffcall-codeexec.m4 : $(CLISP_DIR)/src/m4/ffcall-codeexec.m4 ; cp -p $< $@-t && mv $@-t $@
 
-autoconf/aclocal.m4 : m4/general.m4 m4/proto.m4 m4/cc-gcc.m4 m4/as-underscore.m4 m4/cp.m4 m4/ln.m4 m4/nocrash.m4 m4/ffcall-pccstruct.m4 m4/ffcall-smallstruct.m4 m4/ffcall-ireg.m4 m4/longlong.m4 m4/cc-void.m4 m4/stdc-headers.m4 m4/getpagesize.m4 m4/mach-vm.m4 m4/openflags.m4 m4/mmap.m4 m4/mprotect.m4 m4/shm.m4 m4/ffcall-codeexec.m4
+autoconf/aclocal.m4 : m4/general.m4 m4/proto.m4 m4/cc-gcc.m4 m4/as-underscore.m4 m4/cp.m4 m4/ln.m4 m4/nocrash.m4 m4/ffcall-pccstruct.m4 m4/ffcall-smallstruct.m4 m4/ffcall-ireg.m4 m4/longlong.m4 m4/cc-void.m4 m4/getpagesize.m4 m4/mach-vm.m4 m4/openflags.m4 m4/mmap.m4 m4/mprotect.m4 m4/shm.m4 m4/ffcall-codeexec.m4
 	{ echo 'AC_INIT'; cat $(CONFIGURES_IN) | grep -v '\(AC_INIT(\|AC_OUTPUT(\|AC_CONFIG_HEADER(\)'; } > autoconf/configure.in
 	cd autoconf && aclocal --output=aclocal.m4 --acdir=../m4
 	rm -f autoconf/configure.in
