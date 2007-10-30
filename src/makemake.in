@@ -977,7 +977,6 @@ GREP='grep'
 
 # RANLIB = command for finishing libraries
 if [ -z "${RANLIB}" ] ; then RANLIB='ranlib';
-elif [ "${RANLIB}" = ":" ]; then RANLIB='true';
 fi
 
 # INSTALL = command for installing binaries/data
