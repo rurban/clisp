@@ -9,6 +9,12 @@
 	in all modules and the reasons for not checking some standard
 	headers are no longer applicable
 	* m4/ranlib.m4, m4/stdc-headers.m4: remove obsoleted files
+	* ffcall/Makefile.devel: drop ranlib.m4
+	* ffcall/avcall/configure.in, ffcall/callback/configure.in:
+	* ffcall/callback/trampoline_r/configure.in:
+	* ffcall/callback/vacall_r/configure.in:
+	* ffcall/trampoline/configure.in, ffcall/vacall/configure.in:
+	use AC_PROG_RANLIB instead of CL_PROG_RANLIB
 
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
