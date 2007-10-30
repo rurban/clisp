@@ -1183,8 +1183,9 @@
 #if (long_bitsize==64)
   typedef long           SLONGLONG;
   typedef unsigned long  ULONGLONG;
-  #undef HAVE_LONG_LONG_INT
+  #ifndef HAVE_LONG_LONG_INT
   #define HAVE_LONG_LONG_INT
+  #endif
 #elif defined(MICROSOFT)
   typedef __int64           SLONGLONG;
   typedef unsigned __int64  ULONGLONG;
