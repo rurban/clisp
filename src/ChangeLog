@@ -8,7 +8,6 @@
 	use AC_HEADER_STDC instead of CL_STDC_HEADERS: it is already used
 	in all modules and the reasons for not checking some standard
 	headers are no longer applicable
-	* makemake.in (RANLIB): reset ":"->"true"
 	* m4/ranlib.m4, m4/stdc-headers.m4: remove obsoleted files
 
 2007-10-29  Sam Steingold  <sds@gnu.org>
