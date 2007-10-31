@@ -26,7 +26,7 @@ else
   REGEX_O="regex.$ac_cv_objext"
   # must link gnulib regex.h into the build directory
   $as_ln_s $srcdir/../../src/gllib/regex.h .
-  if test $gl_cv_func_malloc_posix = yes; then
+  if test $gl_cv_func_malloc_posix = no; then
     MALLOC_O="malloc.$ac_cv_objext"
   fi
 fi
