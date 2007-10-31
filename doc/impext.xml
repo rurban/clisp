@@ -2576,10 +2576,12 @@ to the 3 (or 4) <link linkend="base-modules">base modules</link>.</para>
 
 <section id="incmod-bind"><title>Bindings</title>
  <para>Call the operating system functions from &clisp;.
-  The following platforms are supported:<itemizedlist>
-  <listitem><simpara>&linux;/&glibc; as &glibc-mod;</simpara></listitem>
-  <listitem><simpara>&win32; as &win32-mod;</simpara></listitem>
-</itemizedlist></para></section>
+  The following platforms are supported:<variablelist>
+   <varlistentry><term>&glibc-mod;</term>
+    <listitem><simpara>&linux;/&glibc;</simpara></listitem></varlistentry>
+   <varlistentry><term>&win32-mod;</term>
+    <listitem><simpara>&win32;</simpara></listitem></varlistentry>
+</variablelist></para></section>
 
 <section id="incmod-toys"><title>Toys and Games</title>
 <variablelist><varlistentry><term>&queens-mod;</term>
