@@ -21,12 +21,17 @@ dnl ac_use_included_regex comes from ../config.cache
 # can we use the system-wide regex implementation?
 if test "$ac_use_included_regex" = no; then
   REGEX_O=""
+  MALLOC_O=""
 else
   REGEX_O="regex.$ac_cv_objext"
   # must link gnulib regex.h into the build directory
   $as_ln_s $srcdir/../../src/gllib/regex.h .
+  if test $gl_cv_func_malloc_posix = yes; then
+    MALLOC_O="malloc.$ac_cv_objext"
+  fi
 fi
 AC_SUBST(REGEX_O)
+AC_SUBST(MALLOC_O)
 BOLD_MSG([Regexp (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
