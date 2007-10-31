@@ -16,8 +16,16 @@ AM_GNU_GETTEXT([external])
 gl_C_RESTRICT
 
 dnl called from top-level configure.in:gl_INIT [gl_FUNC_ALLOCA gl_REGEX]
-dnl ac_use_included_regex comes from ../config.cache
 
+# ac_use_included_regex is NOT cached, so we have to duplicate the
+# logic of src/glm4/regex.m4!
+case $with_included_regex in
+  yes|no) ac_use_included_regex=$with_included_regex ;;
+  '') case $gl_cv_func_re_compile_pattern_working in
+    yes) ac_use_included_regex=no;;
+    no) ac_use_included_regex=yes;;
+  esac ;;
+esac
 # can we use the system-wide regex implementation?
 if test $ac_use_included_regex = yes; then
   REGEX_O="regex.$ac_cv_objext"

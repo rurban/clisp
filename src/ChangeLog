@@ -1,3 +1,8 @@
+2007-10-31  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/configure.in: ac_use_included_regex is NOT cached,
+	so we have to duplicate the logic of src/glm4/regex.m4
+
 2007-10-30  Sam Steingold  <sds@gnu.org>
 
 	* charstrg.d: do not include "width.c" & "uniname.c"
