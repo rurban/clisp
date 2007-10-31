@@ -20,10 +20,10 @@ exit 1
 
 link () {
 # Make a link from $1 to $2. Try symbolic link, hard link, file copying.
-dirname=`echo "$1" | sed -e 's,/[^/]*$,,'`
+dirname=`dirname "$1"`
 test -n "$dirname" || dirname='/'
-basename=`echo "$1" | sed -e 's,^.*/,,'`
 absolute_dirname=`cd "$dirname" ; /bin/pwd`
+basename=`basename "$1"`
 rm -f "$2"
 ln -s "$absolute_dirname"/"$basename" "$2" 2>/dev/null ||
   ln "$1" "$2" 2>/dev/null ||
@@ -34,7 +34,8 @@ link_some () {
   src_dir=$1; shift
   destdir=$1; shift
   for f in $*; do
-    link "${src_dir}"/$f "${destdir}"/`basename $f`
+    b=`basename $f`
+    link "${src_dir}"/$b "${destdir}"/$b
   done
 }
 

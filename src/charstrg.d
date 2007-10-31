@@ -375,9 +375,8 @@ global bool graphic_char_p (chart ch) {
  < result: number of output columns occupied by ch */
 global uintL char_width (chart ch);
 #ifdef UNICODE
-#include "uniwidth.h"
+#include "uniwidth.h"           /* from gnulib */
 global inline int uc_width (ucs4_t uc, const char *encoding);
-#include "width.c"
 global uintL char_width (chart ch) {
   /* This would be the same as wcwidth(ch), assuming wide characters were
      Unicode, except that for non-printable characters we return 0, not -1. */
@@ -1295,10 +1294,7 @@ local const uintB charname_table_codes [charname_table_length]
    (for 0 <= i < charname_table_length). */
 
 #ifdef UNICODE
-
-#include "uniname.h"
-#include "uniname.c"
-
+#include "uniname.h"            /* from gnulib */
 #endif
 
 /* UP: return the name of a character

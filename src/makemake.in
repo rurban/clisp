@@ -1522,7 +1522,10 @@ if [ "${with_dynamic_modules}" != no ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 fi
 
-FILES=localcharset${TOBJ}' '${FILES}
+GLLIB="gllib/localcharset gllib/uniname/uniname gllib/uniwidth/width"
+GLLIB_O=""
+for f in ${GLLIB}; do GLLIB_O=${f}${TOBJ}' '${GLLIB_O}; done
+FILES=${GLLIB_O}' '${FILES}
 
 if [ "${with_readline}" = no ]; then
   # --without-readline was supplied
@@ -1604,7 +1607,7 @@ if [ ${TSYS} = unix -o ${TSYS} = win32gcc ]; then
 else
   SPVW_VERSION=version.h
 fi
-# ./ contains localcharset.[ho]
+# ./ contains localcharset.[ho] and other gnulib includes
 XCFLAGS=${XCFLAGS}' -I.'
 EVERY_INCLUDES_H=$EVERY_INCLUDES_H' localcharset.h'
 
@@ -1616,7 +1619,7 @@ UNICODE_INCLUDES=''
 UNICODE_EXTRA=''
 if [ "${with_unicode}" != no ] ; then
   UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute'
-  UNICODE_EXTRA=${UNICODE_EXTRA}' streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h uniname.c'
+  UNICODE_EXTRA=${UNICODE_EXTRA}' streq.h cjk.h uniwidth.h unitypes.h uniname.h uninames.h'
 fi
 
 NLS_INCLUDES=''
@@ -2234,7 +2237,7 @@ echol
 echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD gen.lispbibl" ".c"
 echol
 
-echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC localcharset" "${TOBJ}"
+echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC $GLLIB" "${TOBJ}"
 echol
 
 echolist "LISPFILES =" "$LPARTS" ".lisp"
@@ -2279,6 +2282,9 @@ if [ $CC_CPLUSPLUS = true ]; then
 else
   echotab '$(MAKE) -C $@'
 fi
+echol
+echol "${GLLIB_O}: gllib"
+echotab '$(MAKE) -C gllib'
 echol
 
 # developer targets
@@ -2856,7 +2862,6 @@ fi
 for f in localcharset.h ${UNICODE_EXTRA}; do
   link_dep "${f}" `find ${SRCDIR}gllib -name ${f}`
 done
-link_dep "localcharset${TOBJ}" "gllib/localcharset${TOBJ}"
 
 if [ $TOS = win32 ] ; then
   for f in $SYSLIBS ; do
@@ -3354,7 +3359,7 @@ for f in clisp-link ; do
   echol
 done
 echol "boot : modular lispinit.mem"
-echotab "test -d boot || (mkdir boot && cd boot && for f in ${FILES} modules.h modules.o makevars lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f \$\$f; done) || (\$(RMRF) boot ; exit 1)"
+echotab "test -d boot || (mkdir boot && cd boot && for f in ${FILES} modules.h modules.o makevars lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f .; done) || (\$(RMRF) boot ; exit 1)"
 echol
 # Some "make"s don't support empty target lists. Hence the "anymodule".
 echol "anymodule \$(BASE_MODULES) \$(MODULES) : lisp${LEXE} lispinit.mem force modprep.fas clisp.h"
