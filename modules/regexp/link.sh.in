@@ -1,5 +1,5 @@
 file_list='regexi.o'
-for extra in '' @REGEX_O@; do
+for extra in '' @REGEX_O@ @MALLOC_O@; do
   test -n "${extra}" && file_list="${file_list} ../gllib/${extra}";
 done
 make clisp-module \
