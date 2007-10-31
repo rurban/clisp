@@ -6240,16 +6240,16 @@ _ACEOF
 
 
 # can we use the system-wide regex implementation?
-if test "$ac_use_included_regex" = no; then
-  REGEX_O=""
-  MALLOC_O=""
-else
+if test $ac_use_included_regex = yes; then
   REGEX_O="regex.$ac_cv_objext"
   # must link gnulib regex.h into the build directory
   $as_ln_s $srcdir/../../src/gllib/regex.h .
-  if test $gl_cv_func_malloc_posix = no; then
-    MALLOC_O="malloc.$ac_cv_objext"
+  if test $gl_cv_func_malloc_posix = yes; then MALLOC_O=""
+  else MALLOC_O="malloc.$ac_cv_objext"
   fi
+else
+  REGEX_O=""
+  MALLOC_O=""
 fi
 
 
