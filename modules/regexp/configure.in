@@ -22,8 +22,8 @@ dnl called from top-level configure.in:gl_INIT [gl_FUNC_ALLOCA gl_REGEX]
 case $with_included_regex in
   yes|no) ac_use_included_regex=$with_included_regex ;;
   '') case $gl_cv_func_re_compile_pattern_working in
-    yes) ac_use_included_regex=no;;
-    no) ac_use_included_regex=yes;;
+    yes) ac_use_included_regex=no ;;
+    no) ac_use_included_regex=yes ;;
   esac ;;
 esac
 # can we use the system-wide regex implementation?
