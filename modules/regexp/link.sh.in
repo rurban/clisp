@@ -1,12 +1,15 @@
-file_list='regexi.o'
+NEW_FILES='regexi.o'
+NEW_LIBS=${NEW_FILES}
 for extra in '' @REGEX_O@ @MALLOC_O@; do
-  test -n "${extra}" && file_list="${file_list} ../gllib/${extra}";
+  if test -n "${extra}"; then
+    NEW_FILES="${NEW_FILES} ../gllib/${extra}"
+    NEW_LIBS="${NEW_LIBS} ${extra}"
+  fi
 done
 make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
      INCLUDES="$absolute_linkkitdir"
-NEW_FILES="$file_list regexp.dvi"
-NEW_LIBS="$file_list"
+NEW_FILES="${NEW_FILES} regexp.dvi"
 NEW_MODULES="regexp"
 TO_LOAD='regexp'
 TO_PRELOAD='preload.lisp'

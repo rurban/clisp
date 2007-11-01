@@ -3348,6 +3348,8 @@ echol
 echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars"
 echodummyrule modular
 echol
+# while the top-level makevars can contain arbitrary paths in LIBS and FILES,
+# makevars in each linking set (boot/base/full) must point to local files only
 echol "makevars : Makefile"
 echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ; echo 'CPPFLAGS='\"'\"'\$(${MODULE_CPPFLAGS_VAR})'\"'\" ; echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ; echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ; echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ; echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ; echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ; echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
 echol
@@ -3359,7 +3361,7 @@ for f in clisp-link ; do
   echol
 done
 echol "boot : modular lispinit.mem"
-echotab "test -d boot || (mkdir boot && cd boot && for f in ${FILES} modules.h modules.o makevars lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f .; done) || (\$(RMRF) boot ; exit 1)"
+echotab "test -d boot || (mkdir boot && cd boot && for f in ${FILES} modules.h modules.o lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f .; done && (\$(GREP) -v '^FILES=' ${PARENT_}makevars; fl=''; for f in ${FILES}; do fl=\$\$fl' '\`basename \$\$f\`; done; echo 'FILES='\"'\"\$\$fl\"'\") > makevars) || (\$(RMRF) boot ; exit 1)"
 echol
 # Some "make"s don't support empty target lists. Hence the "anymodule".
 echol "anymodule \$(BASE_MODULES) \$(MODULES) : lisp${LEXE} lispinit.mem force modprep.fas clisp.h"
