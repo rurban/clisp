@@ -58,23 +58,21 @@ void *clispTemp; /* a foreign place to use for casts and accesses from CLISP */
 
 void init_for_clisp (long parisize, long maxprime)
 {
-  long v, n, *e;
-  char *p;
-  GEN p1;
-
-  extern ulong init_opts;
-  init_opts = 0;
-
+#if defined(HAVE_PARI_INIT_OPTS)
+  pari_init_opts(parisize,maxprime,0);
+#elif defined(HAVE_PARI_INIT)
   pari_init(parisize,maxprime);
-  /*init_graph();*/
-
-  pari_outfile = stdout;errfile = stderr;logfile = NULL;infile = stdin;
+#endif
+  pari_outfile = stdout; errfile = stderr; logfile = NULL; infile = stdin;
   pariOut = &clispOut; pariErr = &clispErr;
 }
 
 void fini_for_clisp (int leaving)
 {
-  /*free_graph();*/
+#if defined(HAVE_FREEALL)
   freeall();
+#endif
+#if defined(HAVE_KILLALLFILES)
   killallfiles(leaving);
+#endif
 }
