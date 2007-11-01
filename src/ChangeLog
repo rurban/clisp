@@ -2,6 +2,8 @@
 
 	* modules/pari/configure.in: check for freeall pari_init
 	killallfiles pari_init_opts
+	* modules/pari/cpari.c (init_for_clisp): drop unused variables
+	(init_for_clisp, fini_for_clisp): check functions before calling them
 
 2007-10-31  Sam Steingold  <sds@gnu.org>
 
