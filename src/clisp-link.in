@@ -18,25 +18,29 @@ echo "Usage: $0 [ link | create-module-set | add-module-set | add-module-sets | 
 exit 1
 }
 
+normalize(){                    # dir rel -> abs path for rel
+  dirname=`dirname "$2"`
+  echo `cd $1; cd ${dirname}; pwd`/`basename "$2"`
+}
+
 link () {
-# Make a link from $1 to $2. Try symbolic link, hard link, file copying.
-dirname=`dirname "$1"`
-test -n "$dirname" || dirname='/'
-absolute_dirname=`cd "$dirname" ; /bin/pwd`
-basename=`basename "$1"`
-rm -f "$2"
-ln -s "$absolute_dirname"/"$basename" "$2" 2>/dev/null ||
-  ln "$1" "$2" 2>/dev/null ||
-  cp -p "$1" "$2"
+  # Make a link from $1 to $2. Try symbolic link, hard link, file copying.
+  rm -f "$2"
+  ln -s "`normalize . $1`" "$2" 2>/dev/null || \
+    ln "$1" "$2" 2>/dev/null || \
+    cp -p "$1" "$2"
 }
 
 link_some () {
   src_dir=$1; shift
   destdir=$1; shift
+  ret=''
   for f in $*; do
     b=`basename $f`
-    link "${src_dir}"/$b "${destdir}"/$b
+    link "`normalize "${src_dir}" "$f"`" "${destdir}"/$b
+    ret=${ret}" "$b
   done
+  echo ${ret}
 }
 
 echotab () {
@@ -338,13 +342,10 @@ case "$1" in
      for mod in $NEW_MODULES ; do
        echo 'MODULE('"$mod"')'
      done) > "$destinationdir"/modules.h
-    # Generate new lisp.a
-    link_some "$sourcedir" "$destinationdir" ${FILES}
-    # Generate other libraries
-    link_some "$moduledir" "$destinationdir" ${NEW_FILES}
-    # Update the LIBS and FILES variables
+    # Generate new lisp.a and other libraries and update FILES variable
+    FILES=`link_some "$sourcedir" "$destinationdir" ${FILES}`' '`link_some "$moduledir" "$destinationdir" ${NEW_FILES}`
+    # Update the LIBS variable
     LIBS=${NEW_LIBS}' '${LIBS}
-    FILES=${FILES}' '${NEW_FILES}
     start_dir=`pwd`
     cd "$destinationdir"
     make_lisprun
@@ -407,10 +408,13 @@ case "$1" in
       # Just make links from $destinationdir to $sourcedir
       link_some "$sourcedir" "$destinationdir" ${LISPRUN} lispinit.mem modules.h modules.o makevars ${FILES};
     else
+      cp "$sourcedir"/modules.h "$destinationdir"/modules.h
+      FILES=`link_some "$sourcedir" "$destinationdir" ${FILES}`
       # Prepare the module directories and read their variables
-      allmodulevars=''
+      PRELOAD=''
+      LOAD=''
       for moduledir in $moduledirs; do
-        modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
+        modulename=`basename "$moduledir"`
         # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS
         NEW_FILES=''
         NEW_LIBS=''
@@ -421,38 +425,11 @@ case "$1" in
         . ./link.sh
         prepare_dynamic_module
         cd "$absolute_currentdir"
-        # This is a crazy way to build doubly nested lists.
-        allmodulevars="$allmodulevars""@@SEP1@@""moduledir=\""`echo "$moduledir" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-        allmodulevars="$allmodulevars""@@SEP2@@""modulename=\""`echo "$modulename" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-        allmodulevars="$allmodulevars""@@SEP2@@""NEW_FILES=\""`echo "$NEW_FILES" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-        allmodulevars="$allmodulevars""@@SEP2@@""NEW_LIBS=\""`echo "$NEW_LIBS" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-        allmodulevars="$allmodulevars""@@SEP2@@""NEW_MODULES=\""`echo "$NEW_MODULES" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-        allmodulevars="$allmodulevars""@@SEP2@@""TO_PRELOAD=\""`echo "$TO_PRELOAD" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-        allmodulevars="$allmodulevars""@@SEP2@@""TO_LOAD=\""`echo "$TO_LOAD" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-      done
-      # Generate new modules.h
-      (cat "$sourcedir"/modules.h
-       for modulevars in `echo $allmodulevars | sed -e 's,@@SEP1@@, ,g'`; do
-         for assignment in `echo $modulevars | sed -e 's,@@SEP2@@, ,g'`; do
-           eval `echo $assignment | sed -e 's,@@SEP3@@, ,g'`
-         done
-         for mod in $NEW_MODULES ; do
-           echo 'MODULE('"$mod"')'
-         done
-       done) > "$destinationdir"/modules.h
-      # Generate new lisp.a
-      link_some "$sourcedir" "$destinationdir" ${FILES}
-      PRELOAD=''
-      LOAD=''
-      for modulevars in `echo $allmodulevars | sed -e 's,@@SEP1@@, ,g'`; do
-        for assignment in `echo $modulevars | sed -e 's,@@SEP2@@, ,g'`; do
-          eval `echo $assignment | sed -e 's,@@SEP3@@, ,g'`
+        for mod in $NEW_MODULES ; do # update modules.h
+          echo 'MODULE('"$mod"')' >> "$destinationdir"/modules.h
         done
-        # Generate other libraries
-        link_some "$moduledir" "$destinationdir" ${NEW_FILES}
-        # Update the LIBS and FILES variables
+        FILES=${FILES}' '`link_some "$moduledir" "$destinationdir" ${NEW_FILES}`
         LIBS=${NEW_LIBS}' '${LIBS}
-        FILES=${FILES}' '${NEW_FILES}
         for f in $TO_PRELOAD; do
           PRELOAD=${PRELOAD}' -i '"$moduledir/$f"
         done
@@ -508,10 +485,15 @@ case "$1" in
       if [ -z "$moduledirs" ] ; then
         "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem
       else
+        cp "$sourcedir"/modules.h "$destinationdir"/modules.h
+        FILES=`link_some "$sourcedir" "$destinationdir" ${FILES}`
         # Prepare the module directories and read their variables
-        allmodulevars=''
+        PRELOAD=''
+        LINKLIBS=''
+        MODULES=''
+        LOAD=''
         for moduledir in $moduledirs; do
-          modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
+          modulename=`basename "$moduledir"`
           # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS
           NEW_FILES=''
           NEW_LIBS=''
@@ -521,23 +503,6 @@ case "$1" in
           cd "$moduledir"
           . ./link.sh
           cd "$absolute_currentdir"
-          # This is a crazy way to build doubly nested lists.
-          allmodulevars="$allmodulevars""@@SEP1@@""moduledir=\""`echo "$moduledir" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-          allmodulevars="$allmodulevars""@@SEP2@@""modulename=\""`echo "$modulename" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-          allmodulevars="$allmodulevars""@@SEP2@@""NEW_FILES=\""`echo "$NEW_FILES" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-          allmodulevars="$allmodulevars""@@SEP2@@""NEW_LIBS=\""`echo "$NEW_LIBS" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-          allmodulevars="$allmodulevars""@@SEP2@@""NEW_MODULES=\""`echo "$NEW_MODULES" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-          allmodulevars="$allmodulevars""@@SEP2@@""TO_PRELOAD=\""`echo "$TO_PRELOAD" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-          allmodulevars="$allmodulevars""@@SEP2@@""TO_LOAD=\""`echo "$TO_LOAD" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-        done
-        PRELOAD=''
-        LINKLIBS=''
-        MODULES=''
-        LOAD=''
-        for modulevars in `echo $allmodulevars | sed -e 's,@@SEP1@@, ,g'`; do
-          for assignment in `echo $modulevars | sed -e 's,@@SEP2@@, ,g'`; do
-            eval `echo $assignment | sed -e 's,@@SEP3@@, ,g'`
-          done
           for f in $TO_PRELOAD; do
             PRELOAD=${PRELOAD}' '"$moduledir/$f"
           done
