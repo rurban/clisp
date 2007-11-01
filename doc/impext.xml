@@ -2014,7 +2014,8 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   <listitem><simpara>flags for the &c-lang; compiler, when linking
  </simpara></listitem></varlistentry>
  <varlistentry><term><envar>LIBS</envar></term>
-  <listitem><simpara>libraries to use when linking
+  <listitem><simpara>libraries to use when linking (either present in
+    the &linkset; directory, or system-wide)
  </simpara></listitem></varlistentry>
  <varlistentry><term><envar>X_LIBS</envar></term>
   <listitem><simpara>additional &X; libraries to use

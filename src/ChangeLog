@@ -1,5 +1,15 @@
 2007-11-01  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (boot): ensure that FILES in makevars are all local
+	* clisp-link.in (normalize): new function
+	(link, link_some): use it
+	(add-module-set, run): avoid "crazy doubly nested lists"
+	* modules/wildcard/link.sh.in, modules/regexp/link.sh.in:
+	NEW_FILES are paths to gllib while
+	NEW_LIBS are library names without directory
+
+2007-11-01  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/configure.in: check for freeall pari_init
 	killallfiles pari_init_opts
 	* modules/pari/cpari.c (init_for_clisp): drop unused variables
