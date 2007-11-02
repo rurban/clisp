@@ -105,7 +105,7 @@ $(FFCALL_CONFIGURES) : %/configure : %/configure.in \
 	cd ffcall ; $(MAKE) -f Makefile.devel $(patsubst ffcall/%,%,$@)
 
 # syntax check
-check-configures : $(CONFIGURES) $(CONFIG_H_IN)
+check-configures : configures
 	set -e; for f in $(CONFIGURES); do bash -x -n $$f; done
 	rm -rf `find . -name $(AUTOCONF_CACHE)`;
 
