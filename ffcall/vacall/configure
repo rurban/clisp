@@ -4186,29 +4186,43 @@ if test "${ac_cv_type_long_long_int+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
+
+  /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#if ! (-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
-	      error in preprocessor;
-	    #endif
-	    long long int ll = 9223372036854775807ll;
-	    long long int nll = -9223372036854775807LL;
-	    typedef int a[((-9223372036854775807LL < 0
-			    && 0 < 9223372036854775807ll)
-			   ? 1 : -1)];
-	    int i = 63;
+/* Test preprocessor.  */
+      #if ! (-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
+        error in preprocessor;
+      #endif
+      #if ! (18446744073709551615ULL <= -1ull)
+        error in preprocessor;
+      #endif
+      /* Test literals.  */
+      long long int ll = 9223372036854775807ll;
+      long long int nll = -9223372036854775807LL;
+      unsigned long long int ull = 18446744073709551615ULL;
+      /* Test constant expressions.   */
+      typedef int a[((-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
+		     ? 1 : -1)];
+      typedef int b[(18446744073709551615ULL <= (unsigned long long int) -1
+		     ? 1 : -1)];
+      int i = 63;
 int
 main ()
 {
-long long int llmax = 9223372036854775807ll;
-	    return ((ll << 63) | (ll >> 63) | (ll < i) | (ll > i)
-		    | (llmax / ll) | (llmax % ll));
+/* Test availability of runtime routines for shift and division.  */
+      long long int llmax = 9223372036854775807ll;
+      unsigned long long int ullmax = 18446744073709551615ull;
+      return ((ll << 63) | (ll >> 63) | (ll < i) | (ll > i)
+	      | (llmax / ll) | (llmax % ll)
+	      | (ull << 63) | (ull >> 63) | (ull << i) | (ull >> i)
+	      | (ullmax / ull) | (ullmax % ull));
   ;
   return 0;
 }
+
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
 if { (ac_try="$ac_link"
@@ -4228,7 +4242,7 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  		        if test "$cross_compiling" = yes; then
+  			if test "$cross_compiling" = yes; then
   ac_cv_type_long_long_int=yes
 else
   cat >conftest.$ac_ext <<_ACEOF
@@ -4310,17 +4324,6 @@ echo "${ECHO_T}$ac_cv_type_long_long_int" >&6; }
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_LONG_LONG_INT 1
-_ACEOF
-
-  fi
-
-
-
-  ac_cv_type_long_long=$ac_cv_type_long_long_int
-  if test $ac_cv_type_long_long = yes; then
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_LONG_LONG 1
 _ACEOF
 
   fi

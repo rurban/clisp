@@ -81,9 +81,9 @@
 /* Define if floating-point results are returned in the integer registers */
 #undef __IREG_FLOAT_RETURN__
 
-/* gl_AC_TYPE_LONG_LONG */
+/* AC_TYPE_LONG_LONG */
 /* Define if your compiler supports the 'long long' type. */
-#undef HAVE_LONG_LONG
+#undef HAVE_LONG_LONG_INT
 
 /* End of definitions adjusted by `configure'. */
 
@@ -319,7 +319,7 @@ typedef struct
   /* temporary storage, used to split doubles into two words */
   union {
     double	_double;
-#if defined(__sparc__) && !defined(__sparc64__) && defined(HAVE_LONG_LONG)
+#if defined(__sparc__) && !defined(__sparc64__) && defined(HAVE_LONG_LONG_INT)
     long long	_longlong;
 #endif
     __avword	words[2];
