@@ -74,10 +74,10 @@
 /* Define if floating-point results are returned in the integer registers */
 #undef __IREG_FLOAT_RETURN__
 
-/* gl_AC_TYPE_LONG_LONG */
+/* AC_TYPE_LONG_LONG */
 /* Define if your compiler supports the 'long long' type. */
-#ifndef HAVE_LONG_LONG
-#undef HAVE_LONG_LONG
+#ifndef HAVE_LONG_LONG_INT
+#undef HAVE_LONG_LONG_INT
 #endif
 
 /* AC_C_CHAR_UNSIGNED */
@@ -332,7 +332,7 @@ typedef struct
     unsigned int        _uint;
     long                _long;
     unsigned long       _ulong;
-#if !(defined(__mips64__) || defined(__alpha__) || defined(__powerpc64__)) && defined(HAVE_LONG_LONG)
+#if !(defined(__mips64__) || defined(__alpha__) || defined(__powerpc64__)) && defined(HAVE_LONG_LONG_INT)
     long long           _longlong;
     unsigned long long  _ulonglong;
 #endif
