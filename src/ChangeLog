@@ -1,6 +1,7 @@
 2007-11-02  Sam Steingold  <sds@gnu.org>
 
 	* ffcall: switch from gl_AC_TYPE_LONG_LONG to AC_TYPE_LONG_LONG_INT
+	* m4/intparam.m4 (CL_INTPARAM_CROSS): ditto
 
 2007-11-02  Sam Steingold  <sds@gnu.org>
 
