@@ -4,11 +4,11 @@ dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
-dnl From Bruno Haible.
+dnl From Bruno Haible, Sam Steingold
 
 AC_DEFUN([CL_INTPARAM_CROSS],
 [
-  AC_REQUIRE([gl_AC_TYPE_LONG_LONG])
+  AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
   AC_REQUIRE([gt_TYPE_LONGDOUBLE])
   AC_REQUIRE([AC_C_BIGENDIAN])
   cl_machine_file_h=$1
