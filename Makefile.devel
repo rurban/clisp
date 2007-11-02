@@ -11,8 +11,8 @@ GROFF = nroff -man
 # GROFF = groff -mandoc
 RM = rm -f
 
-.PHONY : all ffcall-i386 htmldoc makefiles configures check-configures \
-	update-ansi-tests potfiles fixperms \
+.PHONY : all htmldoc makefiles configures check-configures \
+	ffcall-aux ffcall-i386 update-ansi-tests potfiles fixperms \
 	view-man view-html check-sbcl install-gcc \
 	multibuild-linux-x86 multibuild-darwin-powerpc \
 	build-aux-update gnulib-update distrib release pre-release \
@@ -24,12 +24,14 @@ all : makefiles check-configures update-ansi-tests  			    \
 	potfiles                                                            \
 	src/version.h                                                       \
 	src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c \
-	ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc             \
+	ffcall-aux htmldoc
+
+ffcall-aux : ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc        \
 	ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc         \
 	ffcall/callback/vacall_r/config.h.msvc                              \
 	ffcall/callback/vacall_r/vacall_r.h.msvc                            \
 	ffcall/callback/trampoline_r/config.h.msvc                          \
-	htmldoc
+
 
 ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c          \
 	ffcall/vacall/vacall-i386-msvc.c                \
