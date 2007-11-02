@@ -1,3 +1,7 @@
+2007-11-02  Sam Steingold  <sds@gnu.org>
+
+	* version.sh: 2.43 (2007-11-18)
+
 2007-11-01  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (boot): ensure that FILES in makevars are all local
