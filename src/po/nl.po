@@ -23,7 +23,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-10-12 15:14:12-0400\n"
+"POT-Creation-Date: 2007-11-02 14:11:52-0400\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -1287,7 +1287,7 @@ msgstr "~S is voorbij het einde omdat de string ~S aangepast is"
 msgid "~S: ~S is not a string input stream"
 msgstr "~S: ~S is geen gebufferde invoerstream"
 
-#: stream.d:2545 charstrg.d:3212
+#: stream.d:2545 charstrg.d:3208
 #, lisp-format
 msgid "~S: ~S argument must be a subtype of ~S, not ~S"
 msgstr "~S: ~S argument moet een subtype van ~S zijn, niet ~S"
@@ -2630,112 +2630,112 @@ msgstr "~S: Mag niet zowel :TEST als :TEST-NOT opgeven"
 msgid "~S: sequence ~S is too long: ~S is not a FIXNUM"
 msgstr "~S: sequence ~S is te lang"
 
-#: charstrg.d:1589
+#: charstrg.d:1585
 #, lisp-format
 msgid "~S: the radix must be an integer between 2 and 36, not ~S"
 msgstr "~S: het grondtal moet een geheel getal tussen 2 en 36 zijn, niet ~S"
 
-#: charstrg.d:1934
+#: charstrg.d:1930
 #, lisp-format
 msgid "~S: the code argument should be an integer, not ~S"
 msgstr "~S: het code-argument moet een geheel getal zijn, niet ~S"
 
-#: charstrg.d:1955
+#: charstrg.d:1951
 #, lisp-format
 msgid "~S: cannot coerce ~S to a character"
 msgstr "~S: kan ~S niet omzetten in een teken"
 
-#: charstrg.d:1988
+#: charstrg.d:1984
 #, lisp-format
 msgid "~S: the weight argument should be an integer, not ~S"
 msgstr "~S: het weight-argument moet een geheel getal zijn, niet ~S"
 
-#: charstrg.d:2024
+#: charstrg.d:2020
 #, lisp-format
 msgid "~S: argument should be an integer, not ~S"
 msgstr "~S: argument moet een geheel getal zijn, niet ~S"
 
-#: charstrg.d:2171 compiler.lisp:7139
+#: charstrg.d:2167 compiler.lisp:7139
 #, lisp-format
 msgid "~S: index should be an integer, not ~S"
 msgstr "~S: index moet een geheel getal zijn, niet ~S"
 
-#: charstrg.d:2174
+#: charstrg.d:2170
 #, lisp-format
 msgid "~S: ~S-index should be an integer, not ~S"
 msgstr "~S: ~S-index moet een geheel getal zijn, niet ~S"
 
-#: charstrg.d:2185
+#: charstrg.d:2181
 #, lisp-format
 msgid "~S: index should be NIL or an integer, not ~S"
 msgstr "~S: index moet NIL of een geheel getal zijn, niet ~S"
 
-#: charstrg.d:2188
+#: charstrg.d:2184
 #, lisp-format
 msgid "~S: ~S-index should be NIL or an integer, not ~S"
 msgstr "~S: ~S-index moet NIL of een geheel getal zijn, niet ~S"
 
-#: charstrg.d:2199
+#: charstrg.d:2195
 #, lisp-format
 msgid "~S: index should not be negative: ~S"
 msgstr "~S: index mag niet negatief zijn: ~S"
 
-#: charstrg.d:2202
+#: charstrg.d:2198
 #, lisp-format
 msgid "~S: ~S-index should not be negative: ~S"
 msgstr "~S: ~S-index mag niet negatief zijn: ~S"
 
-#: charstrg.d:2220
+#: charstrg.d:2216
 #, lisp-format
 msgid "~S: index ~S should not be greater than the length of the string"
 msgstr "~S: index ~S mag niet groter zijn dan de lengte van de string"
 
-#: charstrg.d:2223
+#: charstrg.d:2219
 #, lisp-format
 msgid "~S: ~S-index ~S should not be greater than the length of the string"
 msgstr "~S: ~S-index ~S mag niet groter zijn dan de lengte van de string"
 
-#: charstrg.d:2242
+#: charstrg.d:2238
 #, lisp-format
 msgid "~S: index ~S should be less than the length of the string"
 msgstr "~S: index ~S moet kleiner zijn dan de lengte van de string"
 
-#: charstrg.d:2245
+#: charstrg.d:2241
 #, lisp-format
 msgid "~S: ~S-index ~S should be less than the length of the string"
 msgstr "~S: ~S-index ~S moet kleiner zijn dan de lengte van de string"
 
-#: charstrg.d:2404
+#: charstrg.d:2400
 #, fuzzy, lisp-format
 msgid "~S: :START-index ~S must not be greater than :END-index ~S"
 msgstr "~S: :start-index ~S mag niet groter zijn dan :end-index ~S"
 
-#: charstrg.d:2469
+#: charstrg.d:2465
 #, lisp-format
 msgid "~S: argument ~S should be a string, a symbol or a character"
 msgstr "~S: argument ~S moet een string, een symbool of een teken zijn"
 
-#: charstrg.d:2508 charstrg.d:3714
+#: charstrg.d:2504 charstrg.d:3710
 #, lisp-format
 msgid "~S: :start-index ~S must not be greater than :end-index ~S"
 msgstr "~S: :start-index ~S mag niet groter zijn dan :end-index ~S"
 
-#: charstrg.d:2558
+#: charstrg.d:2554
 #, lisp-format
 msgid "~S: :start1-index ~S must not be greater than :end1-index ~S"
 msgstr "~S: :start1-index ~S mag niet groter zijn dan :end1-index ~S"
 
-#: charstrg.d:2581
+#: charstrg.d:2577
 #, lisp-format
 msgid "~S: :start2-index ~S must not be greater than :end2-index ~S"
 msgstr "~S: :start2-index ~S mag niet groter zijn dan :end2-index ~S"
 
-#: charstrg.d:3197
+#: charstrg.d:3193
 #, lisp-format
 msgid "~S: the string length ~S should be nonnegative fixnum"
 msgstr "~S: de stringlengte ~S moet een niet-negatief fixnum zijn"
 
-#: charstrg.d:3229
+#: charstrg.d:3225
 #, fuzzy, lisp-format
 msgid "~S: ~S argument ~S should be of type ~S"
 msgstr "~S: argument ~S moet een stream zijn van type ~S"

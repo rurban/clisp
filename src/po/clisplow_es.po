@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.25  2007/10/12 19:24:51  sds
+# regenerated for 2.41.1 pretest
+#
 # Revision 1.24  2006/10/13 04:10:53  sds
 # clisp 2.41 release (Friday the 13th!)
 #
@@ -215,6 +218,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.25  2007/10/12 19:24:51  sds
+# regenerated for 2.41.1 pretest
+#
 # Revision 1.24  2006/10/13 04:10:53  sds
 # clisp 2.41 release (Friday the 13th!)
 #
@@ -340,7 +346,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-10-12 15:14:32-0400\n"
+"POT-Creation-Date: 2007-11-02 14:11:55-0400\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
