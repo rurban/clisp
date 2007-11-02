@@ -8342,6 +8342,72 @@ AC_DEFUN([gl_GLIBC21],
   ]
 )
 
+# gnulib-common.m4 serial 3
+dnl Copyright (C) 2007 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+# gl_MODULE_INDICATOR([modulename])
+# defines a C macro indicating the presence of the given module.
+AC_DEFUN([gl_MODULE_INDICATOR],
+[
+  AC_DEFINE([GNULIB_]translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___]), [1],
+    [Define to 1 when using the gnulib module ]$1[.])
+])
+
+# AC_PROG_MKDIR_P
+# is a backport of autoconf-2.60's AC_PROG_MKDIR_P.
+# Remove this macro when we can assume autoconf >= 2.60.
+m4_ifdef([AC_PROG_MKDIR_P], [], [
+  AC_DEFUN([AC_PROG_MKDIR_P],
+    [AC_REQUIRE([AM_PROG_MKDIR_P])dnl defined by automake
+     MKDIR_P='$(mkdir_p)'
+     AC_SUBST([MKDIR_P])])])
+
+# AC_C_RESTRICT
+# This definition overrides the AC_C_RESTRICT macro from autoconf 2.60..2.61,
+# so that mixed use of GNU C and GNU C++ and mixed use of Sun C and Sun C++
+# works.
+# This definition can be removed once autoconf >= 2.62 can be assumed.
+AC_DEFUN([AC_C_RESTRICT],
+[AC_CACHE_CHECK([for C/C++ restrict keyword], ac_cv_c_restrict,
+  [ac_cv_c_restrict=no
+   # The order here caters to the fact that C++ does not require restrict.
+   for ac_kw in __restrict __restrict__ _Restrict restrict; do
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+      [[typedef int * int_ptr;
+	int foo (int_ptr $ac_kw ip) {
+	return ip[0];
+       }]],
+      [[int s[1];
+	int * $ac_kw t = s;
+	t[0] = 0;
+	return foo(t)]])],
+      [ac_cv_c_restrict=$ac_kw])
+     test "$ac_cv_c_restrict" != no && break
+   done
+  ])
+ AH_VERBATIM([restrict],
+[/* Define to the equivalent of the C99 'restrict' keyword, or to
+   nothing if this is not supported.  Do not define if restrict is
+   supported directly.  */
+#undef restrict
+/* Work around a bug in Sun C++: it does not support _Restrict, even
+   though the corresponding Sun C compiler does, which causes
+   "#define restrict _Restrict" in the previous line.  Perhaps some future
+   version of Sun C++ will work with _Restrict; if so, it'll probably
+   define __RESTRICT, just as Sun C does.  */
+#if defined __SUNPRO_CC && !defined __RESTRICT
+# define _Restrict
+#endif])
+ case $ac_cv_c_restrict in
+   restrict) ;;
+   no) AC_DEFINE([restrict], []) ;;
+   *)  AC_DEFINE_UNQUOTED([restrict], [$ac_cv_c_restrict]) ;;
+ esac
+])
+
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
 # Copyright (C) 2004-2007 Free Software Foundation, Inc.
 #
@@ -8522,7 +8588,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/malloc.m4
   m4/mbstate_t.m4
   m4/nls.m4
-  m4/onceonly_2_57.m4
   m4/po.m4
   m4/printf-posix.m4
   m4/progtest.m4
@@ -10005,7 +10070,7 @@ AC_DEFUN([gl_LOCALCHARSET],
   AC_REQUIRE([gl_GLIBC21])
 ])
 
-# longlong.m4 serial 11
+# longlong.m4 serial 13
 dnl Copyright (C) 1999-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -10025,23 +10090,11 @@ AC_DEFUN([AC_TYPE_LONG_LONG_INT],
 [
   AC_CACHE_CHECK([for long long int], [ac_cv_type_long_long_int],
     [AC_LINK_IFELSE(
-       [AC_LANG_PROGRAM(
-	  [[#if ! (-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
-	      error in preprocessor;
-	    #endif
-	    long long int ll = 9223372036854775807ll;
-	    long long int nll = -9223372036854775807LL;
-	    typedef int a[((-9223372036854775807LL < 0
-			    && 0 < 9223372036854775807ll)
-			   ? 1 : -1)];
-	    int i = 63;]],
-	  [[long long int llmax = 9223372036854775807ll;
-	    return ((ll << 63) | (ll >> 63) | (ll < i) | (ll > i)
-		    | (llmax / ll) | (llmax % ll));]])],
+       [_AC_TYPE_LONG_LONG_SNIPPET],
        [dnl This catches a bug in Tandem NonStop Kernel (OSS) cc -O circa 2004.
 	dnl If cross compiling, assume the bug isn't important, since
 	dnl nobody cross compiles for this platform as far as we know.
-        AC_RUN_IFELSE(
+	AC_RUN_IFELSE(
 	  [AC_LANG_PROGRAM(
 	     [[@%:@include <limits.h>
 	       @%:@ifndef LLONG_MAX
@@ -10070,15 +10123,61 @@ AC_DEFUN([AC_TYPE_LONG_LONG_INT],
   fi
 ])
 
-# This macro is obsolescent and should go away soon.
-AC_DEFUN([gl_AC_TYPE_LONG_LONG],
+# Define HAVE_UNSIGNED_LONG_LONG_INT if 'unsigned long long int' works.
+# This fixes a bug in Autoconf 2.61, but can be removed once we
+# assume 2.62 everywhere.
+
+# Note: If the type 'unsigned long long int' exists but is only 32 bits
+# large (as on some very old compilers), AC_TYPE_UNSIGNED_LONG_LONG_INT
+# will not be defined. In this case you can treat 'unsigned long long int'
+# like 'unsigned long int'.
+
+AC_DEFUN([AC_TYPE_UNSIGNED_LONG_LONG_INT],
 [
-  AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
-  ac_cv_type_long_long=$ac_cv_type_long_long_int
-  if test $ac_cv_type_long_long = yes; then
-    AC_DEFINE(HAVE_LONG_LONG, 1,
-      [Define if you have the 'long long' type.])
+  AC_CACHE_CHECK([for unsigned long long int],
+    [ac_cv_type_unsigned_long_long_int],
+    [AC_LINK_IFELSE(
+       [_AC_TYPE_LONG_LONG_SNIPPET],
+       [ac_cv_type_unsigned_long_long_int=yes],
+       [ac_cv_type_unsigned_long_long_int=no])])
+  if test $ac_cv_type_unsigned_long_long_int = yes; then
+    AC_DEFINE([HAVE_UNSIGNED_LONG_LONG_INT], 1,
+      [Define to 1 if the system has the type `unsigned long long int'.])
   fi
+])
+
+# Expands to a C program that can be used to test for simultaneous support
+# of 'long long' and 'unsigned long long'. We don't want to say that
+# 'long long' is available if 'unsigned long long' is not, or vice versa,
+# because too many programs rely on the symmetry between signed and unsigned
+# integer types (excluding 'bool').
+AC_DEFUN([_AC_TYPE_LONG_LONG_SNIPPET],
+[
+  AC_LANG_PROGRAM(
+    [[/* Test preprocessor.  */
+      #if ! (-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
+        error in preprocessor;
+      #endif
+      #if ! (18446744073709551615ULL <= -1ull)
+        error in preprocessor;
+      #endif
+      /* Test literals.  */
+      long long int ll = 9223372036854775807ll;
+      long long int nll = -9223372036854775807LL;
+      unsigned long long int ull = 18446744073709551615ULL;
+      /* Test constant expressions.   */
+      typedef int a[((-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
+		     ? 1 : -1)];
+      typedef int b[(18446744073709551615ULL <= (unsigned long long int) -1
+		     ? 1 : -1)];
+      int i = 63;]],
+    [[/* Test availability of runtime routines for shift and division.  */
+      long long int llmax = 9223372036854775807ll;
+      unsigned long long int ullmax = 18446744073709551615ull;
+      return ((ll << 63) | (ll >> 63) | (ll < i) | (ll > i)
+	      | (llmax / ll) | (llmax % ll)
+	      | (ull << 63) | (ull >> 63) | (ull << i) | (ull >> i)
+	      | (ullmax / ull) | (ullmax % ull));]])
 ])
 
 # malloc.m4 serial 8
@@ -10184,93 +10283,6 @@ AC_DEFUN([AM_NLS],
     USE_NLS=$enableval, USE_NLS=yes)
   AC_MSG_RESULT($USE_NLS)
   AC_SUBST(USE_NLS)
-])
-
-# onceonly_2_57.m4 serial 4
-dnl Copyright (C) 2002-2003, 2005-2006 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl This file defines some "once only" variants of standard autoconf macros.
-dnl   AC_CHECK_HEADERS_ONCE          like  AC_CHECK_HEADERS
-dnl   AC_CHECK_FUNCS_ONCE            like  AC_CHECK_FUNCS
-dnl   AC_CHECK_DECLS_ONCE            like  AC_CHECK_DECLS
-dnl   AC_REQUIRE([AC_FUNC_STRCOLL])  like  AC_FUNC_STRCOLL
-dnl The advantage is that the check for each of the headers/functions/decls
-dnl will be put only once into the 'configure' file. It keeps the size of
-dnl the 'configure' file down, and avoids redundant output when 'configure'
-dnl is run.
-dnl The drawback is that the checks cannot be conditionalized. If you write
-dnl   if some_condition; then gl_CHECK_HEADERS(stdlib.h); fi
-dnl inside an AC_DEFUNed function, the gl_CHECK_HEADERS macro call expands to
-dnl empty, and the check will be inserted before the body of the AC_DEFUNed
-dnl function.
-
-dnl This is like onceonly.m4, except that it uses diversions to named sections
-dnl DEFAULTS and INIT_PREPARE in order to check all requested headers at once,
-dnl thus reducing the size of 'configure'. Works with autoconf-2.57. The
-dnl size reduction is ca. 9%.
-
-dnl Autoconf version 2.57 or newer is recommended.
-AC_PREREQ(2.57)
-
-# AC_CHECK_HEADERS_ONCE(HEADER1 HEADER2 ...) is a once-only variant of
-# AC_CHECK_HEADERS(HEADER1 HEADER2 ...).
-AC_DEFUN([AC_CHECK_HEADERS_ONCE], [
-  :
-  AC_FOREACH([gl_HEADER_NAME], [$1], [
-    AC_DEFUN([gl_CHECK_HEADER_]m4_quote(translit(gl_HEADER_NAME,
-                                                 [./-], [___])), [
-      m4_divert_text([INIT_PREPARE],
-        [gl_header_list="$gl_header_list gl_HEADER_NAME"])
-      gl_HEADERS_EXPANSION
-      AH_TEMPLATE(AS_TR_CPP([HAVE_]m4_defn([gl_HEADER_NAME])),
-        [Define to 1 if you have the <]m4_defn([gl_HEADER_NAME])[> header file.])
-    ])
-    AC_REQUIRE([gl_CHECK_HEADER_]m4_quote(translit(gl_HEADER_NAME,
-                                                   [./-], [___])))
-  ])
-])
-m4_define([gl_HEADERS_EXPANSION], [
-  m4_divert_text([DEFAULTS], [gl_header_list=])
-  AC_CHECK_HEADERS([$gl_header_list])
-  m4_define([gl_HEADERS_EXPANSION], [])
-])
-
-# AC_CHECK_FUNCS_ONCE(FUNC1 FUNC2 ...) is a once-only variant of
-# AC_CHECK_FUNCS(FUNC1 FUNC2 ...).
-AC_DEFUN([AC_CHECK_FUNCS_ONCE], [
-  :
-  AC_FOREACH([gl_FUNC_NAME], [$1], [
-    AC_DEFUN([gl_CHECK_FUNC_]m4_defn([gl_FUNC_NAME]), [
-      m4_divert_text([INIT_PREPARE],
-        [gl_func_list="$gl_func_list gl_FUNC_NAME"])
-      gl_FUNCS_EXPANSION
-      AH_TEMPLATE(AS_TR_CPP([HAVE_]m4_defn([gl_FUNC_NAME])),
-        [Define to 1 if you have the `]m4_defn([gl_FUNC_NAME])[' function.])
-    ])
-    AC_REQUIRE([gl_CHECK_FUNC_]m4_defn([gl_FUNC_NAME]))
-  ])
-])
-m4_define([gl_FUNCS_EXPANSION], [
-  m4_divert_text([DEFAULTS], [gl_func_list=])
-  AC_CHECK_FUNCS([$gl_func_list])
-  m4_define([gl_FUNCS_EXPANSION], [])
-])
-
-# AC_CHECK_DECLS_ONCE(DECL1 DECL2 ...) is a once-only variant of
-# AC_CHECK_DECLS(DECL1, DECL2, ...).
-AC_DEFUN([AC_CHECK_DECLS_ONCE], [
-  :
-  AC_FOREACH([gl_DECL_NAME], [$1], [
-    AC_DEFUN([gl_CHECK_DECL_]m4_defn([gl_DECL_NAME]), [
-      AC_CHECK_DECLS(m4_defn([gl_DECL_NAME]))
-    ])
-    AC_REQUIRE([gl_CHECK_DECL_]m4_defn([gl_DECL_NAME]))
-  ])
 ])
 
 # po.m4 serial 13 (gettext-0.15)
@@ -11552,7 +11564,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
 # indent-tabs-mode: nil
 # End:
 
-# stdlib_h.m4 serial 3
+# stdlib_h.m4 serial 4
 dnl Copyright (C) 2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -11579,6 +11591,7 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   GNULIB_GETSUBOPT=0;     AC_SUBST([GNULIB_GETSUBOPT])
   GNULIB_MKDTEMP=0;       AC_SUBST([GNULIB_MKDTEMP])
   GNULIB_MKSTEMP=0;       AC_SUBST([GNULIB_MKSTEMP])
+  GNULIB_PUTENV=0;        AC_SUBST([GNULIB_PUTENV])
   dnl Assume proper GNU behavior unless another module says otherwise.
   HAVE_CALLOC_POSIX=1;    AC_SUBST([HAVE_CALLOC_POSIX])
   HAVE_GETSUBOPT=1;       AC_SUBST([HAVE_GETSUBOPT])
@@ -11586,58 +11599,7 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   HAVE_MKDTEMP=1;         AC_SUBST([HAVE_MKDTEMP])
   HAVE_REALLOC_POSIX=1;   AC_SUBST([HAVE_REALLOC_POSIX])
   REPLACE_MKSTEMP=0;      AC_SUBST([REPLACE_MKSTEMP])
-])
-
-# ulonglong.m4 serial 8
-dnl Copyright (C) 1999-2007 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl From Paul Eggert.
-
-# Define HAVE_UNSIGNED_LONG_LONG_INT if 'unsigned long long int' works.
-# This fixes a bug in Autoconf 2.61, but can be removed once we
-# assume 2.62 everywhere.
-
-# Note: If the type 'unsigned long long int' exists but is only 32 bits
-# large (as on some very old compilers), AC_TYPE_UNSIGNED_LONG_LONG_INT
-# will not be defined. In this case you can treat 'unsigned long long int'
-# like 'unsigned long int'.
-
-AC_DEFUN([AC_TYPE_UNSIGNED_LONG_LONG_INT],
-[
-  AC_CACHE_CHECK([for unsigned long long int],
-    [ac_cv_type_unsigned_long_long_int],
-    [AC_LINK_IFELSE(
-       [AC_LANG_PROGRAM(
-	  [[#if ! (18446744073709551615ULL <= -1ull)
-	      error in preprocessor;
-	    #endif
-	    unsigned long long int ull = 18446744073709551615ULL;
-	    typedef int a[(18446744073709551615ULL <= (unsigned long long int) -1
-			   ? 1 : -1)];
-	   int i = 63;]],
-	  [[unsigned long long int ullmax = 18446744073709551615ull;
-	    return (ull << 63 | ull >> 63 | ull << i | ull >> i
-		    | ullmax / ull | ullmax % ull);]])],
-       [ac_cv_type_unsigned_long_long_int=yes],
-       [ac_cv_type_unsigned_long_long_int=no])])
-  if test $ac_cv_type_unsigned_long_long_int = yes; then
-    AC_DEFINE([HAVE_UNSIGNED_LONG_LONG_INT], 1,
-      [Define to 1 if the system has the type `unsigned long long int'.])
-  fi
-])
-
-# This macro is obsolescent and should go away soon.
-AC_DEFUN([gl_AC_TYPE_UNSIGNED_LONG_LONG],
-[
-  AC_REQUIRE([AC_TYPE_UNSIGNED_LONG_LONG_INT])
-  ac_cv_type_unsigned_long_long=$ac_cv_type_unsigned_long_long_int
-  if test $ac_cv_type_unsigned_long_long = yes; then
-    AC_DEFINE(HAVE_UNSIGNED_LONG_LONG, 1,
-      [Define if you have the 'unsigned long long' type.])
-  fi
+  REPLACE_PUTENV=0;       AC_SUBST([REPLACE_PUTENV])
 ])
 
 # unistd_h.m4 serial 9
@@ -13770,11 +13732,11 @@ dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
-dnl From Bruno Haible.
+dnl From Bruno Haible, Sam Steingold
 
 AC_DEFUN([CL_INTPARAM_CROSS],
 [
-  AC_REQUIRE([gl_AC_TYPE_LONG_LONG])
+  AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
   AC_REQUIRE([gt_TYPE_LONGDOUBLE])
   AC_REQUIRE([AC_C_BIGENDIAN])
   cl_machine_file_h=$1
