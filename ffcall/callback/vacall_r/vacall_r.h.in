@@ -74,10 +74,10 @@
 /* Define if floating-point results are returned in the integer registers */
 #undef __IREG_FLOAT_RETURN__
 
-/* gl_AC_TYPE_LONG_LONG */
+/* AC_TYPE_LONG_LONG_INT */
 /* Define if your compiler supports the 'long long' type. */
-#ifndef HAVE_LONG_LONG
-#undef HAVE_LONG_LONG
+#ifndef HAVE_LONG_LONG_INT
+#undef HAVE_LONG_LONG_INT
 #endif
 
 /* AC_C_CHAR_UNSIGNED */
