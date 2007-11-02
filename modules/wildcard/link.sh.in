@@ -4,6 +4,7 @@ for extra in '' @FNMATCH_O@; do
   if test -n "${extra}"; then
     NEW_FILES="${NEW_FILES} ../gllib/${extra}"
     NEW_LIBS="${NEW_LIBS} ${extra}"
+  fi
 done
 make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
