@@ -331,7 +331,7 @@ typedef struct
     unsigned int        _uint;
     long                _long;
     unsigned long       _ulong;
-#if !(defined(__mips64__) || defined(__alpha__) || defined(__powerpc64__)) && defined(HAVE_LONG_LONG)
+#if !(defined(__mips64__) || defined(__alpha__) || defined(__powerpc64__)) && defined(HAVE_LONG_LONG_INT)
     long long           _longlong;
     unsigned long long  _ulonglong;
 #endif
