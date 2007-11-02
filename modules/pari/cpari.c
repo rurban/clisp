@@ -6,6 +6,7 @@
  */
 
 #include "clisp.h"
+#include "config.h"
 #undef T
 #include <pari/pari.h>
 #include "cpari.h"
