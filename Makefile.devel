@@ -534,7 +534,8 @@ tp-mail : force
 	else f=$(SRC_DIST); fi; \
 	echo "Location: http://clisp.podval.org/`basename $$f`" >> $(MESSAGE_FILE); \
 	cat $(MESSAGE_FILE); \
-	mail -s "New CLISP pre-release is available" $(TP_EMAIL) < $(MESSAGE_FILE)
+	mail -s "New CLISP pre-release is available" \
+		-c clisp-devel@lists.sf.net  $(TP_EMAIL) < $(MESSAGE_FILE)
 	$(RM) $(MESSAGE_FILE)
 
 force :
