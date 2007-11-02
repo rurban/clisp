@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host nyc-qws-005 as the output of the command:
+# This file was created on host loiso as the output of the command:
 # ./makemake --with-dynamic-ffi win32msvc msvc6
 
 # -------------- Start of configurable section --------------------
@@ -15,7 +15,7 @@ MFLAGS=
 !endif
 
 # The official version number
-VERSION=2.42
+VERSION=2.43
 # If you want to distribute a modified version of CLISP,
 # use this to distinguish your distribution from the official one.
 # This can also be used for pre-test and post-release distributions:
@@ -451,7 +451,9 @@ win32aux.obj \
 built.obj \
 ari80386.obj \
 sp80386.obj \
-localcharset.obj
+gllib/localcharset.obj \
+gllib/uniname/uniname.obj \
+gllib/uniwidth/width.obj
 
 LISPFILES = \
 init.lisp \
@@ -858,6 +860,9 @@ $(SUBDIRS):
 	mkdir -p $@
 	if test ! -f $@/Makefile; then sh config.status --file=$@/Makefile depfiles; fi
 	$(MAKE) -C $@
+
+gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj : gllib
+	$(MAKE) -C gllib
 
 makemake : makemake.in config.status
 	sh config.status --file=makemake
@@ -1450,13 +1455,13 @@ sequence.s : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constob
 sequence.obj : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c gllib/stdbool.h gllib/stdint.h localcharset.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c sequence.c
 
-charstrg.i : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h uniname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c gllib/stdbool.h gllib/stdint.h localcharset.h
+charstrg.i : charstrg.c streq.h cjk.h uniwidth.h unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c gllib/stdbool.h gllib/stdint.h localcharset.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) charstrg.c > charstrg.i
 
-charstrg.s : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h uniname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c gllib/stdbool.h gllib/stdint.h localcharset.h
+charstrg.s : charstrg.c streq.h cjk.h uniwidth.h unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c gllib/stdbool.h gllib/stdint.h localcharset.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -S charstrg.c
 
-charstrg.obj : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h uniname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c gllib/stdbool.h gllib/stdint.h localcharset.h
+charstrg.obj : charstrg.c streq.h cjk.h uniwidth.h unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c gllib/stdbool.h gllib/stdint.h localcharset.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c charstrg.c
 
 debug.i : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c gllib/stdbool.h gllib/stdint.h localcharset.h
@@ -1647,10 +1652,6 @@ uniwidth.h : gllib/uniwidth.h
 	-$(RM) uniwidth.h
 	-$(LN_S) gllib/uniwidth.h uniwidth.h
 
-width.c : gllib/uniwidth/width.c
-	-$(RM) width.c
-	-$(LN_S) gllib/uniwidth/width.c width.c
-
 unitypes.h : gllib/unitypes.h
 	-$(RM) unitypes.h
 	-$(LN_S) gllib/unitypes.h unitypes.h
@@ -1662,14 +1663,6 @@ uniname.h : gllib/uniname.h
 uninames.h : gllib/uniname/uninames.h
 	-$(RM) uninames.h
 	-$(LN_S) gllib/uniname/uninames.h uninames.h
-
-uniname.c : gllib/uniname/uniname.c
-	-$(RM) uniname.c
-	-$(LN_S) gllib/uniname/uniname.c uniname.c
-
-localcharset.obj : gllib/localcharset.obj
-	-$(RM) localcharset.obj
-	-$(LN_S) gllib/localcharset.obj localcharset.obj
 
 data : ..\utils\unicode\UnicodeDataFull.txt ..\doc\Symbol-Table.text
 	$(RMRF) data
@@ -2681,17 +2674,17 @@ linkkit : modules.d modules.c clisp.h modprep.lisp
 	cd linkkit && $(LN_S) ..\clisp.h clisp.h
 	cd linkkit && $(LN_S) ..\modprep.lisp modprep.lisp
 
-modular : lisp.a libnoreadline.a localcharset.obj avcall.lib callback.lib  clisp-link linkkit modules.h modules.o makevars
+modular : lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  avcall.lib callback.lib  clisp-link linkkit modules.h modules.o makevars
 
 makevars : Makefile
-	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a libnoreadline.a localcharset.obj avcall.lib callback.lib '"'") > makevars
+	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  avcall.lib callback.lib '"'") > makevars
 
 clisp-link : clisp-link.in
 	sed -e 's%%@with_dynamic_modules@%%no%%' -e 's%%@createsharedlib@%%%%' -e 's%%@LEXE@%%.exe%%' -e 's%%@SHREXT@%%.dll%%'< clisp-link.in > clisp-link
 	chmod a+x clisp-link
 
 boot : modular lispinit.mem
-	test -d boot || (mkdir boot && cd boot && for f in lisp.a libnoreadline.a localcharset.obj avcall.lib callback.lib  modules.h modules.o makevars lisp.exe lispinit.mem; do $(LN_S) ..\$$f $$f; done) || ($(RMRF) boot ; exit 1)
+	test -d boot || (mkdir boot && cd boot && for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  avcall.lib callback.lib  modules.h modules.o lisp.exe lispinit.mem; do $(LN_S) ..\$$f .; done && ($(GREP) -v '^FILES=' ..\makevars; fl=''; for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  avcall.lib callback.lib ; do fl=$$fl' '`basename $$f`; done; echo 'FILES='"'"$$fl"'") > makevars) || ($(RMRF) boot ; exit 1)
 
 anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas clisp.h
 	lndir ..\modules/$@ $@
@@ -2716,12 +2709,12 @@ full : modular base $(MODULES)
 	CLISP_LINKKIT=. clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
 
 base-mod-check : clisp.exe tests # base
-	for m in $(BASE_MODULES); do $(RM) $$m/*.erg; done
-	z=""; for m in $(BASE_MODULES); do z=$$z" \""$$m/\"; done; ./clisp  -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	for m in "" $(BASE_MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done
+	z=""; for m in "" $(BASE_MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp  -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 mod-check : base-mod-check # full
-	for m in $(MODULES); do $(RM) $$m/*.erg; done
-	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full  -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	for m in "" $(MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done
+	z=""; for m in "" $(MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp -K full  -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 IMPNOTES = impnotes.html impnotes.css clisp.png clisp.ico
@@ -2900,7 +2893,7 @@ clean2 : clean1
 clean3 : clean2
 	-$(RM) $(FASFILES) *.lib
 	-$(RM) modprep.fas
-	for m in $(BASE_MODULES) $(MODULES); do $(RM) $$m/*.fas $$m/*.lib; done
+	for m in "" $(BASE_MODULES) $(MODULES); do test -n "$$m" && $(RM) $$m/*.fas $$m/*.lib $$m/*.erg; done
 
 # clean4 removes everything that becomes obsolete
 # when switching to a new version of the C compiler.

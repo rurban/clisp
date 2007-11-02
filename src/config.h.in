@@ -266,9 +266,6 @@
 /* Define if you have the 'long double' type. */
 #undef HAVE_LONG_DOUBLE
 
-/* Define if you have the 'long long' type. */
-#undef HAVE_LONG_LONG
-
 /* Define to 1 if the system has the type `long long int'. */
 #undef HAVE_LONG_LONG_INT
 
@@ -970,9 +967,18 @@
 /* Define to rpl_regfree if the replacement should be used. */
 #undef regfree
 
-/* Define to equivalent of C99 restrict keyword, or to nothing if this is not
-   supported. Do not define if restrict is supported directly. */
+/* Define to the equivalent of the C99 'restrict' keyword, or to
+   nothing if this is not supported.  Do not define if restrict is
+   supported directly.  */
 #undef restrict
+/* Work around a bug in Sun C++: it does not support _Restrict, even
+   though the corresponding Sun C compiler does, which causes
+   "#define restrict _Restrict" in the previous line.  Perhaps some future
+   version of Sun C++ will work with _Restrict; if so, it'll probably
+   define __RESTRICT, just as Sun C does.  */
+#if defined __SUNPRO_CC && !defined __RESTRICT
+# define _Restrict
+#endif
 
 /* Define as `return' if your compiler allows returning expressions of type
    `void' from functions */
