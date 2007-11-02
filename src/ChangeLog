@@ -1,6 +1,8 @@
 2007-11-02  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (ffcall-aux): split out from all
+	(ffcall/avcall/avcall.h.mingw32, ffcall/vacall/vacall.h.mingw32)
+	(ffcall/callback/vacall_r/vacall_r.h.mingw32): add targets
 
 2007-11-02  Sam Steingold  <sds@gnu.org>
 

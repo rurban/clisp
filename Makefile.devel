@@ -30,6 +30,8 @@ ffcall-aux : ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc        \
 	ffcall/callback/vacall_r/config.h.msvc                              \
 	ffcall/callback/vacall_r/vacall_r.h.msvc                            \
 	ffcall/callback/trampoline_r/config.h.msvc                          \
+	ffcall/avcall/avcall.h.mingw32 ffcall/vacall/vacall.h.mingw32       \
+	ffcall/callback/vacall_r/vacall_r.h.mingw32
 
 
 ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c          \
@@ -168,17 +170,24 @@ src/sp80386.msvc.c : src/sp80386.d src/asmi386.sh
 ffcall/avcall/avcall.h.msvc : ffcall/avcall/avcall.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall.h.msvc
 
+ffcall/avcall/avcall.h.mingw32 : ffcall/avcall/avcall.h.in
+	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall.h.mingw32
+
 ffcall/avcall/avcall-i386-msvc.c : ffcall/avcall/avcall-i386-macro.S ffcall/avcall/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall-i386-msvc.c
 
 # ffcall/vacall/config.h.in , ffcall/trampoline/config.h.in,
-# all/callback/vacall_r/vacall_r.h.in, ffcall/callback/trampoline_r/config.h.in
+# ffcall/callback/vacall_r/vacall_r.h.in,
+# ffcall/callback/trampoline_r/config.h.in
 # are not auto-generated!
 ffcall/vacall/config.h.msvc : ffcall/vacall/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel vacall/config.h.msvc
 
 ffcall/vacall/vacall.h.msvc : ffcall/vacall/vacall.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall.h.msvc
+
+ffcall/vacall/vacall.h.mingw32 : ffcall/vacall/vacall.h.in
+	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall.h.mingw32
 
 ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386-macro.S ffcall/vacall/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall-i386-msvc.c
@@ -191,6 +200,9 @@ ffcall/callback/vacall_r/config.h.msvc : ffcall/callback/vacall_r/config.h.in
 
 ffcall/callback/vacall_r/vacall_r.h.msvc : ffcall/callback/vacall_r/vacall_r.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall_r.h.msvc
+
+ffcall/callback/vacall_r/vacall_r.h.mingw32 : ffcall/callback/vacall_r/vacall_r.h.in
+	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall_r.h.mingw32
 
 ffcall/callback/vacall_r/vacall-i386-msvc.c : ffcall/callback/vacall_r/vacall-i386-macro.S ffcall/callback/vacall_r/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall-i386-msvc.c
