@@ -1,5 +1,4 @@
-# -*- makefile -*-
-# This is the developer's makefile, not the user's makefile.
+# This is the developer's -*- Makefile -*-, not the user's Makefile.
 # Do not use it unless you know exactly what you are doing!
 
 
