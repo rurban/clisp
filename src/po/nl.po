@@ -1,35 +1,36 @@
-# Dutch messages for CLISP
-# Copyright (C) 1992-2000 Bruno Haible, Michael Stoll, Marcus Daniels
-# Tijs van Bakel <smoke@casema.net>, 1999, 2000.
+# Translation of clisp-2.43-pre1 to Dutch.
+# Copyright (C) 1999, 2000, 2007 Free Software Foundation, Inc.
+# Copyright (C) 1992-2007 Bruno Haible, Michael Stoll, Marcus Daniels, Sam Steingold
 #
 # Opmerkingen over de Nederlandse vertaling:
 #
-# Veel technische termen zijn, naar voorbeeld van de Duitse vertaling
-# onvertaald engels gebleven.  Dit geldt voor alle hoofdletterwoorden,
-# maar ook voor woorden als: stream, byte, string, unintern.  Dit om er
-# voor te zorgen dat de programmeur, die enkel engelse boeken over
+# Veel technische termen zijn, naar voorbeeld van de Duitse vertaling,
+# onvertaald Engels gebleven.  Dit geldt voor alle hoofdletterwoorden,
+# maar ook voor woorden als: stream, byte, string, en unintern.  Dit om
+# ervoor te zorgen dat de programmeur, die enkel Engelse boeken over
 # Common Lisp heeft kunnen lezen, niet te veel afgeschrikt wordt.
 # Misschien moeten deze onvertaalde woorden worden voorzien van
-# aanhalingstekens ?
+# aanhalingstekens?
 #
-# Indien u bezwaren heeft op de manier waarop ik vertaald heb, hoor ik
-# dat heel graag.  Stuur even een e-mailtje naar: smoke@casema.net
+# Merk op dat dit slechts een eerste vertaling naar het Nederlands is en
+# dat over veel onderwerpen langer nagedacht kan worden.  Aarzel niet het
+# laten horen als u ergens andere ideeÃ«n over hebt!
 #
-# Merk op dat dit slechts de eerste vertaling naar het Nederlands is en
-# dat over veel onderwerpen langer nagedacht kan worden.  Laat het horen
-# als je ergens ideëen over hebt!
-#
+# Tijs van Bakel <smoke@casema.net>, 1999, 2000.
+# Benno Schulenberg <benno@vertaalt.nl>, 2007.
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2000-03-06\n"
+"Project-Id-Version: clisp-2.43-pre1\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2007-11-02 14:11:52-0400\n"
-"PO-Revision-Date: 2000-03-03 15:02+01:00\n"
-"Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
-"Language-Team: Dutch <nl@li.org>\n"
+"PO-Revision-Date: 2007-11-03 14:19+0100\n"
+"Last-Translator: Benno Schulenberg <benno@vertaalt.nl>\n"
+"Language-Team: Dutch <vertaling@vrijschrift.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-1\n"
-"Content-Transfer-Encoding: 8-bit\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: spvw.d:423
 msgid "could not make symbol value per-thread"
@@ -37,70 +38,67 @@ msgstr "kan waarde van symbool niet per-thread maken"
 
 #: spvw.d:482
 msgid "*** - Program stack overflow. RESET"
-msgstr "*** - Programma stapeloverloop. RESET"
+msgstr "*** -- Progamma-stapeloverloop.  RESET"
 
 #: spvw.d:497
 msgid "*** - Lisp stack overflow. RESET"
-msgstr "*** - Lisp stapeloverloop. RESET"
+msgstr "*** -- Lisp-stapeloverloop.  RESET"
 
 #: spvw.d:620
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: malloc() failed"
-msgstr "mprotect() mislukt."
+msgstr "~S: malloc() is mislukt"
 
 #: spvw.d:631
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: realloc() failed"
-msgstr "mprotect() mislukt."
+msgstr "~S: realloc() is mislukt"
 
 #: spvw.d:661
-#, fuzzy, lisp-format
+#, lisp-format
 msgid ""
 "Internal error: statement in file ~S, line ~S has been reached!!\n"
 "Please see <http://clisp.cons.org/impnotes/faq.html#faq-bugs> for bug reporting instructions."
 msgstr ""
-"interne fout: bewering in bestand ~S, regel ~S is uitgevoerd!!\n"
-"Zendt a.u.b. een omschrijving van hoe u deze fout hebt gekregen aan de auteurs van het programma!"
+"**Interne fout**: opdracht in bestand ~S, regel ~S werd bereikt!!\n"
+"Zie http://clisp.cons.org/impnotes/faq.html#faq-bugs voor informatie\n"
+"over het rapporteren van deze fout."
 
 #: spvw.d:712
-#, fuzzy
 msgid "Unknown FSUBR signature: %d %d %d\n"
-msgstr "Onbekend argumenttype voor SUBR\n"
+msgstr "Onbekende FSUBR-handtekening: %d %d %d\n"
 
 #: spvw.d:820
-#, fuzzy
 msgid "Unknown SUBR signature: %d %d %d %d"
-msgstr "Onbekend argumenttype voor SUBR\n"
+msgstr "Onbekende SUBR-handtekening: %d %d %d %d"
 
 #: spvw.d:1549
-#, fuzzy
 msgid "module '%s' requires package %s.\n"
-msgstr "module `%s' vereist package %s.\n"
+msgstr "module '%s' vereist pakket %s.\n"
 
 #: spvw.d:1559
-#, fuzzy
 msgid "module '%s' redefines symbol "
-msgstr "module `%s' vereist package %s.\n"
+msgstr "module '%s' herdefinieert symbool"
 
 #: spvw.d:1561
-#, fuzzy
 msgid " in the locked package "
-msgstr "een gewiste package."
+msgstr " in het vergrendelde pakket "
 
 #: spvw.d:1563
-#, fuzzy
 msgid ""
 "\n"
 "old definition: "
-msgstr " met macrodefinitie"
+msgstr ""
+"\n"
+"oude definitie: "
 
 #: spvw.d:1600
 msgid "is an ANSI Common Lisp."
-msgstr ""
+msgstr "is een ANSI Common Lisp."
 
 #: spvw.d:1602
 msgid "Usage:  "
-msgstr ""
+msgstr "Gebruik:  "
 
 #: spvw.d:1604
 msgid ""
@@ -112,23 +110,23 @@ msgstr ""
 
 #: spvw.d:1608
 msgid "Informative output:\n"
-msgstr ""
+msgstr "Informatieve uitvoer:\n"
 
 #: spvw.d:1609
 msgid " -h, --help    - print this help and exit\n"
-msgstr ""
+msgstr " -h, --help    - deze hulptekst tonen en stoppen\n"
 
 #: spvw.d:1610
 msgid " --version     - print the version information\n"
-msgstr ""
+msgstr " --version     - versie-informatie tonen\n"
 
 #: spvw.d:1611
 msgid " --license     - print the licensing information\n"
-msgstr ""
+msgstr " --license     - licentie-informatie tonen\n"
 
 #: spvw.d:1612
 msgid " -help-image   - print image-specific help and exit\n"
-msgstr ""
+msgstr " -help-image   - 'image'-specifieke hulp tonen en stoppen\n"
 
 #: spvw.d:1613
 msgid "Memory image selection:\n"
@@ -156,15 +154,15 @@ msgstr ""
 
 #: spvw.d:1623
 msgid "Internationalization:\n"
-msgstr ""
+msgstr "Internationalisatie:\n"
 
 #: spvw.d:1624
 msgid " -L language   - set user language\n"
-msgstr ""
+msgstr " -L taal       - gebruikerstaal instellen\n"
 
 #: spvw.d:1625
 msgid " -N nlsdir     - NLS catalog directory\n"
-msgstr ""
+msgstr " -N nlsmap     - map met NLS-catalogussen\n"
 
 #: spvw.d:1626
 msgid " -Edomain encoding - set encoding\n"
@@ -191,7 +189,7 @@ msgstr ""
 
 #: spvw.d:1633
 msgid "Startup actions:\n"
-msgstr ""
+msgstr "Opstartacties:\n"
 
 #: spvw.d:1634
 msgid " -ansi         - more ANSI CL compliance\n"
@@ -223,7 +221,7 @@ msgstr ""
 
 #: spvw.d:1641
 msgid "Actions:\n"
-msgstr ""
+msgstr "Acties:\n"
 
 #: spvw.d:1642
 msgid " -c [-l] lispfile [-o outputfile] - compile lispfile\n"
@@ -267,20 +265,19 @@ msgstr ""
 
 #: spvw.d:1660
 msgid "%s: use '-h' for help"
-msgstr ""
+msgstr "%s: gebruik '-h' voor hulp"
 
 #: spvw.d:1663
-#, fuzzy
 msgid "invalid argument"
-msgstr "Ongeldig argument"
+msgstr "ongeldig argument"
 
 #: spvw.d:1803
 msgid "Welcome to"
-msgstr ""
+msgstr "Welkom bij"
 
 #: spvw.d:1809
 msgid "Type :h and hit Enter for context help."
-msgstr ""
+msgstr "Typ :h en druk op Enter voor contextuele hulp."
 
 #: spvw.d:2073
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
@@ -288,67 +285,63 @@ msgstr "Syntaxis voor %s: nnnnnnn of nnnnKB of nMB"
 
 #: spvw.d:2078
 msgid "%s out of range"
-msgstr "%s is buiten bereik"
+msgstr "%s valt buiten bereik"
 
 #: spvw.d:2083
 msgid "warning: %s out of range, using %u instead"
-msgstr ""
+msgstr "waarschuwing: %s valt buiten bereik; %u wordt gebruikt"
 
 #: spvw.d:2099
 msgid "memory size"
-msgstr "grootte geheugen"
+msgstr "geheugengrootte"
 
 #: spvw.d:2115
 msgid "multiple -t"
-msgstr ""
+msgstr "meerdere -t"
 
 #: spvw.d:2135
 msgid "multiple -B"
-msgstr ""
+msgstr "meerdere -B"
 
 #: spvw.d:2170
-#, fuzzy
 msgid "-E requires an argument"
-msgstr "~S vereiste argumenten"
+msgstr "-E vereist een argument"
 
 #: spvw.d:2436
 msgid "-l without -c is invalid"
-msgstr ""
+msgstr "-l zonder -c is ongeldig"
 
 #: spvw.d:2442
-#, fuzzy
 msgid "-x with -c is invalid"
-msgstr "~S op ~S is ongeldig"
+msgstr "-x met -c is ongeldig"
 
 #: spvw.d:2447
 msgid "-x with lisp-file is invalid"
-msgstr ""
+msgstr "-x met een lisp-bestand is ongeldig"
 
 #: spvw.d:2568
-#, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
-msgstr "Waarde van malloc() = %x stemt niet overeen met de typecodes."
+msgstr "Afsluitwaarde van malloc() is %lx, wat niet compatibel is met typecode-distributie."
 
 #: spvw.d:2575
 msgid "Only %d bytes available."
-msgstr "Nog maar %d bytes beschikbaar."
+msgstr "Slechts %d bytes beschikbaar."
 
 #: spvw.d:2825
 msgid "Could not determine the end of the SP stack!"
-msgstr "Kan het einde van de SP stack niet bepalen!"
+msgstr "Kan het einde van de SP-stapel niet bepalen!"
 
 #: spvw.d:2977
 msgid "WARNING: No initialization file specified."
-msgstr "LET OP: Geen opstartbestand opgegeven."
+msgstr "WAARSCHUWING: Geen opstartbestand opgegeven."
 
 #: spvw.d:2979 spvw.d:2991
 msgid "Please try: "
-msgstr "Probeer a.u.b.: "
+msgstr "Probeer: "
 
 #: spvw.d:2989
-#, fuzzy
 msgid "WARNING: No installation directory specified."
-msgstr "LET OP: Geen opstartbestand opgegeven."
+msgstr "WAARSCHUWING: Geen installatiemap opgegeven."
 
 #: spvw.d:3050
 msgid "All positional arguments are put into "
@@ -362,12 +355,11 @@ msgstr ""
 
 #: spvw.d:3146
 msgid "WARNING: no such package: "
-msgstr ""
+msgstr "WAARSCHUWING: niet-bestaand pakket: "
 
 #: spvw.d:3364
-#, fuzzy
 msgid "%s: Not enough memory for Lisp."
-msgstr "Niet genoeg geheugen voor Lisp."
+msgstr "%s: Onvoldoende geheugen beschibaar voor Lisp."
 
 #: spvw.d:3418
 msgid "Bye."
@@ -379,11 +371,11 @@ msgstr "Druk op een toets om af te sluiten..."
 
 #: spvw_alloca.d:48
 msgid "*** - Virtual memory exhausted. RESET"
-msgstr "*** - Geen virtueel geheugen beschikbaar. RESET"
+msgstr "*** -- Geen virtueel geheugen meer beschikbaar.  RESET"
 
 #: spvw_alloca.d:50
 msgid "*** - Memory exhausted. RESET"
-msgstr "*** - Geen geheugen meer beschikbaar. RESET"
+msgstr "*** -- Geen geheugen meer beschikbaar.  RESET"
 
 #: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:357 spvw_multimap.d:161
 #, fuzzy
@@ -402,11 +394,11 @@ msgstr "Kan geheugen bereik op 0x%x-0x%x niet reserveren."
 
 #: spvw_mmap.d:225
 msgid "CreateFileMapping() failed."
-msgstr "CreateFileMapping() mislukt."
+msgstr "CreateFileMapping() is mislukt."
 
 #: spvw_mmap.d:233
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
-msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) mislukt."
+msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) is mislukt."
 
 #: spvw_mmap.d:239
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
@@ -414,60 +406,51 @@ msgstr "MapViewOfFileEx() gaf 0x%x terug in plaats van 0x%x."
 
 #: spvw_mmap.d:254
 msgid "VirtualFree() failed."
-msgstr "VirtualFree() mislukt."
+msgstr "VirtualFree() is mislukt."
 
 #: spvw_mmap.d:267
 msgid "VirtualProtect() failed."
-msgstr "VirtualProtect() mislukt."
+msgstr "VirtualProtect() is mislukt."
 
 #: spvw_mmap.d:337 spvw_multimap.d:115 spvw_multimap.d:190
-#, fuzzy
 msgid "Cannot open <%s>."
-msgstr "Kan %s niet openen."
+msgstr "Kan <%s> niet openen."
 
 #: spvw_multimap.d:139
-#, fuzzy
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
-msgstr "msync(0x%x,0x%x,MS_INVALIDATE) mislukt."
+msgstr "msync(0x%x,0x%x,MS_INVALIDATE) is mislukt."
 
 #: spvw_multimap.d:199
-#, fuzzy
 msgid "Cannot delete <%s>."
-msgstr "Kan %s niet verwijderen."
+msgstr "Kan <%s> niet verwijderen."
 
 #: spvw_multimap.d:217
-#, fuzzy
 msgid "** WARNING: ** Too little free disk space for <%s>."
-msgstr "** LET OP: ** Te weinig vrije schijfruimte voor %s."
+msgstr "*WAARSCHUWING*: Te weinig vrije schijfruimte voor <%s>."
 
 #: spvw_multimap.d:219
-#, fuzzy
 msgid "Please restart LISP with less memory (option -m)."
-msgstr "Herstart a.u.b. LISP met minder geheugen (optie -m)."
+msgstr "Herstart LISP met minder geheugen (optie -m)."
 
 #: spvw_multimap.d:228
-#, fuzzy
 msgid "Cannot make <%s> long enough."
-msgstr "Kan %s niet lang genoeg maken."
+msgstr "Kan <%s> niet lang genoeg maken."
 
 #: spvw_multimap.d:242
-#, fuzzy
 msgid "Cannot fill <%s>."
-msgstr "Kan %s niet vullen."
+msgstr "Kan <%s> niet vullen."
 
 #: spvw_multimap.d:255 spvw_multimap.d:289
-#, fuzzy
 msgid "Cannot close <%s>."
-msgstr "Kan %s niet sluiten."
+msgstr "Kan <%s> niet sluiten."
 
 #: spvw_multimap.d:327
 msgid "Recompile your operating system with SYSV IPC support."
-msgstr "Hercompileer uw besturingssysteem met ondersteuning van SYSV IPC."
+msgstr "Hercompileer uw besturingssysteem met ondersteuning voor SYSV-IPC."
 
 #: spvw_multimap.d:340
-#, fuzzy
 msgid "Cannot allocate private shared memory segment of size %d."
-msgstr "Kan privé shared-memory segment niet reserveren. "
+msgstr "Kan geen privÃ© gedeeld-geheugensegment van grootte %d reserveren."
 
 #: spvw_multimap.d:357
 #, fuzzy
@@ -475,18 +458,16 @@ msgid "Cannot map shared memory to address 0x%lx."
 msgstr "Kan shared-memory niet afbeelden op adres 0x%x."
 
 #: spvw_multimap.d:375 spvw_multimap.d:381
-#, fuzzy
 msgid "%s: Cannot fill shared memory."
-msgstr "Kan shared-memory niet vullen."
+msgstr "%s Kan gedeeld geheugen niet vullen."
 
 #: spvw_multimap.d:394
 msgid "Cannot remove shared memory segment."
 msgstr "Kan shared-memory segment niet verwijderen."
 
 #: spvw_fault.d:277
-#, fuzzy
 msgid "mprotect(0x%lx,%d,%d) failed."
-msgstr "mprotect() mislukt."
+msgstr "mprotect(0x%lx,%d,%d) is mislukt."
 
 #: spvw_sigsegv.d:23
 msgid "Permanently allocated: %lu bytes."
@@ -501,32 +482,31 @@ msgid "Free space: %lu bytes."
 msgstr ""
 
 #: spvw_sigsegv.d:40
-#, fuzzy
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
-msgstr "SIGSEGV kan niet hersteld worden. Fout-adres = 0x%x."
+msgstr "SIGSEGV is ongeneselijk.  Fout-adres = 0x%x."
 
 #: spvw_sigsegv.d:76
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
-msgstr "Apollo 13 scenario: Stapeloverloop afhandeling mislukt. Bij de volgende stapeloverloop gaan we plat!!!"
+msgstr "Apollo 13-scenario: afhandeling van stapeloverloop is mislukt; bij de volgende stapeloverloop gaan we plat!!!"
 
 #: spvw_sigint.d:69 spvw_sigint.d:132
 msgid "Ctrl-C: User break"
 msgstr "Ctrl-C: Onderbreking"
 
 #: spvw_garcol.d:1983
-#, fuzzy
 msgid "munmap() failed."
-msgstr "munmap() mislukt."
+msgstr "munmap() is mislukt."
 
 #: spvw_allocate.d:32
 msgid "No more room for LISP objects"
-msgstr "Geen ruimte meer voor LISP objecten"
+msgstr "Geen ruimte meer voor LISP-objecten"
 
 #: spvw_allocate.d:50
 msgid "*** - No more room for LISP objects: RESET"
-msgstr "*** - Geen ruimte meer voor LISP objecten: RESET"
+msgstr "*** -- Geen ruimte meer voor LISP-objecten:  RESET"
 
 #: spvw_allocate.d:251 spvw_allocate.d:311 spvw_allocate.d:396
+#, fuzzy
 msgid "Trying to make room through a GC..."
 msgstr "Ik probeer ruimte te maken door een GC..."
 
@@ -536,7 +516,7 @@ msgstr ""
 
 #: spvw_memfile.d:226
 msgid "disk full"
-msgstr "schijf vol"
+msgstr "schijf is vol"
 
 #: spvw_memfile.d:269
 #, lisp-format
@@ -559,9 +539,8 @@ msgid "%s: initialization file `%s' was not created by this version of CLISP run
 msgstr "opstartbestand was niet gemaakt door deze versie van LISP"
 
 #: spvw_memfile.d:1693
-#, fuzzy
 msgid "%s: not enough memory for initialization"
-msgstr "onvoldoende geheugen om te starten"
+msgstr "%s: onvoldoende geheugen beschikbaar om te starten"
 
 #: spvw_memfile.d:1762
 msgid "%s: 'image size' method failed, but found image header at %d\n"
@@ -580,27 +559,27 @@ msgstr ""
 #: eval.d:1489
 #, lisp-format
 msgid "Too many documentation strings in ~S"
-msgstr "Te veel documentatie strings in ~S"
+msgstr "Te veel documentatiestrings in ~S"
 
 #: eval.d:1691
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: lambda-list for ~S is missing"
-msgstr "FUNCTION: lambda-lijst voor ~S ontbreekt"
+msgstr "~S: lambda-lijst voor ~S ontbreekt"
 
 #: eval.d:1699
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: lambda-list for ~S should be a list, not ~S"
-msgstr "FUNCTION: lambda-lijst voor ~S moet een lijst zijn, niet ~S"
+msgstr "~S: lambda-lijst voor ~S moet een lijst zijn, niet ~S"
 
 #: eval.d:1824
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: illegal declaration ~S"
-msgstr "FUNCTION: ongeldige declaratie ~S"
+msgstr "~S: ongeldige declaratie ~S"
 
 #: eval.d:1918 eval.d:2097
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: variable specification after ~S too long: ~S"
-msgstr "FUNCTION: te lange variabelenspecificatie na &AUX: ~S"
+msgstr "~S: te lange variabelenspecificatie na ~S: ~S"
 
 #: eval.d:1957
 #, fuzzy, lisp-format
@@ -608,14 +587,14 @@ msgid "~S: ~S var must be followed by ~S or ~S or end of list: ~S"
 msgstr "FUNCTION: Na &REST var moet &KEY of &AUX of lijsteinde komen: ~S"
 
 #: eval.d:1963
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S must be followed by a variable: ~S"
-msgstr "FUNCTION: Na &REST moet een variabele komen: ~S"
+msgstr "~S: Na ~S moet een variabele komen: ~S"
 
 #: eval.d:2057
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: incorrect variable specification after ~S: ~S"
-msgstr "FUNCTION: ongeldige variabelenspecificatie na &KEY: ~S"
+msgstr "~S: ongeldige variabelenspecificatie na ~S: ~S"
 
 #: eval.d:2066
 #, fuzzy, lisp-format
@@ -623,9 +602,9 @@ msgid "~S: ~S must be followed by ~S or end of list: ~S"
 msgstr "FUNCTION: Na &REST var moet &KEY of &AUX of lijsteinde komen: ~S"
 
 #: eval.d:2118
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: badly placed lambda-list keyword ~S: ~S"
-msgstr "FUNCTION: foutief geplaatst lambda-lijst-keyword ~S: ~S"
+msgstr "~S: foutief geplaatst lambda-lijst-sleutelwoord ~S: ~S"
 
 #: eval.d:2127
 #, fuzzy, lisp-format
@@ -638,9 +617,9 @@ msgid "~S: a dot in a lambda-list is allowed only for macros, not here: ~S"
 msgstr "FUNCTION: een punt in een lambda-lijst is alleen toegestaan voor macro's, niet hier: ~S"
 
 #: eval.d:2206
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is a special operator, not a function"
-msgstr "~S: ~S is een `special form', niet een functie"
+msgstr "~S: ~S is een speciale operator, niet een functie"
 
 #: eval.d:2217
 #, lisp-format
@@ -693,9 +672,9 @@ msgid "EVAL: argument list given to ~S is dotted: ~S"
 msgstr "EVAL: argumentenlijst voor ~S is niet `dotted': ~S"
 
 #: eval.d:4097
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument list given to ~S is dotted (terminated by ~S)"
-msgstr "EVAL: argumentenlijst voor ~S is niet `dotted': ~S"
+msgstr "~S: argumentenlijst van ~S is niet 'dotted' (afgesloten door ~S)"
 
 #: eval.d:4105
 #, lisp-format
@@ -703,24 +682,24 @@ msgid "APPLY: too many arguments given to ~S"
 msgstr "APPLY: te veel argumenten gegeven voor ~S"
 
 #: eval.d:4116
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "APPLY: dotted argument list given to ~S : ~S"
-msgstr "`dotted' lijst meegegeven aan ~S : ~S"
+msgstr "APLLY: 'dotted' argumentenlijst meegegeven aan ~S : ~S"
 
 #: eval.d:4120
 #, lisp-format
 msgid "APPLY: too few arguments given to ~S"
-msgstr "APPLY: te weinig argument gegeven voor ~S"
+msgstr "APPLY: te weinig argumenten gegeven voor ~S"
 
 #: eval.d:6591 eval.d:6605
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S has no value"
-msgstr "symbool ~S heeft geen waarde"
+msgstr "~S: symbool ~S heeft geen waarde"
 
 #: eval.d:6618
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: assignment to constant symbol ~S is impossible"
-msgstr "toekenning aan constante-symbool ~S is niet toegestaan"
+msgstr "~S: toekenning aan constante-symbool ~S is onmogelijk"
 
 #: eval.d:7250 control.d:2243
 #, lisp-format
@@ -749,7 +728,7 @@ msgstr "~S: ~S is geen juiste index voor ~S"
 #: eval.d:8554
 #, lisp-format
 msgid "undefined bytecode in ~S at byte ~S"
-msgstr "niet gedefiniëerde bytecode in ~S op byte ~S"
+msgstr "ongedefinieerde bytecode in ~S op byte ~S"
 
 #: eval.d:8568
 #, lisp-format
@@ -757,9 +736,9 @@ msgid "~S: jump by ~S takes ~S outside [~S;~S]"
 msgstr ""
 
 #: eval.d:8572
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: too many return values"
-msgstr "te veel teruggegeven waarden"
+msgstr "~S: te veel teruggegeven waarden"
 
 #: eval.d:8577
 #, lisp-format
@@ -769,7 +748,7 @@ msgstr "Foutieve STACK in ~S op byte ~S"
 #: control.d:79 init.lisp:1252
 #, lisp-format
 msgid "~S: ~S should be a lambda expression"
-msgstr "~S: ~S moet een lambda expressie zijn"
+msgstr "~S: ~S moet een lambda-expressie zijn"
 
 #: control.d:100
 #, lisp-format
@@ -777,47 +756,39 @@ msgid "~S: ~S has no dynamic value"
 msgstr "~S: ~S heeft geen dynamische waarde"
 
 #: control.d:191
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: odd number of arguments: ~S"
-msgstr "~S werd aangeroepen met een oneven aantal argumenten: ~S"
+msgstr "~S: oneven aantal argumenten: ~S"
 
 #: control.d:200
 #, lisp-format
 msgid "dotted list given to ~S : ~S"
-msgstr "`dotted' lijst meegegeven aan ~S : ~S"
+msgstr "'dotted' lijst meegegeven aan ~S: ~S"
 
 #: control.d:293
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: the special operator definition of ~S must not be removed"
-msgstr "~S: de `special form' definitie van ~S mag niet verwijderd worden"
+msgstr "~S: de speciale operatordefinitie van ~S mag niet verwijderd worden"
 
 #: control.d:360
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "doc-string is not allowed here and will be ignored: ~S"
-msgstr "~S: doc-strings zijn hier niet toegestaan: ~S"
+msgstr "een doc-string is hier niet toegestaan en wordt genegeerd: ~S"
 
 #: control.d:412
 #, lisp-format
 msgid "~S: illegal variable specification ~S"
-msgstr "~S: ongeldige variabele specificatie ~S"
+msgstr "~S: ongeldige variabele-specificatie ~S"
 
 #: control.d:547
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S has been declared SPECIAL and may not be re-defined as a SYMBOL-MACRO"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbol ~S mag niet zowel SPECIAL als macro zijn\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbool ~S mag niet als SPECIAL en macro tegelijkertijd worden gedeclareerd"
+msgstr "~S: symbool ~S werd gedeclareerd als SPECIAL en mag niet als een SYMBOL-MACRO geherdefinieerd worden"
 
 #: control.d:553
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S must not be declared SPECIAL and defined a SYMBOL-MACRO at the same time"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbol ~S mag niet zowel SPECIAL als macro zijn\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbool ~S mag niet als SPECIAL en macro tegelijkertijd worden gedeclareerd"
+msgstr "~S: symbool ~S mag niet tegelijkertijd als SPECIAL gedeclareerd en als SYMBOL-MACRO gedefinieerd worden"
 
 #: control.d:590
 #, lisp-format
@@ -840,14 +811,14 @@ msgid "~S: macro name ~S should be a symbol"
 msgstr "~S: macronaam ~S moet een symbool zijn"
 
 #: control.d:1090
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a function and macro specification"
-msgstr "~S: ~S is geen functiespecificatie"
+msgstr "~S: ~S is geen functie- en macrospecificatie"
 
 #: control.d:1097
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: function and macro name ~S should be a symbol"
-msgstr "~S: functienaam ~S moet een symbool zijn"
+msgstr "~S: functie- en macronaam ~S moet een symbool zijn"
 
 #: control.d:1212
 #, lisp-format
@@ -862,7 +833,7 @@ msgstr "~S: keylijst ontbreekt: ~S"
 #: control.d:1251 macros1.lisp:296
 #, lisp-format
 msgid "~S: the ~S clause must be the last one"
-msgstr "~S: de ~S clausule moet de laatste zijn"
+msgstr "~S: de clausule ~S moet de laatste zijn"
 
 #: control.d:1306
 #, lisp-format
@@ -905,7 +876,7 @@ msgid "~S: too many arguments to ~S"
 msgstr "~S: te veel argumenten voor ~S"
 
 #: control.d:2005
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "Argument ~S is not a macroexpansion environment"
 msgstr "Argument ~S is geen macroexpansion omgeving"
 
@@ -917,7 +888,7 @@ msgstr "declaraties ~S zijn hier niet toegestaan"
 #: control.d:2084
 #, lisp-format
 msgid "~S: ~S evaluated to the values ~S, not of type ~S"
-msgstr "~S: ~S is geëvalueerd tot de waarden ~S, die niet van type ~S zijn"
+msgstr "~S: ~S is geÃ«valueerd tot de waarden ~S, die niet van type ~S zijn"
 
 #: control.d:2095
 #, lisp-format
@@ -932,71 +903,76 @@ msgstr "~SS: ~SS is geen symbol."
 #: control.d:2393
 #, lisp-format
 msgid "keyword argument list ~S has an odd length"
-msgstr "keyword argumentenlijst ~S heeft een oneven lengte"
+msgstr "sleutelwoorden-argumentenlijst ~S heeft een oneven lengte"
 
 #: control.d:2430
-#, fuzzy, lisp-format
+#, lisp-format
 msgid ""
 "Illegal keyword/value pair ~S, ~S in argument list.\n"
 "The allowed keywords are ~S"
-msgstr "ongeldig keyword/waarde paar ~S, ~S in argumentenlijst. De toegestane keywords zijn ~S"
+msgstr ""
+"Ongeldig sleutelwoord/waarde-paar ~S, ~S in argumentenlijst.\n"
+"De toegestane sleutelwoorden zijn ~S"
 
 #: encoding.d:240
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Invalid base64 encoding termination at position ~S"
-msgstr "Ongeldige parameterspecificatie ~S in functie ~S"
+msgstr "Ongeldige afsluiting van base64-codering op positie ~S"
 
 #: encoding.d:245
 #, lisp-format
 msgid "Invalid base64 encoding at ~S (character ~S of ~S)"
-msgstr ""
+msgstr "Ongeldige base64-codering op positie ~S (teken ~S van ~S)"
 
 #: encoding.d:280
 #, lisp-format
 msgid "Character #\\u~C~C~C~C cannot be represented in the character set ~S"
-msgstr "Teken #\\\\u~C~C~C~C kan niet gerepresenteerd worden in de tekenverzameling ~S"
+msgstr "Teken #\\u~C~C~C~C kan niet gerepresenteerd worden in tekenset ~S"
 
 #: encoding.d:285
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Character #\\u00~C~C~C~C~C~C cannot be represented in the character set ~S"
-msgstr "Teken #\\\\u~C~C~C~C kan niet gerepresenteerd worden in de tekenverzameling ~S"
+msgstr "Teken #\\u00~C~C~C~C~C~C kan niet gerepresenteerd worden in tekenset ~S"
 
 #: encoding.d:298
 #, lisp-format
 msgid "incomplete byte sequence at end of buffer for ~S"
-msgstr ""
+msgstr "onvolledige bytereeks aan einde van buffer voor ~S"
 
 #: encoding.d:555
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "character #x~C~C~C~C~C~C~C~C in ~S conversion, not an UTF-32 character"
-msgstr "teken #x~C~C~C~C~C~C~C~C in ~S conversie, geen Unicode-16, sorry"
+msgstr "teken #x~C~C~C~C~C~C~C~C in ~S-conversie, is geen UTF-32 teken"
 
 #: encoding.d:752
 #, lisp-format
 msgid "invalid byte #x~C~C in ~S conversion, not a Unicode-16"
-msgstr "ongeldige byte #x~C~C in ~S conversie, geen Unicode-16"
+msgstr "ongeldige byte #x~C~C in ~S-conversie, is geen Unicode-16"
 
 #: encoding.d:764
 #, lisp-format
 msgid "invalid byte sequence #x~C~C #x~C~C in ~S conversion"
-msgstr "ongeldige bytereeks #x~C~C #x~C~C in ~S conversie"
+msgstr "ongeldige bytereeks #x~C~C #x~C~C in ~S-conversie"
 
 #: encoding.d:779
 #, lisp-format
 msgid "invalid byte sequence #x~C~C #x~C~C #x~C~C in ~S conversion"
-msgstr "ongeldige bytereeks #x~C~C #x~C~C #x~C~C in ~S conversie"
+msgstr "ongeldige bytereeks #x~C~C #x~C~C #x~C~C in ~S-conversie"
 
 #: encoding.d:796
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"
-msgstr "ongeldige bytereeks #x~C~C #x~C~C #x~C~C in ~S conversie"
+msgstr "ongeldige bytereeks #x~C~C #x~C~C #x~C~C #x~C~C in ~S-conversie"
 
 #: encoding.d:1601
 #, lisp-format
 msgid "invalid byte #x~C~C in ~S conversion"
-msgstr "ongeldige byte #x~C~C in ~S conversie"
+msgstr "ongeldige byte #x~C~C in ~S-conversie"
 
-#: encoding.d:2034 encoding.d:2045 encoding.d:2055 encoding.d:2066 pathname.d:1272 pathname.d:3609 pathname.d:6380 pathname.d:6411 pathname.d:6450 pathname.d:7613 pathname.d:8536 stream.d:3258 stream.d:3364 stream.d:16710 hashtabl.d:2033 error.d:1312
+#: encoding.d:2034 encoding.d:2045 encoding.d:2055 encoding.d:2066
+#: pathname.d:1272 pathname.d:3609 pathname.d:6380 pathname.d:6411
+#: pathname.d:6450 pathname.d:7613 pathname.d:8536 stream.d:3258 stream.d:3364
+#: stream.d:16710 hashtabl.d:2033 error.d:1312
 #, lisp-format
 msgid "~S: illegal ~S argument ~S"
 msgstr "~S: ongeldig ~S argument ~S"
@@ -1398,7 +1374,7 @@ msgstr "terminal ontoereikend: kan cursor niet willekeurig positioneren"
 #: stream.d:12402
 #, lisp-format
 msgid "~S: package SCREEN is not implemented"
-msgstr "~S: package SCREEN is niet geïmplementeerd"
+msgstr "~S: package SCREEN is niet geÃ¯mplementeerd"
 
 #: stream.d:13504
 #, lisp-format
@@ -1410,12 +1386,16 @@ msgstr "host moet een string zijn, niet ~S"
 msgid "display should be a small nonnegative integer, not ~S"
 msgstr "display (beeldscherm) moet een niet-negatief fixnum zijn, niet ~S"
 
-#: stream.d:13586 stream.d:16858 stream.d:16916 stream.d:16969 stream.d:17028 io.d:947
+#: stream.d:13586 stream.d:16858 stream.d:16916 stream.d:16969 stream.d:17028
+#: io.d:947
 #, lisp-format
 msgid "~S: input stream ~S has reached its end"
 msgstr "~S: invoerstream ~S heeft zijn einde bereikt"
 
-#: stream.d:13769 record.d:217 record.d:559 record.d:720 record.d:761 record.d:817 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1017
+#: stream.d:13769 record.d:217 record.d:559 record.d:720 record.d:761
+#: record.d:817 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372
+#: weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818
+#: error.d:1017
 #, fuzzy, lisp-format
 msgid "~S: ~S is not a ~S"
 msgstr "~S: ~S is geen paar"
@@ -1583,13 +1563,9 @@ msgstr ""
 "Het is teruggezet op 10."
 
 #: io.d:915 defs2.lisp:178
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: character read should be a character: ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S uit ~S: gelezen teken had een character moeten zijn: ~S\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S uit ~S: gelezen teken is geen character: ~S"
+msgstr "~S uit ~S: gelezen teken zou een 'character' moeten zijn: ~S"
 
 #: io.d:960
 #, lisp-format
@@ -1624,7 +1600,7 @@ msgstr "~S uit ~S: ~S heeft geen macroteken definitie"
 #: io.d:1835
 #, lisp-format
 msgid "~S from ~S: macro character definition for ~S may not return ~S values, only one value."
-msgstr "~S uit ~S: macroteken definitie voor ~S mag niet ~S waarden teruggeven, uitsluitend éÂén waarde."
+msgstr "~S uit ~S: macroteken definitie voor ~S mag niet ~S waarden teruggeven, uitsluitend Ã©Ã‚Ã©n waarde."
 
 #: io.d:1857 defs2.lisp:172
 #, lisp-format
@@ -1632,18 +1608,14 @@ msgid "~S: input stream ~S ends within read macro beginning to ~S"
 msgstr "~S: invoerstream ~S eindigt binnen een `read-macro' naar ~S"
 
 #: io.d:1889 defs2.lisp:199
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: After ~S is ~S an undefined dispatch macro character"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S uit ~S: Na ~S is ~S een ongedefiniëerd `dispatch-macro' teken\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S uit ~S: Na ~S is ~S een niet gedefiniëerd `dispatch-macro' teken"
+msgstr "~S uit ~S: Na ~S is ~S een ongedefinieerd 'dispatch-macro'-teken"
 
 #: io.d:1902
 #, lisp-format
 msgid "~S from ~S: dispatch macro character definition for ~S after ~S may not return ~S values, only one value."
-msgstr "~S uit ~S: `dispatch-macro' teken definitie voor ~S na ~S mag niet ~S waarden teruggeven, uitsluitend éÂén waarde."
+msgstr "~S uit ~S: `dispatch-macro' teken definitie voor ~S na ~S mag niet ~S waarden teruggeven, uitsluitend Ã©Ã‚Ã©n waarde."
 
 #: io.d:1967
 #, lisp-format
@@ -1793,7 +1765,7 @@ msgstr "~S uit ~S: er moet een getal tussen # en $ moet worden gegeven"
 #: io.d:3690
 #, lisp-format
 msgid "~S from ~S: label #~S= may not be defined twice"
-msgstr "~S uit ~S: label #~S= mag niet twee keer gedefiniëerd worden"
+msgstr "~S uit ~S: label #~S= mag niet twee keer gedefinieerd worden"
 
 #: io.d:3717
 #, lisp-format
@@ -1803,7 +1775,7 @@ msgstr "~S uit ~S: #~S= #~S# is ongeldig"
 #: io.d:3741
 #, lisp-format
 msgid "~S from ~S: undefined label #~S#"
-msgstr "~S uit ~S: niet gedefiniëerd label #~S#"
+msgstr "~S uit ~S: ongedefinieerd label #~S#"
 
 #: io.d:3756
 #, lisp-format
@@ -1848,7 +1820,7 @@ msgstr "~S uit ~S: onjuiste ~S voor ~S"
 #: io.d:4124
 #, lisp-format
 msgid "~S from ~S: no structure of type ~S has been defined"
-msgstr "~S uit ~S: er is geen structure van type ~S gedefiniëerd"
+msgstr "~S uit ~S: er is geen structure van type ~S gedefinieerd"
 
 #: io.d:4132
 #, lisp-format
@@ -1878,7 +1850,7 @@ msgstr "~S uit ~S: te veel slots voor structure ~S"
 #: io.d:4236
 #, lisp-format
 msgid "~S from ~S: illegal syntax of closure code vector after #~SY"
-msgstr "~S uit ~S: foutieve syntaxis na #~SY voor code vector van een closure"
+msgstr "~S uit ~S: ongeldige syntaxis van closure-codevector na #~SY"
 
 #: io.d:4351
 #, lisp-format
@@ -2081,7 +2053,7 @@ msgstr "~S: dimensies ~S geven een te grote gezamelijke grootte"
 #: array.d:4324
 #, lisp-format
 msgid "~S: ambiguous, more than one initialization specified"
-msgstr "~S: dubbelzinnig, meer dan éÂén initialisering opgegeven"
+msgstr "~S: dubbelzinnig, meer dan Ã©Ã‚Ã©n initialisering opgegeven"
 
 #: array.d:4333
 #, lisp-format
@@ -2301,7 +2273,7 @@ msgstr "((\"I\" \"Importeer het en unintern het andere symbool\" T) (\"N\" \"nie
 #: package.d:1024
 #, fuzzy
 msgid "((IMPORT \"import it, unintern one other symbol and shadow the other symbols\" . T) (IGNORE \"do not import it, leave undone\" . NIL))"
-msgstr "(\"I\" \"importeer het, unintern éÂén ander symbool en schaduw de andere symbolen\" T) (\"N\" \"niet importeren, alles laten zoals het was\" NIL))"
+msgstr "(\"I\" \"importeer het, unintern Ã©Ã‚Ã©n ander symbool en schaduw de andere symbolen\" T) (\"N\" \"niet importeren, alles laten zoals het was\" NIL))"
 
 #: package.d:1028
 #, fuzzy
@@ -2336,7 +2308,7 @@ msgstr "(\"I\" \"importeer het symbool eerst\" T) (\"N\" \"doe niets, exporteer 
 #: package.d:1205
 #, fuzzy, lisp-format
 msgid "~S: Symbol ~S should be imported into ~S before being exported."
-msgstr "symbool ~SS zou in ~SS moeten worden geïmporteerd voordat het geëxporteerd wordt."
+msgstr "symbool ~SS zou in ~SS moeten worden geÃ¯mporteerd voordat het geÃ«xporteerd wordt."
 
 #: package.d:1239
 msgid "the symbol to export, "
@@ -2557,13 +2529,9 @@ msgid "~S: not a CLOS instance: ~S"
 msgstr "~S: geen lijst: ~S"
 
 #: record.d:2037 clos-class5.lisp:633
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S method for ~S returned ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S-methode voor ~S geeft ~S terug\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S-method voor ~S leverde ~S"
+msgstr "~S-methode voor ~S gaf ~S terug"
 
 #: weak.d:436 weak.d:538
 #, fuzzy, lisp-format
@@ -2573,7 +2541,7 @@ msgstr "~S: te veel argumenten voor ~S"
 #: weak.d:649
 #, fuzzy, lisp-format
 msgid "~S: ~S is not an association list"
-msgstr "~S: ~S is geen paar"
+msgstr "~S: ~S is geen associatielijst"
 
 #: sequence.d:271
 #, lisp-format
@@ -2615,7 +2583,8 @@ msgstr "~S: grootte moet een geheel getal >= 0 zijn, niet ~S"
 msgid "~S: :update must not be specified without :initial-element"
 msgstr "~S: :update mag niet opgegeven worden zonder :initial-element"
 
-#: sequence.d:1042 sequence.d:1109 sequence.d:1165 sequence.d:1195 sequence.d:1305 sequence.d:1567 sequence.d:4981
+#: sequence.d:1042 sequence.d:1109 sequence.d:1165 sequence.d:1195
+#: sequence.d:1305 sequence.d:1567 sequence.d:4981
 #, fuzzy, lisp-format
 msgid "~S: The result ~S is not of type ~S"
 msgstr "~S: ~S is geen paar"
@@ -2851,7 +2820,8 @@ msgstr "unwind-protect-frame"
 msgid "driver frame"
 msgstr "driver-frame"
 
-#: debug.d:1417 debug.d:1422 debug.d:1427 debug.d:1432 debug.d:1437 debug.d:1442 debug.d:1449
+#: debug.d:1417 debug.d:1422 debug.d:1427 debug.d:1432 debug.d:1437
+#: debug.d:1442 debug.d:1449
 msgid "frame binding environments"
 msgstr "omgevingsbinding-frame"
 
@@ -3056,13 +3026,9 @@ msgid "~S: ~S is not a function"
 msgstr "~S: ~S is geen functienaam"
 
 #: error.d:1428 trace.lisp:162
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: undefined function ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: niet-gedefiniëerde functie ~S\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: niet gedefiniëerde functie ~S"
+msgstr "~S: ongedefinieerde functie ~S"
 
 #: error.d:1484
 #, fuzzy, lisp-format
@@ -3166,7 +3132,7 @@ msgstr ""
 
 #: errunix.d:65
 msgid "Operation not permitted"
-msgstr "Geen toestemming hiervoor"
+msgstr "Bewerking niet toegestaan"
 
 #: errunix.d:71
 msgid "No such file or directory"
@@ -3186,7 +3152,7 @@ msgstr "Invoer/uitvoer fout"
 
 #: errunix.d:95
 msgid "No such device or address"
-msgstr "Apparaat bestaat niet of station leeg"
+msgstr "Apparaat of adres bestaat niet"
 
 #: errunix.d:101
 msgid "Arg list too long"
@@ -3194,7 +3160,7 @@ msgstr "Argumentenlijst is te lang"
 
 #: errunix.d:107
 msgid "Exec format error"
-msgstr "Geen uitvoerbaar bestand"
+msgstr "Verkeerd uitvoerbaar bestand"
 
 #: errunix.d:113
 msgid "Bad file number"
@@ -3202,7 +3168,7 @@ msgstr "Foutief bestandsnummer"
 
 #: errunix.d:119
 msgid "No child processes"
-msgstr "Geen kindprocessen"
+msgstr "Geen dochterprocessen"
 
 #: errunix.d:125
 msgid "No more processes"
@@ -3214,15 +3180,15 @@ msgstr "Niet genoeg geheugen"
 
 #: errunix.d:137
 msgid "Permission denied"
-msgstr "Geen toestemming"
+msgstr "Toegang geweigerd"
 
 #: errunix.d:143
 msgid "Bad address"
-msgstr "Foutief adres"
+msgstr "Ongeldig adres"
 
 #: errunix.d:149
 msgid "Block device required"
-msgstr "Alleen blokgestuurde apparaten toegestaan"
+msgstr "Blokapparaat vereist"
 
 #: errunix.d:155
 msgid "Device busy"
@@ -3238,11 +3204,11 @@ msgstr "Koppelingen kunnen alleen op hetzelfde apparaat"
 
 #: errunix.d:173
 msgid "No such device"
-msgstr "Apparaat bestaat niet"
+msgstr "Onjuist apparaat"
 
 #: errunix.d:179
 msgid "Not a directory"
-msgstr "Geen map"
+msgstr "Niet een map"
 
 #: errunix.d:185
 msgid "Is a directory"
@@ -3262,27 +3228,27 @@ msgstr "Te veel open bestanden"
 
 #: errunix.d:209
 msgid "Inappropriate ioctl for device"
-msgstr "Ongeschikte ioctl voor apparaat"
+msgstr "Ongepaste ioctl() voor apparaat"
 
 #: errunix.d:215
 msgid "Text file busy"
-msgstr "Tekstbestand in gebruik"
+msgstr "Tekstbestand is in gebruik"
 
 #: errunix.d:221
 msgid "File too large"
-msgstr "Bestand te groot"
+msgstr "Bestand is te groot"
 
 #: errunix.d:227
 msgid "No space left on device"
-msgstr "Geen vrije ruimte op apparaat"
+msgstr "Geen ruimte meer over op apparaat"
 
 #: errunix.d:233
 msgid "Illegal seek"
-msgstr "Ongeldige zoekopdracht"
+msgstr "Ongeldige 'seek'-opdracht"
 
 #: errunix.d:239
 msgid "Read-only file system"
-msgstr "Bestandssysteem is alleen maar leesbaar"
+msgstr "Bestandssysteem is alleen-lezen"
 
 #: errunix.d:245
 msgid "Too many links"
@@ -3291,7 +3257,7 @@ msgstr "Te veel koppelingen"
 #: errunix.d:251
 #, fuzzy
 msgid "Broken pipe, child process terminated or socket closed"
-msgstr "Pijp kapot, kindproces beëindigd"
+msgstr "Pijp kapot, kindproces beÃ«indigd"
 
 #: errunix.d:261
 msgid "Argument out of domain"
@@ -3307,27 +3273,27 @@ msgstr "Bewerking zou blokkeren"
 
 #: errunix.d:280
 msgid "Operation now in progress"
-msgstr "Dit kan nog wel even duren"
+msgstr "Bewerking is nu bezig"
 
 #: errunix.d:286
 msgid "Operation already in progress"
-msgstr "Bewerking is al aan de gang"
+msgstr "Bewerking is al bezig"
 
 #: errunix.d:293
 msgid "Too many levels of symbolic links"
-msgstr "Te veel niveaus van symbolische koppelingen"
+msgstr "Te veel niveaus van symbolische koppelingen -- vermoedelijk een lus"
 
 #: errunix.d:299
 msgid "File name too long"
-msgstr "Bestandsnaam te lang"
+msgstr "Bestandsnaam is te lang"
 
 #: errunix.d:305
 msgid "Directory not empty"
-msgstr "Map niet leeg"
+msgstr "Map is niet leeg"
 
 #: errunix.d:312
 msgid "Stale NFS file handle"
-msgstr "Verouderde bestandstoegang op NFS"
+msgstr "Achterhaald NFS-bestandshandvat"
 
 #: errunix.d:318
 #, fuzzy
@@ -3336,19 +3302,19 @@ msgstr "Te veel niveaus verwijzingen naar andere computers"
 
 #: errunix.d:325
 msgid "Socket operation on non-socket"
-msgstr "Socket-bewerking op iets dat geen socket is"
+msgstr "Socketbewerking op een niet-socket"
 
 #: errunix.d:331
 msgid "Destination address required"
-msgstr "Bestemmingsadres vereist"
+msgstr "Doeladres vereist"
 
 #: errunix.d:337
 msgid "Message too long"
-msgstr "Bericht te lang"
+msgstr "Bericht is te lang"
 
 #: errunix.d:343
 msgid "Protocol wrong type for socket"
-msgstr "Verkeerd type protocol voor socket"
+msgstr "Protocol van verkeerde soort voor socket"
 
 #: errunix.d:349
 msgid "Option not supported by protocol"
@@ -3356,11 +3322,11 @@ msgstr "Optie niet ondersteund door protocol"
 
 #: errunix.d:355
 msgid "Protocol not supported"
-msgstr "Protocol niet ondersteund"
+msgstr "Protocol wordt niet ondersteund"
 
 #: errunix.d:361
 msgid "Socket type not supported"
-msgstr "Type socket niet ondersteund"
+msgstr "Socketsoort wordt niet ondersteund"
 
 #: errunix.d:367
 msgid "Operation not supported on socket"
@@ -3368,7 +3334,7 @@ msgstr "Bewerking op socket niet ondersteund"
 
 #: errunix.d:373
 msgid "Protocol family not supported"
-msgstr "Protocolfamilie niet ondersteund"
+msgstr "Protocolfamilie wordt niet ondersteund"
 
 #: errunix.d:379
 msgid "Address family not supported by protocol family"
@@ -3380,31 +3346,31 @@ msgstr "Adres is al in gebruik"
 
 #: errunix.d:391
 msgid "Cannot assign requested address"
-msgstr "Kan aangevraagd adres niet toekennen"
+msgstr "Kan verzochte adres niet toewijzen"
 
 #: errunix.d:397
 msgid "Network is down"
-msgstr "Netwerk is plat"
+msgstr "Netwerk ligt plat"
 
 #: errunix.d:403
 msgid "Network is unreachable"
-msgstr "Netwerk is niet bereikbaar"
+msgstr "Netwerk is onbereikbaar"
 
 #: errunix.d:409
 msgid "Network dropped connection on reset"
-msgstr "Server is herstart, netwerkverbinding kwijt"
+msgstr "Verbinding is verbroken door KILL-opdracht"
 
 #: errunix.d:415
 msgid "Software caused connection abort"
-msgstr "Moest deze verbinding verbreken"
+msgstr "Verbinding is verbroken door lokaal probleem"
 
 #: errunix.d:421
 msgid "Connection reset by peer"
-msgstr "Verbinding door andere kant verbroken"
+msgstr "Verbinding is weggevallen"
 
 #: errunix.d:427
 msgid "No buffer space available"
-msgstr "Niet genoeg ruimte voor een buffer"
+msgstr "Geen bufferruimte meer beschikbaar"
 
 #: errunix.d:433
 msgid "Socket is already connected"
@@ -3420,15 +3386,15 @@ msgstr "Kan niet naar gesloten socket zenden"
 
 #: errunix.d:451
 msgid "Too many references: cannot splice"
-msgstr "Te veel verwijzingen; kan niet verbinden"
+msgstr "Te veel verwijzingen: kan niet splitsen"
 
 #: errunix.d:457
 msgid "Connection timed out"
-msgstr "Tijdsoverschrijding bij verbinden"
+msgstr "Verbinding is verlopen"
 
 #: errunix.d:463
 msgid "Connection refused"
-msgstr "Verbinding geweigerd"
+msgstr "Verbinding is geweigerd"
 
 #: errunix.d:468
 msgid "Remote peer released connection"
@@ -3436,7 +3402,7 @@ msgstr "Andere kant heeft verbinding los gelaten"
 
 #: errunix.d:473
 msgid "Host is down"
-msgstr "Andere computer is plat"
+msgstr "Host is inactief"
 
 #: errunix.d:479
 msgid "Host is unreachable"
@@ -3456,7 +3422,7 @@ msgstr "Te veel gebruikers"
 
 #: errunix.d:502
 msgid "Disk quota exceeded"
-msgstr "Schijfquotum overschreden"
+msgstr "Schijfquotum is overschreden"
 
 #: errunix.d:509
 msgid "Not a stream device"
@@ -3464,7 +3430,7 @@ msgstr "Geen `stream' apparaat"
 
 #: errunix.d:515
 msgid "Timer expired"
-msgstr "Timer verlopen"
+msgstr "Tijdopnemer is verlopen"
 
 #: errunix.d:521
 msgid "Out of stream resources"
@@ -3472,16 +3438,15 @@ msgstr "Geen ruimte meer voor stream"
 
 #: errunix.d:527
 msgid "No message of desired type"
-msgstr "Geen bericht van gewenst type"
+msgstr "Geen bericht van de gewenste soort"
 
 #: errunix.d:533
 msgid "Not a data message"
 msgstr "Geen gegevens-bericht"
 
 #: errunix.d:540
-#, fuzzy
 msgid "Identifier removed"
-msgstr "`Identifier' verwijderd"
+msgstr "Naam is verwijderd"
 
 #: errunix.d:547
 msgid "Resource deadlock would occur"
@@ -3493,19 +3458,19 @@ msgstr "Geen record-vergrendelingen beschikbaar"
 
 #: errunix.d:560
 msgid "Machine is not on the network"
-msgstr "Machine bevindt zich niet op het netwerk"
+msgstr "Machine is niet op netwerk aangesloten"
 
 #: errunix.d:566 errunix.d:572
 msgid "Object is remote"
-msgstr "Object is op de andere computer"
+msgstr "Object is al elders"
 
 #: errunix.d:578
 msgid "Link has been severed"
-msgstr "Koppeling is doorgehakt"
+msgstr "Koppeling is verbroken"
 
 #: errunix.d:584
 msgid "Advertise error"
-msgstr "Advertise-fout"
+msgstr "Adverteerfout"
 
 #: errunix.d:590
 msgid "Srmount error"
@@ -3513,24 +3478,23 @@ msgstr "Srmount-fout"
 
 #: errunix.d:596
 msgid "Communication error on send"
-msgstr "Communicatiefout bij zenden"
+msgstr "Communicatiefout bij verzenden"
 
 #: errunix.d:602
 msgid "Protocol error"
-msgstr "Protocol-fout"
+msgstr "Protocolfout"
 
 #: errunix.d:608
-#, fuzzy
 msgid "Multihop attempted"
 msgstr "Multihop geprobeerd"
 
 #: errunix.d:620
 msgid "Remote address changed"
-msgstr "Adres van andere computer is gewijzigd"
+msgstr "Ginds adres is veranderd"
 
 #: errunix.d:627
 msgid "Function not implemented"
-msgstr "Functie niet geïmplementeerd"
+msgstr "Functie is niet aanwezig"
 
 #: errunix.d:656
 msgid "UNIX error "
@@ -3551,7 +3515,7 @@ msgstr "Winsock fout "
 
 #: misc.d:110
 msgid "This file was produced by another lisp version, must be recompiled."
-msgstr "Dit bestand is door een andere lisp-versie gemaakt, en moet opnieuw gecompileerd worden"
+msgstr "Dit bestand is door een andere lisp-versie gemaakt, en moet opnieuw gecompileerd worden."
 
 #: misc.d:458
 #, lisp-format
@@ -3737,7 +3701,7 @@ msgstr "overloop bij vermenigvuldiging van grote getallen"
 #: intdiv.d:384
 #, lisp-format
 msgid "quotient ~S / ~S is not an integer"
-msgstr "quotiënt ~S / ~S is geen geheel getal"
+msgstr "quotiÃ«nt ~S / ~S is geen geheel getal"
 
 #: lfloat.d:5
 msgid "long float too long"
@@ -3830,11 +3794,7 @@ msgstr "Er bestaat al een foreign functie ~S"
 #: foreign.d:254
 #, fuzzy, lisp-format
 msgid "No foreign int type of size ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"ongeldig foreign datatype ~S\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"ongeldig type voor externe gegevens ~S"
+msgstr "ongeldig foreign datatype ~S\n"
 
 #: foreign.d:271
 #, fuzzy, lisp-format
@@ -3842,13 +3802,9 @@ msgid "Cannot redefine foreign type ~S from ~S to ~S"
 msgstr ";; definitieverandering van foreign bibliotheekfunctie ~S~%;;  van ~S naar ~S"
 
 #: foreign.d:301
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Illegal foreign data type ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"ongeldig foreign datatype ~S\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"ongeldig type voor externe gegevens ~S"
+msgstr "~S: Ongeldig type ~S voor externe gegevens"
 
 #: foreign.d:309
 #, fuzzy, lisp-format
@@ -3966,13 +3922,9 @@ msgid "~S: calling conventions for foreign function ~S conflict"
 msgstr "~S: aanroepconventies voor foreign functie ~S zijn tegenstrijdig"
 
 #: foreign.d:3542 foreign1.lisp:1193
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: :OUT argument is not a pointer: ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: :OUT-argument is geen pointer: ~S\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: :OUT argument is geen pointer: ~S"
+msgstr "~S: :OUT-argument is geen pointer: ~S"
 
 #: foreign.d:4194
 #, fuzzy, lisp-format
@@ -4031,19 +3983,19 @@ msgid "function"
 msgstr "functie"
 
 #: init.lisp:614
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~A: ~S is a special operator and may not be redefined."
-msgstr "~S is een special form en mag niet opnieuw worden gedefiniëerd."
+msgstr "~A: ~S is een speciale operator en mag niet geherdefinieerd worden."
 
 #: init.lisp:676
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~A: redefining ~A ~S in ~A, was defined in ~A"
-msgstr "~S: ~S werd getraceerd en is opnieuw gedefiniëerd!"
+msgstr ""
 
 #: init.lisp:705
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~A: redefining ~S; it was traced!"
-msgstr "~S: ~S werd getraceerd en is opnieuw gedefiniëerd!"
+msgstr "~A: herdefinitie van ~S; het werd getraceerd!"
 
 #: init.lisp:719
 #, lisp-format
@@ -4091,22 +4043,14 @@ msgid "code after SYMBOL-MACROLET contains a dotted list, ending with ~S"
 msgstr "dotted lijst in code na SYMBOL-MACROLET, eindigt met ~S"
 
 #: init.lisp:1138 compiler.lisp:5789
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbol ~S mag niet zowel SPECIAL als macro zijn\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbool ~S mag niet als SPECIAL en macro tegelijkertijd worden gedeclareerd"
+msgstr "~S: symbool ~S mag niet tegelijkertijd als SPECIAL en als een macro gedeclareerd worden"
 
 #: init.lisp:1151
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S is declared special and must not be declared a macro"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbool ~S is special en mag niet als macro worden opgegeven\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbool ~S is als special gedeclareerd en mag niet als macro worden gedeclareerd"
+msgstr "~S: symbool ~S werd als SPECIAL gedeclareerd en mag niet als een macro gedeclareerd worden"
 
 #: init.lisp:1158
 #, lisp-format
@@ -4154,9 +4098,9 @@ msgid "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S"
 msgstr "COND code bevat een dotted lijst, eindigt met ~S"
 
 #: init.lisp:1472
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "illegal syntax in FUNCTION-MACRO-LET: ~S"
-msgstr "ongeldige syntaxis in MACROLET: ~S"
+msgstr "ongeldige syntaxis in FUNCTION-MACRO-LET: ~S"
 
 #: init.lisp:1561 condition.lisp:1597
 msgid "WARNING:"
@@ -4173,9 +4117,9 @@ msgid "~S: compiled file ~A has a corrupt version marker ~S"
 msgstr ""
 
 #: init.lisp:1597
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"
-msgstr "Dit bestand is door een andere lisp-versie gemaakt, en moet opnieuw gecompileerd worden"
+msgstr "~S: bestand ~A werd door een oudere Clisp-versie gemaakt en moet opnieuw gecompileerd worden"
 
 #: init.lisp:1709
 #, fuzzy, lisp-format
@@ -4198,9 +4142,9 @@ msgid "~S: missing function name and/or parameter list"
 msgstr "~S: functienaam en/of parameterlijst ontbreekt"
 
 #: init.lisp:1788
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: special operator ~S cannot be redefined."
-msgstr "~S: special form ~S kan niet opnieuw worden gedefiniëerd."
+msgstr "~S: speciale operator ~S kan niet geherdefinieerd worden."
 
 #: init.lisp:1823 macros1.lisp:144
 #, lisp-format
@@ -4210,7 +4154,7 @@ msgstr "exit clause in ~S moet een lijst zijn"
 #: init.lisp:1985
 #, lisp-format
 msgid "~S: cannot define a function from that: ~S"
-msgstr "~S: kan hieruit geen functie definiëren: ~S"
+msgstr "~S: kan hieruit geen functie definiÃ«ren: ~S"
 
 #: init.lisp:1991 clos-genfun3.lisp:101 clos-genfun3.lisp:173
 #, lisp-format
@@ -4409,7 +4353,7 @@ msgstr "In de lambdalijst van macro ~S moet &ENVIRONMENT worden gevolgd door een
 #: defmacro.lisp:473
 #, lisp-format
 msgid "Cannot define a macro from that: ~S"
-msgstr "Hieruit kan geen macro worden gedefiniëerd: ~S"
+msgstr "Hieruit kan geen macro worden gedefinieerd: ~S"
 
 #: defmacro.lisp:479
 #, lisp-format
@@ -4429,17 +4373,17 @@ msgstr "~S: niet-symbool ~S kan geen variabele zijn"
 #: macros1.lisp:31 macros1.lisp:54
 #, lisp-format
 msgid "~S: the constant ~S must not be redefined to be a variable"
-msgstr "~S: de constante ~S mag niet opnieuw worden gedefiniëerd als variabele"
+msgstr "~S: de constante ~S mag niet geherdefinieerd worden als variabele"
 
 #: macros1.lisp:68
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: non-symbol ~S cannot be defined constant"
-msgstr "~S: niet-symbool ~S kan niet als constante worden gedefiniëerd"
+msgstr "~S: niet-symbool ~S kan niet als constante worden gedefinieerd"
 
 #: macros1.lisp:96
 #, lisp-format
 msgid "~S redefines the constant ~S. Its old value was ~S."
-msgstr "~S definiëert de constante ~S opnieuw.  De oude waarde was ~S."
+msgstr "~S herdefinieert de constante ~S.  De oude waarde was ~S."
 
 #: macros1.lisp:150
 #, lisp-format
@@ -4498,7 +4442,7 @@ msgstr "Nieuwe ~S: "
 
 #: macros2.lisp:53
 msgid "Retry"
-msgstr "Probeer opnieuw"
+msgstr "Opnieuw proberen"
 
 #: macros2.lisp:55
 #, fuzzy, lisp-format
@@ -4513,12 +4457,12 @@ msgstr "~S moet evalueren tot een niet-NIL waarde."
 #: macros2.lisp:84
 #, lisp-format
 msgid "The value of ~S must be of one of the types ~{~S~^, ~}"
-msgstr "De waarde van ~S moet van éÂén van de typen ~{~S~^, ~} zijn"
+msgstr "De waarde van ~S moet van Ã©Ã‚Ã©n van de typen ~{~S~^, ~} zijn"
 
 #: macros2.lisp:88
 #, lisp-format
 msgid "The value of ~S must be one of ~{~S~^, ~}"
-msgstr "De waarde van ~S moet éÂén van ~{~S~^, ~} zijn"
+msgstr "De waarde van ~S moet Ã©Ã‚Ã©n van ~{~S~^, ~} zijn"
 
 #: macros2.lisp:103 condition.lisp:1406
 #, fuzzy, lisp-format
@@ -4533,7 +4477,7 @@ msgstr "typenaam moet een symbool zijn, niet ~S"
 #: macros2.lisp:182
 #, lisp-format
 msgid "~S is a built-in type and may not be redefined."
-msgstr "~S is een ingebouwd type en mag niet opnieuw worden gedefiniëerd."
+msgstr "~S is een ingebouwd type en mag niet geherdefinieerd worden."
 
 #: macros2.lisp:211
 #, lisp-format
@@ -4553,7 +4497,7 @@ msgstr "symbooltypen (~S/~S/~S) ontbreken in ~S"
 #: defs1.lisp:105
 #, lisp-format
 msgid "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S"
-msgstr "~S: vlag moet éÂén van de symbolen ~S, ~S, ~S zijn, niet ~S"
+msgstr "~S: vlag moet Ã©Ã‚Ã©n van de symbolen ~S, ~S, ~S zijn, niet ~S"
 
 #: defs1.lisp:480
 #, fuzzy, lisp-format
@@ -4625,12 +4569,14 @@ msgstr "Element van lambda-lijst ~S is overtollig."
 msgid "Lambda list element ~S is superfluous."
 msgstr "Element van lambda-lijst ~S is overtollig."
 
-#: lambdalist.lisp:116 lambdalist.lisp:272 lambdalist.lisp:414 lambdalist.lisp:572
+#: lambdalist.lisp:116 lambdalist.lisp:272 lambdalist.lisp:414
+#: lambdalist.lisp:572
 #, lisp-format
 msgid "Missing &REST parameter in lambda list ~S"
 msgstr "&REST-parameter in ontbreekt in lambda-lijst ~S"
 
-#: lambdalist.lisp:201 lambdalist.lisp:328 lambdalist.lisp:499 lambdalist.lisp:588
+#: lambdalist.lisp:201 lambdalist.lisp:328 lambdalist.lisp:499
+#: lambdalist.lisp:588
 #, lisp-format
 msgid "Lambda lists with dots are only allowed in macros, not here: ~S"
 msgstr "Lambda-lijsten met punten zijn alleen toegestaan in macros, niet hier: ~S"
@@ -4678,7 +4624,7 @@ msgstr "Argument ~S moet een `SETF place' zijn, maar is dat niet."
 #: places.lisp:147
 #, fuzzy, lisp-format
 msgid "SETF place ~S should produce exactly one store variable."
-msgstr "`SETF place' ~S produceert meer dan éÂén `store' variabelen."
+msgstr "`SETF place' ~S produceert meer dan Ã©Ã‚Ã©n `store' variabelen."
 
 #: places.lisp:352
 #, fuzzy, lisp-format
@@ -4710,9 +4656,9 @@ msgid "~S ~S: invalid ~S lambda-list: ~A"
 msgstr "~S ~S: ongeldig stukje in lambda-lijst: ~S"
 
 #: places.lisp:500
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "(~S ~S): Illegal syntax."
-msgstr "~S: clausule ~S heeft ongeldige syntaxis"
+msgstr "(~S ~S): Ongeldige syntaxis."
 
 #: places.lisp:530
 #, fuzzy, lisp-format
@@ -4730,9 +4676,9 @@ msgid "~S: too few arguments: ~S"
 msgstr "Te weinig argumenten voor ~S"
 
 #: places.lisp:1075 places.lisp:1142
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S is only defined for functions of the form #'symbol."
-msgstr "SETF APPLY is enkel voor functies van de vorm #'symbol gedefiniëerd."
+msgstr "~S is alleen gedefinieerd voor functies van de vorm #'symbol."
 
 #: places.lisp:1083
 #, fuzzy, lisp-format
@@ -4752,12 +4698,12 @@ msgstr "argument is geen float: ~S"
 #: defpackage.lisp:55
 #, lisp-format
 msgid "~S ~A: the symbol ~A must not be specified more than once"
-msgstr "~S ~A: het symbol ~A mag maar éÂén keer worden gespecificeerd"
+msgstr "~S ~A: het symbol ~A mag maar Ã©Ã‚Ã©n keer worden gespecificeerd"
 
 #: defpackage.lisp:78 defpackage.lisp:86
 #, lisp-format
 msgid "~S ~A: the ~S option must not be given more than once"
-msgstr "~S ~A: de ~S-optie mag maar éÂén keer worden opgegeven"
+msgstr "~S ~A: de ~S-optie mag maar Ã©Ã‚Ã©n keer worden opgegeven"
 
 #: defpackage.lisp:135
 #, lisp-format
@@ -4842,7 +4788,7 @@ msgstr "~S: macronaam moet een symbol zijn, niet ~S"
 #: clos-slotdef1.lisp:204
 #, fuzzy, lisp-format
 msgid "(~S ~S) for slot ~S: The ~S and ~S arguments can only be specified together."
-msgstr "~S ~S: ~S mag maar éÂén keer worden opgegeven."
+msgstr "~S ~S: ~S mag maar Ã©Ã‚Ã©n keer worden opgegeven."
 
 #: clos-slotdef1.lisp:209
 #, fuzzy, lisp-format
@@ -4879,7 +4825,8 @@ msgstr ""
 msgid "Wrong ~S result for class ~S, slot ~S: value of ~S is wrong: ~S"
 msgstr ""
 
-#: clos-slotdef1.lisp:436 clos-slotdef1.lisp:442 clos-class3.lisp:1181 clos-class3.lisp:1187 clos-class3.lisp:1602 clos-class3.lisp:1644
+#: clos-slotdef1.lisp:436 clos-slotdef1.lisp:442 clos-class3.lisp:1181
+#: clos-class3.lisp:1187 clos-class3.lisp:1602 clos-class3.lisp:1644
 #, lisp-format
 msgid "Wrong ~S result for class ~S: not a subclass of ~S: ~S"
 msgstr ""
@@ -4907,7 +4854,7 @@ msgstr "~S ~S: superklasse ~S moet toebehoren aan klasse STANDARD-CLASS"
 #: clos-class1.lisp:328
 #, fuzzy, lisp-format
 msgid "(~S ~S) for class ~S: The metaclass ~S forbids more than one direct superclass: It does not support multiple inheritance."
-msgstr "~S: metaklasse STRUCTURE-CLASS verbiedt meer dan éÂén directe superklasse"
+msgstr "~S: metaklasse STRUCTURE-CLASS verbiedt meer dan Ã©Ã‚Ã©n directe superklasse"
 
 #: clos-class1.lisp:344
 #, lisp-format
@@ -4932,7 +4879,7 @@ msgstr "~S: argument ~S is geen symbol"
 #: clos-class2.lisp:109
 #, lisp-format
 msgid "~S: cannot redefine built-in class ~S"
-msgstr "~S: kan ingebouwde klasse ~S niet opnieuw definiëren"
+msgstr "~S: kan ingebouwde klasse ~S niet opnieuw definiÃ«ren"
 
 #: clos-class2.lisp:114 describe.lisp:69
 msgid "class"
@@ -4971,7 +4918,7 @@ msgstr "~S ~S: slot-naam ~S moet een symbol zijn"
 #: clos-class3.lisp:106
 #, lisp-format
 msgid "~S ~S: There may be only one direct slot with the name ~S."
-msgstr "~S ~S: Er mag hooguit éÂén direct slot zijn met de naam ~S."
+msgstr "~S ~S: Er mag hooguit Ã©Ã‚Ã©n direct slot zijn met de naam ~S."
 
 #: clos-class3.lisp:121
 #, lisp-format
@@ -4993,10 +4940,11 @@ msgstr "~S ~S, slot-optie voor slot ~S: ~S is geen functienaam"
 msgid "~S ~S, slot option ~S for slot ~S: ~S is not a symbol"
 msgstr "~S ~S, slot-optie voor slot ~S: ~S is geen symbol"
 
-#: clos-class3.lisp:164 clos-class3.lisp:180 clos-class3.lisp:189 clos-class3.lisp:197
+#: clos-class3.lisp:164 clos-class3.lisp:180 clos-class3.lisp:189
+#: clos-class3.lisp:197
 #, lisp-format
 msgid "~S ~S, slot option ~S for slot ~S may only be given once"
-msgstr "~S ~S, slot-optie ~S voor slot ~S mag maar éÂén keer worden opgegeven"
+msgstr "~S ~S, slot-optie ~S voor slot ~S mag maar Ã©Ã‚Ã©n keer worden opgegeven"
 
 #: clos-class3.lisp:172
 #, lisp-format
@@ -5011,7 +4959,7 @@ msgstr "~S ~S, slot-optie voor slot ~S: ~S is geen string"
 #: clos-class3.lisp:282 clos-class3.lisp:365
 #, lisp-format
 msgid "~S ~S, option ~S may only be given once"
-msgstr "~S ~S, optie ~S mag maar éÂén keer worden opgegeven"
+msgstr "~S ~S, optie ~S mag maar Ã©Ã‚Ã©n keer worden opgegeven"
 
 #: clos-class3.lisp:292 clos-class3.lisp:319 clos-methcomb2.lisp:1169
 #, lisp-format
@@ -5031,14 +4979,15 @@ msgstr "~S ~S, optie ~S: argumenten zijn niet paarsgewijs gegeven"
 #: clos-class3.lisp:325
 #, lisp-format
 msgid "~S ~S, option ~S: ~S may only be given once"
-msgstr "~S ~S, optie ~S: ~S mag maar éÂén keer worden opgegeven"
+msgstr "~S ~S, optie ~S: ~S mag maar Ã©Ã‚Ã©n keer worden opgegeven"
 
 #: clos-class3.lisp:340
 #, lisp-format
 msgid "~S ~S, option ~S: ~S is not a string"
 msgstr "~S ~S, optie ~S: ~S is geen string"
 
-#: clos-class3.lisp:351 clos-class3.lisp:372 clos-class3.lisp:396 clos-genfun3.lisp:554
+#: clos-class3.lisp:351 clos-class3.lisp:372 clos-class3.lisp:396
+#: clos-genfun3.lisp:554
 #, lisp-format
 msgid "~S ~S: invalid option ~S"
 msgstr "~S ~S: ongeldige optie ~S"
@@ -5066,7 +5015,7 @@ msgstr "~S uit ~S: het type van een structure moet een symbool zijn, niet ~S"
 #: clos-class3.lisp:488
 #, fuzzy, lisp-format
 msgid "Cannot redefine ~S with a different metaclass ~S"
-msgstr "~S: kan ingebouwde klasse ~S niet opnieuw definiëren"
+msgstr "~S: kan ingebouwde klasse ~S niet opnieuw definiÃ«ren"
 
 #: clos-class3.lisp:577
 #, lisp-format
@@ -5088,7 +5037,8 @@ msgstr "~S ~S: superklasse ~S moet toebehoren aan klasse STANDARD-CLASS"
 msgid "(~S ~S) for class ~S: ~S does not allow ~S to become a subclass of ~S. You may define a method on ~S to allow this."
 msgstr ""
 
-#: clos-class3.lisp:862 clos-class3.lisp:1045 clos-class3.lisp:1246 clos-class3.lisp:1376 clos-class3.lisp:1520
+#: clos-class3.lisp:862 clos-class3.lisp:1045 clos-class3.lisp:1246
+#: clos-class3.lisp:1376 clos-class3.lisp:1520
 #, lisp-format
 msgid "Wrong ~S result for class ~S: not a proper list: ~S"
 msgstr ""
@@ -5101,7 +5051,7 @@ msgstr ""
 #: clos-class3.lisp:869
 #, fuzzy, lisp-format
 msgid "Wrong ~S result for class ~S: ~S is not a direct superclass of ~S"
-msgstr "~S: metaklasse STRUCTURE-CLASS verbiedt meer dan éÂén directe superklasse"
+msgstr "~S: metaklasse STRUCTURE-CLASS verbiedt meer dan Ã©Ã‚Ã©n directe superklasse"
 
 #: clos-class3.lisp:995
 #, lisp-format
@@ -5211,7 +5161,7 @@ msgstr ""
 #: clos-class3.lisp:1391
 #, fuzzy, lisp-format
 msgid "Wrong ~S result for class ~S: no slot location has been assigned to ~S"
-msgstr "~S: metaklasse STRUCTURE-CLASS verbiedt meer dan éÂén directe superklasse"
+msgstr "~S: metaklasse STRUCTURE-CLASS verbiedt meer dan Ã©Ã‚Ã©n directe superklasse"
 
 #: clos-class3.lisp:1524
 #, lisp-format
@@ -5251,12 +5201,12 @@ msgstr ""
 #: clos-class3.lisp:2095
 #, fuzzy, lisp-format
 msgid "~S: Class ~S (or one of its ancestors) is being redefined, but its instances cannot be made obsolete"
-msgstr "~S: Klasse ~S wordt opnieuw gedefiniëerd, instanties zijn verouderd"
+msgstr "~S: Klasse ~S wordt opnieuw gedefinieerd, instanties zijn verouderd"
 
 #: clos-class3.lisp:2105
 #, fuzzy, lisp-format
 msgid "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete"
-msgstr "~S: Klasse ~S wordt opnieuw gedefiniëerd, instanties zijn verouderd"
+msgstr "~S: Klasse ~S wordt opnieuw gedefinieerd, instanties zijn verouderd"
 
 #: clos-class3.lisp:2107
 #, lisp-format
@@ -5279,14 +5229,14 @@ msgid "The class ~S has no slot named ~S."
 msgstr "~S: De klasse ~S heeft geen slot genaamd ~S"
 
 #: defstruct.lisp:553
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "The structure type ~S has been defined as a class."
-msgstr "~ uit ~: er is geen structure van type ~ gedefiniëerd"
+msgstr ""
 
 #: defstruct.lisp:555
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "The structure type ~S has not been defined."
-msgstr "~S ~S: opgenomen structure ~S is niet gedefiniëerd."
+msgstr "Het structure-type ~S is niet gedefinieerd."
 
 #: defstruct.lisp:563
 #, fuzzy, lisp-format
@@ -5306,7 +5256,7 @@ msgstr "~S ~S: argumentenlijst moet een lijst zijn: ~S "
 #: defstruct.lisp:670
 #, lisp-format
 msgid "~S ~S: At most one :INCLUDE argument may be specified: ~S"
-msgstr "~S ~S: Er mag maximaal éÂén :INCLUDE argument worden opgegeven: ~S"
+msgstr "~S ~S: Er mag maximaal Ã©Ã‚Ã©n :INCLUDE argument worden opgegeven: ~S"
 
 #: defstruct.lisp:677
 #, lisp-format
@@ -5355,12 +5305,12 @@ msgstr "~S ~S: :INITIAL-OFFSET mag niet worden opgegeven zonder :TYPE : ~S"
 #: defstruct.lisp:785
 #, lisp-format
 msgid "~S ~S: included structure ~S has not been defined."
-msgstr "~S ~S: opgenomen structure ~S is niet gedefiniëerd."
+msgstr "~S ~S: opgenomen structure ~S is niet gedefinieerd."
 
 #: defstruct.lisp:791
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S ~S: included structure ~S is not a structure type."
-msgstr "~S ~S: opgenomen structure ~S moet van hetzelfde type ~S zijn."
+msgstr "~S ~S: opgenomen structure ~S is niet van het structure-type."
 
 #: defstruct.lisp:804
 #, lisp-format
@@ -5395,7 +5345,7 @@ msgstr "~S ~S: structure van type ~S kan de naam niet bevatten."
 #: defstruct.lisp:979
 #, lisp-format
 msgid "~S ~S: There may be only one slot with the name ~S."
-msgstr "~S ~S: Er mag maar éÂén slot zijn met de naam ~S."
+msgstr "~S ~S: Er mag maar Ã©Ã‚Ã©n slot zijn met de naam ~S."
 
 #: defstruct.lisp:1011
 #, fuzzy, lisp-format
@@ -5471,13 +5421,9 @@ msgid "There are not enough arguments left for this format directive."
 msgstr "Er zijn niet genoeg argument voor deze directive."
 
 #: format.lisp:401
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "The argument list is a dotted list: ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: :OUT-argument is geen pointer: ~S\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: :OUT argument is geen pointer: ~S"
+msgstr "De argumentenlijst is een 'dotted' lijst: ~S"
 
 #: format.lisp:486
 #, fuzzy, lisp-format
@@ -5545,7 +5491,7 @@ msgstr "Te veel argumenten voor deze directive"
 #: international.lisp:46
 #, lisp-format
 msgid "Language ~S is not defined"
-msgstr "Taal ~S is niet gedefiniëerd"
+msgstr "Taal ~S is niet gedefinieerd"
 
 #: international.lisp:56
 #, lisp-format
@@ -5555,7 +5501,7 @@ msgstr "Taal ~S erft van ~S"
 #: international.lisp:106
 #, lisp-format
 msgid "~S: Language ~S is not defined"
-msgstr "~S: Taal ~S is niet gedefiniëerd"
+msgstr "~S: Taal ~S is niet gedefinieerd"
 
 #: international.lisp:129
 #, lisp-format
@@ -5590,7 +5536,7 @@ msgstr ";; ~:[functie~;macro~] ~S wordt getraceerd."
 #: trace.lisp:328
 #, lisp-format
 msgid "~S: ~S was traced and has been redefined!"
-msgstr "~S: ~S werd getraceerd en is opnieuw gedefiniëerd!"
+msgstr "~S: ~S werd getraceerd en is opnieuw gedefinieerd!"
 
 #: cmacros.lisp:81
 #, fuzzy
@@ -5653,9 +5599,9 @@ msgid "~S is not a function name and therefore may not be subject to a FTYPE dec
 msgstr ""
 
 #: compiler.lisp:1523
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S is not a function name and therefore may not be declared ~S."
-msgstr "~S is een ingebouwd type en mag niet opnieuw worden gedefiniëerd."
+msgstr "~S is geen functienaam en mag daarom niet naar als ~S gedeclareerd worden."
 
 #: compiler.lisp:1547
 #, lisp-format
@@ -5785,14 +5731,14 @@ msgid "~S: ignored keyword ~S ~S"
 msgstr "~S accepteert niet de keywords ~S van ~S"
 
 #: compiler.lisp:3315
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Function ~s is not defined"
-msgstr "~: de functie ~ is niet gedefiniëerd"
+msgstr "Functie ~s is niet gedefinieerd"
 
 #: compiler.lisp:3321
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Function ~S is deprecated."
-msgstr "~S: de functie ~S is niet gedefiniëerd"
+msgstr "Functie ~S is verouderd en wordt ontraden."
 
 #: compiler.lisp:3397
 #, lisp-format
@@ -5867,22 +5813,22 @@ msgstr "Ongeldige syntaxis in COMPILER-LET: ~S"
 #: compiler.lisp:5024
 #, lisp-format
 msgid "Block name must be a symbol, not ~S"
-msgstr "Bloknaam moet een symbol zijn, niet ~S"
+msgstr "Bloknaam moet een symbool zijn, niet ~S"
 
 #: compiler.lisp:5066
 #, lisp-format
 msgid "RETURN-FROM block ~S is impossible from here."
-msgstr "RETURN-FROM blok ~S is van hieruit niet mogelijk."
+msgstr "RETURN-FROM uit blok ~S is van hieruit niet mogelijk."
 
 #: compiler.lisp:5124
 #, lisp-format
 msgid "Only numbers and symbols are valid tags, not ~S"
-msgstr "Enkel getallen en symbols zijn geldige tags, niet ~S"
+msgstr "Alleen getallen en symbolen zijn geldige tags, niet ~S"
 
 #: compiler.lisp:5196
 #, lisp-format
 msgid "Tag must be a symbol or a number, not ~S"
-msgstr "Tag moet een symbol of een getal zijn, niet ~S"
+msgstr "Tag moet een symbool of een getal zijn, niet ~S"
 
 #: compiler.lisp:5199
 #, lisp-format
@@ -5892,41 +5838,37 @@ msgstr "GO naar tag ~S is van hieruit niet mogelijk."
 #: compiler.lisp:5272
 #, lisp-format
 msgid "~S is not a function. It is a locally defined macro."
-msgstr "~S is geen functie.  Het is een lokaal gedefiniëerde macro."
+msgstr "~S is geen functie.  Het is een lokaal gedefinieerde macro."
 
 #: compiler.lisp:5287
 #, lisp-format
 msgid "Only symbols and lambda expressions are function names, not ~S"
-msgstr "Enkel symbolen en lambda-expressies zijn functienamen, niet ~S"
+msgstr "Alleen symbolen en lambda-expressies zijn functienamen, niet ~S"
 
 #: compiler.lisp:5343
 #, lisp-format
 msgid "Illegal function definition syntax in ~S: ~S"
-msgstr "Ongeldige syntaxis voor functie-definitie in ~S: ~S"
+msgstr "Ongeldige syntaxis voor functiedefinitie in ~S: ~S"
 
 #: compiler.lisp:5770
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Illegal syntax: ~S"
-msgstr "~S: clausule ~S heeft ongeldige syntaxis"
+msgstr "~S: Ongeldige syntaxis: ~S"
 
 #: compiler.lisp:5786
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S is declared SPECIAL and must not be declared a macro"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbool ~S is special en mag niet als macro worden opgegeven\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: symbool ~S is als special gedeclareerd en mag niet als macro worden gedeclareerd"
+msgstr "~S: symbool ~S werd als SPECIAL gedeclareerd en mag niet als een macro gedeclareerd worden"
 
 #: compiler.lisp:5810
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~s situation must be ~s, ~s or ~s, but not ~s"
-msgstr "~S: argument moet ~S, ~S of ~S zijn, niet ~S"
+msgstr "~s-situatie moet ~s, ~s of ~s zijn, maar niet ~s"
 
 #: compiler.lisp:5827
 #, lisp-format
 msgid "COND clause without test: ~S"
-msgstr "COND clausule zonder test: ~S"
+msgstr "COND-clausule zonder test: ~S"
 
 #: compiler.lisp:5849
 #, lisp-format
@@ -5941,7 +5883,7 @@ msgstr "~S: de ~S-clausule moet de laatste zijn: ~S"
 #: compiler.lisp:5866
 #, lisp-format
 msgid "Duplicate ~S label ~S : ~S"
-msgstr "Dubbel ~S-label ~S : ~S"
+msgstr "Dubbel ~S-label ~S: ~S"
 
 #: compiler.lisp:6135
 #, lisp-format
@@ -5964,14 +5906,14 @@ msgid "The ~S destination is invalid (not NIL or T or a stream or a string with 
 msgstr "Het ~S doel is ongeldig (niet NIL, T, een stream of een string met fill-pointer): ~S"
 
 #: compiler.lisp:10773
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S cannot be compiled"
-msgstr "~S kan niet worden gewijzigd."
+msgstr "~S kan niet gecompileerd worden"
 
 #: compiler.lisp:10823
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: redefining ~S; it was traced!"
-msgstr "~S: ~S werd getraceerd en is opnieuw gedefiniëerd!"
+msgstr "~S: herdefinitie van ~S; het werd getraceerd!"
 
 #: compiler.lisp:10828
 #, lisp-format
@@ -5981,86 +5923,86 @@ msgstr "~S is al gecompileerd."
 #: compiler.lisp:10843 disassem.lisp:9
 #, lisp-format
 msgid "Undefined function ~S"
-msgstr "Niet-gedefiniëerde functie ~S"
+msgstr "Ongedefinieerde functie ~S"
 
 #: compiler.lisp:10858
 #, lisp-format
 msgid "Not a lambda expression nor a function: ~S"
-msgstr "~S is geen lambda-expressie of functie."
+msgstr "Geen lambda-expressie en geen functie: ~S"
 
 #: compiler.lisp:10916
 msgid "A function compiled with errors cannot be executed."
-msgstr ""
+msgstr "Een met fouten gecompileerde functie kan niet worden uitgevoerd."
 
 #: compiler.lisp:11045
 #, lisp-format
 msgid "[~s was defined~a]"
-msgstr ""
+msgstr "[~s werd gedefinieerd~a]"
 
 #: compiler.lisp:11052
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
-msgstr "Er zijn fouten gevonden in de volgende functies:~%~{~<~%~:; ~S>~^~}"
+msgstr "Er zijn fouten gevonden in de volgende functies:~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:11058
 #, lisp-format
 msgid "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
-msgstr "De volgende functies zijn gebruikt maar niet gedefiniëerd:~%~{~<~%~:; ~S~>~^~}"
+msgstr "De volgende functies zijn gebruikt maar niet gedefinieerd:~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:11066
 #, lisp-format
 msgid "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
-msgstr "De volgende special-variabelen waren niet gedefiniëerde:~%~{~<~%~:; ~S~>~^~}"
+msgstr "De volgende speciale variabelen werden niet gedefinieerd:~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:11069
 #, lisp-format
 msgid "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
-msgstr "De volgende special-variabelen waren te laat gedefiniëerd:~%~{~<~%~:; ~S~>~^~}"
+msgstr "De volgende speciale variabelen werden te laat gedefinieerd:~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:11072
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "The following functions were used but are deprecated:~%~:{~<~%~:; ~S - ~@?~>~^~}"
-msgstr "De volgende functies zijn gebruikt maar worden afgeraden:~%~{~<~%~:; ~S~>~^~}"
+msgstr "De volgende functies zijn gebruikt maar worden afgeraden:~%~:{~<~%~:; ~S - ~@?~>~^~}"
 
 #: compiler.lisp:11077
 #, lisp-format
 msgid "~D error~:P, ~D warning~:P"
-msgstr "~D fout~:*~[~;~:;en~], ~D waarschuwing~:*~[~;~:;en~]"
+msgstr "~D-fout~:P, ~D-waarschuwing~:P"
 
 #: compiler.lisp:11229
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Listing of compilation of file ~A~%on ~A by ~A, version ~A"
-msgstr "Compilatie-listing van bestand ~A~%op ~@? door ~A, versie ~A"
+msgstr "Compilatie-listing van bestand ~A~%op ~A door ~A, versie ~A"
 
 #: compiler.lisp:11261
-#, fuzzy, lisp-format
+#, lisp-format
 msgid ";; Compiling file ~A ..."
-msgstr "Bezig met compileren van ~A ..."
+msgstr ";; Compileren van ~A ..."
 
 #: compiler.lisp:11313
-#, fuzzy, lisp-format
+#, lisp-format
 msgid ";; Wrote file ~A"
-msgstr "Bestand "
+msgstr ";; Bestand ~A is geschreven"
 
 #: compiler.lisp:11321
-#, fuzzy, lisp-format
+#, lisp-format
 msgid ";; Deleted file ~A"
-msgstr "Bestand "
+msgstr ";; Bestand ~A is verwijderd"
 
 #: compiler.lisp:11368
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Disassembly of function ~S"
-msgstr "Disassembly van functie "
+msgstr "Disassemblering van functie ~S"
 
 #: compiler.lisp:11378
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S required argument~:P"
-msgstr "~S vereiste argumenten"
+msgstr "~S vereist argument~:P"
 
 #: compiler.lisp:11380
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S optional argument~:P"
-msgstr "~S optionele argumenten"
+msgstr "~S optioneel argument~:P"
 
 #: compiler.lisp:11383
 msgid "Rest parameter"
@@ -6071,13 +6013,13 @@ msgid "No rest parameter"
 msgstr "Geen rest-parameter"
 
 #: compiler.lisp:11388
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S keyword parameter~:P: "
-msgstr " keyword-parameter~P: "
+msgstr "~S sleutelwoord-parameter~:P: "
 
 #: compiler.lisp:11395
 msgid "Other keywords are allowed."
-msgstr "Andere keywords zijn toegestaan."
+msgstr "Andere sleutelwoorden zijn toegestaan."
 
 #: compiler.lisp:11398
 msgid "No keyword parameters"
@@ -6141,7 +6083,7 @@ msgstr "~S: variabele ontbreekt."
 #: loop.lisp:357
 #, lisp-format
 msgid "~S: After ~S, ~S is interpreted as a type specification"
-msgstr "~S: Na ~S wordt ~S geïnterpreteerd als een type-specificatie"
+msgstr "~S: Na ~S wordt ~S geÃ¯nterpreteerd als een type-specificatie"
 
 #: loop.lisp:378
 #, lisp-format
@@ -6161,7 +6103,7 @@ msgstr ""
 #: loop.lisp:620
 #, lisp-format
 msgid "~S: ~A clauses should occur before the loop's main body"
-msgstr "~S: ~A-clausules moeten vóÂór de inhoud van de lus staan"
+msgstr "~S: ~A-clausules moeten vÃ³Ã‚Ã³r de inhoud van de lus staan"
 
 #: loop.lisp:773
 #, lisp-format
@@ -6313,7 +6255,8 @@ msgstr "~S: argument moet een string zijn, niet ~S"
 msgid "(~S ~S): The qualifiers list should consist of non-NIL atoms, not ~S"
 msgstr ""
 
-#: clos-method1.lisp:137 clos-method1.lisp:155 clos-method1.lisp:173 clos-method1.lisp:265
+#: clos-method1.lisp:137 clos-method1.lisp:155 clos-method1.lisp:173
+#: clos-method1.lisp:265
 #, fuzzy, lisp-format
 msgid "(~S ~S): Missing ~S argument."
 msgstr "~S: ongeldig ~S argument ~S"
@@ -6378,7 +6321,8 @@ msgstr "~S: foutieve ~S"
 msgid "~S ~S: missing lambda list"
 msgstr "~S ~S: lambda-lijst ontbreekt"
 
-#: clos-method2.lisp:98 clos-method2.lisp:127 clos-genfun3.lisp:335 clos-genfun3.lisp:453
+#: clos-method2.lisp:98 clos-method2.lisp:127 clos-genfun3.lisp:335
+#: clos-genfun3.lisp:453
 #, lisp-format
 msgid "~S ~S: ~A"
 msgstr ""
@@ -6454,13 +6398,9 @@ msgid "~S: The first argument is neither a method nor a (MAKE-METHOD ...) form: 
 msgstr ""
 
 #: clos-methcomb2.lisp:331
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: The second argument is not a list: ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: :OUT-argument is geen pointer: ~S\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: :OUT argument is geen pointer: ~S"
+msgstr "~S: Het tweede argument is geen lijst: ~S"
 
 #: clos-methcomb2.lisp:338
 #, lisp-format
@@ -6535,7 +6475,7 @@ msgstr "~S ~S, optie ~S: argumenten zijn niet paarsgewijs gegeven"
 #: clos-methcomb2.lisp:925 clos-methcomb2.lisp:929 clos-methcomb2.lisp:933
 #, fuzzy, lisp-format
 msgid "In method group ~S: option ~S may only be given once"
-msgstr "~S ~S, optie ~S mag maar éÂén keer worden opgegeven"
+msgstr "~S ~S, optie ~S mag maar Ã©Ã‚Ã©n keer worden opgegeven"
 
 #: clos-methcomb2.lisp:935
 #, fuzzy, lisp-format
@@ -6570,7 +6510,7 @@ msgstr "~S ~S, optie ~S: argumenten zijn niet paarsgewijs gegeven"
 #: clos-methcomb2.lisp:1141 clos-methcomb2.lisp:1155 clos-methcomb2.lisp:1163
 #, fuzzy, lisp-format
 msgid "~S ~S: option ~S may only be given once"
-msgstr "~S ~S, optie ~S mag maar éÂén keer worden opgegeven"
+msgstr "~S ~S, optie ~S mag maar Ã©Ã‚Ã©n keer worden opgegeven"
 
 #: clos-methcomb2.lisp:1147
 #, fuzzy, lisp-format
@@ -6645,7 +6585,7 @@ msgstr ""
 #: clos-genfun2b.lisp:507
 #, fuzzy, lisp-format
 msgid "~S is not one of the required parameters: ~S"
-msgstr "~S ~S: ~S is niet éÂén van de vereiste parameters: ~S"
+msgstr "~S ~S: ~S is niet Ã©Ã‚Ã©n van de vereiste parameters: ~S"
 
 #: clos-genfun2b.lisp:517
 #, fuzzy, lisp-format
@@ -6753,13 +6693,9 @@ msgid "Removing method ~S in ~S"
 msgstr "Method ~S in ~S wordt verwijderd"
 
 #: clos-genfun2b.lisp:917
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: the specializers argument is not a list: ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: :OUT-argument is geen pointer: ~S\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S: :OUT argument is geen pointer: ~S"
+msgstr "~S: het specialiceerdersargument is geen lijst: ~S"
 
 #: clos-genfun2b.lisp:926
 #, fuzzy, lisp-format
@@ -6824,7 +6760,7 @@ msgstr "~S benoemt geen generieke functie"
 #: clos-genfun3.lisp:347 clos-genfun3.lisp:369
 #, lisp-format
 msgid "~S ~S: ~S may only be specified once."
-msgstr "~S ~S: ~S mag maar éÂén keer worden opgegeven."
+msgstr "~S ~S: ~S mag maar Ã©Ã‚Ã©n keer worden opgegeven."
 
 #: clos-genfun3.lisp:355
 #, lisp-format
@@ -6834,7 +6770,7 @@ msgstr "~S ~S: Na ~S moet een string worden opgegeven: ~S "
 #: clos-genfun3.lisp:361
 #, fuzzy, lisp-format
 msgid "~S ~S: Only one ~S string is allowed."
-msgstr "~S ~S: Ten hoogste éÂén ~S-string is toegestaan"
+msgstr "~S ~S: Ten hoogste Ã©Ã‚Ã©n ~S-string is toegestaan"
 
 #: clos-genfun3.lisp:381
 #, fuzzy, lisp-format
@@ -6854,7 +6790,7 @@ msgstr "~S ~S: Na ~S moet een string worden opgegeven: ~S "
 #: clos-genfun3.lisp:403 clos-genfun3.lisp:417 clos-genfun3.lisp:438
 #, fuzzy, lisp-format
 msgid "~S ~S: Only one ~S option is allowed."
-msgstr "~S ~S: Ten hoogste éÂén ~S-string is toegestaan"
+msgstr "~S ~S: Ten hoogste Ã©Ã‚Ã©n ~S-string is toegestaan"
 
 #: clos-genfun3.lisp:429
 #, fuzzy, lisp-format
@@ -6931,7 +6867,8 @@ msgstr "De generieke functie ~S wordt gewijzigd, maar is al aangeroepen."
 msgid "~S: The name of a generic function must be a function name, not ~S"
 msgstr "~S: de naam van een functie moet een symbol zijn, niet ~S"
 
-#: clos-genfun4.lisp:393 clos-genfun4.lisp:412 clos-genfun4.lisp:446 clos-genfun4.lisp:472
+#: clos-genfun4.lisp:393 clos-genfun4.lisp:412 clos-genfun4.lisp:446
+#: clos-genfun4.lisp:472
 #, fuzzy, lisp-format
 msgid "~S: the lambda-list of ~S is not yet known"
 msgstr "FUNCTION: lambda-lijst voor ~S ontbreekt"
@@ -6942,23 +6879,19 @@ msgid "Invalid ~S result ~S: ~A"
 msgstr "Ongeldig ~S-component: ~S"
 
 #: clos-print.lisp:16
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "No ~S method for ~S (~S (~S))"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S-methode voor ~S geeft ~S terug\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S-method voor ~S leverde ~S"
+msgstr "Geen ~S-methode voor ~S (~S (~S))"
 
 #: disassem.lisp:56
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Cannot disassemble natively compiled function ~S"
-msgstr "Disassembly van functie "
+msgstr "Kan elders gecompileerde functie ~S niet disassembleren"
 
 #: disassem.lisp:84
 #, lisp-format
 msgid "Cannot show machine instructions: gdb not found."
-msgstr ""
+msgstr "Kan machine-instructies niet tonen: 'gdb' niet gevonden."
 
 #: condition.lisp:94
 #, lisp-format
@@ -6976,9 +6909,9 @@ msgid "~S: the slot description list must be a list, not ~S"
 msgstr "~S: de lijst van slot-omschrijvingen moet een lijst zijn, niet ~S"
 
 #: condition.lisp:190
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: cannot find a ~S class that is a subtype of ~S"
-msgstr "~S: type ~S is niet een subtype van ~S"
+msgstr "~S: kan geen ~S-klasse vinden die een subtype is van ~S"
 
 #: condition.lisp:204
 #, lisp-format
@@ -6993,7 +6926,7 @@ msgstr "~S: het conditie-argument moet een string, een symbool of een conditie z
 #: condition.lisp:647
 #, lisp-format
 msgid "~S: illegal syntax of clause ~S"
-msgstr "~S: clausule ~S heeft ongeldige syntaxis"
+msgstr "~S: ongeldige syntaxis in clausule ~S"
 
 #: condition.lisp:652
 #, fuzzy, lisp-format
@@ -7241,10 +7174,10 @@ msgid ""
 "           same as above, specify a condition when to stop"
 msgstr ""
 "\n"
-"Step     = stap form binnen: evalueer deze form in éÂén-stapsmodus\n"
+"Step     = stap form binnen: evalueer deze form in Ã©Ã‚Ã©n-stapsmodus\n"
 "Next     = stap over form heen: evalueer deze form een enkele keer\n"
 "Over     = stap over dit level heen: evalueer tot aan de volgende return?\n"
-"Continue = schakel éÂén-stapsmodus uit, vervolg evaluatie\n"
+"Continue = schakel Ã©Ã‚Ã©n-stapsmodus uit, vervolg evaluatie\n"
 "Step-until, Next-until, Over-until, Continue-until:\n"
 "           als hierboven, maar dan met een opgegeven stop-conditie"
 
@@ -7375,7 +7308,7 @@ msgstr "een special form verwerker."
 #: describe.lisp:134
 #, lisp-format
 msgid "a load-time evaluation promise."
-msgstr "een belofte die tijdens het laden wordt geëvalueerd."
+msgstr "een belofte die tijdens het laden wordt geÃ«valueerd."
 
 #: describe.lisp:136
 #, lisp-format
@@ -7677,7 +7610,8 @@ msgstr ", benoemt een class"
 msgid ", has ~:D propert~@:P ~{~S~^, ~}"
 msgstr ", heeft de ~[~;eigenschap~:;eigenschappen~] ~{~S~^, ~}"
 
-#: describe.lisp:322 describe.lisp:364 describe.lisp:390 describe.lisp:412 describe.lisp:487
+#: describe.lisp:322 describe.lisp:364 describe.lisp:390 describe.lisp:412
+#: describe.lisp:487
 #, lisp-format
 msgid "."
 msgstr "."
@@ -7725,7 +7659,7 @@ msgstr "in de oorsprong"
 #: describe.lisp:354
 #, lisp-format
 msgid "on the ~:[posi~;nega~]tive real axis"
-msgstr "op de ~:[posi~;nega~]tieve reëele as"
+msgstr "op de ~:[posi~;nega~]tieve reÃ«ele as"
 
 #: describe.lisp:357
 #, lisp-format
@@ -7755,7 +7689,7 @@ msgstr "Unicode naam: ~A"
 #: describe.lisp:370
 #, lisp-format
 msgid "It is not defined by the Unicode standard."
-msgstr "Het is niet gedefiniëerd door de Unicode standaard."
+msgstr "Het wordt niet gedefinieerd door de Unicode-standaard."
 
 #: describe.lisp:372
 #, lisp-format
@@ -7904,7 +7838,7 @@ msgstr " en huidige lengte (vul-pointer) ~S"
 #: describe.lisp:481
 #, lisp-format
 msgid " (a string)"
-msgstr ""
+msgstr " (een string)"
 
 #: describe.lisp:484
 #, lisp-format
@@ -7912,60 +7846,47 @@ msgid " (a~:[~;n immutable~] ~:[~;reallocated ~]~A string)"
 msgstr ""
 
 #: describe.lisp:489
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "a generic function."
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~S benoemt geen generieke functie\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"~SS benoemt geen generieke functie"
+msgstr "een generieke functie."
 
 #: describe.lisp:492
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Argument list: ~A"
-msgstr "~%Argumentenlijst: "
+msgstr "Argumentenlijst: ~A"
 
 #: describe.lisp:497
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Method combination: ~S"
-msgstr "~S ~S: De enige geldige method-combinatie is ~S : ~S"
+msgstr "Methodecombinatie: ~S"
 
 #: describe.lisp:502
 #, lisp-format
 msgid "Methods:"
-msgstr ""
+msgstr "Methodes:"
 
 #: describe.lisp:513
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "No methods."
-msgstr "~%Geen slots."
+msgstr "Geen methodes."
 
 #: describe.lisp:518
 #, fuzzy, lisp-format
 msgid "a foreign function of foreign type ~S."
-msgstr "een foreign variabele van `foreign' type ~S."
+msgstr "een foreign functie van 'foreign' type ~S."
 
 #: describe.lisp:526
 msgid "a built-in system function."
 msgstr "een ingebouwde systeemfunctie."
 
 #: describe.lisp:527
-#, fuzzy
 msgid "a compiled function."
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"een ~:[geïnterpret~; gecompil~]eerde functie.\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"een ~S:[geïnterpret~S; gecompil~S]eerde functie."
+msgstr "een gecompileerde functie."
 
 #: describe.lisp:542
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "an interpreted function."
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"een ~:[geïnterpret~; gecompil~]eerde functie.\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"een ~S:[geïnterpret~S; gecompil~S]eerde functie."
+msgstr "een geÃ¯nterpreteerde functie."
 
 #: describe.lisp:553
 #, lisp-format
@@ -7978,23 +7899,19 @@ msgid "~A is "
 msgstr "~A is "
 
 #: describe.lisp:562
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Documentation:"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"documentatie: ~A\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"documentatie: ~SA"
+msgstr "Documentatie:"
 
 #: describe.lisp:616
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Argument list: ~:S"
-msgstr "argumentenlijst: ~:S"
+msgstr "Argumentenlijst: ~:S"
 
 #: describe.lisp:624
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Documentation: ~A"
-msgstr "documentatie: ~A"
+msgstr "Documentatie: ~A"
 
 #: room.lisp:17
 #, lisp-format
@@ -8012,7 +7929,7 @@ msgstr "Permanent gereserveerde bytes:   ~9D~%Bytes nu in gebruik:     ~9D~%Besc
 
 #: edit.lisp:28
 msgid "No external editor installed."
-msgstr "Er is geen externe editor geïnstalleerd."
+msgstr "Er is geen externe editor geÃ¯nstalleerd."
 
 #: edit.lisp:82
 #, lisp-format
@@ -8036,81 +7953,81 @@ msgstr ""
 #: macros3.lisp:65
 #, lisp-format
 msgid "LETF* code contains a dotted list, ending with ~S"
-msgstr "LETF* code bevat een dotted lijst die eindigt met ~S"
+msgstr "LETF*-code bevat een 'dotted' lijst die eindigt met ~S"
 
 #: macros3.lisp:87
 #, lisp-format
 msgid "illegal syntax in LETF* binding: ~S"
-msgstr "ongeldige syntaxis in LETF* binding: ~S"
+msgstr "ongeldige syntaxis in LETF*-binding: ~S"
 
 #: macros3.lisp:244
 #, lisp-format
 msgid "LETF code contains a dotted list, ending with ~S"
-msgstr "LETF code bevat een dotted lijst, die eindigt met ~S"
+msgstr "LETF-code bevat een 'dotted' lijst die eindigt met ~S"
 
 #: macros3.lisp:266
 #, lisp-format
 msgid "illegal syntax in LETF binding: ~S"
-msgstr "ongeldige syntaxis in LETF binding: ~S"
+msgstr "ongeldige syntaxis in LETF-binding: ~S"
 
 #: clhs.lisp:175
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: error ~D: ~S"
-msgstr "~S uit ~S: onjuiste ~S"
+msgstr "~S: foutive ~D: ~S"
 
 #: clhs.lisp:236
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S is not found"
-msgstr "~S: ~S is geen functienaam"
+msgstr "~S is niet gevonden"
 
 #: clhs.lisp:251 clhs.lisp:291
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S returns invalid value ~S, fix it, ~S, ~S, or ~S"
-msgstr "~S: de enige mogelijke bit namen zijn: ~S, ~S, ~S, ~S, niet ~S"
+msgstr ""
 
 #: clhs.lisp:315
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: invalid symbol ~S with id ~S: ~A"
-msgstr "~S ~S: ongeldig stukje in lambda-lijst: ~S"
+msgstr "~S: ongeldig symbool ~S met ID ~S: ~A"
 
 #: clhs.lisp:318
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: invalid id ~S for symbol ~S"
-msgstr "~S: ongeldige form ~S"
+msgstr "~S: ongeldig ID ~S voor symbool ~S"
 
 #: threads.lisp:26
 msgid "[Timed out] "
-msgstr ""
+msgstr "[Verlopen] "
 
 #: threads.lisp:56
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S does not own ~S"
-msgstr "~S: ~S benoemt geen klasse"
+msgstr "~S: ~S bezit ~S niet"
 
 #: foreign1.lisp:105
 #, lisp-format
 msgid "Cannot map string ~S to C since it contains a character ~S"
-msgstr "Kan de string ~S niet op C afbeelden, want het bevat een ~S teken"
+msgstr "Kan de string ~S niet op C afbeelden, want het bevat een ~S-teken"
 
 #: foreign1.lisp:140
 #, lisp-format
 msgid "Invalid ~S component: ~S"
-msgstr "Ongeldig ~S-component: ~S"
+msgstr "Ongeldige ~S-component: ~S"
 
 #: foreign1.lisp:206
 #, lisp-format
 msgid "Incomplete FFI type ~S is not allowed here."
-msgstr "Onvolledig FFI type ~S is hier niet toegestaan."
+msgstr "Onvolledig FFI-type ~S is hier niet toegestaan."
 
 #: foreign1.lisp:210
 #, lisp-format
 msgid "FFI type should be a symbol, not ~S"
-msgstr "FFI type moet een symbol zijn, niet ~S"
+msgstr "FFI-type moet een symbol zijn, niet ~S"
 
 #: foreign1.lisp:213
 #, lisp-format
 msgid "Invalid FFI type: ~S"
-msgstr "Ongeldig FFI type: ~S"
+msgstr "Ongeldig FFI-type: ~S"
 
 #: foreign1.lisp:318
 #, lisp-format
@@ -8120,7 +8037,7 @@ msgstr "Ongeldige optie in ~S: ~S"
 #: foreign1.lisp:321
 #, lisp-format
 msgid "Only one ~S option is allowed: ~S"
-msgstr "Er is maar éÂén ~S-optie is toegestaan: ~S"
+msgstr "Er is maar Ã©Ã©n optie ~S toegestaan: ~S"
 
 #: foreign1.lisp:377
 #, lisp-format
@@ -8128,9 +8045,9 @@ msgid "Invalid parameter specification in ~S: ~S"
 msgstr "Ongeldige parameterspecificatie in ~S: ~S"
 
 #: foreign1.lisp:391
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~s argument ~s is not a pointer in ~s"
-msgstr "~: argument ~ is geen open bestandsstream"
+msgstr "~s: argument ~s is geen pointer in ~s"
 
 #: foreign1.lisp:420
 #, lisp-format
@@ -8145,31 +8062,27 @@ msgstr "De naam moet een string zijn, niet ~S"
 #: foreign1.lisp:430
 #, lisp-format
 msgid "The name ~S is not a valid C identifier"
-msgstr "De naam ~S is geen geldige C aanduiding"
+msgstr "De naam ~S is geen geldige naam in C"
 
 #: foreign1.lisp:684
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "illegal foreign data type ~S"
-msgstr ""
-"#-#-#-#-#  nl1.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"ongeldig foreign datatype ~S\n"
-"#-#-#-#-#  nl2.po (clisp 2000-03-06)  #-#-#-#-#\n"
-"ongeldig type voor externe gegevens ~S"
+msgstr "ongeldig type ~S voor externe gegevens"
 
 #: foreign1.lisp:899
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S(~S): CPP constant ~A is not defined"
-msgstr "~S: Taal ~S is niet gedefiniëerd"
+msgstr "~S(~S): CPP-constante ~A is niet gedefinieerd"
 
 #: foreign1.lisp:919
 #, lisp-format
 msgid "~S: ~S option missing in ~S"
-msgstr "~S: ~S-optie ontbreekt in ~S"
+msgstr "~S: optie ~S ontbreekt in ~S"
 
 #: foreign1.lisp:1041 foreign1.lisp:1118
 #, fuzzy, lisp-format
 msgid "~s is deprecated, use ~s instead"
-msgstr "Functie niet geïmplementeerd"
+msgstr "Functie niet geÃ¯mplementeerd"
 
 #: foreign1.lisp:1227
 #, lisp-format
@@ -8182,9 +8095,9 @@ msgid "~S does not name a C enum type"
 msgstr "~S benoemt geen generieke functie"
 
 #: foreign1.lisp:1239
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S is not of C enum type ~S"
-msgstr "object is niet van vereist type"
+msgstr ""
 
 #: foreign1.lisp:1243
 #, lisp-format
@@ -8192,9 +8105,9 @@ msgid "~S symbol value (~S) does not match its table value (~S) in ~S"
 msgstr ""
 
 #: foreign1.lisp:1248
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S is not a valid value of type ~S"
-msgstr "~ is niet een geldige code-vector byte"
+msgstr "~S is geen geldige waarde van type ~S"
 
 #: foreign1.lisp:1266
 #, lisp-format
@@ -8209,7 +8122,7 @@ msgstr "Base ~S is geen sleutelwoord of bibliotheeknaam ~S is geen string"
 #: affi1.lisp:47
 #, lisp-format
 msgid "Library redefinition: old ~S, new ~S"
-msgstr "Bibliotheek opnieuw gedefiniëerd: voorheen ~S, nu ~S"
+msgstr "Bibliotheek is opnieuw gedefinieerd: voorheen ~S, nu ~S"
 
 #: affi1.lisp:57
 #, lisp-format
@@ -8229,12 +8142,12 @@ msgstr "Onbekende functie van bibliotheek ~S: ~S"
 #: affi1.lisp:172
 #, lisp-format
 msgid "Offset must be a fixnum: ~S"
-msgstr "Plaats moet een fixnum zijn: ~S"
+msgstr "Positie moet een fixnum zijn: ~S"
 
 #: affi1.lisp:183
 #, lisp-format
 msgid ";; redefining foreign library function ~S~%;;  from ~S to ~S"
-msgstr ";; definitieverandering van foreign bibliotheekfunctie ~S~%;;  van ~S naar ~S"
+msgstr ";; herdefinitie van foreign-bibliotheekfunctie ~S~%;;  van ~S naar ~S"
 
 #: affi1.lisp:203
 #, lisp-format
@@ -8255,2027 +8168,3 @@ msgstr "Onbekende bibliotheekfunctie: ~S"
 #, lisp-format
 msgid "Bad number of arguments for ~S: ~S"
 msgstr "Foutief aantal argumenten voor ~S: ~S"
-
-#, fuzzy
-#~ msgid "~S: variable specification after ~S too long : ~S"
-#~ msgstr "FUNCTION: te lange variabelenspecificatie na &AUX: ~S"
-
-#~ msgid "~S from ~S: bit vector is longer than the explicitly given length ~S"
-#~ msgstr "~S uit ~S: bitvector is langer dan de expliciet opgegeven lengte ~S"
-
-#~ msgid "~S from ~S: must specify element of bit vector of length ~S"
-#~ msgstr "~S uit ~S: een element van de bitvector met lengte ~S moet opgegeven worden"
-
-#, fuzzy
-#~ msgid "~S from ~S: invalid bit-vector length ~S"
-#~ msgstr "~S: foutieve bit-vector lengte ~S"
-
-#, fuzzy
-#~ msgid "DEFUN/DEFMACRO: redefining ~S; it was traced!"
-#~ msgstr "DEFUN/DEFMACRO: ~S is getraced en wordt opnieuw gedefiniëerd!\""
-
-#~ msgid "~S: ~S is not a library"
-#~ msgstr "~S: ~S is geen bibliotheek"
-
-#~ msgid "too long sequence ~S"
-#~ msgstr "te lange sequence ~S"
-
-#~ msgid "~S from ~S: the value of ~S has been altered arbitrarily, it is not an alist: ~S"
-#~ msgstr "~S uit ~S: de waarde van ~S is willekeurig veranderd, het is geen alist: ~S"
-
-#~ msgid "~S: array ~S has no fill-pointer"
-#~ msgstr "~S: array ~S heeft geen fill-pointer"
-
-#, fuzzy
-#~ msgid "Argument list: ~A."
-#~ msgstr "~%Argumentenlijst: "
-
-#~ msgid "~: argument ~S is not a character"
-#~ msgstr "~: argument ~S is geen character"
-
-#~ msgid "~S: argument ~S is neither an open SOCKET-STREAM nor a positive FIXNUM"
-#~ msgstr "~S: argument ~S is geen open SOCKET-STREAM en ook geen positief FIXNUM"
-
-#~ msgid "~S: argument ~S should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
-#~ msgstr "~S: argument ~S moet een vector zijn van type (ARRAY (UNSIGNED-BYTE 8) (*))"
-
-#, fuzzy
-#~ msgid "Loading logical host ~S from file ~A ..."
-#~ msgstr "Bestand "
-
-#~ msgid "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S"
-#~ msgstr "~S ~S, slot-optie voor slot ~S moet de waarde ~S of ~S hebben, niet ~S"
-
-#, fuzzy
-#~ msgid "service does not exist: ~A/~A"
-#~ msgstr "bestand ~ bestaat niet"
-
-#, fuzzy
-#~ msgid "Invalid ~S declaration ~S"
-#~ msgstr "~S: foutieve declaratie ~S"
-
-#~ msgid "~S: ~S is not a 1:1 encoding"
-#~ msgstr "~S: ~S is niet een 1:1 codering"
-
-#~ msgid "~S from ~S: label #~S? too large"
-#~ msgstr "~S uit ~S: label #~S? te groot"
-
-#~ msgid " (macro: ~s)"
-#~ msgstr " (macro: ~s)"
-
-#~ msgid "stack size"
-#~ msgstr "grootte stapel"
-
-#~ msgid "no doc-strings allowed here: ~S"
-#~ msgstr "hier zijn geen doc-strings toegestaan: ~S"
-
-#~ msgid "~S: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~S"
-#~ msgstr "~S: :VERSION-argument moet NIL of :WILD of :NEWEST zijn, niet ~S"
-
-#~ msgid "~S: stream must be a generic-stream, not ~S"
-#~ msgstr "~S: stream moet een generic stream zijn, niet ~S"
-
-#~ msgid "~S: stream must be a socket-stream, not ~S"
-#~ msgstr "~S: stream moet een socket-stream zijn, niet ~S"
-
-#~ msgid "~S: ~S is not an array"
-#~ msgstr "~S: ~S is geen array"
-
-#~ msgid "ANSI C program"
-#~ msgstr "ANSI C programma"
-
-#, fuzzy
-#~ msgid "~s: compiled file ~s was created by an older CLISP version and needs to be recompiled"
-#~ msgstr "Dit bestand is door een andere lisp-versie gemaakt, en moet opnieuw gecompileerd worden"
-
-#~ msgid "~S: ~S is not a symbol."
-#~ msgstr "~S: ~S is geen symbol."
-
-#, fuzzy
-#~ msgid "~S: Missing store variable."
-#~ msgstr "~S: variabele ontbreekt."
-
-#, fuzzy
-#~ msgid "~S ~S: &REST variable ~S should be a symbol."
-#~ msgstr "~S: variabele ~S moet een symbol zijn"
-
-#, fuzzy
-#~ msgid "~S(~S): Only one variable is allowed after &REST, not ~S"
-#~ msgstr "Na &REST is slechts éÂén variabele toegestaan, niet ~S"
-
-#, fuzzy
-#~ msgid "~s: ~s is not a function name"
-#~ msgstr "~: ~ is geen functienaam"
-
-#, fuzzy
-#~ msgid "Function ~s is deprecated~@[, use ~s instead~]"
-#~ msgstr "Functie niet geïmplementeerd"
-
-#~ msgid "Name of function to be compiled must be a symbol, not ~S"
-#~ msgstr "Naam van te compileren functie moet een symbol zijn, niet ~S"
-
-#, fuzzy
-#~ msgid "~S: missing forms after ~A"
-#~ msgstr "~S: variabele ontbreekt."
-
-#~ msgid "~S ~S: The only valid generic function class name is ~S : ~S"
-#~ msgstr "~S ~S: De enige geldige klassenaam voor de generieke funktie is ~S : ~S"
-
-#~ msgid "~S ~S: The only valid method class name is ~S : ~S"
-#~ msgstr "~S ~S: De enige geldige klassenaam voor de method is ~S : ~S"
-
-#~ msgid "~S ~S: ~S is missing some required parameter"
-#~ msgstr "~S ~S: een bepaalde vereiste parameter ontbreekt in ~S "
-
-#~ msgid "~S ~S: variable name ~S should be a symbol"
-#~ msgstr "~S ~S: variabelenaam ~S moet een symbol zijn"
-
-#, fuzzy
-#~ msgid "~S is not a valid a ~S designator"
-#~ msgstr "~: ~ is geen geldige index voor ~"
-
-#~ msgid "Cannot disassemble ~S"
-#~ msgstr "Kan ~S niet disassembleren"
-
-#, fuzzy
-#~ msgid "~%Argument list: ~A"
-#~ msgstr "~%Argumentenlijst: "
-
-#, fuzzy
-#~ msgid "~: ~ should be a lambda expression"
-#~ msgstr "~S: ~S moet een lambda expressie zijn"
-
-#~ msgid "~: symbol ~ is declared special and must not be declared a macro"
-#~ msgstr "~: symbool ~ is als special gedeclareerd en mag niet als macro worden gedeclareerd"
-
-#~ msgid "~: symbol ~ must not be declared SPECIAL and a macro at the same time"
-#~ msgstr "~: symbool ~ mag niet als SPECIAL en macro tegelijkertijd worden gedeclareerd"
-
-#~ msgid "~: the ~ clause must be the last one"
-#~ msgstr "~: de ~ clausule moet de laatste zijn"
-
-#, fuzzy
-#~ msgid "~: file ~ already exists"
-#~ msgstr "~: Bestand ~ bestaat al"
-
-#~ msgid "~ from ~: character read should be a character: ~"
-#~ msgstr "~ uit ~: gelezen teken is geen character: ~"
-
-#~ msgid "~: input stream ~ ends within read macro beginning to ~"
-#~ msgstr "~: invoerstream ~ eindigt binnen een `read-macro' naar ~"
-
-#~ msgid "~ from ~: After ~ is ~ an undefined dispatch macro character"
-#~ msgstr "~ uit ~: Na ~ is ~ een niet gedefiniëerd `dispatch-macro' teken"
-
-#~ msgid "~: index ~ too large for ~"
-#~ msgstr "~: index ~ is te groot voor ~"
-
-#, fuzzy
-#~ msgid "~: There is no package with name ~"
-#~ msgstr "~S: Er is geen package met de naam ~S."
-
-#~ msgid "~: ~ is not a closure"
-#~ msgstr ": ~ is geen closure"
-
-#, fuzzy
-#~ msgid "~: ~ is not a class"
-#~ msgstr "~S: ~S is geen klasse"
-
-#~ msgid "~ method for ~ returned ~"
-#~ msgstr "~-method voor ~ leverde ~"
-
-#~ msgid "~: index should be an integer, not ~"
-#~ msgstr "~: index moet een geheel getal zijn, niet ~"
-
-#~ msgid "~: User break"
-#~ msgstr "~: Onderbreking"
-
-#, fuzzy
-#~ msgid "~: ~ is not a symbol"
-#~ msgstr "~S: ~S is geen symbol."
-
-#, fuzzy
-#~ msgid "~: argument ~ is not a character"
-#~ msgstr "~: argument ~S is geen character"
-
-#~ msgid "~: undefined function ~"
-#~ msgstr "~: niet gedefiniëerde functie ~"
-
-#, fuzzy
-#~ msgid "~: invalid type specification ~"
-#~ msgstr "~S: ongeldige type-specificatie ~S"
-
-#~ msgid "illegal foreign data type ~"
-#~ msgstr "ongeldig type voor externe gegevens ~"
-
-#~ msgid "~: :OUT argument is not a pointer: ~"
-#~ msgstr "~: :OUT argument is geen pointer: ~"
-
-#, fuzzy
-#~ msgid "~: ~ is not an output ~"
-#~ msgstr "~: ~ is geen paar"
-
-#, fuzzy
-#~ msgid "~: argument ~ should be ~."
-#~ msgstr "~: argument ~ moet een stream zijn"
-
-#~ msgid "Please choose:"
-#~ msgstr "Kies a.u.b. een van:"
-
-#~ msgid "Please choose one of ~:{~A~:^, ~} ."
-#~ msgstr "Kies a.u.b. een van ~:{~A~:^, ~} uit."
-
-#, fuzzy
-#~ msgid "uninterning ~S from ~S uncovers a name conflict."
-#~ msgstr "door het gebruik van `unintern' voor ~S uit ~S ontstaat een naamconflict."
-
-#~ msgid "You may choose how to proceed."
-#~ msgstr "U kunt kiezen hoe het nu verder gaat."
-
-#~ msgid "You may choose in favour of which symbol to resolve the conflict."
-#~ msgstr "U mag kiezen welk symbool de voorkeur krijgt om het conflict op te lossen."
-
-#~ msgid "Which symbol should be accessible in ~S ?"
-#~ msgstr "Welk symbool moet voorrang krijgen in ~S ?"
-
-#~ msgid "You may choose for every conflict in favour of which symbol to resolve it."
-#~ msgstr "U mag voor elk conflict kiezen welk symbool de voorkeur krijgt."
-
-#~ msgid "~S name conflicts while executing USE-PACKAGE of ~S into package ~S."
-#~ msgstr "~S veroorzaakt een naamconflict bij het uitvoeren van USE-PACKAGE van ~S in package ~S."
-
-#~ msgid "Please input new package name:"
-#~ msgstr "Voer a.u.b. een nieuwe package naam in:"
-
-#~ msgid "Please input new package nickname:"
-#~ msgstr "Voer a.u.b. een nieuwe packagenickname in:"
-
-#~ msgid "Both will be ignored."
-#~ msgstr "Beide worden genegeerd."
-
-#~ msgid "Invalid keyword-value-pair: ~S ~S"
-#~ msgstr "Ongeldig keyword ~S met waarde ~S"
-
-#, fuzzy
-#~ msgid "COND code contains a dotted list, ending with ~S"
-#~ msgstr "COND code bevat een dotted lijst, eindigt met ~S"
-
-#, fuzzy
-#~ msgid "Error: ~~:@> not implemented"
-#~ msgstr "functie niet geïmplementeerd"
-
-#, fuzzy
-#~ msgid "~S: ~S must name a closure"
-#~ msgstr ": ~ is geen closure"
-
-#, fuzzy
-#~ msgid "~S: ~S must be a closure"
-#~ msgstr ": ~ is geen closure"
-
-#~ msgid "instance ~S of class ~S has no slots (wrong metaclass)"
-#~ msgstr "instantie ~S van klasse ~S heeft geen slots (verkeerde metaklasse)"
-
-#~ msgid "Too few arguments to ~S: ~S"
-#~ msgstr "Te weinig argumenten voor ~S: ~S"
-
-#, fuzzy
-#~ msgid "~: malloc() failed"
-#~ msgstr "mprotect() mislukt."
-
-#, fuzzy
-#~ msgid ""
-#~ "Internal error: statement in file ~, line ~ has been reached!!\n"
-#~ "Please send the authors of the program a description how you produced this error!"
-#~ msgstr ""
-#~ "interne fout: bewering in bestand ~, regel ~ is uitgevoerd!!\n"
-#~ "Zendt a.u.b. een omschrijving van hoe u deze fout hebt gekregen aan de auteurs van het programma!"
-
-#~ msgid "EVAL: variable ~ has no value"
-#~ msgstr "EVAL: variabele ~ heeft geen waarde"
-
-#~ msgid "Too many documentation strings in ~"
-#~ msgstr "Te veel documentatie strings in ~"
-
-#, fuzzy
-#~ msgid "~: lambda-list for ~ is missing"
-#~ msgstr "FUNCTION: lambda-lijst voor ~ ontbreekt"
-
-#, fuzzy
-#~ msgid "~: lambda-list for ~ should be a list, not ~"
-#~ msgstr "FUNCTION: lambda-lijst voor ~ moet een lijst zijn, niet ~"
-
-#, fuzzy
-#~ msgid "~: illegal declaration ~"
-#~ msgstr "FUNCTION: ongeldige declaratie ~"
-
-#, fuzzy
-#~ msgid "~: variable specification after ~ too long: ~"
-#~ msgstr "FUNCTION: te lange variabelenspecificatie na &AUX: ~"
-
-#, fuzzy
-#~ msgid "~: ~ var must be followed by ~ or ~ or end of list: ~"
-#~ msgstr "FUNCTION: Na &REST var moet &KEY of &AUX of lijsteinde komen: ~"
-
-#, fuzzy
-#~ msgid "~: ~ must be followed by a variable: ~"
-#~ msgstr "FUNCTION: Na &REST moet een variabele komen: ~"
-
-#, fuzzy
-#~ msgid "~: incorrect variable specification after ~: ~"
-#~ msgstr "FUNCTION: ongeldige variabelenspecificatie na &KEY: ~"
-
-#, fuzzy
-#~ msgid "~: ~ must be followed by ~ or end of list: ~"
-#~ msgstr "FUNCTION: Na &REST var moet &KEY of &AUX of lijsteinde komen: ~"
-
-#, fuzzy
-#~ msgid "~: variable specification after ~ too long : ~"
-#~ msgstr "FUNCTION: te lange variabelenspecificatie na &AUX: ~"
-
-#, fuzzy
-#~ msgid "~: badly placed lambda-list keyword ~: ~"
-#~ msgstr "FUNCTION: foutief geplaatst lambda-lijst-keyword ~: ~"
-
-#, fuzzy
-#~ msgid "~: too many parameters in the lambda-list ~"
-#~ msgstr "FUNCTION: te veel parameters in de lambda-lijst ~"
-
-#, fuzzy
-#~ msgid "~: a dot in a lambda-list is allowed only for macros, not here: ~"
-#~ msgstr "FUNCTION: een punt in een lambda-lijst is alleen toegestaan voor macro's, niet hier: ~"
-
-#, fuzzy
-#~ msgid "~: ~ is a special operator, not a function"
-#~ msgstr "~: ~ is een `special form', niet een functie"
-
-#~ msgid "~: ~ is a macro, not a function"
-#~ msgstr "~: ~ is een macro, niet een functie"
-
-#~ msgid "EVAL/APPLY: too few arguments given to ~"
-#~ msgstr "EVAL/APPLY: te weinig argumenten gegeven voor ~"
-
-#~ msgid "EVAL/APPLY: too many arguments given to ~"
-#~ msgstr "EVAL/APPLY: te veel argumenten gegeven aan ~"
-
-#, fuzzy
-#~ msgid "EVAL: too few parameters for special operator ~: ~"
-#~ msgstr "EVAL: te veel parameters voor `special-form' ~: ~"
-
-#, fuzzy
-#~ msgid "EVAL: too many parameters for special operator ~: ~"
-#~ msgstr "EVAL: te veel parameters voor special-form ~: ~"
-
-#, fuzzy
-#~ msgid "EVAL: dotted parameter list for special operator ~: ~"
-#~ msgstr "EVAL: parameterlijst voor `special-form' is `dotted' ~: ~"
-
-#~ msgid "EVAL: too few arguments given to ~: ~"
-#~ msgstr "EVAL: te weinig argumenten voor ~: ~"
-
-#~ msgid "EVAL: too many arguments given to ~: ~"
-#~ msgstr "EVAL: te veel argumenten gegeven voor ~: ~"
-
-#~ msgid "EVAL: argument list given to ~ is dotted: ~"
-#~ msgstr "EVAL: argumentenlijst voor ~ is niet `dotted': ~"
-
-#, fuzzy
-#~ msgid "~: argument list given to ~ is dotted (terminated by ~)"
-#~ msgstr "EVAL: argumentenlijst voor ~ is niet `dotted': ~"
-
-#~ msgid "APPLY: too many arguments given to ~"
-#~ msgstr "APPLY: te veel argumenten gegeven voor ~"
-
-#~ msgid "APPLY: too few arguments given to ~"
-#~ msgstr "APPLY: te weinig argument gegeven voor ~"
-
-#, fuzzy
-#~ msgid "~: symbol ~ has no value"
-#~ msgstr "symbool ~ heeft geen waarde"
-
-#, fuzzy
-#~ msgid "~: assignment to constant symbol ~ is impossible"
-#~ msgstr "toekenning aan constante-symbool ~ is niet toegestaan"
-
-#~ msgid "~: too many arguments given to ~"
-#~ msgstr "~: te veel argumenten voor ~"
-
-#~ msgid "(~ ~): the tagbody of the tags ~ has already been left"
-#~ msgstr "(~ ~): de tagbody van de tags ~ is al verlaten"
-
-#~ msgid "~: there is no CATCHer for tag ~"
-#~ msgstr "~: er is geen CATCH voor de tag ~"
-
-#~ msgid "~: ~ is not a correct index into ~"
-#~ msgstr "~: ~ is geen juiste index voor ~"
-
-#~ msgid "undefined bytecode in ~ at byte ~"
-#~ msgstr "niet gedefiniëerde bytecode in ~ op byte ~"
-
-#~ msgid "Corrupted STACK in ~ at byte ~"
-#~ msgstr "Foutieve STACK in ~ op byte ~"
-
-#~ msgid "~: ~ has no dynamic value"
-#~ msgstr "~: ~ heeft geen dynamische waarde"
-
-#, fuzzy
-#~ msgid "~: odd number of arguments: ~"
-#~ msgstr "~ werd aangeroepen met een oneven aantal argumenten: ~"
-
-#~ msgid "dotted list given to ~ : ~"
-#~ msgstr "`dotted' lijst meegegeven aan ~ : ~"
-
-#, fuzzy
-#~ msgid "~: the special operator definition of ~ must not be removed"
-#~ msgstr "~: de `special form' definitie van ~ mag niet verwijderd worden"
-
-#~ msgid "~: doc-strings are not allowed here: ~"
-#~ msgstr "~: doc-strings zijn hier niet toegestaan: ~"
-
-#~ msgid "~: illegal variable specification ~"
-#~ msgstr "~: ongeldige variabele specificatie ~"
-
-#~ msgid "~: too many variables and/or declarations"
-#~ msgstr "~: te veel variabelen en/of declaraties"
-
-#~ msgid "~: ~ is not a function specification"
-#~ msgstr "~: ~ is geen functiespecificatie"
-
-#~ msgid "~: ~ is not a macro specification"
-#~ msgstr "~: ~ is geen macrospecificatie"
-
-#~ msgid "~: macro name ~ should be a symbol"
-#~ msgstr "~: macronaam ~ moet een symbool zijn"
-
-#, fuzzy
-#~ msgid "~: ~ is not a function and macro specification"
-#~ msgstr "~: ~ is geen functiespecificatie"
-
-#, fuzzy
-#~ msgid "~: function and macro name ~ should be a symbol"
-#~ msgstr "~: functienaam ~ moet een symbool zijn"
-
-#~ msgid "~: clause ~ should be a list"
-#~ msgstr "~: clausule ~ moet een lijst zijn"
-
-#~ msgid "~: missing key list: ~"
-#~ msgstr "~: keylijst ontbreekt: ~"
-
-#~ msgid "~: the block named ~ has already been left"
-#~ msgstr "~: het blok met naam ~ is al verlaten"
-
-#~ msgid "~: no block named ~ is currently visible"
-#~ msgstr "~: er is nu geen blok genaamd ~ zichtbaar"
-
-#~ msgid "~: ~ is neither tag nor form"
-#~ msgstr "~: ~ is tag noch form"
-
-#~ msgid "~: illegal tag ~"
-#~ msgstr "~: ongeldige tag ~"
-
-#~ msgid "~: tagbody for tag ~ has already been left"
-#~ msgstr "~: tagbody voor tag ~ is al verlaten"
-
-#~ msgid "~: no tag named ~ is currently visible"
-#~ msgstr "~: er is geen tag genaamd ~ zichtbaar"
-
-#~ msgid "~: too many values"
-#~ msgstr "~: te veel waarden"
-
-#~ msgid "~: too many arguments to ~"
-#~ msgstr "~: te veel argumenten voor ~"
-
-#~ msgid "Argument ~ is not a macroexpansion environment"
-#~ msgstr "Argument ~ is geen macroexpansion omgeving"
-
-#~ msgid "declarations ~ are not allowed here"
-#~ msgstr "declaraties ~ zijn hier niet toegestaan"
-
-#~ msgid "~: ~ evaluated to the values ~, not of type ~"
-#~ msgstr "~: ~ is geëvalueerd tot de waarden ~, die niet van type ~ zijn"
-
-#~ msgid "~: bad declaration ~"
-#~ msgstr "~: foutieve declaratie ~"
-
-#~ msgid "no doc-strings allowed here: ~"
-#~ msgstr "hier zijn geen doc-strings toegestaan: ~"
-
-#~ msgid "keyword argument list ~ has an odd length"
-#~ msgstr "keyword argumentenlijst ~ heeft een oneven lengte"
-
-#, fuzzy
-#~ msgid ""
-#~ "Illegal keyword/value pair ~, ~ in argument list.\n"
-#~ "The allowed keywords are ~"
-#~ msgstr "ongeldig keyword/waarde paar ~, ~ in argumentenlijst. De toegestane keywords zijn ~"
-
-#~ msgid "Character #\\u$$$$ cannot be represented in the character set ~"
-#~ msgstr "Teken #\\\\u$$$$ kan niet gerepresenteerd worden in de tekenverzameling ~"
-
-#, fuzzy
-#~ msgid "Character #\\u00$$$$$$ cannot be represented in the character set ~"
-#~ msgstr "Teken #\\\\u$$$$ kan niet gerepresenteerd worden in de tekenverzameling ~"
-
-#, fuzzy
-#~ msgid "character #x$$$$$$$$ in ~ conversion, not an UTF-32 character"
-#~ msgstr "teken #x$$$$$$$$ in ~ conversie, geen Unicode-16, sorry"
-
-#~ msgid "invalid byte #x$$ in ~ conversion, not a Unicode-16"
-#~ msgstr "ongeldige byte #x$$ in ~ conversie, geen Unicode-16"
-
-#~ msgid "invalid byte sequence #x$$ #x$$ in ~ conversion"
-#~ msgstr "ongeldige bytereeks #x$$ #x$$ in ~ conversie"
-
-#~ msgid "invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion"
-#~ msgstr "ongeldige bytereeks #x$$ #x$$ #x$$ in ~ conversie"
-
-#, fuzzy
-#~ msgid "invalid byte sequence #x$$ #x$$ #x$$ #x$$ in ~ conversion"
-#~ msgstr "ongeldige bytereeks #x$$ #x$$ #x$$ in ~ conversie"
-
-#~ msgid "invalid byte #x$$ in ~ conversion"
-#~ msgstr "ongeldige byte #x$$ in ~ conversie"
-
-#~ msgid "~: illegal ~ argument ~"
-#~ msgstr "~: ongeldig ~ argument ~"
-
-#~ msgid "~: ~ is not a 1:1 encoding"
-#~ msgstr "~: ~ is niet een 1:1 codering"
-
-#~ msgid "~: host should be NIL or a string, not ~"
-#~ msgstr "~: host moet NIL zijn of een string, niet ~"
-
-#~ msgid "~: illegal hostname ~"
-#~ msgstr "~: ongeldige computernaam ~"
-
-#~ msgid "~: host should be NIL, not ~"
-#~ msgstr "~: host moet NIL zijn, niet ~"
-
-#, fuzzy
-#~ msgid "~: argument ~ should be a pathname designator ~"
-#~ msgstr "~: argument ~ moet een invoerstream zijn"
-
-#~ msgid "~: filename for ~ is unknown"
-#~ msgstr "~: bestandsnaam voor ~ is onbekend"
-
-#~ msgid "~: there is no user named ~"
-#~ msgstr "~: er is geen gebruiker met naam ~"
-
-#~ msgid "~: there is no environment variable ~"
-#~ msgstr "~: er is geen omgevingsvariabele ~"
-
-#~ msgid "~: syntax error in filename ~ at position ~"
-#~ msgstr "~: syntactische fout in bestandsnaam ~ op positie ~"
-
-#~ msgid "~: hosts ~ and ~ of ~ should coincide"
-#~ msgstr "~: hosts ~ en ~ van ~ stemmen niet overeen"
-
-#~ msgid "~: argument ~ is not a logical pathname, string, stream or symbol"
-#~ msgstr "~: argument ~ is niet de naam van een logisch pad, string, stream of symbool"
-
-#~ msgid "~: endless loop while resolving ~"
-#~ msgstr "~: oneindige lus bij oplossen van ~"
-
-#~ msgid "~: unknown logical host ~ in ~"
-#~ msgstr "~: onbekende logische host ~ in ~"
-
-#~ msgid "~: No replacement rule for ~ is known."
-#~ msgstr "~: Er is geen substitutieregel voor ~ bekend."
-
-#~ msgid "~: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~"
-#~ msgstr "~: :VERSION-argument moet NIL of een positief fixnum of :WILD of :NEWEST zijn, niet ~"
-
-#~ msgid "~: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~"
-#~ msgstr "~: :VERSION-argument moet NIL of :WILD of :NEWEST zijn, niet ~"
-
-#~ msgid "wildcards are not allowed here: ~"
-#~ msgstr "wildcards zijn hier niet toegestaan: ~"
-
-#~ msgid "~: argument ~ should be ~, ~, ~, ~, ~, ~ or ~"
-#~ msgstr "~: argument ~ moet ~, ~, ~, ~, ~, ~ of ~ zijn"
-
-#~ msgid "~: replacement pieces ~ do not fit into ~"
-#~ msgstr "~: substitutie-delen ~ passen niet in ~"
-
-#~ msgid "~: ~ is not a specialization of ~"
-#~ msgstr "~: ~ is geen specialisatie van ~"
-
-#~ msgid "(~ ~ ~ ~) is ambiguous: ~"
-#~ msgstr "(~ ~ ~ ~) is dubbelzinnig: ~"
-
-#~ msgid "nonexistent directory: ~"
-#~ msgstr "niet-bestaande map: ~"
-
-#~ msgid "no directory ~ above ~"
-#~ msgstr "geen map ~ boven ~"
-
-#~ msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
-#~ msgstr "\"..\\\\\" na \"...\\\\\" is ongeldig: ~"
-
-#~ msgid "UNIX error while GETWD: ~"
-#~ msgstr "UNIX fout tijdens GETWD: ~"
-
-#~ msgid "UNIX GETWD returned ~"
-#~ msgstr "UNIX GETWD leverde ~"
-
-#~ msgid "UNIX REALPATH returned ~"
-#~ msgstr "UNIX REALPATH leverde ~"
-
-#~ msgid "~: ~ names a directory, not a file"
-#~ msgstr "~: ~ benoemt een map, niet een bestand"
-
-#~ msgid "no file name given: ~"
-#~ msgstr "geen bestandsnaam opgegeven: ~"
-
-#~ msgid "not a directory: ~"
-#~ msgstr "niet een map: ~"
-
-#~ msgid "~: file ~ does not exist"
-#~ msgstr "~: bestand ~ bestaat niet"
-
-#~ msgid "~: pathname with type but without name makes no sense: ~"
-#~ msgstr "~: padnaam met type maar zonder naam is zinloos: ~"
-
-#~ msgid "cannot delete file ~ since there is file stream open to it"
-#~ msgstr "kan bestand ~ niet verwijderen omdat er een open bestandsstream naartoe loopt"
-
-#~ msgid "cannot rename file ~ since there is file stream open to it"
-#~ msgstr "kan bestand ~ niet hernoemen omdat er een open bestandsstream naartoe loopt"
-
-#~ msgid "root directory not allowed here: ~"
-#~ msgstr "hoofdmap is hier niet toegestaan: ~"
-
-#~ msgid "~: library directory is not known, use a command line option to specify it"
-#~ msgstr "~: bibliotheekmap is onbekend. Gebruik een command line optie om deze op te geven"
-
-#~ msgid "~ on ~ is illegal"
-#~ msgstr "~ op ~ is ongeldig"
-
-#~ msgid "Return value ~ of call to ~ should be an integer between ~ and ~."
-#~ msgstr "Teruggegeven waarde ~ van aanroep naar ~ moet een geheel getal tussen ~ en ~ zijn."
-
-#~ msgid "~: the last character read from ~ was not ~"
-#~ msgstr "~: het laatst gelezen teken van ~ was niet ~"
-
-#~ msgid "~ from ~ without ~ before it"
-#~ msgstr "~ van ~ zonder ~ ervoor"
-
-#~ msgid "~: cannot output to ~"
-#~ msgstr "~: kan niet schrijven naar ~"
-
-#, fuzzy
-#~ msgid "~: cannot output ~ into ~, not of type ~"
-#~ msgstr "~: kan niet schrijven naar ~"
-
-#~ msgid "integer ~ is out of range, cannot be output onto ~"
-#~ msgstr "geheel getal ~ ligt buiten bereik, kan niet geschreven worden naar ~"
-
-#~ msgid "~: argument ~ should be an input stream"
-#~ msgstr "~: argument ~ moet een invoerstream zijn"
-
-#~ msgid "~: argument ~ should be an output stream"
-#~ msgstr "~: argument ~ moet een uitvoerstream zijn"
-
-#, fuzzy
-#~ msgid "~: argument should be a symbol, not ~"
-#~ msgstr "~: argument moet een string zijn, niet ~"
-
-#~ msgid "~ is beyond the end because the string ~ has been adjusted"
-#~ msgstr "~ is voorbij het einde omdat de string ~ aangepast is"
-
-#, fuzzy
-#~ msgid "~: ~ is not a string input stream"
-#~ msgstr "~: ~ is geen gebufferde invoerstream"
-
-#~ msgid "~: ~ argument must be a subtype of ~, not ~"
-#~ msgstr "~: ~ argument moet een subtype van ~ zijn, niet ~"
-
-#, fuzzy
-#~ msgid "~: ~ is not a string output stream"
-#~ msgstr "~: ~ is geen gebufferde invoerstream"
-
-#~ msgid "~: argument ~ should be a string with fill pointer"
-#~ msgstr "~: argument ~ moet een string zijn met vul-pointer"
-
-#~ msgid "~: ~ is not a buffered input stream"
-#~ msgstr "~: ~ is geen gebufferde invoerstream"
-
-#~ msgid "~: stream must be a generic-stream, not ~"
-#~ msgstr "~: stream moet een generic stream zijn, niet ~"
-
-#~ msgid "~: Ctrl-C: User break"
-#~ msgstr "~: Ctrl-C: Onderbreking"
-
-#~ msgid "unknown character set ~"
-#~ msgstr "onbekende tekenverzameling ~"
-
-#~ msgid "Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~"
-#~ msgstr "Niet gebufferde streams vereisen een ~ met aantal bits deelbaar door 8, niet ~"
-
-#~ msgid "Closed ~ because disk is full."
-#~ msgstr "~ gesloten omdat de schijf vol is."
-
-#~ msgid "cannot position ~ beyond EOF"
-#~ msgstr "positionering van ~ na EOF niet mogelijk"
-
-#~ msgid "~: argument ~ ~ was specified, but ~ is not a regular file."
-#~ msgstr "~: argument ~ ~ is opgegeven, maar ~ is geen gewoon bestand."
-
-#~ msgid "~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file."
-#~ msgstr "~: argumenten ~ ~ en ~ ~ zijn opgegeven, maar ~ is geen gewoon bestand"
-
-#~ msgid "file ~ is not an integer file"
-#~ msgstr "bestand ~ is geen bestand met gehele getallen"
-
-#, fuzzy
-#~ msgid "Return value ~ of call to ~ is not a list."
-#~ msgstr "Teruggegeven waarde ~ van aanroep naar ~ is geen string."
-
-#, fuzzy
-#~ msgid "Return value ~ of call to ~ contains ~ which is not a ~."
-#~ msgstr "Teruggegeven waarde ~ van aanroep naar ~ is geen string."
-
-#~ msgid "~: argument ~ should be a window stream"
-#~ msgstr "~: argument ~ moet een window-stream zijn"
-
-#~ msgid "terminal type ~ unknown to termcap"
-#~ msgstr "terminaltype ~ komt niet in termcap voor"
-
-#~ msgid "~: package SCREEN is not implemented"
-#~ msgstr "~: package SCREEN is niet geïmplementeerd"
-
-#~ msgid "host should be string, not ~"
-#~ msgstr "host moet een string zijn, niet ~"
-
-#~ msgid "display should be a nonnegative fixnum, not ~"
-#~ msgstr "display (beeldscherm) moet een niet-negatief fixnum zijn, niet ~"
-
-#~ msgid "~: stream must be a socket-stream, not ~"
-#~ msgstr "~: stream moet een socket-stream zijn, niet ~"
-
-#~ msgid "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
-#~ msgstr "~: argument ~ moet een vector zijn van type (ARRAY (UNSIGNED-BYTE 8) (*))"
-
-#~ msgid "~: input stream ~ has reached its end"
-#~ msgstr "~: invoerstream ~ heeft zijn einde bereikt"
-
-#, fuzzy
-#~ msgid "~: ~ is not a ~"
-#~ msgstr "~: ~ is geen paar"
-
-#~ msgid "~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM"
-#~ msgstr "~: argument ~ is geen open SOCKET-STREAM en ook geen positief FIXNUM"
-
-#~ msgid "~: argument ~ is not an open SOCKET-STREAM"
-#~ msgstr "~: argument ~ is geen open SOCKET-STREAM"
-
-#~ msgid "~: argument ~ is not a SOCKET-STREAM"
-#~ msgstr "~: argument ~ is geen SOCKET-STREAM"
-
-#, fuzzy
-#~ msgid "~: argument ~ is not an open stream"
-#~ msgstr "~: argument ~ is geen open bestandsstream"
-
-#, fuzzy
-#~ msgid "~: list ~ is too long (~ maximum)"
-#~ msgstr "~: sequence ~ is te lang"
-
-#, fuzzy
-#~ msgid "~: argument ~ should be of type ~."
-#~ msgstr "~: argument ~ moet een stream zijn van type ~"
-
-#, fuzzy
-#~ msgid "Invalid direction ~ for accessing ~"
-#~ msgstr "Ongeldige syntaxis in ~S form: ~S."
-
-#, fuzzy
-#~ msgid "~: ~ should be a handle, handle stream, or one of ~, ~, ~"
-#~ msgstr "~S: ~S moet een lambda expressie zijn"
-
-#~ msgid "The value of ~ is not a stream: ~"
-#~ msgstr "De waarde van ~ is geen stream: ~"
-
-#~ msgid "The value of ~ is not an appropriate stream: ~"
-#~ msgstr "De waarde van ~ is geen gepaste stream: ~"
-
-#, fuzzy
-#~ msgid "The value of ~ was not an appropriate stream: ~. It has been changed to ~."
-#~ msgstr "De waarde van ~ was geen stream: ~. Het is veranderd in ~."
-
-#~ msgid "~: The ~ of ~ cannot be changed from ~ to ~."
-#~ msgstr "~: De ~ van ~ kan niet veranderd worden van ~ naar ~."
-
-#, fuzzy
-#~ msgid "Return value ~ of call to ~ is not a string."
-#~ msgstr "Teruggegeven waarde ~ van aanroep naar ~ is geen string."
-
-#~ msgid "Return value ~ of call to ~ is not a fixnum >= 0 or NIL."
-#~ msgstr "Teruggegeven waarde ~ van aanroep naar ~ is geen fixnum >= 0 of NIL."
-
-#~ msgid "~ needs an ~ with a bit size being a multiple of 8, not ~"
-#~ msgstr "~ vereist een ~ met aantal bits deelbaar door 8, niet ~"
-
-#~ msgid "~: illegal endianness argument ~"
-#~ msgstr "~: ongeldig endianness-argument ~"
-
-#, fuzzy
-#~ msgid "~: argument ~ does not contain a valid OS stream handle"
-#~ msgstr "~: argument ~ is geen open bestandsstream"
-
-#, fuzzy
-#~ msgid "~: ~: stream of wrong direction"
-#~ msgstr "~: ~ is geen functie"
-
-#, fuzzy
-#~ msgid "~ is not a ~, cannot be output onto ~"
-#~ msgstr "~ is geen ~, kan niet geschreven worden naar ~"
-
-#, fuzzy
-#~ msgid "~: argument ~ is not an open file stream"
-#~ msgstr "~: argument ~ is geen open bestandsstream"
-
-#~ msgid "~: position argument should be ~ or ~ or a nonnegative integer, not ~"
-#~ msgstr "~: positie-argument moet ~ of ~ of een niet-negatief geheel getal zijn, niet ~"
-
-#~ msgid "The value of ~ was not a readtable. It has been reset."
-#~ msgstr "De waarde van ~ was geen `readtable' en moest teruggezet worden."
-
-#, fuzzy
-#~ msgid "~: argument ~ is not a ~"
-#~ msgstr "~: argument ~ is geen open bestandsstream"
-
-#~ msgid "~: ~ is a dispatch macro character"
-#~ msgstr "~: ~ is een `dispatch-macro' teken"
-
-#~ msgid "~: ~ is not a dispatch macro character"
-#~ msgstr "~: ~ is geen `dispatch-macro' teken"
-
-#~ msgid "~: digit $ not allowed as sub-char"
-#~ msgstr "~: cijfer $ niet toegestaan als `sub-char'"
-
-#~ msgid "~: new value ~ should be ~, ~, ~ or ~."
-#~ msgstr "~: nieuwe waarde ~ moet ~, ~, ~ of ~ zijn."
-
-#~ msgid ""
-#~ "The value of ~ should be an integer between 2 and 36, not ~.\n"
-#~ "It has been reset to 10."
-#~ msgstr ""
-#~ "De waarde van ~ moet een geheel getal tussen 2 en 36 zijn, niet ~.\n"
-#~ "Het is teruggezet op 10."
-
-#~ msgid "~: input stream ~ ends within an object. Last opening parenthesis probably in line ~."
-#~ msgstr "~: invoerstream ~ eindigt binnen een object. Laatste haakje openen waarschijnlijk in regel ~."
-
-#~ msgid "~: input stream ~ ends within an object"
-#~ msgstr "~: invoerstream ~ eindigt binnen een object"
-
-#~ msgid "~ from ~: illegal character ~"
-#~ msgstr "~ uit ~: ongeldig teken ~"
-
-#~ msgid "~: input stream ~ ends within a token after single escape character"
-#~ msgstr "~: invoerstream ~ eindigt binnen een token na een enkele stuurcode"
-
-#~ msgid "~: input stream ~ ends within a token after multiple escape character"
-#~ msgstr "~: invoerstream ~ eindigt binnen een token na een meervoudige stuurcode"
-
-#~ msgid "~ from ~: ~ has no macro character definition"
-#~ msgstr "~ uit ~: ~ heeft geen macroteken definitie"
-
-#~ msgid "~ from ~: macro character definition for ~ may not return ~ values, only one value."
-#~ msgstr "~ uit ~: macroteken definitie voor ~ mag niet ~ waarden teruggeven, uitsluitend éÂén waarde."
-
-#~ msgid "~ from ~: dispatch macro character definition for ~ after ~ may not return ~ values, only one value."
-#~ msgstr "~ uit ~: `dispatch-macro' teken definitie voor ~ na ~ mag niet ~ waarden teruggeven, uitsluitend éÂén waarde."
-
-#~ msgid "~ from ~: a token consisting only of dots cannot be meaningfully read in"
-#~ msgstr "~ uit ~: een token bestaande uit enkel punten kan niet zinvol gelezen worden"
-
-#~ msgid "~ from ~: too many colons in token ~"
-#~ msgstr "~ uit ~: te veel dubbele punten in token ~"
-
-#~ msgid "~ from ~: there is no package with name ~"
-#~ msgstr "~ uit ~: er is geen package met naam ~"
-
-#~ msgid "~ from ~: ~ has no external symbol with name ~"
-#~ msgstr "~ uit ~: ~ heeft geen extern symbool met naam ~"
-
-#~ msgid "~ from ~: token \".\" not allowed here"
-#~ msgstr "~ uit ~: token \".\" hier niet toegestaan"
-
-#, fuzzy
-#~ msgid "~: the value of ~ has been arbitrarily altered"
-#~ msgstr "~: de waarde van ~ is willekeurig veranderd"
-
-#~ msgid "~: no entry for ~ from ~ in ~ = ~"
-#~ msgstr "~: ingang voor ~ uit ~ komt in ~ = ~ niet voor"
-
-#~ msgid "~ from ~: illegal end of dotted list"
-#~ msgstr "~ uit ~: ongeldig einde voor dotted lijst"
-
-#~ msgid "~ from ~: an object cannot start with ~"
-#~ msgstr "~ uit ~: een object mag niet beginnen met ~"
-
-#~ msgid "~: input stream ~ ends within a string"
-#~ msgstr "~: invoerstream ~ eindigt binnen een string"
-
-#~ msgid "~ from ~: no number allowed between # and $"
-#~ msgstr "~ uit ~: geen getal toegestaan tussen # en $"
-
-#~ msgid "~: input stream ~ ends within a comment #$ ... $#"
-#~ msgstr "~: invoerstream ~ eindigt binnen commentaar #$ ... $#"
-
-#~ msgid "~ from ~: font number ~ for character is too large, should be = 0"
-#~ msgstr "~ uti ~: lettertype nummer ~ voor teken is te groot, moet = 0 zijn"
-
-#~ msgid "~ from ~: there is no character with name ~"
-#~ msgstr "~ uit ~: er is geen teken met naam ~"
-
-#~ msgid "~ from ~: token ~ after #$ is not a rational number in base ~"
-#~ msgstr "~ uit ~: token ~ na #$ is geen rationaal getal met grondtal ~"
-
-#~ msgid "~ from ~: the number base must be given between # and R"
-#~ msgstr "~ uit ~: de getalsbasis moet gegeven worden tussen # en R"
-
-#~ msgid "~ from ~: The base ~ given between # and R should lie between 2 and 36"
-#~ msgstr "~ uit ~: De basis ~ gegeven tussen # en R moet tussen 2 en 36 liggen"
-
-#~ msgid "~ from ~: bad syntax for complex number: #C~"
-#~ msgstr "~ uit ~: foutieve syntaxis voor complex getal: #C~"
-
-#~ msgid "~ from ~: token expected after #:"
-#~ msgstr "~ uit ~: token verwacht na #:"
-
-#~ msgid "~ from ~: token ~ after #: should contain no colon"
-#~ msgstr "~ uit ~: token ~ na #: mag geen dubbele punt bevatten"
-
-#~ msgid "~ from ~: only zeroes and ones are allowed after #*"
-#~ msgstr "~ uit ~: enkel nullen en enen zijn toegestaan na #*"
-
-#~ msgid "~ from ~: bit vector is longer than the explicitly given length ~"
-#~ msgstr "~ uit ~: bitvector is langer dan de expliciet opgegeven lengte ~"
-
-#~ msgid "~ from ~: must specify element of bit vector of length ~"
-#~ msgstr "~ uit ~: een element van de bitvector met lengte ~ moet opgegeven worden"
-
-#~ msgid "~ from ~: vector is longer than the explicitly given length ~"
-#~ msgstr "~ uit ~: vector is langer dan de expliciet opgegeven lengte ~"
-
-#~ msgid "~ from ~: must specify element of vector of length ~"
-#~ msgstr "~ uit ~: een vectorelement van lengte ~ moet opgegeven worden"
-
-#~ msgid "~ from ~: bad syntax for array: #A~"
-#~ msgstr "~ uit ~: foutieve syntaxis voor array: #A~"
-
-#~ msgid "~ from ~: ~ = ~ does not allow the evaluation of ~"
-#~ msgstr "~ uit ~: ~ = ~ laat de evaluatie van ~ niet toe"
-
-#~ msgid "~ from ~: a number must be given between # and $"
-#~ msgstr "~ uit ~: er moet een getal tussen # en $ moet worden gegeven"
-
-#~ msgid "~ from ~: label #~? too large"
-#~ msgstr "~ uit ~: label #~? te groot"
-
-#~ msgid "~ from ~: the value of ~ has been altered arbitrarily, it is not an alist: ~"
-#~ msgstr "~ uit ~: de waarde van ~ is willekeurig veranderd, het is geen alist: ~"
-
-#~ msgid "~ from ~: label #~= may not be defined twice"
-#~ msgstr "~ uit ~: label #~= mag niet twee keer gedefiniëerd worden"
-
-#~ msgid "~ from ~: #~= #~# is illegal"
-#~ msgstr "~ uit ~: #~= #~# is ongeldig"
-
-#~ msgid "~ from ~: undefined label #~#"
-#~ msgstr "~ uit ~: niet gedefiniëerd label #~#"
-
-#~ msgid "~ from ~: objects printed as #<...> cannot be read back in"
-#~ msgstr "~ uit ~: objecten afgedrukt als #<...> kunnen niet terug ingelezen worden"
-
-#~ msgid "~ from ~: objects printed as # in view of ~ cannot be read back in"
-#~ msgstr "~ uit ~: objecten afgedrukt als # kunnen vanwege ~ niet teruggelezen worden"
-
-#, fuzzy
-#~ msgid "~ from ~: illegal feature ~"
-#~ msgstr "~ uit ~: ongeldige feature ~"
-
-#~ msgid "~ from ~: #S must be followed by the type and the contents of the structure, not ~"
-#~ msgstr "~ uit ~: #S moet gevolgd worden door het type en de inhoud van de structure, niet ~"
-
-#~ msgid "~ from ~: the type of a structure should be a symbol, not ~"
-#~ msgstr "~ uit ~: het type van een structure moet een symbool zijn, niet ~"
-
-#~ msgid "~ from ~: bad ~"
-#~ msgstr "~ uit ~: onjuiste ~"
-
-#~ msgid "~ from ~: bad ~ for ~"
-#~ msgstr "~ uit ~: onjuiste ~ voor ~"
-
-#~ msgid "~ from ~: structures of type ~ cannot be read in, missing constructor function"
-#~ msgstr "~ uit ~: structures van type ~ kunnen niet gelezen worden, constructor functie ontrbreekt"
-
-#~ msgid "~ from ~: a structure ~ may not contain a component \".\""
-#~ msgstr "~ uit ~: een ~ structure mag geen component \".\" bevatten"
-
-#~ msgid "~ from ~: ~ is not a symbol, not a slot name of structure ~"
-#~ msgstr "~ uit ~: ~ is geen symbool, slot-naam, of structure ~"
-
-#~ msgid "~ from ~: missing value of slot ~ in structure ~"
-#~ msgstr "~ uit ~: waarde van slot ~ in structure ~ ontbreekt"
-
-#~ msgid "~ from ~: too many slots for structure ~"
-#~ msgstr "~ uit ~: te veel slots voor structure ~"
-
-#~ msgid "~ from ~: illegal syntax of closure code vector after #~Y"
-#~ msgstr "~ uit ~: foutieve syntaxis na #~Y voor code vector van een closure"
-
-#~ msgid "~ from ~: object #Y~ has not the syntax of a compiled closure"
-#~ msgstr "~ uit ~: object #Y~ heeft niet de syntaxis van een gecompileerde closure"
-
-#~ msgid "~ from ~: bad syntax for pathname: #P~"
-#~ msgstr "~ uit ~: syntactische fout voor padnaam: #P~"
-
-#~ msgid "~: peek type should be NIL or T or a character, not ~"
-#~ msgstr "~: peek type moet NIL, T, of een teken zijn, niet ~ "
-
-#~ msgid "~: ~ argument should be an integer between 2 and 36, not ~"
-#~ msgstr "~: ~ argument moet een geheel getal tussen 2 en 36 zijn, niet ~"
-
-#, fuzzy
-#~ msgid "~: substring ~ does not have integer syntax at position ~"
-#~ msgstr "~: string ~ heeft geen geheeltallige syntaxis"
-
-#, fuzzy
-#~ msgid "~: Despite ~, ~ cannot be printed readably."
-#~ msgstr "~: Ondanks ~, kan ~ niet terugleesbaar worden afgedrukt."
-
-#~ msgid ""
-#~ "~: the value ~ of ~ is neither ~ nor ~ nor ~.\n"
-#~ "It is reset to ~."
-#~ msgstr ""
-#~ "~: de waarde ~ van ~ is ~, noch ~, noch ~.\n"
-#~ "Het is teruggezet op ~."
-
-#~ msgid "~: must be a positive integer or NIL, not ~"
-#~ msgstr "~: moet een positief geheel getal of NIL zijn, niet ~"
-
-#~ msgid "~: not enough stack space for carrying out circularity analysis"
-#~ msgstr "~: niet genoeg stack ruimte om circulariteiten te analyseren"
-
-#~ msgid "~: bad ~"
-#~ msgstr "~: foutieve ~"
-
-#~ msgid "~: an unknown record type has been generated!"
-#~ msgstr "~: er is een onbekend recordtype opgedoken!"
-
-#, fuzzy
-#~ msgid "~: argument ~ is too large"
-#~ msgstr "~: argument ~ is geen string"
-
-#, fuzzy
-#~ msgid "~: argument ~ should be ~ or ~."
-#~ msgstr "~: argument ~ moet een stream zijn"
-
-#, fuzzy
-#~ msgid "~: argument ~ should be ~, ~, ~ or ~."
-#~ msgstr "~: argument ~ moet ~, ~, ~, ~, ~, ~ of ~ zijn"
-
-#~ msgid "~: ~ is not an array"
-#~ msgstr "~: ~ is geen array"
-
-#~ msgid "~: got ~ subscripts, but ~ has rank ~"
-#~ msgstr "~: ik kreeg ~ subscripten, maar ~ heeft graad ~"
-
-#~ msgid "~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
-#~ msgstr "~: subscripten ~ voor ~ zijn niet van type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
-
-#~ msgid "~: subscripts ~ for ~ are out of range"
-#~ msgstr "~: subscripten ~ voor ~ liggen buiten bereik"
-
-#~ msgid "~: index ~ for ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
-#~ msgstr "~: index ~ voor ~ is niet van type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
-
-#~ msgid "~: index ~ for ~ is out of range"
-#~ msgstr "~: index ~ voor ~ ligt buiten bereik"
-
-#, fuzzy
-#~ msgid "~: cannot store values in an array of element type NIL"
-#~ msgstr "~: ~ kan niet worden omgezet in type ~"
-
-#, fuzzy
-#~ msgid "~: cannot access values of an array of element type NIL"
-#~ msgstr "~: ~ kan niet worden omgezet in type ~"
-
-#~ msgid "~: ~ does not fit into ~, bad type"
-#~ msgstr "~: ~ past niet in ~, onjuist type"
-
-#, fuzzy
-#~ msgid "~: ~ cannot be stored in an array of element type NIL"
-#~ msgstr "~: ~ kan niet worden omgezet in type ~"
-
-#~ msgid "~: ~ is not an nonnegative integer less than the rank of ~"
-#~ msgstr "~: ~ is geen niet-negatief geheel getal kleiner dan de dimensie van ~"
-
-#~ msgid "~: ~ is not an array of bits"
-#~ msgstr "~: ~ is niet een bit-array"
-
-#~ msgid "~: The arguments ~ and ~ should be arrays of bits with the same dimensions"
-#~ msgstr "~: De argumenten ~ en ~ moeten bit-arrays zijn van gelijke dimensie"
-
-#~ msgid "~: The arguments ~, ~ and ~ should be arrays of bits with the same dimensions"
-#~ msgstr "~: De argumenten ~, ~ en ~ moeten bit-arrays zijn van gelijke dimensie"
-
-#~ msgid "~: vector ~ has no fill pointer"
-#~ msgstr "~: vector ~ heeft geen fill pointer"
-
-#~ msgid "~: ~ has length zero"
-#~ msgstr "~: ~ heeft lengte nul"
-
-#~ msgid "~: extending the vector by ~ elements makes it too long"
-#~ msgstr "~: uitbreiden van de vector met ~ elementen maakt hem te lang"
-
-#~ msgid "~ works only on adjustable arrays, not on ~"
-#~ msgstr "~ werkt uitsluitend op verstelbare arrays, niet op ~"
-
-#~ msgid "~: extension ~ should be a positive fixnum"
-#~ msgstr "~: extensie ~ moet een positief geheel getal zijn"
-
-#~ msgid "~: cannot push ~ into array ~ (bad type)"
-#~ msgstr "~: kan ~ niet in array ~ schuiven (foutief type)"
-
-#~ msgid "~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
-#~ msgstr "~: dimensie ~ is niet van type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
-
-#~ msgid "~: dimensions ~ produce too large total-size"
-#~ msgstr "~: dimensies ~ geven een te grote gezamelijke grootte"
-
-#~ msgid "~: ambiguous, more than one initialization specified"
-#~ msgstr "~: dubbelzinnig, meer dan éÂén initialisering opgegeven"
-
-#~ msgid "~: ~ must not be specified without ~"
-#~ msgstr "~: ~ moet worden opgegeven zonder ~"
-
-#~ msgid "~: the initial-element ~ is not of type ~"
-#~ msgstr "~: het initialiseringselement ~ is niet van type ~"
-
-#~ msgid "~: ~ is of incorrect length"
-#~ msgstr "~: ~ heeft onjuiste lengte"
-
-#~ msgid "~: ~-argument ~ is not an array"
-#~ msgstr "~: ~-argument ~ is geen array"
-
-#~ msgid "~: ~-argument ~ does not have element type ~"
-#~ msgstr "~: ~-argument ~ heeft niet element type ~"
-
-#~ msgid "~: ~-argument ~ is not of type `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))"
-#~ msgstr "~: ~-argument ~ is niet van type `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))"
-
-#~ msgid "~: array-total-size + displaced-offset (= ~) exceeds total size ~ of ~-argument"
-#~ msgstr "~: totale lengte van array + verplaatsing (= ~) overschrijdt totale grootte ~ van ~-argument"
-
-#~ msgid "~: fill-pointer ~ should be a nonnegative fixnum"
-#~ msgstr "~: fill-pointer ~ moet een niet-negatief geheel getal zijn"
-
-#~ msgid "~: fill-pointer argument ~ is larger than the length ~"
-#~ msgstr "~: fill-pointer argument ~ is groter dan de lengte ~"
-
-#~ msgid "~: attempted rank ~ is too large"
-#~ msgstr "~: gewenste graad ~ is te groot"
-
-#~ msgid "~: ~ may not be specified for an array of rank ~"
-#~ msgstr "~: ~ mag niet worden opgegeven voor een array van graad ~"
-
-#~ msgid "~: rank ~ of array ~ cannot be altered: ~"
-#~ msgstr "~: graad (~) van array ~ kan niet worden aangepast: ~"
-
-#~ msgid "~: array ~ does not have element-type ~"
-#~ msgstr "~: array ~ heeft niet element-type ~"
-
-#~ msgid "~: cannot displace array ~ to itself"
-#~ msgstr "~: kan array ~ niet in zichzelf verplaatsen"
-
-#~ msgid "~: array ~ has no fill-pointer"
-#~ msgstr "~: array ~ heeft geen fill-pointer"
-
-#~ msgid "~: the fill-pointer of array ~ is ~, greater than ~"
-#~ msgstr "~: de fill-pointer van array ~ is ~, groter dan ~"
-
-#~ msgid "Illegal START index ~ for ~"
-#~ msgstr "Ongeldige START index ~ voor ~"
-
-#~ msgid "Illegal END index ~ for ~"
-#~ msgstr "Ongeldige END index ~ voor ~"
-
-#~ msgid "~: invalid bit-vector length ~"
-#~ msgstr "~: foutieve bit-vector lengte ~"
-
-#~ msgid "Hash table size ~ too large"
-#~ msgstr "Grootte van frommeltabel ~ is te groot"
-
-#~ msgid "internal error occured while resizing ~"
-#~ msgstr "er is een interne fout opgetreden bij het schalen van ~"
-
-#, fuzzy
-#~ msgid "~: argument ~ should be ~, ~, ~, ~ or ~."
-#~ msgstr "~: argument ~ moet ~, ~, ~, ~, ~, ~ of ~ zijn"
-
-#, fuzzy
-#~ msgid "~: ~ argument should be a fixnum >=0, not ~"
-#~ msgstr "~: argument moet een fixnum >= 0 zijn, niet ~"
-
-#, fuzzy
-#~ msgid "~: ~ argument should be an integer or a float > 1, not ~"
-#~ msgstr "~: argument moet een geheel getal zijn, niet ~"
-
-#, fuzzy
-#~ msgid "~: ~ argument should be a real between 0 and 1, not ~"
-#~ msgstr "~: ~ argument moet een geheel getal tussen 2 en 36 zijn, niet ~"
-
-#~ msgid "~: internal error while building ~"
-#~ msgstr "~: interne fout bij opbouwen van ~"
-
-#, fuzzy
-#~ msgid "~: argument ~ is not a hash table"
-#~ msgstr "~: argument ~S is geen character"
-
-#~ msgid "~: ~ is not a pair"
-#~ msgstr "~: ~ is geen paar"
-
-#~ msgid "~: lists ~ and ~ are not of same length"
-#~ msgstr "~: lijsten ~ en ~ zijn niet van gelijke lengte"
-
-#~ msgid "~: start index ~ too large for ~"
-#~ msgstr "~: beginindex ~ te groot voor ~"
-
-#~ msgid "~: end index ~ too large for ~"
-#~ msgstr "~: eindindex ~ te groot voor ~"
-
-#~ msgid "symbol ~ cannot be deleted from symbol table"
-#~ msgstr "symbool ~ kan niet uit de symbool tabel worden verwijderd"
-
-#~ msgid "~ inconsistent: symbol ~ is a shadowing symbol but not present"
-#~ msgstr "~ inconsistent: symbool ~ is een schaduw-symbool maar is er niet"
-
-#, fuzzy
-#~ msgid ""
-#~ "Uninterning ~ from ~ uncovers a name conflict.\n"
-#~ "You may choose the symbol in favour of which to resolve the conflict."
-#~ msgstr "U kunt kiezen welk symbol de voorkeur krijgt om het conflict op te lossen."
-
-#, fuzzy
-#~ msgid "Importing ~ into ~ produces a name conflict with ~ and other symbols."
-#~ msgstr "importeren van ~S in ~S veroorzaakt een naamconflict met ~S en andere symbolen."
-
-#, fuzzy
-#~ msgid "Importing ~ into ~ produces a name conflict with ~."
-#~ msgstr "importeren van ~S in ~S veroorzaakt een naamconflict met ~S."
-
-#~ msgid "UNEXPORT in ~ is illegal"
-#~ msgstr "UNEXPORT in ~ is ongeldig"
-
-#~ msgid "UNEXPORT works only on accessible symbols, not on ~ in ~"
-#~ msgstr "UNEXPORT werkt enkel op toegankelijke symbolen, niet op ~ in ~"
-
-#, fuzzy
-#~ msgid "~: Symbol ~ should be imported into ~ before being exported."
-#~ msgstr "symbool ~S zou in ~S moeten worden geïmporteerd voordat het geëxporteerd wordt."
-
-#, fuzzy
-#~ msgid ""
-#~ "Exporting ~ from ~ produces a name conflict with ~ from ~.\n"
-#~ "You may choose which symbol should be accessible in ~."
-#~ msgstr "exporteren van ~S uit ~S veroorzaakt een naamconflict met ~S uit ~S."
-
-#, fuzzy
-#~ msgid ""
-#~ "(~ ~ ~): ~ name conflicts remain\n"
-#~ "Which symbol with name ~ should be accessible in ~?"
-#~ msgstr "welk symbool met naam ~S krijgt de voorkeur in ~S ?"
-
-#~ msgid "The value of *PACKAGE* was not a package. Old value ~. New value ~."
-#~ msgstr "De waarde van *PACKAGE* was niet een package. Oude waarde ~. Nieuwe waarde ~."
-
-#, fuzzy
-#~ msgid "~: Package ~ has been deleted."
-#~ msgstr "Package ~ is verwijderd."
-
-#~ msgid "~: argument should be a package or a package name, not ~"
-#~ msgstr "~: argument moet een package of de naam van een package zijn, niet ~"
-
-#~ msgid "~: there is already a package named ~"
-#~ msgstr "~: er is al een package genaamd ~"
-
-#~ msgid "~: argument should be a symbol or a list of symbols, not ~"
-#~ msgstr "~: argument moet een symbool of een lijst van symbolen zijn, niet ~"
-
-#, fuzzy
-#~ msgid "~: a package with name ~ already exists."
-#~ msgstr "een package met naam ~S bestaat al."
-
-#, fuzzy
-#~ msgid "Cannot change the case sensitiveness of ~."
-#~ msgstr "Of hoofd en kleine letters verschillend zijn kan niet gewijzigd worden voor ~."
-
-#, fuzzy
-#~ msgid "~: ~ is not using ~"
-#~ msgstr "Dit is geen string: ~"
-
-#~ msgid "~: ~ is not a valid index into ~"
-#~ msgstr "~: ~ is geen geldige index voor ~"
-
-#~ msgid "~: ~ is not a record"
-#~ msgstr "~: ~ is geen record"
-
-#, fuzzy
-#~ msgid "~: length ~ should be of type ~"
-#~ msgstr "~: argument ~ moet een stream zijn van type ~"
-
-#~ msgid "~: ~ is not a structure of type ~"
-#~ msgstr "~: ~ is geen structure van type ~"
-
-#~ msgid "~: Slot ~ of ~ has no value"
-#~ msgstr "~: Slot ~ van ~ heeft geen waarde"
-
-#~ msgid "~: This is not a compiled closure: ~"
-#~ msgstr "~: Dit is niet een gecompileerde closure: ~"
-
-#~ msgid "~ is not a valid code-vector byte"
-#~ msgstr "~ is niet een geldige code-vector byte"
-
-#, fuzzy
-#~ msgid "~: invalid side-effect class ~ for function ~"
-#~ msgstr "~S: ongeldig slot- en accessor-specificatie ~S"
-
-#~ msgid "~: invalid code-vector ~"
-#~ msgstr "~: ongeldige code-vector ~"
-
-#~ msgid "~: function ~ is too big: ~"
-#~ msgstr "~: functie ~ is te groot: ~"
-
-#, fuzzy
-#~ msgid "~: This is not a prototype of a generic function: ~"
-#~ msgstr "~: Dit is geen prototype van een algemene functie: ~"
-
-#~ msgid "There are no sequences of type ~"
-#~ msgstr "Er zijn geen sequences van type ~"
-
-#, fuzzy
-#~ msgid "~: sequence type forces length ~, but result has length ~"
-#~ msgstr "sequence type moet lengte ~ hebben, maar resultaat heeft lengte ~"
-
-#~ msgid "~: ~ should be an integer >=0, not ~"
-#~ msgstr "~: ~ moet een geheel getal >= 0 zijn, niet ~"
-
-#~ msgid "~: ~ = ~ should not be greater than ~ = ~"
-#~ msgstr "~: ~ = ~ mag niet groter dan ~ = ~ zijn"
-
-#~ msgid "~: the index should be a fixnum >=0, not ~"
-#~ msgstr "~: de index moet een fixnum >= 0 zijn, niet ~"
-
-#~ msgid "~: bad length ~"
-#~ msgstr "~: foutieve lengte ~"
-
-#~ msgid "~: size should be an integer >=0, not ~"
-#~ msgstr "~: grootte moet een geheel getal >= 0 zijn, niet ~"
-
-#~ msgid "~: :update must not be specified without :initial-element"
-#~ msgstr "~: :update mag niet opgegeven worden zonder :initial-element"
-
-#~ msgid "~: Must not specify both arguments to :TEST and :TEST-NOT"
-#~ msgstr "~: Mag niet zowel :TEST als :TEST-NOT opgeven"
-
-#~ msgid "~: sequence ~ is too long"
-#~ msgstr "~: sequence ~ is te lang"
-
-#~ msgid "too long sequence ~"
-#~ msgstr "te lange sequence ~"
-
-#~ msgid "~: the radix must be an integer between 2 and 36, not ~"
-#~ msgstr "~: het grondtal moet een geheel getal tussen 2 en 36 zijn, niet ~"
-
-#~ msgid "~: the code argument should be an integer, not ~"
-#~ msgstr "~: het code-argument moet een geheel getal zijn, niet ~"
-
-#~ msgid "~: cannot coerce ~ to a character"
-#~ msgstr "~: kan ~ niet omzetten in een teken"
-
-#~ msgid "~: the weight argument should be an integer, not ~"
-#~ msgstr "~: het weight-argument moet een geheel getal zijn, niet ~"
-
-#~ msgid "~: argument should be an integer, not ~"
-#~ msgstr "~: argument moet een geheel getal zijn, niet ~"
-
-#~ msgid "~: ~-index should be an integer, not ~"
-#~ msgstr "~: ~-index moet een geheel getal zijn, niet ~"
-
-#~ msgid "~: index should be NIL or an integer, not ~"
-#~ msgstr "~: index moet NIL of een geheel getal zijn, niet ~"
-
-#~ msgid "~: ~-index should be NIL or an integer, not ~"
-#~ msgstr "~: ~-index moet NIL of een geheel getal zijn, niet ~"
-
-#~ msgid "~: index should not be negative: ~"
-#~ msgstr "~: index mag niet negatief zijn: ~"
-
-#~ msgid "~: ~-index should not be negative: ~"
-#~ msgstr "~: ~-index mag niet negatief zijn: ~"
-
-#~ msgid "~: index ~ should not be greater than the length of the string"
-#~ msgstr "~: index ~ mag niet groter zijn dan de lengte van de string"
-
-#~ msgid "~: ~-index ~ should not be greater than the length of the string"
-#~ msgstr "~: ~-index ~ mag niet groter zijn dan de lengte van de string"
-
-#~ msgid "~: index ~ should be less than the length of the string"
-#~ msgstr "~: index ~ moet kleiner zijn dan de lengte van de string"
-
-#~ msgid "~: ~-index ~ should be less than the length of the string"
-#~ msgstr "~: ~-index ~ moet kleiner zijn dan de lengte van de string"
-
-#, fuzzy
-#~ msgid "~: :START-index ~ must not be greater than :END-index ~"
-#~ msgstr "~: :start-index ~ mag niet groter zijn dan :end-index ~"
-
-#~ msgid "~: argument ~ should be a string, a symbol or a character"
-#~ msgstr "~: argument ~ moet een string, een symbool of een teken zijn"
-
-#~ msgid "~: :start-index ~ must not be greater than :end-index ~"
-#~ msgstr "~: :start-index ~ mag niet groter zijn dan :end-index ~"
-
-#~ msgid "~: :start1-index ~ must not be greater than :end1-index ~"
-#~ msgstr "~: :start1-index ~ mag niet groter zijn dan :end1-index ~"
-
-#~ msgid "~: :start2-index ~ must not be greater than :end2-index ~"
-#~ msgstr "~: :start2-index ~ mag niet groter zijn dan :end2-index ~"
-
-#~ msgid "~: the string length ~ should be nonnegative fixnum"
-#~ msgstr "~: de stringlengte ~ moet een niet-negatief fixnum zijn"
-
-#, fuzzy
-#~ msgid "~: ~ argument ~ should be of type ~"
-#~ msgstr "~: argument ~ moet een stream zijn van type ~"
-
-#~ msgid "~: bad frame climbing mode ~"
-#~ msgstr "~: foutieve modus om frame te betreden ~"
-
-#~ msgid "~: ~ is not a stack pointer"
-#~ msgstr "~: ~ is geen stackpointer"
-
-#~ msgid "~: ~ is not a pointer to an EVAL/APPLY frame"
-#~ msgstr "~: ~ is geen pointer naar een EVAL/APPLY frame"
-
-#~ msgid "~: environment is not an alist"
-#~ msgstr "~: omgeving is geen alist"
-
-#~ msgid "~: unknown frame type"
-#~ msgstr "~: onbekend frame type"
-
-#, fuzzy
-#~ msgid "~: ~ comes from a previous Lisp session and is invalid"
-#~ msgstr "~ stamt uit een vorige Lisp sessie en is ongeldig"
-
-#, fuzzy
-#~ msgid "~: ~ is not a list"
-#~ msgstr "~: ~ is geen paar"
-
-#~ msgid "~: A true list must not end with ~"
-#~ msgstr "~: Een echte lijst mag niet eindigen met ~"
-
-#, fuzzy
-#~ msgid "~: ~ is a constant, may not be used as a variable"
-#~ msgstr "FUNCTION: ~ is een constante, en mag dus niet als variabele worden gebruikt"
-
-#, fuzzy
-#~ msgid "~: ~ is not a symbol, cannot be declared ~"
-#~ msgstr "FUNCTION: ~is geen symbool, en kan dus niet als SPECIAAL worden gedeclareerd"
-
-#, fuzzy
-#~ msgid "~: ~ is not a vector"
-#~ msgstr "~: ~ is geen record"
-
-#~ msgid "~: ~ may not be used as an environment"
-#~ msgstr "~: ~ mag niet als een omgeving worden gebruikt"
-
-#~ msgid "~: argument ~ should be a nonnegative fixnum"
-#~ msgstr "~: argument ~ moet een niet-negatief fixnum zijn"
-
-#, fuzzy
-#~ msgid "~: ~ is not an integer"
-#~ msgstr "~: ~ is geen paar"
-
-#, fuzzy
-#~ msgid "~: ~ is not a non-negative integer"
-#~ msgstr "~: ~ is geen functienaam"
-
-#, fuzzy
-#~ msgid "~: argument ~ is not a string"
-#~ msgstr "~: argument ~ is geen open bestandsstream"
-
-#~ msgid "Attempt to modify a read-only string: ~"
-#~ msgstr "Poging om niet-wijzigbare string te veranderen: ~"
-
-#~ msgid "~: argument ~ is neither a string nor an integer"
-#~ msgstr "~: argument ~ is geen string en ook geen geheel getal"
-
-#, fuzzy
-#~ msgid "~: argument ~ is not a stream"
-#~ msgstr "~: argument ~ is geen open bestandsstream"
-
-#~ msgid "~: argument ~ should be a stream of type ~"
-#~ msgstr "~: argument ~ moet een stream zijn van type ~"
-
-#~ msgid "~: argument ~ is not a character set"
-#~ msgstr "~: argument ~ is geen tekenverzameling"
-
-#, fuzzy
-#~ msgid "~: keyword arguments in ~ should occur pairwise"
-#~ msgstr "EVAL/APPLY: keyword-argumenten voor ~ moeten paarsgewijs optreden"
-
-#, fuzzy
-#~ msgid "~: ~ marker ~ is not a symbol"
-#~ msgstr "~: ~ is geen paar"
-
-#~ msgid ""
-#~ "~: illegal keyword/value pair ~, ~ in argument list.\n"
-#~ "The allowed keywords are ~"
-#~ msgstr ""
-#~ "~: ongeldig keyword/waarde paar ~, ~ in argumentenlijst.\n"
-#~ "De toegestane keywords zijn ~"
-
-#, fuzzy
-#~ msgid "~: ~ is not a function"
-#~ msgstr "~: ~ is geen functienaam"
-
-#~ msgid "~: ~ is not a function name"
-#~ msgstr "~: ~ is geen functienaam"
-
-#~ msgid ""
-#~ "~: argument ~ is not a function.\n"
-#~ "To get a function in the current environment, write (FUNCTION ...).\n"
-#~ "To get a function in the global environment, write (COERCE '... 'FUNCTION)."
-#~ msgstr ""
-#~ "~: argument ~ is geen functie.\n"
-#~ "Schrijf, om een functie in de huidige omgeving te krijgen, (FUNCTION ..).\n"
-#~ "Om een functie in de globale omgeving te krijgen, (COERCE '... 'FUNCTION)."
-
-#, fuzzy
-#~ msgid "EVAL/APPLY: Too many arguments (~ instead of at most ~) given to ~"
-#~ msgstr "~: Te veel argumenten (~ in plaats van ~) voor ~"
-
-#, fuzzy
-#~ msgid "~: Too many arguments (~ instead of at most ~) given to ~"
-#~ msgstr "~: Te veel argumenten (~ in plaats van ~) voor ~"
-
-#, fuzzy
-#~ msgid "EVAL/APPLY: Too few arguments (~ instead of at least ~) given to ~"
-#~ msgstr "~: Te weinig argumenten (~ in plaats van tenminste ~) voor ~"
-
-#, fuzzy
-#~ msgid "~: Too few arguments (~ instead of at least ~) given to ~"
-#~ msgstr "~: Te weinig argumenten (~ in plaats van tenminste ~) voor ~"
-
-#~ msgid "~: ~ is not an 8-bit number"
-#~ msgstr "~: ~ is geen 8-bit getal"
-
-#~ msgid "~: ~ is not a 16-bit number"
-#~ msgstr "~: ~ is geen 16-bit getal"
-
-#~ msgid "~: ~ is not an 32-bit number"
-#~ msgstr "~: ~ is geen 32-bit getal"
-
-#~ msgid "~: ~ is not an 64-bit number"
-#~ msgstr "~: ~ is geen 64-bit getal"
-
-#~ msgid "~: ~ is not an `unsigned int' number"
-#~ msgstr "~: ~ is geen `unsigned int' getal"
-
-#~ msgid "~: ~ is not an `int' number"
-#~ msgstr "~: ~ is geen `int' getal"
-
-#~ msgid "~: ~ is not a `unsigned long' number"
-#~ msgstr "~: ~ is geen `unsigned long' getal"
-
-#~ msgid "~: ~ is not a `long' number"
-#~ msgstr "~: ~ is geen `long' getal"
-
-#~ msgid "~: ~ is not a single-float"
-#~ msgstr "~: ~ is geen single-float"
-
-#~ msgid "~: ~ is not a double-float"
-#~ msgstr "~: ~ is geen double-float"
-
-#~ msgid "~: type of attribute ~ is unsupported"
-#~ msgstr "~: type van eigenschap ~ wordt niet ondersteund"
-
-#~ msgid "~: too large shift amount ~"
-#~ msgstr "~: te groot schuifgetal ~"
-
-#~ msgid "~: unidentifiable type!!!"
-#~ msgstr "~: type niet identificeerbaar!!!"
-
-#~ msgid "~: type ~ does not correspond to a class"
-#~ msgstr "~: type ~ komt niet overeen met een class"
-
-#~ msgid "~: ~ does not name a class"
-#~ msgstr "~: ~ benoemt geen class"
-
-#~ msgid "~: ~ cannot be coerced to type ~"
-#~ msgstr "~: ~ kan niet worden omgezet in type ~"
-
-#~ msgid "~: the property list of ~ has an odd length"
-#~ msgstr "~: de property lijst van ~ heeft een oneven lengte"
-
-#~ msgid "~: the property list ~ has an odd length"
-#~ msgstr "~: de propertylijst ~ heeft een oneven lengte"
-
-#~ msgid "~: ~ is not a system function"
-#~ msgstr "~: ~ is geen systeemfunctie"
-
-#~ msgid "~: index ~ is negative"
-#~ msgstr "~: index ~ is negatief"
-
-#~ msgid "~: invalid argument ~"
-#~ msgstr "~: ongeldig argument ~"
-
-#~ msgid "The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~. New value ~."
-#~ msgstr "De waarde van *GENSYM-COUNTER* was geen niet-negatief geheel getal. Oude waarde ~. Nieuwe waarde ~."
-
-#~ msgid "~: argument should be a positive fixnum, not ~"
-#~ msgstr "~: argument moet een positief fixnum zijn, niet ~"
-
-#, fuzzy
-#~ msgid "~: ~ is not a number"
-#~ msgstr "~: ~ is geen 8-bit getal"
-
-#, fuzzy
-#~ msgid "~: ~ is not a real number"
-#~ msgstr "~: ~ is geen `long' getal"
-
-#, fuzzy
-#~ msgid "~: ~ is not a floating-point number"
-#~ msgstr "~: ~ is geen `long' getal"
-
-#, fuzzy
-#~ msgid "~: ~ is not a rational number"
-#~ msgstr "~: ~ is geen `long' getal"
-
-#, fuzzy
-#~ msgid "~: argument should be a ~, not ~"
-#~ msgstr "~: argument moet een string zijn, niet ~"
-
-#, fuzzy
-#~ msgid "~: the value of ~ should be a ~, not ~"
-#~ msgstr "~: de waarde van ~ moet een random-state zijn, niet ~"
-
-#~ msgid "~: argument should be positive and an integer or float, not ~"
-#~ msgstr "~: argument moet positief zijn en een geheel getal of float, niet ~"
-
-#~ msgid "not a 32-bit integer: ~"
-#~ msgstr "geen 32-bit geheel getal: ~"
-
-#~ msgid "not a 64-bit integer: ~"
-#~ msgstr "geen 64-bit geheel getal: ~"
-
-#~ msgid "~: ~ is not a valid boolean operation"
-#~ msgstr "~: ~ is geen geldige boolese bewerking"
-
-#~ msgid "The arguments to BYTE must be fixnums >=0: ~, ~"
-#~ msgstr "De argumenten voor BYTE moeten fixnums >= 0 zijn: ~, ~"
-
-#~ msgid "~ is not a BYTE specifier"
-#~ msgstr "~ is geen BYTE-aanduiding"
-
-#~ msgid "quotient ~ / ~ is not an integer"
-#~ msgstr "quotiënt ~ / ~ is geen geheel getal"
-
-#~ msgid "~: Unsupported call mechanism: ~"
-#~ msgstr "~: Niet ondersteund aanroepmechanisme: ~"
-
-#~ msgid "~: Bad function prototype: ~"
-#~ msgstr "~: Foutief functieprototype: ~"
-
-#~ msgid "~: Wrong number of arguments for prototype ~"
-#~ msgstr "~: Foutief aantal argumenten voor prototype ~"
-
-#~ msgid "~: Bad argument for prototype ~: ~"
-#~ msgstr "~: Foutief argument voor prototype ~: ~"
-
-#~ msgid "~: Bad argument: ~"
-#~ msgstr "~: Foutief argument: ~"
-
-#~ msgid "~: ~ is not a valid address"
-#~ msgstr "~: ~ is geen geldig adres"
-
-#, fuzzy
-#~ msgid "~: argument is not a foreign object: ~"
-#~ msgstr "~: argument is geen foreign variabele: ~"
-
-#, fuzzy
-#~ msgid "~: argument ~ should be a ~, ~ or ~"
-#~ msgstr "~: argument ~ moet ~, ~, ~, ~, ~, ~ of ~ zijn"
-
-#, fuzzy
-#~ msgid "~: cannot resurrect the zombie ~"
-#~ msgstr "~: kan niet schrijven naar ~"
-
-#~ msgid "~ cannot be converted to the foreign type ~"
-#~ msgstr "~ kan niet naar het foreign type ~ worden omgezet"
-
-#~ msgid "64 bit integers are not supported on this platform and with this C compiler: ~"
-#~ msgstr "64-bit getallen worden niet ondersteund op dit platform en deze C compiler: ~"
-
-#~ msgid "~ cannot be converted to a foreign function with another calling convention."
-#~ msgstr "kan ~ niet omzetten in een foreign functie met andere aanroepconventie."
-
-#, fuzzy
-#~ msgid "~: element type has size 0: ~"
-#~ msgstr "elementtype heeft grootte 0: ~"
-
-#~ msgid "~: argument is not a foreign variable: ~"
-#~ msgstr "~: argument is geen foreign variabele: ~"
-
-#~ msgid "~: foreign variable with unknown type, missing DEF-C-VAR: ~"
-#~ msgstr "~: foreign variabele met onbekend type, DEF-C-VAR ontbreekt: ~"
-
-#~ msgid "A foreign variable ~ does not exist"
-#~ msgstr "Er is geen foreign variabele ~"
-
-#~ msgid "~: foreign variable ~ does not have the required size or alignment"
-#~ msgstr "~: foreign variabele ~ heeft niet de vereiste grootte of alignment"
-
-#~ msgid "~: type specifications for foreign variable ~ conflict: ~ and ~"
-#~ msgstr "~: type specificaties voor foreign variabele ~ zijn tegenstrijdig: ~ en ~"
-
-#~ msgid "~: foreign variable ~ may not be modified"
-#~ msgstr "~: foreign variabele ~ mag niet gewijzigd worden"
-
-#~ msgid "~: foreign variable ~ of type ~ is not an array"
-#~ msgstr "~: foreign variabele ~ van type ~ is geen array"
-
-#~ msgid "~: foreign variable ~ of type ~ is not a pointer"
-#~ msgstr "~: foreign variabele ~ van type ~ is geen pointer"
-
-#~ msgid "~: foreign variable ~ of type ~ is not a struct or union"
-#~ msgstr "~: foreign variabele ~ van type ~ is geen struct of union"
-
-#~ msgid "~: foreign variable ~ of type ~ has no component with name ~"
-#~ msgstr "~: foreign variabele ~ van type ~ heeft geen component genaamd ~"
-
-#~ msgid "~: foreign variable ~ does not have the required alignment"
-#~ msgstr "~: foreign variabele ~ heeft niet de vereiste alignment"
-
-#~ msgid "~: argument is not a foreign function: ~"
-#~ msgstr "~: argument is geen foreign functie: ~"
-
-#~ msgid "~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~"
-#~ msgstr "~: foreign functie met onbekende aanroepconventie, DEF-CALL-OUT ontbreekt: ~"
-
-#~ msgid "~: illegal foreign function type ~"
-#~ msgstr "~: ongeldig type voor foreign functie: ~"
-
-#~ msgid "~: A foreign function ~ does not exist"
-#~ msgstr "~: Er is geen foreign functie ~"
-
-#~ msgid "~: calling conventions for foreign function ~ conflict"
-#~ msgstr "~: aanroepconventies voor foreign functie ~ zijn tegenstrijdig"
-
-#, fuzzy
-#~ msgid "~: Cannot open library ~: ~"
-#~ msgstr "~: Kan bibliotheek ~ niet openen"
-
-#~ msgid "~: Cannot open library ~"
-#~ msgstr "~: Kan bibliotheek ~ niet openen"
-
-#, fuzzy
-#~ msgid "~: no dynamic object named ~ in library ~"
-#~ msgstr "~: Kan bibliotheek ~ niet openen"
-
-#~ msgid "~: ~ is not a library"
-#~ msgstr "~: ~ is geen bibliotheek"
-
-#, fuzzy
-#~ msgid "symbol ~SA from ~SA will become a shadowing symbol"
-#~ msgstr "symbol ~SA uit #<PACKAGE ~SA> zal een schaduw-symbool worden"
-
-#, fuzzy
-#~ msgid "frame binding variables (~S = dynamically):"
-#~ msgstr "door frame gebonden variabelen (~S betekent dynamisch gebonden):"
-
-#~ msgid " binds (~S = dynamically):"
-#~ msgstr " bindt (~S = dynamisch):"
-
-#, fuzzy
-#~ msgid "~Sa: redefining ~Sa ~Ss in ~Sa, was defined in ~Sa"
-#~ msgstr "~SS: ~SS werd getraceerd en is opnieuw gedefiniëerd!"
-
-#, fuzzy
-#~ msgid "Loading file ~SA ..."
-#~ msgstr "Bestand "
-
-#, fuzzy
-#~ msgid "Loaded file ~SA"
-#~ msgstr "Bestand "
-
-#~ msgid "~S0*It will be ignored."
-#~ msgstr "~S0*Het zal worden genegeerd."
-
-#, fuzzy
-#~ msgid "Loading logical hosts from file ~SA ..."
-#~ msgstr "Bestand "
-
-#, fuzzy
-#~ msgid "Defined logical host ~SA"
-#~ msgstr "Bestand "
-
-#~ msgid "~SA must introduce a number."
-#~ msgstr "~SA moet een getal introduceren."
-
-#, fuzzy
-#~ msgid "The closing format directive '~SA' does not have a corresponding opening one."
-#~ msgstr "De afsluitende directive '~SA' heeft geen bijbehorende directive die opent."
-
-#, fuzzy
-#~ msgid "The closing format directive '~SA' does not match the corresponding opening one. It should read '~SA'."
-#~ msgstr "De afsluitende directive '~SA' past niet bij de directive die opent. Moet '~SA' luiden."
-
-#, fuzzy
-#~ msgid "The ~S~S; format directive is not allowed at this point."
-#~ msgstr "De ~S~S;-directive is hier niet toegestaan."
-
-#, fuzzy
-#~ msgid "The ~S~Snewline format directive cannot take both modifiers."
-#~ msgstr "De ~S~Snewline-directive is zinloos met zowel : als @"
-
-#, fuzzy
-#~ msgid "An opening format directive is never closed; expecting '~SA'."
-#~ msgstr "Er is een directive die opent maar niet gesloten wordt; verwacht '~SA'."
-
-#, fuzzy
-#~ msgid "The argument for the ~S~SR format directive is too large."
-#~ msgstr "Het argument voor de ~S~SR directive is te groot."
-
-#, fuzzy
-#~ msgid "The ~S~S[ format directive cannot take both modifiers."
-#~ msgstr "De ~S~S[ directive is zinloos met zowel : als @"
-
-#, fuzzy
-#~ msgid "Wrote the memory image into ~SA"
-#~ msgstr "Geen naam van een functie: ~SS"
-
-#, fuzzy
-#~ msgid "~Ss: no local name ~Ss in ~Ss"
-#~ msgstr "~S: onbekende logische host ~S in ~S"
-
-#, fuzzy
-#~ msgid "~Ss: ~Ss is not a function name"
-#~ msgstr "~S: ~S is geen functienaam"
-
-#~ msgid "Compiler bug!! Occurred in ~SA~S@[ at ~SA~S]."
-#~ msgstr "Compilerfout!! Trad op in ~SA~S@[ bij ~SA~S]."
-
-#~ msgid " in line ~SD"
-#~ msgstr " in regel ~SD"
-
-#~ msgid " in lines ~SD..~SD"
-#~ msgstr " in regels ~SD..~SD"
-
-#, fuzzy
-#~ msgid "WARNING~S@[ in ~SA~S]~SA :"
-#~ msgstr "WAARSCHUWING~S@[ in functie ~SS~S]~SA :~S%"
-
-#, fuzzy
-#~ msgid "Function ~Ss is deprecated~S@[, use ~Ss instead~S]"
-#~ msgstr "Functie niet geïmplementeerd"
-
-#, fuzzy
-#~ msgid "~Ss situation must be ~Ss, ~Ss or ~Ss, but not ~Ss"
-#~ msgstr "~SS: argument moet ~SS, ~SS of ~SS zijn, niet ~SS"
-
-#~ msgid "~SD error~S:P, ~SD warning~S:P"
-#~ msgstr "~SD fout~S:*~S[~S;~S:;en~S], ~SD waarschuwing~S:*~S[~S;~S:;en~S]"
-
-#~ msgid "Listing of compilation of file ~SA~S%on ~S@? by ~SA, version ~SA"
-#~ msgstr "Compilatie-listing van bestand ~SA~S%op ~S@? door ~SA, versie ~SA"
-
-#~ msgid "Compiling file ~SA ..."
-#~ msgstr "Bezig met compileren van ~SA ..."
-
-#, fuzzy
-#~ msgid "service does not exist: ~SA/~SA"
-#~ msgstr "bestand ~S bestaat niet"
-
-#, fuzzy
-#~ msgid "~SA is not a number. Try again."
-#~ msgstr "~S: ~S is geen 8-bit getal"
-
-#~ msgid "a label used for resolving #~SD# references during READ."
-#~ msgstr "een label om #~SD#-referenties mee op te lossen bij READ."
-
-#, fuzzy
-#~ msgid ", is accessible in ~S:d package~S:*~S[~S;~S:;s~S] ~S{~SA~S^, ~S}"
-#~ msgstr ", is toegankelijk in package~S:[~S;s~S] ~S{~SA~S^, ~S}"
-
-#~ msgid " (macro: ~Ss)"
-#~ msgstr " (macro: ~Ss)"
-
-#~ msgid ", value: ~Ss"
-#~ msgstr ", waarde: ~Ss"
-
-#~ msgid "a~S:[~S; deprecated~S] function"
-#~ msgstr "een~S:[~S; afgekeurd~S] functie"
-
-#, fuzzy
-#~ msgid "a~S:[~S; deprecated~S] macro"
-#~ msgstr "een~S:[~S; afgekeurd~S] functie"
-
-#~ msgid "on the ~S:[posi~S;nega~S]tive real axis"
-#~ msgstr "op de ~S:[posi~S;nega~S]tieve reëele as"
-
-#~ msgid "on the ~S:[posi~S;nega~S]tive imaginary axis"
-#~ msgstr "op de ~S[:posi~S;nega~S]tieve imaginaire as"
-
-#, fuzzy
-#~ msgid "in the ~S:[~S:[first~S;fourth~S]~S;~S:[second~S;third~S]~S] quadrant"
-#~ msgstr "in het ~S:[~S:[eerste~S;vierde~S]~S;~S:[tweede~S;derde~S]~S] kwadrant"
-
-#~ msgid "Unicode name: ~SA"
-#~ msgstr "Unicode naam: ~SA"
-
-#~ msgid "It is a ~S:[non-~S;~S]printable character."
-#~ msgstr "Het is een ~S:[niet-~S;~S]afdrukbaar teken."
-
-#~ msgid "a~S:[~S:[ closed ~S;n output-~S]~S;~S:[n input-~S;n input/output-~S]~S]stream."
-#~ msgstr "een~S:[~S:[ gesloten ~S;n uitvoer-~S]~S;~S:[n invoer-~S;n invoer/uitvoer-~S]~S]stream."
-
-#~ msgid "the package named ~SA"
-#~ msgstr "de package genaamd ~SA"
-
-#, fuzzy
-#~ msgid ". It has ~S:d nickname~S:*~S[~S;~S:;s~S] ~S{~SA~S^, ~S}"
-#~ msgstr "Het heeft de bijnamen ~S{~SA~S^, ~S}"
-
-#, fuzzy
-#~ msgid "imports the external symbols of ~S:d package~S:*~S[~S;~S:;s~S] ~S{~SA~S^, ~S} and "
-#~ msgstr "importeert de externe symbolen van de package~S:[~S;s~S] ~S{~SA~S^, ~S} en "
-
-#, fuzzy
-#~ msgid "exports ~S[no symbols~S:;~S:*~S:d symbol~S:*~S[~S;~S:;s~S]~S]"
-#~ msgstr "exporteert ~S[geen symbols~S:;~S:*~S:d symbols~S]"
-
-#, fuzzy
-#~ msgid " to ~S:d package~S:*~S[~S;~S:;s~S] ~S{~SA~S^, ~S}"
-#~ msgstr " naar de package~S:[~S;s~S] ~S{~SA~S^, ~S}"
-
-#~ msgid "~S:[a~S;the Common Lisp~S] readtable."
-#~ msgstr "~S:[een~S;de Common-Lisp-~S] readtable."
-
-#~ msgid "a ~S:[~S;portable ~S]pathname~S:[.~S;~S:*, with the following components:~S{~SA~S}~S]"
-#~ msgstr "een ~S:[~S;overdraagbare ~S]padnaam~S:[.~S;~S:*, met de volgende componenten:~S{~SA~S}~S]"
-
-#~ msgid "a~S:[~S; simple~S] ~SA dimensional array"
-#~ msgstr "een~S:[~S; eenvoudig~S] ~SA dimensionaal array"
-
-#, fuzzy
-#~ msgid " of ~SAs"
-#~ msgstr " van ~S(~SA~S)s"
-
-#, fuzzy
-#~ msgid "~S%No methods."
-#~ msgstr "~S%Geen slots."
-
-#, fuzzy
-#~ msgid "Argument list: ~S:S"
-#~ msgstr "argumentenlijst: ~S:S"
-
-#, fuzzy
-#~ msgid "Documentation: ~SA"
-#~ msgstr "documentatie: ~SA"
-
-#~ msgid "~SA [see above]"
-#~ msgstr "~SA [zie boven]"
-
-#~ msgid "~SA is "
-#~ msgstr "~SA is "
-
-#, fuzzy
-#~ msgid "Argument list: ~SA."
-#~ msgstr "~S%Argumentenlijst: "
-
-#~ msgid "Bytes permanently allocated:   ~S9D~S%Bytes currently in use:        ~S9D~S%Bytes available until next GC: ~S9D"
-#~ msgstr "Permanent gereserveerde bytes:   ~S9D~S%Bytes nu in gebruik:     ~S9D~S%Beschikbaar tot volgende GC: ~S9D"
-
-#, fuzzy
-#~ msgid "~Ss is deprecated, use ~Ss instead"
-#~ msgstr "Functie niet geïmplementeerd"
-
-#, fuzzy
-#~ msgid "~S: ~S is not an output ~S"
-#~ msgstr "~S: ~S is geen paar"
-
-#, fuzzy
-#~ msgid "~S: argument ~S should be ~S."
-#~ msgstr "~S: argument ~S moet een stream zijn"
-
-#~ msgid "Please choose one of ~S:{~SA~S:^, ~S} ."
-#~ msgstr "Kies a.u.b. een van ~S:{~SA~S:^, ~S} uit."
-
-#, fuzzy
-#~ msgid "Error: ~S~S:@> not implemented"
-#~ msgstr "functie niet geïmplementeerd"
