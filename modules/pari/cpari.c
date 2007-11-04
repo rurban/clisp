@@ -62,6 +62,10 @@ void init_for_clisp (long parisize, long maxprime)
 #if defined(HAVE_PARI_INIT_OPTS)
   pari_init_opts(parisize,maxprime,0);
 #elif defined(HAVE_PARI_INIT)
+# if defined(HAVE_INIT_OPTS)
+  extern ulong init_opts;
+  init_opts = 0;
+# endif
   pari_init(parisize,maxprime);
 #endif
   pari_outfile = stdout; errfile = stderr; logfile = NULL; infile = stdin;
