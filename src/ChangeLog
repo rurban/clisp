@@ -49,7 +49,7 @@
 	* charstrg.d: do not include "width.c" & "uniname.c"
 	* makemake.in (FILES, OBJECTS): add uniname & width
 	(UNICODE_EXTRA): remove uniname & width
-	(boot): cannot assume that element of $FILES does not contain slashes
+	(boot): cannot assume that an element of $FILES does not contain slashes
 	* clisp-link.in (link): use dirname and basename instead of sed
 	(link_some): do not assume that file does not contain slashes
 
