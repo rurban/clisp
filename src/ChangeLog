@@ -1,5 +1,11 @@
 2007-11-04  Sam Steingold  <sds@gnu.org>
 
+	* modules/pcre/cpcre.c (check_pattern): pat argument is modified,
+	so it has to be a pointer
+	(PATTERN-INFO, PCRE-NAME-TO-INDEX, PCRE-EXEC): update callers
+
+2007-11-04  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/configure.in: check for init_opts
 	* modules/pari/cpari.c (init_for_clisp) [HAVE_INIT_OPTS]:
 	set init_opts to 0
