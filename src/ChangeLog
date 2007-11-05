@@ -1,3 +1,8 @@
+2007-11-05  Sam Steingold  <sds@gnu.org>
+
+	fix --with-dynamic-modules build
+	* makemake.in: pass XCC_PICFLAG to "make -C gllib"
+
 2007-11-04  Sam Steingold  <sds@gnu.org>
 
 	* modules/pcre/cpcre.c (check_pattern): pat argument is modified,
