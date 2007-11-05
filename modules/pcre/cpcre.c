@@ -129,16 +129,16 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
 }
 
 /* can trigger GC */
-static void check_pattern (object pat, pcre** compiled_pattern,
+static void check_pattern (gcv_object_t *pat, pcre** compiled_pattern,
                            pcre_extra** study)
 { /* extract compiled pattern and the study results from the PATTERN */
-  pat = check_classname(pat,`PCRE::PATTERN`);
+  *pat = check_classname(*pat,`PCRE::PATTERN`);
   /* FIXME for derived structs! */
   *compiled_pattern =
-    (pcre*)TheFpointer(TheStructure(pat)->recdata[1])->fp_pointer;
-  if (nullp(TheStructure(pat)->recdata[2])) *study = NULL;
+    (pcre*)TheFpointer(TheStructure(*pat)->recdata[1])->fp_pointer;
+  if (nullp(TheStructure(*pat)->recdata[2])) *study = NULL;
   else *study =
-    (pcre_extra*)TheFpointer(TheStructure(pat)->recdata[2])->fp_pointer;
+    (pcre_extra*)TheFpointer(TheStructure(*pat)->recdata[2])->fp_pointer;
 }
 
 /* two objects should be on STACK for the error message */
@@ -238,7 +238,7 @@ DEFUN(PCRE:PATTERN-INFO,pattern &optional request)
 {
   pcre *c_pat;
   pcre_extra *study;
-  check_pattern(STACK_1,&c_pat,&study);
+  check_pattern(&STACK_1,&c_pat,&study);
   if (missingp(STACK_0)) {
     int count = 0;
     pushSTACK(`:OPTIONS`); pushSTACK(fullinfo_options(c_pat,study)); count+=2;
@@ -313,7 +313,7 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
   pcre *c_pat;
   pcre_extra *study;
   int index;
-  check_pattern(STACK_1,&c_pat,&study);
+  check_pattern(&STACK_1,&c_pat,&study);
 #if defined(HAVE_PCRE_GET_STRINGNUMBER)
  restart_pcre_get_stringnumber:
   with_string_0(check_string(STACK_0),GLO(misc_encoding),name, {
@@ -351,7 +351,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :WORK-SPACE :DFA :BOOLEAN :OFFSET \
   pcre *c_pat;
   pcre_extra *study;
   skipSTACK(3); /* drop all options */
-  check_pattern(STACK_1,&c_pat,&study);
+  check_pattern(&STACK_1,&c_pat,&study);
   begin_system_call();
   ret = pcre_fullinfo(c_pat,study,PCRE_INFO_CAPTURECOUNT,&capture_count);
   end_system_call();
