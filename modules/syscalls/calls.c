@@ -1191,6 +1191,8 @@ DEFUN(POSIX::RLIMIT, &optional what)
 #endif /* HAVE_GETRLIMIT */
 #if defined(HAVE_SETRLIMIT)
 /* parse the RLIMIT structure
+   NOTE: arg is intentionally not reset by check_classname
+   to avoid argument modification
  can trigger GC */
 static void check_rlimit (object arg, struct rlimit *rl) {
   pushSTACK(check_classname(arg,`POSIX::RLIMIT`));
