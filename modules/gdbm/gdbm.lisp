@@ -18,6 +18,7 @@
 (in-package "GDBM")
 
 (pushnew :gdbm *features*)
+(provide "gdbm")
 (pushnew "GDBM" custom:*system-package-list* :test #'string=)
 (setf (documentation (find-package "GDBM") 'sys::impnotes) "gdbm")
 
