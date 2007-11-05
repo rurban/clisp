@@ -12,6 +12,7 @@
 	* modules/rawsock/sock.lisp: (provide "rawsock")
 	* modules/regexp/regexp.lisp: (provide "regexp")
 	* modules/syscalls/posix.lisp: (provide "syscalls")
+	* modules/wildcard/wildcard.lisp: (provide "wildcard")
 
 2007-11-05  Sam Steingold  <sds@gnu.org>
 
