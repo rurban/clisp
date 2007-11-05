@@ -7,6 +7,8 @@
 	so it has to be a pointer
 	(SOCKADDR-FAMILY, optional_sockaddr_argument, BIND, CONNECT)
 	(GETNAMEINFO, fill_msghdr, SENDTO): update callers
+	* modules/syscalls/calls.c (check_utmpx): add
+	(GETUTXENT, GETUTXLINE, PUTUTXLINE): use it
 
 2007-11-04  Sam Steingold  <sds@gnu.org>
 
