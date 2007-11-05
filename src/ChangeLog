@@ -3,6 +3,7 @@
 	for better dynamic module support:
 	* modules/berkeley-db/dbi.lisp: (provide "berkeley-db")
 	* modules/dirkey/dirkey1.lisp: (provide "dirkey")
+	* modules/fastcgi/fastcgi.lisp: (provide "fastcgi")
 
 2007-11-05  Sam Steingold  <sds@gnu.org>
 

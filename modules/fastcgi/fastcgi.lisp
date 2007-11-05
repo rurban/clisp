@@ -28,6 +28,7 @@
 
 (in-package "FASTCGI")
 (pushnew :fastcgi *features*)
+(provide "fastcgi")
 
 (setf (documentation (find-package "FASTCGI") 'sys::impnotes) "fastcgi")
 
