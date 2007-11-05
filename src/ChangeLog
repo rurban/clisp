@@ -3,6 +3,10 @@
 	* modules/pcre/cpcre.c (check_pattern): pat argument is modified,
 	so it has to be a pointer
 	(PATTERN-INFO, PCRE-NAME-TO-INDEX, PCRE-EXEC): update callers
+	* modules/rawsock/rawsock.c (check_struct_data): arg is modified,
+	so it has to be a pointer
+	(SOCKADDR-FAMILY, optional_sockaddr_argument, BIND, CONNECT)
+	(GETNAMEINFO, fill_msghdr, SENDTO): update callers
 
 2007-11-04  Sam Steingold  <sds@gnu.org>
 
