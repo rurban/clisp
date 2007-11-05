@@ -2,6 +2,7 @@
 
 	fix --with-dynamic-modules build
 	* makemake.in: pass XCC_PICFLAG to "make -C gllib"
+	* clisp-link.in: run prepare_dynamic_module in $destinationdir
 
 2007-11-04  Sam Steingold  <sds@gnu.org>
 

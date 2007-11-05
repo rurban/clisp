@@ -335,7 +335,6 @@ case "$1" in
     TO_LOAD=''
     cd "$moduledir"
     . ./link.sh
-    prepare_dynamic_module
     cd "$absolute_currentdir"
     # Generate new modules.h
     (cat "$sourcedir"/modules.h
@@ -348,6 +347,7 @@ case "$1" in
     LIBS=${NEW_LIBS}' '${LIBS}
     start_dir=`pwd`
     cd "$destinationdir"
+    prepare_dynamic_module
     make_lisprun
     cd "${start_dir}"
     if [ -n "$TO_PRELOAD" ] ; then
@@ -423,7 +423,6 @@ case "$1" in
         TO_LOAD=''
         cd "$moduledir"
         . ./link.sh
-        prepare_dynamic_module
         cd "$absolute_currentdir"
         for mod in $NEW_MODULES ; do # update modules.h
           echo 'MODULE('"$mod"')' >> "$destinationdir"/modules.h
@@ -436,6 +435,9 @@ case "$1" in
         for f in $TO_LOAD; do
           LOAD=${LOAD}' -i '"$moduledir/$f"
         done
+        cd "$destinationdir"
+        prepare_dynamic_module
+        cd "$absolute_currentdir"
       done
       start_dir=`pwd`
       cd "$destinationdir"
