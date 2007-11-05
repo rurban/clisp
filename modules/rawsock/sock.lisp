@@ -1,7 +1,7 @@
 ;; Module for Raw Sockets / CLISP
 ;; Fred Cohen, 2003-2004
 ;; Don Cohen, 2003-2004
-;; Sam Steingold 2004-2006
+;; Sam Steingold 2004-2007
 ;; <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
 
 (defpackage #:rawsock
@@ -21,6 +21,7 @@
 
 (in-package "RAWSOCK")
 (pushnew :rawsock *features*)
+(provide "rawsock")
 (pushnew "RAWSOCK" custom:*system-package-list* :test #'string=)
 
 (setf (documentation (find-package '#:rawsock) 'sys::impnotes) "rawsock")
