@@ -16,6 +16,7 @@
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma #:ffs))
 
 (pushnew :syscalls *features*)
+(provide "syscalls")
 (in-package #:posix)
 
 (setf (documentation (find-package '#:posix) 'sys::impnotes) "syscalls")
