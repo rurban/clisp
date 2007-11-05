@@ -5,6 +5,7 @@
 	* modules/dirkey/dirkey1.lisp: (provide "dirkey")
 	* modules/fastcgi/fastcgi.lisp: (provide "fastcgi")
 	* modules/gdbm/gdbm.lisp: (provide "gdbm")
+	* modules/i18n/i18n.lisp: (provide "i18n")
 
 2007-11-05  Sam Steingold  <sds@gnu.org>
 
