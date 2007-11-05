@@ -1,6 +1,6 @@
 ;; CLISP interface to PARI <http://pari.math.u-bordeaux.fr/>
 ;; Copyright (C) 1995 Michael Stoll
-;; Copyright (C) 2004-2006 Sam Steingold
+;; Copyright (C) 2004-2007 Sam Steingold
 ;; This is free software, distributed under the GNU GPL
 
 (defpackage "PARI"
@@ -14,6 +14,7 @@
 (default-foreign-language :stdc)
 
 (pushnew :pari *features*)
+(provide "pari")
 
 ;;; Declare all the pari types, variables, functions, ...
 (c-lines "#undef T~%#include <pari/pari.h>~%")

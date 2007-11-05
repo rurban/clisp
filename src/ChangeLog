@@ -7,6 +7,7 @@
 	* modules/gdbm/gdbm.lisp: (provide "gdbm")
 	* modules/i18n/i18n.lisp: (provide "i18n")
 	* modules/oracle/oracle.lisp: (provide "oracle")
+	* modules/pari/pari.lisp: (provide "pari")
 
 2007-11-05  Sam Steingold  <sds@gnu.org>
 
