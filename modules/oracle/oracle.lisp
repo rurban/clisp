@@ -30,6 +30,7 @@
 
 (in-package "ORACLE")
 (pushnew :oracle *features*)
+(provide "oracle")
 
 (setf (documentation (find-package "ORACLE") 'sys::impnotes) "oracle")
 
