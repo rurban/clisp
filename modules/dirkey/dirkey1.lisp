@@ -17,6 +17,7 @@
 (use-package '("LDAP") "EXT")
 (ext:re-export "LDAP" "EXT")
 (pushnew :dirkey *features*)
+(provide "dirkey")
 (in-package "LDAP")
 
 (setf (documentation (find-package "LDAP") 'sys::impnotes) "dir-key")
