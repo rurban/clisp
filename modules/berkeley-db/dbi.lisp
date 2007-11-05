@@ -30,6 +30,7 @@
 (use-package '("BDB") "EXT")
 (ext:re-export "BDB" "EXT")
 (pushnew :berkeley-db *features*)
+(provide "berkeley-db")
 (in-package "BDB")
 
 (setf (documentation (find-package "BDB") 'sys::impnotes) "berkeley-db")

@@ -1,5 +1,10 @@
 2007-11-05  Sam Steingold  <sds@gnu.org>
 
+	for better dynamic module support:
+	* modules/berkeley-db/dbi.lisp: (provide "berkeley-db")
+
+2007-11-05  Sam Steingold  <sds@gnu.org>
+
 	fix --with-dynamic-modules build
 	* makemake.in: pass XCC_PICFLAG to "make -C gllib"
 	* clisp-link.in: run prepare_dynamic_module in $destinationdir
