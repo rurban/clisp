@@ -2075,7 +2075,8 @@ cat <<\!!
 #                       Requirements for add-on modules
 #                       -------------------------------
 #
-# The general layout of add-on modules is described in ../doc/module.txt.
+# The general layout of add-on modules is described in
+#  <http://clisp.cons.org/impnotes/modules.html>.
 # The requirements made there (i.e. the existence of a "link.sh" file
 # which defines certain variables) make sure that such an add-on module
 # can be distributed with CLISP.
@@ -2098,7 +2099,7 @@ cat <<\!!
 #
 #        clisp-module
 #
-#           This target builds the file mentioned by the link.sh file.
+#           This target builds the file(s) mentioned by the link.sh file.
 #           The following makefile variables can be used:
 #             CC                 the C compiler used to compile the CLISP source
 #             CPPFLAGS           the C compiler flags when compiling some source
