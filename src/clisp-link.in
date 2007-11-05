@@ -2,13 +2,13 @@
 # Usage: clisp-link command [more args]
 # where
 #   command = link, create-module-set, add-module-set, add-module-sets, run
-# For more usage information, see <doc/impnotes.html#modules>.
-# Or <http://clisp.cons.org/impnotes.html#modules>.
+# For more usage information, see <doc/impnotes.html#mod-overview>.
+# Or <http://clisp.cons.org/modules.html#mod-overview>.
 # Bruno Haible 19.10.1994
-# Sam Steingold 2002-2005
+# Sam Steingold 2002-2007
 
-# This could as well be written in Lisp, for portability. But I don't like
-# the idea to have one Lisp process running while the next one is built.
+# This could as well be written in Lisp, for portability, but syscalls is
+# a module, so most useful scripting functionality will not be available.
 
 # Nuisances.
 (unset CDPATH) >/dev/null 2>&1 && unset CDPATH
@@ -487,11 +487,11 @@ case "$1" in
       if [ -z "$moduledirs" ] ; then
         "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem
       else
-        cp "$sourcedir"/modules.h "$destinationdir"/modules.h
-        FILES=`link_some "$sourcedir" "$destinationdir" ${FILES}`
+        func_tmpdir
+        FILES=`link_some "$sourcedir" "$tmp" ${FILES}`
         # Prepare the module directories and read their variables
         PRELOAD=''
-        LINKLIBS=''
+        LIBS=''
         MODULES=''
         LOAD=''
         for moduledir in $moduledirs; do
@@ -508,14 +508,8 @@ case "$1" in
           for f in $TO_PRELOAD; do
             PRELOAD=${PRELOAD}' '"$moduledir/$f"
           done
-          NEW_LIBS_ABS=''
-          for f in ${NEW_LIBS}; do
-            case "$f" in
-              -* | /*) NEW_LIBS_ABS="$NEW_LIBS_ABS $f" ;;
-              *) NEW_LIBS_ABS="$NEW_LIBS_ABS $moduledir/$f" ;;
-            esac
-          done
-          LINKLIBS=${NEW_LIBS_ABS}' '${LINKLIBS}
+          FILES=${FILES}' '`link_some "$moduledir" "$tmp" ${NEW_FILES}`
+          LIBS=${NEW_LIBS}' '${LIBS}
           for mod in $NEW_MODULES; do
             MODULES=${MODULES}' '"$mod"
           done
@@ -523,7 +517,6 @@ case "$1" in
             LOAD=${LOAD}' '"$moduledir/$f"
           done
         done
-        func_tmpdir
         tmpsharedlib="$tmp/clisplink@SHREXT@"
         tmpinitlisp="$tmp/clisplink.lisp"
         # What to do if we abort.
@@ -535,7 +528,9 @@ case "$1" in
          echo ")))"
          for f in $LOAD; do echo "(load \"${f}\")"; done ) > "$tmpinitlisp"
         # Create a shared library.
-        lib="$tmpsharedlib"; libs="$LINKLIBS"; verbose @createsharedlib@
+        start_dir=`pwd`; cd $tmp;
+        lib="$tmpsharedlib"; libs="$LIBS"; verbose @createsharedlib@
+        cd "$start_dir"
         # Run clisp, attach the shared library and load the Lisp stuff.
         "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -i "$tmpinitlisp"
         rm -rf "$tmp"
