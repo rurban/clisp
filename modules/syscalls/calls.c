@@ -514,6 +514,10 @@ DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT \
 #if defined(HAVE_UTMPX_H)
 DEFCHECKER(check_ut_type,default=,EMPTY RUN-LVL BOOT-TIME OLD-TIME NEW-TIME \
            USER-PROCESS INIT-PROCESS LOGIN-PROCESS DEAD-PROCESS ACCOUNTING)
+static int check_utmpx (gcv_object_t *arg) {
+  *arg = check_classname(*arg,`POSIX::UTMPX`);
+  return check_ut_type(TheStructure(*arg)->recdata[4]);
+}
 /* convert C struct utmpx to Lisp
  can trigger GC */
 static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
@@ -557,8 +561,7 @@ DEFUN(POSIX::GETUTXENT, &optional utmpx) {
 #if defined(HAVE_GETUTXID)
 DEFUN(POSIX::GETUTXID, id) {
   struct utmpx utmpx, *utmpx_p;
-  STACK_0 = check_classname(STACK_0,`POSIX::UTMPX`);
-  utmpx.ut_type = check_ut_type(TheStructure(STACK_0)->recdata[4]);
+  utmpx.ut_type = check_utmpx(&STACK_0);
   begin_system_call(); utmpx_p = getutxid(&utmpx); end_system_call();
   if (utmpx_p) utmpx_to_lisp(utmpx_p,&STACK_0);
   else VALUES1(NIL);
@@ -568,8 +571,7 @@ DEFUN(POSIX::GETUTXID, id) {
 #if defined(HAVE_GETUTXLINE)
 DEFUN(POSIX::GETUTXLINE, line) {
   struct utmpx utmpx, *utmpx_p;
-  STACK_0 = check_classname(STACK_0,`POSIX::UTMPX`);
-  utmpx.ut_type = check_ut_type(TheStructure(STACK_0)->recdata[4]);
+  utmpx.ut_type = check_utmpx(&STACK_0);
   begin_system_call(); utmpx_p = getutxline(&utmpx); end_system_call();
   if (utmpx_p) utmpx_to_lisp(utmpx_p,&STACK_0);
   else VALUES1(NIL);
@@ -579,8 +581,7 @@ DEFUN(POSIX::GETUTXLINE, line) {
 #if defined(HAVE_PUTUTXLINE)
 DEFUN(POSIX::PUTUTXLINE, utmpx) {
   struct utmpx utmpx, *utmpx_p;
-  STACK_0 = check_classname(STACK_0,`POSIX::UTMPX`);
-  utmpx.ut_type = check_ut_type(TheStructure(STACK_0)->recdata[4]);
+  utmpx.ut_type = check_utmpx(&STACK_0);
   begin_system_call(); utmpx_p = pututxline(&utmpx); end_system_call();
   if (utmpx_p) utmpx_to_lisp(utmpx_p,&STACK_0);
   else OS_error();
