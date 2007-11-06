@@ -1,3 +1,8 @@
+2007-11-06  Sam Steingold  <sds@gnu.org>
+
+	* modules/wildcard/configure.in: use ac_cv_func_fnmatch_gnu
+	instead of FNMATCH_H
+
 2007-11-05  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (run): fix for --with-dynamic-modules
