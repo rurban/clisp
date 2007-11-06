@@ -312,106 +312,56 @@ slot in instances of the class is available.
 <table id="mop-inherit-struct"><title>Direct Superclass Relationships
   Among The Specified Metaobject Classes</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
-  <thead><row>
-    <entry>Metaobject Class</entry>
+  <thead><row><entry>Metaobject Class</entry>
     <entry>Abstract</entry><entry>Subclassable</entry>
     <entry>Direct Superclasses</entry></row></thead>
-  <tbody>
-   <row>
-    <entry>&standard-object-t;</entry>
-    <entry>no</entry><entry>yes</entry>
+  <tbody><row><entry>&standard-object-t;</entry>&no-en; &yes-en;
     <entry>(&t-t;)</entry></row>
-   <row>
-    <entry>&funcallable-standard-object-t;</entry>
-    <entry>no</entry><entry>yes</entry>
+   <row><entry>&funcallable-standard-object-t;</entry>&no-en; &yes-en;
     <entry>(&standard-object-t; &function-t;)</entry></row>
-   <row>
-    <entry>&metaobject-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&metaobject-t;</entry>&yes-en; &no-en;
     <entry>(&standard-object-t;)</entry></row>
-   <row>
-    <entry>&generic-function-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&generic-function-t;</entry>&yes-en; &no-en;
     <entry>(&metaobject-t; &funcallable-standard-object-t;)</entry></row>
-   <row>
-    <entry>&standard-generic-function-t;</entry>
-    <entry>no</entry><entry>yes</entry>
+   <row><entry>&standard-generic-function-t;</entry>&no-en; &yes-en;
     <entry>(&generic-function-t;)</entry></row>
-   <row>
-    <entry>&method-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&method-t;</entry>&yes-en; &no-en;
     <entry>(&metaobject-t;)</entry></row>
-   <row>
-    <entry>&standard-method-t;</entry>
-    <entry>no</entry><entry>yes</entry>
+   <row><entry>&standard-method-t;</entry>&no-en; &yes-en;
     <entry>(&method-t;)</entry></row>
-   <row>
-    <entry>&standard-accessor-method-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&standard-accessor-method-t;</entry>&yes-en; &no-en;
     <entry>(&standard-method-t;)</entry></row>
-   <row>
-    <entry>&standard-reader-method-t;</entry>
-    <entry>no</entry><entry>yes</entry>
+   <row><entry>&standard-reader-method-t;</entry>&no-en; &yes-en;
     <entry>(&standard-accessor-method-t;)</entry></row>
-   <row>
-    <entry>&standard-writer-method-t;</entry>
-    <entry>no</entry><entry>yes</entry>
+   <row><entry>&standard-writer-method-t;</entry>&no-en; &yes-en;
     <entry>(&standard-accessor-method-t;)</entry></row>
-   <row>
-    <entry>&method-combination-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&method-combination-t;</entry>&yes-en; &no-en;
     <entry>(&metaobject-t;)</entry></row>
-   <row>
-    <entry>&slot-definition-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&slot-definition-t;</entry>&yes-en; &no-en;
     <entry>(&metaobject-t;)</entry></row>
-   <row>
-    <entry>&dsd-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&dsd-t;</entry>&yes-en; &no-en;
     <entry>(&slot-definition-t;)</entry></row>
-   <row>
-    <entry>&esd-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&esd-t;</entry>&yes-en; &no-en;
     <entry>(&slot-definition-t;)</entry></row>
-   <row>
-    <entry>&standard-slotdef-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&standard-slotdef-t;</entry>&yes-en; &no-en;
     <entry>(&slot-definition-t;)</entry></row>
-   <row>
-    <entry>&standard-dsd-t;</entry>
-    <entry>no</entry><entry>yes</entry>
+   <row><entry>&standard-dsd-t;</entry>&no-en; &yes-en;
     <entry>(&standard-slotdef-t; &dsd-t;)</entry></row>
-   <row>
-    <entry>&standard-esd-t;</entry>
-    <entry>no</entry><entry>yes</entry>
+   <row><entry>&standard-esd-t;</entry>&no-en; &yes-en;
     <entry>(&standard-slotdef-t; &esd-t;)</entry></row>
-   <row>
-    <entry>&specializer-t;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&specializer-t;</entry>&yes-en; &no-en;
     <entry>(&metaobject-t;)</entry></row>
-   <row>
-    <entry>&eql-specializer-t;</entry>
-    <entry>no</entry><entry>no</entry>
+   <row><entry>&eql-specializer-t;</entry>&no-en; &no-en;
     <entry>(&specializer-t;)</entry></row>
-   <row>
-    <entry>&class;</entry>
-    <entry>yes</entry><entry>no</entry>
+   <row><entry>&class;</entry>&yes-en; &no-en;
     <entry>(&specializer-t;)</entry></row>
-   <row>
-    <entry>&built-in-class;</entry>
-    <entry>no</entry><entry>no</entry>
+   <row><entry>&built-in-class;</entry>&no-en; &no-en;
     <entry>(&class;)</entry></row>
-   <row>
-    <entry>&forward-referenced-class;</entry>
-    <entry>no</entry><entry>no</entry>
+   <row><entry>&forward-referenced-class;</entry>&no-en; &no-en;
     <entry>(&class;)</entry></row>
-   <row>
-    <entry>&standard-class;</entry>
-    <entry>no</entry><entry>yes</entry>
+   <row><entry>&standard-class;</entry>&no-en; &yes-en;
     <entry>(&class;)</entry></row>
-   <row>
-    <entry>&funcallable-standard-class;</entry>
-    <entry>no</entry><entry>yes</entry>
+   <row><entry>&funcallable-standard-class;</entry>&no-en; &yes-en;
     <entry>(&class;)</entry></row>
  </tbody></tgroup></table>
 </para>
@@ -1582,9 +1532,8 @@ In addition, once finalization is complete, any dependents of the
    <varlistentry><term>&nname-r;</term>
     <listitem><simpara>any Lisp object.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>This function returns its &nname-r; argument.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>The &nname-r; argument.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function changes the name of &class-r; to &nname-r;.
    This value is usually a symbol, or &nil; if the class has no name.</simpara>
@@ -1609,8 +1558,8 @@ In addition, once finalization is complete, any dependents of the
       others are processed during initialization of the &c-mo;
       (as described in <xref linkend="mop-cl-init-mo"/>).
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result is a &c-mo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function is called to define or redefine a
    class with the specified name, and can be called by the user or the
@@ -1657,8 +1606,8 @@ In addition, once finalization is complete, any dependents of the
    <varlistentry><term>additional keyword arguments</term>
     <listitem><simpara>See <xref linkend="mop-cl-init-mo"/>
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result is a &c-mo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to define or modify
    the definition of a named class.  It is called by the &ensure-class;
@@ -1746,8 +1695,7 @@ In addition, once finalization is complete, any dependents of the
      &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&class-mo-arg;</variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to finalize a &c-mo;.
    This is described in <xref linkend="mop-cl-finalization"/>
@@ -1781,9 +1729,9 @@ In addition, once finalization is complete, any dependents of the
     <listitem><simpara>a list of alternating initialization argument
       names and values.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result is a newly allocated and initialized
- instance of &class-r;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A newly allocated and initialized instance of &class-r;.
+</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>The generic function &make-instance; creates and
    returns a new instance of the given class.  Its behavior and use is
@@ -1818,9 +1766,9 @@ In addition, once finalization is complete, any dependents of the
     <listitem><simpara>alternating initialization argument names and
       values.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned is a newly allocated instance of
-   &class-r;</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A newly allocated instance of &class-r;
+</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to create a new,
    uninitialized instance of a class.  The interpretation of the concept
@@ -1869,11 +1817,10 @@ In addition, once finalization is complete, any dependents of the
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&class-mo-arg;
    <varlistentry><term>&superclass-r;</term>
-    <listitem><simpara>a &c-mo;.</simpara></listitem></varlistentry>
+    <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>This generic function returns true or false.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>&boolean-t;.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to determine whether
    the class &superclass-r; is suitable for use as a superclass of
@@ -1927,9 +1874,8 @@ In addition, once finalization is complete, any dependents of the
     <varlistentry><term>&slot-spec-r;</term><listitem><simpara>a
        &canonicalized-slot-spec;.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned by this generic function is a
-   list of initialization arguments for a &dsdmo;.
+<varlistentry><term>Value</term>
+ <listitem><simpara>A list of initialization arguments for a &dsdmo;.
 </simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function determines the initialization
@@ -1962,8 +1908,8 @@ In addition, once finalization is complete, any dependents of the
    <varlistentry><term>&initargs-r;</term>
     <listitem><simpara>a set of initialization arguments and values.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned is a subclass of the class &dsd-t;.
+<varlistentry><term>Value</term>
+ <listitem><simpara>A subclass of the class &dsd-t;.
 </simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>When a class is initialized, each of the
@@ -1990,9 +1936,8 @@ In addition, once finalization is complete, any dependents of the
      &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&class-mo-arg;</variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned by this generic function is a
-   list of &c-mo;s.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A list of &c-mo;s.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic-function is called to determine the
    class precedence list of a class.</simpara>
@@ -2028,9 +1973,8 @@ In addition, once finalization is complete, any dependents of the
  </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&class-mo-arg;</variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned is a set of &esdmo;s.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A set of &esdmo;s.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function computes a set of effective
    &sdmo;s for the class &class-r;.  The result is a list of &esdmo;s:
@@ -2086,9 +2030,8 @@ In addition, once finalization is complete, any dependents of the
     <listitem><simpara>an ordered list of &dsdmo;s.  The most specific
       &dsdmo; appears first in the list.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned by this generic function is an
-   &esdmo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>An &esdmo;.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function determines the effective slot
    definition for a slot in a class.  It is called by &compute-slots;
@@ -2134,9 +2077,8 @@ In addition, once finalization is complete, any dependents of the
     <listitem><simpara>an ordered list of &dsdmo;s.  The most specific
       &dsdmo; appears first in the list.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned by this generic function is a
-   list of initialization arguments for an &esdmo;.
+<varlistentry><term>Value</term>
+ <listitem><simpara>A list of initialization arguments for an &esdmo;.
 </simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function determines the initialization
@@ -2170,8 +2112,8 @@ In addition, once finalization is complete, any dependents of the
    <varlistentry><term>&initargs-r;</term>
     <listitem><simpara>set of initialization arguments and values.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned is a subclass of the class &esd-class;.
+<varlistentry><term>Value</term>
+ <listitem><simpara>A subclass of the class &esd-class;.
 </simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called by &compute-esd; to
@@ -2197,9 +2139,8 @@ In addition, once finalization is complete, any dependents of the
     &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&class-mo-arg;</variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned by this generic function is a
-   list of &canonicalized-default-initarg;s.
+<varlistentry><term>Value</term>
+ <listitem><simpara>A list of &canonicalized-default-initarg;s.
 </simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic-function is called to determine the
@@ -2254,8 +2195,7 @@ In addition, once finalization is complete, any dependents of the
    <varlistentry><term>&subclass-r;</term>
     <listitem><simpara>a &c-mo;.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to maintain a set of
    backpointers from a class to its direct subclasses.  This generic
@@ -2294,8 +2234,7 @@ In addition, once finalization is complete, any dependents of the
    <varlistentry><term>&subclass-r;</term>
     <listitem><simpara>a &c-mo;.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to maintain a set of
    backpointers from a class to its direct subclasses.  It removes
@@ -3032,9 +2971,8 @@ restrictions.</para>
    <varlistentry><term>&nname-r;</term>
     <listitem><simpara>a &funname; or &nil;.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>This function returns its &nname-r; argument.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>The &nname-r; argument.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function changes the name of &gf-r; to &nname-r;.
    This value is usually a &funname; or &nil;, if the generic function
@@ -3060,8 +2998,8 @@ restrictions.</para>
       processed during initialization of the &gfmo;
       (as described in <xref linkend="mop-gf-init-mo"/>).
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result is a &gfmo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A &gfmo;.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function is called to define a globally named
    generic function or to specify or modify options and declarations
@@ -3101,8 +3039,8 @@ restrictions.</para>
    <varlistentry><term>&funcname-r;</term>
     <listitem><simpara>a &funname;</simpara></listitem></varlistentry>
    <varlistentry><term>&gf-class-k;</term>
-    <listitem><simpara>a &c-mo; or a class name.  If it is not
-      supplied, it defaults to the class named
+    <listitem><simpara>a &c-mo; or a class name.
+      If it is not supplied, it defaults to the class named
       &standard-generic-function-t;.  If a class name is supplied, it is
       interpreted as the class with that name.  If a class name is
       supplied, but there is no such class, an &err-sig;.
@@ -3114,8 +3052,8 @@ restrictions.</para>
        with &ensure-gf; in &ansi-cl;.</simpara></note>
    </listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result is a &gfmo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A &gfmo;.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>The generic function &ensure-gf-UC; is called to
    define or modify the definition of a globally named generic function.
@@ -3180,9 +3118,8 @@ restrictions.</para>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg; &method-mo-arg;
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The &gf-r; argument is returned.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>The &gf-r; argument.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function associates an unattached
    method with a generic function.</simpara>
@@ -3233,9 +3170,8 @@ restrictions.</para>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg; &method-mo-arg;
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The &gf-r; argument is returned.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>The &gf-r; argument.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function breaks the association between
    a generic function and one of its methods.</simpara>
@@ -3285,9 +3221,9 @@ restrictions.</para>
    <varlistentry><term>&args-r;</term>
     <listitem><simpara>a list of objects.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>This generic function returns a possibly empty list
-   of &m-mo;s.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A possibly empty list of &m-mo;s.
+</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function determines the method
    applicability of a generic function given a list of required
@@ -3344,9 +3280,9 @@ restrictions.</para>
     <listitem><simpara>a list of &c-mo;s.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
- <listitem><simpara>This generic function returns two values.  The first
-   is a possibly empty list of &m-mo;s.  The second is either
-   true or false.</simpara></listitem></varlistentry>
+ <listitem><orderedlist><listitem><simpara>A possibly empty list of &m-mo;s.
+   </simpara></listitem><listitem><simpara>&boolean-t;</simpara></listitem>
+</orderedlist></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to attempt to
    determine the method applicability of a generic function given only
@@ -3431,9 +3367,9 @@ their own memoization scheme.</para></simplesect>
     <listitem><simpara>a list of &m-mo;s.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
- <listitem><simpara>This generic function returns two values.  The first
-   is an effective method, the second is a list of effective method
-   options.</simpara></listitem></varlistentry>
+ <listitem><orderedlist><listitem><simpara>An effective method</simpara>
+   </listitem><listitem><simpara>A list of effective method options
+</simpara></listitem></orderedlist></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to determine the
    effective method from a sorted list of &m-mo;s.</simpara>
@@ -3486,10 +3422,10 @@ their own memoization scheme.</para></simplesect>
     <listitem><simpara>a list of arguments.
    </simpara></listitem></varlistentry>
  </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>This function returns the effective method as a function,
-   accepting any set of arguments for which all of the given methods are
-   applicable.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>The effective method as a function, accepting any
+   set of arguments for which all of the given methods are applicable.
+</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function is called to determine the effective method
    from a sorted list of &m-mo;s, and convert it to a function.
@@ -3522,9 +3458,9 @@ their own memoization scheme.</para></simplesect>
      macro expansion functions.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
- <listitem><simpara>This generic function returns two values.  The first
-   is a &lambda-expr;, the second is a list of initialization
-   arguments and values.</simpara></listitem></varlistentry>
+ <listitem><orderedlist><listitem><simpara>A &lambda-expr;</simpara></listitem>
+   <listitem><simpara>A list of initialization arguments and values
+</simpara></listitem></orderedlist></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to produce a
    &lambda-expr; which can itself be used to produce a method function
@@ -3660,9 +3596,8 @@ override the system's definitions.</para>
     &gf-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg;</variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned by this generic function is a
-   function.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A function.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to determine the
    discriminating function for a generic function.  When a generic
@@ -4193,8 +4128,8 @@ restrictions.</para>
    <varlistentry><term>&spec-lalist-r;</term>
     <listitem><simpara>a &spelalist; as accepted by &defmethod;.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result is an unspecialized &lalist;.
+<varlistentry><term>Value</term>
+ <listitem><simpara>An unspecialized &lalist;.
 </simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function takes a &spelalist; and
@@ -4228,8 +4163,8 @@ restrictions.</para>
    <varlistentry><term>&spec-lalist-r;</term>
     <listitem><simpara>a &spelalist; as accepted by &defmethod;.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result is a list of specializer names.
+<varlistentry><term>Value</term>
+ <listitem><simpara>A list of specializer names.
 </simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function takes a &spelalist; and
@@ -4304,9 +4239,8 @@ initialization.</para>
    <varlistentry><term>&initargs-r;</term>
     <listitem><simpara>alternating initialization argument names and values.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned is a &c-mo;.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to determine the
    class of reader methods created during class initialization and
@@ -4343,9 +4277,8 @@ initialization.</para>
    <varlistentry><term>&initargs-r;</term>
     <listitem><simpara>a list of initialization arguments and values.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned is a &c-mo;.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to determine the
    class of writer methods created during class initialization and
@@ -4402,9 +4335,7 @@ initialization.</para>
    <varlistentry><term><replaceable>eql-specializer</replaceable></term>
      <listitem><simpara>an &eql-t; specializer metaobject.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned by this function is an object.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>&an-object;</varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function returns the object associated with
    <replaceable>eql-specializer</replaceable> during initialization.
@@ -4434,8 +4365,8 @@ initialization.</para>
     <listitem><simpara>any Lisp object.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
- <listitem><simpara>The result is the &eql-t; specializer metaobject for
-   &object-r;.</simpara></listitem></varlistentry>
+ <listitem><simpara>The &eql-t; specializer metaobject for &object-r;.
+</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function returns the unique &eql-t; specializer
    metaobject for &object-r;, creating one if necessary.  Two calls to
@@ -4460,9 +4391,9 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&specializer-mo-arg;
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result of this generic function is a possibly
-   empty list of &m-mo;s.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A possibly empty list of &m-mo;s.
+</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function returns the possibly empty set
    of those methods, connected to generic functions, which have
@@ -4497,9 +4428,9 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&specializer-mo-arg;
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result of this generic function is a possibly
-   empty list of &gfmo;s.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A possibly empty list of &gfmo;s.
+</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function returns the possibly empty set
    of those generic functions which have a method with &specializer-r;
@@ -4533,8 +4464,7 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&specializer-mo-arg; &method-mo-arg;
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to maintain a set of
    backpointers from a specializer to the set of methods specialized to
@@ -4583,8 +4513,7 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&specializer-mo-arg; &method-mo-arg;
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to maintain a set of
    backpointers from a specializer to the set of methods specialized to
@@ -4658,9 +4587,8 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
    <varlistentry><term><replaceable>method-combination-options</replaceable></term>
     <listitem><simpara>a list of arguments to the method combination type.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned by this generic function is a
-   &mcmo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>A &mcmo;.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to determine the
    method combination object used by a generic function.
@@ -4865,14 +4793,11 @@ objects linked, for example, by hash tables.)
     &instance-r; &location-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
-   <varlistentry><term>&instance-r;</term>
-    <listitem><simpara>an object</simpara></listitem></varlistentry>
+   <varlistentry><term>&instance-r;</term>&an-object;</varlistentry>
    <varlistentry><term>&location-r;</term>
     <listitem><simpara>a slot location</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result of this function is an object.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>&an-object;</varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function is called to provide direct access to
    a slot in an instance.  By usurping the normal slot lookup protocol,
@@ -4905,14 +4830,11 @@ objects linked, for example, by hash tables.)
     &instance-r; &location-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
-   <varlistentry><term>&instance-r;</term>
-    <listitem><simpara>an object</simpara></listitem></varlistentry>
+   <varlistentry><term>&instance-r;</term>&an-object;</varlistentry>
    <varlistentry><term>&location-r;</term>
     <listitem><simpara>a slot location</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result of this function is an object.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>&an-object;</varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function is called to provide direct access to
    a slot in an instance.  By usurping the normal slot lookup protocol,
@@ -4952,10 +4874,9 @@ objects linked, for example, by hash tables.)
        (&funcallable-standard-class;)</literal>).
    </simpara></listitem></varlistentry>
    <varlistentry><term>&func-r;</term>
-    <listitem><simpara>a function.</simpara></listitem></varlistentry>
+    <listitem><simpara>A function.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function is called to set or to change the
    function of a funcallable instance.  After
@@ -4978,14 +4899,11 @@ objects linked, for example, by hash tables.)
    <varlistentry><term>&class-r;</term>
     <listitem><simpara>a &c-mo; - the class of the
       &object-r; argument</simpara></listitem></varlistentry>
-   <varlistentry><term>&object-r;</term>
-    <listitem><simpara>an object</simpara></listitem></varlistentry>
+   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
    <varlistentry><term>&slot-r;</term>
     <listitem><simpara>an &esdmo;</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned by this generic function is an object.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Values</term>&an-object;</varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function implements the behavior of the
    &slot-value; function.  It is called by &slot-value; with the class
@@ -5019,19 +4937,16 @@ objects linked, for example, by hash tables.)
     &object-r; &slot-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
-   <varlistentry><term>&nval-r;</term>
-    <listitem><simpara>an object</simpara></listitem></varlistentry>
+   <varlistentry><term>&nval-r;</term>&an-object;</varlistentry>
    <varlistentry><term>&class-r;</term>
     <listitem><simpara>a &c-mo; - the class of the
       &object-r; argument.</simpara></listitem></varlistentry>
-   <varlistentry><term>&object-r;</term>
-    <listitem><simpara>an object</simpara></listitem></varlistentry>
+   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
    <varlistentry><term>&slot-r;</term>
     <listitem><simpara>an &esdmo;.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>This generic function returns the &nval-r; argument.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>The &nval-r; argument.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>The generic function &setf-slot-value-UC; implements
    the behavior of the &setf-slot-value; function. It is called by
@@ -5067,14 +4982,12 @@ objects linked, for example, by hash tables.)
    <varlistentry><term>&class-r;</term>
     <listitem><simpara>a &c-mo; - the class of the
       &object-r; argument.</simpara></listitem></varlistentry>
-   <varlistentry><term>&object-r;</term>
-    <listitem><simpara>an object</simpara></listitem></varlistentry>
+   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
    <varlistentry><term>&slot-r;</term>
     <listitem><simpara> an &esdmo;.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>This generic function returns true or false.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>&boolean-t;</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function implements the behavior of the
    &slot-boundp; function.  It is called by &slot-boundp; with the class
@@ -5114,14 +5027,12 @@ unbound slots, true should be returned.</para></formalpara>
    <varlistentry><term>&class-r;</term>
     <listitem><simpara>a &c-mo; - the class of the
       &object-r; argument.</simpara></listitem></varlistentry>
-   <varlistentry><term>&object-r;</term>
-    <listitem><simpara>an object</simpara></listitem></varlistentry>
+   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
    <varlistentry><term>&slot-r;</term>
     <listitem><simpara>an &esdmo;.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>This generic function returns its &object-r; argument.
-</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>
+ <listitem><simpara>The &object-r; argument.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function implements the behavior of the
    &slot-makunbound; function.  It is called by &slot-makunbound; with
@@ -5239,8 +5150,7 @@ cache of the dependent when it is updated.</para>
     <listitem><simpara>a list of the initialization arguments for
       the metaobject redefinition.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to update a
    dependent of &metaobject-r;.</simpara>
@@ -5279,11 +5189,9 @@ cache of the dependent when it is updated.</para>
  <listitem><variablelist>
    <varlistentry><term>&metaobject-r;</term>
     <listitem><simpara>a class or &gfmo;</simpara></listitem></varlistentry>
-   <varlistentry><term>&dependent-r;</term>
-    <listitem><simpara>an object</simpara></listitem></varlistentry>
+   <varlistentry><term>&dependent-r;</term>&an-object;</varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function adds &dependent-r; to the
    dependents of &metaobject-r;.  If &dependent-r; is already in the set
@@ -5339,11 +5247,9 @@ cache of the dependent when it is updated.</para>
  <listitem><variablelist>
    <varlistentry><term>&metaobject-r;</term>
     <listitem><simpara>a class or &gfmo;</simpara></listitem></varlistentry>
-   <varlistentry><term>&dependent-r;</term>
-    <listitem><simpara>an object</simpara></listitem></varlistentry>
+   <varlistentry><term>&dependent-r;</term>&an-object;</varlistentry>
 </variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function removes &dependent-r; from the
    dependents of &metaobject-r;.  If &dependent-r; is not one of the
@@ -5401,8 +5307,7 @@ cache of the dependent when it is updated.</para>
    <varlistentry><term>&func-r;</term>
     <listitem><simpara>a function which accepts one argument.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
+&values-unspecified;
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function applies &func-r; to each of
    the dependents of &metaobject-r;.  The order in which the dependents
