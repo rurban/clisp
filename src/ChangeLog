@@ -1,5 +1,10 @@
 2007-11-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/wildcard/configure.in: fnmatch.h is in the build
+	directory, not the source directory
+
+2007-11-06  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (XCC_CREATESHARED): treat mingw just like all the
 	other free OS (gnu/linux/bsd/cygwin)
 
