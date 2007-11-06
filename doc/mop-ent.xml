@@ -131,8 +131,9 @@
 <!ENTITY no-extra-specs '<simpara>No behavior is specified for these
    methods beyond that which is specified for their respective generic
    functions.</simpara>'>
-<!ENTITY values-unspecified '<simpara>The value returned by this generic
- function is unspecified.</simpara>'>
+<!ENTITY values-unspecified '<varlistentry><term>Values</term><listitem>
+ <simpara>The values returned by this generic function is unspecified.
+ </simpara></listitem></varlistentry>'>
 <!ENTITY also-must-override 'This method cannot be overridden unless the
  following methods are overridden as well:'>
 <!ENTITY may-override '<simpara>Overriding these methods is permitted,
@@ -175,3 +176,4 @@
 <!ENTITY m-mo '<link linkend="mop-method-mo">method metaobject</link>'>
 <!ENTITY mcmo '<link linkend="mop-meth-comp-mo">method combination metaobject</link>'>
 <!ENTITY sdmo '<link linkend="mop-slot-def-mo">slot definition metaobject</link>'>
+<!ENTITY an-object '<listitem><simpara>an object</simpara></listitem>'>
