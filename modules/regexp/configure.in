@@ -30,6 +30,7 @@ esac
 if test $ac_use_included_regex = yes; then
   REGEX_O="regex.$ac_cv_objext"
   # must link gnulib regex.h into the build directory
+  # from clisp/src/gllib/regex.h
   $as_ln_s $srcdir/../../src/gllib/regex.h .
   if test $gl_cv_func_malloc_posix = yes; then MALLOC_O=""
   else MALLOC_O="malloc.$ac_cv_objext"
