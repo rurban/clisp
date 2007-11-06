@@ -2124,11 +2124,9 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <para>The command <screen>
 &sh-prompt; &clisp-link; run &source-r; &mod-r; ...
 </screen> runs the &linkset; in directory &source-r;, with the &module;
- in directory &mod-r; loaded.
- More than one module can be specified.
- If &clisp; has been built with the configuration option
- <option>--with-dynamic-modules</option>, the loading will be performed
- through <link linkend="mod-dynload">dynamic loading</link>.
+ in directory &mod-r; loaded. More than one module can be specified.
+ If &clisp; has been built with the configuration option &with-dynmod;,
+ the loading will be performed <link linkend="mod-dynload">dynamically</link>.
  Otherwise - this is much slower - a temporary &linkset; will be created
  and deleted afterwards.</para>
 </simplesect>
@@ -2214,13 +2212,13 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <section id="mod-dynload"><title>Function &mod-dynload;</title>
 <subtitle><emphasis role="plat-dep">Only when compiled &with; configure
-  flag <option>--with-dynamic-modules</option>.</emphasis></subtitle>
+  flag &with-dynmod;.</emphasis></subtitle>
 
 <note><para>Dynamic loading does not work on all operating systems
   (<function role="unix">dlopen</function> or equivalent is required).
 </para></note>
-<note><para><option>--with-dynamic-modules</option> precludes some
-  efficiency optimizations which are enabled by default.</para></note>
+<note><para>&with-dynmod; precludes some optimizations which
+  are enabled by default.</para></note>
 
 <para>Function <code>(&mod-dynload; &filename-r; ({&name-r;}+))</code>
  loads a shared object file or library containing a number of named
