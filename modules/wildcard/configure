@@ -3588,7 +3588,7 @@ _ACEOF
 fi
 
 
-if test -n "$FNMATCH_H"; then
+if test $ac_cv_func_fnmatch_gnu != yes; then
   FNMATCH_O=fnmatch.o
   # must link gnulib fnmatch.h into the build directory
   $as_ln_s $srcdir/../../src/gllib/fnmatch.h .
