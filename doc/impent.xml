@@ -937,6 +937,8 @@
 <!ENTITY ubyte-vec '<literal role="type">(&vector-t; (&unsigned-byte-t; 8))</literal>'>
 <!ENTITY yes '<listitem><simpara>yes</simpara></listitem>'>
 <!ENTITY no '<listitem><simpara>no</simpara></listitem>'>
+<!ENTITY yes-en '<entry>yes</entry>'>
+<!ENTITY no-en '<entry>no</entry>'>
 <!ENTITY and-e '<emphasis role="strong">and</emphasis>'>
 <!ENTITY not-e '<emphasis role="strong">not</emphasis>'>
 <!ENTITY is-e '<emphasis role="strong">is</emphasis>'>
