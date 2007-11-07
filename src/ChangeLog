@@ -1,3 +1,7 @@
+2007-11-07  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (--help): use @PACKAGE_STRING@ (@PACKAGE_BUGREPORT@)
+
 2007-11-07  Ralf-P. Weinmann  <weinmann@cdc.informatik.tu-darmstadt.de>
 	Sam Steingold  <sds@gnu.org>
 
