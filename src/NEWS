@@ -13,6 +13,7 @@ User visible changes
 * Portability:
   + Support for ancient systems with broken CPP have been dropped.
     This includes AIX 4.2, Coherent386, Ultrix, MSVC4, MSVC5.
+  + NeXT application (GUI) code has been removed. Plain TTY is still supported.
 
 * Module berkeley-db now supports Berkeley DB 4.5.
 
