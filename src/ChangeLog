@@ -1,3 +1,9 @@
+2007-11-07  Elliott Slaughter  <elliottslaughter@gmail.com>
+	Sam Steingold  <sds@gnu.org>
+
+	* win32msvc/nsis/add_to_path.nsh, win32msvc/nsis/install.nsi:
+	* win32msvc/nsis/is_user_admin.nsh: NullSoft Install System scripts
+
 2007-11-07  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (--help): use @PACKAGE_STRING@ (@PACKAGE_BUGREPORT@)
