@@ -1862,7 +1862,7 @@ local inline void fini_lowest_level (void) {
  #ifdef WIN32_NATIVE
   done_win32();
  #endif
- #if defined(UNIX) && !defined(NEXTAPP)
+ #if defined(UNIX)
   terminal_sane(); # switch terminal again in normal mode
  #endif
 }
@@ -3226,10 +3226,6 @@ static struct argv_initparams argv1;
 static struct argv_actions argv2;
 
 # main program stores the name 'main'.
-#ifdef NEXTAPP
-  # main() already exists in Lisp_main.m
-  #define main  clisp_main
-#endif
 #ifndef argc_t
   #define argc_t int  # Type of argc is mostly 'int'.
 #endif
@@ -3322,10 +3318,6 @@ global int main (argc_t argc, char* argv[]) {
   init_dependent_encodings();
   # initialize stream-variables:
   init_streamvars(argv2.argv_batchmode_p);
- #ifdef NEXTAPP
-  # make nxterminal-stream functional:
-  if (nxterminal_init()) { final_exitcode = 17; quit(); }
- #endif
   # make break possible:
   end_system_call();
   clr_break_sem_1();
@@ -3435,9 +3427,6 @@ nonreturning_function(global, quit, (void)) {
   }
  #ifdef DYNAMIC_FFI
   exit_ffi(); # close FFI
- #endif
- #ifdef NEXTAPP
-  nxterminal_exit(); # cloase terminal-stream-communication
  #endif
   quit_sofort(final_exitcode); # leave program
 }

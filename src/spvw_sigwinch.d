@@ -29,7 +29,6 @@
 # update_linelength();
 local void update_linelength (void) {
   # SYS::*PRIN-LINELENGTH* := width of the terminal-window - 1
- #if !defined(NEXTAPP)
   # [cf. 'term.c' in 'calc' by Hans-J. Boeh, Vernon Lee, Alan J. Demers]
   if (isatty(stdout_handle)) { # is standard-output a terminal?
     /* var int lines = 0; */
@@ -67,12 +66,6 @@ local void update_linelength (void) {
       Symbol_value(S(prin_linelength)) = fixnum(columns-1);
     }
   }
- #else # defined(NEXTAPP)
-  if (nxterminal_line_length > 0) {
-    # change value of SYS::*PRIN-LINELENGTH* :
-    Symbol_value(S(prin_linelength)) = fixnum(nxterminal_line_length-1);
-  }
- #endif
 }
 
 #endif

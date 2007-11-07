@@ -1,7 +1,7 @@
 /*
  * The include file for the UNIX version of CLISP
  * Bruno Haible 1990-2007
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2007
  */
 
 /* control character constants: */
@@ -859,17 +859,3 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 
 /* close all file descriptors before exec() */
 global void close_all_fd (void);
-
-/* CLISP as a NeXTstep-GUI-Application: */
-#ifdef NEXTAPP
-/* Terminal-Stream, as nxterminal.m over the class LispServer implements it. */
-  extern void nxterminal_send_output (void);
-  extern void nxterminal_write_char (unsigned char ch);
-  extern void nxterminal_write_string (unsigned char * string);
-  extern unsigned char nxterminal_read_char (int* linepos);
-  extern int nxterminal_unread_char (void);
-  extern int nxterminal_listen (void);
-  extern int nxterminal_init (void);
-  extern int nxterminal_exit (void);
-  extern int nxterminal_line_length;
-#endif
