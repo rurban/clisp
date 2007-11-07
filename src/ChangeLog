@@ -1,3 +1,10 @@
+2007-11-07  Ralf-P. Weinmann  <weinmann@cdc.informatik.tu-darmstadt.de>
+	Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1827572 ]: macosx: clisp|tee error
+	* stream.d (finish_tty_output, force_tty_output, clear_tty_output)
+	[UNIX_DARWIN]: treat ENOTSUP like EOPNOTSUPP
+
 2007-11-06  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (SOURCES5): remove $T/nextapp
