@@ -3460,24 +3460,24 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
           if (!(errno==ENOSYS))
           #endif
           #ifdef UNIX_CYGWIN32 /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
-          if ((errno != EBADF) && (errno != EACCES) && (errno != EBADRQC))
-          #endif
-          #ifdef UNIX_DARWIN
-          if ((errno != EOPNOTSUPP) && (errno != ENODEV))
-          #endif
-          if (!(errno==EINVAL))
-            { OS_error(); }
+           if ((errno != EBADF) && (errno != EACCES) && (errno !=   EBADRQC))
+           #endif
+           #ifdef UNIX_DARWIN
+          if ((errno != EOPNOTSUPP) && (errno != ENOTSUP) && (errno ! = ENODEV))
+           #endif
+           if (!(errno==EINVAL))
+             { OS_error(); }
         #endif
       } else goto ok;
     #endif
     #ifdef UNIX_TERM_TERMIOS
-      if (!( TCDRAIN(handle) ==0)) {
-        if (!((errno==ENOTTY)||(errno==EINVAL)))
-        #ifdef UNIX_DARWIN
-        if (!((errno==EOPNOTSUPP)||(errno==ENODEV)))
-        #endif
-          { OS_error(); } # no TTY: OK, report other Error
-      } else goto ok;
+       if (!( TCDRAIN(handle) ==0)) {
+         if (!((errno==ENOTTY)||(errno==EINVAL)))
+         #ifdef UNIX_DARWIN
+        if (!((errno==EOPNOTSUPP)||(errno==ENOTSUP)||(errno==ENODEV)))
+         #endif
+           { OS_error(); } # no TTY: OK, report other Error
+       } else goto ok;
     #endif
     #ifdef UNIX_TERM_TERMIO
       if (!( ioctl(handle,TCSBRK,(CADDR_T)1) ==0)) {
@@ -3520,13 +3520,13 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
         if (!(errno==ENOSYS))
         #endif
         #ifdef UNIX_CYGWIN32 /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
-        if ((errno != EBADF) && (errno != EACCES) && (errno != EBADRQC))
-        #endif
-        #ifdef UNIX_DARWIN
-        if ((errno != EOPNOTSUPP) && (errno != ENODEV))
-        #endif
-        if (!(errno==EINVAL))
-          OS_error();
+         if ((errno != EBADF) && (errno != EACCES) && (errno != EBADRQC))
+         #endif
+         #ifdef UNIX_DARWIN
+        if ((errno != EOPNOTSUPP) && (errno != ENOTSUP) && (errno != ENODEV))
+         #endif
+         if (!(errno==EINVAL))
+           OS_error();
       #endif
     }
     end_system_call();
@@ -3546,13 +3546,13 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
       if (!( TCFLUSH(handle,TCOFLUSH) ==0)) {
         #ifdef UNIX_IRIX
         if (!(errno==ENOSYS))
-        #endif
-        if (!((errno==ENOTTY)||(errno==EINVAL)))
-        #ifdef UNIX_DARWIN
-        if (!((errno==EOPNOTSUPP)||(errno==ENODEV)))
-        #endif
-          { OS_error(); } # no TTY: OK, report other Error
-      }
+         #endif
+         if (!((errno==ENOTTY)||(errno==EINVAL)))
+         #ifdef UNIX_DARWIN
+        if (!((errno==EOPNOTSUPP)||(errno==ENOTSUP)||(errno==ENODEV)))
+         #endif
+           { OS_error(); } # no TTY: OK, report other Error
+       }
     #endif
     #ifdef UNIX_TERM_TERMIO
       #ifdef TCOFLUSH # !RISCOS
