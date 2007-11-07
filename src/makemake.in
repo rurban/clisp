@@ -154,7 +154,7 @@ for arg do
       info_help
       exit 0 ;;
     --version | --versio | --versi | --vers | --ver | --ve | --v)
-      echol "CLISP version @PACKAGE_VERSION@"
+      echol "@PACKAGE_STRING@ (@PACKAGE_BUGREPORT@)"
       exit 0 ;;
   esac
 done
