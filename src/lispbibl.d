@@ -67,7 +67,7 @@
  DEC Alpha    DEC                OSF/1 1.3                     cc            [unix,] __unix__, __osf__, __alpha
  DEC Alpha    DEC                OSF/1 1.3                     GNU           unix, __unix__, __osf__, __alpha, __alpha__, _LONGLONG
  Apple MacII  Apple              A/UX (UNIX SYS V 2)           GNU           [__]unix, [__]AUX, [__]macII, [__]m68k, mc68020, mc68881, __GNUC__
- NeXT         NeXT               NeXTstep 3.1 (UNIX)           cc            NeXT, m68k; NEXTAPP for NeXTstep Application
+ NeXT         NeXT               NeXTstep 3.1 (UNIX)           cc            NeXT, m68k
  PowerPC      Apple              Mach 3.0 + MkLinux            GNU           unix, __powerpc__, __PPC__, _ARCH_PPC, _CALL_SYSV, __ELF__, __linux__
  PowerPC      Apple              Mach + Rhapsody               cc            __MACH__, __APPLE__, __ppc[__], __GNUC__, __APPLE_CC__
  PowerPC      Apple              Mach + MacOS X                cc            __MACH__, __APPLE__, __ppc__, __GNUC__, __APPLE_CC__
@@ -292,10 +292,6 @@
   #endif
   #ifdef NeXT
     #define UNIX_NEXTSTEP  # NeXTstep
-    # define NEXTAPP       # Define this to get a NeXTstep-GUI application
-
-    #define MAYBE_NEXTAPP  # a little hack, to make the .mem files compatible
-                           # between CLISP with NEXTAPP and without NEXTAPP
   #endif
   #if defined(__APPLE__) && defined(__MACH__)
     #define UNIX_MACOSX  # MacOS X
@@ -2109,7 +2105,7 @@ typedef enum {
 
 # Whether to create a stream *KEYBOARD-INPUT*
 # and whether it will be used for the stream *TERMINAL-IO*:
-#if ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES)) || defined(WIN32_NATIVE)
+#if (defined(UNIX) && !defined(NO_TERMCAP_NCURSES)) || defined(WIN32_NATIVE)
   #define KEYBOARD
   #if 0
     #define TERMINAL_USES_KEYBOARD
@@ -2123,7 +2119,7 @@ typedef enum {
 #endif
 
 # Whether there are Window-streams and a package SCREEN:
-#if defined(WIN32_NATIVE) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES))
+#if (defined(UNIX) && !defined(NO_TERMCAP_NCURSES)) || defined(WIN32_NATIVE)
   #define SCREEN
 #endif
 # When changed: extend stream.d (loads of work!).
@@ -15859,7 +15855,7 @@ extern maygc bool stream_get_read_eval (object stream);
 extern maygc void stream_set_read_eval (object stream, bool value);
 # used by
 
-#if defined(UNIX) && !defined(NEXTAPP)
+#if defined(UNIX)
   # UP: return terminal to normal mode
   # terminal_sane();
   extern void terminal_sane (void);

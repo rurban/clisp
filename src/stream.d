@@ -8046,7 +8046,7 @@ LISPFUNNF(file_stream_p,1)
 #   CONTROL    if pressed with Control-Key,
 #   META       if pressed with Alternate-Key.
 
-#if defined(UNIX) && !defined(NEXTAPP)
+#if defined(UNIX)
   # Additional Components:
   #define strm_keyboard_isatty  strm_isatty   # Flag, if stdin is a Terminal
   #define strm_keyboard_handle  strm_ichannel # Handle for listen_char_unbuffered()
@@ -8145,11 +8145,8 @@ local signean listen_char_keyboard (object stream) {
   end_system_call(); return ls_wait;
 }
 #endif
-#if defined(UNIX) && !defined(NEXTAPP)
+#if defined(UNIX)
   #define listen_char_keyboard  listen_char_unbuffered
-#endif
-#if defined(NEXTAPP)
-  #define listen_char_keyboard(stream)  (stream, ls_eof)
 #endif
 
 # UP: Deletes already entered interactive Input from a Keyboard-Stream.
@@ -8165,7 +8162,7 @@ local bool clear_input_keyboard (object stream) {
   }
   skipSTACK(1);
  #endif
- #if defined(UNIX) && !defined(NEXTAPP)
+ #if defined(UNIX)
   if (nullp(TheStream(stream)->strm_keyboard_isatty)) # File -> do nothing
     return false;
   # Terminal
@@ -8402,7 +8399,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
 }
 #endif
 
-#if defined(UNIX) && !defined(NEXTAPP)
+#if defined(UNIX)
 local inline gcv_object_t* kbd_last_buf (const object stream) {
   var gcv_object_t* last_ = &TheStream(stream)->strm_keyboard_buffer;
   while (mconsp(*last_)) { last_ = &Cdr(*last_); }
@@ -8669,15 +8666,11 @@ local maygc void add_keybinding (const char* cap, const key_event_t* event) {
   do { key_event_t event = initializer; add_keybinding(cap,&event); } while(0)
 #endif
 
-#ifdef NEXTAPP
-  #define rd_ch_keyboard  rd_ch_error
-#endif
-
 # returns a Keyboard-Stream.
 # make_keyboard_stream()
 # can trigger GC
 local maygc object make_keyboard_stream (void) {
- #if defined(UNIX) && !defined(NEXTAPP)
+ #if defined(UNIX)
   {
     # build Table of all assignments character-sequence -> Key :
     pushSTACK(NIL);
@@ -8896,7 +8889,7 @@ local maygc object make_keyboard_stream (void) {
   s->strm_encoding = O(terminal_encoding);
   s->strm_rd_ch = P(rd_ch_keyboard); # READ-CHAR-Pseudofunction
   s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
- #if defined(UNIX) && !defined(NEXTAPP)
+ #if defined(UNIX)
   # determine Flag isatty = (stdin_tty ? T : NIL) :
   begin_system_call();
   s->strm_keyboard_isatty = (isatty(stdin_handle) ? T : NIL);
@@ -8932,7 +8925,7 @@ LISPFUNN(make_keyboard_stream,0) {
 # Interactive Terminal Stream
 # ===========================
 
-#if defined(GNU_READLINE) || defined(NEXTAPP)
+#if defined(GNU_READLINE)
 # Function to ignore unconvertible symbols.
 local void lisp_completion_ignore (void* sp, gcv_object_t* frame, object label,
                                    object condition) {
@@ -9051,94 +9044,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
 }
 #endif
 
-#ifdef NEXTAPP
-
-# Use the interface provided by nxterminal.m, see unix.d.
-
-# UP: Read a character from a Terminal-Stream.
-# rd_ch_terminal(&stream)
-# > stream: Terminal-Stream
-# < object ch: entered character
-local maygc object rd_ch_terminal (const gcv_object_t* stream_) {
-  var int linepos;
-  var uintB ch;
-  begin_call();
-  ch = nxterminal_read_char(&linepos);
-  end_call();
-  TheStream(*stream_)->strm_wr_ch_lpos = fixnum(linepos);
-  return code_char(as_chart(ch)); # FIXME: This should take into account the encoding.
-}
-
-# Determines, if a character is available on a Terminal-Stream.
-# listen_char_terminal(stream)
-# > stream: Terminal-Stream
-# < result:   ls_avail if a character is available,
-#             ls_eof   if EOF is reached,
-#             ls_wait  if no character is available, but not because of EOF
-local maygc signean listen_char_terminal (object stream) {
-  var signean result;
-  begin_call();
-  result = (nxterminal_listen() ? ls_avail : ls_wait);
-  end_call();
-  return result;
-}
-
-# UP: Deletes already entered interactive Input from a Terminal-Stream.
-# clear_input_terminal(stream);
-# > stream: Terminal-Stream
-# < result: true if Input was deleted, else false
-local bool clear_input_terminal (object stream) {
-  # We do not want to delete anything in the input window.
-  return false;
-}
-
-# UP: write a character to a Terminal-Stream.
-# wr_ch_terminal(&stream,ch);
-# > stream: Terminal-Stream
-# > ch: character to be written
-local maygc void wr_ch_terminal (const gcv_object_t* stream_, object ch) {
-  var object stream = *stream_;
-  check_wr_char(stream,ch);
-  begin_call();
-  nxterminal_write_char(char_code(ch));
-  end_call();
-}
-
-# UP: Moves the pending Output of a Terminal-Stream to the destination.
-# finish_output_terminal(stream);
-# > stream: Terminal-Stream
-# can trigger GC
-local maygc void finish_output_terminal (object stream) {
-  begin_call();
-  nxterminal_send_output();
-  end_call();
-}
-
-# UP: Moves the pending Output of a Terminal-Stream to the destination.
-# force_output_terminal(stream);
-# > stream: Terminal-Stream
-# can trigger GC
-#define force_output_terminal(stream)  finish_output_terminal(stream)
-
-# Returns an interactive Terminal-Stream.
-# can trigger GC
-local maygc object make_terminal_stream_ (void) {
-  # allocate a new Stream:
-  var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
-    allocate_stream(strmflags_ch_B,strmtype_terminal,strm_len+0,0);
-  # and fill:
-  stream_dummy_fill(stream);
-  var Stream s = TheStream(stream);
-  s->strm_rd_ch = P(rd_ch_terminal); # READ-CHAR-Pseudofunction
-  s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
-  s->strm_wr_ch = s->strm_wr_ch_npnl = P(wr_ch_terminal); # WRITE-CHAR-Pseudofunction
-  s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunction
-  return stream;
-}
-
-#endif # NEXTAPP
-
-#if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
+#if defined(UNIX) || defined(WIN32_NATIVE)
 
 # Functionality:
 # Standard-Input and Standard-Output are accessed.
@@ -10087,16 +9993,14 @@ LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
   mv_count=1;
 }
 
-#endif # UNIX
+#endif  /* UNIX */
 
-#endif # (UNIX && !NEXTAPP) || WIN32_NATIVE
+#endif  /* UNIX || WIN32_NATIVE */
 
-#if !(defined(UNIX) && !defined(NEXTAPP))
-
+#if !defined(UNIX)
 LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
   VALUES1(NIL); skipSTACK(3); /* do nothing */
 }
-
 #endif
 
 # Returns an interactive Terminal-Stream.
@@ -10637,7 +10541,7 @@ LISPFUNN(window_cursor_off,1) {
 
 #endif # WIN32_NATIVE
 
-#if defined(UNIX) && !defined(NEXTAPP)
+#if defined(UNIX)
 
 # -----------------------------------------------------------------------------
 
@@ -12390,73 +12294,7 @@ LISPFUNN(window_cursor_off,1) {
   VALUES0;
 }
 
-#endif # UNIX && !NEXTAPP
-
-#if defined(MAYBE_NEXTAPP) && defined(NEXTAPP)
-
-# Everything unimplemented.
-
-# error-message.
-nonreturning_function(local, fehler_screen, (void)) {
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: package SCREEN is not implemented"));
-}
-
-LISPFUNN(make_window,0) {
-  fehler_screen();
-}
-
-#define close_window(stream,abort)  fehler_screen()
-
-LISPFUNN(window_size,1) {
-  fehler_screen();
-}
-
-LISPFUNN(window_cursor_position,1) {
-  fehler_screen();
-}
-
-LISPFUNN(set_window_cursor_position,3) {
-  fehler_screen();
-}
-
-LISPFUNN(clear_window,1) {
-  fehler_screen();
-}
-
-LISPFUNN(clear_window_to_eot,1) {
-  fehler_screen();
-}
-
-LISPFUNN(clear_window_to_eol,1) {
-  fehler_screen();
-}
-
-LISPFUNN(delete_window_line,1) {
-  fehler_screen();
-}
-
-LISPFUNN(insert_window_line,1) {
-  fehler_screen();
-}
-
-LISPFUNN(highlight_on,1) {
-  fehler_screen();
-}
-
-LISPFUNN(highlight_off,1) {
-  fehler_screen();
-}
-
-LISPFUNN(window_cursor_on,1) {
-  fehler_screen();
-}
-
-LISPFUNN(window_cursor_off,1) {
-  fehler_screen();
-}
-
-#endif # NEXTAPP
+#endif  /* UNIX */
 
 #if defined(UNIX) && 0
 
@@ -14835,7 +14673,7 @@ local maygc object get_standard_input_file_stream (void) {
 /* Returns the equivalent of the C stream stdout.
  can trigger GC */
 local maygc object get_standard_output_file_stream (void) {
-  #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
+  #if defined(UNIX) || defined(WIN32_NATIVE)
   # On these systems make_terminal_stream() uses stdout_handle.
   var object terminal_stream = Symbol_value(S(terminal_io)); # *TERMINAL-IO*
   if (builtin_stream_p(terminal_stream)
@@ -15516,7 +15354,7 @@ LISPFUNNR(stream_external_format,1)
      #ifdef SOCKET_STREAMS
       case strmtype_socket:
      #endif
-     #if ((defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)) && defined(UNICODE)
+     #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(UNICODE)
       case strmtype_terminal:
      #endif
         VALUES1(TheStream(stream)->strm_encoding); break;
@@ -15752,9 +15590,7 @@ global bool interactive_stream_p (object stream) {
     case strmtype_generic:
     #endif
       return true;
-    #if !defined(NEXTAPP)
     case strmtype_terminal:
-    #endif
     case strmtype_file:
       if (ChannelStream_buffered(stream))
         # Buffered file streams are not considered to be interactive.
@@ -15765,9 +15601,6 @@ global bool interactive_stream_p (object stream) {
           return false;
     #ifdef KEYBOARD
     case strmtype_keyboard:
-    #endif
-    #if defined(NEXTAPP)
-    case strmtype_terminal:
     #endif
     #ifdef PIPES
     case strmtype_pipe_in:
@@ -16069,10 +15902,7 @@ global maygc signean listen_char (object stream) {
         case strmtype_keyboard: return listen_char_keyboard(stream);
         #endif
         case strmtype_terminal:
-        #if defined(NEXTAPP)
-          return listen_char_terminal(stream);
-        #endif
-        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
+        #if defined(UNIX) || defined(WIN32_NATIVE)
           terminalcase(stream,
           { return listen_char_terminal1(stream); },
           { return listen_char_terminal2(stream); },
@@ -16167,10 +15997,7 @@ global maygc bool clear_input (object stream) {
         result = clear_input_keyboard(stream); break;
       #endif
       case strmtype_terminal:
-      #if defined(NEXTAPP)
-        result = clear_input_terminal(stream);
-      #endif
-      #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
+      #if defined(UNIX) || defined(WIN32_NATIVE)
         terminalcase(stream,
         { result = clear_input_terminal1(stream); },
         { result = clear_input_terminal2(stream); },
@@ -16434,7 +16261,7 @@ global maygc void clear_output (object stream) {
           }
           break;
         case strmtype_terminal:
-          #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
+          #if defined(UNIX) || defined(WIN32_NATIVE)
           terminalcase(stream,
           { clear_output_terminal1(stream); },
           { clear_output_terminal2(stream); },
@@ -16780,7 +16607,7 @@ global maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp,
         goto restart_stream_lend_handle;
       #ifdef KEYBOARD
       case strmtype_keyboard:
-       #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
+       #if defined(UNIX) || defined(WIN32_NATIVE)
         if (inputp) {
           if (handletype) *handletype = 1;
           return TheHandle(TheStream(stream)->strm_keyboard_handle);
@@ -17690,26 +17517,6 @@ LISPFUNN(defgray,1) {
 }
 
 # =============================================================================
-
-# achieve binary compatibility between .mem-Files with and without NEXTAPP:
-  #ifdef MAYBE_NEXTAPP
-    #ifndef NEXTAPP
-      #define wr_ch_terminal  wr_ch_error
-      #define rd_ch_terminal  rd_ch_error
-    #else
-      #define wr_ch_terminal1  wr_ch_error
-      #define rd_ch_terminal1  rd_ch_error
-      #define wr_ch_array_terminal1  wr_ch_array_dummy
-    #endif
-    #ifndef GNU_READLINE
-      #define wr_ch_terminal3  wr_ch_error
-      #define rd_ch_terminal3  rd_ch_error
-      #define wr_ch_array_terminal3  wr_ch_array_dummy
-    #endif
-    #ifdef NEXTAPP
-      #define wr_ch_window  wr_ch_error
-    #endif
-  #endif
 
 # table of all pseudo-functions
 global struct pseudocode_tab_ pseudocode_tab = {
