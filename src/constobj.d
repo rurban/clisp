@@ -497,7 +497,7 @@
   LISPOBJ(type_input_stream,"(SATISFIES INPUT-STREAM-P)") # type for error-message
   LISPOBJ(type_output_stream,"(SATISFIES OUTPUT-STREAM-P)") # type for error-message
   LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # type for error-message
-#if defined(GNU_READLINE) || defined(NEXTAPP)
+#if defined(GNU_READLINE)
   LISPOBJ(handler_for_charset_type_error,"(#(SYSTEM::CHARSET-TYPE-ERROR NIL))")
 #endif
   LISPOBJ(setf_stream_element_type,"(SETF STREAM-ELEMENT-TYPE)")
