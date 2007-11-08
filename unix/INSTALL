@@ -26,6 +26,9 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
          CC="gcc -Wall"
          export CC
 
+   If you want to build a 64-bit version of CLISP, you will need to set
+   CC to "gcc -m64".
+
 2. (Recommended)
    Install a few libraries on which CLISP relies:
    * GNU libsigsegv
@@ -42,12 +45,9 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
       + Recommended: needed if you want terminal command line editing.
       <ftp://ftp.gnu.org/pub/gnu/readline/>
       <http://cnswww.cns.cwru.edu/~chet/readline/rltop.html>
-      Note that readline-5.0 is broken; if you want to use it, you need
-      the patches named bash30-002, bash30-005, bash30-006, bash30-009,
-      bash30-011, available from <ftp://ftp.gnu.org/pub/gnu/bash/>.
    * GNU gettext
       + Not needed on systems with glibc 2.2 or newer, but recommended on all
-        other systems: needed if you want clisp with native language support.
+        other systems: needed if you want CLISP with native language support.
       <ftp://ftp.gnu.org/pub/gnu/gettext/>
       <http://www.gnu.org/software/gettext/>
 
@@ -121,8 +121,7 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
          make lispinit.mem        makes all *.fas files and
                                   a memory image with everything compiled
          make manual              makes the documentation
-         make modular             makes the base module set (only needed
-                                  if --with-dynamic-ffi was specified)
+         make modular             makes the base module set
 
    If something goes wrong, check and optionally modify the contents of
    the file config.h and retry this step. Yes, there are many warnings,
@@ -179,7 +178,7 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    and "full" (see <http://clisp.cons.org/impnotes.html#modules>).
    You can chose which linking set to run by using "-K" option of clisp
    (see <http://clisp.cons.org/clisp.html#opt-link-set>)
-   Note that some modules (i18n, regexp and syscalls at this time)
+   Note that some modules (i18n, regexp, syscalls and readline at this time)
    are included in the "base" linking set by default,
    see BASE_MODULES in build-dir/Makefile.
 
