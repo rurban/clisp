@@ -103,9 +103,12 @@ FILLIN=. ../version.sh && sed -e 's,@DTD@,$(DTD_PATH),' \
 	    -e 's,@VERSION@,'$${VERSION_NUMBER}',' \
 	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`','
 
+# cannot use profiling <http://www.sagehill.net/docbookxsl/Profiling.html>
+# because that would require XSL tools to be installed on user machine
 SGML_UNCOMMENT=-e 's/^<!--\#\(.*\)-->$$/\#\1/'
 
-ROFF_UNCOMMENT=-e 's/^\.\\"<!\\-\\-\#\(.*\)\\-\\->$$/\#\1/'
+E=\ *<!--\(\#[^-]*\)--> *
+ROFF_UNCOMMENT=-e 's/^$E$$/\1/' -e 's/$E$$/\n\1/' -e 's/^$E/\1\n/' -e 's/$E/\n\1\n/g'
 
 all: check impnotes.html regexp.html man
 
