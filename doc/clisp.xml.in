@@ -47,10 +47,8 @@
 <arg><option><link linkend="opt-license">--license</link></option></arg>
 <arg><option><link linkend="opt-help-image">-help-image</link></option></arg>
 <arg><option><link linkend="opt-libdir">-B &lld;</link></option></arg>
-<!-- #ifdef UNIX -->
 <arg><option><link linkend="opt-link-set">-K
    <replaceable>linking-set</replaceable></link></option></arg>
-<!-- #endif -->
 <arg><option><link linkend="opt-memfile">-M
    <replaceable>mem-file</replaceable></link></option></arg>
 <arg><option><link linkend="opt-memsize">-m &mems-r;</link></option></arg>
@@ -129,15 +127,12 @@ compiles the specified lisp files to a platform-independent
 <varlistentry id="opt-libdir"><term><option>-B</option> &lld;</term>
  <listitem><simpara>Specifies the installation directory.
    This is the directory containing the linking sets and other data files.
-<!-- #ifdef UNIX -->
    This option is normally not necessary, because the installation directory
    is already built-in into the &clisp-cmd; executable.
-<!-- #endif -->
    Directory &lld; can be changed dynamically using the
    &symbol-macro; <varname>*LIB-DIRECTORY*</varname>.
 </simpara></listitem></varlistentry>
 
-<!-- #ifdef UNIX -->
 <varlistentry id="opt-link-set"><term><option>-K</option>
   <replaceable>linking-set</replaceable></term>
  <listitem><para>Specifies the &linkset; to be run.
@@ -153,7 +148,6 @@ compiles the specified lisp files to a platform-independent
        <olink targetdoc="impnotes" targetptr="modules"/>.
    </simpara></listitem></varlistentry></variablelist>
    The default is &base;.</para></listitem></varlistentry>
-<!-- #endif -->
 
 <varlistentry id="opt-memfile"><term><option>-M</option>
   <replaceable>mem-file</replaceable></term>
@@ -231,8 +225,7 @@ compiles the specified lisp files to a platform-independent
     <member><command>dutch</command></member>
     <member><command>russian</command></member>
     <member><command>danish</command></member></simplelist>.
-   Other languages may be specified through the &env-var;
-   <envar>LANG</envar>,
+   Other languages may be specified through the &env-var; <envar>LANG</envar>,
    provided the corresponding message catalog is installed.
 <!-- #endif -->
    The language may be changed dynamically using the &symbol-macro;
@@ -450,12 +443,12 @@ compiles the specified lisp files to a platform-independent
 
 <refsection id="reference"><title>Language Reference</title>
 
-<para>The language implemented is &ansi-cl;.
+<para>The language implemented is &the-ansi; &cl;.
  The implementation mostly conforms to the <olink targetdoc="impnotes"
  targetptr="ref-ansi">ANSI Common Lisp standard</olink>,
  see <olink targetdoc="impnotes" targetptr="ansi"/>.</para>
 
-<bibliolist>&ansi-cl-bib;</bibliolist>
+<para><bibliolist>&ansi-cl-bib;</bibliolist></para>
 
 </refsection>
 
@@ -619,7 +612,7 @@ compiles the specified lisp files to a platform-independent
 
 <!-- #ifdef UNIX -->
 <varlistentry><term><envar>HOME</envar></term><term><envar>USER</envar></term>
- <listitem><simpara>are used for determining the value of the function
+ <listitem><simpara>used for determining the value of the function
    &user-homedir-pathname;.</simpara></listitem></varlistentry>
 <!-- #endif -->
 
