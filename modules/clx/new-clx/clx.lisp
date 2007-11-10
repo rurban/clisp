@@ -169,7 +169,9 @@
    untrace-display show-trace
    display-trace ; for backwards compatibility describe-request describe-event describe-reply
    closed-display-p
-   open-default-display ; extension
+   ;; extensions
+   open-default-display display-noop
+   ;; not implemented
    describe-error describe-trace))
 
 ;;; SHAPE extension

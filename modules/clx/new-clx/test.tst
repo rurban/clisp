@@ -13,6 +13,7 @@
 (listp (show (multiple-value-list (xlib:display-protocol-version *dpy*)))) T
 (format t "~29b" (xlib:display-resource-id-base *dpy*)) NIL
 (format t "~29b" (xlib:display-resource-id-mask *dpy*)) NIL
+(xlib:display-noop *dpy*) 1
 (listp (show (xlib:display-roots *dpy*))) T
 (listp (show (multiple-value-list (xlib:display-vendor *dpy*)))) T
 (stringp (show (xlib:display-vendor-name *dpy*))) T
