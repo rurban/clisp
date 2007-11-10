@@ -1,3 +1,8 @@
+2007-11-10  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (XLIB:DISPLAY-NOOP): new function
+	* modules/clx/new-clx/clx.lisp (DISPLAY-NOOP): export it
+
 2007-11-07  Elliott Slaughter  <elliottslaughter@gmail.com>
 	Sam Steingold  <sds@gnu.org>
 

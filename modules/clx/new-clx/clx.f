@@ -1862,6 +1862,13 @@ DEFUN(XLIB:DISPLAY-BITMAP-FORMAT, display) /* OK */
   VALUES1(popSTACK());
 }
 
+DEFUN(XLIB:DISPLAY-NOOP, display) {
+  Display *dpy = pop_display ();
+  int ret;
+  X_CALL(ret = XNoOp(dpy));
+  VALUES1(sint_to_I(ret));
+}
+
 DEFUN(XLIB:DISPLAY-BYTE-ORDER, display) /* OK */
 {
   skipSTACK(1);
