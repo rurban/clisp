@@ -330,8 +330,9 @@ ignored by the interpreter.</para>
 </programlisting></para>
 
 <formalpara id="semantic-constraints-non-conf"><title>Non-conformance</title>
-<para>The code shown above has a &special-dec; proclamation for the
- variable &value-r; in the execution environment (before the &funcall;)
+<para>The code shown above has a &special-dec; proclamation (by &defvar;)
+ for the variable &value-r; in the execution environment
+ (before the last two &funcall;s)
  but not in the compilation environment: at the moment
  the <function>ADDER-I</function> function is defined,
  &value-r; is not known to be a &special-dec; variable.
