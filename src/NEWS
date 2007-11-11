@@ -15,7 +15,7 @@ User visible changes
     This includes AIX 4.2, Coherent386, Ultrix, MSVC4, MSVC5.
   + NeXT application (GUI) code has been removed. Plain TTY is still supported.
 
-* Module berkeley-db now supports Berkeley DB 4.5.
+* Module berkeley-db now supports Berkeley DB 4.5 & 4.6.
 
 * Bug fixes:
   + FORCE-OUTPUT breakage on MacOS X when stdour is not a terminal. [ 1827572 ]
