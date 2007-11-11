@@ -694,7 +694,7 @@ if [ "${cl_cv_lib_sigsegv}" != "yes" ]; then
   if [ "${ignore_absence_of_libsigsegv}" = "yes" ]; then
     echo "As you requested, we will proceed without libsigsegv..."
   else
-    SIGSEGV=libsigsegv-2.4
+    SIGSEGV=libsigsegv-2.5
     cat <<EOF 1>&2
 $0: libsigsegv was not detected, thus some features, such as
   generational garbage collection and
