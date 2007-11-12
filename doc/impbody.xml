@@ -762,9 +762,8 @@ compile-time.</para></warning></section>
 <para>The initial value is &not-e; evaluated at compile time,
  just like with &defvar; and &defparameter;.
  Use &eval-when; if you need the value at compile time.</para>
-<para>It is an error if a &defconstant; variable is bound at the moment
- the &defconstant; is executed, but &defconstant; does not check
- this.</para>
+<para>If the variable is already bound to a value which is not &eql; to
+ the new value, a &warning-t; is issued.</para>
 <para>&constant;s may not be bound dynamically or lexically.</para>
 </section>
 
