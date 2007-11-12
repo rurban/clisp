@@ -2817,7 +2817,7 @@ and the international alphabetic characters from the character set:
 <section id="string-comp"><title>String Comparison</title>
 <para>String comparison (&string-lst; and friends) is based on the
  function &char-leq; (see <xref linkend="char-ord"/>).
- Therefore diphthongs do not obey the usual national rules.  Example:
+ Therefore diphthongs do &not-e; obey the usual national rules.  Example:
  <literal>o &lt; oe &lt; z &lt; &ouml;</literal>.</para></section>
 
 <section id="string-width"><title>Function &string-width;</title>
