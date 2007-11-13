@@ -273,3 +273,11 @@ All functionality should be documented.
 When adding a new symbol, document it in the Implementation Notes and
 add an appropriate mapping from the symbol to its XML ID in the impnotes
 to the file doc/Symbol-Table.text (in the order of the impnotes' flow).
+
+
+                          Source File Encoding
+                          --------------------
+
+All files are to be encoded with utf-8 and Unix line endings (LF, ASCII 10).
+Please do make sure that you do not break non-ASCII characters
+and do not replace line endings with the dos CR/LF.
