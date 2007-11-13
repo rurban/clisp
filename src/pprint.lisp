@@ -1,5 +1,5 @@
 ;;; 22.2 The Lisp Pretty Printer
-;;; Sam Steingold 2001-07-26 - 2005
+;;; Sam Steingold 2001-07-26 - 2007
 
 (in-package "LISP")
 (export
@@ -32,10 +32,12 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 ;; you have to change DISPATCH_TABLE_VALID_P in pretty_print_call() in io.d
 ;; since it checks whether the Dispatch Table contains any valid entries
 
+(defun make-pprint-dispatch () (list '*print-pprint-dispatch*))
+
 (defun pprint-dispatch-p (obj)
   (and (consp obj) (eq (car obj) '*print-pprint-dispatch*)))
 
-(defparameter *print-pprint-dispatch* (list '*print-pprint-dispatch*))
+(defparameter *print-pprint-dispatch* (make-pprint-dispatch))
 
 (defun default-print-dispatch-function (stream object)
   (print-object object stream))
@@ -43,7 +45,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 (defun pprint-dispatch (object &optional (table *print-pprint-dispatch*))
   ;; object   ---an object.
   ;; table    ---a pprint dispatch table, or nil.
-  ;;            The default is the value of *print-pprint-dispatch*.
+  ;;             The default is the value of *print-pprint-dispatch*.
   ;; values:
   ;;  function---a function designator.
   ;;  found-p ---a generalized boolean.
@@ -57,7 +59,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
             (setq top (car tail)))
           (pop tail))))
 
-(defun copy-pprint-dispatch (&optional (table *print-pprint-dispatch*))
+(defun copy-pprint-dispatch (&optional (table *print-pprint-dispatch*)) ; ABI
   ;; table     ---a pprint dispatch table, or nil.
   ;; value:
   ;;  new-table---a fresh pprint dispatch table.
@@ -68,7 +70,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
       'copy-pprint-dispatch table))
   (if table
       (copy-alist table)
-      (list '*print-pprint-dispatch*)))
+      (make-pprint-dispatch)))
 
 (defun set-pprint-dispatch (type-specifier function &optional (priority 0)
                             (table *print-pprint-dispatch*))

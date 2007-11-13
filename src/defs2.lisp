@@ -111,7 +111,7 @@
            (*PRINT-LEVEL*               NIL)
            (*PRINT-LINES*               NIL)
            (*PRINT-MISER-WIDTH*         NIL)
-           (*PRINT-PPRINT-DISPATCH*     NIL)
+           (*PRINT-PPRINT-DISPATCH*     (COPY-PPRINT-DISPATCH NIL))
            (*PRINT-PRETTY*              NIL)
            (*PRINT-RADIX*               NIL)
            (*PRINT-READABLY*            T)
