@@ -631,6 +631,9 @@ case $# in
      ;;
 esac
 
+# for systems that lack stdint (or have a broken stdin) [e.g., solaris9]
+CFLAGS=${CFLAGS}' -Igllib'
+
 if [ "${with_gmalloc}" = yes ]; then GMALLOC=gmalloc; else GMALLOC=""; fi
 
 if [ $CROSS = true ] ; then
@@ -1956,7 +1959,7 @@ echol "X_LIBS = ${X_LIBS}"
 X_LIBS="\$(X_LIBS)"
 if [ "${with_dynamic_modules}" != no ]; then
   echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'
-  echol 'MODULE_CFLAGS = $(CFLAGS) -Igllib '"${XCC_PICFLAG}"
+  echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
   echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${XCC_DLOPENABLE_EXE_FLAG}"
   MODULE_CPPFLAGS_VAR='MODULE_CPPFLAGS'
   MODULE_CFLAGS_VAR='MODULE_CFLAGS'
