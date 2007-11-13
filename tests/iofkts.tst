@@ -855,23 +855,33 @@ T
 #+clisp (princ-to-string (fdefinition 'defun)) #+clisp
 "#<MACRO #<COMPILED-FUNCTION DEFUN> (FUNCTION-NAME LAMBDA-LIST &BODY FORMS)>"
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1831367&group_id=1355
+(flet ((foo-printer (stream foo)
+         (let ((*print-pretty* nil))
+           (princ "FOO:" stream) (prin1 (cdr foo) stream))))
+  (with-standard-io-syntax
+    (set-pprint-dispatch '(cons (member foo)) #'foo-printer)
+    (write-to-string '(foo 123) :pretty t)))
+"FOO:(123.)"
+
 ;; cleanup
-(progn
-  (makunbound 'bs)
-  (makunbound 'str1)
-  (makunbound 's1)
-  (makunbound 'string1)
-  (makunbound 'string2)
-  (makunbound 'a)
-  (makunbound 'aa)
-  (makunbound 'b)
-  (makunbound 'c)
-  (makunbound 'd)
-  (makunbound 'j)
-  (makunbound 'x)
-  (fmakunbound 'ask)
-  (fmakunbound 'my-pprint-reverse)
-  (fmakunbound 'my-pprint-logical)
+(flet ((kill (s) (makunbound s) (fmakunbound s) (unintern s)))
+  (kill 'bs)
+  (kill 'str1)
+  (kill 's1)
+  (kill 'string1)
+  (kill 'string2)
+  (kill 'a)
+  (kill 'aa)
+  (kill 'b)
+  (kill 'c)
+  (kill 'd)
+  (kill 'j)
+  (kill 'x)
+  (kill 'ask)
+  (kill 'my-pprint-reverse)
+  (kill 'my-pprint-logical)
+  (kill 'foo-printer)
   (setf (find-class 'c1) nil
         (find-class 'c2) nil))
 NIL

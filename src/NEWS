@@ -18,7 +18,9 @@ User visible changes
 * Module berkeley-db now supports Berkeley DB 4.5 & 4.6.
 
 * Bug fixes:
-  + FORCE-OUTPUT breakage on MacOS X when stdour is not a terminal. [ 1827572 ]
+  + FORCE-OUTPUT breakage on MacOS X when stdout is not a terminal. [ 1827572 ]
+  + Fixed *PRINT-PPRINT-DISPATCH* binding in WITH-STANDARD-IO-SYNTAX.
+    [ 1831367 ]
 
 
 2.42 (2007-10-16)
