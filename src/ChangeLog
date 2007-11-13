@@ -1,5 +1,13 @@
 2007-11-13  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1831367 ]: with-standard-io-syntax/*print-pprint-dispatch*
+	* pprint.lisp (make-pprint-dispatch): add
+	(*print-pprint-dispatch*, copy-pprint-dispatch): use it
+	* defs2.lisp (with-standard-io-syntax): bind
+	*PRINT-PPRINT-DISPATCH* to (COPY-PPRINT-DISPATCH NIL)
+
+2007-11-13  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (CFLAGS): add -Igllib
 	(MODULE_CFLAGS): do not add -Igllib
 	this is necessary for the systems that require stdint from gllib,
