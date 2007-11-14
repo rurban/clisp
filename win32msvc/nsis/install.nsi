@@ -70,7 +70,7 @@ InstType "Typical"
     !define MUI_COMPONENTSPAGE_SMALLDESC
     
     !insertmacro MUI_PAGE_WELCOME
-    !insertmacro MUI_PAGE_LICENSE "license.rtf"
+    !insertmacro MUI_PAGE_LICENSE "COPYRIGHT.rtf"
     !insertmacro MUI_PAGE_COMPONENTS
     !insertmacro MUI_PAGE_DIRECTORY
     
