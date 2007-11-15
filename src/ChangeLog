@@ -3,7 +3,7 @@
 	* win32msvc/nsis/text_to_rtf.lisp: rewrote:
 	use \uNNNN to output Unicode characters;
 	use "Courier New" (fixed width) font to preserve formatting
-	use bold for the header
+	use bold for the headers
 	do not use regexp
 
 2007-11-14  Elliott Slaughter  <elliottslaughter@gmail.com>
