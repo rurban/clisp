@@ -129,7 +129,7 @@ SectionGroup /e "!${NAME} Core"
         SetOutPath $INSTDIR
         
         # create files
-        File /r /x "*.nsi" /x "*.nsh" /x "text_to_rtf.*" /x "license.rtf" /x "install*.*" ".\"
+        File /r /x "*.nsi" /x "*.nsh" /x "text_to_rtf.*" /x "COPYRIGHT.rtf" /x "install*.*" ".\"
         
         # set linking set to base
         StrCpy $LinkingCmd "base"
