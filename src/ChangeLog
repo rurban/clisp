@@ -1,3 +1,15 @@
+2007-11-14  Sam Steingold  <sds@gnu.org>
+
+	* win32msvc/nsis/text_to_rtf.lisp: rewrote:
+	use \uNNNN to output Unicode characters;
+	use "Courier New" (fixed width) font to preserve formatting
+	use bold for the header
+	do not use regexp
+
+2007-11-14  Elliott Slaughter  <elliottslaughter@gmail.com>
+
+	* win32msvc/nsis/text_to_rtf.lisp: ASCII text to RTF converter
+
 2007-11-13  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1831367 ]: with-standard-io-syntax/*print-pprint-dispatch*
