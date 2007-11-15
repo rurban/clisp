@@ -22,7 +22,7 @@ Summary:
 
 Note:
 
-  This copyright does *not* cover user programs that run in CLISP and
+  This copyright does NOT cover user programs that run in CLISP and
   third-party packages not part of CLISP, if
     a) They only reference external symbols in CLISP's public packages
        that define API also provided by many other Common Lisp implementations
