@@ -556,6 +556,7 @@ case $# in
      host_os='@host_os@'                 # something like 'sunos4'
      MAKE='@MAKE@'                       # gmake or make
      GNU_MAKE='@GNU_MAKE@'               # yes or no
+     HAVE_MALLOC_POSIX='@HAVE_MALLOC_POSIX@'     # 1 or 0
      # Important: Don't rely on this host classification.
      # 1. GNU's database config.guess is not always up to date.
      # 2. New operating systems are emerging at every corner.
@@ -627,6 +628,7 @@ case $# in
      X_CFLAGS=''
      X_LIBS=''
      GNU_MAKE='no'
+     HAVE_MALLOC_POSIX=0
      shift 2
      ;;
 esac
@@ -1525,9 +1527,16 @@ if [ "${with_dynamic_modules}" != no ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 fi
 
-GLLIB="gllib/localcharset gllib/uniname/uniname gllib/uniwidth/width"
-GLLIB_O=""
-for f in ${GLLIB}; do GLLIB_O=${f}${TOBJ}' '${GLLIB_O}; done
+if [ ${HAVE_MALLOC_POSIX} = 0 ]; then
+  # gnulib/stdlib.h will define malloc to rpl_malloc, so we need this
+  GLLIB_O=gllib/malloc${TOBJ}; GLLIB=gllib/malloc
+  EXTRAOBJ=" gllib/malloc${TOBJ}"
+else GLLIB_O=""; GLLIB=""; EXTRAOBJ="";
+fi
+for f in localcharset uniname/uniname uniwidth/width; do
+  GLLIB_O=gllib/${f}${TOBJ}' '${GLLIB_O};
+  GLLIB=gllib/${f}' '${GLLIB};
+done
 FILES=${GLLIB_O}' '${FILES}
 
 if [ "${with_readline}" = no ]; then
@@ -2449,7 +2458,7 @@ UTILCC=gcc
 EOF
 else echol "UTILCC=\$(CC)"
 fi
-UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)"
+UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${EXTRAOBJ}"
 for util in ${UTILS} ; do
   case ${util} in
     ccpaux | deema | txt2c | ccmp2c )
@@ -3598,7 +3607,7 @@ if [ $CROSS = false ] ; then
       ;;
   esac
   echol "clisp${TEXE} : clisp.c${DRIVER_DEP}"
-  echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
+  echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${EXTRAOBJ} ${OUT}clisp${TEXE}"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
