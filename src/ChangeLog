@@ -1,3 +1,9 @@
+2007-11-16  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d [UNIX || __MINGW32__]: do not undef malloc, instead ...
+	* makemake.in: when HAVE_MALLOC_POSIX=0, link lisp.run, clisp.exe
+	and utils with gllib/malloc (as EXTRAOBJ)
+
 2007-11-14  Sam Steingold  <sds@gnu.org>
 
 	* win32msvc/nsis/text_to_rtf.lisp: rewrote:
