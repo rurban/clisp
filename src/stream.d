@@ -3460,10 +3460,10 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
           if (!(errno==ENOSYS))
           #endif
           #ifdef UNIX_CYGWIN32 /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
-           if ((errno != EBADF) && (errno != EACCES) && (errno !=   EBADRQC))
+           if ((errno != EBADF) && (errno != EACCES) && (errno != EBADRQC))
            #endif
            #ifdef UNIX_DARWIN
-          if ((errno != EOPNOTSUPP) && (errno != ENOTSUP) && (errno ! = ENODEV))
+          if ((errno != EOPNOTSUPP) && (errno != ENOTSUP) && (errno != ENODEV))
            #endif
            if (!(errno==EINVAL))
              { OS_error(); }
