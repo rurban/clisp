@@ -32,15 +32,11 @@ if test $ac_use_included_regex = yes; then
   # must link gnulib regex.h into the build directory
   # from clisp/src/gllib/regex.h
   $as_ln_s $srcdir/../../src/gllib/regex.h .
-  if test $gl_cv_func_malloc_posix = yes; then MALLOC_O=""
-  else MALLOC_O="malloc.$ac_cv_objext"
   fi
 else
   REGEX_O=""
-  MALLOC_O=""
 fi
 AC_SUBST(REGEX_O)
-AC_SUBST(MALLOC_O)
 BOLD_MSG([Regexp (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
