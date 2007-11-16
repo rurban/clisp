@@ -32,7 +32,6 @@ if test $ac_use_included_regex = yes; then
   # must link gnulib regex.h into the build directory
   # from clisp/src/gllib/regex.h
   $as_ln_s $srcdir/../../src/gllib/regex.h .
-  fi
 else
   REGEX_O=""
 fi
