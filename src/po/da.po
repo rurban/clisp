@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.32.91\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-11-02 14:11:52-0400\n"
+"POT-Creation-Date: 2007-11-18 10:54:13-0500\n"
 "PO-Revision-Date: 2004-09-08 23:56:00 GMT\n"
 "Last-Translator: Dennis Decker Jensen <dennisdjensen@tiscali.dk>\n"
 "Language-Team: Danish <dansk@klid.dk>\n"
@@ -500,15 +500,15 @@ msgstr ""
 msgid "WARNING: no such package: "
 msgstr "ADVARSEL: Ingen sådan pakke findes: "
 
-#: spvw.d:3364
+#: spvw.d:3356
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Ikke nok hukommelse til Lisp."
 
-#: spvw.d:3418
+#: spvw.d:3410
 msgid "Bye."
 msgstr "Farvel."
 
-#: spvw.d:3424
+#: spvw.d:3416
 msgid "Press a key to terminate..."
 msgstr "Tryk en tast for at afslutte..."
 
@@ -1131,7 +1131,7 @@ msgstr "ugyldig bytesekvens #x~C~C #x~C~C #x~C~C #x~C~C i ~S-omdannelse"
 msgid "invalid byte #x~C~C in ~S conversion"
 msgstr "ugyldig byte #x~C~C i ~S-omdannelse"
 
-#: encoding.d:2034 encoding.d:2045 encoding.d:2055 encoding.d:2066 pathname.d:1272 pathname.d:3609 pathname.d:6380 pathname.d:6411 pathname.d:6450 pathname.d:7613 pathname.d:8536 stream.d:3258 stream.d:3364 stream.d:16710 hashtabl.d:2033 error.d:1312
+#: encoding.d:2034 encoding.d:2045 encoding.d:2055 encoding.d:2066 pathname.d:1272 pathname.d:3609 pathname.d:6380 pathname.d:6411 pathname.d:6450 pathname.d:7613 pathname.d:8536 stream.d:3258 stream.d:3364 stream.d:16537 hashtabl.d:2033 error.d:1312
 #, lisp-format
 msgid "~S: illegal ~S argument ~S"
 msgstr "~S: ugyldigt ~S-argument ~S"
@@ -1373,7 +1373,7 @@ msgstr "Laver katalog: "
 msgid "~S: library directory is not known, use a command line option to specify it"
 msgstr "~S: bibliotekskatalog er ikke kendt. Brug et kommandotilvalg til at anføre det"
 
-#: stream.d:275 stream.d:13774
+#: stream.d:275 stream.d:13612
 #, lisp-format
 msgid "~S on ~S is illegal"
 msgstr "~S på ~S er ugyldigt"
@@ -1508,106 +1508,99 @@ msgstr "~S: argumenterne ~S ~S og ~S ~S var anført, men ~S er ikke en almindelig
 msgid "file ~S is not an integer file"
 msgstr "filen ~S er ikke en heltalsfil"
 
-#: stream.d:8978
+#: stream.d:8971
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a list."
 msgstr "Returværdien ~S af kaldet til ~S er ikke en liste."
 
-#: stream.d:8999
+#: stream.d:8992
 #, lisp-format
 msgid "Return value ~S of call to ~S contains ~S which is not a ~S."
 msgstr "Returværdien ~S af kaldet til ~S indeholder ~S, som ikke er en ~S."
 
-#: stream.d:10169
+#: stream.d:10073
 #, lisp-format
 msgid "~S: argument ~S should be a window stream"
 msgstr "~S: argumentet ~S skal være en vinduesstrøm"
 
-#: stream.d:10715
+#: stream.d:10619
 msgid "cannot output to standard output"
 msgstr "kan ikke udlæse til standarduddata"
 
-#: stream.d:11906
+#: stream.d:11810
 msgid "environment has no TERM variable"
 msgstr "miljøet har ingen TERM-variabel"
 
-#: stream.d:11911
+#: stream.d:11815
 #, lisp-format
 msgid "terminal type ~S unknown to termcap"
 msgstr "terminaltypen ~S ukendt for termcap"
 
-#: stream.d:11924
+#: stream.d:11828
 msgid "insufficient terminal: hardcopy terminal"
 msgstr "utilstrækkelig terminal: papirterminal"
 
-#: stream.d:11928
+#: stream.d:11832
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr "utilstrækkelig terminal: overstreger, kan ikke rydde uddata"
 
-#: stream.d:11932
+#: stream.d:11836
 msgid "insufficient terminal: cannot scroll"
 msgstr "utilstrækkelig terminal: kan ikke rulle"
 
-#: stream.d:11937
+#: stream.d:11841
 msgid "insufficient terminal: cannot clear screen"
 msgstr "utilstrækkelig terminal: kan ikke rydde skærmen"
 
-#: stream.d:11941
+#: stream.d:11845
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr "utilstrækkelig terminal: kan ikke placere markøren vilkårligt"
 
-# Tvetydig:
-# implement -> indarbejde?, implementere, udføre
-#: stream.d:12402
-#, lisp-format
-msgid "~S: package SCREEN is not implemented"
-msgstr "~S: pakken SCREEN er ikke implementeret"
-
-#: stream.d:13504
+#: stream.d:13342
 #, lisp-format
 msgid "host should be string, not ~S"
 msgstr "værten skal være typen streng, ikke typen ~S"
 
-#: stream.d:13511
+#: stream.d:13349
 #, lisp-format
 msgid "display should be a small nonnegative integer, not ~S"
 msgstr "skærmargumentet skal være et ikke-negativt fixtal, ikke ~S"
 
-#: stream.d:13586 stream.d:16858 stream.d:16916 stream.d:16969 stream.d:17028 io.d:947
+#: stream.d:13424 stream.d:16685 stream.d:16743 stream.d:16796 stream.d:16855 io.d:947
 #, lisp-format
 msgid "~S: input stream ~S has reached its end"
 msgstr "~S: inddatastrømmen ~S har nået sin ende"
 
-#: stream.d:13769 record.d:217 record.d:559 record.d:720 record.d:761 record.d:817 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1017
+#: stream.d:13607 record.d:217 record.d:559 record.d:720 record.d:761 record.d:817 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1017
 #, lisp-format
 msgid "~S: ~S is not a ~S"
 msgstr "~S: ~S er ikke en ~S"
 
-#: stream.d:13812
+#: stream.d:13650
 #, lisp-format
 msgid "~S: argument ~S is not an open SOCKET-STREAM"
 msgstr "~S: argumentet ~S er ikke en åben SOCKET-STREAM"
 
-#: stream.d:13823
+#: stream.d:13661
 #, lisp-format
 msgid "~S: argument ~S is not a SOCKET-STREAM"
 msgstr "~S: argumentet ~S er ikke en SOCKET-STREAM"
 
-#: stream.d:13837
+#: stream.d:13675
 msgid "WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"
 msgstr ""
 
-#: stream.d:14093
+#: stream.d:13931
 #, lisp-format
 msgid "~S: argument ~S is not an open stream"
 msgstr "~S: argumentet ~S er ikke en åben strøm"
 
-#: stream.d:14313
+#: stream.d:14151
 #, lisp-format
 msgid "~S: list ~S is too long (~S maximum)"
 msgstr "~S: listen ~S er for lang (~S maximalt)"
 
-#: stream.d:14540
+#: stream.d:14378
 #, lisp-format
 msgid "~S: argument ~S should be of type ~S."
 msgstr "~S: argumentet ~S skal være en strøm af typen ~S"
@@ -1615,88 +1608,88 @@ msgstr "~S: argumentet ~S skal være en strøm af typen ~S"
 # direction er inddata, uddata eller begge.
 # I modsætning til sproget C, betegnes dette som retning for strømmen,
 # ikke som en tilstand for en fildeskriptor e.lign.
-#: stream.d:14752
+#: stream.d:14590
 #, lisp-format
 msgid "Invalid direction ~S for accessing ~S"
 msgstr "Ugyldig dataretning ~S for at tilgå ~S"
 
-#: stream.d:14782
+#: stream.d:14620
 #, lisp-format
 msgid "~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"
 msgstr "~S: ~S skal være et håndtag, håndtagsstrøm  eller en af ~S, ~S eller ~S"
 
-#: stream.d:15067
+#: stream.d:14905
 #, lisp-format
 msgid "The value of ~S is not a stream: ~S"
 msgstr "Værdien af ~S er ikke en strøm: ~S"
 
-#: stream.d:15069
+#: stream.d:14907
 #, lisp-format
 msgid "The value of ~S is not an appropriate stream: ~S"
 msgstr "Værdien af ~S er ikke en passende strøm: ~S"
 
-#: stream.d:15081
+#: stream.d:14919
 #, lisp-format
 msgid "The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."
 msgstr "Værdien af ~S var ikke en passende strøm: ~S. Den er blevet ændret til ~S."
 
-#: stream.d:15094
+#: stream.d:14932
 msgid "readline library: out of memory."
 msgstr "linielæsebiblioteket \"readline\": Løbet tør for hukommelse."
 
-#: stream.d:15398
+#: stream.d:15236
 #, lisp-format
 msgid "~S: The ~S of ~S cannot be changed from ~S to ~S."
 msgstr "~S: ~S af ~S kan ikke ændres fra ~S til ~S."
 
-#: stream.d:15997
+#: stream.d:15830
 #, fuzzy, lisp-format
 msgid "Return value ~S of call to ~S is not a string."
 msgstr "Returværdien ~S af kaldet til ~S er ikke en liste."
 
-#: stream.d:16514
+#: stream.d:16341
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a fixnum >= 0 or NIL."
 msgstr "Returværdien ~S af kaldet til ~S er ikke et fixtal >= 0 eller NIL."
 
-#: stream.d:16677
+#: stream.d:16504
 #, lisp-format
 msgid "~S needs an ~S with a bit size being a multiple of 8, not ~S"
 msgstr "~S behøver en ~S med en bitstørrelse i multiplum af 8, ikke ~S"
 
 # Tvetydig:
 # Endian og endianness er et datalogisk begreb uden oversættelse so far!
-#: stream.d:16727
+#: stream.d:16554
 #, lisp-format
 msgid "~S: illegal endianness argument ~S"
 msgstr "~S: ugyldigt endianess-argument: ~S"
 
-#: stream.d:16840
+#: stream.d:16667
 #, lisp-format
 msgid "~S: argument ~S does not contain a valid OS stream handle"
 msgstr "~S: argumentet ~S indeholder ikke et gyldigt OS-strømhåndtag"
 
-#: stream.d:16841
+#: stream.d:16668
 #, lisp-format
 msgid "~S: ~S: buffered pipe-input-streams are not supported"
 msgstr "~S: ~S: bufferlednings-inddatastrømme understøttes ikke"
 
-#: stream.d:16842
+#: stream.d:16669
 #, lisp-format
 msgid "~S: ~S: stream of wrong direction"
 msgstr "~S: ~S: strøm med forkert dataretning"
 
-#: stream.d:17102 stream.d:17112
+#: stream.d:16929 stream.d:16939
 #, lisp-format
 msgid "~S is not a ~S, cannot be output onto ~S"
 msgstr "~S er ikke en ~S, kan ikke udlæses til ~S"
 
-#: stream.d:17184
+#: stream.d:17011
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is not an open file stream"
 msgstr "~S: argumentet ~S er ikke en åben strøm"
 
-#: stream.d:17238
+#: stream.d:17065
 #, lisp-format
 msgid "~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"
 msgstr "~S: placeringsargument skal være ~S, ~S eller et ikke-negativt heltal, ikke ~S"
@@ -8424,6 +8417,11 @@ msgstr "Ukendt biblioteksfunktion: ~S"
 #, lisp-format
 msgid "Bad number of arguments for ~S: ~S"
 msgstr "Dårligt antal argumenter for ~S: ~S"
+
+# Tvetydig:
+# implement -> indarbejde?, implementere, udføre
+#~ msgid "~S: package SCREEN is not implemented"
+#~ msgstr "~S: pakken SCREEN er ikke implementeret"
 
 #~ msgid "~S: variable specification after ~S too long : ~S"
 #~ msgstr "~S: variabelanførsel efter ~S for lang: ~S"
