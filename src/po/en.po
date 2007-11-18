@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.43\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-11-02 14:11:52-0400\n"
-"PO-Revision-Date: 2007-11-02 14:11:52-0400\n"
-"Last-Translator: Automatically generated <ssteingold@nyc-qws-005>\n"
+"POT-Creation-Date: 2007-11-18 10:54:14-0500\n"
+"PO-Revision-Date: 2007-11-18 10:54:14-0500\n"
+"Last-Translator: Automatically generated <sds@loiso>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
@@ -347,15 +347,15 @@ msgstr ""
 msgid "WARNING: no such package: "
 msgstr "WARNING: no such package: "
 
-#: spvw.d:3364
+#: spvw.d:3356
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Not enough memory for Lisp."
 
-#: spvw.d:3418
+#: spvw.d:3410
 msgid "Bye."
 msgstr "Bye."
 
-#: spvw.d:3424
+#: spvw.d:3416
 msgid "Press a key to terminate..."
 msgstr "Press a key to terminate..."
 
@@ -951,7 +951,7 @@ msgstr "invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"
 msgid "invalid byte #x~C~C in ~S conversion"
 msgstr "invalid byte #x~C~C in ~S conversion"
 
-#: encoding.d:2034 encoding.d:2045 encoding.d:2055 encoding.d:2066 pathname.d:1272 pathname.d:3609 pathname.d:6380 pathname.d:6411 pathname.d:6450 pathname.d:7613 pathname.d:8536 stream.d:3258 stream.d:3364 stream.d:16710 hashtabl.d:2033 error.d:1312
+#: encoding.d:2034 encoding.d:2045 encoding.d:2055 encoding.d:2066 pathname.d:1272 pathname.d:3609 pathname.d:6380 pathname.d:6411 pathname.d:6450 pathname.d:7613 pathname.d:8536 stream.d:3258 stream.d:3364 stream.d:16537 hashtabl.d:2033 error.d:1312
 #, lisp-format
 msgid "~S: illegal ~S argument ~S"
 msgstr "~S: illegal ~S argument ~S"
@@ -1177,7 +1177,7 @@ msgstr "Creating directory: "
 msgid "~S: library directory is not known, use a command line option to specify it"
 msgstr "~S: library directory is not known, use a command line option to specify it"
 
-#: stream.d:275 stream.d:13774
+#: stream.d:275 stream.d:13612
 #, lisp-format
 msgid "~S on ~S is illegal"
 msgstr "~S on ~S is illegal"
@@ -1302,188 +1302,183 @@ msgstr "~S: arguments ~S ~S and ~S ~S were specified, but ~S is not a regular fi
 msgid "file ~S is not an integer file"
 msgstr "file ~S is not an integer file"
 
-#: stream.d:8978
+#: stream.d:8971
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a list."
 msgstr "Return value ~S of call to ~S is not a list."
 
-#: stream.d:8999
+#: stream.d:8992
 #, lisp-format
 msgid "Return value ~S of call to ~S contains ~S which is not a ~S."
 msgstr "Return value ~S of call to ~S contains ~S which is not a ~S."
 
-#: stream.d:10169
+#: stream.d:10073
 #, lisp-format
 msgid "~S: argument ~S should be a window stream"
 msgstr "~S: argument ~S should be a window stream"
 
-#: stream.d:10715
+#: stream.d:10619
 msgid "cannot output to standard output"
 msgstr "cannot output to standard output"
 
-#: stream.d:11906
+#: stream.d:11810
 msgid "environment has no TERM variable"
 msgstr "environment has no TERM variable"
 
-#: stream.d:11911
+#: stream.d:11815
 #, lisp-format
 msgid "terminal type ~S unknown to termcap"
 msgstr "terminal type ~S unknown to termcap"
 
-#: stream.d:11924
+#: stream.d:11828
 msgid "insufficient terminal: hardcopy terminal"
 msgstr "insufficient terminal: hardcopy terminal"
 
-#: stream.d:11928
+#: stream.d:11832
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr "insufficient terminal: overstrikes, cannot clear output"
 
-#: stream.d:11932
+#: stream.d:11836
 msgid "insufficient terminal: cannot scroll"
 msgstr "insufficient terminal: cannot scroll"
 
-#: stream.d:11937
+#: stream.d:11841
 msgid "insufficient terminal: cannot clear screen"
 msgstr "insufficient terminal: cannot clear screen"
 
-#: stream.d:11941
+#: stream.d:11845
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr "insufficient terminal: cannot position cursor randomly"
 
-#: stream.d:12402
-#, lisp-format
-msgid "~S: package SCREEN is not implemented"
-msgstr "~S: package SCREEN is not implemented"
-
-#: stream.d:13504
+#: stream.d:13342
 #, lisp-format
 msgid "host should be string, not ~S"
 msgstr "host should be string, not ~S"
 
-#: stream.d:13511
+#: stream.d:13349
 #, lisp-format
 msgid "display should be a small nonnegative integer, not ~S"
 msgstr "display should be a small nonnegative integer, not ~S"
 
-#: stream.d:13586 stream.d:16858 stream.d:16916 stream.d:16969 stream.d:17028 io.d:947
+#: stream.d:13424 stream.d:16685 stream.d:16743 stream.d:16796 stream.d:16855 io.d:947
 #, lisp-format
 msgid "~S: input stream ~S has reached its end"
 msgstr "~S: input stream ~S has reached its end"
 
-#: stream.d:13769 record.d:217 record.d:559 record.d:720 record.d:761 record.d:817 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1017
+#: stream.d:13607 record.d:217 record.d:559 record.d:720 record.d:761 record.d:817 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1017
 #, lisp-format
 msgid "~S: ~S is not a ~S"
 msgstr "~S: ~S is not a ~S"
 
-#: stream.d:13812
+#: stream.d:13650
 #, lisp-format
 msgid "~S: argument ~S is not an open SOCKET-STREAM"
 msgstr "~S: argument ~S is not an open SOCKET-STREAM"
 
-#: stream.d:13823
+#: stream.d:13661
 #, lisp-format
 msgid "~S: argument ~S is not a SOCKET-STREAM"
 msgstr "~S: argument ~S is not a SOCKET-STREAM"
 
-#: stream.d:13837
+#: stream.d:13675
 msgid "WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"
 msgstr "WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"
 
-#: stream.d:14093
+#: stream.d:13931
 #, lisp-format
 msgid "~S: argument ~S is not an open stream"
 msgstr "~S: argument ~S is not an open stream"
 
-#: stream.d:14313
+#: stream.d:14151
 #, lisp-format
 msgid "~S: list ~S is too long (~S maximum)"
 msgstr "~S: list ~S is too long (~S maximum)"
 
-#: stream.d:14540
+#: stream.d:14378
 #, lisp-format
 msgid "~S: argument ~S should be of type ~S."
 msgstr "~S: argument ~S should be of type ~S."
 
-#: stream.d:14752
+#: stream.d:14590
 #, lisp-format
 msgid "Invalid direction ~S for accessing ~S"
 msgstr "Invalid direction ~S for accessing ~S"
 
-#: stream.d:14782
+#: stream.d:14620
 #, lisp-format
 msgid "~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"
 msgstr "~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"
 
-#: stream.d:15067
+#: stream.d:14905
 #, lisp-format
 msgid "The value of ~S is not a stream: ~S"
 msgstr "The value of ~S is not a stream: ~S"
 
-#: stream.d:15069
+#: stream.d:14907
 #, lisp-format
 msgid "The value of ~S is not an appropriate stream: ~S"
 msgstr "The value of ~S is not an appropriate stream: ~S"
 
-#: stream.d:15081
+#: stream.d:14919
 #, lisp-format
 msgid "The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."
 msgstr "The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."
 
-#: stream.d:15094
+#: stream.d:14932
 msgid "readline library: out of memory."
 msgstr "readline library: out of memory."
 
-#: stream.d:15398
+#: stream.d:15236
 #, lisp-format
 msgid "~S: The ~S of ~S cannot be changed from ~S to ~S."
 msgstr "~S: The ~S of ~S cannot be changed from ~S to ~S."
 
-#: stream.d:15997
+#: stream.d:15830
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a string."
 msgstr "Return value ~S of call to ~S is not a string."
 
-#: stream.d:16514
+#: stream.d:16341
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a fixnum >= 0 or NIL."
 msgstr "Return value ~S of call to ~S is not a fixnum >= 0 or NIL."
 
-#: stream.d:16677
+#: stream.d:16504
 #, lisp-format
 msgid "~S needs an ~S with a bit size being a multiple of 8, not ~S"
 msgstr "~S needs an ~S with a bit size being a multiple of 8, not ~S"
 
-#: stream.d:16727
+#: stream.d:16554
 #, lisp-format
 msgid "~S: illegal endianness argument ~S"
 msgstr "~S: illegal endianness argument ~S"
 
-#: stream.d:16840
+#: stream.d:16667
 #, lisp-format
 msgid "~S: argument ~S does not contain a valid OS stream handle"
 msgstr "~S: argument ~S does not contain a valid OS stream handle"
 
-#: stream.d:16841
+#: stream.d:16668
 #, lisp-format
 msgid "~S: ~S: buffered pipe-input-streams are not supported"
 msgstr "~S: ~S: buffered pipe-input-streams are not supported"
 
-#: stream.d:16842
+#: stream.d:16669
 #, lisp-format
 msgid "~S: ~S: stream of wrong direction"
 msgstr "~S: ~S: stream of wrong direction"
 
-#: stream.d:17102 stream.d:17112
+#: stream.d:16929 stream.d:16939
 #, lisp-format
 msgid "~S is not a ~S, cannot be output onto ~S"
 msgstr "~S is not a ~S, cannot be output onto ~S"
 
-#: stream.d:17184
+#: stream.d:17011
 #, lisp-format
 msgid "~S: argument ~S is not an open file stream"
 msgstr "~S: argument ~S is not an open file stream"
 
-#: stream.d:17238
+#: stream.d:17065
 #, lisp-format
 msgid "~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"
 msgstr "~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"

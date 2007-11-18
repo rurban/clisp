@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-11-02 14:11:55-0400\n"
+"POT-Creation-Date: 2007-11-18 10:54:24-0500\n"
 "PO-Revision-Date: 2004-04-12 00:45+0200\n"
 "Last-Translator: Bruno Haible <bruno@clisp.org>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -306,7 +306,7 @@ msgstr "Nur %d Bytes verfügbar."
 msgid "Could not determine the end of the SP stack!"
 msgstr "Konnte das Ende des SP-Stacks nicht herausfinden!"
 
-#: spvw.d:3364
+#: spvw.d:3356
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Nicht genug Speicher für Lisp."
 

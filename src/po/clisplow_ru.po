@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-11-02 14:11:55-0400\n"
+"POT-Creation-Date: 2007-11-18 10:54:24-0500\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -313,7 +313,7 @@ msgstr "Только %d байтов доступно."
 msgid "Could not determine the end of the SP stack!"
 msgstr "Невозможно определить конец стека SP !"
 
-#: spvw.d:3364
+#: spvw.d:3356
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Не достаточно памяти для Лиспa."
 

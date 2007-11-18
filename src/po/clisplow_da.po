@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.32.91\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-11-02 14:11:55-0400\n"
+"POT-Creation-Date: 2007-11-18 10:54:24-0500\n"
 "PO-Revision-Date: 2004-09-08 23:56:00 GMT\n"
 "Last-Translator: Dennis Decker Jensen <dennisdjensen@tiscali.dk>\n"
 "Language-Team: Danish <dansk@klid.dk>\n"
@@ -310,7 +310,7 @@ msgstr "Kun %d byte ledig."
 msgid "Could not determine the end of the SP stack!"
 msgstr "Kunne ikke afgøre, hvad slutningen på programstakken var!"
 
-#: spvw.d:3364
+#: spvw.d:3356
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Ikke nok hukommelse til Lisp."
 
