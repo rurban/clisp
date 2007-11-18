@@ -22,7 +22,7 @@ all : makefiles check-configures update-ansi-tests  			    \
 	fixperms                                                            \
 	potfiles                                                            \
 	src/version.h                                                       \
-	src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c \
+	src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c 		    \
 	ffcall-aux htmldoc
 
 ffcall-aux : ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc        \
@@ -154,9 +154,6 @@ src/version.h: version.sh
 	  echo "#define PACKAGE_STRING \"GNU CLISP $$VERSION_NUMBER ($$RELEASE_DATE)\"" ; \
 	  echo "#define PACKAGE_BUGREPORT \"http://clisp.cons.org/\""; \
 	} > src/version.h
-
-src/uninames.h : utils/unicode/UnicodeDataFull.txt utils/gen-uninames
-	$(CLISP) utils/gen-uninames utils/unicode/UnicodeDataFull.txt src/uninames.h
 
 src/asmi386.h : src/asmi386.hh
 	sed -e 's,//.*$$,,' < src/asmi386.hh > src/asmi386.h
