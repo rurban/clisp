@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.26  2007/11/02 18:43:11  sds
+# 2.43
+#
 # Revision 1.25  2007/10/12 19:24:51  sds
 # regenerated for 2.41.1 pretest
 #
@@ -218,6 +221,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.26  2007/11/02 18:43:11  sds
+# 2.43
+#
 # Revision 1.25  2007/10/12 19:24:51  sds
 # regenerated for 2.41.1 pretest
 #
@@ -346,7 +352,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-11-02 14:11:55-0400\n"
+"POT-Creation-Date: 2007-11-18 10:54:24-0500\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -787,7 +793,7 @@ msgstr "Sólo quedan %d bytes disponibles."
 msgid "Could not determine the end of the SP stack!"
 msgstr "No fue posible determinar el final de la pila SP!"
 
-#: spvw.d:3364
+#: spvw.d:3356
 #, fuzzy
 msgid "%s: Not enough memory for Lisp."
 msgstr "No hay memoria suficiente para Lisp."

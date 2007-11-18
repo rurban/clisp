@@ -69,7 +69,7 @@ MODULE_CONFIGURE_FLAGS = --with-dynamic-ffi
 # Programs used by "make":
 CC = cl
 CPPFLAGS = 
-CFLAGS = $(MFLAGS) -G5 -Os -Oy -Ob1 -Gs -Gf -Gy -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -DUNICODE -DDYNAMIC_FFI -DNO_GETTEXT -DNO_SIGSEGV -I.
+CFLAGS = $(MFLAGS) -Igllib -G5 -Os -Oy -Ob1 -Gs -Gf -Gy -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -DUNICODE -DDYNAMIC_FFI -DNO_GETTEXT -DNO_SIGSEGV -I.
 CPP = cl -E -D_MSC_VER=1300 -D_INTEGRAL_MAX_BITS=64 -I$(MSVCDIR)/PlatformSDK/include
 CLFLAGS = 
 LIBS = avcall.lib callback.lib  user32.lib ws2_32.lib advapi32.lib  ole32.lib shell32.lib
@@ -111,7 +111,8 @@ DVIPDF = dvipdf
 #                       Requirements for add-on modules
 #                       -------------------------------
 #
-# The general layout of add-on modules is described in ../doc/module.txt.
+# The general layout of add-on modules is described in
+#  <http://clisp.cons.org/impnotes/modules.html>.
 # The requirements made there (i.e. the existence of a "link.sh" file
 # which defines certain variables) make sure that such an add-on module
 # can be distributed with CLISP.
@@ -134,7 +135,7 @@ DVIPDF = dvipdf
 #
 #        clisp-module
 #
-#           This target builds the file mentioned by the link.sh file.
+#           This target builds the file(s) mentioned by the link.sh file.
 #           The following makefile variables can be used:
 #             CC                 the C compiler used to compile the CLISP source
 #             CPPFLAGS           the C compiler flags when compiling some source
@@ -451,9 +452,10 @@ win32aux.obj \
 built.obj \
 ari80386.obj \
 sp80386.obj \
-gllib/localcharset.obj \
+gllib/uniwidth/width.obj \
 gllib/uniname/uniname.obj \
-gllib/uniwidth/width.obj
+gllib/localcharset.obj \
+gllib/malloc.obj
 
 LISPFILES = \
 init.lisp \
@@ -856,13 +858,14 @@ SUBDIRS = gllib
 
 subdirs: $(SUBDIRS)
 
+SUBDIR_CFLAGS = $(CFLAGS) 
 $(SUBDIRS):
 	mkdir -p $@
 	if test ! -f $@/Makefile; then sh config.status --file=$@/Makefile depfiles; fi
-	$(MAKE) -C $@
+	$(MAKE) -C $@ CFLAGS="$(SUBDIR_CFLAGS)"
 
-gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj : gllib
-	$(MAKE) -C gllib
+gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj: gllib
+	$(MAKE) -C gllib CFLAGS="$(SUBDIR_CFLAGS)"
 
 makemake : makemake.in config.status
 	sh config.status --file=makemake
@@ -914,26 +917,26 @@ floatparam.h : floatparam.c config.h
 
 UTILCC=$(CC)
 comment5.exe : ..\utils\comment5.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\comment5.c /Fecomment5.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\comment5.c /Fecomment5.exe
 
 gctrigger.exe : ..\utils\gctrigger.d comment5.exe
 	$(COMMENT5) ..\utils\gctrigger.d > gctrigger.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) gctrigger.c /Fegctrigger.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj gctrigger.c /Fegctrigger.exe
 	$(RM) gctrigger.c
 
 varbrace.exe : ..\utils\varbrace.d comment5.exe
 	$(COMMENT5) ..\utils\varbrace.d > varbrace.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) varbrace.c /Fevarbrace.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj varbrace.c /Fevarbrace.exe
 	$(RM) varbrace.c
 
 deema.exe : ..\utils\deema.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\deema.c /Fedeema.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\deema.c /Fedeema.exe
 
 txt2c.exe : ..\utils\txt2c.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\txt2c.c /Fetxt2c.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\txt2c.c /Fetxt2c.exe
 
 ccmp2c.exe : ..\utils\ccmp2c.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\ccmp2c.c /Feccmp2c.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\ccmp2c.c /Feccmp2c.exe
 
 
 allc : init $(CFILES)
@@ -2673,17 +2676,17 @@ linkkit : modules.d modules.c clisp.h modprep.lisp
 	cd linkkit && $(LN_S) ..\clisp.h clisp.h
 	cd linkkit && $(LN_S) ..\modprep.lisp modprep.lisp
 
-modular : lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  avcall.lib callback.lib  clisp-link linkkit modules.h modules.o makevars
+modular : lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj avcall.lib callback.lib  clisp-link linkkit modules.h modules.o makevars
 
 makevars : Makefile
-	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  avcall.lib callback.lib '"'") > makevars
+	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj avcall.lib callback.lib '"'") > makevars
 
 clisp-link : clisp-link.in
 	sed -e 's%%@with_dynamic_modules@%%no%%' -e 's%%@createsharedlib@%%%%' -e 's%%@LEXE@%%.exe%%' -e 's%%@SHREXT@%%.dll%%'< clisp-link.in > clisp-link
 	chmod a+x clisp-link
 
 boot : modular lispinit.mem
-	test -d boot || (mkdir boot && cd boot && for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  avcall.lib callback.lib  modules.h modules.o lisp.exe lispinit.mem; do $(LN_S) ..\$$f .; done && ($(GREP) -v '^FILES=' ..\makevars; fl=''; for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  avcall.lib callback.lib ; do fl=$$fl' '`basename $$f`; done; echo 'FILES='"'"$$fl"'") > makevars) || ($(RMRF) boot ; exit 1)
+	test -d boot || (mkdir boot && cd boot && for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj avcall.lib callback.lib  modules.h modules.o lisp.exe lispinit.mem; do $(LN_S) ..\$$f .; done && ($(GREP) -v '^FILES=' ..\makevars; fl=''; for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj avcall.lib callback.lib ; do fl=$$fl' '`basename $$f`; done; echo 'FILES='"'"$$fl"'") > makevars) || ($(RMRF) boot ; exit 1)
 
 anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas clisp.h
 	lndir ..\modules/$@ $@
@@ -2827,7 +2830,7 @@ clisp.rc :
 	echo "MAINICON ICON \"clisp.ico\"" > clisp.rc
 
 clisp.exe : clisp.c clispres.obj w32shell.c execname.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.obj $(LIBS) /link /out:clisp.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.obj $(LIBS)  gllib/malloc.obj /link /out:clisp.exe
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : install.lisp install.bat clisp.man clisp.html force
