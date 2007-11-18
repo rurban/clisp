@@ -1,5 +1,9 @@
 2007-11-18  Sam Steingold  <sds@gnu.org>
 
+	* version.h: tag and push out 2.43
+
+2007-11-18  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (all): remove src/uninames.h
 	(src/uninames.h): remove (it comes from gnulib now)
 
