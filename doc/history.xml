@@ -415,4 +415,13 @@
    <listitem><simpara>New modules: &gtk2-mod;, &gdbm-mod;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
+<revision><revnumber>2.43</revnumber><date>2007-11-18</date>
+ <revdescription><itemizedlist>
+   <listitem><simpara>The &clisp; build process is now in compliance
+     with the GNU standards.</simpara></listitem>
+   <listitem><simpara>Use <command>gnulib-tool</command> to sync
+     with <literal>gnulib</literal>.</simpara></listitem>
+</itemizedlist></revdescription></revision>
+
+
 </revhistory>
