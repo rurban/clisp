@@ -1,3 +1,8 @@
+2007-11-18  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (all): remove src/uninames.h
+	(src/uninames.h): remove (it comes from gnulib now)
+
 2007-11-16  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d [UNIX || __MINGW32__]: do not undef malloc, instead ...
