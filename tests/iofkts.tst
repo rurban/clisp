@@ -864,6 +864,17 @@ T
     (write-to-string '(foo 123) :pretty t)))
 "FOO:(123.)"
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1834193&group_id=1355
+(with-output-to-string (s)
+  (princ "xxx" s)
+  (terpri s)
+  (princ #\Tab s)
+  (fresh-line s)
+  (princ "yyy" s))
+"xxx
+	
+yyy"
+
 ;; cleanup
 (flet ((kill (s) (makunbound s) (fmakunbound s) (unintern s)))
   (kill 'bs)

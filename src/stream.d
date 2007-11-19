@@ -454,13 +454,20 @@ local bool wr_ss_lpos (object stream, const chart* ptr, uintL len) {
           # Backspace ==> decrement Line Position, if possible:
           if (pos > 0)
             pos--;
+        } else if (chareq(c,ascii(TAB))) {
+          /* Tabs have width 8 in Unix culture. */
+          pos = (pos | (8 - 1)) + 1;
         } else
           pos += char_width(c);
       });
     } else {
       dotimespL(count,len, {
         var chart c = *ptr++;
-        pos += char_width(c);
+        if (chareq(c,ascii(TAB))) {
+          /* Tabs have width 8 in Unix culture. */
+          pos = (pos | (8 - 1)) + 1;
+        } else
+          pos += char_width(c);
       });
     }
   }
@@ -899,6 +906,10 @@ global maygc void write_char (const gcv_object_t* stream_, object ch) {
       # not the Terminal-Stream
       if (chareq(c,ascii(NL))) # After Newline: Line Position := 0
         TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+      else if (chareq(c,ascii(TAB))) /* Tab width is 8 in Unix culture. */
+        TheStream(stream)->strm_wr_ch_lpos =
+          fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,
+                     8 - fixnum_to_V(TheStream(stream)->strm_wr_ch_lpos) % 8);
       else # increment line position
         TheStream(stream)->strm_wr_ch_lpos =
           fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,char_width(c));
@@ -914,7 +925,11 @@ global maygc void write_char (const gcv_object_t* stream_, object ch) {
         if (!eq(TheStream(stream)->strm_wr_ch_lpos,Fixnum_0))
           TheStream(stream)->strm_wr_ch_lpos =
             fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,-1);
-      } else # increment line position
+      } else if (chareq(c,ascii(TAB))) /* Tab width is 8 in Unix culture. */
+        TheStream(stream)->strm_wr_ch_lpos =
+          fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,
+                     8 - fixnum_to_V(TheStream(stream)->strm_wr_ch_lpos) % 8);
+      else # increment line position
         TheStream(stream)->strm_wr_ch_lpos =
           fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,char_width(c));
      #endif
