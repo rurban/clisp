@@ -1,3 +1,12 @@
+2007-11-19  Sam Steingold  <sds@gnu.org>
+
+	* src/gllib/config.charset, src/glm4/gettext.m4:
+	* src/glm4/gnulib-comp.m4, src/glm4/iconv.m4:
+	* src/glm4/intdiv0.m4, src/glm4/intl.m4, src/glm4/intlmacosx.m4:
+	* src/glm4/lib-link.m4, src/glm4/link-follow.m4, src/glm4/lock.m4:
+	* src/glm4/longlong.m4, src/glm4/po.m4, src/glm4/printf-posix.m4:
+	* src/glm4/wint_t.m4, src/glm4/ulonglong.m4: sync with gnulib
+
 2007-11-18  Sam Steingold  <sds@gnu.org>
 
 	* version.h: tag and push out 2.43
