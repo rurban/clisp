@@ -90,6 +90,9 @@
 /* type of `tzp' in gettimeofday() declaration */
 #undef GETTIMEOFDAY_TZP_T
 
+/* Define to indicate the 'malloc' module. */
+#undef GNULIB_MALLOC_GNU
+
 /* Define to 1 if you have `alloca', as a function or macro. */
 #undef HAVE_ALLOCA
 
