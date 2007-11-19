@@ -2587,12 +2587,6 @@ for f in lispbibl; do
   echol
 done
 
-if [ "${with_dynamic_ffi}" != no -a $HOS = unix ] ; then
-  echol "trampoline${NEXT}trampoline.h :"
-  echotab "cd trampoline && \$(MAKE) && \$(MAKE) check"
-  echol
-fi
-
 line="allo : allc"
 for f in $CPARTS ; do
   line=$line" ${f}${TOBJ}"
@@ -4052,8 +4046,7 @@ clean4 : clean3
 !!
 if [ "${with_dynamic_ffi}" != no ] ; then
 cat <<!!
-	-\$(RM) avcall.h
-	-\$(RM) callback.h vacall_r.h trampoline_r.h
+	-\$(RM) avcall.h callback.h vacall_r.h trampoline_r.h
 !!
 fi
 if [ -n "$USE_GETTEXT" ] ; then
