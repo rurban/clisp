@@ -9331,14 +9331,14 @@ fi
 
   { echo "$as_me:$LINENO: checking whether link(2) dereferences a symlink specified with a trailing slash" >&5
 echo $ECHO_N "checking whether link(2) dereferences a symlink specified with a trailing slash... $ECHO_C" >&6; }
-if test "${jm_ac_cv_func_link_follows_symlink+set}" = set; then
+if test "${gl_ac_cv_func_link_follows_symlink+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
     # Create a regular file.
     echo > conftest.file
     if test "$cross_compiling" = yes; then
-  jm_ac_cv_func_link_follows_symlink=yes
+  gl_ac_cv_func_link_follows_symlink=yes
 else
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -9403,14 +9403,14 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  jm_ac_cv_func_link_follows_symlink=yes
+  gl_ac_cv_func_link_follows_symlink=yes
 else
   echo "$as_me: program exited with status $ac_status" >&5
 echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
 ( exit $ac_status )
-jm_ac_cv_func_link_follows_symlink=no
+gl_ac_cv_func_link_follows_symlink=no
 fi
 rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
 fi
@@ -9418,9 +9418,9 @@ fi
 
 
 fi
-{ echo "$as_me:$LINENO: result: $jm_ac_cv_func_link_follows_symlink" >&5
-echo "${ECHO_T}$jm_ac_cv_func_link_follows_symlink" >&6; }
-  if test $jm_ac_cv_func_link_follows_symlink = yes; then
+{ echo "$as_me:$LINENO: result: $gl_ac_cv_func_link_follows_symlink" >&5
+echo "${ECHO_T}$gl_ac_cv_func_link_follows_symlink" >&6; }
+  if test $gl_ac_cv_func_link_follows_symlink = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define LINK_FOLLOWS_SYMLINKS 1

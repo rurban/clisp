@@ -8101,8 +8101,8 @@ AC_DEFUN([gl_FUNC_FNMATCH_GNU],
   AC_SUBST([FNMATCH_H])
 ])
 
-# gettext.m4 serial 59a (gettext-0.16.1)
-dnl Copyright (C) 1995-2006 Free Software Foundation, Inc.
+# gettext.m4 serial 60 (gettext-0.17)
+dnl Copyright (C) 1995-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -8630,12 +8630,13 @@ AC_SUBST([LTALLOCA])
   # No macro. You should also use one of fnmatch-posix or fnmatch-gnu.
   gl_FUNC_FNMATCH_GNU
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
-  AM_GNU_GETTEXT_VERSION([0.16.1])
+  AM_GNU_GETTEXT_VERSION([0.17])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
   gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
   gl_LOCALCHARSET
   AC_FUNC_MALLOC
+  AC_DEFINE([GNULIB_MALLOC_GNU], 1, [Define to indicate the 'malloc' module.])
   gl_FUNC_MALLOC_POSIX
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
   gl_REGEX
@@ -8771,7 +8772,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint_h.m4
   m4/stdlib_h.m4
   m4/uintmax_t.m4
-  m4/ulonglong.m4
   m4/unistd_h.m4
   m4/visibility.m4
   m4/wchar.m4
@@ -8781,7 +8781,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/xsize.m4
 ])
 
-# iconv.m4 serial AM6 (gettext-0.16.2)
+# iconv.m4 serial AM6 (gettext-0.17)
 dnl Copyright (C) 2000-2002, 2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -9070,7 +9070,7 @@ AC_DEFUN([gl_CHECK_NEXT_HEADERS],
      AS_VAR_POPDEF([gl_next_header])])
 ])
 
-# intlmacosx.m4 serial 1 (gettext-0.16.2)
+# intlmacosx.m4 serial 1 (gettext-0.17)
 dnl Copyright (C) 2004-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -9264,7 +9264,7 @@ test -z "$LD" && AC_MSG_ERROR([no acceptable ld found in \$PATH])
 AC_LIB_PROG_LD_GNU
 ])
 
-# lib-link.m4 serial 13 (gettext-0.16.2)
+# lib-link.m4 serial 13 (gettext-0.17)
 dnl Copyright (C) 2001-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -10173,7 +10173,7 @@ AC_DEFUN([gl_AC_FUNC_LINK_FOLLOWS_SYMLINK],
 [dnl
   AC_CACHE_CHECK(
     [whether link(2) dereferences a symlink specified with a trailing slash],
-		 jm_ac_cv_func_link_follows_symlink,
+		 gl_ac_cv_func_link_follows_symlink,
   [
     # Create a regular file.
     echo > conftest.file
@@ -10214,12 +10214,12 @@ AC_DEFUN([gl_AC_FUNC_LINK_FOLLOWS_SYMLINK],
 	  return SAME_INODE (sb_hard, sb_file) ? 0 : 1;
 	}
       ],
-      jm_ac_cv_func_link_follows_symlink=yes,
-      jm_ac_cv_func_link_follows_symlink=no,
-      jm_ac_cv_func_link_follows_symlink=yes dnl We're cross compiling.
+      gl_ac_cv_func_link_follows_symlink=yes,
+      gl_ac_cv_func_link_follows_symlink=no,
+      gl_ac_cv_func_link_follows_symlink=yes dnl We're cross compiling.
     )
   ])
-  if test $jm_ac_cv_func_link_follows_symlink = yes; then
+  if test $gl_ac_cv_func_link_follows_symlink = yes; then
     AC_DEFINE(LINK_FOLLOWS_SYMLINKS, 1,
       [Define if `link(2)' dereferences symbolic links.])
   fi
@@ -10326,13 +10326,10 @@ AC_DEFUN([AC_TYPE_UNSIGNED_LONG_LONG_INT],
 AC_DEFUN([_AC_TYPE_LONG_LONG_SNIPPET],
 [
   AC_LANG_PROGRAM(
-    [[/* Test preprocessor.  */
-      #if ! (-9223372036854775807LL < 0 && 0 < 9223372036854775807ll)
-        error in preprocessor;
-      #endif
-      #if ! (18446744073709551615ULL <= -1ull)
-        error in preprocessor;
-      #endif
+    [[/* For now, do not test the preprocessor; as of 2007 there are too many
+	 implementations with broken preprocessors.  Perhaps this can
+	 be revisited in 2012.  In the meantime, code should not expect
+	 #if to work with literals wider than 32 bits.  */
       /* Test literals.  */
       long long int ll = 9223372036854775807ll;
       long long int nll = -9223372036854775807LL;
@@ -10457,8 +10454,8 @@ AC_DEFUN([AM_NLS],
   AC_SUBST(USE_NLS)
 ])
 
-# po.m4 serial 13 (gettext-0.15)
-dnl Copyright (C) 1995-2006 Free Software Foundation, Inc.
+# po.m4 serial 15 (gettext-0.17)
+dnl Copyright (C) 1995-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -10485,6 +10482,10 @@ AC_DEFUN([AM_PO_SUBDIRS],
   AC_REQUIRE([AC_PROG_INSTALL])dnl
   AC_REQUIRE([AM_PROG_MKDIR_P])dnl defined by automake
   AC_REQUIRE([AM_NLS])dnl
+
+  dnl Release version of the gettext macros. This is used to ensure that
+  dnl the gettext macros and po/Makefile.in.in are in sync.
+  AC_SUBST([GETTEXT_MACRO_VERSION], [0.17])
 
   dnl Perform the following tests also if --disable-nls has been given,
   dnl because they are needed for "make dist" to work.
@@ -10542,6 +10543,10 @@ changequote([,])dnl
   dnl have to define it here, so that it can be used in po/Makefile.
   test -n "$localedir" || localedir='${datadir}/locale'
   AC_SUBST([localedir])
+
+  dnl Support for AM_XGETTEXT_OPTION.
+  test -n "${XGETTEXT_EXTRA_OPTIONS+set}" || XGETTEXT_EXTRA_OPTIONS=
+  AC_SUBST([XGETTEXT_EXTRA_OPTIONS])
 
   AC_CONFIG_COMMANDS([po-directories], [[
     for ac_file in $CONFIG_FILES; do
@@ -10884,6 +10889,19 @@ Makefile: $POMAKEFILEDEPS
 EOF
   fi
   mv "$ac_file.tmp" "$ac_file"
+])
+
+dnl Initializes the accumulator used by AM_XGETTEXT_OPTION.
+AC_DEFUN([AM_XGETTEXT_OPTION_INIT],
+[
+  XGETTEXT_EXTRA_OPTIONS=
+])
+
+dnl Registers an option to be passed to xgettext in the po subdirectory.
+AC_DEFUN([AM_XGETTEXT_OPTION],
+[
+  AC_REQUIRE([AM_XGETTEXT_OPTION_INIT])
+  XGETTEXT_EXTRA_OPTIONS="$XGETTEXT_EXTRA_OPTIONS $1"
 ])
 
 # progtest.m4 serial 4 (gettext-0.14.2)
@@ -11931,7 +11949,7 @@ AC_DEFUN([gl_WCTYPE_H],
   AC_SUBST([WCTYPE_H])
 ])
 
-# wint_t.m4 serial 2 (gettext-0.16.2)
+# wint_t.m4 serial 2 (gettext-0.17)
 dnl Copyright (C) 2003, 2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
