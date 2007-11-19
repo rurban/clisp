@@ -620,13 +620,21 @@ further explanations of the issues could be provided).</para>
 
 <variablelist><title>Avoiding stack overflow: Platform-specific</title>
  <varlistentry><term>&win32-only;</term>
-  <listitem><simpara>modify <filename>SYSTEM.INI</filename> or change
-    the <filename>PIF</filename> that you use to
-    invoke &clisp; (<ulink role="gmane" url="general/4656"/>)
-    or set program stack using <command>editbin</command>
-    (<ulink role="sfmail" url="sa0ptz4o4e3.fsf%40glip.premonitia.com"/>,
-    <ulink role="gmane" url="general/5523"/>)
-    (answered on &clisp-list;)</simpara></listitem></varlistentry>
+  <listitem><para>You have several option, use whichever is applicable
+    to your situation:<itemizedlist><listitem><simpara>modify the
+       global <filename>SYSTEM.INI</filename></simpara></listitem>
+     <listitem><simpara>modify the <filename>PIF</filename>
+       that you use to invoke &clisp;
+       (<ulink role="gmane" url="general/4656"/>)</simpara></listitem>
+     <listitem><simpara>or set the program stack (of the run
+       times <command>base/lisp.exe</command> or
+       <command>full/lisp.exe</command>, &not-e; the driver
+       <command>clisp.exe</command>) using <command>editbin</command>
+       (<ulink role="sfmail" url="sa0ptz4o4e3.fsf%40glip.premonitia.com"/>,
+       <ulink role="gmane" url="general/5523"/>,
+       <ulink role="gmane" url="general/12043"/>); you can find the
+       current stack size using <command>dumpbin</command>.
+ </simpara></listitem></itemizedlist></para></listitem></varlistentry>
  <varlistentry><term>&unix-only;</term>
   <listitem><simpara>Increase program stack with <command>ulimit
      -s</command> (or <command>limit stacksize</command> if you are using
