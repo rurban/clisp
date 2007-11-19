@@ -1,3 +1,8 @@
+2007-11-19  Sam Steingold  <sds@gnu.org>
+
+	* iofkts.tst: add a test for bug #[ 1834193 ] fresh-line at the
+	end of a line containing only tabs
+
 2007-10-02  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: test file-length and file-position on unbuffered streams

@@ -1,3 +1,10 @@
+2007-11-18  Bruno Haible  <bruno@clisp.org>
+
+	Fix bug #[ 1834193 ]: fresh-line at the end of a line containing
+	only tabs.
+	* stream.d (wr_ss_lpos): Add special handling of TAB characters.
+	(write_char): Likewise.
+
 2007-11-19  Sam Steingold  <sds@gnu.org>
 
 	* src/gllib/config.charset, src/glm4/gettext.m4:
