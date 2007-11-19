@@ -1,3 +1,10 @@
+User visible changes
+--------------------
+
+* Bug fixes:
+  + Fix FRESH-LINE at the end of a line containing only TABs. [ 1834193 ]
+
+
 2.43 (2007-11-18)
 =================
 
