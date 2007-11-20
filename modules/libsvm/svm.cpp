@@ -35,7 +35,7 @@ inline double powi(double base, int times)
 #define TAU 1e-12
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 #if 1
-void info(char *fmt,...)
+void info(const char *fmt,...)
 {
 	va_list ap;
 	va_start(ap,fmt);
@@ -89,7 +89,7 @@ Cache::Cache(int l_,long int size_):l(l_),size(size_)
 	head = (head_t *)calloc(l,sizeof(head_t));	// initialized to 0
 	size /= sizeof(Qfloat);
 	size -= l * sizeof(head_t) / sizeof(Qfloat);
-	size = max(size, (long int) 2*l);	// cache must be large enough for two columns
+	size = max(size, 2 * (long int) l);	// cache must be large enough for two columns
 	lru_head.next = lru_head.prev = &lru_head;
 }
 
@@ -361,7 +361,7 @@ double Kernel::k_function(const svm_node *x, const svm_node *y,
 		case PRECOMPUTED:  //x: test (validation), y: SV
 			return x[(int)(y->value)].value;
 		default:
-			return 0;	/* Unreachable */
+			return 0;  // Unreachable 
 	}
 }
 
@@ -1730,7 +1730,7 @@ void sigmoid_train(
 	
 	int max_iter=100; 	// Maximal number of iterations
 	double min_step=1e-10;	// Minimal step taken in line search
-	double sigma=1e-3;	// For numerically strict PD of Hessian
+	double sigma=1e-12;	// For numerically strict PD of Hessian
 	double eps=1e-5;
 	double hiTarget=(prior1+1.0)/(prior1+2.0);
 	double loTarget=1/(prior0+2.0);
@@ -2704,7 +2704,7 @@ int svm_save_model(const char *model_file_name, const svm_model *model)
 
 svm_model *svm_load_model(const char *model_file_name)
 {
-	FILE *fp = fopen(model_file_name,"rb");
+	FILE *fp = fopen(model_file_name,"r");
 	if(fp==NULL) return NULL;
 	
 	// read parameters

@@ -1,3 +1,7 @@
+2007-11-20  Sam Steingold  <sds@podval.org>
+
+	* modules/libsvm: upgraded to upstream 2.85
+
 2007-11-19  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (trampoline/trampoline.h): remove an unused target
