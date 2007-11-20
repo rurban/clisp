@@ -35,7 +35,7 @@
                          ;; use ASCII to get an error if we miss something
                          :external-format charset:ascii)
       (write-line "{\\rtf1\\ansi\\ansicpg1252\\deff0{\\fonttbl{\\f0\\fswiss\\fprq2\\fcharset0 Courier New;}{\\f1\\fswiss\\fcharset0 Courier New;}}\\line
-\\viewkind4\\uc1\\pard\\lang1033\\f0\\fs18                               {\\b %NAME% %VERSION%}\\line" out)
+\\viewkind4\\uc1\\pard\\lang1033\\f0\\fs18                               {\\b @NAME@ @VERSION@}\\line" out)
       (loop :for line = (read-line in nil nil) :while line
         :unless (search "-*-" line) ; strip emace cookies
         :do (write-string-rtf line out))
