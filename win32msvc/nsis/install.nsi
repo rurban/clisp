@@ -270,7 +270,7 @@ SectionGroupEnd
     LangString DESC_SecCurUser ${LANG_ENGLISH} "Install ${NAME} ${VERSION} for current user only."
     LangString DESC_SecCore ${LANG_ENGLISH} "${NAME} ${VERSION}, an ANSI Common Lisp implementation."
     LangString DESC_SecBase ${LANG_ENGLISH} "Enable basic linking set. (Includes ${BASE_MODULES}.)"
-    LangString DESC_SecFull ${LANG_ENGLISH} "Enable full linking set. (Includes ${FULL_MODULES}.)"
+    LangString DESC_SecFull ${LANG_ENGLISH} "Enable full linking set. (Includes ${BASE_MODULES} ${FULL_MODULES}.)"
     LangString DESC_SecDesktop ${LANG_ENGLISH} "Create a desktop shortcut for ${NAME}."
     LangString DESC_SecAssoc ${LANG_ENGLISH} "Associate ${NAME} with files of types .lisp, .lsp, .cl, .fas, and .mem."
     LangString DESC_SecPath ${LANG_ENGLISH} "Add ${NAME} directory to PATH environment variable."
