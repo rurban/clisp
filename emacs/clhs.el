@@ -11,7 +11,7 @@
 ;;; This is accomplished by not hard-wiring the symbol->file table
 ;;; but reading the Data/<map> file instead
 
-;;; Copyright (C) 2002-2006 Sam Steingold <sds@gnu.org>
+;;; Copyright (C) 2002-2007 Sam Steingold <sds@gnu.org>
 ;;; Keywords: lisp, common lisp, emacs, ANSI CL, hyperspec
 ;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
 ;;; as a part of GNU CLISP <http://clisp.cons.org>, <http://www.clisp.org>
@@ -34,6 +34,9 @@
 (require 'url)
 
 (defcustom common-lisp-hyperspec-root "http://www.lisp.org/HyperSpec/"
+  ;; "http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/"
+  ;; "http://www.lispworks.com/documentation/HyperSpec/"
+  ;; "http://www.xanalys.com/software_tools/reference/HyperSpec/"
   "*The root of the Common Lisp HyperSpec URL.
 If you copy the HyperSpec to your local system, set this variable to
 something like \"file:/usr/local/doc/HyperSpec/\"."
