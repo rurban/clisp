@@ -7012,9 +7012,8 @@ local void prin_object_dispatch_low (const gcv_object_t* stream_, object obj) {
 /* call the appropriate function */
 local void prin_object_dispatch_pretty (const gcv_object_t* stream_, object obj)
 { var object ppp_disp = Symbol_value(S(print_pprint_dispatch));
-  if (!boundp(Symbol_value(S(prin_pprinter))) /* been here already! */
-      /* check whether ppp_disp is a valid non-empty Dispatch Table */
-      && mconsp(ppp_disp) && eq(Car(ppp_disp),S(print_pprint_dispatch))
+  /* check whether ppp_disp is a valid non-empty Dispatch Table */
+  if (mconsp(ppp_disp) && eq(Car(ppp_disp),S(print_pprint_dispatch))
       && !nullp(Cdr(ppp_disp))) {
     /* Call (PPRINT-DISPATCH obj): */
     pushSTACK(obj); /* save */
