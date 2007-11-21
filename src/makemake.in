@@ -1864,8 +1864,12 @@ if [ ${TSYS} = win32gcc ]; then
   echol
 fi
 
+PACKAGE_VERSION="@PACKAGE_VERSION@"
 echol "# The official version number"
-echol "VERSION="`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
+echol "PACKAGE_VERSION=${PACKAGE_VERSION}"
+echol "VERSION="`echo "${PACKAGE_VERSION}" | sed -e 's, .*,,'`
+echol "# The official package name"
+echol "PACKAGE_NAME=@PACKAGE_NAME@"
 echol "# If you want to distribute a modified version of CLISP,"
 echol "# use this to distinguish your distribution from the official one."
 echol "# This can also be used for pre-test and post-release distributions:"
@@ -2506,6 +2510,18 @@ if [ -n "${SRCDIR}" ] ; then
     for f in install.lisp install.bat ; do
       link_dep "${f}" "${SRCDIR}${f}"
     done
+    for f in add_to_path.nsh is_user_admin.nsh; do
+      link_dep "${f}" "${PARENT_SRCTOPDIR_}win32msvc/nsis/${f}"
+    done
+    echol "install.nsi : ${PARENT_SRCTOPDIR_}win32msvc/nsis/install.nsi config.status"
+    # comma used as separator in patterns below to allow embedded
+    # slashes in module names (e.g., bindings/win32)
+    echotab "sed -e 's/\@NAME\@/\$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/\$(VERSION)/g' -e 's,\@BASE_MODULES\@,\$(BASE_MODULES),g' -e 's,\@MODULES\@,\$(MODULES),g' ${PARENT_SRCTOPDIR_}win32msvc/nsis/install.nsi > install.nsi"
+    echol
+    echol "COPYRIGHT.rtf : COPYRIGHT ${PARENT_SRCTOPDIR_}win32msvc/nsis/text_to_rtf.lisp config.status"
+    echotab "$(RUN) -M lispinit.mem -q ${PARENT_SRCTOPDIR_}win32msvc/nsis/text_to_rtf.lisp COPYRIGHT COPYRIGHT.tmp"
+    echotab "sed -e 's/\@NAME\@/\$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/\$(VERSION)/g' COPYRIGHT.tmp > COPYRIGHT.rtf"
+    echotab '$(RM) COPYRIGHT.tmp'
     echol
   fi
 fi
@@ -3935,7 +3951,7 @@ echol
 echol
 elif [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
-  echol "distrib : install.lisp install.bat clisp.man clisp.html force"
+  echol "distrib : install.lisp install.bat clisp.man clisp.html COPYRIGHT.rtf add_to_path.nsh install.nsi is_user_admin.nsh force"
   echotab "version=\$(VERSION) ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
   echotab "rm -rf \$\$distdir; \\"
@@ -3950,6 +3966,7 @@ elif [ $HOS = win32 ] ; then
     echotab "done ; \\"
   else
     echotab "distfile=clisp-\$\$version-win32.zip ; \\"
+    echotab "installfile=clisp-\$\$version-win32-install.exe ; \\"
     echotab "for d in base full ; do \\"
     echotab "  mkdir \$\$distdir/\$\$d ; \\"
     echotab "  for f in lisp.exe lispinit.mem ; do \\"
@@ -3986,8 +4003,9 @@ elif [ $HOS = win32 ] ; then
   echotab "cp -p \$(LISPFILES) install.lisp \$\$distdir/src/ ; \\"
   echotab "chmod 755 \$\$distdir/. \$\$distdir/*/. ; \\"
   echotab "find \$\$distdir -type f -exec chmod 664 {} ';' ; \\"
-  echotab "rm -f \$\$distfile ; \\"
-  echotab "(echo \"CLISP version \$\$version for Win32.\"; echo \".\") | zip -r -9 -z \$\$distfile \$\$distdir ; \\"
+  echotab "rm -f \$\$distfile \$\$installfile ; \\"
+  echotab "(echo \"\$(PACKAGE_NAME) version \$(PACKAGE_VERSION) for Win32.\"; echo \".\") | zip -r -9 -z \$\$distfile \$\$distdir ; \\"
+  echotab "cd \$\$distdir; cp ../*.ns[hi] ../COPYRIGHT.rtf .; makensis install.nsi; mv \$\$installfile .. ; cd ..; \\"
   echotab "rm -rf \$\$distdir"
   echol
 fi
@@ -4019,7 +4037,7 @@ cat <<!!
 !!
 fi
 cat <<!!
-	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES)
+	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES) COPYRIGHT.rtf install.nsi
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
 # is recompiled without changing the bytecode format.
