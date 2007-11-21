@@ -750,6 +750,7 @@ MY-PPRINT-REVERSE
   (write-to-string '(foo bar :boo 1) :pretty t :escape t))
 "(1 :BOO BAR FOO)"
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=873204&group_id=1355
 (defun my-pprint-logical (out list)
   (pprint-logical-block (out list :prefix "(" :suffix ")")
     (when list
@@ -785,6 +786,19 @@ T
     (set-pprint-dispatch 'symbol #'my-symbol-pprint)
     (princ-to-string '(a (b (c (d) e) f) g))))
 "(++A++ (++B++ (++C++ (++D++) ++E++) ++F++) ++G++)"
+
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1835520&group_id=1355
+(let ((*print-pprint-dispatch* (copy-pprint-dispatch))
+      (*print-pretty* t)
+      (l '(:bracket 1 2 (:bracket 3 4))))
+  (flet ((bracket-list-printer (stream blist)
+           (format stream "[~{~S~^ ~}]" (rest blist))))
+    (set-pprint-dispatch '(cons (eql :bracket)) #'bracket-list-printer)
+    (list (princ-to-string l)
+          (with-output-to-string (s)
+            (pprint-logical-block (s ())
+              (prin1 l s))))))
+("[1 2 [3 4]]" "[1 2 [3 4]]")
 
 (progn
  (defclass c1 () ((a :initarg a) (b :initarg b) (c :initarg c)))

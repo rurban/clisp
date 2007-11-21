@@ -3,6 +3,8 @@ User visible changes
 
 * Bug fixes:
   + Fix FRESH-LINE at the end of a line containing only TABs. [ 1834193 ]
+  + PPRINT-LOGICAL-BLOCK no longer ignores *PRINT-PPRINT-DISPATCH-TABLE*.
+    [ 1835520 ]
 
 
 2.43 (2007-11-18)

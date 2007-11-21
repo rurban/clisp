@@ -1,3 +1,9 @@
+2007-11-21  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1835520 ]: PPRINT-LOGICAL-BLOCK ignores
+	*PRINT-PPRINT-DISPATCH-TABLE*
+	* io.d (prin_object_dispatch_pretty): do not check *PRIN-PPRINTER*
+
 2007-11-21  Jack Unrue  <jdunrue@gmail.com>
 	Sam Steingold  <sds@gnu.org>
 
