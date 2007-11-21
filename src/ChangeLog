@@ -1,3 +1,13 @@
+2007-11-21  Jack Unrue  <jdunrue@gmail.com>
+	Sam Steingold  <sds@gnu.org>
+
+	* src/makemake.in (install.nsi): copy from win32msvc/nsis and
+	substitute @NAME@, @VERSION@, @BASE_MODULES@, and @MODULES@
+	(add_to_path.nsh, is_user_admin.nsh): copy from win32msvc/nsis
+	(COPYRIGHT.rtf): create from COPYRIGHT using text_to_rtf.lisp
+	(distrib) [win32]: invoke makensis to build woe32 installer
+	(clean1): remove COPYRIGHT.rtf and install.nsi
+
 2007-11-20  Sam Steingold  <sds@podval.org>
 
 	* modules/libsvm: upgraded to upstream 2.85
