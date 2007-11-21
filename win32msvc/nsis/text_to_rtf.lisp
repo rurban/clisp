@@ -1,6 +1,6 @@
 ;; convert plain text to RTF
 ;; this is geared for the CLISP COPYRIGHT file, specifically:
-;;  - add {\b %NAME% %VERSION%} in the beginning
+;;  - add {\b @NAME@ @VERSION@} in the beginning
 ;;  - use "Courier New" (fixed width) font to preserve formatting
 ;;  - convert UTF-8 to RTF Unicode escapes
 ;;  - mark lines with text in the first column as bold
