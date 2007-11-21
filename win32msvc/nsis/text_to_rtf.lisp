@@ -7,10 +7,11 @@
 ;;
 ;; Copyright (C) Elliott Slaughter 2007
 ;; Copyright (C) Sam Steingold 2007
+;; Released under the GNU GPLv2+
 
 (defun write-string-rtf (string out)
   ;; unicode chars are represented as \u<decimal>.
-  ;; alas, CHARSET:JAVA uses \u<hexadecimal> so it is no help.
+  ;; alas, CHARSET:JAVA uses \u<hexadecimal> so it is of no help.
   ;; non-unicode RTF viewers will display "?"
   (let ((plain (or (string= "" string)
                    (char= #\Space (char string 0)))))
