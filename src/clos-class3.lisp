@@ -86,8 +86,8 @@
                ;; Typical beginner error: Omission of the parentheses around the
                ;; slot-specs. Probably someone who knows DEFSTRUCT and uses
                ;; DEFCLASS for the first time.
-               (warn (TEXT "~S ~S: Every second slot name is a keyword, and these slots have no options. If you want to define a slot with options, you need to enclose all slot specifications in parentheses: ~S, not ~S.")
-                     'defclass name (list slot-specs) slot-specs))
+               (clos-warning (TEXT "~S ~S: Every second slot name is a keyword, and these slots have no options. If you want to define a slot with options, you need to enclose all slot specifications in parentheses: ~S, not ~S.")
+                 'defclass name (list slot-specs) slot-specs))
              (mapcar #'(lambda (slot-spec)
                          (let ((slot-name slot-spec) (slot-options '()))
                            (when (consp slot-spec)
@@ -298,8 +298,8 @@
                (let ((list (rest option)))
                  (when (and (consp list) (null (cdr list)) (listp (car list)))
                    (setq list (car list))
-                   (warn (TEXT "~S ~S: option ~S should be written ~S")
-                         'defclass name option (cons ':DEFAULT-INITARGS list)))
+                   (clos-warning (TEXT "~S ~S: option ~S should be written ~S")
+                     'defclass name option (cons ':DEFAULT-INITARGS list)))
                  (when (oddp (length list))
                    (error-of-type 'ext:source-program-error
                      :form whole-form
@@ -485,8 +485,8 @@
              ;; error is signalled." But we can do better: ignore the old
              ;; class, warn and proceed. The old instances will thus keep
              ;; pointing to the old class.
-             (warn (TEXT "Cannot redefine ~S with a different metaclass ~S")
-                   class metaclass)
+             (clos-warning (TEXT "Cannot redefine ~S with a different metaclass ~S")
+               class metaclass)
              (setq class nil))
             ((not a-semi-standard-class-p)
              ;; This can occur when redefining a class defined through
@@ -604,8 +604,7 @@
   (if (and (>= (class-initialized class) 4) ; already finalized?
            (subclassp class <metaobject>))
     ;; Things would go awry when we try to redefine <class> and similar.
-    (warn (TEXT "Redefining metaobject class ~S has no effect.")
-          class)
+    (clos-warning (TEXT "Redefining metaobject class ~S has no effect.") class)
     (progn
       (when direct-superclasses-p
         ;; Normalize the (class-direct-superclasses class) in the same way as
@@ -1024,8 +1023,8 @@
                        (DL (class-precedence-list D) (cdr DL)))
                       ((null DL) t)
                     (when (null (setq CL (member (car DL) CL))) (return nil)))
-                (warn (TEXT "(class-precedence-list ~S) and (class-precedence-list ~S) are inconsistent")
-                      class D)))
+                (clos-warning (TEXT "(class-precedence-list ~S) and (class-precedence-list ~S) are inconsistent")
+                  class D)))
           direct-superclasses)
     L))
 
@@ -1360,8 +1359,8 @@
       ;; space.
       (when constrained-indices
         (setq local-index (1+ (car (last constrained-indices))))
-        (warn (TEXT "In class ~S, constrained slot locations cause holes to appear.")
-              (class-name class)))
+        (clos-warning (TEXT "In class ~S, constrained slot locations cause holes to appear.")
+          (class-name class)))
       slots)))
 
 ;; Preliminary.
@@ -2092,8 +2091,8 @@
           ;; Rebind *make-instances-obsolete-caller* because WARN may enter a
           ;; nested REP-loop.
           (*make-instances-obsolete-caller* 'make-instances-obsolete))
-      (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, but its instances cannot be made obsolete")
-            caller name))
+      (clos-warning (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, but its instances cannot be made obsolete")
+        caller name))
     (progn
       (when (class-instantiated class) ; don't warn if there are no instances
         (let ((name (class-name class))
@@ -2102,10 +2101,10 @@
               ;; nested REP-loop.
               (*make-instances-obsolete-caller* 'make-instances-obsolete))
           (if (eq caller 'defclass)
-            (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
-                  caller name)
-            (warn (TEXT "~S: instances of class ~S are made obsolete")
-                  caller name))))
+            (clos-warning (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
+              caller name)
+            (clos-warning (TEXT "~S: instances of class ~S are made obsolete")
+              caller name))))
       ;; Create a new class-version. (Even if there are no instances: the
       ;; shared-slots may need change.)
       (let* ((copy (copy-standard-class class))
