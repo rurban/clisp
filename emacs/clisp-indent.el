@@ -57,6 +57,8 @@
 (defindent decf (2 2))
 (defindent declaim (&rest 2))
 (defindent declare (&rest 2))
+(defindent def-c-enum (4 &rest 2))
+(defindent def-c-struct (4 &rest 2))
 (defindent defclass (10 (&whole 10 1 &rest 1) &rest (&whole 2 &rest 1)))
 (defindent defconstant (4 2 2))                                  ; default
 (defindent defgeneric (4 (&whole 4 1 &rest 1) &body))
