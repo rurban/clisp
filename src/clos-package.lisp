@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2006
+;;;; Sam Steingold 1998 - 2007
 
 ;; to use it: (USE-PACKAGE "CLOS").
 
@@ -108,8 +108,7 @@
    call-method make-method))
 
 ;;; MOP exports: ** also in init.lisp ** !
-(export
-        '(metaobject
+(export '(metaobject
           ;; MOP for dependents
           add-dependent remove-dependent map-dependents update-dependent
           ;; MOP for slot definitions
@@ -174,4 +173,5 @@
           method-call-error-generic-function
           method-call-error-method method-call-error-argument-list
           standard-stablehash structure-stablehash
+          clos-warning gf-already-called-warning gf-replacing-method-warning
 )        )

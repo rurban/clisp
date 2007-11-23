@@ -1,6 +1,9 @@
 User visible changes
 --------------------
 
+* CLOS now issues warnings of type CLOS:CLOS-WARNING.
+  See <http://clisp.cons.org/impnotes/mop-clisp.html#mop-clisp-warn> for details.
+
 * Bug fixes:
   + Fix FRESH-LINE at the end of a line containing only TABs. [ 1834193 ]
   + PPRINT-LOGICAL-BLOCK no longer ignores *PRINT-PPRINT-DISPATCH-TABLE*.

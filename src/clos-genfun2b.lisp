@@ -766,8 +766,6 @@
 (defvar |#'slot-boundp-using-class| nil)
 (defvar |#'slot-makunbound-using-class| nil)
 
-(defvar *gf-warn-on-replacing-method* t)
-
 ;; More general notification.
 (defun map-dependents-<generic-function> (gf function)
   (dolist (dependent (gf-listeners gf))
@@ -819,9 +817,8 @@
   (warn-if-gf-already-called gf)
   (let ((old-method (find method (safe-gf-methods gf) :test #'methods-agree-p)))
     (when old-method
-      (when *gf-warn-on-replacing-method*
-        (warn (TEXT "Replacing method ~S in ~S")
-              old-method gf))
+      (clos-warn 'simple-gf-replacing-method-warning
+        (TEXT "Replacing method ~S in ~S") old-method gf)
       ;; Call remove-method without warnings.
       (let ((*dynamically-modifiable-generic-function-names*
               (cons (sys::closure-name gf) *dynamically-modifiable-generic-function-names*)))
@@ -872,10 +869,9 @@
 (defun std-remove-method (gf method)
   (let ((old-method (find method (safe-gf-methods gf))))
     (when old-method
-      (warn-if-gf-already-called gf)
       (when (need-gf-already-called-warning-p gf)
-        (warn (TEXT "Removing method ~S in ~S")
-              old-method gf))
+        (gf-already-called-warning gf)
+        (clos-warning (TEXT "Removing method ~S in ~S") old-method gf))
       (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
             ((eq gf |#'initialize-instance|) (note-ii-change method))
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
@@ -1209,16 +1205,17 @@
       writer-method-class
       ;; Similar functions that are CLISP extensions.
       (setf method-generic-function) no-primary-method))
-  (defvar *warn-if-gf-already-called* t)
   (defun need-gf-already-called-warning-p (gf)
-    (and *warn-if-gf-already-called* (not (gf-never-called-p gf))
+    (and (not (gf-never-called-p gf))
          (not (member (sys::closure-name gf)
                       *dynamically-modifiable-generic-function-names*
                       :test #'equal))))
+  (defun gf-already-called-warning (gf)
+    (clos-warn 'simple-gf-already-called-warning
+      (TEXT "The generic function ~S is being modified, but has already been called.")
+      gf))
   (defun warn-if-gf-already-called (gf)
-    (when (need-gf-already-called-warning-p gf)
-      (warn (TEXT "The generic function ~S is being modified, but has already been called.")
-            gf)))
+    (when (need-gf-already-called-warning-p gf) (gf-already-called-warning gf)))
 ) ; let
 
 
