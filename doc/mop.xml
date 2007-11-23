@@ -5480,8 +5480,8 @@ Example: in addition to the code
 (defmethod add-to-inventory ((object book))
   (let ((stat (gethash (book-title book) *book-sales-statistics*)))
     (unless stat (setf stat (make-stat)))
-      (stat-add stat 1 price)
-      (setf (gethash (book-title book) *book-sales-statistics*) stat)))
+    (stat-add stat 1 price)
+    (setf (gethash (book-title book) *book-sales-statistics*) stat)))
 </programlisting>
 The programmer who programmed the first
  <literal role="method"><function>add-to-inventory</function>@<classname>book</classname></literal>
