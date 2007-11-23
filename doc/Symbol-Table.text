@@ -1066,6 +1066,12 @@ CLOS:REMOVE-DEPENDENT
 remove-dependent
 CLOS:MAP-DEPENDENTS
 map-dependents
+CLOS:CLOS-WARNING
+mop-clisp-warn
+CLOS:GF-ALREADY-CALLED-WARNING
+mop-clisp-gf-already-called-warning
+CLOS:GF-REPLACING-METHOD-WARNING
+mop-clisp-gf-replacing-method-warning
 GRAY:FUNDAMENTAL-STREAM
 fu-st
 GRAY:FUNDAMENTAL-INPUT-STREAM

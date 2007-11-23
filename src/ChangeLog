@@ -1,3 +1,34 @@
+2007-11-23  Sam Steingold  <sds@gnu.org>
+
+	Implemented RFE #[ 1834184 ]: handle CLOS warnings in a CLOSy way
+	* init.lisp (clos-warning, gf-already-called-warning)
+	(gf-replacing-method-warning): export from CLOS
+	* clos-package.lisp: ditto
+	* condition.lisp (clos-warning, simple-clos-warning)
+	(gf-replacing-method-warning, simple-gf-replacing-method-warning)
+	(gf-already-called-warning, simple-gf-already-called-warning): define
+	(warn-of-type): extract from WARN, accept warning class
+	(warn): use WARN-OF-TYPE
+	(set-global-handler): bind CLOS::*ENABLE-CLOS-WARNINGS* instead of
+	individial variables
+	* clos.lisp (*enable-clos-warnings*): set to T when everything is loaded
+	* clos-print.lisp (print-object-method-warning): use the new
+	framework (still commented out)
+	* clos-genfun2b.lisp (*gf-warn-on-replacing-method*): remove
+	(std-add-method, std-remove-method): use CLOS-WARN
+	(*warn-if-gf-already-called*): remove
+	(gf-already-called-warning): add
+	(warn-if-gf-already-called): use it
+	* clos-class6.lisp (class-not-yet-defined): add
+	(class-direct-superclasses, class-direct-slots)
+	(class-direct-default-initargs): use it
+	* clos-class3.lisp (defclass, ensure-class-using-class-<t>)
+	(reinitialize-instance-<defined-class>, std-compute-cpl)
+	(compute-slots-<slotted-class>-around)
+	(make-instances-obsolete-<semi-standard-class>): use CLOS-WARNING
+	* clos-class0.lisp (*enable-clos-warnings*): declare
+	(clos-warn, clos-warning): add
+
 2007-11-21  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1835520 ]: PPRINT-LOGICAL-BLOCK ignores

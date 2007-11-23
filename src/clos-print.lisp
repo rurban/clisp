@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Classes
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2006
+;;;; Sam Steingold 1998 - 2007
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -58,12 +58,12 @@
    ;; CLISP's printer ignores the value of PRINT-OBJECT anyway.
 
 ;; Check that all user-defined print-object methods return the object.
-(defparameter *print-object-method-warning* t)
+(define-condition print-object-method-warning (warning) ())
+(define-condition simple-print-object-method-warning (simple-condition print-object-method-warning) ())
 (defun print-object-method-warning (method object result)
-  (when *print-object-method-warning*
-    (let ((*print-object-method-warning* nil))
-      (warn (TEXT "~S: invalid method ~S. ANSI CL requires that every ~S method returns the object as value. Expected ~S, but it returned ~S.")
-            'print-object method 'print-object object result))))
+  (clos-warn 'simple-print-object-method-warning
+    (TEXT "~S: invalid method ~S. ANSI CL requires that every ~S method returns the object as value. Expected ~S, but it returned ~S.")
+    'print-object method 'print-object object result))
 (defmethod compute-effective-method ((gf (eql #'print-object))
                                      method-combination methods)
   (declare (ignore method-combination))

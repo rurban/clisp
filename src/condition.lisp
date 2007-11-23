@@ -1,7 +1,7 @@
 ;;; Condition System for CLISP
 ;;; David Gadbois <gadbois@cs.utexas.edu> 30.11.1993
 ;;; Bruno Haible 24.11.1993, 2.12.1993 -- 2005
-;;; Sam Steingold 1998-2005
+;;; Sam Steingold 1998-2005, 2007
 
 (in-package "COMMON-LISP")
 ;;; exports:
@@ -311,6 +311,12 @@
 ;       |-- simple-warning
 ;       |
 ;       |-- style-warning
+;       |
+;       |-- clos-warning
+;           |
+;           |-- gf-already-called-warning
+;           |
+;           |-- gf-replacing-method-warning
 ;
 
 ;; X3J13 writeup <CONDITION-SLOTS:HIDDEN> wants the slot names to be hidden,
@@ -434,6 +440,17 @@
   ; conditions which are a matter of programming style (not serious)
   (define-condition style-warning (warning) ())
 
+  ; CLOS user notifications [CLISP specific]
+  (define-condition clos:clos-warning (warning) ())
+
+    ; CLOS: generic function is being modified, but has already been called
+    (define-condition clos:gf-already-called-warning (clos:clos-warning) ())
+    ; CLISP specific
+
+    ; CLOS: replacing method in a GF
+    (define-condition clos:gf-replacing-method-warning (clos:clos-warning) ())
+    ; CLISP specific
+
 ;; These shouldn't be separate types but we cannot adjoin slots without
 ;; defining subtypes.
 
@@ -472,6 +489,11 @@
 
 ;; conditions usually created by WARN
 (define-condition simple-warning (simple-condition warning) ())
+
+;; CLOS warnings
+(define-condition clos::simple-clos-warning (simple-condition clos:clos-warning) ())
+(define-condition clos::simple-gf-already-called-warning (simple-condition clos:gf-already-called-warning) ())
+(define-condition clos::simple-gf-replacing-method-warning (simple-condition clos:gf-replacing-method-warning) ())
 
 ;; All conditions created by the C runtime code are of type simple-condition.
 ;; Need the following types. Don't use them for discrimination.
@@ -1588,9 +1610,7 @@
 
 (defvar *break-on-warnings* nil)
 
-;; WARN, CLtL2 p. 912
-;; (WARN format-string {arg}*)
-(defun warn (format-string &rest args)
+(defun warn-of-type (type format-string &rest args)
   (if (not *use-clcs*)
     (progn
       (fresh-line *error-output*)
@@ -1600,7 +1620,7 @@
       (elastic-newline *error-output*)
       (when *break-on-warnings* (funcall *break-driver* t)))
     (block warn
-      (let ((condition (coerce-to-condition format-string args 'warn 'simple-warning)))
+      (let ((condition (coerce-to-condition format-string args 'warn type)))
         (unless (typep condition 'warning)
           (error-of-type 'type-error
             :datum condition :expected-type 'warning
@@ -1618,17 +1638,21 @@
         (elastic-newline *error-output*)
         (when *break-on-warnings*
           (with-restarts
-              ((CONTINUE
-                :report (lambda (stream)
-                          (format stream (TEXT "Return from ~S loop") 'break))
-                () (return-from warn)))
+              ((CONTINUE :report
+                 (lambda (stream)
+                   (format stream (TEXT "Return from ~S loop") 'break))
+                 () (return-from warn)))
             (with-condition-restarts condition (list (find-restart 'CONTINUE))
               ;; We don't call  (invoke-debugger condition)  because that
-              ;; would tell the user about a "Continuable error". Actually,
-              ;; it is only a warning!
+              ;; would tell the user about a "Continuable error".
+              ;; Actually, it is only a warning!
               (funcall *break-driver* nil condition nil)))))))
   nil)
 
+;; WARN, CLtL2 p. 912
+;; (WARN format-string {arg}*)
+(defun warn (format-string &rest args)
+  (apply #'warn-of-type 'simple-warning format-string args))
 
 #|
 Todo:
@@ -1746,8 +1770,7 @@ HANDLER should be funcallable (symbol or function).
 If it returns, the next applicable error handler is invoked.
 When HANDLER is nil, remove the global handler for CONDITION.
 Returns the added or removed method(s)."
-  (let ((clos::*warn-if-gf-already-called* nil)
-        (clos::*gf-warn-on-replacing-method* nil))
+  (let ((clos::*enable-clos-warnings* nil))
     (cond (handler              ; install handler
            (clos::do-defmethod 'global-handler
              (lambda (backpointer)
@@ -1755,8 +1778,7 @@ Returns the added or removed method(s)."
                (list
                 (lambda (condition)
                   ;; avoid infinite recursion by disabling the handler
-                  (let ((clos::*gf-warn-on-replacing-method* nil)
-                        (clos::*warn-if-gf-already-called* nil)
+                  (let ((clos::*enable-clos-warnings* nil)
                         (old-handler (set-global-handler condition-name nil)))
                     (unwind-protect (funcall handler condition)
                       (when old-handler
