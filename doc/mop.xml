@@ -5414,9 +5414,11 @@ cache of the dependent when it is updated.</para>
 
 <para>When &clisp; encounters suspicious &clos; code, it issues a
  &warning-t; of type <classname>CLOS:CLOS-WARNING</classname>.
- Use &set-global-handler; with &muffle-warning; on the appropriate
- &warning-t; type to suppress the undesired warnings (&not-e;
- recommended!)</para>
+ To suppress the undesired warnings (&not-e; recommended!) use
+ &set-global-handler; with &muffle-warning; on the appropriate
+ &warning-t; type;.
+ To find where the warnings come from (recommended), set
+ &break-on-signals-var; to the appropriate &warning-t; type.</para>
 
 <section id="mop-clisp-gf-already-called-warning"><title>Warning
   <classname>CLOS:GF-ALREADY-CALLED-WARNING</classname></title>
@@ -5425,18 +5427,16 @@ cache of the dependent when it is updated.</para>
  (order of definitions, order of macro expansions, or similar) is wrong.
 Example:<programlisting id="mop-clisp-gf-already-called-warning-code"
                         language="lisp">
-(defclass ware () ())
+(defclass ware () ((title :initarg :title :accessor title)))
 (defclass book (ware) ())
 (defclass compact-disk (ware) ())
 (defclass dvd (ware) ())
 (defgeneric add-to-inventory (object))
 (defmethod add-to-inventory ((object ware)) nil)
-(defvar *bible* (make-instance 'book))
-(add-to-inventory *bible*)
+(add-to-inventory (make-instance 'book :title "CLtL1"))
 (defvar *book-counter* 0)
 (defmethod add-to-inventory ((object book)) (incf *book-counter*))
-(defvar *harry-potter-7* (make-instance 'book))
-(add-to-inventory *harry-potter-7*)
+(add-to-inventory (make-instance 'book :title "CLtL2"))
 *book-counter*
 <computeroutput>1</computeroutput>
 </programlisting>
@@ -5475,13 +5475,14 @@ books were already added to the inventory, the programmer might have
 Example: in addition to the code
  <link linkend="mop-clisp-gf-already-called-warning-code">above</link>:
  <programlisting language="lisp">
-(defgeneric sell (object price))
-(defvar *book-sales-statistics* (make-hash-table))
+(defvar *book-sales-statistics* (make-hash-table :test 'equal))
 (defmethod add-to-inventory ((object book))
-  (let ((stat (gethash (book-title book) *book-sales-statistics*)))
-    (unless stat (setf stat (make-stat)))
-    (stat-add stat 1 price)
-    (setf (gethash (book-title book) *book-sales-statistics*) stat)))
+  (setf (gethash (title object) sale-stats) (cons 0 0)))
+(add-to-inventory (make-instance 'book :title "AMOP"))
+*book-counter*
+<computeroutput>1</computeroutput>
+*book-sales-statistics*
+<computeroutput>#S(HASH-TABLE :TEST FASTHASH-EQUAL ("AMOP" . (0 . 0)))</computeroutput>
 </programlisting>
 The programmer who programmed the first
  <literal role="method"><function>add-to-inventory</function>@<classname>book</classname></literal>
