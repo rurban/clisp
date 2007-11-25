@@ -386,7 +386,7 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
     if (offset == 0) {
       pushSTACK(STACK_(1+1)); pushSTACK(STACK_(2+2));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: invalid format ~S or datum ~S"));
+      error(error_condition,GETTEXT("~S: invalid format ~S or datum ~S"));
     }
     pushSTACK(fixnum(tm.tm_sec));
     pushSTACK(fixnum(tm.tm_min));
@@ -1237,7 +1237,7 @@ DEFUN(POSIX::SET-RLIMIT, what cur max)
   VALUES2(STACK_1,STACK_0); skipSTACK(3); return;
  rlimit_bad:
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: bad arguments: ~S ~S ~S"));
+  error(error_condition,GETTEXT("~S: bad arguments: ~S ~S ~S"));
 }
 #endif /* HAVE_SETRLIMIT */
 
@@ -1319,7 +1319,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,&optional host)
     pushSTACK(arg); pushSTACK(arg);
     STACK_1 = ascii_to_string(H_ERRMSG);
     pushSTACK(`POSIX::RESOLVE-HOST-IPADDR`);
-    fehler(os_error,"~S (~S): ~S");
+    error(os_error,"~S (~S): ~S");
   }
 
   hostent_to_lisp(he);
@@ -1461,7 +1461,7 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
     if (errno == 0) {
       pushSTACK(NIL);           /* no PLACE */
       pushSTACK(group); pushSTACK(TheSubr(subr_self)->name);
-      check_value(error,GETTEXT("~S(~S): No such group"));
+      check_value(error_condition,GETTEXT("~S(~S): No such group"));
       group = value1;
       goto group_info_restart;
     } else OS_error();
@@ -1536,7 +1536,7 @@ DEFUN(POSIX::USER-INFO, &optional user)
     if (errno == 0) {
       pushSTACK(NIL);           /* no PLACE */
       pushSTACK(user); pushSTACK(TheSubr(subr_self)->name);
-      check_value(error,GETTEXT("~S(~S): No such user"));
+      check_value(error_condition,GETTEXT("~S(~S): No such user"));
       user = value1;
       goto user_info_restart;
     } else OS_error();
@@ -2834,7 +2834,7 @@ static inline copy_method_t check_copy_method (object method) {
     pushSTACK(method);
     pushSTACK(`:METHOD`);
     pushSTACK(`POSIX::COPY-FILE`);
-    fehler(type_error,GETTEXT("~S: ~S illegal ~S argument ~S"));
+    error(type_error,GETTEXT("~S: ~S illegal ~S argument ~S"));
   }
 }
 static inline object copy_method_object (copy_method_t method) {
@@ -2882,7 +2882,7 @@ static void copy_one_file (object source, object src_path,
         pushSTACK(`:APPEND`);
         pushSTACK(copy_method_object(method));
         pushSTACK(`POSIX::COPY-FILE`);
-        fehler(error,GETTEXT("~S: ~S forbids ~S"));
+        error(error_condition,GETTEXT("~S: ~S forbids ~S"));
       case IF_EXISTS_OVERWRITE:
       case IF_EXISTS_SUPERSEDE:
       case IF_EXISTS_RENAME_AND_DELETE:
@@ -3169,7 +3169,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
     }
     if (pb[0] == 0) {           /* STACK_0 is the HOT-KEY arg */
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: invalid hotkey spec ~S"));
+      error(error_condition,GETTEXT("~S: invalid hotkey spec ~S"));
     }
     begin_system_call();
     hres = psl->lpVtbl->SetHotkey(psl,hot_key);
@@ -3907,7 +3907,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
           && !posfixnump(STACK_(i))) {
         if (!propspeclistp(STACK_(i),NULL,NULL)) {
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(program_error,
+          error(program_error,
             GETTEXT("~S: bad property specifier - it must be string, "
                     "positive number, list or keyword"));
         } else { use_wpn++; nproprd++; }
@@ -3919,7 +3919,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
         else {
           pushSTACK(STACK_(i));
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(program_error,GETTEXT("~S: bad INITID specifier: ~S"));
+          error(program_error,GETTEXT("~S: bad INITID specifier: ~S"));
         }
       } else if (!nullp(STACK_(i))) npropwr++;
     }
@@ -3946,11 +3946,11 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     pushSTACK(TheSubr(subr_self)->name);
     switch(hres) {
       case STG_E_FILENOTFOUND:
-        fehler(file_error,GETTEXT("~S: file ~S does not exist"));
+        error(file_error,GETTEXT("~S: file ~S does not exist"));
       case STG_E_FILEALREADYEXISTS:
-        fehler(file_error,GETTEXT("~S: file ~S is not a compound file nor it is on the NTFS file system"));
+        error(file_error,GETTEXT("~S: file ~S is not a compound file nor it is on the NTFS file system"));
       default:
-        fehler(file_error,GETTEXT("~S: StgOpenStorageEx() failed on file ~S"));
+        error(file_error,GETTEXT("~S: StgOpenStorageEx() failed on file ~S"));
     }
   }
   if (eq(STACK_(iset),`:USER-DEFINED`))
@@ -3960,7 +3960,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   else {
     pushSTACK(STACK_(iset));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(file_error,GETTEXT("~S: invalid property set specifier ~S"));
+    error(file_error,GETTEXT("~S: invalid property set specifier ~S"));
   }
   begin_system_call();
   hres = ppropsetstg->lpVtbl->Open(ppropsetstg, fmtid,
@@ -3972,7 +3972,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     pushSTACK(STACK_(ifile+1));
     pushSTACK(STACK_(iset+2));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(file_error,GETTEXT("~S: unable to open ~S IPropertySetStorage of ~S: error ~S"));
+    error(file_error,GETTEXT("~S: unable to open ~S IPropertySetStorage of ~S: error ~S"));
   }
   /* fill the specifiers, init the variables */
   pspecrd =   (PROPSPEC *)my_malloc(sizeof(PROPSPEC)    * nproprd);
@@ -3997,7 +3997,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
       if (!LispToPropVariant(pvarwr+npropwr-cpropwr-1)) {
         pushSTACK(STACK_(i));
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,GETTEXT("~S: cannot convert ~S to PROPVARIANT"));
+        error(error_condition,GETTEXT("~S: cannot convert ~S to PROPVARIANT"));
       }
       cpropwr++;
     }
@@ -4012,7 +4012,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   if(FAILED(hres)) {
     pushSTACK(safe_to_string(DecodeHRESULT(hres)));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: ReadMultiple error: ~S"));
+    error(error_condition,GETTEXT("~S: ReadMultiple error: ~S"));
   }
   if (npropwr > 0) {
     begin_system_call();
@@ -4022,26 +4022,26 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     if(FAILED(hres)) {
       pushSTACK(safe_to_string(DecodeHRESULT(hres)));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: WriteMultiple error: ~S"));
+      error(error_condition,GETTEXT("~S: WriteMultiple error: ~S"));
     }
   }
   for (i=0;i<nproprd;i++)
     if (!PropVariantToLisp(pvarrd+i)) {
       pushSTACK(fixnum(i));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: cannot convert value ~S to Lisp datatype"));
+      error(error_condition,GETTEXT("~S: cannot convert value ~S to Lisp datatype"));
     }
   if (use_wpn) {
     hres = ppropstg->lpVtbl->WritePropertyNames(ppropstg,use_wpn,propidwpnvec,lpwstrwpnvec);
     if (FAILED(hres)) {
       pushSTACK(safe_to_string(DecodeHRESULT(hres)));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: WritePropertyNames: ~S"));
+      error(error_condition,GETTEXT("~S: WritePropertyNames: ~S"));
     }
   }
   if (sizeof(mv_space)/sizeof(mv_space[0]) < nproprd) {
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(program_error,GETTEXT("~S: multiple value count limit reached"));
+    error(program_error,GETTEXT("~S: multiple value count limit reached"));
   }
   mv_count = nproprd;
   for (i=0;i<nproprd;i++) mv_space[nproprd-i-1] = popSTACK();

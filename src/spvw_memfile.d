@@ -223,7 +223,7 @@ typedef struct {
           { OS_file_error(TheStream(STACK_0)->strm_file_truename); }    \
         /* FILE-ERROR slot PATHNAME */                                  \
         pushSTACK(TheStream(STACK_0)->strm_file_truename);              \
-        fehler(file_error,GETTEXT("disk full"));                        \
+        error(file_error,GETTEXT("disk full"));                        \
       }                                                                 \
     }                                                                   \
     end_system_call();                                                  \
@@ -266,7 +266,7 @@ static void savemem_with_runtime (Handle handle) {
         /* FILE-ERROR slot PATHNAME */
         pushSTACK(asciz_to_string(executable_name,O(pathname_encoding)));
         pushSTACK(fixnum(remains));
-        fehler(file_error,GETTEXT("runtime too small (~S bytes missing)"));
+        error(file_error,GETTEXT("runtime too small (~S bytes missing)"));
       }
       var uintL len = (remains > res ? res : remains);
       remains -= len;

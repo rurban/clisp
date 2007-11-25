@@ -320,7 +320,7 @@ nonreturning_function(local, fehler_digits, (object obj)) {
   pushSTACK(O(type_posfixnum1)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument should be a positive fixnum, not ~S"));
+  error(type_error,GETTEXT("~S: argument should be a positive fixnum, not ~S"));
 }
 
 /* check_number(obj)
@@ -1593,7 +1593,7 @@ local object check_random_state (object obj) {
       pushSTACK(S(random_state)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(obj); pushSTACK(S(random_state));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~S: argument should be a ~S, not ~S"));
+      error(type_error,GETTEXT("~S: argument should be a ~S, not ~S"));
     }
   } else { /* not specified -> default from *RANDOM-STATE* */
     obj = Symbol_value(S(random_state_stern)); /* value of *RANDOM-STATE* */
@@ -1605,7 +1605,7 @@ local object check_random_state (object obj) {
       pushSTACK(obj); pushSTACK(S(random_state));
       pushSTACK(S(random_state_stern));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~S: the value of ~S should be a ~S, not ~S"));
+      error(type_error,GETTEXT("~S: the value of ~S should be a ~S, not ~S"));
     }
   }
 }
@@ -1627,7 +1627,7 @@ LISPFUN(random,seclass_default,1,1,norest,nokey,0,NIL)
   pushSTACK(x); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_random_arg)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(x); pushSTACK(S(random));
-  fehler(type_error,
+  error(type_error,
          GETTEXT("~S: argument should be positive and an integer or float, not ~S"));
 }
 

@@ -349,7 +349,7 @@ local void symtab_delete (object sym, object symtab) {
  notfound:
   pushSTACK(unbound); /* PACKAGE-ERROR slot PACKAGE */
   pushSTACK(sym);
-  fehler(package_error,
+  error(package_error,
          GETTEXT("symbol ~S cannot be deleted from symbol table"));
 }
 
@@ -668,7 +668,7 @@ local sintBWL find_symbol (object string, bool invert, object pack, object* sym_
       return 1-4; /* found among the external symbols */
     /* contradiction to consistency rule 5. */
     pushSTACK(*sym_); pushSTACK(pack);
-    fehler(serious_condition,GETTEXT("~S inconsistent: symbol ~S is a shadowing symbol but not present"));
+    error(serious_condition,GETTEXT("~S inconsistent: symbol ~S is a shadowing symbol but not present"));
   } else { /* symbol not yet found */
     /* search among the internal symbols: */
     if (package_lookup_int(string,invert,pack,sym_))
@@ -1132,7 +1132,7 @@ local maygc void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) 
     if (eq(pack,O(keyword_package))) { /* test for keyword-package */
       pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
       pushSTACK(pack);
-      fehler(package_error,GETTEXT("UNEXPORT in ~S is illegal"));
+      error(package_error,GETTEXT("UNEXPORT in ~S is illegal"));
     }
     set_break_sem_2();
     symtab_delete(sym,symtab); /* remove sym from the external symbols */
@@ -1150,7 +1150,7 @@ local maygc void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) 
     /* not found among the accessible symbols */
     pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
     pushSTACK(pack); pushSTACK(sym);
-    fehler(package_error,
+    error(package_error,
            GETTEXT("UNEXPORT works only on accessible symbols, not on ~S in ~S"));
   }
 }
@@ -1887,7 +1887,7 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
         /* found, but another one than the given package: */
         pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
         pushSTACK(name); pushSTACK(TheSubr(subr_self)->name);
-        fehler(package_error,GETTEXT("~S: there is already a package named ~S"));
+        error(package_error,GETTEXT("~S: there is already a package named ~S"));
       }
       /* none or only the given package has the Name name ->
          no conflict with this (nick)name, continue: */
@@ -2186,7 +2186,7 @@ local maygc Values apply_symbols (sym_pack_function_t* fun) {
     goto ok; /* correct symbol-list */
   not_ok:
     pushSTACK(STACK_1); pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: argument should be a symbol or a list of symbols, not ~S"));
+    error(error_condition,GETTEXT("~S: argument should be a symbol or a list of symbols, not ~S"));
   ok: ;
   }
   /* test package: */
@@ -2698,7 +2698,7 @@ LISPFUNN(re_export,2) {
     pushSTACK(STACK_2); /* FROM-PACK */
     pushSTACK(STACK_1); /* TO-PACK */
     pushSTACK(S(re_export));
-    fehler(package_error,GETTEXT("~S: ~S is not using ~S"));
+    error(package_error,GETTEXT("~S: ~S is not using ~S"));
   }
   map_symtab_c(&export_symbol_from,&STACK_0,
                ThePackage(STACK_1)->pack_external_symbols);

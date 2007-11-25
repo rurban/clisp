@@ -2,7 +2,7 @@
 
 # meldet Überlauf bei der Multiplikation:
   nonreturning_function(local, mal_ueberlauf, (void)) {
-    fehler(arithmetic_error,
+    error(arithmetic_error,
            GETTEXT("overflow during multiplication of large numbers")
           );
   }

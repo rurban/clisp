@@ -29,7 +29,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
      # bind SYS::*GC-STATISTICS* to 0
     dynamic_bind(S(gc_statistics_stern),Fixnum_0);
   }
-  fehler(storage_condition,GETTEXT("No more room for LISP objects"));
+  error(storage_condition,GETTEXT("No more room for LISP objects"));
 }
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE

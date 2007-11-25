@@ -433,7 +433,7 @@ LISPFUNN(make_weak_and_mapping,2) {
     pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(cons)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: the keys list argument is empty"));
+    error(type_error,GETTEXT("~S: the keys list argument is empty"));
   }
   STACK_1 = copy_list(STACK_1);
   var uintL len = llength(STACK_1);
@@ -535,7 +535,7 @@ LISPFUNN(make_weak_or_mapping,2) {
     pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(cons)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: the keys list argument is empty"));
+    error(type_error,GETTEXT("~S: the keys list argument is empty"));
   }
   STACK_1 = copy_list(STACK_1);
   var uintL len = llength(STACK_1);
@@ -646,7 +646,7 @@ local void copy_alist_into_weak_alist (object list, uintL len, object wal, uintL
       pushSTACK(pair);    /* TYPE-ERROR slot DATUM */
       pushSTACK(S(cons)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(list); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~S: ~S is not an association list"));
+      error(type_error,GETTEXT("~S: ~S is not an association list"));
     }
     TheWeakAlist(wal)->wal_data[2*i+0] = Car(pair);
     TheWeakAlist(wal)->wal_data[2*i+1] = Cdr(pair);
@@ -681,7 +681,7 @@ LISPFUN(make_weak_alist,seclass_read,0,0,norest,key,2,
     pushSTACK(O(type_weak_alist)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(Kkey_or_value)); pushSTACK(S(Kkey_and_value)); pushSTACK(S(Kvalue)); pushSTACK(S(Kkey));
     pushSTACK(type); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: argument ~S should be ~S, ~S, ~S or ~S."));
+    error(type_error,GETTEXT("~S: argument ~S should be ~S, ~S, ~S or ~S."));
   }
   # Check the initial-contents.
   if (eq(STACK_0,unbound))

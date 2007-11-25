@@ -29,14 +29,14 @@ nonreturning_function(local, fehler_index, (uintL limit)) {
   pushSTACK(STACK_(1+2)); /* record */
   pushSTACK(STACK_(0+3)); /* index */
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~S: ~S is not a valid index into ~S"));
+  error(type_error,GETTEXT("~S: ~S is not a valid index into ~S"));
 }
 
 /* Error message
  > STACK_0: (bad) record */
 nonreturning_function(local, fehler_record, (void)) {
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(error, /* type_error ?? */
+  error(error_condition, /* type_error ?? */
          GETTEXT("~S: ~S is not a record"));
 }
 
@@ -96,7 +96,7 @@ nonreturning_function(local, fehler_record_length, (void)) {
   pushSTACK(O(type_posint16)); /* type */
   pushSTACK(STACK_2); /* length */
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~S: length ~S should be of type ~S"));
+  error(type_error,GETTEXT("~S: length ~S should be of type ~S"));
 }
 
 /* ===========================================================================
@@ -129,7 +129,7 @@ local gcv_object_t* structure_up (void) {
     pushSTACK(STACK_(2+2));
     pushSTACK(STACK_(1+3));
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler(type_error,GETTEXT("~S: ~S is not a structure of type ~S"));
+    error(type_error,GETTEXT("~S: ~S is not a structure of type ~S"));
   }
   var object structure = STACK_1;
   /* check if type occurs in namelist = (name_1 ... name_i-1 name_i) : */
@@ -177,7 +177,7 @@ LISPFUNNR(structure_ref,3) {
     pushSTACK(STACK_(1+3+2));
     pushSTACK(value1);
     pushSTACK(S(structure_ref));
-    fehler(unbound_slot,GETTEXT("~S: Slot ~S of ~S has no value"));
+    error(unbound_slot,GETTEXT("~S: Slot ~S of ~S has no value"));
   }
   skipSTACK(3); /* clean up stack */
 }
@@ -285,7 +285,7 @@ LISPFUNNR(closure_name,1) {
   if (!closurep(closure)) {
     pushSTACK(closure);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler(error, /* type_error ?? */
+    error(error_condition, /* type_error ?? */
            GETTEXT("~S: ~S is not a closure"));
   }
   VALUES1(Closure_name(closure));
@@ -298,7 +298,7 @@ LISPFUNN(set_closure_name,2) {
   if (!closurep(closure)) {
     pushSTACK(closure);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler(error, /* type_error ?? */
+    error(error_condition, /* type_error ?? */
            GETTEXT("~S: ~S is not a closure"));
   }
   var object new_name = popSTACK();
@@ -313,7 +313,7 @@ LISPFUNN(set_closure_name,2) {
 nonreturning_function(local, fehler_cclosure, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(error, /* type_error ?? */
+  error(error_condition, /* type_error ?? */
          GETTEXT("~S: This is not a compiled closure: ~S"));
 }
 
@@ -373,7 +373,7 @@ LISPFUNNR(make_code_vector,1) {
   pushSTACK(Car(listr)); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(STACK_1);
-  fehler(type_error,GETTEXT("~S is not a valid code-vector byte"));
+  error(type_error,GETTEXT("~S is not a valid code-vector byte"));
 }
 
 /* parse the seclass object (NIL or SECLASS, see compiler.lisp)
@@ -384,7 +384,7 @@ local seclass_t parse_seclass (object sec, object closure)
   if (!consp(sec) || !consp(Cdr(sec)) || !consp(Cdr(Cdr(sec)))) {
     pushSTACK(closure); pushSTACK(sec);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: invalid side-effect class ~S for function ~S"));
+    error(error_condition,GETTEXT("~S: invalid side-effect class ~S for function ~S"));
   }
   var object modifies = Car(Cdr(sec));
   return (nullp(Car(sec))
@@ -405,7 +405,7 @@ LISPFUNNR(make_closure,6) {
     pushSTACK(S(simple_bit_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_(4+2));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: invalid code-vector ~S"));
+    error(type_error,GETTEXT("~S: invalid code-vector ~S"));
   }
   /* create a new closure of length (+ 2 (length consts) lalist-p doc-p) : */
   var uintL length = 2+llength(STACK_3)
@@ -414,7 +414,7 @@ LISPFUNNR(make_closure,6) {
     pushSTACK(STACK_4/*consts */);
     pushSTACK(STACK_6/* name */);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: function ~S is too big: ~S"));
+    error(error_condition,GETTEXT("~S: function ~S is too big: ~S"));
   }
   var object closure = allocate_closure(length,seclass<<4);
   TheCclosure(closure)->clos_name_or_class_version = STACK_5; /* fill name */
@@ -510,7 +510,7 @@ LISPFUNN(set_funcallable_instance_function,2)
   var object closure = STACK_1;
   if (!funcallable_instance_p(closure)) {
     pushSTACK(closure); pushSTACK(TheSubr(subr_self)->name);
-    fehler(error, /* type_error ?? */
+    error(error_condition, /* type_error ?? */
            GETTEXT("~S: argument is not a funcallable instance: ~S"));
   }
   var object function = STACK_0;
@@ -518,7 +518,7 @@ LISPFUNN(set_funcallable_instance_function,2)
     pushSTACK(function);    /* TYPE-ERROR slot DATUM */
     pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(function); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error, GETTEXT("~S: argument is not a function: ~S"));
+    error(type_error, GETTEXT("~S: argument is not a function: ~S"));
   }
   var object codevec;
   var object venv;
@@ -580,7 +580,7 @@ LISPFUNN(copy_generic_function,2) {
         && nullp(TheSvector(vector)->data[0]))) {
     pushSTACK(oldclos);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler(error,
+    error(error_condition,
            GETTEXT("~S: This is not a prototype of a generic function: ~S"));
   }
   vector = copy_svector(vector); /* copy the vector */
@@ -775,7 +775,7 @@ LISPFUNN(macro_lambda_list,1) {
   STACK_0 = check_macro(STACK_0);
   var object lalist = TheMacro(STACK_0)->macro_lambda_list;
   if (!listp(lalist))
-    fehler(error,GETTEXT("Due to the compiler optimization settings, lambda list for ~S is not available"));
+    error(error_condition,GETTEXT("Due to the compiler optimization settings, lambda list for ~S is not available"));
   VALUES1(lalist); skipSTACK(1);
 }
 
@@ -918,7 +918,7 @@ LISPFUNN(allocate_metaobject_instance,2) {
     if (!(simple_vector_p(cv) && Svector_length(cv) == classversion_length)) {
       pushSTACK(cv);
       pushSTACK(TheSubr(subr_self)->name); /* function name */
-      fehler(error,GETTEXT("~S: ~S is not a CLOS class-version"));
+      error(error_condition,GETTEXT("~S: ~S is not a CLOS class-version"));
     }
   }
   var object instance =
@@ -1005,7 +1005,7 @@ local inline void check_initialization_argument_list (uintL argcount, object cal
       if (!symbolp(Next(argptr))) {
         pushSTACK(Next(argptr)); pushSTACK(caller);
         /* ANSI CL 3.5.1.5. wants a PROGRAM-ERROR here. */
-        fehler(program_error,GETTEXT("~S: invalid initialization argument ~S"));
+        error(program_error,GETTEXT("~S: invalid initialization argument ~S"));
       }
       argptr skipSTACKop -2;
       argcount -= 2;
@@ -1093,7 +1093,7 @@ local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo,
   /* invalid location, probably bad :allocation slot option */
   pushSTACK(instance); pushSTACK(slotname);
   pushSTACK(slotinfo); pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: Invalid location ~S of slot ~S in ~S (check the :ALLOCATION slot option"));
+  error(error_condition,GETTEXT("~S: Invalid location ~S of slot ~S in ~S (check the :ALLOCATION slot option"));
 }
 
 /* UP: visits a slot.
@@ -1110,7 +1110,7 @@ local gcv_object_t* slot_using_class_up (void) {
   if (!eq(clas,STACK_2)) {
     pushSTACK(STACK_1); pushSTACK(STACK_(2+1));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: invalid arguments: class argument ~S is not the class of ~S"));
+    error(error_condition,GETTEXT("~S: invalid arguments: class argument ~S is not the class of ~S"));
   }
   var object slotinfo = TheSlotDefinition(STACK_0)->slotdef_location;
   return ptr_to_slot(STACK_1,slotinfo,STACK_0);
@@ -1330,13 +1330,13 @@ local gcv_object_t* slot_access_up (void) {
     } else {
       /* location already in STACK_0. */
       pushSTACK(TheSubr(subr_self)->name); /* function name */
-      fehler(error,GETTEXT("~S: invalid slot location ~S"));
+      error(error_condition,GETTEXT("~S: invalid slot location ~S"));
     }
   } else {
     /* instance already in STACK_1. TYPE-ERROR slot DATUM */
     STACK_0 = S(standard_object); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: not a CLOS instance: ~S"));
+    error(type_error,GETTEXT("~S: not a CLOS instance: ~S"));
   }
 }
 
@@ -2034,7 +2034,7 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
             /* instance already in STACK_0 */
             pushSTACK(Before(rest_args_pointer));
             pushSTACK(S(allocate_instance));
-            fehler(error,GETTEXT("~S method for ~S returned ~S"));
+            error(error_condition,GETTEXT("~S method for ~S returned ~S"));
           }
           value1 = popSTACK(); /* restore instance */
         } else {

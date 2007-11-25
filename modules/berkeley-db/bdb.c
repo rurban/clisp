@@ -104,12 +104,12 @@ DEFUN(BDB:DB-VERSION,&optional subsystems-p)
   if (major != DB_VERSION_MAJOR || minor != DB_VERSION_MINOR) {
     pushSTACK(fixnum(DB_VERSION_MINOR)); pushSTACK(fixnum(DB_VERSION_MAJOR));
     pushSTACK(fixnum(minor)); pushSTACK(fixnum(major));
-    fehler(serious_condition,GETTEXT("Version mismatch: compile=~S.~S link=~S~S"));
+    error(serious_condition,GETTEXT("Version mismatch: compile=~S.~S link=~S~S"));
   }
   if (patch != DB_VERSION_PATCH) {
     /* is this warning warranted? */
     pushSTACK(fixnum(DB_VERSION_PATCH)); pushSTACK(fixnum(patch));
-    fehler(warning,GETTEXT("Patch level mismatch: compile=~S link=~S"));
+    error(warning,GETTEXT("Patch level mismatch: compile=~S link=~S"));
   }
   value1 = asciz_to_string(version,GLO(misc_encoding));
   value2 = fixnum(major);
@@ -1171,7 +1171,7 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
   } else {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(what); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S: invalid argument ~S"));
+    check_value(error_condition,GETTEXT("~S: invalid argument ~S"));
     what = value1;
     goto restart_DBE_GET_OPTIONS;
   }
@@ -1234,7 +1234,7 @@ static object check_byte_vector_len (object obj, int length) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(fixnum(length)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S: byte vector ~S should have length ~S"));
+    check_value(error_condition,GETTEXT("~S: byte vector ~S should have length ~S"));
     obj = value1;
     goto check_byte_vector_len_restart;
   }
@@ -1324,7 +1324,7 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
       if (bytesize > re_len) {
         pushSTACK(fixnum(bytesize)); pushSTACK(fixnum(re_len));
         pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-        check_value(error,GETTEXT("~S: ~S does not fit into ~S bytes (it requires at least ~S bytes)"));
+        check_value(error_condition,GETTEXT("~S: ~S does not fit into ~S bytes (it requires at least ~S bytes)"));
         obj = value1;
         goto restart_fill_dbt;
       } else bytesize = re_len;
@@ -1716,7 +1716,7 @@ DEFUN(BDB:DB-JOIN, db cursors &key :JOIN-NOSORT)
   curslist = (DBC**)alloca((1+length)*sizeof(DBC*));
   if (curslist == NULL) {
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(storage_condition,GETTEXT("~S: alloca() failed"));
+    error(storage_condition,GETTEXT("~S: alloca() failed"));
   }
   curslist[length] = 0;
   if (listp(STACK_0)) {         /* list */
@@ -2162,7 +2162,7 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
   } else {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(what); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S: invalid argument ~S"));
+    check_value(error_condition,GETTEXT("~S: invalid argument ~S"));
     what = value1;
     goto restart_DB_GET_OPTIONS;
   }

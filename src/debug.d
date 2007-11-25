@@ -853,7 +853,7 @@ local climb_fun_t test_mode_arg (const climb_fun_t* table) {
     pushSTACK(O(type_climb_mode)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(arg);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: bad frame climbing mode ~S"));
+    error(type_error,GETTEXT("~S: bad frame climbing mode ~S"));
   }
   return table[mode-1];
 }
@@ -869,7 +869,7 @@ local gcv_object_t* test_framepointer_arg (void)
   if (!framepointerp(arg)) {
     pushSTACK(arg);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: ~S is not a stack pointer"));
+    error(error_condition,GETTEXT("~S: ~S is not a stack pointer"));
   }
   return uTheFramepointer(arg);
 }
@@ -1049,7 +1049,7 @@ LISPFUNN(driver_frame_p,1)
 nonreturning_function(local, fehler_evalframe, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: ~S is not a pointer to an EVAL/APPLY frame"));
+  error(error_condition,GETTEXT("~S: ~S is not a pointer to an EVAL/APPLY frame"));
 }
 
 LISPFUNN(trap_eval_frame,2)
@@ -1372,7 +1372,7 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
               env = Car(env);
               if (atomp(env)) {
                 pushSTACK(S(show_stack));
-                fehler(error,GETTEXT("~S: environment is not an alist"));
+                error(error_condition,GETTEXT("~S: environment is not an alist"));
               }
               pushSTACK(Cdr(env));
               pushSTACK(Car(env));
@@ -1460,7 +1460,7 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
         break;
       default:
         pushSTACK(S(show_stack));
-        fehler(serious_condition,GETTEXT("~S: unknown frame type"));
+        error(serious_condition,GETTEXT("~S: unknown frame type"));
     }
     return FRAME_top;         /* pointer top of frame */
   }

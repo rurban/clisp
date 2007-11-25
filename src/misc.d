@@ -106,7 +106,7 @@ LISPFUN(version,seclass_default,0,1,norest,nokey,0,NIL)
       if (equal(arg,O(version)) /* || equal(arg,O(oldversion)) */) {
         VALUES0;
       } else {
-        fehler(error,
+        error(error_condition,
                GETTEXT("This file was produced by another lisp version, must be recompiled.")
               );
       }
@@ -455,7 +455,7 @@ LISPFUNN(set_env,2)
     pushSTACK(value);
     pushSTACK(name);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S (~S ~S): out of memory"));
+    error(error_condition,GETTEXT("~S (~S ~S): out of memory"));
   }
   VALUES1(value);
 }
@@ -510,7 +510,7 @@ LISPFUNN(registry,2)
           path_name = string_concat(3);
           pushSTACK(path_name);
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~S: type of attribute ~S is unsupported"));
+          error(error_condition,GETTEXT("~S: type of attribute ~S is unsupported"));
         }
       }
      none:;

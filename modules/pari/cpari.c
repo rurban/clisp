@@ -49,7 +49,7 @@ void clispErrFlush(void) {
 }
 void clispErrDie(void);
 void clispErrDie(void) {
-  fehler(error,GETTEXT("Internal PARI error."));
+  error(error_condition,GETTEXT("Internal PARI error."));
 }
 
 PariOUT clispOut = {clispPutc, clispPuts, clispFlush, NULL};
